@@ -1,5 +1,13 @@
 // c++ -o skimNtuple `root-config --cflags --glibs --libs` -lm skimNtuple.cpp
 
+/* TODOS
+ - choose the two b's
+ - calc the HH mass with the proper algorithm
+ - dump the second H and the HH info in the ntuple
+ - change the saving of objects: separate leptons and jets from the H from the other ones
+*/
+
+
 #include <iostream>
 #include "TTree.h"
 #include "TH1F.h"
@@ -33,7 +41,7 @@ int main (int argc, char** argv)
   smallTree theSmallTree ("HTauTauTree") ;
 
   int eventsNumber = theBigTree.fChain->GetEntries () ;
-  eventsNumber = 10 ; //DEBUG
+  eventsNumber = 100 ; //DEBUG
   float selectedEvents = 0 ;
 
   // loop over events
@@ -43,16 +51,13 @@ int main (int argc, char** argv)
 
       theSmallTree.clearVars () ;
       theBigTree.GetEntry (iEvent) ;
- 
-      cout << theBigTree.indexDau1->size () << endl ;
       
+      if (theBigTree.indexDau1->size () == 0) continue ;
+ 
       //PG the H > tautau candidate
       //PG by now take the OS pair with largest pT
-      int firstDaughterIndex = theBigTree.indexDau1->at (0) ;
-      
-      cout << firstDaughterIndex << endl ;
-      cout << theBigTree.daughters_px->size () << endl ;
-      TLorentzVector firstLepton
+      int firstDaughterIndex = theBigTree.indexDau1->at (0) ;  
+      TLorentzVector tlv_firstLepton
         (
           theBigTree.daughters_px->at (firstDaughterIndex),
           theBigTree.daughters_py->at (firstDaughterIndex),
@@ -60,14 +65,14 @@ int main (int argc, char** argv)
           theBigTree.daughters_e->at (firstDaughterIndex)
         ) ;
       int secondDaughterIndex = theBigTree.indexDau2->at (0) ;
-      TLorentzVector secondLepton
+      TLorentzVector tlv_secondLepton
         (
           theBigTree.daughters_px->at (secondDaughterIndex),
           theBigTree.daughters_py->at (secondDaughterIndex),
           theBigTree.daughters_pz->at (secondDaughterIndex),
           theBigTree.daughters_e->at (secondDaughterIndex)
         ) ;
-
+      TLorentzVector tlv_tauH = tlv_firstLepton + tlv_secondLepton ;
 
       //PG apply some selections here
       //PG ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -92,6 +97,11 @@ int main (int argc, char** argv)
 //           theSmallTree.m_jets_isH.push_back (theBigTree. ->at (iJet) ;
           ++theSmallTree.m_njets ;
         }
+
+      theSmallTree.m_tauH_px = tlv_tauH.X () ;
+      theSmallTree.m_tauH_py = tlv_tauH.Y () ;
+      theSmallTree.m_tauH_pz = tlv_tauH.Z () ;
+      theSmallTree.m_tauH_e = -tlv_tauH.E () ;
 
       theSmallTree.m_PUReweight = theBigTree.PUReweight ;
       theSmallTree.m_MC_weight = theBigTree.MC_weight ;
