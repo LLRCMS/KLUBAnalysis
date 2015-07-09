@@ -1,8 +1,10 @@
 export THISDIR=`pwd`
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${THISDIR}/lib
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${THISDIR}/../HHKinFit
 
 if [ -n "${DYLD_LIBRARY_PATH}" ] ; then
 export DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH}:${THISDIR}/lib
+export DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH}:${THISDIR}/../HHKinFit
 fi
 
 export PATH=${PATH}:${THISDIR}/bin

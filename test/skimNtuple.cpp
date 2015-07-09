@@ -13,11 +13,13 @@
 #include "TBranch.h"
 #include "TString.h"
 #include "TLorentzVector.h"
-#include "OfflineProducerHelper.h"
 
 // bigTree is produced on an existing ntuple as follows (see at the end of the file) 
 #include "bigTree.h" 
 #include "smallTree.h"
+#include "OfflineProducerHelper.h"
+#include "../../HHKinFit/interface/HHKinFitMaster.h"
+// -I../../HHKinFit/interface/
 
 using namespace std ;
 
@@ -61,7 +63,7 @@ int main (int argc, char** argv)
   float PUjetID_minCut = -0.5 ;
 
   int eventsNumber = theBigTree.fChain->GetEntries () ;
-  eventsNumber = 100 ; //DEBUG
+  eventsNumber = 100000 ; //DEBUG
   float selectedEvents = 0 ;
 
   // loop over events
@@ -73,7 +75,12 @@ int main (int argc, char** argv)
       theBigTree.GetEntry (iEvent) ;
       
       if (theBigTree.indexDau1->size () == 0) continue ;
+      if (theBigTree.jets_px->size () < 2)    continue ;
  
+      cout << theBigTree.indexDau1->size () << endl ;
+      cout << theBigTree.jets_px->size () << endl ;
+      cout << theBigTree.daughters_px->size () << endl ;
+      cout << "----" << endl ; 
       // the H > tautau candidate
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       
@@ -108,6 +115,7 @@ int main (int argc, char** argv)
         {
           // PG filter jets at will
           if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
+          
           jets_and_btag.push_back (std::pair <int, float> (
               iJet, theBigTree.bCSVscore->at (iJet)
             )) ;
@@ -123,13 +131,12 @@ int main (int argc, char** argv)
         } // loop over jets
 
       sort (jets_and_btag.rbegin (), jets_and_btag.rend (), scoreSortSingle<int> ()) ;
+      int firstBjetIndex = jets_and_btag.at (0).first ;
+      int secondBjetIndex = jets_and_btag.at (1).first ;
       sort (pairs_and_btag.rbegin (), pairs_and_btag.rend (), 
             scoreSortSingle<pair<int, int> > ()) ;
-      int firstBjetIndex = jets_and_btag.at (0).first ;
-      int secondBjetIndex = jets_and_btag.at (0).second ;
 //      int firstBjetIndex = pairs_and_btag.at (0).first.first ;
 //      int secondBjetIndex = pairs_and_btag.at (0).first.second ;
-
 
       // apply some selections here
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -155,15 +162,19 @@ int main (int argc, char** argv)
       theSmallTree.m_dau1_pz = theBigTree.daughters_pz->at (firstDaughterIndex) ;
       theSmallTree.m_dau1_e = theBigTree.daughters_e->at (firstDaughterIndex) ;
       theSmallTree.m_dau1_flav = theBigTree.daughters_charge->at (firstDaughterIndex) * 
-                                 theBigTree.daughters_genindex->at (firstDaughterIndex) ;
-
+                                 (theBigTree.particleType->at (firstDaughterIndex) + 1) ;
+                                 // 1 = from electrons collection ??? FIXME
+                                 // 2 = from muons collection ??? FIXME
+                                 // 3 = from tauH collection ??? FIXME
+                                 
       theSmallTree.m_dau2_px = theBigTree.daughters_px->at (secondDaughterIndex) ;
       theSmallTree.m_dau2_py = theBigTree.daughters_py->at (secondDaughterIndex) ;
       theSmallTree.m_dau2_pz = theBigTree.daughters_pz->at (secondDaughterIndex) ;
       theSmallTree.m_dau2_e = theBigTree.daughters_e->at (secondDaughterIndex) ;
       theSmallTree.m_dau2_flav = theBigTree.daughters_charge->at (secondDaughterIndex) * 
-                                 theBigTree.daughters_genindex->at (secondDaughterIndex) ;
+                                 (theBigTree.particleType->at (secondDaughterIndex) + 1) ;
 
+      // FIXME i leptoni sono ordinati in tipo, riordina!!
       // loop over leptons
       for (int iLep = 0 ; 
            (iLep < theBigTree.daughters_px->size ()) && (theSmallTree.m_nleps < 3) ; 
@@ -171,6 +182,7 @@ int main (int argc, char** argv)
         {
           // skip the H decay candiates
           if (iLep == firstDaughterIndex || iLep == secondDaughterIndex) continue ;
+          // quality selections on leptons (ISO etc) FIXME
           
           theSmallTree.m_leps_px.push_back (theBigTree.daughters_px->at (iLep)) ;
           theSmallTree.m_leps_py.push_back (theBigTree.daughters_py->at (iLep)) ;
@@ -178,7 +190,7 @@ int main (int argc, char** argv)
           theSmallTree.m_leps_e.push_back (theBigTree.daughters_e->at (iLep)) ;
           theSmallTree.m_leps_flav.push_back ( //FIXME check whether the index contains the charge
               theBigTree.daughters_charge->at (iLep) * 
-              theBigTree.daughters_genindex->at (iLep)
+              (theBigTree.particleType->at (iLep) + 1)
             ) ;
           ++theSmallTree.m_nleps ;
         } // loop over leptons
@@ -187,11 +199,13 @@ int main (int argc, char** argv)
       theSmallTree.m_bjet1_py = theBigTree.jets_py->at (firstBjetIndex) ;
       theSmallTree.m_bjet1_pz = theBigTree.jets_pz->at (firstBjetIndex) ;
       theSmallTree.m_bjet1_e = theBigTree.jets_e->at (firstBjetIndex) ;
+      // FIXME manca il b-tagging value
 
       theSmallTree.m_bjet2_px = theBigTree.jets_px->at (secondBjetIndex) ;
       theSmallTree.m_bjet2_py = theBigTree.jets_py->at (secondBjetIndex) ;
       theSmallTree.m_bjet2_pz = theBigTree.jets_pz->at (secondBjetIndex) ;
       theSmallTree.m_bjet2_e = theBigTree.jets_e->at (secondBjetIndex) ;
+      // FIXME manca il b-tagging value
 
       // loop over jets
       for (int iJet = 0 ; 
@@ -216,8 +230,9 @@ int main (int argc, char** argv)
       theSmallTree.Fill () ;
     } // loop over events
 
-  TH1F h_eff ("h_eff", "h_eff", 1, 0, 1) ;
-  h_eff.Fill (0.5, selectedEvents / eventsNumber) ;
+  TH1F h_eff ("h_eff", "h_eff", 2, 0, 2) ;
+  h_eff.Fill (0.5, eventsNumber) ;
+  h_eff.Fill (1.5, selectedEvents) ;
   h_eff.Write () ;
   smallFile->Write () ;
   delete smallFile ;
