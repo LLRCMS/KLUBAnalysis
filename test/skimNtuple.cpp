@@ -54,9 +54,11 @@ int main (int argc, char** argv)
       
       if (theBigTree.indexDau1->size () == 0) continue ;
  
-      //PG the H > tautau candidate
-      //PG by now take the OS pair with largest pT
-      int firstDaughterIndex = theBigTree.indexDau1->at (0) ;  
+      // the H > tautau candidate
+      // by now take the OS pair with largest pT
+      int chosenTauPair = 0 ;
+      
+      int firstDaughterIndex = theBigTree.indexDau1->at (chosenTauPair) ;  
       TLorentzVector tlv_firstLepton
         (
           theBigTree.daughters_px->at (firstDaughterIndex),
@@ -64,7 +66,7 @@ int main (int argc, char** argv)
           theBigTree.daughters_pz->at (firstDaughterIndex),
           theBigTree.daughters_e->at (firstDaughterIndex)
         ) ;
-      int secondDaughterIndex = theBigTree.indexDau2->at (0) ;
+      int secondDaughterIndex = theBigTree.indexDau2->at (chosenTauPair) ;
       TLorentzVector tlv_secondLepton
         (
           theBigTree.daughters_px->at (secondDaughterIndex),
@@ -74,18 +76,65 @@ int main (int argc, char** argv)
         ) ;
       TLorentzVector tlv_tauH = tlv_firstLepton + tlv_secondLepton ;
 
-      //PG apply some selections here
-      //PG ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+      // apply some selections here
+      // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
       if (false) continue ;
 
-      //PG fill the variables of interest
-      //PG ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+      // fill the variables of interest
+      // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
+      theSmallTree.m_PUReweight = theBigTree.PUReweight ;
+      theSmallTree.m_MC_weight = theBigTree.MC_weight ;
+      theSmallTree.m_EventNumber = theBigTree.EventNumber ;
+      theSmallTree.m_RunNumber = theBigTree.RunNumber ;
+      
+      theSmallTree.m_tauH_px = tlv_tauH.X () ;
+      theSmallTree.m_tauH_py = tlv_tauH.Y () ;
+      theSmallTree.m_tauH_pz = tlv_tauH.Z () ;
+      theSmallTree.m_tauH_e = tlv_tauH.E () ;
+      theSmallTree.m_tauH_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
+
+      theSmallTree.m_dau1_px = theBigTree.daughters_px->at (firstDaughterIndex) ;
+      theSmallTree.m_dau1_py = theBigTree.daughters_py->at (firstDaughterIndex) ;
+      theSmallTree.m_dau1_pz = theBigTree.daughters_pz->at (firstDaughterIndex) ;
+      theSmallTree.m_dau1_e = theBigTree.daughters_e->at (firstDaughterIndex) ;
+      theSmallTree.m_dau1_flav = theBigTree.daughters_charge->at (firstDaughterIndex) * 
+                                 theBigTree.daughters_genindex->at (firstDaughterIndex) ;
+
+      theSmallTree.m_dau2_px = theBigTree.daughters_px->at (secondDaughterIndex) ;
+      theSmallTree.m_dau2_py = theBigTree.daughters_py->at (secondDaughterIndex) ;
+      theSmallTree.m_dau2_pz = theBigTree.daughters_pz->at (secondDaughterIndex) ;
+      theSmallTree.m_dau2_e = theBigTree.daughters_e->at (secondDaughterIndex) ;
+      theSmallTree.m_dau2_flav = theBigTree.daughters_charge->at (secondDaughterIndex) * 
+                                 theBigTree.daughters_genindex->at (secondDaughterIndex) ;
+
+      // loop over leptons
+      for (int iLep = 0 ; 
+           (iLep < theBigTree.daughters_px->size ()) && (theSmallTree.m_nleps < 3) ; 
+           ++iLep)
+        {
+          // skip the H decay candiates
+          if (iLep == firstDaughterIndex || iLep == secondDaughterIndex) continue ;
+          
+          theSmallTree.m_leps_px.push_back (theBigTree.daughters_px->at (iLep)) ;
+          theSmallTree.m_leps_py.push_back (theBigTree.daughters_py->at (iLep)) ;
+          theSmallTree.m_leps_pz.push_back (theBigTree.daughters_pz->at (iLep)) ;
+          theSmallTree.m_leps_e.push_back (theBigTree.daughters_e->at (iLep)) ;
+          theSmallTree.m_leps_flav.push_back ( //FIXME check whether the index contains the charge
+              theBigTree.daughters_charge->at (iLep) * 
+              theBigTree.daughters_genindex->at (iLep)
+            ) ;
+          ++theSmallTree.m_nleps ;
+        } // loop over leptons
+
+      // loop over jets
       for (int iJet = 0 ; 
            (iJet < theBigTree.JetsNumber) && (theSmallTree.m_njets < 5) ; 
            ++iJet)
         {
+          // skip the H decay candidates FIXME
+          
           // PG filter jets at will
           theSmallTree.m_jets_px.push_back (theBigTree.jets_px->at (iJet)) ;
           theSmallTree.m_jets_py.push_back (theBigTree.jets_py->at (iJet)) ;
@@ -96,18 +145,8 @@ int main (int argc, char** argv)
 // whether it's one of the jets produced by the H decay
 //           theSmallTree.m_jets_isH.push_back (theBigTree. ->at (iJet) ;
           ++theSmallTree.m_njets ;
-        }
+        } // loop over jets
 
-      theSmallTree.m_tauH_px = tlv_tauH.X () ;
-      theSmallTree.m_tauH_py = tlv_tauH.Y () ;
-      theSmallTree.m_tauH_pz = tlv_tauH.Z () ;
-      theSmallTree.m_tauH_e = -tlv_tauH.E () ;
-
-      theSmallTree.m_PUReweight = theBigTree.PUReweight ;
-      theSmallTree.m_MC_weight = theBigTree.MC_weight ;
-      theSmallTree.m_EventNumber = theBigTree.EventNumber ;
-      theSmallTree.m_RunNumber = theBigTree.RunNumber ;
-      
       ++selectedEvents ; 
       theSmallTree.Fill () ;
     } // loop over events
