@@ -1,10 +1,8 @@
 // c++ -o skimNtuple `root-config --cflags --glibs --libs` -lm skimNtuple.cpp
 
 /* TODOS
- - choose the two b's
  - calc the HH mass with the proper algorithm
  - dump the second H and the HH info in the ntuple
- - change the saving of objects: separate leptons and jets from the H from the other ones
 */
 
 
@@ -15,20 +13,13 @@
 #include "TBranch.h"
 #include "TString.h"
 #include "TLorentzVector.h"
+#include "OfflineProducerHelper.h"
 
 // bigTree is produced on an existing ntuple as follows (see at the end of the file) 
 #include "bigTree.h" 
 #include "smallTree.h"
 
 using namespace std ;
-
-
-/*
- - operator di sorting dei vettori per CSVscore
- - opreator di sorting dei vettori per somma di CSVscore
-
-*/
-
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -55,6 +46,8 @@ int main (int argc, char** argv)
     }
   TString inputFile = argv[1] ;
   TString outputFile = argv[2] ;
+
+  OfflineProducerHelper oph ;
 
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
   bigChain->Add (inputFile) ;
@@ -134,6 +127,8 @@ int main (int argc, char** argv)
             scoreSortSingle<pair<int, int> > ()) ;
       int firstBjetIndex = jets_and_btag.at (0).first ;
       int secondBjetIndex = jets_and_btag.at (0).second ;
+//      int firstBjetIndex = pairs_and_btag.at (0).first.first ;
+//      int secondBjetIndex = pairs_and_btag.at (0).first.second ;
 
 
       // apply some selections here
