@@ -43,6 +43,16 @@ struct smallTree
       m_dau2_e  = -1. ;
       m_dau2_flav  = -1. ;
 
+      m_bjet1_px  = -1. ;
+      m_bjet1_py  = -1. ;
+      m_bjet1_pz  = -1. ;
+      m_bjet1_e  = -1. ;
+      
+      m_bjet2_px  = -1. ;
+      m_bjet2_py  = -1. ;
+      m_bjet2_pz  = -1. ;
+      m_bjet2_e  = -1. ;
+
       m_tauH_px = -1. ;
       m_tauH_py = -1. ;
       m_tauH_pz = -1. ;
@@ -100,6 +110,16 @@ struct smallTree
       m_smallT->Branch ("dau2_pz", &m_dau2_pz, "dau2_pz/F") ;
       m_smallT->Branch ("dau2_e", &m_dau2_e, "dau2_e/F") ;
       m_smallT->Branch ("dau2_flav", &m_dau2_flav, "dau2_flav/F") ;
+
+      m_smallT->Branch ("bjet1_px", &m_bjet1_px, "bjet1_px/F") ;
+      m_smallT->Branch ("bjet1_py", &m_bjet1_py, "bjet1_py/F") ;
+      m_smallT->Branch ("bjet1_pz", &m_bjet1_pz, "bjet1_pz/F") ;
+      m_smallT->Branch ("bjet1_e", &m_bjet1_e, "bjet1_e/F") ;
+
+      m_smallT->Branch ("bjet2_px", &m_bjet2_px, "bjet2_px/F") ;
+      m_smallT->Branch ("bjet2_py", &m_bjet2_py, "bjet2_py/F") ;
+      m_smallT->Branch ("bjet2_pz", &m_bjet2_pz, "bjet2_pz/F") ;
+      m_smallT->Branch ("bjet2_e", &m_bjet2_e, "bjet2_e/F") ;
 
       m_smallT->Branch ("tauH_px", &m_tauH_px, "tauH_px/F") ;
       m_smallT->Branch ("tauH_py", &m_tauH_py, "tauH_py/F") ;
@@ -162,7 +182,19 @@ struct smallTree
   Float_t m_dau2_py ;
   Float_t m_dau2_pz ;
   Float_t m_dau2_e ;
-  Float_t m_dau2_flav ;
+  Float_t m_dau2_flav ; // let this contain also whether it's a hadronic dau
+
+  // the largest pT b visible candidate
+  Float_t m_bjet1_px ;
+  Float_t m_bjet1_py ;
+  Float_t m_bjet1_pz ;
+  Float_t m_bjet1_e ;
+
+  // the smallest pT b visible candidate
+  Float_t m_bjet2_px ;
+  Float_t m_bjet2_py ;
+  Float_t m_bjet2_pz ;
+  Float_t m_bjet2_e ;
 
   // the tautau-H candidate
   Float_t m_tauH_px ;

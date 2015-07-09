@@ -22,6 +22,30 @@
 
 using namespace std ;
 
+
+/*
+ - operator di sorting dei vettori per CSVscore
+ - opreator di sorting dei vettori per somma di CSVscore
+
+*/
+
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+template <class T>
+struct scoreSortSingle: public std::binary_function<pair <T, float> &, pair <T, float> &, bool>
+{
+  bool operator() (pair <T, float> & x, pair <T, float> & y)
+    {
+      return x.second < y.second ;
+    }
+} ;
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
 int main (int argc, char** argv)
 {
   if (argc < 3) 
@@ -84,7 +108,6 @@ int main (int argc, char** argv)
       // the H > bb candidate
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-
       vector <pair <int, float> > jets_and_btag ;
       vector <pair <pair <int, int>, float> > pairs_and_btag ;      
       // loop over jets
@@ -105,6 +128,13 @@ int main (int argc, char** argv)
                 )) ;
             }
         } // loop over jets
+
+      sort (jets_and_btag.rbegin (), jets_and_btag.rend (), scoreSortSingle<int> ()) ;
+      sort (pairs_and_btag.rbegin (), pairs_and_btag.rend (), 
+            scoreSortSingle<pair<int, int> > ()) ;
+      int firstBjetIndex = jets_and_btag.at (0).first ;
+      int secondBjetIndex = jets_and_btag.at (0).second ;
+
 
       // apply some selections here
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -158,24 +188,32 @@ int main (int argc, char** argv)
           ++theSmallTree.m_nleps ;
         } // loop over leptons
 
+      theSmallTree.m_bjet1_px = theBigTree.jets_px->at (firstBjetIndex) ;
+      theSmallTree.m_bjet1_py = theBigTree.jets_py->at (firstBjetIndex) ;
+      theSmallTree.m_bjet1_pz = theBigTree.jets_pz->at (firstBjetIndex) ;
+      theSmallTree.m_bjet1_e = theBigTree.jets_e->at (firstBjetIndex) ;
+
+      theSmallTree.m_bjet2_px = theBigTree.jets_px->at (secondBjetIndex) ;
+      theSmallTree.m_bjet2_py = theBigTree.jets_py->at (secondBjetIndex) ;
+      theSmallTree.m_bjet2_pz = theBigTree.jets_pz->at (secondBjetIndex) ;
+      theSmallTree.m_bjet2_e = theBigTree.jets_e->at (secondBjetIndex) ;
+
       // loop over jets
       for (int iJet = 0 ; 
            (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < 5) ; 
            ++iJet)
         {
-          // skip the H decay candidates FIXME
-          
           // PG filter jets at will
           if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
           
+          // skip the H decay candiates
+          if (iJet == firstBjetIndex || iJet == secondBjetIndex) continue ;
+
           theSmallTree.m_jets_px.push_back (theBigTree.jets_px->at (iJet)) ;
           theSmallTree.m_jets_py.push_back (theBigTree.jets_py->at (iJet)) ;
           theSmallTree.m_jets_pz.push_back (theBigTree.jets_pz->at (iJet)) ;
           theSmallTree.m_jets_e.push_back (theBigTree.jets_e->at (iJet)) ;
-// whether it's a b-tagged jet or not
-//           theSmallTree.m_jets_btag.push_back (theBigTree. ->at (iJet) ;
-// whether it's one of the jets produced by the H decay
-//           theSmallTree.m_jets_isH.push_back (theBigTree. ->at (iJet) ;
+          theSmallTree.m_jets_btag.push_back (theBigTree.bCSVscore->at (iJet)) ;
           ++theSmallTree.m_njets ;
         } // loop over jets
 
