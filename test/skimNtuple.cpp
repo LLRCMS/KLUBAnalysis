@@ -1,10 +1,5 @@
 // c++ -o skimNtuple `root-config --cflags --glibs --libs` -lm skimNtuple.cpp
 
-/* TODOS
- - calc the HH mass with the proper algorithm
- - dump the second H and the HH info in the ntuple
-*/
-
 #include <iostream>
 #include "TTree.h"
 #include "TH1F.h"
