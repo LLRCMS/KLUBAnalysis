@@ -193,7 +193,7 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
     bool etaS = (fabs(p4.Eta()) < 2.5) || byp_etaS;
     //bool idS = checkBit (tree->daughters_iseleCUT->at(iDau), 3) || byp_idS; // 3 is TIGHT ele id CUT BASED
-    bool idS = EleMVAID (tree->discriminator->at (iDau), p4.Eta (), p4.Pt (), MVAIDflag) || byp_idS ; // 2015/07/09 PG
+    bool idS = EleMVAID (tree->discriminator->at (iDau), tree->daughters_SCeta->at (iDau), p4.Pt (), MVAIDflag) || byp_idS ; // 2015/07/09 PG
     //bool idS = tree->daughters_iseleBDT->at(iDau) || byp_idS; // use it in ntuples produced after 11 June 2015, contains tight WP bool  
     //bool idS = tightEleMVAID (tree->discriminator->at(iDau), TMath::Abs(p4.Eta())) || byp_idS; // APPROX! Using lepton eta and not super cluster eta, discriminator contains ele BDT  
     bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;

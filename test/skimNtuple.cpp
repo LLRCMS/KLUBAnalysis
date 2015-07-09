@@ -210,7 +210,6 @@ int main (int argc, char** argv)
       theSmallTree.m_dau2_flav = theBigTree.daughters_charge->at (secondDaughterIndex) * 
                                  (theBigTree.particleType->at (secondDaughterIndex) + 1) ;
 
-      // FIXME i leptoni sono ordinati in tipo, riordina!!
       // loop over leptons
       vector<pair<TLorentzVector, float> > dummyLeptCollection ;
       for (int iLep = 0 ; 
