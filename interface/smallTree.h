@@ -27,37 +27,37 @@ struct smallTree
       m_EventNumber = -1. ;
       m_RunNumber = -1. ;
 
-      m_met_px = -1. ;
-      m_met_py = -1. ;
+      m_met_pt = -1. ;
+      m_met_eta = -1. ;
       m_met_et = -1. ;
     
-      m_dau1_px  = -1. ;
-      m_dau1_py  = -1. ;
-      m_dau1_pz  = -1. ;
+      m_dau1_pt  = -1. ;
+      m_dau1_eta  = -1. ;
+      m_dau1_phi  = -1. ;
       m_dau1_e  = -1. ;
       m_dau1_flav  = -1. ;
       
-      m_dau2_px  = -1. ;
-      m_dau2_py  = -1. ;
-      m_dau2_pz  = -1. ;
+      m_dau2_pt  = -1. ;
+      m_dau2_eta  = -1. ;
+      m_dau2_phi  = -1. ;
       m_dau2_e  = -1. ;
       m_dau2_flav  = -1. ;
 
-      m_bjet1_px  = -1. ;
-      m_bjet1_py  = -1. ;
-      m_bjet1_pz  = -1. ;
+      m_bjet1_pt  = -1. ;
+      m_bjet1_eta  = -1. ;
+      m_bjet1_phi  = -1. ;
       m_bjet1_e  = -1. ;
       m_bjet1_bID = -1. ;
       
-      m_bjet2_px  = -1. ;
-      m_bjet2_py  = -1. ;
-      m_bjet2_pz  = -1. ;
+      m_bjet2_pt  = -1. ;
+      m_bjet2_eta  = -1. ;
+      m_bjet2_phi  = -1. ;
       m_bjet2_e  = -1. ;
       m_bjet2_bID = -1. ;
 
-      m_tauH_px = -1. ;
-      m_tauH_py = -1. ;
-      m_tauH_pz = -1. ;
+      m_tauH_pt = -1. ;
+      m_tauH_eta = -1. ;
+      m_tauH_phi = -1. ;
       m_tauH_e = -1. ;
       m_tauH_SVFIT_mass = -1. ;
       m_tauH_SVFIT_pt = -1. ;
@@ -66,34 +66,34 @@ struct smallTree
       m_tauH_SVFIT_METphi = -1. ;
       m_tauH_SVFIT_METrho = -1. ;
     
-      m_bH_px = -1. ;
-      m_bH_py = -1. ;
-      m_bH_pz = -1. ;
+      m_bH_pt = -1. ;
+      m_bH_eta = -1. ;
+      m_bH_phi = -1. ;
       m_bH_e = -1. ;
       
-      m_HHsvfit_px = -1. ;
-      m_HHsvfit_py = -1. ;
-      m_HHsvfit_pz = -1. ;
+      m_HHsvfit_pt = -1. ;
+      m_HHsvfit_eta = -1. ;
+      m_HHsvfit_phi = -1. ;
       m_HHsvfit_e = -1. ;
 
-      m_HH_px = -1. ;
-      m_HH_py = -1. ;
-      m_HH_pz = -1. ;
+      m_HH_pt = -1. ;
+      m_HH_eta = -1. ;
+      m_HH_phi = -1. ;
       m_HH_e = -1. ;
       m_HHKin_mass = -1. ;
       m_HHKin_chi2 = -1. ;
 
-      m_jets_px.clear () ;
-      m_jets_py.clear () ;
-      m_jets_pz.clear () ;
+      m_jets_pt.clear () ;
+      m_jets_eta.clear () ;
+      m_jets_phi.clear () ;
       m_jets_e.clear () ;
       m_jets_btag.clear () ;
       m_jets_isH.clear () ;
       m_njets = 0 ;
       
-      m_leps_px.clear () ;
-      m_leps_py.clear () ;
-      m_leps_pz.clear () ;
+      m_leps_pt.clear () ;
+      m_leps_eta.clear () ;
+      m_leps_phi.clear () ;
       m_leps_e.clear () ;
       m_leps_flav.clear () ;
       m_nleps = 0 ;
@@ -108,37 +108,37 @@ struct smallTree
       m_smallT->Branch ("EventNumber", &m_EventNumber, "EventNumber/F") ;
       m_smallT->Branch ("RunNumber", &m_RunNumber, "RunNumber/F") ;
 
-      m_smallT->Branch ("met_px", &m_met_px, "met_px/F") ;
-      m_smallT->Branch ("met_py", &m_met_py, "met_py/F") ;
+      m_smallT->Branch ("met_pt", &m_met_pt, "met_pt/F") ;
+      m_smallT->Branch ("met_eta", &m_met_eta, "met_eta/F") ;
       m_smallT->Branch ("met_et", &m_met_et, "met_et/F") ;
 
-      m_smallT->Branch ("dau1_px", &m_dau1_px, "dau1_px/F") ;
-      m_smallT->Branch ("dau1_py", &m_dau1_py, "dau1_py/F") ;
-      m_smallT->Branch ("dau1_pz", &m_dau1_pz, "dau1_pz/F") ;
+      m_smallT->Branch ("dau1_pt", &m_dau1_pt, "dau1_pt/F") ;
+      m_smallT->Branch ("dau1_eta", &m_dau1_eta, "dau1_eta/F") ;
+      m_smallT->Branch ("dau1_phi", &m_dau1_phi, "dau1_phi/F") ;
       m_smallT->Branch ("dau1_e", &m_dau1_e, "dau1_e/F") ;
       m_smallT->Branch ("dau1_flav", &m_dau1_flav, "dau1_flav/F") ;
 
-      m_smallT->Branch ("dau2_px", &m_dau2_px, "dau2_px/F") ;
-      m_smallT->Branch ("dau2_py", &m_dau2_py, "dau2_py/F") ;
-      m_smallT->Branch ("dau2_pz", &m_dau2_pz, "dau2_pz/F") ;
+      m_smallT->Branch ("dau2_pt", &m_dau2_pt, "dau2_pt/F") ;
+      m_smallT->Branch ("dau2_eta", &m_dau2_eta, "dau2_eta/F") ;
+      m_smallT->Branch ("dau2_phi", &m_dau2_phi, "dau2_phi/F") ;
       m_smallT->Branch ("dau2_e", &m_dau2_e, "dau2_e/F") ;
       m_smallT->Branch ("dau2_flav", &m_dau2_flav, "dau2_flav/F") ;
 
-      m_smallT->Branch ("bjet1_px", &m_bjet1_px, "bjet1_px/F") ;
-      m_smallT->Branch ("bjet1_py", &m_bjet1_py, "bjet1_py/F") ;
-      m_smallT->Branch ("bjet1_pz", &m_bjet1_pz, "bjet1_pz/F") ;
+      m_smallT->Branch ("bjet1_pt", &m_bjet1_pt, "bjet1_pt/F") ;
+      m_smallT->Branch ("bjet1_eta", &m_bjet1_eta, "bjet1_eta/F") ;
+      m_smallT->Branch ("bjet1_phi", &m_bjet1_phi, "bjet1_phi/F") ;
       m_smallT->Branch ("bjet1_e", &m_bjet1_e, "bjet1_e/F") ;
       m_smallT->Branch ("bjet1_bID", &m_bjet1_bID, "bjet1_bID/F") ;
 
-      m_smallT->Branch ("bjet2_px", &m_bjet2_px, "bjet2_px/F") ;
-      m_smallT->Branch ("bjet2_py", &m_bjet2_py, "bjet2_py/F") ;
-      m_smallT->Branch ("bjet2_pz", &m_bjet2_pz, "bjet2_pz/F") ;
+      m_smallT->Branch ("bjet2_pt", &m_bjet2_pt, "bjet2_pt/F") ;
+      m_smallT->Branch ("bjet2_eta", &m_bjet2_eta, "bjet2_eta/F") ;
+      m_smallT->Branch ("bjet2_phi", &m_bjet2_phi, "bjet2_phi/F") ;
       m_smallT->Branch ("bjet2_e", &m_bjet2_e, "bjet2_e/F") ;
       m_smallT->Branch ("bjet2_bID", &m_bjet2_bID, "bjet2m_bID/F") ;
 
-      m_smallT->Branch ("tauH_px", &m_tauH_px, "tauH_px/F") ;
-      m_smallT->Branch ("tauH_py", &m_tauH_py, "tauH_py/F") ;
-      m_smallT->Branch ("tauH_pz", &m_tauH_pz, "tauH_pz/F") ;
+      m_smallT->Branch ("tauH_pt", &m_tauH_pt, "tauH_pt/F") ;
+      m_smallT->Branch ("tauH_eta", &m_tauH_eta, "tauH_eta/F") ;
+      m_smallT->Branch ("tauH_phi", &m_tauH_phi, "tauH_phi/F") ;
       m_smallT->Branch ("tauH_e", &m_tauH_e, "tauH_e/F") ;
       m_smallT->Branch ("tauH_SVFIT_mass", &m_tauH_SVFIT_mass, "tauH_SVFIT_mass/F") ;
       m_smallT->Branch ("tauH_SVFIT_pt", &m_tauH_SVFIT_pt, "tauH_SVFIT_pt/F") ;
@@ -147,33 +147,33 @@ struct smallTree
       m_smallT->Branch ("tauH_SVFIT_METphi", &m_tauH_SVFIT_METphi, "tauH_SVFIT_METphi/F") ;
       m_smallT->Branch ("tauH_SVFIT_METrho", &m_tauH_SVFIT_METrho, "tauH_SVFIT_METrho/F") ;
 
-      m_smallT->Branch ("bH_px", &m_bH_px, "bH_px/F") ;
-      m_smallT->Branch ("bH_py", &m_bH_py, "bH_py/F") ;
-      m_smallT->Branch ("bH_pz", &m_bH_pz, "bH_pz/F") ;
+      m_smallT->Branch ("bH_pt", &m_bH_pt, "bH_pt/F") ;
+      m_smallT->Branch ("bH_eta", &m_bH_eta, "bH_eta/F") ;
+      m_smallT->Branch ("bH_phi", &m_bH_phi, "bH_phi/F") ;
       m_smallT->Branch ("bH_e", &m_bH_e, "bH_e/F") ;
       
-      m_smallT->Branch ("HHsvfit_px", &m_HHsvfit_px, "HHsvfit_px/F") ;
-      m_smallT->Branch ("HHsvfit_py", &m_HHsvfit_py, "HHsvfit_py/F") ;
-      m_smallT->Branch ("HHsvfit_pz", &m_HHsvfit_pz, "HHsvfit_pz/F") ;
+      m_smallT->Branch ("HHsvfit_pt", &m_HHsvfit_pt, "HHsvfit_pt/F") ;
+      m_smallT->Branch ("HHsvfit_eta", &m_HHsvfit_eta, "HHsvfit_eta/F") ;
+      m_smallT->Branch ("HHsvfit_phi", &m_HHsvfit_phi, "HHsvfit_phi/F") ;
       m_smallT->Branch ("HHsvfit_e", &m_HHsvfit_e, "HHsvfit_e/F") ;
-      m_smallT->Branch ("HH_px", &m_HH_px, "HH_px/F") ;
-      m_smallT->Branch ("HH_py", &m_HH_py, "HH_py/F") ;
-      m_smallT->Branch ("HH_pz", &m_HH_pz, "HH_pz/F") ;
+      m_smallT->Branch ("HH_pt", &m_HH_pt, "HH_pt/F") ;
+      m_smallT->Branch ("HH_eta", &m_HH_eta, "HH_eta/F") ;
+      m_smallT->Branch ("HH_phi", &m_HH_phi, "HH_phi/F") ;
       m_smallT->Branch ("HH_e", &m_HH_e, "HH_e/F") ;
       m_smallT->Branch ("HHKin_mass", &m_HHKin_mass, "HHKin_mass/F") ;
       m_smallT->Branch ("HHKin_chi2", &m_HHKin_chi2, "HHKin_chi2/F") ;
       
-      m_smallT->Branch ("jets_px", &m_jets_px) ;
-      m_smallT->Branch ("jets_py", &m_jets_py) ;
-      m_smallT->Branch ("jets_pz", &m_jets_pz) ;
+      m_smallT->Branch ("jets_pt", &m_jets_pt) ;
+      m_smallT->Branch ("jets_eta", &m_jets_eta) ;
+      m_smallT->Branch ("jets_phi", &m_jets_phi) ;
       m_smallT->Branch ("jets_e", &m_jets_e) ;
       m_smallT->Branch ("jets_btag", &m_jets_btag) ;
       m_smallT->Branch ("jets_isH", &m_jets_isH) ;
       m_smallT->Branch ("njets", &m_njets, "njets/I") ;
       
-      m_smallT->Branch ("leps_px", &m_leps_px) ;
-      m_smallT->Branch ("leps_py", &m_leps_py) ;
-      m_smallT->Branch ("leps_pz", &m_leps_pz) ;
+      m_smallT->Branch ("leps_pt", &m_leps_pt) ;
+      m_smallT->Branch ("leps_eta", &m_leps_eta) ;
+      m_smallT->Branch ("leps_phi", &m_leps_phi) ;
       m_smallT->Branch ("leps_e", &m_leps_e) ;
       m_smallT->Branch ("leps_flav", &m_leps_flav) ;
       m_smallT->Branch ("nleps", &m_nleps, "nleps/I") ;
@@ -191,42 +191,42 @@ struct smallTree
   Int_t m_RunNumber ;
 
   // MET
-  Float_t m_met_px ;
-  Float_t m_met_py ;
+  Float_t m_met_pt ;
+  Float_t m_met_eta ;
   Float_t m_met_et ;
 
   // the largest pT daughter visible candidate
-  Float_t m_dau1_px ;
-  Float_t m_dau1_py ;
-  Float_t m_dau1_pz ;
+  Float_t m_dau1_pt ;
+  Float_t m_dau1_eta ;
+  Float_t m_dau1_phi ;
   Float_t m_dau1_e ;
   Float_t m_dau1_flav ; // let this contain also whether it's a hadronic dau
 
   // the smallest pT daughter visible candidate
-  Float_t m_dau2_px ;
-  Float_t m_dau2_py ;
-  Float_t m_dau2_pz ;
+  Float_t m_dau2_pt ;
+  Float_t m_dau2_eta ;
+  Float_t m_dau2_phi ;
   Float_t m_dau2_e ;
   Float_t m_dau2_flav ; // let this contain also whether it's a hadronic dau
 
   // the largest pT b visible candidate
-  Float_t m_bjet1_px ;
-  Float_t m_bjet1_py ;
-  Float_t m_bjet1_pz ;
+  Float_t m_bjet1_pt ;
+  Float_t m_bjet1_eta ;
+  Float_t m_bjet1_phi ;
   Float_t m_bjet1_e ;
   Float_t m_bjet1_bID ;
 
   // the smallest pT b visible candidate
-  Float_t m_bjet2_px ;
-  Float_t m_bjet2_py ;
-  Float_t m_bjet2_pz ;
+  Float_t m_bjet2_pt ;
+  Float_t m_bjet2_eta ;
+  Float_t m_bjet2_phi ;
   Float_t m_bjet2_e ;
   Float_t m_bjet2_bID ;
 
   // the tautau-H candidate
-  Float_t m_tauH_px ;
-  Float_t m_tauH_py ;
-  Float_t m_tauH_pz ;
+  Float_t m_tauH_pt ;
+  Float_t m_tauH_eta ;
+  Float_t m_tauH_phi ;
   Float_t m_tauH_e ;
 
   Float_t m_tauH_SVFIT_mass ;
@@ -237,20 +237,20 @@ struct smallTree
   Float_t m_tauH_SVFIT_METrho ;
 
   // the bb-H candidate
-  Float_t m_bH_px ;
-  Float_t m_bH_py ;
-  Float_t m_bH_pz ;
+  Float_t m_bH_pt ;
+  Float_t m_bH_eta ;
+  Float_t m_bH_phi ;
   Float_t m_bH_e ;
   
   // the di-higgs candidate
-  Float_t m_HH_px ;
-  Float_t m_HH_py ;
-  Float_t m_HH_pz ;
+  Float_t m_HH_pt ;
+  Float_t m_HH_eta ;
+  Float_t m_HH_phi ;
   Float_t m_HH_e ;
 
-  Float_t m_HHsvfit_px ;
-  Float_t m_HHsvfit_py ;
-  Float_t m_HHsvfit_pz ;
+  Float_t m_HHsvfit_pt ;
+  Float_t m_HHsvfit_eta ;
+  Float_t m_HHsvfit_phi ;
   Float_t m_HHsvfit_e ;
 
   // the di-higgs candidate
@@ -258,18 +258,18 @@ struct smallTree
   Float_t m_HHKin_chi2 ;
 
   // additional jets
-  std::vector<Float_t> m_jets_px ;
-  std::vector<Float_t> m_jets_py ;
-  std::vector<Float_t> m_jets_pz ;
+  std::vector<Float_t> m_jets_pt ;
+  std::vector<Float_t> m_jets_eta ;
+  std::vector<Float_t> m_jets_phi ;
   std::vector<Float_t> m_jets_e ;
   std::vector<Int_t> m_jets_btag ;
   std::vector<Int_t> m_jets_isH ;
   Int_t m_njets ;
   
   // additional leptons
-  std::vector<Float_t> m_leps_px ;
-  std::vector<Float_t> m_leps_py ;
-  std::vector<Float_t> m_leps_pz ;
+  std::vector<Float_t> m_leps_pt ;
+  std::vector<Float_t> m_leps_eta ;
+  std::vector<Float_t> m_leps_phi ;
   std::vector<Float_t> m_leps_e ;
   std::vector<Int_t> m_leps_flav ;
   Int_t m_nleps ;
