@@ -63,7 +63,7 @@ int main (int argc, char** argv)
   float PUjetID_minCut = -0.5 ;
 
   int eventsNumber = theBigTree.fChain->GetEntries () ;
-  eventsNumber = 100000 ; //DEBUG
+  eventsNumber = 100 ; //DEBUG
   float selectedEvents = 0 ;
 
   // loop over events
@@ -159,7 +159,13 @@ int main (int argc, char** argv)
       theSmallTree.m_tauH_py = tlv_tauH.Y () ;
       theSmallTree.m_tauH_pz = tlv_tauH.Z () ;
       theSmallTree.m_tauH_e = tlv_tauH.E () ;
-      theSmallTree.m_tauH_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
+      theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
+
+      theSmallTree.m_tauH_SVFIT_pt = theBigTree.SVfit_pt->at (chosenTauPair) ;
+      theSmallTree.m_tauH_SVFIT_eta = theBigTree.SVfit_eta->at (chosenTauPair) ;
+      theSmallTree.m_tauH_SVFIT_phi = theBigTree.SVfit_phi->at (chosenTauPair) ;
+      theSmallTree.m_tauH_SVFIT_METphi = theBigTree.SVfit_fitMETPhi->at (chosenTauPair) ;
+      theSmallTree.m_tauH_SVFIT_METrho = theBigTree.SVfit_fitMETRho->at (chosenTauPair) ;
 
       theSmallTree.m_dau1_px = theBigTree.daughters_px->at (firstDaughterIndex) ;
       theSmallTree.m_dau1_py = theBigTree.daughters_py->at (firstDaughterIndex) ;

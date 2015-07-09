@@ -59,7 +59,12 @@ struct smallTree
       m_tauH_py = -1. ;
       m_tauH_pz = -1. ;
       m_tauH_e = -1. ;
-      m_tauH_mass = -1. ;
+      m_tauH_SVFIT_mass = -1. ;
+      m_tauH_SVFIT_pt = -1. ;
+      m_tauH_SVFIT_eta = -1. ;
+      m_tauH_SVFIT_phi = -1. ;
+      m_tauH_SVFIT_METphi = -1. ;
+      m_tauH_SVFIT_METrho = -1. ;
     
       m_bH_px = -1. ;
       m_bH_py = -1. ;
@@ -129,8 +134,13 @@ struct smallTree
       m_smallT->Branch ("tauH_py", &m_tauH_py, "tauH_py/F") ;
       m_smallT->Branch ("tauH_pz", &m_tauH_pz, "tauH_pz/F") ;
       m_smallT->Branch ("tauH_e", &m_tauH_e, "tauH_e/F") ;
-      m_smallT->Branch ("tauH_mass", &m_tauH_mass, "tauH_mass/F") ;
-    
+      m_smallT->Branch ("tauH_SVFIT_mass", &m_tauH_SVFIT_mass, "tauH_SVFIT_mass/F") ;
+      m_smallT->Branch ("tauH_SVFIT_pt", &m_tauH_SVFIT_pt, "tauH_SVFIT_pt/F") ;
+      m_smallT->Branch ("tauH_SVFIT_eta", &m_tauH_SVFIT_eta, "tauH_SVFIT_eta/F") ;
+      m_smallT->Branch ("tauH_SVFIT_phi", &m_tauH_SVFIT_phi, "tauH_SVFIT_phi/F") ;
+      m_smallT->Branch ("tauH_SVFIT_METphi", &m_tauH_SVFIT_METphi, "tauH_SVFIT_METphi/F") ;
+      m_smallT->Branch ("tauH_SVFIT_METrho", &m_tauH_SVFIT_METrho, "tauH_SVFIT_METrho/F") ;
+
       m_smallT->Branch ("bH_px", &m_bH_px, "bH_px/F") ;
       m_smallT->Branch ("bH_py", &m_bH_py, "bH_py/F") ;
       m_smallT->Branch ("bH_pz", &m_bH_pz, "bH_pz/F") ;
@@ -207,7 +217,13 @@ struct smallTree
   Float_t m_tauH_py ;
   Float_t m_tauH_pz ;
   Float_t m_tauH_e ;
-  Float_t m_tauH_mass ;
+
+  Float_t m_tauH_SVFIT_mass ;
+  Float_t m_tauH_SVFIT_pt ;
+  Float_t m_tauH_SVFIT_eta ;
+  Float_t m_tauH_SVFIT_phi ;
+  Float_t m_tauH_SVFIT_METphi ;
+  Float_t m_tauH_SVFIT_METrho ;
 
   // the bb-H candidate
   Float_t m_bH_px ;
