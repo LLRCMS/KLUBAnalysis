@@ -60,10 +60,16 @@ int main (int argc, char** argv)
   smallTree theSmallTree ("HTauTauTree") ;
 
   // initial parameters, might be read from a cfg file in the future
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
   float PUjetID_minCut = -0.5 ;
+  vector<Int_t> hypo_mh1 ; //FIXME why is this an integer?!
+  hypo_mh1.push_back (125) ;
+  vector<Int_t> hypo_mh2 ;
+  hypo_mh2.push_back (125) ;
 
   int eventsNumber = theBigTree.fChain->GetEntries () ;
-  eventsNumber = 100 ; //DEBUG
+//  eventsNumber = 100 ; //DEBUG
   float selectedEvents = 0 ;
 
   // loop over events
@@ -77,11 +83,6 @@ int main (int argc, char** argv)
       if (theBigTree.indexDau1->size () == 0) continue ;
       if (theBigTree.jets_px->size () < 2)    continue ;
  
-//       cout << theBigTree.indexDau1->size () << endl ;
-//       cout << theBigTree.jets_px->size () << endl ;
-//       cout << theBigTree.daughters_px->size () << endl ;
-//       cout << "----" << endl ; 
-
       // the H > tautau candidate
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       
@@ -155,9 +156,9 @@ int main (int argc, char** argv)
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
       theSmallTree.m_RunNumber = theBigTree.RunNumber ;
       
-      theSmallTree.m_tauH_px = tlv_tauH.X () ;
-      theSmallTree.m_tauH_py = tlv_tauH.Y () ;
-      theSmallTree.m_tauH_pz = tlv_tauH.Z () ;
+      theSmallTree.m_tauH_px = tlv_tauH.Px () ;
+      theSmallTree.m_tauH_py = tlv_tauH.Py () ;
+      theSmallTree.m_tauH_pz = tlv_tauH.Pz () ;
       theSmallTree.m_tauH_e = tlv_tauH.E () ;
       theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
 
@@ -209,13 +210,15 @@ int main (int argc, char** argv)
       theSmallTree.m_bjet1_py = theBigTree.jets_py->at (firstBjetIndex) ;
       theSmallTree.m_bjet1_pz = theBigTree.jets_pz->at (firstBjetIndex) ;
       theSmallTree.m_bjet1_e = theBigTree.jets_e->at (firstBjetIndex) ;
-      // FIXME manca il b-tagging value
+      theSmallTree.m_bjet1_bID = theBigTree.bCSVscore->at (firstBjetIndex) ;
 
       theSmallTree.m_bjet2_px = theBigTree.jets_px->at (secondBjetIndex) ;
       theSmallTree.m_bjet2_py = theBigTree.jets_py->at (secondBjetIndex) ;
       theSmallTree.m_bjet2_pz = theBigTree.jets_pz->at (secondBjetIndex) ;
       theSmallTree.m_bjet2_e = theBigTree.jets_e->at (secondBjetIndex) ;
-      // FIXME manca il b-tagging value
+      theSmallTree.m_bjet2_bID = theBigTree.bCSVscore->at (secondBjetIndex) ;
+
+      //FIXME H > bb candidate
 
       // loop over jets
       for (int iJet = 0 ; 
@@ -235,6 +238,66 @@ int main (int argc, char** argv)
           theSmallTree.m_jets_btag.push_back (theBigTree.bCSVscore->at (iJet)) ;
           ++theSmallTree.m_njets ;
         } // loop over jets
+
+      float METx = theBigTree.METx->at (chosenTauPair) ;
+      float METy = theBigTree.METy->at (chosenTauPair) ;
+      float METpt = TMath::Sqrt (METx*METx + METy*METy) ;
+    
+      TLorentzVector ptmiss = TLorentzVector (METx, METy, 0., METpt) ;
+      TMatrixD metcov (2, 2) ;
+      metcov (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
+      metcov (1,0) = theBigTree.MET_cov10->at (chosenTauPair) ;
+      metcov (0,1) = theBigTree.MET_cov01->at (chosenTauPair) ;    
+      metcov (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
+    
+      TLorentzVector tlv_firstBjet 
+        (
+          theBigTree.jets_px->at (firstBjetIndex),
+          theBigTree.jets_py->at (firstBjetIndex),
+          theBigTree.jets_pz->at (firstBjetIndex),
+          theBigTree.jets_e->at (firstBjetIndex)
+        ) ;
+      TLorentzVector tlv_secondBjet 
+        (
+          theBigTree.jets_px->at (secondBjetIndex),
+          theBigTree.jets_py->at (secondBjetIndex),
+          theBigTree.jets_pz->at (secondBjetIndex),
+          theBigTree.jets_e->at (secondBjetIndex)
+        ) ;
+
+      TLorentzVector tlv_bH = tlv_firstBjet + tlv_secondBjet ;
+      theSmallTree.m_bH_px = tlv_bH.Px () ;
+      theSmallTree.m_bH_py = tlv_bH.Py () ;
+      theSmallTree.m_bH_pz = tlv_bH.Pz () ;
+      theSmallTree.m_bH_e = tlv_bH.E () ;
+
+      TLorentzVector tlv_HH = tlv_bH + tlv_tauH ;
+      theSmallTree.m_HH_px = tlv_HH.Px () ;
+      theSmallTree.m_HH_py = tlv_HH.Py () ;
+      theSmallTree.m_HH_pz = tlv_HH.Px () ;
+      theSmallTree.m_HH_e = tlv_HH.E () ;
+
+      //intance of fitter master class
+      HHKinFitMaster kinFits = HHKinFitMaster (&tlv_firstBjet, &tlv_secondBjet, 
+                                               &tlv_firstLepton, &tlv_secondLepton) ;
+      kinFits.setAdvancedBalance (&ptmiss, metcov) ;
+      //kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
+
+      kinFits.addMh1Hypothesis (hypo_mh1) ;
+      kinFits.addMh2Hypothesis (hypo_mh2) ;
+      kinFits.doFullFit () ;
+
+//      Double_t chi2_best = kinFits.getBestChi2FullFit();
+      theSmallTree.m_HHKin_mass = kinFits.getBestMHFullFit () ;
+
+/*
+  // the di-higgs candidate
+      theSmallTree.m_HHKin_px =  ;
+      theSmallTree.m_HHKin_py =  ;
+      theSmallTree.m_HHKin_pz =  ;
+      theSmallTree.m_HHKin_mass =  ;
+*/
+
 
       ++selectedEvents ; 
       theSmallTree.Fill () ;
