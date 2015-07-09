@@ -40,6 +40,9 @@ int main (int argc, char** argv)
   TFile * smallFile = new TFile (outputFile, "recreate") ;
   smallTree theSmallTree ("HTauTauTree") ;
 
+  // initial parameters, might be read from a cfg file in the future
+  float PUjetID_minCut = -0.5 ;
+
   int eventsNumber = theBigTree.fChain->GetEntries () ;
   eventsNumber = 100 ; //DEBUG
   float selectedEvents = 0 ;
@@ -55,6 +58,8 @@ int main (int argc, char** argv)
       if (theBigTree.indexDau1->size () == 0) continue ;
  
       // the H > tautau candidate
+      // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+      
       // by now take the OS pair with largest pT
       int chosenTauPair = 0 ;
       
@@ -75,6 +80,31 @@ int main (int argc, char** argv)
           theBigTree.daughters_e->at (secondDaughterIndex)
         ) ;
       TLorentzVector tlv_tauH = tlv_firstLepton + tlv_secondLepton ;
+
+      // the H > bb candidate
+      // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+      vector <pair <int, float> > jets_and_btag ;
+      vector <pair <pair <int, int>, float> > pairs_and_btag ;      
+      // loop over jets
+      for (int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
+        {
+          // PG filter jets at will
+          if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
+          jets_and_btag.push_back (std::pair <int, float> (
+              iJet, theBigTree.bCSVscore->at (iJet)
+            )) ;
+          
+          for (int jJet = iJet + 1 ; jJet < theBigTree.jets_px->size () ; ++jJet)
+            {
+              if (theBigTree.jets_PUJetID->at (jJet) < PUjetID_minCut) continue ;
+              pairs_and_btag.push_back (pair <pair <int, int>, float> (
+                  pair <int, int> (iJet, jJet), 
+                  theBigTree.bCSVscore->at (iJet) + theBigTree.bCSVscore->at (jJet) 
+                )) ;
+            }
+        } // loop over jets
 
       // apply some selections here
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -130,12 +160,14 @@ int main (int argc, char** argv)
 
       // loop over jets
       for (int iJet = 0 ; 
-           (iJet < theBigTree.JetsNumber) && (theSmallTree.m_njets < 5) ; 
+           (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < 5) ; 
            ++iJet)
         {
           // skip the H decay candidates FIXME
           
           // PG filter jets at will
+          if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
+          
           theSmallTree.m_jets_px.push_back (theBigTree.jets_px->at (iJet)) ;
           theSmallTree.m_jets_py.push_back (theBigTree.jets_py->at (iJet)) ;
           theSmallTree.m_jets_pz.push_back (theBigTree.jets_pz->at (iJet)) ;
