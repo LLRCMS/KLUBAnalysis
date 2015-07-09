@@ -5,7 +5,6 @@
  - dump the second H and the HH info in the ntuple
 */
 
-
 #include <iostream>
 #include "TTree.h"
 #include "TH1F.h"
@@ -25,6 +24,7 @@ using namespace std ;
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
 
 template <class T>
 struct scoreSortSingle: public std::binary_function<pair <T, float> &, pair <T, float> &, bool>
@@ -69,7 +69,7 @@ int main (int argc, char** argv)
   // loop over events
   for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
     {
-      if (iEvent % 10000 == 0) cout << "reading event " << iEvent << endl ;
+      if (iEvent % 10000 == 0)  cout << "reading event " << iEvent << endl ;
 
       theSmallTree.clearVars () ;
       theBigTree.GetEntry (iEvent) ;
@@ -77,10 +77,11 @@ int main (int argc, char** argv)
       if (theBigTree.indexDau1->size () == 0) continue ;
       if (theBigTree.jets_px->size () < 2)    continue ;
  
-      cout << theBigTree.indexDau1->size () << endl ;
-      cout << theBigTree.jets_px->size () << endl ;
-      cout << theBigTree.daughters_px->size () << endl ;
-      cout << "----" << endl ; 
+//       cout << theBigTree.indexDau1->size () << endl ;
+//       cout << theBigTree.jets_px->size () << endl ;
+//       cout << theBigTree.daughters_px->size () << endl ;
+//       cout << "----" << endl ; 
+
       // the H > tautau candidate
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       
@@ -130,7 +131,10 @@ int main (int argc, char** argv)
             }
         } // loop over jets
 
+      if (jets_and_btag.size () < 2) continue ;
+
       sort (jets_and_btag.rbegin (), jets_and_btag.rend (), scoreSortSingle<int> ()) ;
+      
       int firstBjetIndex = jets_and_btag.at (0).first ;
       int secondBjetIndex = jets_and_btag.at (1).first ;
       sort (pairs_and_btag.rbegin (), pairs_and_btag.rend (), 
@@ -188,7 +192,7 @@ int main (int argc, char** argv)
           theSmallTree.m_leps_py.push_back (theBigTree.daughters_py->at (iLep)) ;
           theSmallTree.m_leps_pz.push_back (theBigTree.daughters_pz->at (iLep)) ;
           theSmallTree.m_leps_e.push_back (theBigTree.daughters_e->at (iLep)) ;
-          theSmallTree.m_leps_flav.push_back ( //FIXME check whether the index contains the charge
+          theSmallTree.m_leps_flav.push_back (
               theBigTree.daughters_charge->at (iLep) * 
               (theBigTree.particleType->at (iLep) + 1)
             ) ;

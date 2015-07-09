@@ -47,11 +47,13 @@ struct smallTree
       m_bjet1_py  = -1. ;
       m_bjet1_pz  = -1. ;
       m_bjet1_e  = -1. ;
+      m_bjet1_bID = -1. ;
       
       m_bjet2_px  = -1. ;
       m_bjet2_py  = -1. ;
       m_bjet2_pz  = -1. ;
       m_bjet2_e  = -1. ;
+      m_bjet2_bID = -1. ;
 
       m_tauH_px = -1. ;
       m_tauH_py = -1. ;
@@ -115,11 +117,13 @@ struct smallTree
       m_smallT->Branch ("bjet1_py", &m_bjet1_py, "bjet1_py/F") ;
       m_smallT->Branch ("bjet1_pz", &m_bjet1_pz, "bjet1_pz/F") ;
       m_smallT->Branch ("bjet1_e", &m_bjet1_e, "bjet1_e/F") ;
+      m_smallT->Branch ("bjet1_bID", &m_bjet1_bID, "bjet1_bID/F") ;
 
       m_smallT->Branch ("bjet2_px", &m_bjet2_px, "bjet2_px/F") ;
       m_smallT->Branch ("bjet2_py", &m_bjet2_py, "bjet2_py/F") ;
       m_smallT->Branch ("bjet2_pz", &m_bjet2_pz, "bjet2_pz/F") ;
       m_smallT->Branch ("bjet2_e", &m_bjet2_e, "bjet2_e/F") ;
+      m_smallT->Branch ("bjet2_bID", &m_bjet2_bID, "bjet2m_bID/F") ;
 
       m_smallT->Branch ("tauH_px", &m_tauH_px, "tauH_px/F") ;
       m_smallT->Branch ("tauH_py", &m_tauH_py, "tauH_py/F") ;
@@ -189,12 +193,14 @@ struct smallTree
   Float_t m_bjet1_py ;
   Float_t m_bjet1_pz ;
   Float_t m_bjet1_e ;
+  Float_t m_bjet1_bID ;
 
   // the smallest pT b visible candidate
   Float_t m_bjet2_px ;
   Float_t m_bjet2_py ;
   Float_t m_bjet2_pz ;
   Float_t m_bjet2_e ;
+  Float_t m_bjet2_bID ;
 
   // the tautau-H candidate
   Float_t m_tauH_px ;
