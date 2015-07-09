@@ -168,6 +168,14 @@ int main (int argc, char** argv)
       theSmallTree.m_tauH_SVFIT_METphi = theBigTree.SVfit_fitMETPhi->at (chosenTauPair) ;
       theSmallTree.m_tauH_SVFIT_METrho = theBigTree.SVfit_fitMETRho->at (chosenTauPair) ;
 
+      TLorentzVector tlv_tauH_SVFIT ;
+      tlv_tauH_SVFIT.SetPtEtaPhiM (
+          theBigTree.SVfit_pt->at (chosenTauPair),
+          theBigTree.SVfit_eta->at (chosenTauPair),
+          theBigTree.SVfit_phi->at (chosenTauPair),
+          theBigTree.SVfitMass->at (chosenTauPair)
+        ) ;
+
       theSmallTree.m_dau1_px = theBigTree.daughters_px->at (firstDaughterIndex) ;
       theSmallTree.m_dau1_py = theBigTree.daughters_py->at (firstDaughterIndex) ;
       theSmallTree.m_dau1_pz = theBigTree.daughters_pz->at (firstDaughterIndex) ;
@@ -188,7 +196,7 @@ int main (int argc, char** argv)
       // FIXME i leptoni sono ordinati in tipo, riordina!!
       // loop over leptons
       for (int iLep = 0 ; 
-           (iLep < theBigTree.daughters_px->size ()) && (theSmallTree.m_nleps < 3) ; 
+           (iLep < theBigTree.daughters_px->size ()) && (theSmallTree.m_nleps < 2) ; 
            ++iLep)
         {
           // skip the H decay candiates
@@ -222,7 +230,7 @@ int main (int argc, char** argv)
 
       // loop over jets
       for (int iJet = 0 ; 
-           (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < 5) ; 
+           (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < 2) ; 
            ++iJet)
         {
           // PG filter jets at will
@@ -277,6 +285,12 @@ int main (int argc, char** argv)
       theSmallTree.m_HH_pz = tlv_HH.Px () ;
       theSmallTree.m_HH_e = tlv_HH.E () ;
 
+      TLorentzVector tlv_HHsvfit = tlv_bH + tlv_tauH_SVFIT ;
+      theSmallTree.m_HHsvfit_px = tlv_HHsvfit.Px () ;
+      theSmallTree.m_HHsvfit_py = tlv_HHsvfit.Py () ;
+      theSmallTree.m_HHsvfit_pz = tlv_HHsvfit.Px () ;
+      theSmallTree.m_HHsvfit_e = tlv_HHsvfit.E () ;
+
       //intance of fitter master class
       HHKinFitMaster kinFits = HHKinFitMaster (&tlv_firstBjet, &tlv_secondBjet, 
                                                &tlv_firstLepton, &tlv_secondLepton) ;
@@ -287,17 +301,8 @@ int main (int argc, char** argv)
       kinFits.addMh2Hypothesis (hypo_mh2) ;
       kinFits.doFullFit () ;
 
-//      Double_t chi2_best = kinFits.getBestChi2FullFit();
       theSmallTree.m_HHKin_mass = kinFits.getBestMHFullFit () ;
-
-/*
-  // the di-higgs candidate
-      theSmallTree.m_HHKin_px =  ;
-      theSmallTree.m_HHKin_py =  ;
-      theSmallTree.m_HHKin_pz =  ;
-      theSmallTree.m_HHKin_mass =  ;
-*/
-
+      theSmallTree.m_HHKin_chi2 = kinFits.getBestChi2FullFit () ;
 
       ++selectedEvents ; 
       theSmallTree.Fill () ;

@@ -71,15 +71,17 @@ struct smallTree
       m_bH_pz = -1. ;
       m_bH_e = -1. ;
       
+      m_HHsvfit_px = -1. ;
+      m_HHsvfit_py = -1. ;
+      m_HHsvfit_pz = -1. ;
+      m_HHsvfit_e = -1. ;
+
       m_HH_px = -1. ;
       m_HH_py = -1. ;
       m_HH_pz = -1. ;
       m_HH_e = -1. ;
-      
-      m_HHKin_px = -1. ;
-      m_HHKin_py = -1. ;
-      m_HHKin_pz = -1. ;
       m_HHKin_mass = -1. ;
+      m_HHKin_chi2 = -1. ;
 
       m_jets_px.clear () ;
       m_jets_py.clear () ;
@@ -150,15 +152,16 @@ struct smallTree
       m_smallT->Branch ("bH_pz", &m_bH_pz, "bH_pz/F") ;
       m_smallT->Branch ("bH_e", &m_bH_e, "bH_e/F") ;
       
+      m_smallT->Branch ("HHsvfit_px", &m_HHsvfit_px, "HHsvfit_px/F") ;
+      m_smallT->Branch ("HHsvfit_py", &m_HHsvfit_py, "HHsvfit_py/F") ;
+      m_smallT->Branch ("HHsvfit_pz", &m_HHsvfit_pz, "HHsvfit_pz/F") ;
+      m_smallT->Branch ("HHsvfit_e", &m_HHsvfit_e, "HHsvfit_e/F") ;
       m_smallT->Branch ("HH_px", &m_HH_px, "HH_px/F") ;
       m_smallT->Branch ("HH_py", &m_HH_py, "HH_py/F") ;
       m_smallT->Branch ("HH_pz", &m_HH_pz, "HH_pz/F") ;
       m_smallT->Branch ("HH_e", &m_HH_e, "HH_e/F") ;
-      
-      m_smallT->Branch ("HHKin_px", &m_HHKin_px, "HHKin_px/F") ;
-      m_smallT->Branch ("HHKin_py", &m_HHKin_py, "HHKin_py/F") ;
-      m_smallT->Branch ("HHKin_pz", &m_HHKin_pz, "HHKin_pz/F") ;
       m_smallT->Branch ("HHKin_mass", &m_HHKin_mass, "HHKin_mass/F") ;
+      m_smallT->Branch ("HHKin_chi2", &m_HHKin_chi2, "HHKin_chi2/F") ;
       
       m_smallT->Branch ("jets_px", &m_jets_px) ;
       m_smallT->Branch ("jets_py", &m_jets_py) ;
@@ -245,11 +248,14 @@ struct smallTree
   Float_t m_HH_pz ;
   Float_t m_HH_e ;
 
+  Float_t m_HHsvfit_px ;
+  Float_t m_HHsvfit_py ;
+  Float_t m_HHsvfit_pz ;
+  Float_t m_HHsvfit_e ;
+
   // the di-higgs candidate
-  Float_t m_HHKin_px ;
-  Float_t m_HHKin_py ;
-  Float_t m_HHKin_pz ;
   Float_t m_HHKin_mass ;
+  Float_t m_HHKin_chi2 ;
 
   // additional jets
   std::vector<Float_t> m_jets_px ;
