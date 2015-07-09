@@ -219,10 +219,12 @@ int main (int argc, char** argv)
         {
           // skip the H decay candiates
           if (iLep == firstDaughterIndex || iLep == secondDaughterIndex) continue ;
-          // quality selections on leptons (ISO etc) FIXME
 
           // remove taus
-          if (theBigTree.particleType->at (iLep) == 2) continue ;
+          if (theBigTree.particleType->at (iLep) == 2)
+            {
+              continue ;
+            }  
           else if (theBigTree.particleType->at (iLep) == 0) // muons
             {
               if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3)) continue ;
