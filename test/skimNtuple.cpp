@@ -26,6 +26,18 @@ using namespace std ;
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
+struct leptSort: public std::binary_function<pair<TLorentzVector, float> &, pair<TLorentzVector, float> &, bool>
+{
+  bool operator() (pair<TLorentzVector, float> & x, pair<TLorentzVector, float> & y)
+    {
+      return x.first.Pt () < y.first.Pt () ;
+    }
+} ;
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
 template <class T>
 struct scoreSortSingle: public std::binary_function<pair <T, float> &, pair <T, float> &, bool>
 {
@@ -87,7 +99,17 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       
       // by now take the OS pair with largest pT
-      int chosenTauPair = 0 ;
+      int chosenTauPair = -1 ;
+      
+      for (int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
+        {
+          if (oph.pairPassBaseline (&theBigTree, iPair, "All")) //FIXME cosa e' whatapply?
+            {
+              chosenTauPair = iPair ;
+              break ; 
+            }
+        }  
+      if (chosenTauPair < 0) continue ;
       
       int firstDaughterIndex = theBigTree.indexDau1->at (chosenTauPair) ;  
       TLorentzVector tlv_firstLepton
@@ -182,9 +204,9 @@ int main (int argc, char** argv)
       theSmallTree.m_dau1_e = theBigTree.daughters_e->at (firstDaughterIndex) ;
       theSmallTree.m_dau1_flav = theBigTree.daughters_charge->at (firstDaughterIndex) * 
                                  (theBigTree.particleType->at (firstDaughterIndex) + 1) ;
-                                 // 1 = from electrons collection ??? FIXME
-                                 // 2 = from muons collection ??? FIXME
-                                 // 3 = from tauH collection ??? FIXME
+                                 // 1 = from muons collection
+                                 // 2 = from electrons collection
+                                 // 3 = from tauH collection
                                  
       theSmallTree.m_dau2_px = theBigTree.daughters_px->at (secondDaughterIndex) ;
       theSmallTree.m_dau2_py = theBigTree.daughters_py->at (secondDaughterIndex) ;
@@ -195,24 +217,52 @@ int main (int argc, char** argv)
 
       // FIXME i leptoni sono ordinati in tipo, riordina!!
       // loop over leptons
+      vector<pair<TLorentzVector, float> > dummyLeptCollection ;
       for (int iLep = 0 ; 
-           (iLep < theBigTree.daughters_px->size ()) && (theSmallTree.m_nleps < 2) ; 
+           (iLep < theBigTree.daughters_px->size ()) ;
            ++iLep)
         {
           // skip the H decay candiates
           if (iLep == firstDaughterIndex || iLep == secondDaughterIndex) continue ;
           // quality selections on leptons (ISO etc) FIXME
-          
-          theSmallTree.m_leps_px.push_back (theBigTree.daughters_px->at (iLep)) ;
-          theSmallTree.m_leps_py.push_back (theBigTree.daughters_py->at (iLep)) ;
-          theSmallTree.m_leps_pz.push_back (theBigTree.daughters_pz->at (iLep)) ;
-          theSmallTree.m_leps_e.push_back (theBigTree.daughters_e->at (iLep)) ;
-          theSmallTree.m_leps_flav.push_back (
-              theBigTree.daughters_charge->at (iLep) * 
-              (theBigTree.particleType->at (iLep) + 1)
+
+          // remove taus
+          if (theBigTree.particleType->at (iLep) == 2) continue ;
+          else if (theBigTree.particleType->at (iLep) == 0) // muons
+            {
+              if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3)) continue ;
+            }
+          else if (theBigTree.particleType->at (iLep) == 1) // electrons
+            {
+              if (!oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, 1)) continue ;
+            }
+          TLorentzVector tlv_dummyLepton
+            (
+              theBigTree.daughters_px->at (iLep),
+              theBigTree.daughters_py->at (iLep),
+              theBigTree.daughters_pz->at (iLep),
+              theBigTree.daughters_e->at (iLep)
             ) ;
-          ++theSmallTree.m_nleps ;
+          dummyLeptCollection.push_back (pair<TLorentzVector, float> (
+              tlv_dummyLepton, 
+              theBigTree.daughters_charge->at (iLep) * 
+              (theBigTree.particleType->at (iLep) + 1)              
+            )) ;
+          
         } // loop over leptons
+
+      sort (dummyLeptCollection.rbegin (), dummyLeptCollection.rend (), leptSort ()) ;
+      for (int iLep = 0 ; 
+           (iLep < dummyLeptCollection.size ()) && (theSmallTree.m_nleps < 2) ;
+           ++iLep)
+        {
+          theSmallTree.m_leps_px.push_back (dummyLeptCollection.at (iLep).first.Px ()) ;
+          theSmallTree.m_leps_py.push_back (dummyLeptCollection.at (iLep).first.Py ()) ;
+          theSmallTree.m_leps_pz.push_back (dummyLeptCollection.at (iLep).first.Pz ()) ;
+          theSmallTree.m_leps_e.push_back (dummyLeptCollection.at (iLep).first.E ()) ;
+          theSmallTree.m_leps_flav.push_back (dummyLeptCollection.at (iLep).second) ;
+          ++theSmallTree.m_nleps ;
+        } 
 
       theSmallTree.m_bjet1_px = theBigTree.jets_px->at (firstBjetIndex) ;
       theSmallTree.m_bjet1_py = theBigTree.jets_py->at (firstBjetIndex) ;
@@ -230,7 +280,7 @@ int main (int argc, char** argv)
 
       // loop over jets
       for (int iJet = 0 ; 
-           (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < 2) ; 
+           (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < 2) ;
            ++iJet)
         {
           // PG filter jets at will
@@ -308,6 +358,7 @@ int main (int argc, char** argv)
       theSmallTree.Fill () ;
     } // loop over events
 
+  cout << "efficiency = " << selectedEvents / eventsNumber << endl ;
   TH1F h_eff ("h_eff", "h_eff", 2, 0, 2) ;
   h_eff.Fill (0.5, eventsNumber) ;
   h_eff.Fill (1.5, selectedEvents) ;

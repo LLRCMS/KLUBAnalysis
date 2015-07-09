@@ -27,6 +27,24 @@ OfflineProducerHelper::OfflineProducerHelper(){
     triggerlist[i].Prepend("HLT_");
     triggerlist[i].Append("_v1");
   }
+
+  // MVA ele ID from here:
+  //  https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun2#Non_triggering_electron_MVA
+  // 80%
+  m_MVAEleIDCuts[0][0][0] = -0.253 ; // barrel (eta<0.8) pt 5-10 GeV      
+  m_MVAEleIDCuts[0][0][1] =  0.081 ; // barrel (eta>0.8) pt 5-10 GeV      
+  m_MVAEleIDCuts[0][0][2] = -0.081 ; // endcap pt 5-10 GeV                
+  m_MVAEleIDCuts[0][1][0] =  0.965 ; // barrel (eta<0.8) pt above 10 GeV  
+  m_MVAEleIDCuts[0][1][1] =  0.917 ; // barrel (eta>0.8) pt above 10 GeV  
+  m_MVAEleIDCuts[0][1][2] =  0.683 ; // endcap pt above 10 GeV            
+
+  // 90%
+  m_MVAEleIDCuts[1][0][0] = -0.483 ; // barrel (eta<0.8) pt 5-10 GeV     
+  m_MVAEleIDCuts[1][0][1] = -0.267 ; // barrel (eta>0.8) pt 5-10 GeV     
+  m_MVAEleIDCuts[1][0][2] = -0.323 ; // endcap pt 5-10 GeV               
+  m_MVAEleIDCuts[1][1][0] = 0.933  ; // barrel (eta<0.8) pt above 10 GeV 
+  m_MVAEleIDCuts[1][1][1] = 0.825  ; // barrel (eta>0.8) pt above 10 GeV 
+  m_MVAEleIDCuts[1][1][2] = 0.337  ; // endcap pt above 10 GeV           
 }
 
 int OfflineProducerHelper::FindTriggerNumber(TString triggername){
@@ -111,7 +129,7 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
 
     if (pairType == EHad)
     {
-        bool leg1 = eleBaseline (tree, dau1index, 23., 0.1, whatApply);
+        bool leg1 = eleBaseline (tree, dau1index, 23., 0.1, 0, whatApply);
         bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, 1.5, whatApply);
         return (leg1 && leg2);
     }
@@ -126,7 +144,7 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
 
     if (pairType == EMu)
     {
-        bool leg1 = eleBaseline (tree, dau1index, 13., 0.15, whatApply);
+        bool leg1 = eleBaseline (tree, dau1index, 13., 0.15, 0, whatApply);
         bool leg2 = muBaseline (tree, dau2index, 9., 2.4, 0.15, whatApply);
         return (leg1 && leg2);
     }
@@ -140,7 +158,10 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
 }
 
 
-bool OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau, float ptMin, float relIso, TString whatApply)
+bool 
+OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau, 
+                                    float ptMin, float relIso, int MVAIDflag, 
+                                    TString whatApply)
 { 
     float px = tree->daughters_px->at(iDau);
     float py = tree->daughters_py->at(iDau);
@@ -169,12 +190,13 @@ bool OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau, float ptMin, f
     }
 
     bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
-    //bool idS = checkBit (tree->daughters_iseleCUT->at(iDau), 3) || byp_idS; // 3 is TIGHT ele id CUT BASED
-    bool idS = tree->daughters_iseleBDT->at(iDau) || byp_idS; // use it in ntuples produced after 11 June 2015, contains tight WP bool  
-    //bool idS = tightEleMVAID (tree->discriminator->at(iDau), TMath::Abs(p4.Eta())) || byp_idS; // APPROX! Using lepton eta and not super cluster eta, discriminator contains ele BDT  
-    bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
     bool etaS = (fabs(p4.Eta()) < 2.5) || byp_etaS;
+    //bool idS = checkBit (tree->daughters_iseleCUT->at(iDau), 3) || byp_idS; // 3 is TIGHT ele id CUT BASED
+    bool idS = EleMVAID (tree->discriminator->at (iDau), p4.Eta (), p4.Pt (), MVAIDflag) || byp_idS ; // 2015/07/09 PG
+    //bool idS = tree->daughters_iseleBDT->at(iDau) || byp_idS; // use it in ntuples produced after 11 June 2015, contains tight WP bool  
+    //bool idS = tightEleMVAID (tree->discriminator->at(iDau), TMath::Abs(p4.Eta())) || byp_idS; // APPROX! Using lepton eta and not super cluster eta, discriminator contains ele BDT  
+    bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
     
     bool totalS = (vertexS && idS && isoS && ptS && etaS);
     return totalS;
@@ -303,6 +325,19 @@ bool OfflineProducerHelper::tightEleMVAID (float BDT, float fSCeta)
     
     return isBDT;
 }
+
+
+bool 
+OfflineProducerHelper::EleMVAID (float BDT, float eta, float pT, int strength)
+  {
+    // 0 = tight (80%), 1 = loose (90%)
+    if (pT < 5) return false ;
+    int etaBin = 0 ;
+    if (fabs (eta > 0.8)) etaBin = 1 ;
+    if (fabs (eta > 1.479)) etaBin = 2 ;
+    return BDT > m_MVAEleIDCuts[strength][pT>10][etaBin] ;
+  }
+
 
 TLorentzVector OfflineProducerHelper::buildDauP4 (bigTree* tree, int iDau)
 {
