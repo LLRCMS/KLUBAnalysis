@@ -26,6 +26,12 @@ struct smallTree
       m_PUReweight = -1. ;
       m_EventNumber = -1. ;
       m_RunNumber = -1. ;
+      
+      m_npv = -1. ;
+      m_npu = -1. ;
+      m_lumi = -1. ;
+      m_triggerbit = -1. ;
+      m_rho = -1. ;
 
       m_met_pt = -1. ;
       m_met_eta = -1. ;
@@ -105,8 +111,14 @@ struct smallTree
     {      
       m_smallT->Branch ("MC_weight", &m_MC_weight, "MC_weight/F") ;
       m_smallT->Branch ("PUReweight", &m_PUReweight, "PUReweight/F") ;
-      m_smallT->Branch ("EventNumber", &m_EventNumber, "EventNumber/F") ;
-      m_smallT->Branch ("RunNumber", &m_RunNumber, "RunNumber/F") ;
+      m_smallT->Branch ("EventNumber", &m_EventNumber, "EventNumber/I") ;
+      m_smallT->Branch ("RunNumber", &m_RunNumber, "RunNumber/I") ;
+
+      m_smallT->Branch ("npv", &m_npv, "npv/I") ;
+      m_smallT->Branch ("npu", &m_npu, "npu/I") ;
+      m_smallT->Branch ("lumi", &m_lumi, "lumi/I") ;
+      m_smallT->Branch ("triggerbit", &m_triggerbit, "triggerbit/I") ;
+      m_smallT->Branch ("rho", &m_rho, "rho/F") ;
 
       m_smallT->Branch ("met_pt", &m_met_pt, "met_pt/F") ;
       m_smallT->Branch ("met_eta", &m_met_eta, "met_eta/F") ;
@@ -189,6 +201,17 @@ struct smallTree
   Float_t m_PUReweight ;
   Int_t m_EventNumber ;
   Int_t m_RunNumber ;
+
+  Int_t m_npv ;
+  Int_t m_npu ;
+  Int_t m_lumi ;
+  Int_t m_triggerbit ;
+  Float_t m_rho ;
+
+//FIXME what about these?
+//    Int_t           metfilterbit;
+//    Float_t         met;
+//    Float_t         metphi;
 
   // MET
   Float_t m_met_pt ;

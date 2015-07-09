@@ -35,7 +35,6 @@ typedef LorentzVector<ROOT::Math::PxPyPzE4D<double> > lorentzVector ;
 */
 
 
-
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
@@ -116,6 +115,7 @@ int main (int argc, char** argv)
       
       for (int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
         {
+//FIXME should we check whether it's an OS candidate?
           if (oph.pairPassBaseline (&theBigTree, iPair, "All"))
             {
               chosenTauPair = iPair ;
@@ -190,8 +190,11 @@ int main (int argc, char** argv)
       theSmallTree.m_MC_weight = theBigTree.MC_weight ;
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
       theSmallTree.m_RunNumber = theBigTree.RunNumber ;
-      //FIXME NPU
-      //FIXME NPV
+      theSmallTree.m_npv = theBigTree.npv ;
+      theSmallTree.m_npu = theBigTree.npu ;
+      theSmallTree.m_lumi = theBigTree.lumi ;
+      theSmallTree.m_triggerbit = theBigTree.triggerbit ;
+      theSmallTree.m_rho = theBigTree.rho ;
       
       theSmallTree.m_tauH_pt = tlv_tauH.Pt () ;
       theSmallTree.m_tauH_eta = tlv_tauH.Eta () ;
