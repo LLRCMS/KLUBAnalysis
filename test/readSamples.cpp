@@ -1,47 +1,12 @@
 #include <iostream>
 #include <vector>
 #include "ConfigParser.h"
+#include "utils.h"
 #include "TString.h"
 #include "TChain.h"
+#include "TCut.h"
 
 using namespace std ;
-
-struct sample
-{
-  sample (TString name) : 
-    sampleName (name) ,
-    sampleChain (new TChain ("HTauTauTree")) {}
-  int addFiles (TString name) 
-    {
-      if (sampleChain->GetEntries () != 0) return -1 ;
-      rootFilesFolder = name ;
-      sampleChain->Add (rootFilesFolder + "/*.root") ;
-      return sampleChain->GetEntriesFast () ;
-    } 
-  TString sampleName ;
-  TString rootFilesFolder ;
-  TChain * sampleChain ;
-} ;
-
-
-int
-readSamples (vector<sample> & samples, vector<string> & samplesList)
-{
-  for (unsigned int iSample = 0 ; iSample < samplesList.size () ; ++iSample)
-    {
-      TString sampleFolder = gConfigParser->readStringOption (
-          TString ("samples::") + samplesList.at (iSample).c_str ()
-        ) ;
-      cout << "reading " << samplesList.at (iSample) << " : " << sampleFolder << "\n" ; 
-      samples.push_back (sample (samplesList.at (iSample))) ; 
-      int done = samples.back ().addFiles (sampleFolder) ;  
-      cout << " --> read " << done << " events\n" ; 
-    }
-  return 0 ;
-}
-
-
-// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
 int main (int argc, char** argv)
@@ -63,6 +28,8 @@ int main (int argc, char** argv)
       return -1 ;
     }
 
+  // get the samples to be analised
+
   vector<string> sigSamplesList = gConfigParser->readStringListOption ("general::signals") ;
   vector<sample> sigSamples ;
   readSamples (sigSamples, sigSamplesList) ;
@@ -71,10 +38,17 @@ int main (int argc, char** argv)
   vector<sample> bkgSamples ;
   readSamples (bkgSamples, bkgSamplesList) ;
 
-//   vector<string> sigSamplesList = gConfigParser->readStringListOption ("general::signals") ;
-//   
-//   
-//   vector<string> bkgSamplesList = gConfigParser->readStringListOption ("general::backgrounds") ;
+  vector<pair <TString, TCut> > selections ;
+  vector<string> selList = gConfigParser->readStringListOption ("selections::list") ;
+  for (unsigned int i = 0 ; i < selList.size () ; ++i)
+    {
+      string thisCut = gConfigParser->readStringOption (
+          TString ("selections::") + selList.at (i)
+        ) ;
+      selections.push_back (pair <TString, TCut> (selList.at (i).c_str (), thisCut.c_str ())) ;
+    }
+  
+
 //   vector<string> variablesList = gConfigParser->readStringListOption ("general::variables") ;
 
   
