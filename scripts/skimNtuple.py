@@ -37,7 +37,7 @@ if __name__ == "__main__":
         os.system ('rm -rf ' + opt.output + '/*')
     os.system ('mkdir ' + opt.output)
     
-    inputfiles = glob.glob (opt.input + '/*.root')    
+    inputfiles = glob.glob (opt.input + '/output*.root')    
     currFolder = os.getcwd ()
     jobsDir = currFolder + '/SKIM_' + basename (opt.input)
     os.system ('mkdir ' + jobsDir)
@@ -59,7 +59,7 @@ if __name__ == "__main__":
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('cd %s\n'%currFolder)
         scriptFile.write ('./bin/skimNtuple.exe ' + filename + ' ' + opt.output + '/' + basename (filename) + ' ' + opt.xs + '\n')
-        scriptFile.write ('touch ' + jobsDir + ' done_' + n + '\n')
+        scriptFile.write ('touch ' + jobsDir + ' done_%d\n'%n)
         #FIXME mancano i log
         scriptFile.write ('echo "All done for job %d" \n'%n)
         scriptFile.close ()
