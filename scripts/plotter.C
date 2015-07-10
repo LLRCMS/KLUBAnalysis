@@ -91,11 +91,11 @@ void plotter(){
     }
   }
   //make Stack plots
-  THStack *hstack[nB+nS];//one stack for variable
+  THStack *hstack[nVars];//one stack for variable
   for(int iv =0; iv<nVars; iv++){
     TString outputName;outputName.Form("stack_%s",Variables[iv].Data());
     hstack[iv]=new THStack(outputName.Data(),outputName.Data());
-    for(int i =0; i<nB+nS; i++)hstack[i]->Add(histos[iv][i]);
+    for(int i =0; i<nB+nS; i++)hstack[iv]->Add(histos[iv][i]);
     TCanvas *c = new TCanvas(Variables[iv].Data());
     c->cd();
     hstack[iv]->Draw();
