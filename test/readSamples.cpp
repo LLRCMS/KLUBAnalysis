@@ -1,47 +1,12 @@
 #include <iostream>
 #include <vector>
 #include "ConfigParser.h"
+#include "utils.h"
 #include "TString.h"
 #include "TChain.h"
+#include "TCut.h"
 
 using namespace std ;
-
-struct sample
-{
-  sample (TString name) : 
-    sampleName (name) ,
-    sampleChain (new TChain ("HTauTauTree")) {}
-  int addFiles (TString name) 
-    {
-      if (sampleChain->GetEntries () != 0) return -1 ;
-      rootFilesFolder = name ;
-      sampleChain->Add (rootFilesFolder + "/*.root") ;
-      return sampleChain->GetEntriesFast () ;
-    } 
-  TString sampleName ;
-  TString rootFilesFolder ;
-  TChain * sampleChain ;
-} ;
-
-
-int
-readSamples (vector<sample> & samples, vector<string> & samplesList)
-{
-  for (unsigned int iSample = 0 ; iSample < samplesList.size () ; ++iSample)
-    {
-      TString sampleFolder = gConfigParser->readStringOption (
-          TString ("samples::") + samplesList.at (iSample).c_str ()
-        ) ;
-      cout << "reading " << samplesList.at (iSample) << " : " << sampleFolder << "\n" ; 
-      samples.push_back (sample (samplesList.at (iSample))) ; 
-      int done = samples.back ().addFiles (sampleFolder) ;  
-      cout << " --> read " << done << " events\n" ; 
-    }
-  return 0 ;
-}
-
-
-// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
 int main (int argc, char** argv)
@@ -63,6 +28,9 @@ int main (int argc, char** argv)
       return -1 ;
     }
 
+  // get the samples to be analised
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
   vector<string> sigSamplesList = gConfigParser->readStringListOption ("general::signals") ;
   vector<sample> sigSamples ;
   readSamples (sigSamples, sigSamplesList) ;
@@ -71,38 +39,21 @@ int main (int argc, char** argv)
   vector<sample> bkgSamples ;
   readSamples (bkgSamples, bkgSamplesList) ;
 
-//   vector<string> sigSamplesList = gConfigParser->readStringListOption ("general::signals") ;
-//   
-//   
-//   vector<string> bkgSamplesList = gConfigParser->readStringListOption ("general::backgrounds") ;
-//   vector<string> variablesList = gConfigParser->readStringListOption ("general::variables") ;
+  // get the selections to be applied
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  
-/*
+  vector<pair <TString, TCut> > selections = readCutsFile (
+      gConfigParser->readStringOption ("selections::selectionsFile")
+    ) ;
 
- // readBoolOption
-  string sTest          = gConfigParser->readStringOption ("field::stringa") ;
-  int iTest             = gConfigParser->readIntOption ("field::intero") ;
-  float fTest           = gConfigParser->readFloatOption ("field::reale") ;
-  vector<int> ivTest    = gConfigParser->readIntListOption ("field::intlist") ;
-  vector<float> fvTest  = gConfigParser->readFloatListOption ("field::floatlist") ;
+  for (unsigned int i = 0 ; i < selections.size () ; ++i)
+    cout << selections.at (i).first << " : " << selections.at (i).second << endl ;
 
-  cout << sTest << endl ;
-  cout << iTest << endl ;
-  cout << fTest << endl ;
-  cout << endl ;
-  for (int i = 0 ; i < ivTest.size () ; ++i)
-    cout << ivTest.at (i) << " " ;
-    
-  cout << endl ;
-  for (int i = 0 ; i < fvTest.size () ; ++i)
-    cout << fvTest.at (i) << " " ;
-    
-  cout << endl ;
-  for (int i = 0 ; i < svTest.size () ; ++i)
-    cout << svTest.at (i) << " " ;
-  cout << endl ;
-*/    
+  // get the variables to be plotted
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+  vector<string> variablesList = gConfigParser->readStringListOption ("general::variables") ;
+
   return 0 ;
 
 }

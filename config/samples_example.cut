@@ -1,0 +1,3 @@
+all     = 1==1
+oneBtag = m_bjet1_bID > 0.5 || m_bjet2_bID > 0.5
+twoBtag = m_bjet1_bID > 0.5 && m_bjet2_bID > 0.5 
