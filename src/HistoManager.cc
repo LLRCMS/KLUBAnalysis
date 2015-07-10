@@ -1,4 +1,4 @@
-#include <HistoManager.h>
+#include "../interface/HistoManager.h"
 
 
 using namespace std;
@@ -48,14 +48,14 @@ TObject* HistoManager::GetElement (const char * objTag)
 void HistoManager::AddNewHisto (const char* name, const char* title, int nbinsx, double xlow, double xup)
 {
     string fullName = MakeStoredName (name);
-    TH1D* h = new TH1D (fullName.c_str(), title, nbinsx, xlow, xup);
+    TH1F* h = new TH1F (fullName.c_str(), title, nbinsx, xlow, xup);
     int i = AddElement (h, name);
     if (i == -1) delete h; // if not added
 }
 
-TH1D* HistoManager::GetHisto(const char* name)
+TH1F* HistoManager::GetHisto(const char* name)
 {
-    return ((TH1D*) GetElement(name));
+    return ((TH1F*) GetElement(name));
 }
 
 string HistoManager::MakeStoredName(const char * objTag)
