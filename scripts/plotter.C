@@ -1,7 +1,13 @@
 //I must add the XSection x BR from the histogram
 //gROOT->LoadMacro("../src/HistoManager.cc+");
 
+void FillHistos(int);
+
 void plotter(){
+  FillHistos(0);
+}
+
+void FillHistos(int selection=0){
   //gROOT->LoadMacro("../src/HistoManager.cc+");
 
   //Configurables: files and vars
@@ -48,7 +54,8 @@ void plotter(){
   cout<<"Called"<<endl;
  
   //Output file
-  TFile *fOut = new TFile("outPlotter.root","RECREATE");
+  TString outString;outString.Form("outPlotter_%d.root",selection);
+  TFile *fOut = new TFile(outString.Data(),"RECREATE");
 
   //Loop on the small trees and fill histograms
   for(int i =0; i<nB+nS; i++){
@@ -71,7 +78,12 @@ void plotter(){
       for(int iv =0; iv<nVars; iv++){//This is tooooo slow, better if I create an array of histos by myself, or if I add a search by index
 	//histoName.Form("%s_%s",Variables[iv].Data(),samples[i].Data());
 	//manager->GetHisto(histoName.Data())->Fill(address[i]);
-	histos[iv][i]->Fill(address[iv]);//lets see if this is faster
+	Bool_t passSelection=false;
+	if(selection==0)passSelection=true;
+	else if(selection==1){
+	  //Additional selections...
+	}
+	if(passSelection)histos[iv][i]->Fill(address[iv]);//lets see if this is faster
       }//loop on variables
     }//loop on tree entries
     //scale histos for effxBR
@@ -101,8 +113,8 @@ void plotter(){
     c->cd();
     hstack[iv]->Draw();
     for(int i =nB; i<nB+nS; i++)histos[iv][i]->Draw("EPSAME");
-    outputName.Append(".pdf");
-    c->SaveAs(outputName.Data());
+    TString coutputName;coutputName.Form("%s_%d.pdf",outputName.Data(),selection);
+    c->SaveAs(coutputName.Data());
     fOut->cd();
     hstack[iv]->Write();
     delete c;
