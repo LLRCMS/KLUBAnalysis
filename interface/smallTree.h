@@ -33,6 +33,10 @@ struct smallTree
       m_triggerbit = -1. ;
       m_rho = -1. ;
 
+      m_pairType = -1. ;
+      m_isMC = -1. ;
+      m_isOS = -1. ;
+      
       m_met_pt = -1. ;
       m_met_eta = -1. ;
       m_met_et = -1. ;
@@ -119,6 +123,10 @@ struct smallTree
       m_smallT->Branch ("lumi", &m_lumi, "lumi/I") ;
       m_smallT->Branch ("triggerbit", &m_triggerbit, "triggerbit/I") ;
       m_smallT->Branch ("rho", &m_rho, "rho/F") ;
+
+      m_smallT->Branch ("pairType", &m_pairType, "rho/I") ;
+      m_smallT->Branch ("isMC", &m_isMC, "isMC/I") ;
+      m_smallT->Branch ("isOS", &m_isOS, "isOS/I") ;
 
       m_smallT->Branch ("met_pt", &m_met_pt, "met_pt/F") ;
       m_smallT->Branch ("met_eta", &m_met_eta, "met_eta/F") ;
@@ -207,6 +215,10 @@ struct smallTree
   Int_t m_lumi ;
   Int_t m_triggerbit ;
   Float_t m_rho ;
+
+  Int_t m_pairType ;
+  Int_t m_isMC ;
+  Int_t m_isOS ;
 
 //FIXME what about these?
 //    Int_t           metfilterbit;

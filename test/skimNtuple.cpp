@@ -65,13 +65,14 @@ struct scoreSortSingle: public std::binary_function<pair <T, float> &, pair <T, 
 
 int main (int argc, char** argv)
 {
-  if (argc < 3) 
+  if (argc < 4) 
     {
       cerr << "missing input parameters" << endl ;
       exit (1) ;
     }
   TString inputFile = argv[1] ;
   TString outputFile = argv[2] ;
+  float XS = atof (argv[3]) ;
 
   OfflineProducerHelper oph ;
 
@@ -87,6 +88,11 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   float PUjetID_minCut = -0.5 ;
+  bool  isMC           = true ;
+  bool  saveOS         = true ; // save same-sign candidates
+
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
   vector<Int_t> hypo_mh1 ; //FIXME why is this an integer?!
   hypo_mh1.push_back (125) ;
   vector<Int_t> hypo_mh2 ;
@@ -115,15 +121,16 @@ int main (int argc, char** argv)
       
       for (int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
         {
-//FIXME should we check whether it's an OS candidate?
+          if (theBigTree.isOSCand->at (iPair) != saveOS) continue ;
           if (oph.pairPassBaseline (&theBigTree, iPair, "All"))
             {
               chosenTauPair = iPair ;
               break ; 
             }
+          
         }  
       if (chosenTauPair < 0) continue ;
-      
+
       int firstDaughterIndex = theBigTree.indexDau1->at (chosenTauPair) ;  
       TLorentzVector tlv_firstLepton
         (
@@ -140,6 +147,7 @@ int main (int argc, char** argv)
           theBigTree.daughters_pz->at (secondDaughterIndex),
           theBigTree.daughters_e->at (secondDaughterIndex)
         ) ;
+
       TLorentzVector tlv_tauH = tlv_firstLepton + tlv_secondLepton ;
 
       // the H > bb candidate
@@ -155,28 +163,14 @@ int main (int argc, char** argv)
           
           jets_and_btag.push_back (std::pair <int, float> (
               iJet, theBigTree.bCSVscore->at (iJet)
-            )) ;
-          
-          for (int jJet = iJet + 1 ; jJet < theBigTree.jets_px->size () ; ++jJet)
-            {
-              if (theBigTree.jets_PUJetID->at (jJet) < PUjetID_minCut) continue ;
-              pairs_and_btag.push_back (pair <pair <int, int>, float> (
-                  pair <int, int> (iJet, jJet), 
-                  theBigTree.bCSVscore->at (iJet) + theBigTree.bCSVscore->at (jJet) 
-                )) ;
-            }
+            )) ;          
         } // loop over jets
 
       if (jets_and_btag.size () < 2) continue ;
-
       sort (jets_and_btag.rbegin (), jets_and_btag.rend (), scoreSortSingle<int> ()) ;
       
       int firstBjetIndex = jets_and_btag.at (0).first ;
       int secondBjetIndex = jets_and_btag.at (1).first ;
-      sort (pairs_and_btag.rbegin (), pairs_and_btag.rend (), 
-            scoreSortSingle<pair<int, int> > ()) ;
-//      int firstBjetIndex = pairs_and_btag.at (0).first.first ;
-//      int secondBjetIndex = pairs_and_btag.at (0).first.second ;
 
       // apply some selections here
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -187,7 +181,7 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
       theSmallTree.m_PUReweight = theBigTree.PUReweight ;
-      theSmallTree.m_MC_weight = theBigTree.MC_weight ;
+      theSmallTree.m_MC_weight = theBigTree.MC_weight * XS ;
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
       theSmallTree.m_RunNumber = theBigTree.RunNumber ;
       theSmallTree.m_npv = theBigTree.npv ;
@@ -195,6 +189,12 @@ int main (int argc, char** argv)
       theSmallTree.m_lumi = theBigTree.lumi ;
       theSmallTree.m_triggerbit = theBigTree.triggerbit ;
       theSmallTree.m_rho = theBigTree.rho ;
+      theSmallTree.m_isMC = isMC ;
+      theSmallTree.m_isOS = theBigTree.isOSCand->at (chosenTauPair) ;
+
+      int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
+      int type2 = theBigTree.particleType->at (secondDaughterIndex) ;
+      theSmallTree.m_pairType = oph.getPairType (type1, type2) ;
       
       theSmallTree.m_tauH_pt = tlv_tauH.Pt () ;
       theSmallTree.m_tauH_eta = tlv_tauH.Eta () ;
@@ -354,7 +354,7 @@ int main (int argc, char** argv)
 
       // loop over jets
       for (int iJet = 0 ; 
-           (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < 2) ;
+           (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < 3) ;
            ++iJet)
         {
           // PG filter jets at will
