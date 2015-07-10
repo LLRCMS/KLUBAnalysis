@@ -6,11 +6,13 @@ TString Selection(int);
 
 void plotter(){
   FillHistos(0);
+  FillHistos(1);
+
 }
 
 TString Selection(int selection=0){
-  if(selection==0) return "";
-  else {}
+  if(selection==0) return "HH_pt>0";
+  else if(selection==1)return "HH_pt>400";
   return "";
 }
 
@@ -34,8 +36,10 @@ void FillHistos(int selection=0){
   float address[nVars];for(int i =0; i<nVars; i++)address[i]=0;
   TString histoName;
   TH1F *histos[nVars][nS+nB];
-  TFile *fIn[nS+nB]; 
-  for(int i=0;i<nS+nB;i++)fIn[i]= TFile::Open(files[i].Data());
+  TString outString;outString.Form("outPlotter_%d.root",selection);
+  TFile *fOut = new TFile(outString.Data(),"RECREATE");
+  //TFile *fIn[nS+nB]; for(int i=0;i<nS+nB;i++)fIn[i]= TFile::Open(files[i].Data());
+
   //Create histograms
   //cout<<"Calling histoManager..."<<endl;
   //HistoManager *manager = new HistoManager("test");
@@ -60,13 +64,18 @@ void FillHistos(int selection=0){
     }
   }
   //cout<<"Called"<<endl;
- 
+
   //Loop on the small trees and fill histograms
   for(int i =0; i<nB+nS; i++){
-
-    cout<<"processing sample "<<samples[i].Data()<<endl;
-    double eff = ((TH1F*)fIn[i]->Get("h_eff"))->GetBinContent(2)/((TH1F*)fIn[i]->Get("h_eff"))->GetBinContent(1);
-    TTree *tree = (TTree*)fIn[i]->Get("HTauTauTree");
+    TFile *fIn=TFile::Open(files[i].Data());
+    //cout<<"processing sample "<<samples[i].Data()<<endl;
+    double eff = ((TH1F*)fIn->Get("h_eff"))->GetBinContent(2)/((TH1F*)fIn->Get("h_eff"))->GetBinContent(1);
+    TTree *tree = (TTree*)fIn->Get("HTauTauTree");
+    TTreeFormula* TTF = new TTreeFormula("ttf0",Selection(selection).Data(),tree);
+    TBranch *mcweight = tree->GetBranch("MC_weight");
+    float weight;
+    mcweight->SetAddress(&weight);
+    //TTF->SetTree(tree);
     //TH1D *histos[nVars];
     for(int iv =0; iv<nVars; iv++){
       cout<<"    creating branch for "<<Variables[iv].Data()<<endl;
@@ -74,27 +83,25 @@ void FillHistos(int selection=0){
       branches[iv]->SetAddress(&(address[iv]));
       //histoName.Form("%s_%s",Variables[iv].Data(),samples[i].Data());
       //histos[iv]=manager->GetHisto(histoName.Data());
+      /*
+      //Use Draw instead of loop on the events in order to have TCut for selection
       TString drawCommand;
       drawCommand.Form("%s>>%s",Variables[iv].Data(),histos[iv][i]->GetName());
       tree->Draw(drawCommand.Data(),Selection(selection).Data());
       if(i>=nB)histos[iv][i]->Sumw2();
       histos[iv][i]->Scale(eff);
+      */
     }
-
-    //Use Draw instead of loop on the events in order to have TCut for selection
-    /*
+    
     for(int ien=0;ien<tree->GetEntries();ien++){
       //cout<<"         event "<<ien<<endl; 
       tree->GetEntry(ien);
+      if(! TTF->EvalInstance())continue;
+      //cout<<"         event "<<ien<<endl; 
       for(int iv =0; iv<nVars; iv++){//This is tooooo slow, better if I create an array of histos by myself, or if I add a search by index
 	//histoName.Form("%s_%s",Variables[iv].Data(),samples[i].Data());
 	//manager->GetHisto(histoName.Data())->Fill(address[i]);
-	Bool_t passSelection=false;
-	if(selection==0)passSelection=true;
-	else if(selection==1){
-	  //Additional selections...
-	}
-	if(passSelection)histos[iv][i]->Fill(address[iv]);//lets see if this is faster
+	histos[iv][i]->Fill(address[iv],weight);//lets see if this is faster
       }//loop on variables
     }//loop on tree entries
     //scale histos for effxBR
@@ -104,15 +111,12 @@ void FillHistos(int selection=0){
       if(i>=nB)histos[iv][i]->Sumw2();
       histos[iv][i]->Scale(eff);
     }
-    */
+    delete TTF;  
   }//loop on files
 
   //save all trees
   //manager->SaveAllToFile(fOut);
   //Output file
-  TString outString;outString.Form("outPlotter_%d.root",selection);
-  TFile *fOut = new TFile(outString.Data(),"RECREATE");
-
   fOut->cd();
   for(int iv =0; iv<nVars; iv++){
     for(int i =0; i<nB+nS; i++){
