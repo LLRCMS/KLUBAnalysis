@@ -1,0 +1,109 @@
+//I must add the XSection x BR from the histogram
+//gROOT->LoadMacro("../src/HistoManager.cc+");
+
+void plotter(){
+  //gROOT->LoadMacro("../src/HistoManager.cc+");
+
+  //Configurables: files and vars
+  const int nB = 1;
+  const int nS = 1;
+  const int nVars =2;
+  TString samples[nB+nS] ={"DY","Lambda1"};//CAUTION! Bkg before Sig!
+  TString files[nB+nS] = {"../test/test.root","../test/test.root"};
+  TString Variables[nVars] = {"HH_pt","HHKin_mass"};//same name as in the small tree
+  int xup[nVars]           = {900,900};
+  int xlow[nVars]          = {0,250};
+  int bins[nVars]          = {300,100};
+  int colors[]={kBlack,kRed,kGreen,kYellow+2,kRed+2,kMagenta,kCyan};//add more if needed
+
+  //Utilities
+  TBranch *branches[nVars];
+  float address[nVars];for(int i =0; i<nVars; i++)address[i]=0;
+  TString histoName;
+  TH1F *histos[nVars][nS+nB];
+
+  //Create histograms
+  //cout<<"Calling histoManager..."<<endl;
+  //HistoManager *manager = new HistoManager("test");
+  //cout<<"... called"<<endl;
+  for(int i =0; i<nVars; i++){
+    for(int j =0; j<nB+nS; j++){
+      histoName.Form("%s_%s",Variables[i].Data(),samples[j].Data());
+      //cout<<"adding "<<histoName.Data()<<" ..."<<endl;
+      //manager->AddNewHisto(histoName.Data(),histoName.Data(),bins[i],xlow[i],xup[i]);
+      //cout<<"... added!"<<endl;
+      histos[i][j]=new TH1F(histoName.Data(),histoName.Data(),bins[i],xlow[i],xup[i]);
+      if(j<nB){//background
+	histos[i][j]->SetFillStyle(3001);
+	histos[i][j]->SetFillColor(colors[j]);
+	histos[i][j]->SetLineColor(colors[j]);
+      }else{
+	histos[i][j]->SetFillStyle(0);
+	histos[i][j]->SetMarkerColor(colors[j]);
+	histos[i][j]->SetLineColor(colors[j]);
+	histos[i][j]->SetMarkerStyle(20);
+      }
+    }
+  }
+  cout<<"Called"<<endl;
+ 
+  //Output file
+  TFile *fOut = new TFile("outPlotter.root","RECREATE");
+
+  //Loop on the small trees and fill histograms
+  for(int i =0; i<nB+nS; i++){
+
+    cout<<"processing sample "<<samples[i].Data()<<endl;
+    TFile *fIn = TFile::Open(files[i].Data());
+    double eff = ((TH1F*)fIn->Get("h_eff"))->GetBinContent(1);
+    TTree *tree = (TTree*)fIn->Get("HTauTauTree");
+    //TH1D *histos[nVars];
+    for(int iv =0; iv<nVars; iv++){
+      cout<<"    creating branch for "<<Variables[iv].Data()<<endl;
+      branches[iv]=tree->GetBranch(Variables[iv].Data());
+      branches[iv]->SetAddress(&(address[iv]));
+      //histoName.Form("%s_%s",Variables[iv].Data(),samples[i].Data());
+      //histos[iv]=manager->GetHisto(histoName.Data());
+    }
+    for(int ien=0;ien<tree->GetEntries();ien++){
+      //cout<<"         event "<<ien<<endl; 
+      tree->GetEntry(ien);
+      for(int iv =0; iv<nVars; iv++){//This is tooooo slow, better if I create an array of histos by myself, or if I add a search by index
+	//histoName.Form("%s_%s",Variables[iv].Data(),samples[i].Data());
+	//manager->GetHisto(histoName.Data())->Fill(address[i]);
+	histos[iv][i]->Fill(address[iv]);//lets see if this is faster
+      }//loop on variables
+    }//loop on tree entries
+    //scale histos for effxBR
+    for(int iv =0; iv<nVars; iv++){
+      histoName.Form("%s_%s",Variables[iv].Data(),samples[i].Data());
+      //manager->GetHisto(histoName.Data())->Scale(eff);
+      histos[iv][i]->Scale(eff);
+    }
+  }//loop on files
+
+  //save all trees
+  //manager->SaveAllToFile(fOut);
+  fOut->cd();
+  for(int iv =0; iv<nVars; iv++){
+    for(int i =0; i<nB+nS; i++){
+      histos[iv][i]->Write();
+    }
+  }
+  //make Stack plots
+  THStack *hstack[nB];//one stack for variable
+  for(int iv =0; iv<nVars; iv++){
+    TString outputName;outputName.Form("stack_%s",Variables[iv].Data());
+    hstack[iv]=new THStack(outputName.Data(),outputName.Data());
+    for(int i =0; i<nB+nS; i++)hstack[i]->Add(histos[iv][i]);
+    TCanvas *c = new TCanvas(Variables[iv].Data());
+    c->cd();
+    hstack[iv]->Draw();
+    //for(int i =nB; i<nS; i++)histos[iv][i]->Draw("SAME");
+    outputName.Append(".pdf");
+    c->SaveAs(outputName.Data());
+    fOut->cd();
+    hstack[iv]->Write();
+    delete c;
+  }
+}
