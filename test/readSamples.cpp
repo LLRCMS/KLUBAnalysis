@@ -38,16 +38,12 @@ int main (int argc, char** argv)
   vector<sample> bkgSamples ;
   readSamples (bkgSamples, bkgSamplesList) ;
 
-  vector<pair <TString, TCut> > selections ;
-  vector<string> selList = gConfigParser->readStringListOption ("selections::list") ;
-  for (unsigned int i = 0 ; i < selList.size () ; ++i)
-    {
-      string thisCut = gConfigParser->readStringOption (
-          TString ("selections::") + selList.at (i)
-        ) ;
-      selections.push_back (pair <TString, TCut> (selList.at (i).c_str (), thisCut.c_str ())) ;
-    }
-  
+  vector<pair <TString, TCut> > selections = readCutsFile (
+      gConfigParser->readStringOption ("selections::selectionsFile")
+    ) ;
+
+  for (unsigned int i = 0 ; i < selections.size () ; ++i)
+    cout << selections.at (i).first << " : " << selections.at (i).second << endl ;
 
 //   vector<string> variablesList = gConfigParser->readStringListOption ("general::variables") ;
 

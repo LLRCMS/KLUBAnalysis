@@ -2,6 +2,13 @@
 #define utils_h
 
 #include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <map>
+#include <algorithm>
+#include <cstdlib>
 #include <vector>
 #include "ConfigParser.h"
 #include "TString.h"
@@ -27,6 +34,7 @@ struct sample
 
 
 int readSamples (vector<sample> & samples, vector<string> & samplesList) ;
+vector<pair<TString, TCut> > readCutsFile (string filename) ;
 
 
 #endif

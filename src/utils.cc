@@ -1,5 +1,6 @@
 #include "utils.h"
 
+using namespace std ;
 
 int
 readSamples (vector<sample> & samples, vector<string> & samplesList)
@@ -20,3 +21,29 @@ readSamples (vector<sample> & samples, vector<string> & samplesList)
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
+
+vector<pair<TString, TCut> >
+readCutsFile (string filename)
+{
+  ifstream infile (filename) ;
+  vector<pair<TString, TCut> > selections ;
+
+  string line ;
+  while (getline (infile, line))
+    {
+      istringstream iss (line) ;
+      string dummy ;
+      iss >> dummy ;
+      if (dummy.size () < 2) continue ;
+      size_t found = dummy.find ("%") ;
+      if (found != string::npos) continue ;
+      size_t limit = line.find_first_of ("=") ;
+      if (limit == string::npos) continue ;
+//       cout << line << endl ;
+//       cout << limit << endl ;
+      string selection = line.substr (limit+1) ;
+//       cout << dummy << "|" << selection << endl ;
+      selections.push_back (pair<TString, TCut> (dummy.c_str (), selection.c_str ())) ;
+    }
+  return selections ;  
+}
