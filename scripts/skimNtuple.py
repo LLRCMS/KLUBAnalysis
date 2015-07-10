@@ -6,6 +6,7 @@ import fileinput
 import commands
 import time
 import glob
+import subprocess
 from os.path import basename
 
 
@@ -41,8 +42,10 @@ if __name__ == "__main__":
     jobsDir = currFolder + '/SKIM_' + basename (opt.input)
     os.system ('mkdir ' + jobsDir)
 
-    #initialize t3 for submission
-#    os.system ('source /opt/exp_soft/cms/t3/t3setup')
+    proc = subprocess.Popen ('voms-proxy-info', stdout=subprocess.PIPE)
+    tmp = [word for word in proc.stdout.read ().split ('\n') if 'timeleft' in word]
+    if len (tmp) == 0 or int (tmp[0].split (':')[1]) < 24 : # hours
+        os.system ('source /opt/exp_soft/cms/t3/t3setup')
 
     n = int (0)
     for filename in inputfiles : 
