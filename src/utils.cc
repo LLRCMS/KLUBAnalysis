@@ -2,6 +2,27 @@
 
 using namespace std ;
 
+
+float sample::calcEfficiency ()
+{
+  TObjArray * fileElements = sampleChain->GetListOfFiles () ;
+  TIter next (fileElements) ;
+  TChainElement *chEl = (TChainElement*) next () ;
+  TFile f (chEl->GetTitle ()) ;
+  TH1F * effHisto = (TH1F *) ((TH1F *) f.Get ("h_eff"))->Clone (TString ("effHisto_") + sampleName) ;
+  while (( chEl = (TChainElement*) next ())) 
+    {
+      TFile f (chEl->GetTitle ()) ;
+      effHisto->Add ((TH1F *) f.Get ("h_eff")) ;
+    }
+  if (effHisto->GetBinContent (1) == 0) return 0. ; 
+  return effHisto->GetBinContent (2) / effHisto->GetBinContent (1) ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
 int
 readSamples (vector<sample> & samples, vector<string> & samplesList)
 {

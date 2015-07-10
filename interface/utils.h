@@ -13,7 +13,11 @@
 #include "ConfigParser.h"
 #include "TString.h"
 #include "TChain.h"
+#include "TChainElement.h"
+#include "TFile.h"
+#include "TObjArray.h"
 #include "TCut.h"
+#include "TH1F.h"
 
 struct sample
 {
@@ -25,11 +29,14 @@ struct sample
       if (sampleChain->GetEntries () != 0) return -1 ;
       rootFilesFolder = name ;
       sampleChain->Add (rootFilesFolder + "/*.root") ;
-      return sampleChain->GetEntriesFast () ;
+      eff = calcEfficiency () ;
+      return sampleChain->GetEntries () ;
     } 
+  float calcEfficiency () ;
   TString sampleName ;
   TString rootFilesFolder ;
   TChain * sampleChain ;
+  float eff ;
 } ;
 
 

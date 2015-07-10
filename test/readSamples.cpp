@@ -29,6 +29,7 @@ int main (int argc, char** argv)
     }
 
   // get the samples to be analised
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   vector<string> sigSamplesList = gConfigParser->readStringListOption ("general::signals") ;
   vector<sample> sigSamples ;
@@ -38,6 +39,9 @@ int main (int argc, char** argv)
   vector<sample> bkgSamples ;
   readSamples (bkgSamples, bkgSamplesList) ;
 
+  // get the selections to be applied
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
   vector<pair <TString, TCut> > selections = readCutsFile (
       gConfigParser->readStringOption ("selections::selectionsFile")
     ) ;
@@ -45,34 +49,11 @@ int main (int argc, char** argv)
   for (unsigned int i = 0 ; i < selections.size () ; ++i)
     cout << selections.at (i).first << " : " << selections.at (i).second << endl ;
 
-//   vector<string> variablesList = gConfigParser->readStringListOption ("general::variables") ;
+  // get the variables to be plotted
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  
-/*
+  vector<string> variablesList = gConfigParser->readStringListOption ("general::variables") ;
 
- // readBoolOption
-  string sTest          = gConfigParser->readStringOption ("field::stringa") ;
-  int iTest             = gConfigParser->readIntOption ("field::intero") ;
-  float fTest           = gConfigParser->readFloatOption ("field::reale") ;
-  vector<int> ivTest    = gConfigParser->readIntListOption ("field::intlist") ;
-  vector<float> fvTest  = gConfigParser->readFloatListOption ("field::floatlist") ;
-
-  cout << sTest << endl ;
-  cout << iTest << endl ;
-  cout << fTest << endl ;
-  cout << endl ;
-  for (int i = 0 ; i < ivTest.size () ; ++i)
-    cout << ivTest.at (i) << " " ;
-    
-  cout << endl ;
-  for (int i = 0 ; i < fvTest.size () ; ++i)
-    cout << fvTest.at (i) << " " ;
-    
-  cout << endl ;
-  for (int i = 0 ; i < svTest.size () ; ++i)
-    cout << svTest.at (i) << " " ;
-  cout << endl ;
-*/    
   return 0 ;
 
 }
