@@ -31,7 +31,7 @@ if __name__ == "__main__":
         print 'input folder', opt.input, 'not existing, exiting'
         sys.exit (1)
     if not opt.force and os.path.exists (opt.output) :
-        print 'input folder', opt.output, 'existing, exiting'
+        print 'output folder', opt.output, 'existing, exiting'
         sys.exit (1)
     elif os.path.exists (opt.output) :
         os.system ('rm -rf ' + opt.output + '/*')
@@ -58,8 +58,9 @@ if __name__ == "__main__":
         scriptFile.write ('export SCRAM_ARCH=slc6_amd64_gcc472\n')
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('cd %s\n'%currFolder)
+        scriptFile.write ('source scripts/setup.sh\n')
         scriptFile.write ('./bin/skimNtuple.exe ' + filename + ' ' + opt.output + '/' + basename (filename) + ' ' + opt.xs + '\n')
-        scriptFile.write ('touch ' + jobsDir + ' done_%d\n'%n)
+        scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
         #FIXME mancano i log
         scriptFile.write ('echo "All done for job %d" \n'%n)
         scriptFile.close ()
