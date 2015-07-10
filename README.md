@@ -12,3 +12,9 @@ repo for the h->hh analysis within the LLR framework
  * source scipts/setup.sh
  * make
  * make exe
+ 
+Example of how to skim the big ntuples:
+
+```
+python scripts/skimNtuple.py -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_DY_-1Events_0Skipped_1436202480.82 -x 6025.2
+```
