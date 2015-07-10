@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include "ConfigParser.h"
 #include "TString.h"
 
