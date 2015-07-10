@@ -91,7 +91,7 @@ void plotter(){
     }
   }
   //make Stack plots
-  THStack *hstack[nB];//one stack for variable
+  THStack *hstack[nB+nS];//one stack for variable
   for(int iv =0; iv<nVars; iv++){
     TString outputName;outputName.Form("stack_%s",Variables[iv].Data());
     hstack[iv]=new THStack(outputName.Data(),outputName.Data());
