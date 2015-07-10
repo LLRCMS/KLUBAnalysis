@@ -1,5 +1,3 @@
-// c++ -o skimNtuple `root-config --cflags --glibs --libs` -lm skimNtuple.cpp
-
 #include <iostream>
 #include "TTree.h"
 #include "TH1F.h"
