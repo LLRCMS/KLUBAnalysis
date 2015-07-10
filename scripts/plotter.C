@@ -34,7 +34,7 @@ void plotter(){
       //cout<<"... added!"<<endl;
       histos[i][j]=new TH1F(histoName.Data(),histoName.Data(),bins[i],xlow[i],xup[i]);
       if(j<nB){//background
-	histos[i][j]->SetFillStyle(3001);
+	histos[i][j]->SetFillStyle(1001);
 	histos[i][j]->SetFillColor(colors[j]);
 	histos[i][j]->SetLineColor(colors[j]);
       }else{
@@ -78,6 +78,7 @@ void plotter(){
     for(int iv =0; iv<nVars; iv++){
       histoName.Form("%s_%s",Variables[iv].Data(),samples[i].Data());
       //manager->GetHisto(histoName.Data())->Scale(eff);
+      if(i>=nB)histos[iv][i]->Sumw2();
       histos[iv][i]->Scale(eff);
     }
   }//loop on files
@@ -95,11 +96,11 @@ void plotter(){
   for(int iv =0; iv<nVars; iv++){
     TString outputName;outputName.Form("stack_%s",Variables[iv].Data());
     hstack[iv]=new THStack(outputName.Data(),outputName.Data());
-    for(int i =0; i<nB+nS; i++)hstack[iv]->Add(histos[iv][i]);
+    for(int i =0; i<nB; i++)hstack[iv]->Add(histos[iv][i]);
     TCanvas *c = new TCanvas(Variables[iv].Data());
     c->cd();
     hstack[iv]->Draw();
-    //for(int i =nB; i<nS; i++)histos[iv][i]->Draw("SAME");
+    for(int i =nB; i<nB+nS; i++)histos[iv][i]->Draw("EPSAME");
     outputName.Append(".pdf");
     c->SaveAs(outputName.Data());
     fOut->cd();
