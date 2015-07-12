@@ -12,6 +12,8 @@
 
 using namespace std ;
 
+//Replace histomanager with something that goes by index instead og looking for strings
+
 //void FillHistos(int);
 //TString Selection(int);
 
@@ -110,7 +112,7 @@ int main(int argc, char** argv){
 	//cout<<"adding "<<histoName.Data()<<" ..."<<endl;
 	manager->AddNewHisto(histoName.Data(),histoName.Data(),bins[i],xlow[i],xup[i]);
 	//cout<<"... added!"<<endl;
-	TH1F *histos=manager->GetHisto(histoName.Data());//new TH1F(histoName.Data(),histoName.Data(),bins[i],xlow[i],xup[i]);
+	//TH1F *histos=manager->GetHisto(histoName.Data());//new TH1F(histoName.Data(),histoName.Data(),bins[i],xlow[i],xup[i]);
 	if(j<nB){//background
 	  manager->GetHisto(histoName.Data())->SetFillStyle(1001);
 	  manager->GetHisto(histoName.Data())->SetFillColor(colors[j]);
@@ -155,7 +157,7 @@ int main(int argc, char** argv){
 	if(! TTF[isel]->EvalInstance())continue;
 	for(int iv =0; iv<nVars; iv++){//This is tooooo slow, better if I create an array of histos by myself, or if I add a search by index
 	  //cout<<isel<<iv<<endl;
-	  histoName.Form("%s_%s_%s",variablesList.at(iv).c_str(),allSamples[i].Data(),selections.at(isel).first.Data());
+	  histoName.Form("%s_%s_%s",variablesList.at(iv).c_str(),allSamples.at(i).sampleName.Data(),selections.at(isel).first.Data());
 	  //cout<<"going to fill "<<histoName.Data()<<endl;
 	  manager->GetHisto(histoName.Data())->Fill(address[iv]);
 	  //histos[iv][i]->Fill(address[iv],weight);//lets see if this is faster
@@ -196,17 +198,17 @@ int main(int argc, char** argv){
   THStack *hstack[nVars*nSel];//one stack for variable
   for(int isel=0;isel<nSel;isel++){
     for(int iv =0; iv<nVars; iv++){
-      TString outputName;outputName.Form("stack_%s_%d",variablesList.at(iv).c_str(),selections.at(isel).first.Data());
+      TString outputName;outputName.Form("stack_%s_%s",variablesList.at(iv).c_str(),selections.at(isel).first.Data());
       hstack[iv+nVars*isel]=new THStack(outputName.Data(),outputName.Data());
       for(int i =0; i<nB; i++){
-	histoName.Form("%s_%s_%d",variablesList.at(iv).c_str(),allSamples[i].Data(),selections.at(isel).first.Data());
+	histoName.Form("%s_%s_%s",variablesList.at(iv).c_str(),allSamples.at(i).sampleName.Data(),selections.at(isel).first.Data());
 	hstack[iv+nVars*isel]->Add(manager->GetHisto(histoName.Data()));
       }
       TCanvas *c = new TCanvas(outputName.Data());
       c->cd();
       hstack[iv+nVars*isel]->Draw();
       for(int i =nB; i<nB+nS; i++){
-	histoName.Form("%s_%s_%d",variablesList.at(iv).c_str(),allSamples[i].Data(),selections.at(isel).first.Data());
+	histoName.Form("%s_%s_%s",variablesList.at(iv).c_str(),allSamples.at(i).sampleName.Data(),selections.at(isel).first.Data());
 	manager->GetHisto(histoName.Data())->Draw("EPSAME");
       }
       TString coutputName;coutputName.Form("%s.pdf",outputName.Data());
