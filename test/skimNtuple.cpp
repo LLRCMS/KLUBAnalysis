@@ -198,21 +198,6 @@ int main (int argc, char** argv)
       theSmallTree.m_tauH_eta = tlv_tauH.Eta () ;
       theSmallTree.m_tauH_phi = tlv_tauH.Phi () ;
       theSmallTree.m_tauH_e = tlv_tauH.E () ;
-      theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
-
-      theSmallTree.m_tauH_SVFIT_pt = theBigTree.SVfit_pt->at (chosenTauPair) ;
-      theSmallTree.m_tauH_SVFIT_eta = theBigTree.SVfit_eta->at (chosenTauPair) ;
-      theSmallTree.m_tauH_SVFIT_phi = theBigTree.SVfit_phi->at (chosenTauPair) ;
-      theSmallTree.m_tauH_SVFIT_METphi = theBigTree.SVfit_fitMETPhi->at (chosenTauPair) ;
-      theSmallTree.m_tauH_SVFIT_METrho = theBigTree.SVfit_fitMETRho->at (chosenTauPair) ;
-
-      TLorentzVector tlv_tauH_SVFIT ;
-      tlv_tauH_SVFIT.SetPtEtaPhiM (
-          theBigTree.SVfit_pt->at (chosenTauPair),
-          theBigTree.SVfit_eta->at (chosenTauPair),
-          theBigTree.SVfit_phi->at (chosenTauPair),
-          theBigTree.SVfitMass->at (chosenTauPair)
-        ) ;
 
       theSmallTree.m_dau1_pt = tlv_firstLepton.Pt () ;
       theSmallTree.m_dau1_eta = tlv_firstLepton.Eta () ;
@@ -281,12 +266,33 @@ int main (int argc, char** argv)
       theSmallTree.m_HH_phi = tlv_HH.Phi () ;
       theSmallTree.m_HH_e = tlv_HH.E () ;
 
-      TLorentzVector tlv_HHsvfit = tlv_bH + tlv_tauH_SVFIT ;
-      theSmallTree.m_HHsvfit_pt = tlv_HHsvfit.Pt () ;
-      theSmallTree.m_HHsvfit_eta = tlv_HHsvfit.Eta () ;
-      theSmallTree.m_HHsvfit_phi = tlv_HHsvfit.Phi () ;
-      theSmallTree.m_HHsvfit_e = tlv_HHsvfit.E () ;
+      // in case the SVFIT mass is calculated
+      if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
+        {
+          theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
 
+
+          theSmallTree.m_tauH_SVFIT_pt = theBigTree.SVfit_pt->at (chosenTauPair) ;
+          theSmallTree.m_tauH_SVFIT_eta = theBigTree.SVfit_eta->at (chosenTauPair) ;
+          theSmallTree.m_tauH_SVFIT_phi = theBigTree.SVfit_phi->at (chosenTauPair) ;
+          theSmallTree.m_tauH_SVFIT_METphi = theBigTree.SVfit_fitMETPhi->at (chosenTauPair) ;
+          theSmallTree.m_tauH_SVFIT_METrho = theBigTree.SVfit_fitMETRho->at (chosenTauPair) ;
+
+          TLorentzVector tlv_tauH_SVFIT ;
+          tlv_tauH_SVFIT.SetPtEtaPhiM (
+              theBigTree.SVfit_pt->at (chosenTauPair),
+              theBigTree.SVfit_eta->at (chosenTauPair),
+              theBigTree.SVfit_phi->at (chosenTauPair),
+              theBigTree.SVfitMass->at (chosenTauPair)
+            ) ;
+
+          TLorentzVector tlv_HHsvfit = tlv_bH + tlv_tauH_SVFIT ;
+          theSmallTree.m_HHsvfit_pt = tlv_HHsvfit.Pt () ;
+          theSmallTree.m_HHsvfit_eta = tlv_HHsvfit.Eta () ;
+          theSmallTree.m_HHsvfit_phi = tlv_HHsvfit.Phi () ;
+          theSmallTree.m_HHsvfit_e = tlv_HHsvfit.E () ;
+        } // in case the SVFIT mass is calculated
+        
       //intance of fitter master class
       HHKinFitMaster kinFits = HHKinFitMaster (&tlv_firstBjet, &tlv_secondBjet, 
                                                &tlv_firstLepton, &tlv_secondLepton) ;
