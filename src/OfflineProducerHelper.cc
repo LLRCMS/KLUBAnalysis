@@ -361,6 +361,17 @@ TLorentzVector OfflineProducerHelper::buildMothP4 (bigTree* tree, int iMoth)
     return p4;
 }
 
+TLorentzVector OfflineProducerHelper::buildGenP4 (bigTree* tree, int iGen)
+{
+    float px = tree->genpart_px->at(iGen);
+    float py = tree->genpart_py->at(iGen);
+    float pz = tree->genpart_pz->at(iGen);
+    float e =  tree->genpart_e->at(iGen);
+
+    TLorentzVector p4 (px, py, pz, e);
+    return p4;
+}
+
 int OfflineProducerHelper::MCHiggsTauTauDecayMode (bigTree* tree)
 {
     int decay = -1; // good decays go from 0 to 7, see enum
@@ -401,5 +412,106 @@ bool OfflineProducerHelper::getBestJets (bigTree* tree, int& jet1, int& jet2, in
             return false;
         }
     }
+}
+
+int OfflineProducerHelper::getPairByIndexes (bigTree* tree, int dau1, int dau2)
+{
+    int pair = -1;
+    for (int iPair = 0; iPair < tree->indexDau1->size(); iPair++)
+    {
+        int ind1 = tree->indexDau1->at(iPair);
+        int ind2 = tree->indexDau2->at(iPair);
+        if (ind1 == dau1 && ind2 == dau2) pair = iPair;
+        else if (ind2 == dau1 && ind1 == dau2) pair = iPair;
+        
+        if (pair != -1) break; // don't continue search, pairs are unique
+    }
+    return pair;
+}
+
+
+
+bool OfflineProducerHelper::getHardTauFinalVisGenProducts (bigTree* tree, int& ind1, int& ind2)
+{
+        int finalProds = 0;
+        for (int iPart = 0; iPart < tree->genpart_pdg->size(); iPart++)
+        {   
+            int HInd = tree->genpart_HMothInd->at(iPart);
+            int TauInd = tree->genpart_TauMothInd->at(iPart);
+            int Pdg = tree->genpart_pdg->at(iPart);
+            int aPdg = abs(Pdg);
+            bool fromH = ( HInd != -1 );
+            bool fromTau = ( TauInd != -1 );
+            bool isPromptTauDecayProduct = checkBit (tree->genpart_flags->at(iPart), 5);
+            //cout << iPart << " " << Pdg << " | fromH: " << fromH << " | fromTau: " << fromTau << endl;
+            
+            // e, mu
+            if (aPdg == 11 || aPdg == 13)
+            {
+                if (fromH && fromTau && isPromptTauDecayProduct)
+                {
+                    if (finalProds == 0)      ind1 = iPart;
+                    else if (finalProds == 1) ind2 = iPart;
+                    finalProds++;
+                }
+            }
+            
+            // tau h
+            if (aPdg == 66615)
+            {
+                bool promptTau = checkBit (tree->genpart_flags->at(TauInd), 0); // check if mother tau is prompt
+                if (fromH && fromTau && promptTau)
+                {
+                    if (finalProds == 0)      ind1 = iPart;
+                    else if (finalProds == 1) ind2 = iPart;
+                    finalProds++;            
+                }
+            }
+        }
+                
+        if (finalProds != 2) return false; // I expect 2 and only 2 visible products (e, mu, tauh 66615)
+        else return true;
+        
+}
+
+
+bool OfflineProducerHelper::drMatchGenReco (bigTree* tree, int iGen, int iReco, float dRcone)
+{
+    TLorentzVector genP4  (tree->genpart_px->at(iGen), tree->genpart_py->at(iGen), tree->genpart_pz->at(iGen), tree->genpart_e->at(iGen));
+    TLorentzVector recoP4 (tree->daughters_px->at(iReco), tree->daughters_py->at(iReco), tree->daughters_pz->at(iReco), tree->daughters_e->at(iReco));
+    
+    if (genP4.DeltaR(recoP4) < dRcone) return true;
+    else return false;
+}
+
+int OfflineProducerHelper::getRecoMatchedToGen (bigTree* tree, int iGen, bool checkId, bool checkCharge, float dRcone)
+{
+    TLorentzVector genP4  (tree->genpart_px->at(iGen), tree->genpart_py->at(iGen), tree->genpart_pz->at(iGen), tree->genpart_e->at(iGen));
+    int genID = tree->genpart_pdg->at(iGen);
+    // change to tau Id for tauh
+    if (abs(genID) == 66615) genID = 15*genID/abs(genID);
+    int AgenID = abs(genID);
+    
+    std::vector < std::pair<float, int> > matchedReco;
+    for (int iReco = 0; iReco < tree->daughters_px->size(); iReco++)
+    {
+        int recoID = tree->PDGIdDaughters->at(iReco);
+        bool IDCheck;
+        if (checkCharge) IDCheck = ( genID == recoID );
+        else             IDCheck = ( AgenID == abs(recoID) );
+        
+        if (!checkId) IDCheck = true; // bypass this requirement if I don't want ID to be checked        
+        if (IDCheck)
+        {
+            TLorentzVector recoP4 (tree->daughters_px->at(iReco), tree->daughters_py->at(iReco), tree->daughters_pz->at(iReco), tree->daughters_e->at(iReco));
+            float dR = genP4.DeltaR(recoP4);
+            if (dR < dRcone)   matchedReco.push_back (std::make_pair(dR, iReco));
+        }
+    }
+    
+    // find closest matched
+    if (matchedReco.size() == 0) return -1;
+    std::sort (matchedReco.begin(), matchedReco.end()); // are sorted according to the first index, i.e. the dR
+    return ((matchedReco.at(0)).second );
 }
 

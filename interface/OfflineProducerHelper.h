@@ -74,11 +74,21 @@ class OfflineProducerHelper {
   bool passTauAntiMu  (bigTree* tree, int iDau, int againstMuWP); 
   */
 
-  int MCHiggsTauTauDecayMode (bigTree* tree); // find the MC decay of the Higgs to tau in the event
-
   TLorentzVector buildDauP4 (bigTree* tree, int iDau); // build daughter 4 vector
   TLorentzVector buildMothP4 (bigTree* tree, int iMoth); // build pair 4 vector
+  TLorentzVector buildGenP4 (bigTree* tree, int iGen); // build pair 4 vector
   bool getBestJets (bigTree* tree, int& jet1, int& jet2, int strategy); // select jets, possibly two b jets, returns true if found, else false
+  int getPairByIndexes (bigTree* tree, int dau1, int dau2); // knowing the sons, get the pair formed  
+
+
+  // --------------------------------
+  // gen related functions
+  // --------------------------------
+  int MCHiggsTauTauDecayMode (bigTree* tree); // find the MC decay of the Higgs to tau in the event
+  bool getHardTauFinalVisGenProducts (bigTree* tree, int& ind1, int& ind2); // find hard scatter tau decay products and store their indices; return false if problems, else true
+  bool drMatchGenReco (bigTree* tree, int iGen, int iReco, float dRcone = 0.5);
+  int getRecoMatchedToGen (bigTree* tree, int iGen, bool checkId = true, bool checkCharge = false, float dRcone = 0.5);
+
   
   ~OfflineProducerHelper(){}
 
