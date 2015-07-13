@@ -249,7 +249,7 @@ public :
    TBranch        *b_PFjetID;   //!
    TBranch        *b_jetRawf;   //!
 
-   bigTree (TChain * inputChain) : fChain (inputChain) { Init(fChain) ; }
+   bigTree (TChain * inputChain) : fChain (inputChain) { Init(fChain) ; fChain->GetEntries() ; }
    virtual ~bigTree() { }
    virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0) { return fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0; }
 
