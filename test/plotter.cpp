@@ -25,7 +25,7 @@ using namespace std ;
 
 int main(int argc, char** argv){
   // check number of inpt parameters
-  if (argc < 2)
+  if (argc < 1)
     {
       cerr << "Forgot to put the cfg file --> exit " << endl ;
       return 1 ;
