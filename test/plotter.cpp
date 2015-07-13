@@ -41,6 +41,9 @@ int main (int argc, char** argv)
       cout << ">>> parseConfigFile::Could not open configuration file " << config << endl ;
       return -1 ;
     }
+
+  float lumi = gConfigParser->readFloatOption ("general::lumi") ;
+
   
   // get the samples to be analised
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -107,23 +110,21 @@ int main (int argc, char** argv)
   // FIXME PG are they in agreement with the ones of the HTT group?
   int colors[]={kBlue,kRed,kGreen,kYellow+2,kRed+2,kMagenta,kCyan,kBlack} ;//add more if needed
 
-  //Utilities
-  vector<float> address (nVars, 0.) ; 
-
   TString histoName ;
   HistoManager * manager = new HistoManager ("test") ;
 
   // Create the histograms
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  cerr << "Create the histograms" << endl ;
+  // for efficiency evaluation
+  vector<vector<int> > counters ; // [sample][selection]
 
-  
-  for (int i = 0 ; i < nVars ; ++i)
+  for (int j = 0 ; j<nB+nS ; ++j)
     {
+      counters.push_back (vector<int> (nSel, 0.)) ;
       for (int k = 0 ; k < nSel ; ++k)
         {
-          for (int j = 0 ; j<nB+nS ; ++j)
+          for (int i = 0 ; i < nVars ; ++i)
             {
               histoName.Form ("%s_%s_%s",
                               variablesList.at (i).c_str (),
@@ -140,8 +141,8 @@ int main (int argc, char** argv)
   // Fill the histograms
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  cout << "Fill the histograms" << endl ;
-  
+  vector<float> address (nVars, 0.) ; 
+
   //Loop on the samples
   for (int iSample = 0 ; iSample < nB+nS ; ++iSample)
     {
@@ -166,30 +167,23 @@ int main (int argc, char** argv)
     
       for (int iEvent = 0 ; iEvent < tree->GetEntries () ; ++iEvent)
         {
-          cout << "event " << iEvent << endl ;
           tree->GetEntry (iEvent) ;
           for (int isel = 0 ; isel < nSel ; ++isel)
             {
-              cout << " selection " << isel << endl ;
               if (! TTF[isel]->EvalInstance ()) continue ;
+              ++counters.at (iSample).at (isel) ;
               for (int iv = 0 ; iv < nVars ; ++iv)
                 {
-                  cout << "    variable " << iv << endl ;
                   histoName.Form ("%s_%s_%s",
                       variablesList.at (iv).c_str (),
                       allSamples.at (iSample).sampleName.Data (),
                       selections.at (isel).first.Data ()
                     ) ;
-//                  cout << "peso : " << weight << endl ;  
-                  manager->GetHisto (histoName.Data ())->Fill (address[iv], weight * eff) ;
+                  manager->GetHisto (histoName.Data ())->Fill (address[iv], weight * eff * lumi) ;
                 } //loop on variables
             } //loop on selections
         } //loop on tree entries
 
-      cout << "Read all events of sample " 
-           << allSamples.at (iSample).sampleName
-           << endl ;
- 
       for (int isel = 0 ; isel < nSel ; ++isel) delete TTF[isel] ;
     } // Loop on the samples
 
