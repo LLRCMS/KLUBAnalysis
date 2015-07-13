@@ -159,7 +159,7 @@ int main(int argc, char** argv){
 	  //cout<<isel<<iv<<endl;
 	  histoName.Form("%s_%s_%s",variablesList.at(iv).c_str(),allSamples.at(i).sampleName.Data(),selections.at(isel).first.Data());
 	  //cout<<"going to fill "<<histoName.Data()<<endl;
-	  manager->GetHisto(histoName.Data())->Fill(address[iv]);
+	  manager->GetHisto(histoName.Data())->Fill(address[iv],weight);
 	  //histos[iv][i]->Fill(address[iv],weight);//lets see if this is faster
 	}//loop on variables
       }//loop on selections
