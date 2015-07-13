@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include "ConfigParser.h"
 #include "utils.h"
@@ -117,11 +118,12 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   // for efficiency evaluation
-  vector<vector<int> > counters ; // [sample][selection]
+  vector<vector<float> > counters ; // [sample][selection]
+  vector<float> initEfficiencies ; // [sample]
 
   for (int j = 0 ; j<nB+nS ; ++j)
     {
-      counters.push_back (vector<int> (nSel, 0.)) ;
+      counters.push_back (vector<float> (nSel, 0.)) ;
       for (int k = 0 ; k < nSel ; ++k)
         {
           for (int i = 0 ; i < nVars ; ++i)
@@ -147,6 +149,7 @@ int main (int argc, char** argv)
   for (int iSample = 0 ; iSample < nB+nS ; ++iSample)
     {
       double eff = allSamples.at (iSample).eff ;
+      initEfficiencies.push_back (eff) ;
       TTree *tree = (TTree*) allSamples.at (iSample).sampleChain->GetTree () ;
       TTreeFormula * TTF[nSel] ;
       for (int isel = 0 ; isel < nSel ; ++isel)
@@ -234,5 +237,42 @@ int main (int argc, char** argv)
           hstack[iv+nVars*isel]->Write () ;
           delete c ;
         }
+    } //make Stack plots
+
+  // printout efficiency tables
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+  
+//   vector<vector<int> > counters ; // [sample][selection]
+//   vector<float> initEfficiencies ; // [sample]
+
+  unsigned int NSpacesColZero = 12 ;
+  unsigned int NSpacesColumns = 5 ;
+  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
+  cout << "| " ;
+  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+    {
+      string word = string (allSamples.at (iSample).sampleName.Data ()).substr (0, NSpacesColumns) ;
+      cout << word ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
+      cout << " | " ;
     }
+  cout << "\n" ; 
+  for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
+    {
+      cout << selections.at (iSel).first ;
+      for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) cout << " " ;
+      cout << "|" ;
+      for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+        {
+          float efficiency = 100. * counters.at (iSample).at (iSel) / counters.at (iSample).at (0) ;
+          cout << " " ;
+          if (efficiency < 100) cout << " " ;
+          if (efficiency < 10) cout << " " ;
+          cout << setprecision (1) << fixed << efficiency
+               << " |" ;
+        }
+      cout << "\n" ;
+    }
+  
+// std::cout << std::setprecision(5) << f << '\n';
 }
