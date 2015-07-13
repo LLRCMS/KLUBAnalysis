@@ -15,7 +15,9 @@ float sample::calcEfficiency ()
       TFile f (chEl->GetTitle ()) ;
       effHisto->Add ((TH1F *) f.Get ("h_eff")) ;
     }
-  if (effHisto->GetBinContent (1) == 0) return 0. ; 
+  if (effHisto->GetBinContent (1) == 0) return 0. ;
+  eff_num = effHisto->GetBinContent (2) ;
+  eff_den = effHisto->GetBinContent (1) ;
   return effHisto->GetBinContent (2) / effHisto->GetBinContent (1) ;
 }
 

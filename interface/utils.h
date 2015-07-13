@@ -36,6 +36,8 @@ struct sample
   TString sampleName ;
   TString rootFilesFolder ;
   TChain * sampleChain ;
+  float eff_num ;
+  float eff_den ;
   float eff ;
 } ;
 

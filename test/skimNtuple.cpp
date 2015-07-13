@@ -98,7 +98,8 @@ int main (int argc, char** argv)
 
   int eventsNumber = theBigTree.fChain->GetEntries () ;
 //  eventsNumber = 100 ; //DEBUG
-  float selectedEvents = 0 ;
+  float totalEvents = 0. ;
+  float selectedEvents = 0. ;
 
   // loop over events
   for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
@@ -107,6 +108,8 @@ int main (int argc, char** argv)
 
       theSmallTree.clearVars () ;
       theBigTree.GetEntry (iEvent) ;
+      
+      totalEvents += theBigTree.MC_weight * XS ;
       
       if (theBigTree.indexDau1->size () == 0) continue ;
       if (theBigTree.jets_px->size () < 2)    continue ;
@@ -382,14 +385,14 @@ int main (int argc, char** argv)
           ++theSmallTree.m_njets ;
         } // loop over jets
 
-      ++selectedEvents ; 
+      selectedEvents += theBigTree.MC_weight * XS ; 
       theSmallTree.Fill () ;
     } // loop over events
 
-  cout << "efficiency = " << selectedEvents / eventsNumber << endl ;
+  cout << "efficiency = " << selectedEvents / totalEvents << endl ;
   TH1F h_eff ("h_eff", "h_eff", 2, 0, 2) ;
   h_eff.Fill (0.5, eventsNumber) ;
-  h_eff.Fill (1.5, selectedEvents) ;
+  h_eff.Fill (1.5, totalEvents) ;
   h_eff.Write () ;
   smallFile->Write () ;
   delete smallFile ;

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <cmath>
 #include "ConfigParser.h"
 #include "utils.h"
 #include "TString.h"
@@ -64,11 +65,11 @@ int main (int argc, char** argv)
       gConfigParser->readStringOption ("selections::selectionsFile")
     ) ;
 
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << "selections sequence: \n" ;
-  cout << "---- ---- ---- ---- ---- ---- ---- \n" ;
   for (unsigned int i = 0 ; i < selections.size () ; ++i)
     cout << selections.at (i).first << " : " << selections.at (i).second << endl ;
-  cout << "---- ---- ---- ---- ---- ---- ---- \n" ;
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
 
   // get the variables to be plotted
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -123,7 +124,7 @@ int main (int argc, char** argv)
 
   for (int j = 0 ; j<nB+nS ; ++j)
     {
-      counters.push_back (vector<float> (nSel, 0.)) ;
+      counters.push_back (vector<float> (nSel+1, 0.)) ;
       for (int k = 0 ; k < nSel ; ++k)
         {
           for (int i = 0 ; i < nVars ; ++i)
@@ -171,10 +172,11 @@ int main (int argc, char** argv)
       for (int iEvent = 0 ; iEvent < tree->GetEntries () ; ++iEvent)
         {
           tree->GetEntry (iEvent) ;
+          counters.at (iSample).at (0) += weight * lumi * eff ;
           for (int isel = 0 ; isel < nSel ; ++isel)
             {
               if (! TTF[isel]->EvalInstance ()) continue ;
-              ++counters.at (iSample).at (isel) ;
+              counters.at (iSample).at (isel + 1) += weight * lumi * eff ;
               for (int iv = 0 ; iv < nVars ; ++iv)
                 {
                   histoName.Form ("%s_%s_%s",
@@ -242,11 +244,11 @@ int main (int argc, char** argv)
   // printout efficiency tables
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   
-//   vector<vector<int> > counters ; // [sample][selection]
-//   vector<float> initEfficiencies ; // [sample]
-
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " TOTAL EFFICIENCY WRT THE SKIMMED NTUPLES (%)\n\n" ;
   unsigned int NSpacesColZero = 12 ;
-  unsigned int NSpacesColumns = 5 ;
+  unsigned int NSpacesColumns = 6 ;
+  unsigned int precision = 2 ;
   for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
   cout << "| " ;
   for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
@@ -257,6 +259,16 @@ int main (int argc, char** argv)
       cout << " | " ;
     }
   cout << "\n" ; 
+
+  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << "-" ;
+  cout << "+-" ;
+  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+    {
+      for (unsigned int i = 0 ; i < NSpacesColumns ; ++i) cout << "-" ;
+      cout << "-+-" ;
+    }
+  cout << "\n" ; 
+
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
       cout << selections.at (iSel).first ;
@@ -264,15 +276,179 @@ int main (int argc, char** argv)
       cout << "|" ;
       for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
         {
-          float efficiency = 100. * counters.at (iSample).at (iSel) / counters.at (iSample).at (0) ;
+          float efficiency = 100. * counters.at (iSample).at (iSel+1) / counters.at (iSample).at (0) ;
           cout << " " ;
           if (efficiency < 100) cout << " " ;
           if (efficiency < 10) cout << " " ;
-          cout << setprecision (1) << fixed << efficiency
+          cout << setprecision (precision) << fixed << efficiency
                << " |" ;
         }
       cout << "\n" ;
     }
   
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " TOTAL EFFICIENCY WRT THE INITIAL SAMPLE (%)\n\n" ;
+  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
+  cout << "| " ;
+  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+    {
+      string word = string (allSamples.at (iSample).sampleName.Data ()).substr (0, NSpacesColumns) ;
+      cout << word ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
+      cout << " | " ;
+    }
+  cout << "\n" ; 
+
+  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << "-" ;
+  cout << "+-" ;
+  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+    {
+      for (unsigned int i = 0 ; i < NSpacesColumns ; ++i) cout << "-" ;
+      cout << "-+-" ;
+    }
+  cout << "\n" ; 
+
+  string name = "skim" ;
+  cout << name ;
+  for (unsigned int i = 0 ; i < NSpacesColZero - name.size () ; ++i) cout << " " ;
+  cout << "|" ;
+  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+    {
+      float efficiency = 100. * initEfficiencies.at (iSample) ;
+      cout << " " ;
+      if (efficiency < 100) cout << " " ;
+      if (efficiency < 10) cout << " " ;
+      cout << setprecision (precision) << fixed << efficiency
+           << " |" ;
+    }
+  cout << "\n" ; 
+
+  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << "-" ;
+  cout << "+-" ;
+  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+    {
+      for (unsigned int i = 0 ; i < NSpacesColumns ; ++i) cout << "-" ;
+      cout << "-+-" ;
+    }
+  cout << "\n" ; 
+
+  for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
+    {
+      cout << selections.at (iSel).first ;
+      for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) cout << " " ;
+      cout << "|" ;
+      for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+        {
+          float efficiency = 100. * initEfficiencies.at (iSample) 
+                             * counters.at (iSample).at (iSel+1) / counters.at (iSample).at (0) ;
+          cout << " " ;
+          if (efficiency < 100) cout << " " ;
+          if (efficiency < 10) cout << " " ;
+          cout << setprecision (precision) << fixed << efficiency
+               << " |" ;
+        }
+      cout << "\n" ;
+    }
+  
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " RELATIVE EFFICIENCY WRT THE PREVIOUS STEP (%)\n\n" ;
+  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
+  cout << "| " ;
+  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+    {
+      string word = string (allSamples.at (iSample).sampleName.Data ()).substr (0, NSpacesColumns) ;
+      cout << word ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
+      cout << " | " ;
+    }
+  cout << "\n" ; 
+
+  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << "-" ;
+  cout << "+-" ;
+  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+    {
+      for (unsigned int i = 0 ; i < NSpacesColumns ; ++i) cout << "-" ;
+      cout << "-+-" ;
+    }
+  cout << "\n" ; 
+
+  for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
+    {
+      cout << selections.at (iSel).first ;
+      for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) cout << " " ;
+      cout << "|" ;
+      for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+        {
+          float efficiency = 100. * counters.at (iSample).at (iSel+1) / counters.at (iSample).at (iSel) ;
+          cout << " " ;
+          if (efficiency < 100) cout << " " ;
+          if (efficiency < 10) cout << " " ;
+          cout << setprecision (precision) << fixed << efficiency
+               << " |" ;
+        }
+      cout << "\n" ;
+    }
+  
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " DETAILS OF THE SKIM OF THE INITIAL SAMPLE (%)\n\n" ;
+
+  NSpacesColumns = 14 ;
+
+  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
+  cout << "| " ;
+  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+    {
+      string word = string (allSamples.at (iSample).sampleName.Data ()).substr (0, NSpacesColumns) ;
+      cout << word ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
+      cout << " | " ;
+    }
+  cout << "\n" ; 
+
+  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << "-" ;
+  cout << "+-" ;
+  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+    {
+      for (unsigned int i = 0 ; i < NSpacesColumns ; ++i) cout << "-" ;
+      cout << "-+-" ;
+    }
+  cout << "\n" ; 
+
+  name = "total" ;
+  cout << name ;
+  for (unsigned int i = 0 ; i < NSpacesColZero - name.size () ; ++i) cout << " " ;
+  cout << "|" ;
+  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+    {
+      float value = allSamples.at (iSample).eff_den * lumi ;
+      for (int i = 0 ; i < NSpacesColumns - int (log10 (value)) ; ++i) cout << " " ;
+      cout << setprecision (0) << fixed << value << " |" ;
+    }
+  cout << "\n" ; 
+
+  name = "skimmed" ;
+  cout << name ;
+  for (unsigned int i = 0 ; i < NSpacesColZero - name.size () ; ++i) cout << " " ;
+  cout << "|" ;
+  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+    {
+      float value = allSamples.at (iSample).eff_num * lumi ;
+      for (int i = 0 ; i < NSpacesColumns - int (log10 (value)) ; ++i) cout << " " ;
+      cout << setprecision (0) << fixed << value << " |" ;
+    }
+  cout << "\n" ; 
+
+  name = "eff (%)" ;
+  cout << name ;
+  for (unsigned int i = 0 ; i < NSpacesColZero - name.size () ; ++i) cout << " " ;
+  cout << "|" ;
+  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+    {
+      float value = allSamples.at (iSample).eff * 100 ;
+      for (int i = 0 ; i < NSpacesColumns - int (log10 (value)) - precision - 1 ; ++i) cout << " " ;
+      cout << setprecision (2) << fixed << value << " |" ;
+    }
+  cout << "\n" ; 
+
 // std::cout << std::setprecision(5) << f << '\n';
 }
