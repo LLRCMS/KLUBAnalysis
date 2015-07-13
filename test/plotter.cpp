@@ -83,14 +83,14 @@ int main(int argc, char** argv){
   int bins[nVars];//          = {300,100};
   for(int iVar=0;iVar<nVars;iVar++){
     xup[iVar]=900;xlow[iVar]=100;bins[iVar]=100;
-    //for(int i=0;i<nS;i++){//FIXME: allSamples
-    //  if(sigSamples.at(i).sampleChain->GetMaximum(variablesList.at(iVar).c_str())>xup[iVar])xup[iVar]=sigSamples.at(i).sampleChain->GetMaximum(variablesList.at(iVar).c_str());
-    //  if(sigSamples.at(i).sampleChain->GetMinimum(variablesList.at(iVar).c_str())<xlow[iVar])xlow[iVar]=sigSamples.at(i).sampleChain->GetMinimum(variablesList.at(iVar).c_str());
-    //}
-    //for(int i=0;i<nB;i++){
-    //  if(bkgSamples.at(i).sampleChain->GetMaximum(variablesList.at(iVar).c_str())>xup[iVar])xup[iVar]=bkgSamples.at(i).sampleChain->GetMaximum(variablesList.at(iVar).c_str());
-    //  if(bkgSamples.at(i).sampleChain->GetMinimum(variablesList.at(iVar).c_str())<xlow[iVar])xup[iVar]=bkgSamples.at(i).sampleChain->GetMinimum(variablesList.at(iVar).c_str());
-    //}
+    for(int i=0;i<nS;i++){//FIXME: allSamples
+      if(sigSamples.at(i).sampleChain->GetMaximum(variablesList.at(iVar).c_str())>xup[iVar])xup[iVar]=sigSamples.at(i).sampleChain->GetMaximum(variablesList.at(iVar).c_str());
+      if(sigSamples.at(i).sampleChain->GetMinimum(variablesList.at(iVar).c_str())<xlow[iVar])xlow[iVar]=sigSamples.at(i).sampleChain->GetMinimum(variablesList.at(iVar).c_str());
+    }
+    for(int i=0;i<nB;i++){
+      if(bkgSamples.at(i).sampleChain->GetMaximum(variablesList.at(iVar).c_str())>xup[iVar])xup[iVar]=bkgSamples.at(i).sampleChain->GetMaximum(variablesList.at(iVar).c_str());
+      if(bkgSamples.at(i).sampleChain->GetMinimum(variablesList.at(iVar).c_str())<xlow[iVar])xup[iVar]=bkgSamples.at(i).sampleChain->GetMinimum(variablesList.at(iVar).c_str());
+    }
   }
   int colors[]={kBlue,kRed,kGreen,kYellow+2,kRed+2,kMagenta,kCyan,kBlack};//add more if needed
 
@@ -132,7 +132,7 @@ int main(int argc, char** argv){
     //TFile *fIn=TFile::Open(files[i].Data());
     //cout<<"processing sample "<<samples[i].Data()<<endl;
     double eff = allSamples.at(i).eff;//((TH1F*)fIn->Get("h_eff"))->GetBinContent(2)/((TH1F*)fIn->Get("h_eff"))->GetBinContent(1);
-    TTree *tree = (TTree*)allSamples.at(i).sampleChain;//fIn->Get("HTauTauTree");
+    TTree *tree = (TTree*)allSamples.at(i).sampleChain->GetTree();//fIn->Get("HTauTauTree");
     TTreeFormula* TTF[nSel];
     for(int isel=0;isel<nSel;isel++){
       TString fname;fname.Form("ttf%d",isel);
@@ -151,6 +151,7 @@ tree->SetBranchAddress("MC_weight",&weight);
       //cout<<"         event "<<ien<<endl; 
       tree->GetEntry(ien);
       for(int isel=0;isel<nSel;isel++){
+        //cout<<isel<<endl;
 	if(! TTF[isel]->EvalInstance())continue;
 	for(int iv =0; iv<nVars; iv++){//This is tooooo slow, better if I create an array of histos by myself, or if I add a search by index
 	  //cout<<isel<<iv<<endl;
