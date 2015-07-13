@@ -82,20 +82,19 @@ int main(int argc, char** argv){
   int xlow[nVars];//          = {0,250};
   int bins[nVars];//          = {300,100};
   for(int iVar=0;iVar<nVars;iVar++){
-    xup[iVar]=-999;xlow[iVar]=0;bins[iVar]=100;
-    for(int i=0;i<nS;i++){//FIXME: allSamples
-      if(sigSamples.at(i).sampleChain->GetMaximum(variablesList.at(iVar).c_str())>xup[iVar])xup[iVar]=sigSamples.at(i).sampleChain->GetMaximum(variablesList.at(iVar).c_str());
-      if(sigSamples.at(i).sampleChain->GetMinimum(variablesList.at(iVar).c_str())>xup[iVar])xup[iVar]=sigSamples.at(i).sampleChain->GetMinimum(variablesList.at(iVar).c_str());
-    }
-    for(int i=0;i<nB;i++){
-      if(bkgSamples.at(i).sampleChain->GetMaximum(variablesList.at(iVar).c_str())>xup[iVar])xup[iVar]=bkgSamples.at(i).sampleChain->GetMaximum(variablesList.at(iVar).c_str());
-      if(bkgSamples.at(i).sampleChain->GetMinimum(variablesList.at(iVar).c_str())>xup[iVar])xup[iVar]=bkgSamples.at(i).sampleChain->GetMinimum(variablesList.at(iVar).c_str());
-    }
+    xup[iVar]=900;xlow[iVar]=100;bins[iVar]=100;
+    //for(int i=0;i<nS;i++){//FIXME: allSamples
+    //  if(sigSamples.at(i).sampleChain->GetMaximum(variablesList.at(iVar).c_str())>xup[iVar])xup[iVar]=sigSamples.at(i).sampleChain->GetMaximum(variablesList.at(iVar).c_str());
+    //  if(sigSamples.at(i).sampleChain->GetMinimum(variablesList.at(iVar).c_str())<xlow[iVar])xlow[iVar]=sigSamples.at(i).sampleChain->GetMinimum(variablesList.at(iVar).c_str());
+    //}
+    //for(int i=0;i<nB;i++){
+    //  if(bkgSamples.at(i).sampleChain->GetMaximum(variablesList.at(iVar).c_str())>xup[iVar])xup[iVar]=bkgSamples.at(i).sampleChain->GetMaximum(variablesList.at(iVar).c_str());
+    //  if(bkgSamples.at(i).sampleChain->GetMinimum(variablesList.at(iVar).c_str())<xlow[iVar])xup[iVar]=bkgSamples.at(i).sampleChain->GetMinimum(variablesList.at(iVar).c_str());
+    //}
   }
   int colors[]={kBlue,kRed,kGreen,kYellow+2,kRed+2,kMagenta,kCyan,kBlack};//add more if needed
 
   //Utilities
-  TBranch *branches[nVars];
   float address[nVars];for(int i =0; i<nVars; i++)address[i]=0;
   TString histoName;
   //TH1F *histos[nVars][nS+nB];
@@ -139,15 +138,13 @@ int main(int argc, char** argv){
       TString fname;fname.Form("ttf%d",isel);
       TTF[isel]= new TTreeFormula(fname.Data(),selections.at(isel).second,tree);
     }
-    TBranch *mcweight = tree->GetBranch("MC_weight");
-    float weight;
-    mcweight->SetAddress(&weight);
+float weight;
+tree->SetBranchAddress("MC_weight",&weight);
     //TTF->SetTree(tree);
     //TH1F *histos[nVars];
     for(int iv =0; iv<nVars; iv++){
       cout<<"    creating branch for "<<variablesList.at(iv).c_str()<<endl;
-      branches[iv]=tree->GetBranch(variablesList.at(iv).c_str());
-      branches[iv]->SetAddress(&(address[iv]));
+      tree->SetBranchAddress(variablesList.at(iv).c_str(),&(address[iv]));      
     }
     
     for(int ien=0;ien<tree->GetEntries();ien++){
@@ -159,7 +156,8 @@ int main(int argc, char** argv){
 	  //cout<<isel<<iv<<endl;
 	  histoName.Form("%s_%s_%s",variablesList.at(iv).c_str(),allSamples.at(i).sampleName.Data(),selections.at(isel).first.Data());
 	  //cout<<"going to fill "<<histoName.Data()<<endl;
-	  manager->GetHisto(histoName.Data())->Fill(address[iv],weight);
+	//cout<<"weight "<<weight<<"  "<<address[0]<<endl;  
+	manager->GetHisto(histoName.Data())->Fill(address[iv],weight);
 	  //histos[iv][i]->Fill(address[iv],weight);//lets see if this is faster
 	}//loop on variables
       }//loop on selections
