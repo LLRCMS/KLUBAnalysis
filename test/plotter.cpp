@@ -172,11 +172,11 @@ int main (int argc, char** argv)
       for (int iEvent = 0 ; iEvent < tree->GetEntries () ; ++iEvent)
         {
           tree->GetEntry (iEvent) ;
-          counters.at (iSample).at (0) += weight * lumi * eff ;
+          counters.at (iSample).at (0) += weight * eff * lumi ;
           for (int isel = 0 ; isel < nSel ; ++isel)
             {
               if (! TTF[isel]->EvalInstance ()) continue ;
-              counters.at (iSample).at (isel + 1) += weight * lumi * eff ;
+              counters.at (iSample).at (isel + 1) += weight * eff * lumi ;
               for (int iv = 0 ; iv < nVars ; ++iv)
                 {
                   histoName.Form ("%s_%s_%s",
