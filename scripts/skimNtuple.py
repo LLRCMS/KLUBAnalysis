@@ -22,7 +22,26 @@ if __name__ == "__main__":
     parser.add_option('-f', '--force'  , dest='force'  , help='replace existing reduced ntuples' , default=False)
     parser.add_option('-o', '--output' , dest='output' , help='output folder'                    , default='none')
     parser.add_option('-q', '--queue'  , dest='queue'  , help='batch queue'                      , default='cms')
+    parser.add_option('-r', '--resub'  , dest='resub'  , help='resubmit failed jobs'             , default='none')
     (opt, args) = parser.parse_args()
+
+    if (opt.resub != 'none') :
+        if (opt.output == 'none') :
+            print 'input folder to be checked missing\n'
+            print '(this is the folder that contains the jobs to be submitted)'
+            sys.exit (1)
+        jobs = [word.replace ('_', '.').split ('.')[1] for word in os.listdir (opt.output) if 'run' in word]
+        missing = []
+        for num in jobs :
+            if not os.path.exists (opt.output + '/done_' + num) :
+                missing.append (num)
+        print 'the following jobs did not end:'
+        print missing   
+        if (opt.resub == 'run') :
+            for num in missing :
+                command = '`cat ' + opt.output + '/submit.sh | grep runJob_' + num + '.sh`'
+                os.system (command)
+        sys.exit (0)
 
     if opt.input[-1] == '/' : opt.input = opt.input[:-1]
     if opt.output == 'none' : opt.output = opt.input + '_SKIM'

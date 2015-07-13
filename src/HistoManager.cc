@@ -45,10 +45,25 @@ TObject* HistoManager::GetElement (const char * objTag)
     }
 }
 
-void HistoManager::AddNewHisto (const char* name, const char* title, int nbinsx, double xlow, double xup)
+void HistoManager::AddNewHisto (const char* name, const char* title, 
+                                int nbinsx, double xlow, double xup,
+                                int color, bool isSignal)
 {
     string fullName = MakeStoredName (name);
     TH1F* h = new TH1F (fullName.c_str(), title, nbinsx, xlow, xup);
+    h->Sumw2 () ;    
+    if (!isSignal)
+      {//background
+        h->SetFillStyle (1001) ;
+        h->SetFillColor (color) ;
+        h->SetLineColor (color) ;
+      }else{
+        h->SetFillStyle (0) ;
+        h->SetMarkerColor (color) ;
+        h->SetLineColor (color) ;
+        h->SetMarkerStyle (20) ;
+      }
+
     int i = AddElement (h, name);
     if (i == -1) delete h; // if not added
 }
