@@ -1,0 +1,7 @@
+python scripts/skimNtuple.py -o /data_CMS/cms/govoni/test_submit_to_tier3/SKIM_DY         -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_DY_-1Events_0Skipped_1436202480.82            -x 6025.2
+python scripts/skimNtuple.py -o /data_CMS/cms/govoni/test_submit_to_tier3/SKIM_T-tchannel -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_T-tchannel_-1Events_0Skipped_1436273546.02    -x 216.99
+python scripts/skimNtuple.py -o /data_CMS/cms/govoni/test_submit_to_tier3/SKIM_TTJets     -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_TTJets_-1Events_0Skipped_1436202407.03        -x 831.76
+python scripts/skimNtuple.py -o /data_CMS/cms/govoni/test_submit_to_tier3/SKIM_TTTo2L2Nu  -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_TTTo2L2Nu_-1Events_0Skipped_1436365326.97     -x 77.55
+python scripts/skimNtuple.py -o /data_CMS/cms/govoni/test_submit_to_tier3/SKIM_TW         -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_TW_-1Events_0Skipped_1436202748.18            -x 71.2
+python scripts/skimNtuple.py -o /data_CMS/cms/govoni/test_submit_to_tier3/SKIM_WW2l2v     -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_WW2l2v-powheg_-1Events_0Skipped_1436273209.4  -x 10.481
+python scripts/skimNtuple.py -o /data_CMS/cms/govoni/test_submit_to_tier3/SKIM_WWlvqq     -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_WWlvqq-powheg_-1Events_0Skipped_1436273743.21 -x 43.53

@@ -48,6 +48,7 @@ if __name__ == "__main__":
         os.system ('source /opt/exp_soft/cms/t3/t3setup')
 
     n = int (0)
+    commandFile = open (jobsDir + '/submit.sh', 'w')
     for filename in inputfiles : 
         #create a wrapper for standalone cmssw job
         scriptFile = open ('%s/runJob_%d.sh'% (jobsDir,n), 'w')
@@ -59,20 +60,21 @@ if __name__ == "__main__":
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('cd %s\n'%currFolder)
         scriptFile.write ('source scripts/setup.sh\n')
-        scriptFile.write ('./bin/skimNtuple.exe ' + filename + ' ' + opt.output + '/' + basename (filename) + ' ' + opt.xs + '\n')
+        scriptFile.write ('./bin/skimNtuple.exe ' + filename + ' ' + opt.output + '/' + basename (filename) + ' ' + opt.xs + ' > ' + opt.output + '/' + basename (filename) + '.log\n')
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
-        #FIXME mancano i log
         scriptFile.write ('echo "All done for job %d" \n'%n)
         scriptFile.close ()
         os.system ('chmod u+rwx %s/runJob_%d.sh'% (jobsDir,n))
 
         #submit it to the batch or run it locally
         if opt.queue == '' :
-            os.system ('%s/runJob_%d.sh'%(jobsDir.jobSeed))
+            command = (jobsDir + '/runJob_' + str (n) + '.sh')
         else:
-            os.system ("/opt/exp_soft/cms/t3/t3submit -q cms \'%s/runJob_%d.sh\'"%(jobsDir,n))
+            command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' + jobsDir + '/runJob_' + str (n) + '.sh\'')
+        os.system (command)
+        commandFile.write (command + '\n')
         n = n + 1
-
+    commandFile.close ()
     
 
 
