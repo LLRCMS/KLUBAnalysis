@@ -2,6 +2,8 @@
 #include <iomanip>
 #include <vector>
 #include <cmath>
+#include <cctype>
+#include <algorithm>
 #include "ConfigParser.h"
 #include "utils.h"
 #include "TString.h"
@@ -14,6 +16,18 @@
 
 using namespace std ;
 
+/* TODO list
+
+- get an optional signal scale factor
+- add log-scale plots
+- add shape plots of each bkg and signal
+- add shape plots of the total bkg and signal
+- add the legenda, axis titles 
+- get the output folder from the command line
+
+*/
+
+
 //Replace histomanager with something that goes by index instead og looking for strings
 
 //void FillHistos (int) ;
@@ -24,6 +38,17 @@ using namespace std ;
 //  else if (selection==1)return "HH_pt>400" ;
 //  return "" ;
 //}
+
+
+
+struct isNOTalnum : std::unary_function<int, int>
+{
+    int operator()(int i) const { return !std::isalnum (i) ; }
+};
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
 
 int main (int argc, char** argv)
 {
@@ -83,31 +108,30 @@ int main (int argc, char** argv)
   const int nSel = selections.size () ;
 
 // come mai e' duplicato questo?
-  vector<sample> allSamples ;  
-  for (int i=0 ;i<nB ;i++) allSamples.push_back (bkgSamples.at (i)) ;
-  for (int i=0 ;i<nS ;i++) allSamples.push_back (sigSamples.at (i)) ;
+  vector<sample> allSamples (bkgSamples) ;  
+  allSamples.insert (allSamples.end (), sigSamples.begin (), sigSamples.end ()) ;
   
-  int xup[nVars] ;//           = {900,900} ;
-  int xlow[nVars] ;//          = {0,250} ;
-  int bins[nVars] ;//          = {300,100} ;
-  for (int iVar = 0 ; iVar < nVars ; ++iVar)
-    {
-      xup[iVar]=-999 ;xlow[iVar]=0 ;bins[iVar]=100 ;
-      for (int i = 0 ; i < nS ; ++i)
-        {
-          if (sigSamples.at (i).sampleChain->GetMaximum (variablesList.at (iVar).c_str ()) > xup[iVar]) 
-            xup[iVar] = sigSamples.at (i).sampleChain->GetMaximum (variablesList.at (iVar).c_str ()) ;
-          if (sigSamples.at (i).sampleChain->GetMinimum (variablesList.at (iVar).c_str ()) < xlow[iVar])
-            xlow[iVar] = sigSamples.at (i).sampleChain->GetMinimum (variablesList.at (iVar).c_str ()) ;
-        }
-      for (int i = 0 ; i < nB ; ++i)
-        {
-          if (bkgSamples.at (i).sampleChain->GetMaximum (variablesList.at (iVar).c_str ()) > xup[iVar])
-            xup[iVar] = bkgSamples.at (i).sampleChain->GetMaximum (variablesList.at (iVar).c_str ()) ;
-          if (bkgSamples.at (i).sampleChain->GetMinimum (variablesList.at (iVar).c_str ()) < xlow[iVar])
-            xlow[iVar] = bkgSamples.at (i).sampleChain->GetMinimum (variablesList.at (iVar).c_str ()) ;
-        }
-    }
+//   int xup[nVars] ;//           = {900,900} ;
+//   int xlow[nVars] ;//          = {0,250} ;
+//   int bins[nVars] ;//          = {300,100} ;
+//   for (int iVar = 0 ; iVar < nVars ; ++iVar)
+//     {
+//       xup[iVar]=-999 ;xlow[iVar]=0 ;bins[iVar]=100 ;
+//       for (int i = 0 ; i < nS ; ++i)
+//         {
+//           if (sigSamples.at (i).sampleChain->GetMaximum (variablesList.at (iVar).c_str ()) > xup[iVar]) 
+//             xup[iVar] = sigSamples.at (i).sampleChain->GetMaximum (variablesList.at (iVar).c_str ()) ;
+//           if (sigSamples.at (i).sampleChain->GetMinimum (variablesList.at (iVar).c_str ()) < xlow[iVar])
+//             xlow[iVar] = sigSamples.at (i).sampleChain->GetMinimum (variablesList.at (iVar).c_str ()) ;
+//         }
+//       for (int i = 0 ; i < nB ; ++i)
+//         {
+//           if (bkgSamples.at (i).sampleChain->GetMaximum (variablesList.at (iVar).c_str ()) > xup[iVar])
+//             xup[iVar] = bkgSamples.at (i).sampleChain->GetMaximum (variablesList.at (iVar).c_str ()) ;
+//           if (bkgSamples.at (i).sampleChain->GetMinimum (variablesList.at (iVar).c_str ()) < xlow[iVar])
+//             xlow[iVar] = bkgSamples.at (i).sampleChain->GetMinimum (variablesList.at (iVar).c_str ()) ;
+//         }
+//     }
 
   // FIXME PG are they in agreement with the ones of the HTT group?
   int colors[]={kBlue,kRed,kGreen,kYellow+2,kRed+2,kMagenta,kCyan,kBlack} ;//add more if needed
@@ -134,9 +158,20 @@ int main (int argc, char** argv)
                               allSamples.at (j).sampleName.Data (),
                               selections.at (k).first.Data ()
                               ) ;
+              // remove not alphanumeric symbols from the var name
+              string varID = variablesList.at (i) ;
+              varID.erase (std::remove_if (varID.begin (), varID.end (), isNOTalnum ()), varID.end ()) ;
+              // get histo nbins and range
+              vector <float> limits = 
+                gConfigParser->readFloatListOption (TString ("histos::") 
+                    + varID.c_str ()) ;
+//                    + variablesList.at (i).c_str ()) ;
               manager->AddNewHisto (histoName.Data (),histoName.Data (),
-                                    bins[i], xlow[i], xup[i],
-                                    colors[j], (j >= nB)) ;
+                  int (limits.at (0)), limits.at (1), limits.at (2),
+                  gConfigParser->readIntOption (TString ("colors::") 
+                      + allSamples.at (j).sampleName.Data ()), 
+                  (j >= nB)
+                ) ;
             }  
         }
     }
@@ -194,9 +229,13 @@ int main (int argc, char** argv)
 
   // Plot the histograms
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-  
-  TString outString ;outString.Form ("outPlotter.root") ;
-  TFile *fOut = new TFile (outString.Data (),"RECREATE") ;
+
+  TString outFolderName = "./plotter/";
+  system (TString ("mkdir -p ") + outFolderName) ;
+
+  TString outString ;
+  outString.Form (outFolderName + "outPlotter.root") ;
+  TFile * fOut = new TFile (outString.Data (), "RECREATE") ;
   manager->SaveAllToFile (fOut) ;
 
   //make Stack plots
@@ -208,6 +247,7 @@ int main (int argc, char** argv)
           TString outputName ; 
           outputName.Form ("stack_%s_%s",
             variablesList.at (iv).c_str (), selections.at (isel).first.Data ()) ;
+          outputName = outFolderName + outputName ;  
           hstack[iv+nVars*isel] = new THStack (outputName.Data (),outputName.Data ()) ;
           for (int i = 0 ; i < nB ; ++i)
             {
@@ -230,7 +270,7 @@ int main (int argc, char** argv)
                    allSamples.at (i).sampleName.Data (),
                    selections.at (isel).first.Data ()
                  ) ;
-               manager->GetHisto (histoName.Data ())->Draw ("EPSAME") ;
+               manager->GetHisto (histoName.Data ())->Draw ("hist same") ;
             }
           TString coutputName ;
           coutputName.Form ("%s.pdf",outputName.Data ()) ;

@@ -101,6 +101,9 @@ int main (int argc, char** argv)
   float totalEvents = 0. ;
   float selectedEvents = 0. ;
 
+  int totalMCEventsNum = 0 ;
+  int selectedMCEventsNum = 0 ;
+
   // loop over events
   for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
     {
@@ -110,6 +113,7 @@ int main (int argc, char** argv)
       theBigTree.GetEntry (iEvent) ;
       
       totalEvents += theBigTree.MC_weight * XS ;
+      ++totalMCEventsNum ;
       
       if (theBigTree.indexDau1->size () == 0) continue ;
       if (theBigTree.jets_px->size () < 2)    continue ;
@@ -386,13 +390,16 @@ int main (int argc, char** argv)
         } // loop over jets
 
       selectedEvents += theBigTree.MC_weight * XS ; 
+      ++selectedMCEventsNum ;
       theSmallTree.Fill () ;
     } // loop over events
 
   cout << "efficiency = " << selectedEvents / totalEvents << endl ;
   TH1F h_eff ("h_eff", "h_eff", 2, 0, 2) ;
-  h_eff.Fill (0.5, eventsNumber) ;
-  h_eff.Fill (1.5, totalEvents) ;
+  h_eff.Fill (0.5, totalEvents) ;
+  h_eff.Fill (1.5, selectedEvents) ;
+  h_eff.Fill (2.5, totalMCEventsNum) ;
+  h_eff.Fill (3.5, selectedMCEventsNum) ;
   h_eff.Write () ;
   smallFile->Write () ;
   delete smallFile ;
