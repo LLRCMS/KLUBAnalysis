@@ -19,6 +19,7 @@
 
 #include "TObject.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TFile.h"
 
 typedef std::map<std::string, TObject*>::iterator it_type;
@@ -33,7 +34,14 @@ class HistoManager
         void AddNewHisto (const char* name, const char* title, 
                           int nbinsx, double xlow, double xup,
                           int color = 2, bool isSignal = false) ; // creates a new histo
+
+        void AddNew2DHisto (const char* name, const char* title, 
+                          int nbinsx, double xlow, double xup,
+                          int nbinsy, double ylow, double yup,
+                          int color = 2, bool isSignal = false) ; // creates a new histo
+
         TH1F* GetHisto(const char* name);
+        TH2F* Get2DHisto(const char* name);
         void SaveAllToFile (TFile* fOut);
         
     private:

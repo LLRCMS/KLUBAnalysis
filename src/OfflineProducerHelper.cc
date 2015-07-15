@@ -326,6 +326,16 @@ bool OfflineProducerHelper::tightEleMVAID (float BDT, float fSCeta)
     return isBDT;
 }
 
+int OfflineProducerHelper::getMothPairType (bigTree* tree, int iMoth)
+{
+    int iDau1 = tree->indexDau1->at(iMoth);
+    int iDau2 = tree->indexDau2->at(iMoth);
+    int type1 = tree->particleType->at(iDau1);
+    int type2 = tree->particleType->at(iDau2);
+
+    return (getPairType(type1, type2));
+}
+
 
 bool 
 OfflineProducerHelper::EleMVAID (float BDT, float eta, float pT, int strength)

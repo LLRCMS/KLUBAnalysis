@@ -1,16 +1,7 @@
 /*
-** Make studies about choice of best pair.
-**
-** When running on simulated HH signal:
-** 1) split samples according to the MC real category
-** 2) apply minimal selection on gen level objects to ensure they are not out of detector acceptance
-** 3) with a loose geometrical matching determine which objects are reconstructed from the gen level ones
-** 4) evaluate selection efficiency at each level. Count how many pairs are formed for each event
-** 5) at the end of the selection determine, in case of multiple pairs, which one is the correct one (if any),
-**    and determine the best algorithm to find it
-**
-** When running on background:
-** A) Start from point 4) by applying selections; use the same algo and fill some distributions
+** Study efficiency.
+** Select the "good" reco pair via a geometrical matching with the gen particles
+** and see what it the effect of the selection on them.
 */
 
 #include "bigTree.h"
@@ -39,7 +30,6 @@ void Concatenate (TString* sel, int nsel, TString* selConc)
     return;
 }
 
-// FIXME: check values of thesholds
 bool ptGenSel (TLorentzVector& v, int pdgId)
 {
     if (abs(pdgId) == 11) // electron

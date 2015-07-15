@@ -48,7 +48,7 @@ class OfflineProducerHelper {
   bool isMuon(int type){if(type == MUON)return true; else return false;}
   bool isElectron(int type){if(type == ELECTRON)return true; else return false;}
   bool isTau(int type){if(type == TAU)return true; else return false;}
-  int getPairType (int type1, int type2); // return pair type
+  int getPairType (int type1, int type2); // return pair type giving as input the particle types of the two composants
   bool checkBit (int word, int bitpos); // check bit "bitpos" in a word
   
   // whatApply: use "OSCharge" (appplies on pairs only)
@@ -60,6 +60,9 @@ class OfflineProducerHelper {
   bool muBaseline (bigTree* tree, int iDau, float ptMin, float etaMax, float relIso, TString whatApply = "All");
   bool tauBaseline (bigTree* tree, int iDau, float ptMin, float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits, TString whatApply = "All");
   bool tightEleMVAID (float BDT, float fSCeta); // compute tight ele MVA id WP, but isBDT in ntuples has been fixed --> this will be soon deprecated
+
+  int getMothPairType (bigTree* tree, int iMoth); // return the pair type of a given pair in the tree
+                                                
                                                 // approx!! I call it using lepton eta and not superCluster eta
   bool EleMVAID (float BDT, float eta, float pT, int strength) ;
   

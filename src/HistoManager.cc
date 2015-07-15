@@ -9,6 +9,7 @@ HistoManager::~HistoManager()
 {
     // delete all allocated objs
     // for this, always store pointers to studd allocated on the heap!!
+
     for (it_type it = _map.begin(); it != _map.end(); ++it)
     {
         delete (it->second);
@@ -18,7 +19,7 @@ HistoManager::~HistoManager()
 int HistoManager::AddElement (TObject* ptr, const char* objTag)
 {
     string name (MakeStoredName(objTag));
-    
+
     // not optimal, but I hope to have not so many histos!
     if (_map.find (name) != _map.end())
     {
@@ -68,9 +69,42 @@ void HistoManager::AddNewHisto (const char* name, const char* title,
     if (i == -1) delete h; // if not added
 }
 
+void HistoManager::AddNew2DHisto (const char* name, const char* title, 
+                          int nbinsx, double xlow, double xup,
+                          int nbinsy, double ylow, double yup,
+                          int color, bool isSignal) // creates a new 2D histo
+{
+    string fullName = MakeStoredName (name);
+    TH2F* h = new TH2F (fullName.c_str(), title, nbinsx, xlow, xup, nbinsy, ylow, yup);
+    h->Sumw2 () ;    
+    
+    /*
+    if (!isSignal)
+      {//background
+        h->SetFillStyle (1001) ;
+        h->SetFillColor (color) ;
+        h->SetLineColor (color) ;
+      }else{
+        h->SetFillStyle (0) ;
+        h->SetMarkerColor (color) ;
+        h->SetLineColor (color) ;
+        h->SetMarkerStyle (20) ;
+      }
+    */
+
+    int i = AddElement (h, name);
+    if (i == -1) delete h; // if not added
+
+}
+
 TH1F* HistoManager::GetHisto(const char* name)
 {
     return ((TH1F*) GetElement(name));
+}
+
+TH2F* HistoManager::Get2DHisto(const char* name)
+{
+    return ((TH2F*) GetElement(name));
 }
 
 string HistoManager::MakeStoredName(const char * objTag)
