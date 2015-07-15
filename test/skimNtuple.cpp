@@ -33,6 +33,18 @@ typedef LorentzVector<ROOT::Math::PxPyPzE4D<double> > lorentzVector ;
 */
 
 
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
+
+
+float deltaPhi (float phi1, float phi2)
+{
+  float deltaphi = fabs (phi1 - phi2) ;
+  if (deltaphi > 6.283185308) deltaphi -= 6.283185308 ;
+  if (deltaphi > 3.141592654) deltaphi = 6.283185308 - deltaphi ;
+  return deltaphi ;
+}
+
+
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
@@ -80,6 +92,7 @@ int main (int argc, char** argv)
 
   //Create a new file + a clone of old tree header. Do not copy events
   TFile * smallFile = new TFile (outputFile, "recreate") ;
+  smallFile->cd () ;
   smallTree theSmallTree ("HTauTauTree") ;
 
   // initial parameters, might be read from a cfg file in the future
@@ -196,6 +209,8 @@ int main (int argc, char** argv)
       theSmallTree.m_rho = theBigTree.rho ;
       theSmallTree.m_isMC = isMC ;
       theSmallTree.m_isOS = theBigTree.isOSCand->at (chosenTauPair) ;
+      theSmallTree.m_met_phi = theBigTree.metphi ;
+      theSmallTree.m_met_et = theBigTree.met ;
 
       int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
       int type2 = theBigTree.particleType->at (secondDaughterIndex) ;
@@ -278,7 +293,6 @@ int main (int argc, char** argv)
         {
           theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
 
-
           theSmallTree.m_tauH_SVFIT_pt = theBigTree.SVfit_pt->at (chosenTauPair) ;
           theSmallTree.m_tauH_SVFIT_eta = theBigTree.SVfit_eta->at (chosenTauPair) ;
           theSmallTree.m_tauH_SVFIT_phi = theBigTree.SVfit_phi->at (chosenTauPair) ;
@@ -312,6 +326,10 @@ int main (int argc, char** argv)
 
       theSmallTree.m_HHKin_mass = kinFits.getBestMHFullFit () ;
       theSmallTree.m_HHKin_chi2 = kinFits.getBestChi2FullFit () ;
+
+      theSmallTree.m_HH_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
+      theSmallTree.m_tauHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_tauH.Phi ()) ;
+      theSmallTree.m_bHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_bH.Phi ()) ;
 
       // loop over leptons
       vector<pair<TLorentzVector, float> > dummyLeptCollection ;
@@ -402,7 +420,7 @@ int main (int argc, char** argv)
   h_eff.Fill (3.5, selectedMCEventsNum) ;
   h_eff.Write () ;
   smallFile->Write () ;
-  delete smallFile ;
+  smallFile->Close () ;
   return 0 ;
 }
 

@@ -31,15 +31,15 @@ class HistoManager
         ~HistoManager();
         int AddElement (TObject* ptr, const char* objTag); // 0: added, -1: not added
         TObject* GetElement (const char* objTag);
-        void AddNewHisto (const char* name, const char* title, 
-                          int nbinsx, double xlow, double xup,
-                          int color = 2, bool isSignal = false) ; // creates a new histo
-
+        TH1F * AddNewHisto (const char* name, const char* title, 
+                            int nbinsx, double xlow, double xup,
+                            int color = 2, bool isSignal = false,
+                            TString titleX = "",
+                           TString titleY = "") ; // creates a new histo
         void AddNew2DHisto (const char* name, const char* title, 
                           int nbinsx, double xlow, double xup,
                           int nbinsy, double ylow, double yup,
                           int color = 2, bool isSignal = false) ; // creates a new histo
-
         TH1F* GetHisto(const char* name);
         TH2F* Get2DHisto(const char* name);
         void SaveAllToFile (TFile* fOut);
@@ -47,7 +47,7 @@ class HistoManager
     private:
         std::string _tag;
         std::map <std::string, TObject*> _map;
-        std::string MakeStoredName(const char * objTag); // adds internal tag to name for the search
+        std::string MakeStoredName (const char * objTag) ; // adds internal tag to name for the search
         
 };
 

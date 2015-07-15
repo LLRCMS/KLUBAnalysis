@@ -18,12 +18,11 @@ using namespace std ;
 
 /* TODO list
 
-- get an optional signal scale factor
-- add log-scale plots
 - add shape plots of each bkg and signal
 - add shape plots of the total bkg and signal
-- add the legenda, axis titles 
+- add the legenda, axis titles from cfg
 - get the output folder from the command line
+- add overflow and underflow bins to the histos
 
 */
 
@@ -39,6 +38,87 @@ using namespace std ;
 //  return "" ;
 //}
 
+
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+void copyTitles (TH1F * histogram, THStack * hstack)
+{
+  TIter next (hstack->GetHists ()) ;
+  TH1F * histo ;
+
+  while (histo = (TH1F *) (next ())) 
+    {
+      histogram->GetXaxis ()->SetTitle (
+        histo->GetXaxis ()->GetTitle ()) ;
+      histogram->GetYaxis ()->SetTitle (
+        histo->GetYaxis ()->GetTitle ()) ;
+      break ;  
+    }
+  return ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+float findNonNullMinimum (TH1F * histo)
+  {
+    float min = 10000000000. ;
+    for (int i = 1 ; i <= histo->GetNbinsX () ; ++i)
+      { 
+        float tmpmin = histo->GetBinContent (i) ;
+        if (tmpmin == 0.) continue ;
+        if (tmpmin < min) min = tmpmin ;
+      }
+    return min ;
+  }
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+/* how much space to leave for the legenda:
+https://github.com/govoni/FlatNtStudy/blob/master/interface/plotter.h#L324
+*/
+
+// xmin ymin xmax ymax
+vector<float> getExtremes (THStack * hstack, bool islog = false)
+{
+  float ymax = hstack->GetMaximum () * 1.3;
+
+  TIter next (hstack->GetHists ()) ;
+  TH1F * histo ;
+
+  float xmin = 1. ;
+  float xmax = 0. ;
+  float ymin = 10000000000. ;
+  while (histo = (TH1F *) (next ())) 
+    {
+      float tmpmin = findNonNullMinimum (histo) ;
+      if (tmpmin < ymin) ymin = tmpmin ;
+      if (xmin > xmax)
+        {
+          xmin = histo->GetXaxis ()->GetXmin () ;
+          xmax = histo->GetXaxis ()->GetXmax () ;
+        }
+    }
+
+  ymin *= 0.9 ;
+
+  vector<float> extremes (4, 0.) ;
+  extremes.at (0) = xmin ;
+  extremes.at (1) = ymin ;
+  extremes.at (2) = xmax ;
+  extremes.at (3) = ymax ;
+
+  return extremes ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
 struct isNOTalnum : std::unary_function<int, int>
@@ -70,7 +150,6 @@ int main (int argc, char** argv)
     }
 
   float lumi = gConfigParser->readFloatOption ("general::lumi") ;
-
   
   // get the samples to be analised
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -79,10 +158,22 @@ int main (int argc, char** argv)
   vector<sample> sigSamples ;
   readSamples (sigSamples, sigSamplesList) ;
 
+  vector<float> signalScales ;
+  for (unsigned int i = 0 ; i < sigSamplesList.size () ; ++i)
+    {
+      string name = string ("samples::") + sigSamplesList.at (i) + string ("FACT") ;
+      float scale = gConfigParser->readFloatOption (name.c_str ()) ;
+      signalScales.push_back (scale) ;        
+    }
+
   vector<string> bkgSamplesList = gConfigParser->readStringListOption ("general::backgrounds") ;
   vector<sample> bkgSamples ;
   readSamples (bkgSamples, bkgSamplesList) ;
 
+  // FIXME si riesce ad evitare questa duplicazione?
+  vector<sample> allSamples (bkgSamples) ;  
+  allSamples.insert (allSamples.end (), sigSamples.begin (), sigSamples.end ()) ;
+  
   // get the selections to be applied
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -106,35 +197,6 @@ int main (int argc, char** argv)
   const int nS = sigSamples.size () ;
   const int nVars =variablesList.size () ;
   const int nSel = selections.size () ;
-
-// come mai e' duplicato questo?
-  vector<sample> allSamples (bkgSamples) ;  
-  allSamples.insert (allSamples.end (), sigSamples.begin (), sigSamples.end ()) ;
-  
-//   int xup[nVars] ;//           = {900,900} ;
-//   int xlow[nVars] ;//          = {0,250} ;
-//   int bins[nVars] ;//          = {300,100} ;
-//   for (int iVar = 0 ; iVar < nVars ; ++iVar)
-//     {
-//       xup[iVar]=-999 ;xlow[iVar]=0 ;bins[iVar]=100 ;
-//       for (int i = 0 ; i < nS ; ++i)
-//         {
-//           if (sigSamples.at (i).sampleChain->GetMaximum (variablesList.at (iVar).c_str ()) > xup[iVar]) 
-//             xup[iVar] = sigSamples.at (i).sampleChain->GetMaximum (variablesList.at (iVar).c_str ()) ;
-//           if (sigSamples.at (i).sampleChain->GetMinimum (variablesList.at (iVar).c_str ()) < xlow[iVar])
-//             xlow[iVar] = sigSamples.at (i).sampleChain->GetMinimum (variablesList.at (iVar).c_str ()) ;
-//         }
-//       for (int i = 0 ; i < nB ; ++i)
-//         {
-//           if (bkgSamples.at (i).sampleChain->GetMaximum (variablesList.at (iVar).c_str ()) > xup[iVar])
-//             xup[iVar] = bkgSamples.at (i).sampleChain->GetMaximum (variablesList.at (iVar).c_str ()) ;
-//           if (bkgSamples.at (i).sampleChain->GetMinimum (variablesList.at (iVar).c_str ()) < xlow[iVar])
-//             xlow[iVar] = bkgSamples.at (i).sampleChain->GetMinimum (variablesList.at (iVar).c_str ()) ;
-//         }
-//     }
-
-  // FIXME PG are they in agreement with the ones of the HTT group?
-  int colors[]={kBlue,kRed,kGreen,kYellow+2,kRed+2,kMagenta,kCyan,kBlack} ;//add more if needed
 
   TString histoName ;
   HistoManager * manager = new HistoManager ("test") ;
@@ -165,12 +227,12 @@ int main (int argc, char** argv)
               vector <float> limits = 
                 gConfigParser->readFloatListOption (TString ("histos::") 
                     + varID.c_str ()) ;
-//                    + variablesList.at (i).c_str ()) ;
               manager->AddNewHisto (histoName.Data (),histoName.Data (),
                   int (limits.at (0)), limits.at (1), limits.at (2),
                   gConfigParser->readIntOption (TString ("colors::") 
                       + allSamples.at (j).sampleName.Data ()), 
-                  (j >= nB)
+                  (j >= nB),
+                  variablesList.at (i).c_str (), "a.u"
                 ) ;
             }  
         }
@@ -178,8 +240,6 @@ int main (int argc, char** argv)
 
   // Fill the histograms
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-  vector<float> address (nVars, 0.) ; 
 
   //Loop on the samples
   for (int iSample = 0 ; iSample < nB+nS ; ++iSample)
@@ -195,12 +255,16 @@ int main (int argc, char** argv)
         }
       float weight ;
       tree->SetBranchAddress ("MC_weight", &weight) ;
+      // signal scaling
+      float scaling = 1. ;
+      if (iSample >= nB) scaling *= signalScales.at (iSample - nB) ;
 
       cout << "Opening sample "
            << allSamples.at (iSample).sampleName
            << " with efficiency " << eff
            << endl ;
 
+      vector<float> address (nVars, 0.) ; 
       for (int iv = 0 ; iv < nVars ; ++iv)
         tree->SetBranchAddress (variablesList.at (iv).c_str (), &(address.at (iv))) ;
     
@@ -219,7 +283,7 @@ int main (int argc, char** argv)
                       allSamples.at (iSample).sampleName.Data (),
                       selections.at (isel).first.Data ()
                     ) ;
-                  manager->GetHisto (histoName.Data ())->Fill (address[iv], weight * eff * lumi) ;
+                  manager->GetHisto (histoName.Data ())->Fill (address[iv], weight * eff * lumi * scaling) ;
                 } //loop on variables
             } //loop on selections
         } //loop on tree entries
@@ -232,23 +296,32 @@ int main (int argc, char** argv)
 
   TString outFolderName = "./plotter/";
   system (TString ("mkdir -p ") + outFolderName) ;
-
   TString outString ;
   outString.Form (outFolderName + "outPlotter.root") ;
   TFile * fOut = new TFile (outString.Data (), "RECREATE") ;
   manager->SaveAllToFile (fOut) ;
 
+  outFolderName = "./plotter/events/";
+  system (TString ("mkdir -p ") + outFolderName) ;
+  outFolderName = "./plotter/shapes/";
+  system (TString ("mkdir -p ") + outFolderName) ;
+
   //make Stack plots
-  THStack *hstack[nVars*nSel] ;//one stack for variable
+  vector <THStack *> hstack_bkg (nVars*nSel) ; //one stack for variable
+  vector <THStack *> hstack_sig (nVars*nSel) ; //one stack for variable
+
+  TCanvas * c = new TCanvas () ;
+
   for (int isel = 0 ; isel < nSel ; ++isel)
     {
       for (int iv = 0 ; iv < nVars ; ++iv)
         {
           TString outputName ; 
-          outputName.Form ("stack_%s_%s",
+
+          // filling stacks for background
+          outputName.Form ("stack_bkg_%s_%s",
             variablesList.at (iv).c_str (), selections.at (isel).first.Data ()) ;
-          outputName = outFolderName + outputName ;  
-          hstack[iv+nVars*isel] = new THStack (outputName.Data (),outputName.Data ()) ;
+          hstack_bkg.at (iv+nVars*isel) = new THStack (outputName.Data (), outputName.Data ()) ;
           for (int i = 0 ; i < nB ; ++i)
             {
               histoName.Form ("%s_%s_%s",
@@ -256,30 +329,98 @@ int main (int argc, char** argv)
                   allSamples.at (i).sampleName.Data (),
                   selections.at (isel).first.Data ()
                 ) ;
-              hstack[iv+nVars*isel]->Add (manager->GetHisto (histoName.Data ())) ;
+              hstack_bkg.at (iv+nVars*isel)->Add (manager->GetHisto (histoName.Data ())) ;
             }
-          TCanvas * c = new TCanvas (outputName.Data ()) ;
-          c->cd () ;
-          hstack[iv+nVars*isel]->Draw ("hist") ;
-          
+
+          // filling stacks for signal
+
+          outputName.Form ("stack_sig_%s_%s",
+            variablesList.at (iv).c_str (), selections.at (isel).first.Data ()) ;
+          hstack_sig.at (iv+nVars*isel) = new THStack (outputName.Data (), outputName.Data ()) ;
           //superimpose the signals
           for (int i = nB ; i< nB+nS ; ++i)
             {
-               histoName.Form ("%s_%s_%s",
-                   variablesList.at (iv).c_str (),
-                   allSamples.at (i).sampleName.Data (),
-                   selections.at (isel).first.Data ()
-                 ) ;
-               manager->GetHisto (histoName.Data ())->Draw ("hist same") ;
+              histoName.Form ("%s_%s_%s",
+                  variablesList.at (iv).c_str (),
+                  allSamples.at (i).sampleName.Data (),
+                  selections.at (isel).first.Data ()
+                ) ;
+              hstack_sig.at (iv+nVars*isel)->Add (manager->GetHisto (histoName.Data ())) ;
             }
-          TString coutputName ;
-          coutputName.Form ("%s.pdf",outputName.Data ()) ;
-          c->SaveAs (coutputName.Data ()) ;
+          
+          // saving stacks
+          
           fOut->cd () ;
-          hstack[iv+nVars*isel]->Write () ;
-          delete c ;
+          hstack_bkg.at (iv+nVars*isel)->Write () ;
+          hstack_sig.at (iv+nVars*isel)->Write () ;
+
+          // plotting with normalisation
+          // ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+          outFolderName = "./plotter/events/";
+          c->cd () ;
+
+          vector<float> extremes_bkg = getExtremes (hstack_bkg.at (iv+nVars*isel)) ;
+          vector<float> extremes_sig = getExtremes (hstack_sig.at (iv+nVars*isel)) ;
+
+          TH1F * bkg = c->DrawFrame (
+              extremes_bkg.at (0) ,
+              std::min (extremes_bkg.at (1), extremes_sig.at (1)) ,
+              extremes_bkg.at (2) ,
+              std::max (extremes_bkg.at (3), extremes_sig.at (3))
+            ) ;  
+          copyTitles (bkg, hstack_bkg.at (iv+nVars*isel)) ;
+          
+          hstack_bkg.at (iv+nVars*isel)->Draw ("hist same") ;
+          hstack_sig.at (iv+nVars*isel)->Draw ("nostack hist same") ;
+          TString coutputName ;
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+          
+          c->SetLogy (1) ;
+          bkg->Draw () ;
+          hstack_bkg.at (iv+nVars*isel)->Draw ("hist same") ;
+          hstack_sig.at (iv+nVars*isel)->Draw ("nostack hist same") ;
+          coutputName.Form ("%s_log.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+          c->SetLogy (0) ;
+          
+          // plotting shapes
+          // ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+          outFolderName = "./plotter/shapes/";
+          TString basename ;
+          basename.Form ("shape_%s_%s",
+                  variablesList.at (iv).c_str (),
+                  selections.at (isel).first.Data ()
+                ) ;
+          TString name = basename + "_bkg_norm" ;
+          TH1F * dummy = (TH1F *) hstack_bkg.at (iv+nVars*isel)->GetStack ()->Last () ;
+          TH1F * shape_bkg = (TH1F *) dummy->Clone (name) ;
+          shape_bkg->Scale (1. / shape_bkg->Integral ()) ;
+          shape_bkg->SetFillColor (8) ;
+          
+          name = basename + "_sig_norm" ;
+          dummy = (TH1F *) hstack_sig.at (iv+nVars*isel)->GetStack ()->Last () ;
+          TH1F * shape_sig = (TH1F *) dummy->Clone (name) ;
+          shape_sig->Scale (1. / shape_sig->Integral ()) ;
+          
+          if (shape_sig->GetMaximum () > shape_bkg->GetMaximum ()) 
+            shape_sig->Draw ("hist") ;
+          else   
+            shape_bkg->Draw ("hist") ;
+
+          shape_bkg->Draw ("hist same") ;
+          shape_sig->Draw ("hist same") ;
+          
+          name = basename + "_norm" ;
+          coutputName.Form ("%s.pdf", (outFolderName + basename).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+
         }
-    } //make Stack plots
+    } //make stack plots
+
+  delete c ;
 
   // printout efficiency tables
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----

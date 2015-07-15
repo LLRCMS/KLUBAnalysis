@@ -25,23 +25,49 @@ if __name__ == "__main__":
     parser.add_option('-r', '--resub'  , dest='resub'  , help='resubmit failed jobs'             , default='none')
     (opt, args) = parser.parse_args()
 
+    # verify the result of the process
+    # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
     if (opt.resub != 'none') :
         if (opt.output == 'none') :
             print 'input folder to be checked missing\n'
             print '(this is the folder that contains the jobs to be submitted)'
             sys.exit (1)
+
+        if opt.output[-1] == '/' : opt.input = opt.input[:-1]
+        opt.output = 'SKIM_' + basename (opt.output)
         jobs = [word.replace ('_', '.').split ('.')[1] for word in os.listdir (opt.output) if 'run' in word]
         missing = []
+        
+        # check the existence of the done file
         for num in jobs :
             if not os.path.exists (opt.output + '/done_' + num) :
                 missing.append (num)
-        print 'the following jobs did not end:'
+
+        # check the log file
+        for num in jobs :
+            # get the log file name
+            filename = opt.output + '/runJob_' + num + '.sh'
+#            print os.path.exists (filename) 
+            with open (filename, 'r') as myfile :
+                data = [word for word in myfile.readlines () if 'log' in word]
+            with open (data[0].split ()[-1], 'r') as logfile :
+                problems = [word for word in logfile.readlines () if 'Error' in word and 'TCling' not in word]
+                if len (problems) != 0 :
+                    missing.append (num)
+        print 'the following jobs did not end successfully:'
         print missing   
+        for num in missing :
+            command = '`cat ' + opt.output + '/submit.sh | grep runJob_' + num + '.sh | tr "\'" " "`'
+            print command
         if (opt.resub == 'run') :
             for num in missing :
-                command = '`cat ' + opt.output + '/submit.sh | grep runJob_' + num + '.sh`'
+                command = '`cat ' + opt.output + '/submit.sh | grep runJob_' + num + '.sh | tr "\'" " "`'
                 os.system (command)
         sys.exit (0)
+
+    # submit the jobs
+    # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
     if opt.input[-1] == '/' : opt.input = opt.input[:-1]
     if opt.output == 'none' : opt.output = opt.input + '_SKIM'
@@ -79,7 +105,7 @@ if __name__ == "__main__":
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('cd %s\n'%currFolder)
         scriptFile.write ('source scripts/setup.sh\n')
-        scriptFile.write ('./bin/skimNtuple.exe ' + filename + ' ' + opt.output + '/' + basename (filename) + ' ' + opt.xs + ' > ' + opt.output + '/' + basename (filename) + '.log\n')
+        scriptFile.write ('./bin/skimNtuple.exe ' + filename + ' ' + opt.output + '/' + basename (filename) + ' ' + opt.xs + ' >& ' + opt.output + '/' + basename (filename) + '.log\n')
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
         scriptFile.write ('echo "All done for job %d" \n'%n)
         scriptFile.close ()
