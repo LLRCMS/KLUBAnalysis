@@ -37,8 +37,7 @@ struct smallTree
       m_isMC = -1. ;
       m_isOS = -1. ;
       
-      m_met_pt = -1. ;
-      m_met_eta = -1. ;
+      m_met_phi = -1. ;
       m_met_et = -1. ;
     
       m_dau1_pt  = -1. ;
@@ -93,6 +92,12 @@ struct smallTree
       m_HHKin_mass = -1. ;
       m_HHKin_chi2 = -1. ;
 
+      m_HH_deltaPhi = -1. ;
+      m_tauHMet_deltaPhi = -1. ;
+      m_bHMet_deltaPhi = -1. ;
+      m_ditau_deltaPhi = -1. ;
+      m_dib_deltaPhi = -1. ;
+
       m_jets_pt.clear () ;
       m_jets_eta.clear () ;
       m_jets_phi.clear () ;
@@ -128,8 +133,7 @@ struct smallTree
       m_smallT->Branch ("isMC", &m_isMC, "isMC/I") ;
       m_smallT->Branch ("isOS", &m_isOS, "isOS/I") ;
 
-      m_smallT->Branch ("met_pt", &m_met_pt, "met_pt/F") ;
-      m_smallT->Branch ("met_eta", &m_met_eta, "met_eta/F") ;
+      m_smallT->Branch ("met_phi", &m_met_phi, "met_phi/F") ;
       m_smallT->Branch ("met_et", &m_met_et, "met_et/F") ;
 
       m_smallT->Branch ("dau1_pt", &m_dau1_pt, "dau1_pt/F") ;
@@ -182,6 +186,12 @@ struct smallTree
       m_smallT->Branch ("HH_e", &m_HH_e, "HH_e/F") ;
       m_smallT->Branch ("HHKin_mass", &m_HHKin_mass, "HHKin_mass/F") ;
       m_smallT->Branch ("HHKin_chi2", &m_HHKin_chi2, "HHKin_chi2/F") ;
+      m_smallT->Branch ("HH_deltaPhi", &m_HH_deltaPhi, "HH_deltaPhi/F") ;
+      m_smallT->Branch ("tauHMet_deltaPhi", &m_tauHMet_deltaPhi, "tauHMet_deltaPhi/F") ;
+      m_smallT->Branch ("bHMet_deltaPhi", &m_bHMet_deltaPhi, "bHMet_deltaPhi/F") ;
+//      m_smallT->Branch ("", &m_, "/F") ;
+      m_smallT->Branch ("ditau_deltaPhi", &m_ditau_deltaPhi, "ditau_deltaPhi/F") ;
+      m_smallT->Branch ("dib_deltaPhi", &m_dib_deltaPhi, "dib_deltaPhi/F") ;
       
       m_smallT->Branch ("jets_pt", &m_jets_pt) ;
       m_smallT->Branch ("jets_eta", &m_jets_eta) ;
@@ -226,8 +236,7 @@ struct smallTree
 //    Float_t         metphi;
 
   // MET
-  Float_t m_met_pt ;
-  Float_t m_met_eta ;
+  Float_t m_met_phi ;
   Float_t m_met_et ;
 
   // the largest pT daughter visible candidate
@@ -291,6 +300,13 @@ struct smallTree
   // the di-higgs candidate
   Float_t m_HHKin_mass ;
   Float_t m_HHKin_chi2 ;
+
+  // angular variables
+  Float_t m_HH_deltaPhi ;
+  Float_t m_tauHMet_deltaPhi ;
+  Float_t m_bHMet_deltaPhi ;
+  Float_t m_ditau_deltaPhi ;
+  Float_t m_dib_deltaPhi ;
 
   // additional jets
   std::vector<Float_t> m_jets_pt ;
