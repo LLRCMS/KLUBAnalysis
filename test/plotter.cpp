@@ -71,7 +71,7 @@ vector<float> getExtremes (THStack * hstack, bool islog = false)
   float xmin = 1. ;
   float xmax = 0. ;
   float ymin = 10000000000. ;
-  while (histo = (TH1F *) next ()) 
+  while (histo = (TH1F *) (next ())) 
     {
       float tmpmin = findNonNullMinimum (histo) ;
       if (tmpmin < ymin) ymin = tmpmin ;
@@ -126,7 +126,6 @@ int main (int argc, char** argv)
     }
 
   float lumi = gConfigParser->readFloatOption ("general::lumi") ;
-
   
   // get the samples to be analised
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -134,6 +133,14 @@ int main (int argc, char** argv)
   vector<string> sigSamplesList = gConfigParser->readStringListOption ("general::signals") ;
   vector<sample> sigSamples ;
   readSamples (sigSamples, sigSamplesList) ;
+
+  vector<float> signalScales ;
+  for (unsigned int i = 0 ; i < sigSamplesList.size () ; ++i)
+    {
+      string name = string ("samples::") + sigSamplesList.at (i) + string ("FACT") ;
+      float scale = gConfigParser->readFloatOption (name.c_str ()) ;
+      signalScales.push_back (scale) ;        
+    }
 
   vector<string> bkgSamplesList = gConfigParser->readStringListOption ("general::backgrounds") ;
   vector<sample> bkgSamples ;
@@ -223,6 +230,9 @@ int main (int argc, char** argv)
         }
       float weight ;
       tree->SetBranchAddress ("MC_weight", &weight) ;
+      // signal scaling
+      float scaling = 1. ;
+      if (iSample >= nB) scaling *= signalScales.at (iSample - nB) ;
 
       cout << "Opening sample "
            << allSamples.at (iSample).sampleName
@@ -248,7 +258,7 @@ int main (int argc, char** argv)
                       allSamples.at (iSample).sampleName.Data (),
                       selections.at (isel).first.Data ()
                     ) ;
-                  manager->GetHisto (histoName.Data ())->Fill (address[iv], weight * eff * lumi) ;
+                  manager->GetHisto (histoName.Data ())->Fill (address[iv], weight * eff * lumi * scaling) ;
                 } //loop on variables
             } //loop on selections
         } //loop on tree entries
