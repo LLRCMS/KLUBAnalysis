@@ -18,12 +18,11 @@ using namespace std ;
 
 /* TODO list
 
-- get an optional signal scale factor
-- add log-scale plots
 - add shape plots of each bkg and signal
 - add shape plots of the total bkg and signal
-- add the legenda, axis titles 
+- add the legenda, axis titles from cfg
 - get the output folder from the command line
+- add overflow and underflow bins to the histos
 
 */
 
@@ -38,6 +37,31 @@ using namespace std ;
 //  else if (selection==1)return "HH_pt>400" ;
 //  return "" ;
 //}
+
+
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+void copyTitles (TH1F * histogram, THStack * hstack)
+{
+  TIter next (hstack->GetHists ()) ;
+  TH1F * histo ;
+
+  while (histo = (TH1F *) (next ())) 
+    {
+      histogram->GetXaxis ()->SetTitle (
+        histo->GetXaxis ()->GetTitle ()) ;
+      histogram->GetYaxis ()->SetTitle (
+        histo->GetYaxis ()->GetTitle ()) ;
+      break ;  
+    }
+  return ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
 float findNonNullMinimum (TH1F * histo)
@@ -65,7 +89,7 @@ vector<float> getExtremes (THStack * hstack, bool islog = false)
 {
   float ymax = hstack->GetMaximum () * 1.3;
 
-  TIter next (hstack->GetStack ()) ;
+  TIter next (hstack->GetHists ()) ;
   TH1F * histo ;
 
   float xmin = 1. ;
@@ -207,7 +231,8 @@ int main (int argc, char** argv)
                   int (limits.at (0)), limits.at (1), limits.at (2),
                   gConfigParser->readIntOption (TString ("colors::") 
                       + allSamples.at (j).sampleName.Data ()), 
-                  (j >= nB)
+                  (j >= nB),
+                  variablesList.at (i).c_str (), "a.u"
                 ) ;
             }  
         }
@@ -271,11 +296,15 @@ int main (int argc, char** argv)
 
   TString outFolderName = "./plotter/";
   system (TString ("mkdir -p ") + outFolderName) ;
-
   TString outString ;
   outString.Form (outFolderName + "outPlotter.root") ;
   TFile * fOut = new TFile (outString.Data (), "RECREATE") ;
   manager->SaveAllToFile (fOut) ;
+
+  outFolderName = "./plotter/events/";
+  system (TString ("mkdir -p ") + outFolderName) ;
+  outFolderName = "./plotter/shapes/";
+  system (TString ("mkdir -p ") + outFolderName) ;
 
   //make Stack plots
   vector <THStack *> hstack_bkg (nVars*nSel) ; //one stack for variable
@@ -292,7 +321,6 @@ int main (int argc, char** argv)
           // filling stacks for background
           outputName.Form ("stack_bkg_%s_%s",
             variablesList.at (iv).c_str (), selections.at (isel).first.Data ()) ;
-          outputName = outFolderName + outputName ;  
           hstack_bkg.at (iv+nVars*isel) = new THStack (outputName.Data (), outputName.Data ()) ;
           for (int i = 0 ; i < nB ; ++i)
             {
@@ -305,9 +333,9 @@ int main (int argc, char** argv)
             }
 
           // filling stacks for signal
+
           outputName.Form ("stack_sig_%s_%s",
             variablesList.at (iv).c_str (), selections.at (isel).first.Data ()) ;
-          outputName = outFolderName + outputName ;  
           hstack_sig.at (iv+nVars*isel) = new THStack (outputName.Data (), outputName.Data ()) ;
           //superimpose the signals
           for (int i = nB ; i< nB+nS ; ++i)
@@ -320,38 +348,77 @@ int main (int argc, char** argv)
               hstack_sig.at (iv+nVars*isel)->Add (manager->GetHisto (histoName.Data ())) ;
             }
           
-          // plotting  
+          // saving stacks
+          
+          fOut->cd () ;
+          hstack_bkg.at (iv+nVars*isel)->Write () ;
+          hstack_sig.at (iv+nVars*isel)->Write () ;
+
+          // plotting with normalisation
+          // ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+          outFolderName = "./plotter/events/";
+          c->cd () ;
 
           vector<float> extremes_bkg = getExtremes (hstack_bkg.at (iv+nVars*isel)) ;
           vector<float> extremes_sig = getExtremes (hstack_sig.at (iv+nVars*isel)) ;
 
-          c->cd () ;
           TH1F * bkg = c->DrawFrame (
               extremes_bkg.at (0) ,
               std::min (extremes_bkg.at (1), extremes_sig.at (1)) ,
               extremes_bkg.at (2) ,
               std::max (extremes_bkg.at (3), extremes_sig.at (3))
             ) ;  
+          copyTitles (bkg, hstack_bkg.at (iv+nVars*isel)) ;
           
           hstack_bkg.at (iv+nVars*isel)->Draw ("hist same") ;
           hstack_sig.at (iv+nVars*isel)->Draw ("nostack hist same") ;
           TString coutputName ;
-          coutputName.Form ("%s.pdf", outputName.Data ()) ;
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
           
           c->SetLogy (1) ;
           bkg->Draw () ;
           hstack_bkg.at (iv+nVars*isel)->Draw ("hist same") ;
           hstack_sig.at (iv+nVars*isel)->Draw ("nostack hist same") ;
-          coutputName.Form ("%s_log.pdf", outputName.Data ()) ;
+          coutputName.Form ("%s_log.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
           c->SetLogy (0) ;
           
-          fOut->cd () ;
-          hstack_bkg.at (iv+nVars*isel)->Write () ;
-          hstack_sig.at (iv+nVars*isel)->Write () ;
+          // plotting shapes
+          // ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+          outFolderName = "./plotter/shapes/";
+          TString basename ;
+          basename.Form ("shape_%s_%s",
+                  variablesList.at (iv).c_str (),
+                  selections.at (isel).first.Data ()
+                ) ;
+          TString name = basename + "_bkg_norm" ;
+          TH1F * dummy = (TH1F *) hstack_bkg.at (iv+nVars*isel)->GetStack ()->Last () ;
+          TH1F * shape_bkg = (TH1F *) dummy->Clone (name) ;
+          shape_bkg->Scale (1. / shape_bkg->Integral ()) ;
+          shape_bkg->SetFillColor (8) ;
+          
+          name = basename + "_sig_norm" ;
+          dummy = (TH1F *) hstack_sig.at (iv+nVars*isel)->GetStack ()->Last () ;
+          TH1F * shape_sig = (TH1F *) dummy->Clone (name) ;
+          shape_sig->Scale (1. / shape_sig->Integral ()) ;
+          
+          if (shape_sig->GetMaximum () > shape_bkg->GetMaximum ()) 
+            shape_sig->Draw ("hist") ;
+          else   
+            shape_bkg->Draw ("hist") ;
+
+          shape_bkg->Draw ("hist same") ;
+          shape_sig->Draw ("hist same") ;
+          
+          name = basename + "_norm" ;
+          coutputName.Form ("%s.pdf", (outFolderName + basename).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+
         }
-    } //make Stack plots
+    } //make stack plots
 
   delete c ;
 
