@@ -123,22 +123,22 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     if (pairType == MuHad)
     {
         bool leg1 = muBaseline (tree, dau1index, 18., 2.1, 0.1, whatApply);
-        bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, 1.5, whatApply);
+        bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, 3.0, whatApply);
         return (leg1 && leg2);
     }
 
     if (pairType == EHad)
     {
         bool leg1 = eleBaseline (tree, dau1index, 23., 0.1, 0, whatApply);
-        bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, 1.5, whatApply);
+        bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, 3.0, whatApply);
         return (leg1 && leg2);
     }
 
     // ordered by pT and not by most isolated, but baseline asked in sync is the same...
     if (pairType == HadHad)
     {
-        bool leg1 = tauBaseline (tree, dau1index, 45., 2.1, 0, 0, 1.0, whatApply);
-        bool leg2 = tauBaseline (tree, dau2index, 45., 2.1, 0, 0, 1.0, whatApply);
+        bool leg1 = tauBaseline (tree, dau1index, 45., 2.1, 0, 0, 2.0, whatApply);
+        bool leg2 = tauBaseline (tree, dau2index, 45., 2.1, 0, 0, 2.0, whatApply);
         return (leg1 && leg2);
     }
 
