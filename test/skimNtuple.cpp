@@ -331,6 +331,9 @@ int main (int argc, char** argv)
       theSmallTree.m_tauHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_tauH.Phi ()) ;
       theSmallTree.m_bHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_bH.Phi ()) ;
 
+      theSmallTree.m_ditau_deltaPhi = deltaPhi (tlv_firstLepton.Phi (), tlv_secondLepton.Phi ()) ;
+      theSmallTree.m_dib_deltaPhi = deltaPhi (tlv_firstBjet.Phi (), tlv_firstBjet.Phi ()) ;
+
       // loop over leptons
       vector<pair<TLorentzVector, float> > dummyLeptCollection ;
       for (int iLep = 0 ; 
