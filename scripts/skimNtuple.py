@@ -131,7 +131,7 @@ if __name__ == "__main__":
             command = (jobsDir + '/runJob_' + str (n) + '.sh')
         else:
             command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' + jobsDir + '/runJob_' + str (n) + '.sh\'')
-        if opt.sleep : time.sleep (n % 5)
+        if opt.sleep : time.sleep (0.5 * n % 5)
         os.system (command)
         commandFile.write (command + '\n')
         n = n + 1
