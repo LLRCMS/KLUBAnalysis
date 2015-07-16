@@ -19,7 +19,6 @@ using namespace std ;
 /* TODO list
 
 - add shape plots of each bkg and signal
-- add shape plots of the total bkg and signal
 - add the legenda, axis titles from cfg
 - get the output folder from the command line
 - add overflow and underflow bins to the histos

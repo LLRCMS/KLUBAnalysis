@@ -23,6 +23,8 @@ if __name__ == "__main__":
     parser.add_option('-o', '--output' , dest='output' , help='output folder'                    , default='none')
     parser.add_option('-q', '--queue'  , dest='queue'  , help='batch queue'                      , default='cms')
     parser.add_option('-r', '--resub'  , dest='resub'  , help='resubmit failed jobs'             , default='none')
+    parser.add_option('-v', '--verb'   , dest='verb'   , help='verbose'                          , default=False)
+    parser.add_option('-s', '--sleep'  , dest='sleep'  , help='sleep in submission'              , default=False)
     (opt, args) = parser.parse_args()
 
     # verify the result of the process
@@ -42,6 +44,7 @@ if __name__ == "__main__":
         # check the existence of the done file
         for num in jobs :
             if not os.path.exists (opt.input + '/done_' + num) :
+                if opt.verb : print num, ' : missing done file'
                 missing.append (num)
 
         # check the log file
@@ -51,18 +54,30 @@ if __name__ == "__main__":
 #            print os.path.exists (filename) 
             with open (filename, 'r') as myfile :
                 data = [word for word in myfile.readlines () if 'log' in word]
-            with open (data[0].split ()[-1], 'r') as logfile :
+            rootfile = data[0].split ()[2]
+            if not os.path.exists (rootfile) :
+                if opt.verb : print num, 'missing root file'
+                missing.append (num)
+                continue
+            logfile = data[0].split ()[-1]
+            if not os.path.exists (logfile) :
+                if opt.verb : print num, 'missing log file'
+                missing.append (num)
+                continue
+            with open (logfile, 'r') as logfile :
                 problems = [word for word in logfile.readlines () if 'Error' in word and 'TCling' not in word]
                 if len (problems) != 0 :
+                    if opt.verb : print num, 'found error ', problems[0]
                     missing.append (num)
         print 'the following jobs did not end successfully:'
         print missing   
         for num in missing :
             command = '`cat ' + opt.input + '/submit.sh | grep runJob_' + num + '.sh | tr "\'" " "`'
-            print command
+            if opt.verb : print command
         if (opt.resub == 'run') :
             for num in missing :
                 command = '`cat ' + opt.input + '/submit.sh | grep runJob_' + num + '.sh | tr "\'" " "`'
+                time.sleep (int (num) % 5)
                 os.system (command)
         sys.exit (0)
 
@@ -116,6 +131,7 @@ if __name__ == "__main__":
             command = (jobsDir + '/runJob_' + str (n) + '.sh')
         else:
             command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' + jobsDir + '/runJob_' + str (n) + '.sh\'')
+        if opt.sleep : time.sleep (0.5 * n % 5)
         os.system (command)
         commandFile.write (command + '\n')
         n = n + 1
