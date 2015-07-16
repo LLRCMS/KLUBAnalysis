@@ -2,7 +2,7 @@
 
 repo for the h->hh analysis within the LLR framework
 
-## Installing (cmsenv)
+## Installing
 ``` 
 cd /data_CMS/cms/govoni/CMSSW_7_4_5/src
 cmsenv
