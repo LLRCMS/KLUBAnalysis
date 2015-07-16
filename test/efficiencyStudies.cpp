@@ -84,7 +84,7 @@ int main()
     const char * decModeNames[6] = {"MuTau", "ETau", "TauTau", "MuMu", "EE", "EMu"}; // follows pairType enum
     OfflineProducerHelper helper;
 
-    TString sel[] = {"Vertex", "OSCharge", "LepID", "pTMin", "etaMax", "againstEle", "againstMu", "Iso"};
+    TString sel[] = {"Vertex", "OScharge", "LepID", "pTMin", "etaMax", "againstEle", "againstMu", "Iso"};
     const int nsel = sizeof(sel)/sizeof(TString);
     TString selConc[nsel];
     Concatenate (sel, nsel, selConc);
