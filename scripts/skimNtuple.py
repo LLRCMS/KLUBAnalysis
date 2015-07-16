@@ -29,25 +29,25 @@ if __name__ == "__main__":
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
     if (opt.resub != 'none') :
-        if (opt.output == 'none') :
+        if (opt.input == 'none') :
             print 'input folder to be checked missing\n'
             print '(this is the folder that contains the jobs to be submitted)'
             sys.exit (1)
 
-        if opt.output[-1] == '/' : opt.input = opt.input[:-1]
-        opt.output = 'SKIM_' + basename (opt.output)
-        jobs = [word.replace ('_', '.').split ('.')[1] for word in os.listdir (opt.output) if 'run' in word]
+        if opt.input[-1] == '/' : opt.input = opt.input[:-1]
+        opt.input = 'SKIM_' + basename (opt.input)
+        jobs = [word.replace ('_', '.').split ('.')[1] for word in os.listdir (opt.input) if 'run' in word]
         missing = []
         
         # check the existence of the done file
         for num in jobs :
-            if not os.path.exists (opt.output + '/done_' + num) :
+            if not os.path.exists (opt.input + '/done_' + num) :
                 missing.append (num)
 
         # check the log file
         for num in jobs :
             # get the log file name
-            filename = opt.output + '/runJob_' + num + '.sh'
+            filename = opt.input + '/runJob_' + num + '.sh'
 #            print os.path.exists (filename) 
             with open (filename, 'r') as myfile :
                 data = [word for word in myfile.readlines () if 'log' in word]
@@ -58,11 +58,11 @@ if __name__ == "__main__":
         print 'the following jobs did not end successfully:'
         print missing   
         for num in missing :
-            command = '`cat ' + opt.output + '/submit.sh | grep runJob_' + num + '.sh | tr "\'" " "`'
+            command = '`cat ' + opt.input + '/submit.sh | grep runJob_' + num + '.sh | tr "\'" " "`'
             print command
         if (opt.resub == 'run') :
             for num in missing :
-                command = '`cat ' + opt.output + '/submit.sh | grep runJob_' + num + '.sh | tr "\'" " "`'
+                command = '`cat ' + opt.input + '/submit.sh | grep runJob_' + num + '.sh | tr "\'" " "`'
                 os.system (command)
         sys.exit (0)
 
