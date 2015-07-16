@@ -84,7 +84,7 @@ int main()
     const char * decModeNames[6] = {"MuTau", "ETau", "TauTau", "MuMu", "EE", "EMu"}; // follows pairType enum
     OfflineProducerHelper helper;
 
-    TString sel[] = {"Vertex", "OSCharge", "LepID", "pTMin", "etaMax", "againstEle", "againstMu", "Iso"};
+    TString sel[] = {"Vertex", "OScharge", "LepID", "pTMin", "etaMax", "againstEle", "againstMu", "Iso"};
     const int nsel = sizeof(sel)/sizeof(TString);
     TString selConc[nsel];
     Concatenate (sel, nsel, selConc);
@@ -171,6 +171,9 @@ int main()
         TLorentzVector genV2 (helper.buildGenP4(tree, genVis2));        
         int genPdgId2 = tree->genpart_pdg->at(genVis2);
   
+        // DEBUG: they are SS?? ==> 0 events SS found OK
+        //if ( (genPdgId1/abs(genPdgId1)) == (genPdgId2/abs(genPdgId2)) ) cout << " ?? Ev/Run: " << tree->EventNumber << "/" << tree->RunNumber << " ID1 - ID2: " << genPdgId1 << " - " << genPdgId2 << endl;
+  
         etaGenHisto [getHistoIndex(genPdgId1)] -> Fill (genV1.Eta());        
         etaGenHisto [getHistoIndex(genPdgId2)] -> Fill (genV2.Eta());        
         ptGenHisto  [getHistoIndex(genPdgId1)] -> Fill (genV1.Pt());        
@@ -205,6 +208,11 @@ int main()
             */            
         }
         
+        // DEBUG: do I match with some SS reco leptons? ==> 0 events SS found OK
+        //int recoId1 = tree->PDGIdDaughters->at(matchedVis1);
+        //int recoId2 = tree->PDGIdDaughters->at(matchedVis2);
+        //if ( (recoId1/abs(recoId1)) == (recoId2/abs(recoId2)) ) cout << " ?? ?? Ev/Run: " << tree->EventNumber << "/" << tree->RunNumber << " ID1 - ID2: " << recoId1 << " - " << recoId2 << endl;
+
         passSelections[MCtype][2]++;
 
         
@@ -217,6 +225,44 @@ int main()
             continue;
         }
         
+        // DEBUG: am I wrong in choosing the pair? ==> 0 events in which I am wrong in the pair choice
+        /*
+        if (!tree->isOSCand->at(iPair))
+        {
+            int dau1Index = tree->indexDau1->at(iPair);
+            int dau2Index = tree->indexDau2->at(iPair);
+            
+            bool ckA1 = (dau1Index == matchedVis1);
+            bool ckA2 = (dau2Index == matchedVis2);
+
+            bool ckB1 = (dau1Index == matchedVis2);
+            bool ckB2 = (dau2Index == matchedVis1);
+
+            if ( !( (ckA1 && ckA2) || (ckB1 && ckB2) ) )
+                cout << "from pair: " << dau1Index << " " << dau2Index << " || from match: " << matchedVis1 << " " << matchedVis2 << endl;
+        }
+        */
+        
+        /*
+        // DEBUG: is isOSCand different from the pdgId information? ==> YES, THE PROBLEM IS HERE
+        // problem is because tau sometimes have charge +/- 3 !!
+        // rejected when asking for the OldDM finder
+        // but in rare cases there are also taus with a charge value opposite to the pdg Id sign
+        int recoId1 = tree->PDGIdDaughters->at(matchedVis1);
+        int recoId2 = tree->PDGIdDaughters->at(matchedVis2);
+        bool tauID1 = true;
+        bool tauID2 = true;
+        if (abs(recoId1) == 15) tauID1 = (1.*tree->daughters_decayModeFindingNewDMs->at(matchedVis1) > 0.5);
+        if (abs(recoId2) == 15) tauID2 = (1.*tree->daughters_decayModeFindingNewDMs->at(matchedVis2) > 0.5);
+        //if (abs(recoId1) != 15 && abs(recoId2) != 15)
+        if (tauID1 && tauID2)
+        //if ( abs(tree->daughters_charge->at(matchedVis1)) == 3 || abs(tree->daughters_charge->at(matchedVis2)) == 3 )
+            if ( !tree->isOSCand->at(iPair) ) cout << " ?? ?? Ev/Run: " << tree->EventNumber << "/" << tree->RunNumber << " ID1 / ID2: " << recoId1 << " / " << recoId2 << " isOSCand " << tree->isOSCand->at(iPair)
+                                               << " Charges are: " << tree->daughters_charge->at(matchedVis1) << " " << tree->daughters_charge->at(matchedVis2)
+                                               << " Tau ID (if tau): " <<  tree->daughters_decayModeFindingOldDMs->at(matchedVis1) << " " << tree->daughters_decayModeFindingOldDMs->at(matchedVis2) << endl;
+        */
+
+
         // ==== 3 and more... ====
         // start to apply selections
         for (int iSel = 0; iSel < nsel; iSel++)
