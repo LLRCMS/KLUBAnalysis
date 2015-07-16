@@ -2,8 +2,11 @@
 
 repo for the h->hh analysis within the LLR framework
 
-## Setup ithin a CMSSW version setup the environment (cmsenv)
+## Installing (cmsenv)
 ``` 
+cd /data_CMS/cms/govoni/CMSSW_7_4_5/src
+cmsenv
+cd -
 git clone git@github.com:bvormwald/HHKinFit.git
 ls
 cd HHKinFit/
