@@ -17,7 +17,7 @@
 
 class bigTree {
 public :
-   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
+   TChain          * fChain ;   //!pointer to the analyzed TTree or TChain
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -251,9 +251,10 @@ public :
 
    bigTree (TChain * inputChain) : fChain (inputChain) { Init(fChain) ; fChain->GetEntries() ; }
    virtual ~bigTree() { }
-   virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0) { return fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0; }
+//   virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0) { return fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0; }
+   virtual Int_t   GetEntry(Long64_t entry) { return fChain->GetEntry(entry) ; }
 
-    void Init(TTree *tree)
+    void Init(TChain *tree)
     {
        // The Init() function is called when the selector needs to initialize
        // a new tree or chain. Typically here the branch addresses and branch
