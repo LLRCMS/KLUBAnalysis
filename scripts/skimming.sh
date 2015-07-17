@@ -1,6 +1,6 @@
 #production 13-07-2015: hadronic tau isolation a factor two looser than baseline (e.g. EHad/MuHad<3GeV HadHad<2GeV )
 python scripts/skimNtuple.py -o /data_CMS/cms/salerno/HH_samples/SKIM_DY              -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_DY_-1Events_0Skipped_1436202480.82                                         -x 6025.2 -f true
-python scripts/skimNtuple.py -o /data_CMS/cms/salerno/HH_samples/SKIM_T-tchannel      -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_T-tchannel_-1Events_0Skipped_1436273546.02                                 -x 216.99 -f true
+python scripts/skimNtuple.py -o /data_CMS/cms/salerno/HH_samples/SKIM_T-tchannel      -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_T-tchannel_-1Events_0Skipped_1436273546.02                                 -x 70.69  -f true
 python scripts/skimNtuple.py -o /data_CMS/cms/salerno/HH_samples/SKIM_TTJets          -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_TTJets_-1Events_0Skipped_1436202407.03                                     -x 831.76 -f true
 python scripts/skimNtuple.py -o /data_CMS/cms/salerno/HH_samples/SKIM_TTTo2L2Nu       -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_TTTo2L2Nu_-1Events_0Skipped_1436365326.97                                  -x 77.55  -f true
 python scripts/skimNtuple.py -o /data_CMS/cms/salerno/HH_samples/SKIM_TW              -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_TW_-1Events_0Skipped_1436202748.18                                         -x 71.2   -f true
