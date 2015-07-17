@@ -1,3 +1,8 @@
+/*
+originally from here:
+https://github.com/govoni/FlatNtStudy/blob/master/src/TMVATrainingClass.cc
+*/
+
 #include "TMVATrainingClass.h"
 #include "utils.h"
 #include "TSystem.h"
@@ -49,13 +54,15 @@ TMVATrainingClass::~TMVATrainingClass ()
 
                    
 void TMVATrainingClass::ReadInputCollection (
-    vector<TChain*> localList,
+    vector<TChain*> & localList,
     const vector<sample> & inputList  
   )
 {
   localList.clear () ;  
   for (unsigned int iChain = 0 ; iChain < inputList.size () ; ++iChain)
     {
+      cout << "TMVATrainingClass::ReadInputCollection reading sample " 
+           << inputList.at (iChain).sampleName << endl ;
       localList.push_back (inputList.at (iChain).sampleChain) ;
     }
   return ;
@@ -149,15 +156,11 @@ TMVATrainingClass::AddTrainingVariables
 
   for ( size_t iVar = 0 ; iVar < trainingVariables_.size () ; iVar ++ )
     {
-      cout << "TMVATrainingClass::AddTrainingVariables : train " 
-           << trainingVariables_.at (iVar) << endl ;
       factory_.back ()->AddVariable (trainingVariables_.at (iVar)+" := "+trainingVariables_.at (iVar), 'F') ;
     }
 
   for ( size_t iVar = 0 ; iVar < spectatorVariables_.size () ; ++iVar)
     {
-      cout << "TMVATrainingClass::AddTrainingVariables : spectator " 
-           << spectatorVariables_.at (iVar) << endl ;
       factory_.back ()->AddSpectator (spectatorVariables_.at (iVar), 'F') ;
     }    
 }
@@ -200,8 +203,6 @@ TMVATrainingClass::AddPrepareTraining
   (
     string  weightStringSignal, 
     string  weightStringBackground, 
-    const string & finalStateString, 
-    const string & fakeRateFile, 
     const int & nTraining, 
     const int & nTesting, 
     const string & splitMode, 
@@ -269,10 +270,12 @@ void TMVATrainingClass::BookMVATrees ()
 {
   for (size_t iNtuple = 0 ; iNtuple < signalTreeList_.size () ; iNtuple++)
     {
+      cout << "TMVATrainingClass::BookMVATrees : add signal to the MVA factory " << iNtuple << endl ;
       factory_.back ()->AddSignalTree (signalTreeList_.at (iNtuple), 1.) ;
     }
   for (size_t iNtuple = 0 ; iNtuple < backgroundTreeList_.size () ; iNtuple++)
     {
+      cout << "TMVATrainingClass::BookMVATrees : add background to the MVA factory " << iNtuple << endl ;
       factory_.back ()->AddBackgroundTree (backgroundTreeList_.at (iNtuple), 1.) ;
     }
   return ;

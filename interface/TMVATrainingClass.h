@@ -1,3 +1,8 @@
+/*
+originally from here:
+https://github.com/govoni/FlatNtStudy/blob/master/interface/TMVATrainingClass.h
+*/
+
 #ifndef TMVATrainingClass_h
 #define TMVATrainingClass_h
 
@@ -68,14 +73,13 @@ class TMVATrainingClass {
                               
   // prepare events for training
   void AddPrepareTraining (
-			string weightStringSignal,     // re-weighting expression or branch for signal events 
-			string weightStringBackground, // re-weighting expression or branch for background events
-            const string & finalStateString = "UU", 
-            const string & fakeRateFile = "input/FakeRate.root", 
-			const int    & nTraining    = 0, // number of events used for training
-			const int    & nTesting     = 0, // number of events used for testing
-			const string & splitMode = "Random",  // split mode
-			const string & NormMode  = "NumEvents") ; // normalization mode
+      string weightStringSignal,     // re-weighting expression or branch for signal events 
+      string weightStringBackground, // re-weighting expression or branch for background events
+      const int    & nTraining        = 0, // number of events used for training
+      const int    & nTesting         = 0, // number of events used for testing
+      const string & splitMode        = "Random",  // split mode
+      const string & NormMode         = "NumEvents"
+    ) ; // normalization mode
 
   // Train rectangular cut methods
   void BookandTrainRectangularCuts    ( const string & FitMethod) ;
@@ -119,21 +123,21 @@ class TMVATrainingClass {
                                         const bool & optimizeMethod        = false, 
                                         const float & GradBaggingFraction  = 0.5, 
                                         const string & PruneMethod    = "NoPruning", 
-                    const int & PruneStrength          = 5, 
+                                        const int & PruneStrength          = 5, 
                                         const int & MaxDepth               = 5, 
-                    const string & SeparationType = "GiniIndex") ;
+                                        const string & SeparationType = "GiniIndex") ;
 
   // Train Mit-Fisher BDT
   void BookandTrainBDTF               ( const int & NTrees            = 300, 
-                    const bool & optimizeMethod   = false, 
-                    const string & BoostType = "AdaBoost", 
+                                        const bool & optimizeMethod   = false, 
+                                        const string & BoostType = "AdaBoost", 
                                         const float & AdaBoostBeta    = 0.5, 
-                    const string & PruneMethod = "CostComplexity", 
-                    const int & PruneStrength     = 5, 
+                                        const string & PruneMethod = "CostComplexity", 
+                                        const int & PruneStrength     = 5, 
                                         const int & MaxDepth          = 5, 
-                    const string & SeparationType = "GiniIndex") ;
+                                        const string & SeparationType = "GiniIndex") ;
 
-  void ReadInputCollection (vector<TChain*> localList, const vector<sample> & inputList) ;  
+  void ReadInputCollection (vector<TChain*> & localList, const vector<sample> & inputList) ;  
 
   // Set the training variables name
   void SetTrainingVariables  (const vector<string > & trainingVariables) ;
@@ -159,19 +163,6 @@ class TMVATrainingClass {
   void SetTransformations (const string & transformations = "") ;
 
  private : 
-
-  // basic cut info
-  bool  usePuppiAsDefault_ ;
-  float minPtLeptonCut_ ;
-  float minPtLeptonCutCleaning_ ;
-  float leptonIsoCut_mu_ ;
-  float leptonIsoCut_el_ ;
-  float leptonIsoLooseCut_ ;
-  float matchingCone_ ;
-  float minJetCutPt_ ;
-
-  // PU range of training 
-  pair<float, float> npuRange_ ;
 
   // list of trees for signal and background
   vector<TChain* > signalTreeList_ ;

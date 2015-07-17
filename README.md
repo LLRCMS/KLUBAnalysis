@@ -48,9 +48,25 @@ python scripts/skimNtuple.py -r list -i /data_CMS/cms/govoni/test_submit_to_tier
 ## Plotting
 
 Example on how to draw plots of variables already existing in the skimmed ntuples.
+Plots are produced in the "plotter" folder, divided into a set with the proper normalisation
+according to the XS inserted in the processing, and one with shapes, where the backgrounds
+are combined according to the XS and then the total result is normalised, to compare to 
+the signal in shapes.
  * the config file ```samples_example.cfg``` contains all the relevant information for the run
  * an additional ```samples_example.cut``` contains the selections to be applied in the plots generation
 
 ```
 ./bin/plotter.exe config/samples_example.cfg 
+```
+
+## MVA training
+
+Example on how to run a MVA training on the reduced flat trees.
+The TMVATraining.cpp executable uses the TMVATrainingClass to interface to the TMVA package.
+Being tested now.
+ * no preselections are applied by now
+ * several training methods available at the same time, see the cfg card example
+ 
+ ```
+./bin/TMVATraining.exe ./config/TMVATraining.cfg
 ```
