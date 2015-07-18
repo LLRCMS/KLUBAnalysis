@@ -187,8 +187,8 @@ int main()
         
         // ==== 2 ====
         // find matching reco leptons - last 3 vars are checkID, checkCharge, drCont
-        int matchedVis1 = helper.getRecoMatchedToGen (tree, genVis1, true, true, 0.5);
-        int matchedVis2 = helper.getRecoMatchedToGen (tree, genVis2, true, true, 0.5);
+        int matchedVis1 = helper.getRecoMatchedToGen (tree, genVis1, true, false, 0.5);
+        int matchedVis2 = helper.getRecoMatchedToGen (tree, genVis2, true, false, 0.5);
         
         if (matchedVis1 == -1 || matchedVis2 == -1)
         {
@@ -222,6 +222,14 @@ int main()
         {
             ++pairNF;
             cout << "Pair not found - this should never happen" << endl;
+            cout << "  --> Idx 1, 2: " << matchedVis1 << " " << matchedVis2 << endl; // this happens when charge is not checked in match
+            cout << "  --> pdgId gen 1, 2: " << genPdgId1 << " " << genPdgId2 << endl;
+            cout << "  --> pdgId reco 1, 2: " << tree->PDGIdDaughters->at(matchedVis1) << " " << tree->PDGIdDaughters->at(matchedVis2) << endl;
+            cout << "  --> deltaR gen: " << genV1.DeltaR(genV2) << endl; 
+            cout << "  --> pT gen 1, 2: " << genV1.Pt() <<  " " << genV2.Pt() << endl; 
+            cout << endl;
+            // they are all events where matchedVis1 == matchedVis2 when I'm matching two taus
+            // and most of them have a very high pT
             continue;
         }
         
