@@ -81,6 +81,8 @@ class OfflineProducerHelper {
   TLorentzVector buildMothP4 (bigTree* tree, int iMoth); // build pair 4 vector
   TLorentzVector buildGenP4 (bigTree* tree, int iGen); // build pair 4 vector
   bool getBestJets (bigTree* tree, int& jet1, int& jet2, int strategy); // select jets, possibly two b jets, returns true if found, else false
+  int getBestPair (bigTree* tree, std::vector<int>& pairIdxs, TString strategy = "OSMaxPt"); // from a vector of indexes to pairs in the evemt retutn index to the one chose by a stategy
+  int getBestPair (bigTree* tree, TString strategy = "OSMaxPt"); // calls the previous on the whole pair collection of the event
   int getPairByIndexes (bigTree* tree, int dau1, int dau2); // knowing the sons, get the pair formed  
 
 

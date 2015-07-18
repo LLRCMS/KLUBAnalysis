@@ -252,8 +252,8 @@ int main()
         int recoId2 = tree->PDGIdDaughters->at(matchedVis2);
         bool tauID1 = true;
         bool tauID2 = true;
-        if (abs(recoId1) == 15) tauID1 = (1.*tree->daughters_decayModeFindingNewDMs->at(matchedVis1) > 0.5);
-        if (abs(recoId2) == 15) tauID2 = (1.*tree->daughters_decayModeFindingNewDMs->at(matchedVis2) > 0.5);
+        if (abs(recoId1) == 15) tauID1 = (1.*tree->daughters_decayModeFindingOldDMs->at(matchedVis1) > 0.5);
+        if (abs(recoId2) == 15) tauID2 = (1.*tree->daughters_decayModeFindingOldDMs->at(matchedVis2) > 0.5);
         //if (abs(recoId1) != 15 && abs(recoId2) != 15)
         if (tauID1 && tauID2)
         //if ( abs(tree->daughters_charge->at(matchedVis1)) == 3 || abs(tree->daughters_charge->at(matchedVis2)) == 3 )

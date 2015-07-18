@@ -328,6 +328,12 @@ bool OfflineProducerHelper::tightEleMVAID (float BDT, float fSCeta)
 
 int OfflineProducerHelper::getMothPairType (bigTree* tree, int iMoth)
 {
+    if (iMoth < 0 || iMoth >= tree->indexDau1->size())
+    {
+      cout << "warning ** getMothPairType: iMoth out of range" << endl;
+      return -1;
+    }
+
     int iDau1 = tree->indexDau1->at(iMoth);
     int iDau2 = tree->indexDau2->at(iMoth);
     int type1 = tree->particleType->at(iDau1);
@@ -422,6 +428,40 @@ bool OfflineProducerHelper::getBestJets (bigTree* tree, int& jet1, int& jet2, in
             return false;
         }
     }
+}
+
+
+int OfflineProducerHelper::getBestPair (bigTree* tree, std::vector<int>& pairIdxs, TString strategy)
+{
+  int strat = -1;
+  if (strategy == "OSMaxPt") strat = 0;
+  if (strat == -1)
+  {
+    cout << "Best pair strategy not defined: " << strategy << endl;
+    return -1;
+  }
+
+  // empty vector --> no pair
+  if (pairIdxs.size() == 0) return -1;
+
+  // ======= STRATEGIES ======
+  // 0: favor OS, then max scalar sum PT
+  if (strat == 0)
+  {
+    // pairs are already ordered by OS , SS, and inside each category by decreasing scalar sum pT
+    // so it is enough to order indexes
+    return ( *std::min_element (pairIdxs.begin(), pairIdxs.end()) );
+  }
+
+  return -1; // redudant, for safety
+}
+
+
+int OfflineProducerHelper::getBestPair (bigTree* tree, TString strategy)
+{
+  // FIXME: TO IMPLEMENT YET
+  cout << "GET BEST PAIR FUNCTION TO BE IMPLEMENTED" << endl;
+  return -1;
 }
 
 int OfflineProducerHelper::getPairByIndexes (bigTree* tree, int dau1, int dau2)
