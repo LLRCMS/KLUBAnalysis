@@ -385,21 +385,6 @@ public :
        fChain->SetBranchAddress("daughters_e", &daughters_e, &b_daughters_e);
        fChain->SetBranchAddress("daughters_charge", &daughters_charge, &b_daughters_charge);
        fChain->SetBranchAddress("daughters_genindex", &daughters_genindex, &b_daughters_genindex);
-       fChain->SetBranchAddress("MC_weight", &MC_weight, &b_MC_weight);
-       fChain->SetBranchAddress("genpart_px", &genpart_px, &b_genpart_px);
-       fChain->SetBranchAddress("genpart_py", &genpart_py, &b_genpart_py);
-       fChain->SetBranchAddress("genpart_pz", &genpart_pz, &b_genpart_pz);
-       fChain->SetBranchAddress("genpart_e", &genpart_e, &b_genpart_e);
-       fChain->SetBranchAddress("genpart_pdg", &genpart_pdg, &b_genpart_pdg);
-       fChain->SetBranchAddress("genpart_status", &genpart_status, &b_genpart_status);
-       fChain->SetBranchAddress("genpart_HMothInd", &genpart_HMothInd, &b_genpart_HMothInd);
-       fChain->SetBranchAddress("genpart_TopMothInd", &genpart_TopMothInd, &b_genpart_TopMothInd);
-       fChain->SetBranchAddress("genpart_TauMothInd", &genpart_TauMothInd, &b_genpart_TauMothInd);
-       fChain->SetBranchAddress("genpart_ZMothInd", &genpart_ZMothInd, &b_genpart_ZMothInd);
-       fChain->SetBranchAddress("genpart_HZDecayMode", &genpart_HZDecayMode, &b_genpart_HZDecayMode);
-       fChain->SetBranchAddress("genpart_TauGenDecayMode", &genpart_TauGenDecayMode, &b_genpart_TauGenDecayMode);
-       fChain->SetBranchAddress("genpart_flags", &genpart_flags, &b_genpart_flags);
-       fChain->SetBranchAddress("NUP", &NUP, &b_NUP);
        fChain->SetBranchAddress("SVfitMass", &SVfitMass, &b_SVfitMass);
        fChain->SetBranchAddress("SVfit_pt", &SVfit_pt, &b_SVfit_pt);
        fChain->SetBranchAddress("SVfit_ptUnc", &SVfit_ptUnc, &b_SVfit_ptUnc);
@@ -476,6 +461,27 @@ public :
        fChain->SetBranchAddress("bCSVscore", &bCSVscore, &b_bCSVscore);
        fChain->SetBranchAddress("PFjetID", &PFjetID, &b_PFjetID);
        fChain->SetBranchAddress("jetRawf", &jetRawf, &b_jetRawf);
+       
+       // MC only
+       if(fChain->GetListOfBranches()->FindObject("MC_weight"))
+       {
+            fChain->SetBranchAddress("MC_weight", &MC_weight, &b_MC_weight);
+            fChain->SetBranchAddress("genpart_px", &genpart_px, &b_genpart_px);
+            fChain->SetBranchAddress("genpart_py", &genpart_py, &b_genpart_py);
+            fChain->SetBranchAddress("genpart_pz", &genpart_pz, &b_genpart_pz);
+            fChain->SetBranchAddress("genpart_e", &genpart_e, &b_genpart_e);
+            fChain->SetBranchAddress("genpart_pdg", &genpart_pdg, &b_genpart_pdg);
+            fChain->SetBranchAddress("genpart_status", &genpart_status, &b_genpart_status);
+            fChain->SetBranchAddress("genpart_HMothInd", &genpart_HMothInd, &b_genpart_HMothInd);
+            fChain->SetBranchAddress("genpart_TopMothInd", &genpart_TopMothInd, &b_genpart_TopMothInd);
+            fChain->SetBranchAddress("genpart_TauMothInd", &genpart_TauMothInd, &b_genpart_TauMothInd);
+            fChain->SetBranchAddress("genpart_ZMothInd", &genpart_ZMothInd, &b_genpart_ZMothInd);
+            fChain->SetBranchAddress("genpart_HZDecayMode", &genpart_HZDecayMode, &b_genpart_HZDecayMode);
+            fChain->SetBranchAddress("genpart_TauGenDecayMode", &genpart_TauGenDecayMode, &b_genpart_TauGenDecayMode);
+            fChain->SetBranchAddress("genpart_flags", &genpart_flags, &b_genpart_flags);
+            fChain->SetBranchAddress("NUP", &NUP, &b_NUP);
+       }
+       
     }
 };
 
