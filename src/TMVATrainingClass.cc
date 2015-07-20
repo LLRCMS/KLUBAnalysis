@@ -27,9 +27,15 @@ TMVATrainingClass::TMVATrainingClass
   SetTransformations   (transformation) ;  
   SetOutputFile        (outputFilePath, outputFileName) ;
   
-  factory_.push_back (shared_ptr<TMVA::Factory> (new TMVA::Factory (TreeName_+"_"+Label_, 
+//  factory_.push_back (shared_ptr<TMVA::Factory> (
+  factory_ = new TMVA::Factory (TreeName_ + "_" + Label_, 
       outputFile_.back ().get (), 
-      Form ("!V:!Silent:%sColor:DrawProgressBar:AnalysisType=Classification%s", gROOT->IsBatch ()?"!":"", transformation.c_str ())))) ;
+      Form (
+          "!V:!Silent:%sColor:DrawProgressBar:AnalysisType=Classification%s", 
+          gROOT->IsBatch ()?"!":"", 
+          transformation.c_str ()
+        )
+    ) ;
 }
 
 
@@ -41,11 +47,10 @@ TMVATrainingClass::~TMVATrainingClass ()
 {
 //  outputFileWeightName_.clear () ;
 
-//  factory_.clear () ;
-
   for (size_t iFile = 0 ; iFile < outputFile_.size () ; iFile++)
     outputFile_.at (iFile)->Close () ;
 
+//  delete factory_ ;
 //  outputFile_.clear () ;
 }
 
@@ -156,12 +161,12 @@ TMVATrainingClass::AddTrainingVariables
 
   for ( size_t iVar = 0 ; iVar < trainingVariables_.size () ; iVar ++ )
     {
-      factory_.back ()->AddVariable (trainingVariables_.at (iVar)+" := "+trainingVariables_.at (iVar), 'F') ;
+      factory_->AddVariable (trainingVariables_.at (iVar)+" := "+trainingVariables_.at (iVar), 'F') ;
     }
 
   for ( size_t iVar = 0 ; iVar < spectatorVariables_.size () ; ++iVar)
     {
-      factory_.back ()->AddSpectator (spectatorVariables_.at (iVar), 'F') ;
+      factory_->AddSpectator (spectatorVariables_.at (iVar), 'F') ;
     }    
 }
 
@@ -219,11 +224,8 @@ TMVATrainingClass::AddPrepareTraining
 
   SetEventWeight (weightStringSignal, weightStringBackground) ; // set the event basis weight in the factory
 
-  for (size_t ifact = 0 ; ifact < factory_.size () ; ++ifact)
-    {
-      factory_.at (ifact)->PrepareTrainingAndTestTree (
-          preselections, preselections, Option.Data ()) ;  // set the options
-    }
+  factory_->PrepareTrainingAndTestTree (
+      preselections, preselections, Option.Data ()) ;  // set the options
  
   // create the varlist for the TNtupla --> variables to be used as input, spectator and weights
   vector<string> varListSignal ;
@@ -273,12 +275,12 @@ void TMVATrainingClass::BookMVATrees ()
   for (size_t iNtuple = 0 ; iNtuple < signalTreeList_.size () ; iNtuple++)
     {
       cout << "TMVATrainingClass::BookMVATrees : add signal to the MVA factory " << iNtuple << endl ;
-      factory_.back ()->AddSignalTree (signalTreeList_.at (iNtuple), 1.) ;
+      factory_->AddSignalTree (signalTreeList_.at (iNtuple), 1.) ;
     }
   for (size_t iNtuple = 0 ; iNtuple < backgroundTreeList_.size () ; iNtuple++)
     {
       cout << "TMVATrainingClass::BookMVATrees : add background to the MVA factory " << iNtuple << endl ;
-      factory_.back ()->AddBackgroundTree (backgroundTreeList_.at (iNtuple), 1.) ;
+      factory_->AddBackgroundTree (backgroundTreeList_.at (iNtuple), 1.) ;
     }
   return ;
 }
@@ -294,12 +296,9 @@ TMVATrainingClass::SetEventWeight
     const string & weightStringBackground
   )
 {
-  for (size_t ifact = 0 ; ifact < factory_.size () ; ifact++)
-    {
-      factory_.at (ifact)->RootBaseDir ()->cd () ;
-      factory_.at (ifact)->SetSignalWeightExpression (weightStringSignal) ;
-      factory_.at (ifact)->SetBackgroundWeightExpression (weightStringBackground) ;
-    }
+  factory_->RootBaseDir ()->cd () ;
+  factory_->SetSignalWeightExpression (weightStringSignal) ;
+  factory_->SetBackgroundWeightExpression (weightStringBackground) ;
     
   return ;
 
@@ -309,6 +308,7 @@ TMVATrainingClass::SetEventWeight
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
+//PG THIS HAS TO BE FIXED FIXME
 // Train Rectangular Cuts
 void TMVATrainingClass::BookandTrainRectangularCuts (const string & FitMethod)
 {
@@ -317,65 +317,10 @@ void TMVATrainingClass::BookandTrainRectangularCuts (const string & FitMethod)
   int result = system (command.c_str ()) ;
   if (result) cout << "Directory created " << outputFilePath_.back () << endl ; 
 
-  for (size_t iVar = 0 ; iVar < trainingVariables_.size () ; iVar++)
-    {
-
-      string variable = trainingVariables_.at (iVar) ;
-      replace (variable.begin (), variable.end (), '/', '_') ;
-      replace (variable.begin (), variable.end (), '[', '_') ;
-      replace (variable.begin (), variable.end (), ']', '_') ;
-      replace (variable.begin (), variable.end (), '(', '_') ;
-      replace (variable.begin (), variable.end (), ')', '_') ;
-      replace (variable.begin (), variable.end (), ':', '_') ;
-
-      outputFile_.at (iVar)->cd () ;
-      factory_.at (iVar)->RootBaseDir ()->cd () ;
-
-      // Set Name of the Weight file for TMVA evaluating procedure
-      if (Label_ !=""){
-    outputFileWeightName_["Cuts"+FitMethod+"_"+Label_] = outputFilePath_.back ()+"/TMVAWeight_Cuts"+FitMethod+"_"+Label_+"_"+variable ;
-    (TMVA::gConfig ().GetIONames ()).fWeightFileDir = outputFileWeightName_["Cuts"+FitMethod+"_"+Label_] ;
-      }
-      else {
-    outputFileWeightName_["Cuts"+FitMethod] = outputFilePath_.back ()+"/TMVAWeight_Cuts"+FitMethod+"_"+variable ;
-    (TMVA::gConfig ().GetIONames ()).fWeightFileDir = outputFileWeightName_["Cuts"+FitMethod] ;
-      }
-
-      // book the method
-      if (FitMethod!=""){ 
-
-    TString Option = Form ("!H:!V:FitMethod=%s:EffSel", FitMethod.c_str ()) ;
-    TString Name   = Form ("Cuts%s", FitMethod.c_str ()) ;
-
-    if (TString (Name).Contains ("CutsGA"))  
-      Option = Option+":CutRangeMin[0]=-10:CutRangeMax[0]=10:VarProp[1]=FMax:EffSel:Steps=30:Cycles=3:PopSize=400:SC_steps=10:SC_rate=5:SC_factor=0.95" ;
-
-    factory_.at (iVar)->BookMethod ( TMVA::Types::kCuts, Name.Data (), Option.Data ()) ;
-      }
-
-      else{
-
-        TString Option = Form ("!H:!V:FitMethod=MC:EffSel") ;
-
-        factory_.at (iVar)->BookMethod ( TMVA::Types::kCuts, "CutsMC"+FitMethod, Option.Data ()) ;
-
-        Option = Form ("!H:!V:FitMethod=GA::CutRangeMin[0]=-10:CutRangeMax[0]=10:VarProp[1]=FMax:EffSel:Steps=30:Cycles=3:PopSize=400:SC_steps=10:SC_rate=5:SC_factor=0.95") ;
-    
-        factory_.at (iVar)->BookMethod ( TMVA::Types::kCuts, "CutsGA"+FitMethod, Option.Data ()) ;
-    
-        Option = Form ("!H:!V:FitMethod=SA:EffSel:MaxCalls=150000:KernelTemp=IncAdaptive:InitialTemp=1e+6:MinTemp=1e-6:Eps=1e-10:UseDefaultScale") ;
-
-        factory_.at (iVar)->BookMethod ( TMVA::Types::kCuts, "CutsSA"+FitMethod, Option.Data ()) ;
-      }    
-
-      factory_.at (iVar)->TrainAllMethods () ;
-
-      factory_.at (iVar)->TestAllMethods () ;
-
-      factory_.at (iVar)->EvaluateAllMethods () ;
-    
-      factory_.at (iVar)->DeleteAllMethods () ;
-    }
+  factory_->TrainAllMethods () ;
+  factory_->TestAllMethods () ;
+  factory_->EvaluateAllMethods () ;
+  factory_->DeleteAllMethods () ;
 
   cout << "==> TMVAClassification is done!" << endl ;
 
@@ -405,42 +350,38 @@ void TMVATrainingClass::BookandTrainLikelihood ( const string & LikelihoodType )
   TString Option ;
 
   outputFile_.back ()->cd () ;
-  factory_.back ()->RootBaseDir ()->cd () ;
+  factory_->RootBaseDir ()->cd () ;
 
   if ( LikelihoodType == "LikelihoodKDE") { 
     Option = Form ("LikelihoodKDE") ;
-    factory_.back ()->BookMethod (TMVA::Types::kLikelihood, Option.Data (), "!H:!V:IgnoreNegWeightsInTraining:!TransformOutput:PDFInterpol=KDE:KDEtype=Gauss:"
+    factory_->BookMethod (TMVA::Types::kLikelihood, Option.Data (), "!H:!V:IgnoreNegWeightsInTraining:!TransformOutput:PDFInterpol=KDE:KDEtype=Gauss:"
                                                      "KDEiter=Adaptive:CreateMVAPdfs:KDEFineFactor=0.3:KDEborder=None") ;
   }
   else if ( LikelihoodType == "PDERS") { 
       Option = Form ("%s", LikelihoodType.c_str ()) ;
-      factory_.back ()->BookMethod (TMVA::Types::kPDERS, Option.Data (), 
+      factory_->BookMethod (TMVA::Types::kPDERS, Option.Data (), 
                            "!H:!V:VolumeRangeMode=Adaptive:KernelEstimator=Gauss:CreateMVAPdfs:DeltaFrac=4:GaussSigma=0.3:NormTree=T") ;
   }
   else if ( LikelihoodType == "PDEFoam") { 
        Option = Form ("%s", LikelihoodType.c_str ()) ;
-       factory_.back ()->BookMethod (TMVA::Types::kPDEFoam, Option.Data (), "!H:!V:CreateMVAPdfs:IgnoreNegWeightsInTraining:SigBgSeparate=F:TailCut=0.001"
+       factory_->BookMethod (TMVA::Types::kPDEFoam, Option.Data (), "!H:!V:CreateMVAPdfs:IgnoreNegWeightsInTraining:SigBgSeparate=F:TailCut=0.001"
                                                                  ":VolFrac=0.0666:nActiveCells=500:nSampl=2000:nBin=5:Nmin=100:Kernel=None:Compress=T") ;
   }
   else if ( LikelihoodType == "PDEFoamBoost") { 
       Option = Form ("%s", LikelihoodType.c_str ()) ;
-      factory_.back ()->BookMethod (TMVA::Types::kPDEFoam, Option.Data (), 
+      factory_->BookMethod (TMVA::Types::kPDEFoam, Option.Data (), 
                            "!H:!V:IgnoreNegWeightsInTraining:Boost_Num=30:CreateMVAPdfs:Boost_Transform=linear:SigBgSeparate=F:MaxDepth=4"
                            ":UseYesNoCell=T:DTLogic=MisClassificationError:FillFoamWithOrigWeights=F:TailCut=0:nActiveCells=300:nBin=20:Nmin=300:Kernel=None:Compress=T") ;
   }
   else{ Option = Form ("%s", LikelihoodType.c_str ()) ;
-        factory_.back ()->BookMethod ( TMVA::Types::kLikelihood, Option.Data (), "!H:!V:!TransformOutput:CreateMVAPdfs:IgnoreNegWeightsInTraining:PDFInterpol=Spline2"
+        factory_->BookMethod ( TMVA::Types::kLikelihood, Option.Data (), "!H:!V:!TransformOutput:CreateMVAPdfs:IgnoreNegWeightsInTraining:PDFInterpol=Spline2"
                                                           ":NSmoothSig[0]=20:NSmoothBkg[0]=20:NSmoothBkg[1]=10:NSmooth=1:NAvEvtPerBin=50") ;
   }
 
-
-  factory_.back ()->TrainAllMethods () ;
-
-  factory_.back ()->TestAllMethods () ;
-
-  factory_.back ()->EvaluateAllMethods () ;
-
-  factory_.back ()->DeleteAllMethods () ;
+  factory_->TrainAllMethods () ;
+  factory_->TestAllMethods () ;
+  factory_->EvaluateAllMethods () ;
+  factory_->DeleteAllMethods () ;
 
  cout << "==> TMVAClassification is done!" << endl ;
 
@@ -468,19 +409,15 @@ void TMVATrainingClass::BookandTrainFisherDiscriminant ()
   }
 
   outputFile_.back ()->cd () ;
-  factory_.back ()->RootBaseDir ()->cd () ;
-
-  factory_.back ()->BookMethod ( TMVA::Types::kFisher, "Fisher", 
+  factory_->RootBaseDir ()->cd () ;
+  factory_->BookMethod ( TMVA::Types::kFisher, "Fisher", 
                         "!H:!V:CreateMVAPdfs:IgnoreNegWeightsInTraining:PDFInterpolMVAPdf=Spline2:NbinsMVAPdf=50:NsmoothMVAPdf=10:Fisher") ;
 
 
-  factory_.back ()->TrainAllMethods () ;
-
-  factory_.back ()->TestAllMethods () ;
-
-  factory_.back ()->EvaluateAllMethods () ;
-
-  factory_.back ()->DeleteAllMethods () ;
+  factory_->TrainAllMethods () ;
+  factory_->TestAllMethods () ;
+  factory_->EvaluateAllMethods () ;
+  factory_->DeleteAllMethods () ;
 
   cout << "==> TMVAClassification is done!" << endl ;
 
@@ -509,17 +446,14 @@ void TMVATrainingClass::BookandTrainLinearDiscriminant (){
 
   // Training Testing and Evaluating   
   outputFile_.back ()->cd () ;
-  factory_.back ()->RootBaseDir ()->cd () ;
+  factory_->RootBaseDir ()->cd () ;
 
-  factory_.back ()->BookMethod ( TMVA::Types::kLD, "LD", "H:!V:CreateMVAPdfs:PDFInterpolMVAPdf=Spline2:NbinsMVAPdf=50:NsmoothMVAPdf=10") ;
+  factory_->BookMethod ( TMVA::Types::kLD, "LD", "H:!V:CreateMVAPdfs:PDFInterpolMVAPdf=Spline2:NbinsMVAPdf=50:NsmoothMVAPdf=10") ;
 
-  factory_.back ()->TrainAllMethods () ;
-
-  factory_.back ()->TestAllMethods () ;
-
-  factory_.back ()->EvaluateAllMethods () ;
-
-  factory_.back ()->DeleteAllMethods () ;
+  factory_->TrainAllMethods () ;
+  factory_->TestAllMethods () ;
+  factory_->EvaluateAllMethods () ;
+  factory_->DeleteAllMethods () ;
 
   cout << "==> TMVAClassification is done!" << endl ;
 
@@ -556,17 +490,13 @@ void TMVATrainingClass::BookandTrainMLP (const int & nCycles,
                          ConvergenceTests) ;
 
   outputFile_.back ()->cd () ;
-  factory_.back ()->RootBaseDir ()->cd () ;
+  factory_->RootBaseDir ()->cd () ;
 
-  factory_.back ()->BookMethod ( TMVA::Types::kMLP, "MLP", Option.Data ()) ;
-  
-  factory_.back ()->TrainAllMethods () ;
-
-  factory_.back ()->TestAllMethods () ;
-
-  factory_.back ()->EvaluateAllMethods () ;
-
-  factory_.back ()->DeleteAllMethods () ;
+  factory_->BookMethod ( TMVA::Types::kMLP, "MLP", Option.Data ()) ;
+  factory_->TrainAllMethods () ;
+  factory_->TestAllMethods () ;
+  factory_->EvaluateAllMethods () ;
+  factory_->DeleteAllMethods () ;
 
   cout << "==> TMVAClassification is done!" << endl ;
 
@@ -597,17 +527,14 @@ void TMVATrainingClass::BookandTrainCFMlpANN ( const int & nCycles,
   TString Option = Form ("!H:!V:NCycles=%d:HiddenLayers=%s:CreateMVAPdfs", nCycles, HiddenLayers.c_str ()) ;
  
   outputFile_.back ()->cd () ;
-  factory_.back ()->RootBaseDir ()->cd () ;
+  factory_->RootBaseDir ()->cd () ;
 
-  factory_.back ()->BookMethod ( TMVA::Types::kCFMlpANN, "CFMlpANN", Option.Data ()) ;
+  factory_->BookMethod ( TMVA::Types::kCFMlpANN, "CFMlpANN", Option.Data ()) ;
 
-  factory_.back ()->TrainAllMethods () ;
-
-  factory_.back ()->TestAllMethods () ;
-
-  factory_.back ()->EvaluateAllMethods () ;
-
-  factory_.back ()->DeleteAllMethods () ;
+  factory_->TrainAllMethods () ;
+  factory_->TestAllMethods () ;
+  factory_->EvaluateAllMethods () ;
+  factory_->DeleteAllMethods () ;
 
   cout << "==> TMVAClassification is done!" << endl ;
 
@@ -641,17 +568,14 @@ void TMVATrainingClass::BookandTrainTMlpANN  ( const int & nCycles,
              nCycles, HiddenLayers.c_str (), TrainingMethod.c_str (), ValidationFraction) ;
 
   outputFile_.back ()->cd () ;
-  factory_.back ()->RootBaseDir ()->cd () ;
+  factory_->RootBaseDir ()->cd () ;
 
-  factory_.back ()->BookMethod ( TMVA::Types::kTMlpANN, "TMlpANN", Option.Data ()) ;
+  factory_->BookMethod ( TMVA::Types::kTMlpANN, "TMlpANN", Option.Data ()) ;
 
-  factory_.back ()->TrainAllMethods () ;
-
-  factory_.back ()->TestAllMethods () ;
-
-  factory_.back ()->EvaluateAllMethods () ;
-
-  factory_.back ()->DeleteAllMethods () ;
+  factory_->TrainAllMethods () ;
+  factory_->TestAllMethods () ;
+  factory_->EvaluateAllMethods () ;
+  factory_->DeleteAllMethods () ;
 
   cout << "==> TMVAClassification is done!" << endl ;
 
@@ -689,18 +613,16 @@ void TMVATrainingClass::BookandTrainBDT ( const int & NTrees,
   TString Option = Form ("!H:!V:CreateMVAPdfs:NTrees=%d:BoostType=%s:AdaBoostBeta=%f:PruneMethod=%s:PruneStrength=%d:MaxDepth=%d:SeparationType=%s:Shrinkage=0.1:MaxDepth=11:UseYesNoLeaf=F:MinNodeSize=2:nCuts=200", NTrees, BoostType.c_str (), AdaBoostBeta, PruneMethod.c_str (), PruneStrength, MaxDepth, SeparationType.c_str ()) ;
 
   outputFile_.back ()->cd () ;
-  factory_.back ()->RootBaseDir ()->cd () ;
+  factory_->RootBaseDir ()->cd () ;
 
-  factory_.back ()->BookMethod ( TMVA::Types::kBDT, "BDT", Option.Data ()) ;
+  factory_->BookMethod ( TMVA::Types::kBDT, "BDT", Option.Data ()) ;
 
-  if (optimizeMethods) factory_.back ()->OptimizeAllMethods () ;                                                                                                                                                            
-  factory_.back ()->TrainAllMethods () ;
+  if (optimizeMethods) factory_->OptimizeAllMethods () ;                                                                                                                                                            
 
-  factory_.back ()->TestAllMethods () ;
-
-  factory_.back ()->EvaluateAllMethods () ;
-
-  factory_.back ()->DeleteAllMethods () ;
+  factory_->TrainAllMethods () ;
+  factory_->TestAllMethods () ;
+  factory_->EvaluateAllMethods () ;
+  factory_->DeleteAllMethods () ;
 
   cout << "==> TMVAClassification is done!" << endl ;
 
@@ -724,44 +646,32 @@ void TMVATrainingClass::BookandTrainBDTG ( const int & NTrees,
   int result = system (command.c_str ()) ;
   if (result) cout << "Directory created " << outputFilePath_.back () << endl ; 
 
-
-    for (size_t iVar = 0 ; iVar < trainingVariables_.size () ; iVar++){
-
-      string variable = trainingVariables_.at (iVar) ;
-      replace (variable.begin (), variable.end (), '/', '_') ;
-      replace (variable.begin (), variable.end (), '[', '_') ;
-      replace (variable.begin (), variable.end (), ']', '_') ;
-      replace (variable.begin (), variable.end (), '(', '_') ;
-      replace (variable.begin (), variable.end (), ')', '_') ;
-      replace (variable.begin (), variable.end (), ':', '_') ;
-
-      outputFile_.at (iVar)->cd () ;
-      factory_.at (iVar)->RootBaseDir ()->cd () ;
-
-      // Set Name of the Weight file for TMVA evaluating procedure                                                                                                          
-      if (Label_ != ""){
-    outputFileWeightName_["BDTG_"+Label_] = outputFilePath_.back ()+"/TMVAWeight_BDTG_"+Label_+"_"+variable ;
-    (TMVA::gConfig ().GetIONames ()).fWeightFileDir = outputFileWeightName_["BDTG_"+Label_] ;
+  // Set Name of the Weight file for TMVA evaluating procedure                                                                                                          
+  if(Label_ != ""){
+    outputFileWeightName_["BDTG_"+Label_] = outputFilePath_.back()+"/TMVAWeight_BDTG_"+Label_;
+    (TMVA::gConfig().GetIONames()).fWeightFileDir = outputFileWeightName_["BDTG_"+Label_];
       }
       else {
-    outputFileWeightName_["BDTG"] = outputFilePath_.back ()+"/TMVAWeight_BDTG_"+variable ;
-    (TMVA::gConfig ().GetIONames ()).fWeightFileDir = outputFileWeightName_["BDTG"] ;
-      }
+    outputFileWeightName_["BDTG"] = outputFilePath_.back()+"/TMVAWeight_BDTG";
+    (TMVA::gConfig().GetIONames()).fWeightFileDir = outputFileWeightName_["BDTG"];
+  }
 
-      TString Option = Form ("CreateMVAPdfs:NTrees=%d:BoostType=Grad:!UseBaggedGrad:GradBaggingFraction=%f:PruneMethod=%s:PruneStrength=%d:MaxDepth=%d:SeparationType=%s:Shrinkage=0.1:NNodesMax=100000:UseYesNoLeaf=F:nCuts=2000:IgnoreNegWeightsInTraining", NTrees, GradBaggingFraction, PruneMethod.c_str (), PruneStrength, MaxDepth, SeparationType.c_str ()) ;
-      
-      factory_.at (iVar)->BookMethod ( TMVA::Types::kBDT, "BDTG", Option.Data ()) ;
-      
-      if (optimizeMethods) factory_.at (iVar)->OptimizeAllMethods () ;                                                                                                             
-                                 
-      factory_.at (iVar)->TrainAllMethods () ;
-      
-      factory_.at (iVar)->TestAllMethods () ;
+  TString Option = Form ("CreateMVAPdfs:NTrees=%d:BoostType=Grad:!UseBaggedGrad:GradBaggingFraction=%f:PruneMethod=%s:PruneStrength=%d:MaxDepth=%d:SeparationType=%s:Shrinkage=0.1:NNodesMax=100000:UseYesNoLeaf=F:nCuts=2000",NTrees,GradBaggingFraction,PruneMethod.c_str(),PruneStrength,MaxDepth,SeparationType.c_str());
+
+  outputFile_.back()->cd();
+  factory_->RootBaseDir()->cd();
+
+  factory_->BookMethod( TMVA::Types::kBDT, "BDTG", Option.Data());
   
-      factory_.at (iVar)->EvaluateAllMethods () ;
+  if(optimizeMethods) factory_->OptimizeAllMethods();                                                                                                             
+                             
+  factory_->TrainAllMethods();
+  factory_->TestAllMethods();
+  factory_->EvaluateAllMethods();
 
-    }
-  cout << "==> TMVAClassification is done!" << endl ;
+  // PG e deleteAllMethods? FIXME
+  
+  cout << "==> TMVAClassification is done!" << endl;
 
 }
 
@@ -800,19 +710,16 @@ void TMVATrainingClass::BookandTrainBDTF ( const int & NTrees,
                           AdaBoostBeta, PruneMethod.c_str (), PruneStrength, MaxDepth, SeparationType.c_str ()) ;
 
   outputFile_.back ()->cd () ;
-  factory_.back ()->RootBaseDir ()->cd () ;
+  factory_->RootBaseDir ()->cd () ;
 
-  factory_.back ()->BookMethod ( TMVA::Types::kBDT, "BDTF", Option.Data ()) ;
+  factory_->BookMethod ( TMVA::Types::kBDT, "BDTF", Option.Data ()) ;
 
-  if (optimizeMethods) factory_.back ()->OptimizeAllMethods () ;
+  if (optimizeMethods) factory_->OptimizeAllMethods () ;
                                                                                                                                                              
-  factory_.back ()->TrainAllMethods () ;
-
-  factory_.back ()->TestAllMethods () ;
-
-  factory_.back ()->EvaluateAllMethods () ;
-
-  factory_.back ()->DeleteAllMethods () ;
+  factory_->TrainAllMethods () ;
+  factory_->TestAllMethods () ;
+  factory_->EvaluateAllMethods () ;
+  factory_->DeleteAllMethods () ;
 
   cout << "==> TMVAClassification is done!" << endl ;
 }

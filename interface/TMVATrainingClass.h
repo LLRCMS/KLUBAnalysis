@@ -198,7 +198,7 @@ class TMVATrainingClass {
   vector<shared_ptr<TFile> > outputFile_ ;
 
   // factory object
-  vector<shared_ptr<TMVA::Factory> > factory_ ; 
+  TMVA::Factory * factory_ ; 
 
 } ;
 
