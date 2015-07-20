@@ -75,6 +75,7 @@ class TMVATrainingClass {
   void AddPrepareTraining (
       string weightStringSignal,     // re-weighting expression or branch for signal events 
       string weightStringBackground, // re-weighting expression or branch for background events
+      const TCut & preselections,
       const int    & nTraining        = 0, // number of events used for training
       const int    & nTesting         = 0, // number of events used for testing
       const string & splitMode        = "Random",  // split mode

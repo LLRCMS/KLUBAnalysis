@@ -14,6 +14,8 @@
 #include "THStack.h"
 #include "TCanvas.h"
 
+#include "histoUtils.h"
+
 using namespace std ;
 
 /* TODO list
@@ -328,6 +330,7 @@ int main (int argc, char** argv)
                   allSamples.at (i).sampleName.Data (),
                   selections.at (isel).first.Data ()
                 ) ;
+              addOverAndUnderFlow (manager->GetHisto (histoName.Data ())) ;
               hstack_bkg.at (iv+nVars*isel)->Add (manager->GetHisto (histoName.Data ())) ;
             }
 
@@ -344,6 +347,7 @@ int main (int argc, char** argv)
                   allSamples.at (i).sampleName.Data (),
                   selections.at (isel).first.Data ()
                 ) ;
+              addOverAndUnderFlow (manager->GetHisto (histoName.Data ())) ;
               hstack_sig.at (iv+nVars*isel)->Add (manager->GetHisto (histoName.Data ())) ;
             }
           

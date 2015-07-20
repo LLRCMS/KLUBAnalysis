@@ -52,6 +52,8 @@ int main (int argc, char** argv)
     return -1 ;
   }
   
+  TMVA::Tools::Instance () ;
+
   // get the samples to be analised
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -63,19 +65,25 @@ int main (int argc, char** argv)
   vector<sample> bkgSamples ;
   readSamples (bkgSamples, bkgSamplesList) ;
 
-  TMVA::Tools::Instance () ;
-
   // get the selections to be applied
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   vector<pair <TString, TCut> > selections = readCutsFile (
-      gConfigParser->readStringOption ("selections::selectionsFile")
+      gConfigParser->readStringOption ("selections::preSelectionsFile")
     ) ;
 
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << "selections sequence: \n" ;
+  TCut preselections ; 
   for (unsigned int i = 0 ; i < selections.size () ; ++i)
-    cout << selections.at (i).first << " : " << selections.at (i).second << endl ;
+    {
+      cout << selections.at (i).first << " : " << selections.at (i).second << endl ;
+      if (selections.at (i).first == "presel")
+        {
+          preselections = selections.at (i).second ;
+          cout << "  `---> choosing this one as preselections\n" ;
+        }
+    }
 
   // treeName                                                                                                                                                               
   string treeName = "HTauTauTree" ;
@@ -133,7 +141,7 @@ int main (int argc, char** argv)
     ) ;
 
   trainer->AddTrainingVariables (variablesList, spectatorsList) ;
-  trainer->AddPrepareTraining (eventWeight, eventWeight) ;
+  trainer->AddPrepareTraining (eventWeight, eventWeight, preselections) ;
   trainer->BookMVATrees () ;  
 
   // loop on training methods
@@ -187,6 +195,8 @@ int main (int argc, char** argv)
           cout << endl ;
         }
     } // loop on training methods
+
+  cerr << "EVERITHING IS FINISHED HERE" << endl ;
 
   return 0 ;
 }

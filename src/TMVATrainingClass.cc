@@ -39,14 +39,14 @@ TMVATrainingClass::TMVATrainingClass
 // Destructor
 TMVATrainingClass::~TMVATrainingClass ()
 {
-  outputFileWeightName_.clear () ;
+//  outputFileWeightName_.clear () ;
 
-  factory_.clear () ;
+//  factory_.clear () ;
 
   for (size_t iFile = 0 ; iFile < outputFile_.size () ; iFile++)
     outputFile_.at (iFile)->Close () ;
 
-  outputFile_.clear () ;
+//  outputFile_.clear () ;
 }
 
 
@@ -203,6 +203,7 @@ TMVATrainingClass::AddPrepareTraining
   (
     string  weightStringSignal, 
     string  weightStringBackground, 
+    const TCut & preselections,
     const int & nTraining, 
     const int & nTesting, 
     const string & splitMode, 
@@ -220,9 +221,10 @@ TMVATrainingClass::AddPrepareTraining
 
   for (size_t ifact = 0 ; ifact < factory_.size () ; ++ifact)
     {
-      factory_.at (ifact)->PrepareTrainingAndTestTree ("", "", Option.Data ()) ;  // set the options
+      factory_.at (ifact)->PrepareTrainingAndTestTree (
+          preselections, preselections, Option.Data ()) ;  // set the options
     }
-  
+ 
   // create the varlist for the TNtupla --> variables to be used as input, spectator and weights
   vector<string> varListSignal ;
   vector<string> varListBackground ;
@@ -684,7 +686,7 @@ void TMVATrainingClass::BookandTrainBDT ( const int & NTrees,
     (TMVA::gConfig ().GetIONames ()).fWeightFileDir = outputFileWeightName_["BDT"] ;
   }
 
-  TString Option = Form ("!H:!V:CreateMVAPdfs:NTrees=%d:BoostType=%s:AdaBoostBeta=%f:PruneMethod=%s:PruneStrength=%d:MaxDepth=%d:SeparationType=%s:Shrinkage=0.1:NNodesMax=100000:UseYesNoLeaf=F:MinNodeSize=2:nCuts=200", NTrees, BoostType.c_str (), AdaBoostBeta, PruneMethod.c_str (), PruneStrength, MaxDepth, SeparationType.c_str ()) ;
+  TString Option = Form ("!H:!V:CreateMVAPdfs:NTrees=%d:BoostType=%s:AdaBoostBeta=%f:PruneMethod=%s:PruneStrength=%d:MaxDepth=%d:SeparationType=%s:Shrinkage=0.1:MaxDepth=11:UseYesNoLeaf=F:MinNodeSize=2:nCuts=200", NTrees, BoostType.c_str (), AdaBoostBeta, PruneMethod.c_str (), PruneStrength, MaxDepth, SeparationType.c_str ()) ;
 
   outputFile_.back ()->cd () ;
   factory_.back ()->RootBaseDir ()->cd () ;
