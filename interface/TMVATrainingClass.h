@@ -62,7 +62,6 @@ class TMVATrainingClass {
   ~TMVATrainingClass () ;
 
   // Set global event weight for signal and background
-  // FIXME TBC
   void BookMVATrees () ;
 
   // Set Training and Spectator Variables
@@ -179,23 +178,20 @@ class TMVATrainingClass {
   // Label
   string Label_ ;
 
-  //Transformations
-  string transformations_ ;
-
   // outputFilePath
-  vector<string> outputFilePath_ ;
+  string outputFilePath_ ;
 
   // output Name
-  vector<string> outputFileName_ ;
+  string outputFileName_ ;
 
   // output Complete Name = path + Name
-  vector<string> outputFileNameComplete_ ;
+  string outputFileNameComplete_ ;
 
   // Name of the final file xml with the weights
   map<string, string> outputFileWeightName_ ;
 
   // output file
-  vector<shared_ptr<TFile> > outputFile_ ;
+  TFile * outputFile_ ;
 
   // factory object
   TMVA::Factory * factory_ ; 
