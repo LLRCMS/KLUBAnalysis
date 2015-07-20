@@ -49,20 +49,24 @@ TH1F*  unRollingHistogram(TH2F* histo, int errorType);
 TH1F*  getHistoOfErrors (TH1F * input,int isLog) ;
 
 // create a stack from a histo                                                                                                                                            
-THStack* CreateStack (TH1F * histo) ;
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 THStack * stackMe (TH1F * histo);
 
 // make positive defined histos
 void makePositiveDefine(TH1F* histo);
 void makePositiveDefine(TH2F* histo);
 
+// scale a THStack to have total unit area
+THStack * normaliseStack (THStack * original) ;
+
+// set the axis titles of histogram to the ones of the first histo of hstack
+void copyTitles (TH1F * histogram, THStack * hstack) ;
+
+// get the minimum non null bin content in the histo
+float findNonNullMinimum (TH1F * histo) ;
+
 //mirror an histogram h1 wrt to h2
-TH1F* mirrorHistogram(string name, TH1F* h1, TH1F*h2);
+TH1F* mirrorHistogram(string name, TH1F* h1, TH1F*h2) ;
 
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----                                                                                                 
 // re-roll unrolled 2D distributions and return a TH2F.                                                                                                                    
 // templated on RooFit objects, works for RooHist and RooCurve,                                                                                                                 
 // which are the toy and the fitting functions in the combine                                                                                                           

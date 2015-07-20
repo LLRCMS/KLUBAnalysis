@@ -23,8 +23,6 @@ using namespace std ;
 - add shape plots of each bkg and signal
 - add the legenda, axis titles from cfg
 - get the output folder from the command line
-- add overflow and underflow bins to the histos
-
 */
 
 
@@ -40,45 +38,6 @@ using namespace std ;
 //}
 
 
-
-
-// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-
-
-void copyTitles (TH1F * histogram, THStack * hstack)
-{
-  TIter next (hstack->GetHists ()) ;
-  TH1F * histo ;
-
-  while (histo = (TH1F *) (next ())) 
-    {
-      histogram->GetXaxis ()->SetTitle (
-        histo->GetXaxis ()->GetTitle ()) ;
-      histogram->GetYaxis ()->SetTitle (
-        histo->GetYaxis ()->GetTitle ()) ;
-      break ;  
-    }
-  return ;
-}
-
-
-// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-
-
-float findNonNullMinimum (TH1F * histo)
-  {
-    float min = 10000000000. ;
-    for (int i = 1 ; i <= histo->GetNbinsX () ; ++i)
-      { 
-        float tmpmin = histo->GetBinContent (i) ;
-        if (tmpmin == 0.) continue ;
-        if (tmpmin < min) min = tmpmin ;
-      }
-    return min ;
-  }
-
-
-// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
 /* how much space to leave for the legenda:
@@ -397,26 +356,33 @@ int main (int argc, char** argv)
                   variablesList.at (iv).c_str (),
                   selections.at (isel).first.Data ()
                 ) ;
-          TString name = basename + "_bkg_norm" ;
-          TH1F * dummy = (TH1F *) hstack_bkg.at (iv+nVars*isel)->GetStack ()->Last () ;
-          TH1F * shape_bkg = (TH1F *) dummy->Clone (name) ;
-          shape_bkg->Scale (1. / shape_bkg->Integral ()) ;
-          shape_bkg->SetFillColor (8) ;
+
+//           TString name = basename + "_bkg_norm" ;
+//           TH1F * dummy = (TH1F *) hstack_bkg.at (iv+nVars*isel)->GetStack ()->Last () ;
+//           TH1F * shape_bkg = (TH1F *) dummy->Clone (name) ;
+//           shape_bkg->Scale (1. / shape_bkg->Integral ()) ;
+//           shape_bkg->SetFillColor (8) ;
           
-          name = basename + "_sig_norm" ;
-          dummy = (TH1F *) hstack_sig.at (iv+nVars*isel)->GetStack ()->Last () ;
-          TH1F * shape_sig = (TH1F *) dummy->Clone (name) ;
-          shape_sig->Scale (1. / shape_sig->Integral ()) ;
+          THStack * hstack_bkg_norm = normaliseStack (hstack_bkg.at (iv+nVars*isel)) ;
+          TH1F * shape_bkg = (TH1F *) hstack_bkg_norm->GetStack ()->Last () ;
+          
+          THStack * hstack_sig_norm = normaliseStack (hstack_sig.at (iv+nVars*isel)) ;
+          TH1F * shape_sig = (TH1F *) hstack_sig_norm->GetStack ()->Last () ;
+          
+//           name = basename + "_sig_norm" ;
+//           dummy = (TH1F *) hstack_sig.at (iv+nVars*isel)->GetStack ()->Last () ;
+//           TH1F * shape_sig = (TH1F *) dummy->Clone (name) ;
+//           shape_sig->Scale (1. / shape_sig->Integral ()) ;
           
           if (shape_sig->GetMaximum () > shape_bkg->GetMaximum ()) 
-            shape_sig->Draw ("hist") ;
+            hstack_sig_norm->Draw ("hist") ;
           else   
-            shape_bkg->Draw ("hist") ;
+            hstack_bkg_norm->Draw ("hist") ;
 
-          shape_bkg->Draw ("hist same") ;
-          shape_sig->Draw ("hist same") ;
+          hstack_bkg_norm->Draw ("hist same") ;
+          hstack_sig_norm->Draw ("hist same") ;
           
-          name = basename + "_norm" ;
+          TString name = basename + "_norm" ;
           coutputName.Form ("%s.pdf", (outFolderName + basename).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
 
