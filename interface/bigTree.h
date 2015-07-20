@@ -384,7 +384,6 @@ public :
        fChain->SetBranchAddress("daughters_pz", &daughters_pz, &b_daughters_pz);
        fChain->SetBranchAddress("daughters_e", &daughters_e, &b_daughters_e);
        fChain->SetBranchAddress("daughters_charge", &daughters_charge, &b_daughters_charge);
-       fChain->SetBranchAddress("daughters_genindex", &daughters_genindex, &b_daughters_genindex);
        fChain->SetBranchAddress("SVfitMass", &SVfitMass, &b_SVfitMass);
        fChain->SetBranchAddress("SVfit_pt", &SVfit_pt, &b_SVfit_pt);
        fChain->SetBranchAddress("SVfit_ptUnc", &SVfit_ptUnc, &b_SVfit_ptUnc);
@@ -466,6 +465,7 @@ public :
        if(fChain->GetListOfBranches()->FindObject("MC_weight"))
        {
             fChain->SetBranchAddress("MC_weight", &MC_weight, &b_MC_weight);
+            fChain->SetBranchAddress("daughters_genindex", &daughters_genindex, &b_daughters_genindex);
             fChain->SetBranchAddress("genpart_px", &genpart_px, &b_genpart_px);
             fChain->SetBranchAddress("genpart_py", &genpart_py, &b_genpart_py);
             fChain->SetBranchAddress("genpart_pz", &genpart_pz, &b_genpart_pz);
