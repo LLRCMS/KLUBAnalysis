@@ -13,6 +13,10 @@ void avoidEmptyBins(TH1F* input){
 
 }
 
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
 // add the overflow bin to a histogram                                                                                                                                          
 void addOverFlow (TH1F * input) {
 
@@ -41,6 +45,10 @@ void addOverFlow (TH1F * input) {
 
 }
 
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
 void addOverAndUnderFlow (TH1F* histo){
 
   // content
@@ -58,7 +66,9 @@ void addOverAndUnderFlow (TH1F* histo){
 }
 
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----                                                                                                 
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----        
+
+                                                                                         
 void setPoissonErrorsToHisto (TH1F * input) { // set the error in each bin as sqrt(binContent)                                                                                  
   for (int iBin = 0 ; iBin <= input->GetNbinsX () + 1 ; ++iBin) {
     input->SetBinError (iBin, sqrt (input->GetBinContent (iBin))) ;
@@ -67,7 +77,9 @@ void setPoissonErrorsToHisto (TH1F * input) { // set the error in each bin as sq
   return ;
 }
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----                                                                                                  
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----         
+
+                                                                                         
 void setPoissonErrorsTo2DHisto (TH2F * input) { // set the error in each bin as sqrt(binContent)                                                                                
   for (int iBinX = 0 ; iBinX <= input->GetNbinsX () + 1 ; ++iBinX) {
     for (int iBinY = 0 ; iBinY <= input->GetNbinsY () + 1 ; ++iBinY) {
@@ -78,13 +90,17 @@ void setPoissonErrorsTo2DHisto (TH2F * input) { // set the error in each bin as 
   return ;
 }
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----                                                                                                
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----     
+
+                                                                                           
 void setAsymmetricErrorsToHisto (TH1F * input) { // set the error in each bin as sqrt(binContent)                                                                              
   input->SetBinErrorOption(TH1::kPoisson);
   return ;
 }
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----                                                                                                 
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----   
+
+                                                                                              
 void setAsymmetricErrorsTo2DHisto (TH2F * input) { // set the error in each bin as sqrt(binContent)                                                                            
   input->SetBinErrorOption(TH1::kPoisson);
 
@@ -92,7 +108,9 @@ void setAsymmetricErrorsTo2DHisto (TH2F * input) { // set the error in each bin 
 }
 
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----                                                                                                  
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----    
+
+                                                                                              
 TH1F *  getHistoOfErrors (TH1F * input, int isLog) {
 
   string name = "err_" ;
@@ -117,7 +135,9 @@ TH1F *  getHistoOfErrors (TH1F * input, int isLog) {
 }
 
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----                                                                                                  
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+
+                                                                                                 
 TH1F* unRollingHistogram (TH2F* histo, int errorType){
 
   TH1F* dummy = new TH1F("dummy","",(histo->GetNbinsX())*(histo->GetNbinsY()),0,histo->GetNbinsX()*histo->GetNbinsY());
@@ -171,9 +191,11 @@ TH1F* unRollingHistogram (TH2F* histo, int errorType){
 }
 
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----                                                                                                  
-THStack * stackMe (TH1F * histo){
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----     
 
+                                                                                             
+THStack * stackMe (TH1F * histo)
+{
   string name = histo->GetName () ;
   name += "_st" ;
   THStack * dummy = new THStack (name.c_str (), "") ;
@@ -182,9 +204,11 @@ THStack * stackMe (TH1F * histo){
 }
 
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----                                                                                                   
-TH1F* mirrorHistogram(string name, TH1F* h1, TH1F*h2){
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----  
 
+                                                                                                 
+TH1F* mirrorHistogram(string name, TH1F* h1, TH1F*h2)
+{
   TH1F* dummy = (TH1F*) h1->Clone(name.c_str());
   dummy->Reset();
 
@@ -196,9 +220,11 @@ TH1F* mirrorHistogram(string name, TH1F* h1, TH1F*h2){
   return dummy ;
 }
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----                                                                                                  
-void makePositiveDefine(TH2F* histo){
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
+                                                                                                  
+void makePositiveDefine(TH2F* histo)
+{
   for(int iBinX = 0; iBinX <= histo->GetNbinsX()+1; iBinX++){
     for(int iBinY = 0; iBinY <= histo->GetNbinsY()+1; iBinY++){
       if( histo->GetBinContent(iBinX,iBinY) < 0){
@@ -211,9 +237,12 @@ void makePositiveDefine(TH2F* histo){
   return ;
 }
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----                                                                                                  
-void makePositiveDefine(TH1F* histo){
 
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+
+                                                                                                 
+void makePositiveDefine(TH1F* histo)
+{
   for(int iBinX = 0; iBinX <= histo->GetNbinsX()+1; iBinX++){
     if( histo->GetBinContent(iBinX) < 0){
       histo->SetBinContent(iBinX,0);
@@ -222,3 +251,69 @@ void makePositiveDefine(TH1F* histo){
   }
   return ;
 }
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+
+                                                                                                 
+THStack * normaliseStack (THStack * original)
+{
+  TString name = original->GetName () ;
+  name += "_norm" ;
+  THStack * dummy_stack = new THStack (name, name) ;
+  TH1F * dummy_h = (TH1F *) original->GetStack ()->Last () ;
+  float norm = dummy_h->Integral () ;
+  
+  TIter next (original->GetHists ()) ;
+  TH1F * histo ;
+
+  while (histo = (TH1F *) (next ())) 
+    { 
+      dummy_h = (TH1F *) histo->Clone (histo->GetName () + TString ("_norm")) ;
+      dummy_h->Scale (1. / norm) ;
+      dummy_stack->Add (dummy_h) ;
+    }
+    
+  return dummy_stack ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+void copyTitles (TH1F * histogram, THStack * hstack)
+{
+  TIter next (hstack->GetHists ()) ;
+  TH1F * histo ;
+
+  while (histo = (TH1F *) (next ())) 
+    {
+      histogram->GetXaxis ()->SetTitle (
+        histo->GetXaxis ()->GetTitle ()) ;
+      histogram->GetYaxis ()->SetTitle (
+        histo->GetYaxis ()->GetTitle ()) ;
+      break ;  
+    }
+  return ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+float findNonNullMinimum (TH1F * histo)
+  {
+    float min = 10000000000. ;
+    for (int i = 1 ; i <= histo->GetNbinsX () ; ++i)
+      { 
+        float tmpmin = histo->GetBinContent (i) ;
+        if (tmpmin == 0.) continue ;
+        if (tmpmin < min) min = tmpmin ;
+      }
+    return min ;
+  }
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
