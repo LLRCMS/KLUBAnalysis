@@ -254,7 +254,8 @@ int main (int argc, char** argv)
   // Plot the histograms
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  TString outFolderName = "./plotter/";
+  TString outFolderName = gConfigParser->readStringOption ("general::outputFolderName") ;
+  
   system (TString ("mkdir -p ") + outFolderName) ;
   TString outString ;
   outString.Form (outFolderName + "outPlotter.root") ;

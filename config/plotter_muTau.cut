@@ -1,0 +1,3 @@
+all     = pairType == 0
+oneBtag = (pairType == 0) && (bjet1_bID > 0.5 || bjet2_bID > 0.5)
+twoBtag = (pairType == 0) && (bjet1_bID > 0.5 && bjet2_bID > 0.5)
