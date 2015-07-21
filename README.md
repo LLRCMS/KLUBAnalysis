@@ -65,8 +65,9 @@ Example on how to run a MVA training on the reduced flat trees.
 The TMVATraining.cpp executable uses the TMVATrainingClass to interface to the TMVA package.
 Being tested now.
  * no preselections are applied by now
- * several training methods available at the same time, see the cfg card example
+ * BDT training methods available
+ * more training methods could be added copyting them from the TMVATrainingClass, which unfortunately does not work properly, since it would need a artisanal root patch which we don't want to do
  
  ```
-./bin/TMVATraining.exe ./config/TMVATraining.cfg
+./bin/TMVATrainingZero.exe ./config/TMVATraining.cfg
 ```
