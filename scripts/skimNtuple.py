@@ -25,6 +25,7 @@ if __name__ == "__main__":
     parser.add_option('-r', '--resub'  , dest='resub'  , help='resubmit failed jobs'             , default='none')
     parser.add_option('-v', '--verb'   , dest='verb'   , help='verbose'                          , default=False)
     parser.add_option('-s', '--sleep'  , dest='sleep'  , help='sleep in submission'              , default=False)
+    parser.add_option('-d', '--isdata' , dest='isdata' , help='data flag'                        , default=False)
     (opt, args) = parser.parse_args()
 
     # verify the result of the process
@@ -120,7 +121,11 @@ if __name__ == "__main__":
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('cd %s\n'%currFolder)
         scriptFile.write ('source scripts/setup.sh\n')
-        scriptFile.write ('./bin/skimNtuple.exe ' + filename + ' ' + opt.output + '/' + basename (filename) + ' ' + opt.xs + ' >& ' + opt.output + '/' + basename (filename) + '.log\n')
+        command = './bin/skimNtuple.exe ' + filename + ' ' + opt.output + '/' + basename (filename) + ' ' + opt.xs 
+        if opt.isdata : 
+            command += ' data '
+        command += ' >& ' + opt.output + '/' + basename (filename) + '.log\n'
+        scriptFile.write (command)
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
         scriptFile.write ('echo "All done for job %d" \n'%n)
         scriptFile.close ()
