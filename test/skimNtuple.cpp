@@ -83,6 +83,16 @@ int main (int argc, char** argv)
   TString inputFile = argv[1] ;
   TString outputFile = argv[2] ;
   float XS = atof (argv[3]) ;
+  bool isMC = true;
+  if (argc > 4) // one additional par for data
+  {
+    int isDatabuf = atoi (argv[4]);
+    if (isDatabuf == 1)
+    {
+      isMC = false; 
+      XS = 1.;
+    }
+  }
 
   OfflineProducerHelper oph ;
 
@@ -99,7 +109,7 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   float PUjetID_minCut = -0.5 ;
-  bool  isMC           = true ;
+  //bool  isMC           = true ;
   bool  saveOS         = true ; // save same-sign candidates
 
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -125,7 +135,8 @@ int main (int argc, char** argv)
       theSmallTree.clearVars () ;
       theBigTree.GetEntry (iEvent) ;
       
-      totalEvents += theBigTree.MC_weight * XS ;
+      if (isMC) totalEvents += theBigTree.MC_weight * XS ;
+      else totalEvents += 1;
       ++totalMCEventsNum ;
       
       if (theBigTree.indexDau1->size () == 0) continue ;
@@ -198,8 +209,8 @@ int main (int argc, char** argv)
       // fill the variables of interest
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-      theSmallTree.m_PUReweight = theBigTree.PUReweight ;
-      theSmallTree.m_MC_weight = theBigTree.MC_weight * XS ;
+      theSmallTree.m_PUReweight = (isMC ? theBigTree.PUReweight : 1);
+      theSmallTree.m_MC_weight = (isMC ? theBigTree.MC_weight * XS : 1) ;
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
       theSmallTree.m_RunNumber = theBigTree.RunNumber ;
       theSmallTree.m_npv = theBigTree.npv ;
@@ -410,7 +421,8 @@ int main (int argc, char** argv)
           ++theSmallTree.m_njets ;
         } // loop over jets
 
-      selectedEvents += theBigTree.MC_weight * XS ; 
+      if (isMC) selectedEvents += theBigTree.MC_weight * XS ; 
+      else selectedEvents += 1;
       ++selectedMCEventsNum ;
       theSmallTree.Fill () ;
     } // loop over events
