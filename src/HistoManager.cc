@@ -49,18 +49,24 @@ TObject* HistoManager::GetElement (const char * objTag)
 TH1F * 
 HistoManager::AddNewHisto (const char* name, const char* title, 
                            int nbinsx, double xlow, double xup,
-                           int color, bool isSignal,
+                           int color, int histoType,
                            TString titleX, TString titleY)
 {
     string fullName = MakeStoredName (name);
     TH1F* h = new TH1F (fullName.c_str(), title, nbinsx, xlow, xup);
     h->Sumw2 () ;    
-    if (!isSignal)
+    if (histoType == 0) // background
       {//background
         h->SetFillStyle (1001) ;
         h->SetFillColor (color) ;
         h->SetLineColor (color) ;
-      }else{
+      }else if (histoType == 1) { // signal
+        h->SetFillStyle (0) ;
+        h->SetMarkerColor (color) ;
+        h->SetLineColor (color) ;
+        h->SetLineWidth (2) ;
+        h->SetMarkerStyle (20) ;
+      }else if (histoType == 2) { // data
         h->SetFillStyle (0) ;
         h->SetMarkerColor (color) ;
         h->SetLineColor (color) ;

@@ -33,7 +33,7 @@ class HistoManager
         TObject* GetElement (const char* objTag);
         TH1F * AddNewHisto (const char* name, const char* title, 
                             int nbinsx, double xlow, double xup,
-                            int color = 2, bool isSignal = false,
+                            int color = 2, int isSignal = 0,
                             TString titleX = "",
                            TString titleY = "") ; // creates a new histo
         void AddNew2DHisto (const char* name, const char* title, 
