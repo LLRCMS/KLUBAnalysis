@@ -11,29 +11,32 @@ https://github.com/govoni/FlatNtStudy/blob/master/src/TMVATrainingClass.cc
 // constructor
 TMVATrainingClass::TMVATrainingClass 
   (
+    TMVA::Factory * factory,
+    TFile * outputFile,
+    string outputFilePath,
     const vector<sample> & signalTreeList, 
     const vector<sample> & backgroundTreeList,  
-    const string & TreeName, 
-    const string & outputFilePath , 
-    const string & outputFileName, 
-    const string & Label, 
-    const string & transformation
-  ) 
+    const string & Label 
+  ) :
+  factory_ (factory),
+  outputFile_ (outputFile),
+  outputFilePath_ (outputFilePath),
+  Label_ (Label)
 {
-  SetTreeName          (TreeName) ;
+//  SetTreeName          (TreeName) ;
   ReadInputCollection  (signalTreeList_,     signalTreeList) ;
   ReadInputCollection  (backgroundTreeList_, backgroundTreeList) ;
-  SetLabel             (Label) ;
-  SetOutputFile        (outputFilePath, outputFileName) ;
+
+//  SetOutputFile        (outputFilePath, outputFileName) ;
   
-  factory_ = new TMVA::Factory (TreeName_ + "_" + Label_, 
-      outputFile_, 
-      Form (
-          "!V:!Silent:%sColor:DrawProgressBar:AnalysisType=Classification%s", 
-          gROOT->IsBatch ()?"!":"", 
-          transformation.c_str ()
-        )
-    ) ;
+//   factory_ = new TMVA::Factory (TreeName_ + "_" + Label_, 
+//       outputFile_, 
+//       Form (
+//           "!V:!Silent:%sColor:DrawProgressBar:AnalysisType=Classification%s", 
+//           gROOT->IsBatch ()?"!":"", 
+//           transformation.c_str ()
+//         )
+//     ) ;
 }
 
 
@@ -64,29 +67,7 @@ void TMVATrainingClass::ReadInputCollection (
            << inputList.at (iChain).sampleName << endl ;
       localList.push_back (inputList.at (iChain).sampleChain) ;
     }
-  return ;
-}
-
-
-// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-
-
-// Set label
-void TMVATrainingClass::SetLabel (const string & Label ){
-  Label_ = Label ;
-  return ;
-}
-
-
-// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-
-
-// Set Tree Name
-void TMVATrainingClass::SetTreeName (const string & TreeName ){
-
-  if (TreeName!="") TreeName_ = TreeName ;
-  else TreeName_ = "easyDelphes" ;
-
+  cout << "  `-->   DONE " << endl ;
   return ;
 }
 
@@ -205,43 +186,7 @@ TMVATrainingClass::AddPrepareTraining
 
   factory_->PrepareTrainingAndTestTree (
       preselections, preselections, Option.Data ()) ;  // set the options
- 
-  // create the varlist for the TNtupla --> variables to be used as input, spectator and weights
-  vector<string> varListSignal ;
-  vector<string> varListBackground ;
 
-  varListSignal.assign (1, "") ;
-
-  // loop on training variables
-  for (size_t iVar = 0 ; iVar < trainingVariables_.size () ; iVar++)
-    { 
-      if (iVar!=0) varListSignal.at (0) += ":"+trainingVariables_.at (iVar) ;
-      else         varListSignal.at (0) += trainingVariables_.at (iVar) ;
-    }
-  varListSignal.at (0) += ":" ;
-
-  // loop on spectator variables
-  for (size_t iVar = 0 ; iVar < spectatorVariables_.size () ; iVar++)
-    { 
-      if (iVar!=0) varListSignal.at (0) += ":"+spectatorVariables_.at (iVar) ;
-      else         varListSignal.at (0) += spectatorVariables_.at (iVar) ;
-    }
-
-  varListBackground = varListSignal ;
-  
- /* questo non capisco a che serva
-      // the re-weight can be different for signal and background, 
-      // while the input and spectator must be the same
-      replace (weightStringBackground.begin (), weightStringBackground.end (), '*', ':') ;
-      replace (weightStringBackground.begin (), weightStringBackground.end (), '=', ':') ;
-      replace (weightStringBackground.begin (), weightStringBackground.end (), '/', ':') ;
-      varListBackground.at (0) += ":" + weightStringBackground ;
-
-      replace (weightStringSignal.begin (), weightStringSignal.end (), '*', ':') ;
-      replace (weightStringSignal.begin (), weightStringSignal.end (), '=', ':') ;
-      replace (weightStringSignal.begin (), weightStringSignal.end (), '/', ':') ;
-      varListSignal.at (0) += ":" + weightStringSignal ;  
-*/
 }
 
 

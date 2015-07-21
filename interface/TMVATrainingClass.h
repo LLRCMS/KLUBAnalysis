@@ -48,15 +48,26 @@ class TMVATrainingClass {
   // default constructor
   TMVATrainingClass (){} ;
 
+
+TMVATrainingClass 
+  (
+    TMVA::Factory * factory,
+    TFile * outputFile,
+    string outputFilePath,
+    const vector<sample> & signalTreeList, 
+    const vector<sample> & backgroundTreeList,  
+    const string & Label
+  ) ;
+
   // constructor
-  TMVATrainingClass (
-            const vector<sample>& signalChainList,     // signal tree list
-            const vector<sample>& backgroundChainList, // background tree list
-            const string & TreeName,                   // tree name
-            const string & outputFilePath ,            // output path for storing TMVA files
-            const string & outputFileName,             // output file name
-            const string & Label,                      // label
-            const string & transformation = "") ;      // transformation to be applied on the input variables
+//   TMVATrainingClass (
+//             const vector<sample>& signalChainList,     // signal tree list
+//             const vector<sample>& backgroundChainList, // background tree list
+//             const string & TreeName,                   // tree name
+//             const string & outputFilePath ,            // output path for storing TMVA files
+//             const string & outputFileName,             // output file name
+//             const string & Label,                      // label
+//             const string & transformation = "") ;      // transformation to be applied on the input variables
 
   // default de-constructor
   ~TMVATrainingClass () ;
@@ -152,9 +163,6 @@ class TMVATrainingClass {
   // Set the name of the tree
   void SetTreeName ( const string & TreeName ) ;
 
-  // Set Label for the output file
-  void SetLabel ( const string & Label ) ;
-
   // Set Event re-weight : pile-Up, efficiency, cps, interference, btag .. etc
   void SetEventWeight ( const string & weightStringSignal, 
                         const string & weightStringBackground) ;
@@ -173,7 +181,13 @@ class TMVATrainingClass {
   vector<string> spectatorVariables_ ;
 
   // TreeName
-  string TreeName_ ;
+//  string TreeName_ ;
+
+  // factory object
+  TMVA::Factory * factory_ ; 
+
+  // output file
+  TFile * outputFile_ ;
 
   // Label
   string Label_ ;
@@ -189,12 +203,6 @@ class TMVATrainingClass {
 
   // Name of the final file xml with the weights
   map<string, string> outputFileWeightName_ ;
-
-  // output file
-  TFile * outputFile_ ;
-
-  // factory object
-  TMVA::Factory * factory_ ; 
 
 } ;
 

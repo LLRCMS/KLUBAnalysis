@@ -31,6 +31,26 @@ https://github.com/govoni/FlatNtStudy/blob/master/test/TMVATrainingSelections.cp
 using namespace std ;
 
 
+TFile * SetOutputFile (
+    string Label,
+    string outputFilePath, 
+    string outputFileName 
+  )
+{
+  string outputFileNameComplete ;
+  if (Label != "") 
+    outputFileNameComplete = outputFilePath+"/"+outputFileName+""+Label+".root" ;
+  else
+    outputFileNameComplete = outputFilePath+"/"+outputFileName+".root" ;
+
+  TFile * outputFile = new TFile (outputFileNameComplete.c_str (), "recreate") ;   
+  outputFile->cd () ;
+  return outputFile ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
 int main (int argc, char** argv)
 {
 
@@ -127,18 +147,33 @@ int main (int argc, char** argv)
   system ( ("mkdir -p " + outputFileDirectory).c_str ()) ;
 
   string outputFileName = gConfigParser->readStringOption ("tmva::outputFileName") ; 
+  TFile * outputFile ;
+  outputFile = SetOutputFile (outputLabel, outputFileDirectory, outputFileName) ;
+
+  TMVA::Factory * factory = new TMVA::Factory (
+      treeName + "_" + outputLabel, 
+      outputFile,
+      Form (
+          "!V:!Silent:%sColor:DrawProgressBar:AnalysisType=Classification%s", 
+          gROOT->IsBatch ()?"!":"", 
+          (":Transformations=" + variableTransformation).c_str ()
+        )
+    ) ;
+
+  TMVATrainingClass * trainer = new TMVATrainingClass
+      (factory, outputFile, outputFileDirectory, sigSamples, bkgSamples, outputLabel) ;
 
   // book the TMVA training class
-  TMVATrainingClass * trainer = new TMVATrainingClass
-    (
-      sigSamples,
-      bkgSamples,
-      treeName, 
-      outputFileDirectory, 
-      outputFileName,
-      outputLabel,
-      ":Transformations=" + variableTransformation
-    ) ;
+//   TMVATrainingClass * trainer = new TMVATrainingClass
+//     (
+//       sigSamples,
+//       bkgSamples,
+//       treeName, 
+//       outputFileDirectory, 
+//       outputFileName,
+//       outputLabel,
+//       ":Transformations=" + variableTransformation
+//     ) ;
 
   trainer->AddTrainingVariables (variablesList, spectatorsList) ;
   trainer->AddPrepareTraining (eventWeight, eventWeight, preselections) ;
