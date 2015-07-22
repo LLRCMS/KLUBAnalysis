@@ -51,7 +51,7 @@ if __name__ == "__main__":
         # check the log file
         for num in jobs :
             # get the log file name
-            filename = opt.input + '/runJob_' + num + '.sh'
+            filename = opt.input + '/skimJob_' + num + '.sh'
 #            print os.path.exists (filename) 
             with open (filename, 'r') as myfile :
                 data = [word for word in myfile.readlines () if 'log' in word]
@@ -73,11 +73,11 @@ if __name__ == "__main__":
         print 'the following jobs did not end successfully:'
         print missing   
         for num in missing :
-            command = '`cat ' + opt.input + '/submit.sh | grep runJob_' + num + '.sh | tr "\'" " "`'
+            command = '`cat ' + opt.input + '/submit.sh | grep skimJob_' + num + '.sh | tr "\'" " "`'
             if opt.verb : print command
         if (opt.resub == 'run') :
             for num in missing :
-                command = '`cat ' + opt.input + '/submit.sh | grep runJob_' + num + '.sh | tr "\'" " "`'
+                command = '`cat ' + opt.input + '/submit.sh | grep skimJob_' + num + '.sh | tr "\'" " "`'
                 time.sleep (int (num) % 5)
                 os.system (command)
         sys.exit (0)
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     commandFile = open (jobsDir + '/submit.sh', 'w')
     for filename in inputfiles : 
         #create a wrapper for standalone cmssw job
-        scriptFile = open ('%s/runJob_%d.sh'% (jobsDir,n), 'w')
+        scriptFile = open ('%s/skimJob_%d.sh'% (jobsDir,n), 'w')
         scriptFile.write ('#!/bin/bash\n')
         scriptFile.write ('export X509_USER_PROXY=~/.t3/proxy.cert\n')
         scriptFile.write ('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
@@ -129,13 +129,13 @@ if __name__ == "__main__":
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
         scriptFile.write ('echo "All done for job %d" \n'%n)
         scriptFile.close ()
-        os.system ('chmod u+rwx %s/runJob_%d.sh'% (jobsDir,n))
+        os.system ('chmod u+rwx %s/skimJob_%d.sh'% (jobsDir,n))
 
         #submit it to the batch or run it locally
         if opt.queue == '' :
-            command = (jobsDir + '/runJob_' + str (n) + '.sh')
+            command = (jobsDir + '/skimJob_' + str (n) + '.sh')
         else:
-            command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' + jobsDir + '/runJob_' + str (n) + '.sh\'')
+            command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' + jobsDir + '/skimJob_' + str (n) + '.sh\'')
         if opt.sleep : time.sleep (0.5 * n % 5)
         os.system (command)
         commandFile.write (command + '\n')
