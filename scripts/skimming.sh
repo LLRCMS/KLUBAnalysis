@@ -13,7 +13,7 @@ python scripts/skimNtuple.py -o /data_CMS/cms/salerno/HH_samples/SKIM_HHLambda1 
 
 # LO inclusive samples, listed in the Htautau twiki page
 
-gpython scripts/skimNtuple.py -o /data_CMS/cms/govoni/test_submit_to_tier3/SKIM_WW_TuneCUETP8M1 -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_WW_TuneCUETP8M1_-1Events_0Skipped_1437569742.59 -x 63.21
+python scripts/skimNtuple.py -o /data_CMS/cms/govoni/test_submit_to_tier3/SKIM_WW_TuneCUETP8M1 -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_WW_TuneCUETP8M1_-1Events_0Skipped_1437569742.59 -x 63.21
 python scripts/skimNtuple.py -o /data_CMS/cms/govoni/test_submit_to_tier3/SKIM_WZ_TuneCUETP8M1 -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_WZ_TuneCUETP8M1_-1Events_0Skipped_1437569799.12 -x 22.82
 python scripts/skimNtuple.py -o /data_CMS/cms/govoni/test_submit_to_tier3/SKIM_ZZ_TuneCUETP8M1 -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_ZZ_TuneCUETP8M1_-1Events_0Skipped_1437569809.43 -x 10.32
 
