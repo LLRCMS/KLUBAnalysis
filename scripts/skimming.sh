@@ -32,6 +32,16 @@ python scripts/skimNtuple.py -d True -o /data_CMS/cms/govoni/test_submit_to_tier
 python scripts/skimNtuple.py -d True -o /data_CMS/cms/govoni/test_submit_to_tier3/SKIM_Data_SinglMu        -i /data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_Data_SinglMu_-1Events_0Skipped_1437412835.38
 
 # skimming inclusively, i.e. without requirements on jets
+
+python scripts/skimNtuple.py -I True -o /data_CMS/cms/govoni/test_submit_to_tier3/InclusiveSkims/SKIM_DY              -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_DY_-1Events_0Skipped_1436202480.82                                         -x 6025.2 
+python scripts/skimNtuple.py -I True -o /data_CMS/cms/govoni/test_submit_to_tier3/InclusiveSkims/SKIM_T-tchannel      -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_T-tchannel_-1Events_0Skipped_1436273546.02                                 -x 70.69  
+python scripts/skimNtuple.py -I True -o /data_CMS/cms/govoni/test_submit_to_tier3/InclusiveSkims/SKIM_TTJets          -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_TTJets_-1Events_0Skipped_1436202407.03                                     -x 831.76 
+python scripts/skimNtuple.py -I True -o /data_CMS/cms/govoni/test_submit_to_tier3/InclusiveSkims/SKIM_TW              -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_TW_-1Events_0Skipped_1436202748.18                                         -x 71.2   
+python scripts/skimNtuple.py -I True -o /data_CMS/cms/govoni/test_submit_to_tier3/InclusiveSkims/SKIM_HHLambda20      -i /data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_HH_Lambda20_NoSvfit_Prod5Lug2015_300000Events_0Skipped_1436090974.69     -x 3.605  
+python scripts/skimNtuple.py -I True -o /data_CMS/cms/govoni/test_submit_to_tier3/InclusiveSkims/SKIM_WW_TuneCUETP8M1 -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_WW_TuneCUETP8M1_-1Events_0Skipped_1437569742.59                            -x 63.21
+python scripts/skimNtuple.py -I True -o /data_CMS/cms/govoni/test_submit_to_tier3/InclusiveSkims/SKIM_WZ_TuneCUETP8M1 -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_WZ_TuneCUETP8M1_-1Events_0Skipped_1437569799.12                            -x 22.82
+python scripts/skimNtuple.py -I True -o /data_CMS/cms/govoni/test_submit_to_tier3/InclusiveSkims/SKIM_ZZ_TuneCUETP8M1 -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_ZZ_TuneCUETP8M1_-1Events_0Skipped_1437569809.43                            -x 10.32
+
 python scripts/skimNtuple.py -d True -I True -o /data_CMS/cms/govoni/test_submit_to_tier3/InclusiveSkims/SKIM_Data_SingleMuon     -i /data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_Data_SingleMuon_-1Events_0Skipped_1437412858.02
 python scripts/skimNtuple.py -d True -I True -o /data_CMS/cms/govoni/test_submit_to_tier3/InclusiveSkims/SKIM_Data_SingleElectron -i /data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_Data_SingleElectron_-1Events_0Skipped_1437412814.56
 
