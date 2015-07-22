@@ -85,14 +85,14 @@ int main (int argc, char** argv)
   float XS = atof (argv[3]) ;
   bool isMC = true;
   if (argc > 4) // one additional par for data
-  {
-    int isDatabuf = atoi (argv[4]);
-    if (isDatabuf == 1)
     {
-      isMC = false; 
-      XS = 1.;
+      int isDatabuf = atoi (argv[4]);
+      if (isDatabuf == 1)
+        {
+          isMC = false; 
+          XS = 1.;
+        }
     }
-  }
 
   OfflineProducerHelper oph ;
 
@@ -120,8 +120,16 @@ int main (int argc, char** argv)
   hypo_mh2.push_back (125) ;
 
   int eventsNumber = theBigTree.fChain->GetEntries () ;
-//  eventsNumber = 100 ; //DEBUG
+
   float totalEvents = 0. ;
+  for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
+    {
+      theBigTree.GetEntry (iEvent) ;
+      totalEvents += theBigTree.MC_weight ;
+    }
+  XS /= totalEvents ;
+
+  totalEvents = 0. ;
   float selectedEvents = 0. ;
 
   int totalMCEventsNum = 0 ;
