@@ -89,6 +89,7 @@ int main (int argc, char** argv)
     int isDatabuf = atoi (argv[4]);
     if (isDatabuf == 1)
     {
+      cout << "RUNNING ON DATA\n" ;
       isMC = false; 
       XS = 1.;
     }
@@ -164,7 +165,6 @@ int main (int argc, char** argv)
               chosenTauPair = iPair ;
               break ; 
             }
-          
         }  
       if (chosenTauPair < 0) continue ;
       if (isMC) counter.at (2) += theBigTree.MC_weight * XS ;
@@ -443,14 +443,22 @@ int main (int argc, char** argv)
       theSmallTree.Fill () ;
     } // loop over events
 
-  cout << "efficiency = " << selectedEvents / totalEvents << endl ;
-  TH1F h_eff ("h_eff", "h_eff", 4 + counter.size (), 0, 4 + counter.size ()) ;
-  h_eff.Fill (0.5, totalEvents) ;
-  h_eff.Fill (1.5, selectedEvents) ;
-  h_eff.Fill (2.5, totalMCEventsNum) ;
-  h_eff.Fill (3.5, selectedMCEventsNum) ;
+  cout << "1: " << totalEvents << endl ;
+  cout << "2: " << selectedEvents << endl ;
+  cout << "3: " << totalMCEventsNum << endl ;
+  cout << "4: " << selectedMCEventsNum << endl ;
   for (int i = 0 ; i < counter.size () ; ++i)
-    h_eff.Fill (4.5 + i, counter.at (i)) ;
+    cout << "5 + i: " << counter.at (i) << endl ;
+
+  if (totalEvents != 0) cout << "efficiency = " << selectedEvents / totalEvents << endl ;
+  else                  cout << "NO events found\n" ;
+  TH1F h_eff ("h_eff", "h_eff", 4 + counter.size (), 0., float (4 + counter.size ())) ;
+  h_eff.SetBinContent (1, totalEvents) ;
+  h_eff.SetBinContent (2, selectedEvents) ;
+  h_eff.SetBinContent (3, totalMCEventsNum) ;
+  h_eff.SetBinContent (4, selectedMCEventsNum) ;
+  for (int i = 0 ; i < counter.size () ; ++i)
+    h_eff.SetBinContent (5 + i, counter.at (i)) ;
 
   h_eff.Write () ;
   smallFile->Write () ;

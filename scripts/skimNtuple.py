@@ -127,7 +127,7 @@ if __name__ == "__main__":
         scriptFile.write ('source scripts/setup.sh\n')
         command = skimmer + ' ' + filename + ' ' + opt.output + '/' + basename (filename) + ' ' + opt.xs 
         if opt.isdata : 
-            command += ' data '
+            command += ' 1 '
         command += ' >& ' + opt.output + '/' + basename (filename) + '.log\n'
         scriptFile.write (command)
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
