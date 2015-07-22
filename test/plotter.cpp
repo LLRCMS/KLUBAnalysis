@@ -231,11 +231,11 @@ int main (int argc, char** argv)
       for (int iEvent = 0 ; iEvent < tree->GetEntries () ; ++iEvent)
         {
           tree->GetEntry (iEvent) ;
-          counters.at (iSample).at (0) += weight * eff * lumi ;
+          counters.at (iSample).at (0) += weight * lumi ;
           for (int isel = 0 ; isel < nSel ; ++isel)
             {
               if (! TTF[isel]->EvalInstance ()) continue ;
-              counters.at (iSample).at (isel + 1) += weight * eff * lumi ;
+              counters.at (iSample).at (isel + 1) += weight * lumi ;
               for (int iv = 0 ; iv < nVars ; ++iv)
                 {
                   histoName.Form ("%s_%s_%s",
@@ -243,7 +243,7 @@ int main (int argc, char** argv)
                       allSamples.at (iSample).sampleName.Data (),
                       selections.at (isel).first.Data ()
                     ) ;
-                  manager->GetHisto (histoName.Data ())->Fill (address[iv], weight * eff * lumi * scaling) ;
+                  manager->GetHisto (histoName.Data ())->Fill (address[iv], weight * lumi * scaling) ;
                 } //loop on variables
             } //loop on selections
         } //loop on tree entries

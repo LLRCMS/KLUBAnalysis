@@ -1,2 +1,3 @@
-all       = pairType == 0
+all       = 1==1
+muTau     = pairType == 0
 baseline  = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0

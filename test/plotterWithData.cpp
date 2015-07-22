@@ -19,25 +19,8 @@
 using namespace std ;
 
 /* TODO list
-
-- add shape plots of each bkg and signal
 - add the legenda, axis titles from cfg
-- get the output folder from the command line
 */
-
-
-//Replace histomanager with something that goes by index instead og looking for strings
-
-//void FillHistos (int) ;
-//TString Selection (int) ;
-
-//TString Selection (int selection=0){
-//  if (selection==0) return "HH_pt>0" ;
-//  else if (selection==1)return "HH_pt>400" ;
-//  return "" ;
-//}
-
-
 
 
 /* how much space to leave for the legenda:
@@ -193,7 +176,7 @@ int main (int argc, char** argv)
                   gConfigParser->readIntOption (TString ("colors::") 
                       + allSamples.at (j).sampleName.Data ()), 
                   (j >= nB),
-                  variablesList.at (i).c_str (), "a.u"
+                  variablesList.at (i).c_str (), "events"
                 ) ;
             }  
         }
@@ -219,7 +202,7 @@ int main (int argc, char** argv)
               int (limits.at (0)), limits.at (1), limits.at (2),
               gConfigParser->readIntOption ("colors::data"), 
               2,
-              variablesList.at (i).c_str (), "a.u"
+              variablesList.at (i).c_str (), "events"
             ) ;
         }  
     } // data
@@ -262,11 +245,11 @@ int main (int argc, char** argv)
       for (int iEvent = 0 ; iEvent < tree->GetEntries () ; ++iEvent)
         {
           tree->GetEntry (iEvent) ;
-          counters.at (iSample).at (0) += weight * eff * lumi ;
+          counters.at (iSample).at (0) += weight * lumi ;
           for (int isel = 0 ; isel < nSel ; ++isel)
             {
               if (! TTF[isel]->EvalInstance ()) continue ;
-              counters.at (iSample).at (isel + 1) += weight * eff * lumi ;
+              counters.at (iSample).at (isel + 1) += weight * lumi ;
               for (int iv = 0 ; iv < nVars ; ++iv)
                 {
                   histoName.Form ("%s_%s_%s",
@@ -274,7 +257,7 @@ int main (int argc, char** argv)
                       allSamples.at (iSample).sampleName.Data (),
                       selections.at (isel).first.Data ()
                     ) ;
-                  manager->GetHisto (histoName.Data ())->Fill (address[iv], weight * eff * lumi * scaling) ;
+                  manager->GetHisto (histoName.Data ())->Fill (address[iv], weight * lumi * scaling) ;
                 } //loop on variables
             } //loop on selections
         } //loop on tree entries
@@ -317,18 +300,18 @@ int main (int argc, char** argv)
       for (int iEvent = 0 ; iEvent < tree->GetEntries () ; ++iEvent)
         {
           tree->GetEntry (iEvent) ;
-          data_counters.at (iData).at (0) += weight * eff * lumi ;
+          data_counters.at (iData).at (0) += 1. ;
           for (int isel = 0 ; isel < nSel ; ++isel)
             {
               if (! TTF[isel]->EvalInstance ()) continue ;
-              data_counters.at (iData).at (isel + 1) += weight * eff * lumi ;
+              data_counters.at (iData).at (isel + 1) += 1. ;
               for (int iv = 0 ; iv < nVars ; ++iv)
                 {
                   histoName.Form ("data_%s_%s",
                       variablesList.at (iv).c_str (),
                       selections.at (isel).first.Data ()
                     ) ;
-                  manager->GetHisto (histoName.Data ())->Fill (address[iv], eff) ;
+                  manager->GetHisto (histoName.Data ())->Fill (address[iv]) ;
                 } //loop on variables
             } //loop on selections
         } //loop on tree entries
@@ -504,15 +487,6 @@ int main (int argc, char** argv)
     }
   cout << "\n" ; 
 
-  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << "-" ;
-  cout << "+-" ;
-  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
-    {
-      for (unsigned int i = 0 ; i < NSpacesColumns ; ++i) cout << "-" ;
-      cout << "-+-" ;
-    }
-  cout << "\n" ; 
-
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
       cout << selections.at (iSel).first ;
@@ -543,15 +517,6 @@ int main (int argc, char** argv)
     }
   cout << "\n" ; 
 
-  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << "-" ;
-  cout << "+-" ;
-  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
-    {
-      for (unsigned int i = 0 ; i < NSpacesColumns ; ++i) cout << "-" ;
-      cout << "-+-" ;
-    }
-  cout << "\n" ; 
-
   string name = "skim" ;
   cout << name ;
   for (unsigned int i = 0 ; i < NSpacesColZero - name.size () ; ++i) cout << " " ;
@@ -564,15 +529,6 @@ int main (int argc, char** argv)
       if (efficiency < 10) cout << " " ;
       cout << setprecision (precision) << fixed << efficiency
            << " |" ;
-    }
-  cout << "\n" ; 
-
-  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << "-" ;
-  cout << "+-" ;
-  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
-    {
-      for (unsigned int i = 0 ; i < NSpacesColumns ; ++i) cout << "-" ;
-      cout << "-+-" ;
     }
   cout << "\n" ; 
 
@@ -607,15 +563,6 @@ int main (int argc, char** argv)
     }
   cout << "\n" ; 
 
-  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << "-" ;
-  cout << "+-" ;
-  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
-    {
-      for (unsigned int i = 0 ; i < NSpacesColumns ; ++i) cout << "-" ;
-      cout << "-+-" ;
-    }
-  cout << "\n" ; 
-
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
       cout << selections.at (iSel).first ;
@@ -646,15 +593,6 @@ int main (int argc, char** argv)
       cout << word ;
       for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
       cout << " | " ;
-    }
-  cout << "\n" ; 
-
-  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << "-" ;
-  cout << "+-" ;
-  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
-    {
-      for (unsigned int i = 0 ; i < NSpacesColumns ; ++i) cout << "-" ;
-      cout << "-+-" ;
     }
   cout << "\n" ; 
 
@@ -695,6 +633,50 @@ int main (int argc, char** argv)
   cout << "\n" ; 
 
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " EXPECTED NUMBER OF EVENTS\n\n" ;
+
+  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
+  cout << "| " ;
+  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+    {
+      string word = string (allSamples.at (iSample).sampleName.Data ()).substr (0, NSpacesColumns) ;
+      cout << word ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
+      cout << " | " ;
+    }
+  cout << "\n" ; 
+
+  for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
+    {
+      cout << selections.at (iSel).first ;
+      for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) cout << " " ;
+      cout << "|" ;
+      for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+        {
+          int subtractspace = 0 ;
+          if (counters.at (iSample).at (iSel+1) > 0) 
+              subtractspace = int (log10 (counters.at (iSample).at (iSel+1))) + 3 ;
+          for (int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+
+          cout << setprecision (2) << fixed << counters.at (iSample).at (iSel+1)
+               << " |" ;
+        }
+      cout << "\n" ;
+    }
+  
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " OBSERVED NUMBER OF EVENTS\n\n" ;
+
+  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
+  cout << "| " ;
+  for (unsigned int iSample = 0 ; iSample < DATASamples.size () ; ++iSample)
+    {
+      string word = string (DATASamples.at (iSample).sampleName.Data ()).substr (0, NSpacesColumns) ;
+      cout << word ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
+      cout << " | " ;
+    }
+  cout << "\n" ; 
 
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
@@ -704,9 +686,9 @@ int main (int argc, char** argv)
       for (unsigned int iSample = 0 ; iSample < DATASamples.size () ; ++iSample)
         {
           float evtnum = data_counters.at (iSample).at (iSel+1) ;
-          cout << " " ;
-          if (evtnum < 100) cout << " " ;
-          if (evtnum < 10) cout << " " ;
+          int subtractspace = 0 ;
+          if (evtnum > 0) subtractspace = int (log10 (evtnum)) ;
+          for (int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
           cout << setprecision (0) << fixed << evtnum
                << " |" ;
         }
