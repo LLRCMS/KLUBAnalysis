@@ -30,3 +30,11 @@ python scripts/skimNtuple.py -d True -o /data_CMS/cms/govoni/test_submit_to_tier
 python scripts/skimNtuple.py -d True -o /data_CMS/cms/govoni/test_submit_to_tier3/SKIM_Data_DoubleEG       -i /data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_Data_DoubleEG_-1Events_0Skipped_1437412767.91
 python scripts/skimNtuple.py -d True -o /data_CMS/cms/govoni/test_submit_to_tier3/SKIM_Data_DoubleMuon     -i /data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_Data_DoubleMuon_-1Events_0Skipped_1437412741.24
 python scripts/skimNtuple.py -d True -o /data_CMS/cms/govoni/test_submit_to_tier3/SKIM_Data_SinglMu        -i /data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_Data_SinglMu_-1Events_0Skipped_1437412835.38
+
+# skimming inclusively, i.e. without requirements on jets
+python scripts/skimNtuple.py -d True -I True -o /data_CMS/cms/govoni/test_submit_to_tier3/InclusiveSkims/SKIM_Data_SingleMuon -i /data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_Data_SingleMuon_-1Events_0Skipped_1437412858.02
+
+
+
+
+

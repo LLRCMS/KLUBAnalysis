@@ -110,6 +110,7 @@ int main (int argc, char** argv)
     }
 
   float lumi = gConfigParser->readFloatOption ("general::lumi") ;
+  cout << "READING lumi " << lumi << endl ;
   
   // get the samples to be analised
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -327,7 +328,7 @@ int main (int argc, char** argv)
                       variablesList.at (iv).c_str (),
                       selections.at (isel).first.Data ()
                     ) ;
-                  manager->GetHisto (histoName.Data ())->Fill (address[iv], weight * eff) ;
+                  manager->GetHisto (histoName.Data ())->Fill (address[iv], eff) ;
                 } //loop on variables
             } //loop on selections
         } //loop on tree entries
@@ -338,18 +339,16 @@ int main (int argc, char** argv)
   // Plot the histograms
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  TString outFolderName = gConfigParser->readStringOption ("general::outputFolderName") ;
+  TString outFolderNameBase = gConfigParser->readStringOption ("general::outputFolderName") ;
   
-  system (TString ("mkdir -p ") + outFolderName) ;
+  system (TString ("mkdir -p ") + outFolderNameBase) ;
   TString outString ;
-  outString.Form (outFolderName + "outPlotter.root") ;
+  outString.Form (outFolderNameBase + "outPlotter.root") ;
   TFile * fOut = new TFile (outString.Data (), "RECREATE") ;
   manager->SaveAllToFile (fOut) ;
 
-  outFolderName = "./plotter/events/";
-  system (TString ("mkdir -p ") + outFolderName) ;
-  outFolderName = "./plotter/shapes/";
-  system (TString ("mkdir -p ") + outFolderName) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events/")) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/shapes/")) ;
 
   //make Stack plots
   vector <THStack *> hstack_bkg (nVars*nSel) ; //one stack for variable
@@ -404,7 +403,7 @@ int main (int argc, char** argv)
           // plotting with normalisation
           // ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-          outFolderName = "./plotter/events/";
+          TString outFolderName = outFolderNameBase + TString ("/events/") ;
           c->cd () ;
 
           vector<float> extremes_bkg = getExtremes (hstack_bkg.at (iv+nVars*isel)) ;
@@ -445,7 +444,7 @@ int main (int argc, char** argv)
           // plotting shapes
           // ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-          outFolderName = "./plotter/shapes/";
+          outFolderName = outFolderNameBase + TString ("/shapes/") ;
           TString basename ;
           basename.Form ("shape_%s_%s",
                   variablesList.at (iv).c_str (),
@@ -694,6 +693,27 @@ int main (int argc, char** argv)
       cout << setprecision (2) << fixed << value << " |" ;
     }
   cout << "\n" ; 
+
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+
+  for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
+    {
+      cout << selections.at (iSel).first ;
+      for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) cout << " " ;
+      cout << "|" ;
+      for (unsigned int iSample = 0 ; iSample < DATASamples.size () ; ++iSample)
+        {
+          float evtnum = data_counters.at (iSample).at (iSel+1) ;
+          cout << " " ;
+          if (evtnum < 100) cout << " " ;
+          if (evtnum < 10) cout << " " ;
+          cout << setprecision (0) << fixed << evtnum
+               << " |" ;
+        }
+      cout << "\n" ;
+    }
+  
+
 
 // std::cout << std::setprecision(5) << f << '\n';
 }

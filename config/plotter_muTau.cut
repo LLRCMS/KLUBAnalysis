@@ -1,6 +1,2 @@
-# leptons order in pairs: e < mu < tau
-# and then sorted in descending pT
 all       = pairType == 0
 baseline  = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0
-oneBtag   = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && (bjet1_bID > 0.5 || bjet2_bID > 0.5)
-twoBtag   = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && (bjet1_bID > 0.5 && bjet2_bID > 0.5)

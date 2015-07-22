@@ -26,6 +26,7 @@ if __name__ == "__main__":
     parser.add_option('-v', '--verb'   , dest='verb'   , help='verbose'                          , default=False)
     parser.add_option('-s', '--sleep'  , dest='sleep'  , help='sleep in submission'              , default=False)
     parser.add_option('-d', '--isdata' , dest='isdata' , help='data flag'                        , default=False)
+    parser.add_option('-I', '--incl'   , dest='incl'   , help='use the inclusive skimmer'        , default=False)
     (opt, args) = parser.parse_args()
 
     # verify the result of the process
@@ -85,6 +86,9 @@ if __name__ == "__main__":
     # submit the jobs
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
+    skimmer = './bin/skimNtuple.exe'
+    if opt.incl : skimmer = 'skimNtupleInclusive.exe'
+
     if opt.input[-1] == '/' : opt.input = opt.input[:-1]
     if opt.output == 'none' : opt.output = opt.input + '_SKIM'
    
@@ -121,7 +125,7 @@ if __name__ == "__main__":
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('cd %s\n'%currFolder)
         scriptFile.write ('source scripts/setup.sh\n')
-        command = './bin/skimNtuple.exe ' + filename + ' ' + opt.output + '/' + basename (filename) + ' ' + opt.xs 
+        command = skimmer + ' ' + filename + ' ' + opt.output + '/' + basename (filename) + ' ' + opt.xs 
         if opt.isdata : 
             command += ' data '
         command += ' >& ' + opt.output + '/' + basename (filename) + '.log\n'

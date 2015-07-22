@@ -120,12 +120,14 @@ int main (int argc, char** argv)
   hypo_mh2.push_back (125) ;
 
   int eventsNumber = theBigTree.fChain->GetEntries () ;
-//  eventsNumber = 100 ; //DEBUG
   float totalEvents = 0. ;
   float selectedEvents = 0. ;
 
   int totalMCEventsNum = 0 ;
   int selectedMCEventsNum = 0 ;
+ 
+  int selectionsNumber = 3 ;
+  vector<float> counter (selectionsNumber + 1, 0.) ;
 
   // loop over events
   for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
@@ -135,16 +137,22 @@ int main (int argc, char** argv)
       theSmallTree.clearVars () ;
       theBigTree.GetEntry (iEvent) ;
       
-      if (isMC) totalEvents += theBigTree.MC_weight * XS ;
-      else totalEvents += 1;
+      if (isMC)
+        {
+          totalEvents += theBigTree.MC_weight * XS ;
+          counter.at (0) += theBigTree.MC_weight * XS ;
+        }
+      else 
+        {
+          totalEvents += 1 ;
+          counter.at (0) += 1 ;
+        }
       ++totalMCEventsNum ;
       
       if (theBigTree.indexDau1->size () == 0) continue ;
-      if (theBigTree.jets_px->size () < 2)    continue ;
- 
-      // the H > tautau candidate
-      // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-      
+      if (isMC) counter.at (1) += theBigTree.MC_weight * XS ;
+      else      counter.at (1) += 1 ;
+
       // by now take the OS pair with largest pT
       int chosenTauPair = -1 ;
       
@@ -159,6 +167,8 @@ int main (int argc, char** argv)
           
         }  
       if (chosenTauPair < 0) continue ;
+      if (isMC) counter.at (2) += theBigTree.MC_weight * XS ;
+      else      counter.at (2) += 1 ;
 
       int firstDaughterIndex = theBigTree.indexDau1->at (chosenTauPair) ;  
       TLorentzVector tlv_firstLepton
@@ -178,9 +188,26 @@ int main (int argc, char** argv)
         ) ;
 
       TLorentzVector tlv_tauH = tlv_firstLepton + tlv_secondLepton ;
+      TLorentzVector tlv_tauH_SVFIT ;
 
-      // the H > bb candidate
-      // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+      // in case the SVFIT mass is calculated
+      if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
+        {
+          theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
+
+          theSmallTree.m_tauH_SVFIT_pt = theBigTree.SVfit_pt->at (chosenTauPair) ;
+          theSmallTree.m_tauH_SVFIT_eta = theBigTree.SVfit_eta->at (chosenTauPair) ;
+          theSmallTree.m_tauH_SVFIT_phi = theBigTree.SVfit_phi->at (chosenTauPair) ;
+          theSmallTree.m_tauH_SVFIT_METphi = theBigTree.SVfit_fitMETPhi->at (chosenTauPair) ;
+          theSmallTree.m_tauH_SVFIT_METrho = theBigTree.SVfit_fitMETRho->at (chosenTauPair) ;
+
+          tlv_tauH_SVFIT.SetPtEtaPhiM (
+              theBigTree.SVfit_pt->at (chosenTauPair),
+              theBigTree.SVfit_eta->at (chosenTauPair),
+              theBigTree.SVfit_phi->at (chosenTauPair),
+              theBigTree.SVfitMass->at (chosenTauPair)
+            ) ;
+        }
 
       vector <pair <int, float> > jets_and_btag ;
       vector <pair <pair <int, int>, float> > pairs_and_btag ;      
@@ -189,17 +216,11 @@ int main (int argc, char** argv)
         {
           // PG filter jets at will
           if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
-          
+      
           jets_and_btag.push_back (std::pair <int, float> (
               iJet, theBigTree.bCSVscore->at (iJet)
             )) ;          
         } // loop over jets
-
-      if (jets_and_btag.size () < 2) continue ;
-      sort (jets_and_btag.rbegin (), jets_and_btag.rend (), scoreSortSingle<int> ()) ;
-      
-      int firstBjetIndex = jets_and_btag.at (0).first ;
-      int secondBjetIndex = jets_and_btag.at (1).first ;
 
       // apply some selections here
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -248,102 +269,6 @@ int main (int argc, char** argv)
       theSmallTree.m_dau2_e = theBigTree.daughters_e->at (secondDaughterIndex) ;
       theSmallTree.m_dau2_flav = theBigTree.daughters_charge->at (secondDaughterIndex) * 
                                  (theBigTree.particleType->at (secondDaughterIndex) + 1) ;
-
-      TLorentzVector tlv_firstBjet 
-        (
-          theBigTree.jets_px->at (firstBjetIndex),
-          theBigTree.jets_py->at (firstBjetIndex),
-          theBigTree.jets_pz->at (firstBjetIndex),
-          theBigTree.jets_e->at (firstBjetIndex)
-        ) ;
-      TLorentzVector tlv_secondBjet 
-        (
-          theBigTree.jets_px->at (secondBjetIndex),
-          theBigTree.jets_py->at (secondBjetIndex),
-          theBigTree.jets_pz->at (secondBjetIndex),
-          theBigTree.jets_e->at (secondBjetIndex)
-        ) ;
-
-      theSmallTree.m_bjet1_pt  = tlv_firstBjet.Pt () ;
-      theSmallTree.m_bjet1_eta = tlv_firstBjet.Eta () ;
-      theSmallTree.m_bjet1_phi = tlv_firstBjet.Phi () ;
-      theSmallTree.m_bjet1_e = theBigTree.jets_e->at (firstBjetIndex) ;
-      theSmallTree.m_bjet1_bID = theBigTree.bCSVscore->at (firstBjetIndex) ;
-
-      theSmallTree.m_bjet2_pt  = tlv_secondBjet.Pt () ;
-      theSmallTree.m_bjet2_eta = tlv_secondBjet.Eta () ;
-      theSmallTree.m_bjet2_phi = tlv_secondBjet.Phi () ;
-      theSmallTree.m_bjet2_e = theBigTree.jets_e->at (secondBjetIndex) ;
-      theSmallTree.m_bjet2_bID = theBigTree.bCSVscore->at (secondBjetIndex) ;
-
-      float METx = theBigTree.METx->at (chosenTauPair) ;
-      float METy = theBigTree.METy->at (chosenTauPair) ;
-      float METpt = TMath::Sqrt (METx*METx + METy*METy) ;
-    
-      TLorentzVector ptmiss = TLorentzVector (METx, METy, 0., METpt) ;
-      TMatrixD metcov (2, 2) ;
-      metcov (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
-      metcov (1,0) = theBigTree.MET_cov10->at (chosenTauPair) ;
-      metcov (0,1) = theBigTree.MET_cov01->at (chosenTauPair) ;    
-      metcov (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
-    
-      TLorentzVector tlv_bH = tlv_firstBjet + tlv_secondBjet ;
-      theSmallTree.m_bH_pt = tlv_bH.Pt () ;
-      theSmallTree.m_bH_eta = tlv_bH.Eta () ;
-      theSmallTree.m_bH_phi = tlv_bH.Phi () ;
-      theSmallTree.m_bH_e = tlv_bH.E () ;
-
-      TLorentzVector tlv_HH = tlv_bH + tlv_tauH ;
-      theSmallTree.m_HH_pt = tlv_HH.Pt () ;
-      theSmallTree.m_HH_eta = tlv_HH.Eta () ;
-      theSmallTree.m_HH_phi = tlv_HH.Phi () ;
-      theSmallTree.m_HH_e = tlv_HH.E () ;
-
-      // in case the SVFIT mass is calculated
-      if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
-        {
-          theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
-
-          theSmallTree.m_tauH_SVFIT_pt = theBigTree.SVfit_pt->at (chosenTauPair) ;
-          theSmallTree.m_tauH_SVFIT_eta = theBigTree.SVfit_eta->at (chosenTauPair) ;
-          theSmallTree.m_tauH_SVFIT_phi = theBigTree.SVfit_phi->at (chosenTauPair) ;
-          theSmallTree.m_tauH_SVFIT_METphi = theBigTree.SVfit_fitMETPhi->at (chosenTauPair) ;
-          theSmallTree.m_tauH_SVFIT_METrho = theBigTree.SVfit_fitMETRho->at (chosenTauPair) ;
-
-          TLorentzVector tlv_tauH_SVFIT ;
-          tlv_tauH_SVFIT.SetPtEtaPhiM (
-              theBigTree.SVfit_pt->at (chosenTauPair),
-              theBigTree.SVfit_eta->at (chosenTauPair),
-              theBigTree.SVfit_phi->at (chosenTauPair),
-              theBigTree.SVfitMass->at (chosenTauPair)
-            ) ;
-
-          TLorentzVector tlv_HHsvfit = tlv_bH + tlv_tauH_SVFIT ;
-          theSmallTree.m_HHsvfit_pt = tlv_HHsvfit.Pt () ;
-          theSmallTree.m_HHsvfit_eta = tlv_HHsvfit.Eta () ;
-          theSmallTree.m_HHsvfit_phi = tlv_HHsvfit.Phi () ;
-          theSmallTree.m_HHsvfit_e = tlv_HHsvfit.E () ;
-        } // in case the SVFIT mass is calculated
-        
-      //intance of fitter master class
-      HHKinFitMaster kinFits = HHKinFitMaster (&tlv_firstBjet, &tlv_secondBjet, 
-                                               &tlv_firstLepton, &tlv_secondLepton) ;
-      kinFits.setAdvancedBalance (&ptmiss, metcov) ;
-      //kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
-
-      kinFits.addMh1Hypothesis (hypo_mh1) ;
-      kinFits.addMh2Hypothesis (hypo_mh2) ;
-      kinFits.doFullFit () ;
-
-      theSmallTree.m_HHKin_mass = kinFits.getBestMHFullFit () ;
-      theSmallTree.m_HHKin_chi2 = kinFits.getBestChi2FullFit () ;
-
-      theSmallTree.m_HH_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
-      theSmallTree.m_tauHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_tauH.Phi ()) ;
-      theSmallTree.m_bHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_bH.Phi ()) ;
-
-      theSmallTree.m_ditau_deltaPhi = deltaPhi (tlv_firstLepton.Phi (), tlv_secondLepton.Phi ()) ;
-      theSmallTree.m_dib_deltaPhi = deltaPhi (tlv_firstBjet.Phi (), tlv_secondBjet.Phi ()) ;
 
       // loop over leptons
       vector<pair<TLorentzVector, float> > dummyLeptCollection ;
@@ -395,44 +320,138 @@ int main (int argc, char** argv)
           ++theSmallTree.m_nleps ;
         } 
 
-      // loop over jets
-      for (int iJet = 0 ; 
-           (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < 3) ;
-           ++iJet)
-        {
-          // PG filter jets at will
-          if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
-          
-          // skip the H decay candiates
-          if (iJet == firstBjetIndex || iJet == secondBjetIndex) continue ;
+      if (jets_and_btag.size () >= 2) 
+        { 
+          if (isMC) counter.at (3) += theBigTree.MC_weight * XS ;
+          else      counter.at (3) += 1 ;
 
-          TLorentzVector tlv_dummyJet (
-              theBigTree.jets_px->at (iJet),
-              theBigTree.jets_py->at (iJet),
-              theBigTree.jets_pz->at (iJet),
-              theBigTree.jets_e->at (iJet)
-            ) ;
+          sort (jets_and_btag.rbegin (), jets_and_btag.rend (), scoreSortSingle<int> ()) ;
       
-          theSmallTree.m_jets_pt.push_back (tlv_dummyJet.Pt ()) ;
-          theSmallTree.m_jets_eta.push_back (tlv_dummyJet.Eta ()) ;
-          theSmallTree.m_jets_phi.push_back (tlv_dummyJet.Phi ()) ;
-          theSmallTree.m_jets_e.push_back (theBigTree.jets_e->at (iJet)) ;
-          theSmallTree.m_jets_btag.push_back (theBigTree.bCSVscore->at (iJet)) ;
-          ++theSmallTree.m_njets ;
-        } // loop over jets
+          int firstBjetIndex = jets_and_btag.at (0).first ;
+          int secondBjetIndex = jets_and_btag.at (1).first ;
+          TLorentzVector tlv_firstBjet 
+            (
+              theBigTree.jets_px->at (firstBjetIndex),
+              theBigTree.jets_py->at (firstBjetIndex),
+              theBigTree.jets_pz->at (firstBjetIndex),
+              theBigTree.jets_e->at (firstBjetIndex)
+            ) ;
+          TLorentzVector tlv_secondBjet 
+            (
+              theBigTree.jets_px->at (secondBjetIndex),
+              theBigTree.jets_py->at (secondBjetIndex),
+              theBigTree.jets_pz->at (secondBjetIndex),
+              theBigTree.jets_e->at (secondBjetIndex)
+            ) ;
 
+          theSmallTree.m_bjet1_pt  = tlv_firstBjet.Pt () ;
+          theSmallTree.m_bjet1_eta = tlv_firstBjet.Eta () ;
+          theSmallTree.m_bjet1_phi = tlv_firstBjet.Phi () ;
+          theSmallTree.m_bjet1_e = theBigTree.jets_e->at (firstBjetIndex) ;
+          theSmallTree.m_bjet1_bID = theBigTree.bCSVscore->at (firstBjetIndex) ;
+
+          theSmallTree.m_bjet2_pt  = tlv_secondBjet.Pt () ;
+          theSmallTree.m_bjet2_eta = tlv_secondBjet.Eta () ;
+          theSmallTree.m_bjet2_phi = tlv_secondBjet.Phi () ;
+          theSmallTree.m_bjet2_e = theBigTree.jets_e->at (secondBjetIndex) ;
+          theSmallTree.m_bjet2_bID = theBigTree.bCSVscore->at (secondBjetIndex) ;
+
+          float METx = theBigTree.METx->at (chosenTauPair) ;
+          float METy = theBigTree.METy->at (chosenTauPair) ;
+          float METpt = TMath::Sqrt (METx*METx + METy*METy) ;
+    
+          TLorentzVector ptmiss = TLorentzVector (METx, METy, 0., METpt) ;
+          TMatrixD metcov (2, 2) ;
+          metcov (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
+          metcov (1,0) = theBigTree.MET_cov10->at (chosenTauPair) ;
+          metcov (0,1) = theBigTree.MET_cov01->at (chosenTauPair) ;    
+          metcov (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
+    
+          TLorentzVector tlv_bH = tlv_firstBjet + tlv_secondBjet ;
+          theSmallTree.m_bH_pt = tlv_bH.Pt () ;
+          theSmallTree.m_bH_eta = tlv_bH.Eta () ;
+          theSmallTree.m_bH_phi = tlv_bH.Phi () ;
+          theSmallTree.m_bH_e = tlv_bH.E () ;
+
+          TLorentzVector tlv_HH = tlv_bH + tlv_tauH ;
+          theSmallTree.m_HH_pt = tlv_HH.Pt () ;
+          theSmallTree.m_HH_eta = tlv_HH.Eta () ;
+          theSmallTree.m_HH_phi = tlv_HH.Phi () ;
+          theSmallTree.m_HH_e = tlv_HH.E () ;
+
+          // in case the SVFIT mass is calculated
+          if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
+            {
+              TLorentzVector tlv_HHsvfit = tlv_bH + tlv_tauH_SVFIT ;
+              theSmallTree.m_HHsvfit_pt = tlv_HHsvfit.Pt () ;
+              theSmallTree.m_HHsvfit_eta = tlv_HHsvfit.Eta () ;
+              theSmallTree.m_HHsvfit_phi = tlv_HHsvfit.Phi () ;
+              theSmallTree.m_HHsvfit_e = tlv_HHsvfit.E () ;
+            } // in case the SVFIT mass is calculated
+        
+          //intance of fitter master class
+          HHKinFitMaster kinFits = HHKinFitMaster (&tlv_firstBjet, &tlv_secondBjet, 
+                                                   &tlv_firstLepton, &tlv_secondLepton) ;
+          kinFits.setAdvancedBalance (&ptmiss, metcov) ;
+          //kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
+
+          kinFits.addMh1Hypothesis (hypo_mh1) ;
+          kinFits.addMh2Hypothesis (hypo_mh2) ;
+          kinFits.doFullFit () ;
+
+          theSmallTree.m_HHKin_mass = kinFits.getBestMHFullFit () ;
+          theSmallTree.m_HHKin_chi2 = kinFits.getBestChi2FullFit () ;
+
+          theSmallTree.m_HH_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
+          theSmallTree.m_tauHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_tauH.Phi ()) ;
+          theSmallTree.m_bHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_bH.Phi ()) ;
+
+          theSmallTree.m_ditau_deltaPhi = deltaPhi (tlv_firstLepton.Phi (), tlv_secondLepton.Phi ()) ;
+          theSmallTree.m_dib_deltaPhi = deltaPhi (tlv_firstBjet.Phi (), tlv_secondBjet.Phi ()) ;
+
+          // loop over jets
+          for (int iJet = 0 ; 
+               (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < 3) ;
+               ++iJet)
+            {
+              // PG filter jets at will
+              if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
+          
+              // skip the H decay candiates
+              if (iJet == firstBjetIndex || iJet == secondBjetIndex) continue ;
+
+              TLorentzVector tlv_dummyJet (
+                  theBigTree.jets_px->at (iJet),
+                  theBigTree.jets_py->at (iJet),
+                  theBigTree.jets_pz->at (iJet),
+                  theBigTree.jets_e->at (iJet)
+                ) ;
+      
+              theSmallTree.m_jets_pt.push_back (tlv_dummyJet.Pt ()) ;
+              theSmallTree.m_jets_eta.push_back (tlv_dummyJet.Eta ()) ;
+              theSmallTree.m_jets_phi.push_back (tlv_dummyJet.Phi ()) ;
+              theSmallTree.m_jets_e.push_back (theBigTree.jets_e->at (iJet)) ;
+              theSmallTree.m_jets_btag.push_back (theBigTree.bCSVscore->at (iJet)) ;
+              ++theSmallTree.m_njets ;
+            } // loop over jets
+
+        } // if there's two jets in the event, at least
+        
       if (isMC) selectedEvents += theBigTree.MC_weight * XS ; 
-      else selectedEvents += 1;
+      else selectedEvents += 1 ;
       ++selectedMCEventsNum ;
       theSmallTree.Fill () ;
     } // loop over events
 
   cout << "efficiency = " << selectedEvents / totalEvents << endl ;
-  TH1F h_eff ("h_eff", "h_eff", 4, 0, 4) ;
+  TH1F h_eff ("h_eff", "h_eff", 4 + counter.size (), 0, 4 + counter.size ()) ;
   h_eff.Fill (0.5, totalEvents) ;
   h_eff.Fill (1.5, selectedEvents) ;
   h_eff.Fill (2.5, totalMCEventsNum) ;
   h_eff.Fill (3.5, selectedMCEventsNum) ;
+  for (int i = 0 ; i < counter.size () ; ++i)
+    h_eff.Fill (4.5 + i, counter.at (i)) ;
+
   h_eff.Write () ;
   smallFile->Write () ;
   smallFile->Close () ;
