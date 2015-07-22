@@ -40,6 +40,8 @@ if __name__ == "__main__":
 
         if opt.input[-1] == '/' : opt.input = opt.input[:-1]
         opt.input = 'SKIM_' + basename (opt.input)
+        if opt.incl :
+            opt.input = 'SKIM_INCL_' + basename (opt.input)        
         jobs = [word.replace ('_', '.').split ('.')[1] for word in os.listdir (opt.input) if 'run' in word]
         missing = []
         
