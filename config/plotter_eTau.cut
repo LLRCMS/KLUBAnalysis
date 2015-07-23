@@ -1,0 +1,3 @@
+all       = 1==1
+eTau      = pairType == 1
+baseline  = pairType == 1 && dau1_pt > 23 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0
