@@ -49,7 +49,7 @@ vector<float> getExtremes (THStack * hstack, bool islog = false)
         }
     }
 
-  ymin *= 0.9 ;
+//  ymin *= 0.9 ;
 
   vector<float> extremes (4, 0.) ;
   extremes.at (0) = xmin ;
@@ -68,6 +68,42 @@ struct isNOTalnum : std::unary_function<int, int>
 {
     int operator()(int i) const { return !std::isalnum (i) ; }
 };
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+void printTitle (vector<sample> & sample, int NSpacesColZero, int NSpacesColumns) 
+{
+  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
+  cout << "| " ;
+  for (unsigned int iSample = 0 ; iSample < sample.size () ; ++iSample)
+    {
+      string word = string (sample.at (iSample).sampleName.Data ()).substr (0, NSpacesColumns) ;
+      cout << word ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
+      cout << " | " ;
+    }
+  cout << "\n" ; 
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+float min3 (float uno, float due, float tre)
+{
+  return min (min (uno, due), tre) ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+float max3 (float uno, float due, float tre)
+{
+  return max (max (uno, due), tre) ;
+}
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -392,23 +428,29 @@ int main (int argc, char** argv)
           vector<float> extremes_bkg = getExtremes (hstack_bkg.at (iv+nVars*isel)) ;
           vector<float> extremes_sig = getExtremes (hstack_sig.at (iv+nVars*isel)) ;
 
+          histoName.Form ("data_%s_%s",
+              variablesList.at (iv).c_str (),
+              selections.at (isel).first.Data ()
+            ) ;
+          TH1F * h_data = manager->GetHisto (histoName.Data ()) ;
+          addOverAndUnderFlow (h_data) ;
+
           TH1F * bkg = c->DrawFrame (
               extremes_bkg.at (0) ,
-              std::min (extremes_bkg.at (1), extremes_sig.at (1)) ,
+              0.9 * min3 (extremes_bkg.at (1), extremes_sig.at (1), 
+                          findNonNullMinimum (h_data)) ,
+//              std::min (extremes_bkg.at (1), extremes_sig.at (1)) ,
               extremes_bkg.at (2) ,
-              std::max (extremes_bkg.at (3), extremes_sig.at (3))
+//              std::max (extremes_bkg.at (3), extremes_sig.at (3))
+              1.1 * max3 (extremes_bkg.at (3), extremes_sig.at (3), 
+                          h_data->GetMaximum () + sqrt (h_data->GetMaximum ()))
             ) ;  
           copyTitles (bkg, hstack_bkg.at (iv+nVars*isel)) ;
           
           hstack_bkg.at (iv+nVars*isel)->Draw ("hist same") ;
           hstack_sig.at (iv+nVars*isel)->Draw ("nostack hist same") ;
           
-          histoName.Form ("data_%s_%s",
-              variablesList.at (iv).c_str (),
-              selections.at (isel).first.Data ()
-            ) ;
-          addOverAndUnderFlow (manager->GetHisto (histoName.Data ())) ;
-          manager->GetHisto (histoName.Data ())->Draw ("same") ;
+          h_data->Draw ("same") ;
           
           TString coutputName ;
           coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
@@ -434,22 +476,11 @@ int main (int argc, char** argv)
                   selections.at (isel).first.Data ()
                 ) ;
 
-//           TString name = basename + "_bkg_norm" ;
-//           TH1F * dummy = (TH1F *) hstack_bkg.at (iv+nVars*isel)->GetStack ()->Last () ;
-//           TH1F * shape_bkg = (TH1F *) dummy->Clone (name) ;
-//           shape_bkg->Scale (1. / shape_bkg->Integral ()) ;
-//           shape_bkg->SetFillColor (8) ;
-          
           THStack * hstack_bkg_norm = normaliseStack (hstack_bkg.at (iv+nVars*isel)) ;
           TH1F * shape_bkg = (TH1F *) hstack_bkg_norm->GetStack ()->Last () ;
           
           THStack * hstack_sig_norm = normaliseStack (hstack_sig.at (iv+nVars*isel)) ;
           TH1F * shape_sig = (TH1F *) hstack_sig_norm->GetStack ()->Last () ;
-          
-//           name = basename + "_sig_norm" ;
-//           dummy = (TH1F *) hstack_sig.at (iv+nVars*isel)->GetStack ()->Last () ;
-//           TH1F * shape_sig = (TH1F *) dummy->Clone (name) ;
-//           shape_sig->Scale (1. / shape_sig->Integral ()) ;
           
           if (shape_sig->GetMaximum () > shape_bkg->GetMaximum ()) 
             hstack_sig_norm->Draw ("hist") ;
@@ -476,16 +507,8 @@ int main (int argc, char** argv)
   unsigned int NSpacesColZero = 12 ;
   unsigned int NSpacesColumns = 6 ;
   unsigned int precision = 2 ;
-  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
-  cout << "| " ;
-  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
-    {
-      string word = string (allSamples.at (iSample).sampleName.Data ()).substr (0, NSpacesColumns) ;
-      cout << word ;
-      for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
-      cout << " | " ;
-    }
-  cout << "\n" ; 
+
+  printTitle (allSamples, NSpacesColZero, NSpacesColumns) ;
 
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
@@ -506,16 +529,8 @@ int main (int argc, char** argv)
   
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " TOTAL EFFICIENCY WRT THE INITIAL SAMPLE (%)\n\n" ;
-  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
-  cout << "| " ;
-  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
-    {
-      string word = string (allSamples.at (iSample).sampleName.Data ()).substr (0, NSpacesColumns) ;
-      cout << word ;
-      for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
-      cout << " | " ;
-    }
-  cout << "\n" ; 
+
+  printTitle (allSamples, NSpacesColZero, NSpacesColumns) ;
 
   string name = "skim" ;
   cout << name ;
@@ -552,16 +567,8 @@ int main (int argc, char** argv)
   
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " RELATIVE EFFICIENCY WRT THE PREVIOUS STEP (%)\n\n" ;
-  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
-  cout << "| " ;
-  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
-    {
-      string word = string (allSamples.at (iSample).sampleName.Data ()).substr (0, NSpacesColumns) ;
-      cout << word ;
-      for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
-      cout << " | " ;
-    }
-  cout << "\n" ; 
+
+  printTitle (allSamples, NSpacesColZero, NSpacesColumns) ;
 
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
@@ -583,18 +590,8 @@ int main (int argc, char** argv)
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " DETAILS OF THE SKIM OF THE INITIAL SAMPLE (%)\n\n" ;
 
-  NSpacesColumns = 14 ;
-
-  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
-  cout << "| " ;
-  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
-    {
-      string word = string (allSamples.at (iSample).sampleName.Data ()).substr (0, NSpacesColumns) ;
-      cout << word ;
-      for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
-      cout << " | " ;
-    }
-  cout << "\n" ; 
+  NSpacesColumns = 10 ;
+  printTitle (allSamples, NSpacesColZero, NSpacesColumns) ;
 
   name = "total" ;
   cout << name ;
@@ -635,16 +632,7 @@ int main (int argc, char** argv)
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " EXPECTED NUMBER OF EVENTS\n\n" ;
 
-  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
-  cout << "| " ;
-  for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
-    {
-      string word = string (allSamples.at (iSample).sampleName.Data ()).substr (0, NSpacesColumns) ;
-      cout << word ;
-      for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
-      cout << " | " ;
-    }
-  cout << "\n" ; 
+  printTitle (allSamples, NSpacesColZero, NSpacesColumns) ;
 
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
@@ -656,6 +644,7 @@ int main (int argc, char** argv)
           int subtractspace = 0 ;
           if (counters.at (iSample).at (iSel+1) > 0) 
               subtractspace = int (log10 (counters.at (iSample).at (iSel+1))) + 3 ;
+          if (counters.at (iSample).at (iSel+1) < 0.1) ++subtractspace ;
           for (int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
 
           cout << setprecision (2) << fixed << counters.at (iSample).at (iSel+1)
@@ -665,18 +654,31 @@ int main (int argc, char** argv)
     }
   
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " TOTAL EXPECTED NUMBER OF EVENTS\n\n" ;
+
+  for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
+    {
+      cout << selections.at (iSel).first ;
+      for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) cout << " " ;
+      cout << "|" ;
+      float total = 0. ;
+      for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
+        {
+          total += counters.at (iSample).at (iSel+1) ;
+        }
+      int subtractspace = 0 ;
+      if (total > 0) subtractspace = int (log10 (total)) + 3 ;
+      if (total < 0.1) ++subtractspace ;
+      for (int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+
+      cout << setprecision (2) << fixed << total << "\n" ;
+    }
+
+
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " OBSERVED NUMBER OF EVENTS\n\n" ;
 
-  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
-  cout << "| " ;
-  for (unsigned int iSample = 0 ; iSample < DATASamples.size () ; ++iSample)
-    {
-      string word = string (DATASamples.at (iSample).sampleName.Data ()).substr (0, NSpacesColumns) ;
-      cout << word ;
-      for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
-      cout << " | " ;
-    }
-  cout << "\n" ; 
+  printTitle (DATASamples, NSpacesColZero, NSpacesColumns) ;
 
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
