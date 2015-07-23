@@ -70,6 +70,20 @@ struct scoreSortSingle: public std::binary_function<pair <T, float> &, pair <T, 
 } ;
 
 
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+pair<int, int>
+chooseHighestBtagJets (vector <pair <int, float> > & jets_and_btag)
+{
+  sort (jets_and_btag.rbegin (), jets_and_btag.rend (), scoreSortSingle<int> ()) ;
+
+  int firstBjetIndex = jets_and_btag.at (0).first ;
+  int secondBjetIndex = jets_and_btag.at (1).first ;
+  return pair<int, int> (firstBjetIndex, secondBjetIndex) ;     
+}
+
+
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
@@ -85,15 +99,26 @@ int main (int argc, char** argv)
   float XS = atof (argv[3]) ;
   bool isMC = true;
   if (argc > 4) // one additional par for data
-  {
-    int isDatabuf = atoi (argv[4]);
-    if (isDatabuf == 1)
     {
-      cout << "RUNNING ON DATA\n" ;
-      isMC = false; 
-      XS = 1.;
+      int isDatabuf = atoi (argv[4]);
+      if (isDatabuf == 1)
+      {
+        cout << "RUNNING ON DATA\n" ;
+        isMC = false; 
+        XS = 1.;
+      }
     }
-  }
+
+  bool beInclusive = false ;
+  if (argc > 5) // one additional par for select or not di-jet
+    {
+      int isDatabuf = atoi (argv[5]);
+      if (isDatabuf == 1)
+      {
+        cout << "SAVING ALL EVENTS\n" ;
+        beInclusive = true ;
+      }
+    }
 
   OfflineProducerHelper oph ;
 
@@ -132,8 +157,8 @@ int main (int argc, char** argv)
   totalEvents = 0. ;
   float selectedEvents = 0. ;
 
-  int totalMCEventsNum = 0 ;
-  int selectedMCEventsNum = 0 ;
+  int totalNoWeightsEventsNum = 0 ;
+  int selectedNoWeightsEventsNum = 0 ;
  
   int selectionsNumber = 3 ;
   vector<float> counter (selectionsNumber + 1, 0.) ;
@@ -142,6 +167,7 @@ int main (int argc, char** argv)
   for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
     {
       if (iEvent % 10000 == 0)  cout << "reading event " << iEvent << endl ;
+      int selID = 0 ;
 
       theSmallTree.clearVars () ;
       theBigTree.GetEntry (iEvent) ;
@@ -149,18 +175,18 @@ int main (int argc, char** argv)
       if (isMC)
         {
           totalEvents += theBigTree.MC_weight * XS ;
-          counter.at (0) += theBigTree.MC_weight * XS ;
+          counter.at (selID++) += theBigTree.MC_weight * XS ;
         }
       else 
         {
           totalEvents += 1 ;
-          counter.at (0) += 1 ;
+          counter.at (selID++) += 1 ;
         }
-      ++totalMCEventsNum ;
+      ++totalNoWeightsEventsNum ;
       
       if (theBigTree.indexDau1->size () == 0) continue ;
-      if (isMC) counter.at (1) += theBigTree.MC_weight * XS ;
-      else      counter.at (1) += 1 ;
+      if (isMC) counter.at (selID++) += theBigTree.MC_weight * XS ;
+      else      counter.at (selID++) += 1 ;
 
       // by now take the OS pair with largest pT
       int chosenTauPair = -1 ;
@@ -175,8 +201,8 @@ int main (int argc, char** argv)
             }
         }  
       if (chosenTauPair < 0) continue ;
-      if (isMC) counter.at (2) += theBigTree.MC_weight * XS ;
-      else      counter.at (2) += 1 ;
+      if (isMC) counter.at (selID++) += theBigTree.MC_weight * XS ;
+      else      counter.at (selID++) += 1 ;
 
       int firstDaughterIndex = theBigTree.indexDau1->at (chosenTauPair) ;  
       TLorentzVector tlv_firstLepton
@@ -218,24 +244,42 @@ int main (int argc, char** argv)
         }
 
       vector <pair <int, float> > jets_and_btag ;
-      vector <pair <pair <int, int>, float> > pairs_and_btag ;      
       // loop over jets
       for (int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
         {
           // PG filter jets at will
           if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
       
+          TLorentzVector tlv_jet 
+            (
+              theBigTree.jets_px->at (iJet),
+              theBigTree.jets_py->at (iJet),
+              theBigTree.jets_pz->at (iJet),
+              theBigTree.jets_e->at (iJet)
+            ) ;
+          if (tlv_jet.Pt () < 20. /*GeV*/) continue ;  
+
           jets_and_btag.push_back (std::pair <int, float> (
               iJet, theBigTree.bCSVscore->at (iJet)
             )) ;          
+
         } // loop over jets
 
       // apply some selections here
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-      if (false) continue ;
+      // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+      // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+      // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+      
+      if (!beInclusive && jets_and_btag.size () < 2) continue ;
+      if (isMC) counter.at (selID++) += theBigTree.MC_weight * XS ;
+      else      counter.at (selID++) += 1 ;
+      
 
       // fill the variables of interest
+      // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+      // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+      // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
       theSmallTree.m_PUReweight = (isMC ? theBigTree.PUReweight : 1);
@@ -330,39 +374,33 @@ int main (int argc, char** argv)
 
       if (jets_and_btag.size () >= 2) 
         { 
-          if (isMC) counter.at (3) += theBigTree.MC_weight * XS ;
-          else      counter.at (3) += 1 ;
-
-          sort (jets_and_btag.rbegin (), jets_and_btag.rend (), scoreSortSingle<int> ()) ;
-      
-          int firstBjetIndex = jets_and_btag.at (0).first ;
-          int secondBjetIndex = jets_and_btag.at (1).first ;
+          pair<int, int> eventJets = chooseHighestBtagJets (jets_and_btag) ;
           TLorentzVector tlv_firstBjet 
             (
-              theBigTree.jets_px->at (firstBjetIndex),
-              theBigTree.jets_py->at (firstBjetIndex),
-              theBigTree.jets_pz->at (firstBjetIndex),
-              theBigTree.jets_e->at (firstBjetIndex)
+              theBigTree.jets_px->at (eventJets.first),
+              theBigTree.jets_py->at (eventJets.first),
+              theBigTree.jets_pz->at (eventJets.first),
+              theBigTree.jets_e->at (eventJets.first)
             ) ;
           TLorentzVector tlv_secondBjet 
             (
-              theBigTree.jets_px->at (secondBjetIndex),
-              theBigTree.jets_py->at (secondBjetIndex),
-              theBigTree.jets_pz->at (secondBjetIndex),
-              theBigTree.jets_e->at (secondBjetIndex)
+              theBigTree.jets_px->at (eventJets.second),
+              theBigTree.jets_py->at (eventJets.second),
+              theBigTree.jets_pz->at (eventJets.second),
+              theBigTree.jets_e->at (eventJets.second)
             ) ;
 
           theSmallTree.m_bjet1_pt  = tlv_firstBjet.Pt () ;
           theSmallTree.m_bjet1_eta = tlv_firstBjet.Eta () ;
           theSmallTree.m_bjet1_phi = tlv_firstBjet.Phi () ;
-          theSmallTree.m_bjet1_e = theBigTree.jets_e->at (firstBjetIndex) ;
-          theSmallTree.m_bjet1_bID = theBigTree.bCSVscore->at (firstBjetIndex) ;
+          theSmallTree.m_bjet1_e = theBigTree.jets_e->at (eventJets.first) ;
+          theSmallTree.m_bjet1_bID = theBigTree.bCSVscore->at (eventJets.first) ;
 
           theSmallTree.m_bjet2_pt  = tlv_secondBjet.Pt () ;
           theSmallTree.m_bjet2_eta = tlv_secondBjet.Eta () ;
           theSmallTree.m_bjet2_phi = tlv_secondBjet.Phi () ;
-          theSmallTree.m_bjet2_e = theBigTree.jets_e->at (secondBjetIndex) ;
-          theSmallTree.m_bjet2_bID = theBigTree.bCSVscore->at (secondBjetIndex) ;
+          theSmallTree.m_bjet2_e = theBigTree.jets_e->at (eventJets.second) ;
+          theSmallTree.m_bjet2_bID = theBigTree.bCSVscore->at (eventJets.second) ;
 
           float METx = theBigTree.METx->at (chosenTauPair) ;
           float METy = theBigTree.METy->at (chosenTauPair) ;
@@ -426,7 +464,7 @@ int main (int argc, char** argv)
               if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
           
               // skip the H decay candiates
-              if (iJet == firstBjetIndex || iJet == secondBjetIndex) continue ;
+              if (iJet == eventJets.first || iJet == eventJets.second) continue ;
 
               TLorentzVector tlv_dummyJet (
                   theBigTree.jets_px->at (iJet),
@@ -447,14 +485,14 @@ int main (int argc, char** argv)
         
       if (isMC) selectedEvents += theBigTree.MC_weight * XS ; 
       else selectedEvents += 1 ;
-      ++selectedMCEventsNum ;
+      ++selectedNoWeightsEventsNum ;
       theSmallTree.Fill () ;
     } // loop over events
 
   cout << "1: " << totalEvents << endl ;
   cout << "2: " << selectedEvents << endl ;
-  cout << "3: " << totalMCEventsNum << endl ;
-  cout << "4: " << selectedMCEventsNum << endl ;
+  cout << "3: " << totalNoWeightsEventsNum << endl ;
+  cout << "4: " << selectedNoWeightsEventsNum << endl ;
   for (int i = 0 ; i < counter.size () ; ++i)
     cout << "5 + i: " << counter.at (i) << endl ;
 
@@ -463,8 +501,8 @@ int main (int argc, char** argv)
   TH1F h_eff ("h_eff", "h_eff", 4 + counter.size (), 0., float (4 + counter.size ())) ;
   h_eff.SetBinContent (1, totalEvents) ;
   h_eff.SetBinContent (2, selectedEvents) ;
-  h_eff.SetBinContent (3, totalMCEventsNum) ;
-  h_eff.SetBinContent (4, selectedMCEventsNum) ;
+  h_eff.SetBinContent (3, totalNoWeightsEventsNum) ;
+  h_eff.SetBinContent (4, selectedNoWeightsEventsNum) ;
   for (int i = 0 ; i < counter.size () ; ++i)
     h_eff.SetBinContent (5 + i, counter.at (i)) ;
 

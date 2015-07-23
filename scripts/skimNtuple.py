@@ -40,8 +40,6 @@ if __name__ == "__main__":
 
         if opt.input[-1] == '/' : opt.input = opt.input[:-1]
         opt.input = 'SKIM_' + basename (opt.input)
-        if opt.incl :
-            opt.input = 'SKIM_INCL_' + basename (opt.input)        
         jobs = [word.replace ('_', '.').split ('.')[1] for word in os.listdir (opt.input) if 'run' in word]
         missing = []
         
@@ -88,8 +86,8 @@ if __name__ == "__main__":
     # submit the jobs
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-    skimmer = './bin/skimNtuple.exe'
-    if opt.incl : skimmer = 'skimNtupleInclusive.exe'
+#    skimmer = './bin/skimNtuple.exe'
+    skimmer = 'skimNtupleInclusive.exe'
 
     if opt.input[-1] == '/' : opt.input = opt.input[:-1]
     if opt.output == 'none' : opt.output = opt.input + '_SKIM'
@@ -128,8 +126,10 @@ if __name__ == "__main__":
         scriptFile.write ('cd %s\n'%currFolder)
         scriptFile.write ('source scripts/setup.sh\n')
         command = skimmer + ' ' + filename + ' ' + opt.output + '/' + basename (filename) + ' ' + opt.xs 
-        if opt.isdata : 
-            command += ' 1 '
+        if opt.isdata :  command += ' 1 '
+        else          :  command += ' 0 '    
+        if opt.incl :  command += ' 1 '
+        else        :  command += ' 0 '    
         command += ' >& ' + opt.output + '/' + basename (filename) + '.log\n'
         scriptFile.write (command)
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
@@ -142,7 +142,7 @@ if __name__ == "__main__":
             command = (jobsDir + '/skimJob_' + str (n) + '.sh')
         else:
             command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' + jobsDir + '/skimJob_' + str (n) + '.sh\'')
-        if opt.sleep : time.sleep (0.5 * n % 5)
+        if opt.sleep : time.sleep (0.1)
         os.system (command)
         commandFile.write (command + '\n')
         n = n + 1
