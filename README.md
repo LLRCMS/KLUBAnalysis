@@ -40,7 +40,8 @@ which sometimes arise.
  * The flag "-i" is the same as the submission job
  * The "-r" option triggers the checking, always overcomes the initial submission (but if set to "none") and by default lists the problematic jobs.
  * The "-r run" option triggers the resubmission of the jobs identified as failed
-
+ * -s True: introduce a sleep of 0.1 s between each submission, to avoid output saving problems
+ * -I True: run the inclusive skim, i.e. does not cut on number of jets
 ```
 python scripts/skimNtuple.py -r list -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_DY_-1Events_0Skipped_1436202480.82       
 ```

@@ -87,7 +87,7 @@ int main (int argc, char** argv)
   // treeName                                                                                                                                                               
   string treeName = "HTauTauTree" ;
 
-  // get the variables to be plotted
+  // get the variables to be cosidered in the training
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   vector<string> trainingVariables  = gConfigParser->readStringListOption ("tmva::variables") ;
