@@ -15,8 +15,65 @@
 #include "TCanvas.h"
 
 #include "histoUtils.h"
+#include "ConfigParser.h"
+#include "utils.h"
+
+#include "TMVA/MsgLogger.h"
+#include "TMVA/Config.h"
+#include "TMVA/Tools.h"
+#include "TMVA/Factory.h"
+#include "TMVA/Reader.h"
 
 using namespace std ;
+
+
+void
+calcTMVA (sample & thisSample, vector<string> & trainingVariables, 
+          string mvaName, string weightsFile)
+{
+
+  TMVA::Reader * reader = new TMVA::Reader () ;
+
+  TTree *tree = (TTree*) thisSample.sampleChain->GetTree () ;
+  vector<float> address (trainingVariables.size (), 0.) ; 
+  for (unsigned int iv = 0 ; iv < trainingVariables.size () ; ++iv)
+    {
+      tree->SetBranchAddress (trainingVariables.at (iv).c_str (), &(address.at (iv))) ;
+      reader->AddVariable (trainingVariables.at (iv), &(address.at (iv))) ;
+    }  
+
+  reader->BookMVA (mvaName.c_str (),  weightsFile.c_str ()) ;
+
+  for (int iEvent = 0 ; iEvent < tree->GetEntries () ; ++iEvent)
+    {
+      tree->GetEntry (iEvent) ;
+      reader->EvaluateMVA (mvaName.c_str ()) ;      
+      
+    } //loop on tree entries
+
+  delete reader ;
+  return ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+void
+calcTMVA (vector<sample> & samples,
+           vector<string> & trainingVariables,
+           string mvaName, string weightsFile)
+{
+
+  // loop on sim samples
+  for (unsigned int j = 0 ; j < samples.size () ; ++j) 
+    calcTMVA (samples, trainingVariables, mvaName, weightsFile) ;
+
+  return ;
+}
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
 
 int main (int argc, char** argv)
 {
@@ -63,18 +120,18 @@ int main (int argc, char** argv)
   vector<sample> DATASamples ;
   readSamples (DATASamples, DATASamplesList) ;
 
-  // get the selections to be applied
+  // get the variables to be cosidered in the training
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  vector<pair <TString, TCut> > selections = readCutsFile (
-      gConfigParser->readStringOption ("selections::selectionsFile")
-    ) ;
+  vector<string> trainingVariables  = gConfigParser->readStringListOption ("tmva::variables") ;
+  
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << "variables list: \n" ;
+  for (unsigned int i = 0 ; i < trainingVariables.size () ; ++i)
+    cout << trainingVariables.at (i) << endl ;
 
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
-  cout << "selections sequence: \n" ;
-  for (unsigned int i = 0 ; i < selections.size () ; ++i)
-    cout << selections.at (i).first << " : " << selections.at (i).second << endl ;
-  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+
 
   // get the variables to be plotted
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -83,6 +140,11 @@ int main (int argc, char** argv)
 
   TString histoName ;
   HistoManager * manager = new HistoManager ("test") ;
+
+  // read the MVA
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+  calcTMVA (sigSamples, trainingVariables, "MVA", "pesi") ;
 
   return 0 ;
 
