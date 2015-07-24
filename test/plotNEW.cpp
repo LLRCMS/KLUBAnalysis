@@ -107,9 +107,14 @@ void
 addHistos (vector<sample> & samples, HistoManager * manager,
            vector<string> & variablesList,
            vector<pair <TString, TCut> > & selections,
-           bool isSignal)
+           bool isSignal,
+           bool isData = false)
 {
   TString histoName ;
+  int histoType = 0 ;
+  if (isSignal) histoType = 1 ;
+  if (isData) histoType = 2 ;
+
   // loop on sim samples
   for (unsigned int j = 0 ; j < samples.size () ; ++j)
     {
@@ -133,7 +138,7 @@ addHistos (vector<sample> & samples, HistoManager * manager,
                   int (limits.at (0)), limits.at (1), limits.at (2),
                   gConfigParser->readIntOption (TString ("colors::") 
                       + samples.at (j).sampleName.Data ()), 
-                  isSignal,
+                  histoType,
                   variablesList.at (i).c_str (), "events"
                 ) ;
             }  
@@ -156,14 +161,14 @@ fillHistos (vector<sample> & samples, HistoManager * manager,
             bool isData = false,
             bool isSignal = false)
 {
-  addHistos (samples, manager, variablesList, selections, isSignal) ;
+  addHistos (samples, manager, variablesList, selections, isSignal, isData) ;
 
   TString histoName ;
 
   // for efficiency evaluation
   counters localCounter ;
 
-  //Loop on the MC samples
+  //Loop on the samples
   for (unsigned int iSample = 0 ; iSample < samples.size () ; ++iSample)
     {
       double eff = samples.at (iSample).eff ;
@@ -180,12 +185,12 @@ fillHistos (vector<sample> & samples, HistoManager * manager,
       float weight ;
       tree->SetBranchAddress ("MC_weight", &weight) ;
       // signal scaling
-      float scaling = samples.at (iSample).eff_num ;
-      if (scale.size () > 0) scaling = scale.at (iSample) ;
+      float scaling = 1. / samples.at (iSample).eff_den ;
+      if (scale.size () > 0) scaling *= scale.at (iSample) ;
 
       cout << "Opening sample: "
            << samples.at (iSample).sampleName
-           << "\t with total weighted events\t" << samples.at (iSample).eff_num
+           << "\t with initial weighted events\t" << samples.at (iSample).eff_den
            << endl ;
 
       vector<float> address (variablesList.size (), 0.) ; 
@@ -205,7 +210,6 @@ fillHistos (vector<sample> & samples, HistoManager * manager,
               if (isData) localCounter.counters.at (iSample).at (isel+1) += 1. ;
               else        localCounter.counters.at (iSample).at (isel+1) 
                               += weight * lumi * scaling ;
-
 
               for (unsigned int iv = 0 ; iv < variablesList.size () ; ++iv)
                 {
@@ -407,7 +411,6 @@ int main (int argc, char** argv)
             variablesList.at (iv).c_str (), selections.at (isel).first.Data ()) ;
 
           TString outFolderName = outFolderNameBase + TString ("/events/") ;
-          outFolderName = outFolderNameBase + TString ("/shapes/") ;
 
           // get the extremes for the plot
           vector<float> extremes_bkg  = getExtremes (hstack_bkg.at  (iv+nVars*isel)) ;
@@ -419,7 +422,7 @@ int main (int argc, char** argv)
                           extremes_DATA.at (1)) ,
               extremes_bkg.at (2) ,
               1.3 * max3 (extremes_bkg.at (3), extremes_sig.at (3), 
-                          extremes_DATA.at (1) + sqrt (extremes_DATA.at (1)))
+                          extremes_DATA.at (3) + sqrt (extremes_DATA.at (3)))
             ) ;  
           copyTitles (bkg, hstack_bkg.at (iv+nVars*isel)) ;
 
@@ -433,16 +436,12 @@ int main (int argc, char** argv)
           TString coutputName ;
           coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
-          histoName.Form ("data_%s_%s",
-              variablesList.at (iv).c_str (),
-              selections.at (isel).first.Data ()
-            ) ;
           
           c->SetLogy (1) ;
           bkg->Draw () ;
           hstack_bkg.at (iv+nVars*isel)->Draw ("hist same") ;
           hstack_sig.at (iv+nVars*isel)->Draw ("nostack hist same") ;
-          manager->GetHisto (histoName.Data ())->Draw ("same") ;
+          h_data->Draw ("same") ;
 
           coutputName.Form ("%s_log.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
@@ -451,6 +450,7 @@ int main (int argc, char** argv)
           // plotting shapes
           // ---- ---- ---- ---- ---- ---- ---- ---- ----
 
+          outFolderName = outFolderNameBase + TString ("/shapes/") ;
           TString basename ;
           basename.Form ("shape_%s_%s",
                   variablesList.at (iv).c_str (),

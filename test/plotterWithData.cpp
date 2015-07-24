@@ -587,7 +587,7 @@ int main (int argc, char** argv)
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " DETAILS OF THE SKIM OF THE INITIAL SAMPLE (%)\n\n" ;
 
-  NSpacesColumns = 10 ;
+  NSpacesColumns = 14 ;
   printTitle (allSamples, NSpacesColZero, NSpacesColumns) ;
 
   name = "total" ;
@@ -597,7 +597,9 @@ int main (int argc, char** argv)
   for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
     {
       float value = allSamples.at (iSample).eff_den * lumi ;
-      for (int i = 0 ; i < NSpacesColumns - int (log10 (value)) ; ++i) cout << " " ;
+      int subtractspace = 0 ;
+      if (value > 0) subtractspace = int (log10 (value)) ;
+      for (int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
       cout << setprecision (0) << fixed << value << " |" ;
     }
   cout << "\n" ; 
@@ -609,7 +611,9 @@ int main (int argc, char** argv)
   for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
     {
       float value = allSamples.at (iSample).eff_num * lumi ;
-      for (int i = 0 ; i < NSpacesColumns - int (log10 (value)) ; ++i) cout << " " ;
+      int subtractspace = 0 ;
+      if (value > 0) subtractspace = int (log10 (value)) ;
+      for (int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
       cout << setprecision (0) << fixed << value << " |" ;
     }
   cout << "\n" ; 
@@ -621,7 +625,9 @@ int main (int argc, char** argv)
   for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
     {
       float value = allSamples.at (iSample).eff * 100 ;
-      for (int i = 0 ; i < NSpacesColumns - int (log10 (value)) - precision - 1 ; ++i) cout << " " ;
+      int subtractspace = -1 * precision - 1 ;
+      if (value > 0) subtractspace = int (log10 (value))  - precision - 1 ;
+      for (int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
       cout << setprecision (2) << fixed << value << " |" ;
     }
   cout << "\n" ; 
@@ -671,7 +677,6 @@ int main (int argc, char** argv)
       cout << setprecision (2) << fixed << total << "\n" ;
     }
 
-
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " OBSERVED NUMBER OF EVENTS\n\n" ;
 
@@ -694,7 +699,4 @@ int main (int argc, char** argv)
       cout << "\n" ;
     }
   
-
-
-// std::cout << std::setprecision(5) << f << '\n';
 }

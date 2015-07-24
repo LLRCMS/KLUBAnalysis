@@ -167,8 +167,8 @@ int main (int argc, char** argv)
       
       if (isMC)
         {
-          totalEvents += theBigTree.MC_weight * XS ;
-          counter.at (selID++) += theBigTree.MC_weight * XS ;
+          totalEvents += theBigTree.MC_weight ;
+          counter.at (selID++) += theBigTree.MC_weight ;
         }
       else 
         {
@@ -178,7 +178,7 @@ int main (int argc, char** argv)
       ++totalNoWeightsEventsNum ;
       
       if (theBigTree.indexDau1->size () == 0) continue ;
-      if (isMC) counter.at (selID++) += theBigTree.MC_weight * XS ;
+      if (isMC) counter.at (selID++) += theBigTree.MC_weight ;
       else      counter.at (selID++) += 1 ;
 
       // by now take the OS pair with largest pT
@@ -194,7 +194,7 @@ int main (int argc, char** argv)
             }
         }  
       if (chosenTauPair < 0) continue ;
-      if (isMC) counter.at (selID++) += theBigTree.MC_weight * XS ;
+      if (isMC) counter.at (selID++) += theBigTree.MC_weight ;
       else      counter.at (selID++) += 1 ;
 
       int firstDaughterIndex = theBigTree.indexDau1->at (chosenTauPair) ;  
@@ -265,7 +265,7 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       
       if (!beInclusive && jets_and_btag.size () < 2) continue ;
-      if (isMC) counter.at (selID++) += theBigTree.MC_weight * XS ;
+      if (isMC) counter.at (selID++) += theBigTree.MC_weight ;
       else      counter.at (selID++) += 1 ;
       
 
@@ -275,7 +275,7 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-      theSmallTree.m_PUReweight = (isMC ? theBigTree.PUReweight : 1);
+      theSmallTree.m_PUReweight = (isMC ? theBigTree.PUReweight : 1) ;
       theSmallTree.m_MC_weight = (isMC ? theBigTree.MC_weight * XS : 1) ;
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
       theSmallTree.m_RunNumber = theBigTree.RunNumber ;
@@ -476,7 +476,7 @@ int main (int argc, char** argv)
 
         } // if there's two jets in the event, at least
         
-      if (isMC) selectedEvents += theBigTree.MC_weight * XS ; 
+      if (isMC) selectedEvents += theBigTree.MC_weight ; 
       else selectedEvents += 1 ;
       ++selectedNoWeightsEventsNum ;
       theSmallTree.Fill () ;
