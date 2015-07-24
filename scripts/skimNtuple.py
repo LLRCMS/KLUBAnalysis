@@ -17,17 +17,43 @@ if __name__ == "__main__":
 
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
-    parser.add_option('-i', '--input'  , dest='input'  , help='input folder'                     , default='none')
-    parser.add_option('-x', '--xs'     , dest='xs'     , help='sample xs'                        , default='1.')
-    parser.add_option('-f', '--force'  , dest='force'  , help='replace existing reduced ntuples' , default=False)
-    parser.add_option('-o', '--output' , dest='output' , help='output folder'                    , default='none')
-    parser.add_option('-q', '--queue'  , dest='queue'  , help='batch queue'                      , default='cms')
-    parser.add_option('-r', '--resub'  , dest='resub'  , help='resubmit failed jobs'             , default='none')
-    parser.add_option('-v', '--verb'   , dest='verb'   , help='verbose'                          , default=False)
-    parser.add_option('-s', '--sleep'  , dest='sleep'  , help='sleep in submission'              , default=False)
-    parser.add_option('-d', '--isdata' , dest='isdata' , help='data flag'                        , default=False)
-    parser.add_option('-I', '--incl'   , dest='incl'   , help='use the inclusive skimmer'        , default=False)
+    parser.add_option ('-i', '--input'  , dest='input'  , help='input folder'                     , default='none')
+    parser.add_option ('-x', '--xs'     , dest='xs'     , help='sample xs'                        , default='1.')
+    parser.add_option ('-f', '--force'  , dest='force'  , help='replace existing reduced ntuples' , default=False)
+    parser.add_option ('-o', '--output' , dest='output' , help='output folder'                    , default='none')
+    parser.add_option ('-q', '--queue'  , dest='queue'  , help='batch queue'                      , default='cms')
+    parser.add_option ('-r', '--resub'  , dest='resub'  , help='resubmit failed jobs'             , default='none')
+    parser.add_option ('-v', '--verb'   , dest='verb'   , help='verbose'                          , default=False)
+    parser.add_option ('-s', '--sleep'  , dest='sleep'  , help='sleep in submission'              , default=False)
+    parser.add_option ('-d', '--isdata' , dest='isdata' , help='data flag'                        , default=False)
+    parser.add_option ('-I', '--incl'   , dest='incl'   , help='use the inclusive skimmer'        , default=False)
+    parser.add_option ('-H', '--hadd'   , dest='hadd'   , help='hadd the resulting ntuples'       , default='none')
     (opt, args) = parser.parse_args()
+
+    currFolder = os.getcwd ()
+
+    # verify the result of the process
+    # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+    if (opt.hadd != 'none') :
+
+        scriptFile = open (opt.output + '/hadder.sh', 'w')
+        scriptFile.write ('#!/bin/bash\n')
+        scriptFile.write ('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
+        scriptFile.write ('cd /data_CMS/cms/govoni/CMSSW_7_4_5/src\n')
+        scriptFile.write ('export SCRAM_ARCH=slc6_amd64_gcc472\n')
+        scriptFile.write ('eval `scram r -sh`\n')
+        scriptFile.write ('cd %s\n'%currFolder)
+        scriptFile.write ('source scripts/setup.sh\n')
+        scriptFile.write ('mkdir ' + opt.output + '/singleFiles\n')
+        scriptFile.write ('mv ' + opt.output + '/* ' + opt.output + '/singleFiles\n')
+        scriptFile.write ('hadd ' + opt.output + '/total.root ' + opt.output + '/singleFiles/*.root\n')
+        scriptFile.write ('touch ' + opt.output + '/done\n')
+        scriptFile.write ('echo "Hadding finished" \n')
+        scriptFile.close ()
+        os.system ('chmod u+rwx ' + opt.output + '/hadder.sh')
+        command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' +  opt.output + '/hadder.sh\'')
+        os.system (command)
 
     # verify the result of the process
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -103,7 +129,6 @@ if __name__ == "__main__":
     os.system ('mkdir ' + opt.output)
     
     inputfiles = glob.glob (opt.input + '/output*.root')    
-    currFolder = os.getcwd ()
     jobsDir = currFolder + '/SKIM_' + basename (opt.input)
     os.system ('mkdir ' + jobsDir)
 
@@ -137,11 +162,7 @@ if __name__ == "__main__":
         scriptFile.close ()
         os.system ('chmod u+rwx %s/skimJob_%d.sh'% (jobsDir,n))
 
-        #submit it to the batch or run it locally
-        if opt.queue == '' :
-            command = (jobsDir + '/skimJob_' + str (n) + '.sh')
-        else:
-            command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' + jobsDir + '/skimJob_' + str (n) + '.sh\'')
+        command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' + jobsDir + '/skimJob_' + str (n) + '.sh\'')
         if opt.sleep : time.sleep (0.1)
         os.system (command)
         commandFile.write (command + '\n')

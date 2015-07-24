@@ -34,23 +34,29 @@ calcTMVA (sample & thisSample, vector<string> & trainingVariables,
 
   TMVA::Reader * reader = new TMVA::Reader () ;
 
-  TTree *tree = (TTree*) thisSample.sampleChain->GetTree () ;
+  TTree * tree = (TTree*) thisSample.sampleChain->GetTree () ;
   vector<float> address (trainingVariables.size (), 0.) ; 
   for (unsigned int iv = 0 ; iv < trainingVariables.size () ; ++iv)
     {
       tree->SetBranchAddress (trainingVariables.at (iv).c_str (), &(address.at (iv))) ;
       reader->AddVariable (trainingVariables.at (iv), &(address.at (iv))) ;
     }  
+  // add a new branch to store the tmva output
+  float mvaValue ;
+  TBranch * mvaBranch = tree->Branch (mvaName.c_str (), &mvaValue, (mvaName + "/F").c_str ()) ;
 
   reader->BookMVA (mvaName.c_str (),  weightsFile.c_str ()) ;
 
   for (int iEvent = 0 ; iEvent < tree->GetEntries () ; ++iEvent)
     {
       tree->GetEntry (iEvent) ;
-      reader->EvaluateMVA (mvaName.c_str ()) ;      
+      mvaValue = reader->EvaluateMVA (mvaName.c_str ()) ;  
+      mvaBranch->Fill () ;    
       
     } //loop on tree entries
 
+  // overwrite the tree including the new branch
+  tree->Write ("", TObject::kOverwrite) ;
   delete reader ;
   return ;
 }
@@ -149,3 +155,24 @@ int main (int argc, char** argv)
   return 0 ;
 
 }
+
+
+
+/*
+
+[24/07/15 13:42:39 ] Raffaele Gerosa: si puoi farlo
+[24/07/15 13:42:48 ] Raffaele Gerosa: aspetta che cerco come facevo
+[24/07/15 13:44:49 ] Raffaele Gerosa: fai cosi
+[24/07/15 13:44:50 ] Raffaele Gerosa:  SampleTreeList_.at(iTree)->Branch(nameBranch_.c_str(),&weight_,(nameBranch_+"/F").c_str());
+[24/07/15 13:45:03 ] Raffaele Gerosa: crei il branch prima di fare il loop sugli eventi
+[24/07/15 13:45:14 ] Raffaele Gerosa: newBranch_  = SampleTreeList_.at(iTree)->Branch(nameBranch_.c_str(),&weight_,(nameBranch_+"/F").c_str());
+[24/07/15 13:45:31 ] Raffaele Gerosa: poi ad un certo punto farai
+[24/07/15 13:45:32 ] Raffaele Gerosa: weight_ = reader_->EvaluateMVA(methodName_.c_str());
+[24/07/15 13:45:38 ] Raffaele Gerosa: newBranch_->Fill() ;
+[24/07/15 13:45:46 ] Raffaele Gerosa: nell loop qnd leggi il peso
+[24/07/15 13:45:49 ] Raffaele Gerosa: fai il fill del branch
+[24/07/15 13:46:05 ] Raffaele Gerosa:  SampleTreeList_.at(iTree)->Write("", TObject::kOverwrite);
+[24/07/15 13:46:14 ] Raffaele Gerosa: ed è fatto
+
+
+*/

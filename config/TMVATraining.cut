@@ -1,1 +1,1 @@
-presel = bjet1_bID > 0.5 && bjet2_bID > 0.5 
+presel = (bjet1_bID + bjet2_bID) > 0.7 
