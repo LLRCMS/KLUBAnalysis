@@ -266,7 +266,7 @@ int main (int argc, char** argv)
       float weight ;
       tree->SetBranchAddress ("MC_weight", &weight) ;
       // signal scaling
-      float scaling = 1. ;
+      float scaling = 1./allSamples.at (iSample).eff_num ;
       if (iSample >= nB) scaling *= signalScales.at (iSample - nB) ;
 
       cout << "Opening sample "
@@ -320,10 +320,7 @@ int main (int argc, char** argv)
         }
       float weight ;
       tree->SetBranchAddress ("MC_weight", &weight) ;
-      // signal scaling
-      float scaling = 1. ;
-      if (iData >= nB) scaling *= signalScales.at (iData - nB) ;
-
+      
       cout << "Opening sample "
            << DATASamples.at (iData).sampleName
            << " with efficiency " << eff

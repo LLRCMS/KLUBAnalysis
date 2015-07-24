@@ -147,14 +147,7 @@ int main (int argc, char** argv)
 
   int eventsNumber = theBigTree.fChain->GetEntries () ;
   float totalEvents = 0. ;
-  for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
-    {
-      theBigTree.GetEntry (iEvent) ;
-      totalEvents += theBigTree.MC_weight ;
-    }
-  XS /= totalEvents ;
-
-  totalEvents = 0. ;
+  
   float selectedEvents = 0. ;
 
   int totalNoWeightsEventsNum = 0 ;
