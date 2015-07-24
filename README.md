@@ -42,8 +42,22 @@ which sometimes arise.
  * The "-r run" option triggers the resubmission of the jobs identified as failed
  * -s True: introduce a sleep of 0.1 s between each submission, to avoid output saving problems
  * -I True: run the inclusive skim, i.e. does not cut on number of jets
+
+To skim one sample:
 ```
-python scripts/skimNtuple.py -r list -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_DY_-1Events_0Skipped_1436202480.82       
+python scripts/skimNtuple.py -d True -s True -o /data_CMS/cms/govoni/test_submit_to_tier3/Skims3/SKIM_Data_SingleMuon     -i /data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_Data_SingleMuon_-1Events_0Skipped_1437412858.02
+```
+Once jobs are run to check whether there's files to be resubmitted, 
+```
+python scripts/skimNtuple.py -r list -d True -s True -o /data_CMS/cms/govoni/test_submit_to_tier3/Skims3/SKIM_Data_SingleMuon     -i /data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_Data_SingleMuon_-1Events_0Skipped_1437412858.02
+```
+If there's any, actually resubmit, 
+```
+python scripts/skimNtuple.py -r run -d True -s True -o /data_CMS/cms/govoni/test_submit_to_tier3/Skims3/SKIM_Data_SingleMuon     -i /data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_Data_SingleMuon_-1Events_0Skipped_1437412858.02
+```
+Once all jobs finished successfully, hadd the results (this is necessary for the analysis to run)
+```
+python scripts/skimNtuple.py -H doit -d True -s True -o /data_CMS/cms/govoni/test_submit_to_tier3/Skims3/SKIM_Data_SingleMuon     -i /data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_Data_SingleMuon_-1Events_0Skipped_1437412858.02
 ```
 
 ## Plotting
