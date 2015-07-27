@@ -149,7 +149,8 @@ int main (int argc, char** argv)
   // read the MVA
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  calcTMVA (samples, trainingVariables, spectatorVariables, "analysisBDT", mvaWeightsFile) ;
+  string mvaVariableName = gConfigParser->readStringOption ("tmva::variableName") ;
+  calcTMVA (samples, trainingVariables, spectatorVariables, mvaVariableName, mvaWeightsFile) ;
 
   return 0 ;
 
