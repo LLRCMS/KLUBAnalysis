@@ -53,7 +53,12 @@ calcTMVA (sample & thisSample,
 
   // add a new branch to store the tmva output
   float mvaValue ;
-  TBranch * mvaBranch = tree->Branch (mvaName.c_str (), &mvaValue, (mvaName + "/F").c_str ()) ;
+  TBranch * mvaBranch ;
+  
+  if (tree->GetListOfBranches ()->FindObject (mvaName.c_str ())) 
+    tree->SetBranchAddress (mvaName.c_str (), &mvaValue, &mvaBranch) ;
+  else   
+    mvaBranch = tree->Branch (mvaName.c_str (), &mvaValue, (mvaName + "/F").c_str ()) ;
 
   reader->BookMVA (mvaName.c_str (),  weightsFile.c_str ()) ;
 
@@ -111,9 +116,6 @@ int main (int argc, char** argv)
       return -1 ;
     }
 
-  float lumi = gConfigParser->readFloatOption ("general::lumi") ;
-  cout << "READING lumi " << lumi << endl ;
-  
   // get the samples to be analised
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   
@@ -147,7 +149,8 @@ int main (int argc, char** argv)
   // read the MVA
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  calcTMVA (samples, trainingVariables, spectatorVariables, "analysisBDT", mvaWeightsFile) ;
+  string mvaVariableName = gConfigParser->readStringOption ("tmva::variableName") ;
+  calcTMVA (samples, trainingVariables, spectatorVariables, mvaVariableName, mvaWeightsFile) ;
 
   return 0 ;
 

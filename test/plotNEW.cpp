@@ -29,7 +29,7 @@ https://github.com/govoni/FlatNtStudy/blob/master/interface/plotter.h#L324
 
 void addTo (vector<float> & total, vector<float> & addition)
 {
-  for (int i = 0 ; i < total.size () ; ++i)
+  for (unsigned int i = 0 ; i < total.size () ; ++i)
     total.at (i) += addition.at (i) ;
   return ;  
 }
@@ -53,6 +53,58 @@ struct counters
     }
 
 } ;
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+// void printTitle (vector<sample> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
+// {
+//   for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
+//   cout << "| " ;
+//   for (unsigned int iSample = 0 ; iSample < sample.size () ; ++iSample)
+//     {
+//       string word = string (sample.at (iSample).sampleName.Data ()).substr (0, NSpacesColumns) ;
+//       cout << word ;
+//       for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
+//       cout << " | " ;
+//     }
+//   cout << "\n" ; 
+// }
+// 
+// 
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+void printTitle (vector<string> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
+{
+  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
+  cout << "| " ;
+  for (unsigned int iSample = 0 ; iSample < sample.size () ; ++iSample)
+    {
+      string word = sample.at (iSample).substr (0, NSpacesColumns) ;
+      cout << word ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
+      cout << " | " ;
+    }
+  cout << "\n" ; 
+  return ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+void printTitle (vector<sample> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
+{
+  vector<string> names ;
+  for (unsigned int iSample = 0 ; iSample < sample.size () ; ++iSample)
+    names.push_back (sample.at (iSample).sampleName.Data ()) ;
+  printTitle (names, NSpacesColZero, NSpacesColumns) ;
+  return ;
+}
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -434,5 +486,112 @@ int main (int argc, char** argv)
     } // loop on selections
 
   delete c ;
+
+  // printout tables
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+ 
+  unsigned int NSpacesColZero = 12 ;
+  unsigned int NSpacesColumns = 8 ;
+  unsigned int precision = 1 ;
+  
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " EXPECTED NUMBER OF SIG EVENTS\n\n" ;
+
+  printTitle (sigSamples, NSpacesColZero, NSpacesColumns) ;
+
+  for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
+    {
+      cout << selections.at (iSel).first ;
+      for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) cout << " " ;
+      cout << "|" ;
+      for (unsigned int iSample = 0 ; iSample < sigSamples.size () ; ++iSample)
+        {
+          float evtnum = sigCount.counters.at (iSample).at (iSel+1) ;
+          int subtractspace = 0 ;
+          if (evtnum > 0) subtractspace = int (log10 (evtnum)) + precision + 1 ;
+          for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+          cout << setprecision (precision) << fixed << evtnum
+               << " |" ;
+        }
+      cout << "\n" ;
+    }
+
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " EXPECTED NUMBER OF BKG EVENTS\n\n" ;
+
+  printTitle (bkgSamples, NSpacesColZero, NSpacesColumns) ;
+
+  for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
+    {
+      cout << selections.at (iSel).first ;
+      for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) cout << " " ;
+      cout << "|" ;
+      for (unsigned int iSample = 0 ; iSample < bkgSamples.size () ; ++iSample)
+        {
+          float evtnum = bkgCount.counters.at (iSample).at (iSel+1) ;
+          int subtractspace = 0 ;
+          if (evtnum > 0) subtractspace = int (log10 (evtnum)) + precision + 1 ;
+          for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+          cout << setprecision (1) << fixed << evtnum
+               << " |" ;
+        }
+      cout << "\n" ;
+    }
+
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " OBSERVED NUMBER OF EVENTS\n\n" ;
+
+  NSpacesColumns = 12 ;
+  printTitle (DATASamples, NSpacesColZero, NSpacesColumns) ;
+
+  for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
+    {
+      cout << selections.at (iSel).first ;
+      for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) cout << " " ;
+      cout << "|" ;
+      for (unsigned int iSample = 0 ; iSample < DATASamples.size () ; ++iSample)
+        {
+          float evtnum = DATACount.counters.at (iSample).at (iSel+1) ;
+          int subtractspace = 0 ;
+          if (evtnum > 0) subtractspace = int (log10 (evtnum)) ;
+          for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+          cout << setprecision (0) << fixed << evtnum
+               << " |" ;
+        }
+      cout << "\n" ;
+    }
+
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " TOTALS\n\n" ;
+
+  vector<float> DATAtotal = DATACount.getTotalCountsPerCut () ;
+  vector<float> bkgtotal = bkgCount.getTotalCountsPerCut () ;
+  vector<string> titles ; titles.push_back ("DATA") ; titles.push_back ("bkg") ;
+  printTitle (titles, NSpacesColZero, NSpacesColumns) ;
+  for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
+    {
+      cout << selections.at (iSel).first ;
+      for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) cout << " " ;
+      cout << "|" ;
+      
+      float evtnum = DATAtotal.at (iSel+1) ;
+      int subtractspace = 0 ;
+      if (evtnum > 0) subtractspace = int (log10 (evtnum)) ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+      cout << setprecision (0) << fixed << evtnum
+           << " |" ;
+
+      evtnum = bkgtotal.at (iSel+1) ;
+      subtractspace = 0 ;
+      if (evtnum > 0) subtractspace = int (log10 (evtnum)) ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+      cout << setprecision (0) << fixed << evtnum
+           << " |\n" ;
+    }
+  
+
+
+
+
 
 }

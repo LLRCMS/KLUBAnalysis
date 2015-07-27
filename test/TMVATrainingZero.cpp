@@ -145,6 +145,7 @@ int main (int argc, char** argv)
     TMVAtest->AddSpectator (spectatorVariables.at (iVar), 'F') ;
 
   string eventWeight  = gConfigParser->readStringOption ("tmva::eventWeight") ;
+  string MVAname  = gConfigParser->readStringOption ("tmva::MVAname") ;
   TMVAtest->SetSignalWeightExpression (eventWeight) ;
   TMVAtest->SetBackgroundWeightExpression (eventWeight) ;
 
@@ -167,7 +168,8 @@ int main (int argc, char** argv)
   TString Option = Form ("!H:!V:CreateMVAPdfs:NTrees=%d:BoostType=%s:AdaBoostBeta=%f:PruneMethod=%s:PruneStrength=%d:MaxDepth=%d:SeparationType=%s:Shrinkage=0.1:MaxDepth=11:UseYesNoLeaf=F:MinNodeSize=2:nCuts=200", 
       NTrees, BoostType.c_str (), AdaBoostBeta, PruneMethod.c_str (), PruneStrength, MaxDepth, SeparationType.c_str ()) ;
 
-  TMVAtest->BookMethod ( TMVA::Types::kBDT, "BDT", Option.Data ()) ;
+  string BDTname = string ("BDT_") + MVAname ;
+  TMVAtest->BookMethod ( TMVA::Types::kBDT, BDTname.c_str (), Option.Data ()) ;
     
   // trigger the training
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -178,4 +180,9 @@ int main (int argc, char** argv)
  
   delete TMVAtest ;
   delete outputfile ;
+
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << "Name tag of the weights file: " << BDTname << "\n" ;  
+
+  return 0 ;
 }
