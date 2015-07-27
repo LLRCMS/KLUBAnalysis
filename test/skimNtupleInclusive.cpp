@@ -10,6 +10,7 @@
 #include "bigTree.h" 
 #include "smallTree.h"
 #include "OfflineProducerHelper.h"
+#include "PUReweight.h"
 #include "../../HHKinFit/interface/HHKinFitMaster.h"
 
 using namespace std ;
@@ -137,6 +138,8 @@ int main (int argc, char** argv)
   float PUjetID_minCut = -0.5 ;
   //bool  isMC           = true ;
   bool  saveOS         = true ; // save same-sign candidates
+  int PUReweight_MC = 25 ;  //MC to be reweighted 
+  int PUReweight_target = 50 ; //target Data 
 
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -155,6 +158,8 @@ int main (int argc, char** argv)
  
   int selectionsNumber = 3 ;
   vector<float> counter (selectionsNumber + 1, 0.) ;
+  
+  PUReweight reweight ;
 
   // loop over events
   for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
@@ -275,7 +280,8 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-      theSmallTree.m_PUReweight = (isMC ? theBigTree.PUReweight : 1) ;
+      theSmallTree.m_PUReweight = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npv) : 1) ;
+      //theSmallTree.m_PUReweight = (isMC ? theBigTree.PUReweight : 1) ;
       theSmallTree.m_MC_weight = (isMC ? theBigTree.MC_weight * XS : 1) ;
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
       theSmallTree.m_RunNumber = theBigTree.RunNumber ;
