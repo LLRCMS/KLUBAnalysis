@@ -317,3 +317,54 @@ float findNonNullMinimum (TH1F * histo)
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
+// xmin ymin xmax ymax
+vector<float> getExtremes (THStack * hstack, bool islog)
+{
+  float ymax = hstack->GetMaximum () ;
+
+  TIter next (hstack->GetHists ()) ;
+  TH1F * histo ;
+
+  float xmin = 1. ;
+  float xmax = 0. ;
+  float ymin = 10000000000. ;
+  while (histo = (TH1F *) (next ())) 
+    {
+      float tmpmin = findNonNullMinimum (histo) ;
+      if (tmpmin < ymin) ymin = tmpmin ;
+      if (xmin > xmax)
+        {
+          xmin = histo->GetXaxis ()->GetXmin () ;
+          xmax = histo->GetXaxis ()->GetXmax () ;
+        }
+    }
+
+//  ymin *= 0.9 ;
+//  ymax *= 1.3 ;
+
+  vector<float> extremes (4, 0.) ;
+  extremes.at (0) = xmin ;
+  extremes.at (1) = ymin ;
+  extremes.at (2) = xmax ;
+  extremes.at (3) = ymax ;
+
+  return extremes ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+float min3 (float uno, float due, float tre)
+{
+  return min (min (uno, due), tre) ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+float max3 (float uno, float due, float tre)
+{
+  return max (max (uno, due), tre) ;
+}

@@ -27,65 +27,11 @@ using namespace std ;
 https://github.com/govoni/FlatNtStudy/blob/master/interface/plotter.h#L324
 */
 
-// xmin ymin xmax ymax
-vector<float> getExtremes (THStack * hstack, bool islog = false)
+void addTo (vector<float> & total, vector<float> & addition)
 {
-  float ymax = hstack->GetMaximum () ;
-
-  TIter next (hstack->GetHists ()) ;
-  TH1F * histo ;
-
-  float xmin = 1. ;
-  float xmax = 0. ;
-  float ymin = 10000000000. ;
-  while (histo = (TH1F *) (next ())) 
-    {
-      float tmpmin = findNonNullMinimum (histo) ;
-      if (tmpmin < ymin) ymin = tmpmin ;
-      if (xmin > xmax)
-        {
-          xmin = histo->GetXaxis ()->GetXmin () ;
-          xmax = histo->GetXaxis ()->GetXmax () ;
-        }
-    }
-
-//  ymin *= 0.9 ;
-//  ymax *= 1.3 ;
-
-  vector<float> extremes (4, 0.) ;
-  extremes.at (0) = xmin ;
-  extremes.at (1) = ymin ;
-  extremes.at (2) = xmax ;
-  extremes.at (3) = ymax ;
-
-  return extremes ;
-}
-
-
-// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-
-
-struct isNOTalnum : std::unary_function<int, int>
-{
-    int operator()(int i) const { return !std::isalnum (i) ; }
-} ;
-
-
-// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-
-
-float min3 (float uno, float due, float tre)
-{
-  return min (min (uno, due), tre) ;
-}
-
-
-// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-
-
-float max3 (float uno, float due, float tre)
-{
-  return max (max (uno, due), tre) ;
+  for (int i = 0 ; i < total.size () ; ++i)
+    total.at (i) += addition.at (i) ;
+  return ;  
 }
 
 
@@ -96,6 +42,15 @@ struct counters
 {
   vector<vector<float> > counters ; // [sample][selection]
   vector<float> initEfficiencies ; // [sample]
+
+  vector<float> getTotalCountsPerCut ()
+    {
+      vector<float> total (counters.at(0).size (), 0.) ;
+      // loop on the samples
+      for (unsigned int i = 0 ; i < counters.size () ; ++i) 
+        addTo (total, counters.at (i)) ;
+      return total ;
+    }
 
 } ;
 

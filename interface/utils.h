@@ -18,6 +18,7 @@
 #include "TObjArray.h"
 #include "TCut.h"
 #include "TH1F.h"
+#include "THStack.h"
 
 struct sample
 {
@@ -41,5 +42,9 @@ int readSamples (vector<sample> & samples, vector<string> & samplesList,
                  TString readOption = "READ") ;
 vector<pair<TString, TCut> > readCutsFile (string filename) ;
 
+struct isNOTalnum : std::unary_function<int, int>
+{
+    int operator()(int i) const { return !std::isalnum (i) ; }
+} ;
 
 #endif
