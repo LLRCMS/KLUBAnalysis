@@ -3,22 +3,35 @@
 using namespace std ;
 
 
+sample::sample (TString theSampleName, TString theSampleFileName, 
+                TString readingOption, TString treeName) : 
+  sampleName (theSampleName),
+  sampleFileName (theSampleFileName) 
+{
+  sampleFile = new TFile (sampleFileName, readingOption) ;
+  sampleTree = (TTree *) sampleFile->Get (treeName) ;
+  calcEfficiency () ;
+  return ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
 float sample::calcEfficiency ()
 {
-  TObjArray * fileElements = sampleChain->GetListOfFiles () ;
-  TIter next (fileElements) ;
-  TChainElement *chEl = (TChainElement*) next () ;
-  TFile f (chEl->GetTitle ()) ;
-  TH1F * effHisto = (TH1F *) ((TH1F *) f.Get ("h_eff"))->Clone (TString ("effHisto_") + sampleName) ;
-  while (( chEl = (TChainElement*) next ())) 
+  TH1F * effHisto = (TH1F *) sampleFile->Get ("h_eff") ;
+  if (effHisto->GetBinContent (1) == 0) 
     {
-      TFile f (chEl->GetTitle ()) ;
-      effHisto->Add ((TH1F *) f.Get ("h_eff")) ;
+      eff_num = 0. ;
+      eff_den = 0. ;
+      eff = 0. ;
+      return 0. ;
     }
-  if (effHisto->GetBinContent (1) == 0) return 0. ;
   eff_num = effHisto->GetBinContent (2) ;
   eff_den = effHisto->GetBinContent (1) ;
-  return effHisto->GetBinContent (2) / effHisto->GetBinContent (1) ;
+  eff = eff_num / eff_den ;
+  return eff ;
 }
 
 
@@ -26,16 +39,16 @@ float sample::calcEfficiency ()
 
 
 int
-readSamples (vector<sample> & samples, vector<string> & samplesList)
+readSamples (vector<sample> & samples, vector<string> & samplesList, TString readOption)
 {
   for (unsigned int iSample = 0 ; iSample < samplesList.size () ; ++iSample)
     {
       TString sampleFolder = gConfigParser->readStringOption (
           TString ("samples::") + samplesList.at (iSample).c_str ()
         ) ;
-      cout << "reading " << samplesList.at (iSample) << " : " << sampleFolder << "\n" ; 
-      samples.push_back (sample (samplesList.at (iSample))) ; 
-      int done = samples.back ().addFiles (sampleFolder) ;  
+      cout << "reading " << samplesList.at (iSample) << " from : " << sampleFolder << "\n" ; 
+      samples.push_back (sample (samplesList.at (iSample), sampleFolder + "/total.root", readOption)) ; 
+      int done = samples.back ().sampleTree->GetEntries () ;  
       cout << " --> read " << done << " events\n" ; 
     }
   return 0 ;

@@ -21,28 +21,24 @@
 
 struct sample
 {
-  sample (TString name) : 
-    sampleName (name) ,
-    sampleChain (new TChain ("HTauTauTree")) {}
-  int addFiles (TString name) 
-    {
-      if (sampleChain->GetEntries () != 0) return -1 ;
-      rootFilesFolder = name ;
-      sampleChain->Add (rootFilesFolder + "/*.root") ;
-      eff = calcEfficiency () ;
-      return sampleChain->GetEntries () ;
-    } 
+  sample (TString sampleName,
+          TString theSampleFileName, 
+          TString readingOption = "READ",
+          TString treeName = "HTauTauTree") ;
   float calcEfficiency () ;
   TString sampleName ;
+  TString sampleFileName ;
   TString rootFilesFolder ;
-  TChain * sampleChain ;
+  TTree * sampleTree ;
+  TFile * sampleFile ;
   float eff_num ;
   float eff_den ;
   float eff ;
 } ;
 
 
-int readSamples (vector<sample> & samples, vector<string> & samplesList) ;
+int readSamples (vector<sample> & samples, vector<string> & samplesList, 
+                 TString readOption = "READ") ;
 vector<pair<TString, TCut> > readCutsFile (string filename) ;
 
 

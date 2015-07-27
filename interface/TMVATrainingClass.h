@@ -148,7 +148,7 @@ TMVATrainingClass
                                         const int & MaxDepth          = 5, 
                                         const string & SeparationType = "GiniIndex") ;
 
-  void ReadInputCollection (vector<TChain*> & localList, const vector<sample> & inputList) ;  
+  void ReadInputCollection (vector<TTree *> & localList, const vector<sample> & inputList) ;  
 
   // Set the training variables name
   void SetTrainingVariables  (const vector<string > & trainingVariables) ;
@@ -173,8 +173,8 @@ TMVATrainingClass
  private : 
 
   // list of trees for signal and background
-  vector<TChain* > signalTreeList_ ;
-  vector<TChain* > backgroundTreeList_ ;
+  vector<TTree *> signalTreeList_ ;
+  vector<TTree *> backgroundTreeList_ ;
 
   // list of input and spectator variables
   vector<string> trainingVariables_ ;

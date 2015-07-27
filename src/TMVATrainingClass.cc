@@ -20,8 +20,8 @@ TMVATrainingClass::TMVATrainingClass
   ) :
   factory_ (factory),
   outputFile_ (outputFile),
-  outputFilePath_ (outputFilePath),
-  Label_ (Label)
+  Label_ (Label),
+  outputFilePath_ (outputFilePath)
 {
 //  SetTreeName          (TreeName) ;
   ReadInputCollection  (signalTreeList_,     signalTreeList) ;
@@ -56,7 +56,7 @@ TMVATrainingClass::~TMVATrainingClass ()
 
                    
 void TMVATrainingClass::ReadInputCollection (
-    vector<TChain*> & localList,
+    vector<TTree *> & localList,
     const vector<sample> & inputList  
   )
 {
@@ -65,7 +65,7 @@ void TMVATrainingClass::ReadInputCollection (
     {
       cout << "TMVATrainingClass::ReadInputCollection reading sample " 
            << inputList.at (iChain).sampleName << endl ;
-      localList.push_back (inputList.at (iChain).sampleChain) ;
+      localList.push_back (inputList.at (iChain).sampleTree) ;
     }
   cout << "  `-->   DONE " << endl ;
   return ;

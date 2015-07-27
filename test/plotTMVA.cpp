@@ -34,7 +34,7 @@ calcTMVA (sample & thisSample, vector<string> & trainingVariables,
 
   TMVA::Reader * reader = new TMVA::Reader () ;
 
-  TTree * tree = (TTree*) thisSample.sampleChain->GetTree () ;
+  TTree * tree = thisSample.sampleTree ;
   vector<float> address (trainingVariables.size (), 0.) ; 
   for (unsigned int iv = 0 ; iv < trainingVariables.size () ; ++iv)
     {

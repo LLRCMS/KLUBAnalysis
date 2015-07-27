@@ -175,7 +175,7 @@ fillHistos (vector<sample> & samples, HistoManager * manager,
       localCounter.initEfficiencies.push_back (eff) ;
       localCounter.counters.push_back (vector<float> (variablesList.size () + 1, 0.)) ;
 
-      TTree *tree = (TTree*) samples.at (iSample).sampleChain->GetTree () ;
+      TTree *tree = samples.at (iSample).sampleTree ;
       TTreeFormula * TTF[selections.size ()] ;
       for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
         {

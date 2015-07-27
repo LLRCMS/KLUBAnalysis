@@ -129,13 +129,13 @@ int main (int argc, char** argv)
     {
       cout << "adding sig sample " 
            << sigSamples.at (iChain).sampleName << endl ;
-      TMVAtest->AddSignalTree (sigSamples.at (iChain).sampleChain, 1.) ;
+      TMVAtest->AddSignalTree (sigSamples.at (iChain).sampleTree, 1.) ;
     }
   for (unsigned int iChain = 0 ; iChain < bkgSamples.size () ; ++iChain)
     {
       cout << "adding bkg sample " 
            << bkgSamples.at (iChain).sampleName << endl ;
-      TMVAtest->AddBackgroundTree (bkgSamples.at (iChain).sampleChain, 1.) ;
+      TMVAtest->AddBackgroundTree (bkgSamples.at (iChain).sampleTree, 1.) ;
     }
 
   for ( size_t iVar = 0 ; iVar < trainingVariables.size () ; iVar ++ )
@@ -157,7 +157,7 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   
   int  NTrees            = 400 ; 
-  bool  optimizeMethod   = false ; 
+//  bool  optimizeMethod   = false ; 
   string  BoostType      = "AdaBoost" ; 
   float  AdaBoostBeta    = 0.5 ; 
   string  PruneMethod    = "NoPruning" ; 

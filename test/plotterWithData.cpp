@@ -256,7 +256,7 @@ int main (int argc, char** argv)
       double eff = allSamples.at (iSample).eff ;
       initEfficiencies.push_back (eff) ;
       counters.push_back (vector<float> (nSel+1, 0.)) ;
-      TTree *tree = (TTree*) allSamples.at (iSample).sampleChain->GetTree () ;
+      TTree *tree = allSamples.at (iSample).sampleTree ;
       TTreeFormula * TTF[nSel] ;
       for (int isel = 0 ; isel < nSel ; ++isel)
         {
@@ -306,12 +306,12 @@ int main (int argc, char** argv)
   vector<float> data_initEfficiencies ; // [sample]
 
   //Loop on the data samples
-  for (int iData = 0 ; iData < DATASamples.size () ; ++iData)
+  for (unsigned int iData = 0 ; iData < DATASamples.size () ; ++iData)
     {
       double eff = DATASamples.at (iData).eff ;
       data_initEfficiencies.push_back (eff) ;
       data_counters.push_back (vector<float> (nSel+1, 0.)) ;
-      TTree *tree = (TTree*) DATASamples.at (iData).sampleChain->GetTree () ;
+      TTree *tree = DATASamples.at (iData).sampleTree ;
       TTreeFormula * TTF[nSel] ;
       for (int isel = 0 ; isel < nSel ; ++isel)
         {
@@ -599,7 +599,7 @@ int main (int argc, char** argv)
       float value = allSamples.at (iSample).eff_den * lumi ;
       int subtractspace = 0 ;
       if (value > 0) subtractspace = int (log10 (value)) ;
-      for (int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
       cout << setprecision (0) << fixed << value << " |" ;
     }
   cout << "\n" ; 
@@ -613,7 +613,7 @@ int main (int argc, char** argv)
       float value = allSamples.at (iSample).eff_num * lumi ;
       int subtractspace = 0 ;
       if (value > 0) subtractspace = int (log10 (value)) ;
-      for (int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
       cout << setprecision (0) << fixed << value << " |" ;
     }
   cout << "\n" ; 
@@ -627,7 +627,7 @@ int main (int argc, char** argv)
       float value = allSamples.at (iSample).eff * 100 ;
       int subtractspace = -1 * precision - 1 ;
       if (value > 0) subtractspace = int (log10 (value))  - precision - 1 ;
-      for (int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
       cout << setprecision (2) << fixed << value << " |" ;
     }
   cout << "\n" ; 
@@ -648,7 +648,7 @@ int main (int argc, char** argv)
           if (counters.at (iSample).at (iSel+1) > 0) 
               subtractspace = int (log10 (counters.at (iSample).at (iSel+1))) + 3 ;
           if (counters.at (iSample).at (iSel+1) < 0.1) ++subtractspace ;
-          for (int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+          for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
 
           cout << setprecision (2) << fixed << counters.at (iSample).at (iSel+1)
                << " |" ;
@@ -672,7 +672,7 @@ int main (int argc, char** argv)
       int subtractspace = 0 ;
       if (total > 0) subtractspace = int (log10 (total)) + 3 ;
       if (total < 0.1) ++subtractspace ;
-      for (int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
 
       cout << setprecision (2) << fixed << total << "\n" ;
     }
@@ -692,7 +692,7 @@ int main (int argc, char** argv)
           float evtnum = data_counters.at (iSample).at (iSel+1) ;
           int subtractspace = 0 ;
           if (evtnum > 0) subtractspace = int (log10 (evtnum)) ;
-          for (int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+          for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
           cout << setprecision (0) << fixed << evtnum
                << " |" ;
         }

@@ -206,7 +206,7 @@ int main (int argc, char** argv)
     {
       double eff = allSamples.at (iSample).eff ;
       initEfficiencies.push_back (eff) ;
-      TTree *tree = (TTree*) allSamples.at (iSample).sampleChain->GetTree () ;
+      TTree *tree = allSamples.at (iSample).sampleTree ;
       TTreeFormula * TTF[nSel] ;
       for (int isel = 0 ; isel < nSel ; ++isel)
         {
