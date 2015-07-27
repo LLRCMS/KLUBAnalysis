@@ -68,6 +68,7 @@ struct smallTree
       m_tauH_eta = -1. ;
       m_tauH_phi = -1. ;
       m_tauH_e = -1. ;
+      m_tauH_mass = -1. ;
       m_tauH_SVFIT_mass = -1. ;
       m_tauH_SVFIT_pt = -1. ;
       m_tauH_SVFIT_eta = -1. ;
@@ -79,6 +80,7 @@ struct smallTree
       m_bH_eta = -1. ;
       m_bH_phi = -1. ;
       m_bH_e = -1. ;
+      m_bH_mass = -1. ;
       
       m_HHsvfit_pt = -1. ;
       m_HHsvfit_eta = -1. ;
@@ -164,6 +166,7 @@ struct smallTree
       m_smallT->Branch ("tauH_eta", &m_tauH_eta, "tauH_eta/F") ;
       m_smallT->Branch ("tauH_phi", &m_tauH_phi, "tauH_phi/F") ;
       m_smallT->Branch ("tauH_e", &m_tauH_e, "tauH_e/F") ;
+      m_smallT->Branch ("tauH_mass", &m_tauH_mass, "tauH_mass/F") ;
       m_smallT->Branch ("tauH_SVFIT_mass", &m_tauH_SVFIT_mass, "tauH_SVFIT_mass/F") ;
       m_smallT->Branch ("tauH_SVFIT_pt", &m_tauH_SVFIT_pt, "tauH_SVFIT_pt/F") ;
       m_smallT->Branch ("tauH_SVFIT_eta", &m_tauH_SVFIT_eta, "tauH_SVFIT_eta/F") ;
@@ -175,6 +178,7 @@ struct smallTree
       m_smallT->Branch ("bH_eta", &m_bH_eta, "bH_eta/F") ;
       m_smallT->Branch ("bH_phi", &m_bH_phi, "bH_phi/F") ;
       m_smallT->Branch ("bH_e", &m_bH_e, "bH_e/F") ;
+      m_smallT->Branch ("bH_mass", &m_bH_mass, "bH_mass/F") ;
       
       m_smallT->Branch ("HHsvfit_pt", &m_HHsvfit_pt, "HHsvfit_pt/F") ;
       m_smallT->Branch ("HHsvfit_eta", &m_HHsvfit_eta, "HHsvfit_eta/F") ;
@@ -272,6 +276,7 @@ struct smallTree
   Float_t m_tauH_eta ;
   Float_t m_tauH_phi ;
   Float_t m_tauH_e ;
+  Float_t m_tauH_mass ;
 
   Float_t m_tauH_SVFIT_mass ;
   Float_t m_tauH_SVFIT_pt ;
@@ -285,6 +290,7 @@ struct smallTree
   Float_t m_bH_eta ;
   Float_t m_bH_phi ;
   Float_t m_bH_e ;
+  Float_t m_bH_mass ;
   
   // the di-higgs candidate
   Float_t m_HH_pt ;

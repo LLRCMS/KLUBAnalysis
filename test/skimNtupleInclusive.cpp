@@ -303,6 +303,7 @@ int main (int argc, char** argv)
       theSmallTree.m_tauH_eta = tlv_tauH.Eta () ;
       theSmallTree.m_tauH_phi = tlv_tauH.Phi () ;
       theSmallTree.m_tauH_e = tlv_tauH.E () ;
+      theSmallTree.m_tauH_mass = tlv_tauH.M () ;
 
       theSmallTree.m_dau1_pt = tlv_firstLepton.Pt () ;
       theSmallTree.m_dau1_eta = tlv_firstLepton.Eta () ;
@@ -417,7 +418,8 @@ int main (int argc, char** argv)
           theSmallTree.m_bH_eta = tlv_bH.Eta () ;
           theSmallTree.m_bH_phi = tlv_bH.Phi () ;
           theSmallTree.m_bH_e = tlv_bH.E () ;
-
+          theSmallTree.m_bH_mass = tlv_bH.M () ;
+          
           TLorentzVector tlv_HH = tlv_bH + tlv_tauH ;
           theSmallTree.m_HH_pt = tlv_HH.Pt () ;
           theSmallTree.m_HH_eta = tlv_HH.Eta () ;
