@@ -4,8 +4,6 @@
 #include <cmath>
 #include <cctype>
 #include <algorithm>
-#include "ConfigParser.h"
-#include "utils.h"
 #include "TString.h"
 #include "TChain.h"
 #include "TCut.h"
@@ -14,6 +12,8 @@
 #include "THStack.h"
 #include "TCanvas.h"
 
+#include "ConfigParser.h"
+#include "utils.h"
 #include "histoUtils.h"
 
 using namespace std ;
@@ -589,9 +589,6 @@ int main (int argc, char** argv)
            << " |\n" ;
     }
   
-
-
-
-
+  return 0 ;
 
 }

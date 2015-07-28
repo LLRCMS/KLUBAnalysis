@@ -26,8 +26,8 @@ if __name__ == "__main__":
     parser.add_option ('-v', '--verb'   , dest='verb'   , help='verbose'                          , default=False)
     parser.add_option ('-s', '--sleep'  , dest='sleep'  , help='sleep in submission'              , default=False)
     parser.add_option ('-d', '--isdata' , dest='isdata' , help='data flag'                        , default=False)
-    parser.add_option ('-I', '--incl'   , dest='incl'   , help='use the inclusive skimmer'        , default=False)
     parser.add_option ('-H', '--hadd'   , dest='hadd'   , help='hadd the resulting ntuples'       , default='none')
+    parser.add_option ('-c', '--config' , dest='config' , help='skim config file'                 , default='none')
     (opt, args) = parser.parse_args()
 
     currFolder = os.getcwd ()
@@ -115,6 +115,10 @@ if __name__ == "__main__":
 #    skimmer = './bin/skimNtuple.exe'
     skimmer = 'skimNtupleInclusive.exe'
 
+    if opt.config == 'none' :
+        print 'config file missing, exiting'
+        sys.exit (1)
+
     if opt.input[-1] == '/' : opt.input = opt.input[:-1]
     if opt.output == 'none' : opt.output = opt.input + '_SKIM'
    
@@ -154,8 +158,7 @@ if __name__ == "__main__":
         command = skimmer + ' ' + filename + ' ' + opt.output + '/' + basename (filename) + ' ' + opt.xs 
         if opt.isdata :  command += ' 1 '
         else          :  command += ' 0 '    
-        if opt.incl :  command += ' 1 '
-        else        :  command += ' 0 '    
+        command += ' ' + opt.config + ' '
         command += ' >& ' + opt.output + '/' + basename (filename) + '.log\n'
         scriptFile.write (command)
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)

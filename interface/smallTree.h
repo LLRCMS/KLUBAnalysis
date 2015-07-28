@@ -91,6 +91,7 @@ struct smallTree
       m_HH_eta = -1. ;
       m_HH_phi = -1. ;
       m_HH_e = -1. ;
+      m_HH_mass = -1. ;
       m_HHKin_mass = -1. ;
       m_HHKin_chi2 = -1. ;
 
@@ -188,6 +189,7 @@ struct smallTree
       m_smallT->Branch ("HH_eta", &m_HH_eta, "HH_eta/F") ;
       m_smallT->Branch ("HH_phi", &m_HH_phi, "HH_phi/F") ;
       m_smallT->Branch ("HH_e", &m_HH_e, "HH_e/F") ;
+      m_smallT->Branch ("HH_mass", &m_HH_mass, "HH_mass/F") ;
       m_smallT->Branch ("HHKin_mass", &m_HHKin_mass, "HHKin_mass/F") ;
       m_smallT->Branch ("HHKin_chi2", &m_HHKin_chi2, "HHKin_chi2/F") ;
       m_smallT->Branch ("HH_deltaPhi", &m_HH_deltaPhi, "HH_deltaPhi/F") ;
@@ -297,6 +299,7 @@ struct smallTree
   Float_t m_HH_eta ;
   Float_t m_HH_phi ;
   Float_t m_HH_e ;
+  Float_t m_HH_mass ;
 
   Float_t m_HHsvfit_pt ;
   Float_t m_HHsvfit_eta ;

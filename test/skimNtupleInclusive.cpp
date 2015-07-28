@@ -10,7 +10,9 @@
 #include "bigTree.h" 
 #include "smallTree.h"
 #include "OfflineProducerHelper.h"
+#include "PUReweight.h"
 #include "../../HHKinFit/interface/HHKinFitMaster.h"
+#include "ConfigParser.h"
 
 using namespace std ;
 
@@ -74,6 +76,17 @@ struct scoreSortSingle: public std::binary_function<pair <T, float> &, pair <T, 
 
 
 pair<int, int>
+chooseHighestPtJets (vector <pair <int, float> > & jets_and_btag)
+{
+  // leap of faith
+  return pair<int, int> (0, 1) ;     
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+pair<int, int>
 chooseHighestBtagJets (vector <pair <int, float> > & jets_and_btag)
 {
   sort (jets_and_btag.rbegin (), jets_and_btag.rend (), scoreSortSingle<int> ()) ;
@@ -89,36 +102,50 @@ chooseHighestBtagJets (vector <pair <int, float> > & jets_and_btag)
 
 int main (int argc, char** argv)
 {
-  if (argc < 4) 
+
+  // read input file and cfg
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+  if (argc < 6) 
     {
       cerr << "missing input parameters" << endl ;
+      cerr << "usage: " << argv[0]
+           << "inputFileName outputFileName crossSection isMC configFile" << endl ; 
       exit (1) ;
     }
   TString inputFile = argv[1] ;
   TString outputFile = argv[2] ;
   float XS = atof (argv[3]) ;
   bool isMC = true;
-  if (argc > 4) // one additional par for data
+  int isDatabuf = atoi (argv[4]);
+  if (isDatabuf == 1)
     {
-      int isDatabuf = atoi (argv[4]);
-      if (isDatabuf == 1)
-      {
-        cout << "RUNNING ON DATA\n" ;
-        isMC = false; 
-        XS = 1.;
-      }
+      cout << "RUNNING ON DATA\n" ;
+      isMC = false; 
+      XS = 1.;
     }
 
-  bool beInclusive = false ;
-  if (argc > 5) // one additional par for select or not di-jet
+  if (gConfigParser) return 1 ;
+  gConfigParser = new ConfigParser () ;
+  
+  TString config ; 
+  config.Form ("%s",argv[5]) ;
+  if (! (gConfigParser->init (config)))
     {
-      int isDatabuf = atoi (argv[5]);
-      if (isDatabuf == 1)
-      {
-        cout << "SAVING ALL EVENTS\n" ;
-        beInclusive = true ;
-      }
+      cout << ">>> parseConfigFile::Could not open configuration file " << config << endl ;
+      return -1 ;
     }
+
+  bool beInclusive      = gConfigParser->readBoolOption ("selections::beInclusive") ;
+  float PUjetID_minCut  = gConfigParser->readFloatOption ("parameters::PUjetIDminCut") ;
+  bool  saveOS          = gConfigParser->readBoolOption ("parameters::saveOS") ;
+  float lepCleaningCone = gConfigParser->readFloatOption ("parameters::lepCleaningCone") ;
+  int   bChoiceFlag     = gConfigParser->readFloatOption ("parameters::bChoiceFlag") ;
+  int PUReweight_MC     = gConfigParser->readFloatOption ("parameters::PUReweightMC") ; 
+  int PUReweight_target = gConfigParser->readFloatOption ("parameters::PUReweighttarget") ; 
+
+  // input and output setup
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   OfflineProducerHelper oph ;
 
@@ -131,16 +158,7 @@ int main (int argc, char** argv)
   smallFile->cd () ;
   smallTree theSmallTree ("HTauTauTree") ;
 
-  // initial parameters, might be read from a cfg file in the future
-  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-  float PUjetID_minCut = -0.5 ;
-  //bool  isMC           = true ;
-  bool  saveOS         = true ; // save same-sign candidates
-  float lepCleaningCone = 0.3 ;
-
-  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
+  // these are needed for the HHKinFit
   vector<Int_t> hypo_mh1 ; //FIXME why is this an integer?!
   hypo_mh1.push_back (125) ;
   vector<Int_t> hypo_mh2 ;
@@ -157,6 +175,7 @@ int main (int argc, char** argv)
   int selectionsNumber = 3 ;
   vector<float> counter (selectionsNumber + 1, 0.) ;
 
+  PUReweight reweight ;
   // loop over events
   for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
     {
@@ -277,7 +296,7 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-      theSmallTree.m_PUReweight = (isMC ? theBigTree.PUReweight : 1) ;
+      theSmallTree.m_PUReweight = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npv) : 1) ;      
       theSmallTree.m_MC_weight = (isMC ? theBigTree.MC_weight * XS : 1) ;
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
       theSmallTree.m_RunNumber = theBigTree.RunNumber ;
@@ -299,6 +318,7 @@ int main (int argc, char** argv)
       theSmallTree.m_tauH_eta = tlv_tauH.Eta () ;
       theSmallTree.m_tauH_phi = tlv_tauH.Phi () ;
       theSmallTree.m_tauH_e = tlv_tauH.E () ;
+      theSmallTree.m_tauH_mass = tlv_tauH.M () ;
 
       theSmallTree.m_dau1_pt = tlv_firstLepton.Pt () ;
       theSmallTree.m_dau1_eta = tlv_firstLepton.Eta () ;
@@ -369,7 +389,10 @@ int main (int argc, char** argv)
 
       if (jets_and_btag.size () >= 2) 
         { 
-          pair<int, int> eventJets = chooseHighestBtagJets (jets_and_btag) ;
+          pair<int, int> eventJets ;
+          if (bChoiceFlag == 1)       eventJets = chooseHighestBtagJets (jets_and_btag) ;
+          else if (bChoiceFlag == 2)  eventJets = chooseHighestPtJets (jets_and_btag) ;
+          
           TLorentzVector tlv_firstBjet 
             (
               theBigTree.jets_px->at (eventJets.first),
@@ -413,12 +436,14 @@ int main (int argc, char** argv)
           theSmallTree.m_bH_eta = tlv_bH.Eta () ;
           theSmallTree.m_bH_phi = tlv_bH.Phi () ;
           theSmallTree.m_bH_e = tlv_bH.E () ;
+          theSmallTree.m_bH_mass = tlv_bH.M () ;
 
           TLorentzVector tlv_HH = tlv_bH + tlv_tauH ;
           theSmallTree.m_HH_pt = tlv_HH.Pt () ;
           theSmallTree.m_HH_eta = tlv_HH.Eta () ;
           theSmallTree.m_HH_phi = tlv_HH.Phi () ;
           theSmallTree.m_HH_e = tlv_HH.E () ;
+          theSmallTree.m_HH_mass = tlv_HH.M () ;
 
           // in case the SVFIT mass is calculated
           if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
