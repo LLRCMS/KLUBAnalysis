@@ -47,4 +47,8 @@ struct isNOTalnum : std::unary_function<int, int>
     int operator()(int i) const { return !std::isalnum (i) ; }
 } ;
 
+
+std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) ;
+std::vector<std::string> split(const std::string &s, char delim) ;
+
 #endif

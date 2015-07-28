@@ -39,7 +39,10 @@ class HistoManager
         void AddNew2DHisto (const char* name, const char* title, 
                           int nbinsx, double xlow, double xup,
                           int nbinsy, double ylow, double yup,
-                          int color = 2, bool isSignal = false) ; // creates a new histo
+                          int color = 2, int isSignal = 0,
+                          TString titleX = "",
+                          TString titleY = "",
+                          TString titleZ = "") ; // creates a new histo
         TH1F* GetHisto(const char* name);
         TH2F* Get2DHisto(const char* name);
         void SaveAllToFile (TFile* fOut);

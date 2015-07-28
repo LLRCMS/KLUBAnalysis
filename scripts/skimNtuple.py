@@ -84,7 +84,7 @@ if __name__ == "__main__":
                 data = [word for word in myfile.readlines () if 'log' in word]
             rootfile = data[0].split ()[2]
             if not os.path.exists (rootfile) :
-                if opt.verb : print num, 'missing root file'
+                if opt.verb : print num, 'missing root file', rootfile
                 missing.append (num)
                 continue
             logfile = data[0].split ()[-1]

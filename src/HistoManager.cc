@@ -84,11 +84,17 @@ HistoManager::AddNewHisto (const char* name, const char* title,
 void HistoManager::AddNew2DHisto (const char* name, const char* title, 
                           int nbinsx, double xlow, double xup,
                           int nbinsy, double ylow, double yup,
-                          int color, bool isSignal) // creates a new 2D histo
+                          int color, int isSignal,
+                          TString titleX,
+                          TString titleY,
+                          TString titleZ) // creates a 2D new histo
 {
     string fullName = MakeStoredName (name);
-    TH2F* h = new TH2F (fullName.c_str(), title, nbinsx, xlow, xup, nbinsy, ylow, yup);
-    h->Sumw2 () ;    
+    TH2F* h = new TH2F (fullName.c_str (), title, nbinsx, xlow, xup, nbinsy, ylow, yup) ;
+    h->Sumw2 () ;  
+    h->GetXaxis ()->SetTitle (titleX) ;  
+    h->GetYaxis ()->SetTitle (titleY) ;  
+    h->GetZaxis ()->SetTitle (titleZ) ;  
     
     /*
     if (!isSignal)
@@ -104,9 +110,8 @@ void HistoManager::AddNew2DHisto (const char* name, const char* title,
       }
     */
 
-    int i = AddElement (h, name);
-    if (i == -1) delete h; // if not added
-
+    int i = AddElement (h, name) ;
+    if (i == -1) delete h ; // if not added
 }
 
 TH1F* HistoManager::GetHisto(const char* name)
