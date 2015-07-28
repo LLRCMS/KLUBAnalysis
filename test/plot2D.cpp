@@ -117,9 +117,6 @@ add2DHistos (vector<sample> & samples, HistoManager * manager,
                               ) ;
               // remove not alphanumeric symbols from the var name
               string varID = variablesList.at (i).at (0) + variablesList.at (i).at (1) ;
-              cout << " DEBUG " << variablesList.at (i).at (0) 
-                   << " " << variablesList.at (i).at (1)
-                   << " " << varID << endl ;
               varID.erase (std::remove_if (varID.begin (), varID.end (), isNOTalnum ()), varID.end ()) ;
               // get histo nbins and range
               vector <float> limits = 
@@ -139,6 +136,7 @@ add2DHistos (vector<sample> & samples, HistoManager * manager,
         }
     } // loop on sim samples
 
+  cout << "add2DHistos DONE " << endl ;
   return ;
 }
 
@@ -361,8 +359,9 @@ int main (int argc, char** argv)
     }
 
   TString histoName ;
-  HistoManager * manager = new HistoManager ("test") ;
-
+  HistoManager * manager = new HistoManager ("test2D") ;
+  
+  cout << "ready to go bkg" << endl ;
   fill2DHistos (bkgSamples, manager, 
               twoDimVariablesList,
               selections,
@@ -370,6 +369,7 @@ int main (int argc, char** argv)
               vector<float> (0),
               false, false) ;
 
+  cout << "ready to go sig" << endl ;
   fill2DHistos (sigSamples, manager, 
               twoDimVariablesList,
               selections,
@@ -377,6 +377,7 @@ int main (int argc, char** argv)
               signalScales,
               false, true) ;
 
+  cout << "ready to go DATA" << endl ;
   fill2DHistos (DATASamples, manager, 
               twoDimVariablesList,
               selections,
@@ -384,18 +385,18 @@ int main (int argc, char** argv)
               vector<float> (0),
               true, false) ;
 
+  TString outFolderNameBase = gConfigParser->readStringOption ("general::outputFolderName") ;
+  system (TString ("mkdir -p ") + outFolderNameBase) ;
+  TString outString ;
+  outString.Form (outFolderNameBase + "outPlotter_2D.root") ;
+  TFile * fOut = new TFile (outString.Data (), "RECREATE") ;
+  manager->SaveAllToFile (fOut) ;
+
 /*
 
   // Plot the histograms
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  TString outFolderNameBase = gConfigParser->readStringOption ("general::outputFolderName") ;
-  
-  system (TString ("mkdir -p ") + outFolderNameBase) ;
-  TString outString ;
-  outString.Form (outFolderNameBase + "outPlotter.root") ;
-  TFile * fOut = new TFile (outString.Data (), "RECREATE") ;
-  manager->SaveAllToFile (fOut) ;
 
   vector<THStack *> hstack_bkg = stackHistos (
       bkgSamples, manager, 

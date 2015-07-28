@@ -375,14 +375,6 @@ int main (int argc, char** argv)
   // Plot the histograms
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  TString outFolderNameBase = gConfigParser->readStringOption ("general::outputFolderName") ;
-  
-  system (TString ("mkdir -p ") + outFolderNameBase) ;
-  TString outString ;
-  outString.Form (outFolderNameBase + "outPlotter.root") ;
-  TFile * fOut = new TFile (outString.Data (), "RECREATE") ;
-  manager->SaveAllToFile (fOut) ;
-
   vector<THStack *> hstack_bkg = stackHistos (
       bkgSamples, manager, 
       variablesList,
@@ -397,6 +389,14 @@ int main (int argc, char** argv)
       DATASamples, manager, 
       variablesList,
       selections, "DATA") ;
+
+  TString outFolderNameBase = gConfigParser->readStringOption ("general::outputFolderName") ;
+  
+  system (TString ("mkdir -p ") + outFolderNameBase) ;
+  TString outString ;
+  outString.Form (outFolderNameBase + "outPlotter.root") ;
+  TFile * fOut = new TFile (outString.Data (), "RECREATE") ;
+  manager->SaveAllToFile (fOut) ;
 
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events/")) ;
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/shapes/")) ;
