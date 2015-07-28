@@ -38,7 +38,7 @@ calcTMVA (sample & thisSample,
 
   TTree * tree = thisSample.sampleTree ;
   TFile * currentFile = thisSample.sampleFile ;
-  vector<float> address (trainingVariables.size (), 0.) ; 
+  vector<float> address (trainingVariables.size () + spectatorVariables.size (), 0.) ; 
   for (unsigned int iv = 0 ; iv < trainingVariables.size () ; ++iv)
     {
       tree->SetBranchAddress (trainingVariables.at (iv).c_str (), &(address.at (iv))) ;
@@ -47,8 +47,9 @@ calcTMVA (sample & thisSample,
 
   for (unsigned int iv = 0 ; iv < spectatorVariables.size () ; ++iv)
     {
-      tree->SetBranchAddress (spectatorVariables.at (iv).c_str (), &(address.at (iv))) ;
-      reader->AddSpectator (spectatorVariables.at (iv), &(address.at (iv))) ;
+      int addressIndex = iv + trainingVariables.size () ;
+      tree->SetBranchAddress (spectatorVariables.at (iv).c_str (), &(address.at (addressIndex))) ;
+      reader->AddSpectator (spectatorVariables.at (iv), &(address.at (addressIndex))) ;
     }  
 
   // add a new branch to store the tmva output
@@ -132,10 +133,10 @@ int main (int argc, char** argv)
     spectatorVariables = gConfigParser->readStringListOption ("tmva::spectators") ;
 
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
-  cout << "variables list: \n" ;
+  cout << "---> variables list: \n" ;
   for (unsigned int i = 0 ; i < trainingVariables.size () ; ++i)
     cout << trainingVariables.at (i) << endl ;
-  cout << "spectators list: \n" ;
+  cout << "---> spectators list: \n" ;
   for (unsigned int i = 0 ; i < spectatorVariables.size () ; ++i)
     cout << spectatorVariables.at (i) << endl ;
 
