@@ -11,6 +11,7 @@
 #include "smallTree.h"
 #include "OfflineProducerHelper.h"
 #include "../../HHKinFit/interface/HHKinFitMaster.h"
+#include "ConfigParser.h"
 
 using namespace std ;
 
@@ -74,6 +75,17 @@ struct scoreSortSingle: public std::binary_function<pair <T, float> &, pair <T, 
 
 
 pair<int, int>
+chooseHighestPtJets (vector <pair <int, float> > & jets_and_btag)
+{
+  // leap of faith
+  return pair<int, int> (0, 1) ;     
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+pair<int, int>
 chooseHighestBtagJets (vector <pair <int, float> > & jets_and_btag)
 {
   sort (jets_and_btag.rbegin (), jets_and_btag.rend (), scoreSortSingle<int> ()) ;
@@ -89,36 +101,48 @@ chooseHighestBtagJets (vector <pair <int, float> > & jets_and_btag)
 
 int main (int argc, char** argv)
 {
-  if (argc < 4) 
+
+  // read input file and cfg
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+  if (argc < 6) 
     {
       cerr << "missing input parameters" << endl ;
+      cerr << "usage: " << argv[0]
+           << "inputFileName outputFileName crossSection isMC configFile" << endl ; 
       exit (1) ;
     }
   TString inputFile = argv[1] ;
   TString outputFile = argv[2] ;
   float XS = atof (argv[3]) ;
   bool isMC = true;
-  if (argc > 4) // one additional par for data
+  int isDatabuf = atoi (argv[4]);
+  if (isDatabuf == 1)
     {
-      int isDatabuf = atoi (argv[4]);
-      if (isDatabuf == 1)
-      {
-        cout << "RUNNING ON DATA\n" ;
-        isMC = false; 
-        XS = 1.;
-      }
+      cout << "RUNNING ON DATA\n" ;
+      isMC = false; 
+      XS = 1.;
     }
 
-  bool beInclusive = false ;
-  if (argc > 5) // one additional par for select or not di-jet
+  if (gConfigParser) return 1 ;
+  gConfigParser = new ConfigParser () ;
+  
+  TString config ; 
+  config.Form ("%s",argv[5]) ;
+  if (! (gConfigParser->init (config)))
     {
-      int isDatabuf = atoi (argv[5]);
-      if (isDatabuf == 1)
-      {
-        cout << "SAVING ALL EVENTS\n" ;
-        beInclusive = true ;
-      }
+      cout << ">>> parseConfigFile::Could not open configuration file " << config << endl ;
+      return -1 ;
     }
+
+  bool beInclusive      = gConfigParser->readBoolOption ("selections::beInclusive") ;
+  float PUjetID_minCut  = gConfigParser->readFloatOption ("parameters::PUjetID_minCut") ;
+  bool  saveOS          = gConfigParser->readBoolOption ("parameters::saveOS") ;
+  float lepCleaningCone = gConfigParser->readFloatOption ("parameters::lepCleaningCone") ;
+  int   bChoiceFlag     = gConfigParser->readFloatOption ("parameters::bChoiceFlag") ;
+
+  // input and output setup
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   OfflineProducerHelper oph ;
 
@@ -131,16 +155,7 @@ int main (int argc, char** argv)
   smallFile->cd () ;
   smallTree theSmallTree ("HTauTauTree") ;
 
-  // initial parameters, might be read from a cfg file in the future
-  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-  float PUjetID_minCut = -0.5 ;
-  //bool  isMC           = true ;
-  bool  saveOS         = true ; // save same-sign candidates
-  float lepCleaningCone = 0.3 ;
-
-  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
+  // these are needed for the HHKinFit
   vector<Int_t> hypo_mh1 ; //FIXME why is this an integer?!
   hypo_mh1.push_back (125) ;
   vector<Int_t> hypo_mh2 ;
@@ -369,7 +384,10 @@ int main (int argc, char** argv)
 
       if (jets_and_btag.size () >= 2) 
         { 
-          pair<int, int> eventJets = chooseHighestBtagJets (jets_and_btag) ;
+          pair<int, int> eventJets ;
+          if (bChoiceFlag == 1)       eventJets = chooseHighestBtagJets (jets_and_btag) ;
+          else if (bChoiceFlag == 2)  eventJets = chooseHighestPtJets (jets_and_btag) ;
+          
           TLorentzVector tlv_firstBjet 
             (
               theBigTree.jets_px->at (eventJets.first),
