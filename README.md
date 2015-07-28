@@ -7,7 +7,11 @@ repo for the h->hh analysis within the LLR framework
 cd /data_CMS/cms/govoni/CMSSW_7_4_3/src
 cmsenv
 cd -
-git clone git@github.com:bvormwald/HHKinFit.git
+git clone https://github.com/bvormwald/HHKinFit
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+git checkout 74x-root6
+cd -
 ls
 cd HHKinFit/
 ``` 
