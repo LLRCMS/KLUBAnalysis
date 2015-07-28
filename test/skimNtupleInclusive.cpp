@@ -10,7 +10,6 @@
 #include "bigTree.h" 
 #include "smallTree.h"
 #include "OfflineProducerHelper.h"
-#include "PUReweight.h"
 #include "../../HHKinFit/interface/HHKinFitMaster.h"
 
 using namespace std ;
@@ -138,8 +137,7 @@ int main (int argc, char** argv)
   float PUjetID_minCut = -0.5 ;
   //bool  isMC           = true ;
   bool  saveOS         = true ; // save same-sign candidates
-  int PUReweight_MC = 25 ;  //MC to be reweighted 
-  int PUReweight_target = 50 ; //target Data 
+  float lepCleaningCone = 0.3 ;
 
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -158,8 +156,6 @@ int main (int argc, char** argv)
  
   int selectionsNumber = 3 ;
   vector<float> counter (selectionsNumber + 1, 0.) ;
-  
-  PUReweight reweight ;
 
   // loop over events
   for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
@@ -256,6 +252,8 @@ int main (int argc, char** argv)
               theBigTree.jets_e->at (iJet)
             ) ;
           if (tlv_jet.Pt () < 20. /*GeV*/) continue ;  
+          if (tlv_jet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
+          if (tlv_jet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
 
           jets_and_btag.push_back (std::pair <int, float> (
               iJet, theBigTree.bCSVscore->at (iJet)
@@ -273,15 +271,13 @@ int main (int argc, char** argv)
       if (isMC) counter.at (selID++) += theBigTree.MC_weight ;
       else      counter.at (selID++) += 1 ;
       
-
       // fill the variables of interest
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-      theSmallTree.m_PUReweight = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npv) : 1) ;
-      //theSmallTree.m_PUReweight = (isMC ? theBigTree.PUReweight : 1) ;
+      theSmallTree.m_PUReweight = (isMC ? theBigTree.PUReweight : 1) ;
       theSmallTree.m_MC_weight = (isMC ? theBigTree.MC_weight * XS : 1) ;
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
       theSmallTree.m_RunNumber = theBigTree.RunNumber ;
@@ -303,7 +299,6 @@ int main (int argc, char** argv)
       theSmallTree.m_tauH_eta = tlv_tauH.Eta () ;
       theSmallTree.m_tauH_phi = tlv_tauH.Phi () ;
       theSmallTree.m_tauH_e = tlv_tauH.E () ;
-      theSmallTree.m_tauH_mass = tlv_tauH.M () ;
 
       theSmallTree.m_dau1_pt = tlv_firstLepton.Pt () ;
       theSmallTree.m_dau1_eta = tlv_firstLepton.Eta () ;
@@ -418,8 +413,7 @@ int main (int argc, char** argv)
           theSmallTree.m_bH_eta = tlv_bH.Eta () ;
           theSmallTree.m_bH_phi = tlv_bH.Phi () ;
           theSmallTree.m_bH_e = tlv_bH.E () ;
-          theSmallTree.m_bH_mass = tlv_bH.M () ;
-          
+
           TLorentzVector tlv_HH = tlv_bH + tlv_tauH ;
           theSmallTree.m_HH_pt = tlv_HH.Pt () ;
           theSmallTree.m_HH_eta = tlv_HH.Eta () ;

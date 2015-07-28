@@ -10,6 +10,10 @@ cd -
 git clone git@github.com:bvormwald/HHKinFit.git
 ls
 cd HHKinFit/
+``` 
+change 0.000001 into 0.000002 at the following line:
+https://github.com/bvormwald/HHKinFit/blob/master/src/HHKinFit.cpp#L519
+``` 
 ./compile.sh
 cd ..
 git clone git@github.com:LLRCMS/DoubleHiggs.git

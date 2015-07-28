@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
         if opt.input[-1] == '/' : opt.input = opt.input[:-1]
         opt.input = 'SKIM_' + basename (opt.input)
-        jobs = [word.replace ('_', '.').split ('.')[1] for word in os.listdir (opt.input) if 'run' in word]
+        jobs = [word.replace ('_', '.').split ('.')[1] for word in os.listdir (opt.input) if 'skim' in word]
         missing = []
         
         # check the existence of the done file
@@ -130,7 +130,8 @@ if __name__ == "__main__":
     
     inputfiles = glob.glob (opt.input + '/output*.root')    
     jobsDir = currFolder + '/SKIM_' + basename (opt.input)
-    os.system ('mkdir ' + jobsDir)
+    if os.path.exists (jobsDir) : os.system ('rm -f ' + jobsDir + '/*')
+    else                        : os.system ('mkdir ' + jobsDir)
 
     proc = subprocess.Popen ('voms-proxy-info', stdout=subprocess.PIPE)
     tmp = [word for word in proc.stdout.read ().split ('\n') if 'timeleft' in word]
