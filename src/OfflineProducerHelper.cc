@@ -117,6 +117,7 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
 
     bool isOS = tree->isOSCand->at(iPair);
     if ((whatApply.Contains("OScharge") || whatApply.Contains("All"))  && !isOS) return false; // do not even check the rest if requiring the charge
+    if (whatApply.Contains("SScharge") && isOS) return false; // for the same sign selection at the moment full selection over SS pairs
 
     // pairs are always ordered as: e mu | e tau | mu tau  (e < mu < tau)
     // if same type of particle, highest pt one is the first
@@ -170,15 +171,15 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
 
     TLorentzVector p4 (px, py, pz, e);
  
-    // bypasser(s) according to the string content
+    // bypasser(s) and taker according to the string content
     bool byp_vertexS = false;
     bool byp_idS  = false;
     bool byp_isoS = false;
     bool byp_ptS  = false;
     bool byp_etaS = false;
 
-    // whatApply: use "All", "Iso", "LepID", pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
-    if (!whatApply.Contains("All"))
+    // whatApply: use "All", "Iso", "LepID", pTMin", "etaMax", "againstEle", "againstMu", "Vertex", "SScharge"; separate various arguments with a semicolon
+    if (!whatApply.Contains("All") && !whatApply.Contains("SScharge"))
     {
       byp_vertexS = byp_idS = byp_isoS = byp_ptS = byp_etaS = true;
       // set selections
@@ -188,7 +189,7 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
       if (whatApply.Contains("pTMin"))  byp_ptS = false; 
       if (whatApply.Contains("etaMax")) byp_etaS = false;
     }
-
+ 
     bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
     bool etaS = (fabs(p4.Eta()) < 2.5) || byp_etaS;
@@ -221,7 +222,7 @@ bool OfflineProducerHelper::muBaseline (bigTree* tree, int iDau, float ptMin, fl
     bool byp_etaS = false;
 
     // whatApply: use "All", "Iso", "LepID", pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
-    if (!whatApply.Contains("All"))
+    if (!whatApply.Contains("All") && !whatApply.Contains("SScharge"))
     {
       byp_vertexS = byp_idS = byp_isoS = byp_ptS = byp_etaS = true;
       // set selections
@@ -263,7 +264,7 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin, f
     bool byp_etaS = false;
 
     // whatApply: use "All", "Iso", "LepID", pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
-    if (!whatApply.Contains("All"))
+    if (!whatApply.Contains("All") && !whatApply.Contains("SScharge"))
     {
       byp_vertexS = byp_dmfS = byp_agEleS = byp_agMuS = byp_isoS = byp_ptS = byp_etaS = true;
       // set selections

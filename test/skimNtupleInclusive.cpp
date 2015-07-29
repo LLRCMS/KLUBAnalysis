@@ -207,7 +207,12 @@ int main (int argc, char** argv)
       for (int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
         {
           if (theBigTree.isOSCand->at (iPair) != saveOS) continue ;
-          if (oph.pairPassBaseline (&theBigTree, iPair, "All"))
+          if (saveOS && oph.pairPassBaseline (&theBigTree, iPair, "All"))
+            {
+              chosenTauPair = iPair ;
+              break ; 
+            }
+          if (!saveOS && oph.pairPassBaseline (&theBigTree, iPair, "SScharge"))
             {
               chosenTauPair = iPair ;
               break ; 
