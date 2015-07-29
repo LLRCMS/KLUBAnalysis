@@ -41,6 +41,7 @@ struct sample
 int readSamples (vector<sample> & samples, vector<string> & samplesList, 
                  TString readOption = "READ") ;
 vector<pair<TString, TCut> > readCutsFile (string filename) ;
+vector<pair <TString, TCut> > readCutsFile (vector<string> activeSelections, string filename) ;
 
 struct isNOTalnum : std::unary_function<int, int>
 {

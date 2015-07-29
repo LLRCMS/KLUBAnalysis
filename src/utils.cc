@@ -88,6 +88,39 @@ readCutsFile (string filename)
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
+vector<pair <TString, TCut> > 
+readCutsFile (vector<string> activeSelections, string filename)
+{
+  ifstream infile (filename) ;
+  vector<pair<TString, TCut> > selections ;
+
+  string line ;
+  while (getline (infile, line))
+    {
+      istringstream iss (line) ;
+      string dummy ;
+      iss >> dummy ;
+      if (dummy.size () < 2) continue ;
+      size_t found = dummy.find ("%") ;
+      if (found != string::npos) continue ;
+      size_t limit = line.find_first_of ("=") ;
+      if (limit == string::npos) continue ;
+//       cout << line << endl ;
+//       cout << limit << endl ;
+      string selection = line.substr (limit+1) ;
+//       cout << dummy << "|" << selection << endl ;
+      if (find (activeSelections.begin (), activeSelections.end (), dummy) 
+          == activeSelections.end ())
+        continue ;
+      selections.push_back (pair<TString, TCut> (dummy.c_str (), selection.c_str ())) ;
+    }
+  return selections ;  
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems)
  {
     std::stringstream ss(s);

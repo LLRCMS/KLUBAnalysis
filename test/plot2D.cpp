@@ -336,7 +336,9 @@ int main (int argc, char** argv)
   // get the selections to be applied
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
+  vector<string> activeSelections = gConfigParser->readStringListOption ("selections::list") ;
   vector<pair <TString, TCut> > selections = readCutsFile (
+      activeSelections,
       gConfigParser->readStringOption ("selections::selectionsFile")
     ) ;
 
