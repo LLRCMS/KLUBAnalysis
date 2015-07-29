@@ -151,7 +151,7 @@ class cardMaker:
         getattr(w,'import')(SIG_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
         getattr(w,'import')(BKG_TT_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
         name_ShapeWS = "{0}/hh_{1}_{2:.0f}TeV.input.root".format(theOutputDir,theChannel,theHHLambda)
-        name_ShapeDC = "{0}/hh_{1}_{2:.0f}TeV.input.txt".format(theOutputDir,theChannel,theHHLambda)
+        name_ShapeDC = "{0}/hh_{1}_{2:.0f}TeV.txt".format(theOutputDir,theChannel,theHHLambda)
         w.writeToFile(name_ShapeWS)
 
         ## --------------------------- DATACARD -------------------------- ##
@@ -186,7 +186,7 @@ class cardMaker:
             file.write("{0} ".format(channelName[i]))
             i+=1
         file.write("\n")
-
+        file.write("process 0 1 \n")
         file.write("rate ")
         for chan in range(len(channelList)):
             file.write("{0:.4f} ".format(theRates[chan]))
