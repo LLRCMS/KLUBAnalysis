@@ -1,0 +1,2 @@
+# even if the cut is for muTau only, by now using this setup for all the final states
+presel = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30
