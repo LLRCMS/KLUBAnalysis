@@ -152,7 +152,7 @@ int main (int argc, char** argv)
   char trainOptions[120] ;
   sprintf (trainOptions,"nTrain_Signal=%d:nTrain_Background=%d:nTest_Signal=%d:nTest_Background=%d:SplitMode=Random:NormMode=NumEvents:!V",
            0,0,0,0) ;
-  TMVAtest->PrepareTrainingAndTestTree ("",trainOptions) ;
+  TMVAtest->PrepareTrainingAndTestTree (preselections, preselections, trainOptions) ;
   
   // adding a BDT
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
