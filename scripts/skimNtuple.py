@@ -54,6 +54,7 @@ if __name__ == "__main__":
         os.system ('chmod u+rwx ' + opt.output + '/hadder.sh')
         command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' +  opt.output + '/hadder.sh\'')
         os.system (command)
+        sys.exit (0)
 
     # verify the result of the process
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
