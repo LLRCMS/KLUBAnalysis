@@ -13,6 +13,10 @@ class cardMaker:
     def __init__(self):
         self.ID_untag = 1
         self.ID_1Btag = 2
+        
+        self.ID_ch_etau=1
+        self.ID_ch_mutau=2
+        self.ID_ch_tautau=3
         #...
 
     def loadIncludes(self):
@@ -21,7 +25,7 @@ class cardMaker:
         ROOT.gSystem.Load("libRooFit")
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
 
-    def makeCardsAndWorkspace(self, theHHlambda, theChannel, theOutputDir):
+    def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir):
         
         ## ----- SETTING AND DECLARATIONS ----
         DEBUG = False
@@ -29,18 +33,34 @@ class cardMaker:
         self.sqrts = 13
         #...
 
-        if(theChannel == self.ID_untag ): self.appendName="untag"
-        elif(theChannel == self.ID_1Btag ): self.appendName="1Btag"
+        if(theChannel == self.ID_ch_etau ): self.appendName="etau"
+        elif(theChannel == self.ID_ch_mutau ): self.appendName="mutau"
+        elif(theChannel == self.ID_ch_tautau ): self.appendName="tautau"
         #...
         else: print "Input Error: Unknown channel!"
+
+
+        if(theCat == self.ID_untag ): self.appendName=self.appendName+"untag"
+        elif(theCat == self.ID_1Btag ): self.appendName=self.appendName+"1Btag"
+        #...
+        else: print "Input Error: Unknown category!"
 
         #"uno" serve sempre
         one = ROOT.RooRealVar("one","one",1.0)
         one.setConstant(True)
 
-        ## -------------------------- IMPORT TEMPLATES ---------------------------- ##
+        ## -------------------------- IMPORT Histograms ---------------------- ##
+        ##NB: if you add a new histogram, you'll need to modify the 2D templates below as well
         inputFile = TFile.Open("total.root")
+
+        #Default
         templateSIG = inputFile.Get("")
+        #JES syst
+        templateSIG_JESUP = inputFile.Get("") 
+        templateSIG_JESDOWN = inputFile.Get("") 
+        #QCDscale syst
+        templateSIG_QCDUP = inputFile.Get("") 
+        templateSIG_QCDDOWN = inputFile.Get("") 
         #...
 
         ## -------------------------- RATES  ---------------------------- ##
@@ -76,17 +96,40 @@ class cardMaker:
         rrvLumi = ROOT.RooRealVar("cmshh_lumi","cmshh_lumi",self.lumi)  
 
         ## -------------------------- 2D ROOFIT TEMPLATES ---------------------- ##
-        TemplateName = "SIG_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,self.HHLambda)
+        w = ROOT.RooWorkspace("w","w")
+
+        #Default
+        morphVarList_sig = ROOT.RooArgList()
+        MorphList_sig = ROOT.RooArgList()
+        TemplateName = "SIG_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
         SIG_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(x,y),templateSIG)
-        PdfName = "SIG_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,self.HHLambda)
-        SIG_TemplatePdf = ROOT.RooHistPdf("bkg_qqzz","bkg_qqzz",ROOT.RooArgSet(x,y),SIG_TempDataHist)
+        PdfName = "SIG_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+        SIG_TemplatePdf = ROOT.RooHistPdf("sig","sig",ROOT.RooArgSet(x,y),SIG_TempDataHist)
+        #Up
+        TemplateName = "SIG_JESUP_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+        SIG_JESUP_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(x,y),templateSIG_JESUP)
+        PdfName = "SIG_JESUP_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+        SIG_JESUP_TemplatePdf = ROOT.RooHistPdf("sig_jesup","sig_jesup",ROOT.RooArgSet(x,y),SIG_JESUP_TempDataHist)
+        #Down
+        TemplateName = "SIG_JESDOWN_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+        SIG_JESDOWN_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(x,y),templateSIG_JESDOWN)
+        PdfName = "SIG_JESDOWN_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+        SIG_JESDOWN_TemplatePdf = ROOT.RooHistPdf("sig_jesdown","sig_jesdown",ROOT.RooArgSet(x,y),SIG_JESDOWN_TempDataHist)
 
 
+        CMS_JES_syst = w.factory("JES_sig[-5,5]")
+        morphVarList_sig.add(CMS_JES_syst)
+        MorphList_sig.add(SIG_TemplatePdf)
+        MorphList_sig.add(SIG_JESUP_TemplatePdf)
+        MorphList_sig.add(SIG_JESDOWN_TemplatePdf)
+
+
+        SIGpdf = ROOT.VerticalInterpPdf("SIG","SIG",MorphList_sig,morphVarList_sig)
 
         ## --------------------------- DATASET --------------------------- ##
         dataFileDir = "CMSdata"
         dataTreeName = "HTauTauTree" 
-        dataFileName = "{0}/{1}_{2}.root".format(dataFileDir,self.HHLambda,self.inputlumi)
+        dataFileName = "{0}/{1}_{2}.root".format(dataFileDir,theHHLambda,self.inputlumi)
         if (DEBUG): print dataFileName," ",dataTreeName 
         data_obs_file = ROOT.TFile(dataFileName)
 
@@ -106,12 +149,10 @@ class cardMaker:
         print "observations: ", data_obs.numEntries()    
 
         ## --------------------------- WORKSPACE -------------------------- ##
-
-        w = ROOT.RooWorkspace("w","w")
         getattr(w,'import')(data_obs)
         getattr(w,'import')(SIG_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
 
-        name_ShapeWS = "{0}/hh_{1}_{2:.0f}TeV.input.root".format(self.theOutputDir,self.theChannel,self.HHLambda)
+        name_ShapeWS = "{0}/hh_{1}_{2:.0f}TeV.input.root".format(theOutputDir,theChannel,theHHLambda)
         w.writeToFile(name_ShapeWS)
 
         ## --------------------------- DATACARD -------------------------- ##
@@ -123,4 +164,4 @@ if __name__ == "__main__":
     dc.loadIncludes()
     cmd = 'mkdir -p cards/'
     status, output = commands.getstatusoutput(cmd)    
-    dc.makeCardsAndWorkspace(1,1,"cards")
+    dc.makeCardsAndWorkspace(1,1,2,"cards")
