@@ -58,26 +58,6 @@ struct counters
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
-// void printTitle (vector<sample> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
-// {
-//   for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
-//   cout << "| " ;
-//   for (unsigned int iSample = 0 ; iSample < sample.size () ; ++iSample)
-//     {
-//       string word = string (sample.at (iSample).sampleName.Data ()).substr (0, NSpacesColumns) ;
-//       cout << word ;
-//       for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
-//       cout << " | " ;
-//     }
-//   cout << "\n" ; 
-// }
-// 
-// 
-
-
-// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-
-
 void printTitle (vector<string> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
 {
   for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
@@ -180,8 +160,9 @@ fillHistos (vector<sample> & samples, HistoManager * manager,
     {
       double eff = samples.at (iSample).eff ;
       localCounter.initEfficiencies.push_back (eff) ;
-      localCounter.counters.push_back (vector<float> (variablesList.size () + 1, 0.)) ;
 
+      localCounter.counters.push_back (vector<float> (selections.size () + 1, 0.)) ;
+      
       TTree *tree = samples.at (iSample).sampleTree ;
       TTreeFormula * TTF[selections.size ()] ;
       for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
@@ -189,6 +170,7 @@ fillHistos (vector<sample> & samples, HistoManager * manager,
           TString fname ; fname.Form ("ttf%d",isel) ;
           TTF[isel] = new TTreeFormula (fname.Data (), selections.at (isel).second, tree) ;
         }
+  
       float weight ;
       tree->SetBranchAddress ("MC_weight", &weight) ;
       // signal scaling
@@ -207,11 +189,13 @@ fillHistos (vector<sample> & samples, HistoManager * manager,
       for (int iEvent = 0 ; iEvent < tree->GetEntries () ; ++iEvent)
         {
           tree->GetEntry (iEvent) ;
+          
           if (isData) localCounter.counters.at (iSample).at (0) += 1. ;
           else        localCounter.counters.at (iSample).at (0) 
                           += weight * lumi * scaling ;
           for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
             {
+
               if (! TTF[isel]->EvalInstance ()) continue ;
 
               if (isData) localCounter.counters.at (iSample).at (isel+1) += 1. ;
