@@ -101,7 +101,7 @@ readCutsFile (vector<string> activeSelections, string filename)
       string dummy ;
       iss >> dummy ;
       if (dummy.size () < 2) continue ;
-      size_t found = dummy.find ("%") ;
+      size_t found = dummy.find ("#") ;
       if (found != string::npos) continue ;
       size_t limit = line.find_first_of ("=") ;
       if (limit == string::npos) continue ;
