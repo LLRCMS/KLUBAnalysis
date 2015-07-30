@@ -13,7 +13,7 @@
 #include "TH2.h"
 #include "TPad.h"
 
-void getLimits(TFile *f, std::vector<double> &v_mh,std::vector<double> &v_mean,std::vector<double> &v_68l,std::vector<double> &v_68h,std::vector<double> &v_95l,std::vector<double> &v_95h,std::vector<double> &v_obs, bool onepointta);
+void getLimits(TFile *f, std::vector<double> &v_mh,std::vector<double> &v_mean,std::vector<double> &v_68l,std::vector<double> &v_68h,std::vector<double> &v_95l,std::vector<double> &v_95h,std::vector<double> &v_obs, bool onepointta=false);
 // --------- Inputs ------- //
 TString inputFile = "higgsCombineTest.Asymptotic.mH125.7.root";
 const bool addObsLimit = false;
@@ -249,7 +249,7 @@ oneLine->Draw("LSAME");
   sprintf( outfileName,"%s/UpperLimit_%s_lowMass_1D2DImp_7p8TeV.eps",plotDir.c_str(),method.c_str() );
   c->SaveAs(outfileName);
   sprintf( outfileName,"%s/UpperLimit_%s_lowMass_1D2DImp_7p8TeV.png",plotDir.c_str(),method.c_str() );
-  //c->SaveAs(outfileName);
+  c->SaveAs(outfileName);
   //sprintf( outfileName,"plots/UpperLimit_%s_lowMass_2D.C",method.c_str() );	
   //c->SaveAs(outfileName);
 
@@ -265,7 +265,7 @@ oneLine->Draw("LSAME");
   box3->AddEntry(grshade_95,"Expected #pm 2#sigma","lf");
   //box3->AddEntry(oneLine,"#sigma / #sigma_{SM}","l");
   
-
+/*
   TCanvas *cl = new TCanvas("cl","cl",canvasX,canvasY);
   cl->cd();
 
@@ -356,7 +356,7 @@ oneLine->Draw("LSAME");
   cl->SaveAs(outfileName);
   //sprintf( outfileName,"plots/UpperLimit_%s_wholeMass_2D_05.30.C",method.c_str() );	
   //cl->SaveAs(outfileName);	
-
+*/
   // ---------------- Root File --------------- //
 
   //cRatio->SaveAs(TplotDir+"/2DImprovement_7p8TeV_06.06.eps");
@@ -374,7 +374,7 @@ oneLine->Draw("LSAME");
 
 
 
-void getLimits(TFile *f, std::vector<double> &v_mh,std::vector<double> &v_mean,std::vector<double> &v_68l,std::vector<double> &v_68h,std::vector<double> &v_95l,std::vector<double> &v_95h,std::vector<double> &v_obs,bool onepointta=false)
+void getLimits(TFile *f, std::vector<double> &v_mh,std::vector<double> &v_mean,std::vector<double> &v_68l,std::vector<double> &v_68h,std::vector<double> &v_95l,std::vector<double> &v_95h,std::vector<double> &v_obs,bool onepointta)
 {
 cout<<"getting tree"<<endl;
   TTree *tree =(TTree*)f->Get("limit");
