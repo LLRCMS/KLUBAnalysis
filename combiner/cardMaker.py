@@ -55,7 +55,9 @@ class cardMaker:
         inputFile = TFile.Open("outPlotter_2D.root")
 
         #Default
-        templateSIG = inputFile.Get("test2D_HH_massBDT_muTau_Lambda20_baseline")
+        print theInputs.AllVars, "  ",theInputs.varX, "  ",theInputs.varY
+        print "test2D_{0}{1}_Lambda{2:.0f}_{3}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theHHLambda,theInputs.selectionLevel)
+        templateSIG = inputFile.Get("test2D_{0}{1}_Lambda{2:.0f}_{3}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theHHLambda,theInputs.selectionLevel))
         ##JES syst
         #templateSIG_JESUP = inputFile.Get("") 
         #templateSIG_JESDOWN = inputFile.Get("") 
@@ -64,7 +66,7 @@ class cardMaker:
         #templateSIG_QCDDOWN = inputFile.Get("") 
         ##...
 
-        templateBKG_TT = inputFile.Get("test2D_HH_massBDT_muTau_TT_baseline")
+        templateBKG_TT = inputFile.Get("test2D_{0}{1}_TT_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel))
         #...
 
         ## -------------------------- RATES  ---------------------------- ##
@@ -87,16 +89,16 @@ class cardMaker:
         ## -------------------------- SIGNAL SHAPE VARIABLES ---------------------- ##
         binsx = templateSIG.GetNbinsX()
         binsy = templateSIG.GetNbinsY()
-
-        x_name = theInputs.varX
-        x = ROOT.RooRealVar(x_name,x_name,100,1000)
+        print theInputs.AllvarX[theInputs.varX]
+        x_name = theInputs.AllVars[theInputs.varX]
+        x = ROOT.RooRealVar(x_name,x_name,float(theInputs.AllvarX[theInputs.varX]),float(theInputs.AllvarY[theInputs.varX]))
         x.setVal(250)
-        x.setBins(binsx)
+        x.setBins(binsx)#theInputs.AllBins[theInputs.varX])
 
-        y_name = theInputs.varY
-        y = ROOT.RooRealVar(y_name,y_name,0,1)
+        y_name = theInputs.AllVars[theInputs.varY]
+        y = ROOT.RooRealVar(y_name,y_name,float(theInputs.AllvarX[theInputs.varY]),float(theInputs.AllvarY[theInputs.varY]))
         y.setVal(0.5)
-        y.setBins(binsy)
+        y.setBins(binsy)#theInputs.AllBins[theInputs.varY])
 
         self.LUMI = ROOT.RooRealVar("LUMI_{0:.0f}".format(self.sqrts),"LUMI_{0:.0f}".format(self.sqrts),self.lumi)
         self.LUMI.setConstant(True)
@@ -208,5 +210,7 @@ if __name__ == "__main__":
     dc =cardMaker()
     dc.loadIncludes()
     cmd = 'mkdir -p cards/'
+    input = configReader("../config/plotter_muTau.cfg") 
+    input.readInputs()
     status, output = commands.getstatusoutput(cmd)    
-    dc.makeCardsAndWorkspace(1,1,2,"cards")
+    dc.makeCardsAndWorkspace(20,1,2,"lambda20",input)
