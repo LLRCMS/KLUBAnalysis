@@ -36,20 +36,24 @@ Example on how to submit a skimming.
    * this means that for a re-skimming the same folder is used, which means that the resubmit can be done only on the last skim performed
 
 ```
-python scripts/skimNtuple.py \
--i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_DY_-1Events_0Skipped_1436202480.82 \
--x 6025.2
+python scripts/skimNtuple.py  \
+ -s True -c  config/skim.cfg  -o /data_CMS/cms/govoni/test_submit_to_tier3/Skims5_SS/SKIM_WJet  \
+ -i /data_CMS/cms/govoni/test_submit_to_tier3/HiggsTauTauOutput_WJets_-1Events_0Skipped_1437551416.48 \
+ -x 61526.7 
 ``` 
 
 Example on how to check if all the jobs run successfully 
 (based on the presence of the "done" file for any failures at cluster level,
 and on the presence of "Error" in the log file for root problems,
 which sometimes arise.
+ * skim.cfg contains the main parameters to be set
  * The flag "-i" is the same as the submission job
  * The "-r" option triggers the checking, always overcomes the initial submission (but if set to "none") and by default lists the problematic jobs.
  * The "-r run" option triggers the resubmission of the jobs identified as failed
  * -s True: introduce a sleep of 0.1 s between each submission, to avoid output saving problems
  * -I True: run the inclusive skim, i.e. does not cut on number of jets
+ * -v True: is verbose in the resubmit step
+ * -H doit: merge all the root files with a hadd
 
 To skim one sample:
 ```
@@ -81,6 +85,12 @@ the signal in shapes.
 ```
 ./bin/plotNEW.exe config/plotter_muTau.cfg 
 ```
+
+The 2D plots are done with:
+```
+./bin/plot2D.exe config/plotter_muTau.cfg 
+```
+
 
 ## MVA training
 
