@@ -7,6 +7,7 @@ from scipy.special import erf
 from ROOT import *
 import ROOT
 from array import array
+from configReader import *
 
 class cardMaker:
     
@@ -25,11 +26,11 @@ class cardMaker:
         ROOT.gSystem.Load("libRooFit")
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
 
-    def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir):
+    def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir, theInputs):
         
         ## ----- SETTING AND DECLARATIONS ----
         DEBUG = False
-        self.lumi =1 
+        self.lumi = theInputs.lumi
         self.sqrts = 13
         #...
 
@@ -87,12 +88,12 @@ class cardMaker:
         binsx = templateSIG.GetNbinsX()
         binsy = templateSIG.GetNbinsY()
 
-        x_name = "HHKinFitMass"
+        x_name = theInputs.varX
         x = ROOT.RooRealVar(x_name,x_name,100,1000)
         x.setVal(250)
         x.setBins(binsx)
 
-        y_name = "HHBDT"
+        y_name = theInputs.varY
         y = ROOT.RooRealVar(y_name,y_name,0,1)
         y.setVal(0.5)
         y.setBins(binsy)

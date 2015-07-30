@@ -10,7 +10,7 @@ from array import array
 ## card reader class
 ## ---------------------------------------------------------------
 
-class inputReader:
+class configReader:
 
     def __init__(self, inputTextFile):
 
