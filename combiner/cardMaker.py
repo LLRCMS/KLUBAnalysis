@@ -65,16 +65,28 @@ class cardMaker:
         #templateSIG_QCDUP = inputFile.Get("") 
         #templateSIG_QCDDOWN = inputFile.Get("") 
         ##...
-
-        templateBKG_TT = inputFile.Get("test2D_{0}{1}_TT_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel))
+        putTT=False
+        putDY=False
+        rate_bkgTT_Shape = 0.0
+        rate_bkgDY_Shape = 0.0
+        for isample in  theInputs.background:
+            if isample == "TT":
+                templateBKG_TT = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel),isample)
+                rate_bkgTT_Shape = templateBKG_TT.Integral("width")*self.lumi
+                putTT=True
+            elif isample == "DY":
+                templateBKG_DY = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel),isample)
+                rate_bkgDY_Shape = templateBKG_DY.Integral("width")*self.lumi
+                putDY=True
+        
         #...
 
         ## -------------------------- RATES  ---------------------------- ##
         #it would be better to read them from the outside...
         rate_signal_Shape = templateSIG.Integral("width")*self.lumi #*2.3
         totalRate = rate_signal_Shape
-        rate_bkgTT_Shape = templateBKG_TT.Integral("width")*self.lumi #*2.3
-        totalRate = totalRate + rate_bkgTT_Shape
+         #*2.3
+        totalRate = totalRate + rate_bkgTT_Shape + rate_bkgDY_Shape
         ## rates per lumi for scaling
         #if (self.channel == self.ID_2e2mu) : bkgRate_qqzz = 76.82#theInputs['qqZZ_rate']/theInputs['qqZZ_lumi'] #*1.8
         #elif (self.channel == self.ID_4e) :bkgRate_qqzz = 29.2900 
@@ -85,7 +97,7 @@ class cardMaker:
         print " signal rate ", rate_signal_Shape
         print " bkg TT rate ", rate_bkgTT_Shape
         print "total rate ", totalRate
-        theRates=[rate_signal_Shape,rate_bkgTT_Shape]
+        theRates=[rate_signal_Shape,rate_bkgTT_Shape,rate_bkgDY_Shape]
         ## -------------------------- SIGNAL SHAPE VARIABLES ---------------------- ##
         binsx = templateSIG.GetNbinsX()
         binsy = templateSIG.GetNbinsY()
@@ -134,12 +146,19 @@ class cardMaker:
 
         #SIGpdf = ROOT.VerticalInterpPdf("SIG","SIG",MorphList_sig,morphVarList_sig)
         SIGpdf =SIG_TemplatePdf
-
-        TemplateName = "BKG_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-        BKG_TT_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(x,y),templateBKG_TT)
-        PdfName = "BKG_TT_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-        BKG_TT_TemplatePdf = ROOT.RooHistPdf("bkg_TT","bkg_TT",ROOT.RooArgSet(x,y),BKG_TT_TempDataHist)
-
+        if putTT :
+            TemplateName = "BKG_TT_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+            BKG_TT_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(x,y),templateBKG_TT)
+            PdfName = "BKG_TT_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+            BKG_TT_TemplatePdf = ROOT.RooHistPdf("bkg_TT","bkg_TT",ROOT.RooArgSet(x,y),BKG_TT_TempDataHist)
+            getattr(w,'import')(BKG_TT_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
+        if putDY :
+            TemplateName = "BKG_DY_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+            BKG_DY_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(x,y),templateBKG_TT)
+            PdfName = "BKG_DY_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+            BKG_DY_TemplatePdf = ROOT.RooHistPdf("bkg_DY","bkg_DY",ROOT.RooArgSet(x,y),BKG_DY_TempDataHist)
+            getattr(w,'import')(BKG_DY_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
+        
         ## --------------------------- DATASET --------------------------- ##
         #RooDataSet ds("ds","ds",RooArgSet(x,y),Import(*tree)) ;
         data_obs = BKG_TT_TemplatePdf.generate(RooArgSet(x,y),1000)
@@ -152,7 +171,6 @@ class cardMaker:
         ## --------------------------- WORKSPACE -------------------------- ##
         getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs"))
         getattr(w,'import')(SIG_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
-        getattr(w,'import')(BKG_TT_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
         name_ShapeWS = "{0}/hh_{1}_{2:.0f}TeV.input.root".format(theOutputDir,theChannel,theHHLambda)
         name_ShapeDC = "{0}/hh_{1}_{2:.0f}TeV.txt".format(theOutputDir,theChannel,theHHLambda)
         w.writeToFile(name_ShapeWS)
@@ -160,8 +178,8 @@ class cardMaker:
         ## --------------------------- DATACARD -------------------------- ##
         file = open( name_ShapeDC, "wb")
 
-        channelList=['sig','bkg_TT'] 
-        channelName=['sig','bkg_TT']
+        #channelList=theInputs.background #['sig','bkg_TT','bkg_DY'] 
+        channelName=['sig','bkg_TT','bkg_DY']
 
         file.write("imax 1\n")
         file.write("jmax 1\n")#.format(numberSig+numberBg-1))
@@ -179,28 +197,28 @@ class cardMaker:
         file.write("------------\n")
         ##file.write("## mass window [{0},{1}] \n".format(self.low_M,self.high_M))
         file.write("bin ")        
-        for chan in channelList:
+        for chan in channelName:
             file.write("a{0} ".format(theChannel))
         file.write("\n")
                                         
         file.write("process ")
-        i=0
-        for chan in channelList:
-            file.write("{0} ".format(channelName[i]))
-            i+=1
+        #i=0
+        for chan in channelName:
+            file.write("{0} ".format(chan)
+            #i+=1
         file.write("\n")
         file.write("process 0 1 \n")
         file.write("rate ")
-        for chan in range(len(channelList)):
+        for chan in range(len(channelName)):
             file.write("{0:.4f} ".format(theRates[chan]))
         file.write("\n")
 
         file.write("------------\n")
-        file.write("lumi_8TeV lnN 1.026  1.026 \n")
-        file.write("CMS_eff_m lnN 1.026  1.026  \n")
-        file.write("CMS_eff_e lnN 1.046  1.046  \n")  
-        file.write("CMS_eff_t lnN 1.066  1.066  \n") 
-        file.write("TTYield lnN - 1.100 \n")   
+        file.write("lumi_8TeV lnN 1.026  1.026 1.026  1.026 \n")
+        file.write("CMS_eff_m lnN 1.026  1.026 1.026  1.026 \n")
+        file.write("CMS_eff_e lnN 1.046  1.046 1.046  1.046 \n")  
+        file.write("CMS_eff_t lnN 1.066  1.066 1.066  1.066 \n") 
+        file.write("TTYield lnN - 1.100 -  - \n")   
 #CMS_zz4l_pdf_QCDscale_gg_syst param 0.0 1 [-3,3] 
 
         #...
