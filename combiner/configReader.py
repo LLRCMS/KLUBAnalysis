@@ -10,7 +10,7 @@ from array import array
 ## card reader class
 ## ---------------------------------------------------------------
 
-class inputReader:
+class configReader:
 
     def __init__(self, inputTextFile):
 
@@ -22,7 +22,7 @@ class inputReader:
         # lumi
         self.lumi = -999.9
         # sqrts
-        self.sqrts = -999.9
+        #self.sqrts = -999.9
         # channels
         self.signals=[]
         self.background=[]
@@ -43,8 +43,12 @@ class inputReader:
         #self.WJet_chan = True
 
         # Variables
-        self.varX = ""
-        self.varY = ""
+        self.AllVars = []
+        self.AllBins = []
+        self.AllvarX = []
+        self.AllvarY = []
+        self.varX = -999
+        self.varY = -999
         self.selectionLevel = ""
         self.dimensions = -999
  
@@ -74,7 +78,11 @@ class inputReader:
 
 
     def readInputs(self):
+        print "reading inputs"
         section = ""
+        varXname = ""
+        varYname = ""
+        varnames = []
         for line in open(self.theInput,'r'):
             f = line.split()
 
@@ -82,14 +90,23 @@ class inputReader:
             if f[0].startswith("#"): continue
 
             if f[0].startswith('['):
+                #print f
                 f = re.split('\W+',line)
-                section = f[0]
-		break
+                #print f
+                section = f[1]
+                print section
+		continue
+            if section is not "histos":
+                if section is not "cardmaker" : f = re.split('\W+',line)
+            #f = re.split('\W+',line)
             if section == "general":
+                #f = re.split('\W+',line)
                 if f[0] == 'signals' : 
-                    for sample in range(1,len(f)): self.signals.add(f[sample])
-                elif f[0] == "backgrounds": for sample in range(1,len(f)): self.background.add(f[sample])
-                elif f[0] == "data": for sample in range(1,len(f)): self.datasamples.add(f[sample])
+                    for sample in range(1,len(f)): self.signals.append(f[sample])
+                elif f[0] == "backgrounds": 
+                    for sample in range(1,len(f)): self.background.append(f[sample])
+                elif f[0] == "data": 
+                    for sample in range(1,len(f)): self.datasamples.append(f[sample])
 
  #               for chan in f:
  #                   if chan == f[0]: continue
@@ -105,24 +122,50 @@ class inputReader:
  #                   elif chan.lower().startswith("zbb"):   self.zbb_chan = True
  #                   elif chan.lower().startswith("all"):   self.all_chan = True
  #                   else : raise RuntimeError, "Unknown channel {0}, choices are ggH, qqH, WH, ZH, ttH, qqZZ, ggZZ, zjets".format(chan)
-  	        break
+  	        #continue
 
-            if section == "systematics": #devo capire che formato usare    
+            if section == "systematics": #devo capire che formato sare    
+                continue
+            #print f        
+            if f[0] == "lumi" :
+                self.lumi = float(f[1])
+                print "lumi ", self.lumi
+            #print section
+            if section == "histos":
+                self.AllVars.append(f[0]) #f[1]="="
+                self.AllBins.append(re.sub(',', '', f[1]))
+                self.AllvarX.append(re.sub(',', '', f[2]))
+                self.AllvarY.append(re.sub(',', '', f[3]))
                 
-                    
-            if f[0].lower().startswith("lumi"):
-                self.lumi = float(f[2])
-
             if f[0] == "cardsvariables":
-                self.varX = f[1]
-                if len(f)>2 : 
-                    self.varY = f[2]
+                #print f
+                varnames.append(f[1])
+                varnames.append(f[2])
+                print varnames
+                #varXname = f[2]
+                #print self.varX
+                if len(f)>3 : 
+                    #varYname = f[3]
                     self.dimensions = 2
                 else :  self.dimensions = 1 
            
             if f[0] == "cardsselection":
                 self.selectionLevel = f[1]
 
+        for iname in range(len(self.AllVars)):
+            #print self.AllVars[iname]#, varXname
+            #varnames = f[2].split(':')
+            #print varnames
+            if self.AllVars[iname] == re.sub('_','',varnames[0]):
+                    print "GOTCHA"
+                    self.varX = iname
+                    self.AllVars[iname] = varnames[0]
+            elif self.dimensions>1:
+                    if self.AllVars[iname] == re.sub('_','',varnames[1]):
+                        self.varY = iname
+                        self.AllVars[iname] = varnames[1]
+
+    
     def getInputs(self):
 
         dict = {}
@@ -139,6 +182,8 @@ class inputReader:
       ## Set dictionary entries to be passed to datacard class ##
         
         dict['lumi'] = float(self.lumi)
+        dict['varX'] = self.varX
+#        dict['signals'] = self.signals
 
 #        dict['all'] = self.all_chan
 #        dict['ggH'] = self.ggH_chan
