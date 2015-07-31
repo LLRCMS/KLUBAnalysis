@@ -202,7 +202,7 @@ int main (int argc, char** argv)
       int metpass = triggerbit & (1 << 0);
       metpass += triggerbit & (1 << 2);
       metpass += triggerbit & (1 << 6);
-      if(metpass == 0) continue ;
+      if(metpass > 0) continue ;
       if (isMC) counter.at (selID++) += theBigTree.MC_weight ;
       else      counter.at (selID++) += 1 ;
 
