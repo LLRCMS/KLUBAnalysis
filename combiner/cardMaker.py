@@ -8,6 +8,7 @@ from ROOT import *
 import ROOT
 from array import array
 from configReader import *
+from systReader import *
 
 class cardMaker:
     
@@ -218,11 +219,14 @@ class cardMaker:
         file.write("\n")
 
         file.write("------------\n")
-        file.write("lumi_8TeV lnN 1.026  1.026 1.026  1.026 \n")
-        file.write("CMS_eff_m lnN 1.026  1.026 1.026  1.026 \n")
-        file.write("CMS_eff_e lnN 1.046  1.046 1.046  1.046 \n")  
-        file.write("CMS_eff_t lnN 1.066  1.066 1.066  1.066 \n") 
-        file.write("TTYield lnN - 1.100 -  - \n")   
+        #syst = systReader("../config/systematics.cfg",['Lambda20'],theInputs.background)
+        syst = systReader("../config/systematics.cfg",['Lambda20'],['TT','DY']) #FIXME: use the one above once all bkg are in
+	syst.writeSystematics(file)
+#        file.write("lumi_8TeV lnN 1.026  1.026 1.026  1.026 \n")
+#        file.write("CMS_eff_m lnN 1.026  1.026 1.026  1.026 \n")
+#        file.write("CMS_eff_e lnN 1.046  1.046 1.046  1.046 \n")  
+#        file.write("CMS_eff_t lnN 1.066  1.066 1.066  1.066 \n") 
+#        file.write("TTYield lnN - 1.100 -  - \n")   
 #CMS_zz4l_pdf_QCDscale_gg_syst param 0.0 1 [-3,3] 
 
         #...
