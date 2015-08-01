@@ -71,11 +71,11 @@ class cardMaker:
         rate_bkgDY_Shape = 0.0
         for isample in  theInputs.background:
             if isample == "TT":
-                templateBKG_TT = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel),isample)
+                templateBKG_TT = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
                 rate_bkgTT_Shape = templateBKG_TT.Integral("width")*self.lumi
                 putTT=True
             elif isample == "DY":
-                templateBKG_DY = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel),isample)
+                templateBKG_DY = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
                 rate_bkgDY_Shape = templateBKG_DY.Integral("width")*self.lumi
                 putDY=True
         
@@ -204,7 +204,7 @@ class cardMaker:
         file.write("process ")
         #i=0
         for chan in channelName:
-            file.write("{0} ".format(chan)
+            file.write("{0} ".format(chan))
             #i+=1
         file.write("\n")
         file.write("process 0 1 \n")
