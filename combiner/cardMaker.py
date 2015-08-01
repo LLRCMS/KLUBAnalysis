@@ -207,7 +207,11 @@ class cardMaker:
             file.write("{0} ".format(chan))
             #i+=1
         file.write("\n")
-        file.write("process 0 1 \n")
+        file.write("process ")
+        for chan in range(len(channelName)):
+            file.write("{0} ".format(chan))
+        file.write("\n")
+
         file.write("rate ")
         for chan in range(len(channelName)):
             file.write("{0:.4f} ".format(theRates[chan]))
