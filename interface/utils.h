@@ -37,6 +37,26 @@ struct sample
   float eff ;
 } ;
 
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+void addTo (vector<float> & total, vector<float> & addition) ;
+
+struct counters 
+{
+  vector<vector<float> > counters ; // [sample][selection]
+  vector<float> initEfficiencies ; // [sample]
+
+  vector<float> getTotalCountsPerCut ()
+    {
+      vector<float> total (counters.at(0).size (), 0.) ;
+      // loop on the samples
+      for (unsigned int i = 0 ; i < counters.size () ; ++i) 
+        addTo (total, counters.at (i)) ;
+      return total ;
+    }
+
+} ;
+
 
 int readSamples (vector<sample> & samples, vector<string> & samplesList, 
                  TString readOption = "READ") ;

@@ -27,36 +27,6 @@ using namespace std ;
 https://github.com/govoni/FlatNtStudy/blob/master/interface/plotter.h#L324
 */
 
-void addTo (vector<float> & total, vector<float> & addition)
-{
-  for (unsigned int i = 0 ; i < total.size () ; ++i)
-    total.at (i) += addition.at (i) ;
-  return ;  
-}
-
-
-// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-
-
-struct counters 
-{
-  vector<vector<float> > counters ; // [sample][selection]
-  vector<float> initEfficiencies ; // [sample]
-
-  vector<float> getTotalCountsPerCut ()
-    {
-      vector<float> total (counters.at(0).size (), 0.) ;
-      // loop on the samples
-      for (unsigned int i = 0 ; i < counters.size () ; ++i) 
-        addTo (total, counters.at (i)) ;
-      return total ;
-    }
-
-} ;
-
-
-// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-
 
 void printTitle (vector<string> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
 {

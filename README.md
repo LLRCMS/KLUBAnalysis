@@ -90,7 +90,11 @@ The 2D plots are done with:
 ```
 ./bin/plot2D.exe config/plotter_muTau.cfg 
 ```
-
+The config files for plotting are called config/plotter*cfg,
+and the corresponding cut sequences are config/plotter*cut.
+The request of having opposite sign candidates is in the selection sequence itself 
+for the plotting from the skims.
+This is not the case for the analysis sequence, though.
 
 ## MVA training
 

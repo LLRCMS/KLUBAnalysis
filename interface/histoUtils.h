@@ -19,6 +19,11 @@
 #include "THStack.h"
 #include "TFile.h"
 #include "TMath.h"
+#include "TTreeFormula.h"
+
+#include "utils.h"
+#include "ConfigParser.h"
+#include "HistoManager.h"
 
 using namespace std ;
 
@@ -108,5 +113,30 @@ vector<float> getExtremes (THStack * hstack, bool islog = false) ;
 float min3 (float uno, float due, float tre) ;
 float max3 (float uno, float due, float tre) ;
  
+ 
+
+void
+addHistos (vector<sample> & samples, HistoManager * manager,
+           vector<string> & variablesList,
+           vector<pair <TString, TCut> > & selections,
+           bool isSignal,
+           bool isData = false) ;
+
+counters
+fillHistos (vector<sample> & samples, HistoManager * manager, 
+            vector<string> & variablesList,
+            vector<pair <TString, TCut> > & selections,
+            float lumi,
+            const vector<float> & scale,
+            bool isData = false,
+            bool isSignal = false) ;
+
+
+vector<THStack *> 
+stackHistos (vector<sample> & samples, HistoManager * manager, 
+            vector<string> & variablesList,
+            vector<pair <TString, TCut> > & selections,
+            const string & tag) ;
+
 
 #endif
