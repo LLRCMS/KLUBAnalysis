@@ -138,5 +138,35 @@ stackHistos (vector<sample> & samples, HistoManager * manager,
             vector<pair <TString, TCut> > & selections,
             const string & tag) ;
 
+// to carry around sets of histos
+
+typedef map<string, TH1F *> samples_coll ;
+typedef map<string, samples_coll > cuts_coll ;
+typedef map<string, cuts_coll > vars_coll ;
+
+struct plotContainer 
+{
+  plotContainer (string name, vector<string> varList, vector<pair <TString, TCut> > cutList, 
+                 vector<string> sampleList, int histosType) ;
+  int addHisto (string varName, string cutName, string sampleName) ;
+  int addSample (string sampleName, vector<TH1F*> histos) ; // iHisto = iv + nVars * isel
+  TH1F * getHisto (string varName, string cutName, string sampleName) ;
+  map<string, TH1F *> & getStackSet (string varName, string cutName) ;
+  THStack * makeStack (string varName, string cutName) ;
+  void AddOverAndUnderFlow () ;
+  TH1F * createNewHisto (string name, string title, 
+                         int nbinsx, double xlow, double xup,
+                         int color, int histoType,
+                         TString titleX, TString titleY) ;
+
+  string m_name ;
+  unsigned int m_Nvar ;
+  unsigned int m_Ncut ;
+  unsigned int m_Nsample ;
+  int m_histosType ;
+  vars_coll m_histos ; // sample, corresponding histo
+  vector<TH1F **> m_flatContainer ;
+} ;
+
 
 #endif
