@@ -157,21 +157,39 @@ int main (int argc, char** argv)
   // adding a BDT
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   
-  int  NTrees            = 400 ; 
-//  bool  optimizeMethod   = false ; 
-  string  BoostType      = "AdaBoost" ; 
-  float  AdaBoostBeta    = 0.5 ; 
-  string  PruneMethod    = "NoPruning" ; 
-  int  PruneStrength     = 5 ; 
-  int  MaxDepth          = 5 ; 
-  string  SeparationType = "GiniIndex" ;
+  int    NTrees         = 400 ; 
+  bool   optimizeMethod = false ; 
+  string BoostType      = "AdaBoost" ; 
+  float  AdaBoostBeta   = 0.5 ; 
+  string PruneMethod    = "NoPruning" ; 
+  int    PruneStrength  = 5 ; 
+  int    MaxDepth       = 5 ; 
+  string SeparationType = "GiniIndex" ;
+
   TString Option = Form ("!H:!V:CreateMVAPdfs:NTrees=%d:BoostType=%s:AdaBoostBeta=%f:PruneMethod=%s:PruneStrength=%d:MaxDepth=%d:SeparationType=%s:Shrinkage=0.1:MaxDepth=11:UseYesNoLeaf=F:MinNodeSize=2:nCuts=200", 
       NTrees, BoostType.c_str (), AdaBoostBeta, PruneMethod.c_str (), PruneStrength, MaxDepth, SeparationType.c_str ()) ;
 
   string BDTname = string ("BDT_") + MVAname ;
   TMVAtest->BookMethod ( TMVA::Types::kBDT, BDTname.c_str (), Option.Data ()) ;
-    
-  // trigger the training
+
+  // adding a BDTG
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+  float GradBaggingFraction = 0.5 ; 
+  NTrees              = 300 ; 
+  optimizeMethod      = false ; 
+  PruneMethod         = "NoPruning" ; 
+  PruneStrength       = 5 ; 
+  MaxDepth            = 5 ; 
+  SeparationType      = "GiniIndex" ;
+
+  Option = Form ("CreateMVAPdfs:NTrees=%d:BoostType=Grad:!UseBaggedGrad:GradBaggingFraction=%f:PruneMethod=%s:PruneStrength=%d:MaxDepth=%d:SeparationType=%s:Shrinkage=0.1:NNodesMax=100000:UseYesNoLeaf=F:nCuts=2000",
+      NTrees, GradBaggingFraction, PruneMethod.c_str (), PruneStrength, MaxDepth, SeparationType.c_str ()) ;
+
+  string BDTGname = string ("BDTG_") + MVAname ;
+  TMVAtest->BookMethod ( TMVA::Types::kBDT, BDTGname.c_str (), Option.Data ()) ;
+
+  // start the training
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   
   TMVAtest->TrainAllMethods () ;

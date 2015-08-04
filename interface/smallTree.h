@@ -39,6 +39,8 @@ struct smallTree
       
       m_met_phi = -1. ;
       m_met_et = -1. ;
+
+      m_mT = -1. ;
     
       m_dau1_pt  = -1. ;
       m_dau1_eta  = -1. ;
@@ -138,6 +140,8 @@ struct smallTree
 
       m_smallT->Branch ("met_phi", &m_met_phi, "met_phi/F") ;
       m_smallT->Branch ("met_et", &m_met_et, "met_et/F") ;
+
+      m_smallT->Branch ("mT", &m_mT, "mT/F") ;
 
       m_smallT->Branch ("dau1_pt", &m_dau1_pt, "dau1_pt/F") ;
       m_smallT->Branch ("dau1_eta", &m_dau1_eta, "dau1_eta/F") ;
@@ -244,6 +248,9 @@ struct smallTree
   // MET
   Float_t m_met_phi ;
   Float_t m_met_et ;
+
+  // mt
+  Float_t m_mT ;
 
   // the largest pT daughter visible candidate
   Float_t m_dau1_pt ;
