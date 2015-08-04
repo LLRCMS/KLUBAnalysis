@@ -22,6 +22,15 @@ source scripts/setup.sh
 make
 make exe
 ```
+
+## SyncNtupleProducer
+Specify the options (channels, samples, etc.), in: config/sync/syncNtuples.cfg
+Specify the selections for each channel in: config/sync/syncNtuples_selections_XX.cut
+Run using:
+/bin/syncNtupleProducer.exe config/sync/syncNtuples.cfg
+Output is located in:
+syncNtuples
+(output folder can be specified in config file)
  
 ## Big ntuples skimming
 
