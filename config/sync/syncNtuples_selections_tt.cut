@@ -1,0 +1,30 @@
+[event]
+
+DR  = 0.5
+triggers = test
+
+[tauOne]
+
+pT          = 45
+Eta         = 2.1
+DMV         = new
+againstEleV = VLooseMVA5
+againstEle  = 0.5
+againstMuV  = MuonTight3
+againstMu   = 0.5
+IsoV        = cutbased
+Iso         = 1.5
+dz          = 0.2
+
+[tauTwo]
+
+pT          = 45
+Eta         = 2.1
+DMV         = new
+againstEleV = VLooseMVA5
+againstEle  = 0.5
+againstMuV  = MuonTight3
+againstMu   = 0.5
+IsoV        = cutbased
+Iso         = 1.5
+dz          = 0.2

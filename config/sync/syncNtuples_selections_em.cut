@@ -1,0 +1,24 @@
+[event]
+
+DR  = 0.3
+triggers = test
+
+[electron]
+
+pT   = 13
+Eta  = 2.5
+IDV  = 80
+ID   = 0.5
+Iso  = 0.1
+dxy  = 0.045
+dz   = 0.2
+
+[muon]
+
+pT   = 9
+Eta  = 2.4
+IDV  = medium
+ID   = 0.5
+Iso  = 0.1
+dxy  = 0.045
+dz   = 0.2
