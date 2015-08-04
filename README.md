@@ -15,9 +15,10 @@ cd -
 ls
 cd HHKinFit/
 ``` 
-#(this should not be needed anymore in HHKinFit2)
-#change 0.000001 into 0.000002 at the following line:
-#https://github.com/bvormwald/HHKinFit/blob/master/src/HHKinFit.cpp#L519
+(this should not be needed anymore in HHKinFit2)  
+change 0.000001 into 0.000002 at the following line:
+https://github.com/bvormwald/HHKinFit/blob/master/src/HHKinFit.cpp#L519
+
 ``` 
 ./compile.sh
 cd ..
