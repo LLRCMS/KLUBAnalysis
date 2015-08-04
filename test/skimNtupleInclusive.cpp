@@ -136,13 +136,13 @@ int main (int argc, char** argv)
       return -1 ;
     }
 
-  bool beInclusive      = gConfigParser->readBoolOption ("selections::beInclusive") ;
-  float PUjetID_minCut  = gConfigParser->readFloatOption ("parameters::PUjetIDminCut") ;
-  bool  saveOS          = gConfigParser->readBoolOption ("parameters::saveOS") ;
-  float lepCleaningCone = gConfigParser->readFloatOption ("parameters::lepCleaningCone") ;
-  int   bChoiceFlag     = gConfigParser->readFloatOption ("parameters::bChoiceFlag") ;
-  int PUReweight_MC     = gConfigParser->readFloatOption ("parameters::PUReweightMC") ; 
-  int PUReweight_target = gConfigParser->readFloatOption ("parameters::PUReweighttarget") ; 
+  bool  beInclusive       = gConfigParser->readBoolOption  ("selections::beInclusive") ;
+  float PUjetID_minCut    = gConfigParser->readFloatOption ("parameters::PUjetIDminCut") ;
+  int   saveOS            = gConfigParser->readIntOption   ("parameters::saveOS") ;
+  float lepCleaningCone   = gConfigParser->readFloatOption ("parameters::lepCleaningCone") ;
+  int   bChoiceFlag       = gConfigParser->readFloatOption ("parameters::bChoiceFlag") ;
+  int   PUReweight_MC     = gConfigParser->readFloatOption ("parameters::PUReweightMC") ; 
+  int   PUReweight_target = gConfigParser->readFloatOption ("parameters::PUReweighttarget") ; 
 
   // input and output setup
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -207,24 +207,46 @@ int main (int argc, char** argv)
       if (isMC) counter.at (selID++) += theBigTree.MC_weight ;
       else      counter.at (selID++) += 1 ;
 
-      // by now take the OS pair with largest pT
-      int chosenTauPair = -1 ;
-      
-      for (int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
+      // assume that the ordering of the pair numbering
+      // is the same as the priority we want to give:
+      //  0 : muTau
+      //  1 : eTau
+      //  2 : TauTau
+      //  3 : mumu   
+      //  4 : ee
+      //  5 : emu
+    
+      map<int, int> foundPairs ; // pairType, pairIndexInVectors
+
+      string selectionFlag = "bothPairs" ;
+      bool invertIso = gConfigParser->readBoolOption  ("parameters::invertIso") ;
+      if (invertIso) selectionFlag += " InvertIzo" ; // the 'z' is not a bug!
+
+      for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
         {
-          if (theBigTree.isOSCand->at (iPair) != saveOS) continue ;
-          if (saveOS && oph.pairPassBaseline (&theBigTree, iPair, "All"))
-            {
-              chosenTauPair = iPair ;
-              break ; 
-            }
-          if (!saveOS && oph.pairPassBaseline (&theBigTree, iPair, "SScharge"))
-            {
-              chosenTauPair = iPair ;
-              break ; 
-            }
+          // FIXME need to implement here the choice of iso / anti-iso
+          if (!oph.pairPassBaseline (&theBigTree, iPair, selectionFlag.c_str ())) continue ;
+          
+          int firstDaughterIndex = theBigTree.indexDau1->at (iPair) ;  
+          int secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
+          int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
+          int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
+          int pairType = oph.getPairType (type1, type2) ;
+          if (foundPairs.find (pairType) != foundPairs.end ()) continue ;
+          
+          foundPairs[pairType] = iPair ;
         }  
-      if (chosenTauPair < 0) continue ;
+
+      if (foundPairs.size () < 0) continue ;
+
+      // by now take the OS pair with largest pT
+      int chosenTauPair = foundPairs.begin ()->second ;
+      int isOS = theBigTree.isOSCand->at (chosenTauPair) ;
+
+      if (saveOS == 1 && !isOS) continue ;
+      if (saveOS == 0 &&  isOS) continue ;
+      
+      
       if (isMC) counter.at (selID++) += theBigTree.MC_weight ;
       else      counter.at (selID++) += 1 ;
 
@@ -269,7 +291,7 @@ int main (int argc, char** argv)
 
       vector <pair <int, float> > jets_and_btag ;
       // loop over jets
-      for (int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
+      for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
         {
           // PG filter jets at will
           if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
@@ -320,6 +342,7 @@ int main (int argc, char** argv)
       theSmallTree.m_isOS = theBigTree.isOSCand->at (chosenTauPair) ;
       theSmallTree.m_met_phi = theBigTree.metphi ;
       theSmallTree.m_met_et = theBigTree.met ;
+      theSmallTree.m_mT = theBigTree.mT_Dau1->at (chosenTauPair) ;
 
       int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
       int type2 = theBigTree.particleType->at (secondDaughterIndex) ;
@@ -350,12 +373,13 @@ int main (int argc, char** argv)
 
       // loop over leptons
       vector<pair<TLorentzVector, float> > dummyLeptCollection ;
-      for (int iLep = 0 ; 
+      for (unsigned int iLep = 0 ; 
            (iLep < theBigTree.daughters_px->size ()) ;
            ++iLep)
         {
           // skip the H decay candiates
-          if (iLep == firstDaughterIndex || iLep == secondDaughterIndex) continue ;
+          if (int (iLep) == firstDaughterIndex || 
+              int (iLep) == secondDaughterIndex) continue ;
 
           // remove taus
           if (theBigTree.particleType->at (iLep) == 2)
@@ -386,7 +410,7 @@ int main (int argc, char** argv)
         } // loop over leptons
 
       sort (dummyLeptCollection.rbegin (), dummyLeptCollection.rend (), leptSort ()) ;
-      for (int iLep = 0 ; 
+      for (unsigned int iLep = 0 ; 
            (iLep < dummyLeptCollection.size ()) && (theSmallTree.m_nleps < 2) ;
            ++iLep)
         {
@@ -488,7 +512,7 @@ int main (int argc, char** argv)
           theSmallTree.m_dib_deltaPhi = deltaPhi (tlv_firstBjet.Phi (), tlv_secondBjet.Phi ()) ;
 
           // loop over jets
-          for (int iJet = 0 ; 
+          for (unsigned int iJet = 0 ; 
                (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < 3) ;
                ++iJet)
             {
@@ -496,7 +520,8 @@ int main (int argc, char** argv)
               if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
           
               // skip the H decay candiates
-              if (iJet == eventJets.first || iJet == eventJets.second) continue ;
+              if (int (iJet) == eventJets.first || 
+                  int (iJet) == eventJets.second) continue ;
 
               TLorentzVector tlv_dummyJet (
                   theBigTree.jets_px->at (iJet),
@@ -525,7 +550,7 @@ int main (int argc, char** argv)
   cout << "2: " << selectedEvents << endl ;
   cout << "3: " << totalNoWeightsEventsNum << endl ;
   cout << "4: " << selectedNoWeightsEventsNum << endl ;
-  for (int i = 0 ; i < counter.size () ; ++i)
+  for (unsigned int i = 0 ; i < counter.size () ; ++i)
     cout << "5 + i: " << counter.at (i) << endl ;
 
   if (totalEvents != 0) cout << "efficiency = " << selectedEvents / totalEvents << endl ;
@@ -535,7 +560,7 @@ int main (int argc, char** argv)
   h_eff.SetBinContent (2, selectedEvents) ;
   h_eff.SetBinContent (3, totalNoWeightsEventsNum) ;
   h_eff.SetBinContent (4, selectedNoWeightsEventsNum) ;
-  for (int i = 0 ; i < counter.size () ; ++i)
+  for (unsigned int i = 0 ; i < counter.size () ; ++i)
     h_eff.SetBinContent (5 + i, counter.at (i)) ;
 
   h_eff.Write () ;

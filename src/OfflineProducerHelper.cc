@@ -198,6 +198,7 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
     //bool idS = tree->daughters_iseleBDT->at(iDau) || byp_idS; // use it in ntuples produced after 11 June 2015, contains tight WP bool  
     //bool idS = tightEleMVAID (tree->discriminator->at(iDau), TMath::Abs(p4.Eta())) || byp_idS; // APPROX! Using lepton eta and not super cluster eta, discriminator contains ele BDT  
     bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
+    if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
     
     bool totalS = (vertexS && idS && isoS && ptS && etaS);
     return totalS;
@@ -236,6 +237,7 @@ bool OfflineProducerHelper::muBaseline (bigTree* tree, int iDau, float ptMin, fl
     bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
     bool idS = checkBit (discr, 2) || byp_idS; // bit 2 is MEDIUM mu id
     bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
+    if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
     bool etaS = (fabs(p4.Eta()) < etaMax) || byp_etaS;
     
@@ -307,6 +309,8 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin, f
     bool agEleS = (agEleVal == 1) || byp_agEleS; 
     bool agMuS  = (agMuVal == 1) || byp_agMuS; 
     bool isoS = (tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) < isoRaw3Hits) || byp_isoS;
+    if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
+
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
     bool etaS = (fabs(p4.Eta()) < etaMax) || byp_etaS;
 

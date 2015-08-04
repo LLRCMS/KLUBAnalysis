@@ -20,7 +20,7 @@ https://github.com/bvormwald/HHKinFit/blob/master/src/HHKinFit.cpp#L519
 ``` 
 ./compile.sh
 cd ..
-git clone git@github.com:LLRCMS/KLUBAnalysis.git
+git clone https://github.com/LLRCMS/KLUBAnalysis
 cd KLUBAnalysis
 source scripts/setup.sh
 make
