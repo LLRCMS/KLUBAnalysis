@@ -1,6 +1,6 @@
-# DoubleHiggs
+# KLUBAnalysis
 
-repo for the h->hh analysis within the LLR framework
+repo for the h->tautau/h->hh analysis within the LLR framework
 
 ## Installing
 ``` 
