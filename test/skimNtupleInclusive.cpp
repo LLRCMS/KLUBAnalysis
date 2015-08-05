@@ -11,7 +11,8 @@
 #include "smallTree.h"
 #include "OfflineProducerHelper.h"
 #include "PUReweight.h"
-#include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
+#include "../../HHKinFit2/interface/HHKinFitMaster.h"
+//#include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 #include "ConfigParser.h"
 
 using namespace std ;
@@ -159,11 +160,11 @@ int main (int argc, char** argv)
   smallTree theSmallTree ("HTauTauTree") ;
 
   // these are needed for the HHKinFit
-  //vector<Int_t> hypo_mh1 ; //FIXME why is this an integer?!
-  //hypo_mh1.push_back (125) ;
-  //vector<Int_t> hypo_mh2 ;
-  //hypo_mh2.push_back (125) ;
-  int hypo_mh1=125,hypo_mh2=125;
+  vector<Int_t> hypo_mh1 ; //FIXME why is this an integer?!
+  hypo_mh1.push_back (125) ;
+  vector<Int_t> hypo_mh2 ;
+  hypo_mh2.push_back (125) ;
+  //int hypo_mh1=125,hypo_mh2=125;
 
   int eventsNumber = theBigTree.fChain->GetEntries () ;
   float totalEvents = 0. ;
@@ -491,18 +492,19 @@ int main (int argc, char** argv)
             } // in case the SVFIT mass is calculated
         
           //intance of fitter master class
-          HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs (&tlv_firstBjet, &tlv_secondBjet, 
+          HHKinFitMaster kinFits = HHKinFitMaster (&tlv_firstBjet, &tlv_secondBjet,
+          //HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs (&tlv_firstBjet, &tlv_secondBjet, 
                                                    &tlv_firstLepton, &tlv_secondLepton) ;
           kinFits.setAdvancedBalance (&ptmiss, metcov) ;
           //kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
 
-          //kinFits.addMh1Hypothesis (hypo_mh1) ;
-          //kinFits.addMh2Hypothesis (hypo_mh2) ;
-	  kinFits.addHypo(hypo_mh1,hypo_mh2);
-          kinFits.doFit();//doFullFit () ;
+          kinFits.addMh1Hypothesis (hypo_mh1) ;
+          kinFits.addMh2Hypothesis (hypo_mh2) ;
+	  //kinFits.addHypo(hypo_mh1,hypo_mh2);
+          kinFits.doFullFit();//doFit () ;
 
-          theSmallTree.m_HHKin_mass = kinFits.getMH();//getBestMHFullFit () ;
-	  theSmallTree.m_HHKin_chi2 = kinFits.getChi2();//getBestChi2FullFit () ;
+          theSmallTree.m_HHKin_mass = kinFits.getBestMHFullFit();//getMH () ;
+	  theSmallTree.m_HHKin_chi2 = kinFits.getBestChi2FullFit();//getChi2 () ;
 
           theSmallTree.m_HH_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
           theSmallTree.m_tauHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_tauH.Phi ()) ;
