@@ -290,7 +290,8 @@ int
 plotContainer::addSample (string sampleName, const plotContainer & original) // iHisto = iv + nVars * isel
 {
   // shallow check
-  if (original.m_histos.size () != m_histos.size () / m_Nsample) 
+  if (original.m_Nvar != m_Nvar ||
+      original.m_Ncut != m_Ncut) 
     {
       cerr << "the two plot containers don't match in size\n" ;
       exit (1) ;

@@ -491,20 +491,20 @@ int main (int argc, char** argv)
               theSmallTree.m_HHsvfit_e = tlv_HHsvfit.E () ;
             } // in case the SVFIT mass is calculated
         
-          //intance of fitter master class
-          HHKinFitMaster kinFits = HHKinFitMaster (&tlv_firstBjet, &tlv_secondBjet,
-          //HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs (&tlv_firstBjet, &tlv_secondBjet, 
-                                                   &tlv_firstLepton, &tlv_secondLepton) ;
-          kinFits.setAdvancedBalance (&ptmiss, metcov) ;
-          //kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
-
-          kinFits.addMh1Hypothesis (hypo_mh1) ;
-          kinFits.addMh2Hypothesis (hypo_mh2) ;
-	  //kinFits.addHypo(hypo_mh1,hypo_mh2);
-          kinFits.doFullFit();//doFit () ;
-
-          theSmallTree.m_HHKin_mass = kinFits.getBestMHFullFit();//getMH () ;
-	  theSmallTree.m_HHKin_chi2 = kinFits.getBestChi2FullFit();//getChi2 () ;
+//           //intance of fitter master class
+//           HHKinFitMaster kinFits = HHKinFitMaster (&tlv_firstBjet, &tlv_secondBjet,
+//           //HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs (&tlv_firstBjet, &tlv_secondBjet, 
+//                                                    &tlv_firstLepton, &tlv_secondLepton) ;
+//           kinFits.setAdvancedBalance (&ptmiss, metcov) ;
+//           //kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
+// 
+//           kinFits.addMh1Hypothesis (hypo_mh1) ;
+//           kinFits.addMh2Hypothesis (hypo_mh2) ;
+//           //kinFits.addHypo(hypo_mh1,hypo_mh2);
+//           kinFits.doFullFit();//doFit () ;
+// 
+//           theSmallTree.m_HHKin_mass = kinFits.getBestMHFullFit();//getMH () ;
+//           theSmallTree.m_HHKin_chi2 = kinFits.getBestChi2FullFit();//getChi2 () ;
 
           theSmallTree.m_HH_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
           theSmallTree.m_tauHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_tauH.Phi ()) ;
