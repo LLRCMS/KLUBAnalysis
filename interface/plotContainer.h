@@ -39,7 +39,7 @@ struct plotContainer
   void createHistos (vector<string> varList, vector<pair <TString, TCut> > cutList, 
                      vector<string> sampleList) ;      
   int addHisto (string varName, string cutName, string sampleName) ;
-  int addSample (string sampleName, vector<TH1F*> histos) ; // iHisto = iv + nVars * isel
+  int addSample (string sampleName, const plotContainer & original) ;
   TH1F * getHisto (string varName, string cutName, string sampleName) ;
   map<string, TH1F *> & getStackSet (string varName, string cutName) ;
   THStack * makeStack (string varName, string cutName) ;
@@ -48,6 +48,8 @@ struct plotContainer
                          int nbinsx, double xlow, double xup,
                          int color, int histoType,
                          TString titleX, TString titleY) ;
+  void scale (float scaleFactor) ;
+  void setFillColor (int color) ;
   void save (TFile * fOut) ;
 
   string m_name ;
@@ -55,7 +57,7 @@ struct plotContainer
   unsigned int m_Ncut ;
   unsigned int m_Nsample ;
   int m_histosType ;
-  vars_coll m_histos ; // hierarchy: variable [selection [sample]m]
+  vars_coll m_histos ; // hierarchy: variable [selection [sample]]
 } ;
 
 #endif
