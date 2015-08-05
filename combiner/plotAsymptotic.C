@@ -15,14 +15,16 @@
 
 void getLimits(TFile *f, std::vector<double> &v_mh,std::vector<double> &v_mean,std::vector<double> &v_68l,std::vector<double> &v_68h,std::vector<double> &v_95l,std::vector<double> &v_95h,std::vector<double> &v_obs, bool onepointta=false);
 // --------- Inputs ------- //
-TString inputFile = "higgsCombineTest.Asymptotic.mH125.7.root";
+//TString inputDir = "cards"; //"higgsCombineTest.Asymptotic.mH125.7.root";
+TString lambdas[]= {"20"};
+const int nLambdas = 1;
 const bool addObsLimit = false;
 const bool _DEBUG_ = true;
 string method = "ASCLS";
 Double_t xLow = 0;
 Double_t xHigh = 31.0;
 Double_t yLow = 0.1;
-Double_t yHigh = 15.0;
+Double_t yHigh = 151.0;
 TString xTitle = "#Lambda [GeV]";
 TString yTitle = "95% CL limit on #sigma/#sigma_{SM}";
 const bool logy = false;
@@ -33,7 +35,7 @@ const bool points = true;
 const bool isTiny = false;
 int canvasX = 900;
 int canvasY = 700;
-double sqrts = 8.0;
+double sqrts = 13.0;
 //Double_t lumi = 1.0;
 std::string plotDir = "tests";
 TString TplotDir = plotDir;
@@ -49,14 +51,19 @@ void plotAsymptotic()
   gStyle->SetPadLeftMargin(0.16);
   gStyle->SetPadTopMargin(0.1);
 
-  TFile *inFile = new TFile(inputFile,"READ");
+  //TFile *inFile = new TFile(inputFile,"READ");
 
   // ------------------- Get Values -------------------- //
 
 
   vector<double> mH, Val_obs, Val_mean, Val_68h, Val_68l, Val_95h, Val_95l;
 cout<<"Getting limits"<<endl;
+ for(int ifile=0;ifile<nLambdas;ifile++){
+   TString filename;
+   filename.Form("cards/lambda%s/higgsCombineLambda%s.Asymptotic.mH125.7.root",lambdas[ifile].Data(),lambdas[ifile].Data());
+   TFile *inFile = TFile::Open(filename.Data());
   getLimits(inFile,mH,Val_mean,Val_68l,Val_68h,Val_95l,Val_95h,Val_obs,onepointta);
+ }
 cout<<"got"<<endl;
   vector<double> v_masses, v_means, v_lo68, v_hi68, v_lo95, v_hi95, v_obs;
   vector<double> expExclusion,obsExclusion;
@@ -246,12 +253,12 @@ oneLine->Draw("LSAME");
   //pt3->Draw("SAME");
   pt4->Draw("SAME");
 
-  sprintf( outfileName,"%s/UpperLimit_%s_lowMass_1D2DImp_7p8TeV.eps",plotDir.c_str(),method.c_str() );
+  sprintf( outfileName,"UpperLimit.eps" );
   c->SaveAs(outfileName);
-  sprintf( outfileName,"%s/UpperLimit_%s_lowMass_1D2DImp_7p8TeV.png",plotDir.c_str(),method.c_str() );
+  sprintf( outfileName,"UpperLimit.png" );
   c->SaveAs(outfileName);
-  //sprintf( outfileName,"plots/UpperLimit_%s_lowMass_2D.C",method.c_str() );	
-  //c->SaveAs(outfileName);
+  sprintf( outfileName,"UpperLimit.root" );	
+  c->SaveAs(outfileName);
 
 
   // --------------- Full Mass Range ---------------- //
