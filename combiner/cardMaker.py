@@ -67,8 +67,9 @@ class cardMaker:
         #Default
         print theInputs.AllVars, "  ",theInputs.varX, "  ",theInputs.varY
         print "test2D_{0}{1}_Lambda{2:.0f}_{3}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theHHLambda,theInputs.selectionLevel)
-        tmptemplateSIG = inputFile.Get("test2D_{0}{1}_Lambda{2:.0f}_{3}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theHHLambda,theInputs.selectionLevel))
-        if self.is2D==1: templateSIG = tmptemplateSIG.ProjectionX()
+        templateSIG = inputFile.Get("test2D_{0}{1}_Lambda{2:.0f}_{3}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theHHLambda,theInputs.selectionLevel))
+        if self.is2D==1: 
+            if "TH2" in templateSIG.ClassName() : templateSIG = templateSIG.ProjectionX()
         
         ##JES syst
         #templateSIG_JESUP = inputFile.Get("") 
@@ -89,25 +90,29 @@ class cardMaker:
         for isample in  theInputs.background:
             if isample == "TT":
                 templateBKG_TT = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
-                if self.is2D==1 : templateBKG_TT = templateBKG_TT.ProjectionX()
+                if self.is2D==1 : 
+                    if "TH2" in templateBKG_TT.ClassName() : templateBKG_TT = templateBKG_TT.ProjectionX()
                 rate_bkgTT_Shape = templateBKG_TT.Integral("width")*self.lumi
                 putTT=True
                 print " bkg TT rate ", rate_bkgTT_Shape
             elif isample == "DY":
                 templateBKG_DY = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
-                if self.is2D==1 : templateBKG_DY = templateBKG_DY.ProjectionX()
+                if self.is2D==1 : 
+                    if "TH2" in templateBKG_DY.ClassName() : templateBKG_DY = templateBKG_DY.ProjectionX()
                 rate_bkgDY_Shape = templateBKG_DY.Integral("width")*self.lumi
                 putDY=True
                 print " bkg DY rate ", rate_bkgDY_Shape
             elif isample == "TWantitop":
                 templateBKG_TWantitop = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
-                if self.is2D==1 : templateBKG_TWantitop = templateBKG_TWantitop.ProjectionX()
+                if self.is2D==1 : 
+                    if "TH2" in templateBKG_TWantitop.ClassName() : templateBKG_TWantitop = templateBKG_TWantitop.ProjectionX()
                 rate_bkgTWantitop_Shape = templateBKG_TWantitop.Integral("width")*self.lumi
                 putTWantitop=True
                 print " bkg TWantitop rate ", rate_bkgTWantitop_Shape
             elif isample == "TWtop":
                 templateBKG_TWtop = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
-                if self.is2D==1 : templateBKG_TWtop = templateBKG_TWtop.ProjectionX()
+                if self.is2D==1 : 
+                    if "TH2" in templateBKG_TWtop.ClassName() : templateBKG_TWtop = templateBKG_TWtop.ProjectionX()
                 rate_bkgTWtop_Shape = templateBKG_TWtop.Integral("width")*self.lumi
                 putTWtop=True
                 print " bkg TWtop rate ", rate_bkgTWtop_Shape
