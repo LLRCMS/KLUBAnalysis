@@ -11,7 +11,7 @@
 #include "smallTree.h"
 #include "OfflineProducerHelper.h"
 #include "PUReweight.h"
-#include "../../HHKinFit2/interface/HHKinFitMaster.h"
+#include "../../HHKinFit/interface/HHKinFitMaster.h"
 //#include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 #include "ConfigParser.h"
 
