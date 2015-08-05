@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-import sys, pwd, commands
+import sys, pwd, commands, optparse
 import os
 import re
 import math
@@ -19,6 +19,8 @@ class cardMaker:
         self.ID_ch_etau=1
         self.ID_ch_mutau=2
         self.ID_ch_tautau=3
+        
+        self.is2D = 2
         #...
 
     def loadIncludes(self):
@@ -27,9 +29,14 @@ class cardMaker:
         ROOT.gSystem.Load("libRooFit")
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
 
+    def set2D(self,is2D):
+        self.is2D = is2D
+
     def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir, theInputs):
         
-        cmd = 'mkdir -p cards/{0}'.format(theOutputDir)
+        dname=""
+        if(self.is2D==2):dname="2D"
+        cmd = 'mkdir -p cards{0}/{1}'.format(dname,theOutputDir)
         status, output = commands.getstatusoutput(cmd)    
         ## ----- SETTING AND DECLARATIONS ----
         DEBUG = False
@@ -60,7 +67,9 @@ class cardMaker:
         #Default
         print theInputs.AllVars, "  ",theInputs.varX, "  ",theInputs.varY
         print "test2D_{0}{1}_Lambda{2:.0f}_{3}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theHHLambda,theInputs.selectionLevel)
-        templateSIG = inputFile.Get("test2D_{0}{1}_Lambda{2:.0f}_{3}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theHHLambda,theInputs.selectionLevel))
+        tmptemplateSIG = inputFile.Get("test2D_{0}{1}_Lambda{2:.0f}_{3}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theHHLambda,theInputs.selectionLevel))
+        if self.is2D==1: templateSIG = tmptemplateSIG.ProjectionX()
+        
         ##JES syst
         #templateSIG_JESUP = inputFile.Get("") 
         #templateSIG_JESDOWN = inputFile.Get("") 
@@ -80,21 +89,25 @@ class cardMaker:
         for isample in  theInputs.background:
             if isample == "TT":
                 templateBKG_TT = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
+                if self.is2D==1 : templateBKG_TT = templateBKG_TT.ProjectionX()
                 rate_bkgTT_Shape = templateBKG_TT.Integral("width")*self.lumi
                 putTT=True
                 print " bkg TT rate ", rate_bkgTT_Shape
             elif isample == "DY":
                 templateBKG_DY = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
+                if self.is2D==1 : templateBKG_DY = templateBKG_DY.ProjectionX()
                 rate_bkgDY_Shape = templateBKG_DY.Integral("width")*self.lumi
                 putDY=True
                 print " bkg DY rate ", rate_bkgDY_Shape
             elif isample == "TWantitop":
                 templateBKG_TWantitop = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
+                if self.is2D==1 : templateBKG_TWantitop = templateBKG_TWantitop.ProjectionX()
                 rate_bkgTWantitop_Shape = templateBKG_TWantitop.Integral("width")*self.lumi
                 putTWantitop=True
                 print " bkg TWantitop rate ", rate_bkgTWantitop_Shape
             elif isample == "TWtop":
                 templateBKG_TWtop = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
+                if self.is2D==1 : templateBKG_TWtop = templateBKG_TWtop.ProjectionX()
                 rate_bkgTWtop_Shape = templateBKG_TWtop.Integral("width")*self.lumi
                 putTWtop=True
                 print " bkg TWtop rate ", rate_bkgTWtop_Shape
@@ -116,17 +129,24 @@ class cardMaker:
         theRates=[rate_signal_Shape,rate_bkgTT_Shape,rate_bkgDY_Shape,rate_bkgTWantitop_Shape,rate_bkgTWtop_Shape]
         ## -------------------------- SIGNAL SHAPE VARIABLES ---------------------- ##
         binsx = templateSIG.GetNbinsX()
-        binsy = templateSIG.GetNbinsY()
+        binsy = 0
         print theInputs.AllvarX[theInputs.varX]
         x_name = theInputs.AllVars[theInputs.varX]
         x = ROOT.RooRealVar(x_name,x_name,float(theInputs.AllvarX[theInputs.varX]),float(theInputs.AllvarY[theInputs.varX]))
         x.setVal(250)
         x.setBins(binsx)#theInputs.AllBins[theInputs.varX])
+        ral_variableList = ROOT.RooArgList(x)
+        ras_variableSet  = ROOT.RooArgSet(x)
 
-        y_name = theInputs.AllVars[theInputs.varY]
-        y = ROOT.RooRealVar(y_name,y_name,float(theInputs.AllvarX[theInputs.varY]),float(theInputs.AllvarY[theInputs.varY]))
-        y.setVal(0.5)
-        y.setBins(binsy)#theInputs.AllBins[theInputs.varY])
+        if(self.is2D == 2):
+            y_name = theInputs.AllVars[theInputs.varY]
+            y = ROOT.RooRealVar(y_name,y_name,float(theInputs.AllvarX[theInputs.varY]),float(theInputs.AllvarY[theInputs.varY]))
+            y.setVal(0.5)
+            binsy = templateSIG.GetNbinsY()
+            y.setBins(binsy)#theInputs.AllBins[theInputs.varY])
+            
+            ral_variableList = ROOT.RooArgList(x,y)
+            ras_variableSet  = ROOT.RooArgSet(x,y)
 
         self.LUMI = ROOT.RooRealVar("LUMI_{0:.0f}".format(self.sqrts),"LUMI_{0:.0f}".format(self.sqrts),self.lumi)
         self.LUMI.setConstant(True)
@@ -139,20 +159,20 @@ class cardMaker:
         morphVarList_sig = ROOT.RooArgList()
         MorphList_sig = ROOT.RooArgList()
         TemplateName = "SIG_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-        SIG_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(x,y),templateSIG)
+        SIG_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateSIG)
         PdfName = "SIG_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-        SIG_TemplatePdf = ROOT.RooHistPdf("sig","sig",ROOT.RooArgSet(x,y),SIG_TempDataHist)
+        SIG_TemplatePdf = ROOT.RooHistPdf("sig","sig",ras_variableSet,SIG_TempDataHist)
         print templateSIG.Integral()
         ##Up
         #TemplateName = "SIG_JESUP_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-        #SIG_JESUP_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(x,y),templateSIG_JESUP)
+        #SIG_JESUP_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateSIG_JESUP)
         #PdfName = "SIG_JESUP_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-        #SIG_JESUP_TemplatePdf = ROOT.RooHistPdf("sig_jesup","sig_jesup",ROOT.RooArgSet(x,y),SIG_JESUP_TempDataHist)
+        #SIG_JESUP_TemplatePdf = ROOT.RooHistPdf("sig_jesup","sig_jesup",ras_variableSet,SIG_JESUP_TempDataHist)
         ##Down
         #TemplateName = "SIG_JESDOWN_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-        #SIG_JESDOWN_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(x,y),templateSIG_JESDOWN)
+        #SIG_JESDOWN_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateSIG_JESDOWN)
         #PdfName = "SIG_JESDOWN_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-        #SIG_JESDOWN_TemplatePdf = ROOT.RooHistPdf("sig_jesdown","sig_jesdown",ROOT.RooArgSet(x,y),SIG_JESDOWN_TempDataHist)
+        #SIG_JESDOWN_TemplatePdf = ROOT.RooHistPdf("sig_jesdown","sig_jesdown",ras_variableSet,SIG_JESDOWN_TempDataHist)
 
         #CMS_JES_syst = w.factory("JES_sig[-5,5]")
         #morphVarList_sig.add(CMS_JES_syst)
@@ -164,43 +184,43 @@ class cardMaker:
         SIGpdf =SIG_TemplatePdf
         if putTT :
             TemplateName = "BKG_TT_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-            BKG_TT_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(x,y),templateBKG_TT)
+            BKG_TT_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateBKG_TT)
             PdfName = "BKG_TT_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-            BKG_TT_TemplatePdf = ROOT.RooHistPdf("bkg_TT","bkg_TT",ROOT.RooArgSet(x,y),BKG_TT_TempDataHist)
+            BKG_TT_TemplatePdf = ROOT.RooHistPdf("bkg_TT","bkg_TT",ras_variableSet,BKG_TT_TempDataHist)
             getattr(w,'import')(BKG_TT_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
         if putDY :
             TemplateName = "BKG_DY_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-            BKG_DY_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(x,y),templateBKG_TT)
+            BKG_DY_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateBKG_TT)
             PdfName = "BKG_DY_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-            BKG_DY_TemplatePdf = ROOT.RooHistPdf("bkg_DY","bkg_DY",ROOT.RooArgSet(x,y),BKG_DY_TempDataHist)
+            BKG_DY_TemplatePdf = ROOT.RooHistPdf("bkg_DY","bkg_DY",ras_variableSet,BKG_DY_TempDataHist)
             getattr(w,'import')(BKG_DY_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
         if putTWantitop :
             TemplateName = "BKG_TWantitop_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-            BKG_TWantitop_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(x,y),templateBKG_TT)
+            BKG_TWantitop_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateBKG_TT)
             PdfName = "BKG_TWantitop_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-            BKG_TWantitop_TemplatePdf = ROOT.RooHistPdf("bkg_TWantitop","bkg_TWantitop",ROOT.RooArgSet(x,y),BKG_TWantitop_TempDataHist)
+            BKG_TWantitop_TemplatePdf = ROOT.RooHistPdf("bkg_TWantitop","bkg_TWantitop",ras_variableSet,BKG_TWantitop_TempDataHist)
             getattr(w,'import')(BKG_TWantitop_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
         if putTWtop :
             TemplateName = "BKG_TWtop_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-            BKG_TWtop_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(x,y),templateBKG_TT)
+            BKG_TWtop_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateBKG_TT)
             PdfName = "BKG_TWtop_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-            BKG_TWtop_TemplatePdf = ROOT.RooHistPdf("bkg_TWtop","bkg_TWtop",ROOT.RooArgSet(x,y),BKG_TWtop_TempDataHist)
+            BKG_TWtop_TemplatePdf = ROOT.RooHistPdf("bkg_TWtop","bkg_TWtop",ras_variableSet,BKG_TWtop_TempDataHist)
             getattr(w,'import')(BKG_TWtop_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
         
         ## --------------------------- DATASET --------------------------- ##
-        #RooDataSet ds("ds","ds",RooArgSet(x,y),Import(*tree)) ;
-        data_obs = BKG_TT_TemplatePdf.generate(RooArgSet(x,y),1000)
+        #RooDataSet ds("ds","ds",ras_variableSet,Import(*tree)) ;
+        data_obs = BKG_TT_TemplatePdf.generate(ras_variableSet,1000)
         #datasetName = "data_obs_{0}".format(self.appendName)
         data_obs.SetNameTitle("data_obs","data_obs")
 
-        #data_obs = ROOT.RooDataSet(datasetName,datasetName,data_obs_tree,ROOT.RooArgSet(x,y))
+        #data_obs = ROOT.RooDataSet(datasetName,datasetName,data_obs_tree,ras_variableSet)
         print "observations: ", data_obs.numEntries()    
 
         ## --------------------------- WORKSPACE -------------------------- ##
         getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs"))
         getattr(w,'import')(SIG_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
-        name_ShapeWS = "cards/{0}/hh_{1}_L{2:.0f}_13TeV.input.root".format(theOutputDir,theChannel,theHHLambda)
-        name_ShapeDC = "cards/{0}/hh_{1}_L{2:.0f}_13TeV.txt".format(theOutputDir,theChannel,theHHLambda)
+        name_ShapeWS = "cards{3}/{0}/hh_{1}_L{2:.0f}_13TeV.input.root".format(theOutputDir,theChannel,theHHLambda,dname)
+        name_ShapeDC = "cards{3}/{0}/hh_{1}_L{2:.0f}_13TeV.txt".format(theOutputDir,theChannel,theHHLambda,dname)
         string_ShapeWS = "hh_{0}_L{1:.0f}_13TeV.input.root".format(theChannel,theHHLambda)
         string_ShapeDC = "hh_{0}_L{1:.0f}_13TeV.txt".format(theChannel,theHHLambda)
 
@@ -261,10 +281,31 @@ class cardMaker:
 
         #...
 
+#define function for parsing options
+def parseOptions():
+
+    usage = ('usage: %prog [options] datasetList\n'
+             + '%prog -h for help')
+    parser = optparse.OptionParser(usage)
+    
+    parser.add_option('-d', '--is2D',   dest='is2D',       type='int',    default=2,     help='number of Dimensions (default:1)')
+
+    # store options and arguments as global variables
+    global opt, args
+    (opt, args) = parser.parse_args()
+
+    if (opt.is2D != 1 and opt.is2D != 2):
+        print 'The input '+opt.is2D+' is unkown for is2D.  Please choose 1 or 2. Exiting...'
+        sys.exit()
+
 # run as main
 if __name__ == "__main__":
+    parseOptions()
+    global opt, args
+    #(opt, args) = parser.parse_args()
     dc =cardMaker()
     dc.loadIncludes()
+    dc.set2D(opt.is2D)
     #outputDir = ""
     input = configReader("../config/plotter_muTau.cfg") 
     input.readInputs()
