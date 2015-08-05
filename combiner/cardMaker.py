@@ -99,6 +99,7 @@ class cardMaker:
 
         print " signal rate ", rate_signal_Shape
         print " bkg TT rate ", rate_bkgTT_Shape
+        print " bkg DY rate ", rate_bkgDY_Shape
         print "total rate ", totalRate
         theRates=[rate_signal_Shape,rate_bkgTT_Shape,rate_bkgDY_Shape]
         ## -------------------------- SIGNAL SHAPE VARIABLES ---------------------- ##

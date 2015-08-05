@@ -253,12 +253,12 @@ oneLine->Draw("LSAME");
   //pt3->Draw("SAME");
   pt4->Draw("SAME");
 
-  sprintf( outfileName,"%s/UpperLimit_%s_lowMass_1D2DImp_7p8TeV.eps",plotDir.c_str(),method.c_str() );
+  sprintf( outfileName,"UpperLimit.eps" );
   c->SaveAs(outfileName);
-  sprintf( outfileName,"%s/UpperLimit_%s_lowMass_1D2DImp_7p8TeV.png",plotDir.c_str(),method.c_str() );
+  sprintf( outfileName,"UpperLimit.png" );
   c->SaveAs(outfileName);
-  //sprintf( outfileName,"plots/UpperLimit_%s_lowMass_2D.C",method.c_str() );	
-  //c->SaveAs(outfileName);
+  sprintf( outfileName,"UpperLimit.root" );	
+  c->SaveAs(outfileName);
 
 
   // --------------- Full Mass Range ---------------- //
