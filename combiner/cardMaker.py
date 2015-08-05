@@ -29,6 +29,8 @@ class cardMaker:
 
     def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir, theInputs):
         
+        cmd = 'mkdir -p cards/{0}'.format(theOutputDir)
+        status, output = commands.getstatusoutput(cmd)    
         ## ----- SETTING AND DECLARATIONS ----
         DEBUG = False
         self.lumi = theInputs.lumi
@@ -172,8 +174,11 @@ class cardMaker:
         ## --------------------------- WORKSPACE -------------------------- ##
         getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs"))
         getattr(w,'import')(SIG_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
-        name_ShapeWS = "{0}/hh_{1}_{2:.0f}TeV.input.root".format(theOutputDir,theChannel,theHHLambda)
-        name_ShapeDC = "{0}/hh_{1}_{2:.0f}TeV.txt".format(theOutputDir,theChannel,theHHLambda)
+        name_ShapeWS = "cards/{0}/hh_{1}_L{2:.0f}_13TeV.input.root".format(theOutputDir,theChannel,theHHLambda)
+        name_ShapeDC = "cards/{0}/hh_{1}_L{2:.0f}_13TeV.txt".format(theOutputDir,theChannel,theHHLambda)
+        string_ShapeWS = "hh_{0}_L{1:.0f}_13TeV.input.root".format(theChannel,theHHLambda)
+        string_ShapeDC = "hh_{0}_L{1:.0f}_13TeV.txt".format(theChannel,theHHLambda)
+
         w.writeToFile(name_ShapeWS)
 
         ## --------------------------- DATACARD -------------------------- ##
@@ -183,12 +188,12 @@ class cardMaker:
         channelName=['sig','bkg_TT','bkg_DY']
 
         file.write("imax 1\n")
-        file.write("jmax 1\n")#.format(numberSig+numberBg-1))
+        file.write("jmax 2\n")#.format(numberSig+numberBg-1))
         file.write("kmax *\n")
         
         file.write("------------\n")
         #file.write("shapes * * {0} w:$PROCESS w:$PROCESS_$SYSTEMATIC\n".format(name_ShapeWS))
-        file.write("shapes * * {0} w:$PROCESS \n".format(name_ShapeWS))
+        file.write("shapes * * {0} w:$PROCESS \n".format(string_ShapeWS))
         file.write("------------\n")
         
 
@@ -235,8 +240,7 @@ class cardMaker:
 if __name__ == "__main__":
     dc =cardMaker()
     dc.loadIncludes()
-    cmd = 'mkdir -p cards/'
+    #outputDir = ""
     input = configReader("../config/plotter_muTau.cfg") 
     input.readInputs()
-    status, output = commands.getstatusoutput(cmd)    
     dc.makeCardsAndWorkspace(20,1,2,"lambda20",input)
