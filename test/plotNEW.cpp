@@ -14,6 +14,8 @@
 #include "ConfigParser.h"
 #include "utils.h"
 #include "histoUtils.h"
+#include "plotContainer.h"
+#include "analysisUtils.h"
 
 using namespace std ;
 
@@ -126,56 +128,50 @@ int main (int argc, char** argv)
 
   vector<string> variablesList = gConfigParser->readStringListOption ("general::variables") ;
 
-  TString histoName ;
-  HistoManager * manager = new HistoManager ("test") ;
-
-  counters bkgCount = fillHistos (bkgSamples, manager, 
+  plotContainer bkg_plots ("bkg", variablesList, selections, bkgSamplesList, 0) ;
+  counters bkgCount = fillHistos (bkgSamples, bkg_plots, 
               variablesList,
               selections,
               lumi,
               vector<float> (0),
               false, false) ;
+  bkg_plots.AddOverAndUnderFlow () ;
 
-  counters sigCount = fillHistos (sigSamples, manager, 
+  plotContainer sig_plots ("sig", variablesList, selections, sigSamplesList, 1) ;
+  counters sigCount = fillHistos (sigSamples, sig_plots, 
               variablesList,
               selections,
               lumi,
               signalScales,
               false, true) ;
+  sig_plots.AddOverAndUnderFlow () ;
 
-  counters DATACount = fillHistos (DATASamples, manager, 
+  plotContainer DATA_plots ("DATA", variablesList, selections, DATASamplesList, 1) ;
+  counters DATACount = fillHistos (DATASamples, DATA_plots, 
               variablesList,
               selections,
               lumi,
               vector<float> (0),
               true, false) ;
+  DATA_plots.AddOverAndUnderFlow () ;
 
-
-  // Plot the histograms
+  // Save the histograms
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-  vector<THStack *> hstack_bkg = stackHistos (
-      bkgSamples, manager, 
-      variablesList,
-      selections, "bkg") ;
-
-  vector<THStack *> hstack_sig = stackHistos (
-      sigSamples, manager, 
-      variablesList,
-      selections, "sig") ;
-
-  vector<THStack *> hstack_DATA = stackHistos (
-      DATASamples, manager, 
-      variablesList,
-      selections, "DATA") ;
 
   TString outFolderNameBase = gConfigParser->readStringOption ("general::outputFolderName") ;
   
   system (TString ("mkdir -p ") + outFolderNameBase) ;
+
   TString outString ;
   outString.Form (outFolderNameBase + "outPlotter.root") ;
   TFile * fOut = new TFile (outString.Data (), "RECREATE") ;
-  manager->SaveAllToFile (fOut) ;
+  bkg_plots.save (fOut) ;
+  sig_plots.save (fOut) ;
+  DATA_plots.save (fOut) ;
+  fOut->Close () ;
+
+  // Plot the histograms
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events/")) ;
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/shapes/")) ;
@@ -187,21 +183,26 @@ int main (int argc, char** argv)
   for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
     {
       // loop on variables
-      for (int iv = 0 ; iv < nVars ; ++iv)
+      for (unsigned int iv = 0 ; iv < nVars ; ++iv)
         {
           c->cd () ;
-
           TString outputName ; 
-
           outputName.Form ("plot_%s_%s",
             variablesList.at (iv).c_str (), selections.at (isel).first.Data ()) ;
 
           TString outFolderName = outFolderNameBase + TString ("/events/") ;
 
           // get the extremes for the plot
-          vector<float> extremes_bkg  = getExtremes (hstack_bkg.at  (iv+nVars*isel)) ;
-          vector<float> extremes_sig  = getExtremes (hstack_sig.at  (iv+nVars*isel)) ;
-          vector<float> extremes_DATA = getExtremes (hstack_DATA.at (iv+nVars*isel)) ;
+          THStack * sig_stack = sig_plots.makeStack ( variablesList.at (iv), 
+                                    selections.at (isel).first.Data ()) ;
+          THStack * bkg_stack = bkg_plots.makeStack ( variablesList.at (iv), 
+                                    selections.at (isel).first.Data ()) ;
+          THStack * DATA_stack = DATA_plots.makeStack ( variablesList.at (iv), 
+                                    selections.at (isel).first.Data ()) ;
+
+          vector<float> extremes_bkg  = getExtremes (bkg_stack) ;
+          vector<float> extremes_sig  = getExtremes (sig_stack) ;
+          vector<float> extremes_DATA = getExtremes (DATA_stack) ;
           TH1F * bkg = c->DrawFrame (
               extremes_bkg.at (0) ,
               0.9 * min3 (extremes_bkg.at (1), extremes_sig.at (1), 
@@ -210,12 +211,13 @@ int main (int argc, char** argv)
               1.3 * max3 (extremes_bkg.at (3), extremes_sig.at (3), 
                           extremes_DATA.at (3) + sqrt (extremes_DATA.at (3)))
             ) ;  
-          copyTitles (bkg, hstack_bkg.at (iv+nVars*isel)) ;
+     
+          copyTitles (bkg, bkg_stack) ;
 
           bkg->Draw () ;
-          hstack_bkg.at (iv+nVars*isel)->Draw ("hist same") ;
-          hstack_sig.at (iv+nVars*isel)->Draw ("nostack hist same") ;
-          TH1F * h_data = (TH1F *) hstack_DATA.at (iv+nVars*isel)->GetStack ()->Last () ;
+          bkg_stack->Draw ("hist same") ;
+          sig_stack->Draw ("nostack hist same") ;
+          TH1F * h_data = (TH1F *) DATA_stack->GetStack ()->Last () ;
           // FIXME probably the data uncertainties need to be fixed
           h_data->Draw ("same") ;
           
@@ -225,8 +227,8 @@ int main (int argc, char** argv)
           
           c->SetLogy (1) ;
           bkg->Draw () ;
-          hstack_bkg.at (iv+nVars*isel)->Draw ("hist same") ;
-          hstack_sig.at (iv+nVars*isel)->Draw ("nostack hist same") ;
+          bkg_stack->Draw ("hist same") ;
+          sig_stack->Draw ("nostack hist same") ;
           h_data->Draw ("same") ;
 
           coutputName.Form ("%s_log.pdf", (outFolderName + outputName).Data ()) ;
@@ -243,10 +245,10 @@ int main (int argc, char** argv)
                   selections.at (isel).first.Data ()
                 ) ;
 
-          THStack * hstack_bkg_norm = normaliseStack (hstack_bkg.at (iv+nVars*isel)) ;
+          THStack * hstack_bkg_norm = normaliseStack (bkg_stack) ;
           TH1F * shape_bkg = (TH1F *) hstack_bkg_norm->GetStack ()->Last () ;
           
-          THStack * hstack_sig_norm = normaliseStack (hstack_sig.at (iv+nVars*isel)) ;
+          THStack * hstack_sig_norm = normaliseStack (sig_stack) ;
           TH1F * shape_sig = (TH1F *) hstack_sig_norm->GetStack ()->Last () ;
           
           if (shape_sig->GetMaximum () > shape_bkg->GetMaximum ()) 
@@ -260,7 +262,7 @@ int main (int argc, char** argv)
           TString name = basename + "_norm" ;
           coutputName.Form ("%s.pdf", (outFolderName + basename).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
-
+     
         } // loop on variables
     } // loop on selections
 

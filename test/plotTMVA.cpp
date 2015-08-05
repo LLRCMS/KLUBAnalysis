@@ -145,7 +145,7 @@ int main (int argc, char** argv)
   vector<string> variablesList = gConfigParser->readStringListOption ("general::variables") ;
 
   TString histoName ;
-  HistoManager * manager = new HistoManager ("test") ;
+//  HistoManager * manager = new HistoManager ("test") ;
 
   // read the MVA
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -156,23 +156,3 @@ int main (int argc, char** argv)
 
 }
 
-
-
-/*
-
-[24/07/15 13:42:39 ] Raffaele Gerosa: si puoi farlo
-[24/07/15 13:42:48 ] Raffaele Gerosa: aspetta che cerco come facevo
-[24/07/15 13:44:49 ] Raffaele Gerosa: fai cosi
-[24/07/15 13:44:50 ] Raffaele Gerosa:  SampleTreeList_.at(iTree)->Branch(nameBranch_.c_str(),&weight_,(nameBranch_+"/F").c_str());
-[24/07/15 13:45:03 ] Raffaele Gerosa: crei il branch prima di fare il loop sugli eventi
-[24/07/15 13:45:14 ] Raffaele Gerosa: newBranch_  = SampleTreeList_.at(iTree)->Branch(nameBranch_.c_str(),&weight_,(nameBranch_+"/F").c_str());
-[24/07/15 13:45:31 ] Raffaele Gerosa: poi ad un certo punto farai
-[24/07/15 13:45:32 ] Raffaele Gerosa: weight_ = reader_->EvaluateMVA(methodName_.c_str());
-[24/07/15 13:45:38 ] Raffaele Gerosa: newBranch_->Fill() ;
-[24/07/15 13:45:46 ] Raffaele Gerosa: nell loop qnd leggi il peso
-[24/07/15 13:45:49 ] Raffaele Gerosa: fai il fill del branch
-[24/07/15 13:46:05 ] Raffaele Gerosa:  SampleTreeList_.at(iTree)->Write("", TObject::kOverwrite);
-[24/07/15 13:46:14 ] Raffaele Gerosa: ed è fatto
-
-
-*/
