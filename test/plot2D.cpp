@@ -363,6 +363,7 @@ int main (int argc, char** argv)
   outString.Form (outFolderNameBase + "outPlotter_2D.root") ;
   TFile * fOut = new TFile (outString.Data (), "RECREATE") ;
   manager->SaveAllToFile (fOut) ;
+  fOut->Close () ;
 
 /*
 

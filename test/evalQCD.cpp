@@ -102,7 +102,6 @@ int main (int argc, char** argv)
   cout << "selections sequence: \n" ;
   for (unsigned int i = 0 ; i < selections.size () ; ++i)
     cout << selections.at (i).first << " : " << selections.at (i).second << endl ;
-  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
 
   // OS selections
   vector<pair <TString, TCut> > selections_OS = selections ;
@@ -116,10 +115,10 @@ int main (int argc, char** argv)
   vector<pair <TString, TCut> > selections_SS = selections ;
   for (unsigned int i = 0 ; i < selections_SS.size () ; ++i)
     {
-      selections_OS.at (i).first = TString ("SS_") + selections_OS.at (i).first ;
-      selections_OS.at (i).second = selections_OS.at (i).second && TCut ("isOS == 0") ;
+      selections_SS.at (i).first = TString ("SS_") + selections_SS.at (i).first ;
+      selections_SS.at (i).second = selections_SS.at (i).second && TCut ("isOS == 0") ;
     }
-  
+
   // get the variables to be plotted
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -128,8 +127,10 @@ int main (int argc, char** argv)
   // calculate the QCD in the SS region as data - other_bkg
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
+  cout << "--- MAIN reading DATA and filling SS histos" << endl ;
+
   // get the same-sign distributions from data
-  plotContainer SS_DATA_plots ("SS_DATA_", variablesList, selections_SS, DATASamplesList, 2) ;
+  plotContainer SS_DATA_plots ("SS_DATA", variablesList, selections_SS, DATASamplesList, 2) ;
   counters SS_DATACount = fillHistos (DATASamples, SS_DATA_plots, 
               variablesList,
               selections_SS,
@@ -138,19 +139,26 @@ int main (int argc, char** argv)
               true, false) ;
   SS_DATA_plots.AddOverAndUnderFlow () ;
 
+  cout << "--- MAIN reading bkg and filling SS histos" << endl ;
+
   // get the same-sign distributions from bkg
-  plotContainer SS_bkg_plots ("SS_bkg_", variablesList, selections_SS, bkgSamplesList, 0) ;
+  plotContainer SS_bkg_plots ("SS_bkg", variablesList, selections_SS, bkgSamplesList, 0) ;
   counters SS_bkgCount = fillHistos (bkgSamples, SS_bkg_plots, 
               variablesList,
               selections_SS,
               lumi,
               vector<float> (0),
-              false, true) ;
+              false, false) ;
   SS_bkg_plots.AddOverAndUnderFlow () ;
+
+  cout << "--- MAIN preparing to loop on variables and selections to calc SS QCD" << endl ;
 
   // the index in the stack is based on variable ID (iv) and selection ID (isel):
   // iHisto = iv + nVars * isel
-  vector <TH1F *> SS_QCD ;
+  vector<string> QCDsample ;
+  QCDsample.push_back ("QCD") ;
+  plotContainer SS_QCD ("SS_QCD", variablesList, selections_SS, QCDsample, 0) ;
+//  vector <TH1F *> SS_QCD ;
   for (unsigned int ivar = 0 ; ivar < variablesList.size () ; ++ivar)
     {
       for (unsigned int icut = 0 ; icut < selections_SS.size () ; ++icut)
@@ -161,11 +169,13 @@ int main (int argc, char** argv)
           TH1F * tempo = (TH1F *) D_stack->GetStack ()->Last () ;
           TString name = tempo->GetName () ;
           name = TString ("DDQCD_") + name ;
-          SS_QCD.push_back ((TH1F *) tempo->Clone (name)) ;
+          TH1F * dummy = (TH1F *) tempo->Clone (name) ;
+
           THStack * b_stack = SS_bkg_plots.makeStack (variablesList.at (ivar),
                                   selections_SS.at (icut).first.Data ()) ;
           TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
-          SS_QCD.back ()->Add (h_bkg, -1) ;
+          dummy->Add (h_bkg, -1) ;
+          SS_QCD.m_histos[variablesList.at (ivar)][selections_SS.at (ivar).first.Data ()]["QCD"] = dummy ;
         }
     }
 
@@ -176,19 +186,18 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   float SStoOS_scaleFactor = 1.06 ; // to be calculated here at a certain moment!!
+  SS_QCD.scale (SStoOS_scaleFactor) ;
+
   int QCDcolor = gConfigParser->readIntOption ("colors::QCD") ;
-  
-  for (unsigned int iHisto = 0 ; iHisto < SS_QCD.size () ; ++iHisto)  
-    {
-      SS_QCD.at (iHisto)->Scale (SStoOS_scaleFactor) ; 
-      SS_QCD.at (iHisto)->SetFillColor (QCDcolor) ;
-    }
+  SS_QCD.setFillColor (QCDcolor) ;
 
   // insert the QCD in the OS region
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
+  cout << "--- MAIN reading DATA and filling OS histos" << endl ;
+
   // get the opposite-sign distributions from data
-  plotContainer OS_DATA_plots ("OS_DATA_", variablesList, selections_OS, DATASamplesList, 0) ;
+  plotContainer OS_DATA_plots ("OS_DATA", variablesList, selections_OS, DATASamplesList, 0) ;
   counters OS_DATACount = fillHistos (DATASamples, OS_DATA_plots, 
               variablesList,
               selections_OS,
@@ -197,19 +206,24 @@ int main (int argc, char** argv)
               true, false) ;
   OS_DATA_plots.AddOverAndUnderFlow () ;
 
+  cout << "--- MAIN reading bkg and filling OS histos" << endl ;
+
   // get the opposite-sign distributions from bkg
-  plotContainer OS_bkg_plots ("OS_bkg_", variablesList, selections_OS, bkgSamplesList, 0) ;
+  plotContainer OS_bkg_plots ("OS_bkg", variablesList, selections_OS, bkgSamplesList, 0) ;
   counters OS_bkgCount = fillHistos (bkgSamples, OS_bkg_plots, 
               variablesList,
               selections_OS,
               lumi,
               vector<float> (0),
-              false, true) ;
+              false, false) ;
   OS_bkg_plots.AddOverAndUnderFlow () ;
+  cout << "--- MAIN adding the QCD sample" << endl ;
   OS_bkg_plots.addSample ("QCD", SS_QCD) ;
   
+  cout << "--- MAIN reading sig and filling OS histos" << endl ;
+
   // get the opposite-sign distributions from sig
-  plotContainer OS_sig_plots ("OS_sig_", variablesList, selections_OS, sigSamplesList, 0) ;
+  plotContainer OS_sig_plots ("OS_sig", variablesList, selections_OS, sigSamplesList, 0) ;
   counters OS_sigCount = fillHistos (sigSamples, OS_sig_plots, 
               variablesList,
               selections_OS,
@@ -218,7 +232,123 @@ int main (int argc, char** argv)
               false, true) ;
   OS_sig_plots.AddOverAndUnderFlow () ;
 
-  // FIXME plotting to be copied from plotNEW, now.
+  // Save the histograms
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+  cout << "--- MAIN before saving" << endl ;
+
+  TString outFolderNameBase = gConfigParser->readStringOption ("general::outputFolderName") ;
+  
+  system (TString ("mkdir -p ") + outFolderNameBase) ;
+
+  TString outString ;
+  outString.Form (outFolderNameBase + "outPlotter.root") ;
+  TFile * fOut = new TFile (outString.Data (), "RECREATE") ;
+  SS_DATA_plots.save(fOut) ;
+  SS_bkg_plots.save(fOut) ;
+  OS_DATA_plots.save(fOut) ;
+  OS_bkg_plots.save(fOut) ;
+  OS_sig_plots.save(fOut) ;
+  fOut->Close () ;
+
+  // Plot the histograms
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events/")) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/shapes/")) ;
+
+  TCanvas * c = new TCanvas () ;
+
+  cout << "--- MAIN before plotting" << endl ;
+
+  // loop on selections
+  for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
+    {
+      // loop on variables
+      for (unsigned int iv = 0 ; iv < variablesList.size () ; ++iv)
+        {
+          c->cd () ;
+          TString outputName ; 
+          outputName.Form ("plot_%s_%s",
+            variablesList.at (iv).c_str (), selections.at (isel).first.Data ()) ;
+
+          TString outFolderName = outFolderNameBase + TString ("/events/") ;
+
+          // get the extremes for the plot
+          THStack * sig_stack = OS_sig_plots.makeStack ( variablesList.at (iv), 
+                                    selections.at (isel).first.Data ()) ;
+          THStack * bkg_stack = OS_bkg_plots.makeStack ( variablesList.at (iv), 
+                                    selections.at (isel).first.Data ()) ;
+          THStack * DATA_stack = OS_DATA_plots.makeStack ( variablesList.at (iv), 
+                                    selections.at (isel).first.Data ()) ;
+
+          vector<float> extremes_bkg  = getExtremes (bkg_stack) ;
+          vector<float> extremes_sig  = getExtremes (sig_stack) ;
+          vector<float> extremes_DATA = getExtremes (DATA_stack) ;
+          TH1F * bkg = c->DrawFrame (
+              extremes_bkg.at (0) ,
+              0.9 * min3 (extremes_bkg.at (1), extremes_sig.at (1), 
+                          extremes_DATA.at (1)) ,
+              extremes_bkg.at (2) ,
+              1.3 * max3 (extremes_bkg.at (3), extremes_sig.at (3), 
+                          extremes_DATA.at (3) + sqrt (extremes_DATA.at (3)))
+            ) ;  
+     
+          copyTitles (bkg, bkg_stack) ;
+
+          bkg->Draw () ;
+          bkg_stack->Draw ("hist same") ;
+          sig_stack->Draw ("nostack hist same") ;
+          TH1F * h_data = (TH1F *) DATA_stack->GetStack ()->Last () ;
+          // FIXME probably the data uncertainties need to be fixed
+          h_data->Draw ("same") ;
+          
+          TString coutputName ;
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+          
+          c->SetLogy (1) ;
+          bkg->Draw () ;
+          bkg_stack->Draw ("hist same") ;
+          sig_stack->Draw ("nostack hist same") ;
+          h_data->Draw ("same") ;
+
+          coutputName.Form ("%s_log.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+          c->SetLogy (0) ;
+          
+          // plotting shapes
+          // ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+          outFolderName = outFolderNameBase + TString ("/shapes/") ;
+          TString basename ;
+          basename.Form ("shape_%s_%s",
+                  variablesList.at (iv).c_str (),
+                  selections.at (isel).first.Data ()
+                ) ;
+
+          THStack * hstack_bkg_norm = normaliseStack (bkg_stack) ;
+          TH1F * shape_bkg = (TH1F *) hstack_bkg_norm->GetStack ()->Last () ;
+          
+          THStack * hstack_sig_norm = normaliseStack (sig_stack) ;
+          TH1F * shape_sig = (TH1F *) hstack_sig_norm->GetStack ()->Last () ;
+          
+          if (shape_sig->GetMaximum () > shape_bkg->GetMaximum ()) 
+            hstack_sig_norm->Draw ("hist") ;
+          else   
+            hstack_bkg_norm->Draw ("hist") ;
+
+          hstack_bkg_norm->Draw ("hist same") ;
+          hstack_sig_norm->Draw ("hist same") ;
+          
+          TString name = basename + "_norm" ;
+          coutputName.Form ("%s.pdf", (outFolderName + basename).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+     
+        } // loop on variables
+    } // loop on selections
+
+  delete c ;
 
   return 0 ;
 }  

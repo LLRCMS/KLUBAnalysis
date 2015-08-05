@@ -100,7 +100,6 @@ fillHistos (vector<sample> & samples,
         {
           tree->GetEntry (iEvent) ;
 
-          
           if (isData) localCounter.counters.at (iSample).at (0) += 1. ;
           else        localCounter.counters.at (iSample).at (0) 
                           += weight * lumi * scaling ;

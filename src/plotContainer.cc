@@ -112,32 +112,6 @@ plotContainer::getHisto (string varName, string cutName, string sampleName)
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
-int 
-plotContainer::addSample (string sampleName, vector<TH1F*> histos) 
-{
-  if (histos.size () != m_Ncut * m_Nvar) return -1 ;
-  for (vars_coll::iterator iVar = m_histos.begin () ;
-       iVar != m_histos.end () ;
-       ++iVar)
-    {
-      for (cuts_coll::iterator iCut = iVar->second.begin () ; 
-           iCut != iVar->second.end () ;
-           ++iCut)
-        {
-          // iHisto = iv + nVars * isel
-          int index = distance (iCut, iVar->second.begin ()) * m_Ncut + 
-                      distance (iVar, m_histos.begin ()) ;
-          iCut->second[sampleName] = histos.at (index) ;
-        }
-    }
-  ++m_Nsample ;
-  return 0 ;
-}
-
-
-// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-
-
 map<string, TH1F *> & 
 plotContainer::getStackSet (string varName, string cutName)
 {
@@ -259,3 +233,92 @@ plotContainer::save (TFile * fOut)
     }
   return ;
 }
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+void 
+plotContainer::scale (float scaleFactor)
+{
+  for (vars_coll::iterator iVar = m_histos.begin () ;
+       iVar != m_histos.end () ;
+       ++iVar)
+    {
+      for (cuts_coll::iterator iCut = iVar->second.begin () ; 
+           iCut != iVar->second.end () ;
+           ++iCut)
+        {
+          for (samples_coll::iterator iSample = iCut->second.begin () ; 
+               iSample != iCut->second.end () ;
+               ++iSample)
+              iSample->second->Scale (scaleFactor) ;
+        }
+    }
+  return ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+void 
+plotContainer::setFillColor (int color)
+{
+  for (vars_coll::iterator iVar = m_histos.begin () ;
+       iVar != m_histos.end () ;
+       ++iVar)
+    {
+      for (cuts_coll::iterator iCut = iVar->second.begin () ; 
+           iCut != iVar->second.end () ;
+           ++iCut)
+        {
+          for (samples_coll::iterator iSample = iCut->second.begin () ; 
+               iSample != iCut->second.end () ;
+               ++iSample)
+              iSample->second->SetFillColor (color) ;
+        }
+    }
+  return ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+int
+plotContainer::addSample (string sampleName, const plotContainer & original) // iHisto = iv + nVars * isel
+{
+  // shallow check
+  if (original.m_histos.size () != m_histos.size () / m_Nsample) 
+    {
+      cerr << "the two plot containers don't match in size\n" ;
+      exit (1) ;
+    }
+
+  vars_coll::const_iterator iVarOrig = original.m_histos.begin () ;
+  for (vars_coll::iterator iVar = m_histos.begin () ;
+       iVar != m_histos.end () ;
+       ++iVar, ++iVarOrig)
+    {
+      cuts_coll::const_iterator iCutOrig = iVarOrig->second.begin () ;
+      for (cuts_coll::iterator iCut = iVar->second.begin () ; 
+           iCut != iVar->second.end () ;
+           ++iCut, ++iCutOrig)
+        {
+          if (iCutOrig->second.size () != 1)
+            {
+              cerr << "container " << original.m_name
+                   << "does not have a single sample\n" ;
+              exit (1) ;
+            }
+          iCut->second.insert (pair<string, TH1F *> (
+              sampleName,
+              iCutOrig->second.begin()->second
+            )) ;
+        }
+    }
+  return 0 ;
+}
+
+
