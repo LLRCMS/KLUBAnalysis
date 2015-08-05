@@ -68,8 +68,13 @@ class cardMaker:
         #templateSIG_QCDUP = inputFile.Get("") 
         #templateSIG_QCDDOWN = inputFile.Get("") 
         ##...
+        rate_signal_Shape = templateSIG.Integral("width")*self.lumi #*2.3
+        totalRate = rate_signal_Shape
+        print " signal rate ", rate_signal_Shape
         putTT=False
         putDY=False
+        putTWantitop=False
+        putTWtop=False
         rate_bkgTT_Shape = 0.0
         rate_bkgDY_Shape = 0.0
         for isample in  theInputs.background:
@@ -77,19 +82,29 @@ class cardMaker:
                 templateBKG_TT = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
                 rate_bkgTT_Shape = templateBKG_TT.Integral("width")*self.lumi
                 putTT=True
+                print " bkg TT rate ", rate_bkgTT_Shape
             elif isample == "DY":
                 templateBKG_DY = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
                 rate_bkgDY_Shape = templateBKG_DY.Integral("width")*self.lumi
                 putDY=True
-        
+                print " bkg DY rate ", rate_bkgDY_Shape
+            elif isample == "TWantitop":
+                templateBKG_TWantitop = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
+                rate_bkgTWantitop_Shape = templateBKG_TWantitop.Integral("width")*self.lumi
+                putTWantitop=True
+                print " bkg TWantitop rate ", rate_bkgTWantitop_Shape
+            elif isample == "TWtop":
+                templateBKG_TWtop = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
+                rate_bkgTWtop_Shape = templateBKG_TWtop.Integral("width")*self.lumi
+                putTWtop=True
+                print " bkg TWtop rate ", rate_bkgTWtop_Shape
         #...
 
         ## -------------------------- RATES  ---------------------------- ##
         #it would be better to read them from the outside...
-        rate_signal_Shape = templateSIG.Integral("width")*self.lumi #*2.3
-        totalRate = rate_signal_Shape
          #*2.3
-        totalRate = totalRate + rate_bkgTT_Shape + rate_bkgDY_Shape
+        totalRate = totalRate + rate_bkgTT_Shape + rate_bkgDY_Shape + rate_bkgTWantitop_Shape + rate_bkgTWtop_Shape
+        print "total rate ", totalRate
         ## rates per lumi for scaling
         #if (self.channel == self.ID_2e2mu) : bkgRate_qqzz = 76.82#theInputs['qqZZ_rate']/theInputs['qqZZ_lumi'] #*1.8
         #elif (self.channel == self.ID_4e) :bkgRate_qqzz = 29.2900 
@@ -97,11 +112,8 @@ class cardMaker:
         #totalRate_ggzz_Shape = totalRate_ggzz*self.lumi
         #bkgRate_qqzz_Shape = bkgRate_qqzz*self.lumi
 
-        print " signal rate ", rate_signal_Shape
-        print " bkg TT rate ", rate_bkgTT_Shape
-        print " bkg DY rate ", rate_bkgDY_Shape
-        print "total rate ", totalRate
-        theRates=[rate_signal_Shape,rate_bkgTT_Shape,rate_bkgDY_Shape]
+
+        theRates=[rate_signal_Shape,rate_bkgTT_Shape,rate_bkgDY_Shape,rate_bkgTWantitop_Shape,rate_bkgTWtop_Shape]
         ## -------------------------- SIGNAL SHAPE VARIABLES ---------------------- ##
         binsx = templateSIG.GetNbinsX()
         binsy = templateSIG.GetNbinsY()
@@ -162,6 +174,18 @@ class cardMaker:
             PdfName = "BKG_DY_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
             BKG_DY_TemplatePdf = ROOT.RooHistPdf("bkg_DY","bkg_DY",ROOT.RooArgSet(x,y),BKG_DY_TempDataHist)
             getattr(w,'import')(BKG_DY_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
+        if putTWantitop :
+            TemplateName = "BKG_TWantitop_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+            BKG_TWantitop_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(x,y),templateBKG_TT)
+            PdfName = "BKG_TWantitop_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+            BKG_TWantitop_TemplatePdf = ROOT.RooHistPdf("bkg_TWantitop","bkg_TWantitop",ROOT.RooArgSet(x,y),BKG_TWantitop_TempDataHist)
+            getattr(w,'import')(BKG_TWantitop_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
+        if putTWtop :
+            TemplateName = "BKG_TWtop_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+            BKG_TWtop_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(x,y),templateBKG_TT)
+            PdfName = "BKG_TWtop_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+            BKG_TWtop_TemplatePdf = ROOT.RooHistPdf("bkg_TWtop","bkg_TWtop",ROOT.RooArgSet(x,y),BKG_TWtop_TempDataHist)
+            getattr(w,'import')(BKG_TWtop_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
         
         ## --------------------------- DATASET --------------------------- ##
         #RooDataSet ds("ds","ds",RooArgSet(x,y),Import(*tree)) ;
@@ -186,10 +210,10 @@ class cardMaker:
         file = open( name_ShapeDC, "wb")
 
         #channelList=theInputs.background #['sig','bkg_TT','bkg_DY'] 
-        channelName=['sig','bkg_TT','bkg_DY']
+        channelName=['sig','bkg_TT','bkg_DY','bkg_TWantitop','bkg_TWtop']
 
         file.write("imax 1\n")
-        file.write("jmax 2\n")#.format(numberSig+numberBg-1))
+        file.write("jmax {0}\n".format(len(channelName)-1))
         file.write("kmax *\n")
         
         file.write("------------\n")
@@ -226,7 +250,7 @@ class cardMaker:
 
         file.write("------------\n")
         #syst = systReader("../config/systematics.cfg",['Lambda20'],theInputs.background)
-        syst = systReader("../config/systematics.cfg",['Lambda20'],['TT','DY']) #FIXME: use the one above once all bkg are in
+        syst = systReader("../config/systematics.cfg",['Lambda20'],['TT','DY','TWantitop','TWtop']) #FIXME: use the one above once all bkg are in
 	syst.writeSystematics(file)
 #        file.write("lumi_8TeV lnN 1.026  1.026 1.026  1.026 \n")
 #        file.write("CMS_eff_m lnN 1.026  1.026 1.026  1.026 \n")
