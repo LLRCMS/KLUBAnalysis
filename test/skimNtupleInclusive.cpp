@@ -98,12 +98,28 @@ chooseHighestBtagJets (vector <pair <int, float> > & jets_and_btag)
 }
 
 
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+float getIso (unsigned int iDau, float pt, bigTree & theBigTree)
+{
+  int type = theBigTree.particleType->at (iDau) ;
+  // is tauH
+  if (type == 2)
+    return theBigTree.daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) ;
+  // muon
+  if (type == 1 || type == 0)
+    return theBigTree.combreliso->at(iDau) * pt ;
+
+  return -1 ;
+}
+
+
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
 int main (int argc, char** argv)
 {
-
   // read input file and cfg
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -355,6 +371,7 @@ int main (int argc, char** argv)
       theSmallTree.m_tauH_e = tlv_tauH.E () ;
       theSmallTree.m_tauH_mass = tlv_tauH.M () ;
 
+      theSmallTree.m_dau1_iso = getIso (firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree) ;
       theSmallTree.m_dau1_pt = tlv_firstLepton.Pt () ;
       theSmallTree.m_dau1_eta = tlv_firstLepton.Eta () ;
       theSmallTree.m_dau1_phi = tlv_firstLepton.Phi () ;
@@ -365,6 +382,7 @@ int main (int argc, char** argv)
                                  // 2 = from electrons collection
                                  // 3 = from tauH collection
                                  
+      theSmallTree.m_dau2_iso = getIso (secondDaughterIndex, tlv_secondLepton.Pt (), theBigTree) ;
       theSmallTree.m_dau2_pt = tlv_secondLepton.Pt () ;
       theSmallTree.m_dau2_eta = tlv_secondLepton.Eta () ;
       theSmallTree.m_dau2_phi = tlv_secondLepton.Phi () ;

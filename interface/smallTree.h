@@ -42,12 +42,14 @@ struct smallTree
 
       m_mT = -1. ;
     
+      m_dau1_iso  = -1. ;
       m_dau1_pt  = -1. ;
       m_dau1_eta  = -1. ;
       m_dau1_phi  = -1. ;
       m_dau1_e  = -1. ;
       m_dau1_flav  = -1. ;
       
+      m_dau2_iso  = -1. ;
       m_dau2_pt  = -1. ;
       m_dau2_eta  = -1. ;
       m_dau2_phi  = -1. ;
@@ -143,12 +145,14 @@ struct smallTree
 
       m_smallT->Branch ("mT", &m_mT, "mT/F") ;
 
+      m_smallT->Branch ("dau1_iso", &m_dau1_iso, "dau1_iso/F") ;
       m_smallT->Branch ("dau1_pt", &m_dau1_pt, "dau1_pt/F") ;
       m_smallT->Branch ("dau1_eta", &m_dau1_eta, "dau1_eta/F") ;
       m_smallT->Branch ("dau1_phi", &m_dau1_phi, "dau1_phi/F") ;
       m_smallT->Branch ("dau1_e", &m_dau1_e, "dau1_e/F") ;
       m_smallT->Branch ("dau1_flav", &m_dau1_flav, "dau1_flav/F") ;
 
+      m_smallT->Branch ("dau2_iso", &m_dau2_iso, "dau2_iso/F") ;
       m_smallT->Branch ("dau2_pt", &m_dau2_pt, "dau2_pt/F") ;
       m_smallT->Branch ("dau2_eta", &m_dau2_eta, "dau2_eta/F") ;
       m_smallT->Branch ("dau2_phi", &m_dau2_phi, "dau2_phi/F") ;
@@ -253,6 +257,7 @@ struct smallTree
   Float_t m_mT ;
 
   // the largest pT daughter visible candidate
+  Float_t m_dau1_iso ;
   Float_t m_dau1_pt ;
   Float_t m_dau1_eta ;
   Float_t m_dau1_phi ;
@@ -260,6 +265,7 @@ struct smallTree
   Float_t m_dau1_flav ; // let this contain also whether it's a hadronic dau
 
   // the smallest pT daughter visible candidate
+  Float_t m_dau2_iso ;
   Float_t m_dau2_pt ;
   Float_t m_dau2_eta ;
   Float_t m_dau2_phi ;
