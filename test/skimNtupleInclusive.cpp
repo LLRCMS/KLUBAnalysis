@@ -219,10 +219,10 @@ int main (int argc, char** argv)
     
       map<int, int> foundPairs ; // pairType, pairIndexInVectors
 
-      string selectionFlag = "bothPairs" ;
-      bool invertIso = gConfigParser->readBoolOption  ("parameters::invertIso") ;
+      string selectionFlag = "All" ;
+      bool invertIso = gConfigParser->readBoolOption ("parameters::invertIso") ;
       if (invertIso) selectionFlag += " InvertIzo" ; // the 'z' is not a bug!
-
+ 
       for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
         {
           // FIXME need to implement here the choice of iso / anti-iso
@@ -238,7 +238,7 @@ int main (int argc, char** argv)
           foundPairs[pairType] = iPair ;
         }  
 
-      if (foundPairs.size () < 0) continue ;
+      if (foundPairs.size () == 0) continue ;
 
       // by now take the OS pair with largest pT
       int chosenTauPair = foundPairs.begin ()->second ;
@@ -393,7 +393,8 @@ int main (int argc, char** argv)
             }
           else if (theBigTree.particleType->at (iLep) == 1) // electrons
             {
-              if (!oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, 1)) continue ;
+              if (!oph.eleBaseline (&theBigTree, iLep, 10., 0.3, 1)) continue ;
+//              if (!oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, 1)) continue ;
             }
           TLorentzVector tlv_dummyLepton
             (

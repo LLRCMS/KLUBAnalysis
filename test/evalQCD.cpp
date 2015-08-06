@@ -165,7 +165,6 @@ int main (int argc, char** argv)
         {
           THStack * D_stack = SS_DATA_plots.makeStack (variablesList.at (ivar),
                                   selections_SS.at (icut).first.Data ()) ;
-          
           TH1F * tempo = (TH1F *) D_stack->GetStack ()->Last () ;
           TString name = tempo->GetName () ;
           name = TString ("DDQCD_") + name ;
@@ -175,7 +174,7 @@ int main (int argc, char** argv)
                                   selections_SS.at (icut).first.Data ()) ;
           TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
           dummy->Add (h_bkg, -1) ;
-          SS_QCD.m_histos[variablesList.at (ivar)][selections_SS.at (ivar).first.Data ()]["QCD"] = dummy ;
+          SS_QCD.m_histos[variablesList.at (ivar)][selections_SS.at (icut).first.Data ()]["QCD"] = dummy ;
         }
     }
 
