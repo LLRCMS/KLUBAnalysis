@@ -188,7 +188,7 @@ int main (int argc, char** argv)
   SS_QCD.scale (SStoOS_scaleFactor) ;
 
   int QCDcolor = gConfigParser->readIntOption ("colors::QCD") ;
-  SS_QCD.setFillColor (QCDcolor) ;
+  SS_QCD.setHistosProperties (0, QCDcolor) ; 
 
   // insert the QCD in the OS region
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -196,7 +196,7 @@ int main (int argc, char** argv)
   cout << "--- MAIN reading DATA and filling OS histos" << endl ;
 
   // get the opposite-sign distributions from data
-  plotContainer OS_DATA_plots ("OS_DATA", variablesList, selections_OS, DATASamplesList, 0) ;
+  plotContainer OS_DATA_plots ("OS_DATA", variablesList, selections_OS, DATASamplesList, 2) ;
   counters OS_DATACount = fillHistos (DATASamples, OS_DATA_plots, 
               variablesList,
               selections_OS,
@@ -216,13 +216,12 @@ int main (int argc, char** argv)
               vector<float> (0),
               false, false) ;
   OS_bkg_plots.AddOverAndUnderFlow () ;
-  cout << "--- MAIN adding the QCD sample" << endl ;
   OS_bkg_plots.addSample ("QCD", SS_QCD) ;
   
   cout << "--- MAIN reading sig and filling OS histos" << endl ;
 
   // get the opposite-sign distributions from sig
-  plotContainer OS_sig_plots ("OS_sig", variablesList, selections_OS, sigSamplesList, 0) ;
+  plotContainer OS_sig_plots ("OS_sig", variablesList, selections_OS, sigSamplesList, 1) ;
   counters OS_sigCount = fillHistos (sigSamples, OS_sig_plots, 
               variablesList,
               selections_OS,
@@ -243,11 +242,11 @@ int main (int argc, char** argv)
   TString outString ;
   outString.Form (outFolderNameBase + "outPlotter.root") ;
   TFile * fOut = new TFile (outString.Data (), "RECREATE") ;
-  SS_DATA_plots.save(fOut) ;
-  SS_bkg_plots.save(fOut) ;
-  OS_DATA_plots.save(fOut) ;
-  OS_bkg_plots.save(fOut) ;
-  OS_sig_plots.save(fOut) ;
+  SS_DATA_plots.save (fOut) ;
+  SS_bkg_plots.save (fOut) ;
+  OS_DATA_plots.save (fOut) ;
+  OS_bkg_plots.save (fOut) ;
+  OS_sig_plots.save (fOut) ;
   fOut->Close () ;
 
   // Plot the histograms
@@ -275,11 +274,11 @@ int main (int argc, char** argv)
 
           // get the extremes for the plot
           THStack * sig_stack = OS_sig_plots.makeStack ( variablesList.at (iv), 
-                                    selections.at (isel).first.Data ()) ;
+                                    selections_OS.at (isel).first.Data ()) ;
           THStack * bkg_stack = OS_bkg_plots.makeStack ( variablesList.at (iv), 
-                                    selections.at (isel).first.Data ()) ;
+                                    selections_OS.at (isel).first.Data ()) ;
           THStack * DATA_stack = OS_DATA_plots.makeStack ( variablesList.at (iv), 
-                                    selections.at (isel).first.Data ()) ;
+                                    selections_OS.at (isel).first.Data ()) ;
 
           vector<float> extremes_bkg  = getExtremes (bkg_stack) ;
           vector<float> extremes_sig  = getExtremes (sig_stack) ;

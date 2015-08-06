@@ -51,6 +51,8 @@ struct plotContainer
   void scale (float scaleFactor) ;
   void setFillColor (int color) ;
   void save (TFile * fOut) ;
+  void setHistosProperties (TH1F * h, int histoType, int color) ;
+  void setHistosProperties (int histoType, int color) ;
 
   string m_name ;
   unsigned int m_Nvar ;

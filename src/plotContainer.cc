@@ -186,24 +186,7 @@ plotContainer::createNewHisto (string name, string title,
 {
   TH1F* h = new TH1F (name.c_str (), title.c_str (), nbinsx, xlow, xup);
   h->Sumw2 () ;    
-  if (histoType == 0) // background
-    {//background
-      h->SetFillStyle (1001) ;
-      h->SetFillColor (color) ;
-      h->SetLineColor (color) ;
-    }else if (histoType == 1) { // signal
-      h->SetFillStyle (0) ;
-      h->SetMarkerColor (color) ;
-      h->SetLineColor (color) ;
-      h->SetLineWidth (2) ;
-      h->SetMarkerStyle (20) ;
-    }else if (histoType == 2) { // data
-      h->SetFillStyle (0) ;
-      h->SetMarkerColor (color) ;
-      h->SetLineColor (color) ;
-      h->SetLineWidth (2) ;
-      h->SetMarkerStyle (20) ;
-    }
+  setHistosProperties (h, histoType, color) ;
   h->GetXaxis ()->SetTitle (titleX) ;
   h->GetYaxis ()->SetTitle (titleY) ;
   return h ;
@@ -322,4 +305,53 @@ plotContainer::addSample (string sampleName, const plotContainer & original) // 
   return 0 ;
 }
 
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+void plotContainer::setHistosProperties (TH1F * h, int histoType, int color) 
+{
+  if (histoType == 0) // background
+    {//background
+      h->SetFillStyle (1001) ;
+      h->SetFillColor (color) ;
+      h->SetLineColor (color) ;
+    }else if (histoType == 1) { // signal
+      h->SetFillStyle (0) ;
+      h->SetMarkerColor (color) ;
+      h->SetLineColor (color) ;
+      h->SetLineWidth (2) ;
+      h->SetMarkerStyle (20) ;
+    }else if (histoType == 2) { // data
+      h->SetFillStyle (0) ;
+      h->SetMarkerColor (color) ;
+      h->SetLineColor (color) ;
+      h->SetLineWidth (2) ;
+      h->SetMarkerStyle (20) ;
+    }
+  return ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+void plotContainer::setHistosProperties (int histoType, int color) 
+{
+  for (vars_coll::iterator iVar = m_histos.begin () ;
+       iVar != m_histos.end () ;
+       ++iVar)
+    {
+      for (cuts_coll::iterator iCut = iVar->second.begin () ; 
+           iCut != iVar->second.end () ;
+           ++iCut)
+        {
+          for (samples_coll::iterator iSample = iCut->second.begin () ; 
+               iSample != iCut->second.end () ;
+               ++iSample)
+              setHistosProperties (iSample->second, histoType, color) ;
+        }
+    }
+  return ;
+}
 

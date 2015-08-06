@@ -331,6 +331,7 @@ vector<float> getExtremes (THStack * hstack, bool islog)
   while (histo = (TH1F *) (next ())) 
     {
       float tmpmin = findNonNullMinimum (histo) ;
+      if (tmpmin <= 0) continue ;
       if (tmpmin < ymin) ymin = tmpmin ;
       if (xmin > xmax)
         {
