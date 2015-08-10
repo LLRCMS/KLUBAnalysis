@@ -203,6 +203,7 @@ int main (int argc, char** argv)
       int metbit = theBigTree.metfilterbit;
       int metpass = metbit & (1 << 0);
       metpass += metbit & (1 << 2);
+      metpass += metbit & (1 << 5);
       metpass += metbit & (1 << 6);
       if(metpass > 0) continue ;
       if (isMC) counter.at (selID++) += theBigTree.MC_weight ;
