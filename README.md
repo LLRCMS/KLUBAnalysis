@@ -14,10 +14,16 @@ cd -
 scram b -j8
 ls
 cd HHKinFit2/
+git checkout bugfix
 ./compile.sh
 cd ..
 git clone https://github.com/LLRCMS/KLUBAnalysis
 cd KLUBAnalysis
+mkdir interface/exceptions
+cd interface/exceptions
+ln -ns ../../../HHKinFit2/include/exceptions/HHInvMConstraintException.h 
+ln -ns ../../../HHKinFit2/include/exceptions/HHEnergyRangeException.h
+cd -
 source scripts/setup.sh
 make
 make exe
