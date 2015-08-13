@@ -16,6 +16,7 @@
 #include <iostream>
 #include <vector>
 #include <utility>
+#include <TH1F.h>
 
 using namespace std;
  
