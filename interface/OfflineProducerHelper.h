@@ -41,6 +41,7 @@ class OfflineProducerHelper {
   };
 
   OfflineProducerHelper();
+  OfflineProducerHelper(TH1F* hCounter);
   int FindTriggerNumber(TString triggername);
   bool IsTriggerFired(int triggerbit, int triggerNumber);
   bool IsTriggerFired(int triggerbit, TString triggerName){return IsTriggerFired(triggerbit, FindTriggerNumber(triggerName));}
@@ -98,8 +99,7 @@ class OfflineProducerHelper {
   ~OfflineProducerHelper(){}
 
  private:
-  static const int nTriggers =19;
-  TString triggerlist[nTriggers];
+  vector<TString> triggerlist;
   
 };
 

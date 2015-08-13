@@ -1,6 +1,7 @@
 #include "OfflineProducerHelper.h"
 
 OfflineProducerHelper::OfflineProducerHelper(){
+  const int nTriggers=19;
   TString tmptrigger[nTriggers]={
     "IsoMu17_eta2p1_LooseIsoPFTau20",
     "IsoMu17_eta2p1",
@@ -23,9 +24,10 @@ OfflineProducerHelper::OfflineProducerHelper(){
     "Ele27_eta2p1_WP85_Gsf"
   };
   for(int i=0;i<nTriggers;i++){
-    triggerlist[i]=tmptrigger[i];
-    triggerlist[i].Prepend("HLT_");
-    triggerlist[i].Append("_v1");
+    //triggerlist[i]=tmptrigger[i];
+    tmptrigger[i].Prepend("HLT_");
+    tmptrigger[i].Append("_v1");
+    triggerlist.push_back(tmptrigger[i]);
   }
 
   // MVA ele ID from here:
@@ -47,29 +49,57 @@ OfflineProducerHelper::OfflineProducerHelper(){
   m_MVAEleIDCuts[1][1][2] = 0.337  ; // endcap pt above 10 GeV           
 }
 
+OfflineProducerHelper::OfflineProducerHelper(TH1F* hCounter){
+
+  for(int itr=1;itr<=hCounter->GetNbinsX();itr++){
+    TString binlabel = hCounter->GetXaxis()->GetBinLabel(itr);
+    if(binlabel.BeginsWith("HLT"))triggerlist.push_back(hCounter->GetXaxis()->GetBinLabel(itr));
+  }
+
+  // MVA ele ID from here:
+  //   //  https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun2#Non_triggering_electron_MVA
+  //     // 80%
+
+  m_MVAEleIDCuts[0][0][0] = -0.253 ; // barrel (eta<0.8) pt 5-10 GeV      
+  m_MVAEleIDCuts[0][0][1] =  0.081 ; // barrel (eta>0.8) pt 5-10 GeV      
+  m_MVAEleIDCuts[0][0][2] = -0.081 ; // endcap pt 5-10 GeV                
+  m_MVAEleIDCuts[0][1][0] =  0.965 ; // barrel (eta<0.8) pt above 10 GeV  
+  m_MVAEleIDCuts[0][1][1] =  0.917 ; // barrel (eta>0.8) pt above 10 GeV  
+  m_MVAEleIDCuts[0][1][2] =  0.683 ; // endcap pt above 10 GeV            
+
+  // 90%
+  m_MVAEleIDCuts[1][0][0] = -0.483 ; // barrel (eta<0.8) pt 5-10 GeV     
+  m_MVAEleIDCuts[1][0][1] = -0.267 ; // barrel (eta>0.8) pt 5-10 GeV     
+  m_MVAEleIDCuts[1][0][2] = -0.323 ; // endcap pt 5-10 GeV               
+  m_MVAEleIDCuts[1][1][0] = 0.933  ; // barrel (eta<0.8) pt above 10 GeV 
+  m_MVAEleIDCuts[1][1][1] = 0.825  ; // barrel (eta>0.8) pt above 10 GeV 
+  m_MVAEleIDCuts[1][1][2] = 0.337  ; // endcap pt above 10 GeV           
+}
+
+
 int OfflineProducerHelper::FindTriggerNumber(TString triggername){
-  for(int it=0;it<nTriggers;it++){ 	
-  	if(triggerlist[it].CompareTo(triggername.Data())==0)return it;
+  for(int it=0;it<triggerlist.size();it++){ 	
+  	if(triggerlist.at(it).CompareTo(triggername.Data())==0)return it;
   	else {
   	    TString newName=triggername.Data();
   	    newName.Prepend("HLT_");
   	    newName.Append("_v1");
-  	    if(triggerlist[it].CompareTo(newName.Data())==0)return it;
+  	    if(triggerlist.at(it).CompareTo(newName.Data())==0)return it;
   	}
   }
   return -1;
 }
 
 bool OfflineProducerHelper::IsTriggerFired(int triggerbit, int triggernumber){ 
-  if(triggernumber>=0 && triggernumber<nTriggers) return triggerbit & (1 << triggernumber);
+  if(triggernumber>=0 && triggernumber<triggerlist.size()) return triggerbit & (1 << triggernumber);
   return false;
 }
 
 int OfflineProducerHelper::printFiredPaths(int triggerbit){
   int nFired = 0;
-  for(int it=0;it<nTriggers;it++){ 	
+  for(int it=0;it<triggerlist.size();it++){ 	
   	if(IsTriggerFired(triggerbit,it)) {
-  	  printf("%s\n",triggerlist[it].Data());
+  	  printf("%s\n",triggerlist.at(it).Data());
   	  nFired++;
   	  }
   }
