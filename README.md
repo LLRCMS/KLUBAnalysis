@@ -15,6 +15,7 @@ scram b -j8
 ls
 cd HHKinFit2/
 git checkout bugfix
+source setup.sh
 ./compile.sh
 cd ..
 git clone https://github.com/LLRCMS/KLUBAnalysis
