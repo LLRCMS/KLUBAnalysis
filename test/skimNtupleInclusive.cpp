@@ -101,6 +101,11 @@ chooseHighestBtagJets (vector <pair <int, float> > & jets_and_btag)
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
+/**
+muons = 0
+electrons = 1
+taus = 2
+*/
 float getIso (unsigned int iDau, float pt, bigTree & theBigTree)
 {
   int type = theBigTree.particleType->at (iDau) ;
@@ -153,14 +158,15 @@ int main (int argc, char** argv)
       return -1 ;
     }
 
-  bool  beInclusive       = gConfigParser->readBoolOption  ("selections::beInclusive") ;
-  float PUjetID_minCut    = gConfigParser->readFloatOption ("parameters::PUjetIDminCut") ;
-  int   saveOS            = gConfigParser->readIntOption   ("parameters::saveOS") ;
-  float lepCleaningCone   = gConfigParser->readFloatOption ("parameters::lepCleaningCone") ;
-  int   bChoiceFlag       = gConfigParser->readFloatOption ("parameters::bChoiceFlag") ;
-  int   PUReweight_MC     = gConfigParser->readFloatOption ("parameters::PUReweightMC") ; 
-  int   PUReweight_target = gConfigParser->readFloatOption ("parameters::PUReweighttarget") ; 
-
+  bool   beInclusive         = gConfigParser->readBoolOption   ("selections::beInclusive") ;
+  float  PUjetID_minCut      = gConfigParser->readFloatOption  ("parameters::PUjetIDminCut") ;
+  int    saveOS              = gConfigParser->readIntOption    ("parameters::saveOS") ;
+  float  lepCleaningCone     = gConfigParser->readFloatOption  ("parameters::lepCleaningCone") ;
+  int    bChoiceFlag         = gConfigParser->readFloatOption  ("parameters::bChoiceFlag") ;
+  int    PUReweight_MC       = gConfigParser->readFloatOption  ("parameters::PUReweightMC") ; 
+  int    PUReweight_target   = gConfigParser->readFloatOption  ("parameters::PUReweighttarget") ; 
+  string leptonSelectionFlag = gConfigParser->readStringOption ("parameters::lepSelections") ;
+ 
   // input and output setup
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -235,14 +241,10 @@ int main (int argc, char** argv)
     
       map<int, int> foundPairs ; // pairType, pairIndexInVectors
 
-      string selectionFlag = "All" ;
-      bool invertIso = gConfigParser->readBoolOption ("parameters::invertIso") ;
-      if (invertIso) selectionFlag += " InvertIzo" ; // the 'z' is not a bug!
- 
       for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
         {
           // FIXME need to implement here the choice of iso / anti-iso
-          if (!oph.pairPassBaseline (&theBigTree, iPair, selectionFlag.c_str ())) continue ;
+          if (!oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag.c_str ())) continue ;
           
           int firstDaughterIndex = theBigTree.indexDau1->at (iPair) ;  
           int secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
@@ -262,7 +264,6 @@ int main (int argc, char** argv)
 
       if (saveOS == 1 && !isOS) continue ;
       if (saveOS == 0 &&  isOS) continue ;
-      
       
       if (isMC) counter.at (selID++) += theBigTree.MC_weight ;
       else      counter.at (selID++) += 1 ;
