@@ -66,12 +66,15 @@ class systReader:
                 #print "TYPE: ",f
                 outputLine+=section+" "+f[2]+" "
                 continue
+            elif f[0] == "param":
+                outputLine=section+line
+                continue
             for chan in self.channels:
                 #print "SYST: ",f
                 if chan == f[0]: systLine[chan] = " "+f[2]+" "
 
         for chan in self.channels :
-            outputLine += systLine[chan]
+            if not "param" in outputLine: outputLine += systLine[chan]
         OutputLines.append(outputLine)
 
         for line in OutputLines:

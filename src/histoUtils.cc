@@ -267,7 +267,7 @@ THStack * normaliseStack (THStack * original)
   TIter next (original->GetHists ()) ;
   TH1F * histo ;
 
-  while (histo = (TH1F *) (next ())) 
+  while ((histo = (TH1F *) (next ()))) 
     { 
       dummy_h = (TH1F *) histo->Clone (histo->GetName () + TString ("_norm")) ;
       dummy_h->Scale (1. / norm) ;
@@ -286,7 +286,7 @@ void copyTitles (TH1F * histogram, THStack * hstack)
   TIter next (hstack->GetHists ()) ;
   TH1F * histo ;
 
-  while (histo = (TH1F *) (next ())) 
+  while ((histo = (TH1F *) (next ()))) 
     {
       histogram->GetXaxis ()->SetTitle (
         histo->GetXaxis ()->GetTitle ()) ;
@@ -328,7 +328,7 @@ vector<float> getExtremes (THStack * hstack, bool islog)
   float xmin = 1. ;
   float xmax = 0. ;
   float ymin = 10000000000. ;
-  while (histo = (TH1F *) (next ())) 
+  while ((histo = (TH1F *) (next ()))) 
     {
       float tmpmin = findNonNullMinimum (histo) ;
       if (tmpmin <= 0) continue ;

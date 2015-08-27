@@ -30,6 +30,8 @@
 #include "TStyle.h"
 #include "ConfigParser.h"
 
+#include "OfflineProducerHelper.h"
+
 #define Dummy true
 
 using namespace std;
@@ -118,6 +120,11 @@ bool CheckElectronMVAIDWP90(float MVAValue, TLorentzVector electron)
 ///////////////////////////////////////////////////////////////////////////////////////////////
 void ProduceSyncNtuple(TString InputFileName, TString OutputFileName, TString Channel, ConfigParser* gConfigParser)
 {
+  //sample trigger from last prod -- to be automatized
+  TFile tempToGetHisto("/data_CMS/cms/davignon/Ntuples_RunII/BBH160/Ntuples/Basics/HTauTauAnalysis_1.root","READ");
+  TH1F* hCounter = (TH1F*)tempToGetHisto.Get("HTauTauTree/Counters");
+  //cout<<hCounter->GetEntries()<<endl;
+
   float triggerPath = gConfigParser->readFloatOption("event::triggers");
   float DR = gConfigParser->readFloatOption("event::DR");
 
@@ -337,7 +344,7 @@ void ProduceSyncNtuple(TString InputFileName, TString OutputFileName, TString Ch
   vector<int>     *daughters_isLastTriggerObjectforPath = 0;
   vector<int>     *daughters_isTriggerObjectforPath = 0;
   vector<int>     *daughters_FilterFired = 0;
-  vector<bool>    *daughters_isGoodTriggerType = 0;
+  vector<int>    *daughters_isGoodTriggerType = 0;
   vector<int>     *daughters_L3FilterFired = 0;
   vector<int>     *daughters_L3FilterFiredLast = 0;
   Int_t           JetsNumber;
@@ -808,11 +815,89 @@ void ProduceSyncNtuple(TString InputFileName, TString OutputFileName, TString Ch
       Int_t lep1Index = -99 ;
       Int_t lep2Index = -99 ;
 
+      OfflineProducerHelper* HelperTrigger = new OfflineProducerHelper(hCounter);
+
+
       //loop on lepton pairs
       for(UInt_t p = 0 ; p < isOSCand->size() ; ++p)
 	{
 	  //-> opposite sign candidate
 	  // if(!isOSCand->at(p)) continue ;//removed
+
+	  //trigger checks
+	  if(Channel=="mt")
+	    {
+	      TString TriggerName1 = "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1";
+	      TString TriggerName2 = "HLT_IsoMu24_eta2p1_v1";
+
+	      //Event Level
+	      if(!HelperTrigger->IsTriggerFired(triggerbit,TriggerName1) && !HelperTrigger->IsTriggerFired(triggerbit,TriggerName2)) continue ;
+	      Int_t BitTrigger1 = HelperTrigger->FindTriggerNumber(TriggerName1);
+	      Int_t BitTrigger2 = HelperTrigger->FindTriggerNumber(TriggerName2);
+
+	      //IsGoodTriggerTrype
+	      if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> BitTrigger1)  & 1) && !((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> BitTrigger2)  & 1)) continue ;
+	      if(!((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> BitTrigger1)  & 1) && !((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> BitTrigger2)  & 1)) continue ;
+
+	      //Trigger filter
+	      if(!((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> BitTrigger1)  & 1) && !((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> BitTrigger2)  & 1)) continue ;
+	      if(!((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> BitTrigger1)  & 1) && !((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> BitTrigger2)  & 1)) continue ;
+	    }
+	  else if(Channel=="et")
+	    {
+	      TString TriggerName1 = "HLT_Ele22_eta2p1_WP75_Gsf_LooseIsoPFTau20_v1";
+	      TString TriggerName2 = "HLT_Ele32_eta2p1_WP75_Gsf_v1";
+
+	      //Event Level
+	      if(!HelperTrigger->IsTriggerFired(triggerbit,TriggerName1) && !HelperTrigger->IsTriggerFired(triggerbit,TriggerName2)) continue ;
+	      Int_t BitTrigger1 = HelperTrigger->FindTriggerNumber(TriggerName1);
+	      Int_t BitTrigger2 = HelperTrigger->FindTriggerNumber(TriggerName2);
+
+	      //IsGoodTriggerTrype
+	      if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> BitTrigger1)  & 1) && !((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> BitTrigger2)  & 1)) continue ;
+	      if(!((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> BitTrigger1)  & 1) && !((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> BitTrigger2)  & 1)) continue ;
+
+	      //Trigger filter
+	      if(!((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> BitTrigger1)  & 1) && !((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> BitTrigger2)  & 1)) continue ;
+	      if(!((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> BitTrigger1)  & 1) && !((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> BitTrigger2)  & 1)) continue ;
+	    }
+	  else if(Channel=="tt")
+	    {
+	      TString TriggerName1 = "HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1";
+	      TString TriggerName2 = "dummy";
+
+	      //Event Level
+	      if(!HelperTrigger->IsTriggerFired(triggerbit,TriggerName1) && !HelperTrigger->IsTriggerFired(triggerbit,TriggerName2)) continue ;
+	      Int_t BitTrigger1 = HelperTrigger->FindTriggerNumber(TriggerName1);
+	      Int_t BitTrigger2 = HelperTrigger->FindTriggerNumber(TriggerName2);
+
+	      //IsGoodTriggerTrype
+	      if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> BitTrigger1)  & 1) && !((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> BitTrigger2)  & 1)) continue ;
+	      if(!((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> BitTrigger1)  & 1) && !((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> BitTrigger2)  & 1)) continue ;
+
+	      //Trigger filter
+	      if(!((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> BitTrigger1)  & 1) && !((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> BitTrigger2)  & 1)) continue ;
+	      if(!((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> BitTrigger1)  & 1) && !((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> BitTrigger2)  & 1)) continue ;
+	    }
+	  else if(Channel=="em")
+{
+	      TString TriggerName1 = "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v1";
+	      TString TriggerName2 = "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v1";
+
+	      //Event Level
+	      if(!HelperTrigger->IsTriggerFired(triggerbit,TriggerName1) && !HelperTrigger->IsTriggerFired(triggerbit,TriggerName2)) continue ;
+	      Int_t BitTrigger1 = HelperTrigger->FindTriggerNumber(TriggerName1);
+	      Int_t BitTrigger2 = HelperTrigger->FindTriggerNumber(TriggerName2);
+
+	      //IsGoodTriggerTrype
+	      if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> BitTrigger1)  & 1) && !((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> BitTrigger2)  & 1)) continue ;
+	      if(!((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> BitTrigger1)  & 1) && !((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> BitTrigger2)  & 1)) continue ;
+
+	      //Trigger filter
+	      if(!((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> BitTrigger1)  & 1) && !((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> BitTrigger2)  & 1)) continue ;
+	      if(!((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> BitTrigger1)  & 1) && !((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> BitTrigger2)  & 1)) continue ;
+	    }
+	  
 
 	  //check if candidate is mu+tau
 	  if(Channel=="mt" && !(particleType->at(indexDau1->at(p))==0 && particleType->at(indexDau2->at(p))==2)) continue ;
@@ -1500,7 +1585,7 @@ int main(int argc, const char* argv[])
       toGet += thisSampleName ;
       string thisSampleLocation =  gConfigParser->readStringOption(toGet.c_str());
       TString ThisSampleLocation(thisSampleLocation);
-      ThisSampleLocation += "HTauTauAnalysis_*.root";
+      ThisSampleLocation += "HTauTauAnalysis*.root";
 
       cout<<"Processing sample = "<<samplesToSkim.at(iSample)<<endl;
       cout<<"   from --> "<<thisSampleLocation<<endl;
