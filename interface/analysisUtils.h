@@ -27,6 +27,19 @@
 #include "HistoManager.h"
 #include "plotContainer.h"
 
+
+vector<pair <TString, TCut> > 
+addSelection (vector<pair <TString, TCut> > m_cuts, string cut, string tag) ;
+
+std::pair<int, int> leptonsType (int pairType) ;
+/*
+0 = muons
+1 = electrons
+2 = taus
+true = is isolated
+*/
+bool isIsolated (int leptonType, float threshold, float isoDeposits, float pT) ; 
+
 void
 addHistos (vector<sample> & samples, HistoManager * manager,
            vector<string> & variablesList,

@@ -1,5 +1,52 @@
 #include "analysisUtils.h"
 
+using namespace std ;
+
+
+vector<pair <TString, TCut> >
+addSelection (vector<pair <TString, TCut> > m_cuts, string cut, string tag)
+{
+  vector<pair <TString, TCut> > output = m_cuts ;
+  for (unsigned int i = 0 ; i < output.size () ; ++i)
+    {
+      output.at (i).first = TString (tag.c_str ()) + output.at (i).first ;
+      output.at (i).second = output.at (i).second && TCut (cut.c_str ()) ;
+    }
+  return output ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+std::pair<int, int> leptonsType (int pairType)
+{
+  if (pairType == 0) return pair<int,int> (0, 2) ;
+  if (pairType == 1) return pair<int,int> (1, 2) ;
+  if (pairType == 2) return pair<int,int> (2, 2) ;
+  if (pairType == 3) return pair<int,int> (0, 0) ;
+  if (pairType == 4) return pair<int,int> (1, 1) ;
+  if (pairType == 5) return pair<int,int> (1, 0) ; // FIXME are they ordered per flavour?
+  if (pairType == 6) return pair<int,int> (1, 1) ;
+  if (pairType == 7) return pair<int,int> (0, 0) ;
+  return pair<int,int> (-1, -1) ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+bool isIsolated (int leptonType, float threshold, float isoDeposits, float pT)
+{
+  if (leptonType == 0 || leptonType == 1) return (isoDeposits/pT < threshold) ;
+  if (leptonType == 2) return (isoDeposits < threshold) ;
+  return false ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
 void
 addHistos (vector<sample> & samples, 
            HistoManager * manager,
