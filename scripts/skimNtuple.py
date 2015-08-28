@@ -145,7 +145,7 @@ if __name__ == "__main__":
         os.system ('rm -rf ' + opt.output + '/*')
     os.system ('mkdir ' + opt.output)
     
-    inputfiles = glob.glob (opt.input + '/output*.root')    
+    inputfiles = glob.glob (opt.input + '/*.root')    
     jobsDir = currFolder + '/SKIM_' + basename (opt.input)
     if os.path.exists (jobsDir) : os.system ('rm -f ' + jobsDir + '/*')
     else                        : os.system ('mkdir ' + jobsDir)
