@@ -1,0 +1,1 @@
+root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/llrNt_NoSVFit_data_27Ago2015/4_MuonEG__Run2015B-17Jul2015-v1/MuonEG/llrNt_NoSVFit_data_27Ago2015/150827_171317/0000/HTauTauAnalysis_1.root
