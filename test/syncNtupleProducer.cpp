@@ -118,14 +118,27 @@ bool CheckElectronMVAIDWP90(float MVAValue, TLorentzVector electron)
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-void ProduceSyncNtuple(TString InputFileName, TString OutputFileName, TString Channel, ConfigParser* gConfigParser)
+void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString OutputFileName, TString Channel, ConfigParser* gConfigParser)
 {
-  //sample trigger from last prod -- to be automatized
-  TFile tempToGetHisto("/data_CMS/cms/davignon/Ntuples_RunII/BBH160/Ntuples/Basics/HTauTauAnalysis_1.root","READ");
+  //automated trigger histo finding
+  TString CommandToExecute = "ls "+InputFileName;
+  TString ResultOfLs = gSystem->GetFromPipe(CommandToExecute.Data());
+  string ResultOfLs_str(ResultOfLs.Data());
+  string toFind = ".root";
+  std::size_t found = ResultOfLs_str.find(toFind);
+  string FileForTempHisto = ResultOfLs_str.substr(0,found);
+  TString FileForTempHisto_TStr(FileForTempHisto);
+  FileForTempHisto_TStr += ".root";
+  TFile tempToGetHisto(FileForTempHisto_TStr.Data(),"READ");
   TH1F* hCounter = (TH1F*)tempToGetHisto.Get("HTauTauTree/Counters");
-  //cout<<hCounter->GetEntries()<<endl;
+  // cout<<hCounter->GetEntries()<<endl;
 
-  float triggerPath = gConfigParser->readFloatOption("event::triggers");
+  // cout<<"printing config parser: "<<endl;
+  // gConfigParser->print();
+
+  //trigger paths for MC and data
+  vector<string> triggerPathsMC = gConfigParser->readStringListOption("event::triggersMC");
+  vector<string> triggerPathsData = gConfigParser->readStringListOption("event::triggersData");
   float DR = gConfigParser->readFloatOption("event::DR");
 
   float cutLepton1_Pt = -99.;
@@ -251,7 +264,6 @@ void ProduceSyncNtuple(TString InputFileName, TString OutputFileName, TString Ch
       cutLepton2_Iso = gConfigParser->readFloatOption("tauTwo::Iso");
       cutLepton2_dz = gConfigParser->readFloatOption("tauTwo::dz");
     }
-
 
   TChain* m_SampleChain = new TChain("HTauTauTree/HTauTauTree");
   m_SampleChain->Add(InputFileName.Data());
@@ -806,6 +818,8 @@ void ProduceSyncNtuple(TString InputFileName, TString OutputFileName, TString Ch
   {
       m_SampleChain->GetEntry(i);
 
+      // cout<<"event = "<<i<<endl;
+
       //Event level selections
 
       //-> at least 2 leptons
@@ -824,82 +838,78 @@ void ProduceSyncNtuple(TString InputFileName, TString OutputFileName, TString Ch
 	  //-> opposite sign candidate
 	  // if(!isOSCand->at(p)) continue ;//removed
 
+	  //initialize trigger menus
+	  std::vector<TString> TriggerNames ;
+	  std::vector<Int_t> TriggerBits ;
+
+	  std::vector<TString> TriggerFiredNames ;
+	  std::vector<Int_t> TriggerFiredBits;
+
+	  std::vector<TString> TriggerFiredAndGoodTriggerTypeNames ;
+	  std::vector<Int_t> TriggerFiredAndGoodTriggerTypeBits ;
+
+	  std::vector<TString> TriggerNamesFinal ;
+	  std::vector<Int_t> TriggerBitsFinal ;
+
+	  if(DataTrue_MCFalse)
+	    {
+	      for(UInt_t iTrig = 0 ; iTrig < triggerPathsData.size() ; ++iTrig) TriggerNames.push_back(TString(triggerPathsData.at(iTrig)));
+	    }
+	  else
+	    {
+	      for(UInt_t iTrig = 0 ; iTrig < triggerPathsMC.size() ; ++iTrig) TriggerNames.push_back(TString(triggerPathsMC.at(iTrig)));
+	    }
+
 	  //trigger checks
-	  if(Channel=="mt")
+	  if(Channel=="mt" || Channel=="et" || Channel=="tt" || Channel=="em")
 	    {
-	      TString TriggerName1 = "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1";
-	      TString TriggerName2 = "HLT_IsoMu24_eta2p1_v1";
+	      // if(Channel=="mt") cout<<"mt!"<<endl;
 
-	      //Event Level
-	      if(!HelperTrigger->IsTriggerFired(triggerbit,TriggerName1) && !HelperTrigger->IsTriggerFired(triggerbit,TriggerName2)) continue ;
-	      Int_t BitTrigger1 = HelperTrigger->FindTriggerNumber(TriggerName1);
-	      Int_t BitTrigger2 = HelperTrigger->FindTriggerNumber(TriggerName2);
+	      //loop on triggers
+	      for(UInt_t iTrig = 0 ; iTrig < TriggerNames.size() ; ++iTrig)
+		{
+		  // if(Channel=="mt") cout<<"Trigger name = "<<TriggerNames.at(iTrig)<<endl;
+		  // if(Channel=="mt") cout<<HelperTrigger->FindTriggerNumber(TriggerNames.at(iTrig))<<endl;
+		  TriggerBits.push_back(HelperTrigger->FindTriggerNumber(TriggerNames.at(iTrig)));
+		  if(HelperTrigger->IsTriggerFired(triggerbit,TriggerNames.at(iTrig)))
+		    {
+		      TriggerFiredNames.push_back(TriggerNames.at(iTrig));
+		      TriggerFiredBits.push_back(HelperTrigger->FindTriggerNumber(TriggerNames.at(iTrig)));
+		    }
+		  
+		}
 
-	      //IsGoodTriggerTrype
-	      if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> BitTrigger1)  & 1) && !((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> BitTrigger2)  & 1)) continue ;
-	      if(!((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> BitTrigger1)  & 1) && !((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> BitTrigger2)  & 1)) continue ;
+	      //at least one trigger fired
+	      if(TriggerFiredNames.size()<1) continue ;
 
-	      //Trigger filter
-	      if(!((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> BitTrigger1)  & 1) && !((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> BitTrigger2)  & 1)) continue ;
-	      if(!((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> BitTrigger1)  & 1) && !((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> BitTrigger2)  & 1)) continue ;
+	      //check isGoodTriggerType
+	      Bool_t BothDaughtersAreGoodTriggerTypes = kFALSE ;
+	      for(UInt_t iTrigFired = 0 ; iTrigFired < TriggerFiredNames.size() ; ++iTrigFired)
+		{
+		  if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)) continue;
+		  if(!((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)) continue;
+		  TriggerFiredAndGoodTriggerTypeNames.push_back(TriggerFiredNames.at(iTrigFired));
+		  TriggerFiredAndGoodTriggerTypeBits.push_back(HelperTrigger->FindTriggerNumber(TriggerFiredNames.at(iTrigFired)));
+		  BothDaughtersAreGoodTriggerTypes = kTRUE;
+		  
+		}
+	      if(!BothDaughtersAreGoodTriggerTypes) continue;
+
+	      //check trigger filters
+	      Bool_t BothDaughtersAreGoodTriggerTypesAndPassFilter = kFALSE ;
+	      for(UInt_t iTrigFiredAndGoodTriggerType = 0 ; iTrigFiredAndGoodTriggerType < TriggerFiredAndGoodTriggerTypeBits.size() ; ++iTrigFiredAndGoodTriggerType)
+		{
+		  if(!((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
+		  if(!((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
+		  TriggerNamesFinal.push_back(TriggerFiredAndGoodTriggerTypeNames.at(iTrigFiredAndGoodTriggerType));
+		  TriggerBitsFinal.push_back(HelperTrigger->FindTriggerNumber(TriggerFiredAndGoodTriggerTypeNames.at(iTrigFiredAndGoodTriggerType)));
+		  BothDaughtersAreGoodTriggerTypesAndPassFilter = kTRUE;
+		}
+	      if(!BothDaughtersAreGoodTriggerTypesAndPassFilter) continue;
 	    }
-	  else if(Channel=="et")
-	    {
-	      TString TriggerName1 = "HLT_Ele22_eta2p1_WP75_Gsf_LooseIsoPFTau20_v1";
-	      TString TriggerName2 = "HLT_Ele32_eta2p1_WP75_Gsf_v1";
 
-	      //Event Level
-	      if(!HelperTrigger->IsTriggerFired(triggerbit,TriggerName1) && !HelperTrigger->IsTriggerFired(triggerbit,TriggerName2)) continue ;
-	      Int_t BitTrigger1 = HelperTrigger->FindTriggerNumber(TriggerName1);
-	      Int_t BitTrigger2 = HelperTrigger->FindTriggerNumber(TriggerName2);
 
-	      //IsGoodTriggerTrype
-	      if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> BitTrigger1)  & 1) && !((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> BitTrigger2)  & 1)) continue ;
-	      if(!((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> BitTrigger1)  & 1) && !((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> BitTrigger2)  & 1)) continue ;
-
-	      //Trigger filter
-	      if(!((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> BitTrigger1)  & 1) && !((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> BitTrigger2)  & 1)) continue ;
-	      if(!((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> BitTrigger1)  & 1) && !((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> BitTrigger2)  & 1)) continue ;
-	    }
-	  else if(Channel=="tt")
-	    {
-	      TString TriggerName1 = "HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1";
-	      TString TriggerName2 = "dummy";
-
-	      //Event Level
-	      if(!HelperTrigger->IsTriggerFired(triggerbit,TriggerName1) && !HelperTrigger->IsTriggerFired(triggerbit,TriggerName2)) continue ;
-	      Int_t BitTrigger1 = HelperTrigger->FindTriggerNumber(TriggerName1);
-	      Int_t BitTrigger2 = HelperTrigger->FindTriggerNumber(TriggerName2);
-
-	      //IsGoodTriggerTrype
-	      if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> BitTrigger1)  & 1) && !((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> BitTrigger2)  & 1)) continue ;
-	      if(!((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> BitTrigger1)  & 1) && !((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> BitTrigger2)  & 1)) continue ;
-
-	      //Trigger filter
-	      if(!((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> BitTrigger1)  & 1) && !((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> BitTrigger2)  & 1)) continue ;
-	      if(!((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> BitTrigger1)  & 1) && !((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> BitTrigger2)  & 1)) continue ;
-	    }
-	  else if(Channel=="em")
-{
-	      TString TriggerName1 = "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v1";
-	      TString TriggerName2 = "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v1";
-
-	      //Event Level
-	      if(!HelperTrigger->IsTriggerFired(triggerbit,TriggerName1) && !HelperTrigger->IsTriggerFired(triggerbit,TriggerName2)) continue ;
-	      Int_t BitTrigger1 = HelperTrigger->FindTriggerNumber(TriggerName1);
-	      Int_t BitTrigger2 = HelperTrigger->FindTriggerNumber(TriggerName2);
-
-	      //IsGoodTriggerTrype
-	      if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> BitTrigger1)  & 1) && !((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> BitTrigger2)  & 1)) continue ;
-	      if(!((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> BitTrigger1)  & 1) && !((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> BitTrigger2)  & 1)) continue ;
-
-	      //Trigger filter
-	      if(!((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> BitTrigger1)  & 1) && !((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> BitTrigger2)  & 1)) continue ;
-	      if(!((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> BitTrigger1)  & 1) && !((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> BitTrigger2)  & 1)) continue ;
-	    }
-	  
-
-	  //check if candidate is mu+tau
+	  //check if candidate is mu+tau or something else
 	  if(Channel=="mt" && !(particleType->at(indexDau1->at(p))==0 && particleType->at(indexDau2->at(p))==2)) continue ;
 	  if(Channel=="et" && !(particleType->at(indexDau1->at(p))==1 && particleType->at(indexDau2->at(p))==2)) continue ;
 	  if(Channel=="tt" && !(particleType->at(indexDau1->at(p))==2 && particleType->at(indexDau2->at(p))==2)) continue ;
@@ -1028,8 +1038,6 @@ void ProduceSyncNtuple(TString InputFileName, TString OutputFileName, TString Ch
 	  // cout<<"good pair!!!"<<endl;
 
 	  // break;
-	    
-	}
 
       if(lep1Index < 0 || lep2Index < 0) continue ;
       
@@ -1545,11 +1553,14 @@ void ProduceSyncNtuple(TString InputFileName, TString OutputFileName, TString Ch
 	    }
 	}
 
+      // cout<<"before fill"<<endl;
 
       SyncTree->Fill();
 
             
     }
+	    
+  }
 
   SyncTree->Write();
   // cout<<"     "<<FileName<<" produced successfully (final entries = "<<SyncTree->GetEntries()<<")"<<endl;
@@ -1597,23 +1608,10 @@ int main(int argc, const char* argv[])
 	  TString CutConfigName = "selections::selectionsFile";
 	  CutConfigName += channels.at(iChannel);
 	  cut_Config =  gConfigParser->readStringOption(CutConfigName.Data());	  
+	  // cout<<"cut_Config = "<<cut_Config<<endl;
+	  gConfigParser->reset();
 	  gConfigParser->init(cut_Config.c_str());
 
-	  // if(channels.at(iChannel)=="mt")
-	  //   {
-	  //     cut_Config =  gConfigParser->readStringOption("selections::selectionsFilemt");	  
-	  //     gConfigParser->init(cut_Config.c_str());
-	  //   }
-	  // else if(channels.at(iChannel)=="et")
-	  //   {
-	  //     cut_Config =  gConfigParser->readStringOption("selections::selectionsFileet");	  
-	  //     gConfigParser->init(cut_Config.c_str());
-	  //   }
-	  // else if(channels.at(iChannel)=="et")
-	  //   {
-	  //     cut_Config =  gConfigParser->readStringOption("selections::selectionsFileet");	  
-	  //     gConfigParser->init(cut_Config.c_str());
-	  //   }
 	  TString FileName(outputFolderName);
 	  FileName += "/syncNtuple_";
 	  FileName += channels.at(iChannel);
@@ -1623,8 +1621,13 @@ int main(int argc, const char* argv[])
 	  FileName += ".root";
 	  cout<<"   filling "<<channels.at(iChannel)<<" to   --> "<<FileName<<endl;
 
-	  ProduceSyncNtuple(ThisSampleLocation, FileName, Channel, gConfigParser);
+	  Bool_t DataOrMC = kFALSE ;
+	  TString thisSampleName_TStr(thisSampleName);
+	  if(thisSampleName_TStr.Contains("Data")) DataOrMC = kTRUE;
+	  ProduceSyncNtuple(DataOrMC, ThisSampleLocation, FileName, Channel, gConfigParser);
 
+	  // cout<<"config = "<<config<<endl;
+	  gConfigParser->reset();
 	  gConfigParser->init(config);
 	  // cout<<"    ::done."<<endl;
 	}

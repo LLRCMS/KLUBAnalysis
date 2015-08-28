@@ -1,7 +1,8 @@
 [event]
 
 DR  = 0.5
-triggers = test
+triggersMC = HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1,HLT_IsoMu24_eta2p1_v1
+triggersData = HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v2,HLT_IsoMu24_eta2p1_v2
 
 [muon]
 
