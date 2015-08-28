@@ -1,7 +1,8 @@
 [event]
 
 DR  = 0.3
-triggers = test
+triggersMC = HLT_Ele22_eta2p1_WP75_Gsf_LooseIsoPFTau20_v1,HLT_Ele32_eta2p1_WP75_Gsf_v1
+triggersData = HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v1,HLT_Ele32_eta2p1_WPTight_Gsf_v1
 
 [electron]
 

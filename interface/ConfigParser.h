@@ -32,6 +32,8 @@ class ConfigParser {
   // Initialize configuration using the command line arguments
   bool init(const char *fileName=0);
 
+  bool reset() {configLines.clear(); return true;};
+
   // Destructor: Deletes the entries in the list of configuration file lines
   virtual ~ConfigParser();
 
