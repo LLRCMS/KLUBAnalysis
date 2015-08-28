@@ -8,7 +8,15 @@ import time
 import glob
 import subprocess
 from os.path import basename
+import ROOT
 
+
+def isGoodFile (fileName) :
+    ff = ROOT.TFile (fname)
+    if ff.IsZombie() : return False
+    if ff.TestBit(ROOT.TFile.kRecovered) : return False
+    return True
+    
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -88,6 +96,10 @@ if __name__ == "__main__":
                 if opt.verb : print num, 'missing root file', rootfile
                 missing.append (num)
                 continue
+            if not isGoodFile (rootfile) :
+                if opt.verb : print num, 'root file corrupted', rootfile
+                missing.append (num)
+                continue
             logfile = data[0].split ()[-1]
             if not os.path.exists (logfile) :
                 if opt.verb : print num, 'missing log file'
@@ -133,7 +145,7 @@ if __name__ == "__main__":
         os.system ('rm -rf ' + opt.output + '/*')
     os.system ('mkdir ' + opt.output)
     
-    inputfiles = glob.glob (opt.input + '/output*.root')    
+    inputfiles = glob.glob (opt.input + '/*.root')    
     jobsDir = currFolder + '/SKIM_' + basename (opt.input)
     if os.path.exists (jobsDir) : os.system ('rm -f ' + jobsDir + '/*')
     else                        : os.system ('mkdir ' + jobsDir)

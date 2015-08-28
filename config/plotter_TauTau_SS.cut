@@ -1,0 +1,14 @@
+all       = isOS == 0
+TauTau    = isOS == 0 && pairType == 2
+baseline  = isOS == 0 && pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0
+dijet     = isOS == 0 && pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_pt > 20 && bjet2_pt > 20
+dijethard = isOS == 0 && pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30
+btag      = isOS == 0 && pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && (bjet1_bID + bjet2_bID) > 0.8 && bjet1_bID > 0.3 && bjet2_bID > 0.3
+taumass   = isOS == 0 && pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && (bjet1_bID + bjet2_bID) > 0.8 && bjet1_bID > 0.3 && bjet2_bID > 0.3 && tauH_mass < 130 && tauH_mass > 70
+bmass     = isOS == 0 && pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && (bjet1_bID + bjet2_bID) > 0.8 && bjet1_bID > 0.3 && bjet2_bID > 0.3 && tauH_mass < 130 && tauH_mass > 70 && bH_mass < 150 && bH_mass > 50
+#
+# new selection sequence follows here, branching after dijethard
+#
+bBDTbtag      = isOS == 0 && pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && BDT_Btag > 0.5
+bBDTtaumass   = isOS == 0 && pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && BDT_Btag > 0.5 && tauH_mass < 130 && tauH_mass > 70
+bBDTbmass     = isOS == 0 && pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && BDT_Btag > 0.5 && tauH_mass < 130 && tauH_mass > 70 && bH_mass < 150 && bH_mass > 50
