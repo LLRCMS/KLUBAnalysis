@@ -8,7 +8,15 @@ import time
 import glob
 import subprocess
 from os.path import basename
+import ROOT
 
+
+def isGoodFile (fileName) :
+    ff = ROOT.TFile (fname)
+    if ff.IsZombie() : return False
+    if ff.TestBit(ROOT.TFile.kRecovered) : return False
+    return True
+    
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -86,6 +94,10 @@ if __name__ == "__main__":
             rootfile = data[0].split ()[2]
             if not os.path.exists (rootfile) :
                 if opt.verb : print num, 'missing root file', rootfile
+                missing.append (num)
+                continue
+            if not isGoodFile (rootfile) :
+                if opt.verb : print num, 'root file corrupted', rootfile
                 missing.append (num)
                 continue
             logfile = data[0].split ()[-1]
