@@ -1,3 +1,0 @@
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/llrNt_NoSVFit_data_27Ago2015/5_SingleMu__Run2015B-17Jul2015-v1/SingleMu/llrNt_NoSVFit_data_27Ago2015/150828_092957/0000/HTauTauAnalysis_1.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/llrNt_NoSVFit_data_27Ago2015/5_SingleMu__Run2015B-17Jul2015-v1/SingleMu/llrNt_NoSVFit_data_27Ago2015/150828_092957/0000/HTauTauAnalysis_2.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/llrNt_NoSVFit_data_27Ago2015/5_SingleMu__Run2015B-17Jul2015-v1/SingleMu/llrNt_NoSVFit_data_27Ago2015/150828_092957/0000/HTauTauAnalysis_3.root
