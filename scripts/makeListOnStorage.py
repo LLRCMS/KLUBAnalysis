@@ -1,8 +1,9 @@
 import os, sys
 from subprocess import Popen, PIPE
 
-#tag = "llrNt_NoSVFit_bkg_27Ago2015" # tag, stesso nome del crab folder
-tag = "llrNt_NoSVFit_data_27Ago2015"
+#tag = "llrNt_NoSVFit_bkg_27Ago2015" # tag, stesso nome del crab folder senza crab3_ all'inizio
+#tag = "llrNt_NoSVFit_data_27Ago2015"
+tag = "llrNt_NoSVFit_data_30Ago2015_lumiMaskFix"
 outFolder = "../inputFiles/28Ago2015/" # write / at the end
 
 # ====================================================================
