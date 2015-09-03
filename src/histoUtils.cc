@@ -354,6 +354,48 @@ vector<float> getExtremes (THStack * hstack, bool islog)
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+// xmin ymin xmax ymax
+vector<float> getExtremes (std::vector<TH1F*>& histos, bool islog)
+{
+  float xmin = 1. ;
+  float xmax = 0. ;
+  float ymin = 90000000000. ; // FIXME: check: non trova il minimo??
+  float ymax = 0.;
+
+  for (unsigned int ihisto = 0; ihisto < histos.size(); ihisto++)
+  {
+    TH1F* histo = histos.at(ihisto);
+    float tmpmin = findNonNullMinimum (histo) ;
+    // if (tmpmin <= 0) continue ;
+    // if (tmpmin < ymin && tmpmin <= 0) ymin = tmpmin ;
+    if (islog)
+    {  if (tmpmin < ymin && tmpmin > 0) ymin = tmpmin ; }
+    else
+    {  if (tmpmin < ymin) ymin = tmpmin;} // not log --> can have minimum < 0 (happens...)
+
+    float tmpmax = histo->GetMaximum();
+    // update with error
+    float errUp = histo->GetBinErrorUp(histo->GetMaximumBin());
+    tmpmax += errUp;
+
+    if (tmpmax > ymax) ymax = tmpmax ;
+
+    if (xmin > xmax)
+    {
+      xmin = histo->GetXaxis ()->GetXmin () ;
+      xmax = histo->GetXaxis ()->GetXmax () ;
+    }
+  }
+  vector<float> extremes (4, 0.) ;
+  extremes.at (0) = xmin ;
+  extremes.at (1) = ymin ;
+  extremes.at (2) = xmax ;
+  extremes.at (3) = ymax ;
+  return extremes;
+}
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
 
 
 float min3 (float uno, float due, float tre)

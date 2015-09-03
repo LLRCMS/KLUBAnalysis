@@ -111,6 +111,8 @@ TH2F * roll ( T * original,    // thing to be re-rolled
  
 // xmin ymin xmax ymax
 vector<float> getExtremes (THStack * hstack, bool islog = false) ;
+vector<float> getExtremes (std::vector<TH1F*>& histos, bool islog = false) ;
+
 float min3 (float uno, float due, float tre) ;
 float max3 (float uno, float due, float tre) ;
  

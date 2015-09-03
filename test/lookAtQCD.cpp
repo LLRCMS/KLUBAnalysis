@@ -9,6 +9,7 @@
 #include "TCut.h"
 #include "THStack.h"
 #include "TCanvas.h"
+#include "TLegend.h"
 
 #include "HistoManager.h"
 #include "ConfigParser.h"
@@ -36,6 +37,18 @@ struct QCDevalTools
   vector<pair <TString, TCut> > m_selections ;
 } ;
 
+
+/*
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+THStack* getDataMCStack (QCDevalTools & QCDET, string variable, string selection)
+{
+  THStack* h_Stack = new THStack(Form("stack_%s_%s" , variable.c_str, selection.c_str), Form("stack_%s_%s" , variable.c_str, selection.c_str));
+  for (int iSample = 0; iSample < QCDET.m_bkg_plots[variable][selection].second.size(); iSample++)
+  {
+    h_Stack -> Add (QCDET.m_bkg_plots[variable][selection].second.at(iSample));
+  }
+}
+*/
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -139,13 +152,24 @@ int main (int argc, char** argv)
   // prepare selections and plot containers
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
+  bool useRelIso = gConfigParser->readBoolOption ("general::useRelIso");
   vector<pair<string, string> > isoThresholds ; // <dau1iso , dau2iso> threshold values
-  isoThresholds.push_back (pair<string,string> ("1.0", "1.0")) ; // GeV", "GeV
-  isoThresholds.push_back (pair<string,string> ("2.0", "2.0")) ; // GeV", "GeV
-  isoThresholds.push_back (pair<string,string> ("2.5", "2.5")) ; // GeV", "GeV
-  isoThresholds.push_back (pair<string,string> ("3.0", "3.0")) ; // GeV", "GeV
-  isoThresholds.push_back (pair<string,string> ("4.0", "4.0")) ; // GeV", "GeV
-  isoThresholds.push_back (pair<string,string> ("5.0", "5.0")) ; // GeV", "GeV
+  if (!useRelIso) 
+  {
+    std::vector<string> sel1 = gConfigParser->readStringListOption ("selections::l1AbsIso");
+    std::vector<string> sel2 = gConfigParser->readStringListOption ("selections::l2AbsIso");
+    for (uint i = 0; i < sel1.size(); i++) isoThresholds.push_back (pair<string, string> (sel1.at(i), sel2.at(i)) );
+  }
+  else
+  {
+    std::vector<string> sel1 = gConfigParser->readStringListOption ("selections::l1RelIso");
+    std::vector<string> sel2 = gConfigParser->readStringListOption ("selections::l2RelIso");
+    for (uint i = 0; i < sel1.size(); i++) isoThresholds.push_back (pair<string, string> (sel1.at(i), sel2.at(i)) );
+  }
+
+  cout << "Iso thresholds tested:   ";
+  for (uint i = 0; i < isoThresholds.size(); i++) cout << " (" << isoThresholds.at(i).first << " , " << isoThresholds.at(i).second << " )   "; 
+  cout << endl;
 
   vector<pair <string, QCDevalTools> > QCDEvalAttempts ;
 
@@ -158,8 +182,15 @@ int main (int argc, char** argv)
                     + "_" + isoThresholds.at (iWP).second ;
       QCDEvalAttempts.push_back (pair <string, QCDevalTools> (name, QCDevalTools (name))) ;
 
-      string isolation = "dau1_iso < " + isoThresholds.at (iWP).first
+      string isolation = "";
+      if (!useRelIso) {
+        isolation = "dau1_iso < " + isoThresholds.at (iWP).first
                          + " && dau2_iso < " + isoThresholds.at (iWP).second ;
+      }
+      else {
+        isolation = "(dau1_iso/dau1_pt) < " + isoThresholds.at (iWP).first
+                 + " && (dau2_iso/dau2_pt) < " + isoThresholds.at (iWP).second ;
+      }
 
       QCDEvalAttempts.back ().second.m_selections = addSelection (
           selections, isolation, "iso_") ;
@@ -213,6 +244,146 @@ int main (int argc, char** argv)
     fOut->Close () ;
     delete fOut;
   }
+
+
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << "Making comparison plots: \n" ;
+
+  //system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events/")) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/shapes/")) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/rootfiles/")) ;
+
+  TCanvas * c = new TCanvas () ;
+  int nVars = variablesList.size () ;
+  // loop on selections
+  for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
+    {
+      // loop on variables
+      for (int iv = 0 ; iv < nVars ; ++iv)
+        {
+          c->cd () ;
+          TString outputName ; 
+          outputName.Form ("plot_%s_%s",
+            variablesList.at (iv).c_str (), selections.at (isel).first.Data ()) ;
+
+          std::vector<TH1F*> QCDhistos;
+
+          TString outFolderName = outFolderNameBase + TString ("/shapes/") ;
+          TString basename ;
+          basename.Form ("shape_%s_%s",
+                  variablesList.at (iv).c_str (),
+                  selections.at (isel).first.Data ()
+                ) ;
+
+          for (unsigned int iWP = 0; iWP < QCDEvalAttempts.size(); iWP++)
+          {
+            // bisogna fare tutto questo casino per recuperare un istogramma con questo codice di merda
+            TString histoTag = QCDEvalAttempts.at(iWP).second.m_selections.at(isel).first;
+            THStack * QCD_stack = QCDEvalAttempts.at(iWP).second.m_QCD_plots.makeStack ( variablesList.at (iv), 
+                                    histoTag.Data ()) ;
+            THStack * hstack_QCD_norm = normaliseStack (QCD_stack) ;
+            TH1F * shape_QCD = (TH1F *) hstack_QCD_norm->GetStack ()->Last () ;
+            //hstack_QCD_norm->Draw ("hist") ;
+            QCDhistos.push_back(shape_QCD);
+          }
+
+          // draw QCD histos
+          vector<float> extr = getExtremes(QCDhistos);
+          TH1F * bkg = c->DrawFrame (
+              extr.at (0) ,
+              0.9 * extr.at(1) ,
+              extr.at (2) ,
+              1.3 * extr.at(3)
+          ) ;  
+
+          TLegend* legend = new TLegend(0.11,0.75,0.85,0.89);
+          legend->SetHeader ("l1, l2 iso upper thr. [GeV]");
+          legend->SetBorderSize(0);
+          legend->SetFillColor(0);
+          legend->SetFillStyle(0);
+          legend->SetTextSize(0.04);
+          legend->SetTextFont(42);
+          legend->SetNColumns (3);
+
+          for (unsigned int iWP = 0; iWP < QCDhistos.size(); iWP++)
+          {
+            TString WPname = Form ("%s , %s" , isoThresholds.at(iWP).first.c_str(), isoThresholds.at(iWP).second.c_str() );
+            legend->AddEntry (QCDhistos.at(iWP), WPname, "l");
+            QCDhistos.at(iWP)->SetLineColor(50+5*iWP);
+            QCDhistos.at(iWP)->SetLineWidth(2);
+            QCDhistos.at(iWP)->SetLineStyle(iWP);
+            QCDhistos.at(iWP)->Draw ("same hist E1");
+          }
+          legend->Draw();
+          TString name = basename + "_norm" ;
+          TString coutputName = "";
+          coutputName.Form ("%s.pdf", (outFolderName + basename).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+          
+          // now save all histo into a file too for further drawing
+          outFolderName = outFolderNameBase + TString ("/rootfiles/") ;
+          basename.Form ("shape_%s_%s.root",
+                  variablesList.at (iv).c_str (),
+                  selections.at (isel).first.Data ()
+                ) ;
+          TFile* fOut = new TFile (basename, "RECREATE");
+          c->Write();
+          for (uint h = 0; h < QCDhistos.size(); h++) QCDhistos.at(h)->Write();
+          fOut->Close();
+          delete fOut;
+
+          delete bkg;
+          delete legend;
+        } // loop on variables
+    } // loop on selections
+
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << "Making DATA / MC stacked plots: \n" ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events/")) ;
+
+  for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
+  {
+    // loop on variables
+    for (int iv = 0 ; iv < nVars ; ++iv)
+    {
+      c->cd () ;
+
+      TString outFolderName = outFolderNameBase + TString ("/events/") ;
+
+      // each one produces a stack data / MC
+      for (unsigned int iWP = 0; iWP < QCDEvalAttempts.size(); iWP++)
+      {
+        // bisogna fare tutto questo casino per recuperare un istogramma con questo codice di merda
+        TString histoTag = QCDEvalAttempts.at(iWP).second.m_selections.at(isel).first;
+        THStack * data_stack = QCDEvalAttempts.at(iWP).second.m_DATA_plots.makeStack ( variablesList.at (iv), 
+                                histoTag.Data ()) ;
+        THStack * bkg_stack = QCDEvalAttempts.at(iWP).second.m_bkg_plots.makeStack ( variablesList.at (iv), 
+                                histoTag.Data ()) ;
+        vector<float> extr = getExtremes (data_stack);
+        TH1F * bkg = c->DrawFrame (
+          extr.at (0) ,
+          0.9 * extr.at(1) ,
+          extr.at (2) ,
+          1.3 * extr.at(3)
+        ) ;  
+
+        bkg_stack -> Draw ("hist same");
+        data_stack->GetStack()->Last()->Draw("P same");
+        TString basename = "";
+        basename.Form ("stack_%s_%s_WP_%s_%s",
+                variablesList.at (iv).c_str (),
+                selections.at (isel).first.Data (),
+                isoThresholds.at(iWP).first.c_str(), isoThresholds.at(iWP).second.c_str()
+              ) ;
+        TString coutputName = "";
+        coutputName.Form ("%s.pdf", (outFolderName + basename).Data ()) ;
+        c->SaveAs (coutputName.Data());
+
+        delete bkg;
+      }
+    }
+  }
+  delete c ;
   
   return 0 ;
 }  
