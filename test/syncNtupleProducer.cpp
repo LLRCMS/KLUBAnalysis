@@ -389,21 +389,21 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   m_SampleChain->SetBranchAddress("daughters_py", &daughters_py);
   m_SampleChain->SetBranchAddress("daughters_pz", &daughters_pz);
   m_SampleChain->SetBranchAddress("daughters_e", &daughters_e);
-  m_SampleChain->SetBranchAddress("daughters_genindex", &daughters_genindex);
-  m_SampleChain->SetBranchAddress("MC_weight", &MC_weight);
-  m_SampleChain->SetBranchAddress("genpart_px", &genpart_px);
-  m_SampleChain->SetBranchAddress("genpart_py", &genpart_py);
-  m_SampleChain->SetBranchAddress("genpart_pz", &genpart_pz);
-  m_SampleChain->SetBranchAddress("genpart_e", &genpart_e);
-  m_SampleChain->SetBranchAddress("genpart_pdg", &genpart_pdg);
-  m_SampleChain->SetBranchAddress("genpart_status", &genpart_status);
-  m_SampleChain->SetBranchAddress("genpart_HMothInd", &genpart_HMothInd);
-  m_SampleChain->SetBranchAddress("genpart_TopMothInd", &genpart_TopMothInd);
-  m_SampleChain->SetBranchAddress("genpart_TauMothInd", &genpart_TauMothInd);
-  m_SampleChain->SetBranchAddress("genpart_ZMothInd", &genpart_ZMothInd);
-  m_SampleChain->SetBranchAddress("genpart_HZDecayMode", &genpart_HZDecayMode);
-  m_SampleChain->SetBranchAddress("genpart_TauGenDecayMode", &genpart_TauGenDecayMode);
-  m_SampleChain->SetBranchAddress("genpart_flags", &genpart_flags);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("daughters_genindex", &daughters_genindex);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("MC_weight", &MC_weight);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_px", &genpart_px);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_py", &genpart_py);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_pz", &genpart_pz);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_e", &genpart_e);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_pdg", &genpart_pdg);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_status", &genpart_status);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_HMothInd", &genpart_HMothInd);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_TopMothInd", &genpart_TopMothInd);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_TauMothInd", &genpart_TauMothInd);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_ZMothInd", &genpart_ZMothInd);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_HZDecayMode", &genpart_HZDecayMode);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_TauGenDecayMode", &genpart_TauGenDecayMode);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_flags", &genpart_flags);
   m_SampleChain->SetBranchAddress("SVfitMass", &SVfitMass);
   m_SampleChain->SetBranchAddress("SVfit_pt", &SVfit_pt);
   m_SampleChain->SetBranchAddress("SVfit_ptUnc", &SVfit_ptUnc);
@@ -815,8 +815,11 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   TBranch*        b_gen_Higgs_mass = SyncTree->Branch("gen_Higgs_mass",&gen_Higgs_mass);
 
   for(UInt_t i = 0 ; i < m_SampleChain->GetEntries() ; ++i)
-  {
+    {
       m_SampleChain->GetEntry(i);
+      // if(EventNumber==119) cout<<"event #"<<EventNumber<<" is here!"<<endl;
+      // else continue;
+      if(i%10000==0) cout<<"Entry #"<<i<<endl;
 
       // cout<<"event = "<<i<<endl;
 
@@ -868,7 +871,8 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	      //loop on triggers
 	      for(UInt_t iTrig = 0 ; iTrig < TriggerNames.size() ; ++iTrig)
 		{
-		  // if(Channel=="mt") cout<<"Trigger name = "<<TriggerNames.at(iTrig)<<endl;
+		  // if(Channel=="et") cout<<"Trigger name = "<<TriggerNames.at(iTrig)<<endl;
+		  // if(Channel=="et") cout<<"HelperTrigger->FindTriggerNumber(TriggerNames.at(iTrig)) = "<<HelperTrigger->FindTriggerNumber(TriggerNames.at(iTrig))<<endl;
 		  // if(Channel=="mt") cout<<HelperTrigger->FindTriggerNumber(TriggerNames.at(iTrig))<<endl;
 		  TriggerBits.push_back(HelperTrigger->FindTriggerNumber(TriggerNames.at(iTrig)));
 		  if(HelperTrigger->IsTriggerFired(triggerbit,TriggerNames.at(iTrig)))
@@ -882,10 +886,17 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	      //at least one trigger fired
 	      if(TriggerFiredNames.size()<1) continue ;
 
+	      // cout<<"passes trigger event level"<<endl;
+
+	      /*
 	      //check isGoodTriggerType
 	      Bool_t BothDaughtersAreGoodTriggerTypes = kFALSE ;
 	      for(UInt_t iTrigFired = 0 ; iTrigFired < TriggerFiredNames.size() ; ++iTrigFired)
 		{
+		  // cout<<"pair is: "<<p<<endl;
+		  // cout<<"daughters_isGoodTriggerType->at(indexDau1->at(p)) = "<<daughters_isGoodTriggerType->at(indexDau1->at(p))<<endl;
+		  // cout<<"daughters_isGoodTriggerType->at(indexDau2->at(p)) = "<<daughters_isGoodTriggerType->at(indexDau2->at(p))<<endl;
+		  // cout<<"TriggerFiredBits.at(iTrigFired) = "<<TriggerFiredBits.at(iTrigFired)<<endl;
 		  if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)) continue;
 		  if(!((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)) continue;
 		  TriggerFiredAndGoodTriggerTypeNames.push_back(TriggerFiredNames.at(iTrigFired));
@@ -893,7 +904,8 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 		  BothDaughtersAreGoodTriggerTypes = kTRUE;
 		  
 		}
-	      if(!BothDaughtersAreGoodTriggerTypes) continue;
+	      // if(!BothDaughtersAreGoodTriggerTypes) continue;
+	      // cout<<"passes trigger types"<<endl;
 
 	      //check trigger filters
 	      Bool_t BothDaughtersAreGoodTriggerTypesAndPassFilter = kFALSE ;
@@ -905,9 +917,12 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 		  TriggerBitsFinal.push_back(HelperTrigger->FindTriggerNumber(TriggerFiredAndGoodTriggerTypeNames.at(iTrigFiredAndGoodTriggerType)));
 		  BothDaughtersAreGoodTriggerTypesAndPassFilter = kTRUE;
 		}
-	      if(!BothDaughtersAreGoodTriggerTypesAndPassFilter) continue;
+	      */
+	      // if(!BothDaughtersAreGoodTriggerTypesAndPassFilter) continue;
 	    }
 
+	  // cout<<"passes trigger"<<endl;
+	  
 
 	  //check if candidate is mu+tau or something else
 	  if(Channel=="mt" && !(particleType->at(indexDau1->at(p))==0 && particleType->at(indexDau2->at(p))==2)) continue ;
@@ -993,6 +1008,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 		}
 	    }
 
+
 	  //check muon iso
 	  // cout<<"checking muon iso"<<endl;
 	  // cout<<"lep1.Pt(), combreliso->at(indexDau1->at(p)) = "<<lep1.Pt()<<", "<<combreliso->at(indexDau1->at(p))<<endl;
@@ -1039,528 +1055,535 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 
 	  // break;
 
-      if(lep1Index < 0 || lep2Index < 0) continue ;
+
+	  if(lep1Index < 0 || lep2Index < 0) continue ;
       
-      //event level
-      run = RunNumber ;
-      lumi = lumi_LLR ;
-      evt = EventNumber ;
-      isZtt = false;//not there in LLR
-      isZmt = false ;//not there in LLR
-      isZet = false ;//not there in LLR
-      isZee = false ;//not there in LLR
-      isZem = false ;//not there in LLR
-      isZmm = false ;//not there in LLR
-      isZEE = false ;//not there in LLR
-      isZMM = false ;//not there in LLR
-      isZLL = false ;//not there in LLR
-      isFake = false ;//not there in LLR
-      NUP = 0;//not there in LLR
-      secondMuon = 0;//not there in LLR
-      weight = 0;//not there in LLR
-      puweight = PUReweight;
-      npv = npv_LLR;
-      npu = npu_LLR;
-      rho = rho_LLR;
+	  //event level
+	  run = RunNumber ;
+	  lumi = lumi_LLR ;
+	  evt = EventNumber ;
+	  isZtt = false;//not there in LLR
+	  isZmt = false ;//not there in LLR
+	  isZet = false ;//not there in LLR
+	  isZee = false ;//not there in LLR
+	  isZem = false ;//not there in LLR
+	  isZmm = false ;//not there in LLR
+	  isZEE = false ;//not there in LLR
+	  isZMM = false ;//not there in LLR
+	  isZLL = false ;//not there in LLR
+	  isFake = false ;//not there in LLR
+	  NUP = 0;//not there in LLR
+	  secondMuon = 0;//not there in LLR
+	  weight = 0;//not there in LLR
+	  puweight = PUReweight;
+	  npv = npv_LLR;
+	  npu = npu_LLR;
+	  rho = rho_LLR;
 
-      //lep1
-      TLorentzVector Lep1  ;
-      Lep1.SetPxPyPzE(daughters_px->at(lep1Index),daughters_py->at(lep1Index),daughters_pz->at(lep1Index),daughters_e->at(lep1Index));      
-      pt_1 = Lep1.Pt();
-      px_1 = Lep1.Px();
-      py_1 = Lep1.Py();
-      pz_1 = Lep1.Pz();
-      phi_1 = Lep1.Phi();
-      eta_1 = Lep1.Eta();
-      m_1 = Lep1.M();
-      if(PDGIdDaughters->at(lep1Index)>0) q_1 = -1;
-      else if(PDGIdDaughters->at(lep1Index)<0) q_1 = +1;
-      else  q_1 = 0;
-      d0_1 = dxy->at(lep1Index);
-      dZ_1 = dz->at(lep1Index);
-      mt_1 = mT_Dau1->at(lepPairIndex);
-      iso_1 = combreliso->at(lep1Index);
-      l1_decayMode = decayMode->at(lep1Index);
-      int discriminator_m = int(discriminator->at(lep1Index));
-      id_m_loose_1 = ((discriminator_m >> 1) & 1) ;//loose
-      id_m_medium_1 = ((discriminator_m >> 2) & 1) ;//medium
-      id_m_tight_1 = ((discriminator_m >> 3) & 1) ;//tight
-      id_m_tightnovtx_1 = ((discriminator_m >> 5) & 1);//tight no vtx
-      id_m_highpt_1 = ((discriminator_m >> 4) & 1);//high pt
-      id_e_mva_nt_loose_1 = -99;//not there in LLR
-      id_e_mva_nt_tight_1 = -99;//not there in LLR
-      id_e_cut_veto_1 = ((daughters_eleCUTID->at(lep1Index) >> 0) & 1) ;
-      id_e_cut_loose_1 = ((daughters_eleCUTID->at(lep1Index) >> 1) & 1) ;
-      id_e_cut_medium_1 = ((daughters_eleCUTID->at(lep1Index) >> 2) & 1) ;
-      id_e_cut_tight_1 = ((daughters_eleCUTID->at(lep1Index) >> 3) & 1) ;
-      trigweight_1 = -99.;//not there in LLR
-      againstElectronLooseMVA5_1 = daughters_againstElectronLooseMVA5->at(lep1Index);
-      againstElectronMediumMVA5_1 = daughters_againstElectronMediumMVA5->at(lep1Index);
-      againstElectronTightMVA5_1 = false;//not there in LLR
-      againstElectronVLooseMVA5_1 = daughters_againstElectronVLooseMVA5->at(lep1Index);
-      againstElectronVTightMVA5_1 = false;//not there in LLR
-      againstMuonLoose3_1 = daughters_againstMuonLoose3->at(lep1Index);
-      againstMuonTight3_1 = daughters_againstMuonTight3->at(lep1Index);
-      byCombinedIsolationDeltaBetaCorrRaw3Hits_1 = daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(lep1Index);
-      byIsolationMVA3oldDMwoLTraw_1 = -99.;//not there in LLR
-      byIsolationMVA3oldDMwLTraw_1 = -99.;//not there in LLR
-      byIsolationMVA3newDMwoLTraw_1 = -99.;//not there in LLR
-      byIsolationMVA3newDMwLTraw_1 = -99.;//not there in LLR
-      chargedIsoPtSum_1 = daughters_chargedIsoPtSum->at(lep1Index);
-      decayModeFinding_1 = daughters_decayModeFindingOldDMs->at(lep1Index);
-      decayModeFindingNewDMs_1 = daughters_decayModeFindingNewDMs->at(lep1Index);
-      neutralIsoPtSum_1 = daughters_neutralIsoPtSum->at(lep1Index);
-      puCorrPtSum_1 = daughters_puCorrPtSum->at(lep1Index);
+	  //lep1
+	  TLorentzVector Lep1  ;
+	  Lep1.SetPxPyPzE(daughters_px->at(lep1Index),daughters_py->at(lep1Index),daughters_pz->at(lep1Index),daughters_e->at(lep1Index));      
+	  pt_1 = Lep1.Pt();
+	  px_1 = Lep1.Px();
+	  py_1 = Lep1.Py();
+	  pz_1 = Lep1.Pz();
+	  phi_1 = Lep1.Phi();
+	  eta_1 = Lep1.Eta();
+	  m_1 = Lep1.M();
+	  if(PDGIdDaughters->at(lep1Index)>0) q_1 = -1;
+	  else if(PDGIdDaughters->at(lep1Index)<0) q_1 = +1;
+	  else  q_1 = 0;
+	  d0_1 = dxy->at(lep1Index);
+	  dZ_1 = dz->at(lep1Index);
+	  mt_1 = mT_Dau1->at(lepPairIndex);
+	  iso_1 = combreliso->at(lep1Index);
+	  l1_decayMode = decayMode->at(lep1Index);
+	  int discriminator_m = int(discriminator->at(lep1Index));
+	  id_m_loose_1 = ((discriminator_m >> 1) & 1) ;//loose
+	  id_m_medium_1 = ((discriminator_m >> 2) & 1) ;//medium
+	  id_m_tight_1 = ((discriminator_m >> 3) & 1) ;//tight
+	  id_m_tightnovtx_1 = ((discriminator_m >> 5) & 1);//tight no vtx
+	  id_m_highpt_1 = ((discriminator_m >> 4) & 1);//high pt
+	  id_e_mva_nt_loose_1 = -99;//not there in LLR
+	  id_e_mva_nt_tight_1 = -99;//not there in LLR
+	  id_e_cut_veto_1 = ((daughters_eleCUTID->at(lep1Index) >> 0) & 1) ;
+	  id_e_cut_loose_1 = ((daughters_eleCUTID->at(lep1Index) >> 1) & 1) ;
+	  id_e_cut_medium_1 = ((daughters_eleCUTID->at(lep1Index) >> 2) & 1) ;
+	  id_e_cut_tight_1 = ((daughters_eleCUTID->at(lep1Index) >> 3) & 1) ;
+	  trigweight_1 = -99.;//not there in LLR
+	  againstElectronLooseMVA5_1 = daughters_againstElectronLooseMVA5->at(lep1Index);
+	  againstElectronMediumMVA5_1 = daughters_againstElectronMediumMVA5->at(lep1Index);
+	  againstElectronTightMVA5_1 = false;//not there in LLR
+	  againstElectronVLooseMVA5_1 = daughters_againstElectronVLooseMVA5->at(lep1Index);
+	  againstElectronVTightMVA5_1 = false;//not there in LLR
+	  againstMuonLoose3_1 = daughters_againstMuonLoose3->at(lep1Index);
+	  againstMuonTight3_1 = daughters_againstMuonTight3->at(lep1Index);
+	  byCombinedIsolationDeltaBetaCorrRaw3Hits_1 = daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(lep1Index);
+	  byIsolationMVA3oldDMwoLTraw_1 = -99.;//not there in LLR
+	  byIsolationMVA3oldDMwLTraw_1 = -99.;//not there in LLR
+	  byIsolationMVA3newDMwoLTraw_1 = -99.;//not there in LLR
+	  byIsolationMVA3newDMwLTraw_1 = -99.;//not there in LLR
+	  chargedIsoPtSum_1 = daughters_chargedIsoPtSum->at(lep1Index);
+	  decayModeFinding_1 = daughters_decayModeFindingOldDMs->at(lep1Index);
+	  decayModeFindingNewDMs_1 = daughters_decayModeFindingNewDMs->at(lep1Index);
+	  neutralIsoPtSum_1 = daughters_neutralIsoPtSum->at(lep1Index);
+	  puCorrPtSum_1 = daughters_puCorrPtSum->at(lep1Index);
 
-      //lep2
-      TLorentzVector Lep2  ;
-      Lep2.SetPxPyPzE(daughters_px->at(lep2Index),daughters_py->at(lep2Index),daughters_pz->at(lep2Index),daughters_e->at(lep2Index));      
-      pt_2 = Lep2.Pt();
-      px_2 = Lep2.Px();
-      py_2 = Lep2.Py();
-      pz_2 = Lep2.Pz();
-      phi_2 = Lep2.Phi();
-      eta_2 = Lep2.Eta();
-      m_2 = Lep2.M();
-      if(PDGIdDaughters->at(lep2Index)>0) q_2 = -1;
-      else if(PDGIdDaughters->at(lep2Index)<0) q_2 = +1;
-      else  q_2 = 0;
-      d0_2 = dxy->at(lep2Index);
-      dZ_2 = dz->at(lep2Index);
-      mt_2 = mT_Dau2->at(lepPairIndex);
-      iso_2 = daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(lep2Index);
-      l2_decayMode = decayMode->at(lep2Index);
-      int discriminator_m2 = int(discriminator->at(lep2Index));
-      id_m_loose_2 = ((discriminator_m2 >> 1) & 1) ;//loose
-      id_m_medium_2 = ((discriminator_m2 >> 2) & 1) ;//medium
-      id_m_tight_2 = ((discriminator_m2 >> 3) & 1) ;//tight
-      id_m_tightnovtx_2 = ((discriminator_m2 >> 5) & 1);//tight no vtx
-      id_m_highpt_2 = ((discriminator_m >> 4) & 1);//high pt
-      id_e_mva_nt_loose_2 = -99;//not there in LLR
-      id_e_mva_nt_tight_2 = -99;//not there in LLR
-      id_e_cut_veto_2 = ((daughters_eleCUTID->at(lep2Index) >> 0) & 1) ;
-      id_e_cut_loose_2 = ((daughters_eleCUTID->at(lep2Index) >> 1) & 1) ;
-      id_e_cut_medium_2 = ((daughters_eleCUTID->at(lep2Index) >> 2) & 1) ;
-      id_e_cut_tight_2 = ((daughters_eleCUTID->at(lep2Index) >> 3) & 1) ;
-      trigweight_2 = -99.;//not there in LLR
-      againstElectronLooseMVA5_2 = daughters_againstElectronLooseMVA5->at(lep2Index);
-      againstElectronMediumMVA5_2 = daughters_againstElectronMediumMVA5->at(lep2Index);
-      againstElectronTightMVA5_2 = false;//not there in LLR
-      againstElectronVLooseMVA5_2 = daughters_againstElectronVLooseMVA5->at(lep2Index);
-      againstElectronVTightMVA5_2 = false;//not there in LLR
-      againstMuonLoose3_2 = daughters_againstMuonLoose3->at(lep2Index);
-      againstMuonTight3_2 = daughters_againstMuonTight3->at(lep2Index);
-      byCombinedIsolationDeltaBetaCorrRaw3Hits_2 = daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(lep2Index);
-      byIsolationMVA3oldDMwoLTraw_2 = -99.;//not there in LLR
-      byIsolationMVA3oldDMwLTraw_2 = -99.;//not there in LLR
-      byIsolationMVA3newDMwoLTraw_2 = -99.;//not there in LLR
-      byIsolationMVA3newDMwLTraw_2 = -99.;//not there in LLR
-      chargedIsoPtSum_2 = daughters_chargedIsoPtSum->at(lep2Index);
-      decayModeFinding_2 = daughters_decayModeFindingOldDMs->at(lep2Index);
-      decayModeFindingNewDMs_2 = daughters_decayModeFindingNewDMs->at(lep2Index);
-      neutralIsoPtSum_2 = daughters_neutralIsoPtSum->at(lep2Index);
-      puCorrPtSum_2 = daughters_puCorrPtSum->at(lep2Index);
+	  //lep2
+	  TLorentzVector Lep2  ;
+	  Lep2.SetPxPyPzE(daughters_px->at(lep2Index),daughters_py->at(lep2Index),daughters_pz->at(lep2Index),daughters_e->at(lep2Index));      
+	  pt_2 = Lep2.Pt();
+	  px_2 = Lep2.Px();
+	  py_2 = Lep2.Py();
+	  pz_2 = Lep2.Pz();
+	  phi_2 = Lep2.Phi();
+	  eta_2 = Lep2.Eta();
+	  m_2 = Lep2.M();
+	  if(PDGIdDaughters->at(lep2Index)>0) q_2 = -1;
+	  else if(PDGIdDaughters->at(lep2Index)<0) q_2 = +1;
+	  else  q_2 = 0;
+	  d0_2 = dxy->at(lep2Index);
+	  dZ_2 = dz->at(lep2Index);
+	  mt_2 = mT_Dau2->at(lepPairIndex);
+	  iso_2 = daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(lep2Index);
+	  l2_decayMode = decayMode->at(lep2Index);
+	  int discriminator_m2 = int(discriminator->at(lep2Index));
+	  id_m_loose_2 = ((discriminator_m2 >> 1) & 1) ;//loose
+	  id_m_medium_2 = ((discriminator_m2 >> 2) & 1) ;//medium
+	  id_m_tight_2 = ((discriminator_m2 >> 3) & 1) ;//tight
+	  id_m_tightnovtx_2 = ((discriminator_m2 >> 5) & 1);//tight no vtx
+	  id_m_highpt_2 = ((discriminator_m >> 4) & 1);//high pt
+	  id_e_mva_nt_loose_2 = -99;//not there in LLR
+	  id_e_mva_nt_tight_2 = -99;//not there in LLR
+	  id_e_cut_veto_2 = ((daughters_eleCUTID->at(lep2Index) >> 0) & 1) ;
+	  id_e_cut_loose_2 = ((daughters_eleCUTID->at(lep2Index) >> 1) & 1) ;
+	  id_e_cut_medium_2 = ((daughters_eleCUTID->at(lep2Index) >> 2) & 1) ;
+	  id_e_cut_tight_2 = ((daughters_eleCUTID->at(lep2Index) >> 3) & 1) ;
+	  trigweight_2 = -99.;//not there in LLR
+	  againstElectronLooseMVA5_2 = daughters_againstElectronLooseMVA5->at(lep2Index);
+	  againstElectronMediumMVA5_2 = daughters_againstElectronMediumMVA5->at(lep2Index);
+	  againstElectronTightMVA5_2 = false;//not there in LLR
+	  againstElectronVLooseMVA5_2 = daughters_againstElectronVLooseMVA5->at(lep2Index);
+	  againstElectronVTightMVA5_2 = false;//not there in LLR
+	  againstMuonLoose3_2 = daughters_againstMuonLoose3->at(lep2Index);
+	  againstMuonTight3_2 = daughters_againstMuonTight3->at(lep2Index);
+	  byCombinedIsolationDeltaBetaCorrRaw3Hits_2 = daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(lep2Index);
+	  byIsolationMVA3oldDMwoLTraw_2 = -99.;//not there in LLR
+	  byIsolationMVA3oldDMwLTraw_2 = -99.;//not there in LLR
+	  byIsolationMVA3newDMwoLTraw_2 = -99.;//not there in LLR
+	  byIsolationMVA3newDMwLTraw_2 = -99.;//not there in LLR
+	  chargedIsoPtSum_2 = daughters_chargedIsoPtSum->at(lep2Index);
+	  decayModeFinding_2 = daughters_decayModeFindingOldDMs->at(lep2Index);
+	  decayModeFindingNewDMs_2 = daughters_decayModeFindingNewDMs->at(lep2Index);
+	  neutralIsoPtSum_2 = daughters_neutralIsoPtSum->at(lep2Index);
+	  puCorrPtSum_2 = daughters_puCorrPtSum->at(lep2Index);
 
-      m_vis = (Lep1+Lep2).M();
-      m_sv = SVfitMass->at(lepPairIndex);
-      pt_sv = SVfit_pt->at(lepPairIndex);
-      eta_sv = SVfit_eta->at(lepPairIndex);
-      phi_sv = SVfit_phi->at(lepPairIndex);
-      met_sv = sqrt(METx->at(lepPairIndex)*METx->at(lepPairIndex)+METy->at(lepPairIndex)*METy->at(lepPairIndex));//TBC
-      met =  sqrt(METx->at(lepPairIndex)*METx->at(lepPairIndex)+METy->at(lepPairIndex)*METy->at(lepPairIndex));//TBC
-      TLorentzVector MET_tmp;
-      MET_tmp.SetPxPyPzE(METx->at(lepPairIndex),METy->at(lepPairIndex),0.,met);
-      metphi = MET_tmp.Phi();
-      mvamet = -99.;//not there in LLR
-      mvametphi = -99.;//not there in LLR
+	  m_vis = (Lep1+Lep2).M();
+	  m_sv = SVfitMass->at(lepPairIndex);
+	  pt_sv = SVfit_pt->at(lepPairIndex);
+	  eta_sv = SVfit_eta->at(lepPairIndex);
+	  phi_sv = SVfit_phi->at(lepPairIndex);
+	  met_sv = sqrt(METx->at(lepPairIndex)*METx->at(lepPairIndex)+METy->at(lepPairIndex)*METy->at(lepPairIndex));//TBC
+	  met =  sqrt(METx->at(lepPairIndex)*METx->at(lepPairIndex)+METy->at(lepPairIndex)*METy->at(lepPairIndex));//TBC
+	  TLorentzVector MET_tmp;
+	  MET_tmp.SetPxPyPzE(METx->at(lepPairIndex),METy->at(lepPairIndex),0.,met);
+	  metphi = MET_tmp.Phi();
+	  mvamet = -99.;//not there in LLR
+	  mvametphi = -99.;//not there in LLR
 
-      float cos1 = Lep1.Px()/Lep1.Pt();
-      float cos2 = Lep2.Px()/Lep2.Pt();
-      float sen1 = Lep1.Py()/Lep1.Pt();
-      float sen2 = Lep2.Py()/Lep2.Pt();
+	  float cos1 = Lep1.Px()/Lep1.Pt();
+	  float cos2 = Lep2.Px()/Lep2.Pt();
+	  float sen1 = Lep1.Py()/Lep1.Pt();
+	  float sen2 = Lep2.Py()/Lep2.Pt();
       
-      float bisecX = cos1 + cos2;
-      float bisecY = sen1 + sen2;
+	  float bisecX = cos1 + cos2;
+	  float bisecY = sen1 + sen2;
       
-      float norm = TMath::Sqrt(bisecX*bisecX + bisecY*bisecY);
+	  float norm = TMath::Sqrt(bisecX*bisecX + bisecY*bisecY);
       
-      if(norm>0.){
-	bisecX /= norm;
-	bisecY /= norm;
-      }
+	  if(norm>0.){
+	    bisecX /= norm;
+	    bisecY /= norm;
+	  }
 
-      pzetavis = (Lep1+Lep2).Px()*bisecX + (Lep1+Lep2).Py()*bisecY;
-      pzetamiss = (Lep1+Lep2+MET_tmp).Px()*bisecX + (Lep1+Lep2+MET_tmp).Py()*bisecY; 
-      mvacov00 = MET_cov00->at(lepPairIndex);
-      mvacov10 = MET_cov10->at(lepPairIndex);
-      mvacov01 = MET_cov01->at(lepPairIndex);
-      mvacov11 = MET_cov11->at(lepPairIndex);
-      pth = (Lep1+Lep2+MET_tmp).Pt();
+	  pzetavis = (Lep1+Lep2).Px()*bisecX + (Lep1+Lep2).Py()*bisecY;
+	  pzetamiss = (Lep1+Lep2+MET_tmp).Px()*bisecX + (Lep1+Lep2+MET_tmp).Py()*bisecY; 
+	  mvacov00 = MET_cov00->at(lepPairIndex);
+	  mvacov10 = MET_cov10->at(lepPairIndex);
+	  mvacov01 = MET_cov01->at(lepPairIndex);
+	  mvacov11 = MET_cov11->at(lepPairIndex);
+	  pth = (Lep1+Lep2+MET_tmp).Pt();
       
-      //Now going to jets
+	  //Now going to jets
 
-      //-> at least 2 jets
-      // if(jets_e->size()<2) continue ;
+	  //-> at least 2 jets
+	  // if(jets_e->size()<2) continue ;
 
-      Int_t IndexJet1 = -99;
-      Int_t IndexJet2 = -99;
+	  Int_t IndexJet1 = -99;
+	  Int_t IndexJet2 = -99;
 
-      Int_t IndexBJet1 = -99;
-      Int_t IndexBJet2 = -99;
+	  Int_t IndexBJet1 = -99;
+	  Int_t IndexBJet2 = -99;
 
-      // cout<<"Event = "<<EventNumber<<endl;
-      // cout<<"lep1Index = "<<lep1Index<<endl;
-      // cout<<"lep2Index = "<<lep2Index<<endl;
-      // cout<<"****"<<endl;
+	  // cout<<"Event = "<<EventNumber<<endl;
+	  // cout<<"lep1Index = "<<lep1Index<<endl;
+	  // cout<<"lep2Index = "<<lep2Index<<endl;
+	  // cout<<"****"<<endl;
 
-      //loop on jets
+	  //loop on jets
 
-      Int_t Njets30 = 0;
-      Int_t Njets20 = 0;
-      Int_t Nbjets20 = 0;
+	  Int_t Njets30 = 0;
+	  Int_t Njets20 = 0;
+	  Int_t Nbjets20 = 0;
 
-      for(UInt_t ijet = 0 ; ijet < jets_e->size()  ; ++ijet)
-	{
-	  //build jet
-	  TLorentzVector jet ;
-	  jet.SetPxPyPzE(jets_px->at(ijet),jets_py->at(ijet),jets_pz->at(ijet),jets_e->at(ijet));
-	  
-	  if(fabs(jet.Eta())>4.8) continue;
-
-	  //tau-jet overlap removal
-	  // bool continueflag = false;
-
-	  //building leptons
-	  TLorentzVector Lep1_ForOverlapRemoval  ;
-	  Lep1_ForOverlapRemoval.SetPxPyPzE(daughters_px->at(lep1Index),daughters_py->at(lep1Index),daughters_pz->at(lep1Index),daughters_e->at(lep1Index));
-	  TLorentzVector Lep2_ForOverlapRemoval ;
-	  Lep2_ForOverlapRemoval.SetPxPyPzE(daughters_px->at(lep2Index),daughters_py->at(lep2Index),daughters_pz->at(lep2Index),daughters_e->at(lep2Index));
-
-	  if(Lep1_ForOverlapRemoval.DeltaR(jet)<0.5) continue ;
-	  if(Lep2_ForOverlapRemoval.DeltaR(jet)<0.5) continue ;
-
-	  // Float_t PUjetID_PtBoundries[5] = {0.0, 10.0, 20.0, 30.0, 50.0}; 
-	  // Float_t PUjetID_AbsEtaBoundries[5] = {0.0, 2.5, 2.75, 3.0, 5.0};
-
-	  // Float_t ptRange_010[4] =  {-0.95,-0.97,-0.97,-0.97};
-	  // Float_t ptRange_1020[4] = {-0.95,-0.97,-0.97,-0.97};
-	  // Float_t ptRange_2030[4] = {-0.63,-0.60,-0.55,-0.45}; 
-	  // Float_t ptRange_3050[4] =  {-0.63,-0.60,-0.55,-0.45};
-
-	  Float_t PUJetIDCut = -1.;
-	  if(jet.Pt()>0. && jet.Pt()<10.)
-	    {
-	      if(fabs(jet.Eta())>0. && fabs(jet.Eta())<2.5) PUJetIDCut = -0.95;
-	      if(fabs(jet.Eta())>2.5 && fabs(jet.Eta())<2.75) PUJetIDCut = -0.97;
-	      if(fabs(jet.Eta())>2.75 && fabs(jet.Eta())<3.0) PUJetIDCut = -0.97;
-	      if(fabs(jet.Eta())>3.0 && fabs(jet.Eta())<5.0) PUJetIDCut = -0.97;
-	    }
-	  else if(jet.Pt()>10. && jet.Pt()<20.)
-	    {
-	      if(fabs(jet.Eta())>0. && fabs(jet.Eta())<2.5) PUJetIDCut = -0.95;
-	      if(fabs(jet.Eta())>2.5 && fabs(jet.Eta())<2.75) PUJetIDCut = -0.97;
-	      if(fabs(jet.Eta())>2.75 && fabs(jet.Eta())<3.0) PUJetIDCut = -0.97;
-	      if(fabs(jet.Eta())>3.0 && fabs(jet.Eta())<5.0) PUJetIDCut = -0.97;
-	    }
-	  else if(jet.Pt()>20. && jet.Pt()<30.)
-	    {
-	      if(fabs(jet.Eta())>0. && fabs(jet.Eta())<2.5) PUJetIDCut = -0.63;
-	      if(fabs(jet.Eta())>2.5 && fabs(jet.Eta())<2.75) PUJetIDCut = -0.60;
-	      if(fabs(jet.Eta())>2.75 && fabs(jet.Eta())<3.0) PUJetIDCut = -0.55;
-	      if(fabs(jet.Eta())>3.0 && fabs(jet.Eta())<5.0) PUJetIDCut = -0.45;
-	    }		    
-	  else if(jet.Pt()>30.)
-	    {
-	      if(fabs(jet.Eta())>0. && fabs(jet.Eta())<2.5) PUJetIDCut = -0.63;
-	      if(fabs(jet.Eta())>2.5 && fabs(jet.Eta())<2.75) PUJetIDCut = -0.60;
-	      if(fabs(jet.Eta())>2.75 && fabs(jet.Eta())<3.0) PUJetIDCut = -0.55;
-	      if(fabs(jet.Eta())>3.0 && fabs(jet.Eta())<5.0) PUJetIDCut = -0.45;
-	    }
-	  
-	  // cout<<"PFjetID->at(ijet) = "<<PFjetID->at(ijet)<<endl;
-
-	  // if(IndexJet1>=0 && !(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4) && jets_PUJetID->at(ijet)>PUJetIDCut && PFjetID->at(ijet)>1)
-	  if(jet.Pt()>30. && IndexJet1>=0 && !(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4) && jets_PUJetID->at(ijet)>PUJetIDCut && PFjetID->at(ijet)>1)
-	    {
-	      IndexJet2 = ijet;
-	      break;
-	    }
-	  if(jet.Pt()>30. && IndexJet1<0 && !(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4) && jets_PUJetID->at(ijet)>PUJetIDCut && PFjetID->at(ijet)>1)
-	  // if(IndexJet1<0 && !(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4) && jets_PUJetID->at(ijet)>PUJetIDCut && PFjetID->at(ijet)>1)
-	    {
-	      IndexJet1 = ijet ;
-	    }
-
-	  Bool_t isBJet = kFALSE ;
-	  if(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4 && jet.Pt()>20.) isBJet = kTRUE ;
-	  
-	  if(jet.Pt()>30. && !isBJet) Njets30++; 
-	  if(jet.Pt()>20. && !isBJet) Njets20++; 
-	  
-	}
-
-
-      for(UInt_t ijet = 0 ; ijet < jets_e->size()  ; ++ijet)
-	{
-	  //build jet
-	  TLorentzVector jet ;
-	  jet.SetPxPyPzE(jets_px->at(ijet),jets_py->at(ijet),jets_pz->at(ijet),jets_e->at(ijet));
-	  
-	  if(fabs(jet.Eta())>4.8) continue;
-
-	  //tau-jet overlap removal
-	  // bool continueflag = false;
-
-	  //building leptons
-	  TLorentzVector Lep1_ForOverlapRemoval  ;
-	  Lep1_ForOverlapRemoval.SetPxPyPzE(daughters_px->at(lep1Index),daughters_py->at(lep1Index),daughters_pz->at(lep1Index),daughters_e->at(lep1Index));
-	  TLorentzVector Lep2_ForOverlapRemoval ;
-	  Lep2_ForOverlapRemoval.SetPxPyPzE(daughters_px->at(lep2Index),daughters_py->at(lep2Index),daughters_pz->at(lep2Index),daughters_e->at(lep2Index));
-
-	  if(Lep1_ForOverlapRemoval.DeltaR(jet)<0.5) continue ;
-	  if(Lep2_ForOverlapRemoval.DeltaR(jet)<0.5) continue ;
-
-	  if(jet.Pt()>20. && IndexBJet1>=0 && bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4)// && jets_PUJetID->at(ijet)>0.0)
-	    {
-	      IndexBJet2 = ijet;
-	      break;
-	    }
-	  if(jet.Pt()>20. && IndexBJet1<0 && bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4)//&& jets_PUJetID->at(ijet)>0.0)
-	    {
-	      IndexBJet1 = ijet ;
-	    }
-
-	  Bool_t isBJet = kFALSE ;
-	  if(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4 && jet.Pt()>20.) isBJet = kTRUE ;
-	  if(isBJet) Nbjets20++;
-	}
-
-      // if(lep1Index < 0 || lep2Index < 0 || IndexJet1 < 0 || IndexJet2 < 0) continue ;
-
-
-      // cout<<"Event = "<<EventNumber<<endl;
-      // cout<<"lep1Index = "<<lep1Index<<endl;
-      // cout<<"lep2Index = "<<lep2Index<<endl;
-      // cout<<"IndexJet1 = "<<IndexJet1<<endl;
-      // cout<<"IndexJet2 = "<<IndexJet2<<endl;
-      // cout<<"****"<<endl;
-
-      TLorentzVector Jet1 ;
-      TLorentzVector Jet2 ;
-      if(IndexJet1>=0) Jet1.SetPxPyPzE(jets_px->at(IndexJet1),jets_py->at(IndexJet1),jets_pz->at(IndexJet1),jets_e->at(IndexJet1));
-      if(IndexJet2>=0) Jet2.SetPxPyPzE(jets_px->at(IndexJet2),jets_py->at(IndexJet2),jets_pz->at(IndexJet2),jets_e->at(IndexJet2));
-
-      TLorentzVector BJet1 ;
-      TLorentzVector BJet2 ;
-      if(IndexBJet1>=0) BJet1.SetPxPyPzE(jets_px->at(IndexBJet1),jets_py->at(IndexBJet1),jets_pz->at(IndexBJet1),jets_e->at(IndexBJet1));
-      if(IndexBJet2>=0) BJet2.SetPxPyPzE(jets_px->at(IndexBJet2),jets_py->at(IndexBJet2),jets_pz->at(IndexBJet2),jets_e->at(IndexBJet2));
-
-
-      TLorentzVector DiJet;
-
-      if(IndexJet1>=0 && IndexJet2>=0)
-	{
-
-	  //build final vectors for leptons and jets
-	  TLorentzVector Muon ;
-	  Muon.SetPxPyPzE(daughters_px->at(lep1Index),daughters_py->at(lep1Index),daughters_pz->at(lep1Index),daughters_e->at(lep1Index));
-	  TLorentzVector Tau ;
-	  Tau.SetPxPyPzE(daughters_px->at(lep2Index),daughters_py->at(lep2Index),daughters_pz->at(lep2Index),daughters_e->at(lep2Index));
-
-	  // cout<<"Lepton 1 (muon) #"<<lep1Index<<":"<<endl;
-	  // cout<<"   pT  = "<<Muon.Pt()<<endl;
-	  // cout<<"   eta = "<<Muon.Eta()<<endl;
-	  // cout<<"   phi = "<<Muon.Phi()<<endl;
-	  // cout<<"Lepton 2 (tau)  #"<<lep1Index<<":"<<endl;
-	  // cout<<"   pT  = "<<Tau.Pt()<<endl;
-	  // cout<<"   eta = "<<Tau.Eta()<<endl;
-	  // cout<<"   phi = "<<Tau.Phi()<<endl;
-	  // cout<<"Jet 1           #"<<IndexJet1<<":"<<endl;
-	  // cout<<"   pT  = "<<Jet1.Pt()<<endl;
-	  // cout<<"   eta = "<<Jet1.Eta()<<endl;
-	  // cout<<"   phi = "<<Jet1.Phi()<<endl;
-	  // cout<<"Jet 2           #"<<IndexJet2<<":"<<endl;
-	  // cout<<"   pT  = "<<Jet2.Pt()<<endl;
-	  // cout<<"   eta = "<<Jet2.Eta()<<endl;
-	  // cout<<"   phi = "<<Jet2.Phi()<<endl;
-
-	  Double_t LeadingPartonPt = 0.;
-	  Double_t LeadingPartonEta = 0.;
-
-
-	  for(UInt_t igen = 0 ; igen < genpart_px->size() ; ++igen)
-	    {
-	      if(!((genpart_flags->at(igen) >> 15) & 1)) continue;
-	      if(genpart_pdg->at(igen)==21) continue;
-	      TLorentzVector GenPart ;
-	      GenPart.SetPxPyPzE(genpart_px->at(igen), genpart_py->at(igen), genpart_pz->at(igen), genpart_e->at(igen));
-	      // cout<<"GenPart           #"<<igen<<":"<<endl;
-	      // cout<<"   pT  = "<<GenPart.Pt()<<endl;
-	      // cout<<"   eta = "<<GenPart.Eta()<<endl;
-	      // cout<<"   phi = "<<GenPart.Phi()<<endl;
-
-	      if(fabs(GenPart.Pt())>LeadingPartonPt)
-		{
-		  LeadingPartonPt = fabs(GenPart.Pt());
-		  LeadingPartonEta = fabs(GenPart.Eta());
-		}
-	    }
-
-	  // cout<<"------"<<endl;
-
-
-	  //compute Mjj and Deta
-	  DiJet = Jet1 + Jet2;
-	}
-
-
-      if(IndexJet1>=0 && IndexJet2>=0)
-	{
-	  mjj = DiJet.M();
-	  // cout<<"mjj = "<<mjj<<endl;
-	  jdeta = fabs(Jet1.Eta()-Jet2.Eta());
-	  njetingap = 0;
 	  for(UInt_t ijet = 0 ; ijet < jets_e->size()  ; ++ijet)
 	    {
 	      //build jet
 	      TLorentzVector jet ;
 	      jet.SetPxPyPzE(jets_px->at(ijet),jets_py->at(ijet),jets_pz->at(ijet),jets_e->at(ijet));
+	  
+	      if(fabs(jet.Eta())>4.8) continue;
 
+	      //tau-jet overlap removal
+	      // bool continueflag = false;
+
+	      //building leptons
 	      TLorentzVector Lep1_ForOverlapRemoval  ;
 	      Lep1_ForOverlapRemoval.SetPxPyPzE(daughters_px->at(lep1Index),daughters_py->at(lep1Index),daughters_pz->at(lep1Index),daughters_e->at(lep1Index));
 	      TLorentzVector Lep2_ForOverlapRemoval ;
 	      Lep2_ForOverlapRemoval.SetPxPyPzE(daughters_px->at(lep2Index),daughters_py->at(lep2Index),daughters_pz->at(lep2Index),daughters_e->at(lep2Index));
-	      
+
 	      if(Lep1_ForOverlapRemoval.DeltaR(jet)<0.5) continue ;
 	      if(Lep2_ForOverlapRemoval.DeltaR(jet)<0.5) continue ;
-	      
-	      if(fabs(jet.Eta())>4.8 || jet.Pt()<20.) continue;
-	      if(ijet==IndexJet1 || ijet==IndexJet2) continue;
-	      if(jet.Eta()<0. && Jet1.Eta()<0.)
+
+	      // Float_t PUjetID_PtBoundries[5] = {0.0, 10.0, 20.0, 30.0, 50.0}; 
+	      // Float_t PUjetID_AbsEtaBoundries[5] = {0.0, 2.5, 2.75, 3.0, 5.0};
+
+	      // Float_t ptRange_010[4] =  {-0.95,-0.97,-0.97,-0.97};
+	      // Float_t ptRange_1020[4] = {-0.95,-0.97,-0.97,-0.97};
+	      // Float_t ptRange_2030[4] = {-0.63,-0.60,-0.55,-0.45}; 
+	      // Float_t ptRange_3050[4] =  {-0.63,-0.60,-0.55,-0.45};
+
+	      Float_t PUJetIDCut = -1.;
+	      if(jet.Pt()>0. && jet.Pt()<10.)
 		{
-		  if(jet.Eta()<Jet1.Eta()) continue ;
+		  if(fabs(jet.Eta())>0. && fabs(jet.Eta())<2.5) PUJetIDCut = -0.95;
+		  if(fabs(jet.Eta())>2.5 && fabs(jet.Eta())<2.75) PUJetIDCut = -0.97;
+		  if(fabs(jet.Eta())>2.75 && fabs(jet.Eta())<3.0) PUJetIDCut = -0.97;
+		  if(fabs(jet.Eta())>3.0 && fabs(jet.Eta())<5.0) PUJetIDCut = -0.97;
 		}
-	      if(jet.Eta()>0. && Jet1.Eta()>0.)
+	      else if(jet.Pt()>10. && jet.Pt()<20.)
 		{
-		  if(jet.Eta()>Jet1.Eta()) continue ;
+		  if(fabs(jet.Eta())>0. && fabs(jet.Eta())<2.5) PUJetIDCut = -0.95;
+		  if(fabs(jet.Eta())>2.5 && fabs(jet.Eta())<2.75) PUJetIDCut = -0.97;
+		  if(fabs(jet.Eta())>2.75 && fabs(jet.Eta())<3.0) PUJetIDCut = -0.97;
+		  if(fabs(jet.Eta())>3.0 && fabs(jet.Eta())<5.0) PUJetIDCut = -0.97;
 		}
-	      if(jet.Eta()<0. && Jet2.Eta()<0.)
+	      else if(jet.Pt()>20. && jet.Pt()<30.)
 		{
-		  if(jet.Eta()<Jet2.Eta()) continue ;
+		  if(fabs(jet.Eta())>0. && fabs(jet.Eta())<2.5) PUJetIDCut = -0.63;
+		  if(fabs(jet.Eta())>2.5 && fabs(jet.Eta())<2.75) PUJetIDCut = -0.60;
+		  if(fabs(jet.Eta())>2.75 && fabs(jet.Eta())<3.0) PUJetIDCut = -0.55;
+		  if(fabs(jet.Eta())>3.0 && fabs(jet.Eta())<5.0) PUJetIDCut = -0.45;
+		}		    
+	      else if(jet.Pt()>30.)
+		{
+		  if(fabs(jet.Eta())>0. && fabs(jet.Eta())<2.5) PUJetIDCut = -0.63;
+		  if(fabs(jet.Eta())>2.5 && fabs(jet.Eta())<2.75) PUJetIDCut = -0.60;
+		  if(fabs(jet.Eta())>2.75 && fabs(jet.Eta())<3.0) PUJetIDCut = -0.55;
+		  if(fabs(jet.Eta())>3.0 && fabs(jet.Eta())<5.0) PUJetIDCut = -0.45;
 		}
-	      if(jet.Eta()>0. && Jet2.Eta()>0.)
+	  
+	      // cout<<"PFjetID->at(ijet) = "<<PFjetID->at(ijet)<<endl;
+
+	      // if(IndexJet1>=0 && !(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4) && jets_PUJetID->at(ijet)>PUJetIDCut && PFjetID->at(ijet)>1)
+	      if(jet.Pt()>30. && IndexJet1>=0 && !(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4) && jets_PUJetID->at(ijet)>PUJetIDCut && PFjetID->at(ijet)>1)
 		{
-		  if(jet.Eta()>Jet2.Eta()) continue ;
-		}		
-	      njetingap++;
+		  IndexJet2 = ijet;
+		  break;
+		}
+	      if(jet.Pt()>30. && IndexJet1<0 && !(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4) && jets_PUJetID->at(ijet)>PUJetIDCut && PFjetID->at(ijet)>1)
+		// if(IndexJet1<0 && !(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4) && jets_PUJetID->at(ijet)>PUJetIDCut && PFjetID->at(ijet)>1)
+		{
+		  IndexJet1 = ijet ;
+		}
+
+	      Bool_t isBJet = kFALSE ;
+	      if(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4 && jet.Pt()>20.) isBJet = kTRUE ;
+	  
+	      if(jet.Pt()>30. && !isBJet) Njets30++; 
+	      if(jet.Pt()>20. && !isBJet) Njets20++; 
+	  
 	    }
-	  jdphi = Jet1.DeltaPhi(Jet2);
-	  dijetpt = DiJet.Pt();
-	  dijetphi = DiJet.Phi();
-	  TLorentzVector DiLep = Lep1+Lep2;
-	  visjeteta = fabs(DiJet.Eta()-DiLep.Eta());
-	  hdijetphi = DiJet.DeltaPhi(DiLep);
-	}
-      else
-	{
-	  mjj = jdeta = jdphi = dijetpt = dijetphi = visjeteta = hdijetphi = -99.;
-	  njetingap = -99;
-	}
 
-      
-      ptvis = (Lep1+Lep2).Pt();
-      
-      nbtag = Nbjets20;
-      njets = Njets30;
-      njetspt20 = Njets20;
-
-      if(IndexJet1>=0)
-	{
-	  jpt_1 = Jet1.Pt();
-	  jeta_1 = Jet1.Eta();
-	  jphi_1 = Jet1.Phi();
-	  jrawf_1 = -99.;//not there in LLR
-	  jmva_1 =  -99.;//not there in LLR
-	  jpfid_1 = -99.;//not there in LLR
-	  jpuid_1 = jets_PUJetID->at(IndexJet1);
-	  jcsv_1 = bCSVscore->at(IndexJet1);
-	}
-      else
-	{
-	  jpt_1 = jeta_1 = jphi_1 = jrawf_1 = jmva_1 = jpfid_1 = jpuid_1 = jcsv_1 = -99.;
-	}
-
-      if(IndexJet2>=0)
-	{
-	  jpt_2 = Jet2.Pt();
-	  jeta_2 = Jet2.Eta();
-	  jphi_2 = Jet2.Phi();
-	  jrawf_2 = -99.;//not there in LLR
-	  jmva_2 =  -99.;//not there in LLR
-	  jpfid_2 = -99.;//not there in LLR
-	  jpuid_2 = jets_PUJetID->at(IndexJet2);
-	  jcsv_2 = bCSVscore->at(IndexJet2);
-	}
-      else
-	{
-	  jpt_2 = jeta_2 = jphi_2 = jrawf_2 = jmva_2 = jpfid_2 = jpuid_2 = jcsv_2 = -99.;
-	}
-
-
-      if(IndexBJet1>=0)
-	{
-	  bjpt_1 = BJet1.Pt();
-	  bjeta_1 = BJet1.Eta();
-	  bjphi_1 = BJet1.Phi();
-	  bjrawf_1=  -99.;//not there in LLR
-	  bjmva_1=  -99.;//not there in LLR
-	  bjpfid_1 = -99.;//not there in LLR
-	  bjpuid_1 = jets_PUJetID->at(IndexBJet1);
-	  bjcsv_1 = bCSVscore->at(IndexBJet1);
-	}
-      else
-	{
-	  bjpt_1 = bjeta_1 = bjphi_1 = bjrawf_1 = bjmva_1 = bjpfid_1 = bjpuid_1 = bjcsv_1 = -99.;
-	}
-
-
-      if(IndexBJet2>=0)
-	{
-	  bjpt_2 = BJet2.Pt();
-	  bjeta_2 = BJet2.Eta();
-	  bjphi_2 = BJet2.Phi();
-	  bjrawf_2=  -99.;//not there in LLR
-	  bjmva_2=  -99.;//not there in LLR
-	  bjpfid_2 = -99.;//not there in LLR
-	  bjpuid_2 = jets_PUJetID->at(IndexBJet2);
-	  bjcsv_2 = bCSVscore->at(IndexBJet2);
-	}
-      else
-	{
-	  bjpt_2 = bjeta_2 = bjphi_2 = bjrawf_2 = bjmva_2 = bjpfid_2 = bjpuid_2 = bjcsv_2 = -99.;
-	}
-
-      nb_extra_electrons = -99;//not there in LLR
-      nb_extra_muons = -99;//not there in LLR
-
-      for(UInt_t igen = 0 ; igen < genpart_pdg->size() ; ++igen)
-	{
-	  if(genpart_pdg->at(igen)==25)
+	  for(UInt_t ijet = 0 ; ijet < jets_e->size()  ; ++ijet)
 	    {
-	      TLorentzVector Higgs(genpart_px->at(igen),genpart_py->at(igen),genpart_pz->at(igen),genpart_e->at(igen));
-	      gen_Higgs_pt = Higgs.Pt();
-	      gen_Higgs_mass = Higgs.M();
+	      //build jet
+	      TLorentzVector jet ;
+	      jet.SetPxPyPzE(jets_px->at(ijet),jets_py->at(ijet),jets_pz->at(ijet),jets_e->at(ijet));
+	  
+	      if(fabs(jet.Eta())>4.8) continue;
+
+	      //tau-jet overlap removal
+	      // bool continueflag = false;
+
+	      //building leptons
+	      TLorentzVector Lep1_ForOverlapRemoval  ;
+	      Lep1_ForOverlapRemoval.SetPxPyPzE(daughters_px->at(lep1Index),daughters_py->at(lep1Index),daughters_pz->at(lep1Index),daughters_e->at(lep1Index));
+	      TLorentzVector Lep2_ForOverlapRemoval ;
+	      Lep2_ForOverlapRemoval.SetPxPyPzE(daughters_px->at(lep2Index),daughters_py->at(lep2Index),daughters_pz->at(lep2Index),daughters_e->at(lep2Index));
+
+	      if(Lep1_ForOverlapRemoval.DeltaR(jet)<0.5) continue ;
+	      if(Lep2_ForOverlapRemoval.DeltaR(jet)<0.5) continue ;
+
+	      if(jet.Pt()>20. && IndexBJet1>=0 && bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4)// && jets_PUJetID->at(ijet)>0.0)
+		{
+		  IndexBJet2 = ijet;
+		  break;
+		}
+	      if(jet.Pt()>20. && IndexBJet1<0 && bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4)//&& jets_PUJetID->at(ijet)>0.0)
+		{
+		  IndexBJet1 = ijet ;
+		}
+
+	      Bool_t isBJet = kFALSE ;
+	      if(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4 && jet.Pt()>20.) isBJet = kTRUE ;
+	      if(isBJet) Nbjets20++;
 	    }
-	}
 
-      // cout<<"before fill"<<endl;
+	  // if(lep1Index < 0 || lep2Index < 0 || IndexJet1 < 0 || IndexJet2 < 0) continue ;
 
-      SyncTree->Fill();
+
+	  // cout<<"Event = "<<EventNumber<<endl;
+	  // cout<<"lep1Index = "<<lep1Index<<endl;
+	  // cout<<"lep2Index = "<<lep2Index<<endl;
+	  // cout<<"IndexJet1 = "<<IndexJet1<<endl;
+	  // cout<<"IndexJet2 = "<<IndexJet2<<endl;
+	  // cout<<"****"<<endl;
+
+	  TLorentzVector Jet1 ;
+	  TLorentzVector Jet2 ;
+	  if(IndexJet1>=0) Jet1.SetPxPyPzE(jets_px->at(IndexJet1),jets_py->at(IndexJet1),jets_pz->at(IndexJet1),jets_e->at(IndexJet1));
+	  if(IndexJet2>=0) Jet2.SetPxPyPzE(jets_px->at(IndexJet2),jets_py->at(IndexJet2),jets_pz->at(IndexJet2),jets_e->at(IndexJet2));
+
+	  TLorentzVector BJet1 ;
+	  TLorentzVector BJet2 ;
+	  if(IndexBJet1>=0) BJet1.SetPxPyPzE(jets_px->at(IndexBJet1),jets_py->at(IndexBJet1),jets_pz->at(IndexBJet1),jets_e->at(IndexBJet1));
+	  if(IndexBJet2>=0) BJet2.SetPxPyPzE(jets_px->at(IndexBJet2),jets_py->at(IndexBJet2),jets_pz->at(IndexBJet2),jets_e->at(IndexBJet2));
+
+
+	  TLorentzVector DiJet;
+
+	  if(IndexJet1>=0 && IndexJet2>=0)
+	    {
+
+	      //build final vectors for leptons and jets
+	      TLorentzVector Muon ;
+	      Muon.SetPxPyPzE(daughters_px->at(lep1Index),daughters_py->at(lep1Index),daughters_pz->at(lep1Index),daughters_e->at(lep1Index));
+	      TLorentzVector Tau ;
+	      Tau.SetPxPyPzE(daughters_px->at(lep2Index),daughters_py->at(lep2Index),daughters_pz->at(lep2Index),daughters_e->at(lep2Index));
+
+	      // cout<<"Lepton 1 (muon) #"<<lep1Index<<":"<<endl;
+	      // cout<<"   pT  = "<<Muon.Pt()<<endl;
+	      // cout<<"   eta = "<<Muon.Eta()<<endl;
+	      // cout<<"   phi = "<<Muon.Phi()<<endl;
+	      // cout<<"Lepton 2 (tau)  #"<<lep1Index<<":"<<endl;
+	      // cout<<"   pT  = "<<Tau.Pt()<<endl;
+	      // cout<<"   eta = "<<Tau.Eta()<<endl;
+	      // cout<<"   phi = "<<Tau.Phi()<<endl;
+	      // cout<<"Jet 1           #"<<IndexJet1<<":"<<endl;
+	      // cout<<"   pT  = "<<Jet1.Pt()<<endl;
+	      // cout<<"   eta = "<<Jet1.Eta()<<endl;
+	      // cout<<"   phi = "<<Jet1.Phi()<<endl;
+	      // cout<<"Jet 2           #"<<IndexJet2<<":"<<endl;
+	      // cout<<"   pT  = "<<Jet2.Pt()<<endl;
+	      // cout<<"   eta = "<<Jet2.Eta()<<endl;
+	      // cout<<"   phi = "<<Jet2.Phi()<<endl;
+
+	      Double_t LeadingPartonPt = 0.;
+	      Double_t LeadingPartonEta = 0.;
+
+	      if(!DataTrue_MCFalse)
+		{
+		  for(UInt_t igen = 0 ; igen < genpart_px->size() ; ++igen)
+		    {
+		      if(!((genpart_flags->at(igen) >> 15) & 1)) continue;
+		      if(genpart_pdg->at(igen)==21) continue;
+		      TLorentzVector GenPart ;
+		      GenPart.SetPxPyPzE(genpart_px->at(igen), genpart_py->at(igen), genpart_pz->at(igen), genpart_e->at(igen));
+		      // cout<<"GenPart           #"<<igen<<":"<<endl;
+		      // cout<<"   pT  = "<<GenPart.Pt()<<endl;
+		      // cout<<"   eta = "<<GenPart.Eta()<<endl;
+		      // cout<<"   phi = "<<GenPart.Phi()<<endl;
+		      
+		      if(fabs(GenPart.Pt())>LeadingPartonPt)
+			{
+			  LeadingPartonPt = fabs(GenPart.Pt());
+			  LeadingPartonEta = fabs(GenPart.Eta());
+			}
+		    }
+		}
+
+	      // cout<<"------"<<endl;
+
+
+	      //compute Mjj and Deta
+	      DiJet = Jet1 + Jet2;
+	    }
+
+
+	  if(IndexJet1>=0 && IndexJet2>=0)
+	    {
+	      mjj = DiJet.M();
+	      // cout<<"mjj = "<<mjj<<endl;
+	      jdeta = fabs(Jet1.Eta()-Jet2.Eta());
+	      njetingap = 0;
+	      for(UInt_t ijet = 0 ; ijet < jets_e->size()  ; ++ijet)
+		{
+		  //build jet
+		  TLorentzVector jet ;
+		  jet.SetPxPyPzE(jets_px->at(ijet),jets_py->at(ijet),jets_pz->at(ijet),jets_e->at(ijet));
+
+		  TLorentzVector Lep1_ForOverlapRemoval  ;
+		  Lep1_ForOverlapRemoval.SetPxPyPzE(daughters_px->at(lep1Index),daughters_py->at(lep1Index),daughters_pz->at(lep1Index),daughters_e->at(lep1Index));
+		  TLorentzVector Lep2_ForOverlapRemoval ;
+		  Lep2_ForOverlapRemoval.SetPxPyPzE(daughters_px->at(lep2Index),daughters_py->at(lep2Index),daughters_pz->at(lep2Index),daughters_e->at(lep2Index));
+	      
+		  if(Lep1_ForOverlapRemoval.DeltaR(jet)<0.5) continue ;
+		  if(Lep2_ForOverlapRemoval.DeltaR(jet)<0.5) continue ;
+	      
+		  if(fabs(jet.Eta())>4.8 || jet.Pt()<20.) continue;
+		  if(ijet==IndexJet1 || ijet==IndexJet2) continue;
+		  if(jet.Eta()<0. && Jet1.Eta()<0.)
+		    {
+		      if(jet.Eta()<Jet1.Eta()) continue ;
+		    }
+		  if(jet.Eta()>0. && Jet1.Eta()>0.)
+		    {
+		      if(jet.Eta()>Jet1.Eta()) continue ;
+		    }
+		  if(jet.Eta()<0. && Jet2.Eta()<0.)
+		    {
+		      if(jet.Eta()<Jet2.Eta()) continue ;
+		    }
+		  if(jet.Eta()>0. && Jet2.Eta()>0.)
+		    {
+		      if(jet.Eta()>Jet2.Eta()) continue ;
+		    }		
+		  njetingap++;
+		}
+	      jdphi = Jet1.DeltaPhi(Jet2);
+	      dijetpt = DiJet.Pt();
+	      dijetphi = DiJet.Phi();
+	      TLorentzVector DiLep = Lep1+Lep2;
+	      visjeteta = fabs(DiJet.Eta()-DiLep.Eta());
+	      hdijetphi = DiJet.DeltaPhi(DiLep);
+	    }
+	  else
+	    {
+	      mjj = jdeta = jdphi = dijetpt = dijetphi = visjeteta = hdijetphi = -99.;
+	      njetingap = -99;
+	    }
+
+      
+	  ptvis = (Lep1+Lep2).Pt();
+      
+	  nbtag = Nbjets20;
+	  njets = Njets30;
+	  njetspt20 = Njets20;
+
+	  if(IndexJet1>=0)
+	    {
+	      jpt_1 = Jet1.Pt();
+	      jeta_1 = Jet1.Eta();
+	      jphi_1 = Jet1.Phi();
+	      jrawf_1 = -99.;//not there in LLR
+	      jmva_1 =  -99.;//not there in LLR
+	      jpfid_1 = -99.;//not there in LLR
+	      jpuid_1 = jets_PUJetID->at(IndexJet1);
+	      jcsv_1 = bCSVscore->at(IndexJet1);
+	    }
+	  else
+	    {
+	      jpt_1 = jeta_1 = jphi_1 = jrawf_1 = jmva_1 = jpfid_1 = jpuid_1 = jcsv_1 = -99.;
+	    }
+
+	  if(IndexJet2>=0)
+	    {
+	      jpt_2 = Jet2.Pt();
+	      jeta_2 = Jet2.Eta();
+	      jphi_2 = Jet2.Phi();
+	      jrawf_2 = -99.;//not there in LLR
+	      jmva_2 =  -99.;//not there in LLR
+	      jpfid_2 = -99.;//not there in LLR
+	      jpuid_2 = jets_PUJetID->at(IndexJet2);
+	      jcsv_2 = bCSVscore->at(IndexJet2);
+	    }
+	  else
+	    {
+	      jpt_2 = jeta_2 = jphi_2 = jrawf_2 = jmva_2 = jpfid_2 = jpuid_2 = jcsv_2 = -99.;
+	    }
+
+
+	  if(IndexBJet1>=0)
+	    {
+	      bjpt_1 = BJet1.Pt();
+	      bjeta_1 = BJet1.Eta();
+	      bjphi_1 = BJet1.Phi();
+	      bjrawf_1=  -99.;//not there in LLR
+	      bjmva_1=  -99.;//not there in LLR
+	      bjpfid_1 = -99.;//not there in LLR
+	      bjpuid_1 = jets_PUJetID->at(IndexBJet1);
+	      bjcsv_1 = bCSVscore->at(IndexBJet1);
+	    }
+	  else
+	    {
+	      bjpt_1 = bjeta_1 = bjphi_1 = bjrawf_1 = bjmva_1 = bjpfid_1 = bjpuid_1 = bjcsv_1 = -99.;
+	    }
+
+
+	  if(IndexBJet2>=0)
+	    {
+	      bjpt_2 = BJet2.Pt();
+	      bjeta_2 = BJet2.Eta();
+	      bjphi_2 = BJet2.Phi();
+	      bjrawf_2=  -99.;//not there in LLR
+	      bjmva_2=  -99.;//not there in LLR
+	      bjpfid_2 = -99.;//not there in LLR
+	      bjpuid_2 = jets_PUJetID->at(IndexBJet2);
+	      bjcsv_2 = bCSVscore->at(IndexBJet2);
+	    }
+	  else
+	    {
+	      bjpt_2 = bjeta_2 = bjphi_2 = bjrawf_2 = bjmva_2 = bjpfid_2 = bjpuid_2 = bjcsv_2 = -99.;
+	    }
+
+	  nb_extra_electrons = -99;//not there in LLR
+	  nb_extra_muons = -99;//not there in LLR
+
+	  if(!DataTrue_MCFalse)
+	    {
+	      for(UInt_t igen = 0 ; igen < genpart_pdg->size() ; ++igen)
+		{
+		  if(genpart_pdg->at(igen)==25)
+		    {
+		      TLorentzVector Higgs(genpart_px->at(igen),genpart_py->at(igen),genpart_pz->at(igen),genpart_e->at(igen));
+		      gen_Higgs_pt = Higgs.Pt();
+		      gen_Higgs_mass = Higgs.M();
+		    }
+		}
+	      
+	    }
+	  // cout<<"before fill"<<endl;
+
+	  SyncTree->Fill();
+
+	  break;
 
             
-    }
+	}
 	    
-  }
+    }
 
   SyncTree->Write();
   // cout<<"     "<<FileName<<" produced successfully (final entries = "<<SyncTree->GetEntries()<<")"<<endl;
@@ -1581,8 +1604,8 @@ int main(int argc, const char* argv[])
   config.Form("%s",argv[1]);
 
   if(!(gConfigParser->init(config))){
-      cout << ">>> parseConfigFile::Could not open configuration file " << config << endl;
-      return -1;
+    cout << ">>> parseConfigFile::Could not open configuration file " << config << endl;
+    return -1;
   }
 
   vector<string> samplesToSkim = gConfigParser->readStringListOption("general::samplesToSkim");
@@ -1596,7 +1619,7 @@ int main(int argc, const char* argv[])
       toGet += thisSampleName ;
       string thisSampleLocation =  gConfigParser->readStringOption(toGet.c_str());
       TString ThisSampleLocation(thisSampleLocation);
-      ThisSampleLocation += "HTauTauAnalysis*.root";
+      ThisSampleLocation += "*.root";
 
       cout<<"Processing sample = "<<samplesToSkim.at(iSample)<<endl;
       cout<<"   from --> "<<thisSampleLocation<<endl;
