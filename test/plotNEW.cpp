@@ -111,7 +111,7 @@ int main (int argc, char** argv)
   // get the selections to be applied
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  vector<string> activeSelections = gConfigParser->readStringListOption ("selections::list") ;
+  vector<string> activeSelections = gConfigParser->readStringListOption ("plotNEW::selections") ;
   vector<pair <TString, TCut> > selections = readCutsFile (
       activeSelections,
       gConfigParser->readStringOption ("selections::selectionsFile")
@@ -126,7 +126,7 @@ int main (int argc, char** argv)
   // get the variables to be plotted
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  vector<string> variablesList = gConfigParser->readStringListOption ("general::variables") ;
+  vector<string> variablesList = gConfigParser->readStringListOption ("plotNEW::variables") ;
 
   plotContainer bkg_plots ("bkg", variablesList, selections, bkgSamplesList, 0) ;
   counters bkgCount = fillHistos (bkgSamples, bkg_plots, 
@@ -159,7 +159,10 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   TString outFolderNameBase = gConfigParser->readStringOption ("general::outputFolderName") ;
-  
+    outFolderNameBase += "/" ;
+  system (TString ("mkdir -p ") + outFolderNameBase) ;
+  outFolderNameBase += gConfigParser->readStringOption ("plotNEW::outputFolderName") ;
+  outFolderNameBase += "/" ;  
   system (TString ("mkdir -p ") + outFolderNameBase) ;
 
   TString outString ;
@@ -183,7 +186,7 @@ int main (int argc, char** argv)
   for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
     {
       // loop on variables
-      for (unsigned int iv = 0 ; iv < nVars ; ++iv)
+      for (int iv = 0 ; iv < nVars ; ++iv)
         {
           c->cd () ;
           TString outputName ; 

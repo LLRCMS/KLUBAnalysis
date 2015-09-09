@@ -64,8 +64,7 @@ int main (int argc, char** argv)
   outFolderNameBase += MVAname.c_str () ;
   outFolderNameBase += "/" ;  
   system (TString ("mkdir -p ") + outFolderNameBase) ;
-  
-  
+    
   // get the samples to be analised
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
