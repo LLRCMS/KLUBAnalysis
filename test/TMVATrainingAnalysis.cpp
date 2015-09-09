@@ -48,12 +48,12 @@ int main (int argc, char** argv)
   TString config ;
   config.Form ("%s",argv[1]) ;
 
-  string MVAname = argv[2] ;
-
   if (! (gConfigParser->init (config))){
     cout << ">>> parseConfigFile::Could not open configuration file " << config << endl ;
     return -1 ;
   }
+
+  string MVAname = argv[2] ;
 
   // prepare the output folder
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----

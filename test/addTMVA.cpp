@@ -101,10 +101,10 @@ calcTMVA (vector<sample> & samples,
 int main (int argc, char** argv)
 {
   // check number of inpt parameters
-  if (argc < 2)
+  if (argc < 4)
     {
-      cerr << "Forgot to put the cfg file --> exit " << endl ;
-      return 1 ;
+      cerr << ">>> Usage: " << argv[0] << " cfg_file TMVA_name weights_file" <<  endl ;
+      exit (1) ;
     }
   if (gConfigParser) return 1 ;
   gConfigParser = new ConfigParser () ;
@@ -117,20 +117,31 @@ int main (int argc, char** argv)
       return -1 ;
     }
 
+  string MVAname = argv[2] ;
+
   // get the samples to be analised
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   
-  vector<string> samplesList = gConfigParser->readStringListOption ("general::samples") ;
   vector<sample> samples ;
+  vector<string> samplesList = gConfigParser->readStringListOption ("general::signals") ;
+  readSamples (samples, samplesList, "UPDATE") ;
+  samplesList.clear () ;
+  samplesList = gConfigParser->readStringListOption ("general::backgrounds") ;
+  readSamples (samples, samplesList, "UPDATE") ;
+  samplesList.clear () ;
+  samplesList = gConfigParser->readStringListOption ("general::data") ;
   readSamples (samples, samplesList, "UPDATE") ;
 
   // get the variables to be cosidered in the training
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  vector<string> trainingVariables  = gConfigParser->readStringListOption ("tmva::variables") ;
+  vector<string> trainingVariables  = gConfigParser->readStringListOption (
+       (MVAname + "::variables").c_str ()) ;
   vector<string> spectatorVariables ;
-  if (gConfigParser->readBoolOption ("tmva::spectatorsPresent")) 
-    spectatorVariables = gConfigParser->readStringListOption ("tmva::spectators") ;
+  if (gConfigParser->readBoolOption (
+    (MVAname + "::spectatorsPresent").c_str ())) 
+    spectatorVariables = gConfigParser->readStringListOption (
+        (MVAname + "::spectators").c_str ()) ;
 
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << "---> variables list: \n" ;
@@ -143,15 +154,14 @@ int main (int argc, char** argv)
   // get the weights file
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  string mvaWeightsFile  = gConfigParser->readStringOption ("tmva::weightsFile") ;
+  string mvaWeightsFile = argv[3] ;
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << "weights file: " << mvaWeightsFile << "\n" ;
 
   // read the MVA
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  string mvaVariableName = gConfigParser->readStringOption ("tmva::variableName") ;
-  calcTMVA (samples, trainingVariables, spectatorVariables, mvaVariableName, mvaWeightsFile) ;
+  calcTMVA (samples, trainingVariables, spectatorVariables, MVAname, mvaWeightsFile) ;
 
   return 0 ;
 
