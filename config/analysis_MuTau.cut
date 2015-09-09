@@ -2,7 +2,8 @@ all       = 1==1
 muTau     = pairType == 0
 baseline  = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0
 dijet     = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 20 && bjet2_pt > 20
-dijethard = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30
+dijethard = pairType == 0 && dau1_pt > 45 && abs (dau1_eta) < 2.5 && dau2_pt > 45 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30
+# dijethard = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30
 btag      = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && (bjet1_bID + bjet2_bID) > 0.8 && bjet1_bID > 0.3 && bjet2_bID > 0.3
 taumass   = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && (bjet1_bID + bjet2_bID) > 0.8 && bjet1_bID > 0.3 && bjet2_bID > 0.3 && tauH_mass < 100 && tauH_mass > 50
 bmass     = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && (bjet1_bID + bjet2_bID) > 0.8 && bjet1_bID > 0.3 && bjet2_bID > 0.3 && tauH_mass < 100 && tauH_mass > 50 && bH_mass < 150 && bH_mass > 50
