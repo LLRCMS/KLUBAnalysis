@@ -32,9 +32,26 @@
 
 #include "OfflineProducerHelper.h"
 
-#define Dummy true
+//#define Dummy true
+#define RedoOrdering true//should be done properly at prod. stage, but this allows to redo a custom one.
+
+typedef  std::pair<UInt_t, std::vector<Double_t>> mypair;
 
 using namespace std;
+
+bool comparator ( const mypair& l, const mypair& r)
+{
+  //Iso1
+  if(l.second.at(0)!=r.second.at(0)) return l.second.at(0) < r.second.at(0);
+  //Pt1
+  if(l.second.at(1)!=r.second.at(1)) return l.second.at(1) > r.second.at(1);
+  //Iso2
+  if(l.second.at(2)!=r.second.at(2)) return l.second.at(2) < r.second.at(2);
+  //Pt2
+  if(l.second.at(3)!=r.second.at(3)) return l.second.at(3) > r.second.at(3);
+
+  return true;
+}
 
 bool CheckElectronMVAIDWP80(float MVAValue, TLorentzVector electron)
 {
@@ -817,7 +834,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   for(UInt_t i = 0 ; i < m_SampleChain->GetEntries() ; ++i)
     {
       m_SampleChain->GetEntry(i);
-      // if(EventNumber==119) cout<<"event #"<<EventNumber<<" is here!"<<endl;
+      // if(EventNumber==66828) cout<<"event #"<<EventNumber<<" is here!"<<endl;
       // else continue;
       if(i%10000==0) cout<<"Entry #"<<i<<endl;
 
@@ -832,12 +849,71 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
       Int_t lep1Index = -99 ;
       Int_t lep2Index = -99 ;
 
+
       OfflineProducerHelper* HelperTrigger = new OfflineProducerHelper(hCounter);
-
-
-      //loop on lepton pairs
-      for(UInt_t p = 0 ; p < isOSCand->size() ; ++p)
+      
+      
+      std::vector<mypair> sortedPairs;
+  
+      if(RedoOrdering)
 	{
+	  for(UInt_t p = 0 ; p < isOSCand->size() ; ++p)
+	    {
+	      std::vector<Double_t> sortvalues_tmp ;
+	      mypair temp_pair;
+
+	      lep1Index = indexDau1->at(p);
+	      lep2Index = indexDau2->at(p);
+	  
+	      Float_t CurrentIsoLep1 = -99.;
+	      if(Channel=="mt" || Channel=="et" || Channel=="em") CurrentIsoLep1 = combreliso->at(lep1Index);
+	      else if(Channel=="tt") CurrentIsoLep1 = daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(lep1Index);
+
+	      Float_t CurrentIsoLep2 = -99.;
+	      if(Channel=="mt" || Channel=="et" || Channel=="tt") CurrentIsoLep2 = daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(lep2Index);
+	      else if(Channel=="em") CurrentIsoLep2 = combreliso->at(lep2Index);
+
+	      TLorentzVector lep1 ;
+	      lep1.SetPxPyPzE(daughters_px->at(indexDau1->at(p)),daughters_py->at(indexDau1->at(p)),daughters_pz->at(indexDau1->at(p)),daughters_e->at(indexDau1->at(p)));
+	      TLorentzVector lep2 ;
+	      lep2.SetPxPyPzE(daughters_px->at(indexDau2->at(p)),daughters_py->at(indexDau2->at(p)),daughters_pz->at(indexDau2->at(p)),daughters_e->at(indexDau2->at(p)));	  
+	  
+	      Float_t CurrentPtLep1 = lep1.Pt();
+	      Float_t CurrentPtLep2 = lep2.Pt();
+	  
+	      sortvalues_tmp.push_back(CurrentIsoLep1);
+	      sortvalues_tmp.push_back(CurrentPtLep1);
+	      sortvalues_tmp.push_back(CurrentIsoLep2);
+	      sortvalues_tmp.push_back(CurrentPtLep2);
+	      temp_pair = std::make_pair(p,sortvalues_tmp);
+	      sortvalues_tmp.clear();
+	  
+	      sortedPairs.push_back(temp_pair);
+	    }
+
+	  std::sort(sortedPairs.begin(), sortedPairs.end(), comparator);
+	}
+
+      // for(UInt_t d = 0 ; d < sortedPairs.size() ; ++d)
+      // 	{
+      // 	  cout<<"sortedPairs = "<<d<<": "<<endl;
+      // 	  cout<<"    index = "<<sortedPairs.at(d).first<<endl;
+      // 	  cout<<"      iso_1 = "<<sortedPairs.at(d).second.at(0)<<endl;
+      // 	  cout<<"      pt_1  = "<<sortedPairs.at(d).second.at(1)<<endl;
+      // 	  cout<<"      iso_2 = "<<sortedPairs.at(d).second.at(2)<<endl;
+      // 	  cout<<"      pt_2  = "<<sortedPairs.at(d).second.at(3)<<endl;	  
+      // 	}      
+
+      //loop on ordered lepton pairs
+      for(UInt_t q = 0 ; q < isOSCand->size() ; ++q)
+	// for(UInt_t p = 0 ; p < isOSCand->size() ; ++p)
+	{
+	  UInt_t p = 0;
+	  if(RedoOrdering) p = sortedPairs.at(q).first;
+	  else p = q;
+
+	  // cout<<"pair is: "<<p<<endl;
+
 	  //-> opposite sign candidate
 	  // if(!isOSCand->at(p)) continue ;//removed
 
@@ -892,43 +968,47 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	      //check isGoodTriggerType
 	      Bool_t BothDaughtersAreGoodTriggerTypes = kFALSE ;
 	      for(UInt_t iTrigFired = 0 ; iTrigFired < TriggerFiredNames.size() ; ++iTrigFired)
-		{
-		  // cout<<"pair is: "<<p<<endl;
-		  // cout<<"daughters_isGoodTriggerType->at(indexDau1->at(p)) = "<<daughters_isGoodTriggerType->at(indexDau1->at(p))<<endl;
-		  // cout<<"daughters_isGoodTriggerType->at(indexDau2->at(p)) = "<<daughters_isGoodTriggerType->at(indexDau2->at(p))<<endl;
-		  // cout<<"TriggerFiredBits.at(iTrigFired) = "<<TriggerFiredBits.at(iTrigFired)<<endl;
-		  if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)) continue;
-		  if(!((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)) continue;
-		  TriggerFiredAndGoodTriggerTypeNames.push_back(TriggerFiredNames.at(iTrigFired));
-		  TriggerFiredAndGoodTriggerTypeBits.push_back(HelperTrigger->FindTriggerNumber(TriggerFiredNames.at(iTrigFired)));
-		  BothDaughtersAreGoodTriggerTypes = kTRUE;
+	      {
+	      // cout<<"pair is: "<<p<<endl;
+	      // cout<<"daughters_isGoodTriggerType->at(indexDau1->at(p)) = "<<daughters_isGoodTriggerType->at(indexDau1->at(p))<<endl;
+	      // cout<<"daughters_isGoodTriggerType->at(indexDau2->at(p)) = "<<daughters_isGoodTriggerType->at(indexDau2->at(p))<<endl;
+	      // cout<<"TriggerFiredBits.at(iTrigFired) = "<<TriggerFiredBits.at(iTrigFired)<<endl;
+	      if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)) continue;
+	      if(!((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)) continue;
+	      TriggerFiredAndGoodTriggerTypeNames.push_back(TriggerFiredNames.at(iTrigFired));
+	      TriggerFiredAndGoodTriggerTypeBits.push_back(HelperTrigger->FindTriggerNumber(TriggerFiredNames.at(iTrigFired)));
+	      BothDaughtersAreGoodTriggerTypes = kTRUE;
 		  
-		}
+	      }
 	      // if(!BothDaughtersAreGoodTriggerTypes) continue;
 	      // cout<<"passes trigger types"<<endl;
 
 	      //check trigger filters
 	      Bool_t BothDaughtersAreGoodTriggerTypesAndPassFilter = kFALSE ;
 	      for(UInt_t iTrigFiredAndGoodTriggerType = 0 ; iTrigFiredAndGoodTriggerType < TriggerFiredAndGoodTriggerTypeBits.size() ; ++iTrigFiredAndGoodTriggerType)
-		{
-		  if(!((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
-		  if(!((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
-		  TriggerNamesFinal.push_back(TriggerFiredAndGoodTriggerTypeNames.at(iTrigFiredAndGoodTriggerType));
-		  TriggerBitsFinal.push_back(HelperTrigger->FindTriggerNumber(TriggerFiredAndGoodTriggerTypeNames.at(iTrigFiredAndGoodTriggerType)));
-		  BothDaughtersAreGoodTriggerTypesAndPassFilter = kTRUE;
-		}
+	      {
+	      if(!((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
+	      if(!((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
+	      TriggerNamesFinal.push_back(TriggerFiredAndGoodTriggerTypeNames.at(iTrigFiredAndGoodTriggerType));
+	      TriggerBitsFinal.push_back(HelperTrigger->FindTriggerNumber(TriggerFiredAndGoodTriggerTypeNames.at(iTrigFiredAndGoodTriggerType)));
+	      BothDaughtersAreGoodTriggerTypesAndPassFilter = kTRUE;
+	      }
 	      */
 	      // if(!BothDaughtersAreGoodTriggerTypesAndPassFilter) continue;
 	    }
 
 	  // cout<<"passes trigger"<<endl;
-	  
+
+	  // cout<<"types"<<endl;
+	  // cout<<" particleType->at(indexDau1->at(p)) = "<< particleType->at(indexDau1->at(p))<<endl;
+	  // cout<<" particleType->at(indexDau2->at(p)) = "<< particleType->at(indexDau2->at(p))<<endl;
 
 	  //check if candidate is mu+tau or something else
 	  if(Channel=="mt" && !(particleType->at(indexDau1->at(p))==0 && particleType->at(indexDau2->at(p))==2)) continue ;
 	  if(Channel=="et" && !(particleType->at(indexDau1->at(p))==1 && particleType->at(indexDau2->at(p))==2)) continue ;
 	  if(Channel=="tt" && !(particleType->at(indexDau1->at(p))==2 && particleType->at(indexDau2->at(p))==2)) continue ;
 	  if(Channel=="em" && !(particleType->at(indexDau1->at(p))==1 && particleType->at(indexDau2->at(p))==0)) continue ;
+	  // cout<<"passes mt pair selection"<<endl;
 
 	  //check lepton pT --> build LorentzVector
 	  TLorentzVector lep1 ;
@@ -936,11 +1016,15 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  TLorentzVector lep2 ;
 	  lep2.SetPxPyPzE(daughters_px->at(indexDau2->at(p)),daughters_py->at(indexDau2->at(p)),daughters_pz->at(indexDau2->at(p)),daughters_e->at(indexDau2->at(p)));
 
+	  // cout<<"lep1.Pt(), lep1.Eta() = "<<lep1.Pt()<<", "<<lep1.Eta()<<endl;
+	  // cout<<"lep2.Pt(), lep2.Eta() = "<<lep2.Pt()<<", "<<lep2.Eta()<<endl;
+
 	  // cout<<"checking leptons pT"<<endl;
 	  if(lep1.Pt()<cutLepton1_Pt || lep2.Pt()<cutLepton2_Pt) continue ;//changed here
 	  // cout<<"checking leptons eta"<<endl;
 	  if(fabs(lep1.Eta())>cutLepton1_Eta) continue ;
 	  if(fabs(lep2.Eta())>cutLepton2_Eta) continue ;
+	  // cout<<"passes eta cuts"<<endl;
 
 	  // cout<<"checking leptons dxy and dz"<<endl;
 	  if(Channel=="mt" || Channel=="et" || Channel=="em")
@@ -948,6 +1032,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	      //lepton 1 = muon or electron
 	      if(dxy->at(indexDau1->at(p))>cutLepton1_dxy) continue;
 	      if(dz->at(indexDau1->at(p))>cutLepton1_dz) continue;
+	      // cout<<"lep1 dz cut is passed?"<<endl;
 	    }
 	  if(Channel=="em")
 	    {
@@ -965,7 +1050,8 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  if(Channel=="mt" || Channel=="et" || Channel=="tt")
 	    {
 	      //lepton 2 = tau
-	      if(dz->at(indexDau2->at(p))>cutLepton2_dz) continue;	
+	      if(dz->at(indexDau2->at(p))>cutLepton2_dz) continue;
+	      // cout<<"lep2 dz cut is passed?"<<endl;
 	    }
 
 	  //check lepton1 ID
@@ -1012,6 +1098,8 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  //check muon iso
 	  // cout<<"checking muon iso"<<endl;
 	  // cout<<"lep1.Pt(), combreliso->at(indexDau1->at(p)) = "<<lep1.Pt()<<", "<<combreliso->at(indexDau1->at(p))<<endl;
+	  // cout<<"lep1.Pt(), lep1.Eta() = "<<lep1.Pt()<<", "<<lep1.Eta()<<endl;
+	  // cout<<"lep2.Pt(), lep2.Eta() = "<<lep2.Pt()<<", "<<lep2.Eta()<<endl;
 	  // if(combreliso->at(indexDau1->at(p))>cutLepton1_Iso) continue ;
 
 	  //check tau DM finding
@@ -1145,7 +1233,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  d0_2 = dxy->at(lep2Index);
 	  dZ_2 = dz->at(lep2Index);
 	  mt_2 = mT_Dau2->at(lepPairIndex);
-	  iso_2 = daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(lep2Index);
+	  iso_2 = combreliso->at(lep2Index);
 	  l2_decayMode = decayMode->at(lep2Index);
 	  int discriminator_m2 = int(discriminator->at(lep2Index));
 	  id_m_loose_2 = ((discriminator_m2 >> 1) & 1) ;//loose
@@ -1576,13 +1664,12 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	    }
 	  // cout<<"before fill"<<endl;
 
-	  SyncTree->Fill();
 
-	  break;
-
+	  //will fill only the best ranked pairs
+	  SyncTree->Fill(); sortedPairs.clear(); break;
             
 	}
-	    
+      sortedPairs.clear();
     }
 
   SyncTree->Write();
