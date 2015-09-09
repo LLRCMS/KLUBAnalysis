@@ -235,7 +235,7 @@ int main (int argc, char** argv)
 
   cout << "--- MAIN before saving" << endl ;
 
-  TString outFolderNameBase = gConfigParser->readStringOption ("general::outputFolderName") ;
+  TString outFolderNameBase = gConfigParser->readStringOption ("evalQCD::outputFolderName") ;
   
   system (TString ("mkdir -p ") + outFolderNameBase) ;
 
