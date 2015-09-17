@@ -238,8 +238,8 @@ int main (int argc, char** argv)
       
       if (isMC)
         {
-          totalEvents += theBigTree.MC_weight ;
-          counter.at (selID++) += theBigTree.MC_weight ;
+          totalEvents += theBigTree.aMCatNLOweight ;
+          counter.at (selID++) += theBigTree.aMCatNLOweight ;
         }
       else 
         {
@@ -255,7 +255,7 @@ int main (int argc, char** argv)
       metpass += metbit & (1 << 5);
       metpass += metbit & (1 << 6);
       if(metpass > 0) continue ;
-      if (isMC) counter.at (selID++) += theBigTree.MC_weight ;
+      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight ;
       else      counter.at (selID++) += 1 ;
 
       // assume that the ordering of the pair numbering
@@ -293,7 +293,7 @@ int main (int argc, char** argv)
       if (saveOS == 1 && !isOS) continue ;
       if (saveOS == 0 &&  isOS) continue ;
       
-      if (isMC) counter.at (selID++) += theBigTree.MC_weight ;
+      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight ;
       else      counter.at (selID++) += 1 ;
 
       int firstDaughterIndex = theBigTree.indexDau1->at (chosenTauPair) ;  
@@ -366,7 +366,7 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       
       if (!beInclusive && jets_and_btag.size () < 2) continue ;
-      if (isMC) counter.at (selID++) += theBigTree.MC_weight ;
+      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight ;
       else      counter.at (selID++) += 1 ;
       
       // fill the variables of interest
@@ -376,7 +376,7 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
       theSmallTree.m_PUReweight = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npv) : 1) ;      
-      theSmallTree.m_MC_weight = (isMC ? theBigTree.MC_weight * XS : 1) ;
+      theSmallTree.m_MC_weight = (isMC ? theBigTree.aMCatNLOweight * XS : 1) ;
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
       theSmallTree.m_RunNumber = theBigTree.RunNumber ;
       theSmallTree.m_npv = theBigTree.npv ;
@@ -654,7 +654,7 @@ HHKChi2 = kinFits.getChi2 () ;
 
         } // if there's two jets in the event, at least
         
-      if (isMC) selectedEvents += theBigTree.MC_weight ; 
+      if (isMC) selectedEvents += theBigTree.aMCatNLOweight ; 
       else selectedEvents += 1 ;
       ++selectedNoWeightsEventsNum ;
       theSmallTree.Fill () ;
