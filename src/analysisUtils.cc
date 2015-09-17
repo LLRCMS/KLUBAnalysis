@@ -139,10 +139,16 @@ fillHistos (vector<sample> & samples,
            << "\t with initial weighted events\t" << samples.at (iSample).eff_den
            << endl ;
 
-      vector<float> address (variablesList.size (), 0.) ; 
-      for (unsigned int iv = 0 ; iv < variablesList.size () ; ++iv)
-        tree->SetBranchAddress (variablesList.at (iv).c_str (), &(address.at (iv))) ;
-    
+      vector<float> address (variablesList.size (), 0.) ;
+      int tempnjets;
+      int indexNjets = -1;
+      for (unsigned int iv = 0 ; iv < variablesList.size () ; ++iv){
+	if(variablesList.at(iv)=="njets"){
+	  tree->SetBranchAddress (variablesList.at (iv).c_str (), &tempnjets) ;
+	  indexNjets=iv;
+	}
+        else tree->SetBranchAddress (variablesList.at (iv).c_str (), &(address.at (iv))) ;
+      }
       for (int iEvent = 0 ; iEvent < tree->GetEntries () ; ++iEvent)
         {
           tree->GetEntry (iEvent) ;
@@ -167,9 +173,11 @@ fillHistos (vector<sample> & samples,
                     ) ;
                   
                   if (isData) 
-                      histo->Fill (address[iv]) ;
+		    if(iv!=indexNjets)histo->Fill (address[iv]) ;
+		    else histo->Fill (tempnjets) ;
                   else        
-                      histo->Fill (address[iv], weight * lumi * scaling) ;
+                      if(iv!=indexNjets)histo->Fill (address[iv], weight * lumi * scaling) ;
+		      else histo->Fill (tempnjets, weight * lumi * scaling) ;
                 } //loop on variables
             } //loop on selections
         } //loop on tree entries
