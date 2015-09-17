@@ -1,4 +1,7 @@
 #include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
 #include "TTree.h"
 #include "TH1F.h"
 #include "TFile.h"
@@ -39,6 +42,25 @@ typedef LorentzVector<ROOT::Math::PxPyPzE4D<double> > lorentzVector ;
 
 */
 
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
+// open input txt file and append all the files it contains to TChain
+void appendFromFileList (TChain* chain, TString filename)
+{
+    //cout << "=== inizio parser ===" << endl;
+    std::ifstream infile(filename.Data());
+    std::string line;
+    while (std::getline(infile, line))
+    {
+        line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
+        while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
+        while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
+        while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
+        if (!line.empty()) // skip empty lines
+            chain->Add(line.c_str());
+    }
+    return;
+}
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 
@@ -177,7 +199,8 @@ int main (int argc, char** argv)
   OfflineProducerHelper oph ;
 
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
-  bigChain->Add (inputFile) ;
+  //bigChain->Add (inputFile) ;
+  appendFromFileList (bigChain, inputFile);
   bigTree theBigTree (bigChain) ;
 
   //Create a new file + a clone of old tree header. Do not copy events

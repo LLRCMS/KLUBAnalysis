@@ -20,6 +20,17 @@ def isGoodFile (fileName) :
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
+def parseInputFileList (fileName) :
+    filelist = []
+    with open (fileName) as fIn:
+        for line in fIn:
+            line = (line.split("#")[0]).strip()
+            if line:
+                filelist.append(line)
+    return filelist
+
+# ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
 
 if __name__ == "__main__":
 
@@ -36,6 +47,7 @@ if __name__ == "__main__":
     parser.add_option ('-d', '--isdata' , dest='isdata' , help='data flag'                        , default=False)
     parser.add_option ('-H', '--hadd'   , dest='hadd'   , help='hadd the resulting ntuples'       , default='none')
     parser.add_option ('-c', '--config' , dest='config' , help='skim config file'                 , default='none')
+    parser.add_option ('-n', '--njobs'  , dest='njobs'  , help='number of skim jobs'              , default=100, type = int)
     (opt, args) = parser.parse_args()
 
     currFolder = os.getcwd ()
@@ -144,9 +156,16 @@ if __name__ == "__main__":
     elif os.path.exists (opt.output) :
         os.system ('rm -rf ' + opt.output + '/*')
     os.system ('mkdir ' + opt.output)
+    os.system ('cp ' + opt.config + " " + opt.output)
     
-    inputfiles = glob.glob (opt.input + '/*.root')    
+    #inputfiles = glob.glob (opt.input + '/*.root')    
+    inputfiles = parseInputFileList (opt.input)
+    if opt.njobs > len (inputfiles) : opt.njobs = len (inputfiles)
+    nfiles = (len (inputfiles) + len (inputfiles) % opt.njobs) / opt.njobs
+    inputlists = [inputfiles[x:x+nfiles] for x in xrange (0, len (inputfiles), nfiles)]
+
     jobsDir = currFolder + '/SKIM_' + basename (opt.input)
+    jobsDir = jobsDir.rstrip (".txt")
     if os.path.exists (jobsDir) : os.system ('rm -f ' + jobsDir + '/*')
     else                        : os.system ('mkdir ' + jobsDir)
 
@@ -157,8 +176,13 @@ if __name__ == "__main__":
 
     n = int (0)
     commandFile = open (jobsDir + '/submit.sh', 'w')
-    for filename in inputfiles : 
+    for listname in inputlists : 
         #create a wrapper for standalone cmssw job
+        listFileName = "filelist_%i.txt" % n
+        thisinputlistFile = open(jobsDir + "/" + listFileName, 'w')
+        for line in listname:
+            thisinputlistFile.write(line+"\n")
+        thisinputlistFile.close()
         scriptFile = open ('%s/skimJob_%d.sh'% (jobsDir,n), 'w')
         scriptFile.write ('#!/bin/bash\n')
         scriptFile.write ('export X509_USER_PROXY=~/.t3/proxy.cert\n')
@@ -168,11 +192,11 @@ if __name__ == "__main__":
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('cd %s\n'%currFolder)
         scriptFile.write ('source scripts/setup.sh\n')
-        command = skimmer + ' ' + filename + ' ' + opt.output + '/' + basename (filename) + ' ' + opt.xs 
+        command = skimmer + ' ' + jobsDir+"/"+listFileName + ' ' + opt.output + '/' + "output_"+str(n)+".root" + ' ' + opt.xs 
         if opt.isdata :  command += ' 1 '
         else          :  command += ' 0 '    
         command += ' ' + opt.config + ' '
-        command += ' >& ' + opt.output + '/' + basename (filename) + '.log\n'
+        command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
         scriptFile.write (command)
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
         scriptFile.write ('echo "All done for job %d" \n'%n)
