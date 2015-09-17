@@ -44,6 +44,7 @@ public :
    std::vector<int>     *daughters_charge;
    std::vector<int>     *daughters_genindex;
    Float_t         MC_weight;
+   Float_t         aMCatNLOweight;
    std::vector<float>   *genpart_px;
    std::vector<float>   *genpart_py;
    std::vector<float>   *genpart_pz;
@@ -158,6 +159,7 @@ public :
    TBranch        *b_daughters_charge;   //!
    TBranch        *b_daughters_genindex;   //!
    TBranch        *b_MC_weight;   //!
+   TBranch        *b_aMCatNLOweight;   //!
    TBranch        *b_genpart_px;   //!
    TBranch        *b_genpart_py;   //!
    TBranch        *b_genpart_pz;   //!
@@ -464,6 +466,7 @@ public :
        // MC only
        if(fChain->GetListOfBranches()->FindObject("MC_weight"))
        {
+            fChain->SetBranchAddress("aMCatNLOweight", &aMCatNLOweight, &b_aMCatNLOweight);
             fChain->SetBranchAddress("MC_weight", &MC_weight, &b_MC_weight);
             fChain->SetBranchAddress("daughters_genindex", &daughters_genindex, &b_daughters_genindex);
             fChain->SetBranchAddress("genpart_px", &genpart_px, &b_genpart_px);
