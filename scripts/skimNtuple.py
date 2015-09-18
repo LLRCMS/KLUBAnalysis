@@ -36,18 +36,19 @@ if __name__ == "__main__":
 
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
-    parser.add_option ('-i', '--input'  , dest='input'  , help='input folder'                     , default='none')
-    parser.add_option ('-x', '--xs'     , dest='xs'     , help='sample xs'                        , default='1.')
-    parser.add_option ('-f', '--force'  , dest='force'  , help='replace existing reduced ntuples' , default=False)
-    parser.add_option ('-o', '--output' , dest='output' , help='output folder'                    , default='none')
-    parser.add_option ('-q', '--queue'  , dest='queue'  , help='batch queue'                      , default='cms')
-    parser.add_option ('-r', '--resub'  , dest='resub'  , help='resubmit failed jobs'             , default='none')
-    parser.add_option ('-v', '--verb'   , dest='verb'   , help='verbose'                          , default=False)
-    parser.add_option ('-s', '--sleep'  , dest='sleep'  , help='sleep in submission'              , default=False)
-    parser.add_option ('-d', '--isdata' , dest='isdata' , help='data flag'                        , default=False)
-    parser.add_option ('-H', '--hadd'   , dest='hadd'   , help='hadd the resulting ntuples'       , default='none')
-    parser.add_option ('-c', '--config' , dest='config' , help='skim config file'                 , default='none')
-    parser.add_option ('-n', '--njobs'  , dest='njobs'  , help='number of skim jobs'              , default=100, type = int)
+    parser.add_option ('-i', '--input'  , dest='input'    , help='input folder'                     , default='none')
+    parser.add_option ('-x', '--xs'     , dest='xs'       , help='sample xs'                        , default='1.')
+    parser.add_option ('-f', '--force'  , dest='force'    , help='replace existing reduced ntuples' , default=False)
+    parser.add_option ('-o', '--output' , dest='output'   , help='output folder'                    , default='none')
+    parser.add_option ('-q', '--queue'  , dest='queue'    , help='batch queue'                      , default='cms')
+    parser.add_option ('-r', '--resub'  , dest='resub'    , help='resubmit failed jobs'             , default='none')
+    parser.add_option ('-v', '--verb'   , dest='verb'     , help='verbose'                          , default=False)
+    parser.add_option ('-s', '--sleep'  , dest='sleep'    , help='sleep in submission'              , default=False)
+    parser.add_option ('-d', '--isdata' , dest='isdata'   , help='data flag'                        , default=False)
+    parser.add_option ('-H', '--hadd'   , dest='hadd'     , help='hadd the resulting ntuples'       , default='none')
+    parser.add_option ('-c', '--config' , dest='config'   , help='skim config file'                 , default='none')
+    parser.add_option ('-n', '--njobs'  , dest='njobs'    , help='number of skim jobs'              , default=100, type = int)
+    parser.add_option ('-k', '--kinfit' , dest='dokinfit' , help='run HH kin fitter'                , default=True)
     (opt, args) = parser.parse_args()
 
     currFolder = os.getcwd ()
@@ -171,7 +172,7 @@ if __name__ == "__main__":
 
     proc = subprocess.Popen ('voms-proxy-info', stdout=subprocess.PIPE)
     tmp = [word for word in proc.stdout.read ().split ('\n') if 'timeleft' in word]
-    if len (tmp) == 0 or int (tmp[0].split (':')[1]) < 24 : # hours
+    if len (tmp) == 0 or int (tmp[0].split (':')[1]) < 10 : # hours
         os.system ('source /opt/exp_soft/cms/t3/t3setup')
 
     n = int (0)
@@ -192,10 +193,12 @@ if __name__ == "__main__":
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('cd %s\n'%currFolder)
         scriptFile.write ('source scripts/setup.sh\n')
-        command = skimmer + ' ' + jobsDir+"/"+listFileName + ' ' + opt.output + '/' + "output_"+str(n)+".root" + ' ' + opt.xs 
+        command = skimmer + ' ' + jobsDir+"/"+listFileName + ' ' + opt.output + '/' + "output_"+str(n)+".root" + ' ' + opt.xs
         if opt.isdata :  command += ' 1 '
         else          :  command += ' 0 '    
         command += ' ' + opt.config + ' '
+        if opt.dokinfit is True : command += " 1 "
+        else                    : command += " 0 "
         command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
         scriptFile.write (command)
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
