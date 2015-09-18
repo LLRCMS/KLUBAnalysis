@@ -62,6 +62,17 @@ void appendFromFileList (TChain* chain, TString filename)
     return;
 }
 
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
+
+
+bool isDegenere (TLorentzVector & first, TLorentzVector & second)
+{
+  if ( fabs(first.Px()-second.Px()+first.Py()-second.Py()+first.Pz()-second.Pz())<0.03 * (first.Px()+first.Py()+first.Pz()) ) return true;  
+  return false ;
+}
+
+
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 
 
@@ -154,11 +165,11 @@ int main (int argc, char** argv)
   // read input file and cfg
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  if (argc < 6) 
+  if (argc < 7) 
     {
       cerr << "missing input parameters" << endl ;
       cerr << "usage: " << argv[0]
-           << "inputFileName outputFileName crossSection isMC configFile" << endl ; 
+           << "inputFileName outputFileName crossSection isMC configFile runHHKinFit" << endl ; 
       exit (1) ;
     }
   TString inputFile = argv[1] ;
@@ -178,6 +189,13 @@ int main (int argc, char** argv)
   
   TString config ; 
   config.Form ("%s",argv[5]) ;
+  
+  bool runHHKinFit = false;
+  string opt7 (argv[6]);
+  if (opt7 == "1") runHHKinFit = true;
+
+  cout << "Running HH in fit: " << runHHKinFit << " " << argv[6] << endl;
+
   if (! (gConfigParser->init (config)))
     {
       cout << ">>> parseConfigFile::Could not open configuration file " << config << endl ;
@@ -273,9 +291,26 @@ int main (int argc, char** argv)
         {
           // FIXME need to implement here the choice of iso / anti-iso
           if (!oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag.c_str ())) continue ;
-          
+
           int firstDaughterIndex = theBigTree.indexDau1->at (iPair) ;  
           int secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
+          
+          TLorentzVector tlv_firstLepton
+            (
+              theBigTree.daughters_px->at (firstDaughterIndex),
+              theBigTree.daughters_py->at (firstDaughterIndex),
+              theBigTree.daughters_pz->at (firstDaughterIndex),
+              theBigTree.daughters_e->at (firstDaughterIndex)
+            ) ;
+          TLorentzVector tlv_secondLepton
+            (
+              theBigTree.daughters_px->at (secondDaughterIndex),
+              theBigTree.daughters_py->at (secondDaughterIndex),
+              theBigTree.daughters_pz->at (secondDaughterIndex),
+              theBigTree.daughters_e->at (secondDaughterIndex)
+            ) ;
+          if (isDegenere (tlv_firstLepton, tlv_secondLepton)) continue; // FIXME: it is not working !!!
+
           int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
           int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
           int pairType = oph.getPairType (type1, type2) ;
@@ -376,7 +411,7 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
       theSmallTree.m_PUReweight = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npv) : 1) ;      
-      theSmallTree.m_MC_weight = (isMC ? theBigTree.aMCatNLOweight * XS : 1) ;
+      theSmallTree.m_aMCatNLOweight = (isMC ? theBigTree.aMCatNLOweight * XS : 1) ;
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
       theSmallTree.m_RunNumber = theBigTree.RunNumber ;
       theSmallTree.m_npv = theBigTree.npv ;
@@ -508,7 +543,7 @@ int main (int argc, char** argv)
           float METy = theBigTree.METy->at (chosenTauPair) ;
           float METpt = 0;//TMath::Sqrt (METx*METx + METy*METy) ;
     
-	  TLorentzVector ptmiss = TLorentzVector(METx, METy, 0., METpt) ;
+	        TLorentzVector ptmiss = TLorentzVector(METx, METy, 0., METpt) ;
           //TVector2 ptmiss = TVector2(METx,METy);
           TMatrixD metcov (2, 2) ;
           metcov (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
@@ -542,81 +577,85 @@ int main (int argc, char** argv)
         
 //           //intance of fitter master class
 //           HHKinFitMaster kinFits = HHKinFitMaster (&tlv_firstBjet, &tlv_secondBjet,
-           HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs (&tlv_firstBjet, &tlv_secondBjet, 
-                                                    &tlv_firstLepton, &tlv_secondLepton,&ptmiss,metcov) ;
-//           kinFits.setAdvancedBalance (&ptmiss, metcov) ;
-//           kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
-// 
-//           kinFits.addMh1Hypothesis (hypo_mh1) ;
-//           kinFits.addMh2Hypothesis (hypo_mh2) ;
-           kinFits.addHypo(hypo_mh1,hypo_mh2);
-bool wrongHHK=false;
-try{           
-   kinFits.doFit();//doFit () ; 
-}
-catch(HHKinFit2::HHInvMConstraintException e){
-cout<<"INVME THIS EVENT WAS WRONG, INV MASS CONSTRAIN EXCEPTION"<<endl;
-cout<<"INVME masshypo1 = 125,    masshypo2 = 125"<<endl;
-cout<<"INVME Tau1"<<endl;
-cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_firstLepton.E()<<","<<tlv_firstLepton.Px()<<","<<tlv_firstLepton.Py()<<","<<tlv_firstLepton.Pz()<<","<<tlv_firstLepton.M()<<endl;//tlv_firstLepton.Print();
-cout<<"INVME Tau2"<<endl;
-cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_secondLepton.E()<<","<<tlv_secondLepton.Px()<<","<<tlv_secondLepton.Py()<<","<<tlv_secondLepton.Pz()<<","<<tlv_secondLepton.M()<<endl;
-cout<<"INVME B1"<<endl;
-cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_firstBjet.E()<<","<<tlv_firstBjet.Px()<<","<<tlv_firstBjet.Py()<<","<<tlv_firstBjet.Pz()<<","<<tlv_firstBjet.M()<<endl;
-cout<<"INVME B2"<<endl;
-cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
-cout<<"INVME MET"<<endl;
-cout<<"INVME (E,Px,Py,Pz,M) "<<ptmiss.E()<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<","<<ptmiss.Pz()<<","<<ptmiss.M()<<endl;
-cout<<"INVME METCOV "<<endl;
-          cout<<"INVME "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
-          cout<<"INVME "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
-cout<<"INVME tau1, tau2, b1, b2"<<endl;
-cout<<"INVME ";
-tlv_firstLepton.Print();
-cout<<"INVME ";
-tlv_secondLepton.Print();
-cout<<"INVME ";
-tlv_firstBjet.Print();
-cout<<"INVME ";
-tlv_secondBjet.Print();
-wrongHHK=true;
-}
-catch (HHKinFit2::HHEnergyRangeException e){
-cout<<"ERANGE THIS EVENT WAS WRONG, ENERGY RANGE EXCEPTION"<<endl;
-cout<<"ERANGE masshypo1 = 125,    masshypo2 = 125"<<endl;
-cout<<"ERANGE Tau1"<<endl;
-cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_firstLepton.E()<<","<<tlv_firstLepton.Px()<<","<<tlv_firstLepton.Py()<<","<<tlv_firstLepton.Pz()<<","<<tlv_firstLepton.M()<<endl;//tlv_firstLepton.Print();
-cout<<"ERANGE Tau2"<<endl;
-cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_secondLepton.E()<<","<<tlv_secondLepton.Px()<<","<<tlv_secondLepton.Py()<<","<<tlv_secondLepton.Pz()<<","<<tlv_secondLepton.M()<<endl;
-cout<<"ERANGE B1"<<endl;
-cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_firstBjet.E()<<","<<tlv_firstBjet.Px()<<","<<tlv_firstBjet.Py()<<","<<tlv_firstBjet.Pz()<<","<<tlv_firstBjet.M()<<endl;
-cout<<"ERANGE B2"<<endl;
-cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
-cout<<"ERANGE MET"<<endl;
-cout<<"ERANGE (E,Px,Py,Pz,M) "<<ptmiss.E()<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<","<<ptmiss.Pz()<<","<<ptmiss.M()<<endl;
-cout<<"ERANGE METCOV "<<endl;
-          cout<<"ERANGE "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
-          cout<<"ERANGE "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
-cout<<"ERANGE tau1, tau2, b1, b2"<<endl;
-cout<<"ERANGE ";
-tlv_firstLepton.Print();
-cout<<"ERANGE ";
-tlv_secondLepton.Print();
-cout<<"ERANGE ";
-tlv_firstBjet.Print();
-cout<<"ERANGE ";
-tlv_secondBjet.Print();
-wrongHHK=true;
-}
-//cout<<"FITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONEFITDONE"<<endl;
-float HHKmass = -999;
-float HHKChi2 = -999;
-if(!wrongHHK){
- HHKmass = kinFits.getMH () ;
-HHKChi2 = kinFits.getChi2 () ;
-}
-           theSmallTree.m_HHKin_mass = HHKmass;//kinFits.getMH () ;
-           theSmallTree.m_HHKin_chi2 = HHKChi2;//kinFits.getChi2 () ;
+
+          bool wrongHHK=false;
+          float HHKmass = -999;
+          float HHKChi2 = -999;
+          if (runHHKinFit)
+          {
+            HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs (&tlv_firstBjet, &tlv_secondBjet, 
+                                                      &tlv_firstLepton, &tlv_secondLepton,&ptmiss,metcov) ;
+  //           kinFits.setAdvancedBalance (&ptmiss, metcov) ;
+  //           kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
+  // 
+  //           kinFits.addMh1Hypothesis (hypo_mh1) ;
+  //           kinFits.addMh2Hypothesis (hypo_mh2) ;
+            kinFits.addHypo(hypo_mh1,hypo_mh2);
+            try{           
+                kinFits.doFit();//doFit () ; 
+            }
+            catch(HHKinFit2::HHInvMConstraintException e){
+              cout<<"INVME THIS EVENT WAS WRONG, INV MASS CONSTRAIN EXCEPTION"<<endl;
+              cout<<"INVME masshypo1 = 125,    masshypo2 = 125"<<endl;
+              cout<<"INVME Tau1"<<endl;
+              cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_firstLepton.E()<<","<<tlv_firstLepton.Px()<<","<<tlv_firstLepton.Py()<<","<<tlv_firstLepton.Pz()<<","<<tlv_firstLepton.M()<<endl;//tlv_firstLepton.Print();
+              cout<<"INVME Tau2"<<endl;
+              cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_secondLepton.E()<<","<<tlv_secondLepton.Px()<<","<<tlv_secondLepton.Py()<<","<<tlv_secondLepton.Pz()<<","<<tlv_secondLepton.M()<<endl;
+              cout<<"INVME B1"<<endl;
+              cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_firstBjet.E()<<","<<tlv_firstBjet.Px()<<","<<tlv_firstBjet.Py()<<","<<tlv_firstBjet.Pz()<<","<<tlv_firstBjet.M()<<endl;
+              cout<<"INVME B2"<<endl;
+              cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
+              cout<<"INVME MET"<<endl;
+              cout<<"INVME (E,Px,Py,Pz,M) "<<ptmiss.E()<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<","<<ptmiss.Pz()<<","<<ptmiss.M()<<endl;
+              cout<<"INVME METCOV "<<endl;
+              cout<<"INVME "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
+              cout<<"INVME "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
+              cout<<"INVME tau1, tau2, b1, b2"<<endl;
+              cout<<"INVME ";
+              tlv_firstLepton.Print();
+              cout<<"INVME ";
+              tlv_secondLepton.Print();
+              cout<<"INVME ";
+              tlv_firstBjet.Print();
+              cout<<"INVME ";
+              tlv_secondBjet.Print();
+              wrongHHK=true;
+              }
+            catch (HHKinFit2::HHEnergyRangeException e){
+              cout<<"ERANGE THIS EVENT WAS WRONG, ENERGY RANGE EXCEPTION"<<endl;
+              cout<<"ERANGE masshypo1 = 125,    masshypo2 = 125"<<endl;
+              cout<<"ERANGE Tau1"<<endl;
+              cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_firstLepton.E()<<","<<tlv_firstLepton.Px()<<","<<tlv_firstLepton.Py()<<","<<tlv_firstLepton.Pz()<<","<<tlv_firstLepton.M()<<endl;//tlv_firstLepton.Print();
+              cout<<"ERANGE Tau2"<<endl;
+              cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_secondLepton.E()<<","<<tlv_secondLepton.Px()<<","<<tlv_secondLepton.Py()<<","<<tlv_secondLepton.Pz()<<","<<tlv_secondLepton.M()<<endl;
+              cout<<"ERANGE B1"<<endl;
+              cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_firstBjet.E()<<","<<tlv_firstBjet.Px()<<","<<tlv_firstBjet.Py()<<","<<tlv_firstBjet.Pz()<<","<<tlv_firstBjet.M()<<endl;
+              cout<<"ERANGE B2"<<endl;
+              cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
+              cout<<"ERANGE MET"<<endl;
+              cout<<"ERANGE (E,Px,Py,Pz,M) "<<ptmiss.E()<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<","<<ptmiss.Pz()<<","<<ptmiss.M()<<endl;
+              cout<<"ERANGE METCOV "<<endl;
+              cout<<"ERANGE "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
+              cout<<"ERANGE "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
+              cout<<"ERANGE tau1, tau2, b1, b2"<<endl;
+              cout<<"ERANGE ";
+              tlv_firstLepton.Print();
+              cout<<"ERANGE ";
+              tlv_secondLepton.Print();
+              cout<<"ERANGE ";
+              tlv_firstBjet.Print();
+              cout<<"ERANGE ";
+              tlv_secondBjet.Print();
+              wrongHHK=true;
+            }
+            if(!wrongHHK){
+              HHKmass = kinFits.getMH () ;
+              HHKChi2 = kinFits.getChi2 () ;
+            }
+          } // end if doing HHKinFit
+      
+          theSmallTree.m_HHKin_mass = HHKmass;//kinFits.getMH () ;
+          theSmallTree.m_HHKin_chi2 = HHKChi2;//kinFits.getChi2 () ;
 
           theSmallTree.m_HH_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
           theSmallTree.m_tauHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_tauH.Phi ()) ;
