@@ -24,6 +24,7 @@ mkdir interface/exceptions
 cd interface/exceptions
 ln -ns ../../../HHKinFit2/include/exceptions/HHInvMConstraintException.h 
 ln -ns ../../../HHKinFit2/include/exceptions/HHEnergyRangeException.h
+ln -ns ../../../HHKinFit2/include/exceptions/HHEnergyConstraintException.h
 cd -
 source scripts/setup.sh
 make
