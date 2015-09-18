@@ -21,6 +21,7 @@
 //#include "../../HHKinFit2/include/exceptions/HHEnergyRangeException.h"
 #include "exceptions/HHInvMConstraintException.h"
 #include "exceptions/HHEnergyRangeException.h"
+#include "exceptions/HHEnergyConstraintException.h"
 //
 using namespace std ;
 
@@ -68,8 +69,9 @@ void appendFromFileList (TChain* chain, TString filename)
 
 bool isDegenere (TLorentzVector & first, TLorentzVector & second)
 {
-  if ( fabs(first.Px()-second.Px()+first.Py()-second.Py()+first.Pz()-second.Pz())<0.03 * (first.Px()+first.Py()+first.Pz()) ) return true;  
-  return false ;
+   if ( fabs(first.Px()-second.Px())+fabs(first.Py()-second.Py())+fabs(first.Pz()-second.Pz())<0.03 * (fabs(first.Px())+fabs(first.Py())+fabs(first.Pz()) )) return true;
+
+   return false ;
 }
 
 
@@ -648,6 +650,33 @@ int main (int argc, char** argv)
               tlv_secondBjet.Print();
               wrongHHK=true;
             }
+            catch(HHKinFit2::HHEnergyConstraintException e){
+              cout<<"ECON THIS EVENT WAS WRONG, ENERGY CONSTRAIN EXCEPTION"<<endl;
+              cout<<"ECON masshypo1 = 125,    masshypo2 = 125"<<endl;
+              cout<<"ECON Tau1"<<endl;
+              cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_firstLepton.E()<<","<<tlv_firstLepton.Px()<<","<<tlv_firstLepton.Py()<<","<<tlv_firstLepton.Pz()<<","<<tlv_firstLepton.M()<<endl;//tlv_firstLepton.Print();
+              cout<<"ECON Tau2"<<endl;
+              cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_secondLepton.E()<<","<<tlv_secondLepton.Px()<<","<<tlv_secondLepton.Py()<<","<<tlv_secondLepton.Pz()<<","<<tlv_secondLepton.M()<<endl;
+              cout<<"ECON B1"<<endl;
+              cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_firstBjet.E()<<","<<tlv_firstBjet.Px()<<","<<tlv_firstBjet.Py()<<","<<tlv_firstBjet.Pz()<<","<<tlv_firstBjet.M()<<endl;
+              cout<<"ECON B2"<<endl;
+              cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
+              cout<<"ECON MET"<<endl;
+              cout<<"ECON (E,Px,Py,Pz,M) "<<ptmiss.E()<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<","<<ptmiss.Pz()<<","<<ptmiss.M()<<endl;
+              cout<<"ECON METCOV "<<endl;
+              cout<<"ECON "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
+              cout<<"ECON "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
+              cout<<"ECON tau1, tau2, b1, b2"<<endl;
+              cout<<"ECON ";
+              tlv_firstLepton.Print();
+              cout<<"ECON ";
+              tlv_secondLepton.Print();
+              cout<<"ECON ";
+              tlv_firstBjet.Print();
+              cout<<"ECON ";
+              tlv_secondBjet.Print();
+              wrongHHK=true;
+              }
             if(!wrongHHK){
               HHKmass = kinFits.getMH () ;
               HHKChi2 = kinFits.getChi2 () ;
