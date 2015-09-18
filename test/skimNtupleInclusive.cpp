@@ -169,7 +169,7 @@ int main (int argc, char** argv)
     {
       cerr << "missing input parameters" << endl ;
       cerr << "usage: " << argv[0]
-           << "inputFileName outputFileName crossSection isData configFile runHHKinFit" << endl ; 
+           << "inputFileNameList outputFileName crossSection isData configFile runHHKinFit" << endl ; 
       exit (1) ;
     }
   TString inputFile = argv[1] ;
