@@ -681,6 +681,8 @@ int main (int argc, char** argv)
             if(!wrongHHK){
               HHKmass = kinFits.getMH () ;
               HHKChi2 = kinFits.getChi2 () ;
+            }else{
+              if(isOS)HHKmass = -333;
             }
           } // end if doing HHKinFit
       
