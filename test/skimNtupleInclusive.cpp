@@ -69,7 +69,8 @@ void appendFromFileList (TChain* chain, TString filename)
 
 bool isDegenere (TLorentzVector & first, TLorentzVector & second)
 {
-   if ( fabs(first.Px()-second.Px())+fabs(first.Py()-second.Py())+fabs(first.Pz()-second.Pz())<0.03 * (fabs(first.Px())+fabs(first.Py())+fabs(first.Pz()) )) return true;
+  //if ( fabs(first.Px()-second.Px())+fabs(first.Py()-second.Py())+fabs(first.Pz()-second.Pz())<0.03 * (fabs(first.Px())+fabs(first.Py())+fabs(first.Pz()) )) return true;
+  if (first.DeltaR(second) < 0.03) return true;
 
    return false ;
 }
