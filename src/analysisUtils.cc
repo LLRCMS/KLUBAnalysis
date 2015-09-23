@@ -142,13 +142,17 @@ fillHistos (vector<sample> & samples,
       vector<float> address (variablesList.size (), 0.) ;
       int tempnjets;
       int indexNjets = -1;
-      for (unsigned int iv = 0 ; iv < variablesList.size () ; ++iv){
-	if(variablesList.at(iv)=="njets"){
-	  tree->SetBranchAddress (variablesList.at (iv).c_str (), &tempnjets) ;
-	  indexNjets=iv;
-	}
+
+      for (unsigned int iv = 0 ; iv < variablesList.size () ; ++iv)
+      {
+      	if(variablesList.at(iv)=="njets")
+        {
+      	  tree->SetBranchAddress (variablesList.at (iv).c_str (), &tempnjets) ;
+      	  indexNjets=iv;
+      	}
         else tree->SetBranchAddress (variablesList.at (iv).c_str (), &(address.at (iv))) ;
       }
+
       for (int iEvent = 0 ; iEvent < tree->GetEntries () ; ++iEvent)
         {
           tree->GetEntry (iEvent) ;

@@ -74,6 +74,7 @@ int main (int argc, char** argv)
 
 /*
   // NOT isolated samples
+  // not needed anymore from Skims_7_NI because we don't ask isolation during the skim
   // .... .... .... .... .... .... .... .... .... .... .... ....
   
   vector<string> NI_sigSamplesList = gConfigParser->readStringListOption ("general::NIsignals") ;
@@ -350,6 +351,25 @@ int main (int argc, char** argv)
     } // loop on selections
 
   delete c ;
+
+
+  // print yields
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+  unsigned int NSpacesColZero = 20 ;
+  unsigned int NSpacesColumns = 10 ;
+  unsigned int precision = 1 ;
+  
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " EXPECTED NUMBER OF SIG EVENTS\n\n" ;
+
+  printTableTitle (sigSamples, NSpacesColZero, NSpacesColumns) ;
+  printTableBody  (selections, OS_sigCount, sigSamples) ;
+
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " EXPECTED NUMBER OF BKG EVENTS\n\n" ;
+
+  printTableTitle (bkgSamples, NSpacesColZero, NSpacesColumns) ;
+  printTableBody  (selections, OS_bkgCount, bkgSamples) ;
 
   return 0 ;
 }  

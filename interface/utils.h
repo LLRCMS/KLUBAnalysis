@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <vector>
+#include <utility>
 #include "ConfigParser.h"
 #include "TString.h"
 #include "TChain.h"
@@ -71,5 +72,16 @@ struct isNOTalnum : std::unary_function<int, int>
 
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) ;
 std::vector<std::string> split(const std::string &s, char delim) ;
+
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+// utilities to draw tables of yields
+
+void printTableTitle (vector<string> & sample, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10) ;
+void printTableTitle (vector<sample> & sample, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10) ;
+void printTableBody  (vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, unsigned int NSpacesColZero = 20, unsigned int NSpacesColumns = 10, unsigned int precision = 1) ;
+
+
 
 #endif

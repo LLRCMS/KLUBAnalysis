@@ -28,6 +28,8 @@ using namespace std ;
 https://github.com/govoni/FlatNtStudy/blob/master/interface/plotter.h#L324
 */
 
+
+/*
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
@@ -58,7 +60,7 @@ void printTitle (vector<sample> & sample, unsigned int NSpacesColZero, unsigned 
   printTitle (names, NSpacesColZero, NSpacesColumns) ;
   return ;
 }
-
+*/
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -281,7 +283,7 @@ int main (int argc, char** argv)
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " EXPECTED NUMBER OF SIG EVENTS\n\n" ;
 
-  printTitle (sigSamples, NSpacesColZero, NSpacesColumns) ;
+  printTableTitle (sigSamples, NSpacesColZero, NSpacesColumns) ;
 
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
@@ -303,7 +305,7 @@ int main (int argc, char** argv)
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " EXPECTED NUMBER OF BKG EVENTS\n\n" ;
 
-  printTitle (bkgSamples, NSpacesColZero, NSpacesColumns) ;
+  printTableTitle (bkgSamples, NSpacesColZero, NSpacesColumns) ;
 
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
@@ -326,7 +328,7 @@ int main (int argc, char** argv)
   cout << " OBSERVED NUMBER OF EVENTS\n\n" ;
 
   NSpacesColumns = 12 ;
-  printTitle (DATASamples, NSpacesColZero, NSpacesColumns) ;
+  printTableTitle (DATASamples, NSpacesColZero, NSpacesColumns) ;
 
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
@@ -351,7 +353,7 @@ int main (int argc, char** argv)
   vector<float> DATAtotal = DATACount.getTotalCountsPerCut () ;
   vector<float> bkgtotal = bkgCount.getTotalCountsPerCut () ;
   vector<string> titles ; titles.push_back ("DATA") ; titles.push_back ("bkg") ;
-  printTitle (titles, NSpacesColZero, NSpacesColumns) ;
+  printTableTitle (titles, NSpacesColZero, NSpacesColumns) ;
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
       cout << selections.at (iSel).first ;
