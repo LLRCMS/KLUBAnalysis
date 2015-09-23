@@ -80,7 +80,7 @@ std::vector<std::string> split(const std::string &s, char delim) ;
 
 void printTableTitle (vector<string> & sample, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10) ;
 void printTableTitle (vector<sample> & sample, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10) ;
-void printTableBody  (vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, unsigned int NSpacesColZero = 20, unsigned int NSpacesColumns = 10, unsigned int precision = 1) ;
+void printTableBody  (vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10, unsigned int precision = 1) ;
 
 
 
