@@ -177,11 +177,15 @@ fillHistos (vector<sample> & samples,
                     ) ;
                   
                   if (isData) 
-		    if(iv!=indexNjets)histo->Fill (address[iv]) ;
-		    else histo->Fill (tempnjets) ;
+		              {
+                      if(iv!=indexNjets)histo->Fill (address[iv]) ;
+		                  else histo->Fill (tempnjets) ;
+                  }
                   else        
+                  {
                       if(iv!=indexNjets)histo->Fill (address[iv], weight * lumi * scaling) ;
-		      else histo->Fill (tempnjets, weight * lumi * scaling) ;
+		                  else histo->Fill (tempnjets, weight * lumi * scaling) ;
+                  }
                 } //loop on variables
             } //loop on selections
         } //loop on tree entries
