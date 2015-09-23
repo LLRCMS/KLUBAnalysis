@@ -312,7 +312,7 @@ int main (int argc, char** argv)
               theBigTree.daughters_pz->at (secondDaughterIndex),
               theBigTree.daughters_e->at (secondDaughterIndex)
             ) ;
-          if (isDegenere (tlv_firstLepton, tlv_secondLepton)) continue; // FIXME: it is not working !!!
+          //if (isDegenere (tlv_firstLepton, tlv_secondLepton)) continue; // antiEle and antiMu should already do this dirty job
 
           int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
           int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
