@@ -1,18 +1,31 @@
-all       = 1==1
-muTau     = pairType == 0
-baseline  = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0
-dijet     = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 20 && bjet2_pt > 20
-dijethard = pairType == 0 && dau1_pt > 45 && abs (dau1_eta) < 2.5 && dau2_pt > 45 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30
-baselineOS  = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && isOS != 0
-dijetOS     = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 20 && bjet2_pt > 20 && isOS != 0
-dijethardOS = pairType == 0 && dau1_pt > 45 && abs (dau1_eta) < 2.5 && dau2_pt > 45 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && isOS != 0
-# dijethard = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30
-btag      = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && (bjet1_bID + bjet2_bID) > 0.8 && bjet1_bID > 0.3 && bjet2_bID > 0.3
-taumass   = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && (bjet1_bID + bjet2_bID) > 0.8 && bjet1_bID > 0.3 && bjet2_bID > 0.3 && tauH_mass < 100 && tauH_mass > 50
-bmass     = pairType == 0 && dau1_pt > 13 && abs (dau1_eta) < 2.5 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && (bjet1_bID + bjet2_bID) > 0.8 && bjet1_bID > 0.3 && bjet2_bID > 0.3 && tauH_mass < 100 && tauH_mass > 50 && bH_mass < 150 && bH_mass > 50
+all             = 1==1
+muTau           = pairType == 0
+baseline        = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0
+dijet           = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 20 && bjet2_pt > 20
+dijethard       = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30
+
+# add OS
+baselineOS      = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && isOS != 0
+dijetOS         = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && isOS != 0 && bjet1_pt > 20 && bjet2_pt > 20
+dijethardOS     = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && isOS != 0 && bjet1_pt > 30 && bjet2_pt > 30
+
+# add iso requirement, no OS/SS requirement
+baselineiso     = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && dau1_iso < 0.1 && dau2_iso < 3.0
+dijetiso        = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && dau1_iso < 0.1 && dau2_iso < 3.0 && bjet1_pt > 20 && bjet2_pt > 20
+dijethardiso    = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && dau1_iso < 0.1 && dau2_iso < 3.0 && bjet1_pt > 30 && bjet2_pt > 30
+
+# add iso requirement
+baselineOSiso   = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0 
+dijetOSiso      = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0 && bjet1_pt > 20 && bjet2_pt > 20
+dijethardOSiso  = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0 && bjet1_pt > 30 && bjet2_pt > 30
+
+# dijethard = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30
+btag            = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && (bjet1_bID + bjet2_bID) > 0.8 && bjet1_bID > 0.3 && bjet2_bID > 0.3
+taumass         = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && (bjet1_bID + bjet2_bID) > 0.8 && bjet1_bID > 0.3 && bjet2_bID > 0.3 && tauH_mass < 100 && tauH_mass > 50
+bmass           = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && (bjet1_bID + bjet2_bID) > 0.8 && bjet1_bID > 0.3 && bjet2_bID > 0.3 && tauH_mass < 100 && tauH_mass > 50 && bH_mass < 150 && bH_mass > 50
 #
 # new selection sequence follows here, branching after dijethard
 #
-bBDTbtag      = pairType == 0 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && BDT_Btag > 0.5
-bBDTtaumass   = pairType == 0 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && BDT_Btag > 0.5 && tauH_mass < 130 && tauH_mass > 70
-bBDTbmass     = pairType == 0 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && BDT_Btag > 0.5 && tauH_mass < 130 && tauH_mass > 70 && bH_mass < 150 && bH_mass > 50
+bBDTbtag        = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && BDT_Btag > 0.5
+bBDTtaumass     = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && BDT_Btag > 0.5 && tauH_mass < 130 && tauH_mass > 70
+bBDTbmass       = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && BDT_Btag > 0.5 && tauH_mass < 130 && tauH_mass > 70 && bH_mass < 150 && bH_mass > 50

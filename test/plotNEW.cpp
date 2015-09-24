@@ -276,8 +276,8 @@ int main (int argc, char** argv)
   // printout tables
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
  
-  unsigned int NSpacesColZero = 12 ;
-  unsigned int NSpacesColumns = 8 ;
+  unsigned int NSpacesColZero = 20 ;
+  unsigned int NSpacesColumns = 12 ;
   unsigned int precision = 1 ;
   
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;

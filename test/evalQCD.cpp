@@ -355,21 +355,85 @@ int main (int argc, char** argv)
 
   // print yields
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-  unsigned int NSpacesColZero = 20 ;
-  unsigned int NSpacesColumns = 10 ;
-  unsigned int precision = 1 ;
+  unsigned int NSpacesColZero = 16;
+  unsigned int NSpacesColumns = 10;
   
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " EXPECTED NUMBER OF SIG EVENTS\n\n" ;
-
-  printTableTitle (sigSamples, NSpacesColZero, NSpacesColumns) ;
+  printTableTitle (sigSamples) ;
   printTableBody  (selections, OS_sigCount, sigSamples) ;
+
+  vector<string> DataDriven_names (1, string("QCD"));
+  vector <vector<float>> DataDriven_yields;
+  vector<float> QCD_yields;
+  // QCD -- prepare yields
+  for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
+  {
+        int nQCD = SS_QCD.getHisto (variablesList.at(0), string(selections_SS.at(iSel).first.Data()), QCDsample.at(0)) -> Integral();
+        QCD_yields.push_back (nQCD);
+  }
+  DataDriven_yields.push_back (QCD_yields);
 
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " EXPECTED NUMBER OF BKG EVENTS\n\n" ;
+  printTableTitle (bkgSamples, DataDriven_names) ;
+  printTableBody  (selections, OS_bkgCount, bkgSamples, DataDriven_yields) ;
 
-  printTableTitle (bkgSamples, NSpacesColZero, NSpacesColumns) ;
-  printTableBody  (selections, OS_bkgCount, bkgSamples) ;
+  // mini debug to cjeck that each var has the same QCD yield
+  /*  
+  // QCD
+  for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
+  {
+      for (int ivar = 0 ; ivar < variablesList.size(); ivar++)
+      {
+        int nQCD = SS_QCD.getHisto (variablesList.at(ivar), string(selections_SS.at(iSel).first.Data()), QCDsample.at(0)) -> Integral();
+        cout << nQCD << " ";
+      }
+      cout <<  "  --- " << endl;
+  }
+  */
+
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " OBSERVED NUMBER OF EVENTS\n\n" ;
+  printTableTitle (DATASamples) ;
+  printTableBody  (selections, OS_DATACount, DATASamples) ;
+
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " TOTALS\n\n" ;
+  vector<float> DATAtotal = OS_DATACount.getTotalCountsPerCut () ;
+  vector<float> bkgtotal = OS_bkgCount.getTotalCountsPerCut () ;
+  vector<string> titles ; titles.push_back ("DATA") ; titles.push_back ("bkg") ;
+  printTableTitle (titles) ;
+  for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
+    {
+      cout << selections.at (iSel).first ;
+      for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) cout << " " ;
+      cout << "|" ;
+      
+      float evtnum = DATAtotal.at (iSel+1) ;
+      int subtractspace = 0 ;
+      if (evtnum > 0) subtractspace = int (log10 (evtnum)) ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+      cout << setprecision (0) << fixed << evtnum
+           << " |" ;
+
+      evtnum = bkgtotal.at (iSel+1);
+      for (unsigned int iDD = 0; iDD < DataDriven_yields.size(); iDD++) evtnum += DataDriven_yields.at(iDD).at(iSel);
+      subtractspace = 0 ;
+      if (evtnum > 0) subtractspace = int (log10 (evtnum)) ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+      cout << setprecision (0) << fixed << evtnum
+           << " |\n" ;
+    }
+/*
+  cout << " ============ MINI DEBUG ON QCD YIELDS ============ " << endl;
+  for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
+    {
+      // loop on variables
+      for (unsigned int iv = 0 ; iv < variablesList.size () ; ++iv) 
+
+    }
+*/
 
   return 0 ;
 }  
