@@ -29,6 +29,8 @@
 #include "TArrayF.h"
 #include "TStyle.h"
 #include "ConfigParser.h"
+#include "FuncCB.h"
+#include "RooAbsReal.h"
 
 #include "OfflineProducerHelper.h"
 
@@ -38,6 +40,59 @@
 typedef  std::pair<UInt_t, std::vector<Double_t>> mypair;
 
 using namespace std;
+
+Double_t ApproxErf(Double_t arg)
+{
+  static const double erflim = 5.0;
+  if( arg > erflim )
+    return 1.0;
+  if( arg < -erflim )
+    return -1.0;
+  
+  return RooMath::erf(arg);
+} 
+
+Double_t evaluateCB(Double_t m, Double_t m0, Double_t sigma, Double_t alpha, Double_t n, Double_t norm)
+{ 
+  const double sqrtPiOver2 = 1.2533141373; // sqrt(pi/2)
+  const double sqrt2 = 1.4142135624;
+
+  Double_t sig = fabs((Double_t) sigma);
+   
+  Double_t t = (m - m0)/sig ;
+   
+  if (alpha < 0)
+    t = -t;
+
+  Double_t absAlpha = fabs(alpha / sig);
+  Double_t a = TMath::Power(n/absAlpha,n)*exp(-0.5*absAlpha*absAlpha);
+  Double_t b = absAlpha - n/absAlpha;
+
+  //cout << a << " " << b << endl;
+
+  ////// Pour la crystal ball
+  // if (t <= absAlpha){
+  //   return norm * exp(-0.5*t*t);
+  // }
+  // else
+  //   {
+  //     return norm * a * TMath::Power(t-b,-n) ;
+  //   }
+
+  Double_t aireGauche = (1 + ApproxErf( absAlpha / sqrt2 )) * sqrtPiOver2 ;
+  Double_t aireDroite = ( a * 1/TMath::Power(absAlpha - b,n-1)) / (n - 1);
+  Double_t aire = aireGauche + aireDroite;
+
+  if ( t <= absAlpha ){
+    return norm * (1 + ApproxErf( t / sqrt2 )) * sqrtPiOver2 / aire ;
+  }
+  else{
+    return norm * (aireGauche +  a * (1/TMath::Power(t-b,n-1) - 1/TMath::Power(absAlpha - b,n-1)) / (1 - n)) / aire ;
+  }
+  
+}
+
+
 
 bool comparator ( const mypair& l, const mypair& r)
 {
@@ -315,6 +370,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   vector<int>     *genpart_pdg = 0;
   vector<int>     *genpart_status = 0;
   vector<int>     *genpart_HMothInd = 0;
+  vector<int>     *genpart_MSSMHMothInd = 0;
   vector<int>     *genpart_TopMothInd = 0;
   vector<int>     *genpart_TauMothInd = 0;
   vector<int>     *genpart_ZMothInd = 0;
@@ -386,6 +442,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   vector<float>   *bDiscriminator = 0;
   vector<float>   *bCSVscore = 0;
   vector<int>     *PFjetID = 0;
+  vector<int>     *daughters_charge = 0;
 
   m_SampleChain->SetBranchAddress("EventNumber", &EventNumber);
   m_SampleChain->SetBranchAddress("RunNumber", &RunNumber);
@@ -415,6 +472,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_pdg", &genpart_pdg);
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_status", &genpart_status);
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_HMothInd", &genpart_HMothInd);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_MSSMHMothInd", &genpart_MSSMHMothInd);
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_TopMothInd", &genpart_TopMothInd);
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_TauMothInd", &genpart_TauMothInd);
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_ZMothInd", &genpart_ZMothInd);
@@ -462,6 +520,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   m_SampleChain->SetBranchAddress("daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits", &daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits);
   m_SampleChain->SetBranchAddress("daughters_byTightCombinedIsolationDeltaBetaCorr3Hits", &daughters_byTightCombinedIsolationDeltaBetaCorr3Hits);
   m_SampleChain->SetBranchAddress("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
+  m_SampleChain->SetBranchAddress("daughters_charge", &daughters_charge);
   m_SampleChain->SetBranchAddress("daughters_chargedIsoPtSum", &daughters_chargedIsoPtSum);
   m_SampleChain->SetBranchAddress("daughters_neutralIsoPtSum", &daughters_neutralIsoPtSum);
   m_SampleChain->SetBranchAddress("daughters_puCorrPtSum", &daughters_puCorrPtSum);
@@ -660,6 +719,36 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   Int_t           nb_extra_muons;
   Float_t         gen_Higgs_pt;
   Float_t         gen_Higgs_mass;
+  Bool_t isLeg1MatchedToTauh = kFALSE;
+  Bool_t isLeg1MatchedToTaum = kFALSE;
+  Bool_t isLeg1MatchedToTaue = kFALSE;
+  Bool_t isLeg2MatchedToTauh = kFALSE;
+  Bool_t isLeg2MatchedToTaum = kFALSE;
+  Bool_t isLeg2MatchedToTaue = kFALSE;
+  Bool_t isLeg1FromSMHiggs = kFALSE;
+  Bool_t isLeg2FromSMHiggs = kFALSE;
+  Bool_t isLeg1FromMSSMHiggs = kFALSE;
+  Bool_t isLeg2FromMSSMHiggs = kFALSE;
+  Float_t Leg1MatchPt = -99.;
+  Float_t Leg1MatchEta = -99.;
+  Float_t Leg1MatchPhi = -99.;
+  Float_t Leg1MatchE = -99.;
+  Float_t Leg2MatchPt = -99.;
+  Float_t Leg2MatchEta = -99.;
+  Float_t Leg2MatchPhi = -99.;
+  Float_t Leg2MatchE = -99.;
+  Float_t TriggerWeightLeg1Stage2_30GeV = -99.;
+  Float_t TriggerWeightLeg1Stage2_35GeV = -99.;
+  Float_t TriggerWeightLeg1Stage2_42GeV = -99.;
+  Float_t TriggerWeightLeg1Stage2_70GeV = -99.;
+  Float_t TriggerWeightLeg2Stage2_30GeV = -99.;
+  Float_t TriggerWeightLeg2Stage2_35GeV = -99.;
+  Float_t TriggerWeightLeg2Stage2_42GeV = -99.;
+  Float_t TriggerWeightLeg2Stage2_70GeV = -99.;
+  Float_t TriggerWeightLeg1Stage1_45GeV = -99.;
+  Float_t TriggerWeightLeg2Stage1_45GeV = -99.;
+  Float_t TriggerWeightLeg1Stage2 = -99.;
+  Float_t TriggerWeightLeg2Stage2 = -99.;
 
   TBranch*        b_run = SyncTree->Branch("run",&run);
   TBranch*        b_lumi = SyncTree->Branch("lumi",&lumi);
@@ -830,13 +919,208 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   TBranch*        b_nb_extra_muons = SyncTree->Branch("nb_extra_muons",&nb_extra_muons);
   TBranch*        b_gen_Higgs_pt = SyncTree->Branch("gen_Higgs_pt",&gen_Higgs_pt);
   TBranch*        b_gen_Higgs_mass = SyncTree->Branch("gen_Higgs_mass",&gen_Higgs_mass);
+  TBranch*        b_isLeg1MatchedToTauh = SyncTree->Branch("isLeg1MatchedToTauh",&isLeg1MatchedToTauh);
+  TBranch*        b_isLeg1MatchedToTaum = SyncTree->Branch("isLeg1MatchedToTaum",&isLeg1MatchedToTaum);
+  TBranch*        b_isLeg1MatchedToTaue = SyncTree->Branch("isLeg1MatchedToTaue",&isLeg1MatchedToTaue);
+  TBranch*        b_isLeg2MatchedToTauh = SyncTree->Branch("isLeg2MatchedToTauh",&isLeg2MatchedToTauh);
+  TBranch*        b_isLeg2MatchedToTaum = SyncTree->Branch("isLeg2MatchedToTaum",&isLeg2MatchedToTaum);
+  TBranch*        b_isLeg2MatchedToTaue = SyncTree->Branch("isLeg2MatchedToTaue",&isLeg2MatchedToTaue);
+  TBranch*        b_isLeg1FromSMHiggs = SyncTree->Branch("isLeg1FromSMHiggs",&isLeg1FromSMHiggs);
+  TBranch*        b_isLeg2FromSMHiggs = SyncTree->Branch("isLeg2FromSMHiggs",&isLeg2FromSMHiggs);
+  TBranch*        b_isLeg1FromMSSMHiggs = SyncTree->Branch("isLeg1FromMSSMHiggs",&isLeg1FromMSSMHiggs);
+  TBranch*        b_isLeg2FromMSSMHiggs = SyncTree->Branch("isLeg2FromMSSMHiggs",&isLeg2FromMSSMHiggs);
+  TBranch*        b_Leg1MatchPt        = SyncTree->Branch("Leg1MatchPt",&Leg1MatchPt);
+  TBranch*        b_Leg1MatchEta       = SyncTree->Branch("Leg1MatchEta",&Leg1MatchEta);
+  TBranch*        b_Leg1MatchPhi       = SyncTree->Branch("Leg1MatchPhi",&Leg1MatchPhi);
+  TBranch*        b_Leg1MatchE         = SyncTree->Branch("Leg1MatchE",&Leg1MatchE);
+  TBranch*        b_Leg2MatchPt        = SyncTree->Branch("Leg2MatchPt",&Leg2MatchPt);
+  TBranch*        b_Leg2MatchEta       = SyncTree->Branch("Leg2MatchEta",&Leg2MatchEta);
+  TBranch*        b_Leg2MatchPhi       = SyncTree->Branch("Leg2MatchPhi",&Leg2MatchPhi);
+  TBranch*        b_Leg2MatchE         = SyncTree->Branch("Leg2MatchE",&Leg2MatchE);
+  TBranch*        b_TriggerWeightLeg1Stage2_30GeV = SyncTree->Branch("TriggerWeightLeg1Stage2_30GeV",&TriggerWeightLeg1Stage2_30GeV);
+  TBranch*        b_TriggerWeightLeg1Stage2_35GeV = SyncTree->Branch("TriggerWeightLeg1Stage2_35GeV",&TriggerWeightLeg1Stage2_35GeV);
+  TBranch*        b_TriggerWeightLeg1Stage2_42GeV = SyncTree->Branch("TriggerWeightLeg1Stage2_42GeV",&TriggerWeightLeg1Stage2_42GeV);
+  TBranch*        b_TriggerWeightLeg1Stage2_70GeV = SyncTree->Branch("TriggerWeightLeg1Stage2_70GeV",&TriggerWeightLeg1Stage2_70GeV);
+  TBranch*        b_TriggerWeightLeg2Stage2_30GeV = SyncTree->Branch("TriggerWeightLeg2Stage2_30GeV",&TriggerWeightLeg2Stage2_30GeV);
+  TBranch*        b_TriggerWeightLeg2Stage2_35GeV = SyncTree->Branch("TriggerWeightLeg2Stage2_35GeV",&TriggerWeightLeg2Stage2_35GeV);
+  TBranch*        b_TriggerWeightLeg2Stage2_42GeV = SyncTree->Branch("TriggerWeightLeg2Stage2_42GeV",&TriggerWeightLeg2Stage2_42GeV);
+  TBranch*        b_TriggerWeightLeg2Stage2_70GeV = SyncTree->Branch("TriggerWeightLeg2Stage2_70GeV",&TriggerWeightLeg2Stage2_70GeV);
+  TBranch*        b_TriggerWeightLeg1Stage1_45GeV = SyncTree->Branch("TriggerWeightLeg1Stage1_45GeV",&TriggerWeightLeg1Stage1_45GeV);
+  TBranch*        b_TriggerWeightLeg2Stage1_45GeV = SyncTree->Branch("TriggerWeightLeg2Stage1_45GeV",&TriggerWeightLeg2Stage1_45GeV);
+
+  TBranch*        b_TriggerWeightLeg1Stage2 = SyncTree->Branch("TriggerWeightLeg1Stage2",&TriggerWeightLeg1Stage2);
+  TBranch*        b_TriggerWeightLeg2Stage2 = SyncTree->Branch("TriggerWeightLeg2Stage2",&TriggerWeightLeg2Stage2);
+
+
+  TTree *TruthTree = new TTree("TruthTree","TruthTree");
+  Int_t           gen_ntau = -99;
+  Int_t           gen_ntauh = -99;
+  Int_t           gen_ntaum = -99;
+  Int_t           gen_ntaue = -99;
+  Float_t         gen_Higgs_PDG = -99;
+  Float_t         gen_truth_Higgs_pt = -99;
+  Float_t         gen_Higgs_eta = -99;
+  Float_t         gen_Higgs_phi = -99;
+  Float_t         gen_Higgs_e = -99;
+  Float_t         gen_tau1_PDG = -99;
+  Float_t         gen_tau1_pt = -99;
+  Float_t         gen_tau1_eta = -99;
+  Float_t         gen_tau1_phi = -99;
+  Float_t         gen_tau1_e = -99;
+  Float_t         gen_tau2_PDG = -99;
+  Float_t         gen_tau2_pt = -99;
+  Float_t         gen_tau2_eta = -99;
+  Float_t         gen_tau2_phi = -99;
+  Float_t         gen_tau2_e = -99;
+  Float_t         gen_lep1_PDG = -99;
+  Float_t         gen_lep1_pt = -99;
+  Float_t         gen_lep1_eta = -99;
+  Float_t         gen_lep1_phi = -99;
+  Float_t         gen_lep1_e = -99;
+  Float_t         gen_lep2_PDG = -99;
+  Float_t         gen_lep2_pt = -99;
+  Float_t         gen_lep2_eta = -99;
+  Float_t         gen_lep2_phi = -99;
+  Float_t         gen_lep2_e = -99;
+  TBranch*        b_gen_ntau  = TruthTree->Branch("gen_ntau",&gen_ntau);
+  TBranch*        b_gen_ntauh = TruthTree->Branch("gen_ntauh",&gen_ntauh);
+  TBranch*        b_gen_ntaum = TruthTree->Branch("gen_ntaum",&gen_ntaum);
+  TBranch*        b_gen_ntaue = TruthTree->Branch("gen_ntaue",&gen_ntaue);
+  TBranch*        b_gen_tau1_PDG = TruthTree->Branch("gen_tau1_PDG",&gen_tau1_PDG);
+  TBranch*        b_gen_tau1_pt  = TruthTree->Branch("gen_tau1_pt",&gen_tau1_pt);
+  TBranch*        b_gen_tau1_eta  = TruthTree->Branch("gen_tau1_eta",&gen_tau1_eta);
+  TBranch*        b_gen_tau1_phi  = TruthTree->Branch("gen_tau1_phi",&gen_tau1_phi);
+  TBranch*        b_gen_tau1_e  = TruthTree->Branch("gen_tau1_e",&gen_tau1_e); 
+  TBranch*        b_gen_Higgs_PDG = TruthTree->Branch("gen_Higgs_PDG",&gen_Higgs_PDG);
+  TBranch*        b_gen_truth_Higgs_pt  = TruthTree->Branch("gen_Higgs_pt",&gen_truth_Higgs_pt);
+  TBranch*        b_gen_Higgs_eta  = TruthTree->Branch("gen_Higgs_eta",&gen_Higgs_eta);
+  TBranch*        b_gen_Higgs_phi  = TruthTree->Branch("gen_Higgs_phi",&gen_Higgs_phi);
+  TBranch*        b_gen_Higgs_e  = TruthTree->Branch("gen_Higgs_e",&gen_Higgs_e); 
+  TBranch*        b_gen_tau2_PDG = TruthTree->Branch("gen_tau2_PDG",&gen_tau2_PDG);
+  TBranch*        b_gen_tau2_pt  = TruthTree->Branch("gen_tau2_pt",&gen_tau2_pt);
+  TBranch*        b_gen_tau2_eta  = TruthTree->Branch("gen_tau2_eta",&gen_tau2_eta);
+  TBranch*        b_gen_tau2_phi  = TruthTree->Branch("gen_tau2_phi",&gen_tau2_phi);
+  TBranch*        b_gen_tau2_e  = TruthTree->Branch("gen_tau2_e",&gen_tau2_e); 
+  TBranch*        b_gen_lep1_PDG = TruthTree->Branch("gen_lep1_PDG",&gen_lep1_PDG);
+  TBranch*        b_gen_lep1_pt  = TruthTree->Branch("gen_lep1_pt",&gen_lep1_pt);
+  TBranch*        b_gen_lep1_eta  = TruthTree->Branch("gen_lep1_eta",&gen_lep1_eta);
+  TBranch*        b_gen_lep1_phi  = TruthTree->Branch("gen_lep1_phi",&gen_lep1_phi);
+  TBranch*        b_gen_lep1_e  = TruthTree->Branch("gen_lep1_e",&gen_lep1_e);
+  TBranch*        b_gen_lep2_PDG = TruthTree->Branch("gen_lep2_PDG",&gen_lep2_PDG);
+  TBranch*        b_gen_lep2_pt  = TruthTree->Branch("gen_lep2_pt",&gen_lep2_pt);
+  TBranch*        b_gen_lep2_eta  = TruthTree->Branch("gen_lep2_eta",&gen_lep2_eta);
+  TBranch*        b_gen_lep2_phi  = TruthTree->Branch("gen_lep2_phi",&gen_lep2_phi);
+  TBranch*        b_gen_lep2_e  = TruthTree->Branch("gen_lep2_e",&gen_lep2_e);
+
+  // RooAbsReal(const char* name, const char* title, Double_t minVal, Double_t maxVal, const char* unit = "")
+  //RooAbsReal *test2 = new RooAbsReal("name","title","unit");
+  //RooAbsReal* test = new RooAbsReal("mean","mean",1.,1.,"GeV");
+
+  //FuncCB* test = new FuncCB();
 
   for(UInt_t i = 0 ; i < m_SampleChain->GetEntries() ; ++i)
     {
       m_SampleChain->GetEntry(i);
-      // if(EventNumber==66828) cout<<"event #"<<EventNumber<<" is here!"<<endl;
+      // if(EventNumber==46117) cout<<"event #"<<EventNumber<<" is here!"<<endl;
       // else continue;
+
+      //cout<<"Evt = "<<EventNumber<<endl;
+
+      // if(i>1000) break;
+
       if(i%10000==0) cout<<"Entry #"<<i<<endl;
+
+      //loop on truth particles
+      gen_ntau = 0;
+      gen_ntauh = 0;
+      gen_ntaum = 0;
+      gen_ntaue = 0;
+
+      gen_Higgs_PDG = -99;
+      gen_truth_Higgs_pt = -99.;
+      gen_Higgs_eta = -99.;
+      gen_Higgs_phi = -99.;
+      gen_Higgs_e = -99.;
+
+      gen_tau1_PDG = -99;
+      gen_tau1_pt = -99.;
+      gen_tau1_eta = -99.;
+      gen_tau1_phi = -99.;
+      gen_tau1_e = -99.;
+
+      gen_tau2_PDG = -99;
+      gen_tau2_pt = -99.;
+      gen_tau2_eta = -99.;
+      gen_tau2_phi = -99.;
+      gen_tau2_e = -99.;
+
+      Leg1MatchPt = -99.;
+      Leg1MatchEta = -99.;
+      Leg1MatchPhi = -99.;
+      Leg1MatchE = -99.;
+
+      Leg2MatchPt = -99.;
+      Leg2MatchEta = -99.;
+      Leg2MatchPhi = -99.;
+      Leg2MatchE = -99.;
+
+      for(UInt_t iGen = 0 ; iGen < genpart_px->size() ; ++iGen)
+	{
+	  Bool_t isHiggsSM = abs(genpart_pdg->at(iGen))==25 ? kTRUE : kFALSE ;
+	  Bool_t isHiggsMSSM = abs(genpart_pdg->at(iGen))==36 ? kTRUE : kFALSE ;
+	  Bool_t isTau = abs(genpart_pdg->at(iGen))==15 ? kTRUE : kFALSE ;
+	  Bool_t motherIdx = abs(genpart_TauMothInd->at(iGen)) > -1 ? kTRUE : kFALSE;
+	  Bool_t isTauh = motherIdx && abs(genpart_pdg->at(iGen))==66615 ? kTRUE : kFALSE ;
+	  Bool_t isTaum = motherIdx && abs(genpart_pdg->at(iGen))==13 ? kTRUE : kFALSE ;
+	  Bool_t isTaue = motherIdx && abs(genpart_pdg->at(iGen))==11 ? kTRUE : kFALSE ;
+
+	  if(isTau && (genpart_HMothInd->at(iGen)>-1 || genpart_MSSMHMothInd->at(iGen)>-1)) ++gen_ntau;
+	  if(isTauh && (genpart_HMothInd->at(iGen)>-1 || genpart_MSSMHMothInd->at(iGen)>-1)) ++gen_ntauh;
+	  if(isTaum && (genpart_HMothInd->at(iGen)>-1 || genpart_MSSMHMothInd->at(iGen)>-1)) ++gen_ntaum;
+	  if(isTaue && (genpart_HMothInd->at(iGen)>-1 || genpart_MSSMHMothInd->at(iGen)>-1)) ++gen_ntaue;
+
+	  TLorentzVector gen_part;
+	  gen_part.SetPxPyPzE(genpart_px->at(iGen),genpart_py->at(iGen),genpart_pz->at(iGen),genpart_e->at(iGen));
+
+	  if(isHiggsSM || isHiggsMSSM)
+	    {
+	      gen_Higgs_PDG = genpart_pdg->at(iGen);
+	      gen_truth_Higgs_pt = gen_part.Pt();
+	      gen_Higgs_eta = gen_part.Eta();
+	      gen_Higgs_phi = gen_part.Phi();
+	      gen_Higgs_e = gen_part.E();
+	    }
+
+	  if(!isTauh && !isTaum && !isTaue) continue ;
+	  if(isTauh && fabs(gen_part.Eta())>2.5) continue;
+	  if(isTaum && fabs(gen_part.Eta())>2.1) continue;
+	  if(isTaue && fabs(gen_part.Eta())>2.1) continue;
+
+	  if(gen_part.Pt()>gen_tau1_pt)
+	    {
+	      gen_tau2_PDG = gen_tau1_PDG;
+	      gen_tau2_pt = gen_tau1_pt;
+	      gen_tau2_eta = gen_tau1_eta;
+	      gen_tau2_phi = gen_tau1_phi;
+	      gen_tau2_e = gen_tau1_e;
+
+	      gen_tau1_PDG = genpart_pdg->at(iGen);
+	      gen_tau1_pt = gen_part.Pt();
+	      gen_tau1_eta = gen_part.Eta();
+	      gen_tau1_phi = gen_part.Phi();
+	      gen_tau1_e = gen_part.E();
+	    }
+	  else if(gen_part.Pt()>gen_tau2_pt)
+	    {
+	      gen_tau2_PDG = genpart_pdg->at(iGen);	      
+	      gen_tau2_pt = gen_part.Pt();   
+	      gen_tau2_eta = gen_part.Eta();   
+	      gen_tau2_phi = gen_part.Phi();   
+	      gen_tau2_e = gen_part.E();   
+	    }
+	}
+
+      TruthTree->Fill();
 
       // cout<<"event = "<<i<<endl;
 
@@ -849,9 +1133,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
       Int_t lep1Index = -99 ;
       Int_t lep2Index = -99 ;
 
-
       OfflineProducerHelper* HelperTrigger = new OfflineProducerHelper(hCounter);
-      
       
       std::vector<mypair> sortedPairs;
   
@@ -864,7 +1146,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 
 	      lep1Index = indexDau1->at(p);
 	      lep2Index = indexDau2->at(p);
-	  
+
 	      Float_t CurrentIsoLep1 = -99.;
 	      if(Channel=="mt" || Channel=="et" || Channel=="em") CurrentIsoLep1 = combreliso->at(lep1Index);
 	      else if(Channel=="tt") CurrentIsoLep1 = daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(lep1Index);
@@ -889,6 +1171,8 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	      sortvalues_tmp.clear();
 	  
 	      sortedPairs.push_back(temp_pair);
+
+	      sortvalues_tmp.clear();
 	    }
 
 	  std::sort(sortedPairs.begin(), sortedPairs.end(), comparator);
@@ -912,7 +1196,41 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  if(RedoOrdering) p = sortedPairs.at(q).first;
 	  else p = q;
 
-	  // cout<<"pair is: "<<p<<endl;
+	  // if(p!=5) continue;
+
+	  //cout<<"pair is: "<<p+1<<"/"<<isOSCand->size()<<endl;
+
+	  //check lepton pT --> build LorentzVector
+	  TLorentzVector lep1 ;
+	  lep1.SetPxPyPzE(daughters_px->at(indexDau1->at(p)),daughters_py->at(indexDau1->at(p)),daughters_pz->at(indexDau1->at(p)),daughters_e->at(indexDau1->at(p)));
+	  TLorentzVector lep2 ;
+	  lep2.SetPxPyPzE(daughters_px->at(indexDau2->at(p)),daughters_py->at(indexDau2->at(p)),daughters_pz->at(indexDau2->at(p)),daughters_e->at(indexDau2->at(p)));
+
+	  // cout<<"lep1.Pt(), lep1.Eta(), lep1.Phi(), lep1.Eta(), iso, pdg = "<<lep1.Pt()<<", "<<lep1.Eta()<<", "<<lep1.Phi()<<", "<<combreliso->at(indexDau1->at(p))<<", "<<PDGIdDaughters->at(indexDau1->at(p))<<endl;
+	  // cout<<"lep2.Pt(), lep2.Eta(), lep2.Phi(), lep2.Eta(), iso, pdg = "<<lep2.Pt()<<", "<<lep2.Eta()<<", "<<lep2.Phi()<<", "<<daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(indexDau2->at(p))<<", "<<PDGIdDaughters->at(indexDau2->at(p))<<endl;
+
+
+	  //check PDGIDs...
+	  if(Channel=="mt")
+	    {
+	      if(fabs(PDGIdDaughters->at(indexDau1->at(p)))!=13) continue;
+	      if(fabs(PDGIdDaughters->at(indexDau2->at(p)))!=15) continue;
+	    }
+	  else if(Channel=="et")
+	    {
+	      if(fabs(PDGIdDaughters->at(indexDau1->at(p)))!=11) continue;
+	      if(fabs(PDGIdDaughters->at(indexDau2->at(p)))!=15) continue;
+	    }
+	  else if(Channel=="tt")
+	    {
+	      if(fabs(PDGIdDaughters->at(indexDau1->at(p)))!=15) continue;
+	      if(fabs(PDGIdDaughters->at(indexDau2->at(p)))!=15) continue;
+	    }
+	  else if(Channel=="em")
+	    {
+	      if(fabs(PDGIdDaughters->at(indexDau1->at(p)))!=11) continue;
+	      if(fabs(PDGIdDaughters->at(indexDau2->at(p)))!=13) continue;
+	    }
 
 	  //-> opposite sign candidate
 	  // if(!isOSCand->at(p)) continue ;//removed
@@ -922,9 +1240,11 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  std::vector<Int_t> TriggerBits ;
 
 	  std::vector<TString> TriggerFiredNames ;
+	  std::vector<Bool_t> TriggerFiredIsDoubleObject ;
 	  std::vector<Int_t> TriggerFiredBits;
 
 	  std::vector<TString> TriggerFiredAndGoodTriggerTypeNames ;
+	  std::vector<Bool_t> TriggerFiredAndGoodTriggerTypeIsDoubleObject ;
 	  std::vector<Int_t> TriggerFiredAndGoodTriggerTypeBits ;
 
 	  std::vector<TString> TriggerNamesFinal ;
@@ -954,7 +1274,31 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 		  if(HelperTrigger->IsTriggerFired(triggerbit,TriggerNames.at(iTrig)))
 		    {
 		      TriggerFiredNames.push_back(TriggerNames.at(iTrig));
+		      TString tmp_name = TriggerNames.at(iTrig);
+		      //cout<<"Trigger name / bit = "<<TriggerNames.at(iTrig)<<"/"<<HelperTrigger->FindTriggerNumber(TriggerNames.at(iTrig))<<endl;
 		      TriggerFiredBits.push_back(HelperTrigger->FindTriggerNumber(TriggerNames.at(iTrig)));
+		      if(Channel=="mt")
+			{
+			  if(tmp_name.Contains("Mu") && tmp_name.Contains("Tau")) TriggerFiredIsDoubleObject.push_back(kTRUE);
+			  else TriggerFiredIsDoubleObject.push_back(kFALSE);
+			}
+		      else if(Channel=="et")
+			{
+			  if(tmp_name.Contains("Ele") && tmp_name.Contains("Tau")) TriggerFiredIsDoubleObject.push_back(kTRUE);
+			  else TriggerFiredIsDoubleObject.push_back(kFALSE);
+			}
+		      else if(Channel=="tt")
+			{
+			  if(tmp_name.Contains("Double")) TriggerFiredIsDoubleObject.push_back(kTRUE);
+			  else TriggerFiredIsDoubleObject.push_back(kFALSE);
+			}
+		      else if(Channel=="em")
+			{
+			  if(tmp_name.Contains("Ele") && tmp_name.Contains("Mu")) TriggerFiredIsDoubleObject.push_back(kTRUE);
+			  else TriggerFiredIsDoubleObject.push_back(kFALSE);
+			}
+		      //cout<<"TriggerFiredBits.at(size-1) = "<<TriggerFiredBits.at(TriggerFiredBits.size()-1)<<endl;
+
 		    }
 		  
 		}
@@ -962,42 +1306,111 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	      //at least one trigger fired
 	      if(TriggerFiredNames.size()<1) continue ;
 
-	      // cout<<"passes trigger event level"<<endl;
+	      //cout<<"passes trigger event level"<<endl;
 
-	      /*
+	      
 	      //check isGoodTriggerType
 	      Bool_t BothDaughtersAreGoodTriggerTypes = kFALSE ;
 	      for(UInt_t iTrigFired = 0 ; iTrigFired < TriggerFiredNames.size() ; ++iTrigFired)
-	      {
-	      // cout<<"pair is: "<<p<<endl;
-	      // cout<<"daughters_isGoodTriggerType->at(indexDau1->at(p)) = "<<daughters_isGoodTriggerType->at(indexDau1->at(p))<<endl;
-	      // cout<<"daughters_isGoodTriggerType->at(indexDau2->at(p)) = "<<daughters_isGoodTriggerType->at(indexDau2->at(p))<<endl;
-	      // cout<<"TriggerFiredBits.at(iTrigFired) = "<<TriggerFiredBits.at(iTrigFired)<<endl;
-	      if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)) continue;
-	      if(!((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)) continue;
-	      TriggerFiredAndGoodTriggerTypeNames.push_back(TriggerFiredNames.at(iTrigFired));
-	      TriggerFiredAndGoodTriggerTypeBits.push_back(HelperTrigger->FindTriggerNumber(TriggerFiredNames.at(iTrigFired)));
-	      BothDaughtersAreGoodTriggerTypes = kTRUE;
+		{
+		  //cout<<"pair is: "<<p<<endl;
+		  //cout<<"daughters_isGoodTriggerType->at(indexDau1->at(p)) = "<<daughters_isGoodTriggerType->at(indexDau1->at(p))<<endl;
+		  //cout<<"daughters_isGoodTriggerType->at(indexDau2->at(p)) = "<<daughters_isGoodTriggerType->at(indexDau2->at(p))<<endl;
+		  //cout<<"TriggerFiredBits.at(iTrigFired) = "<<TriggerFiredBits.at(iTrigFired)<<endl;
 		  
-	      }
-	      // if(!BothDaughtersAreGoodTriggerTypes) continue;
-	      // cout<<"passes trigger types"<<endl;
+		  if(TriggerFiredIsDoubleObject.at(iTrigFired)==kTRUE)
+		    {
+		      //cout<<"double trigger, testing GoodTriggerType: "<<endl;
+		      //cout<<"daughter1 = "<<((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)<<endl;
+		      //cout<<"daughter2 = "<<((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)<<endl;
+		      if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)){continue;}
+		      if(!((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)){continue;}
+
+		      if(Channel=="em")//special case of emu channel... to be corrected for swapping / improved
+			{
+			  if(TriggerFiredNames.at(iTrigFired)=="HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v1" && ((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1) && lep2.Pt()<25.) continue;
+			  if(TriggerFiredNames.at(iTrigFired)=="HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v1" && ((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1) && lep1.Pt()<25.) continue;
+			}
+		    }
+		  else
+		    {
+		      //cout<<"single trigger, testing GoodTriggerType: "<<endl;
+		      //cout<<"daughter1 = "<<((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)<<endl;
+		      //cout<<"daughter2 = "<<((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)<<endl;
+		      if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1) && !((daughters_isGoodTriggerType->at(indexDau2->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)){continue;}
+		      if(Channel=="mt" && ((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1) && lep1.Pt()<25.) continue ;
+		      if(Channel=="et" && ((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1) && lep1.Pt()<33.) continue ;
+		    }
+
+		  TString tmp_name = TriggerFiredNames.at(iTrigFired);
+
+		  if(Channel=="mt")
+		    {
+		      if(tmp_name.Contains("Mu") && tmp_name.Contains("Tau")) TriggerFiredAndGoodTriggerTypeIsDoubleObject.push_back(kTRUE);
+		      else TriggerFiredAndGoodTriggerTypeIsDoubleObject.push_back(kFALSE);
+		    }
+		  else if(Channel=="et")
+		    {
+		      if(tmp_name.Contains("Ele") && tmp_name.Contains("Tau")) TriggerFiredAndGoodTriggerTypeIsDoubleObject.push_back(kTRUE);
+		      else TriggerFiredAndGoodTriggerTypeIsDoubleObject.push_back(kFALSE);
+		    }
+		  else if(Channel=="tt")
+		    {
+		      if(tmp_name.Contains("Double")) TriggerFiredAndGoodTriggerTypeIsDoubleObject.push_back(kTRUE);
+		      else TriggerFiredAndGoodTriggerTypeIsDoubleObject.push_back(kFALSE);
+		    }
+		  else if(Channel=="em")
+		    {
+		      if(tmp_name.Contains("Ele") && tmp_name.Contains("Mu")) TriggerFiredAndGoodTriggerTypeIsDoubleObject.push_back(kTRUE);
+		      else TriggerFiredAndGoodTriggerTypeIsDoubleObject.push_back(kFALSE);
+		    }
+
+		  TriggerFiredAndGoodTriggerTypeNames.push_back(TriggerFiredNames.at(iTrigFired));
+		  TriggerFiredAndGoodTriggerTypeBits.push_back(HelperTrigger->FindTriggerNumber(TriggerFiredNames.at(iTrigFired)));
+		  BothDaughtersAreGoodTriggerTypes = kTRUE;
+		}
+	      //cout<<"-----"<<endl;
+	      if(!BothDaughtersAreGoodTriggerTypes) continue;
+	      //cout<<"passes trigger types"<<endl;
 
 	      //check trigger filters
 	      Bool_t BothDaughtersAreGoodTriggerTypesAndPassFilter = kFALSE ;
 	      for(UInt_t iTrigFiredAndGoodTriggerType = 0 ; iTrigFiredAndGoodTriggerType < TriggerFiredAndGoodTriggerTypeBits.size() ; ++iTrigFiredAndGoodTriggerType)
-	      {
-	      if(!((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
-	      if(!((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
-	      TriggerNamesFinal.push_back(TriggerFiredAndGoodTriggerTypeNames.at(iTrigFiredAndGoodTriggerType));
-	      TriggerBitsFinal.push_back(HelperTrigger->FindTriggerNumber(TriggerFiredAndGoodTriggerTypeNames.at(iTrigFiredAndGoodTriggerType)));
-	      BothDaughtersAreGoodTriggerTypesAndPassFilter = kTRUE;
-	      }
-	      */
-	      // if(!BothDaughtersAreGoodTriggerTypesAndPassFilter) continue;
+		{
+		  //cout<<"testing the filters from this trigger = "<<TriggerFiredAndGoodTriggerTypeNames.at(iTrigFiredAndGoodTriggerType)<<endl;
+
+		  if(TriggerFiredAndGoodTriggerTypeIsDoubleObject.at(iTrigFiredAndGoodTriggerType)==kTRUE)
+		    {
+		      if(!((daughters_FilterFired->at(indexDau1->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
+		      if(!((daughters_FilterFired->at(indexDau2->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
+		      if(!((daughters_L3FilterFired->at(indexDau1->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
+		      if(!((daughters_L3FilterFired->at(indexDau2->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
+		      if(!((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
+		      if(!((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
+		      //cout<<"passing double trigger filters"<<endl;
+		    }
+		  else
+		    {
+		      if(!((daughters_FilterFired->at(indexDau1->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
+		      if(!((daughters_L3FilterFired->at(indexDau1->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
+		      if(!((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
+		      //cout<<"passing single trigger filters"<<endl;
+		      // if(!((daughters_FilterFired->at(indexDau1->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1) && !((daughters_L3FilterFired->at(indexDau2->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
+		      // if(!((daughters_L3FilterFired->at(indexDau1->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1) && !((daughters_FilterFired->at(indexDau2->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
+		      // if(!((daughters_L3FilterFiredLast->at(indexDau1->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1) && !((daughters_L3FilterFiredLast->at(indexDau2->at(p)) >> TriggerFiredAndGoodTriggerTypeBits.at(iTrigFiredAndGoodTriggerType)) & 1)) continue;
+		      // cout<<"passing single trigger filters"<<endl;
+		    }
+
+
+		  TriggerNamesFinal.push_back(TriggerFiredAndGoodTriggerTypeNames.at(iTrigFiredAndGoodTriggerType));
+		  TriggerBitsFinal.push_back(HelperTrigger->FindTriggerNumber(TriggerFiredAndGoodTriggerTypeNames.at(iTrigFiredAndGoodTriggerType)));
+		  BothDaughtersAreGoodTriggerTypesAndPassFilter = kTRUE;
+		}
+	      
+	      if(!BothDaughtersAreGoodTriggerTypesAndPassFilter) continue;
 	    }
 
-	  // cout<<"passes trigger"<<endl;
+	  //cout<<"passes trigger"<<endl;
 
 	  // cout<<"types"<<endl;
 	  // cout<<" particleType->at(indexDau1->at(p)) = "<< particleType->at(indexDau1->at(p))<<endl;
@@ -1010,14 +1423,14 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  if(Channel=="em" && !(particleType->at(indexDau1->at(p))==1 && particleType->at(indexDau2->at(p))==0)) continue ;
 	  // cout<<"passes mt pair selection"<<endl;
 
-	  //check lepton pT --> build LorentzVector
-	  TLorentzVector lep1 ;
-	  lep1.SetPxPyPzE(daughters_px->at(indexDau1->at(p)),daughters_py->at(indexDau1->at(p)),daughters_pz->at(indexDau1->at(p)),daughters_e->at(indexDau1->at(p)));
-	  TLorentzVector lep2 ;
-	  lep2.SetPxPyPzE(daughters_px->at(indexDau2->at(p)),daughters_py->at(indexDau2->at(p)),daughters_pz->at(indexDau2->at(p)),daughters_e->at(indexDau2->at(p)));
+	  // //check lepton pT --> build LorentzVector
+	  // TLorentzVector lep1 ;
+	  // lep1.SetPxPyPzE(daughters_px->at(indexDau1->at(p)),daughters_py->at(indexDau1->at(p)),daughters_pz->at(indexDau1->at(p)),daughters_e->at(indexDau1->at(p)));
+	  // TLorentzVector lep2 ;
+	  // lep2.SetPxPyPzE(daughters_px->at(indexDau2->at(p)),daughters_py->at(indexDau2->at(p)),daughters_pz->at(indexDau2->at(p)),daughters_e->at(indexDau2->at(p)));
 
-	  // cout<<"lep1.Pt(), lep1.Eta() = "<<lep1.Pt()<<", "<<lep1.Eta()<<endl;
-	  // cout<<"lep2.Pt(), lep2.Eta() = "<<lep2.Pt()<<", "<<lep2.Eta()<<endl;
+	  // cout<<"lep1.Pt(), lep1.Eta(), iso = "<<lep1.Pt()<<", "<<lep1.Eta()<<", "<<combreliso->at(indexDau1->at(p))<<endl;
+	  // cout<<"lep2.Pt(), lep2.Eta(), iso = "<<lep2.Pt()<<", "<<lep2.Eta()<<", "<<daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(indexDau2->at(p))<<endl;
 
 	  // cout<<"checking leptons pT"<<endl;
 	  if(lep1.Pt()<cutLepton1_Pt || lep2.Pt()<cutLepton2_Pt) continue ;//changed here
@@ -1030,27 +1443,30 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  if(Channel=="mt" || Channel=="et" || Channel=="em")
 	    {
 	      //lepton 1 = muon or electron
-	      if(dxy->at(indexDau1->at(p))>cutLepton1_dxy) continue;
-	      if(dz->at(indexDau1->at(p))>cutLepton1_dz) continue;
+	      if(fabs(dxy->at(indexDau1->at(p)))>cutLepton1_dxy) continue;
+	      if(fabs(dz->at(indexDau1->at(p)))>cutLepton1_dz) continue;
 	      // cout<<"lep1 dz cut is passed?"<<endl;
 	    }
 	  if(Channel=="em")
 	    {
 	      //lepton 2 = muon
-	      if(dxy->at(indexDau2->at(p))>cutLepton2_dxy) continue;
-	      if(dz->at(indexDau2->at(p))>cutLepton2_dz) continue;
+	      if(fabs(dxy->at(indexDau2->at(p)))>cutLepton2_dxy) continue;
+	      if(fabs(dz->at(indexDau2->at(p)))>cutLepton2_dz) continue;
 	    }
 
 	  if(Channel=="tt")
 	    {
 	      //lepton 1 = tau
-	      if(dz->at(indexDau1->at(p))>cutLepton1_dz) continue;	
+	      if(fabs(dz->at(indexDau1->at(p)))>cutLepton1_dz) continue;	
 	    }
 
 	  if(Channel=="mt" || Channel=="et" || Channel=="tt")
 	    {
 	      //lepton 2 = tau
-	      if(dz->at(indexDau2->at(p))>cutLepton2_dz) continue;
+	      //cout<<"dz = "<<dz->at(indexDau2->at(p))<<endl;
+	      if(fabs(dz->at(indexDau2->at(p)))>cutLepton2_dz) continue;
+	      //cout<<"abs(daughters_charge->at(indexDau2->at(p))) = "<<abs(daughters_charge->at(indexDau2->at(p)))<<endl;
+	      if(abs(daughters_charge->at(indexDau2->at(p)))!=1) continue;
 	      // cout<<"lep2 dz cut is passed?"<<endl;
 	    }
 
@@ -1120,7 +1536,15 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  // int discriminator_tau = int(discriminator->at(indexDau2->at(p)));
 	  // if(!((discriminator_tau >> 3) & 1)) continue ;	
 	  // cout<<"checking tau iso"<<endl;
-	  // if(daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(indexDau2->at(p))>cutLepton2_Iso) continue ;
+	  if(Channel=="tt")
+	    {
+	      if(daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(indexDau1->at(p))>1.) continue ;
+	      if(daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(indexDau2->at(p))>1.) continue ;
+	      if(daughters_againstMuonTight3->at(indexDau1->at(p))!=1) continue ;
+	      if(daughters_againstMuonTight3->at(indexDau2->at(p))!=1) continue ;
+	      if(daughters_againstElectronVLooseMVA5->at(indexDau1->at(p))!=1) continue ;
+	      if(daughters_againstElectronVLooseMVA5->at(indexDau2->at(p))!=1) continue ;
+	    }
 
 	  //check antiMu and antiE
 	  // cout<<"checking anti muon and electron"<<endl;
@@ -1141,10 +1565,183 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  lep2Index = indexDau2->at(p);
 	  // cout<<"good pair!!!"<<endl;
 
-	  // break;
+	  //break;
 
 
 	  if(lep1Index < 0 || lep2Index < 0) continue ;
+
+	  //trigger weights stage 2	    
+	  Double_t m0_Stage2_30GeV = 28.9025;
+	  Double_t sigma_Stage2_30GeV = 6.03092;
+	  Double_t alpha_Stage2_30GeV = 14.605;
+	  Double_t n_Stage2_30GeV = 1.02663;
+	  Double_t norm_Stage2_30GeV = 0.94351;
+
+	  Double_t m0_Stage2_35GeV = 32.8406;
+	  Double_t sigma_Stage2_35GeV = 6.71412;
+	  Double_t alpha_Stage2_35GeV = 14.5035;
+	  Double_t n_Stage2_35GeV = 1.14221;
+	  Double_t norm_Stage2_35GeV = 0.901589;
+
+	  Double_t m0_Stage2_42GeV = 39.2981;
+	  Double_t sigma_Stage2_42GeV = 7.73986;
+	  Double_t alpha_Stage2_42GeV = 9.80126;
+	  Double_t n_Stage2_42GeV = 99.7786;
+	  Double_t norm_Stage2_42GeV = 0.907926;
+
+	  Double_t m0_Stage2_70GeV = 71.9576;
+	  Double_t sigma_Stage2_70GeV = 9.99992;
+	  Double_t alpha_Stage2_70GeV = 19.2197;
+	  Double_t n_Stage2_70GeV = 7.44799;
+	  Double_t norm_Stage2_70GeV = 1.;
+
+	  //trigger weights stage 2	    
+	  Double_t m0_Stage1_45GeV = 50.;
+	  Double_t sigma_Stage1_45GeV = 8.43056;
+	  Double_t alpha_Stage1_45GeV = 4.28079;
+	  Double_t n_Stage1_45GeV = 99.9996;
+	  Double_t norm_Stage1_45GeV = 0.988516;
+
+	  //filling pT TurnOn Stage2 turn-on 1
+	  Double_t m0_Stage2_36GeV = 32.8632;
+	  Double_t sigma_Stage2_36GeV = 8.24761;
+	  Double_t alpha_Stage2_36GeV = 28.5536;
+	  Double_t n_Stage2_36GeV = 1.00109;
+	  Double_t norm_Stage2_36GeV = 0.900089;
+	  
+	  //filling pT TurnOn Stage2 turn-on 1
+	  Double_t m0_Stage2_80GeV = 79.8039;
+	  Double_t sigma_Stage2_80GeV = 14.8249;
+	  Double_t alpha_Stage2_80GeV = 50.;
+	  Double_t n_Stage2_80GeV = 92.8865;
+	  Double_t norm_Stage2_80GeV = 0.99962;
+	  
+	  //stage 2
+	  TriggerWeightLeg1Stage2_30GeV = evaluateCB(lep1.Pt(),m0_Stage2_30GeV,sigma_Stage2_30GeV,alpha_Stage2_30GeV,n_Stage2_30GeV,norm_Stage2_30GeV);
+	  TriggerWeightLeg1Stage2_35GeV = evaluateCB(lep1.Pt(),m0_Stage2_35GeV,sigma_Stage2_35GeV,alpha_Stage2_35GeV,n_Stage2_35GeV,norm_Stage2_35GeV);
+	  TriggerWeightLeg1Stage2_42GeV = evaluateCB(lep1.Pt(),m0_Stage2_42GeV,sigma_Stage2_42GeV,alpha_Stage2_42GeV,n_Stage2_42GeV,norm_Stage2_42GeV);
+	  TriggerWeightLeg1Stage2_70GeV = evaluateCB(lep1.Pt(),m0_Stage2_70GeV,sigma_Stage2_70GeV,alpha_Stage2_70GeV,n_Stage2_70GeV,norm_Stage2_70GeV);
+	  TriggerWeightLeg2Stage2_30GeV = evaluateCB(lep2.Pt(),m0_Stage2_30GeV,sigma_Stage2_30GeV,alpha_Stage2_30GeV,n_Stage2_30GeV,norm_Stage2_30GeV);
+	  TriggerWeightLeg2Stage2_35GeV = evaluateCB(lep2.Pt(),m0_Stage2_35GeV,sigma_Stage2_35GeV,alpha_Stage2_35GeV,n_Stage2_35GeV,norm_Stage2_35GeV);
+	  TriggerWeightLeg2Stage2_42GeV = evaluateCB(lep2.Pt(),m0_Stage2_42GeV,sigma_Stage2_42GeV,alpha_Stage2_42GeV,n_Stage2_42GeV,norm_Stage2_42GeV);
+	  TriggerWeightLeg2Stage2_70GeV = evaluateCB(lep2.Pt(),m0_Stage2_70GeV,sigma_Stage2_70GeV,alpha_Stage2_70GeV,n_Stage2_70GeV,norm_Stage2_70GeV);
+
+	  TriggerWeightLeg1Stage2 = TMath::Max(evaluateCB(lep1.Pt(),m0_Stage2_36GeV,sigma_Stage2_36GeV,alpha_Stage2_36GeV,n_Stage2_36GeV,norm_Stage2_36GeV),evaluateCB(lep1.Pt(),m0_Stage2_80GeV,sigma_Stage2_80GeV,alpha_Stage2_80GeV,n_Stage2_80GeV,norm_Stage2_80GeV));
+	  TriggerWeightLeg2Stage2 = TMath::Max(evaluateCB(lep2.Pt(),m0_Stage2_36GeV,sigma_Stage2_36GeV,alpha_Stage2_36GeV,n_Stage2_36GeV,norm_Stage2_36GeV),evaluateCB(lep2.Pt(),m0_Stage2_80GeV,sigma_Stage2_80GeV,alpha_Stage2_80GeV,n_Stage2_80GeV,norm_Stage2_80GeV));
+
+	  //stage 1
+	  TriggerWeightLeg1Stage1_45GeV = evaluateCB(lep1.Pt(),m0_Stage1_45GeV,sigma_Stage1_45GeV,alpha_Stage1_45GeV,n_Stage1_45GeV,norm_Stage1_45GeV);
+	  TriggerWeightLeg2Stage1_45GeV = evaluateCB(lep2.Pt(),m0_Stage1_45GeV,sigma_Stage1_45GeV,alpha_Stage1_45GeV,n_Stage1_45GeV,norm_Stage1_45GeV);
+	  
+	  //check truth matching
+	  isLeg1MatchedToTauh = kFALSE;
+	  isLeg1MatchedToTaum = kFALSE;
+	  isLeg1MatchedToTaue = kFALSE;
+	  isLeg2MatchedToTauh = kFALSE;
+	  isLeg2MatchedToTaum = kFALSE;
+	  isLeg2MatchedToTaue = kFALSE;
+	  isLeg1FromSMHiggs = kFALSE;
+	  isLeg2FromSMHiggs = kFALSE;
+	  isLeg1FromMSSMHiggs = kFALSE;
+	  isLeg2FromMSSMHiggs = kFALSE;
+
+	  // cout<<"EventNumber =  "<<EventNumber<<endl;
+	  // cout<<"lep1.Pt(), lep1.Eta(), lep1.Phi(), lep1.Eta(), iso, pdg = "<<lep1.Pt()<<", "<<lep1.Eta()<<", "<<lep1.Phi()<<", "<<combreliso->at(indexDau1->at(p))<<", "<<PDGIdDaughters->at(indexDau1->at(p))<<endl;
+	  // cout<<"lep2.Pt(), lep2.Eta(), lep2.Phi(), lep2.Eta(), iso, pdg = "<<lep2.Pt()<<", "<<lep2.Eta()<<", "<<lep2.Phi()<<", "<<daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(indexDau2->at(p))<<", "<<PDGIdDaughters->at(indexDau2->at(p))<<endl;
+
+	  for(UInt_t iGen = 0 ; iGen < genpart_px->size() ; ++iGen)
+	    {
+	      Bool_t isHiggsSM = abs(genpart_pdg->at(iGen))==25 ? kTRUE : kFALSE ;
+	      Bool_t isHiggsMSSM = abs(genpart_pdg->at(iGen))==36 ? kTRUE : kFALSE ;
+	      Bool_t isTau = abs(genpart_pdg->at(iGen))==15 ? kTRUE : kFALSE ;
+	      Bool_t motherIdx = abs(genpart_TauMothInd->at(iGen)) > -1 ? kTRUE : kFALSE;
+	      Bool_t isTauh = motherIdx && abs(genpart_pdg->at(iGen))==66615 ? kTRUE : kFALSE ;
+	      Bool_t isTaum = motherIdx && abs(genpart_pdg->at(iGen))==13 ? kTRUE : kFALSE ;
+	      Bool_t isTaue = motherIdx && abs(genpart_pdg->at(iGen))==11 ? kTRUE : kFALSE ;
+
+	      if(!isHiggsSM && !isHiggsMSSM && !isTau && !isTauh && !isTaum && !isTaue) continue;
+	      
+	      TLorentzVector gen_part;
+	      gen_part.SetPxPyPzE(genpart_px->at(iGen),genpart_py->at(iGen),genpart_pz->at(iGen),genpart_e->at(iGen));
+
+	      // cout<<"checking gen pT, eta, phi, E, PDG = "<<gen_part.Pt()<<", "<<gen_part.Eta()<<", "<<gen_part.Phi()<<", "<<gen_part.E()<<", "<<genpart_pdg->at(iGen)<<endl;
+
+	      // if(lep1.DeltaR(gen_part)<0.5) cout<<"lep1: checking gen pT, eta, phi, E = "<<gen_part.Pt()<<", "<<gen_part.Eta()<<", "<<gen_part.Phi()<<", "<<gen_part.E()<<endl;
+	      // if(lep2.DeltaR(gen_part)<0.5) cout<<"lep2: checking gen pT, eta, phi, E = "<<gen_part.Pt()<<", "<<gen_part.Eta()<<", "<<gen_part.Phi()<<", "<<gen_part.E()<<endl;
+
+	      Bool_t isTauFromSMHiggs = kFALSE ;
+	      Bool_t isTauFromMSSMHiggs = kFALSE ;
+	      if(isTauh || isTaum || isTaue)
+		{
+		  if(genpart_TauMothInd->at(iGen)<0) continue;
+		  //cout<<"genpart_TauMothInd->at(iGen)= "<<genpart_TauMothInd->at(iGen)<<endl;
+		  if(genpart_HMothInd->at(genpart_TauMothInd->at(iGen))) isTauFromSMHiggs = kTRUE;
+		  if(genpart_MSSMHMothInd->at(genpart_TauMothInd->at(iGen))) isTauFromMSSMHiggs = kTRUE;
+		}
+	      
+	      // isLeg1MatchedToTauh = kFALSE;
+	      // isLeg1MatchedToTaum = kFALSE;
+	      // isLeg1MatchedToTaue = kFALSE;
+	      // isLeg2MatchedToTauh = kFALSE;
+	      // isLeg2MatchedToTaum = kFALSE;
+	      // isLeg2MatchedToTaue = kFALSE;
+
+	      Bool_t JustMatched = kFALSE ;
+
+	      if(isTauh && lep1.DeltaR(gen_part)<0.5)
+		{
+		  isLeg1MatchedToTauh = kTRUE;
+		  JustMatched = kTRUE ;
+		}
+	      if(isTaum && lep1.DeltaR(gen_part)<0.5)
+		{
+		  isLeg1MatchedToTaum = kTRUE;
+		  JustMatched = kTRUE ;
+		}
+	      if(isTaue && lep1.DeltaR(gen_part)<0.5)
+		{
+		  isLeg1MatchedToTaue = kTRUE;
+		  JustMatched = kTRUE ;
+		}
+	      
+	      if(isTauh && lep2.DeltaR(gen_part)<0.5)
+		{
+		  isLeg2MatchedToTauh = kTRUE;
+		  JustMatched = kTRUE ;
+		}
+	      if(isTaum && lep2.DeltaR(gen_part)<0.5)
+		{
+		  isLeg2MatchedToTaum = kTRUE;
+		  JustMatched = kTRUE ;
+		}
+	      if(isTaue && lep2.DeltaR(gen_part)<0.5)
+		{
+		  isLeg2MatchedToTaue = kTRUE;
+		  JustMatched = kTRUE ;
+		}
+
+	      if((isLeg1MatchedToTauh || isLeg1MatchedToTaum || isLeg1MatchedToTaue) && gen_part.Pt()>Leg1MatchPt && JustMatched)
+		{
+		  Leg1MatchPt = gen_part.Pt();
+		  Leg1MatchEta = gen_part.Eta();
+		  Leg1MatchPhi = gen_part.Phi();
+		  Leg1MatchE = gen_part.E();
+		}
+	      if((isLeg2MatchedToTauh || isLeg2MatchedToTaum || isLeg2MatchedToTaue) && gen_part.Pt()>Leg2MatchPt && JustMatched)
+		{
+		  Leg2MatchPt = gen_part.Pt();
+		  Leg2MatchEta = gen_part.Eta();
+		  Leg2MatchPhi = gen_part.Phi();
+		  Leg2MatchE = gen_part.E();
+		}
+
+	      if((isLeg1MatchedToTauh || isLeg1MatchedToTaum || isLeg1MatchedToTaue) && isTauFromSMHiggs && JustMatched) isLeg1FromSMHiggs = kTRUE;
+	      if((isLeg2MatchedToTauh || isLeg2MatchedToTaum || isLeg2MatchedToTaue) && isTauFromSMHiggs && JustMatched) isLeg2FromSMHiggs = kTRUE;
+
+	      if((isLeg1MatchedToTauh || isLeg1MatchedToTaum || isLeg1MatchedToTaue) && isTauFromMSSMHiggs && JustMatched) isLeg1FromMSSMHiggs = kTRUE;
+	      if((isLeg2MatchedToTauh || isLeg2MatchedToTaum || isLeg2MatchedToTaue) && isTauFromMSSMHiggs && JustMatched) isLeg2FromMSSMHiggs = kTRUE;
+	    }
+	  
       
 	  //event level
 	  run = RunNumber ;
@@ -1162,7 +1759,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  isFake = false ;//not there in LLR
 	  NUP = 0;//not there in LLR
 	  secondMuon = 0;//not there in LLR
-	  weight = 0;//not there in LLR
+	  weight = 1;//not there in LLR
 	  puweight = PUReweight;
 	  npv = npv_LLR;
 	  npu = npu_LLR;
@@ -1666,13 +2263,32 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 
 
 	  //will fill only the best ranked pairs
-	  SyncTree->Fill(); sortedPairs.clear(); break;
+	  SyncTree->Fill();
+	  // sortedPairs.clear(); 
+	  TriggerNames.clear();
+	  TriggerBits.clear();
+
+	  TriggerFiredNames.clear() ;
+	  TriggerFiredIsDoubleObject.clear() ;
+	  TriggerFiredBits.clear();
+	  
+	  TriggerFiredAndGoodTriggerTypeNames.clear() ;
+	  TriggerFiredAndGoodTriggerTypeIsDoubleObject.clear() ;
+	  TriggerFiredAndGoodTriggerTypeBits.clear() ;
+	  
+	  TriggerNamesFinal.clear() ;
+	  TriggerBitsFinal.clear() ;	  
+
+	  break;
+	  //cout<<"Event = "<<EventNumber<<endl; break;
             
 	}
       sortedPairs.clear();
     }
 
   SyncTree->Write();
+  TruthTree->Write();
+  hCounter->Write();
   // cout<<"     "<<FileName<<" produced successfully (final entries = "<<SyncTree->GetEntries()<<")"<<endl;
 
   return ;
