@@ -68,6 +68,16 @@ struct smallTree
       m_bjet2_e  = -1. ;
       m_bjet2_bID = -1. ;
 
+      m_genjet1_pt  = -1. ;
+      m_genjet1_eta  = -1. ;
+      m_genjet1_phi  = -1. ;
+      m_genjet1_e  = -1. ;
+
+      m_genjet2_pt  = -1. ;
+      m_genjet2_eta  = -1. ;
+      m_genjet2_phi  = -1. ;
+      m_genjet2_e  = -1. ;
+
       m_tauH_pt = -1. ;
       m_tauH_eta = -1. ;
       m_tauH_phi = -1. ;
@@ -170,6 +180,16 @@ struct smallTree
       m_smallT->Branch ("bjet2_phi", &m_bjet2_phi, "bjet2_phi/F") ;
       m_smallT->Branch ("bjet2_e", &m_bjet2_e, "bjet2_e/F") ;
       m_smallT->Branch ("bjet2_bID", &m_bjet2_bID, "bjet2m_bID/F") ;
+
+      m_smallT->Branch ("genjet1_pt",  &m_genjet1_pt,  "genjet1_pt/F") ;
+      m_smallT->Branch ("genjet1_eta", &m_genjet1_eta, "genjet1_eta/F") ;
+      m_smallT->Branch ("genjet1_phi", &m_genjet1_phi, "genjet1_phi/F") ;
+      m_smallT->Branch ("genjet1_e",   &m_genjet1_e,   "genjet1_e/F") ;
+
+      m_smallT->Branch ("genjet2_pt",  &m_genjet2_pt,  "genjet2_pt/F") ;
+      m_smallT->Branch ("genjet2_eta", &m_genjet2_eta, "genjet2_eta/F") ;
+      m_smallT->Branch ("genjet2_phi", &m_genjet2_phi, "genjet2_phi/F") ;
+      m_smallT->Branch ("genjet2_e",   &m_genjet2_e,   "genjet2_e/F") ;
 
       m_smallT->Branch ("tauH_pt", &m_tauH_pt, "tauH_pt/F") ;
       m_smallT->Branch ("tauH_eta", &m_tauH_eta, "tauH_eta/F") ;
@@ -285,6 +305,18 @@ struct smallTree
   Float_t m_bjet2_phi ;
   Float_t m_bjet2_e ;
   Float_t m_bjet2_bID ;
+
+  // the gen jet associated to the first b jet
+  Float_t m_genjet1_pt ;
+  Float_t m_genjet1_eta ;
+  Float_t m_genjet1_phi ;
+  Float_t m_genjet1_e ;
+
+  // the gen jet associated to the second b jet
+  Float_t m_genjet2_pt ;
+  Float_t m_genjet2_eta ;
+  Float_t m_genjet2_phi ;
+  Float_t m_genjet2_e ;
 
   // the tautau-H candidate
   Float_t m_tauH_pt ;

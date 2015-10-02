@@ -58,6 +58,10 @@ public :
    std::vector<int>     *genpart_HZDecayMode;
    std::vector<int>     *genpart_TauGenDecayMode;
    std::vector<int>     *genpart_flags;
+   std::vector<float>   *genjet_px;
+   std::vector<float>   *genjet_py;
+   std::vector<float>   *genjet_pz;
+   std::vector<float>   *genjet_e;
    Int_t           NUP;
    std::vector<float>   *SVfitMass;
    std::vector<float>   *SVfit_pt;
@@ -130,6 +134,7 @@ public :
    std::vector<float>   *jets_pz;
    std::vector<float>   *jets_e;
    std::vector<int>     *jets_Flavour;
+   std::vector<int>     *jets_HadronFlavour;
    std::vector<float>   *jets_PUJetID;
    std::vector<float>   *bDiscriminator;
    std::vector<float>   *bCSVscore;
@@ -173,6 +178,10 @@ public :
    TBranch        *b_genpart_HZDecayMode;   //!
    TBranch        *b_genpart_TauGenDecayMode;   //!
    TBranch        *b_genpart_flags;   //!
+   TBranch        *b_genjet_px;   //!
+   TBranch        *b_genjet_py;   //!
+   TBranch        *b_genjet_pz;   //!
+   TBranch        *b_genjet_e;   //!
    TBranch        *b_NUP;   //!
    TBranch        *b_SVfitMass;   //!
    TBranch        *b_SVfit_pt;   //!
@@ -245,6 +254,7 @@ public :
    TBranch        *b_jets_pz;   //!
    TBranch        *b_jets_e;   //!
    TBranch        *b_jets_Flavour;   //!
+   TBranch        *b_jets_HadronFlavour;   //!
    TBranch        *b_jets_PUJetID;   //!
    TBranch        *b_bDiscriminator;   //!
    TBranch        *b_bCSVscore;   //!
@@ -290,6 +300,10 @@ public :
        genpart_HZDecayMode = 0;
        genpart_TauGenDecayMode = 0;
        genpart_flags = 0;
+       genjet_px = 0;
+       genjet_py = 0;
+       genjet_pz = 0;
+       genjet_e = 0;
        SVfitMass = 0;
        SVfit_pt = 0;
        SVfit_ptUnc = 0;
@@ -360,6 +374,7 @@ public :
        jets_pz = 0;
        jets_e = 0;
        jets_Flavour = 0;
+       jets_HadronFlavour = 0;
        jets_PUJetID = 0;
        bDiscriminator = 0;
        bCSVscore = 0;
@@ -457,6 +472,7 @@ public :
        fChain->SetBranchAddress("jets_pz", &jets_pz, &b_jets_pz);
        fChain->SetBranchAddress("jets_e", &jets_e, &b_jets_e);
        fChain->SetBranchAddress("jets_Flavour", &jets_Flavour, &b_jets_Flavour);
+       fChain->SetBranchAddress("jets_HadronFlavour", &jets_HadronFlavour, &b_jets_HadronFlavour);
        fChain->SetBranchAddress("jets_PUJetID", &jets_PUJetID, &b_jets_PUJetID);
        fChain->SetBranchAddress("bDiscriminator", &bDiscriminator, &b_bDiscriminator);
        fChain->SetBranchAddress("bCSVscore", &bCSVscore, &b_bCSVscore);
@@ -482,6 +498,10 @@ public :
             fChain->SetBranchAddress("genpart_HZDecayMode", &genpart_HZDecayMode, &b_genpart_HZDecayMode);
             fChain->SetBranchAddress("genpart_TauGenDecayMode", &genpart_TauGenDecayMode, &b_genpart_TauGenDecayMode);
             fChain->SetBranchAddress("genpart_flags", &genpart_flags, &b_genpart_flags);
+            fChain->SetBranchAddress("genjet_px", &genjet_px, &b_genjet_px);
+            fChain->SetBranchAddress("genjet_py", &genjet_py, &b_genjet_py);
+            fChain->SetBranchAddress("genjet_pz", &genjet_pz, &b_genjet_pz);
+            fChain->SetBranchAddress("genjet_e", &genjet_e, &b_genjet_e);
             fChain->SetBranchAddress("NUP", &NUP, &b_NUP);
        }
        
