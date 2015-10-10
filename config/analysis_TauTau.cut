@@ -19,6 +19,12 @@ baselineisoBtagCutM   = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 &&
 dijetisoBtagCutM      = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_iso < 2.0 && dau2_iso < 2.0 && bjet1_bID > 0.89 && bjet2_bID > 0.89 && bjet1_pt > 20 && bjet2_pt > 20
 dijethardisoBtagCutM  = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_iso < 2.0 && dau2_iso < 2.0 && bjet1_bID > 0.89 && bjet2_bID > 0.89 && bjet1_pt > 30 && bjet2_pt > 30
 
+# add btag cut M, no OS/SS requirement, cut on mbb and mtautau
+baselineisoBtagCutMMbbMtt   = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_iso < 2.0 && dau2_iso < 2.0 && bjet1_bID > 0.89 && bjet2_bID > 0.89 && bH_mass > 80 && bH_mass < 170 && tauH_mass > 60 && tauH_mass < 110 
+dijetisoBtagCutMMbbMtt      = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_iso < 2.0 && dau2_iso < 2.0 && bjet1_bID > 0.89 && bjet2_bID > 0.89 && bH_mass > 80 && bH_mass < 170 && tauH_mass > 60 && tauH_mass < 110 && bjet1_pt > 20 && bjet2_pt > 20
+dijethardisoBtagCutMMbbMtt  = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_iso < 2.0 && dau2_iso < 2.0 && bjet1_bID > 0.89 && bjet2_bID > 0.89 && bH_mass > 80 && bH_mass < 170 && tauH_mass > 60 && tauH_mass < 110 && bjet1_pt > 30 && bjet2_pt > 30
+
+
 # add iso requirement
 baselineOSiso   = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && isOS != 0 && dau1_iso < 2.0 && dau2_iso < 2.0
 dijetOSiso      = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && isOS != 0 && dau1_iso < 2.0 && dau2_iso < 2.0 && bjet1_pt > 20 && bjet2_pt > 20
