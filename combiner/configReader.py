@@ -172,9 +172,9 @@ class configReader:
 
         ## check settings ##
         
-        if self.varX == "":
+        if self.varX <0:
             print "Variable X is not set. Using {0} for X.".format("HHKinMass")
-            self.varX = "HHKinMass"
+            self.AllVars[0] = "HHKinMass"
         if self.cardsselection == "":
             print "Selection level not set. Using all instead"
             self.selectionLevel = "all"
@@ -182,21 +182,8 @@ class configReader:
       ## Set dictionary entries to be passed to datacard class ##
         
         dict['lumi'] = float(self.lumi)
-        dict['varX'] = self.varX
+        #dict['varX'] = self.varX
 #        dict['signals'] = self.signals
 
-#        dict['all'] = self.all_chan
-#        dict['ggH'] = self.ggH_chan
-#        dict['qqH'] = self.qqH_chan
-#        dict['WH'] = self.WH_chan
-#        dict['ZH'] = self.ZH_chan
-#        dict['ttH'] = self.ttH_chan
-#        dict['ggH_SM'] = self.ggH_chan
-#        dict['qqH_SM'] = self.qqH_chan
-#        dict['WH_SM'] = self.WH_chan
-#        dict['ZH_SM'] = self.ZH_chan
-#        dict['ttH_SM'] = self.ttH_chan
-#        dict['qqZZ'] = self.qqZZ_chan
-#        dict['ggZZ'] = self.ggZZ_chan
 
         return dict

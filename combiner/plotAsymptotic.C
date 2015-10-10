@@ -13,11 +13,15 @@
 #include "TH2.h"
 #include "TPad.h"
 
+//Capire come gestire lambdas decimali
+
+
 void getLimits(TFile *f, std::vector<double> &v_mh,std::vector<double> &v_mean,std::vector<double> &v_68l,std::vector<double> &v_68h,std::vector<double> &v_95l,std::vector<double> &v_95h,std::vector<double> &v_obs, bool onepointta=false);
 // --------- Inputs ------- //
 //TString inputDir = "cards"; //"higgsCombineTest.Asymptotic.mH125.7.root";
-TString lambdas[]= {"20"};
+float lambdas[]= {20};
 const int nLambdas = 1;
+float xsections[nLambdas]={15};
 const bool addObsLimit = false;
 const bool _DEBUG_ = true;
 string method = "ASCLS";
@@ -56,37 +60,33 @@ void plotAsymptotic()
   // ------------------- Get Values -------------------- //
 
 
-  vector<double> mH, Val_obs, Val_mean, Val_68h, Val_68l, Val_95h, Val_95l;
-cout<<"Getting limits"<<endl;
- for(int ifile=0;ifile<nLambdas;ifile++){
+  vector<double> Val_obs, Val_mean, Val_68h, Val_68l, Val_95h, Val_95l;
+  cout<<"Getting limits"<<endl;
+  for(int ifile=0;ifile<nLambdas;ifile++){
    TString filename;
-   filename.Form("cards/lambda%s/higgsCombineLambda%s.Asymptotic.mH125.7.root",lambdas[ifile].Data(),lambdas[ifile].Data());
+   filename.Form("cards/lambda%d/higgsCombineLambda%d.Asymptotic.mH125.7.root",lambdas[ifile],lambdas[ifile]);
    TFile *inFile = TFile::Open(filename.Data());
-  getLimits(inFile,mH,Val_mean,Val_68l,Val_68h,Val_95l,Val_95h,Val_obs,onepointta);
- }
-cout<<"got"<<endl;
-  vector<double> v_masses, v_means, v_lo68, v_hi68, v_lo95, v_hi95, v_obs;
-  vector<double> expExclusion,obsExclusion;
-  for(unsigned int i = 0; i < mH.size(); i++)
-    {
-cout<<"point "<<i<<endl;
-      v_masses.push_back( mH[i] );
-      v_means.push_back( Val_mean[i] );
-      v_lo68.push_back( min( Val_68l[i], Val_68h[i]) );
-      v_hi68.push_back( max( Val_68h[i], Val_68l[i]) );
-      v_lo95.push_back( min( Val_95l[i], Val_95h[i]) );
-      v_hi95.push_back( max( Val_95h[i], Val_95l[i]) );
-      v_obs.push_back(Val_obs[i]);
-      if(Val_mean[i] < 1.0) expExclusion.push_back(mH[i]);
-      if(Val_obs[i] < 1.0 && addObsLimit) obsExclusion.push_back(mH[i]);
-    }
+   getLimits(inFile,lambdas[ifile],Val_mean,Val_68l,Val_68h,Val_95l,Val_95h,Val_obs,onepointta);
+   cout<<"got"<<endl;
+   vector<double> v_masses, v_means, v_lo68, v_hi68, v_lo95, v_hi95, v_obs;
+   vector<double> expExclusion,obsExclusion;
 
+   cout<<"point "<<i<<endl;
+   v_masses.push_back( mH[i] );
+   v_means.push_back( Val_mean[i]*xsections[ifile] );
+   v_lo68.push_back( min( Val_68l[i], Val_68h[i])*xsections[ifile] );
+   v_hi68.push_back( max( Val_68h[i], Val_68l[i])*xsections[ifile] );
+   v_lo95.push_back( min( Val_95l[i], Val_95h[i])*xsections[ifile] );
+   v_hi95.push_back( max( Val_95h[i], Val_95l[i])*xsections[ifile] );
+   v_obs.push_back(Val_obs[i]*xsections[ifile]);
+   if(Val_mean[i] < 1.0) expExclusion.push_back(mH[i]);
+   if(Val_obs[i] < 1.0 && addObsLimit) obsExclusion.push_back(mH[i]);
 
 
   // ------------------- Change Values to Arrays -------------------- //
 
-  int nMassEff=0;
-  int nExcluded=0;
+   int nMassEff=0;
+   int nExcluded=0;
   const int sizeV = v_masses.size();
   double a_masses[sizeV], a_means[sizeV], a_lo68[sizeV], a_hi68[sizeV], a_lo95[sizeV], a_hi95[sizeV], a_obs[sizeV];
   for(unsigned int m = 0; m < v_masses.size(); m++)

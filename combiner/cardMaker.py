@@ -10,6 +10,8 @@ from array import array
 from configReader import *
 from systReader import *
 
+#cercare di automatizzare il modo in cui vengono letti i fondi
+
 class cardMaker:
     
     def __init__(self):
@@ -21,6 +23,8 @@ class cardMaker:
         self.ID_ch_tautau=3
         
         self.is2D = 2
+
+        self.filename = "test.root"
         #...
 
     def loadIncludes(self):
@@ -31,6 +35,8 @@ class cardMaker:
 
     def set2D(self,is2D):
         self.is2D = is2D
+    def setfileName(self,filename):
+        self.filename = filename
 
     def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir, theInputs):
         
@@ -62,12 +68,16 @@ class cardMaker:
 
         ## -------------------------- IMPORT Histograms ---------------------- ##
         ##NB: if you add a new histogram, you'll need to modify the 2D templates below as well
-        inputFile = TFile.Open("outPlotter_2D.root")
+        inputFile = TFile.Open(self.filename)
 
         #Default
         print theInputs.AllVars, "  ",theInputs.varX, "  ",theInputs.varY
-        print "test2D_{0}{1}_Lambda{2:.0f}_{3}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theHHLambda,theInputs.selectionLevel)
-        templateSIG = inputFile.Get("test2D_{0}{1}_Lambda{2:.0f}_{3}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theHHLambda,theInputs.selectionLevel))
+        if theInputs.varY < 0 : 
+            var2 = ""
+        else :
+            var2 = theInputs.AllVars[theInputs.varY]
+        #print "test2D_{0}{1}_Lambda{2:.0f}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theHHLambda,theInputs.selectionLevel)
+        templateSIG = inputFile.Get("OS_sig_{0}{1}_OS_{3}_Lambda{2:.0f}".format(theInputs.AllVars[theInputs.varX],var2,theHHLambda,theInputs.selectionLevel))
         if self.is2D==1: 
             if "TH2" in templateSIG.ClassName() : templateSIG = templateSIG.ProjectionX()
         
@@ -87,30 +97,32 @@ class cardMaker:
         putTWtop=False
         rate_bkgTT_Shape = 0.0
         rate_bkgDY_Shape = 0.0
+        rate_bkgTWantitop_Shape = 0.0
+        rate_bkgTWtop_Shape = 0.0
         for isample in  theInputs.background:
             if isample == "TT":
-                templateBKG_TT = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
+                templateBKG_TT = inputFile.Get("OS_bkg_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,isample))
                 if self.is2D==1 : 
                     if "TH2" in templateBKG_TT.ClassName() : templateBKG_TT = templateBKG_TT.ProjectionX()
                 rate_bkgTT_Shape = templateBKG_TT.Integral("width")*self.lumi
                 putTT=True
                 print " bkg TT rate ", rate_bkgTT_Shape
             elif isample == "DY":
-                templateBKG_DY = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
+                templateBKG_DY = inputFile.Get("OS_bkg_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,isample))
                 if self.is2D==1 : 
                     if "TH2" in templateBKG_DY.ClassName() : templateBKG_DY = templateBKG_DY.ProjectionX()
                 rate_bkgDY_Shape = templateBKG_DY.Integral("width")*self.lumi
                 putDY=True
                 print " bkg DY rate ", rate_bkgDY_Shape
             elif isample == "TWantitop":
-                templateBKG_TWantitop = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
+                templateBKG_TWantitop = inputFile.Get("OS_bkg_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,isample))
                 if self.is2D==1 : 
                     if "TH2" in templateBKG_TWantitop.ClassName() : templateBKG_TWantitop = templateBKG_TWantitop.ProjectionX()
                 rate_bkgTWantitop_Shape = templateBKG_TWantitop.Integral("width")*self.lumi
                 putTWantitop=True
                 print " bkg TWantitop rate ", rate_bkgTWantitop_Shape
             elif isample == "TWtop":
-                templateBKG_TWtop = inputFile.Get("test2D_{0}{1}_{3}_{2}".format(theInputs.AllVars[theInputs.varX],theInputs.AllVars[theInputs.varY],theInputs.selectionLevel,isample))
+                templateBKG_TWtop = inputFile.Get("OS_bkg_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,isample))
                 if self.is2D==1 : 
                     if "TH2" in templateBKG_TWtop.ClassName() : templateBKG_TWtop = templateBKG_TWtop.ProjectionX()
                 rate_bkgTWtop_Shape = templateBKG_TWtop.Integral("width")*self.lumi
@@ -277,14 +289,7 @@ class cardMaker:
         #syst = systReader("../config/systematics.cfg",['Lambda20'],theInputs.background)
         syst = systReader("../config/systematics.cfg",['Lambda20'],['TT','DY','TWantitop','TWtop']) #FIXME: use the one above once all bkg are in
 	syst.writeSystematics(file)
-#        file.write("lumi_8TeV lnN 1.026  1.026 1.026  1.026 \n")
-#        file.write("CMS_eff_m lnN 1.026  1.026 1.026  1.026 \n")
-#        file.write("CMS_eff_e lnN 1.046  1.046 1.046  1.046 \n")  
-#        file.write("CMS_eff_t lnN 1.066  1.066 1.066  1.066 \n") 
-#        file.write("TTYield lnN - 1.100 -  - \n")   
-#CMS_zz4l_pdf_QCDscale_gg_syst param 0.0 1 [-3,3] 
 
-        #...
 
 #define function for parsing options
 def parseOptions():
@@ -294,6 +299,7 @@ def parseOptions():
     parser = optparse.OptionParser(usage)
     
     parser.add_option('-d', '--is2D',   dest='is2D',       type='int',    default=2,     help='number of Dimensions (default:1)')
+    parser.add_option('-f', '--filename',   dest='filename', type='string', default="",  help='input plots')
 
     # store options and arguments as global variables
     global opt, args
@@ -301,6 +307,9 @@ def parseOptions():
 
     if (opt.is2D != 1 and opt.is2D != 2):
         print 'The input '+opt.is2D+' is unkown for is2D.  Please choose 1 or 2. Exiting...'
+        sys.exit()
+    if (opt.filename==""):
+        print "you MUST specify an input file [please use -f option]"
         sys.exit()
 
 # run as main
@@ -311,7 +320,8 @@ if __name__ == "__main__":
     dc =cardMaker()
     dc.loadIncludes()
     dc.set2D(opt.is2D)
+    dc.setfileName(opt.filename)
     #outputDir = ""
-    input = configReader("../config/plotter_muTau.cfg") 
+    input = configReader("../config/analysis_MuTau.cfg") 
     input.readInputs()
     dc.makeCardsAndWorkspace(20,1,2,"lambda20",input)
