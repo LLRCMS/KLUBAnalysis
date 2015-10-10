@@ -96,7 +96,6 @@ addHistos (vector<sample> & samples,
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-
 counters
 fillHistos (vector<sample> & samples, 
             plotContainer & plots,
@@ -105,7 +104,36 @@ fillHistos (vector<sample> & samples,
             float lumi,
             const vector<float> & scale,
             bool isData,
-            bool isSignal)
+            bool isSignal,
+            int maxEvts)
+{
+    vector<pair<string,string>> variables2DList (0);
+    return fillHistos (
+            samples, 
+            plots,
+            variablesList,
+            variables2DList,
+            selections,
+            lumi,
+            scale,
+            isData,
+            isSignal,
+            maxEvts);
+}
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+counters
+fillHistos (vector<sample> & samples, 
+            plotContainer & plots,
+            vector<string> & variablesList,
+            vector<pair<string,string>> & variables2DList,
+            vector<pair <TString, TCut> > & selections,
+            float lumi,
+            const vector<float> & scale,
+            bool isData,
+            bool isSignal,
+            int maxEvts)
 {
   TString histoName ;
 
@@ -139,21 +167,68 @@ fillHistos (vector<sample> & samples,
            << "\t with initial weighted events\t" << samples.at (iSample).eff_den
            << endl ;
 
-      vector<float> address (variablesList.size (), 0.) ;
-      int tempnjets;
-      int indexNjets = -1;
 
-      for (unsigned int iv = 0 ; iv < variablesList.size () ; ++iv)
+      // find how many variables needed for 2D are not in the list of the 1D vars
+      vector<string> allvars (variablesList);
+      vector<pair<int,int>> var2Didxmap; // this maps each entry of 2Dvarlist to allvars to be more efficient in retrieving values
+
+      std::vector<string>::iterator it;
+      for (unsigned int ivar = 0; ivar < variables2DList.size(); ivar++)
       {
-      	if(variablesList.at(iv)=="njets")
+        int ind1 = -1;
+        int ind2 = -1;
+
+        // var 1 (x)
+        string var1 = variables2DList.at(ivar).first;
+        it = find (allvars.begin(), allvars.end(), var1);
+        if ( it == allvars.end() )
         {
-      	  tree->SetBranchAddress (variablesList.at (iv).c_str (), &tempnjets) ;
-      	  indexNjets=iv;
-      	}
-        else tree->SetBranchAddress (variablesList.at (iv).c_str (), &(address.at (iv))) ;
+          allvars. push_back(var1);
+          ind1 = allvars.size() -1 ;
+        }
+        else
+          ind1 = distance (allvars.begin(), it);
+
+        // var 2 (y)
+        string var2 = variables2DList.at(ivar).second;
+        it = find (allvars.begin(), allvars.end(), var2);
+        if ( it == allvars.end() )
+        {
+          allvars. push_back(var2);
+          ind2 = allvars.size() -1 ;
+        }
+        else
+          ind2 = distance (allvars.begin(), it);
+
+        // save indexes
+        var2Didxmap.push_back (make_pair(ind1, ind2));
       }
 
-      for (int iEvent = 0 ; iEvent < tree->GetEntries () ; ++iEvent)
+      // set tbranch addresses for 1D histos
+      vector<float> address (allvars.size(), 0.) ;
+      int tempnjets;
+      int indexNjets = -1;
+      for (unsigned int iv = 0 ; iv < allvars.size () ; ++iv)
+      {
+      	if(allvars.at(iv)=="njets")
+        {
+      	  tree->SetBranchAddress (allvars.at (iv).c_str (), &tempnjets) ;
+      	  indexNjets=iv;
+      	}
+        else tree->SetBranchAddress (allvars.at (iv).c_str (), &(address.at (iv))) ;
+      }
+
+      // FIXME! not good for negative weights as yield does not scale as this factor
+      int nEvts = tree->GetEntries();
+      if (maxEvts > 0)
+      {
+        nEvts = min(nEvts, maxEvts);
+        scaling *= (1.*tree->GetEntries() / nEvts); // scales if nEvts != entries in the tree
+      }
+
+      //unsigned int nEvts = (maxEvts == -1 ? tree->GetEntries() : maxEvts);
+      //nEvts = min (nEvts, tree->GetEntries());
+      for (int iEvent = 0 ; iEvent < nEvts ; ++iEvent)
         {
           tree->GetEntry (iEvent) ;
 
@@ -168,6 +243,7 @@ fillHistos (vector<sample> & samples,
               else        localCounter.counters.at (iSample).at (isel+1) 
                               += weight * lumi * scaling ;
 
+              // fill 1D histos
               for (unsigned int iv = 0 ; iv < variablesList.size () ; ++iv)
                 {
                   TH1F * histo = 
@@ -178,7 +254,7 @@ fillHistos (vector<sample> & samples,
                   
                   if (isData) 
 		              {
-                      if(iv!=indexNjets)histo->Fill (address[iv]) ;
+                      if(iv!=indexNjets)histo->Fill (address[iv]) ; // perfectly fine as address is <=> varList in the first part
 		                  else histo->Fill (tempnjets) ;
                   }
                   else        
@@ -186,7 +262,28 @@ fillHistos (vector<sample> & samples,
                       if(iv!=indexNjets)histo->Fill (address[iv], weight * lumi * scaling) ;
 		                  else histo->Fill (tempnjets, weight * lumi * scaling) ;
                   }
-                } //loop on variables
+                } //loop on 1Dvariables
+
+              // fill 2D histos
+              for (unsigned int iv = 0 ; iv < variables2DList.size () ; ++iv)
+                {
+                  TH2F * histo = 
+                  plots.get2DHisto (variables2DList.at (iv).first, variables2DList.at (iv).second,
+                      selections.at (isel).first.Data (),
+                      samples.at (iSample).sampleName.Data ()
+                    ) ;
+                  
+
+                  int idx1 = var2Didxmap.at(iv).first;
+                  int idx2 = var2Didxmap.at(iv).second;
+                  float val1 = address[idx1];
+                  float val2 = address[idx2];
+                  if (idx1 == indexNjets) val1 = (float) tempnjets;
+                  if (idx2 == indexNjets) val2 = (float) tempnjets;
+                  if (isData) histo->Fill (val1, val2) ;
+                  else histo->Fill (val1, val2, weight * lumi * scaling) ;
+                } //loop on 2Dvariables
+
             } //loop on selections
         } //loop on tree entries
 
@@ -197,6 +294,24 @@ fillHistos (vector<sample> & samples,
 }
 
 
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+/*
+counters
+makeCounter (plotContainer & plots, float initEff = 1.0, float initTotNum = 0.0)
+{
+  counters localCounter ;
+  for (unsigned int iSample = 0 ; iSample < plots.m_Nsample ; ++iSample)
+  {
+    localCounter.initEfficiencies.push_back (initEff) ; // plotContainer has no memory of initial eff, set from input!
+    localCounter.counters.push_back (vector<float> (selections.size () + 1, 0.)) ;
+    localCounter.counters.at(iSample).at(0) = initTotNum; // also, plot container does not know about Nev before 1st selection
+    for (unsigned int isel = 0 ; isel < plots.m_Ncut ; ++isel)
+    {
+      localCounter.counters.at(iSample).at(isel) = (plots.m_histos.begin())->; // take first variable
+    }
+  }
+}
+*/
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 

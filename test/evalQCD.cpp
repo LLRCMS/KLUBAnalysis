@@ -46,6 +46,10 @@ int main (int argc, char** argv)
   float lumi = gConfigParser->readFloatOption ("general::lumi") ;
   cout << "READING lumi " << lumi << endl ;
 
+  int maxEvtsMC = -1;
+  if (gConfigParser->isDefined ("general::maxEvtsMC"))
+        maxEvtsMC = gConfigParser -> readIntOption ("general::maxEvtsMC");
+
   // get the samples to be analised
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -124,6 +128,16 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   vector<string> variablesList = gConfigParser->readStringListOption ("general::variables") ;
+  vector<string> Buf_variables2DList = gConfigParser->readStringListOption ("general::2Dvariables") ;
+  vector<pair<string,string> > variables2DList ;
+  for (unsigned int i = 0 ; i < Buf_variables2DList.size () ; ++i)
+    {
+      vector<string> dummy = split (Buf_variables2DList.at (i), ':') ;
+      //cout << dummy.at (0) << " " << dummy.at (1) << " " << dummy.size () << endl ;
+      variables2DList.push_back (make_pair(dummy.at (0), dummy.at (1)) ) ;
+    }
+
+
 
   // calculate the QCD in the SS region as data - other_bkg
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -131,9 +145,9 @@ int main (int argc, char** argv)
   cout << "--- MAIN reading DATA and filling SS histos" << endl ;
 
   // get the same-sign distributions from data
-  plotContainer SS_DATA_plots ("SS_DATA", variablesList, selections_SS, DATASamplesList, 2) ;
+  plotContainer SS_DATA_plots ("SS_DATA", variablesList, variables2DList, selections_SS, DATASamplesList, 2) ;
   counters SS_DATACount = fillHistos (DATASamples, SS_DATA_plots, 
-              variablesList,
+              variablesList, variables2DList,
               selections_SS,
               lumi,
               vector<float> (0),
@@ -143,13 +157,13 @@ int main (int argc, char** argv)
   cout << "--- MAIN reading bkg and filling SS histos" << endl ;
 
   // get the same-sign distributions from bkg
-  plotContainer SS_bkg_plots ("SS_bkg", variablesList, selections_SS, bkgSamplesList, 0) ;
+  plotContainer SS_bkg_plots ("SS_bkg", variablesList, variables2DList, selections_SS, bkgSamplesList, 0) ;
   counters SS_bkgCount = fillHistos (bkgSamples, SS_bkg_plots, 
-              variablesList,
+              variablesList, variables2DList,
               selections_SS,
               lumi,
               vector<float> (0),
-              false, false) ;
+              false, false, maxEvtsMC) ;
   SS_bkg_plots.AddOverAndUnderFlow () ;
 
   cout << "--- MAIN preparing to loop on variables and selections to calc SS QCD" << endl ;
@@ -158,7 +172,7 @@ int main (int argc, char** argv)
   // iHisto = iv + nVars * isel
   vector<string> QCDsample ;
   QCDsample.push_back ("QCD") ;
-  plotContainer SS_QCD ("SS_QCD", variablesList, selections_SS, QCDsample, 0) ;
+  plotContainer SS_QCD ("SS_QCD", variablesList, variables2DList, selections_SS, QCDsample, 0) ;
 //  vector <TH1F *> SS_QCD ;
   for (unsigned int ivar = 0 ; ivar < variablesList.size () ; ++ivar)
     {
@@ -197,9 +211,9 @@ int main (int argc, char** argv)
   cout << "--- MAIN reading DATA and filling OS histos" << endl ;
 
   // get the opposite-sign distributions from data
-  plotContainer OS_DATA_plots ("OS_DATA", variablesList, selections_OS, DATASamplesList, 2) ;
+  plotContainer OS_DATA_plots ("OS_DATA", variablesList, variables2DList, selections_OS, DATASamplesList, 2) ;
   counters OS_DATACount = fillHistos (DATASamples, OS_DATA_plots, 
-              variablesList,
+              variablesList, variables2DList,
               selections_OS,
               lumi,
               vector<float> (0),
@@ -209,22 +223,22 @@ int main (int argc, char** argv)
   cout << "--- MAIN reading bkg and filling OS histos" << endl ;
 
   // get the opposite-sign distributions from bkg
-  plotContainer OS_bkg_plots ("OS_bkg", variablesList, selections_OS, bkgSamplesList, 0) ;
+  plotContainer OS_bkg_plots ("OS_bkg", variablesList, variables2DList, selections_OS, bkgSamplesList, 0) ;
   counters OS_bkgCount = fillHistos (bkgSamples, OS_bkg_plots, 
-              variablesList,
+              variablesList, variables2DList,
               selections_OS,
               lumi,
               vector<float> (0),
-              false, false) ;
+              false, false, maxEvtsMC) ;
   OS_bkg_plots.AddOverAndUnderFlow () ;
   OS_bkg_plots.addSample ("QCD", SS_QCD) ;
   
   cout << "--- MAIN reading sig and filling OS histos" << endl ;
 
   // get the opposite-sign distributions from sig
-  plotContainer OS_sig_plots ("OS_sig", variablesList, selections_OS, sigSamplesList, 1) ;
+  plotContainer OS_sig_plots ("OS_sig", variablesList, variables2DList, selections_OS, sigSamplesList, 1) ;
   counters OS_sigCount = fillHistos (sigSamples, OS_sig_plots, 
-              variablesList,
+              variablesList, variables2DList,
               selections_OS,
               lumi,
               vector<float> (0),
@@ -251,6 +265,8 @@ int main (int argc, char** argv)
   OS_DATA_plots.save (fOut) ;
   OS_bkg_plots.save (fOut) ;
   OS_sig_plots.save (fOut) ;
+  SS_QCD.save (fOut); // this is the estimated QCD after scaling to OS region 1.06
+
   fOut->Close () ;
 
   // Plot the histograms
@@ -308,7 +324,7 @@ int main (int argc, char** argv)
           TString coutputName ;
           coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
-          
+
           c->SetLogy (1) ;
           bkg->Draw () ;
           bkg_stack->Draw ("hist same") ;
@@ -346,6 +362,20 @@ int main (int argc, char** argv)
           TString name = basename + "_norm" ;
           coutputName.Form ("%s.pdf", (outFolderName + basename).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
+ 
+          /*
+          // plotting 2D histos, one per sample as it is hard to superimpose them
+          // ---- ---- ---- ---- ---- ---- ---- ---- ----
+          outFolderName = outFolderNameBase + TString ("/plots2D/") ;
+          OS_sig_plots.         
+          */
+
+          delete hstack_bkg_norm;
+          delete hstack_sig_norm;
+          delete sig_stack;
+          delete bkg_stack;
+          delete DATA_stack;
+          
      
         } // loop on variables
     } // loop on selections
@@ -434,6 +464,10 @@ int main (int argc, char** argv)
 
     }
 */
+
+  // save on root file for debug
+  //TFile* fRootOut = new TFile (outFolderNameBase + "/" + "SS_QCD_histos.root", "recreate");
+  //fRootOut->Close();
 
   return 0 ;
 }  

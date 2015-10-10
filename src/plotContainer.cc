@@ -2,8 +2,9 @@
 
 
 plotContainer::plotContainer (string name) :
-  m_name (name),
-  m_Nvar (-1) {}
+  m_name   (name),
+  m_Nvar   (-1),
+  m_N2Dvar (-1) {}
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -13,13 +14,28 @@ plotContainer::plotContainer (string name, vector<string> varList,
                               vector<pair <TString, TCut> > cutList,
                               vector<string> sampleList, 
                               int histosType) :
-  m_name (name),
-  m_Nvar (varList.size ()),
+  m_name     (name),
+  m_Nvar     (varList.size ()),
+  m_N2Dvar   (0),
   m_Ncut (cutList.size ()),
   m_Nsample (sampleList.size ()), 
   m_histosType (histosType)
 {
-  createHistos (varList, cutList, sampleList) ;
+  vector<pair<string,string>> varList2D (0); // empty vec
+  createHistos (varList, varList2D, cutList, sampleList) ;
+}
+
+
+plotContainer::plotContainer (string name, vector<string> varList, vector<pair<string,string>> varList2D,
+                vector<pair <TString, TCut> > cutList, vector<string> sampleList, int histosType) :
+  m_name   (name),
+  m_Nvar   (varList.size ()),
+  m_N2Dvar (varList2D.size()),
+  m_Ncut (cutList.size ()),
+  m_Nsample (sampleList.size ()), 
+  m_histosType (histosType)   
+{
+  createHistos (varList, varList2D, cutList, sampleList) ;
 }
 
 
@@ -27,10 +43,12 @@ plotContainer::plotContainer (string name, vector<string> varList,
 
 
 void
-plotContainer::createHistos (vector<string> varList, 
+plotContainer::createHistos (vector<string> varList, vector<pair<string,string>> varList2D,
                              vector<pair <TString, TCut> > cutList,
                              vector<string> sampleList)
 {
+  
+  // for 1D plots
   for (unsigned int ivar = 0 ; ivar < m_Nvar ; ++ivar)
     {
       map<string, map<string, TH1F *> > varDummy ;
@@ -63,6 +81,48 @@ plotContainer::createHistos (vector<string> varList,
         }
       m_histos[varList.at (ivar)] = varDummy ;
     }
+
+  // for 2D plots
+  for (unsigned int ivar = 0 ; ivar < m_N2Dvar ; ++ivar)
+    {
+      map<string, map<string, TH2F *> > varDummy ;
+      for (unsigned int icut = 0 ; icut < m_Ncut ; ++icut)
+        {
+          map<string, TH2F *> cutDummy ;
+          for (unsigned int isample = 0 ; isample < m_Nsample ; ++isample)
+            {
+              // remove not alphanumeric symbols from the var name
+              string varID1 = varList2D.at (ivar).first ;
+              string varID2 = varList2D.at (ivar).second ;
+              string varID1full = varID1;
+              string varID2full = varID2;
+
+              varID1.erase (std::remove_if (varID1.begin (), varID1.end (), isNOTalnum ()), varID1.end ()) ;
+              varID2.erase (std::remove_if (varID2.begin (), varID2.end (), isNOTalnum ()), varID2.end ()) ;
+              string varID = varID1 + varID2; // compone name of string as is seen by this stupid parser
+
+              // get histo nbins and range
+              vector <float> limits = 
+                gConfigParser->readFloatListOption (TString ("2Dhistos::") 
+                    + varID.c_str ()) ;
+              string histoName = m_name + "_" 
+                                 + varID1full + varID2full + "_" // I skip the : but keep the rest of the var name
+                                 + cutList.at (icut).first.Data () + "_" 
+                                 + sampleList.at (isample) ;     
+              cutDummy[sampleList.at (isample)] = createNew2DHisto (
+                  histoName, histoName,
+                  int (limits.at (0)), limits.at (1), limits.at (2), (int)(limits.at (3)), limits.at (4), limits.at (5),
+                  gConfigParser->readIntOption (TString ("colors::") 
+                      + TString (sampleList.at (isample).c_str ())), 
+                  m_histosType,
+                  varID1full.c_str(), varID2full.c_str()
+                ) ;
+            }
+          varDummy[cutList.at (icut).first.Data ()] = cutDummy ;          
+        }
+      string varKeyName = varList2D.at (ivar).first + varList2D.at (ivar).second;
+      m_2Dhistos[varKeyName] = varDummy ;
+    }
 }
 
 
@@ -74,10 +134,13 @@ void plotContainer::init (vector<string> varList,
                           vector<string> sampleList, int histosType)
 {
   m_Nvar = varList.size () ;
+  m_N2Dvar = 0 ;
   m_Ncut = cutList.size () ;
   m_Nsample = sampleList.size () ; 
   m_histosType = histosType ;
-  createHistos (varList, cutList, sampleList) ;
+  
+  vector<pair<string,string>> varList2D (0);
+  createHistos (varList, varList2D, cutList, sampleList) ;
 }
 
 
@@ -108,6 +171,33 @@ plotContainer::getHisto (string varName, string cutName, string sampleName)
   return m_histos[varName][cutName][sampleName] ;
 }
 
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+TH2F *
+plotContainer::get2DHisto (string var1Name, string var2Name, string cutName, string sampleName)
+{
+  string varName = var1Name + var2Name;
+  if (m_2Dhistos.find (varName) == m_2Dhistos.end ()) 
+    {
+      cerr << "no histograms stored in " << m_name 
+           << " for variable " << var1Name << ":" << var2Name << endl ;
+      return 0 ;
+    }
+  if (m_2Dhistos[varName].find (cutName) == m_2Dhistos[varName].end ()) 
+    {
+      cerr << "no histograms stored in " << m_name 
+           << " for selection " << cutName << endl ;
+      return 0 ;
+    }  
+  if (m_2Dhistos[varName][cutName].find (sampleName) == m_2Dhistos[varName][cutName].end ()) 
+    {
+      cerr << "no histograms stored in " << m_name 
+           << " for sample " << sampleName << endl ;
+      return 0 ;
+    }  
+  return m_2Dhistos[varName][cutName][sampleName] ;   
+}
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -195,11 +285,29 @@ plotContainer::createNewHisto (string name, string title,
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
+TH2F *
+plotContainer::createNew2DHisto (string name, string title, 
+                         int nbinsx, double xlow, double xup,
+                         int nbinsy, double ylow, double yup,
+                         int color, int histoType,
+                         TString titleX, TString titleY)
+{
+  TH2F* h = new TH2F (name.c_str (), title.c_str (), nbinsx, xlow, xup, nbinsy, ylow, yup);
+  h->Sumw2 () ;    
+  setHistosProperties (h, histoType, color) ;
+  h->GetXaxis ()->SetTitle (titleX) ;
+  h->GetYaxis ()->SetTitle (titleY) ;
+  return h ;
+}
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
 
 void 
 plotContainer::save (TFile * fOut)
 {
   fOut->cd () ;
+  
+  // 1D
   for (vars_coll::iterator iVar = m_histos.begin () ;
        iVar != m_histos.end () ;
        ++iVar)
@@ -209,6 +317,22 @@ plotContainer::save (TFile * fOut)
            ++iCut)
         {
           for (samples_coll::iterator iSample = iCut->second.begin () ; 
+               iSample != iCut->second.end () ;
+               ++iSample)
+              iSample->second->Write () ;
+        }
+    }
+
+  // 2D
+  for (vars_2D_coll::iterator iVar = m_2Dhistos.begin () ;
+       iVar != m_2Dhistos.end () ;
+       ++iVar)
+    {
+      for (cuts_2D_coll::iterator iCut = iVar->second.begin () ; 
+           iCut != iVar->second.end () ;
+           ++iCut)
+        {
+          for (samples_2D_coll::iterator iSample = iCut->second.begin () ; 
                iSample != iCut->second.end () ;
                ++iSample)
               iSample->second->Write () ;
@@ -302,6 +426,7 @@ plotContainer::addSample (string sampleName, const plotContainer & original) // 
             )) ;
         }
     }
+  m_Nsample += 1;  
   return 0 ;
 }
 
@@ -309,7 +434,7 @@ plotContainer::addSample (string sampleName, const plotContainer & original) // 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
-void plotContainer::setHistosProperties (TH1F * h, int histoType, int color) 
+void plotContainer::setHistosProperties (TH1 * h, int histoType, int color) 
 {
   if (histoType == 0) // background
     {//background

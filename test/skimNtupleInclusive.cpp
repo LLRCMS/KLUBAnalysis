@@ -213,7 +213,8 @@ int main (int argc, char** argv)
   int    PUReweight_MC       = gConfigParser->readFloatOption  ("parameters::PUReweightMC") ; 
   int    PUReweight_target   = gConfigParser->readFloatOption  ("parameters::PUReweighttarget") ; 
   string leptonSelectionFlag = gConfigParser->readStringOption ("parameters::lepSelections") ;
- 
+  int maxNjetsSaved          = gConfigParser->readIntOption    ("parameters::maxNjetsSaved") ;
+
   // input and output setup
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -428,8 +429,8 @@ int main (int argc, char** argv)
       theSmallTree.m_met_et = theBigTree.met ;
       theSmallTree.m_mT = theBigTree.mT_Dau1->at (chosenTauPair) ;
 
-      int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
-      int type2 = theBigTree.particleType->at (secondDaughterIndex) ;
+      const int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
+      const int type2 = theBigTree.particleType->at (secondDaughterIndex) ;
       theSmallTree.m_pairType = oph.getPairType (type1, type2) ;
       
       theSmallTree.m_tauH_pt = tlv_tauH.Pt () ;
@@ -698,7 +699,7 @@ int main (int argc, char** argv)
 
           // loop over jets
           for (unsigned int iJet = 0 ; 
-               (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < 3) ;
+               (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;
                ++iJet)
             {
               // PG filter jets at will
@@ -714,6 +715,10 @@ int main (int argc, char** argv)
                   theBigTree.jets_pz->at (iJet),
                   theBigTree.jets_e->at (iJet)
                 ) ;
+
+              // remove jets that overlap with the tau selected in the leg 1 and 2
+              if (type1 == 2) {if (tlv_firstLepton.DeltaR(tlv_dummyJet) < 0.5) continue;}
+              if (type2 == 2) {if (tlv_secondLepton.DeltaR(tlv_dummyJet) < 0.5) continue;}
       
               theSmallTree.m_jets_pt.push_back (tlv_dummyJet.Pt ()) ;
               theSmallTree.m_jets_eta.push_back (tlv_dummyJet.Eta ()) ;
