@@ -277,7 +277,7 @@ if __name__ == "__main__":
     dc.set2D(opt.is2D)
     dc.setfileName(opt.filename)
     #outputDir = ""
-    input = configReader("../config/analysis_"+opt.channel+"cfg")
+    input = configReader("../config/analysis_"+opt.channel+".cfg")
     thechannel = 1
     if opt.channel == "MuTau" : thechannel=2
     elif opt.channel == "TauTau" : thechannel = 3

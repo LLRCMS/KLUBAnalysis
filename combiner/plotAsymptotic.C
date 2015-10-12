@@ -19,16 +19,18 @@
 void getLimits(TFile *f, std::vector<double> &v_mean,std::vector<double> &v_68l,std::vector<double> &v_68h,std::vector<double> &v_95l,std::vector<double> &v_95h,std::vector<double> &v_obs, bool onepointta=false);
 // --------- Inputs ------- //
 //TString inputDir = "cards"; //"higgsCombineTest.Asymptotic.mH125.7.root";
-float lambdas[]= {20,30,50};
+float lambdas[]= {0,10,20};
 const int nLambdas = 3;
-float xsections[nLambdas]={100,50,20};
+const int nXsec = 6;
+float xsections[nXsec]={12,2.2,1,0.42,50,105};
+float deflambdas[nXsec]={-4,0,1,2.46,10,20};
 const bool addObsLimit = false;
 const bool _DEBUG_ = true;
 string method = "ASCLS";
 Double_t xLow = 0;
-Double_t xHigh = 101.0;
+Double_t xHigh = 21.0;
 Double_t yLow = 0.1;
-Double_t yHigh = 161.0;
+Double_t yHigh = 34.3*150*1000.;
 TString xTitle = "#Lambda [GeV]";
 TString yTitle = "95% CL limit on #sigma [pb]";
 const bool logy = false;
@@ -53,7 +55,7 @@ void plotAsymptotic() {
 
   gStyle->SetPadLeftMargin(0.16);
   gStyle->SetPadTopMargin(0.1);
-
+  for(int ix = 0; ix< nXsec; ix++) xsections[ix] *= 1000.; //from fb tp pb
   //TFile *inFile = new TFile(inputFile,"READ");
 
   // ------------------- Get Values -------------------- //
@@ -71,11 +73,16 @@ void plotAsymptotic() {
    vector<double> expExclusion,obsExclusion;
 
    cout<<"point "<<ifile<<endl;
-   lim[ifile] = Val_mean[ifile]*xsections[ifile];
-   lim68l[ifile] = min( Val_68l[ifile], Val_68h[ifile])*xsections[ifile];
-   lim95l[ifile] = min( Val_95l[ifile], Val_95h[ifile])*xsections[ifile];
-   lim68h[ifile] = max( Val_68h[ifile], Val_68l[ifile])*xsections[ifile];
-   lim95h[ifile] = max( Val_95h[ifile], Val_95l[ifile])*xsections[ifile];
+   float valxsections = 0;
+   for(int ix = 0; ix< nXsec; ix++){
+    if (fabs(lambdas[ifile]-deflambdas[ix])<0.1)valxsections=xsections[ix];
+   }
+   cout<<valxsections<<endl;
+   lim[ifile] = Val_mean[ifile]*valxsections;
+   lim68l[ifile] = min( Val_68l[ifile], Val_68h[ifile])*valxsections;
+   lim95l[ifile] = min( Val_95l[ifile], Val_95h[ifile])*valxsections;
+   lim68h[ifile] = max( Val_68h[ifile], Val_68l[ifile])*valxsections;
+   lim95h[ifile] = max( Val_95h[ifile], Val_95l[ifile])*valxsections;
 
    if(lim[ifile] < 1.0) expExclusion.push_back(lambdas[ifile]);
    if(limobs[ifile] < 1.0 && addObsLimit) obsExclusion.push_back(lambdas[ifile]);
@@ -96,7 +103,7 @@ void plotAsymptotic() {
  TGraph* grshade_68 = new TGraph(2*nMassEff);
  TGraph* grshade_95 = new TGraph(2*nMassEff);
  TGraph *grObs = new TGraph(nMassEff, lambdas, limobs);
- TGraph *grExp = new TGraph(nMassEff,lambdas,xsections);
+ TGraph *grExp = new TGraph(nXsec,deflambdas,xsections);
 
  grObs->SetLineWidth(3);
  grObs->SetLineColor(kBlack);

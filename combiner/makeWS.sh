@@ -2,7 +2,7 @@
 
 cd cards ;
 
-for i in 20 30 50;#"10" ;
+for i in 0 1 10 20;
 do
     echo "preparing cards and WS for lambda${i}";
     cd lambda${i};
