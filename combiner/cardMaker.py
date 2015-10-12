@@ -79,10 +79,10 @@ class cardMaker:
         else :
             var2 = theInputs.AllVars[theInputs.varY]
         #print "test2D_{0}{1}_Lambda{2:.0f}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theHHLambda,theInputs.selectionLevel)
-        templateSIG = inputFile.Get("OS_sig_{0}{1}_OS_{3}_Lambda{2:.0f}".format(theInputs.AllVars[theInputs.varX],var2,theHHLambda,theInputs.selectionLevel))
+        nameString = "OS_sig_{0}{1}_OS_{3}_Lambda{2:.0f}".format(theInputs.AllVars[theInputs.varX],var2,theHHLambda,theInputs.selectionLevel)
+        templateSIG = inputFile.Get(nameString)
         if self.is2D==1: 
             if "TH2" in templateSIG.ClassName() : templateSIG = templateSIG.ProjectionX()
-        
         ##JES syst
         #templateSIG_JESUP = inputFile.Get("") 
         #templateSIG_JESDOWN = inputFile.Get("") 
@@ -96,7 +96,8 @@ class cardMaker:
         theRates = [rate_signal_Shape]
         templatesBKG = []
         for isample in  theInputs.background:
-            template = inputFile.Get("OS_bkg_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,isample)).Clone()
+            nameTemplate = "OS_bkg_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,isample)
+            template = inputFile.Get(nameTemplate).Clone()
             if self.is2D == 1:
                 if "TH2" in template.ClassName() : 
                     template = template.ProjectionX()
@@ -139,7 +140,7 @@ class cardMaker:
         MorphList_sig = ROOT.RooArgList()
         TemplateName = "SIG_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
         SIG_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateSIG)
-        PdfName = "SIG_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+        #PdfName = "SIG_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
         SIG_TemplatePdf = ROOT.RooHistPdf("sig","sig",ras_variableSet,SIG_TempDataHist)
         print templateSIG.Integral()
         ##Up
@@ -166,7 +167,7 @@ class cardMaker:
         for ibkg in range(len(templatesBKG)):
             TemplateName = "BKG_{3}_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
             rdhB.append(ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templatesBKG[ibkg]))
-            PdfName = "BKG_{3}_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
+            #PdfName = "BKG_{3}_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
             rhpB.append(ROOT.RooHistPdf("bkg_{0}".format(theInputs.background[ibkg]),"bkg_{0}".format(theInputs.background[ibkg]),ras_variableSet,rdhB[ibkg]))
             getattr(w,'import')(rhpB[ibkg],ROOT.RooFit.RecycleConflictNodes())
         
@@ -253,6 +254,7 @@ def parseOptions():
     parser.add_option('-d', '--is2D',   dest='is2D',       type='int',    default=1,     help='number of Dimensions (default:1)')
     parser.add_option('-f', '--filename',   dest='filename', type='string', default="",  help='input plots')
     parser.add_option('-l', '--lambda',   dest='Lambda', type='float', default=20,  help='Lambda value')
+    parser.add_option('-c', '--channel',   dest='channel', type='string', default='MuTau',  help='final state')
 
     # store options and arguments as global variables
     global opt, args
@@ -275,6 +277,10 @@ if __name__ == "__main__":
     dc.set2D(opt.is2D)
     dc.setfileName(opt.filename)
     #outputDir = ""
-    input = configReader("../config/analysis_MuTau.cfg") 
+    input = configReader("../config/analysis_"+opt.channel+"cfg")
+    thechannel = 1
+    if opt.channel == "MuTau" : thechannel=2
+    elif opt.channel == "TauTau" : thechannel = 3
+
     input.readInputs()
-    dc.makeCardsAndWorkspace(opt.Lambda,1,2,"lambda{0:.0f}".format(opt.Lambda),input)
+    dc.makeCardsAndWorkspace(opt.Lambda,1,thechannel,"lambda{0:.0f}".format(opt.Lambda),input)
