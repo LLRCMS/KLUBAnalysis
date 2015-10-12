@@ -437,7 +437,8 @@ int main (int argc, char** argv)
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
       cout << selections.at (iSel).first ;
-      for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) cout << " " ;
+      unsigned int nspacetojump = (NSpacesColZero > string(selections.at (iSel).first.Data ()).size () ? NSpacesColZero - string(selections.at (iSel).first.Data ()).size () : 0);
+      for (unsigned int i = 0 ; i < nspacetojump; ++i) cout << " " ;
       cout << "|" ;
       
       float evtnum = DATAtotal.at (iSel+1) ;
