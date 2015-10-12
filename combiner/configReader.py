@@ -102,11 +102,11 @@ class configReader:
             if section == "general":
                 #f = re.split('\W+',line)
                 if f[0] == 'signals' : 
-                    for sample in range(1,len(f)): self.signals.append(f[sample])
+                    for sample in range(1,len(f)-1): self.signals.append(f[sample])
                 elif f[0] == "backgrounds": 
-                    for sample in range(1,len(f)): self.background.append(f[sample])
+                    for sample in range(1,len(f)-1): self.background.append(f[sample])
                 elif f[0] == "data": 
-                    for sample in range(1,len(f)): self.datasamples.append(f[sample])
+                    for sample in range(1,len(f)-1): self.datasamples.append(f[sample])
 
  #               for chan in f:
  #                   if chan == f[0]: continue

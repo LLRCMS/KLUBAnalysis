@@ -16,21 +16,21 @@
 //Capire come gestire lambdas decimali
 
 
-void getLimits(TFile *f, std::vector<double> &v_mh,std::vector<double> &v_mean,std::vector<double> &v_68l,std::vector<double> &v_68h,std::vector<double> &v_95l,std::vector<double> &v_95h,std::vector<double> &v_obs, bool onepointta=false);
+void getLimits(TFile *f, std::vector<double> &v_mean,std::vector<double> &v_68l,std::vector<double> &v_68h,std::vector<double> &v_95l,std::vector<double> &v_95h,std::vector<double> &v_obs, bool onepointta=false);
 // --------- Inputs ------- //
 //TString inputDir = "cards"; //"higgsCombineTest.Asymptotic.mH125.7.root";
-float lambdas[]= {20};
-const int nLambdas = 1;
-float xsections[nLambdas]={15};
+float lambdas[]= {20,30,50};
+const int nLambdas = 3;
+float xsections[nLambdas]={100,50,20};
 const bool addObsLimit = false;
 const bool _DEBUG_ = true;
 string method = "ASCLS";
 Double_t xLow = 0;
-Double_t xHigh = 31.0;
+Double_t xHigh = 101.0;
 Double_t yLow = 0.1;
-Double_t yHigh = 151.0;
+Double_t yHigh = 161.0;
 TString xTitle = "#Lambda [GeV]";
-TString yTitle = "95% CL limit on #sigma/#sigma_{SM}";
+TString yTitle = "95% CL limit on #sigma [pb]";
 const bool logy = false;
 const bool logx = false;
 const bool grid = true;
@@ -49,8 +49,7 @@ bool onepointta=true;
 
 using namespace std;
 
-void plotAsymptotic()
-{
+void plotAsymptotic() {
 
   gStyle->SetPadLeftMargin(0.16);
   gStyle->SetPadTopMargin(0.1);
@@ -58,122 +57,77 @@ void plotAsymptotic()
   //TFile *inFile = new TFile(inputFile,"READ");
 
   // ------------------- Get Values -------------------- //
-
-
   vector<double> Val_obs, Val_mean, Val_68h, Val_68l, Val_95h, Val_95l;
   cout<<"Getting limits"<<endl;
+
+  float lim[nLambdas], limobs[nLambdas],lim68l[nLambdas],lim68h[nLambdas],lim95l[nLambdas],lim95h[nLambdas];
   for(int ifile=0;ifile<nLambdas;ifile++){
    TString filename;
-   filename.Form("cards/lambda%d/higgsCombineLambda%d.Asymptotic.mH125.7.root",lambdas[ifile],lambdas[ifile]);
+   filename.Form("cards/lambda%d/higgsCombineLambda%d.Asymptotic.mH125.7.root",int(lambdas[ifile]),int(lambdas[ifile]));
    TFile *inFile = TFile::Open(filename.Data());
-   getLimits(inFile,lambdas[ifile],Val_mean,Val_68l,Val_68h,Val_95l,Val_95h,Val_obs,onepointta);
+   getLimits(inFile,Val_mean,Val_68l,Val_68h,Val_95l,Val_95h,Val_obs,onepointta);
    cout<<"got"<<endl;
-   vector<double> v_masses, v_means, v_lo68, v_hi68, v_lo95, v_hi95, v_obs;
+
    vector<double> expExclusion,obsExclusion;
 
-   cout<<"point "<<i<<endl;
-   v_masses.push_back( mH[i] );
-   v_means.push_back( Val_mean[i]*xsections[ifile] );
-   v_lo68.push_back( min( Val_68l[i], Val_68h[i])*xsections[ifile] );
-   v_hi68.push_back( max( Val_68h[i], Val_68l[i])*xsections[ifile] );
-   v_lo95.push_back( min( Val_95l[i], Val_95h[i])*xsections[ifile] );
-   v_hi95.push_back( max( Val_95h[i], Val_95l[i])*xsections[ifile] );
-   v_obs.push_back(Val_obs[i]*xsections[ifile]);
-   if(Val_mean[i] < 1.0) expExclusion.push_back(mH[i]);
-   if(Val_obs[i] < 1.0 && addObsLimit) obsExclusion.push_back(mH[i]);
+   cout<<"point "<<ifile<<endl;
+   lim[ifile] = Val_mean[ifile]*xsections[ifile];
+   lim68l[ifile] = min( Val_68l[ifile], Val_68h[ifile])*xsections[ifile];
+   lim95l[ifile] = min( Val_95l[ifile], Val_95h[ifile])*xsections[ifile];
+   lim68h[ifile] = max( Val_68h[ifile], Val_68l[ifile])*xsections[ifile];
+   lim95h[ifile] = max( Val_95h[ifile], Val_95l[ifile])*xsections[ifile];
 
-
-  // ------------------- Change Values to Arrays -------------------- //
-
-   int nMassEff=0;
-   int nExcluded=0;
-  const int sizeV = v_masses.size();
-  double a_masses[sizeV], a_means[sizeV], a_lo68[sizeV], a_hi68[sizeV], a_lo95[sizeV], a_hi95[sizeV], a_obs[sizeV];
-  for(unsigned int m = 0; m < v_masses.size(); m++)
-    {
-      if(v_hi68.at(m)>=v_hi95.at(m) || v_lo68.at(m)<=v_lo95.at(m))
-	{
-	  cout << "Point at M = " << v_masses.at(m) << " excluded" << endl;
-	  nExcluded++;
-	  continue;
-	}
-      
-      a_masses[nMassEff] = v_masses[m];
-      a_means[nMassEff] = v_means[m];
-      a_lo68[nMassEff] = v_lo68[m];
-      a_hi68[nMassEff] = v_hi68[m];
-      a_lo95[nMassEff] = v_lo95[m];
-      a_hi95[nMassEff] = v_hi95[m];
-      a_obs[nMassEff] = v_obs[m];
-      nMassEff++;
-      
-    }
-  cout << "Excluded " << nExcluded << " sick mass points!" << endl;
-
-
-  // --------------- Excluded Regions --------------- //
-
-  for(int p = 0; p < expExclusion.size(); p++)
-    {
-      cout << "Expected Exclusion: " <<  expExclusion[p] << endl;
-    }
-
-  if(addObsLimit)
-    {
-      for(int q = 0; q < obsExclusion.size(); q++)
-	{
-	  cout << "Observed Exclusion: " <<  obsExclusion[q] << endl;
-	}
-    }
-
+   if(lim[ifile] < 1.0) expExclusion.push_back(lambdas[ifile]);
+   if(limobs[ifile] < 1.0 && addObsLimit) obsExclusion.push_back(lambdas[ifile]);
+ }
+ // ------------------- Change Values to Arrays -------------------- //
   // ------------------- Draw  -------------------- //
+ TCanvas *c = new TCanvas("c","c",canvasX,canvasY);
+ c->cd();
+ //TPad *pad2 = new TPad("pad2", "foo", 0, 0,   1, 0.3);
+ TPad *pad1 = new TPad("pad1", "foo", 0, 0.0, 1, 1);//0.3 al posto di 0.0
+ //pad2->SetBottomMargin(0.22);
+ pad1->Draw();
+ //pad2->Draw();
+ //pad2->SetGrid()
+ int nMassEff = nLambdas;
 
-  TCanvas *c = new TCanvas("c","c",canvasX,canvasY);
-  c->cd();
-  //TPad *pad2 = new TPad("pad2", "foo", 0, 0,   1, 0.3);
-  TPad *pad1 = new TPad("pad1", "foo", 0, 0.0, 1, 1);//0.3 al posto di 0.0
-  //pad2->SetBottomMargin(0.22);
-  pad1->Draw();
-  //pad2->Draw();
-  //pad2->SetGrid();
+ TGraph *gr = new TGraph(nMassEff, lambdas, lim);
+ TGraph* grshade_68 = new TGraph(2*nMassEff);
+ TGraph* grshade_95 = new TGraph(2*nMassEff);
+ TGraph *grObs = new TGraph(nMassEff, lambdas, limobs);
+ TGraph *grExp = new TGraph(nMassEff,lambdas,xsections);
 
+ grObs->SetLineWidth(3);
+ grObs->SetLineColor(kBlack);
+ grObs->SetMarkerStyle(21);
+ grObs->SetMarkerSize(0.8);
 
+ grExp->SetLineColor(kRed);
+ grExp->SetLineWidth(3);
 
-  TGraph *gr = new TGraph(nMassEff, a_masses, a_means);
-  TGraph* grshade_68 = new TGraph(2*nMassEff);
-  TGraph* grshade_95 = new TGraph(2*nMassEff);
-  TGraph *grObs = new TGraph(nMassEff, a_masses, a_obs);
-  grObs->SetLineWidth(3);
-  grObs->SetLineColor(kBlack);
-  grObs->SetMarkerStyle(21);
-  grObs->SetMarkerSize(0.8);
+ gr->SetLineStyle(2);
+ gr->SetLineWidth(3);
+ gr->SetLineColor(kBlue);
+ grshade_68->SetFillColor(kGreen);
+ grshade_95->SetFillColor(kYellow);		
+ grshade_68->SetLineStyle(1);
+ grshade_95->SetLineStyle(1);
+ grshade_68->SetLineWidth(3);
+ grshade_95->SetLineWidth(3);
+ grshade_68->SetLineColor(kBlue);
+ grshade_95->SetLineColor(kBlue);
 
-  gr->SetLineStyle(2);
-  gr->SetLineWidth(3);
-  gr->SetLineColor(kBlue);
-  grshade_68->SetFillColor(kGreen);
-  grshade_95->SetFillColor(kYellow);		
-  grshade_68->SetLineStyle(1);
-  grshade_95->SetLineStyle(1);
-  grshade_68->SetLineWidth(3);
-  grshade_95->SetLineWidth(3);
-  grshade_68->SetLineColor(kBlue);
-  grshade_95->SetLineColor(kBlue);
-  
-  for (int a = 0; a < nMassEff; a++)
-    {
-      grshade_68->SetPoint(a,a_masses[a],a_lo68[a]);
-      grshade_68->SetPoint(sizeV+a,a_masses[nMassEff-a-1],a_hi68[nMassEff-a-1]);
-      grshade_95->SetPoint(a,a_masses[a],a_lo95[a]);
-      grshade_95->SetPoint(nMassEff+a,a_masses[nMassEff-a-1],a_hi95[nMassEff-a-1]);
-    }
-	
-	
+ int sizeV = nMassEff;
+ for (int a = 0; a < nMassEff; a++)
+ {
+  grshade_68->SetPoint(a,lambdas[a],lim68l[a]);
+  grshade_68->SetPoint(sizeV+a,lambdas[nMassEff-a-1],lim68h[nMassEff-a-1]);
+  grshade_95->SetPoint(a,lambdas[a],lim95l[a]);
+  grshade_95->SetPoint(nMassEff+a,lambdas[nMassEff-a-1],lim95h[nMassEff-a-1]);
+  }
+
   char outfileName[192];
-
-  TF1* oneLine = new TF1("oneLine","1",xLow,xHigh);
-  oneLine->SetLineColor(kRed);
-  oneLine->SetLineWidth(3);
 
   // --------------- Low Mass Zoom -------------- //
 	
@@ -225,13 +179,12 @@ void plotAsymptotic()
   grshade_95->Draw("f");
   grshade_68->Draw("f");
   gr->Draw("C");
+  grExp->Draw("l");
   if(addObsLimit)
     {
       if(points)grObs->Draw("CP");
       else grObs->Draw("C");
     }
-
-oneLine->Draw("LSAME");
 
 
   hr->GetXaxis()->SetTitle(xTitle);
@@ -377,43 +330,32 @@ oneLine->Draw("LSAME");
   //outf.Write();
 
 	
-}
+  }
 
 
 
-void getLimits(TFile *f, std::vector<double> &v_mh,std::vector<double> &v_mean,std::vector<double> &v_68l,std::vector<double> &v_68h,std::vector<double> &v_95l,std::vector<double> &v_95h,std::vector<double> &v_obs,bool onepointta)
+void getLimits(TFile *f, std::vector<double> &v_mean,std::vector<double> &v_68l,std::vector<double> &v_68h,std::vector<double> &v_95l,std::vector<double> &v_95h,std::vector<double> &v_obs,bool onepointta)
 {
-cout<<"getting tree"<<endl;
+  cout<<"getting tree"<<endl;
   TTree *tree =(TTree*)f->Get("limit");
   cout<<"entries "<<tree->GetEntries()<<endl;
-int nGo=1;if(onepointta)nGo=3;
-  double mh=20,limit;
+  double limit;
   float quant;
   //tree->SetBranchAddress("mh",&mh);
   tree->SetBranchAddress("limit",&limit);
   tree->SetBranchAddress("quantileExpected",&quant);
-  for(int iGo=0;iGo<nGo;iGo++){
-if(nGo>1){
-if(iGo==0)mh=19;
-else if(iGo==1)mh=20;
-else if(iGo==2)mh=21;
-}
+
   for(int i=0;i<tree->GetEntries();i++)
-    {
-      tree->GetEntry(i);
-      if(_DEBUG_)cout << "mH: " << mh << " limit: " << limit << " quantileExpected: " << quant << endl;  
-      if(quant>-1.01&&quant<-0.99)
-	{
-	  v_obs.push_back(limit);
-	  v_mh.push_back(mh);
-	}
-      else if(quant>0.024 && quant<0.026) v_95l.push_back(limit);
-      else if(quant>0.15  && quant<0.17 ) v_68l.push_back(limit);
-      else if(quant>0.49  && quant<0.51 ) v_mean.push_back(limit);
-      else if(quant>0.83  && quant<0.85 ) v_68h.push_back(limit);
-      else if(quant>0.974 && quant<0.976) v_95h.push_back(limit);
-      else {cout<<"Error! Unknown Quantile =  " << quant << endl;}
-      
-    }
+  {
+    tree->GetEntry(i);
+    //if(_DEBUG_)cout << "mH: " << mh << " limit: " << limit << " quantileExpected: " << quant << endl;  
+    if(quant>-1.01&&quant<-0.99)  v_obs.push_back(limit);
+    else if(quant>0.024 && quant<0.026) v_95l.push_back(limit);
+    else if(quant>0.15  && quant<0.17 ) v_68l.push_back(limit);
+    else if(quant>0.49  && quant<0.51 ) v_mean.push_back(limit);
+    else if(quant>0.83  && quant<0.85 ) v_68h.push_back(limit);
+    else if(quant>0.974 && quant<0.976) v_95h.push_back(limit);
+    else {cout<<"Error! Unknown Quantile =  " << quant << endl;}
+
   }
-}
+ }
