@@ -41,8 +41,13 @@ class cardMaker:
     def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir, theInputs):
         
         dname=""
-        theOutLambda = theHHLambda ##FIXME
-        theHHLambda = 20 ##FIXME, waiting for the other samples
+        theOutLambda = str(int(theHHLambda))
+        if abs(theHHLambda - int(theHHLambda) )>0.01 : 
+            theOutLambda = str(int(theHHLambda))+"dot"+ str(int(100*abs(theHHLambda - int(theHHLambda) )))
+        if theHHLambda <0 : 
+            theOutLambda = "m"+str(abs(int(theHHLambda)))
+
+        #theHHLambda = 20 ##FIXME, waiting for the other samples
         if(self.is2D==2):dname="2D"
         cmd = 'mkdir -p cards{0}/{1}'.format(dname,theOutputDir)
         status, output = commands.getstatusoutput(cmd)    
@@ -79,7 +84,8 @@ class cardMaker:
         else :
             var2 = theInputs.AllVars[theInputs.varY]
         #print "test2D_{0}{1}_Lambda{2:.0f}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theHHLambda,theInputs.selectionLevel)
-        nameString = "OS_sig_{0}{1}_OS_{3}_Lambda{2:.0f}".format(theInputs.AllVars[theInputs.varX],var2,theHHLambda,theInputs.selectionLevel)
+        nameString = "OS_sig_{0}{1}_OS_{3}_Lambda{2}".format(theInputs.AllVars[theInputs.varX],var2,theOutLambda,theInputs.selectionLevel)
+        print nameString
         templateSIG = inputFile.Get(nameString)
         if self.is2D==1: 
             if "TH2" in templateSIG.ClassName() : templateSIG = templateSIG.ProjectionX()
@@ -132,7 +138,7 @@ class cardMaker:
             ral_variableList = ROOT.RooArgList(x,y)
             ras_variableSet  = ROOT.RooArgSet(x,y)
 
-        self.LUMI = ROOT.RooRealVar("LUMI_{0:.0f}".format(self.sqrts),"LUMI_{0:.0f}".format(self.sqrts),self.lumi)
+        self.LUMI = ROOT.RooRealVar("LUMI_{0:.0f}".format(self.sqrts),"LUMI_{0:.2f}".format(self.sqrts),self.lumi)
         self.LUMI.setConstant(True)
         rrvLumi = ROOT.RooRealVar("cmshh_lumi","cmshh_lumi",self.lumi)  
 
@@ -142,7 +148,7 @@ class cardMaker:
         #Default
         morphVarList_sig = ROOT.RooArgList()
         MorphList_sig = ROOT.RooArgList()
-        TemplateName = "SIG_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+        TemplateName = "SIG_TempDataHist_{0:.0f}_{1:.0f}_{2:.2f}".format(theChannel,self.sqrts,theHHLambda)
         SIG_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateSIG)
         #PdfName = "SIG_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
         SIG_TemplatePdf = ROOT.RooHistPdf("sig","sig",ras_variableSet,SIG_TempDataHist)
@@ -169,7 +175,7 @@ class cardMaker:
         rdhB = []
         rhpB = []
         for ibkg in range(len(templatesBKG)):
-            TemplateName = "BKG_{3}_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
+            TemplateName = "BKG_{3}_TempDataHist_{0:.0f}_{1:.0f}_{2:.2f}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
             rdhB.append(ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templatesBKG[ibkg]))
             #PdfName = "BKG_{3}_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
             rhpB.append(ROOT.RooHistPdf("bkg_{0}".format(theInputs.background[ibkg]),"bkg_{0}".format(theInputs.background[ibkg]),ras_variableSet,rdhB[ibkg]))
@@ -193,10 +199,10 @@ class cardMaker:
         #name_ShapeDC = "cards{3}/{0}/hh_{1}_L{2:.0f}_13TeV.txt".format(theOutputDir,theChannel,theHHLambda,dname)
         #string_ShapeWS = "hh_{0}_L{1:.0f}_13TeV.input.root".format(theChannel,theHHLambda)
         #string_ShapeDC = "hh_{0}_L{1:.0f}_13TeV.txt".format(theChannel,theHHLambda)
-        name_ShapeWS = "cards{3}/{0}/hh_{1}_L{2:.0f}_13TeV.input.root".format(theOutputDir,theChannel,theOutLambda,dname)
-        name_ShapeDC = "cards{3}/{0}/hh_{1}_L{2:.0f}_13TeV.txt".format(theOutputDir,theChannel,theOutLambda,dname)
-        string_ShapeWS = "hh_{0}_L{1:.0f}_13TeV.input.root".format(theChannel,theOutLambda)
-        string_ShapeDC = "hh_{0}_L{1:.0f}_13TeV.txt".format(theChannel,theOutLambda)
+        name_ShapeWS = "cards{3}/{0}/hh_{1}_L{2:.2f}_13TeV.input.root".format(theOutputDir,theChannel,theHHLambda,dname)
+        name_ShapeDC = "cards{3}/{0}/hh_{1}_L{2:.2f}_13TeV.txt".format(theOutputDir,theChannel,theHHLambda,dname)
+        string_ShapeWS = "hh_{0}_L{1:.2f}_13TeV.input.root".format(theChannel,theHHLambda)
+        string_ShapeDC = "hh_{0}_L{1:.2f}_13TeV.txt".format(theChannel,theHHLambda)
 
         w.writeToFile(name_ShapeWS)
 
@@ -245,7 +251,7 @@ class cardMaker:
 
         file.write("------------\n")
         #syst = systReader("../config/systematics.cfg",['Lambda20'],theInputs.background)
-        syst = systReader("../config/systematics.cfg",['Lambda20'],theInputs.background) #FIXME: use the one above once all bkg are in
+        syst = systReader("../config/systematics.cfg",['Lambda{0}'.format(theOutLambda)],theInputs.background) #FIXME: use the one above once all bkg are in
 	syst.writeSystematics(file)
 
 
@@ -288,4 +294,4 @@ if __name__ == "__main__":
     elif opt.channel == "TauTau" : thechannel = 3
 
     input.readInputs()
-    dc.makeCardsAndWorkspace(opt.Lambda,1,thechannel,"lambda{0:.0f}".format(opt.Lambda),input)
+    dc.makeCardsAndWorkspace(opt.Lambda,1,thechannel,"lambda{0:.2f}".format(opt.Lambda),input)

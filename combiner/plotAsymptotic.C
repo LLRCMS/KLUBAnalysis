@@ -19,8 +19,8 @@
 void getLimits(TFile *f, std::vector<double> &v_mean,std::vector<double> &v_68l,std::vector<double> &v_68h,std::vector<double> &v_95l,std::vector<double> &v_95h,std::vector<double> &v_obs, bool onepointta=false);
 // --------- Inputs ------- //
 //TString inputDir = "cards"; //"higgsCombineTest.Asymptotic.mH125.7.root";
-float lambdas[]= {0,10,20};
-const int nLambdas = 3;
+float lambdas[]= {-4,1,2.46,20};
+const int nLambdas = 4;
 const int nXsec = 6;
 float xsections[nXsec]={12,2.46,1,0.42,50,105};
 float deflambdas[nXsec]={-4,0,1,2.46,10,20};
@@ -65,7 +65,7 @@ void plotAsymptotic() {
   float lim[nLambdas], limobs[nLambdas],lim68l[nLambdas],lim68h[nLambdas],lim95l[nLambdas],lim95h[nLambdas];
   for(int ifile=0;ifile<nLambdas;ifile++){
    TString filename;
-   filename.Form("cards/lambda%d/higgsCombineLambda%d.Asymptotic.mH125.7.root",int(lambdas[ifile]),int(lambdas[ifile]));
+   filename.Form("cards/lambda%.2f/higgsCombineLambda%.2f.Asymptotic.mH125.7.root",lambdas[ifile],lambdas[ifile]);
    TFile *inFile = TFile::Open(filename.Data());
    getLimits(inFile,Val_mean,Val_68l,Val_68h,Val_95l,Val_95h,Val_obs,onepointta);
    cout<<"got"<<endl;

@@ -9,7 +9,7 @@ then
     Options="${Options} --expectSignal=1"
 fi
 
-for i in 0 1 10 20 ;
+for i in -4.00 1.00 2.46 20.00 ; #0 1 10 20 ;
 do
     echo "running combine for lambda${i}";
     cd lambda${i};
