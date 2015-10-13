@@ -97,6 +97,9 @@ class cardMaker:
         templatesBKG = []
         for isample in  theInputs.background:
             nameTemplate = "OS_bkg_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,isample)
+            if isample in theInputs.additional :
+                index = theInputs.additional.index(isample)
+                nameTemplate = theInputs.additionalName[index]
             template = inputFile.Get(nameTemplate).Clone()
             if self.is2D == 1:
                 if "TH2" in template.ClassName() : 
@@ -104,6 +107,7 @@ class cardMaker:
             templatesBKG.append(template)
             theRates.append(template.Integral("width")*self.lumi)
             totalRate = totalRate + theRates[len(theRates)-1]
+
             #rate_bkgTT_Shape = templateBKG_TT.Integral("width")*self.lumi
 
         #theRates=[rate_signal_Shape,rate_bkgTT_Shape,rate_bkgDY_Shape,rate_bkgTWantitop_Shape,rate_bkgTWtop_Shape]
@@ -170,6 +174,7 @@ class cardMaker:
             #PdfName = "BKG_{3}_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
             rhpB.append(ROOT.RooHistPdf("bkg_{0}".format(theInputs.background[ibkg]),"bkg_{0}".format(theInputs.background[ibkg]),ras_variableSet,rdhB[ibkg]))
             getattr(w,'import')(rhpB[ibkg],ROOT.RooFit.RecycleConflictNodes())
+
         
         ## --------------------------- DATASET --------------------------- ##
         #RooDataSet ds("ds","ds",ras_variableSet,Import(*tree)) ;

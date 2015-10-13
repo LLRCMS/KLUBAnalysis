@@ -22,18 +22,18 @@ void getLimits(TFile *f, std::vector<double> &v_mean,std::vector<double> &v_68l,
 float lambdas[]= {0,10,20};
 const int nLambdas = 3;
 const int nXsec = 6;
-float xsections[nXsec]={12,2.2,1,0.42,50,105};
+float xsections[nXsec]={12,2.46,1,0.42,50,105};
 float deflambdas[nXsec]={-4,0,1,2.46,10,20};
 const bool addObsLimit = false;
 const bool _DEBUG_ = true;
 string method = "ASCLS";
-Double_t xLow = 0;
+Double_t xLow = -5;
 Double_t xHigh = 21.0;
-Double_t yLow = 0.1;
-Double_t yHigh = 34.3*150*1000.;
+Double_t yLow = 10;
+Double_t yHigh = 34.3*150.;
 TString xTitle = "#Lambda [GeV]";
-TString yTitle = "95% CL limit on #sigma [pb]";
-const bool logy = false;
+TString yTitle = "95% CL limit on #sigma [fb]";
+const bool logy = true;
 const bool logx = false;
 const bool grid = true;
 const bool gridOnTop = true;
@@ -55,7 +55,7 @@ void plotAsymptotic() {
 
   gStyle->SetPadLeftMargin(0.16);
   gStyle->SetPadTopMargin(0.1);
-  for(int ix = 0; ix< nXsec; ix++) xsections[ix] *= 1000.; //from fb tp pb
+  for(int ix = 0; ix< nXsec; ix++) xsections[ix] *= 34.3; //from fb tp pb
   //TFile *inFile = new TFile(inputFile,"READ");
 
   // ------------------- Get Values -------------------- //
@@ -79,6 +79,7 @@ void plotAsymptotic() {
    }
    cout<<valxsections<<endl;
    lim[ifile] = Val_mean[ifile]*valxsections;
+   cout<<Val_mean[ifile]<<endl;
    lim68l[ifile] = min( Val_68l[ifile], Val_68h[ifile])*valxsections;
    lim95l[ifile] = min( Val_95l[ifile], Val_95h[ifile])*valxsections;
    lim68h[ifile] = max( Val_68h[ifile], Val_68l[ifile])*valxsections;
@@ -138,7 +139,7 @@ void plotAsymptotic() {
 
   // --------------- Low Mass Zoom -------------- //
 	
-  TLegend * box2 = new TLegend(0.35,0.6,0.75,0.80);
+  TLegend * box2 = new TLegend(0.51,0.1,0.88,0.380);
   box2->SetFillColor(0);
   //box2->SetBorderSize(0);
   if (addObsLimit){ box2->AddEntry(grObs,"1D Fit Observed Asym. CLs","l"); }
@@ -150,13 +151,13 @@ void plotAsymptotic() {
   //box2->AddEntry(oneLine,"#sigma / #sigma_{SM}","l");
 
 		
-  double ptLow= 0.26, ptHigh = 0.51;
+  double ptLow= 0.6, ptHigh = 0.8;
 		
-  TPaveText *pt = new TPaveText(ptLow,0.84,ptHigh,0.88,"NDC");
+  TPaveText *pt = new TPaveText(ptLow,0.44,ptHigh,0.5,"NDC");
   pt->SetFillColor(0);
   pt->SetTextFont(42);
   pt->AddText("CMS Preliminary");
-  TPaveText *pt4 = new TPaveText(ptLow,0.8,ptHigh,0.84,"NDC");
+  TPaveText *pt4 = new TPaveText(ptLow,0.38,ptHigh,0.44,"NDC");
   pt4->SetFillColor(0);
   pt4->SetTextFont(42);
   pt4->AddText("H #rightarrow hh #rightarrow bb #tau #tau"); 
