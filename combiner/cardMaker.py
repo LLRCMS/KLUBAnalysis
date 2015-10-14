@@ -111,7 +111,7 @@ class cardMaker:
                 if "TH2" in template.ClassName() : 
                     template = template.ProjectionX()
             templatesBKG.append(template)
-            theRates.append(template.Integral("width")#*self.lumi)
+            theRates.append(template.Integral("width"))#*self.lumi)
             totalRate = totalRate + theRates[len(theRates)-1]
 
             #rate_bkgTT_Shape = templateBKG_TT.Integral("width")*self.lumi
@@ -266,6 +266,7 @@ def parseOptions():
     parser.add_option('-f', '--filename',   dest='filename', type='string', default="",  help='input plots')
     parser.add_option('-l', '--lambda',   dest='Lambda', type='float', default=20,  help='Lambda value')
     parser.add_option('-c', '--channel',   dest='channel', type='string', default='MuTau',  help='final state')
+    parser.add_option('-o', '--selection', dest='overSel', type='string', default='', help='overwrite selection string')
 
     # store options and arguments as global variables
     global opt, args
@@ -292,6 +293,8 @@ if __name__ == "__main__":
     thechannel = 1
     if opt.channel == "MuTau" : thechannel=2
     elif opt.channel == "TauTau" : thechannel = 3
-
     input.readInputs()
-    dc.makeCardsAndWorkspace(opt.Lambda,1,thechannel,"lambda{0:.2f}".format(opt.Lambda),input)
+    if opt.overSel is not "":
+        print "OVERSEL="+opt.overSel
+        input.selectionLevel = opt.overSel
+    dc.makeCardsAndWorkspace(opt.Lambda,1,thechannel,"lambda{0:.2f}{1}".format(opt.Lambda,opt.overSel),input)
