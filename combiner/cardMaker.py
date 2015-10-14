@@ -96,7 +96,7 @@ class cardMaker:
         #templateSIG_QCDUP = inputFile.Get("") 
         #templateSIG_QCDDOWN = inputFile.Get("") 
         ##...
-        rate_signal_Shape = templateSIG.Integral("width")*self.lumi #*2.3
+        rate_signal_Shape = templateSIG.Integral("width")#*self.lumi #*2.3
         totalRate = float(rate_signal_Shape)
         print " signal rate ", rate_signal_Shape
         theRates = [rate_signal_Shape]
@@ -111,7 +111,7 @@ class cardMaker:
                 if "TH2" in template.ClassName() : 
                     template = template.ProjectionX()
             templatesBKG.append(template)
-            theRates.append(template.Integral("width")*self.lumi)
+            theRates.append(template.Integral("width")#*self.lumi)
             totalRate = totalRate + theRates[len(theRates)-1]
 
             #rate_bkgTT_Shape = templateBKG_TT.Integral("width")*self.lumi
