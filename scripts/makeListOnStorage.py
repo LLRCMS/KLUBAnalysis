@@ -4,10 +4,16 @@ from subprocess import Popen, PIPE
 #tag = "llrNt_NoSVFit_bkg_27Ago2015" # tag, stesso nome del crab folder senza crab3_ all'inizio
 #tag = "llrNt_NoSVFit_data_27Ago2015"
 #tag = "llrNt_NoSVFit_data_30Ago2015_lumiMaskFix"
-tag  = "Data50ns_SVFit_6Ott2015"
-#outFolder = "../inputFiles/28Ago2015/" # write / at the end
-outFolder = "../inputFiles/13Ott2015/"
+tag  = "Data25ns_SVFit_6Ott2015_resub"
 
+#outFolder = "../inputFiles/28Ago2015/" # write / at the end
+#outFolder = "../inputFiles/13Ott2015/25ns/"
+
+# make list of EminiAOD from storage as publication has problems
+outFolder = "/home/llr/cms/cadamuro/HiggsTauTauFramework/CMSSW_7_4_7/src/LLRHiggsTauTau/NtupleProducer/test/inputFiles/13Ott2015/25ns/"
+
+areEnrichedMiniAOD = True; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
+                                 # if false: only add the polgrid server to run the skim and submit on root
 # ====================================================================
 
 def formatName (name, pathToRem):
@@ -15,10 +21,22 @@ def formatName (name, pathToRem):
     name = "root://polgrid4.in2p3.fr/" + name
     return name
 
-def saveToFile (lista, filename):
+def saveToFile (lista, filename, areEnrichedMiniAOD):
     f = open (filename, "w")
-    for elem in lista:
-        f.write("%s\n" % elem) #vintage
+
+    if not areEnrichedMiniAOD:
+        for elem in lista:
+            f.write("%s\n" % elem) #vintage
+    
+    else:
+        f.write("FILELIST = cms.untracked.vstring()\n")
+        f.write("FILELIST.extend ([\n")
+        for elem in lista:
+            elem = elem.replace ("root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat", "")
+            f.write ("    '")
+            f.write("%s',\n" % elem) #vintage  
+        f.write("])\n")
+ 
     f.close()
 
 
@@ -65,6 +83,8 @@ for line in pipe.stdout:
 # now I have all file lists, save them
 for sample, lista in allLists.iteritems():
    if lista: 
-      saveToFile (lista, outFolder + sample.strip()+".txt")
+      outName = outFolder + sample.strip()+".txt"
+      if areEnrichedMiniAOD : outName = outFolder + sample.strip()+".py"
+      saveToFile (lista, outName, areEnrichedMiniAOD)
    else:
       print "  *** WARNING: Folder for dataset %s is empty" % sample
