@@ -30,7 +30,7 @@ string method = "ASCLS";
 Double_t xLow = -5;
 Double_t xHigh = 21.0;
 Double_t yLow = 10;
-Double_t yHigh = 34.3*1000.;
+Double_t yHigh = 34.3*1000.*0.073;
 TString xTitle = "#Lambda [GeV]";
 TString yTitle = "95% CL limit on #sigma [fb]";
 const bool logy = true;
@@ -55,7 +55,7 @@ void plotAsymptotic() {
 
   gStyle->SetPadLeftMargin(0.16);
   gStyle->SetPadTopMargin(0.1);
-  for(int ix = 0; ix< nXsec; ix++) xsections[ix] *= 34.3; //from fb tp pb
+  for(int ix = 0; ix< nXsec; ix++) xsections[ix] *= 34.3 * 0.073; //xsXBR in fb
   //TFile *inFile = new TFile(inputFile,"READ");
 
   // ------------------- Get Values -------------------- //
