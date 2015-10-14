@@ -3,8 +3,10 @@ from subprocess import Popen, PIPE
 
 #tag = "llrNt_NoSVFit_bkg_27Ago2015" # tag, stesso nome del crab folder senza crab3_ all'inizio
 #tag = "llrNt_NoSVFit_data_27Ago2015"
-tag = "llrNt_NoSVFit_data_30Ago2015_lumiMaskFix"
-outFolder = "../inputFiles/28Ago2015/" # write / at the end
+#tag = "llrNt_NoSVFit_data_30Ago2015_lumiMaskFix"
+tag  = "Data50ns_SVFit_6Ott2015"
+#outFolder = "../inputFiles/28Ago2015/" # write / at the end
+outFolder = "../inputFiles/13Ott2015/"
 
 # ====================================================================
 
@@ -44,9 +46,8 @@ for line in pipe.stdout:
         out = pipeNested.stdout.readlines()
         numLines = len (out)
         if numLines > 0 :
-            if numLines > 1 : print "  *** WARNING: In %s too many subfolders, using last one (most recent submission)" % samplesPath
-        
-        samplesPath = samplesPath + "/" + out[-1].strip()
+            if numLines > 1 : print "  *** WARNING: In %s too many subfolders, using last one (most recent submission)" % samplesPath        
+            samplesPath = samplesPath + "/" + out[-1].strip()
     #print samplesPath
     # now I have to loop over the folders 0000, 1000, etc...
     comm = "/usr/bin/rfdir %s | awk '{print $9}'" % samplesPath.strip()
@@ -63,4 +64,7 @@ for line in pipe.stdout:
 
 # now I have all file lists, save them
 for sample, lista in allLists.iteritems():
-    saveToFile (lista, outFolder + sample.strip()+".txt")
+   if lista: 
+      saveToFile (lista, outFolder + sample.strip()+".txt")
+   else:
+      print "  *** WARNING: Folder for dataset %s is empty" % sample
