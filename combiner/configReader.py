@@ -27,6 +27,8 @@ class configReader:
         self.signals=[]
         self.background=[]
         self.datasamples=[]
+        self.additional = []
+        self.additionalName = []
         #self.all_chan = False
         #self.Lambda1_chan = False
         #self.Lambda20_chan = False
@@ -102,11 +104,11 @@ class configReader:
             if section == "general":
                 #f = re.split('\W+',line)
                 if f[0] == 'signals' : 
-                    for sample in range(1,len(f)): self.signals.append(f[sample])
+                    for sample in range(1,len(f)-1): self.signals.append(f[sample])
                 elif f[0] == "backgrounds": 
-                    for sample in range(1,len(f)): self.background.append(f[sample])
+                    for sample in range(1,len(f)-1): self.background.append(f[sample])
                 elif f[0] == "data": 
-                    for sample in range(1,len(f)): self.datasamples.append(f[sample])
+                    for sample in range(1,len(f)-1): self.datasamples.append(f[sample])
 
  #               for chan in f:
  #                   if chan == f[0]: continue
@@ -151,6 +153,14 @@ class configReader:
            
             if f[0] == "cardsselection":
                 self.selectionLevel = f[1]
+
+            if f[0] == "additionalBkgs":
+                for sample in range(1,len(f)-1): 
+                    self.background.append(f[sample])
+                    self.additional.append(f[sample])
+
+            if f[0] == "additionalName" :
+                for sample in range(1,len(f)-1): self.additionalName.append(f[sample])
 
         for iname in range(len(self.AllVars)):
             #print self.AllVars[iname]#, varXname

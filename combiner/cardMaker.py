@@ -41,6 +41,13 @@ class cardMaker:
     def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir, theInputs):
         
         dname=""
+        theOutLambda = str(int(theHHLambda))
+        if abs(theHHLambda - int(theHHLambda) )>0.01 : 
+            theOutLambda = str(int(theHHLambda))+"dot"+ str(int(100*abs(theHHLambda - int(theHHLambda) )))
+        if theHHLambda <0 : 
+            theOutLambda = "m"+str(abs(int(theHHLambda)))
+
+        #theHHLambda = 20 ##FIXME, waiting for the other samples
         if(self.is2D==2):dname="2D"
         cmd = 'mkdir -p cards{0}/{1}'.format(dname,theOutputDir)
         status, output = commands.getstatusoutput(cmd)    
@@ -77,10 +84,11 @@ class cardMaker:
         else :
             var2 = theInputs.AllVars[theInputs.varY]
         #print "test2D_{0}{1}_Lambda{2:.0f}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theHHLambda,theInputs.selectionLevel)
-        templateSIG = inputFile.Get("OS_sig_{0}{1}_OS_{3}_Lambda{2:.0f}".format(theInputs.AllVars[theInputs.varX],var2,theHHLambda,theInputs.selectionLevel))
+        nameString = "OS_sig_{0}{1}_OS_{3}_Lambda{2}".format(theInputs.AllVars[theInputs.varX],var2,theOutLambda,theInputs.selectionLevel)
+        print nameString
+        templateSIG = inputFile.Get(nameString)
         if self.is2D==1: 
             if "TH2" in templateSIG.ClassName() : templateSIG = templateSIG.ProjectionX()
-        
         ##JES syst
         #templateSIG_JESUP = inputFile.Get("") 
         #templateSIG_JESDOWN = inputFile.Get("") 
@@ -89,61 +97,26 @@ class cardMaker:
         #templateSIG_QCDDOWN = inputFile.Get("") 
         ##...
         rate_signal_Shape = templateSIG.Integral("width")*self.lumi #*2.3
-        totalRate = rate_signal_Shape
+        totalRate = float(rate_signal_Shape)
         print " signal rate ", rate_signal_Shape
-        putTT=False
-        putDY=False
-        putTWantitop=False
-        putTWtop=False
-        rate_bkgTT_Shape = 0.0
-        rate_bkgDY_Shape = 0.0
-        rate_bkgTWantitop_Shape = 0.0
-        rate_bkgTWtop_Shape = 0.0
+        theRates = [rate_signal_Shape]
+        templatesBKG = []
         for isample in  theInputs.background:
-            if isample == "TT":
-                templateBKG_TT = inputFile.Get("OS_bkg_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,isample))
-                if self.is2D==1 : 
-                    if "TH2" in templateBKG_TT.ClassName() : templateBKG_TT = templateBKG_TT.ProjectionX()
-                rate_bkgTT_Shape = templateBKG_TT.Integral("width")*self.lumi
-                putTT=True
-                print " bkg TT rate ", rate_bkgTT_Shape
-            elif isample == "DY":
-                templateBKG_DY = inputFile.Get("OS_bkg_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,isample))
-                if self.is2D==1 : 
-                    if "TH2" in templateBKG_DY.ClassName() : templateBKG_DY = templateBKG_DY.ProjectionX()
-                rate_bkgDY_Shape = templateBKG_DY.Integral("width")*self.lumi
-                putDY=True
-                print " bkg DY rate ", rate_bkgDY_Shape
-            elif isample == "TWantitop":
-                templateBKG_TWantitop = inputFile.Get("OS_bkg_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,isample))
-                if self.is2D==1 : 
-                    if "TH2" in templateBKG_TWantitop.ClassName() : templateBKG_TWantitop = templateBKG_TWantitop.ProjectionX()
-                rate_bkgTWantitop_Shape = templateBKG_TWantitop.Integral("width")*self.lumi
-                putTWantitop=True
-                print " bkg TWantitop rate ", rate_bkgTWantitop_Shape
-            elif isample == "TWtop":
-                templateBKG_TWtop = inputFile.Get("OS_bkg_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,isample))
-                if self.is2D==1 : 
-                    if "TH2" in templateBKG_TWtop.ClassName() : templateBKG_TWtop = templateBKG_TWtop.ProjectionX()
-                rate_bkgTWtop_Shape = templateBKG_TWtop.Integral("width")*self.lumi
-                putTWtop=True
-                print " bkg TWtop rate ", rate_bkgTWtop_Shape
-        #...
+            nameTemplate = "OS_bkg_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,isample)
+            if isample in theInputs.additional :
+                index = theInputs.additional.index(isample)
+                nameTemplate = theInputs.additionalName[index]
+            template = inputFile.Get(nameTemplate).Clone()
+            if self.is2D == 1:
+                if "TH2" in template.ClassName() : 
+                    template = template.ProjectionX()
+            templatesBKG.append(template)
+            theRates.append(template.Integral("width")*self.lumi)
+            totalRate = totalRate + theRates[len(theRates)-1]
 
-        ## -------------------------- RATES  ---------------------------- ##
-        #it would be better to read them from the outside...
-         #*2.3
-        totalRate = totalRate + rate_bkgTT_Shape + rate_bkgDY_Shape + rate_bkgTWantitop_Shape + rate_bkgTWtop_Shape
-        print "total rate ", totalRate
-        ## rates per lumi for scaling
-        #if (self.channel == self.ID_2e2mu) : bkgRate_qqzz = 76.82#theInputs['qqZZ_rate']/theInputs['qqZZ_lumi'] #*1.8
-        #elif (self.channel == self.ID_4e) :bkgRate_qqzz = 29.2900 
-        #elif (self.channel == self.ID_4mu) : bkgRate_qqzz = 43.2100
-        #totalRate_ggzz_Shape = totalRate_ggzz*self.lumi
-        #bkgRate_qqzz_Shape = bkgRate_qqzz*self.lumi
+            #rate_bkgTT_Shape = templateBKG_TT.Integral("width")*self.lumi
 
-
-        theRates=[rate_signal_Shape,rate_bkgTT_Shape,rate_bkgDY_Shape,rate_bkgTWantitop_Shape,rate_bkgTWtop_Shape]
+        #theRates=[rate_signal_Shape,rate_bkgTT_Shape,rate_bkgDY_Shape,rate_bkgTWantitop_Shape,rate_bkgTWtop_Shape]
         ## -------------------------- SIGNAL SHAPE VARIABLES ---------------------- ##
         binsx = templateSIG.GetNbinsX()
         binsy = 0
@@ -165,7 +138,7 @@ class cardMaker:
             ral_variableList = ROOT.RooArgList(x,y)
             ras_variableSet  = ROOT.RooArgSet(x,y)
 
-        self.LUMI = ROOT.RooRealVar("LUMI_{0:.0f}".format(self.sqrts),"LUMI_{0:.0f}".format(self.sqrts),self.lumi)
+        self.LUMI = ROOT.RooRealVar("LUMI_{0:.0f}".format(self.sqrts),"LUMI_{0:.2f}".format(self.sqrts),self.lumi)
         self.LUMI.setConstant(True)
         rrvLumi = ROOT.RooRealVar("cmshh_lumi","cmshh_lumi",self.lumi)  
 
@@ -175,9 +148,9 @@ class cardMaker:
         #Default
         morphVarList_sig = ROOT.RooArgList()
         MorphList_sig = ROOT.RooArgList()
-        TemplateName = "SIG_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+        TemplateName = "SIG_TempDataHist_{0:.0f}_{1:.0f}_{2:.2f}".format(theChannel,self.sqrts,theHHLambda)
         SIG_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateSIG)
-        PdfName = "SIG_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
+        #PdfName = "SIG_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
         SIG_TemplatePdf = ROOT.RooHistPdf("sig","sig",ras_variableSet,SIG_TempDataHist)
         print templateSIG.Integral()
         ##Up
@@ -199,34 +172,19 @@ class cardMaker:
 
         #SIGpdf = ROOT.VerticalInterpPdf("SIG","SIG",MorphList_sig,morphVarList_sig)
         SIGpdf =SIG_TemplatePdf
-        if putTT :
-            TemplateName = "BKG_TT_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-            BKG_TT_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateBKG_TT)
-            PdfName = "BKG_TT_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-            BKG_TT_TemplatePdf = ROOT.RooHistPdf("bkg_TT","bkg_TT",ras_variableSet,BKG_TT_TempDataHist)
-            getattr(w,'import')(BKG_TT_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
-        if putDY :
-            TemplateName = "BKG_DY_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-            BKG_DY_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateBKG_TT)
-            PdfName = "BKG_DY_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-            BKG_DY_TemplatePdf = ROOT.RooHistPdf("bkg_DY","bkg_DY",ras_variableSet,BKG_DY_TempDataHist)
-            getattr(w,'import')(BKG_DY_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
-        if putTWantitop :
-            TemplateName = "BKG_TWantitop_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-            BKG_TWantitop_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateBKG_TT)
-            PdfName = "BKG_TWantitop_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-            BKG_TWantitop_TemplatePdf = ROOT.RooHistPdf("bkg_TWantitop","bkg_TWantitop",ras_variableSet,BKG_TWantitop_TempDataHist)
-            getattr(w,'import')(BKG_TWantitop_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
-        if putTWtop :
-            TemplateName = "BKG_TWtop_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-            BKG_TWtop_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateBKG_TT)
-            PdfName = "BKG_TWtop_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-            BKG_TWtop_TemplatePdf = ROOT.RooHistPdf("bkg_TWtop","bkg_TWtop",ras_variableSet,BKG_TWtop_TempDataHist)
-            getattr(w,'import')(BKG_TWtop_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
+        rdhB = []
+        rhpB = []
+        for ibkg in range(len(templatesBKG)):
+            TemplateName = "BKG_{3}_TempDataHist_{0:.0f}_{1:.0f}_{2:.2f}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
+            rdhB.append(ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templatesBKG[ibkg]))
+            #PdfName = "BKG_{3}_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
+            rhpB.append(ROOT.RooHistPdf("bkg_{0}".format(theInputs.background[ibkg]),"bkg_{0}".format(theInputs.background[ibkg]),ras_variableSet,rdhB[ibkg]))
+            getattr(w,'import')(rhpB[ibkg],ROOT.RooFit.RecycleConflictNodes())
+
         
         ## --------------------------- DATASET --------------------------- ##
         #RooDataSet ds("ds","ds",ras_variableSet,Import(*tree)) ;
-        data_obs = BKG_TT_TemplatePdf.generate(ras_variableSet,1000)
+        data_obs = rhpB[0].generate(ras_variableSet,1000)
         #datasetName = "data_obs_{0}".format(self.appendName)
         data_obs.SetNameTitle("data_obs","data_obs")
 
@@ -236,10 +194,15 @@ class cardMaker:
         ## --------------------------- WORKSPACE -------------------------- ##
         getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs"))
         getattr(w,'import')(SIG_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
-        name_ShapeWS = "cards{3}/{0}/hh_{1}_L{2:.0f}_13TeV.input.root".format(theOutputDir,theChannel,theHHLambda,dname)
-        name_ShapeDC = "cards{3}/{0}/hh_{1}_L{2:.0f}_13TeV.txt".format(theOutputDir,theChannel,theHHLambda,dname)
-        string_ShapeWS = "hh_{0}_L{1:.0f}_13TeV.input.root".format(theChannel,theHHLambda)
-        string_ShapeDC = "hh_{0}_L{1:.0f}_13TeV.txt".format(theChannel,theHHLambda)
+        ##FIXME!!!!!!
+        #name_ShapeWS = "cards{3}/{0}/hh_{1}_L{2:.0f}_13TeV.input.root".format(theOutputDir,theChannel,theHHLambda,dname)
+        #name_ShapeDC = "cards{3}/{0}/hh_{1}_L{2:.0f}_13TeV.txt".format(theOutputDir,theChannel,theHHLambda,dname)
+        #string_ShapeWS = "hh_{0}_L{1:.0f}_13TeV.input.root".format(theChannel,theHHLambda)
+        #string_ShapeDC = "hh_{0}_L{1:.0f}_13TeV.txt".format(theChannel,theHHLambda)
+        name_ShapeWS = "cards{3}/{0}/hh_{1}_L{2:.2f}_13TeV.input.root".format(theOutputDir,theChannel,theHHLambda,dname)
+        name_ShapeDC = "cards{3}/{0}/hh_{1}_L{2:.2f}_13TeV.txt".format(theOutputDir,theChannel,theHHLambda,dname)
+        string_ShapeWS = "hh_{0}_L{1:.2f}_13TeV.input.root".format(theChannel,theHHLambda)
+        string_ShapeDC = "hh_{0}_L{1:.2f}_13TeV.txt".format(theChannel,theHHLambda)
 
         w.writeToFile(name_ShapeWS)
 
@@ -247,8 +210,9 @@ class cardMaker:
         file = open( name_ShapeDC, "wb")
 
         #channelList=theInputs.background #['sig','bkg_TT','bkg_DY'] 
-        channelName=['sig','bkg_TT','bkg_DY','bkg_TWantitop','bkg_TWtop']
-
+        channelName=['sig']#'sig','bkg_TT','bkg_DY','bkg_TWantitop','bkg_TWtop']
+        for isample in theInputs.background:
+            channelName.append('bkg_'+isample)
         file.write("imax 1\n")
         file.write("jmax {0}\n".format(len(channelName)-1))
         file.write("kmax *\n")
@@ -287,7 +251,7 @@ class cardMaker:
 
         file.write("------------\n")
         #syst = systReader("../config/systematics.cfg",['Lambda20'],theInputs.background)
-        syst = systReader("../config/systematics.cfg",['Lambda20'],['TT','DY','TWantitop','TWtop']) #FIXME: use the one above once all bkg are in
+        syst = systReader("../config/systematics.cfg",['Lambda{0}'.format(theOutLambda)],theInputs.background) #FIXME: use the one above once all bkg are in
 	syst.writeSystematics(file)
 
 
@@ -298,8 +262,10 @@ def parseOptions():
              + '%prog -h for help')
     parser = optparse.OptionParser(usage)
     
-    parser.add_option('-d', '--is2D',   dest='is2D',       type='int',    default=2,     help='number of Dimensions (default:1)')
+    parser.add_option('-d', '--is2D',   dest='is2D',       type='int',    default=1,     help='number of Dimensions (default:1)')
     parser.add_option('-f', '--filename',   dest='filename', type='string', default="",  help='input plots')
+    parser.add_option('-l', '--lambda',   dest='Lambda', type='float', default=20,  help='Lambda value')
+    parser.add_option('-c', '--channel',   dest='channel', type='string', default='MuTau',  help='final state')
 
     # store options and arguments as global variables
     global opt, args
@@ -322,6 +288,10 @@ if __name__ == "__main__":
     dc.set2D(opt.is2D)
     dc.setfileName(opt.filename)
     #outputDir = ""
-    input = configReader("../config/analysis_MuTau.cfg") 
+    input = configReader("../config/analysis_"+opt.channel+".cfg")
+    thechannel = 1
+    if opt.channel == "MuTau" : thechannel=2
+    elif opt.channel == "TauTau" : thechannel = 3
+
     input.readInputs()
-    dc.makeCardsAndWorkspace(20,1,2,"lambda20",input)
+    dc.makeCardsAndWorkspace(opt.Lambda,1,thechannel,"lambda{0:.2f}".format(opt.Lambda),input)

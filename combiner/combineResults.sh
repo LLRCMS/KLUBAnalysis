@@ -9,12 +9,12 @@ then
     Options="${Options} --expectSignal=1"
 fi
 
-for i in "20" ;#"10" ;
+for i in -4.00 1.00 2.46 20.00 ; #0 1 10 20 ;
 do
     echo "running combine for lambda${i}";
     cd lambda${i};
-    Options="${Options} -n Lambda${i} "
+    OPTIONS="${Options} -n Lambda${i} "
     #At this point I should do combineCards (to do it once I have more channels)
-    combine -M Asymptotic comb.root -m 125.7 ${Options}
+    combine -M Asymptotic comb.root -m 125.7 ${OPTIONS}
     cd -
 done
