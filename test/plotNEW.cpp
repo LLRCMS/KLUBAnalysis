@@ -283,7 +283,7 @@ int main (int argc, char** argv)
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " EXPECTED NUMBER OF SIG EVENTS\n\n" ;
 
-  printTableTitle (sigSamples, NSpacesColZero, NSpacesColumns) ;
+  printTableTitle (std::cout, sigSamples, NSpacesColZero, NSpacesColumns) ;
 
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
@@ -305,7 +305,7 @@ int main (int argc, char** argv)
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " EXPECTED NUMBER OF BKG EVENTS\n\n" ;
 
-  printTableTitle (bkgSamples, NSpacesColZero, NSpacesColumns) ;
+  printTableTitle (std::cout, bkgSamples, NSpacesColZero, NSpacesColumns) ;
 
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
@@ -328,7 +328,7 @@ int main (int argc, char** argv)
   cout << " OBSERVED NUMBER OF EVENTS\n\n" ;
 
   NSpacesColumns = 12 ;
-  printTableTitle (DATASamples, NSpacesColZero, NSpacesColumns) ;
+  printTableTitle (std::cout, DATASamples, NSpacesColZero, NSpacesColumns) ;
 
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
@@ -353,7 +353,7 @@ int main (int argc, char** argv)
   vector<float> DATAtotal = DATACount.getTotalCountsPerCut () ;
   vector<float> bkgtotal = bkgCount.getTotalCountsPerCut () ;
   vector<string> titles ; titles.push_back ("DATA") ; titles.push_back ("bkg") ;
-  printTableTitle (titles, NSpacesColZero, NSpacesColumns) ;
+  printTableTitle (std::cout, titles, NSpacesColZero, NSpacesColumns) ;
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
       cout << selections.at (iSel).first ;
