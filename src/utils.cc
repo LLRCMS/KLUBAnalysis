@@ -178,7 +178,7 @@ void printTableTitle (std::ofstream& out, vector<sample> & sample, unsigned int 
   vector<string> names ;
   for (unsigned int iSample = 0 ; iSample < sample.size () ; ++iSample)
     names.push_back (sample.at (iSample).sampleName.Data ()) ;
-  printTableTitle (names, NSpacesColZero, NSpacesColumns) ;
+  printTableTitle (out, names, NSpacesColZero, NSpacesColumns) ;
   return ;
 }
 
@@ -193,7 +193,7 @@ void printTableTitle (std::ofstream& out, vector<sample> & sample, vector<string
   for (unsigned int iDDSample = 0; iDDSample < DataDrivenBkgsName.size(); ++iDDSample)
     names.push_back (DataDrivenBkgsName.at(iDDSample));
   
-  printTableTitle (names, NSpacesColZero, NSpacesColumns) ;
+  printTableTitle (out, names, NSpacesColZero, NSpacesColumns) ;
   return ;
 }
 
