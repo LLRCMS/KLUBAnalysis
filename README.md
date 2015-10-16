@@ -22,9 +22,9 @@ git clone https://github.com/LLRCMS/KLUBAnalysis
 cd KLUBAnalysis
 mkdir interface/exceptions
 cd interface/exceptions
-ln -ns ../../../HHKinFit2/include/exceptions/HHInvMConstraintException.h 
-ln -ns ../../../HHKinFit2/include/exceptions/HHEnergyRangeException.h
-ln -ns ../../../HHKinFit2/include/exceptions/HHEnergyConstraintException.h
+ln -ns ../../../HHKinFit2/interface/exceptions/HHInvMConstraintException.h 
+ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyRangeException.h
+ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyConstraintException.h
 cd -
 source scripts/setup.sh
 make
