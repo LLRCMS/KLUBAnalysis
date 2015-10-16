@@ -155,36 +155,36 @@ void addTo (vector<float> & total, vector<float> & addition)
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-void printTableTitle (vector<string> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
+void printTableTitle (std::ofstream& out, vector<string> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
 {
-  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) cout << " " ;
-  cout << "| " ;
+  for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) out << " " ;
+  out << "| " ;
   for (unsigned int iSample = 0 ; iSample < sample.size () ; ++iSample)
     {
       string word = sample.at (iSample).substr (0, NSpacesColumns) ;
-      cout << word ;
+      out << word ;
       if ( NSpacesColumns < word.size () ) NSpacesColumns = word.size();
-      for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) cout << " " ;
-      cout << " | " ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) out << " " ;
+      out << " | " ;
     }
-  cout << "\n" ; 
+  out << "\n" ; 
   return ;
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-void printTableTitle (vector<sample> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
+void printTableTitle (std::ofstream& out, vector<sample> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
 {
   vector<string> names ;
   for (unsigned int iSample = 0 ; iSample < sample.size () ; ++iSample)
     names.push_back (sample.at (iSample).sampleName.Data ()) ;
-  printTableTitle (names, NSpacesColZero, NSpacesColumns) ;
+  printTableTitle (out, names, NSpacesColZero, NSpacesColumns) ;
   return ;
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-void printTableTitle (vector<sample> & sample, vector<string> & DataDrivenBkgsName, unsigned int NSpacesColZero, unsigned int NSpacesColumns)
+void printTableTitle (std::ofstream& out, vector<sample> & sample, vector<string> & DataDrivenBkgsName, unsigned int NSpacesColZero, unsigned int NSpacesColumns)
 {
   vector<string> names ;
   for (unsigned int iSample = 0 ; iSample < sample.size () ; ++iSample)
@@ -193,51 +193,51 @@ void printTableTitle (vector<sample> & sample, vector<string> & DataDrivenBkgsNa
   for (unsigned int iDDSample = 0; iDDSample < DataDrivenBkgsName.size(); ++iDDSample)
     names.push_back (DataDrivenBkgsName.at(iDDSample));
   
-  printTableTitle (names, NSpacesColZero, NSpacesColumns) ;
+  printTableTitle (out, names, NSpacesColZero, NSpacesColumns) ;
   return ;
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-void printTableBody  (vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples,
+void printTableBody  (std::ofstream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples,
                       unsigned int NSpacesColZero, unsigned int NSpacesColumns, unsigned int precision)
 {
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
   {
-    cout << selections.at (iSel).first ;
+    out << selections.at (iSel).first ;
     if ( NSpacesColZero < string(selections.at (iSel).first.Data ()).size () ) NSpacesColZero = string(selections.at (iSel).first.Data ()).size () ; //guard if name too long
-    for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) cout << " " ;
-    cout << "|" ;
+    for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) out << " " ;
+    out << "|" ;
     for (unsigned int iSample = 0 ; iSample < samples.size () ; ++iSample)
       {
         float evtnum = count.counters.at (iSample).at (iSel+1) ;
         int subtractspace = 0 ;
         if (evtnum > 0) subtractspace = int (log10 (evtnum)) + precision + 1 ;
-        for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
-        cout << setprecision (precision) << fixed << evtnum
+        for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) out << " " ;
+        out << setprecision (precision) << fixed << evtnum
              << " |" ;
       }
-    cout << "\n" ;
+    out << "\n" ;
   }
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-void printTableBody  (vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, vector<vector<float>> & DataDrivenSamplesYields,
+void printTableBody  (std::ofstream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, vector<vector<float>> & DataDrivenSamplesYields,
                       unsigned int NSpacesColZero, unsigned int NSpacesColumns, unsigned int precision)
 {
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
   {
-    cout << selections.at (iSel).first ;
+    out << selections.at (iSel).first ;
     if ( NSpacesColZero < string(selections.at (iSel).first.Data ()).size () ) NSpacesColZero = string(selections.at (iSel).first.Data ()).size () ; //guard if name too long
-    for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) cout << " " ;
-    cout << "|" ;
+    for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) out << " " ;
+    out << "|" ;
     
     for (unsigned int iSample = 0 ; iSample < samples.size () ; ++iSample)
       {
         float evtnum = count.counters.at (iSample).at (iSel+1) ;
         int subtractspace = 0 ;
         if (evtnum > 0) subtractspace = int (log10 (evtnum)) + precision + 1 ;
-        for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
-        cout << setprecision (precision) << fixed << evtnum
+        for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) out << " " ;
+        out << setprecision (precision) << fixed << evtnum
              << " |" ;
       }
     for (unsigned int iDDSample = 0 ; iDDSample < DataDrivenSamplesYields.size () ; ++iDDSample)
@@ -245,11 +245,33 @@ void printTableBody  (vector<pair <TString, TCut> > & selections, counters & cou
         float evtnum = DataDrivenSamplesYields.at(iDDSample).at(iSel) ;
         int subtractspace = 0 ;
         if (evtnum > 0) subtractspace = int (log10 (evtnum)) + precision + 1 ;
-        for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
-        cout << setprecision (precision) << fixed << evtnum
+        for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) out << " " ;
+        out << setprecision (precision) << fixed << evtnum
              << " |" ;
       }
 
-    cout << "\n" ; 
+    out << "\n" ; 
   }
 }
+
+/*
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+void printTable (std::ofstream& out, vector<string> & sample, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, vector<vector<float>> & DataDrivenSamplesYields, unsigned int precision )
+{
+  unsigned int NSpacesColumns = 0;
+  unsigned int NSpacesColZero = 0;
+
+  // compute required spacings
+  for (int i = 0; i < selections.size(); i++)
+  {
+    string s (selections.at(i).first.Data());
+    if (NSpacesColZero < s.size()) NSpacesColumns = s.size();
+  }
+  NSpacesColZero += 2; // extra space from seprarator
+
+  for (int i = 0; i < sample.size(); i++)
+  {
+    if (NSpacesColumns < sample.at(i).size()) NSpacesColumns = 
+  }
+}
+*/

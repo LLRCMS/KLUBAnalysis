@@ -385,13 +385,21 @@ int main (int argc, char** argv)
 
   // print yields
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+  TString yieldsFileName = outFolderNameBase + "/yields.txt";
+  std::ofstream yieldsFile (yieldsFileName.Data());
+
   unsigned int NSpacesColZero = 16;
   unsigned int NSpacesColumns = 10;
   
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " EXPECTED NUMBER OF SIG EVENTS\n\n" ;
-  printTableTitle (sigSamples) ;
-  printTableBody  (selections, OS_sigCount, sigSamples) ;
+  yieldsFile << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  yieldsFile << " EXPECTED NUMBER OF SIG EVENTS\n\n" ;
+  
+  printTableTitle (std::cout,  sigSamples) ;
+  printTableTitle (yieldsFile, sigSamples) ;
+  printTableBody  (std::cout,  selections, OS_sigCount, sigSamples) ;
+  printTableBody  (yieldsFile, selections, OS_sigCount, sigSamples) ;
 
   vector<string> DataDriven_names (1, string("QCD"));
   vector <vector<float>> DataDriven_yields;
@@ -406,8 +414,12 @@ int main (int argc, char** argv)
 
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " EXPECTED NUMBER OF BKG EVENTS\n\n" ;
-  printTableTitle (bkgSamples, DataDriven_names) ;
-  printTableBody  (selections, OS_bkgCount, bkgSamples, DataDriven_yields) ;
+  yieldsFile << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  yieldsFile << " EXPECTED NUMBER OF BKG EVENTS\n\n" ;
+  printTableTitle (std::cout,  bkgSamples, DataDriven_names) ;
+  printTableTitle (yieldsFile, bkgSamples, DataDriven_names) ;
+  printTableBody  (std::cout,  selections, OS_bkgCount, bkgSamples, DataDriven_yields) ;
+  printTableBody  (yieldsFile, selections, OS_bkgCount, bkgSamples, DataDriven_yields) ;
 
   // mini debug to cjeck that each var has the same QCD yield
   /*  
@@ -425,35 +437,60 @@ int main (int argc, char** argv)
 
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " OBSERVED NUMBER OF EVENTS\n\n" ;
-  printTableTitle (DATASamples) ;
-  printTableBody  (selections, OS_DATACount, DATASamples) ;
+  yieldsFile << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  yieldsFile << " OBSERVED NUMBER OF EVENTS\n\n" ;
+  printTableTitle (std::cout,  DATASamples) ;
+  printTableTitle (yieldsFile, DATASamples) ;
+  printTableBody  (std::cout,  selections, OS_DATACount, DATASamples) ;
+  printTableBody  (yieldsFile, selections, OS_DATACount, DATASamples) ;
 
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " TOTALS\n\n" ;
+  yieldsFile << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  yieldsFile << " TOTALS\n\n" ;
   vector<float> DATAtotal = OS_DATACount.getTotalCountsPerCut () ;
   vector<float> bkgtotal = OS_bkgCount.getTotalCountsPerCut () ;
   vector<string> titles ; titles.push_back ("DATA") ; titles.push_back ("bkg") ;
-  printTableTitle (titles) ;
+  printTableTitle (std::cout, titles) ;
+  printTableTitle (yieldsFile, titles) ;
+  
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
     {
       cout << selections.at (iSel).first ;
+      yieldsFile << selections.at (iSel).first ;
       unsigned int nspacetojump = (NSpacesColZero > string(selections.at (iSel).first.Data ()).size () ? NSpacesColZero - string(selections.at (iSel).first.Data ()).size () : 0);
-      for (unsigned int i = 0 ; i < nspacetojump; ++i) cout << " " ;
+      for (unsigned int i = 0 ; i < nspacetojump; ++i){
+        cout << " " ;
+        yieldsFile << " " ;
+      } 
       cout << "|" ;
+      yieldsFile << "|" ;
       
       float evtnum = DATAtotal.at (iSel+1) ;
       int subtractspace = 0 ;
       if (evtnum > 0) subtractspace = int (log10 (evtnum)) ;
-      for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i)
+      {
+        cout << " " ;
+        yieldsFile << " " ;
+      }
       cout << setprecision (0) << fixed << evtnum
+           << " |" ;
+      yieldsFile << setprecision (0) << fixed << evtnum
            << " |" ;
 
       evtnum = bkgtotal.at (iSel+1);
       for (unsigned int iDD = 0; iDD < DataDriven_yields.size(); iDD++) evtnum += DataDriven_yields.at(iDD).at(iSel);
       subtractspace = 0 ;
       if (evtnum > 0) subtractspace = int (log10 (evtnum)) ;
-      for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) cout << " " ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i)
+      {
+          cout << " " ;
+          yieldsFile << " " ;
+      }
       cout << setprecision (0) << fixed << evtnum
+           << " |\n" ;
+      yieldsFile << setprecision (0) << fixed << evtnum
            << " |\n" ;
     }
 /*

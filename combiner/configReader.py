@@ -29,20 +29,6 @@ class configReader:
         self.datasamples=[]
         self.additional = []
         self.additionalName = []
-        #self.all_chan = False
-        #self.Lambda1_chan = False
-        #self.Lambda20_chan = False
-#
-        #self.DY_chan = False
-        #self.TT_chan = False
-        #self.TWtop_chan = False
-        #self.TWantitop_chan = False
-        #self.Tt_chan = False
-        #self.WW2l2v_chan = True
-        #self.WWlvqq_chan = True
-        #self.WWinc_chan = True
-        #self.WZinc_chan = True
-        #self.WJet_chan = True
 
         # Variables
         self.AllVars = []
@@ -97,7 +83,7 @@ class configReader:
                 #print f
                 section = f[1]
                 print section
-		continue
+                continue
             if section is not "histos":
                 if section is not "cardmaker" : f = re.split('\W+',line)
             #f = re.split('\W+',line)
@@ -143,7 +129,7 @@ class configReader:
                 #print f
                 varnames.append(f[1])
                 varnames.append(f[2])
-                print varnames
+                #print varnames
                 #varXname = f[2]
                 #print self.varX
                 if len(f)>3 : 
@@ -167,7 +153,7 @@ class configReader:
             #varnames = f[2].split(':')
             #print varnames
             if self.AllVars[iname] == re.sub('_','',varnames[0]):
-                    print "GOTCHA"
+                    #print "GOTCHA"
                     self.varX = iname
                     self.AllVars[iname] = varnames[0]
             elif self.dimensions>1:

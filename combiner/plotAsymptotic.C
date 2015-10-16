@@ -29,7 +29,7 @@ const bool _DEBUG_ = true;
 string method = "ASCLS";
 Double_t xLow = -5;
 Double_t xHigh = 21.0;
-Double_t yLow = 10;
+Double_t yLow = 1;
 Double_t yHigh = 34.3*1000.*0.073;
 TString xTitle = "#Lambda [GeV]";
 TString yTitle = "95% CL limit on #sigma [fb]";
@@ -187,7 +187,7 @@ void plotAsymptotic() {
   grshade_95->Draw("f");
   grshade_68->Draw("f");
   gr->Draw("C");
-  grExp->Draw("l");
+  grExp->Draw("C");
   if(addObsLimit)
     {
       if(points)grObs->Draw("CP");
