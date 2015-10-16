@@ -41,6 +41,10 @@ class cardMaker:
     def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir, theInputs):
         
         dname=""
+        theDataSample = "DsingleMu"
+        if(theChannel) == 3:
+            theDataSample = "DsingleTau"
+
         theOutLambda = str(int(theHHLambda))
         if abs(theHHLambda - int(theHHLambda) )>0.01 : 
             theOutLambda = str(int(theHHLambda))+"dot"+ str(int(100*abs(theHHLambda - int(theHHLambda) )))
@@ -78,7 +82,7 @@ class cardMaker:
         inputFile = TFile.Open(self.filename)
 
         #Default
-        print theInputs.AllVars, "  ",theInputs.varX, "  ",theInputs.varY
+        #print theInputs.AllVars, "  ",theInputs.varX, "  ",theInputs.varY
         if theInputs.varY < 0 : 
             var2 = ""
         else :
@@ -101,18 +105,29 @@ class cardMaker:
         print " signal rate ", rate_signal_Shape
         theRates = [rate_signal_Shape]
         templatesBKG = []
+        tobeRemoved = []
         for isample in  theInputs.background:
+            #print isample
             nameTemplate = "OS_bkg_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,isample)
             if isample in theInputs.additional :
+                print "ADDITIONAL ",isample
                 index = theInputs.additional.index(isample)
                 nameTemplate = theInputs.additionalName[index]
+                print nameTemplate
             template = inputFile.Get(nameTemplate).Clone()
-            if self.is2D == 1:
-                if "TH2" in template.ClassName() : 
+            if template.Integral()>0:
+                #print isample, " LARGER THAN O"
+                if self.is2D == 1 and "TH2" in template.ClassName():
                     template = template.ProjectionX()
-            templatesBKG.append(template)
-            theRates.append(template.Integral("width"))#*self.lumi)
-            totalRate = totalRate + theRates[len(theRates)-1]
+                templatesBKG.append(template)       
+                theRates.append( template.Integral("width") ) #*self.lumi
+                totalRate = totalRate + theRates[len(theRates)-1]
+                print template.Integral("width")
+            else:
+                tobeRemoved.append(isample)
+        #protection against empty BKGs
+        for isample in tobeRemoved:
+            theInputs.background.remove(isample)
 
             #rate_bkgTT_Shape = templateBKG_TT.Integral("width")*self.lumi
 
@@ -120,7 +135,7 @@ class cardMaker:
         ## -------------------------- SIGNAL SHAPE VARIABLES ---------------------- ##
         binsx = templateSIG.GetNbinsX()
         binsy = 0
-        print theInputs.AllvarX[theInputs.varX]
+        #print theInputs.AllvarX[theInputs.varX]
         x_name = theInputs.AllVars[theInputs.varX]
         x = ROOT.RooRealVar(x_name,x_name,float(theInputs.AllvarX[theInputs.varX]),float(theInputs.AllvarY[theInputs.varX]))
         x.setVal(250)
@@ -184,7 +199,19 @@ class cardMaker:
         
         ## --------------------------- DATASET --------------------------- ##
         #RooDataSet ds("ds","ds",ras_variableSet,Import(*tree)) ;
-        data_obs = rhpB[0].generate(ras_variableSet,1000)
+        TemplateName = "OS_DATA_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,theDataSample)
+        templateObs = inputFile.Get(TemplateName)
+        print TemplateName
+        if self.is2D==1: 
+            if "TH2" in templateObs.ClassName() : 
+                templateObs = templateObs.ProjectionX()
+        print templateObs.GetEntries()
+        if templateObs.Integral() <=0: #protection for low stat
+            data_obs = rhpB[0].generate(ras_variableSet,1000)
+        else :
+            rdh_obs = ROOT.RooDataHist("rdh"+TemplateName,"rdh"+TemplateName,ral_variableList,templateObs)
+            rhp_obs = ROOT.RooHistPdf("rhp_obs","rhp_obs",ras_variableSet,rdh_obs)
+            data_obs = rhp_obs.generate(ras_variableSet,1000)
         #datasetName = "data_obs_{0}".format(self.appendName)
         data_obs.SetNameTitle("data_obs","data_obs")
 
@@ -213,6 +240,8 @@ class cardMaker:
         channelName=['sig']#'sig','bkg_TT','bkg_DY','bkg_TWantitop','bkg_TWtop']
         for isample in theInputs.background:
             channelName.append('bkg_'+isample)
+        print channelName
+        print theRates
         file.write("imax 1\n")
         file.write("jmax {0}\n".format(len(channelName)-1))
         file.write("kmax *\n")
@@ -251,8 +280,9 @@ class cardMaker:
 
         file.write("------------\n")
         #syst = systReader("../config/systematics.cfg",['Lambda20'],theInputs.background)
-        syst = systReader("../config/systematics.cfg",['Lambda{0}'.format(theOutLambda)],theInputs.background) #FIXME: use the one above once all bkg are in
-	syst.writeSystematics(file)
+        syst = systReader("../config/systematics_test.cfg",['Lambda{0}'.format(theOutLambda)],theInputs.background) 
+        if(theChannel == self.ID_ch_tautau ): systReader.addSystFile("systematics_tautau")
+syst.writeSystematics(file)
 
 
 #define function for parsing options
@@ -267,6 +297,7 @@ def parseOptions():
     parser.add_option('-l', '--lambda',   dest='Lambda', type='float', default=20,  help='Lambda value')
     parser.add_option('-c', '--channel',   dest='channel', type='string', default='MuTau',  help='final state')
     parser.add_option('-o', '--selection', dest='overSel', type='string', default='', help='overwrite selection string')
+    parser.add_option('-v', '--variable', dest='overVar', type='string', default='bH_mass', help='overwrite plot variable (only1D)')
 
     # store options and arguments as global variables
     global opt, args
@@ -293,8 +324,21 @@ if __name__ == "__main__":
     thechannel = 1
     if opt.channel == "MuTau" : thechannel=2
     elif opt.channel == "TauTau" : thechannel = 3
+
     input.readInputs()
+    #Optionally overwrite config instructions (for testing purposes)
     if opt.overSel is not "":
-        print "OVERSEL="+opt.overSel
+        #print "OVERSEL="+opt.overSel
         input.selectionLevel = opt.overSel
-    dc.makeCardsAndWorkspace(opt.Lambda,1,thechannel,"lambda{0:.2f}{1}".format(opt.Lambda,opt.overSel),input)
+    if opt.is2D == 1 and opt.overVar is not "bH_mass" :
+        #print "INSIDE OPTVAR"
+        for ivx in range(len(input.AllVars)):
+            #print input.AllVars[ivx],"   ",opt.overVar
+            if input.AllVars[ivx] == re.sub('_','',opt.overVar) :
+                #print "FOUND new VAR ", ivx,"  ",opt.overVar
+                input.varX = ivx
+                input.AllVars[ivx] = opt.overVar
+                for iad in range(len(input.additionalName)) :
+                    input.additionalName[iad] = re.sub('bH_mass',opt.overVar,input.additionalName[iad])
+
+    dc.makeCardsAndWorkspace(opt.Lambda,1,thechannel,"lambda{0:.2f}{1}{2}".format(opt.Lambda,opt.overSel,opt.overVar),input)
