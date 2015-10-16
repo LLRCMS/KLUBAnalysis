@@ -21,9 +21,9 @@ void getLimits(TFile *f, std::vector<double> &v_mean,std::vector<double> &v_68l,
 //TString inputDir = "cards"; //"higgsCombineTest.Asymptotic.mH125.7.root";
 float lambdas[]= {-4,1,2.46,20};
 const int nLambdas = 4;
-const int nXsec = 6;
-float xsections[nXsec]={12,2.46,1,0.42,50,105};
-float deflambdas[nXsec]={-4,0,1,2.46,10,20};
+const int nXsec = 10;
+float xsections[nXsec]= {12, 2.46, 1,  0.66, 0.47, 0.42, 0.53, 0.79, 50,  105};
+float deflambdas[nXsec]={-4,  0,   1,  1.5,   2,   2.46, 3,    4,    10,  20};
 const bool addObsLimit = false;
 const bool _DEBUG_ = true;
 string method = "ASCLS";
@@ -223,7 +223,7 @@ void plotAsymptotic() {
 
 
   // --------------- Full Mass Range ---------------- //
-	
+	/*
   TLegend * box3 = new TLegend(0.4,0.62,0.8,0.82);
   box3->SetFillColor(0);
   //box3->SetBorderSize(0);
@@ -232,111 +232,7 @@ void plotAsymptotic() {
   box3->AddEntry(grshade_68,"Expected #pm 1#sigma","lf");
   box3->AddEntry(grshade_95,"Expected #pm 2#sigma","lf");
   //box3->AddEntry(oneLine,"#sigma / #sigma_{SM}","l");
-  
-/*
-  TCanvas *cl = new TCanvas("cl","cl",canvasX,canvasY);
-  cl->cd();
-
-  TPad *padl2 = new TPad("padl2", "foo", 0, 0,   1, 0.3);
-  TPad *padl1 = new TPad("padl1", "foo", 0, 0.3, 1, 1);
-
-  padl2->SetBottomMargin(0.22);
-
-  padl1->Draw();
-  padl2->Draw();
-
-  padl1->cd();
-  if(grid) padl1->SetGrid();
-
-  TH1F *hrl = padl1->DrawFrame(xLow,yLow,xHigh,yHigh);
-
-  grshade_95->Draw("f");
-  grshade_68->Draw("f");
-  gr->Draw("C");
-  if(addObsLimit)
-    {
-      if(points)grObs->Draw("CP");
-      else grObs->Draw("C");
-    }
-
- 
-oneLine->Draw("LSAME");
- 
-  hrl->GetXaxis()->SetTitle(xTitle);
-  hrl->GetYaxis()->SetTitle(yTitle);
-  hrl->GetYaxis()->SetTitleOffset(1.2);		
-  //hrl->GetXaxis()->SetXmax(xHigh);
-  
-
-  if(logy)gPad->SetLogy();
-  if(logx)
-    {
-      hrl->GetXaxis()->SetMoreLogLabels();
-      hrl->GetXaxis()->SetNoExponent();
-      gPad->SetLogx();
-      TLine tick; tick.SetLineWidth(1); tick.SetLineColor(1);
-      double dyh = yHigh * 0.08;
-      double dyl = yLow * 0.08; //fabs(c1->PixeltoY(c1->VtoPixel(0.95)) - c1->PixeltoY(c1->VtoPixel(0.94)));
-      if (gPad->GetLogy() && log(yHigh/yLow) > log(1e6)) { dyh *= 2; dyl *= 2; }
-      if (gPad->GetLogy() == 0) { dyh = dyl = 0.01*(yHigh-yLow); }
-      if (isTiny) { dyh *= 2; dyl *= 2; }
-      for (int j = 100; j < 600; j += 10)  {
-	  if (j > 400 && j % 20 == 10) continue;
-	  tick.DrawLine(j, yLow, j, yLow+(j % 100 == 0 ? 2*dyl : dyl));
-	  tick.DrawLine(j, yHigh, j, yHigh-(j % 100 == 0 ? 2*dyh : dyh));
-      }
-    }
-  padl1->Update();
-  hrl->GetXaxis()->SetRangeUser(xLow,xHigh);
-  padl1->Update();
-
-  padl1->cd();
-  if(gridOnTop)gPad->RedrawAxis("g");
-  box3->Draw();
-
-  padl2->cd();
-  TH1F *hrl2 = padl2->DrawFrame(xLow,yLow,xHigh,yHigh);
-  hrl2->GetYaxis()->SetTitleOffset(0.6);
-
-
-  if(gridOnTop)gPad->RedrawAxis("g");
-  box3->Draw();
-
-
-
-  if(logx)
-    {
-      hrl2->GetXaxis()->SetMoreLogLabels();
-      hrl2->GetXaxis()->SetNoExponent();
-      padl2->SetLogx();
-      padl2->SetGrid();
-    }
-
-  hrl2->GetXaxis()->SetMoreLogLabels();
-  hrl2->GetXaxis()->SetNoExponent();
-  padl2->Update();
-  padl2->Update();
-
-
-  sprintf( outfileName,"%s/UpperLimit_%s_wholeMass_1D2DImp_7p8TeV.eps",plotDir.c_str(),method.c_str() );
-  cl->SaveAs(outfileName);
-  sprintf( outfileName,"%s/UpperLimit_%s_wholeMass_1D2DImp_7p8TeV.png",plotDir.c_str(),method.c_str() );
-  cl->SaveAs(outfileName);
-  //sprintf( outfileName,"plots/UpperLimit_%s_wholeMass_2D_05.30.C",method.c_str() );	
-  //cl->SaveAs(outfileName);	
-*/
-  // ---------------- Root File --------------- //
-
-  //cRatio->SaveAs(TplotDir+"/2DImprovement_7p8TeV_06.06.eps");
-  //cRatio->SaveAs(TplotDir+"/2DImprovement_7p8TeV_06.06.png");
-
-
-
-  //TFile outf("testUL_single.root","RECREATE");
-  //outf.cd();
-  //gr->Write();
-  //outf.Write();
-
+  */
 	
   }
 
