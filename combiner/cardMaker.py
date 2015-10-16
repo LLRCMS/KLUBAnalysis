@@ -250,8 +250,11 @@ class cardMaker:
         file.write("\n")
 
         file.write("------------\n")
-        #syst = systReader("../config/systematics.cfg",['Lambda20'],theInputs.background)
-        syst = systReader("../config/systematics.cfg",['Lambda{0}'.format(theOutLambda)],theInputs.background) #FIXME: use the one above once all bkg are in
+        syst = systReader("../config/systematics.cfg",['Lambda{0}'.format(theOutLambda)],theInputs.background) 
+        #if(theChannel == self.ID_ch_etau ): self.appendName="etau"
+        #elif(theChannel == self.ID_ch_mutau ): self.appendName="mutau"
+        if(theChannel == self.ID_ch_tautau ): systReader.addSystFile("systematics_tautau")
+
 	syst.writeSystematics(file)
 
 
