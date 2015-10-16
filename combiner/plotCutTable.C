@@ -24,7 +24,7 @@ TString baselines[]={"baselineiso", "dijethardiso", "baselineisoBtagCutM", "base
 TString variables[]={"HH_pt", "HH_mass", "tauH_mass", "met_et", "mT", "bH_mass"};
 const int nLambdas = 4;
 const int nVars = 6;
-const int nBase = 3;
+const int nBase = 5;
 // ----------------------- //
 
 
@@ -38,7 +38,7 @@ void plotCutTable() {
 
   // ------------------- Get Values -------------------- //
   cout<<"Getting limits"<<endl;
-  TFile *fout = new TFile("CutTable.root","RECREATE");
+  TFile *fout = new TFile("CutTable_mutau_16oct.root","RECREATE");
   for(int ifile=0;ifile<nLambdas;ifile++){
     TString name; name.Form("h2d_L%.2f",lambdas[ifile]); 
     cout<<name.Data()<<endl;
@@ -48,7 +48,7 @@ void plotCutTable() {
     for(int ibase=0;ibase<nBase;ibase++){
       for(int ivar=0;ivar<nVars;ivar++){
        TString filename;
-       filename.Form("cards/lambda%.2f%s%s/higgsCombineLambda%.2f.Asymptotic.mH125.7.root",lambdas[ifile],baselines[ibase].Data(),variables[ivar].Data(),lambdas[ifile]);
+       filename.Form("cards_mutau_16oct/lambda%.2f%s%s/higgsCombineLambda%.2f.Asymptotic.mH125.7.root",lambdas[ifile],baselines[ibase].Data(),variables[ivar].Data(),lambdas[ifile]);
        TFile *inFile = TFile::Open(filename.Data());
        h2d->SetBinContent(ibase+1,ivar+1,getLimits(inFile));
        //cout<<"got"<<endl;
@@ -80,6 +80,7 @@ double getLimits(TFile *f)
     tree->GetEntry(i);
     //if(_DEBUG_)cout << "mH: " << mh << " limit: " << limit << " quantileExpected: " << quant << endl;  
     if(quant>0.49&&quant<0.51)  return limit;
+    if(tree->GetEntries()==1 )return limit;
 
   }
   return -1;

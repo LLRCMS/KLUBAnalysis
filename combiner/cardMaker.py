@@ -113,7 +113,7 @@ class cardMaker:
                 print "ADDITIONAL ",isample
                 index = theInputs.additional.index(isample)
                 nameTemplate = theInputs.additionalName[index]
-                print nameTemplate
+            print nameTemplate
             template = inputFile.Get(nameTemplate).Clone()
             if template.Integral()>0:
                 #print isample, " LARGER THAN O"
@@ -279,10 +279,13 @@ class cardMaker:
         file.write("\n")
 
         file.write("------------\n")
-        #syst = systReader("../config/systematics.cfg",['Lambda20'],theInputs.background)
-        syst = systReader("../config/systematics_test.cfg",['Lambda{0}'.format(theOutLambda)],theInputs.background) 
-        if(theChannel == self.ID_ch_tautau ): systReader.addSystFile("systematics_tautau")
-syst.writeSystematics(file)
+        syst = systReader("../config/systematics.cfg",['Lambda20'],theInputs.background)
+        #syst = systReader("../config/systematics_test.cfg",['Lambda{0}'.format(theOutLambda)],theInputs.background) 
+        #if(theChannel == self.ID_ch_tautau ): 
+        #    systReader.addSystFile("../config_systematics_tautau.cfg")
+        #elif(theChannel == self.ID_ch_mutau ): 
+        #    systReader.addSystFile("../config_systematics_mutau.cfg")
+        syst.writeSystematics(file)
 
 
 #define function for parsing options
@@ -321,6 +324,7 @@ if __name__ == "__main__":
     dc.setfileName(opt.filename)
     #outputDir = ""
     input = configReader("../config/analysis_"+opt.channel+".cfg")
+    #input = configReader("../config/analysis_TESTMT.cfg")
     thechannel = 1
     if opt.channel == "MuTau" : thechannel=2
     elif opt.channel == "TauTau" : thechannel = 3
@@ -330,6 +334,8 @@ if __name__ == "__main__":
     if opt.overSel is not "":
         #print "OVERSEL="+opt.overSel
         input.selectionLevel = opt.overSel
+        for iad in range(len(input.additionalName)) :
+            input.additionalName[iad] = re.sub('dijethardisoBtagCutM',opt.overSel,input.additionalName[iad])
     if opt.is2D == 1 and opt.overVar is not "bH_mass" :
         #print "INSIDE OPTVAR"
         for ivx in range(len(input.AllVars)):
