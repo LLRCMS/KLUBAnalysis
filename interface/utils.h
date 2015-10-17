@@ -78,12 +78,12 @@ std::vector<std::string> split(const std::string &s, char delim) ;
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // utilities to draw tables of yields
 
-void printTableTitle (std::ofstream& out, vector<string> & sample, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10) ;
-void printTableTitle (std::ofstream& out, vector<sample> & sample, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10) ;
-void printTableTitle (std::ofstream& out, vector<sample> & sample, vector<string> & DataDrivenBkgsName, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10) ; // adding e.g. QCD that has not a coutner structure
+void printTableTitle (std::ostream& out, vector<string> & sample, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10) ;
+void printTableTitle (std::ostream& out, vector<sample> & sample, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10) ;
+void printTableTitle (std::ostream& out, vector<sample> & sample, vector<string> & DataDrivenBkgsName, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10) ; // adding e.g. QCD that has not a coutner structure
 
-void printTableBody  (std::ofstream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10, unsigned int precision = 1) ;
-void printTableBody  (std::ofstream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, vector<vector<float>> & DataDrivenSamplesYields, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10, unsigned int precision = 1) ;
+void printTableBody  (std::ostream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10, unsigned int precision = 1) ;
+void printTableBody  (std::ostream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, vector<vector<float>> & DataDrivenSamplesYields, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10, unsigned int precision = 1) ;
 
 // title + body, flush to file or std cout
 //void printTable (vector<sample> & sample, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, vector<vector<float>> & DataDrivenSamplesYields, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10, unsigned int precision = 1) ;

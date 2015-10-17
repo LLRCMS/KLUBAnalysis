@@ -155,7 +155,7 @@ void addTo (vector<float> & total, vector<float> & addition)
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-void printTableTitle (std::ofstream& out, vector<string> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
+void printTableTitle (std::ostream& out, vector<string> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
 {
   for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) out << " " ;
   out << "| " ;
@@ -173,7 +173,7 @@ void printTableTitle (std::ofstream& out, vector<string> & sample, unsigned int 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-void printTableTitle (std::ofstream& out, vector<sample> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
+void printTableTitle (std::ostream& out, vector<sample> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
 {
   vector<string> names ;
   for (unsigned int iSample = 0 ; iSample < sample.size () ; ++iSample)
@@ -184,7 +184,7 @@ void printTableTitle (std::ofstream& out, vector<sample> & sample, unsigned int 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-void printTableTitle (std::ofstream& out, vector<sample> & sample, vector<string> & DataDrivenBkgsName, unsigned int NSpacesColZero, unsigned int NSpacesColumns)
+void printTableTitle (std::ostream& out, vector<sample> & sample, vector<string> & DataDrivenBkgsName, unsigned int NSpacesColZero, unsigned int NSpacesColumns)
 {
   vector<string> names ;
   for (unsigned int iSample = 0 ; iSample < sample.size () ; ++iSample)
@@ -198,7 +198,7 @@ void printTableTitle (std::ofstream& out, vector<sample> & sample, vector<string
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-void printTableBody  (std::ofstream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples,
+void printTableBody  (std::ostream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples,
                       unsigned int NSpacesColZero, unsigned int NSpacesColumns, unsigned int precision)
 {
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
@@ -221,7 +221,7 @@ void printTableBody  (std::ofstream& out, vector<pair <TString, TCut> > & select
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-void printTableBody  (std::ofstream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, vector<vector<float>> & DataDrivenSamplesYields,
+void printTableBody  (std::ostream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, vector<vector<float>> & DataDrivenSamplesYields,
                       unsigned int NSpacesColZero, unsigned int NSpacesColumns, unsigned int precision)
 {
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
@@ -256,7 +256,7 @@ void printTableBody  (std::ofstream& out, vector<pair <TString, TCut> > & select
 
 /*
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-void printTable (std::ofstream& out, vector<string> & sample, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, vector<vector<float>> & DataDrivenSamplesYields, unsigned int precision )
+void printTable (std::ostream& out, vector<string> & sample, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, vector<vector<float>> & DataDrivenSamplesYields, unsigned int precision )
 {
   unsigned int NSpacesColumns = 0;
   unsigned int NSpacesColZero = 0;
