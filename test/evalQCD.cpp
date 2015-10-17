@@ -128,7 +128,9 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   vector<string> variablesList = gConfigParser->readStringListOption ("general::variables") ;
-  vector<string> Buf_variables2DList = gConfigParser->readStringListOption ("general::2Dvariables") ;
+  vector<string> Buf_variables2DList(0);
+  if (gConfigParser->isDefined ("general::2Dvariables")) Buf_variables2DList = gConfigParser->readStringListOption ("general::2Dvariables") ;
+  
   vector<pair<string,string> > variables2DList ;
   for (unsigned int i = 0 ; i < Buf_variables2DList.size () ; ++i)
     {
