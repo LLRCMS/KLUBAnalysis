@@ -9,7 +9,7 @@
 #include "TCut.h"
 #include "THStack.h"
 #include "TCanvas.h"
-
+#include "TLegend.h"
 #include "HistoManager.h"
 #include "ConfigParser.h"
 #include "utils.h"
@@ -20,6 +20,71 @@
 
 using namespace std ;
 
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+// compute the ratio of two identical plotContainer structures and return a third plotContainer
+// with  ratio histogram for each variable and selection
+// DO: pc1 = OS, pc2 = SS
+// it will compute OS/SS
+
+/*
+plotContainer* makeRatio (plotContainer& pcOS, plotContainer& pcSS,
+                          vector<pair <TString, TCut> >& selections,
+                          vector<string>& variablesList,
+                          vector <string>& samples,
+                          vector <float>& isoThr1,
+                          vector <float>& isoThr2
+                          )
+*/
+TH1F* makeRatio (plotContainer& pcOS, plotContainer& pcSS,
+                 pair <TString, TCut>& selection,
+                 string& varName,
+                 string& sampleName,
+                 float thr1,
+                 float thr2
+                )
+
+{
+  TString OS_selName = Form("OSaiso_%f_%f_", thr1, thr2);
+  TString SS_selName = Form("SSaiso_%f_%f_", thr1, thr2);
+  OS_selName = OS_selName + selection.first;
+  SS_selName = SS_selName + selection.first;
+
+  TH1F* hOS = pcOS.getHisto (varName, string(OS_selName.Data()), sampleName);
+  TH1F* hSS = pcSS.getHisto (varName, string(SS_selName.Data()), sampleName);
+  
+  TString newName = "ratio_" + varName + "_" + selection.first + Form("_%f_%f", thr1, thr2) ;
+
+  TH1F* hratio = (TH1F*)hOS->Clone(newName);
+  hratio -> Divide (hSS);
+  hratio -> SetMinimum(0.85);
+  hratio -> SetMaximum(1.25);
+
+  return hratio;
+}
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+pair<TH1F*, TH1F*> getPlotPair (plotContainer& pcOS, plotContainer& pcSS,
+                 pair <TString, TCut>& selection,
+                 string& varName,
+                 string& sampleName,
+                 float thr1,
+                 float thr2
+                )
+{
+  TString OS_selName = Form("OSaiso_%f_%f_", thr1, thr2);
+  TString SS_selName = Form("SSaiso_%f_%f_", thr1, thr2);
+  OS_selName = OS_selName + selection.first;
+  SS_selName = SS_selName + selection.first;
+
+  TH1F* hOS = pcOS.getHisto (varName, string(OS_selName.Data()), sampleName);
+  TH1F* hSS = pcSS.getHisto (varName, string(SS_selName.Data()), sampleName);
+
+  pair <TH1F*, TH1F*> res = make_pair (hOS, hSS);
+  return res;
+}
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -119,128 +184,274 @@ int main (int argc, char** argv)
   for (unsigned int ithr = 0; ithr < dau1iso_thrLow.size(); ithr++)
   {
     // OS
-    vector<pair <TString, TCut> > selections_OS = selections ;
-    for (unsigned int i = 0 ; i < selections_OS.size () ; ++i)
+    vector<pair <TString, TCut> > this_selections_OS = selections ;
+    for (unsigned int i = 0 ; i < this_selections_OS.size () ; ++i)
     {
-      selections_OS.at (i).first = TString (Form("OSaiso_%f_%f_", dau1iso_thrLow.at(ithr), dau2iso_thrLow.at(ithr))) + selections_OS.at (i).first ;
+      this_selections_OS.at (i).first = TString (Form("OSaiso_%f_%f_", dau1iso_thrLow.at(ithr), dau2iso_thrLow.at(ithr))) + this_selections_OS.at (i).first ;
       TString cut = Form("dau1_iso > %f && dau2_iso > %f && isOS != 0", dau1iso_thrLow.at(ithr), dau2iso_thrLow.at(ithr));
       cout << "OS anti-iso selecton: " << cut << endl;
-      selections_OS.at (i).second = selections_OS.at (i).second && TCut(cut) ;
+      this_selections_OS.at (i).second = this_selections_OS.at (i).second && TCut(cut) ;
     }
-    vec_allselections_OS.push_back(selections_OS);
+    vec_allselections_OS.push_back(this_selections_OS);
 
     // SS
-    vector<pair <TString, TCut> > selections_SS = selections ;
-    for (unsigned int i = 0 ; i < selections_SS.size () ; ++i)
+    vector<pair <TString, TCut> > this_selections_SS = selections ;
+    for (unsigned int i = 0 ; i < this_selections_SS.size () ; ++i)
     {
-      selections_SS.at (i).first = TString (Form("SSaiso_%f_%f_", dau1iso_thrLow.at(ithr), dau2iso_thrLow.at(ithr))) + selections_SS.at (i).first ;
+      this_selections_SS.at (i).first = TString (Form("SSaiso_%f_%f_", dau1iso_thrLow.at(ithr), dau2iso_thrLow.at(ithr))) + this_selections_SS.at (i).first ;
       TString cut = Form("dau1_iso > %f && dau2_iso > %f && isOS == 0", dau1iso_thrLow.at(ithr), dau2iso_thrLow.at(ithr));
       cout << "SS anti-iso selecton: " << cut << endl;
-      selections_SS.at (i).second = selections_SS.at (i).second && TCut(cut) ;
+      this_selections_SS.at (i).second = this_selections_SS.at (i).second && TCut(cut) ;
     }
-    vec_allselections_SS.push_back(selections_SS);
+    vec_allselections_SS.push_back(this_selections_SS);
 
 
   }
 
   // now merge all selections for different iso thresholds into a single one to be faster
-  vector<pair <TString, TCut> > allselections_OS;
+  vector<pair <TString, TCut> > selections_OS;
   for (unsigned int iv = 0; iv < vec_allselections_OS.size(); iv++)
   {
     for (unsigned int isel = 0; isel < vec_allselections_OS.at(iv).size(); isel++)
     {
       pair <TString, TCut> thisPair = vec_allselections_OS.at(iv).at(isel);
-      allselections_OS.push_back (thisPair);
+      selections_OS.push_back (thisPair);
     }
   }
 
-  vector<pair <TString, TCut> > allselections_SS;
+  vector<pair <TString, TCut> > selections_SS;
   for (unsigned int iv = 0; iv < vec_allselections_SS.size(); iv++)
   {
     for (unsigned int isel = 0; isel < vec_allselections_SS.at(iv).size(); isel++)
     {
       pair <TString, TCut> thisPair = vec_allselections_SS.at(iv).at(isel);
-      allselections_SS.push_back (thisPair);
+      selections_SS.push_back (thisPair);
     }
   }
 
   // check that everything is fine:
-  for (unsigned int isel = 0; isel < allselections_OS.size(); isel++)
-    cout << allselections_OS.at(isel).first << endl;
-  for (unsigned int isel = 0; isel < allselections_SS.size(); isel++)
-    cout << allselections_SS.at(isel).first << endl;
+  for (unsigned int isel = 0; isel < selections_OS.size(); isel++)
+    cout << selections_OS.at(isel).first << endl;
+  for (unsigned int isel = 0; isel < selections_SS.size(); isel++)
+    cout << selections_SS.at(isel).first << endl;
 
 
-//   // get the variables to be plotted -- make OS / SS plot ratio for each
-//   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+  // get the variables to be plotted -- will make OS / SS plot ratio for each
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-//   vector<string> variablesList = gConfigParser->readStringListOption ("general::variables") ;
-//   vector<string> Buf_variables2DList(0);
-//   if (gConfigParser->isDefined ("general::2Dvariables")) Buf_variables2DList = gConfigParser->readStringListOption ("general::2Dvariables") ;
+  vector<string> variablesList = gConfigParser->readStringListOption ("general::variables") ;
   
-//   vector<pair<string,string> > variables2DList ;
-//   for (unsigned int i = 0 ; i < Buf_variables2DList.size () ; ++i)
-//     {
-//       vector<string> dummy = split (Buf_variables2DList.at (i), ':') ;
-//       //cout << dummy.at (0) << " " << dummy.at (1) << " " << dummy.size () << endl ;
-//       variables2DList.push_back (make_pair(dummy.at (0), dummy.at (1)) ) ;
-//     }
+  vector<string> Buf_variables2DList(0); 
+  if (gConfigParser->isDefined ("general::2Dvariables")) Buf_variables2DList = gConfigParser->readStringListOption ("general::2Dvariables") ;
+  vector<pair<string,string> > variables2DList(0);
+  for (unsigned int i = 0 ; i < Buf_variables2DList.size () ; ++i)
+    {
+      vector<string> dummy = split (Buf_variables2DList.at (i), ':') ;
+      //cout << dummy.at (0) << " " << dummy.at (1) << " " << dummy.size () << endl ;
+      variables2DList.push_back (make_pair(dummy.at (0), dummy.at (1)) ) ;
+    }
 
 
+  // calculate the QCD in the SS region as data - other_bkg
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-//   // calculate the QCD in the SS region as data - other_bkg
-//   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+  cout << "--- MAIN reading DATA and filling SS histos" << endl ;
 
-//   cout << "--- MAIN reading DATA and filling SS histos" << endl ;
+  // get the same-sign distributions from data
+  plotContainer SS_DATA_plots ("SS_DATA", variablesList, variables2DList, selections_SS, DATASamplesList, 2) ;
+  counters SS_DATACount = fillHistos (DATASamples, SS_DATA_plots, 
+              variablesList, variables2DList,
+              selections_SS,
+              lumi,
+              vector<float> (0),
+              true, false) ;
+  SS_DATA_plots.AddOverAndUnderFlow () ;
 
-//   // get the same-sign distributions from data
-//   plotContainer SS_DATA_plots ("SS_DATA", variablesList, variables2DList, selections_SS, DATASamplesList, 2) ;
-//   counters SS_DATACount = fillHistos (DATASamples, SS_DATA_plots, 
-//               variablesList, variables2DList,
-//               selections_SS,
-//               lumi,
-//               vector<float> (0),
-//               true, false) ;
-//   SS_DATA_plots.AddOverAndUnderFlow () ;
+  cout << "--- MAIN reading bkg and filling SS histos" << endl ;
 
-//   cout << "--- MAIN reading bkg and filling SS histos" << endl ;
+  // get the same-sign distributions from bkg
+  plotContainer SS_bkg_plots ("SS_bkg", variablesList, variables2DList, selections_SS, bkgSamplesList, 0) ;
+  counters SS_bkgCount = fillHistos (bkgSamples, SS_bkg_plots, 
+              variablesList, variables2DList,
+              selections_SS,
+              lumi,
+              vector<float> (0),
+              false, false, maxEvtsMC) ;
+  SS_bkg_plots.AddOverAndUnderFlow () ;
 
-//   // get the same-sign distributions from bkg
-//   plotContainer SS_bkg_plots ("SS_bkg", variablesList, variables2DList, selections_SS, bkgSamplesList, 0) ;
-//   counters SS_bkgCount = fillHistos (bkgSamples, SS_bkg_plots, 
-//               variablesList, variables2DList,
-//               selections_SS,
-//               lumi,
-//               vector<float> (0),
-//               false, false, maxEvtsMC) ;
-//   SS_bkg_plots.AddOverAndUnderFlow () ;
+  cout << "--- MAIN preparing to loop on variables and selections to calc SS QCD" << endl ;
 
-//   cout << "--- MAIN preparing to loop on variables and selections to calc SS QCD" << endl ;
+  // the index in the stack is based on variable ID (iv) and selection ID (isel):
+  // iHisto = iv + nVars * isel
+  vector<string> QCDsample ;
+  QCDsample.push_back ("QCD") ;
+  plotContainer SS_QCD ("SS_QCD", variablesList, variables2DList, selections_SS, QCDsample, 0) ;
+  //  vector <TH1F *> SS_QCD ;
+  for (unsigned int ivar = 0 ; ivar < variablesList.size () ; ++ivar)
+    {
+      for (unsigned int icut = 0 ; icut < selections_SS.size () ; ++icut)
+        {
+          THStack * D_stack = SS_DATA_plots.makeStack (variablesList.at (ivar),
+                                  selections_SS.at (icut).first.Data ()) ;
+          TH1F * tempo = (TH1F *) D_stack->GetStack ()->Last () ;
+          TString name = tempo->GetName () ;
+          name = TString ("DDQCD_") + name ;
+          TH1F * dummy = (TH1F *) tempo->Clone (name) ;
 
-//   // the index in the stack is based on variable ID (iv) and selection ID (isel):
-//   // iHisto = iv + nVars * isel
-//   vector<string> QCDsample ;
-//   QCDsample.push_back ("QCD") ;
-//   plotContainer SS_QCD ("SS_QCD", variablesList, variables2DList, selections_SS, QCDsample, 0) ;
-// //  vector <TH1F *> SS_QCD ;
-//   for (unsigned int ivar = 0 ; ivar < variablesList.size () ; ++ivar)
-//     {
-//       for (unsigned int icut = 0 ; icut < selections_SS.size () ; ++icut)
-//         {
-//           THStack * D_stack = SS_DATA_plots.makeStack (variablesList.at (ivar),
-//                                   selections_SS.at (icut).first.Data ()) ;
-//           TH1F * tempo = (TH1F *) D_stack->GetStack ()->Last () ;
-//           TString name = tempo->GetName () ;
-//           name = TString ("DDQCD_") + name ;
-//           TH1F * dummy = (TH1F *) tempo->Clone (name) ;
+          THStack * b_stack = SS_bkg_plots.makeStack (variablesList.at (ivar),
+                                  selections_SS.at (icut).first.Data ()) ;
+          TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
+          dummy->Add (h_bkg, -1) ;
+          SS_QCD.m_histos[variablesList.at (ivar)][selections_SS.at (icut).first.Data ()]["QCD"] = dummy ;
+        }
+    }
 
-//           THStack * b_stack = SS_bkg_plots.makeStack (variablesList.at (ivar),
-//                                   selections_SS.at (icut).first.Data ()) ;
-//           TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
-//           dummy->Add (h_bkg, -1) ;
-//           SS_QCD.m_histos[variablesList.at (ivar)][selections_SS.at (icut).first.Data ()]["QCD"] = dummy ;
-//         }
-//     }
+
+  // calculate the QCD in the OS region as data - other_bkg
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+  cout << "--- MAIN reading DATA and filling OS histos" << endl ;
+
+  // get the same-sign distributions from data
+  plotContainer OS_DATA_plots ("OS_DATA", variablesList, variables2DList, selections_OS, DATASamplesList, 2) ;
+  counters OS_DATACount = fillHistos (DATASamples, OS_DATA_plots, 
+              variablesList, variables2DList,
+              selections_OS,
+              lumi,
+              vector<float> (0),
+              true, false) ;
+  OS_DATA_plots.AddOverAndUnderFlow () ;
+
+  cout << "--- MAIN reading bkg and filling OS histos" << endl ;
+
+  // get the same-sign distributions from bkg
+  plotContainer OS_bkg_plots ("OS_bkg", variablesList, variables2DList, selections_OS, bkgSamplesList, 0) ;
+  counters OS_bkgCount = fillHistos (bkgSamples, OS_bkg_plots, 
+              variablesList, variables2DList,
+              selections_OS,
+              lumi,
+              vector<float> (0),
+              false, false, maxEvtsMC) ;
+  OS_bkg_plots.AddOverAndUnderFlow () ;
+
+  cout << "--- MAIN preparing to loop on variables and selections to calc OS QCD" << endl ;
+
+  // the index in the stack is based on variable ID (iv) and selection ID (isel):
+  // iHisto = iv + nVars * isel
+  //vector<string> QCDsample ;
+  //QCDsample.push_back ("QCD") ;
+  plotContainer OS_QCD ("OS_QCD", variablesList, variables2DList, selections_OS, QCDsample, 0) ;
+  //  vector <TH1F *> OS_QCD ;
+  for (unsigned int ivar = 0 ; ivar < variablesList.size () ; ++ivar)
+    {
+      for (unsigned int icut = 0 ; icut < selections_OS.size () ; ++icut)
+        {
+          THStack * D_stack = OS_DATA_plots.makeStack (variablesList.at (ivar),
+                                  selections_OS.at (icut).first.Data ()) ;
+          TH1F * tempo = (TH1F *) D_stack->GetStack ()->Last () ;
+          TString name = tempo->GetName () ;
+          name = TString ("DDQCD_") + name ;
+          TH1F * dummy = (TH1F *) tempo->Clone (name) ;
+
+          THStack * b_stack = OS_bkg_plots.makeStack (variablesList.at (ivar),
+                                  selections_OS.at (icut).first.Data ()) ;
+          TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
+          dummy->Add (h_bkg, -1) ;
+          OS_QCD.m_histos[variablesList.at (ivar)][selections_OS.at (icut).first.Data ()]["QCD"] = dummy ;
+        }
+    }
+
+
+  // calculate the QCD in the OS region as data - other_bkg
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+  cout << "--- MAIN calculating ratios OS / SS" << endl ;
+  //gStyle->SetOptStat(0);
+
+  TString outFolderNameBase = gConfigParser->readStringOption ("general::outputFolderName") ;
+  outFolderNameBase += "/" ;
+  system (TString ("mkdir -p ") + outFolderNameBase) ;
+  outFolderNameBase += gConfigParser->readStringOption ("computeQCDratio::outputFolderName") ;
+  outFolderNameBase += "/" ;  
+  system (TString ("mkdir -p ") + outFolderNameBase) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString("ratioplots/")) ; 
+  system (TString ("mkdir -p ") + outFolderNameBase + TString("num_denom_plots/")) ; 
+  system (TString ("mkdir -p ") + outFolderNameBase + TString("num_denom_plots_log/")) ; 
+
+  TFile* fOut = new TFile (outFolderNameBase + "ratioPlots.root", "RECREATE");
+  fOut->cd();
+  TCanvas* c1 = new TCanvas;
+
+  //for (unsigned int isample = 0; isample < samples.size(); isample++)
+  for (unsigned int ivar = 0; ivar < variablesList.size(); ivar++)
+  {
+    for (unsigned int isel = 0; isel < selections.size(); isel++)
+    {
+      for (unsigned int ithr = 0; ithr < dau1iso_thrLow.size(); ithr++)
+      {
+          TH1F* thisRatio = makeRatio (OS_QCD, SS_QCD,
+                 selections.at(isel),
+                 variablesList.at(ivar),
+                 QCDsample.at(0), // "QCD"
+                 dau1iso_thrLow.at(ithr),
+                 dau2iso_thrLow.at(ithr) );
+     
+          thisRatio -> SetMarkerStyle(8);
+          thisRatio -> SetMarkerSize(1);
+          thisRatio -> SetMarkerColor(kBlack);
+
+          c1->SetLogy(false);
+          thisRatio -> Draw();
+          TString newName = outFolderNameBase + "ratioplots/ratio_" + variablesList.at(ivar) + "_" + selections.at(isel).first + Form("_%f_%f.pdf", dau1iso_thrLow.at(ithr), dau2iso_thrLow.at(ithr)) ;
+          c1->Print (newName, "pdf");
+
+          thisRatio -> Write();
+
+          // now draw together SS and OS for this selection and draw plot
+          pair <TH1F*, TH1F*> res = getPlotPair (OS_QCD, SS_QCD,
+                 selections.at(isel),
+                 variablesList.at(ivar),
+                 QCDsample.at(0), // "QCD"
+                 dau1iso_thrLow.at(ithr),
+                 dau2iso_thrLow.at(ithr) );
+
+          TH1F* hOS = res.first;
+          TH1F* hSS = res.second;
+          hOS->SetStats(false);
+          hSS->SetStats(false);
+          hOS->SetLineColor (kRed);
+          hSS->SetLineColor (kBlue);
+          hOS->SetMarkerColor (kRed);
+          hSS->SetMarkerColor (kBlue);
+          hOS->SetMarkerStyle (4);
+          hSS->SetMarkerStyle (5);
+
+          if (hSS->GetMaximum() > hOS->GetMaximum()) hOS->SetMaximum(hSS->GetMaximum());
+          hOS->SetMaximum(1.2*hOS->GetMaximum());
+      
+          TLegend leg (0.41, 0.79, 0.89, 0.89);
+          leg.SetNColumns(2);
+          leg.SetFillColor(kWhite);
+          leg.SetLineWidth(0);
+          leg.AddEntry(hOS, "OS", "lp");
+          leg.AddEntry(hSS, "SS", "lp");
+          hOS->Draw();
+          hSS->Draw("same");
+          leg.Draw();
+
+          newName = outFolderNameBase + "num_denom_plots/ratio_" + variablesList.at(ivar) + "_" + selections.at(isel).first + Form("_%f_%f.pdf", dau1iso_thrLow.at(ithr), dau2iso_thrLow.at(ithr)) ;
+          c1->Print (newName, "pdf");
+
+          // ------- log ----
+          c1->SetLogy(true);
+          hOS->Draw();
+          hSS->Draw("same");
+          leg.Draw();
+
+          newName = outFolderNameBase + "num_denom_plots_log/ratio_" + variablesList.at(ivar) + "_" + selections.at(isel).first + Form("_%f_%f_log.pdf", dau1iso_thrLow.at(ithr), dau2iso_thrLow.at(ithr)) ;
+          c1->Print (newName, "pdf");
+
+      }
+    }
+  }
 
 //   /* FIXME should we subtract signals as well? */
 //   /* NB if it has to be subtracted, it cannot be scaled! */
