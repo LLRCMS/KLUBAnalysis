@@ -154,6 +154,7 @@ fillHistos (vector<sample> & samples,
         {
           TString fname ; fname.Form ("ttf%d",isel) ;
           TTF[isel] = new TTreeFormula (fname.Data (), selections.at (isel).second, tree) ;
+        //TTF[isel] -> Compile();
         }
   
       float weight ;
@@ -226,12 +227,55 @@ fillHistos (vector<sample> & samples,
         scaling *= (1.*tree->GetEntries() / nEvts); // scales if nEvts != entries in the tree
       }
 
+      tree->SetBranchStatus ("*", 0);
+      TObjArray *branchList = tree->GetListOfBranches();
+      int nBranch   = tree->GetNbranches();
+      // used vars
+      for (unsigned int ivar = 0; ivar < allvars.size(); ivar++)
+      {
+        tree->SetBranchStatus (allvars.at(ivar).c_str(), 1);
+      }
+      // vars used in selection
+      for (int iB = 0 ; iB < nBranch; iB++)
+      {
+         TString bName = branchList->At(iB)->GetName();
+         for (unsigned int iSel = 0; iSel < selections.size(); iSel++)
+         {
+           TString theCut = selections.at(iSel).second.GetTitle(); // gives the content of tCut as char*
+           if (theCut.Contains (bName))
+           {
+             tree->SetBranchStatus (bName, 1);
+           }
+         }
+      }
+
+      /*
+      // --> this apparently does not help to save time
+      // create an array of histos to avoid retrieving them each time and speed up
+      const int nVars = variablesList.size ();
+      const int nSele = selections.size ();
+      // histoArray: [iSel][iVar]
+      TH1F *** histoArray = new TH1F** [nSele];
+      for (int iSel = 0 ; iSel < nSele; iSel++)
+      {
+        histoArray [iSel] = new TH1F* [nVars];
+        for (int iVar = 0; iVar < nVars; iVar++)
+        {
+          histoArray [iSel][iVar] = plots.getHisto (variablesList.at (iVar),
+                      selections.at (iSel).first.Data (),
+                      samples.at (iSample).sampleName.Data ()
+                    ) ;
+        }
+      }
+      */
+
       //unsigned int nEvts = (maxEvts == -1 ? tree->GetEntries() : maxEvts);
       //nEvts = min (nEvts, tree->GetEntries());
       for (int iEvent = 0 ; iEvent < nEvts ; ++iEvent)
         {
           tree->GetEntry (iEvent) ;
-
+          //if (iEvent%100000 == 0) cout << iEvent << " / " << nEvts << endl;
+          
           if (isData) localCounter.counters.at (iSample).at (0) += 1. ;
           else        localCounter.counters.at (iSample).at (0) 
                           += weight * lumi * scaling ;
@@ -243,14 +287,18 @@ fillHistos (vector<sample> & samples,
               else        localCounter.counters.at (iSample).at (isel+1) 
                               += weight * lumi * scaling ;
 
+              
               // fill 1D histos
               for (unsigned int iv = 0 ; iv < variablesList.size () ; ++iv)
                 {
+                  
                   TH1F * histo = 
                   plots.getHisto (variablesList.at (iv),
                       selections.at (isel).first.Data (),
                       samples.at (iSample).sampleName.Data ()
                     ) ;
+                  
+                  //TH1F * histo = histoArray [isel][iv];
                   
                   if (isData) 
 		              {
@@ -283,11 +331,22 @@ fillHistos (vector<sample> & samples,
                   if (isData) histo->Fill (val1, val2) ;
                   else histo->Fill (val1, val2, weight * lumi * scaling) ;
                 } //loop on 2Dvariables
+                
 
             } //loop on selections
         } //loop on tree entries
 
       for (unsigned int isel = 0 ; isel < selections.size () ; ++isel) delete TTF[isel] ;
+
+      /*
+      for (int iSel = 0 ; iSel < nSele; iSel++)
+          delete [] histoArray [iSel];
+      delete [] histoArray;
+      */
+
+      // re-set all branches to active
+      tree->SetBranchStatus ("*", 1);
+    
     } // Loop on the MC samples
 
   return localCounter ;
