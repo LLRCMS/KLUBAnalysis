@@ -103,12 +103,6 @@ int main (int argc, char** argv)
       gConfigParser->readStringOption ("selections::selectionsFile")
     ) ;
 
-  // add SS selection at all steps
-  for (unsigned int i = 0 ; i < selections_OS.size () ; ++i)
-    {
-      selections.at (i).second = selections.at (i).second && TCut ("isOS == 0") ;
-    }
-
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << "selections sequence: \n" ;
   for (unsigned int i = 0 ; i < selections.size () ; ++i)
@@ -122,15 +116,15 @@ int main (int argc, char** argv)
   vector <vector<pair <TString, TCut> > > vec_allselections_OS;
 
   // create SS and OS selections
-  for (int ithr = 0; ithr < dau1_iso_thrLow.size(); ithr++)
+  for (unsigned int ithr = 0; ithr < dau1iso_thrLow.size(); ithr++)
   {
     // OS
     vector<pair <TString, TCut> > selections_OS = selections ;
     for (unsigned int i = 0 ; i < selections_OS.size () ; ++i)
     {
-      selections_OS.at (i).first = TString (Form("OS_%f_%f", dau1_iso_thrLow, dau2iso_thrLow)) + selections_OS.at (i).first ;
-      TString cut = Form("dau1_iso < %f && dau2_iso < %f && isOS != 0", dau1_iso_thrLow, dau2iso_thrLow);
-      cout << "OS selecton: " << cut << endl;
+      selections_OS.at (i).first = TString (Form("OSaiso_%f_%f_", dau1iso_thrLow.at(ithr), dau2iso_thrLow.at(ithr))) + selections_OS.at (i).first ;
+      TString cut = Form("dau1_iso > %f && dau2_iso > %f && isOS != 0", dau1iso_thrLow.at(ithr), dau2iso_thrLow.at(ithr));
+      cout << "OS anti-iso selecton: " << cut << endl;
       selections_OS.at (i).second = selections_OS.at (i).second && TCut(cut) ;
     }
     vec_allselections_OS.push_back(selections_OS);
@@ -139,9 +133,9 @@ int main (int argc, char** argv)
     vector<pair <TString, TCut> > selections_SS = selections ;
     for (unsigned int i = 0 ; i < selections_SS.size () ; ++i)
     {
-      selections_SS.at (i).first = TString (Form("SS_%f_%f", dau1_iso_thrLow, dau2iso_thrLow)) + selections_SS.at (i).first ;
-      TString cut = Form("dau1_iso < %f && dau2_iso < %f && isOS == 0", dau1_iso_thrUp, dau2iso_thrUp);
-      cout << "SS selecton: " << cut << endl;
+      selections_SS.at (i).first = TString (Form("SSaiso_%f_%f_", dau1iso_thrLow.at(ithr), dau2iso_thrLow.at(ithr))) + selections_SS.at (i).first ;
+      TString cut = Form("dau1_iso > %f && dau2_iso > %f && isOS == 0", dau1iso_thrLow.at(ithr), dau2iso_thrLow.at(ithr));
+      cout << "SS anti-iso selecton: " << cut << endl;
       selections_SS.at (i).second = selections_SS.at (i).second && TCut(cut) ;
     }
     vec_allselections_SS.push_back(selections_SS);
@@ -151,9 +145,9 @@ int main (int argc, char** argv)
 
   // now merge all selections for different iso thresholds into a single one to be faster
   vector<pair <TString, TCut> > allselections_OS;
-  for (int iv = 0; iv < vec_allselections_OS.size(); iv++)
+  for (unsigned int iv = 0; iv < vec_allselections_OS.size(); iv++)
   {
-    for (int isel = 0; isel < vec_allselections_OS.at(iv).size(); isel++)
+    for (unsigned int isel = 0; isel < vec_allselections_OS.at(iv).size(); isel++)
     {
       pair <TString, TCut> thisPair = vec_allselections_OS.at(iv).at(isel);
       allselections_OS.push_back (thisPair);
@@ -161,9 +155,9 @@ int main (int argc, char** argv)
   }
 
   vector<pair <TString, TCut> > allselections_SS;
-  for (int iv = 0; iv < vec_allselections_SS.size(); iv++)
+  for (unsigned int iv = 0; iv < vec_allselections_SS.size(); iv++)
   {
-    for (int isel = 0; isel < vec_allselections_SS.at(iv).size(); isel++)
+    for (unsigned int isel = 0; isel < vec_allselections_SS.at(iv).size(); isel++)
     {
       pair <TString, TCut> thisPair = vec_allselections_SS.at(iv).at(isel);
       allselections_SS.push_back (thisPair);
@@ -171,9 +165,9 @@ int main (int argc, char** argv)
   }
 
   // check that everything is fine:
-  for (int isel = 0; isel < allselections_OS.size(); isel++)
+  for (unsigned int isel = 0; isel < allselections_OS.size(); isel++)
     cout << allselections_OS.at(isel).first << endl;
-  for (int isel = 0; isel < allselections_SS.size(); isel++)
+  for (unsigned int isel = 0; isel < allselections_SS.size(); isel++)
     cout << allselections_SS.at(isel).first << endl;
 
 
