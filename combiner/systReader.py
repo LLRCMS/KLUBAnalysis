@@ -47,8 +47,9 @@ class systReader:
                         #OutputLines.append(outputLine)
                         for chan in self.channels :
                             outputLine += systLine[chan]
+                            systLine[chan] = "- "
+
                         OutputLines.append(outputLine)
-                        systLine[chan] = "- "
                         outputLine = ""
 
                     print "writing syst for ", section
@@ -70,6 +71,6 @@ class systReader:
                     outputLine += systLine[chan]
             OutputLines.append(outputLine)
 
-        for line in OutputLines:
-            theOutputFile.write(line+"\n")
+            for line in OutputLines:
+                theOutputFile.write(line+"\n")
 

@@ -19,20 +19,28 @@
 void getLimits(TFile *f, std::vector<double> &v_mean,std::vector<double> &v_68l,std::vector<double> &v_68h,std::vector<double> &v_95l,std::vector<double> &v_95h,std::vector<double> &v_obs, bool onepointta=false);
 // --------- Inputs ------- //
 //TString inputDir = "cards"; //"higgsCombineTest.Asymptotic.mH125.7.root";
-float lambdas[]= {-4,1,2.46,20};
+
+//custom inputs
+TString inputfolder="cards_mutau_19oct";
+TString var= "HH_mass";//"mT"; //"HH_mass";// for tautau
+TString sel="baselineisoBtagCutM"; //"dijethardiso";// for tautau
+TString plotName = "UpperLimit_MuTau_19oct_";
+
+//Default inputs
+float lambdas[]={-4,1,2.46,20};
 const int nLambdas = 4;
 const int nXsec = 10;
 float xsections[nXsec]= {12, 2.46, 1,  0.66, 0.47, 0.42, 0.53, 0.79, 50,  105};
 float deflambdas[nXsec]={-4,  0,   1,  1.5,   2,   2.46, 3,    4,    10,  20};
-const bool addObsLimit = false;
+const bool addObsLimit = true;
 const bool _DEBUG_ = true;
-string method = "ASCLS";
 Double_t xLow = -5;
 Double_t xHigh = 21.0;
 Double_t yLow = 1;
-Double_t yHigh = 34.3*1000.*0.073;
+const float xfac = 34.3*0.073;
+Double_t yHigh = xfac*1000.;
 TString xTitle = "#Lambda [GeV]";
-TString yTitle = "95% CL limit on #sigma [fb]";
+TString yTitle = "95% CL limit on #sigma #times BR [fb]";
 const bool logy = true;
 const bool logx = false;
 const bool grid = true;
@@ -43,8 +51,6 @@ int canvasX = 900;
 int canvasY = 700;
 double sqrts = 13.0;
 //Double_t lumi = 1.0;
-std::string plotDir = "tests";
-TString TplotDir = plotDir;
 bool onepointta=true;
 // ----------------------- //
 
@@ -55,24 +61,24 @@ void plotAsymptotic() {
 
   gStyle->SetPadLeftMargin(0.16);
   gStyle->SetPadTopMargin(0.1);
-  for(int ix = 0; ix< nXsec; ix++) xsections[ix] *= 34.3 * 0.073; //xsXBR in fb
+  for(int ix = 0; ix< nXsec; ix++) xsections[ix] *= xfac; //xsXBR in fb
   //TFile *inFile = new TFile(inputFile,"READ");
 
   // ------------------- Get Values -------------------- //
   vector<double> Val_obs, Val_mean, Val_68h, Val_68l, Val_95h, Val_95l;
-  cout<<"Getting limits"<<endl;
+  //cout<<"Getting limits"<<endl;
 
   float lim[nLambdas], limobs[nLambdas],lim68l[nLambdas],lim68h[nLambdas],lim95l[nLambdas],lim95h[nLambdas];
   for(int ifile=0;ifile<nLambdas;ifile++){
    TString filename;
-   filename.Form("cards/lambda%.2f/higgsCombineLambda%.2f.Asymptotic.mH125.7.root",lambdas[ifile],lambdas[ifile]);
+   filename.Form("%s/lambda%.2f%s%s/higgsCombineLambda%.2f_forLim.Asymptotic.mH125.root",inputfolder.Data(),lambdas[ifile],sel.Data(),var.Data(),lambdas[ifile]);
    TFile *inFile = TFile::Open(filename.Data());
    getLimits(inFile,Val_mean,Val_68l,Val_68h,Val_95l,Val_95h,Val_obs,onepointta);
-   cout<<"got"<<endl;
+   //cout<<"got"<<endl;
 
    vector<double> expExclusion,obsExclusion;
 
-   cout<<"point "<<ifile<<endl;
+   //cout<<"point "<<ifile<<endl;
    float valxsections = 0;
    for(int ix = 0; ix< nXsec; ix++){
     if (fabs(lambdas[ifile]-deflambdas[ix])<0.1)valxsections=xsections[ix];
@@ -86,7 +92,7 @@ void plotAsymptotic() {
    lim95h[ifile] = max( Val_95h[ifile], Val_95l[ifile])*valxsections;
 
    if(lim[ifile] < 1.0) expExclusion.push_back(lambdas[ifile]);
-   if(limobs[ifile] < 1.0 && addObsLimit) obsExclusion.push_back(lambdas[ifile]);
+   if( addObsLimit) limobs[ifile] = Val_obs[ifile]*valxsections;
  }
  // ------------------- Change Values to Arrays -------------------- //
   // ------------------- Draw  -------------------- //
@@ -135,8 +141,6 @@ void plotAsymptotic() {
   grshade_95->SetPoint(nMassEff+a,lambdas[nMassEff-a-1],lim95h[nMassEff-a-1]);
   }
 
-  char outfileName[192];
-
   // --------------- Low Mass Zoom -------------- //
 	
   TLegend * box2 = new TLegend(0.51,0.1,0.88,0.380);
@@ -168,15 +172,10 @@ void plotAsymptotic() {
   pt2->SetTextFont(42);
   char lum[192];
   //sprintf(lum," #sqrt{s} = 8 TeV, L = %.2f fb^{-1}",5.261);
-  sprintf(lum," #sqrt{s} = 7 TeV, L = %.2f fb^{-1}",5.051);
+  sprintf(lum," #sqrt{s} = 13 TeV, L = %.2f pb^{-1}",295.);
   pt2->AddText(lum); 
   //TPaveText *pt3 = new TPaveText(0.69,0.90,0.98,0.95,"NDC");
-  TPaveText *pt3 = new TPaveText(ptLow,0.72,ptHigh,0.76,"NDC");
-  pt3->SetFillColor(0);
-  pt3->SetTextFont(42);
-  char lum2[192];
-  sprintf(lum2," #sqrt{s} = 8 TeV, L = %.2f fb^{-1}",5.261);
-  pt3->AddText(lum2); 
+ 
 
   if(grid) pad1->SetGrid();
 
@@ -186,12 +185,12 @@ void plotAsymptotic() {
   
   grshade_95->Draw("f");
   grshade_68->Draw("f");
-  gr->Draw("C");
-  grExp->Draw("C");
+  gr->Draw("l");
+  grExp->Draw("l");
   if(addObsLimit)
     {
-      if(points)grObs->Draw("CP");
-      else grObs->Draw("C");
+      if(points)grObs->Draw("lP");
+      else grObs->Draw("l");
     }
 
 
@@ -214,12 +213,18 @@ void plotAsymptotic() {
   //pt3->Draw("SAME");
   pt4->Draw("SAME");
 
-  sprintf( outfileName,"UpperLimit.eps" );
-  c->SaveAs(outfileName);
-  sprintf( outfileName,"UpperLimit.png" );
-  c->SaveAs(outfileName);
-  sprintf( outfileName,"UpperLimit.root" );	
-  c->SaveAs(outfileName);
+  plotName.Append(sel.Data());
+  plotName.Append(var.Data());
+
+  TString outfileName=plotName.Data();
+  outfileName.Append(".eps");
+  c->SaveAs(outfileName.Data());
+  outfileName=plotName.Data();
+  outfileName.Append(".png");
+  c->SaveAs(outfileName.Data());
+  outfileName=plotName.Data();
+  outfileName.Append(".root");
+  c->SaveAs(outfileName.Data());
 
 
   // --------------- Full Mass Range ---------------- //
