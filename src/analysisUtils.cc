@@ -249,8 +249,6 @@ fillHistos (vector<sample> & samples,
          }
       }
 
-      /*
-      // --> this apparently does not help to save time
       // create an array of histos to avoid retrieving them each time and speed up
       const int nVars = variablesList.size ();
       const int nSele = selections.size ();
@@ -267,15 +265,14 @@ fillHistos (vector<sample> & samples,
                     ) ;
         }
       }
-      */
 
       //unsigned int nEvts = (maxEvts == -1 ? tree->GetEntries() : maxEvts);
       //nEvts = min (nEvts, tree->GetEntries());
       for (int iEvent = 0 ; iEvent < nEvts ; ++iEvent)
         {
           tree->GetEntry (iEvent) ;
-          //if (iEvent%100000 == 0) cout << iEvent << " / " << nEvts << endl;
-          
+          //if (iEvent%10000 == 0) cout << iEvent << " / " << nEvts << endl;
+
           if (isData) localCounter.counters.at (iSample).at (0) += 1. ;
           else        localCounter.counters.at (iSample).at (0) 
                           += weight * lumi * scaling ;
@@ -291,14 +288,14 @@ fillHistos (vector<sample> & samples,
               // fill 1D histos
               for (unsigned int iv = 0 ; iv < variablesList.size () ; ++iv)
                 {
-                  
+                  /*
                   TH1F * histo = 
                   plots.getHisto (variablesList.at (iv),
                       selections.at (isel).first.Data (),
                       samples.at (iSample).sampleName.Data ()
                     ) ;
-                  
-                  //TH1F * histo = histoArray [isel][iv];
+                  */
+                  TH1F * histo = histoArray [isel][iv];
                   
                   if (isData) 
 		              {
@@ -338,11 +335,11 @@ fillHistos (vector<sample> & samples,
 
       for (unsigned int isel = 0 ; isel < selections.size () ; ++isel) delete TTF[isel] ;
 
-      /*
+      
       for (int iSel = 0 ; iSel < nSele; iSel++)
           delete [] histoArray [iSel];
       delete [] histoArray;
-      */
+      
 
       // re-set all branches to active
       tree->SetBranchStatus ("*", 1);
