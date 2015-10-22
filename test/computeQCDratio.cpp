@@ -10,6 +10,8 @@
 #include "THStack.h"
 #include "TCanvas.h"
 #include "TLegend.h"
+#include "TStyle.h"
+
 #include "HistoManager.h"
 #include "ConfigParser.h"
 #include "utils.h"
@@ -375,10 +377,14 @@ int main (int argc, char** argv)
   system (TString ("mkdir -p ") + outFolderNameBase + TString("ratioplots/")) ; 
   system (TString ("mkdir -p ") + outFolderNameBase + TString("num_denom_plots/")) ; 
   system (TString ("mkdir -p ") + outFolderNameBase + TString("num_denom_plots_log/")) ; 
+  system (TString ("mkdir -p ") + outFolderNameBase + TString("events/")) ; 
+  system (TString ("mkdir -p ") + outFolderNameBase + TString("events_log/")) ; 
 
   TFile* fOut = new TFile (outFolderNameBase + "ratioPlots.root", "RECREATE");
   fOut->cd();
   TCanvas* c1 = new TCanvas;
+
+  gStyle->SetOptFit(1111);
 
   //for (unsigned int isample = 0; isample < samples.size(); isample++)
   for (unsigned int ivar = 0; ivar < variablesList.size(); ivar++)
@@ -400,6 +406,7 @@ int main (int argc, char** argv)
 
           c1->SetLogy(false);
           thisRatio -> Draw();
+          thisRatio -> Fit("pol1");
           TString newName = outFolderNameBase + "ratioplots/ratio_" + variablesList.at(ivar) + "_" + selections.at(isel).first + Form("_%f_%f.pdf", dau1iso_thrLow.at(ithr), dau2iso_thrLow.at(ithr)) ;
           c1->Print (newName, "pdf");
 
@@ -431,6 +438,7 @@ int main (int argc, char** argv)
           leg.SetNColumns(2);
           leg.SetFillColor(kWhite);
           leg.SetLineWidth(0);
+          leg.SetBorderSize(0);
           leg.AddEntry(hOS, "OS", "lp");
           leg.AddEntry(hSS, "SS", "lp");
           hOS->Draw();
@@ -444,16 +452,73 @@ int main (int argc, char** argv)
           c1->SetLogy(true);
           hOS->Draw();
           hSS->Draw("same");
-          leg.Draw();
+          //leg.Draw();
 
           newName = outFolderNameBase + "num_denom_plots_log/ratio_" + variablesList.at(ivar) + "_" + selections.at(isel).first + Form("_%f_%f_log.pdf", dau1iso_thrLow.at(ithr), dau2iso_thrLow.at(ithr)) ;
           c1->Print (newName, "pdf");
+          c1->SetLogy(false);
 
       }
     }
   }
 
-//   /* FIXME should we subtract signals as well? */
+
+  // ------------------------------------------------------------------
+  cout << "--- MAIN printing event plots" << endl ;
+
+  for (unsigned int ivar = 0 ; ivar < variablesList.size () ; ++ivar)
+  {
+    for (unsigned int icut = 0 ; icut < selections_OS.size () ; ++icut)
+    {
+      THStack * D_stack = OS_DATA_plots.makeStack (variablesList.at (ivar),
+                              selections_OS.at (icut).first.Data ()) ;
+      //TH1F * tempo = (TH1F *) D_stack->GetStack ()->Last () ;
+    
+      THStack * b_stack = OS_bkg_plots.makeStack (variablesList.at (ivar),
+                              selections_OS.at (icut).first.Data ()) ;
+      //TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
+
+      D_stack->Draw(); // data surely above bkg as it is QCD dominated
+      b_stack->Draw("hist same"); // data surely above bkg as it is QCD dominated
+
+      TString newName = outFolderNameBase + "events/plot_" + variablesList.at(ivar) + "_" + selections_OS.at (icut).first + "_OS.pdf" ;
+      c1->Print (newName, "pdf");
+
+      c1->SetLogy(true);
+      newName = outFolderNameBase + "events_log/plot_" + variablesList.at(ivar) + "_" + selections_OS.at (icut).first + "_log_OS.pdf" ;
+      c1->Print (newName, "pdf");
+      c1->SetLogy(false);
+
+    }
+  } 
+
+
+  for (unsigned int ivar = 0 ; ivar < variablesList.size () ; ++ivar)
+  {
+    for (unsigned int icut = 0 ; icut < selections_SS.size () ; ++icut)
+    {
+      THStack * D_stack = SS_DATA_plots.makeStack (variablesList.at (ivar),
+                              selections_SS.at (icut).first.Data ()) ;
+      //TH1F * tempo = (TH1F *) D_stack->GetStack ()->Last () ;
+    
+      THStack * b_stack = SS_bkg_plots.makeStack (variablesList.at (ivar),
+                              selections_SS.at (icut).first.Data ()) ;
+      //TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
+
+      D_stack->Draw(); // data surely above bkg as it is QCD dominated
+      b_stack->Draw("hist same"); // data surely above bkg as it is QCD dominated
+
+      TString newName = outFolderNameBase + "events/plot_" + variablesList.at(ivar) + "_" + selections_SS.at (icut).first + "_SS.pdf" ;
+      c1->Print (newName, "pdf");
+
+      c1->SetLogy(true);
+      newName = outFolderNameBase + "events_log/plot_" + variablesList.at(ivar) + "_" + selections_OS.at (icut).first + "_log_SS.pdf" ;
+      c1->Print (newName, "pdf");
+      c1->SetLogy(false);
+
+
+    }
+  }  
 //   /* NB if it has to be subtracted, it cannot be scaled! */
 
 //   // get the SS-to-OS scale factor and scale the QCD distributions
