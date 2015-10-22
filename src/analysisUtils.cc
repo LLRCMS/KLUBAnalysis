@@ -228,6 +228,7 @@ fillHistos (vector<sample> & samples,
       }
 
       tree->SetBranchStatus ("*", 0);
+      tree->SetBranchStatus ("MC_weight", 1) ;
       TObjArray *branchList = tree->GetListOfBranches();
       int nBranch   = tree->GetNbranches();
       // used vars
