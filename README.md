@@ -14,7 +14,7 @@ cd -
 scram b -j8
 ls
 cd HHKinFit2/
-git checkout bugfix
+ln -ns interface include
 source setup.sh
 ./compile.sh
 cd ..
