@@ -100,6 +100,12 @@ class cardMaker:
         #templateSIG_QCDUP = inputFile.Get("") 
         #templateSIG_QCDDOWN = inputFile.Get("") 
         ##...
+        binsx = templateSIG.GetNbinsX()
+
+        ###FIXME: protection against empty bins####
+        #for ibin in range(binsx):
+        #    if templateSIG.GetBinContent(ibin)==0 :
+        #        templateSIG.SetBinContent(ibin, 0.00000001)
         rate_signal_Shape = templateSIG.Integral("width")#*self.lumi #*2.3
         totalRate = float(rate_signal_Shape)
         print " signal rate ", rate_signal_Shape
@@ -119,6 +125,10 @@ class cardMaker:
                 #print isample, " LARGER THAN O"
                 if self.is2D == 1 and "TH2" in template.ClassName():
                     template = template.ProjectionX()
+                ###FIXME: protection against empty bins####
+                #for ibin in range(template.GetNbinsX()):
+                #    if template.GetBinContent(ibin)==0 :
+                #        template.SetBinContent(ibin, 0.00000001)
                 templatesBKG.append(template)       
                 theRates.append( template.Integral("width") ) #*self.lumi
                 totalRate = totalRate + theRates[len(theRates)-1]
@@ -133,7 +143,6 @@ class cardMaker:
 
         #theRates=[rate_signal_Shape,rate_bkgTT_Shape,rate_bkgDY_Shape,rate_bkgTWantitop_Shape,rate_bkgTWtop_Shape]
         ## -------------------------- SIGNAL SHAPE VARIABLES ---------------------- ##
-        binsx = templateSIG.GetNbinsX()
         binsy = 0
         #print theInputs.AllvarX[theInputs.varX]
         x_name = theInputs.AllVars[theInputs.varX]
