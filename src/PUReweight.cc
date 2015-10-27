@@ -8,7 +8,12 @@ float PUReweight::weight(int MC, int target, int input) {
   if (theType == RUN2ANALYSIS) {
 
     if        (MC==25 && target==25) {
-      return hT2015_MC25ns_Data25ns.at(input) ;
+      if (input < 52) 
+        return hT2015_MC25ns_Data25ns.at(input) ;
+      else 
+        // In case nPU is out-of data-profile binning,
+        // use weight from last bin
+        return hT2015_MC25ns_Data25ns.at(51) ;
     } else if (MC==25 && target==50) {
       return hT2015_MC25ns_Data50ns.at(input) ;
     } else if (MC==50 && target==25) {
@@ -42,9 +47,63 @@ float PUReweight::weight(int MC, int target, int input) {
 PUReweight::PUReweight(Type type) : 
 theType(type) {
 
-  // RUN2ANALYSIS  MC 25ns target Data25ns
-  for(int k = 0 ; k < 300 ; ++k)
-    hT2015_MC25ns_Data25ns.push_back(1.) ;
+  // RUN2ANALYSIS MC 25ns target Data25ns
+  // from https://twiki.cern.ch/twiki/bin/view/CMS/ExoDiBosonResonancesRun2#PU_weights
+  double npuWinter15_25ns[52] ; 
+  npuWinter15_25ns[0] = 4.8551E-07; 
+  npuWinter15_25ns[1] = 1.74806E-06;
+  npuWinter15_25ns[2] = 3.30868E-06;
+  npuWinter15_25ns[3] = 1.62972E-05;
+  npuWinter15_25ns[4] = 4.95667E-05;
+  npuWinter15_25ns[5] = 0.000606966;
+  npuWinter15_25ns[6] = 0.003307249;
+  npuWinter15_25ns[7] = 0.010340741;
+  npuWinter15_25ns[8] = 0.022852296;
+  npuWinter15_25ns[9] = 0.041948781;
+  npuWinter15_25ns[10] = 0.058609363;
+  npuWinter15_25ns[11] = 0.067475755;
+  npuWinter15_25ns[12] = 0.072817826;
+  npuWinter15_25ns[13] = 0.075931405;
+  npuWinter15_25ns[14] = 0.076782504;
+  npuWinter15_25ns[15] = 0.076202319;
+  npuWinter15_25ns[16] = 0.074502547;
+  npuWinter15_25ns[17] = 0.072355135;
+  npuWinter15_25ns[18] = 0.069642102;
+  npuWinter15_25ns[19] = 0.064920999;
+  npuWinter15_25ns[20] = 0.05725576;
+  npuWinter15_25ns[21] = 0.047289348;
+  npuWinter15_25ns[22] = 0.036528446;
+  npuWinter15_25ns[23] = 0.026376131;
+  npuWinter15_25ns[24] = 0.017806872;
+  npuWinter15_25ns[25] = 0.011249422;
+  npuWinter15_25ns[26] = 0.006643385;
+  npuWinter15_25ns[27] = 0.003662904;
+  npuWinter15_25ns[28] = 0.001899681;
+  npuWinter15_25ns[29] = 0.00095614;
+  npuWinter15_25ns[30] = 0.00050028;
+  npuWinter15_25ns[31] = 0.000297353;
+  npuWinter15_25ns[32] = 0.000208717;
+  npuWinter15_25ns[33] = 0.000165856;
+  npuWinter15_25ns[34] = 0.000139974;
+  npuWinter15_25ns[35] = 0.000120481;
+  npuWinter15_25ns[36] = 0.000103826;
+  npuWinter15_25ns[37] = 8.88868E-05;
+  npuWinter15_25ns[38] = 7.53323E-05;
+  npuWinter15_25ns[39] = 6.30863E-05;
+  npuWinter15_25ns[40] = 5.21356E-05;
+  npuWinter15_25ns[41] = 4.24754E-05;
+  npuWinter15_25ns[42] = 3.40876E-05;
+  npuWinter15_25ns[43] = 2.69282E-05;
+  npuWinter15_25ns[44] = 2.09267E-05;
+  npuWinter15_25ns[45] = 1.5989E-05;
+  npuWinter15_25ns[46] = 4.8551E-06;
+  npuWinter15_25ns[47] = 2.42755E-06;
+  npuWinter15_25ns[48] = 4.8551E-07;
+  npuWinter15_25ns[49] = 2.42755E-07;
+  npuWinter15_25ns[50] = 1.21378E-07;
+  npuWinter15_25ns[51] = 4.8551E-08;
+  for(int k = 0 ; k < 52 ; ++k)
+    hT2015_MC25ns_Data25ns.push_back(npuWinter15_25ns[k]) ;
 
   // RUN2ANALYSIS  MC 25ns target Data50ns
   for(int k = 0 ; k < 300 ; ++k)
