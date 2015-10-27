@@ -3,6 +3,7 @@ muTau           = pairType == 0
 baseline        = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0
 dijet           = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 20 && bjet2_pt > 20
 dijethard       = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30
+defaultBtagML   = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && dau1_iso < 0.1 && dau2_iso < 3.0 && bjet1_bID > 0.89 && bjet2_bID > 0.605
 
 # add OS
 baselineOS      = pairType == 0 && dau1_pt > 18 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && isOS != 0

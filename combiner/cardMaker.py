@@ -100,6 +100,12 @@ class cardMaker:
         #templateSIG_QCDUP = inputFile.Get("") 
         #templateSIG_QCDDOWN = inputFile.Get("") 
         ##...
+        binsx = templateSIG.GetNbinsX()
+
+        ###FIXME: protection against empty bins####
+        #for ibin in range(binsx):
+        #    if templateSIG.GetBinContent(ibin)==0 :
+        #        templateSIG.SetBinContent(ibin, 0.00000001)
         rate_signal_Shape = templateSIG.Integral("width")#*self.lumi #*2.3
         totalRate = float(rate_signal_Shape)
         print " signal rate ", rate_signal_Shape
@@ -119,6 +125,10 @@ class cardMaker:
                 #print isample, " LARGER THAN O"
                 if self.is2D == 1 and "TH2" in template.ClassName():
                     template = template.ProjectionX()
+                ###FIXME: protection against empty bins####
+                #for ibin in range(template.GetNbinsX()):
+                #    if template.GetBinContent(ibin)==0 :
+                #        template.SetBinContent(ibin, 0.00000001)
                 templatesBKG.append(template)       
                 theRates.append( template.Integral("width") ) #*self.lumi
                 totalRate = totalRate + theRates[len(theRates)-1]
@@ -133,7 +143,6 @@ class cardMaker:
 
         #theRates=[rate_signal_Shape,rate_bkgTT_Shape,rate_bkgDY_Shape,rate_bkgTWantitop_Shape,rate_bkgTWtop_Shape]
         ## -------------------------- SIGNAL SHAPE VARIABLES ---------------------- ##
-        binsx = templateSIG.GetNbinsX()
         binsy = 0
         #print theInputs.AllvarX[theInputs.varX]
         x_name = theInputs.AllVars[theInputs.varX]
@@ -202,21 +211,36 @@ class cardMaker:
         TemplateName = "OS_DATA_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,theDataSample)
         templateObs = inputFile.Get(TemplateName)
         print TemplateName
+        #if templateObs.Integral() <=0: #protection for low stat
+        #    data_obs = rhpB[0].generate(ras_variableSet,1000)
         if self.is2D==1: 
             if "TH2" in templateObs.ClassName() : 
                 templateObs = templateObs.ProjectionX()
+            obstree=TNtuple("obstree","obstree",x_name)
+            for idata in range(1,templateObs.GetNbinsX()+1):
+                gbc = int(templateObs.GetBinContent(idata))
+                if gbc >0:
+                    for ig in range(gbc): 
+                        obstree.Fill(templateObs.GetXaxis().GetBinCenter(idata))
+        else:
+            obstree=TNtuple("obstree","obstree",x_name+":"+y_name)
+            for idata in range(1,templateObs.GetNbinsX()+1):
+                for idatay in range(1,templateObs.GetNbinsY()+1):
+                    gbc = int(templateObs.GetBinContent(idata,datay))
+                    if gbc >0:
+                        for ig in range(gbc): 
+                            obstree.Fill(templateObs.GetXaxis().GetBinCenter(idata),templateObs.GetXaxis().GetBinCenter(idatay))
         print templateObs.GetEntries()
-        if templateObs.Integral() <=0: #protection for low stat
-            data_obs = rhpB[0].generate(ras_variableSet,1000)
-        else :
-            rdh_obs = ROOT.RooDataHist("rdh"+TemplateName,"rdh"+TemplateName,ral_variableList,templateObs)
-            rhp_obs = ROOT.RooHistPdf("rhp_obs","rhp_obs",ras_variableSet,rdh_obs)
-            data_obs = rhp_obs.generate(ras_variableSet,1000)
+        data_obs = RooDataSet("data_obs","data_obs",obstree,ras_variableSet)    
+            #rdh_obs = ROOT.RooDataHist("rdh"+TemplateName,"rdh"+TemplateName,ral_variableList,templateObs)
+            #rhp_obs = ROOT.RooHistPdf("rhp_obs","rhp_obs",ras_variableSet,rdh_obs)
+            #data_obs = rhp_obs.generate(ras_variableSet)
         #datasetName = "data_obs_{0}".format(self.appendName)
-        data_obs.SetNameTitle("data_obs","data_obs")
+        #data_obs.SetNameTitle("data_obs","data_obs")
 
         #data_obs = ROOT.RooDataSet(datasetName,datasetName,data_obs_tree,ras_variableSet)
         print "observations: ", data_obs.numEntries()    
+        templateObs.Print()
 
         ## --------------------------- WORKSPACE -------------------------- ##
         getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs"))

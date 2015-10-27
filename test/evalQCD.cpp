@@ -242,7 +242,7 @@ int main (int argc, char** argv)
               variablesList, variables2DList,
               selections_OS,
               lumi,
-              vector<float> (0),
+              signalScales,
               false, true) ;
   OS_sig_plots.AddOverAndUnderFlow () ;
 
