@@ -20,6 +20,11 @@
 #include "TCut.h"
 #include "TH1F.h"
 #include "THStack.h"
+#include "TCanvas.h"
+#include "TLegend.h"
+#include "TGaxis.h"
+#include "TObject.h"
+#include "plotContainer.h"
 
 struct sample
 {
@@ -63,6 +68,7 @@ int readSamples (vector<sample> & samples, vector<string> & samplesList,
                  TString readOption = "READ") ;
 vector<pair<TString, TCut> > readCutsFile (string filename) ;
 vector<pair <TString, TCut> > readCutsFile (vector<string> activeSelections, string filename) ;
+vector<pair <string, string> > readVarNamesFile (vector<string> varList, string filename) ;
 
 struct isNOTalnum : std::unary_function<int, int>
 {

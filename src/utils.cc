@@ -120,6 +120,43 @@ readCutsFile (vector<string> activeSelections, string filename)
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
+vector<pair <string, string> > readVarNamesFile (vector<string> varList, string filename)
+{
+  ifstream infile (filename) ;
+  vector<pair<string, string> > varNames ;
+
+  string comments("@@@");
+
+  string line ;
+  while (getline (infile, line))
+  {
+      istringstream iss (line) ;
+      string dummy ;
+      iss >> dummy ;
+      //cout << "PARSE:--" << dummy << endl;
+      if (dummy.size () < 2) continue ;
+      size_t found = dummy.find (comments) ;
+      if (found != string::npos) continue ;
+      size_t limit = line.find_first_of ("=") ;
+      if (limit == string::npos) continue ;    
+      string name = line.substr (limit+1) ;
+      if (find (varList.begin (), varList.end (), dummy) 
+          == varList.end ())
+        continue ;
+      // trim tring as whitespace interfere with ROOT positioning
+      size_t first = name.find_first_not_of(string(" \t\f\v\n\r"));
+      size_t last = name.find_last_not_of(string(" \t\f\v\n\r"));
+      name = name.substr(first, (last-first+1));
+
+      //name = string(boost::algorithm::trim( name )) ;
+      //varNames.push_back (pair<string, string> (dummy, name) ) ;
+      //cout << "!" << dummy << "! !" << name << "!" << endl;
+      varNames.push_back(make_pair(dummy, name));
+  }
+  return varNames;
+}
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems)
  {
@@ -275,3 +312,4 @@ void printTable (std::ostream& out, vector<string> & sample, vector<pair <TStrin
   }
 }
 */
+

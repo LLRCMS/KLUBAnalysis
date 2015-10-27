@@ -300,12 +300,12 @@ fillHistos (vector<sample> & samples,
                   
                   if (isData) 
 		              {
-                      if(iv!=indexNjets)histo->Fill (address[iv]) ; // perfectly fine as address is <=> varList in the first part
+                      if((int)iv!=indexNjets)histo->Fill (address[iv]) ; // perfectly fine as address is <=> varList in the first part
 		                  else histo->Fill (tempnjets) ;
                   }
                   else        
                   {
-                      if(iv!=indexNjets)histo->Fill (address[iv], weight * lumi * scaling) ;
+                      if((int)iv!=indexNjets)histo->Fill (address[iv], weight * lumi * scaling) ;
 		                  else histo->Fill (tempnjets, weight * lumi * scaling) ;
                   }
                 } //loop on 1Dvariables
@@ -407,5 +407,415 @@ stackHistos (vector<sample> & samples, HistoManager * manager,
     }
   return hstack ;
 }
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---0
+std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bkgPlots, plotContainer& sigPlots,
+                                      string varName, string selName,
+                                      TCanvas* canvas, std::vector <pair <string, string> >& addInLegend, std::vector <pair <string, string> >& axisTitles,
+                                      bool LogY, bool makeRatioPlot, bool drawLegend, bool doShapes, bool forceNonNegMin)
+{
+  const int axislabelsize   = 18;  // title of axis
+  const int axisnumsize     = 14;  // numbers on axis
+  const int axisnumberfont  = 43;  // font of numbres on axis (helvetica)
+  const int axistitlefont   = 43;  // font of labels of axis (helvetica)
+  const int cmsTextFont     = 61;  // font of the "CMS" label
+  const float cmsTextSize   = 0.04;  // font size of the "CMS" label
+  const int extraTextFont   = 52;     // for the "preliminary"
+  const float extraTextSize   = 0.76 * cmsTextSize; // for the "preliminary"
+
+
+  if (doShapes) makeRatioPlot = false;
+  if (LogY) forceNonNegMin = false;
+
+  std::vector<TObject*> allocatedStuff;
+
+  canvas->Clear();
+  canvas->cd();
+  
+  THStack * sig_stack = sigPlots.makeStack ( varName, selName ) ;
+  THStack * bkg_stack = bkgPlots.makeStack ( varName, selName ) ;
+  THStack * DATA_stack = dataPlots.makeStack ( varName, selName ) ;
+
+  vector<float> extremes_bkg  = getExtremes (bkg_stack, LogY) ;
+  vector<float> extremes_sig  = getExtremes (sig_stack, LogY) ;
+  vector<float> extremes_DATA = getExtremes (DATA_stack, LogY) ;
+  allocatedStuff.push_back (sig_stack);
+  allocatedStuff.push_back (bkg_stack);
+  allocatedStuff.push_back (DATA_stack);
+
+  // ----------------------------------------------
+
+  TPad *pad1; // upper pad if ratio plot
+  
+  if (makeRatioPlot)
+  {
+    pad1 = new TPad("pad1", "pad1", 0, 0.25, 1, 1.0);
+    pad1->SetBottomMargin(0.02); // Upper and lower plot are joined
+    //pad1->SetGridx();         // Vertical grid
+  }
+  
+  else
+  {
+    pad1 = new TPad("pad1", "pad1", 0, 0.0, 1, 1.0);
+    //pad1->SetBottomMargin(0); // Upper and lower plot are joined
+    //pad1->SetGridx();         // Vertical grid
+  }
+  pad1->SetTopMargin(0.06);
+  pad1->SetRightMargin(0.035);
+
+  allocatedStuff.push_back (pad1);
+
+  if (LogY) pad1->SetLogy(true);
+  else pad1->SetLogy(false);
+
+  pad1->Draw();  // Draw the upper pad: pad1
+  pad1->cd();    // pad1 becomes the current pad
+
+  float minx = extremes_bkg.at (0);
+  float maxx = extremes_bkg.at (2) ;
+  float miny; 
+  float maxy; 
+
+  TH1F * shape_bkg = 0; // use only id doShapes
+  THStack * hstack_bkg_norm = 0;
+  THStack * hstack_sig_norm = 0;
+  
+  if (!doShapes)
+  {
+    miny = min3 (extremes_bkg.at (1), extremes_sig.at (1), extremes_DATA.at (1)) ;
+    maxy = max3 (extremes_bkg.at (3), extremes_sig.at (3), extremes_DATA.at (3) + sqrt (extremes_DATA.at (3)));
+ 
+    // compute the upper space in log scale
+    if (LogY)
+    {
+      //leave a 0.3 of space for legend
+      float rangeInLog = (log10 (maxy) - log10 (miny));
+      float lymax = log10(maxy) + 0.3*rangeInLog;
+      maxy += pow(10, lymax);
+      miny = miny / 5. ;
+    }
+    else
+    {
+      miny *= 0.9;
+      maxy *= 1.3;
+    }
+  }
+
+  else // no data
+  {
+    hstack_bkg_norm = normaliseStack (bkg_stack) ;
+    shape_bkg = (TH1F *) hstack_bkg_norm->GetStack ()->Last () ;
+    allocatedStuff.push_back(hstack_bkg_norm);
+
+    hstack_sig_norm = normaliseStack (sig_stack, true) ;
+    vector<float> extremes_sig_norm = getExtremes (hstack_sig_norm, LogY, true) ;
+
+    //shape_sig = (TH1F *) hstack_sig_norm->GetStack ()->Last () ;
+    //allocatedStuff.push_back(hstack_sig_norm);
+
+    if (LogY)
+    {
+      float tmpMin = min ((float)shape_bkg->GetMinimum(0), extremes_sig_norm.at(1));
+      float tmpMax = max ((float)shape_bkg->GetMaximum(), extremes_sig_norm.at(3));
+      //leave a 0.3 of space for legend
+      float rangeInLog = (log10 (tmpMax) - log10 (tmpMin));
+      float lymax = log10(tmpMax) + 0.3*rangeInLog;   
+      maxy = pow(10, lymax);
+      miny = tmpMin / 5. ;
+    }
+    else
+    {
+      miny = 0.9*min ((float)shape_bkg->GetMinimum(), extremes_sig_norm.at(1));
+      maxy = 1.3*max ((float)shape_bkg->GetMaximum(), extremes_sig_norm.at(3));
+    }
+  }
+
+  if (forceNonNegMin && miny < 0) miny = 0;
+  
+  TH1F * frame = pad1->DrawFrame ( minx, miny, maxx, maxy ); // do not add it to the list of objects to delete! Or it will cause a segmentation fault
+  copyTitles (frame, bkg_stack) ;
+
+  // re-draw correctly y axis as it will be overlapped by the histos
+  //frame->GetYaxis()->SetLabelSize(0);
+  //frame->GetYaxis()->SetTickSize(0);
+  frame->GetYaxis()->SetLabelSize(axisnumsize);
+  frame->GetYaxis()->SetLabelFont(axisnumberfont);
+  frame->GetYaxis()->SetTitleSize(axislabelsize);
+  frame->GetYaxis()->SetTitleFont(axistitlefont);
+  frame->GetYaxis()->SetTitleOffset(1.2);
+  
+  // frame->GetXaxis()->SetTickSize(0);
+
+  TString xTitle = frame->GetXaxis()->GetTitle();
+  string xTitlestr (xTitle.Data());
+  auto it = std::find_if(axisTitles.begin(), 
+                   axisTitles.end(), 
+                  [&xTitlestr](const pair<string, string>& p)
+                  { return p.first == xTitlestr; });
+
+  if (it != axisTitles.end()) xTitle = (it->second).c_str();
+ 
+
+  if (makeRatioPlot)
+  {
+    frame->GetXaxis()->SetLabelSize(0);
+    frame->GetXaxis()->SetTitle("");
+  }
+  else
+  {
+    frame->GetXaxis()->SetLabelSize(axisnumsize);
+    frame->GetXaxis()->SetTitleFont(axistitlefont);
+    frame->GetXaxis()->SetTitleSize(axislabelsize);
+    frame->GetXaxis()->SetTitleOffset(1.1);
+    frame->GetXaxis()->SetLabelFont(axisnumberfont); // Absolute font size in pixel (precision 3)
+    frame->GetXaxis()->SetTitle(xTitle);
+  } 
+
+  if (doShapes)
+    frame->GetYaxis()->SetTitle ("a.u.") ;    
+
+  frame->Draw () ;
+
+  TH1F * h_data = 0 ;
+  TH1F * h_bkg  = 0;
+  if (!doShapes)
+  {
+    // bkg_stack->SetMinimum (ymin);
+    // bkg_stack->SetMaximum (ymax);
+    // bkg_stack->Draw ("hist") ;
+    bkg_stack->Draw ("hist same") ;
+    sig_stack->Draw ("nostack hist same") ;
+    h_data = (TH1F *) DATA_stack->GetStack ()->Last () ; // FIXME: is it allocated with new and needs to be deleted? stupid ROOT!
+    h_bkg = (TH1F *) bkg_stack->GetStack ()->Last () ; // FIXME: is it allocated with new and needs to be deleted? stupid ROOT!
+    // FIXME probably the data uncertainties need to be fixed
+    h_data->Draw ("same") ;
+  }
+  else
+  {
+    // hstack_bkg_norm->SetMinimum (ymin);
+    // hstack_bkg_norm->SetMaximum (ymax);
+    hstack_bkg_norm->Draw ("hist same") ;
+    hstack_sig_norm->Draw ("nostack hist same") ;
+  }
+
+  // axis will be covered by the plots so redraw axis!
+  pad1->RedrawAxis();
+  pad1->RedrawAxis("g"); // for the grid, if enabled
+
+  // ------------------- legend + additional stuff
+  if (drawLegend)
+  {
+    TLegend* leg = new TLegend (0.3, 0.77, 0.95, 0.94);
+    leg->SetFillColor(kWhite);
+    leg->SetFillStyle(0);
+    leg->SetLineWidth(0);
+    leg->SetBorderSize(0);
+    // let's consider that 4 sample names can stay in the top legend
+    leg->SetNColumns(4);
+      
+    allocatedStuff.push_back(leg);
+
+    // sample names -- bkg
+    for (map<string, TH1F *>::iterator iSample = bkgPlots.m_histos[varName][selName].begin () ;
+        iSample != bkgPlots.m_histos[varName][selName].end () ; ++iSample)
+    {
+      string samplename = iSample->first ;
+      string thisname = "EMPTY";
+
+      auto it = std::find_if(addInLegend.begin(), 
+                       addInLegend.end(), 
+                      [&samplename](const pair<string, string>& p)
+                      { return p.first == samplename; });
+
+      if (it != addInLegend.end()) thisname = it->second;
+      else thisname = samplename;
+      
+      if (thisname != string ("NODRAW") ) leg->AddEntry (iSample->second, thisname.c_str(), "f") ;
+    }    
+
+    // sample names -- signal
+    for (map<string, TH1F *>::iterator iSample = sigPlots.m_histos[varName][selName].begin () ;
+        iSample != sigPlots.m_histos[varName][selName].end () ; ++iSample)
+    {
+      string samplename = iSample->first ;
+      string thisname = "EMPTY";
+
+      auto it = std::find_if(addInLegend.begin(), 
+                       addInLegend.end(), 
+                      [&samplename](const pair<string, string>& p)
+                      { return p.first == samplename; });
+
+      if (it != addInLegend.end()) thisname = it->second;
+      else thisname = samplename;      
+      if (thisname != string ("NODRAW") ) leg->AddEntry (iSample->second, thisname.c_str(), "l") ;
+
+    }
+
+    if (!doShapes)
+    {
+      //TH1F* dataHisto = dataPlots.getHisto(varName, selName, addInLegend.at(i).first );      
+      map<string, TH1F *>::iterator iData = dataPlots.m_histos[varName][selName].begin() ;  // all data have the same format!
+      leg->AddEntry (iData->second, "data", "lep") ;
+    }    
+
+
+    
+    leg->Draw();
+  }
+
+  // redo y axis that is overlapped
+  /*
+  TGaxis *axis;
+  if (!LogY) axis = new TGaxis( minx, miny, minx, maxy, miny, maxy, 510, "");
+  else axis = new TGaxis( minx, miny, minx, maxy, miny, maxy, 510, "G");
+  allocatedStuff.push_back(axis);
+  axis->SetLabelFont(axisnumberfont); // Absolute font size in pixel (precision 3)
+  axis->SetLabelSize(axisnumsize);
+  axis->Draw();
+
+  // redo x axis that is overlapped
+  TGaxis *x_axis;
+  x_axis = new TGaxis( minx, miny, maxx, miny, minx, maxx, 510, "");
+  allocatedStuff.push_back(x_axis);
+  x_axis->SetLabelFont(axisnumberfont); // Absolute font size in pixel (precision 3)
+  x_axis->SetLabelSize(axisnumsize);
+  x_axis->Draw();
+  */
+
+  if (makeRatioPlot)
+  {
+
+    // lower plot will be in pad
+    canvas->cd();          // Go back to the main canvas before defining pad2
+    TPad *pad2 = new TPad("pad2", "pad2", 0, 0.0, 1, 0.2496);
+    allocatedStuff.push_back(pad2);
+    pad2->SetTopMargin(0.05);
+    pad2->SetBottomMargin(0.35);
+    pad2->SetRightMargin(0.035);
+    pad2->SetGridy();
+    //pad2->SetGridx(); // vertical grid
+    pad2->Draw();
+    pad2->cd();       // pad2 becomes the current pad
+
+    // Define the ratio plot
+    TH1F *hratio = (TH1F*)h_data->Clone (Form("hratio_%s_%s", varName.c_str(), selName.c_str()));
+    
+    hratio->SetLineColor(kBlack);
+    hratio->SetMinimum(0.501);  // Define Y ..
+    hratio->SetMaximum(1.499); // .. range
+    hratio->SetTitle("");
+    
+    hratio->GetXaxis()->SetTitleSize(axislabelsize);
+    hratio->GetXaxis()->SetTitleFont(axistitlefont);
+    hratio->GetXaxis()->SetTitleOffset(3.5);
+    hratio->GetXaxis()->SetLabelFont(axisnumberfont); // Absolute font size in pixel (precision 3)
+    hratio->GetXaxis()->SetLabelSize(axisnumsize);
+    hratio->GetXaxis()->SetTitle (xTitle);
+    
+    hratio->GetYaxis()->SetTitle ("data / MC");    
+    hratio->GetYaxis()->SetNdivisions(505);
+    hratio->GetYaxis()->SetTitleSize(axislabelsize);
+    hratio->GetYaxis()->SetTitleFont(axistitlefont);
+    hratio->GetYaxis()->SetTitleOffset(1.2);
+    hratio->GetYaxis()->SetLabelFont(axisnumberfont); // Absolute font size in pixel (precision 3)
+    hratio->GetYaxis()->SetLabelSize(axisnumsize);
+
+    //hratio->Sumw2(); // should inherit from bkg_stack
+    hratio->SetStats(0);      // No statistics on lower plot
+    hratio->SetMarkerStyle (8);
+    hratio->SetMarkerSize (0.8);
+
+    //hratio->Divide(h_bkg); // this will inherit errors from bkg too and I don't want it
+    for (int ibin = 1; ibin <= hratio->GetNbinsX(); ibin++)
+    {
+      float binContent = hratio->GetBinContent(ibin);
+      float binError   = hratio->GetBinError(ibin);
+      float divBy      = h_bkg->GetBinContent(ibin);
+      if (divBy > 0)
+      {
+        hratio->SetBinContent (ibin, binContent / divBy);
+        hratio->SetBinError   (ibin, binError / divBy);
+      }
+      else
+      {
+        hratio->SetBinContent (ibin, 0);
+        hratio->SetBinError   (ibin, 0);        
+      }
+    }
+    hratio->Draw("p");       // Draw the ratio plot
+    
+    /*
+    TLine* line = new TLine (minx, 1. , h2->GetBinLowEdge(h2->GetNbinsX()+1), 1.);
+    allocatedStuff.push_back(line);
+    line->SetLineColor(kGray+2);
+    line->SetLineStyle (7);
+    line->Draw();
+    */
+  }
+
+  // now do header with luminosity and CMS preliminary  
+  pad1->cd();
+  TString CMStext = "CMS";
+  TString extraText = "preliminary";
+
+  /*
+  float yoffs = 0.25; // fractional shift
+  // TLatex want units as the axes! So I have to rescale...
+  float yrange = maxy - miny;
+  float xpos = 0.05* (maxx - minx) + minx;
+  float ypos = 0.95*yrange + miny;
+  ///cout << "X pos: " << xpos << endl;
+  //cout << "Y pos: " << ypos << endl;
+  */
+  float xpos  = 0.13;
+  float ypos  = 0.925;
+  float yoffs = 0.05; // fractional shift
+
+  TLatex* CMSbox       = new TLatex  (xpos, ypos         , CMStext.Data());       
+  TLatex* extraTextBox = new TLatex  (xpos, ypos - yoffs , extraText.Data());
+  CMSbox->SetNDC();
+  extraTextBox->SetNDC();
+  allocatedStuff.push_back (CMSbox);  
+  allocatedStuff.push_back (extraTextBox);  
+
+  CMSbox->SetTextSize(cmsTextSize);
+  CMSbox->SetTextFont(cmsTextFont);
+  CMSbox->SetTextColor(kBlack);
+  CMSbox->SetTextAlign(13);
+
+  extraTextBox->SetTextSize(extraTextSize);
+  extraTextBox->SetTextFont(extraTextFont);
+  extraTextBox->SetTextColor(kBlack);
+  extraTextBox->SetTextAlign(13);
+
+  CMSbox->Draw();
+  extraTextBox->Draw();
+
+  // now plot lumi!
+  float lumi_num = gConfigParser->readFloatOption ("general::lumi");
+  stringstream stream;
+  stream << fixed << setprecision(1) << lumi_num;
+  TString lumi = stream.str().c_str();
+  lumi += " fb^{-1} (13 TeV)";
+
+  xpos = 0.963;
+  ypos = 0.962;
+  TLatex* lumibox = new TLatex  (xpos, ypos, lumi.Data());       
+  allocatedStuff.push_back(lumibox);
+  lumibox->SetNDC();
+  lumibox->SetTextAlign(31);
+  lumibox->SetTextSize(extraTextSize);
+  lumibox->SetTextFont(42);
+  lumibox->SetTextColor(kBlack);
+
+  lumibox->Draw();
+
+  return allocatedStuff;
+
+}
+
 
 

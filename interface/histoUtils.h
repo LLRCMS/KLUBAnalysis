@@ -61,8 +61,8 @@ THStack * stackMe (TH1F * histo);
 void makePositiveDefine(TH1F* histo);
 void makePositiveDefine(TH2F* histo);
 
-// scale a THStack to have total unit area
-THStack * normaliseStack (THStack * original) ;
+// scale a THStack to have total unit area -- if nostack,  each histo is separately normalized (for signals)
+THStack * normaliseStack (THStack * original, bool nostack = false) ;
 
 // set the axis titles of histogram to the ones of the first histo of hstack
 void copyTitles (TH1F * histogram, THStack * hstack) ;
@@ -110,7 +110,7 @@ TH2F * roll ( T * original,    // thing to be re-rolled
 }
  
 // xmin ymin xmax ymax
-vector<float> getExtremes (THStack * hstack, bool islog = false) ;
+vector<float> getExtremes (THStack * hstack, bool islog = false, bool nostack = false) ;
 vector<float> getExtremes (std::vector<TH1F*>& histos, bool islog = false) ;
 
 float min3 (float uno, float due, float tre) ;
