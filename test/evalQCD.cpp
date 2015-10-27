@@ -17,7 +17,6 @@
 #include "plotContainer.h"
 #include "analysisUtils.h"
 
-
 using namespace std ;
 
 
@@ -277,9 +276,42 @@ int main (int argc, char** argv)
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events/")) ;
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/shapes/")) ;
 
-  TCanvas * c = new TCanvas () ;
+  // for test
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_log/")) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/shapes_log/")) ;
+
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_ratio/")) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_log_ratio/")) ;
+
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_nonZero/")) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/shapes_nonZero/")) ;
+
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_nonZero_ratio/")) ;
+
+  TCanvas * c = new TCanvas ("c", "c", 600, 600) ;
+  //TCanvas * c = new TCanvas () ;
 
   cout << "--- MAIN before plotting" << endl ;
+
+  // retrieve legend names
+  vector <pair <string, string> > addToLegend;
+  vector <pair <string, string> > addToLegend_bis;
+  vector <pair <string, string> > variablesLabels;
+
+  string legendSampleNamesFile = gConfigParser->readStringOption ("labels::sampleLabels");
+  addToLegend = readVarNamesFile (sigSamplesList, legendSampleNamesFile);
+  addToLegend_bis = readVarNamesFile (bkgSamplesList, legendSampleNamesFile);
+  addToLegend.insert (addToLegend.end(), addToLegend_bis.begin(), addToLegend_bis.end());
+
+  string legendVarLabelsFile = gConfigParser->readStringOption ("labels::variableLabels");
+  variablesLabels = readVarNamesFile (variablesList, legendVarLabelsFile);
+  
+  /*
+  cout << "LEGEND: " << legendSampleNamesFile << endl;
+  for (int i = 0; i < addToLegend.size(); i++) cout << addToLegend.at(i).first << " --> " << addToLegend.at(i).second << endl;
+  cout << "LABELS: " << legendVarLabelsFile << endl;
+  for (int i = 0; i < variablesLabels.size(); i++) cout << variablesLabels.at(i).first << " --> " << variablesLabels.at(i).second << endl;
+  */
 
   // loop on selections
   for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
@@ -292,91 +324,182 @@ int main (int argc, char** argv)
           outputName.Form ("plot_%s_%s",
             variablesList.at (iv).c_str (), selections.at (isel).first.Data ()) ;
 
-          TString outFolderName = outFolderNameBase + TString ("/events/") ;
 
-          // get the extremes for the plot
-          THStack * sig_stack = OS_sig_plots.makeStack ( variablesList.at (iv), 
-                                    selections_OS.at (isel).first.Data ()) ;
-          THStack * bkg_stack = OS_bkg_plots.makeStack ( variablesList.at (iv), 
-                                    selections_OS.at (isel).first.Data ()) ;
-          THStack * DATA_stack = OS_DATA_plots.makeStack ( variablesList.at (iv), 
-                                    selections_OS.at (isel).first.Data ()) ;
+          // TString coutputName ;
+          // TString outFolderName ;
 
-          vector<float> extremes_bkg  = getExtremes (bkg_stack) ;
-          vector<float> extremes_sig  = getExtremes (sig_stack) ;
-          vector<float> extremes_DATA = getExtremes (DATA_stack) ;
-          TH1F * bkg = c->DrawFrame (
-              extremes_bkg.at (0) ,
-              0.9 * min3 (extremes_bkg.at (1), extremes_sig.at (1), 
-                          extremes_DATA.at (1)) ,
-              extremes_bkg.at (2) ,
-              1.3 * max3 (extremes_bkg.at (3), extremes_sig.at (3), 
-                          extremes_DATA.at (3) + sqrt (extremes_DATA.at (3)))
-            ) ;  
+          // // get the extremes for the plot
+          // THStack * sig_stack = OS_sig_plots.makeStack ( variablesList.at (iv), 
+          //                           selections_OS.at (isel).first.Data ()) ;
+          // THStack * bkg_stack = OS_bkg_plots.makeStack ( variablesList.at (iv), 
+          //                           selections_OS.at (isel).first.Data ()) ;
+          // THStack * DATA_stack = OS_DATA_plots.makeStack ( variablesList.at (iv), 
+          //                           selections_OS.at (isel).first.Data ()) ;
+
+          // vector<float> extremes_bkg  = getExtremes (bkg_stack) ;
+          // vector<float> extremes_sig  = getExtremes (sig_stack) ;
+          // vector<float> extremes_DATA = getExtremes (DATA_stack) ;
+          // TH1F * bkg = c->DrawFrame (
+          //     extremes_bkg.at (0) ,
+          //     0.9 * min3 (extremes_bkg.at (1), extremes_sig.at (1), 
+          //                 extremes_DATA.at (1)) ,
+          //     extremes_bkg.at (2) ,
+          //     1.3 * max3 (extremes_bkg.at (3), extremes_sig.at (3), 
+          //                 extremes_DATA.at (3) + sqrt (extremes_DATA.at (3)))
+          //   ) ;  
      
-          copyTitles (bkg, bkg_stack) ;
+          // copyTitles (bkg, bkg_stack) ;
 
-          bkg->Draw () ;
-          bkg_stack->Draw ("hist same") ;
-          sig_stack->Draw ("nostack hist same") ;
-          TH1F * h_data = (TH1F *) DATA_stack->GetStack ()->Last () ;
-          // FIXME probably the data uncertainties need to be fixed
-          h_data->Draw ("same") ;
-          
+          // bkg->Draw () ;
+          // bkg_stack->Draw ("hist same") ;
+          // sig_stack->Draw ("nostack hist same") ;
+          // TH1F * h_data = (TH1F *) DATA_stack->GetStack ()->Last () ;
+          // // FIXME probably the data uncertainties need to be fixed
+          // h_data->Draw ("same") ;
+         
+          // normal
+
           TString coutputName ;
+          TString outFolderName ;
+          
+          outFolderName = outFolderNameBase + TString ("/events/") ;
+          std::vector<TObject*> drawings_nonScaled = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, false, false, true, false) ;
+
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+          coutputName.Form ("%s.C", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ());
+          coutputName.Form ("%s.root", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ());
+
+          // ---------------
+          outFolderName = outFolderNameBase + TString ("/shapes/") ;
+          std::vector<TObject*> drawings_nonScaled_1 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, false, false, true, true) ;
+
           coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
 
-          c->SetLogy (1) ;
-          bkg->Draw () ;
-          bkg_stack->Draw ("hist same") ;
-          sig_stack->Draw ("nostack hist same") ;
-          h_data->Draw ("same") ;
+          // ---------------
+          outFolderName = outFolderNameBase + TString ("/events_log/") ;
+          std::vector<TObject*> drawings_nonScaled_2 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, true, false, true, false) ;
 
-          coutputName.Form ("%s_log.pdf", (outFolderName + outputName).Data ()) ;
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
-          c->SetLogy (0) ;
-          
-          // plotting shapes
-          // ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-          outFolderName = outFolderNameBase + TString ("/shapes/") ;
-          TString basename ;
-          basename.Form ("shape_%s_%s",
-                  variablesList.at (iv).c_str (),
-                  selections.at (isel).first.Data ()
-                ) ;
+          // ---------------
+          outFolderName = outFolderNameBase + TString ("/shapes_log/") ;
+          std::vector<TObject*> drawings_nonScaled_3 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, true, false, true, true) ;
 
-          THStack * hstack_bkg_norm = normaliseStack (bkg_stack) ;
-          TH1F * shape_bkg = (TH1F *) hstack_bkg_norm->GetStack ()->Last () ;
-          
-          THStack * hstack_sig_norm = normaliseStack (sig_stack) ;
-          TH1F * shape_sig = (TH1F *) hstack_sig_norm->GetStack ()->Last () ;
-          
-          if (shape_sig->GetMaximum () > shape_bkg->GetMaximum ()) 
-            hstack_sig_norm->Draw ("hist") ;
-          else   
-            hstack_bkg_norm->Draw ("hist") ;
-
-          hstack_bkg_norm->Draw ("hist same") ;
-          hstack_sig_norm->Draw ("hist same") ;
-          
-          TString name = basename + "_norm" ;
-          coutputName.Form ("%s.pdf", (outFolderName + basename).Data ()) ;
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
- 
-          /*
+          // ---------------
+          outFolderName = outFolderNameBase + TString ("/events_ratio/") ;
+          std::vector<TObject*> drawings_nonScaled_4 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, false, true, true, false) ;
+
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+
+          // ---------------
+          outFolderName = outFolderNameBase + TString ("/events_log_ratio/") ;
+          std::vector<TObject*> drawings_nonScaled_5 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, true, true, true, false) ;
+
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+
+          // ---------------
+          outFolderName = outFolderNameBase + TString ("/events_nonZero_ratio/") ;
+          std::vector<TObject*> drawings_nonScaled_6 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, false, true, true, false, true) ;
+
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+
+          // ---------------
+          outFolderName = outFolderNameBase + TString ("/shapes_nonZero/") ;
+          std::vector<TObject*> drawings_nonScaled_7 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, false, false, true, true, true) ;
+
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+          
+          // c->SetLogy (1) ;
+          // bkg->Draw () ;
+          // bkg_stack->Draw ("hist same") ;
+          // sig_stack->Draw ("nostack hist same") ;
+          // h_data->Draw ("same") ;
+          
+          // coutputName.Form ("%s_log.pdf", (outFolderName + outputName).Data ()) ;
+          // c->SaveAs (coutputName.Data ()) ;
+          // c->SetLogy (0) ;
+         
+
+          // // plotting shapes
+          // // ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+          // outFolderName = outFolderNameBase + TString ("/shapes/") ;
+          // TString basename ;
+          // basename.Form ("shape_%s_%s",
+          //         variablesList.at (iv).c_str (),
+          //         selections.at (isel).first.Data ()
+          //       ) ;
+
+          // THStack * hstack_bkg_norm = normaliseStack (bkg_stack) ;
+          // TH1F * shape_bkg = (TH1F *) hstack_bkg_norm->GetStack ()->Last () ;
+          
+          // THStack * hstack_sig_norm = normaliseStack (sig_stack) ;
+          // TH1F * shape_sig = (TH1F *) hstack_sig_norm->GetStack ()->Last () ;
+          
+          // if (shape_sig->GetMaximum () > shape_bkg->GetMaximum ()) 
+          //   hstack_sig_norm->Draw ("hist") ;
+          // else   
+          //   hstack_bkg_norm->Draw ("hist") ;
+
+          // hstack_bkg_norm->Draw ("hist same") ;
+          // hstack_sig_norm->Draw ("hist same") ;
+          
+          // TString name = basename + "_norm" ;
+          // coutputName.Form ("%s.pdf", (outFolderName + basename).Data ()) ;
+          // c->SaveAs (coutputName.Data ()) ;
+         
+
+          
           // plotting 2D histos, one per sample as it is hard to superimpose them
           // ---- ---- ---- ---- ---- ---- ---- ---- ----
-          outFolderName = outFolderNameBase + TString ("/plots2D/") ;
-          OS_sig_plots.         
-          */
+          // outFolderName = outFolderNameBase + TString ("/plots2D/") ;
+          // OS_sig_plots.         
+          
 
-          delete hstack_bkg_norm;
-          delete hstack_sig_norm;
-          delete sig_stack;
-          delete bkg_stack;
-          delete DATA_stack;
+          // delete hstack_bkg_norm;
+          // delete hstack_sig_norm;
+          // delete sig_stack;
+          // delete bkg_stack;
+          // delete DATA_stack;
+          // for (unsigned int id = 0; id < drawings_nonScaled.size(); id++)
+          //   delete drawings_nonScaled.at(id);
+          // for (unsigned int id = 0; id < drawings_nonScaled_1.size(); id++)
+          //   delete drawings_nonScaled_1.at(id);
+          // for (unsigned int id = 0; id < drawings_nonScaled_2.size(); id++)
+          //   delete drawings_nonScaled_2.at(id);
+          // for (unsigned int id = 0; id < drawings_nonScaled_3.size(); id++)
+          //   delete drawings_nonScaled_3.at(id);
+          // for (unsigned int id = 0; id < drawings_nonScaled_4.size(); id++)
+          //   delete drawings_nonScaled_4.at(id);
+          // for (unsigned int id = 0; id < drawings_nonScaled_5.size(); id++)
+          //   delete drawings_nonScaled_5.at(id);
           
      
         } // loop on variables
