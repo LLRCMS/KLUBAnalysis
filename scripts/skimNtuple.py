@@ -197,7 +197,7 @@ if __name__ == "__main__":
         if opt.isdata :  command += ' 1 '
         else          :  command += ' 0 '    
         command += ' ' + opt.config + ' '
-        if opt.dokinfit is True : command += " 1 "
+        if opt.dokinfit=="True" : command += " 1 "
         else                    : command += " 0 "
         command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
         scriptFile.write (command)
