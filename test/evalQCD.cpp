@@ -369,10 +369,9 @@ int main (int argc, char** argv)
 
           coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
-          coutputName.Form ("%s.C", (outFolderName + outputName).Data ()) ;
-          c->SaveAs (coutputName.Data ());
-          coutputName.Form ("%s.root", (outFolderName + outputName).Data ()) ;
-          c->SaveAs (coutputName.Data ());
+          // FIXME : save canvases but in a dedicated folder
+          //coutputName.Form ("%s.root", (outFolderName + outputName).Data ()) ;
+          //c->SaveAs (coutputName.Data ());
 
           // ---------------
           outFolderName = outFolderNameBase + TString ("/shapes/") ;

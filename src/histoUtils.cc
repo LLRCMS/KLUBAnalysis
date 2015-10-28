@@ -339,8 +339,10 @@ vector<float> getExtremes (THStack * hstack, bool islog, bool nostack)
     counter++;
     if (islog) 
     {
+      //cout << "histo: " << counter << endl;
       if (histo->GetMaximum() > 0)
       {
+        //cout << "  --> max > 0" << endl;
         ymins.push_back(histo->GetMinimum(0)) ; // non-null min, skip all neg histos
         ymaxs.push_back (histo->GetMaximum());
       }
@@ -352,8 +354,16 @@ vector<float> getExtremes (THStack * hstack, bool islog, bool nostack)
     }
   }
 
-  ymin = *(min_element (ymins.begin(), ymins.end()));
-  if (nostack) ymax = *(max_element (ymaxs.begin(), ymaxs.end()));
+  std::vector<float>::iterator it = min_element (ymins.begin(), ymins.end());
+  if (it != ymins.end())  ymin = *it;
+  else ymin = 999999999999.; // can happen that some histos are empty, return dummy value for min
+
+  if (nostack)
+  {
+    std::vector<float>::iterator it2 = max_element (ymaxs.begin(), ymaxs.end());
+    if (it2 != ymaxs.end())  ymax = *it2;
+    else ymax = -999999999999.; // can happen that some histos are empty, return dummy value
+  }
 
   vector<float> extremes (4, 0.) ;
   extremes.at (0) = xmin ;
