@@ -256,7 +256,7 @@ void makePositiveDefine(TH1F* histo)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
                                                                                                  
-THStack * normaliseStack (THStack * original)
+THStack * normaliseStack (THStack * original, bool nostack )
 {
   TString name = original->GetName () ;
   name += "_norm" ;
@@ -270,7 +270,8 @@ THStack * normaliseStack (THStack * original)
   while ((histo = (TH1F *) (next ()))) 
     { 
       dummy_h = (TH1F *) histo->Clone (histo->GetName () + TString ("_norm")) ;
-      dummy_h->Scale (1. / norm) ;
+      if (nostack) dummy_h->Scale (1. / dummy_h->Integral()) ;
+      else dummy_h->Scale (1. / norm) ;
       dummy_stack->Add (dummy_h) ;
     }
     
@@ -318,36 +319,49 @@ float findNonNullMinimum (TH1F * histo)
 
 
 // xmin ymin xmax ymax
-vector<float> getExtremes (THStack * hstack, bool islog)
+// islog : search only non-null minima
+// nostack: search the max of each histo and not the max of the stack itself
+vector<float> getExtremes (THStack * hstack, bool islog, bool nostack)
 {
   float ymax = hstack->GetMaximum () ;
+  float xmin = ((TH1F*)(hstack->GetStack()->Last()))->GetXaxis()->GetXmin() ; 
+  float xmax = ((TH1F*)(hstack->GetStack()->Last()))->GetXaxis()->GetXmax() ;
+  float ymin = -1;
 
   TIter next (hstack->GetHists ()) ;
   TH1F * histo ;
 
-  float xmin = 1. ;
-  float xmax = 0. ;
-  float ymin = 10000000000. ;
+  int counter = 0;
+  std::vector<float> ymins;
+  std::vector<float> ymaxs; // used only if nostack = true
   while ((histo = (TH1F *) (next ()))) 
+  {
+    counter++;
+    if (islog) 
     {
-      float tmpmin = findNonNullMinimum (histo) ;
-      if (tmpmin <= 0) continue ;
-      if (tmpmin < ymin) ymin = tmpmin ;
-      if (xmin > xmax)
-        {
-          xmin = histo->GetXaxis ()->GetXmin () ;
-          xmax = histo->GetXaxis ()->GetXmax () ;
-        }
+      if (histo->GetMaximum() > 0)
+      {
+        ymins.push_back(histo->GetMinimum(0)) ; // non-null min, skip all neg histos
+        ymaxs.push_back (histo->GetMaximum());
+      }
     }
+    else
+    {
+      ymins.push_back (histo->GetMinimum()) ;
+      ymaxs.push_back (histo->GetMaximum());
+    }
+  }
 
-//  ymin *= 0.9 ;
-//  ymax *= 1.3 ;
+  ymin = *(min_element (ymins.begin(), ymins.end()));
+  if (nostack) ymax = *(max_element (ymaxs.begin(), ymaxs.end()));
 
   vector<float> extremes (4, 0.) ;
   extremes.at (0) = xmin ;
   extremes.at (1) = ymin ;
   extremes.at (2) = xmax ;
   extremes.at (3) = ymax ;
+
+//cout << "IN GETEXTREMES: y min is: " << ymin << " (isLOG: " << islog << ")" << " Nostack: " << nostack << endl;
 
   return extremes ;
 }

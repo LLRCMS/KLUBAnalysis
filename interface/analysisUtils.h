@@ -20,7 +20,8 @@
 #include "TFile.h"
 #include "TMath.h"
 #include "TTreeFormula.h"
-
+#include "TText.h"
+#include "TLatex.h"
 #include "utils.h"
 #include "histoUtils.h"
 #include "ConfigParser.h"
@@ -80,5 +81,12 @@ stackHistos (vector<sample> & samples, HistoManager * manager,
             vector<string> & variablesList,
             vector<pair <TString, TCut> > & selections,
             const string & tag) ;
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+// utilities to draw data/background plot + legend + ratioplot, return vector of ROOT objects allocated on the heap
+std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bkgPlots, plotContainer& sigPlots,
+                                      string varName, string selName,
+                                      TCanvas* canvas, std::vector <pair <string, string> > & addInLegend, std::vector <pair <string, string> >& axisTitles,
+                                      bool LogY = false, bool makeRatioPlot = true, bool drawLegend = true, bool doShapes = false, bool forceNonNegMin = false) ;
 
 #endif

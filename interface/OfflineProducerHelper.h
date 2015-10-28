@@ -1,3 +1,7 @@
+#ifndef HHKINFIT2
+#define HHKINFIT2
+#endif
+
 #ifndef OfflineHelper_h
 #define OfflineHelper_h
 /** \class OfflineProducerHelper
