@@ -25,6 +25,7 @@ class cardMaker:
         self.is2D = 2
 
         self.filename = "test.root"
+        self.scale = 1
         #...
 
     def loadIncludes(self):
@@ -100,13 +101,14 @@ class cardMaker:
         #templateSIG_QCDUP = inputFile.Get("") 
         #templateSIG_QCDDOWN = inputFile.Get("") 
         ##...
+        templateSIG.Scale(self.scale)
         binsx = templateSIG.GetNbinsX()
 
         ###FIXME: protection against empty bins####
         #for ibin in range(binsx):
         #    if templateSIG.GetBinContent(ibin)==0 :
         #        templateSIG.SetBinContent(ibin, 0.00000001)
-        rate_signal_Shape = templateSIG.Integral("width")#*self.lumi #*2.3
+        rate_signal_Shape = templateSIG.Integral()#*self.lumi #*2.3
         totalRate = float(rate_signal_Shape)
         print " signal rate ", rate_signal_Shape
         theRates = [rate_signal_Shape]
@@ -121,6 +123,7 @@ class cardMaker:
                 nameTemplate = theInputs.additionalName[index]
             print nameTemplate
             template = inputFile.Get(nameTemplate).Clone()
+            template.Scale(self.scale)
             if template.Integral()>0:
                 #print isample, " LARGER THAN O"
                 if self.is2D == 1 and "TH2" in template.ClassName():
@@ -130,9 +133,9 @@ class cardMaker:
                 #    if template.GetBinContent(ibin)==0 :
                 #        template.SetBinContent(ibin, 0.00000001)
                 templatesBKG.append(template)       
-                theRates.append( template.Integral("width") ) #*self.lumi
+                theRates.append( template.Integral() ) #*self.lumi
                 totalRate = totalRate + theRates[len(theRates)-1]
-                print template.Integral("width")
+                print template.Integral()
             else:
                 tobeRemoved.append(isample)
         #protection against empty BKGs
@@ -239,8 +242,8 @@ class cardMaker:
         #data_obs.SetNameTitle("data_obs","data_obs")
 
         #data_obs = ROOT.RooDataSet(datasetName,datasetName,data_obs_tree,ras_variableSet)
-        print "observations: ", data_obs.numEntries()    
-        templateObs.Print()
+        obsEvents = data_obs.numEntries()        
+        print "observations: ", obsEvents    
 
         ## --------------------------- WORKSPACE -------------------------- ##
         getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs"))
@@ -277,7 +280,7 @@ class cardMaker:
         
 
         file.write("bin a{0} \n".format(theChannel))
-        file.write("observation -1 \n")#.format(obsEvents))
+        file.write("observation {0} \n".format(obsEvents))
         
         file.write("------------\n")
         ##file.write("## mass window [{0},{1}] \n".format(self.low_M,self.high_M))
@@ -325,6 +328,7 @@ def parseOptions():
     parser.add_option('-c', '--channel',   dest='channel', type='string', default='MuTau',  help='final state')
     parser.add_option('-o', '--selection', dest='overSel', type='string', default='', help='overwrite selection string')
     parser.add_option('-v', '--variable', dest='overVar', type='string', default='bH_mass', help='overwrite plot variable (only1D)')
+    parser.add_option('-s', '--scale', dest='scale', type='float', default='1', help='scale templates')
 
     # store options and arguments as global variables
     global opt, args
@@ -346,6 +350,7 @@ if __name__ == "__main__":
     dc.loadIncludes()
     dc.set2D(opt.is2D)
     dc.setfileName(opt.filename)
+    dc.scale=opt.scale
     #outputDir = ""
     input = configReader("../config/analysis_"+opt.channel+".cfg")
     #input = configReader("../config/analysis_TESTMT.cfg")
