@@ -160,6 +160,8 @@ fillHistos (vector<sample> & samples,
   
       float weight ;
       tree->SetBranchAddress ("MC_weight", &weight) ;
+      float PUReweight ;
+      tree->SetBranchAddress ("PUReweight", &PUReweight) ;
       // signal scaling
       float scaling = 1. / samples.at (iSample).eff_den ;
       if (scale.size () > 0) scaling *= scale.at (iSample) ;
@@ -230,6 +232,7 @@ fillHistos (vector<sample> & samples,
 
       tree->SetBranchStatus ("*", 0);
       tree->SetBranchStatus ("MC_weight", 1) ;
+      tree->SetBranchStatus ("PUReweight", 1) ;
       TObjArray *branchList = tree->GetListOfBranches();
       int nBranch   = tree->GetNbranches();
       // used vars
@@ -277,14 +280,14 @@ fillHistos (vector<sample> & samples,
 
           if (isData) localCounter.counters.at (iSample).at (0) += 1. ;
           else        localCounter.counters.at (iSample).at (0) 
-                          += weight * lumi * scaling ;
+                          += PUReweight * weight * lumi * scaling ;
           for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
             {
               if (! TTF[isel]->EvalInstance ()) continue ;
 
               if (isData) localCounter.counters.at (iSample).at (isel+1) += 1. ;
               else        localCounter.counters.at (iSample).at (isel+1) 
-                              += weight * lumi * scaling ;
+                              += PUReweight * weight * lumi * scaling ;
 
               
               // fill 1D histos
@@ -310,9 +313,9 @@ fillHistos (vector<sample> & samples,
                   else        
                   {
                       if( (std::find( indexInt.begin(), indexInt.end(), (int)iv) != indexInt.end() ) )
-                      histo->Fill (addressInt[iv],weight * lumi * scaling) ; 
+                      histo->Fill (addressInt[iv], PUReweight * weight * lumi * scaling) ; 
                       else {
-                       histo->Fill (address[iv], weight * lumi * scaling);
+                       histo->Fill (address[iv], PUReweight * weight * lumi * scaling);
                       }
                   }
                 } //loop on 1Dvariables
@@ -334,7 +337,7 @@ fillHistos (vector<sample> & samples,
                   if ( ( std::find( indexInt.begin(), indexInt.end(), idx1) != indexInt.end() ) ) val1 = (float) addressInt[idx1];
                   if ( ( std::find( indexInt.begin(), indexInt.end(), idx1) != indexInt.end() ) ) val2 = (float) addressInt[idx2];
                   if (isData) histo->Fill (val1, val2) ;
-                  else histo->Fill (val1, val2, weight * lumi * scaling) ;
+                  else histo->Fill (val1, val2, PUReweight * weight * lumi * scaling) ;
                 } //loop on 2Dvariables
                 
 
