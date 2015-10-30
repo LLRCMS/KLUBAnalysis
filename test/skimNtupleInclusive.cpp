@@ -277,6 +277,9 @@ int main (int argc, char** argv)
       metpass += metbit & (1 << 5);
       metpass += metbit & (1 << 6);
       if(metpass > 0) continue ;
+      int triggerbit = theBigTree.triggerbit;
+      if (triggerbit == 0) continue;
+
       if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight ;
       else      counter.at (selID++) += 1 ;
 
