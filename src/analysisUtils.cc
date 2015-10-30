@@ -415,7 +415,7 @@ stackHistos (vector<sample> & samples, HistoManager * manager,
 std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bkgPlots, plotContainer& sigPlots,
                                       string varName, string selName,
                                       TCanvas* canvas, std::vector <pair <string, string> >& addInLegend, std::vector <pair <string, string> >& axisTitles,
-                                      bool LogY, bool makeRatioPlot, bool drawLegend, bool doShapes, bool forceNonNegMin)
+                                      bool LogY, bool makeRatioPlot, bool drawLegend, bool doShapes, bool forceNonNegMin, bool notDrawGrass)
 {
   const int axislabelsize   = 18;  // title of axis
   const int axisnumsize     = 14;  // numbers on axis
@@ -588,10 +588,13 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
     // bkg_stack->Draw ("hist") ;
     bkg_stack->Draw ("hist same") ;
     sig_stack->Draw ("nostack hist same") ;
-    h_data = (TH1F *) DATA_stack->GetStack ()->Last () ; // FIXME: is it allocated with new and needs to be deleted? stupid ROOT!
     h_bkg = (TH1F *) bkg_stack->GetStack ()->Last () ; // FIXME: is it allocated with new and needs to be deleted? stupid ROOT!
+    h_data = (TH1F *) DATA_stack->GetStack ()->Last () ; // FIXME: is it allocated with new and needs to be deleted? stupid ROOT!
+    h_data->Sumw2(false);
+    h_data->SetBinErrorOption(TH1::kPoisson);
+    if (notDrawGrass) noGrass(h_data);
     // FIXME probably the data uncertainties need to be fixed
-    h_data->Draw ("same") ;
+    h_data->Draw ("E same") ;
   }
   else
   {
@@ -728,6 +731,7 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
     hratio->SetMarkerStyle (8);
     hratio->SetMarkerSize (0.8);
 
+    /*
     //hratio->Divide(h_bkg); // this will inherit errors from bkg too and I don't want it
     for (int ibin = 1; ibin <= hratio->GetNbinsX(); ibin++)
     {
@@ -745,7 +749,11 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
         hratio->SetBinError   (ibin, 0);        
       }
     }
-    hratio->Draw("p");       // Draw the ratio plot
+    */
+    TGraphAsymmErrors* gRatio = makeDataOverMCRatioPlot (h_data, h_bkg, false);
+    allocatedStuff.push_back(gRatio);
+    hratio->Draw("axis");       // axis only
+    gRatio->Draw("p same");
     
     /*
     TLine* line = new TLine (minx, 1. , h2->GetBinLowEdge(h2->GetNbinsX()+1), 1.);
