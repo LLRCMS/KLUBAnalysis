@@ -1,4 +1,5 @@
 #include "analysisUtils.h"
+#include <algorithm>
 
 using namespace std ;
 
@@ -159,6 +160,8 @@ fillHistos (vector<sample> & samples,
   
       float weight ;
       tree->SetBranchAddress ("MC_weight", &weight) ;
+      float PUReweight ;
+      tree->SetBranchAddress ("PUReweight", &PUReweight) ;
       // signal scaling
       float scaling = 1. / samples.at (iSample).eff_den ;
       if (scale.size () > 0) scaling *= scale.at (iSample) ;
@@ -207,14 +210,14 @@ fillHistos (vector<sample> & samples,
 
       // set tbranch addresses for 1D histos
       vector<float> address (allvars.size(), 0.) ;
-      int tempnjets;
-      int indexNjets = -1;
+      vector<int> addressInt (allvars.size(), 0.) ;
+      vector<int> indexInt ;
       for (unsigned int iv = 0 ; iv < allvars.size () ; ++iv)
       {
-      	if(allvars.at(iv)=="njets")
+        if(allvars.at(iv)=="njets" || allvars.at(iv)=="npu" || allvars.at(iv)=="npv")
         {
-      	  tree->SetBranchAddress (allvars.at (iv).c_str (), &tempnjets) ;
-      	  indexNjets=iv;
+      	  indexInt.push_back(iv);
+          tree->SetBranchAddress (allvars.at (iv).c_str (), &(addressInt.at (iv))) ;
       	}
         else tree->SetBranchAddress (allvars.at (iv).c_str (), &(address.at (iv))) ;
       }
@@ -229,6 +232,7 @@ fillHistos (vector<sample> & samples,
 
       tree->SetBranchStatus ("*", 0);
       tree->SetBranchStatus ("MC_weight", 1) ;
+      tree->SetBranchStatus ("PUReweight", 1) ;
       TObjArray *branchList = tree->GetListOfBranches();
       int nBranch   = tree->GetNbranches();
       // used vars
@@ -276,14 +280,14 @@ fillHistos (vector<sample> & samples,
 
           if (isData) localCounter.counters.at (iSample).at (0) += 1. ;
           else        localCounter.counters.at (iSample).at (0) 
-                          += weight * lumi * scaling ;
+                          += PUReweight * weight * lumi * scaling ;
           for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
             {
               if (! TTF[isel]->EvalInstance ()) continue ;
 
               if (isData) localCounter.counters.at (iSample).at (isel+1) += 1. ;
               else        localCounter.counters.at (iSample).at (isel+1) 
-                              += weight * lumi * scaling ;
+                              += PUReweight * weight * lumi * scaling ;
 
               
               // fill 1D histos
@@ -300,13 +304,19 @@ fillHistos (vector<sample> & samples,
                   
                   if (isData) 
 		              {
-                      if((int)iv!=indexNjets)histo->Fill (address[iv]) ; // perfectly fine as address is <=> varList in the first part
-		                  else histo->Fill (tempnjets) ;
+                      if( (std::find( indexInt.begin(), indexInt.end(), (int)iv) != indexInt.end() ) )
+                      histo->Fill (addressInt[iv]) ; 
+		                  else {
+                       histo->Fill (address[iv]);
+                      }
                   }
                   else        
                   {
-                      if((int)iv!=indexNjets)histo->Fill (address[iv], weight * lumi * scaling) ;
-		                  else histo->Fill (tempnjets, weight * lumi * scaling) ;
+                      if( (std::find( indexInt.begin(), indexInt.end(), (int)iv) != indexInt.end() ) )
+                      histo->Fill (addressInt[iv], PUReweight * weight * lumi * scaling) ; 
+                      else {
+                       histo->Fill (address[iv], PUReweight * weight * lumi * scaling);
+                      }
                   }
                 } //loop on 1Dvariables
 
@@ -324,10 +334,10 @@ fillHistos (vector<sample> & samples,
                   int idx2 = var2Didxmap.at(iv).second;
                   float val1 = address[idx1];
                   float val2 = address[idx2];
-                  if (idx1 == indexNjets) val1 = (float) tempnjets;
-                  if (idx2 == indexNjets) val2 = (float) tempnjets;
+                  if ( ( std::find( indexInt.begin(), indexInt.end(), idx1) != indexInt.end() ) ) val1 = (float) addressInt[idx1];
+                  if ( ( std::find( indexInt.begin(), indexInt.end(), idx1) != indexInt.end() ) ) val2 = (float) addressInt[idx2];
                   if (isData) histo->Fill (val1, val2) ;
-                  else histo->Fill (val1, val2, weight * lumi * scaling) ;
+                  else histo->Fill (val1, val2, PUReweight * weight * lumi * scaling) ;
                 } //loop on 2Dvariables
                 
 

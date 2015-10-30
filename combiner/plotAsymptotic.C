@@ -21,24 +21,27 @@ void getLimits(TFile *f, std::vector<double> &v_mean,std::vector<double> &v_68l,
 //TString inputDir = "cards"; //"higgsCombineTest.Asymptotic.mH125.7.root";
 
 //custom inputs
-TString inputfolder="cards_mutau_19oct";
+TString inputfolder="cards";
 TString var= "HH_mass";//"mT"; //"HH_mass";// for tautau
-TString sel="baselineisoBtagCutM"; //"dijethardiso";// for tautau
-TString plotName = "UpperLimit_MuTau_19oct_";
+TString sel="dijetOneBM"; //"dijethardiso";// for tautau
+TString plotName = "UpperLimit_TauTau_28oct_20fb";
+TString channel="hh #rightarrow bb #tau_{H} #tau_{H}"; //channel name in plot
 
 //Default inputs
+bool addATLAS=true;
+bool plotMu=false;
 float lambdas[]={-4,1,2.46,20};
 const int nLambdas = 4;
 const int nXsec = 10;
 float xsections[nXsec]= {12, 2.13, 1,  0.66, 0.47, 0.42, 0.53, 0.79, 50,  105};
 float deflambdas[nXsec]={-4,  0,   1,  1.5,   2,   2.46, 3,    4,    10,  20};
-const bool addObsLimit = true;
+const bool addObsLimit = false;
 const bool _DEBUG_ = true;
 Double_t xLow = -5;
 Double_t xHigh = 21.0;
 Double_t yLow = 1;
 const float xfac = 34.3*0.073;
-Double_t yHigh = xfac*1000.;
+Double_t yHigh = 100000.;
 TString xTitle = "#Lambda [GeV]";
 TString yTitle = "95% CL limit on #sigma #times BR [fb]";
 const bool logy = true;
@@ -50,7 +53,7 @@ const bool isTiny = false;
 int canvasX = 900;
 int canvasY = 700;
 double sqrts = 13.0;
-//Double_t lumi = 1.0;
+double lumin = 20.0;
 bool onepointta=true;
 // ----------------------- //
 
@@ -67,7 +70,11 @@ void plotAsymptotic() {
   // ------------------- Get Values -------------------- //
   vector<double> Val_obs, Val_mean, Val_68h, Val_68l, Val_95h, Val_95l;
   //cout<<"Getting limits"<<endl;
-
+  if(plotMu) {
+    //yHigh=11000.;
+    plotName.Append("_mu_");
+    yTitle = "95% CL limit on #sigma / #sigma_{exp}";
+  }
   float lim[nLambdas], limobs[nLambdas],lim68l[nLambdas],lim68h[nLambdas],lim95l[nLambdas],lim95h[nLambdas];
   for(int ifile=0;ifile<nLambdas;ifile++){
    TString filename;
@@ -82,10 +89,10 @@ void plotAsymptotic() {
    float valxsections = 0;
    for(int ix = 0; ix< nXsec; ix++){
     if (fabs(lambdas[ifile]-deflambdas[ix])<0.1)valxsections=xsections[ix];
+    if (plotMu) valxsections =1;
    }
-   cout<<valxsections<<endl;
    lim[ifile] = Val_mean[ifile]*valxsections;
-   cout<<Val_mean[ifile]<<endl;
+   cout<<"r="<<Val_mean[ifile]<<"  exp (obs) xsection>"<<valxsections*Val_mean[ifile]<<"/"<<valxsections<<" ("<<Val_obs[ifile]*valxsections<<")"<<endl;
    lim68l[ifile] = min( Val_68l[ifile], Val_68h[ifile])*valxsections;
    lim95l[ifile] = min( Val_95l[ifile], Val_95h[ifile])*valxsections;
    lim68h[ifile] = max( Val_68h[ifile], Val_68l[ifile])*valxsections;
@@ -164,15 +171,15 @@ void plotAsymptotic() {
   TPaveText *pt4 = new TPaveText(ptLow,0.38,ptHigh,0.44,"NDC");
   pt4->SetFillColor(0);
   pt4->SetTextFont(42);
-  pt4->AddText("H #rightarrow hh #rightarrow bb #tau #tau"); 
+  pt4->AddText(channel.Data()); 
 
   //TPaveText *pt2 = new TPaveText(0.69,0.94,0.98,0.99,"NDC");
-  TPaveText *pt2 = new TPaveText(ptLow,0.76,ptHigh,0.8,"NDC");
+  TPaveText *pt2 = new TPaveText(0.7,0.9,0.9,0.95,"NDC");
   pt2->SetFillColor(0);
   pt2->SetTextFont(42);
   char lum[192];
   //sprintf(lum," #sqrt{s} = 8 TeV, L = %.2f fb^{-1}",5.261);
-  sprintf(lum," #sqrt{s} = 13 TeV, L = %.2f pb^{-1}",295.);
+  sprintf(lum," #sqrt{s} = 13 TeV, L = %.0f fb^{-1}",lumin);
   pt2->AddText(lum); 
   //TPaveText *pt3 = new TPaveText(0.69,0.90,0.98,0.95,"NDC");
  
@@ -186,12 +193,20 @@ void plotAsymptotic() {
   grshade_95->Draw("f");
   grshade_68->Draw("f");
   gr->Draw("l");
-  grExp->Draw("l");
+  if(!plotMu)grExp->Draw("l");
   if(addObsLimit)
     {
       if(points)grObs->Draw("lP");
       else grObs->Draw("l");
     }
+  if (addATLAS){
+    TGraph *ATLAS = new TGraph(0);
+    ATLAS->SetPoint(0,1,1300);
+    ATLAS->SetMarkerStyle(29);
+    ATLAS->SetMarkerColor(4);
+    ATLAS->SetMarkerSize(2);
+    ATLAS->Draw("p");
+  }
 
 
   hr->GetXaxis()->SetTitle(xTitle);
@@ -209,7 +224,7 @@ void plotAsymptotic() {
   //hr2->GetYaxis()->SetTitleOffset(0.06);
 
   pt->Draw("SAME");
-  //pt2->Draw("SAME");
+  pt2->Draw("SAME");
   //pt3->Draw("SAME");
   pt4->Draw("SAME");
 
@@ -247,7 +262,7 @@ void getLimits(TFile *f, std::vector<double> &v_mean,std::vector<double> &v_68l,
 {
   cout<<"getting tree"<<endl;
   TTree *tree =(TTree*)f->Get("limit");
-  cout<<"entries "<<tree->GetEntries()<<endl;
+  //cout<<"entries "<<tree->GetEntries()<<endl;
   double limit;
   float quant;
   //tree->SetBranchAddress("mh",&mh);
@@ -257,7 +272,7 @@ void getLimits(TFile *f, std::vector<double> &v_mean,std::vector<double> &v_68l,
   for(int i=0;i<tree->GetEntries();i++)
   {
     tree->GetEntry(i);
-    //if(_DEBUG_)cout << "mH: " << mh << " limit: " << limit << " quantileExpected: " << quant << endl;  
+	cout<<"entry "<<i<< " limit: " << limit << " quantileExpected: " << quant << endl;  
     if(quant>-1.01&&quant<-0.99)  v_obs.push_back(limit);
     else if(quant>0.024 && quant<0.026) v_95l.push_back(limit);
     else if(quant>0.15  && quant<0.17 ) v_68l.push_back(limit);
