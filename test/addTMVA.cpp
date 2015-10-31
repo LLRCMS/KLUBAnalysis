@@ -24,7 +24,7 @@
 #include "TMVA/Factory.h"
 #include "TMVA/Reader.h"
 
-using namespace std ;
+using namespace std ; 
 
 
 void
@@ -36,8 +36,16 @@ calcTMVA (sample & thisSample,
 
   TMVA::Reader * reader = new TMVA::Reader () ;
 
+  TString outfile = "TMVA_";
+  outfile.Append(mvaName);
+  outfile.Append("_") ;
+  outfile.Append(thisSample.sampleName);
+  outfile.Append(".root");
+
+  TFile * outputFile = TFile::Open(outfile.Data(),"RECREATE");
   TTree * tree = thisSample.sampleTree ;
-  TFile * currentFile = thisSample.sampleFile ;
+  //TFile * currentFile = thisSample.sampleFile ;
+
   vector<float> address (trainingVariables.size () + spectatorVariables.size (), 0.) ; 
   for (unsigned int iv = 0 ; iv < trainingVariables.size () ; ++iv)
     {
@@ -71,8 +79,9 @@ calcTMVA (sample & thisSample,
     } //loop on tree entries
 
   // overwrite the tree including the new branch
-  currentFile->cd () ;
-  tree->Write ("", TObject::kOverwrite) ;
+  outputFile->cd () ;
+  tree->Write ();//"", TObject::kOverwrite) ;
+  outputFile->Close("R");
   delete reader ;
   return ;
 }
@@ -88,9 +97,14 @@ calcTMVA (vector<sample> & samples,
           string mvaName, string weightsFile)
 {
   // loop on sim samples
-  for (unsigned int j = 0 ; j < samples.size () ; ++j) 
+  for (unsigned int j = 0 ; j < samples.size () ; ++j) {
+    cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+    cout << "processing sample: " << j << "\n" ;
     calcTMVA (samples.at (j), trainingVariables, spectatorVariables, mvaName, weightsFile) ;
+    cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+    cout << "processed " << "\n" ;
 
+  }
   return ;
 }
 
@@ -124,13 +138,13 @@ int main (int argc, char** argv)
   
   vector<sample> samples ;
   vector<string> samplesList = gConfigParser->readStringListOption ("general::signals") ;
-  readSamples (samples, samplesList, "UPDATE") ;
+  readSamples (samples, samplesList, "READ") ;
   samplesList.clear () ;
   samplesList = gConfigParser->readStringListOption ("general::backgrounds") ;
-  readSamples (samples, samplesList, "UPDATE") ;
+  readSamples (samples, samplesList, "READ") ;
   samplesList.clear () ;
   samplesList = gConfigParser->readStringListOption ("general::data") ;
-  readSamples (samples, samplesList, "UPDATE") ;
+  readSamples (samples, samplesList, "READ") ;
 
   // get the variables to be cosidered in the training
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----

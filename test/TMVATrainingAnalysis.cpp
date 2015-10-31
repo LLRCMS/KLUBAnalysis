@@ -68,11 +68,11 @@ int main (int argc, char** argv)
   // get the samples to be analised
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  vector<string> sigSamplesList = gConfigParser->readStringListOption ("general::signals") ;
+  vector<string> sigSamplesList = gConfigParser->readStringListOption ((MVAname + "::signals").c_str()) ;
   vector<sample> sigSamples ;
   readSamples (sigSamples, sigSamplesList) ;
 
-  vector<string> bkgSamplesList = gConfigParser->readStringListOption ("general::backgrounds") ;
+  vector<string> bkgSamplesList = gConfigParser->readStringListOption ((MVAname + "::backgrounds").c_str()) ;
   vector<sample> bkgSamples ;
   readSamples (bkgSamples, bkgSamplesList) ;
 
