@@ -260,8 +260,8 @@ int main (int argc, char** argv)
       
       if (isMC)
         {
-          totalEvents += theBigTree.aMCatNLOweight ;
-          counter.at (selID++) += theBigTree.aMCatNLOweight ;
+          totalEvents += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
+          counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
         }
       else 
         {
@@ -277,7 +277,10 @@ int main (int argc, char** argv)
       metpass += metbit & (1 << 5);
       metpass += metbit & (1 << 6);
       if(metpass > 0) continue ;
-      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight ;
+      int triggerbit = theBigTree.triggerbit;
+      if (triggerbit == 0) continue;
+
+      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
       else      counter.at (selID++) += 1 ;
 
       // assume that the ordering of the pair numbering
@@ -332,7 +335,7 @@ int main (int argc, char** argv)
       if (saveOS == 1 && !isOS) continue ;
       if (saveOS == 0 &&  isOS) continue ;
       
-      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight ;
+      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
       else      counter.at (selID++) += 1 ;
 
       int firstDaughterIndex = theBigTree.indexDau1->at (chosenTauPair) ;  
@@ -405,7 +408,7 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       
       if (!beInclusive && jets_and_btag.size () < 2) continue ;
-      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight ;
+      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
       else      counter.at (selID++) += 1 ;
       
       // fill the variables of interest
@@ -414,7 +417,7 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-      theSmallTree.m_PUReweight = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npv) : 1) ;      
+      theSmallTree.m_PUReweight = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) : 1) ;      
       theSmallTree.m_MC_weight = (isMC ? theBigTree.aMCatNLOweight * XS : 1) ;
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
       theSmallTree.m_RunNumber = theBigTree.RunNumber ;
