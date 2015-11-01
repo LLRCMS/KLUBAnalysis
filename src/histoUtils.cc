@@ -17,7 +17,8 @@ void avoidEmptyBins(TH1F* input){
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-// add the overflow bin to a histogram                                                                                                                                          
+// add the overflow bin to a histogram  
+// FIXME: to be modified for poissonian errors (for now - 28/10/15 - not used in the code)                                                                                                                                        
 void addOverFlow (TH1F * input) {
 
   TH1F * dummy = new TH1F (
@@ -54,15 +55,20 @@ void addOverAndUnderFlow (TH1F* histo)
   // content
   histo->SetBinContent(histo->GetNbinsX(),histo->GetBinContent(histo->GetNbinsX())+histo->GetBinContent(histo->GetNbinsX()+1));  
   histo->SetBinContent(1,histo->GetBinContent(1)+histo->GetBinContent(0));
-  // errors
-  histo->SetBinError(histo->GetNbinsX(),sqrt(pow(histo->GetBinError(histo->GetNbinsX()),2)+pow(histo->GetBinError(histo->GetNbinsX()+1),2)));    
-  histo->SetBinError(1,sqrt(pow(histo->GetBinError(1),2)+pow(histo->GetBinError(0),2)));    
+  // errors -- if poisson, they are updated automatically
+  if (histo->GetBinErrorOption() != TH1::kPoisson)   // fixing by hand the error disables the posson ones 
+  {
+    histo->SetBinError(histo->GetNbinsX(),sqrt(pow(histo->GetBinError(histo->GetNbinsX()),2)+pow(histo->GetBinError(histo->GetNbinsX()+1),2)));    
+    histo->SetBinError(1,sqrt(pow(histo->GetBinError(1),2)+pow(histo->GetBinError(0),2)));    
+  }
   // unset
   histo->SetBinContent(0,0);
-  histo->SetBinError(0,0);
   histo->SetBinContent(histo->GetNbinsX()+1,0);
-  histo->SetBinError(histo->GetNbinsX()+1,0);
-
+  if (histo->GetBinErrorOption() != TH1::kPoisson)   // fixing by hand the error disables the posson ones 
+  {
+    histo->SetBinError(0,0);
+    histo->SetBinError(histo->GetNbinsX()+1,0);
+  }
 }
 
 
@@ -436,4 +442,80 @@ float max3 (float uno, float due, float tre)
   return max (max (uno, due), tre) ;
 }
 
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
+TGraphAsymmErrors* makeDataOverMCRatioPlot (TH1F* hData, TH1F* hMC, bool horErrs)
+{
+    const int nPoints = hData->GetNbinsX();
+    float * fX       = new float [nPoints];
+    float * fY       = new float [nPoints];
+    float * feYUp    = new float [nPoints];
+    float * feYDown  = new float [nPoints];
+    float * feXRight = new float [nPoints];
+    float * feXLeft  = new float [nPoints];
+
+    for (int i = 0; i < nPoints; i++)
+    {
+        fX       [i] = 0.;
+        fY       [i] = 0.;
+        feYUp    [i] = 0.;
+        feYDown  [i] = 0.;
+        feXRight [i] = 0.;
+        feXLeft  [i] = 0.;
+    }
+
+    int ipt = 0; // non - null points to be drawn
+
+    for (int ibin = 1; ibin <= nPoints; ibin++)
+    {
+        // Y
+        float num = hData->GetBinContent(ibin);
+        float den = hMC->GetBinContent(ibin);
+        if (den > 0)
+        {
+            fY[ipt] = num/den;
+            feYUp[ipt] = hData->GetBinErrorUp(ibin) / den;
+            feYDown[ipt] = hData->GetBinErrorLow(ibin) / den;
+
+            // X
+            fX[ipt] = hData->GetBinCenter(ibin);
+            if (horErrs)
+            {
+                feXRight[ipt] = hData->GetBinLowEdge(ibin+1) - hData->GetBinCenter(ibin);
+                feXLeft[ipt] = hData->GetBinCenter(ibin) - hData->GetBinLowEdge(ibin);
+            }
+            else
+            {
+                feXLeft[ipt] = 0.;
+                feXRight[ipt] = 0.;
+            }
+
+            ++ipt;
+        }
+    }
+
+    TGraphAsymmErrors* gRatio = new TGraphAsymmErrors (ipt, fX, fY, feXLeft, feXRight, feYDown, feYUp);
+    delete[] fX;       
+    delete[] fY ;      
+    delete[] feYUp    ;
+    delete[] feYDown  ;
+    delete[] feXRight ;
+    delete[] feXLeft  ;
+    
+    gRatio->SetMarkerStyle(8);
+    gRatio->SetMarkerSize(1.);
+    gRatio->SetMarkerColor(kBlack);
+    gRatio->SetLineColor(kBlack);
+
+    return gRatio;
+}
+
+
+void noGrass (TH1F* isto)
+{
+    Double_t maxxx = 99999999.;
+    //int maxy = 999999999;
+    for (int i = 1; i <= isto->GetNbinsX(); i++)
+        if (isto->GetBinContent(i) == 0)
+            isto->SetBinContent(i, maxxx);
+}
