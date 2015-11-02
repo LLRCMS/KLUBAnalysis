@@ -87,6 +87,6 @@ stackHistos (vector<sample> & samples, HistoManager * manager,
 std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bkgPlots, plotContainer& sigPlots,
                                       string varName, string selName,
                                       TCanvas* canvas, std::vector <pair <string, string> > & addInLegend, std::vector <pair <string, string> >& axisTitles,
-                                      bool LogY = false, bool makeRatioPlot = true, bool drawLegend = true, bool doShapes = false, bool forceNonNegMin = false) ;
+                                      bool LogY = false, bool makeRatioPlot = true, bool drawLegend = true, bool doShapes = false, bool forceNonNegMin = false, bool notDrawGrass = true) ;
 
 #endif

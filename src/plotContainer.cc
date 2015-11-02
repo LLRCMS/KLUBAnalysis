@@ -275,7 +275,8 @@ plotContainer::createNewHisto (string name, string title,
                                TString titleX, TString titleY)
 {
   TH1F* h = new TH1F (name.c_str (), title.c_str (), nbinsx, xlow, xup);
-  h->Sumw2 () ;    
+  if (histoType == 2) h->SetBinErrorOption(TH1::kPoisson); // data
+  else h->Sumw2 () ; // MC sig and bkgr (okay, data driven is special but will be overridden by systematics)
   setHistosProperties (h, histoType, color) ;
   h->GetXaxis ()->SetTitle (titleX) ;
   h->GetYaxis ()->SetTitle (titleY) ;
@@ -293,7 +294,8 @@ plotContainer::createNew2DHisto (string name, string title,
                          TString titleX, TString titleY)
 {
   TH2F* h = new TH2F (name.c_str (), title.c_str (), nbinsx, xlow, xup, nbinsy, ylow, yup);
-  h->Sumw2 () ;    
+  if (histoType == 2) h->SetBinErrorOption(TH1::kPoisson); // data
+  else h->Sumw2 () ; // MC sig and bkgr (okay, data driven is special but will be overridden by systematics)   
   setHistosProperties (h, histoType, color) ;
   h->GetXaxis ()->SetTitle (titleX) ;
   h->GetYaxis ()->SetTitle (titleY) ;
