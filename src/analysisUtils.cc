@@ -602,9 +602,9 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
     h_data = (TH1F *) DATA_stack->GetStack ()->Last () ; // FIXME: is it allocated with new and needs to be deleted? stupid ROOT!
     h_data->Sumw2(false);
     h_data->SetBinErrorOption(TH1::kPoisson);
-    if (notDrawGrass) noGrass(h_data);
-    // FIXME probably the data uncertainties need to be fixed
-    h_data->Draw ("E same") ;
+    TGraphAsymmErrors* gData = makeDataGraphPlot (h_data, false, !notDrawGrass);
+    allocatedStuff.push_back(gData);
+    gData->Draw ("P Z same") ;
   }
   else
   {
@@ -715,6 +715,7 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
 
     // Define the ratio plot
     TH1F *hratio = (TH1F*)h_data->Clone (Form("hratio_%s_%s", varName.c_str(), selName.c_str()));
+    allocatedStuff.push_back (hratio);
     
     hratio->SetLineColor(kBlack);
     hratio->SetMinimum(0.501);  // Define Y ..
@@ -763,8 +764,11 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
     TGraphAsymmErrors* gRatio = makeDataOverMCRatioPlot (h_data, h_bkg, false);
     allocatedStuff.push_back(gRatio);
     hratio->Draw("axis");       // axis only
-    gRatio->Draw("p same");
-    
+    gRatio->Draw("p z same"); // z: no small lines at the end of the bar
+                                // 0: draw error lines for points outside the plot range
+    pad2->RedrawAxis();
+    pad2->RedrawAxis("g");
+
     /*
     TLine* line = new TLine (minx, 1. , h2->GetBinLowEdge(h2->GetNbinsX()+1), 1.);
     allocatedStuff.push_back(line);

@@ -444,6 +444,73 @@ float max3 (float uno, float due, float tre)
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
+TGraphAsymmErrors* makeDataGraphPlot (TH1F* hData, bool horErrs, bool drawGrass)
+{
+  const int nPoints = hData->GetNbinsX();
+  float * fX       = new float [nPoints];
+  float * fY       = new float [nPoints];
+  float * feYUp    = new float [nPoints];
+  float * feYDown  = new float [nPoints];
+  float * feXRight = new float [nPoints];
+  float * feXLeft  = new float [nPoints];
+
+  for (int i = 0; i < nPoints; i++)
+  {
+      fX       [i] = 0.;
+      fY       [i] = 0.;
+      feYUp    [i] = 0.;
+      feYDown  [i] = 0.;
+      feXRight [i] = 0.;
+      feXLeft  [i] = 0.;
+  }
+
+  int ipt = 0; // non - null points to be drawn
+
+  for (int ibin = 1; ibin <= nPoints; ibin++)
+  {
+    float x = hData->GetBinCenter(ibin);
+    float y = hData->GetBinContent(ibin);
+    float dxRight = hData->GetBinLowEdge(ibin+1) - hData->GetBinCenter(ibin);
+    float dxLeft  = hData->GetBinCenter(ibin) - hData->GetBinLowEdge(ibin);
+    float dyUp  = hData->GetBinErrorUp(ibin);
+    float dyLow = hData->GetBinErrorLow(ibin);
+
+    if (!drawGrass && (int) y == 0) continue;
+    fY [ipt] = y;
+    fX [ipt] = x;
+    feYUp[ipt] = dyUp;
+    feYDown[ipt] = dyLow;
+    if (horErrs)
+    {
+     feXRight[ipt] = dxRight;
+     feXLeft[ipt] = dxLeft;
+    }
+    else
+    {
+     feXRight[ipt] = 0;
+     feXLeft[ipt] = 0;
+    }
+    ++ipt;
+  }
+   
+  TGraphAsymmErrors* gData = new TGraphAsymmErrors (ipt, fX, fY, feXLeft, feXRight, feYDown, feYUp);
+  delete[] fX;       
+  delete[] fY ;      
+  delete[] feYUp    ;
+  delete[] feYDown  ;
+  delete[] feXRight ;
+  delete[] feXLeft  ;
+
+  gData->SetMarkerStyle(8);
+  gData->SetMarkerSize(1.);
+  gData->SetMarkerColor(kBlack);
+  gData->SetLineColor(kBlack);
+
+  return gData;
+}
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
 TGraphAsymmErrors* makeDataOverMCRatioPlot (TH1F* hData, TH1F* hMC, bool horErrs)
 {
     const int nPoints = hData->GetNbinsX();
