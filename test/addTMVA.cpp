@@ -42,9 +42,9 @@ calcTMVA (sample & thisSample,
   outfile.Append(thisSample.sampleName);
   outfile.Append(".root");
 
-  TFile * outputFile = TFile::Open(outfile.Data(),"RECREATE");
+  //TFile * outputFile = TFile::Open(outfile.Data(),"RECREATE");
   TTree * tree = thisSample.sampleTree ;
-  //TFile * currentFile = thisSample.sampleFile ;
+  TFile * currentFile = thisSample.sampleFile ;
 
   vector<float> address (trainingVariables.size () + spectatorVariables.size (), 0.) ; 
   for (unsigned int iv = 0 ; iv < trainingVariables.size () ; ++iv)
@@ -74,14 +74,16 @@ calcTMVA (sample & thisSample,
   for (int iEvent = 0 ; iEvent < tree->GetEntries () ; ++iEvent)
     {
       tree->GetEntry (iEvent) ;
+      //cout<<"BEFORE "<<trainingVariables.at (1).c_str ()<<":  "<<address.at (1)<<endl;
       mvaValue = reader->EvaluateMVA (mvaName.c_str ()) ;  
+      //cout<<"AFTER "<<trainingVariables.at (1).c_str ()<<":  "<<address.at (1)<<endl;      
       mvaBranch->Fill () ;    
     } //loop on tree entries
 
   // overwrite the tree including the new branch
-  outputFile->cd () ;
-  tree->Write ();//"", TObject::kOverwrite) ;
-  outputFile->Close("R");
+  currentFile->cd () ;
+  tree->Write ("", TObject::kOverwrite) ;
+  //outputFile->Close("R");
   delete reader ;
   return ;
 }
@@ -138,13 +140,13 @@ int main (int argc, char** argv)
   
   vector<sample> samples ;
   vector<string> samplesList = gConfigParser->readStringListOption ("general::signals") ;
-  readSamples (samples, samplesList, "READ") ;
+  readSamples (samples, samplesList, "UPDATE") ;
   samplesList.clear () ;
   samplesList = gConfigParser->readStringListOption ("general::backgrounds") ;
-  readSamples (samples, samplesList, "READ") ;
+  readSamples (samples, samplesList, "UPDATE") ;
   samplesList.clear () ;
   samplesList = gConfigParser->readStringListOption ("general::data") ;
-  readSamples (samples, samplesList, "READ") ;
+  readSamples (samples, samplesList, "UPDATE") ;
 
   // get the variables to be cosidered in the training
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
