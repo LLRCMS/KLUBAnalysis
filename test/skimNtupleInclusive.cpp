@@ -877,6 +877,7 @@ int main (int argc, char** argv)
   }
 
   outFile->cd () ;
+  h_eff.Write () ;
   treenew->Write ("", TObject::kOverwrite) ;
 
   delete reader;
