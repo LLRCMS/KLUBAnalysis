@@ -14,6 +14,7 @@
 #include "smallTree.h"
 #include "OfflineProducerHelper.h"
 #include "PUReweight.h"
+#include "triggerReader.h"
 //#include "../../HHKinFit/interface/HHKinFitMaster.h"
 #include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 #include "ConfigParser.h"
@@ -63,7 +64,30 @@ void appendFromFileList (TChain* chain, TString filename)
     return;
 }
 
-
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
+// open the first file in the input list, retrieve the histogram "Counters" for the trigger names and return a copy of it
+TH1F* getFirstFileHisto (TString filename)
+{
+    std::ifstream infile(filename.Data());
+    std::string line;
+    while (std::getline(infile, line))
+    {
+        line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
+        while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
+        while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
+        while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
+        if (!line.empty()) // skip empty lines
+          break;
+    }
+    
+    TFile* fIn = TFile::Open (line.c_str());
+    TH1F* dummy = (TH1F*) fIn->Get ("HTauTauTree/Counters");
+    TH1F* histo = new TH1F (*dummy);
+    histo-> SetDirectory(0);
+    histo->SetName ("Counters_perTrigger");
+    fIn->Close();
+    return histo;
+}
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 
 
@@ -215,6 +239,11 @@ int main (int argc, char** argv)
   string leptonSelectionFlag = gConfigParser->readStringOption ("parameters::lepSelections") ;
   int maxNjetsSaved          = gConfigParser->readIntOption    ("parameters::maxNjetsSaved") ;
 
+  vector<string> trigMuTau   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuTau")  : gConfigParser->readStringListOption ("triggersData::MuTau")) ;
+  vector<string> trigTauTau   = (isMC ? gConfigParser->readStringListOption ("triggersMC::TauTau") : gConfigParser->readStringListOption ("triggersData::TauTau")) ;
+  vector<string> trigEleTau   = (isMC ? gConfigParser->readStringListOption ("triggersMC::EleTau") : gConfigParser->readStringListOption ("triggersData::EleTau")) ;
+  vector<string> trigEleMu   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleMu")  : gConfigParser->readStringListOption ("triggersData::EleMu")) ;
+
   // input and output setup
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -248,7 +277,21 @@ int main (int argc, char** argv)
   int selectionsNumber = 3 ;
   vector<float> counter (selectionsNumber + 1, 0.) ;
 
+  // ------------------------------
+
+  TH1F* hTriggers = getFirstFileHisto (inputFile);
+  triggerReader trigReader (hTriggers);
+  trigReader.addTauTauTrigs (trigTauTau);
+  trigReader.addMuTauTrigs  (trigMuTau);
+  trigReader.addEleTauTrigs (trigEleTau);
+  trigReader.addMuEleTrigs  (trigEleMu);
+
+  // ------------------------------
+
   PUReweight reweight ;
+
+  // ------------------------------
+
   // loop over events
   for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
     {
@@ -277,8 +320,10 @@ int main (int argc, char** argv)
       metpass += metbit & (1 << 5);
       metpass += metbit & (1 << 6);
       if(metpass > 0) continue ;
-      int triggerbit = theBigTree.triggerbit;
-      if (triggerbit == 0) continue;
+      
+      // exclusive bits asked later
+      //int triggerbit = theBigTree.triggerbit;
+      //if (triggerbit == 0) continue;
 
       if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
       else      counter.at (selID++) += 1 ;
@@ -328,13 +373,18 @@ int main (int argc, char** argv)
 
       if (foundPairs.size () == 0) continue ;
 
-      // by now take the OS pair with largest pT
+      // by now take the MOST ISOLATED pair (no OS/SS)
       int chosenTauPair = foundPairs.begin ()->second ;
       int isOS = theBigTree.isOSCand->at (chosenTauPair) ;
 
       if (saveOS == 1 && !isOS) continue ;
       if (saveOS == 0 &&  isOS) continue ;
       
+      int triggerbit = theBigTree.triggerbit;
+      int thisPairType = foundPairs.begin()->first ; // this is the pairType used
+      bool ORtrigBits = trigReader.checkOR (thisPairType, triggerbit);
+      if (!ORtrigBits) continue;
+
       if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
       else      counter.at (selID++) += 1 ;
 
