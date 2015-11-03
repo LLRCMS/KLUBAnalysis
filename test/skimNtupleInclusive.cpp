@@ -280,17 +280,17 @@ int main (int argc, char** argv)
 
   TMVA::Reader * reader = new TMVA::Reader () ;
 
-  vector<float> address (TMVAvariables.size () + TMVAspectators.size (), 0.) ; 
+  vector<float> address (TMVAvariables.size () + TMVAspectators.size () * TMVAspectatorsIn, 0.) ; 
   for (unsigned int iv = 0 ; iv < TMVAvariables.size () ; ++iv)
   {
-    smallTree.m_smallT->SetBranchAddress (TMVAvariables.at (iv).c_str (), &(address.at (iv))) ;
+    theSmallTree.m_smallT->SetBranchAddress (TMVAvariables.at (iv).c_str (), &(address.at (iv))) ;
     reader->AddVariable (TMVAvariables.at (iv), &(address.at (iv))) ;
   }  
 
-  for (unsigned int iv = 0 ; iv < TMVAspectators.size () ; ++iv)
+  for (unsigned int iv = 0 ; iv < TMVAspectators.size () && TMVAspectatorsIn ; ++iv)
   {
     int addressIndex = iv + TMVAvariables.size () ;
-    smallTree.m_smallT->SetBranchAddress (TMVAspectators.at (iv).c_str (), &(address.at (addressIndex))) ;
+    theSmallTree.m_smallT->SetBranchAddress (TMVAspectators.at (iv).c_str (), &(address.at (addressIndex))) ;
     reader->AddSpectator (TMVAspectators.at (iv), &(address.at (addressIndex))) ;
   }  
 
