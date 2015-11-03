@@ -23,8 +23,18 @@
 #include "exceptions/HHInvMConstraintException.h"
 #include "exceptions/HHEnergyRangeException.h"
 #include "exceptions/HHEnergyConstraintException.h"
+
+#include "TMVA/MsgLogger.h"
+#include "TMVA/Config.h"
+#include "TMVA/Tools.h"
+#include "TMVA/Factory.h"
+#include "TMVA/Reader.h"
+
 //
 using namespace std ;
+
+
+
 
 /*  the modern way of making lorenzvectors (no warnings)
     here is an example of usage:
@@ -239,6 +249,13 @@ int main (int argc, char** argv)
   string leptonSelectionFlag = gConfigParser->readStringOption ("parameters::lepSelections") ;
   int maxNjetsSaved          = gConfigParser->readIntOption    ("parameters::maxNjetsSaved") ;
 
+  string TMVAweightsTauTau   = gConfigParser->readStringOption ("TMVA::weightsTauTau");
+  string TMVAweightsMuTau    = gConfigParser->readStringOption ("TMVA::weightsMuTau");
+  bool TMVAspectatorsIn      = gConfigParser->readBoolOption   ("TMVA::spectatorsPresent");
+  vector<string> TMVAspectators = gConfigParser->readStringListOption   ("TMVA::spectators");
+  vector<string> TMVAvariables  = gConfigParser->readStringListOption   ("TMVA::variables");
+
+
   vector<string> trigMuTau   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuTau")  : gConfigParser->readStringListOption ("triggersData::MuTau")) ;
   vector<string> trigTauTau   = (isMC ? gConfigParser->readStringListOption ("triggersMC::TauTau") : gConfigParser->readStringListOption ("triggersData::TauTau")) ;
   vector<string> trigEleTau   = (isMC ? gConfigParser->readStringListOption ("triggersMC::EleTau") : gConfigParser->readStringListOption ("triggersData::EleTau")) ;
@@ -254,10 +271,45 @@ int main (int argc, char** argv)
   appendFromFileList (bigChain, inputFile);
   bigTree theBigTree (bigChain) ;
 
+
   //Create a new file + a clone of old tree header. Do not copy events
   TFile * smallFile = new TFile (outputFile, "recreate") ;
   smallFile->cd () ;
   smallTree theSmallTree ("HTauTauTree") ;
+
+  TMVA::Reader * reader = new TMVA::Reader () ;
+
+  vector<float> address (TMVAvariables.size () + TMVAspectators.size (), 0.) ; 
+  for (unsigned int iv = 0 ; iv < TMVAvariables.size () ; ++iv)
+  {
+    theBigTree.fChain->SetBranchAddress (TMVAvariables.at (iv).c_str (), &(address.at (iv))) ;
+    reader->AddVariable (TMVAvariables.at (iv), &(address.at (iv))) ;
+  }  
+
+  for (unsigned int iv = 0 ; iv < TMVAspectators.size () ; ++iv)
+  {
+    int addressIndex = iv + TMVAvariables.size () ;
+    theBigTree.fChain->SetBranchAddress (TMVAspectators.at (iv).c_str (), &(address.at (addressIndex))) ;
+    reader->AddSpectator (TMVAspectators.at (iv), &(address.at (addressIndex))) ;
+  }  
+
+  // add a new branch to store the tmva output
+  //float mvaValueTauTau, mvaValueMuTau;
+  //TBranch * mvaBranchMuTau ;
+  //TBranch * mvaBranchTauTau ;
+   
+  //if (smallTree.fChain->GetListOfBranches ()->FindObject (mvaName.c_str ())) {
+  //  smallTree.fChain->SetBranchAddress ("MuTauKine", &mvaValueMuTau, &mvaBranchMuTau) ;
+  //  smallTree.fChain->SetBranchAddress ("TauTauKine", &mvaValueTauTau, &mvaBranchTauTau) ;
+ // }
+ // else  {
+    //mvaBranchMuTau = smallTree.fChain->Branch ("MuTauKine", &mvaValueMuTau, "MuTauKine/F") ;
+    //mvaBranchTauTau = smallTree.fChain->Branch ("TauTauKine", &mvaValueTauTau, "TauTauKine/F") ;
+ // }
+  reader->BookMVA ("MuTauKine",  TMVAweightsMuTau.c_str ()) ;
+  reader->BookMVA ("TauTauKine",  TMVAweightsTauTau.c_str ()) ;
+
+
 
   // these are needed for the HHKinFit
   //vector<Int_t> hypo_mh1 ; //FIXME why is this an integer?!
@@ -466,6 +518,10 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+      theSmallTree.m_mvaValueMuTau = reader->EvaluateMVA ("MuTauKine") ;  
+      theSmallTree.m_mvaValueTauTau = reader->EvaluateMVA ("TauTauKine") ;  
+      //mvaBranchMuTau->Fill () ;    
+      //mvaBranchTauTau->Fill () ;    
 
       theSmallTree.m_PUReweight = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) : 1) ;      
       theSmallTree.m_MC_weight = (isMC ? theBigTree.aMCatNLOweight * XS : 1) ;
@@ -806,6 +862,7 @@ int main (int argc, char** argv)
   for (unsigned int i = 0 ; i < counter.size () ; ++i)
     h_eff.SetBinContent (5 + i, counter.at (i)) ;
 
+  delete reader;
   h_eff.Write () ;
   smallFile->Write () ;
   smallFile->Close () ;

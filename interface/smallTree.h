@@ -129,7 +129,9 @@ struct smallTree
       m_leps_e.clear () ;
       m_leps_flav.clear () ;
       m_nleps = 0 ;
-      
+
+      m_mvaValueMuTau = 0;
+      m_mvaValueTauTau = 0;      
       return 0 ;    
     }
 
@@ -241,6 +243,9 @@ struct smallTree
       m_smallT->Branch ("leps_e", &m_leps_e) ;
       m_smallT->Branch ("leps_flav", &m_leps_flav) ;
       m_smallT->Branch ("nleps", &m_nleps, "nleps/I") ;
+
+      m_smallT->Branch ("MuTauKine", &m_mvaValueMuTau, "MuTauKine/F");
+      m_smallT->Branch ("TauTauKine", &m_mvaValueTauTau, "TauTauKine/F");
 
       return 0 ;
     }
@@ -379,6 +384,10 @@ struct smallTree
   std::vector<Int_t> m_leps_flav ;
   Int_t m_nleps ;
   
+  // TMVAs
+  Float_t m_mvaValueMuTau ;
+  Float_t m_mvaValueTauTau ;
+
 } ;
 
 #endif
