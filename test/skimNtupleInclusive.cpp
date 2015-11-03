@@ -277,38 +277,25 @@ int main (int argc, char** argv)
   smallFile->cd () ;
   smallTree theSmallTree ("HTauTauTree") ;
 
+
   TMVA::Reader * reader = new TMVA::Reader () ;
 
   vector<float> address (TMVAvariables.size () + TMVAspectators.size (), 0.) ; 
   for (unsigned int iv = 0 ; iv < TMVAvariables.size () ; ++iv)
   {
-    theBigTree.fChain->SetBranchAddress (TMVAvariables.at (iv).c_str (), &(address.at (iv))) ;
+    smallTree.m_smallT->SetBranchAddress (TMVAvariables.at (iv).c_str (), &(address.at (iv))) ;
     reader->AddVariable (TMVAvariables.at (iv), &(address.at (iv))) ;
   }  
 
   for (unsigned int iv = 0 ; iv < TMVAspectators.size () ; ++iv)
   {
     int addressIndex = iv + TMVAvariables.size () ;
-    theBigTree.fChain->SetBranchAddress (TMVAspectators.at (iv).c_str (), &(address.at (addressIndex))) ;
+    smallTree.m_smallT->SetBranchAddress (TMVAspectators.at (iv).c_str (), &(address.at (addressIndex))) ;
     reader->AddSpectator (TMVAspectators.at (iv), &(address.at (addressIndex))) ;
   }  
 
-  // add a new branch to store the tmva output
-  //float mvaValueTauTau, mvaValueMuTau;
-  //TBranch * mvaBranchMuTau ;
-  //TBranch * mvaBranchTauTau ;
-   
-  //if (smallTree.fChain->GetListOfBranches ()->FindObject (mvaName.c_str ())) {
-  //  smallTree.fChain->SetBranchAddress ("MuTauKine", &mvaValueMuTau, &mvaBranchMuTau) ;
-  //  smallTree.fChain->SetBranchAddress ("TauTauKine", &mvaValueTauTau, &mvaBranchTauTau) ;
- // }
- // else  {
-    //mvaBranchMuTau = smallTree.fChain->Branch ("MuTauKine", &mvaValueMuTau, "MuTauKine/F") ;
-    //mvaBranchTauTau = smallTree.fChain->Branch ("TauTauKine", &mvaValueTauTau, "TauTauKine/F") ;
- // }
   reader->BookMVA ("MuTauKine",  TMVAweightsMuTau.c_str ()) ;
   reader->BookMVA ("TauTauKine",  TMVAweightsTauTau.c_str ()) ;
-
 
 
   // these are needed for the HHKinFit
@@ -518,10 +505,6 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-      theSmallTree.m_mvaValueMuTau = reader->EvaluateMVA ("MuTauKine") ;  
-      theSmallTree.m_mvaValueTauTau = reader->EvaluateMVA ("TauTauKine") ;  
-      //mvaBranchMuTau->Fill () ;    
-      //mvaBranchTauTau->Fill () ;    
 
       theSmallTree.m_PUReweight = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) : 1) ;      
       theSmallTree.m_MC_weight = (isMC ? theBigTree.aMCatNLOweight * XS : 1) ;
@@ -842,6 +825,13 @@ int main (int argc, char** argv)
       if (isMC) selectedEvents += theBigTree.aMCatNLOweight ; 
       else selectedEvents += 1 ;
       ++selectedNoWeightsEventsNum ;
+
+
+
+      theSmallTree.m_mvaValueMuTau = reader->EvaluateMVA ("MuTauKine") ;  
+      theSmallTree.m_mvaValueTauTau = reader->EvaluateMVA ("TauTauKine") ;  
+
+
       theSmallTree.Fill () ;
     } // loop over events
 
