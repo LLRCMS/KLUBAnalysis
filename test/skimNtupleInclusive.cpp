@@ -277,27 +277,6 @@ int main (int argc, char** argv)
   smallFile->cd () ;
   smallTree theSmallTree ("HTauTauTree") ;
 
-
-  TMVA::Reader * reader = new TMVA::Reader () ;
-
-  vector<float> address (TMVAvariables.size () + TMVAspectators.size () * TMVAspectatorsIn, 0.) ; 
-  for (unsigned int iv = 0 ; iv < TMVAvariables.size () ; ++iv)
-  {
-    theSmallTree.m_smallT->SetBranchAddress (TMVAvariables.at (iv).c_str (), &(address.at (iv))) ;
-    reader->AddVariable (TMVAvariables.at (iv), &(address.at (iv))) ;
-  }  
-
-  for (unsigned int iv = 0 ; iv < TMVAspectators.size () && TMVAspectatorsIn ; ++iv)
-  {
-    int addressIndex = iv + TMVAvariables.size () ;
-    theSmallTree.m_smallT->SetBranchAddress (TMVAspectators.at (iv).c_str (), &(address.at (addressIndex))) ;
-    reader->AddSpectator (TMVAspectators.at (iv), &(address.at (addressIndex))) ;
-  }  
-
-  reader->BookMVA ("MuTauKine",  TMVAweightsMuTau.c_str ()) ;
-  reader->BookMVA ("TauTauKine",  TMVAweightsTauTau.c_str ()) ;
-
-
   // these are needed for the HHKinFit
   //vector<Int_t> hypo_mh1 ; //FIXME why is this an integer?!
   //hypo_mh1.push_back (125) ;
@@ -305,7 +284,7 @@ int main (int argc, char** argv)
   //hypo_mh2.push_back (125) ;
   int hypo_mh1=125,hypo_mh2=125;
 
-  int eventsNumber = theBigTree.fChain->GetEntries () ;
+  int eventsNumber = 1000;//theBigTree.fChain->GetEntries () ;
   float totalEvents = 0. ;
   
   float selectedEvents = 0. ;
@@ -828,8 +807,6 @@ int main (int argc, char** argv)
 
 
 
-      theSmallTree.m_mvaValueMuTau = reader->EvaluateMVA ("MuTauKine") ;  
-      theSmallTree.m_mvaValueTauTau = reader->EvaluateMVA ("TauTauKine") ;  
 
 
       theSmallTree.Fill () ;
@@ -852,12 +829,59 @@ int main (int argc, char** argv)
   for (unsigned int i = 0 ; i < counter.size () ; ++i)
     h_eff.SetBinContent (5 + i, counter.at (i)) ;
 
-  delete reader;
   h_eff.Write () ;
   smallFile->Write () ;
   smallFile->Close () ;
+
+  TFile *outFile = TFile::Open(outputFile,"UPDATE");
+  TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
+
+  TMVA::Reader * reader = new TMVA::Reader () ;
+  Float_t mvatautau,mvamutau;
+  TBranch *mvaBranchmutau;
+  TBranch *mvaBranchtautau;
+
+  vector<float> address (TMVAvariables.size () + TMVAspectators.size () * TMVAspectatorsIn, 0.) ; 
+  for (unsigned int iv = 0 ; iv < TMVAvariables.size () ; ++iv)
+  {
+    treenew->SetBranchAddress (TMVAvariables.at (iv).c_str (), &(address.at (iv))) ;
+    reader->AddVariable (TMVAvariables.at (iv), &(address.at (iv))) ;
+  }  
+
+  for (unsigned int iv = 0 ; iv < TMVAspectators.size () && TMVAspectatorsIn ; ++iv)
+  {
+    int addressIndex = iv + TMVAvariables.size () ;
+    treenew->SetBranchAddress (TMVAspectators.at (iv).c_str (), &(address.at (addressIndex))) ;
+    reader->AddSpectator (TMVAspectators.at (iv), &(address.at (addressIndex))) ;
+  }  
+
+  //if (treenew->GetListOfBranches ()->FindObject (mvaName.c_str ())) {
+  //  treenew->SetBranchAddress ("MuTauKine", &mvamutau, &mvaBranchmutau) ;
+  //  treenew->SetBranchAddress ("TauTauKine", &mvatautau, &mvaBranchtautau) ;
+  //}
+  //else{   
+    mvaBranchmutau = treenew->Branch ("MuTauKine", &mvamutau, "MuTauKine/F") ;
+    mvaBranchtautau = treenew->Branch ("TauTauKine", &mvatautau, "TauTauKine/F") ;
+  //}
+  reader->BookMVA ("MuTauKine",  TMVAweightsMuTau.c_str ()) ;
+  reader->BookMVA ("TauTauKine",  TMVAweightsTauTau.c_str ()) ;
+
+  int nentries = treenew->GetEntries();
+  for(int i=0;i<nentries;i++){
+    treenew->GetEntry(i);
+
+    mvamutau= reader->EvaluateMVA ("MuTauKine") ;  
+    mvatautau= reader->EvaluateMVA ("TauTauKine") ;  
+    mvaBranchtautau->Fill();
+    mvaBranchmutau->Fill();
+  }
+
+  outFile->cd () ;
+  treenew->Write ("", TObject::kOverwrite) ;
+
+  delete reader;
   return 0 ;
-}
+  }
 
 
 

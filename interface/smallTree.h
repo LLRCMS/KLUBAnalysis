@@ -244,8 +244,8 @@ struct smallTree
       m_smallT->Branch ("leps_flav", &m_leps_flav) ;
       m_smallT->Branch ("nleps", &m_nleps, "nleps/I") ;
 
-      m_smallT->Branch ("MuTauKine", &m_mvaValueMuTau, "MuTauKine/F");
-      m_smallT->Branch ("TauTauKine", &m_mvaValueTauTau, "TauTauKine/F");
+      //m_smallT->Branch ("MuTauKine", &m_mvaValueMuTau, "MuTauKine/F");
+      //m_smallT->Branch ("TauTauKine", &m_mvaValueTauTau, "TauTauKine/F");
 
       return 0 ;
     }
