@@ -284,7 +284,7 @@ int main (int argc, char** argv)
   //hypo_mh2.push_back (125) ;
   int hypo_mh1=125,hypo_mh2=125;
 
-  int eventsNumber = 1000;//theBigTree.fChain->GetEntries () ;
+  int eventsNumber = theBigTree.fChain->GetEntries () ;
   float totalEvents = 0. ;
   
   float selectedEvents = 0. ;
