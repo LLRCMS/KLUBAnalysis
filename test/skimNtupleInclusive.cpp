@@ -520,6 +520,12 @@ int main (int argc, char** argv)
       theSmallTree.m_tauH_e = tlv_tauH.E () ;
       theSmallTree.m_tauH_mass = tlv_tauH.M () ;
 
+       theSmallTree.m_L3trigger1 = theBigTree.daughters_L3FilterFiredLast->at (firstDaughterIndex) ;
+       theSmallTree.m_L3triggerlast1 = theBigTree.daughters_L3FilterFiredLast->at (firstDaughterIndex) ;
+       theSmallTree.m_L3trigger2 = theBigTree.daughters_L3FilterFiredLast->at (secondDaughterIndex) ;
+       theSmallTree.m_L3triggerlast2 = theBigTree.daughters_L3FilterFiredLast->at (secondDaughterIndex) ;
+
+
       theSmallTree.m_dau1_iso = getIso (firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree) ;
       theSmallTree.m_dau1_pt = tlv_firstLepton.Pt () ;
       theSmallTree.m_dau1_eta = tlv_firstLepton.Eta () ;

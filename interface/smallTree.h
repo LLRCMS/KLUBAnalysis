@@ -31,6 +31,10 @@ struct smallTree
       m_npu = -1. ;
       m_lumi = -1. ;
       m_triggerbit = -1. ;
+      m_L3filterlast1 = -1;
+      m_L3filter1 = -1;
+      m_L3filterlast2 = -1;
+      m_L3filter2 = -1;
       m_rho = -1. ;
 
       m_pairType = -1. ;
@@ -146,6 +150,10 @@ struct smallTree
       m_smallT->Branch ("npu", &m_npu, "npu/I") ;
       m_smallT->Branch ("lumi", &m_lumi, "lumi/I") ;
       m_smallT->Branch ("triggerbit", &m_triggerbit, "triggerbit/I") ;
+      m_smallT->Branch ("L3filter1", &m_L3filter1, "L3filter1/I") ;
+      m_smallT->Branch ("L3filterlast1", &m_L3filterlast1, "L3filter1/I") ;
+      m_smallT->Branch ("L3filter2", &m_L3filter2, "L3filter2/I") ;
+      m_smallT->Branch ("L3filterlast2", &m_L3filterlast2, "L3filter2/I") ;
       m_smallT->Branch ("rho", &m_rho, "rho/F") ;
 
       m_smallT->Branch ("pairType", &m_pairType, "rho/I") ;
@@ -263,6 +271,10 @@ struct smallTree
   Int_t m_npu ;
   Int_t m_lumi ;
   Int_t m_triggerbit ;
+  Int_t m_L3filter1 ;
+  Int_t m_L3filterlast1 ;
+  Int_t m_L3filter2 ;
+  Int_t m_L3filterlast2 ;
   Float_t m_rho ;
 
   Int_t m_pairType ;
