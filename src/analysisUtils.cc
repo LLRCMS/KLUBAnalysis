@@ -818,6 +818,7 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
 
   // now plot lumi!
   float lumi_num = gConfigParser->readFloatOption ("general::lumi");
+  lumi_num = lumi_num/1000.; // is in pb-1
   stringstream stream;
   stream << fixed << setprecision(1) << lumi_num;
   TString lumi = stream.str().c_str();

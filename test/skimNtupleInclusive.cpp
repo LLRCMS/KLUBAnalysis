@@ -255,11 +255,18 @@ int main (int argc, char** argv)
   vector<string> TMVAspectators = gConfigParser->readStringListOption   ("TMVA::spectators");
   vector<string> TMVAvariables  = gConfigParser->readStringListOption   ("TMVA::variables");
 
-
   vector<string> trigMuTau   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuTau")  : gConfigParser->readStringListOption ("triggersData::MuTau")) ;
   vector<string> trigTauTau   = (isMC ? gConfigParser->readStringListOption ("triggersMC::TauTau") : gConfigParser->readStringListOption ("triggersData::TauTau")) ;
   vector<string> trigEleTau   = (isMC ? gConfigParser->readStringListOption ("triggersMC::EleTau") : gConfigParser->readStringListOption ("triggersData::EleTau")) ;
   vector<string> trigEleMu   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleMu")  : gConfigParser->readStringListOption ("triggersData::EleMu")) ;
+
+  bool skipTriggers = false;
+  if (gConfigParser->isDefined ("debug::skipTriggers"))
+  {
+    skipTriggers = gConfigParser->readBoolOption ("debug::skipTriggers");
+  }
+
+  cout << "skipTriggers? " << skipTriggers << endl;
 
   // input and output setup
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -401,7 +408,10 @@ int main (int argc, char** argv)
       int triggerbit = theBigTree.triggerbit;
       int thisPairType = foundPairs.begin()->first ; // this is the pairType used
       bool ORtrigBits = trigReader.checkOR (thisPairType, triggerbit);
-      if (!ORtrigBits) continue;
+      if (!skipTriggers)
+      {
+        if (!ORtrigBits) continue;
+      }
 
       if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
       else      counter.at (selID++) += 1 ;
