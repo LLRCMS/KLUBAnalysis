@@ -145,7 +145,7 @@ struct smallTree
       m_smallT->Branch ("npv", &m_npv, "npv/I") ;
       m_smallT->Branch ("npu", &m_npu, "npu/I") ;
       m_smallT->Branch ("lumi", &m_lumi, "lumi/I") ;
-      m_smallT->Branch ("triggerbit", &m_triggerbit, "triggerbit/I") ;
+      m_smallT->Branch ("triggerbit", &m_triggerbit, "triggerbit/L") ;
       m_smallT->Branch ("rho", &m_rho, "rho/F") ;
 
       m_smallT->Branch ("pairType", &m_pairType, "rho/I") ;
@@ -262,7 +262,7 @@ struct smallTree
   Int_t m_npv ;
   Int_t m_npu ;
   Int_t m_lumi ;
-  Int_t m_triggerbit ;
+  Long64_t m_triggerbit ;
   Float_t m_rho ;
 
   Int_t m_pairType ;
