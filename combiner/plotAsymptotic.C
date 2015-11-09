@@ -21,21 +21,23 @@ void getLimits(TFile *f, std::vector<double> &v_mean,std::vector<double> &v_68l,
 //TString inputDir = "cards"; //"higgsCombineTest.Asymptotic.mH125.7.root";
 
 //custom inputs
-TString inputfolder="cards";
+TString inputfolder="cards_combined_03Nov";
 TString var= "HH_mass";//"mT"; //"HH_mass";// for tautau
-TString sel="dijetOneBM"; //"dijethardiso";// for tautau
-TString plotName = "UpperLimit_TauTau_28oct_20fb";
-TString channel="hh #rightarrow bb #tau_{H} #tau_{H}"; //channel name in plot
+TString sel="dijetOneBLKine"; //"dijethardiso";// for tautau
+TString plotName = "UpperLimit_combined_3nov";
+TString channel="hh #rightarrow bb #tau_{#mu} #tau_{H} +  bb #tau_{H} #tau_{H}"; //channel name in plot
+
+//Plotting features
+bool addATLAS=true;
+const bool addObsLimit = false;
 
 //Default inputs
-bool addATLAS=true;
 bool plotMu=false;
 float lambdas[]={-4,1,2.46,20};
 const int nLambdas = 4;
 const int nXsec = 10;
 float xsections[nXsec]= {12, 2.13, 1,  0.66, 0.47, 0.42, 0.53, 0.79, 50,  105};
 float deflambdas[nXsec]={-4,  0,   1,  1.5,   2,   2.46, 3,    4,    10,  20};
-const bool addObsLimit = false;
 const bool _DEBUG_ = true;
 Double_t xLow = -5;
 Double_t xHigh = 21.0;
@@ -53,7 +55,7 @@ const bool isTiny = false;
 int canvasX = 900;
 int canvasY = 700;
 double sqrts = 13.0;
-double lumin = 20.0;
+double lumin = 3.00;
 bool onepointta=true;
 // ----------------------- //
 
@@ -179,7 +181,7 @@ void plotAsymptotic() {
   pt2->SetTextFont(42);
   char lum[192];
   //sprintf(lum," #sqrt{s} = 8 TeV, L = %.2f fb^{-1}",5.261);
-  sprintf(lum," #sqrt{s} = 13 TeV, L = %.0f fb^{-1}",lumin);
+  sprintf(lum," #sqrt{s} = 13 TeV, L = %.1f fb^{-1}",lumin);
   pt2->AddText(lum); 
   //TPaveText *pt3 = new TPaveText(0.69,0.90,0.98,0.95,"NDC");
  
@@ -201,7 +203,7 @@ void plotAsymptotic() {
     }
   if (addATLAS){
     TGraph *ATLAS = new TGraph(0);
-    ATLAS->SetPoint(0,1,1300);
+    ATLAS->SetPoint(0,1,130*34.3*0.073);
     ATLAS->SetMarkerStyle(29);
     ATLAS->SetMarkerColor(4);
     ATLAS->SetMarkerSize(2);
@@ -235,7 +237,7 @@ void plotAsymptotic() {
   outfileName.Append(".eps");
   c->SaveAs(outfileName.Data());
   outfileName=plotName.Data();
-  outfileName.Append(".png");
+  outfileName.Append(".pdf");
   c->SaveAs(outfileName.Data());
   outfileName=plotName.Data();
   outfileName.Append(".root");
