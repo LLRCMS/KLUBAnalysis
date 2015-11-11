@@ -42,9 +42,9 @@ class cardMaker:
     def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir, theInputs):
         
         dname=""
-        theDataSample = "DsingleMu"
+        theDataSample = "DsingleMu" #"DsingleMuPromptReco"
         if(theChannel) == 3:
-            theDataSample = "DsingleTau"
+            theDataSample = "DsingleTau" #"DsingleTauPromptReco"
 
         theOutLambda = str(int(theHHLambda))
         if abs(theHHLambda - int(theHHLambda) )>0.01 : 

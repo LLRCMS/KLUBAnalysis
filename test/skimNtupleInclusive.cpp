@@ -417,7 +417,7 @@ int main (int argc, char** argv)
       else      counter.at (selID++) += 1 ;
 
       int firstDaughterIndex = theBigTree.indexDau1->at (chosenTauPair) ;  
-      TLorentzVector tlv_firstLepton
+      const TLorentzVector tlv_firstLepton
         (
           theBigTree.daughters_px->at (firstDaughterIndex),
           theBigTree.daughters_py->at (firstDaughterIndex),
@@ -425,7 +425,7 @@ int main (int argc, char** argv)
           theBigTree.daughters_e->at (firstDaughterIndex)
         ) ;
       int secondDaughterIndex = theBigTree.indexDau2->at (chosenTauPair) ;
-      TLorentzVector tlv_secondLepton
+      const TLorentzVector tlv_secondLepton
         (
           theBigTree.daughters_px->at (secondDaughterIndex),
           theBigTree.daughters_py->at (secondDaughterIndex),
@@ -520,10 +520,10 @@ int main (int argc, char** argv)
       theSmallTree.m_tauH_e = tlv_tauH.E () ;
       theSmallTree.m_tauH_mass = tlv_tauH.M () ;
 
-       theSmallTree.m_L3trigger1 = theBigTree.daughters_L3FilterFiredLast->at (firstDaughterIndex) ;
-       theSmallTree.m_L3triggerlast1 = theBigTree.daughters_L3FilterFiredLast->at (firstDaughterIndex) ;
-       theSmallTree.m_L3trigger2 = theBigTree.daughters_L3FilterFiredLast->at (secondDaughterIndex) ;
-       theSmallTree.m_L3triggerlast2 = theBigTree.daughters_L3FilterFiredLast->at (secondDaughterIndex) ;
+       theSmallTree.m_L3filter1 = theBigTree.daughters_L3FilterFiredLast->at (firstDaughterIndex) ;
+       theSmallTree.m_L3filterlast1 = theBigTree.daughters_L3FilterFiredLast->at (firstDaughterIndex) ;
+       theSmallTree.m_L3filter2 = theBigTree.daughters_L3FilterFiredLast->at (secondDaughterIndex) ;
+       theSmallTree.m_L3filterlast2 = theBigTree.daughters_L3FilterFiredLast->at (secondDaughterIndex) ;
 
 
       theSmallTree.m_dau1_iso = getIso (firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree) ;
@@ -603,14 +603,14 @@ int main (int argc, char** argv)
           if (bChoiceFlag == 1)       eventJets = chooseHighestBtagJets (jets_and_btag) ;
           else if (bChoiceFlag == 2)  eventJets = chooseHighestPtJets (jets_and_btag) ;
           
-          TLorentzVector tlv_firstBjet 
+          const TLorentzVector tlv_firstBjet 
             (
               theBigTree.jets_px->at (eventJets.first),
               theBigTree.jets_py->at (eventJets.first),
               theBigTree.jets_pz->at (eventJets.first),
               theBigTree.jets_e->at (eventJets.first)
             ) ;
-          TLorentzVector tlv_secondBjet 
+          const TLorentzVector tlv_secondBjet 
             (
               theBigTree.jets_px->at (eventJets.second),
               theBigTree.jets_py->at (eventJets.second),
@@ -634,14 +634,15 @@ int main (int argc, char** argv)
           float METy = theBigTree.METy->at (chosenTauPair) ;
           float METpt = 0;//TMath::Sqrt (METx*METx + METy*METy) ;
     
-	        TLorentzVector ptmiss = TLorentzVector(METx, METy, 0., METpt) ;
+	        const TVector2 ptmiss = TVector2(METx, METy) ;
           //TVector2 ptmiss = TVector2(METx,METy);
           TMatrixD metcov (2, 2) ;
           metcov (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
           metcov (1,0) = theBigTree.MET_cov10->at (chosenTauPair) ;
           metcov (0,1) = theBigTree.MET_cov01->at (chosenTauPair) ;    
           metcov (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
-    
+
+          const TMatrixD stableMetCov = metcov; 
           TLorentzVector tlv_bH = tlv_firstBjet + tlv_secondBjet ;
           theSmallTree.m_bH_pt = tlv_bH.Pt () ;
           theSmallTree.m_bH_eta = tlv_bH.Eta () ;
@@ -674,8 +675,8 @@ int main (int argc, char** argv)
           float HHKChi2 = -999;
           if (runHHKinFit)
           {
-            HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs (&tlv_firstBjet, &tlv_secondBjet, 
-                                                      &tlv_firstLepton, &tlv_secondLepton,&ptmiss,metcov) ;
+            HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet, tlv_secondBjet, 
+                                                       tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
   //           kinFits.setAdvancedBalance (&ptmiss, metcov) ;
   //           kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
   // 
@@ -683,7 +684,7 @@ int main (int argc, char** argv)
   //           kinFits.addMh2Hypothesis (hypo_mh2) ;
             kinFits.addHypo(hypo_mh1,hypo_mh2);
             try{           
-                kinFits.doFit();//doFit () ; 
+                kinFits.fit();//doFit () ; 
             }
             catch(HHKinFit2::HHInvMConstraintException e){
               cout<<"INVME THIS EVENT WAS WRONG, INV MASS CONSTRAIN EXCEPTION"<<endl;
@@ -697,7 +698,7 @@ int main (int argc, char** argv)
               cout<<"INVME B2"<<endl;
               cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
               cout<<"INVME MET"<<endl;
-              cout<<"INVME (E,Px,Py,Pz,M) "<<ptmiss.E()<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<","<<ptmiss.Pz()<<","<<ptmiss.M()<<endl;
+              cout<<"INVME (E,Px,Py,Pz,M) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
               cout<<"INVME METCOV "<<endl;
               cout<<"INVME "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
               cout<<"INVME "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
@@ -724,7 +725,7 @@ int main (int argc, char** argv)
               cout<<"ERANGE B2"<<endl;
               cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
               cout<<"ERANGE MET"<<endl;
-              cout<<"ERANGE (E,Px,Py,Pz,M) "<<ptmiss.E()<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<","<<ptmiss.Pz()<<","<<ptmiss.M()<<endl;
+              cout<<"ERANGE (E,Px,Py,Pz,M) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
               cout<<"ERANGE METCOV "<<endl;
               cout<<"ERANGE "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
               cout<<"ERANGE "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
@@ -751,7 +752,7 @@ int main (int argc, char** argv)
               cout<<"ECON B2"<<endl;
               cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
               cout<<"ECON MET"<<endl;
-              cout<<"ECON (E,Px,Py,Pz,M) "<<ptmiss.E()<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<","<<ptmiss.Pz()<<","<<ptmiss.M()<<endl;
+              cout<<"ECON (E,Px,Py,Pz,M) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
               cout<<"ECON METCOV "<<endl;
               cout<<"ECON "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
               cout<<"ECON "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
