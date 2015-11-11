@@ -129,7 +129,7 @@ int main (int argc, char** argv)
   // get the selections to be applied
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  vector<string> activeSelections = gConfigParser->readStringListOption ("selections::list") ;
+  vector<string> activeSelections = gConfigParser->readStringListOption ("lookAtQCD::list") ;
   vector<pair <TString, TCut> > selections = readCutsFile (
       activeSelections,
       gConfigParser->readStringOption ("selections::selectionsFile")
@@ -152,18 +152,18 @@ int main (int argc, char** argv)
   // prepare selections and plot containers
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  bool useRelIso = gConfigParser->readBoolOption ("general::useRelIso");
+  bool useRelIso = gConfigParser->readBoolOption ("lookAtQCD::useRelIso");
   vector<pair<string, string> > isoThresholds ; // <dau1iso , dau2iso> threshold values
   if (!useRelIso) 
   {
-    std::vector<string> sel1 = gConfigParser->readStringListOption ("selections::l1AbsIso");
-    std::vector<string> sel2 = gConfigParser->readStringListOption ("selections::l2AbsIso");
+    std::vector<string> sel1 = gConfigParser->readStringListOption ("lookAtQCD::l1AbsIso");
+    std::vector<string> sel2 = gConfigParser->readStringListOption ("lookAtQCD::l2AbsIso");
     for (uint i = 0; i < sel1.size(); i++) isoThresholds.push_back (pair<string, string> (sel1.at(i), sel2.at(i)) );
   }
   else
   {
-    std::vector<string> sel1 = gConfigParser->readStringListOption ("selections::l1RelIso");
-    std::vector<string> sel2 = gConfigParser->readStringListOption ("selections::l2RelIso");
+    std::vector<string> sel1 = gConfigParser->readStringListOption ("lookAtQCD::l1RelIso");
+    std::vector<string> sel2 = gConfigParser->readStringListOption ("lookAtQCD::l2RelIso");
     for (uint i = 0; i < sel1.size(); i++) isoThresholds.push_back (pair<string, string> (sel1.at(i), sel2.at(i)) );
   }
 
@@ -230,7 +230,11 @@ int main (int argc, char** argv)
 
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << "Saving output plots: \n" ;
-  TString outFolderNameBase = gConfigParser->readStringOption ("general::outputFolderName") ;  
+  TString outFolderNameBase = gConfigParser->readStringOption ("general::outputFolderName") ;
+  outFolderNameBase += "/" ;
+  system (TString ("mkdir -p ") + outFolderNameBase) ;
+  outFolderNameBase += gConfigParser->readStringOption ("lookAtQCD::outputFolderName") ;
+  outFolderNameBase += "/" ;  
   system (TString ("mkdir -p ") + outFolderNameBase) ;
 
   for (unsigned int iAtt = 0; iAtt < QCDEvalAttempts.size(); iAtt++)
