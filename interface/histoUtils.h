@@ -116,10 +116,16 @@ vector<float> getExtremes (std::vector<TH1F*>& histos, bool islog = false) ;
 
 float min3 (float uno, float due, float tre) ;
 float max3 (float uno, float due, float tre) ;
+
+float min3Select (float uno, float due, float tre, bool useUno, bool useDue, bool useTre) ;
+float max3Select (float uno, float due, float tre, bool useUno, bool useDue, bool useTre) ;
  
 TGraphAsymmErrors* makeDataGraphPlot (TH1F* hData, bool horErrs = false, bool drawGrass = false) ; 
 TGraphAsymmErrors* makeDataOverMCRatioPlot (TH1F* hData, TH1F* hMC, bool horErrs = false) ; 
 void noGrass (TH1F* isto) ; // remove errors in zero bins, to be used for poissonian stats 
+
+// use it when plotting data normalized (shapes) to scale the uncertainties
+void scaleDataGraph (TGraphAsymmErrors* gData, float scale) ;
 
 
 #endif
