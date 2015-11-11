@@ -453,6 +453,8 @@ float min3Select (float uno, float due, float tre, bool useUno, bool useDue, boo
   if (useUno)                     return uno;
   if (useDue)                     return due;
   if (useTre)                     return tre;
+
+  return -99999999.; // only if useUno&&useDue&&useTre == false
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -467,6 +469,7 @@ float max3Select (float uno, float due, float tre, bool useUno, bool useDue, boo
   if (useDue)                     return due;
   if (useTre)                     return tre;
 
+  return 99999999.; // only if useUno&&useDue&&useTre == false
 }
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
