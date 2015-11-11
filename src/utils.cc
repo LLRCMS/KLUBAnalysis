@@ -291,6 +291,44 @@ void printTableBody  (std::ostream& out, vector<pair <TString, TCut> > & selecti
   }
 }
 
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+void printTableBodyEff  (std::ostream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples,
+                      unsigned int NSpacesColZero, unsigned int NSpacesColumns, unsigned int precision)
+{
+  for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
+  {
+    out << selections.at (iSel).first ;
+    if ( NSpacesColZero < string(selections.at (iSel).first.Data ()).size () ) NSpacesColZero = string(selections.at (iSel).first.Data ()).size () ; //guard if name too long
+    for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) out << " " ;
+    out << "|" ;
+    for (unsigned int iSample = 0 ; iSample < samples.size () ; ++iSample)
+      {
+        //float evtnum = count.counters.at (iSample).at (iSel+1) ;
+        float relEff = count.counters.at (iSample).at(iSel+1) / count.counters.at (iSample).at(0) ; // relative eff selected / (tot after skim)
+        float skimEff = count.initEfficiencies.at(iSample);
+        
+        float totEff = relEff * skimEff ;
+
+        // percent
+        totEff *= 100;
+        relEff *= 100;
+
+        int subtractspace = 0 ;
+        //if (evtnum > 0) subtractspace = int (log10 (evtnum)) + precision + 1 ;
+        //for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) out << " " ;
+        out << setprecision (precision) << fixed << totEff;
+        out << " (";
+        out << setprecision (precision) << fixed << relEff;
+        out << " %)";
+        //out << "INPUT: " << count.counters.at (iSample).at(iSel+1) << " / " << count.counters.at (iSample).at(0);
+        out << " |" ;
+      }
+    out << "\n" ;
+  }
+}
+
+
 /*
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 void printTable (std::ostream& out, vector<string> & sample, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, vector<vector<float>> & DataDrivenSamplesYields, unsigned int precision )

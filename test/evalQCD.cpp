@@ -167,6 +167,16 @@ int main (int argc, char** argv)
               false, false, maxEvtsMC) ;
   SS_bkg_plots.AddOverAndUnderFlow () ;
 
+  // get the same-sign distributions from bkg
+  plotContainer SS_sig_plots ("SS_sig", variablesList, variables2DList, selections_SS, sigSamplesList, 1) ;
+  counters SS_sigCount = fillHistos (sigSamples, SS_sig_plots, 
+              variablesList, variables2DList,
+              selections_SS,
+              lumi,
+              signalScales,
+              false, true) ;
+  SS_sig_plots.AddOverAndUnderFlow () ;
+
   cout << "--- MAIN preparing to loop on variables and selections to calc SS QCD" << endl ;
 
   // the index in the stack is based on variable ID (iv) and selection ID (isel):
@@ -287,6 +297,11 @@ int main (int argc, char** argv)
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/shapes_nonZero/")) ;
 
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_nonZero_ratio/")) ;
+
+  // SS iso region (the one used for the QCD)
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_SSiso/")) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_SSiso_log/")) ;
+
 
   TCanvas * c = new TCanvas ("c", "c", 600, 600) ;
   //TCanvas * c = new TCanvas () ;
@@ -434,6 +449,24 @@ int main (int argc, char** argv)
 
           coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
+
+          // ---------------
+          outFolderName = outFolderNameBase + TString ("/events_SSiso/") ;
+          std::vector<TObject*> drawings_nonScaled_8 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, false, false, true, true, true, true, false) ;
+
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+
+          // ---------------
+          outFolderName = outFolderNameBase + TString ("/events_SSiso_log/") ;
+          std::vector<TObject*> drawings_nonScaled_9 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, true, false, true, true, true, true, false) ;
+
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
           
           // c->SetLogy (1) ;
           // bkg->Draw () ;
@@ -525,6 +558,17 @@ int main (int argc, char** argv)
   printTableBody  (std::cout,  selections, OS_sigCount, sigSamples) ;
   printTableBody  (yieldsFile, selections, OS_sigCount, sigSamples) ;
 
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " EFFICIENCIES OF SIG EVENTS\n\n" ;
+  yieldsFile << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  yieldsFile << " EFFICIENCIES OF SIG EVENTS\n\n" ;
+  printTableTitle (std::cout,  sigSamples) ;
+  printTableTitle (yieldsFile, sigSamples) ;
+  printTableBodyEff  (std::cout,  selections, OS_sigCount, sigSamples, 4) ;
+  printTableBodyEff  (yieldsFile, selections, OS_sigCount, sigSamples, 4) ;
+
+
+
   vector<string> DataDriven_names (1, string("QCD"));
   vector <vector<float>> DataDriven_yields;
   vector<float> QCD_yields;
@@ -544,6 +588,17 @@ int main (int argc, char** argv)
   printTableTitle (yieldsFile, bkgSamples, DataDriven_names) ;
   printTableBody  (std::cout,  selections, OS_bkgCount, bkgSamples, DataDriven_yields) ;
   printTableBody  (yieldsFile, selections, OS_bkgCount, bkgSamples, DataDriven_yields) ;
+
+
+  cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  cout << " EFFICIENCIES OF BKG EVENTS\n\n" ;
+  yieldsFile << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
+  yieldsFile << " EFFICIENCIES OF BKG EVENTS\n\n" ;
+  printTableTitle (std::cout,  bkgSamples) ;
+  printTableTitle (yieldsFile, bkgSamples) ;
+  printTableBodyEff  (std::cout,  selections, OS_bkgCount, bkgSamples, 4) ;
+  printTableBodyEff  (yieldsFile, selections, OS_bkgCount, bkgSamples, 4) ;
+ 
 
   // mini debug to cjeck that each var has the same QCD yield
   /*  

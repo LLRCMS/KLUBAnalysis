@@ -278,17 +278,17 @@ fillHistos (vector<sample> & samples,
           tree->GetEntry (iEvent) ;
           //if (iEvent%10000 == 0) cout << iEvent << " / " << nEvts << endl;
 
+          float toAdd = PUReweight * weight * lumi * scaling ;
+
           if (isData) localCounter.counters.at (iSample).at (0) += 1. ;
-          else        localCounter.counters.at (iSample).at (0) 
-                          += PUReweight * weight * lumi * scaling ;
+          else        localCounter.counters.at (iSample).at (0) += toAdd ;
+          
           for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
             {
               if (! TTF[isel]->EvalInstance ()) continue ;
 
               if (isData) localCounter.counters.at (iSample).at (isel+1) += 1. ;
-              else        localCounter.counters.at (iSample).at (isel+1) 
-                              += PUReweight * weight * lumi * scaling ;
-
+              else        localCounter.counters.at (iSample).at (isel+1) += toAdd ;
               
               // fill 1D histos
               for (unsigned int iv = 0 ; iv < variablesList.size () ; ++iv)
@@ -313,9 +313,9 @@ fillHistos (vector<sample> & samples,
                   else        
                   {
                       if( (std::find( indexInt.begin(), indexInt.end(), (int)iv) != indexInt.end() ) )
-                      histo->Fill (addressInt[iv], PUReweight * weight * lumi * scaling) ; 
+                      histo->Fill (addressInt[iv], toAdd) ; 
                       else {
-                       histo->Fill (address[iv], PUReweight * weight * lumi * scaling);
+                       histo->Fill (address[iv], toAdd);
                       }
                   }
                 } //loop on 1Dvariables
@@ -337,7 +337,7 @@ fillHistos (vector<sample> & samples,
                   if ( ( std::find( indexInt.begin(), indexInt.end(), idx1) != indexInt.end() ) ) val1 = (float) addressInt[idx1];
                   if ( ( std::find( indexInt.begin(), indexInt.end(), idx1) != indexInt.end() ) ) val2 = (float) addressInt[idx2];
                   if (isData) histo->Fill (val1, val2) ;
-                  else histo->Fill (val1, val2, PUReweight * weight * lumi * scaling) ;
+                  else histo->Fill (val1, val2, toAdd) ;
                 } //loop on 2Dvariables
                 
 
@@ -425,7 +425,8 @@ stackHistos (vector<sample> & samples, HistoManager * manager,
 std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bkgPlots, plotContainer& sigPlots,
                                       string varName, string selName,
                                       TCanvas* canvas, std::vector <pair <string, string> >& addInLegend, std::vector <pair <string, string> >& axisTitles,
-                                      bool LogY, bool makeRatioPlot, bool drawLegend, bool doShapes, bool forceNonNegMin, bool notDrawGrass)
+                                      bool LogY, bool makeRatioPlot, bool drawLegend, bool doShapes, bool forceNonNegMin, bool drawGrassForData,
+                                      bool drawSignal, bool drawData, bool drawMC)
 {
   const int axislabelsize   = 18;  // title of axis
   const int axisnumsize     = 14;  // numbers on axis
@@ -437,8 +438,15 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
   const float extraTextSize   = 0.76 * cmsTextSize; // for the "preliminary"
 
 
-  if (doShapes) makeRatioPlot = false;
-  if (LogY) forceNonNegMin = false;
+  if (! (drawData && drawMC) ) makeRatioPlot = false; // as ratio is data/MC
+  if (doShapes)                makeRatioPlot = false;
+  if (LogY)                    forceNonNegMin = false; // the min finder already thinsk about it if LOG
+  if (! (drawSignal || drawData || drawMC) )
+  {
+    cout << " ** analysisUtils::makeStackPlot: qualcosa lo devi pur disegnare, enabling MC+data+sig" << endl;
+    drawSignal = drawData = drawMC = true;
+  }  
+  //if (doShapes) drawSignal = true; // FIXME: enable shapes with bkgr only
 
   std::vector<TObject*> allocatedStuff;
 
@@ -456,7 +464,7 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
   allocatedStuff.push_back (bkg_stack);
   allocatedStuff.push_back (DATA_stack);
 
-  // ----------------------------------------------
+  // ------------  compute boundaries for main plotpad ---------------
 
   TPad *pad1; // upper pad if ratio plot
   
@@ -485,18 +493,21 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
   pad1->cd();    // pad1 becomes the current pad
 
   float minx = extremes_bkg.at (0);
-  float maxx = extremes_bkg.at (2) ;
+  float maxx = extremes_bkg.at (2) ; // all plots have same range for a certain variable
   float miny; 
   float maxy; 
 
   TH1F * shape_bkg = 0; // use only id doShapes
   THStack * hstack_bkg_norm = 0;
   THStack * hstack_sig_norm = 0;
-  
+  THStack * hstack_data_norm = 0;
+  TH1F * hshape_data = 0;
+  float scaleData = 1.0;
+
   if (!doShapes)
   {
-    miny = min3 (extremes_bkg.at (1), extremes_sig.at (1), extremes_DATA.at (1)) ;
-    maxy = max3 (extremes_bkg.at (3), extremes_sig.at (3), extremes_DATA.at (3) + sqrt (extremes_DATA.at (3)));
+    miny = min3Select (extremes_bkg.at (1), extremes_sig.at (1), extremes_DATA.at (1), drawMC, drawSignal, drawData) ;
+    maxy = max3Select (extremes_bkg.at (3), extremes_sig.at (3), extremes_DATA.at (3) + sqrt (extremes_DATA.at (3)), drawMC, drawSignal, drawData);
  
     // compute the upper space in log scale
     if (LogY)
@@ -523,13 +534,24 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
     hstack_sig_norm = normaliseStack (sig_stack, true) ;
     vector<float> extremes_sig_norm = getExtremes (hstack_sig_norm, LogY, true) ;
 
+    hstack_data_norm = normaliseStack (DATA_stack) ;
+    hshape_data = (TH1F*) hstack_data_norm->GetStack () ->Last() ;
+    scaleData = ((TH1F*) DATA_stack->GetStack () ->Last())->Integral();
+    float dataShapeMax = (hshape_data->GetMaximum() + sqrt (hshape_data->GetMaximum()))/scaleData;
+    float dataShapeMin = (hshape_data->GetMinimum())/scaleData;
+    /*
+    hshape_data -> SetMarkerStyle (8);
+    hshape_data -> SetMarkerSize (1.);
+    hshape_data -> SetMarkerColor (kBlack);
+    */
+
     //shape_sig = (TH1F *) hstack_sig_norm->GetStack ()->Last () ;
     //allocatedStuff.push_back(hstack_sig_norm);
 
     if (LogY)
     {
-      float tmpMin = min ((float)shape_bkg->GetMinimum(0), extremes_sig_norm.at(1));
-      float tmpMax = max ((float)shape_bkg->GetMaximum(), extremes_sig_norm.at(3));
+      float tmpMin = min3Select ((float)shape_bkg->GetMinimum(0), extremes_sig_norm.at(1), dataShapeMax, drawMC, drawSignal, drawData);
+      float tmpMax = max3Select ((float)shape_bkg->GetMaximum(), extremes_sig_norm.at(3), dataShapeMin, drawMC, drawSignal, drawData);
       //leave a 0.3 of space for legend
       float rangeInLog = (log10 (tmpMax) - log10 (tmpMin));
       float lymax = log10(tmpMax) + 0.3*rangeInLog;   
@@ -538,13 +560,15 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
     }
     else
     {
-      miny = 0.9*min ((float)shape_bkg->GetMinimum(), extremes_sig_norm.at(1));
-      maxy = 1.3*max ((float)shape_bkg->GetMaximum(), extremes_sig_norm.at(3));
+      miny = 0.9*min3Select ((float)shape_bkg->GetMinimum(), extremes_sig_norm.at(1), dataShapeMax, drawMC, drawSignal, drawData);
+      maxy = 1.3*max3Select ((float)shape_bkg->GetMaximum(), extremes_sig_norm.at(3), dataShapeMin, drawMC, drawSignal, drawData);
     }
   }
 
   if (forceNonNegMin && miny < 0) miny = 0;
   
+  // ------------- prepare and draw frame -----
+
   TH1F * frame = pad1->DrawFrame ( minx, miny, maxx, maxy ); // do not add it to the list of objects to delete! Or it will cause a segmentation fault
   copyTitles (frame, bkg_stack) ;
 
@@ -589,6 +613,8 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
 
   frame->Draw () ;
 
+  // -------------------- draw the plot(s) ----------
+
   TH1F * h_data = 0 ;
   TH1F * h_bkg  = 0;
   if (!doShapes)
@@ -596,29 +622,48 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
     // bkg_stack->SetMinimum (ymin);
     // bkg_stack->SetMaximum (ymax);
     // bkg_stack->Draw ("hist") ;
-    bkg_stack->Draw ("hist same") ;
-    sig_stack->Draw ("nostack hist same") ;
+    if (drawMC)     bkg_stack->Draw ("hist same") ;
+    if (drawSignal) sig_stack->Draw ("nostack hist same") ; // should be safe for plot limits
     h_bkg = (TH1F *) bkg_stack->GetStack ()->Last () ; // FIXME: is it allocated with new and needs to be deleted? stupid ROOT!
-    h_data = (TH1F *) DATA_stack->GetStack ()->Last () ; // FIXME: is it allocated with new and needs to be deleted? stupid ROOT!
-    h_data->Sumw2(false);
-    h_data->SetBinErrorOption(TH1::kPoisson);
-    TGraphAsymmErrors* gData = makeDataGraphPlot (h_data, false, !notDrawGrass);
-    allocatedStuff.push_back(gData);
-    gData->Draw ("P Z same") ;
+    if (drawData)
+    {
+      h_data = (TH1F *) DATA_stack->GetStack ()->Last () ; // FIXME: is it allocated with new and needs to be deleted? stupid ROOT!
+      h_data->Sumw2(false);
+      h_data->SetBinErrorOption(TH1::kPoisson);
+      TGraphAsymmErrors* gData = makeDataGraphPlot (h_data, false, drawGrassForData);
+      allocatedStuff.push_back(gData);
+      gData->Draw ("P Z same") ;
+    }
   }
   else
   {
     // hstack_bkg_norm->SetMinimum (ymin);
     // hstack_bkg_norm->SetMaximum (ymax);
-    hstack_bkg_norm->Draw ("hist same") ;
-    hstack_sig_norm->Draw ("nostack hist same") ;
+    /*
+    TIter next (hstack_bkg_norm->GetHists ()) ;
+    TH1F * histo ;
+    while ((histo = (TH1F *) (next ()))) 
+       histo->SetFillStyle(0);
+    */
+    if (drawMC) hstack_bkg_norm -> Draw ("nostack hist same") ;
+    if (drawSignal) hstack_sig_norm->Draw ("nostack hist same") ;
+    if (drawData)
+    {
+      h_data = (TH1F *) DATA_stack->GetStack ()->Last () ; // FIXME: is it allocated with new and needs to be deleted? stupid ROOT!
+      h_data->Sumw2(false);
+      h_data->SetBinErrorOption(TH1::kPoisson);
+      TGraphAsymmErrors* gData = makeDataGraphPlot (h_data, false, drawGrassForData);
+      allocatedStuff.push_back(gData);
+      scaleDataGraph (gData, 1./scaleData);
+      gData->Draw ("P Z same") ;
+    }
   }
 
   // axis will be covered by the plots so redraw axis!
   pad1->RedrawAxis();
   pad1->RedrawAxis("g"); // for the grid, if enabled
 
-  // ------------------- legend + additional stuff
+  // ------------------- legend  ----------------
   if (drawLegend)
   {
     TLegend* leg = new TLegend (0.3, 0.77, 0.95, 0.94);
@@ -633,7 +678,7 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
 
     // sample names -- bkg
     for (map<string, TH1F *>::iterator iSample = bkgPlots.m_histos[varName][selName].begin () ;
-        iSample != bkgPlots.m_histos[varName][selName].end () ; ++iSample)
+        iSample != bkgPlots.m_histos[varName][selName].end () && drawMC; ++iSample)
     {
       string samplename = iSample->first ;
       string thisname = "EMPTY";
@@ -651,7 +696,7 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
 
     // sample names -- signal
     for (map<string, TH1F *>::iterator iSample = sigPlots.m_histos[varName][selName].begin () ;
-        iSample != sigPlots.m_histos[varName][selName].end () ; ++iSample)
+        iSample != sigPlots.m_histos[varName][selName].end () && drawSignal; ++iSample)
     {
       string samplename = iSample->first ;
       string thisname = "EMPTY";
@@ -667,15 +712,12 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
 
     }
 
-    if (!doShapes)
+    if (drawData)
     {
       //TH1F* dataHisto = dataPlots.getHisto(varName, selName, addInLegend.at(i).first );      
       map<string, TH1F *>::iterator iData = dataPlots.m_histos[varName][selName].begin() ;  // all data have the same format!
       leg->AddEntry (iData->second, "data", "lep") ;
-    }    
-
-
-    
+    }        
     leg->Draw();
   }
 
@@ -697,6 +739,8 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
   x_axis->SetLabelSize(axisnumsize);
   x_axis->Draw();
   */
+
+  // ------------ ratio plot --------------------
 
   if (makeRatioPlot)
   {
@@ -777,6 +821,8 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
     line->Draw();
     */
   }
+
+  // ---------------- cms text --------------
 
   // now do header with luminosity and CMS preliminary  
   pad1->cd();

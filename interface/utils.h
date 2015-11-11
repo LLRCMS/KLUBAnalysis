@@ -91,6 +91,9 @@ void printTableTitle (std::ostream& out, vector<sample> & sample, vector<string>
 void printTableBody  (std::ostream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10, unsigned int precision = 1) ;
 void printTableBody  (std::ostream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, vector<vector<float>> & DataDrivenSamplesYields, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10, unsigned int precision = 1) ;
 
+void printTableBodyEff  (std::ostream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10, unsigned int precision = 1) ;
+
+
 // title + body, flush to file or std cout
 //void printTable (vector<sample> & sample, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, vector<vector<float>> & DataDrivenSamplesYields, unsigned int NSpacesColZero = 16, unsigned int NSpacesColumns = 10, unsigned int precision = 1) ;
 

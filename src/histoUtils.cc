@@ -444,6 +444,33 @@ float max3 (float uno, float due, float tre)
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
+float min3Select (float uno, float due, float tre, bool useUno, bool useDue, bool useTre)
+{
+  if (useUno && useDue && useTre) return min3 (uno, due, tre);
+  if (useUno && useDue)           return min (uno, due); 
+  if (useUno && useTre)           return min (uno, tre); 
+  if (useDue && useTre)           return min (due, tre); 
+  if (useUno)                     return uno;
+  if (useDue)                     return due;
+  if (useTre)                     return tre;
+}
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+float max3Select (float uno, float due, float tre, bool useUno, bool useDue, bool useTre)
+{
+  if (useUno && useDue && useTre) return max3 (uno, due, tre);
+  if (useUno && useDue)           return max (uno, due); 
+  if (useUno && useTre)           return max (uno, tre); 
+  if (useDue && useTre)           return max (due, tre); 
+  if (useUno)                     return uno;
+  if (useDue)                     return due;
+  if (useTre)                     return tre;
+
+}
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
 TGraphAsymmErrors* makeDataGraphPlot (TH1F* hData, bool horErrs, bool drawGrass)
 {
   const int nPoints = hData->GetNbinsX();
@@ -586,3 +613,19 @@ void noGrass (TH1F* isto)
         if (isto->GetBinContent(i) == 0)
             isto->SetBinContent(i, maxxx);
 }
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+// error in integral should be propagated too but it's too much work for a shape!
+void scaleDataGraph (TGraphAsymmErrors* gData, float scale)
+{
+  for (int ip = 0; ip < gData->GetN(); ip++)
+  {
+    double x, y;
+    gData->GetPoint (ip, x, y);
+    gData->SetPoint (ip, x, scale*y);
+    gData->SetPointError (gData->GetErrorXlow(ip), gData->GetErrorXhigh (ip), scale*gData->GetErrorYlow(ip), scale*gData->GetErrorYhigh(ip) );
+  }
+  return;
+}
+
