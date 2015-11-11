@@ -8,7 +8,7 @@ from array import array
 
 class systReader:
 
-    def __init__(self, inputTextFile,signalList,backgroundList):
+    def __init__(self, inputTextFile,signalList,backgroundList,outputFile):
 
         if not os.path.exists(inputTextFile):
             raise RuntimeError, "File {0} does not exist!!!".format(inputTextFile)
@@ -16,12 +16,13 @@ class systReader:
         # input file
         self.theInput = [inputTextFile]
         self.channels = signalList+backgroundList
+        self.theOutputFile = outputFile
         #self.OutputLines = []
 
     def addSystFile(self, theOtherFile):
         self.theInput.append(theOtherFile)
 
-    def writeSystematics(self, theOutputFile):
+    def writeSystematics(self):
         print "reading systematics"
         section = ""
         outputLine = ""
@@ -72,5 +73,18 @@ class systReader:
             OutputLines.append(outputLine)
 
             for line in OutputLines:
-                theOutputFile.write(line+"\n")
+                self.theOutputFile.write(line+"\n")
+
+    def writeOneLine(self,channel,string,value=1):
+        outputLine = string
+        for chan in self.channels :
+            if chan in channel:
+                outputLine += str(value)+" "
+            else:
+                outputLine += "- "
+        self.theOutputFile.write(outputLine+"\n")
+
+
+
+
 
