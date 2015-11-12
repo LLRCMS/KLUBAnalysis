@@ -57,6 +57,10 @@ struct plotContainer
                          int nbinsx, double xlow, double xup,
                          int color, int histoType,
                          TString titleX, TString titleY) ;
+  TH1F * createNewHisto (string name, string title, 
+                         int nbinsx, float binning [],
+                         int color, int histoType,
+                         TString titleX, TString titleY) ;
   TH2F * createNew2DHisto (string name, string title, 
                          int nbinsx, double xlow, double xup,
                          int nbinsy, double ylow, double yup,

@@ -60,22 +60,48 @@ plotContainer::createHistos (vector<string> varList, vector<pair<string,string>>
               // remove not alphanumeric symbols from the var name
               string varID = varList.at (ivar) ;
               varID.erase (std::remove_if (varID.begin (), varID.end (), isNOTalnum ()), varID.end ()) ;
-              // get histo nbins and range
-              vector <float> limits = 
-                gConfigParser->readFloatListOption (TString ("histos::") 
-                    + varID.c_str ()) ;
-              string histoName = m_name + "_" 
-                                 + varList.at (ivar) + "_" 
-                                 + cutList.at (icut).first.Data () + "_" 
-                                 + sampleList.at (isample) ;     
-              cutDummy[sampleList.at (isample)] = createNewHisto (
-                  histoName, histoName,
-                  int (limits.at (0)), limits.at (1), limits.at (2),
-                  gConfigParser->readIntOption (TString ("colors::") 
-                      + TString (sampleList.at (isample).c_str ())), 
-                  m_histosType,
-                  varList.at (ivar).c_str (), "events"
-                ) ;
+              
+              bool userBinning = gConfigParser->isDefined (TString ("binning::") + varID.c_str ()) ;
+              if (userBinning)
+              {
+                vector<float> binning = gConfigParser->readFloatListOption (TString ("binning::") + varID.c_str ()) ;
+                float* bins = new float [binning.size()];
+                for (int i = 0; i < binning.size(); i++) bins[i] = binning.at(i);
+                
+                string histoName = m_name + "_" 
+                                   + varList.at (ivar) + "_" 
+                                   + cutList.at (icut).first.Data () + "_" 
+                                   + sampleList.at (isample) ;     
+                
+                cutDummy[sampleList.at (isample)] = createNewHisto (
+                    histoName, histoName,
+                    binning.size()-1, bins,
+                    gConfigParser->readIntOption (TString ("colors::") 
+                        + TString (sampleList.at (isample).c_str ())), 
+                    m_histosType,
+                    varList.at (ivar).c_str (), "events"
+                  ) ;
+                delete[] bins;
+              }
+              else
+              {
+                // get histo nbins and range
+                vector <float> limits = 
+                  gConfigParser->readFloatListOption (TString ("histos::") 
+                      + varID.c_str ()) ;
+                string histoName = m_name + "_" 
+                                   + varList.at (ivar) + "_" 
+                                   + cutList.at (icut).first.Data () + "_" 
+                                   + sampleList.at (isample) ;     
+                cutDummy[sampleList.at (isample)] = createNewHisto (
+                    histoName, histoName,
+                    int (limits.at (0)), limits.at (1), limits.at (2),
+                    gConfigParser->readIntOption (TString ("colors::") 
+                        + TString (sampleList.at (isample).c_str ())), 
+                    m_histosType,
+                    varList.at (ivar).c_str (), "events"
+                  ) ;
+              }
             }
           varDummy[cutList.at (icut).first.Data ()] = cutDummy ;          
         }
@@ -275,6 +301,24 @@ plotContainer::createNewHisto (string name, string title,
                                TString titleX, TString titleY)
 {
   TH1F* h = new TH1F (name.c_str (), title.c_str (), nbinsx, xlow, xup);
+  if (histoType == 2) h->SetBinErrorOption(TH1::kPoisson); // data
+  else h->Sumw2 () ; // MC sig and bkgr (okay, data driven is special but will be overridden by systematics)
+  setHistosProperties (h, histoType, color) ;
+  h->GetXaxis ()->SetTitle (titleX) ;
+  h->GetYaxis ()->SetTitle (titleY) ;
+  return h ;
+}
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+TH1F * 
+plotContainer::createNewHisto (string name, string title, 
+                               int nbinsx, float binning[],
+                               int color, int histoType,
+                               TString titleX, TString titleY)
+{
+  TH1F* h = new TH1F (name.c_str (), title.c_str (), nbinsx, binning);
   if (histoType == 2) h->SetBinErrorOption(TH1::kPoisson); // data
   else h->Sumw2 () ; // MC sig and bkgr (okay, data driven is special but will be overridden by systematics)
   setHistosProperties (h, histoType, color) ;
