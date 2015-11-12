@@ -330,7 +330,7 @@ int main (int argc, char** argv)
                   variablesList.at (iv).c_str (),
                   selections.at (isel).first.Data ()
                 ) ;
-          TFile* fOut = new TFile (basename, "RECREATE");
+          TFile* fOut = new TFile (outFolderName + basename, "RECREATE");
           c->Write();
           for (uint h = 0; h < QCDhistos.size(); h++) QCDhistos.at(h)->Write();
           fOut->Close();

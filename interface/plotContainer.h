@@ -63,6 +63,8 @@ struct plotContainer
                          int color, int histoType,
                          TString titleX, TString titleY) ;
   void scale (float scaleFactor) ;
+  void scale (vector<string> & variablesList, vector<pair <TString, TCut> > & selections, vector<vector<float>> scaleFactorVector) ;
+
   void setFillColor (int color) ;
   void save (TFile * fOut) ;
   void setHistosProperties (TH1 * h, int histoType, int color) ;

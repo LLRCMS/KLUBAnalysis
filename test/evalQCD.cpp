@@ -107,20 +107,52 @@ int main (int argc, char** argv)
   for (unsigned int i = 0 ; i < selections.size () ; ++i)
     cout << selections.at (i).first << " : " << selections.at (i).second << endl ;
 
+  // input selection must not have explicit iso on dau1, dau2 because QCD is relaxed and this selection is added here
+  for (unsigned int i = 0 ; i < selections.size () ; ++i)
+  {
+    TString sel (selections.at (i).second);
+    if ( sel.Contains("dau1_iso") || sel.Contains("dau2_iso") )
+    {  
+      cout << endl;
+      cout << " ---------------------------------------------------------------------------------- " << endl;
+      cout << " ** WARNING: selection " << selections.at(i).first << " explicitly contains iso cut" << endl; 
+      cout << " ---------------------------------------------------------------------------------- " << endl;
+      cout << endl;
+    }
+  }
+
+  string sel_dau1_iso = gConfigParser->readStringOption ("selections::dau1iso");
+  string sel_dau2_iso = gConfigParser->readStringOption ("selections::dau2iso");
+  string sel_dau1_RLXiso = gConfigParser->readStringOption ("selections::dau1RLXiso");
+  string sel_dau2_RLXiso = gConfigParser->readStringOption ("selections::dau2RLXiso");
+
+  // ----------------------------------------
   // OS selections
   vector<pair <TString, TCut> > selections_OS = selections ;
+  TCut dau1Cut = Form("dau1_iso < %s" , sel_dau1_iso.c_str());
+  TCut dau2Cut = Form("dau2_iso < %s" , sel_dau2_iso.c_str());
   for (unsigned int i = 0 ; i < selections_OS.size () ; ++i)
     {
       selections_OS.at (i).first = TString ("OS_") + selections_OS.at (i).first ;
-      selections_OS.at (i).second = selections_OS.at (i).second && TCut ("isOS != 0") ;
+      selections_OS.at (i).second = selections_OS.at (i).second && TCut ("isOS != 0") && dau1Cut && dau2Cut;
     }
      
-  // SS selections
+  // SS selections with tight iso (for QCD yield determination)
+  vector<pair <TString, TCut> > selections_SS_tightIso = selections ;
+  for (unsigned int i = 0 ; i < selections_SS_tightIso.size () ; ++i)
+    {
+      selections_SS_tightIso.at (i).first = TString ("SS_tightIso_") + selections_SS_tightIso.at (i).first ;
+      selections_SS_tightIso.at (i).second = selections_SS_tightIso.at (i).second && TCut ("isOS == 0") && dau1Cut && dau2Cut;
+    }
+     
+  // SS selections with rlx iso for QCD shape
   vector<pair <TString, TCut> > selections_SS = selections ;
+  TCut dau1CutRLX = Form("dau1_iso < %s" , sel_dau1_RLXiso.c_str());
+  TCut dau2CutRLX = Form("dau2_iso < %s" , sel_dau2_RLXiso.c_str());
   for (unsigned int i = 0 ; i < selections_SS.size () ; ++i)
     {
       selections_SS.at (i).first = TString ("SS_") + selections_SS.at (i).first ;
-      selections_SS.at (i).second = selections_SS.at (i).second && TCut ("isOS == 0") ;
+      selections_SS.at (i).second = selections_SS.at (i).second && TCut ("isOS == 0") && dau1CutRLX && dau2CutRLX;
     }
 
   // get the variables to be plotted
@@ -185,6 +217,9 @@ int main (int argc, char** argv)
   QCDsample.push_back ("QCD") ;
   plotContainer SS_QCD ("SS_QCD", variablesList, variables2DList, selections_SS, QCDsample, 0) ;
 //  vector <TH1F *> SS_QCD ;
+  vector<vector<float>> QCDyieldSSregionRLXiso (variablesList.size(), vector<float>(selections_SS.size()) ); // var, cut
+
+
   for (unsigned int ivar = 0 ; ivar < variablesList.size () ; ++ivar)
     {
       for (unsigned int icut = 0 ; icut < selections_SS.size () ; ++icut)
@@ -201,11 +236,81 @@ int main (int argc, char** argv)
           TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
           dummy->Add (h_bkg, -1) ;
           SS_QCD.m_histos[variablesList.at (ivar)][selections_SS.at (icut).first.Data ()]["QCD"] = dummy ;
+          QCDyieldSSregionRLXiso.at(ivar).at(icut) = dummy->Integral();
         }
     }
 
   /* FIXME should we subtract signals as well? */
   /* NB if it has to be subtracted, it cannot be scaled! */
+
+  // now get QCD yields with the non-relaxed selections
+
+  cout << "--- MAIN reading DATA and filling SS histos with non-relaxed iso" << endl ;
+
+  // get the same-sign distributions from data
+  plotContainer SS_tightIso_DATA_plots ("SS_tightIso_DATA", variablesList, variables2DList, selections_SS_tightIso, DATASamplesList, 2) ;
+  counters SS_tightIso_DATACount = fillHistos (DATASamples, SS_tightIso_DATA_plots, 
+              variablesList, variables2DList,
+              selections_SS_tightIso,
+              lumi,
+              vector<float> (0),
+              true, false) ;
+  SS_tightIso_DATA_plots.AddOverAndUnderFlow () ;
+
+  cout << "--- MAIN reading bkg and filling SS histos with non-relaxed iso" << endl ;
+
+  // get the same-sign distributions from bkg
+  plotContainer SS_tightIso_bkg_plots ("SS_tightIso_bkg", variablesList, variables2DList, selections_SS_tightIso, bkgSamplesList, 0) ;
+  counters SS_tightIso_bkgCount = fillHistos (bkgSamples, SS_tightIso_bkg_plots, 
+              variablesList, variables2DList,
+              selections_SS_tightIso,
+              lumi,
+              vector<float> (0),
+              false, false, maxEvtsMC) ;
+  SS_tightIso_bkg_plots.AddOverAndUnderFlow () ;
+
+  
+  // get the same-sign distributions from bkg
+  plotContainer SS_tightIso_sig_plots ("SS_tightIso_sig", variablesList, variables2DList, selections_SS_tightIso, sigSamplesList, 1) ;
+  counters SS_tightIso_sigCount = fillHistos (sigSamples, SS_tightIso_sig_plots, 
+              variablesList, variables2DList,
+              selections_SS_tightIso,
+              lumi,
+              signalScales,
+              false, true) ;
+  SS_tightIso_sig_plots.AddOverAndUnderFlow () ;
+  
+  cout << "--- MAIN preparing to loop on variables and selections to calc SS QCD yield with non-relaxed iso" << endl ;
+
+  // the index in the stack is based on variable ID (iv) and selection ID (isel):
+  // iHisto = iv + nVars * isel
+  
+  //vector<string> QCDsample ;
+  //QCDsample.push_back ("QCD") ;
+  plotContainer SS_QCD_tightIso ("SS_tightIso_QCD", variablesList, variables2DList, selections_SS_tightIso, QCDsample, 0) ;
+//  vector <TH1F *> SS_QCD ;
+  vector<vector<float>> QCDyieldSSregionTightIso (variablesList.size(), vector<float>(selections_SS_tightIso.size()) ); // var, cut
+  
+  for (unsigned int ivar = 0 ; ivar < variablesList.size () ; ++ivar)
+    {
+      for (unsigned int icut = 0 ; icut < selections_SS_tightIso.size () ; ++icut)
+        {
+          THStack * D_stack = SS_tightIso_DATA_plots.makeStack (variablesList.at (ivar),
+                                  selections_SS_tightIso.at (icut).first.Data ()) ;
+          TH1F * tempo = (TH1F *) D_stack->GetStack ()->Last () ;
+          TString name = tempo->GetName () ;
+          name = TString ("DDQCD_tightIso_") + name ;
+          TH1F * dummy = (TH1F *) tempo->Clone (name) ;
+
+          THStack * b_stack = SS_tightIso_bkg_plots.makeStack (variablesList.at (ivar),
+                                  selections_SS_tightIso.at (icut).first.Data ()) ;
+          TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
+          dummy->Add (h_bkg, -1) ;
+          SS_QCD_tightIso.m_histos[variablesList.at (ivar)][selections_SS.at (icut).first.Data ()]["QCD"] = dummy ;
+          QCDyieldSSregionTightIso.at(ivar).at(icut) = dummy->Integral(); // if AddUnderAndOverFlow is called they will be all identical
+        }
+    }
+
 
   // get the SS-to-OS scale factor and scale the QCD distributions
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -213,6 +318,19 @@ int main (int argc, char** argv)
   float SStoOS_scaleFactor = 1.06 ; // to be calculated here at a certain moment!!
   SS_QCD.scale (SStoOS_scaleFactor) ;
 
+  // now scale with rlx to tight iso ratio (normalization taken from tight iso region)
+  vector<vector<float>> rlxToTightIsoScale (variablesList.size(), vector<float> (selections_SS.size()) );
+  for (unsigned int ivar = 0; ivar < variablesList.size(); ivar++)
+  {
+    for (unsigned int icut = 0; icut < selections_SS.size(); icut++)
+    {
+      rlxToTightIsoScale.at(ivar).at(icut) = QCDyieldSSregionTightIso.at(ivar).at(icut) / QCDyieldSSregionRLXiso.at(ivar).at(icut) ;
+    }
+  }
+
+  cout << "QCD info: scale from rlx iso to tight iso is: " << rlxToTightIsoScale.at(0).at(0) << endl;
+
+  SS_QCD.scale (variablesList, selections_SS, rlxToTightIsoScale) ;
   int QCDcolor = gConfigParser->readIntOption ("colors::QCD") ;
   SS_QCD.setHistosProperties (0, QCDcolor) ; 
 
@@ -299,8 +417,8 @@ int main (int argc, char** argv)
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_nonZero_ratio/")) ;
 
   // SS iso region (the one used for the QCD)
-  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_SSiso/")) ;
-  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_SSiso_log/")) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_SSrlxiso/")) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_SStightiso/")) ;
 
 
   TCanvas * c = new TCanvas ("c", "c", 600, 600) ;
@@ -371,6 +489,14 @@ int main (int argc, char** argv)
           // TH1F * h_data = (TH1F *) DATA_stack->GetStack ()->Last () ;
           // // FIXME probably the data uncertainties need to be fixed
           // h_data->Draw ("same") ;
+
+          // prototype of makeStackPlot:
+          // std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bkgPlots, plotContainer& sigPlots,
+          //                             string varName, string selName,
+          //                             TCanvas* canvas, std::vector <pair <string, string> > & addInLegend, std::vector <pair <string, string> >& axisTitles,
+          //                             bool LogY = false, bool makeRatioPlot = true, bool drawLegend = true, bool doShapes = false, bool forceNonNegMin = false, bool drawGrassForData = false,
+          //                             bool drawSignal = true, bool drawData = true, bool drawMC = true) ;
+
          
           // normal
 
@@ -451,19 +577,19 @@ int main (int argc, char** argv)
           c->SaveAs (coutputName.Data ()) ;
 
           // ---------------
-          outFolderName = outFolderNameBase + TString ("/events_SSiso/") ;
-          std::vector<TObject*> drawings_nonScaled_8 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
-                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
-                                      c, addToLegend, variablesLabels, false, false, true, true, true, true, false) ;
+          outFolderName = outFolderNameBase + TString ("/events_SSrlxiso/") ;
+          std::vector<TObject*> drawings_nonScaled_8 = makeStackPlot (SS_DATA_plots, SS_bkg_plots, SS_sig_plots,
+                                      variablesList.at (iv), selections_SS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, false, false, true, false, false) ;
 
           coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
 
           // ---------------
-          outFolderName = outFolderNameBase + TString ("/events_SSiso_log/") ;
-          std::vector<TObject*> drawings_nonScaled_9 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
-                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
-                                      c, addToLegend, variablesLabels, true, false, true, true, true, true, false) ;
+          outFolderName = outFolderNameBase + TString ("/events_SStightiso/") ;
+          std::vector<TObject*> drawings_nonScaled_9 = makeStackPlot (SS_tightIso_DATA_plots, SS_tightIso_bkg_plots, SS_tightIso_sig_plots,
+                                      variablesList.at (iv), selections_SS_tightIso.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, false, false, true, false, false) ;
 
           coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
@@ -575,7 +701,7 @@ int main (int argc, char** argv)
   // QCD -- prepare yields
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
   {
-        int nQCD = SS_QCD.getHisto (variablesList.at(0), string(selections_SS.at(iSel).first.Data()), QCDsample.at(0)) -> Integral();
+        float nQCD = SS_QCD.getHisto (variablesList.at(0), string(selections_SS.at(iSel).first.Data()), QCDsample.at(0)) -> Integral();
         QCD_yields.push_back (nQCD);
   }
   DataDriven_yields.push_back (QCD_yields);

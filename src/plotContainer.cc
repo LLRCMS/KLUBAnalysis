@@ -367,6 +367,41 @@ plotContainer::scale (float scaleFactor)
   return ;
 }
 
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+void 
+plotContainer::scale (vector<string> & variablesList, vector<pair <TString, TCut> > & selections, vector<vector<float>> scaleFactorVector)
+{
+  for (unsigned int ivar = 0; ivar < variablesList.size(); ivar++)
+  {
+    for (unsigned int icut = 0; icut < selections.size(); icut++)
+    {
+      // loop over all samples
+      for (samples_coll::iterator iSample =  (m_histos[variablesList.at (ivar)][selections.at(icut).first.Data ()]).begin () ; 
+            iSample != (m_histos[variablesList.at (ivar)][selections.at(icut).first.Data ()]).end () ; 
+            ++iSample)
+        iSample->second->Scale (scaleFactorVector.at(ivar).at(icut)) ;
+    }
+  }
+
+  /*
+  for (vars_coll::iterator iVar = m_histos.begin () ; iVar != m_histos.end () ; ++iVar)
+  {
+    for (cuts_coll::iterator iCut = iVar->second.begin () ; iCut != iVar->second.end () ; ++iCut)
+    {
+      for (samples_coll::iterator iSample = iCut->second.begin () ; iSample != iCut->second.end () ; ++iSample)
+      {
+        iSample->second->Scale (scaleFactorVector.at(idxvar).at(idxcut)) ;
+      }
+      idxcut++;
+    }
+    idxvar++;
+  }
+  */
+  return ;
+}
+
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
