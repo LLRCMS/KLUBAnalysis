@@ -42,7 +42,7 @@ class cardMaker:
     def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir, theInputs):
         
         dname=""
-        theDataSample = "DsingleMu" #"DsingleMuPromptReco"
+        theDataSample = "DsingleMuPromptReco" #"DsingleMuPromptReco"
         if(theChannel) == 3:
             theDataSample = "DsingleTau" #"DsingleTauPromptReco"
 
@@ -201,14 +201,40 @@ class cardMaker:
         SIGpdf =SIG_TemplatePdf
         rdhB = []
         rhpB = []
+        qcdbinsysts = []
+        #listTemplates = []
         for ibkg in range(len(templatesBKG)):
             TemplateName = "BKG_{3}_TempDataHist_{0:.0f}_{1:.0f}_{2:.2f}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
             rdhB.append(ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templatesBKG[ibkg]))
-            #PdfName = "BKG_{3}_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
-            rhpB.append(ROOT.RooHistPdf("bkg_{0}".format(theInputs.background[ibkg]),"bkg_{0}".format(theInputs.background[ibkg]),ras_variableSet,rdhB[ibkg]))
+            PdfName = "bkg_{0}".format(theInputs.background[ibkg])
+            rhpB.append(ROOT.RooHistPdf(PdfName,PdfName,ras_variableSet,rdhB[ibkg]))
             getattr(w,'import')(rhpB[ibkg],ROOT.RooFit.RecycleConflictNodes())
 
-        
+            ## APPLY BIN BY BIN UNCERTAINTY to QCD, EACH BIN SCALED BY ITS OWN UNCERTAINTY
+            if theInputs.background[ibkg] == "QCD":
+                for iy in range(template.GetNbinsY()):
+                    for ix in range(template.GetNbinsX()):
+                        if templatesBKG[ibkg].GetBinContent(ix,iy)<=0 : continue
+                        #uncvar = ROOT.RooRealVar("qcd_binUnc_"+str(iy)+str(ix))
+                        qcdbinsysts.append("qcd_binUnc_"+str(iy)+str(ix)+" shape ")
+                        templateUp = templatesBKG[ibkg].Clone()
+                        templateDown = templatesBKG[ibkg].Clone()
+                        error = templateUp.GetBinContent(ix)+templateUp.GetBinErrorUp(ix)
+                        errorDown = templateDown.GetBinContent(ix) - templateDown.GetBinErrorLow(ix)
+                        if self.is2D == 2:  
+                            error = templateUp.GetBinContent(ix,iy)+templateUp.GetBinErrorUp(ix,iy)
+                            errorDown = templateDown.GetBinContent(ix,iy) -templateUp.GetBinErrorLow(ix,iy)
+                        templateUp.SetBinContent(ix,iy,error)
+                        templateDown.SetBinContent(ix,iy,errorDown)
+                        histName = "qcd_binUnc_"+str(iy)+str(ix)
+                        #templateUp.SetName(PdfName+"_"+histName+"Up")
+                        #templateUp.SetTitle(PdfName+"_"+histName+"Up")
+                        qcdbinUp = ROOT.RooDataHist(histName+"Up",histName+"Up",ral_variableList,templateUp)
+                        qcdbinDown = ROOT.RooDataHist(histName+"Down",histName+"Down",ral_variableList,templateDown)
+                        qcdbinpdfUp  = ROOT.RooHistPdf(PdfName+"_"+histName+"Up",PdfName+"_"+histName+"Up",ras_variableSet,qcdbinUp)
+                        qcdbinpdfDown  = ROOT.RooHistPdf(PdfName+"_"+histName+"Down",PdfName+"_"+histName+"Down",ras_variableSet,qcdbinDown)
+                        getattr(w,'import')(qcdbinpdfUp,ROOT.RooFit.RecycleConflictNodes())
+                        getattr(w,'import')(qcdbinpdfDown,ROOT.RooFit.RecycleConflictNodes())
         ## --------------------------- DATASET --------------------------- ##
         #RooDataSet ds("ds","ds",ras_variableSet,Import(*tree)) ;
         TemplateName = "OS_DATA_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,theDataSample)
@@ -216,6 +242,7 @@ class cardMaker:
         print TemplateName
         #if templateObs.Integral() <=0: #protection for low stat
         #    data_obs = rhpB[0].generate(ras_variableSet,1000)
+        tempfile = TFile.Open("temp.root","RECREATE")
         if self.is2D==1: 
             if "TH2" in templateObs.ClassName() : 
                 templateObs = templateObs.ProjectionX()
@@ -275,7 +302,7 @@ class cardMaker:
         
         file.write("------------\n")
         #file.write("shapes * * {0} w:$PROCESS w:$PROCESS_$SYSTEMATIC\n".format(name_ShapeWS))
-        file.write("shapes * * {0} w:$PROCESS \n".format(string_ShapeWS))
+        file.write("shapes * * {0} w:$PROCESS w:$PROCESS_$SYSTEMATIC\n".format(string_ShapeWS))
         file.write("------------\n")
         
 
@@ -306,13 +333,15 @@ class cardMaker:
         file.write("\n")
 
         file.write("------------\n")
-        syst = systReader("../config/systematics.cfg",['Lambda20'],theInputs.background)
+        syst = systReader("../config/systematics.cfg",['Lambda20'],theInputs.background,file)
         #syst = systReader("../config/systematics_test.cfg",['Lambda{0}'.format(theOutLambda)],theInputs.background) 
         #if(theChannel == self.ID_ch_tautau ): 
         #    systReader.addSystFile("../config_systematics_tautau.cfg")
         #elif(theChannel == self.ID_ch_mutau ): 
         #    systReader.addSystFile("../config_systematics_mutau.cfg")
-        syst.writeSystematics(file)
+        syst.writeSystematics()
+        for iqcd in range(len(qcdbinsysts)) :
+            syst.writeOneLine("QCD",qcdbinsysts[iqcd])
 
 
 #define function for parsing options
