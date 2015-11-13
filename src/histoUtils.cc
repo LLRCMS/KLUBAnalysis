@@ -627,7 +627,7 @@ void scaleDataGraph (TGraphAsymmErrors* gData, float scale)
     double x, y;
     gData->GetPoint (ip, x, y);
     gData->SetPoint (ip, x, scale*y);
-    gData->SetPointError (gData->GetErrorXlow(ip), gData->GetErrorXhigh (ip), scale*gData->GetErrorYlow(ip), scale*gData->GetErrorYhigh(ip) );
+    gData->SetPointError (ip, gData->GetErrorXlow(ip), gData->GetErrorXhigh (ip), scale*gData->GetErrorYlow(ip), scale*gData->GetErrorYhigh(ip) );
   }
   return;
 }
