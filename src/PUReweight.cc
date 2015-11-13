@@ -40,7 +40,7 @@ float PUReweight::weight(int MC, int target, int input) {
 
   } 
 
-  else return 0;
+  else return 0 ;
 
 }
 
@@ -48,7 +48,63 @@ PUReweight::PUReweight(Type type) :
 theType(type) {
 
   // RUN2ANALYSIS MC 25ns target Data25ns
-  // from https://twiki.cern.ch/twiki/bin/view/CMS/ExoDiBosonResonancesRun2#PU_weights
+  // from https://twiki.cern.ch/twiki/bin/view/CMS/PileupJSONFileforData#2015_Pileup_JSON_Files 13-10-2015 done with mb=69mb Lumi=1260
+  double npuWinter15_25ns[52] ; 
+  npuWinter15_25ns[0] = 0.09672924 ;
+  npuWinter15_25ns[1] = 0.6018639 ;
+  npuWinter15_25ns[2] = 0.1982618 ;
+  npuWinter15_25ns[3] = 0.04426294 ;
+  npuWinter15_25ns[4] = 0.01555679 ;
+  npuWinter15_25ns[5] = 0.002250036 ;
+  npuWinter15_25ns[6] = 0.001632626 ;
+  npuWinter15_25ns[7] = 0.003994533 ;
+  npuWinter15_25ns[8] = 0.00634282 ;
+  npuWinter15_25ns[9] = 0.006385341 ;
+  npuWinter15_25ns[10] = 0.006274029 ;
+  npuWinter15_25ns[11] = 0.005998706 ;
+  npuWinter15_25ns[12] = 0.004751215 ;
+  npuWinter15_25ns[13] = 0.003026687 ;
+  npuWinter15_25ns[14] = 0.001546196 ;
+  npuWinter15_25ns[15] = 0.0006348245 ;
+  npuWinter15_25ns[16] = 0.0002329903 ;
+  npuWinter15_25ns[17] = 0.0001029755 ;
+  npuWinter15_25ns[18] = 6.678185e-05 ;
+  npuWinter15_25ns[19] = 4.525077e-05 ;
+  npuWinter15_25ns[20] = 2.500376e-05 ;
+  npuWinter15_25ns[21] = 1.071974e-05 ;
+  npuWinter15_25ns[22] = 3.512034e-06 ;
+  npuWinter15_25ns[23] = 8.834002e-07 ;
+  npuWinter15_25ns[24] = 1.682074e-07 ;
+  npuWinter15_25ns[25] = 2.370267e-08 ;
+  npuWinter15_25ns[26] = 2.504465e-09 ;
+  npuWinter15_25ns[27] = 1.951381e-10 ;
+  npuWinter15_25ns[28] = 1.149427e-11 ;
+  npuWinter15_25ns[29] = 4.720787e-13 ;
+  npuWinter15_25ns[30] = 1.194543e-14 ;
+  npuWinter15_25ns[31] = 2.021363e-16 ;
+  npuWinter15_25ns[32] = 1.841988e-18 ;
+  npuWinter15_25ns[33] = 0 ;
+  npuWinter15_25ns[34] = 0 ;
+  npuWinter15_25ns[35] = 0 ;
+  npuWinter15_25ns[36] = 0 ;
+  npuWinter15_25ns[37] = 0 ;
+  npuWinter15_25ns[38] = 0 ;
+  npuWinter15_25ns[39] = 0 ;
+  npuWinter15_25ns[40] = 0 ;
+  npuWinter15_25ns[41] = 0 ;
+  npuWinter15_25ns[42] = 0 ;
+  npuWinter15_25ns[43] = 0 ;
+  npuWinter15_25ns[44] = 0 ;
+  npuWinter15_25ns[45] = 0 ;
+  npuWinter15_25ns[46] = 0 ;
+  npuWinter15_25ns[47] = 0 ;
+  npuWinter15_25ns[48] = 0 ;
+  npuWinter15_25ns[49] = 0 ;
+  npuWinter15_25ns[50] = 0 ;
+  npuWinter15_25ns[51] = 0 ; 
+   
+  // from https://twiki.cern.ch/twiki/bin/view/CMS/ExoDiBosonResonancesRun2#PU_weights old recipe 27-10-2015 done with mb=80mb
+  /*
   double npuWinter15_25ns[52] ; 
   npuWinter15_25ns[0] = 4.8551E-07; 
   npuWinter15_25ns[1] = 1.74806E-06;
@@ -102,6 +158,7 @@ theType(type) {
   npuWinter15_25ns[49] = 2.42755E-07;
   npuWinter15_25ns[50] = 1.21378E-07;
   npuWinter15_25ns[51] = 4.8551E-08;
+  */
   for(int k = 0 ; k < 52 ; ++k)
     hT2015_MC25ns_Data25ns.push_back(npuWinter15_25ns[k]) ;
 
@@ -169,7 +226,7 @@ theType(type) {
   w2011[47]= 1;
   w2011[48]= 1;
   w2011[49]= 1;
-  for(int k=0;k<50;++k)
+  for(int k=0 ;k<50 ;++k)
     hT2011.push_back(w2011[k]) ;
 
   // RUN1ANALYSIS 2012 FIXME taken from HZZ4l FIXME _check_
@@ -414,7 +471,7 @@ theType(type) {
   w2012[237]= 1;
   w2012[238]= 1;
   w2012[239]= 1;
-  for(int k=0;k<240;k++)
+  for(int k=0 ;k<240 ;k++)
     hT2012.push_back(w2012[k]) ;
 }
 
