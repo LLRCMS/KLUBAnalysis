@@ -645,7 +645,7 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
     while ((histo = (TH1F *) (next ()))) 
        histo->SetFillStyle(0);
     */
-    if (drawMC) hstack_bkg_norm -> Draw ("nostack hist same") ;
+    if (drawMC) hstack_bkg_norm -> Draw ("hist same") ;
     if (drawSignal) hstack_sig_norm->Draw ("nostack hist same") ;
     if (drawData)
     {
