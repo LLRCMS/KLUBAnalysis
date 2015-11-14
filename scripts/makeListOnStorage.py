@@ -4,15 +4,21 @@ from subprocess import Popen, PIPE
 #tag = "llrNt_NoSVFit_bkg_27Ago2015" # tag, stesso nome del crab folder senza crab3_ all'inizio
 #tag = "llrNt_NoSVFit_data_27Ago2015"
 #tag = "llrNt_NoSVFit_data_30Ago2015_lumiMaskFix"
-tag  = "Data25ns_SVFit_6Ott2015_resub"
+#tag  = "Data25ns_SVFit_6Ott2015_resub"
+#tag = "Data25ns_noSVFit_npvFix_30Ott2015_newJson_trigFix2"
+#tag = "MC_NoSVFit_MiniAODV2_13Nov2015"
+tag = "Data25ns_noSVFit_lumiDiff13Nov2015"
 
 #outFolder = "../inputFiles/28Ago2015/" # write / at the end
 #outFolder = "../inputFiles/13Ott2015/25ns/"
 
 # make list of EminiAOD from storage as publication has problems
-outFolder = "/home/llr/cms/cadamuro/HiggsTauTauFramework/CMSSW_7_4_7/src/LLRHiggsTauTau/NtupleProducer/test/inputFiles/13Ott2015/25ns/"
+#outFolder = "/home/llr/cms/cadamuro/HiggsTauTauFramework/CMSSW_7_4_7/src/LLRHiggsTauTau/NtupleProducer/test/inputFiles/13Ott2015/25ns/"
+#outFolder = "../inputFiles/DataRunDTrigFix4Nov/"
+#outFolder = "../inputFiles/miniAODv2/"
+outFolder = "../inputFiles/Data14NovLumiDiff/"
 
-areEnrichedMiniAOD = True; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
+areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
                                  # if false: only add the polgrid server to run the skim and submit on root
 # ====================================================================
 
@@ -73,7 +79,12 @@ for line in pipe.stdout:
     out = pipeNested.stdout.readlines()
     for subfol in out:
         finalDir = samplesPath + "/" + subfol.strip()
-        getFilesComm = "/usr/bin/rfdir %s | grep .root | awk '{print $9}'" % finalDir.strip()
+        getFilesComm = ""
+        if areEnrichedMiniAOD :
+            getFilesComm = "/usr/bin/rfdir %s | grep Enriched_miniAOD | awk '{print $9}'" % finalDir.strip()
+        else :
+            getFilesComm = "/usr/bin/rfdir %s | grep HTauTauAnalysis | awk '{print $9}'" % finalDir.strip()
+            #print getFilesComm
         pipeGetFiles = Popen (getFilesComm, shell=True, stdout=PIPE)
         outGetFiles = pipeGetFiles.stdout.readlines()
         for filename in outGetFiles:

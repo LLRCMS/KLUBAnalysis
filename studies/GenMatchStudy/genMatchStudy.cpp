@@ -17,6 +17,7 @@
 using namespace std;
 
 //c++ -lm -o genMatchStudy genMatchStudy.cpp ../../src/OfflineProducerHelper.cc ../../src/triggerReader.cc -I ../../interface/ `root-config --glibs --cflags`
+// call once voms-proxy-init -voms cms before running
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // open input txt file and append all the files it contains to TChain
@@ -216,7 +217,9 @@ int main()
 {
     //TString filelist = "../inputFiles/KLUB_prod/DY_KLUB.txt"; // some files corrupted
     //TString filelist = "../inputFiles/28Ago2015/3_DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1.txt";
-    TString filelist = "myDrell-YanM50.txt"; // less files
+   
+    //TString filelist = "myDrell-YanM50.txt"; // less files
+    TString filelist = "myRadion300H_hh.txt";
 
     TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
     //bigChain->Add (inputFile) ;
@@ -248,11 +251,13 @@ int main()
 
     const double matchCone = 0.3 ;
     const bool askTriggers = false; // ask triggers for the selected pair type
-    const bool askFlavourFromTriggers = true; // decide the flavour acording to triggers; MuTau > EleTAu > TauTau
-    const bool ask3rdlepVeto = true;
+    const bool askFlavourFromTriggers = false; // decide the flavour acording to triggers; MuTau > EleTAu > TauTau
+    const bool ask3rdlepVeto = false;
     const int askThisTriggerType = -1; // skip all events without the triggers for this type (-1 for not applying this requirement and keep all events)
-    //string leptonSelectionFlag ("Vertex-LepID-pTMin-etaMax-againstEle-againstMu");
-    string leptonSelectionFlag ("Vertex-LepID-pTMin-etaMax-againstEle-againstMu-Iso");
+    string leptonSelectionFlag ("Vertex-LepID-pTMin-etaMax-againstEle-againstMu");
+    //string leptonSelectionFlag ("Vertex-LepID-pTMin-etaMax-againstEle-againstMu-Iso");
+
+    const int PDGProcess = 25; // decay of boson that is analyzed, 23=Z, 25=H
 
     // --------------------------------
     // histos
@@ -454,13 +459,12 @@ int main()
             int genflags = theBigTree.genpart_flags->at(igen);
 
             //cout << pdg << endl;
-            if (abs(pdg) == 23 ) // Z = 23, H = 25
+            if (abs(pdg) == PDGProcess ) // Z = 23, H = 25
             {
                 int decayMode = theBigTree.genpart_HZDecayMode->at(igen);
-                if (decayMode == (int) Other) cout << " ** WARNING: Z decay unexpected" << endl;
+                //if (decayMode == (int) Other) cout << " ** WARNING: Z decay unexpected" << endl;
                 //cout << "Z: " << decayMode << endl;
-
-                thisDecayMode = decayMode;
+                if (decayMode != (int) Other) thisDecayMode = decayMode;
             }
             
             if (abs(pdg) == 11 || abs(pdg) == 13 || abs(pdg) == 66615 ) // ele, mu, had taus
