@@ -58,7 +58,7 @@ fillHistos (vector<sample> & samples,
             const vector<float> & scale,
             bool isData = false,
             bool isSignal = false,
-            int maxEvts = -1) ;
+            int maxEvts = -1, TFile* fOut = 0) ;
 
 counters
 fillHistos (vector<sample> & samples, 
@@ -70,7 +70,7 @@ fillHistos (vector<sample> & samples,
             const vector<float> & scale,
             bool isData = false,
             bool isSignal = false,
-            int maxEvts = -1) ;
+            int maxEvts = -1, TFile* fOut = 0) ;
 
 // create a counter structure from the plotContainer
 //counters

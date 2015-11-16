@@ -106,7 +106,7 @@ fillHistos (vector<sample> & samples,
             const vector<float> & scale,
             bool isData,
             bool isSignal,
-            int maxEvts)
+            int maxEvts, TFile* fOut)
 {
     vector<pair<string,string>> variables2DList (0);
     return fillHistos (
@@ -119,7 +119,7 @@ fillHistos (vector<sample> & samples,
             scale,
             isData,
             isSignal,
-            maxEvts);
+            maxEvts, fOut);
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -134,7 +134,7 @@ fillHistos (vector<sample> & samples,
             const vector<float> & scale,
             bool isData,
             bool isSignal,
-            int maxEvts)
+            int maxEvts, TFile* fOut)
 {
   TString histoName ;
 
@@ -285,7 +285,20 @@ fillHistos (vector<sample> & samples,
           
           for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
             {
+              
+              TTree* outTree; // used only if saving events in file <--> if a valid tfile is passed
+              if (fOut != 0)
+              {
+                fOut->cd();
+                TString treeName = Form ("tree_%s_%s", samples.at(iSample).sampleName.Data(), selections.at(isel).first.Data());
+                outTree = tree->CloneTree(0);
+                outTree->SetName(treeName);
+                //outTree->SetTitle(treeName);
+              }
+
               if (! TTF[isel]->EvalInstance ()) continue ;
+
+              if (fOut != 0) outTree->Fill();
 
               if (isData) localCounter.counters.at (iSample).at (isel+1) += 1. ;
               else        localCounter.counters.at (iSample).at (isel+1) += toAdd ;
@@ -340,7 +353,11 @@ fillHistos (vector<sample> & samples,
                   else histo->Fill (val1, val2, toAdd) ;
                 } //loop on 2Dvariables
                 
-
+                if (fOut != 0)
+                {
+                  fOut->cd();
+                  outTree->Write();
+                }
             } //loop on selections
         } //loop on tree entries
 
