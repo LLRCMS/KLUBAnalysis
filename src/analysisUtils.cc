@@ -286,7 +286,7 @@ fillHistos (vector<sample> & samples,
           for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
             {
               
-              TTree* outTree; // used only if saving events in file <--> if a valid tfile is passed
+              TTree* outTree = 0; // used only if saving events in file <--> if a valid tfile is passed
               if (fOut != 0)
               {
                 fOut->cd();
