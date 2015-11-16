@@ -292,7 +292,7 @@ fillHistos (vector<sample> & samples,
       for (int iEvent = 0 ; iEvent < nEvts ; ++iEvent)
         {
           tree->GetEntry (iEvent) ;
-          if (iEvent%10000 == 0) cout << iEvent << " / " << nEvts << endl;
+          //if (iEvent%10000 == 0) cout << iEvent << " / " << nEvts << endl;
 
           float toAdd = PUReweight * weight * lumi * scaling ;
 
