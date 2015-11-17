@@ -271,6 +271,22 @@ fillHistos (vector<sample> & samples,
         }
       }
 
+      // create a vector of ttree*, one for each selection
+      std::vector<TTree*> outTrees (selections.size());
+      if (fOut != 0)
+      {
+        for (unsigned int isel = 0; isel < selections.size(); isel++)
+        {
+          TTree* outTree = 0; // used only if saving events in file <--> if a valid tfile is passed
+          fOut->cd();
+          TString treeName = Form ("tree_%s_%s", samples.at(iSample).sampleName.Data(), selections.at(isel).first.Data());
+          outTree = tree->CloneTree(0);
+          outTree->SetName(treeName);
+          outTrees.at(isel) = outTree;
+          //outTree->SetTitle(treeName);
+        }
+      }
+
       //unsigned int nEvts = (maxEvts == -1 ? tree->GetEntries() : maxEvts);
       //nEvts = min (nEvts, tree->GetEntries());
       for (int iEvent = 0 ; iEvent < nEvts ; ++iEvent)
@@ -285,20 +301,9 @@ fillHistos (vector<sample> & samples,
           
           for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
             {
-              
-              TTree* outTree = 0; // used only if saving events in file <--> if a valid tfile is passed
-              if (fOut != 0)
-              {
-                fOut->cd();
-                TString treeName = Form ("tree_%s_%s", samples.at(iSample).sampleName.Data(), selections.at(isel).first.Data());
-                outTree = tree->CloneTree(0);
-                outTree->SetName(treeName);
-                //outTree->SetTitle(treeName);
-              }
-
               if (! TTF[isel]->EvalInstance ()) continue ;
 
-              if (fOut != 0) outTree->Fill();
+              if (fOut != 0) outTrees.at(isel)->Fill();
 
               if (isData) localCounter.counters.at (iSample).at (isel+1) += 1. ;
               else        localCounter.counters.at (iSample).at (isel+1) += toAdd ;
@@ -351,18 +356,19 @@ fillHistos (vector<sample> & samples,
                   if ( ( std::find( indexInt.begin(), indexInt.end(), idx1) != indexInt.end() ) ) val2 = (float) addressInt[idx2];
                   if (isData) histo->Fill (val1, val2) ;
                   else histo->Fill (val1, val2, toAdd) ;
-                } //loop on 2Dvariables
-                
-                if (fOut != 0)
-                {
-                  fOut->cd();
-                  outTree->Write();
-                }
+                } //loop on 2Dvariables                
             } //loop on selections
         } //loop on tree entries
 
-      for (unsigned int isel = 0 ; isel < selections.size () ; ++isel) delete TTF[isel] ;
-
+      for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
+      {
+        delete TTF[isel] ;
+        if (fOut != 0)
+        {
+          fOut->cd();
+          outTrees.at(isel)->Write();
+        }
+      }
       
       for (int iSel = 0 ; iSel < nSele; iSel++)
           delete [] histoArray [iSel];

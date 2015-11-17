@@ -55,6 +55,17 @@ int main (int argc, char** argv)
   if (gConfigParser->isDefined ("general::maxEvtsMC"))
         maxEvtsMC = gConfigParser -> readIntOption ("general::maxEvtsMC");
 
+  // prepare files to contain tree with selectd events
+
+  TString treeFileName = gConfigParser->readStringOption ("general::outputFolderName") ;
+  treeFileName += "/" ;
+  system (TString ("mkdir -p ") + treeFileName) ;
+  treeFileName += gConfigParser->readStringOption ("evalQCD::outputFolderName") ;
+  treeFileName += "/filtered_trees/" ;  
+  system (TString ("mkdir -p ") + treeFileName) ;
+  treeFileName += "filteredTrees.root";
+  TFile* fFilteredTrees = new TFile (treeFileName, "RECREATE");
+
   // get the samples to be analised
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -365,7 +376,7 @@ int main (int argc, char** argv)
               selections_OS,
               lumi,
               vector<float> (0),
-              true, false) ;
+              true, false, -1, fFilteredTrees) ;
   OS_DATA_plots.AddOverAndUnderFlow () ;
 
   cout << "--- MAIN reading bkg and filling OS histos" << endl ;
@@ -527,6 +538,7 @@ int main (int argc, char** argv)
           std::vector<TObject*> drawings_nonScaled = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
                                       variablesList.at (iv), selections_OS.at (isel).first.Data (),
                                       c, addToLegend, variablesLabels, false, false, true, false) ;
+                                      //c, addToLegend, variablesLabels, false, false, true, false, true, false, false, true, true) ;
 
           coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
