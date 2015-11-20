@@ -630,6 +630,25 @@ int main (int argc, char** argv)
           theSmallTree.m_bjet2_e = theBigTree.jets_e->at (eventJets.second) ;
           theSmallTree.m_bjet2_bID = theBigTree.bCSVscore->at (eventJets.second) ;
 
+          if (isMC){
+            int mcind = theBigTree.jets_genjetIndex->at(eventJets.first);
+            if (mcind>=0){
+              TLorentzVector gen(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
+              theSmallTree.m_genjet1_pt = gen.Pt();
+              theSmallTree.m_genjet1_eta = gen.Eta();
+              theSmallTree.m_genjet1_phi = gen.Phi();
+              theSmallTree.m_genjet1_e = gen.E();
+            }
+            mcind = theBigTree.jets_genjetIndex->at(eventJets.second);
+            if (mcind>=0){
+              TLorentzVector gen(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
+              theSmallTree.m_genjet2_pt = gen.Pt();
+              theSmallTree.m_genjet2_eta = gen.Eta();
+              theSmallTree.m_genjet2_phi = gen.Phi();
+              theSmallTree.m_genjet2_e = gen.E();
+            }
+          }
+
           float METx = theBigTree.METx->at (chosenTauPair) ;
           float METy = theBigTree.METy->at (chosenTauPair) ;
           float METpt = 0;//TMath::Sqrt (METx*METx + METy*METy) ;

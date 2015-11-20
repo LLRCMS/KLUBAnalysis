@@ -62,6 +62,7 @@ public :
    std::vector<float>   *genjet_py;
    std::vector<float>   *genjet_pz;
    std::vector<float>   *genjet_e;
+   std::vector<int>     *jets_genjetIndex;
    Int_t           NUP;
    std::vector<float>   *SVfitMass;
    std::vector<float>   *SVfit_pt;
@@ -182,6 +183,7 @@ public :
    TBranch        *b_genjet_py;   //!
    TBranch        *b_genjet_pz;   //!
    TBranch        *b_genjet_e;   //!
+   TBranch        *b_jets_genjetIndex; //!
    TBranch        *b_NUP;   //!
    TBranch        *b_SVfitMass;   //!
    TBranch        *b_SVfit_pt;   //!
@@ -304,6 +306,7 @@ public :
        genjet_py = 0;
        genjet_pz = 0;
        genjet_e = 0;
+       jets_genjetIndex = 0;
        SVfitMass = 0;
        SVfit_pt = 0;
        SVfit_ptUnc = 0;
@@ -502,6 +505,7 @@ public :
             fChain->SetBranchAddress("genjet_py", &genjet_py, &b_genjet_py);
             fChain->SetBranchAddress("genjet_pz", &genjet_pz, &b_genjet_pz);
             fChain->SetBranchAddress("genjet_e", &genjet_e, &b_genjet_e);
+            fChain->SetBranchAddress("jets_genjetIndex", &jets_genjetIndex, &b_jets_genjetIndex);
             fChain->SetBranchAddress("NUP", &NUP, &b_NUP);
        }
        
