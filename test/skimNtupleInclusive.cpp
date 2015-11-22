@@ -154,7 +154,7 @@ pair<int, int>
 chooseHighestPtJets (vector <pair <int, float> > & jets_and_btag)
 {
   // leap of faith
-  return pair<int, int> (0, 1) ;     
+  return pair<int, int> (jets_and_btag.at (0).first, jets_and_btag.at (1).first) ;     
 }
 
 
@@ -293,7 +293,6 @@ int main (int argc, char** argv)
 
   int eventsNumber = theBigTree.fChain->GetEntries () ;
   float totalEvents = 0. ;
-  
   float selectedEvents = 0. ;
 
   int totalNoWeightsEventsNum = 0 ;
@@ -813,8 +812,8 @@ int main (int argc, char** argv)
               if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
           
               // skip the H decay candiates
-              if (int (iJet) == eventJets.first || 
-                  int (iJet) == eventJets.second) continue ;
+              if (int (iJet) == eventJets.first ||
+                  int (iJet) == eventJets.second)continue ;
 
               TLorentzVector tlv_dummyJet (
                   theBigTree.jets_px->at (iJet),
@@ -824,8 +823,8 @@ int main (int argc, char** argv)
                 ) ;
 
               // remove jets that overlap with the tau selected in the leg 1 and 2
-              if (type1 == 2) {if (tlv_firstLepton.DeltaR(tlv_dummyJet) < 0.5) continue;}
-              if (type2 == 2) {if (tlv_secondLepton.DeltaR(tlv_dummyJet) < 0.5) continue;}
+              if (type1 == 2) {if (tlv_firstLepton.DeltaR(tlv_dummyJet) < 0.5)continue;}
+              if (type2 == 2) {if (tlv_secondLepton.DeltaR(tlv_dummyJet) < 0.5)continue;}
       
               theSmallTree.m_jets_pt.push_back (tlv_dummyJet.Pt ()) ;
               theSmallTree.m_jets_eta.push_back (tlv_dummyJet.Eta ()) ;
@@ -834,7 +833,6 @@ int main (int argc, char** argv)
               theSmallTree.m_jets_btag.push_back (theBigTree.bCSVscore->at (iJet)) ;
               ++theSmallTree.m_njets ;
             } // loop over jets
-
         } // if there's two jets in the event, at least
         
       if (isMC) selectedEvents += theBigTree.aMCatNLOweight ; 
