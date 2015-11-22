@@ -16,7 +16,7 @@
 #include "histoUtils.h"
 #include "plotContainer.h"
 #include "analysisUtils.h"
-
+#include "TRandom3.h"
 using namespace std ;
 
 
@@ -34,6 +34,12 @@ int main (int argc, char** argv)
   if (gConfigParser) return 1 ;
   gConfigParser = new ConfigParser () ;
   
+  int nruns=0;
+  if (argc>2){
+    TString runs;
+    runs.Form("%s",argv[2]);
+    nruns = runs.Atoi();
+  }
   TString config ; 
   config.Form ("%s",argv[1]) ;
   if (! (gConfigParser->init (config)))
@@ -150,10 +156,14 @@ int main (int argc, char** argv)
      
   // SS selections with tight iso (for QCD yield determination)
   vector<pair <TString, TCut> > selections_SS_tightIso = selections ;
+  vector<TH1F*> QCDYields ;
+  TRandom3 *g = new TRandom3();
   for (unsigned int i = 0 ; i < selections_SS_tightIso.size () ; ++i)
     {
       selections_SS_tightIso.at (i).first = TString ("SS_tightIso_") + selections_SS_tightIso.at (i).first ;
       selections_SS_tightIso.at (i).second = selections_SS_tightIso.at (i).second && TCut ("isOS == 0") && dau1Cut && dau2Cut;
+      TH1F *h =new TH1F(selections_SS_tightIso.at (i).first.Data (),selections_SS_tightIso.at (i).first.Data (),15000,1,15001);
+      QCDYields.push_back(h);   
     }
      
   // SS selections with rlx iso for QCD shape
@@ -317,8 +327,18 @@ int main (int argc, char** argv)
                                   selections_SS_tightIso.at (icut).first.Data ()) ;
           TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
           dummy->Add (h_bkg, -1) ;
-          SS_QCD_tightIso.m_histos[variablesList.at (ivar)][selections_SS.at (icut).first.Data ()]["QCD"] = dummy ;
+
+          if(ivar==0){
+            int nbins = tempo->GetNbinsX();
+            for(int irun =0;irun<nruns;irun++){//This is done only on the first variable
+              for(int ibin=1; ibin<=nbins;ibin++)
+                tempo->SetBinContent(ibin,g->Poisson(dummy->GetBinContent(ibin)));
+            //tempo->Add (h_bkg, -1) ; // ho gia fatto addbkg prima
+              QCDYields.at(icut)->Fill(tempo->Integral());
+            }
+          }
           QCDyieldSSregionTightIso.at(ivar).at(icut) = dummy->Integral(); // if AddUnderAndOverFlow is called they will be all identical
+          SS_QCD_tightIso.m_histos[variablesList.at (ivar)][selections_SS.at (icut).first.Data ()]["QCD"] = dummy ;
         }
     }
 
@@ -389,6 +409,7 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   cout << "--- MAIN before saving" << endl ;
+  cout << QCDYields.size() << endl ;
 
   TString outFolderNameBase = gConfigParser->readStringOption ("general::outputFolderName") ;
   outFolderNameBase += "/" ;
@@ -405,6 +426,10 @@ int main (int argc, char** argv)
   OS_DATA_plots.save (fOut) ;
   OS_bkg_plots.save (fOut) ;
   OS_sig_plots.save (fOut) ;
+  for(uint i=0; i<QCDYields.size();i++){
+    QCDYields.at(i)->Write();
+    //cout<<QCDYields.at(i)->Integral()<<endl;
+  }
   SS_QCD.save (fOut); // this is the estimated QCD after scaling to OS region 1.06
 
   fOut->Close () ;
@@ -726,7 +751,12 @@ int main (int argc, char** argv)
   printTableTitle (yieldsFile, bkgSamples, DataDriven_names) ;
   printTableBody  (std::cout,  selections, OS_bkgCount, bkgSamples, DataDriven_yields) ;
   printTableBody  (yieldsFile, selections, OS_bkgCount, bkgSamples, DataDriven_yields) ;
-
+  yieldsFile << " QCD SYSTEMATIC BIN-BY-BIN UNCERTAINTIES\n"  ;
+  cout << " QCD SYSTEMATIC BIN-BY-BIN UNCERTAINTIES\n"  ;
+  for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel){
+    yieldsFile << "      "<<selections.at(iSel).first<<"  "<<QCDYields.at(iSel)->GetRMS()<<"/"<<QCDYields.at(iSel)->GetMean()<<" = "<<QCDYields.at(iSel)->GetRMS()/QCDYields.at(iSel)->GetMean()<<"\n"  ;
+    cout << "      "<<selections.at(iSel).first<<"  "<<QCDYields.at(iSel)->GetRMS()<<"/"<<QCDYields.at(iSel)->GetMean()<<" = "<<QCDYields.at(iSel)->GetRMS()/QCDYields.at(iSel)->GetMean()<<"\n"  ;
+  }
 
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " EFFICIENCIES OF BKG EVENTS\n\n" ;
