@@ -25,7 +25,7 @@ public :
    Int_t           EventNumber;
    Int_t           RunNumber;
    Int_t           lumi;
-   Int_t           triggerbit;
+   Long64_t        triggerbit;
    Int_t           metfilterbit;
    Float_t         met;
    Float_t         metphi;
