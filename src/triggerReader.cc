@@ -63,7 +63,7 @@ void triggerReader::addMuEleTrigs (vector<string> list)
     return;
 }
 
-bool triggerReader::checkORTauTau  (int triggerbit)
+bool triggerReader::checkORTauTau  (Long64_t triggerbit)
 {
     bool OR = false;
     for (unsigned int i = 0; i < _ttTriggers.size(); i++)
@@ -74,7 +74,7 @@ bool triggerReader::checkORTauTau  (int triggerbit)
     return OR;
 }
 
-bool triggerReader::checkORMuTau  (int triggerbit)
+bool triggerReader::checkORMuTau  (Long64_t triggerbit)
 {
     bool OR = false;
     for (unsigned int i = 0; i < _mtTriggers.size(); i++)
@@ -85,7 +85,7 @@ bool triggerReader::checkORMuTau  (int triggerbit)
     return OR;
 }
 
-bool triggerReader::checkOREleTau  (int triggerbit)
+bool triggerReader::checkOREleTau  (Long64_t triggerbit)
 {
     bool OR = false;
     for (unsigned int i = 0; i < _etTriggers.size(); i++)
@@ -96,7 +96,7 @@ bool triggerReader::checkOREleTau  (int triggerbit)
     return OR;
 }
 
-bool triggerReader::checkORMuEle  (int triggerbit)
+bool triggerReader::checkORMuEle  (Long64_t triggerbit)
 {
     bool OR = false;
     for (unsigned int i = 0; i < _emTriggers.size(); i++)
@@ -107,13 +107,13 @@ bool triggerReader::checkORMuEle  (int triggerbit)
     return OR;
 }
 
-bool triggerReader::CheckBit (int number, int bitpos)
+bool triggerReader::CheckBit (Long64_t number, int bitpos)
 {
     bool res = number & (1 << bitpos);
     return res;
 }
 
-bool triggerReader::checkOR (int pairType, int triggerbit)
+bool triggerReader::checkOR (int pairType, Long64_t triggerbit)
 {
     if (pairType == ((int) OfflineProducerHelper::MuHad) )      return checkORMuTau(triggerbit);
     else if (pairType == ((int) OfflineProducerHelper::EHad) )   return checkOREleTau(triggerbit);
