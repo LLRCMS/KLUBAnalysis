@@ -66,7 +66,7 @@ plotContainer::createHistos (vector<string> varList, vector<pair<string,string>>
               {
                 vector<float> binning = gConfigParser->readFloatListOption (TString ("binning::") + varID.c_str ()) ;
                 float* bins = new float [binning.size()];
-                for (int i = 0; i < binning.size(); i++) bins[i] = binning.at(i);
+                for (unsigned int i = 0; i < binning.size(); i++) bins[i] = binning.at(i);
                 
                 string histoName = m_name + "_" 
                                    + varList.at (ivar) + "_" 
@@ -266,6 +266,28 @@ plotContainer::makeStack (string varName, string cutName)
   return stack ;
 }
 
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+THStack * 
+plotContainer::make2DStack (pair<string,string> var2DName, string cutName)
+{
+  TString outputName, histoName ;
+  outputName.Form ("%s_%s_%s_%s", m_name.c_str (), var2DName.first.c_str (), var2DName.second.c_str (), cutName.c_str ()) ;
+  THStack * stack = new THStack (outputName.Data (), outputName.Data ()) ;
+  string varKeyName = var2DName.first + var2DName.second;
+  
+  for (map<string, TH2F *>::iterator iSample = m_2Dhistos[varKeyName][cutName].begin () ;
+       iSample != m_2Dhistos[varKeyName][cutName].end () ;
+       ++iSample)
+    {
+      stack->Add (iSample->second) ;
+      //cout << "yield: " << iSample->first << " " << iSample->second->Integral(0, 99999) << endl;
+    }
+
+  return stack ;
+}
+
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -446,6 +468,41 @@ plotContainer::scale (vector<string> & variablesList, vector<pair <TString, TCut
   return ;
 }
 
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+void 
+plotContainer::scale2D (vector<pair<string,string>> & variables2DList, vector<pair <TString, TCut> > & selections, vector<vector<float>> scaleFactorVector)
+{
+  for (unsigned int ivar = 0; ivar < variables2DList.size(); ivar++)
+  {
+    for (unsigned int icut = 0; icut < selections.size(); icut++)
+    {
+      // loop over all samples
+      for (samples_2D_coll::iterator iSample =  (m_2Dhistos[variables2DList.at (ivar).first+variables2DList.at (ivar).second][selections.at(icut).first.Data ()]).begin () ; 
+            iSample != (m_2Dhistos[variables2DList.at (ivar).first+variables2DList.at (ivar).second][selections.at(icut).first.Data ()]).end () ; 
+            ++iSample)
+        iSample->second->Scale (scaleFactorVector.at(ivar).at(icut)) ;
+    }
+  }
+
+  /*
+  for (vars_coll::iterator iVar = m_histos.begin () ; iVar != m_histos.end () ; ++iVar)
+  {
+    for (cuts_coll::iterator iCut = iVar->second.begin () ; iCut != iVar->second.end () ; ++iCut)
+    {
+      for (samples_coll::iterator iSample = iCut->second.begin () ; iSample != iCut->second.end () ; ++iSample)
+      {
+        iSample->second->Scale (scaleFactorVector.at(idxvar).at(idxcut)) ;
+      }
+      idxcut++;
+    }
+    idxvar++;
+  }
+  */
+  return ;
+}
+
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -485,13 +542,21 @@ plotContainer::addSample (string sampleName, const plotContainer & original) // 
       exit (1) ;
     }
 
-  vars_coll::const_iterator iVarOrig = original.m_histos.begin () ;
-  for (vars_coll::iterator iVar = m_histos.begin () ;
-       iVar != m_histos.end () ;
+  // shallow check
+  if (original.m_N2Dvar != m_N2Dvar ||
+      original.m_Ncut != m_Ncut) 
+    {
+      cerr << "the two plot containers 2D don't match in size\n" ;
+      exit (1) ;
+    }
+
+  vars_2D_coll::const_iterator iVarOrig = original.m_2Dhistos.begin () ;
+  for (vars_2D_coll::iterator iVar = m_2Dhistos.begin () ;
+       iVar != m_2Dhistos.end () ;
        ++iVar, ++iVarOrig)
     {
-      cuts_coll::const_iterator iCutOrig = iVarOrig->second.begin () ;
-      for (cuts_coll::iterator iCut = iVar->second.begin () ; 
+      cuts_2D_coll::const_iterator iCutOrig = iVarOrig->second.begin () ;
+      for (cuts_2D_coll::iterator iCut = iVar->second.begin () ; 
            iCut != iVar->second.end () ;
            ++iCut, ++iCutOrig)
         {
@@ -501,7 +566,7 @@ plotContainer::addSample (string sampleName, const plotContainer & original) // 
                    << "does not have a single sample\n" ;
               exit (1) ;
             }
-          iCut->second.insert (pair<string, TH1F *> (
+          iCut->second.insert (pair<string, TH2F *> (
               sampleName,
               iCutOrig->second.begin()->second
             )) ;
