@@ -105,9 +105,10 @@ public :
    std::vector<float>   *daughters_depositR03_hcal;
    std::vector<int>     *daughters_decayModeFindingOldDMs;
    std::vector<int>     *daughters_decayModeFindingNewDMs;
-   std::vector<int>     *daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits;
-   std::vector<int>     *daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits;
-   std::vector<int>     *daughters_byTightCombinedIsolationDeltaBetaCorr3Hits;
+   std::vector<Long64_t> *tauID ;
+//   std::vector<int>     *daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits;
+//   std::vector<int>     *daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits;
+//   std::vector<int>     *daughters_byTightCombinedIsolationDeltaBetaCorr3Hits;
    std::vector<float>   *daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;
    std::vector<float>   *daughters_byIsolationMVA3oldDMwoLTraw;
    std::vector<float>   *daughters_byIsolationMVA3oldDMwLTraw;
@@ -116,13 +117,14 @@ public :
    std::vector<float>   *daughters_chargedIsoPtSum;
    std::vector<float>   *daughters_neutralIsoPtSum;
    std::vector<float>   *daughters_puCorrPtSum;
-   std::vector<int>     *daughters_againstMuonLoose3;
-   std::vector<int>     *daughters_againstMuonTight3;
-   std::vector<int>     *daughters_againstElectronVLooseMVA5;
-   std::vector<int>     *daughters_againstElectronLooseMVA5;
-   std::vector<int>     *daughters_againstElectronMediumMVA5;
-   std::vector<int>     *daughters_againstElectronTightMVA5;
-   std::vector<int>     *daughters_againstElectronVTightMVA5;
+   std::vector<float>   *daughters_photonPtSumOutsideSignalCone;
+//   std::vector<int>     *daughters_againstMuonLoose3;
+//   std::vector<int>     *daughters_againstMuonTight3;
+//   std::vector<int>     *daughters_againstElectronVLooseMVA5;
+//   std::vector<int>     *daughters_againstElectronLooseMVA5;
+//   std::vector<int>     *daughters_againstElectronMediumMVA5;
+//   std::vector<int>     *daughters_againstElectronTightMVA5;
+//   std::vector<int>     *daughters_againstElectronVTightMVA5;
    std::vector<int>     *daughters_isLastTriggerObjectforPath;
    std::vector<int>     *daughters_isTriggerObjectforPath;
    std::vector<int>     *daughters_FilterFired;
@@ -226,9 +228,7 @@ public :
    TBranch        *b_daughters_depositR03_hcal;   //!
    TBranch        *b_daughters_decayModeFindingOldDMs;   //!
    TBranch        *b_daughters_decayModeFindingNewDMs;   //!
-   TBranch        *b_daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits;   //!
-   TBranch        *b_daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits;   //!
-   TBranch        *b_daughters_byTightCombinedIsolationDeltaBetaCorr3Hits;   //!
+   TBranch        *b_tauID; //!
    TBranch        *b_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;   //!
    TBranch        *b_daughters_byIsolationMVA3oldDMwoLTraw;   //!
    TBranch        *b_daughters_byIsolationMVA3oldDMwLTraw;   //!
@@ -237,13 +237,7 @@ public :
    TBranch        *b_daughters_chargedIsoPtSum;   //!
    TBranch        *b_daughters_neutralIsoPtSum;   //!
    TBranch        *b_daughters_puCorrPtSum;   //!
-   TBranch        *b_daughters_againstMuonLoose3;   //!
-   TBranch        *b_daughters_againstMuonTight3;   //!
-   TBranch        *b_daughters_againstElectronVLooseMVA5;   //!
-   TBranch        *b_daughters_againstElectronLooseMVA5;   //!
-   TBranch        *b_daughters_againstElectronMediumMVA5;   //!
-   TBranch        *b_daughters_againstElectronTightMVA5;   //!
-   TBranch        *b_daughters_againstElectronVTightMVA5;   //!
+   TBranch        *b_daughters_photonPtSumOutsideSignalCone; //!
    TBranch        *b_daughters_isLastTriggerObjectforPath;   //!
    TBranch        *b_daughters_isTriggerObjectforPath;   //!
    TBranch        *b_daughters_FilterFired;   //!
@@ -348,9 +342,7 @@ public :
        daughters_depositR03_hcal = 0;
        daughters_decayModeFindingOldDMs = 0;
        daughters_decayModeFindingNewDMs = 0;
-       daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits = 0;
-       daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits = 0;
-       daughters_byTightCombinedIsolationDeltaBetaCorr3Hits = 0;
+       tauID = 0;
        daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits = 0;
        daughters_byIsolationMVA3oldDMwoLTraw = 0;
        daughters_byIsolationMVA3oldDMwLTraw = 0;
@@ -359,13 +351,7 @@ public :
        daughters_chargedIsoPtSum = 0;
        daughters_neutralIsoPtSum = 0;
        daughters_puCorrPtSum = 0;
-       daughters_againstMuonLoose3 = 0;
-       daughters_againstMuonTight3 = 0;
-       daughters_againstElectronVLooseMVA5 = 0;
-       daughters_againstElectronLooseMVA5 = 0;
-       daughters_againstElectronMediumMVA5 = 0;
-       daughters_againstElectronTightMVA5 = 0;
-       daughters_againstElectronVTightMVA5 = 0;
+       daughters_photonPtSumOutsideSignalCone = 0;
        daughters_isLastTriggerObjectforPath = 0;
        daughters_isTriggerObjectforPath = 0;
        daughters_FilterFired = 0;
@@ -445,9 +431,7 @@ public :
        fChain->SetBranchAddress("daughters_depositR03_hcal", &daughters_depositR03_hcal, &b_daughters_depositR03_hcal);
        fChain->SetBranchAddress("daughters_decayModeFindingOldDMs", &daughters_decayModeFindingOldDMs, &b_daughters_decayModeFindingOldDMs);
        fChain->SetBranchAddress("daughters_decayModeFindingNewDMs", &daughters_decayModeFindingNewDMs, &b_daughters_decayModeFindingNewDMs);
-       fChain->SetBranchAddress("daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits", &daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits, &b_daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits);
-       fChain->SetBranchAddress("daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits", &daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits, &b_daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits);
-       fChain->SetBranchAddress("daughters_byTightCombinedIsolationDeltaBetaCorr3Hits", &daughters_byTightCombinedIsolationDeltaBetaCorr3Hits, &b_daughters_byTightCombinedIsolationDeltaBetaCorr3Hits);
+       fChain->SetBranchAddress("tauID", &tauID, &b_tauID);
        fChain->SetBranchAddress("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits, &b_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
        fChain->SetBranchAddress("daughters_byIsolationMVA3oldDMwoLTraw", &daughters_byIsolationMVA3oldDMwoLTraw, &b_daughters_byIsolationMVA3oldDMwoLTraw);
        fChain->SetBranchAddress("daughters_byIsolationMVA3oldDMwLTraw", &daughters_byIsolationMVA3oldDMwLTraw, &b_daughters_byIsolationMVA3oldDMwLTraw);
@@ -456,13 +440,7 @@ public :
        fChain->SetBranchAddress("daughters_chargedIsoPtSum", &daughters_chargedIsoPtSum, &b_daughters_chargedIsoPtSum);
        fChain->SetBranchAddress("daughters_neutralIsoPtSum", &daughters_neutralIsoPtSum, &b_daughters_neutralIsoPtSum);
        fChain->SetBranchAddress("daughters_puCorrPtSum", &daughters_puCorrPtSum, &b_daughters_puCorrPtSum);
-       fChain->SetBranchAddress("daughters_againstMuonLoose3", &daughters_againstMuonLoose3, &b_daughters_againstMuonLoose3);
-       fChain->SetBranchAddress("daughters_againstMuonTight3", &daughters_againstMuonTight3, &b_daughters_againstMuonTight3);
-       fChain->SetBranchAddress("daughters_againstElectronVLooseMVA5", &daughters_againstElectronVLooseMVA5, &b_daughters_againstElectronVLooseMVA5);
-       fChain->SetBranchAddress("daughters_againstElectronLooseMVA5", &daughters_againstElectronLooseMVA5, &b_daughters_againstElectronLooseMVA5);
-       fChain->SetBranchAddress("daughters_againstElectronMediumMVA5", &daughters_againstElectronMediumMVA5, &b_daughters_againstElectronMediumMVA5);
-       fChain->SetBranchAddress("daughters_againstElectronTightMVA5", &daughters_againstElectronTightMVA5, &b_daughters_againstElectronTightMVA5);
-       fChain->SetBranchAddress("daughters_againstElectronVTightMVA5", &daughters_againstElectronVTightMVA5, &b_daughters_againstElectronVTightMVA5);
+       fChain->SetBranchAddress("photonPtSumOutsideSignalCone",&daughters_photonPtSumOutsideSignalCone, &b_daughters_photonPtSumOutsideSignalCone);
        fChain->SetBranchAddress("daughters_isLastTriggerObjectforPath", &daughters_isLastTriggerObjectforPath, &b_daughters_isLastTriggerObjectforPath);
        fChain->SetBranchAddress("daughters_isTriggerObjectforPath", &daughters_isTriggerObjectforPath, &b_daughters_isTriggerObjectforPath);
        fChain->SetBranchAddress("daughters_FilterFired", &daughters_FilterFired, &b_daughters_FilterFired);

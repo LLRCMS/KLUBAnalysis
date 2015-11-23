@@ -29,6 +29,7 @@ OfflineProducerHelper::OfflineProducerHelper(){
     tmptrigger[i].Append("_v1");
     triggerlist.push_back(tmptrigger[i]);
   }
+  tauidlist.push_back("");
 
   // MVA ele ID from here:
   //  https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun2#Non_triggering_electron_MVA
@@ -49,12 +50,47 @@ OfflineProducerHelper::OfflineProducerHelper(){
   m_MVAEleIDCuts[1][1][2] = 0.337  ; // endcap pt above 10 GeV           
 }
 
+OfflineProducerHelper::OfflineProducerHelper(TH1F* hCounter, TH1F* hTauIDs){
+
+  for(int itr=1;itr<=hCounter->GetNbinsX();itr++){
+    TString binlabel = hCounter->GetXaxis()->GetBinLabel(itr);
+    if(binlabel.BeginsWith("HLT"))triggerlist.push_back(hCounter->GetXaxis()->GetBinLabel(itr));
+  }
+
+  for(int itr=1;itr<=hTauIDs->GetNbinsX();itr++){
+    TString binlabel = hTauIDs->GetXaxis()->GetBinLabel(itr);
+    tauidlist.push_back(hTauIDs->GetXaxis()->GetBinLabel(itr));
+  }
+
+  // MVA ele ID from here:
+  //   //  https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun2#Non_triggering_electron_MVA
+  //     // 80%
+
+  m_MVAEleIDCuts[0][0][0] = -0.253 ; // barrel (eta<0.8) pt 5-10 GeV      
+  m_MVAEleIDCuts[0][0][1] =  0.081 ; // barrel (eta>0.8) pt 5-10 GeV      
+  m_MVAEleIDCuts[0][0][2] = -0.081 ; // endcap pt 5-10 GeV                
+  m_MVAEleIDCuts[0][1][0] =  0.965 ; // barrel (eta<0.8) pt above 10 GeV  
+  m_MVAEleIDCuts[0][1][1] =  0.917 ; // barrel (eta>0.8) pt above 10 GeV  
+  m_MVAEleIDCuts[0][1][2] =  0.683 ; // endcap pt above 10 GeV            
+
+  // 90%
+  m_MVAEleIDCuts[1][0][0] = -0.483 ; // barrel (eta<0.8) pt 5-10 GeV     
+  m_MVAEleIDCuts[1][0][1] = -0.267 ; // barrel (eta>0.8) pt 5-10 GeV     
+  m_MVAEleIDCuts[1][0][2] = -0.323 ; // endcap pt 5-10 GeV               
+  m_MVAEleIDCuts[1][1][0] = 0.933  ; // barrel (eta<0.8) pt above 10 GeV 
+  m_MVAEleIDCuts[1][1][1] = 0.825  ; // barrel (eta>0.8) pt above 10 GeV 
+  m_MVAEleIDCuts[1][1][2] = 0.337  ; // endcap pt above 10 GeV           
+}
+
+
+
 OfflineProducerHelper::OfflineProducerHelper(TH1F* hCounter){
 
   for(int itr=1;itr<=hCounter->GetNbinsX();itr++){
     TString binlabel = hCounter->GetXaxis()->GetBinLabel(itr);
     if(binlabel.BeginsWith("HLT"))triggerlist.push_back(hCounter->GetXaxis()->GetBinLabel(itr));
   }
+  tauidlist.push_back("");
 
   // MVA ele ID from here:
   //   //  https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun2#Non_triggering_electron_MVA
@@ -111,6 +147,14 @@ bool OfflineProducerHelper::checkBit (int word, int bitpos)
     bool res = word & (1 << bitpos);
     return res;
 }
+
+int OfflineProducerHelper::getTAUidNumber(TString tauIDname){
+  int ntau = (int)tauidlist.size();
+  for(int i=0;i<ntau;i++)
+    if(tauidlist.at(i)==tauIDname.Data()) return i;
+  return -1;
+}
+
 
 int OfflineProducerHelper::getPairType (int type1, int type2)
 {
@@ -338,15 +382,15 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
     int agMuVal = 0;
     
     // ag ele:
-    if (againstEleWP == 0)      agEleVal = tree->daughters_againstElectronVLooseMVA5->at(iDau);
-    else if (againstEleWP == 1) agEleVal = tree->daughters_againstElectronLooseMVA5->at(iDau);
-    else if (againstEleWP == 2) agEleVal = tree->daughters_againstElectronMediumMVA5->at(iDau);
-    else if (againstEleWP == 3) agEleVal = tree->daughters_againstElectronTightMVA5->at(iDau);
-    else if (againstEleWP == 4) agEleVal = tree->daughters_againstElectronVTightMVA5->at(iDau);   
+    if (againstEleWP == 0)      agEleVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("againstElectronVLooseMVA5"));
+    else if (againstEleWP == 1) agEleVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("againstElectronLooseMVA5"));
+    else if (againstEleWP == 2) agEleVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("againstElectronMediumMVA5"));
+    else if (againstEleWP == 3) agEleVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("againstElectronTightMVA5"));
+    else if (againstEleWP == 4) agEleVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("againstElectronVTightMVA5"));
 
     // ag mu:
-    if (againstMuWP == 0)      agMuVal = tree->daughters_againstMuonLoose3->at(iDau);
-    else if (againstMuWP == 1) agMuVal = tree->daughters_againstMuonTight3->at(iDau);
+    if (againstMuWP == 0)      agMuVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("againstMuonLoose3"));
+    else if (againstMuWP == 1) agMuVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("againstMuonTight3"));
 
     bool dmfS = (tree->daughters_decayModeFindingOldDMs->at(iDau) == 1 || tree->daughters_decayModeFindingNewDMs->at(iDau) == 1) || byp_dmfS;
     bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;

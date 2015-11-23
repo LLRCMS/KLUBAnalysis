@@ -76,7 +76,7 @@ void appendFromFileList (TChain* chain, TString filename)
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // open the first file in the input list, retrieve the histogram "Counters" for the trigger names and return a copy of it
-TH1F* getFirstFileHisto (TString filename)
+TH1F* getFirstFileHisto (TString filename, bool isForTriggers=true)
 {
     std::ifstream infile(filename.Data());
     std::string line;
@@ -92,9 +92,14 @@ TH1F* getFirstFileHisto (TString filename)
     
     TFile* fIn = TFile::Open (line.c_str());
     TH1F* dummy = (TH1F*) fIn->Get ("HTauTauTree/Counters");
+    TString name = "Counters_perTrigger";
+    if(!isForTriggers) {
+      dummy = (TH1F*) fIn->Get ("HTauTauTree/TauIDs");
+      name = "Counters_pertauID";
+    }
     TH1F* histo = new TH1F (*dummy);
     histo-> SetDirectory(0);
-    histo->SetName ("Counters_perTrigger");
+    histo->SetName (name.Data());
     fIn->Close();
     return histo;
 }
@@ -304,6 +309,7 @@ int main (int argc, char** argv)
   // ------------------------------
 
   TH1F* hTriggers = getFirstFileHisto (inputFile);
+  TH1F* hTauIDS = getFirstFileHisto (inputFile,false);
   triggerReader trigReader (hTriggers);
   trigReader.addTauTauTrigs (trigTauTau);
   trigReader.addMuTauTrigs  (trigMuTau);
@@ -526,6 +532,21 @@ int main (int argc, char** argv)
 
 
       theSmallTree.m_dau1_iso = getIso (firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree) ;
+      theSmallTree.m_dau1_photonPtSumOutsideSignalCone = theBigTree.daughters_photonPtSumOutsideSignalCone->at (firstDaughterIndex) ;
+      for(int i=0;i<hTauIDS->GetNbinsX();i++){
+        if(hTauIDS->GetXaxis()->GetBinLabel(i+1)=="byLooseCombinedIsolationDeltaBetaCorr3Hits"){
+          theSmallTree.m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (firstDaughterIndex) & (1 << i);
+          theSmallTree.m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (secondDaughterIndex) & (1 << i);
+        } 
+        if(hTauIDS->GetXaxis()->GetBinLabel(i+1)=="byMediumCombinedIsolationDeltaBetaCorr3Hits"){
+          theSmallTree.m_dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (firstDaughterIndex) & (1 << i);
+          theSmallTree.m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (secondDaughterIndex) & (1 << i);
+        } 
+        if(hTauIDS->GetXaxis()->GetBinLabel(i+1)=="byTightCombinedIsolationDeltaBetaCorr3Hits"){
+          theSmallTree.m_dau1_byTightCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (firstDaughterIndex) & (1 << i);
+          theSmallTree.m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (secondDaughterIndex) & (1 << i);
+        } 
+      }
       theSmallTree.m_dau1_pt = tlv_firstLepton.Pt () ;
       theSmallTree.m_dau1_eta = tlv_firstLepton.Eta () ;
       theSmallTree.m_dau1_phi = tlv_firstLepton.Phi () ;
@@ -537,6 +558,7 @@ int main (int argc, char** argv)
                                  // 3 = from tauH collection
                                  
       theSmallTree.m_dau2_iso = getIso (secondDaughterIndex, tlv_secondLepton.Pt (), theBigTree) ;
+      theSmallTree.m_dau2_photonPtSumOutsideSignalCone = theBigTree.daughters_photonPtSumOutsideSignalCone->at (secondDaughterIndex) ;      
       theSmallTree.m_dau2_pt = tlv_secondLepton.Pt () ;
       theSmallTree.m_dau2_eta = tlv_secondLepton.Eta () ;
       theSmallTree.m_dau2_phi = tlv_secondLepton.Phi () ;

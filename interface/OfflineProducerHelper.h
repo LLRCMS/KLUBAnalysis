@@ -46,7 +46,9 @@ class OfflineProducerHelper {
   };
 
   OfflineProducerHelper();
+  OfflineProducerHelper(TH1F* hCounter, TH1F *htauids);
   OfflineProducerHelper(TH1F* hCounter);
+
   int FindTriggerNumber(TString triggername);
   bool IsTriggerFired(int triggerbit, int triggerNumber);
   bool IsTriggerFired(int triggerbit, TString triggerName){return IsTriggerFired(triggerbit, FindTriggerNumber(triggerName));}
@@ -56,6 +58,7 @@ class OfflineProducerHelper {
   bool isTau(int type){if(type == TAU)return true; else return false;}
   int getPairType (int type1, int type2); // return pair type giving as input the particle types of the two composants
   bool checkBit (int word, int bitpos); // check bit "bitpos" in a word
+  int getTAUidNumber(TString tauIDname);
   
   // whatApply: use "OSCharge" (appplies on pairs only)
   // whatApply: use "All", "Iso", "pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
@@ -105,6 +108,7 @@ class OfflineProducerHelper {
 
  private:
   vector<TString> triggerlist;
+  vector<TString> tauidlist;
   
 };
 
