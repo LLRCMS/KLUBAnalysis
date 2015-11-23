@@ -573,8 +573,8 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
 
     if (LogY)
     {
-      float tmpMin = min3Select ((float)shape_bkg->GetMinimum(0), extremes_sig_norm.at(1), dataShapeMax, drawMC, drawSignal, drawData);
-      float tmpMax = max3Select ((float)shape_bkg->GetMaximum(), extremes_sig_norm.at(3), dataShapeMin, drawMC, drawSignal, drawData);
+      float tmpMin = min3Select ((float)shape_bkg->GetMinimum(0), extremes_sig_norm.at(1), dataShapeMin, drawMC, drawSignal, drawData);
+      float tmpMax = max3Select ((float)shape_bkg->GetMaximum(), extremes_sig_norm.at(3), dataShapeMax, drawMC, drawSignal, drawData);
       //leave a 0.3 of space for legend
       float rangeInLog = (log10 (tmpMax) - log10 (tmpMin));
       float lymax = log10(tmpMax) + 0.3*rangeInLog;   
