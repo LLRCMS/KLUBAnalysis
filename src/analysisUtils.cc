@@ -583,8 +583,8 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
     }
     else
     {
-      miny = 0.9*min3Select ((float)shape_bkg->GetMinimum(), extremes_sig_norm.at(1), dataShapeMax, drawMC, drawSignal, drawData);
-      maxy = 1.3*max3Select ((float)shape_bkg->GetMaximum(), extremes_sig_norm.at(3), dataShapeMin, drawMC, drawSignal, drawData);
+      miny = 0.9*min3Select ((float)shape_bkg->GetMinimum(), extremes_sig_norm.at(1), dataShapeMin, drawMC, drawSignal, drawData);
+      maxy = 1.3*max3Select ((float)shape_bkg->GetMaximum(), extremes_sig_norm.at(3), dataShapeMax, drawMC, drawSignal, drawData);
     }
   }
 
