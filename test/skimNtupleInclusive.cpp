@@ -544,15 +544,15 @@ int main (int argc, char** argv)
       theSmallTree.m_dau1_iso = getIso (firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree) ;
       theSmallTree.m_dau1_photonPtSumOutsideSignalCone = theBigTree.daughters_photonPtSumOutsideSignalCone->at (firstDaughterIndex) ;
       for(int i=0;i<hTauIDS->GetNbinsX();i++){
-        if(hTauIDS->GetXaxis()->GetBinLabel(i+1)=="byLooseCombinedIsolationDeltaBetaCorr3Hits"){
+        if(string(hTauIDS->GetXaxis()->GetBinLabel(i+1))==string("byLooseCombinedIsolationDeltaBetaCorr3Hits")){
           theSmallTree.m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (firstDaughterIndex) & (1 << i);
           theSmallTree.m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (secondDaughterIndex) & (1 << i);
         } 
-        if(hTauIDS->GetXaxis()->GetBinLabel(i+1)=="byMediumCombinedIsolationDeltaBetaCorr3Hits"){
+        if(string(hTauIDS->GetXaxis()->GetBinLabel(i+1))==string("byMediumCombinedIsolationDeltaBetaCorr3Hits")){
           theSmallTree.m_dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (firstDaughterIndex) & (1 << i);
           theSmallTree.m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (secondDaughterIndex) & (1 << i);
         } 
-        if(hTauIDS->GetXaxis()->GetBinLabel(i+1)=="byTightCombinedIsolationDeltaBetaCorr3Hits"){
+        if(string(hTauIDS->GetXaxis()->GetBinLabel(i+1))==string("byTightCombinedIsolationDeltaBetaCorr3Hits")){
           theSmallTree.m_dau1_byTightCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (firstDaughterIndex) & (1 << i);
           theSmallTree.m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (secondDaughterIndex) & (1 << i);
         } 
