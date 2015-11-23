@@ -523,8 +523,8 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
   TH1F * shape_bkg = 0; // use only id doShapes
   THStack * hstack_bkg_norm = 0;
   THStack * hstack_sig_norm = 0;
-  THStack * hstack_data_norm = 0;
-  TH1F * hshape_data = 0;
+  //THStack * hstack_data_norm = 0;
+  //TH1F * hshape_data = 0;
   float scaleData = 1.0;
 
   if (!doShapes)
@@ -557,11 +557,12 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
     hstack_sig_norm = normaliseStack (sig_stack, true) ;
     vector<float> extremes_sig_norm = getExtremes (hstack_sig_norm, LogY, true) ;
 
-    hstack_data_norm = normaliseStack (DATA_stack) ;
-    hshape_data = (TH1F*) hstack_data_norm->GetStack () ->Last() ;
-    scaleData = ((TH1F*) DATA_stack->GetStack () ->Last())->Integral();
-    float dataShapeMax = (hshape_data->GetMaximum() + sqrt (hshape_data->GetMaximum()))/scaleData;
-    float dataShapeMin = (hshape_data->GetMinimum())/scaleData;
+    //hstack_data_norm = normaliseStack (DATA_stack) ;
+    //hshape_data = (TH1F*) hstack_data_norm->GetStack () ->Last() ;
+    TH1F* histoDATA = (TH1F*) DATA_stack->GetStack () ->Last();
+    scaleData = histoDATA->Integral();
+    float dataShapeMax = (histoDATA->GetMaximum() + sqrt (histoDATA->GetMaximum()))/scaleData;
+    float dataShapeMin = (histoDATA->GetMinimum())/scaleData;
     /*
     hshape_data -> SetMarkerStyle (8);
     hshape_data -> SetMarkerSize (1.);
@@ -573,8 +574,8 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
 
     if (LogY)
     {
-      float tmpMin = min3Select ((float)shape_bkg->GetMinimum(0), extremes_sig_norm.at(1), dataShapeMax, drawMC, drawSignal, drawData);
-      float tmpMax = max3Select ((float)shape_bkg->GetMaximum(), extremes_sig_norm.at(3), dataShapeMin, drawMC, drawSignal, drawData);
+      float tmpMin = min3Select ((float)shape_bkg->GetMinimum(0), extremes_sig_norm.at(1), dataShapeMin, drawMC, drawSignal, drawData);
+      float tmpMax = max3Select ((float)shape_bkg->GetMaximum(), extremes_sig_norm.at(3), dataShapeMax, drawMC, drawSignal, drawData);
       //leave a 0.3 of space for legend
       float rangeInLog = (log10 (tmpMax) - log10 (tmpMin));
       float lymax = log10(tmpMax) + 0.3*rangeInLog;   
@@ -583,8 +584,10 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
     }
     else
     {
-      miny = 0.9*min3Select ((float)shape_bkg->GetMinimum(), extremes_sig_norm.at(1), dataShapeMax, drawMC, drawSignal, drawData);
-      maxy = 1.3*max3Select ((float)shape_bkg->GetMaximum(), extremes_sig_norm.at(3), dataShapeMin, drawMC, drawSignal, drawData);
+
+      //cout << "DDD: " << (float)shape_bkg->GetMaximum() << " " << extremes_sig_norm.at(3) << " " << dataShapeMax << " || " <<  drawMC << " " << drawSignal << " " << drawData  << " ---> " << max3Select ((float)shape_bkg->GetMaximum(), extremes_sig_norm.at(3), dataShapeMax, drawMC, drawSignal, drawData) << endl;
+      miny = 0.9*min3Select ((float)shape_bkg->GetMinimum(), extremes_sig_norm.at(1), dataShapeMin, drawMC, drawSignal, drawData);
+      maxy = 1.3*max3Select ((float)shape_bkg->GetMaximum(), extremes_sig_norm.at(3), dataShapeMax, drawMC, drawSignal, drawData);
     }
   }
 
