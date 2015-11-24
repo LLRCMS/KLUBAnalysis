@@ -21,10 +21,10 @@ void getLimits(TFile *f, std::vector<double> &v_mean,std::vector<double> &v_68l,
 //TString inputDir = "cards"; //"higgsCombineTest.Asymptotic.mH125.7.root";
 
 //custom inputs
-TString inputfolder="cards_combined_03Nov";
-TString var= "HH_mass";//"mT"; //"HH_mass";// for tautau
-TString sel="dijetOneBLKine"; //"dijethardiso";// for tautau
-TString plotName = "UpperLimit_combined_3nov";
+TString inputfolder="cards_combined_18Nov";
+TString var= "";//HHKin_mass";//"mT"; //"HH_mass";// for tautau
+TString sel="";//"defaultBtagLLMbbMttNoIso";//"dijetOneBLKineMttNoIso"; //"dijethardiso";// for tautau
+TString plotName = "UpperLimit_combined_18nov";
 TString channel="hh #rightarrow bb #tau_{#mu} #tau_{H} +  bb #tau_{H} #tau_{H}"; //channel name in plot
 
 //Plotting features
@@ -34,6 +34,7 @@ const bool addObsLimit = false;
 //Default inputs
 bool plotMu=false;
 float lambdas[]={-4,1,2.46,20};
+string lnames[] ={"Lambdam4","Lambda1","Lambda2dot46","Lambda20"};
 const int nLambdas = 4;
 const int nXsec = 10;
 float xsections[nXsec]= {12, 2.13, 1,  0.66, 0.47, 0.42, 0.53, 0.79, 50,  105};
@@ -55,7 +56,7 @@ const bool isTiny = false;
 int canvasX = 900;
 int canvasY = 700;
 double sqrts = 13.0;
-double lumin = 3.00;
+double lumin = 1.80;
 bool onepointta=true;
 // ----------------------- //
 
@@ -80,7 +81,7 @@ void plotAsymptotic() {
   float lim[nLambdas], limobs[nLambdas],lim68l[nLambdas],lim68h[nLambdas],lim95l[nLambdas],lim95h[nLambdas];
   for(int ifile=0;ifile<nLambdas;ifile++){
    TString filename;
-   filename.Form("%s/lambda%.2f%s%s/higgsCombineLambda%.2f_forLim.Asymptotic.mH125.root",inputfolder.Data(),lambdas[ifile],sel.Data(),var.Data(),lambdas[ifile]);
+   filename.Form("%s/%s%s%s/higgsCombine%s_forLim.Asymptotic.mH125.root",inputfolder.Data(),lnames[ifile],sel.Data(),var.Data(),lnames[ifile]);
    TFile *inFile = TFile::Open(filename.Data());
    getLimits(inFile,Val_mean,Val_68l,Val_68h,Val_95l,Val_95h,Val_obs,onepointta);
    //cout<<"got"<<endl;

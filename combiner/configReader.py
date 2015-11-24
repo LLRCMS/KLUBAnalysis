@@ -52,6 +52,7 @@ class configReader:
         self.useCMS_zz4l_mean = False
         self.useCMS_zz4l_sigma = False
 
+        self.inputFolder = ""
 
     def goodEntry(self,variable):
         if variable == -999.9:
@@ -95,7 +96,8 @@ class configReader:
                     for sample in range(1,len(f)-1): self.background.append(f[sample])
                 elif f[0] == "data": 
                     for sample in range(1,len(f)-1): self.datasamples.append(f[sample])
-
+                elif f[0] == "outputFolderName":
+                    self.inputFolder = f[1] 
  #               for chan in f:
  #                   if chan == f[0]: continue
  #                   if chan.lower().startswith("ggh"):     self.ggH_chan = True
@@ -111,9 +113,11 @@ class configReader:
  #                   elif chan.lower().startswith("all"):   self.all_chan = True
  #                   else : raise RuntimeError, "Unknown channel {0}, choices are ggH, qqH, WH, ZH, ttH, qqZZ, ggZZ, zjets".format(chan)
   	        #continue
-
-            if section == "systematics": #devo capire che formato sare    
-                continue
+            if section == "evalQCD":
+                if f[0] == "outputFolderName":
+                    self.inputFolder = self.inputFolder + "/" +f[1] 
+            #if section == "systematics": #devo capire che formato sare    
+            #    continue
             #print f        
             if f[0] == "lumi" :
                 self.lumi = float(f[1])

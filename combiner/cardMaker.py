@@ -44,13 +44,13 @@ class cardMaker:
         dname=""
         theDataSample = "DsingleMuPromptReco" #"DsingleMuPromptReco"
         if(theChannel) == 3:
-            theDataSample = "DsingleTau" #"DsingleTauPromptReco"
+            theDataSample = "DsingleTauPromptReco" #"DsingleTauPromptReco"
 
-        theOutLambda = str(int(theHHLambda))
-        if abs(theHHLambda - int(theHHLambda) )>0.01 : 
-            theOutLambda = str(int(theHHLambda))+"dot"+ str(int(100*abs(theHHLambda - int(theHHLambda) )))
-        if theHHLambda <0 : 
-            theOutLambda = "m"+str(abs(int(theHHLambda)))
+        #theOutLambda = theHHLambda#str(int(theHHLambda))
+        #if abs(theHHLambda - int(theHHLambda) )>0.01 : 
+        #    theOutLambda = str(int(theHHLambda))+"dot"+ str(int(100*abs(theHHLambda - int(theHHLambda) )))
+        #if theHHLambda <0 : 
+        #    theOutLambda = "m"+str(abs(int(theHHLambda)))
 
         #theHHLambda = 20 ##FIXME, waiting for the other samples
         if(self.is2D==2):dname="2D"
@@ -89,7 +89,7 @@ class cardMaker:
         else :
             var2 = theInputs.AllVars[theInputs.varY]
         #print "test2D_{0}{1}_Lambda{2:.0f}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theHHLambda,theInputs.selectionLevel)
-        nameString = "OS_sig_{0}{1}_OS_{3}_Lambda{2}".format(theInputs.AllVars[theInputs.varX],var2,theOutLambda,theInputs.selectionLevel)
+        nameString = "OS_sig_{0}{1}_OS_{3}_{2}".format(theInputs.AllVars[theInputs.varX],var2,theHHLambda,theInputs.selectionLevel)
         print nameString
         templateSIG = inputFile.Get(nameString)
         if self.is2D==1: 
@@ -175,7 +175,7 @@ class cardMaker:
         #Default
         morphVarList_sig = ROOT.RooArgList()
         MorphList_sig = ROOT.RooArgList()
-        TemplateName = "SIG_TempDataHist_{0:.0f}_{1:.0f}_{2:.2f}".format(theChannel,self.sqrts,theHHLambda)
+        TemplateName = "SIG_TempDataHist_{0:.0f}_{1:.0f}_{2}".format(theChannel,self.sqrts,theHHLambda)
         SIG_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateSIG)
         #PdfName = "SIG_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
         SIG_TemplatePdf = ROOT.RooHistPdf("sig","sig",ras_variableSet,SIG_TempDataHist)
@@ -204,7 +204,7 @@ class cardMaker:
         qcdbinsysts = []
         #listTemplates = []
         for ibkg in range(len(templatesBKG)):
-            TemplateName = "BKG_{3}_TempDataHist_{0:.0f}_{1:.0f}_{2:.2f}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
+            TemplateName = "BKG_{3}_TempDataHist_{0:.0f}_{1:.0f}_{2}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
             rdhB.append(ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templatesBKG[ibkg]))
             PdfName = "bkg_{0}".format(theInputs.background[ibkg])
             rhpB.append(ROOT.RooHistPdf(PdfName,PdfName,ras_variableSet,rdhB[ibkg]))
@@ -280,10 +280,10 @@ class cardMaker:
         #name_ShapeDC = "cards{3}/{0}/hh_{1}_L{2:.0f}_13TeV.txt".format(theOutputDir,theChannel,theHHLambda,dname)
         #string_ShapeWS = "hh_{0}_L{1:.0f}_13TeV.input.root".format(theChannel,theHHLambda)
         #string_ShapeDC = "hh_{0}_L{1:.0f}_13TeV.txt".format(theChannel,theHHLambda)
-        name_ShapeWS = "cards{3}/{0}/hh_{1}_L{2:.2f}_13TeV.input.root".format(theOutputDir,theChannel,theHHLambda,dname)
-        name_ShapeDC = "cards{3}/{0}/hh_{1}_L{2:.2f}_13TeV.txt".format(theOutputDir,theChannel,theHHLambda,dname)
-        string_ShapeWS = "hh_{0}_L{1:.2f}_13TeV.input.root".format(theChannel,theHHLambda)
-        string_ShapeDC = "hh_{0}_L{1:.2f}_13TeV.txt".format(theChannel,theHHLambda)
+        name_ShapeWS = "cards{3}/{0}/hh_{1}_L{2}_13TeV.input.root".format(theOutputDir,theChannel,theHHLambda,dname)
+        name_ShapeDC = "cards{3}/{0}/hh_{1}_L{2}_13TeV.txt".format(theOutputDir,theChannel,theHHLambda,dname)
+        string_ShapeWS = "hh_{0}_L{1}_13TeV.input.root".format(theChannel,theHHLambda)
+        string_ShapeDC = "hh_{0}_L{1}_13TeV.txt".format(theChannel,theHHLambda)
 
         w.writeToFile(name_ShapeWS)
 
@@ -333,7 +333,7 @@ class cardMaker:
         file.write("\n")
 
         file.write("------------\n")
-        syst = systReader("../config/systematics.cfg",['Lambda20'],theInputs.background,file)
+        syst = systReader("../config/systematics.cfg",[theHHLambda],theInputs.background,file)
         #syst = systReader("../config/systematics_test.cfg",['Lambda{0}'.format(theOutLambda)],theInputs.background) 
         #if(theChannel == self.ID_ch_tautau ): 
         #    systReader.addSystFile("../config_systematics_tautau.cfg")
@@ -353,8 +353,9 @@ def parseOptions():
     
     parser.add_option('-d', '--is2D',   dest='is2D',       type='int',    default=1,     help='number of Dimensions (default:1)')
     parser.add_option('-f', '--filename',   dest='filename', type='string', default="",  help='input plots')
-    parser.add_option('-l', '--lambda',   dest='Lambda', type='float', default=20,  help='Lambda value')
+    #parser.add_option('-l', '--lambda',   dest='Lambda', type='float', default=20,  help='Lambda value')
     parser.add_option('-c', '--channel',   dest='channel', type='string', default='MuTau',  help='final state')
+    parser.add_option('-i', '--config',   dest='config', type='string', default='',  help='config file')
     parser.add_option('-o', '--selection', dest='overSel', type='string', default='', help='overwrite selection string')
     parser.add_option('-v', '--variable', dest='overVar', type='string', default='bH_mass', help='overwrite plot variable (only1D)')
     parser.add_option('-s', '--scale', dest='scale', type='float', default='1', help='scale templates')
@@ -366,9 +367,9 @@ def parseOptions():
     if (opt.is2D != 1 and opt.is2D != 2):
         print 'The input '+opt.is2D+' is unkown for is2D.  Please choose 1 or 2. Exiting...'
         sys.exit()
-    if (opt.filename==""):
-        print "you MUST specify an input file [please use -f option]"
-        sys.exit()
+    #if (opt.filename==""):
+    #    print "you MUST specify an input file [please use -f option]"
+    #    sys.exit()
 
 # run as main
 if __name__ == "__main__":
@@ -378,16 +379,26 @@ if __name__ == "__main__":
     dc =cardMaker()
     dc.loadIncludes()
     dc.set2D(opt.is2D)
-    dc.setfileName(opt.filename)
     dc.scale=opt.scale
-    #outputDir = ""
-    input = configReader("../config/analysis_"+opt.channel+".cfg")
+
+    if(opt.config==""):
+        configname = "../config/analysis_"+opt.channel+".cfg"
+    else :
+        configname = opt.config
+    input = configReader(configname)
+
     #input = configReader("../config/analysis_TESTMT.cfg")
     thechannel = 1
     if opt.channel == "MuTau" : thechannel=2
     elif opt.channel == "TauTau" : thechannel = 3
 
     input.readInputs()
+
+    if opt.filename == "":
+        filename = "../"+input.inputFolder+"/outPlotter.root"
+    else: filename = opt.filename
+    dc.setfileName(filename)
+
     #Optionally overwrite config instructions (for testing purposes)
     if opt.overSel is not "":
         #print "OVERSEL="+opt.overSel
@@ -405,4 +416,5 @@ if __name__ == "__main__":
                 for iad in range(len(input.additionalName)) :
                     input.additionalName[iad] = re.sub('bH_mass',opt.overVar,input.additionalName[iad])
 
-    dc.makeCardsAndWorkspace(opt.Lambda,1,thechannel,"lambda{0:.2f}{1}{2}".format(opt.Lambda,opt.overSel,opt.overVar),input)
+    for signal in input.signals :
+        dc.makeCardsAndWorkspace(signal,1,thechannel,"{0}{1}{2}".format(signal,opt.overSel,opt.overVar),input)
