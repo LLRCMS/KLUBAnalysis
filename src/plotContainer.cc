@@ -430,6 +430,22 @@ plotContainer::scale (float scaleFactor)
               iSample->second->Scale (scaleFactor) ;
         }
     }
+
+  for (vars_2D_coll::iterator iVar = m_2Dhistos.begin () ;
+       iVar != m_2Dhistos.end () ;
+       ++iVar)
+    {
+      for (cuts_2D_coll::iterator iCut = iVar->second.begin () ; 
+           iCut != iVar->second.end () ;
+           ++iCut)
+        {
+          for (samples_2D_coll::iterator iSample = iCut->second.begin () ; 
+               iSample != iCut->second.end () ;
+               ++iSample)
+              iSample->second->Scale (scaleFactor) ;
+        }
+    }
+
   return ;
 }
 
@@ -550,12 +566,35 @@ plotContainer::addSample (string sampleName, const plotContainer & original) // 
       exit (1) ;
     }
 
-  vars_2D_coll::const_iterator iVarOrig = original.m_2Dhistos.begin () ;
-  for (vars_2D_coll::iterator iVar = m_2Dhistos.begin () ;
-       iVar != m_2Dhistos.end () ;
+  vars_coll::const_iterator iVarOrig = original.m_histos.begin () ;
+  for (vars_coll::iterator iVar = m_histos.begin () ;
+       iVar != m_histos.end () ;
        ++iVar, ++iVarOrig)
     {
-      cuts_2D_coll::const_iterator iCutOrig = iVarOrig->second.begin () ;
+      cuts_coll::const_iterator iCutOrig = iVarOrig->second.begin () ;
+      for (cuts_coll::iterator iCut = iVar->second.begin () ; 
+           iCut != iVar->second.end () ;
+           ++iCut, ++iCutOrig)
+        {
+          if (iCutOrig->second.size () != 1)
+            {
+              cerr << "container " << original.m_name
+                   << "does not have a single sample\n" ;
+              exit (1) ;
+            }
+          iCut->second.insert (pair<string, TH1F *> (
+              sampleName,
+              iCutOrig->second.begin()->second
+            )) ;
+        }
+    }
+
+  vars_2D_coll::const_iterator iVarOrig2D = original.m_2Dhistos.begin () ;
+  for (vars_2D_coll::iterator iVar = m_2Dhistos.begin () ;
+       iVar != m_2Dhistos.end () ;
+       ++iVar, ++iVarOrig2D)
+    {
+      cuts_2D_coll::const_iterator iCutOrig = iVarOrig2D->second.begin () ;
       for (cuts_2D_coll::iterator iCut = iVar->second.begin () ; 
            iCut != iVar->second.end () ;
            ++iCut, ++iCutOrig)
