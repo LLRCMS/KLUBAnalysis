@@ -239,12 +239,12 @@ int main (int argc, char** argv)
   plotContainer SS_QCD ("SS_QCD", variablesList, variables2DList, selections_SS, QCDsample, 0) ;
 //  vector <TH1F *> SS_QCD ;
   vector<vector<float>> QCDyieldSSregionRLXiso (variablesList.size(), vector<float>(selections_SS.size()) ); // var, cut
+  vector<vector<float>> QCDyieldSSregionRLXiso2D (variables2DList.size(), vector<float>(selections_SS.size()) ); // 2Dvar, cut (for 2D histos)
 
-
-  for (unsigned int ivar = 0 ; ivar < variablesList.size () ; ++ivar)
-    {
-      for (unsigned int icut = 0 ; icut < selections_SS.size () ; ++icut)
-        {
+  for (unsigned int icut = 0 ; icut < selections_SS.size () ; ++icut)
+  {
+    for (unsigned int ivar = 0 ; ivar < variablesList.size () ; ++ivar)
+      {
           THStack * D_stack = SS_DATA_plots.makeStack (variablesList.at (ivar),
                                   selections_SS.at (icut).first.Data ()) ;
           TH1F * tempo = (TH1F *) D_stack->GetStack ()->Last () ;
@@ -259,6 +259,23 @@ int main (int argc, char** argv)
           SS_QCD.m_histos[variablesList.at (ivar)][selections_SS.at (icut).first.Data ()]["QCD"] = dummy ;
           QCDyieldSSregionRLXiso.at(ivar).at(icut) = dummy->Integral();
         }
+    for (unsigned int i2dvar = 0 ; i2dvar < variables2DList.size () ; ++i2dvar)
+      {
+          THStack * D_stack = SS_DATA_plots.make2DStack (variables2DList.at (i2dvar),
+                                  selections_SS.at (icut).first.Data ()) ;
+          TH2F * tempo = (TH2F *) D_stack->GetStack ()->Last () ;
+          TString name = tempo->GetName () ;
+          name = TString ("DDQCD2d_") + name ;
+          TH2F * dummy = (TH2F *) tempo->Clone (name) ;
+
+          THStack * b_stack = SS_bkg_plots.make2DStack (variables2DList.at (i2dvar),
+                                  selections_SS.at (icut).first.Data ()) ;
+          TH2F * h_bkg = (TH2F *) b_stack->GetStack ()->Last () ;
+          dummy->Add (h_bkg, -1) ;
+          SS_QCD.m_2Dhistos[variables2DList.at(i2dvar).first + variables2DList.at(i2dvar).second][selections_SS.at (icut).first.Data ()]["QCD"] = dummy ;
+          QCDyieldSSregionRLXiso2D.at(i2dvar).at(icut) = dummy->Integral();
+        }
+
     }
 
   /* FIXME should we subtract signals as well? */
@@ -311,11 +328,12 @@ int main (int argc, char** argv)
   plotContainer SS_QCD_tightIso ("SS_tightIso_QCD", variablesList, variables2DList, selections_SS_tightIso, QCDsample, 0) ;
 //  vector <TH1F *> SS_QCD ;
   vector<vector<float>> QCDyieldSSregionTightIso (variablesList.size(), vector<float>(selections_SS_tightIso.size()) ); // var, cut
+  vector<vector<float>> QCDyieldSSregionTightIso2D (variables2DList.size(), vector<float>(selections_SS_tightIso.size()) ); // var, cut
   
-  for (unsigned int ivar = 0 ; ivar < variablesList.size () ; ++ivar)
-    {
-      for (unsigned int icut = 0 ; icut < selections_SS_tightIso.size () ; ++icut)
-        {
+ for (unsigned int icut = 0 ; icut < selections_SS_tightIso.size () ; ++icut)
+      {
+    for (unsigned int ivar = 0 ; ivar < variablesList.size () ; ++ivar)
+      {     
           THStack * D_stack = SS_tightIso_DATA_plots.makeStack (variablesList.at (ivar),
                                   selections_SS_tightIso.at (icut).first.Data ()) ;
           TH1F * tempo = (TH1F *) D_stack->GetStack ()->Last () ;
@@ -340,6 +358,35 @@ int main (int argc, char** argv)
           QCDyieldSSregionTightIso.at(ivar).at(icut) = dummy->Integral(); // if AddUnderAndOverFlow is called they will be all identical
           SS_QCD_tightIso.m_histos[variablesList.at (ivar)][selections_SS.at (icut).first.Data ()]["QCD"] = dummy ;
         }
+    
+    for (unsigned int i2dvar = 0 ; i2dvar < variables2DList.size () ; ++i2dvar)
+      {     
+          THStack * D_stack = SS_tightIso_DATA_plots.make2DStack (variables2DList.at (i2dvar),
+                                  selections_SS_tightIso.at (icut).first.Data ()) ;
+          TH2F * tempo = (TH2F *) D_stack->GetStack ()->Last () ;
+          TString name = tempo->GetName () ;
+          name = TString ("DDQCD2d_tightIso_") + name ;
+          TH2F * dummy = (TH2F *) tempo->Clone (name) ;
+
+          THStack * b_stack = SS_tightIso_bkg_plots.make2DStack (variables2DList.at (i2dvar),
+                                  selections_SS_tightIso.at (icut).first.Data ()) ;
+          TH2F * h_bkg = (TH2F *) b_stack->GetStack ()->Last () ;
+          dummy->Add (h_bkg, -1) ;
+
+          /*
+          if(i2dvar==0){
+            int nbins = tempo->GetNbinsX();
+            for(int irun =0;irun<nruns;irun++){//This is done only on the first variable
+              for(int ibin=1; ibin<=nbins;ibin++)
+                tempo->SetBinContent(ibin,g->Poisson(dummy->GetBinContent(ibin)));
+            //tempo->Add (h_bkg, -1) ; // ho gia fatto addbkg prima
+              QCDYields.at(icut)->Fill(tempo->Integral());
+            }
+          }
+          */
+          QCDyieldSSregionTightIso2D.at(i2dvar).at(icut) = dummy->Integral(); // if AddUnderAndOverFlow is called they will be all identical
+          SS_QCD_tightIso.m_2Dhistos[variables2DList.at(i2dvar).first + variables2DList.at(i2dvar).second][selections_SS.at (icut).first.Data ()]["QCD"] = dummy ;
+        }
     }
 
 
@@ -351,17 +398,23 @@ int main (int argc, char** argv)
 
   // now scale with rlx to tight iso ratio (normalization taken from tight iso region)
   vector<vector<float>> rlxToTightIsoScale (variablesList.size(), vector<float> (selections_SS.size()) );
-  for (unsigned int ivar = 0; ivar < variablesList.size(); ivar++)
+  vector<vector<float>> rlxToTightIsoScale2D (variables2DList.size(), vector<float> (selections_SS.size()) );
+  for (unsigned int icut = 0; icut < selections_SS.size(); icut++)
   {
-    for (unsigned int icut = 0; icut < selections_SS.size(); icut++)
+    for (unsigned int ivar = 0; ivar < variablesList.size(); ivar++)
     {
       rlxToTightIsoScale.at(ivar).at(icut) = QCDyieldSSregionTightIso.at(ivar).at(icut) / QCDyieldSSregionRLXiso.at(ivar).at(icut) ;
+    }
+    for (unsigned int i2dvar = 0; i2dvar < variables2DList.size(); i2dvar++)
+    {
+      rlxToTightIsoScale2D.at(i2dvar).at(icut) = QCDyieldSSregionTightIso2D.at(i2dvar).at(icut) / QCDyieldSSregionRLXiso2D.at(i2dvar).at(icut) ;
     }
   }
 
   cout << "QCD info: scale from rlx iso to tight iso is: " << rlxToTightIsoScale.at(0).at(0) << endl;
 
   SS_QCD.scale (variablesList, selections_SS, rlxToTightIsoScale) ;
+  SS_QCD.scale2D (variables2DList, selections_SS, rlxToTightIsoScale2D) ;
   int QCDcolor = gConfigParser->readIntOption ("colors::QCD") ;
   SS_QCD.setHistosProperties (0, QCDcolor) ; 
 
@@ -455,6 +508,11 @@ int main (int argc, char** argv)
   // SS iso region (the one used for the QCD)
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_SSrlxiso/")) ;
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_SStightiso/")) ;
+
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_noSignal/")) ;
+
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/canvases2D/")) ;
+  TFile* fPlots2D = new TFile (outFolderNameBase + TString ("/canvases2D/2Dplots.root"), "recreate");
 
 
   TCanvas * c = new TCanvas ("c", "c", 600, 600) ;
@@ -630,6 +688,15 @@ int main (int argc, char** argv)
 
           coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
+
+          // ---------------
+          outFolderName = outFolderNameBase + TString ("/events_noSignal/") ;
+          std::vector<TObject*> drawings_nonScaled_10 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, false, false, true, true, true, false, false) ;
+
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
           
           // c->SetLogy (1) ;
           // bkg->Draw () ;
@@ -671,13 +738,6 @@ int main (int argc, char** argv)
           // c->SaveAs (coutputName.Data ()) ;
          
 
-          
-          // plotting 2D histos, one per sample as it is hard to superimpose them
-          // ---- ---- ---- ---- ---- ---- ---- ---- ----
-          // outFolderName = outFolderNameBase + TString ("/plots2D/") ;
-          // OS_sig_plots.         
-          
-
           // delete hstack_bkg_norm;
           // delete hstack_sig_norm;
           // delete sig_stack;
@@ -698,10 +758,24 @@ int main (int argc, char** argv)
           
      
         } // loop on variables
+    
+        for (unsigned int i2dvar = 0; i2dvar < variables2DList.size(); i2dvar++)
+        {
+          fPlots2D->cd();
+          //TString outFolderName ;
+          //outFolderName = outFolderNameBase + TString ("/canvases2D/") ;
+          THStack* bkg_2d_stack = OS_bkg_plots.make2DStack (variables2DList.at(i2dvar), selections_OS.at (isel).first.Data()); 
+          THStack* DATA_2d_stack = OS_DATA_plots.make2DStack (variables2DList.at(i2dvar), selections_OS.at (isel).first.Data()); 
+          THStack* sig_2d_stack = OS_sig_plots.make2DStack (variables2DList.at(i2dvar), selections_OS.at (isel).first.Data()); 
+          //coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          bkg_2d_stack->Write();
+          DATA_2d_stack->Write();
+          sig_2d_stack->Write();
+        }
     } // loop on selections
 
   delete c ;
-
+  fPlots2D->Close();
 
   // print yields
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----

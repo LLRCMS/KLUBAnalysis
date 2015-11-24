@@ -11,6 +11,7 @@
 #include "TCanvas.h"
 #include "TLegend.h"
 #include "TStyle.h"
+#include "TF1.h"
 
 #include "HistoManager.h"
 #include "ConfigParser.h"
@@ -59,8 +60,9 @@ TH1F* makeRatio (plotContainer& pcOS, plotContainer& pcSS,
 
   TH1F* hratio = (TH1F*)hOS->Clone(newName);
   hratio -> Divide (hSS);
-  hratio -> SetMinimum(0.85);
-  hratio -> SetMaximum(1.25);
+  hratio -> SetMinimum(0.80);
+  hratio -> SetMaximum(1.30);
+  hratio -> GetYaxis()->SetTitle("OS/SS");
 
   return hratio;
 }
@@ -164,7 +166,7 @@ int main (int argc, char** argv)
   // get the selections to be applied
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  vector<string> activeSelections = gConfigParser->readStringListOption ("selections::list") ;
+  vector<string> activeSelections = gConfigParser->readStringListOption ("computeQCDratio::list") ;
   vector<pair <TString, TCut> > selections = readCutsFile (
       activeSelections,
       gConfigParser->readStringOption ("selections::selectionsFile")
@@ -267,7 +269,7 @@ int main (int argc, char** argv)
               lumi,
               vector<float> (0),
               true, false) ;
-  SS_DATA_plots.AddOverAndUnderFlow () ;
+ // SS_DATA_plots.AddOverAndUnderFlow () ;
 
   cout << "--- MAIN reading bkg and filling SS histos" << endl ;
 
@@ -279,7 +281,7 @@ int main (int argc, char** argv)
               lumi,
               vector<float> (0),
               false, false, maxEvtsMC) ;
-  SS_bkg_plots.AddOverAndUnderFlow () ;
+ // SS_bkg_plots.AddOverAndUnderFlow () ;
 
   cout << "--- MAIN preparing to loop on variables and selections to calc SS QCD" << endl ;
 
@@ -321,7 +323,7 @@ int main (int argc, char** argv)
               lumi,
               vector<float> (0),
               true, false) ;
-  OS_DATA_plots.AddOverAndUnderFlow () ;
+  // OS_DATA_plots.AddOverAndUnderFlow () ;
 
   cout << "--- MAIN reading bkg and filling OS histos" << endl ;
 
@@ -333,7 +335,7 @@ int main (int argc, char** argv)
               lumi,
               vector<float> (0),
               false, false, maxEvtsMC) ;
-  OS_bkg_plots.AddOverAndUnderFlow () ;
+  // OS_bkg_plots.AddOverAndUnderFlow () ;
 
   cout << "--- MAIN preparing to loop on variables and selections to calc OS QCD" << endl ;
 
@@ -386,6 +388,9 @@ int main (int argc, char** argv)
 
   gStyle->SetOptFit(1111);
 
+  TF1* f = new TF1 ("f", "[0] + [1]*x");
+  f->SetParameters (1.06, -0.0002);
+
   //for (unsigned int isample = 0; isample < samples.size(); isample++)
   for (unsigned int ivar = 0; ivar < variablesList.size(); ivar++)
   {
@@ -406,7 +411,8 @@ int main (int argc, char** argv)
 
           c1->SetLogy(false);
           thisRatio -> Draw();
-          thisRatio -> Fit("pol1");
+          //thisRatio -> Fit("pol1");
+          thisRatio -> Fit("f", "", "", 200, 1000);
           TString newName = outFolderNameBase + "ratioplots/ratio_" + variablesList.at(ivar) + "_" + selections.at(isel).first + Form("_%f_%f.pdf", dau1iso_thrLow.at(ithr), dau2iso_thrLow.at(ithr)) ;
           c1->Print (newName, "pdf");
 
@@ -472,13 +478,20 @@ int main (int argc, char** argv)
     {
       THStack * D_stack = OS_DATA_plots.makeStack (variablesList.at (ivar),
                               selections_OS.at (icut).first.Data ()) ;
-      //TH1F * tempo = (TH1F *) D_stack->GetStack ()->Last () ;
-    
+      TH1F * D_histo = (TH1F *) D_stack->GetStack ()->Last () ;
+      D_histo -> Sumw2(false);
+      D_histo -> SetBinErrorOption(TH1::kPoisson);
+      D_histo -> SetMarkerStyle (8);
+      D_histo -> SetMarkerSize (1);
+      D_histo -> SetMarkerColor (kBlack);
+      D_histo->SetMinimum(1.);
+
+
       THStack * b_stack = OS_bkg_plots.makeStack (variablesList.at (ivar),
                               selections_OS.at (icut).first.Data ()) ;
       //TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
-
-      D_stack->Draw(); // data surely above bkg as it is QCD dominated
+      D_histo->SetStats(false);
+      D_histo->Draw("E"); // data surely above bkg as it is QCD dominated
       b_stack->Draw("hist same"); // data surely above bkg as it is QCD dominated
 
       TString newName = outFolderNameBase + "events/plot_" + variablesList.at(ivar) + "_" + selections_OS.at (icut).first + "_OS.pdf" ;
@@ -499,13 +512,21 @@ int main (int argc, char** argv)
     {
       THStack * D_stack = SS_DATA_plots.makeStack (variablesList.at (ivar),
                               selections_SS.at (icut).first.Data ()) ;
-      //TH1F * tempo = (TH1F *) D_stack->GetStack ()->Last () ;
+      TH1F * D_histo = (TH1F *) D_stack->GetStack ()->Last () ;
+      D_histo -> Sumw2(false);
+      D_histo -> SetBinErrorOption(TH1::kPoisson);
+      D_histo -> SetMarkerStyle (8);
+      D_histo -> SetMarkerSize (1);
+      D_histo -> SetMarkerColor (kBlack);
+      D_histo->SetMinimum(1.);
+
     
       THStack * b_stack = SS_bkg_plots.makeStack (variablesList.at (ivar),
                               selections_SS.at (icut).first.Data ()) ;
       //TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
 
-      D_stack->Draw(); // data surely above bkg as it is QCD dominated
+      D_histo->SetStats(false);
+      D_histo->Draw("E"); // data surely above bkg as it is QCD dominated
       b_stack->Draw("hist same"); // data surely above bkg as it is QCD dominated
 
       TString newName = outFolderNameBase + "events/plot_" + variablesList.at(ivar) + "_" + selections_SS.at (icut).first + "_SS.pdf" ;

@@ -351,10 +351,6 @@ int main (int argc, char** argv)
       metpass += metbit & (1 << 6);
       if(metpass > 0) continue ;
       
-      // exclusive bits asked later
-      //int triggerbit = theBigTree.triggerbit;
-      //if (triggerbit == 0) continue;
-
       if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
       else      counter.at (selID++) += 1 ;
 
@@ -368,6 +364,14 @@ int main (int argc, char** argv)
       //  5 : emu
     
       map<int, int> foundPairs ; // pairType, pairIndexInVectors
+
+      // determine kind of pairs according to trigger
+      int trigPairType = -99;
+      Long64_t triggerbit = theBigTree.triggerbit;
+      if (trigReader.checkOR (0, triggerbit) ) trigPairType = 0;
+      else if (trigReader.checkOR (1, triggerbit) ) trigPairType = 1;
+      else if (trigReader.checkOR (2, triggerbit) ) trigPairType = 2;
+      else if (trigReader.checkOR (5, triggerbit) ) trigPairType = 5; // FIXME! maybe ee, mumu need to be evaluated as well
 
       for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
         {
@@ -398,6 +402,11 @@ int main (int argc, char** argv)
           int pairType = oph.getPairType (type1, type2) ;
           if (foundPairs.find (pairType) != foundPairs.end ()) continue ;
           
+          if (!skipTriggers)
+          {
+            if (pairType != trigPairType) continue; // flavor determined by trigger type
+          }
+
           foundPairs[pairType] = iPair ;
         }  
 
@@ -410,13 +419,14 @@ int main (int argc, char** argv)
       if (saveOS == 1 && !isOS) continue ;
       if (saveOS == 0 &&  isOS) continue ;
       
-      int triggerbit = theBigTree.triggerbit;
+      /*
       int thisPairType = foundPairs.begin()->first ; // this is the pairType used
       bool ORtrigBits = trigReader.checkOR (thisPairType, triggerbit);
       if (!skipTriggers)
       {
         if (!ORtrigBits) continue;
       }
+      */
 
       if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
       else      counter.at (selID++) += 1 ;
@@ -534,15 +544,15 @@ int main (int argc, char** argv)
       theSmallTree.m_dau1_iso = getIso (firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree) ;
       theSmallTree.m_dau1_photonPtSumOutsideSignalCone = theBigTree.daughters_photonPtSumOutsideSignalCone->at (firstDaughterIndex) ;
       for(int i=0;i<hTauIDS->GetNbinsX();i++){
-        if(hTauIDS->GetXaxis()->GetBinLabel(i+1)=="byLooseCombinedIsolationDeltaBetaCorr3Hits"){
+        if(string(hTauIDS->GetXaxis()->GetBinLabel(i+1))==string("byLooseCombinedIsolationDeltaBetaCorr3Hits")){
           theSmallTree.m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (firstDaughterIndex) & (1 << i);
           theSmallTree.m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (secondDaughterIndex) & (1 << i);
         } 
-        if(hTauIDS->GetXaxis()->GetBinLabel(i+1)=="byMediumCombinedIsolationDeltaBetaCorr3Hits"){
+        if(string(hTauIDS->GetXaxis()->GetBinLabel(i+1))==string("byMediumCombinedIsolationDeltaBetaCorr3Hits")){
           theSmallTree.m_dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (firstDaughterIndex) & (1 << i);
           theSmallTree.m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (secondDaughterIndex) & (1 << i);
         } 
-        if(hTauIDS->GetXaxis()->GetBinLabel(i+1)=="byTightCombinedIsolationDeltaBetaCorr3Hits"){
+        if(string(hTauIDS->GetXaxis()->GetBinLabel(i+1))==string("byTightCombinedIsolationDeltaBetaCorr3Hits")){
           theSmallTree.m_dau1_byTightCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (firstDaughterIndex) & (1 << i);
           theSmallTree.m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (secondDaughterIndex) & (1 << i);
         } 
@@ -672,7 +682,7 @@ int main (int argc, char** argv)
 
           float METx = theBigTree.METx->at (chosenTauPair) ;
           float METy = theBigTree.METy->at (chosenTauPair) ;
-          float METpt = 0;//TMath::Sqrt (METx*METx + METy*METy) ;
+          //float METpt = 0;//TMath::Sqrt (METx*METx + METy*METy) ;
     
 	        const TVector2 ptmiss = TVector2(METx, METy) ;
           //TVector2 ptmiss = TVector2(METx,METy);
@@ -889,56 +899,61 @@ int main (int argc, char** argv)
   smallFile->Write () ;
   smallFile->Close () ;
 
-  TFile *outFile = TFile::Open(outputFile,"UPDATE");
-  TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
+  bool computeMVA = gConfigParser->readBoolOption ("TMVA::computeMVA");
+  
+  if (computeMVA)
+  {  
+    TFile *outFile = TFile::Open(outputFile,"UPDATE");
+    TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 
-  TMVA::Reader * reader = new TMVA::Reader () ;
-  Float_t mvatautau,mvamutau;
-  TBranch *mvaBranchmutau;
-  TBranch *mvaBranchtautau;
+    TMVA::Reader * reader = new TMVA::Reader () ;
+    Float_t mvatautau,mvamutau;
+    TBranch *mvaBranchmutau;
+    TBranch *mvaBranchtautau;
 
-  vector<float> address (TMVAvariables.size () + TMVAspectators.size () * TMVAspectatorsIn, 0.) ; 
-  for (unsigned int iv = 0 ; iv < TMVAvariables.size () ; ++iv)
-  {
-    treenew->SetBranchAddress (TMVAvariables.at (iv).c_str (), &(address.at (iv))) ;
-    reader->AddVariable (TMVAvariables.at (iv), &(address.at (iv))) ;
-  }  
+    vector<float> address (TMVAvariables.size () + TMVAspectators.size () * TMVAspectatorsIn, 0.) ; 
+    for (unsigned int iv = 0 ; iv < TMVAvariables.size () ; ++iv)
+    {
+      treenew->SetBranchAddress (TMVAvariables.at (iv).c_str (), &(address.at (iv))) ;
+      reader->AddVariable (TMVAvariables.at (iv), &(address.at (iv))) ;
+    }  
 
-  for (unsigned int iv = 0 ; iv < TMVAspectators.size () && TMVAspectatorsIn ; ++iv)
-  {
-    int addressIndex = iv + TMVAvariables.size () ;
-    treenew->SetBranchAddress (TMVAspectators.at (iv).c_str (), &(address.at (addressIndex))) ;
-    reader->AddSpectator (TMVAspectators.at (iv), &(address.at (addressIndex))) ;
-  }  
+    for (unsigned int iv = 0 ; iv < TMVAspectators.size () && TMVAspectatorsIn ; ++iv)
+    {
+      int addressIndex = iv + TMVAvariables.size () ;
+      treenew->SetBranchAddress (TMVAspectators.at (iv).c_str (), &(address.at (addressIndex))) ;
+      reader->AddSpectator (TMVAspectators.at (iv), &(address.at (addressIndex))) ;
+    }  
 
-  //if (treenew->GetListOfBranches ()->FindObject (mvaName.c_str ())) {
-  //  treenew->SetBranchAddress ("MuTauKine", &mvamutau, &mvaBranchmutau) ;
-  //  treenew->SetBranchAddress ("TauTauKine", &mvatautau, &mvaBranchtautau) ;
-  //}
-  //else{   
-    mvaBranchmutau = treenew->Branch ("MuTauKine", &mvamutau, "MuTauKine/F") ;
-    mvaBranchtautau = treenew->Branch ("TauTauKine", &mvatautau, "TauTauKine/F") ;
-  //}
-  reader->BookMVA ("MuTauKine",  TMVAweightsMuTau.c_str ()) ;
-  reader->BookMVA ("TauTauKine",  TMVAweightsTauTau.c_str ()) ;
+    //if (treenew->GetListOfBranches ()->FindObject (mvaName.c_str ())) {
+    //  treenew->SetBranchAddress ("MuTauKine", &mvamutau, &mvaBranchmutau) ;
+    //  treenew->SetBranchAddress ("TauTauKine", &mvatautau, &mvaBranchtautau) ;
+    //}
+    //else{   
+      mvaBranchmutau = treenew->Branch ("MuTauKine", &mvamutau, "MuTauKine/F") ;
+      mvaBranchtautau = treenew->Branch ("TauTauKine", &mvatautau, "TauTauKine/F") ;
+    //}
+    reader->BookMVA ("MuTauKine",  TMVAweightsMuTau.c_str ()) ;
+    reader->BookMVA ("TauTauKine",  TMVAweightsTauTau.c_str ()) ;
 
-  int nentries = treenew->GetEntries();
-  for(int i=0;i<nentries;i++){
-    treenew->GetEntry(i);
+    int nentries = treenew->GetEntries();
+    for(int i=0;i<nentries;i++){
+      treenew->GetEntry(i);
 
-    mvamutau= reader->EvaluateMVA ("MuTauKine") ;  
-    mvatautau= reader->EvaluateMVA ("TauTauKine") ;  
-    mvaBranchtautau->Fill();
-    mvaBranchmutau->Fill();
+      mvamutau= reader->EvaluateMVA ("MuTauKine") ;  
+      mvatautau= reader->EvaluateMVA ("TauTauKine") ;  
+      mvaBranchtautau->Fill();
+      mvaBranchmutau->Fill();
+    }
+
+    outFile->cd () ;
+    h_eff.Write () ;
+    treenew->Write ("", TObject::kOverwrite) ;
+
+    delete reader;
   }
 
-  outFile->cd () ;
-  h_eff.Write () ;
-  treenew->Write ("", TObject::kOverwrite) ;
-
   cout << "... SKIM finished, exiting." << endl;
-
-  delete reader;
   return 0 ;
 }
 

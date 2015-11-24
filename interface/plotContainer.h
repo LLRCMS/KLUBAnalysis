@@ -52,6 +52,7 @@ struct plotContainer
   TH2F * get2DHisto (string var1Name, string var2Name, string cutName, string sampleName) ;
   map<string, TH1F *> & getStackSet (string varName, string cutName) ;
   THStack * makeStack (string varName, string cutName) ;
+  THStack * make2DStack (pair <string,string> var2DName, string cutName) ;
   void AddOverAndUnderFlow () ;
   TH1F * createNewHisto (string name, string title, 
                          int nbinsx, double xlow, double xup,
@@ -68,6 +69,7 @@ struct plotContainer
                          TString titleX, TString titleY) ;
   void scale (float scaleFactor) ;
   void scale (vector<string> & variablesList, vector<pair <TString, TCut> > & selections, vector<vector<float>> scaleFactorVector) ;
+  void scale2D (vector<pair<string,string>> & variables2DList, vector<pair <TString, TCut> > & selections, vector<vector<float>> scaleFactorVector) ;
 
   void setFillColor (int color) ;
   void save (TFile * fOut) ;
