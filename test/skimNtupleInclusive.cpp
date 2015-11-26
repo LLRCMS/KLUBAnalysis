@@ -276,8 +276,6 @@ int main (int argc, char** argv)
   // input and output setup
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  OfflineProducerHelper oph ;
-
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
   //bigChain->Add (inputFile) ;
   appendFromFileList (bigChain, inputFile);
@@ -318,6 +316,10 @@ int main (int argc, char** argv)
 
   // ------------------------------
 
+  OfflineProducerHelper oph (hTriggers, hTauIDS) ;
+
+  // ------------------------------
+
   PUReweight reweight ;
 
   // ------------------------------
@@ -342,7 +344,7 @@ int main (int argc, char** argv)
           counter.at (selID++) += 1 ;
         }
       ++totalNoWeightsEventsNum ;
-      
+ 
       if (theBigTree.indexDau1->size () == 0) continue ;
       int metbit = theBigTree.metfilterbit;
       int metpass = metbit & (1 << 0);
@@ -372,6 +374,7 @@ int main (int argc, char** argv)
       else if (trigReader.checkOR (1, triggerbit) ) trigPairType = 1;
       else if (trigReader.checkOR (2, triggerbit) ) trigPairType = 2;
       else if (trigReader.checkOR (5, triggerbit) ) trigPairType = 5; // FIXME! maybe ee, mumu need to be evaluated as well
+
 
       for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
         {
@@ -409,6 +412,7 @@ int main (int argc, char** argv)
 
           foundPairs[pairType] = iPair ;
         }  
+
 
       if (foundPairs.size () == 0) continue ;
 
