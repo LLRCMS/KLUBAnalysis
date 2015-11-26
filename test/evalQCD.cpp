@@ -28,7 +28,7 @@ using namespace std ;
 TGraphAsymmErrors* FitShape(TH1F * htight, TH1F * hloose){
       //Poisson errors are a mess, but for this we can stay on gaussian...
   int ip = 0;
-    for(int i = 0; i<htight->GetNbinsX();i++){
+  for(int i = 0; i<htight->GetNbinsX();i++){
     float n1 = htight->GetBinContent(i+1);
     float n2 = hloose->GetBinContent(i+1);
     if(n1<=0)continue;
@@ -59,11 +59,59 @@ TGraphAsymmErrors* FitShape(TH1F * htight, TH1F * hloose){
     //cout<<"mass "<<x<<" eyh "<<eyh<<" eyl "<<eyl<<" n1,n2 "<<n1<<","<<n2<<endl;
     float exh = htight->GetXaxis()->GetBinLowEdge(i+2) - x;
     float exl = x - htight->GetXaxis()->GetBinLowEdge(i+1);
-    g->SetPointError(ip,exh,exl,eyh,eyl);
+    g->SetPointError(ip,exl,exh,eyl,eyh);
     ip++;
   }
   return g;  
 }
+
+TGraph2DErrors* FitShape2D(TH2F * htight, TH2F * hloose){
+      //Poisson errors are a mess, but for this we can stay on gaussian...
+  int ip = 0;
+  for(int i = 0; i<htight->GetNbinsX();i++){
+    for(int j = 0; j<htight->GetNbinsY();j++){
+      float n1 = htight->GetBinContent(i+1,j+1);
+      float n2 = hloose->GetBinContent(i+1,j+1);
+      if(n1<=0)continue;
+      if(n2<=0)continue;
+      ip++;
+    }
+  }
+  TGraph2DErrors *g = new TGraph2DErrors(ip);// = new TGraphAsymmErrors();//htight,hloose,"pois");
+  
+  for(int i = 0; i<htight->GetNbinsX();i++){
+    for(int j = 0; i<htight->GetNbinsY();i++){
+      float x = htight->GetXaxis()->GetBinCenter(i+1);
+      float y = htight->GetYaxis()->GetBinCenter(j+1);
+      float n1 = htight->GetBinContent(i+1,j+1);
+      float n2 = hloose->GetBinContent(i+1,j+1);
+      if(n1<=0)continue;
+      if(n2<=0)continue;
+  /*float n1_up = htight->GetBinContent(i+1)+htight->GetBinErrorUp(i+1);
+    float n1_down = htight->GetBinContent(i+1)-htight->GetBinErrorLow(i+1);
+    float n2_up = hloose->GetBinContent(i+1)+hloose->GetBinErrorUp(i+1);
+    float n2_down = hloose->GetBinContent(i+1)-hloose->GetBinErrorLow(i+1);
+    float epsilon = n1/(n1+n2);
+    float epsilonUp = n1_up*n2_up/(n1_up+n2_up)/(n1_up+n2_up);
+    float epsilonDown = n1_down*n2_down/(n1_down+n2_down)/(n1_down+n2_down);
+    float fepsi = 1/(1.-epsilon)/(1.-epsilon);*/
+    g->SetPoint(ip,x,y,n1/n2);
+    float ezh = htight->GetBinError(i+1,j+1)/htight->GetBinContent(i+1,j+1)+hloose->GetBinError(i+1,j+1)/hloose->GetBinContent(i+1,j+1);/*fepsi * epsilonUp;*/
+    ezh = ezh * n1/n2;
+    //float ezl = htight->GetBinErrorLow(i+1,j+1)/htight->GetBinContent(i+1,j+1)+hloose->GetBinErrorLow(i+1,j+1)/hloose->GetBinContent(i+1,j+1);/*fepsi * epsilonDown;*/
+    //ezl = ezl * n1/n2;
+    //cout<<"mass "<<x<<" eyh "<<eyh<<" eyl "<<eyl<<" n1,n2 "<<n1<<","<<n2<<endl;
+    //float exh = htight->GetXaxis()->GetBinLowEdge(i+2) - x;
+    float exl = x - htight->GetXaxis()->GetBinLowEdge(i+1);
+    //float eyh = htight->GetYaxis()->GetBinLowEdge(j+2) - y;
+    float eyl = x - htight->GetYaxis()->GetBinLowEdge(j+1);
+    g->SetPointError(ip,exl,eyl,ezh);
+    ip++;
+  }
+  }
+  return g;  
+}
+
 
 int main (int argc, char** argv)
 {
@@ -561,10 +609,6 @@ int main (int argc, char** argv)
       int ivar = i2dvar;
       rlxToTightIsoScale2D.at(i2dvar).at(icut) = QCDyieldSSregionTightIso2D.at(i2dvar).at(icut) / QCDyieldSSregionRLXiso2D.at(i2dvar).at(icut) ;
 
-      TString fitname; fitname.Form("FIT2%s%s",variables2DList.at (ivar).first.c_str(),selections_SS.at (icut).first.Data ());
-      cout<<fitname.Data()<<"  "<<rlxToTightIsoScale2D.at(i2dvar).at(icut)<<endl;
-      rlxToTightIsoScale2DFIT.at(ivar).at(icut) = new TF2(fitname.Data(),"[0]*x+[1]*y+[2]");// for 2D
-      
       TH2F *dt = SS_QCD_tightIso.m_2Dhistos[variables2DList.at(i2dvar).first + variables2DList.at(i2dvar).second][selections_SS.at (icut).first.Data ()]["QCD"];
       TH2F *htight = new TH2F("htight","htight",
         dt->GetNbinsX(),dt->GetXaxis()->GetBinLowEdge(1),dt->GetXaxis()->GetBinLowEdge(dt->GetNbinsX())+dt->GetXaxis()->GetBinWidth(dt->GetNbinsX()),
@@ -581,61 +625,71 @@ int main (int argc, char** argv)
           hloose->SetBinContent(i+1,j+1,dl->GetBinContent(i+1,j+1));
         }
       }
-      hloose->SetBinErrorOption(TH1::kPoisson);//FIXME only works with all positive histos
-      htight->SetBinErrorOption(TH1::kPoisson);
-      //PROBLEM: TgraphAsymmErrors 2D does not exists
-      int ip = 0;
-      for(int i = 0; i<dt->GetNbinsX();i++){
-        for(int j=0; j<dt->GetNbinsY();j++){
-         float n1 = htight->GetBinContent(i+1,j+1);
-         float n2 = hloose->GetBinContent(i+1,j+1);
-         if(n1<=0)continue;
-         if(n2<=0)continue;
-         if(n1/n2>2)continue;
-         ip++;
+      //hloose->SetBinErrorOption(TH1::kPoisson);//FIXME only works with all positive histos
+      //htight->SetBinErrorOption(TH1::kPoisson);
+      hloose->Sumw2();//FIXME only works with all positive histos
+      htight->Sumw2();
+      TF2 *fit = new TF2("dummy1","[0]+[1]*x+[2]*y");
+      TGraph2DErrors *g = FitShape2D(htight,hloose);
+      
+      //cout << "FITTING "<<selections_SS.at (icut).first.Data ()<<" FOR VAR "<<variables2DList.at (ivar) <<endl;
+      //TF1 *fit = new TF1()
+      int fitStatus = g->Fit(fit);
+      /*   //need to check ho to do the 2D check
+      TF2 *fitcheck = new TF1("dummy0","[0]");
+      g->Fit(fitcheck);
+
+      float delta = htight->GetXaxis()->GetXmax()-htight->GetXaxis()->GetXmin();
+      float media = 1.0/delta*(fit->GetParameter(0)+fit->GetParameter(1)*delta/2.0);
+      if(fitStatus!=0 || fabs(media-fitcheck->GetParameter(0))/media>0.02){
+        htight->Rebin(2);
+        hloose->Rebin(2);
+        g = FitShape(htight,hloose);
+        g->Fit(fit);
+      }
+
+      cout<<"status "<<fitStatus<<endl;
+      cout<<"Integral "<<rlxToTightIsoScale.at(ivar).at(icut)<<endl;
+      cout<<"pol0 "<<fitcheck->GetParameter(0)<<endl;
+      cout<<"pol1 "<<fit->GetParameter(0)+fit->GetParameter(1)*500<<endl;
+      */
+      TH2F * h = (TH2F*)dl->Clone("temp");
+      TH2F * hu = (TH2F*)dl->Clone("tempUp");
+      TH2F * hd = (TH2F*)dl->Clone("tempDo");
+      TF2 *fitup = new TF2("dummyup","[0]+[1]*x+[2]*y");
+      TF2 *fitdo = new TF2("dummydo","[0]+[1]*x+[2]*y");
+      fitup->SetParameter(0,fit->GetParameter(0)+fit->GetParError(0));
+      fitup->SetParameter(1,fit->GetParameter(1)+fit->GetParError(1));
+      fitup->SetParameter(2,fit->GetParameter(2)+fit->GetParError(2));
+      fitdo->SetParameter(0,fit->GetParameter(0)-fit->GetParError(0));
+      fitdo->SetParameter(1,fit->GetParameter(1)-fit->GetParError(1));
+      fitdo->SetParameter(2,fit->GetParameter(2)-fit->GetParError(2));
+      TString nameorig = dl->GetName () ;
+      TString name = TString ("CORR_") + nameorig ;
+      h->SetName(name.Data());
+      h->SetTitle(name.Data());
+      name = TString ("UPCORR_") + nameorig ;
+      hu->SetName(name.Data());
+      hu->SetTitle(name.Data());
+      name = TString ("DOWNCORR_") + nameorig ;
+      hd->SetName(name.Data());
+      hd->SetTitle(name.Data());
+      for(int i =0;i<dl->GetNbinsX();i++){
+        for(int j =0;j<dl->GetNbinsY();j++){
+          h->SetBinContent(i+1,j+1,h->GetBinContent(i+1,j+1)*fit->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
+          h->SetBinError(i+1,j+1,h->GetBinError(i+1,j+1)*fit->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
+          hu->SetBinContent(i+1,j+1,h->GetBinContent(i+1,j+1)*fitup->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
+          hu->SetBinError(i+1,j+1,h->GetBinError(i+1,j+1)*fitup->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
+          hd->SetBinContent(i+1,j+1,h->GetBinContent(i+1,j+1)*fitdo->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
+          hd->SetBinError(i+1,j+1,h->GetBinError(i+1,j+1)*fitdo->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
         }
       }
-      TGraph2DErrors * g = new TGraph2DErrors(ip);
-      ip=0;
-      for(int i = 0; i<dt->GetNbinsX();i++){
-        for(int j=0; j<dt->GetNbinsY();j++){
-         float x = dt->GetXaxis()->GetBinCenter(i+1);
-         float y = dt->GetYaxis()->GetBinCenter(j+1);
-         float n1 = htight->GetBinContent(i+1,j+1);
-         float n2 = hloose->GetBinContent(i+1,j+1);
-         if(n1<=0)continue;
-         if(n2<=0)continue;
-         if(n1/n2>2)continue;         
-         float n1_up = htight->GetBinError(i+1,j+1);
-          //float n1_down = htight->GetYaxisGetBinContent(i+1)-htight->GetBinErrorLow(i+1);
-         float n2_up = hloose->GetBinError(i+1,j+1);
-          //float n2_down = htight->GetBinContent(i+1)-htight->GetBinErrorLow(i+1);
-          //float epsilon = n1/(n1+n2);
-         float epsilonUp = n1_up/htight->GetBinContent(i+1,j+1);
-         float epsilonDown = n2_up/hloose->GetBinContent(i+1,j+1);
-          //float fepsi = 1/(1-epsilon*epsilon);
-         g->SetPoint(ip,x,y,n1/n2);
-          //float eyh = fepsi * epsilonUp;
-          //float eyl = /fepsi * epsilonDown;
-          //float exh = dt->GetXaxis()->GetBinLowEdge(i+2) - x;
-          //float exl = x - dt->GetXaxis()->GetBinLowEdge(i+1);
-         g->SetPointError(ip,n1_up,n2_up,(epsilonUp+epsilonDown)*n1/n2);
-         ip++;
-       }
-     }
-      TCanvas *c = new TCanvas();
-      c->Divide(3,1);
-      c->cd(1);
-      g->Draw("err p0");
-      cout << "FITTING2D "<<selections_SS.at (icut).first.Data ()<<" FOR VAR "<<variablesList.at (i2dvar) <<endl;
-      //TF1 *fit = new TF1()
-      g->Fit(rlxToTightIsoScale2DFIT.at(ivar).at(icut));
-      c->cd(2);
-      htight->Draw("COLZ");
-      c->cd(3);
-      hloose->Draw("COLZ");
-      TString outc = selections_SS.at (icut).first.Data () + variablesList.at (ivar) + "2D.root";
-      c->SaveAs(outc.Data());
+      h->Scale(QCDyieldSSregionRLXiso2D.at(i2dvar).at(icut)/h->Integral());
+      hu->Scale(QCDyieldSSregionRLXiso2D.at(i2dvar).at(icut)/hu->Integral());
+      hd->Scale(QCDyieldSSregionRLXiso2D.at(i2dvar).at(icut)/hd->Integral());
+      SS_QCD_CORR.m_2Dhistos[variables2DList.at(i2dvar).first + variables2DList.at(i2dvar).second][selections_SS.at (icut).first.Data ()]["QCD"] = h;
+      SS_QCD_CORRUP.m_2Dhistos[variables2DList.at(i2dvar).first + variables2DList.at(i2dvar).second][selections_SS.at (icut).first.Data ()]["QCD"] = hu;
+      SS_QCD_CORRDOWN.m_2Dhistos[variables2DList.at(i2dvar).first + variables2DList.at(i2dvar).second][selections_SS.at (icut).first.Data ()]["QCD"] = hd;
       delete htight;
       delete hloose;
       g->Set(0);
