@@ -235,6 +235,22 @@ class cardMaker:
                         qcdbinpdfDown  = ROOT.RooHistPdf(PdfName+"_"+histName+"Down",PdfName+"_"+histName+"Down",ras_variableSet,qcdbinDown)
                         getattr(w,'import')(qcdbinpdfUp,ROOT.RooFit.RecycleConflictNodes())
                         getattr(w,'import')(qcdbinpdfDown,ROOT.RooFit.RecycleConflictNodes())
+                index = theInputs.additional.index("QCD")
+                CorrtemplateName = "UP"+theInputs.additionalName[index]
+                print CorrtemplateName
+                templateUp = inputFile.Get(CorrtemplateName).Clone()
+                print templateUp.Class(), templateUp.Integral()
+                rlxshapeUp = ROOT.RooDataHist("qcd_RlxToTightUp","qcd_RlxToTightUp",ral_variableList,templateUp)
+                rlxshapepdfUp  = ROOT.RooHistPdf(PdfName+"_qcd_RlxToTightUp",PdfName+"_qcd_RlxToTightUp",ras_variableSet,rlxshapeUp)
+
+                CorrtemplateName = "DOWN"+theInputs.additionalName[index]
+                templateDown = inputFile.Get(CorrtemplateName)
+                rlxshapeDown = ROOT.RooDataHist("qcd_RlxToTightDown","qcd_RlxToTightDown",ral_variableList,templateDown)
+                rlxshapepdfDown  = ROOT.RooHistPdf(PdfName+"_qcd_RlxToTightDown",PdfName+"_qcd_RlxToTightDown",ras_variableSet,rlxshapeDown)
+
+                getattr(w,'import')(rlxshapepdfUp,ROOT.RooFit.RecycleConflictNodes())
+                getattr(w,'import')(rlxshapepdfDown,ROOT.RooFit.RecycleConflictNodes())
+
         ## --------------------------- DATASET --------------------------- ##
         #RooDataSet ds("ds","ds",ras_variableSet,Import(*tree)) ;
         TemplateName = "OS_DATA_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,theDataSample)
@@ -342,6 +358,7 @@ class cardMaker:
         syst.writeSystematics()
         for iqcd in range(len(qcdbinsysts)) :
             syst.writeOneLine("QCD",qcdbinsysts[iqcd])
+        syst.writeOneLine("QCD","qcd_RlxToTight shape ")
 
 
 #define function for parsing options
