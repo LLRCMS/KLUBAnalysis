@@ -77,6 +77,7 @@ TGraph2DErrors* FitShape2D(TH2F * htight, TH2F * hloose){
       ip++;
     }
   }
+  if (ip==0)ip=1;
   TGraph2DErrors *g = new TGraph2DErrors(ip);// = new TGraphAsymmErrors();//htight,hloose,"pois");
   
   for(int i = 0; i<htight->GetNbinsX();i++){
@@ -106,7 +107,6 @@ TGraph2DErrors* FitShape2D(TH2F * htight, TH2F * hloose){
     //float eyh = htight->GetYaxis()->GetBinLowEdge(j+2) - y;
     float eyl = x - htight->GetYaxis()->GetBinLowEdge(j+1);
     g->SetPointError(ip,exl,eyl,ezh);
-    ip++;
   }
   }
   return g;  
@@ -243,23 +243,28 @@ int main (int argc, char** argv)
       selections_OS.at (i).first = TString ("OS_") + selections_OS.at (i).first ;
       selections_OS.at (i).second = selections_OS.at (i).second && TCut ("isOS != 0") && dau1Cut && dau2Cut;
     }
+
+  // OS selections with rlx iso for SS/OS yield
+  vector<pair <TString, TCut> > selections_OS_rlxIso = selections ;
+  TCut dau1CutRLX = Form("dau1_iso < %s" , sel_dau1_RLXiso.c_str());
+  TCut dau2CutRLX = Form("dau2_iso < %s" , sel_dau2_RLXiso.c_str());
+  for (unsigned int i = 0 ; i < selections_OS_rlxIso.size () ; ++i)
+    {
+      selections_OS_rlxIso.at (i).first = TString ("OS_") + selections_OS.at (i).first ;
+      selections_OS_rlxIso.at (i).second = selections_OS.at (i).second && TCut ("isOS != 0") && dau1Cut && dau2Cut;
+    }
      
   // SS selections with tight iso (for QCD yield determination)
   vector<pair <TString, TCut> > selections_SS_tightIso = selections ;
-  vector<TH1F*> QCDYields ;
-  TRandom3 *g = new TRandom3();
+  //TRandom3 *g = new TRandom3();
   for (unsigned int i = 0 ; i < selections_SS_tightIso.size () ; ++i)
     {
       selections_SS_tightIso.at (i).first = TString ("SS_tightIso_") + selections_SS_tightIso.at (i).first ;
       selections_SS_tightIso.at (i).second = selections_SS_tightIso.at (i).second && TCut ("isOS == 0") && dau1Cut && dau2Cut;
-      TH1F *h =new TH1F(selections_SS_tightIso.at (i).first.Data (),selections_SS_tightIso.at (i).first.Data (),15000,1,15001);
-      QCDYields.push_back(h);   
     }
      
   // SS selections with rlx iso for QCD shape
   vector<pair <TString, TCut> > selections_SS = selections ;
-  TCut dau1CutRLX = Form("dau1_iso < %s" , sel_dau1_RLXiso.c_str());
-  TCut dau2CutRLX = Form("dau2_iso < %s" , sel_dau2_RLXiso.c_str());
   for (unsigned int i = 0 ; i < selections_SS.size () ; ++i)
     {
       selections_SS.at (i).first = TString ("SS_") + selections_SS.at (i).first ;
@@ -371,6 +376,65 @@ int main (int argc, char** argv)
   /* FIXME should we subtract signals as well? */
   /* NB if it has to be subtracted, it cannot be scaled! */
 
+cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
+
+  // get the same-sign distributions from data
+  plotContainer OS_rlxIso_DATA_plots ("OS_rlxIso_DATA", variablesList, variables2DList, selections_OS_rlxIso, DATASamplesList, 2) ;
+  counters OS_rlxIso_DATACount = fillHistos (DATASamples, OS_rlxIso_DATA_plots, 
+              variablesList, variables2DList,
+              selections_OS_rlxIso,
+              lumi,
+              vector<float> (0),
+              true, false) ;
+  OS_rlxIso_DATA_plots.AddOverAndUnderFlow () ;
+
+  // get the same-sign distributions from bkg
+  plotContainer OS_rlxIso_bkg_plots ("OS_rlxIso_bkg", variablesList, variables2DList, selections_OS_rlxIso, bkgSamplesList, 0) ;
+  counters OS_rlxIso_bkgCount = fillHistos (bkgSamples, OS_rlxIso_bkg_plots, 
+              variablesList, variables2DList,
+              selections_OS_rlxIso,
+              lumi,
+              vector<float> (0),
+              false, false, maxEvtsMC) ;
+  OS_rlxIso_bkg_plots.AddOverAndUnderFlow () ;
+
+  plotContainer OS_rlxIso_QCD ("OS_rlxIso_QCD", variablesList, variables2DList, selections_OS_rlxIso, QCDsample, 0) ;
+
+  for (unsigned int icut = 0 ; icut < selections_OS_rlxIso.size () ; ++icut)
+  {
+    for (unsigned int ivar = 0 ; ivar < variablesList.size () ; ++ivar)
+      {
+          THStack * D_stack = OS_rlxIso_DATA_plots.makeStack (variablesList.at (ivar),
+                                  selections_OS_rlxIso.at (icut).first.Data ()) ;
+          TH1F * tempo = (TH1F *) D_stack->GetStack ()->Last () ;
+          TString name = tempo->GetName () ;
+          name = TString ("DDQCD_") + name ;
+          TH1F * dummy = (TH1F *) tempo->Clone (name) ;
+
+          THStack * b_stack = OS_rlxIso_bkg_plots.makeStack (variablesList.at (ivar),
+                                  selections_OS_rlxIso.at (icut).first.Data ()) ;
+          TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
+          dummy->Add (h_bkg, -1) ;
+          OS_rlxIso_QCD.m_histos[variablesList.at (ivar)][selections_OS_rlxIso.at (icut).first.Data ()]["QCD"] = dummy ;
+        }
+    for (unsigned int i2dvar = 0 ; i2dvar < variables2DList.size () ; ++i2dvar)
+      {
+          THStack * D_stack = OS_rlxIso_DATA_plots.make2DStack (variables2DList.at (i2dvar),
+                                  selections_OS_rlxIso.at (icut).first.Data ()) ;
+          TH2F * tempo = (TH2F *) D_stack->GetStack ()->Last () ;
+          TString name = tempo->GetName () ;
+          name = TString ("DDQCD2d_") + name ;
+          TH2F * dummy = (TH2F *) tempo->Clone (name) ;
+
+          THStack * b_stack = OS_rlxIso_bkg_plots.make2DStack (variables2DList.at (i2dvar),
+                                  selections_OS_rlxIso.at (icut).first.Data ()) ;
+          TH2F * h_bkg = (TH2F *) b_stack->GetStack ()->Last () ;
+          dummy->Add (h_bkg, -1) ;
+          OS_rlxIso_QCD.m_2Dhistos[variables2DList.at(i2dvar).first + variables2DList.at(i2dvar).second][selections_OS_rlxIso.at (icut).first.Data ()]["QCD"] = dummy ;
+        }
+
+    }
+
   // now get QCD yields with the non-relaxed selections
 
   cout << "--- MAIN reading DATA and filling SS histos with non-relaxed iso" << endl ;
@@ -436,15 +500,6 @@ int main (int argc, char** argv)
           TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
           dummy->Add (h_bkg, -1) ;
 
-          if(ivar==0){
-            int nbins = tempo->GetNbinsX();
-            for(int irun =0;irun<nruns;irun++){//This is done only on the first variable
-              for(int ibin=1; ibin<=nbins;ibin++)
-                tempo->SetBinContent(ibin,g->Poisson(dummy->GetBinContent(ibin)));
-            //tempo->Add (h_bkg, -1) ; // ho gia fatto addbkg prima
-              QCDYields.at(icut)->Fill(tempo->Integral());
-            }
-          }
           QCDyieldSSregionTightIso.at(ivar).at(icut) = dummy->Integral(); // if AddUnderAndOverFlow is called they will be all identical
           SS_QCD_tightIso.m_histos[variablesList.at (ivar)][selections_SS.at (icut).first.Data ()]["QCD"] = dummy ;
         }
@@ -463,17 +518,6 @@ int main (int argc, char** argv)
           TH2F * h_bkg = (TH2F *) b_stack->GetStack ()->Last () ;
           dummy->Add (h_bkg, -1) ;
 
-          /*
-          if(i2dvar==0){
-            int nbins = tempo->GetNbinsX();
-            for(int irun =0;irun<nruns;irun++){//This is done only on the first variable
-              for(int ibin=1; ibin<=nbins;ibin++)
-                tempo->SetBinContent(ibin,g->Poisson(dummy->GetBinContent(ibin)));
-            //tempo->Add (h_bkg, -1) ; // ho gia fatto addbkg prima
-              QCDYields.at(icut)->Fill(tempo->Integral());
-            }
-          }
-          */
           QCDyieldSSregionTightIso2D.at(i2dvar).at(icut) = dummy->Integral(); // if AddUnderAndOverFlow is called they will be all identical
           SS_QCD_tightIso.m_2Dhistos[variables2DList.at(i2dvar).first + variables2DList.at(i2dvar).second][selections_SS.at (icut).first.Data ()]["QCD"] = dummy ;
         }
@@ -484,6 +528,39 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   float SStoOS_scaleFactor = 1.06 ; // to be calculated here at a certain moment!!
+  
+  for (unsigned int icut = 0 ; icut < selections_SS.size () ; ++icut)
+  {
+    for (unsigned int ivar = 0 ; ivar < variablesList.size () ; ++ivar)
+      {
+  //        THStack * D_stack = 
+   //       TH1F * tempo = (TH1F *) D_stack->GetStack ()->Last () ;
+        THStack * D_stack =SS_DATA_plots.makeStack (variablesList.at (ivar),selections_SS.at (icut).first.Data ());
+        TH1F * regionD = (TH1F*)D_stack->GetStack ()->Last () ;//SS_DATA_plots.m_histos[variablesList.at (ivar)][selections_SS.at (icut).first.Data ()]["QCD"];
+        THStack * D_stack2 =OS_rlxIso_DATA_plots.makeStack (variablesList.at (ivar),selections_OS_rlxIso.at (icut).first.Data ());
+        TH1F * regionC = (TH1F*)D_stack2->GetStack ()->Last () ;//OS_rlxIso_DATA_plots.m_histos[variablesList.at (ivar)][selections_OS_rlxIso.at (icut).first.Data ()]["QCD"];
+        TF1 *fit = new TF1("dummy","pol1");
+        fit->SetRange(250,1000);
+        TH1F *ratioCD = (TH1F*)regionC->Clone();
+        ratioCD->Divide(regionD);
+        TCanvas * c = new TCanvas();
+        c->Divide(2,1);
+        c->cd(1);
+        ratioCD->Draw();
+        ratioCD->Fit(fit,"R","SAME");
+        c->cd(2);
+        regionD->Draw();
+        regionC->SetLineColor(kRed+1);
+        regionC->Draw("SAME");
+        TString name; name.Form("%s%s.root",variablesList.at (ivar).c_str(),selections_OS_rlxIso.at (icut).first.Data());
+        //c->SaveAs(name.Data());
+        delete fit;
+      }
+    }
+    
+//
+//
+//  SS_QCD_tightIso.m_histos
   SS_QCD.scale (SStoOS_scaleFactor) ;
 
   cout << "--- MAIN Correcting RLX Iso shape" << endl ;
@@ -537,14 +614,15 @@ int main (int argc, char** argv)
         g = FitShape(htight,hloose);
         g->Fit(fit);
       }
-      cout<<"status "<<fitStatus<<endl;
-      cout<<"Integral "<<rlxToTightIsoScale.at(ivar).at(icut)<<endl;
-      cout<<"pol0 "<<fitcheck->GetParameter(0)<<endl;
-      cout<<"pol1 "<<fit->GetParameter(0)+fit->GetParameter(1)*500<<endl;
+      //cout<<"status "<<fitStatus<<endl;
+      //cout<<"Integral "<<rlxToTightIsoScale.at(ivar).at(icut)<<endl;
+      //cout<<"pol0 "<<fitcheck->GetParameter(0)<<endl;
+      //cout<<"pol1 "<<fit->GetParameter(0)+fit->GetParameter(1)*500<<endl;
 
       TH1F * h = (TH1F*)dl->Clone("temp");
       TH1F * hu = (TH1F*)dl->Clone("tempUp");
       TH1F * hd = (TH1F*)dl->Clone("tempDo");
+
       TF1 *fitup = new TF1("dummyup","pol1");
       TF1 *fitdo = new TF1("dummydo","pol1");
       fitup->SetParameter(0,fit->GetParameter(0)+fit->GetParError(0));
@@ -561,17 +639,20 @@ int main (int argc, char** argv)
       name = TString ("DOWNCORR_") + nameorig ;
       hd->SetName(name.Data());
       hd->SetTitle(name.Data());
+      float integral = h->Integral();
       for(int i =0;i<dl->GetNbinsX();i++){
         h->SetBinContent(i+1,h->GetBinContent(i+1)*fit->Eval(h->GetXaxis()->GetBinCenter(i+1)));
-        h->SetBinError(i+1,h->GetBinError(i+1)*fit->Eval(h->GetXaxis()->GetBinCenter(i+1)));
+        //h->SetBinError(i+1,h->GetBinError(i+1)*fit->Eval(h->GetXaxis()->GetBinCenter(i+1)));
         hu->SetBinContent(i+1,h->GetBinContent(i+1)*fitup->Eval(h->GetXaxis()->GetBinCenter(i+1)));
-        hu->SetBinError(i+1,h->GetBinError(i+1)*fitup->Eval(h->GetXaxis()->GetBinCenter(i+1)));
+        //hu->SetBinError(i+1,h->GetBinError(i+1)*fitup->Eval(h->GetXaxis()->GetBinCenter(i+1)));
         hd->SetBinContent(i+1,h->GetBinContent(i+1)*fitdo->Eval(h->GetXaxis()->GetBinCenter(i+1)));
-        hd->SetBinError(i+1,h->GetBinError(i+1)*fitdo->Eval(h->GetXaxis()->GetBinCenter(i+1)));
+        //hd->SetBinError(i+1,h->GetBinError(i+1)*fitdo->Eval(h->GetXaxis()->GetBinCenter(i+1)));
       }
-      h->Scale(QCDyieldSSregionRLXiso.at(ivar).at(icut)/h->Integral());
-      hu->Scale(QCDyieldSSregionRLXiso.at(ivar).at(icut)/hu->Integral());
-      hd->Scale(QCDyieldSSregionRLXiso.at(ivar).at(icut)/hd->Integral());
+      h-> Scale(integral/h->Integral());
+      hu->Scale(integral/hu->Integral());
+      hd->Scale(integral/hd->Integral());
+
+
       SS_QCD_CORR.m_histos[variablesList.at (ivar)][selections_SS.at (icut).first.Data ()]["QCD"] = h;
       SS_QCD_CORRUP.m_histos[variablesList.at (ivar)][selections_SS.at (icut).first.Data ()]["QCD"] = hu;
       SS_QCD_CORRDOWN.m_histos[variablesList.at (ivar)][selections_SS.at (icut).first.Data ()]["QCD"] = hd;
@@ -674,19 +755,20 @@ int main (int argc, char** argv)
       name = TString ("DOWNCORR_") + nameorig ;
       hd->SetName(name.Data());
       hd->SetTitle(name.Data());
+      float integral=h->Integral();
       for(int i =0;i<dl->GetNbinsX();i++){
         for(int j =0;j<dl->GetNbinsY();j++){
           h->SetBinContent(i+1,j+1,h->GetBinContent(i+1,j+1)*fit->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
-          h->SetBinError(i+1,j+1,h->GetBinError(i+1,j+1)*fit->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
+          //h->SetBinError(i+1,j+1,h->GetBinError(i+1,j+1)*fit->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
           hu->SetBinContent(i+1,j+1,h->GetBinContent(i+1,j+1)*fitup->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
-          hu->SetBinError(i+1,j+1,h->GetBinError(i+1,j+1)*fitup->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
+          //hu->SetBinError(i+1,j+1,h->GetBinError(i+1,j+1)*fitup->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
           hd->SetBinContent(i+1,j+1,h->GetBinContent(i+1,j+1)*fitdo->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
-          hd->SetBinError(i+1,j+1,h->GetBinError(i+1,j+1)*fitdo->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
+          //hd->SetBinError(i+1,j+1,h->GetBinError(i+1,j+1)*fitdo->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
         }
       }
-      h->Scale(QCDyieldSSregionRLXiso2D.at(i2dvar).at(icut)/h->Integral());
-      hu->Scale(QCDyieldSSregionRLXiso2D.at(i2dvar).at(icut)/hu->Integral());
-      hd->Scale(QCDyieldSSregionRLXiso2D.at(i2dvar).at(icut)/hd->Integral());
+      h-> Scale(integral/h->Integral());
+      hu->Scale(integral/hu->Integral());
+      hd->Scale(integral/hd->Integral());
       SS_QCD_CORR.m_2Dhistos[variables2DList.at(i2dvar).first + variables2DList.at(i2dvar).second][selections_SS.at (icut).first.Data ()]["QCD"] = h;
       SS_QCD_CORRUP.m_2Dhistos[variables2DList.at(i2dvar).first + variables2DList.at(i2dvar).second][selections_SS.at (icut).first.Data ()]["QCD"] = hu;
       SS_QCD_CORRDOWN.m_2Dhistos[variables2DList.at(i2dvar).first + variables2DList.at(i2dvar).second][selections_SS.at (icut).first.Data ()]["QCD"] = hd;
@@ -704,6 +786,9 @@ int main (int argc, char** argv)
   SS_QCD_CORRUP.scale(variablesList, selections_SS, rlxToTightIsoScale);
   SS_QCD_CORRDOWN.scale(variablesList, selections_SS, rlxToTightIsoScale);
   SS_QCD.scale2D (variables2DList, selections_SS, rlxToTightIsoScale2D) ;
+  SS_QCD_CORR.scale2D(variables2DList, selections_SS, rlxToTightIsoScale2D);
+  SS_QCD_CORRUP.scale2D(variables2DList, selections_SS, rlxToTightIsoScale2D);
+  SS_QCD_CORRDOWN.scale2D(variables2DList, selections_SS, rlxToTightIsoScale2D);
   int QCDcolor = gConfigParser->readIntOption ("colors::QCD") ;
   SS_QCD.setHistosProperties (0, QCDcolor) ; 
   SS_QCD_CORR.setHistosProperties (0, QCDcolor) ; 
@@ -752,7 +837,6 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   cout << "--- MAIN before saving" << endl ;
-  cout << QCDYields.size() << endl ;
 
   TString outFolderNameBase = gConfigParser->readStringOption ("general::outputFolderName") ;
   outFolderNameBase += "/" ;
@@ -769,12 +853,9 @@ int main (int argc, char** argv)
   OS_DATA_plots.save (fOut) ;
   OS_bkg_plots.save (fOut) ;
   OS_sig_plots.save (fOut) ;
-  for(uint i=0; i<QCDYields.size();i++){
-    QCDYields.at(i)->Write();
-    //cout<<QCDYields.at(i)->Integral()<<endl;
-  }
+
   SS_QCD.save (fOut);
-  SS_QCD_CORR.save (fOut); // this is the estimated QCD after scaling to OS region 1.06
+  //SS_QCD_CORR.save (fOut); // this is the estimated QCD after scaling to OS region 1.06, already added to OS_bkg
   SS_QCD_CORRDOWN.save (fOut);
   SS_QCD_CORRUP.save (fOut);
   fOut->Close () ;
@@ -1127,14 +1208,7 @@ int main (int argc, char** argv)
   printTableTitle (yieldsFile, bkgSamples, DataDriven_names) ;
   printTableBody  (std::cout,  selections, OS_bkgCount, bkgSamples, DataDriven_yields) ;
   printTableBody  (yieldsFile, selections, OS_bkgCount, bkgSamples, DataDriven_yields) ;
-  /*
-  yieldsFile << " QCD SYSTEMATIC BIN-BY-BIN UNCERTAINTIES\n"  ;
-  cout << " QCD SYSTEMATIC BIN-BY-BIN UNCERTAINTIES\n"  ;
-  for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel){
-    yieldsFile << "      "<<selections.at(iSel).first<<"  "<<QCDYields.at(iSel)->GetRMS()<<"/"<<QCDYields.at(iSel)->GetMean()<<" = "<<QCDYields.at(iSel)->GetRMS()/QCDYields.at(iSel)->GetMean()<<"\n"  ;
-    cout << "      "<<selections.at(iSel).first<<"  "<<QCDYields.at(iSel)->GetRMS()<<"/"<<QCDYields.at(iSel)->GetMean()<<" = "<<QCDYields.at(iSel)->GetRMS()/QCDYields.at(iSel)->GetMean()<<"\n"  ;
-  }
-  */
+ 
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << " EFFICIENCIES OF BKG EVENTS\n\n" ;
   yieldsFile << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;

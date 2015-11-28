@@ -219,6 +219,10 @@ class cardMaker:
                         qcdbinsysts.append("qcd_binUnc_"+str(iy)+str(ix)+" shape ")
                         templateUp = templatesBKG[ibkg].Clone()
                         templateDown = templatesBKG[ibkg].Clone()
+                        templateUp.Sumw2(False)
+                        templateUp.SetBinErrorOption(TH1.kPoisson)
+                        templateDown.Sumw2(False)
+                        templateDown.SetBinErrorOption(TH1.kPoisson)
                         error = templateUp.GetBinContent(ix)+templateUp.GetBinErrorUp(ix)
                         errorDown = templateDown.GetBinContent(ix) - templateDown.GetBinErrorLow(ix)
                         if self.is2D == 2:  
@@ -239,11 +243,11 @@ class cardMaker:
                 CorrtemplateName = "UP"+theInputs.additionalName[index]
                 print CorrtemplateName
                 templateUp = inputFile.Get(CorrtemplateName).Clone()
-                print templateUp.Class(), templateUp.Integral()
                 rlxshapeUp = ROOT.RooDataHist("qcd_RlxToTightUp","qcd_RlxToTightUp",ral_variableList,templateUp)
                 rlxshapepdfUp  = ROOT.RooHistPdf(PdfName+"_qcd_RlxToTightUp",PdfName+"_qcd_RlxToTightUp",ras_variableSet,rlxshapeUp)
 
                 CorrtemplateName = "DOWN"+theInputs.additionalName[index]
+                print CorrtemplateName
                 templateDown = inputFile.Get(CorrtemplateName)
                 rlxshapeDown = ROOT.RooDataHist("qcd_RlxToTightDown","qcd_RlxToTightDown",ral_variableList,templateDown)
                 rlxshapepdfDown  = ROOT.RooHistPdf(PdfName+"_qcd_RlxToTightDown",PdfName+"_qcd_RlxToTightDown",ras_variableSet,rlxshapeDown)
@@ -356,10 +360,18 @@ class cardMaker:
         #elif(theChannel == self.ID_ch_mutau ): 
         #    systReader.addSystFile("../config_systematics_mutau.cfg")
         syst.writeSystematics()
+        #add QCD bin-by-by shape
         for iqcd in range(len(qcdbinsysts)) :
             syst.writeOneLine("QCD",qcdbinsysts[iqcd])
+        #add QCD rlx to tight shape unc
         syst.writeOneLine("QCD","qcd_RlxToTight shape ")
-
+        #add stat uncertainty (sqrt(N)) => is this needed?? In any case it can't be added as gamma (lnU instead?)
+        index = theInputs.additional.index("QCD")
+        templateName = theInputs.additionalName[index]
+        syst.writeOneLine("QCD", "qcd_SR_norm lnN ",1+1.0/TMath.Sqrt(inputFile.Get(templateName).Integral()))
+        #add  CR->SR uncertainty (gamma*alhpa)
+        #templateName = templateName.replace("CORR_","")###GRRR this is hardcoded... but I don't know how to do better
+        syst.writeOneLine("QCD", "qcd_CR_norm gmN {0:.0f} ".format(inputFile.Get(templateName).Integral()/1.06),1.06)
 
 #define function for parsing options
 def parseOptions():
