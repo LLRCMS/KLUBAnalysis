@@ -884,6 +884,8 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
 
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_noSignal/")) ;
 
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_noData/")) ;
+
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/canvases2D/")) ;
   TFile* fPlots2D = new TFile (outFolderNameBase + TString ("/canvases2D/2Dplots.root"), "recreate");
 
@@ -1071,6 +1073,13 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
           coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
           
+          // ---------------
+          outFolderName = outFolderNameBase + TString ("/events_noData/") ;
+          std::vector<TObject*> drawings_nonScaled_11 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, false, false, true, false, true, false, true, false, true) ;
+                    coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+            c->SaveAs (coutputName.Data ()) ;
           // c->SetLogy (1) ;
           // bkg->Draw () ;
           // bkg_stack->Draw ("hist same") ;

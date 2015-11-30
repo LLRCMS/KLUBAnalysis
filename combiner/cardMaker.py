@@ -360,18 +360,19 @@ class cardMaker:
         #elif(theChannel == self.ID_ch_mutau ): 
         #    systReader.addSystFile("../config_systematics_mutau.cfg")
         syst.writeSystematics()
-        #add QCD bin-by-by shape
-        for iqcd in range(len(qcdbinsysts)) :
-            syst.writeOneLine("QCD",qcdbinsysts[iqcd])
-        #add QCD rlx to tight shape unc
-        syst.writeOneLine("QCD","qcd_RlxToTight shape ")
-        #add stat uncertainty (sqrt(N)) => is this needed?? In any case it can't be added as gamma (lnU instead?)
         index = theInputs.additional.index("QCD")
         templateName = theInputs.additionalName[index]
-        syst.writeOneLine("QCD", "qcd_SR_norm lnN ",1+1.0/TMath.Sqrt(inputFile.Get(templateName).Integral()))
-        #add  CR->SR uncertainty (gamma*alhpa)
-        #templateName = templateName.replace("CORR_","")###GRRR this is hardcoded... but I don't know how to do better
-        syst.writeOneLine("QCD", "qcd_CR_norm gmN {0:.0f} ".format(inputFile.Get(templateName).Integral()/1.06),1.06)
+        if inputFile.Get(templateName).Integral() > 0:        
+            #add QCD bin-by-by shape
+            for iqcd in range(len(qcdbinsysts)) :
+                syst.writeOneLine("QCD",qcdbinsysts[iqcd])
+            #add QCD rlx to tight shape unc
+            syst.writeOneLine("QCD","qcd_RlxToTight shape ")
+            #add stat uncertainty (sqrt(N)) => is this needed?? In any case it can't be added as gamma (lnU instead?)
+            syst.writeOneLine("QCD", "qcd_SR_norm_{0} lnN ".format(theChannel),1+1.0/TMath.Sqrt(inputFile.Get(templateName).Integral()))
+            #add  CR->SR uncertainty (gamma*alhpa)
+            #templateName = templateName.replace("CORR_","")###GRRR this is hardcoded... but I don't know how to do better
+            syst.writeOneLine("QCD", "qcd_CR_norm_{0} gmN {1:.0f} ".format(theChannel,inputFile.Get(templateName).Integral()/1.06),1.06)
 
 #define function for parsing options
 def parseOptions():
