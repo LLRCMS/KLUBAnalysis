@@ -55,6 +55,8 @@ int main (int argc, char** argv)
   if (gConfigParser->isDefined ("general::maxEvtsMC"))
         maxEvtsMC = gConfigParser -> readIntOption ("general::maxEvtsMC");
 
+  bool doOverUnderFlow = false;
+
   // prepare files to contain tree with selectd events
 
   TString treeFileName = gConfigParser->readStringOption ("general::outputFolderName") ;
@@ -206,7 +208,7 @@ int main (int argc, char** argv)
               lumi,
               vector<float> (0),
               true, false) ;
-  SS_DATA_plots.AddOverAndUnderFlow () ;
+  if (doOverUnderFlow) SS_DATA_plots.AddOverAndUnderFlow () ;
 
   cout << "--- MAIN reading bkg and filling SS histos" << endl ;
 
@@ -218,7 +220,7 @@ int main (int argc, char** argv)
               lumi,
               vector<float> (0),
               false, false, maxEvtsMC) ;
-  SS_bkg_plots.AddOverAndUnderFlow () ;
+  if (doOverUnderFlow) SS_bkg_plots.AddOverAndUnderFlow () ;
 
   // get the same-sign distributions from bkg
   plotContainer SS_sig_plots ("SS_sig", variablesList, variables2DList, selections_SS, sigSamplesList, 1) ;
@@ -228,7 +230,7 @@ int main (int argc, char** argv)
               lumi,
               signalScales,
               false, true) ;
-  SS_sig_plots.AddOverAndUnderFlow () ;
+  if (doOverUnderFlow) SS_sig_plots.AddOverAndUnderFlow () ;
 
   cout << "--- MAIN preparing to loop on variables and selections to calc SS QCD" << endl ;
 
@@ -293,7 +295,7 @@ int main (int argc, char** argv)
               lumi,
               vector<float> (0),
               true, false) ;
-  SS_tightIso_DATA_plots.AddOverAndUnderFlow () ;
+  if (doOverUnderFlow) SS_tightIso_DATA_plots.AddOverAndUnderFlow () ;
 
   cout << "--- MAIN reading bkg and filling SS histos with non-relaxed iso" << endl ;
 
@@ -305,7 +307,7 @@ int main (int argc, char** argv)
               lumi,
               vector<float> (0),
               false, false, maxEvtsMC) ;
-  SS_tightIso_bkg_plots.AddOverAndUnderFlow () ;
+  if (doOverUnderFlow) SS_tightIso_bkg_plots.AddOverAndUnderFlow () ;
 
   
   // get the same-sign distributions from bkg
@@ -316,7 +318,7 @@ int main (int argc, char** argv)
               lumi,
               signalScales,
               false, true) ;
-  SS_tightIso_sig_plots.AddOverAndUnderFlow () ;
+  if (doOverUnderFlow) SS_tightIso_sig_plots.AddOverAndUnderFlow () ;
   
   cout << "--- MAIN preparing to loop on variables and selections to calc SS QCD yield with non-relaxed iso" << endl ;
 
@@ -431,7 +433,7 @@ int main (int argc, char** argv)
               lumi,
               vector<float> (0),
               true, false, -1, fFilteredTrees) ;
-  OS_DATA_plots.AddOverAndUnderFlow () ;
+  if (doOverUnderFlow) OS_DATA_plots.AddOverAndUnderFlow () ;
 
   cout << "--- MAIN reading bkg and filling OS histos" << endl ;
 
@@ -443,7 +445,7 @@ int main (int argc, char** argv)
               lumi,
               vector<float> (0),
               false, false, maxEvtsMC) ;
-  OS_bkg_plots.AddOverAndUnderFlow () ;
+  if (doOverUnderFlow) OS_bkg_plots.AddOverAndUnderFlow () ;
   OS_bkg_plots.addSample ("QCD", SS_QCD) ;
   
   cout << "--- MAIN reading sig and filling OS histos" << endl ;
@@ -456,7 +458,7 @@ int main (int argc, char** argv)
               lumi,
               signalScales,
               false, true) ;
-  OS_sig_plots.AddOverAndUnderFlow () ;
+  if (doOverUnderFlow) OS_sig_plots.AddOverAndUnderFlow () ;
 
   // Save the histograms
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -491,6 +493,7 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events/")) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events/rootCanvas/")) ;
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/shapes/")) ;
 
   // for test
@@ -509,7 +512,12 @@ int main (int argc, char** argv)
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_SSrlxiso/")) ;
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_SStightiso/")) ;
 
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_SSrlxiso_noSig/")) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_SStightiso_noSig/")) ;
+
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_noSignal/")) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_noData/")) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_noDatanoSig/")) ;
 
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/canvases2D/")) ;
   TFile* fPlots2D = new TFile (outFolderNameBase + TString ("/canvases2D/2Dplots.root"), "recreate");
@@ -606,8 +614,9 @@ int main (int argc, char** argv)
           coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
           // FIXME : save canvases but in a dedicated folder
-          //coutputName.Form ("%s.root", (outFolderName + outputName).Data ()) ;
-          //c->SaveAs (coutputName.Data ());
+          
+          coutputName.Form ("%s.root", (outFolderName + TString("rootCanvas/") + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ());
 
           // ---------------
           outFolderName = outFolderNameBase + TString ("/shapes/") ;
@@ -690,10 +699,47 @@ int main (int argc, char** argv)
           c->SaveAs (coutputName.Data ()) ;
 
           // ---------------
+          outFolderName = outFolderNameBase + TString ("/events_SSrlxiso_noSig/") ;
+          std::vector<TObject*> drawings_nonScaled_8bis = makeStackPlot (SS_DATA_plots, SS_bkg_plots, SS_sig_plots,
+                                      variablesList.at (iv), selections_SS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, false, false, true, false, false, false, false) ;
+
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+
+          // ---------------
+          outFolderName = outFolderNameBase + TString ("/events_SStightiso_noSig/") ;
+          std::vector<TObject*> drawings_nonScaled_9bis = makeStackPlot (SS_tightIso_DATA_plots, SS_tightIso_bkg_plots, SS_tightIso_sig_plots,
+                                      variablesList.at (iv), selections_SS_tightIso.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, false, false, true, false, false, false, false) ;
+
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+
+
+          // ---------------
           outFolderName = outFolderNameBase + TString ("/events_noSignal/") ;
           std::vector<TObject*> drawings_nonScaled_10 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
                                       variablesList.at (iv), selections_OS.at (isel).first.Data (),
-                                      c, addToLegend, variablesLabels, false, false, true, true, true, false, false) ;
+                                      c, addToLegend, variablesLabels, false, false, true, false, true, false, false) ;
+
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+
+          // ---------------
+          outFolderName = outFolderNameBase + TString ("/events_noData/") ;
+          std::vector<TObject*> drawings_nonScaled_11 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, false, false, true, false, true, false, true, false, true) ;
+
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+
+          // ---------------
+          outFolderName = outFolderNameBase + TString ("/events_noDatanoSig/") ;
+          std::vector<TObject*> drawings_nonScaled_12 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, false, false, true, false, true, false, false, false, true) ;
 
           coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
