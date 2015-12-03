@@ -145,7 +145,9 @@ int main (int argc, char** argv)
   if (gConfigParser->isDefined ("general::maxEvtsMC"))
         maxEvtsMC = gConfigParser -> readIntOption ("general::maxEvtsMC");
 
-  bool doOverUnderFlow = false;
+  bool doOverUnderFlow = true;
+  if (gConfigParser->isDefined ("general::useOverUnderFlow"))
+      doOverUnderFlow = gConfigParser->readBoolOption ("general::useOverUnderFlow");
 
   // prepare files to contain tree with selectd events
 
@@ -1119,13 +1121,6 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
           coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
           
-          // ---------------
-          outFolderName = outFolderNameBase + TString ("/events_noData/") ;
-          std::vector<TObject*> drawings_nonScaled_11 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
-                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
-                                      c, addToLegend, variablesLabels, false, false, true, false, true, false, true, false, true) ;
-                    coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
-            c->SaveAs (coutputName.Data ()) ;
           // c->SetLogy (1) ;
           // bkg->Draw () ;
           // bkg_stack->Draw ("hist same") ;
