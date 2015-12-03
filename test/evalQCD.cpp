@@ -124,12 +124,6 @@ int main (int argc, char** argv)
   if (gConfigParser) return 1 ;
   gConfigParser = new ConfigParser () ;
   
-  int nruns=0;
-  if (argc>2){
-    TString runs;
-    runs.Form("%s",argv[2]);
-    nruns = runs.Atoi();
-  }
   TString config ; 
   config.Form ("%s",argv[1]) ;
   if (! (gConfigParser->init (config)))
@@ -691,7 +685,7 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
     }
     for (unsigned int i2dvar = 0; i2dvar < variables2DList.size(); i2dvar++)
     {
-      int ivar = i2dvar;
+      //int ivar = i2dvar;
       rlxToTightIsoScale2D.at(i2dvar).at(icut) = QCDyieldSSregionTightIso2D.at(i2dvar).at(icut) / QCDyieldSSregionRLXiso2D.at(i2dvar).at(icut) ;
 
       TH2F *dt = SS_QCD_tightIso.m_2Dhistos[variables2DList.at(i2dvar).first + variables2DList.at(i2dvar).second][selections_SS.at (icut).first.Data ()]["QCD"];
