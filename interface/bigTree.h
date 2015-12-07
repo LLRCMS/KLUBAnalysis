@@ -143,6 +143,7 @@ public :
    std::vector<float>   *bCSVscore;
    std::vector<int>     *PFjetID;
    std::vector<float>   *jetRawf;
+   std::vector<float>   *jets_jecUnc;
 
    // List of branches
    TBranch        *b_EventNumber;   //!
@@ -256,6 +257,7 @@ public :
    TBranch        *b_bCSVscore;   //!
    TBranch        *b_PFjetID;   //!
    TBranch        *b_jetRawf;   //!
+   TBranch        *b_jets_jecUnc ; //!
 
    bigTree (TChain * inputChain) : fChain (inputChain) { Init(fChain) ; fChain->GetEntries() ; }
    virtual ~bigTree() { }
@@ -369,6 +371,7 @@ public :
        bCSVscore = 0;
        PFjetID = 0;
        jetRawf = 0;
+       jets_jecUnc = 0;
 
        fChain->SetBranchAddress("EventNumber", &EventNumber, &b_EventNumber);
        fChain->SetBranchAddress("RunNumber", &RunNumber, &b_RunNumber);
@@ -459,7 +462,7 @@ public :
        fChain->SetBranchAddress("bCSVscore", &bCSVscore, &b_bCSVscore);
        fChain->SetBranchAddress("PFjetID", &PFjetID, &b_PFjetID);
        fChain->SetBranchAddress("jetRawf", &jetRawf, &b_jetRawf);
-       
+       fChain->SetBranchAddress("jets_jecUnc", &jets_jecUnc,&b_jets_jecUnc);
        // MC only
        if(fChain->GetListOfBranches()->FindObject("MC_weight"))
        {

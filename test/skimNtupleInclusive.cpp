@@ -710,7 +710,6 @@ int main (int argc, char** argv)
           theSmallTree.m_HH_phi = tlv_HH.Phi () ;
           theSmallTree.m_HH_e = tlv_HH.E () ;
           theSmallTree.m_HH_mass = tlv_HH.M () ;
-
           // in case the SVFIT mass is calculated
           if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
             {
@@ -719,6 +718,7 @@ int main (int argc, char** argv)
               theSmallTree.m_HHsvfit_eta = tlv_HHsvfit.Eta () ;
               theSmallTree.m_HHsvfit_phi = tlv_HHsvfit.Phi () ;
               theSmallTree.m_HHsvfit_e = tlv_HHsvfit.E () ;
+              theSmallTree.m_HHsvfit_mass = tlv_HHsvfit.M () ;
             } // in case the SVFIT mass is calculated
         
 //           //intance of fitter master class
@@ -827,10 +827,27 @@ int main (int argc, char** argv)
             }else{
               if(isOS)HHKmass = -333;
             }
+
+            if (theBigTree.SVfitMass->at (chosenTauPair) > -900. && !wrongHHK)
+            {
+              TLorentzVector b1 = kinFits.getFittedBJet1();
+              TLorentzVector b2 = kinFits.getFittedBJet2();
+              TLorentzVector bH_HKin = b1 + b2;
+              TLorentzVector tlv_HHsvfit = bH_HKin + tlv_tauH_SVFIT ;
+
+              theSmallTree.m_HHkinsvfit_bHmass = bH_HKin.M();
+              theSmallTree.m_HHkinsvfit_pt = tlv_HHsvfit.Pt () ;
+              theSmallTree.m_HHkinsvfit_eta = tlv_HHsvfit.Eta () ;
+              theSmallTree.m_HHkinsvfit_phi = tlv_HHsvfit.Phi () ;
+              theSmallTree.m_HHkinsvfit_e = tlv_HHsvfit.E () ;
+              theSmallTree.m_HHkinsvfit_m = tlv_HHsvfit.M () ;
+            } // in case the SVFIT mass is calculated
+
           } // end if doing HHKinFit
       
           theSmallTree.m_HHKin_mass = HHKmass;//kinFits.getMH () ;
           theSmallTree.m_HHKin_chi2 = HHKChi2;//kinFits.getChi2 () ;
+
 
           theSmallTree.m_HH_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
           theSmallTree.m_tauHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_tauH.Phi ()) ;
@@ -848,9 +865,13 @@ int main (int argc, char** argv)
               if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
           
               // skip the H decay candiates
-              if (int (iJet) == eventJets.first ||
-                  int (iJet) == eventJets.second)continue ;
-
+              if (int (iJet) == eventJets.first ){
+                theSmallTree.m_bjet1_jecUnc = theBigTree.jets_jecUnc->at(iJet);
+                continue;
+              }else if(int (iJet) == eventJets.second){
+                theSmallTree.m_bjet2_jecUnc = theBigTree.jets_jecUnc->at(iJet);
+                continue ;
+              }
               TLorentzVector tlv_dummyJet (
                   theBigTree.jets_px->at (iJet),
                   theBigTree.jets_py->at (iJet),
@@ -859,14 +880,24 @@ int main (int argc, char** argv)
                 ) ;
 
               // remove jets that overlap with the tau selected in the leg 1 and 2
-              if (type1 == 2) {if (tlv_firstLepton.DeltaR(tlv_dummyJet) < 0.5)continue;}
-              if (type2 == 2) {if (tlv_secondLepton.DeltaR(tlv_dummyJet) < 0.5)continue;}
-      
+              if (type1 == 2) {
+                if (tlv_firstLepton.DeltaR(tlv_dummyJet) < 0.5){
+                  theSmallTree.m_dau1_jecUnc = theBigTree.jets_jecUnc->at(iJet);
+                  continue;
+                }
+              }
+              if (type2 == 2) {
+                if (tlv_secondLepton.DeltaR(tlv_dummyJet) < 0.5){
+                  theSmallTree.m_dau2_jecUnc = theBigTree.jets_jecUnc->at(iJet);
+                  continue;
+                }
+              }
               theSmallTree.m_jets_pt.push_back (tlv_dummyJet.Pt ()) ;
               theSmallTree.m_jets_eta.push_back (tlv_dummyJet.Eta ()) ;
               theSmallTree.m_jets_phi.push_back (tlv_dummyJet.Phi ()) ;
               theSmallTree.m_jets_e.push_back (theBigTree.jets_e->at (iJet)) ;
               theSmallTree.m_jets_btag.push_back (theBigTree.bCSVscore->at (iJet)) ;
+              theSmallTree.m_jets_jecUnc.push_back (theBigTree.jets_jecUnc->at (iJet)) ;
               ++theSmallTree.m_njets ;
             } // loop over jets
         } // if there's two jets in the event, at least
