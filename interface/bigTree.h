@@ -341,7 +341,7 @@ public :
    TBranch        *b_jetRawf;   //!
    TBranch        *b_jets_jecUnc ; //!
 
-   bigTree (TChain * inputChain) : fChain (inputChain) { Init(fChain) ; fChain->GetEntries() ; }
+   bigTree (TChain * inputChain) : fChain (inputChain) { Init(fChain);}
    virtual ~bigTree() { }
 //   virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0) { return fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0; }
    virtual Int_t   GetEntry(Long64_t entry) { return fChain->GetEntry(entry) ; }
@@ -498,6 +498,8 @@ public :
        PFjetID = 0;
        jetRawf = 0;
        jets_jecUnc = 0;
+
+       fChain->SetMakeClass(1);
 
        fChain->SetBranchAddress("EventNumber", &EventNumber, &b_EventNumber);
        fChain->SetBranchAddress("RunNumber", &RunNumber, &b_RunNumber);
