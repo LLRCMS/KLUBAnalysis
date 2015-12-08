@@ -112,6 +112,7 @@ struct smallTree
       m_HHsvfit_eta = -1. ;
       m_HHsvfit_phi = -1. ;
       m_HHsvfit_e = -1. ;
+      m_HHsvfit_mass = -1. ;
 
       m_HH_pt = -1. ;
       m_HH_eta = -1. ;
@@ -127,6 +128,14 @@ struct smallTree
       m_ditau_deltaPhi = -1. ;
       m_dib_deltaPhi = -1. ;
 
+      m_HHkinsvfit_bHmass =-1;
+      m_HHkinsvfit_pt =-1;
+      m_HHkinsvfit_eta = -1;
+      m_HHkinsvfit_phi = -1;
+      m_HHkinsvfit_e =-1;
+      m_HHkinsvfit_m =-1;
+
+
       m_jets_pt.clear () ;
       m_jets_eta.clear () ;
       m_jets_phi.clear () ;
@@ -134,7 +143,12 @@ struct smallTree
       m_jets_btag.clear () ;
       m_jets_isH.clear () ;
       m_njets = 0 ;
-      
+      m_dau1_jecUnc= -1;
+      m_dau2_jecUnc= -1;
+      m_bjet1_jecUnc = -1;
+      m_bjet2_jecUnc = -1;
+      m_jets_jecUnc.clear() ;
+
       m_leps_pt.clear () ;
       m_leps_eta.clear () ;
       m_leps_phi.clear () ;
@@ -239,6 +253,7 @@ struct smallTree
       m_smallT->Branch ("HHsvfit_eta", &m_HHsvfit_eta, "HHsvfit_eta/F") ;
       m_smallT->Branch ("HHsvfit_phi", &m_HHsvfit_phi, "HHsvfit_phi/F") ;
       m_smallT->Branch ("HHsvfit_e", &m_HHsvfit_e, "HHsvfit_e/F") ;
+      m_smallT->Branch ("HHsvfit_mass", &m_HHsvfit_mass, "HHsvfit_mass/F") ;
       m_smallT->Branch ("HH_pt", &m_HH_pt, "HH_pt/F") ;
       m_smallT->Branch ("HH_eta", &m_HH_eta, "HH_eta/F") ;
       m_smallT->Branch ("HH_phi", &m_HH_phi, "HH_phi/F") ;
@@ -260,13 +275,27 @@ struct smallTree
       m_smallT->Branch ("jets_btag", &m_jets_btag) ;
       m_smallT->Branch ("jets_isH", &m_jets_isH) ;
       m_smallT->Branch ("njets", &m_njets, "njets/I") ;
-      
+      m_smallT->Branch ("jets_jecUnc", &m_jets_jecUnc);
+      m_smallT->Branch ("dau1_jecUnc", &m_dau1_jecUnc,"dau1_jecUnc/F");
+      m_smallT->Branch ("dau2_jecUnc", &m_dau2_jecUnc,"dau2_jecUnc/F");
+      m_smallT->Branch ("bjet1_jecUnc", &m_bjet1_jecUnc,"bjet1_jecUnc/F");
+      m_smallT->Branch ("bjet2_jecUnc", &m_bjet2_jecUnc,"bjet2_jecUnc/F");
+
+
       m_smallT->Branch ("leps_pt", &m_leps_pt) ;
       m_smallT->Branch ("leps_eta", &m_leps_eta) ;
       m_smallT->Branch ("leps_phi", &m_leps_phi) ;
       m_smallT->Branch ("leps_e", &m_leps_e) ;
       m_smallT->Branch ("leps_flav", &m_leps_flav) ;
       m_smallT->Branch ("nleps", &m_nleps, "nleps/I") ;
+
+      m_smallT->Branch("HHkinsvfit_bHmass", &m_HHkinsvfit_bHmass,"HHkinsvfit_bHmass/F");
+      m_smallT->Branch("HHkinsvfit_pt", &m_HHkinsvfit_pt,"HHkinsvfit_pt/F");
+      m_smallT->Branch("HHkinsvfit_eta", &m_HHkinsvfit_eta,"HHkinsvfit_eta/F");
+      m_smallT->Branch("HHkinsvfit_phi", &m_HHkinsvfit_phi,"HHkinsvfit_phi/F");
+      m_smallT->Branch("HHkinsvfit_e", &m_HHkinsvfit_e,"HHkinsvfit_e/F");
+      m_smallT->Branch("HHkinsvfit_m", &m_HHkinsvfit_m,"HHkinsvfit_m/F");
+
 
       //m_smallT->Branch ("MuTauKine", &m_mvaValueMuTau, "MuTauKine/F");
       //m_smallT->Branch ("TauTauKine", &m_mvaValueTauTau, "TauTauKine/F");
@@ -391,6 +420,7 @@ struct smallTree
   Float_t m_HHsvfit_eta ;
   Float_t m_HHsvfit_phi ;
   Float_t m_HHsvfit_e ;
+  Float_t m_HHsvfit_mass ;
 
   // the di-higgs candidate
   Float_t m_HHKin_mass ;
@@ -411,7 +441,12 @@ struct smallTree
   std::vector<Int_t> m_jets_btag ;
   std::vector<Int_t> m_jets_isH ;
   Int_t m_njets ;
-  
+  std::vector<Float_t> m_jets_jecUnc ;
+  Float_t m_dau1_jecUnc;
+  Float_t m_dau2_jecUnc;
+  Float_t m_bjet1_jecUnc;
+  Float_t m_bjet2_jecUnc;
+
   // additional leptons
   std::vector<Float_t> m_leps_pt ;
   std::vector<Float_t> m_leps_eta ;
@@ -423,6 +458,14 @@ struct smallTree
   // TMVAs
   Float_t m_mvaValueMuTau ;
   Float_t m_mvaValueTauTau ;
+
+  float m_HHkinsvfit_bHmass;
+  float m_HHkinsvfit_pt;
+  float m_HHkinsvfit_eta ;
+  float m_HHkinsvfit_phi ;
+  float m_HHkinsvfit_e;
+  float m_HHkinsvfit_m;
+
 
 } ;
 
