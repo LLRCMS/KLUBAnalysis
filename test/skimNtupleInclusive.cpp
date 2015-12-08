@@ -15,6 +15,7 @@
 #include "OfflineProducerHelper.h"
 #include "PUReweight.h"
 #include "triggerReader.h"
+#include "bJetRegrVars.h"
 //#include "../../HHKinFit/interface/HHKinFitMaster.h"
 #include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 #include "ConfigParser.h"
@@ -270,8 +271,11 @@ int main (int argc, char** argv)
   {
     skipTriggers = gConfigParser->readBoolOption ("debug::skipTriggers");
   }
-
   cout << "skipTriggers? " << skipTriggers << endl;
+
+  string bRegrWeights("");
+  bool computeBregr = gConfigParser->readBoolOption ("bRegression::computeBregr");
+  if (computeBregr) bRegrWeights = gConfigParser->readStringOption("bRegression::weights");
 
   // input and output setup
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -318,6 +322,14 @@ int main (int argc, char** argv)
 
   OfflineProducerHelper oph (hTriggers, hTauIDS) ;
 
+  // ------------------------------
+
+  bJetRegrVars bjrv;
+  TMVA::Reader *bRreader = new TMVA::Reader();
+  bjrv.setReader (bRreader);
+  string bRegrMethodName = "BDTG method";
+  if (computeBregr)
+    bRreader->BookMVA( bRegrMethodName.c_str(), bRegrWeights.c_str() ); 
   // ------------------------------
 
   PUReweight reweight ;
@@ -474,6 +486,8 @@ int main (int argc, char** argv)
             ) ;
         }
 
+      //else cout << "Evt: " << iEvent << " - DEBUG: SVfit for the pair: " << chosenTauPair << " type=" << oph.getPairType (theBigTree.particleType->at (firstDaughterIndex), theBigTree.particleType->at (secondDaughterIndex)) << " is: " << theBigTree.SVfitMass->at (chosenTauPair) << endl;
+
       vector <pair <int, float> > jets_and_btag ;
       // loop over jets
       for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
@@ -546,7 +560,7 @@ int main (int argc, char** argv)
 
 
       theSmallTree.m_dau1_iso = getIso (firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree) ;
-      theSmallTree.m_dau1_photonPtSumOutsideSignalCone = theBigTree.daughters_photonPtSumOutsideSignalCone->at (firstDaughterIndex) ;
+      theSmallTree.m_dau1_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (firstDaughterIndex) ;
       for(int i=0;i<hTauIDS->GetNbinsX();i++){
         if(string(hTauIDS->GetXaxis()->GetBinLabel(i+1))==string("byLooseCombinedIsolationDeltaBetaCorr3Hits")){
           theSmallTree.m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits = theBigTree.tauID->at (firstDaughterIndex) & (1 << i);
@@ -572,7 +586,7 @@ int main (int argc, char** argv)
                                  // 3 = from tauH collection
                                  
       theSmallTree.m_dau2_iso = getIso (secondDaughterIndex, tlv_secondLepton.Pt (), theBigTree) ;
-      theSmallTree.m_dau2_photonPtSumOutsideSignalCone = theBigTree.daughters_photonPtSumOutsideSignalCone->at (secondDaughterIndex) ;      
+      theSmallTree.m_dau2_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (secondDaughterIndex) ;      
       theSmallTree.m_dau2_pt = tlv_secondLepton.Pt () ;
       theSmallTree.m_dau2_eta = tlv_secondLepton.Eta () ;
       theSmallTree.m_dau2_phi = tlv_secondLepton.Phi () ;
@@ -638,20 +652,56 @@ int main (int argc, char** argv)
           if (bChoiceFlag == 1)       eventJets = chooseHighestBtagJets (jets_and_btag) ;
           else if (bChoiceFlag == 2)  eventJets = chooseHighestPtJets (jets_and_btag) ;
           
-          const TLorentzVector tlv_firstBjet 
+          TLorentzVector tlv_firstBjet 
             (
               theBigTree.jets_px->at (eventJets.first),
               theBigTree.jets_py->at (eventJets.first),
               theBigTree.jets_pz->at (eventJets.first),
               theBigTree.jets_e->at (eventJets.first)
             ) ;
-          const TLorentzVector tlv_secondBjet 
+          TLorentzVector tlv_secondBjet 
             (
               theBigTree.jets_px->at (eventJets.second),
               theBigTree.jets_py->at (eventJets.second),
               theBigTree.jets_pz->at (eventJets.second),
               theBigTree.jets_e->at (eventJets.second)
             ) ;
+
+          // compute b jet energy regression
+          // eventJets.first , eventJets.second
+          
+          double ptRegr[2] = {tlv_firstBjet.Pt(), tlv_secondBjet.Pt()};
+          if (computeBregr)
+          {
+            for (int iBJet = 0; iBJet <=1; iBJet++)
+            { 
+              int bidx = (iBJet == 0 ? eventJets.first : eventJets.second);
+              bjrv.Jet_pt     = (iBJet == 0 ? tlv_firstBjet.Pt()  : tlv_secondBjet.Pt());
+              bjrv.Jet_eta    = (iBJet == 0 ? tlv_firstBjet.Eta() : tlv_secondBjet.Eta());
+              //bjrv.Jet_corr         = theBigTree.jets_rawPt->at(bidx);
+              bjrv.Jet_corr   = theBigTree.jetRawf->at(bidx); // should be 1./jetrawf ??
+              bjrv.rho              = theBigTree.rho;
+              bjrv.Jet_mt           = theBigTree.jets_mT->at(bidx);
+              bjrv.Jet_leadTrackPt  = theBigTree.jets_leadTrackPt->at(bidx);
+              bjrv.Jet_leptonPtRel  = theBigTree.jets_leptonPtRel->at(bidx);
+              bjrv.Jet_leptonPt     = theBigTree.jets_leptonPt->at(bidx);
+              bjrv.Jet_leptonDeltaR = theBigTree.jets_leptonDeltaR->at(bidx);
+              bjrv.Jet_neHEF   = theBigTree.jets_nHEF->at(bidx);
+              bjrv.Jet_neEmEF  = theBigTree.jets_nEmEF->at(bidx);
+              bjrv.Jet_chMult  = theBigTree.jets_chMult->at(bidx);
+              bjrv.Jet_vtxPt   = theBigTree.jets_vtxPt->at(bidx);
+              bjrv.Jet_vtxMass = theBigTree.jets_vtxMass->at(bidx);
+              bjrv.Jet_vtx3dL  = theBigTree.jets_vtx3dL->at(bidx);
+              bjrv.Jet_vtxNtrk = theBigTree.jets_vtxNtrk->at(bidx);
+              bjrv.Jet_vtx3deL = theBigTree.jets_vtx3deL->at(bidx);
+              
+              ptRegr[iBJet] = (bRreader->EvaluateRegression (bRegrMethodName.c_str()))[0];
+            }
+          }
+
+          // FIXME : here mass is manually set to 0, should we change it?
+          tlv_firstBjet.SetPtEtaPhiM (ptRegr[0], tlv_firstBjet.Eta(), tlv_firstBjet.Phi(), 0.);
+          tlv_secondBjet.SetPtEtaPhiM (ptRegr[1], tlv_secondBjet.Eta(), tlv_secondBjet.Phi(), 0.);
 
           theSmallTree.m_bjet1_pt  = tlv_firstBjet.Pt () ;
           theSmallTree.m_bjet1_eta = tlv_firstBjet.Eta () ;
@@ -869,6 +919,7 @@ int main (int argc, char** argv)
               theSmallTree.m_jets_btag.push_back (theBigTree.bCSVscore->at (iJet)) ;
               ++theSmallTree.m_njets ;
             } // loop over jets
+
         } // if there's two jets in the event, at least
         
       if (isMC) selectedEvents += theBigTree.aMCatNLOweight ; 

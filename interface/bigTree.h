@@ -31,6 +31,7 @@ public :
    Float_t         metphi;
    Int_t           npv;
    Int_t           npu;
+   Float_t         PUNumInteractions;
    Float_t         PUReweight;
    Float_t         rho;
    std::vector<float>   *mothers_px;
@@ -44,6 +45,7 @@ public :
    std::vector<int>     *daughters_charge;
    std::vector<int>     *daughters_genindex;
    Float_t         MC_weight;
+   Float_t         lheHt;
    Float_t         aMCatNLOweight;
    std::vector<float>   *genpart_px;
    std::vector<float>   *genpart_py;
@@ -52,17 +54,23 @@ public :
    std::vector<int>     *genpart_pdg;
    std::vector<int>     *genpart_status;
    std::vector<int>     *genpart_HMothInd;
+   std::vector<int>     *genpart_MSSMHMothInd;
    std::vector<int>     *genpart_TopMothInd;
    std::vector<int>     *genpart_TauMothInd;
    std::vector<int>     *genpart_ZMothInd;
+   std::vector<int>     *genpart_WMothInd;
+   std::vector<int>     *genpart_bMothInd;
    std::vector<int>     *genpart_HZDecayMode;
+   std::vector<int>     *genpart_TopDecayMode;
+   std::vector<int>     *genpart_WDecayMode;
    std::vector<int>     *genpart_TauGenDecayMode;
    std::vector<int>     *genpart_flags;
    std::vector<float>   *genjet_px;
    std::vector<float>   *genjet_py;
    std::vector<float>   *genjet_pz;
    std::vector<float>   *genjet_e;
-   std::vector<int>     *jets_genjetIndex;
+   std::vector<int>     *genjet_partonFlavour;
+   std::vector<int>     *genjet_hadronFlavour;
    Int_t           NUP;
    std::vector<float>   *SVfitMass;
    std::vector<float>   *SVfit_pt;
@@ -94,8 +102,14 @@ public :
    std::vector<float>   *dz;
    std::vector<float>   *SIP;
    std::vector<bool>    *daughters_iseleBDT;
+   std::vector<bool>    *daughters_iseleWP80;
+   std::vector<bool>    *daughters_iseleWP90;
+   std::vector<float>   *daughters_eleMVAnt;
+   std::vector<bool>    *daughters_passConversionVeto;
+   std::vector<int>     *daughters_eleMissingHits;
    std::vector<int>     *daughters_eleCUTID;
    std::vector<int>     *decayMode;
+   std::vector<Long64_t> *tauID;
    std::vector<float>   *combreliso;
    std::vector<float>   *daughters_IetaIeta;
    std::vector<float>   *daughters_deltaPhiSuperClusterTrackAtVtx;
@@ -104,11 +118,13 @@ public :
    std::vector<float>   *daughters_depositR03_ecal;
    std::vector<float>   *daughters_depositR03_hcal;
    std::vector<int>     *daughters_decayModeFindingOldDMs;
+   std::vector<float>   *againstElectronMVA5category;
+   std::vector<float>   *againstElectronMVA5raw;
+   std::vector<float>   *byPileupWeightedIsolationRaw3Hits;
+   std::vector<float>   *footprintCorrection;
+   std::vector<float>   *neutralIsoPtSumWeight;
+   std::vector<float>   *photonPtSumOutsideSignalCone;
    std::vector<int>     *daughters_decayModeFindingNewDMs;
-   std::vector<Long64_t> *tauID ;
-//   std::vector<int>     *daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits;
-//   std::vector<int>     *daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits;
-//   std::vector<int>     *daughters_byTightCombinedIsolationDeltaBetaCorr3Hits;
    std::vector<float>   *daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;
    std::vector<float>   *daughters_byIsolationMVA3oldDMwoLTraw;
    std::vector<float>   *daughters_byIsolationMVA3oldDMwLTraw;
@@ -117,28 +133,48 @@ public :
    std::vector<float>   *daughters_chargedIsoPtSum;
    std::vector<float>   *daughters_neutralIsoPtSum;
    std::vector<float>   *daughters_puCorrPtSum;
-   std::vector<float>   *daughters_photonPtSumOutsideSignalCone;
-//   std::vector<int>     *daughters_againstMuonLoose3;
-//   std::vector<int>     *daughters_againstMuonTight3;
-//   std::vector<int>     *daughters_againstElectronVLooseMVA5;
-//   std::vector<int>     *daughters_againstElectronLooseMVA5;
-//   std::vector<int>     *daughters_againstElectronMediumMVA5;
-//   std::vector<int>     *daughters_againstElectronTightMVA5;
-//   std::vector<int>     *daughters_againstElectronVTightMVA5;
+   std::vector<int>     *daughters_numChargedParticlesSignalCone;
+   std::vector<int>     *daughters_numNeutralHadronsSignalCone;
+   std::vector<int>     *daughters_numPhotonsSignalCone;
+   std::vector<int>     *daughters_daughters_numParticlesSignalCone;
+   std::vector<int>     *daughters_numChargedParticlesIsoCone;
+   std::vector<int>     *daughters_numNeutralHadronsIsoCone;
+   std::vector<int>     *daughters_numPhotonsIsoCone;
+   std::vector<int>     *daughters_numParticlesIsoCone;
+   std::vector<float>   *daughters_leadChargedParticlePt;
+   std::vector<float>   *daughters_trackRefPt;
    std::vector<int>     *daughters_isLastTriggerObjectforPath;
    std::vector<int>     *daughters_isTriggerObjectforPath;
    std::vector<int>     *daughters_FilterFired;
-   std::vector<bool>    *daughters_isGoodTriggerType;
+   std::vector<int>     *daughters_isGoodTriggerType;
    std::vector<int>     *daughters_L3FilterFired;
    std::vector<int>     *daughters_L3FilterFiredLast;
+   std::vector<float>   *daughters_HLTpt;
    Int_t           JetsNumber;
    std::vector<float>   *jets_px;
    std::vector<float>   *jets_py;
    std::vector<float>   *jets_pz;
    std::vector<float>   *jets_e;
+   std::vector<float>   *jets_rawPt;
+   std::vector<float>   *jets_mT;
    std::vector<int>     *jets_Flavour;
    std::vector<int>     *jets_HadronFlavour;
+   std::vector<int>     *jets_genjetIndex;
    std::vector<float>   *jets_PUJetID;
+   std::vector<float>   *jets_vtxPt;
+   std::vector<float>   *jets_vtxMass;
+   std::vector<float>   *jets_vtx3dL;
+   std::vector<float>   *jets_vtxNtrk;
+   std::vector<float>   *jets_vtx3deL;
+   std::vector<float>   *jets_leadTrackPt;
+   std::vector<float>   *jets_leptonPtRel;
+   std::vector<float>   *jets_leptonPt;
+   std::vector<float>   *jets_leptonDeltaR;
+   std::vector<float>   *jets_chEmEF;
+   std::vector<float>   *jets_chHEF;
+   std::vector<float>   *jets_nEmEF;
+   std::vector<float>   *jets_nHEF;
+   std::vector<int>     *jets_chMult;
    std::vector<float>   *bDiscriminator;
    std::vector<float>   *bCSVscore;
    std::vector<int>     *PFjetID;
@@ -154,6 +190,7 @@ public :
    TBranch        *b_metphi;   //!
    TBranch        *b_npv;   //!
    TBranch        *b_npu;   //!
+   TBranch        *b_PUNumInteractions;   //!
    TBranch        *b_PUReweight;   //!
    TBranch        *b_rho;   //!
    TBranch        *b_mothers_px;   //!
@@ -167,6 +204,7 @@ public :
    TBranch        *b_daughters_charge;   //!
    TBranch        *b_daughters_genindex;   //!
    TBranch        *b_MC_weight;   //!
+   TBranch        *b_lheHt;   //!
    TBranch        *b_aMCatNLOweight;   //!
    TBranch        *b_genpart_px;   //!
    TBranch        *b_genpart_py;   //!
@@ -175,17 +213,23 @@ public :
    TBranch        *b_genpart_pdg;   //!
    TBranch        *b_genpart_status;   //!
    TBranch        *b_genpart_HMothInd;   //!
+   TBranch        *b_genpart_MSSMHMothInd;   //!
    TBranch        *b_genpart_TopMothInd;   //!
    TBranch        *b_genpart_TauMothInd;   //!
    TBranch        *b_genpart_ZMothInd;   //!
+   TBranch        *b_genpart_WMothInd;   //!
+   TBranch        *b_genpart_bMothInd;   //!
    TBranch        *b_genpart_HZDecayMode;   //!
+   TBranch        *b_genpart_TopDecayMode;   //!
+   TBranch        *b_genpart_WDecayMode;   //!
    TBranch        *b_genpart_TauGenDecayMode;   //!
    TBranch        *b_genpart_flags;   //!
    TBranch        *b_genjet_px;   //!
    TBranch        *b_genjet_py;   //!
    TBranch        *b_genjet_pz;   //!
    TBranch        *b_genjet_e;   //!
-   TBranch        *b_jets_genjetIndex; //!
+   TBranch        *b_genjet_partonFlavour;   //!
+   TBranch        *b_genjet_hadronFlavour;   //!
    TBranch        *b_NUP;   //!
    TBranch        *b_SVfitMass;   //!
    TBranch        *b_SVfit_pt;   //!
@@ -217,8 +261,14 @@ public :
    TBranch        *b_dz;   //!
    TBranch        *b_SIP;   //!
    TBranch        *b_daughters_iseleBDT;   //!
+   TBranch        *b_daughters_iseleWP80;   //!
+   TBranch        *b_daughters_iseleWP90;   //!
+   TBranch        *b_daughters_eleMVAnt;   //!
+   TBranch        *b_daughters_passConversionVeto;   //!
+   TBranch        *b_daughters_eleMissingHits;   //!
    TBranch        *b_daughters_eleCUTID;   //!
    TBranch        *b_decayMode;   //!
+   TBranch        *b_tauID;   //!
    TBranch        *b_combreliso;   //!
    TBranch        *b_daughters_IetaIeta;   //!
    TBranch        *b_daughters_deltaPhiSuperClusterTrackAtVtx;   //!
@@ -227,8 +277,13 @@ public :
    TBranch        *b_daughters_depositR03_ecal;   //!
    TBranch        *b_daughters_depositR03_hcal;   //!
    TBranch        *b_daughters_decayModeFindingOldDMs;   //!
+   TBranch        *b_againstElectronMVA5category;   //!
+   TBranch        *b_againstElectronMVA5raw;   //!
+   TBranch        *b_byPileupWeightedIsolationRaw3Hits;   //!
+   TBranch        *b_footprintCorrection;   //!
+   TBranch        *b_neutralIsoPtSumWeight;   //!
+   TBranch        *b_photonPtSumOutsideSignalCone;   //!
    TBranch        *b_daughters_decayModeFindingNewDMs;   //!
-   TBranch        *b_tauID; //!
    TBranch        *b_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;   //!
    TBranch        *b_daughters_byIsolationMVA3oldDMwoLTraw;   //!
    TBranch        *b_daughters_byIsolationMVA3oldDMwLTraw;   //!
@@ -237,21 +292,48 @@ public :
    TBranch        *b_daughters_chargedIsoPtSum;   //!
    TBranch        *b_daughters_neutralIsoPtSum;   //!
    TBranch        *b_daughters_puCorrPtSum;   //!
-   TBranch        *b_daughters_photonPtSumOutsideSignalCone; //!
+   TBranch        *b_daughters_numChargedParticlesSignalCone;   //!
+   TBranch        *b_daughters_numNeutralHadronsSignalCone;   //!
+   TBranch        *b_daughters_numPhotonsSignalCone;   //!
+   TBranch        *b_daughters_daughters_numParticlesSignalCone;   //!
+   TBranch        *b_daughters_numChargedParticlesIsoCone;   //!
+   TBranch        *b_daughters_numNeutralHadronsIsoCone;   //!
+   TBranch        *b_daughters_numPhotonsIsoCone;   //!
+   TBranch        *b_daughters_numParticlesIsoCone;   //!
+   TBranch        *b_daughters_leadChargedParticlePt;   //!
+   TBranch        *b_daughters_trackRefPt;   //!
    TBranch        *b_daughters_isLastTriggerObjectforPath;   //!
    TBranch        *b_daughters_isTriggerObjectforPath;   //!
    TBranch        *b_daughters_FilterFired;   //!
    TBranch        *b_daughters_isGoodTriggerType;   //!
    TBranch        *b_daughters_L3FilterFired;   //!
    TBranch        *b_daughters_L3FilterFiredLast;   //!
+   TBranch        *b_daughters_HLTpt;   //!
    TBranch        *b_JetsNumber;   //!
    TBranch        *b_jets_px;   //!
    TBranch        *b_jets_py;   //!
    TBranch        *b_jets_pz;   //!
    TBranch        *b_jets_e;   //!
+   TBranch        *b_jets_rawPt;   //!
+   TBranch        *b_jets_mT;   //!
    TBranch        *b_jets_Flavour;   //!
    TBranch        *b_jets_HadronFlavour;   //!
+   TBranch        *b_jets_genjetIndex;   //!
    TBranch        *b_jets_PUJetID;   //!
+   TBranch        *b_jets_vtxPt;   //!
+   TBranch        *b_jets_vtxMass;   //!
+   TBranch        *b_jets_vtx3dL;   //!
+   TBranch        *b_jets_vtxNtrk;   //!
+   TBranch        *b_jets_vtx3deL;   //!
+   TBranch        *b_jets_leadTrackPt;   //!
+   TBranch        *b_jets_leptonPtRel;   //!
+   TBranch        *b_jets_leptonPt;   //!
+   TBranch        *b_jets_leptonDeltaR;   //!
+   TBranch        *b_jets_chEmEF;   //!
+   TBranch        *b_jets_chHEF;   //!
+   TBranch        *b_jets_nEmEF;   //!
+   TBranch        *b_jets_nHEF;   //!
+   TBranch        *b_jets_chMult;   //!
    TBranch        *b_bDiscriminator;   //!
    TBranch        *b_bCSVscore;   //!
    TBranch        *b_PFjetID;   //!
@@ -290,17 +372,23 @@ public :
        genpart_pdg = 0;
        genpart_status = 0;
        genpart_HMothInd = 0;
+       genpart_MSSMHMothInd = 0;
        genpart_TopMothInd = 0;
        genpart_TauMothInd = 0;
        genpart_ZMothInd = 0;
+       genpart_WMothInd = 0;
+       genpart_bMothInd = 0;
        genpart_HZDecayMode = 0;
+       genpart_TopDecayMode = 0;
+       genpart_WDecayMode = 0;
        genpart_TauGenDecayMode = 0;
        genpart_flags = 0;
        genjet_px = 0;
        genjet_py = 0;
        genjet_pz = 0;
        genjet_e = 0;
-       jets_genjetIndex = 0;
+       genjet_partonFlavour = 0;
+       genjet_hadronFlavour = 0;
        SVfitMass = 0;
        SVfit_pt = 0;
        SVfit_ptUnc = 0;
@@ -331,8 +419,14 @@ public :
        dz = 0;
        SIP = 0;
        daughters_iseleBDT = 0;
+       daughters_iseleWP80 = 0;
+       daughters_iseleWP90 = 0;
+       daughters_eleMVAnt = 0;
+       daughters_passConversionVeto = 0;
+       daughters_eleMissingHits = 0;
        daughters_eleCUTID = 0;
        decayMode = 0;
+       tauID = 0;
        combreliso = 0;
        daughters_IetaIeta = 0;
        daughters_deltaPhiSuperClusterTrackAtVtx = 0;
@@ -341,8 +435,13 @@ public :
        daughters_depositR03_ecal = 0;
        daughters_depositR03_hcal = 0;
        daughters_decayModeFindingOldDMs = 0;
+       againstElectronMVA5category = 0;
+       againstElectronMVA5raw = 0;
+       byPileupWeightedIsolationRaw3Hits = 0;
+       footprintCorrection = 0;
+       neutralIsoPtSumWeight = 0;
+       photonPtSumOutsideSignalCone = 0;
        daughters_decayModeFindingNewDMs = 0;
-       tauID = 0;
        daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits = 0;
        daughters_byIsolationMVA3oldDMwoLTraw = 0;
        daughters_byIsolationMVA3oldDMwLTraw = 0;
@@ -351,20 +450,47 @@ public :
        daughters_chargedIsoPtSum = 0;
        daughters_neutralIsoPtSum = 0;
        daughters_puCorrPtSum = 0;
-       daughters_photonPtSumOutsideSignalCone = 0;
+       daughters_numChargedParticlesSignalCone = 0;
+       daughters_numNeutralHadronsSignalCone = 0;
+       daughters_numPhotonsSignalCone = 0;
+       daughters_daughters_numParticlesSignalCone = 0;
+       daughters_numChargedParticlesIsoCone = 0;
+       daughters_numNeutralHadronsIsoCone = 0;
+       daughters_numPhotonsIsoCone = 0;
+       daughters_numParticlesIsoCone = 0;
+       daughters_leadChargedParticlePt = 0;
+       daughters_trackRefPt = 0;
        daughters_isLastTriggerObjectforPath = 0;
        daughters_isTriggerObjectforPath = 0;
        daughters_FilterFired = 0;
        daughters_isGoodTriggerType = 0;
        daughters_L3FilterFired = 0;
        daughters_L3FilterFiredLast = 0;
+       daughters_HLTpt = 0;
        jets_px = 0;
        jets_py = 0;
        jets_pz = 0;
        jets_e = 0;
+       jets_rawPt = 0;
+       jets_mT = 0;
        jets_Flavour = 0;
        jets_HadronFlavour = 0;
+       jets_genjetIndex = 0;
        jets_PUJetID = 0;
+       jets_vtxPt = 0;
+       jets_vtxMass = 0;
+       jets_vtx3dL = 0;
+       jets_vtxNtrk = 0;
+       jets_vtx3deL = 0;
+       jets_leadTrackPt = 0;
+       jets_leptonPtRel = 0;
+       jets_leptonPt = 0;
+       jets_leptonDeltaR = 0;
+       jets_chEmEF = 0;
+       jets_chHEF = 0;
+       jets_nEmEF = 0;
+       jets_nHEF = 0;
+       jets_chMult = 0;
        bDiscriminator = 0;
        bCSVscore = 0;
        PFjetID = 0;
@@ -420,8 +546,14 @@ public :
        fChain->SetBranchAddress("dz", &dz, &b_dz);
        fChain->SetBranchAddress("SIP", &SIP, &b_SIP);
        fChain->SetBranchAddress("daughters_iseleBDT", &daughters_iseleBDT, &b_daughters_iseleBDT);
+       fChain->SetBranchAddress("daughters_iseleWP80", &daughters_iseleWP80, &b_daughters_iseleWP80);
+       fChain->SetBranchAddress("daughters_iseleWP90", &daughters_iseleWP90, &b_daughters_iseleWP90);
+       fChain->SetBranchAddress("daughters_eleMVAnt", &daughters_eleMVAnt, &b_daughters_eleMVAnt);
+       fChain->SetBranchAddress("daughters_passConversionVeto", &daughters_passConversionVeto, &b_daughters_passConversionVeto);
+       fChain->SetBranchAddress("daughters_eleMissingHits", &daughters_eleMissingHits, &b_daughters_eleMissingHits);
        fChain->SetBranchAddress("daughters_eleCUTID", &daughters_eleCUTID, &b_daughters_eleCUTID);
        fChain->SetBranchAddress("decayMode", &decayMode, &b_decayMode);
+       fChain->SetBranchAddress("tauID", &tauID, &b_tauID);
        fChain->SetBranchAddress("combreliso", &combreliso, &b_combreliso);
        fChain->SetBranchAddress("daughters_IetaIeta", &daughters_IetaIeta, &b_daughters_IetaIeta);
        fChain->SetBranchAddress("daughters_deltaPhiSuperClusterTrackAtVtx", &daughters_deltaPhiSuperClusterTrackAtVtx, &b_daughters_deltaPhiSuperClusterTrackAtVtx);
@@ -430,8 +562,13 @@ public :
        fChain->SetBranchAddress("daughters_depositR03_ecal", &daughters_depositR03_ecal, &b_daughters_depositR03_ecal);
        fChain->SetBranchAddress("daughters_depositR03_hcal", &daughters_depositR03_hcal, &b_daughters_depositR03_hcal);
        fChain->SetBranchAddress("daughters_decayModeFindingOldDMs", &daughters_decayModeFindingOldDMs, &b_daughters_decayModeFindingOldDMs);
+       fChain->SetBranchAddress("againstElectronMVA5category", &againstElectronMVA5category, &b_againstElectronMVA5category);
+       fChain->SetBranchAddress("againstElectronMVA5raw", &againstElectronMVA5raw, &b_againstElectronMVA5raw);
+       fChain->SetBranchAddress("byPileupWeightedIsolationRaw3Hits", &byPileupWeightedIsolationRaw3Hits, &b_byPileupWeightedIsolationRaw3Hits);
+       fChain->SetBranchAddress("footprintCorrection", &footprintCorrection, &b_footprintCorrection);
+       fChain->SetBranchAddress("neutralIsoPtSumWeight", &neutralIsoPtSumWeight, &b_neutralIsoPtSumWeight);
+       fChain->SetBranchAddress("photonPtSumOutsideSignalCone", &photonPtSumOutsideSignalCone, &b_photonPtSumOutsideSignalCone);
        fChain->SetBranchAddress("daughters_decayModeFindingNewDMs", &daughters_decayModeFindingNewDMs, &b_daughters_decayModeFindingNewDMs);
-       fChain->SetBranchAddress("tauID", &tauID, &b_tauID);
        fChain->SetBranchAddress("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits, &b_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
        fChain->SetBranchAddress("daughters_byIsolationMVA3oldDMwoLTraw", &daughters_byIsolationMVA3oldDMwoLTraw, &b_daughters_byIsolationMVA3oldDMwoLTraw);
        fChain->SetBranchAddress("daughters_byIsolationMVA3oldDMwLTraw", &daughters_byIsolationMVA3oldDMwLTraw, &b_daughters_byIsolationMVA3oldDMwLTraw);
@@ -440,21 +577,47 @@ public :
        fChain->SetBranchAddress("daughters_chargedIsoPtSum", &daughters_chargedIsoPtSum, &b_daughters_chargedIsoPtSum);
        fChain->SetBranchAddress("daughters_neutralIsoPtSum", &daughters_neutralIsoPtSum, &b_daughters_neutralIsoPtSum);
        fChain->SetBranchAddress("daughters_puCorrPtSum", &daughters_puCorrPtSum, &b_daughters_puCorrPtSum);
-       fChain->SetBranchAddress("photonPtSumOutsideSignalCone",&daughters_photonPtSumOutsideSignalCone, &b_daughters_photonPtSumOutsideSignalCone);
+       fChain->SetBranchAddress("daughters_numChargedParticlesSignalCone", &daughters_numChargedParticlesSignalCone, &b_daughters_numChargedParticlesSignalCone);
+       fChain->SetBranchAddress("daughters_numNeutralHadronsSignalCone", &daughters_numNeutralHadronsSignalCone, &b_daughters_numNeutralHadronsSignalCone);
+       fChain->SetBranchAddress("daughters_numPhotonsSignalCone", &daughters_numPhotonsSignalCone, &b_daughters_numPhotonsSignalCone);
+       fChain->SetBranchAddress("daughters_daughters_numParticlesSignalCone", &daughters_daughters_numParticlesSignalCone, &b_daughters_daughters_numParticlesSignalCone);
+       fChain->SetBranchAddress("daughters_numChargedParticlesIsoCone", &daughters_numChargedParticlesIsoCone, &b_daughters_numChargedParticlesIsoCone);
+       fChain->SetBranchAddress("daughters_numNeutralHadronsIsoCone", &daughters_numNeutralHadronsIsoCone, &b_daughters_numNeutralHadronsIsoCone);
+       fChain->SetBranchAddress("daughters_numPhotonsIsoCone", &daughters_numPhotonsIsoCone, &b_daughters_numPhotonsIsoCone);
+       fChain->SetBranchAddress("daughters_numParticlesIsoCone", &daughters_numParticlesIsoCone, &b_daughters_numParticlesIsoCone);
+       fChain->SetBranchAddress("daughters_leadChargedParticlePt", &daughters_leadChargedParticlePt, &b_daughters_leadChargedParticlePt);
+       fChain->SetBranchAddress("daughters_trackRefPt", &daughters_trackRefPt, &b_daughters_trackRefPt);
        fChain->SetBranchAddress("daughters_isLastTriggerObjectforPath", &daughters_isLastTriggerObjectforPath, &b_daughters_isLastTriggerObjectforPath);
        fChain->SetBranchAddress("daughters_isTriggerObjectforPath", &daughters_isTriggerObjectforPath, &b_daughters_isTriggerObjectforPath);
        fChain->SetBranchAddress("daughters_FilterFired", &daughters_FilterFired, &b_daughters_FilterFired);
        fChain->SetBranchAddress("daughters_isGoodTriggerType", &daughters_isGoodTriggerType, &b_daughters_isGoodTriggerType);
        fChain->SetBranchAddress("daughters_L3FilterFired", &daughters_L3FilterFired, &b_daughters_L3FilterFired);
        fChain->SetBranchAddress("daughters_L3FilterFiredLast", &daughters_L3FilterFiredLast, &b_daughters_L3FilterFiredLast);
+       fChain->SetBranchAddress("daughters_HLTpt", &daughters_HLTpt, &b_daughters_HLTpt);
        fChain->SetBranchAddress("JetsNumber", &JetsNumber, &b_JetsNumber);
        fChain->SetBranchAddress("jets_px", &jets_px, &b_jets_px);
        fChain->SetBranchAddress("jets_py", &jets_py, &b_jets_py);
        fChain->SetBranchAddress("jets_pz", &jets_pz, &b_jets_pz);
        fChain->SetBranchAddress("jets_e", &jets_e, &b_jets_e);
+       fChain->SetBranchAddress("jets_rawPt", &jets_rawPt, &b_jets_rawPt);
+       fChain->SetBranchAddress("jets_mT", &jets_mT, &b_jets_mT);
        fChain->SetBranchAddress("jets_Flavour", &jets_Flavour, &b_jets_Flavour);
        fChain->SetBranchAddress("jets_HadronFlavour", &jets_HadronFlavour, &b_jets_HadronFlavour);
        fChain->SetBranchAddress("jets_PUJetID", &jets_PUJetID, &b_jets_PUJetID);
+       fChain->SetBranchAddress("jets_vtxPt", &jets_vtxPt, &b_jets_vtxPt);
+       fChain->SetBranchAddress("jets_vtxMass", &jets_vtxMass, &b_jets_vtxMass);
+       fChain->SetBranchAddress("jets_vtx3dL", &jets_vtx3dL, &b_jets_vtx3dL);
+       fChain->SetBranchAddress("jets_vtxNtrk", &jets_vtxNtrk, &b_jets_vtxNtrk);
+       fChain->SetBranchAddress("jets_vtx3deL", &jets_vtx3deL, &b_jets_vtx3deL);
+       fChain->SetBranchAddress("jets_leadTrackPt", &jets_leadTrackPt, &b_jets_leadTrackPt);
+       fChain->SetBranchAddress("jets_leptonPtRel", &jets_leptonPtRel, &b_jets_leptonPtRel);
+       fChain->SetBranchAddress("jets_leptonPt", &jets_leptonPt, &b_jets_leptonPt);
+       fChain->SetBranchAddress("jets_leptonDeltaR", &jets_leptonDeltaR, &b_jets_leptonDeltaR);
+       fChain->SetBranchAddress("jets_chEmEF", &jets_chEmEF, &b_jets_chEmEF);
+       fChain->SetBranchAddress("jets_chHEF", &jets_chHEF, &b_jets_chHEF);
+       fChain->SetBranchAddress("jets_nEmEF", &jets_nEmEF, &b_jets_nEmEF);
+       fChain->SetBranchAddress("jets_nHEF", &jets_nHEF, &b_jets_nHEF);
+       fChain->SetBranchAddress("jets_chMult", &jets_chMult, &b_jets_chMult);
        fChain->SetBranchAddress("bDiscriminator", &bDiscriminator, &b_bDiscriminator);
        fChain->SetBranchAddress("bCSVscore", &bCSVscore, &b_bCSVscore);
        fChain->SetBranchAddress("PFjetID", &PFjetID, &b_PFjetID);
@@ -463,6 +626,7 @@ public :
        // MC only
        if(fChain->GetListOfBranches()->FindObject("MC_weight"))
        {
+            fChain->SetBranchAddress("PUNumInteractions", &PUNumInteractions, &b_PUNumInteractions);
             fChain->SetBranchAddress("aMCatNLOweight", &aMCatNLOweight, &b_aMCatNLOweight);
             fChain->SetBranchAddress("MC_weight", &MC_weight, &b_MC_weight);
             fChain->SetBranchAddress("daughters_genindex", &daughters_genindex, &b_daughters_genindex);
@@ -485,6 +649,7 @@ public :
             fChain->SetBranchAddress("genjet_e", &genjet_e, &b_genjet_e);
             fChain->SetBranchAddress("jets_genjetIndex", &jets_genjetIndex, &b_jets_genjetIndex);
             fChain->SetBranchAddress("NUP", &NUP, &b_NUP);
+            fChain->SetBranchAddress("lheHt", &lheHt, &b_lheHt);
        }
        
     }
