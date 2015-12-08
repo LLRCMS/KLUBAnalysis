@@ -298,7 +298,8 @@ int main (int argc, char** argv)
   //hypo_mh2.push_back (125) ;
   int hypo_mh1=125,hypo_mh2=125;
 
-  int eventsNumber = theBigTree.fChain->GetEntries () ;
+  //int eventsNumber = theBigTree.fChain->GetEntries () ;
+  
   float totalEvents = 0. ;
   float selectedEvents = 0. ;
 
@@ -337,13 +338,16 @@ int main (int argc, char** argv)
   // ------------------------------
 
   // loop over events
-  for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
+  //for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
+  for (Long64_t iEvent = 0 ; true ; ++iEvent) 
     {
       if (iEvent % 10000 == 0)  cout << "reading event " << iEvent << endl ;
       int selID = 0 ;
 
       theSmallTree.clearVars () ;
-      theBigTree.GetEntry (iEvent) ;
+      int got = theBigTree.fChain->GetEntry(iEvent);
+      if (got == 0) break;
+      //theBigTree.GetEntry (iEvent) ;
       
       if (isMC)
         {
