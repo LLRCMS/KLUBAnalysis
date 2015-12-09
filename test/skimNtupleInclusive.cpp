@@ -704,6 +704,11 @@ int main (int argc, char** argv)
             }
           }
 
+          TLorentzVector tlv_firstBjet_raw = tlv_firstBjet;
+          TLorentzVector tlv_secondBjet_raw = tlv_secondBjet;
+
+          TLorentzVector tlv_bH_raw = tlv_firstBjet + tlv_secondBjet ;
+          theSmallTree.m_bH_mass_raw = tlv_bH_raw.M();
           // FIXME : here mass is manually set to 0, should we change it?
           float ptScale1 = ptRegr[0] / tlv_firstBjet.Pt() ;
           float ptScale2 = ptRegr[1] / tlv_secondBjet.Pt() ;
@@ -788,12 +793,15 @@ int main (int argc, char** argv)
           {
             HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet, tlv_secondBjet, 
                                                        tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
+            HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet_raw, tlv_secondBjet_raw, 
+                                                       tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
   //           kinFits.setAdvancedBalance (&ptmiss, metcov) ;
   //           kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
   // 
   //           kinFits.addMh1Hypothesis (hypo_mh1) ;
   //           kinFits.addMh2Hypothesis (hypo_mh2) ;
             kinFits.addHypo(hypo_mh1,hypo_mh2);
+            kinFitsraw.addHypo(hypo_mh1,hypo_mh2);
             try{           
                 kinFits.fit();//doFit () ; 
             }
@@ -884,7 +892,17 @@ int main (int argc, char** argv)
             }else{
               if(isOS)HHKmass = -333;
             }
-
+            bool wrongHHKraw =false;
+            try {
+              kinFitsraw.doFit();
+            }
+            catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw=true;}
+            catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw=true;}
+            catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw=true;}
+            if(!wrongHHKraw){
+              theSmallTree.m_HHKin_mass_raw = kinFitsraw.getMH();
+            }
+            else theSmallTree.m_HHKin_mass_raw = -100 ;
             if (theBigTree.SVfitMass->at (chosenTauPair) > -900. && !wrongHHK)
             {
               TLorentzVector b1 = kinFits.getFittedBJet1();
