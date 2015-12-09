@@ -894,7 +894,7 @@ int main (int argc, char** argv)
             }
             bool wrongHHKraw =false;
             try {
-              kinFitsraw.doFit();
+              kinFitsraw.fit();
             }
             catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw=true;}
             catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw=true;}
