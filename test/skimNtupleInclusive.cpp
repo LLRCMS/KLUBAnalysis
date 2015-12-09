@@ -704,8 +704,10 @@ int main (int argc, char** argv)
           }
 
           // FIXME : here mass is manually set to 0, should we change it?
-          tlv_firstBjet.SetPtEtaPhiM (ptRegr[0], tlv_firstBjet.Eta(), tlv_firstBjet.Phi(), 0.);
-          tlv_secondBjet.SetPtEtaPhiM (ptRegr[1], tlv_secondBjet.Eta(), tlv_secondBjet.Phi(), 0.);
+          float ptScale1 = ptRegr[0] / tlv_firstBjet.Pt() ;
+          float ptScale2 = ptRegr[1] / tlv_secondBjet.Pt() ;
+          tlv_firstBjet.SetPtEtaPhiE (ptRegr[0], tlv_firstBjet.Eta(), tlv_firstBjet.Phi(), ptScale1*tlv_firstBjet.Energy());
+          tlv_secondBjet.SetPtEtaPhiE (ptRegr[1], tlv_secondBjet.Eta(), tlv_secondBjet.Phi(), ptScale2*tlv_secondBjet.Energy());
 
           theSmallTree.m_bjet1_pt  = tlv_firstBjet.Pt () ;
           theSmallTree.m_bjet1_eta = tlv_firstBjet.Eta () ;
@@ -985,6 +987,7 @@ int main (int argc, char** argv)
   for (unsigned int i = 0 ; i < counter.size () ; ++i)
     h_eff.SetBinContent (5 + i, counter.at (i)) ;
 
+  smallFile->cd() ;
   h_eff.Write () ;
   smallFile->Write () ;
   smallFile->Close () ;
