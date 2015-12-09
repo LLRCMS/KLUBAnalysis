@@ -203,7 +203,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   FileForTempHisto_TStr += ".root";
   TFile tempToGetHisto(FileForTempHisto_TStr.Data(),"READ");
   TH1F* hCounter = (TH1F*)tempToGetHisto.Get("HTauTauTree/Counters");
-  // cout<<hCounter->GetEntries()<<endl;
+  TH1F* hTauID = (TH1F*)tempToGetHisto.Get("HTauTauTree/TauIDs");
 
   // cout<<"printing config parser: "<<endl;
   // gConfigParser->print();
@@ -340,12 +340,10 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   TChain* m_SampleChain = new TChain("HTauTauTree/HTauTauTree");
   m_SampleChain->Add(InputFileName.Data());
 
-  // cout<<"--> producing flat tree:\n     "<<FileName<<" (initial entries = "<<m_SampleChain->GetEntries()<<")"<<endl;
-
   Int_t           EventNumber;
   Int_t           RunNumber;
   Int_t           lumi_LLR;
-  Int_t           triggerbit;
+  Long64_t        triggerbit;
   Int_t           metfilterbit;
   Float_t         met_LLR;
   Float_t         metphi_LLR;
@@ -361,8 +359,11 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   vector<float>   *daughters_py = 0;
   vector<float>   *daughters_pz = 0;
   vector<float>   *daughters_e = 0;
+  vector<int>     *daughters_charge = 0;
   vector<int>     *daughters_genindex = 0;
   Float_t         MC_weight;
+  Float_t         lheHt;
+  Float_t         aMCatNLOweight;
   vector<float>   *genpart_px = 0;
   vector<float>   *genpart_py = 0;
   vector<float>   *genpart_pz = 0;
@@ -374,9 +375,20 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   vector<int>     *genpart_TopMothInd = 0;
   vector<int>     *genpart_TauMothInd = 0;
   vector<int>     *genpart_ZMothInd = 0;
+  vector<int>     *genpart_WMothInd = 0;
+  vector<int>     *genpart_bMothInd = 0;
   vector<int>     *genpart_HZDecayMode = 0;
+  vector<int>     *genpart_TopDecayMode = 0;
+  vector<int>     *genpart_WDecayMode = 0;
   vector<int>     *genpart_TauGenDecayMode = 0;
   vector<int>     *genpart_flags = 0;
+  vector<float>   *genjet_px = 0;
+  vector<float>   *genjet_py = 0;
+  vector<float>   *genjet_pz = 0;
+  vector<float>   *genjet_e = 0;
+  vector<int>     *genjet_partonFlavour = 0;
+  vector<int>     *genjet_hadronFlavour = 0;
+  Int_t           NUP_LLR;
   vector<float>   *SVfitMass = 0;
   vector<float>   *SVfit_pt = 0;
   vector<float>   *SVfit_ptUnc = 0;
@@ -401,48 +413,73 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   vector<int>     *indexDau2 = 0;
   vector<int>     *particleType = 0;
   vector<float>   *discriminator = 0;
+  vector<int>     *daughters_muonID = 0;
+  vector<int>     *daughters_typeOfMuon = 0;
   vector<float>   *dxy = 0;
   vector<float>   *dz = 0;
+  vector<float>   *SIP = 0;
   vector<bool>    *daughters_iseleBDT = 0;
+  vector<bool>    *daughters_iseleWP80 = 0;
+  vector<bool>    *daughters_iseleWP90 = 0;
+  vector<float>   *daughters_eleMVAnt = 0;
+  vector<bool>    *daughters_passConversionVeto = 0;
+  vector<int>     *daughters_eleMissingHits = 0;
   vector<int>     *daughters_eleCUTID = 0;
   vector<int>     *decayMode = 0;
+  vector<Long64_t> *tauID = 0;
   vector<float>   *combreliso = 0;
   vector<float>   *daughters_IetaIeta = 0;
   vector<float>   *daughters_deltaPhiSuperClusterTrackAtVtx = 0;
+  vector<float>   *daughters_SCeta = 0;
   vector<float>   *daughters_depositR03_tracker = 0;
   vector<float>   *daughters_depositR03_ecal = 0;
   vector<float>   *daughters_depositR03_hcal = 0;
   vector<int>     *daughters_decayModeFindingOldDMs = 0;
+  vector<float>   *againstElectronMVA5category = 0;
+  vector<float>   *againstElectronMVA5raw = 0;
+  vector<float>   *byPileupWeightedIsolationRaw3Hits = 0;
+  vector<float>   *footprintCorrection = 0;
+  vector<float>   *neutralIsoPtSumWeight = 0;
+  vector<float>   *photonPtSumOutsideSignalCone = 0;
   vector<int>     *daughters_decayModeFindingNewDMs = 0;
-  vector<int>     *daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits = 0;
-  vector<int>     *daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits = 0;
-  vector<int>     *daughters_byTightCombinedIsolationDeltaBetaCorr3Hits = 0;
   vector<float>   *daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits = 0;
+  vector<float>   *daughters_byIsolationMVA3oldDMwoLTraw = 0;
+  vector<float>   *daughters_byIsolationMVA3oldDMwLTraw = 0;
+  vector<float>   *daughters_byIsolationMVA3newDMwoLTraw = 0;
+  vector<float>   *daughters_byIsolationMVA3newDMwLTraw = 0;
   vector<float>   *daughters_chargedIsoPtSum = 0;
   vector<float>   *daughters_neutralIsoPtSum = 0;
   vector<float>   *daughters_puCorrPtSum = 0;
-  vector<int>     *daughters_againstMuonLoose3 = 0;
-  vector<int>     *daughters_againstMuonTight3 = 0;
-  vector<int>     *daughters_againstElectronVLooseMVA5 = 0;
-  vector<int>     *daughters_againstElectronLooseMVA5 = 0;
-  vector<int>     *daughters_againstElectronMediumMVA5 = 0;
+  vector<int>     *daughters_numChargedParticlesSignalCone = 0;
+  vector<int>     *daughters_numNeutralHadronsSignalCone = 0;
+  vector<int>     *daughters_numPhotonsSignalCone = 0;
+  vector<int>     *daughters_daughters_numParticlesSignalCone = 0;
+  vector<int>     *daughters_numChargedParticlesIsoCone = 0;
+  vector<int>     *daughters_numNeutralHadronsIsoCone = 0;
+  vector<int>     *daughters_numPhotonsIsoCone = 0;
+  vector<int>     *daughters_numParticlesIsoCone = 0;
+  vector<float>   *daughters_leadChargedParticlePt = 0;
+  vector<float>   *daughters_trackRefPt = 0;
   vector<int>     *daughters_isLastTriggerObjectforPath = 0;
   vector<int>     *daughters_isTriggerObjectforPath = 0;
   vector<int>     *daughters_FilterFired = 0;
-  vector<int>    *daughters_isGoodTriggerType = 0;
+  vector<int>     *daughters_isGoodTriggerType = 0;
   vector<int>     *daughters_L3FilterFired = 0;
   vector<int>     *daughters_L3FilterFiredLast = 0;
+  vector<float>   *daughters_HLTpt = 0;
   Int_t           JetsNumber;
   vector<float>   *jets_px = 0;
   vector<float>   *jets_py = 0;
   vector<float>   *jets_pz = 0;
   vector<float>   *jets_e = 0;
   vector<int>     *jets_Flavour = 0;
+  vector<int>     *jets_HadronFlavour = 0;
+  vector<int>     *jets_genjetIndex = 0;
   vector<float>   *jets_PUJetID = 0;
   vector<float>   *bDiscriminator = 0;
   vector<float>   *bCSVscore = 0;
   vector<int>     *PFjetID = 0;
-  vector<int>     *daughters_charge = 0;
+  vector<float>   *jetRawf = 0;
 
   m_SampleChain->SetBranchAddress("EventNumber", &EventNumber);
   m_SampleChain->SetBranchAddress("RunNumber", &RunNumber);
@@ -458,13 +495,16 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   m_SampleChain->SetBranchAddress("mothers_px", &mothers_px);
   m_SampleChain->SetBranchAddress("mothers_py", &mothers_py);
   m_SampleChain->SetBranchAddress("mothers_pz", &mothers_pz);
-  m_SampleChain->SetBranchAddress("mothers_e", &mothers_e);  
+  m_SampleChain->SetBranchAddress("mothers_e", &mothers_e);
   m_SampleChain->SetBranchAddress("daughters_px", &daughters_px);
   m_SampleChain->SetBranchAddress("daughters_py", &daughters_py);
   m_SampleChain->SetBranchAddress("daughters_pz", &daughters_pz);
   m_SampleChain->SetBranchAddress("daughters_e", &daughters_e);
+  m_SampleChain->SetBranchAddress("daughters_charge", &daughters_charge);
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("daughters_genindex", &daughters_genindex);
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("MC_weight", &MC_weight);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("lheHt", &lheHt);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("aMCatNLOweight", &aMCatNLOweight);
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_px", &genpart_px);
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_py", &genpart_py);
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_pz", &genpart_pz);
@@ -476,9 +516,20 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_TopMothInd", &genpart_TopMothInd);
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_TauMothInd", &genpart_TauMothInd);
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_ZMothInd", &genpart_ZMothInd);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_WMothInd", &genpart_WMothInd);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_bMothInd", &genpart_bMothInd);
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_HZDecayMode", &genpart_HZDecayMode);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_TopDecayMode", &genpart_TopDecayMode);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_WDecayMode", &genpart_WDecayMode);
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_TauGenDecayMode", &genpart_TauGenDecayMode);
   if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genpart_flags", &genpart_flags);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genjet_px", &genjet_px);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genjet_py", &genjet_py);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genjet_pz", &genjet_pz);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genjet_e", &genjet_e);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genjet_partonFlavour", &genjet_partonFlavour);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("genjet_hadronFlavour", &genjet_hadronFlavour);
+  m_SampleChain->SetBranchAddress("NUP", &NUP_LLR);
   m_SampleChain->SetBranchAddress("SVfitMass", &SVfitMass);
   m_SampleChain->SetBranchAddress("SVfit_pt", &SVfit_pt);
   m_SampleChain->SetBranchAddress("SVfit_ptUnc", &SVfit_ptUnc);
@@ -503,48 +554,73 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
   m_SampleChain->SetBranchAddress("indexDau2", &indexDau2);
   m_SampleChain->SetBranchAddress("particleType", &particleType);
   m_SampleChain->SetBranchAddress("discriminator", &discriminator);
+  m_SampleChain->SetBranchAddress("daughters_muonID", &daughters_muonID);
+  m_SampleChain->SetBranchAddress("daughters_typeOfMuon", &daughters_typeOfMuon);
   m_SampleChain->SetBranchAddress("dxy", &dxy);
   m_SampleChain->SetBranchAddress("dz", &dz);
+  m_SampleChain->SetBranchAddress("SIP", &SIP);
   m_SampleChain->SetBranchAddress("daughters_iseleBDT", &daughters_iseleBDT);
+  m_SampleChain->SetBranchAddress("daughters_iseleWP80", &daughters_iseleWP80);
+  m_SampleChain->SetBranchAddress("daughters_iseleWP90", &daughters_iseleWP90);
+  m_SampleChain->SetBranchAddress("daughters_eleMVAnt", &daughters_eleMVAnt);
+  m_SampleChain->SetBranchAddress("daughters_passConversionVeto", &daughters_passConversionVeto);
+  m_SampleChain->SetBranchAddress("daughters_eleMissingHits", &daughters_eleMissingHits);
   m_SampleChain->SetBranchAddress("daughters_eleCUTID", &daughters_eleCUTID);
   m_SampleChain->SetBranchAddress("decayMode", &decayMode);
+  m_SampleChain->SetBranchAddress("tauID", &tauID);
   m_SampleChain->SetBranchAddress("combreliso", &combreliso);
   m_SampleChain->SetBranchAddress("daughters_IetaIeta", &daughters_IetaIeta);
   m_SampleChain->SetBranchAddress("daughters_deltaPhiSuperClusterTrackAtVtx", &daughters_deltaPhiSuperClusterTrackAtVtx);
+  m_SampleChain->SetBranchAddress("daughters_SCeta", &daughters_SCeta);
   m_SampleChain->SetBranchAddress("daughters_depositR03_tracker", &daughters_depositR03_tracker);
   m_SampleChain->SetBranchAddress("daughters_depositR03_ecal", &daughters_depositR03_ecal);
   m_SampleChain->SetBranchAddress("daughters_depositR03_hcal", &daughters_depositR03_hcal);
   m_SampleChain->SetBranchAddress("daughters_decayModeFindingOldDMs", &daughters_decayModeFindingOldDMs);
+  m_SampleChain->SetBranchAddress("againstElectronMVA5category", &againstElectronMVA5category);
+  m_SampleChain->SetBranchAddress("againstElectronMVA5raw", &againstElectronMVA5raw);
+  m_SampleChain->SetBranchAddress("byPileupWeightedIsolationRaw3Hits", &byPileupWeightedIsolationRaw3Hits);
+  m_SampleChain->SetBranchAddress("footprintCorrection", &footprintCorrection);
+  m_SampleChain->SetBranchAddress("neutralIsoPtSumWeight", &neutralIsoPtSumWeight);
+  m_SampleChain->SetBranchAddress("photonPtSumOutsideSignalCone", &photonPtSumOutsideSignalCone);
   m_SampleChain->SetBranchAddress("daughters_decayModeFindingNewDMs", &daughters_decayModeFindingNewDMs);
-  m_SampleChain->SetBranchAddress("daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits", &daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits);
-  m_SampleChain->SetBranchAddress("daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits", &daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits);
-  m_SampleChain->SetBranchAddress("daughters_byTightCombinedIsolationDeltaBetaCorr3Hits", &daughters_byTightCombinedIsolationDeltaBetaCorr3Hits);
   m_SampleChain->SetBranchAddress("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
-  m_SampleChain->SetBranchAddress("daughters_charge", &daughters_charge);
+  m_SampleChain->SetBranchAddress("daughters_byIsolationMVA3oldDMwoLTraw", &daughters_byIsolationMVA3oldDMwoLTraw);
+  m_SampleChain->SetBranchAddress("daughters_byIsolationMVA3oldDMwLTraw", &daughters_byIsolationMVA3oldDMwLTraw);
+  m_SampleChain->SetBranchAddress("daughters_byIsolationMVA3newDMwoLTraw", &daughters_byIsolationMVA3newDMwoLTraw);
+  m_SampleChain->SetBranchAddress("daughters_byIsolationMVA3newDMwLTraw", &daughters_byIsolationMVA3newDMwLTraw);
   m_SampleChain->SetBranchAddress("daughters_chargedIsoPtSum", &daughters_chargedIsoPtSum);
   m_SampleChain->SetBranchAddress("daughters_neutralIsoPtSum", &daughters_neutralIsoPtSum);
   m_SampleChain->SetBranchAddress("daughters_puCorrPtSum", &daughters_puCorrPtSum);
-  m_SampleChain->SetBranchAddress("daughters_againstMuonLoose3", &daughters_againstMuonLoose3);
-  m_SampleChain->SetBranchAddress("daughters_againstMuonTight3", &daughters_againstMuonTight3);
-  m_SampleChain->SetBranchAddress("daughters_againstElectronVLooseMVA5", &daughters_againstElectronVLooseMVA5);
-  m_SampleChain->SetBranchAddress("daughters_againstElectronLooseMVA5", &daughters_againstElectronLooseMVA5);
-  m_SampleChain->SetBranchAddress("daughters_againstElectronMediumMVA5", &daughters_againstElectronMediumMVA5);
+  m_SampleChain->SetBranchAddress("daughters_numChargedParticlesSignalCone", &daughters_numChargedParticlesSignalCone);
+  m_SampleChain->SetBranchAddress("daughters_numNeutralHadronsSignalCone", &daughters_numNeutralHadronsSignalCone);
+  m_SampleChain->SetBranchAddress("daughters_numPhotonsSignalCone", &daughters_numPhotonsSignalCone);
+  m_SampleChain->SetBranchAddress("daughters_daughters_numParticlesSignalCone", &daughters_daughters_numParticlesSignalCone);
+  m_SampleChain->SetBranchAddress("daughters_numChargedParticlesIsoCone", &daughters_numChargedParticlesIsoCone);
+  m_SampleChain->SetBranchAddress("daughters_numNeutralHadronsIsoCone", &daughters_numNeutralHadronsIsoCone);
+  m_SampleChain->SetBranchAddress("daughters_numPhotonsIsoCone", &daughters_numPhotonsIsoCone);
+  m_SampleChain->SetBranchAddress("daughters_numParticlesIsoCone", &daughters_numParticlesIsoCone);
+  m_SampleChain->SetBranchAddress("daughters_leadChargedParticlePt", &daughters_leadChargedParticlePt);
+  m_SampleChain->SetBranchAddress("daughters_trackRefPt", &daughters_trackRefPt);
   m_SampleChain->SetBranchAddress("daughters_isLastTriggerObjectforPath", &daughters_isLastTriggerObjectforPath);
   m_SampleChain->SetBranchAddress("daughters_isTriggerObjectforPath", &daughters_isTriggerObjectforPath);
   m_SampleChain->SetBranchAddress("daughters_FilterFired", &daughters_FilterFired);
   m_SampleChain->SetBranchAddress("daughters_isGoodTriggerType", &daughters_isGoodTriggerType);
   m_SampleChain->SetBranchAddress("daughters_L3FilterFired", &daughters_L3FilterFired);
   m_SampleChain->SetBranchAddress("daughters_L3FilterFiredLast", &daughters_L3FilterFiredLast);
+  m_SampleChain->SetBranchAddress("daughters_HLTpt", &daughters_HLTpt);
   m_SampleChain->SetBranchAddress("JetsNumber", &JetsNumber);
   m_SampleChain->SetBranchAddress("jets_px", &jets_px);
   m_SampleChain->SetBranchAddress("jets_py", &jets_py);
   m_SampleChain->SetBranchAddress("jets_pz", &jets_pz);
   m_SampleChain->SetBranchAddress("jets_e", &jets_e);
   m_SampleChain->SetBranchAddress("jets_Flavour", &jets_Flavour);
+  m_SampleChain->SetBranchAddress("jets_HadronFlavour", &jets_HadronFlavour);
+  if(!DataTrue_MCFalse) m_SampleChain->SetBranchAddress("jets_genjetIndex", &jets_genjetIndex);
   m_SampleChain->SetBranchAddress("jets_PUJetID", &jets_PUJetID);
   m_SampleChain->SetBranchAddress("bDiscriminator", &bDiscriminator);
   m_SampleChain->SetBranchAddress("bCSVscore", &bCSVscore);
-  m_SampleChain->SetBranchAddress("PFjetID",&PFjetID);
+  m_SampleChain->SetBranchAddress("PFjetID", &PFjetID);
+  m_SampleChain->SetBranchAddress("jetRawf", &jetRawf);
 
   TFile f_SyncTree(OutputFileName.Data(),"RECREATE");
 
@@ -1134,6 +1210,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
       Int_t lep2Index = -99 ;
 
       OfflineProducerHelper* HelperTrigger = new OfflineProducerHelper(hCounter);
+      OfflineProducerHelper* HelperTauID = new OfflineProducerHelper(hTauID);
       
       std::vector<mypair> sortedPairs;
   
@@ -1186,7 +1263,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
       // 	  cout<<"      pt_1  = "<<sortedPairs.at(d).second.at(1)<<endl;
       // 	  cout<<"      iso_2 = "<<sortedPairs.at(d).second.at(2)<<endl;
       // 	  cout<<"      pt_2  = "<<sortedPairs.at(d).second.at(3)<<endl;	  
-      // 	}      
+      // 	}    
 
       //loop on ordered lepton pairs
       for(UInt_t q = 0 ; q < isOSCand->size() ; ++q)
@@ -1538,12 +1615,18 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  // cout<<"checking tau iso"<<endl;
 	  if(Channel=="tt")
 	    {
+	      if((tauID->at(indexDau1->at(p)) >>  HelperTauID->FindTriggerNumber("againstMuonTight3")) & 1) continue;;
+	      if((tauID->at(indexDau2->at(p)) >>  HelperTauID->FindTriggerNumber("againstMuonTight3")) & 1) continue;;
+	      if((tauID->at(indexDau1->at(p)) >>  HelperTauID->FindTriggerNumber("againstElectronVLooseMVA5")) & 1) continue;;
+	      if((tauID->at(indexDau2->at(p)) >>  HelperTauID->FindTriggerNumber("againstElectronVLooseMVA5")) & 1) continue;;
+	      // if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)){continue;}
+
 	      if(daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(indexDau1->at(p))>1.) continue ;
 	      if(daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(indexDau2->at(p))>1.) continue ;
-	      if(daughters_againstMuonTight3->at(indexDau1->at(p))!=1) continue ;
-	      if(daughters_againstMuonTight3->at(indexDau2->at(p))!=1) continue ;
-	      if(daughters_againstElectronVLooseMVA5->at(indexDau1->at(p))!=1) continue ;
-	      if(daughters_againstElectronVLooseMVA5->at(indexDau2->at(p))!=1) continue ;
+	      // if(daughters_againstMuonTight3->at(indexDau1->at(p))!=1) continue ;
+	      // if(daughters_againstMuonTight3->at(indexDau2->at(p))!=1) continue ;
+	      // if(daughters_againstElectronVLooseMVA5->at(indexDau1->at(p))!=1) continue ;
+	      // if(daughters_againstElectronVLooseMVA5->at(indexDau2->at(p))!=1) continue ;
 	    }
 
 	  //check antiMu and antiE
@@ -1566,7 +1649,6 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  // cout<<"good pair!!!"<<endl;
 
 	  //break;
-
 
 	  if(lep1Index < 0 || lep2Index < 0) continue ;
 
@@ -1757,7 +1839,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  isZMM = false ;//not there in LLR
 	  isZLL = false ;//not there in LLR
 	  isFake = false ;//not there in LLR
-	  NUP = 0;//not there in LLR
+	  NUP = NUP_LLR;//not there in LLR
 	  secondMuon = 0;//not there in LLR
 	  weight = 1;//not there in LLR
 	  puweight = PUReweight;
@@ -1796,13 +1878,13 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  id_e_cut_medium_1 = ((daughters_eleCUTID->at(lep1Index) >> 2) & 1) ;
 	  id_e_cut_tight_1 = ((daughters_eleCUTID->at(lep1Index) >> 3) & 1) ;
 	  trigweight_1 = -99.;//not there in LLR
-	  againstElectronLooseMVA5_1 = daughters_againstElectronLooseMVA5->at(lep1Index);
-	  againstElectronMediumMVA5_1 = daughters_againstElectronMediumMVA5->at(lep1Index);
+	  againstElectronLooseMVA5_1 = (tauID->at(indexDau1->at(p)) >>  HelperTauID->FindTriggerNumber("againstElectronLooseMVA5")) & 1;
+	  againstElectronMediumMVA5_1 = (tauID->at(indexDau1->at(p)) >>  HelperTauID->FindTriggerNumber("againstElectronMediumMVA5")) & 1;
 	  againstElectronTightMVA5_1 = false;//not there in LLR
-	  againstElectronVLooseMVA5_1 = daughters_againstElectronVLooseMVA5->at(lep1Index);
+	  againstElectronVLooseMVA5_1 = (tauID->at(indexDau1->at(p)) >>  HelperTauID->FindTriggerNumber("againstElectronVLooseMVA5")) & 1;
 	  againstElectronVTightMVA5_1 = false;//not there in LLR
-	  againstMuonLoose3_1 = daughters_againstMuonLoose3->at(lep1Index);
-	  againstMuonTight3_1 = daughters_againstMuonTight3->at(lep1Index);
+	  againstMuonLoose3_1 = (tauID->at(indexDau1->at(p)) >>  HelperTauID->FindTriggerNumber("againstMuonLoose3")) & 1;
+	  againstMuonTight3_1 = (tauID->at(indexDau1->at(p)) >>  HelperTauID->FindTriggerNumber("againstMuonTight3")) & 1;
 	  byCombinedIsolationDeltaBetaCorrRaw3Hits_1 = daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(lep1Index);
 	  byIsolationMVA3oldDMwoLTraw_1 = -99.;//not there in LLR
 	  byIsolationMVA3oldDMwLTraw_1 = -99.;//not there in LLR
@@ -1845,13 +1927,13 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  id_e_cut_medium_2 = ((daughters_eleCUTID->at(lep2Index) >> 2) & 1) ;
 	  id_e_cut_tight_2 = ((daughters_eleCUTID->at(lep2Index) >> 3) & 1) ;
 	  trigweight_2 = -99.;//not there in LLR
-	  againstElectronLooseMVA5_2 = daughters_againstElectronLooseMVA5->at(lep2Index);
-	  againstElectronMediumMVA5_2 = daughters_againstElectronMediumMVA5->at(lep2Index);
+	  againstElectronLooseMVA5_2 = (tauID->at(indexDau2->at(p)) >>  HelperTauID->FindTriggerNumber("againstElectronLooseMVA5")) & 1;
+	  againstElectronMediumMVA5_2 = (tauID->at(indexDau2->at(p)) >>  HelperTauID->FindTriggerNumber("againstElectronMediumMVA5")) & 1;
 	  againstElectronTightMVA5_2 = false;//not there in LLR
-	  againstElectronVLooseMVA5_2 = daughters_againstElectronVLooseMVA5->at(lep2Index);
+	  againstElectronVLooseMVA5_2 = (tauID->at(indexDau2->at(p)) >>  HelperTauID->FindTriggerNumber("againstElectronVLooseMVA5")) & 1;
 	  againstElectronVTightMVA5_2 = false;//not there in LLR
-	  againstMuonLoose3_2 = daughters_againstMuonLoose3->at(lep2Index);
-	  againstMuonTight3_2 = daughters_againstMuonTight3->at(lep2Index);
+	  againstMuonLoose3_2 = (tauID->at(indexDau2->at(p)) >>  HelperTauID->FindTriggerNumber("againstMuonLoose3")) & 1;
+	  againstMuonTight3_2 = (tauID->at(indexDau2->at(p)) >>  HelperTauID->FindTriggerNumber("againstMuonTight3")) & 1;
 	  byCombinedIsolationDeltaBetaCorrRaw3Hits_2 = daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(lep2Index);
 	  byIsolationMVA3oldDMwoLTraw_2 = -99.;//not there in LLR
 	  byIsolationMVA3oldDMwLTraw_2 = -99.;//not there in LLR

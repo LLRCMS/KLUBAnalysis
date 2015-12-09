@@ -156,8 +156,13 @@ struct smallTree
       m_leps_flav.clear () ;
       m_nleps = 0 ;
 
-      m_mvaValueMuTau = 0;
-      m_mvaValueTauTau = 0;      
+      //m_mvaValueMuTau = 0;
+      //m_mvaValueTauTau = 0;      
+      //m_mvaValueETau = 0;      
+
+      m_bH_mass_raw = 0;
+      m_HHKin_mass_raw = 0;
+
       return 0 ;    
     }
 
@@ -296,6 +301,8 @@ struct smallTree
       m_smallT->Branch("HHkinsvfit_e", &m_HHkinsvfit_e,"HHkinsvfit_e/F");
       m_smallT->Branch("HHkinsvfit_m", &m_HHkinsvfit_m,"HHkinsvfit_m/F");
 
+      m_smallT->Branch("bH_mass_raw",&m_bH_mass_raw,"bH_mass_raw/F");
+      m_smallT->Branch("HHKin_mass_raw",&m_HHKin_mass_raw ,"HHKin_mass_raw/F");
 
       //m_smallT->Branch ("MuTauKine", &m_mvaValueMuTau, "MuTauKine/F");
       //m_smallT->Branch ("TauTauKine", &m_mvaValueTauTau, "TauTauKine/F");
@@ -456,8 +463,12 @@ struct smallTree
   Int_t m_nleps ;
   
   // TMVAs
-  Float_t m_mvaValueMuTau ;
-  Float_t m_mvaValueTauTau ;
+  //Float_t m_mvaValueMuTau ;
+  //Float_t m_mvaValueTauTau ;
+  //Float_t m_mvaValueETau ;
+
+  float m_HHKin_mass_raw;
+  float m_bH_mass_raw;
 
   float m_HHkinsvfit_bHmass;
   float m_HHkinsvfit_pt;
