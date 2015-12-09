@@ -997,9 +997,10 @@ int main (int argc, char** argv)
     TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 
     TMVA::Reader * reader = new TMVA::Reader () ;
-    Float_t mvatautau,mvamutau;
+    Float_t mvatautau,mvamutau, mvaetau;
     TBranch *mvaBranchmutau;
     TBranch *mvaBranchtautau;
+    TBranch *mvaBranchetau;
 
     vector<float> address (TMVAvariables.size () + TMVAspectators.size () * TMVAspectatorsIn, 0.) ; 
     for (unsigned int iv = 0 ; iv < TMVAvariables.size () ; ++iv)
@@ -1022,9 +1023,11 @@ int main (int argc, char** argv)
     //else{   
       mvaBranchmutau = treenew->Branch ("MuTauKine", &mvamutau, "MuTauKine/F") ;
       mvaBranchtautau = treenew->Branch ("TauTauKine", &mvatautau, "TauTauKine/F") ;
+      mvaBranchetau = treenew->Branch ("ETauKine", &mvaetau, "ETauKine/F") ;
     //}
     reader->BookMVA ("MuTauKine",  TMVAweightsMuTau.c_str ()) ;
     reader->BookMVA ("TauTauKine",  TMVAweightsTauTau.c_str ()) ;
+    reader->BookMVA ("ETauKine",  TMVAweightsETau.c_str ()) ;
 
     int nentries = treenew->GetEntries();
     for(int i=0;i<nentries;i++){
@@ -1032,8 +1035,10 @@ int main (int argc, char** argv)
 
       mvamutau= reader->EvaluateMVA ("MuTauKine") ;  
       mvatautau= reader->EvaluateMVA ("TauTauKine") ;  
+      mvaetau= reader->EvaluateMVA ("ETauKine") ;  
       mvaBranchtautau->Fill();
       mvaBranchmutau->Fill();
+      mvaBranchetau->Fill();
     }
 
     outFile->cd () ;
