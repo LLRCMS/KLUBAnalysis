@@ -257,6 +257,7 @@ int main (int argc, char** argv)
 
   string TMVAweightsTauTau   = gConfigParser->readStringOption ("TMVA::weightsTauTau");
   string TMVAweightsMuTau    = gConfigParser->readStringOption ("TMVA::weightsMuTau");
+  string TMVAweightsETau    = gConfigParser->readStringOption ("TMVA::weightsETau");
   bool TMVAspectatorsIn      = gConfigParser->readBoolOption   ("TMVA::spectatorsPresent");
   vector<string> TMVAspectators = gConfigParser->readStringListOption   ("TMVA::spectators");
   vector<string> TMVAvariables  = gConfigParser->readStringListOption   ("TMVA::variables");
