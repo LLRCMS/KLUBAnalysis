@@ -30,7 +30,7 @@ public :
    Float_t         met;
    Float_t         metphi;
    Int_t           npv;
-   Int_t           npu;
+   Float_t         npu;
    Float_t         PUNumInteractions;
    Float_t         PUReweight;
    Float_t         rho;

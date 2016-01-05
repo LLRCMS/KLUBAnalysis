@@ -163,6 +163,8 @@ struct smallTree
       m_bH_mass_raw = 0;
       m_HHKin_mass_raw = 0;
 
+      m_lheht = 0;
+
       return 0 ;    
     }
 
@@ -174,7 +176,7 @@ struct smallTree
       m_smallT->Branch ("RunNumber", &m_RunNumber, "RunNumber/I") ;
 
       m_smallT->Branch ("npv", &m_npv, "npv/I") ;
-      m_smallT->Branch ("npu", &m_npu, "npu/I") ;
+      m_smallT->Branch ("npu", &m_npu, "npu/F") ;
       m_smallT->Branch ("lumi", &m_lumi, "lumi/I") ;
       m_smallT->Branch ("triggerbit", &m_triggerbit, "triggerbit/L") ;
       m_smallT->Branch ("L3filter1", &m_L3filter1, "L3filter1/I") ;
@@ -307,6 +309,8 @@ struct smallTree
       //m_smallT->Branch ("MuTauKine", &m_mvaValueMuTau, "MuTauKine/F");
       //m_smallT->Branch ("TauTauKine", &m_mvaValueTauTau, "TauTauKine/F");
 
+      m_smallT->Branch ("lheht", &m_lheht, "lheht/F");
+
       return 0 ;
     }
 
@@ -319,8 +323,8 @@ struct smallTree
   Int_t m_EventNumber ;
   Int_t m_RunNumber ;
 
-  Int_t m_npv ;
-  Int_t m_npu ;
+  Int_t   m_npv ;
+  Float_t m_npu ;
   Int_t m_lumi ;
   Long64_t m_triggerbit ;
   Int_t m_L3filter1 ;
@@ -477,6 +481,7 @@ struct smallTree
   float m_HHkinsvfit_e;
   float m_HHkinsvfit_m;
 
+  float m_lheht ;
 
 } ;
 
