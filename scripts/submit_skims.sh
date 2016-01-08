@@ -179,3 +179,10 @@ python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 10 -k True -o /data
 
 # Others - non stitched
 python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 130 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/Skims26_AllJets_NI/SKIM_TT_merged     -i inputFiles/miniAODv2_silverJSON_5Gen2016/TT_merged.txt   -x 831.76
+
+# HH signal new xsec 13TeV and analytical values of the ratios 
+# python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/Skims25_AllJets_NI/SKIM_HHLambda1         -i inputFiles/miniAODv2_silverJson/HH_Lambda1.txt        -x 0.002729241983
+# python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/Skims25_AllJets_NI/SKIM_HHLambda20        -i inputFiles/miniAODv2_silverJson/HH_Lambda20.txt       -x 0.245931995088
+# python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/Skims25_AllJets_NI/SKIM_HHLambdam4        -i inputFiles/miniAODv2_silverJson/HH_Lambdam4.txt       -x 0.03370613849  
+# python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/Skims25_AllJets_NI/SKIM_HHLambda2dot46    -i inputFiles/miniAODv2_silverJson/HH_Lambda2p46.txt     -x 0.00114891262213  
+
