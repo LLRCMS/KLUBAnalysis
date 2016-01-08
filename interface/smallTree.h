@@ -73,12 +73,14 @@ struct smallTree
       m_bjet1_phi  = -1. ;
       m_bjet1_e  = -1. ;
       m_bjet1_bID = -1. ;
+      m_bjet1_flav = -1 ;
       
       m_bjet2_pt  = -1. ;
       m_bjet2_eta  = -1. ;
       m_bjet2_phi  = -1. ;
       m_bjet2_e  = -1. ;
       m_bjet2_bID = -1. ;
+      m_bjet2_flav = -1 ;
 
       m_genjet1_pt  = -1. ;
       m_genjet1_eta  = -1. ;
@@ -141,6 +143,7 @@ struct smallTree
       m_jets_phi.clear () ;
       m_jets_e.clear () ;
       m_jets_btag.clear () ;
+      m_jets_flav.clear () ;
       m_jets_isH.clear () ;
       m_njets = 0 ;
       m_dau1_jecUnc= -1;
@@ -221,12 +224,14 @@ struct smallTree
       m_smallT->Branch ("bjet1_phi", &m_bjet1_phi, "bjet1_phi/F") ;
       m_smallT->Branch ("bjet1_e", &m_bjet1_e, "bjet1_e/F") ;
       m_smallT->Branch ("bjet1_bID", &m_bjet1_bID, "bjet1_bID/F") ;
-
+      m_smallT->Branch ("bjet1_flav", &m_bjet1_flav, "bjet1_flav/I") ;
+     
       m_smallT->Branch ("bjet2_pt", &m_bjet2_pt, "bjet2_pt/F") ;
       m_smallT->Branch ("bjet2_eta", &m_bjet2_eta, "bjet2_eta/F") ;
       m_smallT->Branch ("bjet2_phi", &m_bjet2_phi, "bjet2_phi/F") ;
       m_smallT->Branch ("bjet2_e", &m_bjet2_e, "bjet2_e/F") ;
       m_smallT->Branch ("bjet2_bID", &m_bjet2_bID, "bjet2m_bID/F") ;
+      m_smallT->Branch ("bjet2_flav", &m_bjet2_flav, "bjet2_flav/I") ;
 
       m_smallT->Branch ("genjet1_pt",  &m_genjet1_pt,  "genjet1_pt/F") ;
       m_smallT->Branch ("genjet1_eta", &m_genjet1_eta, "genjet1_eta/F") ;
@@ -280,6 +285,7 @@ struct smallTree
       m_smallT->Branch ("jets_phi", &m_jets_phi) ;
       m_smallT->Branch ("jets_e", &m_jets_e) ;
       m_smallT->Branch ("jets_btag", &m_jets_btag) ;
+      m_smallT->Branch ("jets_flav", &m_jets_flav) ;
       m_smallT->Branch ("jets_isH", &m_jets_isH) ;
       m_smallT->Branch ("njets", &m_njets, "njets/I") ;
       m_smallT->Branch ("jets_jecUnc", &m_jets_jecUnc);
@@ -379,6 +385,7 @@ struct smallTree
   Float_t m_bjet1_phi ;
   Float_t m_bjet1_e ;
   Float_t m_bjet1_bID ;
+  Int_t   m_bjet1_flav ;
 
   // the smallest pT b visible candidate
   Float_t m_bjet2_pt ;
@@ -386,6 +393,7 @@ struct smallTree
   Float_t m_bjet2_phi ;
   Float_t m_bjet2_e ;
   Float_t m_bjet2_bID ;
+  Int_t   m_bjet2_flav ;
 
   // the gen jet associated to the first b jet
   Float_t m_genjet1_pt ;
@@ -449,7 +457,8 @@ struct smallTree
   std::vector<Float_t> m_jets_eta ;
   std::vector<Float_t> m_jets_phi ;
   std::vector<Float_t> m_jets_e ;
-  std::vector<Int_t> m_jets_btag ;
+  std::vector<Float_t> m_jets_btag ;
+  std::vector<Int_t> m_jets_flav ;
   std::vector<Int_t> m_jets_isH ;
   Int_t m_njets ;
   std::vector<Float_t> m_jets_jecUnc ;
