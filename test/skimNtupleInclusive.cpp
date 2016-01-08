@@ -212,7 +212,8 @@ int main (int argc, char** argv)
     {
       cerr << "missing input parameters" << endl ;
       cerr << "usage: " << argv[0]
-           << "inputFileNameList outputFileName crossSection isData configFile runHHKinFit" << endl ; 
+           << "inputFileNameList outputFileName crossSection isData configFile runHHKinFit" << endl
+           << "OPTIONAL: xsecScale(stitch) HTMax(stitch)" << endl ; 
       exit (1) ;
     }
   TString inputFile = argv[1] ;
@@ -238,6 +239,26 @@ int main (int argc, char** argv)
   if (opt7 == "1") runHHKinFit = true;
 
   cout << "Running HH in fit: " << runHHKinFit << " " << argv[6] << endl;
+
+  // optional parameters for stitching
+  float xsecScale = 1.0;
+  float HTMax = -999.0;
+  if (argc >= 8)
+  {
+    xsecScale = atof (argv[7]);
+    cout << " ** INFO: doing stitching, xsec scaled by: " << xsecScale << endl;
+    XS = XS*xsecScale;
+    
+    if (argc >= 9)
+    {
+      HTMax = atof(argv[8]);
+      cout << " ** INFO: in stitching, removing HT < " << HTMax << endl;
+    }
+  }
+
+  cout << " ** INFO: running on file list : " << inputFile << endl;
+  cout << " ** INFO: saving output in     : " << outputFile << endl;
+
 
   if (! (gConfigParser->init (config)))
     {
@@ -350,16 +371,22 @@ int main (int argc, char** argv)
       if (got == 0) break;
       //theBigTree.GetEntry (iEvent) ;
       
+      // directly reject events outside HT range in case of stitching of inclusive sample-- they should not count in weights
+      if (HTMax > 0)
+      {
+         if (theBigTree.lheHt > HTMax) continue;
+      }
+
       if (isMC)
-        {
-          totalEvents += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
-          counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
-        }
+      {
+        totalEvents += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
+        counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
+      }
       else 
-        {
-          totalEvents += 1 ;
-          counter.at (selID++) += 1 ;
-        }
+      {
+        totalEvents += 1 ;
+        counter.at (selID++) += 1 ;
+      }
       ++totalNoWeightsEventsNum ;
  
       if (theBigTree.indexDau1->size () == 0) continue ;
@@ -535,6 +562,7 @@ int main (int argc, char** argv)
 
       theSmallTree.m_PUReweight = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) : 1) ;      
       theSmallTree.m_MC_weight = (isMC ? theBigTree.aMCatNLOweight * XS : 1) ;
+      theSmallTree.m_lheht = (isMC ? theBigTree.lheHt : 0) ;
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
       theSmallTree.m_RunNumber = theBigTree.RunNumber ;
       theSmallTree.m_npv = theBigTree.npv ;
@@ -720,12 +748,14 @@ int main (int argc, char** argv)
           theSmallTree.m_bjet1_phi = tlv_firstBjet.Phi () ;
           theSmallTree.m_bjet1_e = theBigTree.jets_e->at (eventJets.first) ;
           theSmallTree.m_bjet1_bID = theBigTree.bCSVscore->at (eventJets.first) ;
+          theSmallTree.m_bjet1_flav = theBigTree.jets_HadronFlavour->at (eventJets.first) ;
           
           theSmallTree.m_bjet2_pt  = tlv_secondBjet.Pt () ;
           theSmallTree.m_bjet2_eta = tlv_secondBjet.Eta () ;
           theSmallTree.m_bjet2_phi = tlv_secondBjet.Phi () ;
           theSmallTree.m_bjet2_e = theBigTree.jets_e->at (eventJets.second) ;
           theSmallTree.m_bjet2_bID = theBigTree.bCSVscore->at (eventJets.second) ;
+          theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (eventJets.second) ;
 
           if (isMC){
             int mcind = theBigTree.jets_genjetIndex->at(eventJets.first);
@@ -972,6 +1002,7 @@ int main (int argc, char** argv)
               theSmallTree.m_jets_phi.push_back (tlv_dummyJet.Phi ()) ;
               theSmallTree.m_jets_e.push_back (theBigTree.jets_e->at (iJet)) ;
               theSmallTree.m_jets_btag.push_back (theBigTree.bCSVscore->at (iJet)) ;
+              theSmallTree.m_jets_flav.push_back (theBigTree.jets_HadronFlavour->at (iJet)) ;
               theSmallTree.m_jets_jecUnc.push_back (theBigTree.jets_jecUnc->at (iJet)) ;
               ++theSmallTree.m_njets ;
             } // loop over jets
