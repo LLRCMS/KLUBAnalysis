@@ -476,16 +476,27 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
   canvas->Clear();
   canvas->cd();
   
-  THStack * sig_stack = sigPlots.makeStack ( varName, selName ) ;
-  THStack * bkg_stack = bkgPlots.makeStack ( varName, selName ) ;
-  THStack * DATA_stack = dataPlots.makeStack ( varName, selName ) ;
+  THStack * sig_stack =  (drawSignal ? sigPlots.makeStack ( varName, selName )  : 0);
+  THStack * bkg_stack =  (drawMC     ? bkgPlots.makeStack ( varName, selName )  : 0);
+  THStack * DATA_stack = (drawData   ? dataPlots.makeStack ( varName, selName ) : 0);
 
-  vector<float> extremes_bkg  = getExtremes (bkg_stack, LogY) ;
-  vector<float> extremes_sig  = getExtremes (sig_stack, LogY) ;
-  vector<float> extremes_DATA = getExtremes (DATA_stack, LogY) ;
-  allocatedStuff.push_back (sig_stack);
-  allocatedStuff.push_back (bkg_stack);
-  allocatedStuff.push_back (DATA_stack);
+  vector<float> extremes_bkg; 
+  vector<float> extremes_sig; 
+  vector<float> extremes_DATA;
+  
+  if (drawMC)     extremes_bkg = getExtremes (bkg_stack, LogY) ;
+  if (drawSignal) extremes_sig = getExtremes (sig_stack, LogY) ;
+  if (drawData)   extremes_DATA = getExtremes (DATA_stack, LogY) ;
+  
+  // fill all vectors with dummy values to avoid many other "if" everywhere
+  vector<float> vZeroes (4, 0.);
+  if (extremes_bkg.size() == 0) extremes_bkg.insert (extremes_bkg.begin(),    vZeroes.begin(), vZeroes.end());
+  if (extremes_sig.size() == 0) extremes_sig.insert (extremes_sig.begin(),    vZeroes.begin(), vZeroes.end());
+  if (extremes_DATA.size() == 0) extremes_DATA.insert (extremes_DATA.begin(), vZeroes.begin(), vZeroes.end());
+
+  if (drawSignal) allocatedStuff.push_back (sig_stack);
+  if (drawMC)     allocatedStuff.push_back (bkg_stack);
+  if (drawData)   allocatedStuff.push_back (DATA_stack);
 
   // ------------  compute boundaries for main plotpad ---------------
 
@@ -515,8 +526,25 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
   pad1->Draw();  // Draw the upper pad: pad1
   pad1->cd();    // pad1 becomes the current pad
 
-  float minx = extremes_bkg.at (0);
-  float maxx = extremes_bkg.at (2) ; // all plots have same range for a certain variable
+  float minx;
+  float maxx;
+  
+  if (drawMC)
+  {
+    minx = extremes_bkg.at (0);
+    maxx = extremes_bkg.at (2) ; // all plots have same range for a certain variable
+  }
+  else if (drawSignal)
+  {
+    minx = extremes_sig.at (0);
+    maxx = extremes_sig.at (2) ; // all plots have same range for a certain variable
+  }
+  else if (drawData)
+  {
+    minx = extremes_DATA.at (0);
+    maxx = extremes_DATA.at (2) ; // all plots have same range for a certain variable
+  }
+
   float miny; 
   float maxy; 
 
