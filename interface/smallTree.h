@@ -24,7 +24,12 @@ struct smallTree
     {
       m_MC_weight = -1. ;
       m_PUReweight = -1. ;
+      m_bTagweightL = -1. ;
+      m_bTagweightM = -1. ;
+      m_bTagweightT = -1. ;
       m_EventNumber = -1. ;
+      m_trigSF = -1.;
+      m_IdAndIsoSF = -1.;
       m_RunNumber = -1. ;
       
       m_npv = -1. ;
@@ -175,6 +180,11 @@ struct smallTree
     {      
       m_smallT->Branch ("MC_weight", &m_MC_weight, "MC_weight/F") ;
       m_smallT->Branch ("PUReweight", &m_PUReweight, "PUReweight/F") ;
+      m_smallT->Branch ("bTagweightL", &m_bTagweightL, "bTagweightL/F") ;
+      m_smallT->Branch ("bTagweightM", &m_bTagweightM, "bTagweightM/F") ;
+      m_smallT->Branch ("bTagweightT", &m_bTagweightT, "bTagweightT/F") ;
+      m_smallT->Branch ("trigSF", &m_trigSF, "trigSF/F") ;
+      m_smallT->Branch ("IdAndIsoSF", &m_IdAndIsoSF, "IdAndIsoSF/F") ;
       m_smallT->Branch ("EventNumber", &m_EventNumber, "EventNumber/I") ;
       m_smallT->Branch ("RunNumber", &m_RunNumber, "RunNumber/I") ;
 
@@ -326,6 +336,11 @@ struct smallTree
   // general variables
   Float_t m_MC_weight ;
   Float_t m_PUReweight ;
+  Float_t m_bTagweightL ;
+  Float_t m_bTagweightM ;
+  Float_t m_bTagweightT ;
+  Float_t m_trigSF ;
+  Float_t m_IdAndIsoSF ;
   Int_t m_EventNumber ;
   Int_t m_RunNumber ;
 
