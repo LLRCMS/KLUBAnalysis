@@ -7,7 +7,7 @@ using namespace std;
 
 bTagSF::bTagSF(std::string SFfilename) : 
     
-    m_calib(SFfilename.c_str() , "CSVv2") ,
+    m_calib("CSVv2", SFfilename.c_str()) ,
     m_reader {
     BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "central"),
     BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "central"),
@@ -27,7 +27,7 @@ bTagSF::bTagSF(std::string SFfilename) :
 
 bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag) :
     
-    m_calib(SFfilename.c_str() , "CSVv2") ,
+    m_calib("CSVv2", SFfilename.c_str()) ,
     m_reader {
     BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "central"),
     BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "central"),
@@ -53,8 +53,10 @@ bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effH
         {
         for (int channel = 0; channel < 3; channel++)
             {
-                TString name = Form("eff_%s_%s_%s", flavs[flav].Data(), chnames[channel].Data(), WPnames[iWP].Data());
+                TString name = Form("eff_%s_%s_%s", flavs[flav].Data(), WPnames[iWP].Data(), chnames[channel].Data());
+                //cout << "Tmps name " << name << endl;
                 m_hEff [iWP][flav][channel] = (TH1F*) m_fileEff->Get(name.Data());
+                //cout << " --> " << m_hEff [iWP][flav][channel] -> GetName() << endl;
             }
         }
     }
@@ -75,8 +77,7 @@ float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta)
     else flav = BTagEntry::FLAV_UDSG;
 
     if (syst == central)
-        SF = m_reader[(int)wpt].eval(flav, eta, pt);
-
+        SF = m_reader[(int)wpt].eval(flav, eta, pt);   
     else if (syst == up)
         SF = m_reader_up[(int)wpt].eval(flav, eta, pt);
     
@@ -84,8 +85,11 @@ float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta)
         SF = m_reader_do[(int)wpt].eval(flav, eta, pt);
     
     // double uncertainty up/down if out of some boundaries
+    // FIXME: this is wrong!! one should do : jet_scalefactor_up = 2*(jet_scalefactor_up - jet_scalefactor) + jet_scalefactor; 
+    // and not just double the scale
     if (syst != central)
     {
+        /*
         if (flav == BTagEntry::FLAV_B || flav == BTagEntry::FLAV_C)
         {
             if (pt < 30.0 || pt > 670.0 ) SF *= 2.0;
@@ -94,6 +98,8 @@ float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta)
         {
             if (pt < 20.0 || pt > 1000.0 ) SF *= 2.0;
         }
+        */
+        SF *= 1.0;
     }
 
     return SF;
@@ -102,7 +108,12 @@ float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta)
 
 float bTagSF::getEff (WP wpt, int jetFlavor, int channel, float pt, float eta)
 {
-    TH1F* h = m_hEff [(int) wpt] [jetFlavor] [channel];
+    int flav;
+    if (abs(jetFlavor) == 5) flav = 0;
+    else if (abs(jetFlavor) == 4) flav = 1;
+    else flav = 2;
+
+    TH1F* h = m_hEff [(int) wpt] [flav] [channel];
     float aEta = TMath::Abs(eta);
 
     int binglobal = h->FindBin (pt, aEta);
@@ -141,6 +152,7 @@ float bTagSF::getEff (WP wpt, int jetFlavor, int channel, float pt, float eta)
 // returns a collection of weights according to the tested WP
 vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_and_btag, std::vector<float> *jets_px, std::vector<float> *jets_py, std::vector<float> *jets_pz, std::vector<float> *jets_e, std::vector<int> *jets_HadronFlavour, int channel)
 {
+
     vector<float> P_MC   (3, 1.0); // 0 = L, 1 = M, 2 = T
     vector<float> P_Data (3, 1.0); // 0 = L, 1 = M, 2 = T
     
@@ -168,7 +180,6 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
         tagged[0] = (CSV > WPtag[0]);
         tagged[1] = (CSV > WPtag[1]);
         tagged[2] = (CSV > WPtag[2]);
-
         for (int iWP = 0; iWP < 3; iWP++)
         {
             float tmpMC   = P_MC.at(iWP);
@@ -187,15 +198,25 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
         
             P_MC.at(iWP)  = tmpMC;
             P_Data.at(iWP) = tmpData;
+
+            // if (iWP == 0) 
+            // {
+            //     cout << ijet << " pt, eta: " << vJet.Pt() << " " << vJet.Eta() << " jet flav: " << flav << " //// SF= " << SF[0] << " eff= " << effBTag[0] << endl;
+            // }
+        
         }
     }
-
     // return ratio
     vector<float> weight (3);
     weight.at(0) = P_Data.at(0) / P_MC.at(0);
     weight.at(1) = P_Data.at(1) / P_MC.at(1);
     weight.at(2) = P_Data.at(2) / P_MC.at(2);
-
+    
+    if (weight.at(0) < 0.5) 
+    {
+        cout << "------ NONONO Null weight!!" << endl;
+    }
+    //cout << "weights: " << weight.at(0) << " " << weight.at(1) << " " << weight.at(2) << endl;
     return weight;
 }
 
