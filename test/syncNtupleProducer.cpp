@@ -1210,8 +1210,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
       Int_t lep1Index = -99 ;
       Int_t lep2Index = -99 ;
 
-      OfflineProducerHelper* HelperTrigger = new OfflineProducerHelper(hCounter);
-      OfflineProducerHelper* HelperTauID = new OfflineProducerHelper(hTauID);
+      OfflineProducerHelper* HelperTrigger_TauID = new OfflineProducerHelper(hCounter, hTauID);
       
       std::vector<mypair> sortedPairs;
   
@@ -1346,15 +1345,15 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	      for(UInt_t iTrig = 0 ; iTrig < TriggerNames.size() ; ++iTrig)
 		{
 		  // if(Channel=="et") cout<<"Trigger name = "<<TriggerNames.at(iTrig)<<endl;
-		  // if(Channel=="et") cout<<"HelperTrigger->FindTriggerNumber(TriggerNames.at(iTrig)) = "<<HelperTrigger->FindTriggerNumber(TriggerNames.at(iTrig))<<endl;
-		  // if(Channel=="mt") cout<<HelperTrigger->FindTriggerNumber(TriggerNames.at(iTrig))<<endl;
-		  TriggerBits.push_back(HelperTrigger->FindTriggerNumber(TriggerNames.at(iTrig)));
-		  if(HelperTrigger->IsTriggerFired(triggerbit,TriggerNames.at(iTrig)))
+		  // if(Channel=="et") cout<<"HelperTrigger_TauID->FindTriggerNumber(TriggerNames.at(iTrig)) = "<<HelperTrigger_TauID->FindTriggerNumber(TriggerNames.at(iTrig))<<endl;
+		  // if(Channel=="mt") cout<<HelperTrigger_TauID->FindTriggerNumber(TriggerNames.at(iTrig))<<endl;
+		  TriggerBits.push_back(HelperTrigger_TauID->FindTriggerNumber(TriggerNames.at(iTrig)));
+		  if(HelperTrigger_TauID->IsTriggerFired(triggerbit,TriggerNames.at(iTrig)))
 		    {
 		      TriggerFiredNames.push_back(TriggerNames.at(iTrig));
 		      TString tmp_name = TriggerNames.at(iTrig);
-		      //cout<<"Trigger name / bit = "<<TriggerNames.at(iTrig)<<"/"<<HelperTrigger->FindTriggerNumber(TriggerNames.at(iTrig))<<endl;
-		      TriggerFiredBits.push_back(HelperTrigger->FindTriggerNumber(TriggerNames.at(iTrig)));
+		      //cout<<"Trigger name / bit = "<<TriggerNames.at(iTrig)<<"/"<<HelperTrigger_TauID->FindTriggerNumber(TriggerNames.at(iTrig))<<endl;
+		      TriggerFiredBits.push_back(HelperTrigger_TauID->FindTriggerNumber(TriggerNames.at(iTrig)));
 		      if(Channel=="mt")
 			{
 			  if(tmp_name.Contains("Mu") && tmp_name.Contains("Tau")) TriggerFiredIsDoubleObject.push_back(kTRUE);
@@ -1444,7 +1443,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 		    }
 
 		  TriggerFiredAndGoodTriggerTypeNames.push_back(TriggerFiredNames.at(iTrigFired));
-		  TriggerFiredAndGoodTriggerTypeBits.push_back(HelperTrigger->FindTriggerNumber(TriggerFiredNames.at(iTrigFired)));
+		  TriggerFiredAndGoodTriggerTypeBits.push_back(HelperTrigger_TauID->FindTriggerNumber(TriggerFiredNames.at(iTrigFired)));
 		  BothDaughtersAreGoodTriggerTypes = kTRUE;
 		}
 	      //cout<<"-----"<<endl;
@@ -1481,7 +1480,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 
 
 		  TriggerNamesFinal.push_back(TriggerFiredAndGoodTriggerTypeNames.at(iTrigFiredAndGoodTriggerType));
-		  TriggerBitsFinal.push_back(HelperTrigger->FindTriggerNumber(TriggerFiredAndGoodTriggerTypeNames.at(iTrigFiredAndGoodTriggerType)));
+		  TriggerBitsFinal.push_back(HelperTrigger_TauID->FindTriggerNumber(TriggerFiredAndGoodTriggerTypeNames.at(iTrigFiredAndGoodTriggerType)));
 		  BothDaughtersAreGoodTriggerTypesAndPassFilter = kTRUE;
 		}
 	      
@@ -1616,10 +1615,10 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  // cout<<"checking tau iso"<<endl;
 	  if(Channel=="tt")
 	    {
-	      if((tauID->at(indexDau1->at(p)) >>  HelperTauID->FindTriggerNumber("againstMuonTight3")) & 1) continue;;
-	      if((tauID->at(indexDau2->at(p)) >>  HelperTauID->FindTriggerNumber("againstMuonTight3")) & 1) continue;;
-	      if((tauID->at(indexDau1->at(p)) >>  HelperTauID->FindTriggerNumber("againstElectronVLooseMVA5")) & 1) continue;;
-	      if((tauID->at(indexDau2->at(p)) >>  HelperTauID->FindTriggerNumber("againstElectronVLooseMVA5")) & 1) continue;;
+	      if((tauID->at(indexDau1->at(p)) >>  HelperTrigger_TauID->FindTriggerNumber("againstMuonTight3")) & 1) continue;;
+	      if((tauID->at(indexDau2->at(p)) >>  HelperTrigger_TauID->FindTriggerNumber("againstMuonTight3")) & 1) continue;;
+	      if((tauID->at(indexDau1->at(p)) >>  HelperTrigger_TauID->FindTriggerNumber("againstElectronVLooseMVA5")) & 1) continue;;
+	      if((tauID->at(indexDau2->at(p)) >>  HelperTrigger_TauID->FindTriggerNumber("againstElectronVLooseMVA5")) & 1) continue;;
 	      // if(!((daughters_isGoodTriggerType->at(indexDau1->at(p)) >> TriggerFiredBits.at(iTrigFired)) & 1)){continue;}
 
 	      if(daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(indexDau1->at(p))>1.) continue ;
@@ -1879,13 +1878,13 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  id_e_cut_medium_1 = ((daughters_eleCUTID->at(lep1Index) >> 2) & 1) ;
 	  id_e_cut_tight_1 = ((daughters_eleCUTID->at(lep1Index) >> 3) & 1) ;
 	  trigweight_1 = -99.;//not there in LLR
-	  againstElectronLooseMVA5_1 = (tauID->at(indexDau1->at(p)) >>  HelperTauID->FindTriggerNumber("againstElectronLooseMVA5")) & 1;
-	  againstElectronMediumMVA5_1 = (tauID->at(indexDau1->at(p)) >>  HelperTauID->FindTriggerNumber("againstElectronMediumMVA5")) & 1;
+	  againstElectronLooseMVA5_1 = (tauID->at(indexDau1->at(p)) >>  HelperTrigger_TauID->getTAUidNumber("againstElectronLooseMVA5")) & 1;
+	  againstElectronMediumMVA5_1 = (tauID->at(indexDau1->at(p)) >>  HelperTrigger_TauID->getTAUidNumber("againstElectronMediumMVA5")) & 1;
 	  againstElectronTightMVA5_1 = false;//not there in LLR
-	  againstElectronVLooseMVA5_1 = (tauID->at(indexDau1->at(p)) >>  HelperTauID->FindTriggerNumber("againstElectronVLooseMVA5")) & 1;
+	  againstElectronVLooseMVA5_1 = (tauID->at(indexDau1->at(p)) >>  HelperTrigger_TauID->getTAUidNumber("againstElectronVLooseMVA5")) & 1;
 	  againstElectronVTightMVA5_1 = false;//not there in LLR
-	  againstMuonLoose3_1 = (tauID->at(indexDau1->at(p)) >>  HelperTauID->FindTriggerNumber("againstMuonLoose3")) & 1;
-	  againstMuonTight3_1 = (tauID->at(indexDau1->at(p)) >>  HelperTauID->FindTriggerNumber("againstMuonTight3")) & 1;
+	  againstMuonLoose3_1 = (tauID->at(indexDau1->at(p)) >>  HelperTrigger_TauID->getTAUidNumber("againstMuonLoose3")) & 1;
+	  againstMuonTight3_1 = (tauID->at(indexDau1->at(p)) >>  HelperTrigger_TauID->getTAUidNumber("againstMuonTight3")) & 1;
 	  byCombinedIsolationDeltaBetaCorrRaw3Hits_1 = daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(lep1Index);
 	  byIsolationMVA3oldDMwoLTraw_1 = -99.;//not there in LLR
 	  byIsolationMVA3oldDMwLTraw_1 = -99.;//not there in LLR
@@ -1928,13 +1927,14 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	  id_e_cut_medium_2 = ((daughters_eleCUTID->at(lep2Index) >> 2) & 1) ;
 	  id_e_cut_tight_2 = ((daughters_eleCUTID->at(lep2Index) >> 3) & 1) ;
 	  trigweight_2 = -99.;//not there in LLR
-	  againstElectronLooseMVA5_2 = (tauID->at(indexDau2->at(p)) >>  HelperTauID->FindTriggerNumber("againstElectronLooseMVA5")) & 1;
-	  againstElectronMediumMVA5_2 = (tauID->at(indexDau2->at(p)) >>  HelperTauID->FindTriggerNumber("againstElectronMediumMVA5")) & 1;
+	  againstElectronLooseMVA5_2 = (tauID->at(indexDau2->at(p)) >>  HelperTrigger_TauID->getTAUidNumber("againstElectronLooseMVA5")) & 1;
+	  againstElectronMediumMVA5_2 = (tauID->at(indexDau2->at(p)) >>  HelperTrigger_TauID->getTAUidNumber("againstElectronMediumMVA5")) & 1;
 	  againstElectronTightMVA5_2 = false;//not there in LLR
-	  againstElectronVLooseMVA5_2 = (tauID->at(indexDau2->at(p)) >>  HelperTauID->FindTriggerNumber("againstElectronVLooseMVA5")) & 1;
+	  againstElectronVLooseMVA5_2 = (tauID->at(indexDau2->at(p)) >>  HelperTrigger_TauID->getTAUidNumber("againstElectronVLooseMVA5")) & 1;
 	  againstElectronVTightMVA5_2 = false;//not there in LLR
-	  againstMuonLoose3_2 = (tauID->at(indexDau2->at(p)) >>  HelperTauID->FindTriggerNumber("againstMuonLoose3")) & 1;
-	  againstMuonTight3_2 = (tauID->at(indexDau2->at(p)) >>  HelperTauID->FindTriggerNumber("againstMuonTight3")) & 1;
+	  againstMuonLoose3_2 = (tauID->at(indexDau2->at(p)) >>  HelperTrigger_TauID->getTAUidNumber("againstMuonLoose3")) & 1;
+	  againstMuonTight3_2 = (tauID->at(indexDau2->at(p)) >>  HelperTrigger_TauID->getTAUidNumber("againstMuonTight3")) & 1;	  
+
 	  byCombinedIsolationDeltaBetaCorrRaw3Hits_2 = daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(lep2Index);
 	  byIsolationMVA3oldDMwoLTraw_2 = -99.;//not there in LLR
 	  byIsolationMVA3oldDMwLTraw_2 = -99.;//not there in LLR
@@ -2020,6 +2020,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	      Lep1_ForOverlapRemoval.SetPxPyPzE(daughters_px->at(lep1Index),daughters_py->at(lep1Index),daughters_pz->at(lep1Index),daughters_e->at(lep1Index));
 	      TLorentzVector Lep2_ForOverlapRemoval ;
 	      Lep2_ForOverlapRemoval.SetPxPyPzE(daughters_px->at(lep2Index),daughters_py->at(lep2Index),daughters_pz->at(lep2Index),daughters_e->at(lep2Index));
+	      
 
 	      if(Lep1_ForOverlapRemoval.DeltaR(jet)<0.5) continue ;
 	      if(Lep2_ForOverlapRemoval.DeltaR(jet)<0.5) continue ;
@@ -2067,7 +2068,8 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 	      if(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4 && jet.Pt()>20.) isBJet = kTRUE ;
 
 	      // cout<<"jet #"<<ijet<<", pT = "<<jet.Pt()<<", eta = "<<jet.Eta()<<", phi = "<<jet.Phi()<<", BJET? "<<isBJet<<endl;
-	  
+	  	      
+
 	      if(jet.Pt()>30. && !isBJet) Njets30++; 
 	      if(jet.Pt()>20. && !isBJet) Njets20++; 
 
