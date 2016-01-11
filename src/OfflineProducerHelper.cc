@@ -31,23 +31,7 @@ OfflineProducerHelper::OfflineProducerHelper(){
   }
   tauidlist.push_back("");
 
-  // MVA ele ID from here:
-  //  https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun2#Non_triggering_electron_MVA
-  // 80%
-  m_MVAEleIDCuts[0][0][0] = -0.253 ; // barrel (eta<0.8) pt 5-10 GeV      
-  m_MVAEleIDCuts[0][0][1] =  0.081 ; // barrel (eta>0.8) pt 5-10 GeV      
-  m_MVAEleIDCuts[0][0][2] = -0.081 ; // endcap pt 5-10 GeV                
-  m_MVAEleIDCuts[0][1][0] =  0.965 ; // barrel (eta<0.8) pt above 10 GeV  
-  m_MVAEleIDCuts[0][1][1] =  0.917 ; // barrel (eta>0.8) pt above 10 GeV  
-  m_MVAEleIDCuts[0][1][2] =  0.683 ; // endcap pt above 10 GeV            
-
-  // 90%
-  m_MVAEleIDCuts[1][0][0] = -0.483 ; // barrel (eta<0.8) pt 5-10 GeV     
-  m_MVAEleIDCuts[1][0][1] = -0.267 ; // barrel (eta>0.8) pt 5-10 GeV     
-  m_MVAEleIDCuts[1][0][2] = -0.323 ; // endcap pt 5-10 GeV               
-  m_MVAEleIDCuts[1][1][0] = 0.933  ; // barrel (eta<0.8) pt above 10 GeV 
-  m_MVAEleIDCuts[1][1][1] = 0.825  ; // barrel (eta>0.8) pt above 10 GeV 
-  m_MVAEleIDCuts[1][1][2] = 0.337  ; // endcap pt above 10 GeV           
+  SetEleMVAIDCuts();        
 }
 
 OfflineProducerHelper::OfflineProducerHelper(TH1F* hCounter, TH1F* hTauIDs){
@@ -62,24 +46,7 @@ OfflineProducerHelper::OfflineProducerHelper(TH1F* hCounter, TH1F* hTauIDs){
     tauidlist.push_back(hTauIDs->GetXaxis()->GetBinLabel(itr));
   }
 
-  // MVA ele ID from here:
-  //   //  https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun2#Non_triggering_electron_MVA
-  //     // 80%
-
-  m_MVAEleIDCuts[0][0][0] = -0.253 ; // barrel (eta<0.8) pt 5-10 GeV      
-  m_MVAEleIDCuts[0][0][1] =  0.081 ; // barrel (eta>0.8) pt 5-10 GeV      
-  m_MVAEleIDCuts[0][0][2] = -0.081 ; // endcap pt 5-10 GeV                
-  m_MVAEleIDCuts[0][1][0] =  0.965 ; // barrel (eta<0.8) pt above 10 GeV  
-  m_MVAEleIDCuts[0][1][1] =  0.917 ; // barrel (eta>0.8) pt above 10 GeV  
-  m_MVAEleIDCuts[0][1][2] =  0.683 ; // endcap pt above 10 GeV            
-
-  // 90%
-  m_MVAEleIDCuts[1][0][0] = -0.483 ; // barrel (eta<0.8) pt 5-10 GeV     
-  m_MVAEleIDCuts[1][0][1] = -0.267 ; // barrel (eta>0.8) pt 5-10 GeV     
-  m_MVAEleIDCuts[1][0][2] = -0.323 ; // endcap pt 5-10 GeV               
-  m_MVAEleIDCuts[1][1][0] = 0.933  ; // barrel (eta<0.8) pt above 10 GeV 
-  m_MVAEleIDCuts[1][1][1] = 0.825  ; // barrel (eta>0.8) pt above 10 GeV 
-  m_MVAEleIDCuts[1][1][2] = 0.337  ; // endcap pt above 10 GeV           
+  SetEleMVAIDCuts();
 }
 
 
@@ -92,26 +59,29 @@ OfflineProducerHelper::OfflineProducerHelper(TH1F* hCounter){
   }
   tauidlist.push_back("");
 
-  // MVA ele ID from here:
-  //   //  https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun2#Non_triggering_electron_MVA
-  //     // 80%
-
-  m_MVAEleIDCuts[0][0][0] = -0.253 ; // barrel (eta<0.8) pt 5-10 GeV      
-  m_MVAEleIDCuts[0][0][1] =  0.081 ; // barrel (eta>0.8) pt 5-10 GeV      
-  m_MVAEleIDCuts[0][0][2] = -0.081 ; // endcap pt 5-10 GeV                
-  m_MVAEleIDCuts[0][1][0] =  0.965 ; // barrel (eta<0.8) pt above 10 GeV  
-  m_MVAEleIDCuts[0][1][1] =  0.917 ; // barrel (eta>0.8) pt above 10 GeV  
-  m_MVAEleIDCuts[0][1][2] =  0.683 ; // endcap pt above 10 GeV            
-
-  // 90%
-  m_MVAEleIDCuts[1][0][0] = -0.483 ; // barrel (eta<0.8) pt 5-10 GeV     
-  m_MVAEleIDCuts[1][0][1] = -0.267 ; // barrel (eta>0.8) pt 5-10 GeV     
-  m_MVAEleIDCuts[1][0][2] = -0.323 ; // endcap pt 5-10 GeV               
-  m_MVAEleIDCuts[1][1][0] = 0.933  ; // barrel (eta<0.8) pt above 10 GeV 
-  m_MVAEleIDCuts[1][1][1] = 0.825  ; // barrel (eta>0.8) pt above 10 GeV 
-  m_MVAEleIDCuts[1][1][2] = 0.337  ; // endcap pt above 10 GeV           
+  SetEleMVAIDCuts();
 }
 
+void OfflineProducerHelper::SetEleMVAIDCuts()
+{
+  // MVA ele ID from here:
+  //  https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun2#Non_triggering_electron_MVA
+  // 80%
+  m_MVAEleIDCuts[0][0][0] =  0.287435 ; // barrel (eta<0.8) pt 5-10 GeV      
+  m_MVAEleIDCuts[0][0][1] =  0.221846 ; // barrel (eta>0.8) pt 5-10 GeV      
+  m_MVAEleIDCuts[0][0][2] = -0.303263 ; // endcap pt 5-10 GeV                
+  m_MVAEleIDCuts[0][1][0] =  0.967083 ; // barrel (eta<0.8) pt above 10 GeV  
+  m_MVAEleIDCuts[0][1][1] =  0.929117 ; // barrel (eta>0.8) pt above 10 GeV  
+  m_MVAEleIDCuts[0][1][2] =  0.726311 ; // endcap pt above 10 GeV            
+
+  // 90%
+  m_MVAEleIDCuts[1][0][0] = -0.083313 ; // barrel (eta<0.8) pt 5-10 GeV     
+  m_MVAEleIDCuts[1][0][1] = -0.235222 ; // barrel (eta>0.8) pt 5-10 GeV     
+  m_MVAEleIDCuts[1][0][2] = -0.67099  ; // endcap pt 5-10 GeV               
+  m_MVAEleIDCuts[1][1][0] =  0.913286 ; // barrel (eta<0.8) pt above 10 GeV 
+  m_MVAEleIDCuts[1][1][1] =  0.805013 ; // barrel (eta>0.8) pt above 10 GeV 
+  m_MVAEleIDCuts[1][1][2] =  0.358969 ; // endcap pt above 10 GeV           
+}
 
 int OfflineProducerHelper::FindTriggerNumber(TString triggername){
   for(int it=0;it<triggerlist.size();it++){ 	
@@ -199,14 +169,14 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     // if same type of particle, highest pt one is the first
     if (pairType == MuHad)
     {
-        bool leg1 = muBaseline (tree, dau1index, 18., 2.1, 0.1, whatApply);
+        bool leg1 = muBaseline (tree, dau1index, 19., 2.1, 0.1, whatApply);
         bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, 3.0, whatApply);
         return (leg1 && leg2);
     }
 
     if (pairType == EHad)
     {
-        bool leg1 = eleBaseline (tree, dau1index, 23., 0.1, 0, whatApply);
+        bool leg1 = eleBaseline (tree, dau1index, 24., 0.1, 0, whatApply);
         bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, 3.0, whatApply);
         return (leg1 && leg2);
     }
@@ -226,9 +196,20 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
         return (leg1 && leg2);
     }
     
-    // e e, mu mu missing for the moment...
-    if (pairType == EE) return false;
-    if (pairType == MuMu) return false;
+    // e e, mu mu are still preliminary (not from baseline)
+    if (pairType == EE)
+    {
+      bool leg1 = eleBaseline (tree, dau1index, 25., 0.15, 0, whatApply);
+      bool leg2 = eleBaseline (tree, dau2index, 25., 0.15, 0, whatApply);
+      return (leg1 && leg2);      
+    }
+    
+    if (pairType == MuMu)
+    {
+      bool leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.1, whatApply);
+      bool leg2 = muBaseline (tree, dau2index, 23., 2.1, 0.1, whatApply);
+      return (leg1 && leg2);      
+    }
     
     return false;
         
@@ -392,7 +373,8 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
     if (againstMuWP == 0)      agMuVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("againstMuonLoose3"));
     else if (againstMuWP == 1) agMuVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("againstMuonTight3"));
 
-    bool dmfS = (tree->daughters_decayModeFindingOldDMs->at(iDau) == 1 || tree->daughters_decayModeFindingNewDMs->at(iDau) == 1) || byp_dmfS;
+    //bool dmfS = (tree->daughters_decayModeFindingOldDMs->at(iDau) == 1 || tree->daughters_decayModeFindingNewDMs->at(iDau) == 1) || byp_dmfS;
+    bool dmfS = (tree->daughters_decayModeFindingOldDMs->at(iDau) == 1) || byp_dmfS;
     bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
     bool agEleS = (agEleVal == 1) || byp_agEleS; 
     bool agMuS  = (agMuVal == 1) || byp_agMuS; 

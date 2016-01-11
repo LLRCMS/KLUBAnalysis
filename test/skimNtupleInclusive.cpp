@@ -16,8 +16,11 @@
 #include "PUReweight.h"
 #include "triggerReader.h"
 #include "bJetRegrVars.h"
+#include "bTagSF.h"
 //#include "../../HHKinFit/interface/HHKinFitMaster.h"
 #include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
+//#include "../../HTT-utilities/LepEffInterface/interface/ScaleFactor.h"
+#include "ScaleFactor.h"
 #include "ConfigParser.h"
 //#include "../../HHKinFit2/include/exceptions/HHInvMConstraintException.h"
 //#include "../../HHKinFit2/include/exceptions/HHEnergyRangeException.h"
@@ -212,7 +215,8 @@ int main (int argc, char** argv)
     {
       cerr << "missing input parameters" << endl ;
       cerr << "usage: " << argv[0]
-           << "inputFileNameList outputFileName crossSection isData configFile runHHKinFit" << endl ; 
+           << "inputFileNameList outputFileName crossSection isData configFile runHHKinFit" << endl
+           << "OPTIONAL: xsecScale(stitch) HTMax(stitch)" << endl ; 
       exit (1) ;
     }
   TString inputFile = argv[1] ;
@@ -238,6 +242,26 @@ int main (int argc, char** argv)
   if (opt7 == "1") runHHKinFit = true;
 
   cout << "Running HH in fit: " << runHHKinFit << " " << argv[6] << endl;
+
+  // optional parameters for stitching
+  float xsecScale = 1.0;
+  float HTMax = -999.0;
+  if (argc >= 8)
+  {
+    xsecScale = atof (argv[7]);
+    cout << " ** INFO: doing stitching, xsec scaled by: " << xsecScale << endl;
+    XS = XS*xsecScale;
+    
+    if (argc >= 9)
+    {
+      HTMax = atof(argv[8]);
+      cout << " ** INFO: in stitching, removing HT < " << HTMax << endl;
+    }
+  }
+
+  cout << " ** INFO: running on file list : " << inputFile << endl;
+  cout << " ** INFO: saving output in     : " << outputFile << endl;
+
 
   if (! (gConfigParser->init (config)))
     {
@@ -337,6 +361,21 @@ int main (int argc, char** argv)
   PUReweight reweight ;
 
   // ------------------------------
+  string bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFile") ;
+  string bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFile") ;
+  cout << "B Tag SF file: " << bTag_SFFile << endl;
+  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, ""); // third field unused, but could be needed to select efficiencies for different selection levels
+
+  // ------------------------------
+  ScaleFactor * myScaleFactor[2][2]; // [0: mu, 1: ele] [0: trigger, 1: ID]
+  for (int i = 0 ; i < 2; i++)
+    for (int j = 0; j < 2; j++)
+      myScaleFactor[i][j]= new ScaleFactor();
+ 
+  myScaleFactor[0][0] -> init_ScaleFactor("weights/data/Muon/Muon_SingleMu_eff.root");
+  myScaleFactor[0][1] -> init_ScaleFactor("weights/data/Muon/Muon_IdIso0p10_eff.root");
+  myScaleFactor[1][0] -> init_ScaleFactor("weights/data/Electron/Electron_SingleEle_eff.root");
+  myScaleFactor[1][1] -> init_ScaleFactor("weights/data/Electron/Electron_IdIso0p10_eff.root");
 
   // loop over events
   //for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
@@ -350,16 +389,22 @@ int main (int argc, char** argv)
       if (got == 0) break;
       //theBigTree.GetEntry (iEvent) ;
       
+      // directly reject events outside HT range in case of stitching of inclusive sample-- they should not count in weights
+      if (HTMax > 0)
+      {
+         if (theBigTree.lheHt > HTMax) continue;
+      }
+
       if (isMC)
-        {
-          totalEvents += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
-          counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
-        }
+      {
+        totalEvents += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
+        counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
+      }
       else 
-        {
-          totalEvents += 1 ;
-          counter.at (selID++) += 1 ;
-        }
+      {
+        totalEvents += 1 ;
+        counter.at (selID++) += 1 ;
+      }
       ++totalNoWeightsEventsNum ;
  
       if (theBigTree.indexDau1->size () == 0) continue ;
@@ -510,6 +555,8 @@ int main (int argc, char** argv)
           if (tlv_jet.Pt () < 20. /*GeV*/) continue ;  
           if (tlv_jet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
           if (tlv_jet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
+          if (TMath::Abs(tlv_jet.Eta()) > 2.4) continue;
+          if (tlv_jet.Pt() < 30) continue;
 
           jets_and_btag.push_back (std::pair <int, float> (
               iJet, theBigTree.bCSVscore->at (iJet)
@@ -533,8 +580,18 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
+      const int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
+      const int type2 = theBigTree.particleType->at (secondDaughterIndex) ;
+      const int pType = oph.getPairType (type1, type2) ;
+      theSmallTree.m_pairType = pType ;
+
       theSmallTree.m_PUReweight = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) : 1) ;      
       theSmallTree.m_MC_weight = (isMC ? theBigTree.aMCatNLOweight * XS : 1) ;
+      vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_btag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType) ;
+      theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
+      theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
+      theSmallTree.m_bTagweightT = (isMC ? bTagWeight.at(2) : 1.0) ;
+      theSmallTree.m_lheht = (isMC ? theBigTree.lheHt : 0) ;
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
       theSmallTree.m_RunNumber = theBigTree.RunNumber ;
       theSmallTree.m_npv = theBigTree.npv ;
@@ -548,9 +605,7 @@ int main (int argc, char** argv)
       theSmallTree.m_met_et = theBigTree.met ;
       theSmallTree.m_mT = theBigTree.mT_Dau1->at (chosenTauPair) ;
 
-      const int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
-      const int type2 = theBigTree.particleType->at (secondDaughterIndex) ;
-      theSmallTree.m_pairType = oph.getPairType (type1, type2) ;
+      
       
       theSmallTree.m_tauH_pt = tlv_tauH.Pt () ;
       theSmallTree.m_tauH_eta = tlv_tauH.Eta () ;
@@ -598,6 +653,19 @@ int main (int argc, char** argv)
       theSmallTree.m_dau2_e = theBigTree.daughters_e->at (secondDaughterIndex) ;
       theSmallTree.m_dau2_flav = theBigTree.daughters_charge->at (secondDaughterIndex) * 
                                  (theBigTree.particleType->at (secondDaughterIndex) + 1) ;
+
+      float trigSF = 1.0;
+      float idAndIsoSF = 1.0;
+      // particle 2 is always a TAU --  FIXME: not good for emu
+      if (type1 < 2 && isMC) // mu
+
+      {
+        trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
+        idAndIsoSF = myScaleFactor[type1][1]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
+      }
+
+      theSmallTree.m_trigSF     = (isMC ? trigSF : 1.0);
+      theSmallTree.m_IdAndIsoSF = (isMC ? idAndIsoSF : 1.0);
 
       // loop over leptons
       vector<pair<TLorentzVector, float> > dummyLeptCollection ;
@@ -720,12 +788,14 @@ int main (int argc, char** argv)
           theSmallTree.m_bjet1_phi = tlv_firstBjet.Phi () ;
           theSmallTree.m_bjet1_e = theBigTree.jets_e->at (eventJets.first) ;
           theSmallTree.m_bjet1_bID = theBigTree.bCSVscore->at (eventJets.first) ;
+          theSmallTree.m_bjet1_flav = theBigTree.jets_HadronFlavour->at (eventJets.first) ;
           
           theSmallTree.m_bjet2_pt  = tlv_secondBjet.Pt () ;
           theSmallTree.m_bjet2_eta = tlv_secondBjet.Eta () ;
           theSmallTree.m_bjet2_phi = tlv_secondBjet.Phi () ;
           theSmallTree.m_bjet2_e = theBigTree.jets_e->at (eventJets.second) ;
           theSmallTree.m_bjet2_bID = theBigTree.bCSVscore->at (eventJets.second) ;
+          theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (eventJets.second) ;
 
           if (isMC){
             int mcind = theBigTree.jets_genjetIndex->at(eventJets.first);
@@ -972,6 +1042,7 @@ int main (int argc, char** argv)
               theSmallTree.m_jets_phi.push_back (tlv_dummyJet.Phi ()) ;
               theSmallTree.m_jets_e.push_back (theBigTree.jets_e->at (iJet)) ;
               theSmallTree.m_jets_btag.push_back (theBigTree.bCSVscore->at (iJet)) ;
+              theSmallTree.m_jets_flav.push_back (theBigTree.jets_HadronFlavour->at (iJet)) ;
               theSmallTree.m_jets_jecUnc.push_back (theBigTree.jets_jecUnc->at (iJet)) ;
               ++theSmallTree.m_njets ;
             } // loop over jets

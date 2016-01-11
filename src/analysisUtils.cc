@@ -162,6 +162,11 @@ fillHistos (vector<sample> & samples,
       tree->SetBranchAddress ("MC_weight", &weight) ;
       float PUReweight ;
       tree->SetBranchAddress ("PUReweight", &PUReweight) ;
+      float IdAndIsoSF ;
+      tree->SetBranchAddress ("IdAndIsoSF", &IdAndIsoSF);
+      float trigSF ;
+      tree->SetBranchAddress ("trigSF", &trigSF);
+
       // signal scaling
       float scaling = 1. / samples.at (iSample).eff_den ;
       if (scale.size () > 0) scaling *= scale.at (iSample) ;
@@ -233,6 +238,8 @@ fillHistos (vector<sample> & samples,
       tree->SetBranchStatus ("*", 0);
       tree->SetBranchStatus ("MC_weight", 1) ;
       tree->SetBranchStatus ("PUReweight", 1) ;
+      tree->SetBranchStatus ("trigSF", 1) ;
+      tree->SetBranchStatus ("IdAndIsoSF", 1) ;
       TObjArray *branchList = tree->GetListOfBranches();
       int nBranch   = tree->GetNbranches();
       // used vars
@@ -294,19 +301,23 @@ fillHistos (vector<sample> & samples,
           tree->GetEntry (iEvent) ;
           //if (iEvent%10000 == 0) cout << iEvent << " / " << nEvts << endl;
 
-          float toAdd = PUReweight * weight * lumi * scaling ;
+          float toAdd = PUReweight * weight * lumi * scaling * trigSF * IdAndIsoSF ;
 
           if (isData) localCounter.counters.at (iSample).at (0) += 1. ;
           else        localCounter.counters.at (iSample).at (0) += toAdd ;
           
           for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
             {
-              if (! TTF[isel]->EvalInstance ()) continue ;
+              //if (! TTF[isel]->EvalInstance ()) continue ;
+              float thisWeight = TTF[isel]->EvalInstance () ;
+              if (!thisWeight) continue;
+              // NB : this weight contains weights that are inserted in the selection formula and are typical of this selection level
+              // e.g. b tag scalign factors that depend on the presence of a WP M/L/tight
 
               if (fOut != 0) outTrees.at(isel)->Fill();
 
               if (isData) localCounter.counters.at (iSample).at (isel+1) += 1. ;
-              else        localCounter.counters.at (iSample).at (isel+1) += toAdd ;
+              else        localCounter.counters.at (iSample).at (isel+1) += toAdd*thisWeight ;
               
               // fill 1D histos
               for (unsigned int iv = 0 ; iv < variablesList.size () ; ++iv)
@@ -331,9 +342,9 @@ fillHistos (vector<sample> & samples,
                   else        
                   {
                       if( (std::find( indexInt.begin(), indexInt.end(), (int)iv) != indexInt.end() ) )
-                      histo->Fill (addressInt[iv], toAdd) ; 
+                      histo->Fill (addressInt[iv], toAdd*thisWeight) ; 
                       else {
-                       histo->Fill (address[iv], toAdd);
+                       histo->Fill (address[iv], toAdd*thisWeight);
                       }
                   }
                 } //loop on 1Dvariables
@@ -355,7 +366,7 @@ fillHistos (vector<sample> & samples,
                   if ( ( std::find( indexInt.begin(), indexInt.end(), idx1) != indexInt.end() ) ) val1 = (float) addressInt[idx1];
                   if ( ( std::find( indexInt.begin(), indexInt.end(), idx1) != indexInt.end() ) ) val2 = (float) addressInt[idx2];
                   if (isData) histo->Fill (val1, val2) ;
-                  else histo->Fill (val1, val2, toAdd) ;
+                  else histo->Fill (val1, val2, toAdd*thisWeight) ;
                 } //loop on 2Dvariables                
             } //loop on selections
         } //loop on tree entries
@@ -476,16 +487,27 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
   canvas->Clear();
   canvas->cd();
   
-  THStack * sig_stack = sigPlots.makeStack ( varName, selName ) ;
-  THStack * bkg_stack = bkgPlots.makeStack ( varName, selName ) ;
-  THStack * DATA_stack = dataPlots.makeStack ( varName, selName ) ;
+  THStack * sig_stack =  (drawSignal ? sigPlots.makeStack ( varName, selName )  : 0);
+  THStack * bkg_stack =  (drawMC     ? bkgPlots.makeStack ( varName, selName )  : 0);
+  THStack * DATA_stack = (drawData   ? dataPlots.makeStack ( varName, selName ) : 0);
 
-  vector<float> extremes_bkg  = getExtremes (bkg_stack, LogY) ;
-  vector<float> extremes_sig  = getExtremes (sig_stack, LogY) ;
-  vector<float> extremes_DATA = getExtremes (DATA_stack, LogY) ;
-  allocatedStuff.push_back (sig_stack);
-  allocatedStuff.push_back (bkg_stack);
-  allocatedStuff.push_back (DATA_stack);
+  vector<float> extremes_bkg; 
+  vector<float> extremes_sig; 
+  vector<float> extremes_DATA;
+  
+  if (drawMC)     extremes_bkg = getExtremes (bkg_stack, LogY) ;
+  if (drawSignal) extremes_sig = getExtremes (sig_stack, LogY) ;
+  if (drawData)   extremes_DATA = getExtremes (DATA_stack, LogY) ;
+  
+  // fill all vectors with dummy values to avoid many other "if" everywhere
+  vector<float> vZeroes (4, 0.);
+  if (extremes_bkg.size() == 0) extremes_bkg.insert (extremes_bkg.begin(),    vZeroes.begin(), vZeroes.end());
+  if (extremes_sig.size() == 0) extremes_sig.insert (extremes_sig.begin(),    vZeroes.begin(), vZeroes.end());
+  if (extremes_DATA.size() == 0) extremes_DATA.insert (extremes_DATA.begin(), vZeroes.begin(), vZeroes.end());
+
+  if (drawSignal) allocatedStuff.push_back (sig_stack);
+  if (drawMC)     allocatedStuff.push_back (bkg_stack);
+  if (drawData)   allocatedStuff.push_back (DATA_stack);
 
   // ------------  compute boundaries for main plotpad ---------------
 
@@ -515,10 +537,27 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
   pad1->Draw();  // Draw the upper pad: pad1
   pad1->cd();    // pad1 becomes the current pad
 
-  float minx = extremes_bkg.at (0);
-  float maxx = extremes_bkg.at (2) ; // all plots have same range for a certain variable
-  float miny; 
-  float maxy; 
+  float minx = -9999.9; 
+  float maxx = 9999.9; 
+  
+  if (drawMC)
+  {
+    minx = extremes_bkg.at (0);
+    maxx = extremes_bkg.at (2) ; // all plots have same range for a certain variable
+  }
+  else if (drawSignal)
+  {
+    minx = extremes_sig.at (0);
+    maxx = extremes_sig.at (2) ; // all plots have same range for a certain variable
+  }
+  else if (drawData)
+  {
+    minx = extremes_DATA.at (0);
+    maxx = extremes_DATA.at (2) ; // all plots have same range for a certain variable
+  }
+
+  float miny = -9999.9; 
+  float maxy = 9999.9; 
 
   TH1F * shape_bkg = 0; // use only id doShapes
   THStack * hstack_bkg_norm = 0;

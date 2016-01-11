@@ -1,0 +1,53 @@
+// #include <iostream>
+
+// #include "TTree.h"
+// #include 
+
+
+// SAMPLE -- XS (LO)
+
+// /DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8 4895
+// /DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8 139,4
+// /DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8 42,75
+// /DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8 5,497
+// /DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8 2,21
+
+// --> /DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8 with HT < 100 = 4895 - 139,4 - 42,75 - 5,497 - 2,21 = 4705,143
+
+// which meand that the fractions of X section are:
+
+// /DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8 [HT < 100]   0,961214096
+// /DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8  0,028478039
+// /DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8  0,008733401
+// /DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8  0,001122983
+// /DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8  0,000451481
+
+
+
+
+// int main(int argc, char** argv)
+// {
+
+// }
+
+
+==========================================================================================
+
+
+// SAMPLE -- XS (LO)
+
+// /WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8               50690
+// /WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8   1345
+// /WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8   359,7
+// /WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8   48,91
+// /WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8   18,77
+
+// --> /WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8 with HT < 100 = 50690 - 1345 - 359,7 - 48,91 - 18,77 = 48936,39
+
+// which meand that the fractions of X section are:
+
+// /WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8               0.965405
+// /WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8   0.0265338
+// /WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8   0.00709607
+// /WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8   0.000964885
+// /WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8   0.00037029

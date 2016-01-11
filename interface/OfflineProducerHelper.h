@@ -48,6 +48,7 @@ class OfflineProducerHelper {
   OfflineProducerHelper();
   OfflineProducerHelper(TH1F* hCounter, TH1F *htauids);
   OfflineProducerHelper(TH1F* hCounter);
+  void SetEleMVAIDCuts();
 
   int FindTriggerNumber(TString triggername);
   bool IsTriggerFired(int triggerbit, int triggerNumber);

@@ -1,0 +1,27 @@
+dijethard =  pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30  && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0
+
+defaultOneBtagL = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && (bjet1_bID > 0.605 || bjet2_bID > 0.605)  && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0
+defaultOneBtagM = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && (bjet1_bID > 0.890 || bjet2_bID > 0.890) && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0
+
+defaultBtagMM = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.890 && bjet2_bID > 0.890 && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0
+defaultBtagLL = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID > 0.605 && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0
+
+defaultBtagLLMbbMtt = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID > 0.605 && bH_mass > 80 && bH_mass < 170 && tauH_mass > 30 && tauH_mass < 100 && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0
+defaultBtagMMMbbMtt = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.890 && bjet2_bID > 0.890 && bH_mass > 80 && bH_mass < 170 && tauH_mass > 30 && tauH_mass < 100 && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0
+
+defaultBtagMMBBTTCut = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.890 && bjet2_bID > 0.890 && bH_mass > 60 && bH_mass < 160 && tauH_SVFIT_mass > 80 && tauH_SVFIT_mass < 160  && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0
+defaultBtagLLBBTTCut = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID > 0.605 && bH_mass > 60 && bH_mass < 160 && tauH_SVFIT_mass > 80 && tauH_SVFIT_mass < 160  && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0
+
+defaultBtagMMMbbMttKine = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.89 && bjet2_bID > 0.89 && bH_mass > 80 && bH_mass < 170 && tauH_mass > 30 && tauH_mass < 100 && MuTauKine > -0.2 && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0
+defaultBtagLLMbbMttKine = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID > 0.605 && bH_mass > 80 && bH_mass < 170 && tauH_mass > 30 && tauH_mass < 100 && MuTauKine>-0.2 && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0
+
+defaultBtagMMBBTTCutKine = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.890 && bjet2_bID > 0.890 && bH_mass > 60 && bH_mass < 160 && tauH_SVFIT_mass > 80 && tauH_SVFIT_mass < 160 && MuTauKine > -0.2  && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0
+defaultBtagLLBBTTCutKine = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID > 0.605 && bH_mass > 60 && bH_mass < 160 && tauH_SVFIT_mass > 80 && tauH_SVFIT_mass < 160 && MuTauKine > -0.2  && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0
+
+#for the BDTKine  && dau1_iso < 0.1 && dau2_iso < 3.0
+#dijethard       = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && isOS == 1  && dau1_iso < 0.1 && dau2_iso < 3.0
+#dijethardiso    = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_iso < 0.1 && dau2_iso < 3.0 && bjet1_pt > 30 && bjet2_pt > 30 && isOS == 1  && dau1_iso < 0.1 && dau2_iso < 3.0
+
+#defaultBtagML   = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_iso < 0.1 && dau2_iso < 3.0 && bjet1_bID > 0.89 && bjet2_bID > 0.605  && dau1_iso < 0.1 && dau2_iso < 3.0
+#dijetOneBL      = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_iso < 0.1 && dau2_iso < 3.0 && (bjet1_bID > 0.605 || bjet2_bID > 0.605)  && dau1_iso < 0.1 && dau2_iso < 3.0
+#defaultBtagLL   = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_iso < 0.1 && dau2_iso < 3.0 && bjet1_bID > 0.605 && bjet2_bID > 0.605  && dau1_iso < 0.1 && dau2_iso < 3.0
