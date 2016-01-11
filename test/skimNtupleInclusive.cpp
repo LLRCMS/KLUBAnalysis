@@ -1001,6 +1001,17 @@ int main (int argc, char** argv)
           theSmallTree.m_ditau_deltaPhi = deltaPhi (tlv_firstLepton.Phi (), tlv_secondLepton.Phi ()) ;
           theSmallTree.m_dib_deltaPhi = deltaPhi (tlv_firstBjet.Phi (), tlv_secondBjet.Phi ()) ;
 
+          theSmallTree.m_ditau_deltaR = tlv_firstLepton.DeltaR(tlv_secondLepton) ;
+          theSmallTree.m_dib_deltaR = tlv_firstBjet.DeltaR(tlv_secondBjet) ;
+
+          vector <float> dRBTau;
+          dRBTau.push_back (tlv_firstLepton.DeltaR(tlv_firstBjet));
+          dRBTau.push_back (tlv_firstLepton.DeltaR(tlv_secondBjet));
+          dRBTau.push_back (tlv_secondLepton.DeltaR(tlv_firstBjet));
+          dRBTau.push_back (tlv_secondLepton.DeltaR(tlv_secondBjet));
+          theSmallTree.m_btau_deltaRmin = *std::min_element(dRBTau.begin(), dRBTau.end());
+          theSmallTree.m_btau_deltaRmax = *std::max_element(dRBTau.begin(), dRBTau.end());
+
           // loop over jets
           for (unsigned int iJet = 0 ; 
                (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;
