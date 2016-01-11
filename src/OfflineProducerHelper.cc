@@ -199,14 +199,14 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     // if same type of particle, highest pt one is the first
     if (pairType == MuHad)
     {
-        bool leg1 = muBaseline (tree, dau1index, 18., 2.1, 0.1, whatApply);
+        bool leg1 = muBaseline (tree, dau1index, 19., 2.1, 0.1, whatApply);
         bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, 3.0, whatApply);
         return (leg1 && leg2);
     }
 
     if (pairType == EHad)
     {
-        bool leg1 = eleBaseline (tree, dau1index, 23., 0.1, 0, whatApply);
+        bool leg1 = eleBaseline (tree, dau1index, 24., 0.1, 0, whatApply);
         bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, 3.0, whatApply);
         return (leg1 && leg2);
     }
@@ -226,9 +226,20 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
         return (leg1 && leg2);
     }
     
-    // e e, mu mu missing for the moment...
-    if (pairType == EE) return false;
-    if (pairType == MuMu) return false;
+    // e e, mu mu are still preliminary (not from baseline)
+    if (pairType == EE)
+    {
+      bool leg1 = eleBaseline (tree, dau1index, 25., 0.15, 0, whatApply);
+      bool leg2 = eleBaseline (tree, dau2index, 25., 0.15, 0, whatApply);
+      return (leg1 && leg2);      
+    }
+    
+    if (pairType == MuMu)
+    {
+      bool leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.1, whatApply);
+      bool leg2 = muBaseline (tree, dau2index, 23., 2.1, 0.1, whatApply);
+      return (leg1 && leg2);      
+    }
     
     return false;
         
@@ -392,7 +403,8 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
     if (againstMuWP == 0)      agMuVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("againstMuonLoose3"));
     else if (againstMuWP == 1) agMuVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("againstMuonTight3"));
 
-    bool dmfS = (tree->daughters_decayModeFindingOldDMs->at(iDau) == 1 || tree->daughters_decayModeFindingNewDMs->at(iDau) == 1) || byp_dmfS;
+    //bool dmfS = (tree->daughters_decayModeFindingOldDMs->at(iDau) == 1 || tree->daughters_decayModeFindingNewDMs->at(iDau) == 1) || byp_dmfS;
+    bool dmfS = (tree->daughters_decayModeFindingOldDMs->at(iDau) == 1) || byp_dmfS;
     bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
     bool agEleS = (agEleVal == 1) || byp_agEleS; 
     bool agMuS  = (agMuVal == 1) || byp_agMuS; 
