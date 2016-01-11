@@ -7,16 +7,26 @@ from subprocess import Popen, PIPE
 #tag  = "Data25ns_SVFit_6Ott2015_resub"
 #tag = "Data25ns_noSVFit_npvFix_30Ott2015_newJson_trigFix2"
 #tag = "MC_NoSVFit_MiniAODV2_13Nov2015"
-tag = "Data25ns_noSVFit_lumiDiff13Nov2015"
+#tag = "Data25ns_noSVFit_lumiDiff13Nov2015"
+#tag = "Data_SilverJson_SVfit"
+#tag = "MC_SilverJson_SVfit"
+#tag = "Data_SVFit_MiniAODV2_22Nov2015_SVFix"
+#tag = "MC_SVFit_MiniAODV2_22Nov2015_EssentialSamples_SVFix"
+
+#tag = "Data_SilverJson_SVfit_31Dic2015"
+tag = "MC_SilverJson_SVfit_31Dic2015"
 
 #outFolder = "../inputFiles/28Ago2015/" # write / at the end
 #outFolder = "../inputFiles/13Ott2015/25ns/"
-
 # make list of EminiAOD from storage as publication has problems
 #outFolder = "/home/llr/cms/cadamuro/HiggsTauTauFramework/CMSSW_7_4_7/src/LLRHiggsTauTau/NtupleProducer/test/inputFiles/13Ott2015/25ns/"
 #outFolder = "../inputFiles/DataRunDTrigFix4Nov/"
 #outFolder = "../inputFiles/miniAODv2/"
-outFolder = "../inputFiles/Data14NovLumiDiff/"
+#outFolder = "../inputFiles/Data14NovLumiDiff/"
+#outFolder  = "../inputFiles/miniAODv2VSfitForTalk/"
+#outFolder = "/home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/miniAODv2_silverJson/"
+#outFolder = "/home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/miniAODv2_silverJSON_TEST/"
+outFolder = "/home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/miniAODv2_silverJSON_5Gen2016/"
 
 areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
                                  # if false: only add the polgrid server to run the skim and submit on root
@@ -48,17 +58,29 @@ def saveToFile (lista, filename, areEnrichedMiniAOD):
 
 # ====================================================================
 
+useOnly = [] #empty list to do list fot all the folders
+
+print useOnly
+
+
 dpmhome = "/dpm/in2p3.fr/home/cms/trivcat"
 partialPath = "/store/user/lcadamur/HHNtuples/" #folder contenente la produzione
+#partialPath = "/store/user/davignon/EnrichedMiniAOD/"
+
 path = dpmhome + partialPath + tag
 
 command = "/usr/bin/rfdir %s | awk '{print $9}'" % path
+#print command
 pipe = Popen(command, shell=True, stdout=PIPE)
 
 allLists = {} #dictionary
 
 for line in pipe.stdout:
     
+    #print line
+    if useOnly:
+        if not (line.strip()) in useOnly:
+            continue
     samplesPath = (path + "/" + line).strip()    
     sampleName = line
     allLists[sampleName] = []
