@@ -1106,6 +1106,7 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 
       if(i%10000==0) cout<<"Entry #"<<i<<endl;
 
+
       //loop on truth particles
       gen_ntau = 0;
       gen_ntauh = 0;
@@ -2061,30 +2062,34 @@ void ProduceSyncNtuple(Bool_t DataTrue_MCFalse, TString InputFileName, TString O
 		  if(fabs(jet.Eta())>3.0 && fabs(jet.Eta())<5.0) PUJetIDCut = -0.45;
 		}
 	  
+
+	      Bool_t isBJet = kFALSE ;
+	      if(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4 && jet.Pt()>20.) isBJet = kTRUE ;
+
+	      // cout<<"jet #"<<ijet<<", pT = "<<jet.Pt()<<", eta = "<<jet.Eta()<<", phi = "<<jet.Phi()<<", BJET? "<<isBJet<<endl;
+	  
+	      if(jet.Pt()>30. && !isBJet) Njets30++; 
+	      if(jet.Pt()>20. && !isBJet) Njets20++; 
+
 	      // cout<<"PFjetID->at(ijet) = "<<PFjetID->at(ijet)<<endl;
 
 	      // if(IndexJet1>=0 && !(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4) && jets_PUJetID->at(ijet)>PUJetIDCut && PFjetID->at(ijet)>1)
-	      if(jet.Pt()>30. && IndexJet1>=0 && !(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4) && jets_PUJetID->at(ijet)>PUJetIDCut && PFjetID->at(ijet)>1)
+	      if(jet.Pt()>30. && IndexJet1>=0 && !(IndexJet2>=0) && !(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4) && jets_PUJetID->at(ijet)>PUJetIDCut && PFjetID->at(ijet)>1)
 		{
 		  IndexJet2 = ijet;
-		  break;
+		  continue;
 		}
 	      if(jet.Pt()>30. && IndexJet1<0 && !(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4) && jets_PUJetID->at(ijet)>PUJetIDCut && PFjetID->at(ijet)>1)
 		// if(IndexJet1<0 && !(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4) && jets_PUJetID->at(ijet)>PUJetIDCut && PFjetID->at(ijet)>1)
 		{
 		  IndexJet1 = ijet ;
 		}
-
-	      Bool_t isBJet = kFALSE ;
-	      if(bCSVscore->at(ijet)>0.679 && fabs(jet.Eta())<2.4 && jet.Pt()>20.) isBJet = kTRUE ;
-	  
-	      if(jet.Pt()>30. && !isBJet) Njets30++; 
-	      if(jet.Pt()>20. && !isBJet) Njets20++; 
-	  
 	    }
 
 	  for(UInt_t ijet = 0 ; ijet < jets_e->size()  ; ++ijet)
 	    {
+	      //loop on jets
+
 	      //build jet
 	      TLorentzVector jet ;
 	      jet.SetPxPyPzE(jets_px->at(ijet),jets_py->at(ijet),jets_pz->at(ijet),jets_e->at(ijet));
