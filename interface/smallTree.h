@@ -134,6 +134,10 @@ struct smallTree
       m_bHMet_deltaPhi = -1. ;
       m_ditau_deltaPhi = -1. ;
       m_dib_deltaPhi = -1. ;
+      m_ditau_deltaR = -1. ;
+      m_dib_deltaR = -1. ;
+      m_btau_deltaRmin = -1. ;
+      m_btau_deltaRmax = -1. ;
 
       m_HHkinsvfit_bHmass =-1;
       m_HHkinsvfit_pt =-1;
@@ -289,6 +293,11 @@ struct smallTree
 //      m_smallT->Branch ("", &m_, "/F") ;
       m_smallT->Branch ("ditau_deltaPhi", &m_ditau_deltaPhi, "ditau_deltaPhi/F") ;
       m_smallT->Branch ("dib_deltaPhi", &m_dib_deltaPhi, "dib_deltaPhi/F") ;
+      m_smallT->Branch ("ditau_deltaR",   &m_ditau_deltaR,    "ditau_deltaR/F") ;
+      m_smallT->Branch ("dib_deltaR",     &m_dib_deltaR,      "dib_deltaR/F") ;
+      m_smallT->Branch ("btau_deltaRmin", &m_btau_deltaRmin,  "btau_deltaRmin/F") ;
+      m_smallT->Branch ("btau_deltaRmax", &m_btau_deltaRmax,  "btau_deltaRmax/F") ;
+
       
       m_smallT->Branch ("jets_pt", &m_jets_pt) ;
       m_smallT->Branch ("jets_eta", &m_jets_eta) ;
@@ -466,6 +475,11 @@ struct smallTree
   Float_t m_bHMet_deltaPhi ;
   Float_t m_ditau_deltaPhi ;
   Float_t m_dib_deltaPhi ;
+  Float_t m_ditau_deltaR   ;
+  Float_t m_dib_deltaR     ;
+  Float_t m_btau_deltaRmin ;
+  Float_t m_btau_deltaRmax ;
+
 
   // additional jets
   std::vector<Float_t> m_jets_pt ;
