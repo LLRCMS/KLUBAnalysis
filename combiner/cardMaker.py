@@ -42,9 +42,11 @@ class cardMaker:
     def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir, theInputs):
         
         dname=""
-        theDataSample = "DsingleMuPromptReco" #"DsingleMuPromptReco"
+        theDataSample = "DsingleMu" #"DsingleMuPromptReco"
         if(theChannel) == 3:
-            theDataSample = "DsingleTauPromptReco" #"DsingleTauPromptReco"
+            theDataSample = "DsingleTau" #"DsingleTauPromptReco"
+        if(theChannel) == 1:
+            theDataSample = "DsingleEle" #"DsingleTauPromptReco"
 
         #theOutLambda = theHHLambda#str(int(theHHLambda))
         #if abs(theHHLambda - int(theHHLambda) )>0.01 : 
@@ -243,14 +245,14 @@ class cardMaker:
                 CorrtemplateName = "UP"+theInputs.additionalName[index]
                 print CorrtemplateName
                 templateUp = inputFile.Get(CorrtemplateName).Clone()
-                rlxshapeUp = ROOT.RooDataHist("qcd_RlxToTightUp","qcd_RlxToTightUp",ral_variableList,templateUp)
-                rlxshapepdfUp  = ROOT.RooHistPdf(PdfName+"_qcd_RlxToTightUp",PdfName+"_qcd_RlxToTightUp",ras_variableSet,rlxshapeUp)
+                rlxshapeUp = ROOT.RooDataHist("qcd_dhRlxToTight_{0}Up".format(theChannel),"qcd_dhRlxToTight_{0}Up".format(theChannel),ral_variableList,templateUp)
+                rlxshapepdfUp  = ROOT.RooHistPdf(PdfName+"_qcd_RlxToTight_{0}Up".format(theChannel),PdfName+"_qcd_RlxToTight_{0}Up".format(theChannel),ras_variableSet,rlxshapeUp)
 
                 CorrtemplateName = "DOWN"+theInputs.additionalName[index]
                 print CorrtemplateName
                 templateDown = inputFile.Get(CorrtemplateName)
-                rlxshapeDown = ROOT.RooDataHist("qcd_RlxToTightDown","qcd_RlxToTightDown",ral_variableList,templateDown)
-                rlxshapepdfDown  = ROOT.RooHistPdf(PdfName+"_qcd_RlxToTightDown",PdfName+"_qcd_RlxToTightDown",ras_variableSet,rlxshapeDown)
+                rlxshapeDown = ROOT.RooDataHist("qcd_dhRlxToTight_{0}Down".format(theChannel),"qcd_dhRlxToTight_{0}Down".format(theChannel),ral_variableList,templateDown)
+                rlxshapepdfDown  = ROOT.RooHistPdf(PdfName+"_qcd_RlxToTight_{0}Down".format(theChannel),PdfName+"_qcd_RlxToTight_{0}Down".format(theChannel),ras_variableSet,rlxshapeDown)
 
                 getattr(w,'import')(rlxshapepdfUp,ROOT.RooFit.RecycleConflictNodes())
                 getattr(w,'import')(rlxshapepdfDown,ROOT.RooFit.RecycleConflictNodes())
@@ -259,6 +261,7 @@ class cardMaker:
         #RooDataSet ds("ds","ds",ras_variableSet,Import(*tree)) ;
         TemplateName = "OS_DATA_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,theDataSample)
         templateObs = inputFile.Get(TemplateName)
+        #templateObs.Add(inputFile.Get("OS_DATA_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,chanst)))
         print TemplateName
         #if templateObs.Integral() <=0: #protection for low stat
         #    data_obs = rhpB[0].generate(ras_variableSet,1000)
@@ -367,7 +370,7 @@ class cardMaker:
             for iqcd in range(len(qcdbinsysts)) :
                 syst.writeOneLine("QCD",qcdbinsysts[iqcd])
             #add QCD rlx to tight shape unc
-            syst.writeOneLine("QCD","qcd_RlxToTight shape ")
+            syst.writeOneLine("QCD","qcd_RlxToTight_{0} shape ".format(theChannel))
             #add stat uncertainty (sqrt(N)) => is this needed?? In any case it can't be added as gamma (lnU instead?)
             syst.writeOneLine("QCD", "qcd_SR_norm_{0} lnN ".format(theChannel),1+1.0/TMath.Sqrt(inputFile.Get(templateName).Integral()))
             #add  CR->SR uncertainty (gamma*alhpa)

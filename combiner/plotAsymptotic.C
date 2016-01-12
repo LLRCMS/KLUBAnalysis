@@ -21,14 +21,14 @@ void getLimits(TFile *f, std::vector<double> &v_mean,std::vector<double> &v_68l,
 //TString inputDir = "cards"; //"higgsCombineTest.Asymptotic.mH125.7.root";
 
 //custom inputs
-TString inputfolder="cards_combined_18Nov";
-TString var= "";//HHKin_mass";//"mT"; //"HH_mass";// for tautau
-TString sel="";//"defaultBtagLLMbbMttNoIso";//"dijetOneBLKineMttNoIso"; //"dijethardiso";// for tautau
-TString plotName = "UpperLimit_combined_18nov";
-TString channel="hh #rightarrow bb #tau_{#mu} #tau_{H} +  bb #tau_{H} #tau_{H}"; //channel name in plot
+TString inputfolder="cards_TauTau_09Dec_ter";//"cards_combined_18Nov";
+TString var= "HHKin_mass";//"mT"; //"HH_mass";// for tautau
+TString sel="defaultBtagLLNoIsoBBTTCut";//"defaultBtagLLMbbMttNoIso";//"dijetOneBLKineMttNoIso"; //"dijethardiso";// for tautau
+TString plotName = "UpperLimit_09Dec_tautau_ter";
+TString channel="hh #rightarrow bb #tau_{H} #tau_{H}";// + bb #tau_{e} #tau_{H} + bb #tau_{H} #tau_{H}"; //channel name in plot
 
 //Plotting features
-bool addATLAS=true;
+bool addATLAS=false;
 const bool addObsLimit = false;
 
 //Default inputs
@@ -45,7 +45,7 @@ Double_t xHigh = 21.0;
 Double_t yLow = 1;
 const float xfac = 34.3*0.073;
 Double_t yHigh = 100000.;
-TString xTitle = "#Lambda [GeV]";
+TString xTitle = "k_{#lambda}=#lambda_{hhh}/#lambda_{hhh}^{SM} [GeV]";
 TString yTitle = "95% CL limit on #sigma #times BR [fb]";
 const bool logy = true;
 const bool logx = false;
@@ -56,7 +56,7 @@ const bool isTiny = false;
 int canvasX = 900;
 int canvasY = 700;
 double sqrts = 13.0;
-double lumin = 1.80;
+double lumin = 2.00;
 bool onepointta=true;
 // ----------------------- //
 
@@ -81,7 +81,7 @@ void plotAsymptotic() {
   float lim[nLambdas], limobs[nLambdas],lim68l[nLambdas],lim68h[nLambdas],lim95l[nLambdas],lim95h[nLambdas];
   for(int ifile=0;ifile<nLambdas;ifile++){
    TString filename;
-   filename.Form("%s/%s%s%s/higgsCombine%s_forLim.Asymptotic.mH125.root",inputfolder.Data(),lnames[ifile],sel.Data(),var.Data(),lnames[ifile]);
+   filename.Form("%s/%s%s%s/higgsCombine%s_forLim.Asymptotic.mH125.root",inputfolder.Data(),lnames[ifile].c_str(),sel.Data(),var.Data(),lnames[ifile].c_str());
    TFile *inFile = TFile::Open(filename.Data());
    getLimits(inFile,Val_mean,Val_68l,Val_68h,Val_95l,Val_95h,Val_obs,onepointta);
    //cout<<"got"<<endl;

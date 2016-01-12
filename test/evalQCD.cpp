@@ -756,12 +756,10 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
       float integral=h->Integral();
       for(int i =0;i<dl->GetNbinsX();i++){
         for(int j =0;j<dl->GetNbinsY();j++){
-          h->SetBinContent(i+1,j+1,h->GetBinContent(i+1,j+1)*fit->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
-          //h->SetBinError(i+1,j+1,h->GetBinError(i+1,j+1)*fit->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
-          hu->SetBinContent(i+1,j+1,h->GetBinContent(i+1,j+1)*fitup->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
-          //hu->SetBinError(i+1,j+1,h->GetBinError(i+1,j+1)*fitup->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
-          hd->SetBinContent(i+1,j+1,h->GetBinContent(i+1,j+1)*fitdo->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
-          //hd->SetBinError(i+1,j+1,h->GetBinError(i+1,j+1)*fitdo->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
+          //FIXME: SEEMS that the 2D fit doesn't work properly
+          h->SetBinContent(i+1,j+1,h->GetBinContent(i+1,j+1));//*fit->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
+          hu->SetBinContent(i+1,j+1,h->GetBinContent(i+1,j+1));//*fitup->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
+          hd->SetBinContent(i+1,j+1,h->GetBinContent(i+1,j+1));//*fitdo->Eval(h->GetXaxis()->GetBinCenter(i+1),h->GetYaxis()->GetBinCenter(j+1)));
         }
       }
       h-> Scale(integral/h->Integral());
