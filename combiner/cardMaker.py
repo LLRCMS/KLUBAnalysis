@@ -358,11 +358,14 @@ class cardMaker:
         file.write("------------\n")
         syst = systReader("../config/systematics.cfg",[theHHLambda],theInputs.background,file)
         #syst = systReader("../config/systematics_test.cfg",['Lambda{0}'.format(theOutLambda)],theInputs.background) 
-        #if(theChannel == self.ID_ch_tautau ): 
-        #    systReader.addSystFile("../config_systematics_tautau.cfg")
-        #elif(theChannel == self.ID_ch_mutau ): 
-        #    systReader.addSystFile("../config_systematics_mutau.cfg")
+        if(theChannel == self.ID_ch_tautau ): 
+            systChannel = systReader("../config/systematics_tautau.cfg",[theHHLambda],theInputs.background,file)
+        elif(theChannel == self.ID_ch_mutau ): 
+            systChannel = systReader("../config/systematics_mutau.cfg",[theHHLambda],theInputs.background,file)
+        elif(theChannel == self.ID_ch_etau ): 
+            systChannel = systReader("../config/systematics_etau.cfg",[theHHLambda],theInputs.background,file)
         syst.writeSystematics()
+        systChannel.writeSystematics()
         index = theInputs.additional.index("QCD")
         templateName = theInputs.additionalName[index]
         if inputFile.Get(templateName).Integral() > 0:        
