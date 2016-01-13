@@ -175,7 +175,7 @@ int main (int argc, char** argv)
   // adding a BDT
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   
-  int    NTrees         = 400 ; 
+  int    NTrees         = 200 ; 
   bool   optimizeMethod = false ; 
   string BoostType      = "AdaBoost" ; 
   float  AdaBoostBeta   = 0.5 ; 
@@ -193,15 +193,15 @@ int main (int argc, char** argv)
   // adding a BDTG
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  float GradBaggingFraction = 0.5 ; 
+  float GradBaggingFraction = 0.7 ; 
   NTrees              = 300 ; 
   optimizeMethod      = false ; 
   PruneMethod         = "NoPruning" ; 
   PruneStrength       = 5 ; 
-  MaxDepth            = 5 ; 
+  MaxDepth            = 3 ; 
   SeparationType      = "GiniIndex" ;
 
-  Option = Form ("CreateMVAPdfs:NTrees=%d:BoostType=Grad:!UseBaggedGrad:GradBaggingFraction=%f:PruneMethod=%s:PruneStrength=%d:MaxDepth=%d:SeparationType=%s:Shrinkage=0.1:MaxDepth=11:UseYesNoLeaf=F:nCuts=2000",
+  Option = Form ("CreateMVAPdfs:NTrees=%d:BoostType=Grad:!UseBaggedGrad:GradBaggingFraction=%f:PruneMethod=%s:PruneStrength=%d:MaxDepth=%d:SeparationType=%s:Shrinkage=0.1:UseYesNoLeaf=F:nCuts=2000",
       NTrees, GradBaggingFraction, PruneMethod.c_str (), PruneStrength, MaxDepth, SeparationType.c_str ()) ;
 
   string BDTGname = string ("BDTG_") + MVAname ;
