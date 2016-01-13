@@ -29,11 +29,9 @@ set_plot_style()
     gStyle->SetNumberContours(NCont);
 }
 
-
-void Make2DStackProfile()
+void MakeStackProfile(bool doSig = false)
 {
 
-    bool doSig = true;
     TString selection = "defaultBtagLLNoIso";
     //TString selection = "defaultBtagLLNoIso";
     //TString selection = "baseline";
@@ -43,11 +41,11 @@ void Make2DStackProfile()
     //TFile* fIn = new TFile ("/Users/Luca/Desktop/Radion300/mutau/evalQCD_Plots_miniAODv2_talk_2dtest/canvases2D/2Dplots.root"); // mu tau
     //TFile* fIn = new TFile ("/Users/Luca/Desktop/Radion300/mutau/evalQCD_Plots_miniAODv2_Plots_25_11_MassCut_talk27/canvases2D/2Dplots.root"); // tau tau
     //TFile* fIn = new TFile ("/Users/Luca/Desktop/Radion300/tautau/evalQCD_Plots_miniAODv2_Plots_25_11_MassCut_talk27/canvases2D/2Dplots.root"); // tau tau
-   TFile* fIn = TFile::Open ("analysis_TauTau_resonant/evalQCD_Plots_30Nov_Radion300_2d/canvases2D/2Dplots.root");
+   TFile* fIn = TFile::Open ("../analysis_MuTau/evalQCD_Plots_08Dec_FullStat/canvases2D/2Dplots.root");
    THStack* sSig  = (THStack*) fIn->Get(Form("OS_sig_%s_OS_%s", variable.Data(), selection.Data()));
     THStack* sBkg  = (THStack*) fIn->Get(Form("OS_bkg_%s_OS_%s", variable.Data(), selection.Data()));
     THStack* sDATA = (THStack*) fIn->Get(Form("OS_DATA_%s_OS_%s", variable.Data(), selection.Data()));
-cout<<Form("OS_bkg_%s_OS_%s", variable.Data(), selection.Data())<<endl;
+    cout<<Form("OS_bkg_%s_OS_%s", variable.Data(), selection.Data())<<endl;
     TH2F* hSig  = (TH2F*) sSig  ->GetStack()->Last();
     TH2F* hBkg  = (TH2F*) sBkg  ->GetStack()->Last();
     TH2F* hDATA = (TH2F*) sDATA ->GetStack()->Last();
@@ -63,8 +61,9 @@ cout<<Form("OS_bkg_%s_OS_%s", variable.Data(), selection.Data())<<endl;
     cout << "bkg yield: " << hBkg->Integral() << endl;
     cout << "data yield: " << hDATA->Integral() << endl;
     cout << "sig yield: " << hSig->Integral() << endl;
-
-    TCanvas* c1 = new TCanvas ("C1", "C1", 600, 600);
+    TString name = "c1";
+    if(doSig)name.Append("sig");
+    TCanvas* c1 = new TCanvas (name.Data(),name.Data(), 600, 600);
     gStyle->SetOptStat(0);
     
     //gStyle->SetPalette(56); // 53: scuro --> chiaro ; 56 : chiaro --> scuro
@@ -100,6 +99,13 @@ cout<<Form("OS_bkg_%s_OS_%s", variable.Data(), selection.Data())<<endl;
     hDATA->Draw("scat=1.0 same");
 
     //c1->SaveAs ("muTau_bkg.pdf", "pdf");
-    if (doSig) c1->SaveAs ("tauTau_sig.pdf", "pdf");
-    else c1->SaveAs ("tauTau_bkg.pdf", "pdf");
+    if (doSig) c1->SaveAs ("muTau_sig.pdf", "pdf");
+    else c1->SaveAs ("muTau_bkg.pdf", "pdf");
 }
+
+void Make2DStackProfile(){
+    MakeStackProfile(false);
+    MakeStackProfile(true);
+
+}
+
