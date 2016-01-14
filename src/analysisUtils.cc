@@ -151,11 +151,52 @@ fillHistos (vector<sample> & samples,
       
       TTree *tree = samples.at (iSample).sampleTree ;
       TTreeFormula * TTF[selections.size ()] ;
+      
+      // specifies the type of bTagreweight weight in the selection. 0: no weight; 1: bTagL, 2: bTagM, 3: bTagT
+      vector<int> selBTagWeight (selections.size());
       for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
         {
           TString fname ; fname.Form ("ttf%d",isel) ;
-          TTF[isel] = new TTreeFormula (fname.Data (), selections.at (isel).second, tree) ;
-        //TTF[isel] -> Compile();
+
+          /*
+          // parse TCut
+          string cutNameAndWeight = selections.at (isel).second.GetTitle();
+          std::regex word_regex("(\\S+)");
+
+          TString cutNameAndWeight = selections.at (isel).second.GetTitle();
+          TObjArray * tx = cutNameAndWeight.Tokenize(";");
+          TCut thisCut (((TObjString *)(tx->At(0)))->String());
+          cout << "INPUT:  " << selections.at (isel).second << endl;
+          cout << "CUT  :  " << thisCut << endl;
+          TRegexp regexp (thisCut.Data());
+
+
+          int thisWeight = 0;          
+          if (tx->GetEntries() > 1)
+          {
+            TString bufWeight = (((TObjString *)(tx->At(0)))->String());
+            if (bufWeight.Contains("bTagweightL")) thisWeight = 1;
+            else if (bufWeight.Contains("bTagweightM")) thisWeight = 2;
+            else if (bufWeight.Contains("bTagweightT")) thisWeight = 3;
+
+            cout << "weight: " << bufWeight << " idx: " <<  thisWeight << endl;
+            cout << endl;
+
+          }
+          selBTagWeight.at(isel) = thisWeight;
+          */
+
+          //TTF[isel] = new TTreeFormula (fname.Data (), selections.at (isel).second, tree) ;
+
+          TString thisCut = selections.at (isel).second.GetTitle();
+          int thisWeight = 0;          
+          if (thisCut.Contains("bTagweightL")) thisWeight = 1;
+          else if (thisCut.Contains("bTagweightM")) thisWeight = 2;
+          else if (thisCut.Contains("bTagweightT")) thisWeight = 3;
+          
+          selBTagWeight.at(isel) = thisWeight;
+
+          TTF[isel] = new TTreeFormula (fname.Data (), selections.at (isel).second, tree) ;        
         }
   
       float weight ;
@@ -166,6 +207,10 @@ fillHistos (vector<sample> & samples,
       tree->SetBranchAddress ("IdAndIsoSF", &IdAndIsoSF);
       float trigSF ;
       tree->SetBranchAddress ("trigSF", &trigSF);
+      float bTagweightL, bTagweightM, bTagweightT;
+      tree->SetBranchAddress ("bTagweightL", &bTagweightL);
+      tree->SetBranchAddress ("bTagweightM", &bTagweightM);
+      tree->SetBranchAddress ("bTagweightT", &bTagweightT);
 
       // signal scaling
       float scaling = 1. / samples.at (iSample).eff_den ;
@@ -240,6 +285,9 @@ fillHistos (vector<sample> & samples,
       tree->SetBranchStatus ("PUReweight", 1) ;
       tree->SetBranchStatus ("trigSF", 1) ;
       tree->SetBranchStatus ("IdAndIsoSF", 1) ;
+      tree->SetBranchStatus ("bTagweightL", 1) ;
+      tree->SetBranchStatus ("bTagweightM", 1) ;
+      tree->SetBranchStatus ("bTagweightT", 1) ;
       TObjArray *branchList = tree->GetListOfBranches();
       int nBranch   = tree->GetNbranches();
       // used vars
@@ -308,11 +356,16 @@ fillHistos (vector<sample> & samples,
           
           for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
             {
-              //if (! TTF[isel]->EvalInstance ()) continue ;
-              float thisWeight = TTF[isel]->EvalInstance () ;
-              if (!thisWeight) continue;
+              if (! TTF[isel]->EvalInstance ()) continue ;
+              //float thisWeight = TTF[isel]->EvalInstance () ;
+              //if (!thisWeight) continue;
               // NB : this weight contains weights that are inserted in the selection formula and are typical of this selection level
               // e.g. b tag scalign factors that depend on the presence of a WP M/L/tight
+
+              float thisWeight = 1.0;
+              if (selBTagWeight.at(isel) == 1) thisWeight = bTagweightL;
+              else if (selBTagWeight.at(isel) == 2) thisWeight = bTagweightM;
+              else if (selBTagWeight.at(isel) == 3) thisWeight = bTagweightT;
 
               if (fOut != 0) outTrees.at(isel)->Fill();
 
