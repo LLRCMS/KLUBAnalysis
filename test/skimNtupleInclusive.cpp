@@ -279,13 +279,6 @@ int main (int argc, char** argv)
   string leptonSelectionFlag = gConfigParser->readStringOption ("parameters::lepSelections") ;
   int maxNjetsSaved          = gConfigParser->readIntOption    ("parameters::maxNjetsSaved") ;
 
-  string TMVAweightsTauTau   = gConfigParser->readStringOption ("TMVA::weightsTauTau");
-  string TMVAweightsMuTau    = gConfigParser->readStringOption ("TMVA::weightsMuTau");
-  string TMVAweightsETau    = gConfigParser->readStringOption ("TMVA::weightsETau");
-  bool TMVAspectatorsIn      = gConfigParser->readBoolOption   ("TMVA::spectatorsPresent");
-  vector<string> TMVAspectators = gConfigParser->readStringListOption   ("TMVA::spectators");
-  vector<string> TMVAvariables  = gConfigParser->readStringListOption   ("TMVA::variables");
-
   vector<string> trigMuTau   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuTau")  : gConfigParser->readStringListOption ("triggersData::MuTau")) ;
   vector<string> trigTauTau   = (isMC ? gConfigParser->readStringListOption ("triggersMC::TauTau") : gConfigParser->readStringListOption ("triggersData::TauTau")) ;
   vector<string> trigEleTau   = (isMC ? gConfigParser->readStringListOption ("triggersMC::EleTau") : gConfigParser->readStringListOption ("triggersData::EleTau")) ;
@@ -1097,6 +1090,22 @@ int main (int argc, char** argv)
   
   if (computeMVA)
   {  
+    bool doMuTau  = gConfigParser->isDefined("TMVA::weightsMuTau");
+    bool doETau   = gConfigParser->isDefined("TMVA::weightsETau");
+    bool doTauTau = gConfigParser->isDefined("TMVA::weightsTauTau");
+
+    string TMVAweightsTauTau  = "";
+    string TMVAweightsMuTau   = "";
+    string TMVAweightsETau    = "";
+    
+    if (doMuTau)  TMVAweightsMuTau  = gConfigParser->readStringOption ("TMVA::weightsMuTau");
+    if (doETau)   TMVAweightsETau   = gConfigParser->readStringOption ("TMVA::weightsETau");
+    if (doTauTau) TMVAweightsTauTau = gConfigParser->readStringOption ("TMVA::weightsTauTau");
+
+    bool TMVAspectatorsIn      = gConfigParser->readBoolOption   ("TMVA::spectatorsPresent");
+    vector<string> TMVAspectators = gConfigParser->readStringListOption   ("TMVA::spectators");
+    vector<string> TMVAvariables  = gConfigParser->readStringListOption   ("TMVA::variables");
+
     TFile *outFile = TFile::Open(outputFile,"UPDATE");
     TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 
@@ -1125,24 +1134,26 @@ int main (int argc, char** argv)
     //  treenew->SetBranchAddress ("TauTauKine", &mvatautau, &mvaBranchtautau) ;
     //}
     //else{   
-      mvaBranchmutau = treenew->Branch ("MuTauKine", &mvamutau, "MuTauKine/F") ;
-      mvaBranchtautau = treenew->Branch ("TauTauKine", &mvatautau, "TauTauKine/F") ;
-      mvaBranchetau = treenew->Branch ("ETauKine", &mvaetau, "ETauKine/F") ;
+
+    if (doMuTau)  mvaBranchmutau = treenew->Branch ("MuTauKine", &mvamutau, "MuTauKine/F") ;
+    if (doETau)   mvaBranchetau = treenew->Branch ("ETauKine", &mvaetau, "ETauKine/F") ;
+    if (doTauTau) mvaBranchtautau = treenew->Branch ("TauTauKine", &mvatautau, "TauTauKine/F") ;
     //}
-    reader->BookMVA ("MuTauKine",  TMVAweightsMuTau.c_str ()) ;
-    reader->BookMVA ("TauTauKine",  TMVAweightsTauTau.c_str ()) ;
-    reader->BookMVA ("ETauKine",  TMVAweightsETau.c_str ()) ;
+    if (doMuTau)   reader->BookMVA ("MuTauKine",  TMVAweightsMuTau.c_str ()) ;
+    if (doETau)    reader->BookMVA ("ETauKine",  TMVAweightsETau.c_str ()) ;
+    if (doTauTau)  reader->BookMVA ("TauTauKine",  TMVAweightsTauTau.c_str ()) ;
 
     int nentries = treenew->GetEntries();
     for(int i=0;i<nentries;i++){
       treenew->GetEntry(i);
 
-      mvamutau= reader->EvaluateMVA ("MuTauKine") ;  
-      mvatautau= reader->EvaluateMVA ("TauTauKine") ;  
-      mvaetau= reader->EvaluateMVA ("ETauKine") ;  
-      mvaBranchtautau->Fill();
-      mvaBranchmutau->Fill();
-      mvaBranchetau->Fill();
+      if (doMuTau)   mvamutau= reader->EvaluateMVA ("MuTauKine") ;  
+      if (doETau)    mvaetau= reader->EvaluateMVA ("ETauKine") ;  
+      if (doTauTau)  mvatautau= reader->EvaluateMVA ("TauTauKine") ;  
+
+      if (doMuTau)    mvaBranchmutau->Fill();
+      if (doETau)     mvaBranchetau->Fill();
+      if (doTauTau)   mvaBranchtautau->Fill();
     }
 
     outFile->cd () ;
