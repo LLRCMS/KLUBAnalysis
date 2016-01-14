@@ -821,6 +821,11 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
   for(int i=0;i<5;i++)tomerge.push_back(tm[i].Data()); 
   OS_bkg_plots.MergeHistograms(tomerge,"DY");
 
+  TString tmw[5] = {"WJetsIncl", "WJets100200", "WJets200400", "WJets400600", "WJets600Inf"};
+  vector<string> tomergew;
+  for(int i=0;i<5;i++)tomergew.push_back(tmw[i].Data()); 
+  OS_bkg_plots.MergeHistograms(tomergew,"WJets");
+
   cout << "--- MAIN reading sig and filling OS histos" << endl ;
 
   // get the opposite-sign distributions from sig
