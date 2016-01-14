@@ -42,7 +42,7 @@ class cardMaker:
     def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir, theInputs):
         
         dname=""
-        theDataSample = "DsingleMu" #"DsingleMuPromptReco"
+        theDataSample = "DsingleMuRunD" #"DsingleMu" #"DsingleMuPromptReco"
         if(theChannel) == 3:
             theDataSample = "DsingleTau" #"DsingleTauPromptReco"
         if(theChannel) == 1:

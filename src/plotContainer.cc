@@ -173,6 +173,52 @@ void plotContainer::init (vector<string> varList,
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
+void plotContainer::MergeHistograms(vector<string> mergesampleList, TString mergedName)
+{
+  for (vars_coll::iterator iVar = m_histos.begin () ;
+   iVar != m_histos.end () ;++iVar)
+  {
+    for (cuts_coll::iterator iCut = iVar->second.begin () ; 
+     iCut != iVar->second.end () ;++iCut)
+    {
+      TH1F *dummyH;//  //var sel sam
+      for (uint isamp=0; isamp<mergesampleList.size(); isamp++){
+        if(isamp==0) dummyH = ((TH1F*)m_histos[iVar->first][iCut->first][mergesampleList.at(isamp)]->Clone());
+        else dummyH->Add((TH1F*)m_histos[iVar->first][iCut->first][mergesampleList.at(isamp)]);
+      }
+      TString histoName = m_name + "_" 
+      + iVar->first + "_" 
+      + iCut->first + "_" 
+      + mergedName;
+      dummyH->SetName(histoName.Data());     
+      dummyH->SetTitle(histoName.Data());     
+      //cout<<"CREATING HISTOGRAM "<<endl<<histoName.Data()<<endl;
+      m_histos[iVar->first][iCut->first][mergedName.Data()] = (TH1F*)dummyH->Clone();
+      m_Nsample++;
+    }
+  }
+/*
+  for (vars_2D_coll::iterator iVar = m_2Dhistos.begin () ;
+       iVar != m_2Dhistos.end () ;
+       ++iVar)
+    {
+      for (cuts_2D_coll::iterator iCut = iVar->second.begin () ; 
+           iCut != iVar->second.end () ;
+           ++iCut)
+        {
+          for (samples_2D_coll::iterator iSample = iCut->second.begin () ; 
+               iSample != iCut->second.end () ;
+               ++iSample)
+              iSample->second->Scale (scaleFactor) ;
+        }
+    }
+*/
+  return ;
+}
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
 TH1F * 
 plotContainer::getHisto (string varName, string cutName, string sampleName)
 {

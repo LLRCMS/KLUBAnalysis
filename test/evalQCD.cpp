@@ -816,7 +816,11 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
               false, false, maxEvtsMC) ;
   if (doOverUnderFlow) OS_bkg_plots.AddOverAndUnderFlow () ;
   OS_bkg_plots.addSample ("QCD", SS_QCD_CORR) ;
-  
+  TString tm[5] = {"DYIncl", "DY100200", "DY200400", "DY400600", "DY600Inf"};
+  vector<string> tomerge;
+  for(int i=0;i<5;i++)tomerge.push_back(tm[i].Data()); 
+  OS_bkg_plots.MergeHistograms(tomerge,"DY");
+
   cout << "--- MAIN reading sig and filling OS histos" << endl ;
 
   // get the opposite-sign distributions from sig
