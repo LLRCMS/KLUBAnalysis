@@ -43,6 +43,7 @@ struct plotContainer
 
   void init (vector<string> varList, vector<pair <TString, TCut> > cutList, 
              vector<string> sampleList, int histosType) ;
+  void MergeHistograms(vector<string> mergesampleList, TString mergedName);
   void createHistos (vector<string> varList, vector<pair<string,string>> varList2D,
                      vector<pair <TString, TCut> > cutList, vector<string> sampleList) ;      
   
