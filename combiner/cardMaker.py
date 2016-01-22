@@ -44,9 +44,9 @@ class cardMaker:
         dname=""
         theDataSample = "DsingleMuRunD" #"DsingleMu" #"DsingleMuPromptReco"
         if(theChannel) == 3:
-            theDataSample = "DsingleTau" #"DsingleTauPromptReco"
+            theDataSample = "DTauRunD" #"DsingleTauPromptReco"
         if(theChannel) == 1:
-            theDataSample = "DsingleEle" #"DsingleTauPromptReco"
+            theDataSample = "DsingleEleRunD" #"DsingleTauPromptReco"
 
         #theOutLambda = theHHLambda#str(int(theHHLambda))
         #if abs(theHHLambda - int(theHHLambda) )>0.01 : 
@@ -151,7 +151,8 @@ class cardMaker:
         binsy = 0
         #print theInputs.AllvarX[theInputs.varX]
         x_name = theInputs.AllVars[theInputs.varX]
-        x = ROOT.RooRealVar(x_name,x_name,float(theInputs.AllvarX[theInputs.varX]),float(theInputs.AllvarY[theInputs.varX]))
+        #x = ROOT.RooRealVar(x_name,x_name,float(theInputs.AllvarX[theInputs.varX]),float(theInputs.AllvarY[theInputs.varX]))
+        x = ROOT.RooRealVar(x_name,x_name,templateSIG.GetXaxis().GetXmin(),templateSIG.GetXaxis().GetXmax())#float(theInputs.AllvarY[theInputs.varX]))
         x.setVal(250)
         x.setBins(binsx)#theInputs.AllBins[theInputs.varX])
         ral_variableList = ROOT.RooArgList(x)
@@ -207,55 +208,91 @@ class cardMaker:
         #listTemplates = []
         for ibkg in range(len(templatesBKG)):
             TemplateName = "BKG_{3}_TempDataHist_{0:.0f}_{1:.0f}_{2}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
-            rdhB.append(ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templatesBKG[ibkg]))
             PdfName = "bkg_{0}".format(theInputs.background[ibkg])
-            rhpB.append(ROOT.RooHistPdf(PdfName,PdfName,ras_variableSet,rdhB[ibkg]))
-            getattr(w,'import')(rhpB[ibkg],ROOT.RooFit.RecycleConflictNodes())
 
-            ## APPLY BIN BY BIN UNCERTAINTY to QCD, EACH BIN SCALED BY ITS OWN UNCERTAINTY
             if theInputs.background[ibkg] == "QCD":
-                for iy in range(template.GetNbinsY()):
-                    for ix in range(template.GetNbinsX()):
-                        if templatesBKG[ibkg].GetBinContent(ix,iy)<=0 : continue
-                        #uncvar = ROOT.RooRealVar("qcd_binUnc_"+str(iy)+str(ix))
-                        qcdbinsysts.append("qcd_binUnc_"+str(iy)+str(ix)+" shape ")
-                        templateUp = templatesBKG[ibkg].Clone()
-                        templateDown = templatesBKG[ibkg].Clone()
+                ## QCD: Remove negative bins, normalize and shape uncertainties
+                ## APPLY BIN BY BIN UNCERTAINTY to QCD, EACH BIN SCALED BY ITS OWN UNCERTAINTY
+                QCDIntegral = templatesBKG[ibkg].Integral()
+                for iy in range(1,1+template.GetNbinsY()):
+                    for ix in range(1,1+template.GetNbinsX()):
+                        #print ix, iy
+                        if templatesBKG[ibkg].GetBinContent(ix,iy)<0 : templatesBKG[ibkg].SetBinContent(ix,iy,0)
+                templatesBKG[ibkg].Scale(QCDIntegral/templatesBKG[ibkg].Integral())
+
+                #uncvar = ROOT.RooRealVar("qcd_binUnc_"+str(iy)+str(ix))
+                for iy in range(1,1+template.GetNbinsY()):
+                    for ix in range(1,1+template.GetNbinsX()):   
+                        histName = "qcd_binUnc_"+str(iy)+str(ix)                                            
+                        qcdbinsysts.append(histName+" shape ")
+                        templateUp= templatesBKG[ibkg].Clone()
+                        templateDown=templatesBKG[ibkg].Clone()
+                        #templateUp.Scale(1,"width")
+                        #templateDown.Scale(1,"width")
+                        templateUp.SetName(PdfName+"_templ_"+histName+"Up")
+                        templateUp.SetTitle(PdfName+"_templ_"+histName+"Up")
+                        templateDown.SetName(PdfName+"_templ_"+histName+"Down")
+                        templateDown.SetTitle(PdfName+"_templ_"+histName+"Down")
                         templateUp.Sumw2(False)
                         templateUp.SetBinErrorOption(TH1.kPoisson)
                         templateDown.Sumw2(False)
                         templateDown.SetBinErrorOption(TH1.kPoisson)
                         error = templateUp.GetBinContent(ix)+templateUp.GetBinErrorUp(ix)
                         errorDown = templateDown.GetBinContent(ix) - templateDown.GetBinErrorLow(ix)
+                        normFactorUp   = templateUp.Integral()+templateUp.GetBinErrorUp(ix)
+                        normFactorDown = templateDown.Integral()- templateDown.GetBinErrorLow(ix)
+
                         if self.is2D == 2:  
                             error = templateUp.GetBinContent(ix,iy)+templateUp.GetBinErrorUp(ix,iy)
-                            errorDown = templateDown.GetBinContent(ix,iy) -templateUp.GetBinErrorLow(ix,iy)
+                            errorDown = templateDown.GetBinContent(ix,iy) -templateDown.GetBinErrorLow(ix,iy)
+                            normFactorUp   = templateUp.Integral()+templateUp.GetBinErrorUp(ix,iy)
+                            normFactorDown = templateDown.Integral()- templateDown.GetBinErrorLow(ix,iy)
+                        if errorDown < 0 : 
+                            errorDown=0
+                            normFactorDown=0
                         templateUp.SetBinContent(ix,iy,error)
                         templateDown.SetBinContent(ix,iy,errorDown)
-                        histName = "qcd_binUnc_"+str(iy)+str(ix)
-                        #templateUp.SetName(PdfName+"_"+histName+"Up")
-                        #templateUp.SetTitle(PdfName+"_"+histName+"Up")
-                        qcdbinUp = ROOT.RooDataHist(histName+"Up",histName+"Up",ral_variableList,templateUp)
-                        qcdbinDown = ROOT.RooDataHist(histName+"Down",histName+"Down",ral_variableList,templateDown)
+
+                        templateUp.Scale(QCDIntegral/templateUp.Integral())
+                        templateDown.Scale(QCDIntegral/templateDown.Integral())
+
+                        qcdbinUp = ROOT.RooDataHist(histName+"Up",histName+"Up",ral_variableList,templateUp.Clone())
+                        qcdbinDown = ROOT.RooDataHist(histName+"Down",histName+"Down",ral_variableList,templateDown.Clone())
                         qcdbinpdfUp  = ROOT.RooHistPdf(PdfName+"_"+histName+"Up",PdfName+"_"+histName+"Up",ras_variableSet,qcdbinUp)
                         qcdbinpdfDown  = ROOT.RooHistPdf(PdfName+"_"+histName+"Down",PdfName+"_"+histName+"Down",ras_variableSet,qcdbinDown)
                         getattr(w,'import')(qcdbinpdfUp,ROOT.RooFit.RecycleConflictNodes())
                         getattr(w,'import')(qcdbinpdfDown,ROOT.RooFit.RecycleConflictNodes())
+
                 index = theInputs.additional.index("QCD")
                 CorrtemplateName = "UP"+theInputs.additionalName[index]
                 print CorrtemplateName
                 templateUp = inputFile.Get(CorrtemplateName).Clone()
+                for iy in range(1,1+templateUp.GetNbinsY()):
+                    for ix in range(1,1+templateUp.GetNbinsX()):
+                        #print ix, iy
+                        if templateUp.GetBinContent(ix,iy)<0 : templateUp.SetBinContent(ix,iy,0)
+                templateUp.Scale(QCDIntegral/templateUp.Integral())
                 rlxshapeUp = ROOT.RooDataHist("qcd_dhRlxToTight_{0}Up".format(theChannel),"qcd_dhRlxToTight_{0}Up".format(theChannel),ral_variableList,templateUp)
                 rlxshapepdfUp  = ROOT.RooHistPdf(PdfName+"_qcd_RlxToTight_{0}Up".format(theChannel),PdfName+"_qcd_RlxToTight_{0}Up".format(theChannel),ras_variableSet,rlxshapeUp)
 
                 CorrtemplateName = "DOWN"+theInputs.additionalName[index]
                 print CorrtemplateName
                 templateDown = inputFile.Get(CorrtemplateName)
+                for iy in range(1,1+templateDown.GetNbinsY()):
+                    for ix in range(1,1+templateDown.GetNbinsX()):
+                        #print ix, iy
+                        if templateDown.GetBinContent(ix,iy)<0 : templateDown.SetBinContent(ix,iy,0)
+                templateDown.Scale(QCDIntegral/templateDown.Integral())
                 rlxshapeDown = ROOT.RooDataHist("qcd_dhRlxToTight_{0}Down".format(theChannel),"qcd_dhRlxToTight_{0}Down".format(theChannel),ral_variableList,templateDown)
                 rlxshapepdfDown  = ROOT.RooHistPdf(PdfName+"_qcd_RlxToTight_{0}Down".format(theChannel),PdfName+"_qcd_RlxToTight_{0}Down".format(theChannel),ras_variableSet,rlxshapeDown)
 
                 getattr(w,'import')(rlxshapepdfUp,ROOT.RooFit.RecycleConflictNodes())
                 getattr(w,'import')(rlxshapepdfDown,ROOT.RooFit.RecycleConflictNodes())
+
+            rdhB.append(ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templatesBKG[ibkg]))
+            rhpB.append(ROOT.RooHistPdf(PdfName,PdfName,ras_variableSet,rdhB[ibkg]))
+            getattr(w,'import')(rhpB[ibkg],ROOT.RooFit.RecycleConflictNodes())
+
 
         ## --------------------------- DATASET --------------------------- ##
         #RooDataSet ds("ds","ds",ras_variableSet,Import(*tree)) ;
