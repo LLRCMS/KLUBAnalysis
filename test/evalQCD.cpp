@@ -895,7 +895,7 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_noData/")) ;
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_noDatanoSig/")) ;
 
-  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_noData/")) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_noData_nonZero/")) ;
 
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/canvases2D/")) ;
   TFile* fPlots2D = new TFile (outFolderNameBase + TString ("/canvases2D/2Dplots.root"), "recreate");
@@ -1050,6 +1050,15 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
           c->SaveAs (coutputName.Data ()) ;
 
           // ---------------
+          outFolderName = outFolderNameBase + TString ("/events_nonZero/") ;
+          std::vector<TObject*> drawings_nonScaled_6bis = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, false, false, true, false, true) ;
+
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+
+          // ---------------
           outFolderName = outFolderNameBase + TString ("/shapes_nonZero/") ;
           std::vector<TObject*> drawings_nonScaled_7 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
                                       variablesList.at (iv), selections_OS.at (isel).first.Data (),
@@ -1108,11 +1117,20 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
           outFolderName = outFolderNameBase + TString ("/events_noData/") ;
           std::vector<TObject*> drawings_nonScaled_11 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
                                       variablesList.at (iv), selections_OS.at (isel).first.Data (),
-                                      c, addToLegend, variablesLabels, false, false, true, false, true, false, true, false, true) ;
+                                      c, addToLegend, variablesLabels, false, false, true, false, false, false, true, false, true) ;
 
           coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
           c->SaveAs (coutputName.Data ()) ;
 
+          // ---------------
+          outFolderName = outFolderNameBase + TString ("/events_noData_nonZero/") ;
+          std::vector<TObject*> drawings_nonScaled_11bis = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
+                                      c, addToLegend, variablesLabels, false, false, true, false, true, false, true, false, true) ;
+
+          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          c->SaveAs (coutputName.Data ()) ;
+          
           // ---------------
           outFolderName = outFolderNameBase + TString ("/events_noDatanoSig/") ;
           std::vector<TObject*> drawings_nonScaled_12 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
