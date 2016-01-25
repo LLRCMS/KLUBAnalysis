@@ -816,15 +816,6 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
               false, false, maxEvtsMC) ;
   if (doOverUnderFlow) OS_bkg_plots.AddOverAndUnderFlow () ;
   OS_bkg_plots.addSample ("QCD", SS_QCD_CORR) ;
-  TString tm[5] = {"DYIncl", "DY100200", "DY200400", "DY400600", "DY600Inf"};
-  vector<string> tomerge;
-  for(int i=0;i<5;i++)tomerge.push_back(tm[i].Data()); 
-  OS_bkg_plots.MergeHistograms(tomerge,"DY");
-
-  TString tmw[5] = {"WJetsIncl", "WJets100200", "WJets200400", "WJets400600", "WJets600Inf"};
-  vector<string> tomergew;
-  for(int i=0;i<5;i++)tomergew.push_back(tmw[i].Data()); 
-  OS_bkg_plots.MergeHistograms(tomergew,"WJets");
 
   cout << "--- MAIN reading sig and filling OS histos" << endl ;
 
@@ -837,6 +828,31 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
               signalScales,
               false, true) ;
   if (doOverUnderFlow) OS_sig_plots.AddOverAndUnderFlow () ;
+
+
+
+  // Merge together all separate samples form stitching (DY, WJets) into a single histogram for combine
+  // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+  std::vector<string> stitchNames(0);
+  vector<vector<string>> stitchInputNames (0);
+  if (gConfigParser->isDefined("stitch::produce"))
+  {
+    stitchNames = gConfigParser->readStringListOption("stitch::produce");
+    for (unsigned int i = 0; i < stitchNames.size(); i++)
+    {
+      vector<string> toStitch = gConfigParser->readStringListOption(Form("stitch::%s", stitchNames.at(i).c_str()));
+      stitchInputNames.push_back(toStitch);
+    }
+  }
+
+  for (unsigned int iTotal = 0; iTotal < stitchInputNames.size(); iTotal++)
+  {
+    OS_bkg_plots.MergeHistograms(stitchInputNames.at(iTotal),stitchNames.at(iTotal));
+    
+    cout << "** info: stitching: " << stitchNames.at(iTotal) << " from: ";
+    for (unsigned int i = 0; i < stitchInputNames.at(iTotal).size(); i++) cout << " " << stitchInputNames.at(iTotal).at(i) << " ,";
+    cout << " . " << endl;
+  }
 
   // Save the histograms
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
