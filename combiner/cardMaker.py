@@ -103,6 +103,10 @@ class cardMaker:
         #templateSIG_QCDUP = inputFile.Get("") 
         #templateSIG_QCDDOWN = inputFile.Get("") 
         ##...
+        tSigIntegral = templateSIG.Integral()
+        templateSIG.Scale(1,"width") 
+        templateSIG.Scale(tSigIntegral/templateSIG.Integral())
+
         templateSIG.Scale(self.scale)
         binsx = templateSIG.GetNbinsX()
 
@@ -210,19 +214,22 @@ class cardMaker:
             TemplateName = "BKG_{3}_TempDataHist_{0:.0f}_{1:.0f}_{2}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
             PdfName = "bkg_{0}".format(theInputs.background[ibkg])
 
+            ## Remove negative bins, normalize and shape uncertainties
+            tBkgIntegral = templatesBKG[ibkg].Integral()
+            for iy in range(1,1+templatesBKG[ibkg].GetNbinsY()):
+                for ix in range(1,1+templatesBKG[ibkg].GetNbinsX()):
+                    #print ix, iy
+                    if templatesBKG[ibkg].GetBinContent(ix,iy)<0 : templatesBKG[ibkg].SetBinContent(ix,iy,0)
+            #templatesBKG[ibkg].Scale(1,"width") 
+            #print "SDKJFHLKSHFLKSDFNLSKDFNEAKLF ",tBkgIntegral, templatesBKG[ibkg].Integral("width"),templatesBKG[ibkg].Integral("")
+            templatesBKG[ibkg].Scale(tBkgIntegral/templatesBKG[ibkg].Integral(""))
+
             if theInputs.background[ibkg] == "QCD":
-                ## QCD: Remove negative bins, normalize and shape uncertainties
-                ## APPLY BIN BY BIN UNCERTAINTY to QCD, EACH BIN SCALED BY ITS OWN UNCERTAINTY
-                QCDIntegral = templatesBKG[ibkg].Integral()
-                for iy in range(1,1+template.GetNbinsY()):
-                    for ix in range(1,1+template.GetNbinsX()):
-                        #print ix, iy
-                        if templatesBKG[ibkg].GetBinContent(ix,iy)<0 : templatesBKG[ibkg].SetBinContent(ix,iy,0)
-                templatesBKG[ibkg].Scale(QCDIntegral/templatesBKG[ibkg].Integral())
 
                 #uncvar = ROOT.RooRealVar("qcd_binUnc_"+str(iy)+str(ix))
                 for iy in range(1,1+template.GetNbinsY()):
-                    for ix in range(1,1+template.GetNbinsX()):   
+                    for ix in range(1,1+template.GetNbinsX()):  
+                        ## APPLY BIN BY BIN UNCERTAINTY to QCD, EACH BIN SCALED BY ITS OWN UNCERTAINTY 
                         histName = "qcd_binUnc_"+str(iy)+str(ix)                                            
                         qcdbinsysts.append(histName+" shape ")
                         templateUp= templatesBKG[ibkg].Clone()
@@ -253,8 +260,8 @@ class cardMaker:
                         templateUp.SetBinContent(ix,iy,error)
                         templateDown.SetBinContent(ix,iy,errorDown)
 
-                        templateUp.Scale(QCDIntegral/templateUp.Integral())
-                        templateDown.Scale(QCDIntegral/templateDown.Integral())
+                        templateUp.Scale(tBkgIntegral/templateUp.Integral())
+                        templateDown.Scale(tBkgIntegral/templateDown.Integral())
 
                         qcdbinUp = ROOT.RooDataHist(histName+"Up",histName+"Up",ral_variableList,templateUp.Clone())
                         qcdbinDown = ROOT.RooDataHist(histName+"Down",histName+"Down",ral_variableList,templateDown.Clone())
@@ -271,7 +278,7 @@ class cardMaker:
                     for ix in range(1,1+templateUp.GetNbinsX()):
                         #print ix, iy
                         if templateUp.GetBinContent(ix,iy)<0 : templateUp.SetBinContent(ix,iy,0)
-                templateUp.Scale(QCDIntegral/templateUp.Integral())
+                templateUp.Scale(tBkgIntegral/templateUp.Integral())
                 rlxshapeUp = ROOT.RooDataHist("qcd_dhRlxToTight_{0}Up".format(theChannel),"qcd_dhRlxToTight_{0}Up".format(theChannel),ral_variableList,templateUp)
                 rlxshapepdfUp  = ROOT.RooHistPdf(PdfName+"_qcd_RlxToTight_{0}Up".format(theChannel),PdfName+"_qcd_RlxToTight_{0}Up".format(theChannel),ras_variableSet,rlxshapeUp)
 
@@ -282,7 +289,7 @@ class cardMaker:
                     for ix in range(1,1+templateDown.GetNbinsX()):
                         #print ix, iy
                         if templateDown.GetBinContent(ix,iy)<0 : templateDown.SetBinContent(ix,iy,0)
-                templateDown.Scale(QCDIntegral/templateDown.Integral())
+                templateDown.Scale(tBkgIntegral/templateDown.Integral())
                 rlxshapeDown = ROOT.RooDataHist("qcd_dhRlxToTight_{0}Down".format(theChannel),"qcd_dhRlxToTight_{0}Down".format(theChannel),ral_variableList,templateDown)
                 rlxshapepdfDown  = ROOT.RooHistPdf(PdfName+"_qcd_RlxToTight_{0}Down".format(theChannel),PdfName+"_qcd_RlxToTight_{0}Down".format(theChannel),ras_variableSet,rlxshapeDown)
 
