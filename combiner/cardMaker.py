@@ -29,6 +29,7 @@ class cardMaker:
         #...
         self.outputdir=""
         self.writeThSyst = True
+        self.binsysts = []
 
     def loadIncludes(self):
         ROOT.gSystem.AddIncludePath("-I$ROOFITSYS/include/")
@@ -40,6 +41,52 @@ class cardMaker:
         self.is2D = is2D
     def setfileName(self,filename):
         self.filename = filename
+
+
+    def AddBinByBinSyst(self,w,pname,pdfname,template) :
+        for iy in range(1,1+template.GetNbinsY()):
+            for ix in range(1,1+template.GetNbinsX()):  
+                ## APPLY BIN BY BIN UNCERTAINTY to QCD, EACH BIN SCALED BY ITS OWN UNCERTAINTY 
+                histName = pname+"_binUnc_"+str(iy)+str(ix)                                            
+                self.binsysts.append(histName+" shape ")
+                templateUp= template.Clone()
+                templateDown=template.Clone()
+                #templateUp.Scale(1,"width")
+                #templateDown.Scale(1,"width")
+                templateUp.SetName(PdfName+"_templ_"+histName+"Up")
+                templateUp.SetTitle(PdfName+"_templ_"+histName+"Up")
+                templateDown.SetName(PdfName+"_templ_"+histName+"Down")
+                templateDown.SetTitle(PdfName+"_templ_"+histName+"Down")
+                templateUp.Sumw2(False)
+                templateUp.SetBinErrorOption(TH1.kPoisson)
+                templateDown.Sumw2(False)
+                templateDown.SetBinErrorOption(TH1.kPoisson)
+                error = templateUp.GetBinContent(ix)+templateUp.GetBinErrorUp(ix)
+                errorDown = templateDown.GetBinContent(ix) - templateDown.GetBinErrorLow(ix)
+                normFactorUp   = templateUp.Integral()+templateUp.GetBinErrorUp(ix)
+                normFactorDown = templateDown.Integral()- templateDown.GetBinErrorLow(ix)
+
+                if self.is2D == 2:  
+                    error = templateUp.GetBinContent(ix,iy)+templateUp.GetBinErrorUp(ix,iy)
+                    errorDown = templateDown.GetBinContent(ix,iy) -templateDown.GetBinErrorLow(ix,iy)
+                    normFactorUp   = templateUp.Integral()+templateUp.GetBinErrorUp(ix,iy)
+                    normFactorDown = templateDown.Integral()- templateDown.GetBinErrorLow(ix,iy)
+                    if errorDown < 0 : 
+                        errorDown=0
+                        normFactorDown=0
+                templateUp.SetBinContent(ix,iy,error)
+                templateDown.SetBinContent(ix,iy,errorDown)
+
+                templateUp.Scale(tBkgIntegral/templateUp.Integral())
+                templateDown.Scale(tBkgIntegral/templateDown.Integral())
+
+                qcdbinUp = ROOT.RooDataHist(histName+"Up",histName+"Up",ral_variableList,templateUp.Clone())
+                qcdbinDown = ROOT.RooDataHist(histName+"Down",histName+"Down",ral_variableList,templateDown.Clone())
+                qcdbinpdfUp  = ROOT.RooHistPdf(PdfName+"_"+histName+"Up",PdfName+"_"+histName+"Up",ras_variableSet,qcdbinUp)
+                qcdbinpdfDown  = ROOT.RooHistPdf(PdfName+"_"+histName+"Down",PdfName+"_"+histName+"Down",ras_variableSet,qcdbinDown)
+                getattr(w,'import')(qcdbinpdfUp,ROOT.RooFit.RecycleConflictNodes())
+                getattr(w,'import')(qcdbinpdfDown,ROOT.RooFit.RecycleConflictNodes())
+
 
     def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir, theInputs):
         
@@ -210,7 +257,7 @@ class cardMaker:
         SIGpdf =SIG_TemplatePdf
         rdhB = []
         rhpB = []
-        qcdbinsysts = []
+        self.binsysts = []
         #listTemplates = []
         for ibkg in range(len(templatesBKG)):
             TemplateName = "BKG_{3}_TempDataHist_{0:.0f}_{1:.0f}_{2}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
@@ -228,49 +275,7 @@ class cardMaker:
 
             if theInputs.background[ibkg] == "QCD":
 
-                #uncvar = ROOT.RooRealVar("qcd_binUnc_"+str(iy)+str(ix))
-                for iy in range(1,1+template.GetNbinsY()):
-                    for ix in range(1,1+template.GetNbinsX()):  
-                        ## APPLY BIN BY BIN UNCERTAINTY to QCD, EACH BIN SCALED BY ITS OWN UNCERTAINTY 
-                        histName = "qcd_binUnc_"+str(iy)+str(ix)                                            
-                        qcdbinsysts.append(histName+" shape ")
-                        templateUp= templatesBKG[ibkg].Clone()
-                        templateDown=templatesBKG[ibkg].Clone()
-                        #templateUp.Scale(1,"width")
-                        #templateDown.Scale(1,"width")
-                        templateUp.SetName(PdfName+"_templ_"+histName+"Up")
-                        templateUp.SetTitle(PdfName+"_templ_"+histName+"Up")
-                        templateDown.SetName(PdfName+"_templ_"+histName+"Down")
-                        templateDown.SetTitle(PdfName+"_templ_"+histName+"Down")
-                        templateUp.Sumw2(False)
-                        templateUp.SetBinErrorOption(TH1.kPoisson)
-                        templateDown.Sumw2(False)
-                        templateDown.SetBinErrorOption(TH1.kPoisson)
-                        error = templateUp.GetBinContent(ix)+templateUp.GetBinErrorUp(ix)
-                        errorDown = templateDown.GetBinContent(ix) - templateDown.GetBinErrorLow(ix)
-                        normFactorUp   = templateUp.Integral()+templateUp.GetBinErrorUp(ix)
-                        normFactorDown = templateDown.Integral()- templateDown.GetBinErrorLow(ix)
-
-                        if self.is2D == 2:  
-                            error = templateUp.GetBinContent(ix,iy)+templateUp.GetBinErrorUp(ix,iy)
-                            errorDown = templateDown.GetBinContent(ix,iy) -templateDown.GetBinErrorLow(ix,iy)
-                            normFactorUp   = templateUp.Integral()+templateUp.GetBinErrorUp(ix,iy)
-                            normFactorDown = templateDown.Integral()- templateDown.GetBinErrorLow(ix,iy)
-                        if errorDown < 0 : 
-                            errorDown=0
-                            normFactorDown=0
-                        templateUp.SetBinContent(ix,iy,error)
-                        templateDown.SetBinContent(ix,iy,errorDown)
-
-                        templateUp.Scale(tBkgIntegral/templateUp.Integral())
-                        templateDown.Scale(tBkgIntegral/templateDown.Integral())
-
-                        qcdbinUp = ROOT.RooDataHist(histName+"Up",histName+"Up",ral_variableList,templateUp.Clone())
-                        qcdbinDown = ROOT.RooDataHist(histName+"Down",histName+"Down",ral_variableList,templateDown.Clone())
-                        qcdbinpdfUp  = ROOT.RooHistPdf(PdfName+"_"+histName+"Up",PdfName+"_"+histName+"Up",ras_variableSet,qcdbinUp)
-                        qcdbinpdfDown  = ROOT.RooHistPdf(PdfName+"_"+histName+"Down",PdfName+"_"+histName+"Down",ras_variableSet,qcdbinDown)
-                        getattr(w,'import')(qcdbinpdfUp,ROOT.RooFit.RecycleConflictNodes())
-                        getattr(w,'import')(qcdbinpdfDown,ROOT.RooFit.RecycleConflictNodes())
+                AddBinByBinSyst(w,"qcd",PdfName,templatesBKG[ibkg])
 
                 index = theInputs.additional.index("QCD")
                 CorrtemplateName = "UP"+theInputs.additionalName[index]
@@ -419,8 +424,8 @@ class cardMaker:
         templateName = theInputs.additionalName[index]
         if inputFile.Get(templateName).Integral() > 0:        
             #add QCD bin-by-by shape
-            for iqcd in range(len(qcdbinsysts)) :
-                syst.writeOneLine("QCD",qcdbinsysts[iqcd])
+            for iqcd in range(len(self.binsysts)) :
+                syst.writeOneLine("QCD",self.binsysts[iqcd])
             #add QCD rlx to tight shape unc
             syst.writeOneLine("QCD","qcd_RlxToTight_{0} shape ".format(theChannel))
             #add stat uncertainty (sqrt(N)) => is this needed?? In any case it can't be added as gamma (lnU instead?)
@@ -506,6 +511,6 @@ if __name__ == "__main__":
     if opt.theorySyst > 0: 
         dc.writeThSyst = True
     else : dc.writeThSyst = False
-    
+
     for signal in input.signals :
         dc.makeCardsAndWorkspace(signal,1,thechannel,"{0}{1}{2}".format(signal,opt.overSel,opt.overVar),input)
