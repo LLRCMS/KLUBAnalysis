@@ -27,6 +27,8 @@ class cardMaker:
         self.filename = "test.root"
         self.scale = 1
         #...
+        self.outputdir=""
+        self.writeThSyst = True
 
     def loadIncludes(self):
         ROOT.gSystem.AddIncludePath("-I$ROOFITSYS/include/")
@@ -41,7 +43,7 @@ class cardMaker:
 
     def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir, theInputs):
         
-        dname=""
+        dname=dc.outputdir
         theDataSample = "DsingleMuRunD" #"DsingleMu" #"DsingleMuPromptReco"
         if(theChannel) == 3:
             theDataSample = "DTauRunD" #"DsingleTauPromptReco"
@@ -408,8 +410,11 @@ class cardMaker:
             systChannel = systReader("../config/systematics_mutau.cfg",[theHHLambda],theInputs.background,file)
         elif(theChannel == self.ID_ch_etau ): 
             systChannel = systReader("../config/systematics_etau.cfg",[theHHLambda],theInputs.background,file)
+        syst_th = systReader("../config/syst_th.cfg",[theHHLambda],theInputs.background,file)
         syst.writeSystematics()
         systChannel.writeSystematics()
+        if(self.writeThSyst) syst_th.writeSystematics()
+
         index = theInputs.additional.index("QCD")
         templateName = theInputs.additionalName[index]
         if inputFile.Get(templateName).Integral() > 0:        
@@ -439,6 +444,8 @@ def parseOptions():
     parser.add_option('-o', '--selection', dest='overSel', type='string', default='', help='overwrite selection string')
     parser.add_option('-v', '--variable', dest='overVar', type='string', default='bH_mass', help='overwrite plot variable (only1D)')
     parser.add_option('-s', '--scale', dest='scale', type='float', default='1', help='scale templates')
+    parser.add_option('-q', '--dir', dest='outDir', type='string', default='', help='outdput dir')
+    parser.add_option('-t', '--theory', dest='theorySyst', type='int', default=1, help='write theory systematics in the card')
 
     # store options and arguments as global variables
     global opt, args
@@ -460,6 +467,7 @@ if __name__ == "__main__":
     dc.loadIncludes()
     dc.set2D(opt.is2D)
     dc.scale=opt.scale
+    dc.outputdir="_"+opt.channel+opt.outDir
 
     if(opt.config==""):
         configname = "../config/analysis_"+opt.channel+".cfg"
@@ -495,6 +503,9 @@ if __name__ == "__main__":
                 input.AllVars[ivx] = opt.overVar
                 for iad in range(len(input.additionalName)) :
                     input.additionalName[iad] = re.sub('bH_mass',opt.overVar,input.additionalName[iad])
-
+    if opt.theorySyst > 0: 
+        dc.writeThSyst = True
+    else : dc.writeThSyst = False
+    
     for signal in input.signals :
         dc.makeCardsAndWorkspace(signal,1,thechannel,"{0}{1}{2}".format(signal,opt.overSel,opt.overVar),input)
