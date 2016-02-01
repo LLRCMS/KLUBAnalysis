@@ -647,6 +647,7 @@ public :
             fChain->SetBranchAddress("genpart_ZMothInd", &genpart_ZMothInd, &b_genpart_ZMothInd);
             fChain->SetBranchAddress("genpart_HZDecayMode", &genpart_HZDecayMode, &b_genpart_HZDecayMode);
             fChain->SetBranchAddress("genpart_TauGenDecayMode", &genpart_TauGenDecayMode, &b_genpart_TauGenDecayMode);
+            fChain->SetBranchAddress("genpart_TopDecayMode", &genpart_TopDecayMode, &b_genpart_TopDecayMode);
             fChain->SetBranchAddress("genpart_flags", &genpart_flags, &b_genpart_flags);
             fChain->SetBranchAddress("genjet_px", &genjet_px, &b_genjet_px);
             fChain->SetBranchAddress("genjet_py", &genjet_py, &b_genjet_py);
