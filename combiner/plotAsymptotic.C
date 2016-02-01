@@ -15,21 +15,23 @@
 
 //Capire come gestire lambdas decimali
 
-
+void getExpLine(TVirtualPad *);
 void getLimits(TFile *f, std::vector<double> &v_mean,std::vector<double> &v_68l,std::vector<double> &v_68h,std::vector<double> &v_95l,std::vector<double> &v_95h,std::vector<double> &v_obs, bool onepointta=false);
 // --------- Inputs ------- //
 //TString inputDir = "cards"; //"higgsCombineTest.Asymptotic.mH125.7.root";
 
 //custom inputs
-TString inputfolder="cards_TauTau_09Dec_ter";//"cards_combined_18Nov";
-TString var= "HHKin_mass";//"mT"; //"HH_mass";// for tautau
-TString sel="defaultBtagLLNoIsoBBTTCut";//"defaultBtagLLMbbMttNoIso";//"dijetOneBLKineMttNoIso"; //"dijethardiso";// for tautau
-TString plotName = "UpperLimit_09Dec_tautau_ter";
-TString channel="hh #rightarrow bb #tau_{H} #tau_{H}";// + bb #tau_{e} #tau_{H} + bb #tau_{H} #tau_{H}"; //channel name in plot
+TString inputfolder="cards_Combined_28jan";//"cards_combined_18Nov";
+TString var= "COMBINED"; //"HHKin_mass";//"mT"; //"HH_mass";// for tautau
+TString sel="";//"defaultBtagLLMbbMttNoIso";//"dijetOneBLKineMttNoIso"; //"dijethardiso";// for tautau
+TString plotName = "UpperLimit_14Jan_combined_gamma";
+TString channel="hh #rightarrow bb #tau_{#mu} #tau_{H} + bb #tau_{e} #tau_{H} + bb #tau_{H} #tau_{H}"; //channel name in plot
 
 //Plotting features
 bool addATLAS=false;
 const bool addObsLimit = false;
+const bool hybrid = true;
+const bool asympt = true;
 
 //Default inputs
 bool plotMu=false;
@@ -43,7 +45,7 @@ const bool _DEBUG_ = true;
 Double_t xLow = -5;
 Double_t xHigh = 21.0;
 Double_t yLow = 1;
-const float xfac = 34.3*0.073;
+const float xfac = 37.9*0.073;
 Double_t yHigh = 100000.;
 TString xTitle = "k_{#lambda}=#lambda_{hhh}/#lambda_{hhh}^{SM} [GeV]";
 TString yTitle = "95% CL limit on #sigma #times BR [fb]";
@@ -56,7 +58,7 @@ const bool isTiny = false;
 int canvasX = 900;
 int canvasY = 700;
 double sqrts = 13.0;
-double lumin = 2.00;
+double lumin = 2.63;
 bool onepointta=true;
 // ----------------------- //
 
@@ -72,21 +74,29 @@ void plotAsymptotic() {
 
   // ------------------- Get Values -------------------- //
   vector<double> Val_obs, Val_mean, Val_68h, Val_68l, Val_95h, Val_95l;
+  vector<double> Val_obsh, Val_meanh, Val_68hh, Val_68lh, Val_95hh, Val_95lh;
   //cout<<"Getting limits"<<endl;
   if(plotMu) {
     //yHigh=11000.;
     plotName.Append("_mu_");
     yTitle = "95% CL limit on #sigma / #sigma_{exp}";
   }
+
   float lim[nLambdas], limobs[nLambdas],lim68l[nLambdas],lim68h[nLambdas],lim95l[nLambdas],lim95h[nLambdas];
+  float limh[nLambdas];
   for(int ifile=0;ifile<nLambdas;ifile++){
    TString filename;
    filename.Form("%s/%s%s%s/higgsCombine%s_forLim.Asymptotic.mH125.root",inputfolder.Data(),lnames[ifile].c_str(),sel.Data(),var.Data(),lnames[ifile].c_str());
    TFile *inFile = TFile::Open(filename.Data());
    getLimits(inFile,Val_mean,Val_68l,Val_68h,Val_95l,Val_95h,Val_obs,onepointta);
+
+   filename.Form("%s/%s%s%s/higgsCombine%s_forLim.HybridNew.mH125.quant0.500.root",inputfolder.Data(),lnames[ifile].c_str(),sel.Data(),var.Data(),lnames[ifile].c_str());
+   TFile *inFileh = TFile::Open(filename.Data());
+   getLimits(inFileh,Val_meanh,Val_68lh,Val_68hh,Val_95lh,Val_95hh,Val_obsh,onepointta);
    //cout<<"got"<<endl;
 
    vector<double> expExclusion,obsExclusion;
+   vector<double> expExclusionh,obsExclusionh;
 
    //cout<<"point "<<ifile<<endl;
    float valxsections = 0;
@@ -95,6 +105,7 @@ void plotAsymptotic() {
     if (plotMu) valxsections =1;
    }
    lim[ifile] = Val_mean[ifile]*valxsections;
+   limh[ifile] = Val_meanh[ifile]*valxsections;
    cout<<"r="<<Val_mean[ifile]<<"  exp (obs) xsection>"<<valxsections*Val_mean[ifile]<<"/"<<valxsections<<" ("<<Val_obs[ifile]*valxsections<<")"<<endl;
    lim68l[ifile] = min( Val_68l[ifile], Val_68h[ifile])*valxsections;
    lim95l[ifile] = min( Val_95l[ifile], Val_95h[ifile])*valxsections;
@@ -117,22 +128,33 @@ void plotAsymptotic() {
  int nMassEff = nLambdas;
 
  TGraph *gr = new TGraph(nMassEff, lambdas, lim);
+ TGraph *grh = new TGraph(nMassEff, lambdas, limh);
  TGraph* grshade_68 = new TGraph(2*nMassEff);
  TGraph* grshade_95 = new TGraph(2*nMassEff);
  TGraph *grObs = new TGraph(nMassEff, lambdas, limobs);
- TGraph *grExp = new TGraph(nXsec,deflambdas,xsections);
+ //TGraph *grExp = new TGraph(nXsec,deflambdas,xsections);
 
  grObs->SetLineWidth(3);
  grObs->SetLineColor(kBlack);
  grObs->SetMarkerStyle(21);
  grObs->SetMarkerSize(0.8);
 
- grExp->SetLineColor(kRed);
- grExp->SetLineWidth(3);
+ //grExp->SetLineColor(kRed);
+ //grExp->SetLineWidth(3);
 
  gr->SetLineStyle(2);
+ gr->SetMarkerStyle(22);
  gr->SetLineWidth(3);
  gr->SetLineColor(kBlue);
+ gr->SetMarkerColor(kBlue);
+
+ grh->SetLineStyle(2);
+ grh->SetMarkerStyle(22);
+ grh->SetLineWidth(3);
+ grh->SetLineColor(kBlue);
+ grh->SetMarkerColor(kBlue);
+
+
  grshade_68->SetFillColor(kGreen);
  grshade_95->SetFillColor(kYellow);		
  grshade_68->SetLineStyle(1);
@@ -195,8 +217,9 @@ void plotAsymptotic() {
   
   grshade_95->Draw("f");
   grshade_68->Draw("f");
-  gr->Draw("l");
-  if(!plotMu)grExp->Draw("l");
+  if(hybrid) gr->Draw("lp");
+  if(asympt) grh->Draw("p");
+  if(!plotMu) getExpLine(pad1->cd()) ; //grExp->Draw("l");
   if(addObsLimit)
     {
       if(points)grObs->Draw("lP");
@@ -286,3 +309,29 @@ void getLimits(TFile *f, std::vector<double> &v_mean,std::vector<double> &v_68l,
 
   }
  }
+
+void getExpLine(TVirtualPad *c){
+
+   TF1 myFunc("myFunc","(2.11 + 0.29*x*x -1.40*x)*2.5039",-4,20); 
+   TGraph * graph = new TGraph(&myFunc);
+   int ci = TColor::GetColor("#ff0000");
+   c->cd();
+   graph->SetLineColor(ci);
+   graph->SetLineWidth(3);
+   graph->Draw("l");
+   //systematics band
+   float Graph_syst_Scale_x[240] , Graph_syst_Scale_y[240], Graph_syst_Scale_x_err[240], Graph_syst_Scale_y_errup[240], Graph_syst_Scale_y_errdown[240] ;
+   for (int i = 0 ; i < 240 ; ++i) {
+      Graph_syst_Scale_x[i] = -4.+(i*1.)/10. ;
+      Graph_syst_Scale_y[i] = (2.11+0.29*(-4.+(i*1.)/10.)*(-4.+(i*1.)/10.)-1.40*(-4.+(i*1.)/10.))*2.5039 ;
+   Graph_syst_Scale_x_err[i] = 0; 
+   Graph_syst_Scale_y_errup[i] = (2.11+0.29*(-4.+(i*1.)/10.)*(-4.+(i*1.)/10.)-1.40*(-4.+(i*1.)/10.))*2.5039*0.1301; 
+   Graph_syst_Scale_y_errdown[i] = (2.11+0.29*(-4.+(i*1.)/10.)*(-4.+(i*1.)/10.)-1.40*(-4.+(i*1.)/10.))*2.5039*0.137; 
+   } 
+   TGraphAsymmErrors *Graph_syst_Scale = new TGraphAsymmErrors(240,Graph_syst_Scale_x,Graph_syst_Scale_y,Graph_syst_Scale_x_err,Graph_syst_Scale_x_err,Graph_syst_Scale_y_errup,Graph_syst_Scale_y_errdown);
+   Graph_syst_Scale->SetLineColor(kRed); // also kRed-9
+   Graph_syst_Scale->SetFillColor(kRed);
+   Graph_syst_Scale->SetFillStyle(3001); // 3005: lines, 3001: dots
+   Graph_syst_Scale->Draw("e3");
+   return ;
+}
