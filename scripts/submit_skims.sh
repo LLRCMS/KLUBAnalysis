@@ -178,7 +178,7 @@ python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 10 -k True -o /data
 python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/Skims31_AllJets_NI/SKIM_WJets_600_Inf     -i inputFiles/miniAODv2_silverJSON_5Gen2016/7_WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1.txt  -x 61526.7 -y 0.00037029
 
 # Others - non stitched
-python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 130 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/Skims31_AllJets_NI/SKIM_TT_merged     -i inputFiles/miniAODv2_silverJSON_5Gen2016/TT_merged.txt   -x 769.00
+python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 130 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/Skims31_AllJets_NI/SKIM_TT_merged     -i inputFiles/miniAODv2_silverJSON_5Gen2016/TT_merged.txt   -x 769.00 -t True
 
 # HH signal new xsec 13TeV and analytical values of the ratios 
 python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/Skims31_AllJets_NI/SKIM_HHLambda1         -i inputFiles/miniAODv2_silverJSON_5Gen2016/HH_Lambda1.txt        -x 0.002729241983

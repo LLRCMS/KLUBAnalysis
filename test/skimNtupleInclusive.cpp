@@ -216,7 +216,7 @@ int main (int argc, char** argv)
       cerr << "missing input parameters" << endl ;
       cerr << "usage: " << argv[0]
            << "inputFileNameList outputFileName crossSection isData configFile runHHKinFit" << endl
-           << "OPTIONAL: xsecScale(stitch) HTMax(stitch)" << endl ; 
+           << "OPTIONAL: xsecScale(stitch) HTMax(stitch) isTTBar" << endl ; 
       exit (1) ;
     }
   TString inputFile = argv[1] ;
@@ -246,6 +246,8 @@ int main (int argc, char** argv)
   // optional parameters for stitching
   float xsecScale = 1.0;
   float HTMax = -999.0;
+  bool isTTBar = false;
+
   if (argc >= 8)
   {
     xsecScale = atof (argv[7]);
@@ -256,8 +258,19 @@ int main (int argc, char** argv)
     {
       HTMax = atof(argv[8]);
       cout << " ** INFO: in stitching, removing HT < " << HTMax << endl;
+
+      if (argc >= 10)
+      {
+        int isTTBarI = atoi(argv[9]);
+        if (isTTBarI == 1) isTTBar = true;
+        cout << " ** INFO: is this a TTbar sample? : " << isTTBar << endl;
+      }
+
     }
   }
+
+  // force to !TTbar if isData -- you never know...
+  if (!isMC) isTTBar = false;
 
   cout << " ** INFO: running on file list : " << inputFile << endl;
   cout << " ** INFO: saving output in     : " << outputFile << endl;
@@ -297,12 +310,10 @@ int main (int argc, char** argv)
 
   // input and output setup
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
   //bigChain->Add (inputFile) ;
   appendFromFileList (bigChain, inputFile);
   bigTree theBigTree (bigChain) ;
-
 
   //Create a new file + a clone of old tree header. Do not copy events
   TFile * smallFile = new TFile (outputFile, "recreate") ;
@@ -370,6 +381,11 @@ int main (int argc, char** argv)
   myScaleFactor[1][0] -> init_ScaleFactor("weights/data/Electron/Electron_SingleEle_eff.root");
   myScaleFactor[1][1] -> init_ScaleFactor("weights/data/Electron/Electron_IdIso0p10_eff.root");
 
+  // ------------------------------
+  TF1* TopReweightFunction = new TF1 ("TopReweightFunction", "TMath::Exp([0]+[1]*x)", 0, 400);
+  TopReweightFunction->FixParameter (0, 0.156);
+  TopReweightFunction->FixParameter (1, -0.00137); 
+
   // loop over events
   //for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
   for (Long64_t iEvent = 0 ; true ; ++iEvent) 
@@ -388,10 +404,45 @@ int main (int argc, char** argv)
          if (theBigTree.lheHt > HTMax) continue;
       }
 
+      // gen info -- fetch tt pair and compute top PT reweight
+      float topPtReweight = 1.0; // 1 for all the other samples      
+      if (isTTBar)
+      {
+        float ptTop1 = -1.0;
+        float ptTop2 = -1.0;
+
+        for (unsigned int igen = 0; igen < theBigTree.genpart_pdg->size(); igen++)
+        {
+          int pdg = theBigTree.genpart_pdg->at(igen);
+          //int genflags = theBigTree.genpart_flags->at(igen);
+          //int topDM = theBigTree.genpart_TopDecayMode->at(igen);
+
+          if (abs(pdg) == 6) // top -- from LLRNtuples, I am guaranteed to have only 2 tops
+          {
+            TLorentzVector TopV;
+            TopV.SetPxPyPzE (theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen) ) ;
+            if (ptTop1 < 0) ptTop1 = TopV.Pt();
+            else if (ptTop2 < 0) { ptTop1 = TopV.Pt(); break; } // check done in paralles shows that I never have > 2 top .  break is safe .
+            //else cout << " !! skim warning: sample is declared as as ttbar, but I have > 2 gen top in the event! " << endl;
+          }
+        }
+        if (ptTop1 < 0 || ptTop1 < 0)
+        {
+          cout << "Warning: event is TTbarm but I didn't find 2 tops (1,2) :" << ptTop1 << " " << ptTop2 << endl;
+        }
+        else
+        {
+            float SFTop1 = TopReweightFunction->Eval(ptTop1);
+            float SFTop2 = TopReweightFunction->Eval(ptTop2);
+            topPtReweight = TMath::Sqrt (SFTop1*SFTop2); // save later together with other weights
+        }
+      }
+
+
       if (isMC)
       {
-        totalEvents += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
-        counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
+        totalEvents += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight;
+        counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight;
       }
       else 
       {
@@ -408,7 +459,7 @@ int main (int argc, char** argv)
       metpass += metbit & (1 << 6);
       if(metpass > 0) continue ;
       
-      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
+      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight;
       else      counter.at (selID++) += 1 ;
 
       // assume that the ordering of the pair numbering
@@ -487,7 +538,7 @@ int main (int argc, char** argv)
       }
       */
 
-      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
+      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight;
       else      counter.at (selID++) += 1 ;
 
       int firstDaughterIndex = theBigTree.indexDau1->at (chosenTauPair) ;  
@@ -564,7 +615,7 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       
       if (!beInclusive && jets_and_btag.size () < 2) continue ;
-      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) ;
+      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight;
       else      counter.at (selID++) += 1 ;
       
       // fill the variables of interest
@@ -584,6 +635,7 @@ int main (int argc, char** argv)
       theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
       theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
       theSmallTree.m_bTagweightT = (isMC ? bTagWeight.at(2) : 1.0) ;
+      theSmallTree.m_TTtopPtreweight = (isTTBar ? topPtReweight : 1.0) ;
       theSmallTree.m_lheht = (isMC ? theBigTree.lheHt : 0) ;
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
       theSmallTree.m_RunNumber = theBigTree.RunNumber ;
