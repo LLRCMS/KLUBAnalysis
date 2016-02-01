@@ -37,7 +37,8 @@
 //
 using namespace std ;
 
-
+const double a=0.156;
+const double b= -0.00137;
 
 
 /*  the modern way of making lorenzvectors (no warnings)
@@ -430,6 +431,14 @@ int main (int argc, char** argv)
       else if (trigReader.checkOR (2, triggerbit) ) trigPairType = 2;
       else if (trigReader.checkOR (5, triggerbit) ) trigPairType = 5; // FIXME! maybe ee, mumu need to be evaluated as well
 
+      if(isMC){
+        float pttop=-1,ptanti=-1;
+        for(unsigned int iGen = 0 ; iGen < theBigTree.genpart_pdg->size () && (pttop<0 || ptanti<0); ++iGen){
+          if(theBigTree.genpart_pdg->at(iGen)==6)pttop= theBigTree.genpart_pt->at(iGen);
+          else if(theBigTree.genpart_pdg->at(iGen)==-6)ptanti= theBigTree.genpart_pt->at(iGen);
+        }
+        theSmallTree.m_topReweight = TMath::Sqrt(TMath::Exp(a+b*pttop)*TMath::Exp(a+b*ptanti));
+      }
 
       for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
         {

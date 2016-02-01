@@ -177,6 +177,8 @@ struct smallTree
 
       m_lheht = 0;
 
+      m_topReweight=-1;
+
       return 0 ;    
     }
 
@@ -335,6 +337,7 @@ struct smallTree
       //m_smallT->Branch ("TauTauKine", &m_mvaValueTauTau, "TauTauKine/F");
 
       m_smallT->Branch ("lheht", &m_lheht, "lheht/F");
+      m_smallT->Branch("topReweight",&m_topReweight,"topReweight/F");
 
       return 0 ;
     }
@@ -520,7 +523,8 @@ struct smallTree
   float m_HHkinsvfit_m;
 
   float m_lheht ;
-
+  float m_topReweight;
+  
 } ;
 
 #endif
