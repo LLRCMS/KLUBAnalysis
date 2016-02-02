@@ -382,11 +382,6 @@ int main (int argc, char** argv)
   myScaleFactor[1][0] -> init_ScaleFactor("weights/data/Electron/Electron_SingleEle_eff.root");
   myScaleFactor[1][1] -> init_ScaleFactor("weights/data/Electron/Electron_IdIso0p10_eff.root");
 
-  // ------------------------------
-  TF1* TopReweightFunction = new TF1 ("TopReweightFunction", "TMath::Exp([0]+[1]*x)", 0, 400);
-  TopReweightFunction->FixParameter (0, 0.156);
-  TopReweightFunction->FixParameter (1, -0.00137); 
-
   // loop over events
   //for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
   for (Long64_t iEvent = 0 ; true ; ++iEvent) 
@@ -423,18 +418,18 @@ int main (int argc, char** argv)
             TLorentzVector TopV;
             TopV.SetPxPyPzE (theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen) ) ;
             if (ptTop1 < 0) ptTop1 = TopV.Pt();
-            else if (ptTop2 < 0) { ptTop1 = TopV.Pt(); break; } // check done in paralles shows that I never have > 2 top .  break is safe .
+            else if (ptTop2 < 0) { ptTop2 = TopV.Pt(); break; } // check done in paralles shows that I never have > 2 top .  break is safe .
             //else cout << " !! skim warning: sample is declared as as ttbar, but I have > 2 gen top in the event! " << endl;
           }
         }
-        if (ptTop1 < 0 || ptTop1 < 0)
+        if (ptTop1 < 0 || ptTop2 < 0)
         {
-          cout << "Warning: event is TTbarm but I didn't find 2 tops (1,2) :" << ptTop1 << " " << ptTop2 << endl;
+          cout << "Warning: event is TTbar but I didn't find 2 tops (1,2) :" << ptTop1 << " " << ptTop2 << endl;
         }
         else
         {
-            float SFTop1 = TopReweightFunction->Eval(ptTop1);
-            float SFTop2 = TopReweightFunction->Eval(ptTop2);
+            float SFTop1 = TMath::Exp(a+b*ptTop1);
+            float SFTop2 = TMath::Exp(a+b*ptTop2);
             topPtReweight = TMath::Sqrt (SFTop1*SFTop2); // save later together with other weights
         }
       }
@@ -481,15 +476,6 @@ int main (int argc, char** argv)
       else if (trigReader.checkOR (1, triggerbit) ) trigPairType = 1;
       else if (trigReader.checkOR (2, triggerbit) ) trigPairType = 2;
       else if (trigReader.checkOR (5, triggerbit) ) trigPairType = 5; // FIXME! maybe ee, mumu need to be evaluated as well
-
-      // if(isMC){
-      //   float pttop=-1,ptanti=-1;
-      //   for(unsigned int iGen = 0 ; iGen < theBigTree.genpart_pdg->size () && (pttop<0 || ptanti<0); ++iGen){
-      //     if(theBigTree.genpart_pdg->at(iGen)==6)pttop= theBigTree.genpart_pt->at(iGen);
-      //     else if(theBigTree.genpart_pdg->at(iGen)==-6)ptanti= theBigTree.genpart_pt->at(iGen);
-      //   }
-      //   theSmallTree.m_topReweight = TMath::Sqrt(TMath::Exp(a+b*pttop)*TMath::Exp(a+b*ptanti));
-      // }
 
       for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
         {
