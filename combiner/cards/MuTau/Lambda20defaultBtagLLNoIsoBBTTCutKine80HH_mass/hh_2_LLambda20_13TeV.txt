@@ -1,0 +1,30 @@
+imax 1
+jmax 13
+kmax *
+------------
+shapes * * hh_2_LLambda20_13TeV.input.root w:$PROCESS w:$PROCESS_$SYSTEMATIC
+------------
+bin a2 
+observation 50 
+------------
+bin a2 a2 a2 a2 a2 a2 a2 a2 a2 a2 a2 a2 a2 a2 
+process ggHH_hbbhtt bkg_DY bkg_WJets bkg_TT bkg_TWtop bkg_TWantitop bkg_WWTo2L2Nu bkg_WWToLNuQQ bkg_WZTo1L1Nu2Q bkg_WZTo2L2Q bkg_WZTo3LNu bkg_ZZTo2L2Nu bkg_ZZTo2L2Q bkg_ZZTo4L 
+process 0 1 2 3 4 5 6 7 8 9 10 11 12 13 
+rate 0.9585 2.6382 0.8907 43.8005 0.7040 1.3843 0.1420 0.0003 0.0943 0.0871 0.0184 0.0005 0.1768 0.0040 
+------------
+lumi_13TeV lnN  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046 
+CMS_scale_j lnN  1.02  1.04  1.04  1.04  1.04  1.04  1.04  1.04  1.04  1.04  1.04  1.04  1.04  1.04 
+CMS_HHbbtt_WJ_unc lnN - -  1.04 - - - - - - - - - - - 
+CMS_HHbbtt_DY_unc lnN -  1.04 - - - - - - - - - - - - 
+CMS_HHbbtt_WW_unc lnN - -  1.05 - - -  1.05  1.05 - - - - - - 
+CMS_HHbbtt_WZ_unc lnN - - - - - - - - -  1.05  1.05 - - - 
+CMS_HHbbtt_ZZ_unc lnN - - - - - - - - - - -  1.05  1.05  1.05 
+CMS_HHbbtt_ttbar_unc lnN - - -  1.106  1.053  1.053 - - - - - - - - 
+CMS_eff_t lnN  1.06  1.06 -  1.06  1.06  1.06  1.06  1.06  1.06  1.06  1.06  1.06  1.06  1.06 
+CMS_eff_m lnN  1.046  1.046 -  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046 
+HH_BR_Hbb lnN  1.0321/0.9673 - - - - - - - - - - - - - 
+HH_BR_Htt lnN  1.0571/0.9433 - - - - - - - - - - - - - 
+pdf_gg lnN  1.031 - - - - - - - - - - - - - 
+QCDscale_ggHH lnN  1.043/0.94 - - - - - - - - - - - - - 
+HH_mtinf lnN  1.1 - - - - - - - - - - - - - 
+CMS_HHbbtt_pttopreweight shape - - - 1 - - - - - - - - - - 
