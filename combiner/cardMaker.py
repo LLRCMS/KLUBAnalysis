@@ -31,6 +31,8 @@ class cardMaker:
         self.writeThSyst = True
         self.binsysts = []
 
+        self.theChannel = -1
+
     def loadIncludes(self):
         ROOT.gSystem.AddIncludePath("-I$ROOFITSYS/include/")
         ROOT.gSystem.AddIncludePath("-Iinclude/")
@@ -42,12 +44,42 @@ class cardMaker:
     def setfileName(self,filename):
         self.filename = filename
 
+    def AddSingleShapeSyst(self,w,systRead,systName,inFileName,tempName,proc,ral_variableList,ras_variableSet):
+        inputFile = TFile.Open(inFileName)
+        templateUp = inputFile.Get(tempName+"Up")
+        templateDo = inputFile.Get(tempName+"Down")
+        #templateUp.Scale(1/templateUp.Integral())
+        #templateDo.Scale(1/templateDo.Integral())
 
-    def AddBinByBinSyst(self,w,pname,pdfname,template) :
+        PdfName = "bkg_{0}".format(proc)
+
+        rdhshapeUp    = ROOT.RooDataHist(systName+"Up",systName+"Up",ral_variableList,templateUp.Clone())
+        rdhshapeDown  = ROOT.RooDataHist(systName+"Down",systName+"Down",ral_variableList,templateDo.Clone())
+        rhpshapeUp    = ROOT.RooHistPdf(PdfName+"_"+systName+"Up",PdfName+"_"+systName+"Up",ras_variableSet,rdhshapeUp)
+        rhpShapeDown  = ROOT.RooHistPdf(PdfName+"_"+systName+"Down",PdfName+"_"+systName+"Down",ras_variableSet,rdhshapeDown)
+        getattr(w,'import')(rhpshapeUp,ROOT.RooFit.RecycleConflictNodes())
+        getattr(w,'import')(rhpShapeDown,ROOT.RooFit.RecycleConflictNodes())
+        systRead.writeOneLine(proc,systName+" shape ")
+
+
+
+    def AddBinByBinSyst(self,w,pname,PdfName,template,ral_variableList,ras_variableSet) :
+        tBkgIntegral = template.Integral()
+        #Protection: do NOT apply if <=1 populated bins, where populated means must contain at least 1% of the histogram
+        nPop = 0;
+        for iy in range(1,1+template.GetNbinsY()):
+            for ix in range(1,1+template.GetNbinsX()):  
+                if self.is2D == 2:
+                    if template.GetBinContent(ix,iy)>0.01*tBkgIntegral : nPop = nPop+1
+                else :
+                    if template.GetBinContent(ix)>0.01*tBkgIntegral  :  nPop = nPop+1
+        print "POPOLAZIONE", nPop
+        if nPop < 2 : return
+
         for iy in range(1,1+template.GetNbinsY()):
             for ix in range(1,1+template.GetNbinsX()):  
                 ## APPLY BIN BY BIN UNCERTAINTY to QCD, EACH BIN SCALED BY ITS OWN UNCERTAINTY 
-                histName = pname+"_binUnc_"+str(iy)+str(ix)                                            
+                histName = pname+"_binUnc_{0}_".format(self.theChannel)+str(iy)+str(ix)                                            
                 self.binsysts.append(histName+" shape ")
                 templateUp= template.Clone()
                 templateDown=template.Clone()
@@ -90,6 +122,7 @@ class cardMaker:
 
     def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir, theInputs):
         
+        self.theChannel = theChannel
         dname=dc.outputdir
         theDataSample = "DsingleMuRunD" #"DsingleMu" #"DsingleMuPromptReco"
         if(theChannel) == 3:
@@ -160,15 +193,16 @@ class cardMaker:
         binsx = templateSIG.GetNbinsX()
 
         ###FIXME: protection against empty bins####
-        #for ibin in range(binsx):
-        #    if templateSIG.GetBinContent(ibin)==0 :
-        #        templateSIG.SetBinContent(ibin, 0.00000001)
+        for ibin in range(binsx):
+            if templateSIG.GetBinContent(ibin)==0 :
+                templateSIG.SetBinContent(ibin, 0.00000001)
         rate_signal_Shape = templateSIG.Integral()#*self.lumi #*2.3
         totalRate = float(rate_signal_Shape)
         print " signal rate ", rate_signal_Shape
         theRates = [rate_signal_Shape]
         templatesBKG = []
         tobeRemoved = []
+        #print "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",theInputs.background
         for isample in  theInputs.background:
             #print isample
             nameTemplate = "OS_bkg_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,isample)
@@ -184,9 +218,9 @@ class cardMaker:
                 if self.is2D == 1 and "TH2" in template.ClassName():
                     template = template.ProjectionX()
                 ###FIXME: protection against empty bins####
-                #for ibin in range(template.GetNbinsX()):
-                #    if template.GetBinContent(ibin)==0 :
-                #        template.SetBinContent(ibin, 0.00000001)
+                for ibin in range(template.GetNbinsX()):
+                    if template.GetBinContent(ibin)==0 :
+                        template.SetBinContent(ibin, 0.00000001)
                 templatesBKG.append(template)       
                 theRates.append( template.Integral() ) #*self.lumi
                 totalRate = totalRate + theRates[len(theRates)-1]
@@ -234,7 +268,7 @@ class cardMaker:
         TemplateName = "SIG_TempDataHist_{0:.0f}_{1:.0f}_{2}".format(theChannel,self.sqrts,theHHLambda)
         SIG_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateSIG)
         #PdfName = "SIG_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
-        SIG_TemplatePdf = ROOT.RooHistPdf("sig","sig",ras_variableSet,SIG_TempDataHist)
+        SIG_TemplatePdf = ROOT.RooHistPdf("ggHH_hbbhtt","ggHH_hbbhtt",ras_variableSet,SIG_TempDataHist)
         print templateSIG.Integral()
         ##Up
         #TemplateName = "SIG_JESUP_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
@@ -268,14 +302,14 @@ class cardMaker:
             for iy in range(1,1+templatesBKG[ibkg].GetNbinsY()):
                 for ix in range(1,1+templatesBKG[ibkg].GetNbinsX()):
                     #print ix, iy
-                    if templatesBKG[ibkg].GetBinContent(ix,iy)<0 : templatesBKG[ibkg].SetBinContent(ix,iy,0)
+                    if templatesBKG[ibkg].GetBinContent(ix,iy)<0 : templatesBKG[ibkg].SetBinContent(ix,iy,0.00000001)
             #templatesBKG[ibkg].Scale(1,"width") 
             #print "SDKJFHLKSHFLKSDFNLSKDFNEAKLF ",tBkgIntegral, templatesBKG[ibkg].Integral("width"),templatesBKG[ibkg].Integral("")
             templatesBKG[ibkg].Scale(tBkgIntegral/templatesBKG[ibkg].Integral(""))
 
             if theInputs.background[ibkg] == "QCD":
 
-                AddBinByBinSyst(w,"qcd",PdfName,templatesBKG[ibkg])
+                self.AddBinByBinSyst(w,"CMS_HHbbtt_qcd",PdfName,templatesBKG[ibkg],ral_variableList,ras_variableSet)
 
                 index = theInputs.additional.index("QCD")
                 CorrtemplateName = "UP"+theInputs.additionalName[index]
@@ -284,10 +318,10 @@ class cardMaker:
                 for iy in range(1,1+templateUp.GetNbinsY()):
                     for ix in range(1,1+templateUp.GetNbinsX()):
                         #print ix, iy
-                        if templateUp.GetBinContent(ix,iy)<0 : templateUp.SetBinContent(ix,iy,0)
+                        if templateUp.GetBinContent(ix,iy)<0 : templateUp.SetBinContent(ix,iy,0.00000001)
                 templateUp.Scale(tBkgIntegral/templateUp.Integral())
                 rlxshapeUp = ROOT.RooDataHist("qcd_dhRlxToTight_{0}Up".format(theChannel),"qcd_dhRlxToTight_{0}Up".format(theChannel),ral_variableList,templateUp)
-                rlxshapepdfUp  = ROOT.RooHistPdf(PdfName+"_qcd_RlxToTight_{0}Up".format(theChannel),PdfName+"_qcd_RlxToTight_{0}Up".format(theChannel),ras_variableSet,rlxshapeUp)
+                rlxshapepdfUp  = ROOT.RooHistPdf(PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}Up".format(theChannel),PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}Up".format(theChannel),ras_variableSet,rlxshapeUp)
 
                 CorrtemplateName = "DOWN"+theInputs.additionalName[index]
                 print CorrtemplateName
@@ -295,10 +329,10 @@ class cardMaker:
                 for iy in range(1,1+templateDown.GetNbinsY()):
                     for ix in range(1,1+templateDown.GetNbinsX()):
                         #print ix, iy
-                        if templateDown.GetBinContent(ix,iy)<0 : templateDown.SetBinContent(ix,iy,0)
+                        if templateDown.GetBinContent(ix,iy)<0 : templateDown.SetBinContent(ix,iy,0.00000001)
                 templateDown.Scale(tBkgIntegral/templateDown.Integral())
                 rlxshapeDown = ROOT.RooDataHist("qcd_dhRlxToTight_{0}Down".format(theChannel),"qcd_dhRlxToTight_{0}Down".format(theChannel),ral_variableList,templateDown)
-                rlxshapepdfDown  = ROOT.RooHistPdf(PdfName+"_qcd_RlxToTight_{0}Down".format(theChannel),PdfName+"_qcd_RlxToTight_{0}Down".format(theChannel),ras_variableSet,rlxshapeDown)
+                rlxshapepdfDown  = ROOT.RooHistPdf(PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}Down".format(theChannel),PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}Down".format(theChannel),ras_variableSet,rlxshapeDown)
 
                 getattr(w,'import')(rlxshapepdfUp,ROOT.RooFit.RecycleConflictNodes())
                 getattr(w,'import')(rlxshapepdfDown,ROOT.RooFit.RecycleConflictNodes())
@@ -359,13 +393,11 @@ class cardMaker:
         string_ShapeWS = "hh_{0}_L{1}_13TeV.input.root".format(theChannel,theHHLambda)
         string_ShapeDC = "hh_{0}_L{1}_13TeV.txt".format(theChannel,theHHLambda)
 
-        w.writeToFile(name_ShapeWS)
-
         ## --------------------------- DATACARD -------------------------- ##
         file = open( name_ShapeDC, "wb")
 
         #channelList=theInputs.background #['sig','bkg_TT','bkg_DY'] 
-        channelName=['sig']#'sig','bkg_TT','bkg_DY','bkg_TWantitop','bkg_TWtop']
+        channelName=['ggHH_hbbhtt']#'sig','bkg_TT','bkg_DY','bkg_TWantitop','bkg_TWtop']
         for isample in theInputs.background:
             channelName.append('bkg_'+isample)
         print channelName
@@ -415,10 +447,11 @@ class cardMaker:
             systChannel = systReader("../config/systematics_mutau.cfg",[theHHLambda],theInputs.background,file)
         elif(theChannel == self.ID_ch_etau ): 
             systChannel = systReader("../config/systematics_etau.cfg",[theHHLambda],theInputs.background,file)
-        syst_th = systReader("../config/syst_th.cfg",[theHHLambda],theInputs.background,file)
         syst.writeSystematics()
         systChannel.writeSystematics()
-        if(self.writeThSyst) syst_th.writeSystematics()
+        if(self.writeThSyst) :
+            syst_th = systReader("../config/syst_th.cfg",[theHHLambda],theInputs.background,file)
+            syst_th.writeSystematics()
 
         index = theInputs.additional.index("QCD")
         templateName = theInputs.additionalName[index]
@@ -427,12 +460,18 @@ class cardMaker:
             for iqcd in range(len(self.binsysts)) :
                 syst.writeOneLine("QCD",self.binsysts[iqcd])
             #add QCD rlx to tight shape unc
-            syst.writeOneLine("QCD","qcd_RlxToTight_{0} shape ".format(theChannel))
+            syst.writeOneLine("QCD","CMS_HHbbtt_qcd_RlxToTight_{0} shape ".format(theChannel))
             #add stat uncertainty (sqrt(N)) => is this needed?? In any case it can't be added as gamma (lnU instead?)
-            syst.writeOneLine("QCD", "qcd_SR_norm_{0} lnN ".format(theChannel),1+1.0/TMath.Sqrt(inputFile.Get(templateName).Integral()))
+            syst.writeOneLine("QCD", "CMS_HHbbtt_qcd_SR_norm_{0} lnN ".format(theChannel),1+1.0/TMath.Sqrt(inputFile.Get(templateName).Integral()))
             #add  CR->SR uncertainty (gamma*alhpa)
             #templateName = templateName.replace("CORR_","")###GRRR this is hardcoded... but I don't know how to do better
-            syst.writeOneLine("QCD", "qcd_CR_norm_{0} gmN {1:.0f} ".format(theChannel,inputFile.Get(templateName).Integral()/1.06),1.06)
+            syst.writeOneLine("QCD", "CMS_HHbbtt_qcd_CR_norm_{0} gmN {1:.0f} ".format(theChannel,inputFile.Get(templateName).Integral()/1.06),1.06)
+        readChTmplate = "MuTau"
+        if(thechannel == self.ID_ch_etau): readChTmplate = "ETau"
+        elif (thechannel == self.ID_ch_tautau): readChTmplate = "TauTau"
+        self.AddSingleShapeSyst(w,syst,"CMS_HHbbtt_pttopreweight","/home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/studies/TopPtReweight/topPtShapes_{0}.root".format(readChTmplate),"h","TT",ral_variableList,ras_variableSet)
+
+        w.writeToFile(name_ShapeWS)
 
 #define function for parsing options
 def parseOptions():
@@ -486,6 +525,7 @@ if __name__ == "__main__":
     elif opt.channel == "TauTau" : thechannel = 3
 
     input.readInputs()
+    #print "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",input.background
 
     if opt.filename == "":
         filename = "../"+input.inputFolder+"/outPlotter.root"
