@@ -216,7 +216,7 @@ if __name__ == "__main__":
 
         command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' + jobsDir + '/skimJob_' + str (n) + '.sh\'')
         if opt.sleep : time.sleep (0.1)
-        #os.system (command)
+        os.system (command)
         commandFile.write (command + '\n')
         n = n + 1
     commandFile.close ()
