@@ -431,6 +431,7 @@ int main (int argc, char** argv)
             float SFTop1 = TMath::Exp(aTopRW+bTopRW*ptTop1);
             float SFTop2 = TMath::Exp(aTopRW+bTopRW*ptTop2);
             topPtReweight = TMath::Sqrt (SFTop1*SFTop2); // save later together with other weights
+            theSmallTree.m_topReweight = topPtReweight ;
         }
       }
 

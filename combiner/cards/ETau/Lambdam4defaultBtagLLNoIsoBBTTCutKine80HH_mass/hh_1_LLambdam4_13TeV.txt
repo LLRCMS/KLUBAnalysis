@@ -1,0 +1,47 @@
+imax 1
+jmax 12
+kmax *
+------------
+shapes * * hh_1_LLambdam4_13TeV.input.root w:$PROCESS w:$PROCESS_$SYSTEMATIC
+------------
+bin a1 
+observation 26 
+------------
+bin a1 a1 a1 a1 a1 a1 a1 a1 a1 a1 a1 a1 a1 
+process ggHH_hbbhtt bkg_DY bkg_WJets bkg_TT bkg_TWtop bkg_TWantitop bkg_WWTo2L2Nu bkg_WZTo1L1Nu2Q bkg_WZTo2L2Q bkg_WZTo3LNu bkg_ZZTo2L2Nu bkg_ZZTo2L2Q bkg_QCD 
+process 0 1 2 3 4 5 6 7 8 9 10 11 12 
+rate 0.0933 2.3274 0.6511 22.8096 0.7597 0.0819 0.0178 0.0123 0.0368 0.0000 0.0013 0.1096 3.6660 
+------------
+lumi_13TeV lnN  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046 
+CMS_scale_j lnN  1.02  1.04  1.04  1.04  1.04  1.04  1.04  1.04  1.04  1.04  1.04  1.04  1.04 
+CMS_HHbbtt_WJ_unc lnN - -  1.04 - - - - - - - - - - 
+CMS_HHbbtt_DY_unc lnN -  1.04 - - - - - - - - - - - 
+CMS_HHbbtt_WW_unc lnN - -  1.05 - - -  1.05 - - - - - - 
+CMS_HHbbtt_WZ_unc lnN - - - - - - - -  1.05  1.05 - - - 
+CMS_HHbbtt_ZZ_unc lnN - - - - - - - - - -  1.05  1.05 - 
+CMS_HHbbtt_ttbar_unc lnN - - -  1.106  1.053  1.053 - - - - - - - 
+ 1.02  1.02  1.02  1.02  1.02  1.02  1.02  1.02  1.02  1.02  1.02  1.02 - 
+CMS_eff_t lnN  1.06  1.06 -  1.06  1.06  1.06  1.06  1.06  1.06  1.06  1.06  1.06  1.06 
+CMS_eff_e lnN  1.046  1.046 -  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046  1.046 
+HH_BR_Hbb lnN  1.0321/0.9673 - - - - - - - - - - - - 
+HH_BR_Htt lnN  1.0571/0.9433 - - - - - - - - - - - - 
+pdf_gg lnN  1.031 - - - - - - - - - - - - 
+QCDscale_ggHH lnN  1.043/0.94 - - - - - - - - - - - - 
+HH_mtinf lnN  1.1 - - - - - - - - - - - - 
+CMS_HHbbtt_qcd_binUnc_1_11 shape - - - - - - - - - - - - 1 
+CMS_HHbbtt_qcd_binUnc_1_12 shape - - - - - - - - - - - - 1 
+CMS_HHbbtt_qcd_binUnc_1_13 shape - - - - - - - - - - - - 1 
+CMS_HHbbtt_qcd_binUnc_1_14 shape - - - - - - - - - - - - 1 
+CMS_HHbbtt_qcd_binUnc_1_15 shape - - - - - - - - - - - - 1 
+CMS_HHbbtt_qcd_binUnc_1_16 shape - - - - - - - - - - - - 1 
+CMS_HHbbtt_qcd_binUnc_1_17 shape - - - - - - - - - - - - 1 
+CMS_HHbbtt_qcd_binUnc_1_18 shape - - - - - - - - - - - - 1 
+CMS_HHbbtt_qcd_binUnc_1_19 shape - - - - - - - - - - - - 1 
+CMS_HHbbtt_qcd_binUnc_1_110 shape - - - - - - - - - - - - 1 
+CMS_HHbbtt_qcd_binUnc_1_111 shape - - - - - - - - - - - - 1 
+CMS_HHbbtt_qcd_binUnc_1_112 shape - - - - - - - - - - - - 1 
+CMS_HHbbtt_qcd_binUnc_1_113 shape - - - - - - - - - - - - 1 
+CMS_HHbbtt_qcd_RlxToTight_1 shape - - - - - - - - - - - - 1 
+CMS_HHbbtt_qcd_SR_norm_1 lnN - - - - - - - - - - - - 1.52227882265 
+CMS_HHbbtt_qcd_CR_norm_1 gmN 3 - - - - - - - - - - - - 1.06 
+CMS_HHbbtt_pttopreweight shape - - - 1 - - - - - - - - - 
