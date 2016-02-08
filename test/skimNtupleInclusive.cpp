@@ -37,8 +37,8 @@
 //
 using namespace std ;
 
-const double a=0.156;
-const double b= -0.00137;
+const double aTopRW=0.156;
+const double bTopRW= -0.00137;
 
 
 /*  the modern way of making lorenzvectors (no warnings)
@@ -428,8 +428,8 @@ int main (int argc, char** argv)
         }
         else
         {
-            float SFTop1 = TMath::Exp(a+b*ptTop1);
-            float SFTop2 = TMath::Exp(a+b*ptTop2);
+            float SFTop1 = TMath::Exp(aTopRW+bTopRW*ptTop1);
+            float SFTop2 = TMath::Exp(aTopRW+bTopRW*ptTop2);
             topPtReweight = TMath::Sqrt (SFTop1*SFTop2); // save later together with other weights
         }
       }
