@@ -37,8 +37,8 @@
 //
 using namespace std ;
 
-const double a=0.156;
-const double b= -0.00137;
+const double aTopRW=0.156;
+const double bTopRW= -0.00137;
 
 
 /*  the modern way of making lorenzvectors (no warnings)
@@ -428,8 +428,8 @@ int main (int argc, char** argv)
         }
         else
         {
-            float SFTop1 = TMath::Exp(a+b*ptTop1);
-            float SFTop2 = TMath::Exp(a+b*ptTop2);
+            float SFTop1 = TMath::Exp(aTopRW+bTopRW*ptTop1);
+            float SFTop2 = TMath::Exp(aTopRW+bTopRW*ptTop2);
             topPtReweight = TMath::Sqrt (SFTop1*SFTop2); // save later together with other weights
             theSmallTree.m_topReweight = topPtReweight ;
         }
@@ -1141,14 +1141,17 @@ int main (int argc, char** argv)
     bool doMuTau  = gConfigParser->isDefined("TMVA::weightsMuTau");
     bool doETau   = gConfigParser->isDefined("TMVA::weightsETau");
     bool doTauTau = gConfigParser->isDefined("TMVA::weightsTauTau");
+    bool doLepTau = gConfigParser->isDefined("TMVA::weightsLepTau");
 
     string TMVAweightsTauTau  = "";
     string TMVAweightsMuTau   = "";
     string TMVAweightsETau    = "";
+    string TMVAweightsLepTau    = "";
     
     if (doMuTau)  TMVAweightsMuTau  = gConfigParser->readStringOption ("TMVA::weightsMuTau");
     if (doETau)   TMVAweightsETau   = gConfigParser->readStringOption ("TMVA::weightsETau");
     if (doTauTau) TMVAweightsTauTau = gConfigParser->readStringOption ("TMVA::weightsTauTau");
+    if (doLepTau) TMVAweightsLepTau = gConfigParser->readStringOption ("TMVA::weightsLepTau");
 
     bool TMVAspectatorsIn      = gConfigParser->readBoolOption   ("TMVA::spectatorsPresent");
     vector<string> TMVAspectators = gConfigParser->readStringListOption   ("TMVA::spectators");
@@ -1158,10 +1161,11 @@ int main (int argc, char** argv)
     TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 
     TMVA::Reader * reader = new TMVA::Reader () ;
-    Float_t mvatautau,mvamutau, mvaetau;
+    Float_t mvatautau,mvamutau, mvaetau, mvaleptau;
     TBranch *mvaBranchmutau;
     TBranch *mvaBranchtautau;
     TBranch *mvaBranchetau;
+    TBranch *mvaBranchleptau;
 
     vector<float> address (TMVAvariables.size () + TMVAspectators.size () * TMVAspectatorsIn, 0.) ; 
     for (unsigned int iv = 0 ; iv < TMVAvariables.size () ; ++iv)
@@ -1186,10 +1190,12 @@ int main (int argc, char** argv)
     if (doMuTau)  mvaBranchmutau = treenew->Branch ("MuTauKine", &mvamutau, "MuTauKine/F") ;
     if (doETau)   mvaBranchetau = treenew->Branch ("ETauKine", &mvaetau, "ETauKine/F") ;
     if (doTauTau) mvaBranchtautau = treenew->Branch ("TauTauKine", &mvatautau, "TauTauKine/F") ;
+    if (doLepTau) mvaBranchleptau = treenew->Branch ("LepTauKine", &mvaleptau, "LepTauKine/F") ;
     //}
     if (doMuTau)   reader->BookMVA ("MuTauKine",  TMVAweightsMuTau.c_str ()) ;
     if (doETau)    reader->BookMVA ("ETauKine",  TMVAweightsETau.c_str ()) ;
     if (doTauTau)  reader->BookMVA ("TauTauKine",  TMVAweightsTauTau.c_str ()) ;
+    if (doLepTau)  reader->BookMVA ("LepTauKine",  TMVAweightsLepTau.c_str ()) ;
 
     int nentries = treenew->GetEntries();
     for(int i=0;i<nentries;i++){
@@ -1198,10 +1204,12 @@ int main (int argc, char** argv)
       if (doMuTau)   mvamutau= reader->EvaluateMVA ("MuTauKine") ;  
       if (doETau)    mvaetau= reader->EvaluateMVA ("ETauKine") ;  
       if (doTauTau)  mvatautau= reader->EvaluateMVA ("TauTauKine") ;  
+      if (doLepTau)  mvaleptau= reader->EvaluateMVA ("LepTauKine") ;  
 
       if (doMuTau)    mvaBranchmutau->Fill();
       if (doETau)     mvaBranchetau->Fill();
       if (doTauTau)   mvaBranchtautau->Fill();
+      if (doLepTau)   mvaBranchleptau->Fill();
     }
 
     outFile->cd () ;

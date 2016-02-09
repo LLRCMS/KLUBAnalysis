@@ -168,14 +168,16 @@ int main (int argc, char** argv)
   TMVAtest->SetBackgroundWeightExpression (eventWeight) ;
 
   char trainOptions[120] ;
-  sprintf (trainOptions,"nTrain_Signal=%d:nTrain_Background=%d:nTest_Signal=%d:nTest_Background=%d:SplitMode=Random:NormMode=NumEvents:!V",
+  // sprintf (trainOptions,"nTrain_Signal=%d:nTrain_Background=%d:nTest_Signal=%d:nTest_Background=%d:SplitMode=Random:NormMode=NumEvents:!V",
+  //          0,0,0,0) ;
+  sprintf (trainOptions,"nTrain_Signal=%d:nTrain_Background=%d:nTest_Signal=%d:nTest_Background=%d:SplitMode=Random:!V",
            0,0,0,0) ;
   TMVAtest->PrepareTrainingAndTestTree (preselections, preselections, trainOptions) ;
   
   // adding a BDT
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   
-  int    NTrees         = 200 ; 
+  int    NTrees         = 800 ; 
   bool   optimizeMethod = false ; 
   string BoostType      = "AdaBoost" ; 
   float  AdaBoostBeta   = 0.5 ; 
@@ -188,21 +190,22 @@ int main (int argc, char** argv)
       NTrees, BoostType.c_str (), AdaBoostBeta, PruneMethod.c_str (), PruneStrength, MaxDepth, SeparationType.c_str ()) ;
 
   string BDTname = string ("BDT_") + MVAname ;
-  TMVAtest->BookMethod ( TMVA::Types::kBDT, BDTname.c_str (), Option.Data ()) ;
+  //TMVAtest->BookMethod ( TMVA::Types::kBDT, BDTname.c_str (), Option.Data ()) ;
 
   // adding a BDTG
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  float GradBaggingFraction = 0.7 ; 
-  NTrees              = 300 ; 
+  float GradBaggingFraction = 0.6 ; 
+  NTrees              = 100 ; 
   optimizeMethod      = false ; 
   PruneMethod         = "NoPruning" ; 
   PruneStrength       = 5 ; 
-  MaxDepth            = 3 ; 
+  MaxDepth            = 2 ; 
   SeparationType      = "GiniIndex" ;
+  float Shrinkage     = 0.3;
 
-  Option = Form ("CreateMVAPdfs:NTrees=%d:BoostType=Grad:!UseBaggedGrad:GradBaggingFraction=%f:PruneMethod=%s:PruneStrength=%d:MaxDepth=%d:SeparationType=%s:Shrinkage=0.1:UseYesNoLeaf=F:nCuts=2000",
-      NTrees, GradBaggingFraction, PruneMethod.c_str (), PruneStrength, MaxDepth, SeparationType.c_str ()) ;
+  Option = Form ("CreateMVAPdfs:NTrees=%d:BoostType=Grad:UseBaggedGrad:BaggedSampleFraction=%f:PruneMethod=%s:PruneStrength=%d:MaxDepth=%d:SeparationType=%s:Shrinkage=%f:UseYesNoLeaf=F:nCuts=600",
+      NTrees, GradBaggingFraction, PruneMethod.c_str (), PruneStrength, MaxDepth, SeparationType.c_str (), Shrinkage) ;
 
   string BDTGname = string ("BDTG_") + MVAname ;
   TMVAtest->BookMethod ( TMVA::Types::kBDT, BDTGname.c_str (), Option.Data ()) ;
