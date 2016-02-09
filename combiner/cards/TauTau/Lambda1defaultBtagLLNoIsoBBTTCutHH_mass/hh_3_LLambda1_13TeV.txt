@@ -20,7 +20,7 @@ CMS_HHbbtt_WW_unc lnN - - - - -  1.1 - - - - - -
 CMS_HHbbtt_WZ_unc lnN - - - - - -  1.1  1.1 - - - - 
 CMS_HHbbtt_ZZ_unc lnN - - - - - - - -  1.1  1.1  1.1 - 
 CMS_HHbbtt_tW_unc lnN - - -  1.053  1.053 - - - - - - - 
-CMS_HHbbtt_TT_unc lnN  1.99 -  1.16 - - - - - - - - - 
+CMS_HHbbtt_TT_unc lnN - -  1.16 - - - - - - - - - 
 CMS_scale_b lnN  1.02  1.02  1.02  1.02  1.02  1.02  1.02  1.02  1.02  1.02  1.02 - 
 CMS_eff_t lnN  1.085  1.085  1.085 - -  1.085  1.085  1.085  1.085  1.085  1.085 - 
 HH_BR_Hbb lnN  1.0321/0.9673 - - - - - - - - - - - 
