@@ -2,3 +2,8 @@
 *.pyc
 *.o
 *.so
+*.eps
+combiner/*.pdf
+combiner/*.png
+combiner/*.root
+combiner/cards_*
