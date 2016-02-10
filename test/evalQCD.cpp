@@ -164,13 +164,13 @@ int main (int argc, char** argv)
   vector<sample> sigSamples ;
   readSamples (sigSamples, sigSamplesList) ;
 
-  vector<float> signalScales ;
-  for (unsigned int i = 0 ; i < sigSamplesList.size () ; ++i)
-    {
-      string name = string ("samples::") + sigSamplesList.at (i) + string ("FACT") ;
-      float scale = gConfigParser->readFloatOption (name.c_str ()) ;
-      signalScales.push_back (scale) ;        
-    }
+  vector<float> signalScales (0);
+  // for (unsigned int i = 0 ; i < sigSamplesList.size () ; ++i)
+  //   {
+  //     string name = string ("samples::") + sigSamplesList.at (i) + string ("FACT") ;
+  //     float scale = gConfigParser->readFloatOption (name.c_str ()) ;
+  //     signalScales.push_back (scale) ;        
+  //   }
 
   vector<string> bkgSamplesList = gConfigParser->readStringListOption ("general::backgrounds") ;
   vector<sample> bkgSamples ;
