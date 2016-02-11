@@ -411,17 +411,22 @@ if __name__ == "__main__" :
     # signals to plot
     #signalList = ["Radion300", "Radion450", "Radion800"]
     
-    #sigList = ["Lambda1", "Lambda20"]
-    #sigNameList = ["100 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 1", "10 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 20"]
-    #sigNameList = ["100 x #lambda/#lambda^{SM} = 1", "10 x #lambda/#lambda^{SM} = 20"]
+    sigList = ["Lambda1", "Lambda20"]
+    sigNameList = ["100 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 1", "10 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 20"]
+    sigNameList = ["100 x #lambda/#lambda^{SM} = 1", "10 x #lambda/#lambda^{SM} = 20"]
 
-    sigList = ["Radion300", "Radion450", "Radion800"]
-    sigNameList = [
-        "m_{H} = 300 GeV",
-        "m_{H} = 450 GeV",
-        "m_{H} = 800 GeV" ]
+    sigScale = [100., 10.]
+    sigColors = {}
+    sigColors["Lambda1"] = 1
+    sigColors["Lambda20"] = 2
+
+    # sigList = ["Radion300", "Radion450", "Radion800"]
+    # sigNameList = [
+    #     "m_{H} = 300 GeV",
+    #     "m_{H} = 450 GeV",
+    #     "m_{H} = 800 GeV" ]
     
-    sigScale = [1.0, 1.0, 1.0]
+    # sigScale = [1.0, 1.0, 1.0]
     #sigScale = [0.1, 0.1, 0.1]
     if args.sigscale:
         for i in range(0,len(sigScale)): sigScale[i] = args.sigscale
@@ -483,6 +488,13 @@ if __name__ == "__main__" :
     for i, scale in enumerate (sigScale):
         histo = hSigs[sigList[i]]
         histo.Scale(scale)
+
+    # apply sig color if available
+    for key in hSigs:
+        if key in sigColors:
+            thecolor = int(sigColors[key])
+            hSigs[key].SetLineColor(thecolor)
+
 
     #################### PERFORM DIVISION BY BIN WIDTH #######################
     #clones non scaled (else problems with graph ratio because I pass data evt hist)
