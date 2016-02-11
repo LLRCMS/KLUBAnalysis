@@ -878,11 +878,13 @@ int main (int argc, char** argv)
           theSmallTree.m_bH_mass = tlv_bH.M () ;
 
           TLorentzVector tlv_HH = tlv_bH + tlv_tauH ;
+          TLorentzVector tlv_HH_raw = tlv_bH_raw + tlv_tauH ;
           theSmallTree.m_HH_pt = tlv_HH.Pt () ;
           theSmallTree.m_HH_eta = tlv_HH.Eta () ;
           theSmallTree.m_HH_phi = tlv_HH.Phi () ;
           theSmallTree.m_HH_e = tlv_HH.E () ;
           theSmallTree.m_HH_mass = tlv_HH.M () ;
+          theSmallTree.m_HH_mass_raw = tlv_HH_raw.M () ;
           // in case the SVFIT mass is calculated
           if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
             {
