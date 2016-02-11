@@ -331,6 +331,7 @@ def findMaxOfGraph (graph):
 
 if __name__ == "__main__" :
     TH1.AddDirectory(0)
+
     titleSize = 30
     labelSize = 22
 
@@ -344,6 +345,8 @@ if __name__ == "__main__" :
     parser.add_argument('--sel', dest='sel', help='selection name', default=None)
     parser.add_argument('--dir', dest='dir', help='analysis output folder name', default="./")
     parser.add_argument('--title', dest='title', help='plot title', default=None)
+    parser.add_argument('--channel', dest='channel', help='channel = (MuTau, ETau, TauTau)', default=None)
+    parser.add_argument('--siglegextratext', dest='siglegextratext', help='additional optional text to be plotted in legend after signal block', default=None)
     
     #bool opts
     parser.add_argument('--log',     dest='log', help='use log scale',  action='store_true', default=False)
@@ -354,11 +357,14 @@ if __name__ == "__main__" :
     parser.add_argument('--ratio',    dest='ratio', help = 'do ratio plot at the botton', action='store_true', default=False)
     parser.add_argument('--no-print', dest='printplot', help = 'no pdf output', action='store_false', default=True)
     parser.add_argument('--quit',    dest='quit', help = 'quit at the end of the script, no interactive window', action='store_true', default=False)
+
+    # par list opt
     parser.add_argument('--blind-range',   dest='blindrange', nargs=2, help='start and end of blinding range', default=None)
 
     #float opt
     parser.add_argument('--ymin', dest='ymin', type=float, help='min y range of plots', default=None)
     parser.add_argument('--ymax', dest='ymax', type=float, help='max y range of plots', default=None)
+    parser.add_argument('--sigscale', dest='sigscale', type=float, help='scale to apply to all signals', default=None)
 
     #parser.add_argument('integers', metavar='N', type=int, nargs='+', help='an integer for the accumulator')
     #parser.add_argument('--sum', dest='accumulate', action='store_const',
@@ -366,6 +372,8 @@ if __name__ == "__main__" :
     #               help='sum the integers (default: find the max)')
     
     args = parser.parse_args()
+
+    if args.quit : gROOT.SetBatch(True)
     
     ######################### CANVASES #################################
 
@@ -413,8 +421,10 @@ if __name__ == "__main__" :
         "m_{H} = 450 GeV",
         "m_{H} = 800 GeV" ]
     
-    #sigScale = [1.0, 1.0, 1.0]
-    sigScale = [0.1, 0.1, 0.1]
+    sigScale = [1.0, 1.0, 1.0]
+    #sigScale = [0.1, 0.1, 0.1]
+    if args.sigscale:
+        for i in range(0,len(sigScale)): sigScale[i] = args.sigscale
 
     #plotTitle = ";m_{#tau#tau} [GeV];dN/dm_{#tau#tau} [1/GeV]"
     plotTitle = ";m_{bb} [GeV];dN/dm_{bb} [1/GeV]"
@@ -540,7 +550,8 @@ if __name__ == "__main__" :
             histo = hSigs[sigList[i]]
             leg.AddEntry (histo, name, "l")
         # null entry to complete signal Xsection
-        leg.AddEntry(None, "(#sigma x BR = 1 pb)" , "")
+        if args.siglegextratext:
+            leg.AddEntry(None, args.siglegextratext, "")
 
     if args.dodata:
         leg.AddEntry(gData, "data", "pe")
@@ -633,18 +644,38 @@ if __name__ == "__main__" :
     lumibox.SetTextFont(42)
     lumibox.SetTextColor(kBlack)
 
+    chName = None
+    chBox = None
+    if args.channel:
+        if args.channel == "MuTau":
+            chName = "bb #mu#tau_{h}"
+        elif args.channel == "ETau":
+            chName = "bb e#tau_{h}"
+        elif args.channel == "TauTau":
+            chName = "bb #tau_{h}#tau_{h}"
+        else:
+            print "*** Warning: channel name must be MuTau, ETau, TauTau, you wrote: " , args.channel
+
+        if chName:
+            chBox = TLatex  (xpos + 0.2, ypos - 0.025, chName)
+            chBox.SetNDC()
+            chBox.SetTextSize(cmsTextSize+20)
+            chBox.SetTextFont(43)
+            chBox.SetTextColor(kBlack)
+            chBox.SetTextAlign(13)
     CMSbox.Draw()
     extraTextBox.Draw()
     lumibox.Draw()
     if args.legend: leg.Draw()
+    if chBox: chBox.Draw()
 
     ###################### BLINDING BOX ###############################
     if args.blindrange:
         blow = float(args.blindrange[0])
         bup = float(args.blindrange[1])
         bBox = TBox (blow, ymin, bup, 0.93*ymax)
-        bBox.SetFillStyle(3005)
-        bBox.SetFillColor(kGray+2)
+        bBox.SetFillStyle(3002) # NB: does not appear the same in displayed box and printed pdf!!
+        bBox.SetFillColor(kGray+2) # NB: does not appear the same in displayed box and printed pdf!!
         bBox.Draw()
 
 
@@ -708,5 +739,8 @@ if __name__ == "__main__" :
         raw_input() # to prevent script from closing
 
     if args.printplot:
-        saveName = "plot_" + args.var + "_" + args.sel + ".pdf"
+        tag = ""
+        if args.channel:
+            tag = "_" + args.channel
+        saveName = "plot_" + args.var + "_" + args.sel + tag + ".pdf"
         c1.Print (saveName, "pdf")
