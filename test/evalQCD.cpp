@@ -866,6 +866,9 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
   outFolderNameBase += "/" ;  
   system (TString ("mkdir -p ") + outFolderNameBase) ;
 
+  system (TString ("cp ") + config + " " + outFolderNameBase ) ;
+
+
   TString outString ;
   outString.Form (outFolderNameBase + "outPlotter.root") ;
   TFile * fOut = new TFile (outString.Data (), "RECREATE") ;
