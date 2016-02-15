@@ -62,6 +62,26 @@ void triggerReader::addMuEleTrigs (vector<string> list)
     }
     return;
 }
+void triggerReader::addEleEleTrigs (vector<string> list)
+{
+    for (unsigned int i = 0; i < list.size(); i++)
+    {
+        auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
+        if (it != _allTriggers.end()) _eeTriggers.push_back (it - _allTriggers.begin());
+        else cout << " ** WARNING triggerReader : trigger name " << list.at(i) << " not in input histogram" << endl;
+    }
+    return;
+}
+void triggerReader::addMuMuTrigs (vector<string> list)
+{
+    for (unsigned int i = 0; i < list.size(); i++)
+    {
+        auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
+        if (it != _allTriggers.end()) _mmTriggers.push_back (it - _allTriggers.begin());
+        else cout << " ** WARNING triggerReader : trigger name " << list.at(i) << " not in input histogram" << endl;
+    }
+    return;
+}
 
 bool triggerReader::checkORTauTau  (Long64_t triggerbit)
 {
@@ -106,6 +126,26 @@ bool triggerReader::checkORMuEle  (Long64_t triggerbit)
     }
     return OR;
 }
+bool triggerReader::checkOREleEle  (Long64_t triggerbit)
+{
+    bool OR = false;
+    for (unsigned int i = 0; i < _eeTriggers.size(); i++)
+    {
+        OR = CheckBit (triggerbit, _eeTriggers.at(i));
+        if (OR) break;
+    }
+    return OR;
+}
+bool triggerReader::checkORMuMu  (Long64_t triggerbit)
+{
+    bool OR = false;
+    for (unsigned int i = 0; i < _mmTriggers.size(); i++)
+    {
+        OR = CheckBit (triggerbit, _mmTriggers.at(i));
+        if (OR) break;
+    }
+    return OR;
+}
 
 bool triggerReader::CheckBit (Long64_t number, int bitpos)
 {
@@ -119,6 +159,8 @@ bool triggerReader::checkOR (int pairType, Long64_t triggerbit)
     else if (pairType == ((int) OfflineProducerHelper::EHad) )   return checkOREleTau(triggerbit);
     else if (pairType == ((int) OfflineProducerHelper::HadHad) ) return checkORTauTau(triggerbit);
     else if (pairType == ((int) OfflineProducerHelper::EMu) )    return checkORMuEle(triggerbit);
+    else if (pairType == ((int) OfflineProducerHelper::EE) )    return checkOREleEle(triggerbit);
+    else if (pairType == ((int) OfflineProducerHelper::MuMu) )    return checkORMuMu(triggerbit);
     else
     {
         cout << " ** WARNING!! Pair type " << pairType << " not implemented for trigger" << endl;

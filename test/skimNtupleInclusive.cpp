@@ -297,6 +297,9 @@ int main (int argc, char** argv)
   vector<string> trigTauTau   = (isMC ? gConfigParser->readStringListOption ("triggersMC::TauTau") : gConfigParser->readStringListOption ("triggersData::TauTau")) ;
   vector<string> trigEleTau   = (isMC ? gConfigParser->readStringListOption ("triggersMC::EleTau") : gConfigParser->readStringListOption ("triggersData::EleTau")) ;
   vector<string> trigEleMu   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleMu")  : gConfigParser->readStringListOption ("triggersData::EleMu")) ;
+  //I didn't store MuMu and I don't care for eleele
+  //vector<string> trigEleEle   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleMu")  : gConfigParser->readStringListOption ("triggersData::EleMu")) ;
+  vector<string> trigMuMu   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuTau")  : gConfigParser->readStringListOption ("triggersData::MuTau")) ;
 
   bool skipTriggers = false;
   if (gConfigParser->isDefined ("debug::skipTriggers"))
@@ -348,6 +351,7 @@ int main (int argc, char** argv)
   trigReader.addMuTauTrigs  (trigMuTau);
   trigReader.addEleTauTrigs (trigEleTau);
   trigReader.addMuEleTrigs  (trigEleMu);
+  trigReader.addMuMuTrigs  (trigMuMu);
 
   // ------------------------------
 
@@ -476,6 +480,7 @@ int main (int argc, char** argv)
       if (trigReader.checkOR (0, triggerbit) ) trigPairType = 0;
       else if (trigReader.checkOR (1, triggerbit) ) trigPairType = 1;
       else if (trigReader.checkOR (2, triggerbit) ) trigPairType = 2;
+      else if (trigReader.checkOR (4, triggerbit) ) trigPairType = 4;
       else if (trigReader.checkOR (5, triggerbit) ) trigPairType = 5; // FIXME! maybe ee, mumu need to be evaluated as well
 
       for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
@@ -860,7 +865,10 @@ int main (int argc, char** argv)
           float METx = theBigTree.METx->at (chosenTauPair) ;
           float METy = theBigTree.METy->at (chosenTauPair) ;
           //float METpt = 0;//TMath::Sqrt (METx*METx + METy*METy) ;
-    
+
+          TLorentzVector tlv_neutrinos =  tlv_bH - tlv_bH_raw;
+          theSmallTree.m_met_et_corr = theBigTree.met - tlv_neutrinos.Et() ;
+
 	        const TVector2 ptmiss = TVector2(METx, METy) ;
           //TVector2 ptmiss = TVector2(METx,METy);
           TMatrixD metcov (2, 2) ;

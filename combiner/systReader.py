@@ -36,14 +36,15 @@ class systReader:
         for ifile in range(len(self.theInput)):
             for line in open(self.theInput[ifile],'r'):
                 f = line.split()
-
+                #print f
                 if len(f) < 1: continue
                 if f[0].startswith("#"): continue
 
                 if f[0].startswith('['):
                     f = re.split('\W+',line)
                     section = f[1]
-                        
+
+                    #print "before ",outputLine
                     if outputLine is not "" :
                         #OutputLines.append(outputLine)
                         for chan in self.channels :
@@ -51,6 +52,7 @@ class systReader:
                             systLine[chan] = "- "
 
                         OutputLines.append(outputLine)
+                        print outputLine
                         outputLine = ""
 
                     print "writing syst for ", section
@@ -71,7 +73,7 @@ class systReader:
                 if not "param" in outputLine: 
                     outputLine += systLine[chan]
             OutputLines.append(outputLine)
-
+            print outputLine
             for line in OutputLines:
                 self.theOutputFile.write(line+"\n")
 

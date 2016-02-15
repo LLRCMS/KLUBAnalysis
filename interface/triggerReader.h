@@ -16,11 +16,15 @@ class triggerReader
         void addMuTauTrigs  (std::vector<std::string> list);
         void addEleTauTrigs (std::vector<std::string> list);
         void addMuEleTrigs  (std::vector<std::string> list);
+        void addMuMuTrigs  (std::vector<std::string> list);
+        void addEleEleTrigs  (std::vector<std::string> list);
         
         bool checkORTauTau  (Long64_t triggerbit);
         bool checkORMuTau   (Long64_t triggerbit);
         bool checkOREleTau  (Long64_t triggerbit);
         bool checkORMuEle   (Long64_t triggerbit);
+        bool checkORMuMu   (Long64_t triggerbit);
+        bool checkOREleEle   (Long64_t triggerbit);
 
         bool CheckBit (Long64_t number, int bitpos);
 
@@ -33,5 +37,7 @@ class triggerReader
         std::vector<Long64_t> _mtTriggers; // mu tau
         std::vector<Long64_t> _etTriggers; // e tau
         std::vector<Long64_t> _emTriggers; // e mu
+        std::vector<Long64_t> _mmTriggers; // mu mu
+        std::vector<Long64_t> _eeTriggers; // e e
 
 };
