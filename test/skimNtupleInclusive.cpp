@@ -866,6 +866,7 @@ int main (int argc, char** argv)
           float METy = theBigTree.METy->at (chosenTauPair) ;
           //float METpt = 0;//TMath::Sqrt (METx*METx + METy*METy) ;
 
+          TLorentzVector tlv_bH = tlv_firstBjet + tlv_secondBjet ;
           TLorentzVector tlv_neutrinos =  tlv_bH - tlv_bH_raw;
           theSmallTree.m_met_et_corr = theBigTree.met - tlv_neutrinos.Et() ;
 
@@ -878,7 +879,6 @@ int main (int argc, char** argv)
           metcov (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
 
           const TMatrixD stableMetCov = metcov; 
-          TLorentzVector tlv_bH = tlv_firstBjet + tlv_secondBjet ;
           theSmallTree.m_bH_pt = tlv_bH.Pt () ;
           theSmallTree.m_bH_eta = tlv_bH.Eta () ;
           theSmallTree.m_bH_phi = tlv_bH.Phi () ;

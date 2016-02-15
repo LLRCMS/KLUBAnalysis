@@ -49,7 +49,7 @@ struct smallTree
       
       m_met_phi = -1. ;
       m_met_et = -1. ;
-
+      m_met_et_corr =-1.;
       m_mT = -1. ;
     
       m_dau1_iso  = -1. ;
@@ -213,7 +213,7 @@ struct smallTree
 
       m_smallT->Branch ("met_phi", &m_met_phi, "met_phi/F") ;
       m_smallT->Branch ("met_et", &m_met_et, "met_et/F") ;
-
+      m_smallT->Branch ("met_et_corr", &m_met_et_corr, "met_et_corr/F") ;
       m_smallT->Branch ("mT", &m_mT, "mT/F") ;
 
       m_smallT->Branch ("dau1_iso", &m_dau1_iso, "dau1_iso/F") ;
@@ -383,7 +383,7 @@ struct smallTree
   // MET
   Float_t m_met_phi ;
   Float_t m_met_et ;
-
+  Float_t m_met_et_corr;
   // mt
   Float_t m_mT ;
 
