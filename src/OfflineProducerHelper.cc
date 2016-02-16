@@ -206,9 +206,14 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     
     if (pairType == MuMu)
     {
-      bool leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.1, whatApply);
-      bool leg2 = muBaseline (tree, dau2index, 23., 2.1, 0.1, whatApply);
-      return (leg1 && leg2);      
+      bool leg1 = muBaseline (tree, dau1index, 10., 2.4, 0.1, whatApply);
+      bool leg2 = muBaseline (tree, dau2index, 10., 2.4, 0.1, whatApply);
+      bool leg1ER = muBaseline (tree, dau1index, 19., 2.1, 0.1, whatApply);
+      bool leg2ER = muBaseline (tree, dau2index, 19., 2.1, 0.1, whatApply);
+      
+      //bool Is1in2p1 = leg1ER ;
+      //bool Is2in2p1 = leg2ER ;
+      return ((leg1ER && leg2) || (leg2ER && leg1) );
     }
     
     return false;
