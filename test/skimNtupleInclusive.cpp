@@ -299,7 +299,22 @@ int main (int argc, char** argv)
   vector<string> trigEleMu   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleMu")  : gConfigParser->readStringListOption ("triggersData::EleMu")) ;
   //I didn't store MuMu and I don't care for eleele
   //vector<string> trigEleEle   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleMu")  : gConfigParser->readStringListOption ("triggersData::EleMu")) ;
-  vector<string> trigMuMu   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuTau")  : gConfigParser->readStringListOption ("triggersData::MuTau")) ;
+  vector<string> trigMuMu   =  trigMuTau ;//(isMC ? gConfigParser->readStringListOption ("triggersMC::MuTau")  : gConfigParser->readStringListOption ("triggersData::MuTau")) ;
+
+  cout << "TRIGGERS: " << endl;
+  
+  cout << "MuTau" << endl; cout << "  --> ";
+  for (unsigned int i = 0 ; i < trigMuTau.size(); i++) cout << "  " << trigMuTau.at(i);
+  cout << endl;
+
+  cout << "EleTau" << endl; cout << "  --> ";
+  for (unsigned int i = 0 ; i < trigEleTau.size(); i++) cout << "  " << trigEleTau.at(i);
+  cout << endl;
+
+  cout << "TauTau" << endl; cout << "  --> ";
+  for (unsigned int i = 0 ; i < trigTauTau.size(); i++) cout << "  " << trigTauTau.at(i);
+  cout << endl;
+
 
   bool skipTriggers = false;
   if (gConfigParser->isDefined ("debug::skipTriggers"))
@@ -351,7 +366,7 @@ int main (int argc, char** argv)
   trigReader.addMuTauTrigs  (trigMuTau);
   trigReader.addEleTauTrigs (trigEleTau);
   trigReader.addMuEleTrigs  (trigEleMu);
-  trigReader.addMuMuTrigs  (trigMuMu);
+  trigReader.addMuMuTrigs   (trigMuMu);
 
   // ------------------------------
 
@@ -477,17 +492,19 @@ int main (int argc, char** argv)
       // determine kind of pairs according to trigger
       int trigPairType = -99;
       Long64_t triggerbit = theBigTree.triggerbit;
-      if (trigReader.checkOR (0, triggerbit) ) trigPairType = 0;
-      else if (trigReader.checkOR (1, triggerbit) ) trigPairType = 1;
-      else if (trigReader.checkOR (2, triggerbit) ) trigPairType = 2;
-      else if (trigReader.checkOR (4, triggerbit) ) trigPairType = 4;
-      else if (trigReader.checkOR (5, triggerbit) ) trigPairType = 5; // FIXME! maybe ee, mumu need to be evaluated as well
+      if (trigReader.checkOR (0, triggerbit) ) trigPairType = 0; // muTau
+      //if (false) trigPairType = 0; // muTau
+      else if (trigReader.checkOR (1, triggerbit) ) trigPairType = 1; // etau
+      else if (trigReader.checkOR (2, triggerbit) ) trigPairType = 2; // tautau
+      //else if (trigReader.checkOR (3, triggerbit) ) trigPairType = 3; // mumu
+      else if (trigReader.checkOR (5, triggerbit) ) trigPairType = 5; // emu
 
+
+      // FIXME!! ee and mumu are "eaten" by the muTau / eTau final states when we use single lepton triggers
       for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
         {
           // FIXME need to implement here the choice of iso / anti-iso
           if (!oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag.c_str ())) continue ;
-
           int firstDaughterIndex = theBigTree.indexDau1->at (iPair) ;  
           int secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
           
@@ -506,12 +523,11 @@ int main (int argc, char** argv)
               theBigTree.daughters_e->at (secondDaughterIndex)
             ) ;
           //if (isDegenere (tlv_firstLepton, tlv_secondLepton)) continue; // antiEle and antiMu should already do this dirty job
-
           int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
           int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
           int pairType = oph.getPairType (type1, type2) ;
           if (foundPairs.find (pairType) != foundPairs.end ()) continue ;
-          
+
           if (!skipTriggers)
           {
             if (pairType != trigPairType) continue; // flavor determined by trigger type
