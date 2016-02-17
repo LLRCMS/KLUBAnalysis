@@ -327,6 +327,26 @@ def findMaxOfGraph (graph):
 #             hTempUp.Scale (1.0 + scale)
 #             hTempDown.Scale (1.0 - scale)
 
+## remove negative bins and reset yield accordingly
+## NB: must be done BEFORE bin width division
+def makeNonNegativeHistos (hList):
+    for h in hList:
+        integral = h.Integral()
+        for b in range (1, h.GetNbinsX()+1):
+            if (h.GetBinContent(b) < 0):
+               h.SetBinContent (b, 0)
+        integralNew = h.Integral()        
+        
+        if (integralNew != integral):
+            print "** INFO: removed neg bins from histo " , h.GetName() 
+        
+        # print h.GetName() , integral , integralNew
+        if integralNew == 0:
+            h.Scale(0)
+        else:
+            h.Scale(integral/integralNew) 
+
+
 ### script body ###
 
 if __name__ == "__main__" :
@@ -362,6 +382,7 @@ if __name__ == "__main__" :
     parser.add_argument('--blind-range',   dest='blindrange', nargs=2, help='start and end of blinding range', default=None)
 
     #float opt
+    parser.add_argument('--lymin', dest='lymin', type=float, help='legend min y position in pad fraction', default=None)
     parser.add_argument('--ymin', dest='ymin', type=float, help='min y range of plots', default=None)
     parser.add_argument('--ymax', dest='ymax', type=float, help='max y range of plots', default=None)
     parser.add_argument('--sigscale', dest='sigscale', type=float, help='scale to apply to all signals', default=None)
@@ -495,6 +516,10 @@ if __name__ == "__main__" :
             thecolor = int(sigColors[key])
             hSigs[key].SetLineColor(thecolor)
 
+    #################### REMOVE NEGARIVE BINS #######################
+    print "** INFO: removing all negative bins from bkg histos"
+    makeNonNegativeHistos (hBkgList)
+
 
     #################### PERFORM DIVISION BY BIN WIDTH #######################
     #clones non scaled (else problems with graph ratio because I pass data evt hist)
@@ -546,7 +571,9 @@ if __name__ == "__main__" :
 
     ################## LEGEND ######################################
 
-    leg = TLegend (0.50, 0.45, 0.85, 0.93)
+    legmin = 0.45
+    if args.lymin: legmin = args.lymin
+    leg = TLegend (0.50, legmin, 0.85, 0.93)
     leg.SetFillStyle(0)
     leg.SetBorderSize(0)
     leg.SetTextFont(43)
