@@ -206,6 +206,15 @@ int main (int argc, char** argv)
     system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_log/")) ;
     system (TString ("mkdir -p ") + outFolderNameBase + TString ("/rootCanvas/")) ;
 
+    // save to file
+    TString outString ;
+    outString.Form (outFolderNameBase + "/outPlotter.root") ;
+    TFile * fOut = new TFile (outString.Data (), "RECREATE") ;
+    
+    if (drawsig)  sig_plots.save (fOut) ;
+    if (drawDATA) DATA_plots.save (fOut) ;
+    if (drawbkg)  bkg_plots.save (fOut) ;
+
     // loop on selections
     for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
     {
