@@ -836,6 +836,8 @@ int main (int argc, char** argv)
 
           TLorentzVector tlv_firstBjet_raw = tlv_firstBjet;
           TLorentzVector tlv_secondBjet_raw = tlv_secondBjet;
+          theSmallTree.m_bjet1_pt_raw = tlv_firstBjet_raw.Pt();
+          theSmallTree.m_bjet2_pt_raw = tlv_secondBjet_raw.Pt();
 
           TLorentzVector tlv_bH_raw = tlv_firstBjet + tlv_secondBjet ;
           theSmallTree.m_bH_mass_raw = tlv_bH_raw.M();

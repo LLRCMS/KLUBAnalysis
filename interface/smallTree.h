@@ -80,6 +80,7 @@ struct smallTree
       m_bjet1_e  = -1. ;
       m_bjet1_bID = -1. ;
       m_bjet1_flav = -1 ;
+      m_bjet1_pt_raw  = -1. ;
       
       m_bjet2_pt  = -1. ;
       m_bjet2_eta  = -1. ;
@@ -87,6 +88,7 @@ struct smallTree
       m_bjet2_e  = -1. ;
       m_bjet2_bID = -1. ;
       m_bjet2_flav = -1 ;
+      m_bjet2_pt_raw  = -1. ;
 
       m_genjet1_pt  = -1. ;
       m_genjet1_eta  = -1. ;
@@ -244,6 +246,7 @@ struct smallTree
       m_smallT->Branch ("bjet1_e", &m_bjet1_e, "bjet1_e/F") ;
       m_smallT->Branch ("bjet1_bID", &m_bjet1_bID, "bjet1_bID/F") ;
       m_smallT->Branch ("bjet1_flav", &m_bjet1_flav, "bjet1_flav/I") ;
+      m_smallT->Branch ("bjet1_pt_raw", &m_bjet1_pt_raw, "bjet1_pt_raw/F") ;
      
       m_smallT->Branch ("bjet2_pt", &m_bjet2_pt, "bjet2_pt/F") ;
       m_smallT->Branch ("bjet2_eta", &m_bjet2_eta, "bjet2_eta/F") ;
@@ -251,6 +254,7 @@ struct smallTree
       m_smallT->Branch ("bjet2_e", &m_bjet2_e, "bjet2_e/F") ;
       m_smallT->Branch ("bjet2_bID", &m_bjet2_bID, "bjet2m_bID/F") ;
       m_smallT->Branch ("bjet2_flav", &m_bjet2_flav, "bjet2_flav/I") ;
+      m_smallT->Branch ("bjet2_pt_raw", &m_bjet2_pt_raw, "bjet2_pt_raw/F") ;
 
       m_smallT->Branch ("genjet1_pt",  &m_genjet1_pt,  "genjet1_pt/F") ;
       m_smallT->Branch ("genjet1_eta", &m_genjet1_eta, "genjet1_eta/F") ;
@@ -411,21 +415,23 @@ struct smallTree
   Float_t m_dau2_e ;
   Float_t m_dau2_flav ; // let this contain also whether it's a hadronic dau
 
-  // the largest pT b visible candidate
+  // the largest pT b visible candidate /  highest CSV score
   Float_t m_bjet1_pt ;
   Float_t m_bjet1_eta ;
   Float_t m_bjet1_phi ;
   Float_t m_bjet1_e ;
   Float_t m_bjet1_bID ;
   Int_t   m_bjet1_flav ;
+  Float_t m_bjet1_pt_raw ;
 
-  // the smallest pT b visible candidate
+  // the trailing pT b visible candidate  /  highest CSV score
   Float_t m_bjet2_pt ;
   Float_t m_bjet2_eta ;
   Float_t m_bjet2_phi ;
   Float_t m_bjet2_e ;
   Float_t m_bjet2_bID ;
   Int_t   m_bjet2_flav ;
+  Float_t m_bjet2_pt_raw ;
 
   // the gen jet associated to the first b jet
   Float_t m_genjet1_pt ;
