@@ -128,6 +128,7 @@ int OfflineProducerHelper::getTAUidNumber(TString tauIDname){
 
 int OfflineProducerHelper::getPairType (int type1, int type2)
 {
+
     int nmu = 0;
     int nele = 0;
     int ntau = 0;
@@ -139,6 +140,7 @@ int OfflineProducerHelper::getPairType (int type1, int type2)
     if (isMuon (type2) )     nmu++;
     if (isElectron (type2) ) nele++;
     if (isTau (type2) )      ntau++;
+
 
     if (nmu == 1 && nele == 0 && ntau == 1) return (int) pairType::MuHad;
     if (nmu == 0 && nele == 1 && ntau == 1) return (int) pairType::EHad;
