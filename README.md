@@ -26,6 +26,9 @@ ln -ns ../../../HHKinFit2/interface/exceptions/HHInvMConstraintException.h
 ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyRangeException.h
 ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyConstraintException.h
 cd -
+cd weights
+git clone https://github.com/CMS-HTT/LeptonEfficiencies.git data
+cd -
 source scripts/setup.sh
 make
 make exe
