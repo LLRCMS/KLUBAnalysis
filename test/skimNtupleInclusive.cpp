@@ -403,9 +403,9 @@ int main (int argc, char** argv)
     for (int j = 0; j < 2; j++)
       myScaleFactor[i][j]= new ScaleFactor();
  
-  myScaleFactor[0][0] -> init_ScaleFactor("weights/data/Muon/Muon_SingleMu_eff.root");
+  myScaleFactor[0][0] -> init_ScaleFactor("weights/data/Muon/Muon_IsoMu18_fall15.root");
   myScaleFactor[0][1] -> init_ScaleFactor("weights/data/Muon/Muon_IdIso0p1_fall15.root");
-  myScaleFactor[1][0] -> init_ScaleFactor("weights/data/Electron/Electron_SingleEle_eff.root");
+  myScaleFactor[1][0] -> init_ScaleFactor("weights/data/Electron/Electron_Ele23_fall15.root");
   myScaleFactor[1][1] -> init_ScaleFactor("weights/data/Electron/Electron_IdIso0p1_fall15.root");
 
   // loop over events
