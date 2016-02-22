@@ -31,6 +31,7 @@ struct smallTree
       m_EventNumber = -1. ;
       m_trigSF = -1.;
       m_IdAndIsoSF = -1.;
+      m_nBhadrons = -1;
       m_RunNumber = -1. ;
       
       m_npv = -1. ;
@@ -196,6 +197,7 @@ struct smallTree
       m_smallT->Branch ("TTtopPtreweight", &m_TTtopPtreweight, "TTtopPtreweight/F") ;
       m_smallT->Branch ("trigSF", &m_trigSF, "trigSF/F") ;
       m_smallT->Branch ("IdAndIsoSF", &m_IdAndIsoSF, "IdAndIsoSF/F") ;
+      m_smallT->Branch ("nBhadrons", &m_nBhadrons, "nBhadrons/I") ;
       m_smallT->Branch ("EventNumber", &m_EventNumber, "EventNumber/I") ;
       m_smallT->Branch ("RunNumber", &m_RunNumber, "RunNumber/I") ;
 
@@ -362,6 +364,7 @@ struct smallTree
   Float_t m_TTtopPtreweight ;
   Float_t m_trigSF ;
   Float_t m_IdAndIsoSF ;
+  Int_t m_nBhadrons ;
   Int_t m_EventNumber ;
   Int_t m_RunNumber ;
 

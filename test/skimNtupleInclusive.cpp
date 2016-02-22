@@ -217,7 +217,7 @@ int main (int argc, char** argv)
       cerr << "missing input parameters" << endl ;
       cerr << "usage: " << argv[0]
            << "inputFileNameList outputFileName crossSection isData configFile runHHKinFit" << endl
-           << "OPTIONAL: xsecScale(stitch) HTMax(stitch) isTTBar" << endl ; 
+           << "OPTIONAL: xsecScale(stitch) HTMax(stitch) isTTBar DY_Nbs" << endl ; 
       exit (1) ;
     }
   TString inputFile = argv[1] ;
@@ -248,6 +248,7 @@ int main (int argc, char** argv)
   float xsecScale = 1.0;
   float HTMax = -999.0;
   bool isTTBar = false;
+  bool DY_Nbs = false; // run on genjets to count in DY samples the number of b jets
 
   if (argc >= 8)
   {
@@ -265,13 +266,19 @@ int main (int argc, char** argv)
         int isTTBarI = atoi(argv[9]);
         if (isTTBarI == 1) isTTBar = true;
         cout << " ** INFO: is this a TTbar sample? : " << isTTBar << endl;
+        if (argc >= 11)
+        {
+          int I_DY_Nbs = atoi(argv[10]);
+          if (I_DY_Nbs == 1) DY_Nbs = true; 
+        }
       }
-
     }
   }
 
   // force to !TTbar if isData -- you never know...
   if (!isMC) isTTBar = false;
+  cout << " ** INFO: going to loop on genjets to find number of b? " << DY_Nbs << endl;
+
 
   cout << " ** INFO: running on file list : " << inputFile << endl;
   cout << " ** INFO: saving output in     : " << outputFile << endl;
@@ -452,6 +459,28 @@ int main (int argc, char** argv)
             topPtReweight = TMath::Sqrt (SFTop1*SFTop2); // save later together with other weights
             theSmallTree.m_topReweight = topPtReweight ;
         }
+      }
+
+      // For Drell-Yan only: loop on genjets and count how many are there with 0,1,2 b
+      // 0: 0bjet, 1: 1 b jet, 2: >= 2 b jet
+      if (isMC && DY_Nbs)
+      {
+        TLorentzVector vgj;
+        int nbs = 0;
+        for (unsigned int igj = 0; igj < theBigTree.genjet_px->size(); igj++)
+        {
+            vgj.SetPxPyPzE(theBigTree.genjet_px->at(igj), theBigTree.genjet_py->at(igj), theBigTree.genjet_pz->at(igj), theBigTree.genjet_e->at(igj));
+            if (vgj.Pt() > 20 && TMath::Abs(vgj.Eta()) < 2.5)
+            {
+                int theFlav = theBigTree.genjet_hadronFlavour->at(igj);
+                if (abs(theFlav) == 5) nbs++;
+                
+                // about 2% of DY events print the following message :-(
+                // if (theFlav == -999) cout << "** warning: gen jet with flav = -999 of pt: " << vgj.Pt() << " eta: " << vgj.Eta() << endl;
+            }
+        }
+        if (nbs > 2) nbs = 2;
+        theSmallTree.m_nBhadrons = nbs;
       }
 
 
@@ -836,6 +865,25 @@ int main (int argc, char** argv)
 
           TLorentzVector tlv_firstBjet_raw = tlv_firstBjet;
           TLorentzVector tlv_secondBjet_raw = tlv_secondBjet;
+          
+          // SET raw pt 1 and 2 ordered in pt for a test of b jet regression
+          // float FIXME1 = tlv_firstBjet_raw.Pt() ; 
+          // float FIXME2 = tlv_secondBjet_raw.Pt() ; 
+          // float theMax, theMin;
+          // if (FIXME1 > FIXME2)
+          // {
+          //   theMax = FIXME1;
+          //   theMin = FIXME2;
+          // }
+          // else
+          // {
+          //   theMax = FIXME2;
+          //   theMin = FIXME1;
+          // }
+
+          // theSmallTree.m_bjet1_pt_raw = theMax;
+          // theSmallTree.m_bjet2_pt_raw = theMin;
+
           theSmallTree.m_bjet1_pt_raw = tlv_firstBjet_raw.Pt();
           theSmallTree.m_bjet2_pt_raw = tlv_secondBjet_raw.Pt();
 

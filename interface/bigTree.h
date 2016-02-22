@@ -653,6 +653,7 @@ public :
             fChain->SetBranchAddress("genjet_py", &genjet_py, &b_genjet_py);
             fChain->SetBranchAddress("genjet_pz", &genjet_pz, &b_genjet_pz);
             fChain->SetBranchAddress("genjet_e", &genjet_e, &b_genjet_e);
+            fChain->SetBranchAddress("genjet_hadronFlavour", &genjet_hadronFlavour, &b_genjet_hadronFlavour);
             fChain->SetBranchAddress("jets_genjetIndex", &jets_genjetIndex, &b_jets_genjetIndex);
             fChain->SetBranchAddress("NUP", &NUP, &b_NUP);
             fChain->SetBranchAddress("lheHt", &lheHt, &b_lheHt);
