@@ -58,6 +58,15 @@ int main(int argc, char** argv)
         gConfigParser->readStringOption ("selections::selectionsFile")
     ) ;
 
+
+    // global selection: MuTau || ETau || TauTau -- WARNING!! this will chain any selection
+    TCut cutall = selections.at(0).second;
+    for (unsigned int isel = 1; isel < selections.size(); isel++) cutall = cutall || selections.at(isel).second;
+    cout << "OR of all the selection created with name: ALL" << endl;
+    cout << "    ---> " << cutall << endl;
+    auto cutallpair = make_pair (TString("ALL"), cutall);
+    selections.push_back(cutallpair);
+
     cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
     cout << "selections sequence: \n" ;
     for (unsigned int i = 0 ; i < selections.size () ; ++i)
@@ -70,7 +79,7 @@ int main(int argc, char** argv)
     int nPtBins  = sizeof(PtBins)/sizeof(float) - 1;
     int nEtaBins = sizeof(EtaBins)/sizeof(float) - 1;
 
-    float WPtag[3] = {0.605, 0.89, 0.97}; // L, M, T
+    float WPtag[3] = {0.460, 0.800, 0.935}; // L, M, T
     string WPname[3] = {"L", "M", "T"};
 
 
@@ -193,6 +202,7 @@ int main(int argc, char** argv)
         tree->SetBranchAddress ("bjet2_bID", &bjet2_bID);
         tree->SetBranchAddress ("bjet2_flav", &bjet2_flav);
 
+        /// add part to remove gen jets
 
         
         TTreeFormula** TTF = new TTreeFormula* [selections.size ()] ;
