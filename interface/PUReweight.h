@@ -6,7 +6,7 @@
 
 class PUReweight {
 public:
-  enum Type {RUN1ANALYSIS=1, RUN2ANALYSIS=2};
+  enum Type {NONE=0, RUN1ANALYSIS=1, RUN2ANALYSIS=2};
 
   PUReweight(Type type=RUN2ANALYSIS); //default RUN2Analysis 
 

@@ -5,7 +5,9 @@
 
 float PUReweight::weight(int MC, int target, int input) {
 
-  if (theType == RUN2ANALYSIS) {
+  if (theType == NONE) return 1.0;
+
+  else if (theType == RUN2ANALYSIS) {
 
     if        (MC==25 && target==25) {
       if (input < 52) 
