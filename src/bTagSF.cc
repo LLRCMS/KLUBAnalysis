@@ -196,8 +196,9 @@ float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta)
 
 float bTagSF::getEff (WP wpt, int jetFlavor, int channel, float pt, float eta)
 {
-    // protection against wrong channel in input
-    if (channel >= 3) return 0; 
+    // use always "ALL" measurement (last in the array)
+    //if (channel >= 3) return 0; 
+    channel = 3; // "ALL"
 
     int flav;
     if (abs(jetFlavor) == 5) flav = 0;
