@@ -186,8 +186,8 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     // ordered by pT and not by most isolated, but baseline asked in sync is the same...
     if (pairType == HadHad)
     {
-        bool leg1 = tauBaseline (tree, dau1index, 45., 2.1, 0, 0, 2.0, whatApply);
-        bool leg2 = tauBaseline (tree, dau2index, 45., 2.1, 0, 0, 2.0, whatApply);
+        bool leg1 = tauBaseline (tree, dau1index, 40., 2.1, 0, 0, 2.0, whatApply);
+        bool leg2 = tauBaseline (tree, dau2index, 40., 2.1, 0, 0, 2.0, whatApply);
         return (leg1 && leg2);
     }
 
