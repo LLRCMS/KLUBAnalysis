@@ -39,8 +39,11 @@ using namespace std ;
 
 const double aTopRW=0.156;
 const double bTopRW= -0.00137;
+const float DYscale_LL[3] = {1.17835, 1.80015, 0.809161} ; // computed from fit for LL and MM b tag
+const float DYscale_MM[3] = {1.20859, 1.0445 , 1.54734 } ;
 
-
+// const float stitchWeights [5] = {1.11179e-7, 3.04659e-9, 3.28633e-9, 3.48951e-9, 2.5776e-9} ; // weights DY stitch in njets, to be updated at each production (depend on n evtsn processed)
+const float stitchWeights [5] = {11.55916, 0.316751, 0.341677, 0.362801, 0.267991} ; // weights DY stitch in njets, to be updated at each production (depend on n evtsn processed)
 /*  the modern way of making lorenzvectors (no warnings)
     here is an example of usage:
 
@@ -249,6 +252,7 @@ int main (int argc, char** argv)
   float HTMax = -999.0;
   bool isTTBar = false;
   bool DY_Nbs = false; // run on genjets to count in DY samples the number of b jets
+  bool DY_tostitch = false;
 
   if (argc >= 8)
   {
@@ -269,7 +273,16 @@ int main (int argc, char** argv)
         if (argc >= 11)
         {
           int I_DY_Nbs = atoi(argv[10]);
-          if (I_DY_Nbs == 1) DY_Nbs = true; 
+          if (I_DY_Nbs == 1)
+          {
+            DY_Nbs = true; 
+            DY_tostitch = true; // FIXME!! this is ok only if we use jet binned samples
+          }
+          // if (argc >= 12)
+          // {
+          //   int I_DY_tostitch = atoi(argv[11]);
+          //   if (I_DY_tostitch == 1) DY_tostitch = true;             
+          // }
         }
       }
     }
@@ -389,7 +402,7 @@ int main (int argc, char** argv)
     bRreader->BookMVA( bRegrMethodName.c_str(), bRegrWeights.c_str() ); 
   // ------------------------------
 
-  PUReweight reweight ;
+  PUReweight reweight (PUReweight::NONE); // none : no PU reweight (always returns 1)
 
   // ------------------------------
   string bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFile") ;
@@ -424,6 +437,13 @@ int main (int argc, char** argv)
       if (HTMax > 0)
       {
          if (theBigTree.lheHt > HTMax) continue;
+      }
+
+      float stitchWeight = 1.0;
+      if (DY_tostitch)
+      {
+        int njets = theBigTree.lheNOutPartons;
+        stitchWeight = stitchWeights[njets];
       }
 
       // gen info -- fetch tt pair and compute top PT reweight
@@ -463,6 +483,8 @@ int main (int argc, char** argv)
 
       // For Drell-Yan only: loop on genjets and count how many are there with 0,1,2 b
       // 0: 0bjet, 1: 1 b jet, 2: >= 2 b jet
+      theSmallTree.m_DYscale_LL = 1.0; // all the other MC samples + data have no weight
+      theSmallTree.m_DYscale_MM = 1.0;        
       if (isMC && DY_Nbs)
       {
         TLorentzVector vgj;
@@ -481,8 +503,11 @@ int main (int argc, char** argv)
         }
         if (nbs > 2) nbs = 2;
         theSmallTree.m_nBhadrons = nbs;
-      }
 
+        theSmallTree.m_DYscale_LL = DYscale_LL[nbs];
+        theSmallTree.m_DYscale_MM = DYscale_MM[nbs];
+
+      }
 
       if (isMC)
       {
@@ -521,6 +546,11 @@ int main (int argc, char** argv)
       // determine kind of pairs according to trigger
       int trigPairType = -99;
       Long64_t triggerbit = theBigTree.triggerbit;
+      
+      // // for mumu skim only
+      // if (trigReader.checkOR (3, triggerbit) ) trigPairType = 3;
+
+      // for all the other skims
       if (trigReader.checkOR (0, triggerbit) ) trigPairType = 0; // muTau
       //if (false) trigPairType = 0; // muTau
       else if (trigReader.checkOR (1, triggerbit) ) trigPairType = 1; // etau
@@ -536,7 +566,7 @@ int main (int argc, char** argv)
           if (!oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag.c_str ())) continue ;
           int firstDaughterIndex = theBigTree.indexDau1->at (iPair) ;  
           int secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
-          
+
           TLorentzVector tlv_firstLepton
             (
               theBigTree.daughters_px->at (firstDaughterIndex),
@@ -555,6 +585,16 @@ int main (int argc, char** argv)
           int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
           int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
           int pairType = oph.getPairType (type1, type2) ;
+
+          // for tautau pairs, need to check the match to the L1 seed excluded in run D
+          if (pairType == 2 && isMC)
+          {
+            bool hasL1Match_1 = theBigTree.daughters_isL1IsoTau28Matched->at (firstDaughterIndex);
+            bool hasL1Match_2 = theBigTree.daughters_isL1IsoTau28Matched->at (secondDaughterIndex);
+            bool goodL1 = (hasL1Match_1 && hasL1Match_2);
+            if (!goodL1) continue;
+          }
+
           if (foundPairs.find (pairType) != foundPairs.end ()) continue ;
 
           if (!skipTriggers)
@@ -676,7 +716,7 @@ int main (int argc, char** argv)
       theSmallTree.m_pairType = pType ;
 
       theSmallTree.m_PUReweight = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) : 1) ;      
-      theSmallTree.m_MC_weight = (isMC ? theBigTree.aMCatNLOweight * XS : 1) ;
+      theSmallTree.m_MC_weight = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight : 1) ;
       vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_btag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType) ;
       theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
       theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
@@ -909,7 +949,10 @@ int main (int argc, char** argv)
           theSmallTree.m_bjet2_bID = theBigTree.bCSVscore->at (eventJets.second) ;
           theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (eventJets.second) ;
 
-          if (isMC){
+          bool hasgj1 = false;
+          bool hasgj2 = false;          
+          if (isMC){            
+            
             int mcind = theBigTree.jets_genjetIndex->at(eventJets.first);
             if (mcind>=0){
               TLorentzVector gen(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
@@ -917,7 +960,9 @@ int main (int argc, char** argv)
               theSmallTree.m_genjet1_eta = gen.Eta();
               theSmallTree.m_genjet1_phi = gen.Phi();
               theSmallTree.m_genjet1_e = gen.E();
+              if (gen.Pt() > 8) hasgj1 = true;
             }
+
             mcind = theBigTree.jets_genjetIndex->at(eventJets.second);
             if (mcind>=0){
               TLorentzVector gen(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
@@ -925,8 +970,11 @@ int main (int argc, char** argv)
               theSmallTree.m_genjet2_eta = gen.Eta();
               theSmallTree.m_genjet2_phi = gen.Phi();
               theSmallTree.m_genjet2_e = gen.E();
+              if (gen.Pt() > 8) hasgj2 = true;
             }
           }
+          theSmallTree.m_bjet1_hasgenjet = hasgj1 ;
+          theSmallTree.m_bjet2_hasgenjet = hasgj2 ;
 
           float METx = theBigTree.METx->at (chosenTauPair) ;
           float METy = theBigTree.METy->at (chosenTauPair) ;
@@ -1165,6 +1213,19 @@ int main (int argc, char** argv)
                   continue;
                 }
               }
+
+              // find matching gen jet
+              bool hasgj = false;
+              if (isMC)
+              {
+                int mcind = theBigTree.jets_genjetIndex->at(iJet);
+                if (mcind>=0)
+                {
+                  TLorentzVector thisGenJet(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
+                  if (thisGenJet.Pt() > 8) hasgj = true;
+                }     
+              }
+
               theSmallTree.m_jets_pt.push_back (tlv_dummyJet.Pt ()) ;
               theSmallTree.m_jets_eta.push_back (tlv_dummyJet.Eta ()) ;
               theSmallTree.m_jets_phi.push_back (tlv_dummyJet.Phi ()) ;
@@ -1172,6 +1233,7 @@ int main (int argc, char** argv)
               theSmallTree.m_jets_btag.push_back (theBigTree.bCSVscore->at (iJet)) ;
               theSmallTree.m_jets_flav.push_back (theBigTree.jets_HadronFlavour->at (iJet)) ;
               theSmallTree.m_jets_jecUnc.push_back (theBigTree.jets_jecUnc->at (iJet)) ;
+              theSmallTree.m_jets_hasgenjet.push_back (hasgj) ;
               ++theSmallTree.m_njets ;
             } // loop over jets
 
