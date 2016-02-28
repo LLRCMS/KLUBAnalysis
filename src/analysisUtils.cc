@@ -154,6 +154,9 @@ fillHistos (vector<sample> & samples,
       
       // specifies the type of bTagreweight weight in the selection. 0: no weight; 1: bTagL, 2: bTagM, 3: bTagT
       vector<int> selBTagWeight (selections.size());
+      
+      // specifies the type of top pt reweight in the selection. 0: nominal; 1: UP, 2: DOWN
+      vector<int> selTopRewType (selections.size());
       for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
         {
           TString fname ; fname.Form ("ttf%d",isel) ;
@@ -192,9 +195,13 @@ fillHistos (vector<sample> & samples,
           int thisWeight = 0;          
           if (thisCut.Contains("bTagweightL")) thisWeight = 1;
           else if (thisCut.Contains("bTagweightM")) thisWeight = 2;
-          else if (thisCut.Contains("bTagweightT")) thisWeight = 3;
-          
+          else if (thisCut.Contains("bTagweightT")) thisWeight = 3;          
           selBTagWeight.at(isel) = thisWeight;
+
+          int thisTopType = 0; // default: nothing
+          if (thisCut.Contains("TTtopPtreweight < 999")) thisTopType = 1;
+          else if (thisCut.Contains("TTtopPtreweight > -999")) thisTopType = 2;
+          selTopRewType.at(isel) = thisTopType;
 
           TTF[isel] = new TTreeFormula (fname.Data (), selections.at (isel).second, tree) ;        
         }
@@ -211,6 +218,12 @@ fillHistos (vector<sample> & samples,
       tree->SetBranchAddress ("bTagweightL", &bTagweightL);
       tree->SetBranchAddress ("bTagweightM", &bTagweightM);
       tree->SetBranchAddress ("bTagweightT", &bTagweightT);
+      float topPtReweight;
+      tree->SetBranchAddress ("TTtopPtreweight", &topPtReweight);
+      float DYscale_LL;
+      float DYscale_MM;
+      tree->SetBranchAddress ("DYscale_LL", &DYscale_LL);
+      tree->SetBranchAddress ("DYscale_MM", &DYscale_MM);
 
       // signal scaling
       float scaling = 1. / samples.at (iSample).eff_den ;
@@ -288,6 +301,10 @@ fillHistos (vector<sample> & samples,
       tree->SetBranchStatus ("bTagweightL", 1) ;
       tree->SetBranchStatus ("bTagweightM", 1) ;
       tree->SetBranchStatus ("bTagweightT", 1) ;
+      tree->SetBranchStatus ("TTtopPtreweight", 1) ;
+      tree->SetBranchStatus ("DYscale_LL",  1) ;
+      tree->SetBranchStatus ("DYscale_MM",  1) ;
+
       TObjArray *branchList = tree->GetListOfBranches();
       int nBranch   = tree->GetNbranches();
       // used vars
@@ -349,7 +366,7 @@ fillHistos (vector<sample> & samples,
           tree->GetEntry (iEvent) ;
           //if (iEvent%10000 == 0) cout << iEvent << " / " << nEvts << endl;
 
-          float toAdd = PUReweight * weight * lumi * scaling * trigSF * IdAndIsoSF ;
+          float toAdd = PUReweight * weight * lumi * scaling * trigSF * IdAndIsoSF * topPtReweight ;
 
           if (isData) localCounter.counters.at (iSample).at (0) += 1. ;
           else        localCounter.counters.at (iSample).at (0) += toAdd ;
@@ -363,9 +380,12 @@ fillHistos (vector<sample> & samples,
               // e.g. b tag scalign factors that depend on the presence of a WP M/L/tight
 
               float thisWeight = 1.0;
-              if (selBTagWeight.at(isel) == 1) thisWeight = bTagweightL;
-              else if (selBTagWeight.at(isel) == 2) thisWeight = bTagweightM;
+              if (selBTagWeight.at(isel) == 1) thisWeight = bTagweightL*DYscale_LL;
+              else if (selBTagWeight.at(isel) == 2) thisWeight = bTagweightM*DYscale_MM;
               else if (selBTagWeight.at(isel) == 3) thisWeight = bTagweightT;
+
+              if (selTopRewType.at(isel) == 1) thisWeight *= topPtReweight ; // 2 times top pt rew
+              else if (selTopRewType.at(isel) == 2) thisWeight /= topPtReweight ; // no top pt rew
 
               if (fOut != 0) outTrees.at(isel)->Fill();
 
