@@ -46,6 +46,7 @@ public :
    std::vector<int>     *daughters_genindex;
    Float_t         MC_weight;
    Float_t         lheHt;
+   Int_t           lheNOutPartons;
    Float_t         aMCatNLOweight;
    std::vector<float>   *genpart_px;
    std::vector<float>   *genpart_py;
@@ -150,6 +151,7 @@ public :
    std::vector<int>     *daughters_L3FilterFired;
    std::vector<int>     *daughters_L3FilterFiredLast;
    std::vector<float>   *daughters_HLTpt;
+   std::vector<bool>    *daughters_isL1IsoTau28Matched;
    Int_t           JetsNumber;
    std::vector<float>   *jets_px;
    std::vector<float>   *jets_py;
@@ -206,6 +208,7 @@ public :
    TBranch        *b_daughters_genindex;   //!
    TBranch        *b_MC_weight;   //!
    TBranch        *b_lheHt;   //!
+   TBranch        *b_lheNOutPartons; //!
    TBranch        *b_aMCatNLOweight;   //!
    TBranch        *b_genpart_px;   //!
    TBranch        *b_genpart_py;   //!
@@ -310,6 +313,7 @@ public :
    TBranch        *b_daughters_L3FilterFired;   //!
    TBranch        *b_daughters_L3FilterFiredLast;   //!
    TBranch        *b_daughters_HLTpt;   //!
+   TBranch        *b_daughters_isL1IsoTau28Matched; //!
    TBranch        *b_JetsNumber;   //!
    TBranch        *b_jets_px;   //!
    TBranch        *b_jets_py;   //!
@@ -469,6 +473,7 @@ public :
        daughters_L3FilterFired = 0;
        daughters_L3FilterFiredLast = 0;
        daughters_HLTpt = 0;
+       daughters_isL1IsoTau28Matched = 0;
        jets_px = 0;
        jets_py = 0;
        jets_pz = 0;
@@ -599,6 +604,7 @@ public :
        fChain->SetBranchAddress("daughters_L3FilterFired", &daughters_L3FilterFired, &b_daughters_L3FilterFired);
        fChain->SetBranchAddress("daughters_L3FilterFiredLast", &daughters_L3FilterFiredLast, &b_daughters_L3FilterFiredLast);
        fChain->SetBranchAddress("daughters_HLTpt", &daughters_HLTpt, &b_daughters_HLTpt);
+       fChain->SetBranchAddress("daughters_isL1IsoTau28Matched", &daughters_isL1IsoTau28Matched, &b_daughters_isL1IsoTau28Matched);
        fChain->SetBranchAddress("JetsNumber", &JetsNumber, &b_JetsNumber);
        fChain->SetBranchAddress("jets_px", &jets_px, &b_jets_px);
        fChain->SetBranchAddress("jets_py", &jets_py, &b_jets_py);
@@ -657,6 +663,7 @@ public :
             fChain->SetBranchAddress("jets_genjetIndex", &jets_genjetIndex, &b_jets_genjetIndex);
             fChain->SetBranchAddress("NUP", &NUP, &b_NUP);
             fChain->SetBranchAddress("lheHt", &lheHt, &b_lheHt);
+            fChain->SetBranchAddress("lheNOutPartons", &lheNOutPartons, &b_lheNOutPartons);
        }
        
     }
