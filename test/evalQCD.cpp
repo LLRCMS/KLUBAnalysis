@@ -944,7 +944,7 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events/")) ;
-  // system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events/rootCanvas/")) ;
+  system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events/rootCanvas/")) ;
   // system (TString ("mkdir -p ") + outFolderNameBase + TString ("/shapes/")) ;
 
   // for test
