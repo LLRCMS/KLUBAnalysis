@@ -129,17 +129,20 @@ int main(int argc, char** argv)
     float bjet1_eta ;
     float bjet1_bID ;
     int   bjet1_flav ;
+    bool  bjet1_hasgenjet ;
 
     float bjet2_pt ;
     float bjet2_eta ;
     float bjet2_bID ;
     int   bjet2_flav ;
+    bool  bjet2_hasgenjet ;
 
     // additional jets
     std::vector<float>* jets_pt   = 0;
     std::vector<float>* jets_eta  = 0;
     std::vector<float>* jets_btag = 0;
     std::vector<int>*   jets_flav = 0;
+    std::vector<bool>*  jets_hasgenjet = 0;
 
     // loop on samples and fill num / denom histos
     for (unsigned int iSample = 0 ; iSample < samples.size () ; ++iSample)
@@ -176,14 +179,17 @@ int main(int argc, char** argv)
         tree->SetBranchStatus ("jets_eta"  , 1);
         tree->SetBranchStatus ("jets_btag" , 1);
         tree->SetBranchStatus ("jets_flav" , 1);
+        tree->SetBranchStatus ("jets_hasgenjet" , 1);
         tree->SetBranchStatus ("bjet1_pt"  , 1);
         tree->SetBranchStatus ("bjet1_eta" , 1);
         tree->SetBranchStatus ("bjet1_bID" , 1);
         tree->SetBranchStatus ("bjet1_flav", 1);
+        tree->SetBranchStatus ("bjet1_hasgenjet", 1);
         tree->SetBranchStatus ("bjet2_pt"  , 1);
         tree->SetBranchStatus ("bjet2_eta" , 1);
         tree->SetBranchStatus ("bjet2_bID" , 1);
         tree->SetBranchStatus ("bjet2_flav", 1);
+        tree->SetBranchStatus ("bjet2_hasgenjet", 1);
 
 
         // set addresses
@@ -191,16 +197,19 @@ int main(int argc, char** argv)
         tree->SetBranchAddress ("jets_eta", &jets_eta);
         tree->SetBranchAddress ("jets_btag", &jets_btag);
         tree->SetBranchAddress ("jets_flav", &jets_flav);
+        tree->SetBranchAddress ("jets_hasgenjet", &jets_hasgenjet);
         
         tree->SetBranchAddress ("bjet1_pt", &bjet1_pt);
         tree->SetBranchAddress ("bjet1_eta", &bjet1_eta);
         tree->SetBranchAddress ("bjet1_bID", &bjet1_bID);
         tree->SetBranchAddress ("bjet1_flav", &bjet1_flav);
+        tree->SetBranchAddress ("bjet1_hasgenjet", &bjet1_hasgenjet);
         
         tree->SetBranchAddress ("bjet2_pt", &bjet2_pt);
         tree->SetBranchAddress ("bjet2_eta", &bjet2_eta);
         tree->SetBranchAddress ("bjet2_bID", &bjet2_bID);
         tree->SetBranchAddress ("bjet2_flav", &bjet2_flav);
+        tree->SetBranchAddress ("bjet2_hasgenjet", &bjet2_hasgenjet);
 
         /// add part to remove gen jets
 
@@ -238,154 +247,161 @@ int main(int argc, char** argv)
 
                 ///////////////////////////////////////////////////////
                 // bjet1
-                bTag[0] = (bjet1_bID > WPtag[0]) ;
-                bTag[1] = (bjet1_bID > WPtag[1]) ;
-                bTag[2] = (bjet1_bID > WPtag[2]) ;
-
-                if (abs(bjet1_flav) == 5) // b jets
+                if (bjet1_hasgenjet)
                 {
-                    h2_BTaggingEff_Denom_b.at(0).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
-                    h2_BTaggingEff_Denom_b.at(1).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
-                    h2_BTaggingEff_Denom_b.at(2).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
-                    if (bTag[0]) h2_BTaggingEff_Num_b.at(0).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
-                    if (bTag[1]) h2_BTaggingEff_Num_b.at(1).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
-                    if (bTag[2]) h2_BTaggingEff_Num_b.at(2).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                    bTag[0] = (bjet1_bID > WPtag[0]) ;
+                    bTag[1] = (bjet1_bID > WPtag[1]) ;
+                    bTag[2] = (bjet1_bID > WPtag[2]) ;
 
-                    h_pT_b->Fill (bjet1_pt);
-                    h_eta_b->Fill (bjet1_eta);
-                    h_CSV_b->Fill (bjet1_bID);
-                }
-                else if (abs(bjet1_flav) == 4) // c jets
-                {
-                    h2_BTaggingEff_Denom_c.at(0).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
-                    h2_BTaggingEff_Denom_c.at(1).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
-                    h2_BTaggingEff_Denom_c.at(2).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
-                    if (bTag[0]) h2_BTaggingEff_Num_c.at(0).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
-                    if (bTag[1]) h2_BTaggingEff_Num_c.at(1).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
-                    if (bTag[2]) h2_BTaggingEff_Num_c.at(2).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                    if (abs(bjet1_flav) == 5) // b jets
+                    {
+                        h2_BTaggingEff_Denom_b.at(0).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                        h2_BTaggingEff_Denom_b.at(1).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                        h2_BTaggingEff_Denom_b.at(2).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                        if (bTag[0]) h2_BTaggingEff_Num_b.at(0).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                        if (bTag[1]) h2_BTaggingEff_Num_b.at(1).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                        if (bTag[2]) h2_BTaggingEff_Num_b.at(2).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
 
-                    h_pT_c->Fill (bjet1_pt);
-                    h_eta_c->Fill (bjet1_eta);
-                    h_CSV_c->Fill (bjet1_bID);
-                }
-                else // udsg jets
-                {
-                    h2_BTaggingEff_Denom_udsg.at(0).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
-                    h2_BTaggingEff_Denom_udsg.at(1).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
-                    h2_BTaggingEff_Denom_udsg.at(2).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
-                    if (bTag[0]) h2_BTaggingEff_Num_udsg.at(0).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
-                    if (bTag[1]) h2_BTaggingEff_Num_udsg.at(1).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
-                    if (bTag[2]) h2_BTaggingEff_Num_udsg.at(2).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                        h_pT_b->Fill (bjet1_pt);
+                        h_eta_b->Fill (bjet1_eta);
+                        h_CSV_b->Fill (bjet1_bID);
+                    }
+                    else if (abs(bjet1_flav) == 4) // c jets
+                    {
+                        h2_BTaggingEff_Denom_c.at(0).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                        h2_BTaggingEff_Denom_c.at(1).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                        h2_BTaggingEff_Denom_c.at(2).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                        if (bTag[0]) h2_BTaggingEff_Num_c.at(0).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                        if (bTag[1]) h2_BTaggingEff_Num_c.at(1).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                        if (bTag[2]) h2_BTaggingEff_Num_c.at(2).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
 
-                    h_pT_udsg->Fill (bjet1_pt);
-                    h_eta_udsg->Fill (bjet1_eta);
-                    h_CSV_udsg->Fill (bjet1_bID);
+                        h_pT_c->Fill (bjet1_pt);
+                        h_eta_c->Fill (bjet1_eta);
+                        h_CSV_c->Fill (bjet1_bID);
+                    }
+                    else // udsg jets
+                    {
+                        h2_BTaggingEff_Denom_udsg.at(0).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                        h2_BTaggingEff_Denom_udsg.at(1).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                        h2_BTaggingEff_Denom_udsg.at(2).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                        if (bTag[0]) h2_BTaggingEff_Num_udsg.at(0).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                        if (bTag[1]) h2_BTaggingEff_Num_udsg.at(1).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
+                        if (bTag[2]) h2_BTaggingEff_Num_udsg.at(2).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
 
-
+                        h_pT_udsg->Fill (bjet1_pt);
+                        h_eta_udsg->Fill (bjet1_eta);
+                        h_CSV_udsg->Fill (bjet1_bID);
+                    }
                 }
                 ///////////////////////////////////////////////////////
                 // bjet2
-                bTag[0] = (bjet2_bID > WPtag[0]) ;
-                bTag[1] = (bjet2_bID > WPtag[1]) ;
-                bTag[2] = (bjet2_bID > WPtag[2]) ;
-
-                if (abs(bjet2_flav) == 5) // b jets
+                if (bjet2_hasgenjet)
                 {
-                    h2_BTaggingEff_Denom_b.at(0).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-                    h2_BTaggingEff_Denom_b.at(1).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-                    h2_BTaggingEff_Denom_b.at(2).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-                    if (bTag[0]) h2_BTaggingEff_Num_b.at(0).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-                    if (bTag[1]) h2_BTaggingEff_Num_b.at(1).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-                    if (bTag[2]) h2_BTaggingEff_Num_b.at(2).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-             
-                    h_pT_b->Fill (bjet2_pt);
-                    h_eta_b->Fill (bjet2_eta);
-                    h_CSV_b->Fill (bjet2_bID);
+                    bTag[0] = (bjet2_bID > WPtag[0]) ;
+                    bTag[1] = (bjet2_bID > WPtag[1]) ;
+                    bTag[2] = (bjet2_bID > WPtag[2]) ;
 
+                    if (abs(bjet2_flav) == 5) // b jets
+                    {
+                        h2_BTaggingEff_Denom_b.at(0).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+                        h2_BTaggingEff_Denom_b.at(1).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+                        h2_BTaggingEff_Denom_b.at(2).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+                        if (bTag[0]) h2_BTaggingEff_Num_b.at(0).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+                        if (bTag[1]) h2_BTaggingEff_Num_b.at(1).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+                        if (bTag[2]) h2_BTaggingEff_Num_b.at(2).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+                 
+                        h_pT_b->Fill (bjet2_pt);
+                        h_eta_b->Fill (bjet2_eta);
+                        h_CSV_b->Fill (bjet2_bID);
+
+                    }
+                    else if (abs(bjet2_flav) == 4) // c jets
+                    {
+                        h2_BTaggingEff_Denom_c.at(0).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+                        h2_BTaggingEff_Denom_c.at(1).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+                        h2_BTaggingEff_Denom_c.at(2).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+                        if (bTag[0]) h2_BTaggingEff_Num_c.at(0).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+                        if (bTag[1]) h2_BTaggingEff_Num_c.at(1).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+                        if (bTag[2]) h2_BTaggingEff_Num_c.at(2).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+
+                        h_pT_c->Fill (bjet2_pt);
+                        h_eta_c->Fill (bjet2_eta);
+                        h_CSV_c->Fill (bjet2_bID);
+                    }
+                    else // udsg jets
+                    {
+                        h2_BTaggingEff_Denom_udsg.at(0).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+                        h2_BTaggingEff_Denom_udsg.at(1).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+                        h2_BTaggingEff_Denom_udsg.at(2).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+                        if (bTag[0]) h2_BTaggingEff_Num_udsg.at(0).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+                        if (bTag[1]) h2_BTaggingEff_Num_udsg.at(1).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+                        if (bTag[2]) h2_BTaggingEff_Num_udsg.at(2).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
+
+                        h_pT_udsg->Fill (bjet2_pt);
+                        h_eta_udsg->Fill (bjet2_eta);
+                        h_CSV_udsg->Fill (bjet2_bID);
+                    }
                 }
-                else if (abs(bjet2_flav) == 4) // c jets
-                {
-                    h2_BTaggingEff_Denom_c.at(0).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-                    h2_BTaggingEff_Denom_c.at(1).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-                    h2_BTaggingEff_Denom_c.at(2).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-                    if (bTag[0]) h2_BTaggingEff_Num_c.at(0).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-                    if (bTag[1]) h2_BTaggingEff_Num_c.at(1).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-                    if (bTag[2]) h2_BTaggingEff_Num_c.at(2).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-
-                    h_pT_c->Fill (bjet2_pt);
-                    h_eta_c->Fill (bjet2_eta);
-                    h_CSV_c->Fill (bjet2_bID);
-                }
-                else // udsg jets
-                {
-                    h2_BTaggingEff_Denom_udsg.at(0).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-                    h2_BTaggingEff_Denom_udsg.at(1).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-                    h2_BTaggingEff_Denom_udsg.at(2).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-                    if (bTag[0]) h2_BTaggingEff_Num_udsg.at(0).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-                    if (bTag[1]) h2_BTaggingEff_Num_udsg.at(1).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-                    if (bTag[2]) h2_BTaggingEff_Num_udsg.at(2).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
-
-                    h_pT_udsg->Fill (bjet2_pt);
-                    h_eta_udsg->Fill (bjet2_eta);
-                    h_CSV_udsg->Fill (bjet2_bID);
-                }
-
 
                 ///////////////////////////////////////////////////////
                 // other jets
 //cout << " ON More Jest: " << jets_pt->size() << endl;
                 for (unsigned int ijet = 0; ijet < jets_pt->size(); ijet++)
                 {
-                    bTag[0] = (jets_btag->at(ijet) > WPtag[0]) ;
-                    bTag[1] = (jets_btag->at(ijet) > WPtag[1]) ;
-                    bTag[2] = (jets_btag->at(ijet) > WPtag[2]) ;  
-                    int flav =  jets_flav->at(ijet);
-                    float this_pt =  jets_pt->at(ijet);
-                    float this_eta = TMath::Abs(jets_eta->at(ijet));
-                    float this_eta_noAbs = jets_eta->at(ijet);
-
-                    if (abs(flav) == 5) // b jets
+                    bool hasgenjet = jets_hasgenjet->at(ijet);
+                    if (hasgenjet)
                     {
-                        h2_BTaggingEff_Denom_b.at(0).at(isel) -> Fill (this_pt, this_eta);
-                        h2_BTaggingEff_Denom_b.at(1).at(isel) -> Fill (this_pt, this_eta);
-                        h2_BTaggingEff_Denom_b.at(2).at(isel) -> Fill (this_pt, this_eta);
-                        if (bTag[0]) h2_BTaggingEff_Num_b.at(0).at(isel) -> Fill (this_pt, this_eta);
-                        if (bTag[1]) h2_BTaggingEff_Num_b.at(1).at(isel) -> Fill (this_pt, this_eta);
-                        if (bTag[2]) h2_BTaggingEff_Num_b.at(2).at(isel) -> Fill (this_pt, this_eta);
 
-                        h_pT_b->Fill (this_pt);
-                        h_eta_b->Fill (this_eta_noAbs);
-                        h_CSV_b->Fill (jets_btag->at(ijet));
-                    }
-                    else if (abs(flav) == 4) // c jets
-                    {
-                        h2_BTaggingEff_Denom_c.at(0).at(isel) -> Fill (this_pt, this_eta);
-                        h2_BTaggingEff_Denom_c.at(1).at(isel) -> Fill (this_pt, this_eta);
-                        h2_BTaggingEff_Denom_c.at(2).at(isel) -> Fill (this_pt, this_eta);
-                        if (bTag[0]) h2_BTaggingEff_Num_c.at(0).at(isel) -> Fill (this_pt, this_eta);
-                        if (bTag[1]) h2_BTaggingEff_Num_c.at(1).at(isel) -> Fill (this_pt, this_eta);
-                        if (bTag[2]) h2_BTaggingEff_Num_c.at(2).at(isel) -> Fill (this_pt, this_eta);
+                        bTag[0] = (jets_btag->at(ijet) > WPtag[0]) ;
+                        bTag[1] = (jets_btag->at(ijet) > WPtag[1]) ;
+                        bTag[2] = (jets_btag->at(ijet) > WPtag[2]) ;  
+                        int flav =  jets_flav->at(ijet);
+                        float this_pt =  jets_pt->at(ijet);
+                        float this_eta = TMath::Abs(jets_eta->at(ijet));
+                        float this_eta_noAbs = jets_eta->at(ijet);
 
-                        h_pT_c->Fill (this_pt);
-                        h_eta_c->Fill (this_eta_noAbs);
-                        h_CSV_c->Fill (jets_btag->at(ijet));
+                        if (abs(flav) == 5) // b jets
+                        {
+                            h2_BTaggingEff_Denom_b.at(0).at(isel) -> Fill (this_pt, this_eta);
+                            h2_BTaggingEff_Denom_b.at(1).at(isel) -> Fill (this_pt, this_eta);
+                            h2_BTaggingEff_Denom_b.at(2).at(isel) -> Fill (this_pt, this_eta);
+                            if (bTag[0]) h2_BTaggingEff_Num_b.at(0).at(isel) -> Fill (this_pt, this_eta);
+                            if (bTag[1]) h2_BTaggingEff_Num_b.at(1).at(isel) -> Fill (this_pt, this_eta);
+                            if (bTag[2]) h2_BTaggingEff_Num_b.at(2).at(isel) -> Fill (this_pt, this_eta);
 
-                    }
-                    else // udsg jets
-                    {
-                        h2_BTaggingEff_Denom_udsg.at(0).at(isel) -> Fill (this_pt, this_eta);
-                        h2_BTaggingEff_Denom_udsg.at(1).at(isel) -> Fill (this_pt, this_eta);
-                        h2_BTaggingEff_Denom_udsg.at(2).at(isel) -> Fill (this_pt, this_eta);
-                        if (bTag[0]) h2_BTaggingEff_Num_udsg.at(0).at(isel) -> Fill (this_pt, this_eta);
-                        if (bTag[1]) h2_BTaggingEff_Num_udsg.at(1).at(isel) -> Fill (this_pt, this_eta);
-                        if (bTag[2]) h2_BTaggingEff_Num_udsg.at(2).at(isel) -> Fill (this_pt, this_eta);
- 
-                        h_pT_udsg->Fill (this_pt);
-                        h_eta_udsg->Fill (this_eta_noAbs);
-                        h_CSV_udsg->Fill (jets_btag->at(ijet));
+                            h_pT_b->Fill (this_pt);
+                            h_eta_b->Fill (this_eta_noAbs);
+                            h_CSV_b->Fill (jets_btag->at(ijet));
+                        }
+                        else if (abs(flav) == 4) // c jets
+                        {
+                            h2_BTaggingEff_Denom_c.at(0).at(isel) -> Fill (this_pt, this_eta);
+                            h2_BTaggingEff_Denom_c.at(1).at(isel) -> Fill (this_pt, this_eta);
+                            h2_BTaggingEff_Denom_c.at(2).at(isel) -> Fill (this_pt, this_eta);
+                            if (bTag[0]) h2_BTaggingEff_Num_c.at(0).at(isel) -> Fill (this_pt, this_eta);
+                            if (bTag[1]) h2_BTaggingEff_Num_c.at(1).at(isel) -> Fill (this_pt, this_eta);
+                            if (bTag[2]) h2_BTaggingEff_Num_c.at(2).at(isel) -> Fill (this_pt, this_eta);
+
+                            h_pT_c->Fill (this_pt);
+                            h_eta_c->Fill (this_eta_noAbs);
+                            h_CSV_c->Fill (jets_btag->at(ijet));
+
+                        }
+                        else // udsg jets
+                        {
+                            h2_BTaggingEff_Denom_udsg.at(0).at(isel) -> Fill (this_pt, this_eta);
+                            h2_BTaggingEff_Denom_udsg.at(1).at(isel) -> Fill (this_pt, this_eta);
+                            h2_BTaggingEff_Denom_udsg.at(2).at(isel) -> Fill (this_pt, this_eta);
+                            if (bTag[0]) h2_BTaggingEff_Num_udsg.at(0).at(isel) -> Fill (this_pt, this_eta);
+                            if (bTag[1]) h2_BTaggingEff_Num_udsg.at(1).at(isel) -> Fill (this_pt, this_eta);
+                            if (bTag[2]) h2_BTaggingEff_Num_udsg.at(2).at(isel) -> Fill (this_pt, this_eta);
+     
+                            h_pT_udsg->Fill (this_pt);
+                            h_eta_udsg->Fill (this_eta_noAbs);
+                            h_CSV_udsg->Fill (jets_btag->at(ijet));
+                        }
                     }
                 }
-
             }    
         }
         for (unsigned int isel = 0; isel < selections.size(); isel++) delete TTF[isel];
