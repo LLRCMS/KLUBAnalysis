@@ -123,7 +123,8 @@ class configReader:
                 self.lumi = float(f[1])
                 print "lumi ", self.lumi
             #print section
-            if section == "histos":
+            if section == "histos" or section == "binning":
+                #print f
                 self.AllVars.append(f[0]) #f[1]="="
                 self.AllBins.append(re.sub(',', '', f[1]))
                 self.AllvarX.append(re.sub(',', '', f[2]))

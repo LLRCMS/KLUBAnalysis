@@ -30,8 +30,11 @@ class cardMaker:
         self.outputdir=""
         self.writeThSyst = True
         self.binsysts = []
+        self.binsystsNAME = []
+        self.binsystsVALUE = []
 
         self.theChannel = -1
+        self.isResonant = False
 
     def loadIncludes(self):
         ROOT.gSystem.AddIncludePath("-I$ROOFITSYS/include/")
@@ -63,7 +66,7 @@ class cardMaker:
 
 
 
-    def AddBinByBinSyst(self,w,pname,PdfName,template,ral_variableList,ras_variableSet) :
+    def AddBinByBinSyst(self,w,pname,PdfName,template,ral_variableList,ras_variableSet,threshold=-1) :
         tBkgIntegral = template.Integral()
         #Protection: do NOT apply if <=1 populated bins, where populated means must contain at least 1% of the histogram
         nPop = 0;
@@ -73,14 +76,22 @@ class cardMaker:
                     if template.GetBinContent(ix,iy)>0.01*tBkgIntegral : nPop = nPop+1
                 else :
                     if template.GetBinContent(ix)>0.01*tBkgIntegral  :  nPop = nPop+1
-        print "POPOLAZIONE", nPop
+                    #print "BIN {0} content {1}".format(ix,template.GetBinContent(ix))
+
+        if threshold > 0 :
+            #is not QCD
+            self.binsysts.append(pname+"_normBins_{0} lnN ".format(self.theChannel))
+            self.binsystsNAME.append(PdfName.replace("bkg_",""))
+            self.binsystsVALUE.append(1+1.0/sqrt(template.GetEntries()))
+
+            #syst.writeOneLine("QCD", "CMS_HHbbtt_qcd_CR_norm_{0} gmN {1:.0f} ".format(theChannel,inputFile.Get(templateName).Integral()/1.06),1.06)
+        #print "POPOLAZIONE", nPop
         if nPop < 2 : return
 
         for iy in range(1,1+template.GetNbinsY()):
             for ix in range(1,1+template.GetNbinsX()):  
                 ## APPLY BIN BY BIN UNCERTAINTY to QCD, EACH BIN SCALED BY ITS OWN UNCERTAINTY 
                 histName = pname+"_binUnc_{0}_".format(self.theChannel)+str(iy)+str(ix)                                            
-                self.binsysts.append(histName+" shape ")
                 templateUp= template.Clone()
                 templateDown=template.Clone()
                 #templateUp.Scale(1,"width")
@@ -89,23 +100,37 @@ class cardMaker:
                 templateUp.SetTitle(PdfName+"_templ_"+histName+"Up")
                 templateDown.SetName(PdfName+"_templ_"+histName+"Down")
                 templateDown.SetTitle(PdfName+"_templ_"+histName+"Down")
-                templateUp.Sumw2(False)
-                templateUp.SetBinErrorOption(TH1.kPoisson)
-                templateDown.Sumw2(False)
-                templateDown.SetBinErrorOption(TH1.kPoisson)
+                if(threshold<=0) :
+                    templateUp.Sumw2(False)
+                    templateUp.SetBinErrorOption(TH1.kPoisson)
+                    templateDown.Sumw2(False)
+                    templateDown.SetBinErrorOption(TH1.kPoisson)
                 error = templateUp.GetBinContent(ix)+templateUp.GetBinErrorUp(ix)
                 errorDown = templateDown.GetBinContent(ix) - templateDown.GetBinErrorLow(ix)
                 normFactorUp   = templateUp.Integral()+templateUp.GetBinErrorUp(ix)
                 normFactorDown = templateDown.Integral()- templateDown.GetBinErrorLow(ix)
-
+                errRate = templateUp.GetBinErrorUp(ix)/templateUp.GetBinContent(ix)
                 if self.is2D == 2:  
                     error = templateUp.GetBinContent(ix,iy)+templateUp.GetBinErrorUp(ix,iy)
                     errorDown = templateDown.GetBinContent(ix,iy) -templateDown.GetBinErrorLow(ix,iy)
                     normFactorUp   = templateUp.Integral()+templateUp.GetBinErrorUp(ix,iy)
                     normFactorDown = templateDown.Integral()- templateDown.GetBinErrorLow(ix,iy)
+                    errRate = templateUp.GetBinErrorUp(ix,iy)/templateUp.GetBinContent(ix,iy)
                     if errorDown < 0 : 
                         errorDown=0
                         normFactorDown=0
+                #print "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                #print templateUp.GetBinErrorUp(ix), templateUp.GetBinContent(ix)
+                #print errRate
+                if errRate < threshold : continue
+
+                #print "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+                #print histName+" shape "
+                #print PdfName.replace("bkg_","")
+                self.binsysts.append(histName+" shape ")
+                self.binsystsNAME.append(PdfName.replace("bkg_",""))
+                self.binsystsVALUE.append(1)
+
                 templateUp.SetBinContent(ix,iy,error)
                 templateDown.SetBinContent(ix,iy,errorDown)
 
@@ -167,7 +192,7 @@ class cardMaker:
         inputFile = TFile.Open(self.filename)
 
         #Default
-        #print theInputs.AllVars, "  ",theInputs.varX, "  ",theInputs.varY
+        print theInputs.AllVars, "  ",theInputs.varX, "  ",theInputs.varY
         if theInputs.varY < 0 : 
             var2 = ""
         else :
@@ -292,6 +317,8 @@ class cardMaker:
         rdhB = []
         rhpB = []
         self.binsysts = []
+        self.binsystsNAME = []
+        self.binsystsVALUE = []
         #listTemplates = []
         for ibkg in range(len(templatesBKG)):
             TemplateName = "BKG_{3}_TempDataHist_{0:.0f}_{1:.0f}_{2}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
@@ -302,9 +329,10 @@ class cardMaker:
             for iy in range(1,1+templatesBKG[ibkg].GetNbinsY()):
                 for ix in range(1,1+templatesBKG[ibkg].GetNbinsX()):
                     #print ix, iy
-                    if templatesBKG[ibkg].GetBinContent(ix,iy)<0 : templatesBKG[ibkg].SetBinContent(ix,iy,0.00000001)
+                    if templatesBKG[ibkg].GetBinContent(ix,iy)<=0 : 
+                        templatesBKG[ibkg].SetBinContent(ix,iy,0.00000001)
+                        print templatesBKG[ibkg].GetBinContent(ix,iy)
             #templatesBKG[ibkg].Scale(1,"width") 
-            #print "SDKJFHLKSHFLKSDFNLSKDFNEAKLF ",tBkgIntegral, templatesBKG[ibkg].Integral("width"),templatesBKG[ibkg].Integral("")
             templatesBKG[ibkg].Scale(tBkgIntegral/templatesBKG[ibkg].Integral(""))
 
             if theInputs.background[ibkg] == "QCD":
@@ -336,6 +364,9 @@ class cardMaker:
 
                 getattr(w,'import')(rlxshapepdfUp,ROOT.RooFit.RecycleConflictNodes())
                 getattr(w,'import')(rlxshapepdfDown,ROOT.RooFit.RecycleConflictNodes())
+
+            else :
+                self.AddBinByBinSyst(w,"CMS_HHbbtt_lowStat_{0}".format(ibkg),PdfName,templatesBKG[ibkg],ral_variableList,ras_variableSet, 0.05)
 
             rdhB.append(ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templatesBKG[ibkg]))
             rhpB.append(ROOT.RooHistPdf(PdfName,PdfName,ras_variableSet,rdhB[ibkg]))
@@ -452,17 +483,23 @@ class cardMaker:
         if(self.writeThSyst) :
             syst_th = systReader("../config/syst_th.cfg",[theHHLambda],theInputs.background,file)
             syst_th.writeSystematics()
+        if(self.isResonant):
+            syst_res=systReader("../config/systematics_resonant.cfg",[theHHLambda],theInputs.background,file)
+        else : syst_res=systReader("../config/systematics_nonresonant.cfg",[theHHLambda],theInputs.background,file)
+        syst_res.writeSystematics()
+
+        for iqcd in range(len(self.binsysts)) :
+            syst.writeOneLine(self.binsystsNAME[iqcd],self.binsysts[iqcd],self.binsystsVALUE[iqcd])
+
 
         index = theInputs.additional.index("QCD")
         templateName = theInputs.additionalName[index]
         if inputFile.Get(templateName).Integral() > 0:        
             #add QCD bin-by-by shape
-            for iqcd in range(len(self.binsysts)) :
-                syst.writeOneLine("QCD",self.binsysts[iqcd])
             #add QCD rlx to tight shape unc
             syst.writeOneLine("QCD","CMS_HHbbtt_qcd_RlxToTight_{0} shape ".format(theChannel))
             #add stat uncertainty (sqrt(N)) => is this needed?? In any case it can't be added as gamma (lnU instead?)
-            syst.writeOneLine("QCD", "CMS_HHbbtt_qcd_SR_norm_{0} lnN ".format(theChannel),1+1.0/TMath.Sqrt(inputFile.Get(templateName).Integral()))
+            #syst.writeOneLine("QCD", "CMS_HHbbtt_qcd_SR_norm_{0} lnN ".format(theChannel),1+1.0/TMath.Sqrt(inputFile.Get(templateName).Integral()))
             #add  CR->SR uncertainty (gamma*alhpa)
             #templateName = templateName.replace("CORR_","")###GRRR this is hardcoded... but I don't know how to do better
             syst.writeOneLine("QCD", "CMS_HHbbtt_qcd_CR_norm_{0} gmN {1:.0f} ".format(theChannel,inputFile.Get(templateName).Integral()/1.06),1.06)
@@ -490,6 +527,7 @@ def parseOptions():
     parser.add_option('-s', '--scale', dest='scale', type='float', default='1', help='scale templates')
     parser.add_option('-q', '--dir', dest='outDir', type='string', default='', help='outdput dir')
     parser.add_option('-t', '--theory', dest='theorySyst', type='int', default=1, help='write theory systematics in the card')
+    parser.add_option('-r', '--resonant', dest='resAnalysis', type='int', default=0, help='Resonant analysis')
 
     # store options and arguments as global variables
     global opt, args
@@ -525,7 +563,6 @@ if __name__ == "__main__":
     elif opt.channel == "TauTau" : thechannel = 3
 
     input.readInputs()
-    #print "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",input.background
 
     if opt.filename == "":
         filename = "../"+input.inputFolder+"/outPlotter.root"
@@ -551,6 +588,8 @@ if __name__ == "__main__":
     if opt.theorySyst > 0: 
         dc.writeThSyst = True
     else : dc.writeThSyst = False
+    if opt.resAnalysis > 0 :
+        dc.isResonant = True
 
     for signal in input.signals :
         dc.makeCardsAndWorkspace(signal,1,thechannel,"{0}{1}{2}".format(signal,opt.overSel,opt.overVar),input)
