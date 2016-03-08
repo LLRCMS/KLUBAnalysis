@@ -25,6 +25,7 @@ class cardMaker:
         self.is2D = 2
 
         self.filename = "test.root"
+        self.signalFile = "test.root"
         self.scale = 1
         #...
         self.outputdir=""
@@ -35,6 +36,8 @@ class cardMaker:
 
         self.theChannel = -1
         self.isResonant = False
+
+        self.addsqrtN = False
 
     def loadIncludes(self):
         ROOT.gSystem.AddIncludePath("-I$ROOFITSYS/include/")
@@ -47,10 +50,10 @@ class cardMaker:
     def setfileName(self,filename):
         self.filename = filename
 
-    def AddSingleShapeSyst(self,w,systRead,systName,inFileName,tempName,proc,ral_variableList,ras_variableSet):
+    def AddSingleShapeSyst(self,w,systRead,systName,inFileName,tempName,proc,ral_variableList,ras_variableSet,suffix=""):
         inputFile = TFile.Open(inFileName)
-        templateUp = inputFile.Get(tempName+"Up")
-        templateDo = inputFile.Get(tempName+"Down")
+        templateUp = inputFile.Get(tempName+"UP"+suffix)
+        templateDo = inputFile.Get(tempName+"DOWN"+suffix)
         #templateUp.Scale(1/templateUp.Integral())
         #templateDo.Scale(1/templateDo.Integral())
 
@@ -70,19 +73,26 @@ class cardMaker:
         tBkgIntegral = template.Integral()
         #Protection: do NOT apply if <=1 populated bins, where populated means must contain at least 1% of the histogram
         nPop = 0;
+        emptyBins = []
         for iy in range(1,1+template.GetNbinsY()):
             for ix in range(1,1+template.GetNbinsX()):  
                 if self.is2D == 2:
-                    if template.GetBinContent(ix,iy)>0.01*tBkgIntegral : nPop = nPop+1
+                    if template.GetBinContent(ix,iy)>0.01*tBkgIntegral : 
+                        nPop = nPop+1
+                    else: 
+                        emptyBins.append(template.GetBin(ix,iy))
                 else :
-                    if template.GetBinContent(ix)>0.01*tBkgIntegral  :  nPop = nPop+1
+                    if template.GetBinContent(ix)>0.01*tBkgIntegral  :  
+                        nPop = nPop+1
+                    else: 
+                        emptyBins.append(template.GetBin(ix))
                     #print "BIN {0} content {1}".format(ix,template.GetBinContent(ix))
 
-        if threshold > 0 :
+        if threshold > 0 and self.addsqrtN :
             #is not QCD
             self.binsysts.append(pname+"_normBins_{0} lnN ".format(self.theChannel))
             self.binsystsNAME.append(PdfName.replace("bkg_",""))
-            self.binsystsVALUE.append(1+1.0/sqrt(template.GetEntries()))
+            self.binsystsVALUE.append(1+1.0/TMath.Sqrt(template.GetEntries()))
 
             #syst.writeOneLine("QCD", "CMS_HHbbtt_qcd_CR_norm_{0} gmN {1:.0f} ".format(theChannel,inputFile.Get(templateName).Integral()/1.06),1.06)
         #print "POPOLAZIONE", nPop
@@ -91,6 +101,7 @@ class cardMaker:
         for iy in range(1,1+template.GetNbinsY()):
             for ix in range(1,1+template.GetNbinsX()):  
                 ## APPLY BIN BY BIN UNCERTAINTY to QCD, EACH BIN SCALED BY ITS OWN UNCERTAINTY 
+                nBin=template.GetBin(ix)
                 histName = pname+"_binUnc_{0}_".format(self.theChannel)+str(iy)+str(ix)                                            
                 templateUp= template.Clone()
                 templateDown=template.Clone()
@@ -111,6 +122,7 @@ class cardMaker:
                 normFactorDown = templateDown.Integral()- templateDown.GetBinErrorLow(ix)
                 errRate = templateUp.GetBinErrorUp(ix)/templateUp.GetBinContent(ix)
                 if self.is2D == 2:  
+                    nBin = template.GetBin(ix,iy)
                     error = templateUp.GetBinContent(ix,iy)+templateUp.GetBinErrorUp(ix,iy)
                     errorDown = templateDown.GetBinContent(ix,iy) -templateDown.GetBinErrorLow(ix,iy)
                     normFactorUp   = templateUp.Integral()+templateUp.GetBinErrorUp(ix,iy)
@@ -122,8 +134,12 @@ class cardMaker:
                 #print "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                 #print templateUp.GetBinErrorUp(ix), templateUp.GetBinContent(ix)
                 #print errRate
-                if errRate < threshold : continue
+                if nBin in emptyBins : 
+                    error = TMath.Min(template.Integral()/template.GetNbinsX(),1)
+                    errorDown = 0
+                    errRate = threshold+1
 
+                if errRate < threshold : continue
                 #print "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
                 #print histName+" shape "
                 #print PdfName.replace("bkg_","")
@@ -149,11 +165,12 @@ class cardMaker:
         
         self.theChannel = theChannel
         dname=dc.outputdir
-        theDataSample = "DsingleMuRunD" #"DsingleMu" #"DsingleMuPromptReco"
-        if(theChannel) == 3:
-            theDataSample = "DTauRunD" #"DsingleTauPromptReco"
-        if(theChannel) == 1:
-            theDataSample = "DsingleEleRunD" #"DsingleTauPromptReco"
+        theDataSample = "SumDATA"
+        # theDataSample = "DsingleMuRunD" #"DsingleMu" #"DsingleMuPromptReco"
+        # if(theChannel) == 3:
+        #     theDataSample = "DTauRunD" #"DsingleTauPromptReco"
+        # if(theChannel) == 1:
+        #     theDataSample = "DsingleEleRunD" #"DsingleTauPromptReco"
 
         #theOutLambda = theHHLambda#str(int(theHHLambda))
         #if abs(theHHLambda - int(theHHLambda) )>0.01 : 
@@ -190,6 +207,7 @@ class cardMaker:
         ## -------------------------- IMPORT Histograms ---------------------- ##
         ##NB: if you add a new histogram, you'll need to modify the 2D templates below as well
         inputFile = TFile.Open(self.filename)
+        inputSigFile = TFile.Open(self.signalFile)
 
         #Default
         print theInputs.AllVars, "  ",theInputs.varX, "  ",theInputs.varY
@@ -200,7 +218,7 @@ class cardMaker:
         #print "test2D_{0}{1}_Lambda{2:.0f}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theHHLambda,theInputs.selectionLevel)
         nameString = "OS_sig_{0}{1}_OS_{3}_{2}".format(theInputs.AllVars[theInputs.varX],var2,theHHLambda,theInputs.selectionLevel)
         print nameString
-        templateSIG = inputFile.Get(nameString)
+        templateSIG = inputSigFile.Get(nameString)
         if self.is2D==1: 
             if "TH2" in templateSIG.ClassName() : templateSIG = templateSIG.ProjectionX()
         ##JES syst
@@ -256,6 +274,7 @@ class cardMaker:
         for isample in tobeRemoved:
             theInputs.background.remove(isample)
 
+        #self.FullRate = 
             #rate_bkgTT_Shape = templateBKG_TT.Integral("width")*self.lumi
 
         #theRates=[rate_signal_Shape,rate_bkgTT_Shape,rate_bkgDY_Shape,rate_bkgTWantitop_Shape,rate_bkgTWtop_Shape]
@@ -326,18 +345,19 @@ class cardMaker:
 
             ## Remove negative bins, normalize and shape uncertainties
             tBkgIntegral = templatesBKG[ibkg].Integral()
+
             for iy in range(1,1+templatesBKG[ibkg].GetNbinsY()):
                 for ix in range(1,1+templatesBKG[ibkg].GetNbinsX()):
                     #print ix, iy
                     if templatesBKG[ibkg].GetBinContent(ix,iy)<=0 : 
                         templatesBKG[ibkg].SetBinContent(ix,iy,0.00000001)
-                        print templatesBKG[ibkg].GetBinContent(ix,iy)
+                        #print templatesBKG[ibkg].GetBinContent(ix,iy)
             #templatesBKG[ibkg].Scale(1,"width") 
             templatesBKG[ibkg].Scale(tBkgIntegral/templatesBKG[ibkg].Integral(""))
 
             if theInputs.background[ibkg] == "QCD":
 
-                self.AddBinByBinSyst(w,"CMS_HHbbtt_qcd",PdfName,templatesBKG[ibkg],ral_variableList,ras_variableSet)
+                self.AddBinByBinSyst(w,"CMS_HHbbtt_qcd",PdfName,templatesBKG[ibkg],ral_variableList,ras_variableSet, 0.05)
 
                 index = theInputs.additional.index("QCD")
                 CorrtemplateName = "UP"+theInputs.additionalName[index]
@@ -375,44 +395,50 @@ class cardMaker:
 
         ## --------------------------- DATASET --------------------------- ##
         #RooDataSet ds("ds","ds",ras_variableSet,Import(*tree)) ;
+        #OS_DATA_tauH_mass_OS_defaultBtagMMNoIsoBBTTCut45_SumDATA
         TemplateName = "OS_DATA_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,theDataSample)
         templateObs = inputFile.Get(TemplateName)
+        print templateObs
+        #data_obs = inputFile.Get(TemplateName)
         #templateObs.Add(inputFile.Get("OS_DATA_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,chanst)))
         print TemplateName
         #if templateObs.Integral() <=0: #protection for low stat
         #    data_obs = rhpB[0].generate(ras_variableSet,1000)
-        tempfile = TFile.Open("temp.root","RECREATE")
-        if self.is2D==1: 
-            if "TH2" in templateObs.ClassName() : 
-                templateObs = templateObs.ProjectionX()
-            obstree=TNtuple("obstree","obstree",x_name)
-            for idata in range(1,templateObs.GetNbinsX()+1):
-                gbc = int(templateObs.GetBinContent(idata))
-                if gbc >0:
-                    for ig in range(gbc): 
-                        obstree.Fill(templateObs.GetXaxis().GetBinCenter(idata))
-        else:
-            obstree=TNtuple("obstree","obstree",x_name+":"+y_name)
-            for idata in range(1,templateObs.GetNbinsX()+1):
-                for idatay in range(1,templateObs.GetNbinsY()+1):
-                    gbc = int(templateObs.GetBinContent(idata,datay))
-                    if gbc >0:
-                        for ig in range(gbc): 
-                            obstree.Fill(templateObs.GetXaxis().GetBinCenter(idata),templateObs.GetXaxis().GetBinCenter(idatay))
-        print templateObs.GetEntries()
-        data_obs = RooDataSet("data_obs","data_obs",obstree,ras_variableSet)    
-            #rdh_obs = ROOT.RooDataHist("rdh"+TemplateName,"rdh"+TemplateName,ral_variableList,templateObs)
-            #rhp_obs = ROOT.RooHistPdf("rhp_obs","rhp_obs",ras_variableSet,rdh_obs)
-            #data_obs = rhp_obs.generate(ras_variableSet)
+###        tempfile = TFile.Open("temp.root","RECREATE")
+###        if self.is2D==1: 
+###            if "TH2" in templateObs.ClassName() : 
+###                templateObs = templateObs.ProjectionX()
+###            obstree=TNtuple("obstree","obstree",x_name)
+###            for idata in range(1,templateObs.GetNbinsX()+1):
+###                gbc = int(templateObs.GetBinContent(idata))
+###                if gbc >0:
+###                    for ig in range(gbc): 
+###                        obstree.Fill(templateObs.GetXaxis().GetBinCenter(idata))
+###        else:
+###            obstree=TNtuple("obstree","obstree",x_name+":"+y_name)
+###            for idata in range(1,templateObs.GetNbinsX()+1):
+###                for idatay in range(1,templateObs.GetNbinsY()+1):
+###                    gbc = int(templateObs.GetBinContent(idata,datay))
+###                    if gbc >0:
+###                        for ig in range(gbc): 
+###                            obstree.Fill(templateObs.GetXaxis().GetBinCenter(idata),templateObs.GetXaxis().GetBinCenter(idatay))
+###        print templateObs.GetEntries()
+###        data_obs = RooDataSet("data_obs","data_obs",obstree,ras_variableSet)    
+        rdh_obs = ROOT.RooDataHist("rdh"+TemplateName,"rdh"+TemplateName,ral_variableList,templateObs)
+        #rhp_obs = ROOT.RooHistPdf("rhp_obs","rhp_obs",ras_variableSet,rdh_obs)
+        #data_obs = rhp_obs.generate(ras_variableSet)
         #datasetName = "data_obs_{0}".format(self.appendName)
         #data_obs.SetNameTitle("data_obs","data_obs")
 
         #data_obs = ROOT.RooDataSet(datasetName,datasetName,data_obs_tree,ras_variableSet)
-        obsEvents = data_obs.numEntries()        
+        #obsEvents = rdh_obs.numEntries() #GetEntries() #data_obs.numEntries()        
+        obsEvents = templateObs.GetEntries()
         print "observations: ", obsEvents    
 
         ## --------------------------- WORKSPACE -------------------------- ##
-        getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs"))
+        #getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs"))
+        #getattr(w,'import')(data_obs)
+        getattr(w,'import')(rdh_obs,ROOT.RooFit.Rename("data_obs"))
         getattr(w,'import')(SIG_TemplatePdf,ROOT.RooFit.RecycleConflictNodes())
         ##FIXME!!!!!!
         #name_ShapeWS = "cards{3}/{0}/hh_{1}_L{2:.0f}_13TeV.input.root".format(theOutputDir,theChannel,theHHLambda,dname)
@@ -506,7 +532,8 @@ class cardMaker:
         readChTmplate = "MuTau"
         if(thechannel == self.ID_ch_etau): readChTmplate = "ETau"
         elif (thechannel == self.ID_ch_tautau): readChTmplate = "TauTau"
-        self.AddSingleShapeSyst(w,syst,"CMS_HHbbtt_pttopreweight","/home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/studies/TopPtReweight/topPtShapes_{0}.root".format(readChTmplate),"h","TT",ral_variableList,ras_variableSet)
+        #self.AddSingleShapeSyst(w,syst,"CMS_HHbbtt_pttopreweight","/home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/studies/TopPtReweight/topPtShapes_{0}.root".format(readChTmplate),"h","TT",ral_variableList,ras_variableSet)
+        self.AddSingleShapeSyst(w,syst,"CMS_HHbbtt_pttopreweight",self.filename,"OS_bkg_{0}_OS_{1}_top".format(theInputs.AllVars[theInputs.varX],theInputs.selectionLevel),"TT",ral_variableList,ras_variableSet,"_TT")
 
         w.writeToFile(name_ShapeWS)
 
@@ -518,7 +545,8 @@ def parseOptions():
     parser = optparse.OptionParser(usage)
     
     parser.add_option('-d', '--is2D',   dest='is2D',       type='int',    default=1,     help='number of Dimensions (default:1)')
-    parser.add_option('-f', '--filename',   dest='filename', type='string', default="",  help='input plots')
+    parser.add_option('-f', '--filename',   dest='filename',   type='string', default="",  help='input plots')
+    parser.add_option('-S', '--sigfilename',dest='sigfilename',type='string', default="",  help='input signalplots')
     #parser.add_option('-l', '--lambda',   dest='Lambda', type='float', default=20,  help='Lambda value')
     parser.add_option('-c', '--channel',   dest='channel', type='string', default='MuTau',  help='final state')
     parser.add_option('-i', '--config',   dest='config', type='string', default='',  help='config file')
@@ -550,6 +578,9 @@ if __name__ == "__main__":
     dc.set2D(opt.is2D)
     dc.scale=opt.scale
     dc.outputdir="_"+opt.channel+opt.outDir
+    if opt.sigfilename=="":
+        dc.signalFile = opt.filename
+    else : dc.signalFile = opt.sigfilename
 
     if(opt.config==""):
         configname = "../config/analysis_"+opt.channel+".cfg"
