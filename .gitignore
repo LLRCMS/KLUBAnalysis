@@ -8,3 +8,4 @@ combiner/*.png
 combiner/*.root
 combiner/cards_*
 SKIM_*/
+weights/data/

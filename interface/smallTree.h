@@ -29,8 +29,11 @@ struct smallTree
       m_bTagweightT = -1. ;
       m_TTtopPtreweight = -1. ;
       m_EventNumber = -1. ;
+      m_DYscale_LL = -1. ;
+      m_DYscale_MM = -1. ;
       m_trigSF = -1.;
       m_IdAndIsoSF = -1.;
+      m_nBhadrons = -1;
       m_RunNumber = -1. ;
       
       m_npv = -1. ;
@@ -80,6 +83,8 @@ struct smallTree
       m_bjet1_e  = -1. ;
       m_bjet1_bID = -1. ;
       m_bjet1_flav = -1 ;
+      m_bjet1_pt_raw  = -1. ;
+      m_bjet1_hasgenjet = false ;
       
       m_bjet2_pt  = -1. ;
       m_bjet2_eta  = -1. ;
@@ -87,6 +92,8 @@ struct smallTree
       m_bjet2_e  = -1. ;
       m_bjet2_bID = -1. ;
       m_bjet2_flav = -1 ;
+      m_bjet2_pt_raw  = -1. ;
+      m_bjet2_hasgenjet = false ;
 
       m_genjet1_pt  = -1. ;
       m_genjet1_eta  = -1. ;
@@ -156,6 +163,7 @@ struct smallTree
       m_jets_btag.clear () ;
       m_jets_flav.clear () ;
       m_jets_isH.clear () ;
+      m_jets_hasgenjet.clear () ;
       m_njets = 0 ;
       m_dau1_jecUnc= -1;
       m_dau2_jecUnc= -1;
@@ -194,6 +202,9 @@ struct smallTree
       m_smallT->Branch ("TTtopPtreweight", &m_TTtopPtreweight, "TTtopPtreweight/F") ;
       m_smallT->Branch ("trigSF", &m_trigSF, "trigSF/F") ;
       m_smallT->Branch ("IdAndIsoSF", &m_IdAndIsoSF, "IdAndIsoSF/F") ;
+      m_smallT->Branch ("DYscale_LL", &m_DYscale_LL, "DYscale_LL/F") ;
+      m_smallT->Branch ("DYscale_MM", &m_DYscale_MM, "DYscale_MM/F") ;
+      m_smallT->Branch ("nBhadrons", &m_nBhadrons, "nBhadrons/I") ;
       m_smallT->Branch ("EventNumber", &m_EventNumber, "EventNumber/I") ;
       m_smallT->Branch ("RunNumber", &m_RunNumber, "RunNumber/I") ;
 
@@ -244,6 +255,8 @@ struct smallTree
       m_smallT->Branch ("bjet1_e", &m_bjet1_e, "bjet1_e/F") ;
       m_smallT->Branch ("bjet1_bID", &m_bjet1_bID, "bjet1_bID/F") ;
       m_smallT->Branch ("bjet1_flav", &m_bjet1_flav, "bjet1_flav/I") ;
+      m_smallT->Branch ("bjet1_pt_raw", &m_bjet1_pt_raw, "bjet1_pt_raw/F") ;
+      m_smallT->Branch ("bjet1_hasgenjet", &m_bjet1_hasgenjet, "bjet1_hasgenjet/O") ;
      
       m_smallT->Branch ("bjet2_pt", &m_bjet2_pt, "bjet2_pt/F") ;
       m_smallT->Branch ("bjet2_eta", &m_bjet2_eta, "bjet2_eta/F") ;
@@ -251,6 +264,8 @@ struct smallTree
       m_smallT->Branch ("bjet2_e", &m_bjet2_e, "bjet2_e/F") ;
       m_smallT->Branch ("bjet2_bID", &m_bjet2_bID, "bjet2m_bID/F") ;
       m_smallT->Branch ("bjet2_flav", &m_bjet2_flav, "bjet2_flav/I") ;
+      m_smallT->Branch ("bjet2_pt_raw", &m_bjet2_pt_raw, "bjet2_pt_raw/F") ;
+      m_smallT->Branch ("bjet2_hasgenjet", &m_bjet2_hasgenjet, "bjet2_hasgenjet/O") ;
 
       m_smallT->Branch ("genjet1_pt",  &m_genjet1_pt,  "genjet1_pt/F") ;
       m_smallT->Branch ("genjet1_eta", &m_genjet1_eta, "genjet1_eta/F") ;
@@ -312,6 +327,7 @@ struct smallTree
       m_smallT->Branch ("jets_btag", &m_jets_btag) ;
       m_smallT->Branch ("jets_flav", &m_jets_flav) ;
       m_smallT->Branch ("jets_isH", &m_jets_isH) ;
+      m_smallT->Branch ("jets_hasgenjet", &m_jets_hasgenjet) ;
       m_smallT->Branch ("njets", &m_njets, "njets/I") ;
       m_smallT->Branch ("jets_jecUnc", &m_jets_jecUnc);
       m_smallT->Branch ("dau1_jecUnc", &m_dau1_jecUnc,"dau1_jecUnc/F");
@@ -358,6 +374,9 @@ struct smallTree
   Float_t m_TTtopPtreweight ;
   Float_t m_trigSF ;
   Float_t m_IdAndIsoSF ;
+  Float_t m_DYscale_LL ;
+  Float_t m_DYscale_MM ;
+  Int_t m_nBhadrons ;
   Int_t m_EventNumber ;
   Int_t m_RunNumber ;
 
@@ -411,21 +430,25 @@ struct smallTree
   Float_t m_dau2_e ;
   Float_t m_dau2_flav ; // let this contain also whether it's a hadronic dau
 
-  // the largest pT b visible candidate
+  // the largest pT b visible candidate /  highest CSV score
   Float_t m_bjet1_pt ;
   Float_t m_bjet1_eta ;
   Float_t m_bjet1_phi ;
   Float_t m_bjet1_e ;
   Float_t m_bjet1_bID ;
   Int_t   m_bjet1_flav ;
+  Float_t m_bjet1_pt_raw ;
+  Bool_t  m_bjet1_hasgenjet ;
 
-  // the smallest pT b visible candidate
+  // the trailing pT b visible candidate  /  highest CSV score
   Float_t m_bjet2_pt ;
   Float_t m_bjet2_eta ;
   Float_t m_bjet2_phi ;
   Float_t m_bjet2_e ;
   Float_t m_bjet2_bID ;
   Int_t   m_bjet2_flav ;
+  Float_t m_bjet2_pt_raw ;
+  Bool_t  m_bjet2_hasgenjet ;
 
   // the gen jet associated to the first b jet
   Float_t m_genjet1_pt ;
@@ -498,6 +521,7 @@ struct smallTree
   std::vector<Float_t> m_jets_btag ;
   std::vector<Int_t> m_jets_flav ;
   std::vector<Int_t> m_jets_isH ;
+  std::vector<Bool_t> m_jets_hasgenjet ;
   Int_t m_njets ;
   std::vector<Float_t> m_jets_jecUnc ;
   Float_t m_dau1_jecUnc;

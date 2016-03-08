@@ -128,6 +128,7 @@ int OfflineProducerHelper::getTAUidNumber(TString tauIDname){
 
 int OfflineProducerHelper::getPairType (int type1, int type2)
 {
+
     int nmu = 0;
     int nele = 0;
     int ntau = 0;
@@ -139,6 +140,7 @@ int OfflineProducerHelper::getPairType (int type1, int type2)
     if (isMuon (type2) )     nmu++;
     if (isElectron (type2) ) nele++;
     if (isTau (type2) )      ntau++;
+
 
     if (nmu == 1 && nele == 0 && ntau == 1) return (int) pairType::MuHad;
     if (nmu == 0 && nele == 1 && ntau == 1) return (int) pairType::EHad;
@@ -184,8 +186,8 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     // ordered by pT and not by most isolated, but baseline asked in sync is the same...
     if (pairType == HadHad)
     {
-        bool leg1 = tauBaseline (tree, dau1index, 45., 2.1, 0, 0, 2.0, whatApply);
-        bool leg2 = tauBaseline (tree, dau2index, 45., 2.1, 0, 0, 2.0, whatApply);
+        bool leg1 = tauBaseline (tree, dau1index, 40., 2.1, 0, 0, 2.0, whatApply);
+        bool leg2 = tauBaseline (tree, dau2index, 40., 2.1, 0, 0, 2.0, whatApply);
         return (leg1 && leg2);
     }
 
@@ -206,9 +208,14 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     
     if (pairType == MuMu)
     {
-      bool leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.1, whatApply);
-      bool leg2 = muBaseline (tree, dau2index, 23., 2.1, 0.1, whatApply);
-      return (leg1 && leg2);      
+      bool leg1 = muBaseline (tree, dau1index, 10., 2.4, 0.1, whatApply);
+      bool leg2 = muBaseline (tree, dau2index, 10., 2.4, 0.1, whatApply);
+      bool leg1ER = muBaseline (tree, dau1index, 19., 2.1, 0.1, whatApply);
+      bool leg2ER = muBaseline (tree, dau2index, 19., 2.1, 0.1, whatApply);
+      
+      //bool Is1in2p1 = leg1ER ;
+      //bool Is2in2p1 = leg2ER ;
+      return ((leg1ER && leg2) || (leg2ER && leg1) );
     }
     
     return false;

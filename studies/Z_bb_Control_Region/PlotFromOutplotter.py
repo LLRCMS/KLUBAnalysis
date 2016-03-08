@@ -6,6 +6,8 @@ import argparse
 import fnmatch
 import math
 from array import array
+from prettytable import PrettyTable
+# for the prettytable library: https://pypi.python.org/pypi/PrettyTable#downloads; then run command: sudo python setup.py install 
 
 ### parser of the config used for the analysis ###
 class ConfigReader:
@@ -138,6 +140,18 @@ def retrieveHistos (rootFile, namelist, var, sel, tag):
     res = {}
     for name in namelist:
         fullName = "OS_" + tag + "_" + var + "_OS_" + sel + "_" + name
+        if not rootFile.GetListOfKeys().Contains(fullName):
+            print "*** WARNING: histo " , fullName , " not available"
+            continue
+        h = rootFile.Get(fullName)
+        res[name] = h
+    return res
+
+# bkg_tauH_mass_DiMu2bMM_TT
+def retrieveHistosSimplePlot (rootFile, namelist, var, sel, tag):
+    res = {}
+    for name in namelist:
+        fullName = tag + "_" + var + "_" + sel + "_" + name
         if not rootFile.GetListOfKeys().Contains(fullName):
             print "*** WARNING: histo " , fullName , " not available"
             continue
@@ -311,6 +325,15 @@ def findMaxOfGraph (graph):
         uppers.append (y + graph.GetErrorYhigh(i))
     return max(uppers)
 
+def dumpHistosYield (hList):
+    t = PrettyTable(['Process', 'Yield', '+/- (syst MC stat)', 'MV evts'])    
+    for h in hList:
+        integral = h.Integral()
+        MCevts = h.GetEntries()
+        error = integral/math.sqrt(MCevts)
+        t.add_row([h.GetName(), integral, error, MCevts])
+    print t
+
 # def makeSystUpDownStack (bkgList, systList, newNamePart):
 #     for i, name in bkgList:
 #         scale = systList[i] # error on nominal histo
@@ -326,26 +349,6 @@ def findMaxOfGraph (graph):
 #             hTempDown = bkgList[i].Clone (newNamePart + "_tmp_up" + i)
 #             hTempUp.Scale (1.0 + scale)
 #             hTempDown.Scale (1.0 - scale)
-
-## remove negative bins and reset yield accordingly
-## NB: must be done BEFORE bin width division
-def makeNonNegativeHistos (hList):
-    for h in hList:
-        integral = h.Integral()
-        for b in range (1, h.GetNbinsX()+1):
-            if (h.GetBinContent(b) < 0):
-               h.SetBinContent (b, 0)
-        integralNew = h.Integral()        
-        
-        if (integralNew != integral):
-            print "** INFO: removed neg bins from histo " , h.GetName() 
-        
-        # print h.GetName() , integral , integralNew
-        if integralNew == 0:
-            h.Scale(0)
-        else:
-            h.Scale(integral/integralNew) 
-
 
 ### script body ###
 
@@ -432,23 +435,26 @@ if __name__ == "__main__" :
     # signals to plot
     #signalList = ["Radion300", "Radion450", "Radion800"]
     
-    sigList = ["Lambda1", "Lambda20"]
-    sigNameList = ["100 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 1", "10 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 20"]
-    sigNameList = ["100 x #lambda/#lambda^{SM} = 1", "10 x #lambda/#lambda^{SM} = 20"]
+    #sigList = ["Lambda1", "Lambda20"]
+    #sigNameList = ["100 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 1", "10 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 20"]
+    #sigNameList = ["100 x #lambda/#lambda^{SM} = 1", "10 x #lambda/#lambda^{SM} = 20"]
 
-    sigScale = [100., 10.]
-    sigColors = {}
-    sigColors["Lambda1"] = 1
-    sigColors["Lambda20"] = 2
-
-    # sigList = ["Radion300", "Radion450", "Radion800"]
-    # sigNameList = [
-    #     "m_{H} = 300 GeV",
-    #     "m_{H} = 450 GeV",
-    #     "m_{H} = 800 GeV" ]
+    #sigList = ["Radion300", "Radion450", "Radion800"]
+    #sigNameList = [
+        # "m_{H} = 300 GeV",
+        # "m_{H} = 450 GeV",
+        # "m_{H} = 800 GeV" ]
     
-    # sigScale = [1.0, 1.0, 1.0]
+    #sigScale = [1.0, 1.0, 1.0]
     #sigScale = [0.1, 0.1, 0.1]
+
+    sigList = []
+    sigNameList = []
+    sigScale = []
+    #sigScale = [1.0, 1.0, 1.0]
+    #sigScale = [0.1, 0.1, 0.1]
+
+
     if args.sigscale:
         for i in range(0,len(sigScale)): sigScale[i] = args.sigscale
 
@@ -458,7 +464,9 @@ if __name__ == "__main__" :
     if args.title:
         plotTitle = args.title
 
-    DYlist   = ["DYIncl", "DY100200", "DY200400", "DY400600", "DY600Inf"]
+    DYlist0b   = ["DYIncl0b", "DY1002000b", "DY2004000b", "DY4006000b", "DY600Inf0b"]
+    DYlist1b   = ["DYIncl1b", "DY1002001b", "DY2004001b", "DY4006001b", "DY600Inf1b"]
+    DYlist2b   = ["DYIncl2b", "DY1002002b", "DY2004002b", "DY4006002b", "DY600Inf2b"]
     Wjetlist = ["WJetsIncl", "WJets100200", "WJets200400", "WJets400600", "WJets600Inf"]
     TTlist   = ["TT"]
     tWlist   = ["TWtop", "TWantitop"]
@@ -477,21 +485,62 @@ if __name__ == "__main__" :
     #sigList     = cfg.readListOption("general::signals") # set by hand
 
     rootFile = TFile.Open (args.dir+"/"+outplotterName)
-    hSigs = retrieveHistos (rootFile, sigList, args.var, args.sel, "sig")
-    hBkgs = retrieveHistos  (rootFile, bkgList, args.var, args.sel, "bkg")
-    hDatas = retrieveHistos  (rootFile, dataList, args.var, args.sel, "DATA")
+    hSigs = retrieveHistosSimplePlot (rootFile, sigList, args.var, args.sel, "sig")
+    hBkgs = retrieveHistosSimplePlot  (rootFile, bkgList, args.var, args.sel, "bkg")
+    hDatas = retrieveHistosSimplePlot  (rootFile, dataList, args.var, args.sel, "DATA")
 
-    hDY    = groupTogether ("DY", DYlist, hBkgs)
+    hDY0b    = groupTogether ("DY0b", DYlist0b, hBkgs)
+    hDY1b    = groupTogether ("DY1b", DYlist1b, hBkgs)
+    hDY2b    = groupTogether ("DY2b", DYlist2b, hBkgs)
     hWJets = groupTogether ("WJets", Wjetlist, hBkgs)
     hTT    = groupTogether ("TT", TTlist, hBkgs)
     htW    = groupTogether ("tW", tWlist, hBkgs)
     hVV    = groupTogether ("VV", VVlist, hBkgs)
-    hQCD   = retrieveQCD (rootFile, args.var, args.sel, dataList)
     
-    hBkgList = [hTT, hDY, hWJets, hQCD, hVV, htW] ## full list for stack
-    hBkgNameList = ["t#bar{t}", "Drell-Yann", "W+jets", "QCD", "di-boson", "single top"] # list for legend
+    # scale TT bar for the section
+    TTscale  = 831.76/769
+    print "Scaling tt from exp section " , 769 , " to theo section " , 831.76 , " --> " , TTscale
+    hTT.Scale(TTscale)
+    #hQCD   = retrieveQCD (rootFile, args.var, args.sel, dataList)
+    
+    # hBkgList = [hTT, hDY0b, hDY1b, hDY2b, hWJets, hVV, htW] ## full list for stack
+    # hBkgNameList = ["t#bar{t}", "Drell-Yann 0b", "Drell-Yann 1b", "Drell-Yann 2b", "W+jets", "di-boson", "single top"] # list for legend
+
+    hBkgList     = [hVV, htW, hWJets, hTT, hDY0b, hDY1b, hDY2b] ## full list for stack
+    hBkgNameList = ["di-boson", "single top", "W+jets", "t#bar{t}", "Drell-Yan 0b", "Drell-Yan 1b", "Drell-Yan 2b"] # list for legend
+
+    ######## print yields before any other operation
+    print "BKG yields"
+    dumpHistosYield(hBkgList)
+
+    print " --- integrals --- "
+    print "DY 0b" , hDY0b.Integral()
+    print "DY 1b" , hDY1b.Integral()
+    print "DY 2b" , hDY2b.Integral()
+
+    integrBkg = 0
+    integrBkg += hVV.Integral()
+    integrBkg += htW.Integral()
+    integrBkg += hWJets.Integral()
+    integrBkg += hTT.Integral()
+
+    print "Sum other bkg: " , integrBkg
 
     hData = groupTogether  ("data", dataList, hDatas)
+
+    print "DATA: " , hData.Integral()
+
+    print ""
+    print "Errors: "
+    nErr = 0
+    totYield = 0
+    for h in hBkgList:
+        aintegral = h.Integral()
+        aMCevts = h.GetEntries()
+        aerror = aintegral/math.sqrt(aMCevts)
+        nErr += aerror
+        totYield += aintegral
+    print totYield , " +/- " , nErr , " --> relative: " , (nErr / totYield)
 
     # remove all data from blinding region before creating tgraph etc...
     if args.blindrange:
@@ -509,17 +558,6 @@ if __name__ == "__main__" :
     for i, scale in enumerate (sigScale):
         histo = hSigs[sigList[i]]
         histo.Scale(scale)
-
-    # apply sig color if available
-    for key in hSigs:
-        if key in sigColors:
-            thecolor = int(sigColors[key])
-            hSigs[key].SetLineColor(thecolor)
-
-    #################### REMOVE NEGARIVE BINS #######################
-    print "** INFO: removing all negative bins from bkg histos"
-    makeNonNegativeHistos (hBkgList)
-
 
     #################### PERFORM DIVISION BY BIN WIDTH #######################
     #clones non scaled (else problems with graph ratio because I pass data evt hist)
@@ -692,6 +730,12 @@ if __name__ == "__main__" :
             chName = "bb e#tau_{h}"
         elif args.channel == "TauTau":
             chName = "bb #tau_{h}#tau_{h}"
+        elif args.channel == "2B":
+            chName = "bb #mu#mu"
+        elif args.channel == "1B":
+            chName = "bj #mu#mu"
+        elif args.channel == "0B":
+            chName = "jj #mu#mu"
         else:
             print "*** Warning: channel name must be MuTau, ETau, TauTau, you wrote: " , args.channel
 

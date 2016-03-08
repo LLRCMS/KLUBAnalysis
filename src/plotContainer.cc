@@ -183,8 +183,20 @@ void plotContainer::MergeHistograms(vector<string> mergesampleList, TString merg
     {
       TH1F *dummyH;//  //var sel sam
       for (uint isamp=0; isamp<mergesampleList.size(); isamp++){
-        if(isamp==0) dummyH = ((TH1F*)m_histos[iVar->first][iCut->first][mergesampleList.at(isamp)]->Clone());
-        else dummyH->Add((TH1F*)m_histos[iVar->first][iCut->first][mergesampleList.at(isamp)]);
+        // if(isamp==0) dummyH = ((TH1F*)m_histos[iVar->first][iCut->first][mergesampleList.at(isamp)]->Clone());
+        // else dummyH->Add((TH1F*)m_histos[iVar->first][iCut->first][mergesampleList.at(isamp)]);
+        // cout << "NAME: " << mergesampleList.at(isamp) << endl;
+        // cout << "ONE: " << endl;
+        // cout << "  --> " << &m_histos.at(iVar->first) << endl;
+        // cout << "TWO: " << endl;
+        // cout << "  --> " << &m_histos.at(iVar->first).at(iCut->first) << endl;
+        // cout << "THREE: " << endl;
+        // cout << "  --> " << &m_histos.at(iVar->first).at(iCut->first).at(mergesampleList.at(isamp)) << endl;
+        // for (auto it = m_histos.at(iVar->first).at(iCut->first).begin(); it !=  m_histos.at(iVar->first).at(iCut->first).end(); ++it)
+        //   cout << "ee: " << it->first << endl;
+
+        if(isamp==0) dummyH = ((TH1F*)m_histos[iVar->first][iCut->first].at(mergesampleList.at(isamp))->Clone());
+        else dummyH->Add((TH1F*)m_histos[iVar->first][iCut->first].at(mergesampleList.at(isamp)));
       }
       TString histoName = m_name + "_" 
       + iVar->first + "_" 
