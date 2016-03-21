@@ -387,6 +387,7 @@ int main (int argc, char** argv)
   trigReader.addEleTauTrigs (trigEleTau);
   trigReader.addMuEleTrigs  (trigEleMu);
   trigReader.addMuMuTrigs   (trigMuMu);
+  trigReader.addEleEleTrigs (trigEleEle);
 
   // ------------------------------
 
