@@ -90,7 +90,7 @@ class configReader:
             #f = re.split('\W+',line)
             if section == "general":
                 #f = re.split('\W+',line)
-                if f[0] == 'signals' : 
+                if f[0] == 'signalsFitted' : 
                     for sample in range(1,len(f)-1): self.signals.append(f[sample])
                 elif f[0] == "backgroundsMerge": 
                     for sample in range(1,len(f)-1): self.background.append(f[sample])
