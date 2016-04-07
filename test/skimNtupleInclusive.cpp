@@ -339,8 +339,8 @@ int main (int argc, char** argv)
   vector<string> trigEleTau   = (isMC ? gConfigParser->readStringListOption ("triggersMC::EleTau") : gConfigParser->readStringListOption ("triggersData::EleTau")) ;
   vector<string> trigEleMu   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleMu")  : gConfigParser->readStringListOption ("triggersData::EleMu")) ;
   //I didn't store MuMu and I don't care for eleele
-  //vector<string> trigEleEle   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleMu")  : gConfigParser->readStringListOption ("triggersData::EleMu")) ;
-  vector<string> trigMuMu   =  trigMuTau ;//(isMC ? gConfigParser->readStringListOption ("triggersMC::MuTau")  : gConfigParser->readStringListOption ("triggersData::MuTau")) ;
+  vector<string> trigEleEle   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleEle")  : gConfigParser->readStringListOption ("triggersData::EleEle")) ;
+  vector<string> trigMuMu   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuMu")  : gConfigParser->readStringListOption ("triggersData::MuMu")) ;
 
   cout << "TRIGGERS: " << endl;
   
@@ -411,6 +411,7 @@ int main (int argc, char** argv)
   trigReader.addEleTauTrigs (trigEleTau);
   trigReader.addMuEleTrigs  (trigEleMu);
   trigReader.addMuMuTrigs   (trigMuMu);
+  trigReader.addEleEleTrigs (trigEleEle);
 
   // ------------------------------
 
@@ -634,7 +635,8 @@ int main (int argc, char** argv)
       //if (false) trigPairType = 0; // muTau
       else if (trigReader.checkOR (1, triggerbit) ) trigPairType = 1; // etau
       else if (trigReader.checkOR (2, triggerbit) ) trigPairType = 2; // tautau
-      //else if (trigReader.checkOR (3, triggerbit) ) trigPairType = 3; // mumu
+      else if (trigReader.checkOR (3, triggerbit) ) trigPairType = 3; // mumu
+      else if (trigReader.checkOR (4, triggerbit) ) trigPairType = 4; // ee
       else if (trigReader.checkOR (5, triggerbit) ) trigPairType = 5; // emu
 
 

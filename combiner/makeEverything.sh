@@ -1,7 +1,7 @@
 #!/bin/bash
 # make cards with all vars/selections
 
-export OUTSTRING="28jan"
+export OUTSTRING="CutTable"
 export BASEMUTAU="defaultBtagLLNoIsoBBTTCutKine90"
 export BASETAUTAU="defaultBtagLLNoIsoBBTTCut"
 export BASEETAU="defaultBtagMMNoIsoBBTTCutKine90"
