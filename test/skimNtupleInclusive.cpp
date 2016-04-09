@@ -206,6 +206,14 @@ float getIso (unsigned int iDau, float pt, bigTree & theBigTree)
   return -1 ;
 }
 
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+bool CheckBit (int number, int bitpos)
+{
+    bool res = number & (1 << bitpos);
+    return res;
+}
+
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -253,6 +261,8 @@ int main (int argc, char** argv)
   bool isTTBar = false;
   bool DY_Nbs = false; // run on genjets to count in DY samples the number of b jets
   bool DY_tostitch = false;
+  // string HHreweightFileName = "VUOTO";
+  TFile* HHreweightFile = 0;
 
   if (argc >= 8)
   {
@@ -276,7 +286,18 @@ int main (int argc, char** argv)
           if (I_DY_Nbs == 1)
           {
             DY_Nbs = true; 
-            DY_tostitch = true; // FIXME!! this is ok only if we use jet binned samples
+            DY_tostitch = true; // FIXME!! this is ok only if we use jet binned samples            
+          }
+
+          if (argc >= 12)
+          {              
+            // cout << "HEY!! " << endl;
+
+            TString doreweight = argv[11];
+            cout << "**info: rew file is: " << doreweight << endl;
+            
+            if (doreweight != TString("0"))
+              HHreweightFile = new TFile (doreweight);
           }
           // if (argc >= 12)
           // {
@@ -364,7 +385,10 @@ int main (int argc, char** argv)
   //hypo_mh1.push_back (125) ;
   //vector<Int_t> hypo_mh2 ;
   //hypo_mh2.push_back (125) ;
+  
   int hypo_mh1=125,hypo_mh2=125;
+  // int hypo_mh1=90,hypo_mh2=90; // FIXME!!!!
+
 
   //int eventsNumber = theBigTree.fChain->GetEntries () ;
   
@@ -422,6 +446,15 @@ int main (int argc, char** argv)
   myScaleFactor[1][0] -> init_ScaleFactor("weights/data/Electron/Electron_Ele23_fall15.root");
   myScaleFactor[1][1] -> init_ScaleFactor("weights/data/Electron/Electron_IdIso0p1_fall15.root");
 
+  // ------------------------------
+  // reweighting file for HH non resonant
+  TH1F* hreweightHH = 0;
+  if (HHreweightFile)
+  {
+    cout << "** info: doing reweight for HH samples" << endl;
+    hreweightHH = (TH1F*) HHreweightFile->Get("hratio");
+  }
+
   // loop over events
   //for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
   for (Long64_t iEvent = 0 ; true ; ++iEvent) 
@@ -433,6 +466,9 @@ int main (int argc, char** argv)
       int got = theBigTree.fChain->GetEntry(iEvent);
       if (got == 0) break;
       //theBigTree.GetEntry (iEvent) ;
+
+      // if (theBigTree.EventNumber != 1159578885 ) continue;
+      // cout << "TROVATO" << endl;
       
       // directly reject events outside HT range in case of stitching of inclusive sample-- they should not count in weights
       if (HTMax > 0)
@@ -510,10 +546,53 @@ int main (int argc, char** argv)
 
       }
 
+
+      // HH reweight for non resonant
+      float HHweight = 1.0;
+      if (hreweightHH)
+      {
+        // cout << "DEBUG: reweight!!!" << endl;
+        TLorentzVector vH1, vH2, vBoost, vSum;
+        float mHH = -1;
+        // loop on gen to find Higgs
+        int idx1 = -1;
+        int idx2 = -1;
+        for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
+        {
+            if (theBigTree.genpart_pdg->at(igen) == 25)
+            {
+                bool isFirst = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
+                if (isFirst)
+                {
+                    if (idx1 >= 0 && idx2 >= 0)
+                    {
+                        cout << "** ERROR: more than 2 H identified " << endl;
+                        continue;
+                    }
+                    (idx1 == -1) ? (idx1 = igen) : (idx2 = igen) ;
+                }
+            }
+        }
+
+        if (idx1 == -1 || idx2 == -1)
+        {
+            cout << "** ERROR: couldn't find 2 H" << endl;
+            continue;
+        }
+
+        vH1.SetPxPyPzE (theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1) );
+        vH2.SetPxPyPzE (theBigTree.genpart_px->at(idx2), theBigTree.genpart_py->at(idx2), theBigTree.genpart_pz->at(idx2), theBigTree.genpart_e->at(idx2) );
+        vSum = vH1+vH2;
+        mHH = vSum.M();
+
+        int ibin = hreweightHH->FindBin(mHH);
+        HHweight = hreweightHH->GetBinContent(ibin);
+      }
+
       if (isMC)
       {
-        totalEvents += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight;
-        counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight;
+        totalEvents += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight;
+        counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight;
       }
       else 
       {
@@ -530,7 +609,7 @@ int main (int argc, char** argv)
       metpass += metbit & (1 << 6);
       if(metpass > 0) continue ;
       
-      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight;
+      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight;
       else      counter.at (selID++) += 1 ;
 
       // assume that the ordering of the pair numbering
@@ -626,7 +705,7 @@ int main (int argc, char** argv)
       }
       */
 
-      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight;
+      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight;
       else      counter.at (selID++) += 1 ;
 
       int firstDaughterIndex = theBigTree.indexDau1->at (chosenTauPair) ;  
@@ -703,7 +782,7 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       
       if (!beInclusive && jets_and_btag.size () < 2) continue ;
-      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight;
+      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight;
       else      counter.at (selID++) += 1 ;
       
       // fill the variables of interest
@@ -718,7 +797,7 @@ int main (int argc, char** argv)
       theSmallTree.m_pairType = pType ;
 
       theSmallTree.m_PUReweight = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) : 1) ;      
-      theSmallTree.m_MC_weight = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight : 1) ;
+      theSmallTree.m_MC_weight = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight * HHweight: 1) ;
       vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_btag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType) ;
       theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
       theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
