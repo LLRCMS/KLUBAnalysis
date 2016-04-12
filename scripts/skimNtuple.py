@@ -53,6 +53,7 @@ if __name__ == "__main__":
     parser.add_option ('-z', '--htcut'  , dest='htcut'    , help='HT cut for stitching on inclusive' , default='-999.0')
     parser.add_option ('-t', '--toprew' , dest='toprew'   , help='is TT bar sample to compute reweight?' , default=False)
     parser.add_option ('-g', '--genjets' , dest='genjets' , help='loop on genjets to determine the number of b hadrons' , default=False)
+    parser.add_option ('-w', '--weight' , dest='weightHH' , help='histo map for hh reweight'         , default='0')
     
     (opt, args) = parser.parse_args()
 
@@ -210,7 +211,8 @@ if __name__ == "__main__":
         else                  : command += " 0 "   
         if opt.genjets=="True": command += " 1 "
         else                  : command += " 0 "   
-        
+        command += (" " + opt.weightHH)
+
         command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
         scriptFile.write (command)
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
