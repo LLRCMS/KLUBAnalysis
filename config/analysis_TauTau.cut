@@ -31,6 +31,10 @@ defaultBtagMMNoIsoBBTTCut45 = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 
 dijethard       = pairType == 2 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && dau2_pt > 40 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && isOS == 1
 dijethardiso    = pairType == 2 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && dau2_pt > 40 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_iso < 2.0 && dau2_iso < 2.0 && bjet1_pt > 30 && bjet2_pt > 30 && isOS == 1
 
+defaultZZNoIsoBBTTCutLoose   = pairType == 2 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && dau2_pt > 40 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.0 && bjet2_bID > 0.0 && bH_mass_raw > 70 && bH_mass_raw < 110 && tauH_mass > 70 && tauH_mass < 110 && HH_mass_raw > 200 && bTagweightL > -999
+defaultZZNoIsoBBTTCut   = pairType == 2 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && dau2_pt > 40 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.0 && bjet2_bID > 0.0 && bH_mass_raw > 85 && bH_mass_raw < 95 && tauH_mass > 85 && tauH_mass < 95 && HH_mass_raw > 200 && bTagweightL > -999
+defaultZZBtagLLNoIsoBBTTCut   = pairType == 2 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && dau2_pt > 40 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && bH_mass_raw > 70 && bH_mass_raw < 110 && tauH_mass > 70 && tauH_mass < 110 && HH_mass_raw > 200 && bTagweightL > -999
+defaultZZBtagMMNoIsoBBTTCut   = pairType == 2 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && dau2_pt > 40 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.800 && bjet2_bID > 0.800 && bH_mass_raw > 70 && bH_mass_raw < 110 && tauH_mass > 70 && tauH_mass < 110 && HH_mass_raw > 200 && bTagweightL > -999
 
 
 all             = 1==1

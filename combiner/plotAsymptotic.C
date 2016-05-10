@@ -37,22 +37,22 @@ float yt =1.0;
 const float BR=1;//0.073;
 TString brstring="";//_noBR";
 
-TString input="_01mar_Unblind";//_09mar_noBR";
-TString Appendix="allClusters";
+TString input="_clusterXanda";//"_01mar_Unblind";//_09mar_noBR";
+TString Appendix="XandaallClusters";
 
 //Default inputs
 bool plotMu=false;
-float lambdas[52];//=  {-5, -4,-2,-1,0, 1  ,2.46, 4, 5};
+const int nLambdas = 24;//52;
+float lambdas[nLambdas];//=  {-5, -4,-2,-1,0, 1  ,2.46, 4, 5};
 //float lambdas[]={-15,-8,-4, 0,1,2.46, 5  ,10,20};
 
 // string lnames[] ={"Lambdam4","Lambda1","Lambda2dot46","Lambda20"};
 // string lnames[] ={"HHNodeSM","HHNodeBox","HHNode2","HHNode3","HHNode4","HHNode5","HHNode6","HHNode7","HHNode8","HHNode9","HHNode10","HHNode11","HHNode12","HHNode13"};
-const int nLambdas = 14;//52;
 //const int nXsec = 10;
 const float xfac = 1000.0/0.1/BR;//37.9*0.073;//o 0.073?
 const bool _DEBUG_ = true;
 Double_t xLow = -1.0;
-Double_t xHigh =14.0;
+Double_t xHigh =25.0;
 Double_t yLow = 1;
 Double_t yHigh = 100000.;
 const bool logy = true;
@@ -101,7 +101,7 @@ void plotAsymptotic(){
   TGraphAsymmErrors *g[4];
   TGraphAsymmErrors *gBands;
   for(int i=0;i<4;i++)
-    g[i] = plotAsymptoticChannel(i,hybrid,yt);
+    g[i] = plotAsymptoticChannel(2,hybrid,yt);
   TString plotName ="UpperLimit_"+inputSuffix[3]+input;
   if(addObsLimit && !hybrid) plotName+="_obs";
   plotName += Appendix;
@@ -127,7 +127,7 @@ void plotAsymptotic(){
   hr->GetYaxis()->SetTitleOffset(1.2);    
 
   if(logy)pad1->SetLogy();
-  getExpLine(pad1->cd(),xLow+1,xHigh-1) ;
+  //getExpLine(pad1->cd(),xLow+1,xHigh-1) ;
   gBands->Draw("2");//2
   g[3]->Draw("2PSAME"); //2psame
   for(int i=0;i<3;i++){
@@ -142,8 +142,8 @@ void plotAsymptotic(){
     g[i]->Draw("*sameX");
   }
   AddText(channelOut[3]);
-  TLegend *box2 = buildLegend();
-  box2->Draw();
+  //TLegend *box2 = buildLegend();
+  //box2->Draw();
 }
 
 TGraphAsymmErrors* plotAsymptoticChannel(int ichannel,bool hybrid, double yt) {
@@ -637,7 +637,8 @@ double getExpValue(double kl, double yt){
 
 // 
 TString getFileForCluster(int l){
-  string lnames[] ={"HHNodebox","HHNodeSM","HHNode2","HHNode3","HHNode4","HHNode5","HHNode6","HHNode7","HHNode8","HHNode9","HHNode10","HHNode11","HHNode12","HHNode13"};
+  //string lnames[] ={"HHNodebox","HHNodeSM","HHNode2","HHNode3","HHNode4","HHNode5","HHNode6","HHNode7","HHNode8","HHNode9","HHNode10","HHNode11","HHNode12","HHNode13"};
+  string lnames[] ={"HHrewclus0","HHrewclus1","HHrewclus2","HHrewclus3","HHrewclus4","HHrewclus5","HHrewclus6","HHrewclus7","HHrewclus8","HHrewclus9","HHrewclus10","HHrewclus11","HHrewoutlier0clus1","HHrewoutlier1clus1","HHrewoutlier2clus1","HHrewoutlier3clus1","HHrewoutlier4clus1","HHrewoutlier5clus1","HHrewoutlier0clus10","HHrewoutlier1clus10","HHrewoutlier2clus10","HHrewoutlier3clus10","HHrewoutlier4clus10","HHrewoutlier5clus10"};
   return lnames[l];
 
 }
