@@ -694,25 +694,25 @@ public :
        fChain->SetBranchAddress("PFjetID", &PFjetID, &b_PFjetID);
        fChain->SetBranchAddress("jetRawf", &jetRawf, &b_jetRawf);
        fChain->SetBranchAddress("jets_jecUnc", &jets_jecUnc,&b_jets_jecUnc);
-       fChain->SetBranchAddress("ak8jets_px", &b_ak8jets_px);
-       fChain->SetBranchAddress("ak8jets_py", &b_ak8jets_py);
-       fChain->SetBranchAddress("ak8jets_pz", &b_ak8jets_pz);
-       fChain->SetBranchAddress("ak8jets_e", &b_ak8jets_e);
-       fChain->SetBranchAddress("ak8jets_SoftDropMass", &b_ak8jets_SoftDropMass);
-       fChain->SetBranchAddress("ak8jets_PrunedMass", &b_ak8jets_PrunedMass);
-       fChain->SetBranchAddress("ak8jets_TrimmedMass", &b_ak8jets_TrimmedMass);
-       fChain->SetBranchAddress("ak8jets_FilteredMass", &b_ak8jets_FilteredMass);
-       fChain->SetBranchAddress("ak8jets_tau1", &b_ak8jets_tau1);
-       fChain->SetBranchAddress("ak8jets_tau2", &b_ak8jets_tau2);
-       fChain->SetBranchAddress("ak8jets_tau3", &b_ak8jets_tau3);
-       fChain->SetBranchAddress("ak8jets_CSV", &b_ak8jets_CSV);
-       fChain->SetBranchAddress("ak8jets_nsubjets", &b_ak8jets_nsubjets);
-       fChain->SetBranchAddress("subjets_px", &b_subjets_px);
-       fChain->SetBranchAddress("subjets_py", &b_subjets_py);
-       fChain->SetBranchAddress("subjets_pz", &b_subjets_pz);
-       fChain->SetBranchAddress("subjets_e", &b_subjets_e);
-       fChain->SetBranchAddress("subjets_CSV", &b_subjets_CSV);
-       fChain->SetBranchAddress("subjets_ak8MotherIdx", &b_subjets_ak8MotherIdx);
+       fChain->SetBranchAddress("ak8jets_px", &ak8jets_px, &b_ak8jets_px);
+       fChain->SetBranchAddress("ak8jets_py", &ak8jets_py, &b_ak8jets_py);
+       fChain->SetBranchAddress("ak8jets_pz", &ak8jets_pz, &b_ak8jets_pz);
+       fChain->SetBranchAddress("ak8jets_e", &ak8jets_e, &b_ak8jets_e);
+       fChain->SetBranchAddress("ak8jets_SoftDropMass", &ak8jets_SoftDropMass, &b_ak8jets_SoftDropMass);
+       fChain->SetBranchAddress("ak8jets_PrunedMass", &ak8jets_PrunedMass, &b_ak8jets_PrunedMass);
+       fChain->SetBranchAddress("ak8jets_TrimmedMass", &ak8jets_TrimmedMass, &b_ak8jets_TrimmedMass);
+       fChain->SetBranchAddress("ak8jets_FilteredMass", &ak8jets_FilteredMass, &b_ak8jets_FilteredMass);
+       fChain->SetBranchAddress("ak8jets_tau1", &ak8jets_tau1, &b_ak8jets_tau1);
+       fChain->SetBranchAddress("ak8jets_tau2", &ak8jets_tau2, &b_ak8jets_tau2);
+       fChain->SetBranchAddress("ak8jets_tau3", &ak8jets_tau3, &b_ak8jets_tau3);
+       fChain->SetBranchAddress("ak8jets_CSV", &ak8jets_CSV, &b_ak8jets_CSV);
+       fChain->SetBranchAddress("ak8jets_nsubjets", &ak8jets_nsubjets, &b_ak8jets_nsubjets);
+       fChain->SetBranchAddress("subjets_px", &subjets_px, &b_subjets_px);
+       fChain->SetBranchAddress("subjets_py", &subjets_py, &b_subjets_py);
+       fChain->SetBranchAddress("subjets_pz", &subjets_pz, &b_subjets_pz);
+       fChain->SetBranchAddress("subjets_e", &subjets_e, &b_subjets_e);
+       fChain->SetBranchAddress("subjets_CSV", &subjets_CSV, &b_subjets_CSV);
+       fChain->SetBranchAddress("subjets_ak8MotherIdx", &subjets_ak8MotherIdx, &b_subjets_ak8MotherIdx);
 
        // MC only
        if(fChain->GetListOfBranches()->FindObject("MC_weight"))
