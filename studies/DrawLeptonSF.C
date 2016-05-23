@@ -27,7 +27,7 @@ TGraphAsymmErrors* makeRatio (TGraphAsymmErrors* gr1, TGraphAsymmErrors* gr2)
         gr2->GetPoint (i, x[1], y[1]);
 
         if (y[0] == 0 || y[1] == 0) continue;
-        // if (x[0] < 21) continue; // pT cut fro SF trigger only
+        if (x[0] < 21) continue; // pT cut fro SF trigger only
         cout << x[0] << endl;
         cout << y[0] << " " << y[1] << " ratio = " << y[1]/y[0] << endl;
 
@@ -53,7 +53,8 @@ void DrawLeptonSF()
 
     // MUON
     //TFile* fIn = new TFile ("../weights/data/Muon/Muon_SingleMu_eff.root");
-    //TFile* fIn = new TFile ("../weights/data/Muon/Muon_IdIso0p10_eff.root");
+    // TFile* fIn = new TFile ("../weights/data/Muon/Muon_IdIso0p1_fall15.root");
+    // TFile* fIn = new TFile ("../weights/data/Muon/Muon_IsoMu18_fall15.root");
 
     // grData.push_back((TGraphAsymmErrors*) fIn->Get("ZMassEtaLt0p9_Data"));
     // grMC.push_back((TGraphAsymmErrors*) fIn->Get("ZMassEtaLt0p9_MC"));
@@ -70,8 +71,8 @@ void DrawLeptonSF()
     // TGraphAsymmErrors* grRatio3 = makeRatio (grMC.at(2), grData.at(2)); // data / MC
 
     // ELECTRON
-    // TFile* fIn = new TFile ("../weights/data/Electron/Electron_SingleEle_eff.root");
-    TFile* fIn = new TFile ("../weights/data/Electron/Electron_IdIso0p10_eff.root");
+    // TFile* fIn = new TFile ("../weights/data/Electron/Electron_Ele23_fall15.root");
+    TFile* fIn = new TFile ("../weights/data/Electron/Electron_IdIso0p1_fall15.root");
 
     grData.push_back((TGraphAsymmErrors*) fIn->Get("ZMassEtaLt1p48_Data"));
     grMC.push_back((TGraphAsymmErrors*) fIn->Get("ZMassEtaLt1p48_MC"));
@@ -115,11 +116,12 @@ void DrawLeptonSF()
     grRatio1->GetYaxis()->SetTitle ("Data / MC");
     grRatio1->GetXaxis()->SetTitleOffset(1.1);
     grRatio1->GetYaxis()->SetTitleOffset(1.4);
-    //grRatio1->GetHistogram()->SetMinimum(0.8); // muon
+    // grRatio1->GetHistogram()->SetMinimum(0.8); // muon
     grRatio1->GetHistogram()->SetMinimum(0.6); // ele
     grRatio1->GetHistogram()->SetMaximum(1.1);
     // grRatio1->SetTitle ("Muon ID and iso");
     grRatio1->SetTitle ("Electron ID and iso");
+    // grRatio1->SetTitle ("Single Electron trigger");
     grRatio1->Draw("AP");
     grRatio2->Draw("P same");
     // grRatio3->Draw("P same");
@@ -135,6 +137,6 @@ void DrawLeptonSF()
     l1->AddEntry(grRatio2, "|#eta| > 1.48", "ple");
     l1->Draw();
 
-    c1->Print ("ele_idiso_SF.pdf");
+    c1->Print ("ele_id_iso_SF.pdf");
 
 }
