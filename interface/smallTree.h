@@ -96,6 +96,33 @@ struct smallTree
       m_bjet2_pt_raw  = -1. ;
       m_bjet2_hasgenjet = false ;
 
+      m_fatjet_pt = -1 ;
+      m_fatjet_eta  = -1. ;
+      m_fatjet_phi  = -1. ;
+      m_fatjet_e  = -1. ;
+      m_fatjet_bID = -1. ;
+      m_fatjet_filteredMass = -1. ;
+      m_fatjet_prunedMass = -1. ;
+      m_fatjet_trimmedMass = -1. ;
+      m_fatjet_softdropMass = -1. ;
+      m_fatjet_tau1 = -1. ;
+      m_fatjet_tau2 = -1. ;
+      m_fatjet_tau3 = -1. ;
+      m_fatjet_nsubjets = -1;
+
+      m_subjetjet1_pt = -1 ;
+      m_subjetjet1_eta  = -1. ;
+      m_subjetjet1_phi  = -1. ;
+      m_subjetjet1_e  = -1. ;
+      m_subjetjet1_bID = -1. ;
+
+      m_subjetjet2_pt = -1 ;
+      m_subjetjet2_eta  = -1. ;
+      m_subjetjet2_phi  = -1. ;
+      m_subjetjet2_e  = -1. ;
+      m_subjetjet2_bID = -1. ;
+
+
       m_genjet1_pt  = -1. ;
       m_genjet1_eta  = -1. ;
       m_genjet1_phi  = -1. ;
@@ -268,6 +295,32 @@ struct smallTree
       m_smallT->Branch ("bjet2_flav", &m_bjet2_flav, "bjet2_flav/I") ;
       m_smallT->Branch ("bjet2_pt_raw", &m_bjet2_pt_raw, "bjet2_pt_raw/F") ;
       m_smallT->Branch ("bjet2_hasgenjet", &m_bjet2_hasgenjet, "bjet2_hasgenjet/O") ;
+
+      m_smallT->Branch ("fatjet_pt", &m_fatjet_pt, "mfatjet_pt/F");
+      m_smallT->Branch ("fatjet_eta", &m_fatjet_eta, "mfatjet_eta/F");
+      m_smallT->Branch ("fatjet_phi", &m_fatjet_phi, "mfatjet_phi/F");
+      m_smallT->Branch ("fatjet_e", &m_fatjet_e, "mfatjet_e/F");
+      m_smallT->Branch ("fatjet_bID", &m_fatjet_bID, "mfatjet_bID/F");
+      m_smallT->Branch ("fatjet_filteredMass", &m_fatjet_filteredMass, "mfatjet_filteredMass/F");
+      m_smallT->Branch ("fatjet_prunedMass", &m_fatjet_prunedMass, "mfatjet_prunedMass/F");
+      m_smallT->Branch ("fatjet_trimmedMass", &m_fatjet_trimmedMass, "mfatjet_trimmedMass/F");
+      m_smallT->Branch ("fatjet_softdropMass", &m_fatjet_softdropMass, "mfatjet_softdropMass/F");
+      m_smallT->Branch ("fatjet_tau1", &m_fatjet_tau1, "mfatjet_tau1/F");
+      m_smallT->Branch ("fatjet_tau2", &m_fatjet_tau2, "mfatjet_tau2/F");
+      m_smallT->Branch ("fatjet_tau3", &m_fatjet_tau3, "mfatjet_tau3/F");
+      m_smallT->Branch ("fatjet_nsubjets", &m_fatjet_nsubjets, "mfatjet_nsubjets/I");
+
+      m_smallT->Branch ("subjetjet1_pt", &m_subjetjet1_pt, "msubjetjet1_pt/F");
+      m_smallT->Branch ("subjetjet1_eta", &m_subjetjet1_eta, "msubjetjet1_eta/F");
+      m_smallT->Branch ("subjetjet1_phi", &m_subjetjet1_phi, "msubjetjet1_phi/F");
+      m_smallT->Branch ("subjetjet1_e", &m_subjetjet1_e, "msubjetjet1_e/F");
+      m_smallT->Branch ("subjetjet1_bID", &m_subjetjet1_bID, "msubjetjet1_bID/F");
+
+      m_smallT->Branch ("subjetjet2_pt", &m_subjetjet2_pt, "msubjetjet2_pt/F");
+      m_smallT->Branch ("subjetjet2_eta", &m_subjetjet2_eta, "msubjetjet2_eta/F");
+      m_smallT->Branch ("subjetjet2_phi", &m_subjetjet2_phi, "msubjetjet2_phi/F");
+      m_smallT->Branch ("subjetjet2_e", &m_subjetjet2_e, "msubjetjet2_e/F");
+      m_smallT->Branch ("subjetjet2_bID", &m_subjetjet2_bID, "msubjetjet2_bID/F");
 
       m_smallT->Branch ("genjet1_pt",  &m_genjet1_pt,  "genjet1_pt/F") ;
       m_smallT->Branch ("genjet1_eta", &m_genjet1_eta, "genjet1_eta/F") ;
@@ -452,6 +505,33 @@ struct smallTree
   Int_t   m_bjet2_flav ;
   Float_t m_bjet2_pt_raw ;
   Bool_t  m_bjet2_hasgenjet ;
+
+  // fat jets and subjet info
+  Float_t m_fatjet_pt ;
+  Float_t m_fatjet_eta  ;
+  Float_t m_fatjet_phi  ;
+  Float_t m_fatjet_e  ;
+  Float_t m_fatjet_bID ;
+  Float_t m_fatjet_filteredMass ;
+  Float_t m_fatjet_prunedMass ;
+  Float_t m_fatjet_trimmedMass ;
+  Float_t m_fatjet_softdropMass ;
+  Float_t m_fatjet_tau1 ;
+  Float_t m_fatjet_tau2 ;
+  Float_t m_fatjet_tau3 ;
+  Int_t m_fatjet_nsubjets ;
+
+  Float_t m_subjetjet1_pt ;
+  Float_t m_subjetjet1_eta  ;
+  Float_t m_subjetjet1_phi  ;
+  Float_t m_subjetjet1_e  ;
+  Float_t m_subjetjet1_bID ;
+
+  Float_t m_subjetjet2_pt ;
+  Float_t m_subjetjet2_eta  ;
+  Float_t m_subjetjet2_phi  ;
+  Float_t m_subjetjet2_e  ;
+  Float_t m_subjetjet2_bID ;
 
   // the gen jet associated to the first b jet
   Float_t m_genjet1_pt ;
