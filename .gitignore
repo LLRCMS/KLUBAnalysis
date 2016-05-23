@@ -3,6 +3,7 @@
 *.o
 *.so
 *.eps
+obj/
 combiner/*.pdf
 combiner/*.png
 combiner/*.root
