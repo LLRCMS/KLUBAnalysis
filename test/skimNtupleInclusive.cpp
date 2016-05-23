@@ -82,6 +82,38 @@ void appendFromFileList (TChain* chain, TString filename)
     return;
 }
 
+float turnOnCB(float x, float m0, float sigma, float alpha, float n, float norm){
+  float sqrtPiOver2 = TMath::Sqrt(TMath::PiOver2());
+  float sqrt2 = TMath::Sqrt(2.);
+  float sig = abs(sigma);
+  float t = (x - m0)/sig * alpha / abs(alpha);
+  float absAlpha = abs(alpha/sig);
+  float a = TMath::Power(n/absAlpha, n) * TMath::Exp(-0.5 * absAlpha * absAlpha);
+  float b = absAlpha - n/absAlpha;
+  float arg = absAlpha / sqrt2;
+  float ApproxErf = TMath::Erf(arg);
+  if (arg > 5.) ApproxErf = 1.;
+  else if(arg < -5.) ApproxErf = -1.;
+  float leftArea = (1. + ApproxErf) * sqrtPiOver2;
+  float rightArea = ( a * 1./TMath::Power(absAlpha-b, n-1) ) / (n-1);
+  float area = leftArea + rightArea;
+  if (t <= absAlpha){
+    arg = t / sqrt2;
+    if (arg > 5.) ApproxErf = 1.;
+    else {
+      if(arg < -5.) ApproxErf = -1.;
+      else ApproxErf = TMath::Erf(arg);
+    }
+    return norm * (1 + ApproxErf) * sqrtPiOver2 / area;
+  }
+  return norm * (leftArea + a * (1/TMath::Power(t-b,n-1) - 1/TMath::Power(absAlpha - b,n-1)) / (1-n)) / area;
+}
+
+float turnOnSF(float pt){
+  //return 1.0/turnOnCB(pt,3.60274e+01,5.89434e+00,5.82870e+00,1.83737e+00,9.58000e-01)*turnOnCB(pt,3.45412e+01,5.63353e+00,2.49242e+00,3.35896e+00,1);
+  //return turnOnCB(pt,3.45412e+01,5.63353e+00,2.49242e+00,3.35896e+00,1);
+  return turnOnCB(pt,3.60274e+01,5.89434e+00,5.82870e+00,1.83737e+00,9.58000e-01);
+}
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // open the first file in the input list, retrieve the histogram "Counters" for the trigger names and return a copy of it
 TH1F* getFirstFileHisto (TString filename, bool isForTriggers=true)
@@ -201,17 +233,9 @@ float getIso (unsigned int iDau, float pt, bigTree & theBigTree)
     return theBigTree.daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) ;
   // muon
   if (type == 1 || type == 0)
-    return theBigTree.combreliso->at(iDau) * pt ;
+    return theBigTree.combreliso->at(iDau);
 
   return -1 ;
-}
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-bool CheckBit (int number, int bitpos)
-{
-    bool res = number & (1 << bitpos);
-    return res;
 }
 
 
@@ -222,12 +246,13 @@ int main (int argc, char** argv)
 {
   // read input file and cfg
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+  TRandom3 *rnd = new TRandom3(0);
 
   if (argc < 7) 
     {
       cerr << "missing input parameters" << endl ;
       cerr << "usage: " << argv[0]
-           << "inputFileNameList outputFileName crossSection isData configFile runHHKinFit" << endl
+           << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit" << endl
            << "OPTIONAL: xsecScale(stitch) HTMax(stitch) isTTBar DY_Nbs" << endl ; 
       exit (1) ;
     }
@@ -261,8 +286,6 @@ int main (int argc, char** argv)
   bool isTTBar = false;
   bool DY_Nbs = false; // run on genjets to count in DY samples the number of b jets
   bool DY_tostitch = false;
-  // string HHreweightFileName = "VUOTO";
-  TFile* HHreweightFile = 0;
 
   if (argc >= 8)
   {
@@ -286,18 +309,7 @@ int main (int argc, char** argv)
           if (I_DY_Nbs == 1)
           {
             DY_Nbs = true; 
-            DY_tostitch = true; // FIXME!! this is ok only if we use jet binned samples            
-          }
-
-          if (argc >= 12)
-          {              
-            // cout << "HEY!! " << endl;
-
-            TString doreweight = argv[11];
-            cout << "**info: rew file is: " << doreweight << endl;
-            
-            if (doreweight != TString("0"))
-              HHreweightFile = new TFile (doreweight);
+            DY_tostitch = true; // FIXME!! this is ok only if we use jet binned samples
           }
           // if (argc >= 12)
           // {
@@ -357,12 +369,23 @@ int main (int argc, char** argv)
   cout << endl;
 
 
-  bool skipTriggers = false;
-  if (gConfigParser->isDefined ("debug::skipTriggers"))
+  int skipTriggers = 0; //1: reweight, 0: skip, -1: dont skip
+    if (gConfigParser->isDefined ("debug::skipTriggers"))
   {
-    skipTriggers = gConfigParser->readBoolOption ("debug::skipTriggers");
+    skipTriggers = gConfigParser->readIntOption ("debug::skipTriggers");
   }
   cout << "skipTriggers? " << skipTriggers << endl;
+  TFile *fTurnOn;
+  TGraph * gTurnOn;
+  if(skipTriggers>0){
+    fTurnOn = TFile::Open("config/tauLegEff.root");
+    gTurnOn = (TGraph*)fTurnOn->Get("tauLegEff");
+  }
+  bool skipIso = true;
+    if (gConfigParser->isDefined ("debug::skipIso"))
+  {
+    skipIso = gConfigParser->readBoolOption ("debug::skipIso");
+  }
 
   string bRegrWeights("");
   bool computeBregr = gConfigParser->readBoolOption ("bRegression::computeBregr");
@@ -385,10 +408,7 @@ int main (int argc, char** argv)
   //hypo_mh1.push_back (125) ;
   //vector<Int_t> hypo_mh2 ;
   //hypo_mh2.push_back (125) ;
-  
   int hypo_mh1=125,hypo_mh2=125;
-  // int hypo_mh1=90,hypo_mh2=90; // FIXME!!!!
-
 
   //int eventsNumber = theBigTree.fChain->GetEntries () ;
   
@@ -446,15 +466,6 @@ int main (int argc, char** argv)
   myScaleFactor[1][0] -> init_ScaleFactor("weights/data/Electron/Electron_Ele23_fall15.root");
   myScaleFactor[1][1] -> init_ScaleFactor("weights/data/Electron/Electron_IdIso0p1_fall15.root");
 
-  // ------------------------------
-  // reweighting file for HH non resonant
-  TH1F* hreweightHH = 0;
-  if (HHreweightFile)
-  {
-    cout << "** info: doing reweight for HH samples" << endl;
-    hreweightHH = (TH1F*) HHreweightFile->Get("hratio");
-  }
-
   // loop over events
   //for (Long64_t iEvent = 0 ; iEvent < eventsNumber ; ++iEvent) 
   for (Long64_t iEvent = 0 ; true ; ++iEvent) 
@@ -466,9 +477,6 @@ int main (int argc, char** argv)
       int got = theBigTree.fChain->GetEntry(iEvent);
       if (got == 0) break;
       //theBigTree.GetEntry (iEvent) ;
-
-      // if (theBigTree.EventNumber != 1159578885 ) continue;
-      // cout << "TROVATO" << endl;
       
       // directly reject events outside HT range in case of stitching of inclusive sample-- they should not count in weights
       if (HTMax > 0)
@@ -546,53 +554,10 @@ int main (int argc, char** argv)
 
       }
 
-
-      // HH reweight for non resonant
-      float HHweight = 1.0;
-      if (hreweightHH)
-      {
-        // cout << "DEBUG: reweight!!!" << endl;
-        TLorentzVector vH1, vH2, vBoost, vSum;
-        float mHH = -1;
-        // loop on gen to find Higgs
-        int idx1 = -1;
-        int idx2 = -1;
-        for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
-        {
-            if (theBigTree.genpart_pdg->at(igen) == 25)
-            {
-                bool isFirst = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
-                if (isFirst)
-                {
-                    if (idx1 >= 0 && idx2 >= 0)
-                    {
-                        cout << "** ERROR: more than 2 H identified " << endl;
-                        continue;
-                    }
-                    (idx1 == -1) ? (idx1 = igen) : (idx2 = igen) ;
-                }
-            }
-        }
-
-        if (idx1 == -1 || idx2 == -1)
-        {
-            cout << "** ERROR: couldn't find 2 H" << endl;
-            continue;
-        }
-
-        vH1.SetPxPyPzE (theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1) );
-        vH2.SetPxPyPzE (theBigTree.genpart_px->at(idx2), theBigTree.genpart_py->at(idx2), theBigTree.genpart_pz->at(idx2), theBigTree.genpart_e->at(idx2) );
-        vSum = vH1+vH2;
-        mHH = vSum.M();
-
-        int ibin = hreweightHH->FindBin(mHH);
-        HHweight = hreweightHH->GetBinContent(ibin);
-      }
-
       if (isMC)
       {
-        totalEvents += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight;
-        counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight;
+        totalEvents += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight;
+        counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight;
       }
       else 
       {
@@ -609,7 +574,7 @@ int main (int argc, char** argv)
       metpass += metbit & (1 << 6);
       if(metpass > 0) continue ;
       
-      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight;
+      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight;
       else      counter.at (selID++) += 1 ;
 
       // assume that the ordering of the pair numbering
@@ -639,53 +604,66 @@ int main (int argc, char** argv)
       else if (trigReader.checkOR (4, triggerbit) ) trigPairType = 4; // ee
       else if (trigReader.checkOR (5, triggerbit) ) trigPairType = 5; // emu
 
-
+      theSmallTree.m_RunNumber = theBigTree.RunNumber ;
+      float turnOnReweight = 1.0;
+      vector<int> tau_daus;
       // FIXME!! ee and mumu are "eaten" by the muTau / eTau final states when we use single lepton triggers
       for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
-        {
+      {
           // FIXME need to implement here the choice of iso / anti-iso
-          if (!oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag.c_str ())) continue ;
-          int firstDaughterIndex = theBigTree.indexDau1->at (iPair) ;  
-          int secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
+        if (!oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag.c_str ())) continue ;
+        int firstDaughterIndex = theBigTree.indexDau1->at (iPair) ;  
+        int secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
 
-          TLorentzVector tlv_firstLepton
-            (
-              theBigTree.daughters_px->at (firstDaughterIndex),
-              theBigTree.daughters_py->at (firstDaughterIndex),
-              theBigTree.daughters_pz->at (firstDaughterIndex),
-              theBigTree.daughters_e->at (firstDaughterIndex)
-            ) ;
-          TLorentzVector tlv_secondLepton
-            (
-              theBigTree.daughters_px->at (secondDaughterIndex),
-              theBigTree.daughters_py->at (secondDaughterIndex),
-              theBigTree.daughters_pz->at (secondDaughterIndex),
-              theBigTree.daughters_e->at (secondDaughterIndex)
-            ) ;
+        TLorentzVector tlv_firstLepton
+        (
+          theBigTree.daughters_px->at (firstDaughterIndex),
+          theBigTree.daughters_py->at (firstDaughterIndex),
+          theBigTree.daughters_pz->at (firstDaughterIndex),
+          theBigTree.daughters_e->at (firstDaughterIndex)
+          ) ;
+        TLorentzVector tlv_secondLepton
+        (
+          theBigTree.daughters_px->at (secondDaughterIndex),
+          theBigTree.daughters_py->at (secondDaughterIndex),
+          theBigTree.daughters_pz->at (secondDaughterIndex),
+          theBigTree.daughters_e->at (secondDaughterIndex)
+          ) ;
           //if (isDegenere (tlv_firstLepton, tlv_secondLepton)) continue; // antiEle and antiMu should already do this dirty job
-          int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
-          int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
-          int pairType = oph.getPairType (type1, type2) ;
+        int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
+        int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
+        int pairType = oph.getPairType (type1, type2) ;
 
           // for tautau pairs, need to check the match to the L1 seed excluded in run D
-          if (pairType == 2 && isMC)
-          {
-            bool hasL1Match_1 = theBigTree.daughters_isL1IsoTau28Matched->at (firstDaughterIndex);
-            bool hasL1Match_2 = theBigTree.daughters_isL1IsoTau28Matched->at (secondDaughterIndex);
-            bool goodL1 = (hasL1Match_1 && hasL1Match_2);
-            if (!goodL1) continue;
+        if (pairType == 2 && isMC)
+        {
+          tau_daus.push_back(firstDaughterIndex);
+          tau_daus.push_back(secondDaughterIndex);
+
+          bool hasL1Match_1 = theBigTree.daughters_isL1IsoTau28Matched->at (firstDaughterIndex);
+          bool hasL1Match_2 = theBigTree.daughters_isL1IsoTau28Matched->at (secondDaughterIndex);
+          bool goodL1 = (hasL1Match_1 && hasL1Match_2);
+          bool goodHLT = trigReader.checkOR (2, triggerbit);
+          int penalty = 0;
+          if(!goodHLT) penalty = penalty - 10;
+          if(!goodL1)  penalty = penalty - 1;
+          theSmallTree.m_RunNumber = penalty;
+          if (!goodL1  && skipTriggers < 0) continue; 
+        }
+
+        if (foundPairs.find (pairType) != foundPairs.end ()) continue ;
+
+        if (skipTriggers < 0)
+        {
+          if (pairType != trigPairType) continue;  // flavor determined by trigger type
+          if((pairType == 0 || pairType==1) && skipIso){
+            float iso1 = getIso (firstDaughterIndex, tlv_firstLepton.Pt(), theBigTree) ;
+            float iso2 = getIso (secondDaughterIndex, tlv_secondLepton.Pt(), theBigTree) ;
+            if(iso1>0.1 || iso2 > 3) continue;
           }
-
-          if (foundPairs.find (pairType) != foundPairs.end ()) continue ;
-
-          if (!skipTriggers)
-          {
-            if (pairType != trigPairType) continue; // flavor determined by trigger type
-          }
-
-          foundPairs[pairType] = iPair ;
-        }  
-
+        }
+        foundPairs[pairType] = iPair ;
+      }  
 
       if (foundPairs.size () == 0) continue ;
 
@@ -695,7 +673,74 @@ int main (int argc, char** argv)
 
       if (saveOS == 1 && !isOS) continue ;
       if (saveOS == 0 &&  isOS) continue ;
-      
+
+      int firstDaughterIndex = theBigTree.indexDau1->at (chosenTauPair) ;  
+      const TLorentzVector tlv_firstLepton
+      (
+        theBigTree.daughters_px->at (firstDaughterIndex),
+        theBigTree.daughters_py->at (firstDaughterIndex),
+        theBigTree.daughters_pz->at (firstDaughterIndex),
+        theBigTree.daughters_e->at (firstDaughterIndex)
+        ) ;
+      int secondDaughterIndex = theBigTree.indexDau2->at (chosenTauPair) ;
+      const TLorentzVector tlv_secondLepton
+      (
+        theBigTree.daughters_px->at (secondDaughterIndex),
+        theBigTree.daughters_py->at (secondDaughterIndex),
+        theBigTree.daughters_pz->at (secondDaughterIndex),
+        theBigTree.daughters_e->at (secondDaughterIndex)
+        ) ;
+
+      if(skipTriggers>0 && isMC){
+        int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
+        int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
+        int pairType = oph.getPairType (type1, type2) ;
+        if (pairType == 2){
+          turnOnReweight = 0;
+          std::sort(tau_daus.begin(), tau_daus.end());
+          tau_daus.erase(unique(tau_daus.begin(), tau_daus.end()), tau_daus.end());
+        //now I have a list of unique indexes
+          float tau_probs[tau_daus.size()];
+          int found =0;
+          for(int it=0; it<(int)tau_daus.size();it++){
+          //cout<<tau_daus.at(it)<<endl;;
+            int tau_ind = tau_daus.at(it);
+            float x = theBigTree.daughters_px->at(tau_ind);
+            float y = theBigTree.daughters_py->at(tau_ind);
+            float pt_t = TMath::Sqrt(x*x+y*y);
+            float iso1 = getIso (tau_ind, pt_t, theBigTree) ;
+            if(iso1>2 && skipIso) {
+              tau_daus.erase(tau_daus.begin()+it);
+              it--;
+              continue;
+            }
+            if(skipTriggers==1){
+                tau_probs[it] = turnOnSF(pt_t);  //gTurnOn->Eval(pt_t);
+              } else {
+                if(rnd->Rndm()<= turnOnSF(pt_t)/*gTurnOn->Eval(pt_t)*/)found++;
+              }
+          }
+        //cout<<"end"<<endl;
+          if(skipTriggers==1){
+            for (int bit=0; bit<TMath::Power(2,(int)tau_daus.size());bit++){
+              int nBits = 0;
+              float tmpprob =1.0;
+              for(int it=0; it<(int)tau_daus.size();it++){
+                int tau_ind = tau_daus.at(it);
+                if(oph.checkBit(bit, it)){
+                  nBits++;
+                  tmpprob *= tau_probs[it];
+                }else{
+                  tmpprob *= (1-tau_probs[it]);
+                }
+              }
+              if(nBits>1) turnOnReweight += tmpprob;
+            }
+          }else{
+            if(found<2)continue;
+          }
+        }
+      }
       /*
       int thisPairType = foundPairs.begin()->first ; // this is the pairType used
       bool ORtrigBits = trigReader.checkOR (thisPairType, triggerbit);
@@ -705,25 +750,9 @@ int main (int argc, char** argv)
       }
       */
 
-      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight;
-      else      counter.at (selID++) += 1 ;
-
-      int firstDaughterIndex = theBigTree.indexDau1->at (chosenTauPair) ;  
-      const TLorentzVector tlv_firstLepton
-        (
-          theBigTree.daughters_px->at (firstDaughterIndex),
-          theBigTree.daughters_py->at (firstDaughterIndex),
-          theBigTree.daughters_pz->at (firstDaughterIndex),
-          theBigTree.daughters_e->at (firstDaughterIndex)
-        ) ;
-      int secondDaughterIndex = theBigTree.indexDau2->at (chosenTauPair) ;
-      const TLorentzVector tlv_secondLepton
-        (
-          theBigTree.daughters_px->at (secondDaughterIndex),
-          theBigTree.daughters_py->at (secondDaughterIndex),
-          theBigTree.daughters_pz->at (secondDaughterIndex),
-          theBigTree.daughters_e->at (secondDaughterIndex)
-        ) ;
+      if (isMC){ 
+        counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * turnOnReweight;
+      } else      counter.at (selID++) += 1 ;
 
       TLorentzVector tlv_tauH = tlv_firstLepton + tlv_secondLepton ;
       TLorentzVector tlv_tauH_SVFIT ;
@@ -782,7 +811,7 @@ int main (int argc, char** argv)
       // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
       
       if (!beInclusive && jets_and_btag.size () < 2) continue ;
-      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight;
+      if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * turnOnReweight;
       else      counter.at (selID++) += 1 ;
       
       // fill the variables of interest
@@ -797,15 +826,15 @@ int main (int argc, char** argv)
       theSmallTree.m_pairType = pType ;
 
       theSmallTree.m_PUReweight = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) : 1) ;      
-      theSmallTree.m_MC_weight = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight * HHweight: 1) ;
+      theSmallTree.m_MC_weight = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight : 1) ;
       vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_btag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType) ;
       theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
       theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
       theSmallTree.m_bTagweightT = (isMC ? bTagWeight.at(2) : 1.0) ;
       theSmallTree.m_TTtopPtreweight = (isTTBar ? topPtReweight : 1.0) ;
+      theSmallTree.m_turnOnreweight = (isMC ? turnOnReweight : 1.0) ;
       theSmallTree.m_lheht = (isMC ? theBigTree.lheHt : 0) ;
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
-      theSmallTree.m_RunNumber = theBigTree.RunNumber ;
       theSmallTree.m_npv = theBigTree.npv ;
       theSmallTree.m_npu = theBigTree.npu ;
       theSmallTree.m_lumi = theBigTree.lumi ;
@@ -1345,9 +1374,15 @@ int main (int argc, char** argv)
   h_eff.SetBinContent (2, selectedEvents) ;
   h_eff.SetBinContent (3, totalNoWeightsEventsNum) ;
   h_eff.SetBinContent (4, selectedNoWeightsEventsNum) ;
-  for (unsigned int i = 0 ; i < counter.size () ; ++i)
+  h_eff.GetXaxis()->SetBinLabel (1, "totalEvents") ;
+  h_eff.GetXaxis()->SetBinLabel (2, "selectedEvents") ;
+  h_eff.GetXaxis()->SetBinLabel (3, "totalNoWeightsEventsNum") ;
+  h_eff.GetXaxis()->SetBinLabel (4, "selectedNoWeightsEventsNum") ;
+  for (unsigned int i = 0 ; i < counter.size () ; ++i){
     h_eff.SetBinContent (5 + i, counter.at (i)) ;
-
+    TString lab; lab.Form("step %d",i);
+    h_eff.GetXaxis()->SetBinLabel (5 + i, lab.Data()) ;
+  }
   smallFile->cd() ;
   h_eff.Write () ;
   smallFile->Write () ;

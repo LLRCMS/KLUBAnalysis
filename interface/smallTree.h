@@ -28,6 +28,7 @@ struct smallTree
       m_bTagweightM = -1. ;
       m_bTagweightT = -1. ;
       m_TTtopPtreweight = -1. ;
+      m_turnOnreweight = -1. ;
       m_EventNumber = -1. ;
       m_DYscale_LL = -1. ;
       m_DYscale_MM = -1. ;
@@ -200,6 +201,7 @@ struct smallTree
       m_smallT->Branch ("bTagweightM", &m_bTagweightM, "bTagweightM/F") ;
       m_smallT->Branch ("bTagweightT", &m_bTagweightT, "bTagweightT/F") ;
       m_smallT->Branch ("TTtopPtreweight", &m_TTtopPtreweight, "TTtopPtreweight/F") ;
+      m_smallT->Branch ("turnOnreweight", &m_turnOnreweight, "turnOnreweight/F") ;
       m_smallT->Branch ("trigSF", &m_trigSF, "trigSF/F") ;
       m_smallT->Branch ("IdAndIsoSF", &m_IdAndIsoSF, "IdAndIsoSF/F") ;
       m_smallT->Branch ("DYscale_LL", &m_DYscale_LL, "DYscale_LL/F") ;
@@ -372,6 +374,7 @@ struct smallTree
   Float_t m_bTagweightM ;
   Float_t m_bTagweightT ;
   Float_t m_TTtopPtreweight ;
+  Float_t m_turnOnreweight ;
   Float_t m_trigSF ;
   Float_t m_IdAndIsoSF ;
   Float_t m_DYscale_LL ;

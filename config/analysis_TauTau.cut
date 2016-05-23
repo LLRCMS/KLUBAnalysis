@@ -1,3 +1,13 @@
+#category00NoIso = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID < 0.460 && bjet2_bID < 0.460 && bH_mass_raw > 80 && bH_mass_raw < 160 && tauH_SVFIT_mass > 80 && tauH_SVFIT_mass < 160 && HH_mass_raw > 200 && bTagweightL > -999
+#category01NoIso = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 &&((bjet1_bID <= 0.460 && bjet2_bID > 0.460)||(bjet1_bID > 0.460 && bjet2_bID <= 0.460)) && bH_mass_raw > 80 && bH_mass_raw < 160 && tauH_SVFIT_mass > 80 && tauH_SVFIT_mass < 160 && HH_mass_raw > 200 && bTagweightL > -999
+#category11NoIso = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && bH_mass_raw > 80 && bH_mass_raw < 160 && tauH_SVFIT_mass > 80 && tauH_SVFIT_mass < 160 && HH_mass_raw > 200 && bTagweightL > -999
+
+category00NoIso = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID < 0.460 && bjet2_bID < 0.460 && bH_mass_raw > 80 && bH_mass_raw < 160 && tauH_SVFIT_mass > 80 && tauH_SVFIT_mass < 160 && HH_mass_raw > 200 && bTagweightL > -999
+category01NoIso = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && ((bjet1_bID <= 0.460 && bjet2_bID > 0.460)||(bjet1_bID > 0.460 && bjet2_bID <=0.460))&& bH_mass_raw > 80 && bH_mass_raw < 160 && tauH_SVFIT_mass > 80 && tauH_SVFIT_mass < 160 && bTagweightM > -999
+category11NoIso = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460&& bH_mass_raw > 80 && bH_mass_raw < 160 && tauH_SVFIT_mass > 80 && tauH_SVFIT_mass < 160 && bTagweightM > -999
+
+
+
 dijethardSV =  pairType == 2 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && dau2_pt > 40 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_pt > 30 && bjet2_pt > 30 && tauH_SVFIT_mass > 0
 
 defaultOneBtagLNoIso = pairType == 2 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && dau2_pt > 40 && abs (dau2_eta) < 2.1 && nleps == 0 && (bjet1_bID > 0.460 || bjet2_bID > 0.460) && tauH_SVFIT_mass > 0 && bTagweightL > -999

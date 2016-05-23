@@ -118,6 +118,7 @@ bool OfflineProducerHelper::checkBit (int word, int bitpos)
     return res;
 }
 
+
 int OfflineProducerHelper::getTAUidNumber(TString tauIDname){
   int ntau = (int)tauidlist.size();
   for(int i=0;i<ntau;i++)

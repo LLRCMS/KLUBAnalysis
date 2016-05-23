@@ -15,8 +15,9 @@ from systReader import *
 class cardMaker:
     
     def __init__(self):
-        self.ID_untag = 1
-        self.ID_1Btag = 2
+        self.ID_0Btag = 0
+        self.ID_1Btag = 1
+        self.ID_2Btag = 2
         
         self.ID_ch_etau=1
         self.ID_ch_mutau=2
@@ -90,7 +91,7 @@ class cardMaker:
 
         if threshold > 0 and self.addsqrtN :
             #is not QCD
-            self.binsysts.append(pname+"_normBins_{0} lnN ".format(self.theChannel))
+            self.binsysts.append(pname+"_normBins_{0}_{1} lnN ".format(self.theChannel,self.theCat))
             self.binsystsNAME.append(PdfName.replace("bkg_",""))
             self.binsystsVALUE.append(1+1.0/TMath.Sqrt(template.GetEntries()))
 
@@ -102,7 +103,7 @@ class cardMaker:
             for ix in range(1,1+template.GetNbinsX()):  
                 ## APPLY BIN BY BIN UNCERTAINTY to QCD, EACH BIN SCALED BY ITS OWN UNCERTAINTY 
                 nBin=template.GetBin(ix)
-                histName = pname+"_binUnc_{0}_".format(self.theChannel)+str(iy)+str(ix)                                            
+                histName = pname+"_binUnc_{0}_{1}".format(self.theChannel,self.theCat)+str(iy)+str(ix)                                            
                 templateUp= template.Clone()
                 templateDown=template.Clone()
                 #templateUp.Scale(1,"width")
@@ -164,6 +165,7 @@ class cardMaker:
     def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir, theInputs):
         
         self.theChannel = theChannel
+        self.theCat = theCat
         dname=dc.outputdir
         theDataSample = "SumDATA"
         # theDataSample = "DsingleMuRunD" #"DsingleMu" #"DsingleMuPromptReco"
@@ -188,17 +190,18 @@ class cardMaker:
         self.sqrts = 13
         #...
 
-        if(theChannel == self.ID_ch_etau ): self.appendName="etau"
-        elif(theChannel == self.ID_ch_mutau ): self.appendName="mutau"
-        elif(theChannel == self.ID_ch_tautau ): self.appendName="tautau"
-        #...
-        else: print "Input Error: Unknown channel!"
-
-
-        if(theCat == self.ID_untag ): self.appendName=self.appendName+"untag"
-        elif(theCat == self.ID_1Btag ): self.appendName=self.appendName+"1Btag"
-        #...
-        else: print "Input Error: Unknown category!"
+#        if(theChannel == self.ID_ch_etau ): self.appendName="etau"
+#        elif(theChannel == self.ID_ch_mutau ): self.appendName="mutau"
+#        elif(theChannel == self.ID_ch_tautau ): self.appendName="tautau"
+#        #...
+#        else: print "Input Error: Unknown channel!"
+#
+#
+#        if(theCat == self.ID_0Btag ): self.appendName=self.appendName+"0Btag"
+#        elif(theCat == self.ID_1Btag ): self.appendName=self.appendName+"1Btag"
+#        elif(theCat == self.ID_2Btag ): self.appendName=self.appendName+"2Btag"
+#        #...
+#        # else: print "Input Error: Unknown category!"
 
         #"uno" serve sempre
         one = ROOT.RooRealVar("one","one",1.0)
@@ -309,7 +312,7 @@ class cardMaker:
         #Default
         morphVarList_sig = ROOT.RooArgList()
         MorphList_sig = ROOT.RooArgList()
-        TemplateName = "SIG_TempDataHist_{0:.0f}_{1:.0f}_{2}".format(theChannel,self.sqrts,theHHLambda)
+        TemplateName = "SIG_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}_{3}".format(theChannel,theCat,self.sqrts,theHHLambda)
         SIG_TempDataHist = ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templateSIG)
         #PdfName = "SIG_TemplatePdf_{0:.0f}_{1:.0f}_{2:.0f}".format(theChannel,self.sqrts,theHHLambda)
         SIG_TemplatePdf = ROOT.RooHistPdf("ggHH_hbbhtt","ggHH_hbbhtt",ras_variableSet,SIG_TempDataHist)
@@ -340,7 +343,7 @@ class cardMaker:
         self.binsystsVALUE = []
         #listTemplates = []
         for ibkg in range(len(templatesBKG)):
-            TemplateName = "BKG_{3}_TempDataHist_{0:.0f}_{1:.0f}_{2}".format(theChannel,self.sqrts,theHHLambda,theInputs.background[ibkg])
+            TemplateName = "BKG_{3}_TempDataHist_{0:.0f}_{1:.0f}_{2:.0f}_{3}".format(theChannel,theCat,self.sqrts,theHHLambda,theInputs.background[ibkg])
             PdfName = "bkg_{0}".format(theInputs.background[ibkg])
 
             ## Remove negative bins, normalize and shape uncertainties
@@ -368,8 +371,8 @@ class cardMaker:
                         #print ix, iy
                         if templateUp.GetBinContent(ix,iy)<0 : templateUp.SetBinContent(ix,iy,0.00000001)
                 templateUp.Scale(tBkgIntegral/templateUp.Integral())
-                rlxshapeUp = ROOT.RooDataHist("qcd_dhRlxToTight_{0}Up".format(theChannel),"qcd_dhRlxToTight_{0}Up".format(theChannel),ral_variableList,templateUp)
-                rlxshapepdfUp  = ROOT.RooHistPdf(PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}Up".format(theChannel),PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}Up".format(theChannel),ras_variableSet,rlxshapeUp)
+                rlxshapeUp = ROOT.RooDataHist("qcd_dhRlxToTight_{0}_{1}Up".format(theChannel,theCat),"qcd_dhRlxToTight_{0}_{1}Up".format(theChannel,theCat),ral_variableList,templateUp)
+                rlxshapepdfUp  = ROOT.RooHistPdf(PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}_{1}Up".format(theChannel,theCat),PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}_{1}Up".format(theChannel,theCat),ras_variableSet,rlxshapeUp)
 
                 CorrtemplateName = "DOWN"+theInputs.additionalName[index]
                 print CorrtemplateName
@@ -379,14 +382,14 @@ class cardMaker:
                         #print ix, iy
                         if templateDown.GetBinContent(ix,iy)<0 : templateDown.SetBinContent(ix,iy,0.00000001)
                 templateDown.Scale(tBkgIntegral/templateDown.Integral())
-                rlxshapeDown = ROOT.RooDataHist("qcd_dhRlxToTight_{0}Down".format(theChannel),"qcd_dhRlxToTight_{0}Down".format(theChannel),ral_variableList,templateDown)
-                rlxshapepdfDown  = ROOT.RooHistPdf(PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}Down".format(theChannel),PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}Down".format(theChannel),ras_variableSet,rlxshapeDown)
+                rlxshapeDown = ROOT.RooDataHist("qcd_dhRlxToTight_{0}_{1}Down".format(theChannel,theCat),"qcd_dhRlxToTight_{0}_{1}Down".format(theChannel,theCat),ral_variableList,templateDown)
+                rlxshapepdfDown  = ROOT.RooHistPdf(PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}_{1}Down".format(theChannel,theCat),PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}_{1}Down".format(theChannel,theCat),ras_variableSet,rlxshapeDown)
 
                 getattr(w,'import')(rlxshapepdfUp,ROOT.RooFit.RecycleConflictNodes())
                 getattr(w,'import')(rlxshapepdfDown,ROOT.RooFit.RecycleConflictNodes())
 
             else :
-                self.AddBinByBinSyst(w,"CMS_HHbbtt_lowStat_{0}".format(ibkg),PdfName,templatesBKG[ibkg],ral_variableList,ras_variableSet, 0.05)
+                self.AddBinByBinSyst(w,"CMS_HHbbtt_lowStat_{0}_{1}_{2}".format(ibkg, theChannel, theCat),PdfName,templatesBKG[ibkg],ral_variableList,ras_variableSet, 0.05)
 
             rdhB.append(ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templatesBKG[ibkg]))
             rhpB.append(ROOT.RooHistPdf(PdfName,PdfName,ras_variableSet,rdhB[ibkg]))
@@ -445,10 +448,10 @@ class cardMaker:
         #name_ShapeDC = "cards{3}/{0}/hh_{1}_L{2:.0f}_13TeV.txt".format(theOutputDir,theChannel,theHHLambda,dname)
         #string_ShapeWS = "hh_{0}_L{1:.0f}_13TeV.input.root".format(theChannel,theHHLambda)
         #string_ShapeDC = "hh_{0}_L{1:.0f}_13TeV.txt".format(theChannel,theHHLambda)
-        name_ShapeWS = "cards{3}/{0}/hh_{1}_L{2}_13TeV.input.root".format(theOutputDir,theChannel,theHHLambda,dname)
-        name_ShapeDC = "cards{3}/{0}/hh_{1}_L{2}_13TeV.txt".format(theOutputDir,theChannel,theHHLambda,dname)
-        string_ShapeWS = "hh_{0}_L{1}_13TeV.input.root".format(theChannel,theHHLambda)
-        string_ShapeDC = "hh_{0}_L{1}_13TeV.txt".format(theChannel,theHHLambda)
+        name_ShapeWS = "cards{4}/{0}/hh_{1}_C{2}_L{3}_13TeV.input.root".format(theOutputDir,theChannel,theCat,theHHLambda,dname)
+        name_ShapeDC = "cards{4}/{0}/hh_{1}_C{2}_L{3}_13TeV.txt".format(theOutputDir,theChannel,theCat,theHHLambda,dname)
+        string_ShapeWS = "hh_{0}_C{1}_L{2}_13TeV.input.root".format(theChannel,theCat,theHHLambda)
+        string_ShapeDC = "hh_{0}_C{1}_L{2}_13TeV.txt".format(theChannel,theCat,theHHLambda)
 
         ## --------------------------- DATACARD -------------------------- ##
         file = open( name_ShapeDC, "wb")
@@ -523,12 +526,12 @@ class cardMaker:
         if inputFile.Get(templateName).Integral() > 0:        
             #add QCD bin-by-by shape
             #add QCD rlx to tight shape unc
-            syst.writeOneLine("QCD","CMS_HHbbtt_qcd_RlxToTight_{0} shape ".format(theChannel))
+            syst.writeOneLine("QCD","CMS_HHbbtt_qcd_RlxToTight_{0}_{1} shape ".format(theChannel,theCat))
             #add stat uncertainty (sqrt(N)) => is this needed?? In any case it can't be added as gamma (lnU instead?)
             #syst.writeOneLine("QCD", "CMS_HHbbtt_qcd_SR_norm_{0} lnN ".format(theChannel),1+1.0/TMath.Sqrt(inputFile.Get(templateName).Integral()))
             #add  CR->SR uncertainty (gamma*alhpa)
             #templateName = templateName.replace("CORR_","")###GRRR this is hardcoded... but I don't know how to do better
-            syst.writeOneLine("QCD", "CMS_HHbbtt_qcd_CR_norm_{0} gmN {1:.0f} ".format(theChannel,inputFile.Get(templateName).Integral()/1.06),1.06)
+            syst.writeOneLine("QCD", "CMS_HHbbtt_qcd_CR_norm_{0}_{1} gmN {2:.0f} ".format(theChannel,theCat,inputFile.Get(templateName).Integral()/1.06),1.06)
         readChTmplate = "MuTau"
         if(thechannel == self.ID_ch_etau): readChTmplate = "ETau"
         elif (thechannel == self.ID_ch_tautau): readChTmplate = "TauTau"
@@ -549,6 +552,7 @@ def parseOptions():
     parser.add_option('-S', '--sigfilename',dest='sigfilename',type='string', default="",  help='input signalplots')
     #parser.add_option('-l', '--lambda',   dest='Lambda', type='float', default=20,  help='Lambda value')
     parser.add_option('-c', '--channel',   dest='channel', type='string', default='MuTau',  help='final state')
+    parser.add_option('-b', '--category',   dest='category', type='int', default='2',  help='btag category')
     parser.add_option('-i', '--config',   dest='config', type='string', default='',  help='config file')
     parser.add_option('-o', '--selection', dest='overSel', type='string', default='', help='overwrite selection string')
     parser.add_option('-v', '--variable', dest='overVar', type='string', default='bH_mass', help='overwrite plot variable (only1D)')
@@ -622,5 +626,6 @@ if __name__ == "__main__":
     if opt.resAnalysis > 0 :
         dc.isResonant = True
 
+    print input.signals
     for signal in input.signals :
-        dc.makeCardsAndWorkspace(signal,1,thechannel,"{0}{1}{2}".format(signal,opt.overSel,opt.overVar),input)
+        dc.makeCardsAndWorkspace(signal,opt.category,thechannel,"{0}{1}{2}".format(signal,opt.overSel,opt.overVar),input)
