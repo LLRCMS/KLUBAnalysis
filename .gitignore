@@ -3,9 +3,11 @@
 *.o
 *.so
 *.eps
+obj/
 combiner/*.pdf
 combiner/*.png
 combiner/*.root
 combiner/cards_*
 SKIM_*/
 weights/data/
+interface/exceptions/
