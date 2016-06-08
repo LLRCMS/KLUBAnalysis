@@ -82,6 +82,7 @@ void appendFromFileList (TChain* chain, TString filename)
     return;
 }
 
+
 float turnOnCB(float x, float m0, float sigma, float alpha, float n, float norm){
   float sqrtPiOver2 = TMath::Sqrt(TMath::PiOver2());
   float sqrt2 = TMath::Sqrt(2.);
@@ -109,10 +110,24 @@ float turnOnCB(float x, float m0, float sigma, float alpha, float n, float norm)
   return norm * (leftArea + a * (1/TMath::Power(t-b,n-1) - 1/TMath::Power(absAlpha - b,n-1)) / (1-n)) / area;
 }
 
-float turnOnSF(float pt){
+float turnOnSF(float pt,int genInd=1){
   //return 1.0/turnOnCB(pt,3.60274e+01,5.89434e+00,5.82870e+00,1.83737e+00,9.58000e-01)*turnOnCB(pt,3.45412e+01,5.63353e+00,2.49242e+00,3.35896e+00,1);
   //return turnOnCB(pt,3.45412e+01,5.63353e+00,2.49242e+00,3.35896e+00,1);
+  //if(genInd>=0) 
   return turnOnCB(pt,3.60274e+01,5.89434e+00,5.82870e+00,1.83737e+00,9.58000e-01);
+  //TF1 func("fakefunc","expo(0)",20,400);
+  //func.SetParameter(0,-0.68459);
+  //func.SetParameter(1,-0.000944352);
+  /*
+  double p[5];
+  p[0]                        =   0.00742864;
+  p[1]                        =  0.000167935;
+  p[2]                        = -7.51164e-07;
+  p[3]                        =    1.417e-08;
+  p[4]                        = -6.09917e-11;
+  TF1 func("fakefunc","pol4(0)",20,400);
+  func.SetParameters(p);
+  return func.Eval(pt);*/
 }
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // open the first file in the input list, retrieve the histogram "Counters" for the trigger names and return a copy of it
@@ -382,10 +397,20 @@ int main (int argc, char** argv)
     gTurnOn = (TGraph*)fTurnOn->Get("tauLegEff");
   }
   bool skipIso = true;
-    if (gConfigParser->isDefined ("debug::skipIso"))
+  if (gConfigParser->isDefined ("debug::skipIso"))
   {
     skipIso = gConfigParser->readBoolOption ("debug::skipIso");
   }
+
+  int strategy = 2016;
+  if (gConfigParser->isDefined ("debug::strategy"))
+  {
+    strategy = gConfigParser->readIntOption ("debug::strategy");
+  }
+
+
+  TH1F *hFakeSF_num = new TH1F("hFSF_num","hFSF_num",40,20,200);
+  TH1F *hFakeSF_den = new TH1F("hFSF_den","hFSF_den",40,20,200);
 
   string bRegrWeights("");
   bool computeBregr = gConfigParser->readBoolOption ("bRegression::computeBregr");
@@ -472,7 +497,7 @@ int main (int argc, char** argv)
     {
       if (iEvent % 10000 == 0)  cout << "reading event " << iEvent << endl ;
       int selID = 0 ;
-
+      if(iEvent>2000000)break;
       theSmallTree.clearVars () ;
       int got = theBigTree.fChain->GetEntry(iEvent);
       if (got == 0) break;
@@ -607,14 +632,40 @@ int main (int argc, char** argv)
       theSmallTree.m_RunNumber = theBigTree.RunNumber ;
       float turnOnReweight = 1.0;
       vector<int> tau_daus;
+      //int nmu=0,ne=0;ntau=0;
+      
+      int iPair =-1;
+      if(strategy == 2016){
+        int pairType =-1;
+        for(int iType=0; iType<3 && iPair<0 ;iType++){
+          for (unsigned int ipair = 0 ; ipair < theBigTree.indexDau1->size () ; ++ipair){
+            if (!oph.pairPassBaseline (&theBigTree, ipair, (leptonSelectionFlag + string("Iso")).c_str ())) continue ;
+            int firstDaughterIndex = theBigTree.indexDau1->at (ipair) ;  
+            int secondDaughterIndex = theBigTree.indexDau2->at (ipair) ;
+            int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
+            int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
+            pairType = oph.getPairType (type1, type2) ;
+            if(pairType != iType) continue;
+            iPair = (int)ipair;
+            break;
+          }
+        }
+        if (iPair<0)continue;
+      }
+      //int itau=0,ie=0,imu=0;
       // FIXME!! ee and mumu are "eaten" by the muTau / eTau final states when we use single lepton triggers
-      for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
+      for (unsigned int iiPair = 0 ; iiPair < theBigTree.indexDau1->size () ; ++iiPair)
+      //for(int iiiii=0;iiiii<1;iiiii++)
       {
+        if(strategy==2015) iPair = (int)iiPair;
+        else iiPair = theBigTree.indexDau1->size ()+10;
           // FIXME need to implement here the choice of iso / anti-iso
+        if(theBigTree.EventNumber == 24 )cout<<"event 24 pair "<<iPair<<endl;
         if (!oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag.c_str ())) continue ;
+        if(theBigTree.EventNumber == 24 )cout<<"event 24 pair "<<iPair<<"Passed baseline!"<<endl;
+
         int firstDaughterIndex = theBigTree.indexDau1->at (iPair) ;  
         int secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
-
         TLorentzVector tlv_firstLepton
         (
           theBigTree.daughters_px->at (firstDaughterIndex),
@@ -633,12 +684,16 @@ int main (int argc, char** argv)
         int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
         int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
         int pairType = oph.getPairType (type1, type2) ;
+        if(theBigTree.EventNumber == 24 )cout<<"event 24 pair "<<iPair<<" type "<<pairType<<endl;
+
+        if(isMC){
+          if (type1==2) tau_daus.push_back(firstDaughterIndex);
+          if (type2==2) tau_daus.push_back(secondDaughterIndex);
+        }
 
           // for tautau pairs, need to check the match to the L1 seed excluded in run D
         if (pairType == 2 && isMC)
         {
-          tau_daus.push_back(firstDaughterIndex);
-          tau_daus.push_back(secondDaughterIndex);
 
           bool hasL1Match_1 = theBigTree.daughters_isL1IsoTau28Matched->at (firstDaughterIndex);
           bool hasL1Match_2 = theBigTree.daughters_isL1IsoTau28Matched->at (secondDaughterIndex);
@@ -647,26 +702,23 @@ int main (int argc, char** argv)
           int penalty = 0;
           if(!goodHLT) penalty = penalty - 10;
           if(!goodL1)  penalty = penalty - 1;
-          theSmallTree.m_RunNumber = penalty;
+          //theSmallTree.m_RunNumber = penalty;
           if (!goodL1  && skipTriggers < 0) continue; 
         }
 
-        if (foundPairs.find (pairType) != foundPairs.end ()) continue ;
+        if (foundPairs.find (pairType) != foundPairs.end ()) continue ; 
 
         if (skipTriggers < 0)
         {
-          if (pairType != trigPairType) continue;  // flavor determined by trigger type
-          if((pairType == 0 || pairType==1) && skipIso){
-            float iso1 = getIso (firstDaughterIndex, tlv_firstLepton.Pt(), theBigTree) ;
-            float iso2 = getIso (secondDaughterIndex, tlv_secondLepton.Pt(), theBigTree) ;
-            if(iso1>0.1 || iso2 > 3) continue;
-          }
+          //trigger matching
+          if (pairType != trigPairType) continue; 
+          if (!trigReader.checkOR (pairType,theBigTree.daughters_L3FilterFired->at(firstDaughterIndex)))continue;
+          if (pairType == 2 && !trigReader.checkOR (pairType,theBigTree.daughters_L3FilterFired->at(secondDaughterIndex)))continue;
         }
         foundPairs[pairType] = iPair ;
-      }  
+      }
 
       if (foundPairs.size () == 0) continue ;
-
       // by now take the MOST ISOLATED pair (no OS/SS)
       int chosenTauPair = foundPairs.begin ()->second ;
       int isOS = theBigTree.isOSCand->at (chosenTauPair) ;
@@ -691,37 +743,49 @@ int main (int argc, char** argv)
         theBigTree.daughters_e->at (secondDaughterIndex)
         ) ;
 
-      if(skipTriggers>0 && isMC){
+      if(isMC && skipTriggers>0){
         int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
         int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
         int pairType = oph.getPairType (type1, type2) ;
-        if (pairType == 2){
-          turnOnReweight = 0;
-          std::sort(tau_daus.begin(), tau_daus.end());
-          tau_daus.erase(unique(tau_daus.begin(), tau_daus.end()), tau_daus.end());
+        
+        turnOnReweight = 0;
+        std::sort(tau_daus.begin(), tau_daus.end());
+        tau_daus.erase(unique(tau_daus.begin(), tau_daus.end()), tau_daus.end());
+        float tau_probs[tau_daus.size()];
+        int found =0;
+        theSmallTree.m_RunNumber = tau_daus.size();
+
         //now I have a list of unique indexes
-          float tau_probs[tau_daus.size()];
-          int found =0;
-          for(int it=0; it<(int)tau_daus.size();it++){
+        for(int it=0; it<(int)tau_daus.size();it++){
           //cout<<tau_daus.at(it)<<endl;;
-            int tau_ind = tau_daus.at(it);
-            float x = theBigTree.daughters_px->at(tau_ind);
-            float y = theBigTree.daughters_py->at(tau_ind);
-            float pt_t = TMath::Sqrt(x*x+y*y);
-            float iso1 = getIso (tau_ind, pt_t, theBigTree) ;
-            if(iso1>2 && skipIso) {
-              tau_daus.erase(tau_daus.begin()+it);
-              it--;
-              continue;
-            }
-            if(skipTriggers==1){
-                tau_probs[it] = turnOnSF(pt_t);  //gTurnOn->Eval(pt_t);
-              } else {
-                if(rnd->Rndm()<= turnOnSF(pt_t)/*gTurnOn->Eval(pt_t)*/)found++;
-              }
+          int tau_ind = tau_daus.at(it);
+          float x = theBigTree.daughters_px->at(tau_ind);
+          float y = theBigTree.daughters_py->at(tau_ind);
+          float pt_t = TMath::Sqrt(x*x+y*y);
+          float iso1 = getIso (tau_ind, pt_t, theBigTree) ;
+          /*
+          if(iso1>2 && skipIso) {
+            tau_daus.erase(tau_daus.begin()+it);
+            it--;
+            continue;
           }
-        //cout<<"end"<<endl;
+          
+            if(theBigTree.daughters_genindex->at(tau_ind)<0){
+              //cout<<"size "<<theBigTree.daughters_isLastTriggerObjectforPath->size()<<" "<< theBigTree.daughters_isGoodTriggerType->size()<<" "<<theBigTree.daughters_L3FilterFired->size()<<endl;
+              if(trigReader.checkOR (2, theBigTree.daughters_L3FilterFired->at(tau_ind)))hFakeSF_num->Fill(pt_t);
+            hFakeSF_den->Fill(pt_t);
+            }
+          */
+          //uhmmm cose che voglio fare? => attenzione le prob cosi van bene solo per tautau in 2015
+          float prob = turnOnSF(pt_t,theBigTree.daughters_genindex->at(tau_ind));
           if(skipTriggers==1){
+              tau_probs[it] = prob; //gTurnOn->Eval(pt_t);
+          } else {
+            if(rnd->Rndm()<= prob/*gTurnOn->Eval(pt_t)*/)found++;
+          }
+        }
+        if(skipTriggers==1){
+          if(strategy==2015){  
             for (int bit=0; bit<TMath::Power(2,(int)tau_daus.size());bit++){
               int nBits = 0;
               float tmpprob =1.0;
@@ -736,11 +800,23 @@ int main (int argc, char** argv)
               }
               if(nBits>1) turnOnReweight += tmpprob;
             }
-          }else{
-            if(found<2)continue;
+            
+          }else{ //strategy 2016
+            if(pairType == 2 )turnOnReweight = turnOnSF(tlv_firstLepton.Pt(),theBigTree.daughters_genindex->at(firstDaughterIndex))*turnOnSF(tlv_secondLepton.Pt(),theBigTree.daughters_genindex->at(secondDaughterIndex));
+            else turnOnReweight = 0.98;//*turnOnSF(tlv_secondLepton.Pt(),theBigTree.daughters_genindex->at(secondDaughterIndex));
           }
         }
+        else if(skipTriggers==2) {
+          if(strategy == 2016){
+            if(pairType == 2) {
+              if(rnd->Rndm() > turnOnSF(tlv_firstLepton.Pt(),theBigTree.daughters_genindex->at(firstDaughterIndex))) continue;
+              if(rnd->Rndm() > turnOnSF(tlv_secondLepton.Pt(),theBigTree.daughters_genindex->at(secondDaughterIndex))) continue;
+            }else if(rnd->Rndm() > 0.98) continue;
+          }
+          else if(found<2)continue;
+        }
       }
+
       /*
       int thisPairType = foundPairs.begin()->first ; // this is the pairType used
       bool ORtrigBits = trigReader.checkOR (thisPairType, triggerbit);
@@ -749,7 +825,6 @@ int main (int argc, char** argv)
         if (!ORtrigBits) continue;
       }
       */
-
       if (isMC){ 
         counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * turnOnReweight;
       } else      counter.at (selID++) += 1 ;
@@ -1385,6 +1460,8 @@ int main (int argc, char** argv)
   }
   smallFile->cd() ;
   h_eff.Write () ;
+  hFakeSF_den->Write();
+  hFakeSF_num->Write();
   smallFile->Write () ;
   smallFile->Close () ;
 
