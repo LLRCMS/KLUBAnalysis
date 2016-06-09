@@ -497,7 +497,6 @@ int main (int argc, char** argv)
     {
       if (iEvent % 10000 == 0)  cout << "reading event " << iEvent << endl ;
       int selID = 0 ;
-      if(iEvent>2000000)break;
       theSmallTree.clearVars () ;
       int got = theBigTree.fChain->GetEntry(iEvent);
       if (got == 0) break;
