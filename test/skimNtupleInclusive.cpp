@@ -62,6 +62,10 @@ typedef LorentzVector<ROOT::Math::PxPyPzE4D<double> > lorentzVector ;
 
 */
 
+TFile *fileTO = TFile::Open("/home/llr/cms/cadamuro/TauTagAndProbe/CMSSW_7_6_3/src/TauTagAndProbe/TauTagAndProbe/test/turnOn_2GevIso.root");
+TH1F *hTurnOn = (TH1F*)fileTO->Get("hTurnOn");
+TFile *fileTOTrig = TFile::Open("/home/llr/cms/ortona/diHiggs/CMSSW_7_4_7/src/KLUBAnalysis/studies/MakeTurnOn/turnOnTrig05.root");
+TH1F *hTurnOnTrig = (TH1F*)fileTOTrig->Get("hTurnOn");
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // open input txt file and append all the files it contains to TChain
@@ -110,11 +114,25 @@ float turnOnCB(float x, float m0, float sigma, float alpha, float n, float norm)
   return norm * (leftArea + a * (1/TMath::Power(t-b,n-1) - 1/TMath::Power(absAlpha - b,n-1)) / (1-n)) / area;
 }
 
-float turnOnSF(float pt,int genInd=1){
+
+float turnOnSF(float pt,int genInd=66615){
   //return 1.0/turnOnCB(pt,3.60274e+01,5.89434e+00,5.82870e+00,1.83737e+00,9.58000e-01)*turnOnCB(pt,3.45412e+01,5.63353e+00,2.49242e+00,3.35896e+00,1);
   //return turnOnCB(pt,3.45412e+01,5.63353e+00,2.49242e+00,3.35896e+00,1);
   //if(genInd>=0) 
-  return turnOnCB(pt,3.60274e+01,5.89434e+00,5.82870e+00,1.83737e+00,9.58000e-01);
+  float threshold = 120;
+  if(pt>threshold) pt = threshold;
+
+//Riccardo
+  if(false){
+  if(genInd!=66615)
+    return turnOnCB(pt,3.94747E+01, 7.23546E+00 ,1.08089E+01 ,1.33930E+00, 1.00000E+00);
+  else 
+    return turnOnCB(pt,3.85953E+01,5.74632E+00 ,5.08553E+00, 5.45593E+00, 9.42168E-01);
+  }
+    //return turnOnCB(pt,3.60274e+01,5.89434e+00,5.82870e+00,1.83737e+00,9.58000e-01);
+//Luca
+  return hTurnOn->GetBinContent(hTurnOn->FindBin(pt));//*TMath::Sqrt(hTurnOnTrig->GetBinContent(hTurnOnTrig->FindBin(pt)));
+
   //TF1 func("fakefunc","expo(0)",20,400);
   //func.SetParameter(0,-0.68459);
   //func.SetParameter(1,-0.000944352);
@@ -497,11 +515,12 @@ int main (int argc, char** argv)
     {
       if (iEvent % 10000 == 0)  cout << "reading event " << iEvent << endl ;
       int selID = 0 ;
+
       theSmallTree.clearVars () ;
       int got = theBigTree.fChain->GetEntry(iEvent);
       if (got == 0) break;
       //theBigTree.GetEntry (iEvent) ;
-      
+
       // directly reject events outside HT range in case of stitching of inclusive sample-- they should not count in weights
       if (HTMax > 0)
       {
@@ -554,6 +573,7 @@ int main (int argc, char** argv)
       // 0: 0bjet, 1: 1 b jet, 2: >= 2 b jet
       theSmallTree.m_DYscale_LL = 1.0; // all the other MC samples + data have no weight
       theSmallTree.m_DYscale_MM = 1.0;        
+
       if (isMC && DY_Nbs)
       {
         TLorentzVector vgj;
@@ -589,15 +609,16 @@ int main (int argc, char** argv)
         counter.at (selID++) += 1 ;
       }
       ++totalNoWeightsEventsNum ;
- 
+
       if (theBigTree.indexDau1->size () == 0) continue ;
       int metbit = theBigTree.metfilterbit;
       int metpass = metbit & (1 << 0);
       metpass += metbit & (1 << 2);
       metpass += metbit & (1 << 5);
       metpass += metbit & (1 << 6);
-      if(metpass > 0) continue ;
-      
+      //if(metpass > 0) continue ;
+      //WARNING!!!!!
+
       if (isMC) counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight;
       else      counter.at (selID++) += 1 ;
 
@@ -632,19 +653,52 @@ int main (int argc, char** argv)
       float turnOnReweight = 1.0;
       vector<int> tau_daus;
       //int nmu=0,ne=0;ntau=0;
-      
       int iPair =-1;
       if(strategy == 2016){
         int pairType =-1;
         for(int iType=0; iType<3 && iPair<0 ;iType++){
           for (unsigned int ipair = 0 ; ipair < theBigTree.indexDau1->size () ; ++ipair){
-            if (!oph.pairPassBaseline (&theBigTree, ipair, (leptonSelectionFlag + string("Iso")).c_str ())) continue ;
+            if (!oph.pairPassBaseline (&theBigTree, ipair, (leptonSelectionFlag + string("Iso")).c_str ())) {
+              continue ;
+            }
+            /*
+            //Gen Matching
             int firstDaughterIndex = theBigTree.indexDau1->at (ipair) ;  
             int secondDaughterIndex = theBigTree.indexDau2->at (ipair) ;
             int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
             int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
             pairType = oph.getPairType (type1, type2) ;
             if(pairType != iType) continue;
+  
+            TLorentzVector tlv_firstLepton
+            (
+              theBigTree.daughters_px->at (firstDaughterIndex),
+              theBigTree.daughters_py->at (firstDaughterIndex),
+              theBigTree.daughters_pz->at (firstDaughterIndex),
+              theBigTree.daughters_e->at (firstDaughterIndex)
+              ) ;
+            TLorentzVector tlv_secondLepton
+            (
+              theBigTree.daughters_px->at (secondDaughterIndex),
+              theBigTree.daughters_py->at (secondDaughterIndex),
+              theBigTree.daughters_pz->at (secondDaughterIndex),
+              theBigTree.daughters_e->at (secondDaughterIndex)
+              ) ;            
+            bool matched1 = false, matched2=false;
+            for(int igen=0; igen<theBigTree.genpart_pdg->size(); igen++){
+              if(abs(theBigTree.genpart_pdg->at(igen))!=66615 || pairType != 2) continue;
+              TLorentzVector tlv_gen
+              (
+                theBigTree.genpart_px->at (igen),
+                theBigTree.genpart_py->at (igen),
+                theBigTree.genpart_pz->at (igen),
+                theBigTree.genpart_e->at (igen)
+                ) ;
+              if(tlv_gen.DeltaR(tlv_firstLepton)<0.5)matched1=true;
+              if(tlv_gen.DeltaR(tlv_secondLepton)<0.5)matched2=true;
+            }
+            if(!(matched1 && matched2)) continue;
+            */
             iPair = (int)ipair;
             break;
           }
@@ -656,12 +710,13 @@ int main (int argc, char** argv)
       for (unsigned int iiPair = 0 ; iiPair < theBigTree.indexDau1->size () ; ++iiPair)
       //for(int iiiii=0;iiiii<1;iiiii++)
       {
-        if(strategy==2015) iPair = (int)iiPair;
+        if(strategy==2015) {
+          iPair = (int)iiPair;
+          if (!oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag.c_str ())) continue ;
+        }
         else iiPair = theBigTree.indexDau1->size ()+10;
+
           // FIXME need to implement here the choice of iso / anti-iso
-        if(theBigTree.EventNumber == 24 )cout<<"event 24 pair "<<iPair<<endl;
-        if (!oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag.c_str ())) continue ;
-        if(theBigTree.EventNumber == 24 )cout<<"event 24 pair "<<iPair<<"Passed baseline!"<<endl;
 
         int firstDaughterIndex = theBigTree.indexDau1->at (iPair) ;  
         int secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
@@ -683,25 +738,36 @@ int main (int argc, char** argv)
         int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
         int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
         int pairType = oph.getPairType (type1, type2) ;
-        if(theBigTree.EventNumber == 24 )cout<<"event 24 pair "<<iPair<<" type "<<pairType<<endl;
-
+  /*
+  //Gen Matching of the selected pair
+        bool matched1 = false, matched2=false;
+        for(int igen=0; igen<theBigTree.genpart_pdg->size(); igen++){
+          if(abs(theBigTree.genpart_pdg->at(igen))!=66615 || pairType != 2) continue;
+          TLorentzVector tlv_gen
+          (
+            theBigTree.genpart_px->at (igen),
+            theBigTree.genpart_py->at (igen),
+            theBigTree.genpart_pz->at (igen),
+            theBigTree.genpart_e->at (igen)
+            ) ;
+          if(tlv_gen.DeltaR(tlv_firstLepton)<0.5)matched1=true;
+          if(tlv_gen.DeltaR(tlv_secondLepton)<0.5)matched2=true;
+        }
+        if(!(matched1 && matched2)) continue;
+*/
         if(isMC){
           if (type1==2) tau_daus.push_back(firstDaughterIndex);
           if (type2==2) tau_daus.push_back(secondDaughterIndex);
         }
 
           // for tautau pairs, need to check the match to the L1 seed excluded in run D
-        if (pairType == 2 && isMC)
+        if (pairType == 2 && isMC && strategy == 2015)
         {
 
           bool hasL1Match_1 = theBigTree.daughters_isL1IsoTau28Matched->at (firstDaughterIndex);
           bool hasL1Match_2 = theBigTree.daughters_isL1IsoTau28Matched->at (secondDaughterIndex);
           bool goodL1 = (hasL1Match_1 && hasL1Match_2);
           bool goodHLT = trigReader.checkOR (2, triggerbit);
-          int penalty = 0;
-          if(!goodHLT) penalty = penalty - 10;
-          if(!goodL1)  penalty = penalty - 1;
-          //theSmallTree.m_RunNumber = penalty;
           if (!goodL1  && skipTriggers < 0) continue; 
         }
 
@@ -723,7 +789,7 @@ int main (int argc, char** argv)
       int isOS = theBigTree.isOSCand->at (chosenTauPair) ;
 
       if (saveOS == 1 && !isOS) continue ;
-      if (saveOS == 0 &&  isOS) continue ;
+      if (saveOS == 0 &&  isOS) continue ;        
 
       int firstDaughterIndex = theBigTree.indexDau1->at (chosenTauPair) ;  
       const TLorentzVector tlv_firstLepton
@@ -762,25 +828,12 @@ int main (int argc, char** argv)
           float y = theBigTree.daughters_py->at(tau_ind);
           float pt_t = TMath::Sqrt(x*x+y*y);
           float iso1 = getIso (tau_ind, pt_t, theBigTree) ;
-          /*
-          if(iso1>2 && skipIso) {
-            tau_daus.erase(tau_daus.begin()+it);
-            it--;
-            continue;
-          }
-          
-            if(theBigTree.daughters_genindex->at(tau_ind)<0){
-              //cout<<"size "<<theBigTree.daughters_isLastTriggerObjectforPath->size()<<" "<< theBigTree.daughters_isGoodTriggerType->size()<<" "<<theBigTree.daughters_L3FilterFired->size()<<endl;
-              if(trigReader.checkOR (2, theBigTree.daughters_L3FilterFired->at(tau_ind)))hFakeSF_num->Fill(pt_t);
-            hFakeSF_den->Fill(pt_t);
-            }
-          */
-          //uhmmm cose che voglio fare? => attenzione le prob cosi van bene solo per tautau in 2015
-          float prob = turnOnSF(pt_t,theBigTree.daughters_genindex->at(tau_ind));
+
+          float prob = turnOnSF(pt_t);
           if(skipTriggers==1){
-              tau_probs[it] = prob; //gTurnOn->Eval(pt_t);
+              tau_probs[it] = prob;
           } else {
-            if(rnd->Rndm()<= prob/*gTurnOn->Eval(pt_t)*/)found++;
+            if(rnd->Rndm()<= prob)found++;
           }
         }
         if(skipTriggers==1){
@@ -801,7 +854,12 @@ int main (int argc, char** argv)
             }
             
           }else{ //strategy 2016
-            if(pairType == 2 )turnOnReweight = turnOnSF(tlv_firstLepton.Pt(),theBigTree.daughters_genindex->at(firstDaughterIndex))*turnOnSF(tlv_secondLepton.Pt(),theBigTree.daughters_genindex->at(secondDaughterIndex));
+            int gen = theBigTree.daughters_genindex->at(firstDaughterIndex);
+            int pdg1=-1,pdg2=-1;
+            if (gen>=0)pdg1=theBigTree.genpart_pdg->at(gen);
+            gen = theBigTree.daughters_genindex->at(secondDaughterIndex);
+            if (gen>=0)pdg2=theBigTree.genpart_pdg->at(gen);
+            if(pairType == 2 )turnOnReweight = turnOnSF(tlv_firstLepton.Pt(),pdg1)*turnOnSF(tlv_secondLepton.Pt(),pdg2);
             else turnOnReweight = 0.98;//*turnOnSF(tlv_secondLepton.Pt(),theBigTree.daughters_genindex->at(secondDaughterIndex));
           }
         }
@@ -816,14 +874,6 @@ int main (int argc, char** argv)
         }
       }
 
-      /*
-      int thisPairType = foundPairs.begin()->first ; // this is the pairType used
-      bool ORtrigBits = trigReader.checkOR (thisPairType, triggerbit);
-      if (!skipTriggers)
-      {
-        if (!ORtrigBits) continue;
-      }
-      */
       if (isMC){ 
         counter.at (selID++) += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * turnOnReweight;
       } else      counter.at (selID++) += 1 ;
@@ -973,7 +1023,6 @@ int main (int argc, char** argv)
       float idAndIsoSF = 1.0;
       // particle 2 is always a TAU --  FIXME: not good for emu
       if (type1 < 2 && isMC) // mu
-
       {
         trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
         idAndIsoSF = myScaleFactor[type1][1]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
@@ -1338,7 +1387,6 @@ int main (int argc, char** argv)
             } // in case the SVFIT mass is calculated
 
           } // end if doing HHKinFit
-      
           theSmallTree.m_HHKin_mass = HHKmass;//kinFits.getMH () ;
           theSmallTree.m_HHKin_chi2 = HHKChi2;//kinFits.getChi2 () ;
 
@@ -1426,10 +1474,6 @@ int main (int argc, char** argv)
       if (isMC) selectedEvents += theBigTree.aMCatNLOweight ; 
       else selectedEvents += 1 ;
       ++selectedNoWeightsEventsNum ;
-
-
-
-
 
       theSmallTree.Fill () ;
     } // loop over events
