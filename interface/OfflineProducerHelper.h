@@ -67,6 +67,7 @@ class OfflineProducerHelper {
   // a selection is applied by default if no parameter is specified
   bool pairPassBaseline (bigTree* tree, int iPair, TString whatApply = "All");
   bool eleBaseline (bigTree* tree, int iDau, float ptMin, float relIso,  int MVAIDflag = 0, TString whatApply = "All"); // return true if leptons passes the baseline selections
+  bool eleBaseline (bigTree* tree, int iDau, float ptMin, float etaMax, float relIso,  int MVAIDflag = 0, TString whatApply = "All"); // version with eta cut
   bool muBaseline (bigTree* tree, int iDau, float ptMin, float etaMax, float relIso, TString whatApply = "All");
   bool tauBaseline (bigTree* tree, int iDau, float ptMin, float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits, TString whatApply = "All");
   bool tightEleMVAID (float BDT, float fSCeta); // compute tight ele MVA id WP, but isBDT in ntuples has been fixed --> this will be soon deprecated

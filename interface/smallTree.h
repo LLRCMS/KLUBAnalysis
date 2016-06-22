@@ -36,6 +36,7 @@ struct smallTree
       m_IdAndIsoSF = -1.;
       m_nBhadrons = -1;
       m_RunNumber = -1. ;
+      m_isBoosted = -1 ;
       
       m_npv = -1. ;
       m_npu = -1. ;
@@ -238,6 +239,7 @@ struct smallTree
       m_smallT->Branch ("nBhadrons", &m_nBhadrons, "nBhadrons/I") ;
       m_smallT->Branch ("EventNumber", &m_EventNumber, "EventNumber/I") ;
       m_smallT->Branch ("RunNumber", &m_RunNumber, "RunNumber/I") ;
+      m_smallT->Branch ("isBoosted", &m_isBoosted, "isBoosted/I") ;
 
       m_smallT->Branch ("npv", &m_npv, "npv/I") ;
       m_smallT->Branch ("npu", &m_npu, "npu/F") ;
@@ -439,6 +441,7 @@ struct smallTree
   Int_t m_nBhadrons ;
   Int_t m_EventNumber ;
   Int_t m_RunNumber ;
+  Int_t m_isBoosted ;
 
   Int_t   m_npv ;
   Float_t m_npu ;
