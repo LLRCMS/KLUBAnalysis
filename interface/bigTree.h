@@ -146,10 +146,11 @@ public :
    std::vector<float>   *daughters_trackRefPt;
    std::vector<int>     *daughters_isLastTriggerObjectforPath;
    std::vector<int>     *daughters_isTriggerObjectforPath;
-   std::vector<int>     *daughters_FilterFired;
-   std::vector<int>     *daughters_isGoodTriggerType;
-   std::vector<int>     *daughters_L3FilterFired;
-   std::vector<int>     *daughters_L3FilterFiredLast;
+   std::vector<Long64_t> *daughters_trgMatched;
+   std::vector<Long64_t> *daughters_FilterFired;
+   std::vector<Long64_t> *daughters_isGoodTriggerType;
+   std::vector<Long64_t> *daughters_L3FilterFired;
+   std::vector<Long64_t> *daughters_L3FilterFiredLast;
    std::vector<float>   *daughters_HLTpt;
    std::vector<bool>    *daughters_isL1IsoTau28Matched;
    Int_t           JetsNumber;
@@ -329,6 +330,7 @@ public :
    TBranch        *b_daughters_trackRefPt;   //!
    TBranch        *b_daughters_isLastTriggerObjectforPath;   //!
    TBranch        *b_daughters_isTriggerObjectforPath;   //!
+   TBranch        *b_daughters_trgMatched;   //!
    TBranch        *b_daughters_FilterFired;   //!
    TBranch        *b_daughters_isGoodTriggerType;   //!
    TBranch        *b_daughters_L3FilterFired;   //!
@@ -509,6 +511,7 @@ public :
        daughters_trackRefPt = 0;
        daughters_isLastTriggerObjectforPath = 0;
        daughters_isTriggerObjectforPath = 0;
+       daughters_trgMatched = 0;
        daughters_FilterFired = 0;
        daughters_isGoodTriggerType = 0;
        daughters_L3FilterFired = 0;
@@ -659,6 +662,7 @@ public :
        fChain->SetBranchAddress("daughters_trackRefPt", &daughters_trackRefPt, &b_daughters_trackRefPt);
        fChain->SetBranchAddress("daughters_isLastTriggerObjectforPath", &daughters_isLastTriggerObjectforPath, &b_daughters_isLastTriggerObjectforPath);
        fChain->SetBranchAddress("daughters_isTriggerObjectforPath", &daughters_isTriggerObjectforPath, &b_daughters_isTriggerObjectforPath);
+       fChain->SetBranchAddress("daughters_trgMatched", &daughters_trgMatched, &b_daughters_trgMatched);
        fChain->SetBranchAddress("daughters_FilterFired", &daughters_FilterFired, &b_daughters_FilterFired);
        fChain->SetBranchAddress("daughters_isGoodTriggerType", &daughters_isGoodTriggerType, &b_daughters_isGoodTriggerType);
        fChain->SetBranchAddress("daughters_L3FilterFired", &daughters_L3FilterFired, &b_daughters_L3FilterFired);
