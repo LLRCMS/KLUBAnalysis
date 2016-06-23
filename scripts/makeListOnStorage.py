@@ -14,7 +14,11 @@ from subprocess import Popen, PIPE
 #tag = "MC_SVFit_MiniAODV2_22Nov2015_EssentialSamples_SVFix"
 
 #tag = "Data_SilverJson_SVfit_31Dic2015"
-tag = "MC_SilverJson_SVfit_31Dic2015"
+#tag = "MC_SilverJson_SVfit_31Dic2015"
+#tag = "Data_2016RunB_PromptRecov2_27Mag2016"
+tag = "data_2016_21Giu_resubSingleEle"
+#tag = "MC_80X_miniAODv2_VVAndSingleT_13Giu"
+#tag = "MC_80X_HH_21Jun2016"
 
 #outFolder = "../inputFiles/28Ago2015/" # write / at the end
 #outFolder = "../inputFiles/13Ott2015/25ns/"
@@ -26,7 +30,9 @@ tag = "MC_SilverJson_SVfit_31Dic2015"
 #outFolder  = "../inputFiles/miniAODv2VSfitForTalk/"
 #outFolder = "/home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/miniAODv2_silverJson/"
 #outFolder = "/home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/miniAODv2_silverJSON_TEST/"
-outFolder = "/home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/miniAODv2_silverJSON_5Gen2016/"
+#outFolder = "/home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/miniAODv2_silverJSON_5Gen2016/"
+#outFolder = "../inputFiles/Data2016_27Mag/"
+outFolder = "../inputFiles/Files80X_22Giu/"
 
 areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
                                  # if false: only add the polgrid server to run the skim and submit on root
@@ -65,6 +71,7 @@ print useOnly
 
 dpmhome = "/dpm/in2p3.fr/home/cms/trivcat"
 partialPath = "/store/user/lcadamur/HHNtuples/" #folder contenente la produzione
+#partialPath = "/store/user/salerno/HHNtuples/"
 #partialPath = "/store/user/davignon/EnrichedMiniAOD/"
 
 path = dpmhome + partialPath + tag
