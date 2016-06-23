@@ -230,10 +230,10 @@ int main (int argc, char** argv)
 
   if (argc < 12)
   { 
-      cerr << "missing input parameters" << endl ;
+      cerr << "missing input parameters : argc is: " << argc << endl ;
       cerr << "usage: " << argv[0]
            << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
-           << " xsecScale(stitch) HTMax(stitch) isTTBar DY_Nbs" << endl ; 
+           << " xsecScale(stitch) HTMax(stitch) isTTBar DY_Nbs HHreweightFile" << endl ; 
       return 1;
   }
 
@@ -1283,6 +1283,7 @@ int main (int argc, char** argv)
         } // loop over jets
 
         theSmallTree.m_nfatjets = theBigTree.ak8jets_px->size();
+        theSmallTree.m_isBoosted = 0;
         if (theBigTree.ak8jets_px->size() > 0)
         {
             // int idxSub1 = -1;
@@ -1324,11 +1325,6 @@ int main (int argc, char** argv)
             
             if (fatjets_bTag.size() == 0) 
             {
-              theSmallTree.m_isBoosted = 0;
-            }
-
-            else
-            {
               theSmallTree.m_isBoosted = 1;
               sort (fatjets_bTag.begin(), fatjets_bTag.end());
               
@@ -1349,34 +1345,33 @@ int main (int argc, char** argv)
               theSmallTree.m_fatjet_nsubjets = theBigTree.ak8jets_nsubjets->at(fjIdx);
 
               // FIXME: redoing this a second time, can be optimized
-              if ( theBigTree.ak8jets_nsubjets->at(fjIdx) >= 2)
+              if ( theBigTree.ak8jets_nsubjets->at(fjIdx) < 2) cout << "ERROR: there are not 2 subjets. Should not happen!!" << endl;
+              
+              TLorentzVector tlv_subj1;
+              TLorentzVector tlv_subj2;
+              vector<int> sjIdxs = findSubjetIdxs(fjIdx, theBigTree);
+              int nSJ = 0;
+              for (int isj : sjIdxs)
               {
-                  TLorentzVector tlv_subj1;
-                  TLorentzVector tlv_subj2;
-                  vector<int> sjIdxs = findSubjetIdxs(fjIdx, theBigTree);
-                  int nSJ = 0;
-                  for (int isj : sjIdxs)
+                  ++nSJ;
+                  if (nSJ > 2) break; // FIXME: storing first two <--> highest pt, order subjets for b tag?
+                  if (nSJ == 1)
                   {
-                      ++nSJ;
-                      if (nSJ > 2) break; // FIXME: storing first two <--> highest pt, order subjets for b tag?
-                      if (nSJ == 1)
-                      {
-                          tlv_subj1.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
-                          theSmallTree.m_subjetjet1_pt   = tlv_subj1.Pt();
-                          theSmallTree.m_subjetjet1_eta  = tlv_subj1.Eta();
-                          theSmallTree.m_subjetjet1_phi  = tlv_subj1.Phi();
-                          theSmallTree.m_subjetjet1_e    = tlv_subj1.E();
-                          theSmallTree.m_subjetjet1_bID  = theBigTree.subjets_CSV->at(isj) ;
-                      }
-                      if (nSJ == 2)
-                      {
-                          tlv_subj2.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
-                          theSmallTree.m_subjetjet2_pt   = tlv_subj2.Pt();
-                          theSmallTree.m_subjetjet2_eta  = tlv_subj2.Eta();
-                          theSmallTree.m_subjetjet2_phi  = tlv_subj2.Phi();
-                          theSmallTree.m_subjetjet2_e    = tlv_subj2.E();
-                          theSmallTree.m_subjetjet2_bID  = theBigTree.subjets_CSV->at(isj) ;
-                      }
+                      tlv_subj1.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
+                      theSmallTree.m_subjetjet1_pt   = tlv_subj1.Pt();
+                      theSmallTree.m_subjetjet1_eta  = tlv_subj1.Eta();
+                      theSmallTree.m_subjetjet1_phi  = tlv_subj1.Phi();
+                      theSmallTree.m_subjetjet1_e    = tlv_subj1.E();
+                      theSmallTree.m_subjetjet1_bID  = theBigTree.subjets_CSV->at(isj) ;
+                  }
+                  if (nSJ == 2)
+                  {
+                      tlv_subj2.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
+                      theSmallTree.m_subjetjet2_pt   = tlv_subj2.Pt();
+                      theSmallTree.m_subjetjet2_eta  = tlv_subj2.Eta();
+                      theSmallTree.m_subjetjet2_phi  = tlv_subj2.Phi();
+                      theSmallTree.m_subjetjet2_e    = tlv_subj2.E();
+                      theSmallTree.m_subjetjet2_bID  = theBigTree.subjets_CSV->at(isj) ;
                   }
                   theSmallTree.m_dR_subj1_subj2 = tlv_subj1.DeltaR(tlv_subj2);
               } 
