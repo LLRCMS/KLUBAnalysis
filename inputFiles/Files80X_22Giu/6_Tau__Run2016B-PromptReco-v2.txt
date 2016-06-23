@@ -1287,6 +1287,7 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0001/HTauTauAnalysis_1287.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0001/HTauTauAnalysis_1288.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0001/HTauTauAnalysis_1289.root
+root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0001/HTauTauAnalysis_1290.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0001/HTauTauAnalysis_1291.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0001/HTauTauAnalysis_1292.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0001/HTauTauAnalysis_1293.root
@@ -1407,6 +1408,7 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0001/HTauTauAnalysis_1408.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0001/HTauTauAnalysis_1409.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0001/HTauTauAnalysis_1410.root
+root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0001/HTauTauAnalysis_1411.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0001/HTauTauAnalysis_1412.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0001/HTauTauAnalysis_1413.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0001/HTauTauAnalysis_1414.root
@@ -2335,6 +2337,7 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0002/HTauTauAnalysis_2337.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0002/HTauTauAnalysis_2338.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0002/HTauTauAnalysis_2339.root
+root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0002/HTauTauAnalysis_2340.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0002/HTauTauAnalysis_2341.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0002/HTauTauAnalysis_2342.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_21Giu/6_Tau__Run2016B-PromptReco-v2/Tau/Tau_data_2016_21Giu_6/160621_150759/0002/HTauTauAnalysis_2343.root
