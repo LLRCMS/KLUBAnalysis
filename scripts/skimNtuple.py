@@ -45,6 +45,7 @@ if __name__ == "__main__":
     parser.add_option ('-v', '--verb'   , dest='verb'     , help='verbose'                           , default=False)
     parser.add_option ('-s', '--sleep'  , dest='sleep'    , help='sleep in submission'               , default=False)
     parser.add_option ('-d', '--isdata' , dest='isdata'   , help='data flag'                         , default=False)
+    parser.add_option ('-T', '--tag'    , dest='tag'      , help='folder tag name'                   , default='')
     parser.add_option ('-H', '--hadd'   , dest='hadd'     , help='hadd the resulting ntuples'        , default='none')
     parser.add_option ('-c', '--config' , dest='config'   , help='skim config file'                  , default='none')
     parser.add_option ('-n', '--njobs'  , dest='njobs'    , help='number of skim jobs'               , default=100, type = int)
@@ -93,7 +94,8 @@ if __name__ == "__main__":
             sys.exit (1)
 
         if opt.input[-1] == '/' : opt.input = opt.input[:-1]
-        opt.input = 'SKIM_' + basename (opt.input)
+        tagname = opt.tag + "/" if opt.tag else ''
+        opt.input = tagname + 'SKIM_' + basename (opt.input)
         jobs = [word.replace ('_', '.').split ('.')[1] for word in os.listdir (opt.input) if 'skim' in word]
         missing = []
         
@@ -145,7 +147,8 @@ if __name__ == "__main__":
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 #    skimmer = './bin/skimNtuple.exe'
-    skimmer = 'skimNtupleInclusive.exe'
+    # skimmer = 'skimNtupleInclusive_Luca.exe'
+    skimmer = 'skimNtuple.exe'
 
     if opt.config == 'none' :
         print 'config file missing, exiting'
@@ -171,7 +174,8 @@ if __name__ == "__main__":
     nfiles = (len (inputfiles) + len (inputfiles) % opt.njobs) / opt.njobs
     inputlists = [inputfiles[x:x+nfiles] for x in xrange (0, len (inputfiles), nfiles)]
 
-    jobsDir = currFolder + '/SKIM_' + basename (opt.input)
+    tagname = "/" + opt.tag if opt.tag else ''
+    jobsDir = currFolder + tagname + '/SKIM_' + basename (opt.input)
     jobsDir = jobsDir.rstrip (".txt")
     if os.path.exists (jobsDir) : os.system ('rm -f ' + jobsDir + '/*')
     else                        : os.system ('mkdir ' + jobsDir)
