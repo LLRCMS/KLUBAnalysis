@@ -452,6 +452,7 @@ int main (int argc, char** argv)
     int got = theBigTree.fChain->GetEntry(iEvent);
     if (got == 0) break;
 
+
     // directly reject events outside HT range in case of stitching of inclusive sample-- they should not count in weights
     if (HTMax > 0)
     {
@@ -526,7 +527,7 @@ int main (int argc, char** argv)
       theSmallTree.m_DYscale_LL = DYscale_LL[nbs];
       theSmallTree.m_DYscale_MM = DYscale_MM[nbs];
     }
-    
+
     // HH reweight for non resonant
     float HHweight = 1.0;
     if (hreweightHH)
@@ -1322,12 +1323,10 @@ int main (int argc, char** argv)
 
               fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_CSV->size(), ifj));
             }
-            
-            if (fatjets_bTag.size() == 0) 
+            if (fatjets_bTag.size() != 0) 
             {
               theSmallTree.m_isBoosted = 1;
               sort (fatjets_bTag.begin(), fatjets_bTag.end());
-              
               int fjIdx = fatjets_bTag.back().second;
               TLorentzVector tlv_fj (theBigTree.ak8jets_px->at(fjIdx) , theBigTree.ak8jets_py->at(fjIdx) , theBigTree.ak8jets_pz->at(fjIdx) , theBigTree.ak8jets_e->at(fjIdx));
               theSmallTree.m_fatjet_pt   = tlv_fj.Pt();
@@ -1343,10 +1342,8 @@ int main (int argc, char** argv)
               theSmallTree.m_fatjet_tau2 = theBigTree.ak8jets_tau2->at(fjIdx);
               theSmallTree.m_fatjet_tau3 = theBigTree.ak8jets_tau3->at(fjIdx);
               theSmallTree.m_fatjet_nsubjets = theBigTree.ak8jets_nsubjets->at(fjIdx);
-
               // FIXME: redoing this a second time, can be optimized
               if ( theBigTree.ak8jets_nsubjets->at(fjIdx) < 2) cout << "ERROR: there are not 2 subjets. Should not happen!!" << endl;
-              
               TLorentzVector tlv_subj1;
               TLorentzVector tlv_subj2;
               vector<int> sjIdxs = findSubjetIdxs(fjIdx, theBigTree);
@@ -1378,14 +1375,12 @@ int main (int argc, char** argv)
             }
         }
     } // if there's two jets in the event, at least
-
-
+  
     if (isMC) selectedEvents += theBigTree.aMCatNLOweight ;  //FIXME: probably wrong, but unused up to now
     else selectedEvents += 1 ;
     ++selectedNoWeightsEventsNum ;
 
     theSmallTree.Fill () ;
-
   }
 
   cout << "1: " << totalEvents << endl ;
