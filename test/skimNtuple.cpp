@@ -228,12 +228,12 @@ int main (int argc, char** argv)
     // read input file and cfg
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  if (argc < 12)
+  if (argc < 13)
   { 
       cerr << "missing input parameters : argc is: " << argc << endl ;
       cerr << "usage: " << argv[0]
            << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
-           << " xsecScale(stitch) HTMax(stitch) isTTBar DY_Nbs HHreweightFile" << endl ; 
+           << " xsecScale(stitch) HTMax(stitch) isTTBar DY_Nbs HHreweightFile TT_stitchType" << endl ; 
       return 1;
   }
 
@@ -294,6 +294,9 @@ int main (int argc, char** argv)
   if (doreweight != TString("0"))
     HHreweightFile = new TFile (doreweight);
 
+  int TT_stitchType = atoi(argv[12]);
+  if (!isTTBar) TT_stitchType = 0; // just force if not TT...
+  cout << "** INFO: TT stitch type: " << TT_stitchType << " [0: no stitch , 1: fully had, 2: semilept t, 3: semilept tbar, 4: fully lept ]" << endl;
 
   // prepare variables needed throughout the code
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----    
@@ -472,6 +475,10 @@ int main (int argc, char** argv)
     {
       float ptTop1 = -1.0;
       float ptTop2 = -1.0;
+      int decayTop1 = -999;
+      int decayTop2 = -999;
+      int pdgIdTop1 = -999;
+      int pdgIdTop2 = -999;
 
       for (unsigned int igen = 0; igen < theBigTree.genpart_pdg->size(); igen++)
       {
@@ -483,8 +490,19 @@ int main (int argc, char** argv)
         {
           TLorentzVector TopV;
           TopV.SetPxPyPzE (theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen) ) ;
-          if (ptTop1 < 0) ptTop1 = TopV.Pt();
-          else if (ptTop2 < 0) { ptTop2 = TopV.Pt(); break; } // check done in paralles shows that I never have > 2 top .  break is safe .
+          if (ptTop1 < 0)
+          {
+            ptTop1 = TopV.Pt();
+            decayTop1 = theBigTree.genpart_TopDecayMode->at(igen);
+            pdgIdTop1 = theBigTree.genpart_pdg->at(igen);
+          }
+          else if (ptTop2 < 0)
+          { 
+            ptTop2 = TopV.Pt(); 
+            decayTop2 = theBigTree.genpart_TopDecayMode->at(igen);
+            pdgIdTop2 = theBigTree.genpart_pdg->at(igen);
+            break;
+          } // check done in paralles shows that I never have > 2 top .  break is safe .
           //else cout << " !! skim warning: sample is declared as as ttbar, but I have > 2 gen top in the event! " << endl;
         }
       }
@@ -494,6 +512,56 @@ int main (int argc, char** argv)
       }
       else
       {
+          // filter by decay mode if needed for stitching
+          // [0: no stitch , 1: fully had, 2: semilept t, 3: semilept tbar, 4: fully lept ]
+          // TopDecayMode: 0: Had, 1-5: leptonic, 6: other -- consider "other" as a possible hadronic decay (includes rare W->bc)
+          
+          bool isT1Lept = (decayTop1 >= 1 && decayTop1 <= 5) ;
+          bool isT2Lept = (decayTop2 >= 1 && decayTop2 <= 5) ;
+          if (pdgIdTop1 / pdgIdTop2 > 0) cout << "** WARNING: I found two tops with the same sign " << pdgIdTop1 << " " << pdgIdTop2 << endl;
+          
+          // cout << "DEBUG: event with " << pdgIdTop1 << "-->  " << decayTop1 << " | " << pdgIdTop2 << "--> " << decayTop2 << " SKIMTYPE=" << TT_stitchType << endl;
+          switch (TT_stitchType)
+          {
+            case 0:
+              break; // no stitching
+            
+            case 1:
+              if (isT1Lept || isT2Lept) continue; // fully had
+              break;
+            
+            case 2: // top leptonic, antitop hadronic
+              if (pdgIdTop1 > 0) // 1 is top
+              {
+                if (! (isT1Lept && !isT2Lept) ) continue;
+              }
+              else // 1 is antitop
+              {
+                if (! (isT2Lept && !isT1Lept) ) continue;
+              }
+              break;
+            
+            case 3:
+              if (pdgIdTop1 > 0) // 1 is top
+              {
+                if (! (!isT1Lept && isT2Lept) ) continue;
+              }
+              else // 1 is antitop
+              {
+                if (! (!isT2Lept && isT1Lept) ) continue;
+              }
+              break;
+            
+            case 4:
+                if (!isT1Lept || !isT2Lept) continue;
+              break;
+            
+            default:
+              cout << "** WARNING: unknown TT stytch type " << TT_stitchType << endl;
+          }
+
+          // cout << "WAS ACCEPTED" << endl;
+
           float SFTop1 = TMath::Exp(aTopRW+bTopRW*ptTop1);
           float SFTop2 = TMath::Exp(aTopRW+bTopRW*ptTop2);
           topPtReweight = TMath::Sqrt (SFTop1*SFTop2); // save later together with other weights
@@ -569,6 +637,9 @@ int main (int argc, char** argv)
       int ibin = hreweightHH->FindBin(mHH);
       HHweight = hreweightHH->GetBinContent(ibin);
     }
+
+    ///////////////////////////////////////////////////////////
+    // END of gen related stuff -- compute tot number of events
 
     if (isMC)
     {

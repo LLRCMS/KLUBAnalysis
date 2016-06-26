@@ -36,25 +36,26 @@ if __name__ == "__main__":
 
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
-    parser.add_option ('-i', '--input'  , dest='input'    , help='input folder'                      , default='none')
-    parser.add_option ('-x', '--xs'     , dest='xs'       , help='sample xs'                         , default='1.')
-    parser.add_option ('-f', '--force'  , dest='force'    , help='replace existing reduced ntuples'  , default=False)
-    parser.add_option ('-o', '--output' , dest='output'   , help='output folder'                     , default='none')
-    parser.add_option ('-q', '--queue'  , dest='queue'    , help='batch queue'                       , default='cms')
-    parser.add_option ('-r', '--resub'  , dest='resub'    , help='resubmit failed jobs'              , default='none')
-    parser.add_option ('-v', '--verb'   , dest='verb'     , help='verbose'                           , default=False)
-    parser.add_option ('-s', '--sleep'  , dest='sleep'    , help='sleep in submission'               , default=False)
-    parser.add_option ('-d', '--isdata' , dest='isdata'   , help='data flag'                         , default=False)
-    parser.add_option ('-T', '--tag'    , dest='tag'      , help='folder tag name'                   , default='')
-    parser.add_option ('-H', '--hadd'   , dest='hadd'     , help='hadd the resulting ntuples'        , default='none')
-    parser.add_option ('-c', '--config' , dest='config'   , help='skim config file'                  , default='none')
-    parser.add_option ('-n', '--njobs'  , dest='njobs'    , help='number of skim jobs'               , default=100, type = int)
-    parser.add_option ('-k', '--kinfit' , dest='dokinfit' , help='run HH kin fitter'                 , default=True)
-    parser.add_option ('-y', '--xsscale', dest='xsscale'  , help='scale to apply on XS for stitching', default='1.0')
-    parser.add_option ('-z', '--htcut'  , dest='htcut'    , help='HT cut for stitching on inclusive' , default='-999.0')
-    parser.add_option ('-t', '--toprew' , dest='toprew'   , help='is TT bar sample to compute reweight?' , default=False)
-    parser.add_option ('-g', '--genjets' , dest='genjets' , help='loop on genjets to determine the number of b hadrons' , default=False)
-    parser.add_option ('-w', '--weight' , dest='weightHH' , help='histo map for hh reweight'         , default='0')
+    parser.add_option ('-i', '--input'     , dest='input'     , help='input folder'                          , default='none')
+    parser.add_option ('-x', '--xs'        , dest='xs'        , help='sample xs'                             , default='1.')
+    parser.add_option ('-f', '--force'     , dest='force'     , help='replace existing reduced ntuples'      , default=False)
+    parser.add_option ('-o', '--output'    , dest='output'    , help='output folder'                         , default='none')
+    parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='cms')
+    parser.add_option ('-r', '--resub'     , dest='resub'     , help='resubmit failed jobs'                  , default='none')
+    parser.add_option ('-v', '--verb'      , dest='verb'      , help='verbose'                               , default=False)
+    parser.add_option ('-s', '--sleep'     , dest='sleep'     , help='sleep in submission'                   , default=False)
+    parser.add_option ('-d', '--isdata'    , dest='isdata'    , help='data flag'                             , default=False)
+    parser.add_option ('-T', '--tag'       , dest='tag'       , help='folder tag name'                       , default='')
+    parser.add_option ('-H', '--hadd'      , dest='hadd'      , help='hadd the resulting ntuples'            , default='none')
+    parser.add_option ('-c', '--config'    , dest='config'    , help='skim config file'                      , default='none')
+    parser.add_option ('-n', '--njobs'     , dest='njobs'     , help='number of skim jobs'                   , default=100, type = int)
+    parser.add_option ('-k', '--kinfit'    , dest='dokinfit'  , help='run HH kin fitter'                     , default=True)
+    parser.add_option ('-y', '--xsscale'   , dest='xsscale'   , help='scale to apply on XS for stitching'    , default='1.0')
+    parser.add_option ('-z', '--htcut'     , dest='htcut'     , help='HT cut for stitching on inclusive'     , default='-999.0')
+    parser.add_option ('-t', '--toprew'    , dest='toprew'    , help='is TT bar sample to compute reweight?' , default=False)
+    parser.add_option ('-b', '--topstitch' , dest='topstitch' , help='type of TT gen level decay pruning for stitch'        , default='0')
+    parser.add_option ('-g', '--genjets'   , dest='genjets'   , help='loop on genjets to determine the number of b hadrons' , default=False)
+    parser.add_option ('-w', '--weight'    , dest='weightHH'  , help='histo map for hh reweight'             , default='0')
     
     (opt, args) = parser.parse_args()
 
@@ -216,6 +217,7 @@ if __name__ == "__main__":
         if opt.genjets=="True": command += " 1 "
         else                  : command += " 0 "   
         command += (" " + opt.weightHH)
+        command += " " + opt.topstitch
 
         command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
         scriptFile.write (command)
