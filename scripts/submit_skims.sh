@@ -1,12 +1,12 @@
-OUTDIRR="80X_data_MC_22Giu2016"
-AMESSAGE="Production for PAS and AN"
+OUTDIRR="Samples2016_27Giu_4Preapp"
+AMESSAGE="Skims with 80X samples for preapproval, includes extended tt but only jet binned DY (no Bjet binned)"
 
 source /opt/exp_soft/cms/t3/t3setup
 mkdir /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/
 mkdir $OUTDIRR
 touch /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/README.txt
 echo $AMESSAGE > /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/README.txt
-cp /home/llr/cms/cadamuro/CleanKLUB/CMSSW_7_4_7/src/KLUBAnalysis/scripts/haddAll.sh /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/
+cp /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/scripts/haddAll.sh /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/
 
 
 ### DATA - Silver JSOn - 5 Gennaio 2016
@@ -215,9 +215,21 @@ cp /home/llr/cms/cadamuro/CleanKLUB/CMSSW_7_4_7/src/KLUBAnalysis/scripts/haddAll
 
 
 ################### FOR PAS and AN - 22 Giu 2016
-# python scripts/skimNtuple.py -d True  -s True -c  config/skim_2016.cfg  -n 40 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_SingleMuon        -i inputFiles/Files80X_22Giu/2_SingleMuon__Run2016B-PromptReco-v2.txt
-# python scripts/skimNtuple.py -d True  -s True -c  config/skim_2016.cfg  -n 80 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_SingleElectron    -i inputFiles/Files80X_22Giu/1_SingleElectron__Run2016B-PromptReco-v2.txt
-# python scripts/skimNtuple.py -d True  -s True -c  config/skim_2016.cfg  -n 40 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_Tau               -i inputFiles/Files80X_22Giu/6_Tau__Run2016B-PromptReco-v2.txt
+python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 40 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_SingleMuon        -i inputFiles/Files80X_22Giu/2_SingleMuon__Run2016B-PromptReco-v2.txt
+python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 80 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_SingleElectron    -i inputFiles/Files80X_22Giu/1_SingleElectron__Run2016B-PromptReco-v2.txt
+python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 40 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_Tau               -i inputFiles/Files80X_22Giu/6_Tau__Run2016B-PromptReco-v2.txt
+
+# TT x section: 831.76 for inclusive sample, W->had 67,60% , W->l nu 3*10,8% = 32,4% (sum over all leptons)
+# hh = 45.7%
+# ll = 10.5%
+# hl = 21.9% (x2 for permutation t-tbar, but different samples here)
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 50 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_TT_fullyHad            -i inputFiles/Files80X_22Giu/TT_fullyHad.txt      -x 380.1143 -t True -b 1
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 50 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_TT_semilepT            -i inputFiles/Files80X_22Giu/TT_semiLeptT.txt     -x 182.1554 -t True -b 2
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 50 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_TT_semilepTbar         -i inputFiles/Files80X_22Giu/TT_semiLeptTbar.txt  -x 182.1554 -t True -b 3
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 50 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_TT_fullyLep            -i inputFiles/Files80X_22Giu/TT_fullyLept.txt     -x 87.3348  -t True -b 4
+
+
+
 
 # python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_DY_Inclusive   -i inputFiles/Files80X_22Giu/1_DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1.txt    -x 6025.2
 
@@ -226,15 +238,22 @@ cp /home/llr/cms/cadamuro/CleanKLUB/CMSSW_7_4_7/src/KLUBAnalysis/scripts/haddAll
 # python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_ST_tW_antitop_5f_inclusiveDecays   -i inputFiles/Files80X_22Giu/7_ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt   -x 35.6
 # python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_ST_tW_top_5f_inclusiveDecays       -i inputFiles/Files80X_22Giu/8_ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v2.txt       -x 35.6
 
-# python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 20 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_ZZTo2L2Q       -i inputFiles/Files80X_22Giu/2_ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8__RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt -x 3.22
-# python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_WWToLNuQQ      -i inputFiles/Files80X_22Giu/3_WWTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8__RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt -x 49.997
-# python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 50 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_WZTo1L3Nu      -i inputFiles/Files80X_22Giu/5_WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8__RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt -x 3.05
-# python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 50 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_WZTo1L1Nu2Q    -i inputFiles/Files80X_22Giu/6_WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8__RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt -x 10.71
-# python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_WZTo2L2Q       -i inputFiles/Files80X_22Giu/4_WZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8__RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt -x 5.595
+# python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_ZZTo2L2Q       -i inputFiles/Files80X_22Giu/2_ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8__RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt -x 3.22
+# python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_WWToLNuQQ      -i inputFiles/Files80X_22Giu/3_WWTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8__RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt -x 49.997
+# python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 50 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_WZTo1L3Nu      -i inputFiles/Files80X_22Giu/5_WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8__RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt -x 3.05
+# python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 50 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_WZTo1L1Nu2Q    -i inputFiles/Files80X_22Giu/6_WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8__RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt -x 10.71
+# python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_WZTo2L2Q       -i inputFiles/Files80X_22Giu/4_WZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8__RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt -x 5.595
 
 
-python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-300   -i inputFiles/Files80X_22Giu/5_GluGluToRadionToHHTo2B2Tau_M-300_narrow_13TeV-madgraph__RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt  -x 10.0
-python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-550   -i inputFiles/Files80X_22Giu/11_GluGluToRadionToHHTo2B2Tau_M-550_narrow_13TeV-madgraph__RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt  -x 10.0
-python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-750   -i inputFiles/Files80X_22Giu/14_GluGluToRadionToHHTo2B2Tau_M-750_narrow_13TeV-madgraph__RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt  -x 10.0
-python scripts/skimNtuple.py -s True -c  config/skim.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-800   -i inputFiles/Files80X_22Giu/15_GluGluToRadionToHHTo2B2Tau_M-800_narrow_13TeV-madgraph__RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt  -x 10.0
+# python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-300   -i inputFiles/Files80X_22Giu/5_GluGluToRadionToHHTo2B2Tau_M-300_narrow_13TeV-madgraph__RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt  -x 10.0
+# python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-550   -i inputFiles/Files80X_22Giu/11_GluGluToRadionToHHTo2B2Tau_M-550_narrow_13TeV-madgraph__RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt  -x 10.0
+# python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-750   -i inputFiles/Files80X_22Giu/14_GluGluToRadionToHHTo2B2Tau_M-750_narrow_13TeV-madgraph__RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt  -x 10.0
+# python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-800   -i inputFiles/Files80X_22Giu/15_GluGluToRadionToHHTo2B2Tau_M-800_narrow_13TeV-madgraph__RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt  -x 10.0
 
+#### HH
+# python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_HH_node_SM    -i inputFiles/Files80X_22Giu/13_GluGluToHHTo2B2Tau_node_SM_13TeV-madgraph__RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v3.txt       -x 10.0
+# python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_HH_node_2     -i inputFiles/Files80X_22Giu/5_GluGluToHHTo2B2Tau_node_2_13TeV-madgraph__RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v3.txt         -x 10.0
+# python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_HH_node_5     -i inputFiles/Files80X_22Giu/8_GluGluToHHTo2B2Tau_node_5_13TeV-madgraph__RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v3.txt         -x 10.0
+
+
+# python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_TT            -i inputFiles/Files80X_22Giu/8_TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8__RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt   -x 831.76 -t True -b 1
