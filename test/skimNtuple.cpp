@@ -211,13 +211,41 @@ float turnOnSF(float pt)
 // }
 
 
-float getTriggerWeight(int partType, float pt)
+float getTriggerWeight(int partType, float pt, float eta, TH1F* rewHisto = 0, ScaleFactor* sfreader = 0)
 {
-    if (partType == 0) return 0.95;
-    else if (partType == 1) return 0.95;
-    else if (partType == 2) return turnOnSF (pt) ;
-    cout << "** WARNING: trigger weight now known for particle type " << partType << endl;
-    return 1.;
+    float weight = 1.0;
+    
+    switch(partType)
+    {
+      case 0: // mu
+      {
+        weight = sfreader->get_EfficiencyData(pt, eta);        
+        break;
+      }
+      case 1: // ele
+      {
+        float xmin = rewHisto->GetBinLowEdge(1);
+        float xmax = rewHisto->GetBinLowEdge(rewHisto->GetNbinsX()+1);
+        if (pt < xmin) pt = xmin + 1.E-6;
+        if (pt > xmax) pt = xmax - 1.E-6;
+        int bin = rewHisto->FindBin (pt);
+        weight =  rewHisto->GetBinContent (bin);
+        break;
+      }
+      case 2: // tau
+      {
+        weight = turnOnSF (pt) ;
+        break;
+      }
+      default:
+      {
+        cout << "** WARNING: trigger weight now known for particle type " << partType << endl;
+        weight =  1.;
+        break;
+      }
+    }
+
+    return weight;
 }
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
@@ -343,7 +371,22 @@ int main (int argc, char** argv)
     cout << "  @ TauTau" << endl; cout << "   --> ";
     for (unsigned int i = 0 ; i < trigTauTau.size(); i++) cout << "  " << trigTauTau.at(i);
     cout << endl;
-}
+  }
+
+  // // histo reweight triggers
+  // TFile* trigRewFiles  [3];
+  // TH1F*  trigRewHistos [3];
+  
+  // trigRewFile[0]   = new TFile ();  // mu
+  // trigRewHistos[0] = (TH1F*) trigRewFile[0] ->Get ();
+
+  // trigRewFile[1]   = new TFile (); // ele
+  // trigRewHistos[1] = (TH1F*) trigRewFile[1] ->Get ();
+
+  // trigRewFile[2]   = 0; // tau : WARNING: UNUSED!!
+  // trigRewHistos[2] = 0;
+  TFile* trigRewEle = new TFile ("weights/ele25TightEff.root"); //FIXME: move to cfg ?
+  TH1F*  trigRewEleHisto = (TH1F*) trigRewEle->Get("ele25TightEff");
 
   string bRegrWeights("");
   bool computeBregr = gConfigParser->readBoolOption ("bRegression::computeBregr");
@@ -415,6 +458,7 @@ int main (int argc, char** argv)
     for (int j = 0; j < 2; j++)
       myScaleFactor[i][j]= new ScaleFactor();
  
+  // FIXME: move to cfg?
   myScaleFactor[0][0] -> init_ScaleFactor("weights/data/data/Muon/Muon_IsoMu22_eff_Spring16.root");
   myScaleFactor[0][1] -> init_ScaleFactor("weights/data/data/Muon/Muon_IdIso_eff_Spring16.root");
   myScaleFactor[1][0] -> init_ScaleFactor("weights/data/data/Electron/Electron_Ele23_eff_Spring16.root"); // note! not our trigger
@@ -781,15 +825,22 @@ int main (int argc, char** argv)
       float evtLeg1weight = 1.0;
       float evtLeg2weight = 1.0;
 
-      if (pairType == 0 || pairType == 1)
+      if (pairType == 0)  //mutau
       {
-          evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt()) ;
-          evtLeg2weight = 1.0;
+          evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), 0, myScaleFactor[type1][0]) ;
+          evtLeg2weight = 1.0;        
       }
-      else if (pairType == 2)
+
+      else if (pairType == 1) //eletau
       {
-          evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt()) ;
-          evtLeg2weight = getTriggerWeight(type2, tlv_secondLepton.Pt()) ;
+          evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), trigRewEleHisto, 0) ;
+          evtLeg2weight = 1.0;        
+      }
+
+      else if (pairType == 2) //tautau
+      {
+          evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), 0, 0) ;
+          evtLeg2weight = getTriggerWeight(type2, tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), 0, 0) ;
       }
       trgEvtWeight = evtLeg1weight*evtLeg2weight;
     }
