@@ -81,74 +81,65 @@ bool ScaleFactor::check_SameBinning(TGraphAsymmErrors* graph1, TGraphAsymmErrors
 	return haveSameBins;
 }
 
-double ScaleFactor::get_EfficiencyData(double pt, double eta){
-	eta = fabs(eta);
-	int binNumber = etaBinsH->GetXaxis()->FindFixBin(eta);
-	std::string label = etaBinsH->GetXaxis()->GetBinLabel(binNumber);
-	std::map<std::string, TGraphAsymmErrors*>::iterator it;
-	it =  eff_data.find(label);
-	if ( it == eff_data.end()) { 
-	std::cout << "ERROR in ScaleFactor::get_EfficiencyData(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc : no object corresponding to eta label "<< label << " for data " << std::endl; exit(1);
-	}
-	
-	// check if pt is overflow or underflow wrt to ptMIN and ptMAX  
-	int Npoints = eff_data[label]->GetN();
-	double ptMAX = (eff_data[label]->GetX()[Npoints-1])+(eff_data[label]->GetErrorXhigh(Npoints-1));
-	double ptMIN = (eff_data[label]->GetX()[0])-(eff_data[label]->GetErrorXlow(0));
-	double eff;		
 
-	// if pt is overflow, take eff of highest pt bin 
-	if (pt >= ptMAX ) { eff= eff_data[label]->GetY()[Npoints-1];} 
-	
-	// if pt is underflow, eff=1 and WARNING message
-	else if (pt < ptMIN ) {
-	  eff=1; 
-	  std::cout<< "WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc: pT too low (pt = " << pt << "), min value is " << ptMIN << ". Returned efficiency =1. Weight will be 1. " << std::endl;
+std::string ScaleFactor::FindEtaLabel(double Eta){
+	Eta = fabs(Eta);
+	int binNumber = etaBinsH->GetXaxis()->FindFixBin(Eta);
+	std::string EtaLabel = etaBinsH->GetXaxis()->GetBinLabel(binNumber);
+	std::map<std::string, TGraphAsymmErrors*>::iterator it;
+	it =  eff_data.find(EtaLabel);
+	if ( it == eff_data.end()) { 
+	std::cout << "ERROR in ScaleFactor::get_EfficiencyData(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc : no object corresponding to eta label "<< EtaLabel << " for data " << std::endl; exit(1);
 	}
-	
-	// if pt is in range take corresponding efficiency
-	else {
-		int ptbin = eff_data[label]->GetXaxis()->FindFixBin(pt);
-		eff = eff_data[label]->GetY()[ptbin-1];		
-		if (eff > 1.) {std::cout<< "WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc: Returned efficiency in data > 1. " << std::endl;} 
-		if (eff < 0 ) {std::cout<<"WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc: Returned negative efficiency in data" <<std::endl;}
+	else return EtaLabel;
+}
+
+
+int ScaleFactor::FindPtBin( std::map<std::string, TGraphAsymmErrors *> eff_map, std::string EtaLabel, double Pt){
+
+        int Npoints = eff_map[EtaLabel]->GetN();
+	double ptMAX = (eff_map[EtaLabel]->GetX()[Npoints-1])+(eff_map[EtaLabel]->GetErrorXhigh(Npoints-1));
+	double ptMIN = (eff_map[EtaLabel]->GetX()[0])-(eff_map[EtaLabel]->GetErrorXlow(0));
+	// if pt is overflow, return last pt bin
+ 	if (Pt >= ptMAX ) return Npoints; 
+	// if pt is underflow, return nonsense number and warning
+	else if (Pt < ptMIN){ 
+ 	std::cout<< "WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc: pT too low (pt = " << Pt << "), min value is " << ptMIN << ". Returned efficiency =1. Weight will be 1. " << std::endl;
+	return -99;}
+	// if pt is in range
+	else {return eff_map[EtaLabel]->GetXaxis()->FindFixBin(Pt);} 
 	}
+
+
+double ScaleFactor::get_EfficiencyData(double pt, double eta){
+
+        double eff;
+	std::string label = FindEtaLabel(eta);
+
+	int ptbin = FindPtBin(eff_data, label, pt); 
+	if (ptbin == -99){eff =1;} // if pt is underflow 
+	else eff = eff_data[label]->GetY()[ptbin-1];
+
+	if (eff > 1.) {std::cout<< "WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc: Returned efficiency in data > 1. " << std::endl;} 
+	if (eff < 0 ) {std::cout<<"WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc: Returned negative efficiency in data" <<std::endl;}
+
 	return eff;
+	
 }
 
 
 double ScaleFactor::get_EfficiencyMC(double pt, double eta) {
-	eta = fabs(eta);
-	int binNumber = etaBinsH->GetXaxis()->FindFixBin(eta);
-	std::string label = etaBinsH->GetXaxis()->GetBinLabel(binNumber);
-	std::map<std::string, TGraphAsymmErrors*>::iterator it;
-	it =  eff_mc.find(label);
-	if ( it == eff_mc.end()) { 
-	std::cout << "ERROR in ScaleFactor::get_EfficiencyMC(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc: no object corresponding to eta label "<< label << " for MC " << std::endl; exit(1);
-	}
-	
-	// check if pt is overflow or underflow wrt to ptMIN and ptMAX  
-	int Npoints = eff_mc[label]->GetN();
-	double ptMAX = (eff_mc[label]->GetX()[Npoints-1])+(eff_mc[label]->GetErrorXhigh(Npoints-1));
-	double ptMIN = (eff_mc[label]->GetX()[0])-(eff_mc[label]->GetErrorXlow(0));
+
 	double eff;		
+	std::string label = FindEtaLabel(eta);
 
-	// if pt is overflow, take eff of highest pt bin 
-	if (pt >= ptMAX ) { eff= eff_mc[label]->GetY()[Npoints-1];} 
+	int ptbin = FindPtBin(eff_mc, label, pt); 
+	if (ptbin == -99){eff =1;} // if pt is underflow 
+	else eff= eff_mc[label]->GetY()[ptbin-1];
 
-	// if pt is underflow, eff=1 and WARNING message
-	else if (pt < ptMIN ) {
-	  eff=1; 
-	  std::cout<< "WARNING in ScaleFactor::get_EfficiencyMC(double pt, double eta) from LepEffInterfce/src/ScaleFactor.cc: pT too low (pt = " << pt << "), min value is " << ptMIN << ". Returned efficiency =1. Weight will be 1. " << std::endl;
-	}
+	if (eff > 1. ) {std::cout << "WARNING in ScaleFactor::get_EfficiencyMC(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc : Returned efficiency in MC > 1. " << std::endl;} 		
+	if (eff < 0 ) {std::cout<<"WARNING in ScaleFactor::get_EfficiencyMC(double pt, double eta) from LepEffIntrface/src/ScaleFactor.cc : Returned negative efficiency in MC. " <<std::endl;}
 	
-	// if pt is in range take corresponding efficiency
-	else {
-		int ptbin = eff_mc[label]->GetXaxis()->FindFixBin(pt);
-		eff = eff_mc[label]->GetY()[ptbin-1];
-		if (eff > 1. ) {std::cout << "WARNING in ScaleFactor::get_EfficiencyMC(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc : Returned efficiency in MC > 1. " << std::endl;} 		
-		if (eff < 0 ) {std::cout<<"WARNING in ScaleFactor::get_EfficiencyMC(double pt, double eta) from LepEffIntrface/src/ScaleFactor.cc : Returned negative efficiency in MC. " <<std::endl;}
-	}
 
 	return eff;
 
@@ -161,14 +152,65 @@ double ScaleFactor::get_ScaleFactor(double pt, double eta){
 	double efficiency_data = get_EfficiencyData(pt, eta);
 	double efficiency_mc = get_EfficiencyMC(pt, eta);
 	double SF;
-	if ( efficiency_mc == 0){std::cout << "WARNING in ScaleFactor::get_ScaleFactor(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc : MC efficiency = 0. Scale Factor set to 0. "; SF = 0. ;}
-	SF = efficiency_data/efficiency_mc;
-	return SF;
+
+	if ( efficiency_mc != 0) {SF = efficiency_data/efficiency_mc;}
+	else {
+	SF=0.; std::cout << "WARNING in ScaleFactor::get_ScaleFactor(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc : MC efficiency = 0. Scale Factor set to 0. ";
+	}
+
+	return SF;	
 	
 }
 
 
+double ScaleFactor::get_EfficiencyDataError(double pt, double eta){
+
+	double eff_error;
+	std::string label = FindEtaLabel(eta);
+	int ptbin = FindPtBin(eff_data, label, pt); 
+	if (ptbin == -99){eff_error =0.;} // if pt is underflow 
+	else eff_error= eff_data[label]->GetErrorYhigh(ptbin-1); 
+        // errors are supposed to be symmetric, can use GetErrorYhigh or GetErrorYlow
+
+	double effData = get_EfficiencyData(pt,eta);
+	if (eff_error > effData) eff_error = 0.5*effData;
+	return eff_error;
+}
 	
 	
 
+double ScaleFactor::get_EfficiencyMCError(double pt, double eta){
+
+	double eff_error;
+	std::string label = FindEtaLabel(eta);
+	int ptbin = FindPtBin(eff_mc, label, pt); 
+	if (ptbin == -99){eff_error =0.;} // if pt is underflow 
+	else eff_error= eff_mc[label]->GetErrorYhigh(ptbin-1); 
+	// errors are supposed to be symmetric, can use GetErrorYhigh or GetErrorYlow
+
+	double effMC = get_EfficiencyMC(pt,eta);
+	if (eff_error > effMC ) eff_error = 0.5*effMC;
+	return eff_error;
+}
+
+double ScaleFactor::get_ScaleFactorError(double pt, double eta){
+
+	double SF_error = 0.;
+	
+	double effData = get_EfficiencyData(pt, eta);
+	double effMC = get_EfficiencyMC(pt, eta);
+	double errData = get_EfficiencyDataError(pt, eta);
+	double errMC =  get_EfficiencyMCError(pt, eta);
+
+	if (errData == 0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc: uncertainty on data point = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;}
+	if (errMC ==0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc: uncertainty on MC = 0, can not calculate uncerttainty on scale factor. Uncertainty set to 0." << std::endl;}
+	if (effData ==0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc: efficiency in data = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;}
+	if (effMC ==0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc: efficiency in MC = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;}
+	else {	
+	SF_error = pow((errData/effData),2) + pow((errMC/effMC),2);
+	SF_error = pow(SF_error, 0.5)*(effData/effMC);
+	}
+	return SF_error;
+}
+	
 
