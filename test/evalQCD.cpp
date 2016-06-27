@@ -1063,18 +1063,18 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
           TString coutputName ;
           TString outFolderName ;
           
-          outFolderName = outFolderNameBase + TString ("/events/") ;
-          std::vector<TObject*> drawings_nonScaled = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
-                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
-                                      c, addToLegend, variablesLabels, false, false, true, false) ;
+          // outFolderName = outFolderNameBase + TString ("/events/") ;
+          // std::vector<TObject*> drawings_nonScaled = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+          //                             variablesList.at (iv), selections_OS.at (isel).first.Data (),
+          //                             c, addToLegend, variablesLabels, false, false, true, false) ;
                                       //c, addToLegend, variablesLabels, false, false, true, false, true, false, false, true, true) ;
 
-          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
-          c->SaveAs (coutputName.Data ()) ;
-          // FIXME : save canvases but in a dedicated folder
+          // coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          // c->SaveAs (coutputName.Data ()) ;
+          // // FIXME : save canvases but in a dedicated folder
           
-          coutputName.Form ("%s.root", (outFolderName + TString("rootCanvas/") + outputName).Data ()) ;
-          c->SaveAs (coutputName.Data ());
+          // coutputName.Form ("%s.root", (outFolderName + TString("rootCanvas/") + outputName).Data ()) ;
+          // c->SaveAs (coutputName.Data ());
 
           // // ---------------
           // outFolderName = outFolderNameBase + TString ("/shapes/") ;
@@ -1086,13 +1086,13 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
           // c->SaveAs (coutputName.Data ()) ;
 
           // ---------------
-          outFolderName = outFolderNameBase + TString ("/events_log/") ;
-          std::vector<TObject*> drawings_nonScaled_2 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
-                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
-                                      c, addToLegend, variablesLabels, true, false, true, false) ;
+          // outFolderName = outFolderNameBase + TString ("/events_log/") ;
+          // std::vector<TObject*> drawings_nonScaled_2 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+          //                             variablesList.at (iv), selections_OS.at (isel).first.Data (),
+          //                             c, addToLegend, variablesLabels, true, false, true, false) ;
 
-          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
-          c->SaveAs (coutputName.Data ()) ;
+          // coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          // c->SaveAs (coutputName.Data ()) ;
 
           // // ---------------
           // outFolderName = outFolderNameBase + TString ("/shapes_log/") ;
