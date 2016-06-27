@@ -41,7 +41,9 @@ const float DYscale_LL[3] = {1.17835, 1.80015, 0.809161} ; // computed from fit 
 const float DYscale_MM[3] = {1.20859, 1.0445 , 1.54734 } ;
 
 // const float stitchWeights [5] = {1.11179e-7, 3.04659e-9, 3.28633e-9, 3.48951e-9, 2.5776e-9} ; // weights DY stitch in njets, to be updated at each production (depend on n evtsn processed)
-const float stitchWeights [5] = {11.55916, 0.316751, 0.341677, 0.362801, 0.267991} ; // weights DY stitch in njets, to be updated at each production (depend on n evts processed)
+// const float stitchWeights [5] = {11.55916, 0.316751, 0.341677, 0.362801, 0.267991} ; // weights DY stitch in njets, to be updated at each production (depend on n evts processed)
+const float stitchWeights [5] = {2.01536E-08, 2.71202E-09, 2.92616E-09, 3.0373E-09, 2.38728E-09} ; // jet binned only, 27 giu 2016
+
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // open input txt file and append all the files it contains to TChain
@@ -413,10 +415,10 @@ int main (int argc, char** argv)
     for (int j = 0; j < 2; j++)
       myScaleFactor[i][j]= new ScaleFactor();
  
-  myScaleFactor[0][0] -> init_ScaleFactor("weights/data/Muon/Muon_IsoMu18_fall15.root");
-  myScaleFactor[0][1] -> init_ScaleFactor("weights/data/Muon/Muon_IdIso0p1_fall15.root");
-  myScaleFactor[1][0] -> init_ScaleFactor("weights/data/Electron/Electron_Ele23_fall15.root");
-  myScaleFactor[1][1] -> init_ScaleFactor("weights/data/Electron/Electron_IdIso0p1_fall15.root");
+  myScaleFactor[0][0] -> init_ScaleFactor("weights/data/data/Muon/Muon_IsoMu22_eff_Spring16.root");
+  myScaleFactor[0][1] -> init_ScaleFactor("weights/data/data/Muon/Muon_IdIso_eff_Spring16.root");
+  myScaleFactor[1][0] -> init_ScaleFactor("weights/data/data/Electron/Electron_Ele23_eff_Spring16.root"); // note! not our trigger
+  myScaleFactor[1][1] -> init_ScaleFactor("weights/data/data/Electron/Electron_IdIso_eff_Spring16.root");
 
   // ------------------------------
   // reweighting file for HH non resonant
@@ -890,7 +892,8 @@ int main (int argc, char** argv)
     if (type1 < 2 && isMC) // mu
 
     {
-      trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
+      // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
+      trigSF = 1.0; // no trigger info available in MC
       idAndIsoSF = myScaleFactor[type1][1]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
     }
 
