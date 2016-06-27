@@ -77,13 +77,15 @@ addHistos (vector<sample> & samples,
               string varID = variablesList.at (i) ;
               varID.erase (std::remove_if (varID.begin (), varID.end (), isNOTalnum ()), varID.end ()) ;
               // get histo nbins and range
+              int hcolor = gConfigParser->isDefined (TString ("colors::") + samples.at (j).sampleName.Data ())
+                          ? gConfigParser->readIntOption (TString ("colors::") + samples.at (j).sampleName.Data ())
+                          : 1;
               vector <float> limits = 
                 gConfigParser->readFloatListOption (TString ("histos::") 
                     + varID.c_str ()) ;
               manager->AddNewHisto (histoName.Data (),histoName.Data (),
                   int (limits.at (0)), limits.at (1), limits.at (2),
-                  gConfigParser->readIntOption (TString ("colors::") 
-                      + samples.at (j).sampleName.Data ()), 
+                  hcolor, 
                   histoType,
                   variablesList.at (i).c_str (), "events"
                 ) ;

@@ -820,7 +820,7 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
   SS_QCD_CORR.scale2D(variables2DList, selections_SS, rlxToTightIsoScale2D);
   SS_QCD_CORRUP.scale2D(variables2DList, selections_SS, rlxToTightIsoScale2D);
   SS_QCD_CORRDOWN.scale2D(variables2DList, selections_SS, rlxToTightIsoScale2D);
-  int QCDcolor = gConfigParser->readIntOption ("colors::QCD") ;
+  int QCDcolor = gConfigParser->isDefined ("colors::QCD") ? gConfigParser->readIntOption ("colors::QCD") : 606;
   SS_QCD.setHistosProperties (0, QCDcolor) ; 
   SS_QCD_CORR.setHistosProperties (0, QCDcolor) ; 
 
