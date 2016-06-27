@@ -265,9 +265,11 @@ int main (int argc, char** argv)
 
   // ----------------------------------------
   // OS selections
+
   vector<pair <TString, TCut> > selections_OS = selections ;
   TCut dau1Cut = Form("dau1_iso < %s" , sel_dau1_iso.c_str());
   TCut dau2Cut = Form("dau2_iso < %s" , sel_dau2_iso.c_str());
+ 
   for (unsigned int i = 0 ; i < selections_OS.size () ; ++i)
     {
       selections_OS.at (i).first = TString ("OS_") + selections_OS.at (i).first ;
@@ -380,6 +382,7 @@ int main (int argc, char** argv)
           THStack * b_stack = SS_bkg_plots.makeStack (variablesList.at (ivar),
                                   selections_SS.at (icut).first.Data ()) ;
           TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
+
           dummy->Add (h_bkg, -1) ;
           SS_QCD.m_histos[variablesList.at (ivar)][selections_SS.at (icut).first.Data ()]["QCD"] = dummy ;
           QCDyieldSSregionRLXiso.at(ivar).at(icut) = dummy->Integral();
@@ -930,6 +933,8 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
   TFile * fOut = new TFile (outString.Data (), "RECREATE") ;
   SS_DATA_plots.save (fOut) ;
   SS_bkg_plots.save (fOut) ;
+  SS_tightIso_DATA_plots.save (fOut) ;
+  SS_tightIso_bkg_plots.save (fOut) ;
   OS_DATA_plots.save (fOut) ;
   OS_bkg_plots.save (fOut) ;
   OS_sig_plots.save (fOut) ;
