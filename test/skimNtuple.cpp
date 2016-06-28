@@ -40,6 +40,14 @@ const double bTopRW = -0.00137;
 const float DYscale_LL[3] = {1.17835, 1.80015, 0.809161} ; // computed from fit for LL and MM b tag
 const float DYscale_MM[3] = {1.20859, 1.0445 , 1.54734 } ;
 
+/* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
+** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
+** - say f_i is the fraction of inclusive events in the i bin on njets (can be 2D nb-njet as well)
+** = then sigma_i = f_i * sigmal_LO
+** - stitchWeight (0jet) = f_0 / (f_0 * N_inclusive)
+** - stitchWeight (njet) = f_n / (f_n * N_inclusive + N_njets)
+*/ 
+
 // const float stitchWeights [5] = {1.11179e-7, 3.04659e-9, 3.28633e-9, 3.48951e-9, 2.5776e-9} ; // weights DY stitch in njets, to be updated at each production (depend on n evtsn processed)
 // const float stitchWeights [5] = {11.55916, 0.316751, 0.341677, 0.362801, 0.267991} ; // weights DY stitch in njets, to be updated at each production (depend on n evts processed)
 const float stitchWeights [5] = {2.01536E-08, 2.71202E-09, 2.92616E-09, 3.0373E-09, 2.38728E-09} ; // jet binned only, 27 giu 2016
