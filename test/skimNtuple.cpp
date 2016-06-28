@@ -689,7 +689,7 @@ int main (int argc, char** argv)
 
     if (isMC)
     {
-      totalEvents += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight;
+      totalEvents += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight * stitchWeight;
     }
     else
     {
