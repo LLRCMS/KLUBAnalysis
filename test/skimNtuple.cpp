@@ -755,9 +755,9 @@ int main (int argc, char** argv)
         int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
         int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;        
         if ( oph.getPairType (t_type1, t_type2) != pairType ) continue ;
-        string whatApplyForIsoLep = "Vertex-LepID-pTMin-etaMax-againstEle-againstMu-Iso" ;
+        // string whatApplyForIsoLep = "Vertex-LepID-pTMin-etaMax-againstEle-againstMu-Iso" ;
         // if ( oph.pairPassBaseline (&theBigTree, iPair, string("Vertex-LepID-pTMin-etaMax-againstEle-againstMu") ) )
-        if ( oph.pairPassBaseline (&theBigTree, iPair, whatApplyForIsoLep ) )
+        if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag ) )
         {
             chosenTauPair = iPair;
             break;
