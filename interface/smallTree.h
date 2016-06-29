@@ -215,6 +215,7 @@ struct smallTree
 
       m_bH_mass_raw = 0;
       m_HHKin_mass_raw = 0;
+      m_HHKin_mass_raw_copy = 0;
 
       m_lheht = 0;
 
@@ -413,6 +414,7 @@ struct smallTree
 
       m_smallT->Branch("bH_mass_raw",&m_bH_mass_raw,"bH_mass_raw/F");
       m_smallT->Branch("HHKin_mass_raw",&m_HHKin_mass_raw ,"HHKin_mass_raw/F");
+      m_smallT->Branch("HHKin_mass_raw_copy",&m_HHKin_mass_raw_copy ,"HHKin_mass_raw_copy/F");
 
       //m_smallT->Branch ("MuTauKine", &m_mvaValueMuTau, "MuTauKine/F");
       //m_smallT->Branch ("TauTauKine", &m_mvaValueTauTau, "TauTauKine/F");
@@ -634,18 +636,19 @@ struct smallTree
   //Float_t m_mvaValueTauTau ;
   //Float_t m_mvaValueETau ;
 
-  float m_HHKin_mass_raw;
-  float m_bH_mass_raw;
+  Float_t m_HHKin_mass_raw;
+  Float_t m_HHKin_mass_raw_copy;
+  Float_t m_bH_mass_raw;
 
-  float m_HHkinsvfit_bHmass;
-  float m_HHkinsvfit_pt;
-  float m_HHkinsvfit_eta ;
-  float m_HHkinsvfit_phi ;
-  float m_HHkinsvfit_e;
-  float m_HHkinsvfit_m;
+  Float_t m_HHkinsvfit_bHmass;
+  Float_t m_HHkinsvfit_pt;
+  Float_t m_HHkinsvfit_eta ;
+  Float_t m_HHkinsvfit_phi ;
+  Float_t m_HHkinsvfit_e;
+  Float_t m_HHkinsvfit_m;
 
-  float m_lheht ;
-  float m_topReweight;
+  Float_t m_lheht ;
+  Float_t m_topReweight;
   
 } ;
 
