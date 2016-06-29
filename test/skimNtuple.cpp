@@ -1205,7 +1205,8 @@ int main (int argc, char** argv)
       bool wrongHHK=false;
       float HHKmass = -999;
       float HHKChi2 = -999;
-      if (runHHKinFit && tlv_firstBjet_raw.M() > 20 && tlv_firstBjet_raw.M() < 200)
+      // if (runHHKinFit && tlv_HH_raw.M() > 20 && tlv_HH_raw.M() < 200)
+      if (runHHKinFit)
       {
         HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet, tlv_secondBjet, 
                                                    tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
