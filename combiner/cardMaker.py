@@ -18,6 +18,7 @@ class cardMaker:
         self.ID_0Btag = 0
         self.ID_1Btag = 1
         self.ID_2Btag = 2
+        self.ID_Boosted = 3
         
         self.ID_ch_etau=1
         self.ID_ch_mutau=2
@@ -121,7 +122,7 @@ class cardMaker:
                 errorDown = templateDown.GetBinContent(ix) - templateDown.GetBinErrorLow(ix)
                 normFactorUp   = templateUp.Integral()+templateUp.GetBinErrorUp(ix)
                 normFactorDown = templateDown.Integral()- templateDown.GetBinErrorLow(ix)
-                errRate = templateUp.GetBinErrorUp(ix)/templateUp.GetBinContent(ix)
+                errRate = TMath.Min(templateUp.GetBinErrorUp(ix)/templateUp.GetBinContent(ix),templateDown.GetBinErrorLow(ix)/templateDown.GetBinContent(ix))
                 if self.is2D == 2:  
                     nBin = template.GetBin(ix,iy)
                     error = templateUp.GetBinContent(ix,iy)+templateUp.GetBinErrorUp(ix,iy)
@@ -167,12 +168,12 @@ class cardMaker:
         self.theChannel = theChannel
         self.theCat = theCat
         dname=dc.outputdir
-        theDataSample = "SumDATA"
-        # theDataSample = "DsingleMuRunD" #"DsingleMu" #"DsingleMuPromptReco"
-        # if(theChannel) == 3:
-        #     theDataSample = "DTauRunD" #"DsingleTauPromptReco"
-        # if(theChannel) == 1:
-        #     theDataSample = "DsingleEleRunD" #"DsingleTauPromptReco"
+        #theDataSample = "SumDATA"
+        theDataSample = "DsingleMu" #"DsingleMu" #"DsingleMuPromptReco"
+        if(theChannel) == 3:
+            theDataSample = "DTau" #"DsingleTauPromptReco"
+        if(theChannel) == 1:
+            theDataSample = "DsingleEle" #"DsingleTauPromptReco"
 
         #theOutLambda = theHHLambda#str(int(theHHLambda))
         #if abs(theHHLambda - int(theHHLambda) )>0.01 : 
@@ -200,6 +201,7 @@ class cardMaker:
 #        if(theCat == self.ID_0Btag ): self.appendName=self.appendName+"0Btag"
 #        elif(theCat == self.ID_1Btag ): self.appendName=self.appendName+"1Btag"
 #        elif(theCat == self.ID_2Btag ): self.appendName=self.appendName+"2Btag"
+#        elif(theCat == self.ID_Boosted ): self.appendName=self.appendName+"Boosted"
 #        #...
 #        # else: print "Input Error: Unknown category!"
 
@@ -233,7 +235,8 @@ class cardMaker:
         ##...
         tSigIntegral = templateSIG.Integral()
         templateSIG.Scale(1,"width") 
-        templateSIG.Scale(tSigIntegral/templateSIG.Integral())
+        if templateSIG.Integral()>0:
+            templateSIG.Scale(tSigIntegral/templateSIG.Integral())
 
         templateSIG.Scale(self.scale)
         binsx = templateSIG.GetNbinsX()
@@ -253,7 +256,7 @@ class cardMaker:
             #print isample
             nameTemplate = "OS_bkg_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,isample)
             if isample in theInputs.additional :
-                print "ADDITIONAL ",isample
+                #print "ADDITIONAL ",isample
                 index = theInputs.additional.index(isample)
                 nameTemplate = theInputs.additionalName[index]
             print nameTemplate
@@ -360,7 +363,7 @@ class cardMaker:
 
             if theInputs.background[ibkg] == "QCD":
 
-                self.AddBinByBinSyst(w,"CMS_HHbbtt_qcd",PdfName,templatesBKG[ibkg],ral_variableList,ras_variableSet, 0.05)
+                self.AddBinByBinSyst(w,"CMS_HHbbtt_qcd",PdfName,templatesBKG[ibkg],ral_variableList,ras_variableSet, 0.1)
 
                 index = theInputs.additional.index("QCD")
                 CorrtemplateName = "UP"+theInputs.additionalName[index]
@@ -389,7 +392,7 @@ class cardMaker:
                 getattr(w,'import')(rlxshapepdfDown,ROOT.RooFit.RecycleConflictNodes())
 
             else :
-                self.AddBinByBinSyst(w,"CMS_HHbbtt_lowStat_{0}_{1}_{2}".format(ibkg, theChannel, theCat),PdfName,templatesBKG[ibkg],ral_variableList,ras_variableSet, 0.05)
+                self.AddBinByBinSyst(w,"CMS_HHbbtt_lowStat_{0}_{1}_{2}".format(ibkg, theChannel, theCat),PdfName,templatesBKG[ibkg],ral_variableList,ras_variableSet, 0.1)
 
             rdhB.append(ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templatesBKG[ibkg]))
             rhpB.append(ROOT.RooHistPdf(PdfName,PdfName,ras_variableSet,rdhB[ibkg]))
@@ -400,11 +403,14 @@ class cardMaker:
         #RooDataSet ds("ds","ds",ras_variableSet,Import(*tree)) ;
         #OS_DATA_tauH_mass_OS_defaultBtagMMNoIsoBBTTCut45_SumDATA
         TemplateName = "OS_DATA_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,theDataSample)
+        print TemplateName
         templateObs = inputFile.Get(TemplateName)
         print templateObs
+        obsEvents = templateObs.Integral() #templateObs.GetEntries()
+        print "observations: ", obsEvents    
+
         #data_obs = inputFile.Get(TemplateName)
         #templateObs.Add(inputFile.Get("OS_DATA_{0}{1}_OS_{2}_{3}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,chanst)))
-        print TemplateName
         #if templateObs.Integral() <=0: #protection for low stat
         #    data_obs = rhpB[0].generate(ras_variableSet,1000)
 ###        tempfile = TFile.Open("temp.root","RECREATE")
@@ -428,6 +434,7 @@ class cardMaker:
 ###        print templateObs.GetEntries()
 ###        data_obs = RooDataSet("data_obs","data_obs",obstree,ras_variableSet)    
         rdh_obs = ROOT.RooDataHist("rdh"+TemplateName,"rdh"+TemplateName,ral_variableList,templateObs)
+        print rdh_obs.numEntries()
         #rhp_obs = ROOT.RooHistPdf("rhp_obs","rhp_obs",ras_variableSet,rdh_obs)
         #data_obs = rhp_obs.generate(ras_variableSet)
         #datasetName = "data_obs_{0}".format(self.appendName)
@@ -435,8 +442,6 @@ class cardMaker:
 
         #data_obs = ROOT.RooDataSet(datasetName,datasetName,data_obs_tree,ras_variableSet)
         #obsEvents = rdh_obs.numEntries() #GetEntries() #data_obs.numEntries()        
-        obsEvents = templateObs.GetEntries()
-        print "observations: ", obsEvents    
 
         ## --------------------------- WORKSPACE -------------------------- ##
         #getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs"))
@@ -552,7 +557,7 @@ def parseOptions():
     parser.add_option('-S', '--sigfilename',dest='sigfilename',type='string', default="",  help='input signalplots')
     #parser.add_option('-l', '--lambda',   dest='Lambda', type='float', default=20,  help='Lambda value')
     parser.add_option('-c', '--channel',   dest='channel', type='string', default='MuTau',  help='final state')
-    parser.add_option('-b', '--category',   dest='category', type='int', default='2',  help='btag category')
+    parser.add_option('-b', '--category',   dest='category', type='int', default='999',  help='btag category')
     parser.add_option('-i', '--config',   dest='config', type='string', default='',  help='config file')
     parser.add_option('-o', '--selection', dest='overSel', type='string', default='', help='overwrite selection string')
     parser.add_option('-v', '--variable', dest='overVar', type='string', default='bH_mass', help='overwrite plot variable (only1D)')
@@ -571,6 +576,10 @@ def parseOptions():
     #if (opt.filename==""):
     #    print "you MUST specify an input file [please use -f option]"
     #    sys.exit()
+    if opt.category>100:
+        if "2b0j" in opt.overSel : opt.category = 2
+        elif "1b1j" in opt.overSel : opt.category = 1
+        elif "boosted" in opt.overSel : opt.category = 3
 
 # run as main
 if __name__ == "__main__":
@@ -610,6 +619,7 @@ if __name__ == "__main__":
         input.selectionLevel = opt.overSel
         for iad in range(len(input.additionalName)) :
             input.additionalName[iad] = re.sub('dijethardisoBtagCutM',opt.overSel,input.additionalName[iad])
+            input.additionalName[iad] = re.sub('RunD',"",input.additionalName[iad])
     if opt.is2D == 1 and opt.overVar is not "bH_mass" :
         #print "INSIDE OPTVAR"
         for ivx in range(len(input.AllVars)):
