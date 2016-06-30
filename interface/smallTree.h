@@ -36,6 +36,7 @@ struct smallTree
       m_IdAndIsoSF = -1.;
       m_nBhadrons = -1;
       m_RunNumber = -1. ;
+      m_isBoosted = -1 ;
       
       m_npv = -1. ;
       m_npu = -1. ;
@@ -96,7 +97,8 @@ struct smallTree
       m_bjet2_pt_raw  = -1. ;
       m_bjet2_hasgenjet = false ;
 
-      m_fatjet_pt = -1 ;
+      m_nfatjets = -1;
+      m_fatjet_pt = -1. ;
       m_fatjet_eta  = -1. ;
       m_fatjet_phi  = -1. ;
       m_fatjet_e  = -1. ;
@@ -109,14 +111,15 @@ struct smallTree
       m_fatjet_tau2 = -1. ;
       m_fatjet_tau3 = -1. ;
       m_fatjet_nsubjets = -1;
+      m_dR_subj1_subj2 = -1.;
 
-      m_subjetjet1_pt = -1 ;
+      m_subjetjet1_pt = -1. ;
       m_subjetjet1_eta  = -1. ;
       m_subjetjet1_phi  = -1. ;
       m_subjetjet1_e  = -1. ;
       m_subjetjet1_bID = -1. ;
 
-      m_subjetjet2_pt = -1 ;
+      m_subjetjet2_pt = -1. ;
       m_subjetjet2_eta  = -1. ;
       m_subjetjet2_phi  = -1. ;
       m_subjetjet2_e  = -1. ;
@@ -212,6 +215,7 @@ struct smallTree
 
       m_bH_mass_raw = 0;
       m_HHKin_mass_raw = 0;
+      m_HHKin_mass_raw_copy = 0;
 
       m_lheht = 0;
 
@@ -236,6 +240,7 @@ struct smallTree
       m_smallT->Branch ("nBhadrons", &m_nBhadrons, "nBhadrons/I") ;
       m_smallT->Branch ("EventNumber", &m_EventNumber, "EventNumber/I") ;
       m_smallT->Branch ("RunNumber", &m_RunNumber, "RunNumber/I") ;
+      m_smallT->Branch ("isBoosted", &m_isBoosted, "isBoosted/I") ;
 
       m_smallT->Branch ("npv", &m_npv, "npv/I") ;
       m_smallT->Branch ("npu", &m_npu, "npu/F") ;
@@ -296,31 +301,33 @@ struct smallTree
       m_smallT->Branch ("bjet2_pt_raw", &m_bjet2_pt_raw, "bjet2_pt_raw/F") ;
       m_smallT->Branch ("bjet2_hasgenjet", &m_bjet2_hasgenjet, "bjet2_hasgenjet/O") ;
 
-      m_smallT->Branch ("fatjet_pt", &m_fatjet_pt, "mfatjet_pt/F");
-      m_smallT->Branch ("fatjet_eta", &m_fatjet_eta, "mfatjet_eta/F");
-      m_smallT->Branch ("fatjet_phi", &m_fatjet_phi, "mfatjet_phi/F");
-      m_smallT->Branch ("fatjet_e", &m_fatjet_e, "mfatjet_e/F");
-      m_smallT->Branch ("fatjet_bID", &m_fatjet_bID, "mfatjet_bID/F");
-      m_smallT->Branch ("fatjet_filteredMass", &m_fatjet_filteredMass, "mfatjet_filteredMass/F");
-      m_smallT->Branch ("fatjet_prunedMass", &m_fatjet_prunedMass, "mfatjet_prunedMass/F");
-      m_smallT->Branch ("fatjet_trimmedMass", &m_fatjet_trimmedMass, "mfatjet_trimmedMass/F");
-      m_smallT->Branch ("fatjet_softdropMass", &m_fatjet_softdropMass, "mfatjet_softdropMass/F");
-      m_smallT->Branch ("fatjet_tau1", &m_fatjet_tau1, "mfatjet_tau1/F");
-      m_smallT->Branch ("fatjet_tau2", &m_fatjet_tau2, "mfatjet_tau2/F");
-      m_smallT->Branch ("fatjet_tau3", &m_fatjet_tau3, "mfatjet_tau3/F");
-      m_smallT->Branch ("fatjet_nsubjets", &m_fatjet_nsubjets, "mfatjet_nsubjets/I");
+      m_smallT->Branch ("nfatjets", &m_nfatjets, "nfatjets/I");
+      m_smallT->Branch ("fatjet_pt", &m_fatjet_pt, "fatjet_pt/F");
+      m_smallT->Branch ("fatjet_eta", &m_fatjet_eta, "fatjet_eta/F");
+      m_smallT->Branch ("fatjet_phi", &m_fatjet_phi, "fatjet_phi/F");
+      m_smallT->Branch ("fatjet_e", &m_fatjet_e, "fatjet_e/F");
+      m_smallT->Branch ("fatjet_bID", &m_fatjet_bID, "fatjet_bID/F");
+      m_smallT->Branch ("fatjet_filteredMass", &m_fatjet_filteredMass, "fatjet_filteredMass/F");
+      m_smallT->Branch ("fatjet_prunedMass", &m_fatjet_prunedMass, "fatjet_prunedMass/F");
+      m_smallT->Branch ("fatjet_trimmedMass", &m_fatjet_trimmedMass, "fatjet_trimmedMass/F");
+      m_smallT->Branch ("fatjet_softdropMass", &m_fatjet_softdropMass, "fatjet_softdropMass/F");
+      m_smallT->Branch ("fatjet_tau1", &m_fatjet_tau1, "fatjet_tau1/F");
+      m_smallT->Branch ("fatjet_tau2", &m_fatjet_tau2, "fatjet_tau2/F");
+      m_smallT->Branch ("fatjet_tau3", &m_fatjet_tau3, "fatjet_tau3/F");
+      m_smallT->Branch ("fatjet_nsubjets", &m_fatjet_nsubjets, "fatjet_nsubjets/I");
+      m_smallT->Branch ("dR_subj1_subj2", &m_dR_subj1_subj2, "dR_subj1_subj2/F");
 
-      m_smallT->Branch ("subjetjet1_pt", &m_subjetjet1_pt, "msubjetjet1_pt/F");
-      m_smallT->Branch ("subjetjet1_eta", &m_subjetjet1_eta, "msubjetjet1_eta/F");
-      m_smallT->Branch ("subjetjet1_phi", &m_subjetjet1_phi, "msubjetjet1_phi/F");
-      m_smallT->Branch ("subjetjet1_e", &m_subjetjet1_e, "msubjetjet1_e/F");
-      m_smallT->Branch ("subjetjet1_bID", &m_subjetjet1_bID, "msubjetjet1_bID/F");
+      m_smallT->Branch ("subjetjet1_pt", &m_subjetjet1_pt, "subjetjet1_pt/F");
+      m_smallT->Branch ("subjetjet1_eta", &m_subjetjet1_eta, "subjetjet1_eta/F");
+      m_smallT->Branch ("subjetjet1_phi", &m_subjetjet1_phi, "subjetjet1_phi/F");
+      m_smallT->Branch ("subjetjet1_e", &m_subjetjet1_e, "subjetjet1_e/F");
+      m_smallT->Branch ("subjetjet1_bID", &m_subjetjet1_bID, "subjetjet1_bID/F");
 
-      m_smallT->Branch ("subjetjet2_pt", &m_subjetjet2_pt, "msubjetjet2_pt/F");
-      m_smallT->Branch ("subjetjet2_eta", &m_subjetjet2_eta, "msubjetjet2_eta/F");
-      m_smallT->Branch ("subjetjet2_phi", &m_subjetjet2_phi, "msubjetjet2_phi/F");
-      m_smallT->Branch ("subjetjet2_e", &m_subjetjet2_e, "msubjetjet2_e/F");
-      m_smallT->Branch ("subjetjet2_bID", &m_subjetjet2_bID, "msubjetjet2_bID/F");
+      m_smallT->Branch ("subjetjet2_pt", &m_subjetjet2_pt, "subjetjet2_pt/F");
+      m_smallT->Branch ("subjetjet2_eta", &m_subjetjet2_eta, "subjetjet2_eta/F");
+      m_smallT->Branch ("subjetjet2_phi", &m_subjetjet2_phi, "subjetjet2_phi/F");
+      m_smallT->Branch ("subjetjet2_e", &m_subjetjet2_e, "subjetjet2_e/F");
+      m_smallT->Branch ("subjetjet2_bID", &m_subjetjet2_bID, "subjetjet2_bID/F");
 
       m_smallT->Branch ("genjet1_pt",  &m_genjet1_pt,  "genjet1_pt/F") ;
       m_smallT->Branch ("genjet1_eta", &m_genjet1_eta, "genjet1_eta/F") ;
@@ -407,6 +414,7 @@ struct smallTree
 
       m_smallT->Branch("bH_mass_raw",&m_bH_mass_raw,"bH_mass_raw/F");
       m_smallT->Branch("HHKin_mass_raw",&m_HHKin_mass_raw ,"HHKin_mass_raw/F");
+      m_smallT->Branch("HHKin_mass_raw_copy",&m_HHKin_mass_raw_copy ,"HHKin_mass_raw_copy/F");
 
       //m_smallT->Branch ("MuTauKine", &m_mvaValueMuTau, "MuTauKine/F");
       //m_smallT->Branch ("TauTauKine", &m_mvaValueTauTau, "TauTauKine/F");
@@ -435,6 +443,7 @@ struct smallTree
   Int_t m_nBhadrons ;
   Int_t m_EventNumber ;
   Int_t m_RunNumber ;
+  Int_t m_isBoosted ;
 
   Int_t   m_npv ;
   Float_t m_npu ;
@@ -507,6 +516,7 @@ struct smallTree
   Bool_t  m_bjet2_hasgenjet ;
 
   // fat jets and subjet info
+  Int_t   m_nfatjets ;
   Float_t m_fatjet_pt ;
   Float_t m_fatjet_eta  ;
   Float_t m_fatjet_phi  ;
@@ -519,7 +529,8 @@ struct smallTree
   Float_t m_fatjet_tau1 ;
   Float_t m_fatjet_tau2 ;
   Float_t m_fatjet_tau3 ;
-  Int_t m_fatjet_nsubjets ;
+  Int_t   m_fatjet_nsubjets ;
+  Float_t m_dR_subj1_subj2 ;
 
   Float_t m_subjetjet1_pt ;
   Float_t m_subjetjet1_eta  ;
@@ -625,18 +636,19 @@ struct smallTree
   //Float_t m_mvaValueTauTau ;
   //Float_t m_mvaValueETau ;
 
-  float m_HHKin_mass_raw;
-  float m_bH_mass_raw;
+  Float_t m_HHKin_mass_raw;
+  Float_t m_HHKin_mass_raw_copy;
+  Float_t m_bH_mass_raw;
 
-  float m_HHkinsvfit_bHmass;
-  float m_HHkinsvfit_pt;
-  float m_HHkinsvfit_eta ;
-  float m_HHkinsvfit_phi ;
-  float m_HHkinsvfit_e;
-  float m_HHkinsvfit_m;
+  Float_t m_HHkinsvfit_bHmass;
+  Float_t m_HHkinsvfit_pt;
+  Float_t m_HHkinsvfit_eta ;
+  Float_t m_HHkinsvfit_phi ;
+  Float_t m_HHkinsvfit_e;
+  Float_t m_HHkinsvfit_m;
 
-  float m_lheht ;
-  float m_topReweight;
+  Float_t m_lheht ;
+  Float_t m_topReweight;
   
 } ;
 

@@ -265,9 +265,11 @@ int main (int argc, char** argv)
 
   // ----------------------------------------
   // OS selections
+
   vector<pair <TString, TCut> > selections_OS = selections ;
   TCut dau1Cut = Form("dau1_iso < %s" , sel_dau1_iso.c_str());
   TCut dau2Cut = Form("dau2_iso < %s" , sel_dau2_iso.c_str());
+ 
   for (unsigned int i = 0 ; i < selections_OS.size () ; ++i)
     {
       selections_OS.at (i).first = TString ("OS_") + selections_OS.at (i).first ;
@@ -380,6 +382,7 @@ int main (int argc, char** argv)
           THStack * b_stack = SS_bkg_plots.makeStack (variablesList.at (ivar),
                                   selections_SS.at (icut).first.Data ()) ;
           TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
+
           dummy->Add (h_bkg, -1) ;
           SS_QCD.m_histos[variablesList.at (ivar)][selections_SS.at (icut).first.Data ()]["QCD"] = dummy ;
           QCDyieldSSregionRLXiso.at(ivar).at(icut) = dummy->Integral();
@@ -817,7 +820,7 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
   SS_QCD_CORR.scale2D(variables2DList, selections_SS, rlxToTightIsoScale2D);
   SS_QCD_CORRUP.scale2D(variables2DList, selections_SS, rlxToTightIsoScale2D);
   SS_QCD_CORRDOWN.scale2D(variables2DList, selections_SS, rlxToTightIsoScale2D);
-  int QCDcolor = gConfigParser->readIntOption ("colors::QCD") ;
+  int QCDcolor = gConfigParser->isDefined ("colors::QCD") ? gConfigParser->readIntOption ("colors::QCD") : 606;
   SS_QCD.setHistosProperties (0, QCDcolor) ; 
   SS_QCD_CORR.setHistosProperties (0, QCDcolor) ; 
 
@@ -930,6 +933,8 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
   TFile * fOut = new TFile (outString.Data (), "RECREATE") ;
   SS_DATA_plots.save (fOut) ;
   SS_bkg_plots.save (fOut) ;
+  SS_tightIso_DATA_plots.save (fOut) ;
+  SS_tightIso_bkg_plots.save (fOut) ;
   OS_DATA_plots.save (fOut) ;
   OS_bkg_plots.save (fOut) ;
   OS_sig_plots.save (fOut) ;
@@ -1058,18 +1063,18 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
           TString coutputName ;
           TString outFolderName ;
           
-          outFolderName = outFolderNameBase + TString ("/events/") ;
-          std::vector<TObject*> drawings_nonScaled = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
-                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
-                                      c, addToLegend, variablesLabels, false, false, true, false) ;
+          // outFolderName = outFolderNameBase + TString ("/events/") ;
+          // std::vector<TObject*> drawings_nonScaled = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+          //                             variablesList.at (iv), selections_OS.at (isel).first.Data (),
+          //                             c, addToLegend, variablesLabels, false, false, true, false) ;
                                       //c, addToLegend, variablesLabels, false, false, true, false, true, false, false, true, true) ;
 
-          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
-          c->SaveAs (coutputName.Data ()) ;
-          // FIXME : save canvases but in a dedicated folder
+          // coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          // c->SaveAs (coutputName.Data ()) ;
+          // // FIXME : save canvases but in a dedicated folder
           
-          coutputName.Form ("%s.root", (outFolderName + TString("rootCanvas/") + outputName).Data ()) ;
-          c->SaveAs (coutputName.Data ());
+          // coutputName.Form ("%s.root", (outFolderName + TString("rootCanvas/") + outputName).Data ()) ;
+          // c->SaveAs (coutputName.Data ());
 
           // // ---------------
           // outFolderName = outFolderNameBase + TString ("/shapes/") ;
@@ -1081,13 +1086,13 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
           // c->SaveAs (coutputName.Data ()) ;
 
           // ---------------
-          outFolderName = outFolderNameBase + TString ("/events_log/") ;
-          std::vector<TObject*> drawings_nonScaled_2 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
-                                      variablesList.at (iv), selections_OS.at (isel).first.Data (),
-                                      c, addToLegend, variablesLabels, true, false, true, false) ;
+          // outFolderName = outFolderNameBase + TString ("/events_log/") ;
+          // std::vector<TObject*> drawings_nonScaled_2 = makeStackPlot (OS_DATA_plots, OS_bkg_plots, OS_sig_plots,
+          //                             variablesList.at (iv), selections_OS.at (isel).first.Data (),
+          //                             c, addToLegend, variablesLabels, true, false, true, false) ;
 
-          coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
-          c->SaveAs (coutputName.Data ()) ;
+          // coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+          // c->SaveAs (coutputName.Data ()) ;
 
           // // ---------------
           // outFolderName = outFolderNameBase + TString ("/shapes_log/") ;

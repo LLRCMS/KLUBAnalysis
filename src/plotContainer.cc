@@ -73,11 +73,14 @@ plotContainer::createHistos (vector<string> varList, vector<pair<string,string>>
                                    + cutList.at (icut).first.Data () + "_" 
                                    + sampleList.at (isample) ;     
                 
+                int hcolor = gConfigParser->isDefined (TString ("colors::") + TString (sampleList.at (isample).c_str ()))
+                ? gConfigParser->readIntOption (TString ("colors::") + TString (sampleList.at (isample).c_str ()))
+                : 1;
+
                 cutDummy[sampleList.at (isample)] = createNewHisto (
                     histoName, histoName,
                     binning.size()-1, bins,
-                    gConfigParser->readIntOption (TString ("colors::") 
-                        + TString (sampleList.at (isample).c_str ())), 
+                    hcolor, 
                     m_histosType,
                     varList.at (ivar).c_str (), "events"
                   ) ;
@@ -85,6 +88,10 @@ plotContainer::createHistos (vector<string> varList, vector<pair<string,string>>
               }
               else
               {
+                int hcolor = gConfigParser->isDefined (TString ("colors::") + TString (sampleList.at (isample).c_str ()))
+                ? gConfigParser->readIntOption (TString ("colors::") + TString (sampleList.at (isample).c_str ()))
+                : 1;
+ 
                 // get histo nbins and range
                 vector <float> limits = 
                   gConfigParser->readFloatListOption (TString ("histos::") 
@@ -96,8 +103,7 @@ plotContainer::createHistos (vector<string> varList, vector<pair<string,string>>
                 cutDummy[sampleList.at (isample)] = createNewHisto (
                     histoName, histoName,
                     int (limits.at (0)), limits.at (1), limits.at (2),
-                    gConfigParser->readIntOption (TString ("colors::") 
-                        + TString (sampleList.at (isample).c_str ())), 
+                    hcolor, 
                     m_histosType,
                     varList.at (ivar).c_str (), "events"
                   ) ;
@@ -127,6 +133,10 @@ plotContainer::createHistos (vector<string> varList, vector<pair<string,string>>
               varID2.erase (std::remove_if (varID2.begin (), varID2.end (), isNOTalnum ()), varID2.end ()) ;
               string varID = varID1 + varID2; // compone name of string as is seen by this stupid parser
 
+              int hcolor = gConfigParser->isDefined (TString ("colors::") + TString (sampleList.at (isample).c_str ()))
+              ? gConfigParser->readIntOption (TString ("colors::") + TString (sampleList.at (isample).c_str ()))
+              : 1;
+
               // get histo nbins and range
               vector <float> limits = 
                 gConfigParser->readFloatListOption (TString ("2Dhistos::") 
@@ -138,8 +148,7 @@ plotContainer::createHistos (vector<string> varList, vector<pair<string,string>>
               cutDummy[sampleList.at (isample)] = createNew2DHisto (
                   histoName, histoName,
                   int (limits.at (0)), limits.at (1), limits.at (2), (int)(limits.at (3)), limits.at (4), limits.at (5),
-                  gConfigParser->readIntOption (TString ("colors::") 
-                      + TString (sampleList.at (isample).c_str ())), 
+                  hcolor, 
                   m_histosType,
                   varID1full.c_str(), varID2full.c_str()
                 ) ;

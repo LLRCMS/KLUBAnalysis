@@ -177,13 +177,13 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     bool leg2=false;
     if (pairType == MuHad)
     {
-        leg1 = muBaseline (tree, dau1index, 19., 2.1, 0.1, whatApply);
+        leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.1, whatApply);
         leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, 3.0, whatApply);
     }
 
     if (pairType == EHad)
     {
-        leg1 = eleBaseline (tree, dau1index, 24., 0.1, 0, whatApply);
+        leg1 = eleBaseline (tree, dau1index, 27., 2.1, 0.1, 0, whatApply);
         leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, 3.0, whatApply);
     }
 
@@ -266,6 +266,54 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
     bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
     bool etaS = (fabs(p4.Eta()) < 2.5) || byp_etaS;
+    //bool idS = checkBit (tree->daughters_iseleCUT->at(iDau), 3) || byp_idS; // 3 is TIGHT ele id CUT BASED
+    bool idS = EleMVAID (tree->discriminator->at (iDau), tree->daughters_SCeta->at (iDau), p4.Pt (), MVAIDflag) || byp_idS ; // 2015/07/09 PG
+    //bool idS = tree->daughters_iseleBDT->at(iDau) || byp_idS; // use it in ntuples produced after 11 June 2015, contains tight WP bool  
+    //bool idS = tightEleMVAID (tree->discriminator->at(iDau), TMath::Abs(p4.Eta())) || byp_idS; // APPROX! Using lepton eta and not super cluster eta, discriminator contains ele BDT  
+    bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
+    if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
+    
+    bool totalS = (vertexS && idS && isoS && ptS && etaS);
+    return totalS;
+    
+}
+
+bool 
+OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau, 
+                                    float ptMin, float etaMax, float relIso, int MVAIDflag, 
+                                    TString whatApply)
+{ 
+    float px = tree->daughters_px->at(iDau);
+    float py = tree->daughters_py->at(iDau);
+    float pz = tree->daughters_pz->at(iDau);
+    float e =  tree->daughters_e->at(iDau);
+
+    TLorentzVector p4 (px, py, pz, e);
+ 
+    // bypasser(s) and taker according to the string content
+    bool byp_vertexS = false;
+    bool byp_idS  = false;
+    bool byp_isoS = false;
+    bool byp_ptS  = false;
+    bool byp_etaS = false;
+
+    // whatApply: use "All", "Iso", "LepID", pTMin", "etaMax", "againstEle", "againstMu", "Vertex", "SScharge"; separate various arguments with a semicolon
+    if (!whatApply.Contains("All") && 
+        !whatApply.Contains("SScharge") && 
+        !whatApply.Contains("OScharge"))
+    {
+      byp_vertexS = byp_idS = byp_isoS = byp_ptS = byp_etaS = true;
+      // set selections
+      if (whatApply.Contains("Vertex")) byp_vertexS = false; 
+      if (whatApply.Contains("Iso"))    byp_isoS = false; 
+      if (whatApply.Contains("LepID"))  byp_idS = false; 
+      if (whatApply.Contains("pTMin"))  byp_ptS = false; 
+      if (whatApply.Contains("etaMax")) byp_etaS = false;
+    }
+
+    bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
+    bool ptS = (p4.Pt() > ptMin) || byp_ptS;
+    bool etaS = (fabs(p4.Eta()) < etaMax) || byp_etaS;
     //bool idS = checkBit (tree->daughters_iseleCUT->at(iDau), 3) || byp_idS; // 3 is TIGHT ele id CUT BASED
     bool idS = EleMVAID (tree->discriminator->at (iDau), tree->daughters_SCeta->at (iDau), p4.Pt (), MVAIDflag) || byp_idS ; // 2015/07/09 PG
     //bool idS = tree->daughters_iseleBDT->at(iDau) || byp_idS; // use it in ntuples produced after 11 June 2015, contains tight WP bool  
