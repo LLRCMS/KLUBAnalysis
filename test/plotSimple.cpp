@@ -55,7 +55,10 @@ int main (int argc, char** argv)
     if (gConfigParser->isDefined ("general::useOverUnderFlow"))
         doOverUnderFlow = gConfigParser->readBoolOption ("general::useOverUnderFlow");
   
-  
+    bool doPlots = false;
+    if (gConfigParser->isDefined ("general::doPlots"))
+        doPlots = gConfigParser->readBoolOption ("general::doPlots");
+    
     // .... .... .... .... .... .... .... .... .... .... .... ....
     
     vector<string> sigSamplesList; 
@@ -205,6 +208,8 @@ int main (int argc, char** argv)
     system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events/")) ;
     system (TString ("mkdir -p ") + outFolderNameBase + TString ("/events_log/")) ;
     system (TString ("mkdir -p ") + outFolderNameBase + TString ("/rootCanvas/")) ;
+    // cout << TString ("cp ") + config + " " + outFolderNameBase << endl;
+    system (TString ("cp ") + config + " " + outFolderNameBase ) ;
 
     // save to file
     TString outString ;
@@ -215,55 +220,58 @@ int main (int argc, char** argv)
     if (drawDATA) DATA_plots.save (fOut) ;
     if (drawbkg)  bkg_plots.save (fOut) ;
 
-    // loop on selections
-    for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
-    {
-        // loop on variables
-        for (unsigned int iv = 0 ; iv < variablesList.size () ; ++iv)
+    if (doPlots)
+    {    
+        // loop on selections
+        for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
         {
-            c->cd () ;
-            TString outputName ; 
-            outputName.Form ("plot_%s_%s", variablesList.at (iv).c_str (), selections.at (isel).first.Data ()) ;
-            
-            TString coutputName ;
-            TString outFolderName ;
+            // loop on variables
+            for (unsigned int iv = 0 ; iv < variablesList.size () ; ++iv)
+            {
+                c->cd () ;
+                TString outputName ; 
+                outputName.Form ("plot_%s_%s", variablesList.at (iv).c_str (), selections.at (isel).first.Data ()) ;
+                
+                TString coutputName ;
+                TString outFolderName ;
 
-            // prototype of makeStackPlot:
-            // std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bkgPlots, plotContainer& sigPlots,
-            //                             string varName, string selName,
-            //                             TCanvas* canvas, std::vector <pair <string, string> > & addInLegend, std::vector <pair <string, string> >& axisTitles,
-            //                             bool LogY = false, bool makeRatioPlot = true, bool drawLegend = true, bool doShapes = false, bool forceNonNegMin = false, bool drawGrassForData = false,
-            //                             bool drawSignal = true, bool drawData = true, bool drawMC = true) ;
+                // prototype of makeStackPlot:
+                // std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bkgPlots, plotContainer& sigPlots,
+                //                             string varName, string selName,
+                //                             TCanvas* canvas, std::vector <pair <string, string> > & addInLegend, std::vector <pair <string, string> >& axisTitles,
+                //                             bool LogY = false, bool makeRatioPlot = true, bool drawLegend = true, bool doShapes = false, bool forceNonNegMin = false, bool drawGrassForData = false,
+                //                             bool drawSignal = true, bool drawData = true, bool drawMC = true) ;
 
-            outFolderName = outFolderNameBase + TString ("/events/") ;
-            std::vector<TObject*> drawings_nonScaled = makeStackPlot (DATA_plots, bkg_plots, sig_plots,
-                                      variablesList.at (iv), selections.at (isel).first.Data (),
-                                      c, addToLegend, variablesLabels,
-                                      false, false, true, false, false, false,
-                                      drawsig, drawDATA, drawbkg) ;
-                                      //c, addToLegend, variablesLabels, false, false, true, false, true, false, false, true, true) ;
+                outFolderName = outFolderNameBase + TString ("/events/") ;
+                std::vector<TObject*> drawings_nonScaled = makeStackPlot (DATA_plots, bkg_plots, sig_plots,
+                                          variablesList.at (iv), selections.at (isel).first.Data (),
+                                          c, addToLegend, variablesLabels,
+                                          false, false, true, false, false, false,
+                                          drawsig, drawDATA, drawbkg) ;
+                                          //c, addToLegend, variablesLabels, false, false, true, false, true, false, false, true, true) ;
 
-            coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
-            c->SaveAs (coutputName.Data ()) ;
+                coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+                c->SaveAs (coutputName.Data ()) ;
 
-            outFolderName = outFolderNameBase + TString ("/events_log/") ;
-            std::vector<TObject*> drawings_nonScaled_1 = makeStackPlot (DATA_plots, bkg_plots, sig_plots,
-                                      variablesList.at (iv), selections.at (isel).first.Data (),
-                                      c, addToLegend, variablesLabels,
-                                      true, false, true, false, false, false,
-                                      drawsig, drawDATA, drawbkg) ;
-                                      //c, addToLegend, variablesLabels, false, false, true, false, true, false, false, true, true) ;
+                outFolderName = outFolderNameBase + TString ("/events_log/") ;
+                std::vector<TObject*> drawings_nonScaled_1 = makeStackPlot (DATA_plots, bkg_plots, sig_plots,
+                                          variablesList.at (iv), selections.at (isel).first.Data (),
+                                          c, addToLegend, variablesLabels,
+                                          true, false, true, false, false, false,
+                                          drawsig, drawDATA, drawbkg) ;
+                                          //c, addToLegend, variablesLabels, false, false, true, false, true, false, false, true, true) ;
 
-            coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
-            c->SaveAs (coutputName.Data ()) ;
+                coutputName.Form ("%s.pdf", (outFolderName + outputName).Data ()) ;
+                c->SaveAs (coutputName.Data ()) ;
 
 
-            outFolderName = outFolderNameBase + TString ("/rootCanvas/") ;
-            coutputName.Form ("%s.root", (outFolderName + outputName).Data ()) ;
-            c->SaveAs (coutputName.Data ());
+                outFolderName = outFolderNameBase + TString ("/rootCanvas/") ;
+                coutputName.Form ("%s.root", (outFolderName + outputName).Data ()) ;
+                c->SaveAs (coutputName.Data ());
+            }
         }
     }
-
+    
     cout << " ... exiting" << endl;
     return 0;
 }
