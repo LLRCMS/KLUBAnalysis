@@ -90,9 +90,10 @@ class configReader:
             #f = re.split('\W+',line)
             if section == "general":
                 #f = re.split('\W+',line)
-                if f[0] == 'signalsFitted' : 
+                #if f[0] == 'signalsFitted' : 
+                if f[0] == 'signals' : 
                     for sample in range(1,len(f)-1): self.signals.append(f[sample])
-                elif f[0] == "backgroundsMerge": 
+                elif f[0] == "backgrounds": 
                     for sample in range(1,len(f)-1): self.background.append(f[sample])
                 elif f[0] == "data": 
                     for sample in range(1,len(f)-1): self.datasamples.append(f[sample])
@@ -113,6 +114,10 @@ class configReader:
  #                   elif chan.lower().startswith("all"):   self.all_chan = True
  #                   else : raise RuntimeError, "Unknown channel {0}, choices are ggH, qqH, WH, ZH, ttH, qqZZ, ggZZ, zjets".format(chan)
   	        #continue
+            #if section == "stitch":
+            #    if f[0] not in self.background :
+            #        self.background.append(f[0])
+
             if section == "evalQCD":
                 if f[0] == "outputFolderName":
                     self.inputFolder = self.inputFolder + "/" +f[1] 

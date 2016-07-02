@@ -80,7 +80,7 @@ class systReader:
     def writeOneLine(self,channel,string,value=1):
         outputLine = string
         for chan in self.channels :
-            if chan in channel:
+            if chan == channel:
                 outputLine += str(value)+" "
             else:
                 outputLine += "- "

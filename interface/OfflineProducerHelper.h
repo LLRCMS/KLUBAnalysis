@@ -65,11 +65,12 @@ class OfflineProducerHelper {
   // whatApply: use "All", "Iso", "pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
   // is contains "All" it will override all the other settings; additional parameters are not considered (have no effect) 
   // a selection is applied by default if no parameter is specified
-  bool pairPassBaseline (bigTree* tree, int iPair, TString whatApply = "All");
+  bool checkPassBaseline (bigTree* tree, int iPair, TString whatApply = "All"){return pairPassBaseline(tree,iPair,whatApply,true);}
+  bool pairPassBaseline (bigTree* tree, int iPair, TString whatApply = "All", bool debug=false);
   bool eleBaseline (bigTree* tree, int iDau, float ptMin, float relIso,  int MVAIDflag = 0, TString whatApply = "All"); // return true if leptons passes the baseline selections
   bool eleBaseline (bigTree* tree, int iDau, float ptMin, float etaMax, float relIso,  int MVAIDflag = 0, TString whatApply = "All"); // version with eta cut
   bool muBaseline (bigTree* tree, int iDau, float ptMin, float etaMax, float relIso, TString whatApply = "All");
-  bool tauBaseline (bigTree* tree, int iDau, float ptMin, float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits, TString whatApply = "All");
+  bool tauBaseline (bigTree* tree, int iDau, float ptMin, float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits, TString whatApply = "All",bool debug=false);
   bool tightEleMVAID (float BDT, float fSCeta); // compute tight ele MVA id WP, but isBDT in ntuples has been fixed --> this will be soon deprecated
 
   int getMothPairType (bigTree* tree, int iMoth); // return the pair type of a given pair in the tree

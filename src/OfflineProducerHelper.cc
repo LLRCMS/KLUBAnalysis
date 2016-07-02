@@ -154,7 +154,7 @@ int OfflineProducerHelper::getPairType (int type1, int type2)
 
 }
 
-bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString whatApply)
+bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString whatApply, bool debug)
 {
     int dau1index = tree->indexDau1->at(iPair);
     int dau2index = tree->indexDau2->at(iPair);
@@ -163,54 +163,54 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     int pairType = getPairType (type1, type2);
 
     bool isOS = tree->isOSCand->at(iPair);
-    if (whatApply.Contains("OScharge") && !isOS) 
+    if (whatApply.Contains("OScharge") && !isOS) {
+      if (debug) cout<<"check baseline: OSCharge failed"<<endl;
         return false; // do not even check the rest if requiring the charge
-    if (whatApply.Contains("SScharge") && isOS) 
+      }
+    if (whatApply.Contains("SScharge") && isOS) {
+      if (debug) cout<<"check baseline: SSCharge failed"<<endl;
         return false; // for the same sign selection at the moment full selection over SS pairs
-
+      }
     // pairs are always ordered as: e mu | e tau | mu tau  (e < mu < tau)
     // if same type of particle, highest pt one is the first
+    bool leg1=false;
+    bool leg2=false;
     if (pairType == MuHad)
     {
-        bool leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.1, whatApply);
-        bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, 3.0, whatApply);
-        return (leg1 && leg2);
+        leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.1, whatApply);
+        leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, 3.0, whatApply);
     }
 
     if (pairType == EHad)
     {
-        bool leg1 = eleBaseline (tree, dau1index, 27., 2.1, 0.1, 0, whatApply);
-        bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, 3.0, whatApply);
-        return (leg1 && leg2);
+        leg1 = eleBaseline (tree, dau1index, 27., 2.1, 0.1, 0, whatApply);
+        leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, 3.0, whatApply);
     }
 
     // ordered by pT and not by most isolated, but baseline asked in sync is the same...
     if (pairType == HadHad)
     {
-        bool leg1 = tauBaseline (tree, dau1index, 40., 2.1, 0, 0, 2.0, whatApply);
-        bool leg2 = tauBaseline (tree, dau2index, 40., 2.1, 0, 0, 2.0, whatApply);
-        return (leg1 && leg2);
+        leg1 = tauBaseline (tree, dau1index, 40., 2.1, 0, 0, 2.0, whatApply);
+        leg2 = tauBaseline (tree, dau2index, 40., 2.1, 0, 0, 2.0, whatApply);
     }
 
     if (pairType == EMu)
     {
-        bool leg1 = eleBaseline (tree, dau1index, 13., 0.15, 0, whatApply);
-        bool leg2 = muBaseline (tree, dau2index, 9., 2.4, 0.15, whatApply);
-        return (leg1 && leg2);
+        leg1 = eleBaseline (tree, dau1index, 13., 0.15, 0, whatApply);
+        leg2 = muBaseline (tree, dau2index, 9., 2.4, 0.15, whatApply);
     }
     
     // e e, mu mu are still preliminary (not from baseline)
     if (pairType == EE)
     {
-      bool leg1 = eleBaseline (tree, dau1index, 25., 0.15, 0, whatApply);
-      bool leg2 = eleBaseline (tree, dau2index, 25., 0.15, 0, whatApply);
-      return (leg1 && leg2);      
+      leg1 = eleBaseline (tree, dau1index, 25., 0.15, 0, whatApply);
+      leg2 = eleBaseline (tree, dau2index, 25., 0.15, 0, whatApply);
     }
     
     if (pairType == MuMu)
     {
-      bool leg1 = muBaseline (tree, dau1index, 10., 2.4, 0.1, whatApply);
-      bool leg2 = muBaseline (tree, dau2index, 10., 2.4, 0.1, whatApply);
+      leg1 = muBaseline (tree, dau1index, 10., 2.4, 0.1, whatApply);
+      leg2 = muBaseline (tree, dau2index, 10., 2.4, 0.1, whatApply);
       bool leg1ER = muBaseline (tree, dau1index, 19., 2.1, 0.1, whatApply);
       bool leg2ER = muBaseline (tree, dau2index, 19., 2.1, 0.1, whatApply);
       
@@ -219,8 +219,14 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
       return ((leg1ER && leg2) || (leg2ER && leg1) );
     }
     
-    return false;
-        
+    bool result = (leg1 && leg2);
+    if(!leg1 && debug){
+      cout<<"check baseline: leg1 failed"<<endl;
+    }
+    if(!leg2 && debug){
+      cout<<"check baseline: leg1 failed"<<endl;
+    }
+    return result;
 }
 
 
@@ -369,7 +375,7 @@ bool OfflineProducerHelper::muBaseline (
 // againstMuWP: 0 = Loose, 1 = Tight
 bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin, 
          float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits, 
-         TString whatApply)
+         TString whatApply, bool debug)
 {
     float px = tree->daughters_px->at(iDau);
     float py = tree->daughters_py->at(iDau);
@@ -441,6 +447,15 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
     bool etaS = (fabs(p4.Eta()) < etaMax) || byp_etaS;
 
     bool totalS = (dmfS && vertexS && agEleS && agMuS && isoS && ptS && etaS);
+    if(debug && !totalS){
+      if(!dmfS)cout<<"False "<<dmfS<<endl;
+      if(!vertexS)cout<<"False "<<vertexS<<endl;
+      if(!agEleS)cout<<"False "<<agEleS<<endl;
+      if(!agMuS)cout<<"False "<<agMuS<<endl;
+      if(!isoS)cout<<"False "<<isoS<<endl;
+      if(!ptS)cout<<"False "<<ptS<<endl;
+      if(!etaS)cout<<"False "<<etaS<<endl;
+    }
     return totalS;    
 }
 
