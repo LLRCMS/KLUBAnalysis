@@ -482,6 +482,12 @@ int main (int argc, char** argv)
   myScaleFactor[1][0] -> init_ScaleFactor("weights/data/data/Electron/Electron_Ele23_eff_Spring16.root"); // note! not our trigger
   myScaleFactor[1][1] -> init_ScaleFactor("weights/data/data/Electron/Electron_IdIso_eff_Spring16.root");
 
+  // muon POG SFs
+  TFile* fMuPOGSF_ID = new TFile ("weights/MuPogSF/MuonID_Z_2016runB_2p6fb.root");
+  TFile* fMuPOGSF_ISO = new TFile ("weights/MuPogSF/MuonISO_Z_2016runB_2p6fb.root");
+  TH2F* hMuPOGSF_ID  = (TH2F*) fMuPOGSF_ID -> Get("MC_NUM_LooseID_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio");  // pt: x, eta: y
+  TH2F* hMuPOGSF_ISO = (TH2F*) fMuPOGSF_ISO -> Get("MC_NUM_LooseRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio"); // pt: x, eta: y
+
   // ------------------------------
   // reweighting file for HH non resonant
   
@@ -984,13 +990,40 @@ int main (int argc, char** argv)
     float trigSF = 1.0;
     float idAndIsoSF = 1.0;
     // particle 2 is always a TAU --  FIXME: not good for emu
-    if (type1 < 2 && isMC) // mu
+    if (type1 == 0 && isMC) // mu
+    {
+      // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
+      trigSF = 1.0; // no trigger info available in MC
+      
+      int ptbin = hMuPOGSF_ID->GetXaxis()->FindBin(tlv_firstLepton.Pt());
+      if (ptbin > hMuPOGSF_ID->GetNbinsX()) ptbin = hMuPOGSF_ID->GetNbinsX();
+      else if (ptbin < 1) ptbin = 1;
 
+      int etabin = hMuPOGSF_ID->GetYaxis()->FindBin(TMath::Abs(tlv_firstLepton.Eta()));
+      if (etabin > hMuPOGSF_ID->GetNbinsY()) etabin = hMuPOGSF_ID->GetNbinsY();
+      else if (etabin < 1) etabin = 1;
+
+      idAndIsoSF = hMuPOGSF_ID->GetBinContent(ptbin, etabin);
+
+      ptbin = hMuPOGSF_ISO->GetXaxis()->FindBin(tlv_firstLepton.Pt());
+      if (ptbin > hMuPOGSF_ISO->GetNbinsX()) ptbin = hMuPOGSF_ISO->GetNbinsX();
+      else if (ptbin < 1) ptbin = 1;
+
+      etabin = hMuPOGSF_ISO->GetYaxis()->FindBin(TMath::Abs(tlv_firstLepton.Eta()));
+      if (etabin > hMuPOGSF_ISO->GetNbinsY()) etabin = hMuPOGSF_ISO->GetNbinsY();
+      else if (etabin < 1) etabin = 1;
+
+      idAndIsoSF *= hMuPOGSF_ISO->GetBinContent(ptbin, etabin);
+      // idAndIsoSF = myScaleFactor[type1][1]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
+    }
+
+    else if (type1 == 1 && isMC) // mu
     {
       // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
       trigSF = 1.0; // no trigger info available in MC
       idAndIsoSF = myScaleFactor[type1][1]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
     }
+
 
     theSmallTree.m_trigSF     = (isMC ? trigSF : 1.0);
     theSmallTree.m_IdAndIsoSF = (isMC ? idAndIsoSF : 1.0);
