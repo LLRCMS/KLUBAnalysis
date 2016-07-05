@@ -84,7 +84,7 @@ void OfflineProducerHelper::SetEleMVAIDCuts()
 }
 
 int OfflineProducerHelper::FindTriggerNumber(TString triggername){
-  for(int it=0;it<triggerlist.size();it++){ 	
+  for(int it=0;it< (int) triggerlist.size();it++){ 	
   	if(triggerlist.at(it).CompareTo(triggername.Data())==0)return it;
   	else {
   	    TString newName=triggername.Data();
@@ -97,13 +97,13 @@ int OfflineProducerHelper::FindTriggerNumber(TString triggername){
 }
 
 bool OfflineProducerHelper::IsTriggerFired(int triggerbit, int triggernumber){ 
-  if(triggernumber>=0 && triggernumber<triggerlist.size()) return triggerbit & (1 << triggernumber);
+  if(triggernumber>=0 && triggernumber<(int)triggerlist.size()) return triggerbit & (1 << triggernumber);
   return false;
 }
 
 int OfflineProducerHelper::printFiredPaths(int triggerbit){
   int nFired = 0;
-  for(int it=0;it<triggerlist.size();it++){ 	
+  for(int it=0;it<(int)triggerlist.size();it++){ 	
   	if(IsTriggerFired(triggerbit,it)) {
   	  printf("%s\n",triggerlist.at(it).Data());
   	  nFired++;
@@ -474,7 +474,7 @@ bool OfflineProducerHelper::tightEleMVAID (float BDT, float fSCeta)
 
 int OfflineProducerHelper::getMothPairType (bigTree* tree, int iMoth)
 {
-    if (iMoth < 0 || iMoth >= tree->indexDau1->size())
+    if (iMoth < 0 || iMoth >= (int)tree->indexDau1->size())
     {
       cout << "warning ** getMothPairType: iMoth out of range" << endl;
       return -1;
@@ -537,7 +537,7 @@ TLorentzVector OfflineProducerHelper::buildGenP4 (bigTree* tree, int iGen)
 int OfflineProducerHelper::MCHiggsTauTauDecayMode (bigTree* tree)
 {
     int decay = -1; // good decays go from 0 to 7, see enum
-    for (int i = 0; i < tree->genpart_HZDecayMode->size(); i++)
+    for (int i = 0; i < (int)tree->genpart_HZDecayMode->size(); i++)
     {
         int val = tree->genpart_HZDecayMode->at(i);
         if (val >= 0 && val <= 7)
@@ -613,7 +613,7 @@ int OfflineProducerHelper::getBestPair (bigTree* tree, TString strategy)
 int OfflineProducerHelper::getPairByIndexes (bigTree* tree, int dau1, int dau2)
 {
     int pair = -1;
-    for (int iPair = 0; iPair < tree->indexDau1->size(); iPair++)
+    for (int iPair = 0; iPair < (int)tree->indexDau1->size(); iPair++)
     {
         int ind1 = tree->indexDau1->at(iPair);
         int ind2 = tree->indexDau2->at(iPair);
@@ -630,7 +630,7 @@ int OfflineProducerHelper::getPairByIndexes (bigTree* tree, int dau1, int dau2)
 bool OfflineProducerHelper::getHardTauFinalVisGenProducts (bigTree* tree, int& ind1, int& ind2)
 {
         int finalProds = 0;
-        for (int iPart = 0; iPart < tree->genpart_pdg->size(); iPart++)
+        for (int iPart = 0; iPart < (int)tree->genpart_pdg->size(); iPart++)
         {   
             int HInd = tree->genpart_HMothInd->at(iPart);
             int TauInd = tree->genpart_TauMothInd->at(iPart);
@@ -689,7 +689,7 @@ int OfflineProducerHelper::getRecoMatchedToGen (bigTree* tree, int iGen, bool ch
     int AgenID = abs(genID);
     
     std::vector < std::pair<float, int> > matchedReco;
-    for (int iReco = 0; iReco < tree->daughters_px->size(); iReco++)
+    for (int iReco = 0; iReco < (int)tree->daughters_px->size(); iReco++)
     {
         int recoID = tree->PDGIdDaughters->at(iReco);
         bool IDCheck;
