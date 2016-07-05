@@ -361,7 +361,7 @@ bool OfflineProducerHelper::muBaseline (
     }
         
     bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
-    bool idS = checkBit (discr, 2) || byp_idS; // bit 2 is MEDIUM mu id
+    bool idS = checkBit (discr, 0) || byp_idS; // bit 2 is MEDIUM mu id, bit 0 is LOOSE id
     bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
     if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
