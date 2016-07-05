@@ -6,6 +6,7 @@
 #include <sstream>
 #include "TTree.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TFile.h"
 #include "TBranch.h"
 #include "TString.h"
@@ -195,11 +196,20 @@ float turnOnCB(float x, float m0, float sigma, float alpha, float n, float norm)
   return norm * (leftArea + a * (1/TMath::Power(t-b,n-1) - 1/TMath::Power(absAlpha - b,n-1)) / (1-n)) / area;
 }
 
-float turnOnSF(float pt)
+// WP is 0 : Noiso , 1 : VLoose, 2: Loose, 3: Medium , 4: Tight 5: Vtight 6: VVtight
+float turnOnSF(float pt, int WP)
 {
   //return 1.0/turnOnCB(pt,3.60274e+01,5.89434e+00,5.82870e+00,1.83737e+00,9.58000e-01)*turnOnCB(pt,3.45412e+01,5.63353e+00,2.49242e+00,3.35896e+00,1);
   //return turnOnCB(pt,3.45412e+01,5.63353e+00,2.49242e+00,3.35896e+00,1);
-  return turnOnCB(pt,3.60274e+01,5.89434e+00,5.82870e+00,1.83737e+00,9.58000e-01);
+  // return turnOnCB(pt,3.60274e+01,5.89434e+00,5.82870e+00,1.83737e+00,9.58000e-01);
+
+  float m0    [7] = {3.86506E+01 , 3.86057E+01 , 3.85953E+01 , 3.81821E+01 , 3.81919E+01 , 3.77850E+01 , 3.76157E+01} ;
+  float sigma [7] = {5.81155E+00 , 5.77127E+00 , 5.74632E+00 , 5.33452E+00 , 5.38746E+00 , 4.93611E+00 , 4.76127E+00} ;
+  float alpha [7] = {5.82783E+00 , 5.61388E+00 , 5.08553E+00 , 4.42570E+00 , 4.44730E+00 , 4.22634E+00 , 3.62497E+00} ;
+  float n     [7] = {3.38903E+00 , 3.77719E+00 , 5.45593E+00 , 4.70512E+00 , 7.39646E+00 , 2.85533E+00 , 3.51839E+00} ;
+  float norm  [7] = {9.33449E+00 , 9.30159E-01 , 9.42168E-01 , 9.45637E-01 , 9.33402E-01 , 9.92196E-01 , 9.83701E-01} ;
+
+  return turnOnCB (pt, m0[WP], sigma[WP], alpha[WP], n[WP], norm[WP] );  
 }
 
 
@@ -219,7 +229,7 @@ float turnOnSF(float pt)
 // }
 
 
-float getTriggerWeight(int partType, float pt, float eta, TH1F* rewHisto = 0, ScaleFactor* sfreader = 0)
+float getTriggerWeight(int partType, float pt, float eta, TH1F* rewHisto = 0, ScaleFactor* sfreader = 0, int tauWP = 0)
 {
     float weight = 1.0;
     
@@ -242,7 +252,7 @@ float getTriggerWeight(int partType, float pt, float eta, TH1F* rewHisto = 0, Sc
       }
       case 2: // tau
       {
-        weight = turnOnSF (pt) ;
+        weight = turnOnSF (pt, tauWP) ;
         break;
       }
       default:
@@ -475,11 +485,26 @@ int main (int argc, char** argv)
   // ------------------------------
   // reweighting file for HH non resonant
   
-  TH1F* hreweightHH = 0;
+  TH1F* hreweightHH   = 0;
+  TH2F* hreweightHH2D = 0;
   if (HHreweightFile)
   {
     cout << "** INFO: doing reweight for HH samples" << endl;
-    hreweightHH = (TH1F*) HHreweightFile->Get("hratio");
+    if (HHreweightFile->GetListOfKeys()->Contains("hratio") )
+    {  
+      hreweightHH = (TH1F*) HHreweightFile->Get("hratio");
+      cout << "** INFO: 1D reweight using hratio" << endl;
+    }
+    else if (HHreweightFile->GetListOfKeys()->Contains("hratio2D") )
+    {
+      hreweightHH2D = (TH2F*) HHreweightFile->Get("hratio2D");            
+      cout << "** INFO: 2D reweight using hratio2D" << endl;
+    }
+    else
+    {
+      cout << "** ERROR: reweight histo not found in file provided, stopping execuction" << endl;
+      return 1;
+    }
   }
 
   // ------------------------------
@@ -652,11 +677,12 @@ int main (int argc, char** argv)
 
     // HH reweight for non resonant
     float HHweight = 1.0;
-    if (hreweightHH)
+    if (hreweightHH || hreweightHH2D)
     {
       // cout << "DEBUG: reweight!!!" << endl;
       TLorentzVector vH1, vH2, vBoost, vSum;
       float mHH = -1;
+      float ct1 = -999;
       // loop on gen to find Higgs
       int idx1 = -1;
       int idx2 = -1;
@@ -687,9 +713,19 @@ int main (int argc, char** argv)
       vH2.SetPxPyPzE (theBigTree.genpart_px->at(idx2), theBigTree.genpart_py->at(idx2), theBigTree.genpart_pz->at(idx2), theBigTree.genpart_e->at(idx2) );
       vSum = vH1+vH2;
       mHH = vSum.M();
+      vH1.Boost(-vSum.BoostVector());                     
+      ct1 = vH1.CosTheta();
 
-      int ibin = hreweightHH->FindBin(mHH);
-      HHweight = hreweightHH->GetBinContent(ibin);
+      if (hreweightHH) // 1D
+      {
+        int ibin = hreweightHH->FindBin(mHH);
+        HHweight = hreweightHH->GetBinContent(ibin);
+      }
+      else if (hreweightHH2D) // 2D
+      {
+        int ibin = hreweightHH2D->FindBin(mHH, ct1);
+        HHweight = hreweightHH2D->GetBinContent(ibin);        
+      }
     }
 
     ///////////////////////////////////////////////////////////
@@ -835,20 +871,20 @@ int main (int argc, char** argv)
 
       if (pairType == 0)  //mutau
       {
-          evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), 0, myScaleFactor[type1][0]) ;
+          evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), 0, myScaleFactor[type1][0], 0) ;
           evtLeg2weight = 1.0;        
       }
 
       else if (pairType == 1) //eletau
       {
-          evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), trigRewEleHisto, 0) ;
+          evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), trigRewEleHisto, 0, 0) ;
           evtLeg2weight = 1.0;        
       }
 
       else if (pairType == 2) //tautau
       {
-          evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), 0, 0) ;
-          evtLeg2weight = getTriggerWeight(type2, tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), 0, 0) ;
+          evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), 0, 0, 1) ;
+          evtLeg2weight = getTriggerWeight(type2, tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), 0, 0, 1) ;
       }
       trgEvtWeight = evtLeg1weight*evtLeg2weight;
     }
