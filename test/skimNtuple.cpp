@@ -790,6 +790,10 @@ int main (int argc, char** argv)
     // choose the first pair passing baseline and being of the right pair type
 
     int chosenTauPair = -1;
+
+    vector <pair<float, int>> chosenTauPairsIso;   // sum pt , index
+    vector <pair<float, int>> chosenTauPairsRlxIso;
+
     for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
     {
         int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;  
@@ -799,14 +803,45 @@ int main (int argc, char** argv)
         if ( oph.getPairType (t_type1, t_type2) != pairType ) continue ;
         // string whatApplyForIsoLep = "Vertex-LepID-pTMin-etaMax-againstEle-againstMu-Iso" ;
         // if ( oph.pairPassBaseline (&theBigTree, iPair, string("Vertex-LepID-pTMin-etaMax-againstEle-againstMu") ) )
-        if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag ) )
+        
+        TLorentzVector t_tlv_firstLepton (
+          theBigTree.daughters_px->at (t_firstDaughterIndex),
+          theBigTree.daughters_py->at (t_firstDaughterIndex),
+          theBigTree.daughters_pz->at (t_firstDaughterIndex),
+          theBigTree.daughters_e->at (t_firstDaughterIndex)
+        );
+        TLorentzVector t_tlv_secondLepton (
+          theBigTree.daughters_px->at (t_secondDaughterIndex),
+          theBigTree.daughters_py->at (t_secondDaughterIndex),
+          theBigTree.daughters_pz->at (t_secondDaughterIndex),
+          theBigTree.daughters_e->at (t_secondDaughterIndex)
+        );
+
+        if ( oph.pairPassBaseline (&theBigTree, iPair, (leptonSelectionFlag+string("-Iso")) ) )
         {
-            chosenTauPair = iPair;
-            break;
+            chosenTauPairsIso.push_back(make_pair(t_tlv_firstLepton.Pt()+t_tlv_secondLepton.Pt(), iPair));
+            // chosenTauPair = iPair;
+            // break;
+        }
+        if ( oph.pairPassBaseline (&theBigTree, iPair, (leptonSelectionFlag+string("-TauRlxIzo")) ) )
+        {
+            chosenTauPairsIso.push_back(make_pair(t_tlv_firstLepton.Pt()+t_tlv_secondLepton.Pt(), iPair));
         }
     }
 
-    if (chosenTauPair < 0) continue; // no pair found over baseline
+    if (chosenTauPairsIso.size() > 0)
+    {
+      sort(chosenTauPairsIso.begin(), chosenTauPairsIso.end()); // will get highest pt sum
+      chosenTauPair = chosenTauPairsIso.back().second;
+    }
+    else if (chosenTauPairsRlxIso.size() > 0)
+    {
+      sort(chosenTauPairsRlxIso.begin(), chosenTauPairsRlxIso.end()); // will get highest pt sum
+      chosenTauPair = chosenTauPairsRlxIso.back().second;
+    }
+    else continue; // no pair found
+
+    // if (chosenTauPair < 0) continue; // no pair found over baseline
 
     // ----------------------------------------------------------
     // pair has been assessed , check trigger information
