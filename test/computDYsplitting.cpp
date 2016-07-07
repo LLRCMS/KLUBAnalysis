@@ -69,16 +69,19 @@ int main(int argc, char** argv)
     if (argc < 2)
     {
         cout << "** error of inputs . Usage:" << endl;
-        cout << "computeDYsplitting <inputFileList> <OPTIONAL : DY LO section>" << endl;
+        // cout << "computeDYsplitting <inputFileList> <OPTIONAL : DY LO section>" << endl;
+        cout << "computeDYsplitting <inputFileList> <OPTIONAL : outputFileName>" << endl;
         return 1;
     }
 
     string inputFile = argv[1];
-    float DY_lo_XS = 4954.0 ; // pb
-    if (argc > 2) DY_lo_XS = atof(argv[2]);
+    string outputFileName = "histos_DYCount.root" ;
+    if (argc > 2) outputFileName = argv[2];
+    // float DY_lo_XS = 4954.0 ; // pb
+    // if (argc > 2) DY_lo_XS = atof(argv[2]);
 
     cout << "** INFO: using filelist : " << inputFile << endl;
-    cout << "** INFO: DY LO cross section : " << DY_lo_XS << endl;
+    // cout << "** INFO: DY LO cross section : " << DY_lo_XS << endl;
 
     // input and output setup
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -90,7 +93,7 @@ int main(int argc, char** argv)
     int EvtsNjets[5] = {0,0,0,0,0}; // 0, 1, 2, 3, >=4
     int EvtsNBs[3] = {0,0,0}; //0,1,>=2 b
 
-    TFile* fOut = new TFile ("histos_DYCount.root", "recreate");
+    TFile* fOut = new TFile (outputFileName.c_str(), "recreate");
     TH2F* h_nJets_nBs = new TH2F ("h_nJets_nBs", ";nJets;nBs", 5, 0, 5, 5, 0, 5);
 
     // speed up
