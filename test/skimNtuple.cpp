@@ -344,7 +344,7 @@ int main (int argc, char** argv)
 
   int TT_stitchType = atoi(argv[12]);
   if (!isTTBar) TT_stitchType = 0; // just force if not TT...
-  cout << "** INFO: TT stitch type: " << TT_stitchType << " [0: no stitch , 1: fully had, 2: semilept t, 3: semilept tbar, 4: fully lept ]" << endl;
+  cout << "** INFO: TT stitch type: " << TT_stitchType << " [0: no stitch , 1: fully had, 2: semilept t, 3: semilept tbar, 4: fully lept, 5: semilept all]" << endl;
 
   // prepare variables needed throughout the code
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----    
@@ -598,7 +598,7 @@ int main (int argc, char** argv)
       else
       {
           // filter by decay mode if needed for stitching
-          // [0: no stitch , 1: fully had, 2: semilept t, 3: semilept tbar, 4: fully lept ]
+          // [0: no stitch , 1: fully had, 2: semilept t, 3: semilept tbar, 4: fully lept, 5: semilept all]
           // TopDecayMode: 0: Had, 1-5: leptonic, 6: other -- consider "other" as a possible hadronic decay (includes rare W->bc)
           
           bool isT1Lept = (decayTop1 >= 1 && decayTop1 <= 5) ;
@@ -638,7 +638,11 @@ int main (int argc, char** argv)
               break;
             
             case 4:
-                if (!isT1Lept || !isT2Lept) continue;
+              if (!isT1Lept || !isT2Lept) continue;
+              break;
+
+            case 5:
+              if (isT1Lept == isT2Lept) continue; // must be one had and the other lep, not equal
               break;
             
             default:
