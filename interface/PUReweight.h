@@ -19,6 +19,10 @@ public:
 public:
   Type theType;
 
+  // 2016 Samples
+  std::vector<float> hT2016_MCSpring16_Data2c6fb ;
+  std::vector<float> hT2016_MCSpring16_Data4c0fb ;
+
   // 2015 Samples
   std::vector<float> hT2015_MC25ns_Data25ns ;
   std::vector<float> hT2015_MC25ns_Data50ns ;
