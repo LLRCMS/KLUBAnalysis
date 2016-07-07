@@ -8,7 +8,7 @@ boosted              = pairType == 2 && dau1_pt > 45 && abs(dau1_eta) < 2.1 && d
 boosted_Mcut         = pairType == 2 && dau1_pt > 45 && abs(dau1_eta) < 2.1 && dau2_pt > 45 && abs(dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && isBoosted == 1 && tauH_SVFIT_mass > 80 && tauH_SVFIT_mass < 160 && fatjet_softdropMass > 90 && fatjet_softdropMass < 160  
 
 defaultBtagLLNoIsoBBTTCut45 = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && bH_mass_raw > 80 && bH_mass_raw < 160 && tauH_SVFIT_mass > 80 && tauH_SVFIT_mass < 160 && HH_mass_raw > 200 && bTagweightL > -999
-
+defaultBtagLLNoIso45        = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && HH_mass_raw > 200 && bTagweightL > -999
 ########################################################################
 
 
@@ -30,7 +30,7 @@ defaultOneBtagMNoIso = pairType == 2 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && 
 defaultBtagLLNoIso = pairType == 2 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && dau2_pt > 40 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && HH_mass_raw > 200 && bTagweightL > -999
 defaultBtagMMNoIso = pairType == 2 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && dau2_pt > 40 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.800 && bjet2_bID > 0.800 && bTagweightM > -999
 
-defaultBtagLLNoIso45 = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && HH_mass_raw > 200 && bTagweightL > -999
+# defaultBtagLLNoIso45 = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && HH_mass_raw > 200 && bTagweightL > -999
 defaultBtagMMNoIso45 = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && bjet1_bID > 0.800 && bjet2_bID > 0.800 && bTagweightM > -999
 
 
