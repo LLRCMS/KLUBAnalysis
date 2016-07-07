@@ -47,6 +47,7 @@ public :
    Float_t         MC_weight;
    Float_t         lheHt;
    Int_t           lheNOutPartons;
+   Int_t           lheNOutB;
    Float_t         aMCatNLOweight;
    std::vector<float>   *genpart_px;
    std::vector<float>   *genpart_py;
@@ -231,6 +232,7 @@ public :
    TBranch        *b_MC_weight;   //!
    TBranch        *b_lheHt;   //!
    TBranch        *b_lheNOutPartons; //!
+   TBranch        *b_lheNOutB; //!
    TBranch        *b_aMCatNLOweight;   //!
    TBranch        *b_genpart_px;   //!
    TBranch        *b_genpart_py;   //!
@@ -748,6 +750,7 @@ public :
             fChain->SetBranchAddress("NUP", &NUP, &b_NUP);
             fChain->SetBranchAddress("lheHt", &lheHt, &b_lheHt);
             fChain->SetBranchAddress("lheNOutPartons", &lheNOutPartons, &b_lheNOutPartons);
+            fChain->SetBranchAddress("lheNOutB", &lheNOutB, &b_lheNOutB);
        }
        
     }
