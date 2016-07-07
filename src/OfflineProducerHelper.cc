@@ -177,21 +177,24 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     bool leg2=false;
     if (pairType == MuHad)
     {
-        leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.1, whatApply);
-        leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, 3.0, whatApply);
+        float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
+        leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.15, whatApply);
+        leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, tauIso, whatApply);
     }
 
     if (pairType == EHad)
     {
+        float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
         leg1 = eleBaseline (tree, dau1index, 27., 2.1, 0.1, 0, whatApply);
-        leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, 3.0, whatApply);
+        leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, tauIso, whatApply);
     }
 
     // ordered by pT and not by most isolated, but baseline asked in sync is the same...
     if (pairType == HadHad)
     {
-        leg1 = tauBaseline (tree, dau1index, 40., 2.1, 0, 0, 2.0, whatApply);
-        leg2 = tauBaseline (tree, dau2index, 40., 2.1, 0, 0, 2.0, whatApply);
+        float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 2.0 ;
+        leg1 = tauBaseline (tree, dau1index, 40., 2.1, 0, 0, tauIso, whatApply);
+        leg2 = tauBaseline (tree, dau2index, 40., 2.1, 0, 0, tauIso, whatApply);
     }
 
     if (pairType == EMu)
@@ -361,7 +364,7 @@ bool OfflineProducerHelper::muBaseline (
     }
         
     bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
-    bool idS = checkBit (discr, 0) || byp_idS; // bit 2 is MEDIUM mu id, bit 0 is LOOSE id
+    bool idS = checkBit (discr, 3) || byp_idS; // bit 0 is LOOSE id, bit 2 is MEDIUM mu id, bit 3 is TIGHT mu id
     bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
     if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
