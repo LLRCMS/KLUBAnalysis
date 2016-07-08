@@ -838,7 +838,7 @@ int main (int argc, char** argv)
         //   theBigTree.daughters_e->at (t_secondDaughterIndex)
         // );
 
-        if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag ) )
+        if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag+string("-TauRlxIzo") ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
         {
             chosenTauPair = iPair;
             break;          
