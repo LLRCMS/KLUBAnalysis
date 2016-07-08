@@ -1,4 +1,5 @@
 ** INFO: using filelist : inputFiles/Files80X_22Giu/3_DY2JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt
+Error in <TCling::RegisterModule>: cannot find dictionary module mydict_rdict.pcm
 ** INFO: most branches are desactivated to speed up reading...
 - reading event 0
 - reading event 10000
@@ -1970,3 +1971,13 @@
 - reading event 19670000
 - reading event 19680000
 - reading event 19690000
+NJET: 0
+0 0 0 0 0 
+NJET: 1
+0 0 0 0 0 
+NJET: 2
+18448196 934736 312582 0 0 
+NJET: 3
+0 0 0 0 0 
+NJET: 4
+0 0 0 0 0 
