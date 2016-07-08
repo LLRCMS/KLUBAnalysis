@@ -51,8 +51,15 @@ const float DYscale_MM[3] = {1.20859, 1.0445 , 1.54734 } ;
 
 // const float stitchWeights [5] = {1.11179e-7, 3.04659e-9, 3.28633e-9, 3.48951e-9, 2.5776e-9} ; // weights DY stitch in njets, to be updated at each production (depend on n evtsn processed)
 // const float stitchWeights [5] = {11.55916, 0.316751, 0.341677, 0.362801, 0.267991} ; // weights DY stitch in njets, to be updated at each production (depend on n evts processed)
-const float stitchWeights [5] = {2.01536E-08, 2.71202E-09, 2.92616E-09, 3.0373E-09, 2.38728E-09} ; // jet binned only, 27 giu 2016
 
+// const float stitchWeights [5] = {2.01536E-08, 2.71202E-09, 2.92616E-09, 3.0373E-09, 2.38728E-09} ; // jet binned only, 27 giu 2016
+const float stitchWeights [][5] = {
+    {2.0049265858e-08 , 0.0 , 0.0 , 0.0 , 0.0},
+    {2.69618755131e-09 , 2.10733126107e-09 , 0.0 , 0.0 , 0.0},
+    {2.92455388799e-09 , 2.24661641826e-09 , 6.92704012573e-10 , 0.0 , 0.0},
+    {3.02046065594e-09 , 2.3004219177e-09 , 6.84321462783e-10 , 6.78248143287e-10 , 0.0},
+    {2.38520634128e-09 , 1.91846200951e-09 , 6.57271388073e-10 , 6.62884752046e-10 , 6.29760043228e-10}
+}; // jet binned and b binned, 8 jul 2016
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // open input txt file and append all the files it contains to TChain
@@ -460,7 +467,7 @@ int main (int argc, char** argv)
   
   // ------------------------------
 
-  PUReweight reweight (PUReweight::NONE); // none : no PU reweight (always returns 1)
+  PUReweight reweight (PUReweight::RUN2ANALYSIS); // none : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
 
   // ------------------------------
 
@@ -485,8 +492,11 @@ int main (int argc, char** argv)
   // muon POG SFs
   TFile* fMuPOGSF_ID = new TFile ("weights/MuPogSF/MuonID_Z_2016runB_2p6fb.root");
   TFile* fMuPOGSF_ISO = new TFile ("weights/MuPogSF/MuonISO_Z_2016runB_2p6fb.root");
-  TH2F* hMuPOGSF_ID  = (TH2F*) fMuPOGSF_ID -> Get("MC_NUM_LooseID_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio");  // pt: x, eta: y
-  TH2F* hMuPOGSF_ISO = (TH2F*) fMuPOGSF_ISO -> Get("MC_NUM_LooseRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio"); // pt: x, eta: y
+  TH2F* hMuPOGSF_ID  = (TH2F*) fMuPOGSF_ID -> Get("MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio");  // pt: x, eta: y
+  TH2F* hMuPOGSF_ISO = (TH2F*) fMuPOGSF_ISO -> Get("MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio"); // pt: x, eta: y
+  // for loose ID:
+  // MC_NUM_LooseID_DEN_genTracks_PAR_pt_spliteta_bin1
+  // MC_NUM_LooseRelIso_DEN_TightID_PAR_pt_spliteta_bin1
 
   // ------------------------------
   // reweighting file for HH non resonant
@@ -550,7 +560,14 @@ int main (int argc, char** argv)
     if (DY_tostitch)
     {
       int njets = theBigTree.lheNOutPartons;
-      stitchWeight = stitchWeights[njets];
+      int nb    = theBigTree.lheNOutB;
+      // these protections should be useless
+      if (njets < 0) njets = 0;
+      if (njets > 4) njets = 4;
+      if (nb < 0)    nb = 0;
+      if (nb > 4)    nb = 4;
+
+      stitchWeight = stitchWeights[njets][nb];
     }
 
     // gen info -- fetch tt pair and compute top PT reweight
