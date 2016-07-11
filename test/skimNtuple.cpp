@@ -550,6 +550,8 @@ int main (int argc, char** argv)
     int got = theBigTree.fChain->GetEntry(iEvent);
     if (got == 0) break;
 
+    // remove a lumisection that was present in 16 Giu JSON and removed in 22 and subsequent JSON
+    if (!isMC && theBigTree.RunNumber == 274094 && theBigTree.lumi >= 105 && theBigTree.lumi <= 107) continue;
 
     // directly reject events outside HT range in case of stitching of inclusive sample-- they should not count in weights
     if (HTMax > 0)
