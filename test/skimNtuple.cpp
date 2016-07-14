@@ -54,11 +54,11 @@ const float DYscale_MM[3] = {1.20859, 1.0445 , 1.54734 } ;
 
 // const float stitchWeights [5] = {2.01536E-08, 2.71202E-09, 2.92616E-09, 3.0373E-09, 2.38728E-09} ; // jet binned only, 27 giu 2016
 const float stitchWeights [][5] = {
-    {2.0049265858e-08 , 0.0 , 0.0 , 0.0 , 0.0},
-    {2.69618755131e-09 , 2.10733126107e-09 , 0.0 , 0.0 , 0.0},
-    {2.92455388799e-09 , 2.24661641826e-09 , 6.92704012573e-10 , 0.0 , 0.0},
-    {3.02046065594e-09 , 2.3004219177e-09 , 6.84321462783e-10 , 6.78248143287e-10 , 0.0},
-    {2.38520634128e-09 , 1.91846200951e-09 , 6.57271388073e-10 , 6.62884752046e-10 , 6.29760043228e-10}
+    {2.98077961089 , 0.0 , 0.0 , 0.0 , 0.0},
+    {0.400849633946 , 0.313302746388 , 0.0 , 0.0 , 0.0},
+    {0.434801486598 , 0.334010654578 , 0.102986214642 , 0.0 , 0.0},
+    {0.449060210108 , 0.342010066467 , 0.101739957862 , 0.100837020714 , 0.0},
+    {0.354615200387 , 0.285223034235 , 0.0977183487048 , 0.098552902997 , 0.0936281612454}
 }; // jet binned and b binned, 8 jul 2016
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
@@ -376,8 +376,8 @@ int main (int argc, char** argv)
   vector<string> trigEleTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleTau") : gConfigParser->readStringListOption ("triggersData::EleTau")) ;
   // vector<string> trigEleMu   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleMu")  : gConfigParser->readStringListOption ("triggersData::EleMu")) ;
   //I didn't store MuMu and I don't care for eleele
-  // vector<string> trigEleEle  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleEle")  : gConfigParser->readStringListOption ("triggersData::EleEle")) ;
-  // vector<string> trigMuMu    =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuMu")  : gConfigParser->readStringListOption ("triggersData::MuMu")) ;
+  vector<string> trigEleEle  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleEle")  : gConfigParser->readStringListOption ("triggersData::EleEle")) ;
+  vector<string> trigMuMu    =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuMu")  : gConfigParser->readStringListOption ("triggersData::MuMu")) ;
 
   bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
   cout << "** INFO: apply triggers? " << applyTriggers << " [ 0: reweight , 1: triggerbit+matching ]" << endl;
@@ -449,8 +449,8 @@ int main (int argc, char** argv)
   trigReader.addMuTauTrigs  (trigMuTau);
   trigReader.addEleTauTrigs (trigEleTau);
   // trigReader.addMuEleTrigs  (trigEleMu);
-  // trigReader.addMuMuTrigs   (trigMuMu);
-  // trigReader.addEleEleTrigs (trigEleEle);
+  trigReader.addMuMuTrigs   (trigMuMu);
+  trigReader.addEleEleTrigs (trigEleEle);
 
   // ------------------------------
 
@@ -762,7 +762,7 @@ int main (int argc, char** argv)
 
     if (isMC)
     {
-      totalEvents += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight * stitchWeight;
+      totalEvents += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight;
     }
     else
     {
@@ -806,9 +806,20 @@ int main (int argc, char** argv)
         }
     }
     int pairType = 2; // tau tau
-    if (nmu > 0) pairType = 0 ; // mu tau
-    else if (nele > 0) pairType = 1 ; // ele tau
-
+    if (nmu > 0)
+    {
+      if (nmu == 1)
+        pairType = 0 ; // mu tau
+      else
+        pairType = 3 ; // mu mu
+    }
+    else if (nele > 0)
+    {
+      if (nele == 1)
+        pairType = 1 ; // ele tau
+      else
+        pairType = 4 ; // ele ele
+    }
     // ----------------------------------------------------------
     // choose the first pair passing baseline and being of the right pair type
 
@@ -880,6 +891,8 @@ int main (int argc, char** argv)
     const int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
     const int pType = pairType ;
     const int isOS  = theBigTree.isOSCand->at (chosenTauPair) ;
+    bool lep1HasTES = (theBigTree.daughters_TauUpExists->at(firstDaughterIndex) == 1 ? true : false);
+    bool lep2HasTES = (theBigTree.daughters_TauUpExists->at(secondDaughterIndex) == 1 ? true : false);
 
     const TLorentzVector tlv_firstLepton (
           theBigTree.daughters_px->at (firstDaughterIndex),
@@ -895,6 +908,44 @@ int main (int argc, char** argv)
           theBigTree.daughters_e->at (secondDaughterIndex)
     );
 
+    // scale up: only applies to tau
+    TLorentzVector tlv_firstLepton_tauup (tlv_firstLepton);
+    TLorentzVector tlv_firstLepton_taudown (tlv_firstLepton);
+    if (lep1HasTES)
+    {
+      tlv_firstLepton_tauup.SetPxPyPzE (
+            theBigTree.daughters_px_TauUp->at (firstDaughterIndex),
+            theBigTree.daughters_py_TauUp->at (firstDaughterIndex),
+            theBigTree.daughters_pz_TauUp->at (firstDaughterIndex),
+            theBigTree.daughters_e_TauUp->at (firstDaughterIndex)
+      );
+      tlv_firstLepton_taudown.SetPxPyPzE (
+          theBigTree.daughters_px_TauDown->at (firstDaughterIndex),
+          theBigTree.daughters_py_TauDown->at (firstDaughterIndex),
+          theBigTree.daughters_pz_TauDown->at (firstDaughterIndex),
+          theBigTree.daughters_e_TauDown->at (firstDaughterIndex)
+      );
+    }
+
+    TLorentzVector tlv_secondLepton_tauup (tlv_secondLepton);
+    TLorentzVector tlv_secondLepton_taudown (tlv_secondLepton);
+    if (lep2HasTES)
+    {
+      tlv_secondLepton_tauup.SetPxPyPzE (
+          theBigTree.daughters_px_TauUp->at (secondDaughterIndex),
+          theBigTree.daughters_py_TauUp->at (secondDaughterIndex),
+          theBigTree.daughters_pz_TauUp->at (secondDaughterIndex),
+          theBigTree.daughters_e_TauUp->at (secondDaughterIndex)
+      );
+      tlv_secondLepton_taudown.SetPxPyPzE (
+          theBigTree.daughters_px_TauDown->at (secondDaughterIndex),
+          theBigTree.daughters_py_TauDown->at (secondDaughterIndex),
+          theBigTree.daughters_pz_TauDown->at (secondDaughterIndex),
+          theBigTree.daughters_e_TauDown->at (secondDaughterIndex)
+      );
+    }
+
+
     // the following code is the match of the tau to a L1 tau seed due to an error in seed removal from path
     // needed only when analyzing 2015 data
     // if (pairType == 2 && isMC)
@@ -906,7 +957,10 @@ int main (int argc, char** argv)
     // }
 
     // DATA strategy
-    float trgEvtWeight = 1.0;
+    float trgEvtWeight     = 1.0;
+    float trgEvtWeightUp   = 1.0;
+    float trgEvtWeightDown = 1.0;
+    
     if (applyTriggers)
     {
       Long64_t triggerbit = theBigTree.triggerbit;
@@ -916,7 +970,7 @@ int main (int argc, char** argv)
       bool passMatch1 = false;
       bool passMatch2 = false;
       // FIXME!! true only if single lep trigger for eTau and muTau
-      if (pairType == 0 || pairType == 1)
+      if (pairType == 0 || pairType == 1 || pairType == 3 || pairType == 4)
       {
           passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
           passMatch2 = true;
@@ -938,24 +992,51 @@ int main (int argc, char** argv)
       float evtLeg1weight = 1.0;
       float evtLeg2weight = 1.0;
 
-      if (pairType == 0)  //mutau
+      float evtLeg1weightUp = 1.0;
+      float evtLeg2weightUp = 1.0;
+
+      float evtLeg1weightDown = 1.0;
+      float evtLeg2weightDown = 1.0;
+
+      if (pairType == 0 || pairType == 3)  //mutau -- mumu
       {
           evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), 0, myScaleFactor[type1][0], 0) ;
-          evtLeg2weight = 1.0;        
+          evtLeg2weight = 1.0;
+          
+          evtLeg1weightUp   = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_tauup.Pt(), tlv_firstLepton_tauup.Eta(), 0, myScaleFactor[type1][0], 0) : evtLeg1weight);
+          evtLeg1weightDown = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_taudown.Pt(), tlv_firstLepton_taudown.Eta(), 0, myScaleFactor[type1][0], 0) : evtLeg1weight);
+
+          evtLeg2weightUp   = 1.0;
+          evtLeg2weightDown = 1.0;
       }
 
-      else if (pairType == 1) //eletau
+      else if (pairType == 1 || pairType == 4) //eletau -- ee
       {
           evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), trigRewEleHisto, 0, 0) ;
           evtLeg2weight = 1.0;        
+
+          evtLeg1weightUp   = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_tauup.Pt(), tlv_firstLepton_tauup.Eta(), trigRewEleHisto, 0, 0)  : evtLeg1weight);
+          evtLeg1weightDown = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_taudown.Pt(), tlv_firstLepton_taudown.Eta(), trigRewEleHisto, 0, 0)  : evtLeg1weight);
+
+          evtLeg2weightUp   = 1.0;
+          evtLeg2weightDown = 1.0;
       }
 
       else if (pairType == 2) //tautau
       {
           evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), 0, 0, 1) ;
           evtLeg2weight = getTriggerWeight(type2, tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), 0, 0, 1) ;
+
+          evtLeg1weightUp     = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_tauup.Pt(), tlv_firstLepton_tauup.Eta(), 0, 0, 1) : evtLeg1weight ) ;
+          evtLeg1weightDown   = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_taudown.Pt(), tlv_firstLepton_taudown.Eta(), 0, 0, 1) : evtLeg1weight ) ;
+          
+          evtLeg2weightUp   = (lep2HasTES ? getTriggerWeight(type2, tlv_secondLepton_tauup.Pt(), tlv_secondLepton_tauup.Eta(), 0, 0, 1) : evtLeg2weight ) ;
+          evtLeg2weightDown = (lep2HasTES ? getTriggerWeight(type2, tlv_secondLepton_taudown.Pt(), tlv_secondLepton_taudown.Eta(), 0, 0, 1) : evtLeg2weight ) ;
+
       }
       trgEvtWeight = evtLeg1weight*evtLeg2weight;
+      trgEvtWeightUp   = evtLeg1weightUp*evtLeg2weightUp;
+      trgEvtWeightDown = evtLeg1weightDown*evtLeg2weightDown;
     }
 
     // ----------------------------------------------------------
@@ -965,6 +1046,8 @@ int main (int argc, char** argv)
     TLorentzVector tlv_tauH_SVFIT ;
 
     theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
+    theSmallTree.m_tauH_SVFIT_mass_up   = theBigTree.SVfitMassTauUp->at (chosenTauPair) ;
+    theSmallTree.m_tauH_SVFIT_mass_down = theBigTree.SVfitMassTauDown->at (chosenTauPair) ;
     // in case the SVFIT mass is calculated
     if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
     {
@@ -986,6 +1069,9 @@ int main (int argc, char** argv)
     theSmallTree.m_pairType    = pType ;
     theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) : 1) ;      
     theSmallTree.m_MC_weight   = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight * HHweight * trgEvtWeight : 1) ;
+    theSmallTree.m_turnOnreweight   = (isMC ? trgEvtWeight : 1.);
+    theSmallTree.m_turnOnreweight_tauup    = (isMC ? trgEvtWeightUp  : 1.);
+    theSmallTree.m_turnOnreweight_taudown  = (isMC ? trgEvtWeightDown : 1.);
     theSmallTree.m_lheht       = (isMC ? theBigTree.lheHt : 0) ;
     theSmallTree.m_EventNumber = theBigTree.EventNumber ;
     theSmallTree.m_RunNumber   = theBigTree.RunNumber ;
@@ -1338,12 +1424,17 @@ int main (int argc, char** argv)
       float HHKmass = -999;
       float HHKChi2 = -999;
       // if (runHHKinFit && tlv_HH_raw.M() > 20 && tlv_HH_raw.M() < 200)
-      if (runHHKinFit)
+      if (runHHKinFit && pairType <= 2) // no kinfit for ee / mumu
       {
         HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet, tlv_secondBjet, 
                                                    tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
         HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet_raw, tlv_secondBjet_raw, 
                                                    tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
+        HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_tauup = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet_raw, tlv_secondBjet_raw, 
+                                                   tlv_firstLepton_tauup, tlv_secondLepton_tauup,  ptmiss, stableMetCov) ;
+        HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_taudown = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet_raw, tlv_secondBjet_raw, 
+                                                   tlv_firstLepton_taudown, tlv_secondLepton_taudown,  ptmiss, stableMetCov) ;
+
 //           kinFits.setAdvancedBalance (&ptmiss, metcov) ;
 //           kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
 // 
@@ -1351,6 +1442,9 @@ int main (int argc, char** argv)
 //           kinFits.addMh2Hypothesis (hypo_mh2) ;
         kinFits.   addHypo(hypo_mh1,hypo_mh2);
         kinFitsraw.addHypo(hypo_mh1,hypo_mh2);
+        kinFitsraw_tauup.addHypo(hypo_mh1,hypo_mh2);
+        kinFitsraw_taudown.addHypo(hypo_mh1,hypo_mh2);
+
         try{           
             kinFits.fit();//doFit () ; 
         }
@@ -1441,6 +1535,8 @@ int main (int argc, char** argv)
         }else{
           if(isOS)HHKmass = -333;
         }
+        
+        // nominal kinfit raw
         bool wrongHHKraw =false;
         try {
           kinFitsraw.fit();
@@ -1466,6 +1562,34 @@ int main (int argc, char** argv)
           theSmallTree.m_HHkinsvfit_e   = tlv_HHsvfit.E () ;
           theSmallTree.m_HHkinsvfit_m   = tlv_HHsvfit.M () ;
         } // in case the SVFIT mass is calculated
+
+        // raw kinfit TES up
+        bool wrongHHKraw_tauup =false;
+        try {
+          kinFitsraw_tauup.fit();
+        }
+        catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_tauup=true;}
+        catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_tauup=true;}
+        catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_tauup=true;}
+        if(!wrongHHKraw_tauup){
+          theSmallTree.m_HHKin_mass_raw_tauup = kinFitsraw_tauup.getMH();
+        }
+        else theSmallTree.m_HHKin_mass_raw_tauup = -100 ;
+
+        // raw kinfit TES down
+        bool wrongHHKraw_taudown =false;
+        try {
+          kinFitsraw_taudown.fit();
+        }
+        catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_taudown=true;}
+        catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_taudown=true;}
+        catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_taudown=true;}
+        if(!wrongHHKraw_taudown){
+          theSmallTree.m_HHKin_mass_raw_taudown = kinFitsraw_taudown.getMH();
+        }
+        else theSmallTree.m_HHKin_mass_raw_taudown = -100 ;
+
+
       } // end if doing HHKinFit
 
       theSmallTree.m_HHKin_mass_raw_copy = theSmallTree.m_HHKin_mass_raw ; // store twice if different binning needed
