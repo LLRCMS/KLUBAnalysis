@@ -42,6 +42,7 @@ class configReader:
  
         # systematics 
         self.lumiUnc = -999.9
+        self.SSOSfactor = 1.06
 
         self.CMS_zz4l_mean_m_sig = -999.9
         self.CMS_zz4l_sigma_m_sig = -999.9
@@ -93,7 +94,7 @@ class configReader:
                 #if f[0] == 'signalsFitted' : 
                 if f[0] == 'signals' : 
                     for sample in range(1,len(f)-1): self.signals.append(f[sample])
-                elif f[0] == "backgrounds": 
+                elif f[0] == "backgroundsMerge": 
                     for sample in range(1,len(f)-1): self.background.append(f[sample])
                 elif f[0] == "data": 
                     for sample in range(1,len(f)-1): self.datasamples.append(f[sample])
@@ -121,6 +122,8 @@ class configReader:
             if section == "evalQCD":
                 if f[0] == "outputFolderName":
                     self.inputFolder = self.inputFolder + "/" +f[1] 
+                if f[0] == "SStoOSscaleFactor":
+                    self.SSOSfactor = f[1]
             #if section == "systematics": #devo capire che formato sare    
             #    continue
             #print f        

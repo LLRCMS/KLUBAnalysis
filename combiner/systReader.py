@@ -79,8 +79,10 @@ class systReader:
 
     def writeOneLine(self,channel,string,value=1):
         outputLine = string
+        #print "channels:", channel
         for chan in self.channels :
-            if chan == channel:
+            #print chan
+            if (chan in channel) or ("bkg_"+chan in channel) :
                 outputLine += str(value)+" "
             else:
                 outputLine += "- "
