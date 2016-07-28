@@ -41,6 +41,7 @@ class cardMaker:
 
         self.addsqrtN = False
         self.addTES = True
+        self.normalize = False
 
     def loadIncludes(self):
         ROOT.gSystem.AddIncludePath("-I$ROOFITSYS/include/")
@@ -53,23 +54,25 @@ class cardMaker:
     def setfileName(self,filename):
         self.filename = filename
 
-    def AddSingleShapeSyst(self,w,systRead,systName,inFileName,tempName,proc,ral_variableList,ras_variableSet,suffix="",normalize=True):
+    def AddSingleShapeSyst(self,w,systRead,systName,inFileName,tempName,proc,ral_variableList,ras_variableSet,prefix,suffix=""):
         inputFile = TFile.Open(inFileName)
-        templateUp = inputFile.Get(tempName+"UP"+suffix)
-        templateDo = inputFile.Get(tempName+"DOWN"+suffix)
-        #templateUp.Scale(1/templateUp.Integral())
-        #templateDo.Scale(1/templateDo.Integral())
+        print tempName+suffix
+        templateNo = inputFile.Get(tempName+suffix)
+        templateUp = inputFile.Get(tempName+prefix+"UP"+suffix)
+        templateDo = inputFile.Get(tempName+prefix+"DOWN"+suffix)
+        templateUp.Scale(templateNo.Integral()/templateUp.Integral())
+        templateDo.Scale(templateNo.Integral()/templateDo.Integral())
 
         PdfName = "bkg_{0}".format(proc)
 
         rdhshapeUp    = ROOT.RooDataHist(systName+"Up",systName+"Up",ral_variableList,templateUp.Clone())
         rdhshapeDown  = ROOT.RooDataHist(systName+"Down",systName+"Down",ral_variableList,templateDo.Clone())
         name = PdfName+"_"+systName
-        if not normalize :
+        if not self.normalize :
             rdhshapeUp.SetNameTitle(name+"Up",name+"Up")
             rdhshapeDown.SetNameTitle(name+"Down",name+"Down")
             getattr(w,'import')(rdhshapeUp,ROOT.RooFit.RecycleConflictNodes())
-            getattr(w,'import')(rdhShapeDown,ROOT.RooFit.RecycleConflictNodes())
+            getattr(w,'import')(rdhshapeDown,ROOT.RooFit.RecycleConflictNodes())
         else :
             rhpshapeUp    = ROOT.RooHistPdf(name+"Up",name+"Up",ras_variableSet,rdhshapeUp)
             rhpShapeDown  = ROOT.RooHistPdf(name+"Down",name+"Down",ras_variableSet,rdhshapeDown)
@@ -83,10 +86,21 @@ class cardMaker:
         templateUp = inputFile.Get(tempName)
         templateDo = inputFile.Get(tempName)
 
+        ### FIXME
+        if "OS_sig" in tempName : #and not self.isResonant:
+            templateNo.Scale(1.0/100.0)
+            templateDo.Scale(1.0/100.0)
+            templateUp.Scale(1.0/100.0)
+        ### END FIXME
+        
         for ibin in range(templateUp.GetNbinsX()):
-            if not self.isResonant :
-                templateUp.SetBinContent(ibin+1, 1.05* templateNo.GetBinContent(ibin+1))
+            #if not self.isResonant :
+            #    templateUp.SetBinContent(ibin+1, 1.05* templateNo.GetBinContent(ibin+1))
             templateDo.SetBinContent(ibin+1, 2.0* templateNo.GetBinContent(ibin+1)-templateUp.GetBinContent(ibin+1) )
+
+        #templateNo.Scale(1/templateNo.Integral())
+        #templateDo.Scale(1/templateNo.Integral())
+        #templateUp.Scale(1/templateNo.Integral())
 
         if "ggHH" in proc :
             PdfName = proc
@@ -94,13 +108,13 @@ class cardMaker:
             PdfName = "bkg_{0}".format(proc)
         print PdfName
 
-        Down_norm = ROOT.RooRealVar(PdfName+"dnorm",PdfName+"dnorm",templateDo.Integral())
-        Nominal_norm = ROOT.RooRealVar(PdfName+"nnorm",PdfName+"nnorm",templateNo.Integral())
-        Up_norm = ROOT.RooRealVar(PdfName+"unorm",PdfName+"unorm",templateUp.Integral())
-
-        Down_norm.setConstant(True)
-        Nominal_norm.setConstant(True)
-        Up_norm.setConstant(True)
+#        Down_norm = ROOT.RooRealVar(PdfName+"dnorm",PdfName+"dnorm",templateDo.Integral())
+#        Nominal_norm = ROOT.RooRealVar(PdfName+"nnorm",PdfName+"nnorm",templateNo.Integral())
+#        Up_norm = ROOT.RooRealVar(PdfName+"unorm",PdfName+"unorm",templateUp.Integral())
+#
+#        Down_norm.setConstant(True)
+#        Nominal_norm.setConstant(True)
+#        Up_norm.setConstant(True)
 
         rdhshapeUp    = ROOT.RooDataHist("rdh_"+PdfName+"_"+systName+"Up","rdh_"+PdfName+"_"+systName+"Up",ral_variableList,templateUp.Clone())
         rdhshapeDown  = ROOT.RooDataHist("rdh_"+PdfName+"_"+systName+"Down","rdh_"+PdfName+"_"+systName+"Down",ral_variableList,templateDo.Clone())
@@ -109,23 +123,31 @@ class cardMaker:
         rdhshapeNo    = ROOT.RooDataHist("rdh_"+PdfName+"_"+systName+"No","rdh_"+PdfName+"_"+systName+"No",ral_variableList,templateNo.Clone())
         rhpNominal    = ROOT.RooHistPdf(PdfName+"_"+systName+"No",PdfName+"_"+systName+"No",ras_variableSet,rdhshapeNo)
         
-        morphVarList = ROOT.RooArgList()
-        morphVarList.add(w.var("CMS_HHbbtt_scale_tau"))
-        MorphList = ROOT.RooArgList()
-        MorphList.add(rhpNominal)
-        MorphList.add(rhpshapeUp)
-        MorphList.add(rhpShapeDown)
-        pdf = ROOT.VerticalInterpPdf(PdfName,PdfName,MorphList,morphVarList)
+        if not self.normalize :
+            rdhshapeUp.SetNameTitle(PdfName+"_"+systName+"Up",PdfName+"Up")
+            rdhshapeDown.SetNameTitle(PdfName+"_"+systName+"Down",PdfName+"Down")
+            rdhshapeNo.SetNameTitle(PdfName,PdfName)
+            getattr(w,'import')(rdhshapeUp,ROOT.RooFit.RecycleConflictNodes())
+            getattr(w,'import')(rdhshapeDown,ROOT.RooFit.RecycleConflictNodes())
+            getattr(w,'import')(rdhshapeNo,ROOT.RooFit.RecycleConflictNodes())
+        else :
+            morphVarList = ROOT.RooArgList()
+            morphVarList.add(w.var("CMS_HHbbtt_scale_tau"))
+            MorphList = ROOT.RooArgList()
+            MorphList.add(rhpNominal)
+            MorphList.add(rhpshapeUp)
+            MorphList.add(rhpShapeDown)
+            pdf = ROOT.VerticalInterpPdf(PdfName,PdfName,MorphList,morphVarList)
 
-        kappalow = ROOT.RooFormulaVar("kappalow_"+PdfName,"@0/@1",ROOT.RooArgList(Down_norm,Nominal_norm))
-        kappahigh = ROOT.RooFormulaVar("kappahigh_"+PdfName,"@0/@1",ROOT.RooArgList(Up_norm,Nominal_norm))
-        thetaSyst = AsymPow("theta"+PdfName,"theta"+PdfName,kappalow,kappahigh,w.var("CMS_HHbbtt_scale_tau"))
-        var_norm = ROOT.RooFormulaVar(PdfName+"_norm","@0",ROOT.RooArgList(thetaSyst))
+            kappalow = ROOT.RooFormulaVar("kappalow_"+PdfName,"@0/@1",ROOT.RooArgList(Down_norm,Nominal_norm))
+            kappahigh = ROOT.RooFormulaVar("kappahigh_"+PdfName,"@0/@1",ROOT.RooArgList(Up_norm,Nominal_norm))
+            thetaSyst = AsymPow("theta"+PdfName,"theta"+PdfName,kappalow,kappahigh,w.var("CMS_HHbbtt_scale_tau"))
+            var_norm = ROOT.RooFormulaVar(PdfName+"_norm","@0",ROOT.RooArgList(thetaSyst))
 
-        getattr(w,'import')(rhpshapeUp,ROOT.RooFit.RecycleConflictNodes())
-        getattr(w,'import')(rhpShapeDown,ROOT.RooFit.RecycleConflictNodes())
-        getattr(w,'import')(var_norm,ROOT.RooFit.RecycleConflictNodes())
-        getattr(w,'import')(pdf,ROOT.RooFit.RecycleConflictNodes())
+            getattr(w,'import')(rhpshapeUp,ROOT.RooFit.RecycleConflictNodes())
+            getattr(w,'import')(rhpShapeDown,ROOT.RooFit.RecycleConflictNodes())
+            getattr(w,'import')(var_norm,ROOT.RooFit.RecycleConflictNodes())
+            getattr(w,'import')(pdf,ROOT.RooFit.RecycleConflictNodes())
 
         #systRead.writeOneLine(proc,systName+" shape ")
 
@@ -219,8 +241,15 @@ class cardMaker:
                 qcdbinDown = ROOT.RooDataHist(histName+"Down",histName+"Down",ral_variableList,templateDown.Clone())
                 qcdbinpdfUp  = ROOT.RooHistPdf(PdfName+"_"+histName+"Up",PdfName+"_"+histName+"Up",ras_variableSet,qcdbinUp)
                 qcdbinpdfDown  = ROOT.RooHistPdf(PdfName+"_"+histName+"Down",PdfName+"_"+histName+"Down",ras_variableSet,qcdbinDown)
-                getattr(w,'import')(qcdbinpdfUp,ROOT.RooFit.RecycleConflictNodes())
-                getattr(w,'import')(qcdbinpdfDown,ROOT.RooFit.RecycleConflictNodes())
+                if not self.normalize :
+                    qcdbinUp.SetNameTitle(PdfName+"_"+histName+"Up",PdfName+"_"+histName+"Up")
+                    qcdbinDown.SetNameTitle(PdfName+"_"+histName+"Down",PdfName+"_"+histName+"Down")
+                    getattr(w,'import')(qcdbinUp,ROOT.RooFit.RecycleConflictNodes())
+                    getattr(w,'import')(qcdbinDown,ROOT.RooFit.RecycleConflictNodes())
+
+                else:
+                    getattr(w,'import')(qcdbinpdfUp,ROOT.RooFit.RecycleConflictNodes())
+                    getattr(w,'import')(qcdbinpdfDown,ROOT.RooFit.RecycleConflictNodes())
 
 
     def makeCardsAndWorkspace(self, theHHLambda, theCat, theChannel, theOutputDir, theInputs):
@@ -285,6 +314,12 @@ class cardMaker:
         nameString = "OS_sig_{0}{1}_OS_{3}_{2}".format(theInputs.AllVars[theInputs.varX],var2,theHHLambda,theInputs.selectionLevel)
         print nameString
         templateSIG = inputSigFile.Get(nameString)
+        
+        ###FIXME TEST
+        #if not self.isResonant:  
+        templateSIG.Scale(1.0/100.0)
+        ###END TEST
+
         if self.is2D==1: 
             if "TH2" in templateSIG.ClassName() : templateSIG = templateSIG.ProjectionX()
 
@@ -305,6 +340,7 @@ class cardMaker:
         totalRate = float(rate_signal_Shape)
         print " signal rate ", rate_signal_Shape
         theRates = [rate_signal_Shape]
+        #templateSIG.Scale(1/tSigIntegral)
         templatesBKG = []
         tobeRemoved = []
 
@@ -326,10 +362,16 @@ class cardMaker:
                 for ibin in range(template.GetNbinsX()):
                     if template.GetBinContent(ibin)==0 :
                         template.SetBinContent(ibin, 0.000001)
-                templatesBKG.append(template)       
                 theRates.append( template.Integral() ) #*self.lumi
                 totalRate = totalRate + theRates[len(theRates)-1]
                 print template.Integral()
+
+                #if "QCD" in nameTemplate:
+                #    template.Scale(0.5)
+                
+
+                #template.Scale(1/template.Integral())
+                templatesBKG.append(template)       
             else:
                 tobeRemoved.append(isample)
         #protection against empty BKGs
@@ -448,9 +490,14 @@ class cardMaker:
                 templateDown.Scale(tBkgIntegral/templateDown.Integral())
                 rlxshapeDown = ROOT.RooDataHist("qcd_dhRlxToTight_{0}_{1}Down".format(theChannel,theCat),"qcd_dhRlxToTight_{0}_{1}Down".format(theChannel,theCat),ral_variableList,templateDown)
                 rlxshapepdfDown  = ROOT.RooHistPdf(PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}_{1}Down".format(theChannel,theCat),PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}_{1}Down".format(theChannel,theCat),ras_variableSet,rlxshapeDown)
-
-                getattr(w,'import')(rlxshapepdfUp,ROOT.RooFit.RecycleConflictNodes())
-                getattr(w,'import')(rlxshapepdfDown,ROOT.RooFit.RecycleConflictNodes())
+                if not self.normalize :
+                    rlxshapeDown.SetNameTitle(PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}_{1}Down".format(theChannel,theCat),PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}_{1}Down".format(theChannel,theCat))
+                    rlxshapeUp.SetNameTitle(PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}_{1}Up".format(theChannel,theCat),PdfName+"_CMS_HHbbtt_qcd_RlxToTight_{0}_{1}Up".format(theChannel,theCat))
+                    getattr(w,'import')(rlxshapeUp,ROOT.RooFit.RecycleConflictNodes())
+                    getattr(w,'import')(rlxshapeDown,ROOT.RooFit.RecycleConflictNodes())
+                else:
+                    getattr(w,'import')(rlxshapepdfUp,ROOT.RooFit.RecycleConflictNodes())
+                    getattr(w,'import')(rlxshapepdfDown,ROOT.RooFit.RecycleConflictNodes())
 
             else :
                 self.AddBinByBinSyst(w,"CMS_HHbbtt_lowStat_{0}".format(ibkg),PdfName,templatesBKG[ibkg],ral_variableList,ras_variableSet, 0.18)
@@ -460,8 +507,12 @@ class cardMaker:
 
             rdhB.append(ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templatesBKG[ibkg]))
             rhpB.append(ROOT.RooHistPdf(PdfName,PdfName,ras_variableSet,rdhB[ibkg]))
-            if not self.addTES :
-             getattr(w,'import')(rhpB[ibkg],ROOT.RooFit.RecycleConflictNodes())
+            if not self.addTES or  theInputs.background[ibkg] == "QCD":
+                if not self.normalize :
+                    rdhB[ibkg].SetNameTitle(PdfName,PdfName)
+                    getattr(w,'import')(rdhB[ibkg],ROOT.RooFit.RecycleConflictNodes())
+                else :
+                   getattr(w,'import')(rhpB[ibkg],ROOT.RooFit.RecycleConflictNodes())
 
         ## --------------------------- DATASET --------------------------- ##
         #RooDataSet ds("ds","ds",ras_variableSet,Import(*tree)) ;
@@ -589,8 +640,8 @@ class cardMaker:
         if(self.writeThSyst) :
             syst_th = systReader("../config/syst_th.cfg",[theHHLambda],theInputs.background,file)
             syst_th.writeSystematics()
-            if(theChannel == self.ID_ch_mutau or theChannel == self.ID_ch_etau):
-                syst_res.writeSystematics()
+        if(theChannel == self.ID_ch_mutau or theChannel == self.ID_ch_etau):
+            syst_res.writeSystematics()
 
         for iqcd in range(len(self.binsysts)) :
             syst.writeOneLine(self.binsystsNAME[iqcd],self.binsysts[iqcd],self.binsystsVALUE[iqcd])
@@ -606,26 +657,26 @@ class cardMaker:
             #syst.writeOneLine("QCD", "CMS_HHbbtt_qcd_SR_norm_{0} lnN ".format(theChannel),1+1.0/TMath.Sqrt(inputFile.Get(templateName).Integral()))
             #add  CR->SR uncertainty (gamma*alhpa)
             #templateName = templateName.replace("CORR_","")###GRRR this is hardcoded... but I don't know how to do better
-            syst.writeOneLine("QCD", "CMS_HHbbtt_qcd_CR_norm_{0}_{1} gmN {2:.0f} ".format(theChannel,theCat,inputFile.Get(templateName).Integral()/1.06),1.06)
+            syst.writeOneLine("QCD", "CMS_HHbbtt_qcd_CR_norm_{0}_{1} gmN {2:.0f} ".format(theChannel,theCat,inputFile.Get(templateName).Integral()/float(theInputs.SSOSfactor),float(theInputs.SSOSfactor)))
         readChTmplate = "MuTau"
         if(thechannel == self.ID_ch_etau): readChTmplate = "ETau"
         elif (thechannel == self.ID_ch_tautau): readChTmplate = "TauTau"
         #self.AddSingleShapeSyst(w,syst,"CMS_HHbbtt_pttopreweight","/home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/studies/TopPtReweight/topPtShapes_{0}.root".format(readChTmplate),"h","TT",ral_variableList,ras_variableSet)
-        self.AddSingleShapeSyst(w,syst,"CMS_HHbbtt_pttopreweight",self.filename,"OS_bkg_{0}_OS_{1}_top".format(theInputs.AllVars[theInputs.varX],theInputs.selectionLevel),"TT",ral_variableList,ras_variableSet,"_TT")
+        self.AddSingleShapeSyst(w,syst,"CMS_HHbbtt_pttopreweight",self.filename,"OS_bkg_{0}_OS_{1}".format(theInputs.AllVars[theInputs.varX],theInputs.selectionLevel),"TT",ral_variableList,ras_variableSet,"_top","_TT")
 
         ###
-#        no_teschannels = ["bkg_QCD"]
-#        if theChannel == self.ID_ch_etau or theChannel == self.ID_ch_etau :
-#            no_teschannels.append("bkg_WJet")     
-#            no_teschannels.append("bkg_WWToLNuQQ")     
-#            no_teschannels.append("bkg_WZTo1L3Nu")     
-#            no_teschannels.append("bkg_WZTo1L1Nu2Q")     
-#        teschannels = channelName
-#        for notes in no_teschannels :
-#            if notes in teschannels :
-#                teschannels.remove(notes)
-#        teschannels.append(theHHLambda)
-#        syst.writeOneLine(teschannels,"CMS_HHbbtt_scale_tau"+" shape ")
+        no_teschannels = ["bkg_QCD"]
+        if theChannel == self.ID_ch_etau or theChannel == self.ID_ch_mutau :
+            no_teschannels.append("bkg_WJet")     
+            no_teschannels.append("bkg_WWToLNuQQ")     
+            no_teschannels.append("bkg_WZTo1L3Nu")     
+            no_teschannels.append("bkg_WZTo1L1Nu2Q")     
+        teschannels = channelName
+        for notes in no_teschannels :
+            if notes in teschannels :
+                teschannels.remove(notes)
+        teschannels.append(theHHLambda)
+        syst.writeOneLine(teschannels,"CMS_HHbbtt_scale_tau"+" shape ")
         ###
         w.writeToFile(name_ShapeWS)
 
@@ -639,7 +690,7 @@ def parseOptions():
     parser.add_option('-d', '--is2D',   dest='is2D',       type='int',    default=1,     help='number of Dimensions (default:1)')
     parser.add_option('-f', '--filename',   dest='filename',   type='string', default="",  help='input plots')
     parser.add_option('-S', '--sigfilename',dest='sigfilename',type='string', default="",  help='input signalplots')
-    #parser.add_option('-l', '--lambda',   dest='Lambda', type='float', default=20,  help='Lambda value')
+    parser.add_option('-l', '--lambda',   dest='Lambda', type='string', default="",  help='Lambda name')
     parser.add_option('-c', '--channel',   dest='channel', type='string', default='MuTau',  help='final state')
     parser.add_option('-b', '--category',   dest='category', type='int', default='999',  help='btag category')
     parser.add_option('-i', '--config',   dest='config', type='string', default='',  help='config file')
@@ -721,5 +772,9 @@ if __name__ == "__main__":
         dc.isResonant = True
 
     print input.signals
-    for signal in input.signals :
-        dc.makeCardsAndWorkspace(signal,opt.category,thechannel,"{0}{1}{2}".format(signal,opt.overSel,opt.overVar),input)
+    if opt.Lambda == "" :
+        for signal in input.signals :
+            dc.makeCardsAndWorkspace(signal,opt.category,thechannel,"{0}{1}{2}".format(signal,opt.overSel,opt.overVar),input)
+    else : 
+        print opt.Lambda
+        dc.makeCardsAndWorkspace(opt.Lambda,opt.category,thechannel,"{0}{1}{2}".format(opt.Lambda,opt.overSel,opt.overVar),input)
