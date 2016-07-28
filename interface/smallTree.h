@@ -29,6 +29,8 @@ struct smallTree
       m_bTagweightT = -1. ;
       m_TTtopPtreweight = -1. ;
       m_turnOnreweight = -1. ;
+      m_turnOnreweight_tauup = -1. ;
+      m_turnOnreweight_taudown = -1. ;
       m_EventNumber = -1. ;
       m_DYscale_LL = -1. ;
       m_DYscale_MM = -1. ;
@@ -148,6 +150,9 @@ struct smallTree
       m_tauH_SVFIT_METphi = -1. ;
       m_tauH_SVFIT_METrho = -1. ;
     
+      m_tauH_SVFIT_mass_up   = -1. ;
+      m_tauH_SVFIT_mass_down = -1. ;
+
       m_bH_pt = -1. ;
       m_bH_eta = -1. ;
       m_bH_phi = -1. ;
@@ -166,6 +171,8 @@ struct smallTree
       m_HH_e = -1. ;
       m_HH_mass = -1. ;
       m_HH_mass_raw = -1. ;
+      m_HH_mass_raw_tauup   = -1. ;
+      m_HH_mass_raw_taudown = -1. ;
       m_HHKin_mass = -1. ;
       m_HHKin_chi2 = -1. ;
 
@@ -185,7 +192,6 @@ struct smallTree
       m_HHkinsvfit_phi = -1;
       m_HHkinsvfit_e =-1;
       m_HHkinsvfit_m =-1;
-
 
       m_jets_pt.clear () ;
       m_jets_eta.clear () ;
@@ -215,6 +221,8 @@ struct smallTree
 
       m_bH_mass_raw = 0;
       m_HHKin_mass_raw = 0;
+      m_HHKin_mass_raw_tauup = 0;
+      m_HHKin_mass_raw_taudown = 0;
       m_HHKin_mass_raw_copy = 0;
 
       m_lheht = 0;
@@ -233,6 +241,8 @@ struct smallTree
       m_smallT->Branch ("bTagweightT", &m_bTagweightT, "bTagweightT/F") ;
       m_smallT->Branch ("TTtopPtreweight", &m_TTtopPtreweight, "TTtopPtreweight/F") ;
       m_smallT->Branch ("turnOnreweight", &m_turnOnreweight, "turnOnreweight/F") ;
+      m_smallT->Branch ("turnOnreweight_tauup", &m_turnOnreweight_tauup, "turnOnreweight_tauup/F") ;
+      m_smallT->Branch ("turnOnreweight_taudown", &m_turnOnreweight_taudown, "turnOnreweight_taudown/F") ;
       m_smallT->Branch ("trigSF", &m_trigSF, "trigSF/F") ;
       m_smallT->Branch ("IdAndIsoSF", &m_IdAndIsoSF, "IdAndIsoSF/F") ;
       m_smallT->Branch ("DYscale_LL", &m_DYscale_LL, "DYscale_LL/F") ;
@@ -351,6 +361,9 @@ struct smallTree
       m_smallT->Branch ("tauH_SVFIT_METphi", &m_tauH_SVFIT_METphi, "tauH_SVFIT_METphi/F") ;
       m_smallT->Branch ("tauH_SVFIT_METrho", &m_tauH_SVFIT_METrho, "tauH_SVFIT_METrho/F") ;
 
+      m_smallT->Branch ("tauH_SVFIT_mass_up", &m_tauH_SVFIT_mass_up, "tauH_SVFIT_mass_up/F") ;
+      m_smallT->Branch ("tauH_SVFIT_mass_down", &m_tauH_SVFIT_mass_down, "tauH_SVFIT_mass_down/F") ;
+
       m_smallT->Branch ("bH_pt", &m_bH_pt, "bH_pt/F") ;
       m_smallT->Branch ("bH_eta", &m_bH_eta, "bH_eta/F") ;
       m_smallT->Branch ("bH_phi", &m_bH_phi, "bH_phi/F") ;
@@ -368,6 +381,8 @@ struct smallTree
       m_smallT->Branch ("HH_e", &m_HH_e, "HH_e/F") ;
       m_smallT->Branch ("HH_mass", &m_HH_mass, "HH_mass/F") ;
       m_smallT->Branch ("HH_mass_raw", &m_HH_mass_raw, "HH_mass_raw/F") ;
+      m_smallT->Branch ("HH_mass_raw_tauup", &m_HH_mass_raw_tauup, "HH_mass_raw_tauup/F") ;
+      m_smallT->Branch ("HH_mass_raw_taudown", &m_HH_mass_raw_taudown, "HH_mass_raw_taudown/F") ;
       m_smallT->Branch ("HHKin_mass", &m_HHKin_mass, "HHKin_mass/F") ;
       m_smallT->Branch ("HHKin_chi2", &m_HHKin_chi2, "HHKin_chi2/F") ;
       m_smallT->Branch ("HH_deltaPhi", &m_HH_deltaPhi, "HH_deltaPhi/F") ;
@@ -414,6 +429,8 @@ struct smallTree
 
       m_smallT->Branch("bH_mass_raw",&m_bH_mass_raw,"bH_mass_raw/F");
       m_smallT->Branch("HHKin_mass_raw",&m_HHKin_mass_raw ,"HHKin_mass_raw/F");
+      m_smallT->Branch("HHKin_mass_raw_tauup",&m_HHKin_mass_raw_tauup ,"HHKin_mass_raw_tauup/F");
+      m_smallT->Branch("HHKin_mass_raw_taudown",&m_HHKin_mass_raw_taudown ,"HHKin_mass_raw_taudown/F");
       m_smallT->Branch("HHKin_mass_raw_copy",&m_HHKin_mass_raw_copy ,"HHKin_mass_raw_copy/F");
 
       //m_smallT->Branch ("MuTauKine", &m_mvaValueMuTau, "MuTauKine/F");
@@ -436,6 +453,8 @@ struct smallTree
   Float_t m_bTagweightT ;
   Float_t m_TTtopPtreweight ;
   Float_t m_turnOnreweight ;
+  Float_t m_turnOnreweight_tauup ;
+  Float_t m_turnOnreweight_taudown ;
   Float_t m_trigSF ;
   Float_t m_IdAndIsoSF ;
   Float_t m_DYscale_LL ;
@@ -569,6 +588,8 @@ struct smallTree
   Float_t m_tauH_SVFIT_phi ;
   Float_t m_tauH_SVFIT_METphi ;
   Float_t m_tauH_SVFIT_METrho ;
+  Float_t m_tauH_SVFIT_mass_up ;
+  Float_t m_tauH_SVFIT_mass_down ;
 
   // the bb-H candidate
   Float_t m_bH_pt ;
@@ -584,6 +605,8 @@ struct smallTree
   Float_t m_HH_e ;
   Float_t m_HH_mass ;
   Float_t m_HH_mass_raw ;
+  Float_t m_HH_mass_raw_tauup ;
+  Float_t m_HH_mass_raw_taudown ;
 
   Float_t m_HHsvfit_pt ;
   Float_t m_HHsvfit_eta ;
@@ -637,6 +660,8 @@ struct smallTree
   //Float_t m_mvaValueETau ;
 
   Float_t m_HHKin_mass_raw;
+  Float_t m_HHKin_mass_raw_tauup;
+  Float_t m_HHKin_mass_raw_taudown;
   Float_t m_HHKin_mass_raw_copy;
   Float_t m_bH_mass_raw;
 

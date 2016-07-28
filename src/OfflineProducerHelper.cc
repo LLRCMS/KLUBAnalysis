@@ -84,7 +84,7 @@ void OfflineProducerHelper::SetEleMVAIDCuts()
 }
 
 int OfflineProducerHelper::FindTriggerNumber(TString triggername){
-  for(int it=0;it<triggerlist.size();it++){ 	
+  for(int it=0;it< (int) triggerlist.size();it++){ 	
   	if(triggerlist.at(it).CompareTo(triggername.Data())==0)return it;
   	else {
   	    TString newName=triggername.Data();
@@ -97,13 +97,13 @@ int OfflineProducerHelper::FindTriggerNumber(TString triggername){
 }
 
 bool OfflineProducerHelper::IsTriggerFired(int triggerbit, int triggernumber){ 
-  if(triggernumber>=0 && triggernumber<triggerlist.size()) return triggerbit & (1 << triggernumber);
+  if(triggernumber>=0 && triggernumber<(int)triggerlist.size()) return triggerbit & (1 << triggernumber);
   return false;
 }
 
 int OfflineProducerHelper::printFiredPaths(int triggerbit){
   int nFired = 0;
-  for(int it=0;it<triggerlist.size();it++){ 	
+  for(int it=0;it<(int)triggerlist.size();it++){ 	
   	if(IsTriggerFired(triggerbit,it)) {
   	  printf("%s\n",triggerlist.at(it).Data());
   	  nFired++;
@@ -177,21 +177,24 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     bool leg2=false;
     if (pairType == MuHad)
     {
-        leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.1, whatApply);
-        leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, 3.0, whatApply);
+        float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
+        leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.15, whatApply);
+        leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, tauIso, whatApply);
     }
 
     if (pairType == EHad)
     {
+        float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
         leg1 = eleBaseline (tree, dau1index, 27., 2.1, 0.1, 0, whatApply);
-        leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, 3.0, whatApply);
+        leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, tauIso, whatApply);
     }
 
     // ordered by pT and not by most isolated, but baseline asked in sync is the same...
     if (pairType == HadHad)
     {
-        leg1 = tauBaseline (tree, dau1index, 40., 2.1, 0, 0, 2.0, whatApply);
-        leg2 = tauBaseline (tree, dau2index, 40., 2.1, 0, 0, 2.0, whatApply);
+        float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 2.0 ;
+        leg1 = tauBaseline (tree, dau1index, 40., 2.1, 0, 0, tauIso, whatApply);
+        leg2 = tauBaseline (tree, dau2index, 40., 2.1, 0, 0, tauIso, whatApply);
     }
 
     if (pairType == EMu)
@@ -361,7 +364,7 @@ bool OfflineProducerHelper::muBaseline (
     }
         
     bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
-    bool idS = checkBit (discr, 2) || byp_idS; // bit 2 is MEDIUM mu id
+    bool idS = checkBit (discr, 3) || byp_idS; // bit 0 is LOOSE id, bit 2 is MEDIUM mu id, bit 3 is TIGHT mu id
     bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
     if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
@@ -474,7 +477,7 @@ bool OfflineProducerHelper::tightEleMVAID (float BDT, float fSCeta)
 
 int OfflineProducerHelper::getMothPairType (bigTree* tree, int iMoth)
 {
-    if (iMoth < 0 || iMoth >= tree->indexDau1->size())
+    if (iMoth < 0 || iMoth >= (int)tree->indexDau1->size())
     {
       cout << "warning ** getMothPairType: iMoth out of range" << endl;
       return -1;
@@ -537,7 +540,7 @@ TLorentzVector OfflineProducerHelper::buildGenP4 (bigTree* tree, int iGen)
 int OfflineProducerHelper::MCHiggsTauTauDecayMode (bigTree* tree)
 {
     int decay = -1; // good decays go from 0 to 7, see enum
-    for (int i = 0; i < tree->genpart_HZDecayMode->size(); i++)
+    for (int i = 0; i < (int)tree->genpart_HZDecayMode->size(); i++)
     {
         int val = tree->genpart_HZDecayMode->at(i);
         if (val >= 0 && val <= 7)
@@ -613,7 +616,7 @@ int OfflineProducerHelper::getBestPair (bigTree* tree, TString strategy)
 int OfflineProducerHelper::getPairByIndexes (bigTree* tree, int dau1, int dau2)
 {
     int pair = -1;
-    for (int iPair = 0; iPair < tree->indexDau1->size(); iPair++)
+    for (int iPair = 0; iPair < (int)tree->indexDau1->size(); iPair++)
     {
         int ind1 = tree->indexDau1->at(iPair);
         int ind2 = tree->indexDau2->at(iPair);
@@ -630,7 +633,7 @@ int OfflineProducerHelper::getPairByIndexes (bigTree* tree, int dau1, int dau2)
 bool OfflineProducerHelper::getHardTauFinalVisGenProducts (bigTree* tree, int& ind1, int& ind2)
 {
         int finalProds = 0;
-        for (int iPart = 0; iPart < tree->genpart_pdg->size(); iPart++)
+        for (int iPart = 0; iPart < (int)tree->genpart_pdg->size(); iPart++)
         {   
             int HInd = tree->genpart_HMothInd->at(iPart);
             int TauInd = tree->genpart_TauMothInd->at(iPart);
@@ -689,7 +692,7 @@ int OfflineProducerHelper::getRecoMatchedToGen (bigTree* tree, int iGen, bool ch
     int AgenID = abs(genID);
     
     std::vector < std::pair<float, int> > matchedReco;
-    for (int iReco = 0; iReco < tree->daughters_px->size(); iReco++)
+    for (int iReco = 0; iReco < (int)tree->daughters_px->size(); iReco++)
     {
         int recoID = tree->PDGIdDaughters->at(iReco);
         bool IDCheck;
