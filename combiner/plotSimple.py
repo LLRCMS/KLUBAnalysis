@@ -4,11 +4,16 @@ import os.path
 from math import *
 from ROOT import *
 
-folder = "2016_07_26_out3" #bis = 3cat, ter = 2cat
+# cards_Combined_2016_07_26
+
+# folder = "2016_07_26_out3" #bis = 3cat, ter = 2cat
+# outString = "_25_jul"
+
+folder = "2016_07_26" #bis = 3cat, ter = 2cat
 outString = "_25_jul"
 
 outFormats = [".pdf",".png",".root",".C"]
-benchmark = -1 # -1: 1507 points, 0: lambda, 1: benchmark, by default we do not plot the 1507 points
+benchmark = 0 # -1: 1507 points, 0: lambda, 1: benchmark, by default we do not plot the 1507 points
 addObserved = True
 #scale=1000*37.9*0.073
 scale=10000.0/100.0 #/37.9/0.073
@@ -25,11 +30,11 @@ pointNumbers=[]
 
 def getExpValue( kl,  yt): 
 	BR =1 
-	return (2.11*yt*yt*yt*yt +   0.29*yt*yt*kl*kl  -1.40*yt*yt*yt*kl)*2.7667/BR;
+	return (2.09*yt*yt*yt*yt +   0.28*yt*yt*kl*kl  -1.37*yt*yt*yt*kl)*2.44185/BR;
 
 def getExpLine(c,  xmin,  xmax,  yt):
 	BR = 1
-	myFunc =  TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*x -1.37*[0]*[0]*[0]*x)*2.7667/[1]",xmin,xmax);
+	myFunc =  TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*x -1.37*[0]*[0]*[0]*x)*2.44185/[1]",xmin,xmax);
 	myFunc.SetParameter(0,yt); 
 	myFunc.SetParameter(1,BR); 
 	graph = TGraph(myFunc);
@@ -49,8 +54,8 @@ def getExpLine(c,  xmin,  xmax,  yt):
 		Graph_syst_Scale_x=(xmin+(i*1.)/10.)
 		Graph_syst_Scale_y=(getExpValue(xmin+(i*1.)/10.,yt)) #; //(2.11+0.29*(-4.+(i*1.)/10.)*(-4.+(i*1.)/10.)-1.40*(-4.+(i*1.)/10.))*2.5039)
 		Graph_syst_Scale_x_err=(0)
-		Graph_syst_Scale_y_errup=(  (2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.)*(xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.7667*0.1301/BR)
-		Graph_syst_Scale_y_errdown=((2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.)*(xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.7667*0.137/BR)
+		Graph_syst_Scale_y_errup=(  (2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.)*(xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.44185*0.053/BR)
+		Graph_syst_Scale_y_errdown=((2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.)*(xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.44185*0.067/BR)
 		Graph_syst_Scale.SetPoint(i,Graph_syst_Scale_x,Graph_syst_Scale_y)
 		Graph_syst_Scale.SetPointError(i,Graph_syst_Scale_x_err,Graph_syst_Scale_x_err,Graph_syst_Scale_y_errup,Graph_syst_Scale_y_errdown)
 	#Graph_syst_Scale =  TGraphAsymmErrors(nP,Graph_syst_Scale_x,Graph_syst_Scale_y,Graph_syst_Scale_x_err,Graph_syst_Scale_x_err,Graph_syst_Scale_y_errup,Graph_syst_Scale_y_errdown);
@@ -137,7 +142,8 @@ for c in range(len(channels)) :
 		npoints = 1507
 		app = "5Dplane"
 	for m in range(0,npoints):
-		fileLocation = "cards_"+channels[c]+"_"+folder+"/HH"+app+str(m)+categories[c]+"/higgsCombineHH"+app+str(m)+"_forLim.Asymptotic.mH125.root"
+		fileLocation = "/home/llr/cms/ortona/diHiggs/CMSSW_7_4_7/src/KLUBAnalysis/combiner/cards_"+channels[c]+"_"+folder+"/HH"+app+str(m)+categories[c]+"/higgsCombineHH"+app+str(m)+"_forLim.Asymptotic.mH125.root"
+		# print "FILE: " , fileLocation
 		if not os.path.isfile(fileLocation) : continue
 		if benchmark<0 : pointNumbers.append(m)
 		fin = TFile.Open(fileLocation)
@@ -152,7 +158,7 @@ for c in range(len(channels)) :
 		offsetX = 20
 		errX = 0.3
 		if benchmark == 1 : 
-			offsetX = 0
+			offsetX = -1
 			errX = 0.15
 		for entry in tree :
 			if tree.quantileExpected < 0 :
@@ -174,6 +180,9 @@ for c in range(len(channels)) :
 			g95[c].SetPoint(g95[c].GetN(),m-offsetX,limit)
 			g95[c].SetPointError(g95[c].GetN()-1,0+errX,0+errX,limit-low95,high95-limit)
 			gObs.SetPoint(gObs.GetN(),m-offsetX,obs)	
+			# print "OBS: " , m-offsetX,obs
+			# print "  - EXP: " , m-offsetX,limit
+			# print "\n"
 			#if benchmark < 0:
 			#	observed2d[c].append(obs)
 			#	expected2d[c].append(limit)
@@ -197,15 +206,27 @@ for c in range(len(channels)) :
 #	c[ic].SetLogy()
 #	c[ic].SaveAs("limitResonant_"+channels[ic]+outString+".pdf")
 
-cNice = [TCanvas("ETauFinal"),TCanvas("MuTauFinal"),TCanvas("TauTauFinal"),TCanvas("COMBINEDFinal")]
+cNice = [
+	TCanvas("ETauFinal", "ETauFinal", 650, 500),
+	TCanvas("MuTauFinal", "MuTauFinal", 650, 500),
+	TCanvas("TauTauFinal", "TauTauFinal", 650, 500),
+	TCanvas("COMBINEDFinal", "COMBINEDFinal", 650, 500)
+	]
+
 for ic in range(len(channels)):
 	print "DOING CHANNEL", channels[ic]
 	cNice[ic].cd()
+	cNice[ic].SetFrameLineWidth(3)
+	cNice[ic].SetBottomMargin (0.15)
+	cNice[ic].SetRightMargin (0.05)
+	cNice[ic].SetLeftMargin (0.15)
+
 	#mg[ic].GetListOfGraphs().ls()
 	gexp = mg[ic].GetListOfGraphs().FindObject("Combined categories").Clone()
 	gexp.SetTitle("Expected CLs")
 	gexp.SetMarkerStyle(24)
 	gexp.SetMarkerColor(4)
+	gexp.SetMarkerSize(0.8)
 	gexp.SetLineColor(4)
 	gexp.SetLineStyle(2)
 	gexp.SetFillColor(0)
@@ -213,18 +234,27 @@ for ic in range(len(channels)):
 	g68.SetTitle("Expected #pm 1#sigma")
 	g68.SetMarkerStyle(0)
 	g68.SetMarkerColor(3)
-	g68.SetFillColor(3)
-	g68.SetLineColor(3)
+	g68.SetFillColor(TColor.GetColor(0, 220, 60))
+	g68.SetLineColor(TColor.GetColor(0, 220, 60))
 	g68.SetFillStyle(1001)
 	g95[ic].SetTitle("Expected #pm 2#sigma")
 	g95[ic].SetName(channels[ic])
 	g95[ic].SetMarkerStyle(0)
 	g95[ic].SetMarkerColor(5)
-	g95[ic].SetFillColor(5)
-	g95[ic].SetLineColor(5)
+	g95[ic].SetFillColor(TColor.GetColor(254, 234, 0))
+	g95[ic].SetLineColor(TColor.GetColor(254, 234, 0))
 	g95[ic].SetFillStyle(1001)
 	g95[ic].GetYaxis().SetRangeUser(1,100000)
 	gObs = mg[ic].GetListOfGraphs().FindObject("Observed").Clone()
+
+	g95[ic].GetYaxis().SetTitleSize(0.047)
+	g95[ic].GetXaxis().SetTitleSize(0.055)
+	g95[ic].GetYaxis().SetLabelSize(0.045)
+	g95[ic].GetXaxis().SetLabelSize(0.045)
+	g95[ic].GetXaxis().SetLabelOffset(0.012)
+
+	g95[ic].GetYaxis().SetTitleOffset(1.15)
+	g95[ic].GetXaxis().SetTitleOffset(1.1)
 
 	#plot in the format to be passed to the 2D Xanda's macro
 	if benchmark < 0:
@@ -247,13 +277,13 @@ for ic in range(len(channels)):
 
 	if benchmark == 1 : 
 		g95[ic].GetYaxis().SetRangeUser(1,100000)
-		g95[ic].GetXaxis().SetRangeUser(-0.49,12) 
-	else : g95[ic].GetXaxis().SetRangeUser(-20,30) 
+		g95[ic].GetXaxis().SetRangeUser(-0.49+1.,11.49+1.) 
+	else : g95[ic].GetXaxis().SetRangeUser(-21,32) 
 	g95[ic].GetYaxis().SetTitle("95% CL on #sigma#times BR(hh#rightarrow bb#tau#tau) [fb]")
 	if benchmark == 1 : 
 		g95[ic].GetXaxis().SetTitle("Benchmark number") 
 		g95[ic].GetXaxis().SetNdivisions(13) 
-	else : g95[ic].GetXaxis().SetTitle("k_{#lambda} [GeV]")
+	else : g95[ic].GetXaxis().SetTitle("k_{#lambda}")
 	gStyle.SetOptTitle(0)
 	if benchmark == 1 : 
 		g95[ic].Draw("A2")
@@ -266,21 +296,27 @@ for ic in range(len(channels)):
 	if addObserved and benchmark>-1:
 		gObs.Draw("PSAME")
 	legend = TLegend()#	cNice[ic].BuildLegend()
-	legend.SetLineColor(0)
-	legend.SetX1(0.1192529)
-	legend.SetY1(0.1292373)
-	legend.SetX2(0.4755)
-	legend.SetY2(0.2733)
+	legend.SetFillStyle(0)
+	legend.SetBorderSize(0)
+	legend.SetX1(0.15)
+	legend.SetY1(0.171)
+	legend.SetX2(0.546)
+	legend.SetY2(0.362)
+	if benchmark == 1:
+		legend.SetX1(0.630)
+		legend.SetY1(0.171)
+		legend.SetX2(1.026)
+		legend.SetY2(0.362)		
 	if addObserved : legend.AddEntry(gObs,"Observed","PL")
-	legend.AddEntry(gexp)
-	legend.AddEntry(g68)
-	legend.AddEntry(g95[ic])
+	legend.AddEntry(gexp, gexp.GetTitle(), "lp")
+	legend.AddEntry(g68, g68.GetTitle(), "f")
+	legend.AddEntry(g95[ic], g95[ic].GetTitle(), "f")
 	if benchmark>-1 : legend.Draw()
 	cNice[ic].SetLogy()
 	cNice[ic].SetGridy(1)
 	cNice[ic].SetGridx(1)
 
-	pt = TPaveText(0.1063218,0.7966102,0.3045977,0.8898305,"brNDC")
+	pt = TPaveText(0.1663218,0.7966102,0.3045977,0.8898305,"brNDC")
 	pt.SetBorderSize(0)
 	pt.SetTextAlign(12)
 	pt.SetTextFont(62)
@@ -289,22 +325,24 @@ for ic in range(len(channels)):
 	pt.SetFillStyle(0)
 	pt.AddText("CMS" )
 	pt.AddText("#font[52]{preliminary}")
-	pt2 = TPaveText(0.7,0.9066667,0.8997773,0.957037,"brNDC")
+	pt2 = TPaveText(0.79,0.9066667,0.8997773,0.957037,"brNDC")
 	pt2.SetBorderSize(0)
 	pt2.SetFillColor(0)
-	pt2.SetTextSize(0.035)
+	pt2.SetTextSize(0.040)
 	pt2.SetTextFont(42)
 	pt2.SetFillStyle(0)
-	pt2.AddText("L = 12.9 fb^{-1} (13 TeV)")
+	pt2.AddText("12.9 fb^{-1} (13 TeV)")
 
-	pt4 = TPaveText(0.3819196,0.7780357,0.9008929,0.8675595,"brNDC")
+	pt4 = TPaveText(0.4819196,0.7780357,0.9008929,0.8675595,"brNDC")
 	pt4.SetTextAlign(12)
 	pt4.SetFillColor(0)
 	pt4.SetFillStyle(0)
 	pt4.SetTextFont(42)
+	pt4.SetTextSize(0.05)
 	pt4.SetBorderSize(0)
+	pt4.SetTextAlign(32)
 	pt4.AddText(channelsName[ic]) 
-	if ic == 3 : pt4.AddText("Combined channels")
+	if ic == 3 : pt4.AddText("#scale[0.8]{Combined channels}")
 	if benchmark > -1:
 		pt.Draw()
 		pt2.Draw()
@@ -312,11 +350,11 @@ for ic in range(len(channels)):
 
 
 	#getExpLine(cNice[ic],-20,30,1)
-	xmin=-20
-	xmax=30
+	xmin=-20.4
+	xmax=31.4
 	yt=1
 	BR = 1
-	myFunc =  TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*x -1.37*[0]*[0]*[0]*x)*2.7667/[1]",xmin,xmax);
+	myFunc =  TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*x -1.37*[0]*[0]*[0]*x)*2.44185/[1]",xmin,xmax);
 	myFunc.SetParameter(0,yt); 
 	myFunc.SetParameter(1,BR); 
 	graph = TGraph(myFunc);
@@ -336,8 +374,8 @@ for ic in range(len(channels)):
 		Graph_syst_Scale_x=(xmin+(i*1.)/10.)
 		Graph_syst_Scale_y=(getExpValue(xmin+(i*1.)/10.,yt)) #; //(2.11+0.29*(-4.+(i*1.)/10.)*(-4.+(i*1.)/10.)-1.40*(-4.+(i*1.)/10.))*2.5039)
 		Graph_syst_Scale_x_err=(0)
-		Graph_syst_Scale_y_errup=(  (2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.)*(xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.7667*0.1301/BR)
-		Graph_syst_Scale_y_errdown=((2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.)*(xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.7667*0.137/BR)
+		Graph_syst_Scale_y_errup=(  (2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.)*(xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.44185*0.053/BR)
+		Graph_syst_Scale_y_errdown=((2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.)*(xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.44185*0.067/BR)
 		Graph_syst_Scale.SetPoint(i,Graph_syst_Scale_x,Graph_syst_Scale_y)
 		Graph_syst_Scale.SetPointError(i,Graph_syst_Scale_x_err,Graph_syst_Scale_x_err,Graph_syst_Scale_y_errup,Graph_syst_Scale_y_errdown)
 	#Graph_syst_Scale =  TGraphAsymmErrors(nP,Graph_syst_Scale_x,Graph_syst_Scale_y,Graph_syst_Scale_x_err,Graph_syst_Scale_x_err,Graph_syst_Scale_y_errup,Graph_syst_Scale_y_errdown);
@@ -351,7 +389,7 @@ for ic in range(len(channels)):
 
 	if benchmark>-1:
 		for ext in outFormats : cNice[ic].SaveAs("plots/preApp_01_jul/limit"+app2+"_"+channels[ic]+outString+ext)
-
+		print "SAVED IN " , "plots/preApp_01_jul/limit"+app2+"_"+channels[ic]+outString+ext
 raw_input()
 
    #return ;

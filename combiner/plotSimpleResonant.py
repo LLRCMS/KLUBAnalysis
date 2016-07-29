@@ -92,6 +92,8 @@ for c in range(len(channels)) :
 	gObs.SetLineWidth(2)
 	gObs.SetMarkerStyle(8)
 	gObs.SetFillStyle(0)
+	
+	print "DOING CHANNEL: " , channelsName[c] , "mass, obs, exp"
 	for m in masses:
 		fin = TFile.Open("/home/llr/cms/ortona/diHiggs/CMSSW_7_4_7/src/KLUBAnalysis/combiner/cards_"+channels[c]+"_"+folder+"/Radion"+str(m)+"/higgsCombineRadion"+str(m)+"_forLim.Asymptotic.mH125.root")
 		tree = fin.Get("limit")
@@ -117,7 +119,10 @@ for c in range(len(channels)) :
 			gAll.SetPointError(gAll.GetN()-1,0,0,limit-low,high-limit)
 			g95[c].SetPoint(g95[c].GetN(),m,limit)
 			g95[c].SetPointError(g95[c].GetN()-1,0,0,limit-low95,high95-limit)			
-			gObs.SetPoint(gAll.GetN(),m,obs)	
+			gObs.SetPoint(gAll.GetN(),m,obs)
+			# print m, obs, limit
+			print m , '%s' % float('%.2g' % obs), '%s' % float('%.2g' % limit)
+
 			#g95[c].SetPoint(g95[c].GetN(),m,limit-low95)
 			#g95[c].SetPoint(g95[c].GetN(),m,high95-limit)
 			#g68[c].SetPoint(g68[c].GetN(),m,limit-low)
