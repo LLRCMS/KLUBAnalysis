@@ -64,6 +64,8 @@ def getExpLine(c,  xmin,  xmax,  yt):
 	Graph_syst_Scale.SetFillStyle(3001)
 	Graph_syst_Scale.DrawClone("e3");
 
+gROOT.SetBatch(True)
+
 gEtau = TMultiGraph()
 gMutau = TMultiGraph()
 gTautau = TMultiGraph()
@@ -299,9 +301,9 @@ for ic in range(len(channels)):
 	legend.SetFillStyle(0)
 	legend.SetBorderSize(0)
 	legend.SetX1(0.15)
-	legend.SetY1(0.171)
+	legend.SetY1(0.181)
 	legend.SetX2(0.546)
-	legend.SetY2(0.362)
+	legend.SetY2(0.372)
 	if benchmark == 1:
 		legend.SetX1(0.630)
 		legend.SetY1(0.171)
@@ -311,6 +313,16 @@ for ic in range(len(channels)):
 	legend.AddEntry(gexp, gexp.GetTitle(), "lp")
 	legend.AddEntry(g68, g68.GetTitle(), "f")
 	legend.AddEntry(g95[ic], g95[ic].GetTitle(), "f")
+	
+	# fakePlot = TGraphAsymmErrors ("fakePlot", "fakePlot", 100, 0, 100);
+	fakePlot = TGraphAsymmErrors()
+	
+	fakePlot.SetFillColor(kRed)
+	fakePlot.SetFillStyle(3001)
+	fakePlot.SetLineColor(kRed)
+	fakePlot.SetLineWidth(3)
+	if benchmark == 0:
+		legend.AddEntry(fakePlot, "Theory prediction", "lf")
 	if benchmark>-1 : legend.Draw()
 	cNice[ic].SetLogy()
 	cNice[ic].SetGridy(1)
