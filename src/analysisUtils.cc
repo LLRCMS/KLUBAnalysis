@@ -385,6 +385,7 @@ fillHistos (vector<sample> & samples,
               if (selBTagWeight.at(isel) == 1) thisWeight = bTagweightL*DYscale_LL;
               else if (selBTagWeight.at(isel) == 2) thisWeight = bTagweightM*DYscale_MM;
               else if (selBTagWeight.at(isel) == 3) thisWeight = bTagweightT;
+              // if (!isData) cout << "THIS WEOGHT: " << DYscale_LL << " " << DYscale_MM << " " << thisWeight << endl;
 
               if (selTopRewType.at(isel) == 1) thisWeight *= topPtReweight ; // 2 times top pt rew
               else if (selTopRewType.at(isel) == 2) thisWeight /= topPtReweight ; // no top pt rew

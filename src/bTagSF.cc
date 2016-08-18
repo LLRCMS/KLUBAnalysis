@@ -29,30 +29,30 @@ bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effH
     
     m_calib("CSVv2", SFfilename.c_str()) ,
     m_reader {
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "mujets", "central"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "mujets", "central"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "mujets", "central")} ,
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "central"),
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "central"),
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "central")} ,
     m_reader_up {
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "mujets", "up"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "mujets", "up"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "mujets", "up")} ,
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "up"),
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "up"),
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "up")} ,
     m_reader_do {
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "mujets", "down"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "mujets", "down"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "mujets", "down")} ,
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "down"),
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "down"),
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "down")} ,
     
     m_reader_c {
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "mujets", "central"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "mujets", "central"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "mujets", "central")} ,
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "central"),
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "central"),
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "central")} ,
     m_reader_c_up {
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "mujets", "up"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "mujets", "up"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "mujets", "up")} ,
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "up"),
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "up"),
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "up")} ,
     m_reader_c_do {
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "mujets", "down"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "mujets", "down"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "mujets", "down")} ,
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "down"),
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "down"),
+    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "down")} ,
 
     m_reader_udsg {
     BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "incl", "central"),
@@ -249,8 +249,9 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
     vector<float> P_Data (3, 1.0); // 0 = L, 1 = M, 2 = T
     
     TLorentzVector vJet (0,0,0,0);
-    float WPtag[3] = {0.605, 0.89, 0.97}; // L, M, T
-    
+    // float WPtag[3] = {0.605, 0.89, 0.97}; // L, M, T
+    float WPtag[3] = {0.460, 0.800, 0.935}; // L, M, T -- 80X 4 inv fb
+
     for (unsigned int ijet = 0; ijet < jets_and_btag.size(); ijet++)
     {
         int idx = jets_and_btag.at(ijet).first;
