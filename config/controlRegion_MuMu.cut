@@ -18,6 +18,15 @@ DiMu2bMMETmttmbb   = pairType == 3 && nleps == 0 && bjet1_bID > 0.800 && bjet2_b
 DiMu1bMMETmttmbb   = pairType == 3 && nleps == 0 && bjet1_bID > 0.800 && bjet2_bID < 0.800 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightM > -999
 DiMu0bMMETmttmbb   = pairType == 3 && nleps == 0 && bjet1_bID < 0.800 && bjet2_bID < 0.800 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightM > -999
 
+DiMu2bMMETmttmbbpt30   = pairType == 3 && dau1_pt > 30 && dau2_pt > 30 && nleps == 0 && bjet1_bID > 0.800 && bjet2_bID > 0.800 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightM > -999
+DiMu1bMMETmttmbbpt30   = pairType == 3 && dau1_pt > 30 && dau2_pt > 30 && nleps == 0 && bjet1_bID > 0.800 && bjet2_bID < 0.800 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightM > -999
+DiMu0bMMETmttmbbpt30   = pairType == 3 && dau1_pt > 30 && dau2_pt > 30 && nleps == 0 && bjet1_bID < 0.800 && bjet2_bID < 0.800 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightM > -999
+
+DiMu2bMMETmttmbbpt40   = pairType == 3 && dau1_pt > 40 && dau2_pt > 40 && nleps == 0 && bjet1_bID > 0.800 && bjet2_bID > 0.800 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightM > -999
+DiMu1bMMETmttmbbpt40   = pairType == 3 && dau1_pt > 40 && dau2_pt > 40 && nleps == 0 && bjet1_bID > 0.800 && bjet2_bID < 0.800 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightM > -999
+DiMu0bMMETmttmbbpt40   = pairType == 3 && dau1_pt > 40 && dau2_pt > 40 && nleps == 0 && bjet1_bID < 0.800 && bjet2_bID < 0.800 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightM > -999
+
+
 DiMu2bMMETmbb   = pairType == 3 && nleps == 0 && bjet1_bID > 0.800 && bjet2_bID > 0.800 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && bH_mass > 80 && bH_mass < 160 && tauH_mass > 60 && bTagweightM > -999
 DiMu1bMMETmbb   = pairType == 3 && nleps == 0 && bjet1_bID > 0.800 && bjet2_bID < 0.800 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && bH_mass > 80 && bH_mass < 160 && tauH_mass > 60 && bTagweightM > -999
 DiMu0bMMETmbb   = pairType == 3 && nleps == 0 && bjet1_bID < 0.800 && bjet2_bID < 0.800 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && bH_mass > 80 && bH_mass < 160 && tauH_mass > 60 && bTagweightM > -999
@@ -34,30 +43,39 @@ DiMu0bMMETmttmbbBoosted   = pairType == 3 && nleps == 0 && bjet1_bID < 0.800 && 
 ########## loose b tag
 # old: 605, NEWL 460
 
-DiMu2bL   = pairType == 3 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID > 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && tauH_mass > 60  && bTagweightL > -999
-DiMu1bL   = pairType == 3 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID < 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && tauH_mass > 60 && bTagweightL > -999
-DiMu0bL   = pairType == 3 && nleps == 0 && bjet1_bID < 0.605 && bjet2_bID < 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && tauH_mass > 60 && bTagweightL > -999
+DiMu2bL   = pairType == 3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && tauH_mass > 60  && bTagweightL > -999
+DiMu1bL   = pairType == 3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && tauH_mass > 60 && bTagweightL > -999
+DiMu0bL   = pairType == 3 && nleps == 0 && bjet1_bID < 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && tauH_mass > 60 && bTagweightL > -999
 
-DiMu2bLMET   = pairType == 3 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID > 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 60 && bTagweightL > -999
-DiMu1bLMET   = pairType == 3 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID < 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 60 && bTagweightL > -999
-DiMu0bLMET   = pairType == 3 && nleps == 0 && bjet1_bID < 0.605 && bjet2_bID < 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 60 && bTagweightL > -999
+DiMu2bLMET   = pairType == 3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 60 && bTagweightL > -999
+DiMu1bLMET   = pairType == 3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 60 && bTagweightL > -999
+DiMu0bLMET   = pairType == 3 && nleps == 0 && bjet1_bID < 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 60 && bTagweightL > -999
 
-DiMu2bLMETmtt   = pairType == 3 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID > 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bTagweightL > -999
-DiMu1bLMETmtt   = pairType == 3 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID < 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bTagweightL > -999
-DiMu0bLMETmtt   = pairType == 3 && nleps == 0 && bjet1_bID < 0.605 && bjet2_bID < 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bTagweightL > -999
+DiMu2bLMETmtt   = pairType == 3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bTagweightL > -999
+DiMu1bLMETmtt   = pairType == 3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bTagweightL > -999
+DiMu0bLMETmtt   = pairType == 3 && nleps == 0 && bjet1_bID < 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bTagweightL > -999
 
-DiMu2bLMETmttmbb   = pairType == 3 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID > 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
-DiMu1bLMETmttmbb   = pairType == 3 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID < 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
-DiMu0bLMETmttmbb   = pairType == 3 && nleps == 0 && bjet1_bID < 0.605 && bjet2_bID < 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
+DiMu2bLMETmttmbb   = pairType == 3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
+DiMu1bLMETmttmbb   = pairType == 3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
+DiMu0bLMETmttmbb   = pairType == 3 && nleps == 0 && bjet1_bID < 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
 
-DiMu2bLMETmbb   = pairType == 3 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID > 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && bH_mass > 80 && bH_mass < 160 && tauH_mass > 60 && bTagweightL > -999
-DiMu1bLMETmbb   = pairType == 3 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID < 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && bH_mass > 80 && bH_mass < 160 && tauH_mass > 60 && bTagweightL > -999
-DiMu0bLMETmbb   = pairType == 3 && nleps == 0 && bjet1_bID < 0.605 && bjet2_bID < 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && bH_mass > 80 && bH_mass < 160 && tauH_mass > 60 && bTagweightL > -999
+DiMu2bLMETmttmbbpt30   = pairType == 3 && dau1_pt > 30 && dau2_pt > 30 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
+DiMu1bLMETmttmbbpt30   = pairType == 3 && dau1_pt > 30 && dau2_pt > 30 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
+DiMu0bLMETmttmbbpt30   = pairType == 3 && dau1_pt > 30 && dau2_pt > 30 && nleps == 0 && bjet1_bID < 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
 
-DiMu2bLmttmbb   = pairType == 3 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID > 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
-DiMu1bLmttmbb   = pairType == 3 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID < 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
-DiMu0bLmttmbb   = pairType == 3 && nleps == 0 && bjet1_bID < 0.605 && bjet2_bID < 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
+DiMu2bLMETmttmbbpt40   = pairType == 3 && dau1_pt > 40 && dau2_pt > 40 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
+DiMu1bLMETmttmbbpt40   = pairType == 3 && dau1_pt > 40 && dau2_pt > 40 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
+DiMu0bLMETmttmbbpt40   = pairType == 3 && dau1_pt > 40 && dau2_pt > 40 && nleps == 0 && bjet1_bID < 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
 
-DiMu2bLMETmttmbbBoosted   = pairType == 3 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID > 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && tauH_pt > 100 && bTagweightL > -999
-DiMu1bLMETmttmbbBoosted   = pairType == 3 && nleps == 0 && bjet1_bID > 0.605 && bjet2_bID < 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && tauH_pt > 100 && bTagweightL > -999
-DiMu0bLMETmttmbbBoosted   = pairType == 3 && nleps == 0 && bjet1_bID < 0.605 && bjet2_bID < 0.605 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && tauH_pt > 100 && bTagweightL > -999
+
+DiMu2bLMETmbb   = pairType == 3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && bH_mass > 80 && bH_mass < 160 && tauH_mass > 60 && bTagweightL > -999
+DiMu1bLMETmbb   = pairType == 3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && bH_mass > 80 && bH_mass < 160 && tauH_mass > 60 && bTagweightL > -999
+DiMu0bLMETmbb   = pairType == 3 && nleps == 0 && bjet1_bID < 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && bH_mass > 80 && bH_mass < 160 && tauH_mass > 60 && bTagweightL > -999
+
+DiMu2bLmttmbb   = pairType == 3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
+DiMu1bLmttmbb   = pairType == 3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
+DiMu0bLmttmbb   = pairType == 3 && nleps == 0 && bjet1_bID < 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && bTagweightL > -999
+
+DiMu2bLMETmttmbbBoosted   = pairType == 3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && tauH_pt > 100 && bTagweightL > -999
+DiMu1bLMETmttmbbBoosted   = pairType == 3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && tauH_pt > 100 && bTagweightL > -999
+DiMu0bLMETmttmbbBoosted   = pairType == 3 && nleps == 0 && bjet1_bID < 0.460 && bjet2_bID < 0.460 && isOS != 0 && dau1_iso < 0.1 && dau2_iso < 0.1 && met_et < 45 && tauH_mass > 80 && tauH_mass < 100 && bH_mass > 80 && bH_mass < 160 && tauH_pt > 100 && bTagweightL > -999
