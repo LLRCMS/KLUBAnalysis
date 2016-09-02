@@ -38,8 +38,8 @@ using namespace std ;
 
 const double aTopRW = 0.156;
 const double bTopRW = -0.00137;
-const float DYscale_LL[3] = {1.17835, 1.80015, 0.809161} ; // computed from fit for LL and MM b tag
-const float DYscale_MM[3] = {1.20859, 1.0445 , 1.54734 } ;
+const float DYscale_LL[3] = {1.0702, 0.715181,  0.885085} ; // computed from fit for LL and MM b tag
+const float DYscale_MM[3] = {1.04318, 1.0684 , 1.06528 } ;
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
@@ -129,6 +129,46 @@ float getIso (unsigned int iDau, float pt, bigTree & theBigTree)
   return -1 ;
 }
 
+// convert the 6 tau iso discriminators into an integer, from 0 == VLoose to 6 == VVTight
+// example for MVA id (same for cut based):
+// == 0 : NotIso
+// >= 1 : pass VLoose
+// >= 2 : pass Loose
+// >= 3 : pass Medium
+// >= 4 : pass Tigth
+// >= 5 : pass VTight
+// each number denotes the most stringent discriminator passed, so that selection candidates as:
+// MVAiso >= 3 --> all candidates that are *at least* medium iso (or more isolated)
+// MVAiso <= 3 --> sideband : all anti-isolated candidates, *not more* isolated than medium WP
+int makeIsoDiscr (unsigned int iDau, vector<int>& nameToIdxMap, bigTree & theBigTree)
+{
+  int isoInt = 0;
+  Long64_t tauID = theBigTree.tauID->at(iDau);
+  while (isoInt < (int) nameToIdxMap.size())
+  {
+    int bit = nameToIdxMap.at(isoInt) ;
+    bool pass = (((tauID >> bit) & 1 ) > 0);
+    if (!pass) break; // will freeze isoInt to the previous value
+    isoInt += 1;
+  } 
+  return isoInt;
+}
+
+int getTauIDIdx (TH1F* h_tauID, string tauIDName)
+{
+  int ibin = -1;
+  for (int i = 1; i <= h_tauID->GetNbinsX(); ++i)
+  {
+    string binlabel = h_tauID->GetXaxis()->GetBinLabel(i);
+    if (tauIDName == binlabel)
+    {
+      ibin = i;
+      break;
+    }
+  }
+  return ibin-1;
+}
+
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 bool CheckBit (int number, int bitpos)
@@ -204,21 +244,27 @@ float turnOnCB(float x, float m0, float sigma, float alpha, float n, float norm)
 }
 
 // WP is 0 : Noiso , 1 : VLoose, 2: Loose, 3: Medium , 4: Tight 5: Vtight 6: VVtight
-float turnOnSF(float pt, int WP)
+float turnOnSF(float pt, int WP, bool realTau)
 {
   //return 1.0/turnOnCB(pt,3.60274e+01,5.89434e+00,5.82870e+00,1.83737e+00,9.58000e-01)*turnOnCB(pt,3.45412e+01,5.63353e+00,2.49242e+00,3.35896e+00,1);
   //return turnOnCB(pt,3.45412e+01,5.63353e+00,2.49242e+00,3.35896e+00,1);
   // return turnOnCB(pt,3.60274e+01,5.89434e+00,5.82870e+00,1.83737e+00,9.58000e-01);
 
-  float m0    [7] = {3.86506E+01 , 3.86057E+01 , 3.85953E+01 , 3.81821E+01 , 3.81919E+01 , 3.77850E+01 , 3.76157E+01} ;
-  float sigma [7] = {5.81155E+00 , 5.77127E+00 , 5.74632E+00 , 5.33452E+00 , 5.38746E+00 , 4.93611E+00 , 4.76127E+00} ;
-  float alpha [7] = {5.82783E+00 , 5.61388E+00 , 5.08553E+00 , 4.42570E+00 , 4.44730E+00 , 4.22634E+00 , 3.62497E+00} ;
-  float n     [7] = {3.38903E+00 , 3.77719E+00 , 5.45593E+00 , 4.70512E+00 , 7.39646E+00 , 2.85533E+00 , 3.51839E+00} ;
-  float norm  [7] = {9.33449E+00 , 9.30159E-01 , 9.42168E-01 , 9.45637E-01 , 9.33402E-01 , 9.92196E-01 , 9.83701E-01} ;
+  float real_m0    [7] = {3.86506E+01 , 3.86057E+01 , 3.85953E+01 , 3.81821E+01 , 3.81919E+01 , 3.77850E+01 , 3.76157E+01} ;
+  float real_sigma [7] = {5.81155E+00 , 5.77127E+00 , 5.74632E+00 , 5.33452E+00 , 5.38746E+00 , 4.93611E+00 , 4.76127E+00} ;
+  float real_alpha [7] = {5.82783E+00 , 5.61388E+00 , 5.08553E+00 , 4.42570E+00 , 4.44730E+00 , 4.22634E+00 , 3.62497E+00} ;
+  float real_n     [7] = {3.38903E+00 , 3.77719E+00 , 5.45593E+00 , 4.70512E+00 , 7.39646E+00 , 2.85533E+00 , 3.51839E+00} ;
+  float real_norm  [7] = {9.33449E+00 , 9.30159E-01 , 9.42168E-01 , 9.45637E-01 , 9.33402E-01 , 9.92196E-01 , 9.83701E-01} ;
 
-  return turnOnCB (pt, m0[WP], sigma[WP], alpha[WP], n[WP], norm[WP] );  
+  float fake_m0    [7] = {4.03919E+01 , 3.99115E+01 , 3.94747E+01 , 3.92674E+01 , 3.90677E+01 , 3.92867E+01 , 3.89518E+01} ;
+  float fake_sigma [7] = {7.55333E+00 , 7.32760E+00 , 7.23546E+00 , 7.17092E+00 , 7.03152E+00 , 7.22249E+00 , 6.69525E+00} ;
+  float fake_alpha [7] = {1.20102E+01 , 1.17174E+01 , 1.08089E+01 , 1.10546E+01 , 1.11690E+01 , 1.14726E+01 , 9.86033E+00} ;
+  float fake_n     [7] = {1.26661E+00 , 1.26857E+00 , 1.33930E+00 , 1.31852E+00 , 1.29314E+00 , 1.32792E+00 , 1.39875E+00} ;
+  float fake_norm  [7] = {1.00000E+00 , 1.00000E+00 , 1.00000E+00 , 1.00000E+00 , 9.99999E-01 , 1.00000E+00 , 1.00000E+00} ;
+
+  if (realTau) return turnOnCB (pt, real_m0[WP], real_sigma[WP], real_alpha[WP], real_n[WP], real_norm[WP] );  
+  else         return turnOnCB (pt, fake_m0[WP], fake_sigma[WP], fake_alpha[WP], fake_n[WP], fake_norm[WP] );  
 }
-
 
 // float getTriggerWeight(int partType, float pt, TH1F* weightHisto)
 // {
@@ -236,7 +282,7 @@ float turnOnSF(float pt, int WP)
 // }
 
 
-float getTriggerWeight(int partType, float pt, float eta, TH1F* rewHisto = 0, ScaleFactor* sfreader = 0, int tauWP = 0)
+float getTriggerWeight(int partType, float pt, float eta, TH1F* rewHisto = 0, ScaleFactor* sfreader = 0, int tauWP = 0, bool realTau = false)
 {
     float weight = 1.0;
     
@@ -259,7 +305,7 @@ float getTriggerWeight(int partType, float pt, float eta, TH1F* rewHisto = 0, Sc
       }
       case 2: // tau
       {
-        weight = turnOnSF (pt, tauWP) ;
+        weight = turnOnSF (pt, tauWP, realTau) ;
         break;
       }
       default:
@@ -490,8 +536,8 @@ int main (int argc, char** argv)
   myScaleFactor[1][1] -> init_ScaleFactor("weights/data/data/Electron/Electron_IdIso_eff_Spring16.root");
 
   // muon POG SFs
-  TFile* fMuPOGSF_ID = new TFile ("weights/MuPogSF/MuonID_Z_2016runB_2p6fb.root");
-  TFile* fMuPOGSF_ISO = new TFile ("weights/MuPogSF/MuonISO_Z_2016runB_2p6fb.root");
+  TFile* fMuPOGSF_ID = new TFile ("weights/MuPogSF/MuonID_Z_RunBCD_prompt80X_7p65.root");
+  TFile* fMuPOGSF_ISO = new TFile ("weights/MuPogSF/MuonIso_Z_RunBCD_prompt80X_7p65.root");
   TH2F* hMuPOGSF_ID  = (TH2F*) fMuPOGSF_ID -> Get("MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio");  // pt: x, eta: y
   TH2F* hMuPOGSF_ISO = (TH2F*) fMuPOGSF_ISO -> Get("MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio"); // pt: x, eta: y
   // for loose ID:
@@ -538,6 +584,35 @@ int main (int argc, char** argv)
     if (string(hTauIDS->GetXaxis()->GetBinLabel(ibin+1)) == string("byTightCombinedIsolationDeltaBetaCorr3Hits") )
       tauIDsMap ["byLooseCombinedIsolationDeltaBetaCorr3Hits"] = ibin ;
   }
+
+  // MVA tau ID
+  vector<int> tauMVAIDIdx;
+  tauMVAIDIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseIsolationMVArun2v1DBoldDMwLT"));
+  tauMVAIDIdx.push_back(getTauIDIdx(hTauIDS, "byLooseIsolationMVArun2v1DBoldDMwLT"));
+  tauMVAIDIdx.push_back(getTauIDIdx(hTauIDS, "byMediumIsolationMVArun2v1DBoldDMwLT"));
+  tauMVAIDIdx.push_back(getTauIDIdx(hTauIDS, "byTightIsolationMVArun2v1DBoldDMwLT"));
+  tauMVAIDIdx.push_back(getTauIDIdx(hTauIDS, "byVTightIsolationMVArun2v1DBoldDMwLT"));
+  if (find(tauMVAIDIdx.begin(), tauMVAIDIdx.end(), -1) != tauMVAIDIdx.end())
+  {
+    cout << "** WARNING!! did not found some MVA tau IDs" << endl;
+    for (unsigned int i = 0; i < tauMVAIDIdx.size(); ++i)
+      cout << tauMVAIDIdx.at(i) << " " ;
+    cout << endl;
+  }
+
+  // cut based tau ID
+  vector<int> tauCUTIDIdx;
+  tauCUTIDIdx.push_back(getTauIDIdx(hTauIDS, "byLooseCombinedIsolationDeltaBetaCorr3Hits"));
+  tauCUTIDIdx.push_back(getTauIDIdx(hTauIDS, "byMediumCombinedIsolationDeltaBetaCorr3Hits"));
+  tauCUTIDIdx.push_back(getTauIDIdx(hTauIDS, "byTightCombinedIsolationDeltaBetaCorr3Hits"));
+  if (find(tauCUTIDIdx.begin(), tauCUTIDIdx.end(), -1) != tauCUTIDIdx.end())
+  {
+    cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
+    for (unsigned int i = 0; i < tauCUTIDIdx.size(); ++i)
+      cout << tauCUTIDIdx.at(i) << " " ;
+    cout << endl;
+  }
+
 
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -894,6 +969,16 @@ int main (int argc, char** argv)
     bool lep1HasTES = (theBigTree.daughters_TauUpExists->at(firstDaughterIndex) == 1 ? true : false);
     bool lep2HasTES = (theBigTree.daughters_TauUpExists->at(secondDaughterIndex) == 1 ? true : false);
 
+    // // x check of MC info from genJet()
+    // some differences observed, and some cases of real taus also when taking fully had tt only
+    // // 
+    // int genIdx1 = theBigTree.daughters_genindex->at(firstDaughterIndex);
+    // int genIdx2 = theBigTree.daughters_genindex->at(secondDaughterIndex);
+    // int aidg1 = (genIdx1  > 0 ? abs(theBigTree.genpart_pdg->at(genIdx1)) : 0) ;
+    // int aidg2 = (genIdx2  > 0 ? abs(theBigTree.genpart_pdg->at(genIdx2)) : 0) ;
+    // if (pType == 2 && ( lep1HasTES || lep2HasTES)) cout << "OoOooooooooooooooo ci sono dei real tau!!!! " << lep1HasTES << " " << lep2HasTES << " /// " << iEvent << endl;  
+    // if (aidg1 == 15 || aidg2 == 15 || aidg1 == 66615 || aidg2 == 66615) cout << " BBBBBBBBBBBBB real tau!!! " << aidg1 << " " << aidg2 << " /// " << iEvent << endl;
+
     const TLorentzVector tlv_firstLepton (
           theBigTree.daughters_px->at (firstDaughterIndex),
           theBigTree.daughters_py->at (firstDaughterIndex),
@@ -1024,14 +1109,14 @@ int main (int argc, char** argv)
 
       else if (pairType == 2) //tautau
       {
-          evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), 0, 0, 1) ;
-          evtLeg2weight = getTriggerWeight(type2, tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), 0, 0, 1) ;
+          evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), 0, 0, 1, lep1HasTES) ;
+          evtLeg2weight = getTriggerWeight(type2, tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), 0, 0, 1, lep2HasTES) ;
 
-          evtLeg1weightUp     = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_tauup.Pt(), tlv_firstLepton_tauup.Eta(), 0, 0, 1) : evtLeg1weight ) ;
-          evtLeg1weightDown   = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_taudown.Pt(), tlv_firstLepton_taudown.Eta(), 0, 0, 1) : evtLeg1weight ) ;
+          evtLeg1weightUp     = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_tauup.Pt(), tlv_firstLepton_tauup.Eta(), 0, 0, 1) : evtLeg1weight , lep1HasTES) ;
+          evtLeg1weightDown   = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_taudown.Pt(), tlv_firstLepton_taudown.Eta(), 0, 0, 1) : evtLeg1weight , lep2HasTES) ;
           
-          evtLeg2weightUp   = (lep2HasTES ? getTriggerWeight(type2, tlv_secondLepton_tauup.Pt(), tlv_secondLepton_tauup.Eta(), 0, 0, 1) : evtLeg2weight ) ;
-          evtLeg2weightDown = (lep2HasTES ? getTriggerWeight(type2, tlv_secondLepton_taudown.Pt(), tlv_secondLepton_taudown.Eta(), 0, 0, 1) : evtLeg2weight ) ;
+          evtLeg2weightUp   = (lep2HasTES ? getTriggerWeight(type2, tlv_secondLepton_tauup.Pt(), tlv_secondLepton_tauup.Eta(), 0, 0, 1) : evtLeg2weight , lep1HasTES) ;
+          evtLeg2weightDown = (lep2HasTES ? getTriggerWeight(type2, tlv_secondLepton_taudown.Pt(), tlv_secondLepton_taudown.Eta(), 0, 0, 1) : evtLeg2weight , lep2HasTES) ;
 
       }
       trgEvtWeight = evtLeg1weight*evtLeg2weight;
@@ -1102,6 +1187,9 @@ int main (int argc, char** argv)
     // theSmallTree.m_L3filterlast2 = theBigTree.daughters_L3FilterFiredLast->at (secondDaughterIndex) ;
 
     theSmallTree.m_dau1_iso = getIso (firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree) ;
+    theSmallTree.m_dau1_MVAiso = makeIsoDiscr (firstDaughterIndex, tauMVAIDIdx, theBigTree) ;
+    theSmallTree.m_dau1_CUTiso = makeIsoDiscr (firstDaughterIndex, tauCUTIDIdx, theBigTree) ;
+
     theSmallTree.m_dau1_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (firstDaughterIndex) ;
 
     int ibit = tauIDsMap["byLooseCombinedIsolationDeltaBetaCorr3Hits"] ;
@@ -1128,6 +1216,8 @@ int main (int argc, char** argv)
                                // 3 = from tauH collection
                                
     theSmallTree.m_dau2_iso = getIso (secondDaughterIndex, tlv_secondLepton.Pt (), theBigTree) ;
+    theSmallTree.m_dau2_MVAiso = makeIsoDiscr (secondDaughterIndex, tauMVAIDIdx, theBigTree) ;
+    theSmallTree.m_dau2_CUTiso = makeIsoDiscr (secondDaughterIndex, tauCUTIDIdx, theBigTree) ;
     theSmallTree.m_dau2_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (secondDaughterIndex) ;      
     theSmallTree.m_dau2_pt = tlv_secondLepton.Pt () ;
     theSmallTree.m_dau2_eta = tlv_secondLepton.Eta () ;
@@ -1408,6 +1498,13 @@ int main (int argc, char** argv)
       theSmallTree.m_HH_e = tlv_HH.E () ;
       theSmallTree.m_HH_mass = tlv_HH.M () ;
       theSmallTree.m_HH_mass_raw = tlv_HH_raw.M () ;
+
+      TLorentzVector tlv_HH_raw_tauup = tlv_bH_raw + tlv_firstLepton_tauup + tlv_secondLepton_tauup ;
+      TLorentzVector tlv_HH_raw_taudown = tlv_bH_raw + tlv_firstLepton_taudown + tlv_secondLepton_taudown ;
+
+      theSmallTree.m_HH_mass_raw_tauup = tlv_HH_raw_tauup.M();
+      theSmallTree.m_HH_mass_raw_taudown = tlv_HH_raw_taudown.M();
+
       // in case the SVFIT mass is calculated
       if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
       {

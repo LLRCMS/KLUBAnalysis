@@ -61,6 +61,7 @@ struct smallTree
     
       m_dau1_iso  = -1. ;
       m_dau1_MVAiso = -1 ;
+      m_dau1_CUTiso = -1 ;
       m_dau1_photonPtSumOutsideSignalCone = -1;
       m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits= false;
       m_dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits= false;
@@ -73,6 +74,7 @@ struct smallTree
       
       m_dau2_iso  = -1. ;
       m_dau2_MVAiso = -1 ;
+      m_dau2_CUTiso = -1 ;
       m_dau2_photonPtSumOutsideSignalCone = -1;
       m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits= false;
       m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits= false;
@@ -275,6 +277,7 @@ struct smallTree
 
       m_smallT->Branch ("dau1_iso", &m_dau1_iso, "dau1_iso/F") ;
       m_smallT->Branch ("dau1_MVAiso", &m_dau1_MVAiso, "dau1_MVAiso/I") ;
+      m_smallT->Branch ("dau1_CUTiso", &m_dau1_CUTiso, "dau1_CUTiso/I") ;
       m_smallT->Branch ("dau1_photonPtSumOutsideSignalCone", &m_dau1_photonPtSumOutsideSignalCone,"dau1_photonPtSumOutsideSignalCone/F");
       m_smallT->Branch ("dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits", &m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits, "dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits/O") ;
       m_smallT->Branch ("dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits", &m_dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits, "dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits/O") ;
@@ -287,6 +290,7 @@ struct smallTree
 
       m_smallT->Branch ("dau2_iso", &m_dau2_iso, "dau2_iso/F") ;
       m_smallT->Branch ("dau2_MVAiso", &m_dau2_MVAiso, "dau2_MVAiso/I") ;
+      m_smallT->Branch ("dau2_CUTiso", &m_dau2_CUTiso, "dau2_CUTiso/I") ;
       m_smallT->Branch ("dau2_photonPtSumOutsideSignalCone", &m_dau2_photonPtSumOutsideSignalCone, "dau2_photonPtSumOutsideSignalCone/F");
       m_smallT->Branch ("dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits", &m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits, "dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits/O") ;
       m_smallT->Branch ("dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits", &m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits, "dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits/O") ;
@@ -497,6 +501,7 @@ struct smallTree
   // the largest pT daughter visible candidate
   Float_t m_dau1_iso ;
   Int_t   m_dau1_MVAiso; // for taus only
+  Int_t   m_dau1_CUTiso; // for taus only
   Float_t m_dau1_photonPtSumOutsideSignalCone;
   Bool_t m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits;
   Bool_t m_dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits;
@@ -510,6 +515,7 @@ struct smallTree
   // the smallest pT daughter visible candidate
   Float_t m_dau2_iso ;
   Int_t   m_dau2_MVAiso; // for taus only
+  Int_t   m_dau2_CUTiso; // for taus only
   Float_t m_dau2_photonPtSumOutsideSignalCone;
   Bool_t m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits;
   Bool_t m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits;
