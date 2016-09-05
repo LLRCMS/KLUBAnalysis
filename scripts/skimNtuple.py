@@ -50,6 +50,7 @@ if __name__ == "__main__":
     parser.add_option ('-c', '--config'    , dest='config'    , help='skim config file'                      , default='none')
     parser.add_option ('-n', '--njobs'     , dest='njobs'     , help='number of skim jobs'                   , default=100, type = int)
     parser.add_option ('-k', '--kinfit'    , dest='dokinfit'  , help='run HH kin fitter'                     , default=True)
+    parser.add_option ('-m', '--mt2'       , dest='domt2'     , help='run stransverse mass calculation'      , default=True)
     parser.add_option ('-y', '--xsscale'   , dest='xsscale'   , help='scale to apply on XS for stitching'    , default='1.0')
     parser.add_option ('-z', '--htcut'     , dest='htcut'     , help='HT cut for stitching on inclusive'     , default='-999.0')
     parser.add_option ('-t', '--toprew'    , dest='toprew'    , help='is TT bar sample to compute reweight?' , default=False)
@@ -218,6 +219,8 @@ if __name__ == "__main__":
         else                  : command += " 0 "   
         command += (" " + opt.weightHH)
         command += " " + opt.topstitch
+        if opt.domt2          : command += " 1 " ## inspiegabilmente questo e' un bool
+        else                  : command += " 0 "
 
         command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
         scriptFile.write (command)
@@ -226,7 +229,7 @@ if __name__ == "__main__":
         scriptFile.close ()
         os.system ('chmod u+rwx %s/skimJob_%d.sh'% (jobsDir,n))
 
-        command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' + jobsDir + '/skimJob_' + str (n) + '.sh\'')
+        command = ('/opt/exp_soft/cms/t3/t3submit -q ' + opt.queue + ' \'' + jobsDir + '/skimJob_' + str (n) + '.sh\'')
         if opt.sleep : time.sleep (0.1)
         os.system (command)
         commandFile.write (command + '\n')
