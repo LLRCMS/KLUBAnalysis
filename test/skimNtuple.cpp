@@ -1774,6 +1774,7 @@ int main (int argc, char** argv)
         theSmallTree.m_MT2_EDM = mt2_min->Edm();
         theSmallTree.m_MT2_hasConverged = (statt ? 1 : 0);
         theSmallTree.m_MT2_status = mt2_min->Status();
+        theSmallTree.m_MT2_ncalls = mt2_min->NCalls();
       }
 
 

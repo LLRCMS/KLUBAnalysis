@@ -202,6 +202,7 @@ struct smallTree
       m_MT2_EDM = -1.;
       m_MT2_hasConverged = -1;
       m_MT2_status = -1;
+      m_MT2_ncalls = -1;
 
 
       m_jets_pt.clear () ;
@@ -447,6 +448,7 @@ struct smallTree
       m_smallT->Branch("MT2_EDM",           &m_MT2_EDM,           "MT2_EDM/F");
       m_smallT->Branch("MT2_hasConverged",  &m_MT2_hasConverged,  "MT2_hasConverged/I");
       m_smallT->Branch("MT2_status",        &m_MT2_status,        "MT2_status/I");
+      m_smallT->Branch("MT2_ncalls",        &m_MT2_ncalls,        "MT2_ncalls/I");
 
 
       m_smallT->Branch("bH_mass_raw",&m_bH_mass_raw,"bH_mass_raw/F");
@@ -703,6 +705,7 @@ struct smallTree
   Float_t m_MT2_EDM;
   Int_t   m_MT2_hasConverged;
   Int_t   m_MT2_status;
+  Int_t   m_MT2_ncalls;
 
 
   Float_t m_lheht ;
