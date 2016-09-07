@@ -1744,8 +1744,12 @@ int main (int argc, char** argv)
         TVector2 mt2_c2=mt2_sumPt-mt2_c1;
 
         // could be moved outside to save some time?
-        ROOT::Math::Minimizer *mt2_min = ROOT::Math::Factory::CreateMinimizer("Minuit2", "");
-        // set tolerance , etc...
+        // try with algo: Migrad, Simplex,Combined,Scan, Fumili2  (default is Migrad)
+        // e.g. ROOT::Minuit2::kCombined (combined: migrad+symplex)
+        ROOT::Math::Minimizer *mt2_min = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Minimize");
+        // ROOT::Math::Minimizer *mt2_min = ROOT::Math::Factory::CreateMinimizer("GSLMultiMin", "");
+        
+        // // set tolerance , etc...
         mt2_min->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2
         mt2_min->SetTolerance(10.0);
         mt2_min->SetPrintLevel(0);
