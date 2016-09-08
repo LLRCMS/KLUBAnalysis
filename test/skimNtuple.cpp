@@ -22,10 +22,12 @@
 #include "bTagSF.h"
 #include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 
-#include "mt2.h"
-#include "Math/Minimizer.h"
-#include "Math/Factory.h"
-#include "Math/Functor.h"
+// for minuit-based minimization
+// #include "mt2.h"
+// #include "Math/Minimizer.h"
+// #include "Math/Factory.h"
+// #include "Math/Functor.h"
+#include "lester_mt2_bisect.h"
 
 //#include "../../HTT-utilities/LepEffInterface/interface/ScaleFactor.h"
 #include "ScaleFactor.h"
@@ -557,8 +559,7 @@ int main (int argc, char** argv)
   // MC_NUM_LooseRelIso_DEN_TightID_PAR_pt_spliteta_bin1
 
   // ------------------------------
-
-  smT2 mt2Class = smT2();
+  // smT2 mt2Class = smT2();
 
   // ------------------------------
   // reweighting file for HH non resonant
@@ -1713,74 +1714,101 @@ int main (int argc, char** argv)
       // Stransverse mass
       if (runMT2)
       {
-        TVector2 mt2_tau1(0,0), mt2_tau2(0,0), mt2_mpt(0,0);
-        TVector2 mt2_b1(0,0), mt2_b2(0,0);
-        Float_t mt2_mTau1=0, mt2_mTau2=0;
-        Float_t mt2_mB1=0, mt2_mB2=0;
-        Float_t mt2_mt2=0;
+        // MT2 based on Minuit2 minimization
+        // TVector2 mt2_tau1(0,0), mt2_tau2(0,0), mt2_mpt(0,0);
+        // TVector2 mt2_b1(0,0), mt2_b2(0,0);
+        // Float_t mt2_mTau1=0, mt2_mTau2=0;
+        // Float_t mt2_mB1=0, mt2_mB2=0;
+        // Float_t mt2_mt2=0;
 
-        mt2_tau1.SetMagPhi(tlv_firstLepton.Pt (), tlv_firstLepton.Phi ());
-        mt2_tau2.SetMagPhi(tlv_secondLepton.Pt (), tlv_secondLepton.Phi ());
-        mt2_mTau1=tlv_firstLepton.M();
-        mt2_mTau2=tlv_secondLepton.M();
+        // mt2_tau1.SetMagPhi(tlv_firstLepton.Pt (), tlv_firstLepton.Phi ());
+        // mt2_tau2.SetMagPhi(tlv_secondLepton.Pt (), tlv_secondLepton.Phi ());
+        // mt2_mTau1=tlv_firstLepton.M();
+        // mt2_mTau2=tlv_secondLepton.M();
 
-        mt2_b1.SetMagPhi(tlv_firstBjet_raw.Pt(), tlv_firstBjet_raw.Phi());
-        mt2_b2.SetMagPhi(tlv_secondBjet_raw.Pt(), tlv_secondBjet.Phi());
-        mt2_mB1=tlv_firstBjet_raw.M();
-        mt2_mB2=tlv_secondBjet_raw.M();
-        mt2_mpt.SetMagPhi(vMET.Mod(), vMET.Phi()); // NB: using PF MET of the event
+        // mt2_b1.SetMagPhi(tlv_firstBjet_raw.Pt(), tlv_firstBjet_raw.Phi());
+        // mt2_b2.SetMagPhi(tlv_secondBjet_raw.Pt(), tlv_secondBjet.Phi());
+        // mt2_mB1=tlv_firstBjet_raw.M();
+        // mt2_mB2=tlv_secondBjet_raw.M();
+        // mt2_mpt.SetMagPhi(vMET.Mod(), vMET.Phi()); // NB: using PF MET of the event
 
-        TVector2 mt2_sumPt = mt2_tau1+mt2_tau2+mt2_mpt;
+        // TVector2 mt2_sumPt = mt2_tau1+mt2_tau2+mt2_mpt;
 
-        mt2Class.SetB1(mt2_b1);
-        mt2Class.SetB2(mt2_b2);
-        mt2Class.SetMPT(mt2_sumPt);
-        mt2Class.SetMB1(mt2_mB1);
-        mt2Class.SetMB2(mt2_mB2);
-        mt2Class.SetMT1(mt2_mTau1);
-        mt2Class.SetMT2(mt2_mTau2);
+        // mt2Class.SetB1(mt2_b1);
+        // mt2Class.SetB2(mt2_b2);
+        // mt2Class.SetMPT(mt2_sumPt);
+        // mt2Class.SetMB1(mt2_mB1);
+        // mt2Class.SetMB2(mt2_mB2);
+        // mt2Class.SetMT1(mt2_mTau1);
+        // mt2Class.SetMT2(mt2_mTau2);
 
-        TVector2 mt2_c1=mt2_sumPt;
-        TVector2 mt2_c2=mt2_sumPt-mt2_c1;
+        // TVector2 mt2_c1=mt2_sumPt;
+        // TVector2 mt2_c2=mt2_sumPt-mt2_c1;
 
-        // could be moved outside to save some time?
-        // try with algo: Migrad, Simplex,Combined,Scan, Fumili2  (default is Migrad)
-        // e.g. ROOT::Minuit2::kCombined (combined: migrad+symplex)
-        ROOT::Math::Minimizer *mt2_min = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Minimize");
-        // ROOT::Math::Minimizer *mt2_min = ROOT::Math::Factory::CreateMinimizer("GSLMultiMin", "");
+        // // could be moved outside to save some time?
+        // // try with algo: Migrad, Simplex,Combined,Scan, Fumili2  (default is Migrad)
+        // // e.g. ROOT::Minuit2::kCombined (combined: migrad+symplex)
+        // ROOT::Math::Minimizer *mt2_min = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Minimize");
+        // // ROOT::Math::Minimizer *mt2_min = ROOT::Math::Factory::CreateMinimizer("GSLMultiMin", "");
         
-        // // set tolerance , etc...
-        mt2_min->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2
-        mt2_min->SetTolerance(10.0);
-        mt2_min->SetPrintLevel(0);
+        // // // set tolerance , etc...
+        // mt2_min->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2
+        // mt2_min->SetTolerance(10.0);
+        // mt2_min->SetPrintLevel(0);
 
-        ROOT::Math::Functor mt2_f(mt2Class,2);
-        double step[2] = {0.1, 0.1};
-        double variable[2] = { 0.5*mt2_c1.Mod(), 0.0 };
+        // ROOT::Math::Functor mt2_f(mt2Class,2);
+        // double step[2] = {0.1, 0.1};
+        // double variable[2] = { 0.5*mt2_c1.Mod(), 0.0 };
 
-        mt2_min->SetFunction(mt2_f);
-        mt2_min->SetLimitedVariable(0,"cT",variable[0], step[0], 0.0, mt2_sumPt.Mod());
-        mt2_min->SetLimitedVariable(1,"cPhi",variable[1], step[1], -TMath::Pi(), TMath::Pi());
-        bool statt = mt2_min->Minimize();
-        mt2_mt2 = mt2_min->MinValue();
-        // cout << mt2_min->MinValue() << " " << statt << "--" << mt2_min->Status() << " " << mt2_min->CovMatrixStatus() << " " << mt2_min->Edm() << endl;
+        // mt2_min->SetFunction(mt2_f);
+        // mt2_min->SetLimitedVariable(0,"cT",variable[0], step[0], 0.0, mt2_sumPt.Mod());
+        // mt2_min->SetLimitedVariable(1,"cPhi",variable[1], step[1], -TMath::Pi(), TMath::Pi());
+        // bool statt = mt2_min->Minimize();
+        // mt2_mt2 = mt2_min->MinValue();
+        // // cout << mt2_min->MinValue() << " " << statt << "--" << mt2_min->Status() << " " << mt2_min->CovMatrixStatus() << " " << mt2_min->Edm() << endl;
         
-        // According to documentation:
-        // status = 1    : Covariance was made pos defined
-        // status = 2    : Hesse is invalid
-        // status = 3    : Edm is above max
-        // status = 4    : Reached call limit
-        // status = 5    : Any other failure
-        // but for some misterious reason, I get statt==true && mt2_min->Status() == 1 in some cases -- let's store both
+        // // According to documentation:
+        // // status = 1    : Covariance was made pos defined
+        // // status = 2    : Hesse is invalid
+        // // status = 3    : Edm is above max
+        // // status = 4    : Reached call limit
+        // // status = 5    : Any other failure
+        // // but for some misterious reason, I get statt==true && mt2_min->Status() == 1 in some cases -- let's store both
 
-        theSmallTree.m_MT2 = mt2_mt2;
-        theSmallTree.m_MT2_covMtrxStatus = mt2_min->CovMatrixStatus();
-        theSmallTree.m_MT2_EDM = mt2_min->Edm();
-        theSmallTree.m_MT2_hasConverged = (statt ? 1 : 0);
-        theSmallTree.m_MT2_status = mt2_min->Status();
-        theSmallTree.m_MT2_ncalls = mt2_min->NCalls();
+        // theSmallTree.m_MT2 = mt2_mt2;
+        // theSmallTree.m_MT2_covMtrxStatus = mt2_min->CovMatrixStatus();
+        // theSmallTree.m_MT2_EDM = mt2_min->Edm();
+        // theSmallTree.m_MT2_hasConverged = (statt ? 1 : 0);
+        // theSmallTree.m_MT2_status = mt2_min->Status();
+        // theSmallTree.m_MT2_ncalls = mt2_min->NCalls();
+
+        double mVisA = tlv_firstBjet_raw.M(); // mass of visible object on side A.  Must be >=0.
+        double pxA = tlv_firstBjet_raw.Px(); // x momentum of visible object on side A.
+        double pyA = tlv_firstBjet_raw.Py(); // y momentum of visible object on side A.
+
+        double mVisB = tlv_secondBjet_raw.M(); // mass of visible object on side B.  Must be >=0.
+        double pxB = tlv_secondBjet_raw.Px(); // x momentum of visible object on side B.
+        double pyB = tlv_secondBjet_raw.Py(); // y momentum of visible object on side B.
+
+        double pxMiss = tlv_firstLepton.Px() + tlv_secondLepton.Px() + theBigTree.METx->at(chosenTauPair); // x component of missing transverse momentum.
+        double pyMiss = tlv_firstLepton.Py() + tlv_secondLepton.Py() + theBigTree.METy->at(chosenTauPair); // y component of missing transverse momentum.
+
+        double chiA = tlv_firstLepton.M(); // hypothesised mass of invisible on side A.  Must be >=0.
+        double chiB = tlv_secondLepton.M(); // hypothesised mass of invisible on side B.  Must be >=0.
+
+        double desiredPrecisionOnMt2 = 0; // Must be >=0.  If 0 alg aims for machine precision.  if >0, MT2 computed to supplied absolute precision.
+
+        asymm_mt2_lester_bisect::disableCopyrightMessage();
+        double MT2 =  asymm_mt2_lester_bisect::get_mT2(
+           mVisA, pxA, pyA,
+           mVisB, pxB, pyB,
+           pxMiss, pyMiss,
+           chiA, chiB,
+           desiredPrecisionOnMt2);
+
+        theSmallTree.m_MT2 = MT2;
+
       }
-
 
       theSmallTree.m_HH_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
       theSmallTree.m_tauHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_tauH.Phi ()) ;

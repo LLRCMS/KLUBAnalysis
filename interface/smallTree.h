@@ -198,11 +198,12 @@ struct smallTree
       m_HHkinsvfit_m =-1;
 
       m_MT2 = -1.;
-      m_MT2_covMtrxStatus = -1;
-      m_MT2_EDM = -1.;
-      m_MT2_hasConverged = -1;
-      m_MT2_status = -1;
-      m_MT2_ncalls = -1;
+      // m_MT2_covMtrxStatus = -1;
+      // m_MT2_EDM = -1.;
+      // m_MT2_hasConverged = -1;
+      // m_MT2_status = -1;
+      // m_MT2_ncalls = -1;
+      // m_MT2_l = -1.;
 
 
       m_jets_pt.clear () ;
@@ -444,12 +445,12 @@ struct smallTree
       m_smallT->Branch("HHkinsvfit_m", &m_HHkinsvfit_m,"HHkinsvfit_m/F");
 
       m_smallT->Branch("MT2",               &m_MT2,               "MT2/F");
-      m_smallT->Branch("MT2_covMtrxStatus", &m_MT2_covMtrxStatus, "MT2_covMtrxStatus/I");
-      m_smallT->Branch("MT2_EDM",           &m_MT2_EDM,           "MT2_EDM/F");
-      m_smallT->Branch("MT2_hasConverged",  &m_MT2_hasConverged,  "MT2_hasConverged/I");
-      m_smallT->Branch("MT2_status",        &m_MT2_status,        "MT2_status/I");
-      m_smallT->Branch("MT2_ncalls",        &m_MT2_ncalls,        "MT2_ncalls/I");
-
+      // m_smallT->Branch("MT2_covMtrxStatus", &m_MT2_covMtrxStatus, "MT2_covMtrxStatus/I");
+      // m_smallT->Branch("MT2_EDM",           &m_MT2_EDM,           "MT2_EDM/F");
+      // m_smallT->Branch("MT2_hasConverged",  &m_MT2_hasConverged,  "MT2_hasConverged/I");
+      // m_smallT->Branch("MT2_status",        &m_MT2_status,        "MT2_status/I");
+      // m_smallT->Branch("MT2_ncalls",        &m_MT2_ncalls,        "MT2_ncalls/I");
+      // m_smallT->Branch("MT2_l",               &m_MT2_l,               "MT2_l/F");
 
       m_smallT->Branch("bH_mass_raw",&m_bH_mass_raw,"bH_mass_raw/F");
       m_smallT->Branch("HHKin_mass_raw",&m_HHKin_mass_raw ,"HHKin_mass_raw/F");
@@ -701,12 +702,12 @@ struct smallTree
   Float_t m_HHkinsvfit_m;
 
   Float_t m_MT2;
-  Int_t   m_MT2_covMtrxStatus;
-  Float_t m_MT2_EDM;
-  Int_t   m_MT2_hasConverged;
-  Int_t   m_MT2_status;
-  Int_t   m_MT2_ncalls;
-
+  // Int_t   m_MT2_covMtrxStatus;
+  // Float_t m_MT2_EDM;
+  // Int_t   m_MT2_hasConverged;
+  // Int_t   m_MT2_status;
+  // Int_t   m_MT2_ncalls;
+  // Float_t m_MT2_l;
 
   Float_t m_lheht ;
   Float_t m_topReweight;
