@@ -1538,7 +1538,7 @@ int main (int argc, char** argv)
       float HHKmass = -999;
       float HHKChi2 = -999;
       // if (runHHKinFit && tlv_HH_raw.M() > 20 && tlv_HH_raw.M() < 200)
-      if (runHHKinFit && pairType <= 2) // no kinfit for ee / mumu
+      if (runHHKinFit && pairType <= 2 && tlv_bH_raw.M() > 50 && tlv_bH_raw.M() < 200 && theBigTree.SVfitMass->at (chosenTauPair) > 50 && theBigTree.SVfitMass->at (chosenTauPair) < 200) // no kinfit for ee / mumu + very loose mass window
       {
         HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet, tlv_secondBjet, 
                                                    tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
@@ -1660,6 +1660,9 @@ int main (int argc, char** argv)
         catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw=true;}
         if(!wrongHHKraw){
           theSmallTree.m_HHKin_mass_raw = kinFitsraw.getMH();
+          theSmallTree.m_HHKin_mass_raw_chi2        = kinFitsraw.getChi2();
+          theSmallTree.m_HHKin_mass_raw_convergence = kinFitsraw.getConvergence();
+          theSmallTree.m_HHKin_mass_raw_prob        = kinFitsraw.getFitProb();
         }
         else theSmallTree.m_HHKin_mass_raw = -100 ;
         if (theBigTree.SVfitMass->at (chosenTauPair) > -900. && !wrongHHK)

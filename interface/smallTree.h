@@ -233,9 +233,13 @@ struct smallTree
       //m_mvaValueETau = 0;      
 
       m_bH_mass_raw = 0;
+      
       m_HHKin_mass_raw = 0;
       m_HHKin_mass_raw_tauup = 0;
       m_HHKin_mass_raw_taudown = 0;
+      m_HHKin_mass_raw_chi2 = 0;
+      m_HHKin_mass_raw_convergence = 0;
+      m_HHKin_mass_raw_prob = 0;
       m_HHKin_mass_raw_copy = 0;
 
       m_lheht = 0;
@@ -400,6 +404,7 @@ struct smallTree
       m_smallT->Branch ("HH_mass_raw", &m_HH_mass_raw, "HH_mass_raw/F") ;
       m_smallT->Branch ("HH_mass_raw_tauup", &m_HH_mass_raw_tauup, "HH_mass_raw_tauup/F") ;
       m_smallT->Branch ("HH_mass_raw_taudown", &m_HH_mass_raw_taudown, "HH_mass_raw_taudown/F") ;
+
       m_smallT->Branch ("HHKin_mass", &m_HHKin_mass, "HHKin_mass/F") ;
       m_smallT->Branch ("HHKin_chi2", &m_HHKin_chi2, "HHKin_chi2/F") ;
       m_smallT->Branch ("HH_deltaPhi", &m_HH_deltaPhi, "HH_deltaPhi/F") ;
@@ -452,10 +457,14 @@ struct smallTree
       // m_smallT->Branch("MT2_ncalls",        &m_MT2_ncalls,        "MT2_ncalls/I");
       // m_smallT->Branch("MT2_l",               &m_MT2_l,               "MT2_l/F");
 
-      m_smallT->Branch("bH_mass_raw",&m_bH_mass_raw,"bH_mass_raw/F");
-      m_smallT->Branch("HHKin_mass_raw",&m_HHKin_mass_raw ,"HHKin_mass_raw/F");
-      m_smallT->Branch("HHKin_mass_raw_tauup",&m_HHKin_mass_raw_tauup ,"HHKin_mass_raw_tauup/F");
-      m_smallT->Branch("HHKin_mass_raw_taudown",&m_HHKin_mass_raw_taudown ,"HHKin_mass_raw_taudown/F");
+      m_smallT->Branch ("bH_mass_raw",&m_bH_mass_raw,"bH_mass_raw/F");
+      m_smallT->Branch ("HHKin_mass_raw",&m_HHKin_mass_raw ,"HHKin_mass_raw/F");
+      m_smallT->Branch ("HHKin_mass_raw_tauup",&m_HHKin_mass_raw_tauup ,"HHKin_mass_raw_tauup/F");
+      m_smallT->Branch ("HHKin_mass_raw_taudown",&m_HHKin_mass_raw_taudown ,"HHKin_mass_raw_taudown/F");
+      m_smallT->Branch ("HHKin_mass_raw_chi2", &m_HHKin_mass_raw_chi2, "HHKin_mass_raw_chi2/F") ;
+      m_smallT->Branch ("HHKin_mass_raw_convergence", &m_HHKin_mass_raw_convergence, "HHKin_mass_raw_convergence/I") ;
+      m_smallT->Branch ("HHKin_mass_raw_prob", &m_HHKin_mass_raw_prob, "HHKin_mass_raw_prob/F") ;
+
       m_smallT->Branch("HHKin_mass_raw_copy",&m_HHKin_mass_raw_copy ,"HHKin_mass_raw_copy/F");
 
       //m_smallT->Branch ("MuTauKine", &m_mvaValueMuTau, "MuTauKine/F");
@@ -691,6 +700,10 @@ struct smallTree
   Float_t m_HHKin_mass_raw;
   Float_t m_HHKin_mass_raw_tauup;
   Float_t m_HHKin_mass_raw_taudown;
+  Float_t m_HHKin_mass_raw_chi2;
+  Int_t   m_HHKin_mass_raw_convergence;
+  Float_t m_HHKin_mass_raw_prob;
+
   Float_t m_HHKin_mass_raw_copy;
   Float_t m_bH_mass_raw;
 
