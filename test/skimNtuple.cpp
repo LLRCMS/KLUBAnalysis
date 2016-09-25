@@ -766,6 +766,8 @@ int main (int argc, char** argv)
           float SFTop2 = TMath::Exp(aTopRW+bTopRW*ptTop2);
           topPtReweight = TMath::Sqrt (SFTop1*SFTop2); // save later together with other weights
           theSmallTree.m_TTtopPtreweight = topPtReweight ;
+          theSmallTree.m_genDecMode1 = decayTop1;
+          theSmallTree.m_genDecMode2 = decayTop2;
       }
     }
 
@@ -794,6 +796,36 @@ int main (int argc, char** argv)
 
       theSmallTree.m_DYscale_LL = DYscale_LL[nbs];
       theSmallTree.m_DYscale_MM = DYscale_MM[nbs];
+
+      // loop through gen parts ot identify Z boson 
+      int idx1 = -1;
+      for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
+      {
+          if (theBigTree.genpart_pdg->at(igen) == 23) // Z0
+          {
+              // bool isFirst = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
+              if (true)
+              {
+                  if (idx1 >= 0)
+                  {
+                      cout << "** ERROR: more than 1 Z identified " << endl;
+                      continue;
+                  }
+                  idx1 = igen;
+              }
+          }
+      }
+
+      if (idx1 >= 0)
+      {
+        // cout << "** GOOD: could find 1 Z" << endl;
+        // store gen decay mode of the Z identified
+        theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1);
+      }
+      // else // probably these are events mediated by a photon where I do not have Z info
+      // {
+      //   cout << "** ERROR: couldn't find 1 Z" << endl;
+      // }
     }
 
     // HH reweight for non resonant
@@ -836,6 +868,10 @@ int main (int argc, char** argv)
       mHH = vSum.M();
       vH1.Boost(-vSum.BoostVector());                     
       ct1 = vH1.CosTheta();
+
+      // store gen decay mode of the two H identified
+      theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1);
+      theSmallTree.m_genDecMode2 = theBigTree.genpart_HZDecayMode->at(idx2);
 
       if (hreweightHH) // 1D
       {
