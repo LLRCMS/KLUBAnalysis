@@ -1,4 +1,5 @@
 #include "EffCounter.h"
+#include <algorithm>
 
 using namespace std;
 
