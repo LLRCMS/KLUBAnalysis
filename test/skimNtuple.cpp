@@ -337,13 +337,13 @@ int main (int argc, char** argv)
     // read input file and cfg
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  if (argc < 14)
+  if (argc < 15)
   { 
       cerr << "missing input parameters : argc is: " << argc << endl ;
       cerr << "usage: " << argv[0]
            << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
            << " xsecScale(stitch) HTMax(stitch) isTTBar DY_Nbs HHreweightFile TT_stitchType"
-           << " runMT2" << endl ; 
+           << " runMT2 isHHsignal" << endl ; 
       return 1;
   }
 
@@ -412,6 +412,12 @@ int main (int argc, char** argv)
   string opt14 (argv[13]);
   if (opt14 == "1") runMT2 = true;
   cout << "** INFO: running MT2: " << runMT2 << endl;
+
+  bool isHHsignal = false;
+  string opt15 (argv[14]);
+  if (opt15 == "1") isHHsignal = true;
+  cout << "** INFO: is HH signal: " << isHHsignal << endl;
+
 
   // prepare variables needed throughout the code
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----    
@@ -830,7 +836,7 @@ int main (int argc, char** argv)
 
     // HH reweight for non resonant
     float HHweight = 1.0;
-    if (hreweightHH || hreweightHH2D)
+    if (hreweightHH || hreweightHH2D || isHHsignal) // isHHsignal: only to do loop on genparts, but no rew
     {
       // cout << "DEBUG: reweight!!!" << endl;
       TLorentzVector vH1, vH2, vBoost, vSum;
@@ -839,28 +845,51 @@ int main (int argc, char** argv)
       // loop on gen to find Higgs
       int idx1 = -1;
       int idx2 = -1;
+      int idx1last = -1;
+      int idx2last = -1;
+      // cout << " ------------------------ " << endl;
       for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
       {
           if (theBigTree.genpart_pdg->at(igen) == 25)
           {
               bool isFirst = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
+              bool isLast = !isFirst; // safe as I store 2 copies of each H boson, first and last
+
+              // cout << igen << " H boson: Px " << theBigTree.genpart_px->at(igen) << " first? " << isFirst << " decMode : " << theBigTree.genpart_HZDecayMode->at(igen) << endl;
               if (isFirst)
               {
                   if (idx1 >= 0 && idx2 >= 0)
                   {
-                      cout << "** ERROR: more than 2 H identified " << endl;
+                      cout << "** ERROR: more than 2 H identified (first)" << endl;
                       continue;
                   }
                   (idx1 == -1) ? (idx1 = igen) : (idx2 = igen) ;
+              }
+              if (isLast)
+              {
+                  if (idx1last >= 0 && idx2last >= 0)
+                  {
+                      cout << "** ERROR: more than 2 H identified (last)" << endl;
+                      continue;
+                  }
+                  (idx1last == -1) ? (idx1last = igen) : (idx2last = igen) ;
               }
           }
       }
 
       if (idx1 == -1 || idx2 == -1)
       {
-          cout << "** ERROR: couldn't find 2 H" << endl;
+          cout << "** ERROR: couldn't find 2 H (first)" << endl;
           continue;
       }
+
+      if (idx1last != -1 && idx2last != -1) // this is not critical if not found
+      {
+        // store gen decay mode of the two H identified
+        theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1last);
+        theSmallTree.m_genDecMode2 = theBigTree.genpart_HZDecayMode->at(idx2last);
+      }
+      else cout << "** ERROR: couldn't find 2 H (last)" << endl;
 
       vH1.SetPxPyPzE (theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1) );
       vH2.SetPxPyPzE (theBigTree.genpart_px->at(idx2), theBigTree.genpart_py->at(idx2), theBigTree.genpart_pz->at(idx2), theBigTree.genpart_e->at(idx2) );
@@ -869,9 +898,6 @@ int main (int argc, char** argv)
       vH1.Boost(-vSum.BoostVector());                     
       ct1 = vH1.CosTheta();
 
-      // store gen decay mode of the two H identified
-      theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1);
-      theSmallTree.m_genDecMode2 = theBigTree.genpart_HZDecayMode->at(idx2);
 
       if (hreweightHH) // 1D
       {

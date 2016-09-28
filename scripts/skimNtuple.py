@@ -57,6 +57,7 @@ if __name__ == "__main__":
     parser.add_option ('-b', '--topstitch' , dest='topstitch' , help='type of TT gen level decay pruning for stitch'        , default='0')
     parser.add_option ('-g', '--genjets'   , dest='genjets'   , help='loop on genjets to determine the number of b hadrons' , default=False)
     parser.add_option ('-w', '--weight'    , dest='weightHH'  , help='histo map for hh reweight'             , default='0')
+    parser.add_option ('-a', '--ishhsignal', dest='ishhsignal', help='isHHsignal'                            , default=False)
     
     (opt, args) = parser.parse_args()
 
@@ -221,6 +222,9 @@ if __name__ == "__main__":
         command += " " + opt.topstitch
         if opt.domt2          : command += " 1 " ## inspiegabilmente questo e' un bool
         else                  : command += " 0 "
+        if opt.ishhsignal     : command += " 1 "
+        else                  : command += " 0 "
+
 
         command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
         scriptFile.write (command)
