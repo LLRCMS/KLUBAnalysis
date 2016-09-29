@@ -32,6 +32,7 @@
 //#include "../../HTT-utilities/LepEffInterface/interface/ScaleFactor.h"
 #include "ScaleFactor.h"
 #include "ConfigParser.h"
+#include "EffCounter.h"
 #include "exceptions/HHInvMConstraintException.h"
 #include "exceptions/HHEnergyRangeException.h"
 #include "exceptions/HHEnergyConstraintException.h"
@@ -636,6 +637,32 @@ int main (int argc, char** argv)
     cout << endl;
   }
 
+  // -----------------------------------
+  // event counters for efficiency study
+  EffCounter ec;
+  ec.AddMarker ("all");
+  ec.AddMarker ("METfilter");
+  ec.AddMarker ("PairExists");
+  ec.AddMarker ("PairFoundBaseline");
+  ec.AddMarker ("Trigger");
+  ec.AddMarker ("TwoJets");
+
+  // for hh signal only -- split by gen decay
+  EffCounter* ecHHsig;
+  if (isHHsignal)
+  {
+    ecHHsig = new EffCounter[6];
+    for (int ic = 0; ic < 6; ++ic)
+    {
+      ecHHsig[ic].AddMarker ("all");
+      ecHHsig[ic].AddMarker ("METfilter");
+      ecHHsig[ic].AddMarker ("PairExists");
+      ecHHsig[ic].AddMarker ("PairFoundBaseline");
+      ecHHsig[ic].AddMarker ("PairMatchesGen");
+      ecHHsig[ic].AddMarker ("Trigger");
+      ecHHsig[ic].AddMarker ("TwoJets");      
+    }
+  }
 
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -810,15 +837,12 @@ int main (int argc, char** argv)
           if (theBigTree.genpart_pdg->at(igen) == 23) // Z0
           {
               // bool isFirst = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
-              if (true)
+              if (idx1 >= 0)
               {
-                  if (idx1 >= 0)
-                  {
-                      cout << "** ERROR: more than 1 Z identified " << endl;
-                      continue;
-                  }
-                  idx1 = igen;
+                cout << "** ERROR: more than 1 Z identified " << endl;
+                // continue; // no need to skip the event for errors in gen info
               }
+              idx1 = igen;
           }
       }
 
@@ -870,7 +894,7 @@ int main (int argc, char** argv)
                   if (idx1last >= 0 && idx2last >= 0)
                   {
                       cout << "** ERROR: more than 2 H identified (last)" << endl;
-                      continue;
+                      // continue; // no need to skip the event in this case -- dec mode just for studies
                   }
                   (idx1last == -1) ? (idx1last = igen) : (idx2last = igen) ;
               }
@@ -914,14 +938,19 @@ int main (int argc, char** argv)
     ///////////////////////////////////////////////////////////
     // END of gen related stuff -- compute tot number of events
 
+    const int genHHDecMode = (isHHsignal ? theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8 : 0);
+    double EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight) : 1.0;
     if (isMC)
     {
-      totalEvents += theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight;
+      totalEvents += EvtW;
     }
     else
     {
       totalEvents += 1 ;
     }
+    ec.Increment ("all", EvtW);
+    if (isHHsignal) ecHHsig[genHHDecMode].Increment ("all", EvtW);
+
     ++totalNoWeightsEventsNum ;
     
     // ----------------------------------------------------------
@@ -933,11 +962,14 @@ int main (int argc, char** argv)
     metpass += metbit & (1 << 5);
     metpass += metbit & (1 << 6);
     // if(metpass > 0) continue ; // FIXME!!! disabled only temporarily
+    ec.Increment ("METfilter", EvtW);
+    if (isHHsignal) ecHHsig[genHHDecMode].Increment ("METfilter", EvtW);
 
     // ----------------------------------------------------------
     // require at least 1 pair
     if (theBigTree.indexDau1->size () == 0) continue ;
-
+    ec.Increment ("PairExists", EvtW);
+    if (isHHsignal) ecHHsig[genHHDecMode].Increment ("PairExists", EvtW);
 
     // ----------------------------------------------------------
     // assess the pair type 
@@ -1035,6 +1067,13 @@ int main (int argc, char** argv)
     // else continue; // no pair found
 
     if (chosenTauPair < 0) continue; // no pair found over baseline
+    ec.Increment ("PairFoundBaseline", EvtW);
+    if (isHHsignal)
+    {
+      ecHHsig[genHHDecMode].Increment ("PairFoundBaseline", EvtW);
+      if (pairType == genHHDecMode) 
+        ecHHsig[genHHDecMode].Increment ("PairMatchesGen", EvtW);
+    }
 
     // ----------------------------------------------------------
     // pair has been assessed , check trigger information
@@ -1148,6 +1187,8 @@ int main (int argc, char** argv)
       bool triggerAccept = (passTrg && passMatch1 && passMatch2) ;
       
       if (!triggerAccept) continue;
+      ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
+      if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
     }
 
     // MC strategy
@@ -1201,6 +1242,10 @@ int main (int argc, char** argv)
       trgEvtWeight = evtLeg1weight*evtLeg2weight;
       trgEvtWeightUp   = evtLeg1weightUp*evtLeg2weightUp;
       trgEvtWeightDown = evtLeg1weightDown*evtLeg2weightDown;
+
+      EvtW *= trgEvtWeight;
+      ec.Increment ("Trigger", EvtW); // for MC, weight the event for the trigger acceptance
+      if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
     }
 
     // ----------------------------------------------------------
@@ -1428,6 +1473,9 @@ int main (int argc, char** argv)
     } // loop over jets
 
     if (!beInclusive && jets_and_sortPar.size () < 2) continue ;
+    ec.Increment("TwoJets", EvtW);
+    if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("TwoJets", EvtW);
+
 
     // sort jet collection by CSV
     sort (jets_and_sortPar.begin(), jets_and_sortPar.end(), bJetSort); //sort by first parameter, then pt (dummy if pt order chosen)
@@ -2066,13 +2114,67 @@ int main (int argc, char** argv)
   h_eff.SetBinContent (3, totalNoWeightsEventsNum) ;
   h_eff.SetBinContent (4, selectedNoWeightsEventsNum) ;
   
+  // store more detailed eff counter in output
+  vector<pair<string, double> > vEffSumm = ec.GetSummary();
+  TH1F* h_effSummary = new TH1F ("h_effSummary", "h_effSummary", vEffSumm.size(), 0, vEffSumm.size());
+  for (uint isumm = 0; isumm < vEffSumm.size(); ++isumm)
+  {
+    h_effSummary->SetBinContent(isumm+1, vEffSumm.at(isumm).second);
+    h_effSummary->GetXaxis()->SetBinLabel(isumm+1, vEffSumm.at(isumm).first.c_str());
+  }
+
+  TH1F* hEffHHSigsSummary [6];
+  if (isHHsignal)
+  {
+    std::vector<string> vNames = {
+      "MuTau",
+      "ETau",
+      "TauTau",
+      "MuMu",
+      "EE",
+      "EMu"
+    };
+    
+    
+    for (uint ich = 0; ich < 6; ++ich)
+    {
+      string hname = string("h_effSummary_") + vNames.at(ich);
+      vector<pair<string, double> > vEffSummHH = ecHHsig[ich].GetSummary();
+      hEffHHSigsSummary[ich] = new TH1F (hname.c_str(), hname.c_str(), vEffSummHH.size(), 0, vEffSummHH.size());
+      for (uint isumm = 0; isumm < vEffSummHH.size(); ++isumm)
+      {
+        hEffHHSigsSummary[ich]->SetBinContent(isumm+1, vEffSummHH.at(isumm).second);
+        hEffHHSigsSummary[ich]->GetXaxis()->SetBinLabel(isumm+1, vEffSummHH.at(isumm).first.c_str());
+      }
+    }
+
+  }
+
   // for (unsigned int i = 0 ; i < counter.size () ; ++i)
   //   h_eff.SetBinContent (5 + i, counter.at (i)) ;
 
   smallFile->cd() ;
   h_eff.Write () ;
+  h_effSummary->Write() ;
+  if (isHHsignal)
+  {
+    for (uint ich = 0; ich < 6; ++ich)
+      hEffHHSigsSummary[ich]->Write();
+  }
+
   smallFile->Write () ;
   smallFile->Close () ;
+
+  // free memory used by histos for eff
+  delete h_effSummary;
+  
+  if (isHHsignal)
+  {
+    for (uint ich = 0; ich < 6; ++ich)
+      delete hEffHHSigsSummary[ich];
+  }
+
+
 
   bool computeMVA = gConfigParser->readBoolOption ("TMVA::computeMVA");
   
