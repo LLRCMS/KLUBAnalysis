@@ -5,6 +5,8 @@
 
 using namespace std;
 
+#define DEBUG false
+
 // bTagSF::bTagSF(std::string SFfilename) : 
     
 //     m_calib("CSVv2", SFfilename.c_str()) ,
@@ -28,85 +30,101 @@ using namespace std;
 bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag) :
     
     m_calib("CSVv2", SFfilename.c_str()) ,
-    m_reader {
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "central"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "central"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "central")} ,
-    m_reader_up {
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "up"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "up"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "up")} ,
-    m_reader_do {
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "down"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "down"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "down")} ,
+    m_readers {
+        BTagCalibrationReader(BTagEntry::OP_LOOSE,  "central", {"up", "down"}),
+        BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"}),
+        BTagCalibrationReader(BTagEntry::OP_TIGHT,  "central", {"up", "down"})}
+    // m_reader {
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "central"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "central"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "central")} ,
+    // m_reader_up {
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "up"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "up"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "up")} ,
+    // m_reader_do {
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "down"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "down"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "down")} ,
     
-    m_reader_c {
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "central"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "central"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "central")} ,
-    m_reader_c_up {
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "up"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "up"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "up")} ,
-    m_reader_c_do {
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "down"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "down"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "down")} ,
+    // m_reader_c {
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "central"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "central"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "central")} ,
+    // m_reader_c_up {
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "up"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "up"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "up")} ,
+    // m_reader_c_do {
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "down"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "down"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "comb", "down")} ,
 
-    m_reader_udsg {
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "incl", "central"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "incl", "central"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "incl", "central")} ,
-    m_reader_udsg_up {
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "incl", "up"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "incl", "up"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "incl", "up")} ,
-    m_reader_udsg_do {
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "incl", "down"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "incl", "down"),
-    BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "incl", "down")} 
+    // m_reader_udsg {
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "incl", "central"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "incl", "central"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "incl", "central")} ,
+    // m_reader_udsg_up {
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "incl", "up"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "incl", "up"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "incl", "up")} ,
+    // m_reader_udsg_do {
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "incl", "down"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "incl", "down"),
+    // BTagCalibrationReader(&m_calib , BTagEntry::OP_TIGHT,  "incl", "down")} 
 {
     // // [b, c, udsg] [central, up, down] [loose, medium, tight]        = & _up//down [loose, medium, tight]
 
-    m_readers[0][0][0] = & (m_reader[0]) ;
-    m_readers[0][0][1] = & (m_reader[1]) ;
-    m_readers[0][0][2] = & (m_reader[2]) ;
+    // m_readers[0][0][0] = & (m_reader[0]) ;
+    // m_readers[0][0][1] = & (m_reader[1]) ;
+    // m_readers[0][0][2] = & (m_reader[2]) ;
 
-    m_readers[0][1][0] = & (m_reader_up[0]) ;
-    m_readers[0][1][1] = & (m_reader_up[1]) ;
-    m_readers[0][1][2] = & (m_reader_up[2]) ;
+    // m_readers[0][1][0] = & (m_reader_up[0]) ;
+    // m_readers[0][1][1] = & (m_reader_up[1]) ;
+    // m_readers[0][1][2] = & (m_reader_up[2]) ;
 
-    m_readers[0][2][0] = & (m_reader_do[0]) ;
-    m_readers[0][2][1] = & (m_reader_do[1]) ;
-    m_readers[0][2][2] = & (m_reader_do[2]) ;
-
-
-    m_readers[1][0][0] = & (m_reader_c[0]) ;
-    m_readers[1][0][1] = & (m_reader_c[1]) ;
-    m_readers[1][0][2] = & (m_reader_c[2]) ;
-
-    m_readers[1][1][0] = & (m_reader_c_up[0]) ;
-    m_readers[1][1][1] = & (m_reader_c_up[1]) ;
-    m_readers[1][1][2] = & (m_reader_c_up[2]) ;
-
-    m_readers[1][2][0] = & (m_reader_c_do[0]) ;
-    m_readers[1][2][1] = & (m_reader_c_do[1]) ;
-    m_readers[1][2][2] = & (m_reader_c_do[2]) ;
+    // m_readers[0][2][0] = & (m_reader_do[0]) ;
+    // m_readers[0][2][1] = & (m_reader_do[1]) ;
+    // m_readers[0][2][2] = & (m_reader_do[2]) ;
 
 
-    m_readers[2][0][0] = & (m_reader_udsg[0]) ;
-    m_readers[2][0][1] = & (m_reader_udsg[1]) ;
-    m_readers[2][0][2] = & (m_reader_udsg[2]) ;
+    // m_readers[1][0][0] = & (m_reader_c[0]) ;
+    // m_readers[1][0][1] = & (m_reader_c[1]) ;
+    // m_readers[1][0][2] = & (m_reader_c[2]) ;
 
-    m_readers[2][1][0] = & (m_reader_udsg_up[0]) ;
-    m_readers[2][1][1] = & (m_reader_udsg_up[1]) ;
-    m_readers[2][1][2] = & (m_reader_udsg_up[2]) ;
+    // m_readers[1][1][0] = & (m_reader_c_up[0]) ;
+    // m_readers[1][1][1] = & (m_reader_c_up[1]) ;
+    // m_readers[1][1][2] = & (m_reader_c_up[2]) ;
+
+    // m_readers[1][2][0] = & (m_reader_c_do[0]) ;
+    // m_readers[1][2][1] = & (m_reader_c_do[1]) ;
+    // m_readers[1][2][2] = & (m_reader_c_do[2]) ;
+
+
+    // m_readers[2][0][0] = & (m_reader_udsg[0]) ;
+    // m_readers[2][0][1] = & (m_reader_udsg[1]) ;
+    // m_readers[2][0][2] = & (m_reader_udsg[2]) ;
+
+    // m_readers[2][1][0] = & (m_reader_udsg_up[0]) ;
+    // m_readers[2][1][1] = & (m_reader_udsg_up[1]) ;
+    // m_readers[2][1][2] = & (m_reader_udsg_up[2]) ;
         
-    m_readers[2][2][0] = & (m_reader_udsg_do[0]) ;
-    m_readers[2][2][1] = & (m_reader_udsg_do[1]) ;
-    m_readers[2][2][2] = & (m_reader_udsg_do[2]) ;
+    // m_readers[2][2][0] = & (m_reader_udsg_do[0]) ;
+    // m_readers[2][2][1] = & (m_reader_udsg_do[1]) ;
+    // m_readers[2][2][2] = & (m_reader_udsg_do[2]) ;
 
+    // load readers [loose, medium, tight]
+    m_readers[0].load(m_calib, BTagEntry::FLAV_B, "comb");
+    m_readers[0].load(m_calib, BTagEntry::FLAV_C, "comb");
+    m_readers[0].load(m_calib, BTagEntry::FLAV_UDSG, "incl");
+
+    m_readers[1].load(m_calib, BTagEntry::FLAV_B, "comb");
+    m_readers[1].load(m_calib, BTagEntry::FLAV_C, "comb");
+    m_readers[1].load(m_calib, BTagEntry::FLAV_UDSG, "incl");
+
+    m_readers[2].load(m_calib, BTagEntry::FLAV_B, "comb");
+    m_readers[2].load(m_calib, BTagEntry::FLAV_C, "comb");
+    m_readers[2].load(m_calib, BTagEntry::FLAV_UDSG, "incl");
 
     m_fileEff = new TFile (effFileName.c_str());
  
@@ -136,31 +154,39 @@ bTagSF::~bTagSF()
 
 float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta)
 {
+    // if (DEBUG) cout << "   ~~ requesting SF for WP=" << wpt << " SFsyst=" << syst << " jetFlavor=" << jetFlavor << " pt=" << pt << " eta=" << eta << endl;
+
     float SF = 1.0;
     
     BTagEntry::JetFlavor flav;
-    int myFlavIndex = -1; // indexes in the m_readers array
+    // int myFlavIndex = -1; // indexes in the m_readers array
     int mySystIndex = (int) syst;
     int myWPIndex   = (int) wpt;
+    float mypt = pt;
+    if (mypt < 30.) mypt = 30.;
+    if (mypt > 670.) mypt = 670.;
 
-    
     if (abs(jetFlavor) == 5)
     {
         flav = BTagEntry::FLAV_B;
-        myFlavIndex = 0;
+        // myFlavIndex = 0;
     }
     else if (abs(jetFlavor) == 4)
     {
         flav = BTagEntry::FLAV_C;
-        myFlavIndex = 1;
+        // myFlavIndex = 1;
     }
     else
     {
         flav = BTagEntry::FLAV_UDSG;
-        myFlavIndex = 2;
+        // myFlavIndex = 2;
     }
 
-    SF = m_readers[myFlavIndex][mySystIndex][myWPIndex] -> eval(flav, eta, pt);
+    if (DEBUG) cout << "   ~~ requesting SF for WP=" << wpt << "," << myWPIndex << " SFsyst=" << syst << "," << mySystIndex << " jetFlavor=" << jetFlavor << " pt=" << pt << " eta=" << eta << endl;
+
+    // SF = m_readers[myFlavIndex][mySystIndex][myWPIndex] -> eval(flav, eta, pt);
+    string systName[3] = {"central", "up", "down"}; // like SFsyst enum;
+    SF = m_readers[myWPIndex].eval_auto_bounds(systName[mySystIndex], flav, eta, pt);
 
     // if (syst == central)
     //     SF = m_reader[(int)wpt].eval(flav, eta, pt);   
@@ -168,28 +194,23 @@ float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta)
     //     SF = m_reader_up[(int)wpt].eval(flav, eta, pt);
     // else if (syst == down)
     //         SF = m_reader_do[(int)wpt].eval(flav, eta, pt);
-    
-
-
-
     // double uncertainty up/down if out of some boundaries
-    // FIXME: this is wrong!! one should do : jet_scalefactor_up = 2*(jet_scalefactor_up - jet_scalefactor) + jet_scalefactor; 
+    // now automatically returned by BTAG reader
     // and not just double the scale
-    if (syst != central)
-    {
-        /*
-        if (flav == BTagEntry::FLAV_B || flav == BTagEntry::FLAV_C)
-        {
-            if (pt < 30.0 || pt > 670.0 ) SF *= 2.0;
-        }
-        if (flav == BTagEntry::FLAV_UDSG)
-        {
-            if (pt < 20.0 || pt > 1000.0 ) SF *= 2.0;
-        }
-        */
-        SF *= 1.0;
-    }
+    // if (syst != central)
+    // {
+    //     if (flav == BTagEntry::FLAV_B || flav == BTagEntry::FLAV_C)
+    //     {
+    //         if (pt < 30.0 || pt > 670.0 ) SF *= 2.0;
+    //     }
+    //     if (flav == BTagEntry::FLAV_UDSG)
+    //     {
+    //         if (pt < 20.0 || pt > 1000.0 ) SF *= 2.0;
+    //     }
+    //     SF *= 1.0;
+    // }
 
+    if (DEBUG) cout << "   ~~ returning " << SF << endl;
     return SF;
 }
 
@@ -254,6 +275,8 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
 
     for (unsigned int ijet = 0; ijet < jets_and_btag.size(); ijet++)
     {
+        if (DEBUG) cout << "DEB: ijet " << ijet << " , size = " << jets_and_btag.size() << endl;
+
         int idx = jets_and_btag.at(ijet).first;
         vJet.SetPxPyPzE (jets_px->at(idx), jets_py->at(idx), jets_pz->at(idx), jets_e->at(idx));
         
@@ -262,17 +285,20 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
         SF[0] = getSF (loose,  central, flav, vJet.Pt(), vJet.Eta());
         SF[1] = getSF (medium, central, flav, vJet.Pt(), vJet.Eta());
         SF[2] = getSF (tight,  central, flav, vJet.Pt(), vJet.Eta());
+        if (DEBUG) cout << "  >> DEB: SFs " << SF[0] << " " << SF[1] << " " << SF[2] << endl;
 
         float effBTag[3];
         effBTag[0] = getEff (static_cast<WP> (0), flav, channel, vJet.Pt(), vJet.Eta()) ;
         effBTag[1] = getEff (static_cast<WP> (1), flav, channel, vJet.Pt(), vJet.Eta()) ;
         effBTag[2] = getEff (static_cast<WP> (2), flav, channel, vJet.Pt(), vJet.Eta()) ;
+        if (DEBUG) cout << "  >> DEB: EFFs " << effBTag[0] << " " << effBTag[1] << " " << effBTag[2] << endl;
 
         float CSV = jets_and_btag.at(ijet).second;
         bool tagged[3];
         tagged[0] = (CSV > WPtag[0]);
         tagged[1] = (CSV > WPtag[1]);
         tagged[2] = (CSV > WPtag[2]);
+        if (DEBUG) cout << "  >> DEB: tagged " << tagged[0] << " " << tagged[1] << " " << tagged[2] << endl;
         for (int iWP = 0; iWP < 3; iWP++)
         {
             float tmpMC   = P_MC.at(iWP);
@@ -307,7 +333,11 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
     
     if (weight.at(0) < 0.05) 
     {
-        cout << "------ NONONO Null weight!!" << endl;
+        cout << "------ ERROR Null B-TAG weight!!" << endl;
+        cout << "    >>> " << P_Data.at(0) << " / " << P_MC.at(0) << " , "
+                           << P_Data.at(1) << " / " << P_MC.at(1) << " , "
+                           << P_Data.at(2) << " / " << P_MC.at(2) << " , "
+                           << endl;
     }
     //cout << "weights: " << weight.at(0) << " " << weight.at(1) << " " << weight.at(2) << endl;
     return weight;

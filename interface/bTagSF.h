@@ -24,6 +24,7 @@ class bTagSF
         // related to scale factors
         BTagCalibration m_calib;
 
+        /*
         // for b jets
         BTagCalibrationReader m_reader[3]; // 0: loose, 1: medium, 2: tight
         BTagCalibrationReader m_reader_up[3]; // 0: loose, 1: medium, 2: tight
@@ -40,6 +41,8 @@ class bTagSF
         BTagCalibrationReader m_reader_udsg_do[3]; // 0: loose, 1: medium, 2: tight
 
         BTagCalibrationReader* m_readers [3][3][3]; // [b, c, udsg] [central, up, down] [loose, medium, tight] 
+        */
+        BTagCalibrationReader m_readers [3]; // new 2016: [loose, medium, tight] 
 
         // related to b tag efficiency
         TFile* m_fileEff;
