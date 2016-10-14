@@ -130,7 +130,8 @@ float getIso (unsigned int iDau, float pt, bigTree & theBigTree)
   int type = theBigTree.particleType->at (iDau) ;
   // is tauH
   if (type == 2)
-    return theBigTree.daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) ;
+    // return theBigTree.daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) ;
+    return theBigTree.daughters_byIsolationMVArun2v1DBoldDMwLTraw->at(iDau) ;
   // muon
   if (type == 1 || type == 0)
     return theBigTree.combreliso->at(iDau);
@@ -877,7 +878,7 @@ int main (int argc, char** argv)
           if (theBigTree.genpart_pdg->at(igen) == 25)
           {
               bool isFirst = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
-              bool isLast = !isFirst; // safe as I store 2 copies of each H boson, first and last
+              bool isLast = CheckBit (theBigTree.genpart_flags->at(igen), 13) ; // 12 = isLastCopy
 
               // cout << igen << " H boson: Px " << theBigTree.genpart_px->at(igen) << " first? " << isFirst << " decMode : " << theBigTree.genpart_HZDecayMode->at(igen) << endl;
               if (isFirst)
@@ -922,7 +923,6 @@ int main (int argc, char** argv)
       vH1.Boost(-vSum.BoostVector());                     
       ct1 = vH1.CosTheta();
 
-
       if (hreweightHH) // 1D
       {
         int ibin = hreweightHH->FindBin(mHH);
@@ -938,7 +938,12 @@ int main (int argc, char** argv)
     ///////////////////////////////////////////////////////////
     // END of gen related stuff -- compute tot number of events
 
-    const int genHHDecMode = (isHHsignal ? theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8 : 0);
+    int genHHDecMode = (isHHsignal ? theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8 : 0);
+    if (genHHDecMode < 0)
+    {
+      genHHDecMode = 0; // dummy protection if couldn't find initial H
+      cout << "** ERROR: negative dec mode, for safety set it ot 0" << endl;
+    }
     double EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight) : 1.0;
     if (isMC)
     {
