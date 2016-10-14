@@ -160,6 +160,7 @@ public :
    std::vector<float>   *photonPtSumOutsideSignalCone;
    std::vector<int>     *daughters_decayModeFindingNewDMs;
    std::vector<float>   *daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;
+   std::vector<float>   *daughters_byIsolationMVArun2v1DBoldDMwLTraw;
    std::vector<float>   *daughters_byIsolationMVA3oldDMwoLTraw;
    std::vector<float>   *daughters_byIsolationMVA3oldDMwLTraw;
    std::vector<float>   *daughters_byIsolationMVA3newDMwoLTraw;
@@ -372,6 +373,7 @@ public :
    TBranch        *b_photonPtSumOutsideSignalCone;   //!
    TBranch        *b_daughters_decayModeFindingNewDMs;   //!
    TBranch        *b_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;   //!
+   TBranch        *b_daughters_byIsolationMVArun2v1DBoldDMwLTraw; //!
    TBranch        *b_daughters_byIsolationMVA3oldDMwoLTraw;   //!
    TBranch        *b_daughters_byIsolationMVA3oldDMwLTraw;   //!
    TBranch        *b_daughters_byIsolationMVA3newDMwoLTraw;   //!
@@ -580,6 +582,7 @@ public :
        photonPtSumOutsideSignalCone = 0;
        daughters_decayModeFindingNewDMs = 0;
        daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits = 0;
+       daughters_byIsolationMVArun2v1DBoldDMwLTraw = 0;
        daughters_byIsolationMVA3oldDMwoLTraw = 0;
        daughters_byIsolationMVA3oldDMwLTraw = 0;
        daughters_byIsolationMVA3newDMwoLTraw = 0;
@@ -758,6 +761,7 @@ public :
        fChain->SetBranchAddress("photonPtSumOutsideSignalCone", &photonPtSumOutsideSignalCone, &b_photonPtSumOutsideSignalCone);
        fChain->SetBranchAddress("daughters_decayModeFindingNewDMs", &daughters_decayModeFindingNewDMs, &b_daughters_decayModeFindingNewDMs);
        fChain->SetBranchAddress("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits, &b_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
+       fChain->SetBranchAddress("daughters_byIsolationMVArun2v1DBoldDMwLTraw", &daughters_byIsolationMVArun2v1DBoldDMwLTraw, &b_daughters_byIsolationMVArun2v1DBoldDMwLTraw);
        fChain->SetBranchAddress("daughters_byIsolationMVA3oldDMwoLTraw", &daughters_byIsolationMVA3oldDMwoLTraw, &b_daughters_byIsolationMVA3oldDMwoLTraw);
        fChain->SetBranchAddress("daughters_byIsolationMVA3oldDMwLTraw", &daughters_byIsolationMVA3oldDMwLTraw, &b_daughters_byIsolationMVA3oldDMwLTraw);
        fChain->SetBranchAddress("daughters_byIsolationMVA3newDMwoLTraw", &daughters_byIsolationMVA3newDMwoLTraw, &b_daughters_byIsolationMVA3newDMwoLTraw);
