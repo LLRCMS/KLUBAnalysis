@@ -640,6 +640,20 @@ int main (int argc, char** argv)
     cout << endl;
   }
 
+
+  // anti-ele discr
+  vector<int> tauAntiEleIdx;
+  tauAntiEleIdx.push_back(getTauIDIdx(hTauIDS, "againstElectronVLooseMVA6"));
+  tauAntiEleIdx.push_back(getTauIDIdx(hTauIDS, "againstElectronLooseMVA6"));
+  tauAntiEleIdx.push_back(getTauIDIdx(hTauIDS, "againstElectronMediumMVA6"));
+  tauAntiEleIdx.push_back(getTauIDIdx(hTauIDS, "againstElectronTightMVA6"));
+  tauAntiEleIdx.push_back(getTauIDIdx(hTauIDS, "againstElectronVTightMVA6"));
+
+  // anti-mu discr
+  vector<int> tauAntiMuIdx;
+  tauAntiMuIdx.push_back(getTauIDIdx(hTauIDS, "againstMuonLoose3"));
+  tauAntiMuIdx.push_back(getTauIDIdx(hTauIDS, "againstMuonTight3"));
+
   // -----------------------------------
   // event counters for efficiency study
   EffCounter ec;
@@ -673,7 +687,6 @@ int main (int argc, char** argv)
   {
     if (iEvent % 10000 == 0)  cout << "- reading event " << iEvent << endl ;
     // cout << "- reading event " << iEvent << endl ;
-    
     theSmallTree.clearVars () ;
     int got = theBigTree.fChain->GetEntry(iEvent);
     if (got == 0) break;
@@ -723,7 +736,6 @@ int main (int argc, char** argv)
         }
       }
     }
-
 
     // gen info -- fetch tt pair and compute top PT reweight
     float topPtReweight = 1.0; // 1 for all the other samples      
@@ -1390,6 +1402,8 @@ int main (int argc, char** argv)
     theSmallTree.m_dau1_iso = getIso (firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree) ;
     theSmallTree.m_dau1_MVAiso = makeIsoDiscr (firstDaughterIndex, tauMVAIDIdx, theBigTree) ;
     theSmallTree.m_dau1_CUTiso = makeIsoDiscr (firstDaughterIndex, tauCUTIDIdx, theBigTree) ;
+    theSmallTree.m_dau1_antiele = makeIsoDiscr (firstDaughterIndex, tauAntiEleIdx, theBigTree) ;
+    theSmallTree.m_dau1_antimu  = makeIsoDiscr (firstDaughterIndex, tauAntiMuIdx, theBigTree) ;
 
     theSmallTree.m_dau1_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (firstDaughterIndex) ;
 
@@ -1405,7 +1419,6 @@ int main (int argc, char** argv)
     theSmallTree.m_dau1_byTightCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (firstDaughterIndex)  & (1 << ibit) ) ? true : false ;
     theSmallTree.m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (secondDaughterIndex) & (1 << ibit) ) ? true : false ;
 
-
     theSmallTree.m_dau1_pt = tlv_firstLepton.Pt () ;
     theSmallTree.m_dau1_eta = tlv_firstLepton.Eta () ;
     theSmallTree.m_dau1_phi = tlv_firstLepton.Phi () ;
@@ -1415,10 +1428,11 @@ int main (int argc, char** argv)
                                // 1 = from muons collection
                                // 2 = from electrons collection
                                // 3 = from tauH collection
-                               
     theSmallTree.m_dau2_iso = getIso (secondDaughterIndex, tlv_secondLepton.Pt (), theBigTree) ;
     theSmallTree.m_dau2_MVAiso = makeIsoDiscr (secondDaughterIndex, tauMVAIDIdx, theBigTree) ;
     theSmallTree.m_dau2_CUTiso = makeIsoDiscr (secondDaughterIndex, tauCUTIDIdx, theBigTree) ;
+    theSmallTree.m_dau2_antiele = makeIsoDiscr (secondDaughterIndex, tauAntiEleIdx, theBigTree) ;
+    theSmallTree.m_dau2_antimu  = makeIsoDiscr (secondDaughterIndex, tauAntiMuIdx, theBigTree) ;
     theSmallTree.m_dau2_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (secondDaughterIndex) ;      
     theSmallTree.m_dau2_pt = tlv_secondLepton.Pt () ;
     theSmallTree.m_dau2_eta = tlv_secondLepton.Eta () ;
