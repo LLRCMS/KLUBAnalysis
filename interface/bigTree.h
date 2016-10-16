@@ -22,7 +22,7 @@ public :
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
    // Declaration of leaf types
-   Int_t           EventNumber;
+   ULong64_t       EventNumber;
    Int_t           RunNumber;
    Int_t           lumi;
    Long64_t        triggerbit;
