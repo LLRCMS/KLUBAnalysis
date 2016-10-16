@@ -50,6 +50,8 @@ const double bTopRW = -0.00137;
 const float DYscale_LL[3] = {1.0702, 0.715181,  0.885085} ; // computed from fit for LL and MM b tag
 const float DYscale_MM[3] = {1.04318, 1.0684 , 1.06528 } ;
 
+const ULong64_t debugEvent = 91238;
+
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
 ** - say f_i is the fraction of inclusive events in the i bin on njets (can be 2D nb-njet as well)
@@ -676,6 +678,11 @@ int main (int argc, char** argv)
     int got = theBigTree.fChain->GetEntry(iEvent);
     if (got == 0) break;
 
+    if (theBigTree.EventNumber == debugEvent)
+    {
+      cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
+    }
+
     // remove a lumisection that was present in 16 Giu JSON and removed in 22 and subsequent JSON
     if (!isMC && theBigTree.RunNumber == 274094 && theBigTree.lumi >= 105 && theBigTree.lumi <= 107) continue;
 
@@ -697,6 +704,26 @@ int main (int argc, char** argv)
 
       stitchWeight = stitchWeights[njets][nb];
     }
+
+    if (theBigTree.EventNumber == debugEvent)
+    {
+      cout << "** DEBUG : gen particle list" << endl;
+      for (unsigned int igen = 0; igen < theBigTree.genpart_pdg->size(); igen++)
+      {
+        int pdg = theBigTree.genpart_pdg->at(igen);
+        if (abs(pdg) == 66615 || abs(pdg) == 11 || abs(pdg) == 13)
+        {
+          TLorentzVector vGPDebug;
+          vGPDebug.SetPxPyPzE (theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen) ) ;
+          cout << igen << " pdg=" << pdg << " pt=" << vGPDebug.Pt() << " eta=" << vGPDebug.Eta() << " phi=" << vGPDebug.Phi() << endl;          
+        }
+        if (abs(pdg) == 25)
+        {
+          cout << igen << " pdg=" << pdg << " decay=" << theBigTree.genpart_HZDecayMode->at(igen) << endl; 
+        }
+      }
+    }
+
 
     // gen info -- fetch tt pair and compute top PT reweight
     float topPtReweight = 1.0; // 1 for all the other samples      
@@ -984,6 +1011,12 @@ int main (int argc, char** argv)
     int nmu = 0;
     int nele = 0;
     // int ntau = 0;
+    
+    if (theBigTree.EventNumber == debugEvent)
+    {
+      cout << "***** DEBUG: reco particles (remember: check if baseline sels are aligned to OfflineProducerHelper)" << endl;
+    }
+
     for (unsigned int idau = 0; idau < theBigTree.daughters_px->size(); ++idau)
     {
         int dauType = theBigTree.particleType->at(idau);
@@ -995,6 +1028,23 @@ int main (int argc, char** argv)
         {
             if (oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, 0, string("All")) ) ++nele;
         }
+
+        if (theBigTree.EventNumber == debugEvent)
+        {
+          TLorentzVector dauTlvDebug (
+            theBigTree.daughters_px->at (idau),
+            theBigTree.daughters_py->at (idau),
+            theBigTree.daughters_pz->at (idau),
+            theBigTree.daughters_e->at (idau)
+          );
+
+          // NB: remember to align this debug to the content of OfflineProducerHelper
+          cout << ".... reco part idau " << idau << " type=" << dauType << " pt=" << dauTlvDebug.Pt() << " eta=" << dauTlvDebug.Eta() << " iso=" << getIso (idau, dauTlvDebug.Pt (), theBigTree)
+            << " mubase=" << oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.1, string("All"))  
+            << " ebase=" << oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, 0, string("All")) 
+            << endl;
+        }
+
     }
     int pairType = 2; // tau tau
     if (nmu > 0)
@@ -1042,7 +1092,8 @@ int main (int argc, char** argv)
         //   theBigTree.daughters_e->at (t_secondDaughterIndex)
         // );
 
-        if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag+string("-TauRlxIzo") ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
+        // if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag+string("-TauRlxIzo") ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
+        if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
         {
             chosenTauPair = iPair;
             break;          
@@ -1059,6 +1110,27 @@ int main (int argc, char** argv)
         // }
     }
 
+    if (theBigTree.EventNumber == debugEvent)
+    {
+      cout << "**** DEBUG : chosen pair : " << chosenTauPair << " str=" << leptonSelectionFlag << " pairType==" << pairType << endl;
+      cout << "     ... going to list all pairs of same pairType as the one assessed with reco leptons" << endl;
+      for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
+      {
+          int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;  
+          int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
+          int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
+          int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;        
+          if ( oph.getPairType (t_type1, t_type2) != pairType ) continue ;
+          TLorentzVector tttt (
+          theBigTree.daughters_px->at (t_secondDaughterIndex),
+          theBigTree.daughters_py->at (t_secondDaughterIndex),
+          theBigTree.daughters_pz->at (t_secondDaughterIndex),
+          theBigTree.daughters_e->at (t_secondDaughterIndex)
+          );
+          cout << "- " << iPair << " isoTau=" <<  getIso (t_secondDaughterIndex, tttt.Pt (), theBigTree) << " tauPt=" << tttt.Pt() << " type2=" << t_type2 << " eta=" << tttt.Eta() << " phi=" << tttt.Phi() << endl;
+          cout << "   >>> DM=" << theBigTree.daughters_decayModeFindingOldDMs->at(t_secondDaughterIndex) << " dxy=" << theBigTree.dxy->at(t_secondDaughterIndex) << " dz=" << theBigTree.dz->at(t_secondDaughterIndex) << endl;
+      }      
+    }
     // if (chosenTauPairsIso.size() > 0)
     // {
     //   sort(chosenTauPairsIso.begin(), chosenTauPairsIso.end()); // will get highest pt sum
@@ -1447,6 +1519,11 @@ int main (int argc, char** argv)
       theSmallTree.m_leps_flav.push_back (theBigTree.particleType->at (iLep)) ;
       ++theSmallTree.m_nleps ;
     } 
+
+    if (theBigTree.EventNumber == debugEvent)
+    {
+      cout << "***** DEBUG: nleps="<< theSmallTree.m_nleps<< endl;
+    }
 
     // ----------------------------------------------------------
     // select jets 
