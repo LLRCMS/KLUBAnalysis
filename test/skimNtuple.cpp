@@ -50,7 +50,7 @@ const double bTopRW = -0.00137;
 const float DYscale_LL[3] = {1.0702, 0.715181,  0.885085} ; // computed from fit for LL and MM b tag
 const float DYscale_MM[3] = {1.04318, 1.0684 , 1.06528 } ;
 
-const ULong64_t debugEvent = 91961;
+const ULong64_t debugEvent = 91224;
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
@@ -1034,11 +1034,11 @@ int main (int argc, char** argv)
         int dauType = theBigTree.particleType->at(idau);
         if (oph.isMuon(dauType))
         {
-            if (oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, string("All")) ) ++nmu;
+            if (oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false))) ++nmu;
         }
         else if (oph.isElectron(dauType))
         {
-            if (oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, 0, string("All")) ) ++nele;
+            if (oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false))) ++nele;
         }
 
         if (theBigTree.EventNumber == debugEvent)
@@ -1056,14 +1056,15 @@ int main (int argc, char** argv)
             << " type="      << setw(3) << left << dauType
             << " pt="        << setw(10) << left << dauTlvDebug.Pt()
             << " eta="       << setw(10) << left << dauTlvDebug.Eta()
+            << " phi="       << setw(10) << left << dauTlvDebug.Phi()
             << " iso="       << setw(10) << left << getIso (idau, dauTlvDebug.Pt (), theBigTree)
             << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
             << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
             << " mutightID=" << setw(3) << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
-            << " mubase="    << setw(3) << left << oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, string("All"))  
-            << " ebase="     << setw(3) << left << oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, 0, string("All")) 
-            << " passaele="  << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstEle")) 
-            << " passamu="   << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstMu")) 
+            << " mubase="    << setw(3) << left << oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All"))  
+            << " ebase="     << setw(3) << left << oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All")) 
+            // << " passaele="  << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstEle")) 
+            // << " passamu="   << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstMu")) 
             << endl;
         }
 
@@ -1516,11 +1517,11 @@ int main (int argc, char** argv)
       }  
       else if (theBigTree.particleType->at (iLep) == 0) // muons
       {
-        if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3)) continue ;
+        if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuLoose)) continue ;
       }
       else if (theBigTree.particleType->at (iLep) == 1) // electrons
       {
-        if (!oph.eleBaseline (&theBigTree, iLep, 10., 2.4, 0.3, 1)) continue ;
+        if (!oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVALoose)) continue ;
         // if (!oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, 1)) continue ;
       }
       TLorentzVector tlv_dummyLepton

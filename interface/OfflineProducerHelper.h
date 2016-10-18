@@ -45,6 +45,32 @@ class OfflineProducerHelper {
     Other  = 8 // for e.g. h->bb
   };
 
+  enum eleMVAIDWP {
+    EMVATight = 0, // 80% eff
+    EMVALoose = 1  // 90% eff
+  };
+
+  enum muIDWP {
+    MuLoose  = 0,
+    MuSoft   = 1,
+    MuMedium = 2, 
+    MuTight  = 3,
+    MuHighPt = 4
+  };
+
+  enum aeleWP {
+    aeleVLoose = 0,
+    aeleLoose  = 1,
+    aeleMedium = 2,
+    aeleTight  = 3,
+    aeleVTight = 4
+  };
+
+  enum amuWP {
+    amuLoose = 0,
+    amuTight = 1
+  };
+
   OfflineProducerHelper();
   OfflineProducerHelper(TH1F* hCounter, TH1F *htauids);
   OfflineProducerHelper(TH1F* hCounter);
@@ -69,7 +95,7 @@ class OfflineProducerHelper {
   bool pairPassBaseline (bigTree* tree, int iPair, TString whatApply = "All", bool debug=false);
   bool eleBaseline (bigTree* tree, int iDau, float ptMin, float relIso,  int MVAIDflag = 0, TString whatApply = "All", bool debug=false); // return true if leptons passes the baseline selections
   bool eleBaseline (bigTree* tree, int iDau, float ptMin, float etaMax, float relIso,  int MVAIDflag = 0, TString whatApply = "All", bool debug=false); // version with eta cut
-  bool muBaseline (bigTree* tree, int iDau, float ptMin, float etaMax, float relIso, TString whatApply = "All", bool debug=false);
+  bool muBaseline (bigTree* tree, int iDau, float ptMin, float etaMax, float relIso, int muIDWP, TString whatApply = "All", bool debug=false);
   bool tauBaseline (bigTree* tree, int iDau, float ptMin, float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits, TString whatApply = "All",bool debug=false);
   bool tightEleMVAID (float BDT, float fSCeta); // compute tight ele MVA id WP, but isBDT in ntuples has been fixed --> this will be soon deprecated
 

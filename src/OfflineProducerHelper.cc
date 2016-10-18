@@ -179,44 +179,44 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     if (pairType == MuHad)
     {
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
-        leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.15, whatApply, debug);
-        leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, tauIso, whatApply, debug);
+        leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.15, MuTight, whatApply, debug);
+        leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVLoose, amuTight, tauIso, whatApply, debug);
     }
 
     if (pairType == EHad)
     {
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
-        leg1 = eleBaseline (tree, dau1index, 27., 2.1, 0.1, 0, whatApply, debug);
-        leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, tauIso, whatApply, debug);
+        leg1 = eleBaseline (tree, dau1index, 27., 2.1, 0.1, EMVATight, whatApply, debug);
+        leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleTight, amuLoose, tauIso, whatApply, debug);
     }
 
     // ordered by pT and not by most isolated, but baseline asked in sync is the same...
     if (pairType == HadHad)
     {
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 2.0 ;
-        leg1 = tauBaseline (tree, dau1index, 40., 2.1, 0, 0, tauIso, whatApply, debug);
-        leg2 = tauBaseline (tree, dau2index, 40., 2.1, 0, 0, tauIso, whatApply, debug);
+        leg1 = tauBaseline (tree, dau1index, 40., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
+        leg2 = tauBaseline (tree, dau2index, 40., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
     }
 
     if (pairType == EMu)
     {
-        leg1 = eleBaseline (tree, dau1index, 13., 0.15, 0, whatApply, debug);
-        leg2 = muBaseline (tree, dau2index, 9., 2.4, 0.15, whatApply, debug);
+        leg1 = eleBaseline (tree, dau1index, 13., 0.15, EMVALoose, whatApply, debug);
+        leg2 = muBaseline (tree, dau2index, 9., 2.4, 0.15, MuTight, whatApply, debug);
     }
     
     // e e, mu mu are still preliminary (not from baseline)
     if (pairType == EE)
     {
-      leg1 = eleBaseline (tree, dau1index, 25., 0.15, 0, whatApply, debug);
-      leg2 = eleBaseline (tree, dau2index, 25., 0.15, 0, whatApply, debug);
+      leg1 = eleBaseline (tree, dau1index, 25., 0.15, EMVALoose, whatApply, debug);
+      leg2 = eleBaseline (tree, dau2index, 25., 0.15, EMVALoose, whatApply, debug);
     }
     
     if (pairType == MuMu)
     {
-      leg1 = muBaseline (tree, dau1index, 10., 2.4, 0.1, whatApply, debug);
-      leg2 = muBaseline (tree, dau2index, 10., 2.4, 0.1, whatApply, debug);
-      bool leg1ER = muBaseline (tree, dau1index, 19., 2.1, 0.1, whatApply, debug);
-      bool leg2ER = muBaseline (tree, dau2index, 19., 2.1, 0.1, whatApply, debug);
+      leg1 = muBaseline (tree, dau1index, 10., 2.4, 0.1, MuTight, whatApply, debug);
+      leg2 = muBaseline (tree, dau2index, 10., 2.4, 0.1, MuTight, whatApply, debug);
+      bool leg1ER = muBaseline (tree, dau1index, 19., 2.1, 0.1, MuTight, whatApply, debug);
+      bool leg2ER = muBaseline (tree, dau2index, 19., 2.1, 0.1, MuTight, whatApply, debug);
       
       //bool Is1in2p1 = leg1ER ;
       //bool Is2in2p1 = leg2ER ;
@@ -355,6 +355,8 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
     if (debug)
     {
       cout << "@ ele baseline" << endl;
+      // cout << " debug: stored WP 80: " << tree->daughters_iseleWP80->at(iDau) << endl;
+      // cout << " debug: stored RAW  : " << tree->discriminator->at (iDau) << " pt: " << p4.Pt() << " eta: " << p4.Eta() << endl;
       cout << " idS     "  << idS     << " skypped? " << byp_idS << endl;
       cout << " vertexS "  << vertexS << " skypped? " << byp_vertexS << endl;
       cout << " isoS    "  << isoS    << " skypped? " << byp_isoS << endl;
@@ -368,7 +370,7 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
 
 bool OfflineProducerHelper::muBaseline (
      bigTree* tree, int iDau, float ptMin, 
-     float etaMax, float relIso, TString whatApply, bool debug)
+     float etaMax, float relIso, int muIDWP, TString whatApply, bool debug)
 {
     float px = tree->daughters_px->at(iDau);
     float py = tree->daughters_py->at(iDau);
@@ -399,9 +401,15 @@ bool OfflineProducerHelper::muBaseline (
       if (whatApply.Contains("pTMin"))  byp_ptS = false; 
       if (whatApply.Contains("etaMax")) byp_etaS = false;
     }
-        
+      
+    if (muIDWP < 0 || muIDWP > 3)
+    {
+        cout << " ** OfflineProducerHelper::muBaseline: muIDWP must be between 0 and 3 --> using 0" << endl;
+        muIDWP = 0;
+    }
+
     bool vertexS = (fabs(tree->dxy->at(iDau)) < 0.045 && fabs(tree->dz->at(iDau)) < 0.2) || byp_vertexS;
-    bool idS = checkBit (discr, 3) || byp_idS; // bit 0 is LOOSE id, bit 2 is MEDIUM mu id, bit 3 is TIGHT mu id
+    bool idS = checkBit (discr, muIDWP) || byp_idS; // bit 0 is LOOSE id, bit 2 is MEDIUM mu id, bit 3 is TIGHT mu id
     bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
     if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
