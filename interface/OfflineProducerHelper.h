@@ -77,7 +77,6 @@ class OfflineProducerHelper {
                                                 
                                                 // approx!! I call it using lepton eta and not superCluster eta
   bool EleMVAID (float BDT, float eta, float pT, int strength) ;
-  
   // bool jetPassPuID (bigTree* tree, int ijet);
 
   /*

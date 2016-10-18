@@ -161,7 +161,8 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     int type1 = tree->particleType->at(dau1index);
     int type2 = tree->particleType->at(dau2index);
     int pairType = getPairType (type1, type2);
-
+    
+    if (debug) cout << ".. checking baseline of pair " << iPair << " idx=(" << dau1index << "," << dau2index << ")" << endl;
     bool isOS = tree->isOSCand->at(iPair);
     if (whatApply.Contains("OScharge") && !isOS) {
       if (debug) cout<<"check baseline: OSCharge failed"<<endl;
@@ -179,22 +180,22 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     {
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
         leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.15, whatApply);
-        leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, tauIso, whatApply);
+        leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, tauIso, whatApply, debug);
     }
 
     if (pairType == EHad)
     {
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
         leg1 = eleBaseline (tree, dau1index, 27., 2.1, 0.1, 0, whatApply);
-        leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, tauIso, whatApply);
+        leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, tauIso, whatApply, debug);
     }
 
     // ordered by pT and not by most isolated, but baseline asked in sync is the same...
     if (pairType == HadHad)
     {
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 2.0 ;
-        leg1 = tauBaseline (tree, dau1index, 40., 2.1, 0, 0, tauIso, whatApply);
-        leg2 = tauBaseline (tree, dau2index, 40., 2.1, 0, 0, tauIso, whatApply);
+        leg1 = tauBaseline (tree, dau1index, 40., 2.1, 0, 0, tauIso, whatApply, debug);
+        leg2 = tauBaseline (tree, dau2index, 40., 2.1, 0, 0, tauIso, whatApply, debug);
     }
 
     if (pairType == EMu)
@@ -227,12 +228,19 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
       cout<<"check baseline: leg1 failed"<<endl;
     }
     if(!leg2 && debug){
-      cout<<"check baseline: leg1 failed"<<endl;
+      cout<<"check baseline: leg2 failed"<<endl;
     }
+    
+    if (leg1&&leg2&&debug)
+      cout << "check baseline: leg1 AND leg2 ok" << endl;
 
     // overlap between pairs
     float dR = DeltaRDau(tree, dau1index, dau2index);
     bool drMin = (dR > 0.0001);
+    
+    if (!drMin && debug)
+      cout << "failed dR min as dR=" << dR << endl;
+
     // bool drMin = (dR > 0.5);
     result = (result && drMin);
 
@@ -458,14 +466,15 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
     bool etaS = (fabs(p4.Eta()) < etaMax) || byp_etaS;
 
     bool totalS = (dmfS && vertexS && agEleS && agMuS && isoS && ptS && etaS);
-    if(debug && !totalS){
-      if(!dmfS)cout<<"False "<<dmfS<<endl;
-      if(!vertexS)cout<<"False "<<vertexS<<endl;
-      if(!agEleS)cout<<"False "<<agEleS<<endl;
-      if(!agMuS)cout<<"False "<<agMuS<<endl;
-      if(!isoS)cout<<"False "<<isoS<<endl;
-      if(!ptS)cout<<"False "<<ptS<<endl;
-      if(!etaS)cout<<"False "<<etaS<<endl;
+    if (debug)
+    {
+      cout << " dmfS    "  << dmfS    << " skypped? " << byp_dmfS << endl;
+      cout << " vertexS "  << vertexS << " skypped? " << byp_vertexS << endl;
+      cout << " agEleS  "  << agEleS  << " skypped? " << byp_agEleS << endl;
+      cout << " agMuS   "  << agMuS   << " skypped? " << byp_agMuS << endl;
+      cout << " isoS    "  << isoS    << " skypped? " << byp_isoS << endl;
+      cout << " ptS     "  << ptS     << " skypped? " << byp_ptS << endl;
+      cout << " etaS    "  << etaS    << " skypped? " << byp_etaS << endl;
     }
     return totalS;    
 }
@@ -515,14 +524,14 @@ bool OfflineProducerHelper::EleMVAID (float BDT, float eta, float pT, int streng
 //   TLorentzVector vJet;
 //   vJet.SetPxPyPzE (tree->jets_px->at(ijet), tree->jets_py->at(ijet), tree->jets_pz->at(ijet), tree->jets_e->at(ijet));
 //   float aeta = fabs(vJet.Eta());
-//   NHF      = pfjet->neutralHadronEnergyFraction();
-//   NEMF     = pfjet->neutralEmEnergyFraction();
-//   CHF      = pfjet->chargedHadronEnergyFraction();
-//   MUF      = pfjet->muonEnergyFraction();
-//   CEMF     = pfjet->chargedEmEnergyFraction();
-//   NumConst = pfjet->chargedMultiplicity()+pfjet->neutralMultiplicity();
-//   NumNeutralParticles =pfjet->neutralMultiplicity();
-//   CHM      = pfjet->chargedMultiplicity();
+//   float NHF      = tree->jets_nHEF->at(ijet) ; //pfjet->neutralHadronEnergyFraction();
+//   float NEMF     = tree->jets_nEmEF->at(ijet) ; //pfjet->neutralEmEnergyFraction();
+//   float CHF      = tree->jets_chHEF->at(ijet) ; //pfjet->chargedHadronEnergyFraction();
+//   float MUF      = tree-> ; //pfjet->muonEnergyFraction();
+//   float CEMF     = tree-> ; //pfjet->chargedEmEnergyFraction();
+//   float NumConst = tree-> ; //pfjet->chargedMultiplicity()+tree->  ; //pfjet->neutralMultiplicity();
+//   float NumNeutralParticles =tree->  ; //pfjet->neutralMultiplicity();
+//   float CHM      = tree->  ; //pfjet->chargedMultiplicity();
 // }
 
 

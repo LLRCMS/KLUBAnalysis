@@ -50,7 +50,7 @@ const double bTopRW = -0.00137;
 const float DYscale_LL[3] = {1.0702, 0.715181,  0.885085} ; // computed from fit for LL and MM b tag
 const float DYscale_MM[3] = {1.04318, 1.0684 , 1.06528 } ;
 
-const ULong64_t debugEvent = 94790;
+const ULong64_t debugEvent = 91961;
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
@@ -1052,18 +1052,18 @@ int main (int argc, char** argv)
 
           // NB: remember to align this debug to the content of OfflineProducerHelper
           cout << ".... reco part "
-            << " idx dau=" << setw(3) << left << idau
-            << " type="    << setw(3) << left << dauType
-            << " pt="      << setw(10) << left << dauTlvDebug.Pt()
-            << " eta="     << setw(10) << left << dauTlvDebug.Eta()
-            << " iso="     << setw(10) << left << getIso (idau, dauTlvDebug.Pt (), theBigTree)
-            << " dxy="     << setw(15) << left << theBigTree.dxy->at(idau)
-            << " dz="      << setw(15) << left << theBigTree.dz->at(idau)
-            << " tightID=" << setw(3) << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
-            << " mubase="  << setw(3) << left << oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, string("All"))  
-            << " ebase="   << setw(3) << left << oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, 0, string("All")) 
-            << " passaele=" << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstEle")) 
-            << " passamu="  << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstMu")) 
+            << " idx dau="   << setw(3) << left << idau
+            << " type="      << setw(3) << left << dauType
+            << " pt="        << setw(10) << left << dauTlvDebug.Pt()
+            << " eta="       << setw(10) << left << dauTlvDebug.Eta()
+            << " iso="       << setw(10) << left << getIso (idau, dauTlvDebug.Pt (), theBigTree)
+            << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
+            << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
+            << " mutightID=" << setw(3) << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
+            << " mubase="    << setw(3) << left << oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, string("All"))  
+            << " ebase="     << setw(3) << left << oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, 0, string("All")) 
+            << " passaele="  << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstEle")) 
+            << " passamu="   << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstMu")) 
             << endl;
         }
 
@@ -1115,7 +1115,7 @@ int main (int argc, char** argv)
         // );
 
         // if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag+string("-TauRlxIzo") ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
-        if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
+        if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag, (theBigTree.EventNumber == debugEvent ? true : false) ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
         {
             chosenTauPair = iPair;
             break;          
@@ -1151,6 +1151,7 @@ int main (int argc, char** argv)
           );
           cout << "- " << iPair << " idx1=" << t_firstDaughterIndex << " idx2=" << t_secondDaughterIndex << " isoTau=" <<  getIso (t_secondDaughterIndex, tttt.Pt (), theBigTree) << " tauPt=" << tttt.Pt() << " type2=" << t_type2 << " eta=" << tttt.Eta() << " phi=" << tttt.Phi() << endl;
           cout << "   >>> DM=" << theBigTree.daughters_decayModeFindingOldDMs->at(t_secondDaughterIndex) << " dxy=" << theBigTree.dxy->at(t_secondDaughterIndex) << " dz=" << theBigTree.dz->at(t_secondDaughterIndex) << endl;
+          // cout << "   >>> tauBase="
       }      
     }
     // if (chosenTauPairsIso.size() > 0)
@@ -1582,7 +1583,8 @@ int main (int argc, char** argv)
     {
       // JET PU ID cut 
       if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
-  
+      if (theBigTree.PFjetID->at (iJet) < 1) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
+
       TLorentzVector tlv_jet 
       (
         theBigTree.jets_px->at (iJet),
