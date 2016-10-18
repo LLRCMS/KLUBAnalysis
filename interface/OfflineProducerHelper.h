@@ -78,6 +78,8 @@ class OfflineProducerHelper {
                                                 // approx!! I call it using lepton eta and not superCluster eta
   bool EleMVAID (float BDT, float eta, float pT, int strength) ;
   
+  // bool jetPassPuID (bigTree* tree, int ijet);
+
   /*
   // separate check of various requirements applied in baseline
   bool combRelIso (bigTree* tree, int iDau, float iso); // for mu, ele
@@ -96,7 +98,8 @@ class OfflineProducerHelper {
   int getBestPair (bigTree* tree, std::vector<int>& pairIdxs, TString strategy = "OSMaxPt"); // from a vector of indexes to pairs in the evemt retutn index to the one chose by a stategy
   int getBestPair (bigTree* tree, TString strategy = "OSMaxPt"); // calls the previous on the whole pair collection of the event
   int getPairByIndexes (bigTree* tree, int dau1, int dau2); // knowing the sons, get the pair formed  
-
+  float DeltaRDau(bigTree* tree, int dau1idx, int dau2idx);
+  
 
   // --------------------------------
   // gen related functions
@@ -106,7 +109,6 @@ class OfflineProducerHelper {
   bool drMatchGenReco (bigTree* tree, int iGen, int iReco, float dRcone = 0.5);
   int getRecoMatchedToGen (bigTree* tree, int iGen, bool checkId = true, bool checkCharge = false, float dRcone = 0.5);
 
-  
   ~OfflineProducerHelper(){}
 
  private:

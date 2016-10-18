@@ -229,6 +229,13 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     if(!leg2 && debug){
       cout<<"check baseline: leg1 failed"<<endl;
     }
+
+    // overlap between pairs
+    float dR = DeltaRDau(tree, dau1index, dau2index);
+    bool drMin = (dR > 0.0001);
+    // bool drMin = (dR > 0.5);
+    result = (result && drMin);
+
     return result;
 }
 
@@ -266,7 +273,7 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
       if (whatApply.Contains("etaMax")) byp_etaS = false;
     }
 
-    bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
+    bool vertexS = (fabs(tree->dxy->at(iDau)) < 0.045 && fabs(tree->dz->at(iDau)) < 0.2) || byp_vertexS;
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
     bool etaS = (fabs(p4.Eta()) < 2.5) || byp_etaS;
     //bool idS = checkBit (tree->daughters_iseleCUT->at(iDau), 3) || byp_idS; // 3 is TIGHT ele id CUT BASED
@@ -314,7 +321,7 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
       if (whatApply.Contains("etaMax")) byp_etaS = false;
     }
 
-    bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
+    bool vertexS = (fabs(tree->dxy->at(iDau)) < 0.045 && fabs(tree->dz->at(iDau)) < 0.2) || byp_vertexS;
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
     bool etaS = (fabs(p4.Eta()) < etaMax) || byp_etaS;
     //bool idS = checkBit (tree->daughters_iseleCUT->at(iDau), 3) || byp_idS; // 3 is TIGHT ele id CUT BASED
@@ -363,7 +370,7 @@ bool OfflineProducerHelper::muBaseline (
       if (whatApply.Contains("etaMax")) byp_etaS = false;
     }
         
-    bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
+    bool vertexS = (fabs(tree->dxy->at(iDau)) < 0.045 && fabs(tree->dz->at(iDau)) < 0.2) || byp_vertexS;
     bool idS = checkBit (discr, 3) || byp_idS; // bit 0 is LOOSE id, bit 2 is MEDIUM mu id, bit 3 is TIGHT mu id
     bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
     if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
@@ -440,7 +447,8 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
 
     //bool dmfS = (tree->daughters_decayModeFindingOldDMs->at(iDau) == 1 || tree->daughters_decayModeFindingNewDMs->at(iDau) == 1) || byp_dmfS;
     bool dmfS = (tree->daughters_decayModeFindingOldDMs->at(iDau) == 1) || byp_dmfS;
-    bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
+    // bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
+    bool vertexS = (fabs(tree->dz->at(iDau)) < 0.2) || byp_vertexS;
     bool agEleS = (agEleVal == 1) || byp_agEleS; 
     bool agMuS  = (agMuVal == 1) || byp_agMuS; 
     bool isoS = (tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) < isoRaw3Hits) || byp_isoS;
@@ -492,8 +500,7 @@ int OfflineProducerHelper::getMothPairType (bigTree* tree, int iMoth)
 }
 
 
-bool 
-OfflineProducerHelper::EleMVAID (float BDT, float eta, float pT, int strength)
+bool OfflineProducerHelper::EleMVAID (float BDT, float eta, float pT, int strength)
   {
     // 0 = tight (80%), 1 = loose (90%)
     if (pT < 5) return false ;
@@ -502,6 +509,21 @@ OfflineProducerHelper::EleMVAID (float BDT, float eta, float pT, int strength)
     if (fabs (eta > 1.479)) etaBin = 2 ;
     return BDT > m_MVAEleIDCuts[strength][pT>10][etaBin] ;
   }
+
+// bool jetPassPuID (bigTree* tree, int ijet)
+// {
+//   TLorentzVector vJet;
+//   vJet.SetPxPyPzE (tree->jets_px->at(ijet), tree->jets_py->at(ijet), tree->jets_pz->at(ijet), tree->jets_e->at(ijet));
+//   float aeta = fabs(vJet.Eta());
+//   NHF      = pfjet->neutralHadronEnergyFraction();
+//   NEMF     = pfjet->neutralEmEnergyFraction();
+//   CHF      = pfjet->chargedHadronEnergyFraction();
+//   MUF      = pfjet->muonEnergyFraction();
+//   CEMF     = pfjet->chargedEmEnergyFraction();
+//   NumConst = pfjet->chargedMultiplicity()+pfjet->neutralMultiplicity();
+//   NumNeutralParticles =pfjet->neutralMultiplicity();
+//   CHM      = pfjet->chargedMultiplicity();
+// }
 
 
 TLorentzVector OfflineProducerHelper::buildDauP4 (bigTree* tree, int iDau)
@@ -712,5 +734,13 @@ int OfflineProducerHelper::getRecoMatchedToGen (bigTree* tree, int iGen, bool ch
     if (matchedReco.size() == 0) return -1;
     std::sort (matchedReco.begin(), matchedReco.end()); // are sorted according to the first index, i.e. the dR
     return ((matchedReco.at(0)).second );
+}
+
+float OfflineProducerHelper::DeltaRDau(bigTree* tree, int dau1idx, int dau2idx)
+{
+  TLorentzVector v1, v2;
+  v1.SetPxPyPzE (tree->daughters_px->at(dau1idx), tree->daughters_px->at(dau1idx), tree->daughters_pz->at(dau1idx), tree->daughters_e->at(dau1idx));
+  v2.SetPxPyPzE (tree->daughters_px->at(dau2idx), tree->daughters_px->at(dau2idx), tree->daughters_pz->at(dau2idx), tree->daughters_e->at(dau2idx));
+  return v1.DeltaR(v2);
 }
 

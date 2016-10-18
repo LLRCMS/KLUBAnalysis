@@ -60,6 +60,10 @@ struct smallTree
       m_met_phi = -1. ;
       m_met_et = -1. ;
       m_met_et_corr =-1.;
+      m_met_cov00 = -1.;
+      m_met_cov01 = -1.;
+      m_met_cov10 = -1.;
+      m_met_cov11 = -1.;
       m_mT = -1. ;
     
       m_dau1_iso  = -1. ;
@@ -222,6 +226,7 @@ struct smallTree
       m_jets_isH.clear () ;
       m_jets_hasgenjet.clear () ;
       m_njets = 0 ;
+      m_nbjetscand = 0 ;
       m_dau1_jecUnc= -1;
       m_dau2_jecUnc= -1;
       m_bjet1_jecUnc = -1;
@@ -296,6 +301,10 @@ struct smallTree
       m_smallT->Branch ("met_phi", &m_met_phi, "met_phi/F") ;
       m_smallT->Branch ("met_et", &m_met_et, "met_et/F") ;
       m_smallT->Branch ("met_et_corr", &m_met_et_corr, "met_et_corr/F") ;
+      m_smallT->Branch ("met_cov00", &m_met_cov00, "met_cov00/F") ;
+      m_smallT->Branch ("met_cov01", &m_met_cov01, "met_cov01/F") ;
+      m_smallT->Branch ("met_cov10", &m_met_cov10, "met_cov10/F") ;
+      m_smallT->Branch ("met_cov11", &m_met_cov11, "met_cov11/F") ;
       m_smallT->Branch ("mT", &m_mT, "mT/F") ;
 
       m_smallT->Branch ("dau1_iso", &m_dau1_iso, "dau1_iso/F") ;
@@ -442,6 +451,7 @@ struct smallTree
       m_smallT->Branch ("jets_isH", &m_jets_isH) ;
       m_smallT->Branch ("jets_hasgenjet", &m_jets_hasgenjet) ;
       m_smallT->Branch ("njets", &m_njets, "njets/I") ;
+      m_smallT->Branch ("nbjetscand", &m_nbjetscand, "nbjetscand/I") ;
       m_smallT->Branch ("jets_jecUnc", &m_jets_jecUnc);
       m_smallT->Branch ("dau1_jecUnc", &m_dau1_jecUnc,"dau1_jecUnc/F");
       m_smallT->Branch ("dau2_jecUnc", &m_dau2_jecUnc,"dau2_jecUnc/F");
@@ -538,6 +548,10 @@ struct smallTree
   Float_t m_met_phi ;
   Float_t m_met_et ;
   Float_t m_met_et_corr;
+  Float_t m_met_cov00;
+  Float_t m_met_cov01;
+  Float_t m_met_cov10;
+  Float_t m_met_cov11;
   // mt
   Float_t m_mT ;
 
@@ -699,6 +713,7 @@ struct smallTree
   std::vector<Int_t> m_jets_isH ;
   std::vector<Bool_t> m_jets_hasgenjet ;
   Int_t m_njets ;
+  Int_t m_nbjetscand ;
   std::vector<Float_t> m_jets_jecUnc ;
   Float_t m_dau1_jecUnc;
   Float_t m_dau2_jecUnc;
