@@ -179,14 +179,14 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     if (pairType == MuHad)
     {
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
-        leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.15, whatApply);
+        leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.15, whatApply, debug);
         leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, tauIso, whatApply, debug);
     }
 
     if (pairType == EHad)
     {
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
-        leg1 = eleBaseline (tree, dau1index, 27., 2.1, 0.1, 0, whatApply);
+        leg1 = eleBaseline (tree, dau1index, 27., 2.1, 0.1, 0, whatApply, debug);
         leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, tauIso, whatApply, debug);
     }
 
@@ -200,23 +200,23 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
 
     if (pairType == EMu)
     {
-        leg1 = eleBaseline (tree, dau1index, 13., 0.15, 0, whatApply);
-        leg2 = muBaseline (tree, dau2index, 9., 2.4, 0.15, whatApply);
+        leg1 = eleBaseline (tree, dau1index, 13., 0.15, 0, whatApply, debug);
+        leg2 = muBaseline (tree, dau2index, 9., 2.4, 0.15, whatApply, debug);
     }
     
     // e e, mu mu are still preliminary (not from baseline)
     if (pairType == EE)
     {
-      leg1 = eleBaseline (tree, dau1index, 25., 0.15, 0, whatApply);
-      leg2 = eleBaseline (tree, dau2index, 25., 0.15, 0, whatApply);
+      leg1 = eleBaseline (tree, dau1index, 25., 0.15, 0, whatApply, debug);
+      leg2 = eleBaseline (tree, dau2index, 25., 0.15, 0, whatApply, debug);
     }
     
     if (pairType == MuMu)
     {
-      leg1 = muBaseline (tree, dau1index, 10., 2.4, 0.1, whatApply);
-      leg2 = muBaseline (tree, dau2index, 10., 2.4, 0.1, whatApply);
-      bool leg1ER = muBaseline (tree, dau1index, 19., 2.1, 0.1, whatApply);
-      bool leg2ER = muBaseline (tree, dau2index, 19., 2.1, 0.1, whatApply);
+      leg1 = muBaseline (tree, dau1index, 10., 2.4, 0.1, whatApply, debug);
+      leg2 = muBaseline (tree, dau2index, 10., 2.4, 0.1, whatApply, debug);
+      bool leg1ER = muBaseline (tree, dau1index, 19., 2.1, 0.1, whatApply, debug);
+      bool leg2ER = muBaseline (tree, dau2index, 19., 2.1, 0.1, whatApply, debug);
       
       //bool Is1in2p1 = leg1ER ;
       //bool Is2in2p1 = leg2ER ;
@@ -251,7 +251,7 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
 bool 
 OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau, 
                                     float ptMin, float relIso, int MVAIDflag, 
-                                    TString whatApply)
+                                    TString whatApply, bool debug)
 { 
     float px = tree->daughters_px->at(iDau);
     float py = tree->daughters_py->at(iDau);
@@ -292,6 +292,17 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
     if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
     
     bool totalS = (vertexS && idS && isoS && ptS && etaS);
+
+    if (debug)
+    {
+      cout << "@ ele baseline" << endl;
+      cout << " idS     "  << idS     << " skypped? " << byp_idS << endl;
+      cout << " vertexS "  << vertexS << " skypped? " << byp_vertexS << endl;
+      cout << " isoS    "  << isoS    << " skypped? " << byp_isoS << endl;
+      cout << " ptS     "  << ptS     << " skypped? " << byp_ptS << endl;
+      cout << " etaS    "  << etaS    << " skypped? " << byp_etaS << endl;
+    }
+
     return totalS;
     
 }
@@ -299,7 +310,7 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
 bool 
 OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau, 
                                     float ptMin, float etaMax, float relIso, int MVAIDflag, 
-                                    TString whatApply)
+                                    TString whatApply, bool debug)
 { 
     float px = tree->daughters_px->at(iDau);
     float py = tree->daughters_py->at(iDau);
@@ -340,13 +351,24 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
     if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
     
     bool totalS = (vertexS && idS && isoS && ptS && etaS);
+
+    if (debug)
+    {
+      cout << "@ ele baseline" << endl;
+      cout << " idS     "  << idS     << " skypped? " << byp_idS << endl;
+      cout << " vertexS "  << vertexS << " skypped? " << byp_vertexS << endl;
+      cout << " isoS    "  << isoS    << " skypped? " << byp_isoS << endl;
+      cout << " ptS     "  << ptS     << " skypped? " << byp_ptS << endl;
+      cout << " etaS    "  << etaS    << " skypped? " << byp_etaS << endl;
+    }
+
     return totalS;
     
 }
 
 bool OfflineProducerHelper::muBaseline (
      bigTree* tree, int iDau, float ptMin, 
-     float etaMax, float relIso, TString whatApply)
+     float etaMax, float relIso, TString whatApply, bool debug)
 {
     float px = tree->daughters_px->at(iDau);
     float py = tree->daughters_py->at(iDau);
@@ -386,6 +408,17 @@ bool OfflineProducerHelper::muBaseline (
     bool etaS = (fabs(p4.Eta()) < etaMax) || byp_etaS;
     
     bool totalS = (vertexS && idS && isoS && ptS && etaS);
+    if (debug)
+    {
+      cout << "@ mu baseline" << endl;
+      cout << " idS     "  << idS     << " skypped? " << byp_idS << endl;
+      cout << " vertexS "  << vertexS << " skypped? " << byp_vertexS << endl;
+      cout << " isoS    "  << isoS    << " skypped? " << byp_isoS << endl;
+      cout << " ptS     "  << ptS     << " skypped? " << byp_ptS << endl;
+      cout << " etaS    "  << etaS    << " skypped? " << byp_etaS << endl;
+    }
+
+
     return totalS;
 }
 
@@ -468,6 +501,7 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
     bool totalS = (dmfS && vertexS && agEleS && agMuS && isoS && ptS && etaS);
     if (debug)
     {
+      cout << "@ tau baseline" << endl;
       cout << " dmfS    "  << dmfS    << " skypped? " << byp_dmfS << endl;
       cout << " vertexS "  << vertexS << " skypped? " << byp_vertexS << endl;
       cout << " agEleS  "  << agEleS  << " skypped? " << byp_agEleS << endl;
