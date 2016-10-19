@@ -50,8 +50,6 @@ const double bTopRW = -0.00137;
 const float DYscale_LL[3] = {1.0702, 0.715181,  0.885085} ; // computed from fit for LL and MM b tag
 const float DYscale_MM[3] = {1.04318, 1.0684 , 1.06528 } ;
 
-const ULong64_t debugEvent = 91224;
-
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
 ** - say f_i is the fraction of inclusive events in the i bin on njets (can be 2D nb-njet as well)
@@ -440,6 +438,18 @@ int main (int argc, char** argv)
   int    PUReweight_target   = gConfigParser->readFloatOption  ("parameters::PUReweighttarget") ; 
   string leptonSelectionFlag = gConfigParser->readStringOption ("parameters::lepSelections") ;
   int maxNjetsSaved          = gConfigParser->readIntOption    ("parameters::maxNjetsSaved") ;
+  
+  bool useSortStrategyHTT = false;
+  if (gConfigParser->isDefined("parameters::pairStrategy"))
+  {
+    int pstrat = gConfigParser->readIntOption("parameters::pairStrategy");
+    if (pstrat == 1) useSortStrategyHTT = true;
+  }
+  cout << "** INFO: using HTauTau thth sorting strategy? " << useSortStrategyHTT << endl;
+
+  ULong64_t debugEvent = -1; // will be converted to numerical max, and never reached
+  if (gConfigParser->isDefined("parameters::debugEvent"))
+    debugEvent = (ULong64_t) gConfigParser->readIntOption("parameters::debugEvent");
 
   vector<string> trigMuTau   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuTau")  : gConfigParser->readStringListOption ("triggersData::MuTau")) ;
   vector<string> trigTauTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::TauTau") : gConfigParser->readStringListOption ("triggersData::TauTau")) ;
@@ -691,6 +701,7 @@ int main (int argc, char** argv)
     int got = theBigTree.fChain->GetEntry(iEvent);
     if (got == 0) break;
 
+    // if (theBigTree.EventNumber != debugEvent) continue;
     if (theBigTree.EventNumber == debugEvent)
     {
       cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
@@ -1092,45 +1103,53 @@ int main (int argc, char** argv)
     // vector <pair<float, int>> chosenTauPairsIso;   // sum pt , index
     // vector <pair<float, int>> chosenTauPairsRlxIso;
 
-    for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
+    if (pairType == 2 && useSortStrategyHTT)
     {
-        int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;  
-        int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
-        int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
-        int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;        
-        if ( oph.getPairType (t_type1, t_type2) != pairType ) continue ;
-        // string whatApplyForIsoLep = "Vertex-LepID-pTMin-etaMax-againstEle-againstMu-Iso" ;
-        // if ( oph.pairPassBaseline (&theBigTree, iPair, string("Vertex-LepID-pTMin-etaMax-againstEle-againstMu") ) )
-        
-        // TLorentzVector t_tlv_firstLepton (
-        //   theBigTree.daughters_px->at (t_firstDaughterIndex),
-        //   theBigTree.daughters_py->at (t_firstDaughterIndex),
-        //   theBigTree.daughters_pz->at (t_firstDaughterIndex),
-        //   theBigTree.daughters_e->at (t_firstDaughterIndex)
-        // );
-        // TLorentzVector t_tlv_secondLepton (
-        //   theBigTree.daughters_px->at (t_secondDaughterIndex),
-        //   theBigTree.daughters_py->at (t_secondDaughterIndex),
-        //   theBigTree.daughters_pz->at (t_secondDaughterIndex),
-        //   theBigTree.daughters_e->at (t_secondDaughterIndex)
-        // );
+      chosenTauPair = oph.getBestPairHTauTau(&theBigTree, leptonSelectionFlag, (theBigTree.EventNumber == debugEvent ? true : false));
+    }
 
-        // if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag+string("-TauRlxIzo") ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
-        if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag, (theBigTree.EventNumber == debugEvent ? true : false) ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
-        {
-            chosenTauPair = iPair;
-            break;          
-        }
-        // if ( oph.pairPassBaseline (&theBigTree, iPair, (leptonSelectionFlag+string("-Iso")) ) )
-        // {
-        //     chosenTauPairsIso.push_back(make_pair(t_tlv_firstLepton.Pt()+t_tlv_secondLepton.Pt(), iPair));
-        //     // chosenTauPair = iPair;
-        //     // break;
-        // }
-        // if ( oph.pairPassBaseline (&theBigTree, iPair, (leptonSelectionFlag+string("-TauRlxIzo")) ) )
-        // {
-        //     chosenTauPairsIso.push_back(make_pair(t_tlv_firstLepton.Pt()+t_tlv_secondLepton.Pt(), iPair));
-        // }
+    else
+    {
+      for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
+      {
+          int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;  
+          int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
+          int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
+          int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;        
+          if ( oph.getPairType (t_type1, t_type2) != pairType ) continue ;
+          // string whatApplyForIsoLep = "Vertex-LepID-pTMin-etaMax-againstEle-againstMu-Iso" ;
+          // if ( oph.pairPassBaseline (&theBigTree, iPair, string("Vertex-LepID-pTMin-etaMax-againstEle-againstMu") ) )
+          
+          // TLorentzVector t_tlv_firstLepton (
+          //   theBigTree.daughters_px->at (t_firstDaughterIndex),
+          //   theBigTree.daughters_py->at (t_firstDaughterIndex),
+          //   theBigTree.daughters_pz->at (t_firstDaughterIndex),
+          //   theBigTree.daughters_e->at (t_firstDaughterIndex)
+          // );
+          // TLorentzVector t_tlv_secondLepton (
+          //   theBigTree.daughters_px->at (t_secondDaughterIndex),
+          //   theBigTree.daughters_py->at (t_secondDaughterIndex),
+          //   theBigTree.daughters_pz->at (t_secondDaughterIndex),
+          //   theBigTree.daughters_e->at (t_secondDaughterIndex)
+          // );
+
+          // if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag+string("-TauRlxIzo") ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
+          if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag, (theBigTree.EventNumber == debugEvent ? true : false) ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
+          {
+              chosenTauPair = iPair;
+              break;          
+          }
+          // if ( oph.pairPassBaseline (&theBigTree, iPair, (leptonSelectionFlag+string("-Iso")) ) )
+          // {
+          //     chosenTauPairsIso.push_back(make_pair(t_tlv_firstLepton.Pt()+t_tlv_secondLepton.Pt(), iPair));
+          //     // chosenTauPair = iPair;
+          //     // break;
+          // }
+          // if ( oph.pairPassBaseline (&theBigTree, iPair, (leptonSelectionFlag+string("-TauRlxIzo")) ) )
+          // {
+          //     chosenTauPairsIso.push_back(make_pair(t_tlv_firstLepton.Pt()+t_tlv_secondLepton.Pt(), iPair));
+          // }
+      }
     }
 
     if (theBigTree.EventNumber == debugEvent)
@@ -1606,7 +1625,8 @@ int main (int argc, char** argv)
     } // loop over jets
 
     theSmallTree.m_nbjetscand = jets_and_sortPar.size();
-    
+    theSmallTree.m_nfatjets = theBigTree.ak8jets_px->size();
+
     if (!beInclusive && jets_and_sortPar.size () < 2) continue ;
     ec.Increment("TwoJets", EvtW);
     if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("TwoJets", EvtW);
@@ -2134,7 +2154,6 @@ int main (int argc, char** argv)
           ++theSmallTree.m_njets ;
         } // loop over jets
 
-        theSmallTree.m_nfatjets = theBigTree.ak8jets_px->size();
         theSmallTree.m_isBoosted = 0;
         if (theBigTree.ak8jets_px->size() > 0)
         {
@@ -2166,14 +2185,35 @@ int main (int argc, char** argv)
                   {
                       tlv_subj2.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
                   }
+
+                  if (theBigTree.EventNumber == debugEvent)
+                  {
+                    cout << "- nSJ=" << nSJ << " px=" << theBigTree.subjets_px->at(isj) << endl;
+                  }
+
               }
 
               bool A1B2 = (tlv_subj1.DeltaR(tlv_firstBjet) < 0.4)   && (tlv_subj2.DeltaR(tlv_secondBjet) < 0.4 );
               bool A2B1 = (tlv_subj1.DeltaR(tlv_secondBjet) < 0.4)  && (tlv_subj2.DeltaR(tlv_firstBjet) < 0.4 );
+
+              if (theBigTree.EventNumber == debugEvent)
+              {
+                cout << " fatjet: idx " << ifj << " nsj=" << sjIdxs.size() 
+                     << " sj1pt=" << tlv_subj1.Pt() << " sj1eta=" << tlv_subj1.Eta() << " sj1phi=" << tlv_subj1.Phi()
+                     << " sj2pt=" << tlv_subj2.Pt() << " sj2eta=" << tlv_subj2.Eta() << " sj2phi=" << tlv_subj2.Phi()
+                     << " !passMatch=" << (!A1B2 && !A2B1) << endl;
+              }
+
               if (!A1B2 && !A2B1) continue; // is not matched to resolved jets
 
               fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_CSV->size(), ifj));
             }
+
+            if (theBigTree.EventNumber == debugEvent)
+            {
+              cout << " N selected fatjets : " << fatjets_bTag.size() << endl;
+            }
+
             if (fatjets_bTag.size() != 0) 
             {
               theSmallTree.m_isBoosted = 1;
