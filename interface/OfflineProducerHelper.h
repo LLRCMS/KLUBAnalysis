@@ -21,6 +21,7 @@
 #include <vector>
 #include <utility>
 #include <TH1F.h>
+#include <tuple>
 
 using namespace std;
  
@@ -123,6 +124,10 @@ class OfflineProducerHelper {
   int getBestPair (bigTree* tree, std::vector<int>& pairIdxs, TString strategy = "OSMaxPt"); // from a vector of indexes to pairs in the evemt retutn index to the one chose by a stategy
   int getBestPair (bigTree* tree, TString strategy = "OSMaxPt"); // calls the previous on the whole pair collection of the event
   int getPairByIndexes (bigTree* tree, int dau1, int dau2); // knowing the sons, get the pair formed  
+  
+  typedef tuple <float, float, int, float, float, int, int> tauPair_t; // pt1 - iso1 - idx1 - pt2 - iso2 - idx2 - idxoriginalPair
+  int getBestPairHTauTau (bigTree* tree, TString whatApply = "All", bool debug = false); // returns best pair formed by idx1, idx2, using HTauTau strategy - for studies
+  static bool pairSort (const tauPair_t& pA, const tauPair_t& pB);
   float DeltaRDau(bigTree* tree, int dau1idx, int dau2idx);
   
 
