@@ -236,7 +236,7 @@ public :
    std::vector<float>   *subjets_pz;
    std::vector<float>   *subjets_e;
    std::vector<float>   *subjets_CSV;
-   std::vector<float>   *subjets_ak8MotherIdx;  // FIXME: set int from next production 
+   std::vector<int>     *subjets_ak8MotherIdx;
 
 
    // List of branches
