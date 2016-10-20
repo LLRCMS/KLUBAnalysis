@@ -729,7 +729,7 @@ int main (int argc, char** argv)
       stitchWeight = stitchWeights[njets][nb];
     }
 
-    if (theBigTree.EventNumber == debugEvent)
+    if (theBigTree.EventNumber == debugEvent && isMC)
     {
       cout << "** DEBUG : gen particle list" << endl;
       for (unsigned int igen = 0; igen < theBigTree.genpart_pdg->size(); igen++)
@@ -1305,7 +1305,12 @@ int main (int argc, char** argv)
       }
       // require trigger + legs matched
       bool triggerAccept = (passTrg && passMatch1 && passMatch2) ;
-      
+     
+      if (theBigTree.EventNumber == debugEvent)
+      {
+        cout << "** trg check: trgAccept=" << triggerAccept <<  " passTrg=" << passTrg << " passMatch1=" << passMatch1 << " passMatch2=" << passMatch2 << endl;
+      }
+
       if (!triggerAccept) continue;
       ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
       if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
