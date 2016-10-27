@@ -40,7 +40,8 @@ if __name__ == "__main__":
     parser.add_option ('-x', '--xs'        , dest='xs'        , help='sample xs'                             , default='1.')
     parser.add_option ('-f', '--force'     , dest='force'     , help='replace existing reduced ntuples'      , default=False)
     parser.add_option ('-o', '--output'    , dest='output'    , help='output folder'                         , default='none')
-    parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='cms')
+    # parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='cms')
+    parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='short')
     parser.add_option ('-r', '--resub'     , dest='resub'     , help='resubmit failed jobs'                  , default='none')
     parser.add_option ('-v', '--verb'      , dest='verb'      , help='verbose'                               , default=False)
     parser.add_option ('-s', '--sleep'     , dest='sleep'     , help='sleep in submission'                   , default=False)
@@ -233,7 +234,8 @@ if __name__ == "__main__":
         scriptFile.close ()
         os.system ('chmod u+rwx %s/skimJob_%d.sh'% (jobsDir,n))
 
-        command = ('/opt/exp_soft/cms/t3/t3submit -q ' + opt.queue + ' \'' + jobsDir + '/skimJob_' + str (n) + '.sh\'')
+        # command = ('/opt/exp_soft/cms/t3/t3submit -q ' + opt.queue + ' \'' + jobsDir + '/skimJob_' + str (n) + '.sh\'')
+        command = '/opt/exp_soft/cms/t3/t3submit -'+opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
         if opt.sleep : time.sleep (0.1)
         os.system (command)
         commandFile.write (command + '\n')
