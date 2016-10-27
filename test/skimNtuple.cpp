@@ -431,6 +431,7 @@ int main (int argc, char** argv)
 
   bool   beInclusive         = gConfigParser->readBoolOption   ("selections::beInclusive") ;
   float  PUjetID_minCut      = gConfigParser->readFloatOption  ("parameters::PUjetIDminCut") ;
+  float  PFjetID_WP          = gConfigParser->readIntOption    ("parameters::PFjetIDWP") ;
   // int    saveOS              = gConfigParser->readIntOption    ("parameters::saveOS") ;
   float  lepCleaningCone     = gConfigParser->readFloatOption  ("parameters::lepCleaningCone") ;
   int    bChoiceFlag         = gConfigParser->readFloatOption  ("parameters::bChoiceFlag") ;
@@ -460,6 +461,7 @@ int main (int argc, char** argv)
   vector<string> trigMuMu    =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuMu")  : gConfigParser->readStringListOption ("triggersData::MuMu")) ;
 
   bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
+  // applyTriggers = true;
   cout << "** INFO: apply triggers? " << applyTriggers << " [ 0: reweight , 1: triggerbit+matching ]" << endl;
   if (applyTriggers)
   {
@@ -911,6 +913,15 @@ int main (int argc, char** argv)
 
     // HH reweight for non resonant
     float HHweight = 1.0;
+    TLorentzVector vHardScatter1;
+    TLorentzVector vHardScatter2;
+    int idx1hs = -1; // hard scatted product
+    int idx2hs = -1;
+    int pdg1hs = -999;
+    int pdg2hs = -999;    
+    int t1hs = -1;
+    int t2hs = -1;
+
     if (hreweightHH || hreweightHH2D || isHHsignal) // isHHsignal: only to do loop on genparts, but no rew
     {
       // cout << "DEBUG: reweight!!!" << endl;
@@ -925,31 +936,58 @@ int main (int argc, char** argv)
       // cout << " ------------------------ " << endl;
       for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
       {
-          if (theBigTree.genpart_pdg->at(igen) == 25)
-          {
-              bool isFirst = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
-              bool isLast = CheckBit (theBigTree.genpart_flags->at(igen), 13) ; // 12 = isLastCopy
+        bool isFirst     = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
+        bool isLast      = CheckBit (theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
+        bool isHardScatt = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; //   3 = isPromptTauDecayProduct
+        
+        int pdg = theBigTree.genpart_pdg->at(igen);
+        
+        bool mothIsHardScatt = false;
+        if ( abs(pdg)==66615)
+        {
+          isHardScatt = false;
+          int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
+          mothIsHardScatt = CheckBit (theBigTree.genpart_flags->at(mothIdx), 8); // 0 = isPrompr(), 8: fromHardProcess
+        }
 
-              // cout << igen << " H boson: Px " << theBigTree.genpart_px->at(igen) << " first? " << isFirst << " decMode : " << theBigTree.genpart_HZDecayMode->at(igen) << endl;
-              if (isFirst)
+
+        if (abs(pdg) == 25)
+        {
+          // cout << igen << " H boson: Px " << theBigTree.genpart_px->at(igen) << " first? " << isFirst << " decMode : " << theBigTree.genpart_HZDecayMode->at(igen) << endl;
+          if (isFirst)
+          {
+              if (idx1 >= 0 && idx2 >= 0)
               {
-                  if (idx1 >= 0 && idx2 >= 0)
-                  {
-                      cout << "** ERROR: more than 2 H identified (first)" << endl;
-                      continue;
-                  }
-                  (idx1 == -1) ? (idx1 = igen) : (idx2 = igen) ;
+                  cout << "** ERROR: more than 2 H identified (first)" << endl;
+                  continue;
               }
-              if (isLast)
-              {
-                  if (idx1last >= 0 && idx2last >= 0)
-                  {
-                      cout << "** ERROR: more than 2 H identified (last)" << endl;
-                      // continue; // no need to skip the event in this case -- dec mode just for studies
-                  }
-                  (idx1last == -1) ? (idx1last = igen) : (idx2last = igen) ;
-              }
+              (idx1 == -1) ? (idx1 = igen) : (idx2 = igen) ;
           }
+          if (isLast)
+          {
+              if (idx1last >= 0 && idx2last >= 0)
+              {
+                  cout << "** ERROR: more than 2 H identified (last)" << endl;
+                  // continue; // no need to skip the event in this case -- dec mode just for studies
+              }
+              (idx1last == -1) ? (idx1last = igen) : (idx2last = igen) ;
+          }
+        }
+        else if (abs(pdg) == 11 || abs(pdg) == 13 || abs(pdg) == 66615)
+        {
+          if (isHardScatt || mothIsHardScatt)
+          {
+            if (idx1hs == -1) idx1hs = igen;
+            else if (idx2hs == -1) idx2hs = igen;
+            else
+            {
+              cout << "** ERROR: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
+              // cout << "idx1: " << idx1hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx1hs) << " px = " << theBigTree.genpart_px->at(idx1hs) << endl;
+              // cout << "idx2: " << idx2hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx2hs) << " px = " << theBigTree.genpart_px->at(idx2hs) << endl;
+              // cout << "THIS: " << pdg << " px=" << theBigTree.genpart_px->at(igen) << endl;
+            }
+          }
+        }
       }
 
       if (idx1 == -1 || idx2 == -1)
@@ -963,8 +1001,42 @@ int main (int argc, char** argv)
         // store gen decay mode of the two H identified
         theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1last);
         theSmallTree.m_genDecMode2 = theBigTree.genpart_HZDecayMode->at(idx2last);
+        
+        // // get tau decaying one
+        // int idxTauDecayed = (theBigTree.genpart_HZDecayMode->at(idx1last) != 8 ? idx1last : idx2last);
+
+        // // find hard scatter daughters and check if they match this decay type
+        // pair<int, int> hsProds = oph.getHardScatterSons()
+        // int hsIdx1 = hsProds.first;
+        // int hsIdx2 = hsProds.second;
       }
-      else cout << "** ERROR: couldn't find 2 H (last)" << endl;
+      else
+          cout << "** ERROR: couldn't find 2 H (last)" << endl;
+
+      if (idx1hs != -1 && idx2hs != -1)
+      {
+        pdg1hs = theBigTree.genpart_pdg->at(idx1hs);
+        pdg2hs = theBigTree.genpart_pdg->at(idx2hs);
+
+        if      (abs(pdg1hs) == 11) t1hs = 1;
+        else if (abs(pdg1hs) == 13) t1hs = 0;
+        else                        t1hs = 2;
+
+        if      (abs(pdg2hs) == 11) t2hs = 1;
+        else if (abs(pdg2hs) == 13) t2hs = 0;
+        else                        t2hs = 2;
+
+        if (oph.getPairType(t1hs, t2hs) != (theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8))
+        {
+          cout << "** ERROR: decay modes do not match! " << theBigTree.genpart_pdg->at(idx1hs) << " " << theBigTree.genpart_pdg->at(idx2hs) << " != "
+               << ( theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8) << endl;
+        }
+        vHardScatter1.SetPxPyPzE (theBigTree.genpart_px->at(idx1hs), theBigTree.genpart_py->at(idx1hs), theBigTree.genpart_pz->at(idx1hs), theBigTree.genpart_e->at(idx1hs));
+        vHardScatter2.SetPxPyPzE (theBigTree.genpart_px->at(idx2hs), theBigTree.genpart_py->at(idx2hs), theBigTree.genpart_pz->at(idx2hs), theBigTree.genpart_e->at(idx2hs));
+      }
+      else
+        cout << "** ERROR: couldn't find 2 H->tautau gen dec prod" << endl;
+
 
       vH1.SetPxPyPzE (theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1) );
       vH2.SetPxPyPzE (theBigTree.genpart_px->at(idx2), theBigTree.genpart_py->at(idx2), theBigTree.genpart_pz->at(idx2), theBigTree.genpart_e->at(idx2) );
@@ -1305,10 +1377,23 @@ int main (int argc, char** argv)
       }
       // require trigger + legs matched
       bool triggerAccept = (passTrg && passMatch1 && passMatch2) ;
-     
+      // triggerAccept = passTrg ; 
+
       if (theBigTree.EventNumber == debugEvent)
       {
-        cout << "** trg check: trgAccept=" << triggerAccept <<  " passTrg=" << passTrg << " passMatch1=" << passMatch1 << " passMatch2=" << passMatch2 << endl;
+        Long64_t matchFlag1LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(firstDaughterIndex);
+        Long64_t matchFlag2LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(secondDaughterIndex);
+        Long64_t matchFlag1L3 = (Long64_t) theBigTree.daughters_L3FilterFiredLast->at(firstDaughterIndex);
+        Long64_t matchFlag2L3 = (Long64_t) theBigTree.daughters_L3FilterFiredLast->at(secondDaughterIndex);
+        bool isLF1 = trigReader.checkOR (pairType, matchFlag1LF);
+        bool isL31 = trigReader.checkOR (pairType, matchFlag1L3);
+        bool isLF2 = trigReader.checkOR (pairType, matchFlag2LF);
+        bool isL32 = trigReader.checkOR (pairType, matchFlag2L3);
+        cout << "** trg check: trgAccept=" << triggerAccept
+             <<  " passTrg=" << passTrg << " passMatch1=" << passMatch1 << " passMatch2=" << passMatch2
+             <<  " LF1=" << isLF1 << " L31=" << isL31
+             <<  " LF2=" << isLF2 << " L32=" << isL32
+             << endl;
       }
 
       if (!triggerAccept) continue;
@@ -1399,6 +1484,26 @@ int main (int argc, char** argv)
         ) ;
     }
 
+    // check if the selected leptons A,B match the gen hard scatter products 1,2
+    if (isHHsignal)
+    {
+      bool type1A = (abs(t1hs) == abs(type1));
+      bool type1B = (abs(t1hs) == abs(type2));
+      bool type2A = (abs(t2hs) == abs(type1));
+      bool type2B = (abs(t2hs) == abs(type2));
+    
+      bool dR1A = (vHardScatter1.DeltaR(tlv_firstLepton) < 0.5);
+      bool dR1B = (vHardScatter1.DeltaR(tlv_secondLepton) < 0.5);
+      bool dR2A = (vHardScatter2.DeltaR(tlv_firstLepton) < 0.5);
+      bool dR2B = (vHardScatter2.DeltaR(tlv_secondLepton) < 0.5);
+
+      // FIXME: fill gen matched info pt/eta/phi/e
+      if ( (type1A && dR1A) || (type2A && dR2A))
+        theSmallTree.m_hasgenmatch1 = true;
+      if ( (type1B && dR1B) || (type2B && dR2B))
+        theSmallTree.m_hasgenmatch2 = true;
+    }
+
 
     theSmallTree.m_pairType    = pType ;
     theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) : 1) ;      
@@ -1425,7 +1530,8 @@ int main (int argc, char** argv)
     theSmallTree.m_met_cov01 = theBigTree.MET_cov01->at (chosenTauPair);
     theSmallTree.m_met_cov10 = theBigTree.MET_cov10->at (chosenTauPair);
     theSmallTree.m_met_cov11 = theBigTree.MET_cov11->at (chosenTauPair);
-    theSmallTree.m_mT        = theBigTree.mT_Dau1->at (chosenTauPair) ;
+    theSmallTree.m_mT1       = theBigTree.mT_Dau1->at (chosenTauPair) ;
+    theSmallTree.m_mT2       = theBigTree.mT_Dau2->at (chosenTauPair) ;
 
     theSmallTree.m_tauH_pt   = tlv_tauH.Pt () ;
     theSmallTree.m_tauH_eta  = tlv_tauH.Eta () ;
@@ -1436,6 +1542,8 @@ int main (int argc, char** argv)
     theSmallTree.m_tauHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_tauH.Phi ()) ;
     theSmallTree.m_ditau_deltaPhi = deltaPhi (tlv_firstLepton.Phi (), tlv_secondLepton.Phi ()) ;
     theSmallTree.m_ditau_deltaR = tlv_firstLepton.DeltaR(tlv_secondLepton) ;
+    theSmallTree.m_dau1MET_deltaphi = deltaPhi (theBigTree.metphi , tlv_firstLepton.Phi ()) ;
+    theSmallTree.m_dau2MET_deltaphi = deltaPhi (theBigTree.metphi , tlv_secondLepton.Phi ()) ;
 
     // useless, can be removed from smallTree
     // theSmallTree.m_L3filter1 = theBigTree.daughters_L3FilterFiredLast->at (firstDaughterIndex) ;
@@ -1608,7 +1716,7 @@ int main (int argc, char** argv)
     {
       // JET PU ID cut 
       if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
-      if (theBigTree.PFjetID->at (iJet) < 1) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
+      if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
 
       TLorentzVector tlv_jet 
       (
@@ -1635,7 +1743,6 @@ int main (int argc, char** argv)
     if (!beInclusive && jets_and_sortPar.size () < 2) continue ;
     ec.Increment("TwoJets", EvtW);
     if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("TwoJets", EvtW);
-
 
     // sort jet collection by CSV
     sort (jets_and_sortPar.begin(), jets_and_sortPar.end(), bJetSort); //sort by first parameter, then pt (dummy if pt order chosen)
@@ -2099,6 +2206,42 @@ int main (int argc, char** argv)
       theSmallTree.m_btau_deltaRmin = *std::min_element(dRBTau.begin(), dRBTau.end());
       theSmallTree.m_btau_deltaRmax = *std::max_element(dRBTau.begin(), dRBTau.end());
 
+      // store BDT vars -- this can probably cleverly merged with the next jet loop -- FIXME: to be optimized: all in 1 loop
+      TLorentzVector jetVecSum (0,0,0,0);
+      for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size (); ++iJet)
+      {
+        if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
+        if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
+
+        TLorentzVector tlv_dummyJet (
+          theBigTree.jets_px->at (iJet),
+          theBigTree.jets_py->at (iJet),
+          theBigTree.jets_pz->at (iJet),
+          theBigTree.jets_e->at (iJet)
+        ) ;
+
+        if (tlv_dummyJet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
+        if (tlv_dummyJet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
+
+        // use these jets for HT
+        if (tlv_dummyJet.Pt () > 20)
+        {
+          ++theSmallTree.m_njets20 ; 
+          theSmallTree.m_HT20 += tlv_dummyJet.Pt() ;
+          jetVecSum += tlv_dummyJet ;
+        }
+        
+        if (tlv_dummyJet.Pt () > 50)
+        {
+          ++theSmallTree.m_njets50 ;
+          theSmallTree.m_HT50 += tlv_dummyJet.Pt() ;
+        }
+      }
+      theSmallTree.m_HT20Full = theSmallTree.m_HT20 + tlv_firstLepton.Pt() + tlv_secondLepton.Pt() ;
+      theSmallTree.m_jet20centrality = jetVecSum.Pt() / theSmallTree.m_HT20Full ;
+
+
+
       // loop over jets
       for (unsigned int iJet = 0 ; 
            (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;
@@ -2106,6 +2249,7 @@ int main (int argc, char** argv)
         {
           // PG filter jets at will
           if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
+          if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
       
           // skip the H decay candiates
           if (int (iJet) == bjet1idx ){
@@ -2124,13 +2268,13 @@ int main (int argc, char** argv)
 
           // remove jets that overlap with the tau selected in the leg 1 and 2
           if (type1 == 2) {
-            if (tlv_firstLepton.DeltaR(tlv_dummyJet) < 0.5){
+            if (tlv_firstLepton.DeltaR(tlv_dummyJet) < lepCleaningCone){
               theSmallTree.m_dau1_jecUnc = theBigTree.jets_jecUnc->at(iJet);
               continue;
             }
           }
           if (type2 == 2) {
-            if (tlv_secondLepton.DeltaR(tlv_dummyJet) < 0.5){
+            if (tlv_secondLepton.DeltaR(tlv_dummyJet) < lepCleaningCone){
               theSmallTree.m_dau2_jecUnc = theBigTree.jets_jecUnc->at(iJet);
               continue;
             }
