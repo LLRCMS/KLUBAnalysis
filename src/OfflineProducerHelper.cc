@@ -1,6 +1,8 @@
 #include "OfflineProducerHelper.h"
 #include <tuple>
 
+using namespace std;
+
 OfflineProducerHelper::OfflineProducerHelper(){
   const int nTriggers=19;
   TString tmptrigger[nTriggers]={
@@ -237,8 +239,8 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
 
     // overlap between pairs
     float dR = DeltaRDau(tree, dau1index, dau2index);
-    bool drMin = (dR > 0.0001);
-    
+    bool drMin = (dR > 0.1);
+
     if (!drMin && debug)
       cout << "failed dR min as dR=" << dR << endl;
 
@@ -915,6 +917,16 @@ int OfflineProducerHelper::getRecoMatchedToGen (bigTree* tree, int iGen, bool ch
     std::sort (matchedReco.begin(), matchedReco.end()); // are sorted according to the first index, i.e. the dR
     return ((matchedReco.at(0)).second );
 }
+
+// std::pair<int, int> OfflineProducerHelper::getHardScatterSonsIdx (bigTree* tree, int iGenH)
+// {
+//   std::pair<int, int> genIdx = make_pair (-1, -1);
+//   for (uint igen = 0; igen < tree->genpart_px->size(); ++igen)
+//   {
+//     int pdg = 
+//     if (igen)
+//   }
+// }
 
 float OfflineProducerHelper::DeltaRDau(bigTree* tree, int dau1idx, int dau2idx)
 {
