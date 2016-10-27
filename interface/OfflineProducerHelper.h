@@ -23,7 +23,7 @@
 #include <TH1F.h>
 #include <tuple>
 
-using namespace std;
+// using namespace std;
  
 class OfflineProducerHelper {
  public:
@@ -125,7 +125,7 @@ class OfflineProducerHelper {
   int getBestPair (bigTree* tree, TString strategy = "OSMaxPt"); // calls the previous on the whole pair collection of the event
   int getPairByIndexes (bigTree* tree, int dau1, int dau2); // knowing the sons, get the pair formed  
   
-  typedef tuple <float, float, int, float, float, int, int> tauPair_t; // pt1 - iso1 - idx1 - pt2 - iso2 - idx2 - idxoriginalPair
+  typedef std::tuple <float, float, int, float, float, int, int> tauPair_t; // pt1 - iso1 - idx1 - pt2 - iso2 - idx2 - idxoriginalPair
   int getBestPairHTauTau (bigTree* tree, TString whatApply = "All", bool debug = false); // returns best pair formed by idx1, idx2, using HTauTau strategy - for studies
   static bool pairSort (const tauPair_t& pA, const tauPair_t& pB);
   float DeltaRDau(bigTree* tree, int dau1idx, int dau2idx);
@@ -138,12 +138,13 @@ class OfflineProducerHelper {
   bool getHardTauFinalVisGenProducts (bigTree* tree, int& ind1, int& ind2); // find hard scatter tau decay products and store their indices; return false if problems, else true
   bool drMatchGenReco (bigTree* tree, int iGen, int iReco, float dRcone = 0.5);
   int getRecoMatchedToGen (bigTree* tree, int iGen, bool checkId = true, bool checkCharge = false, float dRcone = 0.5);
+  // std::pair<int, int> getHardScatterSonsIdx(bigTree* tree, int iGenH);
 
   ~OfflineProducerHelper(){}
 
  private:
-  vector<TString> triggerlist;
-  vector<TString> tauidlist;
+  std::vector<TString> triggerlist;
+  std::vector<TString> tauidlist;
   
 };
 
