@@ -64,7 +64,8 @@ struct smallTree
       m_met_cov01 = -1.;
       m_met_cov10 = -1.;
       m_met_cov11 = -1.;
-      m_mT = -1. ;
+      m_mT1 = -1. ;
+      m_mT2 = -1. ;
     
       m_dau1_iso  = -1. ;
       m_dau1_MVAiso = -1 ;
@@ -80,7 +81,19 @@ struct smallTree
       m_dau1_phi  = -1. ;
       m_dau1_e  = -1. ;
       m_dau1_flav  = -1. ;
+
+      m_genmatched1_pt  = -1.;
+      m_genmatched1_eta = -1.;
+      m_genmatched1_phi = -1.;
+      m_genmatched1_e   = -1.;
+      m_genmatched2_pt  = -1.;
+      m_genmatched2_eta = -1.;
+      m_genmatched2_phi = -1.;
+      m_genmatched2_e   = -1.;
       
+      m_hasgenmatch1 = false;
+      m_hasgenmatch2 = false;
+
       m_dau2_iso  = -1. ;
       m_dau2_MVAiso = -1 ;
       m_dau2_CUTiso = -1 ;
@@ -200,6 +213,12 @@ struct smallTree
       m_dib_deltaR = -1. ;
       m_btau_deltaRmin = -1. ;
       m_btau_deltaRmax = -1. ;
+      m_dau1MET_deltaphi = -1. ;
+      m_dau2MET_deltaphi = -1. ;
+      m_HT20     = 0;
+      m_HT50     = 0;
+      m_HT20Full = 0;
+      m_jet20centrality = 0;
 
       m_HHkinsvfit_bHmass =-1;
       m_HHkinsvfit_pt =-1;
@@ -226,6 +245,8 @@ struct smallTree
       m_jets_isH.clear () ;
       m_jets_hasgenjet.clear () ;
       m_njets = 0 ;
+      m_njets20 = 0 ;
+      m_njets50 = 0 ;
       m_nbjetscand = 0 ;
       m_dau1_jecUnc= -1;
       m_dau2_jecUnc= -1;
@@ -305,7 +326,8 @@ struct smallTree
       m_smallT->Branch ("met_cov01", &m_met_cov01, "met_cov01/F") ;
       m_smallT->Branch ("met_cov10", &m_met_cov10, "met_cov10/F") ;
       m_smallT->Branch ("met_cov11", &m_met_cov11, "met_cov11/F") ;
-      m_smallT->Branch ("mT", &m_mT, "mT/F") ;
+      m_smallT->Branch ("mT1", &m_mT1, "mT1/F") ;
+      m_smallT->Branch ("mT2", &m_mT2, "mT2/F") ;
 
       m_smallT->Branch ("dau1_iso", &m_dau1_iso, "dau1_iso/F") ;
       m_smallT->Branch ("dau1_MVAiso", &m_dau1_MVAiso, "dau1_MVAiso/I") ;
@@ -321,6 +343,18 @@ struct smallTree
       m_smallT->Branch ("dau1_phi", &m_dau1_phi, "dau1_phi/F") ;
       m_smallT->Branch ("dau1_e", &m_dau1_e, "dau1_e/F") ;
       m_smallT->Branch ("dau1_flav", &m_dau1_flav, "dau1_flav/F") ;
+
+      m_smallT->Branch("genmatched1_pt", &m_genmatched1_pt, "genmatched1_pt/F");
+      m_smallT->Branch("genmatched1_eta", &m_genmatched1_eta, "genmatched1_eta/F");
+      m_smallT->Branch("genmatched1_phi", &m_genmatched1_phi, "genmatched1_phi/F");
+      m_smallT->Branch("genmatched1_e", &m_genmatched1_e, "genmatched1_e/F");
+      m_smallT->Branch("genmatched2_pt", &m_genmatched2_pt, "genmatched2_pt/F");
+      m_smallT->Branch("genmatched2_eta", &m_genmatched2_eta, "genmatched2_eta/F");
+      m_smallT->Branch("genmatched2_phi", &m_genmatched2_phi, "genmatched2_phi/F");
+      m_smallT->Branch("genmatched2_e", &m_genmatched2_e, "genmatched2_e/F");
+
+      m_smallT->Branch("hasgenmatch1", &m_hasgenmatch1, "hasgenmatch1/O");
+      m_smallT->Branch("hasgenmatch2", &m_hasgenmatch2, "hasgenmatch2/O");
 
       m_smallT->Branch ("dau2_iso", &m_dau2_iso, "dau2_iso/F") ;
       m_smallT->Branch ("dau2_MVAiso", &m_dau2_MVAiso, "dau2_MVAiso/I") ;
@@ -440,7 +474,12 @@ struct smallTree
       m_smallT->Branch ("dib_deltaR",     &m_dib_deltaR,      "dib_deltaR/F") ;
       m_smallT->Branch ("btau_deltaRmin", &m_btau_deltaRmin,  "btau_deltaRmin/F") ;
       m_smallT->Branch ("btau_deltaRmax", &m_btau_deltaRmax,  "btau_deltaRmax/F") ;
-
+      m_smallT->Branch ("dau1MET_deltaphi", &m_dau1MET_deltaphi,  "dau1MET_deltaphi/F") ;
+      m_smallT->Branch ("dau2MET_deltaphi", &m_dau2MET_deltaphi,  "dau2MET_deltaphi/F") ;
+      m_smallT->Branch ("HT20", &m_HT20, "HT20/F");
+      m_smallT->Branch ("HT50", &m_HT50, "HT50/F");
+      m_smallT->Branch ("HT20Full", &m_HT20Full, "HT20Full/F");
+      m_smallT->Branch ("jet20centrality", &m_jet20centrality, "jet20centrality/F");
       
       m_smallT->Branch ("jets_pt", &m_jets_pt) ;
       m_smallT->Branch ("jets_eta", &m_jets_eta) ;
@@ -451,6 +490,8 @@ struct smallTree
       m_smallT->Branch ("jets_isH", &m_jets_isH) ;
       m_smallT->Branch ("jets_hasgenjet", &m_jets_hasgenjet) ;
       m_smallT->Branch ("njets", &m_njets, "njets/I") ;
+      m_smallT->Branch ("njets20", &m_njets20, "njets20/I") ;
+      m_smallT->Branch ("njets50", &m_njets50, "njets50/I") ;
       m_smallT->Branch ("nbjetscand", &m_nbjetscand, "nbjetscand/I") ;
       m_smallT->Branch ("jets_jecUnc", &m_jets_jecUnc);
       m_smallT->Branch ("dau1_jecUnc", &m_dau1_jecUnc,"dau1_jecUnc/F");
@@ -553,7 +594,8 @@ struct smallTree
   Float_t m_met_cov10;
   Float_t m_met_cov11;
   // mt
-  Float_t m_mT ;
+  Float_t m_mT1 ;
+  Float_t m_mT2 ;
 
   // the largest pT daughter visible candidate
   Float_t m_dau1_iso ;
@@ -570,6 +612,18 @@ struct smallTree
   Float_t m_dau1_phi ;
   Float_t m_dau1_e ;
   Float_t m_dau1_flav ; // let this contain also whether it's a hadronic dau
+
+  Float_t m_genmatched1_pt ;
+  Float_t m_genmatched1_eta ;
+  Float_t m_genmatched1_phi ;
+  Float_t m_genmatched1_e ;
+  Float_t m_genmatched2_pt ;
+  Float_t m_genmatched2_eta ;
+  Float_t m_genmatched2_phi ;
+  Float_t m_genmatched2_e ;
+
+  Bool_t m_hasgenmatch1 ;
+  Bool_t m_hasgenmatch2 ;
 
   // the smallest pT daughter visible candidate
   Float_t m_dau2_iso ;
@@ -701,6 +755,13 @@ struct smallTree
   Float_t m_dib_deltaR     ;
   Float_t m_btau_deltaRmin ;
   Float_t m_btau_deltaRmax ;
+  Float_t m_dau1MET_deltaphi ;
+  Float_t m_dau2MET_deltaphi ;
+
+  Float_t m_HT20 ;
+  Float_t m_HT50 ;
+  Float_t m_HT20Full ;
+  Float_t m_jet20centrality ;
 
 
   // additional jets
@@ -713,6 +774,8 @@ struct smallTree
   std::vector<Int_t> m_jets_isH ;
   std::vector<Bool_t> m_jets_hasgenjet ;
   Int_t m_njets ;
+  Int_t m_njets20 ;
+  Int_t m_njets50 ;
   Int_t m_nbjetscand ;
   std::vector<Float_t> m_jets_jecUnc ;
   Float_t m_dau1_jecUnc;
