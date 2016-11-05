@@ -787,7 +787,7 @@ int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply,
     }
 
     float dR = DeltaRDau(tree, dau1index, dau2index);
-    bool drMin = (dR > 0.0001);    
+    bool drMin = (dR > 0.1);    
     // bool drMin = (dR > 0.5);
     
     if (leg1 && leg2 && drMin)
@@ -931,8 +931,12 @@ int OfflineProducerHelper::getRecoMatchedToGen (bigTree* tree, int iGen, bool ch
 float OfflineProducerHelper::DeltaRDau(bigTree* tree, int dau1idx, int dau2idx)
 {
   TLorentzVector v1, v2;
-  v1.SetPxPyPzE (tree->daughters_px->at(dau1idx), tree->daughters_px->at(dau1idx), tree->daughters_pz->at(dau1idx), tree->daughters_e->at(dau1idx));
-  v2.SetPxPyPzE (tree->daughters_px->at(dau2idx), tree->daughters_px->at(dau2idx), tree->daughters_pz->at(dau2idx), tree->daughters_e->at(dau2idx));
+  v1.SetPxPyPzE (tree->daughters_px->at(dau1idx), tree->daughters_py->at(dau1idx), tree->daughters_pz->at(dau1idx), tree->daughters_e->at(dau1idx));
+  v2.SetPxPyPzE (tree->daughters_px->at(dau2idx), tree->daughters_py->at(dau2idx), tree->daughters_pz->at(dau2idx), tree->daughters_e->at(dau2idx));
+  // cout << "DR: " << dau1idx << " " << dau2idx << endl;
+  // cout << v1.Pt() << " " << v2.Pt() << " " << v1.Eta() << " " << v2.Eta() << " " << v1.Phi() << " " << v2.Phi() << endl;
+  // cout << tree->daughters_px->at(dau1idx) << " " << tree->daughters_py->at(dau1idx) << " " << tree->daughters_pz->at(dau1idx) << " " << tree->daughters_e->at(dau1idx) << endl;
+  // cout << tree->daughters_px->at(dau2idx) << " " << tree->daughters_py->at(dau2idx) << " " << tree->daughters_pz->at(dau2idx) << " " << tree->daughters_e->at(dau2idx) << endl;
   return v1.DeltaR(v2);
 }
 
