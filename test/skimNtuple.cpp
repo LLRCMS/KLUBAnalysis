@@ -868,6 +868,7 @@ int main (int argc, char** argv)
     // 0: 0bjet, 1: 1 b jet, 2: >= 2 b jet
     theSmallTree.m_DYscale_LL = 1.0; // all the other MC samples + data have no weight
     theSmallTree.m_DYscale_MM = 1.0;        
+    // if (isMC && (DY_Nbs || isHHsignal))
     if (isMC && DY_Nbs)
     {
       TLorentzVector vgj;
@@ -883,6 +884,12 @@ int main (int argc, char** argv)
               // about 2% of DY events print the following message :-(
               // if (theFlav == -999) cout << "** warning: gen jet with flav = -999 of pt: " << vgj.Pt() << " eta: " << vgj.Eta() << endl;
           }
+
+          if (theBigTree.EventNumber == debugEvent)
+          {
+            cout << " -- gen jet : " << igj << " pt=" << vgj.Pt() << " eta=" << vgj.Eta() <<  " hadFlav=" << theBigTree.genjet_hadronFlavour->at(igj) << endl;
+          }
+
       }
       if (nbs > 2) nbs = 2;
       theSmallTree.m_nBhadrons = nbs;
@@ -1748,6 +1755,12 @@ int main (int argc, char** argv)
       if (tlv_jet.Pt () < 20. /*GeV*/) continue ; 
       if (tlv_jet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
       if (tlv_jet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
+
+      // all jets selected as btag cands apart from eta cut
+      int ajetHadFlav = abs(theBigTree.jets_HadronFlavour->at(iJet));
+      if (ajetHadFlav == 5) ++theSmallTree.m_njetsBHadFlav;
+      if (ajetHadFlav == 4) ++theSmallTree.m_njetsCHadFlav;
+
       if (TMath::Abs(tlv_jet.Eta()) > 2.4) continue; // 2.4 for b-tag
 
       float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bCSVscore->at (iJet) : tlv_jet.Pt() ;
