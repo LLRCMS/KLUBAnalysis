@@ -7,6 +7,7 @@
 #include "TTree.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TH2I.h"
 #include "TFile.h"
 #include "TBranch.h"
 #include "TString.h"
@@ -91,10 +92,16 @@ int main(int argc, char** argv)
 
     int totEvents = 0;
     int EvtsNjets[5] = {0,0,0,0,0}; // 0, 1, 2, 3, >=4
-    int EvtsNBs[3] = {0,0,0}; //0,1,>=2 b
+    int EvtsNBs[5] = {0,0,0,0,0}; //0,1,>=2 b
+    int allEvts[5][5]; // njet, nb
+    for (int i = 0; i < 5; i++)
+        for (int j = 0; j < 5; j++)
+            allEvts[i][j] = 0;
+
 
     TFile* fOut = new TFile (outputFileName.c_str(), "recreate");
     TH2F* h_nJets_nBs = new TH2F ("h_nJets_nBs", ";nJets;nBs", 5, 0, 5, 5, 0, 5);
+    TH2I* hINT_nJets_nBs = new TH2I ("hINT_nJets_nBs", ";nJets;nBs", 5, 0, 5, 5, 0, 5);
 
     // speed up
     theBigTree.fChain->SetBranchStatus("*", 0);
@@ -113,7 +120,7 @@ int main(int argc, char** argv)
 
         int got = theBigTree.fChain->GetEntry(iEvent);
         if (got == 0) break;
-        // if (iEvent > 10000) break;
+        // if (iEvent > 100000) break;
 
         ++totEvents ;
 
@@ -153,10 +160,21 @@ int main(int argc, char** argv)
         EvtsNBs[nbs] +=1 ;
 
         h_nJets_nBs->Fill (npartons, nbs);
+        hINT_nJets_nBs->Fill (npartons, nbs);
+        allEvts[npartons][nbs] += 1;
     }
 
-    fOut->Write();
+    fOut->cd();
+    h_nJets_nBs -> Write();
+    hINT_nJets_nBs -> Write();
 
-
-
+    for (int nj = 0; nj < 5; nj++)
+    {
+        cout << "NJET: " << nj << endl;
+        for (int nb = 0; nb < 5; nb++)
+        {
+            cout << allEvts[nj][nb] << " ";
+        }
+        cout << endl;
+    }
 }
