@@ -279,7 +279,7 @@ fillHistos (vector<sample> & samples,
       vector<int> indexInt ;
       for (unsigned int iv = 0 ; iv < allvars.size () ; ++iv)
       {
-        if(allvars.at(iv)=="njets" || allvars.at(iv)=="npu" || allvars.at(iv)=="npv" || allvars.at(iv)=="dau1_MVAiso" || allvars.at(iv)=="dau2_MVAiso")
+        if(allvars.at(iv)=="njets" || allvars.at(iv)=="npu" || allvars.at(iv)=="npv" || allvars.at(iv)=="dau1_MVAiso" || allvars.at(iv)=="dau2_MVAiso" || allvars.at(iv)=="lheNOutPartons")
         {
       	  indexInt.push_back(iv);
           tree->SetBranchAddress (allvars.at (iv).c_str (), &(addressInt.at (iv))) ;
