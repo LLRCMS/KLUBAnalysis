@@ -43,6 +43,7 @@ for MCname in fractionHistosFilesNames:
             bincont = fractionHistosINT[MCname].GetBinContent(ix, iy)
             ratio = 1.*bincont/totInt
             fractionHistos[MCname].SetBinContent(ix, iy, ratio)
+    print (fractionHistos[MCname].Integral())
 
 # fraction of XS in each njet-nb bin. Almost identical to inclusive histo, but exploit njet plots to improve statistics in high njet - high nb bins
 # fractionXS[njet][nb]
@@ -56,7 +57,7 @@ for njet in range (0, 5):
         else:
             if njet == 0:
                 fractionXS[njet][nb] = fractionHistos['inclusive'].GetBinContent(njet+1, nb+1)
-                # print (njet, nb, "messo a incl da solo")
+                # print (njet, nb, "messo a incl da solo a", fractionXS[njet][nb])
             else:
                 inclTotInt   = fractionHistos['inclusive'].Integral()
                 inclStripInt = fractionHistos['inclusive'].Integral(njet+1, njet+1, 1, 5)
@@ -102,6 +103,15 @@ for njet in range (0, 5):
         bweights.append(weight)
         #print ("stitchWeights [%i][%i] = %f ;" % (njet, nb, weight))
     weights.append(bweights)
+
+totEvts = 0
+for MCname in Nevents: totEvts += Nevents[MCname]
+print ("TOT EVENTS: " , totEvts)
+
+## scale eveything to the event sum, so that it will erase the event sum in th skimmer at denominator
+for njet in range (0, 5):
+    for nb in range (0, 5):
+        weights[njet][nb] *= totEvts
 
 ####  just to test the output formatting
 # weights = [
