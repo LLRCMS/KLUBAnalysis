@@ -730,7 +730,6 @@ int main (int argc, char** argv)
 
       stitchWeight = stitchWeights[njets][nb];
     }
-
     if (theBigTree.EventNumber == debugEvent && isMC)
     {
       cout << "** DEBUG : gen particle list" << endl;
@@ -765,10 +764,11 @@ int main (int argc, char** argv)
       for (unsigned int igen = 0; igen < theBigTree.genpart_pdg->size(); igen++)
       {
         int pdg = theBigTree.genpart_pdg->at(igen);
-        //int genflags = theBigTree.genpart_flags->at(igen);
+        int genflags = theBigTree.genpart_flags->at(igen);
+        bool isFirst = CheckBit (genflags, 12);  //if (fl.isFirstCopy()) flags |= (1 << 12);
         //int topDM = theBigTree.genpart_TopDecayMode->at(igen);
 
-        if (abs(pdg) == 6) // top -- from LLRNtuples, I am guaranteed to have only 2 tops
+        if (abs(pdg) == 6 && isFirst) // top -- pt reweight wants to have ME tops
         {
           TLorentzVector TopV;
           TopV.SetPxPyPzE (theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen) ) ;
@@ -785,7 +785,7 @@ int main (int argc, char** argv)
             pdgIdTop2 = theBigTree.genpart_pdg->at(igen);
             break;
           } // check done in paralles shows that I never have > 2 top .  break is safe .
-          //else cout << " !! skim warning: sample is declared as as ttbar, but I have > 2 gen top in the event! " << endl;
+          // else cout << " !! skim warning: sample is declared as as ttbar, but I have > 2 gen top in the event! " << endl;
         }
       }
       if (ptTop1 < 0 || ptTop2 < 0)
@@ -847,6 +847,13 @@ int main (int argc, char** argv)
           }
 
           // cout << "WAS ACCEPTED" << endl;
+
+          if (theBigTree.EventNumber == debugEvent)
+          {
+            cout << "@ TOP pt reweight: " << endl;
+            cout << "  top1 pt=" << ptTop1 << endl;
+            cout << "  top2 pt=" << ptTop2 << endl;
+          }
 
           float SFTop1 = TMath::Exp(aTopRW+bTopRW*ptTop1);
           float SFTop2 = TMath::Exp(aTopRW+bTopRW*ptTop2);
@@ -1104,6 +1111,7 @@ int main (int argc, char** argv)
     // apply tight baseline (with iso to check)
     
     int nmu = 0;
+    int nmu10 = 0; // low pt muons for DY sideband, not entering in nmu
     int nele = 0;
     // int ntau = 0;
     
@@ -1117,7 +1125,10 @@ int main (int argc, char** argv)
         int dauType = theBigTree.particleType->at(idau);
         if (oph.isMuon(dauType))
         {
-            if (oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false))) ++nmu;
+            bool passMu = oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ;
+            bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.15, OfflineProducerHelper::MuTight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ;
+            if (passMu) ++nmu;
+            else if (passMu10) ++nmu10;
         }
         else if (oph.isElectron(dauType))
         {
@@ -1138,6 +1149,8 @@ int main (int argc, char** argv)
             << " idx dau="   << setw(3) << left << idau
             << " type="      << setw(3) << left << dauType
             << " pt="        << setw(10) << left << dauTlvDebug.Pt()
+            // << " px="        << setw(10) << left << theBigTree.daughters_px->at (idau)
+            // << " py="        << setw(10) << left << theBigTree.daughters_py->at (idau)
             << " eta="       << setw(10) << left << dauTlvDebug.Eta()
             << " phi="       << setw(10) << left << dauTlvDebug.Phi()
             << " iso="       << setw(10) << left << getIso (idau, dauTlvDebug.Pt (), theBigTree)
@@ -1155,7 +1168,7 @@ int main (int argc, char** argv)
     int pairType = 2; // tau tau
     if (nmu > 0)
     {
-      if (nmu == 1)
+      if (nmu == 1 && nmu10 == 0)
         pairType = 0 ; // mu tau
       else
         pairType = 3 ; // mu mu
@@ -1206,7 +1219,8 @@ int main (int argc, char** argv)
           // );
 
           // if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag+string("-TauRlxIzo") ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
-          if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag, (theBigTree.EventNumber == debugEvent ? true : false) ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
+          string baselineSels = ( (pairType <= 2) ? leptonSelectionFlag : (leptonSelectionFlag + "-Iso")) ; // for ee, mumu, emu, ask isolation in baseline
+          if ( oph.pairPassBaseline (&theBigTree, iPair, baselineSels, (theBigTree.EventNumber == debugEvent ? true : false) ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
           {
               chosenTauPair = iPair;
               break;          
@@ -1364,19 +1378,23 @@ int main (int argc, char** argv)
       Long64_t matchFlag2 = (Long64_t) theBigTree.daughters_trgMatched->at(secondDaughterIndex);
       bool passMatch1 = false;
       bool passMatch2 = false;
+      Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
+      bool trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
       // FIXME!! true only if single lep trigger for eTau and muTau
       if (pairType == 0 || pairType == 1 || pairType == 3 || pairType == 4)
       {
           passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
           passMatch2 = true;
+          trgNotOverlap = true; // FIXME: true only for single lepton triggers!
       }
       else if (pairType == 2)
       {
           passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
           passMatch2 = trigReader.checkOR (pairType, matchFlag2) ;            
       }
+
       // require trigger + legs matched
-      bool triggerAccept = (passTrg && passMatch1 && passMatch2) ;
+      bool triggerAccept = (passTrg && passMatch1 && passMatch2 && trgNotOverlap) ;
       // triggerAccept = passTrg ; 
 
       if (theBigTree.EventNumber == debugEvent)
@@ -1521,6 +1539,8 @@ int main (int argc, char** argv)
     theSmallTree.m_rho  = theBigTree.rho ;
     theSmallTree.m_isMC = isMC ;
     theSmallTree.m_isOS = theBigTree.isOSCand->at (chosenTauPair) ;
+    theSmallTree.m_lheNOutPartons = theBigTree.lheNOutPartons ;
+    theSmallTree.m_lheNOutB = theBigTree.lheNOutB ;
     // theSmallTree.m_met_phi = theBigTree.metphi ;
     // theSmallTree.m_met_et = theBigTree.met ;
     TVector2 vMET (theBigTree.METx->at(chosenTauPair) , theBigTree.METy->at(chosenTauPair));
