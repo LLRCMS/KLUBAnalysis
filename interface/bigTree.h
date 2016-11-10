@@ -38,6 +38,7 @@ public :
    std::vector<float>   *mothers_py;
    std::vector<float>   *mothers_pz;
    std::vector<float>   *mothers_e;
+   std::vector<Long64_t> *mothers_trgSeparateMatch;
    std::vector<float>   *daughters_px;
    std::vector<float>   *daughters_py;
    std::vector<float>   *daughters_pz;
@@ -256,6 +257,7 @@ public :
    TBranch        *b_mothers_py;   //!
    TBranch        *b_mothers_pz;   //!
    TBranch        *b_mothers_e;   //!
+   TBranch        *b_mothers_trgSeparateMatch; //!
    TBranch        *b_daughters_px;   //!
    TBranch        *b_daughters_py;   //!
    TBranch        *b_daughters_pz;   //!
@@ -471,6 +473,7 @@ public :
        mothers_py = 0;
        mothers_pz = 0;
        mothers_e = 0;
+       mothers_trgSeparateMatch = 0;
        daughters_px = 0;
        daughters_py = 0;
        daughters_pz = 0;
@@ -675,6 +678,7 @@ public :
        fChain->SetBranchAddress("mothers_py", &mothers_py, &b_mothers_py);
        fChain->SetBranchAddress("mothers_pz", &mothers_pz, &b_mothers_pz);
        fChain->SetBranchAddress("mothers_e", &mothers_e, &b_mothers_e);
+       fChain->SetBranchAddress("mothers_trgSeparateMatch", &mothers_trgSeparateMatch, &b_mothers_trgSeparateMatch);
        fChain->SetBranchAddress("daughters_px", &daughters_px, &b_daughters_px);
        fChain->SetBranchAddress("daughters_py", &daughters_py, &b_daughters_py);
        fChain->SetBranchAddress("daughters_pz", &daughters_pz, &b_daughters_pz);
