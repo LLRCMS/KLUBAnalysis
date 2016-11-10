@@ -164,8 +164,14 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     int type1 = tree->particleType->at(dau1index);
     int type2 = tree->particleType->at(dau2index);
     int pairType = getPairType (type1, type2);
-    
+
     if (debug) cout << ".. checking baseline of pair " << iPair << " idx=(" << dau1index << "," << dau2index << ")" << endl;
+        
+    float dR = DeltaRDau(tree, dau1index, dau2index);
+    bool drMin = (dR > 0.1);
+    if (!drMin && debug)
+      cout << "failed dR min as dR=" << dR << endl;
+
     bool isOS = tree->isOSCand->at(iPair);
     if (whatApply.Contains("OScharge") && !isOS) {
       if (debug) cout<<"check baseline: OSCharge failed"<<endl;
@@ -175,6 +181,7 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
       if (debug) cout<<"check baseline: SSCharge failed"<<endl;
         return false; // for the same sign selection at the moment full selection over SS pairs
       }
+
     // pairs are always ordered as: e mu | e tau | mu tau  (e < mu < tau)
     // if same type of particle, highest pt one is the first
     bool leg1=false;
@@ -216,14 +223,14 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     
     if (pairType == MuMu)
     {
-      leg1 = muBaseline (tree, dau1index, 10., 2.4, 0.1, MuTight, whatApply, debug);
-      leg2 = muBaseline (tree, dau2index, 10., 2.4, 0.1, MuTight, whatApply, debug);
-      bool leg1ER = muBaseline (tree, dau1index, 19., 2.1, 0.1, MuTight, whatApply, debug);
-      bool leg2ER = muBaseline (tree, dau2index, 19., 2.1, 0.1, MuTight, whatApply, debug);
+      leg1 = muBaseline (tree, dau1index, 10., 2.4, 0.15, MuTight, whatApply, debug);
+      leg2 = muBaseline (tree, dau2index, 10., 2.4, 0.15, MuTight, whatApply, debug);
+      bool leg1ER = muBaseline (tree, dau1index, 23., 2.1, 0.15, MuTight, whatApply, debug);
+      bool leg2ER = muBaseline (tree, dau2index, 23., 2.1, 0.15, MuTight, whatApply, debug);
       
       //bool Is1in2p1 = leg1ER ;
       //bool Is2in2p1 = leg2ER ;
-      return ((leg1ER && leg2) || (leg2ER && leg1) );
+      return ( ((leg1ER && leg2) || (leg2ER && leg1)) && drMin );
     }
     
     bool result = (leg1 && leg2);
@@ -236,13 +243,6 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     
     if (leg1&&leg2&&debug)
       cout << "check baseline: leg1 AND leg2 ok" << endl;
-
-    // overlap between pairs
-    float dR = DeltaRDau(tree, dau1index, dau2index);
-    bool drMin = (dR > 0.1);
-
-    if (!drMin && debug)
-      cout << "failed dR min as dR=" << dR << endl;
 
     // bool drMin = (dR > 0.5);
     result = (result && drMin);
