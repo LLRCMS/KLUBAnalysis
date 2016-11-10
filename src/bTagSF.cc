@@ -266,12 +266,12 @@ float bTagSF::getEff (WP wpt, int jetFlavor, int channel, float pt, float eta)
 vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_and_btag, std::vector<float> *jets_px, std::vector<float> *jets_py, std::vector<float> *jets_pz, std::vector<float> *jets_e, std::vector<int> *jets_HadronFlavour, int channel)
 {
 
-    vector<float> P_MC   (3, 1.0); // 0 = L, 1 = M, 2 = T
-    vector<float> P_Data (3, 1.0); // 0 = L, 1 = M, 2 = T
+    vector<double> P_MC   (3, 1.0); // 0 = L, 1 = M, 2 = T
+    vector<double> P_Data (3, 1.0); // 0 = L, 1 = M, 2 = T
     
     TLorentzVector vJet (0,0,0,0);
     // float WPtag[3] = {0.605, 0.89, 0.97}; // L, M, T
-    float WPtag[3] = {0.460, 0.800, 0.935}; // L, M, T -- 80X 4 inv fb
+    double WPtag[3] = {0.460, 0.800, 0.935}; // L, M, T -- 80X 4 inv fb
 
     for (unsigned int ijet = 0; ijet < jets_and_btag.size(); ijet++)
     {
@@ -281,19 +281,19 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
         vJet.SetPxPyPzE (jets_px->at(idx), jets_py->at(idx), jets_pz->at(idx), jets_e->at(idx));
         
         int flav = jets_HadronFlavour->at(idx);
-        float SF[3];
+        double SF[3];
         SF[0] = getSF (loose,  central, flav, vJet.Pt(), vJet.Eta());
         SF[1] = getSF (medium, central, flav, vJet.Pt(), vJet.Eta());
         SF[2] = getSF (tight,  central, flav, vJet.Pt(), vJet.Eta());
         if (DEBUG) cout << "  >> DEB: SFs " << SF[0] << " " << SF[1] << " " << SF[2] << endl;
 
-        float effBTag[3];
+        double effBTag[3];
         effBTag[0] = getEff (static_cast<WP> (0), flav, channel, vJet.Pt(), vJet.Eta()) ;
         effBTag[1] = getEff (static_cast<WP> (1), flav, channel, vJet.Pt(), vJet.Eta()) ;
         effBTag[2] = getEff (static_cast<WP> (2), flav, channel, vJet.Pt(), vJet.Eta()) ;
         if (DEBUG) cout << "  >> DEB: EFFs " << effBTag[0] << " " << effBTag[1] << " " << effBTag[2] << endl;
 
-        float CSV = jets_and_btag.at(ijet).second;
+        double CSV = jets_and_btag.at(ijet).second;
         bool tagged[3];
         tagged[0] = (CSV > WPtag[0]);
         tagged[1] = (CSV > WPtag[1]);
@@ -301,8 +301,8 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
         if (DEBUG) cout << "  >> DEB: tagged " << tagged[0] << " " << tagged[1] << " " << tagged[2] << endl;
         for (int iWP = 0; iWP < 3; iWP++)
         {
-            float tmpMC   = P_MC.at(iWP);
-            float tmpData = P_Data.at(iWP);
+            double tmpMC   = P_MC.at(iWP);
+            double tmpData = P_Data.at(iWP);
 
             if (tagged[iWP])
             {
