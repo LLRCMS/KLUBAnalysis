@@ -55,15 +55,15 @@ void CompareMET(int mRadion=900)
 {
     SetLucaStyle();
     // Mu Tau
-    TCut cut = "pairType == 0 && dau1_pt > 19 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && (dau1_iso/dau1_pt) < 0.1 && dau2_iso < 3.0 && isOS != 0";
+    // TCut cut = "pairType == 0 && dau1_pt > 19 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && (dau1_iso/dau1_pt) < 0.1 && dau2_iso < 3.0 && isOS != 0";
     // // Tau Tau
-    // TCut cut = "pairType == 2 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && dau2_pt > 40 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_iso < 2.0 && dau2_iso < 2.0 && isOS != 0";
+    TCut cut = "pairType == 2 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && dau2_pt > 40 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_iso < 2.0 && dau2_iso < 2.0 && isOS != 0";
 
 
     // int mRadion = 900;
-    TFile* fPFMET = new TFile (Form("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims_MVAMET_tests/SKIM_PFMET_GluGluToRadionToHHTo2B2Tau_M-%i/total.root", mRadion));
-    TFile* fMVAMETnoCorr = new TFile (Form("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims_MVAMET_tests/SKIM_MVAMETNoRecoil_GluGluToRadionToHHTo2B2Tau_M-%i/total.root", mRadion));
-    TFile* fMVAMETwithCorr = new TFile (Form("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims_MVAMET_tests/SKIM_MVAMETWithRecoil_GluGluToRadionToHHTo2B2Tau_M-%i/total.root", mRadion));
+    TFile* fPFMET = new TFile (Form("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims_MVAMET_tests_24Mag/SKIM_PFMET_GluGluToRadionToHHTo2B2Tau_M-%i/total.root", mRadion));
+    TFile* fMVAMETnoCorr = new TFile (Form("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims_MVAMET_tests_24Mag/SKIM_MVAMETNoRecoil_GluGluToRadionToHHTo2B2Tau_M-%i/total.root", mRadion));
+    TFile* fMVAMETwithCorr = new TFile (Form("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims_MVAMET_tests_24Mag/SKIM_MVAMETWithRecoil_GluGluToRadionToHHTo2B2Tau_M-%i/total.root", mRadion));
 
     TTree* tPFMET = (TTree*) fPFMET->Get("HTauTauTree");
     TTree* tMVAMETnoCorr = (TTree*) fMVAMETnoCorr->Get("HTauTauTree");
