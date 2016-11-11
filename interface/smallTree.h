@@ -207,7 +207,9 @@ struct smallTree
       m_HHKin_chi2 = -1. ;
 
       m_HH_deltaPhi = -1. ;
+      m_HHsvfit_deltaPhi = -1. ;
       m_tauHMet_deltaPhi = -1. ;
+      m_tauHsvfitMet_deltaPhi = -1. ;
       m_bHMet_deltaPhi = -1. ;
       m_ditau_deltaPhi = -1. ;
       m_dib_deltaPhi = -1. ;
@@ -250,6 +252,8 @@ struct smallTree
       m_njets20 = 0 ;
       m_njets50 = 0 ;
       m_nbjetscand = 0 ;
+      m_njetsBHadFlav = 0 ;
+      m_njetsCHadFlav = 0 ;
       m_dau1_jecUnc= -1;
       m_dau2_jecUnc= -1;
       m_bjet1_jecUnc = -1;
@@ -469,7 +473,9 @@ struct smallTree
       m_smallT->Branch ("HHKin_mass", &m_HHKin_mass, "HHKin_mass/F") ;
       m_smallT->Branch ("HHKin_chi2", &m_HHKin_chi2, "HHKin_chi2/F") ;
       m_smallT->Branch ("HH_deltaPhi", &m_HH_deltaPhi, "HH_deltaPhi/F") ;
+      m_smallT->Branch ("HHsvfit_deltaPhi", &m_HHsvfit_deltaPhi, "HHsvfit_deltaPhi/F") ;
       m_smallT->Branch ("tauHMet_deltaPhi", &m_tauHMet_deltaPhi, "tauHMet_deltaPhi/F") ;
+      m_smallT->Branch ("tauHsvfitMet_deltaPhi", &m_tauHsvfitMet_deltaPhi, "tauHsvfitMet_deltaPhi/F") ;
       m_smallT->Branch ("bHMet_deltaPhi", &m_bHMet_deltaPhi, "bHMet_deltaPhi/F") ;
 //      m_smallT->Branch ("", &m_, "/F") ;
       m_smallT->Branch ("ditau_deltaPhi", &m_ditau_deltaPhi, "ditau_deltaPhi/F") ;
@@ -497,6 +503,8 @@ struct smallTree
       m_smallT->Branch ("njets20", &m_njets20, "njets20/I") ;
       m_smallT->Branch ("njets50", &m_njets50, "njets50/I") ;
       m_smallT->Branch ("nbjetscand", &m_nbjetscand, "nbjetscand/I") ;
+      m_smallT->Branch ("njetsBHadFlav", &m_njetsBHadFlav, "njetsBHadFlav/I") ;
+      m_smallT->Branch ("njetsCHadFlav", &m_njetsCHadFlav, "njetsCHadFlav/I") ;
       m_smallT->Branch ("jets_jecUnc", &m_jets_jecUnc);
       m_smallT->Branch ("dau1_jecUnc", &m_dau1_jecUnc,"dau1_jecUnc/F");
       m_smallT->Branch ("dau2_jecUnc", &m_dau2_jecUnc,"dau2_jecUnc/F");
@@ -753,7 +761,9 @@ struct smallTree
 
   // angular variables
   Float_t m_HH_deltaPhi ;
+  Float_t m_HHsvfit_deltaPhi ;
   Float_t m_tauHMet_deltaPhi ;
+  Float_t m_tauHsvfitMet_deltaPhi ;
   Float_t m_bHMet_deltaPhi ;
   Float_t m_ditau_deltaPhi ;
   Float_t m_dib_deltaPhi ;
@@ -783,6 +793,9 @@ struct smallTree
   Int_t m_njets20 ;
   Int_t m_njets50 ;
   Int_t m_nbjetscand ;
+  Int_t m_njetsBHadFlav ;
+  Int_t m_njetsCHadFlav ;
+
   std::vector<Float_t> m_jets_jecUnc ;
   Float_t m_dau1_jecUnc;
   Float_t m_dau2_jecUnc;
