@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <bitset>
 #include "TTree.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -953,16 +954,24 @@ int main (int argc, char** argv)
         bool isFirst     = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
         bool isLast      = CheckBit (theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
         bool isHardScatt = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; //   3 = isPromptTauDecayProduct
-        
+        // bool isDirectPromptTauDecayProduct = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; // 5 = isDirectPromptTauDecayProduct
         int pdg = theBigTree.genpart_pdg->at(igen);
+        int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
         
         bool mothIsHardScatt = false;
-        if ( abs(pdg)==66615)
+        if (mothIdx > -1)
         {
-          isHardScatt = false;
-          int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
-          mothIsHardScatt = CheckBit (theBigTree.genpart_flags->at(mothIdx), 8); // 0 = isPrompr(), 8: fromHardProcess
+          bool mothIsLast =  CheckBit(theBigTree.genpart_flags->at(mothIdx), 13);
+          // NB: I need t ask that the mother is last idx, otherwise I get a nonphysics "tauh" by the tauh builder function from the tau->tau "decay" in pythia
+          mothIsHardScatt = (mothIsLast && CheckBit (theBigTree.genpart_flags->at(mothIdx), 8)); // 0 = isPrompt(), 7: hardProcess , 8: fromHardProcess
         }
+
+        // if (abs(pdg) == 11 || abs(pdg) == 13 || abs(pdg) == 15 || abs(pdg) == 66615)
+        // {
+        //   bitset<32> bs (theBigTree.genpart_flags->at(igen)) ; 
+        //   cout << "/// igen = " << igen << " pdgId " << pdg << " flag=" << bs << " mothidx=" <<  theBigTree.genpart_TauMothInd->at(igen) << " px=" << theBigTree.genpart_px->at(igen) << endl;
+        //   // cout << "/// igen = " << igen << " pdgId " << pdg << " isFirst=" << isFirst << " isLast=" << isLast << " isHardScatt=" << isHardScatt << " mothIsHardScatt=" << mothIsHardScatt << " isDirectPromptTauDecayProduct=" << isDirectPromptTauDecayProduct << " mothIdx=" << theBigTree.genpart_TauMothInd->at(igen) << endl;
+        // }
 
 
         if (abs(pdg) == 25)
@@ -987,19 +996,31 @@ int main (int argc, char** argv)
               (idx1last == -1) ? (idx1last = igen) : (idx2last = igen) ;
           }
         }
-        else if (abs(pdg) == 11 || abs(pdg) == 13 || abs(pdg) == 66615)
+        
+        if ( (abs(pdg) == 11 || abs(pdg) == 13 ) && isHardScatt && isLast && mothIsHardScatt)
         {
-          if (isHardScatt || mothIsHardScatt)
+          if (idx1hs == -1) idx1hs = igen;
+          else if (idx2hs == -1) idx2hs = igen;
+          else
           {
-            if (idx1hs == -1) idx1hs = igen;
-            else if (idx2hs == -1) idx2hs = igen;
-            else
-            {
-              cout << "** ERROR: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
-              // cout << "idx1: " << idx1hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx1hs) << " px = " << theBigTree.genpart_px->at(idx1hs) << endl;
-              // cout << "idx2: " << idx2hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx2hs) << " px = " << theBigTree.genpart_px->at(idx2hs) << endl;
-              // cout << "THIS: " << pdg << " px=" << theBigTree.genpart_px->at(igen) << endl;
-            }
+            cout << "** ERROR: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
+            // cout << "idx1: " << idx1hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx1hs) << " px = " << theBigTree.genpart_px->at(idx1hs) << endl;
+            // cout << "idx2: " << idx2hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx2hs) << " px = " << theBigTree.genpart_px->at(idx2hs) << endl;
+            // cout << "THIS: " << pdg << " px=" << theBigTree.genpart_px->at(igen) << endl;
+          }
+        }
+        
+        if ( abs(pdg) == 66615 && mothIsHardScatt)
+        {
+          // cout << "  <<< preso" << endl;
+          if (idx1hs == -1) idx1hs = igen;
+          else if (idx2hs == -1) idx2hs = igen;
+          else
+          {
+            cout << "** ERROR: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
+            // cout << "idx1: " << idx1hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx1hs) << " px = " << theBigTree.genpart_px->at(idx1hs) << endl;
+            // cout << "idx2: " << idx2hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx2hs) << " px = " << theBigTree.genpart_px->at(idx2hs) << endl;
+            // cout << "THIS: " << pdg << " px=" << theBigTree.genpart_px->at(igen) << endl;
           }
         }
       }
@@ -1016,6 +1037,8 @@ int main (int argc, char** argv)
         theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1last);
         theSmallTree.m_genDecMode2 = theBigTree.genpart_HZDecayMode->at(idx2last);
         
+        // cout << "THIS H decay mode: " << theSmallTree.m_genDecMode1 << " " << theSmallTree.m_genDecMode2 << endl;
+
         // // get tau decaying one
         // int idxTauDecayed = (theBigTree.genpart_HZDecayMode->at(idx1last) != 8 ? idx1last : idx2last);
 
@@ -1049,7 +1072,7 @@ int main (int argc, char** argv)
         vHardScatter2.SetPxPyPzE (theBigTree.genpart_px->at(idx2hs), theBigTree.genpart_py->at(idx2hs), theBigTree.genpart_pz->at(idx2hs), theBigTree.genpart_e->at(idx2hs));
       }
       else
-        cout << "** ERROR: couldn't find 2 H->tautau gen dec prod" << endl;
+        cout << "** ERROR: couldn't find 2 H->tautau gen dec prod " << idx1hs << " " << idx2hs << endl;
 
 
       vH1.SetPxPyPzE (theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1) );
@@ -1069,6 +1092,9 @@ int main (int argc, char** argv)
         int ibin = hreweightHH2D->FindBin(mHH, ct1);
         HHweight = hreweightHH2D->GetBinContent(ibin);        
       }
+
+      // cout << " ........... GEN FINISHED ........... " << " evt=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << endl;
+
     }
 
     ///////////////////////////////////////////////////////////
@@ -1507,6 +1533,8 @@ int main (int argc, char** argv)
           theBigTree.SVfit_phi->at (chosenTauPair),
           theBigTree.SVfitMass->at (chosenTauPair)
         ) ;
+
+      theSmallTree.m_tauHsvfitMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_tauH_SVFIT.Phi ()) ;
     }
 
     // check if the selected leptons A,B match the gen hard scatter products 1,2
@@ -1650,7 +1678,7 @@ int main (int argc, char** argv)
       // idAndIsoSF = myScaleFactor[type1][1]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
     }
 
-    else if (type1 == 1 && isMC) // mu
+    else if (type1 == 1 && isMC) // ele
     {
       // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
       trigSF = 1.0; // no trigger info available in MC
@@ -1764,7 +1792,7 @@ int main (int argc, char** argv)
       if (TMath::Abs(tlv_jet.Eta()) > 2.4) continue; // 2.4 for b-tag
 
       float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bCSVscore->at (iJet) : tlv_jet.Pt() ;
-      if (bChoiceFlag != 1 && bChoiceFlag != 2) cout << "** WARNING : bChoiceFlag now known :" << bChoiceFlag << endl;
+      if (bChoiceFlag != 1 && bChoiceFlag != 2) cout << "** WARNING : bChoiceFlag not known :" << bChoiceFlag << endl;
       
       jets_and_sortPar.push_back (make_pair (sortPar, iJet) );          
 
@@ -2227,6 +2255,7 @@ int main (int argc, char** argv)
       }
 
       theSmallTree.m_HH_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
+      theSmallTree.m_HHsvfit_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH_SVFIT.Phi ()) ;
       theSmallTree.m_bHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_bH.Phi ()) ;
       theSmallTree.m_dib_deltaPhi = deltaPhi (tlv_firstBjet.Phi (), tlv_secondBjet.Phi ()) ;
       theSmallTree.m_dib_deltaR = tlv_firstBjet.DeltaR(tlv_secondBjet) ;
@@ -2531,38 +2560,45 @@ int main (int argc, char** argv)
 
 
 
-  bool computeMVA = gConfigParser->readBoolOption ("TMVA::computeMVA");
-  
-  if (computeMVA)
+  bool computeMVA    = gConfigParser->readBoolOption ("TMVA::computeMVA");
+  bool computeMVARes = gConfigParser->readBoolOption ("BDTResonant::computeMVA");
+
+  if (computeMVA || computeMVARes)
   {  
     bool doMuTau  = gConfigParser->isDefined("TMVA::weightsMuTau");
     bool doETau   = gConfigParser->isDefined("TMVA::weightsETau");
     bool doTauTau = gConfigParser->isDefined("TMVA::weightsTauTau");
     bool doLepTau = gConfigParser->isDefined("TMVA::weightsLepTau");
+    bool doResonant = computeMVARes;
 
-    string TMVAweightsTauTau  = "";
-    string TMVAweightsMuTau   = "";
-    string TMVAweightsETau    = "";
-    string TMVAweightsLepTau    = "";
+    string TMVAweightsTauTau   = "";
+    string TMVAweightsMuTau    = "";
+    string TMVAweightsETau     = "";
+    string TMVAweightsLepTau   = "";
+    string TMVAweightsResonant = "";
     
-    if (doMuTau)  TMVAweightsMuTau  = gConfigParser->readStringOption ("TMVA::weightsMuTau");
-    if (doETau)   TMVAweightsETau   = gConfigParser->readStringOption ("TMVA::weightsETau");
-    if (doTauTau) TMVAweightsTauTau = gConfigParser->readStringOption ("TMVA::weightsTauTau");
-    if (doLepTau) TMVAweightsLepTau = gConfigParser->readStringOption ("TMVA::weightsLepTau");
+    if (doMuTau)    TMVAweightsMuTau  = gConfigParser->readStringOption ("TMVA::weightsMuTau");
+    if (doETau)     TMVAweightsETau   = gConfigParser->readStringOption ("TMVA::weightsETau");
+    if (doTauTau)   TMVAweightsTauTau = gConfigParser->readStringOption ("TMVA::weightsTauTau");
+    if (doLepTau)   TMVAweightsLepTau = gConfigParser->readStringOption ("TMVA::weightsLepTau");
+    if (doResonant) TMVAweightsResonant = gConfigParser->readStringOption ("BDTResonant::weights");
 
     bool TMVAspectatorsIn      = gConfigParser->readBoolOption   ("TMVA::spectatorsPresent");
     vector<string> TMVAspectators = gConfigParser->readStringListOption   ("TMVA::spectators");
     vector<string> TMVAvariables  = gConfigParser->readStringListOption   ("TMVA::variables");
+    vector<string> TMVAvariablesResonant = gConfigParser->readStringListOption   ("BDTResonant::variables");
 
     TFile *outFile = TFile::Open(outputFile,"UPDATE");
     TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 
     TMVA::Reader * reader = new TMVA::Reader () ;
-    Float_t mvatautau,mvamutau, mvaetau, mvaleptau;
+    TMVA::Reader * readerResonant = new TMVA::Reader () ;
+    Float_t mvatautau,mvamutau, mvaetau, mvaleptau, mvaresonant;
     TBranch *mvaBranchmutau;
     TBranch *mvaBranchtautau;
     TBranch *mvaBranchetau;
     TBranch *mvaBranchleptau;
+    TBranch *mvaBranchResonant;
 
     vector<float> address (TMVAvariables.size () + TMVAspectators.size () * TMVAspectatorsIn, 0.) ; 
     for (unsigned int iv = 0 ; iv < TMVAvariables.size () ; ++iv)
@@ -2578,6 +2614,20 @@ int main (int argc, char** argv)
       reader->AddSpectator (TMVAspectators.at (iv), &(address.at (addressIndex))) ;
     }  
 
+    vector<float> addressResonant (TMVAvariablesResonant.size(), 0.) ; 
+    for (unsigned int iv = 0 ; iv < TMVAvariablesResonant.size () ; ++iv)
+    {
+      // split my_name:BDT_name in two strings
+      std::stringstream packedName(TMVAvariablesResonant.at(iv));
+      std::string segment;
+      std::vector<std::string> unpackedNames;
+      while(std::getline(packedName, segment, ':'))
+         unpackedNames.push_back(segment);
+
+      treenew->SetBranchAddress (unpackedNames.at(0).c_str (), &(addressResonant.at (iv))) ;
+      readerResonant->AddVariable (unpackedNames.at(1), &(addressResonant.at (iv))) ;
+    } 
+
     //if (treenew->GetListOfBranches ()->FindObject (mvaName.c_str ())) {
     //  treenew->SetBranchAddress ("MuTauKine", &mvamutau, &mvaBranchmutau) ;
     //  treenew->SetBranchAddress ("TauTauKine", &mvatautau, &mvaBranchtautau) ;
@@ -2588,11 +2638,13 @@ int main (int argc, char** argv)
     if (doETau)   mvaBranchetau = treenew->Branch ("ETauKine", &mvaetau, "ETauKine/F") ;
     if (doTauTau) mvaBranchtautau = treenew->Branch ("TauTauKine", &mvatautau, "TauTauKine/F") ;
     if (doLepTau) mvaBranchleptau = treenew->Branch ("LepTauKine", &mvaleptau, "LepTauKine/F") ;
+    if (doResonant) mvaBranchResonant = treenew->Branch ("BDTResonant", &mvaresonant, "BDTResonant/F") ;
     //}
     if (doMuTau)   reader->BookMVA ("MuTauKine",  TMVAweightsMuTau.c_str ()) ;
     if (doETau)    reader->BookMVA ("ETauKine",  TMVAweightsETau.c_str ()) ;
     if (doTauTau)  reader->BookMVA ("TauTauKine",  TMVAweightsTauTau.c_str ()) ;
     if (doLepTau)  reader->BookMVA ("LepTauKine",  TMVAweightsLepTau.c_str ()) ;
+    if (doResonant)  readerResonant->BookMVA ("BDT_full_mass_iso_nodrbbsv",  TMVAweightsResonant.c_str ()) ;
 
     int nentries = treenew->GetEntries();
     for(int i=0;i<nentries;i++){
@@ -2602,11 +2654,13 @@ int main (int argc, char** argv)
       if (doETau)    mvaetau= reader->EvaluateMVA ("ETauKine") ;  
       if (doTauTau)  mvatautau= reader->EvaluateMVA ("TauTauKine") ;  
       if (doLepTau)  mvaleptau= reader->EvaluateMVA ("LepTauKine") ;  
+      if (doResonant)  mvaresonant= readerResonant->EvaluateMVA ("BDT_full_mass_iso_nodrbbsv") ;  
 
       if (doMuTau)    mvaBranchmutau->Fill();
       if (doETau)     mvaBranchetau->Fill();
       if (doTauTau)   mvaBranchtautau->Fill();
       if (doLepTau)   mvaBranchleptau->Fill();
+      if (doResonant)  mvaBranchResonant->Fill();
     }
 
     outFile->cd () ;
