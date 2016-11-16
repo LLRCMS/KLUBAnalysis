@@ -143,6 +143,8 @@ int main (int argc, char** argv)
   if (gConfigParser->isDefined ("general::useOverUnderFlow"))
       doOverUnderFlow = gConfigParser->readBoolOption ("general::useOverUnderFlow");
 
+  float SStoOS_scaleFactor = gConfigParser->readFloatOption ("evalQCD::SStoOSscaleFactor");
+
   // prepare files to contain tree with selectd events
 
   TString treeFileName = gConfigParser->readStringOption ("general::outputFolderName") ;
@@ -263,12 +265,42 @@ int main (int argc, char** argv)
   string sel_dau1_RLXiso = gConfigParser->readStringOption ("selections::dau1RLXiso");
   string sel_dau2_RLXiso = gConfigParser->readStringOption ("selections::dau2RLXiso");
 
+  string selIsoType = "raw"; //default
+  if (gConfigParser->isDefined("selections::isoType")) selIsoType = gConfigParser->readStringOption("selections::isoType");
+
+  string cutIsoType1 = "";
+  string cutIsoType2 = "";
+  
+  if (selIsoType == "raw")
+  {
+    cutIsoType1 = "dau1_iso < ";
+    cutIsoType2 = "dau2_iso < ";
+  }
+  else if (selIsoType == "MVA")
+  {
+    cutIsoType1 = "dau1_MVAiso >= ";
+    cutIsoType2 = "dau2_MVAiso >= ";
+  }
+  else if (selIsoType == "CUT")
+  {
+    cutIsoType1 = "dau1_CUTiso >= ";
+    cutIsoType2 = "dau2_CUTiso >= ";
+  }
+  else 
+  {
+      cout << endl;
+      cout << " ---------------------------------------------------------------------------------- " << endl;
+      cout << " ** WARNING: cannot identify iso type: " << selIsoType << endl; 
+      cout << " ---------------------------------------------------------------------------------- " << endl;
+      cout << endl;
+  }
+
   // ----------------------------------------
   // OS selections
 
   vector<pair <TString, TCut> > selections_OS = selections ;
-  TCut dau1Cut = Form("dau1_iso < %s" , sel_dau1_iso.c_str());
-  TCut dau2Cut = Form("dau2_iso < %s" , sel_dau2_iso.c_str());
+  TCut dau1Cut = Form("%s %s" , cutIsoType1.c_str(), sel_dau1_iso.c_str());
+  TCut dau2Cut = Form("%s %s" , cutIsoType2.c_str(), sel_dau2_iso.c_str());
  
   for (unsigned int i = 0 ; i < selections_OS.size () ; ++i)
     {
@@ -278,8 +310,8 @@ int main (int argc, char** argv)
 
   // OS selections with rlx iso for SS/OS yield
   vector<pair <TString, TCut> > selections_OS_rlxIso = selections ;
-  TCut dau1CutRLX = Form("dau1_iso < %s" , sel_dau1_RLXiso.c_str());
-  TCut dau2CutRLX = Form("dau2_iso < %s" , sel_dau2_RLXiso.c_str());
+  TCut dau1CutRLX = Form("%s %s" , cutIsoType1.c_str(), sel_dau1_RLXiso.c_str());
+  TCut dau2CutRLX = Form("%s %s" , cutIsoType2.c_str(), sel_dau2_RLXiso.c_str());
   for (unsigned int i = 0 ; i < selections_OS_rlxIso.size () ; ++i)
     {
       selections_OS_rlxIso.at (i).first = TString ("OS_") + selections_OS.at (i).first ;
@@ -560,7 +592,7 @@ cout << "--- MAIN reading and filling OS histos with relaxed ISO" << endl ;
   // get the SS-to-OS scale factor and scale the QCD distributions
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  float SStoOS_scaleFactor = 1.06 ; // to be calculated here at a certain moment!!
+  // float SStoOS_scaleFactor = 1.21018 ; // to be calculated here at a certain moment!!
   
   for (unsigned int icut = 0 ; icut < selections_SS.size () ; ++icut)
   {
