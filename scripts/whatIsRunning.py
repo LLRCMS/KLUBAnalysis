@@ -1,5 +1,5 @@
 import os, re
-rootdir = '../Samples2016_29Giu_4Preapp/'
+rootdir = '../Samples2016_23Lug_data12fb/'
 
 # list all jobs available
 allJobs = {}
@@ -30,3 +30,8 @@ print 'STILL RUNNING'
 for skim in allnotdone:
     if allnotdone[skim]:
         print skim , allnotdone[skim]
+
+print 'TOTALS'
+for skim in allnotdone:
+    if allnotdone[skim]:
+        print skim , len(allnotdone[skim])
