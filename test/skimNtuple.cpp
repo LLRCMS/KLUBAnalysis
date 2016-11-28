@@ -578,6 +578,8 @@ int main (int argc, char** argv)
   int totalNoWeightsEventsNum = 0 ;
   int selectedNoWeightsEventsNum = 0 ;
 
+  //stage2
+  int bjetsBoosted = 0;
   // ------------------------------
 
   TH1F* hTriggers = getFirstFileHisto (inputFile);
@@ -1803,12 +1805,9 @@ int main (int argc, char** argv)
     ///// store stage2 information
     
    
-    //first 6 jets
-   
 
 
- /*
-    */
+
       //first 4 taus (already ordered by Et)   
       theSmallTree.m_stage2_tau1Et = theBigTree.stage2_tauEt->at(0);
       theSmallTree.m_stage2_tau1Eta = theBigTree.stage2_tauEta->at(0);
@@ -1964,231 +1963,227 @@ int main (int argc, char** argv)
 	      ptRegr[iBJet] = (bRreader->EvaluateRegression (bRegrMethodName.c_str()))[0];
 	    }
 	}
-std::vector<stage2jetClass> stage2jet;
-//fill the vector
- for(int iJet = 0; iJet<theBigTree.stage2_jetN; iJet++){
-   stage2jet.push_back(stage2jetClass(theBigTree.stage2_jetEt->at(iJet),theBigTree.stage2_jetEta->at(iJet),theBigTree.stage2_jetPhi->at(iJet)));
- }
- //control before 1st sorting
- cout<<"1)+++++before sorting+++++++"<<endl;
- if(stage2jet.size()>0){
- for(int iJet = 0; iJet<theBigTree.stage2_jetN; iJet++){
-   TLorentzVector tlv_stage2jet;                                                                                                                                                                             
-   tlv_stage2jet.SetPtEtaPhiM(                                                                                                                                                                       
-			      stage2jet[iJet].Et(),                                                                                                                                    
-			      stage2jet[iJet].Eta(),                                                                                                                                    
-			      stage2jet[iJet].Phi(),                                                                                                                                    
-			      massStage2);
-   
-   cout<<tlv_stage2jet.DeltaR(tlv_firstBjet)<<endl;    
- }
- }
- //1st sorting
- if(stage2jet.size()>0){
- stage2jetClass::DeltaRjets myDeltaR1(tlv_firstBjet.Phi(),tlv_firstBjet.Eta()); 
- std::sort(stage2jet.begin(),stage2jet.end(),myDeltaR1);
- //control after 1st sorting
- cout<<"---->after sorting"<<endl;
- 
-for(int iJet = 0; iJet<theBigTree.stage2_jetN; iJet++){
-   TLorentzVector tlv_stage2jet;                                                                                                                                              
-   tlv_stage2jet.SetPtEtaPhiM(                                                                                       
-			      stage2jet[iJet].Et(),                                        											    
-			      stage2jet[iJet].Eta(),                                                                                                                                    
-			      stage2jet[iJet].Phi(),                                                                                                                                    
-			      massStage2);
-   
-   cout<<tlv_stage2jet.DeltaR(tlv_firstBjet)<<endl;    
- }
- 
- //storing 1st jet
- 
-TLorentzVector tlv_stage2jet1;                                                                                                                                              
- tlv_stage2jet1.SetPtEtaPhiM(                                                                                       
-			    stage2jet[0].Et(),                                        											    
-			    stage2jet[0].Eta(),                                                                                                                                    
-			    stage2jet[0].Phi(),                                                                                                                                    
-			    massStage2);
- 
- theSmallTree.m_stage2_jet1Et = stage2jet[0].Et();
- theSmallTree.m_stage2_jet1Eta = stage2jet[0].Eta();
- theSmallTree.m_stage2_jet1Phi = stage2jet[0].Phi();
- theSmallTree.m_DeltaRmin_stage2jet_bjet1 = tlv_stage2jet1.DeltaR(tlv_firstBjet);
-   
-   stage2jet.erase(stage2jet.begin());
- } 
- //control before 2nd sorting
- cout<<"2)+++++before sorting+++++++"<<endl;
- for(unsigned int iJet = 0; iJet< stage2jet.size(); iJet++){
-   TLorentzVector tlv_stage2jet;                                                                                                                                   
-   tlv_stage2jet.SetPtEtaPhiM(         												       
-			      stage2jet[iJet].Et(),                                                                                           								  
-			      stage2jet[iJet].Eta(),
-			      stage2jet[iJet].Phi(),
-			      massStage2);
-   
-   cout<<"DeltaR "<<tlv_stage2jet.DeltaR(tlv_secondBjet)<<endl;    
- }
- //2nd sorting    
- if(stage2jet.size()>0){
- stage2jetClass::DeltaRjets myDeltaR2(tlv_secondBjet.Phi(),tlv_secondBjet.Eta()); 
- std::sort(stage2jet.begin(),stage2jet.end(),myDeltaR2);
-     //control after 2nd sorting     
-     cout<<"---->after sorting"<<endl;
 
- for(unsigned int iJet = 0; iJet< stage2jet.size(); iJet++){
-       TLorentzVector tlv_stage2jet;                                                                                                                                              
-       tlv_stage2jet.SetPtEtaPhiM(                                                                                       
-				  stage2jet[iJet].Et(),                                        											    
-				  stage2jet[iJet].Eta(),                                                                                                                                    
-				  stage2jet[iJet].Phi(),                                                                                                                                    
-				  massStage2);
-       cout<<"DeltaR "<<tlv_stage2jet.DeltaR(tlv_secondBjet)<<endl;      
-       
- }
-     //storing 2nd jet
+      //stage 2 information: jets
+      //the first 2 are ordered by deltaR with the bjets, the others are ordered by Et
       
- 
-       TLorentzVector tlv_stage2jet2;                                                                                                                                                      
-       tlv_stage2jet2.SetPtEtaPhiM(                                                                                       
-				   stage2jet[0].Et(),                                        											    
-				   stage2jet[0].Eta(),                                                                                                                                    
-				   stage2jet[0].Phi(),                                                                                                                                    
-				   massStage2);
-       
-       theSmallTree.m_stage2_jet2Et = stage2jet[0].Et();
-       theSmallTree.m_stage2_jet2Eta = stage2jet[0].Eta();
-       theSmallTree.m_stage2_jet2Phi = stage2jet[0].Phi();
-       theSmallTree.m_DeltaRmin_stage2jet_bjet2 = tlv_stage2jet2.DeltaR(tlv_secondBjet);     
-   stage2jet.erase(stage2jet.begin());
-	 }
-     
-  
-     cout<<"3)+++++before sorting+++++++"<<endl;
-     for(int iJet = 0; iJet<theBigTree.stage2_jetN-2; iJet++){
-       cout<<"Et "<<stage2jet[iJet]<<endl;
-     }
-     if (stage2jet.size() > 0) std::sort(stage2jet.begin(),stage2jet.end());
-     cout<<"---->after sorting"<<endl;
-     for(int iJet = 0; iJet<theBigTree.stage2_jetN-2; iJet++){
-       cout<<"Et "<<stage2jet[iJet]<<endl;
-     }
-     
-     if (stage2jet.size() > 0){ 
-       theSmallTree.m_stage2_jet3Et = stage2jet[0].Et();
-       theSmallTree.m_stage2_jet3Eta = stage2jet[0].Eta();
-       theSmallTree.m_stage2_jet3Phi = stage2jet[0].Phi(); 
-     }
-     
-     if (stage2jet.size() > 1){ 
-       theSmallTree.m_stage2_jet4Et = stage2jet[1].Et();
-       theSmallTree.m_stage2_jet4Eta = stage2jet[1].Eta();
-       theSmallTree.m_stage2_jet4Phi = stage2jet[1].Phi(); 
-     }
-     
-     if (stage2jet.size() > 2){ 
-       theSmallTree.m_stage2_jet5Et = stage2jet[2].Et();
-       theSmallTree.m_stage2_jet5Eta = stage2jet[2].Eta();
-       theSmallTree.m_stage2_jet5Phi = stage2jet[2].Phi(); 
-     }
-     
-     if (stage2jet.size() > 3){ 
-       theSmallTree.m_stage2_jet6Et = stage2jet[3].Et();
-       theSmallTree.m_stage2_jet6Eta = stage2jet[3].Eta();
-       theSmallTree.m_stage2_jet6Phi = stage2jet[3].Phi(); 
- }
-
- /*vector <float> DeltaRStage2Jet_firstBjet;
-   DeltaRStage2Jet_firstBjet.push_back (tlv_stage2jet1.DeltaR(tlv_firstBjet));
-   DeltaRStage2Jet_firstBjet.push_back (tlv_stage2jet2.DeltaR(tlv_firstBjet));
-      DeltaRStage2Jet_firstBjet.push_back (tlv_stage2jet3.DeltaR(tlv_firstBjet));
-      DeltaRStage2Jet_firstBjet.push_back (tlv_stage2jet4.DeltaR(tlv_firstBjet));
-      DeltaRStage2Jet_firstBjet.push_back (tlv_stage2jet5.DeltaR(tlv_firstBjet));
-      DeltaRStage2Jet_firstBjet.push_back (tlv_stage2jet6.DeltaR(tlv_firstBjet));
-      
-      vector <float> DeltaRStage2Jet_secondBjet;
-      DeltaRStage2Jet_secondBjet.push_back (tlv_stage2jet1.DeltaR(tlv_secondBjet));
-      DeltaRStage2Jet_secondBjet.push_back (tlv_stage2jet2.DeltaR(tlv_secondBjet));
-      DeltaRStage2Jet_secondBjet.push_back (tlv_stage2jet3.DeltaR(tlv_secondBjet));
-      DeltaRStage2Jet_secondBjet.push_back (tlv_stage2jet4.DeltaR(tlv_secondBjet));
-      DeltaRStage2Jet_secondBjet.push_back (tlv_stage2jet5.DeltaR(tlv_secondBjet));
-      DeltaRStage2Jet_secondBjet.push_back (tlv_stage2jet6.DeltaR(tlv_secondBjet));
-    
- 
-      
- 
-      theSmallTree.m_DeltaRmin_stage2jet_bjet2 = *std::min_element(DeltaRStage2Jet_secondBjet.begin(), DeltaRStage2Jet_secondBjet.end());
-      
-    */
-
-      
-      TLorentzVector tlv_firstBjet_raw = tlv_firstBjet;
-      TLorentzVector tlv_secondBjet_raw = tlv_secondBjet;
-      theSmallTree.m_bjet1_pt_raw = tlv_firstBjet_raw.Pt();
-      theSmallTree.m_bjet2_pt_raw = tlv_secondBjet_raw.Pt();
-      
-      TLorentzVector tlv_bH_raw = tlv_firstBjet + tlv_secondBjet ;
-      theSmallTree.m_bH_mass_raw = tlv_bH_raw.M();
-      // FIXME : here mass is manually set to 0, should we change it?
-      float ptScale1 = ptRegr[0] / tlv_firstBjet.Pt() ;
-      float ptScale2 = ptRegr[1] / tlv_secondBjet.Pt() ;
-      tlv_firstBjet.SetPtEtaPhiE (ptRegr[0], tlv_firstBjet.Eta(), tlv_firstBjet.Phi(), ptScale1*tlv_firstBjet.Energy());
-      tlv_secondBjet.SetPtEtaPhiE (ptRegr[1], tlv_secondBjet.Eta(), tlv_secondBjet.Phi(), ptScale2*tlv_secondBjet.Energy());
-
-      theSmallTree.m_bjet1_pt   = tlv_firstBjet.Pt () ;
-      theSmallTree.m_bjet1_eta  = tlv_firstBjet.Eta () ;
-      theSmallTree.m_bjet1_phi  = tlv_firstBjet.Phi () ;
-      theSmallTree.m_bjet1_e    = theBigTree.jets_e->at (bjet1idx) ;
-      theSmallTree.m_bjet1_et    = tlv_firstBjet.Et();
-      theSmallTree.m_bjet1_bID  = theBigTree.bCSVscore->at (bjet1idx) ;
-      theSmallTree.m_bjet1_flav = theBigTree.jets_HadronFlavour->at (bjet1idx) ;
-
-      theSmallTree.m_bjet2_pt   = tlv_secondBjet.Pt () ;
-      theSmallTree.m_bjet2_eta  = tlv_secondBjet.Eta () ;
-      theSmallTree.m_bjet2_phi  = tlv_secondBjet.Phi () ;
-      theSmallTree.m_bjet2_e    = theBigTree.jets_e->at (bjet2idx) ;
-      theSmallTree.m_bjet2_et    = tlv_secondBjet.Et() ;
-      theSmallTree.m_bjet2_bID  = theBigTree.bCSVscore->at (bjet2idx) ;
-      theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
-
-      bool hasgj1 = false;
-      bool hasgj2 = false;          
-      if (isMC){            
-        
-        int mcind = theBigTree.jets_genjetIndex->at(bjet2idx);
-        if (mcind>=0){
-          TLorentzVector gen(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
-          theSmallTree.m_genjet1_pt = gen.Pt();
-          theSmallTree.m_genjet1_eta = gen.Eta();
-          theSmallTree.m_genjet1_phi = gen.Phi();
-          theSmallTree.m_genjet1_e = gen.E();
-          if (gen.Pt() > 8) hasgj1 = true;
-        }
-
-        mcind = theBigTree.jets_genjetIndex->at(bjet2idx);
-        if (mcind>=0){
-          TLorentzVector gen(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
-          theSmallTree.m_genjet2_pt = gen.Pt();
-          theSmallTree.m_genjet2_eta = gen.Eta();
-          theSmallTree.m_genjet2_phi = gen.Phi();
-          theSmallTree.m_genjet2_e = gen.E();
-          if (gen.Pt() > 8) hasgj2 = true;
-        }
+      std::vector<stage2jetClass> stage2jet;
+      //fill the vector
+      for(int iJet = 0; iJet<theBigTree.stage2_jetN; iJet++){
+	stage2jet.push_back(stage2jetClass(theBigTree.stage2_jetEt->at(iJet),theBigTree.stage2_jetEta->at(iJet),theBigTree.stage2_jetPhi->at(iJet)));
       }
-      theSmallTree.m_bjet1_hasgenjet = hasgj1 ;
-      theSmallTree.m_bjet2_hasgenjet = hasgj2 ;
+      //control before 1st sorting
+      /*cout<<"1)+++++before sorting+++++++"<<endl;
+	if(stage2jet.size()>0){
+	for(int iJet = 0; iJet<theBigTree.stage2_jetN; iJet++){
+	TLorentzVector tlv_stage2jet;                                                                                                                                                                             
+	tlv_stage2jet.SetPtEtaPhiM(                                                                                                                                                                       
+	stage2jet[iJet].Et(),                                                                                                                                    
+	stage2jet[iJet].Eta(),                                                                                                                                    
+	stage2jet[iJet].Phi(),                                                                                                                                    
+	massStage2);
+	
+	cout<<tlv_stage2jet.DeltaR(tlv_firstBjet)<<endl;    
+	}
+	}*/
+      //1st sorting
+      TLorentzVector tlv_stage2jet1;                                                                                                                                              
+      if(stage2jet.size()>0){
+	stage2jetClass::DeltaRjets myDeltaR1(tlv_firstBjet.Phi(),tlv_firstBjet.Eta()); 
+	std::sort(stage2jet.begin(),stage2jet.end(),myDeltaR1);
+	//control after 1st sorting
+	/*cout<<"---->after sorting"<<endl;
+	  
+	  for(int iJet = 0; iJet<theBigTree.stage2_jetN; iJet++){
+	  TLorentzVector tlv_stage2jet;                                                                                                                                              
+	  tlv_stage2jet.SetPtEtaPhiM(                                                                                       
+	  stage2jet[iJet].Et(),                                        											    
+	  stage2jet[iJet].Eta(),                                                                                                                                    
+	  stage2jet[iJet].Phi(),                                                                                                                                    
+	  massStage2);
+	  
+	  cout<<tlv_stage2jet.DeltaR(tlv_firstBjet)<<endl 
+	  }*/
+	
+	//storing 1st jet
+	
 
-      float METx = theBigTree.METx->at (chosenTauPair) ;
-      float METy = theBigTree.METy->at (chosenTauPair) ;
-      //float METpt = 0;//TMath::Sqrt (METx*METx + METy*METy) ;
+	tlv_stage2jet1.SetPtEtaPhiM(                                                                                       
+				  stage2jet[0].Et(),                                        											    
+				  stage2jet[0].Eta(),                                                                                                                                    
+				  stage2jet[0].Phi(),                                                                                                                                    
+				  massStage2);
+	
+	theSmallTree.m_stage2_jet1Et = stage2jet[0].Et();
+	theSmallTree.m_stage2_jet1Eta = stage2jet[0].Eta();
+	theSmallTree.m_stage2_jet1Phi = stage2jet[0].Phi();
+	stage2jet.erase(stage2jet.begin());
+      } 
+    //control before 2nd sorting
+    /*cout<<"2)+++++before sorting+++++++"<<endl;
+      for(unsigned int iJet = 0; iJet< stage2jet.size(); iJet++){
+      TLorentzVector tlv_stage2jet;                                                                                                                                   
+      tlv_stage2jet.SetPtEtaPhiM(         												       
+      stage2jet[iJet].Et(),                                                                                           								  
+      stage2jet[iJet].Eta(),
+      stage2jet[iJet].Phi(),
+      massStage2);
+      
+      cout<<"DeltaR "<<tlv_stage2jet.DeltaR(tlv_secondBjet)<<endl;    
+      }*/
+    //2nd sorting    
+      TLorentzVector tlv_stage2jet2;                                                                                                                                                      
+    if(stage2jet.size()>0){
+      stage2jetClass::DeltaRjets myDeltaR2(tlv_secondBjet.Phi(),tlv_secondBjet.Eta()); 
+      std::sort(stage2jet.begin(),stage2jet.end(),myDeltaR2);
+      //control after 2nd sorting     
+      /* cout<<"---->after sorting"<<endl;
+	 
+	 for(unsigned int iJet = 0; iJet< stage2jet.size(); iJet++){
+	 TLorentzVector tlv_stage2jet;                                                                                                                                              
+	 tlv_stage2jet.SetPtEtaPhiM(                                                                                       
+	 stage2jet[iJet].Et(),                                        											    
+	 stage2jet[iJet].Eta(),                                                                                                                                    
+	 stage2jet[iJet].Phi(),                                                                                                                                    
+	 massStage2);
+	 cout<<"DeltaR "<<tlv_stage2jet.DeltaR(tlv_secondBjet)<<endl;     
+      
+    }*/
+    //storing 2nd jet
+    
+    
 
-      TLorentzVector tlv_bH = tlv_firstBjet + tlv_secondBjet ;
-      TLorentzVector tlv_neutrinos =  tlv_bH - tlv_bH_raw;
-      theSmallTree.m_met_et_corr = theBigTree.met - tlv_neutrinos.Et() ;
+      tlv_stage2jet2.SetPtEtaPhiM(                                                                                       
+				  stage2jet[0].Et(),                                        											    
+				  stage2jet[0].Eta(),                                                                                                                                    
+				  stage2jet[0].Phi(),                                                                                                                                    
+				  massStage2);
+    
+      theSmallTree.m_stage2_jet2Et = stage2jet[0].Et();
+      theSmallTree.m_stage2_jet2Eta = stage2jet[0].Eta();
+      theSmallTree.m_stage2_jet2Phi = stage2jet[0].Phi();
+      stage2jet.erase(stage2jet.begin());
+  }
+    
+    
+    /*  cout<<"3)+++++before sorting+++++++"<<endl;
+	for(int iJet = 0; iJet<theBigTree.stage2_jetN-2; iJet++){
+	cout<<"Et "<<stage2jet[iJet]<<endl;
+	}*/
+    if (stage2jet.size() > 0) std::sort(stage2jet.begin(),stage2jet.end());
+    /*  cout<<"---->after sorting"<<endl;
+	for(int iJet = 0; iJet<theBigTree.stage2_jetN-2; iJet++){
+	cout<<"Et "<<stage2jet[iJet]<<endl;
+	}
+    */     
+    if (stage2jet.size() > 0){ 
+      theSmallTree.m_stage2_jet3Et = stage2jet[0].Et();
+      theSmallTree.m_stage2_jet3Eta = stage2jet[0].Eta();
+      theSmallTree.m_stage2_jet3Phi = stage2jet[0].Phi(); 
+    }
+    
+    if (stage2jet.size() > 1){ 
+      theSmallTree.m_stage2_jet4Et = stage2jet[1].Et();
+      theSmallTree.m_stage2_jet4Eta = stage2jet[1].Eta();
+      theSmallTree.m_stage2_jet4Phi = stage2jet[1].Phi(); 
+    }
+    
+    if (stage2jet.size() > 2){ 
+      theSmallTree.m_stage2_jet5Et = stage2jet[2].Et();
+      theSmallTree.m_stage2_jet5Eta = stage2jet[2].Eta();
+      theSmallTree.m_stage2_jet5Phi = stage2jet[2].Phi(); 
+    }
+    
+    if (stage2jet.size() > 3){ 
+      theSmallTree.m_stage2_jet6Et = stage2jet[3].Et();
+      theSmallTree.m_stage2_jet6Eta = stage2jet[3].Eta();
+      theSmallTree.m_stage2_jet6Phi = stage2jet[3].Phi(); 
+    }
+    
+    vector <float> DeltaRStage2Jet_firstBjet;
+    DeltaRStage2Jet_firstBjet.push_back (tlv_stage2jet1.DeltaR(tlv_firstBjet));
+    DeltaRStage2Jet_firstBjet.push_back (tlv_stage2jet2.DeltaR(tlv_firstBjet));
+    
+    vector <float> DeltaRStage2Jet_secondBjet;
+    DeltaRStage2Jet_secondBjet.push_back (tlv_stage2jet1.DeltaR(tlv_secondBjet));
+    DeltaRStage2Jet_secondBjet.push_back (tlv_stage2jet2.DeltaR(tlv_secondBjet));
+    
 
-      const TVector2 ptmiss = TVector2(METx, METy) ;
-      //TVector2 ptmiss = TVector2(METx,METy);
-      TMatrixD metcov (2, 2) ;
+    if(tlv_stage2jet1.DeltaR(tlv_secondBjet)<tlv_stage2jet2.DeltaR(tlv_secondBjet)) ++bjetsBoosted;
+
+    theSmallTree.m_DeltaRmin_stage2jet_bjet1 = *std::min_element(DeltaRStage2Jet_firstBjet.begin(), DeltaRStage2Jet_firstBjet.end());
+    theSmallTree.m_DeltaRmin_stage2jet_bjet2 = *std::min_element(DeltaRStage2Jet_secondBjet.begin(), DeltaRStage2Jet_secondBjet.end());
+    
+    
+    
+    
+    TLorentzVector tlv_firstBjet_raw = tlv_firstBjet;
+    TLorentzVector tlv_secondBjet_raw = tlv_secondBjet;
+    theSmallTree.m_bjet1_pt_raw = tlv_firstBjet_raw.Pt();
+    theSmallTree.m_bjet2_pt_raw = tlv_secondBjet_raw.Pt();
+    
+    TLorentzVector tlv_bH_raw = tlv_firstBjet + tlv_secondBjet ;
+    theSmallTree.m_bH_mass_raw = tlv_bH_raw.M();
+  // FIXME : here mass is manually set to 0, should we change it?
+    float ptScale1 = ptRegr[0] / tlv_firstBjet.Pt() ;
+    float ptScale2 = ptRegr[1] / tlv_secondBjet.Pt() ;
+    tlv_firstBjet.SetPtEtaPhiE (ptRegr[0], tlv_firstBjet.Eta(), tlv_firstBjet.Phi(), ptScale1*tlv_firstBjet.Energy());
+    tlv_secondBjet.SetPtEtaPhiE (ptRegr[1], tlv_secondBjet.Eta(), tlv_secondBjet.Phi(), ptScale2*tlv_secondBjet.Energy());
+    
+    theSmallTree.m_bjet1_pt   = tlv_firstBjet.Pt () ;
+    theSmallTree.m_bjet1_eta  = tlv_firstBjet.Eta () ;
+    theSmallTree.m_bjet1_phi  = tlv_firstBjet.Phi () ;
+    theSmallTree.m_bjet1_e    = theBigTree.jets_e->at (bjet1idx) ;
+    theSmallTree.m_bjet1_et    = tlv_firstBjet.Et();
+    theSmallTree.m_bjet1_bID  = theBigTree.bCSVscore->at (bjet1idx) ;
+    theSmallTree.m_bjet1_flav = theBigTree.jets_HadronFlavour->at (bjet1idx) ;
+    
+    theSmallTree.m_bjet2_pt   = tlv_secondBjet.Pt () ;
+    theSmallTree.m_bjet2_eta  = tlv_secondBjet.Eta () ;
+    theSmallTree.m_bjet2_phi  = tlv_secondBjet.Phi () ;
+    theSmallTree.m_bjet2_e    = theBigTree.jets_e->at (bjet2idx) ;
+    theSmallTree.m_bjet2_et    = tlv_secondBjet.Et() ;
+    theSmallTree.m_bjet2_bID  = theBigTree.bCSVscore->at (bjet2idx) ;
+    theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
+    
+    bool hasgj1 = false;
+    bool hasgj2 = false;          
+    if (isMC){            
+      
+      int mcind = theBigTree.jets_genjetIndex->at(bjet2idx);
+      if (mcind>=0){
+	TLorentzVector gen(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
+	theSmallTree.m_genjet1_pt = gen.Pt();
+	theSmallTree.m_genjet1_eta = gen.Eta();
+	theSmallTree.m_genjet1_phi = gen.Phi();
+	theSmallTree.m_genjet1_e = gen.E();
+	if (gen.Pt() > 8) hasgj1 = true;
+    }
+      
+      mcind = theBigTree.jets_genjetIndex->at(bjet2idx);
+      if (mcind>=0){
+	TLorentzVector gen(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
+	theSmallTree.m_genjet2_pt = gen.Pt();
+	theSmallTree.m_genjet2_eta = gen.Eta();
+	theSmallTree.m_genjet2_phi = gen.Phi();
+	theSmallTree.m_genjet2_e = gen.E();
+	if (gen.Pt() > 8) hasgj2 = true;
+      }
+    }
+    theSmallTree.m_bjet1_hasgenjet = hasgj1 ;
+    theSmallTree.m_bjet2_hasgenjet = hasgj2 ;
+    
+    float METx = theBigTree.METx->at (chosenTauPair) ;
+    float METy = theBigTree.METy->at (chosenTauPair) ;
+    //float METpt = 0;//TMath::Sqrt (METx*METx + METy*METy) ;
+    
+    TLorentzVector tlv_bH = tlv_firstBjet + tlv_secondBjet ;
+    TLorentzVector tlv_neutrinos =  tlv_bH - tlv_bH_raw;
+    theSmallTree.m_met_et_corr = theBigTree.met - tlv_neutrinos.Et() ;
+    
+    const TVector2 ptmiss = TVector2(METx, METy) ;
+    //TVector2 ptmiss = TVector2(METx,METy);
+    TMatrixD metcov (2, 2) ;
       metcov (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
       metcov (1,0) = theBigTree.MET_cov10->at (chosenTauPair) ;
       metcov (0,1) = theBigTree.MET_cov01->at (chosenTauPair) ;    
@@ -2773,7 +2768,9 @@ TLorentzVector tlv_stage2jet1;
   h_eff.SetBinContent (2, selectedEvents) ;
   h_eff.SetBinContent (3, totalNoWeightsEventsNum) ;
   h_eff.SetBinContent (4, selectedNoWeightsEventsNum) ;
-  
+  cout<< "stage2jet matched to both bjets = " << bjetsBoosted << endl ;
+  if (selectedNoWeightsEventsNum != 0) cout << "stage2jet matched to both bjets - ratio = " << bjetsBoosted / selectedNoWeightsEventsNum  << endl ;
+
   // store more detailed eff counter in output
   vector<pair<string, double> > vEffSumm = ec.GetSummary();
   TH1F* h_effSummary = new TH1F ("h_effSummary", "h_effSummary", vEffSumm.size(), 0, vEffSumm.size());
