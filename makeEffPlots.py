@@ -31,7 +31,7 @@ class PlotSet:
             x.Sumw2(True)
             
             
-    def makeEffPlot(self, plotName,toMg):
+    def makeEffPlot(self, plotName,toMg,xlabel,ylabel):
         # hwPass = self.plots[plotName][0].Clone(self.name+'_eff_'+plotName)
         # hwTot = self.plots[plotName][2].Clone(self.name+'_tot_'+plotName)
         # hwPass.Add(self.plots[plotName][1], -1)
@@ -41,17 +41,30 @@ class PlotSet:
         hwPass = self.plots[plotName][0].Clone(self.name+'_pass_'+plotName)
         hwTot = self.plots[plotName][1].Clone(self.name+'_tot_'+plotName)
         grEff = TGraphAsymmErrors()
-        grEff.SetName(self.name+'_eff_'+plotName)
+        grEff.SetName(self.name+'_'+plotName)
         grEff.BayesDivide(hwPass, hwTot)
         grEff.SetMarkerStyle(8)
+        grEff.GetXaxis().SetTitle(xlabel)
+        grEff.GetYaxis().SetTitle(ylabel)
         self.effplots[plotName] = grEff
         if toMg: 
             self.toMgPlots[plotName] = grEff
 
-    def makeMultiGraph(self,mgName):
-        mg = TMultiGraph(mgName,mgName)
+    def makeMultiGraph(self,mgName,xlabel,ylabel):
+        mg = TMultiGraph()
+        mg.SetName(mgName)
         for x in self.toMgPlots:
             mg.Add(self.toMgPlots[x])
+        leg = TLegend(0.65,0.11,0.89,0.28)
+        for x in self.toMgPlots:
+            leg.AddEntry(Plots.getMgPlot(x),Plots.getMgPlot(x).GetName(),"ep")
+        mg.Draw('lap')        
+        
+        SetOwnership(leg,0)
+        leg.Draw()   
+        
+        mg.GetXaxis().SetTitle(xlabel)
+        mg.GetYaxis().SetTitle(ylabel)        
         self.mgplots[mgName] = mg
             
     def saveToFile(self, tFile):
@@ -127,7 +140,7 @@ for ev in range(0, nEvt):
     PtTau2 = tIn.dau2_pt
     ditau_deltaR =  tIn.ditau_deltaR
     tauH_pt = tIn.tauH_pt
-
+   
     #conditions
     passes1      = tIn.DeltaRmin_stage2jet_bjet1 < 0.5
     passes2      = tIn.DeltaRmin_stage2jet_bjet2 < 0.5
@@ -235,24 +248,24 @@ fIn.Close()
 
 
 
-Plots.makeEffPlot('Et_bjet1',0)
-Plots.makeEffPlot('Et_bjet2',0)
-Plots.makeEffPlot('Et_bjet',1)
-Plots.makeEffPlot('Et_bjet_cut1',1)
-Plots.makeEffPlot('Et_bjet_cut2',1)
-Plots.makeEffPlot('Et_bjet_cut3',1)
-Plots.makeEffPlot('Et_bjet_cut4',1)
+Plots.makeEffPlot('Et_bjet1',0,'E_{T} bjet1','Efficiency')
+Plots.makeEffPlot('Et_bjet2',0,'E_{T} bjet2','Efficiency')
+Plots.makeEffPlot('Et_bjet',1,'E_{T} bjet','Efficiency')
+Plots.makeEffPlot('Et_bjet_cut1',1,'E_{T} bjet','Efficiency')
+Plots.makeEffPlot('Et_bjet_cut2',1,'E_{T} bjet','Efficiency')
+Plots.makeEffPlot('Et_bjet_cut3',1,'E_{T} bjet','Efficiency')
+Plots.makeEffPlot('Et_bjet_cut4',1,'E_{T} bjet','Efficiency')
 
-Plots.makeEffPlot('Pt_bjet1',0)
-Plots.makeEffPlot('Pt_bjet2',0)
-Plots.makeEffPlot('Pt_bjet',0)
+Plots.makeEffPlot('Pt_bjet1',0,'P_{T} bjet1','Efficiency')
+Plots.makeEffPlot('Pt_bjet2',0,'P_{T} bjet2','Efficiency')
+Plots.makeEffPlot('Pt_bjet',0,'P_{T} bjet','Efficiency')
 
 
-Plots.makeEffPlot('MergedJets_dR',0)
-Plots.makeEffPlot('MergedJets_Hpt',0)
-Plots.makeEffPlot('PtTau1',0)
-Plots.makeEffPlot('PtTau2',0)
-Plots.makeEffPlot('PtTau',0)
+Plots.makeEffPlot('MergedJets_dR',0,'#DeltaR(bjet1,bjet2)','ratio merged jets')
+Plots.makeEffPlot('MergedJets_Hpt',0,'E_{T} H_{bb}','ratio merged jets')
+Plots.makeEffPlot('PtTau1',0,'P_{T} #tau1','Efficiency')
+Plots.makeEffPlot('PtTau2',0,'P_{T} #tau2','Efficiency')
+Plots.makeEffPlot('PtTau',0,'P_{T} #tau','Efficiency')
 
 
 
@@ -261,15 +274,18 @@ Plots.getMgPlot('Et_bjet_cut1').SetMarkerColor(4)
 Plots.getMgPlot('Et_bjet_cut2').SetMarkerColor(3)
 Plots.getMgPlot('Et_bjet_cut3').SetMarkerColor(5)
 Plots.getMgPlot('Et_bjet_cut4').SetMarkerColor(2)
-Plots.makeMultiGraph('Et_bjet_cuts')
 
 
+
+
+Plots.makeMultiGraph('Et_bjet_cuts','E_{T} bjet','Efficiency')
 
 fOut= TFile ("skim_stage2_jetstau/effPlots.root", "recreate")
 Plots.saveToFile(fOut)
 
 
 
+c1.SaveAs('skim_stage2_jetstau/Et_bget_cuts.png')
 
 
 
