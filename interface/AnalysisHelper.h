@@ -60,6 +60,7 @@ class AnalysisHelper
 
         void setVerbosity (int v) {verbosity_ = v;}
 
+        void dump();
 
     private:
         std::string formHistoName (std::string sample, std::string sel, std::string var, std::string syst);

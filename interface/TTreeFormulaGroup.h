@@ -13,7 +13,7 @@
 #include <TList.h>
 
 class TTreeFormulaGroup: public TObject {
-
+   ClassDef(TTreeFormulaGroup, 1);
 public:
    //Constructor: If setOwner==kTRUE, deletes member TTreeFormulas on delete.
    TTreeFormulaGroup(bool setOwner=kTRUE);

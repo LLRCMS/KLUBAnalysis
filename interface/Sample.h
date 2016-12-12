@@ -51,13 +51,13 @@ class Sample
 
         // specific weights for a certain sample
         void setWeights (std::vector<Weight> weights) {weights_ = weights;}
-        void addWeight  (Weight weight) {weights_.push_back(weight);};
+        void addWeight  (Weight weight) {weights_.push_back(weight);}
         void clearWeights() {weights_.clear();}
 
         TChain* getTree() {return tree_;}
 
         const std::vector<Weight>& getWeights() const {return weights_;}
-        std::vector<Weight> getWeights() {return weights_;}
+        std::vector<Weight>& getWeights() {return weights_;}
         // void addWeight  (std::string wstring); // if no syst, just weight name
 
     private:

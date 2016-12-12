@@ -18,9 +18,10 @@ int main(int argc, char** argv)
     ah.readVariables();
     ah.readSamples();
     ah.prepareSamplesHistos();
+    ah.dump();
     ah.fillHistos();
     // ah.
 // fill
     ah.saveOutputsToFile();
-    
+    cout << "... exiting" << endl;    
 }

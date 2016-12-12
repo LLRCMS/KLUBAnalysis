@@ -13,6 +13,7 @@
 #include <string>
 #include <utility>
 #include <iostream>
+#include <algorithm>
 #include "ordered_map.h"
 
 class Weight
@@ -21,27 +22,34 @@ class Weight
         // typedef std::string wtype;
         Weight(){weight_ = "";}
         Weight(std::string weight){weight_ = weight;}
-        Weight(const Weight& otherW){weight_ = otherW.weight_; systs_ = otherW.systs_;}
+        Weight(const Weight& otherW){
+            weight_ = otherW.weight_;
+            systs_ = otherW.systs_;
+        }
         ~Weight(){}
         bool operator == (const Weight& w) const { return weight_ == w.weight_;} // will compare name only, not systs
-        Weight& operator = (const Weight& w) { weight_ = w.weight_; systs_ = w.systs_; return *this;}
+        Weight& operator = (Weight w) {
+            std::swap(weight_, w.weight_);
+            std::swap(systs_, w.systs_);
+            return *this;
+        }
         void  addSyst(std::string systName, std::string weight){systs_.append(systName, weight);}
         void  addSysts(std::vector<std::pair<std::string, std::string> > vSysts);
         bool  hasSysts() const {return (systs_.size() > 0);}
         int   getNSysts()   const {return systs_.size();}
-        std::string getName() const {return weight_; std::cout << "llll : " << weight_ << std::endl;}
+        std::string getName() const {return weight_;}
         std::string getSyst (int idx) const {return systs_.at(idx);}
         std::string getSyst (std::string name) const {return systs_.at(name);}
         std::string getSystName (int idx) const {return systs_.key(idx);} 
-        float& getRefToWeightValue() {return weightValue_;}
-        float getWeightValue() const {return weightValue_;}
-        std::vector<float>& getSystsValues() {return systsValues_;}
+        // float& getRefToWeightValue() {return weightValue_;}
+        // float getWeightValue() const {return weightValue_;}
+        // std::vector<float>& getSystsValues() {return systsValues_;}
 
     private:
         std::string weight_; // the name of the weight as in the TTree
-        float weightValue_;  // to be used for setbranchaddress
+        // float weightValue_;  // to be used for setbranchaddress
         ordered_map<std::string, std::string> systs_; // pairs of [name for histograms - value in TTree]
-        std::vector<float> systsValues_; // to be used for setbranchaddress
+        // std::vector<float> systsValues_; // to be used for setbranchaddress
 
 };
 
