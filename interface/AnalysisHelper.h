@@ -1,0 +1,93 @@
+/*
+    ** class: AnalysisHelper
+    ** author: L. Cadamuro (LLR)
+    ** date: 26/05/2016
+    ** description: class handling and coordinating all the part of the histo fillling analysis step.
+                    It is interfaced with the parser to keep all the analysis relevant info
+    ** note about cfg organization:
+                    information is supposed to be stored in different configs according to the information
+                    that must be shared or not between the different channels.
+                    Only main cfg is passed to the program, and it must contain the names of the other secondary cfgs
+                    Configs handled:
+                    - main cfg: specific to the analysis, contains selection set etc..
+                    - sample cfg: list of samples and their pahts (supposed to be common)
+                    - cut cfg: contains the definition of the selections
+*/
+
+#ifndef ANALYSISHELPER_H
+#define ANALYSISHELPER_H
+
+#include <vector>
+#include <string>
+#include <memory>
+#include <utility>
+#include <iostream>
+
+#include "CfgParser.h"
+#include "Sample.h"
+#include "Weight.h"
+#include "Selection.h"
+#include "ordered_map.h"
+
+#include "TCut.h"
+
+class AnalysisHelper
+{
+    public:
+
+        typedef ordered_map <std::string, std::shared_ptr<Sample>> sampleColl; // the type of a collection of samples
+
+        AnalysisHelper(std::string cfgname);
+        ~AnalysisHelper();
+
+        CfgParser& mainCfg() {return *mainCfg_;}
+        bool readMainInfo(); // all analysis info read here
+
+        std::shared_ptr<Sample> openSample(std::string sampleName);
+        void prepareSamplesHistos();
+        // void prepareHistos();
+        
+        void readSamples(); // inits the samles
+        void readSelections();
+        void readVariables();
+
+        void fillHistos();
+
+        void printSelections(bool printWeights=false);
+        void printSamples(bool printWeights=false);
+
+        void saveOutputsToFile();
+
+        void setVerbosity (int v) {verbosity_ = v;}
+
+
+    private:
+        std::string formHistoName (std::string sample, std::string sel, std::string var, std::string syst);
+        Selection readSingleSelection (std::string name);
+        std::vector<std::pair<std::string, std::string> > readWeightSysts(std::string name, std::string section); // read w list of section::name
+        void fillHistosSample(Sample& sample);
+        void activateBranches(Sample& sample);
+        // std::vector<const Weight*> getWeightsWithSyst (const Selection& sel, const Sample& sample); // pointers to all weights that have at least one syst defined
+
+        std::unique_ptr<CfgParser> mainCfg_;
+        std::unique_ptr<CfgParser> cutCfg_;
+        std::unique_ptr<CfgParser> sampleCfg_;
+        // FIXME: sytematics cfg?
+
+        float lumi_;
+        std::string outputFolder_;
+        std::string outputFileName_;
+
+        // ordered_map<std::string, TCut> selections_;
+        std::vector<Selection> selections_;
+        std::vector<std::string> variables_;
+        
+        ordered_map <std::string, std::shared_ptr<Sample>> data_samples_;
+        ordered_map <std::string, std::shared_ptr<Sample>> sig_samples_;
+        ordered_map <std::string, std::shared_ptr<Sample>> bkg_samples_;
+
+        std::string nominal_name_;
+        int verbosity_;
+};
+
+#endif
