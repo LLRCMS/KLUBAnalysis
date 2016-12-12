@@ -83,8 +83,8 @@ Plots.addPlot('Merged_EtResJets',5,-1,1,'(L1jet E_{T}-offline bjets sumE_{T})/of
 Plots.addPlot('Unmerged_EtResJets_norm',15,-1,1,'(L1jet E_{T}-offline bjet E_{T})/offline bjet E_{T}','a.u.')
 Plots.addPlot('Merged_EtResJets_norm',5,-1,1,'(L1jet E_{T}-offline bjets sumE_{T})/offline bjets sumE_{T}','a.u.')
 Plots.addPlot('dib_Dr',20,0,5,'#Delta R(bjet1,bjet2)','Events')
-Plots.addPlot('DeltaRminJets',20,0,3,'#Delta R(stage2jet,bjet)','Events')
-Plots.addPlot('DeltaRminTaus',20,0,3,'#Delta R(stage2#tau,#tau)','Events')
+Plots.addPlot('DeltaRminJets',30,0,2,'#Delta R(stage2jet,bjet)','Events')
+Plots.addPlot('DeltaRminTaus',30,0,2,'#Delta R(stage2#tau,#tau)','Events')
 Plots.add2Dplot('UnmergedEt_stage2jetVSbjet',50,0,300,50,0,300,'offline bjet E_{T}','L1jet E_{T}')
 Plots.add2Dplot('MergedEt_stage2jetVSbjet',50,0,300,50,0,300,'offline bjets sumE_{T}','L1jet E_{T}')
 #### 
@@ -126,8 +126,8 @@ for ev in range(0, nEvt):
     isJetMerged =  tIn.Bjet2matchesStage2jet1==1
     passes1      = DeltaRmin_stage2jet_bjet1 < 0.5
     passes2      = DeltaRmin_stage2jet_bjet2 < 0.5
-    passes1tau      = DeltaRmin_stage2tau_tau1 < 0.1
-    passes2tau      = DeltaRmin_stage2tau_tau2 < 0.1
+    passes1tau      = DeltaRmin_stage2tau_tau1 < 0.2
+    passes2tau      = DeltaRmin_stage2tau_tau2 < 0.2
     isTau1 = tIn.pairType == 2
     isTau2 = tIn.pairType <= 2
     ISO1 =tIn.dau1_MVAiso >=3

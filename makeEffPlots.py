@@ -1,5 +1,6 @@
 from ROOT import *
 from array import *
+from math import fabs
 
 class PlotSet:
     def __init__(self, name):
@@ -12,6 +13,15 @@ class PlotSet:
     def addPlot (self, plotName, nbins, xmin, xmax):
         plot_pass = TH1F ('plot_pass_'+plotName+'_'+self.name, 'plot_pass_'+plotName+'_'+self.name, nbins, xmin, xmax)
         plot_tot  = TH1F ('plot_tot_'+plotName+'_'+self.name, 'plot_tot_'+plotName+'_'+self.name, nbins, xmin, xmax)
+        self.plots[plotName] = [plot_pass, plot_tot]
+        
+        ## call sumw2
+        for x in self.plots[plotName]:
+            x.Sumw2(True)
+
+    def add2DPlot (self, plotName, xbins, xmin, xmax,ybins,ymin,ymax):
+        plot_pass = TH2F ('plot_pass_'+plotName+'_'+self.name, 'plot_pass_'+plotName+'_'+self.name, xbins, xmin, xmax,ybins,ymin,ymax)
+        plot_tot  = TH2F ('plot_tot_'+plotName+'_'+self.name, 'plot_tot_'+plotName+'_'+self.name, xbins, xmin, xmax,ybins,ymin,ymax)
         self.plots[plotName] = [plot_pass, plot_tot]
         
         ## call sumw2
@@ -50,6 +60,26 @@ class PlotSet:
         if toMg: 
             self.toMgPlots[plotName] = grEff
 
+    def make2DEffPlot(self, plotName,xlabel,ylabel):
+        # hwPass = self.plots[plotName][0].Clone(self.name+'_eff_'+plotName)
+        # hwTot = self.plots[plotName][2].Clone(self.name+'_tot_'+plotName)
+        # hwPass.Add(self.plots[plotName][1], -1)
+        # hwTot.Add(self.plots[plotName][3], -1)
+        # hwPass.Divide(hwTot)
+        # self.effplots[plotName] = hwPass
+        hEff = self.plots[plotName][0].Clone(self.name+'_pass_'+plotName)
+        hTot = self.plots[plotName][1].Clone(self.name+'_tot_'+plotName)
+        
+        hEff.SetName(self.name+'_'+plotName)
+        hEff.Divide(hTot)
+        
+        hEff.GetXaxis().SetTitle(xlabel)
+        hEff.GetYaxis().SetTitle(ylabel)
+        self.effplots[plotName] = hEff
+ 
+
+
+   
     def makeMultiGraph(self,mgName,xlabel,ylabel):
         mg = TMultiGraph()
         mg.SetName(mgName)
@@ -90,7 +120,13 @@ class PlotSet:
     def getMgPlot (self, name): 
         return self.toMgPlots[name]
 
-    
+
+def make2dList(rows, cols):
+    a=[]
+    for row in xrange(rows): a += [[0]*cols]
+    return a
+
+
 Plots = PlotSet("Plots")
 
 
@@ -98,6 +134,8 @@ Plots = PlotSet("Plots")
 Plots.addPlot('Et_bjet1',15,0,300)
 Plots.addPlot('Et_bjet2',15,0,300)
 Plots.addPlot('Et_bjet',15,0,300)
+
+
 
 Plots.addPlot('Et_bjet_cut1',15,0,300)
 Plots.addPlot('Et_bjet_cut2',15,0,300)
@@ -114,6 +152,17 @@ Plots.addPlot('PtTau1',15,0,200)
 Plots.addPlot('PtTau2',15,0,200)
 Plots.addPlot('PtTau',15,0,200)
 
+Plots.add2DPlot('L1eff_DoubleIsoTau28er_PtTau',15,0,200,15,0,200)
+Plots.add2DPlot('L1eff_DoubleIsoTau36er_PtTau',15,0,200,15,0,200)
+Plots.add2DPlot('L1eff_DoubleTau50er_PtTau',15,0,200,15,0,200)
+Plots.add2DPlot('L1eff_OR_PtTau',15,0,200,15,0,200)
+
+
+
+
+
+
+
 Plots.addPlot('MergedJets_dR',15,0,5)
 Plots.addPlot('MergedJets_Hpt',15,0,500)
 
@@ -125,6 +174,14 @@ fIn   = TFile.Open('skim_stage2_jetstau/output.root')
 tIn   = fIn.Get('HTauTauTree')
 nEvt  = tIn.GetEntries()
 optXXplots = Plots
+
+rows = 10
+cols = 2
+
+L1pass = make2dList(rows,cols)   #seed,tau1/tau2
+L1tot = [0,1]                      #tau1/tau2
+
+
 for ev in range(0, nEvt):
     tIn.GetEntry(ev)
 
@@ -164,8 +221,36 @@ for ev in range(0, nEvt):
     ISO1 =tIn.dau1_MVAiso >=3
     ISO2 =tIn.dau2_MVAiso >=3
     PassIsOS =tIn.isOS==1   
+
     isTauMerged =  tIn.Lepton2matchesStage2tau1==1
 
+    isL1tau1ISO = tIn.stage2_tau1Iso ==1
+    L1seedEtaTau1 = fabs(tIn.stage2_tau1Eta) <2.1
+
+    #FIXME fai na lista se no ci vogliono 10 anni
+    L1seed1tau1 = L1seedEtaTau1 and isL1tau1ISO and (tIn.stage2_tau1Et > 28)
+    L1seed2tau1 = L1seedEtaTau1 and isL1tau1ISO and (tIn.stage2_tau1Et > 30)
+    L1seed3tau1 = L1seedEtaTau1 and isL1tau1ISO and (tIn.stage2_tau1Et > 32)
+    L1seed4tau1 = L1seedEtaTau1 and isL1tau1ISO and (tIn.stage2_tau1Et > 33)
+    L1seed5tau1 = L1seedEtaTau1 and isL1tau1ISO and (tIn.stage2_tau1Et > 34)
+    L1seed6tau1 = L1seedEtaTau1 and isL1tau1ISO and (tIn.stage2_tau1Et > 35)
+    L1seed7tau1 = L1seedEtaTau1 and isL1tau1ISO and (tIn.stage2_tau1Et > 36)
+    L1seed8tau1 = L1seedEtaTau1 and (tIn.stage2_tau1Et > 50)
+    L1seed9tau1 = L1seedEtaTau1 and (tIn.stage2_tau1Et > 70)
+    L1seedORtau1 = L1seed1tau1 or L1seed2tau1 or L1seed3tau1 or L1seed4tau1 or L1seed5tau1 or L1seed6tau1 or L1seed7tau1 or L1seed8tau1 or L1seed9tau1    
+
+    isL1tau2ISO = tIn.stage2_tau2Iso ==1
+    L1seedEtaTau2 = fabs(tIn.stage2_tau2Eta) <2.1
+    L1seed1tau2 = L1seedEtaTau2 and isL1tau2ISO and (tIn.stage2_tau2Et > 28)
+    L1seed2tau2 = L1seedEtaTau2 and isL1tau2ISO and (tIn.stage2_tau2Et > 30)
+    L1seed3tau2 = L1seedEtaTau2 and isL1tau2ISO and (tIn.stage2_tau2Et > 32)
+    L1seed4tau2 = L1seedEtaTau2 and isL1tau2ISO and (tIn.stage2_tau2Et > 33)
+    L1seed5tau2 = L1seedEtaTau2 and isL1tau2ISO and (tIn.stage2_tau2Et > 34)
+    L1seed6tau2 = L1seedEtaTau2 and isL1tau2ISO and (tIn.stage2_tau2Et > 35)
+    L1seed7tau2 = L1seedEtaTau2 and isL1tau2ISO and (tIn.stage2_tau2Et > 36)
+    L1seed8tau2 = L1seedEtaTau2 and (tIn.stage2_tau2Et > 50)
+    L1seed9tau2 = L1seedEtaTau2 and (tIn.stage2_tau2Et > 70)
+    L1seedORtau2 = L1seed1tau2 or L1seed2tau2 or L1seed3tau2 or L1seed4tau2 or L1seed5tau2 or L1seed6tau2 or L1seed7tau2 or L1seed8tau2 or L1seed9tau2    
 
     #fill plots
     optXXplots.getPlot('Et_bjet1',False).Fill(Et_bjet1)
@@ -239,14 +324,77 @@ for ev in range(0, nEvt):
     if (isTau2 and PassIsOS): optXXplots.getPlot('PtTau',False).Fill(PtTau2)
     if (passes1tau and isTau1 and PassIsOS): optXXplots.getPlot('PtTau',True).Fill(PtTau1)
     if (passes2tau and isTau2 and PassIsOS): optXXplots.getPlot('PtTau',True).Fill(PtTau2)
+
+
+    if (isTau1 and PassIsOS and passes1tau): optXXplots.getPlot('L1eff_DoubleIsoTau28er_PtTau',False).Fill(PtTau1,PtTau2)
+    if (passes1tau and isTau1 and PassIsOS and L1seed1tau1): optXXplots.getPlot('L1eff_DoubleIsoTau28er_PtTau',True).Fill(PtTau1,PtTau2)
+    
+    if (isTau2 and PassIsOS and passes2tau): optXXplots.getPlot('L1eff_DoubleIsoTau28er_PtTau',False).Fill(PtTau1,PtTau2)
+    if (passes2tau and isTau2 and PassIsOS and L1seed1tau2): optXXplots.getPlot('L1eff_DoubleIsoTau28er_PtTau',True).Fill(PtTau1,PtTau2)
+
+    if (isTau1 and PassIsOS and passes1tau): optXXplots.getPlot('L1eff_DoubleIsoTau36er_PtTau',False).Fill(PtTau1,PtTau2)
+    if (passes1tau and isTau1 and PassIsOS and L1seed7tau1): optXXplots.getPlot('L1eff_DoubleIsoTau36er_PtTau',True).Fill(PtTau1,PtTau2)
+    
+    if (isTau2 and PassIsOS and passes2tau): optXXplots.getPlot('L1eff_DoubleIsoTau36er_PtTau',False).Fill(PtTau1,PtTau2)
+    if (passes2tau and isTau2 and PassIsOS and L1seed7tau2): optXXplots.getPlot('L1eff_DoubleIsoTau36er_PtTau',True).Fill(PtTau1,PtTau2)
+
+
+    if (isTau1 and PassIsOS and passes1tau): optXXplots.getPlot('L1eff_DoubleTau50er_PtTau',False).Fill(PtTau1,PtTau2)
+    if (passes1tau and isTau1 and PassIsOS and L1seed8tau1): optXXplots.getPlot('L1eff_DoubleTau50er_PtTau',True).Fill(PtTau1,PtTau2)
+    
+    if (isTau2 and PassIsOS and passes2tau): optXXplots.getPlot('L1eff_DoubleTau50er_PtTau',False).Fill(PtTau1,PtTau2)
+    if (passes2tau and isTau2 and PassIsOS and L1seed8tau2): optXXplots.getPlot('L1eff_DoubleTau50er_PtTau',True).Fill(PtTau1,PtTau2)
+
+
+    if (isTau1 and PassIsOS and passes1tau): optXXplots.getPlot('L1eff_OR_PtTau',False).Fill(PtTau1,PtTau2)
+    if (passes1tau and isTau1 and PassIsOS and L1seedORtau1): optXXplots.getPlot('L1eff_OR_PtTau',True).Fill(PtTau1,PtTau2)
+    
+    if (isTau2 and PassIsOS and passes2tau): optXXplots.getPlot('L1eff_OR_PtTau',False).Fill(PtTau1,PtTau2)
+    if (passes2tau and isTau2 and PassIsOS and L1seedORtau2): optXXplots.getPlot('L1eff_OR_PtTau',True).Fill(PtTau1,PtTau2)
+    
+    ### overall L1 efficiency
+    if (isTau1 and PassIsOS and passes1tau): L1tot[0]+=1  
+    if (isTau2 and PassIsOS and passes2tau): L1tot[1]+=1
    
+    if (passes1tau and isTau1 and PassIsOS and L1seed1tau1):L1pass[0][0]+=1
+    if (passes2tau and isTau2 and PassIsOS and L1seed1tau2):L1pass[0][1]+=1
 
+    if (passes1tau and isTau1 and PassIsOS and L1seed2tau1):L1pass[1][0]+=1
+    if (passes2tau and isTau2 and PassIsOS and L1seed2tau2):L1pass[1][1]+=1
+    
+    if (passes1tau and isTau1 and PassIsOS and L1seed3tau1):L1pass[2][0]+=1
+    if (passes2tau and isTau2 and PassIsOS and L1seed3tau2):L1pass[2][1]+=1
 
+    if (passes1tau and isTau1 and PassIsOS and L1seed4tau1):L1pass[3][0]+=1
+    if (passes2tau and isTau2 and PassIsOS and L1seed4tau2):L1pass[3][1]+=1
 
+    if (passes1tau and isTau1 and PassIsOS and L1seed5tau1):L1pass[4][0]+=1
+    if (passes2tau and isTau2 and PassIsOS and L1seed5tau2):L1pass[4][1]+=1
+
+    if (passes1tau and isTau1 and PassIsOS and L1seed6tau1):L1pass[5][0]+=1
+    if (passes2tau and isTau2 and PassIsOS and L1seed6tau2):L1pass[5][1]+=1
+
+    if (passes1tau and isTau1 and PassIsOS and L1seed7tau1):L1pass[6][0]+=1
+    if (passes2tau and isTau2 and PassIsOS and L1seed7tau2):L1pass[6][1]+=1
+
+    if (passes1tau and isTau1 and PassIsOS and L1seed8tau1):L1pass[7][0]+=1
+    if (passes2tau and isTau2 and PassIsOS and L1seed8tau2):L1pass[7][1]+=1
+
+    if (passes1tau and isTau1 and PassIsOS and L1seed9tau1):L1pass[8][0]+=1
+    if (passes2tau and isTau2 and PassIsOS and L1seed9tau2):L1pass[8][1]+=1
+
+    if (passes1tau and isTau1 and PassIsOS and L1seedORtau1):L1pass[9][0]+=1
+    if (passes2tau and isTau2 and PassIsOS and L1seedORtau2):L1pass[9][1]+=1
 
 fIn.Close()
 
-
+print("effTau1\t effTau2")
+L1effTau1 = 0
+L1effTau2 = 0
+for seed in range(0,10):
+    L1effTau1 =float(L1pass[seed][0])/L1tot[0] 
+    L1effTau2 =float(L1pass[seed][1])/L1tot[1] 
+    print("{first}\t{second}".format(first=L1effTau1,second=L1effTau2))
 
 Plots.makeEffPlot('Et_bjet1',0,'E_{T} bjet1','Efficiency')
 Plots.makeEffPlot('Et_bjet2',0,'E_{T} bjet2','Efficiency')
@@ -267,6 +415,12 @@ Plots.makeEffPlot('PtTau1',0,'P_{T} #tau1','Efficiency')
 Plots.makeEffPlot('PtTau2',0,'P_{T} #tau2','Efficiency')
 Plots.makeEffPlot('PtTau',0,'P_{T} #tau','Efficiency')
 
+Plots.make2DEffPlot('L1eff_DoubleIsoTau28er_PtTau','P_{T} #tau 1','P_{T} #tau 2')
+Plots.make2DEffPlot('L1eff_DoubleIsoTau36er_PtTau','P_{T} #tau 1','P_{T} #tau 2')
+Plots.make2DEffPlot('L1eff_DoubleTau50er_PtTau','P_{T} #tau 1','P_{T} #tau 2')
+Plots.make2DEffPlot('L1eff_OR_PtTau','P_{T} #tau 1','P_{T} #tau 2')
+
+
 
 
 
@@ -285,7 +439,7 @@ Plots.saveToFile(fOut)
 
 
 
-c1.SaveAs('skim_stage2_jetstau/Et_bget_cuts.png')
+
 
 
 
