@@ -63,13 +63,21 @@ const float DYscale_MM[3] = {1.04318, 1.0684 , 1.06528 } ;
 // const float stitchWeights [5] = {11.55916, 0.316751, 0.341677, 0.362801, 0.267991} ; // weights DY stitch in njets, to be updated at each production (depend on n evts processed)
 
 // const float stitchWeights [5] = {2.01536E-08, 2.71202E-09, 2.92616E-09, 3.0373E-09, 2.38728E-09} ; // jet binned only, 27 giu 2016
+// const float stitchWeights [][5] = {
+//     {2.98077961089 , 0.0 , 0.0 , 0.0 , 0.0},
+//     {0.400849633946 , 0.313302746388 , 0.0 , 0.0 , 0.0},
+//     {0.434801486598 , 0.334010654578 , 0.102986214642 , 0.0 , 0.0},
+//     {0.449060210108 , 0.342010066467 , 0.101739957862 , 0.100837020714 , 0.0},
+//     {0.354615200387 , 0.285223034235 , 0.0977183487048 , 0.098552902997 , 0.0936281612454}
+// }; // jet binned and b binned, 8 jul 2016
+
 const float stitchWeights [][5] = {
-    {2.98077961089 , 0.0 , 0.0 , 0.0 , 0.0},
-    {0.400849633946 , 0.313302746388 , 0.0 , 0.0 , 0.0},
-    {0.434801486598 , 0.334010654578 , 0.102986214642 , 0.0 , 0.0},
-    {0.449060210108 , 0.342010066467 , 0.101739957862 , 0.100837020714 , 0.0},
-    {0.354615200387 , 0.285223034235 , 0.0977183487048 , 0.098552902997 , 0.0936281612454}
-}; // jet binned and b binned, 8 jul 2016
+    {2.97927051428 , 0.0 , 0.0 , 0.0 , 0.0},
+    {0.401700471936 , 0.313567146487 , 0.0 , 0.0 , 0.0},
+    {0.43376913912 , 0.33311444536 , 0.101563317164 , 0.0 , 0.0},
+    {0.44761355606 , 0.340870252304 , 0.10029914665 , 0.0994092045617 , 0.0},
+    {0.353436942964 , 0.284254291888 , 0.0963966329522 , 0.0972197079415 , 0.092337393936}
+};  // jet binned and b binned, 28 nov 2016
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // open input txt file and append all the files it contains to TChain
@@ -340,13 +348,13 @@ int main (int argc, char** argv)
     // read input file and cfg
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  if (argc < 15)
+  if (argc < 16)
   { 
       cerr << "missing input parameters : argc is: " << argc << endl ;
       cerr << "usage: " << argv[0]
            << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
            << " xsecScale(stitch) HTMax(stitch) isTTBar DY_Nbs HHreweightFile TT_stitchType"
-           << " runMT2 isHHsignal" << endl ; 
+           << " runMT2 isHHsignal NjetRequired(stitch)" << endl ; 
       return 1;
   }
 
@@ -421,6 +429,8 @@ int main (int argc, char** argv)
   if (opt15 == "1") isHHsignal = true;
   cout << "** INFO: is HH signal: " << isHHsignal << endl;
 
+  int NjetRequired = atoi(argv[15]);
+  cout << "** INFO: requiring exactly " << NjetRequired << " outgoing partons [<0 for no cut on this]" << endl;
 
   // prepare variables needed throughout the code
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----    
@@ -441,13 +451,18 @@ int main (int argc, char** argv)
   string leptonSelectionFlag = gConfigParser->readStringOption ("parameters::lepSelections") ;
   int maxNjetsSaved          = gConfigParser->readIntOption    ("parameters::maxNjetsSaved") ;
   
-  bool useSortStrategyHTT = false;
+  enum sortingStrategy {
+    kLLRFramDefault = 0, // taking order from LLR framework <--> ordered by MVA ID
+    kHTauTau = 1,        // using HTauTau of lowest iso on 1st candidate, including (A,B) and (B,A)
+    kPtAndRawIso = 2     // order each pair leg by pt (ptA > ptB), then compare *raw* iso of first leg
+  };
+
+  int sortStrategyThTh = 0;
   if (gConfigParser->isDefined("parameters::pairStrategy"))
   {
-    int pstrat = gConfigParser->readIntOption("parameters::pairStrategy");
-    if (pstrat == 1) useSortStrategyHTT = true;
+    sortStrategyThTh = gConfigParser->readIntOption("parameters::pairStrategy");
   }
-  cout << "** INFO: using HTauTau thth sorting strategy? " << useSortStrategyHTT << endl;
+  cout << "** INFO: thth sorting strategy? [0: kLLRFramDefault, 1: kHTauTau, 2: kPtAndRawIso]" << sortStrategyThTh << endl;
 
   ULong64_t debugEvent = -1; // will be converted to numerical max, and never reached
   if (gConfigParser->isDefined("parameters::debugEvent"))
@@ -711,13 +726,21 @@ int main (int argc, char** argv)
     }
 
     // remove a lumisection that was present in 16 Giu JSON and removed in 22 and subsequent JSON
-    if (!isMC && theBigTree.RunNumber == 274094 && theBigTree.lumi >= 105 && theBigTree.lumi <= 107) continue;
+    // 25 Nov 2016 : edit : removed line because of new reprocessing and json
+    // if (!isMC && theBigTree.RunNumber == 274094 && theBigTree.lumi >= 105 && theBigTree.lumi <= 107) continue;
 
     // directly reject events outside HT range in case of stitching of inclusive sample-- they should not count in weights
     if (HTMax > 0)
     {
        if (theBigTree.lheHt > HTMax) continue;
     }
+
+    // directly reject events I want to remove in W+Jets stitching on njets
+    if (NjetRequired >= 0)
+    {
+       if (theBigTree.lheNOutPartons != NjetRequired) continue;
+    }
+
     float stitchWeight = 1.0;
     if (DY_tostitch)
     {
@@ -1221,11 +1244,17 @@ int main (int argc, char** argv)
     // vector <pair<float, int>> chosenTauPairsIso;   // sum pt , index
     // vector <pair<float, int>> chosenTauPairsRlxIso;
 
-    if (pairType == 2 && useSortStrategyHTT)
+    if (pairType == 2 && sortStrategyThTh == kHTauTau)
     {
       chosenTauPair = oph.getBestPairHTauTau(&theBigTree, leptonSelectionFlag, (theBigTree.EventNumber == debugEvent ? true : false));
     }
 
+    else if (pairType == 2 && sortStrategyThTh == kPtAndRawIso)
+    {
+      chosenTauPair = oph.getBestPairPtAndRawIsoOrd(&theBigTree, leptonSelectionFlag, (theBigTree.EventNumber == debugEvent ? true : false));
+    }
+
+    // (mu tauh), (e tauh), (tauhtauh && kLLRFramDefault)
     else
     {
       for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
@@ -1323,8 +1352,13 @@ int main (int argc, char** argv)
     const int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
     const int pType = pairType ;
     const int isOS  = theBigTree.isOSCand->at (chosenTauPair) ;
-    bool lep1HasTES = (theBigTree.daughters_TauUpExists->at(firstDaughterIndex) == 1 ? true : false);
-    bool lep2HasTES = (theBigTree.daughters_TauUpExists->at(secondDaughterIndex) == 1 ? true : false);
+    bool lep1HasTES = false;
+    bool lep2HasTES = false;
+    if (isMC)
+    {
+      lep1HasTES = (theBigTree.daughters_TauUpExists->at(firstDaughterIndex) == 1 ? true : false);
+      lep2HasTES = (theBigTree.daughters_TauUpExists->at(secondDaughterIndex) == 1 ? true : false);
+    }
 
     // // x check of MC info from genJet()
     // some differences observed, and some cases of real taus also when taking fully had tt only
@@ -1516,8 +1550,8 @@ int main (int argc, char** argv)
     TLorentzVector tlv_tauH_SVFIT ;
 
     theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
-    theSmallTree.m_tauH_SVFIT_mass_up   = theBigTree.SVfitMassTauUp->at (chosenTauPair) ;
-    theSmallTree.m_tauH_SVFIT_mass_down = theBigTree.SVfitMassTauDown->at (chosenTauPair) ;
+    theSmallTree.m_tauH_SVFIT_mass_up   = (isMC ? theBigTree.SVfitMassTauUp->at (chosenTauPair) : theSmallTree.m_tauH_SVFIT_mass);
+    theSmallTree.m_tauH_SVFIT_mass_down = (isMC ? theBigTree.SVfitMassTauDown->at (chosenTauPair) : theSmallTree.m_tauH_SVFIT_mass);
     // in case the SVFIT mass is calculated
     if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
     {
@@ -1976,11 +2010,9 @@ int main (int argc, char** argv)
       float HHKmass = -999;
       float HHKChi2 = -999;
       // if (runHHKinFit && tlv_HH_raw.M() > 20 && tlv_HH_raw.M() < 200)
-      // if (runHHKinFit && pairType <= 2 && tlv_bH_raw.M() > 50 && tlv_bH_raw.M() < 200 && theBigTree.SVfitMass->at (chosenTauPair) > 50 && theBigTree.SVfitMass->at (chosenTauPair) < 200) // no kinfit for ee / mumu + very loose mass window
-      if (runHHKinFit && pairType <= 2) // FIXME: temporary
+      if (runHHKinFit && pairType <= 2 && tlv_bH_raw.M() > 50 && tlv_bH_raw.M() < 200 && theBigTree.SVfitMass->at (chosenTauPair) > 50 && theBigTree.SVfitMass->at (chosenTauPair) < 200) // no kinfit for ee / mumu + very loose mass window
+      // if (runHHKinFit && pairType <= 2) // FIXME: temporary
       {
-        cout << "remember to change me!!" << endl;
-
         HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet, tlv_secondBjet, 
                                                    tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
         HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet_raw, tlv_secondBjet_raw, 
