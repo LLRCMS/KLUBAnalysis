@@ -46,8 +46,8 @@
 
 using namespace std ;
 
-const double aTopRW = 0.156;
-const double bTopRW = -0.00137;
+const double aTopRW = 0.0615;
+const double bTopRW = -0.0005;
 const float DYscale_LL[3] = {1.0702, 0.715181,  0.885085} ; // computed from fit for LL and MM b tag
 const float DYscale_MM[3] = {1.04318, 1.0684 , 1.06528 } ;
 
