@@ -3,6 +3,8 @@
 #include "TTreeFormulaGroup.h"
 #include "TTreeFormula.h"
 #include <iomanip>
+#include <boost/variant.hpp>
+#include <unordered_map>
 
 using namespace std;
 
@@ -564,7 +566,7 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
     cout << "@@ Filling histograms of sample " << sample.getName() << endl;
 
     activateBranches(sample);
-/*
+
     TChain* tree = sample.getTree();
     long long int nEvts = sample.getEntries();
     
@@ -581,82 +583,38 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
     }
     tree->SetNotify(fg.get());
 
-    // setup address for variables to be filled and for weights
-    vector<int> floatVarsIdxs;
-    vector<int> intVarsIdxs;
-    vector <int> vType; // 0: int, 1: float
+    // prepare container for the variables and weights
+    // data structure used: a unordered_map (fast lookup) with
+    // map[name][variant]
+    // the value is a variant type that can contain float, double, int, bools...
+    // the name is the weight/variable name (same as used in setBranchAddress)
+    //
+    // NOTE: boost::variant also available in C++17, but no adequate compiler in CMSSW_7_4_7
+    // could be in principle changed to std::variant if a newer release is used
 
-    // vector<int> doubleVarsIdxs;
-    TObjArray *branchList = tree->GetListOfBranches();
+    typedef boost::variant<bool, int, float, double> varType;
+    unordered_map<string, varType> valuesMap;
+
+    // loop over all variables and weights to initialize the map
     for (unsigned int ivar = 0; ivar < variables_.size(); ++ivar)
     {
-        TBranch* br = (TBranch*) branchList->FindObject(variables_.at(ivar).c_str());
-        string brName = br->GetTitle();
-        if (brName.find(string("/F")) != string::npos) // F : a 32 bit floating point (Float_t)
-        {
-            floatVarsIdxs.push_back(ivar);
-            vType.push_back(1);
-        }
-        else if (brName.find(string("/I")) != string::npos) // I : a 32 bit signed integer (Int_t)
-        {
-            intVarsIdxs.push_back(ivar);
-            vType.push_back(0);
-        }
-        else
-        {
-            cerr << "** AnalysisHelper : error : could not detect the type of var " << variables_.at(ivar)
-            << " (title: " << br->GetTitle() << " , name: " << br->GetName() << " , className: " << br->GetClassName() << ")" << endl;
-            cerr << "   ... assuming float, but errors could happen" << endl;
-            floatVarsIdxs.push_back(ivar);
-            vType.push_back(1);
-        }
-    }
-*/
-/*
-    // create vectors and set branch addresses - as long as vectors are not resized addresses will stay constant
-    vector<float> floatVars(floatVarsIdxs.size());
-    vector<int>   intVars(intVarsIdxs.size());
-
-    for (uint iv = 0; iv < floatVarsIdxs.size(); ++iv)
-    {
-        string vname = variables_.at(floatVarsIdxs.at(iv));
-        tree->SetBranchAddress(vname.c_str(), &(floatVars.at(iv)));
+        valuesMap[variables_.at(ivar)] = float(0); // after will change to the proper type
     }
 
-    for (uint iv = 0; iv < intVarsIdxs.size(); ++iv)
-    {
-        string vname = variables_.at(intVarsIdxs.at(iv));
-        tree->SetBranchAddress(vname.c_str(), &(intVars.at(iv)));
-    }
-*/
-
-    /*
-    // create structure to retrieve weight value by setBranchAddres without resetting address at every event/selection
-    // this is done by creating a double structure:
-    // 1- vector of size N that will contain the weight value
-    // 2- map that remaps weight name to index in the vector
-    // NOTE: this requires all weights to be of the same type (float in this case)
-
-    vector<float> floatWeights;
-    unordered_map<string, int> weightMap;
-    int nweights = 0; // unique weights used for this sample
-    
-    // sample
+    // weoghts - sample
     for (uint iw = 0; iw < sample.getWeights().size(); ++iw)
     {
         const Weight& currW = sample.getWeights().at(iw);
         string wname = currW.getName();
-        if (weightMap.find(wname) == weightMap.end())
+        if (valuesMap.find(wname) == valuesMap.end())
         {
-            weightMap[wname] = nweights;
-            ++nweights;
+            valuesMap[wname] = float(0);
             for (int isys = 0; isys < currW.getNSysts(); ++isys)
             {
                 string sysName = currW.getSyst(isys);
-                if (weightMap.find(sysName) == weightMap.end())
+                if (valuesMap.find(sysName) == valuesMap.end())
                 {
-                    weightMap[sysName] = nweights;
-                    ++nweights;
+                    valuesMap[sysName] = float(0);
                 }
             }
         }
@@ -671,48 +629,67 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
         {
             const Weight& currW = currSel.getWeights().at(iw);
             string wname = currW.getName();
-            if (weightMap.find(wname) == weightMap.end())
+            if (valuesMap.find(wname) == valuesMap.end())
             {
-                weightMap[wname] = nweights;
-                ++nweights;
+                valuesMap[wname] = float(0);
                 for (int isys = 0; isys < currW.getNSysts(); ++isys)
                 {
                     string sysName = currW.getSyst(isys);
-                    if (weightMap.find(sysName) == weightMap.end())
+                    if (valuesMap.find(sysName) == valuesMap.end())
                     {
-                        weightMap[sysName] = nweights;
-                        ++nweights;
+                        valuesMap[sysName] = float(0);
                     }
                 }
             }
         }
     }
-    // finally, I have a structure containing all the weight names that I need -- let's set branchaddress
-    floatWeights.resize(nweights);
-    for (auto el : weightMap)
+
+    // decide types
+    TObjArray *branchList = tree->GetListOfBranches();
+    for (auto it = valuesMap.begin(); it != valuesMap.end(); ++it)
     {
-        tree->SetBranchAddress(el.first.c_str(), &(floatWeights.at(el.second)));
-    }
-    */
-    
-    /*
-    for (uint iw = 0; iw < sample.getWeights().size(); ++iw)
-    {
-        Weight& currW = sample.getWeights().at(iw);
-        tree->SetBranchAddress(currW.getName().c_str(), &currW.getRefToWeightValue());
-        for (int isys = 0; isys < currW.getNSysts(); ++isys)
+        TBranch* br = (TBranch*) branchList->FindObject(it->first.c_str());
+        string brName = br->GetTitle();
+
+        if (brName.find(string("/F")) != string::npos) // F : a 32 bit floating point (Float_t)
         {
-            string sysName = currW.getSyst(isys);
-            tree->SetBranchAddress(sysName.c_str(), &(currW.getSystsValues().at(isys)));
+            it->second = float(0.0);
+            tree->SetBranchAddress(it->first.c_str(), &boost::get<float>(it->second));
+        }
+        
+        else if (brName.find(string("/I")) != string::npos) // I : a 32 bit signed integer (Int_t)
+        {
+            it->second = int(0);
+            tree->SetBranchAddress(it->first.c_str(), &boost::get<int>(it->second));
+        }
+
+        else if (brName.find(string("/D")) != string::npos) // D : a 64 bit floating point (Double_t)
+        {
+            it->second = double(0.0);
+            tree->SetBranchAddress(it->first.c_str(), &boost::get<double>(it->second));
+        }
+        
+        else if (brName.find(string("/O")) != string::npos) // O : [the letter o, not a zero] a boolean (Bool_t)
+        {
+            it->second = bool(false);
+            tree->SetBranchAddress(it->first.c_str(), &boost::get<bool>(it->second));
+        }
+        
+        else
+        {
+            cerr << "** AnalysisHelper : error : could not detect the type of var " << it->first
+            << " (title: " << br->GetTitle() << " , name: " << br->GetName() << " , className: " << br->GetClassName() << ")" << endl;
+            cerr << "   ... assuming float, but errors could happen" << endl;
+            it->second = float(0.0);
+            tree->SetBranchAddress(it->first.c_str(), &boost::get<float>(it->second));
         }
     }
-    */
 
 
 
     //////////////////////////////////////
     ////////////////////// loop on entries
-/*
+
     Sample::selColl& plots = sample.plots();
     for (uint iEv = 0; true; ++iEv)
     {
@@ -726,7 +703,7 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
         // get the product of all the event weights -- sample
         for (uint iw = 0; iw < sample.getWeights().size(); ++iw)
         {
-            wEvSample *= sample.getWeights().at(iw).getWeightValue();
+            wEvSample *= boost::apply_visitor(variant_visitor(), valuesMap[sample.getWeights().at(iw).getName()]);
         }
 
         for (uint isel = 0; isel < selections_.size(); ++isel)
@@ -739,14 +716,13 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
             const Selection& currSel = selections_.at(isel);
             for (uint iw = 0; iw < currSel.getWeights().size(); ++iw)
             {   
-                wEvSel *= currSel.getWeights().at(iw).getWeightValue();
+                wEvSel *= boost::apply_visitor(variant_visitor(), valuesMap[currSel.getWeights().at(iw).getName()]);
             }
             
             // loop on all vars to fill
             for (uint ivar = 0; ivar < variables_.size(); ++ivar)
             {
-                plots.at(isel).at(ivar).at(0)->Fill(1, wEvSample*wEvSel);
-                
+                plots.at(isel).at(ivar).at(0)->Fill(boost::apply_visitor( variant_visitor(), valuesMap[variables_.at(ivar)]), wEvSample*wEvSel);
                 // now up/down syst -- FIXME : TO DO
                 // for 
                 // {
@@ -755,7 +731,6 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
             }
         }
     }
-*/
 }
 
 void AnalysisHelper::activateBranches(Sample& sample)

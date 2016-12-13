@@ -23,6 +23,8 @@
 #include <utility>
 #include <iostream>
 
+#include <boost/variant.hpp>
+
 #include "CfgParser.h"
 #include "Sample.h"
 #include "Weight.h"
@@ -90,5 +92,31 @@ class AnalysisHelper
         std::string nominal_name_;
         int verbosity_;
 };
+
+// used to access the variant that stores weights and variables
+// and to return always a double to be used for TH1.Fill
+class variant_visitor : public boost::static_visitor<double>
+{
+    public:
+        double operator()(int& x) const
+        {
+            return (double) x;
+        }
+
+        double operator()(float& x)  const
+        {
+            return (double) x;
+        }
+
+        double operator()(double& x) const
+        {
+            return x;
+        }
+
+        double operator()(bool& x) const
+        {
+            return (x ? 1.0 : 0.0);
+        }
+}; 
 
 #endif
