@@ -35,7 +35,7 @@ class Sample
 
         // standard ctor/dtor
         // Sample(std::string name, std::string treename="HTauTauTree");
-        Sample(std::string name, std::string filelistname, std::string treename="HTauTauTree", std::string histoname="h_eff");
+        Sample(std::string name, std::string filelistname, std::string treename="HTauTauTree", std::string histoname="h_eff", int binEffDen = 1);
         ~Sample();
         std::string getName() const {return name_;}
 
@@ -66,6 +66,7 @@ class Sample
         TChain* tree_;
         std::string name_;
         
+        int    bin_eff_den_;
         double eff_;
         double evt_num_;
         double evt_den_;

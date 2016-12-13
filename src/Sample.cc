@@ -15,7 +15,7 @@ using namespace std;
 //     nentries_ = 0.;
 // }
 
-Sample::Sample (string name, string filelistname, string treename, string histoname)
+Sample::Sample (string name, string filelistname, string treename, string histoname, int binEffDen)
 // Sample (name, treename)
 {
     name_ = name;
@@ -25,6 +25,7 @@ Sample::Sample (string name, string filelistname, string treename, string histon
     evt_num_ = 0.;
     evt_den_ = 0.;
     nentries_ = 0.;
+    bin_eff_den_ = binEffDen;
     openFileAndTree(treename, histoname);
     // getEfficiency(histoname);
 }
@@ -60,7 +61,7 @@ void Sample::openFileAndTree(string treename, string histoname)
             TFile* f = new TFile (line.c_str());
             TH1F* h = (TH1F*) f->Get(histoname.c_str());
             evt_num_  += h->GetBinContent (2) ;
-            evt_den_  += h->GetBinContent (1) ;
+            evt_den_  += h->GetBinContent (bin_eff_den_) ;
             nentries_ += h->GetBinContent (4) ; // NB! rounding errors could make this different from the actual entries in the tree --> better to use TH1D
             delete h;
             delete f;
