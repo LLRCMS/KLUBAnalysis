@@ -61,7 +61,7 @@ class AnalysisHelper
         void saveOutputsToFile();
 
         void setVerbosity (int v) {verbosity_ = v;}
-
+        void setSplitting (int idxsplit, int nsplit);
         void dump(int detail=0);
 
     private:
@@ -76,6 +76,9 @@ class AnalysisHelper
         std::unique_ptr<CfgParser> cutCfg_;
         std::unique_ptr<CfgParser> sampleCfg_;
         // FIXME: sytematics cfg?
+
+        int nsplit_;
+        int idxsplit_;
 
         float lumi_;
         std::string outputFolder_;

@@ -16,6 +16,9 @@ AnalysisHelper::AnalysisHelper(string cfgname)
 
     nominal_name_ = "NOMINAL"; // used for nominal systematics
 
+    nsplit_   = 1; // default: only 1 job
+    idxsplit_ = 0;
+
     cout << "@@ Parsing main config : " << cfgname << endl;
     mainCfg_ = unique_ptr<CfgParser>(new CfgParser(cfgname));
     bool success = readMainInfo();
@@ -61,7 +64,7 @@ void AnalysisHelper::saveOutputsToFile()
 {
     string outFile = outputFolder_ + "/" + outputFileName_ ;
     cout << "@@ Saving all plots to file : " << outFile << endl;
-    system (Form("mkdir %s", outputFolder_.c_str()));
+    system (Form("mkdir %s", outputFolder_.c_str())); // not checking if already exists, but return message is harmless
 
     system (Form("cp %s %s", (mainCfg_  ->getCfgName()).c_str() , outputFolder_.c_str()));
     system (Form("cp %s %s", (cutCfg_   ->getCfgName()).c_str() , outputFolder_.c_str()));
@@ -586,7 +589,6 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
     activateBranches(sample);
 
     TChain* tree = sample.getTree();
-    long long int nEvts = sample.getEntries();
     
     // setup selection group
     shared_ptr<TTreeFormulaGroup> fg = make_shared<TTreeFormulaGroup>(true);
@@ -734,10 +736,25 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
     //////////////////////////////////////
     ////////////////////// loop on entries
 
+    long long int nEvts  = sample.getEntries();
+    long long int nStep  = nEvts/nsplit_;
+    long long int nStart = nStep*idxsplit_;
+    long long int nStop  = nStart+nStep;
+
+    // to avoid for numerical errors (summing 1 to a TH1F can give rounding errors --> nEvts != chain.getEnries())
+    // if the splitted job is the last one, let it go until chain completion
+    // at the same time, it ensures that the remainder of the integer division is not skipped
+    
+    bool isLast = (idxsplit_ == nsplit_-1 ? true : false);
+    // the last jobs takes up all the remainder of division -- as long as nsplit is O(10-100) is not a big problem
+    // if (idxsplit_ == nsplit_-1)
+    //     nStop = nEvts;
+
     Sample::selColl& plots = sample.plots();
-    for (unsigned int iEv = 0; true; ++iEv)
+    for (long long iEv = nStart; true; ++iEv)
     {
         int got = tree->GetEntry(iEv);
+        if (!isLast && iEv >= nStop) break;
         if (got == 0) break; // end of the chain
         if (iEv % 500000 == 0) cout << "   ... reading " << iEv << " / " << nEvts << endl;
 
@@ -908,6 +925,28 @@ void AnalysisHelper::fillHistos()
     {             
         fillHistosSample(*(bkg_samples_.at(isample)));
     }
+}
+
+void AnalysisHelper::setSplitting (int idxsplit, int nsplit)
+{
+    if (idxsplit >= nsplit)
+    {
+        cout << "** Warning: AnalysisHelper::setSplitting : cannot have idx splitting : " << idxsplit << " if nsplit is " << nsplit << ", skipping..." << endl;
+        return;
+    }
+    nsplit_ = nsplit;
+    idxsplit_ = idxsplit;
+    
+    // replace output name with suffix
+    string appendix = ".root";
+    size_t start_pos = outputFileName_.find(appendix);
+    if(start_pos == std::string::npos)
+        outputFileName_ += std::to_string(idxsplit_);
+    else
+        outputFileName_.replace(start_pos, appendix.length(), (string("_")+std::to_string(idxsplit_)+appendix));
+
+    cout << "@@ split idx set to  : " << idxsplit_ <<  " of ntotal: " << nsplit_ << endl;       
+    cout << "@@ new output name   : " << outputFileName_ << endl;
 }
 
 // list all the information analysis helper knows
