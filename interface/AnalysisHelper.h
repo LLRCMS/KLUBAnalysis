@@ -55,14 +55,14 @@ class AnalysisHelper
 
         void fillHistos();
 
-        void printSelections(bool printWeights=false);
-        void printSamples(bool printWeights=false);
+        void printSelections(bool printWeights=false, bool printSysts=false);
+        void printSamples(bool printWeights=false, bool printSysts=false);
 
         void saveOutputsToFile();
 
         void setVerbosity (int v) {verbosity_ = v;}
 
-        void dump();
+        void dump(int detail=0);
 
     private:
         std::string formHistoName (std::string sample, std::string sel, std::string var, std::string syst);
@@ -95,7 +95,7 @@ class AnalysisHelper
 
 // used to access the variant that stores weights and variables
 // and to return always a double to be used for TH1.Fill
-class variant_visitor : public boost::static_visitor<double>
+class get_variant_as_double : public boost::static_visitor<double>
 {
     public:
         double operator()(int& x) const

@@ -157,7 +157,13 @@ shared_ptr<Sample> AnalysisHelper::openSample(string sampleName)
 
     string filename = sampleCfg_->readStringOpt(Form("samples::%s",sampleName.c_str()));
     shared_ptr<Sample> sample (new Sample(sampleName, filename + string("/goodfiles.txt")));
-    
+    if (sampleCfg_->hasOpt(Form("userEffBin::%s",sampleName.c_str())))
+    {
+        int ubin = sampleCfg_->readIntOpt(Form("userEffBin::%s",sampleName.c_str()));
+        sample->setEffBin(ubin);
+    }
+    sample->openFileAndTree();
+
     // for the moment stored in selection cfg -- could be stored in sample cfg instead
     // but I prefer to have all the weights at the same place
 
@@ -338,7 +344,7 @@ void AnalysisHelper::prepareSamplesHistos()
                                 std::shared_ptr<TH1F> histS;
                                 if (hasUserBinning) histS = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, binning);
                                 else                histS = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, xlow, xup);
-                                systcoll.append(hname, histS);
+                                systcoll.append(nominal_name_, histS);
                             }
                         }
 
@@ -352,7 +358,7 @@ void AnalysisHelper::prepareSamplesHistos()
                                 std::shared_ptr<TH1F> histS;
                                 if (hasUserBinning) histS = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, binning);
                                 else                histS = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, xlow, xup);
-                                systcoll.append(hname, histS);
+                                systcoll.append(currW.getSystName(isys), histS);
                             }
                         }
                     }
@@ -439,7 +445,7 @@ Selection AnalysisHelper::readSingleSelection (std::string name)
     return s;
 }
 
-void AnalysisHelper::printSelections(bool printWeights)
+void AnalysisHelper::printSelections(bool printWeights, bool printSysts)
 {
     cout << "@@ Selection list ------- " << endl;
     for (unsigned int i = 0; i < selections_.size(); ++i)
@@ -448,26 +454,29 @@ void AnalysisHelper::printSelections(bool printWeights)
         if (printWeights)
         {
             cout << "     ~~~> ";
-            for (uint iw = 0; iw < selections_.at(i).getWeights().size(); ++iw)
+            for (unsigned int iw = 0; iw < selections_.at(i).getWeights().size(); ++iw)
             {
                 cout << selections_.at(i).getWeights().at(iw).getName() << " ";
             }
             cout << endl;
         }
 
-        // // syst of weights
-        // for (int iw = 0; iw < selections_.at(i).getWeights().size(); ++iw)
-        // {
-        //     cout << selections_.at(i).getWeights().at(iw).getName() << " ::: ";
-        //     for (int isys = 0; isys < selections_.at(i).getWeights().at(iw).nSysts(); ++isys)
-        //         cout << selections_.at(i).getWeights().at(iw).getSystName(isys) <<"="<<selections_.at(i).getWeights().at(iw).getSyst(isys) << " , ";
-        //     cout << endl;
-        // }
+        if (printSysts)
+        {
+            // syst of weights
+            for (unsigned int iw = 0; iw < selections_.at(i).getWeights().size(); ++iw)
+            {
+                cout << selections_.at(i).getWeights().at(iw).getName() << " ::: ";
+                for (int isys = 0; isys < selections_.at(i).getWeights().at(iw).getNSysts(); ++isys)
+                    cout << selections_.at(i).getWeights().at(iw).getSystName(isys) <<"="<<selections_.at(i).getWeights().at(iw).getSyst(isys) << " , ";
+                cout << endl;
+            }
+        }
     }
     cout << "   ---------------------- " << endl;
 }
 
-void AnalysisHelper::printSamples(bool printWeights)
+void AnalysisHelper::printSamples(bool printWeights, bool printSysts)
 {
     cout << "@@ Samples list ------- " << endl;
     cout << "   Data:" << endl;
@@ -484,14 +493,17 @@ void AnalysisHelper::printSamples(bool printWeights)
             cout << endl;
         }
 
-        // // syst of weights
-        // for (int iw = 0; iw < selections_.at(i).getWeights().size(); ++iw)
-        // {
-        //     cout << selections_.at(i).getWeights().at(iw).getName() << " ::: ";
-        //     for (int isys = 0; isys < selections_.at(i).getWeights().at(iw).nSysts(); ++isys)
-        //         cout << selections_.at(i).getWeights().at(iw).getSystName(isys) <<"="<<selections_.at(i).getWeights().at(iw).getSyst(isys) << " , ";
-        //     cout << endl;
-        // }
+        if (printSysts)
+        {
+            // syst of weights
+            for (unsigned int iw = 0; iw < selections_.at(i).getWeights().size(); ++iw)
+            {
+                cout << selections_.at(i).getWeights().at(iw).getName() << " ::: ";
+                for (int isys = 0; isys < selections_.at(i).getWeights().at(iw).getNSysts(); ++isys)
+                    cout << selections_.at(i).getWeights().at(iw).getSystName(isys) <<"="<<selections_.at(i).getWeights().at(iw).getSyst(isys) << " , ";
+                cout << endl;
+            }
+        }
     }
 
     cout << "   Signal:" << endl;
@@ -508,14 +520,17 @@ void AnalysisHelper::printSamples(bool printWeights)
             cout << endl;
         }
 
-        // // syst of weights
-        // for (int iw = 0; iw < selections_.at(i).getWeights().size(); ++iw)
-        // {
-        //     cout << selections_.at(i).getWeights().at(iw).getName() << " ::: ";
-        //     for (int isys = 0; isys < selections_.at(i).getWeights().at(iw).nSysts(); ++isys)
-        //         cout << selections_.at(i).getWeights().at(iw).getSystName(isys) <<"="<<selections_.at(i).getWeights().at(iw).getSyst(isys) << " , ";
-        //     cout << endl;
-        // }
+        if (printSysts)
+        {
+            // syst of weights
+            for (unsigned int iw = 0; iw < selections_.at(i).getWeights().size(); ++iw)
+            {
+                cout << selections_.at(i).getWeights().at(iw).getName() << " ::: ";
+                for (int isys = 0; isys < selections_.at(i).getWeights().at(iw).getNSysts(); ++isys)
+                    cout << selections_.at(i).getWeights().at(iw).getSystName(isys) <<"="<<selections_.at(i).getWeights().at(iw).getSyst(isys) << " , ";
+                cout << endl;
+            }
+        }
     }
 
     cout << "   Background:" << endl;
@@ -532,14 +547,17 @@ void AnalysisHelper::printSamples(bool printWeights)
             cout << endl;
         }
 
-        // // syst of weights
-        // for (int iw = 0; iw < selections_.at(i).getWeights().size(); ++iw)
-        // {
-        //     cout << selections_.at(i).getWeights().at(iw).getName() << " ::: ";
-        //     for (int isys = 0; isys < selections_.at(i).getWeights().at(iw).nSysts(); ++isys)
-        //         cout << selections_.at(i).getWeights().at(iw).getSystName(isys) <<"="<<selections_.at(i).getWeights().at(iw).getSyst(isys) << " , ";
-        //     cout << endl;
-        // }
+        if (printSysts)
+        {
+            // syst of weights
+            for (unsigned int iw = 0; iw < selections_.at(i).getWeights().size(); ++iw)
+            {
+                cout << selections_.at(i).getWeights().at(iw).getName() << " ::: ";
+                for (int isys = 0; isys < selections_.at(i).getWeights().at(iw).getNSysts(); ++isys)
+                    cout << selections_.at(i).getWeights().at(iw).getSystName(isys) <<"="<<selections_.at(i).getWeights().at(iw).getSyst(isys) << " , ";
+                cout << endl;
+            }
+        }
     }
 
     cout << "   ---------------------- " << endl;
@@ -591,16 +609,29 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
     //
     // NOTE: boost::variant also available in C++17, but no adequate compiler in CMSSW_7_4_7
     // could be in principle changed to std::variant if a newer release is used
+    //
+    // A second structure systMap is used to remap the systematics names in the histos to the
+    // nominal and shifted weight names. Stored as systMap[systName as in histo] = <nominal_name in tree, syst_name in tree>
+    // when histos systs are applied, retrieve the two names using the key that is stored in the histogram name
 
     typedef boost::variant<bool, int, float, double> varType;
     unordered_map<string, varType> valuesMap;
+    unordered_map<string, pair<string, string>> systMap;
 
+    if (DEBUG) cout << " ..........DEBUG: AnalysisHelper : fillHistosSample : going to setup map for SetBranchAddress --- VARS" << endl;
     // loop over all variables and weights to initialize the map
     for (unsigned int ivar = 0; ivar < variables_.size(); ++ivar)
     {
-        valuesMap[variables_.at(ivar)] = float(0); // after will change to the proper type
+        if (valuesMap.find(variables_.at(ivar)) == valuesMap.end())
+        {
+            valuesMap[variables_.at(ivar)] = float(0); // after will change to the proper type
+            if (DEBUG) cout << " .......... >> DEBUG: AnalysisHelper : fillHistosSample : sample : " << sample.getName() << " , adding var " << variables_.at(ivar) << endl;
+        }
+        else
+            cout << "** Warning: AnalysisHelper::fillHistosSample : sample : " << sample.getName() << " , variable " << variables_.at(ivar) << " was already added to valuesMap, duplicated?" << endl;
     }
 
+    if (DEBUG) cout << " ..........DEBUG: AnalysisHelper : fillHistosSample : going to setup map for SetBranchAddress --- SAMPLE" << endl;
     // weoghts - sample
     for (uint iw = 0; iw < sample.getWeights().size(); ++iw)
     {
@@ -608,18 +639,27 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
         string wname = currW.getName();
         if (valuesMap.find(wname) == valuesMap.end())
         {
+            if (DEBUG) cout << " .......... >> DEBUG: AnalysisHelper : fillHistosSample : sample : " << sample.getName() << " , adding sample weight " << wname << endl;
             valuesMap[wname] = float(0);
             for (int isys = 0; isys < currW.getNSysts(); ++isys)
             {
                 string sysName = currW.getSyst(isys);
                 if (valuesMap.find(sysName) == valuesMap.end())
                 {
+                    if (DEBUG) cout << " .......... >> >> DEBUG: AnalysisHelper : fillHistosSample : sample : " << sample.getName() << " , adding syst weight " << sysName << endl;
+                    if (DEBUG) cout << " .......... >> >> DEBUG: AnalysisHelper : fillHistosSample : sample : " << sample.getName() << " , adding syst map    " << currW.getSystName(isys) << " = [" << wname << " , " << sysName << "]" << endl;
                     valuesMap[sysName] = float(0);
+                    systMap[currW.getSystName(isys)] = make_pair(wname, sysName);
                 }
+                else
+                    cout << "** Warning: AnalysisHelper::fillHistosSample : sample : " << sample.getName() << " , syst " << sysName << " from weight " << wname << " was already added to valuesMap, duplicated?" << endl;
             }
         }
+        else
+            cout << "** Warning: AnalysisHelper::fillHistosSample : sample : " << sample.getName() << " , weight " << wname << " was already added to valuesMap, duplicated?" << endl;
     }
 
+    if (DEBUG) cout << " ..........DEBUG: AnalysisHelper : fillHistosSample : going to setup map for SetBranchAddress --- SELECTIONS" << endl;
     // selection -- probably not the most efficient as many w are shared so will be chacked many times
     // but this function is called only a few times
     for (uint isel = 0; isel < selections_.size(); ++isel)
@@ -631,13 +671,17 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
             string wname = currW.getName();
             if (valuesMap.find(wname) == valuesMap.end())
             {
+                if (DEBUG) cout << " .......... >> DEBUG: AnalysisHelper : fillHistosSample : sample : " << sample.getName() << " : sel : " << currSel.getName() << " , adding selection weight " << wname << endl;
                 valuesMap[wname] = float(0);
                 for (int isys = 0; isys < currW.getNSysts(); ++isys)
                 {
                     string sysName = currW.getSyst(isys);
                     if (valuesMap.find(sysName) == valuesMap.end())
                     {
+                        if (DEBUG) cout << " .......... >> >> DEBUG: AnalysisHelper : fillHistosSample : sample : " << sample.getName() << " : sel : " << currSel.getName() << " , adding selection syst weight " << sysName << endl;
+                        if (DEBUG) cout << " .......... >> >> DEBUG: AnalysisHelper : fillHistosSample : sample : " << sample.getName() << " : sel : " << currSel.getName() << " , adding selection syst map    " << currW.getSystName(isys) << " = [" << wname << " , " << sysName << "]" << endl;
                         valuesMap[sysName] = float(0);
+                        systMap[currW.getSystName(isys)] = make_pair(wname, sysName);
                     }
                 }
             }
@@ -691,22 +735,20 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
     ////////////////////// loop on entries
 
     Sample::selColl& plots = sample.plots();
-    for (uint iEv = 0; true; ++iEv)
+    for (unsigned int iEv = 0; true; ++iEv)
     {
-
-
         int got = tree->GetEntry(iEv);
         if (got == 0) break; // end of the chain
         if (iEv % 500000 == 0) cout << "   ... reading " << iEv << " / " << nEvts << endl;
 
         double wEvSample = 1.0;
         // get the product of all the event weights -- sample
-        for (uint iw = 0; iw < sample.getWeights().size(); ++iw)
+        for (unsigned int iw = 0; iw < sample.getWeights().size(); ++iw)
         {
-            wEvSample *= boost::apply_visitor(variant_visitor(), valuesMap[sample.getWeights().at(iw).getName()]);
+            wEvSample *= boost::apply_visitor(get_variant_as_double(), valuesMap[sample.getWeights().at(iw).getName()]);
         }
 
-        for (uint isel = 0; isel < selections_.size(); ++isel)
+        for (unsigned int isel = 0; isel < selections_.size(); ++isel)
         {
 
             if (!(vTTF.at(isel)->EvalInstance())) continue;
@@ -714,23 +756,39 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
 
             double wEvSel = 1.0;
             const Selection& currSel = selections_.at(isel);
-            for (uint iw = 0; iw < currSel.getWeights().size(); ++iw)
+            for (unsigned int iw = 0; iw < currSel.getWeights().size(); ++iw)
             {   
-                wEvSel *= boost::apply_visitor(variant_visitor(), valuesMap[currSel.getWeights().at(iw).getName()]);
+                wEvSel *= boost::apply_visitor(get_variant_as_double(), valuesMap[currSel.getWeights().at(iw).getName()]);
             }
             
             // loop on all vars to fill
-            for (uint ivar = 0; ivar < variables_.size(); ++ivar)
+            for (unsigned int ivar = 0; ivar < variables_.size(); ++ivar)
             {
-                plots.at(isel).at(ivar).at(0)->Fill(boost::apply_visitor( variant_visitor(), valuesMap[variables_.at(ivar)]), wEvSample*wEvSel);
-                // now up/down syst -- FIXME : TO DO
-                // for 
-                // {
-
-                // }
+                double varvalue = boost::apply_visitor( get_variant_as_double(), valuesMap[variables_.at(ivar)]);
+                if (sample.getType() == Sample::kData)
+                    plots.at(isel).at(ivar).at(0)->Fill(varvalue);
+                else
+                    plots.at(isel).at(ivar).at(0)->Fill(varvalue, wEvSample*wEvSel);
+                
+                if (sample.getType() != Sample::kData)
+                {
+                    for (unsigned int isyst = 1; isyst < plots.at(isel).at(ivar).size(); ++isyst) // start from 1, as 0 is nominal case
+                    {
+                        auto names = systMap.at(plots.at(isel).at(ivar).key(isyst));
+                        double wnom   = boost::apply_visitor( get_variant_as_double(), valuesMap[names.first]);
+                        double wshift = boost::apply_visitor( get_variant_as_double(), valuesMap[names.second]);
+                        double wnew   = ( wshift == 0 && wnom == 0 ? 0.0 : wEvSample*wEvSel*wshift/wnom); // a protection from null weights. FIXME: should I redo all the multiplication to avoid this effect?
+                        plots.at(isel).at(ivar).at(isyst)->Fill(varvalue, wnew);                        
+                        // cout << " :::::: DDDDD ::::: " << wEvSample*wEvSel*wshift/wnom << " " << wnew << " " << wEvSample << " " << wEvSel << " " << wshift << " " << wnom << " " << names.first << " " << names.second << " " << sample.getName() << " " << iEv << endl;
+                    }
+                }
             }
         }
     }
+
+    // filling is finished, scale to the sample denominator evt sum to include acceptance
+    if (sample.getType() != Sample::kData)
+        sample.scaleAll(lumi_/sample.getEffDenom());
 }
 
 void AnalysisHelper::activateBranches(Sample& sample)
@@ -853,7 +911,7 @@ void AnalysisHelper::fillHistos()
 }
 
 // list all the information analysis helper knows
-void AnalysisHelper::dump()
+void AnalysisHelper::dump(int detail)
 {
     cout << " ========= dumping AnalysisHelper information =========" << endl;
     cout << endl;
@@ -882,8 +940,11 @@ void AnalysisHelper::dump()
     cout << "@ selection list: " << endl;
     for (uint is = 0; is < selections_.size(); ++is)
         cout << "  " << is << " >> " << setw(25) << left << selections_.at(is).getName() << setw(13) << " nweights: " << selections_.at(is).getWeights().size() << endl;
-    cout << "@ printing selections... " << endl;
-    printSelections(true);
+    if (detail >=1)
+    {
+        cout << "@ printing selections... " << endl;
+        printSelections((detail >= 2 ? true : false), (detail >= 3 ? true : false));
+    }
     cout << endl;
 
     cout << "@@@@@@@@ SAMPLES @@@@@@@@" << endl;
@@ -901,9 +962,11 @@ void AnalysisHelper::dump()
         cout << "  " << is << " >> " << setw(25) << left << bkg_samples_.at(is)->getName() << setw(13) << " nweights: " << bkg_samples_.at(is)->getWeights().size() << endl;
     }
     cout << endl;
-    cout << "@ printing details... " << endl;
-    printSamples(true);
-
+    if (detail >=1)
+    {
+        cout << "@ printing details... " << endl;
+        printSamples((detail >= 2 ? true : false), (detail >= 3 ? true : false));
+    }
 
     cout << " ================== end of printouts ==================" << endl;
 

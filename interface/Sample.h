@@ -39,15 +39,22 @@ class Sample
         ~Sample();
         std::string getName() const {return name_;}
 
-        void setType (sType sampleType) {sampleType_ = sampleType;}
+        void  setType (sType sampleType) {sampleType_ = sampleType;}
+        sType getType () {return sampleType_;}
 
         // file handling and preparation
-        void openFileAndTree(std::string treename="HTauTauTree", std::string histoname="h_eff");
+        void openFileAndTree();
         // void getEfficiency(std::string histoname="h_eff");
         long long int getEntries(){return nentries_;}
+        void setEffBin(int ibin){
+            std::cout << "  ---> INFO: setting eff. bin " << ibin << " for sample " << name_ << std::endl;
+            bin_eff_den_ = ibin;
+        }
+        double getEffDenom(){return evt_den_;}
 
         // plot handling
         selColl& plots (){return plots_;}
+        void scaleAll(double scale);
 
         // specific weights for a certain sample
         void setWeights (std::vector<Weight> weights) {weights_ = weights;}
@@ -63,6 +70,8 @@ class Sample
     private:
         // TFile* fIn_;
         std::string filelistname_;
+        std::string treename_;
+        std::string histoname_;
         TChain* tree_;
         std::string name_;
         

@@ -37,10 +37,10 @@ class Weight
         void  addSysts(std::vector<std::pair<std::string, std::string> > vSysts);
         bool  hasSysts() const {return (systs_.size() > 0);}
         int   getNSysts()   const {return systs_.size();}
-        std::string getName() const {return weight_;}
-        std::string getSyst (int idx) const {return systs_.at(idx);}
-        std::string getSyst (std::string name) const {return systs_.at(name);}
-        std::string getSystName (int idx) const {return systs_.key(idx);} 
+        std::string getName() const {return weight_;} // nominal weight as appears in TTree
+        std::string getSyst (int idx) const {return systs_.at(idx);} // return syst weight as appears in TTree
+        std::string getSyst (std::string name) const {return systs_.at(name);} // return syst weight as appears in TTree
+        std::string getSystName (int idx) const {return systs_.key(idx);} // return syst weight name as it is appended to the histograms
         // float& getRefToWeightValue() {return weightValue_;}
         // float getWeightValue() const {return weightValue_;}
         // std::vector<float>& getSystsValues() {return systsValues_;}

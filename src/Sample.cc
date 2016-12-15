@@ -21,13 +21,13 @@ Sample::Sample (string name, string filelistname, string treename, string histon
     name_ = name;
     tree_ = new TChain (treename.c_str());
     filelistname_ = filelistname;
-    eff_  = 0.;
-    evt_num_ = 0.;
-    evt_den_ = 0.;
-    nentries_ = 0.;
+    eff_         = 0.;
+    evt_num_     = 0.;
+    evt_den_     = 0.;
+    nentries_    = 0.;
     bin_eff_den_ = binEffDen;
-    openFileAndTree(treename, histoname);
-    // getEfficiency(histoname);
+    treename_    = treename;
+    histoname_   = histoname;
 }
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -38,7 +38,7 @@ Sample::~Sample ()
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-void Sample::openFileAndTree(string treename, string histoname)
+void Sample::openFileAndTree()
 {
     cout << "@ Opening sample: " << name_ << endl;
     cout << "  ---> " << filelistname_ << endl;
@@ -59,7 +59,7 @@ void Sample::openFileAndTree(string treename, string histoname)
             tree_->Add(line.c_str());
             
             TFile* f = new TFile (line.c_str());
-            TH1F* h = (TH1F*) f->Get(histoname.c_str());
+            TH1F* h = (TH1F*) f->Get(histoname_.c_str());
             evt_num_  += h->GetBinContent (2) ;
             evt_den_  += h->GetBinContent (bin_eff_den_) ;
             nentries_ += h->GetBinContent (4) ; // NB! rounding errors could make this different from the actual entries in the tree --> better to use TH1D
@@ -87,6 +87,24 @@ void Sample::openFileAndTree(string treename, string histoname)
     // tree_ = (TTree*) fIn_->Get(treename.c_str());
     // nentries_ = tree_->GetEntries();
     // cout << "  ---> success, tree contains " << nentries_ << " entries" << endl;
+}
+
+void Sample::scaleAll(double scale)
+{
+    for (uint isel = 0; isel < plots_.size(); ++isel)
+    {
+        // cout << "isel " << isel << "/" << plots_.size() << endl;
+        for (uint ivar = 0; ivar < plots_.at(isel).size(); ++ivar)
+        {
+            // cout << "ivar " << ivar << "/" << plots_.at(isel).size() << endl;
+            for (uint isyst = 0; isyst < plots_.at(isel).at(ivar).size(); ++isyst)
+            {
+                // cout << "isyst " << isyst << "/" << plots_.at(isel).at(ivar).size() << endl;
+                plots_.at(isel).at(ivar).at(isyst)->Scale(scale);
+                // cout << "DONE" << endl;
+            }
+        }
+    }
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
