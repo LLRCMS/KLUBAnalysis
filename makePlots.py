@@ -85,10 +85,12 @@ Plots.addPlot('Merged_EtResJets_norm',5,-1,1,'(L1jet E_{T}-offline bjets sumE_{T
 Plots.addPlot('dib_Dr',20,0,5,'#Delta R(bjet1,bjet2)','Events')
 Plots.addPlot('DeltaRminJets',30,0,2,'#Delta R(stage2jet,bjet)','Events')
 Plots.addPlot('DeltaRminTaus',30,0,2,'#Delta R(stage2#tau,#tau)','Events')
+Plots.addPlot('PtTau1',30,0,200,'P_{T} #tau1','Events')
+Plots.addPlot('PtTau2',30,0,200,'P_{T} #tau2','Events')
 Plots.add2Dplot('UnmergedEt_stage2jetVSbjet',50,0,300,50,0,300,'offline bjet E_{T}','L1jet E_{T}')
 Plots.add2Dplot('MergedEt_stage2jetVSbjet',50,0,300,50,0,300,'offline bjets sumE_{T}','L1jet E_{T}')
 #### 
-fIn   = TFile.Open('skim_stage2_jetstau/output.root')
+fIn   = TFile.Open('skim_stage2_TauTauPt20/output.root')
 tIn   = fIn.Get('HTauTauTree')
 nEvt  = tIn.GetEntries()
 
@@ -154,7 +156,9 @@ for ev in range(0, nEvt):
     Plots.getPlot('DeltaRminJets').Fill(DeltaRmin_stage2jet_bjet2)
     Plots.getPlot('DeltaRminTaus').Fill(DeltaRmin_stage2tau_tau1)
     Plots.getPlot('DeltaRminTaus').Fill(DeltaRmin_stage2tau_tau2)
-
+    if(isTau1): Plots.getPlot('PtTau1').Fill(PtTau1)
+    if(isTau1):Plots.getPlot('PtTau2').Fill(PtTau2)
+    
 Plots.normPlot('Unmerged_EtResJets_norm')
 Plots.normPlot('Merged_EtResJets_norm')
 
@@ -168,7 +172,7 @@ fIn.Close()
 
 
 
-fOut = TFile ("skim_stage2_jetstau/Plots.root", "recreate")
+fOut = TFile ("skim_stage2_TauTauPt20/Plots.root", "recreate")
 Plots.saveToFile(fOut)
 Plots.set_palette('normal')
-c1.SaveAs('skim_stage2_jetstau/UnmergedEt_stage2jetVSbjet.png')
+

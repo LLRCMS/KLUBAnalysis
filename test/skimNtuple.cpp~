@@ -123,7 +123,7 @@ TH1F* getFirstFileHisto (TString filename, bool isForTriggers=true)
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 class stage2objClass{
 public:
-  stage2objClass(float Et, float Eta, float Phi, int Iso){Et_=Et; Eta_ = Eta;Phi_ = Phi;Iso_ = Iso;};
+  stage2objClass(float Et, float Eta, float Phi){Et_=Et; Eta_ = Eta;Phi_ = Phi;};
   float Et() const{
     return Et_;
   }
@@ -132,9 +132,6 @@ public:
   }
   float Eta() const {
     return Eta_;
-  }
- int Iso() const {
-    return Iso_;
   }
   
   class stage2DeltaR{
@@ -165,7 +162,7 @@ public:
   }
   friend std::ostream& operator << (std::ostream &out, const stage2objClass &stage2objClass);
 private:
-  float Et_, Eta_, Phi_,Iso_;
+  float Et_, Eta_, Phi_;
 };
 
 
@@ -1806,7 +1803,7 @@ float tausBoosted = 0.;
 	cout << "***** DEBUG: nleps="<< theSmallTree.m_nleps<< endl;
       }
     // ----------------------------------------------------------
-    // Select jets 
+    // Select taus 
     vector <pair <float, int> > jets_and_sortPar ;
     // loop over jets
     for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
@@ -1915,7 +1912,7 @@ float tausBoosted = 0.;
       std::vector<stage2objClass> stage2jet;
       //fill the vector
       for(int iJet = 0; iJet<theBigTree.stage2_jetN; iJet++){
-	stage2jet.push_back(stage2objClass(theBigTree.stage2_jetEt->at(iJet),theBigTree.stage2_jetEta->at(iJet),theBigTree.stage2_jetPhi->at(iJet),0));
+	stage2jet.push_back(stage2objClass(theBigTree.stage2_jetEt->at(iJet),theBigTree.stage2_jetEta->at(iJet),theBigTree.stage2_jetPhi->at(iJet)));
       }
           //1st sorting
       TLorentzVector tlv_stage2jet1;                                                                                                                                              
@@ -2011,11 +2008,9 @@ float tausBoosted = 0.;
       //the first 2 are ordered by deltaR with the bjets, the others are ordered by Et
       
       std::vector<stage2objClass> stage2tau;
-
- //fill the vector
+      //fill the vector
       for(int iTau = 0; iTau<theBigTree.stage2_tauN; iTau++){
-	stage2tau.push_back(stage2objClass(theBigTree.stage2_tauEt->at(iTau),theBigTree.stage2_tauEta->at(iTau),theBigTree.stage2_tauPhi->at(iTau),theBigTree.stage2_tauIso->at(iTau)));
-
+	stage2tau.push_back(stage2objClass(theBigTree.stage2_tauEt->at(iTau),theBigTree.stage2_tauEta->at(iTau),theBigTree.stage2_tauPhi->at(iTau)));
       }
 
       //1st sorting
@@ -2029,19 +2024,17 @@ float tausBoosted = 0.;
 	
 
 	tlv_stage2tau1.SetPtEtaPhiM(                                                                                       
-				  stage2tau[0].Et(),                                        						      
-				  stage2tau[0].Eta(),                                                                     
-				  stage2tau[0].Phi(),                                                                                      
-       				  massStage2);
+				  stage2tau[0].Et(),                                        											    
+				  stage2tau[0].Eta(),                                                                                                                                    
+				  stage2tau[0].Phi(),                                                                                                                                    
+				  massStage2);
 	
 	theSmallTree.m_stage2_tau1Et = stage2tau[0].Et();
 	theSmallTree.m_stage2_tau1Eta = stage2tau[0].Eta();
 	theSmallTree.m_stage2_tau1Phi = stage2tau[0].Phi();
-	theSmallTree.m_stage2_tau1Iso  = stage2tau[0].Iso();
-      
 	stage2tau.erase(stage2tau.begin());
       } 
-      
+
     //2nd sorting    
       TLorentzVector tlv_stage2tau2;                                                                                                                                                      
     if(stage2tau.size()>0){
@@ -2049,7 +2042,10 @@ float tausBoosted = 0.;
       std::sort(stage2tau.begin(),stage2tau.end(),myDeltaRtau2);
 
     //storing 2nd tau
-          tlv_stage2tau2.SetPtEtaPhiM(                                                                                       
+    
+    
+
+      tlv_stage2tau2.SetPtEtaPhiM(                                                                                       
 				  stage2tau[0].Et(),                                        											    
 				  stage2tau[0].Eta(),                                                                                                                                    
 				  stage2tau[0].Phi(),                                                                                                                                    
@@ -2058,7 +2054,6 @@ float tausBoosted = 0.;
       theSmallTree.m_stage2_tau2Et = stage2tau[0].Et();
       theSmallTree.m_stage2_tau2Eta = stage2tau[0].Eta();
       theSmallTree.m_stage2_tau2Phi = stage2tau[0].Phi();
-      	theSmallTree.m_stage2_tau2Iso  = stage2tau[0].Iso();
       stage2tau.erase(stage2tau.begin());
   }
     
@@ -2071,16 +2066,12 @@ float tausBoosted = 0.;
       theSmallTree.m_stage2_tau3Et = stage2tau[0].Et();
       theSmallTree.m_stage2_tau3Eta = stage2tau[0].Eta();
       theSmallTree.m_stage2_tau3Phi = stage2tau[0].Phi(); 
-      theSmallTree.m_stage2_tau3Iso = stage2tau[0].Iso(); 
-
     }
     
     if (stage2tau.size() > 1){ 
       theSmallTree.m_stage2_tau4Et = stage2tau[1].Et();
       theSmallTree.m_stage2_tau4Eta = stage2tau[1].Eta();
       theSmallTree.m_stage2_tau4Phi = stage2tau[1].Phi(); 
-      theSmallTree.m_stage2_tau4Iso = stage2tau[1].Iso(); 
-
     }
     
     if(tlv_stage2tau1.DeltaR(tlv_secondLepton)<tlv_stage2tau2.DeltaR(tlv_secondLepton)){
@@ -2088,7 +2079,6 @@ float tausBoosted = 0.;
       theSmallTree.m_Lepton2matchesStage2tau1 =1; 
     }
     
-
     vector <float> DeltaRStage2Tau_firstLepton;
     DeltaRStage2Tau_firstLepton.push_back (tlv_stage2tau1.DeltaR(tlv_firstLepton));
     DeltaRStage2Tau_firstLepton.push_back (tlv_stage2tau2.DeltaR(tlv_firstLepton));
@@ -2097,10 +2087,13 @@ float tausBoosted = 0.;
     DeltaRStage2Tau_secondLepton.push_back (tlv_stage2tau1.DeltaR(tlv_secondLepton));
     DeltaRStage2Tau_secondLepton.push_back (tlv_stage2tau2.DeltaR(tlv_secondLepton));
     
+
+
+
     theSmallTree.m_DeltaRmin_stage2tau_tau1 = *std::min_element(DeltaRStage2Tau_firstLepton.begin(), DeltaRStage2Tau_firstLepton.end());
     theSmallTree.m_DeltaRmin_stage2tau_tau2 = *std::min_element(DeltaRStage2Tau_secondLepton.begin(), DeltaRStage2Tau_secondLepton.end());
     
-   
+    
     
     
     TLorentzVector tlv_firstBjet_raw = tlv_firstBjet;
