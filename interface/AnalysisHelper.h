@@ -46,8 +46,7 @@ class AnalysisHelper
         bool readMainInfo(); // all analysis info read here
 
         std::shared_ptr<Sample> openSample(std::string sampleName);
-        void prepareSamplesHistos();
-        // void prepareHistos();
+        void prepareHistos();
         
         void readSamples(); // inits the samles
         void readSelections();
@@ -66,10 +65,15 @@ class AnalysisHelper
 
     private:
         std::string formHistoName (std::string sample, std::string sel, std::string var, std::string syst);
+        std::string formHisto2DName (std::string sample, std::string sel, std::string var1, std::string var2, std::string syst);
         Selection readSingleSelection (std::string name);
         std::vector<std::pair<std::string, std::string> > readWeightSysts(std::string name, std::string section); // read w list of section::name
         void fillHistosSample(Sample& sample);
         void activateBranches(Sample& sample);
+        std::pair<std::string, std::string> unpack2DName(std::string packedName);
+        std::string pack2DName (std::string name1, std::string name2);
+        void prepareSamplesHistos();
+        void prepareSamples2DHistos();
         // std::vector<const Weight*> getWeightsWithSyst (const Selection& sel, const Sample& sample); // pointers to all weights that have at least one syst defined
 
         std::unique_ptr<CfgParser> mainCfg_;
@@ -87,6 +91,7 @@ class AnalysisHelper
         // ordered_map<std::string, TCut> selections_;
         std::vector<Selection> selections_;
         std::vector<std::string> variables_;
+        std::vector<std::pair<std::string, std::string>> variables2D_;
         
         ordered_map <std::string, std::shared_ptr<Sample>> data_samples_;
         ordered_map <std::string, std::shared_ptr<Sample>> sig_samples_;

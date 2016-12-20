@@ -29,7 +29,9 @@ int main(int argc, char** argv)
     ah.readSelections();
     ah.readVariables();
     ah.readSamples();
-    ah.prepareSamplesHistos();
+    // ah.prepareSamplesHistos();
+    // ah.prepareSamples2DHistos();
+    ah.prepareHistos();
     ah.dump(2); // can set a level of detail
     ah.fillHistos();
     // ah.

@@ -18,6 +18,7 @@
 #include "TTree.h"
 #include "TChain.h"
 #include "TH1F.h"
+#include "TH2F.h"
 
 class Sample
 {
@@ -26,6 +27,11 @@ class Sample
         typedef ordered_map<std::string, std::shared_ptr<TH1F> >  systColl;  // histograms stored - map is for systematics
         typedef ordered_map<std::string, systColl>                varColl;   // variables plotted
         typedef ordered_map<std::string, varColl>                 selColl;   // all selections
+
+        // note: for 2D histos, a 2D plot is still associated to a "single" variable, eg, if I want to plot A vs B, var2D = A:B (as in TTree)
+        typedef ordered_map<std::string, std::shared_ptr<TH2F> >  systColl2D;  // histograms stored - map is for systematics
+        typedef ordered_map<std::string, systColl2D>              varColl2D;   // variables plotted
+        typedef ordered_map<std::string, varColl2D>               selColl2D;   // all selections
 
         enum sType {
             kData = 0,
@@ -54,6 +60,7 @@ class Sample
 
         // plot handling
         selColl& plots (){return plots_;}
+        selColl2D& plots2D (){return plots2D_;}
         void scaleAll(double scale);
 
         // specific weights for a certain sample
@@ -83,6 +90,7 @@ class Sample
 
         long long int nentries_;
         selColl plots_;
+        selColl2D plots2D_;
 
         std::vector<Weight> weights_;
 };

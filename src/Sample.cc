@@ -91,6 +91,7 @@ void Sample::openFileAndTree()
 
 void Sample::scaleAll(double scale)
 {
+    // 1D
     for (uint isel = 0; isel < plots_.size(); ++isel)
     {
         // cout << "isel " << isel << "/" << plots_.size() << endl;
@@ -101,6 +102,22 @@ void Sample::scaleAll(double scale)
             {
                 // cout << "isyst " << isyst << "/" << plots_.at(isel).at(ivar).size() << endl;
                 plots_.at(isel).at(ivar).at(isyst)->Scale(scale);
+                // cout << "DONE" << endl;
+            }
+        }
+    }
+
+    // 2D
+    for (uint isel = 0; isel < plots2D_.size(); ++isel)
+    {
+        // cout << "isel " << isel << "/" << plots_.size() << endl;
+        for (uint ivar = 0; ivar < plots2D_.at(isel).size(); ++ivar)
+        {
+            // cout << "ivar " << ivar << "/" << plots_.at(isel).size() << endl;
+            for (uint isyst = 0; isyst < plots2D_.at(isel).at(ivar).size(); ++isyst)
+            {
+                // cout << "isyst " << isyst << "/" << plots_.at(isel).at(ivar).size() << endl;
+                plots2D_.at(isel).at(ivar).at(isyst)->Scale(scale);
                 // cout << "DONE" << endl;
             }
         }

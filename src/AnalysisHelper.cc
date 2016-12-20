@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <boost/variant.hpp>
 #include <unordered_map>
+#include <sstream>
 
 using namespace std;
 
@@ -86,6 +87,30 @@ void AnalysisHelper::saveOutputsToFile()
         {
             // cout << "isample " << isample << "/" << allToSave.at(itype)->size() << endl;
             Sample::selColl& plotSet = allToSave.at(itype)->at(isample)->plots();
+            for (uint isel = 0; isel < plotSet.size(); ++isel)
+            {
+                // cout << "isel " << isel << "/" << plotSet.size() << endl;
+                for (uint ivar = 0; ivar < plotSet.at(isel).size(); ++ivar)
+                {
+                    // cout << "ivar " << ivar << "/" << plotSet.at(isel).size() << endl;
+                    for (uint isyst = 0; isyst < plotSet.at(isel).at(ivar).size(); ++isyst)
+                    {
+                        // cout << "isyst " << isyst << "/" << plotSet.at(isel).at(ivar).size() << endl;
+                        plotSet.at(isel).at(ivar).at(isyst)->Write();
+                        // cout << "DONE" << endl;
+                    }
+                }
+            }
+        }
+    }
+
+    for (uint itype = 0; itype < allToSave.size(); ++itype)        
+    {
+        // cout << "itype " << itype << "/" << allToSave.size() << endl;
+        for (uint isample = 0; isample < allToSave.at(itype)->size(); ++isample)
+        {
+            // cout << "isample " << isample << "/" << allToSave.at(itype)->size() << endl;
+            Sample::selColl2D& plotSet = allToSave.at(itype)->at(isample)->plots2D();
             for (uint isel = 0; isel < plotSet.size(); ++isel)
             {
                 // cout << "isel " << isel << "/" << plotSet.size() << endl;
@@ -238,11 +263,26 @@ void AnalysisHelper::readSelections()
 
 void AnalysisHelper::readVariables()
 {
-    variables_ = mainCfg_->readStringListOpt("general::variables");
+    if (mainCfg_->hasOpt("general::variables"))
+    {
+        variables_ = mainCfg_->readStringListOpt("general::variables");
+    }
+
+    if (mainCfg_->hasOpt("general::variables2D"))
+    {
+        std::vector<string> variables2DPacked = mainCfg_->readStringListOpt("general::variables2D");
+        for (string spack : variables2DPacked)
+            variables2D_.push_back(unpack2DName(spack));
+    }
 
     cout << "@@ Variables : reading variables : ";       
     for (string var : variables_)
         cout << " " << var;
+    cout << endl;
+
+    cout << "@@ Variables : reading 2D variables : ";       
+    for (auto var : variables2D_)
+        cout << " " << var.first << ":" << var.second;
     cout << endl;
 
     return;
@@ -332,8 +372,6 @@ void AnalysisHelper::prepareSamplesHistos()
                     else                hist = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, xlow, xup);
                     systcoll.append(hname, hist);
 
-                    if (hasUserBinning) delete[] binning ; // was allocated with new
-
                     // now loop over available syst and create more histos
                     if (doselW.at(ismpc) == 1)
                     {
@@ -366,6 +404,8 @@ void AnalysisHelper::prepareSamplesHistos()
                         }
                     }
 
+                    if (hasUserBinning) delete[] binning ; // was allocated with new
+
                     // set Sumw2() and other stuff for all the histos
                     for (uint ih = 0; ih < systcoll.size(); ++ih)
                     {
@@ -375,11 +415,176 @@ void AnalysisHelper::prepareSamplesHistos()
                             systcoll.at(ih)->SetBinErrorOption(TH1::kPoisson);   
                     }
 
-                } // end loop on variables
+                } // end loop on 1D variables
             } // end loop on selections
         } // end loop on samples
     } // end loop on (data, sig, bkg)
 }
+
+
+void AnalysisHelper::prepareSamples2DHistos()
+{
+    // to loop all in once
+    vector <sampleColl*> allToInit;
+    allToInit.push_back(&data_samples_); 
+    allToInit.push_back(&sig_samples_); 
+    allToInit.push_back(&bkg_samples_); 
+
+    vector<int> doselW;
+    doselW.push_back(0); // no sel W for data!
+    doselW.push_back(1);
+    doselW.push_back(1);
+
+    for (uint ismpc = 0; ismpc < allToInit.size(); ++ismpc) // loop on (data, sig, bkg)
+    {
+        sampleColl* samcoll = allToInit.at(ismpc);
+        for (uint isample = 0; isample < samcoll->size(); ++isample) // loop on samples
+        {             
+            Sample::selColl2D& selcoll = samcoll->at(isample)->plots2D();
+            for (uint isel = 0; isel < selections_.size(); ++isel)
+            {
+                selcoll.append(selections_.at(isel).getName(), Sample::varColl2D());
+                Sample::varColl2D& varcoll = selcoll.back();
+                for (uint ivar = 0; ivar < variables2D_.size(); ++ivar)
+                {
+                    auto pairName = variables2D_.at(ivar);
+                    string varName1 = pairName.first;
+                    string varName2 = pairName.second;
+                    string packedVarName = pack2DName(varName1, varName2);
+
+                    varcoll.append(packedVarName, Sample::systColl2D());
+                    Sample::systColl2D& systcoll = varcoll.back();
+
+                    bool hasUserBinning1 = cutCfg_->hasOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName1.c_str()));
+                    bool hasUserBinning2 = cutCfg_->hasOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName2.c_str()));
+
+                    vector<float> binning;
+                    if (!hasUserBinning1 || !hasUserBinning2) // at least one must have been specified
+                      binning = cutCfg_->readFloatListOpt(Form("histos2D::%s", packedVarName.c_str()));
+
+                    int    nbins1   = -1;
+                    float  xlow1    = -1.;
+                    float  xup1     = -1.;
+                    double* binning1 = 0;
+
+                    int    nbins2   = -1;
+                    float  xlow2    = -1.;
+                    float  xup2     = -1.;
+                    double* binning2 = 0;
+
+                    if (hasUserBinning1)
+                    {
+                        vector<float> vBins = cutCfg_->readFloatListOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName1.c_str()));
+                        nbins1 = vBins.size() -1;
+                        
+                        if (nbins1 < 1) // wrong
+                        {
+                            cerr << "** AnalysisHelper : prepareSamples2DHistos : error : binning of " << packedVarName << "@" << varName1 << " must have at least 2 numbers, dummy one used" << endl;                        
+                            vBins.clear();
+                            vBins.push_back(0.);
+                            vBins.push_back(1.);
+                            nbins1 = 1;
+                        }
+                        
+                        binning1 = new double[nbins1+1] ;
+                        for (uint ibin = 0; ibin < vBins.size(); ++ibin) binning1[ibin] = vBins.at(ibin);
+                    }
+                    else
+                    {
+                        nbins1 =  (int) (binning.at(0) + 0.5); // just to avoid numerical errors
+                        xlow1  =  binning.at(1);
+                        xup1   =  binning.at(2);
+                    }
+
+                    if (hasUserBinning2)
+                    {
+                        vector<float> vBins = cutCfg_->readFloatListOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName2.c_str()));
+                        nbins2 = vBins.size() -1;
+                        
+                        if (nbins2 < 1) // wrong
+                        {
+                            cerr << "** AnalysisHelper : prepareSamples2DHistos : error : binning of " << packedVarName << "@" << varName2 << " must have at least 2 numbers, dummy one used" << endl;                        
+                            vBins.clear();
+                            vBins.push_back(0.);
+                            vBins.push_back(1.);
+                            nbins2 = 1;
+                        }
+                        
+                        binning2 = new double[nbins2+1] ;
+                        for (uint ibin = 0; ibin < vBins.size(); ++ibin) binning2[ibin] = vBins.at(ibin);
+                    }
+                    else
+                    {
+                        nbins2 =  (int) (binning.at(3) + 0.5); // just to avoid numerical errors
+                        xlow2  =  binning.at(4);
+                        xup2   =  binning.at(5);
+                    }
+
+                    // prepare histos -- first one is always the nominal one
+                    const Sample& currSample = *(samcoll->at(isample));
+                    const Selection& currSel = selections_.at(isel);
+                    string sampleName = currSample.getName();
+                    string selName    = currSel.getName();
+
+                    string hname = formHisto2DName (sampleName, selName, varName1, varName2, nominal_name_);
+                    std::shared_ptr<TH2F> hist;
+                    if (hasUserBinning1 && hasUserBinning2)        hist = make_shared<TH2F> (hname.c_str(), hname.c_str(), nbins1, binning1, nbins2, binning2);
+                    else if (hasUserBinning1 && !hasUserBinning2)  hist = make_shared<TH2F> (hname.c_str(), hname.c_str(), nbins1, binning1, nbins2, xlow2, xup2);
+                    else if (!hasUserBinning1 && hasUserBinning2)  hist = make_shared<TH2F> (hname.c_str(), hname.c_str(), nbins1, xlow1, xup1, nbins2, binning2);
+                    else                                           hist = make_shared<TH2F> (hname.c_str(), hname.c_str(), nbins1, xlow1, xup1, nbins2, xlow2, xup2);
+                    systcoll.append(hname, hist);
+
+                    /*
+                    // now loop over available syst and create more histos
+                    if (doselW.at(ismpc) == 1)
+                    {
+                        // sample
+                        for (uint iw = 0; iw < currSample.getWeights().size(); ++iw)
+                        {
+                            const Weight& currW = currSample.getWeights().at(iw);
+                            for (int isys = 0; isys < currW.getNSysts(); ++isys)
+                            {
+                                hname = formHistoName (sampleName, selName, varName, currW.getSystName(isys));
+                                std::shared_ptr<TH1F> histS;
+                                if (hasUserBinning) histS = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, binning);
+                                else                histS = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, xlow, xup);
+                                systcoll.append(nominal_name_, histS);
+                            }
+                        }
+
+                        // selection
+                        for (uint iw = 0; iw < currSel.getWeights().size(); ++iw)
+                        {
+                            const Weight& currW = currSel.getWeights().at(iw);
+                            for (int isys = 0; isys < currW.getNSysts(); ++isys)
+                            {
+                                hname = formHistoName (sampleName, selName, varName, currW.getSystName(isys));
+                                std::shared_ptr<TH1F> histS;
+                                if (hasUserBinning) histS = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, binning);
+                                else                histS = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, xlow, xup);
+                                systcoll.append(currW.getSystName(isys), histS);
+                            }
+                        }
+                    }
+                */
+                    if (hasUserBinning1) delete[] binning1 ; // was allocated with new
+                    if (hasUserBinning2) delete[] binning2 ; // was allocated with new
+
+                    // set Sumw2() and other stuff for all the histos
+                    for (uint ih = 0; ih < systcoll.size(); ++ih)
+                    {
+                        if (doselW.at(ismpc) != 1) // is data
+                            systcoll.at(ih)->Sumw2();
+                        else
+                            systcoll.at(ih)->SetBinErrorOption(TH1::kPoisson);   
+                    }
+
+                } // end loop on 1D variables
+            } // end loop on selections
+        } // end loop on samples
+    } // end loop on (data, sig, bkg)
+}
+
 
 vector<pair<string, string> > AnalysisHelper::readWeightSysts(std::string name, std::string section)
 {
@@ -582,6 +787,23 @@ string AnalysisHelper::formHistoName (string sample, string sel, string var, str
     return name;
 }
 
+string AnalysisHelper::formHisto2DName (string sample, string sel, string var1, string var2, string syst)
+{
+    string name = "";
+    name += sample;
+    name += "_";
+    name += sel;
+    name += "_";
+    name += var1;
+    name += "_";
+    name += var2;
+    if (syst != nominal_name_)
+    {
+        name += "_";
+        name += syst;
+    }
+    return name;
+}
 void AnalysisHelper::fillHistosSample(Sample& sample)
 {
     cout << "@@ Filling histograms of sample " << sample.getName() << endl;
@@ -631,6 +853,23 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
         }
         else
             cout << "** Warning: AnalysisHelper::fillHistosSample : sample : " << sample.getName() << " , variable " << variables_.at(ivar) << " was already added to valuesMap, duplicated?" << endl;
+    }
+
+    if (DEBUG) cout << " ..........DEBUG: AnalysisHelper : fillHistosSample : going to setup map for SetBranchAddress --- VARS 2D" << endl;
+    for (unsigned int ivar = 0; ivar < variables2D_.size(); ++ivar)
+    {
+        string var1 = variables2D_.at(ivar).first;
+        string var2 = variables2D_.at(ivar).second;
+        if (valuesMap.find(var1) == valuesMap.end())
+        {
+            valuesMap[var1] = float(0); // after will change to the proper type
+            if (DEBUG) cout << " .......... >> DEBUG: AnalysisHelper : fillHistosSample : sample : " << sample.getName() << " , adding var 2D " << var1 << endl;
+        }
+        if (valuesMap.find(var2) == valuesMap.end())
+        {
+            valuesMap[var2] = float(0); // after will change to the proper type
+            if (DEBUG) cout << " .......... >> DEBUG: AnalysisHelper : fillHistosSample : sample : " << sample.getName() << " , adding var 2D " << var2 << endl;
+        }
     }
 
     if (DEBUG) cout << " ..........DEBUG: AnalysisHelper : fillHistosSample : going to setup map for SetBranchAddress --- SAMPLE" << endl;
@@ -690,19 +929,22 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
         }
     }
 
+    if (DEBUG) cout << " ..........DEBUG: AnalysisHelper : fillHistosSample : valueMap created, going to assess branch types... " << endl;
+
     // decide types
     TObjArray *branchList = tree->GetListOfBranches();
     for (auto it = valuesMap.begin(); it != valuesMap.end(); ++it)
     {
         TBranch* br = (TBranch*) branchList->FindObject(it->first.c_str());
-        string brName = br->GetTitle();
+        if (!br)
+            cerr << endl << "** ERROR: AnalysisHelper::fillHistosSample : sample : " << sample.getName() << " does not havre branch " << it->first << ", expect a crash..." << endl;
 
+        string brName = br->GetTitle();
         if (brName.find(string("/F")) != string::npos) // F : a 32 bit floating point (Float_t)
         {
             it->second = float(0.0);
             tree->SetBranchAddress(it->first.c_str(), &boost::get<float>(it->second));
         }
-        
         else if (brName.find(string("/I")) != string::npos) // I : a 32 bit signed integer (Int_t)
         {
             it->second = int(0);
@@ -750,7 +992,9 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
     // if (idxsplit_ == nsplit_-1)
     //     nStop = nEvts;
 
+    if (DEBUG) cout << " ..........DEBUG: AnalysisHelper : fillHistosSample : going to loop on tree entries... " << endl;
     Sample::selColl& plots = sample.plots();
+    Sample::selColl2D& plots2D = sample.plots2D();
     for (long long iEv = nStart; true; ++iEv)
     {
         int got = tree->GetEntry(iEv);
@@ -796,6 +1040,33 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
                         double wshift = boost::apply_visitor( get_variant_as_double(), valuesMap[names.second]);
                         double wnew   = ( wshift == 0 && wnom == 0 ? 0.0 : wEvSample*wEvSel*wshift/wnom); // a protection from null weights. FIXME: should I redo all the multiplication to avoid this effect?
                         plots.at(isel).at(ivar).at(isyst)->Fill(varvalue, wnew);                        
+                        // cout << " :::::: DDDDD ::::: " << wEvSample*wEvSel*wshift/wnom << " " << wnew << " " << wEvSample << " " << wEvSel << " " << wshift << " " << wnom << " " << names.first << " " << names.second << " " << sample.getName() << " " << iEv << endl;
+                    }
+                }
+            }
+
+            // loop on all 2D vars to fill
+            // loop on all vars to fill
+            for (unsigned int ivar = 0; ivar < variables2D_.size(); ++ivar)
+            {
+                string var1 = variables2D_.at(ivar).first;
+                string var2 = variables2D_.at(ivar).second;
+                double varvalue1 = boost::apply_visitor( get_variant_as_double(), valuesMap[var1]);
+                double varvalue2 = boost::apply_visitor( get_variant_as_double(), valuesMap[var2]);
+                if (sample.getType() == Sample::kData)
+                    plots2D.at(isel).at(ivar).at(0)->Fill(varvalue1, varvalue2);
+                else
+                    plots2D.at(isel).at(ivar).at(0)->Fill(varvalue1, varvalue2, wEvSample*wEvSel);
+                
+                if (sample.getType() != Sample::kData)
+                {
+                    for (unsigned int isyst = 1; isyst < plots2D.at(isel).at(ivar).size(); ++isyst) // start from 1, as 0 is nominal case
+                    {
+                        auto names = systMap.at(plots2D.at(isel).at(ivar).key(isyst));
+                        double wnom   = boost::apply_visitor( get_variant_as_double(), valuesMap[names.first]);
+                        double wshift = boost::apply_visitor( get_variant_as_double(), valuesMap[names.second]);
+                        double wnew   = ( wshift == 0 && wnom == 0 ? 0.0 : wEvSample*wEvSel*wshift/wnom); // a protection from null weights. FIXME: should I redo all the multiplication to avoid this effect?
+                        plots2D.at(isel).at(ivar).at(isyst)->Fill(varvalue1, varvalue2, wnew);                        
                         // cout << " :::::: DDDDD ::::: " << wEvSample*wEvSel*wshift/wnom << " " << wnew << " " << wEvSample << " " << wEvSel << " " << wshift << " " << wnom << " " << names.first << " " << names.second << " " << sample.getName() << " " << iEv << endl;
                     }
                 }
@@ -871,6 +1142,27 @@ void AnalysisHelper::activateBranches(Sample& sample)
     if (DEBUG) cout << " ..........DEBUG: activated cut variables branches" << endl;
 
 }
+
+pair <string, string> AnalysisHelper::unpack2DName (string packedName)
+{
+    stringstream packedNameS(packedName);
+    string segment;
+    vector<string> unpackedNames;
+    while(std::getline(packedNameS, segment, ':'))
+        unpackedNames.push_back(segment);
+    if (unpackedNames.size() != 2)
+    {
+        cout << "** AnalysisHelper : unpack2DName : error : couldn't interpret 2D variable name " << packedName << " (expecting X:Y)" << endl;
+        return make_pair("", "");
+    }
+    return make_pair(unpackedNames.at(0), unpackedNames.at(1));
+}
+
+string AnalysisHelper::pack2DName (string name1, string name2)
+{
+    return (name1 + string(":") + name2);
+}
+
 
 // vector<const Weight*> AnalysisHelper::getWeightsWithSyst (const Selection& sel, const Sample& sample)
 // {
@@ -956,15 +1248,16 @@ void AnalysisHelper::dump(int detail)
     cout << endl;
     
     cout << "@@@@@@@@ GENERAL @@@@@@@@" << endl;
-    cout << "@ lumi           : " << lumi_ << endl;
-    cout << "@ main cfg       : " << mainCfg_->getCfgName() << endl;
-    cout << "@ sample cfg     : " << sampleCfg_->getCfgName() << endl;
-    cout << "@ sel. cfg       : " << cutCfg_->getCfgName() << endl;
-    cout << "@ n. selections  : " << selections_.size() << endl;
-    cout << "@ n. variables   : " << variables_.size() << endl;
-    cout << "@ n. data samples: " << data_samples_.size() << endl;
-    cout << "@ n. sig samples : " << sig_samples_.size() << endl;
-    cout << "@ n. bkg samples : " << bkg_samples_.size() << endl;
+    cout << "@ lumi            : " << lumi_ << endl;
+    cout << "@ main cfg        : " << mainCfg_->getCfgName() << endl;
+    cout << "@ sample cfg      : " << sampleCfg_->getCfgName() << endl;
+    cout << "@ sel. cfg        : " << cutCfg_->getCfgName() << endl;
+    cout << "@ n. selections   : " << selections_.size() << endl;
+    cout << "@ n. variables    : " << variables_.size() << endl;
+    cout << "@ n. 2D variables : " << variables2D_.size() << endl;
+    cout << "@ n. data samples : " << data_samples_.size() << endl;
+    cout << "@ n. sig samples  : " << sig_samples_.size() << endl;
+    cout << "@ n. bkg samples  : " << bkg_samples_.size() << endl;
     cout << endl;
 
     cout << "@@@@@@@@ VARIABLES @@@@@@@@" << endl;
@@ -974,6 +1267,14 @@ void AnalysisHelper::dump(int detail)
         cout << "  " << iv << " >> " << variables_.at(iv) << endl;
     }
     cout << endl;
+
+    cout << "@ 2D variable list: " << endl;
+    for (uint iv = 0; iv < variables2D_.size(); ++iv)
+    {
+        cout << "  " << iv << " >> " << variables2D_.at(iv).first << ":" << variables2D_.at(iv).second << endl;
+    }
+    cout << endl;
+
 
     cout << "@@@@@@@@ SELECTIONS @@@@@@@@" << endl;
     cout << "@ selection list: " << endl;
@@ -1009,4 +1310,10 @@ void AnalysisHelper::dump(int detail)
 
     cout << " ================== end of printouts ==================" << endl;
 
+}
+
+void AnalysisHelper::prepareHistos()
+{
+    prepareSamplesHistos();
+    prepareSamples2DHistos();
 }
