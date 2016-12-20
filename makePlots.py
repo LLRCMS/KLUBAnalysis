@@ -87,6 +87,7 @@ Plots.addPlot('DeltaRminJets',30,0,2,'#Delta R(stage2jet,bjet)','Events')
 Plots.addPlot('DeltaRminTaus',30,0,2,'#Delta R(stage2#tau,#tau)','Events')
 Plots.addPlot('PtTau1',30,0,200,'P_{T} #tau1','Events')
 Plots.addPlot('PtTau2',30,0,200,'P_{T} #tau2','Events')
+Plots.addPlot('PtHbb',30,0,500,'P_{T} Hbb','Events')
 Plots.add2Dplot('UnmergedEt_stage2jetVSbjet',50,0,300,50,0,300,'offline bjet E_{T}','L1jet E_{T}')
 Plots.add2Dplot('MergedEt_stage2jetVSbjet',50,0,300,50,0,300,'offline bjets sumE_{T}','L1jet E_{T}')
 #### 
@@ -152,6 +153,7 @@ for ev in range(0, nEvt):
     if (isJetMerged) and (passes1 or passes2): Plots.getPlot('MergedEt_stage2jetVSbjet').Fill((Et_bjet2+Et_bjet1),(Et_L1jet2+Et_L1jet1))
 
     Plots.getPlot('dib_Dr').Fill(dib_deltaR)
+    Plots.getPlot('PtHbb').Fill(bH_pt)
     Plots.getPlot('DeltaRminJets').Fill(DeltaRmin_stage2jet_bjet1)
     Plots.getPlot('DeltaRminJets').Fill(DeltaRmin_stage2jet_bjet2)
     Plots.getPlot('DeltaRminTaus').Fill(DeltaRmin_stage2tau_tau1)

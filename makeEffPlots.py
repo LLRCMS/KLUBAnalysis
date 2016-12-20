@@ -215,8 +215,8 @@ for ev in range(0, nEvt):
     cut3_jet2 = tIn.stage2_jet2Et>128
     cut4_jet2 = tIn.stage2_jet2Et>200
 
-    passes1tau      = tIn.DeltaRmin_stage2tau_tau1 < 0.2
-    passes2tau      = tIn.DeltaRmin_stage2tau_tau2 < 0.2
+    passes1tau      = tIn.DeltaRmin_stage2tau_tau1 < 0.5
+    passes2tau      = tIn.DeltaRmin_stage2tau_tau2 < 0.5
     
     isTau1 = tIn.pairType == 2
     isTau2 = tIn.pairType <= 2
@@ -225,7 +225,7 @@ for ev in range(0, nEvt):
     PassIsOS =tIn.isOS==1   
     
     isTauMerged =  tIn.Lepton2matchesStage2tau1==1
-    TauTau40 = PtTau1>40 and PtTau2>40
+    TauTau40 = PtTau1>0 and PtTau2>0
     isL1tau1ISO = tIn.stage2_tau1Iso ==1
     L1seedEtaTau1 = fabs(tIn.stage2_tau1Eta) <2.1
     L1seedEtaTau2 = fabs(tIn.stage2_tau2Eta) <2.1
@@ -400,7 +400,7 @@ Plots.getMgPlot('Et_bjet_cut4').SetMarkerColor(2)
 
 Plots.makeMultiGraph('Et_bjet_cuts','E_{T} bjet','Efficiency')
 
-fOut= TFile ("skim_stage2_TauTauPt20_250GeV/effPlots.root", "recreate")
+fOut= TFile ("skim_stage2_TauTauPt20_250GeV/effPlots250.root", "recreate")
 Plots.saveToFile(fOut)
 
 
