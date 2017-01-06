@@ -28,7 +28,13 @@ int main(int argc, char** argv)
     if (split) ah.setSplitting(idx, njobs);
     ah.readSelections();
     ah.readVariables();
-    ah.readSamples();
+    try {ah.readSamples();}
+    catch (std::exception &ex)
+    {
+        cerr << "*** Error in reading samples because: " << ex.what() << endl;
+        return 1;
+    }
+
     // ah.prepareSamplesHistos();
     // ah.prepareSamples2DHistos();
     ah.prepareHistos();

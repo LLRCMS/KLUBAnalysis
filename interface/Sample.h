@@ -49,7 +49,7 @@ class Sample
         sType getType () {return sampleType_;}
 
         // file handling and preparation
-        void openFileAndTree();
+        bool openFileAndTree();
         // void getEfficiency(std::string histoname="h_eff");
         long long int getEntries(){return nentries_;}
         void setEffBin(int ibin){

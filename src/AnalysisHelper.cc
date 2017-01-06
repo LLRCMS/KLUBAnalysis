@@ -190,7 +190,11 @@ shared_ptr<Sample> AnalysisHelper::openSample(string sampleName)
         int ubin = sampleCfg_->readIntOpt(Form("userEffBin::%s",sampleName.c_str()));
         sample->setEffBin(ubin);
     }
-    sample->openFileAndTree();
+    bool success = sample->openFileAndTree();
+    if (!success)
+    {
+        throw std::runtime_error("cannot open input file for sample " + sampleName);
+    }
 
     // for the moment stored in selection cfg -- could be stored in sample cfg instead
     // but I prefer to have all the weights at the same place
@@ -368,8 +372,8 @@ void AnalysisHelper::prepareSamplesHistos()
 
                     string hname = formHistoName (sampleName, selName, varName, nominal_name_);
                     std::shared_ptr<TH1F> hist;
-                    if (hasUserBinning) hist = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, binning);
-                    else                hist = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, xlow, xup);
+                    if (hasUserBinning) hist = make_shared<TH1F> (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, binning);
+                    else                hist = make_shared<TH1F> (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, xlow, xup);
                     systcoll.append(hname, hist);
 
                     // now loop over available syst and create more histos
@@ -383,9 +387,9 @@ void AnalysisHelper::prepareSamplesHistos()
                             {
                                 hname = formHistoName (sampleName, selName, varName, currW.getSystName(isys));
                                 std::shared_ptr<TH1F> histS;
-                                if (hasUserBinning) histS = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, binning);
-                                else                histS = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, xlow, xup);
-                                systcoll.append(nominal_name_, histS);
+                                if (hasUserBinning) histS = make_shared<TH1F> (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, binning);
+                                else                histS = make_shared<TH1F> (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, xlow, xup);
+                                systcoll.append(currW.getSystName(isys), histS);
                             }
                         }
 
@@ -397,8 +401,8 @@ void AnalysisHelper::prepareSamplesHistos()
                             {
                                 hname = formHistoName (sampleName, selName, varName, currW.getSystName(isys));
                                 std::shared_ptr<TH1F> histS;
-                                if (hasUserBinning) histS = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, binning);
-                                else                histS = make_shared<TH1F> (hname.c_str(), hname.c_str(), nbins, xlow, xup);
+                                if (hasUserBinning) histS = make_shared<TH1F> (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, binning);
+                                else                histS = make_shared<TH1F> (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, xlow, xup);
                                 systcoll.append(currW.getSystName(isys), histS);
                             }
                         }
@@ -528,10 +532,10 @@ void AnalysisHelper::prepareSamples2DHistos()
 
                     string hname = formHisto2DName (sampleName, selName, varName1, varName2, nominal_name_);
                     std::shared_ptr<TH2F> hist;
-                    if (hasUserBinning1 && hasUserBinning2)        hist = make_shared<TH2F> (hname.c_str(), hname.c_str(), nbins1, binning1, nbins2, binning2);
-                    else if (hasUserBinning1 && !hasUserBinning2)  hist = make_shared<TH2F> (hname.c_str(), hname.c_str(), nbins1, binning1, nbins2, xlow2, xup2);
-                    else if (!hasUserBinning1 && hasUserBinning2)  hist = make_shared<TH2F> (hname.c_str(), hname.c_str(), nbins1, xlow1, xup1, nbins2, binning2);
-                    else                                           hist = make_shared<TH2F> (hname.c_str(), hname.c_str(), nbins1, xlow1, xup1, nbins2, xlow2, xup2);
+                    if (hasUserBinning1 && hasUserBinning2)        hist = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, binning2);
+                    else if (hasUserBinning1 && !hasUserBinning2)  hist = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, xlow2, xup2);
+                    else if (!hasUserBinning1 && hasUserBinning2)  hist = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, binning2);
+                    else                                           hist = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, xlow2, xup2);
                     systcoll.append(hname, hist);
 
                     /*

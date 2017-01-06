@@ -1,5 +1,6 @@
 #include "Sample.h"
 #include <fstream>
+#include <assert.h>
 
 using namespace std;
 
@@ -38,12 +39,19 @@ Sample::~Sample ()
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-void Sample::openFileAndTree()
+bool Sample::openFileAndTree()
 {
     cout << "@ Opening sample: " << name_ << endl;
     cout << "  ---> " << filelistname_ << endl;
     
     ifstream fList (filelistname_);
+    if (!fList.good())
+    {
+        cerr << "*** Sample::openFileAndTree : ERROR : could not open file " << filelistname_ << endl;
+        return false;
+        // cerr << " ===> Terminating execution" << endl;
+        // assert(0);
+    }
     string line;
     int counter = 0;
     while (std::getline(fList, line))
@@ -71,6 +79,7 @@ void Sample::openFileAndTree()
     cout << "  ---> read " << counter << " files, " << nentries_ << " events" << endl;
     cout << "  ---> efficiency is " << eff_ << "(" << evt_num_ << "/" << evt_den_ << ")" << endl;
 
+    return true;
     // fIn_ = TFile::Open(filename.c_str());
     
     // if (!fIn_)
