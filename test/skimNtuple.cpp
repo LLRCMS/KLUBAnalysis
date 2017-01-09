@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <bitset>
+#include <map>
 #include "TTree.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -776,6 +777,8 @@ int main (int argc, char** argv)
     // gen info -- fetch tt pair and compute top PT reweight
     float topPtReweight = 1.0; // 1 for all the other samples      
     theSmallTree.m_TTtopPtreweight =  1.0 ;
+    theSmallTree.m_TTtopPtreweight_up =  1.0 ;
+    theSmallTree.m_TTtopPtreweight_down =  1.0 ;
     if (isTTBar)
     {
       float ptTop1 = -1.0;
@@ -881,8 +884,10 @@ int main (int argc, char** argv)
 
           float SFTop1 = TMath::Exp(aTopRW+bTopRW*ptTop1);
           float SFTop2 = TMath::Exp(aTopRW+bTopRW*ptTop2);
-          topPtReweight = TMath::Sqrt (SFTop1*SFTop2); // save later together with other weights
-          theSmallTree.m_TTtopPtreweight = topPtReweight ;
+          topPtReweight = TMath::Sqrt (SFTop1*SFTop2);
+          theSmallTree.m_TTtopPtreweight      = topPtReweight ;
+          theSmallTree.m_TTtopPtreweight_up   = topPtReweight*topPtReweight ;
+          theSmallTree.m_TTtopPtreweight_down = 1.0 ;
           theSmallTree.m_genDecMode1 = decayTop1;
           theSmallTree.m_genDecMode2 = decayTop2;
       }
@@ -2615,10 +2620,38 @@ int main (int argc, char** argv)
     if (doLepTau)   TMVAweightsLepTau = gConfigParser->readStringOption ("TMVA::weightsLepTau");
     if (doResonant) TMVAweightsResonant = gConfigParser->readStringOption ("BDTResonant::weights");
 
-    bool TMVAspectatorsIn      = gConfigParser->readBoolOption   ("TMVA::spectatorsPresent");
+    // bool TMVAspectatorsIn      = gConfigParser->readBoolOption   ("TMVA::spectatorsPresent");
     vector<string> TMVAspectators = gConfigParser->readStringListOption   ("TMVA::spectators");
     vector<string> TMVAvariables  = gConfigParser->readStringListOption   ("TMVA::variables");
     vector<string> TMVAvariablesResonant = gConfigParser->readStringListOption   ("BDTResonant::variables");
+
+    // split the resonant name in two strings
+    vector<pair<string, string>> splitTMVAvariablesResonant;
+    for (unsigned int iv = 0 ; iv < TMVAvariablesResonant.size () ; ++iv)
+    {
+      // split my_name:BDT_name in two strings
+      std::stringstream packedName(TMVAvariablesResonant.at(iv));
+      std::string segment;
+      std::vector<std::string> unpackedNames;
+      while(std::getline(packedName, segment, ':'))
+         unpackedNames.push_back(segment);
+
+      splitTMVAvariablesResonant.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1))); 
+    } 
+
+    // now merge all names into a vector to get a list of uniquely needed elements
+    std::vector<string> allVars;
+    allVars.insert(allVars.end(), TMVAspectators.begin(), TMVAspectators.end());
+    allVars.insert(allVars.end(), TMVAvariables.begin(), TMVAvariables.end());
+    for (unsigned int iv = 0; iv < splitTMVAvariablesResonant.size(); ++iv)
+      allVars.push_back(splitTMVAvariablesResonant.at(iv).first);
+
+    sort(allVars.begin(), allVars.end());
+    allVars.erase( unique( allVars.begin(), allVars.end() ), allVars.end() );
+    std::map<string, float> allVarsMap;
+    for (string var : allVars)
+      allVarsMap[var] = 0.0;
+
 
     TFile *outFile = TFile::Open(outputFile,"UPDATE");
     TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
@@ -2632,39 +2665,23 @@ int main (int argc, char** argv)
     TBranch *mvaBranchleptau;
     TBranch *mvaBranchResonant;
 
-    vector<float> address (TMVAvariables.size () + TMVAspectators.size () * TMVAspectatorsIn, 0.) ; 
-    for (unsigned int iv = 0 ; iv < TMVAvariables.size () ; ++iv)
+    for (string var : TMVAvariables)
     {
-      treenew->SetBranchAddress (TMVAvariables.at (iv).c_str (), &(address.at (iv))) ;
-      reader->AddVariable (TMVAvariables.at (iv), &(address.at (iv))) ;
+      treenew->SetBranchAddress (var.c_str (), &(allVarsMap.at (var))) ;
+      reader->AddVariable (var, &(allVarsMap.at (var))) ;
     }  
 
-    for (unsigned int iv = 0 ; iv < TMVAspectators.size () && TMVAspectatorsIn ; ++iv)
+    for (string var : TMVAspectators)
     {
-      int addressIndex = iv + TMVAvariables.size () ;
-      treenew->SetBranchAddress (TMVAspectators.at (iv).c_str (), &(address.at (addressIndex))) ;
-      reader->AddSpectator (TMVAspectators.at (iv), &(address.at (addressIndex))) ;
+      treenew->SetBranchAddress (var.c_str (), &(allVarsMap.at (var))) ;
+      reader->AddSpectator (var, &(allVarsMap.at (var))) ;
     }  
 
-    vector<float> addressResonant (TMVAvariablesResonant.size(), 0.) ; 
-    for (unsigned int iv = 0 ; iv < TMVAvariablesResonant.size () ; ++iv)
+    for (pair<string, string> vpair : splitTMVAvariablesResonant)
     {
-      // split my_name:BDT_name in two strings
-      std::stringstream packedName(TMVAvariablesResonant.at(iv));
-      std::string segment;
-      std::vector<std::string> unpackedNames;
-      while(std::getline(packedName, segment, ':'))
-         unpackedNames.push_back(segment);
-
-      treenew->SetBranchAddress (unpackedNames.at(0).c_str (), &(addressResonant.at (iv))) ;
-      readerResonant->AddVariable (unpackedNames.at(1), &(addressResonant.at (iv))) ;
-    } 
-
-    //if (treenew->GetListOfBranches ()->FindObject (mvaName.c_str ())) {
-    //  treenew->SetBranchAddress ("MuTauKine", &mvamutau, &mvaBranchmutau) ;
-    //  treenew->SetBranchAddress ("TauTauKine", &mvatautau, &mvaBranchtautau) ;
-    //}
-    //else{   
+      treenew->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
+      readerResonant->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;      
+    }
 
     if (doMuTau)  mvaBranchmutau = treenew->Branch ("MuTauKine", &mvamutau, "MuTauKine/F") ;
     if (doETau)   mvaBranchetau = treenew->Branch ("ETauKine", &mvaetau, "ETauKine/F") ;
@@ -2700,6 +2717,7 @@ int main (int argc, char** argv)
     treenew->Write ("", TObject::kOverwrite) ;
 
     delete reader;
+    delete readerResonant;
   }
 
   cout << "... SKIM finished, exiting." << endl;
