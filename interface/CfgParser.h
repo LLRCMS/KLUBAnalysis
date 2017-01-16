@@ -79,7 +79,7 @@ class CfgParser
         // };
 
         void trimLine(std::string& line);
-        std::string getTrimmedLine(std::string& line);
+        std::string getTrimmedLine(const std::string& line);
         std::pair<std::string, std::string> splitOptionLine(std::string line);
         std::pair<std::string, std::string> splitCompact (std::string compact);
         std::vector<std::string> splitStringInList(std::string line);

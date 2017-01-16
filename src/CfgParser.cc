@@ -40,7 +40,6 @@ bool CfgParser::init(string filename)
         trimLine(line); // remove whitespaces
         line = line.substr(0, line.find(commentSymb_, 0)); // remove comments
         if (line.empty()) continue;
-
         // search for new block declaration
         auto lblock = line.find(lSecBlockSymb_);
         auto rblock = line.find(rSecBlockSymb_);
@@ -111,12 +110,12 @@ void CfgParser::trimLine(string& line)
     return;
 }
 
-string CfgParser::getTrimmedLine(string& line)
+string CfgParser::getTrimmedLine(const string& line)
 {
     if (line.empty()) return line;
     size_t first = line.find_first_not_of(" \t");
     size_t last  = line.find_last_not_of(" \t");
-    string res = line.substr(first, (last-first+1));
+    string res = (first != string::npos ? line.substr(first, (last-first+1)) : ""); // if all whitespaces, return empty string
     return res;
 }
 
