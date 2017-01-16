@@ -3,6 +3,7 @@ import modules.OutputManager as omng
 import argparse
 import fnmatch
 import os
+import sys
 import ROOT
 import itertools
 
@@ -73,15 +74,29 @@ omngr.selections  = selList
 omngr.sel_def     = selDefList
 omngr.sel_regions = regDefList    
 omngr.variables   = varList  
-omngr.variables2D = var2DList    
+omngr.variables2D = var2DList if var2DList else list([])
 # omngr.samples     = sigList + bkgList + dataList
 omngr.data        = dataList
 omngr.signals     = sigList
 omngr.bkgs        = bkgList
 omngr.readAll(rootfile)
-omngr.groupTogether('TT', ['TTfullyHad', 'TTfullyLep', 'TTsemiLep'])
-omngr.groupTogether('WJets', ['WJets0jet', 'WJets1jet', 'WJets2jet', 'WJets3jet', 'WJets4jet'])
-omngr.makeQCD(SR='SR', yieldSB='SStight', shapeSB='SSrlx', SBtoSRfactor=1.5, doFitIf="'defaultBtagLLNoIso' in sel and var=='MT2'", fitFunc='[0] + [1]*x + [2]*x*x')
+
+## always group together the data and rename them to 'data'
+omngr.groupTogether('data', dataList)
+
+if cfg.hasSection('pp_merge'):
+    for groupname in cfg.config['pp_merge']:
+        omngr.groupTogether(groupname, cfg.readListOption('pp_merge::'+groupname))
+
+if cfg.hasSection('pp_QCD'):
+    omngr.makeQCD(
+        SR           = cfg.readOption('pp_QCD::SR'),
+        yieldSB      = cfg.readOption('pp_QCD::yieldSB'),
+        shapeSB      = cfg.readOption('pp_QCD::shapeSB'),
+        SBtoSRfactor = float(cfg.readOption('pp_QCD::SBtoSRfactor')),
+        doFitIf      = cfg.readOption('pp_QCD::doFitIf'),
+        fitFunc      = cfg.readOption('pp_QCD::fitFunc')
+        )
 
 fOut = ROOT.TFile(args.dir+"/" + 'analyzedOutPlotter.root', 'recreate')
 omngr.saveToFile(fOut)

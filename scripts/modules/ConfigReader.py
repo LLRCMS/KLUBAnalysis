@@ -1,5 +1,6 @@
 ### parser of the config used for the analysis ###
 import re
+import sys
 
 class ConfigReader:
     def __init__  (self, cfgInputFile) :
@@ -25,7 +26,7 @@ class ConfigReader:
         #return filelist
     def processOption (self, line) :
         """ processes an option line and returns a pair (name, value) """
-        ll = line.split ('=')
+        ll = line.split ('=', 1)
         if len (ll) < 2:
             print "Cannot parse option " , line
             sys.exit()
@@ -37,7 +38,7 @@ class ConfigReader:
         section = None
         for line in self.lines:
             m = re.search ('\[(.*)\]', line)
-            if m: # declaration of a new section
+            if m and not '=' in line: # declaration of a new section. If a '=' is also found, it is considered as an assignment
                 section = m.group(1)
                 #print "new section: " , section
                 self.config[section] = {}
@@ -71,4 +72,17 @@ class ConfigReader:
         line = result.split(',')
         for i in range (0, len(line)) : line[i] = line[i].strip()
         return line
+
+    def hasOption (self, optName) :
+        opt = self.readOption (optName)
+        if not opt:
+            return False
+        else:
+            return True
+
+    def hasSection (self, secName) :
+        if not secName in self.config:
+            return False
+        else:
+            return True
 
