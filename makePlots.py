@@ -80,8 +80,10 @@ Plots = PlotSet("Plots")
 
 Plots.addPlot('Unmerged_EtResJets',15,-1,1,'(L1jet E_{T}-offline bjet E_{T})/offline bjet E_{T}','Events')
 Plots.addPlot('Merged_EtResJets',5,-1,1,'(L1jet E_{T}-offline bjets sumE_{T})/offline bjets sumE_{T}','Events')
+#Plots.addPlot('EtResTaus',15,-1,1,'(L1jet E_{T}-offline tau E_{T})/offline tau E_{T}','Events')
 Plots.addPlot('Unmerged_EtResJets_norm',15,-1,1,'(L1jet E_{T}-offline bjet E_{T})/offline bjet E_{T}','a.u.')
 Plots.addPlot('Merged_EtResJets_norm',5,-1,1,'(L1jet E_{T}-offline bjets sumE_{T})/offline bjets sumE_{T}','a.u.')
+#Plots.addPlot('EtResTaus_norm',15,-1,1,'(L1jet E_{T}-offline tau E_{T})/offline tau E_{T}','a.u.')
 Plots.addPlot('dib_Dr',20,0,5,'#Delta R(bjet1,bjet2)','Events')
 Plots.addPlot('DeltaRminJets',30,0,2,'#Delta R(stage2jet,bjet)','Events')
 Plots.addPlot('DeltaRminTaus',30,0,2,'#Delta R(stage2#tau,#tau)','Events')
@@ -114,6 +116,9 @@ for ev in range(0, nEvt):
     bH_pt = tIn.bH_pt    
     PtTau1 = tIn.dau1_pt
     PtTau2 = tIn.dau2_pt
+  #  EtTauRes1 = (tIn.stage2_tau1Et - tIn.dau1_et)/tIn.dau1_et
+  #  EtTauRes2 = (tIn.stage2_tau2Et - tIn.dau2_et)/tIn.dau2_et    
+
     tauH_pt = tIn.tauH_pt    
     DeltaRmin_stage2jet_bjet1=tIn.DeltaRmin_stage2jet_bjet1
     DeltaRmin_stage2jet_bjet2=tIn.DeltaRmin_stage2jet_bjet2
@@ -150,7 +155,11 @@ for ev in range(0, nEvt):
     if not (isJetMerged) and (passes1): Plots.getPlot('UnmergedEt_stage2jetVSbjet').Fill(Et_bjet1,Et_L1jet1)
     if not (isJetMerged) and (passes2): Plots.getPlot('UnmergedEt_stage2jetVSbjet').Fill(Et_bjet2,Et_L1jet2)
 
-    if (isJetMerged) and (passes1 or passes2): Plots.getPlot('MergedEt_stage2jetVSbjet').Fill((Et_bjet2+Et_bjet1),(Et_L1jet2+Et_L1jet1))
+
+ #   if (passes1tau): Plots.getPlot('EtResTau_norm').Fill(EtTauRes1)
+ #   if (passes2tau): Plots.getPlot('EtResTau_norm').Fill(EtTauRes2)
+
+
 
     Plots.getPlot('dib_Dr').Fill(dib_deltaR)
     Plots.getPlot('PtHbb').Fill(bH_pt)
@@ -163,6 +172,7 @@ for ev in range(0, nEvt):
     
 Plots.normPlot('Unmerged_EtResJets_norm')
 Plots.normPlot('Merged_EtResJets_norm')
+#Plots.normPlot('EtResTaus_norm')
 
 
    
