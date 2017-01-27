@@ -51,8 +51,8 @@ using namespace std ;
 
 const double aTopRW = 0.0615;
 const double bTopRW = -0.0005;
-const float DYscale_LL[3] = {1.0702, 0.715181,  0.885085} ; // computed from fit for LL and MM b tag
-const float DYscale_MM[3] = {1.04318, 1.0684 , 1.06528 } ;
+const float DYscale_LL[3] = {8.72847e-01, 1.69905e+00, 1.63717e+00} ; // computed from fit for LL and MM b tag
+const float DYscale_MM[3] = {9.44841e-01, 1.29404e+00, 1.28542e+00} ;
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
