@@ -1913,38 +1913,45 @@ float tausBoosted = 0.;
       //the first 2 are ordered by deltaR with the bjets, the others are ordered by Et
       float massStage2 = 0.; 
       std::vector<stage2objClass> stage2jet;
-      //fill the vector
-      for(int iJet = 0; iJet<theBigTree.stage2_jetN; iJet++){
-	stage2jet.push_back(stage2objClass(theBigTree.stage2_jetEt->at(iJet),theBigTree.stage2_jetEta->at(iJet),theBigTree.stage2_jetPhi->at(iJet),0));
-      }
-          //1st sorting
-      TLorentzVector tlv_stage2jet1;                                                                                                                                              
-      if(stage2jet.size()>0){
-	stage2objClass::stage2DeltaR myDeltaRjet1(tlv_firstBjet.Phi(),tlv_firstBjet.Eta()); 
-	std::sort(stage2jet.begin(),stage2jet.end(),myDeltaRjet1);
+vector <float> DeltaRStage2Jet_firstBjet;    
+    vector <float> DeltaRStage2Jet_secondBjet;
+    //fill the vector
+    for(int iJet = 0; iJet<theBigTree.stage2_jetN; iJet++){
+      stage2jet.push_back(stage2objClass(theBigTree.stage2_jetEt->at(iJet),theBigTree.stage2_jetEta->at(iJet),theBigTree.stage2_jetPhi->at(iJet),0));
+    }
+    //1st sorting
+    TLorentzVector tlv_stage2jet1;                                                                                                                                              
+    if(stage2jet.size()>0){
+      stage2objClass::stage2DeltaR myDeltaRjet1(tlv_firstBjet.Phi(),tlv_firstBjet.Eta()); 
+      std::sort(stage2jet.begin(),stage2jet.end(),myDeltaRjet1);
+      
+      //storing 1st jet
 	
-	//storing 1st jet
-	
-
-	tlv_stage2jet1.SetPtEtaPhiM(                                                                                       
+      
+      tlv_stage2jet1.SetPtEtaPhiM(                                                                                       
 				  stage2jet[0].Et(),                                        											    
 				  stage2jet[0].Eta(),                                                                                                                                    
 				  stage2jet[0].Phi(),                                                                                                                                    
 				  massStage2);
 	
-	theSmallTree.m_stage2_jet1Et = stage2jet[0].Et();
-	theSmallTree.m_stage2_jet1Eta = stage2jet[0].Eta();
-	theSmallTree.m_stage2_jet1Phi = stage2jet[0].Phi();
-	stage2jet.erase(stage2jet.begin());
-      } 
-
+      theSmallTree.m_stage2_jet1Et = stage2jet[0].Et();
+      theSmallTree.m_stage2_jet1Eta = stage2jet[0].Eta();
+      theSmallTree.m_stage2_jet1Phi = stage2jet[0].Phi();
+      stage2jet.erase(stage2jet.begin());
+      DeltaRStage2Jet_firstBjet.push_back (tlv_stage2jet1.DeltaR(tlv_firstBjet));
+      DeltaRStage2Jet_secondBjet.push_back (tlv_stage2jet1.DeltaR(tlv_secondBjet));
+      theSmallTree.m_DeltaRmin_stage2jet_bjet1 = tlv_stage2jet1.DeltaR(tlv_firstBjet);
+      theSmallTree.m_DeltaRmin_stage2jet_bjet2 = tlv_stage2jet1.DeltaR(tlv_secondBjet); 
+      
+    } 
+    
     //2nd sorting    
       TLorentzVector tlv_stage2jet2;                                                                                                                                                      
-    if(stage2jet.size()>0){
-      stage2objClass::stage2DeltaR myDeltaRjet2(tlv_secondBjet.Phi(),tlv_secondBjet.Eta()); 
-      std::sort(stage2jet.begin(),stage2jet.end(),myDeltaRjet2);
+      if(stage2jet.size()>0){
+	stage2objClass::stage2DeltaR myDeltaRjet2(tlv_secondBjet.Phi(),tlv_secondBjet.Eta()); 
+	std::sort(stage2jet.begin(),stage2jet.end(),myDeltaRjet2);
 
-    //storing 2nd jet
+	//storing 2nd jet
     
     
 
@@ -1958,28 +1965,36 @@ float tausBoosted = 0.;
       theSmallTree.m_stage2_jet2Eta = stage2jet[0].Eta();
       theSmallTree.m_stage2_jet2Phi = stage2jet[0].Phi();
       stage2jet.erase(stage2jet.begin());
-  }
-    
-
-    if (stage2jet.size() > 0) std::sort(stage2jet.begin(),stage2jet.end());
-
-    if (stage2jet.size() > 0){ 
-      theSmallTree.m_stage2_jet3Et = stage2jet[0].Et();
-      theSmallTree.m_stage2_jet3Eta = stage2jet[0].Eta();
-      theSmallTree.m_stage2_jet3Phi = stage2jet[0].Phi(); 
+      DeltaRStage2Jet_firstBjet.push_back (tlv_stage2jet2.DeltaR(tlv_firstBjet));
+      DeltaRStage2Jet_secondBjet.push_back (tlv_stage2jet2.DeltaR(tlv_secondBjet));
+      if(tlv_stage2jet1.DeltaR(tlv_secondBjet)<tlv_stage2jet2.DeltaR(tlv_secondBjet)){
+	bjetsBoosted +=1;
+	theSmallTree.m_Bjet2matchesStage2jet1 =1; 
+      }
+      theSmallTree.m_DeltaRmin_stage2jet_bjet1 = *std::min_element(DeltaRStage2Jet_firstBjet.begin(), DeltaRStage2Jet_firstBjet.end());
+      theSmallTree.m_DeltaRmin_stage2jet_bjet2 = *std::min_element(DeltaRStage2Jet_secondBjet.begin(), DeltaRStage2Jet_secondBjet.end());
+      }
+      
+      
+      if (stage2jet.size() > 0) std::sort(stage2jet.begin(),stage2jet.end());
+      
+      if (stage2jet.size() > 0){ 
+	theSmallTree.m_stage2_jet3Et = stage2jet[0].Et();
+	theSmallTree.m_stage2_jet3Eta = stage2jet[0].Eta();
+	theSmallTree.m_stage2_jet3Phi = stage2jet[0].Phi(); 
     }
-    
-    if (stage2jet.size() > 1){ 
-      theSmallTree.m_stage2_jet4Et = stage2jet[1].Et();
-      theSmallTree.m_stage2_jet4Eta = stage2jet[1].Eta();
-      theSmallTree.m_stage2_jet4Phi = stage2jet[1].Phi(); 
-    }
-    
-    if (stage2jet.size() > 2){ 
-      theSmallTree.m_stage2_jet5Et = stage2jet[2].Et();
-      theSmallTree.m_stage2_jet5Eta = stage2jet[2].Eta();
-      theSmallTree.m_stage2_jet5Phi = stage2jet[2].Phi(); 
-    }
+      
+      if (stage2jet.size() > 1){ 
+	theSmallTree.m_stage2_jet4Et = stage2jet[1].Et();
+	theSmallTree.m_stage2_jet4Eta = stage2jet[1].Eta();
+	theSmallTree.m_stage2_jet4Phi = stage2jet[1].Phi(); 
+      }
+      
+      if (stage2jet.size() > 2){ 
+	theSmallTree.m_stage2_jet5Et = stage2jet[2].Et();
+	theSmallTree.m_stage2_jet5Eta = stage2jet[2].Eta();
+	theSmallTree.m_stage2_jet5Phi = stage2jet[2].Phi(); 
+      }
     
     if (stage2jet.size() > 3){ 
       theSmallTree.m_stage2_jet6Et = stage2jet[3].Et();
@@ -1987,22 +2002,17 @@ float tausBoosted = 0.;
       theSmallTree.m_stage2_jet6Phi = stage2jet[3].Phi(); 
     }
     
-    vector <float> DeltaRStage2Jet_firstBjet;
-    DeltaRStage2Jet_firstBjet.push_back (tlv_stage2jet1.DeltaR(tlv_firstBjet));
-    DeltaRStage2Jet_firstBjet.push_back (tlv_stage2jet2.DeltaR(tlv_firstBjet));
     
-    vector <float> DeltaRStage2Jet_secondBjet;
-    DeltaRStage2Jet_secondBjet.push_back (tlv_stage2jet1.DeltaR(tlv_secondBjet));
-    DeltaRStage2Jet_secondBjet.push_back (tlv_stage2jet2.DeltaR(tlv_secondBjet));
     
 
-    if(tlv_stage2jet1.DeltaR(tlv_secondBjet)<tlv_stage2jet2.DeltaR(tlv_secondBjet)){
-      bjetsBoosted +=1;
-      theSmallTree.m_Bjet2matchesStage2jet1 =1; 
-    }
+   
 
-    theSmallTree.m_DeltaRmin_stage2jet_bjet1 = *std::min_element(DeltaRStage2Jet_firstBjet.begin(), DeltaRStage2Jet_firstBjet.end());
-    theSmallTree.m_DeltaRmin_stage2jet_bjet2 = *std::min_element(DeltaRStage2Jet_secondBjet.begin(), DeltaRStage2Jet_secondBjet.end());
+    
+
+
+
+
+
 
 
 
