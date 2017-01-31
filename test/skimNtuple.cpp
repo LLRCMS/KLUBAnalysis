@@ -2007,17 +2007,17 @@ float tausBoosted = 0.;
 
 
 
- //stage 2 information: taus
-      //the first 2 are ordered by deltaR with the bjets, the others are ordered by Et
-      
+    //stage 2 information: taus
+    //the first 2 are ordered by deltaR with the offline leptons, the others are ordered by Et
+    
       std::vector<stage2objClass> stage2tau;
-
- //fill the vector
+      
+      //fill the vector
       for(int iTau = 0; iTau<theBigTree.stage2_tauN; iTau++){
 	stage2tau.push_back(stage2objClass(theBigTree.stage2_tauEt->at(iTau),theBigTree.stage2_tauEta->at(iTau),theBigTree.stage2_tauPhi->at(iTau),theBigTree.stage2_tauIso->at(iTau)));
-
+	
       }
-
+      
       //1st sorting
       TLorentzVector tlv_stage2tau1;                                                                                                                                              
       if(stage2tau.size()>0){
@@ -2058,9 +2058,9 @@ float tausBoosted = 0.;
       theSmallTree.m_stage2_tau2Et = stage2tau[0].Et();
       theSmallTree.m_stage2_tau2Eta = stage2tau[0].Eta();
       theSmallTree.m_stage2_tau2Phi = stage2tau[0].Phi();
-      	theSmallTree.m_stage2_tau2Iso  = stage2tau[0].Iso();
+      theSmallTree.m_stage2_tau2Iso  = stage2tau[0].Iso();
       stage2tau.erase(stage2tau.begin());
-  }
+    }
     
     
  
@@ -2099,6 +2099,86 @@ float tausBoosted = 0.;
     
     theSmallTree.m_DeltaRmin_stage2tau_tau1 = *std::min_element(DeltaRStage2Tau_firstLepton.begin(), DeltaRStage2Tau_firstLepton.end());
     theSmallTree.m_DeltaRmin_stage2tau_tau2 = *std::min_element(DeltaRStage2Tau_secondLepton.begin(), DeltaRStage2Tau_secondLepton.end());
+
+    //stage 2 information: muons
+    //2 muons ordered by deltaR with the bjets
+    
+    std::vector<stage2objClass> stage2muon;
+      vector <float> DeltaRStage2Muon_firstBjet;
+      vector <float> DeltaRStage2Muon_secondBjet;
+    //fill the vector
+    for(int iMuon = 0; iMuon<theBigTree.stage2_muonN; iMuon++){
+      stage2muon.push_back(stage2objClass(theBigTree.stage2_muonEt->at(iMuon),theBigTree.stage2_muonEta->at(iMuon),theBigTree.stage2_muonPhi->at(iMuon),theBigTree.stage2_muonIso->at(iMuon)));
+      
+    }
+    
+    //1st sorting
+    TLorentzVector tlv_stage2muon1;                                                                                                                                              
+    if(stage2muon.size()>0){
+      stage2objClass::stage2DeltaR myDeltaRmuon1(tlv_firstBjet.Phi(),tlv_firstBjet.Eta()); 
+      std::sort(stage2muon.begin(),stage2muon.end(),myDeltaRmuon1);
+      
+      
+      //storing 1st muon
+      
+      
+      tlv_stage2muon1.SetPtEtaPhiM(                                                                                       
+				  stage2muon[0].Et(),                                        						      
+				  stage2muon[0].Eta(),                                                                     
+				  stage2muon[0].Phi(),                                                                                      
+       				  massStage2);
+      
+      theSmallTree.m_stage2_muon1Et = stage2muon[0].Et();
+      theSmallTree.m_stage2_muon1Eta = stage2muon[0].Eta();
+      theSmallTree.m_stage2_muon1Phi = stage2muon[0].Phi();
+      theSmallTree.m_stage2_muon1Iso  = stage2muon[0].Iso();
+      DeltaRStage2Muon_firstBjet.push_back (tlv_stage2muon1.DeltaR(tlv_firstBjet));      
+      DeltaRStage2Muon_secondBjet.push_back (tlv_stage2muon1.DeltaR(tlv_secondBjet));
+      stage2muon.erase(stage2muon.begin());
+
+      theSmallTree.m_DeltaRmin_stage2muon_bjet1 = tlv_stage2muon1.DeltaR(tlv_firstBjet);
+      theSmallTree.m_DeltaRmin_stage2muon_bjet2 = tlv_stage2muon1.DeltaR(tlv_secondBjet);
+    } 
+    
+    //2nd sorting    
+      TLorentzVector tlv_stage2muon2;                                                                                                                  
+                                    
+      if(stage2muon.size()>0){
+	stage2objClass::stage2DeltaR myDeltaRmuon2(tlv_secondBjet.Phi(),tlv_secondBjet.Eta()); 
+	std::sort(stage2muon.begin(),stage2muon.end(),myDeltaRmuon2);
+	
+	//storing 2nd muon
+	tlv_stage2muon2.SetPtEtaPhiM(                                                                                       
+				     stage2muon[0].Et(),                                        							    
+				     stage2muon[0].Eta(),                                                                                                  
+				     stage2muon[0].Phi(),                                                                                               
+				     massStage2);
+	
+	theSmallTree.m_stage2_muon2Et = stage2muon[0].Et();
+	theSmallTree.m_stage2_muon2Eta = stage2muon[0].Eta();
+	theSmallTree.m_stage2_muon2Phi = stage2muon[0].Phi();
+	theSmallTree.m_stage2_muon2Iso  = stage2muon[0].Iso();
+	DeltaRStage2Muon_firstBjet.push_back (tlv_stage2muon2.DeltaR(tlv_firstBjet));
+	DeltaRStage2Muon_secondBjet.push_back (tlv_stage2muon2.DeltaR(tlv_secondBjet));
+	stage2muon.erase(stage2muon.begin());
+	theSmallTree.m_DeltaRmin_stage2muon_bjet1 = *std::min_element(DeltaRStage2Muon_firstBjet.begin(), DeltaRStage2Muon_firstBjet.end());
+	theSmallTree.m_DeltaRmin_stage2muon_bjet2 = *std::min_element(DeltaRStage2Muon_secondBjet.begin(), DeltaRStage2Muon_secondBjet.end());
+	
+      }
+      
+    
+ 
+    
+      
+    
+
+
+      
+
+
+
+    
+
     
    
     
