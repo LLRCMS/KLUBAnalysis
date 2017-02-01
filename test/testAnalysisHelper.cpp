@@ -40,8 +40,7 @@ int main(int argc, char** argv)
     ah.prepareHistos();
     ah.dump(2); // can set a level of detail
     ah.fillHistos();
-    // ah.
-// fill
+    ah.mergeSamples(); // do it just at the end
     ah.saveOutputsToFile();
     cout << "... exiting" << endl;    
 }

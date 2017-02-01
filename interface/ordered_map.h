@@ -41,6 +41,8 @@ template <class Tkey, class Tvalue> class ordered_map
 
         Tkey key(int idx) const;
 
+        bool has_key(Tkey key);
+
     private:
         std::vector<Tkey>   keys_;
         std::vector<Tvalue> values_;
@@ -190,9 +192,17 @@ template <class Tkey, class Tvalue>
 void ordered_map<Tkey, Tvalue>::remap()
 {
     remap_.clear();
-    for (int idx = 0; idx < keys_.size(); idx++)
-        remap_[keys_.at(idx)] = idx;
+    for (size_t idx = 0; idx < keys_.size(); idx++)
+        remap_[keys_.at(idx)] = (int) idx;
     return;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+template <class Tkey, class Tvalue>
+bool ordered_map<Tkey, Tvalue>::has_key(Tkey key)
+{
+    return find (keys_.begin(), keys_.end(), key) != keys_.end() ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

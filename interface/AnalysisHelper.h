@@ -54,6 +54,8 @@ class AnalysisHelper
 
         void fillHistos();
 
+        void mergeSamples();
+
         void printSelections(bool printWeights=false, bool printSysts=false);
         void printSamples(bool printWeights=false, bool printSysts=false);
 
@@ -96,6 +98,8 @@ class AnalysisHelper
         ordered_map <std::string, std::shared_ptr<Sample>> data_samples_;
         ordered_map <std::string, std::shared_ptr<Sample>> sig_samples_;
         ordered_map <std::string, std::shared_ptr<Sample>> bkg_samples_;
+
+        ordered_map <std::string, std::vector<std::string>> sample_merge_list_;
 
         std::string nominal_name_;
         int verbosity_;

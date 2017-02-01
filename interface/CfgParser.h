@@ -58,6 +58,9 @@ class CfgParser
         bool hasOpt (std::string section, std::string option);
         bool hasOpt (std::string compact);
 
+        bool hasSect (std::string section);
+        std::vector<std::string> readListOfOpts(std::string section);
+
         const cfgBlock& getCfg(){return config_;}
         std::string getCfgName(){return filename_;}
 

@@ -42,6 +42,12 @@ class Sample
         // standard ctor/dtor
         // Sample(std::string name, std::string treename="HTauTauTree");
         Sample(std::string name, std::string filelistname, std::string treename="HTauTauTree", std::string histoname="h_eff", int binEffDen = 1);
+        
+        // build from a list of other samples, histos are added together
+        // NOTE: efficiency, ttree, and the other methods used for filling are not updated,
+        // so just use this method to make a sum of all the histos of a sample after separate histos have already been filled
+        // Sample(std::string name, std::vector<Sample const *> sampleList);
+
         ~Sample();
         std::string getName() const {return name_;}
 
@@ -68,7 +74,7 @@ class Sample
         void addWeight  (Weight weight) {weights_.push_back(weight);}
         void clearWeights() {weights_.clear();}
 
-        TChain* getTree() {return tree_;}
+        TChain* getTree() {return tree_.get();}
 
         const std::vector<Weight>& getWeights() const {return weights_;}
         std::vector<Weight>& getWeights() {return weights_;}
@@ -79,7 +85,8 @@ class Sample
         std::string filelistname_;
         std::string treename_;
         std::string histoname_;
-        TChain* tree_;
+        // TChain* tree_;
+        std::unique_ptr<TChain> tree_;
         std::string name_;
         
         int    bin_eff_den_;
