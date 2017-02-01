@@ -45,12 +45,14 @@
 #include "TMVA/Factory.h"
 #include "TMVA/Reader.h"
 
+#include <boost/algorithm/string/replace.hpp>
+
 using namespace std ;
 
 const double aTopRW = 0.0615;
 const double bTopRW = -0.0005;
-const float DYscale_LL[3] = {1.0702, 0.715181,  0.885085} ; // computed from fit for LL and MM b tag
-const float DYscale_MM[3] = {1.04318, 1.0684 , 1.06528 } ;
+const float DYscale_LL[3] = {8.72847e-01, 1.69905e+00, 1.63717e+00} ; // computed from fit for LL and MM b tag
+const float DYscale_MM[3] = {9.44841e-01, 1.29404e+00, 1.28542e+00} ;
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
@@ -1121,6 +1123,9 @@ int main (int argc, char** argv)
         HHweight = hreweightHH2D->GetBinContent(ibin);        
       }
 
+      theSmallTree.m_genMHH = mHH;
+      theSmallTree.m_genCosth = ct1;
+
       // cout << " ........... GEN FINISHED ........... " << " evt=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << endl;
 
     }
@@ -1574,6 +1579,7 @@ int main (int argc, char** argv)
         ) ;
 
       theSmallTree.m_tauHsvfitMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_tauH_SVFIT.Phi ()) ;
+      theSmallTree.m_ditau_deltaR_per_tauHsvfitpt = tlv_firstLepton.DeltaR(tlv_secondLepton) * tlv_tauH_SVFIT.Pt();
     }
 
     // check if the selected leptons A,B match the gen hard scatter products 1,2
@@ -2296,6 +2302,7 @@ int main (int argc, char** argv)
       theSmallTree.m_bHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_bH.Phi ()) ;
       theSmallTree.m_dib_deltaPhi = deltaPhi (tlv_firstBjet.Phi (), tlv_secondBjet.Phi ()) ;
       theSmallTree.m_dib_deltaR = tlv_firstBjet.DeltaR(tlv_secondBjet) ;
+      theSmallTree.m_dib_deltaR_per_bHpt = theSmallTree.m_dib_deltaR * tlv_bH_raw.Pt();
 
       vector <float> dRBTau;
       dRBTau.push_back (tlv_firstLepton.DeltaR(tlv_firstBjet));
@@ -2597,33 +2604,43 @@ int main (int argc, char** argv)
 
 
 
-  bool computeMVA    = gConfigParser->readBoolOption ("TMVA::computeMVA");
-  bool computeMVARes = gConfigParser->readBoolOption ("BDTResonant::computeMVA");
+  bool computeMVA    = (gConfigParser->isDefined("TMVA::computeMVA")        ? gConfigParser->readBoolOption ("TMVA::computeMVA")        : false);
+  bool computeMVARes = (gConfigParser->isDefined("BDTResonant::computeMVA") ? gConfigParser->readBoolOption ("BDTResonant::computeMVA") : false);
+  bool computeMVAResHM = (gConfigParser->isDefined("BDTResonantHM::computeMVA") ? gConfigParser->readBoolOption ("BDTResonantHM::computeMVA") : false);
+  bool computeMVAResLM = (gConfigParser->isDefined("BDTResonantLM::computeMVA") ? gConfigParser->readBoolOption ("BDTResonantLM::computeMVA") : false);
 
-  if (computeMVA || computeMVARes)
+  if (computeMVA || computeMVARes || computeMVAResHM || computeMVAResLM)
   {  
     bool doMuTau  = gConfigParser->isDefined("TMVA::weightsMuTau");
     bool doETau   = gConfigParser->isDefined("TMVA::weightsETau");
     bool doTauTau = gConfigParser->isDefined("TMVA::weightsTauTau");
     bool doLepTau = gConfigParser->isDefined("TMVA::weightsLepTau");
     bool doResonant = computeMVARes;
+    bool doResonantHM = computeMVAResHM;
+    bool doResonantLM = computeMVAResLM;
 
     string TMVAweightsTauTau   = "";
     string TMVAweightsMuTau    = "";
     string TMVAweightsETau     = "";
     string TMVAweightsLepTau   = "";
     string TMVAweightsResonant = "";
+    string TMVAweightsResonantHM = "";
+    string TMVAweightsResonantLM = "";
     
     if (doMuTau)    TMVAweightsMuTau  = gConfigParser->readStringOption ("TMVA::weightsMuTau");
     if (doETau)     TMVAweightsETau   = gConfigParser->readStringOption ("TMVA::weightsETau");
     if (doTauTau)   TMVAweightsTauTau = gConfigParser->readStringOption ("TMVA::weightsTauTau");
     if (doLepTau)   TMVAweightsLepTau = gConfigParser->readStringOption ("TMVA::weightsLepTau");
     if (doResonant) TMVAweightsResonant = gConfigParser->readStringOption ("BDTResonant::weights");
+    if (doResonantHM) TMVAweightsResonantHM = gConfigParser->readStringOption ("BDTResonantHM::weights");
+    if (doResonantLM) TMVAweightsResonantLM = gConfigParser->readStringOption ("BDTResonantLM::weights");
 
     // bool TMVAspectatorsIn      = gConfigParser->readBoolOption   ("TMVA::spectatorsPresent");
-    vector<string> TMVAspectators = gConfigParser->readStringListOption   ("TMVA::spectators");
-    vector<string> TMVAvariables  = gConfigParser->readStringListOption   ("TMVA::variables");
-    vector<string> TMVAvariablesResonant = gConfigParser->readStringListOption   ("BDTResonant::variables");
+    vector<string> TMVAspectators = ( computeMVA ? gConfigParser->readStringListOption   ("TMVA::spectators") : vector<string>(0) );
+    vector<string> TMVAvariables  = ( computeMVA ? gConfigParser->readStringListOption   ("TMVA::variables") : vector<string>(0) );
+    vector<string> TMVAvariablesResonant   = ( doResonant ? gConfigParser->readStringListOption   ("BDTResonant::variables") : vector<string>(0) );
+    vector<string> TMVAvariablesResonantHM = ( doResonantHM ? gConfigParser->readStringListOption   ("BDTResonantHM::variables") : vector<string>(0) );
+    vector<string> TMVAvariablesResonantLM = ( doResonantLM ? gConfigParser->readStringListOption   ("BDTResonantLM::variables") : vector<string>(0) );
 
     // split the resonant name in two strings
     vector<pair<string, string>> splitTMVAvariablesResonant;
@@ -2639,12 +2656,58 @@ int main (int argc, char** argv)
       splitTMVAvariablesResonant.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1))); 
     } 
 
+    // split the resonant name in two strings
+    cout << "BDT resonant HIGH MASS vars:" << endl;
+    vector<pair<string, string>> splitTMVAvariablesResonantHM;
+    for (unsigned int iv = 0 ; iv < TMVAvariablesResonantHM.size () ; ++iv)
+    {
+      // split my_name:BDT_name in two strings
+      std::stringstream packedName(TMVAvariablesResonantHM.at(iv));
+      std::string segment;
+      std::vector<std::string> unpackedNames;
+      while(std::getline(packedName, segment, ':'))
+         unpackedNames.push_back(segment);
+
+      // replace "internal" names for graphics names -- shitty parser!!
+      boost::replace_all(unpackedNames.at(1), "_T_", "*");
+      boost::replace_all(unpackedNames.at(1), "__", "()");
+
+      splitTMVAvariablesResonantHM.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1))); 
+      cout << " ... " << iv << " " << unpackedNames.at(0) << " --> " << unpackedNames.at(1) << endl;
+    } 
+    cout << endl;
+
+    // split the resonant name in two strings
+    vector<pair<string, string>> splitTMVAvariablesResonantLM;
+    cout << "BDT resonant LOW MASS vars:" << endl;
+    for (unsigned int iv = 0 ; iv < TMVAvariablesResonantLM.size () ; ++iv)
+    {
+      // split my_name:BDT_name in two strings
+      std::stringstream packedName(TMVAvariablesResonantLM.at(iv));
+      std::string segment;
+      std::vector<std::string> unpackedNames;
+      while(std::getline(packedName, segment, ':'))
+         unpackedNames.push_back(segment);
+
+      // replace "internal" names for graphics names -- shitty parser!!
+      boost::replace_all(unpackedNames.at(1), "_T_", "*");
+      boost::replace_all(unpackedNames.at(1), "__", "()");
+
+      splitTMVAvariablesResonantLM.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1))); 
+      cout << " ... " << iv << " " << unpackedNames.at(0) << " --> " << unpackedNames.at(1) << endl;
+    } 
+
+
     // now merge all names into a vector to get a list of uniquely needed elements
     std::vector<string> allVars;
     allVars.insert(allVars.end(), TMVAspectators.begin(), TMVAspectators.end());
     allVars.insert(allVars.end(), TMVAvariables.begin(), TMVAvariables.end());
     for (unsigned int iv = 0; iv < splitTMVAvariablesResonant.size(); ++iv)
       allVars.push_back(splitTMVAvariablesResonant.at(iv).first);
+    for (unsigned int iv = 0; iv < splitTMVAvariablesResonantHM.size(); ++iv)
+      allVars.push_back(splitTMVAvariablesResonantHM.at(iv).first);
+    for (unsigned int iv = 0; iv < splitTMVAvariablesResonantLM.size(); ++iv)
+      allVars.push_back(splitTMVAvariablesResonantLM.at(iv).first);
 
     sort(allVars.begin(), allVars.end());
     allVars.erase( unique( allVars.begin(), allVars.end() ), allVars.end() );
@@ -2652,18 +2715,21 @@ int main (int argc, char** argv)
     for (string var : allVars)
       allVarsMap[var] = 0.0;
 
-
     TFile *outFile = TFile::Open(outputFile,"UPDATE");
     TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 
     TMVA::Reader * reader = new TMVA::Reader () ;
     TMVA::Reader * readerResonant = new TMVA::Reader () ;
-    Float_t mvatautau,mvamutau, mvaetau, mvaleptau, mvaresonant;
+    TMVA::Reader * readerResonantHM = new TMVA::Reader () ;
+    TMVA::Reader * readerResonantLM = new TMVA::Reader () ;
+    Float_t mvatautau,mvamutau, mvaetau, mvaleptau, mvaresonant, mvaresonantHM, mvaresonantLM;
     TBranch *mvaBranchmutau;
     TBranch *mvaBranchtautau;
     TBranch *mvaBranchetau;
     TBranch *mvaBranchleptau;
     TBranch *mvaBranchResonant;
+    TBranch *mvaBranchResonantHM;
+    TBranch *mvaBranchResonantLM;
 
     for (string var : TMVAvariables)
     {
@@ -2683,17 +2749,34 @@ int main (int argc, char** argv)
       readerResonant->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;      
     }
 
+    for (pair<string, string> vpair : splitTMVAvariablesResonantHM)
+    {
+      treenew->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
+      readerResonantHM->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;      
+      // cout << "DEBUG HM: " << vpair.second.c_str () <<  " <-- " << vpair.first.c_str () << endl;
+    }
+
+    for (pair<string, string> vpair : splitTMVAvariablesResonantLM)
+    {
+      treenew->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
+      readerResonantLM->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;      
+    }
+
     if (doMuTau)  mvaBranchmutau = treenew->Branch ("MuTauKine", &mvamutau, "MuTauKine/F") ;
     if (doETau)   mvaBranchetau = treenew->Branch ("ETauKine", &mvaetau, "ETauKine/F") ;
     if (doTauTau) mvaBranchtautau = treenew->Branch ("TauTauKine", &mvatautau, "TauTauKine/F") ;
     if (doLepTau) mvaBranchleptau = treenew->Branch ("LepTauKine", &mvaleptau, "LepTauKine/F") ;
     if (doResonant) mvaBranchResonant = treenew->Branch ("BDTResonant", &mvaresonant, "BDTResonant/F") ;
+    if (doResonantHM) mvaBranchResonantHM = treenew->Branch ("BDTResonantHM", &mvaresonantHM, "BDTResonantHM/F") ;
+    if (doResonantLM) mvaBranchResonantLM = treenew->Branch ("BDTResonantLM", &mvaresonantLM, "BDTResonantLM/F") ;
     //}
     if (doMuTau)   reader->BookMVA ("MuTauKine",  TMVAweightsMuTau.c_str ()) ;
     if (doETau)    reader->BookMVA ("ETauKine",  TMVAweightsETau.c_str ()) ;
     if (doTauTau)  reader->BookMVA ("TauTauKine",  TMVAweightsTauTau.c_str ()) ;
     if (doLepTau)  reader->BookMVA ("LepTauKine",  TMVAweightsLepTau.c_str ()) ;
     if (doResonant)  readerResonant->BookMVA ("BDT_full_mass_iso_nodrbbsv",  TMVAweightsResonant.c_str ()) ;
+    if (doResonantHM)  readerResonantHM->BookMVA ("500t_PU_mass_newvars_HIGH_oldvars",  TMVAweightsResonantHM.c_str ()) ;
+    if (doResonantLM)  readerResonantLM->BookMVA ("500t_PU_mass_newvars_LOW",  TMVAweightsResonantLM.c_str ()) ;
 
     int nentries = treenew->GetEntries();
     for(int i=0;i<nentries;i++){
@@ -2704,12 +2787,16 @@ int main (int argc, char** argv)
       if (doTauTau)  mvatautau= reader->EvaluateMVA ("TauTauKine") ;  
       if (doLepTau)  mvaleptau= reader->EvaluateMVA ("LepTauKine") ;  
       if (doResonant)  mvaresonant= readerResonant->EvaluateMVA ("BDT_full_mass_iso_nodrbbsv") ;  
+      if (doResonantHM)  mvaresonantHM= readerResonantHM->EvaluateMVA ("500t_PU_mass_newvars_HIGH_oldvars") ;  
+      if (doResonantLM)  mvaresonantLM= readerResonantLM->EvaluateMVA ("500t_PU_mass_newvars_LOW") ;  
 
       if (doMuTau)    mvaBranchmutau->Fill();
       if (doETau)     mvaBranchetau->Fill();
       if (doTauTau)   mvaBranchtautau->Fill();
       if (doLepTau)   mvaBranchleptau->Fill();
       if (doResonant)  mvaBranchResonant->Fill();
+      if (doResonantHM)  mvaBranchResonantHM->Fill();
+      if (doResonantLM)  mvaBranchResonantLM->Fill();
     }
 
     outFile->cd () ;
@@ -2718,6 +2805,8 @@ int main (int argc, char** argv)
 
     delete reader;
     delete readerResonant;
+    delete readerResonantHM;
+    delete readerResonantLM;
   }
 
   cout << "... SKIM finished, exiting." << endl;
