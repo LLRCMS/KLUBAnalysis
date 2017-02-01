@@ -9,18 +9,20 @@ from ROOT import *
 # folder = "2016_07_26_out3" #bis = 3cat, ter = 2cat
 # outString = "_25_jul"
 
-folder = "2016_07_26" #bis = 3cat, ter = 2cat
-outString = "_25_jul"
+folder = "2017_01_26" #bis = 3cat, ter = 2cat
+outString = "2017_01_26_firstResonant"
 
 outFormats = [".pdf",".png",".root",".C"]
-benchmark = 0 # -1: 1507 points, 0: lambda, 1: benchmark, by default we do not plot the 1507 points
-addObserved = True
+benchmark = 999 # -1: 1507 points, 0: lambda, 1: benchmark, 999 Risonante, by default we do not plot the 1507 points
+addObserved = False
 #scale=1000*37.9*0.073
-scale=10000.0/100.0 #/37.9/0.073
-categories = ["defaultBtagLLNoIsoBBTTCutKine80HH_mass_raw","defaultBtagLLNoIsoBBTTCutKine80HH_mass_raw", "defaultBtagLLNoIsoBBTTCut45HH_mass_raw","COMBINED"]
+#scale=1000.0/100.0 #/37.9/0.073
+scale=1000.0 #from pb to fb?
+#categories = ["s1b1jresolvedMcutBDTMT2","s2b0jresolvedMcutBDTMT2","sboostedLLMcutMT2","MT2"]
+categories = ["HHKin_mass_raw","HHKin_mass_raw","HHKin_mass_raw","HHKin_mass_raw"]
+massesResonant = [300, 500, 650, 900]
 #categoriesNames = ["Resolved 2b0j","Resolved 1b1j", "Boosted","2015-like","Combined"]
-#masses = [250, 260, 270, 280, 300, 320, 340, 400, 450, 500, 550, 600, 650, 700, 750, 800, 900]
-channels = ["ETau","MuTau","TauTau","Combined"]
+channels = ["ETau","MuTau","TauTau","Combined"] #"Combined"
 channelsName = ["bb e#tau_{h} channel","bb #mu#tau_{h} channel","bb #tau_{h}#tau_{h} channel","bb #mu#tau_{h} + bb e#tau_{h} + bb #tau_{h}#tau_{h}"]
 #channels = "COMBINED"
 #colors = [2,3,4,6]
@@ -134,19 +136,32 @@ for c in range(len(channels)) :
 	gObs.SetMarkerColor(1)
 	gObs.SetMarkerStyle(20)
 	gObs.SetFillStyle(0)
+	masses = []
+	catstring = categories[c]
+	if "TauTau" in channels[c]:
+		catstring = catstring.replace("BDT","")
 	if benchmark == 1 : 
 		npoints = 12
 		app = "benchrew"
+		for m in range(0,npoints) : masses.append(m)
 	elif benchmark == 0 :
 		npoints = 52
 		app = "lambdarew"
+		for m in range(0,npoints) : masses.append(m)
 	elif benchmark < 0:
 		npoints = 1507
 		app = "5Dplane"
-	for m in range(0,npoints):
-		fileLocation = "/home/llr/cms/ortona/diHiggs/CMSSW_7_4_7/src/KLUBAnalysis/combiner/cards_"+channels[c]+"_"+folder+"/HH"+app+str(m)+categories[c]+"/higgsCombineHH"+app+str(m)+"_forLim.Asymptotic.mH125.root"
-		# print "FILE: " , fileLocation
-		if not os.path.isfile(fileLocation) : continue
+		for m in range(0,npoints) : masses.append(m)
+	else : 
+		app = "Radion"
+		npoints = len(massesResonant)
+		for m in range(0,npoints) : masses.append(massesResonant[m])
+	#for m in range(0,npoints):
+	for m in masses :
+		fileLocation = "/home/llr/cms/ortona/diHiggs/CMSSW_7_4_7/src/KLUBAnalysis/combiner/cards_"+channels[c]+"_"+folder+"/"+app+str(m)+catstring+"/higgsCombine"+app+str(m)+"_forLim.Asymptotic.mH125.root"
+		if not os.path.isfile(fileLocation) : 
+			print "FILE: " , fileLocation
+			continue
 		if benchmark<0 : pointNumbers.append(m)
 		fin = TFile.Open(fileLocation)
 		tree = fin.Get("limit")
@@ -196,6 +211,7 @@ for c in range(len(channels)) :
 	mg[c].Add(gAll)
 	mg[c].Add(gtemp[c])
 	mg[c].Add(gObs)
+	gAll.Print()
 
 #c = [TCanvas("ETau"),TCanvas("MuTau"),TCanvas("TauTau"),TCanvas("COMBINED")]
 #for ic in range(len(channels)):
@@ -257,7 +273,11 @@ for ic in range(len(channels)):
 
 	g95[ic].GetYaxis().SetTitleOffset(1.15)
 	g95[ic].GetXaxis().SetTitleOffset(1.1)
-
+	gxmin = -21
+	gxmax = 32
+	if benchmark == 999 : 
+		gxmin = 240
+		gxmax = 1000
 	#plot in the format to be passed to the 2D Xanda's macro
 	if benchmark < 0:
 		print " "
@@ -280,7 +300,7 @@ for ic in range(len(channels)):
 	if benchmark == 1 : 
 		g95[ic].GetYaxis().SetRangeUser(1,100000)
 		g95[ic].GetXaxis().SetRangeUser(-0.49+1.,11.49+1.) 
-	else : g95[ic].GetXaxis().SetRangeUser(-21,32) 
+	else : g95[ic].GetXaxis().SetRangeUser(gxmin,gxmax) 
 	g95[ic].GetYaxis().SetTitle("95% CL on #sigma#times BR(hh#rightarrow bb#tau#tau) [fb]")
 	if benchmark == 1 : 
 		g95[ic].GetXaxis().SetTitle("Benchmark number") 
@@ -292,6 +312,10 @@ for ic in range(len(channels)):
 		g68.Draw("2SAME")
 		gexp.Draw("PXSAME")
 	elif benchmark == 0 :
+		g95[ic].Draw("A2")
+		g68.Draw("2SAME")
+		gexp.Draw("PXSAME")
+	elif benchmark == 999 :
 		g95[ic].Draw("A2")
 		g68.Draw("2SAME")
 		gexp.Draw("PXSAME")
@@ -343,7 +367,7 @@ for ic in range(len(channels)):
 	pt2.SetTextSize(0.040)
 	pt2.SetTextFont(42)
 	pt2.SetFillStyle(0)
-	pt2.AddText("12.9 fb^{-1} (13 TeV)")
+	pt2.AddText("36.2 fb^{-1} (13 TeV)")
 
 	pt4 = TPaveText(0.4819196,0.7780357,0.9008929,0.8675595,"brNDC")
 	pt4.SetTextAlign(12)
@@ -364,6 +388,10 @@ for ic in range(len(channels)):
 	#getExpLine(cNice[ic],-20,30,1)
 	xmin=-20.4
 	xmax=31.4
+	if benchmark == 999 :
+		print "new axis"
+		xmin=240
+		xmax=1000
 	yt=1
 	BR = 1
 	myFunc =  TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*x -1.37*[0]*[0]*[0]*x)*2.44185/[1]",xmin,xmax);
@@ -394,14 +422,15 @@ for ic in range(len(channels)):
 	Graph_syst_Scale.SetLineColor(kRed)
 	Graph_syst_Scale.SetFillColor(kRed)
 	Graph_syst_Scale.SetFillStyle(3001)
+	app2=""
 	if benchmark == 0 : 
 		Graph_syst_Scale.Draw("e3");
 		app2 = "Final"
 	elif benchmark == 1 : app2 = "Benchmark"
 
 	if benchmark>-1:
-		for ext in outFormats : cNice[ic].SaveAs("plots/preApp_01_jul/limit"+app2+"_"+channels[ic]+outString+ext)
-		print "SAVED IN " , "plots/preApp_01_jul/limit"+app2+"_"+channels[ic]+outString+ext
+		for ext in outFormats : cNice[ic].SaveAs("plots/preApp_27_jan_2017/limit"+app2+"_"+channels[ic]+outString+ext)
+		print "SAVED IN " , "plots/preApp_27_jan_2017/limit"+app2+"_"+channels[ic]+outString+ext
 raw_input()
 
    #return ;

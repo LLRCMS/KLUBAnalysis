@@ -43,4 +43,5 @@ if __name__ == "__main__":
     scriptFile.write('echo "All done for job %s" \n'%opt.n)
     scriptFile.close()
     os.system('chmod u+rwx %s/runJob_Asym_%s.sh'%(jobsDir,opt.n))
-    os.system("/opt/exp_soft/cms/t3/t3submit -q cms \'%s/runJob_Asym_%s.sh\'"%(jobsDir,opt.n))
+    #os.system("/opt/exp_soft/cms/t3/t3submit -q cms \'%s/runJob_Asym_%s.sh\'"%(jobsDir,opt.n))
+    os.system("/opt/exp_soft/cms/t3/t3submit_new -short \'%s/runJob_Asym_%s.sh\'"%(jobsDir,opt.n))
