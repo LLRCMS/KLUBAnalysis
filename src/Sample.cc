@@ -20,7 +20,8 @@ Sample::Sample (string name, string filelistname, string treename, string histon
 // Sample (name, treename)
 {
     name_ = name;
-    tree_ = new TChain (treename.c_str());
+    // tree_ = new TChain (treename.c_str());
+    tree_ = unique_ptr<TChain>(new TChain(treename.c_str()));
     filelistname_ = filelistname;
     eff_         = 0.;
     evt_num_     = 0.;
@@ -34,8 +35,38 @@ Sample::Sample (string name, string filelistname, string treename, string histon
 
 Sample::~Sample ()
 {
-    delete tree_;
+    // delete tree_;
 }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+// Sample::Sample(std::string name, std::vector<Sample const *> sampleList)
+// {
+//     name_ = name;
+    
+//     // all the following are set to dummy values
+//     tree_ = nullptr;
+//     filelistname_ = "";
+//     eff_         = 0.;
+//     evt_num_     = 0.;
+//     evt_den_     = 0.;
+//     nentries_    = 0.;
+//     bin_eff_den_ = -1;
+//     treename_    = "";
+//     histoname_   = "";    
+
+//     if (sampleList.size() == 0)
+//     {
+//         cerr << "*** Sample::Sample (ctor from list of samples) : ERROR : the input list is empty, will create and empty sample" << endl;
+//         return;
+//     }
+
+//     cout << "@ Creating sample " << name_ << " summing the following samples" << endl;    
+//     for (auto s : sampleList)
+//         cout << "  ---> " << s->getName() << endl;
+
+//     // clone the structure and histos from sample number 1
+// }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

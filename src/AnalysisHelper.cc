@@ -58,6 +58,23 @@ bool AnalysisHelper::readMainInfo()
         outputFileName_ = mainCfg_->readStringOpt("general::outputFileName");
     cout << "@@ output file  name   : " << outputFileName_<< endl;       
     
+    if (mainCfg_->hasSect("merge"))
+    {
+        cout << "@@ will merge these samples: " << endl;
+        vector<string> samps_to_merge = mainCfg_->readListOfOpts("merge");
+        for (string s : samps_to_merge)
+        {
+            sample_merge_list_.append(s, mainCfg_->readStringListOpt( string("merge::")+s));
+            cout << "   -- " << s << "   <==   ";
+            for (unsigned int idx = 0; idx < sample_merge_list_.at(s).size(); ++idx)
+            {
+                cout << sample_merge_list_.at(s).at(idx);
+                if (idx != sample_merge_list_.at(s).size() -1 ) cout << ", ";
+                else cout << endl;
+            }
+        }
+    }
+
     return true;
 }
 
@@ -374,7 +391,7 @@ void AnalysisHelper::prepareSamplesHistos()
                     std::shared_ptr<TH1F> hist;
                     if (hasUserBinning) hist = make_shared<TH1F> (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, binning);
                     else                hist = make_shared<TH1F> (hname.c_str(), (hname+string(";")+varName+string(";events")).c_str(), nbins, xlow, xup);
-                    systcoll.append(hname, hist);
+                    systcoll.append(nominal_name_, hist);
 
                     // now loop over available syst and create more histos
                     if (doselW.at(ismpc) == 1)
@@ -536,7 +553,7 @@ void AnalysisHelper::prepareSamples2DHistos()
                     else if (hasUserBinning1 && !hasUserBinning2)  hist = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, binning1, nbins2, xlow2, xup2);
                     else if (!hasUserBinning1 && hasUserBinning2)  hist = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, binning2);
                     else                                           hist = make_shared<TH2F> (hname.c_str(), (hname+string(";")+varName1+string(";")+varName2).c_str(), nbins1, xlow1, xup1, nbins2, xlow2, xup2);
-                    systcoll.append(hname, hist);
+                    systcoll.append(nominal_name_, hist);
 
                     /*
                     // now loop over available syst and create more histos
@@ -1320,4 +1337,154 @@ void AnalysisHelper::prepareHistos()
 {
     prepareSamplesHistos();
     prepareSamples2DHistos();
+}
+
+void AnalysisHelper::mergeSamples()
+{
+    for (unsigned int isnew = 0; isnew < sample_merge_list_.size(); ++isnew)
+    {
+        string newname = sample_merge_list_.key(isnew);
+        cout << "@@ Merging histograms into " << newname << endl;
+
+        // create an empty new sample.
+        // NOTE: call this method after you finished to fill histos, the new sample has no tree associated and can't be filled!
+        shared_ptr<Sample> snew (new Sample(newname, ""));
+
+        // take the first histo in the list of masters
+        string snamefirst = sample_merge_list_.at(isnew).at(0);
+        shared_ptr<Sample> smaster = nullptr;
+        ordered_map <std::string, std::shared_ptr<Sample>>* chosenMap = nullptr;
+        int type = -1;
+        
+        if (data_samples_.has_key(snamefirst)){
+            type = (int) Sample::kData;
+            smaster = data_samples_.at(snamefirst);
+            chosenMap = &data_samples_;
+        }
+
+        else if (bkg_samples_.has_key(snamefirst)){
+            type = (int) Sample::kBkg;
+            smaster = bkg_samples_.at(snamefirst);
+            chosenMap = &bkg_samples_;
+        }
+
+        else if (sig_samples_.has_key(snamefirst)){
+            type = (int) Sample::kSig;
+            smaster = sig_samples_.at(snamefirst);
+            chosenMap = &sig_samples_;
+        }
+        else {
+            cerr << "** AnalysisHelper : mergeSamples : error : could not find the sample " << snamefirst << " to merge, won't merge" << endl;
+            return;
+        }
+        
+        if (DEBUG) cout << "   DEBUG: --- merging histos - type is: " << type << endl;
+
+        //////////////////////// -- 1D plots //////////////////////////////////
+        // clone the histogram structure from the master
+
+        Sample::selColl& plmaster = smaster->plots();
+        Sample::selColl& plnew    = snew->plots();
+        
+        if (DEBUG) cout << "   DEBUG: --- merging histos - going to loop over 1d plot to make structure" << endl;
+
+        for (unsigned int isel = 0; isel < plmaster.size(); ++isel){
+            string selName = plmaster.key(isel);
+            plnew.append(selName, Sample::varColl());
+            // if (DEBUG) cout << "   DEBUG: --- 1. merging histos - " << selName << " appended to plnew" << endl;
+            
+            for (unsigned int ivar = 0; ivar < plmaster.at(isel).size(); ++ivar ){
+                string varName = plmaster.at(isel).key(ivar);
+                plnew.at(isel).append(varName, Sample::systColl());
+                // if (DEBUG) cout << "   DEBUG: ---   2. merging histos - " << selName << " at " << varName << " appended to plnew" << endl;
+            
+                for (unsigned int isyst = 0; isyst < plmaster.at(isel).at(ivar).size(); ++isyst ){
+                    string systName = plmaster.at(isel).at(ivar).key(isyst);
+                    string hname = formHistoName (newname, selName, varName, systName);
+                    // if (DEBUG) cout << "   DEBUG: ---      .merging histos - new histo name is: " << hname << " from: " << newname << " " <<  selName << " " <<  varName << " " <<  systName << "-||-" << endl;
+                    std::shared_ptr<TH1F> hist ((TH1F*) plmaster.at(isel).at(ivar).at(isyst)->Clone(hname.c_str())) ;
+                    hist->SetTitle(hist->GetName());
+                    plnew.at(isel).at(ivar).append(systName, hist);
+                    // if (DEBUG) cout << "   DEBUG: ---     3. merging histos - " << selName << " at " << varName << " at " << systName << " done new histo, nbins: " << hist->GetNbinsX() << endl;
+                }   
+            }
+        }
+
+        if (DEBUG) cout << "   DEBUG: --- merging histos - going to add the other samples" << endl;
+
+        // now add the content of the other histos to merge
+        for (unsigned int idx = 1; idx < sample_merge_list_.at(isnew).size(); ++idx)
+        {
+            string sname = sample_merge_list_.at(isnew).at(idx);
+            Sample::selColl& pltoadd = chosenMap->at(sname)->plots();
+            for (unsigned int isel = 0; isel < plnew.size(); ++isel){
+                for (unsigned int ivar = 0; ivar < plnew.at(isel).size(); ++ivar ){
+                    for (unsigned int isyst = 0; isyst < plnew.at(isel).at(ivar).size(); ++isyst ){
+                        plnew.at(isel).at(ivar).at(isyst)->Add(pltoadd.at(isel).at(ivar).at(isyst).get());
+                    }   
+                }
+            }
+        }
+
+        //////////////////////// -- 2D plots //////////////////////////////////
+        // clone the histogram structure from the master
+
+        Sample::selColl2D& pl2Dmaster = smaster->plots2D();
+        Sample::selColl2D& pl2Dnew    = snew->plots2D();
+        
+        if (DEBUG) cout << "   DEBUG: --- merging histos - going to loop over 1d plot to make structure" << endl;
+
+        for (unsigned int isel = 0; isel < pl2Dmaster.size(); ++isel){
+            string selName = pl2Dmaster.key(isel);
+            pl2Dnew.append(selName, Sample::varColl2D());
+            // if (DEBUG) cout << "   DEBUG: --- 1. merging histos - " << selName << " appended to pl2Dnew" << endl;
+            
+            for (unsigned int ivar = 0; ivar < pl2Dmaster.at(isel).size(); ++ivar ){
+                string varName = pl2Dmaster.at(isel).key(ivar);
+                pl2Dnew.at(isel).append(varName, Sample::systColl2D());
+                // if (DEBUG) cout << "   DEBUG: ---   2. merging histos - " << selName << " at " << varName << " appended to pl2Dnew" << endl;
+                string varName1 = variables2D_.at(ivar).first;
+                string varName2 = variables2D_.at(ivar).second;
+                for (unsigned int isyst = 0; isyst < pl2Dmaster.at(isel).at(ivar).size(); ++isyst ){
+                    string systName = pl2Dmaster.at(isel).at(ivar).key(isyst);
+                    string hname = formHisto2DName (newname, selName, varName1, varName2, systName);
+                    // if (DEBUG) cout << "   DEBUG: ---      .merging histos - new histo name is: " << hname << " from: " << newname << " " <<  selName << " " <<  varName << " " <<  systName << "-||-" << endl;
+                    std::shared_ptr<TH2F> hist ((TH2F*) pl2Dmaster.at(isel).at(ivar).at(isyst)->Clone(hname.c_str())) ;
+                    hist->SetTitle(hist->GetName());
+                    pl2Dnew.at(isel).at(ivar).append(systName, hist);
+                    // if (DEBUG) cout << "   DEBUG: ---     3. merging histos - " << selName << " at " << varName << " at " << systName << " done new histo, nbins: " << hist->GetNbinsX() << endl;
+                }   
+            }
+        }
+
+        if (DEBUG) cout << "   DEBUG: --- merging histos - going to add the other samples" << endl;
+
+        // now add the content of the other histos to merge
+        for (unsigned int idx = 1; idx < sample_merge_list_.at(isnew).size(); ++idx)
+        {
+            string sname = sample_merge_list_.at(isnew).at(idx);
+            Sample::selColl2D& pltoadd = chosenMap->at(sname)->plots2D();
+            for (unsigned int isel = 0; isel < pl2Dnew.size(); ++isel){
+                for (unsigned int ivar = 0; ivar < pl2Dnew.at(isel).size(); ++ivar ){
+                    for (unsigned int isyst = 0; isyst < pl2Dnew.at(isel).at(ivar).size(); ++isyst ){
+                        pl2Dnew.at(isel).at(ivar).at(isyst)->Add(pltoadd.at(isel).at(ivar).at(isyst).get());
+                    }   
+                }
+            }
+        }
+
+        //////////////////////// now add the freshly created sample to its list, and remove old ones //////////////////////////////////
+
+        if (DEBUG) cout << "   DEBUG: --- merging histos - appending new sample" << endl;
+        chosenMap->append(newname, snew);
+        if (DEBUG) cout << "   DEBUG: --- merging histos - deleting merged samples" << endl;
+        for (string s : sample_merge_list_.at(isnew))
+            chosenMap->remove(s);
+        if (DEBUG) cout << "   DEBUG: --- merging histos - all done with sample " << newname << endl;
+        if (DEBUG){
+            cout << "   DEBUG: --- list of new samples " << endl;
+            for (unsigned int ii = 0; ii < chosenMap->size(); ++ii)
+                cout << "    ................ " << chosenMap->key(ii) << endl;
+        }
+    }
 }

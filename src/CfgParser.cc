@@ -307,3 +307,20 @@ bool CfgParser::hasOpt (std::string compact)
     auto split = splitCompact(compact);
     return hasOpt(split.first, split.second);
 }
+
+bool CfgParser::hasSect (std::string section)
+{
+    if (config_.find(section) == config_.end()) return false;
+    else return true;
+}
+
+std::vector<std::string> CfgParser::readListOfOpts(std::string section)
+{
+    vector<string> opt_list;
+    if (!hasSect(section)) return opt_list;
+
+    for (auto it = config_.at(section).begin(); it != config_.at(section).end(); ++it)
+        opt_list.push_back(it->first);
+
+    return opt_list;
+}
