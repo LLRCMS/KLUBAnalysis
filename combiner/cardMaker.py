@@ -48,6 +48,10 @@ class cardMaker:
         self.cardName = ""
         self.allHistos = []
 
+        self.evB = 0
+        self.evC = 0
+        self.evD = 0
+
     def loadIncludes(self):
         ROOT.gSystem.AddIncludePath("-I$ROOFITSYS/include/")
         ROOT.gSystem.AddIncludePath("-Iinclude/")
@@ -208,7 +212,7 @@ class cardMaker:
             for ix in range(1,1+template.GetNbinsX()):  
                 ## APPLY BIN BY BIN UNCERTAINTY to QCD, EACH BIN SCALED BY ITS OWN UNCERTAINTY 
                 nBin=template.GetBin(ix)
-                histName = pname+"_{0}_{1}".format(self.theChannel,self.theCat)+str(iy)+str(ix)                                            
+                histName = pname+"_{0}_{1}_{2}".format(self.theChannel,self.theCat,ix)                                            
                 templateUp= template.Clone()
                 templateDown=template.Clone()
                 #templateUp.Scale(1,"width")
@@ -388,6 +392,8 @@ class cardMaker:
                 for ibin in range(template.GetNbinsX()):
                     if template.GetBinContent(ibin)==0 :
                         template.SetBinContent(ibin, 0.000001)
+                if opt.addABCD and isample == "QCD" : 
+                    template.Scale(1.0/template.Integral())
                 theRates.append( template.Integral() ) #*self.lumi
                 totalRate = totalRate + theRates[len(theRates)-1]
                 print template.Integral()
@@ -490,7 +496,7 @@ class cardMaker:
             #templatesBKG[ibkg].Scale(1,"width") 
             templatesBKG[ibkg].Scale(tBkgIntegral/templatesBKG[ibkg].Integral(""))
 
-            self.AddBinByBinSyst(w,"CMS_HHbbtt_lowStat_{0}".format(ibkg),PdfName,templatesBKG[ibkg],ral_variableList,ras_variableSet, 0.18)
+            self.AddBinByBinSyst(w,"CMS_HHbbtt_lowStat_{0}".format(ibkg),PdfName,templatesBKG[ibkg],ral_variableList,ras_variableSet, 0.1)
             rdhB.append(ROOT.RooDataHist(TemplateName,TemplateName,ral_variableList,templatesBKG[ibkg]))
             rhpB.append(ROOT.RooHistPdf(PdfName,PdfName,ras_variableSet,rdhB[ibkg]))
 
@@ -514,9 +520,9 @@ class cardMaker:
         templateObs = inputFile.Get(TemplateName)
         #print templateObs
         obsEvents = templateObs.Integral() #templateObs.GetEntries()
-        evB = 0
-        evC = 0
-        evD = 0
+        self.evB = 0
+        self.evC = 0
+        self.evD = 0
         if opt.addABCD:
             evs = []
             regions = ["SStight","OSinviso","SSinviso"]
@@ -524,9 +530,9 @@ class cardMaker:
                 TemplateName = "data_obs_{2}_{3}_{0}{1}".format(theInputs.AllVars[theInputs.varX],var2,theInputs.selectionLevel,i)
                 templateTemp = inputFile.Get(TemplateName)
                 evs.append(templateTemp.Integral()) 
-            evB = evs[0]
-            evC = evs[1]
-            evD = evs[2]
+            self.evB = evs[0]
+            self.evC = evs[1]
+            self.evD = evs[2]
         print "observations: ", obsEvents    
 
         #data_obs = inputFile.Get(TemplateName)
@@ -595,7 +601,8 @@ class cardMaker:
         print channelName
         print theRates
 
-        file.write("imax 1\n")
+        if opt.addABCD  : file.write("imax 4\n")
+        else : file.write("imax 1\n")
         file.write("jmax {0}\n".format(len(channelName)-1))
         file.write("kmax *\n")
         
@@ -603,6 +610,10 @@ class cardMaker:
         #file.write("shapes * * {0} w:$PROCESS w:$PROCESS_$SYSTEMATIC\n".format(name_ShapeWS))
         file.write("#shapes * * {0} w:$PROCESS w:$PROCESS_$SYSTEMATIC\n".format(string_ShapeWS))
         file.write("shapes * * {0} $PROCESS $PROCESS_$SYSTEMATIC\n".format(string_histoWS))
+        if opt.addABCD :
+            file.write("shapes * B2 FAKE\n")
+            file.write("shapes * C2 FAKE\n")
+            file.write("shapes * D2 FAKE\n")
         file.write("------------\n")
         
 
@@ -610,7 +621,7 @@ class cardMaker:
         obsline = "observation {0} \n".format(obsEvents)
         if opt.addABCD :
             binline = "bin a{0} B{0} C{0} D{0} \n".format(theChannel)
-            obsline = "observation {0} {1} {2} {3} \n".format(obsEvents,evB,evC,evD)
+            obsline = "observation {0} {1} {2} {3} \n".format(obsEvents,self.evB,self.evC,self.evD)
         file.write(binline)
         file.write(obsline)
         
@@ -619,25 +630,38 @@ class cardMaker:
         file.write("bin ")        
         for chan in channelName:
             file.write("a{0} ".format(theChannel))
+        if opt.addABCD :
+            file.write("B{0} C{0} D{0} ".format(theChannel))
         file.write("\n")
                                         
         file.write("process ")
         #i=0
         for chan in channelName:
             file.write("{0} ".format(chan))
-            #i+=1
+        if opt.addABCD :
+            file.write("bkg_QCD bkg_QCD bkg_QCD ")
         file.write("\n")
         file.write("process ")
+        chanQCD=999
         for chan in range(len(channelName)):
             file.write("{0} ".format(chan))
+            if channelName[chan] == "bkg_QCD" : chanQCD = chan
+        if opt.addABCD :
+            file.write("{0} {0} {0}".format(chanQCD))
         file.write("\n")
 
         file.write("rate ")
         for chan in range(len(channelName)):
             file.write("{0:.4f} ".format(theRates[chan]))
+        if opt.addABCD : 
+            file.write("1.0 1.0 1.0 ")
         file.write("\n")
 
         file.write("------------\n")
+        if opt.addABCD :
+            theInputs.background.append("XXXB")
+            theInputs.background.append("XXXC")
+            theInputs.background.append("XXXD")
         syst = systReader("../config/systematics.cfg",[theHHLambda],theInputs.background,file)
         #syst = systReader("../config/systematics_test.cfg",['Lambda{0}'.format(theOutLambda)],theInputs.background) 
         if(theChannel == self.ID_ch_tautau ): 
@@ -690,11 +714,11 @@ class cardMaker:
                 teschannels.remove(notes)
         teschannels.append(theHHLambda)
         if self.addTES : syst.writeOneLine(teschannels,"CMS_HHbbtt_scale_tau"+" shape ")
-        if opt.addABCD:
-            file.write("alpha rateParam A bkg (@0*@1/@2) beta,gamma,delta \n")
-            file.write("beta  rateParam B bkg {0} \n".format(evB))
-            file.write("gamma rateParam C bkg  {0} \n".format(evC))
-            file.write("delta rateParam D bkg  {0} \n".format(evD))
+        if opt.addABCD :
+            file.write("alpha rateParam a{0} bkg_QCD (@0*@1/@2) beta,gamma,delta \n".format(theChannel))
+            file.write("beta  rateParam B{0} bkg_QCD {1} \n".format(theChannel,self.evB))
+            file.write("gamma rateParam C{0} bkg_QCD {1} \n".format(theChannel,self.evC))
+            file.write("delta rateParam D{0} bkg_QCD {1} \n".format(theChannel,self.evD))
 
         ###
         w.writeToFile(name_ShapeWS)
@@ -712,18 +736,53 @@ class cardMaker:
         cmb1.SetFlag('workspaces-use-clone', True)
         cmb1.ParseDatacard(in_dir + self.cardName, "hhbbtt", "13TeV", opt.channel, opt.category, "125") 
         bbb = ch.BinByBinFactory()
-        #bbb.SetAddThreshold(0.1).SetMergeThreshold(0.5).SetFixNorm(True)
-        bbb.SetAddThreshold(0.1).SetFixNorm(True)
-        #bbb.MergeBinErrors(cmb1.cp().backgrounds())
+        bbb.SetAddThreshold(0.1).SetMergeThreshold(0.5).SetFixNorm(True)
+        #bbb.SetAddThreshold(0.1).SetFixNorm(True)
+        bbb.MergeBinErrors(cmb1.cp().backgrounds())
         bbb.AddBinByBin(cmb1.cp().backgrounds(), cmb1)    
         #cmb1.PrintObs().PrintProcs().PrintSysts()    
         ch.SetStandardBinNames(cmb1);
         #cmb1.PrintObs().PrintProcs().PrintSysts()    
 
-        self.cardName = self.cardName.replace("temp","hh")
+        if opt.addABCD : self.cardName = self.cardName.replace("temp","temp2")
+        else : self.cardName.replace("temp","hh")
         rootOut = self.cardName.replace(".txt",".input.root")
         output = TFile.Open(in_dir+rootOut,"RECREATE")
         cmb1.WriteDatacard(in_dir+self.cardName, in_dir+rootOut)
+        if opt.addABCD : self.hackTheCard(in_dir+self.cardName,in_dir+self.cardName.replace("temp2","hh"))
+
+    def hackTheCard(self,origName,destName) :
+        infile = open(origName)
+        print "opening",origName,"and sending to",destName
+        file = open(destName, "wb")
+        nbinSub = 0
+        binName = ""
+        for line in infile :
+            outline = line
+            f = line.split()
+            if line.startswith('imax') :
+                outline = "imax    4 number of bins\n"
+            if line.startswith('shapes') and f[1]  == "ggHH_hbbhtt" :
+                outline = line + "shapes * B2 FAKE \n shapes * C2 FAKE \n shapes * D2 FAKE \n"
+            if line.startswith('bin') and nbinSub == 0 :
+                outline = f[0]+" "+f[1]+" B2 C2 D2 \n"
+                binName = f[1]
+                nbinSub = 1
+            if line.startswith('bin') and nbinSub == 1 :
+                nProc = len(f)
+                outline = ""
+                for iword in range(len(f)-3):
+                    outline = outline + " " + f[iword]
+                outline = outline + " B2 C2 D2 \n"
+            if line.startswith("alpha") and "rateParam" in line :
+                outline = "alpha rateParam {0} bkg_QCD (@0*@1/@2) beta,gamma,delta \n".format(binName)
+            if line.startswith("beta" )and "rateParam" in line :
+                outline = line.replace("*","B2")
+            if line.startswith("gamma") and "rateParam" in line :
+                outline = line.replace("*","C2")
+            if line.startswith("delta") and "rateParam" in line :
+                outline = line.replace("*","D2")
+            file.write(outline)
 
 #define function for parsing options
 def parseOptions():

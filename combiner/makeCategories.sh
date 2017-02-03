@@ -1,22 +1,30 @@
 #!/bin/bash
 # make cards with all vars/selections
 
-export OUTSTRING="2017_01_26"
+export OUTSTRING="2017_02_26_$1"
 
-export SELECTIONS="s1b1jresolvedMcutBDT s2b0jresolvedMcutBDT sboostedLLMcut"
+export STRINGLEPTONS="$1"
+export SELECTIONS="s2b0jresolvedMcut${STRINGLEPTONS} s1b1jresolvedMcut${STRINGLEPTONS} sboostedLLMcut"
 export SELECTIONSTAU="s1b1jresolvedMcut s2b0jresolvedMcut sboostedLLMcut"
-#export SELECTIONS="s2b0jresolvedMcutBDT"
-export VARIABLE="HHKin_mass_raw"
 
-export LAMBDAS="Radion300 Radion500 Radion650 Radion900"
-#export LAMBDAS="Radion250 Radion260 Radion270 Radion280 Radion300 Radion320 Radion340 Radion400 Radion450 Radion500 Radion550 Radion600 Radion650 Radion700 Radion750 Radion800 Radion900"
-#export LAMBDAS=""
-#for il in {0..51}
-#do 
-#    export LAMBDAS="$LAMBDAS lambdarew${il}"
-#done
+export RESONANT=$2
+
+if [ "${RESONANT}" != "" ]
+    then
+        export VARIABLE="HHKin_mass_raw"
+        export LAMBDAS="Radion250 Radion260 Radion270 Radion280 Radion300 Radion320 Radion340 Radion400 Radion450 Radion500 Radion550 Radion600 Radion650 Radion700 Radion750 Radion800 Radion900"
+        #export LAMBDAS="Radion250"
+    else
+        export VARIABLE="MT2"
+        export LAMBDAS=""
+        #export INSELECTIONS="s2b0jresolvedMcutlmr90 s1b1jresolvedMcutlmr90 s2b0jresolvedMcuthmr90 s1b1jresolvedMcuthmr90 sboostedLLMcut s1b1jresolvedMcutlmr70 s2b0jresolvedMcutlmr70 s1b1jresolvedMcutLepTauKine s2b0jresolvedMcutLepTauKine"
+        for il in {0..51}
+        do 
+        export LAMBDAS="$LAMBDAS lambdarew${il}"
+    done
+fi
+
 export QUANTILES="0.025 0.16 0.5 0.84 0.975 -1.0"
-
 export SOURCE="/home/llr/cms/cadamuro/testAnalysisHelper2/CMSSW_7_4_7/src/KLUBAnalysis" 
 
 #create all the cards 3 categories x 3 channels
@@ -34,11 +42,11 @@ do
         fi
         if [ "${c}" == "TauTau" ]
             then
-            export BASE=${ibase/BDT/}
+            export BASE=${ibase/${STRINGLEPTONS}/}
             echo "$BASE"
         fi
-    echo "python cardMaker.py -i ${SOURCE}/analysis_${c}_26Gen_2/mainCfg_${c}.cfg     -f ${SOURCE}/analysis_${c}_26Gen_2/analyzedOutPlotter.root   -o $BASE -c ${c}   --dir _$OUTSTRING -t 0"
-    python cardMaker.py -i ${SOURCE}/analysis_${c}_26Gen_2/mainCfg_${c}.cfg     -f ${SOURCE}/analysis_${c}_26Gen_2/analyzedOutPlotter.root   -o $BASE -c ${c}   --dir "_$OUTSTRING" -t 0 -r # -r #-S /home/llr/cms/cadamuro/FittedHHKinFit/outPlotter_fit_sigs_ETau.root
+    python cardMaker.py -i ${SOURCE}/analysis_${c}_1Feb_lims/mainCfg_${c}.cfg -f ${SOURCE}/analysis_${c}_1Feb_lims/analyzedOutPlotter.root   -o $BASE -c ${c}   --dir "_$OUTSTRING" -t 0 ${RESONANT} 
+    # -r #-S /home/llr/cms/cadamuro/FittedHHKinFit/outPlotter_fit_sigs_ETau.root
     #python cardMaker.py -i ${SOURCE}/analysis_MuTau_26Gen/mainCfg_MuTau.cfg   -f ${SOURCE}/analysis_MuTau_26Gen/analyzedOutPlotter.root  -o $BASE -c MuTau  --dir "_$OUTSTRING" -t 0 # -r #-S /home/llr/cms/cadamuro/FittedHHKinFit/outPlotter_fit_sigs_MuTau.root
 #done
 #for base in $SELECTIONSTAU
@@ -75,7 +83,7 @@ do
             then
                 export chanNum="3"
                 echo "${c} ${chanNum}" 
-                export BASE=${ibase/BDT/}
+                export BASE=${ibase/${STRINGLEPTONS}/}
             fi
             cd cards_${c}_$OUTSTRING/${i}${BASE}${VARIABLE}
             pwd
@@ -111,7 +119,7 @@ do
             fi
             if [ "${c}" == "TauTau" ]
             then
-                export BASE=${ibase/BDT/}
+                export BASE=${ibase/${STRINGLEPTONS}/}
             fi
             mkdir -p cards_${c}_$OUTSTRING/${i}${VARIABLE}
             cp cards_${c}_$OUTSTRING/${i}${BASE}${VARIABLE}/hh_*.* cards_Combined_$OUTSTRING/${i}${ibase}${VARIABLE}/.

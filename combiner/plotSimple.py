@@ -9,18 +9,20 @@ from ROOT import *
 # folder = "2016_07_26_out3" #bis = 3cat, ter = 2cat
 # outString = "_25_jul"
 
-folder = "2017_01_26" #bis = 3cat, ter = 2cat
-outString = "2017_01_26_firstResonant"
+folder = "2017_02_26_lmr70" #bis = 3cat, ter = 2cat
+outString = "2017_02_02_lmr70"
 
 outFormats = [".pdf",".png",".root",".C"]
-benchmark = 999 # -1: 1507 points, 0: lambda, 1: benchmark, 999 Risonante, by default we do not plot the 1507 points
+benchmark = 0 # -1: 1507 points, 0: lambda, 1: benchmark, 999 Risonante, by default we do not plot the 1507 points
 addObserved = False
 #scale=1000*37.9*0.073
 #scale=1000.0/100.0 #/37.9/0.073
 scale=1000.0 #from pb to fb?
 #categories = ["s1b1jresolvedMcutBDTMT2","s2b0jresolvedMcutBDTMT2","sboostedLLMcutMT2","MT2"]
-categories = ["HHKin_mass_raw","HHKin_mass_raw","HHKin_mass_raw","HHKin_mass_raw"]
-massesResonant = [300, 500, 650, 900]
+#categories = ["HHKin_mass_raw","HHKin_mass_raw","HHKin_mass_raw","HHKin_mass_raw"]
+categories = ["MT2","MT2","MT2","MT2"]
+massesResonant = [250, 260, 270, 280, 300, 320, 340, 400, 450, 500, 550, 600, 650, 700, 750, 800, 900]
+#isResonant = True
 #categoriesNames = ["Resolved 2b0j","Resolved 1b1j", "Boosted","2015-like","Combined"]
 channels = ["ETau","MuTau","TauTau","Combined"] #"Combined"
 channelsName = ["bb e#tau_{h} channel","bb #mu#tau_{h} channel","bb #tau_{h}#tau_{h} channel","bb #mu#tau_{h} + bb e#tau_{h} + bb #tau_{h}#tau_{h}"]
@@ -139,7 +141,7 @@ for c in range(len(channels)) :
 	masses = []
 	catstring = categories[c]
 	if "TauTau" in channels[c]:
-		catstring = catstring.replace("BDT","")
+		catstring = catstring.replace("hmr90","")
 	if benchmark == 1 : 
 		npoints = 12
 		app = "benchrew"
@@ -172,7 +174,8 @@ for c in range(len(channels)) :
 		low=0
 		limit = 0
 		obs = 0
-		offsetX = 20
+		offsetX = 20 
+		if benchmark == 999 : offsetX =0
 		errX = 0.3
 		if benchmark == 1 : 
 			offsetX = -1
@@ -305,6 +308,7 @@ for ic in range(len(channels)):
 	if benchmark == 1 : 
 		g95[ic].GetXaxis().SetTitle("Benchmark number") 
 		g95[ic].GetXaxis().SetNdivisions(13) 
+	elif benchmark == 999 : g95[ic].GetXaxis().SetTitle("M_H [GeV]")
 	else : g95[ic].GetXaxis().SetTitle("k_{#lambda}")
 	gStyle.SetOptTitle(0)
 	if benchmark == 1 : 
@@ -316,9 +320,9 @@ for ic in range(len(channels)):
 		g68.Draw("2SAME")
 		gexp.Draw("PXSAME")
 	elif benchmark == 999 :
-		g95[ic].Draw("A2")
-		g68.Draw("2SAME")
-		gexp.Draw("PXSAME")
+		g95[ic].Draw("A3")
+		g68.Draw("3SAME")
+		gexp.Draw("PLXSAME")
 	if addObserved and benchmark>-1:
 		gObs.Draw("PSAME")
 	legend = TLegend()#	cNice[ic].BuildLegend()
