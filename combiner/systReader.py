@@ -43,6 +43,7 @@ class systReader:
                 if f[0].startswith('['):
                     f = re.split('\W+',line)
                     section = f[1]
+                    newSection = True
 
                     #print "before ",outputLine
                     if outputLine is not "" :
@@ -87,6 +88,8 @@ class systReader:
             else:
                 outputLine += "- "
         self.theOutputFile.write(outputLine+"\n")
+
+
 
 
 

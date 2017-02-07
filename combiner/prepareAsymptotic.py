@@ -38,9 +38,10 @@ if __name__ == "__main__":
     #scriptFile.write('rm SingleElectronPt35_PU0_GEN_SIM_%d.root\n'%n)
     #if (float(opt.n)>0) :    
         #scriptFile.write('combine -M HybridNew --frequentist -m 125.0 --testStat LHC %s/comb.root  -H ProfileLikelihood -n forLim_%s --expectedFromGrid=%s &> out_%s.log \n' % (jobsDir,opt.n,opt.n,opt.n))
-    scriptFile.write('combine -M Asymptotic -m 125.0 %s/comb.root  -n %s_forLim &> out_Asym_%s.log \n' % (jobsDir,opt.n,opt.n))
-    scriptFile.write('combine -M Asymptotic -m 125.0 %s/comb.root  -n %s_forLim_noBR --freezeNuisances HH_BR_Hbb,HH_BR_Htt &> out_Asym_%s_noBR.log \n' % (jobsDir,opt.n,opt.n))
+    scriptFile.write('combine -M Asymptotic -m 125.0 %s/comb.root  -n %s_forLim --run=blind &> out_Asym_%s.log \n' % (jobsDir,opt.n,opt.n))
+    scriptFile.write('combine -M Asymptotic -m 125.0 %s/comb.root  -n %s_forLim_noBR --run=blind --freezeNuisances HH_BR_Hbb,HH_BR_Htt &> out_Asym_%s_noBR.log \n' % (jobsDir,opt.n,opt.n))
     scriptFile.write('echo "All done for job %s" \n'%opt.n)
     scriptFile.close()
     os.system('chmod u+rwx %s/runJob_Asym_%s.sh'%(jobsDir,opt.n))
-    os.system("/opt/exp_soft/cms/t3/t3submit -q cms \'%s/runJob_Asym_%s.sh\'"%(jobsDir,opt.n))
+    #os.system("/opt/exp_soft/cms/t3/t3submit -q cms \'%s/runJob_Asym_%s.sh\'"%(jobsDir,opt.n))
+    os.system("/opt/exp_soft/cms/t3/t3submit_new -short \'%s/runJob_Asym_%s.sh\'"%(jobsDir,opt.n))
