@@ -105,18 +105,18 @@ def  writeCard(input,theLambda,select,region=-1) :
 	cmb1.AddProcesses(["125"], variables, ['13TeV'], [opt.channel], [theLambda], categories, True) #signals[0]
 
 	#Add systematics (implement configReader!)
-	systName = ""
-	channels=[]
-	systFile = open("../config/systematics.cfg")
-	for line in systFile :
-		f = line.split()
-		if len(f) < 1: continue
-		if f[0].startswith("#"): continue
-
-		if f[0].startswith('['):
-			f = re.split('\W+',line)
-			systName = f[1]
-
+#	systName = ""
+#	channels=[]
+#	systFile = open("../config/systematics.cfg")
+#	for line in systFile :
+#		f = line.split()
+#		if len(f) < 1: continue
+#		if f[0].startswith("#"): continue
+#
+#		if f[0].startswith('['):
+#			f = re.split('\W+',line)
+#			systName = f[1]
+#
 	#print input.background
 	cmb1.cp().AddSyst(cmb1, "lumi_$ERA", "lnN", ch.SystMap()(1.013))
 	#now I can simply loop over the results of configReader
@@ -161,8 +161,9 @@ def  writeCard(input,theLambda,select,region=-1) :
 
 		outroot = TFile.Open(opt.outDir+"/chCard{0}{2}_{1}_{3}.input.root".format(theLambda,opt.channel,regionName[region+1],select),"RECREATE")
 		cmb1.WriteDatacard(outFile,opt.outDir+"/chCard{0}{2}_{1}_{3}.input.root".format(theLambda,opt.channel,regionName[region+1],select))
+		file = open( outFile, "wb")	
+		file.write("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD".format(select))
 	else :
-		print outFile
 		file = open( outFile, "wb")
 		file.write("imax 1\n")
 		file.write("jmax {0}\n".format(len(backgrounds)-1))
