@@ -72,6 +72,13 @@ def  writeCard(input,theLambda,select,region=-1) :
 	cmb1 = ch.CombineHarvester()
 	cmb1.SetFlag('workspaces-use-clone', True)
 
+	cmd = "mkdir -p {0}".format(opt.outDir)
+	regionName = ["","regB","regC","regD"]
+	regionSuffix = ["SR","SStight","OSinviso","SSinviso"]
+	status, output = commands.getstatusoutput(cmd)   
+	outFile = opt.outDir+"/chCard{0}{2}_{1}_{3}.txt".format(theLambda,opt.channel,regionName[region+1],select)
+	file = open( outFile, "wb")
+
 	#read config
 	categories = []
 	variables =[]
@@ -104,24 +111,9 @@ def  writeCard(input,theLambda,select,region=-1) :
 	cmb1.AddProcesses(["125"], variables, ['13TeV'], [opt.channel], backgrounds, categories, False)
 	cmb1.AddProcesses(["125"], variables, ['13TeV'], [opt.channel], [theLambda], categories, True) #signals[0]
 
-	#Add systematics (implement configReader!)
-#	systName = ""
-#	channels=[]
-#	systFile = open("../config/systematics.cfg")
-#	for line in systFile :
-#		f = line.split()
-#		if len(f) < 1: continue
-#		if f[0].startswith("#"): continue
-#
-#		if f[0].startswith('['):
-#			f = re.split('\W+',line)
-#			systName = f[1]
-#
+
 	#print input.background
-	cmb1.cp().AddSyst(cmb1, "lumi_$ERA", "lnN", ch.SystMap()(1.013))
 	#now I can simply loop over the results of configReader
-	#cmb1.cp().AddSyst(cmb1, "testSyst","lnN",ch.SystMap('channel','bin_id')([opt.channel],[backgrounds.index("TT")+1],1.999))
-	cmb1.cp().process(['TT']).AddSyst(cmb1, "testSyst","lnN",ch.SystMap('channel','bin_id')([opt.channel],[0],1.999))
 #	cb.cp().process(['WH', 'ZH']).AddSyst(
 #		cb, "QCDscale_VH", "lnN", ch.SystMap('channel', 'era', 'bin_id')
 #    (['mt'], ['7TeV', '8TeV'],  [1, 2],               1.010)
@@ -135,15 +127,38 @@ def  writeCard(input,theLambda,select,region=-1) :
 #	$MASS       --> proc.mass()
 #	$SYSTEMATIC --> syst.name()
 
-	#cmb1.cp().PrintProcs()
-	#cmb1.cp().signals().PrintProcs()
-	regionName = ["","regB","regC","regD"]
-	regionSuffix = ["SR","SStight","OSinviso","SSinviso"]
-	outFile = opt.outDir+"/chCard{0}{2}_{1}_{3}.txt".format(theLambda,opt.channel,regionName[region+1],select)
-	cmd = "mkdir -p {0}".format(opt.outDir)
-	status, output = commands.getstatusoutput(cmd)   
-
 	if region < 0 :
+
+		#Systematics (I need to add by hand the shape ones)
+		syst = systReader("../config/systematics.cfg",[theLambda],backgrounds,file)
+		syst.writeOutput(False)
+		syst.verbose(False)
+		if(opt.channel == "TauTau" ): 
+			syst.addSystFile("../config/systematics_tautau.cfg")
+		elif(opt.channel == "MuTau" ): 
+			syst.addSystFile("../config/systematics_mutau.cfg")
+			if(opt.isResonant):
+				syst.addSystFile("../config/systematics_resonant.cfg")
+			else : syst.addSystFile("../config/systematics_nonresonant.cfg")
+		elif(opt.channel == "ETau" ): 
+			syst.addSystFile("../config/systematics_etau.cfg")
+			if(self.isResonant):
+				syst.addSystFile("../config/systematics_resonant.cfg")
+			else : syst.addSystFile("../config/systematics_nonresonant.cfg")
+		#if(self.writeThSyst) :
+		#	syst_th = systReader("../config/syst_th.cfg",[theLambda],backgrounds,file)
+		#	syst_th.writeSystematics()
+		syst.writeSystematics()
+		#print "SYST", syst.SystNames
+		#print "TYPES",syst.SystTypes
+		#print "PROCS",syst.SystProcesses
+		#print "VALUES",syst.SystValues
+
+		for isy in range(len(syst.SystNames)) :
+			for iproc in range(len(syst.SystProcesses[isy])) :
+				#print isy, iproc, float(syst.SystValues[isy][iproc])
+				cmb1.cp().process([syst.SystProcesses[isy][iproc]]).AddSyst(cmb1, syst.SystNames[isy],syst.SystTypes[isy],ch.SystMap('channel','bin_id')([opt.channel],[0],float(syst.SystValues[isy][iproc])))
+
 		cmb1.cp().backgrounds().ExtractShapes(
 			opt.filename,
 			"$PROCESS_$BIN_{1}_{0}".format(variables[0],regionSuffix[region+1]),
@@ -161,10 +176,9 @@ def  writeCard(input,theLambda,select,region=-1) :
 
 		outroot = TFile.Open(opt.outDir+"/chCard{0}{2}_{1}_{3}.input.root".format(theLambda,opt.channel,regionName[region+1],select),"RECREATE")
 		cmb1.WriteDatacard(outFile,opt.outDir+"/chCard{0}{2}_{1}_{3}.input.root".format(theLambda,opt.channel,regionName[region+1],select))
-		file = open( outFile, "wb")	
+		file = open( outFile, "a")	
 		file.write("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD".format(select))
 	else :
-		file = open( outFile, "wb")
 		file.write("imax 1\n")
 		file.write("jmax {0}\n".format(len(backgrounds)-1))
 		file.write("kmax *\n")
@@ -173,10 +187,11 @@ def  writeCard(input,theLambda,select,region=-1) :
 		file.write("shapes * * FAKE\n".format(opt.channel,regionName[region+1]))
 		file.write("------------\n")
 
-		templateName = "data_obs_{1}_SR_{2}".format(bkg,select,variables[0])
+		templateName = "data_obs_{1}_{3}_{2}".format(bkg,select,variables[0],regionSuffix[region+1])
 		template = inRoot.Get(templateName)        
 		file.write("bin {0} \n".format(select))
-		file.write("observation {0} \n".format(template.GetEntries()))
+		obs = template.GetEntries()
+		file.write("observation {0} \n".format(obs))
 
 		file.write("------------\n")
 
@@ -196,13 +211,23 @@ def  writeCard(input,theLambda,select,region=-1) :
 		file.write("\n")
 
 		file.write("rate ")
-		for chan in backgrounds:
-			if "QCD" in chan :
-				file.write("1.0 ")
+		rates = []
+		iQCD = -1
+		totRate = 0
+		for ichan in range(len(backgrounds)):
+			if "QCD" in backgrounds[ichan] :
+				rates.append(-1)
+				iQCD = ichan
 			else :
-				templateName = "{0}_{1}_SR_{2}".format(chan,select,variables[0])
+				templateName = "{0}_{1}_{3}_{2}".format(backgrounds[ichan],select,variables[0],regionSuffix[region+1])
 				template = inRoot.Get(templateName)
-				file.write("{0:.4f} ".format(template.Integral()))
+				#print templateName
+				brate = template.Integral()
+				rates.append(brate)
+				totRate = totRate + brate
+		if iQCD >= 0 : rates[iQCD] = TMath.Min(0.0000001,obs-totRate)
+		for ichan in range(len(backgrounds)):
+			file.write("{0:.4f} ".format(rates[ichan]))
 		file.write("\n")
 		file.write("------------\n")
 		file.write("QCD_{0} rateParam  {1} QCD 1 \n".format(regionName[region+1],select))
