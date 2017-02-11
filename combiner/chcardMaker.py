@@ -23,8 +23,8 @@ def parseOptions():
     parser.add_option('-c', '--channel',   dest='channel', type='string', default='MuTau',  help='final state')
     #parser.add_option('-b', '--category',   dest='category', type='int', default='999',  help='btag category')
     parser.add_option('-i', '--config',   dest='config', type='string', default='',  help='config file')
-    #parser.add_option('-o', '--selection', dest='overSel', type='string', default='', help='overwrite selection string')
-    parser.add_option('-v', '--variable', dest='overVar', type='string', default='bH_mass', help='overwrite plot variable (only1D)')
+    parser.add_option('-s', '--selection', dest='overSel', type='string', default='', help='overwrite selection string')
+    #parser.add_option('-v', '--variable', dest='overVar', type='string', default='bH_mass', help='overwrite plot variable (only1D)')
     parser.add_option('-r', '--resonant',  action="store_true",  dest='isResonant', help='is Resonant analysis')
     parser.add_option('-y', '--binbybin',  action="store_true", dest='binbybin', help='add bin by bins systematics')
 
@@ -32,26 +32,73 @@ def parseOptions():
     global opt, args
     (opt, args) = parser.parse_args()
 
-def  writeCard(input,theLambda) :
+def hackTheCard(origName,destName) :
+	#I need to do this for the rateParams
+    infile = open(origName)
+    print "opening",origName,"and sending to",destName
+    file = open(destName, "wb")
+    nbinSub = 0
+    binName = ""
+    for line in infile :
+        outline = line
+        f = line.split()
+        if line.startswith('imax') :
+            outline = "imax    4 number of bins\n"
+        if line.startswith('shapes') and f[1]  == "ggHH_hbbhtt" :
+            outline = line + "shapes * B{0} FAKE \n shapes * C{0} FAKE \n shapes * D{0} FAKE \n".format(self.theChannel)
+        if line.startswith('bin') and nbinSub == 0 :
+            outline = f[0]+" "+f[1]+" B{0} C{0} D{0} \n".format(self.theChannel)
+            binName = f[1]
+            nbinSub = 1
+        if line.startswith('bin') and nbinSub == 1 :
+            nProc = len(f)
+            outline = ""
+            for iword in range(len(f)-3):
+                outline = outline + " " + f[iword]
+            outline = outline + " B{0} C{0} D{0} \n".format(self.theChannel)
+        if line.startswith("alpha") and "rateParam" in line :
+            outline = "alpha rateParam {0} bkg_QCD (@0*@1/@2) beta,gamma,delta \n".format(binName)
+        if line.startswith("beta" )and "rateParam" in line :
+            outline = line.replace("*","B{0}".format(self.theChannel))
+        if line.startswith("gamma") and "rateParam" in line :
+            outline = line.replace("*","C{0}".format(self.theChannel))
+        if line.startswith("delta") and "rateParam" in line :
+            outline = line.replace("*","D{0}".format(self.theChannel))
+        file.write(outline)
+
+def  writeCard(input,theLambda,select,region=-1) :
 	out_dir = opt.outDir
 	#in_dir = "/grid_mnt/vol__vol_U__u/llr/cms/ortona/diHiggs/CMSSW_7_4_7/src/KLUBAnalysis/combiner/cards_MuTauprova/HHSM2b0jMcutBDTMT2/";
 	cmb1 = ch.CombineHarvester()
 	cmb1.SetFlag('workspaces-use-clone', True)
 
+	cmd = "mkdir -p {0}".format(opt.outDir)
+	regionName = ["","regB","regC","regD"]
+	regionSuffix = ["SR","SStight","OSinviso","SSinviso"]
+	status, output = commands.getstatusoutput(cmd)   
+	outFile = opt.outDir+"/chCard{0}{2}_{1}_{3}.txt".format(theLambda,opt.channel,regionName[region+1],select)
+	file = open( outFile, "wb")
+
 	#read config
 	categories = []
 	variables =[]
-	for icat in range(len(input.selections)) :
-		categories.append((icat, input.selections[icat]))
+	#for icat in range(len(input.selections)) :
+	#	categories.append((icat, input.selections[icat]))
+	categories.append((0,select))
 	if opt.isResonant : variables.append('HHKin_mass_raw')
 	else : variables.append('MT2')
 
 	backgrounds=[]
 	processes=[]
-	for bkg in input.background:
-		backgrounds.append(bkg)
-		processes.append(bkg)
 	processes.append(theLambda)
+	inRoot = TFile.Open(opt.filename)
+	for bkg in input.background:
+		#Add protection against empty processes => If I remove this I could build all bins at once instead of looping on the selections
+		templateName = "{0}_{1}_SR_{2}".format(bkg,select,variables[0])
+		template = inRoot.Get(templateName)
+		if template.Integral()>0.000001 :
+			backgrounds.append(bkg)
+			processes.append(bkg)
 
 	#add processes to CH
 	#masses->125 
@@ -59,26 +106,14 @@ def  writeCard(input,theLambda) :
 	#eras->13TeV 
 	#channels->mutau/tautau/etau 
 	#bin->bjet categories
-	print signals, signals[0]
+	#print signals, signals[0]
 	cmb1.AddObservations(["125"], variables, ['13TeV'], [opt.channel], categories)
 	cmb1.AddProcesses(["125"], variables, ['13TeV'], [opt.channel], backgrounds, categories, False)
 	cmb1.AddProcesses(["125"], variables, ['13TeV'], [opt.channel], [theLambda], categories, True) #signals[0]
 
-	#Add systematics (implement configReader!)
-	systName = ""
-	channels=[]
-	systFile = open("../config/systematics.cfg")
-	for line in systFile :
-		f = line.split()
-		if len(f) < 1: continue
-		if f[0].startswith("#"): continue
 
-		if f[0].startswith('['):
-			f = re.split('\W+',line)
-			systName = f[1]
-
-
-	cmb1.cp().AddSyst(cmb1, "lumi_$ERA", "lnN", ch.SystMap()(1.013))
+	#print input.background
+	#now I can simply loop over the results of configReader
 #	cb.cp().process(['WH', 'ZH']).AddSyst(
 #		cb, "QCDscale_VH", "lnN", ch.SystMap('channel', 'era', 'bin_id')
 #    (['mt'], ['7TeV', '8TeV'],  [1, 2],               1.010)
@@ -92,25 +127,110 @@ def  writeCard(input,theLambda) :
 #	$MASS       --> proc.mass()
 #	$SYSTEMATIC --> syst.name()
 
-	#cmb1.cp().PrintProcs()
-	#cmb1.cp().signals().PrintProcs()
-	cmb1.cp().backgrounds().ExtractShapes(
-		opt.filename,
-		"$PROCESS_$BIN_SR_{0}".format(variables[0]),
-		"$PROCESS_$BIN_SR_{0}_$SYSTEMATIC".format(variables[0]))
-	cmb1.cp().signals().ExtractShapes(
+	if region < 0 :
+
+		#Systematics (I need to add by hand the shape ones)
+		syst = systReader("../config/systematics.cfg",[theLambda],backgrounds,file)
+		syst.writeOutput(False)
+		syst.verbose(False)
+		if(opt.channel == "TauTau" ): 
+			syst.addSystFile("../config/systematics_tautau.cfg")
+		elif(opt.channel == "MuTau" ): 
+			syst.addSystFile("../config/systematics_mutau.cfg")
+			if(opt.isResonant):
+				syst.addSystFile("../config/systematics_resonant.cfg")
+			else : syst.addSystFile("../config/systematics_nonresonant.cfg")
+		elif(opt.channel == "ETau" ): 
+			syst.addSystFile("../config/systematics_etau.cfg")
+			if(self.isResonant):
+				syst.addSystFile("../config/systematics_resonant.cfg")
+			else : syst.addSystFile("../config/systematics_nonresonant.cfg")
+		#if(self.writeThSyst) :
+		#	syst_th = systReader("../config/syst_th.cfg",[theLambda],backgrounds,file)
+		#	syst_th.writeSystematics()
+		syst.writeSystematics()
+		#print "SYST", syst.SystNames
+		#print "TYPES",syst.SystTypes
+		#print "PROCS",syst.SystProcesses
+		#print "VALUES",syst.SystValues
+
+		for isy in range(len(syst.SystNames)) :
+			for iproc in range(len(syst.SystProcesses[isy])) :
+				#print isy, iproc, float(syst.SystValues[isy][iproc])
+				cmb1.cp().process([syst.SystProcesses[isy][iproc]]).AddSyst(cmb1, syst.SystNames[isy],syst.SystTypes[isy],ch.SystMap('channel','bin_id')([opt.channel],[0],float(syst.SystValues[isy][iproc])))
+
+		cmb1.cp().backgrounds().ExtractShapes(
 			opt.filename,
-		"$PROCESS_$BIN_SR_{0}".format(variables[0]),
-		"$PROCESS_$BIN_SR_{0}_$SYSTEMATIC".format(variables[0]))
+			"$PROCESS_$BIN_{1}_{0}".format(variables[0],regionSuffix[region+1]),
+			"$PROCESS_$BIN_{1}_{0}_$SYSTEMATIC".format(variables[0],regionSuffix[region+1]))
+		cmb1.cp().signals().ExtractShapes(
+			opt.filename,
+			"$PROCESS_$BIN_{1}_{0}".format(variables[0],regionSuffix[region+1]),
+			"$PROCESS_$BIN_{1}_{0}_$SYSTEMATIC".format(variables[0],regionSuffix[region+1]))
 
+		bbb = ch.BinByBinFactory()
+		bbb.SetAddThreshold(0.1).SetMergeThreshold(0.5).SetFixNorm(True)
+		bbb.MergeBinErrors(cmb1.cp().backgrounds())
+		if opt.binbybin : bbb.AddBinByBin(cmb1.cp().backgrounds(), cmb1)
+		cmb1.cp().PrintProcs().PrintSysts()
 
-	bbb = ch.BinByBinFactory()
-	bbb.SetAddThreshold(0.1).SetMergeThreshold(0.5).SetFixNorm(True)
-	bbb.MergeBinErrors(cmb1.cp().backgrounds())
-	if opt.binbybin :bbb.AddBinByBin(cmb1.cp().backgrounds(), cmb1)
-	
-	cmb1.cp().PrintProcs()
-	cmb1.WriteDatacard(opt.outDir+"/chCard{0}_{1}.txt".format(theLambda,opt.channel),opt.outDir+"/chCard{0}_{1}.input.root".format(theLambda,opt.channel))
+		outroot = TFile.Open(opt.outDir+"/chCard{0}{2}_{1}_{3}.input.root".format(theLambda,opt.channel,regionName[region+1],select),"RECREATE")
+		cmb1.WriteDatacard(outFile,opt.outDir+"/chCard{0}{2}_{1}_{3}.input.root".format(theLambda,opt.channel,regionName[region+1],select))
+		file = open( outFile, "a")	
+		file.write("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD".format(select))
+	else :
+		file.write("imax 1\n")
+		file.write("jmax {0}\n".format(len(backgrounds)-1))
+		file.write("kmax *\n")
+
+		file.write("------------\n")
+		file.write("shapes * * FAKE\n".format(opt.channel,regionName[region+1]))
+		file.write("------------\n")
+
+		templateName = "data_obs_{1}_{3}_{2}".format(bkg,select,variables[0],regionSuffix[region+1])
+		template = inRoot.Get(templateName)        
+		file.write("bin {0} \n".format(select))
+		obs = template.GetEntries()
+		file.write("observation {0} \n".format(obs))
+
+		file.write("------------\n")
+
+		file.write("bin ")        
+		for chan in backgrounds:
+			file.write("{0} ".format(select))
+		file.write("\n")      
+
+		file.write("process ")
+		for chan in backgrounds:
+			file.write("{0} ".format(chan))
+		file.write("\n")
+
+		file.write("process ")
+		for chan in range(len(backgrounds)):
+			file.write("{0} ".format(chan+1))
+		file.write("\n")
+
+		file.write("rate ")
+		rates = []
+		iQCD = -1
+		totRate = 0
+		for ichan in range(len(backgrounds)):
+			if "QCD" in backgrounds[ichan] :
+				rates.append(-1)
+				iQCD = ichan
+			else :
+				templateName = "{0}_{1}_{3}_{2}".format(backgrounds[ichan],select,variables[0],regionSuffix[region+1])
+				template = inRoot.Get(templateName)
+				#print templateName
+				brate = template.Integral()
+				rates.append(brate)
+				totRate = totRate + brate
+		if iQCD >= 0 : rates[iQCD] = TMath.Min(0.0000001,obs-totRate)
+		for ichan in range(len(backgrounds)):
+			file.write("{0:.4f} ".format(rates[ichan]))
+		file.write("\n")
+		file.write("------------\n")
+		file.write("QCD_{0} rateParam  {1} QCD 1 \n".format(regionName[region+1],select))
 
 ROOT.gSystem.AddIncludePath("-I$ROOFITSYS/include/")
 ROOT.gSystem.AddIncludePath("-Iinclude/")
@@ -123,5 +243,12 @@ else: configname = opt.config
 input = configReader(configname)
 input.readInputs()
 
+if opt.overSel == "" :
+	allSel = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut"]
+else : allSel = [opt.overSel]
+
 for theLambda in input.signals:
-	writeCard(input,theLambda)
+	for sel in allSel : 
+		if not "lambda" in theLambda and not "Radion" in theLambda : continue
+		for ireg in range(-1,3) :
+			writeCard(input,theLambda,sel,ireg)
