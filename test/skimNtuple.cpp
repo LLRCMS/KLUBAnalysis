@@ -35,6 +35,7 @@
 #include "ScaleFactor.h"
 #include "ConfigParser.h"
 #include "EffCounter.h"
+#include "tauTrigSFreader.h"
 #include "exceptions/HHInvMConstraintException.h"
 #include "exceptions/HHEnergyRangeException.h"
 #include "exceptions/HHEnergyConstraintException.h"
@@ -74,13 +75,21 @@ const float DYscale_MM[3] = {9.44841e-01, 1.29404e+00, 1.28542e+00} ;
 //     {0.354615200387 , 0.285223034235 , 0.0977183487048 , 0.098552902997 , 0.0936281612454}
 // }; // jet binned and b binned, 8 jul 2016
 
+// const float stitchWeights [][5] = {
+//     {2.97927051428 , 0.0 , 0.0 , 0.0 , 0.0},
+//     {0.401700471936 , 0.313567146487 , 0.0 , 0.0 , 0.0},
+//     {0.43376913912 , 0.33311444536 , 0.101563317164 , 0.0 , 0.0},
+//     {0.44761355606 , 0.340870252304 , 0.10029914665 , 0.0994092045617 , 0.0},
+//     {0.353436942964 , 0.284254291888 , 0.0963966329522 , 0.0972197079415 , 0.092337393936}
+// };  // jet binned and b binned, 28 nov 2016
+
 const float stitchWeights [][5] = {
-    {2.97927051428 , 0.0 , 0.0 , 0.0 , 0.0},
-    {0.401700471936 , 0.313567146487 , 0.0 , 0.0 , 0.0},
-    {0.43376913912 , 0.33311444536 , 0.101563317164 , 0.0 , 0.0},
-    {0.44761355606 , 0.340870252304 , 0.10029914665 , 0.0994092045617 , 0.0},
-    {0.353436942964 , 0.284254291888 , 0.0963966329522 , 0.0972197079415 , 0.092337393936}
-};  // jet binned and b binned, 28 nov 2016
+    {2.96970591027 , 0.0 , 0.0 , 0.0 , 0.0},
+    {0.40848145146 , 0.33006603191 , 0.0 , 0.0 , 0.0},
+    {0.420075226373 , 0.337888056259 , 0.096536134169 , 0.0 , 0.0},
+    {0.431426212048 , 0.344817310665 , 0.0952166256522 , 0.094350931903 , 0.0},
+    {0.339954183508 , 0.284560899763 , 0.0915028373483 , 0.0922864405088 , 0.0874799674999}
+}; // jet binned and b binned, 07 Feb 2017
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // open input txt file and append all the files it contains to TChain
@@ -317,11 +326,9 @@ float getTriggerWeight(int partType, float pt, float eta, TH1F* rewHisto = 0, Sc
       }
       case 1: // ele
       {
-        float xmin = rewHisto->GetBinLowEdge(1);
-        float xmax = rewHisto->GetBinLowEdge(rewHisto->GetNbinsX()+1);
-        if (pt < xmin) pt = xmin + 1.E-6;
-        if (pt > xmax) pt = xmax - 1.E-6;
         int bin = rewHisto->FindBin (pt);
+        if (bin == 0) bin = 1;
+        if (bin >= rewHisto->GetNbinsX()+1) bin = rewHisto->GetNbinsX();
         weight =  rewHisto->GetBinContent (bin);
         break;
       }
@@ -339,6 +346,32 @@ float getTriggerWeight(int partType, float pt, float eta, TH1F* rewHisto = 0, Sc
     }
 
     return weight;
+}
+
+// generic function to read content of 1D / 2D histos, taking care of x axis limit (no under/over flow)
+double getContentHisto1D(TH1* histo, double x)
+{
+  int nbinsx = histo->GetNbinsX();
+  int ibin = histo->FindBin(x);
+  if (ibin == 0) ibin = 1;
+  if (ibin > nbinsx) ibin = nbinsx;
+  return histo->GetBinContent(ibin);
+}
+
+double getContentHisto2D(TH2* histo, double x, double y)
+{
+  int nbinsx = histo->GetNbinsX();
+  int nbinsy = histo->GetNbinsY();
+  int ibinx = histo->GetXaxis()->FindBin(x);
+  int ibiny = histo->GetYaxis()->FindBin(y);
+
+  if (ibinx == 0)     ibinx = 1;
+  if (ibinx > nbinsx) ibinx = nbinsx;
+
+  if (ibiny == 0)     ibiny = 1;
+  if (ibiny > nbinsy) ibiny = nbinsy;
+  
+  return histo->GetBinContent(ibinx, ibiny);
 }
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
@@ -479,7 +512,9 @@ int main (int argc, char** argv)
   vector<string> trigEleEle  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleEle")  : gConfigParser->readStringListOption ("triggersData::EleEle")) ;
   vector<string> trigMuMu    =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuMu")  : gConfigParser->readStringListOption ("triggersData::MuMu")) ;
 
-  bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
+  // bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
+  bool applyTriggers = isMC ? gConfigParser->readBoolOption ("parameters::applyTriggersMC") : true; // true if ask triggerbit + matching, false if doing reweight
+
   // applyTriggers = true;
   cout << "** INFO: apply triggers? " << applyTriggers << " [ 0: reweight , 1: triggerbit+matching ]" << endl;
   if (applyTriggers)
@@ -575,7 +610,7 @@ int main (int argc, char** argv)
   string bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFile") ;
   string bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFile") ;
   cout << "B Tag SF file: " << bTag_SFFile << endl;
-  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, ""); // third field unused, but could be needed to select efficiencies for different selection levels
+  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "80X_MORIOND_2017"); // third field unused, but could be needed to select efficiencies for different selection levels
 
   // ------------------------------
   
@@ -585,19 +620,40 @@ int main (int argc, char** argv)
       myScaleFactor[i][j]= new ScaleFactor();
  
   // FIXME: move to cfg?
-  myScaleFactor[0][0] -> init_ScaleFactor("weights/data/data/Muon/Muon_IsoMu22_eff_Spring16.root");
-  myScaleFactor[0][1] -> init_ScaleFactor("weights/data/data/Muon/Muon_IdIso_eff_Spring16.root");
-  myScaleFactor[1][0] -> init_ScaleFactor("weights/data/data/Electron/Electron_Ele23_eff_Spring16.root"); // note! not our trigger
-  myScaleFactor[1][1] -> init_ScaleFactor("weights/data/data/Electron/Electron_IdIso_eff_Spring16.root");
+  myScaleFactor[0][0] -> init_ScaleFactor("weights/HTT_SF_2016/Muon/Run2016BtoH/Muon_IsoMu24_OR_TkIsoMu24_2016BtoH_eff.root");
+  myScaleFactor[0][1] -> init_ScaleFactor("weights/HTT_SF_2016/Muon/Run2016BtoH/Muon_IdIso_IsoLt0p15_2016BtoH_eff.root");
+  myScaleFactor[1][0] -> init_ScaleFactor("weights/HTT_SF_2016/Electron/Run2016BtoH/Electron_Ele25_eta2p1_WPTight_eff.root");
+  myScaleFactor[1][1] -> init_ScaleFactor("weights/HTT_SF_2016/Electron/Run2016BtoH/Electron_IdIso_IsoLt0p1_eff.root");
 
   // muon POG SFs
-  TFile* fMuPOGSF_ID = new TFile ("weights/MuPogSF/MuonID_Z_RunBCD_prompt80X_7p65.root");
-  TFile* fMuPOGSF_ISO = new TFile ("weights/MuPogSF/MuonIso_Z_RunBCD_prompt80X_7p65.root");
-  TH2F* hMuPOGSF_ID  = (TH2F*) fMuPOGSF_ID -> Get("MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio");  // pt: x, eta: y
-  TH2F* hMuPOGSF_ISO = (TH2F*) fMuPOGSF_ISO -> Get("MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio"); // pt: x, eta: y
-  // for loose ID:
+  // TFile* fMuPOGSF_ID = new TFile ("weights/MuPogSF/MuonID_Z_RunBCD_prompt80X_7p65.root");
+  // TFile* fMuPOGSF_ISO = new TFile ("weights/MuPogSF/MuonIso_Z_RunBCD_prompt80X_7p65.root");
+  // TH2F* hMuPOGSF_ID  = (TH2F*) fMuPOGSF_ID -> Get("MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio");  // pt: x, eta: y
+  // TH2F* hMuPOGSF_ISO = (TH2F*) fMuPOGSF_ISO -> Get("MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio"); // pt: x, eta: y
+  
+  // muon POG SFs - summer16 MC
+  TFile* fMuPOGSF_ID_BF   = new TFile ("weights/MuPogSF/Summer16MC/IDSF/EfficienciesAndSF_BCDEF.root");
+  TFile* fMuPOGSF_ISO_BF  = new TFile ("weights/MuPogSF/Summer16MC/ISOSF/EfficienciesAndSF_BCDEF.root");
+  TFile* fMuPOGSF_trig_p3 = new TFile ("weights/MuPogSF/Summer16MC/TrigSF/EfficienciesAndSF_Period3.root");
+
+  TFile* fMuPOGSF_ID_GH   = new TFile ("weights/MuPogSF/Summer16MC/IDSF/EfficienciesAndSF_GH.root");
+  TFile* fMuPOGSF_ISO_GH  = new TFile ("weights/MuPogSF/Summer16MC/ISOSF/EfficienciesAndSF_GH.root");
+  TFile* fMuPOGSF_trig_p4 = new TFile ("weights/MuPogSF/Summer16MC/TrigSF/EfficienciesAndSF_Period4.root");
+
+  TH2F* hMuPOGSF_ID_BF    = (TH2F*) fMuPOGSF_ID_BF -> Get("MC_NUM_TightID_DEN_genTracks_PAR_pt_eta/pt_abseta_ratio");  // pt: x, eta: y
+  TH2F* hMuPOGSF_ISO_BF   = (TH2F*) fMuPOGSF_ISO_BF -> Get("TightISO_TightID_pt_eta/pt_abseta_ratio"); // pt: x, eta: y
+  TH2F* hMuPOGSF_trig_p3  = (TH2F*) fMuPOGSF_trig_p3 -> Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/pt_abseta_ratio"); // pt: x, eta: y
+
+  TH2F* hMuPOGSF_ID_GH    = (TH2F*) fMuPOGSF_ID_GH -> Get("MC_NUM_TightID_DEN_genTracks_PAR_pt_eta/pt_abseta_ratio");  // pt: x, eta: y
+  TH2F* hMuPOGSF_ISO_GH   = (TH2F*) fMuPOGSF_ISO_GH -> Get("TightISO_TightID_pt_eta/pt_abseta_ratio"); // pt: x, eta: y
+  TH2F* hMuPOGSF_trig_p4  = (TH2F*) fMuPOGSF_trig_p4 -> Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/pt_abseta_ratio"); // pt: x, eta: y
+
+  // // for loose ID:
   // MC_NUM_LooseID_DEN_genTracks_PAR_pt_spliteta_bin1
   // MC_NUM_LooseRelIso_DEN_TightID_PAR_pt_spliteta_bin1
+
+  // tau trigger SFs from Riccardo Summer 2016 MC
+  tauTrigSFreader tauTrgSF ("weights/tau_trigger_SF_2016.root");
 
   // ------------------------------
   // smT2 mt2Class = smT2();
@@ -690,6 +746,7 @@ int main (int argc, char** argv)
   EffCounter ec;
   ec.AddMarker ("all");
   ec.AddMarker ("METfilter");
+  ec.AddMarker ("NoBadMuons");
   ec.AddMarker ("PairExists");
   ec.AddMarker ("PairFoundBaseline");
   ec.AddMarker ("Trigger");
@@ -704,6 +761,7 @@ int main (int argc, char** argv)
     {
       ecHHsig[ic].AddMarker ("all");
       ecHHsig[ic].AddMarker ("METfilter");
+      ecHHsig[ic].AddMarker ("NoBadMuons");
       ecHHsig[ic].AddMarker ("PairExists");
       ecHHsig[ic].AddMarker ("PairFoundBaseline");
       ecHHsig[ic].AddMarker ("PairMatchesGen");
@@ -1164,6 +1222,13 @@ int main (int argc, char** argv)
     // if(metpass > 0) continue ; // FIXME!!! disabled only temporarily
     ec.Increment ("METfilter", EvtW);
     if (isHHsignal) ecHHsig[genHHDecMode].Increment ("METfilter", EvtW);
+
+    // ----------------------------------------------------------
+    // require that the event is not affected by the Bad/Clone Muon problem -- for 2016 data
+    // if (theBigTree.NBadMu > 0) continue ; // FIXME!! To uncomment as soon as data reprocessing is finished
+    ec.Increment ("NoBadMuons", EvtW);
+    if (isHHsignal) ecHHsig[genHHDecMode].Increment ("NoBadMuons", EvtW);
+
 
     // ----------------------------------------------------------
     // require at least 1 pair
@@ -1672,6 +1737,8 @@ int main (int argc, char** argv)
     theSmallTree.m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (secondDaughterIndex) & (1 << ibit) ) ? true : false ;
 
     theSmallTree.m_dau1_pt = tlv_firstLepton.Pt () ;
+    theSmallTree.m_dau1_pt_tauup = tlv_firstLepton_tauup.Pt () ;
+    theSmallTree.m_dau1_pt_taudown = tlv_firstLepton_taudown.Pt () ;
     theSmallTree.m_dau1_eta = tlv_firstLepton.Eta () ;
     theSmallTree.m_dau1_phi = tlv_firstLepton.Phi () ;
     theSmallTree.m_dau1_e = theBigTree.daughters_e->at (firstDaughterIndex) ;
@@ -1687,6 +1754,8 @@ int main (int argc, char** argv)
     theSmallTree.m_dau2_antimu  = makeIsoDiscr (secondDaughterIndex, tauAntiMuIdx, theBigTree) ;
     theSmallTree.m_dau2_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (secondDaughterIndex) ;      
     theSmallTree.m_dau2_pt = tlv_secondLepton.Pt () ;
+    theSmallTree.m_dau2_pt_tauup = tlv_secondLepton_tauup.Pt () ;
+    theSmallTree.m_dau2_pt_taudown = tlv_secondLepton_taudown.Pt () ;
     theSmallTree.m_dau2_eta = tlv_secondLepton.Eta () ;
     theSmallTree.m_dau2_phi = tlv_secondLepton.Phi () ;
     theSmallTree.m_dau2_e = theBigTree.daughters_e->at (secondDaughterIndex) ;
@@ -1696,40 +1765,99 @@ int main (int argc, char** argv)
     float trigSF = 1.0;
     float idAndIsoSF = 1.0;
     // particle 2 is always a TAU --  FIXME: not good for emu
+    
+    // FIXME: should I compute a SF for ID-ISO for taus?
     if (type1 == 0 && isMC) // mu
     {
       // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
-      trigSF = 1.0; // no trigger info available in MC
+      // trigSF = 1.0; // no trigger info available in MC
+
+      float mupt  = tlv_firstLepton.Pt();
+      float muabseta = TMath::Abs(tlv_firstLepton.Eta());
       
-      int ptbin = hMuPOGSF_ID->GetXaxis()->FindBin(tlv_firstLepton.Pt());
-      if (ptbin > hMuPOGSF_ID->GetNbinsX()) ptbin = hMuPOGSF_ID->GetNbinsX();
-      else if (ptbin < 1) ptbin = 1;
+      // to combine SF based on lumi, here is the list of lumi in /fb per run period
+      // B 5.892
+      // C 2.646
+      // D 4.353
+      // E 4.117
+      // F 3.186
+      // G 7.721
+      // H 8.857
+      // TOT: 36.772
+      
+      // B-F : 20.194 (frac: 0.5492)
+      // G-H : 16.578 (frac: 0.4508)
+      // cout << "DEBUG: getting content histo 2D : " << hMuPOGSF_ID_BF << " " << hMuPOGSF_ID_GH << " " << hMuPOGSF_ISO_BF << " " << hMuPOGSF_ISO_GH << " " << hMuPOGSF_trig_p3 << " " << hMuPOGSF_trig_p4 << endl;
+      // ID
+      double idsf_BF = getContentHisto2D(hMuPOGSF_ID_BF, mupt, muabseta);
+      double idsf_GH = getContentHisto2D(hMuPOGSF_ID_GH, mupt, muabseta);
+      double idsf = 0.5492*idsf_BF + 0.4508*idsf_GH; 
 
-      int etabin = hMuPOGSF_ID->GetYaxis()->FindBin(TMath::Abs(tlv_firstLepton.Eta()));
-      if (etabin > hMuPOGSF_ID->GetNbinsY()) etabin = hMuPOGSF_ID->GetNbinsY();
-      else if (etabin < 1) etabin = 1;
+      // ISO
+      double isosf_BF = getContentHisto2D(hMuPOGSF_ISO_BF, mupt, muabseta);
+      double isosf_GH = getContentHisto2D(hMuPOGSF_ISO_GH, mupt, muabseta);
+      double isosf = 0.5492*isosf_BF + 0.4508*isosf_GH; 
 
-      idAndIsoSF = hMuPOGSF_ID->GetBinContent(ptbin, etabin);
+      idAndIsoSF = idsf * isosf;
 
-      ptbin = hMuPOGSF_ISO->GetXaxis()->FindBin(tlv_firstLepton.Pt());
-      if (ptbin > hMuPOGSF_ISO->GetNbinsX()) ptbin = hMuPOGSF_ISO->GetNbinsX();
-      else if (ptbin < 1) ptbin = 1;
+      // TRIG -- just to compute if I am not reweighting the MC
+      if (applyTriggers)
+      {
+        // NOTE: from mu POG twiki, Period 3: (3/fb) run F post L1 EMFT fix (from run 278167); Period 4: (16/fb) run GH (post HIPs fix).
+        // so normalization is different in this case. TOT LUMI = 16+3 = 19. p3: 0.158, p4: 0.842
+        double trigsf_p3 = getContentHisto2D(hMuPOGSF_trig_p3, mupt, muabseta);
+        double trigsf_p4 = getContentHisto2D(hMuPOGSF_trig_p4, mupt, muabseta);
 
-      etabin = hMuPOGSF_ISO->GetYaxis()->FindBin(TMath::Abs(tlv_firstLepton.Eta()));
-      if (etabin > hMuPOGSF_ISO->GetNbinsY()) etabin = hMuPOGSF_ISO->GetNbinsY();
-      else if (etabin < 1) etabin = 1;
+        trigSF = 0.158*trigsf_p3 + 0.842*trigsf_p4;
+      }
 
-      idAndIsoSF *= hMuPOGSF_ISO->GetBinContent(ptbin, etabin);
+      // int ptbin = hMuPOGSF_ID->GetXaxis()->FindBin(tlv_firstLepton.Pt());
+      // if (ptbin > hMuPOGSF_ID->GetNbinsX()) ptbin = hMuPOGSF_ID->GetNbinsX();
+      // else if (ptbin < 1) ptbin = 1;
+
+      // int etabin = hMuPOGSF_ID->GetYaxis()->FindBin(TMath::Abs(tlv_firstLepton.Eta()));
+      // if (etabin > hMuPOGSF_ID->GetNbinsY()) etabin = hMuPOGSF_ID->GetNbinsY();
+      // else if (etabin < 1) etabin = 1;
+
+      // idAndIsoSF = hMuPOGSF_ID->GetBinContent(ptbin, etabin);
+
+      // ptbin = hMuPOGSF_ISO->GetXaxis()->FindBin(tlv_firstLepton.Pt());
+      // if (ptbin > hMuPOGSF_ISO->GetNbinsX()) ptbin = hMuPOGSF_ISO->GetNbinsX();
+      // else if (ptbin < 1) ptbin = 1;
+
+      // etabin = hMuPOGSF_ISO->GetYaxis()->FindBin(TMath::Abs(tlv_firstLepton.Eta()));
+      // if (etabin > hMuPOGSF_ISO->GetNbinsY()) etabin = hMuPOGSF_ISO->GetNbinsY();
+      // else if (etabin < 1) etabin = 1;
+
+      // idAndIsoSF *= hMuPOGSF_ISO->GetBinContent(ptbin, etabin);
       // idAndIsoSF = myScaleFactor[type1][1]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
     }
 
+    // FIXME: should I compute a SF for ID-ISO for taus?
     else if (type1 == 1 && isMC) // ele
     {
       // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
-      trigSF = 1.0; // no trigger info available in MC
+      // trigSF = 1.0; // no trigger info available in MC
+      
+      // FIXME: should we use MU POG SFs?
       idAndIsoSF = myScaleFactor[type1][1]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
+      
+      if (applyTriggers)
+        trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
     }
 
+    else if (type1 == 2 && isMC) // tau tau pair
+    {
+
+      idAndIsoSF = 1.0; // recommendation from tau POG?
+  
+      if (applyTriggers)
+      {      
+        double SF1 = tauTrgSF.getSF(tlv_firstLepton.Pt(),  theBigTree.decayMode->at(firstDaughterIndex)) ;
+        double SF2 = tauTrgSF.getSF(tlv_secondLepton.Pt(), theBigTree.decayMode->at(secondDaughterIndex)) ;
+        trigSF = SF1 * SF2;
+      }
+    }
 
     theSmallTree.m_trigSF     = (isMC ? trigSF : 1.0);
     theSmallTree.m_IdAndIsoSF = (isMC ? idAndIsoSF : 1.0);
@@ -1915,11 +2043,58 @@ int main (int argc, char** argv)
       TLorentzVector tlv_firstBjet_raw = tlv_firstBjet;
       TLorentzVector tlv_secondBjet_raw = tlv_secondBjet;
 
+      // ----- up/down variation using JEC
+      double unc_first = theBigTree.jets_jecUnc->at (bjet1idx);
+      TLorentzVector tlv_firstBjet_raw_jetup = tlv_firstBjet_raw;
+      TLorentzVector tlv_firstBjet_raw_jetdown = tlv_firstBjet_raw;
+      
+      tlv_firstBjet_raw_jetup.SetPtEtaPhiE(
+        (1.+unc_first) *tlv_firstBjet_raw_jetup.Pt(),
+        tlv_firstBjet_raw_jetup.Eta(),
+        tlv_firstBjet_raw_jetup.Phi(),
+        (1.+unc_first) *tlv_firstBjet_raw_jetup.E()
+      );
+      tlv_firstBjet_raw_jetdown.SetPtEtaPhiE(
+        (1.-unc_first) *tlv_firstBjet_raw_jetdown.Pt(),
+        tlv_firstBjet_raw_jetdown.Eta(),
+        tlv_firstBjet_raw_jetdown.Phi(),
+        (1.-unc_first) *tlv_firstBjet_raw_jetdown.E()
+      );
+
+
+      double unc_second = theBigTree.jets_jecUnc->at (bjet2idx);
+      TLorentzVector tlv_secondBjet_raw_jetup = tlv_firstBjet_raw;
+      TLorentzVector tlv_secondBjet_raw_jetdown = tlv_firstBjet_raw;
+
+      tlv_secondBjet_raw_jetup.SetPtEtaPhiE(
+        (1.+unc_second) *tlv_secondBjet_raw_jetup.Pt(),
+        tlv_secondBjet_raw_jetup.Eta(),
+        tlv_secondBjet_raw_jetup.Phi(),
+        (1.+unc_second) *tlv_secondBjet_raw_jetup.E()
+      );
+      tlv_secondBjet_raw_jetdown.SetPtEtaPhiE(
+        (1.-unc_second) *tlv_secondBjet_raw_jetdown.Pt(),
+        tlv_secondBjet_raw_jetdown.Eta(),
+        tlv_secondBjet_raw_jetdown.Phi(),
+        (1.-unc_second) *tlv_secondBjet_raw_jetdown.E()
+      );
+
+
       theSmallTree.m_bjet1_pt_raw = tlv_firstBjet_raw.Pt();
       theSmallTree.m_bjet2_pt_raw = tlv_secondBjet_raw.Pt();
+      theSmallTree.m_bjet1_pt_raw_jetup = tlv_firstBjet_raw_jetup.Pt();
+      theSmallTree.m_bjet2_pt_raw_jetup = tlv_secondBjet_raw_jetup.Pt();
+      theSmallTree.m_bjet1_pt_raw_jetdown = tlv_firstBjet_raw_jetdown.Pt();
+      theSmallTree.m_bjet2_pt_raw_jetdown = tlv_secondBjet_raw_jetdown.Pt();
 
       TLorentzVector tlv_bH_raw = tlv_firstBjet + tlv_secondBjet ;
+      TLorentzVector tlv_bH_raw_jetup   = tlv_firstBjet_raw_jetup + tlv_secondBjet_raw_jetup ;
+      TLorentzVector tlv_bH_raw_jetdown =  tlv_firstBjet_raw_jetdown + tlv_secondBjet_raw_jetdown ;
+      
       theSmallTree.m_bH_mass_raw = tlv_bH_raw.M();
+      theSmallTree.m_bH_mass_raw_jetup   = tlv_bH_raw_jetup.M();
+      theSmallTree.m_bH_mass_raw_jetdown = tlv_bH_raw_jetdown.M();
+
       // FIXME : here mass is manually set to 0, should we change it?
       float ptScale1 = ptRegr[0] / tlv_firstBjet.Pt() ;
       float ptScale2 = ptRegr[1] / tlv_secondBjet.Pt() ;
@@ -2032,6 +2207,10 @@ int main (int argc, char** argv)
                                                    tlv_firstLepton_tauup, tlv_secondLepton_tauup,  ptmiss, stableMetCov) ;
         HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_taudown = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet_raw, tlv_secondBjet_raw, 
                                                    tlv_firstLepton_taudown, tlv_secondLepton_taudown,  ptmiss, stableMetCov) ;
+        HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetup = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet_raw_jetup, tlv_secondBjet_raw_jetup, 
+                                                   tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
+        HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetdown = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet_raw_jetdown, tlv_secondBjet_raw_jetdown, 
+                                                   tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
 
 //           kinFits.setAdvancedBalance (&ptmiss, metcov) ;
 //           kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
@@ -2190,6 +2369,32 @@ int main (int argc, char** argv)
         }
         else theSmallTree.m_HHKin_mass_raw_taudown = -100 ;
 
+        // raw kinfit JES up
+        bool wrongHHKraw_jetup =false;
+        try {
+          kinFitsraw_jetup.fit();
+        }
+        catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_jetup=true;}
+        catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_jetup=true;}
+        catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_jetup=true;}
+        if(!wrongHHKraw_jetup){
+          theSmallTree.m_HHKin_mass_raw_jetup = kinFitsraw_jetup.getMH();
+        }
+        else theSmallTree.m_HHKin_mass_raw_jetup = -100 ;
+
+        // raw kinfit JES down
+        bool wrongHHKraw_jetdown =false;
+        try {
+          kinFitsraw_jetdown.fit();
+        }
+        catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_jetdown=true;}
+        catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_jetdown=true;}
+        catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_jetdown=true;}
+        if(!wrongHHKraw_jetdown){
+          theSmallTree.m_HHKin_mass_raw_jetdown = kinFitsraw_jetdown.getMH();
+        }
+        else theSmallTree.m_HHKin_mass_raw_jetdown = -100 ;
+
 
       } // end if doing HHKinFit
 
@@ -2283,9 +2488,37 @@ int main (int argc, char** argv)
         double chiA = tlv_firstLepton.M(); // hypothesised mass of invisible on side A.  Must be >=0.
         double chiB = tlv_secondLepton.M(); // hypothesised mass of invisible on side B.  Must be >=0.
 
+        // TES variations
+        double pxMiss_tauup = tlv_firstLepton_tauup.Px() + tlv_secondLepton_tauup.Px() + theBigTree.METx->at(chosenTauPair); // x component of missing transverse momentum.
+        double pyMiss_tauup = tlv_firstLepton_tauup.Py() + tlv_secondLepton_tauup.Py() + theBigTree.METy->at(chosenTauPair); // y component of missing transverse momentum.
+        double chiA_tauup = tlv_firstLepton_tauup.M(); // hypothesised mass of invisible on side A.  Must be >=0.
+        double chiB_tauup = tlv_secondLepton_tauup.M(); // hypothesised mass of invisible on side B.  Must be >=0.
+
+        double pxMiss_taudown = tlv_firstLepton_taudown.Px() + tlv_secondLepton_taudown.Px() + theBigTree.METx->at(chosenTauPair); // x component of missing transverse momentum.
+        double pyMiss_taudown = tlv_firstLepton_taudown.Py() + tlv_secondLepton_taudown.Py() + theBigTree.METy->at(chosenTauPair); // y component of missing transverse momentum.
+        double chiA_taudown = tlv_firstLepton_taudown.M(); // hypothesised mass of invisible on side A.  Must be >=0.
+        double chiB_taudown = tlv_secondLepton_taudown.M(); // hypothesised mass of invisible on side B.  Must be >=0.
+
+        // JES variations
+        double mVisA_jetup = tlv_firstBjet_raw_jetup.M(); // mass of visible object on side A.  
+        double pxA_jetup = tlv_firstBjet_raw_jetup.Px(); // x momentum of visible object on side A.
+        double pyA_jetup = tlv_firstBjet_raw_jetup.Py(); // y momentum of visible object on side A.
+        double mVisB_jetup = tlv_secondBjet_raw_jetup.M(); // mass of visible object on side B. 
+        double pxB_jetup = tlv_secondBjet_raw_jetup.Px(); // x momentum of visible object on side B.
+        double pyB_jetup = tlv_secondBjet_raw_jetup.Py(); // y momentum of visible object on side B.
+
+        double mVisA_jetdown = tlv_firstBjet_raw_jetdown.M(); // mass of visible object on side A.  
+        double pxA_jetdown = tlv_firstBjet_raw_jetdown.Px(); // x momentum of visible object on side A.
+        double pyA_jetdown = tlv_firstBjet_raw_jetdown.Py(); // y momentum of visible object on side A.
+        double mVisB_jetdown = tlv_secondBjet_raw_jetdown.M(); // mass of visible object on side B. 
+        double pxB_jetdown = tlv_secondBjet_raw_jetdown.Px(); // x momentum of visible object on side B.
+        double pyB_jetdown = tlv_secondBjet_raw_jetdown.Py(); // y momentum of visible object on side B.
+
+
         double desiredPrecisionOnMt2 = 0; // Must be >=0.  If 0 alg aims for machine precision.  if >0, MT2 computed to supplied absolute precision.
 
         asymm_mt2_lester_bisect::disableCopyrightMessage();
+        
         double MT2 =  asymm_mt2_lester_bisect::get_mT2(
            mVisA, pxA, pyA,
            mVisB, pxB, pyB,
@@ -2293,7 +2526,40 @@ int main (int argc, char** argv)
            chiA, chiB,
            desiredPrecisionOnMt2);
 
+        double MT2_tauup =  asymm_mt2_lester_bisect::get_mT2(
+           mVisA, pxA, pyA,
+           mVisB, pxB, pyB,
+           pxMiss_tauup, pyMiss_tauup,
+           chiA_tauup, chiB_tauup,
+           desiredPrecisionOnMt2);
+
+        double MT2_taudown =  asymm_mt2_lester_bisect::get_mT2(
+           mVisA, pxA, pyA,
+           mVisB, pxB, pyB,
+           pxMiss_taudown, pyMiss_taudown,
+           chiA_taudown, chiB_taudown,
+           desiredPrecisionOnMt2);
+
+        double MT2_jetup =  asymm_mt2_lester_bisect::get_mT2(
+           mVisA_jetup, pxA_jetup, pyA_jetup,
+           mVisB_jetup, pxB_jetup, pyB_jetup,
+           pxMiss, pyMiss,
+           chiA, chiB,
+           desiredPrecisionOnMt2);
+
+        double MT2_jetdown =  asymm_mt2_lester_bisect::get_mT2(
+           mVisA_jetdown, pxA_jetdown, pyA_jetdown,
+           mVisB_jetdown, pxB_jetdown, pyB_jetdown,
+           pxMiss, pyMiss,
+           chiA, chiB,
+           desiredPrecisionOnMt2);
+
+
         theSmallTree.m_MT2 = MT2;
+        theSmallTree.m_MT2_tauup = MT2_tauup;
+        theSmallTree.m_MT2_taudown = MT2_taudown;
+        theSmallTree.m_MT2_jetup = MT2_jetup;
+        theSmallTree.m_MT2_jetdown = MT2_jetdown;
 
       }
 
@@ -2608,6 +2874,7 @@ int main (int argc, char** argv)
   bool computeMVARes = (gConfigParser->isDefined("BDTResonant::computeMVA") ? gConfigParser->readBoolOption ("BDTResonant::computeMVA") : false);
   bool computeMVAResHM = (gConfigParser->isDefined("BDTResonantHM::computeMVA") ? gConfigParser->readBoolOption ("BDTResonantHM::computeMVA") : false);
   bool computeMVAResLM = (gConfigParser->isDefined("BDTResonantLM::computeMVA") ? gConfigParser->readBoolOption ("BDTResonantLM::computeMVA") : false);
+  bool computeMVANonRes = (gConfigParser->isDefined("BDTNonResonant::computeMVA") ? gConfigParser->readBoolOption ("BDTNonResonant::computeMVA") : false);
 
   if (computeMVA || computeMVARes || computeMVAResHM || computeMVAResLM)
   {  
@@ -2618,6 +2885,7 @@ int main (int argc, char** argv)
     bool doResonant = computeMVARes;
     bool doResonantHM = computeMVAResHM;
     bool doResonantLM = computeMVAResLM;
+    bool doNonResonant = computeMVANonRes;
 
     string TMVAweightsTauTau   = "";
     string TMVAweightsMuTau    = "";
@@ -2626,6 +2894,7 @@ int main (int argc, char** argv)
     string TMVAweightsResonant = "";
     string TMVAweightsResonantHM = "";
     string TMVAweightsResonantLM = "";
+    string TMVAweightsNonResonant = "";
     
     if (doMuTau)    TMVAweightsMuTau  = gConfigParser->readStringOption ("TMVA::weightsMuTau");
     if (doETau)     TMVAweightsETau   = gConfigParser->readStringOption ("TMVA::weightsETau");
@@ -2634,6 +2903,7 @@ int main (int argc, char** argv)
     if (doResonant) TMVAweightsResonant = gConfigParser->readStringOption ("BDTResonant::weights");
     if (doResonantHM) TMVAweightsResonantHM = gConfigParser->readStringOption ("BDTResonantHM::weights");
     if (doResonantLM) TMVAweightsResonantLM = gConfigParser->readStringOption ("BDTResonantLM::weights");
+    if (doNonResonant) TMVAweightsNonResonant = gConfigParser->readStringOption ("BDTNonResonant::weights");
 
     // bool TMVAspectatorsIn      = gConfigParser->readBoolOption   ("TMVA::spectatorsPresent");
     vector<string> TMVAspectators = ( computeMVA ? gConfigParser->readStringListOption   ("TMVA::spectators") : vector<string>(0) );
@@ -2641,6 +2911,7 @@ int main (int argc, char** argv)
     vector<string> TMVAvariablesResonant   = ( doResonant ? gConfigParser->readStringListOption   ("BDTResonant::variables") : vector<string>(0) );
     vector<string> TMVAvariablesResonantHM = ( doResonantHM ? gConfigParser->readStringListOption   ("BDTResonantHM::variables") : vector<string>(0) );
     vector<string> TMVAvariablesResonantLM = ( doResonantLM ? gConfigParser->readStringListOption   ("BDTResonantLM::variables") : vector<string>(0) );
+    vector<string> TMVAvariablesNonResonant = ( doNonResonant ? gConfigParser->readStringListOption   ("BDTNonResonant::variables") : vector<string>(0) );
 
     // split the resonant name in two strings
     vector<pair<string, string>> splitTMVAvariablesResonant;
@@ -2697,6 +2968,26 @@ int main (int argc, char** argv)
       cout << " ... " << iv << " " << unpackedNames.at(0) << " --> " << unpackedNames.at(1) << endl;
     } 
 
+    // split the non resonant name in two strings
+    vector<pair<string, string>> splitTMVAvariablesNonResonant;
+    cout << "BDT non resonant vars:" << endl;
+    for (unsigned int iv = 0 ; iv < TMVAvariablesNonResonant.size () ; ++iv)
+    {
+      // split my_name:BDT_name in two strings
+      std::stringstream packedName(TMVAvariablesNonResonant.at(iv));
+      std::string segment;
+      std::vector<std::string> unpackedNames;
+      while(std::getline(packedName, segment, ':'))
+         unpackedNames.push_back(segment);
+
+      // replace "internal" names for graphics names -- shitty parser!!
+      boost::replace_all(unpackedNames.at(1), "_T_", "*");
+      boost::replace_all(unpackedNames.at(1), "__", "()");
+
+      splitTMVAvariablesNonResonant.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1))); 
+      cout << " ... " << iv << " " << unpackedNames.at(0) << " --> " << unpackedNames.at(1) << endl;
+    }
+
 
     // now merge all names into a vector to get a list of uniquely needed elements
     std::vector<string> allVars;
@@ -2708,6 +2999,8 @@ int main (int argc, char** argv)
       allVars.push_back(splitTMVAvariablesResonantHM.at(iv).first);
     for (unsigned int iv = 0; iv < splitTMVAvariablesResonantLM.size(); ++iv)
       allVars.push_back(splitTMVAvariablesResonantLM.at(iv).first);
+    for (unsigned int iv = 0; iv < splitTMVAvariablesNonResonant.size(); ++iv)
+      allVars.push_back(splitTMVAvariablesNonResonant.at(iv).first);
 
     sort(allVars.begin(), allVars.end());
     allVars.erase( unique( allVars.begin(), allVars.end() ), allVars.end() );
@@ -2722,7 +3015,8 @@ int main (int argc, char** argv)
     TMVA::Reader * readerResonant = new TMVA::Reader () ;
     TMVA::Reader * readerResonantHM = new TMVA::Reader () ;
     TMVA::Reader * readerResonantLM = new TMVA::Reader () ;
-    Float_t mvatautau,mvamutau, mvaetau, mvaleptau, mvaresonant, mvaresonantHM, mvaresonantLM;
+    TMVA::Reader * readerNonResonant = new TMVA::Reader () ;
+    Float_t mvatautau,mvamutau, mvaetau, mvaleptau, mvaresonant, mvaresonantHM, mvaresonantLM, mvanonresonant;
     TBranch *mvaBranchmutau;
     TBranch *mvaBranchtautau;
     TBranch *mvaBranchetau;
@@ -2730,6 +3024,7 @@ int main (int argc, char** argv)
     TBranch *mvaBranchResonant;
     TBranch *mvaBranchResonantHM;
     TBranch *mvaBranchResonantLM;
+    TBranch *mvaBranchNonResonant;
 
     for (string var : TMVAvariables)
     {
@@ -2762,6 +3057,12 @@ int main (int argc, char** argv)
       readerResonantLM->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;      
     }
 
+    for (pair<string, string> vpair : splitTMVAvariablesNonResonant)
+    {
+      treenew->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
+      readerNonResonant->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;      
+    }
+
     if (doMuTau)  mvaBranchmutau = treenew->Branch ("MuTauKine", &mvamutau, "MuTauKine/F") ;
     if (doETau)   mvaBranchetau = treenew->Branch ("ETauKine", &mvaetau, "ETauKine/F") ;
     if (doTauTau) mvaBranchtautau = treenew->Branch ("TauTauKine", &mvatautau, "TauTauKine/F") ;
@@ -2769,6 +3070,7 @@ int main (int argc, char** argv)
     if (doResonant) mvaBranchResonant = treenew->Branch ("BDTResonant", &mvaresonant, "BDTResonant/F") ;
     if (doResonantHM) mvaBranchResonantHM = treenew->Branch ("BDTResonantHM", &mvaresonantHM, "BDTResonantHM/F") ;
     if (doResonantLM) mvaBranchResonantLM = treenew->Branch ("BDTResonantLM", &mvaresonantLM, "BDTResonantLM/F") ;
+    if (doNonResonant) mvaBranchNonResonant = treenew->Branch ("BDTNonResonant", &mvanonresonant, "BDTNonResonant/F") ;
     //}
     if (doMuTau)   reader->BookMVA ("MuTauKine",  TMVAweightsMuTau.c_str ()) ;
     if (doETau)    reader->BookMVA ("ETauKine",  TMVAweightsETau.c_str ()) ;
@@ -2777,6 +3079,7 @@ int main (int argc, char** argv)
     if (doResonant)  readerResonant->BookMVA ("BDT_full_mass_iso_nodrbbsv",  TMVAweightsResonant.c_str ()) ;
     if (doResonantHM)  readerResonantHM->BookMVA ("500t_PU_mass_newvars_HIGH_oldvars",  TMVAweightsResonantHM.c_str ()) ;
     if (doResonantLM)  readerResonantLM->BookMVA ("500t_PU_mass_newvars_LOW",  TMVAweightsResonantLM.c_str ()) ;
+    if (doNonResonant)  readerNonResonant->BookMVA ("BDT_nonres_SM",  TMVAweightsNonResonant.c_str ()) ;
 
     int nentries = treenew->GetEntries();
     for(int i=0;i<nentries;i++){
@@ -2789,6 +3092,7 @@ int main (int argc, char** argv)
       if (doResonant)  mvaresonant= readerResonant->EvaluateMVA ("BDT_full_mass_iso_nodrbbsv") ;  
       if (doResonantHM)  mvaresonantHM= readerResonantHM->EvaluateMVA ("500t_PU_mass_newvars_HIGH_oldvars") ;  
       if (doResonantLM)  mvaresonantLM= readerResonantLM->EvaluateMVA ("500t_PU_mass_newvars_LOW") ;  
+      if (doNonResonant)  mvanonresonant= readerNonResonant->EvaluateMVA ("BDT_nonres_SM") ;  
 
       if (doMuTau)    mvaBranchmutau->Fill();
       if (doETau)     mvaBranchetau->Fill();
@@ -2797,6 +3101,7 @@ int main (int argc, char** argv)
       if (doResonant)  mvaBranchResonant->Fill();
       if (doResonantHM)  mvaBranchResonantHM->Fill();
       if (doResonantLM)  mvaBranchResonantLM->Fill();
+      if (doNonResonant)  mvaBranchNonResonant->Fill();
     }
 
     outFile->cd () ;
@@ -2807,6 +3112,7 @@ int main (int argc, char** argv)
     delete readerResonant;
     delete readerResonantHM;
     delete readerResonantLM;
+    delete readerNonResonant;
   }
 
   cout << "... SKIM finished, exiting." << endl;
