@@ -2063,8 +2063,8 @@ int main (int argc, char** argv)
 
 
       double unc_second = theBigTree.jets_jecUnc->at (bjet2idx);
-      TLorentzVector tlv_secondBjet_raw_jetup = tlv_firstBjet_raw;
-      TLorentzVector tlv_secondBjet_raw_jetdown = tlv_firstBjet_raw;
+      TLorentzVector tlv_secondBjet_raw_jetup = tlv_secondBjet_raw;
+      TLorentzVector tlv_secondBjet_raw_jetdown = tlv_secondBjet_raw;
 
       tlv_secondBjet_raw_jetup.SetPtEtaPhiE(
         (1.+unc_second) *tlv_secondBjet_raw_jetup.Pt(),
