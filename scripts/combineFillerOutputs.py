@@ -65,6 +65,18 @@ dataList   = cfg.readListOption("general::data")
 sigList    = cfg.readListOption("general::signals")
 selList    = [x[0] + '_' + x[1] for x in list(itertools.product(selDefList, regDefList))]
 
+## replace what was merged
+if cfg.hasSection("merge"):
+    for groupname in cfg.config['merge']: 
+        mergelist = cfg.readListOption('merge::'+groupname)
+        mergelistA = cfg.readOption('merge::'+groupname)
+        theList = None
+        if   mergelist[0] in dataList: theList = dataList
+        elif mergelist[0] in sigList:  theList = sigList
+        elif mergelist[0] in bkgList:  theList = bkgList
+        for x in mergelist: theList.remove(x)
+        theList.append(groupname)
+
 rootfile = ROOT.TFile.Open(args.dir + "/" + outplotterName)
 print '... opening ' , (args.dir + "/" + outplotterName)
 
@@ -77,16 +89,35 @@ omngr.variables   = varList
 omngr.variables2D = var2DList if var2DList else list([])
 # omngr.samples     = sigList + bkgList + dataList
 omngr.data        = dataList
-omngr.signals     = sigList
+omngr.sigs        = sigList
 omngr.bkgs        = bkgList
 omngr.readAll(rootfile)
 
 ## always group together the data and rename them to 'data'
-omngr.groupTogether('data', dataList)
+# omngr.groupTogether('data_obs', dataList)
 
 if cfg.hasSection('pp_merge'):
     for groupname in cfg.config['pp_merge']:
         omngr.groupTogether(groupname, cfg.readListOption('pp_merge::'+groupname))
+
+if cfg.hasSection('pp_rebin'):
+    for ri in cfg.config['pp_rebin']:
+        opts = cfg.readListOption('pp_rebin::'+ri)
+        if len(opts) < 4:
+            print '** Error: Cannot interpret your rebin instructions:', opts
+            continue
+        var = opts[0]
+        seldef = opts[1]
+        newbinning = [float(x) for x in opts[2:]]
+        if not var in omngr.variables:
+            print ' * var' , var , "was not plotted, won't rebin"
+            continue
+        if not seldef in omngr.sel_def:
+            print ' * sel' , seldef , "was not used, won't rebin"
+            continue            
+        for reg in omngr.sel_regions:
+            sel = seldef + '_' + reg
+            omngr.rebin(var, sel, newbinning)
 
 if cfg.hasSection('pp_QCD'):
     omngr.makeQCD(

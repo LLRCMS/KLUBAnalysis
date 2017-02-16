@@ -55,12 +55,14 @@ class ConfigReader:
         if len (name) < 2:
             print "readOption(): pleae pass option as section::option"
             return None
-        name[1] = re.sub('[\W_]+', '', name[1]) # removes all non-alphanumeric characters
+        # name[1] = re.sub('[\W_]+', '', name[1]) # removes all non-alphanumeric characters, not needed for latest parser
         sec = name[0]
         opt = name[1]
         if not sec in self.config:
+            print "NO SEC" , sec , "in CONFIG"
             return None
         if not opt in self.config[sec]:
+            print "NO OPT" , opt , "in CONFIG at" , sec
             return None
         return self.config[sec][opt]
 

@@ -2,7 +2,13 @@ import ROOT
 import os
 import sys
 
-inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_5Gen/SKIM_DY'
+#inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_5Gen/SKIM_DY'
+#inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_9Gen/SKIM_DY'
+#inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_10Gen/SKIM_DY/'
+#inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_27Gen/SKIM_DY/'
+#inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_1Feb/SKIM_DY/'
+#inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_9Feb/SKIM_DY/'
+inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_11Feb/SKIM_DY/'
 
 ############################################################################################################
 ## NOTE: this script takes about 11 mins for a full DY sample (inclusive + NJet + NBJet)

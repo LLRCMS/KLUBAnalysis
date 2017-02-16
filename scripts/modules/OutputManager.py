@@ -1,6 +1,7 @@
 import ROOT
 import collections
 import fnmatch
+import array
 
 def makeHistoName(sample, sel, var, syst=""):
     name = sample +  "_" + sel + "_" + var
@@ -22,6 +23,12 @@ def matchInDictionary(diction, pattern):
         if fnmatch.fnmatch(key, pattern):
             matches.append(key)
     return matches
+
+def checkBinningCompatibility (newbinning, oldbinning):
+    """ oldbinning must include newbinning boundaries """
+    for x in newbinning:
+        if not x in oldbinning: return False
+    return True
 
 class OutputManager:
     """ Handles the input from AnalysisHelper and manages the output to a file
@@ -170,7 +177,7 @@ class OutputManager:
 
 
     ## FIXME: how to treat systematics properly ? Do we need to do ann alternative QCD histo for every syst?
-    def makeQCD (self, SR, yieldSB, shapeSB, SBtoSRfactor, doFitIf='False', fitFunc='[0] + [1]*x', QCDname='QCD'):
+    def makeQCD (self, SR, yieldSB, shapeSB, SBtoSRfactor, doFitIf='False', fitFunc='[0] + [1]*x', QCDname='QCD', removeNegBins = True):
         
         print "... building QCD w/ name:", QCDname, ". SR:" , SR, " yieldSB:", yieldSB, " shapeSB:", shapeSB, " SBtoSRfactor:", SBtoSRfactor
         print "    >> doFitIf:", doFitIf , "fitFunction:", fitFunc , '\n'
@@ -196,6 +203,12 @@ class OutputManager:
                     hQCD.Add(self.histos[hname], -1.)
                     # if var == 'MT2' and sel == 'defaultBtagLLNoIsoBBTTCut' : print ">> -- bkg - SHAPE: " , hname, hQCD.Integral()
 
+                ## remove negative bins if needed
+                if removeNegBins:
+                    for ibin in range(1, hQCD.GetNbinsX()+1):
+                        if hQCD.GetBinContent(ibin) < 0:
+                            hQCD.SetBinContent(ibin, 1.e-6)
+
                 ## now compute yield to be set
                 for idx, data in enumerate(self.data):
                     hname = makeHistoName(data, sel+'_'+yieldSB, var)
@@ -213,7 +226,8 @@ class OutputManager:
                 # if var == 'MT2' and sel == 'defaultBtagLLNoIsoBBTTCut' :  print qcdYield
                 ## now scale
                 qcdYield = hyieldQCD.Integral()
-                hQCD.Scale(SBtoSRfactor*qcdYield/hQCD.Integral())
+                sc = SBtoSRfactor*qcdYield/hQCD.Integral() if hQCD.Integral() > 0 else 0.0
+                hQCD.Scale(sc)
 
                 ## add to collection
                 # if var == 'MT2' and sel == 'defaultBtagLLNoIsoBBTTCut' :  print 'saving as ' , hQCD.GetName()
@@ -252,6 +266,35 @@ class OutputManager:
 
 
         ### FIXME: now do 2D histos
+
+    def rebin(self, var, sel, newbinning):        
+        print '... rebinning histos for var:' , var, 'sel:', sel
+        newbinning_a = array.array('d', newbinning)
+        for idx, s in enumerate(self.data + self.bkgs + self.sigs):
+            htorebin_name = makeHistoName(s, sel, var)
+            h = self.histos[htorebin_name]
+            if idx == 0: # all histos have the same binning, don't waste time
+                # for i in range(1, h.GetNbinsX()+2): print var, i, h.GetBinLowEdge(i)
+                oldbinning = [h.GetBinLowEdge(i) for i in range(1, h.GetNbinsX()+2)]
+            if not checkBinningCompatibility (newbinning, oldbinning):
+                print "** OutputManager : rebin : warning: binnings are not compatible, won't rebin", var, sel
+                print "old:", oldbinning, "new:", newbinning
+                continue
+            h.SetName('prerebin_'+htorebin_name)
+            hnew = h.Rebin(len(newbinning)-1, htorebin_name, newbinning_a)
+            # print sel, var, hnew.GetNbinsX(), hnew.GetName()
+            self.histos[hnew.GetName()] = hnew
+
+            # now systematics
+            protoName = makeHistoName(s, sel, var)
+            allSysts = matchInDictionary(self.histos, protoName+'_*')
+            allSysts = [x.replace(protoName+'_', '') for x in allSysts]
+            for syst in allSysts:
+                htorebin_name = makeHistoName(s, sel, var, syst)
+                h = self.histos[htorebin_name]
+                h.SetName('prerebin_'+htorebin_name)
+                hnew = h.Rebin(len(newbinning)-1, htorebin_name, newbinning_a)
+                self.histos[hnew.GetName()] = hnew
 
     def saveToFile(self, fOut, saveQCDFit=True):
         fOut.cd()
