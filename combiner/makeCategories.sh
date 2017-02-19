@@ -50,8 +50,8 @@ do
             echo "$BASE"
         fi
     #python cardMaker.py -i ${SOURCE}/analysis_${c}_1Feb_lims/mainCfg_${c}.cfg -f ${SOURCE}/analysis_${c}_1Feb_lims/analyzedOutPlotter.root   -o $BASE -c ${c}   --dir "_$OUTSTRING" -t 0 ${RESONANT} 
-    python chcardMaker.py -f ${SOURCE}/analysis_${c}_11Feb_lims/analyzedOutPlotter.root -o ${OUTSTRING} -c ${c} -i ${SOURCE}/analysis_${c}_11Feb_lims/mainCfg_TauTau.cfg -y -s ${BASE} ${RESONANT}
-    #python chcardMaker.py -f analyzedOutPlotter_26feb_${c}.root -o "_${OUTSTRING}" -c ${c} -i ${SOURCE}/analysis_${c}_11Feb_lims/mainCfg_${c}.cfg -y -s ${BASE} ${RESONANT} -u 0 
+    #python chcardMaker.py -f ${SOURCE}/analysis_${c}_11Feb_lims/analyzedOutPlotter.root -o ${OUTSTRING} -c ${c} -i ${SOURCE}/analysis_${c}_11Feb_lims/mainCfg_TauTau.cfg -y -s ${BASE} ${RESONANT}
+    python chcardMaker.py -f analyzedOutPlotter_26feb_${c}.root -o "_${OUTSTRING}" -c ${c} -i ${SOURCE}/analysis_${c}_11Feb_lims/mainCfg_${c}.cfg -y -s ${BASE} ${RESONANT} -u 1
 #done
 #for base in $SELECTIONSTAU
 #do
