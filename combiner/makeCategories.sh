@@ -1,7 +1,7 @@
 #!/bin/bash
 # make cards with all vars/selections
 
-export OUTSTRING="2017_02_26_$1"
+export OUTSTRING="2017_02_12_forSVN_$1"
 
 export STRINGLEPTONS="$1"
 export SELECTIONS="s2b0jresolvedMcut${STRINGLEPTONS} s1b1jresolvedMcut${STRINGLEPTONS} sboostedLLMcut"
@@ -9,21 +9,24 @@ export SELECTIONSTAU="s1b1jresolvedMcut s2b0jresolvedMcut sboostedLLMcut"
 
 export RESONANT=$2
 
-if [ "${RESONANT}" != "" ]
+export CF="/home/llr/cms/ortona/diHiggs/CMSSW_7_4_7/src/KLUBAnalysis/combiner"
+if [ "${RESONANT}" != "-r" ]
     then
-        export VARIABLE="HHKin_mass_raw"
-        export LAMBDAS="Radion250 Radion260 Radion270 Radion280 Radion300 Radion320 Radion340 Radion400 Radion450 Radion500 Radion550 Radion600 Radion650 Radion700 Radion750 Radion800 Radion900"
-        #export LAMBDAS="Radion250"
-    else
-        export VARIABLE="MT2"
+    export VARIABLE="MT2"
         export LAMBDAS=""
         #export INSELECTIONS="s2b0jresolvedMcutlmr90 s1b1jresolvedMcutlmr90 s2b0jresolvedMcuthmr90 s1b1jresolvedMcuthmr90 sboostedLLMcut s1b1jresolvedMcutlmr70 s2b0jresolvedMcutlmr70 s1b1jresolvedMcutLepTauKine s2b0jresolvedMcutLepTauKine"
         for il in {0..51}
         do 
         export LAMBDAS="$LAMBDAS lambdarew${il}"
     done
+    else
+        export VARIABLE="HHKin_mass_raw"
+        #export LAMBDAS="Radion250 Radion260 Radion270 Radion280 Radion300 Radion320 Radion340 Radion400 Radion450 Radion500 Radion550 Radion600 Radion650 Radion700 Radion750 Radion800 Radion900"
+        #export LAMBDAS="Radion250"
+        export LAMBDAS="Radion250 Radion270 Radion280 Radion300 Radion350 Radion400 Radion450 Radion500 Radion550 Radion600 Radion650 Radion750 Radion900"
 fi
-
+#echo "LAMBDAS ======================"
+#echo $LAMBDAS
 export QUANTILES="0.025 0.16 0.5 0.84 0.975 -1.0"
 export SOURCE="/home/llr/cms/cadamuro/testAnalysisHelper2/CMSSW_7_4_7/src/KLUBAnalysis" 
 
@@ -45,7 +48,9 @@ do
             export BASE=${ibase/${STRINGLEPTONS}/}
             echo "$BASE"
         fi
-    python cardMaker.py -i ${SOURCE}/analysis_${c}_1Feb_lims/mainCfg_${c}.cfg -f ${SOURCE}/analysis_${c}_1Feb_lims/analyzedOutPlotter.root   -o $BASE -c ${c}   --dir "_$OUTSTRING" -t 0 ${RESONANT} 
+    #python cardMaker.py -i ${SOURCE}/analysis_${c}_1Feb_lims/mainCfg_${c}.cfg -f ${SOURCE}/analysis_${c}_1Feb_lims/analyzedOutPlotter.root   -o $BASE -c ${c}   --dir "_$OUTSTRING" -t 0 ${RESONANT} 
+    #python chcardMaker.py -f ${SOURCE}/analysis_${c}_11Feb_lims/analyzedOutPlotter.root -o ${OUTSTRING} -c ${c} -i ${SOURCE}/analysis_${c}_11Feb_lims/mainCfg_TauTau.cfg -y -s ${BASE} ${RESONANT}
+    python chcardMaker.py -f analyzedOutPlotter_26feb_${c}.root -o "_${OUTSTRING}" -c ${c} -i ${SOURCE}/analysis_${c}_11Feb_lims/mainCfg_${c}.cfg -y -s ${BASE} ${RESONANT} -u 1 
     # -r #-S /home/llr/cms/cadamuro/FittedHHKinFit/outPlotter_fit_sigs_ETau.root
     #python cardMaker.py -i ${SOURCE}/analysis_MuTau_26Gen/mainCfg_MuTau.cfg   -f ${SOURCE}/analysis_MuTau_26Gen/analyzedOutPlotter.root  -o $BASE -c MuTau  --dir "_$OUTSTRING" -t 0 # -r #-S /home/llr/cms/cadamuro/FittedHHKinFit/outPlotter_fit_sigs_MuTau.root
 #done
@@ -85,16 +90,17 @@ do
                 echo "${c} ${chanNum}" 
                 export BASE=${ibase/${STRINGLEPTONS}/}
             fi
-            cd cards_${c}_$OUTSTRING/${i}${BASE}${VARIABLE}
+            cd ${CF}/cards_${c}_$OUTSTRING/${i}${BASE}${VARIABLE}
             pwd
- 	        combineCards.py -S hh_${chanNum}_*L${i}_13TeV.txt >> comb.txt 
+ 	        #combineCards.py -S hh_${chanNum}_*L${i}_13TeV.txt >> comb.txt 
+            combineCards.py -S hh_*.txt >> comb.txt 
             #combineCards.py hh_${chanNum}_C1_L${i}_13TeV.txt hh_${chanNum}_C2_L${i}_13TeV.txt hh_${chanNum}_C3_L${i}_13TeV.txt >> comb.txt
             text2workspace.py -m 125 comb.txt -o comb.root ;
             ln -ns ../../prepareHybrid.py .
             ln -ns ../../prepareGOF.py .
             ln -ns ../../prepareAsymptotic.py .
             python prepareAsymptotic.py -n $i
-            cd -
+            cd ${CF}
         done
     done
 done
@@ -130,15 +136,15 @@ do
         pwd
         if [ -a "hh_1_C1_L${i}_13TeV.txt" ] #category 1
             then
-            combineCards.py -S hh_1_C1_L${i}_13TeV.txt hh_2_C1_L${i}_13TeV.txt hh_3_C1_L${i}_13TeV.txt >> comb.txt
+            combineCards.py -S hh_1_C1_L${i}_13Te*.txt hh_2_C1_L${i}_13Te*.txt hh_3_C1_L${i}_13Te*.txt >> comb.txt
         fi
         if [ -a "hh_1_C2_L${i}_13TeV.txt" ]
             then
-            combineCards.py -S hh_1_C2_L${i}_13TeV.txt hh_2_C2_L${i}_13TeV.txt hh_3_C2_L${i}_13TeV.txt >> comb.txt
+            combineCards.py -S hh_1_C2_L${i}_13Te*.txt hh_2_C2_L${i}_13Te*.txt hh_3_C2_L${i}_13Te*.txt >> comb.txt
         fi
         if [ -a "hh_1_C3_L${i}_13TeV.txt" ]
          	then
-         	combineCards.py -S hh_1_C3_L${i}_13TeV.txt hh_2_C3_L${i}_13TeV.txt hh_3_C3_L${i}_13TeV.txt >> comb.txt
+         	combineCards.py -S hh_1_C3_L${i}_13Te*.txt hh_2_C3_L${i}_13Te*.txt hh_3_C3_L${i}_13Te*.txt >> comb.txt
         fi
 #        if [ -a "hh_1_C999_L${i}_13TeV.txt" ]
 #           then
@@ -154,13 +160,13 @@ do
          #do
  		#python prepareHybrid.py -n $q
  	    #done
-        cd -
+        cd ${CF}
     done
 
 	#MAKE BIG COMBINATION [1 x mass point]
     cd cards_Combined_$OUTSTRING/${i}${VARIABLE}
     rm comb.*
-    combineCards.py -S hh_*_C1_L${i}_13TeV.txt hh_*_C2_L${i}_13TeV.txt hh_*_C3_L${i}_13TeV.txt >> comb.txt #ah ma allora le wildcard funzionano?
+    combineCards.py -S hh_*_C1_L${i}_13Te*.txt hh_*_C2_L${i}_13Te*.txt hh_*_C3_L${i}_13Te*.txt >> comb.txt #ah ma allora le wildcard funzionano?
     #combineCards.py -S hh_*_C2_L${i}_13TeV.txt hh_*_C3_L${i}_13TeV.txt >> comb.txt
     text2workspace.py -m 125 comb.txt -o comb.root ;
     ln -ns ../../prepareHybrid.py .
@@ -173,7 +179,7 @@ do
 #    	ln -ns ../../prepareImpacts.py .
 #    	python prepareImpacts.py -n $i
 #    fi
-    cd -
+    cd ${CF}
 
     #MAKE COMBINATION FOR CHANNEL [3 x mass point]
 	for c in MuTau ETau TauTau 
@@ -184,14 +190,14 @@ do
 #		done
 		cd cards_${c}_$OUTSTRING/${i}${VARIABLE}
 		rm comb.*
-		combineCards.py -S hh_*_C1_L${i}_13TeV.txt hh_*_C2_L${i}_13TeV.txt hh_*_C3_L${i}_13TeV.txt >> comb.txt
+		combineCards.py -S hh_*_C1_L${i}_13Te*.txt hh_*_C2_L${i}_13Te*.txt hh_*_C3_L${i}_13Te*.txt >> comb.txt
 		#combineCards.py -S  hh_*_C2_L${i}_13TeV.txt hh_*_C3_L${i}_13TeV.txt >> comb.txt
 		text2workspace.py -m 125 comb.txt -o comb.root ;
 		ln -ns ../../prepareHybrid.py .
 		ln -ns ../../prepareGOF.py .
 		ln -ns ../../prepareAsymptotic.py .
 		python prepareAsymptotic.py -n $i
-		cd -
+		cd ${CF}
     done
 
 
