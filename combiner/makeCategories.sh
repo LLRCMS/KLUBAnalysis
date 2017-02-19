@@ -1,14 +1,14 @@
 #!/bin/bash
 # make cards with all vars/selections
 
-export OUTSTRING="2017_02_12_forSVN_$1"
+export OUTSTRING="2017_02_19_btag_$1"
 
 export STRINGLEPTONS="$1"
-export SELECTIONS="s2b0jresolvedMcut${STRINGLEPTONS} s1b1jresolvedMcut${STRINGLEPTONS} sboostedLLMcut"
+export SELECTIONS="s2b0jresolvedMcut${STRINGLEPTONS} s1b1jresolvedMcut${STRINGLEPTONS} sboostedLLMcut s2b0jresolvedLcut${STRINGLEPTONS} s1b1jresolvedLcut${STRINGLEPTONS}"
 export SELECTIONSTAU="s1b1jresolvedMcut s2b0jresolvedMcut sboostedLLMcut"
 
 export RESONANT=$2
-
+export LEPTONS="MuTau ETau TauTau"
 export CF="/home/llr/cms/ortona/diHiggs/CMSSW_7_4_7/src/KLUBAnalysis/combiner"
 if [ "${RESONANT}" != "-r" ]
     then
@@ -33,7 +33,7 @@ export SOURCE="/home/llr/cms/cadamuro/testAnalysisHelper2/CMSSW_7_4_7/src/KLUBAn
 #create all the cards 3 categories x 3 channels
 for ibase in $SELECTIONS
 do
-    for c in MuTau ETau TauTau
+    for c in $LEPTONS
     do
         if [ "${c}" == "MuTau" ]
         then
@@ -49,10 +49,8 @@ do
             echo "$BASE"
         fi
     #python cardMaker.py -i ${SOURCE}/analysis_${c}_1Feb_lims/mainCfg_${c}.cfg -f ${SOURCE}/analysis_${c}_1Feb_lims/analyzedOutPlotter.root   -o $BASE -c ${c}   --dir "_$OUTSTRING" -t 0 ${RESONANT} 
-    #python chcardMaker.py -f ${SOURCE}/analysis_${c}_11Feb_lims/analyzedOutPlotter.root -o ${OUTSTRING} -c ${c} -i ${SOURCE}/analysis_${c}_11Feb_lims/mainCfg_TauTau.cfg -y -s ${BASE} ${RESONANT}
-    python chcardMaker.py -f analyzedOutPlotter_26feb_${c}.root -o "_${OUTSTRING}" -c ${c} -i ${SOURCE}/analysis_${c}_11Feb_lims/mainCfg_${c}.cfg -y -s ${BASE} ${RESONANT} -u 1 
-    # -r #-S /home/llr/cms/cadamuro/FittedHHKinFit/outPlotter_fit_sigs_ETau.root
-    #python cardMaker.py -i ${SOURCE}/analysis_MuTau_26Gen/mainCfg_MuTau.cfg   -f ${SOURCE}/analysis_MuTau_26Gen/analyzedOutPlotter.root  -o $BASE -c MuTau  --dir "_$OUTSTRING" -t 0 # -r #-S /home/llr/cms/cadamuro/FittedHHKinFit/outPlotter_fit_sigs_MuTau.root
+    python chcardMaker.py -f ${SOURCE}/analysis_${c}_11Feb_lims/analyzedOutPlotter.root -o ${OUTSTRING} -c ${c} -i ${SOURCE}/analysis_${c}_11Feb_lims/mainCfg_TauTau.cfg -y -s ${BASE} ${RESONANT}
+    #python chcardMaker.py -f analyzedOutPlotter_26feb_${c}.root -o "_${OUTSTRING}" -c ${c} -i ${SOURCE}/analysis_${c}_11Feb_lims/mainCfg_${c}.cfg -y -s ${BASE} ${RESONANT} -u 0 
 #done
 #for base in $SELECTIONSTAU
 #do
@@ -66,7 +64,7 @@ do
 #MAKE LIMIT FOR individual CHANNEL/categories [9 x mass points]
     for ibase in $SELECTIONS
     do	
-        for c in MuTau ETau TauTau
+        for c in $LEPTONS
         do
  	    	#if [ -a "hh_3_L${i}_13TeV.txt" ]
  	    	#	then
@@ -113,7 +111,7 @@ do
     for ibase in $SELECTIONS
     do
         mkdir -p cards_Combined_$OUTSTRING/${i}${ibase}${VARIABLE}
-        for c in MuTau ETau TauTau
+        for c in $LEPTONS
         do
             if [ "${c}" == "MuTau" ]
             then
@@ -182,7 +180,7 @@ do
     cd ${CF}
 
     #MAKE COMBINATION FOR CHANNEL [3 x mass point]
-	for c in MuTau ETau TauTau 
+	for c in $LEPTONS 
 	do
 #		for base in $SELECTIONS
 #		do
