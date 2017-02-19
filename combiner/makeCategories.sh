@@ -9,6 +9,7 @@ export SELECTIONSTAU="s1b1jresolvedMcut s2b0jresolvedMcut sboostedLLMcut"
 
 export RESONANT=$2
 export LEPTONS="MuTau ETau TauTau"
+
 export CF="/home/llr/cms/ortona/diHiggs/CMSSW_7_4_7/src/KLUBAnalysis/combiner"
 if [ "${RESONANT}" != "-r" ]
     then
@@ -134,15 +135,15 @@ do
         pwd
         if [ -a "hh_1_C1_L${i}_13TeV.txt" ] #category 1
             then
-            combineCards.py -S hh_1_C1_L${i}_13Te*.txt hh_2_C1_L${i}_13Te*.txt hh_3_C1_L${i}_13Te*.txt >> comb.txt
+            combineCards.py -S hh_*_C1_L${i}_13Te*.txt  >> comb.txt
         fi
         if [ -a "hh_1_C2_L${i}_13TeV.txt" ]
             then
-            combineCards.py -S hh_1_C2_L${i}_13Te*.txt hh_2_C2_L${i}_13Te*.txt hh_3_C2_L${i}_13Te*.txt >> comb.txt
+            combineCards.py -S hh_*_C2_L${i}_13Te*.txt >> comb.txt
         fi
         if [ -a "hh_1_C3_L${i}_13TeV.txt" ]
          	then
-         	combineCards.py -S hh_1_C3_L${i}_13Te*.txt hh_2_C3_L${i}_13Te*.txt hh_3_C3_L${i}_13Te*.txt >> comb.txt
+         	combineCards.py -S hh_*_C3_L${i}_13Te*.txt >> comb.txt
         fi
 #        if [ -a "hh_1_C999_L${i}_13TeV.txt" ]
 #           then
