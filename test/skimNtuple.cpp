@@ -52,8 +52,10 @@ using namespace std ;
 
 const double aTopRW = 0.0615;
 const double bTopRW = -0.0005;
-const float DYscale_LL[3] = {8.72847e-01, 1.69905e+00, 1.63717e+00} ; // computed from fit for LL and MM b tag
-const float DYscale_MM[3] = {9.44841e-01, 1.29404e+00, 1.28542e+00} ;
+// const float DYscale_LL[3] = {8.72847e-01, 1.69905e+00, 1.63717e+00} ; // computed from fit for LL and MM b tag
+// const float DYscale_MM[3] = {9.44841e-01, 1.29404e+00, 1.28542e+00} ;
+const float DYscale_LL[3] = {1.02164, 1.25238, 0.637287} ; // computed from fit for LL and MM b tag
+const float DYscale_MM[3] = {1.0472, 1.186, 1.037} ;
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
@@ -634,7 +636,7 @@ int main (int argc, char** argv)
   // muon POG SFs - summer16 MC
   TFile* fMuPOGSF_ID_BF   = new TFile ("weights/MuPogSF/Summer16MC/IDSF/EfficienciesAndSF_BCDEF.root");
   TFile* fMuPOGSF_ISO_BF  = new TFile ("weights/MuPogSF/Summer16MC/ISOSF/EfficienciesAndSF_BCDEF.root");
-  TFile* fMuPOGSF_trig_p3 = new TFile ("weights/MuPogSF/Summer16MC/TrigSF/EfficienciesAndSF_Period3.root");
+  TFile* fMuPOGSF_trig_p3 = new TFile ("weights/MuPogSF/Summer16MC/TrigSF/EfficienciesAndSF_RunBtoF.root");
 
   TFile* fMuPOGSF_ID_GH   = new TFile ("weights/MuPogSF/Summer16MC/IDSF/EfficienciesAndSF_GH.root");
   TFile* fMuPOGSF_ISO_GH  = new TFile ("weights/MuPogSF/Summer16MC/ISOSF/EfficienciesAndSF_GH.root");
@@ -1805,10 +1807,11 @@ int main (int argc, char** argv)
       {
         // NOTE: from mu POG twiki, Period 3: (3/fb) run F post L1 EMFT fix (from run 278167); Period 4: (16/fb) run GH (post HIPs fix).
         // so normalization is different in this case. TOT LUMI = 16+3 = 19. p3: 0.158, p4: 0.842
+        // NOTE (11/02/17) : SFs have been updated to B-F and GH, so from now we use the same normalization as other chs
         double trigsf_p3 = getContentHisto2D(hMuPOGSF_trig_p3, mupt, muabseta);
         double trigsf_p4 = getContentHisto2D(hMuPOGSF_trig_p4, mupt, muabseta);
 
-        trigSF = 0.158*trigsf_p3 + 0.842*trigsf_p4;
+        trigSF = 0.5492*trigsf_p3 + 0.4508*trigsf_p4;
       }
 
       // int ptbin = hMuPOGSF_ID->GetXaxis()->FindBin(tlv_firstLepton.Pt());
