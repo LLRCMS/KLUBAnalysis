@@ -1,30 +1,61 @@
 #!/usr/bin/env python
-import re
+import re, optparse
 import os.path
 from math import *
 from ROOT import *
 
+def parseOptions():
+
+    usage = ('usage: %prog [options] datasetList\n'
+             + '%prog -h for help')
+    parser = optparse.OptionParser(usage)
+    
+    parser.add_option('-b', '--bdtLevel',   dest='bdtLevel',   type='string', default="lmr70",  help='BDT level')
+    parser.add_option('-x', '--benchmark',   dest='bench',   type='int', default=0,  help='benchmark')
+    parser.add_option('-c', '--categories',  action="store_true", dest='cats', help='by categories')
+    parser.add_option('-o', '--outName',   dest='outName',   type='string', default="2017_02_12",  help='outsuffix')
+    parser.add_option('-d', '--draw',  action="store_true", dest='draw', help='draw histos')
+
+    # store options and arguments as global variables
+    global opt, args
+    (opt, args) = parser.parse_args()
+
 # cards_Combined_2016_07_26
 
-# folder = "2016_07_26_out3" #bis = 3cat, ter = 2cat
-# outString = "_25_jul"
-
-folder = "2017_02_26_lmr90" #bis = 3cat, ter = 2cat
-outString = "2017_02_02_lmr90_bycat"
+parseOptions()
+bdtstring = opt.bdtLevel
 
 outFormats = [".pdf",".png",".root",".C"]
-benchmark = 999 # -1: 1507 points, 0: lambda, 1: benchmark, 999 Risonante, by default we do not plot the 1507 points
+#benchmark = 999 # -1: 1507 points, 0: lambda, 1: benchmark, 999 Risonante, by default we do not plot the 1507 points
+benchmark = opt.bench
 addObserved = False
-plotByCategory = True
+plotByCategory = opt.cats #False
+
+folder = "2017_02_12_esa_{0}".format(bdtstring) #bis = 3cat, ter = 2cat
+#outString = "2017_02_12_{0}_resonant".format(bdtstring)
+outString = opt.outName + "_{0}".format(bdtstring)
+if benchmark == 999 :
+	outString = outString + "_resonant"
+else :
+	outString = outString + "_nonres"
+if opt.cats : plotByCategory = True
+else : plotByCategory = False
+
+defaultVar = "MT2"
 #scale=1000*37.9*0.073
 #scale=1000.0/100.0 #/37.9/0.073
 scale=1000.0 #from pb to fb?
 #categories = ["s1b1jresolvedMcutBDTMT2","s2b0jresolvedMcutBDTMT2","sboostedLLMcutMT2","MT2"]
-#categories = ["HHKin_mass_raw","HHKin_mass_raw","HHKin_mass_raw","HHKin_mass_raw"]
-categories = ["MT2","MT2","MT2","MT2"]
+if benchmark == 999 :
+	defaultVar = "HHKin_mass_raw"
+	categories = ["HHKin_mass_raw","HHKin_mass_raw","HHKin_mass_raw","HHKin_mass_raw"]
+else :
+	categories = ["MT2","MT2","MT2","MT2"]
 if plotByCategory :
-	categories = ["s2b0jresolvedMcutlmr90HHKin_mass_raw","s1b1jresolvedMcutlmr90HHKin_mass_raw","sboostedLLMcutHHKin_mass_raw"]
-massesResonant = [250, 260, 270, 280, 300, 320, 340, 400, 450, 500, 550, 600, 650, 700, 750, 800, 900]
+	#categories = ["s2b0jresolvedMcuthmr90HHKin_mass_raw","s1b1jresolvedMcuthmr90HHKin_mass_raw","sboostedLLMcutHHKin_mass_raw"]
+	categories = ["s2b0jresolvedMcut{0}{1}".format(bdtstring,defaultVar),"s1b1jresolvedMcut{0}{1}".format(bdtstring,defaultVar),"sboostedLLMcut{0}".format(defaultVar)]
+#massesResonant = [250, 260, 270, 280, 300, 320, 340, 400, 450, 500, 550, 600, 650, 700, 750, 800, 900]
+massesResonant = [250, 270, 280, 300, 350, 400, 450, 500, 550, 600, 650, 750, 900]
 #isResonant = True
 #categoriesNames = ["Resolved 2b0j","Resolved 1b1j", "Boosted","2015-like","Combined"]
 channels = ["ETau","MuTau","TauTau","Combined"] #"Combined"
@@ -72,7 +103,8 @@ def getExpLine(c,  xmin,  xmax,  yt):
 	Graph_syst_Scale.SetFillStyle(3001)
 	Graph_syst_Scale.DrawClone("e3");
 
-gROOT.SetBatch(True)
+if not opt.draw :
+	gROOT.SetBatch(True)
 
 gEtau = TMultiGraph()
 gMutau = TMultiGraph()
@@ -146,7 +178,7 @@ for c in range(len(tooLopOn)) :
 	masses = []
 	catstring = categories[c]
 	if "TauTau" in channels[c]:
-		catstring = catstring.replace("hmr90","")
+		catstring = catstring.replace(bdtstring,"")
 	if benchmark == 1 : 
 		npoints = 12
 		app = "benchrew"
@@ -169,7 +201,7 @@ for c in range(len(tooLopOn)) :
 		if plotByCategory :
 			fileLocation = "/home/llr/cms/ortona/diHiggs/CMSSW_7_4_7/src/KLUBAnalysis/combiner/cards_Combined_"+folder+"/"+app+str(m)+tooLopOn[c]+"/higgsCombine"+app+str(m)+"_forLim.Asymptotic.mH125.root"
 		if not os.path.isfile(fileLocation) : 
-			print "FILE: " , fileLocation
+			print "FILE NOT FOUND: " , fileLocation
 			continue
 		if benchmark<0 : pointNumbers.append(m)
 		fin = TFile.Open(fileLocation)
@@ -235,10 +267,10 @@ for c in range(len(tooLopOn)) :
 #	c[ic].SaveAs("limitResonant_"+channels[ic]+outString+".pdf")
 
 cNice = [
-	TCanvas("ETauFinal", "ETauFinal", 650, 500),
-	TCanvas("MuTauFinal", "MuTauFinal", 650, 500),
-	TCanvas("TauTauFinal", "TauTauFinal", 650, 500),
-	TCanvas("COMBINEDFinal", "COMBINEDFinal", 650, 500)
+	TCanvas("c"+tooLopOn[0], "c"+tooLopOn[0], 650, 500),
+	TCanvas("c"+tooLopOn[1], "c"+tooLopOn[1], 650, 500),
+	TCanvas("c"+tooLopOn[2], "c"+tooLopOn[2], 650, 500),
+	TCanvas("cCombined", "cCombined", 650, 500)
 	]
 
 for ic in range(len(tooLopOn)):
@@ -266,7 +298,7 @@ for ic in range(len(tooLopOn)):
 	g68.SetLineColor(TColor.GetColor(0, 220, 60))
 	g68.SetFillStyle(1001)
 	g95[ic].SetTitle("Expected #pm 2#sigma")
-	g95[ic].SetName(channels[ic])
+	g95[ic].SetName(tooLopOn[ic])
 	g95[ic].SetMarkerStyle(0)
 	g95[ic].SetMarkerColor(5)
 	g95[ic].SetFillColor(TColor.GetColor(254, 234, 0))
@@ -378,7 +410,7 @@ for ic in range(len(tooLopOn)):
 	pt2.SetTextSize(0.040)
 	pt2.SetTextFont(42)
 	pt2.SetFillStyle(0)
-	pt2.AddText("36.2 fb^{-1} (13 TeV)")
+	pt2.AddText("35.9 fb^{-1} (13 TeV)")
 
 	pt4 = TPaveText(0.4819196,0.7780357,0.9008929,0.8675595,"brNDC")
 	pt4.SetTextAlign(12)
@@ -440,18 +472,8 @@ for ic in range(len(tooLopOn)):
 	elif benchmark == 1 : app2 = "Benchmark"
 
 	if benchmark>-1:
-		for ext in outFormats : cNice[ic].SaveAs("plots/preApp_27_jan_2017/limit"+app2+"_"+tooLopOn[ic]+outString+ext)
-		print "SAVED IN " , "plots/preApp_27_jan_2017/limit"+app2+"_"+tooLopOn[ic]+outString+ext
-raw_input()
+		for ext in outFormats : cNice[ic].SaveAs("plots/2016stat/limit"+app2+"_"+tooLopOn[ic]+outString+ext)
+		print "SAVED IN " , "plots/2016stat/limit"+app2+"_"+tooLopOn[ic]+outString+ext
 
-   #return ;
+#if not opt.draw : raw_input()
 
-
-#c2 = TCanvas()
-#c2.cd()
-#mg[1].Draw("ALP")
-#c2.BuildLegend()
-#c3 = TCanvas()
-#c3.cd()
-#mg[2].Draw("ALP")
-#c3.BuildLegend()

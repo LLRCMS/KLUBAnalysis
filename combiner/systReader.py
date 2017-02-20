@@ -18,6 +18,13 @@ class systReader:
         self.channels = signalList+backgroundList
         self.theOutputFile = outputFile
         #self.OutputLines = []
+        self.writeOut = True
+        self.printResult = True
+
+        self.SystNames = []
+        self.SystTypes = []
+        self.SystProcesses = []
+        self.SystValues = []
 
     def addSystFile(self, theOtherFile):
         self.theInput.append(theOtherFile)
@@ -27,6 +34,8 @@ class systReader:
         section = ""
         outputLine = ""
         OutputLines = []
+        activeProc = []
+        activeVal = []
         systLine={'ggH':"- "}
         for chan in self.channels :
             systLine[chan] = "- "
@@ -53,30 +62,42 @@ class systReader:
                             systLine[chan] = "- "
 
                         OutputLines.append(outputLine)
-                        print outputLine
+                        if self.printResult : print outputLine
                         outputLine = ""
+                        self.SystProcesses.append(activeProc)
+                        self.SystValues.append(activeVal)
+                        activeProc = []
+                        activeVal = []
 
-                    print "writing syst for ", section
+                    if self.printResult : print "writing syst for ", section
+                    self.SystNames.append(section)
                     continue
                 
                 if f[0] == "type":
                     #print "TYPE: ",f
                     outputLine+=section+" "+f[2]+" "
+                    self.SystTypes.append(f[2])
                     continue
                 elif f[0] == "param":
                     outputLine=section+" "+line
                     continue
                 for chan in self.channels:
                     #print "SYST: ",f
-                    if chan == f[0]: systLine[chan] = " "+f[2]+" "
+                    if chan == f[0]: 
+                        systLine[chan] = " "+f[2]+" "
+                        activeProc.append(f[0])
+                        activeVal.append(f[2])
 
             for chan in self.channels :
                 if not "param" in outputLine: 
                     outputLine += systLine[chan]
             OutputLines.append(outputLine)
-            print outputLine
-            for line in OutputLines:
-                self.theOutputFile.write(line+"\n")
+            self.SystProcesses.append(activeProc)
+            self.SystValues.append(activeVal)
+            if self.printResult : print outputLine
+            if self.writeOut:
+                for line in OutputLines:
+                    self.theOutputFile.write(line+"\n")
 
     def writeOneLine(self,channel,string,value=1):
         outputLine = string
@@ -89,6 +110,11 @@ class systReader:
                 outputLine += "- "
         self.theOutputFile.write(outputLine+"\n")
 
+    def writeOutput(self,doWrite) :
+        self.writeOut = doWrite
+
+    def verbose(self, v) :
+        self.printResult = v
 
 
 

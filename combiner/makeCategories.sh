@@ -6,13 +6,13 @@ export OUTSTRING="2017_02_19_btag"
 
 export STRINGLEPTONS="$1"
 #export SELECTIONS="s2b0jresolvedMcut${STRINGLEPTONS} s1b1jresolvedMcut${STRINGLEPTONS} sboostedLLMcut"
-export SELECTIONS="s2b0jresolvedMcut s1b1jresolvedMcut sboostedLLMcut s2b0jresolvedLcut s1b1jresolvedLcut"
+export SELECTIONS="s2b0jresolvedMcut s1b1jresolvedMcut sboostedLLMcut"
 export SELECTIONSTAU="s1b1jresolvedMcut s2b0jresolvedMcut sboostedLLMcut"
 
 export RESONANT=$2
 export LEPTONS="MuTau ETau TauTau"
 
-export CF="/home/llr/cms/ortona/diHiggs/CMSSW_7_4_7/src/KLUBAnalysis/combiner"
+export CF="$CMSSW_BASE/src/KLUBAnalysis/combiner"
 if [ "${RESONANT}" != "-r" ]
     then
     export VARIABLE="MT2"

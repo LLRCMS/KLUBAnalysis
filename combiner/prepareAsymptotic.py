@@ -39,7 +39,7 @@ if __name__ == "__main__":
     #if (float(opt.n)>0) :    
         #scriptFile.write('combine -M HybridNew --frequentist -m 125.0 --testStat LHC %s/comb.root  -H ProfileLikelihood -n forLim_%s --expectedFromGrid=%s &> out_%s.log \n' % (jobsDir,opt.n,opt.n,opt.n))
     scriptFile.write('combine -M Asymptotic -m 125.0 %s/comb.root  -n %s_forLim --run=blind &> out_Asym_%s.log \n' % (jobsDir,opt.n,opt.n))
-    scriptFile.write('combine -M Asymptotic -m 125.0 %s/comb.root  -n %s_forLim_noBR --run=blind --freezeNuisances HH_BR_Hbb,HH_BR_Htt &> out_Asym_%s_noBR.log \n' % (jobsDir,opt.n,opt.n))
+    #scriptFile.write('combine -M Asymptotic -m 125.0 %s/comb.root  -n %s_forLim_noBR --run=blind --freezeNuisances HH_BR_Hbb,HH_BR_Htt &> out_Asym_%s_noBR.log \n' % (jobsDir,opt.n,opt.n))
     scriptFile.write('echo "All done for job %s" \n'%opt.n)
     scriptFile.close()
     os.system('chmod u+rwx %s/runJob_Asym_%s.sh'%(jobsDir,opt.n))
