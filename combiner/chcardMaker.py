@@ -29,7 +29,8 @@ def parseOptions():
     parser.add_option('-r', '--resonant',  action="store_true",  dest='isResonant', help='is Resonant analysis')
     parser.add_option('-y', '--binbybin',  action="store_true", dest='binbybin', help='add bin by bins systematics')
     parser.add_option('-t', '--theory',  action="store_true", dest='theory', help='add theory systematics')
-    parser.add_option('-u', '--shape',  action="store_true", dest='shapeUnc', help='add shape uncertainties')
+    #parser.add_option('-u', '--shape',  action="store_true", dest='shapeUnc', help='add shape uncertainties')
+    parser.add_option('-u', '--shape', dest='shapeUnc', type='int', default=1, help='1:add 0:disable shape uncertainties')
 
     # store options and arguments as global variables
     global opt, args
@@ -190,9 +191,11 @@ def  writeCard(input,theLambda,select,region=-1) :
 				else :
 					systVal = float(syst.SystValues[isy][iproc])
 				cmb1.cp().process([syst.SystProcesses[isy][iproc]]).AddSyst(cmb1, syst.SystNames[isy],syst.SystTypes[isy],ch.SystMap('channel','bin_id')([opt.channel],[0],systVal))
-		if opt.shapeUnc :
+		if opt.shapeUnc > 0:
 			cmb1.cp().AddSyst(cmb1, "CMS_scale_t","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
-			cmb1.cp().process(MCbackgrounds).AddSyst(cmb1, "CMS_JES","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
+			jesproc = MCbackgrounds
+			jesproc.append(theLambda)
+			cmb1.cp().process(jesproc).AddSyst(cmb1, "CMS_JES","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
 
 	    #	$BIN        --> proc.bin()
 	    #	$PROCESS    --> proc.process()
