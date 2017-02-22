@@ -351,7 +351,7 @@ struct smallTree
       m_smallT->Branch ("L3filterlast2", &m_L3filterlast2, "L3filterlast2/I") ;
       m_smallT->Branch ("rho", &m_rho, "rho/F") ;
 
-      m_smallT->Branch ("pairType", &m_pairType, "rho/I") ;
+      m_smallT->Branch ("pairType", &m_pairType, "pairType/I") ;
       m_smallT->Branch ("isMC", &m_isMC, "isMC/I") ;
       m_smallT->Branch ("isOS", &m_isOS, "isOS/I") ;
 
