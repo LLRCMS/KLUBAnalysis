@@ -169,9 +169,9 @@ def  writeCard(input,theLambda,select,region=-1) :
 			syst.addSystFile("../config/systematics_tautau.cfg")
 		elif(opt.channel == "MuTau" ): 
 			syst.addSystFile("../config/systematics_mutau.cfg")
-			if(opt.isResonant):
-				syst.addSystFile("../config/systematics_resonant.cfg")
-			else : syst.addSystFile("../config/systematics_nonresonant.cfg")
+			#if(opt.isResonant):
+			#	syst.addSystFile("../config/systematics_resonant.cfg")
+			#else : syst.addSystFile("../config/systematics_nonresonant.cfg")
 		elif(opt.channel == "ETau" ): 
 			syst.addSystFile("../config/systematics_etau.cfg")
 			if(opt.isResonant):
@@ -192,10 +192,11 @@ def  writeCard(input,theLambda,select,region=-1) :
 					systVal = float(syst.SystValues[isy][iproc])
 				cmb1.cp().process([syst.SystProcesses[isy][iproc]]).AddSyst(cmb1, syst.SystNames[isy],syst.SystTypes[isy],ch.SystMap('channel','bin_id')([opt.channel],[0],systVal))
 		if opt.shapeUnc > 0:
-			cmb1.cp().AddSyst(cmb1, "CMS_scale_t","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
 			jesproc = MCbackgrounds
 			jesproc.append(theLambda)
+			if "1b1j" in select and opt.channel == "TauTau" : jesproc.remove("DY0b")
 			cmb1.cp().process(jesproc).AddSyst(cmb1, "CMS_JES","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
+			cmb1.cp().process(jesproc).AddSyst(cmb1, "CMS_scale_t","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
 
 	    #	$BIN        --> proc.bin()
 	    #	$PROCESS    --> proc.process()
@@ -216,8 +217,13 @@ def  writeCard(input,theLambda,select,region=-1) :
 
 		bbb = ch.BinByBinFactory()
 		bbb.SetAddThreshold(0.1).SetMergeThreshold(0.5).SetFixNorm(True)
-		bbb.MergeBinErrors(cmb1.cp().backgrounds())
-		if opt.binbybin : bbb.AddBinByBin(cmb1.cp().backgrounds(), cmb1)
+		bbb.MergeBinErrors(MCbackgrounds)
+		bbbQCD = ch.BinByBinFactory()
+		bbbQCD.SetAddThreshold(0.0).SetMergeThreshold(0.5).SetFixNorm(True)
+		bbbQCD.MergeBinErrors(["QCD"])
+		if opt.binbybin : 
+			bbbQCD.AddBinByBin(["QCD"], cmb1)
+			bbb.AddBinByBin(MCbackgrounds, cmb1)
 		#cmb1.cp().PrintProcs().PrintSysts()
 
 		#outroot = TFile.Open(opt.outDir+"/chCard{0}{2}_{1}_{3}.input.root".format(theLambda,opt.channel,regionName[region+1],select),"RECREATE")
