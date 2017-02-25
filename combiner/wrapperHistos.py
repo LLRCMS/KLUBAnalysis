@@ -17,7 +17,7 @@ def parseOptions():
 
 
 listHistos = []
-systNamesOUT=["CMS_scale_t","CMS_JES"]
+systNamesOUT=["CMS_scale_t","CMS_scale_j"]
 systNames=["tau","jet"]
 parseOptions()
 inFile = TFile.Open(opt.filename)
@@ -30,7 +30,8 @@ for key in inFile.GetListOfKeys() :
 		if template.GetBinContent(ibin) <= 0 :
 			template.SetBinContent(ibin,0.000001)
 			template.SetBinError(ibin,0.000001)
-	template.Scale(integral/template.Integral())
+	#print key,integral,template.Integral()
+	if template.Integral()>0 : template.Scale(integral/template.Integral())
 	if "TH1" in template.ClassName() or opt.twoD : 
 		for isyst in range(len(systNames)):
 			lineToCheckDown = systNames[isyst]+"down"

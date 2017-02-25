@@ -35,6 +35,7 @@ def parseOptions():
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
+    global lambdaName
 
 def hackTheCard(origName,destName) :
 	#I need to do this for the rateParams
@@ -112,7 +113,7 @@ def  writeCard(input,theLambda,select,region=-1) :
 	backgrounds=[]
 	MCbackgrounds=[]
 	processes=[]
-	processes.append(theLambda)
+	processes.append(lambdaName)
 	inRoot = TFile.Open(opt.filename)
 	for bkg in input.background:
 		#Add protection against empty processes => If I remove this I could build all bins at once instead of looping on the selections
@@ -153,16 +154,16 @@ def  writeCard(input,theLambda,select,region=-1) :
 	#channels->mutau/tautau/etau 
 	#bin->bjet categories
 	#print signals, signals[0]
-	cmb1.AddObservations(["125"], variables, ['13TeV'], [opt.channel], categories)
-	cmb1.AddProcesses(["125"], variables, ['13TeV'], [opt.channel], backgrounds, categories, False)
-	cmb1.AddProcesses(["125"], variables, ['13TeV'], [opt.channel], [theLambda], categories, True) #signals[0]
+	cmb1.AddObservations([theLambda.replace(lambdaName,"")], variables, ['13TeV'], [opt.channel], categories)
+	cmb1.AddProcesses([theLambda.replace(lambdaName,"")], variables, ['13TeV'], [opt.channel], backgrounds, categories, False)
+	cmb1.AddProcesses([theLambda.replace(lambdaName,"")], variables, ['13TeV'], [opt.channel], ["lambdarew"], categories, True) #signals[0]
 
 	if region < 0 :
 
 		#Systematics (I need to add by hand the shape ones)
 		#potrei sostituire theLambda con "signal"
 		#syst = systReader("../config/systematics.cfg",[theLambda],backgrounds,file)
-		syst = systReader("../config/systematics.cfg",[theLambda],backgrounds,file)
+		syst = systReader("../config/systematics.cfg",[lambdaName],backgrounds,file)
 		syst.writeOutput(False)
 		syst.verbose(False)
 		if(opt.channel == "TauTau" ): 
@@ -177,7 +178,7 @@ def  writeCard(input,theLambda,select,region=-1) :
 			if(opt.isResonant):
 				syst.addSystFile("../config/systematics_resonant.cfg")
 			else : syst.addSystFile("../config/systematics_nonresonant.cfg")
-		if opt.theory : syst.addSystFile("../config/systematics_th.cfg")
+		if opt.theory : syst.addSystFile("../config/syst_th.cfg")
 		syst.writeSystematics()
 
 		for isy in range(len(syst.SystNames)) :
@@ -193,37 +194,37 @@ def  writeCard(input,theLambda,select,region=-1) :
 				cmb1.cp().process([syst.SystProcesses[isy][iproc]]).AddSyst(cmb1, syst.SystNames[isy],syst.SystTypes[isy],ch.SystMap('channel','bin_id')([opt.channel],[0],systVal))
 		if opt.shapeUnc > 0:
 			jesproc = MCbackgrounds
-			jesproc.append(theLambda)
+			jesproc.append(lambdaName)
 			if "1b1j" in select and opt.channel == "TauTau" : jesproc.remove("DY0b")
-			cmb1.cp().process(jesproc).AddSyst(cmb1, "CMS_JES","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
+			cmb1.cp().process(jesproc).AddSyst(cmb1, "CMS_scale_j","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
 			cmb1.cp().process(jesproc).AddSyst(cmb1, "CMS_scale_t","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
 
 	    #	$BIN        --> proc.bin()
 	    #	$PROCESS    --> proc.process()
 	    #	$MASS       --> proc.mass()
 	    #	$SYSTEMATIC --> syst.name()
-		cmb1.cp().ExtractShapes(
+#		cmb1.cp().ExtractShapes(
+#			opt.filename,
+#			"$PROCESS_$BIN_{1}_{0}".format(variables[0],regionSuffix[region+1]),
+#			"$PROCESS_$BIN_{1}_{0}_$SYSTEMATIC".format(variables[0],regionSuffix[region+1]))
+		cmb1.cp().backgrounds().ExtractShapes(
 			opt.filename,
 			"$PROCESS_$BIN_{1}_{0}".format(variables[0],regionSuffix[region+1]),
 			"$PROCESS_$BIN_{1}_{0}_$SYSTEMATIC".format(variables[0],regionSuffix[region+1]))
-#		cmb1.cp().backgrounds().ExtractShapes(
-#			opt.filename,
-#			"$PROCESS_$BIN_{1}_{0}".format(variables[0],regionSuffix[region+1]),
-#			"$PROCESS_$BIN_{1}_{0}_$SYSTEMATIC".format(variables[0],regionSuffix[region+1]))
-#		cmb1.cp().signals().ExtractShapes(
-#			opt.filename,
-#			"$PROCESS_$BIN_{1}_{0}".format(variables[0],regionSuffix[region+1]),
-#			"$PROCESS_$BIN_{1}_{0}_$SYSTEMATIC".format(variables[0],regionSuffix[region+1]))
+		cmb1.cp().signals().ExtractShapes(
+			opt.filename,
+			"$PROCESS$MASS_$BIN_{1}_{0}".format(variables[0],regionSuffix[region+1]),
+			"$PROCESS$MASS_$BIN_{1}_{0}_$SYSTEMATIC".format(variables[0],regionSuffix[region+1]))
 
 		bbb = ch.BinByBinFactory()
 		bbb.SetAddThreshold(0.1).SetMergeThreshold(0.5).SetFixNorm(True)
-		bbb.MergeBinErrors(MCbackgrounds)
 		bbbQCD = ch.BinByBinFactory()
 		bbbQCD.SetAddThreshold(0.0).SetMergeThreshold(0.5).SetFixNorm(True)
-		bbbQCD.MergeBinErrors(["QCD"])
 		if opt.binbybin : 
-			bbbQCD.AddBinByBin(["QCD"], cmb1)
-			bbb.AddBinByBin(MCbackgrounds, cmb1)
+			bbb.MergeBinErrors(cmb1.cp().process(MCbackgrounds))
+			bbbQCD.MergeBinErrors(cmb1.cp().process(["QCD"]))
+			bbbQCD.AddBinByBin(cmb1.cp().process(["QCD"]), cmb1)
+			bbb.AddBinByBin(cmb1.cp().process(MCbackgrounds), cmb1)
 		#cmb1.cp().PrintProcs().PrintSysts()
 
 		#outroot = TFile.Open(opt.outDir+"/chCard{0}{2}_{1}_{3}.input.root".format(theLambda,opt.channel,regionName[region+1],select),"RECREATE")
@@ -312,6 +313,11 @@ else: configname = opt.config
 input = configReader(configname)
 input.readInputs()
 
+if opt.isResonant:
+	lambdaName="Radion"
+else:
+	lambdaName="ggHH_bbtt"
+
 if opt.overSel == "" :
 	allSel = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut"]
 else : allSel = [opt.overSel]
@@ -321,11 +327,13 @@ if not opt.overLambda == "" :
 
 print input.signals
 for theLambda in input.signals:
+	if not lambdaName in theLambda : 
+		continue
 	for sel in allSel : 
-		if not "lambda" in theLambda and not "Radion" in theLambda : continue
-		if opt.isResonant :
-			if "lambda" in theLambda : continue
-		else :
-			if "Radion" in theLambda : continue
-		for ireg in range(-1,3) :
+		#if not "lambda" in theLambda and not "Radion" in theLambda : continue
+#		if opt.isResonant :
+#			if not "Radion" in theLambda : continue
+#		else :
+#			if not "ggHH_bbtt" in theLambda : continue
+	    for ireg in range(-1,3) :
 			writeCard(input,theLambda,sel,ireg)
