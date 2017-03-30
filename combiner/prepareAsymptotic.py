@@ -11,7 +11,8 @@ def parseOptions():
     parser = optparse.OptionParser(usage)
     
     parser.add_option('-n', '--quantile',   dest='n',       type='string',    default='0.500',     help='quantile')
-    
+    parser.add_option('-m', '--mass',   dest='m',       type='int',    default='21',     help='lambda')
+ 
     # store options and arguments as global variables
     global opt, args
     (opt, args) = parser.parse_args()
@@ -33,13 +34,11 @@ if __name__ == "__main__":
     scriptFile.write('cd {}\n'.format(cmsswBase + '/src/'))
     scriptFile.write('eval `scram r -sh`\n')
     scriptFile.write('cd %s\n'%jobsDir)
-    #scriptFile.write('cmsRun cmssw_%d_cfg.py &> log_%d_job.txt \n' % (n,n) )
-    #scriptFile.write('cp SingleElectronPt35_PU0_GEN_SIM_%d.root %s\n'%(n,opt.output))
-    #scriptFile.write('rm SingleElectronPt35_PU0_GEN_SIM_%d.root\n'%n)
     #if (float(opt.n)>0) :    
         #scriptFile.write('combine -M HybridNew --frequentist -m 125.0 --testStat LHC %s/comb.root  -H ProfileLikelihood -n forLim_%s --expectedFromGrid=%s &> out_%s.log \n' % (jobsDir,opt.n,opt.n,opt.n))
-    scriptFile.write('combine -M Asymptotic -m 125.0 %s/comb.root  -n %s_forLim --run=blind &> out_Asym_%s.log \n' % (jobsDir,opt.n,opt.n))
-    #scriptFile.write('combine -M Asymptotic -m 125.0 %s/comb.root  -n %s_forLim_noBR --run=blind --freezeNuisances HH_BR_Hbb,HH_BR_Htt &> out_Asym_%s_noBR.log \n' % (jobsDir,opt.n,opt.n))
+    #scriptFile.write('combine -M Asymptotic %s/comb.root -m %d -n %s_forLim_blind --run=blind &> out_Asym_%s.log \n' % (jobsDir,opt.m,opt.n,opt.n))
+    scriptFile.write('combine -M Asymptotic %s/comb.root -m %d -n %s_forLim &> out_Asym_%s.log \n' % (jobsDir,opt.m,opt.n,opt.n))
+    scriptFile.write('combine -M Asymptotic %s/comb.root -m %d -n %s_forLim_noTH --freezeNuisances QCDscale_ggHH,pdf_ggHH,HH_BR_Hbb,HH_BR_Htt &> out_Asym_%s_noTH.log \n' % (jobsDir,opt.m,opt.n,opt.n))
     scriptFile.write('echo "All done for job %s" \n'%opt.n)
     scriptFile.close()
     os.system('chmod u+rwx %s/runJob_Asym_%s.sh'%(jobsDir,opt.n))
