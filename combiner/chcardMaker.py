@@ -156,7 +156,7 @@ def  writeCard(input,theLambda,select,region=-1) :
 	#print signals, signals[0]
 	cmb1.AddObservations([theLambda.replace(lambdaName,"")], variables, ['13TeV'], [opt.channel], categories)
 	cmb1.AddProcesses([theLambda.replace(lambdaName,"")], variables, ['13TeV'], [opt.channel], backgrounds, categories, False)
-	cmb1.AddProcesses([theLambda.replace(lambdaName,"")], variables, ['13TeV'], [opt.channel], ["lambdarew"], categories, True) #signals[0]
+	cmb1.AddProcesses([theLambda.replace(lambdaName,"")], variables, ['13TeV'], [opt.channel], [lambdaName], categories, True) #signals[0]
 
 	if region < 0 :
 
@@ -165,7 +165,7 @@ def  writeCard(input,theLambda,select,region=-1) :
 		#syst = systReader("../config/systematics.cfg",[theLambda],backgrounds,file)
 		syst = systReader("../config/systematics.cfg",[lambdaName],backgrounds,file)
 		syst.writeOutput(False)
-		syst.verbose(False)
+		syst.verbose(True)
 		if(opt.channel == "TauTau" ): 
 			syst.addSystFile("../config/systematics_tautau.cfg")
 		elif(opt.channel == "MuTau" ): 
@@ -175,29 +175,30 @@ def  writeCard(input,theLambda,select,region=-1) :
 			#else : syst.addSystFile("../config/systematics_nonresonant.cfg")
 		elif(opt.channel == "ETau" ): 
 			syst.addSystFile("../config/systematics_etau.cfg")
-			if(opt.isResonant):
-				syst.addSystFile("../config/systematics_resonant.cfg")
-			else : syst.addSystFile("../config/systematics_nonresonant.cfg")
+			#if(opt.isResonant):
+			#	syst.addSystFile("../config/systematics_resonant.cfg")
+			#else : syst.addSystFile("../config/systematics_nonresonant.cfg")
 		if opt.theory : syst.addSystFile("../config/syst_th.cfg")
 		syst.writeSystematics()
 
 		for isy in range(len(syst.SystNames)) :
 			if "CMS_scale_t" in syst.SystNames[isy] or "CMS_scale_j" in syst.SystNames[isy]: continue
 			for iproc in range(len(syst.SystProcesses[isy])) :
-				#print isy, iproc, float(syst.SystValues[isy][iproc])
-				#(float(syst.SystValues[isy][iproc]),0.002 )
 				if "/" in syst.SystValues[isy][iproc] :
 					f = syst.SystValues[isy][iproc].split("/")
 					systVal = (float(f[0]),float(f[1]))
 				else :
 					systVal = float(syst.SystValues[isy][iproc])
+				#print isy, iproc, systVal
+				print "adding Syst",systVal,syst.SystNames[isy],syst.SystTypes[isy],"to",syst.SystProcesses[isy][iproc]
 				cmb1.cp().process([syst.SystProcesses[isy][iproc]]).AddSyst(cmb1, syst.SystNames[isy],syst.SystTypes[isy],ch.SystMap('channel','bin_id')([opt.channel],[0],systVal))
 		if opt.shapeUnc > 0:
 			jesproc = MCbackgrounds
 			jesproc.append(lambdaName)
 			if "1b1j" in select and opt.channel == "TauTau" : jesproc.remove("DY0b")
-			cmb1.cp().process(jesproc).AddSyst(cmb1, "CMS_scale_j","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
-			cmb1.cp().process(jesproc).AddSyst(cmb1, "CMS_scale_t","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
+			cmb1.cp().process(jesproc).AddSyst(cmb1, "CMS_scale_j_13TeV","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
+			cmb1.cp().process(jesproc).AddSyst(cmb1, "CMS_scale_t_13TeV","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
+			cmb1.cp().process(["TT"]).AddSyst(cmb1, "top","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
 
 	    #	$BIN        --> proc.bin()
 	    #	$PROCESS    --> proc.process()
@@ -326,6 +327,9 @@ if not opt.overLambda == "" :
 	input.signals = [opt.overLambda]
 
 print input.signals
+for il in range(len(input.signals)) :
+	input.signals[il] = input.signals[il].replace("lambdarew","ggHH_bbtt")	
+	input.signals[il] = input.signals[il].replace("bidimrew","ggHH_bbtt")	
 for theLambda in input.signals:
 	if not lambdaName in theLambda : 
 		continue
