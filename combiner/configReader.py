@@ -27,6 +27,7 @@ class configReader:
         self.signals=[]
         self.background=[]
         self.datasamples=[]
+        self.selections=[]
         self.additional = []
         self.additionalName = []
 
@@ -94,12 +95,15 @@ class configReader:
                 #if f[0] == 'signalsFitted' : 
                 if f[0] == 'signals' : 
                     for sample in range(1,len(f)-1): self.signals.append(f[sample])
-                elif f[0] == "backgroundsMerge": 
+                elif f[0] == "backgrounds": 
                     for sample in range(1,len(f)-1): self.background.append(f[sample])
                 elif f[0] == "data": 
                     for sample in range(1,len(f)-1): self.datasamples.append(f[sample])
                 elif f[0] == "outputFolderName":
                     self.inputFolder = f[1] 
+                elif f[0] == "variables":
+                    for iword in range(1,len(f)-1): varnames.append(f[iword])
+                    #print varnames
  #               for chan in f:
  #                   if chan == f[0]: continue
  #                   if chan.lower().startswith("ggh"):     self.ggH_chan = True
@@ -118,6 +122,18 @@ class configReader:
             #if section == "stitch":
             #    if f[0] not in self.background :
             #        self.background.append(f[0])
+                if f[0] == "additionalBkgs":
+                    for sample in range(1,len(f)-1): 
+                        self.background.append(f[sample])
+                        self.additional.append(f[sample])
+
+                if f[0] == "additionalName" :
+                    for sample in range(1,len(f)-1): self.additionalName.append(f[sample])
+
+                if f[0] == "selections" :
+                    for sample in range(1,len(f)-1): 
+                        if "BDT" in f[sample] or "boosted" in f[sample] :
+                            self.selections.append(f[sample])
 
             if section == "evalQCD":
                 if f[0] == "outputFolderName":
@@ -126,7 +142,14 @@ class configReader:
                     self.SSOSfactor = f[1]
             #if section == "systematics": #devo capire che formato sare    
             #    continue
-            #print f        
+            #print f 
+            if section == "merge" or section == "pp_merge":
+                if not "data_obs" in f[0] : 
+                    self.background.append(f[0])
+                    for ibmerge in range(1, len(f)):
+                        if f[ibmerge] is not "":
+                            #print self.background, ibmerge, f,f[ibmerge]
+                            self.background.remove(f[ibmerge])                 
             if f[0] == "lumi" :
                 self.lumi = float(f[1])
                 print "lumi ", self.lumi
@@ -138,41 +161,23 @@ class configReader:
                 self.AllvarX.append(re.sub(',', '', f[2]))
                 self.AllvarY.append(re.sub(',', '', f[3]))
                 
-            if f[0] == "cardsvariables":
-                #print f
-                varnames.append(f[1])
-                varnames.append(f[2])
-                #print varnames
-                #varXname = f[2]
-                #print self.varX
-                if len(f)>3 : 
-                    #varYname = f[3]
-                    self.dimensions = 2
-                else :  self.dimensions = 1 
-           
-            if f[0] == "cardsselection":
-                self.selectionLevel = f[1]
+        self.AllVars = varnames
+        self.background.append("QCD")
+        #if len(self.additionalName)<1: self.additionalName.append("QCD")
 
-            if f[0] == "additionalBkgs":
-                for sample in range(1,len(f)-1): 
-                    self.background.append(f[sample])
-                    self.additional.append(f[sample])
+#        for iname in range(len(self.AllVars)):
+#            #print self.AllVars[iname]#, varXname
+#            #varnames = f[2].split(':')
+#            #print varnames
+#            if self.AllVars[iname] == re.sub('_','',varnames[0]):
+#                    #print "GOTCHA"
+#                    self.varX = iname
+#                    self.AllVars[iname] = varnames[0]
+#            elif self.dimensions>1:
+#                    if self.AllVars[iname] == re.sub('_','',varnames[1]):
+#                        self.varY = iname
+#                        self.AllVars[iname] = varnames[1]
 
-            if f[0] == "additionalName" :
-                for sample in range(1,len(f)-1): self.additionalName.append(f[sample])
-
-        for iname in range(len(self.AllVars)):
-            #print self.AllVars[iname]#, varXname
-            #varnames = f[2].split(':')
-            #print varnames
-            if self.AllVars[iname] == re.sub('_','',varnames[0]):
-                    #print "GOTCHA"
-                    self.varX = iname
-                    self.AllVars[iname] = varnames[0]
-            elif self.dimensions>1:
-                    if self.AllVars[iname] == re.sub('_','',varnames[1]):
-                        self.varY = iname
-                        self.AllVars[iname] = varnames[1]
 
     
     def getInputs(self):

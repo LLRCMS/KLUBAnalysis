@@ -28,6 +28,8 @@ struct smallTree
       m_bTagweightM = -1. ;
       m_bTagweightT = -1. ;
       m_TTtopPtreweight = -1. ;
+      m_TTtopPtreweight_up   = -1. ;
+      m_TTtopPtreweight_down = -1. ;
       m_turnOnreweight = -1. ;
       m_turnOnreweight_tauup = -1. ;
       m_turnOnreweight_taudown = -1. ;
@@ -44,6 +46,9 @@ struct smallTree
       
       m_genDecMode1 = -1;
       m_genDecMode2 = -1;
+
+      m_genMHH   = -1;
+      m_genCosth = -999;
 
       m_npv = -1. ;
       m_npu = -1. ;
@@ -79,6 +84,8 @@ struct smallTree
       m_dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits= false;
       m_dau1_byTightCombinedIsolationDeltaBetaCorr3Hits= false;
       m_dau1_pt  = -1. ;
+      m_dau1_pt_tauup  = -1. ;
+      m_dau1_pt_taudown  = -1. ;
       m_dau1_eta  = -1. ;
       m_dau1_phi  = -1. ;
       m_dau1_e  = -1. ;
@@ -106,6 +113,8 @@ struct smallTree
       m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits= false;
       m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits= false;
       m_dau2_pt  = -1. ;
+      m_dau2_pt_tauup  = -1. ;
+      m_dau2_pt_taudown  = -1. ;
       m_dau2_eta  = -1. ;
       m_dau2_phi  = -1. ;
       m_dau2_e  = -1. ;
@@ -178,6 +187,8 @@ struct smallTree
       m_bjet1_bID = -1. ;
       m_bjet1_flav = -1 ;
       m_bjet1_pt_raw  = -1. ;
+      m_bjet1_pt_raw_jetup  = -1. ;
+      m_bjet1_pt_raw_jetdown  = -1. ;
       m_bjet1_hasgenjet = false ;
 
       m_bjet2toMuon  = false ;
@@ -189,6 +200,8 @@ struct smallTree
       m_bjet2_bID = -1. ;
       m_bjet2_flav = -1 ;
       m_bjet2_pt_raw  = -1. ;
+      m_bjet2_pt_raw_jetup  = -1. ;
+      m_bjet2_pt_raw_jetdown  = -1. ;
       m_bjet2_hasgenjet = false ;
 
       m_DeltaRmin_stage2jet_bjet1= -1. ;
@@ -286,6 +299,8 @@ struct smallTree
       m_dib_deltaPhi = -1. ;
       m_ditau_deltaR = -1. ;
       m_dib_deltaR = -1. ;
+      m_ditau_deltaR_per_tauHsvfitpt = -1. ;
+      m_dib_deltaR_per_bHpt = -1. ;
       m_btau_deltaRmin = -1. ;
       m_b1tau_deltaRmin = -1. ;
       m_b2tau_deltaRmin = -1. ;
@@ -307,6 +322,10 @@ struct smallTree
       m_HHkinsvfit_m =-1;
 
       m_MT2 = -1.;
+      m_MT2_tauup = -1.;
+      m_MT2_taudown = -1.;
+      m_MT2_jetup = -1.;
+      m_MT2_jetdown = -1.;
       // m_MT2_covMtrxStatus = -1;
       // m_MT2_EDM = -1.;
       // m_MT2_hasConverged = -1;
@@ -347,10 +366,14 @@ struct smallTree
       //m_mvaValueETau = 0;      
 
       m_bH_mass_raw = 0;
+      m_bH_mass_raw_jetup = 0;
+      m_bH_mass_raw_jetdown = 0;
       
       m_HHKin_mass_raw = 0;
       m_HHKin_mass_raw_tauup = 0;
       m_HHKin_mass_raw_taudown = 0;
+      m_HHKin_mass_raw_jetup = 0;
+      m_HHKin_mass_raw_jetdown = 0;
       m_HHKin_mass_raw_chi2 = 0;
       m_HHKin_mass_raw_convergence = 0;
       m_HHKin_mass_raw_prob = 0;
@@ -371,6 +394,8 @@ struct smallTree
       m_smallT->Branch ("bTagweightM", &m_bTagweightM, "bTagweightM/F") ;
       m_smallT->Branch ("bTagweightT", &m_bTagweightT, "bTagweightT/F") ;
       m_smallT->Branch ("TTtopPtreweight", &m_TTtopPtreweight, "TTtopPtreweight/F") ;
+      m_smallT->Branch ("TTtopPtreweight_up", &m_TTtopPtreweight_up, "TTtopPtreweight_up/F") ;
+      m_smallT->Branch ("TTtopPtreweight_down", &m_TTtopPtreweight_down, "TTtopPtreweight_down/F") ;
       m_smallT->Branch ("turnOnreweight", &m_turnOnreweight, "turnOnreweight/F") ;
       m_smallT->Branch ("turnOnreweight_tauup", &m_turnOnreweight_tauup, "turnOnreweight_tauup/F") ;
       m_smallT->Branch ("turnOnreweight_taudown", &m_turnOnreweight_taudown, "turnOnreweight_taudown/F") ;
@@ -388,6 +413,9 @@ struct smallTree
       m_smallT->Branch("genDecMode1", &m_genDecMode1, "genDecMode1/I");
       m_smallT->Branch("genDecMode2", &m_genDecMode2, "genDecMode2/I");
 
+      m_smallT->Branch("genMHH", &m_genMHH, "m_genMHH/F");
+      m_smallT->Branch("genCosth", &m_genCosth, "m_genCosth/F");
+
       m_smallT->Branch ("npv", &m_npv, "npv/I") ;
       m_smallT->Branch ("npu", &m_npu, "npu/F") ;
       m_smallT->Branch ("lumi", &m_lumi, "lumi/I") ;
@@ -398,7 +426,7 @@ struct smallTree
       m_smallT->Branch ("L3filterlast2", &m_L3filterlast2, "L3filterlast2/I") ;
       m_smallT->Branch ("rho", &m_rho, "rho/F") ;
 
-      m_smallT->Branch ("pairType", &m_pairType, "rho/I") ;
+      m_smallT->Branch ("pairType", &m_pairType, "pairType/I") ;
       m_smallT->Branch ("isMC", &m_isMC, "isMC/I") ;
       m_smallT->Branch ("isOS", &m_isOS, "isOS/I") ;
 
@@ -422,6 +450,8 @@ struct smallTree
       m_smallT->Branch ("dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits", &m_dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits, "dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits/O") ;
       m_smallT->Branch ("dau1_byTightCombinedIsolationDeltaBetaCorr3Hits", &m_dau1_byTightCombinedIsolationDeltaBetaCorr3Hits, "dau1_byTightCombinedIsolationDeltaBetaCorr3Hits/O") ;
       m_smallT->Branch ("dau1_pt", &m_dau1_pt, "dau1_pt/F") ;
+      m_smallT->Branch ("dau1_pt_tauup", &m_dau1_pt_tauup, "dau1_pt_tauup/F") ;
+      m_smallT->Branch ("dau1_pt_taudown", &m_dau1_pt_taudown, "dau1_pt_taudown/F") ;
       m_smallT->Branch ("dau1_eta", &m_dau1_eta, "dau1_eta/F") ;
       m_smallT->Branch ("dau1_phi", &m_dau1_phi, "dau1_phi/F") ;
       m_smallT->Branch ("dau1_e", &m_dau1_e, "dau1_e/F") ;
@@ -449,6 +479,8 @@ struct smallTree
       m_smallT->Branch ("dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits", &m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits, "dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits/O") ;
       m_smallT->Branch ("dau2_byTightCombinedIsolationDeltaBetaCorr3Hits", &m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits, "dau2_byTightCombinedIsolationDeltaBetaCorr3Hits/O") ;
       m_smallT->Branch ("dau2_pt", &m_dau2_pt, "dau2_pt/F") ;
+      m_smallT->Branch ("dau2_pt_tauup", &m_dau2_pt_tauup, "dau2_pt_tauup/F") ;
+      m_smallT->Branch ("dau2_pt_taudown", &m_dau2_pt_taudown, "dau2_pt_taudown/F") ;
       m_smallT->Branch ("dau2_eta", &m_dau2_eta, "dau2_eta/F") ;
       m_smallT->Branch ("dau2_phi", &m_dau2_phi, "dau2_phi/F") ;
       m_smallT->Branch ("dau2_e", &m_dau2_e, "dau2_e/F") ;
@@ -522,6 +554,8 @@ struct smallTree
       m_smallT->Branch ("bjet1_bID", &m_bjet1_bID, "bjet1_bID/F") ;
       m_smallT->Branch ("bjet1_flav", &m_bjet1_flav, "bjet1_flav/I") ;
       m_smallT->Branch ("bjet1_pt_raw", &m_bjet1_pt_raw, "bjet1_pt_raw/F") ;
+      m_smallT->Branch ("bjet1_pt_raw_jetup", &m_bjet1_pt_raw_jetup, "bjet1_pt_raw_jetup/F") ;
+      m_smallT->Branch ("bjet1_pt_raw_jetdown", &m_bjet1_pt_raw_jetdown, "bjet1_pt_raw_jetdown/F") ;
       m_smallT->Branch ("bjet1_hasgenjet", &m_bjet1_hasgenjet, "bjet1_hasgenjet/O") ;
 
       m_smallT->Branch ("bjet2toMuon", &m_bjet2toMuon, "bjet2toMuon/O") ;
@@ -533,6 +567,8 @@ struct smallTree
       m_smallT->Branch ("bjet2_bID", &m_bjet2_bID, "bjet2m_bID/F") ;
       m_smallT->Branch ("bjet2_flav", &m_bjet2_flav, "bjet2_flav/I") ;
       m_smallT->Branch ("bjet2_pt_raw", &m_bjet2_pt_raw, "bjet2_pt_raw/F") ;
+      m_smallT->Branch ("bjet2_pt_raw_jetup", &m_bjet2_pt_raw_jetup, "bjet2_pt_raw_jetup/F") ;
+      m_smallT->Branch ("bjet2_pt_raw_jetdown", &m_bjet2_pt_raw_jetdown, "bjet2_pt_raw_jetdown/F") ;
       m_smallT->Branch ("bjet2_hasgenjet", &m_bjet2_hasgenjet, "bjet2_hasgenjet/O") ;
 
       m_smallT->Branch ("DeltaRmin_stage2jet_bjet1", &m_DeltaRmin_stage2jet_bjet1, "DeltaRmin_stage2jet_bjet1/F") ;
@@ -629,6 +665,9 @@ struct smallTree
       m_smallT->Branch ("dib_deltaPhi", &m_dib_deltaPhi, "dib_deltaPhi/F") ;
       m_smallT->Branch ("ditau_deltaR",   &m_ditau_deltaR,    "ditau_deltaR/F") ;
       m_smallT->Branch ("dib_deltaR",     &m_dib_deltaR,      "dib_deltaR/F") ;
+      m_smallT->Branch ("ditau_deltaR_per_tauHsvfitpt", &m_ditau_deltaR_per_tauHsvfitpt, "ditau_deltaR_per_tauHsvfitpt/F") ;
+      m_smallT->Branch ("dib_deltaR_per_bHpt", &m_dib_deltaR_per_bHpt, "dib_deltaR_per_bHpt/F") ;
+
       m_smallT->Branch ("btau_deltaRmin", &m_btau_deltaRmin,  "btau_deltaRmin/F") ;
       m_smallT->Branch ("b1tau_deltaRmin", &m_b1tau_deltaRmin,  "b1tau_deltaRmin/F") ;
       m_smallT->Branch ("b2tau_deltaRmin", &m_b2tau_deltaRmin,  "b2tau_deltaRmin/F") ;
@@ -677,7 +716,11 @@ struct smallTree
       m_smallT->Branch("HHkinsvfit_e", &m_HHkinsvfit_e,"HHkinsvfit_e/F");
       m_smallT->Branch("HHkinsvfit_m", &m_HHkinsvfit_m,"HHkinsvfit_m/F");
 
-      m_smallT->Branch("MT2",               &m_MT2,               "MT2/F");
+      m_smallT->Branch("MT2",              &m_MT2,               "MT2/F");
+      m_smallT->Branch("MT2_tauup",        &m_MT2_tauup,         "MT2_tauup/F");
+      m_smallT->Branch("MT2_taudown",      &m_MT2_taudown,       "MT2_taudown/F");
+      m_smallT->Branch("MT2_jetup",        &m_MT2_jetup,         "MT2_jetup/F");
+      m_smallT->Branch("MT2_jetdown",      &m_MT2_jetdown,       "MT2_jetdown/F");
       // m_smallT->Branch("MT2_covMtrxStatus", &m_MT2_covMtrxStatus, "MT2_covMtrxStatus/I");
       // m_smallT->Branch("MT2_EDM",           &m_MT2_EDM,           "MT2_EDM/F");
       // m_smallT->Branch("MT2_hasConverged",  &m_MT2_hasConverged,  "MT2_hasConverged/I");
@@ -686,9 +729,13 @@ struct smallTree
       // m_smallT->Branch("MT2_l",               &m_MT2_l,               "MT2_l/F");
 
       m_smallT->Branch ("bH_mass_raw",&m_bH_mass_raw,"bH_mass_raw/F");
+      m_smallT->Branch ("bH_mass_raw_jetup",&m_bH_mass_raw_jetup,"bH_mass_raw_jetup/F");
+      m_smallT->Branch ("bH_mass_raw_jetdown",&m_bH_mass_raw_jetdown,"bH_mass_raw_jetdown/F");
       m_smallT->Branch ("HHKin_mass_raw",&m_HHKin_mass_raw ,"HHKin_mass_raw/F");
       m_smallT->Branch ("HHKin_mass_raw_tauup",&m_HHKin_mass_raw_tauup ,"HHKin_mass_raw_tauup/F");
       m_smallT->Branch ("HHKin_mass_raw_taudown",&m_HHKin_mass_raw_taudown ,"HHKin_mass_raw_taudown/F");
+      m_smallT->Branch ("HHKin_mass_raw_jetup",&m_HHKin_mass_raw_jetup ,"HHKin_mass_raw_jetup/F");
+      m_smallT->Branch ("HHKin_mass_raw_jetdown",&m_HHKin_mass_raw_jetdown ,"HHKin_mass_raw_jetdown/F");
       m_smallT->Branch ("HHKin_mass_raw_chi2", &m_HHKin_mass_raw_chi2, "HHKin_mass_raw_chi2/F") ;
       m_smallT->Branch ("HHKin_mass_raw_convergence", &m_HHKin_mass_raw_convergence, "HHKin_mass_raw_convergence/I") ;
       m_smallT->Branch ("HHKin_mass_raw_prob", &m_HHKin_mass_raw_prob, "HHKin_mass_raw_prob/F") ;
@@ -714,6 +761,8 @@ struct smallTree
   Float_t m_bTagweightM ;
   Float_t m_bTagweightT ;
   Float_t m_TTtopPtreweight ;
+  Float_t m_TTtopPtreweight_up ;
+  Float_t m_TTtopPtreweight_down ;
   Float_t m_turnOnreweight ;
   Float_t m_turnOnreweight_tauup ;
   Float_t m_turnOnreweight_taudown ;
@@ -730,6 +779,9 @@ struct smallTree
 
   Int_t m_genDecMode1 ;
   Int_t m_genDecMode2 ;
+
+  Float_t m_genMHH ;
+  Float_t m_genCosth ;
 
   Int_t   m_npv ;
   Float_t m_npu ;
@@ -847,6 +899,8 @@ struct smallTree
   Bool_t m_dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits;
   Bool_t m_dau1_byTightCombinedIsolationDeltaBetaCorr3Hits;  
   Float_t m_dau1_pt ;
+  Float_t m_dau1_pt_tauup ;
+  Float_t m_dau1_pt_taudown ;
   Float_t m_dau1_eta ;
   Float_t m_dau1_phi ;
   Float_t m_dau1_e ;
@@ -875,6 +929,8 @@ struct smallTree
   Bool_t m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits;
   Bool_t m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits;  
   Float_t m_dau2_pt ;
+  Float_t m_dau2_pt_tauup ;
+  Float_t m_dau2_pt_taudown ;
   Float_t m_dau2_eta ;
   Float_t m_dau2_phi ;
   Float_t m_dau2_e ;
@@ -890,6 +946,8 @@ struct smallTree
   Float_t m_bjet1_bID ;
   Int_t   m_bjet1_flav ;
   Float_t m_bjet1_pt_raw ;
+  Float_t m_bjet1_pt_raw_jetup ;
+  Float_t m_bjet1_pt_raw_jetdown ;
   Bool_t  m_bjet1_hasgenjet ;
 
   // the trailing pT b visible candidate  /  highest CSV score
@@ -902,6 +960,8 @@ struct smallTree
   Float_t m_bjet2_bID ;
   Int_t   m_bjet2_flav ;
   Float_t m_bjet2_pt_raw ;
+  Float_t m_bjet2_pt_raw_jetup ;
+  Float_t m_bjet2_pt_raw_jetdown ;
   Bool_t  m_bjet2_hasgenjet ;
 
   // fat jets and subjet info
@@ -998,6 +1058,8 @@ struct smallTree
   Float_t m_dib_deltaPhi ;
   Float_t m_ditau_deltaR   ;
   Float_t m_dib_deltaR     ;
+  Float_t m_ditau_deltaR_per_tauHsvfitpt ;
+  Float_t m_dib_deltaR_per_bHpt ;
   Float_t m_btau_deltaRmin ;
   Float_t m_b1tau_deltaRmin ;
   Float_t m_b2tau_deltaRmin ;
@@ -1051,12 +1113,16 @@ struct smallTree
   Float_t m_HHKin_mass_raw;
   Float_t m_HHKin_mass_raw_tauup;
   Float_t m_HHKin_mass_raw_taudown;
+  Float_t m_HHKin_mass_raw_jetup;
+  Float_t m_HHKin_mass_raw_jetdown;
   Float_t m_HHKin_mass_raw_chi2;
   Int_t   m_HHKin_mass_raw_convergence;
   Float_t m_HHKin_mass_raw_prob;
 
   Float_t m_HHKin_mass_raw_copy;
   Float_t m_bH_mass_raw;
+  Float_t m_bH_mass_raw_jetup;
+  Float_t m_bH_mass_raw_jetdown;
 
   Float_t m_HHkinsvfit_bHmass;
   Float_t m_HHkinsvfit_pt;
@@ -1066,6 +1132,10 @@ struct smallTree
   Float_t m_HHkinsvfit_m;
 
   Float_t m_MT2;
+  Float_t m_MT2_tauup;
+  Float_t m_MT2_taudown;
+  Float_t m_MT2_jetup;
+  Float_t m_MT2_jetdown;
   // Int_t   m_MT2_covMtrxStatus;
   // Float_t m_MT2_EDM;
   // Int_t   m_MT2_hasConverged;

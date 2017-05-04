@@ -37,10 +37,11 @@ if __name__ == "__main__":
     #scriptFile.write('cp SingleElectronPt35_PU0_GEN_SIM_%d.root %s\n'%(n,opt.output))
     #scriptFile.write('rm SingleElectronPt35_PU0_GEN_SIM_%d.root\n'%n)
     if (float(opt.n)>0) :    
-        scriptFile.write('combine -M HybridNew --frequentist -m 125.0 --testStat LHC %s/comb.root  -H ProfileLikelihood -n forLim_%s --expectedFromGrid=%s &> out_%s.log \n' % (jobsDir,opt.n,opt.n,opt.n))
+        scriptFile.write('combine -M HybridNew --frequentist -m 21 --testStat LHC %s/comb.root  -H ProfileLikelihood -n forLim_%s --expectedFromGrid=%s &> out_%s.log \n' % (jobsDir,opt.n,opt.n,opt.n))
     else : 
-        scriptFile.write('combine -M HybridNew --frequentist -m 125.0 --testStat LHC %s/comb.root  -H ProfileLikelihood -n forLim_%s &> out_%s.log \n' % (jobsDir,opt.n,opt.n))
+        scriptFile.write('combine -M HybridNew --frequentist -m 21 --testStat LHC %s/comb.root  -H ProfileLikelihood -n forLim_%s &> out_%s.log \n' % (jobsDir,opt.n,opt.n))
     scriptFile.write('echo "All done for job %s" \n'%opt.n)
     scriptFile.close()
     os.system('chmod u+rwx %s/runJob_%s.sh'%(jobsDir,opt.n))
-    os.system("/opt/exp_soft/cms/t3/t3submit -q cms \'%s/runJob_%s.sh\'"%(jobsDir,opt.n))
+    #os.system("/opt/exp_soft/cms/t3/t3submit -q cms \'%s/runJob_%s.sh\'"%(jobsDir,opt.n))
+    os.system("/opt/exp_soft/cms/t3/t3submit_new -long \'%s/runJob_%s.sh\'"%(jobsDir,opt.n))
