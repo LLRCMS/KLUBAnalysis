@@ -175,7 +175,16 @@ std::ostream & operator << (std::ostream &out, const stage2objClass &stage2objCl
   return out;
 }
 
+//---------------------
+class SortTLVbyDeltaR{
+public: SortTLVbyDeltaR(const TLorentzVector & tlv): obj(tlv) {};
+  bool operator()(const TLorentzVector &tlv1, const TLorentzVector &tlv2){
+    return tlv1.DeltaR(obj) > tlv2.DeltaR(obj);
+  }
+private: TLorentzVector obj;
+};
 
+//------------------
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -1004,8 +1013,9 @@ float tausBoosted = 0.;
 	  {
 	    bool isFirst     = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
 	    bool isLast      = CheckBit (theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
-	    bool isHardScatt = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; //   3 = isPromptTauDecayProduct
+	    bool isHardScatt = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; //   5 = isPromptTauDecayProduct
 	    // bool isDirectPromptTauDecayProduct = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; // 5 = isDirectPromptTauDecayProduct
+	    
 	    int pdg = theBigTree.genpart_pdg->at(igen);
 	    int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
 	    bool mothIsHardScatt = false;
@@ -1015,7 +1025,8 @@ float tausBoosted = 0.;
 		// NB: I need t ask that the mother is last idx, otherwise I get a nonphysics "tauh" by the tauh builder function from the tau->tau "decay" in pythia
 		mothIsHardScatt = (mothIsLast && CheckBit (theBigTree.genpart_flags->at(mothIdx), 8)); // 0 = isPrompt(), 7: hardProcess , 8: fromHardProcess
 	      }
-	    
+
+
 	    // if (abs(pdg) == 11 || abs(pdg) == 13 || abs(pdg) == 15 || abs(pdg) == 66615)
 	    // {
 	    //   bitset<32> bs (theBigTree.genpart_flags->at(igen)) ; 
@@ -1860,11 +1871,11 @@ float tausBoosted = 0.;
       theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
       theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
       theSmallTree.m_bTagweightT = (isMC ? bTagWeight.at(2) : 1.0) ;
-
+      
       int njets = jets_and_sortPar.size();
       const int bjet1idx = jets_and_sortPar.at(njets-1).second ;
       const int bjet2idx = jets_and_sortPar.at(njets-2).second ;
-   
+      
       TLorentzVector tlv_firstBjet 
 	(
 	 theBigTree.jets_px->at (bjet1idx),
@@ -1879,6 +1890,47 @@ float tausBoosted = 0.;
 	 theBigTree.jets_pz->at (bjet2idx),
 	 theBigTree.jets_e->at  (bjet2idx)
 	 ) ;
+      // muons from bjets?
+      std::vector <TLorentzVector> genmuon;
+      for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
+	{
+	  bool isLast      = CheckBit (theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
+	  bool isPrompt      = CheckBit (theBigTree.genpart_flags->at(igen), 0) ; // 0 = isPrompt
+	  int pdg = theBigTree.genpart_pdg->at(igen);
+	  bool bToMuon = false; 
+	  if (fabs(pdg)==13){	  
+	    bToMuon = (isLast && CheckBit (theBigTree.genpart_flags->at(igen), 6) && !isPrompt);
+	  }
+	  if(bToMuon) {
+	    TLorentzVector tlv_genmuon 
+	      (
+	       theBigTree.genpart_px->at (igen),
+	       theBigTree.genpart_py->at (igen),
+	       theBigTree.genpart_pz->at (igen),
+	       theBigTree.genpart_e->at  (igen)
+	       ) ;
+	    genmuon.push_back(tlv_genmuon);
+	  }
+
+	}
+      std::sort(genmuon.begin(),genmuon.end(), SortTLVbyDeltaR(tlv_firstBjet));
+      if(genmuon.size()>0){
+      if (genmuon[0].DeltaR(tlv_firstBjet)<genmuon[0].DeltaR(tlv_secondBjet)) {
+	if (genmuon[0].DeltaR(tlv_firstBjet)<0.5) theSmallTree.m_bjet1toMuon = true;
+
+	if(genmuon.size()>1){
+	  std::sort(genmuon.begin()+1,genmuon.end(), SortTLVbyDeltaR(tlv_secondBjet));
+	  if (genmuon[1].DeltaR(tlv_secondBjet)<0.5) theSmallTree.m_bjet2toMuon = true;
+	}
+      }else{	
+	if (genmuon[0].DeltaR(tlv_secondBjet)<0.5) theSmallTree.m_bjet2toMuon = true;
+		if(genmuon.size()>1){
+	  std::sort(genmuon.begin()+1,genmuon.end(), SortTLVbyDeltaR(tlv_firstBjet));
+	  if (genmuon[1].DeltaR(tlv_firstBjet)<0.5) theSmallTree.m_bjet1toMuon = true;
+	}
+      }
+      }
+      
       
       double ptRegr[2] = {tlv_firstBjet.Pt(), tlv_secondBjet.Pt()};
       if (computeBregr)
@@ -2003,20 +2055,6 @@ vector <float> DeltaRStage2Jet_firstBjet;
     }
     
     
-    
-
-   
-
-    
-
-
-
-
-
-
-
-
-
     //stage 2 information: taus
     //the first 2 are ordered by deltaR with the offline leptons, the others are ordered by Et
     
@@ -2176,21 +2214,7 @@ vector <float> DeltaRStage2Jet_firstBjet;
 	
       }
       
-    
- 
-    
-      
-    
-
-
-      
-
-
-
-    
-
-    
-   
+       
     
     
     TLorentzVector tlv_firstBjet_raw = tlv_firstBjet;
@@ -2594,10 +2618,24 @@ vector <float> DeltaRStage2Jet_firstBjet;
       dRBTau.push_back (tlv_secondLepton.DeltaR(tlv_secondBjet));
       theSmallTree.m_btau_deltaRmin = *std::min_element(dRBTau.begin(), dRBTau.end());
       theSmallTree.m_btau_deltaRmax = *std::max_element(dRBTau.begin(), dRBTau.end());
+      vector <float> dRB1Tau;
+      dRB1Tau.push_back (tlv_firstLepton.DeltaR(tlv_firstBjet));
+      dRB1Tau.push_back (tlv_secondLepton.DeltaR(tlv_firstBjet));
+      theSmallTree.m_b1tau_deltaRmin = *std::min_element(dRB1Tau.begin(), dRB1Tau.end());
+      vector <float> dRB2Tau;
+      dRB2Tau.push_back (tlv_firstLepton.DeltaR(tlv_secondBjet));
+      dRB2Tau.push_back (tlv_secondLepton.DeltaR(tlv_secondBjet));
+      theSmallTree.m_b2tau_deltaRmin = *std::min_element(dRB2Tau.begin(), dRB2Tau.end());
 
-
-
-
+      vector <float> dRB1genTau;
+      dRB1genTau.push_back (vHardScatter1.DeltaR(tlv_firstBjet));
+      dRB1genTau.push_back (vHardScatter2.DeltaR(tlv_firstBjet));
+      theSmallTree.m_b1gentau_deltaRmin = *std::min_element(dRB1genTau.begin(), dRB1genTau.end());
+      vector <float> dRB2genTau;
+      dRB2genTau.push_back (vHardScatter1.DeltaR(tlv_secondBjet));
+      dRB2genTau.push_back (vHardScatter2.DeltaR(tlv_secondBjet));
+      theSmallTree.m_b2gentau_deltaRmin = *std::min_element(dRB2genTau.begin(), dRB2genTau.end());
+      
       // store BDT vars -- this can probably cleverly merged with the next jet loop -- FIXME: to be optimized: all in 1 loop
       TLorentzVector jetVecSum (0,0,0,0);
       for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size (); ++iJet)

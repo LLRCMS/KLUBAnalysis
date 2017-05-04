@@ -168,7 +168,8 @@ struct smallTree
 
       m_Bjet2matchesStage2jet1 =-1;
       m_Lepton2matchesStage2tau1 =-1;
-      
+
+      m_bjet1toMuon  = false ;
       m_bjet1_pt  = -1. ;
       m_bjet1_eta  = -1. ;
       m_bjet1_phi  = -1. ;
@@ -178,7 +179,8 @@ struct smallTree
       m_bjet1_flav = -1 ;
       m_bjet1_pt_raw  = -1. ;
       m_bjet1_hasgenjet = false ;
-      
+
+      m_bjet2toMuon  = false ;
       m_bjet2_pt  = -1. ;
       m_bjet2_eta  = -1. ;
       m_bjet2_phi  = -1. ;
@@ -285,6 +287,10 @@ struct smallTree
       m_ditau_deltaR = -1. ;
       m_dib_deltaR = -1. ;
       m_btau_deltaRmin = -1. ;
+      m_b1tau_deltaRmin = -1. ;
+      m_b2tau_deltaRmin = -1. ;
+      m_b1gentau_deltaRmin = -1. ;
+      m_b2gentau_deltaRmin = -1. ;
       m_btau_deltaRmax = -1. ;
       m_dau1MET_deltaphi = -1. ;
       m_dau2MET_deltaphi = -1. ;
@@ -507,7 +513,8 @@ struct smallTree
       m_smallT->Branch("Bjet2matchesStage2jet1",&m_Bjet2matchesStage2jet1,"Bjet2matchesStage2jet1/I");
       m_smallT->Branch("Lepton2matchesStage2tau1",&m_Lepton2matchesStage2tau1,"Lepton2matchesStage2tau1/I");
 
-      m_smallT->Branch ("bjet1_pt", &m_bjet1_pt, "bjet1_pt/F") ;
+      m_smallT->Branch ("bjet1toMuon", &m_bjet1toMuon, "bjet1toMuon/O") ;
+       m_smallT->Branch ("bjet1_pt", &m_bjet1_pt, "bjet1_pt/F") ;
       m_smallT->Branch ("bjet1_eta", &m_bjet1_eta, "bjet1_eta/F") ;
       m_smallT->Branch ("bjet1_phi", &m_bjet1_phi, "bjet1_phi/F") ;
       m_smallT->Branch ("bjet1_e", &m_bjet1_e, "bjet1_e/F") ;
@@ -516,7 +523,8 @@ struct smallTree
       m_smallT->Branch ("bjet1_flav", &m_bjet1_flav, "bjet1_flav/I") ;
       m_smallT->Branch ("bjet1_pt_raw", &m_bjet1_pt_raw, "bjet1_pt_raw/F") ;
       m_smallT->Branch ("bjet1_hasgenjet", &m_bjet1_hasgenjet, "bjet1_hasgenjet/O") ;
-     
+
+      m_smallT->Branch ("bjet2toMuon", &m_bjet2toMuon, "bjet2toMuon/O") ;
       m_smallT->Branch ("bjet2_pt", &m_bjet2_pt, "bjet2_pt/F") ;
       m_smallT->Branch ("bjet2_eta", &m_bjet2_eta, "bjet2_eta/F") ;
       m_smallT->Branch ("bjet2_phi", &m_bjet2_phi, "bjet2_phi/F"); 
@@ -622,6 +630,10 @@ struct smallTree
       m_smallT->Branch ("ditau_deltaR",   &m_ditau_deltaR,    "ditau_deltaR/F") ;
       m_smallT->Branch ("dib_deltaR",     &m_dib_deltaR,      "dib_deltaR/F") ;
       m_smallT->Branch ("btau_deltaRmin", &m_btau_deltaRmin,  "btau_deltaRmin/F") ;
+      m_smallT->Branch ("b1tau_deltaRmin", &m_b1tau_deltaRmin,  "b1tau_deltaRmin/F") ;
+      m_smallT->Branch ("b2tau_deltaRmin", &m_b2tau_deltaRmin,  "b2tau_deltaRmin/F") ;
+      m_smallT->Branch ("b1gentau_deltaRmin", &m_b1gentau_deltaRmin,  "b1gentau_deltaRmin/F") ;
+      m_smallT->Branch ("b2gentau_deltaRmin", &m_b2gentau_deltaRmin,  "b2gentau_deltaRmin/F") ;
       m_smallT->Branch ("btau_deltaRmax", &m_btau_deltaRmax,  "btau_deltaRmax/F") ;
       m_smallT->Branch ("dau1MET_deltaphi", &m_dau1MET_deltaphi,  "dau1MET_deltaphi/F") ;
       m_smallT->Branch ("dau2MET_deltaphi", &m_dau2MET_deltaphi,  "dau2MET_deltaphi/F") ;
@@ -869,6 +881,7 @@ struct smallTree
   Float_t m_dau2_flav ; // let this contain also whether it's a hadronic dau
 
   // the largest pT b visible candidate /  highest CSV score
+  Bool_t m_bjet1toMuon ;
   Float_t m_bjet1_pt ;
   Float_t m_bjet1_eta ;
   Float_t m_bjet1_phi ;
@@ -880,6 +893,7 @@ struct smallTree
   Bool_t  m_bjet1_hasgenjet ;
 
   // the trailing pT b visible candidate  /  highest CSV score
+  Bool_t m_bjet2toMuon ;
   Float_t m_bjet2_pt ;
   Float_t m_bjet2_eta ;
   Float_t m_bjet2_phi ;
@@ -985,6 +999,10 @@ struct smallTree
   Float_t m_ditau_deltaR   ;
   Float_t m_dib_deltaR     ;
   Float_t m_btau_deltaRmin ;
+  Float_t m_b1tau_deltaRmin ;
+  Float_t m_b2tau_deltaRmin ;
+  Float_t m_b1gentau_deltaRmin ;
+  Float_t m_b2gentau_deltaRmin ;
   Float_t m_btau_deltaRmax ;
   Float_t m_dau1MET_deltaphi ;
   Float_t m_dau2MET_deltaphi ;

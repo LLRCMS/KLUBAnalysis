@@ -1,6 +1,6 @@
 OUTDIRR="SkimmedNtuples"
-AMESSAGE="250 GeV Signal sample; Tau pt cut: 20 GeV; Stage 2 information: jets, taus, muons"
-outdir="skim_stage2_GluGluToRadionToHHTo2B2Tau_250GeV" 
+AMESSAGE="gg to Radion to HH to bbtautau, M 500"
+outdir="skim_HHTo2b2Tau_M500_btomu" 
 
 source /opt/exp_soft/cms/t3/t3setup
 mkdir /data_CMS/cms/amendola/$OUTDIRR/
@@ -9,7 +9,13 @@ cp /home/llr/cms/amendola/CMSSW_7_4_3/src/KLUBAnalysis/scripts/haddAll.sh /data_
 
 
 ### MC Signal samples
-python scripts/skimNtuple.py  -s True -c  config/skim_2016.cfg  -n 2 -k False -i input_250.txt -o /data_CMS/cms/amendola/$OUTDIRR/$outdir
+python scripts/skimNtuple.py  -s True -c  config/skim_2016.cfg -n 1 -k False -i inputFiles/HHbbtt500.txt -o /data_CMS/cms/amendola/$OUTDIRR/$outdir
+
+
+
+
+
+
 
 touch /data_CMS/cms/amendola/$OUTDIRR/$outdir/README.txt
 echo $AMESSAGE > /data_CMS/cms/amendola/$OUTDIRR/$outdir/README.txt
