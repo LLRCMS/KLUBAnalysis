@@ -43,6 +43,13 @@ class systReader:
         #varYname = ""
         #varnames = []
         for ifile in range(len(self.theInput)):
+            print "reading systematics"
+            section = ""
+            outputLine = ""
+            activeProc = []
+            activeVal = []
+            for chan in self.channels :
+                systLine[chan] = "- "
             for line in open(self.theInput[ifile],'r'):
                 f = line.split()
                 #print f
@@ -87,17 +94,20 @@ class systReader:
                         systLine[chan] = " "+f[2]+" "
                         activeProc.append(f[0])
                         activeVal.append(f[2])
-
+            #indent qui
             for chan in self.channels :
                 if not "param" in outputLine: 
                     outputLine += systLine[chan]
             OutputLines.append(outputLine)
+            if self.printResult : print outputLine
             self.SystProcesses.append(activeProc)
             self.SystValues.append(activeVal)
-            if self.printResult : print outputLine
-            if self.writeOut:
-                for line in OutputLines:
-                    self.theOutputFile.write(line+"\n")
+        if self.printResult : 
+            for line in OutputLines:
+                print outputLine
+        if self.writeOut:
+            for line in OutputLines:
+                self.theOutputFile.write(line+"\n")
 
     def writeOneLine(self,channel,string,value=1):
         outputLine = string
