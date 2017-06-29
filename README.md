@@ -30,7 +30,9 @@ cd -
 cd weights
 # 2015 only
 # git clone https://github.com/CMS-HTT/LeptonEfficiencies.git data
-git clone https://github.com/raspereza/LepEff2016 data
+# git clone https://github.com/raspereza/LepEff2016 data
+git clone https://github.com/CMS-HTT/LeptonEfficiencies HTT_SF_2016
+git clone -b moriond17 https://github.com/rmanzoni/triggerSF.git tau_trigger_SF_2016
 cd -
 source scripts/setup.sh
 make

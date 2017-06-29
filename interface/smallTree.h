@@ -33,7 +33,7 @@ struct smallTree
       m_turnOnreweight = -1. ;
       m_turnOnreweight_tauup = -1. ;
       m_turnOnreweight_taudown = -1. ;
-      m_EventNumber = -1. ;
+      m_EventNumber = 0 ;
       m_DYscale_LL = -1. ;
       m_DYscale_MM = -1. ;
       m_trigSF = -1.;
@@ -125,6 +125,7 @@ struct smallTree
       m_bjet1_phi  = -1. ;
       m_bjet1_e  = -1. ;
       m_bjet1_bID = -1. ;
+      m_bjet1_bMVAID = -1. ;
       m_bjet1_flav = -1 ;
       m_bjet1_pt_raw  = -1. ;
       m_bjet1_pt_raw_jetup  = -1. ;
@@ -136,6 +137,7 @@ struct smallTree
       m_bjet2_phi  = -1. ;
       m_bjet2_e  = -1. ;
       m_bjet2_bID = -1. ;
+      m_bjet2_bMVAID = -1. ;
       m_bjet2_flav = -1 ;
       m_bjet2_pt_raw  = -1. ;
       m_bjet2_pt_raw_jetup  = -1. ;
@@ -331,7 +333,7 @@ struct smallTree
       m_smallT->Branch ("nBhadrons", &m_nBhadrons, "nBhadrons/I") ;
       m_smallT->Branch ("lheNOutPartons", &m_lheNOutPartons, "lheNOutPartons/I");
       m_smallT->Branch ("lheNOutB", &m_lheNOutB, "lheNOutB/I");
-      m_smallT->Branch ("EventNumber", &m_EventNumber, "EventNumber/I") ;
+      m_smallT->Branch ("EventNumber", &m_EventNumber, "EventNumber/l") ;
       m_smallT->Branch ("RunNumber", &m_RunNumber, "RunNumber/I") ;
       m_smallT->Branch ("isBoosted", &m_isBoosted, "isBoosted/I") ;
 
@@ -416,6 +418,7 @@ struct smallTree
       m_smallT->Branch ("bjet1_phi", &m_bjet1_phi, "bjet1_phi/F") ;
       m_smallT->Branch ("bjet1_e", &m_bjet1_e, "bjet1_e/F") ;
       m_smallT->Branch ("bjet1_bID", &m_bjet1_bID, "bjet1_bID/F") ;
+      m_smallT->Branch ("bjet1_bMVAID", &m_bjet1_bMVAID, "bjet1_bMVAID/F") ;
       m_smallT->Branch ("bjet1_flav", &m_bjet1_flav, "bjet1_flav/I") ;
       m_smallT->Branch ("bjet1_pt_raw", &m_bjet1_pt_raw, "bjet1_pt_raw/F") ;
       m_smallT->Branch ("bjet1_pt_raw_jetup", &m_bjet1_pt_raw_jetup, "bjet1_pt_raw_jetup/F") ;
@@ -427,6 +430,7 @@ struct smallTree
       m_smallT->Branch ("bjet2_phi", &m_bjet2_phi, "bjet2_phi/F") ;
       m_smallT->Branch ("bjet2_e", &m_bjet2_e, "bjet2_e/F") ;
       m_smallT->Branch ("bjet2_bID", &m_bjet2_bID, "bjet2m_bID/F") ;
+      m_smallT->Branch ("bjet2_bMVAID", &m_bjet2_bMVAID, "bjet2m_bMVAID/F") ;
       m_smallT->Branch ("bjet2_flav", &m_bjet2_flav, "bjet2_flav/I") ;
       m_smallT->Branch ("bjet2_pt_raw", &m_bjet2_pt_raw, "bjet2_pt_raw/F") ;
       m_smallT->Branch ("bjet2_pt_raw_jetup", &m_bjet2_pt_raw_jetup, "bjet2_pt_raw_jetup/F") ;
@@ -622,7 +626,7 @@ struct smallTree
   Int_t m_nBhadrons ;
   Int_t m_lheNOutPartons ;
   Int_t m_lheNOutB ;
-  Int_t m_EventNumber ;
+  ULong64_t m_EventNumber ;
   Int_t m_RunNumber ;
   Int_t m_isBoosted ;
 
@@ -717,6 +721,7 @@ struct smallTree
   Float_t m_bjet1_phi ;
   Float_t m_bjet1_e ;
   Float_t m_bjet1_bID ;
+  Float_t m_bjet1_bMVAID ;
   Int_t   m_bjet1_flav ;
   Float_t m_bjet1_pt_raw ;
   Float_t m_bjet1_pt_raw_jetup ;
@@ -729,6 +734,7 @@ struct smallTree
   Float_t m_bjet2_phi ;
   Float_t m_bjet2_e ;
   Float_t m_bjet2_bID ;
+  Float_t m_bjet2_bMVAID ;
   Int_t   m_bjet2_flav ;
   Float_t m_bjet2_pt_raw ;
   Float_t m_bjet2_pt_raw_jetup ;

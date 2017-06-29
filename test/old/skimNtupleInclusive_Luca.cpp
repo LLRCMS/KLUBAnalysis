@@ -208,6 +208,20 @@ float getIso (unsigned int iDau, float pt, bigTree & theBigTree)
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
+vector<int> findSubjetIdxs (unsigned int iFatJet, bigTree & theBigTree)
+{
+    vector<int> indexes;
+    int idxFatJet = (int) iFatJet;
+    for (unsigned int isj = 0; isj < theBigTree.subjets_ak8MotherIdx->size(); isj++)
+    {
+        if (theBigTree.subjets_ak8MotherIdx->at(isj) == idxFatJet)
+            indexes.push_back(isj);
+    }
+    return indexes;
+}
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
 bool CheckBit (int number, int bitpos)
 {
     bool res = number & (1 << bitpos);
@@ -1317,13 +1331,70 @@ int main (int argc, char** argv)
               theSmallTree.m_jets_hasgenjet.push_back (hasgj) ;
               ++theSmallTree.m_njets ;
             } // loop over jets
-
         } // if there's two jets in the event, at least
         
       if (isMC) selectedEvents += theBigTree.aMCatNLOweight ; 
       else selectedEvents += 1 ;
       ++selectedNoWeightsEventsNum ;
 
+      theSmallTree.m_nfatjets = theBigTree.ak8jets_px->size();
+      if (theBigTree.ak8jets_px->size() > 0)
+      {
+          vector<pair<float, int>> fatjets_bTag;
+          for (unsigned int ifj = 0; ifj < theBigTree.ak8jets_px->size(); ++ifj)
+          {
+              fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_CSV->size(), ifj));
+          }
+          sort (fatjets_bTag.begin(), fatjets_bTag.end());
+          
+          int fjIdx = fatjets_bTag.at(0).second;
+          TLorentzVector tlv_fj (theBigTree.ak8jets_px->at(fjIdx) , theBigTree.ak8jets_py->at(fjIdx) , theBigTree.ak8jets_pz->at(fjIdx) , theBigTree.ak8jets_e->at(fjIdx));
+          theSmallTree.m_fatjet_pt   = tlv_fj.Pt();
+          theSmallTree.m_fatjet_eta  = tlv_fj.Eta();
+          theSmallTree.m_fatjet_phi  = tlv_fj.Phi();
+          theSmallTree.m_fatjet_e    = tlv_fj.E();
+          theSmallTree.m_fatjet_bID  = theBigTree.ak8jets_CSV->at(fjIdx);
+          theSmallTree.m_fatjet_filteredMass = theBigTree.ak8jets_FilteredMass -> at(fjIdx) ;
+          theSmallTree.m_fatjet_prunedMass   = theBigTree.ak8jets_PrunedMass   -> at(fjIdx) ;
+          theSmallTree.m_fatjet_trimmedMass  = theBigTree.ak8jets_TrimmedMass  -> at(fjIdx) ;
+          theSmallTree.m_fatjet_softdropMass = theBigTree.ak8jets_SoftDropMass -> at(fjIdx) ;
+          theSmallTree.m_fatjet_tau1 = theBigTree.ak8jets_tau1->at(fjIdx);
+          theSmallTree.m_fatjet_tau2 = theBigTree.ak8jets_tau2->at(fjIdx);
+          theSmallTree.m_fatjet_tau3 = theBigTree.ak8jets_tau3->at(fjIdx);
+          theSmallTree.m_fatjet_nsubjets = theBigTree.ak8jets_nsubjets->at(fjIdx);
+
+          if ( theBigTree.ak8jets_nsubjets->at(fjIdx) >= 2)
+          {
+              TLorentzVector tlv_subj1;
+              TLorentzVector tlv_subj2;
+              vector<int> sjIdxs = findSubjetIdxs(fjIdx, theBigTree);
+              int nSJ = 0;
+              for (int isj : sjIdxs)
+              {
+                  ++nSJ;
+                  if (nSJ > 2) break; // FIXME: storing first two <--> highest pt, order subjets for b tag?
+                  if (nSJ == 1)
+                  {
+                      tlv_subj1.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
+                      theSmallTree.m_subjetjet1_pt   = tlv_subj1.Pt();
+                      theSmallTree.m_subjetjet1_eta  = tlv_subj1.Eta();
+                      theSmallTree.m_subjetjet1_phi  = tlv_subj1.Phi();
+                      theSmallTree.m_subjetjet1_e    = tlv_subj1.E();
+                      theSmallTree.m_subjetjet1_bID  = theBigTree.subjets_CSV->at(isj) ;
+                  }
+                  if (nSJ == 2)
+                  {
+                      tlv_subj2.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
+                      theSmallTree.m_subjetjet2_pt   = tlv_subj2.Pt();
+                      theSmallTree.m_subjetjet2_eta  = tlv_subj2.Eta();
+                      theSmallTree.m_subjetjet2_phi  = tlv_subj2.Phi();
+                      theSmallTree.m_subjetjet2_e    = tlv_subj2.E();
+                      theSmallTree.m_subjetjet2_bID  = theBigTree.subjets_CSV->at(isj) ;
+                  }
+              }
+              theSmallTree.m_dR_subj1_subj2 = tlv_subj1.DeltaR(tlv_subj2);
+          } 
+      }
 
 
 

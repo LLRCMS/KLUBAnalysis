@@ -60,7 +60,7 @@ for key in fIn.GetListOfKeys():
             fOut.cd()
             hnewShape.Write()
 
-        elif "defaultBtagLLNoIsoBBTTCut45" in kname and "HH_mass_raw" in kname and "QCD" in kname and not "1tag" in kname and args.nonres:
+        elif "defaultBtagLLNoIsoBBTTCut45" in kname and ("HH_mass_raw" in kname or "MT2" in kname) and "QCD" in kname and not "1tag" in kname and args.nonres:
             h_2b0jnonres = obj
             name_1b1jnonres = kname.replace("defaultBtagLLNoIsoBBTTCut45", "defaultBtagLLNoIsoBBTTCut451tag")
             print name_1b1jnonres

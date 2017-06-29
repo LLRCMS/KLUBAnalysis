@@ -79,14 +79,14 @@ void WeightFile2DSingle(TFile* fInX, TFile* fInL, TString destName, int idx, str
 
 void WeightFile ()
 {
-    // // for hh reweight into lambda points
-    // TFile* fInX = new TFile ("Distros_lambdaOnly_5p_20000ev_52sam_13TeV_JHEP_30K.root");
-    // TFile* fInL = new TFile ("outMap.root");
-    // for (int i = 0; i <= 51; i++)
-    // {
-    //     cout << i << endl;
-    //     WeightFileSingle (fInX, fInL, Form("lamdaOnly/%i_mhh", i), i, "lambdaMap");
-    // }
+    // for hh reweight into lambda points
+    TFile* fInX = new TFile ("Distros_lambdaOnly_5p_20000ev_52sam_13TeV_JHEP_30K.root");
+    TFile* fInL = new TFile ("outMap.root");
+    for (int i = 0; i <= 51; i++)
+    {
+        cout << i << endl;
+        WeightFileSingle (fInX, fInL, Form("lamdaOnly/%i_mhh", i), i, "lambdaMap");
+    }
 
     // // for hh reweight into v3 clusters
     // TFile* fInX = new TFile ("Distros_benchmarks_5p_500000ev_12sam_13TeV_JHEPv3.root");
@@ -97,13 +97,13 @@ void WeightFile ()
     //     WeightFile2DSingle (fInX, fInL, Form("%i_bin1", i), i, "clusv3Map");
     // }
 
-    // to reweight the 1507 points of the 5d space
-    TFile* fInX = new TFile ("Distros_all_5p_20000ev_1507sam_13TeV_JHEPv3.root");
-    TFile* fInL = new TFile ("outMap.root");
-    for (int i = 0; i <= 1506; i++) // point name in [0,1506]
-    {
-        cout << i << endl;
-        WeightFile2DSingle (fInX, fInL, Form("%i_bin1", i), i, "all5DplanePointsMap");
-    }
+    // // to reweight the 1507 points of the 5d space
+    // TFile* fInX = new TFile ("Distros_all_5p_20000ev_1507sam_13TeV_JHEPv3.root");
+    // TFile* fInL = new TFile ("outMap.root");
+    // for (int i = 0; i <= 1506; i++) // point name in [0,1506]
+    // {
+    //     cout << i << endl;
+    //     WeightFile2DSingle (fInX, fInL, Form("%i_bin1", i), i, "all5DplanePointsMap");
+    // }
 
 }

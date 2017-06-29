@@ -22,6 +22,8 @@
 #include "triggerReader.h"
 #include "bJetRegrVars.h"
 #include "bTagSF.h"
+// #include "HHReweight.h"
+#include "HHReweight5D.h"
 #include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 
 // for minuit-based minimization
@@ -54,8 +56,8 @@ const double aTopRW = 0.0615;
 const double bTopRW = -0.0005;
 // const float DYscale_LL[3] = {8.72847e-01, 1.69905e+00, 1.63717e+00} ; // computed from fit for LL and MM b tag
 // const float DYscale_MM[3] = {9.44841e-01, 1.29404e+00, 1.28542e+00} ;
-const float DYscale_LL[3] = {1.02164, 1.25238, 0.637287} ; // computed from fit for LL and MM b tag
-const float DYscale_MM[3] = {1.0472, 1.186, 1.037} ;
+const float DYscale_LL[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag
+const float DYscale_MM[3] = {1.14119, 1.18722, 1.17042} ;
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
@@ -386,13 +388,13 @@ int main (int argc, char** argv)
     // read input file and cfg
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  if (argc < 16)
+  if (argc < 22)
   { 
       cerr << "missing input parameters : argc is: " << argc << endl ;
       cerr << "usage: " << argv[0]
            << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
            << " xsecScale(stitch) HTMax(stitch) isTTBar DY_Nbs HHreweightFile TT_stitchType"
-           << " runMT2 isHHsignal NjetRequired(stitch)" << endl ; 
+           << " runMT2 isHHsignal NjetRequired(stitch) kl_rew kt_rew c2_rew cg_rew c2g_rew susyModel" << endl ; 
       return 1;
   }
 
@@ -469,6 +471,36 @@ int main (int argc, char** argv)
 
   int NjetRequired = atoi(argv[15]);
   cout << "** INFO: requiring exactly " << NjetRequired << " outgoing partons [<0 for no cut on this]" << endl;
+
+  float kl_rew = atof(argv[16]);
+  float kt_rew = atof(argv[17]);
+  float c2_rew = atof(argv[18]);
+  float cg_rew = atof(argv[19]);
+  float c2g_rew = atof(argv[20]);
+  cout << "** INFO: kl, kt reweight " << kl_rew << " " << kt_rew << " [kt < -990 || kl < -990 : no HH reweight]" << endl;
+  cout << "**       c2, cg, c2g reweight " << c2_rew << " " << cg_rew << " " << c2g_rew << " [if any is < -990: will do only a klambda / kt reweight if requested]" << endl;
+
+  string susyModel = argv[21];
+  cout << "** INFO: requesting SUSY model to be: -" << susyModel << "- [NOTSUSY: no request on this parameter]" << endl;
+
+  // ------------------  decide what to do for the reweight of HH samples
+  enum HHrewTypeList {
+    kNone      = 0,
+    kFromHisto = 1,
+    kDynamic   = 2
+  };
+  int HHrewType = kNone; // default is no reweight
+  if (HHreweightFile && kl_rew >= -990 && kt_rew >= -990) {
+    cout << "** WARNING: you required both histo based and dynamic reweight, cannot do both at the same time. Will set histo" << endl;
+    HHrewType = kFromHisto;
+  }
+  else if (HHreweightFile)
+    HHrewType = kFromHisto;
+  else if (kl_rew >= -990 && kt_rew >= -990)
+    HHrewType = kDynamic;
+  cout << "** INFO: HH reweight type is " << HHrewType << " [ 0: no reweight, 1: from histo, 2: dynamic ]" << endl;
+
+
 
   // prepare variables needed throughout the code
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----    
@@ -665,7 +697,8 @@ int main (int argc, char** argv)
   
   TH1F* hreweightHH   = 0;
   TH2F* hreweightHH2D = 0;
-  if (HHreweightFile)
+  // if (HHreweightFile)
+  if (HHrewType == kFromHisto)
   {
     cout << "** INFO: doing reweight for HH samples" << endl;
     if (HHreweightFile->GetListOfKeys()->Contains("hratio") )
@@ -684,6 +717,26 @@ int main (int argc, char** argv)
       return 1;
     }
   }
+
+  // ------------------------------
+  // reweight file in case of "dynamic" reweight
+  // there is a unique input map, read it from the cfg file
+  // HHReweight* hhreweighter = nullptr;
+  HHReweight5D* hhreweighter = nullptr;
+  TH2* hhreweighterInputMap = nullptr;
+  if (HHrewType == kDynamic)
+  {
+    string inMapFile   = gConfigParser->readStringOption("HHReweight::inputFile");
+    string inHistoName = gConfigParser->readStringOption("HHReweight::histoName");
+    string coeffFile    = gConfigParser->readStringOption("HHReweight::coeffFile");
+    cout << "** INFO: reading histo named: " << inHistoName << " from file: " << inMapFile << endl;
+    cout << "** INFO: HH reweight coefficient file is: " << coeffFile << endl;
+    TFile* fHHDynamicRew = new TFile(inMapFile.c_str());
+    hhreweighterInputMap = (TH2*) fHHDynamicRew->Get(inHistoName.c_str());
+    // hhreweighter = new HHReweight(coeffFile, hhreweighterInputMap);
+    hhreweighter = new HHReweight5D(coeffFile, hhreweighterInputMap);
+  }
+
 
   // ------------------------------
   // indexes of tau ID bits
@@ -802,6 +855,12 @@ int main (int argc, char** argv)
     if (NjetRequired >= 0)
     {
        if (theBigTree.lheNOutPartons != NjetRequired) continue;
+    }
+
+    // skip event if I want a specific SUSY point from the fastsim
+    if (susyModel != string("NOTSUSY"))
+    {
+      if (string(theBigTree.susyModel.Data()) != susyModel) continue;  
     }
 
     float stitchWeight = 1.0;
@@ -947,9 +1006,17 @@ int main (int argc, char** argv)
           float SFTop1 = TMath::Exp(aTopRW+bTopRW*ptTop1);
           float SFTop2 = TMath::Exp(aTopRW+bTopRW*ptTop2);
           topPtReweight = TMath::Sqrt (SFTop1*SFTop2);
-          theSmallTree.m_TTtopPtreweight      = topPtReweight ;
-          theSmallTree.m_TTtopPtreweight_up   = topPtReweight*topPtReweight ;
-          theSmallTree.m_TTtopPtreweight_down = 1.0 ;
+          
+          // old recipe
+          // theSmallTree.m_TTtopPtreweight      = topPtReweight ;
+          // theSmallTree.m_TTtopPtreweight_up   = topPtReweight*topPtReweight ;
+          // theSmallTree.m_TTtopPtreweight_down = 1.0 ;
+
+          // new recipe
+          theSmallTree.m_TTtopPtreweight      = 1.0; // nominal has no weight
+          theSmallTree.m_TTtopPtreweight_up   = topPtReweight; // pt rew to be used as a syst
+          theSmallTree.m_TTtopPtreweight_down = 1.0 ; // and down unused
+
           theSmallTree.m_genDecMode1 = decayTop1;
           theSmallTree.m_genDecMode2 = decayTop2;
       }
@@ -1027,7 +1094,8 @@ int main (int argc, char** argv)
     int t1hs = -1;
     int t2hs = -1;
 
-    if (hreweightHH || hreweightHH2D || isHHsignal) // isHHsignal: only to do loop on genparts, but no rew
+    // if (hreweightHH || hreweightHH2D || isHHsignal) // isHHsignal: only to do loop on genparts, but no rew
+    if (isHHsignal || HHrewType == kFromHisto || HHrewType == kDynamic) // isHHsignal: only to do loop on genparts, but no rew
     {
       // cout << "DEBUG: reweight!!!" << endl;
       TLorentzVector vH1, vH2, vBoost, vSum;
@@ -1172,15 +1240,25 @@ int main (int argc, char** argv)
       vH1.Boost(-vSum.BoostVector());                     
       ct1 = vH1.CosTheta();
 
-      if (hreweightHH) // 1D
+      // assign a weight depending on the reweight type 
+
+      if (hreweightHH && HHrewType == kFromHisto) // 1D
       {
         int ibin = hreweightHH->FindBin(mHH);
         HHweight = hreweightHH->GetBinContent(ibin);
       }
-      else if (hreweightHH2D) // 2D
+      else if (hreweightHH2D && HHrewType == kFromHisto) // 2D
       {
         int ibin = hreweightHH2D->FindBin(mHH, ct1);
         HHweight = hreweightHH2D->GetBinContent(ibin);        
+      }
+      else if (HHrewType == kDynamic)
+      {
+        // HHweight = hhreweighter->getWeight(kl_rew, kt_rew, mHH, ct1);
+        if (c2_rew < -990 || cg_rew < -990 || c2g_rew < -990) // no valid BSM coefficients -- just kl/kt reweight (for backwards compatibility)
+          HHweight = hhreweighter->getWeight(kl_rew, kt_rew, mHH, ct1);
+        else // full 5D reweight
+          HHweight = hhreweighter->getWeight(kl_rew, kt_rew, c2_rew, cg_rew, c2g_rew, mHH, ct1);
       }
 
       theSmallTree.m_genMHH = mHH;
@@ -1227,7 +1305,7 @@ int main (int argc, char** argv)
 
     // ----------------------------------------------------------
     // require that the event is not affected by the Bad/Clone Muon problem -- for 2016 data
-    // if (theBigTree.NBadMu > 0) continue ; // FIXME!! To uncomment as soon as data reprocessing is finished
+    if (theBigTree.NBadMu > 0) continue ;
     ec.Increment ("NoBadMuons", EvtW);
     if (isHHsignal) ecHHsig[genHHDecMode].Increment ("NoBadMuons", EvtW);
 
@@ -1246,6 +1324,7 @@ int main (int argc, char** argv)
     int nmu = 0;
     int nmu10 = 0; // low pt muons for DY sideband, not entering in nmu
     int nele = 0;
+    int nele10 = 0;
     // int ntau = 0;
     
     if (theBigTree.EventNumber == debugEvent)
@@ -1265,7 +1344,10 @@ int main (int argc, char** argv)
         }
         else if (oph.isElectron(dauType))
         {
-            if (oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false))) ++nele;
+            bool passEle   = oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ;
+            bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.1, OfflineProducerHelper::EMVATight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ;
+            if (passEle) ++nele;
+            else if (passEle10) ++nele10;
         }
 
         if (theBigTree.EventNumber == debugEvent)
@@ -1308,8 +1390,8 @@ int main (int argc, char** argv)
     }
     else if (nele > 0)
     {
-      if (nele == 1)
-        pairType = 1 ; // ele tau
+      if (nele == 1 && nele10 == 0)
+        pairType = 1;
       else
         pairType = 4 ; // ele ele
     }
@@ -1769,7 +1851,7 @@ int main (int argc, char** argv)
     // particle 2 is always a TAU --  FIXME: not good for emu
     
     // FIXME: should I compute a SF for ID-ISO for taus?
-    if (type1 == 0 && isMC) // mu
+    if (pType == 0 && isMC) // mu
     {
       // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
       // trigSF = 1.0; // no trigger info available in MC
@@ -1837,7 +1919,7 @@ int main (int argc, char** argv)
     }
 
     // FIXME: should I compute a SF for ID-ISO for taus?
-    else if (type1 == 1 && isMC) // ele
+    else if (pType == 1 && isMC) // ele
     {
       // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
       // trigSF = 1.0; // no trigger info available in MC
@@ -1849,7 +1931,7 @@ int main (int argc, char** argv)
         trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
     }
 
-    else if (type1 == 2 && isMC) // tau tau pair
+    else if (pType == 2 && isMC) // tau tau pair
     {
 
       idAndIsoSF = 1.0; // recommendation from tau POG?
@@ -1860,6 +1942,96 @@ int main (int argc, char** argv)
         double SF2 = tauTrgSF.getSF(tlv_secondLepton.Pt(), theBigTree.decayMode->at(secondDaughterIndex)) ;
         trigSF = SF1 * SF2;
       }
+    }
+
+    else if (pType == 3 && isMC) // mumu pair
+    {
+      // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
+      // trigSF = 1.0; // no trigger info available in MC
+
+      ////////////////// first muon ID and ISO
+      float mupt  = tlv_firstLepton.Pt();
+      float muabseta = TMath::Abs(tlv_firstLepton.Eta());
+      
+      // to combine SF based on lumi, here is the list of lumi in /fb per run period
+      // B 5.892
+      // C 2.646
+      // D 4.353
+      // E 4.117
+      // F 3.186
+      // G 7.721
+      // H 8.857
+      // TOT: 36.772
+      
+      // B-F : 20.194 (frac: 0.5492)
+      // G-H : 16.578 (frac: 0.4508)
+      // cout << "DEBUG: getting content histo 2D : " << hMuPOGSF_ID_BF << " " << hMuPOGSF_ID_GH << " " << hMuPOGSF_ISO_BF << " " << hMuPOGSF_ISO_GH << " " << hMuPOGSF_trig_p3 << " " << hMuPOGSF_trig_p4 << endl;
+      // ID
+      double idsf_BF = getContentHisto2D(hMuPOGSF_ID_BF, mupt, muabseta);
+      double idsf_GH = getContentHisto2D(hMuPOGSF_ID_GH, mupt, muabseta);
+      double idsf = 0.5492*idsf_BF + 0.4508*idsf_GH; 
+
+      // ISO
+      double isosf_BF = getContentHisto2D(hMuPOGSF_ISO_BF, mupt, muabseta);
+      double isosf_GH = getContentHisto2D(hMuPOGSF_ISO_GH, mupt, muabseta);
+      double isosf = 0.5492*isosf_BF + 0.4508*isosf_GH; 
+
+      idAndIsoSF = idsf * isosf;
+
+      // TRIG -- just to compute if I am not reweighting the MC. Lepton 1 if the one matched to trigger
+      if (applyTriggers)
+      {
+        // NOTE: from mu POG twiki, Period 3: (3/fb) run F post L1 EMFT fix (from run 278167); Period 4: (16/fb) run GH (post HIPs fix).
+        // so normalization is different in this case. TOT LUMI = 16+3 = 19. p3: 0.158, p4: 0.842
+        // NOTE (11/02/17) : SFs have been updated to B-F and GH, so from now we use the same normalization as other chs
+        double trigsf_p3 = getContentHisto2D(hMuPOGSF_trig_p3, mupt, muabseta);
+        double trigsf_p4 = getContentHisto2D(hMuPOGSF_trig_p4, mupt, muabseta);
+
+        trigSF = (0.5492*trigsf_p3 + 0.4508*trigsf_p4);
+      }
+
+
+      ////////////////// second muon ID and ISO
+      mupt  = tlv_secondLepton.Pt();
+      muabseta = TMath::Abs(tlv_secondLepton.Eta());
+      
+      // to combine SF based on lumi, here is the list of lumi in /fb per run period
+      // B 5.892
+      // C 2.646
+      // D 4.353
+      // E 4.117
+      // F 3.186
+      // G 7.721
+      // H 8.857
+      // TOT: 36.772
+      
+      // B-F : 20.194 (frac: 0.5492)
+      // G-H : 16.578 (frac: 0.4508)
+      // cout << "DEBUG: getting content histo 2D : " << hMuPOGSF_ID_BF << " " << hMuPOGSF_ID_GH << " " << hMuPOGSF_ISO_BF << " " << hMuPOGSF_ISO_GH << " " << hMuPOGSF_trig_p3 << " " << hMuPOGSF_trig_p4 << endl;
+      // ID
+      idsf_BF = getContentHisto2D(hMuPOGSF_ID_BF, mupt, muabseta);
+      idsf_GH = getContentHisto2D(hMuPOGSF_ID_GH, mupt, muabseta);
+      idsf = 0.5492*idsf_BF + 0.4508*idsf_GH; 
+
+      // ISO
+      isosf_BF = getContentHisto2D(hMuPOGSF_ISO_BF, mupt, muabseta);
+      isosf_GH = getContentHisto2D(hMuPOGSF_ISO_GH, mupt, muabseta);
+      isosf = 0.5492*isosf_BF + 0.4508*isosf_GH; 
+
+      idAndIsoSF *= (idsf * isosf);
+    }
+
+    else if (pType == 4 && isMC) // ee pair
+    {
+      // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
+      // trigSF = 1.0; // no trigger info available in MC
+      
+      // FIXME: should we use MU POG SFs?
+      idAndIsoSF = myScaleFactor[type1][1]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
+      idAndIsoSF *= myScaleFactor[type1][1]->get_ScaleFactor(tlv_secondLepton.Pt(),tlv_secondLepton.Eta());
+      
+      if (applyTriggers)
+        trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
     }
 
     theSmallTree.m_trigSF     = (isMC ? trigSF : 1.0);
@@ -2109,6 +2281,7 @@ int main (int argc, char** argv)
       theSmallTree.m_bjet1_phi  = tlv_firstBjet.Phi () ;
       theSmallTree.m_bjet1_e    = theBigTree.jets_e->at (bjet1idx) ;
       theSmallTree.m_bjet1_bID  = theBigTree.bCSVscore->at (bjet1idx) ;
+      theSmallTree.m_bjet1_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet1idx) ;
       theSmallTree.m_bjet1_flav = theBigTree.jets_HadronFlavour->at (bjet1idx) ;
 
       theSmallTree.m_bjet2_pt   = tlv_secondBjet.Pt () ;
@@ -2116,6 +2289,7 @@ int main (int argc, char** argv)
       theSmallTree.m_bjet2_phi  = tlv_secondBjet.Phi () ;
       theSmallTree.m_bjet2_e    = theBigTree.jets_e->at (bjet2idx) ;
       theSmallTree.m_bjet2_bID  = theBigTree.bCSVscore->at (bjet2idx) ;
+      theSmallTree.m_bjet2_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet2idx) ;
       theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
 
       bool hasgj1 = false;

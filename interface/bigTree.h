@@ -60,6 +60,8 @@ public :
    Int_t           lheNOutPartons;
    Int_t           lheNOutB;
    Float_t         aMCatNLOweight;
+   TString         susyModel;
+
    std::vector<float>   *genpart_px;
    std::vector<float>   *genpart_py;
    std::vector<float>   *genpart_pz;
@@ -216,6 +218,7 @@ public :
    std::vector<int>     *jets_chMult;
    std::vector<float>   *bDiscriminator;
    std::vector<float>   *bCSVscore;
+   std::vector<float>   *pfCombinedMVAV2BJetTags;
    std::vector<int>     *PFjetID;
    std::vector<float>   *jetRawf;
    std::vector<float>   *jets_jecUnc;
@@ -280,6 +283,7 @@ public :
    TBranch        *b_lheNOutPartons; //!
    TBranch        *b_lheNOutB; //!
    TBranch        *b_aMCatNLOweight;   //!
+   TBranch        *b_susyModel;   //!
    TBranch        *b_genpart_px;   //!
    TBranch        *b_genpart_py;   //!
    TBranch        *b_genpart_pz;   //!
@@ -431,6 +435,7 @@ public :
    TBranch        *b_jets_chMult;   //!
    TBranch        *b_bDiscriminator;   //!
    TBranch        *b_bCSVscore;   //!
+   TBranch        *b_pfCombinedMVAV2BJetTags; //!
    TBranch        *b_PFjetID;   //!
    TBranch        *b_jetRawf;   //!
    TBranch        *b_jets_jecUnc ; //!
@@ -640,6 +645,7 @@ public :
        jets_chMult = 0;
        bDiscriminator = 0;
        bCSVscore = 0;
+       pfCombinedMVAV2BJetTags = 0;
        PFjetID = 0;
        jetRawf = 0;
        jets_jecUnc = 0;
@@ -794,6 +800,7 @@ public :
        fChain->SetBranchAddress("jets_chMult", &jets_chMult, &b_jets_chMult);
        fChain->SetBranchAddress("bDiscriminator", &bDiscriminator, &b_bDiscriminator);
        fChain->SetBranchAddress("bCSVscore", &bCSVscore, &b_bCSVscore);
+       fChain->SetBranchAddress("pfCombinedMVAV2BJetTags", &pfCombinedMVAV2BJetTags, &b_pfCombinedMVAV2BJetTags);
        fChain->SetBranchAddress("PFjetID", &PFjetID, &b_PFjetID);
        fChain->SetBranchAddress("jetRawf", &jetRawf, &b_jetRawf);
        fChain->SetBranchAddress("jets_jecUnc", &jets_jecUnc,&b_jets_jecUnc);
@@ -822,6 +829,7 @@ public :
        {
             fChain->SetBranchAddress("PUNumInteractions", &PUNumInteractions, &b_PUNumInteractions);
             fChain->SetBranchAddress("aMCatNLOweight", &aMCatNLOweight, &b_aMCatNLOweight);
+            fChain->SetBranchAddress("susyModel", &susyModel, &b_susyModel);
             fChain->SetBranchAddress("MC_weight", &MC_weight, &b_MC_weight);
             fChain->SetBranchAddress("daughters_genindex", &daughters_genindex, &b_daughters_genindex);
             fChain->SetBranchAddress("genpart_px", &genpart_px, &b_genpart_px);

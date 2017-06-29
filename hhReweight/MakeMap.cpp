@@ -42,7 +42,9 @@ int main ()
 {
     // make tchain of all samples
     // TString filename = "/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files80X_22Giu/allhhV2nonresonant.txt";
-    TString filename = "/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files80X_22Giu/lesshhV2nonresonant.txt";
+    // TString filename = "/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files80X_22Giu/lesshhV2nonresonant.txt";
+    // TString filename = "/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files80X_25Nov2016/filelist_allNonRes.txt";
+    TString filename = "/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_7Feb2016/allNonResNodes.txt";
 
     TChain* ch = new TChain ("HTauTauTree/HTauTauTree");
     appendFromFileList (ch, filename);
@@ -89,11 +91,39 @@ int main ()
     ch->SetBranchAddress("genpart_TauGenDecayMode", &genpart_TauGenDecayMode);
     ch->SetBranchAddress("genpart_flags", &genpart_flags);
 
-    // must be same binning as Xanda!
-    TFile* fOut = new TFile ("outMap.root", "recreate");
-    TH2F* hMap = new TH2F ("allHHNodeMap", "allHHNodeMap", 90, 0, 1800, 10, -1, 1);
-    TH2F* hMapFolded = new TH2F ("allHHNodeMapFolded", "allHHNodeMapFolded", 90, 0, 1800, 5, 0, 1);
-    TH1F* hMap1D = new TH1F ("allHHNodeMap1D", "allHHNodeMap1D", 60, 0, 1800);
+    // // must be same binning as Xanda!
+    // TFile* fOut = new TFile ("outMap.root", "recreate");
+    // TH2F* hMap = new TH2F ("allHHNodeMap", "allHHNodeMap", 90, 0, 1800, 10, -1, 1);
+    // TH2F* hMapFolded = new TH2F ("allHHNodeMapFolded", "allHHNodeMapFolded", 90, 0, 1800, 5, 0, 1);
+    // TH1F* hMap1D = new TH1F ("allHHNodeMap1D", "allHHNodeMap1D", 60, 0, 1800);
+
+    // // new binning for dynamic reweight -- again these weird Xanda binnings
+    // TFile* fOut = new TFile ("outMap_newbinning.root", "recreate");
+    // double binning_mHH   [14] = {250.,270.,300.,330.,360.,390., 420.,450.,500.,550.,600.,700.,800.,1000.} ;
+    // double binning_cth    [4] = {-1., -0.55,0.55,1. } ;
+    // int nbins_mHH = 13; // size of arrays - 1
+    // int nbins_cth = 3;  // size of arrays - 1
+    // TH2F* hMap = new TH2F ("allHHNodeMap", "allHHNodeMap", nbins_mHH, binning_mHH, nbins_cth, binning_cth );
+    // TH2F* hMapFolded = new TH2F ("allHHNodeMapFolded", "allHHNodeMapFolded", 90, 0, 1800, 5, 0, 1); // won't be used for reweight
+    // TH1F* hMap1D = new TH1F ("allHHNodeMap1D", "allHHNodeMap1D", nbins_mHH, binning_mHH);
+
+    // new binning for dynamic reweight -- again these weird Xanda binnings
+    TFile* fOut = new TFile ("outMap_5Dbinning.root", "recreate");
+    double binning_mHH [56] = { 250,260,270,280,290,300,310,320,330,340,
+                                350,360,370,380,390,400,410,420,430,440, 
+                                450,460,470,480,490,
+                                500,510,520,530,540,550,600,610,620,630,
+                                640,650,660,670,680,690,700,750,800,850,
+                                900,950,1000,1100,1200,1300,1400,1500.,1750,2000,50000};
+    double binning_cth [5]  = {0.0, 0.4, 0.6, 0.8, 1.0} ;
+
+    int nbins_mHH = 55; // size of arrays - 1
+    int nbins_cth = 4;  // size of arrays - 1
+    TH2F* hMap = new TH2F ("allHHNodeMap", "allHHNodeMap", nbins_mHH, binning_mHH, nbins_cth, binning_cth );
+    TH2F* hMapFolded = new TH2F ("allHHNodeMapFolded", "allHHNodeMapFolded", 90, 0, 1800, 5, 0, 1); // won't be used for reweight
+    TH1F* hMap1D = new TH1F ("allHHNodeMap1D", "allHHNodeMap1D", nbins_mHH, binning_mHH);
+
+
 
     TLorentzVector vH1, vH2, vBoost, vSum;
     for (int iEv = 0; true; ++iEv)
@@ -160,7 +190,8 @@ int main ()
         float ct2 = vH2.Pz() / TMath::Sqrt(vH2.Pt()*vH2.Pt() + vH2.Pz()*vH2.Pz());
 */        
         hMapFolded->Fill(mHH, TMath::Abs(ct1));
-        hMap->Fill(mHH, ct1);
+        // hMap->Fill(mHH, ct1);
+        hMap->Fill(mHH, TMath::Abs(ct1));
         hMap1D->Fill(mHH);
 
         // cout <<  " --> " << ct1 << " " << ct2 << endl;
