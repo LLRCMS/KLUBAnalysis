@@ -1041,6 +1041,9 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
             for (unsigned int iw = 0; iw < currSel.getWeights().size(); ++iw)
             {   
                 wEvSel *= boost::apply_visitor(get_variant_as_double(), valuesMap[currSel.getWeights().at(iw).getName()]);
+                
+                // if (sample.getType() == Sample::kBkg)
+                //     cout << "~~~~~~~  : ~~~ " << iEv << " / evt sel: " << currSel.getWeights().at(iw).getName() << " = " << boost::apply_visitor(get_variant_as_double(), valuesMap[currSel.getWeights().at(iw).getName()]) << endl;
             }
             
             // loop on all vars to fill
@@ -1052,6 +1055,9 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
                 else
                     plots.at(isel).at(ivar).at(0)->Fill(varvalue, wEvSample*wEvSel);
                 
+                // if (sample.getType() == Sample::kBkg)
+                //     cout << ">>>>  : >>> " << iEv << " / FILLING " << plots.at(isel).at(ivar).at(0)->GetName() << " varvalue:" << varvalue << " wEvSample:" << wEvSample << " wEvSel:" << wEvSel << " new integral:" << plots.at(isel).at(ivar).at(0)->Integral() << endl;
+
                 if (sample.getType() != Sample::kData)
                 {
                     for (unsigned int isyst = 1; isyst < plots.at(isel).at(ivar).size(); ++isyst) // start from 1, as 0 is nominal case
@@ -1074,6 +1080,7 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
                 string var2 = variables2D_.at(ivar).second;
                 double varvalue1 = boost::apply_visitor( get_variant_as_double(), valuesMap[var1]);
                 double varvalue2 = boost::apply_visitor( get_variant_as_double(), valuesMap[var2]);
+if (varvalue1 < 4.0 || varvalue2 < 4.0) cout << "** DEBUG :: " << ivar << " " << sample.getName() << " " << varvalue1 << " " << varvalue2 << " " << var1 << " " << var2 << " " << iEv << " fromMaps " << valuesMap[var1] << " " << valuesMap[var2] << endl;
                 if (sample.getType() == Sample::kData)
                     plots2D.at(isel).at(ivar).at(0)->Fill(varvalue1, varvalue2);
                 else
@@ -1112,6 +1119,13 @@ void AnalysisHelper::activateBranches(Sample& sample)
     {
         tree->SetBranchStatus(var.c_str(), 1);
     }
+
+    for (auto var2d : variables2D_)
+    {
+        tree->SetBranchStatus(var2d.first.c_str(), 1);
+        tree->SetBranchStatus(var2d.second.c_str(), 1);
+    }
+
     if (DEBUG) cout << " ..........DEBUG: activated var branches" << endl;
 
     // activate all weights

@@ -285,10 +285,24 @@ class OutputManager:
             # print sel, var, hnew.GetNbinsX(), hnew.GetName()
             self.histos[hnew.GetName()] = hnew
 
-            # now systematics
-            protoName = makeHistoName(s, sel, var)
-            allSysts = matchInDictionary(self.histos, protoName+'_*')
-            allSysts = [x.replace(protoName+'_', '') for x in allSysts]
+            ## the following is the correct one, but slow
+            # protoName = makeHistoName(s, sel, var)
+            # allSysts = matchInDictionary(self.histos, protoName+'_*')
+            # allSysts = [x.replace(protoName+'_', '') for x in allSysts]
+
+            ## I should build this once
+            # # now systematics
+            # if not hasattr(self, 'systMap'):
+            #     self.buildSystMap()
+
+            # for the moment, only top pt rew has a systematic, let's speed up and use this information
+            #### FIXME: to be generalized! (with the previous function)
+
+            allSysts = []
+            if s == 'TT':
+                allSysts = ['topUp', 'topDown']
+                print '.. this is a TT sample, hence the only one with systs', allSysts
+            
             for syst in allSysts:
                 htorebin_name = makeHistoName(s, sel, var, syst)
                 h = self.histos[htorebin_name]
@@ -307,3 +321,12 @@ class OutputManager:
                 self.QCDfits[elem].Write()
             for elem in self.QCDfitresults:
                 self.QCDfitresults[elem].Write()
+
+    # def buildSystMap(self):
+    #     """ make a dictionary with all the possible systematics as suffix to speed up repeated histo lookup """
+
+    #     ### note: there are (currently!) no syst associated to vars, and to specific regions
+    #     ### so it is enough to check only the syst for every sample and for a nominal selection (sel + 'SR')
+
+    #     self.systMap = {}
+

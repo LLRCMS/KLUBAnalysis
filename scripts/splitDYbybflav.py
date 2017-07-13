@@ -8,7 +8,10 @@ import sys
 #inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_27Gen/SKIM_DY/'
 #inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_1Feb/SKIM_DY/'
 #inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_9Feb/SKIM_DY/'
-inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_11Feb/SKIM_DY/'
+#inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_11Feb/SKIM_DY/'
+#inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_26Feb/SKIM_DY/'
+# inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_28Feb/SKIM_DY/'
+inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_13Giu_All/SKIM_DY/'
 
 ############################################################################################################
 ## NOTE: this script takes about 11 mins for a full DY sample (inclusive + NJet + NBJet)

@@ -141,6 +141,7 @@ void Sample::scaleAll(double scale)
             for (uint isyst = 0; isyst < plots_.at(isel).at(ivar).size(); ++isyst)
             {
                 // cout << "isyst " << isyst << "/" << plots_.at(isel).at(ivar).size() << endl;
+                // cout << " >>>>> : >>>>> scaling histo " << plots_.at(isel).at(ivar).at(isyst)->GetName() << " integral = " << plots_.at(isel).at(ivar).at(isyst)->Integral() << " by " << scale << endl;
                 plots_.at(isel).at(ivar).at(isyst)->Scale(scale);
                 // cout << "DONE" << endl;
             }
