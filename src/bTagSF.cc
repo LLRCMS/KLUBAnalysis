@@ -36,6 +36,15 @@ bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effH
         BTagCalibrationReader(BTagEntry::OP_LOOSE,  "central", {"up", "down"}),
         BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"}),
         BTagCalibrationReader(BTagEntry::OP_TIGHT,  "central", {"up", "down"})}
+    m_light {
+        BTagCalibrationReader(BTagEntry::OP_LOOSE,  "central", {"up", "down"}),
+        BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"}),
+        BTagCalibrationReader(BTagEntry::OP_TIGHT,  "central", {"up", "down"})}
+    m_heavy {
+        BTagCalibrationReader(BTagEntry::OP_LOOSE,  "central", {"up", "down"}),
+        BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"}),
+        BTagCalibrationReader(BTagEntry::OP_TIGHT,  "central", {"up", "down"})}
+
     // m_reader {
     // BTagCalibrationReader(&m_calib , BTagEntry::OP_LOOSE,  "comb", "central"),
     // BTagCalibrationReader(&m_calib , BTagEntry::OP_MEDIUM, "comb", "central"),
@@ -116,18 +125,20 @@ bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effH
     // m_readers[2][2][2] = & (m_reader_udsg_do[2]) ;
 
     // load readers [loose, medium, tight]
-    m_readers[0].load(m_calib, BTagEntry::FLAV_B, "comb");
-    m_readers[0].load(m_calib, BTagEntry::FLAV_C, "comb");
-    m_readers[0].load(m_calib, BTagEntry::FLAV_UDSG, "incl");
+    for (int i_b=0;i_b<3;i_b++){
+        m_readers[i_b].load(m_calib, BTagEntry::FLAV_B, "comb");
+        m_readers[i_b].load(m_calib, BTagEntry::FLAV_C, "comb");
+        m_readers[i_b].load(m_calib, BTagEntry::FLAV_UDSG, "incl");
 
-    m_readers[1].load(m_calib, BTagEntry::FLAV_B, "comb");
-    m_readers[1].load(m_calib, BTagEntry::FLAV_C, "comb");
-    m_readers[1].load(m_calib, BTagEntry::FLAV_UDSG, "incl");
+        m_light[i_b].load(m_calib, BTagEntry::FLAV_B, "iterativefit");
+        m_light[i_b].load(m_calib, BTagEntry::FLAV_C, "iterativefit");
+        m_light[i_b].load(m_calib, BTagEntry::FLAV_UDSG, "iterativefit");
 
-    m_readers[2].load(m_calib, BTagEntry::FLAV_B, "comb");
-    m_readers[2].load(m_calib, BTagEntry::FLAV_C, "comb");
-    m_readers[2].load(m_calib, BTagEntry::FLAV_UDSG, "incl");
+        m_heavy[i_b].load(m_calib, BTagEntry::FLAV_B, "iterativefit");
+        m_heavy[i_b].load(m_calib, BTagEntry::FLAV_C, "iterativefit");
+        m_heavy[i_b].load(m_calib, BTagEntry::FLAV_UDSG, "iterativefit");
 
+    }
     m_fileEff = new TFile (effFileName.c_str());
  
     TString flavs[3]   = {"b", "c", "udsg"};
@@ -180,7 +191,7 @@ void bTagSF::SetWPset(double loose, double medium, double tight)
     _WPtag[2] = tight;
 }
 
-float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta)
+float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta, int systflavour)
 {
     // if (DEBUG) cout << "   ~~ requesting SF for WP=" << wpt << " SFsyst=" << syst << " jetFlavor=" << jetFlavor << " pt=" << pt << " eta=" << eta << endl;
 
@@ -214,7 +225,9 @@ float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta)
 
     // SF = m_readers[myFlavIndex][mySystIndex][myWPIndex] -> eval(flav, eta, pt);
     string systName[3] = {"central", "up", "down"}; // like SFsyst enum;
-    SF = m_readers[myWPIndex].eval_auto_bounds(systName[mySystIndex], flav, eta, pt);
+    if (systflavour<0) SF = m_readers[myWPIndex].eval_auto_bounds(systName[mySystIndex], flav, eta, pt);
+    else if (systflavour == 0) SF = m_light[myWPIndex].eval_auto_bounds(systName[mySystIndex], flav, eta, pt);
+    else if (systflavour == 1) SF = m_heavy[myWPIndex].eval_auto_bounds(systName[mySystIndex], flav, eta, pt);
 
     // if (syst == central)
     //     SF = m_reader[(int)wpt].eval(flav, eta, pt);   
@@ -289,6 +302,12 @@ float bTagSF::getEff (WP wpt, int jetFlavor, int channel, float pt, float eta)
     return eff;
 }
 
+int bTagSF::getWorkingPoint(double CSV){
+    if (CSV > _WPtag[2]) return 2;
+    if (CSV > _WPtag[1]) return 1;
+    if (CSV > _WPtag[0]) return 0;
+    return -1;
+}
 // the collection jets_and_btag in input contain all the final list of jets, already cleaned from PU and leptons
 // returns a collection of weights according to the tested WP
 vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_and_btag, std::vector<float> *jets_px, std::vector<float> *jets_py, std::vector<float> *jets_pz, std::vector<float> *jets_e, std::vector<int> *jets_HadronFlavour, int channel)
