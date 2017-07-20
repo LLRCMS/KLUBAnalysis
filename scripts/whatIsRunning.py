@@ -1,5 +1,5 @@
 import os, re
-rootdir = '../Samples2016_31Ott_DYForNewSample/'
+rootdir = '../Skims2017_11Feb/'
 
 # list all jobs available
 allJobs = {}

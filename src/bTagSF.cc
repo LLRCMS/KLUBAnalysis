@@ -2,6 +2,8 @@
 #include "TLorentzVector.h"
 #include "TString.h"
 #include "TMath.h"
+#include <stdio.h>
+#include <iostream>
 
 using namespace std;
 
@@ -27,7 +29,7 @@ using namespace std;
 // }
 
 
-bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag) :
+bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag, std::string WPset) :
     
     m_calib("CSVv2", SFfilename.c_str()) ,
     m_readers {
@@ -145,11 +147,37 @@ bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effH
             }
         }
     }
+
+    SetWPset(WPset);
 }
 
 bTagSF::~bTagSF()
 {
     if (m_fileEff) delete m_fileEff;
+}
+
+void bTagSF::SetWPset(std::string WPset)
+{
+    if (WPset == "80X_ICHEP_2016")
+        SetWPset(0.460, 0.800, 0.935);
+    
+    else if (WPset == "80X_MORIOND_2017")
+        SetWPset(0.5426, 0.8484, 0.9535);
+
+    else
+    {
+        cout << "bTagSF :: WARNING! SF set string " << WPset << " not recognized, going to use values from 80X_MORIOND_2017" << endl;
+        SetWPset(0.460, 0.800, 0.935);        
+    }
+
+    printf("bTagSF :: info : WP set is %s i.e.;%.3f %.3f %.3f\n", WPset.c_str(), _WPtag[0], _WPtag[1], _WPtag[2]);
+}
+
+void bTagSF::SetWPset(double loose, double medium, double tight)
+{
+    _WPtag[0] = loose;
+    _WPtag[1] = medium;
+    _WPtag[2] = tight;
 }
 
 float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta)
@@ -271,7 +299,8 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
     
     TLorentzVector vJet (0,0,0,0);
     // float WPtag[3] = {0.605, 0.89, 0.97}; // L, M, T
-    double WPtag[3] = {0.460, 0.800, 0.935}; // L, M, T -- 80X 4 inv fb
+    // double WPtag[3] = {0.460, 0.800, 0.935}; // L, M, T -- 80X 4 inv fb
+    // double WPtag[3] = {0.5426, 0.8484, 0.9535}; // L, M, T -- 80X for Moriond 2017, 23SepReReco
 
     for (unsigned int ijet = 0; ijet < jets_and_btag.size(); ijet++)
     {
@@ -295,9 +324,9 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
 
         double CSV = jets_and_btag.at(ijet).second;
         bool tagged[3];
-        tagged[0] = (CSV > WPtag[0]);
-        tagged[1] = (CSV > WPtag[1]);
-        tagged[2] = (CSV > WPtag[2]);
+        tagged[0] = (CSV > _WPtag[0]);
+        tagged[1] = (CSV > _WPtag[1]);
+        tagged[2] = (CSV > _WPtag[2]);
         if (DEBUG) cout << "  >> DEB: tagged " << tagged[0] << " " << tagged[1] << " " << tagged[2] << endl;
         for (int iWP = 0; iWP < 3; iWP++)
         {

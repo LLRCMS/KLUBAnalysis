@@ -7,6 +7,7 @@ resolved_1b1j_Mcut = pairType == 1 && dau1_pt > 27 && abs(dau1_eta) < 2.1 && dau
 boosted            = pairType == 1 && dau1_pt > 27 && abs(dau1_eta) < 2.1 && dau2_pt > 20 && abs(dau2_eta) < 2.3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && isBoosted == 1 
 boosted_Mcut       = pairType == 1 && dau1_pt > 27 && abs(dau1_eta) < 2.1 && dau2_pt > 20 && abs(dau2_eta) < 2.3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && isBoosted == 1 && tauH_SVFIT_mass > 80 && tauH_SVFIT_mass < 160 && fatjet_softdropMass > 90 && fatjet_softdropMass < 160  
 
+defaultNoIso              = pairType == 1 && dau1_pt > 27 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && HH_mass_raw > 200
 defaultBtagLLNoIso        = pairType == 1 && dau1_pt > 27 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && HH_mass_raw > 200 && bTagweightL > -999
 defaultBtagLLNoIsoBBTTCut = pairType == 1 && dau1_pt > 27 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_bID > 0.460 && bjet2_bID > 0.460 && bH_mass_raw > 80 && bH_mass_raw < 160 && tauH_SVFIT_mass > 80 && tauH_SVFIT_mass < 160 && HH_mass_raw > 200 && bTagweightL > -999
 defaultBtagMMNoIsoBBTTCut = pairType == 1 && dau1_pt > 27 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && bjet1_bID > 0.800 && bjet2_bID > 0.800 && bH_mass_raw > 80 && bH_mass_raw < 160 && tauH_SVFIT_mass > 80 && tauH_SVFIT_mass < 160 && bTagweightM > -999

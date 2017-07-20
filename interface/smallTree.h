@@ -33,7 +33,7 @@ struct smallTree
       m_turnOnreweight = -1. ;
       m_turnOnreweight_tauup = -1. ;
       m_turnOnreweight_taudown = -1. ;
-      m_EventNumber = -1. ;
+      m_EventNumber = 0 ;
       m_DYscale_LL = -1. ;
       m_DYscale_MM = -1. ;
       m_trigSF = -1.;
@@ -120,98 +120,29 @@ struct smallTree
       m_dau2_e  = -1. ;
       m_dau2_flav  = -1. ;
 
-      
-      m_stage2_jet1Et = -1.;
-      m_stage2_jet1Eta = -1.;
-      m_stage2_jet1Phi = -1.;
-    
-      m_stage2_jet2Et = -1.;
-      m_stage2_jet2Eta = -1.;
-      m_stage2_jet2Phi = -1.;
-      
-      m_stage2_jet3Et = -1.;
-      m_stage2_jet3Eta = -1.;
-      m_stage2_jet3Phi = -1.;
-     
-      m_stage2_jet4Et = -1.;
-      m_stage2_jet4Eta = -1.;
-      m_stage2_jet4Phi = -1.;
-
-      m_stage2_jet5Et = -1.;
-      m_stage2_jet5Eta = -1.;
-      m_stage2_jet5Phi = -1.;
-      
-      m_stage2_jet6Et = -1.;
-      m_stage2_jet6Eta = -1.;
-      m_stage2_jet6Phi = -1.;
-      
-      m_stage2_tau1Et = -1.;
-      m_stage2_tau1Eta = -1.;
-      m_stage2_tau1Phi = -1.;
-      m_stage2_tau1Iso = -1.;
-      
-      m_stage2_tau2Et = -1.;
-      m_stage2_tau2Eta = -1.;
-      m_stage2_tau2Phi = -1.;
-      m_stage2_tau2Iso = -1.;
-      
-      m_stage2_tau3Et = -1.;
-      m_stage2_tau3Eta = -1.;
-      m_stage2_tau3Phi = -1.;
-      m_stage2_tau3Iso = -1.;
-      
-      m_stage2_tau4Et = -1.;
-      m_stage2_tau4Eta = -1.;
-      m_stage2_tau4Phi = -1.;
-      m_stage2_tau4Iso = -1.;
-
-      m_stage2_muon1Et = -1.;
-      m_stage2_muon1Eta = -1.;
-      m_stage2_muon1Phi = -1.;
-      m_stage2_muon1Iso = -1.;
-      
-      m_stage2_muon2Et = -1.;
-      m_stage2_muon2Eta = -1.;
-      m_stage2_muon2Phi = -1.;
-      m_stage2_muon2Iso = -1.;
-
-      m_Bjet2matchesStage2jet1 =-1;
-      m_Lepton2matchesStage2tau1 =-1;
-
-      m_bjet1toMuon  = false ;
       m_bjet1_pt  = -1. ;
       m_bjet1_eta  = -1. ;
       m_bjet1_phi  = -1. ;
       m_bjet1_e  = -1. ;
-      m_bjet1_et  = -1. ;
       m_bjet1_bID = -1. ;
+      m_bjet1_bMVAID = -1. ;
       m_bjet1_flav = -1 ;
       m_bjet1_pt_raw  = -1. ;
       m_bjet1_pt_raw_jetup  = -1. ;
       m_bjet1_pt_raw_jetdown  = -1. ;
       m_bjet1_hasgenjet = false ;
-
-      m_bjet2toMuon  = false ;
+      
       m_bjet2_pt  = -1. ;
       m_bjet2_eta  = -1. ;
       m_bjet2_phi  = -1. ;
       m_bjet2_e  = -1. ;
-      m_bjet2_et  = -1. ;
       m_bjet2_bID = -1. ;
+      m_bjet2_bMVAID = -1. ;
       m_bjet2_flav = -1 ;
       m_bjet2_pt_raw  = -1. ;
       m_bjet2_pt_raw_jetup  = -1. ;
       m_bjet2_pt_raw_jetdown  = -1. ;
       m_bjet2_hasgenjet = false ;
-
-      m_DeltaRmin_stage2jet_bjet1= -1. ;
-      m_DeltaRmin_stage2jet_bjet2= -1. ;
-
-      m_DeltaRmin_stage2tau_tau1= -1. ;
-      m_DeltaRmin_stage2tau_tau2= -1. ;
-      
-      m_DeltaRmin_stage2muon_bjet1= -1. ;
-      m_DeltaRmin_stage2muon_bjet2= -1. ;
 
       m_nfatjets = -1;
       m_fatjet_pt = -1. ;
@@ -302,10 +233,6 @@ struct smallTree
       m_ditau_deltaR_per_tauHsvfitpt = -1. ;
       m_dib_deltaR_per_bHpt = -1. ;
       m_btau_deltaRmin = -1. ;
-      m_b1tau_deltaRmin = -1. ;
-      m_b2tau_deltaRmin = -1. ;
-      m_b1gentau_deltaRmin = -1. ;
-      m_b2gentau_deltaRmin = -1. ;
       m_btau_deltaRmax = -1. ;
       m_dau1MET_deltaphi = -1. ;
       m_dau2MET_deltaphi = -1. ;
@@ -406,7 +333,7 @@ struct smallTree
       m_smallT->Branch ("nBhadrons", &m_nBhadrons, "nBhadrons/I") ;
       m_smallT->Branch ("lheNOutPartons", &m_lheNOutPartons, "lheNOutPartons/I");
       m_smallT->Branch ("lheNOutB", &m_lheNOutB, "lheNOutB/I");
-      m_smallT->Branch ("EventNumber", &m_EventNumber, "EventNumber/I") ;
+      m_smallT->Branch ("EventNumber", &m_EventNumber, "EventNumber/l") ;
       m_smallT->Branch ("RunNumber", &m_RunNumber, "RunNumber/I") ;
       m_smallT->Branch ("isBoosted", &m_isBoosted, "isBoosted/I") ;
 
@@ -486,99 +413,29 @@ struct smallTree
       m_smallT->Branch ("dau2_e", &m_dau2_e, "dau2_e/F") ;
       m_smallT->Branch ("dau2_flav", &m_dau2_flav, "dau2_flav/F") ;
 
-      m_smallT->Branch("stage2_jet1Et",&m_stage2_jet1Et,"stage2_jet1Et/F");
-      m_smallT->Branch("stage2_jet1Eta",&m_stage2_jet1Eta,"stage2_jet1Eta/F");
-      m_smallT->Branch("stage2_jet1Phi",&m_stage2_jet1Phi,"stage2_jet1Phi/F");
-
-
-      m_smallT->Branch("stage2_jet2Et",&m_stage2_jet2Et,"stage2_jet2Et/F");
-      m_smallT->Branch("stage2_jet2Eta",&m_stage2_jet2Eta,"stage2_jet2Eta/F");
-      m_smallT->Branch("stage2_jet2Phi",&m_stage2_jet2Phi,"stage2_jet2Phi/F");
-
-
-      m_smallT->Branch("stage2_jet3Et",&m_stage2_jet3Et,"stage2_jet3Et/F");
-      m_smallT->Branch("stage2_jet3Eta",&m_stage2_jet3Eta,"stage2_jet3Eta/F");
-      m_smallT->Branch("stage2_jet3Phi",&m_stage2_jet3Phi,"stage2_jet3Phi/F");
-      
-      m_smallT->Branch("stage2_jet4Et",&m_stage2_jet4Et,"stage2_jet4Et/F");
-      m_smallT->Branch("stage2_jet4Eta",&m_stage2_jet4Eta,"stage2_jet4Eta/F");
-      m_smallT->Branch("stage2_jet4Phi",&m_stage2_jet4Phi,"stage2_jet4Phi/F");
-
-      m_smallT->Branch("stage2_jet5Et",&m_stage2_jet5Et,"stage2_jet5Et/F");
-      m_smallT->Branch("stage2_jet5Eta",&m_stage2_jet5Eta,"stage2_jet5Eta/F");
-      m_smallT->Branch("stage2_jet5Phi",&m_stage2_jet5Phi,"stage2_jet5Phi/F");
-
-      m_smallT->Branch("stage2_jet6Et",&m_stage2_jet6Et,"stage2_jet6Et/F");
-      m_smallT->Branch("stage2_jet6Eta",&m_stage2_jet6Eta,"stage2_jet6Eta/F");
-      m_smallT->Branch("stage2_jet6Phi",&m_stage2_jet6Phi,"stage2_jet6Phi/F");
-
-      m_smallT->Branch("stage2_tau1Et",&m_stage2_tau1Et,"stage2_tau1Et/F");
-      m_smallT->Branch("stage2_tau1Eta",&m_stage2_tau1Eta,"stage2_tau1Eta/F");
-      m_smallT->Branch("stage2_tau1Phi",&m_stage2_tau1Phi,"stage2_tau1Phi/F");
-      m_smallT->Branch("stage2_tau1Iso",&m_stage2_tau1Iso,"stage2_tau1Iso/I");
-
-      m_smallT->Branch("stage2_tau2Et",&m_stage2_tau2Et,"stage2_tau2Et/F");
-      m_smallT->Branch("stage2_tau2Eta",&m_stage2_tau2Eta,"stage2_tau2Eta/F");
-      m_smallT->Branch("stage2_tau2Phi",&m_stage2_tau2Phi,"stage2_tau2Phi/F");
-      m_smallT->Branch("stage2_tau2Iso",&m_stage2_tau2Iso,"stage2_tau2Iso/I");
-
-      m_smallT->Branch("stage2_tau3Et",&m_stage2_tau3Et,"stage2_tau3Et/F");
-      m_smallT->Branch("stage2_tau3Eta",&m_stage2_tau3Eta,"stage2_tau3Eta/F");
-      m_smallT->Branch("stage2_tau3Phi",&m_stage2_tau3Phi,"stage2_tau3Phi/F");
-      m_smallT->Branch("stage2_tau3Iso",&m_stage2_tau3Iso,"stage2_tau3Iso/I");
-      
-      m_smallT->Branch("stage2_tau4Et",&m_stage2_tau4Et,"stage2_tau4Et/F");
-      m_smallT->Branch("stage2_tau4Eta",&m_stage2_tau4Eta,"stage2_tau4Eta/F");
-      m_smallT->Branch("stage2_tau4Phi",&m_stage2_tau4Phi,"stage2_tau4Phi/F");
-      m_smallT->Branch("stage2_tau4Iso",&m_stage2_tau4Iso,"stage2_tau4Iso/I");
-
-      m_smallT->Branch("stage2_muon1Et",&m_stage2_muon1Et,"stage2_muon1Et/F");
-      m_smallT->Branch("stage2_muon1Eta",&m_stage2_muon1Eta,"stage2_muon1Eta/F");
-      m_smallT->Branch("stage2_muon1Phi",&m_stage2_muon1Phi,"stage2_muon1Phi/F");
-      m_smallT->Branch("stage2_muon1Iso",&m_stage2_muon1Iso,"stage2_muon1Iso/I");
-
-      m_smallT->Branch("stage2_muon2Et",&m_stage2_muon2Et,"stage2_muon2Et/F");
-      m_smallT->Branch("stage2_muon2Eta",&m_stage2_muon2Eta,"stage2_muon2Eta/F");
-      m_smallT->Branch("stage2_muon2Phi",&m_stage2_muon2Phi,"stage2_muon2Phi/F");
-      m_smallT->Branch("stage2_muon2Iso",&m_stage2_muon2Iso,"stage2_muon2Iso/I");
-
-      m_smallT->Branch("Bjet2matchesStage2jet1",&m_Bjet2matchesStage2jet1,"Bjet2matchesStage2jet1/I");
-      m_smallT->Branch("Lepton2matchesStage2tau1",&m_Lepton2matchesStage2tau1,"Lepton2matchesStage2tau1/I");
-
-      m_smallT->Branch ("bjet1toMuon", &m_bjet1toMuon, "bjet1toMuon/O") ;
-       m_smallT->Branch ("bjet1_pt", &m_bjet1_pt, "bjet1_pt/F") ;
+      m_smallT->Branch ("bjet1_pt", &m_bjet1_pt, "bjet1_pt/F") ;
       m_smallT->Branch ("bjet1_eta", &m_bjet1_eta, "bjet1_eta/F") ;
       m_smallT->Branch ("bjet1_phi", &m_bjet1_phi, "bjet1_phi/F") ;
       m_smallT->Branch ("bjet1_e", &m_bjet1_e, "bjet1_e/F") ;
-      m_smallT->Branch ("bjet1_et", &m_bjet1_et, "bjet1_et/F") ;
       m_smallT->Branch ("bjet1_bID", &m_bjet1_bID, "bjet1_bID/F") ;
+      m_smallT->Branch ("bjet1_bMVAID", &m_bjet1_bMVAID, "bjet1_bMVAID/F") ;
       m_smallT->Branch ("bjet1_flav", &m_bjet1_flav, "bjet1_flav/I") ;
       m_smallT->Branch ("bjet1_pt_raw", &m_bjet1_pt_raw, "bjet1_pt_raw/F") ;
       m_smallT->Branch ("bjet1_pt_raw_jetup", &m_bjet1_pt_raw_jetup, "bjet1_pt_raw_jetup/F") ;
       m_smallT->Branch ("bjet1_pt_raw_jetdown", &m_bjet1_pt_raw_jetdown, "bjet1_pt_raw_jetdown/F") ;
       m_smallT->Branch ("bjet1_hasgenjet", &m_bjet1_hasgenjet, "bjet1_hasgenjet/O") ;
-
-      m_smallT->Branch ("bjet2toMuon", &m_bjet2toMuon, "bjet2toMuon/O") ;
+     
       m_smallT->Branch ("bjet2_pt", &m_bjet2_pt, "bjet2_pt/F") ;
       m_smallT->Branch ("bjet2_eta", &m_bjet2_eta, "bjet2_eta/F") ;
-      m_smallT->Branch ("bjet2_phi", &m_bjet2_phi, "bjet2_phi/F"); 
+      m_smallT->Branch ("bjet2_phi", &m_bjet2_phi, "bjet2_phi/F") ;
       m_smallT->Branch ("bjet2_e", &m_bjet2_e, "bjet2_e/F") ;
-      m_smallT->Branch ("bjet2_et", &m_bjet2_et, "bjet2_et/F") ;
       m_smallT->Branch ("bjet2_bID", &m_bjet2_bID, "bjet2m_bID/F") ;
+      m_smallT->Branch ("bjet2_bMVAID", &m_bjet2_bMVAID, "bjet2m_bMVAID/F") ;
       m_smallT->Branch ("bjet2_flav", &m_bjet2_flav, "bjet2_flav/I") ;
       m_smallT->Branch ("bjet2_pt_raw", &m_bjet2_pt_raw, "bjet2_pt_raw/F") ;
       m_smallT->Branch ("bjet2_pt_raw_jetup", &m_bjet2_pt_raw_jetup, "bjet2_pt_raw_jetup/F") ;
       m_smallT->Branch ("bjet2_pt_raw_jetdown", &m_bjet2_pt_raw_jetdown, "bjet2_pt_raw_jetdown/F") ;
       m_smallT->Branch ("bjet2_hasgenjet", &m_bjet2_hasgenjet, "bjet2_hasgenjet/O") ;
-
-      m_smallT->Branch ("DeltaRmin_stage2jet_bjet1", &m_DeltaRmin_stage2jet_bjet1, "DeltaRmin_stage2jet_bjet1/F") ;
-      m_smallT->Branch ("DeltaRmin_stage2jet_bjet2", &m_DeltaRmin_stage2jet_bjet2, "DeltaRmin_stage2jet_bjet2/F") ;
-      
-      m_smallT->Branch ("DeltaRmin_stage2tau_tau1", &m_DeltaRmin_stage2tau_tau1, "DeltaRmin_stage2tau_tau1/F") ;
-      m_smallT->Branch ("DeltaRmin_stage2tau_tau2", &m_DeltaRmin_stage2tau_tau2, "DeltaRmin_stage2tau_tau2/F") ;
-      
-      m_smallT->Branch ("DeltaRmin_stage2muon_bjet1", &m_DeltaRmin_stage2muon_bjet1, "DeltaRmin_stage2muon_bjet1/F") ;
-      m_smallT->Branch ("DeltaRmin_stage2muon_bjet2", &m_DeltaRmin_stage2muon_bjet2, "DeltaRmin_stage2muon_bjet2/F") ;
 
       m_smallT->Branch ("nfatjets", &m_nfatjets, "nfatjets/I");
       m_smallT->Branch ("fatjet_pt", &m_fatjet_pt, "fatjet_pt/F");
@@ -669,10 +526,6 @@ struct smallTree
       m_smallT->Branch ("dib_deltaR_per_bHpt", &m_dib_deltaR_per_bHpt, "dib_deltaR_per_bHpt/F") ;
 
       m_smallT->Branch ("btau_deltaRmin", &m_btau_deltaRmin,  "btau_deltaRmin/F") ;
-      m_smallT->Branch ("b1tau_deltaRmin", &m_b1tau_deltaRmin,  "b1tau_deltaRmin/F") ;
-      m_smallT->Branch ("b2tau_deltaRmin", &m_b2tau_deltaRmin,  "b2tau_deltaRmin/F") ;
-      m_smallT->Branch ("b1gentau_deltaRmin", &m_b1gentau_deltaRmin,  "b1gentau_deltaRmin/F") ;
-      m_smallT->Branch ("b2gentau_deltaRmin", &m_b2gentau_deltaRmin,  "b2gentau_deltaRmin/F") ;
       m_smallT->Branch ("btau_deltaRmax", &m_btau_deltaRmax,  "btau_deltaRmax/F") ;
       m_smallT->Branch ("dau1MET_deltaphi", &m_dau1MET_deltaphi,  "dau1MET_deltaphi/F") ;
       m_smallT->Branch ("dau2MET_deltaphi", &m_dau2MET_deltaphi,  "dau2MET_deltaphi/F") ;
@@ -773,7 +626,7 @@ struct smallTree
   Int_t m_nBhadrons ;
   Int_t m_lheNOutPartons ;
   Int_t m_lheNOutB ;
-  Int_t m_EventNumber ;
+  ULong64_t m_EventNumber ;
   Int_t m_RunNumber ;
   Int_t m_isBoosted ;
 
@@ -813,80 +666,6 @@ struct smallTree
   // mt
   Float_t m_mT1 ;
   Float_t m_mT2 ;
-
-  //stage2 jets
-
-  Float_t m_stage2_jet1Et;
-  Float_t m_stage2_jet1Eta;
-  Float_t m_stage2_jet1Phi;
-
-  Float_t m_stage2_jet2Et;
-  Float_t m_stage2_jet2Eta;
-  Float_t m_stage2_jet2Phi;
-
-  Float_t m_stage2_jet3Et;
-  Float_t m_stage2_jet3Eta;
-  Float_t m_stage2_jet3Phi;
-
-  Float_t m_stage2_jet4Et;
-  Float_t m_stage2_jet4Eta;
-  Float_t m_stage2_jet4Phi;
-
-  Float_t m_stage2_jet5Et;
-  Float_t m_stage2_jet5Eta;
-  Float_t m_stage2_jet5Phi;
-
-  Float_t m_stage2_jet6Et;
-  Float_t m_stage2_jet6Eta;
-  Float_t m_stage2_jet6Phi;
-
-  Float_t m_DeltaRmin_stage2jet_bjet1;
-  Float_t m_DeltaRmin_stage2jet_bjet2;
-
-  Int_t m_Bjet2matchesStage2jet1;
-
-  //stage2 taus
-
-  Float_t m_stage2_tau1Et;
-  Float_t m_stage2_tau1Eta;
-  Float_t m_stage2_tau1Phi;
-  Int_t m_stage2_tau1Iso;
-
-  Float_t m_stage2_tau2Et;
-  Float_t m_stage2_tau2Eta;
-  Float_t m_stage2_tau2Phi;
-  Int_t m_stage2_tau2Iso;
-
-  Float_t m_stage2_tau3Et;
-  Float_t m_stage2_tau3Eta;
-  Float_t m_stage2_tau3Phi;
-  Int_t m_stage2_tau3Iso;
-
-  Float_t m_stage2_tau4Et;
-  Float_t m_stage2_tau4Eta;
-  Float_t m_stage2_tau4Phi;
-  Int_t m_stage2_tau4Iso;
-
-  Float_t m_DeltaRmin_stage2tau_tau1;
-  Float_t m_DeltaRmin_stage2tau_tau2;
-
-  Int_t m_Lepton2matchesStage2tau1;
-  //stage2 muons
-  Float_t m_stage2_muon1Et;
-  Float_t m_stage2_muon1Eta;
-  Float_t m_stage2_muon1Phi;
-  Int_t m_stage2_muon1Iso;
-
-  Float_t m_stage2_muon2Et;
-  Float_t m_stage2_muon2Eta;
-  Float_t m_stage2_muon2Phi;
-  Int_t m_stage2_muon2Iso;
-
-  Float_t m_DeltaRmin_stage2muon_bjet1;
-  Float_t m_DeltaRmin_stage2muon_bjet2;
-  
-  
-
 
   // the largest pT daughter visible candidate
   Float_t m_dau1_iso ;
@@ -937,13 +716,12 @@ struct smallTree
   Float_t m_dau2_flav ; // let this contain also whether it's a hadronic dau
 
   // the largest pT b visible candidate /  highest CSV score
-  Bool_t m_bjet1toMuon ;
   Float_t m_bjet1_pt ;
   Float_t m_bjet1_eta ;
   Float_t m_bjet1_phi ;
   Float_t m_bjet1_e ;
-  Float_t m_bjet1_et ;
   Float_t m_bjet1_bID ;
+  Float_t m_bjet1_bMVAID ;
   Int_t   m_bjet1_flav ;
   Float_t m_bjet1_pt_raw ;
   Float_t m_bjet1_pt_raw_jetup ;
@@ -951,13 +729,12 @@ struct smallTree
   Bool_t  m_bjet1_hasgenjet ;
 
   // the trailing pT b visible candidate  /  highest CSV score
-  Bool_t m_bjet2toMuon ;
   Float_t m_bjet2_pt ;
   Float_t m_bjet2_eta ;
   Float_t m_bjet2_phi ;
   Float_t m_bjet2_e ;
-  Float_t m_bjet2_et ;
   Float_t m_bjet2_bID ;
+  Float_t m_bjet2_bMVAID ;
   Int_t   m_bjet2_flav ;
   Float_t m_bjet2_pt_raw ;
   Float_t m_bjet2_pt_raw_jetup ;
@@ -1061,10 +838,6 @@ struct smallTree
   Float_t m_ditau_deltaR_per_tauHsvfitpt ;
   Float_t m_dib_deltaR_per_bHpt ;
   Float_t m_btau_deltaRmin ;
-  Float_t m_b1tau_deltaRmin ;
-  Float_t m_b2tau_deltaRmin ;
-  Float_t m_b1gentau_deltaRmin ;
-  Float_t m_b2gentau_deltaRmin ;
   Float_t m_btau_deltaRmax ;
   Float_t m_dau1MET_deltaphi ;
   Float_t m_dau2MET_deltaphi ;

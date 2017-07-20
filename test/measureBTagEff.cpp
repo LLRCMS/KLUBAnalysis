@@ -79,7 +79,8 @@ int main(int argc, char** argv)
     int nPtBins  = sizeof(PtBins)/sizeof(float) - 1;
     int nEtaBins = sizeof(EtaBins)/sizeof(float) - 1;
 
-    float WPtag[3] = {0.460, 0.800, 0.935}; // L, M, T
+    // float WPtag[3] = {0.460, 0.800, 0.935}; // L, M, T
+    float WPtag[3] = {0.5426, 0.8484, 0.9535}; // L, M, T -- 80X for Moriond 2017, 23SepReReco
     string WPname[3] = {"L", "M", "T"};
 
 

@@ -265,23 +265,28 @@ int main (int argc, char** argv)
   string sel_dau1_RLXiso = gConfigParser->readStringOption ("selections::dau1RLXiso");
   string sel_dau2_RLXiso = gConfigParser->readStringOption ("selections::dau2RLXiso");
 
-  string selIsoType = "raw"; //default
+  string selIsoType = "rawraw"; //default
   if (gConfigParser->isDefined("selections::isoType")) selIsoType = gConfigParser->readStringOption("selections::isoType");
 
   string cutIsoType1 = "";
   string cutIsoType2 = "";
   
-  if (selIsoType == "raw")
+  if (selIsoType == "rawraw")
   {
     cutIsoType1 = "dau1_iso < ";
     cutIsoType2 = "dau2_iso < ";
   }
-  else if (selIsoType == "MVA")
+  else if (selIsoType == "MVAMVA")
   {
     cutIsoType1 = "dau1_MVAiso >= ";
     cutIsoType2 = "dau2_MVAiso >= ";
   }
-  else if (selIsoType == "CUT")
+  else if (selIsoType == "rawMVA")
+  {
+    cutIsoType1 = "dau1_iso < ";
+    cutIsoType2 = "dau2_MVAiso >= ";
+  }
+  else if (selIsoType == "CUTCUT")
   {
     cutIsoType1 = "dau1_CUTiso >= ";
     cutIsoType2 = "dau2_CUTiso >= ";
@@ -302,20 +307,24 @@ int main (int argc, char** argv)
   TCut dau1Cut = Form("%s %s" , cutIsoType1.c_str(), sel_dau1_iso.c_str());
   TCut dau2Cut = Form("%s %s" , cutIsoType2.c_str(), sel_dau2_iso.c_str());
  
+  cout << "... selections OS tight iso " << endl;
   for (unsigned int i = 0 ; i < selections_OS.size () ; ++i)
     {
       selections_OS.at (i).first = TString ("OS_") + selections_OS.at (i).first ;
       selections_OS.at (i).second = selections_OS.at (i).second && TCut ("isOS != 0") && dau1Cut && dau2Cut;
+      cout << selections_OS.at (i).first << " : " << selections_OS.at (i).second << endl;
     }
 
   // OS selections with rlx iso for SS/OS yield
   vector<pair <TString, TCut> > selections_OS_rlxIso = selections ;
   TCut dau1CutRLX = Form("%s %s" , cutIsoType1.c_str(), sel_dau1_RLXiso.c_str());
   TCut dau2CutRLX = Form("%s %s" , cutIsoType2.c_str(), sel_dau2_RLXiso.c_str());
+  cout << "... selections OS rlx iso " << endl;
   for (unsigned int i = 0 ; i < selections_OS_rlxIso.size () ; ++i)
     {
       selections_OS_rlxIso.at (i).first = TString ("OS_") + selections_OS.at (i).first ;
       selections_OS_rlxIso.at (i).second = selections_OS.at (i).second && TCut ("isOS != 0") && dau1Cut && dau2Cut;
+      cout << selections_OS_rlxIso.at (i).first << " : " << selections_OS_rlxIso.at (i).second << endl;
     }
      
   // SS selections with tight iso (for QCD yield determination)

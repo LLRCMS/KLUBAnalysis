@@ -204,8 +204,8 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     if (pairType == HadHad)
     {
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 2.0 ;
-        leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
-        leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
+        leg1 = tauBaseline (tree, dau1index, 40., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
+        leg2 = tauBaseline (tree, dau2index, 40., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
     }
 
     if (pairType == EMu)
@@ -773,8 +773,106 @@ int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply,
     int dau1index = get<2> (vPairs.at(ipair));
     int dau2index = get<5> (vPairs.at(ipair));
     int ipair_orig = get<6> (vPairs.at(ipair));
-    bool leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);
-    bool leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);
+    bool leg1 = tauBaseline (tree, dau1index, 40., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);
+    bool leg2 = tauBaseline (tree, dau2index, 40., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);
+
+    bool isOS = tree->isOSCand->at(ipair_orig);
+    if (whatApply.Contains("OScharge") && !isOS) {
+      if (debug) cout<<"check baseline: OSCharge failed"<<endl;
+      continue; // do not even check the rest if requiring the charge
+    }
+    if (whatApply.Contains("SScharge") && isOS) {
+      if (debug) cout<<"check baseline: SSCharge failed"<<endl;
+      continue; // for the same sign selection at the moment full selection over SS pairs
+    }
+
+    float dR = DeltaRDau(tree, dau1index, dau2index);
+    bool drMin = (dR > 0.1);    
+    // bool drMin = (dR > 0.5);
+    
+    if (leg1 && leg2 && drMin)
+    {
+      selPair = ipair_orig;
+      break;
+    }
+  }
+
+  if (debug)
+    cout << " .. debug: returning pair idx: " << selPair << endl;
+  
+  return selPair;
+
+}
+
+
+int OfflineProducerHelper::getBestPairPtAndRawIsoOrd (bigTree* tree, TString whatApply, bool debug)
+{
+  // prepare a tuple with all the needed sorting info
+  // pt1 - iso1 - idx1 - pt2 - iso2 - idx2 - idxoriginalPair
+  vector<tauPair_t> vPairs;
+  for (unsigned int ipair = 0; ipair < tree->indexDau1->size(); ++ipair)
+  {
+    int t_firstDaughterIndex  = tree->indexDau1->at (ipair) ;  
+    int t_secondDaughterIndex = tree->indexDau2->at (ipair) ;
+    int t_type1 = tree->particleType->at (t_firstDaughterIndex) ;
+    int t_type2 = tree->particleType->at (t_secondDaughterIndex) ;        
+    if ( getPairType (t_type1, t_type2) != 2 ) continue ; // tau tau only
+
+    float px1 = tree->daughters_px->at(t_firstDaughterIndex);
+    float py1 = tree->daughters_py->at(t_firstDaughterIndex);
+    float pz1 = tree->daughters_pz->at(t_firstDaughterIndex);
+    float e1 =  tree->daughters_e->at(t_firstDaughterIndex);
+    TLorentzVector p4_1 (px1, py1, pz1, e1);
+
+    float px2 = tree->daughters_px->at(t_secondDaughterIndex);
+    float py2 = tree->daughters_py->at(t_secondDaughterIndex);
+    float pz2 = tree->daughters_pz->at(t_secondDaughterIndex);
+    float e2 =  tree->daughters_e->at(t_secondDaughterIndex);
+    TLorentzVector p4_2 (px2, py2, pz2, e2);
+
+    float iso1 = tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(t_firstDaughterIndex);
+    float iso2 = tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(t_secondDaughterIndex);
+
+    // first one is highest pt
+    tauPair_t pp;
+    if (p4_1.Pt() > p4_2.Pt())
+      pp = make_tuple(p4_1.Pt(), iso1, t_firstDaughterIndex, p4_2.Pt(), iso2, t_secondDaughterIndex, ipair);
+    else
+      pp = make_tuple(p4_2.Pt(), iso2, t_secondDaughterIndex, p4_1.Pt(), iso1, t_firstDaughterIndex, ipair);
+    
+    vPairs.push_back(pp);
+  }
+
+  // now sort by iso, then pt criteria
+  stable_sort(vPairs.begin(), vPairs.end(), pairSortRawIso);
+
+  // now search through pairs until one passes baseline
+  int selPair = -1;
+
+  if (debug)
+  {
+    cout << " .. debug: TauTau pairs list for raw iso + pt ordering" << endl;
+    for (uint ipair = 0; ipair < vPairs.size(); ++ipair)
+    {
+      auto pp = vPairs.at(ipair) ;
+      int dau1index = get<2> (vPairs.at(ipair));
+      int dau2index = get<5> (vPairs.at(ipair));
+      int ipair_orig = get<6> (vPairs.at(ipair));
+      bool leg1 = tauBaseline (tree, dau1index, 40., 2.1, aeleVLoose, amuLoose, 99999., whatApply);
+      bool leg2 = tauBaseline (tree, dau2index, 40., 2.1, aeleVLoose, amuLoose, 99999., whatApply);
+      cout << "  > " << ipair << " idx1=" << dau1index << " idx2=" << dau2index << " ipair=" << ipair_orig
+           << " | iso1=" << get<1> (pp) << " pt1=" << get<0> (pp) << " iso2=" << get<4> (pp) << " pt2=" << get<3> (pp)
+           << " base1=" << leg1 << " base2=" << leg2 << endl;
+    }    
+  }
+
+  for (uint ipair = 0; ipair < vPairs.size(); ++ipair)
+  {
+    int dau1index = get<2> (vPairs.at(ipair));
+    int dau2index = get<5> (vPairs.at(ipair));
+    int ipair_orig = get<6> (vPairs.at(ipair));
+    bool leg1 = tauBaseline (tree, dau1index, 40., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);
+    bool leg2 = tauBaseline (tree, dau2index, 40., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);
 
     bool isOS = tree->isOSCand->at(ipair_orig);
     if (whatApply.Contains("OScharge") && !isOS) {
@@ -823,6 +921,37 @@ bool OfflineProducerHelper::pairSort (const tauPair_t& pA, const tauPair_t& pB)
   isoB = get<4> (pB);
   if (isoA > isoB) return true;
   else if (isoA < isoB) return false;
+
+  // then leg 2 pt
+  ptA = get<3> (pA);
+  ptB = get<3> (pB);
+  if (ptA > ptB) return true;
+  else if (ptA < ptB) return false;
+
+  // should be never here..
+  return false;
+}
+
+
+bool OfflineProducerHelper::pairSortRawIso (const tauPair_t& pA, const tauPair_t& pB)
+{
+  // first leg 1 iso
+  float isoA = get<1> (pA);
+  float isoB = get<1> (pB);
+  if (isoA < isoB) return true; // NB: raw iso ! Most iso --> lowest value
+  else if (isoA > isoB) return false;
+
+  // then leg 1 pt
+  float ptA = get<0> (pA);
+  float ptB = get<0> (pB);
+  if (ptA > ptB) return true;
+  else if (ptA < ptB) return false;
+
+  // then leg 2 iso
+  isoA = get<4> (pA);
+  isoB = get<4> (pB);
+  if (isoA < isoB) return true;
+  else if (isoA > isoB) return false;
 
   // then leg 2 pt
   ptA = get<3> (pA);

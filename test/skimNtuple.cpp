@@ -5,7 +5,6 @@
 #include <fstream>
 #include <sstream>
 #include <bitset>
-#include <algorithm>
 #include <map>
 #include "TTree.h"
 #include "TH1F.h"
@@ -23,6 +22,8 @@
 #include "triggerReader.h"
 #include "bJetRegrVars.h"
 #include "bTagSF.h"
+// #include "HHReweight.h"
+#include "HHReweight5D.h"
 #include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 
 // for minuit-based minimization
@@ -55,8 +56,8 @@ const double aTopRW = 0.0615;
 const double bTopRW = -0.0005;
 // const float DYscale_LL[3] = {8.72847e-01, 1.69905e+00, 1.63717e+00} ; // computed from fit for LL and MM b tag
 // const float DYscale_MM[3] = {9.44841e-01, 1.29404e+00, 1.28542e+00} ;
-const float DYscale_LL[3] = {1.02164, 1.25238, 0.637287} ; // computed from fit for LL and MM b tag
-const float DYscale_MM[3] = {1.0472, 1.186, 1.037} ;
+const float DYscale_LL[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag
+const float DYscale_MM[3] = {1.14119, 1.18722, 1.17042} ;
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
@@ -142,72 +143,6 @@ TH1F* getFirstFileHisto (TString filename, bool isForTriggers=true)
     fIn->Close();
     return histo;
 }
-// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-class stage2objClass{
-public:
-  stage2objClass(float Et, float Eta, float Phi, int Iso){Et_=Et; Eta_ = Eta;Phi_ = Phi;Iso_ = Iso;};
-  float Et() const{
-    return Et_;
-  }
-  float Phi() const {
-    return Phi_;
-  }
-  float Eta() const {
-    return Eta_;
-  }
- int Iso() const {
-    return Iso_;
-  }
-  
-  class stage2DeltaR{
-  public:    
-    stage2DeltaR(float ref_Phi, float ref_Eta){ref_Phi_ = ref_Phi; ref_Eta_= ref_Eta;};
-    bool operator() (const stage2objClass& stage2obj1,const stage2objClass& stage2obj2)
-    {
-      float dEta1 = stage2obj1.Eta()-ref_Eta_;
-      
-      float dPhi1 = stage2obj1.Phi()-ref_Phi_;
-      if(dPhi1 > 3.14) dPhi1 -= 6.28;
-      if(dPhi1 < -3.14) dPhi1 += 6.28;
-      
-      float dEta2 = stage2obj2.Eta()-ref_Eta_;
-      
-      float dPhi2 = stage2obj2.Phi()-ref_Phi_;
-      if(dPhi2 > 3.14) dPhi2 -= 6.28;
-      if(dPhi2 < -3.14) dPhi2 += 6.28;
-      return sqrt(dEta1*dEta1 + dPhi1*dPhi1) < sqrt(dEta2*dEta2 + dPhi2*dPhi2);
-    }
-  private: 
-    float ref_Phi_, ref_Eta_;
-    
-    
-  }; 
-  bool inline operator <(const stage2objClass& objref) const {
-    return this->Et() > objref.Et();
-  }
-  friend std::ostream& operator << (std::ostream &out, const stage2objClass &stage2objClass);
-private:
-  float Et_, Eta_, Phi_,Iso_;
-};
-
-
-std::ostream & operator << (std::ostream &out, const stage2objClass &stage2objClass)
-{
-  out<<stage2objClass.Et();
-  return out;
-}
-
-//---------------------
-class SortTLVbyDeltaR{
-public: SortTLVbyDeltaR(const TLorentzVector & tlv): obj(tlv) {};
-  bool operator()(const TLorentzVector &tlv1, const TLorentzVector &tlv2){
-    return tlv1.DeltaR(obj) > tlv2.DeltaR(obj);
-  }
-private: TLorentzVector obj;
-};
-
-//------------------
-
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 /**
@@ -270,6 +205,7 @@ int getTauIDIdx (TH1F* h_tauID, string tauIDName)
 }
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
 bool CheckBit (int number, int bitpos)
 {
     bool res = number & (1 << bitpos);
@@ -416,7 +352,6 @@ float getTriggerWeight(int partType, float pt, float eta, TH1F* rewHisto = 0, Sc
     return weight;
 }
 
-
 // generic function to read content of 1D / 2D histos, taking care of x axis limit (no under/over flow)
 double getContentHisto1D(TH1* histo, double x)
 {
@@ -443,7 +378,6 @@ double getContentHisto2D(TH2* histo, double x, double y)
   return histo->GetBinContent(ibinx, ibiny);
 }
 
-
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
@@ -454,13 +388,13 @@ int main (int argc, char** argv)
     // read input file and cfg
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  if (argc < 16)
+  if (argc < 22)
   { 
       cerr << "missing input parameters : argc is: " << argc << endl ;
       cerr << "usage: " << argv[0]
            << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
            << " xsecScale(stitch) HTMax(stitch) isTTBar DY_Nbs HHreweightFile TT_stitchType"
-           << " runMT2 isHHsignal NjetRequired(stitch)" << endl ; 
+           << " runMT2 isHHsignal NjetRequired(stitch) kl_rew kt_rew c2_rew cg_rew c2g_rew susyModel" << endl ; 
       return 1;
   }
 
@@ -537,6 +471,36 @@ int main (int argc, char** argv)
 
   int NjetRequired = atoi(argv[15]);
   cout << "** INFO: requiring exactly " << NjetRequired << " outgoing partons [<0 for no cut on this]" << endl;
+
+  float kl_rew = atof(argv[16]);
+  float kt_rew = atof(argv[17]);
+  float c2_rew = atof(argv[18]);
+  float cg_rew = atof(argv[19]);
+  float c2g_rew = atof(argv[20]);
+  cout << "** INFO: kl, kt reweight " << kl_rew << " " << kt_rew << " [kt < -990 || kl < -990 : no HH reweight]" << endl;
+  cout << "**       c2, cg, c2g reweight " << c2_rew << " " << cg_rew << " " << c2g_rew << " [if any is < -990: will do only a klambda / kt reweight if requested]" << endl;
+
+  string susyModel = argv[21];
+  cout << "** INFO: requesting SUSY model to be: -" << susyModel << "- [NOTSUSY: no request on this parameter]" << endl;
+
+  // ------------------  decide what to do for the reweight of HH samples
+  enum HHrewTypeList {
+    kNone      = 0,
+    kFromHisto = 1,
+    kDynamic   = 2
+  };
+  int HHrewType = kNone; // default is no reweight
+  if (HHreweightFile && kl_rew >= -990 && kt_rew >= -990) {
+    cout << "** WARNING: you required both histo based and dynamic reweight, cannot do both at the same time. Will set histo" << endl;
+    HHrewType = kFromHisto;
+  }
+  else if (HHreweightFile)
+    HHrewType = kFromHisto;
+  else if (kl_rew >= -990 && kt_rew >= -990)
+    HHrewType = kDynamic;
+  cout << "** INFO: HH reweight type is " << HHrewType << " [ 0: no reweight, 1: from histo, 2: dynamic ]" << endl;
+
+
 
   // prepare variables needed throughout the code
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----    
@@ -646,9 +610,6 @@ int main (int argc, char** argv)
   int totalNoWeightsEventsNum = 0 ;
   int selectedNoWeightsEventsNum = 0 ;
 
-  //stage2
-  float bjetsBoosted = 0.;
-float tausBoosted = 0.;
   // ------------------------------
 
   TH1F* hTriggers = getFirstFileHisto (inputFile);
@@ -722,7 +683,6 @@ float tausBoosted = 0.;
   TH2F* hMuPOGSF_trig_p4  = (TH2F*) fMuPOGSF_trig_p4 -> Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/pt_abseta_ratio"); // pt: x, eta: y
 
   // // for loose ID:
-
   // MC_NUM_LooseID_DEN_genTracks_PAR_pt_spliteta_bin1
   // MC_NUM_LooseRelIso_DEN_TightID_PAR_pt_spliteta_bin1
 
@@ -737,7 +697,8 @@ float tausBoosted = 0.;
   
   TH1F* hreweightHH   = 0;
   TH2F* hreweightHH2D = 0;
-  if (HHreweightFile)
+  // if (HHreweightFile)
+  if (HHrewType == kFromHisto)
   {
     cout << "** INFO: doing reweight for HH samples" << endl;
     if (HHreweightFile->GetListOfKeys()->Contains("hratio") )
@@ -756,6 +717,26 @@ float tausBoosted = 0.;
       return 1;
     }
   }
+
+  // ------------------------------
+  // reweight file in case of "dynamic" reweight
+  // there is a unique input map, read it from the cfg file
+  // HHReweight* hhreweighter = nullptr;
+  HHReweight5D* hhreweighter = nullptr;
+  TH2* hhreweighterInputMap = nullptr;
+  if (HHrewType == kDynamic)
+  {
+    string inMapFile   = gConfigParser->readStringOption("HHReweight::inputFile");
+    string inHistoName = gConfigParser->readStringOption("HHReweight::histoName");
+    string coeffFile    = gConfigParser->readStringOption("HHReweight::coeffFile");
+    cout << "** INFO: reading histo named: " << inHistoName << " from file: " << inMapFile << endl;
+    cout << "** INFO: HH reweight coefficient file is: " << coeffFile << endl;
+    TFile* fHHDynamicRew = new TFile(inMapFile.c_str());
+    hhreweighterInputMap = (TH2*) fHHDynamicRew->Get(inHistoName.c_str());
+    // hhreweighter = new HHReweight(coeffFile, hhreweighterInputMap);
+    hhreweighter = new HHReweight5D(coeffFile, hhreweighterInputMap);
+  }
+
 
   // ------------------------------
   // indexes of tau ID bits
@@ -850,22 +831,21 @@ float tausBoosted = 0.;
   {
     if (iEvent % 10000 == 0)  cout << "- reading event " << iEvent << endl ;
     // cout << "- reading event " << iEvent << endl ;
-       theSmallTree.clearVars () ;
+    theSmallTree.clearVars () ;
     int got = theBigTree.fChain->GetEntry(iEvent);
     if (got == 0) break;
-       // if (theBigTree.EventNumber != debugEvent) continue;
+
+    // if (theBigTree.EventNumber != debugEvent) continue;
     if (theBigTree.EventNumber == debugEvent)
     {
       cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
     }
-
 
     // remove a lumisection that was present in 16 Giu JSON and removed in 22 and subsequent JSON
     // 25 Nov 2016 : edit : removed line because of new reprocessing and json
     // if (!isMC && theBigTree.RunNumber == 274094 && theBigTree.lumi >= 105 && theBigTree.lumi <= 107) continue;
 
     // directly reject events outside HT range in case of stitching of inclusive sample-- they should not count in weights
-
     if (HTMax > 0)
     {
        if (theBigTree.lheHt > HTMax) continue;
@@ -875,6 +855,12 @@ float tausBoosted = 0.;
     if (NjetRequired >= 0)
     {
        if (theBigTree.lheNOutPartons != NjetRequired) continue;
+    }
+
+    // skip event if I want a specific SUSY point from the fastsim
+    if (susyModel != string("NOTSUSY"))
+    {
+      if (string(theBigTree.susyModel.Data()) != susyModel) continue;  
     }
 
     float stitchWeight = 1.0;
@@ -890,7 +876,7 @@ float tausBoosted = 0.;
 
       stitchWeight = stitchWeights[njets][nb];
     }
-        if (theBigTree.EventNumber == debugEvent && isMC)
+    if (theBigTree.EventNumber == debugEvent && isMC)
     {
       cout << "** DEBUG : gen particle list" << endl;
       for (unsigned int igen = 0; igen < theBigTree.genpart_pdg->size(); igen++)
@@ -908,7 +894,8 @@ float tausBoosted = 0.;
         }
       }
     }
-        // gen info -- fetch tt pair and compute top PT reweight
+
+    // gen info -- fetch tt pair and compute top PT reweight
     float topPtReweight = 1.0; // 1 for all the other samples      
     theSmallTree.m_TTtopPtreweight =  1.0 ;
     theSmallTree.m_TTtopPtreweight_up =  1.0 ;
@@ -921,12 +908,14 @@ float tausBoosted = 0.;
       int decayTop2 = -999;
       int pdgIdTop1 = -999;
       int pdgIdTop2 = -999;
+
       for (unsigned int igen = 0; igen < theBigTree.genpart_pdg->size(); igen++)
       {
         int pdg = theBigTree.genpart_pdg->at(igen);
         int genflags = theBigTree.genpart_flags->at(igen);
         bool isFirst = CheckBit (genflags, 12);  //if (fl.isFirstCopy()) flags |= (1 << 12);
         //int topDM = theBigTree.genpart_TopDecayMode->at(igen);
+
         if (abs(pdg) == 6 && isFirst) // top -- pt reweight wants to have ME tops
         {
           TLorentzVector TopV;
@@ -960,6 +949,7 @@ float tausBoosted = 0.;
           bool isT1Lept = (decayTop1 >= 1 && decayTop1 <= 5) ;
           bool isT2Lept = (decayTop2 >= 1 && decayTop2 <= 5) ;
           if (pdgIdTop1 / pdgIdTop2 > 0) cout << "** WARNING: I found two tops with the same sign " << pdgIdTop1 << " " << pdgIdTop2 << endl;
+          
           // cout << "DEBUG: event with " << pdgIdTop1 << "-->  " << decayTop1 << " | " << pdgIdTop2 << "--> " << decayTop2 << " SKIMTYPE=" << TT_stitchType << endl;
           switch (TT_stitchType)
           {
@@ -1003,6 +993,7 @@ float tausBoosted = 0.;
             default:
               cout << "** WARNING: unknown TT stytch type " << TT_stitchType << endl;
           }
+
           // cout << "WAS ACCEPTED" << endl;
 
           if (theBigTree.EventNumber == debugEvent)
@@ -1015,13 +1006,22 @@ float tausBoosted = 0.;
           float SFTop1 = TMath::Exp(aTopRW+bTopRW*ptTop1);
           float SFTop2 = TMath::Exp(aTopRW+bTopRW*ptTop2);
           topPtReweight = TMath::Sqrt (SFTop1*SFTop2);
-          theSmallTree.m_TTtopPtreweight      = topPtReweight ;
-          theSmallTree.m_TTtopPtreweight_up   = topPtReweight*topPtReweight ;
-          theSmallTree.m_TTtopPtreweight_down = 1.0 ;
+          
+          // old recipe
+          // theSmallTree.m_TTtopPtreweight      = topPtReweight ;
+          // theSmallTree.m_TTtopPtreweight_up   = topPtReweight*topPtReweight ;
+          // theSmallTree.m_TTtopPtreweight_down = 1.0 ;
+
+          // new recipe
+          theSmallTree.m_TTtopPtreweight      = 1.0; // nominal has no weight
+          theSmallTree.m_TTtopPtreweight_up   = topPtReweight; // pt rew to be used as a syst
+          theSmallTree.m_TTtopPtreweight_down = 1.0 ; // and down unused
+
           theSmallTree.m_genDecMode1 = decayTop1;
           theSmallTree.m_genDecMode2 = decayTop2;
       }
     }
+
     // For Drell-Yan only: loop on genjets and count how many are there with 0,1,2 b
     // 0: 0bjet, 1: 1 b jet, 2: >= 2 b jet
     theSmallTree.m_DYscale_LL = 1.0; // all the other MC samples + data have no weight
@@ -1051,36 +1051,38 @@ float tausBoosted = 0.;
       }
       if (nbs > 2) nbs = 2;
       theSmallTree.m_nBhadrons = nbs;
+
       theSmallTree.m_DYscale_LL = DYscale_LL[nbs];
       theSmallTree.m_DYscale_MM = DYscale_MM[nbs];
 
       // loop through gen parts ot identify Z boson 
       int idx1 = -1;
       for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
-	{
+      {
           if (theBigTree.genpart_pdg->at(igen) == 23) // Z0
-	    {
-	      // bool isFirst = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
-	      if (idx1 >= 0)
-		{
-		  cout << "** ERROR: more than 1 Z identified " << endl;
-		  // continue; // no need to skip the event for errors in gen info
-		}
-	      idx1 = igen;
-	    }
-	}
+          {
+              // bool isFirst = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
+              if (idx1 >= 0)
+              {
+                cout << "** ERROR: more than 1 Z identified " << endl;
+                // continue; // no need to skip the event for errors in gen info
+              }
+              idx1 = igen;
+          }
+      }
+
       if (idx1 >= 0)
-	{
-	  // cout << "** GOOD: could find 1 Z" << endl;
-	  // store gen decay mode of the Z identified
-	  theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1);
-	}
+      {
+        // cout << "** GOOD: could find 1 Z" << endl;
+        // store gen decay mode of the Z identified
+        theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1);
+      }
       // else // probably these are events mediated by a photon where I do not have Z info
       // {
       //   cout << "** ERROR: couldn't find 1 Z" << endl;
       // }
     }
-    
+
     // HH reweight for non resonant
     float HHweight = 1.0;
     TLorentzVector vHardScatter1;
@@ -1091,165 +1093,173 @@ float tausBoosted = 0.;
     int pdg2hs = -999;    
     int t1hs = -1;
     int t2hs = -1;
-    if (hreweightHH || hreweightHH2D || isHHsignal) // isHHsignal: only to do loop on genparts, but no rew
+
+    // if (hreweightHH || hreweightHH2D || isHHsignal) // isHHsignal: only to do loop on genparts, but no rew
+    if (isHHsignal || HHrewType == kFromHisto || HHrewType == kDynamic) // isHHsignal: only to do loop on genparts, but no rew
+    {
+      // cout << "DEBUG: reweight!!!" << endl;
+      TLorentzVector vH1, vH2, vBoost, vSum;
+      float mHH = -1;
+      float ct1 = -999;
+      // loop on gen to find Higgs
+      int idx1 = -1;
+      int idx2 = -1;
+      int idx1last = -1;
+      int idx2last = -1;
+      // cout << " ------------------------ " << endl;
+      for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
       {
-	// cout << "DEBUG: reweight!!!" << endl;
-	TLorentzVector vH1, vH2, vBoost, vSum;
-	float mHH = -1;
-	float ct1 = -999;
-	// loop on gen to find Higgs
-	int idx1 = -1;
-	int idx2 = -1;
-	int idx1last = -1;
-	int idx2last = -1;
-	// cout << " ------------------------ " << endl;
-	for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
-	  {
-	    bool isFirst     = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
-	    bool isLast      = CheckBit (theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
-	    bool isHardScatt = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; //   5 = isPromptTauDecayProduct
-	    // bool isDirectPromptTauDecayProduct = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; // 5 = isDirectPromptTauDecayProduct
-	    
-	    int pdg = theBigTree.genpart_pdg->at(igen);
-	    int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
-	    bool mothIsHardScatt = false;
-	    if (mothIdx > -1)
-	      {
-		bool mothIsLast =  CheckBit(theBigTree.genpart_flags->at(mothIdx), 13);
-		// NB: I need t ask that the mother is last idx, otherwise I get a nonphysics "tauh" by the tauh builder function from the tau->tau "decay" in pythia
-		mothIsHardScatt = (mothIsLast && CheckBit (theBigTree.genpart_flags->at(mothIdx), 8)); // 0 = isPrompt(), 7: hardProcess , 8: fromHardProcess
-	      }
+        bool isFirst     = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
+        bool isLast      = CheckBit (theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
+        bool isHardScatt = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; //   3 = isPromptTauDecayProduct
+        // bool isDirectPromptTauDecayProduct = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; // 5 = isDirectPromptTauDecayProduct
+        int pdg = theBigTree.genpart_pdg->at(igen);
+        int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
+        
+        bool mothIsHardScatt = false;
+        if (mothIdx > -1)
+        {
+          bool mothIsLast =  CheckBit(theBigTree.genpart_flags->at(mothIdx), 13);
+          // NB: I need t ask that the mother is last idx, otherwise I get a nonphysics "tauh" by the tauh builder function from the tau->tau "decay" in pythia
+          mothIsHardScatt = (mothIsLast && CheckBit (theBigTree.genpart_flags->at(mothIdx), 8)); // 0 = isPrompt(), 7: hardProcess , 8: fromHardProcess
+        }
+
+        // if (abs(pdg) == 11 || abs(pdg) == 13 || abs(pdg) == 15 || abs(pdg) == 66615)
+        // {
+        //   bitset<32> bs (theBigTree.genpart_flags->at(igen)) ; 
+        //   cout << "/// igen = " << igen << " pdgId " << pdg << " flag=" << bs << " mothidx=" <<  theBigTree.genpart_TauMothInd->at(igen) << " px=" << theBigTree.genpart_px->at(igen) << endl;
+        //   // cout << "/// igen = " << igen << " pdgId " << pdg << " isFirst=" << isFirst << " isLast=" << isLast << " isHardScatt=" << isHardScatt << " mothIsHardScatt=" << mothIsHardScatt << " isDirectPromptTauDecayProduct=" << isDirectPromptTauDecayProduct << " mothIdx=" << theBigTree.genpart_TauMothInd->at(igen) << endl;
+        // }
 
 
-	    // if (abs(pdg) == 11 || abs(pdg) == 13 || abs(pdg) == 15 || abs(pdg) == 66615)
-	    // {
-	    //   bitset<32> bs (theBigTree.genpart_flags->at(igen)) ; 
-	    //   cout << "/// igen = " << igen << " pdgId " << pdg << " flag=" << bs << " mothidx=" <<  theBigTree.genpart_TauMothInd->at(igen) << " px=" << theBigTree.genpart_px->at(igen) << endl;
-	    //   // cout << "/// igen = " << igen << " pdgId " << pdg << " isFirst=" << isFirst << " isLast=" << isLast << " isHardScatt=" << isHardScatt << " mothIsHardScatt=" << mothIsHardScatt << " isDirectPromptTauDecayProduct=" << isDirectPromptTauDecayProduct << " mothIdx=" << theBigTree.genpart_TauMothInd->at(igen) << endl;
-	    // }
-	    
-	    if (abs(pdg) == 25)
-	      {
-		// cout << igen << " H boson: Px " << theBigTree.genpart_px->at(igen) << " first? " << isFirst << " decMode : " << theBigTree.genpart_HZDecayMode->at(igen) << endl;
-		if (isFirst)
-		  {
-		    if (idx1 >= 0 && idx2 >= 0)
-		      {
-			cout << "** ERROR: more than 2 H identified (first)" << endl;
-			continue;
-		      }
-		    (idx1 == -1) ? (idx1 = igen) : (idx2 = igen) ;
-		  }
-		if (isLast)
-		  {
-		    if (idx1last >= 0 && idx2last >= 0)
-		      {
-			cout << "** ERROR: more than 2 H identified (last)" << endl;
-			// continue; // no need to skip the event in this case -- dec mode just for studies
-		      }
-		    (idx1last == -1) ? (idx1last = igen) : (idx2last = igen) ;
-		  }
-	      }
-	    
-	    if ( (abs(pdg) == 11 || abs(pdg) == 13 ) && isHardScatt && isLast && mothIsHardScatt)
-	      {
-		if (idx1hs == -1) idx1hs = igen;
-		else if (idx2hs == -1) idx2hs = igen;
-		else
-		  {
-		    cout << "** ERROR: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
-		    // cout << "idx1: " << idx1hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx1hs) << " px = " << theBigTree.genpart_px->at(idx1hs) << endl;
-		    // cout << "idx2: " << idx2hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx2hs) << " px = " << theBigTree.genpart_px->at(idx2hs) << endl;
-		    // cout << "THIS: " << pdg << " px=" << theBigTree.genpart_px->at(igen) << endl;
-		  }
-	      }
-	    
-	    if ( abs(pdg) == 66615 && mothIsHardScatt)
-	      {
-		// cout << "  <<< preso" << endl;
-		if (idx1hs == -1) idx1hs = igen;
-		else if (idx2hs == -1) idx2hs = igen;
-		else
-		  {
-		    cout << "** ERROR: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
-		    // cout << "idx1: " << idx1hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx1hs) << " px = " << theBigTree.genpart_px->at(idx1hs) << endl;
-		    // cout << "idx2: " << idx2hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx2hs) << " px = " << theBigTree.genpart_px->at(idx2hs) << endl;
-		    // cout << "THIS: " << pdg << " px=" << theBigTree.genpart_px->at(igen) << endl;
-		  }
-	      }
-	  }
-	if (idx1 == -1 || idx2 == -1)
-	  {
-	    cout << "** ERROR: couldn't find 2 H (first)" << endl;
-	    continue;
-	  }
-	
-	if (idx1last != -1 && idx2last != -1) // this is not critical if not found
-	  {
-	    // store gen decay mode of the two H identified
-	    theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1last);
-	    theSmallTree.m_genDecMode2 = theBigTree.genpart_HZDecayMode->at(idx2last);
-	    
-	    // cout << "THIS H decay mode: " << theSmallTree.m_genDecMode1 << " " << theSmallTree.m_genDecMode2 << endl;
-	    
-	    // // get tau decaying one
-	    // int idxTauDecayed = (theBigTree.genpart_HZDecayMode->at(idx1last) != 8 ? idx1last : idx2last);
-	    
-	    // // find hard scatter daughters and check if they match this decay type
-	    // pair<int, int> hsProds = oph.getHardScatterSons()
-	    // int hsIdx1 = hsProds.first;
-	    // int hsIdx2 = hsProds.second;
-	  }
-	else
-	  cout << "** ERROR: couldn't find 2 H (last)" << endl;
-	
-	if (idx1hs != -1 && idx2hs != -1)
-	  {
-	    pdg1hs = theBigTree.genpart_pdg->at(idx1hs);
-	    pdg2hs = theBigTree.genpart_pdg->at(idx2hs);
-	    
-	    if      (abs(pdg1hs) == 11) t1hs = 1;
-	    else if (abs(pdg1hs) == 13) t1hs = 0;
-	    else                        t1hs = 2;
-	    
-	    if      (abs(pdg2hs) == 11) t2hs = 1;
-	    else if (abs(pdg2hs) == 13) t2hs = 0;
-	    else                        t2hs = 2;
-	    
-	    if (oph.getPairType(t1hs, t2hs) != (theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8))
-	      {
-		cout << "** ERROR: decay modes do not match! " << theBigTree.genpart_pdg->at(idx1hs) << " " << theBigTree.genpart_pdg->at(idx2hs) << " != "
-		     << ( theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8) << endl;
-	      }
-	    vHardScatter1.SetPxPyPzE (theBigTree.genpart_px->at(idx1hs), theBigTree.genpart_py->at(idx1hs), theBigTree.genpart_pz->at(idx1hs), theBigTree.genpart_e->at(idx1hs));
-	    vHardScatter2.SetPxPyPzE (theBigTree.genpart_px->at(idx2hs), theBigTree.genpart_py->at(idx2hs), theBigTree.genpart_pz->at(idx2hs), theBigTree.genpart_e->at(idx2hs));
-	  }
-	else
-	  cout << "** ERROR: couldn't find 2 H->tautau gen dec prod " << idx1hs << " " << idx2hs << endl;
-	
-	
-	vH1.SetPxPyPzE (theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1) );
-	vH2.SetPxPyPzE (theBigTree.genpart_px->at(idx2), theBigTree.genpart_py->at(idx2), theBigTree.genpart_pz->at(idx2), theBigTree.genpart_e->at(idx2) );
-	vSum = vH1+vH2;
-	mHH = vSum.M();
-	vH1.Boost(-vSum.BoostVector());                     
-	ct1 = vH1.CosTheta();
-
-	if (hreweightHH) // 1D
-	  {
-	    int ibin = hreweightHH->FindBin(mHH);
-	    HHweight = hreweightHH->GetBinContent(ibin);
-	  }
-	else if (hreweightHH2D) // 2D
-	  {
-	    int ibin = hreweightHH2D->FindBin(mHH, ct1);
-	    HHweight = hreweightHH2D->GetBinContent(ibin);        
-	  }
-	
-	// cout << " ........... GEN FINISHED ........... " << " evt=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << endl;
-	
+        if (abs(pdg) == 25)
+        {
+          // cout << igen << " H boson: Px " << theBigTree.genpart_px->at(igen) << " first? " << isFirst << " decMode : " << theBigTree.genpart_HZDecayMode->at(igen) << endl;
+          if (isFirst)
+          {
+              if (idx1 >= 0 && idx2 >= 0)
+              {
+                  cout << "** ERROR: more than 2 H identified (first)" << endl;
+                  continue;
+              }
+              (idx1 == -1) ? (idx1 = igen) : (idx2 = igen) ;
+          }
+          if (isLast)
+          {
+              if (idx1last >= 0 && idx2last >= 0)
+              {
+                  cout << "** ERROR: more than 2 H identified (last)" << endl;
+                  // continue; // no need to skip the event in this case -- dec mode just for studies
+              }
+              (idx1last == -1) ? (idx1last = igen) : (idx2last = igen) ;
+          }
+        }
+        
+        if ( (abs(pdg) == 11 || abs(pdg) == 13 ) && isHardScatt && isLast && mothIsHardScatt)
+        {
+          if (idx1hs == -1) idx1hs = igen;
+          else if (idx2hs == -1) idx2hs = igen;
+          else
+          {
+            cout << "** ERROR: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
+            // cout << "idx1: " << idx1hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx1hs) << " px = " << theBigTree.genpart_px->at(idx1hs) << endl;
+            // cout << "idx2: " << idx2hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx2hs) << " px = " << theBigTree.genpart_px->at(idx2hs) << endl;
+            // cout << "THIS: " << pdg << " px=" << theBigTree.genpart_px->at(igen) << endl;
+          }
+        }
+        
+        if ( abs(pdg) == 66615 && mothIsHardScatt)
+        {
+          // cout << "  <<< preso" << endl;
+          if (idx1hs == -1) idx1hs = igen;
+          else if (idx2hs == -1) idx2hs = igen;
+          else
+          {
+            cout << "** ERROR: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
+            // cout << "idx1: " << idx1hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx1hs) << " px = " << theBigTree.genpart_px->at(idx1hs) << endl;
+            // cout << "idx2: " << idx2hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx2hs) << " px = " << theBigTree.genpart_px->at(idx2hs) << endl;
+            // cout << "THIS: " << pdg << " px=" << theBigTree.genpart_px->at(igen) << endl;
+          }
+        }
       }
 
+      if (idx1 == -1 || idx2 == -1)
+      {
+          cout << "** ERROR: couldn't find 2 H (first)" << endl;
+          continue;
+      }
+
+      if (idx1last != -1 && idx2last != -1) // this is not critical if not found
+      {
+        // store gen decay mode of the two H identified
+        theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1last);
+        theSmallTree.m_genDecMode2 = theBigTree.genpart_HZDecayMode->at(idx2last);
+        
+        // cout << "THIS H decay mode: " << theSmallTree.m_genDecMode1 << " " << theSmallTree.m_genDecMode2 << endl;
+
+        // // get tau decaying one
+        // int idxTauDecayed = (theBigTree.genpart_HZDecayMode->at(idx1last) != 8 ? idx1last : idx2last);
+
+        // // find hard scatter daughters and check if they match this decay type
+        // pair<int, int> hsProds = oph.getHardScatterSons()
+        // int hsIdx1 = hsProds.first;
+        // int hsIdx2 = hsProds.second;
+      }
+      else
+          cout << "** ERROR: couldn't find 2 H (last)" << endl;
+
+      if (idx1hs != -1 && idx2hs != -1)
+      {
+        pdg1hs = theBigTree.genpart_pdg->at(idx1hs);
+        pdg2hs = theBigTree.genpart_pdg->at(idx2hs);
+
+        if      (abs(pdg1hs) == 11) t1hs = 1;
+        else if (abs(pdg1hs) == 13) t1hs = 0;
+        else                        t1hs = 2;
+
+        if      (abs(pdg2hs) == 11) t2hs = 1;
+        else if (abs(pdg2hs) == 13) t2hs = 0;
+        else                        t2hs = 2;
+
+        if (oph.getPairType(t1hs, t2hs) != (theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8))
+        {
+          cout << "** ERROR: decay modes do not match! " << theBigTree.genpart_pdg->at(idx1hs) << " " << theBigTree.genpart_pdg->at(idx2hs) << " != "
+               << ( theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8) << endl;
+        }
+        vHardScatter1.SetPxPyPzE (theBigTree.genpart_px->at(idx1hs), theBigTree.genpart_py->at(idx1hs), theBigTree.genpart_pz->at(idx1hs), theBigTree.genpart_e->at(idx1hs));
+        vHardScatter2.SetPxPyPzE (theBigTree.genpart_px->at(idx2hs), theBigTree.genpart_py->at(idx2hs), theBigTree.genpart_pz->at(idx2hs), theBigTree.genpart_e->at(idx2hs));
+      }
+      else
+        cout << "** ERROR: couldn't find 2 H->tautau gen dec prod " << idx1hs << " " << idx2hs << endl;
+
+
+      vH1.SetPxPyPzE (theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1) );
+      vH2.SetPxPyPzE (theBigTree.genpart_px->at(idx2), theBigTree.genpart_py->at(idx2), theBigTree.genpart_pz->at(idx2), theBigTree.genpart_e->at(idx2) );
+      vSum = vH1+vH2;
+      mHH = vSum.M();
+      vH1.Boost(-vSum.BoostVector());                     
+      ct1 = vH1.CosTheta();
+
+      // assign a weight depending on the reweight type 
+
+      if (hreweightHH && HHrewType == kFromHisto) // 1D
+      {
+        int ibin = hreweightHH->FindBin(mHH);
+        HHweight = hreweightHH->GetBinContent(ibin);
+      }
+      else if (hreweightHH2D && HHrewType == kFromHisto) // 2D
+      {
+        int ibin = hreweightHH2D->FindBin(mHH, ct1);
+        HHweight = hreweightHH2D->GetBinContent(ibin);        
+      }
+      else if (HHrewType == kDynamic)
+      {
+        // HHweight = hhreweighter->getWeight(kl_rew, kt_rew, mHH, ct1);
+        if (c2_rew < -990 || cg_rew < -990 || c2g_rew < -990) // no valid BSM coefficients -- just kl/kt reweight (for backwards compatibility)
+          HHweight = hhreweighter->getWeight(kl_rew, kt_rew, mHH, ct1);
+        else // full 5D reweight
+          HHweight = hhreweighter->getWeight(kl_rew, kt_rew, c2_rew, cg_rew, c2g_rew, mHH, ct1);
+      }
 
       theSmallTree.m_genMHH = mHH;
       theSmallTree.m_genCosth = ct1;
@@ -1258,26 +1268,27 @@ float tausBoosted = 0.;
 
     }
 
-
     ///////////////////////////////////////////////////////////
     // END of gen related stuff -- compute tot number of events
+
     int genHHDecMode = (isHHsignal ? theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8 : 0);
     if (genHHDecMode < 0)
-      {
-	genHHDecMode = 0; // dummy protection if couldn't find initial H
-	cout << "** ERROR: negative dec mode, for safety set it ot 0" << endl;
-      }
+    {
+      genHHDecMode = 0; // dummy protection if couldn't find initial H
+      cout << "** ERROR: negative dec mode, for safety set it ot 0" << endl;
+    }
     double EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight) : 1.0;
     if (isMC)
-      {
-	totalEvents += EvtW;
-      }
+    {
+      totalEvents += EvtW;
+    }
     else
-      {
-	totalEvents += 1 ;
-      }
+    {
+      totalEvents += 1 ;
+    }
     ec.Increment ("all", EvtW);
     if (isHHsignal) ecHHsig[genHHDecMode].Increment ("all", EvtW);
+
     ++totalNoWeightsEventsNum ;
     
     // ----------------------------------------------------------
@@ -1291,10 +1302,10 @@ float tausBoosted = 0.;
     // if(metpass > 0) continue ; // FIXME!!! disabled only temporarily
     ec.Increment ("METfilter", EvtW);
     if (isHHsignal) ecHHsig[genHHDecMode].Increment ("METfilter", EvtW);
-   
+
     // ----------------------------------------------------------
     // require that the event is not affected by the Bad/Clone Muon problem -- for 2016 data
-    // if (theBigTree.NBadMu > 0) continue ; // FIXME!! To uncomment as soon as data reprocessing is finished
+    if (theBigTree.NBadMu > 0) continue ;
     ec.Increment ("NoBadMuons", EvtW);
     if (isHHsignal) ecHHsig[genHHDecMode].Increment ("NoBadMuons", EvtW);
 
@@ -1304,7 +1315,7 @@ float tausBoosted = 0.;
     if (theBigTree.indexDau1->size () == 0) continue ;
     ec.Increment ("PairExists", EvtW);
     if (isHHsignal) ecHHsig[genHHDecMode].Increment ("PairExists", EvtW);
-   
+
     // ----------------------------------------------------------
     // assess the pair type 
     // loop over the daughters to select pair type: mu > e > tau
@@ -1313,81 +1324,86 @@ float tausBoosted = 0.;
     int nmu = 0;
     int nmu10 = 0; // low pt muons for DY sideband, not entering in nmu
     int nele = 0;
+    int nele10 = 0;
     // int ntau = 0;
-    if (theBigTree.EventNumber == debugEvent)
-      {
-	cout << "***** DEBUG: reco particles (remember: check if baseline sels are aligned to OfflineProducerHelper)" << endl;
-      }
     
+    if (theBigTree.EventNumber == debugEvent)
+    {
+      cout << "***** DEBUG: reco particles (remember: check if baseline sels are aligned to OfflineProducerHelper)" << endl;
+    }
+
     for (unsigned int idau = 0; idau < theBigTree.daughters_px->size(); ++idau)
-      {
+    {
         int dauType = theBigTree.particleType->at(idau);
         if (oph.isMuon(dauType))
-	  {
+        {
             bool passMu = oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ;
             bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.15, OfflineProducerHelper::MuTight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ;
             if (passMu) ++nmu;
             else if (passMu10) ++nmu10;
-	  }
+        }
         else if (oph.isElectron(dauType))
         {
-	  if (oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false))) ++nele;
+            bool passEle   = oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ;
+            bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.1, OfflineProducerHelper::EMVATight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ;
+            if (passEle) ++nele;
+            else if (passEle10) ++nele10;
         }
-         if (theBigTree.EventNumber == debugEvent)
-	  {
-	    TLorentzVector dauTlvDebug (
+
+        if (theBigTree.EventNumber == debugEvent)
+        {
+          TLorentzVector dauTlvDebug (
             theBigTree.daughters_px->at (idau),
             theBigTree.daughters_py->at (idau),
             theBigTree.daughters_pz->at (idau),
             theBigTree.daughters_e->at (idau)
           );
-	    
-	    // NB: remember to align this debug to the content of OfflineProducerHelper
-	    cout << ".... reco part "
-		 << " idx dau="   << setw(3) << left << idau
-		 << " type="      << setw(3) << left << dauType
-		 << " pt="        << setw(10) << left << dauTlvDebug.Pt()
-	      // << " px="        << setw(10) << left << theBigTree.daughters_px->at (idau)
-	      // << " py="        << setw(10) << left << theBigTree.daughters_py->at (idau)
-		 << " eta="       << setw(10) << left << dauTlvDebug.Eta()
-		 << " phi="       << setw(10) << left << dauTlvDebug.Phi()
-		 << " iso="       << setw(10) << left << getIso (idau, dauTlvDebug.Pt (), theBigTree)
-		 << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
-		 << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
-		 << " mutightID=" << setw(3) << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
-		 << " mubase="    << setw(3) << left << oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All"))  
-		 << " ebase="     << setw(3) << left << oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All")) 
-	      // << " passaele="  << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstEle")) 
-	      // << " passamu="   << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstMu")) 
-		 << endl;
-	  }
-      }
+
+          // NB: remember to align this debug to the content of OfflineProducerHelper
+          cout << ".... reco part "
+            << " idx dau="   << setw(3) << left << idau
+            << " type="      << setw(3) << left << dauType
+            << " pt="        << setw(10) << left << dauTlvDebug.Pt()
+            // << " px="        << setw(10) << left << theBigTree.daughters_px->at (idau)
+            // << " py="        << setw(10) << left << theBigTree.daughters_py->at (idau)
+            << " eta="       << setw(10) << left << dauTlvDebug.Eta()
+            << " phi="       << setw(10) << left << dauTlvDebug.Phi()
+            << " iso="       << setw(10) << left << getIso (idau, dauTlvDebug.Pt (), theBigTree)
+            << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
+            << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
+            << " mutightID=" << setw(3) << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
+            << " mubase="    << setw(3) << left << oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All"))  
+            << " ebase="     << setw(3) << left << oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All")) 
+            // << " passaele="  << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstEle")) 
+            // << " passamu="   << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstMu")) 
+            << endl;
+        }
+
+    }
     int pairType = 2; // tau tau
     if (nmu > 0)
-      {
-	if (nmu == 1 && nmu10 == 0)
-	  pairType = 0 ; // mu tau
-	else
-	  pairType = 3 ; // mu mu
-      }
+    {
+      if (nmu == 1 && nmu10 == 0)
+        pairType = 0 ; // mu tau
+      else
+        pairType = 3 ; // mu mu
+    }
     else if (nele > 0)
-      {
-	if (nele == 1)
-	  pairType = 1 ; // ele tau
-	else
-	  pairType = 4 ; // ele ele
-      }
+    {
+      if (nele == 1 && nele10 == 0)
+        pairType = 1;
+      else
+        pairType = 4 ; // ele ele
+    }
     // ----------------------------------------------------------
     // choose the first pair passing baseline and being of the right pair type
-    
+
     int chosenTauPair = -1;
-    
+
     // vector <pair<float, int>> chosenTauPairsIso;   // sum pt , index
     // vector <pair<float, int>> chosenTauPairsRlxIso;
 
-
     if (pairType == 2 && sortStrategyThTh == kHTauTau)
-
     {
       chosenTauPair = oph.getBestPairHTauTau(&theBigTree, leptonSelectionFlag, (theBigTree.EventNumber == debugEvent ? true : false));
     }
@@ -1445,7 +1461,6 @@ float tausBoosted = 0.;
 
     if (theBigTree.EventNumber == debugEvent)
     {
-
       cout << "**** DEBUG : chosen pair : " << chosenTauPair << " str=" << leptonSelectionFlag << " pairType==" << pairType << endl;
       cout << "     ... going to list all pairs of same pairType as the one assessed with reco leptons" << endl;
       for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
@@ -1481,15 +1496,15 @@ float tausBoosted = 0.;
     if (chosenTauPair < 0) continue; // no pair found over baseline
     ec.Increment ("PairFoundBaseline", EvtW);
     if (isHHsignal)
-      {
-	ecHHsig[genHHDecMode].Increment ("PairFoundBaseline", EvtW);
-	if (pairType == genHHDecMode) 
-	  ecHHsig[genHHDecMode].Increment ("PairMatchesGen", EvtW);
-      }
+    {
+      ecHHsig[genHHDecMode].Increment ("PairFoundBaseline", EvtW);
+      if (pairType == genHHDecMode) 
+        ecHHsig[genHHDecMode].Increment ("PairMatchesGen", EvtW);
+    }
 
     // ----------------------------------------------------------
     // pair has been assessed , check trigger information
-    
+
     const int firstDaughterIndex  = theBigTree.indexDau1->at (chosenTauPair) ;  
     const int secondDaughterIndex = theBigTree.indexDau2->at (chosenTauPair) ;
     const int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
@@ -1513,61 +1528,59 @@ float tausBoosted = 0.;
     // int aidg2 = (genIdx2  > 0 ? abs(theBigTree.genpart_pdg->at(genIdx2)) : 0) ;
     // if (pType == 2 && ( lep1HasTES || lep2HasTES)) cout << "OoOooooooooooooooo ci sono dei real tau!!!! " << lep1HasTES << " " << lep2HasTES << " /// " << iEvent << endl;  
     // if (aidg1 == 15 || aidg2 == 15 || aidg1 == 66615 || aidg2 == 66615) cout << " BBBBBBBBBBBBB real tau!!! " << aidg1 << " " << aidg2 << " /// " << iEvent << endl;
-    
+
     const TLorentzVector tlv_firstLepton (
-					  theBigTree.daughters_px->at (firstDaughterIndex),
-					  theBigTree.daughters_py->at (firstDaughterIndex),
-					  theBigTree.daughters_pz->at (firstDaughterIndex),
-					  theBigTree.daughters_e->at (firstDaughterIndex)
-					  );
-    
+          theBigTree.daughters_px->at (firstDaughterIndex),
+          theBigTree.daughters_py->at (firstDaughterIndex),
+          theBigTree.daughters_pz->at (firstDaughterIndex),
+          theBigTree.daughters_e->at (firstDaughterIndex)
+    );
+
     const TLorentzVector tlv_secondLepton (
-					   theBigTree.daughters_px->at (secondDaughterIndex),
-					   theBigTree.daughters_py->at (secondDaughterIndex),
-					   theBigTree.daughters_pz->at (secondDaughterIndex),
-					   theBigTree.daughters_e->at (secondDaughterIndex)
-					   );
+          theBigTree.daughters_px->at (secondDaughterIndex),
+          theBigTree.daughters_py->at (secondDaughterIndex),
+          theBigTree.daughters_pz->at (secondDaughterIndex),
+          theBigTree.daughters_e->at (secondDaughterIndex)
+    );
 
     // scale up: only applies to tau
     TLorentzVector tlv_firstLepton_tauup (tlv_firstLepton);
     TLorentzVector tlv_firstLepton_taudown (tlv_firstLepton);
     if (lep1HasTES)
-      {
+    {
+      tlv_firstLepton_tauup.SetPxPyPzE (
+            theBigTree.daughters_px_TauUp->at (firstDaughterIndex),
+            theBigTree.daughters_py_TauUp->at (firstDaughterIndex),
+            theBigTree.daughters_pz_TauUp->at (firstDaughterIndex),
+            theBigTree.daughters_e_TauUp->at (firstDaughterIndex)
+      );
+      tlv_firstLepton_taudown.SetPxPyPzE (
+          theBigTree.daughters_px_TauDown->at (firstDaughterIndex),
+          theBigTree.daughters_py_TauDown->at (firstDaughterIndex),
+          theBigTree.daughters_pz_TauDown->at (firstDaughterIndex),
+          theBigTree.daughters_e_TauDown->at (firstDaughterIndex)
+      );
+    }
 
-	tlv_firstLepton_tauup.SetPxPyPzE (
-					  theBigTree.daughters_px_TauUp->at (firstDaughterIndex),
-					  theBigTree.daughters_py_TauUp->at (firstDaughterIndex),
-					  theBigTree.daughters_pz_TauUp->at (firstDaughterIndex),
-					  theBigTree.daughters_e_TauUp->at (firstDaughterIndex)
-					  );
-	tlv_firstLepton_taudown.SetPxPyPzE (
-					    theBigTree.daughters_px_TauDown->at (firstDaughterIndex),
-					    theBigTree.daughters_py_TauDown->at (firstDaughterIndex),
-					    theBigTree.daughters_pz_TauDown->at (firstDaughterIndex),
-					    theBigTree.daughters_e_TauDown->at (firstDaughterIndex)
-					    );
-      }
-    
     TLorentzVector tlv_secondLepton_tauup (tlv_secondLepton);
     TLorentzVector tlv_secondLepton_taudown (tlv_secondLepton);
     if (lep2HasTES)
-      {
-
-	tlv_secondLepton_tauup.SetPxPyPzE (
-					   theBigTree.daughters_px_TauUp->at (secondDaughterIndex),
-					   theBigTree.daughters_py_TauUp->at (secondDaughterIndex),
-					   theBigTree.daughters_pz_TauUp->at (secondDaughterIndex),
-					   theBigTree.daughters_e_TauUp->at (secondDaughterIndex)
-					   );
-      tlv_secondLepton_taudown.SetPxPyPzE (
-					   theBigTree.daughters_px_TauDown->at (secondDaughterIndex),
-					   theBigTree.daughters_py_TauDown->at (secondDaughterIndex),
-					   theBigTree.daughters_pz_TauDown->at (secondDaughterIndex),
-					   theBigTree.daughters_e_TauDown->at (secondDaughterIndex)
+    {
+      tlv_secondLepton_tauup.SetPxPyPzE (
+          theBigTree.daughters_px_TauUp->at (secondDaughterIndex),
+          theBigTree.daughters_py_TauUp->at (secondDaughterIndex),
+          theBigTree.daughters_pz_TauUp->at (secondDaughterIndex),
+          theBigTree.daughters_e_TauUp->at (secondDaughterIndex)
       );
-      }
-    
-    
+      tlv_secondLepton_taudown.SetPxPyPzE (
+          theBigTree.daughters_px_TauDown->at (secondDaughterIndex),
+          theBigTree.daughters_py_TauDown->at (secondDaughterIndex),
+          theBigTree.daughters_pz_TauDown->at (secondDaughterIndex),
+          theBigTree.daughters_e_TauDown->at (secondDaughterIndex)
+      );
+    }
+
+
     // the following code is the match of the tau to a L1 tau seed due to an error in seed removal from path
     // needed only when analyzing 2015 data
     // if (pairType == 2 && isMC)
@@ -1577,118 +1590,117 @@ float tausBoosted = 0.;
     //   bool goodL1 = (hasL1Match_1 && hasL1Match_2);
     //   if (!goodL1) continue;
     // }
-    
+
     // DATA strategy
     float trgEvtWeight     = 1.0;
     float trgEvtWeightUp   = 1.0;
     float trgEvtWeightDown = 1.0;
     
     if (applyTriggers)
+    {
+      Long64_t triggerbit = theBigTree.triggerbit;
+      bool passTrg = trigReader.checkOR (pairType, triggerbit) ;
+      Long64_t matchFlag1 = (Long64_t) theBigTree.daughters_trgMatched->at(firstDaughterIndex);
+      Long64_t matchFlag2 = (Long64_t) theBigTree.daughters_trgMatched->at(secondDaughterIndex);
+      bool passMatch1 = false;
+      bool passMatch2 = false;
+      Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
+      bool trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
+      // FIXME!! true only if single lep trigger for eTau and muTau
+      if (pairType == 0 || pairType == 1 || pairType == 3 || pairType == 4)
       {
-	Long64_t triggerbit = theBigTree.triggerbit;
-	bool passTrg = trigReader.checkOR (pairType, triggerbit) ;
-	Long64_t matchFlag1 = (Long64_t) theBigTree.daughters_trgMatched->at(firstDaughterIndex);
-	Long64_t matchFlag2 = (Long64_t) theBigTree.daughters_trgMatched->at(secondDaughterIndex);
-	bool passMatch1 = false;
-	bool passMatch2 = false;
-	Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
-	bool trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
-	// FIXME!! true only if single lep trigger for eTau and muTau
-	if (pairType == 0 || pairType == 1 || pairType == 3 || pairType == 4)
-	  {
-	    passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
-	    passMatch2 = true;
-	    trgNotOverlap = true; // FIXME: true only for single lepton triggers!
-	  }
-	else if (pairType == 2)
-	  {
-	    passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
-	    passMatch2 = trigReader.checkOR (pairType, matchFlag2) ;            
-	  }
-	
-	// require trigger + legs matched
-	bool triggerAccept = (passTrg && passMatch1 && passMatch2 && trgNotOverlap) ;
-	// triggerAccept = passTrg ; 
-	
-	if (theBigTree.EventNumber == debugEvent)
-	  {
-	    Long64_t matchFlag1LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(firstDaughterIndex);
-	    Long64_t matchFlag2LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(secondDaughterIndex);
-	    Long64_t matchFlag1L3 = (Long64_t) theBigTree.daughters_L3FilterFiredLast->at(firstDaughterIndex);
-	    Long64_t matchFlag2L3 = (Long64_t) theBigTree.daughters_L3FilterFiredLast->at(secondDaughterIndex);
-	    bool isLF1 = trigReader.checkOR (pairType, matchFlag1LF);
-	    bool isL31 = trigReader.checkOR (pairType, matchFlag1L3);
-	    bool isLF2 = trigReader.checkOR (pairType, matchFlag2LF);
-	    bool isL32 = trigReader.checkOR (pairType, matchFlag2L3);
-	    cout << "** trg check: trgAccept=" << triggerAccept
-		 <<  " passTrg=" << passTrg << " passMatch1=" << passMatch1 << " passMatch2=" << passMatch2
-		 <<  " LF1=" << isLF1 << " L31=" << isL31
-		 <<  " LF2=" << isLF2 << " L32=" << isL32
-		 << endl;
-	  }
-	
-	if (!triggerAccept) continue;
-	ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
-	if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
+          passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
+          passMatch2 = true;
+          trgNotOverlap = true; // FIXME: true only for single lepton triggers!
       }
-    
-    // MC strategy
-    else
+      else if (pairType == 2)
       {
-	float evtLeg1weight = 1.0;
-	float evtLeg2weight = 1.0;
-	
-	float evtLeg1weightUp = 1.0;
-	float evtLeg2weightUp = 1.0;
-	
-	float evtLeg1weightDown = 1.0;
-	float evtLeg2weightDown = 1.0;
-	
-	if (pairType == 0 || pairType == 3)  //mutau -- mumu
-	  {
-	    evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), 0, myScaleFactor[type1][0], 0) ;
-	    evtLeg2weight = 1.0;
-	    
-	    evtLeg1weightUp   = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_tauup.Pt(), tlv_firstLepton_tauup.Eta(), 0, myScaleFactor[type1][0], 0) : evtLeg1weight);
-	    evtLeg1weightDown = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_taudown.Pt(), tlv_firstLepton_taudown.Eta(), 0, myScaleFactor[type1][0], 0) : evtLeg1weight);
-	    
-	    evtLeg2weightUp   = 1.0;
-	    evtLeg2weightDown = 1.0;
-	  }
-	
-	else if (pairType == 1 || pairType == 4) //eletau -- ee
-	  {
-	    evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), trigRewEleHisto, 0, 0) ;
-	    evtLeg2weight = 1.0;        
-	    
-	    evtLeg1weightUp   = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_tauup.Pt(), tlv_firstLepton_tauup.Eta(), trigRewEleHisto, 0, 0)  : evtLeg1weight);
-	    evtLeg1weightDown = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_taudown.Pt(), tlv_firstLepton_taudown.Eta(), trigRewEleHisto, 0, 0)  : evtLeg1weight);
-	    
-	    evtLeg2weightUp   = 1.0;
-	    evtLeg2weightDown = 1.0;
-	  }
-	
-	else if (pairType == 2) //tautau
-	  {
-	    evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), 0, 0, 1, lep1HasTES) ;
-	    evtLeg2weight = getTriggerWeight(type2, tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), 0, 0, 1, lep2HasTES) ;
-	    
-	    evtLeg1weightUp     = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_tauup.Pt(), tlv_firstLepton_tauup.Eta(), 0, 0, 1) : evtLeg1weight , lep1HasTES) ;
-	    evtLeg1weightDown   = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_taudown.Pt(), tlv_firstLepton_taudown.Eta(), 0, 0, 1) : evtLeg1weight , lep2HasTES) ;
-	    
-	    evtLeg2weightUp   = (lep2HasTES ? getTriggerWeight(type2, tlv_secondLepton_tauup.Pt(), tlv_secondLepton_tauup.Eta(), 0, 0, 1) : evtLeg2weight , lep1HasTES) ;
-	    evtLeg2weightDown = (lep2HasTES ? getTriggerWeight(type2, tlv_secondLepton_taudown.Pt(), tlv_secondLepton_taudown.Eta(), 0, 0, 1) : evtLeg2weight , lep2HasTES) ;
-	    
-	  }
-	trgEvtWeight = evtLeg1weight*evtLeg2weight;
-	trgEvtWeightUp   = evtLeg1weightUp*evtLeg2weightUp;
-	trgEvtWeightDown = evtLeg1weightDown*evtLeg2weightDown;
-	
-	EvtW *= trgEvtWeight;
-	ec.Increment ("Trigger", EvtW); // for MC, weight the event for the trigger acceptance
-	if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
+          passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
+          passMatch2 = trigReader.checkOR (pairType, matchFlag2) ;            
       }
 
+      // require trigger + legs matched
+      bool triggerAccept = (passTrg && passMatch1 && passMatch2 && trgNotOverlap) ;
+      // triggerAccept = passTrg ; 
+
+      if (theBigTree.EventNumber == debugEvent)
+      {
+        Long64_t matchFlag1LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(firstDaughterIndex);
+        Long64_t matchFlag2LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(secondDaughterIndex);
+        Long64_t matchFlag1L3 = (Long64_t) theBigTree.daughters_L3FilterFiredLast->at(firstDaughterIndex);
+        Long64_t matchFlag2L3 = (Long64_t) theBigTree.daughters_L3FilterFiredLast->at(secondDaughterIndex);
+        bool isLF1 = trigReader.checkOR (pairType, matchFlag1LF);
+        bool isL31 = trigReader.checkOR (pairType, matchFlag1L3);
+        bool isLF2 = trigReader.checkOR (pairType, matchFlag2LF);
+        bool isL32 = trigReader.checkOR (pairType, matchFlag2L3);
+        cout << "** trg check: trgAccept=" << triggerAccept
+             <<  " passTrg=" << passTrg << " passMatch1=" << passMatch1 << " passMatch2=" << passMatch2
+             <<  " LF1=" << isLF1 << " L31=" << isL31
+             <<  " LF2=" << isLF2 << " L32=" << isL32
+             << endl;
+      }
+
+      if (!triggerAccept) continue;
+      ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
+      if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
+    }
+
+    // MC strategy
+    else
+    {
+      float evtLeg1weight = 1.0;
+      float evtLeg2weight = 1.0;
+
+      float evtLeg1weightUp = 1.0;
+      float evtLeg2weightUp = 1.0;
+
+      float evtLeg1weightDown = 1.0;
+      float evtLeg2weightDown = 1.0;
+
+      if (pairType == 0 || pairType == 3)  //mutau -- mumu
+      {
+          evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), 0, myScaleFactor[type1][0], 0) ;
+          evtLeg2weight = 1.0;
+          
+          evtLeg1weightUp   = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_tauup.Pt(), tlv_firstLepton_tauup.Eta(), 0, myScaleFactor[type1][0], 0) : evtLeg1weight);
+          evtLeg1weightDown = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_taudown.Pt(), tlv_firstLepton_taudown.Eta(), 0, myScaleFactor[type1][0], 0) : evtLeg1weight);
+
+          evtLeg2weightUp   = 1.0;
+          evtLeg2weightDown = 1.0;
+      }
+
+      else if (pairType == 1 || pairType == 4) //eletau -- ee
+      {
+          evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), trigRewEleHisto, 0, 0) ;
+          evtLeg2weight = 1.0;        
+
+          evtLeg1weightUp   = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_tauup.Pt(), tlv_firstLepton_tauup.Eta(), trigRewEleHisto, 0, 0)  : evtLeg1weight);
+          evtLeg1weightDown = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_taudown.Pt(), tlv_firstLepton_taudown.Eta(), trigRewEleHisto, 0, 0)  : evtLeg1weight);
+
+          evtLeg2weightUp   = 1.0;
+          evtLeg2weightDown = 1.0;
+      }
+
+      else if (pairType == 2) //tautau
+      {
+          evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), 0, 0, 1, lep1HasTES) ;
+          evtLeg2weight = getTriggerWeight(type2, tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), 0, 0, 1, lep2HasTES) ;
+
+          evtLeg1weightUp     = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_tauup.Pt(), tlv_firstLepton_tauup.Eta(), 0, 0, 1) : evtLeg1weight , lep1HasTES) ;
+          evtLeg1weightDown   = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_taudown.Pt(), tlv_firstLepton_taudown.Eta(), 0, 0, 1) : evtLeg1weight , lep2HasTES) ;
+          
+          evtLeg2weightUp   = (lep2HasTES ? getTriggerWeight(type2, tlv_secondLepton_tauup.Pt(), tlv_secondLepton_tauup.Eta(), 0, 0, 1) : evtLeg2weight , lep1HasTES) ;
+          evtLeg2weightDown = (lep2HasTES ? getTriggerWeight(type2, tlv_secondLepton_taudown.Pt(), tlv_secondLepton_taudown.Eta(), 0, 0, 1) : evtLeg2weight , lep2HasTES) ;
+
+      }
+      trgEvtWeight = evtLeg1weight*evtLeg2weight;
+      trgEvtWeightUp   = evtLeg1weightUp*evtLeg2weightUp;
+      trgEvtWeightDown = evtLeg1weightDown*evtLeg2weightDown;
+
+      EvtW *= trgEvtWeight;
+      ec.Increment ("Trigger", EvtW); // for MC, weight the event for the trigger acceptance
+      if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
+    }
 
     // ----------------------------------------------------------
     // pair selection is now complete, compute oher quantitites
@@ -1719,28 +1731,27 @@ float tausBoosted = 0.;
       theSmallTree.m_ditau_deltaR_per_tauHsvfitpt = tlv_firstLepton.DeltaR(tlv_secondLepton) * tlv_tauH_SVFIT.Pt();
     }
 
-
     // check if the selected leptons A,B match the gen hard scatter products 1,2
     if (isHHsignal)
-      {
-	bool type1A = (abs(t1hs) == abs(type1));
-	bool type1B = (abs(t1hs) == abs(type2));
-	bool type2A = (abs(t2hs) == abs(type1));
-	bool type2B = (abs(t2hs) == abs(type2));
-	
-	bool dR1A = (vHardScatter1.DeltaR(tlv_firstLepton) < 0.5);
-	bool dR1B = (vHardScatter1.DeltaR(tlv_secondLepton) < 0.5);
-	bool dR2A = (vHardScatter2.DeltaR(tlv_firstLepton) < 0.5);
-	bool dR2B = (vHardScatter2.DeltaR(tlv_secondLepton) < 0.5);
-	
-	// FIXME: fill gen matched info pt/eta/phi/e
-	if ( (type1A && dR1A) || (type2A && dR2A))
-	  theSmallTree.m_hasgenmatch1 = true;
-	if ( (type1B && dR1B) || (type2B && dR2B))
-	  theSmallTree.m_hasgenmatch2 = true;
-      }
+    {
+      bool type1A = (abs(t1hs) == abs(type1));
+      bool type1B = (abs(t1hs) == abs(type2));
+      bool type2A = (abs(t2hs) == abs(type1));
+      bool type2B = (abs(t2hs) == abs(type2));
     
-    
+      bool dR1A = (vHardScatter1.DeltaR(tlv_firstLepton) < 0.5);
+      bool dR1B = (vHardScatter1.DeltaR(tlv_secondLepton) < 0.5);
+      bool dR2A = (vHardScatter2.DeltaR(tlv_firstLepton) < 0.5);
+      bool dR2B = (vHardScatter2.DeltaR(tlv_secondLepton) < 0.5);
+
+      // FIXME: fill gen matched info pt/eta/phi/e
+      if ( (type1A && dR1A) || (type2A && dR2A))
+        theSmallTree.m_hasgenmatch1 = true;
+      if ( (type1B && dR1B) || (type2B && dR2B))
+        theSmallTree.m_hasgenmatch2 = true;
+    }
+
+
     theSmallTree.m_pairType    = pType ;
     theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) : 1) ;      
     theSmallTree.m_MC_weight   = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight * HHweight * trgEvtWeight : 1) ;
@@ -1770,19 +1781,19 @@ float tausBoosted = 0.;
     theSmallTree.m_met_cov11 = theBigTree.MET_cov11->at (chosenTauPair);
     theSmallTree.m_mT1       = theBigTree.mT_Dau1->at (chosenTauPair) ;
     theSmallTree.m_mT2       = theBigTree.mT_Dau2->at (chosenTauPair) ;
-    
+
     theSmallTree.m_tauH_pt   = tlv_tauH.Pt () ;
     theSmallTree.m_tauH_eta  = tlv_tauH.Eta () ;
     theSmallTree.m_tauH_phi  = tlv_tauH.Phi () ;
     theSmallTree.m_tauH_e    = tlv_tauH.E () ;
     theSmallTree.m_tauH_mass = tlv_tauH.M () ;
-    
+
     theSmallTree.m_tauHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_tauH.Phi ()) ;
     theSmallTree.m_ditau_deltaPhi = deltaPhi (tlv_firstLepton.Phi (), tlv_secondLepton.Phi ()) ;
     theSmallTree.m_ditau_deltaR = tlv_firstLepton.DeltaR(tlv_secondLepton) ;
     theSmallTree.m_dau1MET_deltaphi = deltaPhi (theBigTree.metphi , tlv_firstLepton.Phi ()) ;
     theSmallTree.m_dau2MET_deltaphi = deltaPhi (theBigTree.metphi , tlv_secondLepton.Phi ()) ;
-    
+
     // useless, can be removed from smallTree
     // theSmallTree.m_L3filter1 = theBigTree.daughters_L3FilterFiredLast->at (firstDaughterIndex) ;
     // theSmallTree.m_L3filterlast1 = theBigTree.daughters_L3FilterFiredLast->at (firstDaughterIndex) ;
@@ -1816,10 +1827,10 @@ float tausBoosted = 0.;
     theSmallTree.m_dau1_phi = tlv_firstLepton.Phi () ;
     theSmallTree.m_dau1_e = theBigTree.daughters_e->at (firstDaughterIndex) ;
     theSmallTree.m_dau1_flav = theBigTree.daughters_charge->at (firstDaughterIndex) * 
-      (theBigTree.particleType->at (firstDaughterIndex) + 1) ;
-    // 1 = from muons collection
-    // 2 = from electrons collection
-    // 3 = from tauH collection
+                               (theBigTree.particleType->at (firstDaughterIndex) + 1) ;
+                               // 1 = from muons collection
+                               // 2 = from electrons collection
+                               // 3 = from tauH collection
     theSmallTree.m_dau2_iso = getIso (secondDaughterIndex, tlv_secondLepton.Pt (), theBigTree) ;
     theSmallTree.m_dau2_MVAiso = makeIsoDiscr (secondDaughterIndex, tauMVAIDIdx, theBigTree) ;
     theSmallTree.m_dau2_CUTiso = makeIsoDiscr (secondDaughterIndex, tauCUTIDIdx, theBigTree) ;
@@ -1840,8 +1851,7 @@ float tausBoosted = 0.;
     // particle 2 is always a TAU --  FIXME: not good for emu
     
     // FIXME: should I compute a SF for ID-ISO for taus?
-    if (type1 == 0 && isMC) // mu
-
+    if (pType == 0 && isMC) // mu
     {
       // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
       // trigSF = 1.0; // no trigger info available in MC
@@ -1909,7 +1919,7 @@ float tausBoosted = 0.;
     }
 
     // FIXME: should I compute a SF for ID-ISO for taus?
-    else if (type1 == 1 && isMC) // ele
+    else if (pType == 1 && isMC) // ele
     {
       // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
       // trigSF = 1.0; // no trigger info available in MC
@@ -1921,7 +1931,7 @@ float tausBoosted = 0.;
         trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
     }
 
-    else if (type1 == 2 && isMC) // tau tau pair
+    else if (pType == 2 && isMC) // tau tau pair
     {
 
       idAndIsoSF = 1.0; // recommendation from tau POG?
@@ -1934,23 +1944,112 @@ float tausBoosted = 0.;
       }
     }
 
+    else if (pType == 3 && isMC) // mumu pair
+    {
+      // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
+      // trigSF = 1.0; // no trigger info available in MC
+
+      ////////////////// first muon ID and ISO
+      float mupt  = tlv_firstLepton.Pt();
+      float muabseta = TMath::Abs(tlv_firstLepton.Eta());
+      
+      // to combine SF based on lumi, here is the list of lumi in /fb per run period
+      // B 5.892
+      // C 2.646
+      // D 4.353
+      // E 4.117
+      // F 3.186
+      // G 7.721
+      // H 8.857
+      // TOT: 36.772
+      
+      // B-F : 20.194 (frac: 0.5492)
+      // G-H : 16.578 (frac: 0.4508)
+      // cout << "DEBUG: getting content histo 2D : " << hMuPOGSF_ID_BF << " " << hMuPOGSF_ID_GH << " " << hMuPOGSF_ISO_BF << " " << hMuPOGSF_ISO_GH << " " << hMuPOGSF_trig_p3 << " " << hMuPOGSF_trig_p4 << endl;
+      // ID
+      double idsf_BF = getContentHisto2D(hMuPOGSF_ID_BF, mupt, muabseta);
+      double idsf_GH = getContentHisto2D(hMuPOGSF_ID_GH, mupt, muabseta);
+      double idsf = 0.5492*idsf_BF + 0.4508*idsf_GH; 
+
+      // ISO
+      double isosf_BF = getContentHisto2D(hMuPOGSF_ISO_BF, mupt, muabseta);
+      double isosf_GH = getContentHisto2D(hMuPOGSF_ISO_GH, mupt, muabseta);
+      double isosf = 0.5492*isosf_BF + 0.4508*isosf_GH; 
+
+      idAndIsoSF = idsf * isosf;
+
+      // TRIG -- just to compute if I am not reweighting the MC. Lepton 1 if the one matched to trigger
+      if (applyTriggers)
+      {
+        // NOTE: from mu POG twiki, Period 3: (3/fb) run F post L1 EMFT fix (from run 278167); Period 4: (16/fb) run GH (post HIPs fix).
+        // so normalization is different in this case. TOT LUMI = 16+3 = 19. p3: 0.158, p4: 0.842
+        // NOTE (11/02/17) : SFs have been updated to B-F and GH, so from now we use the same normalization as other chs
+        double trigsf_p3 = getContentHisto2D(hMuPOGSF_trig_p3, mupt, muabseta);
+        double trigsf_p4 = getContentHisto2D(hMuPOGSF_trig_p4, mupt, muabseta);
+
+        trigSF = (0.5492*trigsf_p3 + 0.4508*trigsf_p4);
+      }
+
+
+      ////////////////// second muon ID and ISO
+      mupt  = tlv_secondLepton.Pt();
+      muabseta = TMath::Abs(tlv_secondLepton.Eta());
+      
+      // to combine SF based on lumi, here is the list of lumi in /fb per run period
+      // B 5.892
+      // C 2.646
+      // D 4.353
+      // E 4.117
+      // F 3.186
+      // G 7.721
+      // H 8.857
+      // TOT: 36.772
+      
+      // B-F : 20.194 (frac: 0.5492)
+      // G-H : 16.578 (frac: 0.4508)
+      // cout << "DEBUG: getting content histo 2D : " << hMuPOGSF_ID_BF << " " << hMuPOGSF_ID_GH << " " << hMuPOGSF_ISO_BF << " " << hMuPOGSF_ISO_GH << " " << hMuPOGSF_trig_p3 << " " << hMuPOGSF_trig_p4 << endl;
+      // ID
+      idsf_BF = getContentHisto2D(hMuPOGSF_ID_BF, mupt, muabseta);
+      idsf_GH = getContentHisto2D(hMuPOGSF_ID_GH, mupt, muabseta);
+      idsf = 0.5492*idsf_BF + 0.4508*idsf_GH; 
+
+      // ISO
+      isosf_BF = getContentHisto2D(hMuPOGSF_ISO_BF, mupt, muabseta);
+      isosf_GH = getContentHisto2D(hMuPOGSF_ISO_GH, mupt, muabseta);
+      isosf = 0.5492*isosf_BF + 0.4508*isosf_GH; 
+
+      idAndIsoSF *= (idsf * isosf);
+    }
+
+    else if (pType == 4 && isMC) // ee pair
+    {
+      // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
+      // trigSF = 1.0; // no trigger info available in MC
+      
+      // FIXME: should we use MU POG SFs?
+      idAndIsoSF = myScaleFactor[type1][1]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
+      idAndIsoSF *= myScaleFactor[type1][1]->get_ScaleFactor(tlv_secondLepton.Pt(),tlv_secondLepton.Eta());
+      
+      if (applyTriggers)
+        trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
+    }
 
     theSmallTree.m_trigSF     = (isMC ? trigSF : 1.0);
     theSmallTree.m_IdAndIsoSF = (isMC ? idAndIsoSF : 1.0);
-    
+
     // loop over leptons
     vector<pair<float, int> > thirdLeptons ; // pt, idx
     for (unsigned int iLep = 0 ; (iLep < theBigTree.daughters_px->size ()) ; ++iLep)
-      {
-	// skip the H decay candiates
-	if (int (iLep) == firstDaughterIndex || 
-	    int (iLep) == secondDaughterIndex) continue ;
+    {
+      // skip the H decay candiates
+      if (int (iLep) == firstDaughterIndex || 
+          int (iLep) == secondDaughterIndex) continue ;
 
       // remove taus
       if (theBigTree.particleType->at (iLep) == 2)
-	{
-	  continue ;
-	}  
+      {
+        continue ;
+      }  
       else if (theBigTree.particleType->at (iLep) == 0) // muons
       {
         if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuLoose)) continue ;
@@ -1961,14 +2060,14 @@ float tausBoosted = 0.;
         // if (!oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, 1)) continue ;
       }
       TLorentzVector tlv_dummyLepton
-	(
-	 theBigTree.daughters_px->at (iLep),
-	 theBigTree.daughters_py->at (iLep),
-	 theBigTree.daughters_pz->at (iLep),
-	 theBigTree.daughters_e->at (iLep)
-	 ) ;
+      (
+        theBigTree.daughters_px->at (iLep),
+        theBigTree.daughters_py->at (iLep),
+        theBigTree.daughters_pz->at (iLep),
+        theBigTree.daughters_e->at (iLep)
+      ) ;
       thirdLeptons.push_back (make_pair(tlv_dummyLepton.Pt(), iLep)) ;
-
+      
       if (theBigTree.EventNumber == debugEvent)
       {
         cout << "** 3rd lep veto passed"
@@ -1984,76 +2083,79 @@ float tausBoosted = 0.;
              << " eleMissingHits="  << theBigTree.daughters_eleMissingHits->at(iLep)
              << endl;
       }
-      
-      } // loop over leptons
+
+    } // loop over leptons
     sort (thirdLeptons.begin(), thirdLeptons.end()) ;
     // reverse loop to start from last one == highest pT
     for (int iLep = thirdLeptons.size() -1; (iLep >=0) && (theSmallTree.m_nleps < 2) ; iLep--)
-      {
-	TLorentzVector tlv_dummyLepton
-	  (
-	   theBigTree.daughters_px->at (iLep),
-	   theBigTree.daughters_py->at (iLep),
-	   theBigTree.daughters_pz->at (iLep),
-	   theBigTree.daughters_e->at (iLep)
-	   ) ;
-	theSmallTree.m_leps_pt.push_back   (tlv_dummyLepton.Pt ()) ;
-	theSmallTree.m_leps_eta.push_back  (tlv_dummyLepton.Eta ()) ;
-	theSmallTree.m_leps_phi.push_back  (tlv_dummyLepton.Phi ()) ;
-	theSmallTree.m_leps_e.push_back    (tlv_dummyLepton.E ()) ;
-	theSmallTree.m_leps_flav.push_back (theBigTree.particleType->at (iLep)) ;
-	++theSmallTree.m_nleps ;
-      } 
-    
+    {
+      TLorentzVector tlv_dummyLepton
+      (
+        theBigTree.daughters_px->at (iLep),
+        theBigTree.daughters_py->at (iLep),
+        theBigTree.daughters_pz->at (iLep),
+        theBigTree.daughters_e->at (iLep)
+      ) ;
+
+      theSmallTree.m_leps_pt.push_back   (tlv_dummyLepton.Pt ()) ;
+      theSmallTree.m_leps_eta.push_back  (tlv_dummyLepton.Eta ()) ;
+      theSmallTree.m_leps_phi.push_back  (tlv_dummyLepton.Phi ()) ;
+      theSmallTree.m_leps_e.push_back    (tlv_dummyLepton.E ()) ;
+      theSmallTree.m_leps_flav.push_back (theBigTree.particleType->at (iLep)) ;
+      ++theSmallTree.m_nleps ;
+    } 
+
     if (theBigTree.EventNumber == debugEvent)
-      {
-	cout << "***** DEBUG: nleps="<< theSmallTree.m_nleps<< endl;
-      }
+    {
+      cout << "***** DEBUG: nleps="<< theSmallTree.m_nleps<< endl;
+    }
+
     // ----------------------------------------------------------
-    // Select jets 
+    // select jets 
+
     vector <pair <float, int> > jets_and_sortPar ;
     // loop over jets
     for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
-      {
-	// JET PU ID cut 
-	if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
-	  if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
-	  
-	  TLorentzVector tlv_jet 
-	    (
-	     theBigTree.jets_px->at (iJet),
-	     theBigTree.jets_py->at (iJet),
-	     theBigTree.jets_pz->at (iJet),
-	     theBigTree.jets_e->at (iJet)
-	     ) ;
-	  if (tlv_jet.Pt () < 20. /*GeV*/) continue ; 
-	  if (tlv_jet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
-	  if (tlv_jet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
-	  
-	  // all jets selected as btag cands apart from eta cut
-	  int ajetHadFlav = abs(theBigTree.jets_HadronFlavour->at(iJet));
-	  if (ajetHadFlav == 5) ++theSmallTree.m_njetsBHadFlav;
-	  if (ajetHadFlav == 4) ++theSmallTree.m_njetsCHadFlav;
-	  
-	  if (TMath::Abs(tlv_jet.Eta()) > 2.4) continue; // 2.4 for b-tag
-	  
-	  float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bCSVscore->at (iJet) : tlv_jet.Pt() ;
-	  if (bChoiceFlag != 1 && bChoiceFlag != 2) cout << "** WARNING : bChoiceFlag not known :" << bChoiceFlag << endl;
-	  
-	  jets_and_sortPar.push_back (make_pair (sortPar, iJet) );          
-	  
-	} // loop over jets
+    {
+      // JET PU ID cut 
+      if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
+      if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
+
+      TLorentzVector tlv_jet 
+      (
+        theBigTree.jets_px->at (iJet),
+        theBigTree.jets_py->at (iJet),
+        theBigTree.jets_pz->at (iJet),
+        theBigTree.jets_e->at (iJet)
+      ) ;
+      if (tlv_jet.Pt () < 20. /*GeV*/) continue ; 
+      if (tlv_jet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
+      if (tlv_jet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
+
+      // all jets selected as btag cands apart from eta cut
+      int ajetHadFlav = abs(theBigTree.jets_HadronFlavour->at(iJet));
+      if (ajetHadFlav == 5) ++theSmallTree.m_njetsBHadFlav;
+      if (ajetHadFlav == 4) ++theSmallTree.m_njetsCHadFlav;
+
+      if (TMath::Abs(tlv_jet.Eta()) > 2.4) continue; // 2.4 for b-tag
+
+      float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bCSVscore->at (iJet) : tlv_jet.Pt() ;
+      if (bChoiceFlag != 1 && bChoiceFlag != 2) cout << "** WARNING : bChoiceFlag not known :" << bChoiceFlag << endl;
       
-      theSmallTree.m_nbjetscand = jets_and_sortPar.size();
-      theSmallTree.m_nfatjets = theBigTree.ak8jets_px->size();
-      
-      if (!beInclusive && jets_and_sortPar.size () < 2) continue ;
+      jets_and_sortPar.push_back (make_pair (sortPar, iJet) );          
+
+    } // loop over jets
+
+    theSmallTree.m_nbjetscand = jets_and_sortPar.size();
+    theSmallTree.m_nfatjets = theBigTree.ak8jets_px->size();
+
+    if (!beInclusive && jets_and_sortPar.size () < 2) continue ;
     ec.Increment("TwoJets", EvtW);
     if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("TwoJets", EvtW);
-    
+
     // sort jet collection by CSV
     sort (jets_and_sortPar.begin(), jets_and_sortPar.end(), bJetSort); //sort by first parameter, then pt (dummy if pt order chosen)
-    
+
     if (jets_and_sortPar.size () >= 2) 
     { 
       vector<pair <int, float> > jets_and_BTag;
@@ -2064,349 +2166,55 @@ float tausBoosted = 0.;
       theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
       theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
       theSmallTree.m_bTagweightT = (isMC ? bTagWeight.at(2) : 1.0) ;
-      
+
       int njets = jets_and_sortPar.size();
       const int bjet1idx = jets_and_sortPar.at(njets-1).second ;
       const int bjet2idx = jets_and_sortPar.at(njets-2).second ;
-      
+
       TLorentzVector tlv_firstBjet 
-	(
-	 theBigTree.jets_px->at (bjet1idx),
-	 theBigTree.jets_py->at (bjet1idx),
-	 theBigTree.jets_pz->at (bjet1idx),
-	 theBigTree.jets_e->at  (bjet1idx)
-	 ) ;
+      (
+        theBigTree.jets_px->at (bjet1idx),
+        theBigTree.jets_py->at (bjet1idx),
+        theBigTree.jets_pz->at (bjet1idx),
+        theBigTree.jets_e->at  (bjet1idx)
+      ) ;
       TLorentzVector tlv_secondBjet 
-	(
-	 theBigTree.jets_px->at (bjet2idx),
-	 theBigTree.jets_py->at (bjet2idx),
-	 theBigTree.jets_pz->at (bjet2idx),
-	 theBigTree.jets_e->at  (bjet2idx)
-	 ) ;
-      // muons from bjets?
-      std::vector <TLorentzVector> genmuon;
-      for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
-	{
-	  bool isLast      = CheckBit (theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
-	  bool isPrompt      = CheckBit (theBigTree.genpart_flags->at(igen), 0) ; // 0 = isPrompt
-	  int pdg = theBigTree.genpart_pdg->at(igen);
-	  bool bToMuon = false; 
-	  if (fabs(pdg)==13){	  
-	    bToMuon = (isLast && CheckBit (theBigTree.genpart_flags->at(igen), 6) && !isPrompt);
-	  }
-	  if(bToMuon) {
-	    TLorentzVector tlv_genmuon 
-	      (
-	       theBigTree.genpart_px->at (igen),
-	       theBigTree.genpart_py->at (igen),
-	       theBigTree.genpart_pz->at (igen),
-	       theBigTree.genpart_e->at  (igen)
-	       ) ;
-	    genmuon.push_back(tlv_genmuon);
-	  }
+      (
+        theBigTree.jets_px->at (bjet2idx),
+        theBigTree.jets_py->at (bjet2idx),
+        theBigTree.jets_pz->at (bjet2idx),
+        theBigTree.jets_e->at  (bjet2idx)
+      ) ;
 
-	}
-      std::sort(genmuon.begin(),genmuon.end(), SortTLVbyDeltaR(tlv_firstBjet));
-      if(genmuon.size()>0){
-      if (genmuon[0].DeltaR(tlv_firstBjet)<genmuon[0].DeltaR(tlv_secondBjet)) {
-	if (genmuon[0].DeltaR(tlv_firstBjet)<0.5) theSmallTree.m_bjet1toMuon = true;
-
-	if(genmuon.size()>1){
-	  std::sort(genmuon.begin()+1,genmuon.end(), SortTLVbyDeltaR(tlv_secondBjet));
-	  if (genmuon[1].DeltaR(tlv_secondBjet)<0.5) theSmallTree.m_bjet2toMuon = true;
-	}
-      }else{	
-	if (genmuon[0].DeltaR(tlv_secondBjet)<0.5) theSmallTree.m_bjet2toMuon = true;
-		if(genmuon.size()>1){
-	  std::sort(genmuon.begin()+1,genmuon.end(), SortTLVbyDeltaR(tlv_firstBjet));
-	  if (genmuon[1].DeltaR(tlv_firstBjet)<0.5) theSmallTree.m_bjet1toMuon = true;
-	}
-      }
-      }
-      
-      
       double ptRegr[2] = {tlv_firstBjet.Pt(), tlv_secondBjet.Pt()};
       if (computeBregr)
-	{
-	  for (int iBJet = 0; iBJet <=1; iBJet++)
-	    { 
-	      int bidx = (iBJet == 0 ? bjet1idx : bjet2idx);
-	      bjrv.Jet_pt     = (iBJet == 0 ? tlv_firstBjet.Pt()  : tlv_secondBjet.Pt());
-	      bjrv.Jet_eta    = (iBJet == 0 ? tlv_firstBjet.Eta() : tlv_secondBjet.Eta());
+      {
+        for (int iBJet = 0; iBJet <=1; iBJet++)
+        { 
+          int bidx = (iBJet == 0 ? bjet1idx : bjet2idx);
+          bjrv.Jet_pt     = (iBJet == 0 ? tlv_firstBjet.Pt()  : tlv_secondBjet.Pt());
+          bjrv.Jet_eta    = (iBJet == 0 ? tlv_firstBjet.Eta() : tlv_secondBjet.Eta());
           //bjrv.Jet_corr         = theBigTree.jets_rawPt->at(bidx);
-	      bjrv.Jet_corr   = theBigTree.jetRawf->at(bidx); // should be 1./jetrawf ??
-	      bjrv.rho              = theBigTree.rho;
-	      bjrv.Jet_mt           = theBigTree.jets_mT->at(bidx);
-	      bjrv.Jet_leadTrackPt  = theBigTree.jets_leadTrackPt->at(bidx);
-	      bjrv.Jet_leptonPtRel  = theBigTree.jets_leptonPtRel->at(bidx);
-	      bjrv.Jet_leptonPt     = theBigTree.jets_leptonPt->at(bidx);
-	      bjrv.Jet_leptonDeltaR = theBigTree.jets_leptonDeltaR->at(bidx);
-	      bjrv.Jet_neHEF   = theBigTree.jets_nHEF->at(bidx);
-	      bjrv.Jet_neEmEF  = theBigTree.jets_nEmEF->at(bidx);
-	      bjrv.Jet_chMult  = theBigTree.jets_chMult->at(bidx);
-	      bjrv.Jet_vtxPt   = theBigTree.jets_vtxPt->at(bidx);
-	      bjrv.Jet_vtxMass = theBigTree.jets_vtxMass->at(bidx);
-	      bjrv.Jet_vtx3dL  = theBigTree.jets_vtx3dL->at(bidx);
-	      bjrv.Jet_vtxNtrk = theBigTree.jets_vtxNtrk->at(bidx);
-	      bjrv.Jet_vtx3deL = theBigTree.jets_vtx3deL->at(bidx);
-	      
-	      ptRegr[iBJet] = (bRreader->EvaluateRegression (bRegrMethodName.c_str()))[0];
-	    }
-	}
+          bjrv.Jet_corr   = theBigTree.jetRawf->at(bidx); // should be 1./jetrawf ??
+          bjrv.rho              = theBigTree.rho;
+          bjrv.Jet_mt           = theBigTree.jets_mT->at(bidx);
+          bjrv.Jet_leadTrackPt  = theBigTree.jets_leadTrackPt->at(bidx);
+          bjrv.Jet_leptonPtRel  = theBigTree.jets_leptonPtRel->at(bidx);
+          bjrv.Jet_leptonPt     = theBigTree.jets_leptonPt->at(bidx);
+          bjrv.Jet_leptonDeltaR = theBigTree.jets_leptonDeltaR->at(bidx);
+          bjrv.Jet_neHEF   = theBigTree.jets_nHEF->at(bidx);
+          bjrv.Jet_neEmEF  = theBigTree.jets_nEmEF->at(bidx);
+          bjrv.Jet_chMult  = theBigTree.jets_chMult->at(bidx);
+          bjrv.Jet_vtxPt   = theBigTree.jets_vtxPt->at(bidx);
+          bjrv.Jet_vtxMass = theBigTree.jets_vtxMass->at(bidx);
+          bjrv.Jet_vtx3dL  = theBigTree.jets_vtx3dL->at(bidx);
+          bjrv.Jet_vtxNtrk = theBigTree.jets_vtxNtrk->at(bidx);
+          bjrv.Jet_vtx3deL = theBigTree.jets_vtx3deL->at(bidx);
 
-      //stage2 information: jets
-      //the first 2 are ordered by deltaR with the bjets, the others are ordered by Et
-      float massStage2 = 0.; 
-      std::vector<stage2objClass> stage2jet;
-vector <float> DeltaRStage2Jet_firstBjet;    
-    vector <float> DeltaRStage2Jet_secondBjet;
-    //fill the vector
-    for(int iJet = 0; iJet<theBigTree.stage2_jetN; iJet++){
-      stage2jet.push_back(stage2objClass(theBigTree.stage2_jetEt->at(iJet),theBigTree.stage2_jetEta->at(iJet),theBigTree.stage2_jetPhi->at(iJet),0));
-    }
-    //1st sorting
-    TLorentzVector tlv_stage2jet1;                                                                                                                                              
-    if(stage2jet.size()>0){
-      stage2objClass::stage2DeltaR myDeltaRjet1(tlv_firstBjet.Phi(),tlv_firstBjet.Eta()); 
-      std::sort(stage2jet.begin(),stage2jet.end(),myDeltaRjet1);
-      
-      //storing 1st jet
-	
-      
-      tlv_stage2jet1.SetPtEtaPhiM(                                                                                       
-				  stage2jet[0].Et(),                                        											    
-				  stage2jet[0].Eta(),                                                                                                                                    
-				  stage2jet[0].Phi(),                                                                                                                                    
-				  massStage2);
-	
-      theSmallTree.m_stage2_jet1Et = stage2jet[0].Et();
-      theSmallTree.m_stage2_jet1Eta = stage2jet[0].Eta();
-      theSmallTree.m_stage2_jet1Phi = stage2jet[0].Phi();
-      stage2jet.erase(stage2jet.begin());
-      DeltaRStage2Jet_firstBjet.push_back (tlv_stage2jet1.DeltaR(tlv_firstBjet));
-      DeltaRStage2Jet_secondBjet.push_back (tlv_stage2jet1.DeltaR(tlv_secondBjet));
-      theSmallTree.m_DeltaRmin_stage2jet_bjet1 = tlv_stage2jet1.DeltaR(tlv_firstBjet);
-      theSmallTree.m_DeltaRmin_stage2jet_bjet2 = tlv_stage2jet1.DeltaR(tlv_secondBjet); 
-      
-    } 
-    
-    //2nd sorting    
-      TLorentzVector tlv_stage2jet2;                                                                                                                                                      
-      if(stage2jet.size()>0){
-	stage2objClass::stage2DeltaR myDeltaRjet2(tlv_secondBjet.Phi(),tlv_secondBjet.Eta()); 
-	std::sort(stage2jet.begin(),stage2jet.end(),myDeltaRjet2);
-
-
-    
-
-      tlv_stage2jet2.SetPtEtaPhiM(                                                                                       
-				  stage2jet[0].Et(),
-				  stage2jet[0].Eta(),
-				  stage2jet[0].Phi(),
-				  massStage2);
-    
-      theSmallTree.m_stage2_jet2Et = stage2jet[0].Et();
-      theSmallTree.m_stage2_jet2Eta = stage2jet[0].Eta();
-      theSmallTree.m_stage2_jet2Phi = stage2jet[0].Phi();
-      stage2jet.erase(stage2jet.begin());
-      DeltaRStage2Jet_firstBjet.push_back (tlv_stage2jet2.DeltaR(tlv_firstBjet));
-      DeltaRStage2Jet_secondBjet.push_back (tlv_stage2jet2.DeltaR(tlv_secondBjet));
-      if(tlv_stage2jet1.DeltaR(tlv_secondBjet)<tlv_stage2jet2.DeltaR(tlv_secondBjet)){
-	bjetsBoosted +=1;
-	theSmallTree.m_Bjet2matchesStage2jet1 =1; 
+          ptRegr[iBJet] = (bRreader->EvaluateRegression (bRegrMethodName.c_str()))[0];
+        }
       }
-      theSmallTree.m_DeltaRmin_stage2jet_bjet1 = *std::min_element(DeltaRStage2Jet_firstBjet.begin(), DeltaRStage2Jet_firstBjet.end());
-      theSmallTree.m_DeltaRmin_stage2jet_bjet2 = *std::min_element(DeltaRStage2Jet_secondBjet.begin(), DeltaRStage2Jet_secondBjet.end());
-      }
-      
-      
-      if (stage2jet.size() > 0) std::sort(stage2jet.begin(),stage2jet.end());
-      
-      if (stage2jet.size() > 0){ 
-	theSmallTree.m_stage2_jet3Et = stage2jet[0].Et();
-	theSmallTree.m_stage2_jet3Eta = stage2jet[0].Eta();
-	theSmallTree.m_stage2_jet3Phi = stage2jet[0].Phi(); 
-    }
-      
-      if (stage2jet.size() > 1){ 
-	theSmallTree.m_stage2_jet4Et = stage2jet[1].Et();
-	theSmallTree.m_stage2_jet4Eta = stage2jet[1].Eta();
-	theSmallTree.m_stage2_jet4Phi = stage2jet[1].Phi(); 
-      }
-      
-      if (stage2jet.size() > 2){ 
-	theSmallTree.m_stage2_jet5Et = stage2jet[2].Et();
-	theSmallTree.m_stage2_jet5Eta = stage2jet[2].Eta();
-	theSmallTree.m_stage2_jet5Phi = stage2jet[2].Phi(); 
-      }
-    
-    if (stage2jet.size() > 3){ 
-      theSmallTree.m_stage2_jet6Et = stage2jet[3].Et();
-      theSmallTree.m_stage2_jet6Eta = stage2jet[3].Eta();
-      theSmallTree.m_stage2_jet6Phi = stage2jet[3].Phi(); 
-    }
-    
-    
-    //stage 2 information: taus
-    //the first 2 are ordered by deltaR with the offline leptons, the others are ordered by Et
-    
-      std::vector<stage2objClass> stage2tau;
-      
-      //fill the vector
-      for(int iTau = 0; iTau<theBigTree.stage2_tauN; iTau++){
-	stage2tau.push_back(stage2objClass(theBigTree.stage2_tauEt->at(iTau),theBigTree.stage2_tauEta->at(iTau),theBigTree.stage2_tauPhi->at(iTau),theBigTree.stage2_tauIso->at(iTau)));
-	
-      }
-      
-      //1st sorting
-      TLorentzVector tlv_stage2tau1;                                                                                                                                              
-      if(stage2tau.size()>0){
-	stage2objClass::stage2DeltaR myDeltaRtau1(tlv_firstLepton.Phi(),tlv_firstLepton.Eta()); 
-	std::sort(stage2tau.begin(),stage2tau.end(),myDeltaRtau1);
 
-	
-	//storing 1st tau
-	
-
-	tlv_stage2tau1.SetPtEtaPhiM(                                                                                       
-				  stage2tau[0].Et(),                                        						      
-				  stage2tau[0].Eta(),                                                                     
-				  stage2tau[0].Phi(),                                                                                      
-       				  massStage2);
-	
-	theSmallTree.m_stage2_tau1Et = stage2tau[0].Et();
-	theSmallTree.m_stage2_tau1Eta = stage2tau[0].Eta();
-	theSmallTree.m_stage2_tau1Phi = stage2tau[0].Phi();
-	theSmallTree.m_stage2_tau1Iso  = stage2tau[0].Iso();
-      
-	stage2tau.erase(stage2tau.begin());
-      } 
-      
-    //2nd sorting    
-      TLorentzVector tlv_stage2tau2;                                                                                                                                                      
-    if(stage2tau.size()>0){
-      stage2objClass::stage2DeltaR myDeltaRtau2(tlv_secondLepton.Phi(),tlv_secondLepton.Eta()); 
-      std::sort(stage2tau.begin(),stage2tau.end(),myDeltaRtau2);
-
-    //storing 2nd tau
-          tlv_stage2tau2.SetPtEtaPhiM(                                                                                       
-				  stage2tau[0].Et(),                                        											    
-				  stage2tau[0].Eta(),                                                                                                                                    
-				  stage2tau[0].Phi(),                                                                                                                                    
-				  massStage2);
-    
-      theSmallTree.m_stage2_tau2Et = stage2tau[0].Et();
-      theSmallTree.m_stage2_tau2Eta = stage2tau[0].Eta();
-      theSmallTree.m_stage2_tau2Phi = stage2tau[0].Phi();
-      theSmallTree.m_stage2_tau2Iso  = stage2tau[0].Iso();
-      stage2tau.erase(stage2tau.begin());
-    }
-    
-    
- 
-    if (stage2tau.size() > 0) std::sort(stage2tau.begin(),stage2tau.end());
- 
-       
-    if (stage2tau.size() > 0){ 
-      theSmallTree.m_stage2_tau3Et = stage2tau[0].Et();
-      theSmallTree.m_stage2_tau3Eta = stage2tau[0].Eta();
-      theSmallTree.m_stage2_tau3Phi = stage2tau[0].Phi(); 
-      theSmallTree.m_stage2_tau3Iso = stage2tau[0].Iso(); 
-
-    }
-    
-    if (stage2tau.size() > 1){ 
-      theSmallTree.m_stage2_tau4Et = stage2tau[1].Et();
-      theSmallTree.m_stage2_tau4Eta = stage2tau[1].Eta();
-      theSmallTree.m_stage2_tau4Phi = stage2tau[1].Phi(); 
-      theSmallTree.m_stage2_tau4Iso = stage2tau[1].Iso(); 
-
-    }
-    
-    if(tlv_stage2tau1.DeltaR(tlv_secondLepton)<tlv_stage2tau2.DeltaR(tlv_secondLepton)){
-      tausBoosted +=1;
-      theSmallTree.m_Lepton2matchesStage2tau1 =1; 
-    }
-    
-
-    vector <float> DeltaRStage2Tau_firstLepton;
-    DeltaRStage2Tau_firstLepton.push_back (tlv_stage2tau1.DeltaR(tlv_firstLepton));
-    DeltaRStage2Tau_firstLepton.push_back (tlv_stage2tau2.DeltaR(tlv_firstLepton));
-    
-    vector <float> DeltaRStage2Tau_secondLepton;
-    DeltaRStage2Tau_secondLepton.push_back (tlv_stage2tau1.DeltaR(tlv_secondLepton));
-    DeltaRStage2Tau_secondLepton.push_back (tlv_stage2tau2.DeltaR(tlv_secondLepton));
-    
-    theSmallTree.m_DeltaRmin_stage2tau_tau1 = *std::min_element(DeltaRStage2Tau_firstLepton.begin(), DeltaRStage2Tau_firstLepton.end());
-    theSmallTree.m_DeltaRmin_stage2tau_tau2 = *std::min_element(DeltaRStage2Tau_secondLepton.begin(), DeltaRStage2Tau_secondLepton.end());
-
-    //stage 2 information: muons
-    //2 muons ordered by deltaR with the bjets
-    
-    std::vector<stage2objClass> stage2muon;
-      vector <float> DeltaRStage2Muon_firstBjet;
-      vector <float> DeltaRStage2Muon_secondBjet;
-    //fill the vector
-    for(int iMuon = 0; iMuon<theBigTree.stage2_muonN; iMuon++){
-      stage2muon.push_back(stage2objClass(theBigTree.stage2_muonEt->at(iMuon),theBigTree.stage2_muonEta->at(iMuon),theBigTree.stage2_muonPhi->at(iMuon),theBigTree.stage2_muonIso->at(iMuon)));
-      
-    }
-    
-    //1st sorting
-    TLorentzVector tlv_stage2muon1;                                                                                                                                              
-    if(stage2muon.size()>0){
-      stage2objClass::stage2DeltaR myDeltaRmuon1(tlv_firstBjet.Phi(),tlv_firstBjet.Eta()); 
-      std::sort(stage2muon.begin(),stage2muon.end(),myDeltaRmuon1);
-      
-      
-      //storing 1st muon
-      
-      
-      tlv_stage2muon1.SetPtEtaPhiM(                                                                                       
-				  stage2muon[0].Et(),                                        						      
-				  stage2muon[0].Eta(),                                                                     
-				  stage2muon[0].Phi(),                                                                                      
-       				  massStage2);
-      
-      theSmallTree.m_stage2_muon1Et = stage2muon[0].Et();
-      theSmallTree.m_stage2_muon1Eta = stage2muon[0].Eta();
-      theSmallTree.m_stage2_muon1Phi = stage2muon[0].Phi();
-      theSmallTree.m_stage2_muon1Iso  = stage2muon[0].Iso();
-      DeltaRStage2Muon_firstBjet.push_back (tlv_stage2muon1.DeltaR(tlv_firstBjet));      
-      DeltaRStage2Muon_secondBjet.push_back (tlv_stage2muon1.DeltaR(tlv_secondBjet));
-      stage2muon.erase(stage2muon.begin());
-
-      theSmallTree.m_DeltaRmin_stage2muon_bjet1 = tlv_stage2muon1.DeltaR(tlv_firstBjet);
-      theSmallTree.m_DeltaRmin_stage2muon_bjet2 = tlv_stage2muon1.DeltaR(tlv_secondBjet);
-    } 
-    
-    //2nd sorting    
-      TLorentzVector tlv_stage2muon2;                                                                                                                  
-                                    
-      if(stage2muon.size()>0){
-	stage2objClass::stage2DeltaR myDeltaRmuon2(tlv_secondBjet.Phi(),tlv_secondBjet.Eta()); 
-	std::sort(stage2muon.begin(),stage2muon.end(),myDeltaRmuon2);
-	
-	//storing 2nd muon
-	tlv_stage2muon2.SetPtEtaPhiM(                                                                                       
-				     stage2muon[0].Et(),                                        							    
-				     stage2muon[0].Eta(),                                                                                                  
-				     stage2muon[0].Phi(),                                                                                               
-				     massStage2);
-	
-	theSmallTree.m_stage2_muon2Et = stage2muon[0].Et();
-	theSmallTree.m_stage2_muon2Eta = stage2muon[0].Eta();
-	theSmallTree.m_stage2_muon2Phi = stage2muon[0].Phi();
-	theSmallTree.m_stage2_muon2Iso  = stage2muon[0].Iso();
-	DeltaRStage2Muon_firstBjet.push_back (tlv_stage2muon2.DeltaR(tlv_firstBjet));
-	DeltaRStage2Muon_secondBjet.push_back (tlv_stage2muon2.DeltaR(tlv_secondBjet));
-	stage2muon.erase(stage2muon.begin());
-	theSmallTree.m_DeltaRmin_stage2muon_bjet1 = *std::min_element(DeltaRStage2Muon_firstBjet.begin(), DeltaRStage2Muon_firstBjet.end());
-	theSmallTree.m_DeltaRmin_stage2muon_bjet2 = *std::min_element(DeltaRStage2Muon_secondBjet.begin(), DeltaRStage2Muon_secondBjet.end());
-	
-      }
-      
-       
       TLorentzVector tlv_firstBjet_raw = tlv_firstBjet;
       TLorentzVector tlv_secondBjet_raw = tlv_secondBjet;
 
@@ -2473,6 +2281,7 @@ vector <float> DeltaRStage2Jet_firstBjet;
       theSmallTree.m_bjet1_phi  = tlv_firstBjet.Phi () ;
       theSmallTree.m_bjet1_e    = theBigTree.jets_e->at (bjet1idx) ;
       theSmallTree.m_bjet1_bID  = theBigTree.bCSVscore->at (bjet1idx) ;
+      theSmallTree.m_bjet1_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet1idx) ;
       theSmallTree.m_bjet1_flav = theBigTree.jets_HadronFlavour->at (bjet1idx) ;
 
       theSmallTree.m_bjet2_pt   = tlv_secondBjet.Pt () ;
@@ -2480,6 +2289,7 @@ vector <float> DeltaRStage2Jet_firstBjet;
       theSmallTree.m_bjet2_phi  = tlv_secondBjet.Phi () ;
       theSmallTree.m_bjet2_e    = theBigTree.jets_e->at (bjet2idx) ;
       theSmallTree.m_bjet2_bID  = theBigTree.bCSVscore->at (bjet2idx) ;
+      theSmallTree.m_bjet2_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet2idx) ;
       theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
 
       bool hasgj1 = false;
@@ -2494,34 +2304,32 @@ vector <float> DeltaRStage2Jet_firstBjet;
           theSmallTree.m_genjet1_phi = gen.Phi();
           theSmallTree.m_genjet1_e = gen.E();
           if (gen.Pt() > 8) hasgj1 = true;
-        }    
-    
-   
-      
-      mcind = theBigTree.jets_genjetIndex->at(bjet2idx);
-      if (mcind>=0){
-	TLorentzVector gen(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
-	theSmallTree.m_genjet2_pt = gen.Pt();
-	theSmallTree.m_genjet2_eta = gen.Eta();
-	theSmallTree.m_genjet2_phi = gen.Phi();
-	theSmallTree.m_genjet2_e = gen.E();
-	if (gen.Pt() > 8) hasgj2 = true;
+        }
+
+        mcind = theBigTree.jets_genjetIndex->at(bjet2idx);
+        if (mcind>=0){
+          TLorentzVector gen(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
+          theSmallTree.m_genjet2_pt = gen.Pt();
+          theSmallTree.m_genjet2_eta = gen.Eta();
+          theSmallTree.m_genjet2_phi = gen.Phi();
+          theSmallTree.m_genjet2_e = gen.E();
+          if (gen.Pt() > 8) hasgj2 = true;
+        }
       }
-    }
-    theSmallTree.m_bjet1_hasgenjet = hasgj1 ;
-    theSmallTree.m_bjet2_hasgenjet = hasgj2 ;
-    
-    float METx = theBigTree.METx->at (chosenTauPair) ;
-    float METy = theBigTree.METy->at (chosenTauPair) ;
-    //float METpt = 0;//TMath::Sqrt (METx*METx + METy*METy) ;
-    
-    TLorentzVector tlv_bH = tlv_firstBjet + tlv_secondBjet ;
-    TLorentzVector tlv_neutrinos =  tlv_bH - tlv_bH_raw;
-    theSmallTree.m_met_et_corr = theBigTree.met - tlv_neutrinos.Et() ;
-    
-    const TVector2 ptmiss = TVector2(METx, METy) ;
-    //TVector2 ptmiss = TVector2(METx,METy);
-    TMatrixD metcov (2, 2) ;
+      theSmallTree.m_bjet1_hasgenjet = hasgj1 ;
+      theSmallTree.m_bjet2_hasgenjet = hasgj2 ;
+
+      float METx = theBigTree.METx->at (chosenTauPair) ;
+      float METy = theBigTree.METy->at (chosenTauPair) ;
+      //float METpt = 0;//TMath::Sqrt (METx*METx + METy*METy) ;
+
+      TLorentzVector tlv_bH = tlv_firstBjet + tlv_secondBjet ;
+      TLorentzVector tlv_neutrinos =  tlv_bH - tlv_bH_raw;
+      theSmallTree.m_met_et_corr = theBigTree.met - tlv_neutrinos.Et() ;
+
+      const TVector2 ptmiss = TVector2(METx, METy) ;
+      //TVector2 ptmiss = TVector2(METx,METy);
+      TMatrixD metcov (2, 2) ;
       metcov (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
       metcov (1,0) = theBigTree.MET_cov10->at (chosenTauPair) ;
       metcov (0,1) = theBigTree.MET_cov01->at (chosenTauPair) ;    
@@ -2946,24 +2754,7 @@ vector <float> DeltaRStage2Jet_firstBjet;
       dRBTau.push_back (tlv_secondLepton.DeltaR(tlv_secondBjet));
       theSmallTree.m_btau_deltaRmin = *std::min_element(dRBTau.begin(), dRBTau.end());
       theSmallTree.m_btau_deltaRmax = *std::max_element(dRBTau.begin(), dRBTau.end());
-      vector <float> dRB1Tau;
-      dRB1Tau.push_back (tlv_firstLepton.DeltaR(tlv_firstBjet));
-      dRB1Tau.push_back (tlv_secondLepton.DeltaR(tlv_firstBjet));
-      theSmallTree.m_b1tau_deltaRmin = *std::min_element(dRB1Tau.begin(), dRB1Tau.end());
-      vector <float> dRB2Tau;
-      dRB2Tau.push_back (tlv_firstLepton.DeltaR(tlv_secondBjet));
-      dRB2Tau.push_back (tlv_secondLepton.DeltaR(tlv_secondBjet));
-      theSmallTree.m_b2tau_deltaRmin = *std::min_element(dRB2Tau.begin(), dRB2Tau.end());
 
-      vector <float> dRB1genTau;
-      dRB1genTau.push_back (vHardScatter1.DeltaR(tlv_firstBjet));
-      dRB1genTau.push_back (vHardScatter2.DeltaR(tlv_firstBjet));
-      theSmallTree.m_b1gentau_deltaRmin = *std::min_element(dRB1genTau.begin(), dRB1genTau.end());
-      vector <float> dRB2genTau;
-      dRB2genTau.push_back (vHardScatter1.DeltaR(tlv_secondBjet));
-      dRB2genTau.push_back (vHardScatter2.DeltaR(tlv_secondBjet));
-      theSmallTree.m_b2gentau_deltaRmin = *std::min_element(dRB2genTau.begin(), dRB2genTau.end());
-      
       // store BDT vars -- this can probably cleverly merged with the next jet loop -- FIXME: to be optimized: all in 1 loop
       TLorentzVector jetVecSum (0,0,0,0);
       for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size (); ++iJet)
@@ -3171,17 +2962,15 @@ vector <float> DeltaRStage2Jet_firstBjet;
                   theSmallTree.m_dR_subj1_subj2 = tlv_subj1.DeltaR(tlv_subj2);
               } 
             }
-        }}
-   // if there's two jets in the event, at least
+        }
+    } // if there's two jets in the event, at least
   
     if (isMC) selectedEvents += theBigTree.aMCatNLOweight ;  //FIXME: probably wrong, but unused up to now
     else selectedEvents += 1 ;
     ++selectedNoWeightsEventsNum ;
 
-    theSmallTree.Fill () ;}
-  
-  
-  
+    theSmallTree.Fill () ;
+  }
 
   cout << "1: " << totalEvents << endl ;
   cout << "2: " << selectedEvents << endl ;
@@ -3195,9 +2984,7 @@ vector <float> DeltaRStage2Jet_firstBjet;
   h_eff.SetBinContent (2, selectedEvents) ;
   h_eff.SetBinContent (3, totalNoWeightsEventsNum) ;
   h_eff.SetBinContent (4, selectedNoWeightsEventsNum) ;
-  cout<< "stage2jet matched to both bjets = " << bjetsBoosted << endl ;
-  if (selectedNoWeightsEventsNum != 0) cout << "stage2jet matched to both bjets - ratio = " << bjetsBoosted / selectedNoWeightsEventsNum  << endl ;
-
+  
   // store more detailed eff counter in output
   vector<pair<string, double> > vEffSumm = ec.GetSummary();
   TH1F* h_effSummary = new TH1F ("h_effSummary", "h_effSummary", vEffSumm.size(), 0, vEffSumm.size());

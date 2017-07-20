@@ -60,6 +60,8 @@ public :
    Int_t           lheNOutPartons;
    Int_t           lheNOutB;
    Float_t         aMCatNLOweight;
+   TString         susyModel;
+
    std::vector<float>   *genpart_px;
    std::vector<float>   *genpart_py;
    std::vector<float>   *genpart_pz;
@@ -189,44 +191,6 @@ public :
    std::vector<Long64_t> *daughters_L3FilterFiredLast;
    std::vector<float>   *daughters_HLTpt;
    std::vector<bool>    *daughters_isL1IsoTau28Matched;
-   Int_t stage2_tauN;
-   std::vector<Float_t> *stage2_tauEt;
-   std::vector<Float_t> *stage2_tauEta;
-   std::vector<Float_t> *stage2_tauPhi;
-   std::vector<short int> *stage2_tauIEt;
-   std::vector<short int> *stage2_tauIEta;
-   std::vector<short int> *stage2_tauIPhi;
-   std::vector<short int> *stage2_tauIso;
-   std::vector<short int> *stage2_tauBx;
-   Int_t stage2_egN;
-   std::vector<Float_t> *stage2_egEt;
-   std::vector<Float_t> *stage2_egEta;
-   std::vector<Float_t> *stage2_egPhi;
-   std::vector<short int> *stage2_egIEt;
-   std::vector<short int> *stage2_egIEta;
-   std::vector<short int> *stage2_egIPhi;
-   std::vector<short int> *stage2_egIso;
-   std::vector<short int> *stage2_egBx;
-   Int_t stage2_jetN;
-   std::vector<Float_t> *stage2_jetEt;
-   std::vector<Float_t> *stage2_jetEta;
-   std::vector<Float_t> *stage2_jetPhi;
-   std::vector<short int> *stage2_jetIEt;
-   std::vector<short int> *stage2_jetIEta;
-   std::vector<short int> *stage2_jetIPhi;
-   std::vector<short int> *stage2_jetBx;
-   Int_t stage2_muonN;
-   std::vector<Float_t> *stage2_muonEt;
-   std::vector<Float_t> *stage2_muonEta;
-   std::vector<Float_t> *stage2_muonPhi;
-   std::vector<short int> *stage2_muonIEt;
-   std::vector<short int> *stage2_muonIEta;
-   std::vector<short int> *stage2_muonIPhi;
-   std::vector<short int> *stage2_muonChg;
-   std::vector<short int> *stage2_muonIso;
-   std::vector<short int> *stage2_muonQual;
-   std::vector<short int> *stage2_muonTfMuonIdx;
-   std::vector<short int> *stage2_muonBx;
    Int_t           JetsNumber;
    std::vector<float>   *jets_px;
    std::vector<float>   *jets_py;
@@ -254,6 +218,7 @@ public :
    std::vector<int>     *jets_chMult;
    std::vector<float>   *bDiscriminator;
    std::vector<float>   *bCSVscore;
+   std::vector<float>   *pfCombinedMVAV2BJetTags;
    std::vector<int>     *PFjetID;
    std::vector<float>   *jetRawf;
    std::vector<float>   *jets_jecUnc;
@@ -318,6 +283,7 @@ public :
    TBranch        *b_lheNOutPartons; //!
    TBranch        *b_lheNOutB; //!
    TBranch        *b_aMCatNLOweight;   //!
+   TBranch        *b_susyModel;   //!
    TBranch        *b_genpart_px;   //!
    TBranch        *b_genpart_py;   //!
    TBranch        *b_genpart_pz;   //!
@@ -345,7 +311,7 @@ public :
    TBranch        *b_NUP;   //!
    TBranch        *b_SVfitMass;   //!
    TBranch        *b_SVfit_pt;   //!
-   TBranch        *b_SVfit_ptUnc;   //! 
+   TBranch        *b_SVfit_ptUnc;   //!
    TBranch        *b_SVfit_eta;   //!
    TBranch        *b_SVfit_etaUnc;   //!
    TBranch        *b_SVfit_phi;   //!
@@ -442,44 +408,6 @@ public :
    TBranch        *b_daughters_L3FilterFiredLast;   //!
    TBranch        *b_daughters_HLTpt;   //!
    TBranch        *b_daughters_isL1IsoTau28Matched; //!
-   TBranch        *b_Stage2tausNumber;   //!                                                                                                                 
-   TBranch        *b_stage2_tauEt;   //!                                                                                                                                         
-   TBranch        *b_stage2_tauEta;   //!                                                                                                                                                                         
-   TBranch        *b_stage2_tauPhi;   //!                                                                                                                                                                          
-   TBranch        *b_stage2_tauIEt;   //!                                                                                                                                                                    
-   TBranch        *b_stage2_tauIEta;   //!                                                                                                                                                        
-   TBranch        *b_stage2_tauIPhi;   //!                                                                                                                                                                    
-   TBranch        *b_stage2_tauIso;   //!                                                                                                                                                                   
-   TBranch        *b_stage2_tauBx;   //!                                                                                                                                                                           
-   TBranch        *b_Stage2egNumber;   //!                                                                                                                                                                         
-   TBranch        *b_stage2_egEt;   //!                                                                                                                                                                            
-   TBranch        *b_stage2_egEta;   //!                                                                                                                                                                           
-   TBranch        *b_stage2_egPhi;   //!                                                                                                                                                                           
-   TBranch        *b_stage2_egIEt;   //!                                                                                                                                                                           
-   TBranch        *b_stage2_egIEta;   //!                                                                                                                                                                          
-   TBranch        *b_stage2_egIPhi;   //!                                                                                                                                                                          
-   TBranch        *b_stage2_egIso;   //!                                                                                                                                                                           
-   TBranch        *b_stage2_egBx;   //!                                                                                                                                                                            
-   TBranch        *b_Stage2jetsNumber;   //!                                                                                                                                                                       
-   TBranch        *b_stage2_jetEt;   //!                                                                                                                                                                           
-   TBranch        *b_stage2_jetEta;   //!                                                                                                                                                                      
-   TBranch        *b_stage2_jetPhi;   //!                                                                                                                                                                     
-   TBranch        *b_stage2_jetIEt;   //!                                                                                                                                                                        
-   TBranch        *b_stage2_jetIEta;   //!      
-   TBranch        *b_stage2_jetIPhi;   //!                                                                                      
-   TBranch        *b_stage2_jetBx;   //!                                                                                                                                                                          
-   TBranch        *b_Stage2muonsNumber;   //!                                                                                                                                                                    
-   TBranch        *b_stage2_muonEt;   //!                                                                                                                                                                          
-   TBranch        *b_stage2_muonEta;   //!                                                                                                                                                                         
-   TBranch        *b_stage2_muonPhi;   //!                                                                                                                                                                         
-   TBranch        *b_stage2_muonIEt;   //!                                                                                                                                                                         
-   TBranch        *b_stage2_muonIEta;   //!                                                                                                                                                                        
-   TBranch        *b_stage2_muonIPhi;   //!                                                                                                                                                                      
-   TBranch        *b_stage2_muonChg;   //!                                                                                                                                                                         
-   TBranch        *b_stage2_muonIso;   //!                                                                                                                                                                         
-   TBranch        *b_stage2_muonQual;   //!                                                                                                                                                                        
-   TBranch        *b_stage2_muonTfMuonIdx;   //!                                                                                                                                                                   
-   TBranch        *b_stage2_muonBx;   //!               
    TBranch        *b_JetsNumber;   //!
    TBranch        *b_jets_px;   //!
    TBranch        *b_jets_py;   //!
@@ -507,6 +435,7 @@ public :
    TBranch        *b_jets_chMult;   //!
    TBranch        *b_bDiscriminator;   //!
    TBranch        *b_bCSVscore;   //!
+   TBranch        *b_pfCombinedMVAV2BJetTags; //!
    TBranch        *b_PFjetID;   //!
    TBranch        *b_jetRawf;   //!
    TBranch        *b_jets_jecUnc ; //!
@@ -551,7 +480,7 @@ public :
        mothers_py = 0;
        mothers_pz = 0;
        mothers_e = 0;
-      mothers_trgSeparateMatch = 0;
+       mothers_trgSeparateMatch = 0;
        daughters_px = 0;
        daughters_py = 0;
        daughters_pz = 0;
@@ -690,40 +619,6 @@ public :
        daughters_L3FilterFiredLast = 0;
        daughters_HLTpt = 0;
        daughters_isL1IsoTau28Matched = 0;
-       stage2_tauEt = 0;
-       stage2_tauEta = 0;
-       stage2_tauPhi = 0;
-       stage2_tauIEt = 0;
-       stage2_tauIEta = 0;
-       stage2_tauIPhi = 0;
-       stage2_tauIso = 0;
-       stage2_tauBx = 0;
-       stage2_egEt = 0;
-       stage2_egEta = 0;
-       stage2_egPhi = 0;
-       stage2_egIEt = 0;
-       stage2_egIEta = 0;
-       stage2_egIPhi = 0;
-       stage2_egIso = 0;
-       stage2_egBx = 0;
-       stage2_jetEt = 0;
-       stage2_jetEta = 0;
-       stage2_jetPhi = 0;
-       stage2_jetIEt = 0;
-       stage2_jetIEta = 0;
-       stage2_jetIPhi = 0;
-       stage2_jetBx = 0;
-       stage2_muonEt = 0;
-       stage2_muonEta = 0;
-       stage2_muonPhi = 0;
-       stage2_muonIEt = 0;
-       stage2_muonIEta = 0;
-       stage2_muonIPhi = 0;
-       stage2_muonBx = 0;
-       stage2_muonChg = 0;
-       stage2_muonIso = 0;
-       stage2_muonQual = 0;
-       stage2_muonTfMuonIdx = 0;      
        jets_px = 0;
        jets_py = 0;
        jets_pz = 0;
@@ -750,6 +645,7 @@ public :
        jets_chMult = 0;
        bDiscriminator = 0;
        bCSVscore = 0;
+       pfCombinedMVAV2BJetTags = 0;
        PFjetID = 0;
        jetRawf = 0;
        jets_jecUnc = 0;
@@ -878,44 +774,6 @@ public :
        fChain->SetBranchAddress("daughters_L3FilterFiredLast", &daughters_L3FilterFiredLast, &b_daughters_L3FilterFiredLast);
        fChain->SetBranchAddress("daughters_HLTpt", &daughters_HLTpt, &b_daughters_HLTpt);
        fChain->SetBranchAddress("daughters_isL1IsoTau28Matched", &daughters_isL1IsoTau28Matched, &b_daughters_isL1IsoTau28Matched);
-       fChain->SetBranchAddress("stage2_tauN", &stage2_tauN, &b_Stage2tausNumber);
-       fChain->SetBranchAddress("stage2_tauEt", &stage2_tauEt, &b_stage2_tauEt);
-       fChain->SetBranchAddress("stage2_tauEta", &stage2_tauEta, &b_stage2_tauEta);
-       fChain->SetBranchAddress("stage2_tauPhi", &stage2_tauPhi, &b_stage2_tauPhi);
-       fChain->SetBranchAddress("stage2_tauIEt", &stage2_tauIEt, &b_stage2_tauIEt);
-       fChain->SetBranchAddress("stage2_tauIEta", &stage2_tauIEta, &b_stage2_tauIEta);
-       fChain->SetBranchAddress("stage2_tauIPhi", &stage2_tauIPhi, &b_stage2_tauIPhi);
-       fChain->SetBranchAddress("stage2_tauIso", &stage2_tauIso, &b_stage2_tauIso);
-       fChain->SetBranchAddress("stage2_tauBx", &stage2_tauBx, &b_stage2_tauBx);
-       fChain->SetBranchAddress("stage2_egN", &stage2_egN, &b_Stage2egNumber);
-       fChain->SetBranchAddress("stage2_egEt", &stage2_egEt, &b_stage2_egEt);
-       fChain->SetBranchAddress("stage2_egEta", &stage2_egEta, &b_stage2_egEta);
-       fChain->SetBranchAddress("stage2_egPhi", &stage2_egPhi, &b_stage2_egPhi);
-       fChain->SetBranchAddress("stage2_egIEt", &stage2_egIEt, &b_stage2_egIEt);
-       fChain->SetBranchAddress("stage2_egIEta", &stage2_egIEta, &b_stage2_egIEta);
-       fChain->SetBranchAddress("stage2_egIPhi", &stage2_egIPhi, &b_stage2_egIPhi);
-       fChain->SetBranchAddress("stage2_egIso", &stage2_egIso, &b_stage2_egIso);
-       fChain->SetBranchAddress("stage2_egBx", &stage2_egBx, &b_stage2_egBx);
-       fChain->SetBranchAddress("stage2_jetN", &stage2_jetN, &b_Stage2jetsNumber);
-       fChain->SetBranchAddress("stage2_jetEt", &stage2_jetEt, &b_stage2_jetEt);
-       fChain->SetBranchAddress("stage2_jetEta", &stage2_jetEta, &b_stage2_jetEta);
-       fChain->SetBranchAddress("stage2_jetPhi", &stage2_jetPhi, &b_stage2_jetPhi);
-       fChain->SetBranchAddress("stage2_jetIEt", &stage2_jetIEt, &b_stage2_jetIEt);
-       fChain->SetBranchAddress("stage2_jetIEta", &stage2_jetIEta, &b_stage2_jetIEta);
-       fChain->SetBranchAddress("stage2_jetIPhi", &stage2_jetIPhi, &b_stage2_jetIPhi);
-       fChain->SetBranchAddress("stage2_jetBx", &stage2_jetBx, &b_stage2_jetBx);
-       fChain->SetBranchAddress("stage2_muonN", &stage2_muonN, &b_Stage2muonsNumber);
-       fChain->SetBranchAddress("stage2_muonEt", &stage2_muonEt, &b_stage2_muonEt);
-       fChain->SetBranchAddress("stage2_muonEta", &stage2_muonEta, &b_stage2_muonEta);
-       fChain->SetBranchAddress("stage2_muonPhi", &stage2_muonPhi, &b_stage2_muonPhi);
-       fChain->SetBranchAddress("stage2_muonIEt", &stage2_muonIEt, &b_stage2_muonIEt);
-       fChain->SetBranchAddress("stage2_muonIEta", &stage2_muonIEta, &b_stage2_muonIEta);
-       fChain->SetBranchAddress("stage2_muonIPhi", &stage2_muonIPhi, &b_stage2_muonIPhi);
-       fChain->SetBranchAddress("stage2_muonChg", &stage2_muonChg, &b_stage2_muonChg);
-       fChain->SetBranchAddress("stage2_muonIso", &stage2_muonIso, &b_stage2_muonIso);
-       fChain->SetBranchAddress("stage2_muonQual", &stage2_muonQual, &b_stage2_muonQual);
-       fChain->SetBranchAddress("stage2_muonTfMuonIdx", &stage2_muonTfMuonIdx, &b_stage2_muonTfMuonIdx);
-       fChain->SetBranchAddress("stage2_muonBx", &stage2_muonBx, &b_stage2_muonBx);
        fChain->SetBranchAddress("JetsNumber", &JetsNumber, &b_JetsNumber);
        fChain->SetBranchAddress("jets_px", &jets_px, &b_jets_px);
        fChain->SetBranchAddress("jets_py", &jets_py, &b_jets_py);
@@ -942,6 +800,7 @@ public :
        fChain->SetBranchAddress("jets_chMult", &jets_chMult, &b_jets_chMult);
        fChain->SetBranchAddress("bDiscriminator", &bDiscriminator, &b_bDiscriminator);
        fChain->SetBranchAddress("bCSVscore", &bCSVscore, &b_bCSVscore);
+       fChain->SetBranchAddress("pfCombinedMVAV2BJetTags", &pfCombinedMVAV2BJetTags, &b_pfCombinedMVAV2BJetTags);
        fChain->SetBranchAddress("PFjetID", &PFjetID, &b_PFjetID);
        fChain->SetBranchAddress("jetRawf", &jetRawf, &b_jetRawf);
        fChain->SetBranchAddress("jets_jecUnc", &jets_jecUnc,&b_jets_jecUnc);
@@ -970,6 +829,7 @@ public :
        {
             fChain->SetBranchAddress("PUNumInteractions", &PUNumInteractions, &b_PUNumInteractions);
             fChain->SetBranchAddress("aMCatNLOweight", &aMCatNLOweight, &b_aMCatNLOweight);
+            fChain->SetBranchAddress("susyModel", &susyModel, &b_susyModel);
             fChain->SetBranchAddress("MC_weight", &MC_weight, &b_MC_weight);
             fChain->SetBranchAddress("daughters_genindex", &daughters_genindex, &b_daughters_genindex);
             fChain->SetBranchAddress("genpart_px", &genpart_px, &b_genpart_px);

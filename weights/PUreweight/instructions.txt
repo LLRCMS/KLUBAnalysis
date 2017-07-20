@@ -1,0 +1,21 @@
+* INFO can be found here: https://twiki.cern.ch/twiki/bin/view/CMS/PileupJSONFileforData#Pileup_JSON_Files_For_Run_II
+* For 2016 data, golden json is /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt
+
+1) * get the PU certification
+wget https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/PileUp/pileup_latest.txt   
+or
+cp /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/PileUp/pileup_latest.txt .
+
+2) * make the data PU distribution
+pileupCalc.py -i <GOLDEN JSON LFN> --inputLumiJSON pileup_latest.txt --calcMode true --minBiasXsec 69200 --maxPileupBin 100 --numPileupBins 100 MyDataPileupHistogram_2016data.root
+
+3) * make the MC PU distribution - use a large MC sample for good stat
+Update the input file and run : root -l -b -q ratioPU.C
+NOTE: to be faster, you can run multiple jobs by splitting, just give  root -l -b -q ratioPU.C'(idxbegin, nevts)' and then hadd all of them
+root -l -b -q ratioPU.C'(0, 50000000)'
+root -l -b -q ratioPU.C'(50000000, 50000000)'
+root -l -b -q ratioPU.C'(100000000, 50000000)'
+root -l -b -q ratioPU.C'(150000000, 50000000)'
+
+4) * compute the SFs as the ratio data/MC
+root -l makeRatio.C

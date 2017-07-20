@@ -1,0 +1,1 @@
+root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/gortona/HHNtuples/MC_2017_8020_30jan17/39_ZZJJTo4L_QCD_13TeV-madgraph-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/ZZJJTo4L_QCD_13TeV-madgraph-pythia8/ZZJJTo4L_QCD_13TeV-madgraph-pythia8_MC_2017_8020_30jan17_39/170130_142834/0000/HTauTauAnalysis_97.root
