@@ -310,20 +310,6 @@ struct smallTree
 
       m_topReweight=-1;
 
-      m_bjet1_SF_light_central = -1.0;
-      m_bjet1_SF_light_up = -1.0;
-      m_bjet1_SF_light_down = -1.0;
-      m_bjet1_SF_heavy_central = -1.0;
-      m_bjet1_SF_heavy_up = -1.0;
-      m_bjet1_SF_heavy_down = -1.0;
-
-      m_bjet2_SF_light_central = -1.0;
-      m_bjet2_SF_light_up = -1.0;
-      m_bjet2_SF_light_down = -1.0;
-      m_bjet2_SF_heavy_central = -1.0;
-      m_bjet2_SF_heavy_up = -1.0;
-      m_bjet2_SF_heavy_down = -1.0;
-
       return 0 ;    
     }
 
@@ -450,21 +436,6 @@ struct smallTree
       m_smallT->Branch ("bjet2_pt_raw_jetup", &m_bjet2_pt_raw_jetup, "bjet2_pt_raw_jetup/F") ;
       m_smallT->Branch ("bjet2_pt_raw_jetdown", &m_bjet2_pt_raw_jetdown, "bjet2_pt_raw_jetdown/F") ;
       m_smallT->Branch ("bjet2_hasgenjet", &m_bjet2_hasgenjet, "bjet2_hasgenjet/O") ;
-
-      m_smallT->Branch ("bjet1_SF_light_central", &m_bjet1_SF_light_central,"bjet1_SF_light_central/F");
-      m_smallT->Branch ("bjet1_SF_light_up"     , &m_bjet1_SF_light_up     ,"bjet1_SF_light_up/F"     );
-      m_smallT->Branch ("bjet1_SF_light_down"   , &m_bjet1_SF_light_down   ,"bjet1_SF_light_down/F"   );
-      m_smallT->Branch ("bjet1_SF_heavy_central", &m_bjet1_SF_heavy_central,"bjet1_SF_heavy_central/F");
-      m_smallT->Branch ("bjet1_SF_heavy_up"     , &m_bjet1_SF_heavy_up     ,"bjet1_SF_heavy_up/F"     );
-      m_smallT->Branch ("bjet1_SF_heavy_down"   , &m_bjet1_SF_heavy_down   ,"bjet1_SF_heavy_down/F"   );
-
-      m_smallT->Branch ("bjet2_SF_light_central", &m_bjet2_SF_light_central,"bjet2_SF_light_central/F");
-      m_smallT->Branch ("bjet2_SF_light_up"     , &m_bjet2_SF_light_up     ,"bjet2_SF_light_up/F"     );
-      m_smallT->Branch ("bjet2_SF_light_down"   , &m_bjet2_SF_light_down   ,"bjet2_SF_light_down/F"   );
-      m_smallT->Branch ("bjet2_SF_heavy_central", &m_bjet2_SF_heavy_central,"bjet2_SF_heavy_central/F");
-      m_smallT->Branch ("bjet2_SF_heavy_up"     , &m_bjet2_SF_heavy_up     ,"bjet2_SF_heavy_up/F"     );
-      m_smallT->Branch ("bjet2_SF_heavy_down"   , &m_bjet2_SF_heavy_down   ,"bjet2_SF_heavy_down/F"   );
-
 
       m_smallT->Branch ("nfatjets", &m_nfatjets, "nfatjets/I");
       m_smallT->Branch ("fatjet_pt", &m_fatjet_pt, "fatjet_pt/F");
@@ -947,22 +918,6 @@ struct smallTree
 
   Float_t m_lheht ;
   Float_t m_topReweight;
-
-  Float_t m_bjet1_SF_light_central;
-  Float_t m_bjet1_SF_light_up;
-  Float_t m_bjet1_SF_light_down;
-  Float_t m_bjet1_SF_heavy_central;
-  Float_t m_bjet1_SF_heavy_up;
-  Float_t m_bjet1_SF_heavy_down;
-
-  Float_t m_bjet2_SF_light_central;
-  Float_t m_bjet2_SF_light_up;
-  Float_t m_bjet2_SF_light_down;
-  Float_t m_bjet2_SF_heavy_central;
-  Float_t m_bjet2_SF_heavy_up;
-  Float_t m_bjet2_SF_heavy_down;
-
-
   
 } ;
 

@@ -16,17 +16,11 @@ class bTagSF
         //bTagSF(std::string SFfilename);
         bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag, std::string WPset="80X_ICHEP_2016");
         ~bTagSF();
-        float getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta, int systflavour=-1);
+        float getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta);
         float getEff (WP wpt, int jetFlavor, int channel, float pt, float eta); // FIXME: to do: retrieve MC efficiency from a data format
         void SetWPset(std::string WPset);
         void SetWPset(double loose, double medium, double tight);
-
-        double getLooseCSV(){return _WPtag[0];}
-        double getMediumCSV(){return _WPtag[1];}
-        double getTightCSV(){return _WPtag[2];}
-
-        int getWorkingPoint(double CSV);
-
+   
         std::vector<float> getEvtWeight (std::vector <std::pair <int, float> >& jets_and_btag, std::vector<float> *jets_px, std::vector<float> *jets_py, std::vector<float> *jets_pz, std::vector<float> *jets_e, std::vector<int> *jets_HadronFlavour, int channel);
     private:
         // related to scale factors
@@ -51,8 +45,6 @@ class bTagSF
         BTagCalibrationReader* m_readers [3][3][3]; // [b, c, udsg] [central, up, down] [loose, medium, tight] 
         */
         BTagCalibrationReader m_readers [3]; // new 2016: [loose, medium, tight] 
-        BTagCalibrationReader m_light [3]; // new 2016: [loose, medium, tight] 
-        BTagCalibrationReader m_heavy [3]; // new 2016: [loose, medium, tight] 
 
         // related to b tag efficiency
         TFile* m_fileEff;

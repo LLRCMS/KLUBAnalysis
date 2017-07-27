@@ -2292,39 +2292,6 @@ int main (int argc, char** argv)
       theSmallTree.m_bjet2_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet2idx) ;
       theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
 
-      int WP1 = bTagSFHelper.getWorkingPoint(theSmallTree.m_bjet1_bID);
-      if(WP1>=0){
-        theSmallTree.m_bjet1_SF_light_central = bTagSFHelper.getSF( WP1, 0, theSmallTree.m_bjet1_flav, theSmallTree.m_bjet1_pt, theSmallTree.m_bjet1_eta,0);
-        theSmallTree.m_bjet1_SF_light_up = bTagSFHelper.getSF( WP1, 1, theSmallTree.m_bjet1_flav, theSmallTree.m_bjet1_pt, theSmallTree.m_bjet1_eta,0);
-        theSmallTree.m_bjet1_SF_light_down = bTagSFHelper.getSF( WP1, 2, theSmallTree.m_bjet1_flav, theSmallTree.m_bjet1_pt, theSmallTree.m_bjet1_eta,0);
-        theSmallTree.m_bjet1_SF_heavy_central = bTagSFHelper.getSF( WP1, 0, theSmallTree.m_bjet1_flav, theSmallTree.m_bjet1_pt, theSmallTree.m_bjet1_eta,1);
-        theSmallTree.m_bjet1_SF_heavy_up = bTagSFHelper.getSF( WP1, 1, theSmallTree.m_bjet1_flav, theSmallTree.m_bjet1_pt, theSmallTree.m_bjet1_eta,1);
-        theSmallTree.m_bjet1_SF_heavy_down = bTagSFHelper.getSF( WP1, 2, theSmallTree.m_bjet1_flav, theSmallTree.m_bjet1_pt, theSmallTree.m_bjet1_eta,1);
-
-        theSmallTree.m_bjet2_SF_light_central = bTagSFHelper.getSF( WP1, 0, theSmallTree.m_bjet2_flav, theSmallTree.m_bjet2_pt, theSmallTree.m_bjet2_eta,0);
-        theSmallTree.m_bjet2_SF_light_up = bTagSFHelper.getSF( WP1, 1, theSmallTree.m_bjet2_flav, theSmallTree.m_bjet2_pt, theSmallTree.m_bjet2_eta,0);
-        theSmallTree.m_bjet2_SF_light_down = bTagSFHelper.getSF( WP1, 2, theSmallTree.m_bjet2_flav, theSmallTree.m_bjet2_pt, theSmallTree.m_bjet2_eta,0);
-        theSmallTree.m_bjet2_SF_heavy_central = bTagSFHelper.getSF( WP1, 0, theSmallTree.m_bjet2_flav, theSmallTree.m_bjet2_pt, theSmallTree.m_bjet2_eta,1);
-        theSmallTree.m_bjet2_SF_heavy_up = bTagSFHelper.getSF( WP1, 1, theSmallTree.m_bjet2_flav, theSmallTree.m_bjet2_pt, theSmallTree.m_bjet2_eta,1);
-        theSmallTree.m_bjet2_SF_heavy_down = bTagSFHelper.getSF( WP1, 2, theSmallTree.m_bjet2_flav, theSmallTree.m_bjet2_pt, theSmallTree.m_bjet2_eta,1);
-
-      }else {
-        theSmallTree.m_bjet1_SF_light_central = -1.0;
-        theSmallTree.m_bjet1_SF_light_up = -1.0;
-        theSmallTree.m_bjet1_SF_light_down = -1.0;
-        theSmallTree.m_bjet1_SF_heavy_central = -1.0;
-        theSmallTree.m_bjet1_SF_heavy_up = -1.0;
-        theSmallTree.m_bjet1_SF_heavy_down = -1.0;
-
-        theSmallTree.m_bjet2_SF_light_central = -1.0;
-        theSmallTree.m_bjet2_SF_light_up = -1.0;
-        theSmallTree.m_bjet2_SF_light_down = -1.0;
-        theSmallTree.m_bjet2_SF_heavy_central = -1.0;
-        theSmallTree.m_bjet2_SF_heavy_up = -1.0;
-        theSmallTree.m_bjet2_SF_heavy_down = -1.0;
-
-
-      }
       bool hasgj1 = false;
       bool hasgj2 = false;          
       if (isMC){            
