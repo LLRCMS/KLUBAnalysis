@@ -1,28 +1,33 @@
+#OUTDIRR="SkimmedNtuples"
+#AMESSAGE="test for 2017"
+
 OUTDIRR="Skims2017_13Giu_All_resData"
 AMESSAGE="Resub failed data with more jobs. Skims fixing the MuMu sideband SFs on both muons. Reweighted benchmarks 5D reweight. Introduced ele10 sideband. Data from 22Feb production, 7Feb2017 REminiaod. Data with fixed evts number. Added OR of non ER mu triggers to see if agreement is retrieved.Includes nBadMu filter applied. 11 Feb 2017 MC production (most but not all jobs are finished)."
 
+
 source /opt/exp_soft/cms/t3/t3setup
-mkdir /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/
-mkdir $OUTDIRR
-touch /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/README.txt
-echo $AMESSAGE > /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/README.txt
-cp /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/scripts/haddAll.sh /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/
+mkdir /data_CMS/cms/amendola/$OUTDIRR/
+
+cp /home/llr/cms/amendola/CMSSW_7_4_3/src/KLUBAnalysis/scripts/haddAll.sh /data_CMS/cms/amendola/$OUTDIRR/
 
 
-# source /opt/exp_soft/cms/t3/t3setup
-# mkdir /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/
-# mkdir $OUTDIRR
-# touch /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/README.txt
-# echo $AMESSAGE > /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/README.txt
-# cp /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/scripts/haddAll.sh /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/
 
+
+
+####################
+### TEST FOR 2017, SIGNAL
+#python scripts/skimNtuple.py  -s True -c  config/skim_2016.cfg -n 1 -k False -i inputFiles/HHbbtt500.txt -o /data_CMS/cms/amendola/$OUTDIRR/$outdir
+python scripts/skimNtuple.py -s True -c  config/skim_2016.cfg  -n 10 -k True -o /data_CMS/cms/amendola/$OUTDIRR/SKIM_HHTo2b2Tau_M_750  -i inputFiles/29Giu2017/GluGluToRadionToHHTo2B2Tau_M-750_narrow_13TeV.txt  -x 1.0 -a True
+
+
+touch /data_CMS/cms/amendola/$OUTDIRR/$outdir/README.txt
+echo $AMESSAGE > /data_CMS/cms/amendola/$OUTDIRR/$outdir/README.txt
 
 #####################
 ### TEST DATA W/ MORE JOBS FOR 0JETS SKIMS
 # python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 600  -k False -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_SingleMuon        -i inputFiles/Files_22Feb2017/SingleMu_7FebreminiAOD_5Mar2017.txt
 # python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 1000 -k False -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_SingleElectron    -i inputFiles/Files_22Feb2017/SingleEle_7FebreminiAOD_5Mar2017.txt
 # python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 600  -k False -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_Tau               -i inputFiles/Files_22Feb2017/Tau_7FebreminiAOD_5Mar2017.txt
-
 
 
 #####################
@@ -32,6 +37,7 @@ cp /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/scripts/haddAll.sh
 python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 600  -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_SingleMuon        -i inputFiles/Files_22Feb2017/SingleMu_7FebreminiAOD_5Mar2017.txt
 python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 1000 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_SingleElectron    -i inputFiles/Files_22Feb2017/SingleEle_7FebreminiAOD_5Mar2017.txt
 python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 600  -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_Tau               -i inputFiles/Files_22Feb2017/Tau_7FebreminiAOD_5Mar2017.txt
+
 
 # # #####################
 # # ### DATA PROMPT RECO FOR CONTROL
@@ -387,4 +393,6 @@ python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.c
 # # python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_HH_node_SM   -i inputFiles/Files_7Feb2016/38_GluGluToHHTo2B2Tau_node_SM_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt  -x 1.0 -a True
 
 # # python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k False -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_HH_lambdarew_dyn_21   -i inputFiles/Files_7Feb2016/allNonResClones_dynRew/filelist_allNonRes_dr_21.txt  -x 1.0 --kl 1.0  --kt 1.0 -a True
+
 # # python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k False -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_HH_lambdarew_dyn_41   -i inputFiles/Files_7Feb2016/allNonResClones_dynRew/filelist_allNonRes_dr_41.txt  -x 1.0 --kl 20.0 --kt 1.0 -a True
+
