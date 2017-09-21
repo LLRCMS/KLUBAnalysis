@@ -52,6 +52,8 @@ tag = "MC_BKG_3Jul2017"
 #tag = "MCSUSY_2Apr2017"
 #tag = "MC_gravitons_24Apr2017"
 #tag = "MC_gravitonsRS_29Apr2017"
+tag = "MC_gravitonsRS_29Apr2017"
+
 
 #outFolder = "../inputFiles/28Ago2015/" # write / at the end
 #outFolder = "../inputFiles/13Ott2015/25ns/"
@@ -77,7 +79,9 @@ tag = "MC_BKG_3Jul2017"
 #outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_23SepReReco_26Feb'
 #outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_22Feb2017'
 #outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_5apr_SUSY'
-outFolder = '/home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/FilesTest2017'
+#outFolder = '/home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/FilesTest2017'
+outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_29Apr2016_gravitons'
+
 
 areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
                                  # if false: only add the polgrid server to run the skim and submit on root
@@ -115,8 +119,10 @@ print useOnly
 
 
 dpmhome = "/dpm/in2p3.fr/home/cms/trivcat"
-#partialPath = "/store/user/lcadamur/HHNtuples/" #folder contenente la produzione
-partialPath = "/store/user/camendol/HHNtuples/" 
+
+partialPath = "/store/user/lcadamur/HHNtuples/" #folder contenente la produzione
+#partialPath = "/store/user/camendol/HHNtuples/" 
+
 # partialPath = "/store/user/salerno/HHNtuples/"
 #partialPath = "/store/user/davignon/EnrichedMiniAOD/"
 #partialPath = "/store/user/gortona/HHNtuples/"

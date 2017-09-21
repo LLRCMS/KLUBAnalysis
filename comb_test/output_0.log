@@ -1,0 +1,119 @@
+** INFO: inputFile  : /grid_mnt/vol__vol_U__u/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/SKIM_SM_forcombination/filelist_0.txt
+** INFO: outputFile : comb_test/output_0.root
+** INFO: x-section: 1
+** INFO: is it MC?  1
+** INFO: reading config : config/skim_2016_addTriggers.cfg
+** INFO: running HHKinFit: 0
+** INFO: xsec scaled by: 1
+** INFO: removing HT < -999 [-999 means no removal]
+** INFO: is this a TTbar sample? : 0
+** INFO: loop on gen jet to do a b-based DY split? 0 0
+** INFO: reweightin file for non-resonant hh is: 0 [ 0 for no reweghting done ]
+** INFO: TT stitch type: 0 [0: no stitch , 1: fully had, 2: semilept t, 3: semilept tbar, 4: fully lept, 5: semilept all]
+** INFO: running MT2: 1
+** INFO: is HH signal: 0
+** INFO: requiring exactly -999 outgoing partons [<0 for no cut on this]
+** INFO: kl, kt reweight -999 -999 [kt < -990 || kl < -990 : no HH reweight]
+**       c2, cg, c2g reweight -999 -999 -999 [if any is < -990: will do only a klambda / kt reweight if requested]
+** INFO: requesting SUSY model to be: -NOTSUSY- [NOTSUSY: no request on this parameter]
+** INFO: HH reweight type is 0 [ 0: no reweight, 1: from histo, 2: dynamic ]
+** INFO: thth sorting strategy? [0: kLLRFramDefault, 1: kHTauTau, 2: kPtAndRawIso]1
+** INFO: apply triggers? 1 [ 0: reweight , 1: triggerbit+matching ]
+** INFO: triggers used in the skim : 
+  @ MuTau
+   -->   HLT_IsoMu22_eta2p1_v  HLT_IsoTkMu22_eta2p1_v
+  @ EleTau
+   -->   HLT_Ele25_eta2p1_WPTight_Gsf_v
+  @ TauTau
+   -->   HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v
+Error in <TCling::RegisterModule>: cannot find dictionary module mydict_rdict.pcm
+** INFO: computing b jet regression? 0 with weights 
+B Tag SF file: /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/weights/CSVv2_Moriond17_B_H.csv
+bTagSF :: info : WP set is 80X_MORIOND_2017 i.e.;0.543 0.848 0.954
+- reading event 0
+1: 5.01441
+2: 17
+3: 200
+4: 17
+efficiency = 3.39023
+BDT resonant HIGH MASS vars:
+ ... 0 dau1MET_deltaphi --> dphi_mumet
+ ... 1 tauHsvfitMet_deltaPhi --> dphi_metsv
+ ... 2 dib_deltaR --> dR_bb
+ ... 3 ditau_deltaR --> dR_taumu
+ ... 4 mT1 --> mT1
+ ... 5 mT2 --> mT2
+ ... 6 bHMet_deltaPhi --> dphi_bbmet
+ ... 7 HHsvfit_deltaPhi --> dphi_bbsv
+
+BDT resonant LOW MASS vars:
+ ... 0 dau1MET_deltaphi --> dphi_mumet
+ ... 1 tauHsvfitMet_deltaPhi --> dphi_metsv
+ ... 2 dib_deltaR_per_bHpt --> dR_bb*bb_h.Pt()
+ ... 3 ditau_deltaR_per_tauHsvfitpt --> dR_taumu*SVfit_p4.Pt()
+ ... 4 mT1 --> mT1
+ ... 5 mT2 --> mT2
+ ... 6 bHMet_deltaPhi --> dphi_bbmet
+ ... 7 HHsvfit_deltaPhi --> dphi_bbsv
+BDT non resonant vars:
+ ... 0 dau1MET_deltaphi --> dphi_mumet
+ ... 1 tauHsvfitMet_deltaPhi --> dphi_metsv
+ ... 2 dib_deltaR_per_bHpt --> dR_bb*bb_h.Pt()
+ ... 3 ditau_deltaR_per_tauHsvfitpt --> dR_taumu*SVfit_p4.Pt()
+ ... 4 mT1 --> mT1
+ ... 5 mT2 --> mT2
+ ... 6 bHMet_deltaPhi --> dphi_bbmet
+ ... 7 HHsvfit_deltaPhi --> dphi_bbsv
+--- Reader                   : Booking "MuTauKine" of type "BDT" from /home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/weights/HTauTauTree_BDTG_MuTauKine.weights.xml.
+--- MethodBase               : Reading weight file: /home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/weights/HTauTauTree_BDTG_MuTauKine.weights.xml
+--- BDTG_MuTauKine           : Read method "BDTG_MuTauKine" of type "BDT"
+--- BDTG_MuTauKine           : MVA method was trained with TMVA Version: 4.2.0
+--- BDTG_MuTauKine           : MVA method was trained with ROOT Version: 6.02/05
+--- DataSetInfo              : Added class "Signal"	 with internal class number 0
+--- DataSetInfo              : Added class "Background"	 with internal class number 1
+--- Reader                   : Booked classifier "BDTG_MuTauKine" of type: "BDT"
+--- Reader                   : Booking "ETauKine" of type "BDT" from /home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/weights/HTauTauTree_BDTG_ETauKine.weights.xml.
+--- MethodBase               : Reading weight file: /home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/weights/HTauTauTree_BDTG_ETauKine.weights.xml
+--- BDTG_ETauKine            : Read method "BDTG_ETauKine" of type "BDT"
+--- BDTG_ETauKine            : MVA method was trained with TMVA Version: 4.2.0
+--- BDTG_ETauKine            : MVA method was trained with ROOT Version: 6.02/05
+--- Reader                   : Booked classifier "BDTG_ETauKine" of type: "BDT"
+--- Reader                   : Booking "LepTauKine" of type "BDT" from /home/llr/cms/cadamuro/CleanKLUB/CMSSW_7_4_7/src/KLUBAnalysis/weights/HTauTauTree_BDTG_LepTauKine.weights.xml.
+--- MethodBase               : Reading weight file: /home/llr/cms/cadamuro/CleanKLUB/CMSSW_7_4_7/src/KLUBAnalysis/weights/HTauTauTree_BDTG_LepTauKine.weights.xml
+--- BDTG_LepTauKine          : Read method "BDTG_LepTauKine" of type "BDT"
+--- BDTG_LepTauKine          : MVA method was trained with TMVA Version: 4.2.0
+--- BDTG_LepTauKine          : MVA method was trained with ROOT Version: 6.02/05
+--- Reader                   : Booked classifier "BDTG_LepTauKine" of type: "BDT"
+--- Reader                   : Booking "BDT_full_mass_iso_nodrbbsv" of type "BDT" from /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/weights/TMVAClassification_BDT_full_mass_iso_nodrbbsv.weights.xml.
+--- MethodBase               : Reading weight file: /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/weights/TMVAClassification_BDT_full_mass_iso_nodrbbsv.weights.xml
+--- BDT_full_mass_iso_nodr...: Read method "BDT_full_mass_iso_nodrbbsv" of type "BDT"
+--- BDT_full_mass_iso_nodr...: MVA method was trained with TMVA Version: 4.2.1
+--- BDT_full_mass_iso_nodr...: MVA method was trained with ROOT Version: 6.06/01
+--- DataSetInfo              : Added class "Signal"	 with internal class number 0
+--- DataSetInfo              : Added class "Background"	 with internal class number 1
+--- Reader                   : Booked classifier "BDT_full_mass_iso_nodrbbsv" of type: "BDT"
+--- Reader                   : Booking "500t_PU_mass_newvars_HIGH_oldvars" of type "BDT" from /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/weights/TMVAClassification_500t_PU_mass_newvars_HIGH_oldvars.weights.xml.
+--- MethodBase               : Reading weight file: /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/weights/TMVAClassification_500t_PU_mass_newvars_HIGH_oldvars.weights.xml
+--- 500t_PU_mass_newvars_H...: Read method "500t_PU_mass_newvars_HIGH_oldvars" of type "BDT"
+--- 500t_PU_mass_newvars_H...: MVA method was trained with TMVA Version: 4.2.1
+--- 500t_PU_mass_newvars_H...: MVA method was trained with ROOT Version: 6.06/01
+--- DataSetInfo              : Added class "Signal"	 with internal class number 0
+--- DataSetInfo              : Added class "Background"	 with internal class number 1
+--- Reader                   : Booked classifier "500t_PU_mass_newvars_HIGH_oldvars" of type: "BDT"
+--- Reader                   : Booking "500t_PU_mass_newvars_LOW" of type "BDT" from /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/weights/TMVAClassification_500t_PU_mass_newvars_LOW.weights.xml.
+--- MethodBase               : Reading weight file: /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/weights/TMVAClassification_500t_PU_mass_newvars_LOW.weights.xml
+--- 500t_PU_mass_newvars_LOW : Read method "500t_PU_mass_newvars_LOW" of type "BDT"
+--- 500t_PU_mass_newvars_LOW : MVA method was trained with TMVA Version: 4.2.1
+--- 500t_PU_mass_newvars_LOW : MVA method was trained with ROOT Version: 6.06/01
+--- DataSetInfo              : Added class "Signal"	 with internal class number 0
+--- DataSetInfo              : Added class "Background"	 with internal class number 1
+--- Reader                   : Booked classifier "500t_PU_mass_newvars_LOW" of type: "BDT"
+--- Reader                   : Booking "BDT_nonres_SM" of type "BDT" from /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/weights/TMVAClassification_nonres_SM.weights.xml.
+--- MethodBase               : Reading weight file: /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/weights/TMVAClassification_nonres_SM.weights.xml
+--- BDT_nonres_SM            : Read method "BDT_nonres_SM" of type "BDT"
+--- BDT_nonres_SM            : MVA method was trained with TMVA Version: 4.2.1
+--- BDT_nonres_SM            : MVA method was trained with ROOT Version: 6.06/01
+--- DataSetInfo              : Added class "Signal"	 with internal class number 0
+--- DataSetInfo              : Added class "Background"	 with internal class number 1
+--- Reader                   : Booked classifier "BDT_nonres_SM" of type: "BDT"
+... SKIM finished, exiting.
