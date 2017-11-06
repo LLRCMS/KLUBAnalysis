@@ -1080,7 +1080,6 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
                 string var2 = variables2D_.at(ivar).second;
                 double varvalue1 = boost::apply_visitor( get_variant_as_double(), valuesMap[var1]);
                 double varvalue2 = boost::apply_visitor( get_variant_as_double(), valuesMap[var2]);
-if (varvalue1 < 4.0 || varvalue2 < 4.0) cout << "** DEBUG :: " << ivar << " " << sample.getName() << " " << varvalue1 << " " << varvalue2 << " " << var1 << " " << var2 << " " << iEv << " fromMaps " << valuesMap[var1] << " " << valuesMap[var2] << endl;
                 if (sample.getType() == Sample::kData)
                     plots2D.at(isel).at(ivar).at(0)->Fill(varvalue1, varvalue2);
                 else
