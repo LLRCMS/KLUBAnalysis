@@ -34,8 +34,20 @@ from subprocess import Popen, PIPE
 #tag = "MC_80X_ttbar_28Jun2016"
 #tag = "MC_80X_ttbar_07Jul2016"
 # tag = "data_2016_15lug_NoL1TJSON_diff_8lugJSON_runBrunCrunD"
-tag = "data_2016_20lug_NoL1TJSON_diff_15lug_NoL1TJSON_runBrunCrunD"
+# tag = "data_2016_20lug_NoL1TJSON_diff_15lug_NoL1TJSON_runBrunCrunD"
 #tag = "data_2016_20lug_NoL1TJSON_diff_15lug_NoL1TJSON_runBrunCrunD_resSEle"
+# tag = 'data_2016_16NOV_SVFIT_NOL1T_JSON'
+# tag = 'MC_ICHEPdatasets_Rob_21Nov2016'
+# tag = 'MC_ICHEPdatasets_Luca_17Nov2016'
+# tag = 'data_2016_24NOV_promptReco_NOL1T_JSON'
+# tag = 'MC_Summer16'
+#tag = 'MC_2017_8020_30jan17'
+#tag = 'Data_23SepReReco_8Feb2017_res4'
+#tag = "Data_23SepReReco_8Feb2017_res4"
+#tag = "Data_03FEB2017ReReco_22Feb2017_runH"
+#tag = "MCSUSY_2Apr2017"
+#tag = "MC_gravitons_24Apr2017"
+tag = "MC_gravitonsRS_29Apr2017"
 
 #outFolder = "../inputFiles/28Ago2015/" # write / at the end
 #outFolder = "../inputFiles/13Ott2015/25ns/"
@@ -50,9 +62,19 @@ tag = "data_2016_20lug_NoL1TJSON_diff_15lug_NoL1TJSON_runBrunCrunD"
 #outFolder = "/home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/miniAODv2_silverJSON_5Gen2016/"
 #outFolder = "../inputFiles/Data2016_27Mag/"
 #outFolder = "../inputFiles/Files80X_22Giu/"
-outFolder = "../inputFiles/Files80X_22Giu/data15LugNOL1-20LugNOL1/"
+# outFolder = "../inputFiles/Files80X_22Giu/data15LugNOL1-20LugNOL1/"
 #outFolder = "../inputFiles/Files80X_22Giu/data16-22Giu/"
 #outFolder = "../inputFiles/Files80X_22Giu/data22Giu-8Lug/"
+# outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files80X_25Nov2016'
+#outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files80X_25Nov2016/DataPromptRecoBCD25nov2016'
+# outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files80X_25Nov2016/DataPromptRecoBCD25nov2016/29Nov2016ReList'
+# outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_7Feb2016'
+#outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_18Feb2016'
+#outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_23SepReReco_26Feb'
+#outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_22Feb2017'
+#outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_5apr_SUSY'
+outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_29Apr2016_gravitons'
+
 areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
                                  # if false: only add the polgrid server to run the skim and submit on root
 # ====================================================================
@@ -90,10 +112,12 @@ print useOnly
 
 dpmhome = "/dpm/in2p3.fr/home/cms/trivcat"
 partialPath = "/store/user/lcadamur/HHNtuples/" #folder contenente la produzione
-#partialPath = "/store/user/salerno/HHNtuples/"
+# partialPath = "/store/user/salerno/HHNtuples/"
 #partialPath = "/store/user/davignon/EnrichedMiniAOD/"
+#partialPath = "/store/user/gortona/HHNtuples/"
 
 path = dpmhome + partialPath + tag
+if outFolder[-1] != "/": outFolder += '/'
 
 command = "/usr/bin/rfdir %s | awk '{print $9}'" % path
 #print command

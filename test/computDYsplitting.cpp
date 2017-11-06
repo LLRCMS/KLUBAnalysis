@@ -105,9 +105,10 @@ int main(int argc, char** argv)
 
     // speed up
     theBigTree.fChain->SetBranchStatus("*", 0);
-    theBigTree.fChain->SetBranchStatus("genpart_*", 1);
+    // theBigTree.fChain->SetBranchStatus("genpart_*", 1);
     theBigTree.fChain->SetBranchStatus("lheNOutPartons", 1);
     theBigTree.fChain->SetBranchStatus("lheNOutB", 1);
+    // theBigTree.fChain->SetBranchStatus("lheHt", 1);
 
     cout << "** INFO: most branches are desactivated to speed up reading..." << endl;
     // loop over events

@@ -127,7 +127,9 @@ class OfflineProducerHelper {
   
   typedef std::tuple <float, float, int, float, float, int, int> tauPair_t; // pt1 - iso1 - idx1 - pt2 - iso2 - idx2 - idxoriginalPair
   int getBestPairHTauTau (bigTree* tree, TString whatApply = "All", bool debug = false); // returns best pair formed by idx1, idx2, using HTauTau strategy - for studies
+  int getBestPairPtAndRawIsoOrd (bigTree* tree, TString whatApply = "All", bool debug = false); // returns best pair formed by idx1, idx2, sorting them by pt in each pair, then by raw iso
   static bool pairSort (const tauPair_t& pA, const tauPair_t& pB);
+  static bool pairSortRawIso (const tauPair_t& pA, const tauPair_t& pB);
   float DeltaRDau(bigTree* tree, int dau1idx, int dau2idx);
   
 

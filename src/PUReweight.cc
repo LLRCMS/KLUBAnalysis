@@ -32,6 +32,8 @@ float PUReweight::weight(int MC, int target, int input) {
       return hT2016_MCSpring16_Data12c9fb.at(input) ; 
     } else if (MC==2016 && target==364) {
       return hT2016_MCSpring16_Data36c4fb.at(input) ; 
+    } else if (MC==20161 && target==364) {
+      return hT2016_MCSummer16_Data36c4fb.at(input) ; 
     } else{
       std::cout << "ERROR: PUReweight: " << MC << " " << target << std::endl;
       abort();
@@ -691,6 +693,110 @@ theType(type) {
   for(int k = 0 ; k < 100 ; ++k)
     hT2016_MCSpring16_Data36c4fb.push_back(npuSpring16_36c4fb[k]) ;
 
+
+  // Run II analysis - Summer16 MC - full 2016 dataset (~36/fb)
+  hT2016_MCSummer16_Data36c4fb.resize(100);
+  hT2016_MCSummer16_Data36c4fb[0] = 0.00894537;
+  hT2016_MCSummer16_Data36c4fb[1] = 0.023167;
+  hT2016_MCSummer16_Data36c4fb[2] = 0.0298831;
+  hT2016_MCSummer16_Data36c4fb[3] = 0.0240736;
+  hT2016_MCSummer16_Data36c4fb[4] = 0.0280743;
+  hT2016_MCSummer16_Data36c4fb[5] = 0.0291664;
+  hT2016_MCSummer16_Data36c4fb[6] = 0.0196959;
+  hT2016_MCSummer16_Data36c4fb[7] = 0.0123776;
+  hT2016_MCSummer16_Data36c4fb[8] = 0.0185592;
+  hT2016_MCSummer16_Data36c4fb[9] = 0.0221088;
+  hT2016_MCSummer16_Data36c4fb[10] = 0.0241107;
+  hT2016_MCSummer16_Data36c4fb[11] = 0.0268053;
+  hT2016_MCSummer16_Data36c4fb[12] = 0.0281658;
+  hT2016_MCSummer16_Data36c4fb[13] = 0.0294374;
+  hT2016_MCSummer16_Data36c4fb[14] = 0.0300953;
+  hT2016_MCSummer16_Data36c4fb[15] = 0.030248;
+  hT2016_MCSummer16_Data36c4fb[16] = 0.030042;
+  hT2016_MCSummer16_Data36c4fb[17] = 0.0296216;
+  hT2016_MCSummer16_Data36c4fb[18] = 0.0286588;
+  hT2016_MCSummer16_Data36c4fb[19] = 0.0274544;
+  hT2016_MCSummer16_Data36c4fb[20] = 0.0266721;
+  hT2016_MCSummer16_Data36c4fb[21] = 0.0263141;
+  hT2016_MCSummer16_Data36c4fb[22] = 0.0263468;
+  hT2016_MCSummer16_Data36c4fb[23] = 0.0263206;
+  hT2016_MCSummer16_Data36c4fb[24] = 0.0262594;
+  hT2016_MCSummer16_Data36c4fb[25] = 0.0264999;
+  hT2016_MCSummer16_Data36c4fb[26] = 0.0268332;
+  hT2016_MCSummer16_Data36c4fb[27] = 0.0271126;
+  hT2016_MCSummer16_Data36c4fb[28] = 0.0274069;
+  hT2016_MCSummer16_Data36c4fb[29] = 0.0277553;
+  hT2016_MCSummer16_Data36c4fb[30] = 0.0273923;
+  hT2016_MCSummer16_Data36c4fb[31] = 0.0271316;
+  hT2016_MCSummer16_Data36c4fb[32] = 0.026088;
+  hT2016_MCSummer16_Data36c4fb[33] = 0.0246702;
+  hT2016_MCSummer16_Data36c4fb[34] = 0.0227779;
+  hT2016_MCSummer16_Data36c4fb[35] = 0.0205672;
+  hT2016_MCSummer16_Data36c4fb[36] = 0.0179364;
+  hT2016_MCSummer16_Data36c4fb[37] = 0.0152783;
+  hT2016_MCSummer16_Data36c4fb[38] = 0.0125975;
+  hT2016_MCSummer16_Data36c4fb[39] = 0.0101432;
+  hT2016_MCSummer16_Data36c4fb[40] = 0.00774467;
+  hT2016_MCSummer16_Data36c4fb[41] = 0.0057138;
+  hT2016_MCSummer16_Data36c4fb[42] = 0.00409726;
+  hT2016_MCSummer16_Data36c4fb[43] = 0.00283222;
+  hT2016_MCSummer16_Data36c4fb[44] = 0.00193442;
+  hT2016_MCSummer16_Data36c4fb[45] = 0.00127609;
+  hT2016_MCSummer16_Data36c4fb[46] = 0.000797952;
+  hT2016_MCSummer16_Data36c4fb[47] = 0.000503393;
+  hT2016_MCSummer16_Data36c4fb[48] = 0.000306307;
+  hT2016_MCSummer16_Data36c4fb[49] = 0.000185814;
+  hT2016_MCSummer16_Data36c4fb[50] = 0.000109825;
+  hT2016_MCSummer16_Data36c4fb[51] = 6.52416e-05;
+  hT2016_MCSummer16_Data36c4fb[52] = 3.93734e-05;
+  hT2016_MCSummer16_Data36c4fb[53] = 2.43154e-05;
+  hT2016_MCSummer16_Data36c4fb[54] = 1.82969e-05;
+  hT2016_MCSummer16_Data36c4fb[55] = 1.68709e-05;
+  hT2016_MCSummer16_Data36c4fb[56] = 1.83602e-05;
+  hT2016_MCSummer16_Data36c4fb[57] = 2.36165e-05;
+  hT2016_MCSummer16_Data36c4fb[58] = 3.35728e-05;
+  hT2016_MCSummer16_Data36c4fb[59] = 4.6298e-05;
+  hT2016_MCSummer16_Data36c4fb[60] = 7.93232e-05;
+  hT2016_MCSummer16_Data36c4fb[61] = 9.8746e-05;
+  hT2016_MCSummer16_Data36c4fb[62] = 0.000121905;
+  hT2016_MCSummer16_Data36c4fb[63] = 0.000129194;
+  hT2016_MCSummer16_Data36c4fb[64] = 0.000135008;
+  hT2016_MCSummer16_Data36c4fb[65] = 0.000139488;
+  hT2016_MCSummer16_Data36c4fb[66] = 0.000124604;
+  hT2016_MCSummer16_Data36c4fb[67] = 0.0001077;
+  hT2016_MCSummer16_Data36c4fb[68] = 9.67475e-05;
+  hT2016_MCSummer16_Data36c4fb[69] = 8.67088e-05;
+  hT2016_MCSummer16_Data36c4fb[70] = 7.77805e-05;
+  hT2016_MCSummer16_Data36c4fb[71] = 6.93644e-05;
+  hT2016_MCSummer16_Data36c4fb[72] = 5.83042e-05;
+  hT2016_MCSummer16_Data36c4fb[73] = 4.97382e-05;
+  hT2016_MCSummer16_Data36c4fb[74] = 4.35502e-05;
+  hT2016_MCSummer16_Data36c4fb[75] = 0;
+  hT2016_MCSummer16_Data36c4fb[76] = 0;
+  hT2016_MCSummer16_Data36c4fb[77] = 0;
+  hT2016_MCSummer16_Data36c4fb[78] = 0;
+  hT2016_MCSummer16_Data36c4fb[79] = 0;
+  hT2016_MCSummer16_Data36c4fb[80] = 0;
+  hT2016_MCSummer16_Data36c4fb[81] = 0;
+  hT2016_MCSummer16_Data36c4fb[82] = 0;
+  hT2016_MCSummer16_Data36c4fb[83] = 0;
+  hT2016_MCSummer16_Data36c4fb[84] = 0;
+  hT2016_MCSummer16_Data36c4fb[85] = 0;
+  hT2016_MCSummer16_Data36c4fb[86] = 0;
+  hT2016_MCSummer16_Data36c4fb[87] = 0;
+  hT2016_MCSummer16_Data36c4fb[88] = 0;
+  hT2016_MCSummer16_Data36c4fb[89] = 0;
+  hT2016_MCSummer16_Data36c4fb[90] = 0;
+  hT2016_MCSummer16_Data36c4fb[91] = 0;
+  hT2016_MCSummer16_Data36c4fb[92] = 0;
+  hT2016_MCSummer16_Data36c4fb[93] = 0;
+  hT2016_MCSummer16_Data36c4fb[94] = 0;
+  hT2016_MCSummer16_Data36c4fb[95] = 0;
+  hT2016_MCSummer16_Data36c4fb[96] = 0;
+  hT2016_MCSummer16_Data36c4fb[97] = 0;
+  hT2016_MCSummer16_Data36c4fb[98] = 0;
+  hT2016_MCSummer16_Data36c4fb[99] = 0;
+
   // RUN2ANALYSIS MC 25ns target Data25ns
   // from https://twiki.cern.ch/twiki/bin/view/CMS/PileupJSONFileforData#2015_Pileup_JSON_Files 13-10-2015 done with mb=69mb Lumi=1260
   double npuWinter15_25ns[52] ; 
@@ -1120,4 +1226,3 @@ theType(type) {
 }
 
 PUReweight::~PUReweight() {}
-

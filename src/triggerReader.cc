@@ -149,7 +149,8 @@ bool triggerReader::checkORMuMu  (Long64_t triggerbit)
 
 bool triggerReader::CheckBit (Long64_t number, int bitpos)
 {
-    bool res = number & (1 << bitpos);
+    Long64_t bitdigit = 1;
+    bool res = number & (bitdigit << bitpos);
     return res;
 }
 
