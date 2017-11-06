@@ -118,7 +118,8 @@ void splitDYbybflav()
     //v.push_back("/data_CMS/cms/cadamuro/test_submit_to_tier3/Samples2016_23Lug_data12fb_DYSFeff/SKIM_DY/total.root");
     //v.push_back("/data_CMS2/cadamuro/test_submit_to_tier3/Samples2016_3Sett_data12fb_MT213Sett_prod2/SKIM_DY/total.root");
     //v.push_back("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2016_30Nov2016/SKIM_DY/total.root");
-    v.push_back("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2016_30Nov2016_oldPair/SKIM_DY/total.root");
+    //v.push_back("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2016_30Nov2016_oldPair/SKIM_DY/total.root");
+    v.push_back("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_13Giu_All/SKIM_DY/total.root");
 
     for (int i = 0; i < v.size(); i++)
     {
