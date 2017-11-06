@@ -90,6 +90,8 @@ struct smallTree
       m_dau1_phi  = -1. ;
       m_dau1_e  = -1. ;
       m_dau1_flav  = -1. ;
+      m_dau1_dxy  = -1. ;
+      m_dau1_dz  = -1. ;
 
       m_genmatched1_pt  = -1.;
       m_genmatched1_eta = -1.;
@@ -119,6 +121,8 @@ struct smallTree
       m_dau2_phi  = -1. ;
       m_dau2_e  = -1. ;
       m_dau2_flav  = -1. ;
+      m_dau2_dxy  = -1. ;
+      m_dau2_dz  = -1. ;
 
       m_bjet1_pt  = -1. ;
       m_bjet1_eta  = -1. ;
@@ -383,6 +387,8 @@ struct smallTree
       m_smallT->Branch ("dau1_phi", &m_dau1_phi, "dau1_phi/F") ;
       m_smallT->Branch ("dau1_e", &m_dau1_e, "dau1_e/F") ;
       m_smallT->Branch ("dau1_flav", &m_dau1_flav, "dau1_flav/F") ;
+      m_smallT->Branch ("dau1_dxy", &m_dau1_dxy, "dau1_dxy/F") ;
+      m_smallT->Branch ("dau1_dz", &m_dau1_dz, "dau1_dz/F") ;
 
       m_smallT->Branch("genmatched1_pt", &m_genmatched1_pt, "genmatched1_pt/F");
       m_smallT->Branch("genmatched1_eta", &m_genmatched1_eta, "genmatched1_eta/F");
@@ -412,6 +418,8 @@ struct smallTree
       m_smallT->Branch ("dau2_phi", &m_dau2_phi, "dau2_phi/F") ;
       m_smallT->Branch ("dau2_e", &m_dau2_e, "dau2_e/F") ;
       m_smallT->Branch ("dau2_flav", &m_dau2_flav, "dau2_flav/F") ;
+      m_smallT->Branch ("dau2_dxy", &m_dau2_dxy, "dau2_dxy/F") ;
+      m_smallT->Branch ("dau2_dz", &m_dau2_dz, "dau2_dz/F") ;
 
       m_smallT->Branch ("bjet1_pt", &m_bjet1_pt, "bjet1_pt/F") ;
       m_smallT->Branch ("bjet1_eta", &m_bjet1_eta, "bjet1_eta/F") ;
@@ -684,6 +692,8 @@ struct smallTree
   Float_t m_dau1_phi ;
   Float_t m_dau1_e ;
   Float_t m_dau1_flav ; // let this contain also whether it's a hadronic dau
+  Float_t m_dau1_dxy ;
+  Float_t m_dau1_dz ;
 
   Float_t m_genmatched1_pt ;
   Float_t m_genmatched1_eta ;
@@ -714,6 +724,8 @@ struct smallTree
   Float_t m_dau2_phi ;
   Float_t m_dau2_e ;
   Float_t m_dau2_flav ; // let this contain also whether it's a hadronic dau
+  Float_t m_dau2_dxy ;
+  Float_t m_dau2_dz ;
 
   // the largest pT b visible candidate /  highest CSV score
   Float_t m_bjet1_pt ;

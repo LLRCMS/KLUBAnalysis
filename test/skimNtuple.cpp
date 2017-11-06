@@ -1826,6 +1826,8 @@ int main (int argc, char** argv)
     theSmallTree.m_dau1_eta = tlv_firstLepton.Eta () ;
     theSmallTree.m_dau1_phi = tlv_firstLepton.Phi () ;
     theSmallTree.m_dau1_e = theBigTree.daughters_e->at (firstDaughterIndex) ;
+    theSmallTree.m_dau1_dxy = theBigTree.dxy->at(firstDaughterIndex) ;
+    theSmallTree.m_dau1_dz  = theBigTree.dz->at(firstDaughterIndex) ;
     theSmallTree.m_dau1_flav = theBigTree.daughters_charge->at (firstDaughterIndex) * 
                                (theBigTree.particleType->at (firstDaughterIndex) + 1) ;
                                // 1 = from muons collection
@@ -1843,6 +1845,8 @@ int main (int argc, char** argv)
     theSmallTree.m_dau2_eta = tlv_secondLepton.Eta () ;
     theSmallTree.m_dau2_phi = tlv_secondLepton.Phi () ;
     theSmallTree.m_dau2_e = theBigTree.daughters_e->at (secondDaughterIndex) ;
+    theSmallTree.m_dau2_dxy = theBigTree.dxy->at(secondDaughterIndex) ;
+    theSmallTree.m_dau2_dz  = theBigTree.dz->at(secondDaughterIndex) ;
     theSmallTree.m_dau2_flav = theBigTree.daughters_charge->at (secondDaughterIndex) * 
                                (theBigTree.particleType->at (secondDaughterIndex) + 1) ;
 
