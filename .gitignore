@@ -13,3 +13,8 @@ combiner/cards_*
 SKIM_*/
 weights/data/
 interface/exceptions/
+jobs_????.??.??_??.??.??/
+analysis_ETau*/
+analysis_MuTau*/
+analysis_TauTau*/
+analysis_MuMu*/
