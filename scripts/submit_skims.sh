@@ -63,7 +63,7 @@ cp /home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/scripts/listAll.sh /data_
 # hl = 21.9% (x2 for permutation t-tbar)
 # technical note: use -q long if splitting on ~180-350 jobs
 
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 400  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_TT_fullyHad  -i inputFiles/Files_7Feb2016/TT_powheg_fullyHad_7Feb2017.txt    -x 380.1143 -t True -b 1
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 400  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_TT_fullyHad_test  -i inputFiles/Files_7Feb2016/TT_powheg_fullyHad_7Feb2017.txt    -x 380.1143 -t True -b 1
 # python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 700 -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_TT_semiLep   -i inputFiles/Files_7Feb2016/TT_powheg_semiLep_7Feb2017.txt     -x 364.3108 -t True -b 5
 # python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 700 -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_TT_fullyLep  -i inputFiles/Files_7Feb2016/TT_powheg_fullyLep_7Feb2017.txt    -x 87.3348  -t True -b 4
 
@@ -71,7 +71,7 @@ cp /home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/scripts/listAll.sh /data_
 
 #####################
 ### MC VBF HH bbtt non resonant
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 100  -k False -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_VBFHH2b2T_nonres_C2V1        -i inputFiles/VBF_signals_13Nov/1_VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 100  -k False -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_VBFHH2b2T_nonres_C2V1        -i inputFiles/VBF_signals_13Nov/1_VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 100  -k False -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_VBFHH2b2T_nonres_C2V2        -i inputFiles/VBF_signals_13Nov/2_VBFHHTo2B2Tau_CV_1_C2V_2_C3_1_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt
 
 
