@@ -120,7 +120,8 @@ void splitDYbybflav()
     //v.push_back("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2016_30Nov2016/SKIM_DY/total.root");
     //v.push_back("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2016_30Nov2016_oldPair/SKIM_DY/total.root");
     //v.push_back("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_5Gen/SKIM_DY/total.root");
-    v.push_back("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_13Giu_All/SKIM_DY/total.root");
+    //v.push_back("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_13Giu_All/SKIM_DY/total.root");
+    v.push_back("/data_CMS/cms/amendola/HH2017Skims/Skims2017_17Nov/SKIM_DY/total.root");
 
     for (int i = 0; i < v.size(); i++)
     {

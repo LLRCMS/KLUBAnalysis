@@ -11,7 +11,11 @@
 #include <cstdlib>
 #include <vector>
 #include <utility>
+#include <memory>
+#include "AnalysisHelper.h"
 #include "ConfigParser.h"
+#include "CfgParser.h"
+#include "Sample.h"
 #include "TString.h"
 #include "TChain.h"
 #include "TChainElement.h"
@@ -66,9 +70,14 @@ struct counters
 
 int readSamples (vector<sample> & samples, vector<string> & samplesList, 
                  TString readOption = "READ") ;
+int readSamples (vector<sample> & samples, vector<string> & samplesList, const unique_ptr<CfgParser> & lConfigParser, 
+                 TString readOption = "READ") ;
+
 vector<pair<TString, TCut> > readCutsFile (string filename) ;
 vector<pair <TString, TCut> > readCutsFile (vector<string> activeSelections, string filename) ;
 vector<pair <string, string> > readVarNamesFile (vector<string> varList, string filename) ;
+
+
 
 struct isNOTalnum : std::unary_function<int, int>
 {

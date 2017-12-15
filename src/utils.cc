@@ -57,6 +57,27 @@ readSamples (vector<sample> & samples, vector<string> & samplesList, TString rea
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
+int
+readSamples (vector<sample> & samples, vector<string> & samplesList, const unique_ptr<CfgParser> & lConfigParser, TString readOption)
+{
+  for (unsigned int iSample = 0 ; iSample < samplesList.size () ; ++iSample)
+    {
+      TString sampleFolder = lConfigParser->readStringOpt (
+							   (TString ("samples::") + samplesList.at (iSample).c_str ()).Data()
+							   ) ;
+      cout << "reading " << samplesList.at (iSample) << " from : " << sampleFolder << "\n" ; 
+      //vector<Sample> sample (new Sample(samplesList.at (iSample) , (sampleFolder + string("/goodfiles.txt")).Data()));
+      //#samples.push_back (sample);
+      samples.push_back (sample (samplesList.at (iSample), sampleFolder + "/total.root", readOption)) ; 
+      int done = samples.back ().sampleTree->GetEntries () ;  
+      cout << " --> read " << done << " events\n" ; 
+    }
+  return 0 ;
+}
+
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
 
 vector<pair<TString, TCut> >
 readCutsFile (string filename)

@@ -9,12 +9,15 @@ do
        do
            tmp=${logfile#*_}
            idx=${tmp%.*}
-           if ! grep -q "... SKIM finished, exiting." "$logfile"; then
+	   if grep -q "R__unzip: error" "$logfile"; then
+	      echo "job num $idx: file corrupted"
+	      echo $PWD/output_$idx.root >> badfiles.txt
+           elif ! grep -q "... SKIM finished, exiting." "$logfile"; then
               echo "job num $idx not correctly finished"
               # mv "output_$idx.root" corrupted
               # mv $logfile corrupted
               echo $PWD/output_$idx.root >> badfiles.txt
-            else
+           else
               echo $PWD/output_$idx.root >> goodfiles.txt
            fi
        done           

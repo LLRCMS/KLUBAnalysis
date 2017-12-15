@@ -1,3 +1,4 @@
+
 from ROOT import *
 import re
 import os
@@ -7,134 +8,19 @@ import fnmatch
 import math
 from array import array
 
-### parser of the config used for the analysis ###
-class ConfigReader:
-    def __init__  (self, cfgInputFile) :
-        self.cfgName = cfgInputFile
-        self.lines = []
-        self.config = {}
-        self.parseInputFileList()
-        self.makeConfig()
-    
-    def parseInputFileList (self) :
-        """ removes all comments and return cleaned list of lines"""
-        filelist = []
-        try :
-            with open (self.cfgName) as fIn:
-                for line in fIn:
-                    line = (line.split("#")[0]).strip()
-                    if line:
-                        self.lines.append(line)
-        except IOError:
-            print "*** WARNING: cfg file " , self.cfgName , " not found"
-            return
-
-        #return filelist
-    def processOption (self, line) :
-        """ processes an option line and returns a pair (name, value) """
-        ll = line.split ('=')
-        if len (ll) < 2:
-            print "Cannot parse option " , line
-            sys.exit()
-        result = (ll[0].strip() , ll[1].strip())
-        return result
-
-    def makeConfig (self) :
-        """ creates the dictionary organized as section::option --> VALUE (all strings!) """
-        section = None
-        for line in self.lines:
-            m = re.search ('\[(.*)\]', line)
-            if m: # declaration of a new section
-                section = m.group(1)
-                #print "new section: " , section
-                self.config[section] = {}
-            else: # is an option
-                if not section: # protection
-                    print "Cannot parse config: there are entries outside a [section]"
-                    sys.exit()
-                pair = self.processOption (line)
-                self.config[section][pair[0]] = pair[1]
-
-    def readOption (self, optName) :
-        """ read the config with the c++ style section::option ; also removes any non-alphanumeric symbol in optName """
-        name = optName.split ('::')
-        if len (name) < 2:
-            print "readOption(): pleae pass option as section::option"
-            return None
-        name[1] = re.sub('[\W_]+', '', name[1]) # removes all non-alphanumeric characters
-        sec = name[0]
-        opt = name[1]
-        if not sec in self.config:
-            return None
-        if not opt in self.config[sec]:
-            return None
-        return self.config[sec][opt]
-
-    def readListOption (self, optName) :
-        """ read the config with the c++ style section::option and return a list of arguments (string) """
-        result = self.readOption (optName)
-        if not result:
-            return None
-        line = result.split(',')
-        for i in range (0, len(line)) : line[i] = line[i].strip()
-        return line
-
-
-
-### parser of the configs with variable labels etc ###
-class LabelCfgReader:
-    def __init__ (self, cfgInputFile):
-        self.cfgName = cfgInputFile
-        self.lines = []
-        self.config = {}
-        self.parseInputFileList()
-        self.makeConfig()
-
-    def parseInputFileList (self):
-        """ removes all comments as @@@ and return cleaned list of lines"""
-        filelist = []
-        try:
-            with open (self.cfgName) as fIn:
-                for line in fIn:
-                    line = (line.split("@@@")[0]).strip()
-                    if line:
-                        self.lines.append(line)
-        except IOError:
-            print "*** WARNING: label cfg file " , self.cfgName , " not found"
-            return
-
-    def makeConfig (self):
-        """ creates the dictionary organized as label , value (strings only) """
-        for line in self.lines :
-            ll = line.split ('=', 1)
-            if len(ll) < 2 :
-                print "Error in parsing cfg label line: " , line
-                return None
-            self.config[(ll[0]).strip()] = ((ll[1]).strip())
-
-    def readOption (self, optName) :
-        """ read the label config option (reutrn None if not defined) """
-        if not optName in self.config:
-            return None
-        return self.config[optName]
-
-
-
-### accessory functions ###
 def findInFolder (folder, pattern):
-    ll = []
-    for ff in os.listdir(folder):
-        if fnmatch.fnmatch(ff, pattern): ll.append(ff)
-    if len (ll) == 0:
-        print "*** WARNING: No valid config " , pattern , "found in " , folder
-        return None
-    if len (ll) > 1:
-        print "*** WARNING: Too many configs found in " , folder , ", using first one : " , ll
-    return ll[0]
+        ll = []
+        for ff in os.listdir(folder):
+            if fnmatch.fnmatch(ff, pattern): ll.append(ff)
+        if len (ll) == 0:
+            print "*** WARNING: No valid" , pattern , "found in " , folder
+            return None
+        if len (ll) > 1:
+            print "*** WARNING: Too many files found in " , folder , ", using first one : " , ll
+        return ll[0]
 
-# prototype: OS_sig_HHKin_mass_OS_defaultBtagMMNoIsoBBTTCut_Radion300
+
 # prototype: TT_s2b0jresolvedMcut_SR_VBFjj_mass
-# tag = "sig", "bkg", "DATA"
 def retrieveHistos (rootFile, namelist, var, sel, reg):
     res = {}
     for name in namelist:
@@ -146,25 +32,25 @@ def retrieveHistos (rootFile, namelist, var, sel, reg):
         res[name] = h
     return res
 
+
+def getHisto (histoName,inputList):
+        for idx, name in enumerate(inputList):
+                if (name.startswith(histoName)):
+                        h = inputList[name].Clone (histoName)
+                        break
+        return h
+
 ### QCD is special and has a strange name, need data to recontruct it
 ### CORR_DDQCD_SS_DATA_HHKin_mass_SS_defaultBtagMMNoIsoBBTTCut_DsingleMuRunD
-def retrieveQCD (rootFile, var, sel, dataNameList):
-    name = "CORR_DDQCD_SS_DATA_" + var + "_SS_" + sel + "_" + dataNameList[-1]
-    if not rootFile.GetListOfKeys().Contains(name):
-        print "*** WARNING: QCD histo " , name , " not available"
-        return None
-    hQCD = rootFile.Get(name)
-    return hQCD
+#def retrieveQCD (rootFile, var, sel, dataNameList):
+#    name = "CORR_DDQCD_SS_DATA_" + var + "_SS_" + sel + "_" + dataNameList[-1]
+#    if not rootFile.GetListOfKeys().Contains(name):
+#        print "*** WARNING: QCD histo " , name , " not available"
+#        return None
+#    hQCD = rootFile.Get(name)
+#    return hQCD
 
 # makes an histogram by adding together all those in the input list ; inputList: names, histoList: histograms
-def groupTogether (newName, inputList, histoList):
-    for idx, name in enumerate(inputList):
-        if idx == 0:
-            h = histoList[name].Clone (newName)
-        else:
-            h.Add(histoList[name])
-    return h
-
 def makeStack (stackName, histoList):
     s = THStack (stackName, stackName)
     for h in histoList:
@@ -337,7 +223,6 @@ def makeNonNegativeHistos (hList):
             if (h.GetBinContent(b) < 0):
                h.SetBinContent (b, 0)
         integralNew = h.Integral()        
-        
         if (integralNew != integral):
             print "** INFO: removed neg bins from histo " , h.GetName() 
         
@@ -365,6 +250,7 @@ if __name__ == "__main__" :
     parser.add_argument('--var', dest='var', help='variable name', default=None)
     parser.add_argument('--sel', dest='sel', help='selection name', default=None)
     parser.add_argument('--dir', dest='dir', help='analysis output folder name', default="./")
+    parser.add_argument('--tag', dest='tag', help='plots output folder name', default="./")
     parser.add_argument('--reg', dest='reg', help='region name', default=None)
     parser.add_argument('--title', dest='title', help='plot title', default=None)
     parser.add_argument('--channel', dest='channel', help='channel = (MuTau, ETau, TauTau)', default=None)
@@ -388,6 +274,7 @@ if __name__ == "__main__" :
     parser.add_argument('--ymin', dest='ymin', type=float, help='min y range of plots', default=None)
     parser.add_argument('--ymax', dest='ymax', type=float, help='max y range of plots', default=None)
     parser.add_argument('--sigscale', dest='sigscale', type=float, help='scale to apply to all signals', default=None)
+    parser.add_argument('--lumi', dest='lumi_num', type=float, help='lumi in fb-1', default=None)
 
     #parser.add_argument('integers', metavar='N', type=int, nargs='+', help='an integer for the accumulator')
     #parser.add_argument('--sum', dest='accumulate', action='store_const',
@@ -438,14 +325,35 @@ if __name__ == "__main__" :
     #sigNameList = ["100 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 1", "10 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 20"]
     #sigNameList = ["100 x #lambda/#lambda^{SM} = 1", "10 x #lambda/#lambda^{SM} = 20"]
 
-    sigList = ["VBFC2V1", "VBFC2V2"]
-    sigNameList = ["VBFC2V1", "VBFC2V2"]
+    sigList = ["VBFC2V1"]
+    sigNameList = ["VBFC2V1"]
 
 
-    sigScale = [100., 10.]
+    sigScale = [100.]
     sigColors = {}
-    sigColors["VBFC2V1"] = 1
-    sigColors["VBFC2V2"] = 2
+    sigColors["VBFC2V1"] = 2
+
+
+
+    bkgColors = {}
+    #bkgColors["TT"] = kBlue+2
+    #bkgColors["WplusToLNuWminusTo2JJJ_QCD"] = kOrange
+    #bkgColors["WplusTo2JWminusToLNuJJ_QCD"] = kOrange +1
+    #bkgColors["WplusToLNuWplusTo2JJJ_QCD"] = kOrange +3
+    #bkgColors["WminusToLNuWminusTo2JJJ_QCD"] = kOrange +4
+    #bkgColors["WplusToLNuZTo2JJJ_QCD"] = kOrange +7
+    #bkgColors["WplusTo2JZTo2LJJ_QCD"] = kOrange +9
+    #bkgColors["WminusToLNuZTo2JJJ_QCD"] = kPink
+    #bkgColors["WminusTo2JZTo2LJJ_QCD"] = kPink+1
+    #bkgColors["ZTo2LZTo2JJJ_QCD"] = kPink+10
+    bkgColors["TTfullyHad"] = kCyan
+    bkgColors["TTsemiLep"] = kCyan +2
+    bkgColors["TTfullyLep"] = kBlue
+    bkgColors["VVJJ"] = kOrange+1
+    bkgColors["DY"] = kSpring+2 
+    bkgColors["WJets"] = kRed+2
+    #bkgColors["TW"] = kOrange+2
+    
 
     # sigList = ["Radion300", "Radion450", "Radion800"]
     # sigNameList = [
@@ -459,14 +367,17 @@ if __name__ == "__main__" :
         for i in range(0,len(sigScale)): sigScale[i] = args.sigscale
 
     #plotTitle = ";m_{#tau#tau} [GeV];dN/dm_{#tau#tau} [1/GeV]"
-    plotTitle = ";m_{bb} [GeV];dN/dm_{bb} [1/GeV]"
+    plotTitle = ""
 
     if args.title:
         plotTitle = args.title
-
-    #DYlist   = ["DYIncl", "DY100200", "DY200400", "DY400600", "DY600Inf"]
+    dataList = ["data_obs"]
+    #bkgList =  ["VVJJ","TT","DY","WJets"]
+    bkgList =  ["VVJJ","TTfullyHad","TTsemiLep","TTfullyLep","DY","WJets"]
+    #bkgList =  ["WplusToLNuWminusTo2JJJ_QCD","WplusTo2JWminusToLNuJJ_QCD","WplusToLNuWplusTo2JJJ_QCD","WminusToLNuWminusTo2JJJ_QCD","WplusToLNuZTo2JJJ_QCD","WplusTo2JZTo2LJJ_QCD","WminusToLNuZTo2JJJ_QCD","WminusTo2JZTo2LJJ_QCD","ZTo2LZTo2JJJ_QCD","TTfullyHad","TTsemiLep","TTfullyLep","DY","WJets"]
+    #Dylist   = ["DYIncl", "DY100200", "DY200400", "DY400600", "DY600Inf"]
     #Wjetlist = ["WJetsIncl", "WJets100200", "WJets200400", "WJets400600", "WJets600Inf"]
-    TTlist   = ["TT"]
+    #TTlist   = ["TT"]
     #tWlist   = ["TWtop", "TWantitop"]
     #VVlist   = ["WWTo2L2Nu", "WWToLNuQQ", "WZTo1L1Nu2Q", "WZTo1L3Nu", "WZTo2L2Q", "WZTo3LNu", "ZZTo2L2Nu", "ZZTo2L2Q", "ZZTo4L"]
 
@@ -474,13 +385,10 @@ if __name__ == "__main__" :
     #setPlotStyle()
 
 
-    cfgName        = findInFolder  (args.dir+"/", '*.cfg')
+    
     outplotterName = findInFolder  (args.dir+"/", 'outPlotter.root')
     
-    cfg = ConfigReader (args.dir + "/" + cfgName)
-    bkgList = cfg.readListOption("general::backgrounds")
-    dataList        = cfg.readListOption("general::data")
-    #sigList     = cfg.readListOption("general::signals") # set by hand
+    
 
     rootFile = TFile.Open (args.dir+"/"+outplotterName)
     hSigs = retrieveHistos (rootFile, sigList, args.var, args.sel,args.reg)
@@ -489,16 +397,36 @@ if __name__ == "__main__" :
 
     #hDY    = groupTogether ("DY", DYlist, hBkgs)
     #hWJets = groupTogether ("WJets", Wjetlist, hBkgs)
-    hTT    = groupTogether ("TT", TTlist, hBkgs)
+    #hTT    = getHisto ("TT", hBkgs)
+
+    #hWplusToLNuWminusTo2JJJ_QCD =getHisto("WplusToLNuWminusTo2JJJ_QCD",hBkgs)
+    #hWplusTo2JWminusToLNuJJ_QCD =getHisto("WplusTo2JWminusToLNuJJ_QCD",hBkgs)
+    #hWplusToLNuWplusTo2JJJ_QCD =getHisto("WplusToLNuWplusTo2JJJ_QCD",hBkgs)
+    #hWminusToLNuWminusTo2JJJ_QCD =getHisto("WminusToLNuWminusTo2JJJ_QCD",hBkgs)
+    #hWplusToLNuZTo2JJJ_QCD =getHisto("WplusToLNuZTo2JJJ_QCD",hBkgs)
+    #hWplusTo2JZTo2LJJ_QCD =getHisto("WplusTo2JZTo2LJJ_QCD",hBkgs)
+    #hWminusToLNuZTo2JJJ_QCD =getHisto("WminusToLNuZTo2JJJ_QCD",hBkgs)
+    #hWminusTo2JZTo2LJJ_QCD  =getHisto("WminusTo2JZTo2LJJ_QCD",hBkgs)
+    #hZTo2LZTo2JJJ_QCD =getHisto("ZTo2LZTo2JJJ_QCD",hBkgs)
+    hVVJJ    = getHisto ("VVJJ", hBkgs)
+    hTTfullyHad    = getHisto ("TTfullyHad", hBkgs)
+    hTTsemiLep    = getHisto ("TTsemiLep", hBkgs)
+    hTTfullyLep    = getHisto ("TTfullyLep", hBkgs)
+    hDY    = getHisto ("DY", hBkgs)
+    hWJets    = getHisto ("WJets", hBkgs)
     #htW    = groupTogether ("tW", tWlist, hBkgs)
     #hVV    = groupTogether ("VV", VVlist, hBkgs)
     #hQCD   = retrieveQCD (rootFile, args.var, args.sel, dataList)
     
     #hBkgList = [hTT, hDY, hWJets, hQCD, hVV, htW] ## full list for stack
     #hBkgNameList = ["t#bar{t}", "Drell-Yann", "W+jets", "QCD", "di-boson", "single top"] # list for legend
-    hBkgList = [hTT] ## full list for stack
-    hBkgNameList = ["t#bar{t}"] # list for legend
-    hData = groupTogether  ("data", dataList, hDatas)
+    #hBkgList = [hTT,hVVJJ,hDY,hWJets] ## full list for stack
+    hBkgList = [hVVJJ, hTTfullyHad,hTTsemiLep,hTTfullyLep,hDY,hWJets] ## full list for stack
+    #hBkgList = [hWplusToLNuWminusTo2JJJ_QCD,hWplusTo2JWminusToLNuJJ_QCD,hWplusToLNuWplusTo2JJJ_QCD,hWminusToLNuWminusTo2JJJ_QCD,hWplusToLNuZTo2JJJ_QCD,hWplusTo2JZTo2LJJ_QCD,hWminusToLNuZTo2JJJ_QCD,hWminusTo2JZTo2LJJ_QCD ,hZTo2LZTo2JJJ_QCD,hTTfullyHad,hTTsemiLep,hTTfullyLep,hDY,hWJets] ## full list for stack
+    #hBkgNameList = ["VV+JJ""t#bar{t}","DY+jets","WJets"] # list for legend
+    hBkgNameList = ["VVjj","t#bar{t} hh","t#bar{t} hl","t#bar{t} ll","DY+jets","WJets"] # list for legend
+    #hBkgNameList = ["W^{+}ToLNuW^{-}To2JJJ","W^{+}To2JW^{-}ToLNuJJ","W^{+}ToLNuW^{+}To2JJJ","W^{-}ToLNuW^{-}To2JJJ","W^{+}ToLNuZTo2JJJ","W^{+}To2JZTo2LJJ","W^{-}ToLNuZTo2JJJ","W^{-}To2JZTo2LJJ ","ZTo2LZTo2JJJ","t#bar{t} hh","t#bar{t} hl","t#bar{t} ll","DY+jets","WJets"] # list for legend
+    hData = getHisto  ("data", hDatas)
 
     # remove all data from blinding region before creating tgraph etc...
     if args.blindrange:
@@ -519,10 +447,23 @@ if __name__ == "__main__" :
 
     # apply sig color if available
     for key in hSigs:
+        hSigs[key].SetLineWidth(2)    
         if key in sigColors:
             thecolor = int(sigColors[key])
             hSigs[key].SetLineColor(thecolor)
 
+
+    # apply bkg color if available
+    for h in hBkgList:
+            histoname =h.GetName()
+            for key,value in bkgColors.items():
+                if key in histoname:    
+                        thecolor = int(bkgColors[key])
+                        h.SetLineColor(thecolor)
+                        h.SetFillColor(thecolor)
+                        h.SetFillStyle(1001)
+
+            
     #################### REMOVE NEGARIVE BINS #######################
     print "** INFO: removing all negative bins from bkg histos"
     makeNonNegativeHistos (hBkgList)
@@ -556,7 +497,6 @@ if __name__ == "__main__" :
 
 
     ################## TITLE AND AESTETICS ############################
-
     bkgStack.Draw("HIST")
 
     bkgStack.GetXaxis().SetTitleFont(43)
@@ -573,14 +513,24 @@ if __name__ == "__main__" :
     bkgStack.GetXaxis().SetLabelSize(labelSize)
     bkgStack.GetYaxis().SetLabelSize(labelSize)
 
-
+    #intBkg = bkgStack.GetHistogram().Integral()
+    intBkg = bkgStack.GetStack().Last().Integral()
     bkgStack.SetTitle(plotTitle)
 
+
+    for key in hSigs:
+        intSig = hSigs[key].Integral()
+        if intSig > 0:
+                hSigs[key].Scale(intBkg/intSig)
+    
     ################## LEGEND ######################################
 
     legmin = 0.45
     if args.lymin: legmin = args.lymin
-    leg = TLegend (0.50, legmin, 0.85, 0.93)
+    legminx = 0.50
+    if (len(hBkgNameList) +len(hSigs)>6): legminx = 0.3
+    leg = TLegend (legminx, legmin, 0.85, 0.93)
+    if (len(hBkgNameList) +len(hSigs)> 6): leg.SetNColumns(2)
     leg.SetFillStyle(0)
     leg.SetBorderSize(0)
     leg.SetTextFont(43)
@@ -605,7 +555,7 @@ if __name__ == "__main__" :
 
     ################## Y RANGE SETTINGS ############################
     ymin = 0
-    if args.log: ymin = 1.E-5
+    if args.log: ymin = 1.E-2
 
     maxs = []
     
@@ -625,7 +575,7 @@ if __name__ == "__main__" :
     ymax = max(maxs)
 
     # scale max to leave some space (~10%)
-    extraspace = 0.1
+    extraspace = 0.3
 
     if not args.log:
         ymax += extraspace* (ymax-ymin)
@@ -680,9 +630,8 @@ if __name__ == "__main__" :
     extraTextBox.SetTextAlign(13)
 
 
-    lumi_num = float(cfg.readOption ("general::lumi"))
-    lumi_num = lumi_num/1000. # from pb-1 to fb-1
-    lumi = "%.1f fb^{-1} (13 TeV)" % lumi_num
+    
+    lumi = "%.1f fb^{-1} (13 TeV)" % args.lumi_num
     lumibox = TLatex  (0.9, 0.964, lumi)       
     lumibox.SetNDC()
     lumibox.SetTextAlign(31)
@@ -703,12 +652,12 @@ if __name__ == "__main__" :
             print "*** Warning: channel name must be MuTau, ETau, TauTau, you wrote: " , args.channel
 
         if chName:
-            chBox = TLatex  (xpos + 0.2, ypos - 0.025, chName)
+            chBox = TLatex  (xpos, ypos + 0.025, chName)
             chBox.SetNDC()
             chBox.SetTextSize(cmsTextSize+20)
             chBox.SetTextFont(43)
             chBox.SetTextColor(kBlack)
-            chBox.SetTextAlign(13)
+            chBox.SetTextAlign(11)
     CMSbox.Draw()
     extraTextBox.Draw()
     lumibox.Draw()
@@ -785,8 +734,11 @@ if __name__ == "__main__" :
         raw_input() # to prevent script from closing
 
     if args.printplot:
-        tag = ""
+        tagch = ""
         if args.channel:
-            tag = "_" + args.channel
-        saveName = "plot_" + args.var + "_" + args.sel + tag + ".pdf"
-        c1.Print (saveName, "pdf")
+            tagch = "_" + args.channel
+        saveName = "./plots_"+args.channel+"VBF/"+args.tag+"/"+args.sel+"/plot_" + args.var + "_" + args.sel + tagch 
+        if args.log:
+            saveName = saveName+"_log"
+        c1.Print (saveName+".pdf", "pdf")
+        c1.SaveAs (saveName+".png")

@@ -1,4 +1,4 @@
-OUTDIRR="Skims2017_17Nov"
+OUTDIRR="Skims2017_5Dic"
 AMESSAGE="skims with VBF variables"
 
 source /opt/exp_soft/cms/t3/t3setup
@@ -17,18 +17,61 @@ cp /home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/scripts/listAll.sh /data_
 # cp /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/scripts/haddAll.sh /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/
 
 
-# #############################
-# ##### ### W+jets :
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_WJets     -i inputFiles/Files80X_25Nov2016/8_WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1.txt    -x 44149.01333 
+# # #####################
+# # ### tW top : 
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_antitop_5f_inclusiveDecays   -i inputFiles/Files_7Feb2016/10_ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1.txt   -x 35.6
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_top_5f_inclusiveDecays       -i inputFiles/Files_7Feb2016/11_ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1.txt       -x 35.6
+
+
+
+# # #############################
+# # ##### ### W+jets in HT bins 
+# # ## WJets for HT bins -- chopping away HT > 70 in the inclusive sample is fine, as it is only ~10% of the total number of events
+# # ## tot xs NNLO: 61526.7 (+497.1 -264.6) (+/- 2312.7) pb
+# # ## individual xs are taken from : https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#W_jets
+# # ## and the one for 0-70 and 70-100 computed by difference and using the inclusive sample distribution
+# # ## xs LO : 50690 pb
+# # ## xs LO (HT < 100 ) = 50690 - sum (xs HT > 100) = 50690 - 1772.52216 = 48917.47784
+# # ## then using the inlcusive sample :
+# # ## ch->GetEntries("lheHt < 70")                : 186703 (97.09%) --> 47493.98 pb
+# # ## ch->GetEntries("lheHt > 70 && lheHt < 100") : 5589   (2.91%)  --> 1423.499 pb
+# # ## Finally, everything is scaled from the LO to the NNLO xs : (61526.7/50690.) = 1.213784
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_WJets_HT_0_70       -i inputFiles/Files_7Feb2016/WJets_incl.txt        -y 1.213784 -x 47493.98 -z 70
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_WJets_HT_70_100     -i inputFiles/Files_7Feb2016/WJetsHT-70-100.txt    -y 1.213784 -x 1423.499
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_WJets_HT_100_200    -i inputFiles/Files_7Feb2016/WJetsHT-100-200.txt   -y 1.213784 -x 1345
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_WJets_HT_200_400    -i inputFiles/Files_7Feb2016/WJetsHT-200-400.txt   -y 1.213784 -x 359.7
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_WJets_HT_400_600    -i inputFiles/Files_7Feb2016/WJetsHT-400-600.txt   -y 1.213784 -x 48.91
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_WJets_HT_600_800    -i inputFiles/Files_7Feb2016/WJetsHT-600-800.txt   -y 1.213784 -x 12.05
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_WJets_HT_800_1200   -i inputFiles/Files_7Feb2016/WJetsHT-800-1200.txt  -y 1.213784 -x 5.501
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_WJets_HT_1200_2500  -i inputFiles/Files_7Feb2016/WJetsHT-1200-2500.txt -y 1.213784 -x 1.329
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_WJets_HT_2500_Inf   -i inputFiles/Files_7Feb2016/WJetsHT-2500-Inf.txt  -y 1.213784 -x 0.03216
+
+
+# # ####################
+# # ## DY incl
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 200 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_DY   -i inputFiles/Files_7Feb2016/DY_mergedList_7Feb2017.txt -g True -x 5765.4
+
+# # ####################
+# # ## DY in HT bins
+# # xs from https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#DY_Z 
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 200 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_DY_HT_0_70   -i inputFiles/Files_7Feb2016/DY_mergedList_7Feb2017.txt -g True -x 5765.4 -z 70
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 200 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_DY_HT_70_100   -i inputFiles/Files_7Feb2016/DY7FebSplit/8_DYJetsToLL_M-50_HT-70to100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 169.9
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 200 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_DY_HT_100_200   -i inputFiles/Files_7Feb2016/DY7FebSplit/9_DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 147.40
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 200 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_DY_HT_200_400   -i inputFiles/Files_7Feb2016/DY7FebSplit/11_DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 40.99
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 200 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_DY_HT_400_600   -i inputFiles/Files_7Feb2016/DY7FebSplit/13_DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 5.678
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 200 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_DY_HT_600_800   -i inputFiles/Files_7Feb2016/DY7FebSplit/15_DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2.txt -x 1.367
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 200 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_DY_HT_800_1200   -i inputFiles/Files_7Feb2016/DY7FebSplit/16_DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 0.6304
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 200 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_DY_HT_1200_2500   -i inputFiles/Files_7Feb2016/DY7FebSplit/17_DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 0.1514
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 200 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_DY_HT_2500_inf   -i inputFiles/Files_7Feb2016/DY7FebSplit/18_DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 0.003565
 
 
 # #############################
 # ##### ### VV+jets :
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/WplusToLNuWminusTo2JJJ_QCD -i inputFiles/Files_17Nov_VBF/1_WplusToLNuWminusTo2JJJ_QCD_LO_SM_MJJ100PTJ10_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 5.546
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/WplusTo2JWminusToLNuJJ_QCD -i inputFiles/Files_17Nov_VBF/2_WplusTo2JWminusToLNuJJ_QCD_LO_SM_MJJ100PTJ10_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 5.568
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/WplusToLNuWplusTo2JJJ_QCD -i inputFiles/Files_17Nov_VBF/3_WplusToLNuWplusTo2JJJ_QCD_LO_SM_MJJ100PTJ10_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 8.642e-02
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/WminusToLNuWminusTo2JJJ_QCD -i inputFiles/Files_17Nov_VBF/4_WminusToLNuWminusTo2JJJ_QCD_LO_SM_MJJ100PTJ10_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 3.774e-02
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/WplusToLNuZTo2JJJ_QCD -i inputFiles/Files_17Nov_VBF/5_WplusToLNuZTo2JJJ_QCD_LO_SM_MJJ100PTJ10_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 2.159
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/WplusToLNuWminusTo2JJJ_QCD -i inputFiles/Files_17Nov_VBF/1_WplusToLNuWminusTo2JJJ_QCD_LO_SM_MJJ100PTJ10_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 5.546
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/WplusTo2JWminusToLNuJJ_QCD -i inputFiles/Files_17Nov_VBF/2_WplusTo2JWminusToLNuJJ_QCD_LO_SM_MJJ100PTJ10_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 5.568
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/WplusToLNuWplusTo2JJJ_QCD -i inputFiles/Files_17Nov_VBF/3_WplusToLNuWplusTo2JJJ_QCD_LO_SM_MJJ100PTJ10_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 8.642e-02
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/WminusToLNuWminusTo2JJJ_QCD -i inputFiles/Files_17Nov_VBF/4_WminusToLNuWminusTo2JJJ_QCD_LO_SM_MJJ100PTJ10_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 3.774e-02
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/WplusToLNuZTo2JJJ_QCD -i inputFiles/Files_17Nov_VBF/5_WplusToLNuZTo2JJJ_QCD_LO_SM_MJJ100PTJ10_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 2.159
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/WplusTo2JZTo2LJJ_QCD -i inputFiles/Files_17Nov_VBF/6_WplusTo2JZTo2LJJ_QCD_LO_SM_MJJ100PTJ10_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 6.404e-01
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/WminusToLNuZTo2JJJ_QCD -i inputFiles/Files_17Nov_VBF/7_WminusToLNuZTo2JJJ_QCD_LO_SM_MJJ100PTJ10_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 1.302
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/WminusTo2JZTo2LJJ_QCD -i inputFiles/Files_17Nov_VBF/8_WminusTo2JZTo2LJJ_QCD_LO_SM_MJJ100PTJ10_TuneCUETP8M1_13TeV-madgraph-pythia8__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 3.866e-01
@@ -51,8 +94,8 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10
 ## 15 Giu : job increased by a factor 10, because some few files went corrupted... like this I minimize the fraction of failed jobs to <1%
 
 #python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 600   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleMuon        -i inputFiles/Files_22Feb2017/SingleMu_7FebreminiAOD_5Mar2017.txt
-# python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 1000  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleElectron    -i inputFiles/Files_22Feb2017/SingleEle_7FebreminiAOD_5Mar2017.txt
-# python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 600   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_Tau               -i inputFiles/Files_22Feb2017/Tau_7FebreminiAOD_5Mar2017.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 1000  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleElectron    -i inputFiles/Files_22Feb2017/SingleEle_7FebreminiAOD_5Mar2017.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 600   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_Tau               -i inputFiles/Files_22Feb2017/Tau_7FebreminiAOD_5Mar2017.txt
 
 
 ###################
@@ -63,8 +106,8 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10
 # hl = 21.9% (x2 for permutation t-tbar)
 # technical note: use -q long if splitting on ~180-350 jobs
 
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 400  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_TT_fullyHad_test  -i inputFiles/Files_7Feb2016/TT_powheg_fullyHad_7Feb2017.txt    -x 380.1143 -t True -b 1
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 700 -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_TT_semiLep   -i inputFiles/Files_7Feb2016/TT_powheg_semiLep_7Feb2017.txt     -x 364.3108 -t True -b 5
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 400  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_TT_fullyHad  -i inputFiles/Files_7Feb2016/TT_powheg_fullyHad_7Feb2017.txt    -x 380.1143 -t True -b 1
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 700 -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_TT_semiLep   -i inputFiles/Files_7Feb2016/TT_powheg_semiLep_7Feb2017.txt     -x 364.3108 -t True -b 5
 # python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 700 -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_TT_fullyLep  -i inputFiles/Files_7Feb2016/TT_powheg_fullyLep_7Feb2017.txt    -x 87.3348  -t True -b 4
 
 

@@ -52,6 +52,10 @@ class AnalysisHelper
         void readSelections();
         void readVariables();
 
+	sampleColl & getSignals() {return sig_samples_;};
+	sampleColl & getData() {return data_samples_;};
+	sampleColl & getBackgrounds() {return bkg_samples_;};
+
         void fillHistos();
 
         void mergeSamples();

@@ -1799,6 +1799,7 @@ int main (int argc, char** argv)
 
       theSmallTree.m_tauHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_tauH.Phi ()) ;
       theSmallTree.m_ditau_deltaPhi = deltaPhi (tlv_firstLepton.Phi (), tlv_secondLepton.Phi ()) ;
+      theSmallTree.m_ditau_deltaEta = fabs(tlv_firstLepton.Eta ()- tlv_secondLepton.Eta ()) ;
       theSmallTree.m_ditau_deltaR = tlv_firstLepton.DeltaR(tlv_secondLepton) ;
       theSmallTree.m_dau1MET_deltaphi = deltaPhi (theBigTree.metphi , tlv_firstLepton.Phi ()) ;
       theSmallTree.m_dau2MET_deltaphi = deltaPhi (theBigTree.metphi , tlv_secondLepton.Phi ()) ;
@@ -2754,9 +2755,11 @@ int main (int argc, char** argv)
 	    }
 
 	  theSmallTree.m_HH_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
+	  theSmallTree.m_HH_deltaEta = fabs(tlv_bH.Eta()- tlv_tauH.Eta ()) ;
 	  theSmallTree.m_HHsvfit_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH_SVFIT.Phi ()) ;
 	  theSmallTree.m_bHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_bH.Phi ()) ;
 	  theSmallTree.m_dib_deltaPhi = deltaPhi (tlv_firstBjet.Phi (), tlv_secondBjet.Phi ()) ;
+	  theSmallTree.m_dib_deltaEta = fabs(tlv_firstBjet.Eta()-tlv_secondBjet.Eta ()) ;
 	  theSmallTree.m_dib_deltaR = tlv_firstBjet.DeltaR(tlv_secondBjet) ;
 	  theSmallTree.m_dib_deltaR_per_bHpt = theSmallTree.m_dib_deltaR * tlv_bH_raw.Pt();
 
@@ -2859,6 +2862,39 @@ int main (int argc, char** argv)
 				 );
 	      bool   hasgj1_VBF = false;
 	      bool   hasgj2_VBF = false; 
+	      TLorentzVector VBFcentral = VBFjet1;
+	      TLorentzVector VBFforward = VBFjet2;
+	      
+	      if (fabs(VBFjet1.Eta())>fabs(VBFjet2.Eta())) std::swap(VBFcentral,VBFforward);
+	      TLorentzVector fakeTau = tlv_secondLepton;
+	      if (pairType == 2 && theSmallTree.m_dau1_iso > theSmallTree.m_dau2_iso) {
+		fakeTau = tlv_firstLepton;
+	      }
+	      TLorentzVector Wc = VBFcentral + fakeTau;
+	      TLorentzVector Wf = VBFforward + fakeTau;
+	      TLorentzVector bclose = tlv_firstBjet;
+	      if(tlv_secondBjet.DeltaR(Wc)<tlv_firstBjet.DeltaR(Wc)) bclose = tlv_secondBjet;
+	      TLorentzVector top_Wc_bclose = Wc + bclose;
+	      bclose = tlv_firstBjet;
+	      if(tlv_secondBjet.DeltaR(Wf)<tlv_firstBjet.DeltaR(Wf)) bclose = tlv_secondBjet;
+	      TLorentzVector top_Wf_bclose = Wf + bclose;
+	      TLorentzVector bcentral = tlv_firstBjet;
+	      TLorentzVector bforward = tlv_secondBjet;
+	      if (fabs(tlv_firstBjet.Eta())>fabs(tlv_secondBjet.Eta())) std::swap(bcentral,bforward);
+	      TLorentzVector top_Wc_bcentral = Wc + bcentral;
+	      TLorentzVector top_Wf_bcentral = Wf + bcentral;
+	      TLorentzVector top_Wc_bforward = Wc + bforward;
+	      TLorentzVector top_Wf_bforward = Wf + bforward;
+
+	      theSmallTree.m_top_Wc_bclose_mass = top_Wc_bclose.M();
+	      theSmallTree.m_top_Wc_bcentral_mass = top_Wc_bcentral.M();
+	      theSmallTree.m_top_Wc_bforward_mass = top_Wc_bforward.M();
+	      theSmallTree.m_top_Wf_bclose_mass = top_Wf_bclose.M();
+	      theSmallTree.m_top_Wf_bcentral_mass = top_Wf_bcentral.M();
+	      theSmallTree.m_top_Wf_bforward_mass = top_Wf_bforward.M();
+
+
+	      
 	      if (isMC)          {
 		int mcind = theBigTree.jets_genjetIndex->at(VBFidx1);
 		if (mcind>=0)
@@ -3003,7 +3039,7 @@ int main (int argc, char** argv)
 		    }
 		}
 	
-	     
+	      int addjets = 0;
 	      //if VBF, skip VBF jets candidates and save 5th jet
 	      if (VBFcand_Mjj.size()>0){
 		if(int (iJet) != VBFidx1 && int (iJet) != VBFidx2 and jets == 0){  
@@ -3024,8 +3060,8 @@ int main (int argc, char** argv)
 		    theSmallTree.m_genjet5_e =   thisGenJet.E();
 		  }
 		  jets++;
-		  
 		}
+		if(int (iJet) != VBFidx1 && int (iJet) != VBFidx2) ++ theSmallTree.m_addjets;
 	      }
 	      theSmallTree.m_jets_pt.push_back (tlv_dummyJet.Pt ()) ;
 	      theSmallTree.m_jets_eta.push_back (tlv_dummyJet.Eta ()) ;

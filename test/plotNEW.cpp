@@ -10,12 +10,12 @@
 #include "THStack.h"
 #include "TCanvas.h"
 
-#include "HistoManager.h"
-#include "ConfigParser.h"
-#include "utils.h"
-#include "histoUtils.h"
-#include "plotContainer.h"
-#include "analysisUtils.h"
+#include "../interface/HistoManager.h"
+#include "../interface/ConfigParser.h"
+#include "../interface/utils.h"
+#include "../interface/histoUtils.h"
+#include "../interface/plotContainer.h"
+#include "../interface/analysisUtils.h"
 
 using namespace std ;
 
@@ -113,7 +113,7 @@ int main (int argc, char** argv)
   // get the selections to be applied
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  vector<string> activeSelections = gConfigParser->readStringListOption ("plotNEW::selections") ;
+  vector<string> activeSelections = gConfigParser->readStringListOption ("selections::list") ;
   vector<pair <TString, TCut> > selections = readCutsFile (
       activeSelections,
       gConfigParser->readStringOption ("selections::selectionsFile")
@@ -128,7 +128,7 @@ int main (int argc, char** argv)
   // get the variables to be plotted
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  vector<string> variablesList = gConfigParser->readStringListOption ("plotNEW::variables") ;
+  vector<string> variablesList = gConfigParser->readStringListOption ("general::variables") ;
 
   plotContainer bkg_plots ("bkg", variablesList, selections, bkgSamplesList, 0) ;
   counters bkgCount = fillHistos (bkgSamples, bkg_plots, 
