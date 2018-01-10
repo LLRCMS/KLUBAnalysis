@@ -1,4 +1,4 @@
-OUTDIRR="Skims2017_5Dic"
+OUTDIRR="Skims2017_20Dic"
 AMESSAGE="skims with VBF variables"
 
 source /opt/exp_soft/cms/t3/t3setup
@@ -19,8 +19,8 @@ cp /home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/scripts/listAll.sh /data_
 
 # # #####################
 # # ### tW top : 
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_antitop_5f_inclusiveDecays   -i inputFiles/Files_7Feb2016/10_ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1.txt   -x 35.6
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_top_5f_inclusiveDecays       -i inputFiles/Files_7Feb2016/11_ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1.txt       -x 35.6
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_antitop_5f_inclusiveDecays   -i inputFiles/Files_7Feb2016/10_ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1.txt   -x 35.6
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_top_5f_inclusiveDecays       -i inputFiles/Files_7Feb2016/11_ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1.txt       -x 35.6
 
 
 
@@ -36,7 +36,7 @@ cp /home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/scripts/listAll.sh /data_
 # # ## ch->GetEntries("lheHt < 70")                : 186703 (97.09%) --> 47493.98 pb
 # # ## ch->GetEntries("lheHt > 70 && lheHt < 100") : 5589   (2.91%)  --> 1423.499 pb
 # # ## Finally, everything is scaled from the LO to the NNLO xs : (61526.7/50690.) = 1.213784
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_WJets_HT_0_70       -i inputFiles/Files_7Feb2016/WJets_incl.txt        -y 1.213784 -x 47493.98 -z 70
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_WJets_HT_0_70       -i inputFiles/Files_7Feb2016/WJets_incl.txt        -y 1.213784 -x 47493.98 -z 70
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_WJets_HT_70_100     -i inputFiles/Files_7Feb2016/WJetsHT-70-100.txt    -y 1.213784 -x 1423.499
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_WJets_HT_100_200    -i inputFiles/Files_7Feb2016/WJetsHT-100-200.txt   -y 1.213784 -x 1345
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_WJets_HT_200_400    -i inputFiles/Files_7Feb2016/WJetsHT-200-400.txt   -y 1.213784 -x 359.7
@@ -95,7 +95,7 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20
 
 #python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 600   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleMuon        -i inputFiles/Files_22Feb2017/SingleMu_7FebreminiAOD_5Mar2017.txt
 #python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 1000  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleElectron    -i inputFiles/Files_22Feb2017/SingleEle_7FebreminiAOD_5Mar2017.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 600   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_Tau               -i inputFiles/Files_22Feb2017/Tau_7FebreminiAOD_5Mar2017.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 1000   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_Tau               -i inputFiles/Files_22Feb2017/Tau_7FebreminiAOD_5Mar2017.txt
 
 
 ###################
@@ -108,7 +108,7 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20
 
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 400  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_TT_fullyHad  -i inputFiles/Files_7Feb2016/TT_powheg_fullyHad_7Feb2017.txt    -x 380.1143 -t True -b 1
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 700 -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_TT_semiLep   -i inputFiles/Files_7Feb2016/TT_powheg_semiLep_7Feb2017.txt     -x 364.3108 -t True -b 5
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 700 -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_TT_fullyLep  -i inputFiles/Files_7Feb2016/TT_powheg_fullyLep_7Feb2017.txt    -x 87.3348  -t True -b 4
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 700 -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_TT_fullyLep  -i inputFiles/Files_7Feb2016/TT_powheg_fullyLep_7Feb2017.txt    -x 87.3348  -t True -b 4
 
 
 
@@ -193,11 +193,6 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20
 # python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_WJets_HT_800_1200   -i inputFiles/Files_7Feb2016/WJetsHT-800-1200.txt  -y 1.213784 -x 5.501
 # python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_WJets_HT_1200_2500  -i inputFiles/Files_7Feb2016/WJetsHT-1200-2500.txt -y 1.213784 -x 1.329
 # python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_WJets_HT_2500_Inf   -i inputFiles/Files_7Feb2016/WJetsHT-2500-Inf.txt  -y 1.213784 -x 0.03216
-
-# # #####################
-# # ### tW top : 
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_ST_tW_antitop_5f_inclusiveDecays   -i inputFiles/Files_7Feb2016/10_ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1.txt   -x 35.6
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_ST_tW_top_5f_inclusiveDecays       -i inputFiles/Files_7Feb2016/11_ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1.txt       -x 35.6
 
 # # # #####################
 # # # ### DI-boson:

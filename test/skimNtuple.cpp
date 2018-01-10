@@ -2306,6 +2306,7 @@ int main (int argc, char** argv)
 	  theSmallTree.m_bjet2_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet2idx) ;
 	  theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
 
+	  theSmallTree.m_bjets_bID  = theBigTree.bCSVscore->at (bjet1idx) +theBigTree.bCSVscore->at (bjet2idx) ;
 	  bool hasgj1 = false;
 	  bool hasgj2 = false;          
 	  if (isMC){            
@@ -2862,14 +2863,18 @@ int main (int argc, char** argv)
 				 );
 	      bool   hasgj1_VBF = false;
 	      bool   hasgj2_VBF = false; 
+
+	      //top mass
 	      TLorentzVector VBFcentral = VBFjet1;
 	      TLorentzVector VBFforward = VBFjet2;
-	      
+	       
 	      if (fabs(VBFjet1.Eta())>fabs(VBFjet2.Eta())) std::swap(VBFcentral,VBFforward);
 	      TLorentzVector fakeTau = tlv_secondLepton;
 	      if (pairType == 2 && theSmallTree.m_dau1_iso > theSmallTree.m_dau2_iso) {
 		fakeTau = tlv_firstLepton;
 	      }
+
+
 	      TLorentzVector Wc = VBFcentral + fakeTau;
 	      TLorentzVector Wf = VBFforward + fakeTau;
 	      TLorentzVector bclose = tlv_firstBjet;
@@ -2886,6 +2891,10 @@ int main (int argc, char** argv)
 	      TLorentzVector top_Wc_bforward = Wc + bforward;
 	      TLorentzVector top_Wf_bforward = Wf + bforward;
 
+	      float Wmass = 80.4;
+	      TLorentzVector W1 = VBFjet1 + fakeTau;
+	      TLorentzVector W2 = VBFjet2 + fakeTau; 
+
 	      theSmallTree.m_top_Wc_bclose_mass = top_Wc_bclose.M();
 	      theSmallTree.m_top_Wc_bcentral_mass = top_Wc_bcentral.M();
 	      theSmallTree.m_top_Wc_bforward_mass = top_Wc_bforward.M();
@@ -2893,7 +2902,13 @@ int main (int argc, char** argv)
 	      theSmallTree.m_top_Wf_bcentral_mass = top_Wf_bcentral.M();
 	      theSmallTree.m_top_Wf_bforward_mass = top_Wf_bforward.M();
 
-
+	      if (fabs(Wmass-W1.M()) > fabs(Wmass-W2.M())) std::swap(W1,W2);
+	      bclose = tlv_firstBjet;
+	      if (tlv_firstBjet.DeltaR(W1) > tlv_secondBjet.DeltaR(W1)) bclose = tlv_secondBjet;
+	      TLorentzVector top_Wmass_bclose = W1+ bclose;  
+	      theSmallTree.m_top_Wmass_bclose_mass = top_Wmass_bclose.M();
+		
+	      
 	      
 	      if (isMC)          {
 		int mcind = theBigTree.jets_genjetIndex->at(VBFidx1);
@@ -2923,6 +2938,7 @@ int main (int argc, char** argv)
 		  }     
 	      }
 	      theSmallTree.m_VBFjj_mass = std::get<0>(*(VBFcand_Mjj.rbegin()));
+	      theSmallTree.m_VBFjj_mass_log = log(std::get<0>(*(VBFcand_Mjj.rbegin())));
 	      theSmallTree.m_VBFjj_deltaEta = fabs(VBFjet1.Eta()-VBFjet2.Eta());
 
 	      theSmallTree.m_VBFjet1_pt = VBFjet1.Pt() ;
@@ -2997,18 +3013,18 @@ int main (int argc, char** argv)
 					   ) ;
 
 	      // remove jets that overlap with the tau selected in the leg 1 and 2
-	      if (type1 == 2) {
+	      //if (type1 == 2) {
 		if (tlv_firstLepton.DeltaR(tlv_dummyJet) < lepCleaningCone){
 		  theSmallTree.m_dau1_jecUnc = theBigTree.jets_jecUnc->at(iJet);
 		  continue;
 		}
-	      }
-	      if (type2 == 2) {
+		// }
+		//if (type2 == 2) {
 		if (tlv_secondLepton.DeltaR(tlv_dummyJet) < lepCleaningCone){
 		  theSmallTree.m_dau2_jecUnc = theBigTree.jets_jecUnc->at(iJet);
 		  continue;
 		}
-	      }
+		//}
 
 
 	  
@@ -3039,25 +3055,25 @@ int main (int argc, char** argv)
 		    }
 		}
 	
-	      int addjets = 0;
+
 	      //if VBF, skip VBF jets candidates and save 5th jet
 	      if (VBFcand_Mjj.size()>0){
 		if(int (iJet) != VBFidx1 && int (iJet) != VBFidx2 and jets == 0){  
-		  theSmallTree.m_jet5_pt= tlv_dummyJet.Pt() ;
-		  theSmallTree.m_jet5_eta= tlv_dummyJet.Eta();
-		  theSmallTree.m_jet5_phi= tlv_dummyJet.Phi();
-		  theSmallTree.m_jet5_e= tlv_dummyJet.E();
-		  theSmallTree.m_jet5_btag=  (theBigTree.bCSVscore->at (iJet)) ;
-		  theSmallTree.m_jet5_flav= 	(theBigTree.jets_HadronFlavour->at (iJet)) ;
-		  theSmallTree.m_jet5_hasgenjet= hasgj ;
-		  theSmallTree.m_jet5_z = getZ(tlv_dummyJet.Eta(),theSmallTree.m_VBFjet1_eta,theSmallTree.m_VBFjet2_eta);
+		  theSmallTree.m_jet5_VBF_pt= tlv_dummyJet.Pt() ;
+		  theSmallTree.m_jet5_VBF_eta= tlv_dummyJet.Eta();
+		  theSmallTree.m_jet5_VBF_phi= tlv_dummyJet.Phi();
+		  theSmallTree.m_jet5_VBF_e= tlv_dummyJet.E();
+		  theSmallTree.m_jet5_VBF_btag=  (theBigTree.bCSVscore->at (iJet)) ;
+		  theSmallTree.m_jet5_VBF_flav= 	(theBigTree.jets_HadronFlavour->at (iJet)) ;
+		  theSmallTree.m_jet5_VBF_hasgenjet= hasgj ;
+		  theSmallTree.m_jet5_VBF_z = getZ(tlv_dummyJet.Eta(),theSmallTree.m_VBFjet1_eta,theSmallTree.m_VBFjet2_eta);
 		  if (hasgj){
 		    int mcind = theBigTree.jets_genjetIndex->at(iJet);
 		    TLorentzVector thisGenJet(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
-		    theSmallTree.m_genjet5_pt =  thisGenJet.Pt() ;
-		    theSmallTree.m_genjet5_eta = thisGenJet.Eta();
-		    theSmallTree.m_genjet5_phi = thisGenJet.Phi();
-		    theSmallTree.m_genjet5_e =   thisGenJet.E();
+		    theSmallTree.m_genjet5_VBF_pt =  thisGenJet.Pt() ;
+		    theSmallTree.m_genjet5_VBF_eta = thisGenJet.Eta();
+		    theSmallTree.m_genjet5_VBF_phi = thisGenJet.Phi();
+		    theSmallTree.m_genjet5_VBF_e =   thisGenJet.E();
 		  }
 		  jets++;
 		}
@@ -3112,9 +3128,34 @@ int main (int argc, char** argv)
 	  TLorentzVector tlv_jetPair = tlv_jet1 + tlv_jet2;
 
 	  theSmallTree.m_jj_mass = tlv_jetPair.M();
+	  theSmallTree.m_jj_mass_log = log(tlv_jetPair.M());
 	  theSmallTree.m_jj_deltaEta = fabs(tlv_jet1.Eta() - tlv_jet2.Eta());
 	  theSmallTree.m_jj_HT = tlv_jet1.Pt()+tlv_jet2.Pt();
+
+	  TLorentzVector b = tlv_firstBjet;
+	  if(tlv_secondBjet.Pt() > tlv_firstBjet.Pt()) b = tlv_secondBjet;
+	  TLorentzVector top_Wjj_b = b + tlv_jetPair; //2 highest pt additional jets + highest pt bjet
+	  theSmallTree.m_top_Wjj_b_mass = top_Wjj_b.M();
+	  
+	   TLorentzVector bclose = tlv_firstBjet;
+	   if(tlv_secondBjet.DeltaR(tlv_jetPair) < tlv_firstBjet.DeltaR(tlv_jetPair)) bclose =tlv_secondBjet;
+	  TLorentzVector top_Wjj_bclose = b + tlv_jetPair; //2 highest pt additional jets + closest bjet
+	  theSmallTree.m_top_Wjj_bclose_mass = top_Wjj_bclose.M();
+
+	    
+
+	    
 	  }
+	  if (theSmallTree.m_jets_pt.size()>2){
+	  theSmallTree.m_jet5_pt =theSmallTree.m_jets_pt.at(2);
+	  theSmallTree.m_jet5_eta =theSmallTree.m_jets_eta.at(2);
+	  theSmallTree.m_jet5_phi =theSmallTree.m_jets_phi.at(2);
+	  theSmallTree.m_jet5_e =theSmallTree.m_jets_e.at(2);
+	  theSmallTree.m_jet5_btag= theSmallTree.m_jets_btag.at (2);
+	  theSmallTree.m_jet5_flav= theSmallTree.m_jets_flav.at (2);
+	  theSmallTree.m_jet5_hasgenjet= theSmallTree.m_jets_hasgenjet.at (2);
+	  }
+	  
 	  theSmallTree.m_isBoosted = 0;
 	  if (theBigTree.ak8jets_px->size() > 0)
 	    {
