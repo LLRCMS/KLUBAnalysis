@@ -1,4 +1,3 @@
-
 from ROOT import *
 import re
 import os
@@ -33,10 +32,12 @@ def retrieveHistos (rootFile, namelist, var, sel, reg):
     return res
 
 
-def getHisto (histoName,inputList):
+def getHisto (histoName,inputList,doOverflow):
+        
         for idx, name in enumerate(inputList):
                 if (name.startswith(histoName)):
                         h = inputList[name].Clone (histoName)
+                        if doOverflow: h = addOverFlow(h)
                         break
         return h
 
@@ -107,7 +108,6 @@ def makeTGraphFromHist (histo, newName):
     gData.SetLineColor(kBlack);
     gData.SetName(newName)
     return gData;
-
 # set all horizontal bar errors to 0
 def removeHErrors (graph):
     for ipt in range (0, graph.GetN()):
@@ -124,8 +124,52 @@ def removeEmptyPoints (graph):
         if y == 0:
             zeroes.append(ipt)
     for i in reversed (zeroes):
-        graph.RemovePoint(i) 
+        graph.RemovePoint(i)
 
+
+        
+def addOverFlow (histo):
+    dummy = TH1F ("tempo",histo.GetTitle (),histo.GetNbinsX () + 1, histo.GetXaxis ().GetXmin (),histo.GetXaxis ().GetXmax () + histo.GetBinWidth (1)) 
+
+    for iBin in range(1,histo.GetNbinsX () + 2):
+            dummy.SetBinContent (iBin, histo.GetBinContent (iBin)) 
+            dummy.SetBinError (iBin, histo.GetBinError (iBin)) 
+  
+
+    if(histo.GetDefaultSumw2()):
+           dummy.Sumw2 () 
+
+    name = histo.GetName () 
+    histo.SetName ("trash") 
+    dummy.GetXaxis().SetTitle(histo.GetXaxis().GetTitle());
+    dummy.SetName (name) 
+    histo, dummy = dummy, histo
+    return histo
+
+
+
+
+
+
+def addOverAndUnderFlow ( histo):
+
+
+  histo.SetBinContent(histo.GetNbinsX(),histo.GetBinContent(histo.GetNbinsX())+histo.GetBinContent(histo.GetNbinsX()+1)); 
+  histo.SetBinContent(1,histo.GetBinContent(1)+histo.GetBinContent(0))
+  
+  if (histo.GetBinErrorOption() != TH1.kPoisson):
+    histo.SetBinError(histo.GetNbinsX(),sqrt(pow(histo.GetBinError(histo.GetNbinsX()),2)+pow(histo.GetBinError(histo.GetNbinsX()+1),2)))
+    histo.SetBinError(1,sqrt(pow(histo.GetBinError(1),2)+pow(histo.GetBinError(0),2)))  
+  
+
+  histo.SetBinContent(0,0)
+  histo.SetBinContent(histo.GetNbinsX()+1,0)
+  if (histo.GetBinErrorOption() != TH1.kPoisson):
+      histo.SetBinError(0,0)
+      histo.SetBinError(histo.GetNbinsX()+1,0)
+  
+
+        
 # NB!! need to be called BEFORE removeHErrors or cannot know bin width
 def scaleGraphByBinWidth (graph):
     for ipt in range (0, graph.GetN()):
@@ -256,6 +300,7 @@ if __name__ == "__main__" :
     parser.add_argument('--channel', dest='channel', help='channel = (MuTau, ETau, TauTau)', default=None)
     parser.add_argument('--siglegextratext', dest='siglegextratext', help='additional optional text to be plotted in legend after signal block', default=None)
     
+    
     #bool opts
     parser.add_argument('--log',     dest='log', help='use log scale',  action='store_true', default=False)
     parser.add_argument('--no-data', dest='dodata', help='disable plotting data',  action='store_false', default=True)
@@ -265,6 +310,7 @@ if __name__ == "__main__" :
     parser.add_argument('--ratio',    dest='ratio', help = 'do ratio plot at the botton', action='store_true', default=False)
     parser.add_argument('--no-print', dest='printplot', help = 'no pdf output', action='store_false', default=True)
     parser.add_argument('--quit',    dest='quit', help = 'quit at the end of the script, no interactive window', action='store_true', default=False)
+    parser.add_argument('--overflow',    dest='overflow', help = 'add overflow bin', action='store_true', default=False)
 
     # par list opt
     parser.add_argument('--blind-range',   dest='blindrange', nargs=2, help='start and end of blinding range', default=None)
@@ -325,34 +371,31 @@ if __name__ == "__main__" :
     #sigNameList = ["100 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 1", "10 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 20"]
     #sigNameList = ["100 x #lambda/#lambda^{SM} = 1", "10 x #lambda/#lambda^{SM} = 20"]
 
-    sigList = ["VBFC2V1"]
-    sigNameList = ["VBFC2V1"]
+    sigList = ["VBFC2V1","ggHH"]
+    sigNameList = []
+    if args.log:
+            sigNameList = ["VBFC2V1","ggHH"]
+    else:
+            sigNameList = ["VBFC2V1","ggHH (#times 0.1)"]
 
 
-    sigScale = [100.]
     sigColors = {}
     sigColors["VBFC2V1"] = 2
+    sigColors["ggHH"] = kCyan+1
 
 
 
     bkgColors = {}
-    #bkgColors["TT"] = kBlue+2
-    #bkgColors["WplusToLNuWminusTo2JJJ_QCD"] = kOrange
-    #bkgColors["WplusTo2JWminusToLNuJJ_QCD"] = kOrange +1
-    #bkgColors["WplusToLNuWplusTo2JJJ_QCD"] = kOrange +3
-    #bkgColors["WminusToLNuWminusTo2JJJ_QCD"] = kOrange +4
-    #bkgColors["WplusToLNuZTo2JJJ_QCD"] = kOrange +7
-    #bkgColors["WplusTo2JZTo2LJJ_QCD"] = kOrange +9
-    #bkgColors["WminusToLNuZTo2JJJ_QCD"] = kPink
-    #bkgColors["WminusTo2JZTo2LJJ_QCD"] = kPink+1
-    #bkgColors["ZTo2LZTo2JJJ_QCD"] = kPink+10
+
+
+    bkgColors["VVJJ"] = kOrange+1
     bkgColors["TTfullyHad"] = kCyan
     bkgColors["TTsemiLep"] = kCyan +2
-    bkgColors["TTfullyLep"] = kBlue
-    bkgColors["VVJJ"] = kOrange+1
+    bkgColors["TTfullyLep"] = kBlue+1
     bkgColors["DY"] = kSpring+2 
-    bkgColors["WJets"] = kRed+2
-    #bkgColors["TW"] = kOrange+2
+    bkgColors["WJets"] = kRed+1
+    bkgColors["TW"] = kMagenta+1
+    bkgColors["singleT"] = kMagenta+3
     
 
     # sigList = ["Radion300", "Radion450", "Radion800"]
@@ -373,7 +416,7 @@ if __name__ == "__main__" :
         plotTitle = args.title
     dataList = ["data_obs"]
     #bkgList =  ["VVJJ","TT","DY","WJets"]
-    bkgList =  ["VVJJ","TTfullyHad","TTsemiLep","TTfullyLep","DY","WJets"]
+    bkgList =  ["VVJJ","TTfullyHad","TTsemiLep","TTfullyLep","DY","WJets","TW","singleT"]
     #bkgList =  ["WplusToLNuWminusTo2JJJ_QCD","WplusTo2JWminusToLNuJJ_QCD","WplusToLNuWplusTo2JJJ_QCD","WminusToLNuWminusTo2JJJ_QCD","WplusToLNuZTo2JJJ_QCD","WplusTo2JZTo2LJJ_QCD","WminusToLNuZTo2JJJ_QCD","WminusTo2JZTo2LJJ_QCD","ZTo2LZTo2JJJ_QCD","TTfullyHad","TTsemiLep","TTfullyLep","DY","WJets"]
     #Dylist   = ["DYIncl", "DY100200", "DY200400", "DY400600", "DY600Inf"]
     #Wjetlist = ["WJetsIncl", "WJets100200", "WJets200400", "WJets400600", "WJets600Inf"]
@@ -395,10 +438,15 @@ if __name__ == "__main__" :
     hBkgs = retrieveHistos  (rootFile, bkgList, args.var, args.sel,args.reg)
     hDatas = retrieveHistos  (rootFile, dataList, args.var, args.sel,args.reg)
 
-    #hDY    = groupTogether ("DY", DYlist, hBkgs)
-    #hWJets = groupTogether ("WJets", Wjetlist, hBkgs)
-    #hTT    = getHisto ("TT", hBkgs)
 
+    
+    xsecRatio = 19.56
+    if not args.log: xsecRatio = xsecRatio/float(10)
+    sigScale = [1. , xsecRatio*hSigs["ggHH"].GetEntries()/float(hSigs["VBFC2V1"].GetEntries())]
+
+
+    doOverflow = args.overflow
+    
     #hWplusToLNuWminusTo2JJJ_QCD =getHisto("WplusToLNuWminusTo2JJJ_QCD",hBkgs)
     #hWplusTo2JWminusToLNuJJ_QCD =getHisto("WplusTo2JWminusToLNuJJ_QCD",hBkgs)
     #hWplusToLNuWplusTo2JJJ_QCD =getHisto("WplusToLNuWplusTo2JJJ_QCD",hBkgs)
@@ -408,25 +456,22 @@ if __name__ == "__main__" :
     #hWminusToLNuZTo2JJJ_QCD =getHisto("WminusToLNuZTo2JJJ_QCD",hBkgs)
     #hWminusTo2JZTo2LJJ_QCD  =getHisto("WminusTo2JZTo2LJJ_QCD",hBkgs)
     #hZTo2LZTo2JJJ_QCD =getHisto("ZTo2LZTo2JJJ_QCD",hBkgs)
-    hVVJJ    = getHisto ("VVJJ", hBkgs)
-    hTTfullyHad    = getHisto ("TTfullyHad", hBkgs)
-    hTTsemiLep    = getHisto ("TTsemiLep", hBkgs)
-    hTTfullyLep    = getHisto ("TTfullyLep", hBkgs)
-    hDY    = getHisto ("DY", hBkgs)
-    hWJets    = getHisto ("WJets", hBkgs)
-    #htW    = groupTogether ("tW", tWlist, hBkgs)
-    #hVV    = groupTogether ("VV", VVlist, hBkgs)
-    #hQCD   = retrieveQCD (rootFile, args.var, args.sel, dataList)
+    hVVJJ    = getHisto ("VVJJ", hBkgs,doOverflow)
+    hTTfullyHad    = getHisto ("TTfullyHad", hBkgs,doOverflow)
+    hTTsemiLep    = getHisto ("TTsemiLep", hBkgs,doOverflow)
+    hTTfullyLep    = getHisto ("TTfullyLep", hBkgs,doOverflow)
+    hDY    = getHisto ("DY", hBkgs,doOverflow)
+    hWJets    = getHisto ("WJets", hBkgs,doOverflow)
+    hTW    = getHisto ("TW", hBkgs,doOverflow)
+    hsingleT    = getHisto ("singleT", hBkgs,doOverflow)
     
-    #hBkgList = [hTT, hDY, hWJets, hQCD, hVV, htW] ## full list for stack
-    #hBkgNameList = ["t#bar{t}", "Drell-Yann", "W+jets", "QCD", "di-boson", "single top"] # list for legend
-    #hBkgList = [hTT,hVVJJ,hDY,hWJets] ## full list for stack
-    hBkgList = [hVVJJ, hTTfullyHad,hTTsemiLep,hTTfullyLep,hDY,hWJets] ## full list for stack
-    #hBkgList = [hWplusToLNuWminusTo2JJJ_QCD,hWplusTo2JWminusToLNuJJ_QCD,hWplusToLNuWplusTo2JJJ_QCD,hWminusToLNuWminusTo2JJJ_QCD,hWplusToLNuZTo2JJJ_QCD,hWplusTo2JZTo2LJJ_QCD,hWminusToLNuZTo2JJJ_QCD,hWminusTo2JZTo2LJJ_QCD ,hZTo2LZTo2JJJ_QCD,hTTfullyHad,hTTsemiLep,hTTfullyLep,hDY,hWJets] ## full list for stack
-    #hBkgNameList = ["VV+JJ""t#bar{t}","DY+jets","WJets"] # list for legend
-    hBkgNameList = ["VVjj","t#bar{t} hh","t#bar{t} hl","t#bar{t} ll","DY+jets","WJets"] # list for legend
-    #hBkgNameList = ["W^{+}ToLNuW^{-}To2JJJ","W^{+}To2JW^{-}ToLNuJJ","W^{+}ToLNuW^{+}To2JJJ","W^{-}ToLNuW^{-}To2JJJ","W^{+}ToLNuZTo2JJJ","W^{+}To2JZTo2LJJ","W^{-}ToLNuZTo2JJJ","W^{-}To2JZTo2LJJ ","ZTo2LZTo2JJJ","t#bar{t} hh","t#bar{t} hl","t#bar{t} ll","DY+jets","WJets"] # list for legend
-    hData = getHisto  ("data", hDatas)
+    
+
+    hBkgList = [hVVJJ, hTTfullyHad,hTTsemiLep,hTTfullyLep,hDY,hWJets,hTW,hsingleT] ## full list for stack
+
+    hBkgNameList = ["VVjj","t#bar{t} hh","t#bar{t} hl","t#bar{t} ll","DY+jets","WJets","tW","single t (t-ch.)"] # list for legend
+
+    hData = getHisto  ("data", hDatas , doOverflow)
 
     # remove all data from blinding region before creating tgraph etc...
     if args.blindrange:
@@ -440,14 +485,13 @@ if __name__ == "__main__" :
     hDataNonScaled = hData.Clone("hDataNonScaled")   #pyroot fa schifo!!! senza questa cosa hData not defined dopo la creazione del testo . E se chiamo tutto hData2 non va. MAH!
     gData = makeTGraphFromHist (hData, "grData")
 
-    # apply sig scale
-    for i, scale in enumerate (sigScale):
-        histo = hSigs[sigList[i]]
-        histo.Scale(scale)
+
+
 
     # apply sig color if available
     for key in hSigs:
-        hSigs[key].SetLineWidth(2)    
+        hSigs[key].SetLineWidth(2)
+        if doOverflow: hSigs[key] = addOverFlow(hSigs[key])
         if key in sigColors:
             thecolor = int(sigColors[key])
             hSigs[key].SetLineColor(thecolor)
@@ -522,7 +566,12 @@ if __name__ == "__main__" :
         intSig = hSigs[key].Integral()
         if intSig > 0:
                 hSigs[key].Scale(intBkg/intSig)
-    
+
+    # apply sig scale
+    for i, scale in enumerate (sigScale):
+        histo = hSigs[sigList[i]]
+        histo.Scale(scale)
+                
     ################## LEGEND ######################################
 
     legmin = 0.45
@@ -631,7 +680,7 @@ if __name__ == "__main__" :
 
 
     
-    lumi = "%.1f fb^{-1} (13 TeV)" % args.lumi_num
+    lumi = "%.0f fb^{-1} (13 TeV)" % args.lumi_num
     lumibox = TLatex  (0.9, 0.964, lumi)       
     lumibox.SetNDC()
     lumibox.SetTextAlign(31)
@@ -737,8 +786,9 @@ if __name__ == "__main__" :
         tagch = ""
         if args.channel:
             tagch = "_" + args.channel
-        saveName = "./plots_"+args.channel+"VBF/"+args.tag+"/"+args.sel+"/plot_" + args.var + "_" + args.sel + tagch 
+        saveName = "./plots_"+args.channel+"VBF/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch 
         if args.log:
             saveName = saveName+"_log"
         c1.Print (saveName+".pdf", "pdf")
         c1.SaveAs (saveName+".png")
+        print "data events in plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch+": "+str(hData.Integral(0,hData.GetNbinsX()+1))

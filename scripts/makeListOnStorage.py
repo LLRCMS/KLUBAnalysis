@@ -48,7 +48,7 @@ from subprocess import Popen, PIPE
 #tag = "MCSUSY_2Apr2017"
 #tag = "MC_gravitons_24Apr2017"
 #tag = "MC_gravitonsRS_29Apr2017"
-tag = "MC_VBF_Summer16"
+tag = "MC_VBF_Summer16_singleTop"
 #outFolder = "../inputFiles/28Ago2015/" # write / at the end
 #outFolder = "../inputFiles/13Ott2015/25ns/"
 # make list of EminiAOD from storage as publication has problems
@@ -113,8 +113,8 @@ print useOnly
 
 dpmhome = "/dpm/in2p3.fr/home/cms/trivcat"
 #partialPath = "/store/user/lcadamur/HHNtuples/" #folder contenente la produzione
-#partialPath = "/store/user/camendol/HHNtuples/"
-partialPath = "/store/user/govoni/HHNtuples/" 
+partialPath = "/store/user/camendol/HHNtuples/"
+#partialPath = "/store/user/govoni/HHNtuples/" 
 # partialPath = "/store/user/salerno/HHNtuples/"
 #partialPath = "/store/user/davignon/EnrichedMiniAOD/"
 #partialPath = "/store/user/gortona/HHNtuples/"

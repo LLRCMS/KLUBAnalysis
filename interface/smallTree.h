@@ -231,6 +231,7 @@ struct smallTree
 
       m_HH_deltaPhi = -1. ;
       m_HH_deltaEta = -1. ;
+      m_HH_deltaR = -1. ;
       m_HHsvfit_deltaPhi = -1. ;
       m_tauHMet_deltaPhi = -1. ;
       m_tauHsvfitMet_deltaPhi = -1. ;
@@ -656,6 +657,8 @@ struct smallTree
       m_smallT->Branch ("HHKin_mass", &m_HHKin_mass, "HHKin_mass/F") ;
       m_smallT->Branch ("HHKin_chi2", &m_HHKin_chi2, "HHKin_chi2/F") ;
       m_smallT->Branch ("HH_deltaPhi", &m_HH_deltaPhi, "HH_deltaPhi/F") ;
+      m_smallT->Branch ("HH_deltaR", &m_HH_deltaR, "HH_deltaR/F") ;
+      m_smallT->Branch ("HH_deltaEta", &m_HH_deltaEta, "HH_deltaEta/F") ;
       m_smallT->Branch ("HHsvfit_deltaPhi", &m_HHsvfit_deltaPhi, "HHsvfit_deltaPhi/F") ;
       m_smallT->Branch ("tauHMet_deltaPhi", &m_tauHMet_deltaPhi, "tauHMet_deltaPhi/F") ;
       m_smallT->Branch ("tauHsvfitMet_deltaPhi", &m_tauHsvfitMet_deltaPhi, "tauHsvfitMet_deltaPhi/F") ;
@@ -1094,6 +1097,7 @@ struct smallTree
   // angular variables
   Float_t m_HH_deltaPhi ;
   Float_t m_HH_deltaEta ;
+  Float_t m_HH_deltaR ;
   Float_t m_HHsvfit_deltaPhi ;
   Float_t m_tauHMet_deltaPhi ;
   Float_t m_tauHsvfitMet_deltaPhi ;

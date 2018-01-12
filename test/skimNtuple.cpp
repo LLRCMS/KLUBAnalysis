@@ -2365,7 +2365,8 @@ int main (int argc, char** argv)
 	  theSmallTree.m_HH_e = tlv_HH.E () ;
 	  theSmallTree.m_HH_mass = tlv_HH.M () ;
 	  theSmallTree.m_HH_mass_raw = tlv_HH_raw.M () ;
-
+	  theSmallTree.m_HH_deltaR = tlv_bH.DeltaR(tlv_tauH);
+	  
 	  TLorentzVector tlv_HH_raw_tauup = tlv_bH_raw + tlv_firstLepton_tauup + tlv_secondLepton_tauup ;
 	  TLorentzVector tlv_HH_raw_taudown = tlv_bH_raw + tlv_firstLepton_taudown + tlv_secondLepton_taudown ;
 

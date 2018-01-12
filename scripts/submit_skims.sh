@@ -1,4 +1,4 @@
-OUTDIRR="Skims2017_20Dic"
+OUTDIRR="Skims2017_10Gen2018"
 AMESSAGE="skims with VBF variables"
 
 source /opt/exp_soft/cms/t3/t3setup
@@ -17,10 +17,26 @@ cp /home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/scripts/listAll.sh /data_
 # cp /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/scripts/haddAll.sh /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/
 
 
+#####################
+### DATA
+## 15 Giu : job increased by a factor 10, because some few files went corrupted... like this I minimize the fraction of failed jobs to <1%
+
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 600   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleMuon        -i inputFiles/Files_22Feb2017/SingleMu_7FebreminiAOD_5Mar2017.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 1000  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleElectron    -i inputFiles/Files_22Feb2017/SingleEle_7FebreminiAOD_5Mar2017.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 1000   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_Tau               -i inputFiles/Files_22Feb2017/Tau_7FebreminiAOD_5Mar2017.txt
+
+
+
+
 # # #####################
 # # ### tW top : 
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_antitop_5f_inclusiveDecays   -i inputFiles/Files_7Feb2016/10_ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1.txt   -x 35.6
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_top_5f_inclusiveDecays       -i inputFiles/Files_7Feb2016/11_ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1.txt       -x 35.6
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_antitop_5f_inclusiveDecays   -i inputFiles/Files_7Feb2016/10_ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1.txt   -x 35.6
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_top_5f_inclusiveDecays       -i inputFiles/Files_7Feb2016/11_ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1.txt       -x 35.6
+# # #####################
+# # ### single top t-channel
+# # cross section from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec#Single_top_t_channel
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_t-channel_antitop_5f_inclusiveDecays -i inputFiles/Files_17Nov_VBF/1_ST_t-channel_antitop_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 83.0066
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_t-channel_top_5f_inclusiveDecays -i inputFiles/Files_17Nov_VBF/2_ST_t-channel_top_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 137.4581
 
 
 
@@ -89,14 +105,6 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30
 
 
 
-#####################
-### DATA
-## 15 Giu : job increased by a factor 10, because some few files went corrupted... like this I minimize the fraction of failed jobs to <1%
-
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 600   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleMuon        -i inputFiles/Files_22Feb2017/SingleMu_7FebreminiAOD_5Mar2017.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 1000  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleElectron    -i inputFiles/Files_22Feb2017/SingleEle_7FebreminiAOD_5Mar2017.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 1000   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_Tau               -i inputFiles/Files_22Feb2017/Tau_7FebreminiAOD_5Mar2017.txt
-
 
 ###################
 # TT
@@ -108,6 +116,7 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30
 
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 400  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_TT_fullyHad  -i inputFiles/Files_7Feb2016/TT_powheg_fullyHad_7Feb2017.txt    -x 380.1143 -t True -b 1
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 700 -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_TT_semiLep   -i inputFiles/Files_7Feb2016/TT_powheg_semiLep_7Feb2017.txt     -x 364.3108 -t True -b 5
+
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 700 -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_TT_fullyLep  -i inputFiles/Files_7Feb2016/TT_powheg_fullyLep_7Feb2017.txt    -x 87.3348  -t True -b 4
 
 
@@ -116,6 +125,10 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30
 ### MC VBF HH bbtt non resonant
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 100  -k False -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_VBFHH2b2T_nonres_C2V1        -i inputFiles/VBF_signals_13Nov/1_VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 100  -k False -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_VBFHH2b2T_nonres_C2V2        -i inputFiles/VBF_signals_13Nov/2_VBFHHTo2B2Tau_CV_1_C2V_2_C3_1_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt
+
+#### MC ggHH SM non resonant
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SM_nonresonant   -i inputFiles/Files_7Feb2016/38_GluGluToHHTo2B2Tau_node_SM_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
+
 
 
 #####################
@@ -132,7 +145,7 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30
 
 # python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 600  -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_SingleMuon        -i inputFiles/Files_22Feb2017/SingleMu_7FebreminiAOD_5Mar2017.txt
 # python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 1000 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_SingleElectron    -i inputFiles/Files_22Feb2017/SingleEle_7FebreminiAOD_5Mar2017.txt
-# python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 600  -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_Tau               -i inputFiles/Files_22Feb2017/Tau_7FebreminiAOD_5Mar2017.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2016.cfg  -n 600  -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_Tau               -i inputFiles/Files_22Feb2017/Tau_7FebreminiAOD_5Mar2017.txt
 
 # # #####################
 # # ### DATA PROMPT RECO FOR CONTROL
@@ -485,5 +498,4 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30
 # # python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k False -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_HH_lambdarew_dyn_21   -i inputFiles/Files_7Feb2016/allNonResClones_dynRew/filelist_allNonRes_dr_21.txt  -x 1.0 --kl 1.0  --kt 1.0 -a True
 # # python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 20 -k False -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_HH_lambdarew_dyn_41   -i inputFiles/Files_7Feb2016/allNonResClones_dynRew/filelist_allNonRes_dr_41.txt  -x 1.0 --kl 20.0 --kt 1.0 -a True
 
-#### SM nonresonant for test
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 10 -k True -o /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/SKIM_SM_nonresonant   -i inputFiles/Files_7Feb2016/38_GluGluToHHTo2B2Tau_node_SM_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
+
