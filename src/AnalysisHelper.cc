@@ -341,7 +341,7 @@ void AnalysisHelper::prepareSamplesHistos()
                     Sample::systColl& systcoll = varcoll.back();
                     
                     bool   hasUserBinning = cutCfg_->hasOpt(Form("binning::%s", varName.c_str()));
-                    int    nbins = -1;
+		    int    nbins = -1;
                     float  xlow = -1.;
                     float  xup = -1.;
                     float* binning = 0;
@@ -1348,8 +1348,8 @@ void AnalysisHelper::dump(int detail)
 
 void AnalysisHelper::prepareHistos()
 {
-    prepareSamplesHistos();
-    prepareSamples2DHistos();
+  prepareSamplesHistos();
+  prepareSamples2DHistos();
 }
 
 void AnalysisHelper::mergeSamples()

@@ -19,8 +19,29 @@ def findInFolder (folder, pattern):
         return ll[0]
 
 
-# prototype: TT_s2b0jresolvedMcut_SR_VBFjj_mass
-def retrieveHistos (rootFile, namelist, var, sel, reg):
+
+def flatBinning(rootFile,namelist, var,sel,reg):
+    for name in namelist:
+        fullName = name + "_" + sel + "_" + reg + "_" + var
+        if not rootFile.GetListOfKeys().Contains(fullName):
+            print "*** WARNING: histo " , fullName , " not available"
+            continue
+        
+        if 'VBFC2V1' in name:
+            h = rootFile.Get(fullName)
+
+            nq = h.GetNbinsX()/2
+            xq = array('d', [0.] * nq)  
+            yq = array('d', [0.] * nq)  
+
+            for i in xrange(nq):
+                        xq[i] = float(i + 1) / nq
+                        
+            h.GetQuantiles(nq, yq, xq)
+            print yq
+            return yq
+
+def retrieveHistos (rootFile, namelist, var, sel, reg,flat,binning):
     res = {}
     for name in namelist:
         fullName = name + "_" + sel + "_" + reg + "_" + var
@@ -28,10 +49,15 @@ def retrieveHistos (rootFile, namelist, var, sel, reg):
             print "*** WARNING: histo " , fullName , " not available"
             continue
         h = rootFile.Get(fullName)
-        res[name] = h
+    
+        if not args.flat:
+                res[name] = h
+        else:
+                hreb = h.Rebin(len(binning)-1,"hreb",binning) 
+                res[name] = hreb
+                        
     return res
-
-
+                        
 def getHisto (histoName,inputList,doOverflow):
         
         for idx, name in enumerate(inputList):
@@ -57,6 +83,12 @@ def makeStack (stackName, histoList):
     for h in histoList:
         s.Add(h)
     return s
+
+def makeSum (sumName, histoList):
+    for i,h in enumerate(histoList):
+        if i == 0: hsum = h.Clone(sumName)
+        else: hsum.Add(h)
+    return hsum
 
 def setPlotStyle ():
     #Styles are: Plain Bold Video Pub Classic Default Modern
@@ -141,7 +173,10 @@ def addOverFlow (histo):
 
     name = histo.GetName () 
     histo.SetName ("trash") 
-    dummy.GetXaxis().SetTitle(histo.GetXaxis().GetTitle());
+    if args.label:
+            dummy.GetXaxis().SetTitle(args.label)
+    else:
+            dummy.GetXaxis().SetTitle(args.var)
     dummy.SetName (name) 
     histo, dummy = dummy, histo
     return histo
@@ -221,7 +256,6 @@ def makeDataOverMCRatioPlot (hData, hMC, newName, horErrs=False):
     afeYDown  = array ("d", feYDown )
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
-
     gRatio = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
     
     gRatio.SetMarkerStyle(8);
@@ -282,9 +316,8 @@ def makeNonNegativeHistos (hList):
 if __name__ == "__main__" :
     TH1.AddDirectory(0)
 
-    titleSize = 30
+    titleSize = 24
     labelSize = 22
-
     # gStyle.SetLabelFont(43)
     # gStyle.SetTitleFont(43)
 
@@ -297,6 +330,7 @@ if __name__ == "__main__" :
     parser.add_argument('--tag', dest='tag', help='plots output folder name', default="./")
     parser.add_argument('--reg', dest='reg', help='region name', default=None)
     parser.add_argument('--title', dest='title', help='plot title', default=None)
+    parser.add_argument('--label', dest='label', help='x label', default=None)
     parser.add_argument('--channel', dest='channel', help='channel = (MuTau, ETau, TauTau)', default=None)
     parser.add_argument('--siglegextratext', dest='siglegextratext', help='additional optional text to be plotted in legend after signal block', default=None)
     
@@ -311,6 +345,7 @@ if __name__ == "__main__" :
     parser.add_argument('--no-print', dest='printplot', help = 'no pdf output', action='store_false', default=True)
     parser.add_argument('--quit',    dest='quit', help = 'quit at the end of the script, no interactive window', action='store_true', default=False)
     parser.add_argument('--overflow',    dest='overflow', help = 'add overflow bin', action='store_true', default=False)
+    parser.add_argument('--flat',    dest='flat', help = 'rebin getting flat signal', action='store_true', default=False)
 
     # par list opt
     parser.add_argument('--blind-range',   dest='blindrange', nargs=2, help='start and end of blinding range', default=None)
@@ -322,10 +357,6 @@ if __name__ == "__main__" :
     parser.add_argument('--sigscale', dest='sigscale', type=float, help='scale to apply to all signals', default=None)
     parser.add_argument('--lumi', dest='lumi_num', type=float, help='lumi in fb-1', default=None)
 
-    #parser.add_argument('integers', metavar='N', type=int, nargs='+', help='an integer for the accumulator')
-    #parser.add_argument('--sum', dest='accumulate', action='store_const',
-    #               const=sum, default=max,
-    #               help='sum the integers (default: find the max)')
     
     args = parser.parse_args()
 
@@ -344,7 +375,7 @@ if __name__ == "__main__" :
     if args.ratio:
         pad1 = TPad ("pad1", "pad1", 0, 0.25, 1, 1.0)
         pad1.SetFrameLineWidth(3)
-        pad1.SetLeftMargin(0.15);
+        pad1.SetLeftMargin(0.12);
         pad1.SetBottomMargin(0.02);
         pad1.SetTopMargin(0.055);
         
@@ -352,7 +383,7 @@ if __name__ == "__main__" :
     else:
         pad1 = TPad ("pad1", "pad1", 0, 0.0, 1.0, 1.0)
         pad1.SetFrameLineWidth(3)
-        pad1.SetLeftMargin(0.15);
+        pad1.SetLeftMargin(0.12);
         pad1.SetBottomMargin(0.12);
         pad1.SetTopMargin(0.055);
         pad1.Draw()
@@ -364,12 +395,6 @@ if __name__ == "__main__" :
 
     ######################### PUT USER CONFIGURATION HERE ####################
 
-    # signals to plot
-    #signalList = ["Radion300", "Radion450", "Radion800"]
-    
-    #sigList = ["Lambda1", "Lambda20"]
-    #sigNameList = ["100 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 1", "10 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 20"]
-    #sigNameList = ["100 x #lambda/#lambda^{SM} = 1", "10 x #lambda/#lambda^{SM} = 20"]
 
     sigList = ["VBFC2V1","ggHH"]
     sigNameList = []
@@ -394,35 +419,22 @@ if __name__ == "__main__" :
     bkgColors["TTfullyLep"] = kBlue+1
     bkgColors["DY"] = kSpring+2 
     bkgColors["WJets"] = kRed+1
-    bkgColors["TW"] = kMagenta+1
-    bkgColors["singleT"] = kMagenta+3
+    bkgColors["singleT"] = kMagenta+1
     
 
-    # sigList = ["Radion300", "Radion450", "Radion800"]
-    # sigNameList = [
-    #     "m_{H} = 300 GeV",
-    #     "m_{H} = 450 GeV",
-    #     "m_{H} = 800 GeV" ]
-    
-    # sigScale = [1.0, 1.0, 1.0]
-    #sigScale = [0.1, 0.1, 0.1]
+
     if args.sigscale:
         for i in range(0,len(sigScale)): sigScale[i] = args.sigscale
 
-    #plotTitle = ";m_{#tau#tau} [GeV];dN/dm_{#tau#tau} [1/GeV]"
+
     plotTitle = ""
 
     if args.title:
         plotTitle = args.title
     dataList = ["data_obs"]
-    #bkgList =  ["VVJJ","TT","DY","WJets"]
-    bkgList =  ["VVJJ","TTfullyHad","TTsemiLep","TTfullyLep","DY","WJets","TW","singleT"]
-    #bkgList =  ["WplusToLNuWminusTo2JJJ_QCD","WplusTo2JWminusToLNuJJ_QCD","WplusToLNuWplusTo2JJJ_QCD","WminusToLNuWminusTo2JJJ_QCD","WplusToLNuZTo2JJJ_QCD","WplusTo2JZTo2LJJ_QCD","WminusToLNuZTo2JJJ_QCD","WminusTo2JZTo2LJJ_QCD","ZTo2LZTo2JJJ_QCD","TTfullyHad","TTsemiLep","TTfullyLep","DY","WJets"]
-    #Dylist   = ["DYIncl", "DY100200", "DY200400", "DY400600", "DY600Inf"]
-    #Wjetlist = ["WJetsIncl", "WJets100200", "WJets200400", "WJets400600", "WJets600Inf"]
-    #TTlist   = ["TT"]
-    #tWlist   = ["TWtop", "TWantitop"]
-    #VVlist   = ["WWTo2L2Nu", "WWToLNuQQ", "WZTo1L1Nu2Q", "WZTo1L3Nu", "WZTo2L2Q", "WZTo3LNu", "ZZTo2L2Nu", "ZZTo2L2Q", "ZZTo4L"]
+
+    bkgList =  ["VVJJ","TTfullyHad","TTsemiLep","TTfullyLep","DY","WJets","singleT"]
+
 
     ###########################################################################
     #setPlotStyle()
@@ -431,12 +443,16 @@ if __name__ == "__main__" :
     
     outplotterName = findInFolder  (args.dir+"/", 'outPlotter.root')
     
-    
 
     rootFile = TFile.Open (args.dir+"/"+outplotterName)
-    hSigs = retrieveHistos (rootFile, sigList, args.var, args.sel,args.reg)
-    hBkgs = retrieveHistos  (rootFile, bkgList, args.var, args.sel,args.reg)
-    hDatas = retrieveHistos  (rootFile, dataList, args.var, args.sel,args.reg)
+
+    binning = None
+    if (args.flat): binning = flatBinning(rootFile, sigList, args.var, args.sel,args.reg)
+
+    
+    hSigs = retrieveHistos (rootFile, sigList, args.var, args.sel,args.reg,args.flat,binning)
+    hBkgs = retrieveHistos  (rootFile, bkgList, args.var, args.sel,args.reg,args.flat,binning)
+    hDatas = retrieveHistos  (rootFile, dataList, args.var, args.sel,args.reg,args.flat,binning)
 
 
     
@@ -445,31 +461,24 @@ if __name__ == "__main__" :
     sigScale = [1. , xsecRatio*hSigs["ggHH"].GetEntries()/float(hSigs["VBFC2V1"].GetEntries())]
 
 
+
+            
     doOverflow = args.overflow
     
-    #hWplusToLNuWminusTo2JJJ_QCD =getHisto("WplusToLNuWminusTo2JJJ_QCD",hBkgs)
-    #hWplusTo2JWminusToLNuJJ_QCD =getHisto("WplusTo2JWminusToLNuJJ_QCD",hBkgs)
-    #hWplusToLNuWplusTo2JJJ_QCD =getHisto("WplusToLNuWplusTo2JJJ_QCD",hBkgs)
-    #hWminusToLNuWminusTo2JJJ_QCD =getHisto("WminusToLNuWminusTo2JJJ_QCD",hBkgs)
-    #hWplusToLNuZTo2JJJ_QCD =getHisto("WplusToLNuZTo2JJJ_QCD",hBkgs)
-    #hWplusTo2JZTo2LJJ_QCD =getHisto("WplusTo2JZTo2LJJ_QCD",hBkgs)
-    #hWminusToLNuZTo2JJJ_QCD =getHisto("WminusToLNuZTo2JJJ_QCD",hBkgs)
-    #hWminusTo2JZTo2LJJ_QCD  =getHisto("WminusTo2JZTo2LJJ_QCD",hBkgs)
-    #hZTo2LZTo2JJJ_QCD =getHisto("ZTo2LZTo2JJJ_QCD",hBkgs)
+
     hVVJJ    = getHisto ("VVJJ", hBkgs,doOverflow)
     hTTfullyHad    = getHisto ("TTfullyHad", hBkgs,doOverflow)
     hTTsemiLep    = getHisto ("TTsemiLep", hBkgs,doOverflow)
     hTTfullyLep    = getHisto ("TTfullyLep", hBkgs,doOverflow)
     hDY    = getHisto ("DY", hBkgs,doOverflow)
     hWJets    = getHisto ("WJets", hBkgs,doOverflow)
-    hTW    = getHisto ("TW", hBkgs,doOverflow)
     hsingleT    = getHisto ("singleT", hBkgs,doOverflow)
     
     
 
-    hBkgList = [hVVJJ, hTTfullyHad,hTTsemiLep,hTTfullyLep,hDY,hWJets,hTW,hsingleT] ## full list for stack
+    hBkgList = [hVVJJ, hTTfullyHad,hTTsemiLep,hTTfullyLep,hDY,hWJets,hsingleT] ## full list for stack
 
-    hBkgNameList = ["VVjj","t#bar{t} hh","t#bar{t} hl","t#bar{t} ll","DY+jets","WJets","tW","single t (t-ch.)"] # list for legend
+    hBkgNameList = ["VVjj","t#bar{t} hh","t#bar{t} hl","t#bar{t} ll","DY+jets","WJets","single top"] # list for legend
 
     hData = getHisto  ("data", hDatas , doOverflow)
 
@@ -530,14 +539,10 @@ if __name__ == "__main__" :
     #################### DO STACK AND PLOT #######################
 
     bkgStack = makeStack ("bkgStack", hBkgList)
-
-    # c1.SetLeftMargin(0.15);
-    # c1.SetBottomMargin(0.12);
-    # c1.SetTopMargin(0.055);
+    bkgSum = makeSum ("bkgSum", hBkgList)
+    
     
     if args.log: pad1.SetLogy()
-
-    #pad1.SetFrameLineWidth(3)
 
 
     ################## TITLE AND AESTETICS ############################
@@ -549,7 +554,7 @@ if __name__ == "__main__" :
     bkgStack.GetYaxis().SetLabelFont(43)
 
     bkgStack.GetXaxis().SetTitleOffset(1.0)
-    bkgStack.GetYaxis().SetTitleOffset(1.2)
+    bkgStack.GetYaxis().SetTitleOffset(1.4)
 
     bkgStack.GetXaxis().SetTitleSize(titleSize)
     bkgStack.GetYaxis().SetTitleSize(titleSize)
@@ -557,6 +562,15 @@ if __name__ == "__main__" :
     bkgStack.GetXaxis().SetLabelSize(labelSize)
     bkgStack.GetYaxis().SetLabelSize(labelSize)
 
+    if args.label: bkgStack.GetXaxis().SetTitle (args.label)
+    else: bkgStack.GetXaxis().SetTitle (args.var)
+
+    width = ((bkgStack.GetXaxis().GetXmax() - bkgStack.GetXaxis().GetXmin())/bkgStack.GetStack().Last().GetNbinsX())
+    ylabel = "Events/%.1f" % width
+    if args.label:
+        if "GeV" in args.label: ylabel +=" GeV"
+    bkgStack.GetYaxis().SetTitle(ylabel)
+    
     #intBkg = bkgStack.GetHistogram().Integral()
     intBkg = bkgStack.GetStack().Last().Integral()
     bkgStack.SetTitle(plotTitle)
@@ -577,7 +591,7 @@ if __name__ == "__main__" :
     legmin = 0.45
     if args.lymin: legmin = args.lymin
     legminx = 0.50
-    if (len(hBkgNameList) +len(hSigs)>6): legminx = 0.3
+    if (len(hBkgNameList) +len(hSigs)>6): legminx = 0.4
     leg = TLegend (legminx, legmin, 0.85, 0.93)
     if (len(hBkgNameList) +len(hSigs)> 6): leg.SetNColumns(2)
     leg.SetFillStyle(0)
@@ -604,7 +618,7 @@ if __name__ == "__main__" :
 
     ################## Y RANGE SETTINGS ############################
     ymin = 0
-    if args.log: ymin = 1.E-2
+    if args.log: ymin = 1.E-1
 
     maxs = []
     
@@ -645,6 +659,9 @@ if __name__ == "__main__" :
 
     # interactive display
     bkgStack.Draw("HIST")
+    bkgSum.SetFillColor(kGray+2);
+    bkgSum.SetFillStyle(3002);
+    bkgSum.Draw("e2 same")
     if args.dosig:
         for key in hSigs: hSigs[key].Draw("hist same")
     if args.dodata:
@@ -662,7 +679,7 @@ if __name__ == "__main__" :
     extraTextFont   = 52     # for the "preliminary"
     extraTextSize   = 0.76 * cmsTextSize # for the "preliminary"
     xpos  = 0.177
-    ypos  = 0.94
+    ypos  = 0.92
     #yoffset = 0.05 # fractional shift   
 
     CMSbox       = TLatex  (xpos, ypos         , "CMS")       
@@ -678,10 +695,17 @@ if __name__ == "__main__" :
     extraTextBox.SetTextColor(kBlack)
     extraTextBox.SetTextAlign(13)
 
+    x = 0
+    y = 0
+    #    histoWidth = histo.GetXaxis().GetBinWidth(1)*histo.GetXaxis().GetNbins()
+    #    histoHeight = histo.GetMaximum()-histo.GetMinimum()
+    t = gPad.GetTopMargin()
+    b = gPad.GetBottomMargin()
+    l = gPad.GetLeftMargin()
+    r = gPad.GetRightMargin()
 
-    
-    lumi = "%.0f fb^{-1} (13 TeV)" % args.lumi_num
-    lumibox = TLatex  (0.9, 0.964, lumi)       
+    lumi = "%.1f fb^{-1} (13 TeV)" % args.lumi_num
+    lumibox = TLatex  (1-r, 1 - t + 0.02 , lumi)       
     lumibox.SetNDC()
     lumibox.SetTextAlign(31)
     lumibox.SetTextSize(extraTextSize)
@@ -701,7 +725,7 @@ if __name__ == "__main__" :
             print "*** Warning: channel name must be MuTau, ETau, TauTau, you wrote: " , args.channel
 
         if chName:
-            chBox = TLatex  (xpos, ypos + 0.025, chName)
+            chBox = TLatex  (l , 1 - t + 0.02, chName)
             chBox.SetNDC()
             chBox.SetTextSize(cmsTextSize+20)
             chBox.SetTextFont(43)
@@ -730,9 +754,9 @@ if __name__ == "__main__" :
 
         c1.cd()
         pad2 = TPad ("pad2", "pad2", 0, 0.0, 1, 0.2496)
-        pad2.SetLeftMargin(0.15);
-        pad2.SetTopMargin(0.05);
-        pad2.SetBottomMargin(0.35);
+        pad2.SetLeftMargin(0.12);
+        pad2.SetTopMargin(0.02);
+        pad2.SetBottomMargin(0.4);
         pad2.SetGridy(True);
         pad2.SetFrameLineWidth(3)
         #pad2.SetGridx(True);
@@ -751,7 +775,9 @@ if __name__ == "__main__" :
         #hRatio.GetXaxis().SetTitle(bkgStack.GetXaxis().GetName())
         hRatio.SetTitle(plotTitle)
         hRatio.GetYaxis().SetTitle ("Data/MC")
-        hRatio.GetXaxis().SetTitleOffset(2.8)
+        if args.label: hRatio.GetXaxis().SetTitle (args.label)
+        else: hRatio.GetXaxis().SetTitle (args.var)
+        hRatio.GetXaxis().SetTitleOffset(3.9)
         hRatio.GetYaxis().SetTitleOffset(1.2)
 
         hRatio.GetXaxis().SetTitleSize(titleSize);
@@ -770,7 +796,16 @@ if __name__ == "__main__" :
 
         removeEmptyPoints (grRatio)
         hRatio.Draw("axis")
+        
         grRatio.Draw("P Z same") # Z : no small limes at the end of points
+        xmin =hRatio.GetXaxis().GetXmin()
+        xmax = hRatio.GetXaxis().GetXmax()
+        l1 = TLine(xmin, 1, xmax, 1)
+        l1.SetLineColor(kRed)
+        l1.SetLineStyle(4)
+        l1.SetLineWidth(1)
+        l1.Draw("same")
+
         pad2.RedrawAxis();
         pad2.RedrawAxis("g"); #otherwise no grid..
     ###################### DISPLAY ###################################
@@ -789,6 +824,8 @@ if __name__ == "__main__" :
         saveName = "./plots_"+args.channel+"VBF/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch 
         if args.log:
             saveName = saveName+"_log"
+        if args.flat:
+            saveName = saveName+"_flat"    
         c1.Print (saveName+".pdf", "pdf")
         c1.SaveAs (saveName+".png")
         print "data events in plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch+": "+str(hData.Integral(0,hData.GetNbinsX()+1))
