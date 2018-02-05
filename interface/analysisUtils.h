@@ -90,4 +90,5 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
                                       bool LogY = false, bool makeRatioPlot = true, bool drawLegend = true, bool doShapes = false, bool forceNonNegMin = false, bool drawGrassForData = false,
                                       bool drawSignal = true, bool drawData = true, bool drawMC = true) ;
 
+
 #endif

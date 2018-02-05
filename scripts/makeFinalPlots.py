@@ -6,6 +6,8 @@ import argparse
 import fnmatch
 import math
 from array import array
+import modules.ConfigReader as cfgr
+import modules.OutputManager as omng
 
 def findInFolder (folder, pattern):
         ll = []
@@ -394,9 +396,16 @@ if __name__ == "__main__" :
 
 
     ######################### PUT USER CONFIGURATION HERE ####################
+    cfgName  =  args.dir + "/mainCfg_VBF_"+args.channel+".cfg"
+    cfg        = cfgr.ConfigReader (cfgName)
+    bkgList    = cfg.readListOption("general::backgrounds")
+    if cfg.hasSection('pp_QCD'):
+        bkgList.append('QCD')
+    sigList = cfg.readListOption("general::signals")
 
 
-    sigList = ["VBFC2V1","ggHH"]
+
+    #sigList = ["VBFC2V1","ggHH"]
     sigNameList = []
     if args.log:
             sigNameList = ["VBFC2V1","ggHH"]
@@ -406,20 +415,31 @@ if __name__ == "__main__" :
 
     sigColors = {}
     sigColors["VBFC2V1"] = 2
-    sigColors["ggHH"] = kCyan+1
+    sigColors["ggHH"] = kCyan
 
 
 
     bkgColors = {}
 
 
-    bkgColors["VVJJ"] = kOrange+1
-    bkgColors["TTfullyHad"] = kCyan
-    bkgColors["TTsemiLep"] = kCyan +2
-    bkgColors["TTfullyLep"] = kBlue+1
-    bkgColors["DY"] = kSpring+2 
-    bkgColors["WJets"] = kRed+1
-    bkgColors["singleT"] = kMagenta+1
+
+    # bkgColors["DY"] = kCyan + 1 
+    # bkgColors["TT"] = kGreen-2 
+    # # bkgColors["TTfullyLep"] = kBlue+1
+    # # bkgColors["TTsemiLep"] = kCyan +2
+    # # bkgColors["TTfullyHad"] = kCyan
+    # bkgColors["WJets"] = kOrange+1
+    # bkgColors["VVJJ"] = kOrange+10 
+    # bkgColors["singleT"] = kPink+5
+    bkgColors["DY"] = kOrange+10 
+    bkgColors["TT"] = kOrange+1
+    # bkgColors["TTfullyLep"] = kBlue+1
+    # bkgColors["TTsemiLep"] = kCyan +2
+    # bkgColors["TTfullyHad"] = kCyan
+    bkgColors["WJets"] =  kGreen-2 
+    bkgColors["VVJJ"] = kCyan + 1 
+    bkgColors["singleT"] = kAzure-2
+    
     
 
 
@@ -433,7 +453,15 @@ if __name__ == "__main__" :
         plotTitle = args.title
     dataList = ["data_obs"]
 
-    bkgList =  ["VVJJ","TTfullyHad","TTsemiLep","TTfullyLep","DY","WJets","singleT"]
+    #bkgList =  ["VVJJ","TTfullyHad","TTsemiLep","TTfullyLep","DY","WJets","singleT"]
+    if cfg.hasSection("merge"): 
+        for groupname in cfg.config['merge']:
+            if "data" in groupname: continue
+            mergelist = cfg.readListOption('merge::'+groupname)
+            for x in mergelist:
+                bkgList.remove(x)
+            bkgList.append(groupname)
+   
 
 
     ###########################################################################
@@ -441,7 +469,7 @@ if __name__ == "__main__" :
 
 
     
-    outplotterName = findInFolder  (args.dir+"/", 'outPlotter.root')
+    outplotterName = findInFolder  (args.dir+"/", 'analyzedOutPlotter.root')
     
 
     rootFile = TFile.Open (args.dir+"/"+outplotterName)
@@ -452,6 +480,7 @@ if __name__ == "__main__" :
     
     hSigs = retrieveHistos (rootFile, sigList, args.var, args.sel,args.reg,args.flat,binning)
     hBkgs = retrieveHistos  (rootFile, bkgList, args.var, args.sel,args.reg,args.flat,binning)
+
     hDatas = retrieveHistos  (rootFile, dataList, args.var, args.sel,args.reg,args.flat,binning)
 
 
@@ -467,19 +496,31 @@ if __name__ == "__main__" :
     
 
     hVVJJ    = getHisto ("VVJJ", hBkgs,doOverflow)
-    hTTfullyHad    = getHisto ("TTfullyHad", hBkgs,doOverflow)
-    hTTsemiLep    = getHisto ("TTsemiLep", hBkgs,doOverflow)
-    hTTfullyLep    = getHisto ("TTfullyLep", hBkgs,doOverflow)
+    # hTTfullyHad    = getHisto ("TTfullyHad", hBkgs,doOverflow)
+    # hTTsemiLep    = getHisto ("TTsemiLep", hBkgs,doOverflow)
+    # hTTfullyLep    = getHisto ("TTfullyLep", hBkgs,doOverflow)
+    hTT    = getHisto ("TT", hBkgs,doOverflow)
     hDY    = getHisto ("DY", hBkgs,doOverflow)
     hWJets    = getHisto ("WJets", hBkgs,doOverflow)
     hsingleT    = getHisto ("singleT", hBkgs,doOverflow)
     
     
+    
 
-    hBkgList = [hVVJJ, hTTfullyHad,hTTsemiLep,hTTfullyLep,hDY,hWJets,hsingleT] ## full list for stack
+    #hBkgList = [hVVJJ, hTTfullyHad,hTTsemiLep,hTTfullyLep,hDY,hWJets,hsingleT] ## full list for stack
+    hBkgList = [hsingleT,hVVJJ,hWJets, hTT,hDY] ## full list for stack
 
-    hBkgNameList = ["VVjj","t#bar{t} hh","t#bar{t} hl","t#bar{t} ll","DY+jets","WJets","single top"] # list for legend
+    #hBkgNameList = ["VVjj","t#bar{t} hh","t#bar{t} hl","t#bar{t} ll","DY+jets","WJets","single top"] # list for legend
+    hBkgNameList = ["single top","VVjj","WJets","t#bar{t}","DY+jets"] # list for legend
 
+
+    if cfg.hasSection('pp_QCD'):
+        hQCD    = getHisto ("QCD", hBkgs,doOverflow)
+        hQCD.SetName("QCD")
+        hBkgList.append(hQCD)
+        hBkgNameList.append("QCD")
+        bkgColors["QCD"] = kPink+5
+  
     hData = getHisto  ("data", hDatas , doOverflow)
 
     # remove all data from blinding region before creating tgraph etc...
@@ -618,7 +659,7 @@ if __name__ == "__main__" :
 
     ################## Y RANGE SETTINGS ############################
     ymin = 0
-    if args.log: ymin = 1.E-1
+    if args.log: ymin = 0.01
 
     maxs = []
     
@@ -826,6 +867,6 @@ if __name__ == "__main__" :
             saveName = saveName+"_log"
         if args.flat:
             saveName = saveName+"_flat"    
-        c1.Print (saveName+".pdf", "pdf")
+        c1.SaveAs (saveName+".pdf")
         c1.SaveAs (saveName+".png")
         print "data events in plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch+": "+str(hData.Integral(0,hData.GetNbinsX()+1))

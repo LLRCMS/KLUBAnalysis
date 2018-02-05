@@ -1,16 +1,16 @@
-tag=11Gen
+tag=24Gen2018
 
 log=(--log)
 
-channel=ETau
+#channel=TauTau
 #channel=MuTau
-#channel=ETau
+channel=ETau
 
 
 reg=SR
 
-#baseline=baselineVBF
-baseline=baselineVBF_btagMfirst
+baseline=baselineVBF
+#baseline=baselineVBF_btagMfirst
 
 #baseline=baselineVBF_btagM
 #baseline=baselineVBF_btagM_bVetoM

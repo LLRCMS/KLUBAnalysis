@@ -263,7 +263,7 @@ class OutputManager:
 
                 ## store hQCD - is either 'QCD' if no fit was done or uncorrQCD if fit was done, in any case is the final one to plot
                 self.histos[hQCD.GetName()] = hQCD
-
+            
 
         ### FIXME: now do 2D histos
 
