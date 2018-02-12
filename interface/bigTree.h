@@ -202,6 +202,8 @@ public :
    std::vector<int>     *jets_HadronFlavour;
    std::vector<int>     *jets_genjetIndex;
    std::vector<float>   *jets_PUJetID;
+   std::vector<float>   *jets_PUJetIDupdated;
+   std::vector<int>     *jets_PUJetIDupdatedWP;
    std::vector<float>   *jets_vtxPt;
    std::vector<float>   *jets_vtxMass;
    std::vector<float>   *jets_vtx3dL;
@@ -218,6 +220,11 @@ public :
    std::vector<int>     *jets_chMult;
    std::vector<float>   *bDiscriminator;
    std::vector<float>   *bCSVscore;
+   std::vector<float>   *bDeepCSV_probb;
+   std::vector<float>   *bDeepCSV_probbb;
+   std::vector<float>   *bDeepCSV_probudsg;
+   std::vector<float>   *bDeepCSV_probc;
+   std::vector<float>   *bDeepCSV_probcc;
    std::vector<float>   *pfCombinedMVAV2BJetTags;
    std::vector<int>     *PFjetID;
    std::vector<float>   *jetRawf;
@@ -382,6 +389,7 @@ public :
    TBranch        *b_daughters_decayModeFindingNewDMs;   //!
    TBranch        *b_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;   //!
    TBranch        *b_daughters_byIsolationMVArun2v1DBoldDMwLTraw; //!
+   TBranch        *b_daughters_byIsolationMVArun2v1DBoldDMwLTrawNew; //!
    TBranch        *b_daughters_byIsolationMVA3oldDMwoLTraw;   //!
    TBranch        *b_daughters_byIsolationMVA3oldDMwLTraw;   //!
    TBranch        *b_daughters_byIsolationMVA3newDMwoLTraw;   //!
@@ -419,6 +427,8 @@ public :
    TBranch        *b_jets_HadronFlavour;   //!
    TBranch        *b_jets_genjetIndex;   //!
    TBranch        *b_jets_PUJetID;   //!
+   TBranch        *b_jets_PUJetIDupdated;   //!
+   TBranch        *b_jets_PUJetIDupdatedWP;   //!
    TBranch        *b_jets_vtxPt;   //!
    TBranch        *b_jets_vtxMass;   //!
    TBranch        *b_jets_vtx3dL;   //!
@@ -435,6 +445,11 @@ public :
    TBranch        *b_jets_chMult;   //!
    TBranch        *b_bDiscriminator;   //!
    TBranch        *b_bCSVscore;   //!
+   TBranch        *b_bDeepCSV_probb;   //!
+   TBranch        *b_bDeepCSV_probbb;   //!
+   TBranch        *b_bDeepCSV_probudsg;   //!
+   TBranch        *b_bDeepCSV_probc;   //!
+   TBranch        *b_bDeepCSV_probcc;   //!
    TBranch        *b_pfCombinedMVAV2BJetTags; //!
    TBranch        *b_PFjetID;   //!
    TBranch        *b_jetRawf;   //!
@@ -629,6 +644,8 @@ public :
        jets_HadronFlavour = 0;
        jets_genjetIndex = 0;
        jets_PUJetID = 0;
+       jets_PUJetIDupdated = 0;
+       jets_PUJetIDupdatedWP = 0;
        jets_vtxPt = 0;
        jets_vtxMass = 0;
        jets_vtx3dL = 0;
@@ -645,6 +662,11 @@ public :
        jets_chMult = 0;
        bDiscriminator = 0;
        bCSVscore = 0;
+       bDeepCSV_probb = 0;
+       bDeepCSV_probbb = 0;
+       bDeepCSV_probudsg = 0;
+       bDeepCSV_probc = 0;
+       bDeepCSV_probcc = 0;
        pfCombinedMVAV2BJetTags = 0;
        PFjetID = 0;
        jetRawf = 0;
@@ -748,6 +770,7 @@ public :
        fChain->SetBranchAddress("daughters_decayModeFindingNewDMs", &daughters_decayModeFindingNewDMs, &b_daughters_decayModeFindingNewDMs);
        fChain->SetBranchAddress("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits, &b_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
        fChain->SetBranchAddress("daughters_byIsolationMVArun2v1DBoldDMwLTraw", &daughters_byIsolationMVArun2v1DBoldDMwLTraw, &b_daughters_byIsolationMVArun2v1DBoldDMwLTraw);
+       fChain->SetBranchAddress("daughters_byIsolationMVArun2v1DBoldDMwLTraw", &daughters_byIsolationMVArun2v1DBoldDMwLTraw, &b_daughters_byIsolationMVArun2v1DBoldDMwLTrawNew);
        fChain->SetBranchAddress("daughters_byIsolationMVA3oldDMwoLTraw", &daughters_byIsolationMVA3oldDMwoLTraw, &b_daughters_byIsolationMVA3oldDMwoLTraw);
        fChain->SetBranchAddress("daughters_byIsolationMVA3oldDMwLTraw", &daughters_byIsolationMVA3oldDMwLTraw, &b_daughters_byIsolationMVA3oldDMwLTraw);
        fChain->SetBranchAddress("daughters_byIsolationMVA3newDMwoLTraw", &daughters_byIsolationMVA3newDMwoLTraw, &b_daughters_byIsolationMVA3newDMwoLTraw);
@@ -784,6 +807,8 @@ public :
        fChain->SetBranchAddress("jets_Flavour", &jets_Flavour, &b_jets_Flavour);
        fChain->SetBranchAddress("jets_HadronFlavour", &jets_HadronFlavour, &b_jets_HadronFlavour);
        fChain->SetBranchAddress("jets_PUJetID", &jets_PUJetID, &b_jets_PUJetID);
+       fChain->SetBranchAddress("jets_PUJetIDupdated", &jets_PUJetIDupdated, &b_jets_PUJetIDupdated);
+       fChain->SetBranchAddress("jets_PUJetIDupdatedWP", &jets_PUJetIDupdatedWP, &b_jets_PUJetIDupdatedWP);
        fChain->SetBranchAddress("jets_vtxPt", &jets_vtxPt, &b_jets_vtxPt);
        fChain->SetBranchAddress("jets_vtxMass", &jets_vtxMass, &b_jets_vtxMass);
        fChain->SetBranchAddress("jets_vtx3dL", &jets_vtx3dL, &b_jets_vtx3dL);
@@ -800,6 +825,12 @@ public :
        fChain->SetBranchAddress("jets_chMult", &jets_chMult, &b_jets_chMult);
        fChain->SetBranchAddress("bDiscriminator", &bDiscriminator, &b_bDiscriminator);
        fChain->SetBranchAddress("bCSVscore", &bCSVscore, &b_bCSVscore);
+       fChain->SetBranchAddress("bDeepCSV_probb", &bDeepCSV_probb, &b_bDeepCSV_probb);
+       fChain->SetBranchAddress("bDeepCSV_probbb", &bDeepCSV_probbb, &b_bDeepCSV_probbb);
+       fChain->SetBranchAddress("bDeepCSV_probudsg", &bDeepCSV_probudsg, &b_bDeepCSV_probudsg);
+       fChain->SetBranchAddress("bDeepCSV_probc", &bDeepCSV_probc, &b_bDeepCSV_probc);
+       fChain->SetBranchAddress("bDeepCSV_probcc", &bDeepCSV_probcc, &b_bDeepCSV_probcc);
+       
        fChain->SetBranchAddress("pfCombinedMVAV2BJetTags", &pfCombinedMVAV2BJetTags, &b_pfCombinedMVAV2BJetTags);
        fChain->SetBranchAddress("PFjetID", &PFjetID, &b_PFjetID);
        fChain->SetBranchAddress("jetRawf", &jetRawf, &b_jetRawf);
