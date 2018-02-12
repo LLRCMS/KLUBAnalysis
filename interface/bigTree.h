@@ -242,7 +242,8 @@ public :
    std::vector<float>   *ak8jets_tau2;
    std::vector<float>   *ak8jets_tau3;
    std::vector<float>   *ak8jets_CSV;
-   std::vector<int>     *ak8jets_nsubjets;     
+   std::vector<float>   *ak8jets_deepCSV;
+   std::vector<int>     *ak8jets_nsubjets;
    std::vector<float>   *subjets_px;
    std::vector<float>   *subjets_py;
    std::vector<float>   *subjets_pz;
@@ -466,6 +467,7 @@ public :
    TBranch        *b_ak8jets_tau2;
    TBranch        *b_ak8jets_tau3;
    TBranch        *b_ak8jets_CSV;
+   TBranch        *b_ak8jets_deepCSV;
    TBranch        *b_ak8jets_nsubjets;
    TBranch        *b_subjets_px;
    TBranch        *b_subjets_py;
@@ -683,6 +685,7 @@ public :
        ak8jets_tau2 = 0;
        ak8jets_tau3 = 0;
        ak8jets_CSV = 0;
+       ak8jets_deepCSV = 0;
        ak8jets_nsubjets = 0;
        subjets_px = 0;
        subjets_py = 0;
@@ -847,6 +850,7 @@ public :
        fChain->SetBranchAddress("ak8jets_tau2", &ak8jets_tau2, &b_ak8jets_tau2);
        fChain->SetBranchAddress("ak8jets_tau3", &ak8jets_tau3, &b_ak8jets_tau3);
        fChain->SetBranchAddress("ak8jets_CSV", &ak8jets_CSV, &b_ak8jets_CSV);
+       fChain->SetBranchAddress("ak8jets_deepCSV", &ak8jets_deepCSV, &b_ak8jets_deepCSV);
        fChain->SetBranchAddress("ak8jets_nsubjets", &ak8jets_nsubjets, &b_ak8jets_nsubjets);
        fChain->SetBranchAddress("subjets_px", &subjets_px, &b_subjets_px);
        fChain->SetBranchAddress("subjets_py", &subjets_py, &b_subjets_py);

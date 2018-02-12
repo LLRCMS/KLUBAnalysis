@@ -159,6 +159,7 @@ struct smallTree
       m_fatjet_phi  = -1. ;
       m_fatjet_e  = -1. ;
       m_fatjet_bID = -1. ;
+      m_fatjet_bID_deepCSV = -1. ;
       m_fatjet_filteredMass = -1. ;
       m_fatjet_prunedMass = -1. ;
       m_fatjet_trimmedMass = -1. ;
@@ -602,6 +603,7 @@ struct smallTree
       m_smallT->Branch ("fatjet_phi", &m_fatjet_phi, "fatjet_phi/F");
       m_smallT->Branch ("fatjet_e", &m_fatjet_e, "fatjet_e/F");
       m_smallT->Branch ("fatjet_bID", &m_fatjet_bID, "fatjet_bID/F");
+      m_smallT->Branch ("fatjet_bID_deepCSV", &m_fatjet_bID_deepCSV, "fatjet_bID_deepCSV/F");
       m_smallT->Branch ("fatjet_filteredMass", &m_fatjet_filteredMass, "fatjet_filteredMass/F");
       m_smallT->Branch ("fatjet_prunedMass", &m_fatjet_prunedMass, "fatjet_prunedMass/F");
       m_smallT->Branch ("fatjet_trimmedMass", &m_fatjet_trimmedMass, "fatjet_trimmedMass/F");
@@ -1040,6 +1042,7 @@ struct smallTree
   Float_t m_fatjet_phi  ;
   Float_t m_fatjet_e  ;
   Float_t m_fatjet_bID ;
+  Float_t m_fatjet_bID_deepCSV ;
   Float_t m_fatjet_filteredMass ;
   Float_t m_fatjet_prunedMass ;
   Float_t m_fatjet_trimmedMass ;
