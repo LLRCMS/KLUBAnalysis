@@ -3222,7 +3222,7 @@ int main (int argc, char** argv)
 		  if (!A1B2 && !A2B1) continue; // is not matched to resolved jets
 
 		  //fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_CSV->size(), ifj));
-          fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_deepCSV_probb->size(), ifj));
+          fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_deepCSV_probb->at(ifj)+theBigTree.ak8jets_deepCSV_probbb->at(ifj), ifj));
 		}
 
 	      if (theBigTree.EventNumber == debugEvent)
