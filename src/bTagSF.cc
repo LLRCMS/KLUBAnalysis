@@ -163,6 +163,9 @@ void bTagSF::SetWPset(std::string WPset)
     
     else if (WPset == "80X_MORIOND_2017")
         SetWPset(0.5426, 0.8484, 0.9535);
+    
+    else if (WPset =="94X_DeepCSV_V1")
+        SetWPset(0.1522, 0.4941, 0.8001);
 
     else
     {

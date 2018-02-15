@@ -651,7 +651,8 @@ int main (int argc, char** argv)
   string bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFile") ;
   string bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFile") ;
   cout << "B Tag SF file: " << bTag_SFFile << endl;
-  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "80X_MORIOND_2017"); // third field unused, but could be needed to select efficiencies for different selection levels
+  //bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "80X_MORIOND_2017"); // third field unused, but could be needed to select efficiencies for different selection levels
+  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "94X_DeepCSV_V1"); // third field unused, but could be needed to select efficiencies for different selection levels
 
   // ------------------------------
   
