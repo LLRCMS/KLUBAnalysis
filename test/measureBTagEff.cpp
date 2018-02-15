@@ -80,7 +80,8 @@ int main(int argc, char** argv)
     int nEtaBins = sizeof(EtaBins)/sizeof(float) - 1;
 
     // float WPtag[3] = {0.460, 0.800, 0.935}; // L, M, T
-    float WPtag[3] = {0.5426, 0.8484, 0.9535}; // L, M, T -- 80X for Moriond 2017, 23SepReReco
+    // float WPtag[3] = {0.5426, 0.8484, 0.9535}; // L, M, T -- 80X for Moriond 2017, 23SepReReco
+    float WPtag[3] = {0.1522, 0.4941, 0.8001}; // L, M, T -- 94X for Moriond 2018, 17NovReReco
     string WPname[3] = {"L", "M", "T"};
 
 
@@ -129,12 +130,14 @@ int main(int argc, char** argv)
     float bjet1_pt ;
     float bjet1_eta ;
     float bjet1_bID ;
+    float bjet1_bID_deepCSV
     int   bjet1_flav ;
     bool  bjet1_hasgenjet ;
 
     float bjet2_pt ;
     float bjet2_eta ;
     float bjet2_bID ;
+    float bjet2_bID_deepCSV ;
     int   bjet2_flav ;
     bool  bjet2_hasgenjet ;
 
@@ -142,6 +145,7 @@ int main(int argc, char** argv)
     std::vector<float>* jets_pt   = 0;
     std::vector<float>* jets_eta  = 0;
     std::vector<float>* jets_btag = 0;
+    std::vector<float>* jets_btag_deepCSV = 0;
     std::vector<int>*   jets_flav = 0;
     std::vector<bool>*  jets_hasgenjet = 0;
 
@@ -184,11 +188,13 @@ int main(int argc, char** argv)
         tree->SetBranchStatus ("bjet1_pt"  , 1);
         tree->SetBranchStatus ("bjet1_eta" , 1);
         tree->SetBranchStatus ("bjet1_bID" , 1);
+        tree->SetBranchStatus ("bjet1_bID_deepCSV" , 1);
         tree->SetBranchStatus ("bjet1_flav", 1);
         tree->SetBranchStatus ("bjet1_hasgenjet", 1);
         tree->SetBranchStatus ("bjet2_pt"  , 1);
         tree->SetBranchStatus ("bjet2_eta" , 1);
         tree->SetBranchStatus ("bjet2_bID" , 1);
+        tree->SetBranchStatus ("bjet2_bID_deepCSV" , 1);
         tree->SetBranchStatus ("bjet2_flav", 1);
         tree->SetBranchStatus ("bjet2_hasgenjet", 1);
 
@@ -197,18 +203,21 @@ int main(int argc, char** argv)
         tree->SetBranchAddress ("jets_pt", &jets_pt);
         tree->SetBranchAddress ("jets_eta", &jets_eta);
         tree->SetBranchAddress ("jets_btag", &jets_btag);
+        tree->SetBranchAddress ("jets_btag_deepCSV", &jets_btag_deepCSV);
         tree->SetBranchAddress ("jets_flav", &jets_flav);
         tree->SetBranchAddress ("jets_hasgenjet", &jets_hasgenjet);
         
         tree->SetBranchAddress ("bjet1_pt", &bjet1_pt);
         tree->SetBranchAddress ("bjet1_eta", &bjet1_eta);
         tree->SetBranchAddress ("bjet1_bID", &bjet1_bID);
+        tree->SetBranchAddress ("bjet1_bID_deepCSV", &bjet1_bID_deepCSV);
         tree->SetBranchAddress ("bjet1_flav", &bjet1_flav);
         tree->SetBranchAddress ("bjet1_hasgenjet", &bjet1_hasgenjet);
         
         tree->SetBranchAddress ("bjet2_pt", &bjet2_pt);
         tree->SetBranchAddress ("bjet2_eta", &bjet2_eta);
         tree->SetBranchAddress ("bjet2_bID", &bjet2_bID);
+        tree->SetBranchAddress ("bjet2_bID_deepCSV", &bjet2_bID_deepCSV);
         tree->SetBranchAddress ("bjet2_flav", &bjet2_flav);
         tree->SetBranchAddress ("bjet2_hasgenjet", &bjet2_hasgenjet);
 
@@ -250,10 +259,13 @@ int main(int argc, char** argv)
                 // bjet1
                 if (bjet1_hasgenjet)
                 {
-                    bTag[0] = (bjet1_bID > WPtag[0]) ;
-                    bTag[1] = (bjet1_bID > WPtag[1]) ;
-                    bTag[2] = (bjet1_bID > WPtag[2]) ;
-
+                    //bTag[0] = (bjet1_bID > WPtag[0]) ;
+                    //bTag[1] = (bjet1_bID > WPtag[1]) ;
+                    //bTag[2] = (bjet1_bID > WPtag[2]) ;
+                    bTag[0] = (bjet1_bID_deepCSV > WPtag[0]) ;
+                    bTag[1] = (bjet1_bID_deepCSV > WPtag[1]) ;
+                    bTag[2] = (bjet1_bID_deepCSV > WPtag[2]) ;
+                    
                     if (abs(bjet1_flav) == 5) // b jets
                     {
                         h2_BTaggingEff_Denom_b.at(0).at(isel) -> Fill (bjet1_pt, TMath::Abs(bjet1_eta));
@@ -265,7 +277,8 @@ int main(int argc, char** argv)
 
                         h_pT_b->Fill (bjet1_pt);
                         h_eta_b->Fill (bjet1_eta);
-                        h_CSV_b->Fill (bjet1_bID);
+                        //h_CSV_b->Fill (bjet1_bID);
+                        h_CSV_b->Fill (bjet1_bID_deepCSV);
                     }
                     else if (abs(bjet1_flav) == 4) // c jets
                     {
@@ -278,7 +291,8 @@ int main(int argc, char** argv)
 
                         h_pT_c->Fill (bjet1_pt);
                         h_eta_c->Fill (bjet1_eta);
-                        h_CSV_c->Fill (bjet1_bID);
+                        //h_CSV_c->Fill (bjet1_bID);
+                        h_CSV_c->Fill (bjet1_bID_deepCSV);
                     }
                     else // udsg jets
                     {
@@ -291,17 +305,21 @@ int main(int argc, char** argv)
 
                         h_pT_udsg->Fill (bjet1_pt);
                         h_eta_udsg->Fill (bjet1_eta);
-                        h_CSV_udsg->Fill (bjet1_bID);
+                        //h_CSV_udsg->Fill (bjet1_bID);
+                        h_CSV_udsg->Fill (bjet1_bID_deepCSV);
                     }
                 }
                 ///////////////////////////////////////////////////////
                 // bjet2
                 if (bjet2_hasgenjet)
                 {
-                    bTag[0] = (bjet2_bID > WPtag[0]) ;
-                    bTag[1] = (bjet2_bID > WPtag[1]) ;
-                    bTag[2] = (bjet2_bID > WPtag[2]) ;
-
+                    //bTag[0] = (bjet2_bID > WPtag[0]) ;
+                    //bTag[1] = (bjet2_bID > WPtag[1]) ;
+                    //bTag[2] = (bjet2_bID > WPtag[2]) ;
+                    bTag[0] = (bjet2_bID_deepCSV > WPtag[0]) ;
+                    bTag[1] = (bjet2_bID_deepCSV > WPtag[1]) ;
+                    bTag[2] = (bjet2_bID_deepCSV > WPtag[2]) ;
+                    
                     if (abs(bjet2_flav) == 5) // b jets
                     {
                         h2_BTaggingEff_Denom_b.at(0).at(isel) -> Fill (bjet2_pt, TMath::Abs(bjet2_eta));
@@ -313,8 +331,8 @@ int main(int argc, char** argv)
                  
                         h_pT_b->Fill (bjet2_pt);
                         h_eta_b->Fill (bjet2_eta);
-                        h_CSV_b->Fill (bjet2_bID);
-
+                        //h_CSV_b->Fill (bjet2_bID);
+                        h_CSV_b->Fill (bjet2_bID_deepCSV);
                     }
                     else if (abs(bjet2_flav) == 4) // c jets
                     {
@@ -327,7 +345,8 @@ int main(int argc, char** argv)
 
                         h_pT_c->Fill (bjet2_pt);
                         h_eta_c->Fill (bjet2_eta);
-                        h_CSV_c->Fill (bjet2_bID);
+                        //h_CSV_c->Fill (bjet2_bID);
+                        h_CSV_c->Fill (bjet2_bID_deepCSV);
                     }
                     else // udsg jets
                     {
@@ -340,7 +359,8 @@ int main(int argc, char** argv)
 
                         h_pT_udsg->Fill (bjet2_pt);
                         h_eta_udsg->Fill (bjet2_eta);
-                        h_CSV_udsg->Fill (bjet2_bID);
+                        //h_CSV_udsg->Fill (bjet2_bID);
+                        h_CSV_udsg->Fill (bjet2_bID_deepCSV);
                     }
                 }
 
@@ -353,9 +373,13 @@ int main(int argc, char** argv)
                     if (hasgenjet)
                     {
 
-                        bTag[0] = (jets_btag->at(ijet) > WPtag[0]) ;
-                        bTag[1] = (jets_btag->at(ijet) > WPtag[1]) ;
-                        bTag[2] = (jets_btag->at(ijet) > WPtag[2]) ;  
+                        //bTag[0] = (jets_btag->at(ijet) > WPtag[0]) ;
+                        //bTag[1] = (jets_btag->at(ijet) > WPtag[1]) ;
+                        //bTag[2] = (jets_btag->at(ijet) > WPtag[2]) ;
+                        bTag[0] = (jets_btag_deepCSV->at(ijet) > WPtag[0]) ;
+                        bTag[1] = (jets_btag_deepCSV->at(ijet) > WPtag[1]) ;
+                        bTag[2] = (jets_btag_deepCSV->at(ijet) > WPtag[2]) ;
+                        
                         int flav =  jets_flav->at(ijet);
                         float this_pt =  jets_pt->at(ijet);
                         float this_eta = TMath::Abs(jets_eta->at(ijet));
@@ -372,7 +396,8 @@ int main(int argc, char** argv)
 
                             h_pT_b->Fill (this_pt);
                             h_eta_b->Fill (this_eta_noAbs);
-                            h_CSV_b->Fill (jets_btag->at(ijet));
+                            //h_CSV_b->Fill (jets_btag->at(ijet));
+                            h_CSV_b->Fill (jets_btag_deepCSV->at(ijet));
                         }
                         else if (abs(flav) == 4) // c jets
                         {
@@ -385,8 +410,8 @@ int main(int argc, char** argv)
 
                             h_pT_c->Fill (this_pt);
                             h_eta_c->Fill (this_eta_noAbs);
-                            h_CSV_c->Fill (jets_btag->at(ijet));
-
+                            //h_CSV_c->Fill (jets_btag->at(ijet));
+                            h_CSV_c->Fill (jets_btag_deepCSV->at(ijet));
                         }
                         else // udsg jets
                         {
@@ -399,7 +424,8 @@ int main(int argc, char** argv)
      
                             h_pT_udsg->Fill (this_pt);
                             h_eta_udsg->Fill (this_eta_noAbs);
-                            h_CSV_udsg->Fill (jets_btag->at(ijet));
+                            //h_CSV_udsg->Fill (jets_btag->at(ijet));
+                            h_CSV_udsg->Fill (jets_btag_deepCSV->at(ijet));
                         }
                     }
                 }

@@ -12,6 +12,14 @@
 # TauTau = pairType == 2 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && dau2_pt > 40 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_iso < 2.0 && dau2_iso < 2.0 && isOS != 0
 
 ## 2016
+# # MuTau
+# MuTau = pairType == 0 && dau1_pt > 23 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0
+# # EleTau
+# EleTau = pairType == 1 && dau1_pt > 27 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0
+# # TauTau
+# TauTau = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_iso < 2.0 && dau2_iso < 2.0 && isOS != 0
+
+## 2017 - to be fixed!!
 # MuTau
 MuTau = pairType == 0 && dau1_pt > 23 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && dau1_iso < 0.1 && dau2_iso < 3.0 && isOS != 0
 # EleTau
