@@ -2127,40 +2127,41 @@ int main (int argc, char** argv)
 
       // ----------------------------------------------------------
       // select jets 
-
+      // ----------------------------------------------------------
+      
       vector <pair <float, int> > jets_and_sortPar ;
       // loop over jets
       for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
-	{
-	  // JET PU ID cut 
-	  if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
-	  if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
+      {
+        // JET PU ID cut
+        if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
+        if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
 
-	  TLorentzVector tlv_jet 
+        TLorentzVector tlv_jet 
 	    (
 	     theBigTree.jets_px->at (iJet),
 	     theBigTree.jets_py->at (iJet),
 	     theBigTree.jets_pz->at (iJet),
 	     theBigTree.jets_e->at (iJet)
 	     ) ;
-	  if (tlv_jet.Pt () < 20. /*GeV*/) continue ; 
-	  if (tlv_jet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
-	  if (tlv_jet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
+        if (tlv_jet.Pt () < 20. /*GeV*/) continue ;
+        if (tlv_jet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
+        if (tlv_jet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
 
-	  // all jets selected as btag cands apart from eta cut
-	  int ajetHadFlav = abs(theBigTree.jets_HadronFlavour->at(iJet));
-	  if (ajetHadFlav == 5) ++theSmallTree.m_njetsBHadFlav;
-	  if (ajetHadFlav == 4) ++theSmallTree.m_njetsCHadFlav;
+        // all jets selected as btag cands apart from eta cut
+        int ajetHadFlav = abs(theBigTree.jets_HadronFlavour->at(iJet));
+        if (ajetHadFlav == 5) ++theSmallTree.m_njetsBHadFlav;
+        if (ajetHadFlav == 4) ++theSmallTree.m_njetsCHadFlav;
 
-	  if (TMath::Abs(tlv_jet.Eta()) > 2.4) continue; // 2.4 for b-tag
+        if (TMath::Abs(tlv_jet.Eta()) > 2.4) continue; // 2.4 for b-tag
 
-	  //float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bCSVscore->at (iJet) : tlv_jet.Pt() ;
-	  float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet)  : tlv_jet.Pt() ;
-	  if (bChoiceFlag != 1 && bChoiceFlag != 2) cout << "** WARNING : bChoiceFlag not known :" << bChoiceFlag << endl;
-      
-	  jets_and_sortPar.push_back (make_pair (sortPar, iJet) );          
+        //float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bCSVscore->at (iJet) : tlv_jet.Pt() ;
+        float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet)  : tlv_jet.Pt() ;
+        if (bChoiceFlag != 1 && bChoiceFlag != 2) cout << "** WARNING : bChoiceFlag not known :" << bChoiceFlag << endl;
 
-	} // loop over jets
+        jets_and_sortPar.push_back (make_pair (sortPar, iJet) );
+
+	  } // loop over jets
 
       theSmallTree.m_nbjetscand = jets_and_sortPar.size();
       theSmallTree.m_nfatjets = theBigTree.ak8jets_px->size();
@@ -2169,247 +2170,239 @@ int main (int argc, char** argv)
       ec.Increment("TwoJets", EvtW);
       if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("TwoJets", EvtW);
 
-      // sort jet collection by CSV
       // sort jet collection by deepCSV
       sort (jets_and_sortPar.begin(), jets_and_sortPar.end(), bJetSort); //sort by first parameter, then pt (dummy if pt order chosen)
 
       if (jets_and_sortPar.size () >= 2) 
-	{ 
-	  vector<pair <int, float> > jets_and_BTag;
-	  for (auto pair : jets_and_sortPar) jets_and_BTag.push_back (make_pair(pair.second, pair.first)); // just for compatibility... 
+	  {
+        vector<pair <int, float> > jets_and_BTag;
+        for (auto pair : jets_and_sortPar) jets_and_BTag.push_back (make_pair(pair.second, pair.first)); // just for compatibility...
 
-	  // NB !!! the following function only works if jets_and_sortPar contains <CVSscore, idx> 
-	  vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType) ;
-	  theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
-	  theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
-	  theSmallTree.m_bTagweightT = (isMC ? bTagWeight.at(2) : 1.0) ;
+        // NB !!! the following function only works if jets_and_sortPar contains <CVSscore, idx> 
+        vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType) ;
+        theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
+        theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
+        theSmallTree.m_bTagweightT = (isMC ? bTagWeight.at(2) : 1.0) ;
 
-	  int njets = jets_and_sortPar.size();
-	  const int bjet1idx = jets_and_sortPar.at(njets-1).second ;
-	  const int bjet2idx = jets_and_sortPar.at(njets-2).second ;
+        int njets = jets_and_sortPar.size();
+        const int bjet1idx = jets_and_sortPar.at(njets-1).second ;
+        const int bjet2idx = jets_and_sortPar.at(njets-2).second ;
 
-	  TLorentzVector tlv_firstBjet 
-	    (
-	     theBigTree.jets_px->at (bjet1idx),
-	     theBigTree.jets_py->at (bjet1idx),
-	     theBigTree.jets_pz->at (bjet1idx),
-	     theBigTree.jets_e->at  (bjet1idx)
-	     ) ;
-	  TLorentzVector tlv_secondBjet 
-	    (
-	     theBigTree.jets_px->at (bjet2idx),
-	     theBigTree.jets_py->at (bjet2idx),
-	     theBigTree.jets_pz->at (bjet2idx),
-	     theBigTree.jets_e->at  (bjet2idx)
-	     ) ;
+        TLorentzVector tlv_firstBjet
+        (
+         theBigTree.jets_px->at (bjet1idx),
+         theBigTree.jets_py->at (bjet1idx),
+         theBigTree.jets_pz->at (bjet1idx),
+         theBigTree.jets_e->at  (bjet1idx)
+         ) ;
+        TLorentzVector tlv_secondBjet 
+        (
+         theBigTree.jets_px->at (bjet2idx),
+         theBigTree.jets_py->at (bjet2idx),
+         theBigTree.jets_pz->at (bjet2idx),
+         theBigTree.jets_e->at  (bjet2idx)
+         ) ;
 
-	  double ptRegr[2] = {tlv_firstBjet.Pt(), tlv_secondBjet.Pt()};
-	  if (computeBregr)
+        double ptRegr[2] = {tlv_firstBjet.Pt(), tlv_secondBjet.Pt()};
+        if (computeBregr)
 	    {
 	      for (int iBJet = 0; iBJet <=1; iBJet++)
-		{ 
-		  int bidx = (iBJet == 0 ? bjet1idx : bjet2idx);
-		  bjrv.Jet_pt     = (iBJet == 0 ? tlv_firstBjet.Pt()  : tlv_secondBjet.Pt());
-		  bjrv.Jet_eta    = (iBJet == 0 ? tlv_firstBjet.Eta() : tlv_secondBjet.Eta());
-		  //bjrv.Jet_corr         = theBigTree.jets_rawPt->at(bidx);
-		  bjrv.Jet_corr   = theBigTree.jetRawf->at(bidx); // should be 1./jetrawf ??
-		  bjrv.rho              = theBigTree.rho;
-		  bjrv.Jet_mt           = theBigTree.jets_mT->at(bidx);
-		  bjrv.Jet_leadTrackPt  = theBigTree.jets_leadTrackPt->at(bidx);
-		  bjrv.Jet_leptonPtRel  = theBigTree.jets_leptonPtRel->at(bidx);
-		  bjrv.Jet_leptonPt     = theBigTree.jets_leptonPt->at(bidx);
-		  bjrv.Jet_leptonDeltaR = theBigTree.jets_leptonDeltaR->at(bidx);
-		  bjrv.Jet_neHEF   = theBigTree.jets_nHEF->at(bidx);
-		  bjrv.Jet_neEmEF  = theBigTree.jets_nEmEF->at(bidx);
-		  bjrv.Jet_chMult  = theBigTree.jets_chMult->at(bidx);
-		  bjrv.Jet_vtxPt   = theBigTree.jets_vtxPt->at(bidx);
-		  bjrv.Jet_vtxMass = theBigTree.jets_vtxMass->at(bidx);
-		  bjrv.Jet_vtx3dL  = theBigTree.jets_vtx3dL->at(bidx);
-		  bjrv.Jet_vtxNtrk = theBigTree.jets_vtxNtrk->at(bidx);
-		  bjrv.Jet_vtx3deL = theBigTree.jets_vtx3deL->at(bidx);
+            {
+              int bidx = (iBJet == 0 ? bjet1idx : bjet2idx);
+              bjrv.Jet_pt     = (iBJet == 0 ? tlv_firstBjet.Pt()  : tlv_secondBjet.Pt());
+              bjrv.Jet_eta    = (iBJet == 0 ? tlv_firstBjet.Eta() : tlv_secondBjet.Eta());
+              //bjrv.Jet_corr         = theBigTree.jets_rawPt->at(bidx);
+              bjrv.Jet_corr         = theBigTree.jetRawf->at(bidx); // should be 1./jetrawf ??
+              bjrv.rho              = theBigTree.rho;
+              bjrv.Jet_mt           = theBigTree.jets_mT->at(bidx);
+              bjrv.Jet_leadTrackPt  = theBigTree.jets_leadTrackPt->at(bidx);
+              bjrv.Jet_leptonPtRel  = theBigTree.jets_leptonPtRel->at(bidx);
+              bjrv.Jet_leptonPt     = theBigTree.jets_leptonPt->at(bidx);
+              bjrv.Jet_leptonDeltaR = theBigTree.jets_leptonDeltaR->at(bidx);
+              bjrv.Jet_neHEF   = theBigTree.jets_nHEF->at(bidx);
+              bjrv.Jet_neEmEF  = theBigTree.jets_nEmEF->at(bidx);
+              bjrv.Jet_chMult  = theBigTree.jets_chMult->at(bidx);
+              bjrv.Jet_vtxPt   = theBigTree.jets_vtxPt->at(bidx);
+              bjrv.Jet_vtxMass = theBigTree.jets_vtxMass->at(bidx);
+              bjrv.Jet_vtx3dL  = theBigTree.jets_vtx3dL->at(bidx);
+              bjrv.Jet_vtxNtrk = theBigTree.jets_vtxNtrk->at(bidx);
+              bjrv.Jet_vtx3deL = theBigTree.jets_vtx3deL->at(bidx);
 
-		  ptRegr[iBJet] = (bRreader->EvaluateRegression (bRegrMethodName.c_str()))[0];
-		}
+              ptRegr[iBJet] = (bRreader->EvaluateRegression (bRegrMethodName.c_str()))[0];
+            }
 	    }
 
-	  TLorentzVector tlv_firstBjet_raw = tlv_firstBjet;
-	  TLorentzVector tlv_secondBjet_raw = tlv_secondBjet;
+        TLorentzVector tlv_firstBjet_raw = tlv_firstBjet;
+        TLorentzVector tlv_secondBjet_raw = tlv_secondBjet;
 
-	  // ----- up/down variation using JEC
-	  double unc_first = theBigTree.jets_jecUnc->at (bjet1idx);
-	  TLorentzVector tlv_firstBjet_raw_jetup = tlv_firstBjet_raw;
-	  TLorentzVector tlv_firstBjet_raw_jetdown = tlv_firstBjet_raw;
-      
-	  tlv_firstBjet_raw_jetup.SetPtEtaPhiE(
-					       (1.+unc_first) *tlv_firstBjet_raw_jetup.Pt(),
-					       tlv_firstBjet_raw_jetup.Eta(),
-					       tlv_firstBjet_raw_jetup.Phi(),
-					       (1.+unc_first) *tlv_firstBjet_raw_jetup.E()
-					       );
-	  tlv_firstBjet_raw_jetdown.SetPtEtaPhiE(
-						 (1.-unc_first) *tlv_firstBjet_raw_jetdown.Pt(),
-						 tlv_firstBjet_raw_jetdown.Eta(),
-						 tlv_firstBjet_raw_jetdown.Phi(),
-						 (1.-unc_first) *tlv_firstBjet_raw_jetdown.E()
-						 );
+        // ----- up/down variation using JEC
+        double unc_first = theBigTree.jets_jecUnc->at (bjet1idx);
+        TLorentzVector tlv_firstBjet_raw_jetup = tlv_firstBjet_raw;
+        TLorentzVector tlv_firstBjet_raw_jetdown = tlv_firstBjet_raw;
 
-
-	  double unc_second = theBigTree.jets_jecUnc->at (bjet2idx);
-	  TLorentzVector tlv_secondBjet_raw_jetup = tlv_secondBjet_raw;
-	  TLorentzVector tlv_secondBjet_raw_jetdown = tlv_secondBjet_raw;
-
-	  tlv_secondBjet_raw_jetup.SetPtEtaPhiE(
-						(1.+unc_second) *tlv_secondBjet_raw_jetup.Pt(),
-						tlv_secondBjet_raw_jetup.Eta(),
-						tlv_secondBjet_raw_jetup.Phi(),
-						(1.+unc_second) *tlv_secondBjet_raw_jetup.E()
-						);
-	  tlv_secondBjet_raw_jetdown.SetPtEtaPhiE(
-						  (1.-unc_second) *tlv_secondBjet_raw_jetdown.Pt(),
-						  tlv_secondBjet_raw_jetdown.Eta(),
-						  tlv_secondBjet_raw_jetdown.Phi(),
-						  (1.-unc_second) *tlv_secondBjet_raw_jetdown.E()
-						  );
+        tlv_firstBjet_raw_jetup.SetPtEtaPhiE(
+                           (1.+unc_first) *tlv_firstBjet_raw_jetup.Pt(),
+                           tlv_firstBjet_raw_jetup.Eta(),
+                           tlv_firstBjet_raw_jetup.Phi(),
+                           (1.+unc_first) *tlv_firstBjet_raw_jetup.E()
+                           );
+        tlv_firstBjet_raw_jetdown.SetPtEtaPhiE(
+                         (1.-unc_first) *tlv_firstBjet_raw_jetdown.Pt(),
+                         tlv_firstBjet_raw_jetdown.Eta(),
+                         tlv_firstBjet_raw_jetdown.Phi(),
+                         (1.-unc_first) *tlv_firstBjet_raw_jetdown.E()
+                         );
 
 
-	  theSmallTree.m_bjet1_pt_raw = tlv_firstBjet_raw.Pt();
-	  theSmallTree.m_bjet2_pt_raw = tlv_secondBjet_raw.Pt();
-	  theSmallTree.m_bjet1_pt_raw_jetup = tlv_firstBjet_raw_jetup.Pt();
-	  theSmallTree.m_bjet2_pt_raw_jetup = tlv_secondBjet_raw_jetup.Pt();
-	  theSmallTree.m_bjet1_pt_raw_jetdown = tlv_firstBjet_raw_jetdown.Pt();
-	  theSmallTree.m_bjet2_pt_raw_jetdown = tlv_secondBjet_raw_jetdown.Pt();
+        double unc_second = theBigTree.jets_jecUnc->at (bjet2idx);
+        TLorentzVector tlv_secondBjet_raw_jetup = tlv_secondBjet_raw;
+        TLorentzVector tlv_secondBjet_raw_jetdown = tlv_secondBjet_raw;
 
-	  TLorentzVector tlv_bH_raw = tlv_firstBjet + tlv_secondBjet ;
-	  TLorentzVector tlv_bH_raw_jetup   = tlv_firstBjet_raw_jetup + tlv_secondBjet_raw_jetup ;
-	  TLorentzVector tlv_bH_raw_jetdown =  tlv_firstBjet_raw_jetdown + tlv_secondBjet_raw_jetdown ;
-      
-	  theSmallTree.m_bH_mass_raw = tlv_bH_raw.M();
-	  theSmallTree.m_bH_mass_raw_jetup   = tlv_bH_raw_jetup.M();
-	  theSmallTree.m_bH_mass_raw_jetdown = tlv_bH_raw_jetdown.M();
+        tlv_secondBjet_raw_jetup.SetPtEtaPhiE(
+                        (1.+unc_second) *tlv_secondBjet_raw_jetup.Pt(),
+                        tlv_secondBjet_raw_jetup.Eta(),
+                        tlv_secondBjet_raw_jetup.Phi(),
+                        (1.+unc_second) *tlv_secondBjet_raw_jetup.E()
+                        );
+        tlv_secondBjet_raw_jetdown.SetPtEtaPhiE(
+                          (1.-unc_second) *tlv_secondBjet_raw_jetdown.Pt(),
+                          tlv_secondBjet_raw_jetdown.Eta(),
+                          tlv_secondBjet_raw_jetdown.Phi(),
+                          (1.-unc_second) *tlv_secondBjet_raw_jetdown.E()
+                          );
 
-	  // FIXME : here mass is manually set to 0, should we change it?
-	  float ptScale1 = ptRegr[0] / tlv_firstBjet.Pt() ;
-	  float ptScale2 = ptRegr[1] / tlv_secondBjet.Pt() ;
-	  tlv_firstBjet.SetPtEtaPhiE (ptRegr[0], tlv_firstBjet.Eta(), tlv_firstBjet.Phi(), ptScale1*tlv_firstBjet.Energy());
-	  tlv_secondBjet.SetPtEtaPhiE (ptRegr[1], tlv_secondBjet.Eta(), tlv_secondBjet.Phi(), ptScale2*tlv_secondBjet.Energy());
+        theSmallTree.m_bjet1_pt_raw = tlv_firstBjet_raw.Pt();
+        theSmallTree.m_bjet2_pt_raw = tlv_secondBjet_raw.Pt();
+        theSmallTree.m_bjet1_pt_raw_jetup = tlv_firstBjet_raw_jetup.Pt();
+        theSmallTree.m_bjet2_pt_raw_jetup = tlv_secondBjet_raw_jetup.Pt();
+        theSmallTree.m_bjet1_pt_raw_jetdown = tlv_firstBjet_raw_jetdown.Pt();
+        theSmallTree.m_bjet2_pt_raw_jetdown = tlv_secondBjet_raw_jetdown.Pt();
 
-	  theSmallTree.m_bjet1_pt   = tlv_firstBjet.Pt () ;
-	  theSmallTree.m_bjet1_eta  = tlv_firstBjet.Eta () ;
-	  theSmallTree.m_bjet1_phi  = tlv_firstBjet.Phi () ;
-	  theSmallTree.m_bjet1_e    = theBigTree.jets_e->at (bjet1idx) ;
-	  theSmallTree.m_bjet1_bID  = theBigTree.bCSVscore->at (bjet1idx) ;
-	  theSmallTree.m_bjet1_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet1idx) + theBigTree.bDeepCSV_probbb->at(bjet1idx) ;
-	  theSmallTree.m_bjet1_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet1idx) ;
-	  theSmallTree.m_bjet1_flav = theBigTree.jets_HadronFlavour->at (bjet1idx) ;
+        TLorentzVector tlv_bH_raw = tlv_firstBjet + tlv_secondBjet ;
+        TLorentzVector tlv_bH_raw_jetup   = tlv_firstBjet_raw_jetup + tlv_secondBjet_raw_jetup ;
+        TLorentzVector tlv_bH_raw_jetdown =  tlv_firstBjet_raw_jetdown + tlv_secondBjet_raw_jetdown ;
 
-	  theSmallTree.m_bjet2_pt   = tlv_secondBjet.Pt () ;
-	  theSmallTree.m_bjet2_eta  = tlv_secondBjet.Eta () ;
-	  theSmallTree.m_bjet2_phi  = tlv_secondBjet.Phi () ;
-	  theSmallTree.m_bjet2_e    = theBigTree.jets_e->at (bjet2idx) ;
-	  theSmallTree.m_bjet2_bID  = theBigTree.bCSVscore->at (bjet2idx) ;
-      theSmallTree.m_bjet2_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet2idx) + theBigTree.bDeepCSV_probbb->at(bjet2idx) ;
-	  theSmallTree.m_bjet2_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet2idx) ;
-	  theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
+        theSmallTree.m_bH_mass_raw = tlv_bH_raw.M();
+        theSmallTree.m_bH_mass_raw_jetup   = tlv_bH_raw_jetup.M();
+        theSmallTree.m_bH_mass_raw_jetdown = tlv_bH_raw_jetdown.M();
 
-	  theSmallTree.m_bjets_bID  = theBigTree.bCSVscore->at (bjet1idx) +theBigTree.bCSVscore->at (bjet2idx) ;
-      theSmallTree.m_bjets_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet1idx) + theBigTree.bDeepCSV_probbb->at(bjet1idx) + theBigTree.bDeepCSV_probb->at(bjet2idx) + theBigTree.bDeepCSV_probbb->at(bjet2idx);
-	  bool hasgj1 = false;
-	  bool hasgj2 = false;          
-	  if (isMC){            
-        
-	    int mcind = theBigTree.jets_genjetIndex->at(bjet2idx);
-	    if (mcind>=0){
-	      TLorentzVector gen(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
-	      theSmallTree.m_genjet1_pt = gen.Pt();
-	      theSmallTree.m_genjet1_eta = gen.Eta();
-	      theSmallTree.m_genjet1_phi = gen.Phi();
-	      theSmallTree.m_genjet1_e = gen.E();
-	      if (gen.Pt() > 8) hasgj1 = true;
-	    }
+        // FIXME : here mass is manually set to 0, should we change it?
+        float ptScale1 = ptRegr[0] / tlv_firstBjet.Pt() ;
+        float ptScale2 = ptRegr[1] / tlv_secondBjet.Pt() ;
+        tlv_firstBjet.SetPtEtaPhiE (ptRegr[0], tlv_firstBjet.Eta(), tlv_firstBjet.Phi(), ptScale1*tlv_firstBjet.Energy());
+        tlv_secondBjet.SetPtEtaPhiE (ptRegr[1], tlv_secondBjet.Eta(), tlv_secondBjet.Phi(), ptScale2*tlv_secondBjet.Energy());
 
-	    mcind = theBigTree.jets_genjetIndex->at(bjet2idx);
-	    if (mcind>=0){
-	      TLorentzVector gen(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
-	      theSmallTree.m_genjet2_pt = gen.Pt();
-	      theSmallTree.m_genjet2_eta = gen.Eta();
-	      theSmallTree.m_genjet2_phi = gen.Phi();
-	      theSmallTree.m_genjet2_e = gen.E();
-	      if (gen.Pt() > 8) hasgj2 = true;
-	    }
-	  }
-	  theSmallTree.m_bjet1_hasgenjet = hasgj1 ;
-	  theSmallTree.m_bjet2_hasgenjet = hasgj2 ;
+        theSmallTree.m_bjet1_pt   = tlv_firstBjet.Pt () ;
+        theSmallTree.m_bjet1_eta  = tlv_firstBjet.Eta () ;
+        theSmallTree.m_bjet1_phi  = tlv_firstBjet.Phi () ;
+        theSmallTree.m_bjet1_e    = theBigTree.jets_e->at (bjet1idx) ;
+        theSmallTree.m_bjet1_bID  = theBigTree.bCSVscore->at (bjet1idx) ;
+        theSmallTree.m_bjet1_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet1idx) + theBigTree.bDeepCSV_probbb->at(bjet1idx) ;
+        theSmallTree.m_bjet1_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet1idx) ;
+        theSmallTree.m_bjet1_flav = theBigTree.jets_HadronFlavour->at (bjet1idx) ;
 
-	  float METx = theBigTree.METx->at (chosenTauPair) ;
-	  float METy = theBigTree.METy->at (chosenTauPair) ;
-	  //float METpt = 0;//TMath::Sqrt (METx*METx + METy*METy) ;
+        theSmallTree.m_bjet2_pt   = tlv_secondBjet.Pt () ;
+        theSmallTree.m_bjet2_eta  = tlv_secondBjet.Eta () ;
+        theSmallTree.m_bjet2_phi  = tlv_secondBjet.Phi () ;
+        theSmallTree.m_bjet2_e    = theBigTree.jets_e->at (bjet2idx) ;
+        theSmallTree.m_bjet2_bID  = theBigTree.bCSVscore->at (bjet2idx) ;
+        theSmallTree.m_bjet2_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet2idx) + theBigTree.bDeepCSV_probbb->at(bjet2idx) ;
+        theSmallTree.m_bjet2_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet2idx) ;
+        theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
 
-	  TLorentzVector tlv_bH = tlv_firstBjet + tlv_secondBjet ;
-	  TLorentzVector tlv_neutrinos =  tlv_bH - tlv_bH_raw;
-	  theSmallTree.m_met_et_corr = theBigTree.met - tlv_neutrinos.Et() ;
+        theSmallTree.m_bjets_bID  = theBigTree.bCSVscore->at (bjet1idx) +theBigTree.bCSVscore->at (bjet2idx) ;
+        theSmallTree.m_bjets_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet1idx) + theBigTree.bDeepCSV_probbb->at(bjet1idx) + theBigTree.bDeepCSV_probb->at(bjet2idx) + theBigTree.bDeepCSV_probbb->at(bjet2idx);
+        bool hasgj1 = false;
+        bool hasgj2 = false;          
+        if (isMC)
+        {
+            int mcind = theBigTree.jets_genjetIndex->at(bjet2idx);
+            if (mcind>=0){
+              TLorentzVector gen(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
+              theSmallTree.m_genjet1_pt = gen.Pt();
+              theSmallTree.m_genjet1_eta = gen.Eta();
+              theSmallTree.m_genjet1_phi = gen.Phi();
+              theSmallTree.m_genjet1_e = gen.E();
+              if (gen.Pt() > 8) hasgj1 = true;
+            }
 
-	  const TVector2 ptmiss = TVector2(METx, METy) ;
-	  //TVector2 ptmiss = TVector2(METx,METy);
-	  TMatrixD metcov (2, 2) ;
-	  metcov (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
-	  metcov (1,0) = theBigTree.MET_cov10->at (chosenTauPair) ;
-	  metcov (0,1) = theBigTree.MET_cov01->at (chosenTauPair) ;    
-	  metcov (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
+            mcind = theBigTree.jets_genjetIndex->at(bjet2idx);
+            if (mcind>=0){
+              TLorentzVector gen(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
+              theSmallTree.m_genjet2_pt = gen.Pt();
+              theSmallTree.m_genjet2_eta = gen.Eta();
+              theSmallTree.m_genjet2_phi = gen.Phi();
+              theSmallTree.m_genjet2_e = gen.E();
+              if (gen.Pt() > 8) hasgj2 = true;
+            }
+        }
+        theSmallTree.m_bjet1_hasgenjet = hasgj1 ;
+        theSmallTree.m_bjet2_hasgenjet = hasgj2 ;
 
-	  const TMatrixD stableMetCov = metcov; 
-	  theSmallTree.m_bH_pt = tlv_bH.Pt () ;
-	  theSmallTree.m_bH_eta = tlv_bH.Eta () ;
-	  theSmallTree.m_bH_phi = tlv_bH.Phi () ;
-	  theSmallTree.m_bH_e = tlv_bH.E () ;
-	  theSmallTree.m_bH_mass = tlv_bH.M () ;
+        float METx = theBigTree.METx->at (chosenTauPair) ;
+        float METy = theBigTree.METy->at (chosenTauPair) ;
+        //float METpt = 0;//TMath::Sqrt (METx*METx + METy*METy) ;
 
-	  TLorentzVector tlv_HH = tlv_bH + tlv_tauH ;
-	  TLorentzVector tlv_HH_raw = tlv_bH_raw + tlv_tauH ;
-	  theSmallTree.m_HH_pt = tlv_HH.Pt () ;
-	  theSmallTree.m_HH_eta = tlv_HH.Eta () ;
-	  theSmallTree.m_HH_phi = tlv_HH.Phi () ;
-	  theSmallTree.m_HH_e = tlv_HH.E () ;
-	  theSmallTree.m_HH_mass = tlv_HH.M () ;
-	  theSmallTree.m_HH_mass_raw = tlv_HH_raw.M () ;
-	  theSmallTree.m_HH_deltaR = tlv_bH.DeltaR(tlv_tauH);
-	  
-	  TLorentzVector tlv_HH_raw_tauup = tlv_bH_raw + tlv_firstLepton_tauup + tlv_secondLepton_tauup ;
-	  TLorentzVector tlv_HH_raw_taudown = tlv_bH_raw + tlv_firstLepton_taudown + tlv_secondLepton_taudown ;
+        TLorentzVector tlv_bH = tlv_firstBjet + tlv_secondBjet ;
+        TLorentzVector tlv_neutrinos =  tlv_bH - tlv_bH_raw;
+        theSmallTree.m_met_et_corr = theBigTree.met - tlv_neutrinos.Et() ;
 
-	  theSmallTree.m_HH_mass_raw_tauup = tlv_HH_raw_tauup.M();
-	  theSmallTree.m_HH_mass_raw_taudown = tlv_HH_raw_taudown.M();
+        const TVector2 ptmiss = TVector2(METx, METy) ;
+        //TVector2 ptmiss = TVector2(METx,METy);
+        TMatrixD metcov (2, 2) ;
+        metcov (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
+        metcov (1,0) = theBigTree.MET_cov10->at (chosenTauPair) ;
+        metcov (0,1) = theBigTree.MET_cov01->at (chosenTauPair) ;    
+        metcov (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
 
-	  // in case the SVFIT mass is calculated
-	  if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
-	    {
-	      TLorentzVector tlv_HHsvfit  = tlv_bH + tlv_tauH_SVFIT ;
-	      theSmallTree.m_HHsvfit_pt   = tlv_HHsvfit.Pt () ;
-	      theSmallTree.m_HHsvfit_eta  = tlv_HHsvfit.Eta () ;
-	      theSmallTree.m_HHsvfit_phi  = tlv_HHsvfit.Phi () ;
-	      theSmallTree.m_HHsvfit_e    = tlv_HHsvfit.E () ;
-	      theSmallTree.m_HHsvfit_mass = tlv_HHsvfit.M () ;
-	    } // in case the SVFIT mass is calculated
+        const TMatrixD stableMetCov = metcov; 
+        theSmallTree.m_bH_pt = tlv_bH.Pt () ;
+        theSmallTree.m_bH_eta = tlv_bH.Eta () ;
+        theSmallTree.m_bH_phi = tlv_bH.Phi () ;
+        theSmallTree.m_bH_e = tlv_bH.E () ;
+        theSmallTree.m_bH_mass = tlv_bH.M () ;
 
-	  // compute HHKinFit -- ask a reasonable mass window to suppress most error messages
-	  bool wrongHHK=false;
-	  float HHKmass = -999;
-	  float HHKChi2 = -999;
-	  // if (runHHKinFit && tlv_HH_raw.M() > 20 && tlv_HH_raw.M() < 200)
-	  if (runHHKinFit && pairType <= 2 && tlv_bH_raw.M() > 50 && tlv_bH_raw.M() < 200 && theBigTree.SVfitMass->at (chosenTauPair) > 50 && theBigTree.SVfitMass->at (chosenTauPair) < 200) // no kinfit for ee / mumu + very loose mass window
+        TLorentzVector tlv_HH = tlv_bH + tlv_tauH ;
+        TLorentzVector tlv_HH_raw = tlv_bH_raw + tlv_tauH ;
+        theSmallTree.m_HH_pt = tlv_HH.Pt () ;
+        theSmallTree.m_HH_eta = tlv_HH.Eta () ;
+        theSmallTree.m_HH_phi = tlv_HH.Phi () ;
+        theSmallTree.m_HH_e = tlv_HH.E () ;
+        theSmallTree.m_HH_mass = tlv_HH.M () ;
+        theSmallTree.m_HH_mass_raw = tlv_HH_raw.M () ;
+        theSmallTree.m_HH_deltaR = tlv_bH.DeltaR(tlv_tauH);
+
+        TLorentzVector tlv_HH_raw_tauup = tlv_bH_raw + tlv_firstLepton_tauup + tlv_secondLepton_tauup ;
+        TLorentzVector tlv_HH_raw_taudown = tlv_bH_raw + tlv_firstLepton_taudown + tlv_secondLepton_taudown ;
+
+        theSmallTree.m_HH_mass_raw_tauup = tlv_HH_raw_tauup.M();
+        theSmallTree.m_HH_mass_raw_taudown = tlv_HH_raw_taudown.M();
+
+        // in case the SVFIT mass is calculated
+        if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
+        {
+          TLorentzVector tlv_HHsvfit  = tlv_bH + tlv_tauH_SVFIT ;
+          theSmallTree.m_HHsvfit_pt   = tlv_HHsvfit.Pt () ;
+          theSmallTree.m_HHsvfit_eta  = tlv_HHsvfit.Eta () ;
+          theSmallTree.m_HHsvfit_phi  = tlv_HHsvfit.Phi () ;
+          theSmallTree.m_HHsvfit_e    = tlv_HHsvfit.E () ;
+          theSmallTree.m_HHsvfit_mass = tlv_HHsvfit.M () ;
+        } // in case the SVFIT mass is calculated
+
+        // compute HHKinFit -- ask a reasonable mass window to suppress most error messages
+        bool wrongHHK=false;
+        float HHKmass = -999;
+        float HHKChi2 = -999;
+        // if (runHHKinFit && tlv_HH_raw.M() > 20 && tlv_HH_raw.M() < 200)
+        if (runHHKinFit && pairType <= 2 && tlv_bH_raw.M() > 50 && tlv_bH_raw.M() < 200 && theBigTree.SVfitMass->at (chosenTauPair) > 50 && theBigTree.SVfitMass->at (chosenTauPair) < 200) // no kinfit for ee / mumu + very loose mass window
 	    // if (runHHKinFit && pairType <= 2) // FIXME: temporary
 	    {
-	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet, tlv_secondBjet, 
-												  tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
-	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet_raw, tlv_secondBjet_raw, 
-												     tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
-	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_tauup = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet_raw, tlv_secondBjet_raw, 
-													   tlv_firstLepton_tauup, tlv_secondLepton_tauup,  ptmiss, stableMetCov) ;
-	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_taudown = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet_raw, tlv_secondBjet_raw, 
-													     tlv_firstLepton_taudown, tlv_secondLepton_taudown,  ptmiss, stableMetCov) ;
-	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetup = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet_raw_jetup, tlv_secondBjet_raw_jetup, 
-													   tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
-	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetdown = HHKinFit2::HHKinFitMasterHeavyHiggs ( tlv_firstBjet_raw_jetdown, tlv_secondBjet_raw_jetdown, 
-													     tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
+	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
+	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
+	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_tauup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_tauup, tlv_secondLepton_tauup,  ptmiss, stableMetCov) ;
+	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_taudown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_taudown, tlv_secondLepton_taudown,  ptmiss, stableMetCov) ;
+	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw_jetup, tlv_secondBjet_raw_jetup, tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
+	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetdown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw_jetdown, tlv_secondBjet_raw_jetdown, tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
 
 	      //           kinFits.setAdvancedBalance (&ptmiss, metcov) ;
 	      //           kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
@@ -2421,113 +2414,115 @@ int main (int argc, char** argv)
 	      kinFitsraw_tauup.addHypo(hypo_mh1,hypo_mh2);
 	      kinFitsraw_taudown.addHypo(hypo_mh1,hypo_mh2);
 
-	      try{           
-		kinFits.fit();//doFit () ; 
-	      }
-	      catch(HHKinFit2::HHInvMConstraintException e){
-		cout<<"INVME THIS EVENT WAS WRONG, INV MASS CONSTRAIN EXCEPTION"<<endl;
-		cout<<"INVME masshypo1 = 125,    masshypo2 = 125"<<endl;
-		cout<<"INVME Tau1"<<endl;
-		cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_firstLepton.E()<<","<<tlv_firstLepton.Px()<<","<<tlv_firstLepton.Py()<<","<<tlv_firstLepton.Pz()<<","<<tlv_firstLepton.M()<<endl;//tlv_firstLepton.Print();
-		cout<<"INVME Tau2"<<endl;
-		cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_secondLepton.E()<<","<<tlv_secondLepton.Px()<<","<<tlv_secondLepton.Py()<<","<<tlv_secondLepton.Pz()<<","<<tlv_secondLepton.M()<<endl;
-		cout<<"INVME B1"<<endl;
-		cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_firstBjet.E()<<","<<tlv_firstBjet.Px()<<","<<tlv_firstBjet.Py()<<","<<tlv_firstBjet.Pz()<<","<<tlv_firstBjet.M()<<endl;
-		cout<<"INVME B2"<<endl;
-		cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
-		cout<<"INVME MET"<<endl;
-		cout<<"INVME (E,Px,Py,Pz,M) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
-		cout<<"INVME METCOV "<<endl;
-		cout<<"INVME "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
-		cout<<"INVME "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
-		cout<<"INVME tau1, tau2, b1, b2"<<endl;
-		cout<<"INVME ";
-		tlv_firstLepton.Print();
-		cout<<"INVME ";
-		tlv_secondLepton.Print();
-		cout<<"INVME ";
-		tlv_firstBjet.Print();
-		cout<<"INVME ";
-		tlv_secondBjet.Print();
-		wrongHHK=true;
-	      }
-	      catch (HHKinFit2::HHEnergyRangeException e){
-		cout<<"ERANGE THIS EVENT WAS WRONG, ENERGY RANGE EXCEPTION"<<endl;
-		cout<<"ERANGE masshypo1 = 125,    masshypo2 = 125"<<endl;
-		cout<<"ERANGE Tau1"<<endl;
-		cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_firstLepton.E()<<","<<tlv_firstLepton.Px()<<","<<tlv_firstLepton.Py()<<","<<tlv_firstLepton.Pz()<<","<<tlv_firstLepton.M()<<endl;//tlv_firstLepton.Print();
-		cout<<"ERANGE Tau2"<<endl;
-		cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_secondLepton.E()<<","<<tlv_secondLepton.Px()<<","<<tlv_secondLepton.Py()<<","<<tlv_secondLepton.Pz()<<","<<tlv_secondLepton.M()<<endl;
-		cout<<"ERANGE B1"<<endl;
-		cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_firstBjet.E()<<","<<tlv_firstBjet.Px()<<","<<tlv_firstBjet.Py()<<","<<tlv_firstBjet.Pz()<<","<<tlv_firstBjet.M()<<endl;
-		cout<<"ERANGE B2"<<endl;
-		cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
-		cout<<"ERANGE MET"<<endl;
-		cout<<"ERANGE (E,Px,Py,Pz,M) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
-		cout<<"ERANGE METCOV "<<endl;
-		cout<<"ERANGE "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
-		cout<<"ERANGE "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
-		cout<<"ERANGE tau1, tau2, b1, b2"<<endl;
-		cout<<"ERANGE ";
-		tlv_firstLepton.Print();
-		cout<<"ERANGE ";
-		tlv_secondLepton.Print();
-		cout<<"ERANGE ";
-		tlv_firstBjet.Print();
-		cout<<"ERANGE ";
-		tlv_secondBjet.Print();
-		wrongHHK=true;
-	      }
-	      catch(HHKinFit2::HHEnergyConstraintException e){
-		cout<<"ECON THIS EVENT WAS WRONG, ENERGY CONSTRAIN EXCEPTION"<<endl;
-		cout<<"ECON masshypo1 = 125,    masshypo2 = 125"<<endl;
-		cout<<"ECON Tau1"<<endl;
-		cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_firstLepton.E()<<","<<tlv_firstLepton.Px()<<","<<tlv_firstLepton.Py()<<","<<tlv_firstLepton.Pz()<<","<<tlv_firstLepton.M()<<endl;//tlv_firstLepton.Print();
-		cout<<"ECON Tau2"<<endl;
-		cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_secondLepton.E()<<","<<tlv_secondLepton.Px()<<","<<tlv_secondLepton.Py()<<","<<tlv_secondLepton.Pz()<<","<<tlv_secondLepton.M()<<endl;
-		cout<<"ECON B1"<<endl;
-		cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_firstBjet.E()<<","<<tlv_firstBjet.Px()<<","<<tlv_firstBjet.Py()<<","<<tlv_firstBjet.Pz()<<","<<tlv_firstBjet.M()<<endl;
-		cout<<"ECON B2"<<endl;
-		cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
-		cout<<"ECON MET"<<endl;
-		cout<<"ECON (E,Px,Py,Pz,M) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
-		cout<<"ECON METCOV "<<endl;
-		cout<<"ECON "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
-		cout<<"ECON "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
-		cout<<"ECON tau1, tau2, b1, b2"<<endl;
-		cout<<"ECON ";
-		tlv_firstLepton.Print();
-		cout<<"ECON ";
-		tlv_secondLepton.Print();
-		cout<<"ECON ";
-		tlv_firstBjet.Print();
-		cout<<"ECON ";
-		tlv_secondBjet.Print();
-		wrongHHK=true;
-	      }
-	      if(!wrongHHK){
-		HHKmass = kinFits.getMH () ;
-		HHKChi2 = kinFits.getChi2 () ;
-	      }else{
-		if(isOS)HHKmass = -333;
-	      }
+        try{ kinFits.fit();}
+	    catch(HHKinFit2::HHInvMConstraintException e)
+        {
+            cout<<"INVME THIS EVENT WAS WRONG, INV MASS CONSTRAIN EXCEPTION"<<endl;
+            cout<<"INVME masshypo1 = 125,    masshypo2 = 125"<<endl;
+            cout<<"INVME Tau1"<<endl;
+            cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_firstLepton.E()<<","<<tlv_firstLepton.Px()<<","<<tlv_firstLepton.Py()<<","<<tlv_firstLepton.Pz()<<","<<tlv_firstLepton.M()<<endl;
+            cout<<"INVME Tau2"<<endl;
+            cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_secondLepton.E()<<","<<tlv_secondLepton.Px()<<","<<tlv_secondLepton.Py()<<","<<tlv_secondLepton.Pz()<<","<<tlv_secondLepton.M()<<endl;
+            cout<<"INVME B1"<<endl;
+            cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_firstBjet.E()<<","<<tlv_firstBjet.Px()<<","<<tlv_firstBjet.Py()<<","<<tlv_firstBjet.Pz()<<","<<tlv_firstBjet.M()<<endl;
+            cout<<"INVME B2"<<endl;
+            cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
+            cout<<"INVME MET"<<endl;
+            cout<<"INVME (E,Px,Py,Pz,M) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
+            cout<<"INVME METCOV "<<endl;
+            cout<<"INVME "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
+            cout<<"INVME "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
+            cout<<"INVME tau1, tau2, b1, b2"<<endl;
+            cout<<"INVME ";
+            tlv_firstLepton.Print();
+            cout<<"INVME ";
+            tlv_secondLepton.Print();
+            cout<<"INVME ";
+            tlv_firstBjet.Print();
+            cout<<"INVME ";
+            tlv_secondBjet.Print();
+            wrongHHK=true;
+        }
+        catch (HHKinFit2::HHEnergyRangeException e)
+        {
+            cout<<"ERANGE THIS EVENT WAS WRONG, ENERGY RANGE EXCEPTION"<<endl;
+            cout<<"ERANGE masshypo1 = 125,    masshypo2 = 125"<<endl;
+            cout<<"ERANGE Tau1"<<endl;
+            cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_firstLepton.E()<<","<<tlv_firstLepton.Px()<<","<<tlv_firstLepton.Py()<<","<<tlv_firstLepton.Pz()<<","<<tlv_firstLepton.M()<<endl;
+            cout<<"ERANGE Tau2"<<endl;
+            cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_secondLepton.E()<<","<<tlv_secondLepton.Px()<<","<<tlv_secondLepton.Py()<<","<<tlv_secondLepton.Pz()<<","<<tlv_secondLepton.M()<<endl;
+            cout<<"ERANGE B1"<<endl;
+            cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_firstBjet.E()<<","<<tlv_firstBjet.Px()<<","<<tlv_firstBjet.Py()<<","<<tlv_firstBjet.Pz()<<","<<tlv_firstBjet.M()<<endl;
+            cout<<"ERANGE B2"<<endl;
+            cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
+            cout<<"ERANGE MET"<<endl;
+            cout<<"ERANGE (E,Px,Py,Pz,M) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
+            cout<<"ERANGE METCOV "<<endl;
+            cout<<"ERANGE "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
+            cout<<"ERANGE "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
+            cout<<"ERANGE tau1, tau2, b1, b2"<<endl;
+            cout<<"ERANGE ";
+            tlv_firstLepton.Print();
+            cout<<"ERANGE ";
+            tlv_secondLepton.Print();
+            cout<<"ERANGE ";
+            tlv_firstBjet.Print();
+            cout<<"ERANGE ";
+            tlv_secondBjet.Print();
+            wrongHHK=true;
+        }
+	    catch(HHKinFit2::HHEnergyConstraintException e)
+        {
+            cout<<"ECON THIS EVENT WAS WRONG, ENERGY CONSTRAIN EXCEPTION"<<endl;
+            cout<<"ECON masshypo1 = 125,    masshypo2 = 125"<<endl;
+            cout<<"ECON Tau1"<<endl;
+            cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_firstLepton.E()<<","<<tlv_firstLepton.Px()<<","<<tlv_firstLepton.Py()<<","<<tlv_firstLepton.Pz()<<","<<tlv_firstLepton.M()<<endl;
+            cout<<"ECON Tau2"<<endl;
+            cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_secondLepton.E()<<","<<tlv_secondLepton.Px()<<","<<tlv_secondLepton.Py()<<","<<tlv_secondLepton.Pz()<<","<<tlv_secondLepton.M()<<endl;
+            cout<<"ECON B1"<<endl;
+            cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_firstBjet.E()<<","<<tlv_firstBjet.Px()<<","<<tlv_firstBjet.Py()<<","<<tlv_firstBjet.Pz()<<","<<tlv_firstBjet.M()<<endl;
+            cout<<"ECON B2"<<endl;
+            cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
+            cout<<"ECON MET"<<endl;
+            cout<<"ECON (E,Px,Py,Pz,M) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
+            cout<<"ECON METCOV "<<endl;
+            cout<<"ECON "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
+            cout<<"ECON "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
+            cout<<"ECON tau1, tau2, b1, b2"<<endl;
+            cout<<"ECON ";
+            tlv_firstLepton.Print();
+            cout<<"ECON ";
+            tlv_secondLepton.Print();
+            cout<<"ECON ";
+            tlv_firstBjet.Print();
+            cout<<"ECON ";
+            tlv_secondBjet.Print();
+            wrongHHK=true;
+        }
+	    if(!wrongHHK)
+        {
+            HHKmass = kinFits.getMH () ;
+            HHKChi2 = kinFits.getChi2 () ;
+        }
+        else
+        {
+            if(isOS)HHKmass = -333;
+        }
         
-	      // nominal kinfit raw
-	      bool wrongHHKraw =false;
-	      try {
-		kinFitsraw.fit();
-	      }
-	      catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw=true;}
-	      catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw=true;}
-	      catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw=true;}
-	      if(!wrongHHKraw){
-		theSmallTree.m_HHKin_mass_raw = kinFitsraw.getMH();
-		theSmallTree.m_HHKin_mass_raw_chi2        = kinFitsraw.getChi2();
-		theSmallTree.m_HHKin_mass_raw_convergence = kinFitsraw.getConvergence();
-		theSmallTree.m_HHKin_mass_raw_prob        = kinFitsraw.getFitProb();
-	      }
-	      else theSmallTree.m_HHKin_mass_raw = -100 ;
-	      if (theBigTree.SVfitMass->at (chosenTauPair) > -900. && !wrongHHK)
+	    // nominal kinfit raw
+	    bool wrongHHKraw =false;
+	    try {kinFitsraw.fit();}
+	    catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw=true;}
+	    catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw=true;}
+	    catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw=true;}
+	    if(!wrongHHKraw){
+            theSmallTree.m_HHKin_mass_raw = kinFitsraw.getMH();
+            theSmallTree.m_HHKin_mass_raw_chi2        = kinFitsraw.getChi2();
+            theSmallTree.m_HHKin_mass_raw_convergence = kinFitsraw.getConvergence();
+            theSmallTree.m_HHKin_mass_raw_prob        = kinFitsraw.getFitProb();
+        }
+	    else theSmallTree.m_HHKin_mass_raw = -100 ;
+	    if (theBigTree.SVfitMass->at (chosenTauPair) > -900. && !wrongHHK)
 		{
 		  TLorentzVector b1 = kinFits.getFittedBJet1();
 		  TLorentzVector b2 = kinFits.getFittedBJet2();
@@ -2542,65 +2537,48 @@ int main (int argc, char** argv)
 		  theSmallTree.m_HHkinsvfit_m   = tlv_HHsvfit.M () ;
 		} // in case the SVFIT mass is calculated
 
-	      // raw kinfit TES up
-	      bool wrongHHKraw_tauup =false;
-	      try {
-		kinFitsraw_tauup.fit();
-	      }
-	      catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_tauup=true;}
-	      catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_tauup=true;}
-	      catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_tauup=true;}
-	      if(!wrongHHKraw_tauup){
-		theSmallTree.m_HHKin_mass_raw_tauup = kinFitsraw_tauup.getMH();
-	      }
-	      else theSmallTree.m_HHKin_mass_raw_tauup = -100 ;
+        // raw kinfit TES up
+        bool wrongHHKraw_tauup =false;
+        try {kinFitsraw_tauup.fit();}
+	    catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_tauup=true;}
+	    catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_tauup=true;}
+	    catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_tauup=true;}
+	    if(!wrongHHKraw_tauup){theSmallTree.m_HHKin_mass_raw_tauup = kinFitsraw_tauup.getMH();}
+	    else theSmallTree.m_HHKin_mass_raw_tauup = -100 ;
 
-	      // raw kinfit TES down
-	      bool wrongHHKraw_taudown =false;
-	      try {
-		kinFitsraw_taudown.fit();
-	      }
-	      catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_taudown=true;}
-	      catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_taudown=true;}
-	      catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_taudown=true;}
-	      if(!wrongHHKraw_taudown){
-		theSmallTree.m_HHKin_mass_raw_taudown = kinFitsraw_taudown.getMH();
-	      }
-	      else theSmallTree.m_HHKin_mass_raw_taudown = -100 ;
+        // raw kinfit TES down
+	    bool wrongHHKraw_taudown =false;
+	    try {kinFitsraw_taudown.fit();}
+        catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_taudown=true;}
+        catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_taudown=true;}
+        catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_taudown=true;}
+        if(!wrongHHKraw_taudown){theSmallTree.m_HHKin_mass_raw_taudown = kinFitsraw_taudown.getMH();}
+        else theSmallTree.m_HHKin_mass_raw_taudown = -100 ;
 
-	      // raw kinfit JES up
-	      bool wrongHHKraw_jetup =false;
-	      try {
-		kinFitsraw_jetup.fit();
-	      }
-	      catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_jetup=true;}
-	      catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_jetup=true;}
-	      catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_jetup=true;}
-	      if(!wrongHHKraw_jetup){
-		theSmallTree.m_HHKin_mass_raw_jetup = kinFitsraw_jetup.getMH();
-	      }
-	      else theSmallTree.m_HHKin_mass_raw_jetup = -100 ;
+        // raw kinfit JES up
+        bool wrongHHKraw_jetup =false;
+        try {kinFitsraw_jetup.fit();}
+        catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_jetup=true;}
+        catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_jetup=true;}
+        catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_jetup=true;}
+        if(!wrongHHKraw_jetup){theSmallTree.m_HHKin_mass_raw_jetup = kinFitsraw_jetup.getMH();}
+        else theSmallTree.m_HHKin_mass_raw_jetup = -100 ;
 
-	      // raw kinfit JES down
-	      bool wrongHHKraw_jetdown =false;
-	      try {
-		kinFitsraw_jetdown.fit();
-	      }
-	      catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_jetdown=true;}
-	      catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_jetdown=true;}
-	      catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_jetdown=true;}
-	      if(!wrongHHKraw_jetdown){
-		theSmallTree.m_HHKin_mass_raw_jetdown = kinFitsraw_jetdown.getMH();
-	      }
-	      else theSmallTree.m_HHKin_mass_raw_jetdown = -100 ;
-
+        // raw kinfit JES down
+        bool wrongHHKraw_jetdown =false;
+        try {kinFitsraw_jetdown.fit();}
+        catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_jetdown=true;}
+        catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_jetdown=true;}
+        catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_jetdown=true;}
+        if(!wrongHHKraw_jetdown){theSmallTree.m_HHKin_mass_raw_jetdown = kinFitsraw_jetdown.getMH();}
+        else theSmallTree.m_HHKin_mass_raw_jetdown = -100 ;
 
 	    } // end if doing HHKinFit
 
-	  theSmallTree.m_HHKin_mass_raw_copy = theSmallTree.m_HHKin_mass_raw ; // store twice if different binning needed
+        theSmallTree.m_HHKin_mass_raw_copy = theSmallTree.m_HHKin_mass_raw ; // store twice if different binning needed
 
-	  theSmallTree.m_HHKin_mass = HHKmass;//kinFits.getMH () ;
-	  theSmallTree.m_HHKin_chi2 = HHKChi2;//kinFits.getChi2 () ;
+        theSmallTree.m_HHKin_mass = HHKmass;//kinFits.getMH () ;
+        theSmallTree.m_HHKin_chi2 = HHKChi2;//kinFits.getChi2 () ;
 
 	  // Stransverse mass
 	  if (runMT2)
@@ -2798,30 +2776,35 @@ int main (int argc, char** argv)
 	
 	      // use these jets for HT
 	      if (tlv_dummyJet.Pt () > 20)
-		{
-		  ++theSmallTree.m_njets20 ; 
-		  theSmallTree.m_HT20 += tlv_dummyJet.Pt() ;
-		  jetVecSum += tlv_dummyJet ;
-		}
+  	 	  {
+            ++theSmallTree.m_njets20 ;
+            theSmallTree.m_HT20 += tlv_dummyJet.Pt() ;
+            jetVecSum += tlv_dummyJet ;
+		  }
         
 	      if (tlv_dummyJet.Pt () > 50)
-		{
-		  ++theSmallTree.m_njets50 ;
-		  theSmallTree.m_HT50 += tlv_dummyJet.Pt() ;
-		}
+		  {
+            ++theSmallTree.m_njets50 ;
+            theSmallTree.m_HT50 += tlv_dummyJet.Pt() ;
+          }
 	    }
+        
 	  theSmallTree.m_HT20Full = theSmallTree.m_HT20 + tlv_firstLepton.Pt() + tlv_secondLepton.Pt() ;
 	  theSmallTree.m_jet20centrality = jetVecSum.Pt() / theSmallTree.m_HT20Full ;
 
 	  //VBF tag
 	  int VBFidx1 = -1;
 	  int VBFidx2 = -1;
+      theSmallTree.m_isVBF = 0;
 
+      // Tuple structure for VBF: (Mjj, ijet1, ijet2)
 	  std::vector< tuple<float, int, int> > VBFcand_Mjj; 
       
-	  if (theBigTree.jets_px->size ()>1){
-	    for (unsigned int iJet = 0 ;   (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++iJet){
-	      if (int (iJet) == bjet1idx || int (iJet) == bjet2idx) continue;
+      if (theBigTree.jets_px->size ()>1)
+      {
+	    for (unsigned int iJet = 0 ;   (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++iJet)
+        {
+	      if (int (iJet) == bjet1idx || int (iJet) == bjet2idx) continue; // remove the already selected bjets
 	      TLorentzVector ijet;
 	      ijet.SetPxPyPzE(
 			      theBigTree.jets_px->at (iJet),
@@ -2832,25 +2815,31 @@ int main (int argc, char** argv)
 	      if (ijet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
 	      if (ijet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
 	      if(ijet.Pt() < 30) continue;		  
-	      for (unsigned int kJet = iJet+1 ;   (kJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++kJet){
-		if (int (kJet) == bjet1idx || int (kJet) == bjet2idx) continue;
+	      for (unsigned int kJet = iJet+1 ;   (kJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++kJet)
+          {
+            if (int (kJet) == bjet1idx || int (kJet) == bjet2idx) continue;
 	    
-		TLorentzVector kjet;
-		kjet.SetPxPyPzE(
-				theBigTree.jets_px->at (kJet),
-				theBigTree.jets_py->at (kJet),
-				theBigTree.jets_pz->at (kJet),
-				theBigTree.jets_e->at (kJet)
-				);
-		if (kjet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
-		if (kjet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
-		if(kjet.Pt() < 30) continue;		  
-		TLorentzVector jetPair = ijet+kjet;
-		VBFcand_Mjj.push_back(make_tuple(jetPair.M(),iJet,kJet));
-	      }
+            TLorentzVector kjet;
+            kjet.SetPxPyPzE(
+                    theBigTree.jets_px->at (kJet),
+                    theBigTree.jets_py->at (kJet),
+                    theBigTree.jets_pz->at (kJet),
+                    theBigTree.jets_e->at (kJet)
+                    );
+            if (kjet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
+            if (kjet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
+            if(kjet.Pt() < 30) continue;		  
+            TLorentzVector jetPair = ijet+kjet;
+            
+            VBFcand_Mjj.push_back(make_tuple(jetPair.M(),iJet,kJet));
+          }
 	    }
-	    if (VBFcand_Mjj.size()>0){
-	      std::sort(VBFcand_Mjj.begin(),VBFcand_Mjj.end());
+        
+	    if (VBFcand_Mjj.size()>0)
+        {
+          theSmallTree.m_isVBF = 1;
+          
+	      std::sort(VBFcand_Mjj.begin(),VBFcand_Mjj.end()); //Sort by invariant mass Mjj
 	
 	      VBFidx1 = std::get<1>(*(VBFcand_Mjj.rbegin()));
 	      VBFidx2 = std::get<2>(*(VBFcand_Mjj.rbegin()));
@@ -2868,6 +2857,9 @@ int main (int argc, char** argv)
 				 theBigTree.jets_pz->at (VBFidx2),
 				 theBigTree.jets_e->at  (VBFidx2)
 				 );
+          
+          
+          
 	      bool   hasgj1_VBF = false;
 	      bool   hasgj2_VBF = false; 
 
@@ -2877,8 +2869,9 @@ int main (int argc, char** argv)
 	       
 	      if (fabs(VBFjet1.Eta())>fabs(VBFjet2.Eta())) std::swap(VBFcentral,VBFforward);
 	      TLorentzVector fakeTau = tlv_secondLepton;
-	      if (pairType == 2 && theSmallTree.m_dau1_iso > theSmallTree.m_dau2_iso) {
-		fakeTau = tlv_firstLepton;
+	      if (pairType == 2 && theSmallTree.m_dau1_iso > theSmallTree.m_dau2_iso)
+          {
+            fakeTau = tlv_firstLepton;
 	      }
 
 
@@ -2917,33 +2910,36 @@ int main (int argc, char** argv)
 		
 	      
 	      
-	      if (isMC)          {
-		int mcind = theBigTree.jets_genjetIndex->at(VBFidx1);
-		if (mcind>=0)
-		  {
-		    TLorentzVector thisGenJet(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
-		    if (thisGenJet.Pt() > 8)
-		      {
-			hasgj1_VBF = true;
-			theSmallTree.m_VBFgenjet1_pt =  thisGenJet.Pt() ;
-			theSmallTree.m_VBFgenjet1_eta = thisGenJet.Eta();
-			theSmallTree.m_VBFgenjet1_phi = thisGenJet.Phi();
-			theSmallTree.m_VBFgenjet1_e =   thisGenJet.E();
-		      }     
-		  }
-		mcind = theBigTree.jets_genjetIndex->at(VBFidx2);
-		if (mcind>=0)
-		  {
-		    TLorentzVector thisGenJet(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
-		    if (thisGenJet.Pt() > 8) {
-		      hasgj2_VBF = true;
-		      theSmallTree.m_VBFgenjet2_pt =  thisGenJet.Pt() ;
-		      theSmallTree.m_VBFgenjet2_eta = thisGenJet.Eta();
-		      theSmallTree.m_VBFgenjet2_phi = thisGenJet.Phi();
-		      theSmallTree.m_VBFgenjet2_e =   thisGenJet.E();
-		    }
-		  }     
+	      if (isMC)
+          {
+            int mcind = theBigTree.jets_genjetIndex->at(VBFidx1);
+            if (mcind>=0)
+              {
+                TLorentzVector thisGenJet(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
+                if (thisGenJet.Pt() > 8)
+                {
+                    hasgj1_VBF = true;
+                    theSmallTree.m_VBFgenjet1_pt =  thisGenJet.Pt() ;
+                    theSmallTree.m_VBFgenjet1_eta = thisGenJet.Eta();
+                    theSmallTree.m_VBFgenjet1_phi = thisGenJet.Phi();
+                    theSmallTree.m_VBFgenjet1_e =   thisGenJet.E();
+                }
+              }
+            mcind = theBigTree.jets_genjetIndex->at(VBFidx2);
+            if (mcind>=0)
+            {
+                TLorentzVector thisGenJet(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
+                if (thisGenJet.Pt() > 8)
+                {
+                  hasgj2_VBF = true;
+                  theSmallTree.m_VBFgenjet2_pt =  thisGenJet.Pt() ;
+                  theSmallTree.m_VBFgenjet2_eta = thisGenJet.Eta();
+                  theSmallTree.m_VBFgenjet2_phi = thisGenJet.Phi();
+                  theSmallTree.m_VBFgenjet2_e =   thisGenJet.E();
+                }
+              }     
 	      }
+          
 	      theSmallTree.m_VBFjj_mass = std::get<0>(*(VBFcand_Mjj.rbegin()));
 	      theSmallTree.m_VBFjj_mass_log = log(std::get<0>(*(VBFcand_Mjj.rbegin())));
 	      theSmallTree.m_VBFjj_deltaEta = fabs(VBFjet1.Eta()-VBFjet2.Eta());
@@ -2991,10 +2987,12 @@ int main (int argc, char** argv)
 	      float HH_A = (v_tauH + v_bH).Mag()/(tlv_tauH.Pt() + tlv_bH.Pt());
 	      theSmallTree.m_HH_A = HH_A;
 
-	    }
-	
-	
-	  }
+	    } // end VBFcand_Mjj.size()>0
+	  } // end loop on jets to find the VBF jets with higest Mjj
+      
+      // Set the VBF flag on/off
+      if ()
+      
 	  // loop over jets
 	  int genjets = 0;
 	  int jets  = 0;

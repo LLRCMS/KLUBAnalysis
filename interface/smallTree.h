@@ -43,6 +43,7 @@ struct smallTree
       m_lheNOutB = -1;
       m_RunNumber = -1. ;
       m_isBoosted = -1 ;
+      m_isVBF = -1 ;
       
       m_genDecMode1 = -1;
       m_genDecMode2 = -1;
@@ -487,6 +488,7 @@ struct smallTree
       m_smallT->Branch ("EventNumber", &m_EventNumber, "EventNumber/l") ;
       m_smallT->Branch ("RunNumber", &m_RunNumber, "RunNumber/I") ;
       m_smallT->Branch ("isBoosted", &m_isBoosted, "isBoosted/I") ;
+      m_smallT->Branch ("isVBF", &m_isVBF, "isVBF/I") ;
 
       m_smallT->Branch("genDecMode1", &m_genDecMode1, "genDecMode1/I");
       m_smallT->Branch("genDecMode2", &m_genDecMode2, "genDecMode2/I");
@@ -916,6 +918,7 @@ struct smallTree
   ULong64_t m_EventNumber ;
   Int_t m_RunNumber ;
   Int_t m_isBoosted ;
+  Int_t m_isVBF;
 
   Int_t m_genDecMode1 ;
   Int_t m_genDecMode2 ;
