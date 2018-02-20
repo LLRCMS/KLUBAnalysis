@@ -1,4 +1,6 @@
-// measure the b tag efficiency / mistag rate for MC 
+// measure the b tag efficiency / mistag rate for MC
+
+// c++ -lm -o measureBTagEff measureBTagEff.cpp `root-config --glibs --cflags` -I ../../interface/
 
 #include <iostream>
 #include <iomanip>
@@ -81,7 +83,7 @@ int main(int argc, char** argv)
 
     // float WPtag[3] = {0.460, 0.800, 0.935}; // L, M, T
     // float WPtag[3] = {0.5426, 0.8484, 0.9535}; // L, M, T -- 80X for Moriond 2017, 23SepReReco
-    float WPtag[3] = {0.1522, 0.4941, 0.8001}; // L, M, T -- 94X for Moriond 2018, 17NovReReco
+    float WPtag[3] = {0.1522, 0.4941, 0.8001}; // L, M, T -- 94X for Moriond 2018, 17NovReReco, version1 of the SF
     string WPname[3] = {"L", "M", "T"};
 
 
@@ -130,7 +132,7 @@ int main(int argc, char** argv)
     float bjet1_pt ;
     float bjet1_eta ;
     float bjet1_bID ;
-    float bjet1_bID_deepCSV
+    float bjet1_bID_deepCSV ;
     int   bjet1_flav ;
     bool  bjet1_hasgenjet ;
 
@@ -183,6 +185,7 @@ int main(int argc, char** argv)
         tree->SetBranchStatus ("jets_pt"   , 1);
         tree->SetBranchStatus ("jets_eta"  , 1);
         tree->SetBranchStatus ("jets_btag" , 1);
+        tree->SetBranchStatus ("jets_btag_deepCSV" , 1);
         tree->SetBranchStatus ("jets_flav" , 1);
         tree->SetBranchStatus ("jets_hasgenjet" , 1);
         tree->SetBranchStatus ("bjet1_pt"  , 1);
@@ -372,7 +375,6 @@ int main(int argc, char** argv)
                     bool hasgenjet = jets_hasgenjet->at(ijet);
                     if (hasgenjet)
                     {
-
                         //bTag[0] = (jets_btag->at(ijet) > WPtag[0]) ;
                         //bTag[1] = (jets_btag->at(ijet) > WPtag[1]) ;
                         //bTag[2] = (jets_btag->at(ijet) > WPtag[2]) ;
@@ -380,11 +382,11 @@ int main(int argc, char** argv)
                         bTag[1] = (jets_btag_deepCSV->at(ijet) > WPtag[1]) ;
                         bTag[2] = (jets_btag_deepCSV->at(ijet) > WPtag[2]) ;
                         
-                        int flav =  jets_flav->at(ijet);
+                        int   flav =  jets_flav->at(ijet);
                         float this_pt =  jets_pt->at(ijet);
                         float this_eta = TMath::Abs(jets_eta->at(ijet));
                         float this_eta_noAbs = jets_eta->at(ijet);
-
+                        
                         if (abs(flav) == 5) // b jets
                         {
                             h2_BTaggingEff_Denom_b.at(0).at(isel) -> Fill (this_pt, this_eta);

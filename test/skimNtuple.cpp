@@ -644,7 +644,8 @@ int main (int argc, char** argv)
   
   // ------------------------------
 
-  PUReweight reweight (PUReweight::RUN2ANALYSIS); // none : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
+  //PUReweight reweight (PUReweight::RUN2ANALYSIS); // none : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
+  PUReweight reweight (PUReweight::NONE); // none : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
 
   // ------------------------------
 
@@ -2858,8 +2859,6 @@ int main (int argc, char** argv)
 				 theBigTree.jets_e->at  (VBFidx2)
 				 );
           
-          
-          
 	      bool   hasgj1_VBF = false;
 	      bool   hasgj2_VBF = false; 
 
@@ -2989,9 +2988,6 @@ int main (int argc, char** argv)
 
 	    } // end VBFcand_Mjj.size()>0
 	  } // end loop on jets to find the VBF jets with higest Mjj
-      
-      // Set the VBF flag on/off
-      if ()
       
 	  // loop over jets
 	  int genjets = 0;
