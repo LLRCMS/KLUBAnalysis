@@ -197,7 +197,8 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     {
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
         leg1 = eleBaseline (tree, dau1index, 27., 2.1, 0.1, EMVATight, whatApply, debug);
-        leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleTight, amuLoose, tauIso, whatApply, debug);
+        //leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleTight, amuLoose, tauIso, whatApply, debug);
+        leg2 = tauBaseline (tree, dau2index, 30., 2.3, aeleTight, amuLoose, tauIso, whatApply, debug); //FRA: for syncFeb2018
     }
 
     // ordered by pT and not by most isolated, but baseline asked in sync is the same...
