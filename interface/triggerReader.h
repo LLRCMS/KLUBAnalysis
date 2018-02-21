@@ -29,6 +29,14 @@ class triggerReader
         bool CheckBit (Long64_t number, int bitpos);
 
         bool checkOR (int pairType, Long64_t triggerbit);
+    
+        // Cross triggers part
+        void addMuTauCrossTrigs  (std::vector<std::string> list);
+        void addEleTauCrossTrigs (std::vector<std::string> list);
+        bool checkORMuTauCross  (Long64_t triggerbit);
+        bool checkOREleTauCross (Long64_t triggerbit);
+        bool isCrossTrigger (int pairType, Long64_t triggerbit);
+
 
     private:
         std::vector<std::string> _allTriggers; // all trigger names
@@ -39,5 +47,8 @@ class triggerReader
         std::vector<Long64_t> _emTriggers; // e mu
         std::vector<Long64_t> _mmTriggers; // mu mu
         std::vector<Long64_t> _eeTriggers; // e e
+    
+        std::vector<Long64_t> _mtCrossTriggers; // mu tau cross triggers //FRA
+        std::vector<Long64_t> _etCrossTriggers; // e tau  cross triggers //FRA
 
 };

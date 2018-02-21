@@ -1,5 +1,5 @@
 #OUTDIRR="Skims_Fall17_MC"
-OUTDIRR="Skims_syncFeb2018"
+OUTDIRR="Skims_syncFeb2018_v2"
 
 #INPUTDIR="inputFiles/JECproduction_Lug2017"
 #INPUTDIR="inputFiles/Fall17_MC/"
@@ -17,8 +17,8 @@ mkdir $OUTDIRR
 
 
 
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017_sync.cfg -n 1  -o $SKIMDIR/SKIM_Graviton450  -i $INPUTDIR/Graviton450.txt -x 1
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017_sync.cfg -n 1  -o $SKIMDIR/SKIM_TauData  -i $INPUTDIR/TauData.txt -x 1 -d True
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync.cfg -n 1  -o $SKIMDIR/SKIM_Graviton450_v2  -i $INPUTDIR/Graviton450.txt -x 1
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync.cfg -n 1  -o $SKIMDIR/SKIM_TauData  -i $INPUTDIR/TauData.txt -x 1 -d True
 
 ###################
 #echo "----- BEGIN -----" >> log_skim.txt
@@ -35,11 +35,11 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017_sync.cfg -n
 #echo "OUTDIR = $OUTDIRR"
 #echo "OUTDIR = $OUTDIRR" >> log_skim.txt
 
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 400  -o $SKIMDIR/SKIM_TT_fullyHad  -i $INPUTDIR/ -x 380.1143 -t True -b 1
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 400  -o $SKIMDIR/SKIM_TT_fullyHad  -i $INPUTDIR/ -x 380.1143 -t True -b 1
 
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 60 -o $SKIMDIR/SKIM_TT_semiLep   -i $INPUTDIR/2_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAOD-94X_mc2017_realistic_v10-v1.txt -x 364.3108 -t True -b 5
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 60 -o $SKIMDIR/SKIM_TT_semiLep   -i $INPUTDIR/2_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAOD-94X_mc2017_realistic_v10-v1.txt -x 364.3108 -t True -b 5
 
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 30 -o $SKIMDIR/SKIM_TT_fullyLep  -i $INPUTDIR/1_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAOD-94X_mc2017_realistic_v10-v2.txt -x 87.3348  -t True -b 4
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 30 -o $SKIMDIR/SKIM_TT_fullyLep  -i $INPUTDIR/1_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAOD-94X_mc2017_realistic_v10-v2.txt -x 87.3348  -t True -b 4
 
 
 

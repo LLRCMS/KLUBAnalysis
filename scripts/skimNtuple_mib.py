@@ -41,7 +41,7 @@ if __name__ == "__main__":
     parser.add_option ('-f', '--force'     , dest='force'     , help='replace existing reduced ntuples'      , default=False)
     parser.add_option ('-o', '--output'    , dest='output'    , help='output folder'                         , default='none')
     # parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='cms')
-    parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='longcms')
+    parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='shortcms') #longcms
     parser.add_option ('-r', '--resub'     , dest='resub'     , help='resubmit failed jobs'                  , default='none')
     parser.add_option ('-v', '--verb'      , dest='verb'      , help='verbose'                               , default=False)
     parser.add_option ('-s', '--sleep'     , dest='sleep'     , help='sleep in submission'                   , default=False)

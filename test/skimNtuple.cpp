@@ -552,6 +552,9 @@ int main (int argc, char** argv)
   //I didn't store MuMu and I don't care for eleele
   vector<string> trigEleEle  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleEle")  : gConfigParser->readStringListOption ("triggersData::EleEle")) ;
   vector<string> trigMuMu    =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuMu")  : gConfigParser->readStringListOption ("triggersData::MuMu")) ;
+  // cross triggers for muTau and eleTau
+  vector<string> crossTrigMuTau  = (isMC ? gConfigParser->readStringListOption ("triggersMC::crossMuTau")  : gConfigParser->readStringListOption ("triggersData::crossMuTau")) ;
+  vector<string> crossTrigEleTau = (isMC ? gConfigParser->readStringListOption ("triggersMC::crossEleTau") : gConfigParser->readStringListOption ("triggersData::crossEleTau")) ;
 
   // bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
   bool applyTriggers = isMC ? gConfigParser->readBoolOption ("parameters::applyTriggersMC") : true; // true if ask triggerbit + matching, false if doing reweight
@@ -572,6 +575,14 @@ int main (int argc, char** argv)
 
       cout << "  @ TauTau" << endl; cout << "   --> ";
       for (unsigned int i = 0 ; i < trigTauTau.size(); i++) cout << "  " << trigTauTau.at(i);
+      cout << endl;
+
+      cout << "  @ crossMuTau" << endl; cout << "   --> ";
+      for (unsigned int i = 0 ; i < crossTrigMuTau.size(); i++) cout << "  " << crossTrigMuTau.at(i);
+      cout << endl;
+
+      cout << "  @ crossEleTau" << endl; cout << "   --> ";
+      for (unsigned int i = 0 ; i < crossTrigEleTau.size(); i++) cout << "  " << crossTrigEleTau.at(i);
       cout << endl;
     }
 
@@ -628,6 +639,11 @@ int main (int argc, char** argv)
   // trigReader.addMuEleTrigs  (trigEleMu);
   trigReader.addMuMuTrigs   (trigMuMu);
   trigReader.addEleEleTrigs (trigEleEle);
+
+  // add crossTriggers
+  trigReader.addMuTauCrossTrigs  (crossTrigMuTau);
+  trigReader.addEleTauCrossTrigs (crossTrigEleTau);
+
 
   // ------------------------------
 
@@ -1606,53 +1622,86 @@ int main (int argc, char** argv)
       float trgEvtWeightDown = 1.0;
     
       if (applyTriggers)
-	{
-	  Long64_t triggerbit = theBigTree.triggerbit;
-	  bool passTrg = trigReader.checkOR (pairType, triggerbit) ;
-	  Long64_t matchFlag1 = (Long64_t) theBigTree.daughters_trgMatched->at(firstDaughterIndex);
-	  Long64_t matchFlag2 = (Long64_t) theBigTree.daughters_trgMatched->at(secondDaughterIndex);
-	  bool passMatch1 = false;
-	  bool passMatch2 = false;
-	  Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
-	  bool trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
-	  // FIXME!! true only if single lep trigger for eTau and muTau
-	  if (pairType == 0 || pairType == 1 || pairType == 3 || pairType == 4)
-	    {
-	      passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
-	      passMatch2 = true;
-	      trgNotOverlap = true; // FIXME: true only for single lepton triggers!
-	    }
-	  else if (pairType == 2)
-	    {
-	      passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
-	      passMatch2 = trigReader.checkOR (pairType, matchFlag2) ;            
-	    }
+      {
+        Long64_t triggerbit = theBigTree.triggerbit;
+        bool passTrg = trigReader.checkOR (pairType, triggerbit) ;
+        Long64_t matchFlag1 = (Long64_t) theBigTree.daughters_trgMatched->at(firstDaughterIndex);
+        Long64_t matchFlag2 = (Long64_t) theBigTree.daughters_trgMatched->at(secondDaughterIndex);
+        bool passMatch1 = false;
+        bool passMatch2 = false;
+        Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
+        bool trgNotOverlap = false;
+        //bool trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
+        // FIXME!! true only if single lep trigger for eTau and muTau
+        /*if (pairType == 0 || pairType == 1 || pairType == 3 || pairType == 4)
+        {
+            passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
+            passMatch2 = true;
+            trgNotOverlap = true; // FIXME: true only for single lepton triggers!
+        }
+        else if (pairType == 2)
+        {
+            passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
+            passMatch2 = trigReader.checkOR (pairType, matchFlag2) ;
+        }*/
+        
+        if (pairType == 3 || pairType == 4) // MuMu, EleEle
+        {
+            // Only single object triggers for these two channels
+            passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
+            passMatch2 = true;
+            trgNotOverlap = true;
+        }
+        else if (pairType == 2) //HadHad
+        {
+            // Only double tau triggers for this channel
+            passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
+            passMatch2 = trigReader.checkOR (pairType, matchFlag2) ;
+            trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
+        }
+        else // pairType 0 or 1 (MuTau or EleTau)
+        {
+            bool isCrossTrg = trigReader.isCrossTrigger(pairType, triggerbit); //FRA
+            if (isCrossTrg)
+            {
+                passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
+                passMatch2 = trigReader.checkOR (pairType, matchFlag2) ;
+                trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
+                //cout << " ----> is CrossTrigger! ";
+                //cout << " passTrg=" << passTrg << " passMatch1=" << passMatch1 << " passMatch2=" << passMatch2 << " trgNotOverlap=" << trgNotOverlap << endl;
+            }
+            else // it's a single obj trigger
+            {
+                passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
+                passMatch2 = true;
+                trgNotOverlap = true;
+            }
+        }
 
-	  // require trigger + legs matched
-	  bool triggerAccept = (passTrg && passMatch1 && passMatch2 && trgNotOverlap) ;
-	  // triggerAccept = passTrg ; 
+        // require trigger + legs matched
+        bool triggerAccept = (passTrg && passMatch1 && passMatch2 && trgNotOverlap) ;
 
-	  if (theBigTree.EventNumber == debugEvent)
-	    {
-	      Long64_t matchFlag1LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(firstDaughterIndex);
-	      Long64_t matchFlag2LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(secondDaughterIndex);
-	      Long64_t matchFlag1L3 = (Long64_t) theBigTree.daughters_L3FilterFiredLast->at(firstDaughterIndex);
-	      Long64_t matchFlag2L3 = (Long64_t) theBigTree.daughters_L3FilterFiredLast->at(secondDaughterIndex);
-	      bool isLF1 = trigReader.checkOR (pairType, matchFlag1LF);
-	      bool isL31 = trigReader.checkOR (pairType, matchFlag1L3);
-	      bool isLF2 = trigReader.checkOR (pairType, matchFlag2LF);
-	      bool isL32 = trigReader.checkOR (pairType, matchFlag2L3);
-	      cout << "** trg check: trgAccept=" << triggerAccept
-		   <<  " passTrg=" << passTrg << " passMatch1=" << passMatch1 << " passMatch2=" << passMatch2
-		   <<  " LF1=" << isLF1 << " L31=" << isL31
-		   <<  " LF2=" << isLF2 << " L32=" << isL32
-		   << endl;
-	    }
+        if (theBigTree.EventNumber == debugEvent)
+        {
+            Long64_t matchFlag1LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(firstDaughterIndex);
+            Long64_t matchFlag2LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(secondDaughterIndex);
+            Long64_t matchFlag1L3 = (Long64_t) theBigTree.daughters_L3FilterFiredLast->at(firstDaughterIndex);
+            Long64_t matchFlag2L3 = (Long64_t) theBigTree.daughters_L3FilterFiredLast->at(secondDaughterIndex);
+            bool isLF1 = trigReader.checkOR (pairType, matchFlag1LF);
+            bool isL31 = trigReader.checkOR (pairType, matchFlag1L3);
+            bool isLF2 = trigReader.checkOR (pairType, matchFlag2LF);
+            bool isL32 = trigReader.checkOR (pairType, matchFlag2L3);
+            cout << "** trg check: trgAccept=" << triggerAccept
+            <<  " passTrg=" << passTrg << " passMatch1=" << passMatch1 << " passMatch2=" << passMatch2
+            <<  " LF1=" << isLF1 << " L31=" << isL31
+            <<  " LF2=" << isLF2 << " L32=" << isL32
+            << endl;
+        }
 
-	  if (!triggerAccept) continue;
-	  ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
-	  if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
-	}
+        if (!triggerAccept) continue;
+        ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
+        if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
+      }
 
       // MC strategy
       else
