@@ -47,8 +47,9 @@ class OfflineProducerHelper {
   };
 
   enum eleMVAIDWP {
-    EMVATight = 0, // 80% eff
-    EMVALoose = 1  // 90% eff
+    EMVATight  = 0, // 80% eff
+    EMVAMedium = 1, // 90% eff
+    EMVALoose  = 2  // Loose WP
   };
 
   enum muIDWP {

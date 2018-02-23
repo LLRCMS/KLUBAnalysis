@@ -140,6 +140,7 @@ public :
    std::vector<float>   *dz;
    std::vector<float>   *SIP;
    std::vector<bool>    *daughters_iseleBDT;
+   std::vector<bool>    *daughters_iseleWPLoose;
    std::vector<bool>    *daughters_iseleWP80;
    std::vector<bool>    *daughters_iseleWP90;
    std::vector<float>   *daughters_eleMVAnt;
@@ -165,6 +166,7 @@ public :
    std::vector<int>     *daughters_decayModeFindingNewDMs;
    std::vector<float>   *daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;
    std::vector<float>   *daughters_byIsolationMVArun2v1DBoldDMwLTraw;
+   std::vector<float>   *daughters_byIsolationMVArun2v1DBoldDMwLTrawNew;
    std::vector<float>   *daughters_byIsolationMVA3oldDMwoLTraw;
    std::vector<float>   *daughters_byIsolationMVA3oldDMwLTraw;
    std::vector<float>   *daughters_byIsolationMVA3newDMwoLTraw;
@@ -368,6 +370,7 @@ public :
    TBranch        *b_dz;   //!
    TBranch        *b_SIP;   //!
    TBranch        *b_daughters_iseleBDT;   //!
+   TBranch        *b_daughters_iseleWPLoose;   //!
    TBranch        *b_daughters_iseleWP80;   //!
    TBranch        *b_daughters_iseleWP90;   //!
    TBranch        *b_daughters_eleMVAnt;   //!
@@ -591,6 +594,7 @@ public :
        dz = 0;
        SIP = 0;
        daughters_iseleBDT = 0;
+       daughters_iseleWPLoose = 0;
        daughters_iseleWP80 = 0;
        daughters_iseleWP90 = 0;
        daughters_eleMVAnt = 0;
@@ -616,6 +620,7 @@ public :
        daughters_decayModeFindingNewDMs = 0;
        daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits = 0;
        daughters_byIsolationMVArun2v1DBoldDMwLTraw = 0;
+       daughters_byIsolationMVArun2v1DBoldDMwLTrawNew = 0;
        daughters_byIsolationMVA3oldDMwoLTraw = 0;
        daughters_byIsolationMVA3oldDMwLTraw = 0;
        daughters_byIsolationMVA3newDMwoLTraw = 0;
@@ -757,6 +762,7 @@ public :
        fChain->SetBranchAddress("dz", &dz, &b_dz);
        fChain->SetBranchAddress("SIP", &SIP, &b_SIP);
        fChain->SetBranchAddress("daughters_iseleBDT", &daughters_iseleBDT, &b_daughters_iseleBDT);
+       fChain->SetBranchAddress("daughters_iseleWPLoose", &daughters_iseleWPLoose, &b_daughters_iseleWPLoose);
        fChain->SetBranchAddress("daughters_iseleWP80", &daughters_iseleWP80, &b_daughters_iseleWP80);
        fChain->SetBranchAddress("daughters_iseleWP90", &daughters_iseleWP90, &b_daughters_iseleWP90);
        fChain->SetBranchAddress("daughters_eleMVAnt", &daughters_eleMVAnt, &b_daughters_eleMVAnt);
@@ -782,7 +788,7 @@ public :
        fChain->SetBranchAddress("daughters_decayModeFindingNewDMs", &daughters_decayModeFindingNewDMs, &b_daughters_decayModeFindingNewDMs);
        fChain->SetBranchAddress("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits, &b_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
        fChain->SetBranchAddress("daughters_byIsolationMVArun2v1DBoldDMwLTraw", &daughters_byIsolationMVArun2v1DBoldDMwLTraw, &b_daughters_byIsolationMVArun2v1DBoldDMwLTraw);
-       fChain->SetBranchAddress("daughters_byIsolationMVArun2v1DBoldDMwLTraw", &daughters_byIsolationMVArun2v1DBoldDMwLTraw, &b_daughters_byIsolationMVArun2v1DBoldDMwLTrawNew);
+       fChain->SetBranchAddress("daughters_byIsolationMVArun2v1DBoldDMwLTrawNew", &daughters_byIsolationMVArun2v1DBoldDMwLTrawNew, &b_daughters_byIsolationMVArun2v1DBoldDMwLTrawNew);
        fChain->SetBranchAddress("daughters_byIsolationMVA3oldDMwoLTraw", &daughters_byIsolationMVA3oldDMwoLTraw, &b_daughters_byIsolationMVA3oldDMwoLTraw);
        fChain->SetBranchAddress("daughters_byIsolationMVA3oldDMwLTraw", &daughters_byIsolationMVA3oldDMwLTraw, &b_daughters_byIsolationMVA3oldDMwLTraw);
        fChain->SetBranchAddress("daughters_byIsolationMVA3newDMwoLTraw", &daughters_byIsolationMVA3newDMwoLTraw, &b_daughters_byIsolationMVA3newDMwoLTraw);

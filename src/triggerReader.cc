@@ -119,11 +119,13 @@ bool triggerReader::checkORTauTau  (Long64_t triggerbit)
 bool triggerReader::checkORMuTau  (Long64_t triggerbit)
 {
     bool OR = false;
+    int j = -999;
     for (unsigned int i = 0; i < _mtTriggers.size(); i++)
     {
         OR = CheckBit (triggerbit, _mtTriggers.at(i));
-        if (OR) break;
+        if (OR) { j=i; break;}
     }
+    //cout << "   Check MT: " << triggerbit << " - result:" << OR << " - Iterator: " << j << " size: " << _mtTriggers.size() << endl;
     return OR;
 }
 
@@ -172,11 +174,13 @@ bool triggerReader::checkORMuMu  (Long64_t triggerbit)
 bool triggerReader::checkORMuTauCross (Long64_t triggerbit)
 {
     bool OR = false;
+    int j = -999;
     for (unsigned int i = 0; i < _mtCrossTriggers.size(); i++)
     {
         OR = CheckBit (triggerbit, _mtCrossTriggers.at(i));
-        if (OR) break;
+        if (OR) { j=i; break;}
     }
+    //cout << "   Check crossMT: " << triggerbit << " - result:" << OR << " - Iterator: " << j << " size: " << _mtCrossTriggers.size() << endl;
     return OR;
 }
 
@@ -200,8 +204,25 @@ bool triggerReader::CheckBit (Long64_t number, int bitpos)
 
 bool triggerReader::checkOR (int pairType, Long64_t triggerbit)
 {
-    if      (pairType == ((int) OfflineProducerHelper::MuHad) ) return ( checkORMuTau(triggerbit)  || checkORMuTauCross(triggerbit) );
-    else if (pairType == ((int) OfflineProducerHelper::EHad)  ) return ( checkOREleTau(triggerbit) || checkOREleTauCross(triggerbit));
+    if      (pairType == ((int) OfflineProducerHelper::MuHad) )
+    {
+        //return ( checkORMuTauCross(triggerbit) || checkORMuTau(triggerbit)  );
+        //cout << " - CheckOR for MuTau channel" << endl;
+        bool singleTr = checkORMuTau(triggerbit);
+        bool crossTr  = checkORMuTauCross(triggerbit);
+        bool result = (singleTr || crossTr);
+        //cout << " - CheckOR for MuTau channel result: " << result << endl;
+        return result;
+    
+    }
+    else if (pairType == ((int) OfflineProducerHelper::EHad)  )
+    {
+        //return ( checkOREleTau(triggerbit) || checkOREleTauCross(triggerbit));
+        bool singleTr = checkORMuTau(triggerbit);
+        bool crossTr  = checkORMuTauCross(triggerbit);
+        bool result = (singleTr || crossTr);
+        return result;
+    }
     else if (pairType == ((int) OfflineProducerHelper::HadHad)) return checkORTauTau(triggerbit);
     else if (pairType == ((int) OfflineProducerHelper::EMu)   ) return checkORMuEle(triggerbit);
     else if (pairType == ((int) OfflineProducerHelper::EE)    ) return checkOREleEle(triggerbit);

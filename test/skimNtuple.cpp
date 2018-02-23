@@ -157,7 +157,8 @@ float getIso (unsigned int iDau, float pt, bigTree & theBigTree)
   // is tauH
   if (type == 2)
     // return theBigTree.daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) ;
-    return theBigTree.daughters_byIsolationMVArun2v1DBoldDMwLTraw->at(iDau) ;
+    //return theBigTree.daughters_byIsolationMVArun2v1DBoldDMwLTraw->at(iDau) ;
+    return theBigTree.daughters_byIsolationMVArun2v1DBoldDMwLTrawNew->at(iDau) ; //FRA: update for 2017 data (94X)
   // muon
   if (type == 1 || type == 0)
     return theBigTree.combreliso->at(iDau);
@@ -555,7 +556,7 @@ int main (int argc, char** argv)
   // cross triggers for muTau and eleTau
   vector<string> crossTrigMuTau  = (isMC ? gConfigParser->readStringListOption ("triggersMC::crossMuTau")  : gConfigParser->readStringListOption ("triggersData::crossMuTau")) ;
   vector<string> crossTrigEleTau = (isMC ? gConfigParser->readStringListOption ("triggersMC::crossEleTau") : gConfigParser->readStringListOption ("triggersData::crossEleTau")) ;
-
+  
   // bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
   bool applyTriggers = isMC ? gConfigParser->readBoolOption ("parameters::applyTriggersMC") : true; // true if ask triggerbit + matching, false if doing reweight
 
@@ -859,8 +860,8 @@ int main (int argc, char** argv)
       theSmallTree.clearVars () ;
       int got = theBigTree.fChain->GetEntry(iEvent);
       if (got == 0) break;
-
-      // if (theBigTree.EventNumber != debugEvent) continue;
+      
+      // if (theBigTree.EventNumber != debugEvent) continue; //FRA
       if (theBigTree.EventNumber == debugEvent)
 	{
 	  cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
@@ -1397,8 +1398,9 @@ int main (int argc, char** argv)
 		   << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
 		   << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
 		   << " mutightID=" << setw(3) << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
-		   << " mubase="    << setw(3) << left << oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All"))  
-		   << " ebase="     << setw(3) << left << oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All")) 
+		   << " mubase="    << setw(3) << left << oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All"))
+		   << " ebase="     << setw(3) << left << oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All"))
+           //<< " taubase="   << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 25., 2.3, OfflineProducerHelper::aeleVLoose, OfflineProducerHelper::amuTight, 3.0, string("All"), 1)
 		// << " passaele="  << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstEle")) 
 		// << " passamu="   << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstMu")) 
 		   << endl;
@@ -1441,12 +1443,48 @@ int main (int argc, char** argv)
       // (mu tauh), (e tauh), (tauhtauh && kLLRFramDefault)
       else
 	{
+      if (theBigTree.EventNumber == debugEvent)
+      {
+          for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
+          {
+              int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;
+              int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
+              int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
+              int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;
+              cout << " **## Pair: " << iPair << " indexes(" <<t_firstDaughterIndex << "," << t_secondDaughterIndex << ") pairType: "<< pairType << " getPairType: "<< oph.getPairType (t_type1, t_type2) << endl;
+          }
+          
+          for (unsigned int iLep = 0 ; (iLep < theBigTree.daughters_px->size ()) ; ++iLep)
+          {
+          
+          	  TLorentzVector tlv_dummyLepton
+                (
+                 theBigTree.daughters_px->at (iLep),
+                 theBigTree.daughters_py->at (iLep),
+                 theBigTree.daughters_pz->at (iLep),
+                 theBigTree.daughters_e->at (iLep)
+                 ) ;
+      
+              cout << " idx="  << iLep
+               << " type=" << theBigTree.particleType->at(iLep)
+               << " pt="   << tlv_dummyLepton.Pt()
+               << " eta="  << tlv_dummyLepton.Eta()
+               << " phi="  << tlv_dummyLepton.Phi()
+               << " iso="  << getIso (iLep, tlv_dummyLepton.Pt (), theBigTree)
+               << " dxy="  << theBigTree.dxy->at(iLep)
+               << " dz="   << theBigTree.dz->at(iLep)
+               << " elePassConvVeto=" << theBigTree.daughters_passConversionVeto->at(iLep)
+               << " eleMissingHits="  << theBigTree.daughters_eleMissingHits->at(iLep)
+               << endl;
+	      }
+          
+      }
 	  for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
 	    {
 	      int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;  
 	      int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
 	      int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
-	      int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;        
+	      int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;
 	      if ( oph.getPairType (t_type1, t_type2) != pairType ) continue ;
 	      // string whatApplyForIsoLep = "Vertex-LepID-pTMin-etaMax-againstEle-againstMu-Iso" ;
 	      // if ( oph.pairPassBaseline (&theBigTree, iPair, string("Vertex-LepID-pTMin-etaMax-againstEle-againstMu") ) )
@@ -1624,9 +1662,16 @@ int main (int argc, char** argv)
       if (applyTriggers)
       {
         Long64_t triggerbit = theBigTree.triggerbit;
+        //cout << "---> start PassTrg" << endl; //FRA
+        //cout << " pair type: " << pairType << endl; //FRA
         bool passTrg = trigReader.checkOR (pairType, triggerbit) ;
+        //cout << "---> end PassTrg" << endl; //FRA
         Long64_t matchFlag1 = (Long64_t) theBigTree.daughters_trgMatched->at(firstDaughterIndex);
         Long64_t matchFlag2 = (Long64_t) theBigTree.daughters_trgMatched->at(secondDaughterIndex);
+        //cout << "---> start matchFlags" << endl; //FRA
+        //cout << " matchFlag1: " << std::bitset<64>(matchFlag1) << endl; //FRA
+        //cout << " matchFlag2: " << std::bitset<64>(matchFlag2) << endl; //FRA
+        //cout << "---> end matchFlags" << endl; //FRA
         bool passMatch1 = false;
         bool passMatch2 = false;
         Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
@@ -1645,6 +1690,7 @@ int main (int argc, char** argv)
             passMatch2 = trigReader.checkOR (pairType, matchFlag2) ;
         }*/
         
+        bool isCrossTrg = false;
         if (pairType == 3 || pairType == 4) // MuMu, EleEle
         {
             // Only single object triggers for these two channels
@@ -1661,14 +1707,20 @@ int main (int argc, char** argv)
         }
         else // pairType 0 or 1 (MuTau or EleTau)
         {
-            bool isCrossTrg = trigReader.isCrossTrigger(pairType, triggerbit); //FRA
+            //cout << "---> start isCrossTrg" << endl;
+            isCrossTrg = trigReader.isCrossTrigger(pairType, triggerbit); //FRA
+            //cout << "---> start isCrossTrg" << endl;
             if (isCrossTrg)
             {
+                //cout << "-----------------------> HERE is CrossTrigger! " << endl;
+                //cout << "@Leg1:" << endl;  //FRA
                 passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
+                //cout << "@Leg1:" << endl;  //FRA
                 passMatch2 = trigReader.checkOR (pairType, matchFlag2) ;
+                //cout << "@Overlap:" << endl;  //FRA
                 trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
-                //cout << " ----> is CrossTrigger! ";
-                //cout << " passTrg=" << passTrg << " passMatch1=" << passMatch1 << " passMatch2=" << passMatch2 << " trgNotOverlap=" << trgNotOverlap << endl;
+                //cout << "-----------------------> END CrossTrigger! " << endl; //FRA
+                
             }
             else // it's a single obj trigger
             {
@@ -1692,7 +1744,7 @@ int main (int argc, char** argv)
             bool isLF2 = trigReader.checkOR (pairType, matchFlag2LF);
             bool isL32 = trigReader.checkOR (pairType, matchFlag2L3);
             cout << "** trg check: trgAccept=" << triggerAccept
-            <<  " passTrg=" << passTrg << " passMatch1=" << passMatch1 << " passMatch2=" << passMatch2
+            <<  " passTrg=" << passTrg << " isCrossTrg=" << isCrossTrg << " passMatch1=" << passMatch1 << " passMatch2=" << passMatch2
             <<  " LF1=" << isLF1 << " L31=" << isL31
             <<  " LF2=" << isLF2 << " L32=" << isL32
             << endl;
@@ -2121,7 +2173,7 @@ int main (int argc, char** argv)
 	    }
 	  else if (theBigTree.particleType->at (iLep) == 1) // electrons
 	    {
-	      if (!oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVALoose)) continue ;
+	      if (!oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium)) continue ;
 	      // if (!oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, 1)) continue ;
 	    }
 	  TLorentzVector tlv_dummyLepton

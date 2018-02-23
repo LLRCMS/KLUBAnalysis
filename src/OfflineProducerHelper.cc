@@ -83,7 +83,7 @@ void OfflineProducerHelper::SetEleMVAIDCuts()
   m_MVAEleIDCuts[1][0][2] = -0.67099  ; // endcap pt 5-10 GeV               
   m_MVAEleIDCuts[1][1][0] =  0.913286 ; // barrel (eta<0.8) pt above 10 GeV 
   m_MVAEleIDCuts[1][1][1] =  0.805013 ; // barrel (eta>0.8) pt above 10 GeV 
-  m_MVAEleIDCuts[1][1][2] =  0.358969 ; // endcap pt above 10 GeV           
+  m_MVAEleIDCuts[1][1][2] =  0.358969 ; // endcap pt above 10 GeV
 }
 
 int OfflineProducerHelper::FindTriggerNumber(TString triggername){
@@ -190,7 +190,8 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     {
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
         leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.15, MuTight, whatApply, debug);
-        leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVLoose, amuTight, tauIso, whatApply, debug);
+        //leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVLoose, amuTight, tauIso, whatApply, debug);
+        leg2 = tauBaseline (tree, dau2index, 25., 2.3, aeleVLoose, amuTight, tauIso, whatApply, debug); //FRA: for syncFeb2018
     }
 
     if (pairType == EHad)
@@ -198,28 +199,30 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
         leg1 = eleBaseline (tree, dau1index, 27., 2.1, 0.1, EMVATight, whatApply, debug);
         //leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleTight, amuLoose, tauIso, whatApply, debug);
-        leg2 = tauBaseline (tree, dau2index, 30., 2.3, aeleTight, amuLoose, tauIso, whatApply, debug); //FRA: for syncFeb2018
+        leg2 = tauBaseline (tree, dau2index, 35., 2.3, aeleTight, amuLoose, tauIso, whatApply, debug); //FRA: for syncFeb2018
     }
 
     // ordered by pT and not by most isolated, but baseline asked in sync is the same...
     if (pairType == HadHad)
     {
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 2.0 ;
-        leg1 = tauBaseline (tree, dau1index, 40., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
-        leg2 = tauBaseline (tree, dau2index, 40., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
+        //leg1 = tauBaseline (tree, dau1index, 40., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
+        //leg2 = tauBaseline (tree, dau2index, 40., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
+        leg1 = tauBaseline (tree, dau1index, 45., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);//FRA: for syncFeb2018
+        leg2 = tauBaseline (tree, dau2index, 45., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);//FRA: for syncFeb2018
     }
 
     if (pairType == EMu)
     {
-        leg1 = eleBaseline (tree, dau1index, 13., 0.15, EMVALoose, whatApply, debug);
+        leg1 = eleBaseline (tree, dau1index, 13., 0.15, EMVAMedium, whatApply, debug);
         leg2 = muBaseline (tree, dau2index, 9., 2.4, 0.15, MuTight, whatApply, debug);
     }
     
     // e e, mu mu are still preliminary (not from baseline)
     if (pairType == EE)
     {
-      leg1 = eleBaseline (tree, dau1index, 25., 0.15, EMVALoose, whatApply, debug);
-      leg2 = eleBaseline (tree, dau2index, 25., 0.15, EMVALoose, whatApply, debug);
+      leg1 = eleBaseline (tree, dau1index, 25., 0.15, EMVAMedium, whatApply, debug);
+      leg2 = eleBaseline (tree, dau2index, 25., 0.15, EMVAMedium, whatApply, debug);
     }
     
     if (pairType == MuMu)
@@ -289,9 +292,23 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
     bool etaS = (fabs(p4.Eta()) < 2.5) || byp_etaS;
     //bool idS = checkBit (tree->daughters_iseleCUT->at(iDau), 3) || byp_idS; // 3 is TIGHT ele id CUT BASED
-    bool idS = EleMVAID (tree->discriminator->at (iDau), tree->daughters_SCeta->at (iDau), p4.Pt (), MVAIDflag) || byp_idS ; // 2015/07/09 PG
+    //bool idS = EleMVAID (tree->discriminator->at (iDau), tree->daughters_SCeta->at (iDau), p4.Pt (), MVAIDflag) || byp_idS ; // 2015/07/09 PG
     //bool idS = tree->daughters_iseleBDT->at(iDau) || byp_idS; // use it in ntuples produced after 11 June 2015, contains tight WP bool  
-    //bool idS = tightEleMVAID (tree->discriminator->at(iDau), TMath::Abs(p4.Eta())) || byp_idS; // APPROX! Using lepton eta and not super cluster eta, discriminator contains ele BDT  
+    //bool idS = tightEleMVAID (tree->discriminator->at(iDau), TMath::Abs(p4.Eta())) || byp_idS; // APPROX! Using lepton eta and not super cluster eta, discriminator contains ele BDT
+    bool idS = false; // 2018/02/22
+    if (MVAIDflag == 0) // Tight = 80%
+    {
+      idS = tree->daughters_iseleWP80->at(iDau) || byp_idS ;
+    }
+    else if (MVAIDflag == 1) // Medium = 90 %
+    {
+      idS = tree->daughters_iseleWP90->at(iDau) || byp_idS ;
+    }
+    else // Loose WP
+    {
+      idS = tree->daughters_iseleWPLoose->at(iDau) || byp_idS ;
+    }
+    
     bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
     if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
     
@@ -348,9 +365,23 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
     bool etaS = (fabs(p4.Eta()) < etaMax) || byp_etaS;
     //bool idS = checkBit (tree->daughters_iseleCUT->at(iDau), 3) || byp_idS; // 3 is TIGHT ele id CUT BASED
-    bool idS = EleMVAID (tree->discriminator->at (iDau), tree->daughters_SCeta->at (iDau), p4.Pt (), MVAIDflag) || byp_idS ; // 2015/07/09 PG
+    //bool idS = EleMVAID (tree->discriminator->at (iDau), tree->daughters_SCeta->at (iDau), p4.Pt (), MVAIDflag) || byp_idS ; // 2015/07/09 PG
     //bool idS = tree->daughters_iseleBDT->at(iDau) || byp_idS; // use it in ntuples produced after 11 June 2015, contains tight WP bool  
-    //bool idS = tightEleMVAID (tree->discriminator->at(iDau), TMath::Abs(p4.Eta())) || byp_idS; // APPROX! Using lepton eta and not super cluster eta, discriminator contains ele BDT  
+    //bool idS = tightEleMVAID (tree->discriminator->at(iDau), TMath::Abs(p4.Eta())) || byp_idS; // APPROX! Using lepton eta and not super cluster eta, discriminator contains ele BDT
+    bool idS = false; // 2018/02/22
+    if (MVAIDflag == 0) // Tight = 80%
+    {
+      idS = tree->daughters_iseleWP80->at(iDau) || byp_idS ;
+    }
+    else if (MVAIDflag == 1) // Medium = 90 %
+    {
+      idS = tree->daughters_iseleWP90->at(iDau) || byp_idS ;
+    }
+    else // Loose WP
+    {
+      idS = tree->daughters_iseleWPLoose->at(iDau) || byp_idS ;
+    }
+    
     bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
     if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
     
@@ -504,7 +535,8 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
     bool vertexS = (fabs(tree->dz->at(iDau)) < 0.2) || byp_vertexS;
     bool agEleS = (agEleVal == 1) || byp_agEleS; 
     bool agMuS  = (agMuVal == 1) || byp_agMuS; 
-    bool isoS = (tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) < isoRaw3Hits) || byp_isoS;
+    //bool isoS = (tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) < isoRaw3Hits) || byp_isoS;
+    bool isoS = (tree->daughters_byIsolationMVArun2v1DBoldDMwLTrawNew->at(iDau) < isoRaw3Hits) || byp_isoS;
     if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
 
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
@@ -831,8 +863,10 @@ int OfflineProducerHelper::getBestPairPtAndRawIsoOrd (bigTree* tree, TString wha
     float e2 =  tree->daughters_e->at(t_secondDaughterIndex);
     TLorentzVector p4_2 (px2, py2, pz2, e2);
 
-    float iso1 = tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(t_firstDaughterIndex);
-    float iso2 = tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(t_secondDaughterIndex);
+    //float iso1 = tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(t_firstDaughterIndex);
+    //float iso2 = tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(t_secondDaughterIndex);
+    float iso1 = tree->daughters_byIsolationMVArun2v1DBoldDMwLTrawNew->at(t_firstDaughterIndex);
+    float iso2 = tree->daughters_byIsolationMVArun2v1DBoldDMwLTrawNew->at(t_secondDaughterIndex);
 
     // first one is highest pt
     tauPair_t pp;

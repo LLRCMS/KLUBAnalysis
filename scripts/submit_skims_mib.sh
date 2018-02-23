@@ -1,5 +1,5 @@
 #OUTDIRR="Skims_Fall17_MC"
-OUTDIRR="Skims_syncFeb2018_v2"
+OUTDIRR="Skims_syncFeb2018_v3"
 
 #INPUTDIR="inputFiles/JECproduction_Lug2017"
 #INPUTDIR="inputFiles/Fall17_MC/"
@@ -17,7 +17,7 @@ mkdir $OUTDIRR
 
 
 
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync.cfg -n 1  -o $SKIMDIR/SKIM_Graviton450_v2  -i $INPUTDIR/Graviton450.txt -x 1
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync.cfg -n 1  -o $SKIMDIR/SKIM_Graviton450_v3  -i $INPUTDIR/Graviton450_bis.txt -x 1
 #python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync.cfg -n 1  -o $SKIMDIR/SKIM_TauData  -i $INPUTDIR/TauData.txt -x 1 -d True
 
 ###################
