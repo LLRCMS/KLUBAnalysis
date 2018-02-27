@@ -309,19 +309,25 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
       idS = tree->daughters_iseleWPLoose->at(iDau) || byp_idS ;
     }
     
-    bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
-    if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
-    
-    bool totalS = (vertexS && idS && isoS && ptS && etaS);
+    //bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;  //FRA: Sync Feb2018
+    //if (whatApply.Contains ("InvertIzo")) isoS = !isoS ; //FRA: Sync Feb2018
+
+    bool convVetoS = tree->daughters_passConversionVeto->at(iDau); //FRA: Sync Feb2018
+    bool eMissHitsS = tree->daughters_eleMissingHits->at(iDau) <= 1; //FRA: Sync Feb2018
+
+    //bool totalS = (vertexS && idS && isoS && ptS && etaS);
+    bool totalS = (vertexS && idS && ptS && etaS && convVetoS && eMissHitsS); //FRA: Sync Feb2018
 
     if (debug)
     {
       cout << "@ ele baseline" << endl;
       cout << " idS     "  << idS     << " skypped? " << byp_idS << endl;
       cout << " vertexS "  << vertexS << " skypped? " << byp_vertexS << endl;
-      cout << " isoS    "  << isoS    << " skypped? " << byp_isoS << endl;
+      //cout << " isoS    "  << isoS    << " skypped? " << byp_isoS << endl; //FRA: Sync Feb2018
       cout << " ptS     "  << ptS     << " skypped? " << byp_ptS << endl;
       cout << " etaS    "  << etaS    << " skypped? " << byp_etaS << endl;
+      cout << " convVetoS  "  << convVetoS << endl; //FRA: Sync Feb2018
+      cout << " eMissHitsS " << eMissHitsS << endl; //FRA: Sync Feb2018
     }
 
     return totalS;
@@ -382,10 +388,14 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
       idS = tree->daughters_iseleWPLoose->at(iDau) || byp_idS ;
     }
     
-    bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
-    if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
+    //bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS; //FRA: Sync Feb2018
+    //if (whatApply.Contains ("InvertIzo")) isoS = !isoS ; //FRA: Sync Feb2018
     
-    bool totalS = (vertexS && idS && isoS && ptS && etaS);
+    bool convVetoS = tree->daughters_passConversionVeto->at(iDau); //FRA: Sync Feb2018
+    bool eMissHitsS = tree->daughters_eleMissingHits->at(iDau) <= 1; //FRA: Sync Feb2018
+    
+    //bool totalS = (vertexS && idS && isoS && ptS && etaS);
+    bool totalS = (vertexS && idS && ptS && etaS && convVetoS && eMissHitsS); //FRA: Sync Feb2018
 
     if (debug)
     {
@@ -394,9 +404,11 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
       // cout << " debug: stored RAW  : " << tree->discriminator->at (iDau) << " pt: " << p4.Pt() << " eta: " << p4.Eta() << endl;
       cout << " idS     "  << idS     << " skypped? " << byp_idS << endl;
       cout << " vertexS "  << vertexS << " skypped? " << byp_vertexS << endl;
-      cout << " isoS    "  << isoS    << " skypped? " << byp_isoS << endl;
+      //cout << " isoS    "  << isoS    << " skypped? " << byp_isoS << endl;  //FRA: Sync Feb2018
       cout << " ptS     "  << ptS     << " skypped? " << byp_ptS << endl;
       cout << " etaS    "  << etaS    << " skypped? " << byp_etaS << endl;
+      cout << " convVetoS  "  << convVetoS << endl; //FRA: Sync Feb2018
+      cout << " eMissHitsS " << eMissHitsS << endl; //FRA: Sync Feb2018
     }
 
     return totalS;
@@ -797,7 +809,7 @@ int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply,
       bool leg2 = tauBaseline (tree, dau2index, 40., 2.1, aeleVLoose, amuLoose, 99999., whatApply);
       cout << "  > " << ipair << " idx1=" << dau1index << " idx2=" << dau2index << " ipair=" << ipair_orig
            << " | iso1=" << get<1> (pp) << " pt1=" << get<0> (pp) << " iso2=" << get<4> (pp) << " pt2=" << get<3> (pp)
-           << " base1=" << leg1 << " base2=" << leg2 << endl;
+           << " base1=" << leg1 << " base2=" << leg2 << " dR="<< DeltaRDau(tree, dau1index, dau2index) <<endl;
     }    
   }
 

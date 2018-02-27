@@ -554,8 +554,8 @@ int main (int argc, char** argv)
   vector<string> trigEleEle  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleEle")  : gConfigParser->readStringListOption ("triggersData::EleEle")) ;
   vector<string> trigMuMu    =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuMu")  : gConfigParser->readStringListOption ("triggersData::MuMu")) ;
   // cross triggers for muTau and eleTau
-  vector<string> crossTrigMuTau  = (isMC ? gConfigParser->readStringListOption ("triggersMC::crossMuTau")  : gConfigParser->readStringListOption ("triggersData::crossMuTau")) ;
   vector<string> crossTrigEleTau = (isMC ? gConfigParser->readStringListOption ("triggersMC::crossEleTau") : gConfigParser->readStringListOption ("triggersData::crossEleTau")) ;
+  vector<string> crossTrigMuTau = (isMC ? gConfigParser->readStringListOption ("triggersMC::crossMuTau")  : gConfigParser->readStringListOption ("triggersData::crossMuTau")) ;
   
   // bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
   bool applyTriggers = isMC ? gConfigParser->readBoolOption ("parameters::applyTriggersMC") : true; // true if ask triggerbit + matching, false if doing reweight
@@ -861,7 +861,7 @@ int main (int argc, char** argv)
       int got = theBigTree.fChain->GetEntry(iEvent);
       if (got == 0) break;
       
-      // if (theBigTree.EventNumber != debugEvent) continue; //FRA
+      //if (theBigTree.EventNumber != debugEvent) continue; //FRA
       if (theBigTree.EventNumber == debugEvent)
 	{
 	  cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
@@ -1317,24 +1317,32 @@ int main (int argc, char** argv)
 
       ++totalNoWeightsEventsNum ;
     
+    
       // ----------------------------------------------------------
       //  apply MET filters -- FIXME: not applied now
-    
+
       int metbit = theBigTree.metfilterbit;
       int metpass = metbit & (1 << 0);
       metpass += metbit & (1 << 2);
       metpass += metbit & (1 << 5);
       metpass += metbit & (1 << 6);
+      // Update Fall17 94X
+      metpass += metbit & (1 << 1);
+      metpass += metbit & (1 << 3);
+      metpass += metbit & (1 << 4);
+      // metpass += metbit & (1 << 7); // "Flag_eeBadScFilter" not suggested on twiki
+      metpass += metbit & (1 << 8);
+      //if(metpass <= 0) cout << " - failed metbit(9): " << std::bitset<9>(metbit) << endl; //FRA
+      
       // if(metpass > 0) continue ; // FIXME!!! disabled only temporarily
       ec.Increment ("METfilter", EvtW);
       if (isHHsignal) ecHHsig[genHHDecMode].Increment ("METfilter", EvtW);
 
       // ----------------------------------------------------------
       // require that the event is not affected by the Bad/Clone Muon problem -- for 2016 data
-      if (theBigTree.NBadMu > 0) continue ;
+      //if (theBigTree.NBadMu > 0) continue ; //FRA: Sync Feb2018
       ec.Increment ("NoBadMuons", EvtW);
       if (isHHsignal) ecHHsig[genHHDecMode].Increment ("NoBadMuons", EvtW);
-
 
       // ----------------------------------------------------------
       // require at least 1 pair
@@ -1675,10 +1683,12 @@ int main (int argc, char** argv)
         bool passMatch1 = false;
         bool passMatch2 = false;
         Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
-        bool trgNotOverlap = false;
-        //bool trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
+
+        //LUCA
+        /*bool isCrossTrg = true;
+        bool trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
         // FIXME!! true only if single lep trigger for eTau and muTau
-        /*if (pairType == 0 || pairType == 1 || pairType == 3 || pairType == 4)
+        if (pairType == 0 || pairType == 1 || pairType == 3 || pairType == 4)
         {
             passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
             passMatch2 = true;
@@ -1689,7 +1699,10 @@ int main (int argc, char** argv)
             passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
             passMatch2 = trigReader.checkOR (pairType, matchFlag2) ;
         }*/
+        //LUCA fino qui
         
+        
+        bool trgNotOverlap = false;
         bool isCrossTrg = false;
         if (pairType == 3 || pairType == 4) // MuMu, EleEle
         {
@@ -1707,20 +1720,24 @@ int main (int argc, char** argv)
         }
         else // pairType 0 or 1 (MuTau or EleTau)
         {
-            //cout << "---> start isCrossTrg" << endl;
+            //cout << "---> start isCrossTrg" << endl; //FRA
             isCrossTrg = trigReader.isCrossTrigger(pairType, triggerbit); //FRA
-            //cout << "---> start isCrossTrg" << endl;
+            //cout << "---> end isCrossTrg" << endl;
             if (isCrossTrg)
             {
-                //cout << "-----------------------> HERE is CrossTrigger! " << endl;
+                //cout << "-----------------------> HERE is CrossTrigger! " << endl; //FRA
                 //cout << "@Leg1:" << endl;  //FRA
                 passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
-                //cout << "@Leg1:" << endl;  //FRA
+                //cout << "@Leg2:" << endl;  //FRA
                 passMatch2 = trigReader.checkOR (pairType, matchFlag2) ;
                 //cout << "@Overlap:" << endl;  //FRA
                 trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
-                //cout << "-----------------------> END CrossTrigger! " << endl; //FRA
                 
+                if (passMatch1 && !passMatch2) // Cross trig fired but second leg not matched
+                {
+                    passMatch2 = true;
+                }
+                //cout << "-----------------------> END CrossTrigger! " << endl; //FRA
             }
             else // it's a single obj trigger
             {
@@ -1745,6 +1762,7 @@ int main (int argc, char** argv)
             bool isL32 = trigReader.checkOR (pairType, matchFlag2L3);
             cout << "** trg check: trgAccept=" << triggerAccept
             <<  " passTrg=" << passTrg << " isCrossTrg=" << isCrossTrg << " passMatch1=" << passMatch1 << " passMatch2=" << passMatch2
+            <<  " noOverlap=" << trgNotOverlap
             <<  " LF1=" << isLF1 << " L31=" << isL31
             <<  " LF2=" << isLF2 << " L32=" << isL32
             << endl;
@@ -2169,12 +2187,12 @@ int main (int argc, char** argv)
 	    }  
 	  else if (theBigTree.particleType->at (iLep) == 0) // muons
 	    {
-	      if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuLoose)) continue ;
+	      //if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuLoose)) continue ;
+	      if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuMedium)) continue ; //FRA: syncFeb2018
 	    }
 	  else if (theBigTree.particleType->at (iLep) == 1) // electrons
 	    {
-	      if (!oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium)) continue ;
-	      // if (!oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, 1)) continue ;
+	      if (!oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium)) continue ;  //FRA: syncFeb2018
 	    }
 	  TLorentzVector tlv_dummyLepton
 	    (
