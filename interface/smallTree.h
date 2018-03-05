@@ -255,9 +255,9 @@ struct smallTree
       m_btau_deltaRmax = -1. ;
       m_dau1MET_deltaphi = -1. ;
       m_dau2MET_deltaphi = -1. ;
-      m_HT20     = 0;
-      m_HT50     = 0;
-      m_HT20Full = 0;
+      m_HT20     = -1;
+      m_HT50     = -1;
+      m_HT20Full = -1;
       m_jet20centrality = 0;
 
       m_HHkinsvfit_bHmass =-1;

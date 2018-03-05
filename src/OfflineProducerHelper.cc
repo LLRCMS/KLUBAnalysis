@@ -312,11 +312,13 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
     //bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;  //FRA: Sync Feb2018
     //if (whatApply.Contains ("InvertIzo")) isoS = !isoS ; //FRA: Sync Feb2018
 
-    bool convVetoS = tree->daughters_passConversionVeto->at(iDau); //FRA: Sync Feb2018
-    bool eMissHitsS = tree->daughters_eleMissingHits->at(iDau) <= 1; //FRA: Sync Feb2018
+    //CHIA: Synch Feb2018
+    //bool convVetoS = tree->daughters_passConversionVeto->at(iDau); //FRA: Sync Feb2018
+    //bool eMissHitsS = tree->daughters_eleMissingHits->at(iDau) <= 1; //FRA: Sync Feb2018
 
     //bool totalS = (vertexS && idS && isoS && ptS && etaS);
-    bool totalS = (vertexS && idS && ptS && etaS && convVetoS && eMissHitsS); //FRA: Sync Feb2018
+    // bool totalS = (vertexS && idS && ptS && etaS && convVetoS && eMissHitsS); //FRA: Sync Feb2018
+     bool totalS = (vertexS && idS && ptS && etaS); //CHIA: Sync Feb2018
 
     if (debug)
     {
@@ -326,8 +328,8 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
       //cout << " isoS    "  << isoS    << " skypped? " << byp_isoS << endl; //FRA: Sync Feb2018
       cout << " ptS     "  << ptS     << " skypped? " << byp_ptS << endl;
       cout << " etaS    "  << etaS    << " skypped? " << byp_etaS << endl;
-      cout << " convVetoS  "  << convVetoS << endl; //FRA: Sync Feb2018
-      cout << " eMissHitsS " << eMissHitsS << endl; //FRA: Sync Feb2018
+      //cout << " convVetoS  "  << convVetoS << endl; //FRA: Sync Feb2018
+      //cout << " eMissHitsS " << eMissHitsS << endl; //FRA: Sync Feb2018
     }
 
     return totalS;
@@ -390,13 +392,13 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
     
     //bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS; //FRA: Sync Feb2018
     //if (whatApply.Contains ("InvertIzo")) isoS = !isoS ; //FRA: Sync Feb2018
-    
-    bool convVetoS = tree->daughters_passConversionVeto->at(iDau); //FRA: Sync Feb2018
-    bool eMissHitsS = tree->daughters_eleMissingHits->at(iDau) <= 1; //FRA: Sync Feb2018
+    //CHIA: Synch Feb2018    
+    //    bool convVetoS = tree->daughters_passConversionVeto->at(iDau); //FRA: Sync Feb2018
+    //    bool eMissHitsS = tree->daughters_eleMissingHits->at(iDau) <= 1; //FRA: Sync Feb2018
     
     //bool totalS = (vertexS && idS && isoS && ptS && etaS);
-    bool totalS = (vertexS && idS && ptS && etaS && convVetoS && eMissHitsS); //FRA: Sync Feb2018
-
+    // bool totalS = (vertexS && idS && ptS && etaS && convVetoS && eMissHitsS); //FRA: Sync Feb2018
+    bool totalS = (vertexS && idS && ptS && etaS); //CHIA: Synch Feb2018    
     if (debug)
     {
       cout << "@ ele baseline" << endl;
@@ -407,8 +409,8 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
       //cout << " isoS    "  << isoS    << " skypped? " << byp_isoS << endl;  //FRA: Sync Feb2018
       cout << " ptS     "  << ptS     << " skypped? " << byp_ptS << endl;
       cout << " etaS    "  << etaS    << " skypped? " << byp_etaS << endl;
-      cout << " convVetoS  "  << convVetoS << endl; //FRA: Sync Feb2018
-      cout << " eMissHitsS " << eMissHitsS << endl; //FRA: Sync Feb2018
+      //      cout << " convVetoS  "  << convVetoS << endl; //FRA: Sync Feb2018
+      //cout << " eMissHitsS " << eMissHitsS << endl; //FRA: Sync Feb2018
     }
 
     return totalS;
