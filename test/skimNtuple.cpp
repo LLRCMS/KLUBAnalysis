@@ -2882,7 +2882,7 @@ int main (int argc, char** argv)
 	  for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size (); ++iJet)
 	    {
 	      if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
-	      if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
+	      if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
 	      TLorentzVector tlv_dummyJet (
 					   theBigTree.jets_px->at (iJet),
@@ -2934,7 +2934,8 @@ int main (int argc, char** argv)
 			      );
 	      if (ijet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
 	      if (ijet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
-	      if(ijet.Pt() < 30) continue;		  
+	      if(ijet.Pt() < 30) continue;
+	      if(fabs(ijet.Eta()) > 5.) continue; // keeping the whole HF coverage for the time being
 	      for (unsigned int kJet = iJet+1 ;   (kJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++kJet)
           {
             if (int (kJet) == bjet1idx || int (kJet) == bjet2idx) continue;
@@ -2949,6 +2950,7 @@ int main (int argc, char** argv)
             if (kjet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
             if (kjet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
             if(kjet.Pt() < 30) continue;		  
+	    if(fabs(kjet.Eta()) > 5.) continue; // keeping the whole HF coverage for the time being
             TLorentzVector jetPair = ijet+kjet;
             
             VBFcand_Mjj.push_back(make_tuple(jetPair.M(),iJet,kJet));
@@ -3076,7 +3078,7 @@ int main (int argc, char** argv)
 	      theSmallTree.m_VBFjet2_phi= VBFjet2.Phi();
 	      theSmallTree.m_VBFjet2_e= VBFjet2.E();
 	      theSmallTree.m_VBFjet2_btag=  (theBigTree.bCSVscore->at (VBFidx2)) ;
-          theSmallTree.m_VBFjet2_btag_deepCSV = (theBigTree.bDeepCSV_probb->at(VBFidx2) + theBigTree.bDeepCSV_probbb->at(VBFidx2)) ;
+	      theSmallTree.m_VBFjet2_btag_deepCSV = (theBigTree.bDeepCSV_probb->at(VBFidx2) + theBigTree.bDeepCSV_probbb->at(VBFidx2)) ;
 	      theSmallTree.m_VBFjet2_flav=  (theBigTree.jets_HadronFlavour->at (VBFidx2)) ;
 	      theSmallTree.m_VBFjet2_hasgenjet= hasgj2_VBF ;
 

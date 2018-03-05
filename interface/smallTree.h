@@ -43,7 +43,7 @@ struct smallTree
       m_lheNOutB = -1;
       m_RunNumber = -1. ;
       m_isBoosted = -1 ;
-      m_isVBF = -1 ;
+      m_isVBF = 0 ;
       
       m_genDecMode1 = -1;
       m_genDecMode2 = -1;
