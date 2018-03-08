@@ -1,5 +1,6 @@
-OUTDIRR="Skims2017_10Gen2018"
-AMESSAGE="skims with VBF variables"
+#OUTDIRR="Skims2017_10Gen2018"
+AMESSAGE="skims for 2018 synch"
+OUTDIRR="Synch2018" 
 
 source /opt/exp_soft/cms/t3/t3setup
 mkdir /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/
@@ -15,6 +16,11 @@ cp /home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/scripts/listAll.sh /data_
 # touch /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/README.txt
 # echo $AMESSAGE > /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/README.txt
 # cp /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/scripts/haddAll.sh /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/
+
+
+
+#SYNCH
+python scripts/skimNtuple.py -T Synch2018 -s True -c  config/skim_2017_sync.cfg  -n 1  -k False -o /data_CMS/cms/amendola/HH2017Skims/Synch2018/SKIM_Grav450        -i inputFiles/Synch2018/Grav450.list
 
 
 #####################
@@ -35,8 +41,8 @@ cp /home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/scripts/listAll.sh /data_
 # # #####################
 # # ### single top t-channel
 # # cross section from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec#Single_top_t_channel
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_t-channel_antitop_5f_inclusiveDecays -i inputFiles/Files_17Nov_VBF/1_ST_t-channel_antitop_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 83.0066
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_t-channel_top_5f_inclusiveDecays -i inputFiles/Files_17Nov_VBF/2_ST_t-channel_top_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 137.4581
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_t-channel_antitop_5f_inclusiveDecays -i inputFiles/Files_17Nov_VBF/1_ST_t-channel_antitop_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 83.0066
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2016.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_t-channel_top_5f_inclusiveDecays -i inputFiles/Files_17Nov_VBF/2_ST_t-channel_top_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt -x 137.4581
 
 
 
