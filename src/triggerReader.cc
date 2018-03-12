@@ -119,14 +119,11 @@ bool triggerReader::checkORTauTau  (Long64_t triggerbit)
 bool triggerReader::checkORMuTau  (Long64_t triggerbit)
 {
     bool OR = false;
-    int j = -999;
     for (unsigned int i = 0; i < _mtTriggers.size(); i++)
     {
-        //cout << " --- looking for HLT:" << _mtTriggers.at(i) << " - i: " << i << endl; //FRA
         OR = CheckBit (triggerbit, _mtTriggers.at(i));
-        if (OR) { j=i; break;}
+        if (OR) break;
     }
-    //cout << "   Check MT: " << triggerbit << " - result:" << OR << " - Iterator: " << j << " size: " << _mtTriggers.size() << endl; //FRA
     return OR;
 }
 
@@ -175,14 +172,40 @@ bool triggerReader::checkORMuMu  (Long64_t triggerbit)
 bool triggerReader::checkORMuTauCross (Long64_t triggerbit)
 {
     bool OR = false;
-    int j = -999;
     for (unsigned int i = 0; i < _mtCrossTriggers.size(); i++)
     {
-        //cout << " --- looking for HLT:" << _mtCrossTriggers.at(i) << " - i: " << i << endl; //FRA
         OR = CheckBit (triggerbit, _mtCrossTriggers.at(i));
-        if (OR) { j=i; break;}
+        if (OR) break;
     }
-    //cout << "   Check crossMT: " << triggerbit << " - result:" << OR << " - Iterator: " << j << " size: " << _mtCrossTriggers.size() << endl; //FRA
+    return OR;
+}
+
+bool triggerReader::checkORMuTauWithCross  (Long64_t triggerbit_1, Long64_t triggerbit_2)
+{
+    bool OR      = false;
+    bool OR_leg1 = false;
+    bool OR_leg2 = false;
+    
+    // First test the cross triggers
+    for (unsigned int i = 0; i < _mtCrossTriggers.size(); i++)
+    {
+        OR_leg1 = CheckBit (triggerbit_1, _mtCrossTriggers.at(i));
+        OR_leg2 = CheckBit (triggerbit_2, _mtCrossTriggers.at(i));
+        OR = OR_leg1 && OR_leg2;
+        if (OR) break;
+    }
+    
+    // if it doesn't pass the cross triggers, test the single triggers
+    if (!OR)
+    {
+        for (unsigned int i = 0; i < _mtTriggers.size(); i++)
+        {
+            OR_leg1 = CheckBit (triggerbit_1, _mtTriggers.at(i));
+            OR_leg2 = true;
+            OR = OR_leg1 && OR_leg2;
+            if (OR) break;
+        }
+    }
     return OR;
 }
 
@@ -197,6 +220,36 @@ bool triggerReader::checkOREleTauCross (Long64_t triggerbit)
     return OR;
 }
 
+bool triggerReader::checkOREleTauWithCross  (Long64_t triggerbit_1, Long64_t triggerbit_2)
+{
+    bool OR      = false;
+    bool OR_leg1 = false;
+    bool OR_leg2 = false;
+    
+    // First test the cross triggers
+    for (unsigned int i = 0; i < _etCrossTriggers.size(); i++)
+    {
+        OR_leg1 = CheckBit (triggerbit_1, _etCrossTriggers.at(i));
+        OR_leg2 = CheckBit (triggerbit_2, _etCrossTriggers.at(i));
+        OR = OR_leg1 && OR_leg2;
+        if (OR) break;
+    }
+    
+    // if it doesn't pass the cross triggers, test the single triggers
+    if (!OR)
+    {
+        for (unsigned int i = 0; i < _etTriggers.size(); i++)
+        {
+            OR_leg1 = CheckBit (triggerbit_1, _etTriggers.at(i));
+            OR_leg2 = true;
+            OR = OR_leg1 && OR_leg2;
+            if (OR) break;
+        }
+    }
+    return OR;
+}
+
+
 bool triggerReader::CheckBit (Long64_t number, int bitpos)
 {
     Long64_t bitdigit = 1;
@@ -208,14 +261,12 @@ bool triggerReader::checkOR (int pairType, Long64_t triggerbit)
 {
     if      (pairType == ((int) OfflineProducerHelper::MuHad) )
     {
-        //cout << " - CheckOR for MuTau channel" << endl;
         bool singleTr = checkORMuTau(triggerbit);
         bool crossTr  = checkORMuTauCross(triggerbit);
         bool result = (singleTr || crossTr);
-        //cout << " - CheckOR for MuTau channel result: " << result << endl;
         return result;
-    
     }
+    
     else if (pairType == ((int) OfflineProducerHelper::EHad)  )
     {
         bool singleTr = checkOREleTau(triggerbit);
@@ -238,6 +289,20 @@ bool triggerReader::checkOR (int pairType, Long64_t triggerbit)
         return false;
     }
 }
+
+
+bool triggerReader::checkORWithCross (int pairType, Long64_t triggerbit_1, Long64_t triggerbit_2)
+{
+    if      (pairType == ((int) OfflineProducerHelper::MuHad) ) return checkORMuTauWithCross(triggerbit_1, triggerbit_2);
+    else if (pairType == ((int) OfflineProducerHelper::EHad)  ) return checkOREleTauWithCross(triggerbit_1, triggerbit_2);
+    else
+    {
+        cout << " ** WARNING!! Pair type " << pairType << " not implemented for trigger" << endl;
+        return false;
+    }
+}
+
+
 
 bool triggerReader::isCrossTrigger (int pairType, Long64_t triggerbit)
 {
