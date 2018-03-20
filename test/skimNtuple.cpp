@@ -2955,6 +2955,8 @@ int main (int argc, char** argv)
 	      for (unsigned int iJet = 0 ;   (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++iJet)
 		{
 		  if (int (iJet) == bjet1idx || int (iJet) == bjet2idx) continue; // remove the already selected bjets
+		  if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
+		  if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
 		  TLorentzVector ijet;
 		  ijet.SetPxPyPzE(
 				  theBigTree.jets_px->at (iJet),
@@ -2969,7 +2971,8 @@ int main (int argc, char** argv)
 		  for (unsigned int kJet = iJet+1 ;   (kJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++kJet)
 		    {
 		      if (int (kJet) == bjet1idx || int (kJet) == bjet2idx) continue;
-	    
+		      if (theBigTree.jets_PUJetID->at (kJet) < PUjetID_minCut) continue ;
+		      if (theBigTree.PFjetID->at (kJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
 		      TLorentzVector kjet;
 		      kjet.SetPxPyPzE(
 				      theBigTree.jets_px->at (kJet),
