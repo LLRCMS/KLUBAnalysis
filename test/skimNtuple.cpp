@@ -199,10 +199,10 @@ int getTauIDIdx (TH1F* h_tauID, string tauIDName)
     {
       string binlabel = h_tauID->GetXaxis()->GetBinLabel(i);
       if (tauIDName == binlabel)
-	{
-	  ibin = i;
-	  break;
-	}
+      {
+        ibin = i;
+        break;
+      }
     }
   return ibin-1;
 }
@@ -636,7 +636,7 @@ int main (int argc, char** argv)
   int selectedNoWeightsEventsNum = 0 ;
 
   // ------------------------------
-
+  
   TH1F* hTriggers = getFirstFileHisto (inputFile);
   TH1F* hTauIDS = getFirstFileHisto (inputFile,false);
   /*triggerReader trigReader (hTriggers);
@@ -663,7 +663,6 @@ int main (int argc, char** argv)
   trigReader.addTauTauCrossTrigs (crossTrigTauTau);
   trigReader.addMuTauCrossTrigs  (crossTrigMuTau);
   trigReader.addEleTauCrossTrigs (crossTrigEleTau);
-
 
   // ------------------------------
 
@@ -813,6 +812,22 @@ int main (int argc, char** argv)
 	cout << tauMVAIDIdx.at(i) << " " ;
       cout << endl;
     }
+    
+  // new MVA tau ID // FRA syncFeb2018
+  vector<int> tauMVAIDIdxNew;
+  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byVLooseIsolationMVArun2v1DBoldDMwLTNew"));
+  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byLooseIsolationMVArun2v1DBoldDMwLTNew"));
+  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byMediumIsolationMVArun2v1DBoldDMwLTNew"));
+  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byTightIsolationMVArun2v1DBoldDMwLTNew"));
+  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byVTightIsolationMVArun2v1DBoldDMwLTNew"));
+  if (find(tauMVAIDIdxNew.begin(), tauMVAIDIdxNew.end(), -1) != tauMVAIDIdxNew.end())
+    {
+      cout << "** WARNING!! did not found some MVA tau IDs New" << endl;
+      for (unsigned int i = 0; i < tauMVAIDIdxNew.size(); ++i)
+	cout << tauMVAIDIdxNew.at(i) << " " ;
+      cout << endl;
+    }
+
 
   // cut based tau ID
   vector<int> tauCUTIDIdx;
@@ -1390,14 +1405,16 @@ int main (int argc, char** argv)
 	  int dauType = theBigTree.particleType->at(idau);
 	  if (oph.isMuon(dauType))
 	    {
-	      bool passMu = oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ;
+	      //bool passMu = oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ; //FRA: syncFeb2018
+	      bool passMu = oph.muBaseline (&theBigTree, idau, 10., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ;   //FRA: syncFeb2018
 	      bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.15, OfflineProducerHelper::MuTight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ;
 	      if (passMu) ++nmu;
 	      else if (passMu10) ++nmu10;
 	    }
 	  else if (oph.isElectron(dauType))
 	    {
-	      bool passEle   = oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ;
+	      //bool passEle   = oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ; //FRA: syncFeb2018
+	      bool passEle   = oph.eleBaseline (&theBigTree, idau, 10., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ; //FRA: syncFeb2018
 	      bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.1, OfflineProducerHelper::EMVATight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ;
 	      if (passEle) ++nele;
 	      else if (passEle10) ++nele10;
@@ -1425,8 +1442,10 @@ int main (int argc, char** argv)
 		   << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
 		   << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
 		   << " mutightID=" << setw(3) << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
-		   << " mubase="    << setw(3) << left << oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All"))
-		   << " ebase="     << setw(3) << left << oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All"))
+		   //<< " mubase="    << setw(3) << left << oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All")) //FRA: syncFeb2018
+		   << " mubase="    << setw(3) << left << oph.muBaseline (&theBigTree, idau, 10., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All"))   //FRA: syncFeb2018
+		   //<< " ebase="     << setw(3) << left << oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All"))
+		   << " ebase="     << setw(3) << left << oph.eleBaseline (&theBigTree, idau, 10., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All")) //FRA: syncFeb2018
 		//<< " taubase="   << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 25., 2.3, OfflineProducerHelper::aeleVLoose, OfflineProducerHelper::amuTight, 3.0, string("All"), 1)
 		// << " passaele="  << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstEle")) 
 		// << " passamu="   << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstMu")) 
@@ -1720,7 +1739,17 @@ int main (int argc, char** argv)
 	      passMatch = trigReader.checkOR (pairType, matchFlag1) ;
 	      trgNotOverlap = true;
 	  }
-	  else // pairType 0, 1 or 2 (MuTau, EleTau or HadHad)
+      else if (pairType == 2)
+      {
+         //bool passMatch1 = trigReader.checkOR(pairType, matchFlag1);
+         //bool passMatch2 = trigReader.checkOR(pairType, matchFlag2);
+         bool passMatch1 = trigReader.checkORTauTau(matchFlag1);
+         bool passMatch2 = trigReader.checkORTauTau(matchFlag2);
+         
+         passMatch = passMatch1 && passMatch2;
+         trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag);
+      }
+	  else // pairType 0 or 1 (MuTau or EleTau )
 	  {
           passMatch =  trigReader.checkOR (pairType, matchFlag1, matchFlag2);
 	      trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
@@ -1911,6 +1940,7 @@ int main (int argc, char** argv)
 
       theSmallTree.m_dau1_iso = getIso (firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree) ;
       theSmallTree.m_dau1_MVAiso = makeIsoDiscr (firstDaughterIndex, tauMVAIDIdx, theBigTree) ;
+      theSmallTree.m_dau1_MVAisoNew = makeIsoDiscr (firstDaughterIndex, tauMVAIDIdxNew, theBigTree) ; //FRA syncFeb2018
       theSmallTree.m_dau1_CUTiso = makeIsoDiscr (firstDaughterIndex, tauCUTIDIdx, theBigTree) ;
       theSmallTree.m_dau1_antiele = makeIsoDiscr (firstDaughterIndex, tauAntiEleIdx, theBigTree) ;
       theSmallTree.m_dau1_antimu  = makeIsoDiscr (firstDaughterIndex, tauAntiMuIdx, theBigTree) ;
@@ -1944,6 +1974,7 @@ int main (int argc, char** argv)
       // 3 = from tauH collection
       theSmallTree.m_dau2_iso = getIso (secondDaughterIndex, tlv_secondLepton.Pt (), theBigTree) ;
       theSmallTree.m_dau2_MVAiso = makeIsoDiscr (secondDaughterIndex, tauMVAIDIdx, theBigTree) ;
+      theSmallTree.m_dau2_MVAisoNew = makeIsoDiscr (secondDaughterIndex, tauMVAIDIdxNew, theBigTree) ; //FRA syncFeb2018
       theSmallTree.m_dau2_CUTiso = makeIsoDiscr (secondDaughterIndex, tauCUTIDIdx, theBigTree) ;
       theSmallTree.m_dau2_antiele = makeIsoDiscr (secondDaughterIndex, tauAntiEleIdx, theBigTree) ;
       theSmallTree.m_dau2_antimu  = makeIsoDiscr (secondDaughterIndex, tauAntiMuIdx, theBigTree) ;

@@ -189,17 +189,19 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     if (pairType == MuHad)
     {
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
-        leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.15, MuTight, whatApply, debug);
+        //leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.15, MuTight, whatApply, debug);
+        leg1 = muBaseline (tree, dau1index, 10., 2.1, 0.15, MuTight, whatApply, debug);                 //FRA: for syncFeb2018
         //leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVLoose, amuTight, tauIso, whatApply, debug);
-        leg2 = tauBaseline (tree, dau2index, 25., 2.3, aeleVLoose, amuTight, tauIso, whatApply, debug); //FRA: for syncFeb2018
-    }
+        leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVLoose, amuTight, tauIso, whatApply, debug); //FRA: for syncFeb2018
+   }
 
     if (pairType == EHad)
     {
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
-        leg1 = eleBaseline (tree, dau1index, 27., 2.1, 0.1, EMVATight, whatApply, debug);
+        //leg1 = eleBaseline (tree, dau1index, 27., 2.1, 0.1, EMVATight, whatApply, debug);
+        leg1 = eleBaseline (tree, dau1index, 10., 2.1, 0.1, EMVATight, whatApply, debug); //FRA: for syncFeb2018
         //leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleTight, amuLoose, tauIso, whatApply, debug);
-        leg2 = tauBaseline (tree, dau2index, 35., 2.3, aeleTight, amuLoose, tauIso, whatApply, debug); //FRA: for syncFeb2018
+        leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleTight, amuLoose, tauIso, whatApply, debug); //FRA: for syncFeb2018
     }
 
     // ordered by pT and not by most isolated, but baseline asked in sync is the same...
@@ -208,8 +210,8 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 2.0 ;
         //leg1 = tauBaseline (tree, dau1index, 40., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
         //leg2 = tauBaseline (tree, dau2index, 40., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
-        leg1 = tauBaseline (tree, dau1index, 45., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);//FRA: for syncFeb2018
-        leg2 = tauBaseline (tree, dau2index, 45., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);//FRA: for syncFeb2018
+        leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);//FRA: for syncFeb2018
+        leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);//FRA: for syncFeb2018
     }
 
     if (pairType == EMu)
@@ -229,9 +231,11 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     {
       leg1 = muBaseline (tree, dau1index, 10., 2.4, 0.15, MuTight, whatApply, debug);
       leg2 = muBaseline (tree, dau2index, 10., 2.4, 0.15, MuTight, whatApply, debug);
-      bool leg1ER = muBaseline (tree, dau1index, 23., 2.1, 0.15, MuTight, whatApply, debug);
-      bool leg2ER = muBaseline (tree, dau2index, 23., 2.1, 0.15, MuTight, whatApply, debug);
-      
+      //bool leg1ER = muBaseline (tree, dau1index, 23., 2.1, 0.15, MuTight, whatApply, debug); //FRA: for syncFeb2018
+      //bool leg2ER = muBaseline (tree, dau2index, 23., 2.1, 0.15, MuTight, whatApply, debug); //FRA: for syncFeb2018
+      bool leg1ER = muBaseline (tree, dau1index, 10., 2.1, 0.15, MuTight, whatApply, debug); //FRA: for syncFeb2018
+      bool leg2ER = muBaseline (tree, dau2index, 10., 2.1, 0.15, MuTight, whatApply, debug); //FRA: for syncFeb2018
+        
       //bool Is1in2p1 = leg1ER ;
       //bool Is2in2p1 = leg2ER ;
       return ( ((leg1ER && leg2) || (leg2ER && leg1)) && drMin );
@@ -549,8 +553,7 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
     bool vertexS = (fabs(tree->dz->at(iDau)) < 0.2) || byp_vertexS;
     bool agEleS = (agEleVal == 1) || byp_agEleS; 
     bool agMuS  = (agMuVal == 1) || byp_agMuS; 
-    //bool isoS = (tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) < isoRaw3Hits) || byp_isoS;
-    bool isoS = (tree->daughters_byIsolationMVArun2v1DBoldDMwLTrawNew->at(iDau) < isoRaw3Hits) || byp_isoS;
+    bool isoS = (tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) < isoRaw3Hits) || byp_isoS;
     if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
 
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
@@ -753,9 +756,6 @@ int OfflineProducerHelper::getPairByIndexes (bigTree* tree, int dau1, int dau2)
 
 int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply, bool debug)
 {
-  if (debug)
-    cout << " ----------- USING BESTPAIRTAUTAU ---------------- " << endl;
-
   // prepare a tuple with all the needed sorting info
   vector<tauPair_t> vPairs;
   for (unsigned int ipair = 0; ipair < tree->indexDau1->size(); ++ipair)
@@ -812,8 +812,8 @@ int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply,
       int ipair_orig = get<6> (vPairs.at(ipair));
       //bool leg1 = tauBaseline (tree, dau1index, 40., 2.1, aeleVLoose, amuLoose, 99999., whatApply);
       //bool leg2 = tauBaseline (tree, dau2index, 40., 2.1, aeleVLoose, amuLoose, 99999., whatApply);
-      bool leg1 = tauBaseline (tree, dau1index, 45., 2.1, aeleVLoose, amuLoose, 99999., whatApply);  //FRA: SyncFeb2018
-      bool leg2 = tauBaseline (tree, dau2index, 45., 2.1, aeleVLoose, amuLoose, 99999., whatApply);  //FRA: SyncFeb2018
+      bool leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply);  //FRA: SyncFeb2018
+      bool leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply);  //FRA: SyncFeb2018
       cout << "  > " << ipair << " idx1=" << dau1index << " idx2=" << dau2index << " ipair=" << ipair_orig
            << " | iso1=" << get<1> (pp) << " pt1=" << get<0> (pp) << " iso2=" << get<4> (pp) << " pt2=" << get<3> (pp)
            << " base1=" << leg1 << " base2=" << leg2 << " dR="<< DeltaRDau(tree, dau1index, dau2index) <<endl;
@@ -827,8 +827,8 @@ int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply,
     int ipair_orig = get<6> (vPairs.at(ipair));
     //bool leg1 = tauBaseline (tree, dau1index, 40., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);
     //bool leg2 = tauBaseline (tree, dau2index, 40., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);
-    bool leg1 = tauBaseline (tree, dau1index, 45., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);  //FRA: SyncFeb2018
-    bool leg2 = tauBaseline (tree, dau2index, 45., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);  //FRA: SyncFeb2018
+    bool leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);  //FRA: SyncFeb2018
+    bool leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);  //FRA: SyncFeb2018
     
     bool isOS = tree->isOSCand->at(ipair_orig);
     if (whatApply.Contains("OScharge") && !isOS) {
@@ -914,10 +914,10 @@ int OfflineProducerHelper::getBestPairPtAndRawIsoOrd (bigTree* tree, TString wha
       int dau1index = get<2> (vPairs.at(ipair));
       int dau2index = get<5> (vPairs.at(ipair));
       int ipair_orig = get<6> (vPairs.at(ipair));
-      //bool leg1 = tauBaseline (tree, dau1index, 40., 2.1, aeleVLoose, amuLoose, 99999., whatApply);
+      //bool leg1 = (tree, dau1index, 40., 2.1, aeleVLoose, amuLoose, 99999., whatApply);
       //bool leg2 = tauBaseline (tree, dau2index, 40., 2.1, aeleVLoose, amuLoose, 99999., whatApply);
-      bool leg1 = tauBaseline (tree, dau1index, 45., 2.1, aeleVLoose, amuLoose, 99999., whatApply); //FRA: SyncFeb2018
-      bool leg2 = tauBaseline (tree, dau2index, 45., 2.1, aeleVLoose, amuLoose, 99999., whatApply); //FRA: SyncFeb2018
+      bool leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply); //FRA: SyncFeb2018
+      bool leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply); //FRA: SyncFeb2018
       cout << "  > " << ipair << " idx1=" << dau1index << " idx2=" << dau2index << " ipair=" << ipair_orig
            << " | iso1=" << get<1> (pp) << " pt1=" << get<0> (pp) << " iso2=" << get<4> (pp) << " pt2=" << get<3> (pp)
            << " base1=" << leg1 << " base2=" << leg2 << endl;
@@ -931,8 +931,8 @@ int OfflineProducerHelper::getBestPairPtAndRawIsoOrd (bigTree* tree, TString wha
     int ipair_orig = get<6> (vPairs.at(ipair));
     //bool leg1 = tauBaseline (tree, dau1index, 40., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);
     //bool leg2 = tauBaseline (tree, dau2index, 40., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);
-    bool leg1 = tauBaseline (tree, dau1index, 45., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug); //FRA: SyncFeb2018
-    bool leg2 = tauBaseline (tree, dau2index, 45., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug); //FRA: SyncFeb2018
+    bool leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug); //FRA: SyncFeb2018
+    bool leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug); //FRA: SyncFeb2018
 
     bool isOS = tree->isOSCand->at(ipair_orig);
     if (whatApply.Contains("OScharge") && !isOS) {
