@@ -133,6 +133,25 @@ void triggerReader_cross::addTauTauCrossTrigs (vector<string> list)
 // Check trigger filters matching
 // ------------------------------
 
+bool triggerReader_cross::checkORTauTau  (Long64_t triggerbit) // old style tautau
+{
+    bool OR = false;
+    for (unsigned int i = 0; i < _ttTriggers.size(); i++)
+    {
+        OR = CheckBit (triggerbit, _ttTriggers.at(i));
+        if (OR) break;
+    }
+    if (!OR)
+    {
+        for (unsigned int i = 0; i < _ttCrossTriggers.size(); i++)
+        {
+            OR = CheckBit (triggerbit, _ttCrossTriggers.at(i));
+            if (OR) break;
+        }
+    }
+    return OR;
+}
+
 bool triggerReader_cross::checkORTauTauWithCross  (Long64_t triggerbit_1, Long64_t triggerbit_2)
 {
     bool OR      = false;
@@ -273,7 +292,8 @@ bool triggerReader_cross::checkOR (int pairType, Long64_t triggerbit_1, Long64_t
 
     if      (pairType == ((int) OfflineProducerHelper::MuHad) ) return checkORMuTauWithCross (triggerbit_1, triggerbit_2);
     else if (pairType == ((int) OfflineProducerHelper::EHad)  ) return checkOREleTauWithCross(triggerbit_1, triggerbit_2);
-    else if (pairType == ((int) OfflineProducerHelper::HadHad)) return checkORTauTauWithCross(triggerbit_1, triggerbit_2);
+    //else if (pairType == ((int) OfflineProducerHelper::HadHad)) return checkORTauTauWithCross(triggerbit_1, triggerbit_2); // new version, not working, not clear why
+    else if (pairType == ((int) OfflineProducerHelper::HadHad)) return checkORTauTau(triggerbit_1); // old version, working
     else if (pairType == ((int) OfflineProducerHelper::EMu)   ) return checkORMuEle (triggerbit_1);
     else if (pairType == ((int) OfflineProducerHelper::EE)    ) return checkOREleEle(triggerbit_1);
     else if (pairType == ((int) OfflineProducerHelper::MuMu)  ) return checkORMuMu  (triggerbit_1);
