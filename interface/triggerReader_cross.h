@@ -25,6 +25,7 @@ class triggerReader_cross
         bool checkORMuTauWithCross   (Long64_t triggerbit_1, Long64_t triggerbit_2);
         bool checkOREleTauWithCross  (Long64_t triggerbit_1, Long64_t triggerbit_2);
         bool checkORTauTauWithCross  (Long64_t triggerbit_1, Long64_t triggerbit_2);
+        bool checkORTauTau           (Long64_t triggerbit); // old style tautau
         bool checkORMuEle            (Long64_t triggerbit);
         bool checkORMuMu             (Long64_t triggerbit);
         bool checkOREleEle           (Long64_t triggerbit);

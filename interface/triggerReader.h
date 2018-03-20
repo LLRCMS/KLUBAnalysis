@@ -36,6 +36,10 @@ class triggerReader
         bool checkORMuTauCross  (Long64_t triggerbit);
         bool checkOREleTauCross (Long64_t triggerbit);
         bool isCrossTrigger (int pairType, Long64_t triggerbit);
+        bool checkORMuTauWithCross   (Long64_t triggerbit_1, Long64_t triggerbit_2);
+        bool checkOREleTauWithCross  (Long64_t triggerbit_1, Long64_t triggerbit_2);
+        bool checkORWithCross (int pairType, Long64_t triggerbit_1, Long64_t triggerbit_2);
+
 
 
     private:

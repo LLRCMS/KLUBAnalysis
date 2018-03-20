@@ -86,7 +86,6 @@ int main(int argc, char** argv)
     float WPtag[3] = {0.1522, 0.4941, 0.8001}; // L, M, T -- 94X for Moriond 2018, 17NovReReco, version1 of the SF
     string WPname[3] = {"L", "M", "T"};
 
-
     // FIXME: do for the 3 WP tag x the number of selections
     vector<vector<TH2F*>> h2_BTaggingEff_Denom_b    (3, vector<TH2F*>(selections.size()) ) ; // .at(WP).at(selection)
     vector<vector<TH2F*>> h2_BTaggingEff_Denom_c    (3, vector<TH2F*>(selections.size()) ) ;
