@@ -231,6 +231,7 @@ public :
    std::vector<int>     *PFjetID;
    std::vector<float>   *jetRawf;
    std::vector<float>   *jets_jecUnc;
+   std::vector<float>   *jets_JER;
 
    std::vector<float>   *ak8jets_px;
    std::vector<float>   *ak8jets_py;
@@ -461,6 +462,7 @@ public :
    TBranch        *b_PFjetID;   //!
    TBranch        *b_jetRawf;   //!
    TBranch        *b_jets_jecUnc ; //!
+   TBranch        *b_jets_JER ; //!
    TBranch        *b_ak8jets_px;
    TBranch        *b_ak8jets_py;
    TBranch        *b_ak8jets_pz;
@@ -684,6 +686,7 @@ public :
        PFjetID = 0;
        jetRawf = 0;
        jets_jecUnc = 0;
+       jets_JER = 0;
        ak8jets_px = 0;
        ak8jets_py = 0;
        ak8jets_pz = 0;
@@ -853,6 +856,7 @@ public :
        fChain->SetBranchAddress("PFjetID", &PFjetID, &b_PFjetID);
        fChain->SetBranchAddress("jetRawf", &jetRawf, &b_jetRawf);
        fChain->SetBranchAddress("jets_jecUnc", &jets_jecUnc,&b_jets_jecUnc);
+       fChain->SetBranchAddress("jets_JER", &jets_JER, &b_jets_JER);
        fChain->SetBranchAddress("ak8jets_px", &ak8jets_px, &b_ak8jets_px);
        fChain->SetBranchAddress("ak8jets_py", &ak8jets_py, &b_ak8jets_py);
        fChain->SetBranchAddress("ak8jets_pz", &ak8jets_pz, &b_ak8jets_pz);
