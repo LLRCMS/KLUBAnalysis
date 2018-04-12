@@ -89,6 +89,9 @@ public :
    Int_t           NUP;
    
    std::vector<float>   *SVfitMass;
+   std::vector<float>   *SVfitMassUnc;
+   std::vector<float>   *SVfitTransverseMass;
+   std::vector<float>   *SVfitTransverseMassUnc;
    std::vector<float>   *SVfit_pt;
    std::vector<float>   *SVfit_ptUnc;
    std::vector<float>   *SVfit_eta;
@@ -99,6 +102,9 @@ public :
    std::vector<float>   *SVfit_fitMETPhi;
 
    std::vector<float>   *SVfitMassTauUp;
+   std::vector<float>   *SVfitMassUncTauUp;
+   std::vector<float>   *SVfitTransverseMassTauUp;
+   std::vector<float>   *SVfitTransverseMassUncTauUp;
    std::vector<float>   *SVfit_ptTauUp;
    std::vector<float>   *SVfit_ptUncTauUp;
    std::vector<float>   *SVfit_etaTauUp;
@@ -109,6 +115,9 @@ public :
    std::vector<float>   *SVfit_fitMETPhiTauUp;
 
    std::vector<float>   *SVfitMassTauDown;
+   std::vector<float>   *SVfitMassUncTauDown;
+   std::vector<float>   *SVfitTransverseMassTauDown;
+   std::vector<float>   *SVfitTransverseMassUncTauDown;
    std::vector<float>   *SVfit_ptTauDown;
    std::vector<float>   *SVfit_ptUncTauDown;
    std::vector<float>   *SVfit_etaTauDown;
@@ -379,6 +388,9 @@ public :
    TBranch        *b_genjet_hadronFlavour;   //!
    TBranch        *b_NUP;   //!
    TBranch        *b_SVfitMass;   //!
+   TBranch        *b_SVfitMassUnc;
+   TBranch        *b_SVfitTransverseMass;
+   TBranch        *b_SVfitTransverseMassUnc;
    TBranch        *b_SVfit_pt;   //!
    TBranch        *b_SVfit_ptUnc;   //!
    TBranch        *b_SVfit_eta;   //!
@@ -388,6 +400,9 @@ public :
    TBranch        *b_SVfit_fitMETRho;   //!
    TBranch        *b_SVfit_fitMETPhi;   //!
    TBranch        *b_SVfitMassTauUp;   //!
+   TBranch        *b_SVfitMassUncTauUp;
+   TBranch        *b_SVfitTransverseMassTauUp;
+   TBranch        *b_SVfitTransverseMassUncTauUp;
    TBranch        *b_SVfit_ptTauUp;   //!
    TBranch        *b_SVfit_ptUncTauUp;   //!
    TBranch        *b_SVfit_etaTauUp;   //!
@@ -397,6 +412,9 @@ public :
    TBranch        *b_SVfit_fitMETRhoTauUp;   //!
    TBranch        *b_SVfit_fitMETPhiTauUp;   //!
    TBranch        *b_SVfitMassTauDown;   //!
+   TBranch        *b_SVfitMassUncTauDown;
+   TBranch        *b_SVfitTransverseMassTauDown;
+   TBranch        *b_SVfitTransverseMassUncTauDown;
    TBranch        *b_SVfit_ptTauDown;   //!
    TBranch        *b_SVfit_ptUncTauDown;   //!
    TBranch        *b_SVfit_etaTauDown;   //!
@@ -660,6 +678,9 @@ public :
        genjet_partonFlavour = 0;
        genjet_hadronFlavour = 0;
        SVfitMass = 0;
+       SVfitMassUnc = 0;
+       SVfitTransverseMass = 0;
+       SVfitTransverseMassUnc = 0;
        SVfit_pt = 0;
        SVfit_ptUnc = 0;
        SVfit_eta = 0;
@@ -669,6 +690,9 @@ public :
        SVfit_fitMETRho = 0;
        SVfit_fitMETPhi = 0;
        SVfitMassTauUp = 0;
+       SVfitMassUncTauUp = 0;
+       SVfitTransverseMassTauUp = 0;
+       SVfitTransverseMassUncTauUp = 0;
        SVfit_ptTauUp = 0;
        SVfit_ptUncTauUp = 0;
        SVfit_etaTauUp = 0;
@@ -678,6 +702,9 @@ public :
        SVfit_fitMETRhoTauUp = 0;
        SVfit_fitMETPhiTauUp = 0;
        SVfitMassTauDown = 0;
+       SVfitMassUncTauDown = 0;
+       SVfitTransverseMassTauDown = 0;
+       SVfitTransverseMassUncTauDown = 0;
        SVfit_ptTauDown = 0;
        SVfit_ptUncTauDown = 0;
        SVfit_etaTauDown = 0;
@@ -901,6 +928,9 @@ public :
        fChain->SetBranchAddress("daughters_e", &daughters_e, &b_daughters_e);
        fChain->SetBranchAddress("daughters_charge", &daughters_charge, &b_daughters_charge);
        fChain->SetBranchAddress("SVfitMass", &SVfitMass, &b_SVfitMass);
+       fChain->SetBranchAddress("SVfitMassUnc", &SVfitMassUnc, &b_SVfitMassUnc);
+       fChain->SetBranchAddress("SVfitTransverseMass", &SVfitTransverseMass, &b_SVfitTransverseMass);
+       fChain->SetBranchAddress("SVfitTransverseMassUnc", &SVfitTransverseMassUnc, &b_SVfitTransverseMassUnc);
        fChain->SetBranchAddress("SVfit_pt", &SVfit_pt, &b_SVfit_pt);
        fChain->SetBranchAddress("SVfit_ptUnc", &SVfit_ptUnc, &b_SVfit_ptUnc);
        fChain->SetBranchAddress("SVfit_eta", &SVfit_eta, &b_SVfit_eta);
@@ -1143,6 +1173,9 @@ public :
             fChain->SetBranchAddress("daughters_e_TauDown", &daughters_e_TauDown, &b_daughters_e_TauDown);
             fChain->SetBranchAddress("daughters_TauUpExists", &daughters_TauUpExists, &b_daughters_TauUpExists);
             fChain->SetBranchAddress("SVfitMassTauUp", &SVfitMassTauUp, &b_SVfitMassTauUp);
+            fChain->SetBranchAddress("SVfitMassUncTauUp", &SVfitMassUncTauUp, &b_SVfitMassUncTauUp);
+            fChain->SetBranchAddress("SVfitTransverseMassTauUp", &SVfitTransverseMassTauUp, &b_SVfitTransverseMassTauUp);
+            fChain->SetBranchAddress("SVfitTransverseMassUncTauUp", &SVfitTransverseMassUncTauUp, &b_SVfitTransverseMassUncTauUp);
             fChain->SetBranchAddress("SVfit_ptTauUp", &SVfit_ptTauUp, &b_SVfit_ptTauUp);
             fChain->SetBranchAddress("SVfit_ptUncTauUp", &SVfit_ptUncTauUp, &b_SVfit_ptUncTauUp);
             fChain->SetBranchAddress("SVfit_etaTauUp", &SVfit_etaTauUp, &b_SVfit_etaTauUp);
@@ -1152,6 +1185,9 @@ public :
             fChain->SetBranchAddress("SVfit_fitMETRhoTauUp", &SVfit_fitMETRhoTauUp, &b_SVfit_fitMETRhoTauUp);
             fChain->SetBranchAddress("SVfit_fitMETPhiTauUp", &SVfit_fitMETPhiTauUp, &b_SVfit_fitMETPhiTauUp);
             fChain->SetBranchAddress("SVfitMassTauDown", &SVfitMassTauDown, &b_SVfitMassTauDown);
+            fChain->SetBranchAddress("SVfitMassUncTauDown", &SVfitMassUncTauDown, &b_SVfitMassUncTauDown);
+            fChain->SetBranchAddress("SVfitTransverseMassTauDown", &SVfitTransverseMassTauDown, &b_SVfitTransverseMassTauDown);
+            fChain->SetBranchAddress("SVfitTransverseMassUncTauDown", &SVfitTransverseMassUncTauDown, &b_SVfitTransverseMassUncTauDown);
             fChain->SetBranchAddress("SVfit_ptTauDown", &SVfit_ptTauDown, &b_SVfit_ptTauDown);
             fChain->SetBranchAddress("SVfit_ptUncTauDown", &SVfit_ptUncTauDown, &b_SVfit_ptUncTauDown);
             fChain->SetBranchAddress("SVfit_etaTauDown", &SVfit_etaTauDown, &b_SVfit_etaTauDown);
