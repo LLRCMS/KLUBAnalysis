@@ -159,7 +159,7 @@ float getIso (unsigned int iDau, float pt, bigTree & theBigTree)
   if (type == 2)
     // return theBigTree.daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) ;
     //return theBigTree.daughters_byIsolationMVArun2v1DBoldDMwLTraw->at(iDau) ;
-    return theBigTree.daughters_byIsolationMVArun2v1DBoldDMwLTrawNew->at(iDau) ; //FRA: update for 2017 data (94X)
+    return theBigTree.daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017->at(iDau) ; //FRA: update for 2017 data (94X)
   // muon
   if (type == 1 || type == 0)
     return theBigTree.combreliso->at(iDau);
@@ -815,11 +815,11 @@ int main (int argc, char** argv)
     
   // new MVA tau ID // FRA syncFeb2018
   vector<int> tauMVAIDIdxNew;
-  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byVLooseIsolationMVArun2v1DBoldDMwLTNew"));
-  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byLooseIsolationMVArun2v1DBoldDMwLTNew"));
-  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byMediumIsolationMVArun2v1DBoldDMwLTNew"));
-  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byTightIsolationMVArun2v1DBoldDMwLTNew"));
-  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byVTightIsolationMVArun2v1DBoldDMwLTNew"));
+  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byVLooseIsolationMVArun2017v2DBoldDMwLT2017"));
+  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byLooseIsolationMVArun2017v2DBoldDMwLT2017"));
+  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byMediumIsolationMVArun2017v2DBoldDMwLT2017"));
+  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byTightIsolationMVArun2017v2DBoldDMwLT2017"));
+  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byVTightIsolationMVArun2017v2DBoldDMwLT2017"));
   if (find(tauMVAIDIdxNew.begin(), tauMVAIDIdxNew.end(), -1) != tauMVAIDIdxNew.end())
     {
       cout << "** WARNING!! did not found some MVA tau IDs New" << endl;

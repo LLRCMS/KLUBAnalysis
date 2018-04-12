@@ -886,8 +886,8 @@ int OfflineProducerHelper::getBestPairPtAndRawIsoOrd (bigTree* tree, TString wha
 
     //float iso1 = tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(t_firstDaughterIndex);
     //float iso2 = tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(t_secondDaughterIndex);
-    float iso1 = tree->daughters_byIsolationMVArun2v1DBoldDMwLTrawNew->at(t_firstDaughterIndex);
-    float iso2 = tree->daughters_byIsolationMVArun2v1DBoldDMwLTrawNew->at(t_secondDaughterIndex);
+    float iso1 = tree->daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017->at(t_firstDaughterIndex);
+    float iso2 = tree->daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017->at(t_secondDaughterIndex);
 
     // first one is highest pt
     tauPair_t pp;
