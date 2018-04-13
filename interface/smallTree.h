@@ -78,6 +78,7 @@ struct smallTree
       m_dau1_iso  = -1. ;
       m_dau1_MVAiso = -1 ;
       m_dau1_MVAisoNew = -1 ; //FRA syncFeb2018
+      m_dau1_MVAisoNewdR0p3 = -1; //FRA syncApr2018
       m_dau1_CUTiso = -1 ;
       m_dau1_antiele = -1 ;
       m_dau1_antimu = -1 ;
@@ -111,6 +112,7 @@ struct smallTree
       m_dau2_iso  = -1. ;
       m_dau2_MVAiso = -1 ;
       m_dau2_MVAisoNew = -1 ; //FRA syncFeb2018
+      m_dau2_MVAisoNewdR0p3 = -1; //FRA syncApr2018
       m_dau2_CUTiso = -1 ;
       m_dau2_antiele = -1 ;
       m_dau2_antimu = -1 ;
@@ -527,6 +529,7 @@ struct smallTree
       m_smallT->Branch ("dau1_iso", &m_dau1_iso, "dau1_iso/F") ;
       m_smallT->Branch ("dau1_MVAiso", &m_dau1_MVAiso, "dau1_MVAiso/I") ;
       m_smallT->Branch ("dau1_MVAisoNew", &m_dau1_MVAisoNew, "dau1_MVAisoNew/I") ; //FRA syncFeb2018
+      m_smallT->Branch ("dau1_MVAisoNewdR0p3", &m_dau1_MVAisoNewdR0p3, "dau1_MVAisoNewdR0p3/I") ; //FRA syncApr2018
       m_smallT->Branch ("dau1_CUTiso", &m_dau1_CUTiso, "dau1_CUTiso/I") ;
       m_smallT->Branch ("dau1_antiele", &m_dau1_antiele, "dau1_antiele/I") ;
       m_smallT->Branch ("dau1_antimu", &m_dau1_antimu, "dau1_antimu/I") ;
@@ -559,6 +562,7 @@ struct smallTree
       m_smallT->Branch ("dau2_iso", &m_dau2_iso, "dau2_iso/F") ;
       m_smallT->Branch ("dau2_MVAiso", &m_dau2_MVAiso, "dau2_MVAiso/I") ;
       m_smallT->Branch ("dau2_MVAisoNew", &m_dau2_MVAisoNew, "dau2_MVAisoNew/I") ; //FRA syncFeb2018
+      m_smallT->Branch ("dau2_MVAisoNewdR0p3", &m_dau2_MVAisoNewdR0p3, "dau2_MVAisoNewdR0p3/I") ; //FRA syncApr2018
       m_smallT->Branch ("dau2_CUTiso", &m_dau2_CUTiso, "dau2_CUTiso/I") ;
       m_smallT->Branch ("dau2_antiele", &m_dau2_antiele, "dau2_antiele/I") ;
       m_smallT->Branch ("dau2_antimu", &m_dau2_antimu, "dau2_antimu/I") ;
@@ -969,6 +973,7 @@ struct smallTree
   Float_t m_dau1_iso ;
   Int_t   m_dau1_MVAiso; // for taus only
   Int_t   m_dau1_MVAisoNew; // for taus only //FRA syncFeb2018
+  Int_t   m_dau1_MVAisoNewdR0p3; // for taus only //FRA syncApr2018
   Int_t   m_dau1_CUTiso; // for taus only
   Int_t   m_dau1_antiele; // for taus only
   Int_t   m_dau1_antimu; // for taus only
@@ -1002,6 +1007,7 @@ struct smallTree
   Float_t m_dau2_iso ;
   Int_t   m_dau2_MVAiso; // for taus only
   Int_t   m_dau2_MVAisoNew; // for taus only //FRA syncFeb2018
+  Int_t   m_dau2_MVAisoNewdR0p3; // for taus only //FRA syncApr2018
   Int_t   m_dau2_CUTiso; // for taus only
   Int_t   m_dau2_antiele; // for taus only
   Int_t   m_dau2_antimu; // for taus only

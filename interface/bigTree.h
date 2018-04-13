@@ -166,9 +166,6 @@ public :
    std::vector<float>   *daughters_depositR03_ecal;
    std::vector<float>   *daughters_depositR03_hcal;
    std::vector<int>     *daughters_decayModeFindingOldDMs;
-   std::vector<float>   *againstElectronMVA5category;
-   std::vector<float>   *againstElectronMVA5raw;
-   std::vector<float>   *byPileupWeightedIsolationRaw3Hits;
    std::vector<float>   *footprintCorrection;
    std::vector<float>   *neutralIsoPtSumWeight;
    std::vector<float>   *photonPtSumOutsideSignalCone;
@@ -177,10 +174,7 @@ public :
    std::vector<float>   *daughters_byIsolationMVArun2v1DBoldDMwLTraw;
    std::vector<float>   *daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017;
    std::vector<float>   *daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017;
-   std::vector<float>   *daughters_byIsolationMVA3oldDMwoLTraw;
-   std::vector<float>   *daughters_byIsolationMVA3oldDMwLTraw;
-   std::vector<float>   *daughters_byIsolationMVA3newDMwoLTraw;
-   std::vector<float>   *daughters_byIsolationMVA3newDMwLTraw;
+   std::vector<float>   *daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017;
    std::vector<float>   *daughters_chargedIsoPtSum;
    std::vector<float>   *daughters_neutralIsoPtSum;
    std::vector<float>   *daughters_puCorrPtSum;
@@ -462,9 +456,6 @@ public :
    TBranch        *b_daughters_depositR03_ecal;   //!
    TBranch        *b_daughters_depositR03_hcal;   //!
    TBranch        *b_daughters_decayModeFindingOldDMs;   //!
-   TBranch        *b_againstElectronMVA5category;   //!
-   TBranch        *b_againstElectronMVA5raw;   //!
-   TBranch        *b_byPileupWeightedIsolationRaw3Hits;   //!
    TBranch        *b_footprintCorrection;   //!
    TBranch        *b_neutralIsoPtSumWeight;   //!
    TBranch        *b_photonPtSumOutsideSignalCone;   //!
@@ -473,10 +464,7 @@ public :
    TBranch        *b_daughters_byIsolationMVArun2v1DBoldDMwLTraw; //!
    TBranch        *b_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017; //!
    TBranch        *b_daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017; //!
-   TBranch        *b_daughters_byIsolationMVA3oldDMwoLTraw;   //!
-   TBranch        *b_daughters_byIsolationMVA3oldDMwLTraw;   //!
-   TBranch        *b_daughters_byIsolationMVA3newDMwoLTraw;   //!
-   TBranch        *b_daughters_byIsolationMVA3newDMwLTraw;   //!
+   TBranch        *b_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017;
    TBranch        *b_daughters_chargedIsoPtSum;   //!
    TBranch        *b_daughters_neutralIsoPtSum;   //!
    TBranch        *b_daughters_puCorrPtSum;   //!
@@ -753,9 +741,6 @@ public :
        daughters_depositR03_ecal = 0;
        daughters_depositR03_hcal = 0;
        daughters_decayModeFindingOldDMs = 0;
-       againstElectronMVA5category = 0;
-       againstElectronMVA5raw = 0;
-       byPileupWeightedIsolationRaw3Hits = 0;
        footprintCorrection = 0;
        neutralIsoPtSumWeight = 0;
        photonPtSumOutsideSignalCone = 0;
@@ -764,10 +749,7 @@ public :
        daughters_byIsolationMVArun2v1DBoldDMwLTraw = 0;
        daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017 = 0;
        daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017 = 0;
-       daughters_byIsolationMVA3oldDMwoLTraw = 0;
-       daughters_byIsolationMVA3oldDMwLTraw = 0;
-       daughters_byIsolationMVA3newDMwoLTraw = 0;
-       daughters_byIsolationMVA3newDMwLTraw = 0;
+       daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017 = 0;
        daughters_chargedIsoPtSum = 0;
        daughters_neutralIsoPtSum = 0;
        daughters_puCorrPtSum = 0;
@@ -980,9 +962,6 @@ public :
        fChain->SetBranchAddress("daughters_depositR03_ecal", &daughters_depositR03_ecal, &b_daughters_depositR03_ecal);
        fChain->SetBranchAddress("daughters_depositR03_hcal", &daughters_depositR03_hcal, &b_daughters_depositR03_hcal);
        fChain->SetBranchAddress("daughters_decayModeFindingOldDMs", &daughters_decayModeFindingOldDMs, &b_daughters_decayModeFindingOldDMs);
-       fChain->SetBranchAddress("againstElectronMVA5category", &againstElectronMVA5category, &b_againstElectronMVA5category);
-       fChain->SetBranchAddress("againstElectronMVA5raw", &againstElectronMVA5raw, &b_againstElectronMVA5raw);
-       fChain->SetBranchAddress("byPileupWeightedIsolationRaw3Hits", &byPileupWeightedIsolationRaw3Hits, &b_byPileupWeightedIsolationRaw3Hits);
        fChain->SetBranchAddress("footprintCorrection", &footprintCorrection, &b_footprintCorrection);
        fChain->SetBranchAddress("neutralIsoPtSumWeight", &neutralIsoPtSumWeight, &b_neutralIsoPtSumWeight);
        fChain->SetBranchAddress("photonPtSumOutsideSignalCone", &photonPtSumOutsideSignalCone, &b_photonPtSumOutsideSignalCone);
@@ -991,10 +970,7 @@ public :
        fChain->SetBranchAddress("daughters_byIsolationMVArun2v1DBoldDMwLTraw", &daughters_byIsolationMVArun2v1DBoldDMwLTraw, &b_daughters_byIsolationMVArun2v1DBoldDMwLTraw);
        fChain->SetBranchAddress("daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017", &daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017, &b_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017);
        fChain->SetBranchAddress("daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017", &daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017, &b_daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017);
-       fChain->SetBranchAddress("daughters_byIsolationMVA3oldDMwoLTraw", &daughters_byIsolationMVA3oldDMwoLTraw, &b_daughters_byIsolationMVA3oldDMwoLTraw);
-       fChain->SetBranchAddress("daughters_byIsolationMVA3oldDMwLTraw", &daughters_byIsolationMVA3oldDMwLTraw, &b_daughters_byIsolationMVA3oldDMwLTraw);
-       fChain->SetBranchAddress("daughters_byIsolationMVA3newDMwoLTraw", &daughters_byIsolationMVA3newDMwoLTraw, &b_daughters_byIsolationMVA3newDMwoLTraw);
-       fChain->SetBranchAddress("daughters_byIsolationMVA3newDMwLTraw", &daughters_byIsolationMVA3newDMwLTraw, &b_daughters_byIsolationMVA3newDMwLTraw);
+       fChain->SetBranchAddress("daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017", &daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017, &b_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017);
        fChain->SetBranchAddress("daughters_chargedIsoPtSum", &daughters_chargedIsoPtSum, &b_daughters_chargedIsoPtSum);
        fChain->SetBranchAddress("daughters_neutralIsoPtSum", &daughters_neutralIsoPtSum, &b_daughters_neutralIsoPtSum);
        fChain->SetBranchAddress("daughters_puCorrPtSum", &daughters_puCorrPtSum, &b_daughters_puCorrPtSum);
