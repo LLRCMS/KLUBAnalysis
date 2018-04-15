@@ -67,6 +67,10 @@ struct smallTree
       
       m_met_phi = -1. ;
       m_met_et = -1. ;
+      m_met_phi_jetup = -1.  ; //FRA - shifted MET
+      m_met_et_jetup = -1.   ; //
+      m_met_phi_jetdown = -1.; //
+      m_met_et_jetdown = -1. ; //
       m_met_et_corr =-1.;
       m_met_cov00 = -1.;
       m_met_cov01 = -1.;
@@ -518,6 +522,10 @@ struct smallTree
 
       m_smallT->Branch ("met_phi", &m_met_phi, "met_phi/F") ;
       m_smallT->Branch ("met_et", &m_met_et, "met_et/F") ;
+      m_smallT->Branch ("met_phi_jetup", &m_met_phi_jetup, "met_phi_jetup/F") ;       //FRA - shifted MET
+      m_smallT->Branch ("met_et_jetup", &m_met_et_jetup, "met_et_jetup/F") ;          //
+      m_smallT->Branch ("met_phi_jetdown", &m_met_phi_jetdown, "met_phi_jetdown/F") ; //
+      m_smallT->Branch ("met_et_jetdown", &m_met_et_jetdown, "met_et_jetdown/F") ;    //
       m_smallT->Branch ("met_et_corr", &m_met_et_corr, "met_et_corr/F") ;
       m_smallT->Branch ("met_cov00", &m_met_cov00, "met_cov00/F") ;
       m_smallT->Branch ("met_cov01", &m_met_cov01, "met_cov01/F") ;
@@ -960,6 +968,10 @@ struct smallTree
   // MET
   Float_t m_met_phi ;
   Float_t m_met_et ;
+  Float_t m_met_phi_jetup ;   //FRA - shifted MET
+  Float_t m_met_et_jetup ;    //
+  Float_t m_met_phi_jetdown ; //
+  Float_t m_met_et_jetdown ;  //
   Float_t m_met_et_corr;
   Float_t m_met_cov00;
   Float_t m_met_cov01;
