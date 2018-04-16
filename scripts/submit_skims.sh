@@ -1,6 +1,6 @@
 #OUTDIRR="Skims2017_10Gen2018"
 AMESSAGE="skims for 2018 synch"
-OUTDIRR="Synch2018" 
+OUTDIRR="Synch2018_test2" 
 
 source /opt/exp_soft/cms/t3/t3setup
 mkdir /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/
@@ -20,8 +20,7 @@ cp /home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/scripts/listAll.sh /data_
 
 
 #SYNCH
-python scripts/skimNtuple.py -T Synch2018 -s True -c  config/skim_2017_sync.cfg  -n 1  -k False -o /data_CMS/cms/amendola/HH2017Skims/Synch2018/SKIM_Grav450        -i inputFiles/Synch2018/Grav450.list
-
+python scripts/skimNtuple.py -T Synch2018 -s True -c  config/skim_2017_sync.cfg  -n 1  -k False -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_Grav450        -i inputFiles/Synch2018/Grav450.list -v True
 
 #####################
 ### DATA

@@ -109,7 +109,7 @@ void appendFromFileList (TChain* chain, TString filename)
       while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
       while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
       while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
-vai      if (!line.empty()) // skip empty lines
+      if (!line.empty()) // skip empty lines
 	chain->Add(line.c_str());
     }
   return;
@@ -546,6 +546,12 @@ int main (int argc, char** argv)
   ULong64_t debugEvent = -1; // will be converted to numerical max, and never reached
   if (gConfigParser->isDefined("parameters::debugEvent"))
     debugEvent = (ULong64_t) gConfigParser->readIntOption("parameters::debugEvent");
+    Int_t debugRun = -1; // will be converted to numerical max, and never reached
+  if (gConfigParser->isDefined("parameters::debugRun"))
+    debugRun = (ULong64_t) gConfigParser->readIntOption("parameters::debugRun");
+      Int_t debugLumi = -1; // will be converted to numerical max, and never reached
+  if (gConfigParser->isDefined("parameters::debugLumi"))
+    debugLumi = (ULong64_t) gConfigParser->readIntOption("parameters::debugLumi");
 
   vector<string> trigMuTau   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuTau")  : gConfigParser->readStringListOption ("triggersData::MuTau")) ;
   vector<string> trigTauTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::TauTau") : gConfigParser->readStringListOption ("triggersData::TauTau")) ;
@@ -894,11 +900,15 @@ int main (int argc, char** argv)
       theSmallTree.clearVars () ;
       int got = theBigTree.fChain->GetEntry(iEvent);
       if (got == 0) break;
-      
+      bool DEBUG = false;
       //if (theBigTree.EventNumber != debugEvent) continue; //FRA
-      if (theBigTree.EventNumber == debugEvent)
+      if (theBigTree.EventNumber == debugEvent )
 	{
+	  if ( theBigTree.RunNumber ==debugRun && theBigTree.lumi == debugLumi){
 	  cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
+	  DEBUG = true;
+	  }
+
 	}
 
       // remove a lumisection that was present in 16 Giu JSON and removed in 22 and subsequent JSON
@@ -936,7 +946,7 @@ int main (int argc, char** argv)
 
 	  stitchWeight = stitchWeights[njets][nb];
 	}
-      if (theBigTree.EventNumber == debugEvent && isMC)
+      if (DEBUG && isMC)
 	{
 	  cout << "** DEBUG : gen particle list" << endl;
 	  for (unsigned int igen = 0; igen < theBigTree.genpart_pdg->size(); igen++)
@@ -1056,7 +1066,7 @@ int main (int argc, char** argv)
 
 	      // cout << "WAS ACCEPTED" << endl;
 
-	      if (theBigTree.EventNumber == debugEvent)
+	      if(DEBUG)
 		{
 		  cout << "@ TOP pt reweight: " << endl;
 		  cout << "  top1 pt=" << ptTop1 << endl;
@@ -1103,7 +1113,7 @@ int main (int argc, char** argv)
 		  // if (theFlav == -999) cout << "** warning: gen jet with flav = -999 of pt: " << vgj.Pt() << " eta: " << vgj.Eta() << endl;
 		}
 
-	      if (theBigTree.EventNumber == debugEvent)
+	      if(DEBUG)
 		{
 		  cout << " -- gen jet : " << igj << " pt=" << vgj.Pt() << " eta=" << vgj.Eta() <<  " hadFlav=" << theBigTree.genjet_hadronFlavour->at(igj) << endl;
 		}
@@ -1395,7 +1405,7 @@ int main (int argc, char** argv)
       int nele10 = 0;
       // int ntau = 0;
     
-      if (theBigTree.EventNumber == debugEvent)
+      if(DEBUG)
 	{
 	  cout << "***** DEBUG: reco particles (remember: check if baseline sels are aligned to OfflineProducerHelper)" << endl;
 	}
@@ -1406,21 +1416,21 @@ int main (int argc, char** argv)
 	  if (oph.isMuon(dauType))
 	    {
 	      //bool passMu = oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ; //FRA: syncFeb2018
-	      bool passMu = oph.muBaseline (&theBigTree, idau, 10., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ;   //FRA: syncFeb2018
-	      bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.15, OfflineProducerHelper::MuTight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ;
+	      bool passMu = oph.muBaseline (&theBigTree, idau, 10., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false)) ;   //FRA: syncFeb2018
+	      bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false)) ;
 	      if (passMu) ++nmu;
 	      else if (passMu10) ++nmu10;
 	    }
 	  else if (oph.isElectron(dauType))
 	    {
 	      //bool passEle   = oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ; //FRA: syncFeb2018
-	      bool passEle   = oph.eleBaseline (&theBigTree, idau, 10., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ; //FRA: syncFeb2018
-	      bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.1, OfflineProducerHelper::EMVATight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ;
+	      bool passEle   = oph.eleBaseline (&theBigTree, idau, 10., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false)) ; //FRA: syncFeb2018
+	      bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.1, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false)) ;
 	      if (passEle) ++nele;
 	      else if (passEle10) ++nele10;
 	    }
 
-	  if (theBigTree.EventNumber == debugEvent)
+	  if(DEBUG)
 	    {
 	      TLorentzVector dauTlvDebug (
 					  theBigTree.daughters_px->at (idau),
@@ -1478,18 +1488,18 @@ int main (int argc, char** argv)
 
       if (pairType == 2 && sortStrategyThTh == kHTauTau)
 	{
-	  chosenTauPair = oph.getBestPairHTauTau(&theBigTree, leptonSelectionFlag, (theBigTree.EventNumber == debugEvent ? true : false));
+	  chosenTauPair = oph.getBestPairHTauTau(&theBigTree, leptonSelectionFlag, (DEBUG ? true : false));
 	}
 
       else if (pairType == 2 && sortStrategyThTh == kPtAndRawIso)
 	{
-	  chosenTauPair = oph.getBestPairPtAndRawIsoOrd(&theBigTree, leptonSelectionFlag, (theBigTree.EventNumber == debugEvent ? true : false));
+	  chosenTauPair = oph.getBestPairPtAndRawIsoOrd(&theBigTree, leptonSelectionFlag, (DEBUG ? true : false));
 	}
 
       // (mu tauh), (e tauh), (tauhtauh && kLLRFramDefault)
       else
 	{
-	  if (theBigTree.EventNumber == debugEvent)
+	  if(DEBUG)
 	    {
 	      for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
 		{
@@ -1550,7 +1560,7 @@ int main (int argc, char** argv)
 
 	      // if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag+string("-TauRlxIzo") ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
 	      string baselineSels = ( (pairType <= 2) ? leptonSelectionFlag : (leptonSelectionFlag + "-Iso")) ; // for ee, mumu, emu, ask isolation in baseline
-	      if ( oph.pairPassBaseline (&theBigTree, iPair, baselineSels, (theBigTree.EventNumber == debugEvent ? true : false) ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
+	      if ( oph.pairPassBaseline (&theBigTree, iPair, baselineSels, (DEBUG ? true : false) ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
 		{
 		  chosenTauPair = iPair;
 		  break;          
@@ -1568,7 +1578,7 @@ int main (int argc, char** argv)
 	    }
 	}
 
-      if (theBigTree.EventNumber == debugEvent)
+      if(DEBUG)
 	{
 	  cout << "**** DEBUG : chosen pair : " << chosenTauPair << " str=" << leptonSelectionFlag << " pairType==" << pairType << endl;
 	  cout << "     ... going to list all pairs of same pairType as the one assessed with reco leptons" << endl;
@@ -1708,12 +1718,12 @@ int main (int argc, char** argv)
       if (applyTriggers)
 	{
 	  Long64_t triggerbit = theBigTree.triggerbit;
-	  bool passTrg = trigReader.checkOR (pairType, triggerbit) ;
+	  bool passTrg = trigReader.checkOR (pairType, triggerbit,triggerbit) ;
 	  Long64_t matchFlag1 = (Long64_t) theBigTree.daughters_trgMatched->at(firstDaughterIndex);
 	  Long64_t matchFlag2 = (Long64_t) theBigTree.daughters_trgMatched->at(secondDaughterIndex);
 	  //bool passMatch1 = false; //FRA: not used anymore with triggerReader_cross
 	  //bool passMatch2 = false; //FRA: not used anymore with triggerReader_cross
-      bool passMatch = false;
+	  bool passMatch = false;
 	  Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
 	  bool trgNotOverlap = false;
 
@@ -1739,27 +1749,18 @@ int main (int argc, char** argv)
 	      passMatch = trigReader.checkOR (pairType, matchFlag1) ;
 	      trgNotOverlap = true;
 	  }
-      else if (pairType == 2)
-      {
-         //bool passMatch1 = trigReader.checkOR(pairType, matchFlag1);
-         //bool passMatch2 = trigReader.checkOR(pairType, matchFlag2);
-         bool passMatch1 = trigReader.checkORTauTau(matchFlag1);
-         bool passMatch2 = trigReader.checkORTauTau(matchFlag2);
-         
-         passMatch = passMatch1 && passMatch2;
-         trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag);
-      }
-	  else // pairType 0 or 1 (MuTau or EleTau )
+
+	  else // pairType 0, 1 or 2 (MuTau, EleTau or TauTau)
 	  {
           passMatch =  trigReader.checkOR (pairType, matchFlag1, matchFlag2);
-	      trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
+	  trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag, trgNotOverlapFlag) ;
 	  }
 
 	  // require trigger + legs matched
 	  //bool triggerAccept = (passTrg && passMatch1 && passMatch2 && trgNotOverlap) ; //FRA: with crossTrigs match1&match2 are together
 	  bool triggerAccept = (passTrg && passMatch && trgNotOverlap) ;
 
-	  if (theBigTree.EventNumber == debugEvent)
+	  if(DEBUG)
 	    {
 	      Long64_t matchFlag1LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(firstDaughterIndex);
 	      Long64_t matchFlag2LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(secondDaughterIndex);
@@ -1773,6 +1774,20 @@ int main (int argc, char** argv)
 		   <<  " LF1=" << isLF1 << " L31=" << isL31
 		   <<  " LF2=" << isLF2 << " L32=" << isL32
 		   << endl;
+	      if(triggerAccept){
+		if(pairType == 0)//MuTau
+		  {
+		      trigReader.listMuTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag);
+		  }
+		if(pairType == 1)//ETau
+		  {
+		     trigReader.listETau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag);
+		  }
+		if(pairType == 2)//TauTau
+		  {
+		     trigReader.listTauTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag);
+		  }
+	      }
 	    }
 
 	  if (!triggerAccept) continue;
@@ -2212,7 +2227,7 @@ int main (int argc, char** argv)
 	     ) ;
 	  thirdLeptons.push_back (make_pair(tlv_dummyLepton.Pt(), iLep)) ;
       
-	  if (theBigTree.EventNumber == debugEvent)
+	  if(DEBUG)
 	    {
 	      cout << "** 3rd lep veto passed"
 		   << " idx="  << iLep
@@ -2249,7 +2264,7 @@ int main (int argc, char** argv)
 	  ++theSmallTree.m_nleps ;
 	} 
 
-      if (theBigTree.EventNumber == debugEvent)
+      if(DEBUG)
 	{
 	  cout << "***** DEBUG: nleps="<< theSmallTree.m_nleps<< endl;
 	}
@@ -3350,7 +3365,7 @@ int main (int argc, char** argv)
 			  tlv_subj2.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
 			}
 
-		      if (theBigTree.EventNumber == debugEvent)
+		      if(DEBUG)
 			{
 			  cout << "- nSJ=" << nSJ << " px=" << theBigTree.subjets_px->at(isj) << endl;
 			}
@@ -3360,7 +3375,7 @@ int main (int argc, char** argv)
 		  bool A1B2 = (tlv_subj1.DeltaR(tlv_firstBjet) < 0.4)   && (tlv_subj2.DeltaR(tlv_secondBjet) < 0.4 );
 		  bool A2B1 = (tlv_subj1.DeltaR(tlv_secondBjet) < 0.4)  && (tlv_subj2.DeltaR(tlv_firstBjet) < 0.4 );
 
-		  if (theBigTree.EventNumber == debugEvent)
+		  if(DEBUG)
 		    {
 		      cout << " fatjet: idx " << ifj << " nsj=" << sjIdxs.size() 
 			   << " sj1pt=" << tlv_subj1.Pt() << " sj1eta=" << tlv_subj1.Eta() << " sj1phi=" << tlv_subj1.Phi()
@@ -3374,7 +3389,7 @@ int main (int argc, char** argv)
 		  fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_deepCSV_probb->at(ifj)+theBigTree.ak8jets_deepCSV_probbb->at(ifj), ifj));
 		}
 
-	      if (theBigTree.EventNumber == debugEvent)
+	      if(DEBUG)
 		{
 		  cout << " N selected fatjets : " << fatjets_bTag.size() << endl;
 		}
