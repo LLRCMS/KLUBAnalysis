@@ -257,6 +257,44 @@ vector<int> findSubjetIdxs (unsigned int iFatJet, bigTree & theBigTree)
 
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
+// get shifted MET
+TVector2 getShiftedMET (float shift, TVector2 MET, bigTree & theBigTree)
+{
+  double corrMETx = MET.Px();
+  double corrMETy = MET.Py();
+
+  for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
+  {
+    // build original jet
+    TLorentzVector tlv_jet (theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
+
+    // get uncertainty
+    double unc = theBigTree.jets_jecUnc->at(iJet);
+
+    // build shifted jet
+    TLorentzVector tlv_jet_shifted = tlv_jet;
+    tlv_jet_shifted.SetPtEtaPhiE(
+        (1.+shift*unc) * tlv_jet.Pt(),
+        tlv_jet.Eta(),
+        tlv_jet.Phi(),
+        (1.+shift*unc) * tlv_jet.E()
+        );
+
+    // shift MET - first the original jet
+    corrMETx += tlv_jet.Px();
+    corrMETy += tlv_jet.Py();
+
+    // shift MET - then the shifted jet
+    corrMETx -= tlv_jet_shifted.Px();
+    corrMETy -= tlv_jet_shifted.Py();
+  }
+
+  TVector2 shiftedMET(corrMETx, corrMETy);
+
+  return shiftedMET;
+}
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // turn on function for trigger reweight
 
 float turnOnCB(float x, float m0, float sigma, float alpha, float n, float norm)
@@ -1943,6 +1981,15 @@ int main (int argc, char** argv)
       theSmallTree.m_met_cov01 = theBigTree.MET_cov01->at (chosenTauPair);
       theSmallTree.m_met_cov10 = theBigTree.MET_cov10->at (chosenTauPair);
       theSmallTree.m_met_cov11 = theBigTree.MET_cov11->at (chosenTauPair);
+
+      //shifted MET
+      TVector2 vMET_jetup   = getShiftedMET(+1., vMET, theBigTree);
+      TVector2 vMET_jetdown = getShiftedMET(-1., vMET, theBigTree);
+      theSmallTree.m_met_phi_jetup   = vMET_jetup.Phi();
+      theSmallTree.m_met_et_jetup    = vMET_jetup.Mod();
+      theSmallTree.m_met_phi_jetdown = vMET_jetdown.Phi();
+      theSmallTree.m_met_et_jetdown  = vMET_jetdown.Mod();
+
       theSmallTree.m_mT1       = theBigTree.mT_Dau1->at (chosenTauPair) ;
       theSmallTree.m_mT2       = theBigTree.mT_Dau2->at (chosenTauPair) ;
 
@@ -2227,8 +2274,7 @@ int main (int argc, char** argv)
 	    }  
 	  else if (theBigTree.particleType->at (iLep) == 0) // muons
 	    {
-	      //if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuLoose)) continue ;
-	      if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuMedium)) continue ; //FRA: syncFeb2018
+	      if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuLoose)) continue ;
 	    }
 	  else if (theBigTree.particleType->at (iLep) == 1) // electrons
 	    {
@@ -2531,14 +2577,16 @@ int main (int argc, char** argv)
 	  theSmallTree.m_met_et_corr = theBigTree.met - tlv_neutrinos.Et() ;
 
 	  const TVector2 ptmiss = TVector2(METx, METy) ;
-	  //TVector2 ptmiss = TVector2(METx,METy);
 	  TMatrixD metcov (2, 2) ;
 	  metcov (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
 	  metcov (1,0) = theBigTree.MET_cov10->at (chosenTauPair) ;
 	  metcov (0,1) = theBigTree.MET_cov01->at (chosenTauPair) ;    
 	  metcov (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
+	  const TMatrixD stableMetCov = metcov;
 
-	  const TMatrixD stableMetCov = metcov; 
+      const TVector2 ptmiss_jetup   = getShiftedMET(+1., ptmiss, theBigTree);
+      const TVector2 ptmiss_jetdown = getShiftedMET(-1., ptmiss, theBigTree);
+
 	  theSmallTree.m_bH_pt = tlv_bH.Pt () ;
 	  theSmallTree.m_bH_eta = tlv_bH.Eta () ;
 	  theSmallTree.m_bH_phi = tlv_bH.Phi () ;
@@ -2591,8 +2639,8 @@ int main (int argc, char** argv)
 	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
 	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_tauup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_tauup, tlv_secondLepton_tauup,  ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
 	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_taudown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_taudown, tlv_secondLepton_taudown,  ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
-	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw_jetup, tlv_secondBjet_raw_jetup, tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
-	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetdown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw_jetdown, tlv_secondBjet_raw_jetdown, tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
+	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw_jetup, tlv_secondBjet_raw_jetup, tlv_firstLepton, tlv_secondLepton,  ptmiss_jetup, stableMetCov, bjet1_JER, bjet2_JER) ;
+	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetdown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw_jetdown, tlv_secondBjet_raw_jetdown, tlv_firstLepton, tlv_secondLepton,  ptmiss_jetdown, stableMetCov, bjet1_JER, bjet2_JER) ;
 
 	      //           kinFits.setAdvancedBalance (&ptmiss, metcov) ;
 	      //           kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
@@ -2873,6 +2921,8 @@ int main (int argc, char** argv)
 	      double mVisB_jetup = tlv_secondBjet_raw_jetup.M(); // mass of visible object on side B. 
 	      double pxB_jetup = tlv_secondBjet_raw_jetup.Px(); // x momentum of visible object on side B.
 	      double pyB_jetup = tlv_secondBjet_raw_jetup.Py(); // y momentum of visible object on side B.
+          double pxMiss_jetup = tlv_firstLepton.Px() + tlv_secondLepton.Px() + ptmiss_jetup.Px(); // shiftedMET_up
+          double pyMiss_jetup = tlv_firstLepton.Py() + tlv_secondLepton.Py() + ptmiss_jetup.Py(); // shiftedMET_up
 
 	      double mVisA_jetdown = tlv_firstBjet_raw_jetdown.M(); // mass of visible object on side A.  
 	      double pxA_jetdown = tlv_firstBjet_raw_jetdown.Px(); // x momentum of visible object on side A.
@@ -2880,6 +2930,8 @@ int main (int argc, char** argv)
 	      double mVisB_jetdown = tlv_secondBjet_raw_jetdown.M(); // mass of visible object on side B. 
 	      double pxB_jetdown = tlv_secondBjet_raw_jetdown.Px(); // x momentum of visible object on side B.
 	      double pyB_jetdown = tlv_secondBjet_raw_jetdown.Py(); // y momentum of visible object on side B.
+          double pxMiss_jetdown = tlv_firstLepton.Px() + tlv_secondLepton.Px() + ptmiss_jetdown.Px(); // shiftedMET_up
+          double pyMiss_jetdown = tlv_firstLepton.Py() + tlv_secondLepton.Py() + ptmiss_jetdown.Py(); // shiftedMET_up
 
 
 	      double desiredPrecisionOnMt2 = 0; // Must be >=0.  If 0 alg aims for machine precision.  if >0, MT2 computed to supplied absolute precision.
@@ -2910,14 +2962,14 @@ int main (int argc, char** argv)
 	      double MT2_jetup =  asymm_mt2_lester_bisect::get_mT2(
 								   mVisA_jetup, pxA_jetup, pyA_jetup,
 								   mVisB_jetup, pxB_jetup, pyB_jetup,
-								   pxMiss, pyMiss,
+								   /*pxMiss, pyMiss,*/ pxMiss_jetup, pyMiss_jetup, // shiftedMET
 								   chiA, chiB,
 								   desiredPrecisionOnMt2);
 
 	      double MT2_jetdown =  asymm_mt2_lester_bisect::get_mT2(
 								     mVisA_jetdown, pxA_jetdown, pyA_jetdown,
 								     mVisB_jetdown, pxB_jetdown, pyB_jetdown,
-								     pxMiss, pyMiss,
+								     /*pxMiss, pyMiss,*/ pxMiss_jetdown, pyMiss_jetdown, // shiftedMET
 								     chiA, chiB,
 								     desiredPrecisionOnMt2);
 
