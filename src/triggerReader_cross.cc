@@ -292,8 +292,8 @@ bool triggerReader_cross::checkOR (int pairType, Long64_t triggerbit_1, Long64_t
 
     if      (pairType == ((int) OfflineProducerHelper::MuHad) ) return checkORMuTauWithCross (triggerbit_1, triggerbit_2);
     else if (pairType == ((int) OfflineProducerHelper::EHad)  ) return checkOREleTauWithCross(triggerbit_1, triggerbit_2);
-    //else if (pairType == ((int) OfflineProducerHelper::HadHad)) return checkORTauTauWithCross(triggerbit_1, triggerbit_2); // new version, not working, not clear why
-    else if (pairType == ((int) OfflineProducerHelper::HadHad)) return checkORTauTau(triggerbit_1); // old version, working
+    else if (pairType == ((int) OfflineProducerHelper::HadHad)) return checkORTauTauWithCross(triggerbit_1, triggerbit_2); // new version, not working, not clear why
+    //else if (pairType == ((int) OfflineProducerHelper::HadHad)) return checkORTauTau(triggerbit_1); // old version, working
     else if (pairType == ((int) OfflineProducerHelper::EMu)   ) return checkORMuEle (triggerbit_1);
     else if (pairType == ((int) OfflineProducerHelper::EE)    ) return checkOREleEle(triggerbit_1);
     else if (pairType == ((int) OfflineProducerHelper::MuMu)  ) return checkORMuMu  (triggerbit_1);
@@ -307,4 +307,138 @@ bool triggerReader_cross::checkOR (int pairType, Long64_t triggerbit_1, Long64_t
 
 
 
+void triggerReader_cross::listTauTau  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap)
+{
+    bool OR      = false;
+    bool match1 = false;
+    bool match2 = false;
+    bool _trgNoOverlap = false;
+    bool match = false;
+    for (unsigned int i = 0; i < _ttCrossTriggers.size(); i++)
+      {
+	
+	OR = CheckBit (triggerbit_1, _ttCrossTriggers.at(i));
+	if (OR)
+	  {
+	    cout <<"** trg: cross TauTau fired: "<<_allTriggers.at(_ttCrossTriggers.at(i))<<endl;
+	    match1 = CheckBit (matchFlag1, _ttCrossTriggers.at(i));
+	    match2 = CheckBit (matchFlag2, _ttCrossTriggers.at(i));
+	    match = match1 && match2;
+	    _trgNoOverlap = CheckBit (trgNoOverlap, _ttCrossTriggers.at(i));
+	    cout <<"   matchFlag   "<< match<<endl;
+	    cout <<"   trgNoOverlap "<<_trgNoOverlap<<endl;
+	  }
+      }
+    
+    for (unsigned int i = 0; i < _ttTriggers.size(); i++)
+      {
+	OR = CheckBit (triggerbit_1, _ttTriggers.at(i));
 
+	if (OR) {
+	  cout <<"** trg: single TauTau fired: "<<_allTriggers.at(_ttTriggers.at(i))<<endl;
+	  match1 = CheckBit (matchFlag1, _ttTriggers.at(i));
+	  match2 = true;
+	  match = match1 && match2;
+	  _trgNoOverlap = CheckBit (trgNoOverlap, _ttTriggers.at(i));
+	  cout <<"   matchFlag   "<< match<<endl;
+	  cout <<"   trgNoOverlap "<<_trgNoOverlap<<endl;
+	}
+      }
+
+}
+
+
+void triggerReader_cross::listETau  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap)
+{
+    bool OR      = false;
+    bool match1 = false;
+    bool match2 = false;
+    bool _trgNoOverlap = false;
+    bool match = false;
+    for (unsigned int i = 0; i < _etCrossTriggers.size(); i++)
+      {
+	
+	OR = CheckBit (triggerbit_1, _etCrossTriggers.at(i));
+	if (OR)
+	  {
+	    cout <<"** trg: cross ETau fired: "<<_allTriggers.at(_etCrossTriggers.at(i))<<endl;
+	    match1 = CheckBit (matchFlag1, _etCrossTriggers.at(i));
+	    match2 = CheckBit (matchFlag2, _etCrossTriggers.at(i));
+	    match = match1 && match2;
+	    _trgNoOverlap = CheckBit (trgNoOverlap, _etCrossTriggers.at(i));
+	    cout <<"   matchFlag   "<< match<<endl;
+	    cout <<"   trgNoOverlap "<<_trgNoOverlap<<endl;
+	  }
+      }
+    
+    for (unsigned int i = 0; i < _etTriggers.size(); i++)
+      {
+	OR = CheckBit (triggerbit_1, _etTriggers.at(i));
+
+	if (OR) {
+	  cout <<"** trg: single TauTau fired: "<<_allTriggers.at(_etTriggers.at(i))<<endl;
+	  match1 = CheckBit (matchFlag1, _etTriggers.at(i));
+	  match2 = CheckBit (matchFlag2, _etTriggers.at(i));
+	  match = match1 && match2;
+	  _trgNoOverlap = CheckBit (trgNoOverlap, _etTriggers.at(i));
+	  cout <<"   matchFlag   "<< match<<endl;
+	  cout <<"   trgNoOverlap "<<_trgNoOverlap<<endl;
+	}
+      }
+
+}
+
+
+void triggerReader_cross::listMuTau  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap)
+{
+    bool OR      = false;
+    bool match1 = false;
+    bool match2 = false;
+    bool _trgNoOverlap = false;
+    bool match = false;
+    for (unsigned int i = 0; i < _mtCrossTriggers.size(); i++)
+      {
+	
+	OR = CheckBit (triggerbit_1, _mtCrossTriggers.at(i));
+	if (OR)
+	  {
+	    cout <<"** trg: cross MTau fired: "<<_allTriggers.at(_mtCrossTriggers.at(i))<<endl;
+	    match1 = CheckBit (matchFlag1, _mtCrossTriggers.at(i));
+	    match2 = CheckBit (matchFlag2, _mtCrossTriggers.at(i));
+	    match = match1 && match2;
+	    _trgNoOverlap = CheckBit (trgNoOverlap, _mtCrossTriggers.at(i));
+	    cout <<"   matchFlag   "<< match<<endl;
+	    cout <<"   trgNoOverlap "<<_trgNoOverlap<<endl;
+	  }
+      }
+    
+    for (unsigned int i = 0; i < _mtTriggers.size(); i++)
+      {
+	OR = CheckBit (triggerbit_1, _mtTriggers.at(i));
+
+	if (OR) {
+	  cout <<"** trg: single TauTau fired: "<<_allTriggers.at(_mtTriggers.at(i))<<endl;
+	  match1 = CheckBit (matchFlag1, _mtTriggers.at(i));
+	  match2 = CheckBit (matchFlag2, _mtTriggers.at(i));
+	  match = match1 && match2;
+	  _trgNoOverlap = CheckBit (trgNoOverlap, _mtTriggers.at(i));
+	  cout <<"   matchFlag   "<< match<<endl;
+	  cout <<"   trgNoOverlap "<<_trgNoOverlap<<endl;
+	}
+      }
+
+}
+
+
+
+/*void triggerReader_cross::test()
+{
+  for (unsigned int i = 0; i < _etCrossTriggers.size(); i++)
+    {
+      
+      cout <<"** trg: cross eletau : "<<_allTriggers.at(_etCrossTriggers.at(i))<<endl;
+    }
+
+  
+}
+*/
