@@ -2274,8 +2274,7 @@ int main (int argc, char** argv)
 	    }  
 	  else if (theBigTree.particleType->at (iLep) == 0) // muons
 	    {
-	      //if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuLoose)) continue ;
-	      if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuMedium)) continue ; //FRA: syncFeb2018
+	      if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuLoose)) continue ;
 	    }
 	  else if (theBigTree.particleType->at (iLep) == 1) // electrons
 	    {
