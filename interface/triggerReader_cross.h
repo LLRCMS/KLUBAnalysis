@@ -34,9 +34,9 @@ class triggerReader_cross
 
         bool checkOR (int pairType, Long64_t triggerbit_1, Long64_t triggerbit_2=0);
 	//	void test ();
-	void listTauTau (Long64_t triggerbit_1,Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap);
-	void listETau   (Long64_t triggerbit_1,Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap);
-	void listMuTau  (Long64_t triggerbit_1,Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap);
+	void listTauTau (Long64_t triggerbit_1,Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2);
+	void listETau   (Long64_t triggerbit_1,Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2);
+	void listMuTau  (Long64_t triggerbit_1,Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2);
 	
     private:
         std::vector<std::string> _allTriggers; // all trigger names

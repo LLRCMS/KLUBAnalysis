@@ -584,12 +584,7 @@ int main (int argc, char** argv)
   ULong64_t debugEvent = -1; // will be converted to numerical max, and never reached
   if (gConfigParser->isDefined("parameters::debugEvent"))
     debugEvent = (ULong64_t) gConfigParser->readIntOption("parameters::debugEvent");
-    Int_t debugRun = -1; // will be converted to numerical max, and never reached
-  if (gConfigParser->isDefined("parameters::debugRun"))
-    debugRun = (ULong64_t) gConfigParser->readIntOption("parameters::debugRun");
-      Int_t debugLumi = -1; // will be converted to numerical max, and never reached
-  if (gConfigParser->isDefined("parameters::debugLumi"))
-    debugLumi = (ULong64_t) gConfigParser->readIntOption("parameters::debugLumi");
+
 
   vector<string> trigMuTau   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuTau")  : gConfigParser->readStringListOption ("triggersData::MuTau")) ;
   vector<string> trigTauTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::TauTau") : gConfigParser->readStringListOption ("triggersData::TauTau")) ;
@@ -956,11 +951,8 @@ int main (int argc, char** argv)
       //if (theBigTree.EventNumber != debugEvent) continue; //FRA
       if (theBigTree.EventNumber == debugEvent )
 	{
-	  if ( theBigTree.RunNumber ==debugRun && theBigTree.lumi == debugLumi){
 	  cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
 	  DEBUG = true;
-	  }
-
 	}
 
       // remove a lumisection that was present in 16 Giu JSON and removed in 22 and subsequent JSON
@@ -1773,12 +1765,14 @@ int main (int argc, char** argv)
 	  bool passTrg = trigReader.checkOR (pairType, triggerbit,triggerbit) ;
 	  Long64_t matchFlag1 = (Long64_t) theBigTree.daughters_trgMatched->at(firstDaughterIndex);
 	  Long64_t matchFlag2 = (Long64_t) theBigTree.daughters_trgMatched->at(secondDaughterIndex);
-	  //bool passMatch1 = false; //FRA: not used anymore with triggerReader_cross
-	  //bool passMatch2 = false; //FRA: not used anymore with triggerReader_cross
+	  Long64_t goodTriggerType1 = (Long64_t) theBigTree.daughters_isGoodTriggerType->at(firstDaughterIndex);
+	  Long64_t goodTriggerType2 = (Long64_t) theBigTree.daughters_isGoodTriggerType->at(secondDaughterIndex);
+	  
+
 	  bool passMatch = false;
 	  Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
 	  bool trgNotOverlap = false;
-
+	  bool goodTriggerType = false;
       /* // Old version used with single triggers
       bool isCrossTrg = true;
 	  bool trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
@@ -1789,28 +1783,26 @@ int main (int argc, char** argv)
           passMatch2 = true;
           trgNotOverlap = true; // FIXME: true only for single lepton triggers!
 	  }
-	  else if (pairType == 2)
-	  {
-          passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
-          passMatch2 = trigReader.checkOR (pairType, matchFlag2) ;
-	  }*/
+      */
         
 	  if (pairType == 3 || pairType == 4) // MuMu, EleEle
 	  {
 	      // Only single object triggers for these two channels
 	      passMatch = trigReader.checkOR (pairType, matchFlag1) ;
 	      trgNotOverlap = true;
+	      goodTriggerType = trigReader.checkOR (pairType, goodTriggerType1) ;
 	  }
 
 	  else // pairType 0, 1 or 2 (MuTau, EleTau or TauTau)
 	  {
-          passMatch =  trigReader.checkOR (pairType, matchFlag1, matchFlag2);
-	  trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag, trgNotOverlapFlag) ;
+	    passMatch =  trigReader.checkOR (pairType, matchFlag1, matchFlag2);
+	    trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag, trgNotOverlapFlag) ;
+	    goodTriggerType = trigReader.checkOR (pairType, goodTriggerType1, goodTriggerType2) ;
 	  }
 
 	  // require trigger + legs matched
 	  //bool triggerAccept = (passTrg && passMatch1 && passMatch2 && trgNotOverlap) ; //FRA: with crossTrigs match1&match2 are together
-	  bool triggerAccept = (passTrg && passMatch && trgNotOverlap) ;
+	  bool triggerAccept = (passTrg && passMatch && trgNotOverlap && goodTriggerType) ;
 
 	  if(DEBUG)
 	    {
@@ -1822,22 +1814,22 @@ int main (int argc, char** argv)
 	      bool isL31 = trigReader.checkOR (pairType, matchFlag1L3);
 	      bool isLF2 = trigReader.checkOR (pairType, matchFlag2LF);
 	      bool isL32 = trigReader.checkOR (pairType, matchFlag2L3);
-	      cout << "** trg check: trgAccept=" << triggerAccept << " passTrg=" << passTrg << " passMatch=" << passMatch << " noOverlap=" << trgNotOverlap
-		   <<  " LF1=" << isLF1 << " L31=" << isL31
+	      cout << "** trg check: trgAccept=" << triggerAccept << " passTrg=" << passTrg << " passMatch=" << passMatch << " noOverlap=" << trgNotOverlap<<" goodTriggerType= "<<goodTriggerType<<endl;
+		  cout <<  " LF1=" << isLF1 << " L31=" << isL31
 		   <<  " LF2=" << isLF2 << " L32=" << isL32
 		   << endl;
 	      if(triggerAccept){
 		if(pairType == 0)//MuTau
 		  {
-		      trigReader.listMuTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag);
+		    trigReader.listMuTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
 		  }
 		if(pairType == 1)//ETau
 		  {
-		     trigReader.listETau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag);
+		     trigReader.listETau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
 		  }
 		if(pairType == 2)//TauTau
 		  {
-		     trigReader.listTauTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag);
+		    trigReader.listTauTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
 		  }
 	      }
 	    }
