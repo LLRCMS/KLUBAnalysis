@@ -1,6 +1,6 @@
 #OUTDIRR="Skims2017_10Gen2018"
 AMESSAGE="skims for 2018 synch"
-OUTDIRR="Synch2018_test" 
+OUTDIRR="Synch2018_test2_trigType" 
 
 source /opt/exp_soft/cms/t3/t3setup
 mkdir /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/

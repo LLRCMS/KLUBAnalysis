@@ -25,14 +25,20 @@ class triggerReader_cross
         bool checkORMuTauWithCross   (Long64_t triggerbit_1, Long64_t triggerbit_2);
         bool checkOREleTauWithCross  (Long64_t triggerbit_1, Long64_t triggerbit_2);
         bool checkORTauTauWithCross  (Long64_t triggerbit_1, Long64_t triggerbit_2);
+	bool checkORMuTauNew         (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2);
+        bool checkOREleTauNew        (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2);
+        bool checkORTauTauNew        (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2);
         bool checkORTauTau           (Long64_t triggerbit); // old style tautau
         bool checkORMuEle            (Long64_t triggerbit);
         bool checkORMuMu             (Long64_t triggerbit);
         bool checkOREleEle           (Long64_t triggerbit);
+        bool checkORMuEleNew         (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1);
+        bool checkORMuMuNew          (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1);
+        bool checkOREleEleNew        (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1);
 
         bool CheckBit (Long64_t number, int bitpos);
 
-        bool checkOR (int pairType, Long64_t triggerbit_1, Long64_t triggerbit_2=0);
+        bool checkOR (int pairType, Long64_t triggerbit_1, Long64_t matchFlag1=1, Long64_t matchFlag2=1, Long64_t trgNoOverlap=1, Long64_t goodTriggerType1=1, Long64_t goodTriggerType2=1);
 	//	void test ();
 	void listTauTau (Long64_t triggerbit_1,Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2);
 	void listETau   (Long64_t triggerbit_1,Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2);
