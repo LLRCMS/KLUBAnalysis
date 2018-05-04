@@ -1800,19 +1800,17 @@ int main (int argc, char** argv)
 	      bool isLF2 = trigReader.checkOR (pairType, matchFlag2LF);
 	      bool isL32 = trigReader.checkOR (pairType, matchFlag2L3);
 	      //cout << "** trg check: trgAccept=" << triggerAccept << " passTrg=" << passTrg << " passMatch=" << passMatch << " noOverlap=" << trgNotOverlap<<" goodTriggerType= "<<goodTriggerType<<endl;
-		  cout <<  " LF1=" << isLF1 << " L31=" << isL31
-		   <<  " LF2=" << isLF2 << " L32=" << isL32
-		   << endl;
-		  cout << "** trg check: trgAccept=" << triggerAccept	     <<endl;
-		if(pairType == 0)//MuTau
+		  //cout <<  " LF1=" << isLF1 << " L31=" << isL31 <<  " LF2=" << isLF2 << " L32=" << isL32 << endl;
+		  //cout << "** trg check: trgAccept=" << triggerAccept	     <<endl;
+		  if(pairType == 0)//MuTau
 		  {
 		    trigReader.listMuTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
 		  }
-		if(pairType == 1)//ETau
+		  if(pairType == 1)//ETau
 		  {
 		     trigReader.listETau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
 		  }
-		if(pairType == 2)//TauTau
+		  if(pairType == 2)//TauTau
 		  {
 		    trigReader.listTauTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
 		  }
