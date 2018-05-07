@@ -1769,7 +1769,7 @@ int main (int argc, char** argv)
 	  Long64_t goodTriggerType2 = (Long64_t) theBigTree.daughters_isGoodTriggerType->at(secondDaughterIndex);
 
 	  Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
-	  bool passTrg = trigReader.checkOR (pairType,triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2) ;
+	  bool passTrg = trigReader.checkOR (pairType,triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt()) ;
 
       /* // Old version used with single triggers
       bool isCrossTrg = true;
@@ -1791,14 +1791,14 @@ int main (int argc, char** argv)
 
 	  if(DEBUG)
 	    {
-	      Long64_t matchFlag1LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(firstDaughterIndex);
-	      Long64_t matchFlag2LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(secondDaughterIndex);
-	      Long64_t matchFlag1L3 = (Long64_t) theBigTree.daughters_L3FilterFiredLast->at(firstDaughterIndex);
-	      Long64_t matchFlag2L3 = (Long64_t) theBigTree.daughters_L3FilterFiredLast->at(secondDaughterIndex);
-	      bool isLF1 = trigReader.checkOR (pairType, matchFlag1LF);
-	      bool isL31 = trigReader.checkOR (pairType, matchFlag1L3);
-	      bool isLF2 = trigReader.checkOR (pairType, matchFlag2LF);
-	      bool isL32 = trigReader.checkOR (pairType, matchFlag2L3);
+	      //Long64_t matchFlag1LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(firstDaughterIndex);
+	      //Long64_t matchFlag2LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(secondDaughterIndex);
+	      //Long64_t matchFlag1L3 = (Long64_t) theBigTree.daughters_L3FilterFiredLast->at(firstDaughterIndex);
+	      //Long64_t matchFlag2L3 = (Long64_t) theBigTree.daughters_L3FilterFiredLast->at(secondDaughterIndex);
+	      //bool isLF1 = trigReader.checkOR (pairType, matchFlag1LF);
+	      //bool isL31 = trigReader.checkOR (pairType, matchFlag1L3);
+	      //bool isLF2 = trigReader.checkOR (pairType, matchFlag2LF);
+	      //bool isL32 = trigReader.checkOR (pairType, matchFlag2L3);
 	      //cout << "** trg check: trgAccept=" << triggerAccept << " passTrg=" << passTrg << " passMatch=" << passMatch << " noOverlap=" << trgNotOverlap<<" goodTriggerType= "<<goodTriggerType<<endl;
 		  //cout <<  " LF1=" << isLF1 << " L31=" << isL31 <<  " LF2=" << isLF2 << " L32=" << isL32 << endl;
 		  //cout << "** trg check: trgAccept=" << triggerAccept	     <<endl;
