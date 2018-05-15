@@ -22,13 +22,14 @@ class triggerReader_cross
         void addMuTauCrossTrigs  (std::vector<std::string> list);
         void addEleTauCrossTrigs (std::vector<std::string> list);
         void addTauTauCrossTrigs (std::vector<std::string> list);
+        void addVBFTrigs         (std::vector<std::string> list);
 
-        bool checkORMuTauNew         (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2);
-        bool checkOREleTauNew        (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2);
-        bool checkORTauTauNew        (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2);
-        bool checkORMuEleNew         (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1);
-        bool checkORMuMuNew          (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1);
-        bool checkOREleEleNew        (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1);
+        bool checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2);
+        bool checkOREleTauNew (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2);
+        bool checkORTauTauNew (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2);
+        bool checkORMuEleNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1);
+        bool checkORMuMuNew   (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1);
+        bool checkOREleEleNew (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1);
 
         bool CheckBit (Long64_t number, int bitpos);
         bool checkOR (int pairType, Long64_t triggerbit_1, Long64_t matchFlag1=1, Long64_t matchFlag2=1, Long64_t trgNoOverlap=1, Long64_t goodTriggerType1=1, Long64_t goodTriggerType2=1, double pt_tau1=999, double pt_tau2=999);
@@ -38,6 +39,8 @@ class triggerReader_cross
         void listTauTau (Long64_t triggerbit_1,Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2);
         void listETau   (Long64_t triggerbit_1,Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2);
         void listMuTau  (Long64_t triggerbit_1,Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2);
+
+        bool isVBFfired (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2);
 	
     private:
         std::vector<std::string> _allTriggers; // all trigger names
@@ -52,5 +55,6 @@ class triggerReader_cross
         std::vector<Long64_t> _mtCrossTriggers; // mu tau cross triggers
         std::vector<Long64_t> _etCrossTriggers; // e tau  cross triggers
         std::vector<Long64_t> _ttCrossTriggers; // tau tau  cross triggers
+        std::vector<Long64_t> _vbfTriggers; // VBF triggers
 
 };

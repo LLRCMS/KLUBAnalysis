@@ -216,6 +216,40 @@ bool CheckBit (int number, int bitpos)
 }
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+// check that the VBF jets are correctly matched to different TrigerObjects
+bool checkVBFjetMatch(bool DEBUG, int iJet, int kJet, bigTree & theBigTree)
+{
+  bool goodmatch= true;
+
+  Long64_t jet1lead = theBigTree.jets_VBFleadFilterMatch   ->at(iJet);
+  Long64_t jet1subl = theBigTree.jets_VBFsubleadFilterMatch->at(iJet);
+  Long64_t jet2lead = theBigTree.jets_VBFleadFilterMatch   ->at(kJet);
+  Long64_t jet2subl = theBigTree.jets_VBFsubleadFilterMatch->at(kJet);
+
+  if (DEBUG)
+  {
+    cout << " ---   checking VBF jet legs   --- " << endl;
+    cout << "jet "<< iJet << " - leading    : " << std::bitset<64>(jet1lead) << endl;
+    cout << "jet "<< iJet << " - subleading : " << std::bitset<64>(jet1subl) << endl;
+    cout << "jet "<< kJet << " - leading    : " << std::bitset<64>(jet2lead) << endl;
+    cout << "jet "<< kJet << " - subleading : " << std::bitset<64>(jet2subl) << endl;
+    cout << "XOR leading       : " << (jet1lead^jet2lead) << endl;
+    cout << "XOR subleading    : " << (jet1subl^jet2subl) << endl;
+    if ( (jet1subl^jet2subl) == 0 ) cout << " -- same TO for the subleading jets" << endl;
+    if ( (jet1lead^jet2lead) == 0 ) cout << " -- same TO for the leading jets" << endl;
+    cout << " --- end checking VBF jet legs --- " << endl;
+  }
+
+  bool firstJetZero  = (jet1lead==0 && jet1subl==0);
+  bool secondJetZero = (jet2lead==0 && jet2subl==0);
+  if (firstJetZero || secondJetZero) goodmatch = false; //one of the two jets is not matched to any filter
+  if ( (jet1subl^jet2subl) == 0 )    goodmatch = false; //two jets are matched to the same TrigObj (subleading filter)
+  if ( (jet1lead^jet2lead) == 0 )    goodmatch = false; //two jets are matched to the same TrigObj (subleading filter)
+
+  return goodmatch;
+}
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 // implement operator < for b tag . first : CSV score ;  second : index
 bool bJetSort (const pair<float, int>& i, const pair<float, int>& j) {
@@ -597,7 +631,8 @@ int main (int argc, char** argv)
   vector<string> crossTrigTauTau = (isMC ? gConfigParser->readStringListOption ("triggersMC::crossTauTau") : gConfigParser->readStringListOption ("triggersData::crossTauTau")) ;
   vector<string> crossTrigMuTau  = (isMC ? gConfigParser->readStringListOption ("triggersMC::crossMuTau")  : gConfigParser->readStringListOption ("triggersData::crossMuTau") ) ;
   vector<string> crossTrigEleTau = (isMC ? gConfigParser->readStringListOption ("triggersMC::crossEleTau") : gConfigParser->readStringListOption ("triggersData::crossEleTau")) ;
-  
+  vector<string> vbfTriggers     = (isMC ? gConfigParser->readStringListOption ("triggersMC::vbfTriggers") : gConfigParser->readStringListOption ("triggersData::vbfTriggers")) ;
+
   // bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
   bool applyTriggers = isMC ? gConfigParser->readBoolOption ("parameters::applyTriggersMC") : true; // true if ask triggerbit + matching, false if doing reweight
 
@@ -629,6 +664,10 @@ int main (int argc, char** argv)
       
       cout << "  @ crossTauTau" << endl; cout << "   --> ";
       for (unsigned int i = 0 ; i < crossTrigTauTau.size(); i++) cout << "  " << crossTrigTauTau.at(i);
+      cout << endl;
+
+      cout << "  @ vbfTriggers" << endl; cout << "   --> ";
+      for (unsigned int i = 0 ; i < vbfTriggers.size(); i++) cout << "  " << vbfTriggers.at(i);
       cout << endl;
     }
 
@@ -674,6 +713,9 @@ int main (int argc, char** argv)
   int totalNoWeightsEventsNum = 0 ;
   int selectedNoWeightsEventsNum = 0 ;
 
+  // for VBF trigger matching
+  bool isVBFfired = false;
+
   // ------------------------------
   
   TH1F* hTriggers = getFirstFileHisto (inputFile);
@@ -702,6 +744,9 @@ int main (int argc, char** argv)
   trigReader.addTauTauCrossTrigs (crossTrigTauTau);
   trigReader.addMuTauCrossTrigs  (crossTrigMuTau);
   trigReader.addEleTauCrossTrigs (crossTrigEleTau);
+
+  // add VBF triggers for jet matching
+  trigReader.addVBFTrigs (vbfTriggers);
 
   // ------------------------------
 
@@ -1770,6 +1815,7 @@ int main (int argc, char** argv)
 
 	  Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
 	  bool passTrg = trigReader.checkOR (pairType,triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt()) ;
+      isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt());
 
       /* // Old version used with single triggers
       bool isCrossTrg = true;
@@ -2600,8 +2646,8 @@ int main (int argc, char** argv)
 	  float HHKmass = -999;
 	  float HHKChi2 = -999;
 	  // if (runHHKinFit && tlv_HH_raw.M() > 20 && tlv_HH_raw.M() < 200)
-	  if (runHHKinFit && pairType <= 2 && tlv_bH_raw.M() > 50 && tlv_bH_raw.M() < 200 && theBigTree.SVfitMass->at (chosenTauPair) > 50 && theBigTree.SVfitMass->at (chosenTauPair) < 200) // no kinfit for ee / mumu + very loose mass window
-	    // if (runHHKinFit && pairType <= 2) // FIXME: temporary
+	  //if (runHHKinFit && pairType <= 2 && tlv_bH_raw.M() > 50 && tlv_bH_raw.M() < 200 && theBigTree.SVfitMass->at (chosenTauPair) > 50 && theBigTree.SVfitMass->at (chosenTauPair) < 200) // no kinfit for ee / mumu + very loose mass window
+	  if (runHHKinFit && pairType <= 2) // FIXME: temporary
 	    {
 	      /*HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
 	      HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov) ;
@@ -3055,10 +3101,15 @@ int main (int argc, char** argv)
 		      if(fabs(kjet.Eta()) > 5.) continue; // keeping the whole HF coverage for the time being
 		      TLorentzVector jetPair = ijet+kjet;
             
-		      VBFcand_Mjj.push_back(make_tuple(jetPair.M(),iJet,kJet));
+		      bool VBFjetLegsMatched = checkVBFjetMatch(DEBUG, iJet,kJet, theBigTree);
+		      if (isVBFfired && !VBFjetLegsMatched) continue;
+              VBFcand_Mjj.push_back(make_tuple(jetPair.M(),iJet,kJet));
 		    }
 		}
         
+		// if is a VBF event (in the tautau channel) but no good candidate is found --> throw away the event
+		if (isVBFfired && VBFcand_Mjj.size()<=0) continue;
+
 	      if (VBFcand_Mjj.size()>0)
 		{
 		  theSmallTree.m_isVBF = 1;
@@ -3503,7 +3554,7 @@ int main (int argc, char** argv)
 		}
 	    }
 	}// if there's two jets in the event, at least
-  
+
       if (isMC) selectedEvents += theBigTree.aMCatNLOweight ;  //FIXME: probably wrong, but unused up to now
       else selectedEvents += 1 ;
       ++selectedNoWeightsEventsNum ;
