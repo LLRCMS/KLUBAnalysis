@@ -228,7 +228,7 @@ bool checkVBFjetMatch(bool DEBUG, int iJet, int kJet, bigTree & theBigTree)
 
   if (DEBUG)
   {
-    cout << " ---   checking VBF jet legs   --- " << endl;
+    cout << "---   checking VBF jet legs   --- " << endl;
     cout << "jet "<< iJet << " - leading    : " << std::bitset<64>(jet1lead) << endl;
     cout << "jet "<< iJet << " - subleading : " << std::bitset<64>(jet1subl) << endl;
     cout << "jet "<< kJet << " - leading    : " << std::bitset<64>(jet2lead) << endl;
@@ -237,7 +237,7 @@ bool checkVBFjetMatch(bool DEBUG, int iJet, int kJet, bigTree & theBigTree)
     cout << "XOR subleading    : " << (jet1subl^jet2subl) << endl;
     if ( (jet1subl^jet2subl) == 0 ) cout << " -- same TO for the subleading jets" << endl;
     if ( (jet1lead^jet2lead) == 0 ) cout << " -- same TO for the leading jets" << endl;
-    cout << " --- end checking VBF jet legs --- " << endl;
+    cout << "--- end checking VBF jet legs --- " << endl;
   }
 
   bool firstJetZero  = (jet1lead==0 && jet1subl==0);
@@ -292,13 +292,16 @@ vector<int> findSubjetIdxs (unsigned int iFatJet, bigTree & theBigTree)
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // get shifted MET
-TVector2 getShiftedMET (float shift, TVector2 MET, bigTree & theBigTree)
+TVector2 getShiftedMET (float shift, TVector2 MET, bigTree & theBigTree, bool DEBUG=false)
 {
   double corrMETx = MET.Px();
   double corrMETy = MET.Py();
 
+  if (DEBUG) cout << "*********** DEBUGGING JETS *********** "<< endl;
+
   for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
   {
+    // if (theBigTree.PFjetID->at (iJet) < 1) continue;
     // build original jet
     TLorentzVector tlv_jet (theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
 
@@ -321,9 +324,22 @@ TVector2 getShiftedMET (float shift, TVector2 MET, bigTree & theBigTree)
     // shift MET - then the shifted jet
     corrMETx -= tlv_jet_shifted.Px();
     corrMETy -= tlv_jet_shifted.Py();
+
+    // Debug printing
+    if (DEBUG)
+    {
+      cout << " Jet "   << setw(1) << left << iJet
+      << " - pt: "      << setw(7) << left << tlv_jet.Pt()
+      << " - eta: "     << setw(9) << left << tlv_jet.Eta()
+      << " - sf: "      << setw(8) << left << (1.+shift*unc)
+      << " - unc: "     << setw(10) << left << unc
+      << " - pfjetID: " << setw(2) <<left << theBigTree.PFjetID->at(iJet) << endl;
+    }
   }
 
   TVector2 shiftedMET(corrMETx, corrMETy);
+
+  if (DEBUG) cout << "*********** ************** *********** "<< endl;
 
   return shiftedMET;
 }
@@ -2004,8 +2020,8 @@ int main (int argc, char** argv)
       theSmallTree.m_met_cov11 = theBigTree.MET_cov11->at (chosenTauPair);
 
       //shifted MET
-      TVector2 vMET_jetup   = getShiftedMET(+1., vMET, theBigTree);
-      TVector2 vMET_jetdown = getShiftedMET(-1., vMET, theBigTree);
+      TVector2 vMET_jetup   = getShiftedMET(+1., vMET, theBigTree, DEBUG);
+      TVector2 vMET_jetdown = getShiftedMET(-1., vMET, theBigTree, DEBUG);
       theSmallTree.m_met_phi_jetup   = vMET_jetup.Phi();
       theSmallTree.m_met_et_jetup    = vMET_jetup.Mod();
       theSmallTree.m_met_phi_jetdown = vMET_jetdown.Phi();
@@ -3064,7 +3080,6 @@ int main (int argc, char** argv)
 
 	  // Tuple structure for VBF: (Mjj, ijet1, ijet2)
 	  std::vector< tuple<float, int, int> > VBFcand_Mjj; 
-      
 	  if (theBigTree.jets_px->size ()>1)
 	    {
 	      for (unsigned int iJet = 0 ;   (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++iJet)
@@ -3083,6 +3098,7 @@ int main (int argc, char** argv)
 		  if (ijet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
 		  if(ijet.Pt() < 30) continue;
 		  if(fabs(ijet.Eta()) > 5.) continue; // keeping the whole HF coverage for the time being
+
 		  for (unsigned int kJet = iJet+1 ;   (kJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++kJet)
 		    {
 		      if (int (kJet) == bjet1idx || int (kJet) == bjet2idx) continue;
@@ -3097,11 +3113,12 @@ int main (int argc, char** argv)
 				      );
 		      if (kjet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
 		      if (kjet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
-		      if(kjet.Pt() < 30) continue;		  
+		      if(kjet.Pt() < 30) continue;
 		      if(fabs(kjet.Eta()) > 5.) continue; // keeping the whole HF coverage for the time being
 		      TLorentzVector jetPair = ijet+kjet;
-            
-		      bool VBFjetLegsMatched = checkVBFjetMatch(DEBUG, iJet,kJet, theBigTree);
+
+              bool VBFjetLegsMatched = true;
+		      if (isVBFfired) VBFjetLegsMatched = checkVBFjetMatch(DEBUG, iJet,kJet, theBigTree);
 		      if (isVBFfired && !VBFjetLegsMatched) continue;
               VBFcand_Mjj.push_back(make_tuple(jetPair.M(),iJet,kJet));
 		    }
