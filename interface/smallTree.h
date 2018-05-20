@@ -76,6 +76,8 @@ struct smallTree
       m_met_cov01 = -1.;
       m_met_cov10 = -1.;
       m_met_cov11 = -1.;
+      m_met_er_phi = -1. ;
+      m_met_er_et = -1. ;
       m_mT1 = -1. ;
       m_mT2 = -1. ;
     
@@ -531,6 +533,8 @@ struct smallTree
       m_smallT->Branch ("met_cov01", &m_met_cov01, "met_cov01/F") ;
       m_smallT->Branch ("met_cov10", &m_met_cov10, "met_cov10/F") ;
       m_smallT->Branch ("met_cov11", &m_met_cov11, "met_cov11/F") ;
+      m_smallT->Branch ("met_er_phi", &m_met_er_phi, "met_er_phi/F") ;
+      m_smallT->Branch ("met_er_et", &m_met_er_et, "met_er_et/F") ;
       m_smallT->Branch ("mT1", &m_mT1, "mT1/F") ;
       m_smallT->Branch ("mT2", &m_mT2, "mT2/F") ;
 
@@ -977,6 +981,8 @@ struct smallTree
   Float_t m_met_cov01;
   Float_t m_met_cov10;
   Float_t m_met_cov11;
+  Float_t m_met_er_phi ;
+  Float_t m_met_er_et ;
   // mt
   Float_t m_mT1 ;
   Float_t m_mT2 ;
