@@ -48,7 +48,8 @@ from subprocess import Popen, PIPE
 #tag = "MCSUSY_2Apr2017"
 #tag = "MC_gravitons_24Apr2017"
 #tag = "MC_gravitonsRS_29Apr2017"
-tag = "MC_VBF_Summer16_singleTop"
+#tag = "MC_VBF_Summer16_singleTop"
+tag = "MC_PU2017_12Apr2018_met"
 #outFolder = "../inputFiles/28Ago2015/" # write / at the end
 #outFolder = "../inputFiles/13Ott2015/25ns/"
 # make list of EminiAOD from storage as publication has problems
@@ -74,7 +75,7 @@ tag = "MC_VBF_Summer16_singleTop"
 #outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_22Feb2017'
 #outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_5apr_SUSY'
 #outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/VBF_signals_13Nov'
-outFolder = '/home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_17Nov_VBF'
+outFolder = '/home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_15May2018'
 
 areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
                                  # if false: only add the polgrid server to run the skim and submit on root
@@ -112,12 +113,9 @@ print useOnly
 
 
 dpmhome = "/dpm/in2p3.fr/home/cms/trivcat"
-#partialPath = "/store/user/lcadamur/HHNtuples/" #folder contenente la produzione
-partialPath = "/store/user/camendol/HHNtuples/"
-#partialPath = "/store/user/govoni/HHNtuples/" 
-# partialPath = "/store/user/salerno/HHNtuples/"
-#partialPath = "/store/user/davignon/EnrichedMiniAOD/"
-#partialPath = "/store/user/gortona/HHNtuples/"
+
+partialPath = "/store/user/camendol/HHNtuples2017/"
+
 
 path = dpmhome + partialPath + tag
 if outFolder[-1] != "/": outFolder += '/'

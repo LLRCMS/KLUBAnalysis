@@ -88,13 +88,21 @@ const float DYscale_MM[3] = {1.14119, 1.18722, 1.17042} ;
 //     {0.353436942964 , 0.284254291888 , 0.0963966329522 , 0.0972197079415 , 0.092337393936}
 // };  // jet binned and b binned, 28 nov 2016
 
+//const float stitchWeights [][5] = {
+//  {2.96970591027 , 0.0 , 0.0 , 0.0 , 0.0},
+//  {0.40848145146 , 0.33006603191 , 0.0 , 0.0 , 0.0},
+//  {0.420075226373 , 0.337888056259 , 0.096536134169 , 0.0 , 0.0},
+//  {0.431426212048 , 0.344817310665 , 0.0952166256522 , 0.094350931903 , 0.0},
+//  {0.339954183508 , 0.284560899763 , 0.0915028373483 , 0.0922864405088 , 0.0874799674999}
+//}; // jet binned and b binned, 07 Feb 2017
+
 const float stitchWeights [][5] = {
-  {2.96970591027 , 0.0 , 0.0 , 0.0 , 0.0},
-  {0.40848145146 , 0.33006603191 , 0.0 , 0.0 , 0.0},
-  {0.420075226373 , 0.337888056259 , 0.096536134169 , 0.0 , 0.0},
-  {0.431426212048 , 0.344817310665 , 0.0952166256522 , 0.094350931903 , 0.0},
-  {0.339954183508 , 0.284560899763 , 0.0915028373483 , 0.0922864405088 , 0.0874799674999}
-}; // jet binned and b binned, 07 Feb 2017
+  {1.49166469878 , 0.0 , 0.0 , 0.0 , 0.0},
+  {0.545579789753 , 0.54607930336 , 0.0 , 0.0 , 0.0},
+  {0.602575874352 , 0.603175997148 , 0.107123378186 , 0.0 , 0.0},
+  {0.946372237664 , 0.940962661039 , 0.112096286636 , 0.110395993746 , 0.0},
+  {1.49203056406 , 1.49017090208 , 0.119454024317 , 0.12119286803 , 0.111906675074}
+};// jet binned and b binned, 15 May 2018 
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // open input txt file and append all the files it contains to TChain
@@ -1051,6 +1059,8 @@ int main (int argc, char** argv)
 
 	  stitchWeight = stitchWeights[njets][nb];
 	}
+
+
       if (DEBUG && isMC)
 	{
 	  cout << "** DEBUG : gen particle list" << endl;
@@ -1206,11 +1216,13 @@ int main (int argc, char** argv)
 	{
 	  TLorentzVector vgj;
 	  int nbs = 0;
+	  cout <<"theBigTree.genjet_px->size()"<<theBigTree.genjet_px->size()<<endl;
 	  for (unsigned int igj = 0; igj < theBigTree.genjet_px->size(); igj++)
 	    {
 	      vgj.SetPxPyPzE(theBigTree.genjet_px->at(igj), theBigTree.genjet_py->at(igj), theBigTree.genjet_pz->at(igj), theBigTree.genjet_e->at(igj));
 	      if (vgj.Pt() > 20 && TMath::Abs(vgj.Eta()) < 2.5)
 		{
+
 		  int theFlav = theBigTree.genjet_hadronFlavour->at(igj);
 		  if (abs(theFlav) == 5) nbs++;
               
@@ -1257,7 +1269,6 @@ int main (int argc, char** argv)
 	  //   cout << "** ERROR: couldn't find 1 Z" << endl;
 	  // }
 	}
-
       // HH reweight for non resonant
       float HHweight = 1.0;
       TLorentzVector vHardScatter1;
