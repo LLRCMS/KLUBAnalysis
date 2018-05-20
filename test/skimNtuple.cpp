@@ -2011,6 +2011,8 @@ int main (int argc, char** argv)
       theSmallTree.m_lheNOutB = theBigTree.lheNOutB ;
       // theSmallTree.m_met_phi = theBigTree.metphi ;
       // theSmallTree.m_met_et = theBigTree.met ;
+      theSmallTree.m_met_er_phi = theBigTree.met_er_phi ;
+      theSmallTree.m_met_er_et = theBigTree.met_er ;
       TVector2 vMET (theBigTree.METx->at(chosenTauPair) , theBigTree.METy->at(chosenTauPair));
       theSmallTree.m_met_phi   = vMET.Phi();
       theSmallTree.m_met_et    =  vMET.Mod();

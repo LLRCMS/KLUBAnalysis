@@ -30,6 +30,8 @@ public :
    Int_t           metfilterbit;
    Float_t         met;
    Float_t         metphi;
+   Float_t         met_er;
+   Float_t         met_er_phi;
    Int_t           npv;
    Float_t         npu;
    Float_t         PUNumInteractions;
@@ -328,6 +330,8 @@ public :
    TBranch        *b_metfilterbit;   //!
    TBranch        *b_met;   //!
    TBranch        *b_metphi;   //!
+   TBranch        *b_met_er;   //!
+   TBranch        *b_met_er_phi;   //!
    TBranch        *b_npv;   //!
    TBranch        *b_npu;   //!
    TBranch        *b_PUNumInteractions;   //!
@@ -904,6 +908,8 @@ public :
        fChain->SetBranchAddress("metfilterbit", &metfilterbit, &b_metfilterbit);
        fChain->SetBranchAddress("met", &met, &b_met);
        fChain->SetBranchAddress("metphi", &metphi, &b_metphi);
+       fChain->SetBranchAddress("met_er", &met_er, &b_met_er);
+       fChain->SetBranchAddress("met_er_phi", &met_er_phi, &b_met_er_phi);
        fChain->SetBranchAddress("npv", &npv, &b_npv);
        fChain->SetBranchAddress("npu", &npu, &b_npu);
        fChain->SetBranchAddress("PUReweight", &PUReweight, &b_PUReweight);
