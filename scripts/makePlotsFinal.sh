@@ -2,8 +2,8 @@ tag=15May2018_2017B
 
 log=(--log)
 
-channel=TauTau
-#channel=MuTau
+#channel=TauTau
+channel=MuTau
 #channel=ETau
 
 #lumi=13.4

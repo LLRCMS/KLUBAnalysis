@@ -30,13 +30,15 @@ cp /home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/scripts/listAll.sh /data_
 
 # # ####################
 # # ## DY incl
-# python scripts/skimNtuple.py -T $OUTDIRR -s True  -c  config/skim_2017.cfg  -n 200 -k False -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_DY   -i inputFiles/Files_15May2018/DY_mergedList_15May2018.txt -x 5765.4 -g True
+# python scripts/skimNtuple.py -T $OUTDIRR -s True  -c  config/skim_2017.cfg  -n 200 -k False -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_DY   -i inputFiles/Files_15May2018/DY_mergedList.txt -x 5765.4 -g True
 
+# python scripts/skimNtuple.py -T $OUTDIRR -s True  -c  config/skim_2017.cfg  -n 200 -k False -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_DY   -i inputFiles/Files_15May2018/DY_mergedList.txt -x 5765.4 -g True
+ 
 # # #####################
 # # ### tW top : 
 python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_antitop_5f_inclusiveDecays   -i inputFiles/Files_15May2018/9_ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 35.6
 
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_top_5f_inclusiveDecays       -i inputFiles/Files_15May2018/10_ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 35.6
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_top_5f_inclusiveDecays       -i inputFiles/Files_15May2018/10_ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 35.6
 
 
 

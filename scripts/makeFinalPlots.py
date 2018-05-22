@@ -452,7 +452,7 @@ if __name__ == "__main__" :
     if args.title:
         plotTitle = args.title
     dataList = ["data_obs"]
-
+    print bkgList
     #bkgList =  ["VVJJ","TTfullyHad","TTsemiLep","TTfullyLep","DY","WJets","singleT"]
     if cfg.hasSection("merge"): 
         for groupname in cfg.config['merge']:
@@ -463,7 +463,7 @@ if __name__ == "__main__" :
             bkgList.append(groupname)
    
 
-
+    print bkgList
     ###########################################################################
     #setPlotStyle()
 
@@ -500,20 +500,20 @@ if __name__ == "__main__" :
     # hTTsemiLep    = getHisto ("TTsemiLep", hBkgs,doOverflow)
     # hTTfullyLep    = getHisto ("TTfullyLep", hBkgs,doOverflow)
     hTT    = getHisto ("TT", hBkgs,doOverflow)
-    #hDY    = getHisto ("DY", hBkgs,doOverflow)
+    hDY    = getHisto ("DY", hBkgs,doOverflow)
     #hWJets    = getHisto ("WJets", hBkgs,doOverflow)
-    #hsingleT    = getHisto ("singleT", hBkgs,doOverflow)
+    hsingleT    = getHisto ("singleT", hBkgs,doOverflow)
     
     
     
 
     #hBkgList = [hVVJJ, hTTfullyHad,hTTsemiLep,hTTfullyLep,hDY,hWJets,hsingleT] ## full list for stack
     #hBkgList = [hsingleT,hVVJJ,hWJets, hTT,hDY] ## full list for stack
-    hBkgList = [hTT] ## full list for stack
+    hBkgList = [singleT, hTT,hDY] ## full list for stack
 
     #hBkgNameList = ["VVjj","t#bar{t} hh","t#bar{t} hl","t#bar{t} ll","DY+jets","WJets","single top"] # list for legend
     #hBkgNameList = ["single top","VVjj","WJets","t#bar{t}","DY+jets"] # list for legend
-    hBkgNameList = ["t#bar{t}"] # list for legend
+    hBkgNameList = ["single top", "T#bar{t}","DY + jets"] # list for legend
 
 
     if cfg.hasSection('pp_QCD'):

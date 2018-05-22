@@ -49,7 +49,7 @@ from subprocess import Popen, PIPE
 #tag = "MC_gravitons_24Apr2017"
 #tag = "MC_gravitonsRS_29Apr2017"
 #tag = "MC_VBF_Summer16_singleTop"
-tag = "MC_PU2017_12Apr2018_met"
+tag = "MC_PU2017_12Apr2018_15May2018"
 #outFolder = "../inputFiles/28Ago2015/" # write / at the end
 #outFolder = "../inputFiles/13Ott2015/25ns/"
 # make list of EminiAOD from storage as publication has problems

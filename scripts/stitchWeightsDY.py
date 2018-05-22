@@ -38,8 +38,8 @@ from ROOT import *
 
 
 Nevents = {
-    'inclusive' : 97502835,
-    '1jet'      : 34461429,
+    'inclusive' : 93980097,
+    '1jet'      : 34859434,
     '2jet'      : 9701595,
     '3jet'      : 1149467,
     '4jet'      : 0,
