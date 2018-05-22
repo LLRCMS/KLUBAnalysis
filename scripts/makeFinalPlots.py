@@ -396,7 +396,7 @@ if __name__ == "__main__" :
 
 
     ######################### PUT USER CONFIGURATION HERE ####################
-    cfgName  =  args.dir + "/mainCfg_VBF_"+args.channel+".cfg"
+    cfgName  =  args.dir + "/mainCfg_"+args.channel+".cfg"
     cfg        = cfgr.ConfigReader (cfgName)
     bkgList    = cfg.readListOption("general::backgrounds")
     if cfg.hasSection('pp_QCD'):
@@ -407,15 +407,15 @@ if __name__ == "__main__" :
 
     #sigList = ["VBFC2V1","ggHH"]
     sigNameList = []
-    if args.log:
-            sigNameList = ["VBFC2V1","ggHH"]
-    else:
-            sigNameList = ["VBFC2V1","ggHH (#times 0.1)"]
+    #if args.log:
+    #        sigNameList = ["VBFC2V1","ggHH"]
+    #else:
+    #        sigNameList = ["VBFC2V1","ggHH (#times 0.1)"]
 
 
     sigColors = {}
-    sigColors["VBFC2V1"] = 2
-    sigColors["ggHH"] = kCyan
+    #sigColors["VBFC2V1"] = 2
+    #sigColors["ggHH"] = kCyan
 
 
 
@@ -443,8 +443,8 @@ if __name__ == "__main__" :
     
 
 
-    if args.sigscale:
-        for i in range(0,len(sigScale)): sigScale[i] = args.sigscale
+    #if args.sigscale:
+    #     for i in range(0,len(sigScale)): sigScale[i] = args.sigscale
 
 
     plotTitle = ""
@@ -487,7 +487,7 @@ if __name__ == "__main__" :
     
     xsecRatio = 19.56
     if not args.log: xsecRatio = xsecRatio/float(10)
-    sigScale = [1. , xsecRatio*hSigs["ggHH"].GetEntries()/float(hSigs["VBFC2V1"].GetEntries())]
+    #sigScale = [1. , xsecRatio*hSigs["ggHH"].GetEntries()/float(hSigs["VBFC2V1"].GetEntries())]
 
 
 
@@ -495,23 +495,25 @@ if __name__ == "__main__" :
     doOverflow = args.overflow
     
 
-    hVVJJ    = getHisto ("VVJJ", hBkgs,doOverflow)
+    #hVVJJ    = getHisto ("VVJJ", hBkgs,doOverflow)
     # hTTfullyHad    = getHisto ("TTfullyHad", hBkgs,doOverflow)
     # hTTsemiLep    = getHisto ("TTsemiLep", hBkgs,doOverflow)
     # hTTfullyLep    = getHisto ("TTfullyLep", hBkgs,doOverflow)
     hTT    = getHisto ("TT", hBkgs,doOverflow)
-    hDY    = getHisto ("DY", hBkgs,doOverflow)
-    hWJets    = getHisto ("WJets", hBkgs,doOverflow)
-    hsingleT    = getHisto ("singleT", hBkgs,doOverflow)
+    #hDY    = getHisto ("DY", hBkgs,doOverflow)
+    #hWJets    = getHisto ("WJets", hBkgs,doOverflow)
+    #hsingleT    = getHisto ("singleT", hBkgs,doOverflow)
     
     
     
 
     #hBkgList = [hVVJJ, hTTfullyHad,hTTsemiLep,hTTfullyLep,hDY,hWJets,hsingleT] ## full list for stack
-    hBkgList = [hsingleT,hVVJJ,hWJets, hTT,hDY] ## full list for stack
+    #hBkgList = [hsingleT,hVVJJ,hWJets, hTT,hDY] ## full list for stack
+    hBkgList = [hTT] ## full list for stack
 
     #hBkgNameList = ["VVjj","t#bar{t} hh","t#bar{t} hl","t#bar{t} ll","DY+jets","WJets","single top"] # list for legend
-    hBkgNameList = ["single top","VVjj","WJets","t#bar{t}","DY+jets"] # list for legend
+    #hBkgNameList = ["single top","VVjj","WJets","t#bar{t}","DY+jets"] # list for legend
+    hBkgNameList = ["t#bar{t}"] # list for legend
 
 
     if cfg.hasSection('pp_QCD'):
@@ -623,9 +625,9 @@ if __name__ == "__main__" :
                 hSigs[key].Scale(intBkg/intSig)
 
     # apply sig scale
-    for i, scale in enumerate (sigScale):
-        histo = hSigs[sigList[i]]
-        histo.Scale(scale)
+#    for i, scale in enumerate (sigScale):
+#        histo = hSigs[sigList[i]]
+#        histo.Scale(scale)
                 
     ################## LEGEND ######################################
 
@@ -862,7 +864,7 @@ if __name__ == "__main__" :
         tagch = ""
         if args.channel:
             tagch = "_" + args.channel
-        saveName = "./plots_"+args.channel+"VBF/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch 
+        saveName = "./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch 
         if args.log:
             saveName = saveName+"_log"
         if args.flat:
