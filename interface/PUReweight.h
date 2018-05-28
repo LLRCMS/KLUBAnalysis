@@ -22,6 +22,7 @@ public:
   // 2017 Samples
   std::vector<float> hT2017_MCFall17_Data4c7fb  ; // Run2017B
   std::vector<float> hT2017_MCFall17_Data13c4fb ; // Run2017F
+  std::vector<float> hT2017_MCFall17_Data41c3fb ; // Full Run2017
 
   // 2016 Samples
   std::vector<float> hT2016_MCSpring16_Data2c6fb ;

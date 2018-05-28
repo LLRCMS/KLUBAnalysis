@@ -38,6 +38,8 @@ float PUReweight::weight(int MC, int target, int input) {
       return hT2017_MCFall17_Data4c7fb.at(input) ;
     } else if (MC==2017 && target==134) {                   // 2017 F
       return hT2017_MCFall17_Data13c4fb.at(input) ;
+    } else if (MC==2017 && target==413) {
+      return hT2017_MCFall17_Data41c3fb.at(input) ;         // Full 2017
     } else{
       std::cout << "ERROR: PUReweight: " << MC << " " << target << std::endl;
       abort();
@@ -171,7 +173,6 @@ theType(type) {
   for(int k = 0 ; k < 100 ; ++k)
     hT2017_MCFall17_Data4c7fb.push_back(npuFall17_4c7fb[k]) ;
 
-
   // RUN2ANALYSIS MC Fall2017 target Data 13.4/fb - Run 2017F
   double npuFall17_13c4fb[100];
   npuFall17_13c4fb[0] = 9.89522e-06;
@@ -278,6 +279,112 @@ theType(type) {
   for(int k = 0 ; k < 100 ; ++k)
     hT2017_MCFall17_Data13c4fb.push_back(npuFall17_13c4fb[k]) ;
 
+  // RUN2ANALYSIS MC Fall2017 target Data 41.3/fb - Full Run 2017
+  double npuFall17_41c3fb[100];
+
+  npuFall17_41c3fb[0] = 4.9051e-06;
+  npuFall17_41c3fb[1] = 0.000472154;
+  npuFall17_41c3fb[2] = 0.000688731;
+  npuFall17_41c3fb[3] = 0.00122529;
+  npuFall17_41c3fb[4] = 0.00128052;
+  npuFall17_41c3fb[5] = 0.00223758;
+  npuFall17_41c3fb[6] = 0.00239566;
+  npuFall17_41c3fb[7] = 0.00320187;
+  npuFall17_41c3fb[8] = 0.00209271;
+  npuFall17_41c3fb[9] = 0.00580224;
+  npuFall17_41c3fb[10] = 0.00869655;
+  npuFall17_41c3fb[11] = 0.0119093;
+  npuFall17_41c3fb[12] = 0.0129334;
+  npuFall17_41c3fb[13] = 0.013594;
+  npuFall17_41c3fb[14] = 0.0139208;
+  npuFall17_41c3fb[15] = 0.0154465;
+  npuFall17_41c3fb[16] = 0.0173105;
+  npuFall17_41c3fb[17] = 0.0193026;
+  npuFall17_41c3fb[18] = 0.0210863;
+  npuFall17_41c3fb[19] = 0.0220537;
+  npuFall17_41c3fb[20] = 0.0229544;
+  npuFall17_41c3fb[21] = 0.0238812;
+  npuFall17_41c3fb[22] = 0.0248906;
+  npuFall17_41c3fb[23] = 0.0255494;
+  npuFall17_41c3fb[24] = 0.0259594;
+  npuFall17_41c3fb[25] = 0.0258511;
+  npuFall17_41c3fb[26] = 0.0260982;
+  npuFall17_41c3fb[27] = 0.0260495;
+  npuFall17_41c3fb[28] = 0.0263201;
+  npuFall17_41c3fb[29] = 0.0262965;
+  npuFall17_41c3fb[30] = 0.0255884;
+  npuFall17_41c3fb[31] = 0.0243244;
+  npuFall17_41c3fb[32] = 0.023135;
+  npuFall17_41c3fb[33] = 0.021847;
+  npuFall17_41c3fb[34] = 0.0204247;
+  npuFall17_41c3fb[35] = 0.0190721;
+  npuFall17_41c3fb[36] = 0.0181929;
+  npuFall17_41c3fb[37] = 0.0174875;
+  npuFall17_41c3fb[38] = 0.0165716;
+  npuFall17_41c3fb[39] = 0.0157859;
+  npuFall17_41c3fb[40] = 0.0158111;
+  npuFall17_41c3fb[41] = 0.0166047;
+  npuFall17_41c3fb[42] = 0.0181107;
+  npuFall17_41c3fb[43] = 0.0200922;
+  npuFall17_41c3fb[44] = 0.0229032;
+  npuFall17_41c3fb[45] = 0.0263843;
+  npuFall17_41c3fb[46] = 0.0297868;
+  npuFall17_41c3fb[47] = 0.0310556;
+  npuFall17_41c3fb[48] = 0.0317504;
+  npuFall17_41c3fb[49] = 0.0304409;
+  npuFall17_41c3fb[50] = 0.0267479;
+  npuFall17_41c3fb[51] = 0.0230812;
+  npuFall17_41c3fb[52] = 0.0194507;
+  npuFall17_41c3fb[53] = 0.015146;
+  npuFall17_41c3fb[54] = 0.0114399;
+  npuFall17_41c3fb[55] = 0.00829491;
+  npuFall17_41c3fb[56] = 0.00586446;
+  npuFall17_41c3fb[57] = 0.00407174;
+  npuFall17_41c3fb[58] = 0.00282059;
+  npuFall17_41c3fb[59] = 0.00196016;
+  npuFall17_41c3fb[60] = 0.00139088;
+  npuFall17_41c3fb[61] = 0.00101465;
+  npuFall17_41c3fb[62] = 0.000791774;
+  npuFall17_41c3fb[63] = 0.000574993;
+  npuFall17_41c3fb[64] = 0.000456188;
+  npuFall17_41c3fb[65] = 0.000343267;
+  npuFall17_41c3fb[66] = 0.000248572;
+  npuFall17_41c3fb[67] = 0.000199778;
+  npuFall17_41c3fb[68] = 0.000185688;
+  npuFall17_41c3fb[69] = 0.000167503;
+  npuFall17_41c3fb[70] = 0.000149903;
+  npuFall17_41c3fb[71] = 0.000117057;
+  npuFall17_41c3fb[72] = 0.000158975;
+  npuFall17_41c3fb[73] = 9.80907e-05;
+  npuFall17_41c3fb[74] = 8.56725e-05;
+  npuFall17_41c3fb[75] = 6.3935e-05;
+  npuFall17_41c3fb[76] = 6.92299e-05;
+  npuFall17_41c3fb[77] = 5.60262e-05;
+  npuFall17_41c3fb[78] = 2.24435e-05;
+  npuFall17_41c3fb[79] = 6.40351e-06;
+  npuFall17_41c3fb[80] = 3.24068e-06;
+  npuFall17_41c3fb[81] = 4.19803e-06;
+  npuFall17_41c3fb[82] = 4.74042e-06;
+  npuFall17_41c3fb[83] = 1.96247e-06;
+  npuFall17_41c3fb[84] = 1.25252e-06;
+  npuFall17_41c3fb[85] = 2.71666e-06;
+  npuFall17_41c3fb[86] = 9.23657e-07;
+  npuFall17_41c3fb[87] = 4.82355e-07;
+  npuFall17_41c3fb[88] = 3.38698e-07;
+  npuFall17_41c3fb[89] = 6.77563e-07;
+  npuFall17_41c3fb[90] = 7.60007e-07;
+  npuFall17_41c3fb[91] = 2.96848e-07;
+  npuFall17_41c3fb[92] = 2.32212e-05;
+  npuFall17_41c3fb[93] = 6.46543e-07;
+  npuFall17_41c3fb[94] = 3.96447e-07;
+  npuFall17_41c3fb[95] = 1.83168e-08;
+  npuFall17_41c3fb[96] = 3.61036e-07;
+  npuFall17_41c3fb[97] = 1.18532e-07;
+  npuFall17_41c3fb[98] = 7.6332e-09;
+  npuFall17_41c3fb[99] = 5.02201e-09;
+
+  for(int k = 0 ; k < 100 ; ++k)
+    hT2017_MCFall17_Data41c3fb.push_back(npuFall17_41c3fb[k]) ;
 
   // RUN2ANALYSIS MC Spring2016 target Data 2.6/fb
   double npuSpring16_2c6fb[100] ; 
