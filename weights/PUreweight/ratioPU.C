@@ -3,10 +3,7 @@ void ratioPU (uint begin = 0, uint max=50000000)
 
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
 
-    //std::ifstream infile("/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_7Feb2016/TT_powheg_semiLep_7Feb2017.txt");
-    //std::ifstream infile("/gwpool/users/brivio/Hhh_1718/syncFeb2018/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Fall17_MC/2_TTToHadronic_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt");
-    std::ifstream infile("/gwpool/users/brivio/Hhh_1718/syncFeb2018/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Fall17_MC/3_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2.txt");
-
+    std::ifstream infile("/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_7Feb2016/TT_powheg_semiLep_7Feb2017.txt");
     std::string line;
     while (std::getline(infile, line))
     {
@@ -55,8 +52,6 @@ void ratioPU (uint begin = 0, uint max=50000000)
   }
 
   // }
-  //TFile *myFile = new TFile(Form("MyMCPileupHistogram%i.root" , begin),"RECREATE");
-  //TFile *myFile = new TFile(Form("TTHad_MyMCPileupHistogram%i.root" , begin),"RECREATE");
-  TFile *myFile = new TFile(Form("TTSemiLep_MyMCPileupHistogram%i.root" , begin),"RECREATE");
+  TFile *myFile = new TFile(Form("MyMCPileupHistogram%i.root" , begin),"RECREATE");
   myPUHisto->Write();
 }

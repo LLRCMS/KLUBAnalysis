@@ -431,7 +431,7 @@ if __name__ == "__main__" :
     # bkgColors["WJets"] = kOrange+1
     # bkgColors["VVJJ"] = kOrange+10 
     # bkgColors["singleT"] = kPink+5
-    bkgColors["DY"] = kOrange+10 
+    bkgColors["DY"] = kGreen+1 
     bkgColors["TT"] = kOrange+1
     # bkgColors["TTfullyLep"] = kBlue+1
     # bkgColors["TTsemiLep"] = kCyan +2
@@ -509,11 +509,11 @@ if __name__ == "__main__" :
 
     #hBkgList = [hVVJJ, hTTfullyHad,hTTsemiLep,hTTfullyLep,hDY,hWJets,hsingleT] ## full list for stack
     #hBkgList = [hsingleT,hVVJJ,hWJets, hTT,hDY] ## full list for stack
-    hBkgList = [singleT, hTT,hDY] ## full list for stack
+    hBkgList = [hsingleT, hTT,hDY] ## full list for stack
 
     #hBkgNameList = ["VVjj","t#bar{t} hh","t#bar{t} hl","t#bar{t} ll","DY+jets","WJets","single top"] # list for legend
     #hBkgNameList = ["single top","VVjj","WJets","t#bar{t}","DY+jets"] # list for legend
-    hBkgNameList = ["single top", "T#bar{t}","DY + jets"] # list for legend
+    hBkgNameList = ["single top", "t#bar{t}","DY + jets"] # list for legend
 
 
     if cfg.hasSection('pp_QCD'):

@@ -2,8 +2,8 @@ tag=15May2018_2017B
 
 log=(--log)
 
-#channel=TauTau
-channel=MuTau
+channel=TauTau
+#channel=MuTau
 #channel=ETau
 
 #lumi=13.4
@@ -11,6 +11,7 @@ lumi=4.7
 reg=SR
 
 baseline=s1b1jresolved
+#baseline=baseline
 #baseline=baselineVBF_btagMfirst
 
 #baseline=baselineVBF_btagM
