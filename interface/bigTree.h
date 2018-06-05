@@ -129,10 +129,39 @@ public :
    std::vector<float>   *SVfit_fitMETRhoTauDown;
    std::vector<float>   *SVfit_fitMETPhiTauDown;
 
+   std::vector<float>   *SVfitMassMETUp;
+   std::vector<float>   *SVfitMassUncMETUp;
+   std::vector<float>   *SVfitTransverseMassMETUp;
+   std::vector<float>   *SVfitTransverseMassUncMETUp;
+   std::vector<float>   *SVfit_ptMETUp;
+   std::vector<float>   *SVfit_ptUncMETUp;
+   std::vector<float>   *SVfit_etaMETUp;
+   std::vector<float>   *SVfit_etaUncMETUp;
+   std::vector<float>   *SVfit_phiMETUp;
+   std::vector<float>   *SVfit_phiUncMETUp;
+   std::vector<float>   *SVfit_fitMETRhoMETUp;
+   std::vector<float>   *SVfit_fitMETPhiMETUp;
+
+   std::vector<float>   *SVfitMassMETDown;
+   std::vector<float>   *SVfitMassUncMETDown;
+   std::vector<float>   *SVfitTransverseMassMETDown;
+   std::vector<float>   *SVfitTransverseMassUncMETDown;
+   std::vector<float>   *SVfit_ptMETDown;
+   std::vector<float>   *SVfit_ptUncMETDown;
+   std::vector<float>   *SVfit_etaMETDown;
+   std::vector<float>   *SVfit_etaUncMETDown;
+   std::vector<float>   *SVfit_phiMETDown;
+   std::vector<float>   *SVfit_phiUncMETDown;
+   std::vector<float>   *SVfit_fitMETRhoMETDown;
+   std::vector<float>   *SVfit_fitMETPhiMETDown;
 
    std::vector<bool>    *isOSCand;
    std::vector<float>   *METx;
    std::vector<float>   *METy;
+   std::vector<float>   *METx_UP;
+   std::vector<float>   *METy_UP;
+   std::vector<float>   *METx_DOWN;
+   std::vector<float>   *METy_DOWN;
    std::vector<float>   *MET_cov00;
    std::vector<float>   *MET_cov01;
    std::vector<float>   *MET_cov10;
@@ -424,9 +453,37 @@ public :
    TBranch        *b_SVfit_phiUncTauDown;   //!
    TBranch        *b_SVfit_fitMETRhoTauDown;   //!
    TBranch        *b_SVfit_fitMETPhiTauDown;   //!
+   TBranch        *b_SVfitMassMETUp;   //!
+   TBranch        *b_SVfitMassUncMETUp;
+   TBranch        *b_SVfitTransverseMassMETUp;
+   TBranch        *b_SVfitTransverseMassUncMETUp;
+   TBranch        *b_SVfit_ptMETUp;   //!
+   TBranch        *b_SVfit_ptUncMETUp;   //!
+   TBranch        *b_SVfit_etaMETUp;   //!
+   TBranch        *b_SVfit_etaUncMETUp;   //!
+   TBranch        *b_SVfit_phiMETUp;   //!
+   TBranch        *b_SVfit_phiUncMETUp;   //!
+   TBranch        *b_SVfit_fitMETRhoMETUp;   //!
+   TBranch        *b_SVfit_fitMETPhiMETUp;   //!
+   TBranch        *b_SVfitMassMETDown;   //!
+   TBranch        *b_SVfitMassUncMETDown;
+   TBranch        *b_SVfitTransverseMassMETDown;
+   TBranch        *b_SVfitTransverseMassUncMETDown;
+   TBranch        *b_SVfit_ptMETDown;   //!
+   TBranch        *b_SVfit_ptUncMETDown;   //!
+   TBranch        *b_SVfit_etaMETDown;   //!
+   TBranch        *b_SVfit_etaUncMETDown;   //!
+   TBranch        *b_SVfit_phiMETDown;   //!
+   TBranch        *b_SVfit_phiUncMETDown;   //!
+   TBranch        *b_SVfit_fitMETRhoMETDown;   //!
+   TBranch        *b_SVfit_fitMETPhiMETDown;   //!
    TBranch        *b_isOSCand;   //!
    TBranch        *b_METx;   //!
    TBranch        *b_METy;   //!
+   TBranch        *b_METx_UP;   //!
+   TBranch        *b_METy_UP;   //!
+   TBranch        *b_METx_DOWN;   //!
+   TBranch        *b_METy_DOWN;   //!
    TBranch        *b_MET_cov00;   //!
    TBranch        *b_MET_cov01;   //!
    TBranch        *b_MET_cov10;   //!
@@ -711,9 +768,37 @@ public :
        SVfit_phiUncTauDown = 0;
        SVfit_fitMETRhoTauDown = 0;
        SVfit_fitMETPhiTauDown = 0;
+       SVfitMassMETUp = 0;
+       SVfitMassUncMETUp = 0;
+       SVfitTransverseMassMETUp = 0;
+       SVfitTransverseMassUncMETUp = 0;
+       SVfit_ptMETUp = 0;
+       SVfit_ptUncMETUp = 0;
+       SVfit_etaMETUp = 0;
+       SVfit_etaUncMETUp = 0;
+       SVfit_phiMETUp = 0;
+       SVfit_phiUncMETUp = 0;
+       SVfit_fitMETRhoMETUp = 0;
+       SVfit_fitMETPhiMETUp = 0;
+       SVfitMassMETDown = 0;
+       SVfitMassUncMETDown = 0;
+       SVfitTransverseMassMETDown = 0;
+       SVfitTransverseMassUncMETDown = 0;
+       SVfit_ptMETDown = 0;
+       SVfit_ptUncMETDown = 0;
+       SVfit_etaMETDown = 0;
+       SVfit_etaUncMETDown = 0;
+       SVfit_phiMETDown = 0;
+       SVfit_phiUncMETDown = 0;
+       SVfit_fitMETRhoMETDown = 0;
+       SVfit_fitMETPhiMETDown = 0;
        isOSCand = 0;
        METx = 0;
        METy = 0;
+       METx_UP = 0;
+       METy_UP = 0;
+       METx_DOWN = 0;
+       METy_DOWN = 0;
        MET_cov00 = 0;
        MET_cov01 = 0;
        MET_cov10 = 0;
@@ -939,6 +1024,10 @@ public :
        fChain->SetBranchAddress("isOSCand", &isOSCand, &b_isOSCand);
        fChain->SetBranchAddress("METx", &METx, &b_METx);
        fChain->SetBranchAddress("METy", &METy, &b_METy);
+       fChain->SetBranchAddress("METx_UP", &METx, &b_METx);
+       fChain->SetBranchAddress("METy_UP", &METy, &b_METy);
+       fChain->SetBranchAddress("METx_DOWN", &METx, &b_METx);
+       fChain->SetBranchAddress("METy_DOWN", &METy, &b_METy);
        fChain->SetBranchAddress("MET_cov00", &MET_cov00, &b_MET_cov00);
        fChain->SetBranchAddress("MET_cov01", &MET_cov01, &b_MET_cov01);
        fChain->SetBranchAddress("MET_cov10", &MET_cov10, &b_MET_cov10);
@@ -1190,6 +1279,30 @@ public :
             fChain->SetBranchAddress("SVfit_phiUncTauDown", &SVfit_phiUncTauDown, &b_SVfit_phiUncTauDown);
             fChain->SetBranchAddress("SVfit_fitMETRhoTauDown", &SVfit_fitMETRhoTauDown, &b_SVfit_fitMETRhoTauDown);
             fChain->SetBranchAddress("SVfit_fitMETPhiTauDown", &SVfit_fitMETPhiTauDown, &b_SVfit_fitMETPhiTauDown);
+            fChain->SetBranchAddress("SVfitMassMETUp", &SVfitMassMETUp, &b_SVfitMassMETUp);
+            fChain->SetBranchAddress("SVfitMassUncMETUp", &SVfitMassUncMETUp, &b_SVfitMassUncMETUp);
+            fChain->SetBranchAddress("SVfitTransverseMassMETUp", &SVfitTransverseMassMETUp, &b_SVfitTransverseMassMETUp);
+            fChain->SetBranchAddress("SVfitTransverseMassUncMETUp", &SVfitTransverseMassUncMETUp, &b_SVfitTransverseMassUncMETUp);
+            fChain->SetBranchAddress("SVfit_ptMETUp", &SVfit_ptMETUp, &b_SVfit_ptMETUp);
+            fChain->SetBranchAddress("SVfit_ptUncMETUp", &SVfit_ptUncMETUp, &b_SVfit_ptUncMETUp);
+            fChain->SetBranchAddress("SVfit_etaMETUp", &SVfit_etaMETUp, &b_SVfit_etaMETUp);
+            fChain->SetBranchAddress("SVfit_etaUncMETUp", &SVfit_etaUncMETUp, &b_SVfit_etaUncMETUp);
+            fChain->SetBranchAddress("SVfit_phiMETUp", &SVfit_phiMETUp, &b_SVfit_phiMETUp);
+            fChain->SetBranchAddress("SVfit_phiUncMETUp", &SVfit_phiUncMETUp, &b_SVfit_phiUncMETUp);
+            fChain->SetBranchAddress("SVfit_fitMETRhoMETUp", &SVfit_fitMETRhoMETUp, &b_SVfit_fitMETRhoMETUp);
+            fChain->SetBranchAddress("SVfit_fitMETPhiMETUp", &SVfit_fitMETPhiMETUp, &b_SVfit_fitMETPhiMETUp);
+            fChain->SetBranchAddress("SVfitMassMETDown", &SVfitMassMETDown, &b_SVfitMassMETDown);
+            fChain->SetBranchAddress("SVfitMassUncMETDown", &SVfitMassUncMETDown, &b_SVfitMassUncMETDown);
+            fChain->SetBranchAddress("SVfitTransverseMassMETDown", &SVfitTransverseMassMETDown, &b_SVfitTransverseMassMETDown);
+            fChain->SetBranchAddress("SVfitTransverseMassUncMETDown", &SVfitTransverseMassUncMETDown, &b_SVfitTransverseMassUncMETDown);
+            fChain->SetBranchAddress("SVfit_ptMETDown", &SVfit_ptMETDown, &b_SVfit_ptMETDown);
+            fChain->SetBranchAddress("SVfit_ptUncMETDown", &SVfit_ptUncMETDown, &b_SVfit_ptUncMETDown);
+            fChain->SetBranchAddress("SVfit_etaMETDown", &SVfit_etaMETDown, &b_SVfit_etaMETDown);
+            fChain->SetBranchAddress("SVfit_etaUncMETDown", &SVfit_etaUncMETDown, &b_SVfit_etaUncMETDown);
+            fChain->SetBranchAddress("SVfit_phiMETDown", &SVfit_phiMETDown, &b_SVfit_phiMETDown);
+            fChain->SetBranchAddress("SVfit_phiUncMETDown", &SVfit_phiUncMETDown, &b_SVfit_phiUncMETDown);
+            fChain->SetBranchAddress("SVfit_fitMETRhoMETDown", &SVfit_fitMETRhoMETDown, &b_SVfit_fitMETRhoMETDown);
+            fChain->SetBranchAddress("SVfit_fitMETPhiMETDown", &SVfit_fitMETPhiMETDown, &b_SVfit_fitMETPhiMETDown);
        }
        
     }
