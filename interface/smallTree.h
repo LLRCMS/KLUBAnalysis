@@ -223,6 +223,8 @@ struct smallTree
       
       m_tauH_SVFIT_mass_up   = -1. ;
       m_tauH_SVFIT_mass_down = -1. ;
+      m_tauH_SVFIT_mass_METup   = -1. ;
+      m_tauH_SVFIT_mass_METdown = -1. ;
 
       m_bH_pt = -1. ;
       m_bH_eta = -1. ;
@@ -678,6 +680,8 @@ struct smallTree
       m_smallT->Branch ("tauH_SVFIT_METrho", &m_tauH_SVFIT_METrho, "tauH_SVFIT_METrho/F") ;
       m_smallT->Branch ("tauH_SVFIT_mass_up", &m_tauH_SVFIT_mass_up, "tauH_SVFIT_mass_up/F") ;
       m_smallT->Branch ("tauH_SVFIT_mass_down", &m_tauH_SVFIT_mass_down, "tauH_SVFIT_mass_down/F") ;
+      m_smallT->Branch ("tauH_SVFIT_mass_METup", &m_tauH_SVFIT_mass_METup, "tauH_SVFIT_mass_METup/F") ;
+      m_smallT->Branch ("tauH_SVFIT_mass_METdown", &m_tauH_SVFIT_mass_METdown, "tauH_SVFIT_mass_METdown/F") ;
 
       m_smallT->Branch ("bH_pt", &m_bH_pt, "bH_pt/F") ;
       m_smallT->Branch ("bH_eta", &m_bH_eta, "bH_eta/F") ;
@@ -1135,6 +1139,8 @@ struct smallTree
   Float_t m_tauH_SVFIT_METrho ;
   Float_t m_tauH_SVFIT_mass_up ;
   Float_t m_tauH_SVFIT_mass_down ;
+  Float_t m_tauH_SVFIT_mass_METup ;
+  Float_t m_tauH_SVFIT_mass_METdown ;
 
   // the bb-H candidate
   Float_t m_bH_pt ;

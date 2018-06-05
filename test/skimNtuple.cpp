@@ -1960,6 +1960,8 @@ int main (int argc, char** argv)
       theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
       theSmallTree.m_tauH_SVFIT_mass_up   = (isMC ? theBigTree.SVfitMassTauUp->at (chosenTauPair) : theSmallTree.m_tauH_SVFIT_mass);
       theSmallTree.m_tauH_SVFIT_mass_down = (isMC ? theBigTree.SVfitMassTauDown->at (chosenTauPair) : theSmallTree.m_tauH_SVFIT_mass);
+      theSmallTree.m_tauH_SVFIT_mass_METup   = (isMC ? theBigTree.SVfitMassMETUp->at (chosenTauPair) : theSmallTree.m_tauH_SVFIT_mass);
+      theSmallTree.m_tauH_SVFIT_mass_METdown = (isMC ? theBigTree.SVfitMassMETDown->at (chosenTauPair) : theSmallTree.m_tauH_SVFIT_mass);
       // in case the SVFIT mass is calculated
       if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
 	{
@@ -2031,9 +2033,13 @@ int main (int argc, char** argv)
       theSmallTree.m_met_cov10 = theBigTree.MET_cov10->at (chosenTauPair);
       theSmallTree.m_met_cov11 = theBigTree.MET_cov11->at (chosenTauPair);
 
-      //shifted MET
-      TVector2 vMET_jetup   = getShiftedMET(+1., vMET, theBigTree, DEBUG);
-      TVector2 vMET_jetdown = getShiftedMET(-1., vMET, theBigTree, DEBUG);
+      // Shifted MET
+      // This will be useful when splitting JECs
+      //TVector2 vMET_jetup   = getShiftedMET(+1., vMET, theBigTree, DEBUG);
+      //TVector2 vMET_jetdown = getShiftedMET(-1., vMET, theBigTree, DEBUG);
+      // Now we use the total shift already stored in LLR ntuples
+      TVector2 vMET_jetup   (theBigTree.METx_UP->at(chosenTauPair) , theBigTree.METy_UP->at(chosenTauPair));
+      TVector2 vMET_jetdown (theBigTree.METx_DOWN->at(chosenTauPair) , theBigTree.METy_DOWN->at(chosenTauPair));
       theSmallTree.m_met_phi_jetup   = vMET_jetup.Phi();
       theSmallTree.m_met_et_jetup    = vMET_jetup.Mod();
       theSmallTree.m_met_phi_jetdown = vMET_jetdown.Phi();
@@ -2723,8 +2729,12 @@ int main (int argc, char** argv)
         metcov (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
         const TMatrixD stableMetCov = metcov;
 
-        const TVector2 ptmiss_jetup   = getShiftedMET(+1., ptmiss, theBigTree);
-        const TVector2 ptmiss_jetdown = getShiftedMET(-1., ptmiss, theBigTree);
+        // This will be useful when splitting JECs
+        //const TVector2 ptmiss_jetup   = getShiftedMET(+1., ptmiss, theBigTree);
+        //const TVector2 ptmiss_jetdown = getShiftedMET(-1., ptmiss, theBigTree);
+        // Now we use the total shift already stored in LLR ntuples
+        const TVector2 ptmiss_jetup   (theBigTree.METx_UP->at(chosenTauPair) , theBigTree.METy_UP->at(chosenTauPair));
+        const TVector2 ptmiss_jetdown (theBigTree.METx_DOWN->at(chosenTauPair) , theBigTree.METy_DOWN->at(chosenTauPair));
 
         theSmallTree.m_bH_pt = tlv_bH.Pt () ;
         theSmallTree.m_bH_eta = tlv_bH.Eta () ;
