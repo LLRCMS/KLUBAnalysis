@@ -1024,10 +1024,10 @@ public :
        fChain->SetBranchAddress("isOSCand", &isOSCand, &b_isOSCand);
        fChain->SetBranchAddress("METx", &METx, &b_METx);
        fChain->SetBranchAddress("METy", &METy, &b_METy);
-       fChain->SetBranchAddress("METx_UP", &METx, &b_METx);
-       fChain->SetBranchAddress("METy_UP", &METy, &b_METy);
-       fChain->SetBranchAddress("METx_DOWN", &METx, &b_METx);
-       fChain->SetBranchAddress("METy_DOWN", &METy, &b_METy);
+       fChain->SetBranchAddress("METx_UP", &METx_UP, &b_METx_UP);
+       fChain->SetBranchAddress("METy_UP", &METy_UP, &b_METy_UP);
+       fChain->SetBranchAddress("METx_DOWN", &METx_DOWN, &b_METx_DOWN);
+       fChain->SetBranchAddress("METy_DOWN", &METy_DOWN, &b_METy_DOWN);
        fChain->SetBranchAddress("MET_cov00", &MET_cov00, &b_MET_cov00);
        fChain->SetBranchAddress("MET_cov01", &MET_cov01, &b_MET_cov01);
        fChain->SetBranchAddress("MET_cov10", &MET_cov10, &b_MET_cov10);
