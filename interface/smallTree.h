@@ -468,6 +468,7 @@ struct smallTree
       m_top_Wjj_b_mass = -1.;
       m_top_Wjj_bclose_mass = -1.;
 
+      m_BDT_channel                   = -9  ;
       m_tauH_MET_pt                   = -9. ;
       m_dau2_MET_deltaEta             = -9. ;
       m_bH_MET_deltaEta               = -9. ;
@@ -942,6 +943,7 @@ struct smallTree
       m_smallT->Branch ("top_Wjj_bclose_mass",&m_top_Wjj_bclose_mass,"top_Wjj_bclose_mass/F");
 
       // For Angela's BDT
+      m_smallT->Branch ("BDT_channel",                    &m_BDT_channel                   , "BDT_channel/I");
       m_smallT->Branch ("tauH_MET_pt",                    &m_tauH_MET_pt                   , "tauH_MET_pt/F");
       m_smallT->Branch ("dau2_MET_deltaEta",              &m_dau2_MET_deltaEta             , "dau2_MET_deltaEta/F");
       m_smallT->Branch ("bH_MET_deltaEta",                &m_bH_MET_deltaEta               , "bH_MET_deltaEta/F");
@@ -1440,6 +1442,7 @@ struct smallTree
   Float_t m_top_Wjj_bclose_mass;
   
   // Angela's BDT missing variables
+  Int_t   m_BDT_channel; //
   Float_t m_tauH_MET_pt; //
   Float_t m_dau2_MET_deltaEta; //
   Float_t m_bH_MET_deltaEta; //
