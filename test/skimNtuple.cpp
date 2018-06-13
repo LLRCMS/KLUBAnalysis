@@ -51,6 +51,7 @@
 #include "TMVA/Reader.h"
 
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/format.hpp>
 #include <Math/VectorUtil.h>
 
 using namespace std ;
@@ -2006,6 +2007,7 @@ int main (int argc, char** argv)
 
 
       theSmallTree.m_pairType    = pType ;
+      theSmallTree.m_BDT_channel = theSmallTree.m_pairType;
       theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) : 1) ;      
       theSmallTree.m_MC_weight   = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight * HHweight * trgEvtWeight : 1) ;
       theSmallTree.m_turnOnreweight   = (isMC ? trgEvtWeight : 1.);
@@ -2843,6 +2845,7 @@ int main (int argc, char** argv)
           theSmallTree.m_BDT_dib_CalcPhi   = Calculate_phi1(getLVfromTLV(tlv_firstBjet), getLVfromTLV(tlv_secondBjet), getLVfromTLV(tlv_tauH_SVFIT), getLVfromTLV(tlv_bH));
           theSmallTree.m_BDT_MET_tauH_SVFIT_cosTheta   = Calculate_cosTheta_2bodies(getLVfromTLV(tlv_MET), getLVfromTLV(tlv_tauH_SVFIT));
           theSmallTree.m_BDT_tauH_SVFIT_reson_cosTheta = Calculate_cosTheta_2bodies(getLVfromTLV(tlv_tauH_SVFIT), getLVfromTLV((tlv_firstLepton+tlv_secondLepton+tlv_firstBjet+tlv_secondBjet+tlv_MET)) );
+
         } // in case the SVFIT mass is calculated
 
         // compute HHKinFit -- ask a reasonable mass window to suppress most error messages
@@ -3642,7 +3645,7 @@ int main (int argc, char** argv)
   if (isHHsignal)
     {
       for (uint ich = 0; ich < 6; ++ich)
-	delete hEffHHSigsSummary[ich];
+        delete hEffHHSigsSummary[ich];
     }
 
 
@@ -3771,13 +3774,13 @@ int main (int argc, char** argv)
       allVars.insert(allVars.end(), TMVAspectators.begin(), TMVAspectators.end());
       allVars.insert(allVars.end(), TMVAvariables.begin(), TMVAvariables.end());
       for (unsigned int iv = 0; iv < splitTMVAvariablesResonant.size(); ++iv)
-	allVars.push_back(splitTMVAvariablesResonant.at(iv).first);
+        allVars.push_back(splitTMVAvariablesResonant.at(iv).first);
       for (unsigned int iv = 0; iv < splitTMVAvariablesResonantHM.size(); ++iv)
-	allVars.push_back(splitTMVAvariablesResonantHM.at(iv).first);
+        allVars.push_back(splitTMVAvariablesResonantHM.at(iv).first);
       for (unsigned int iv = 0; iv < splitTMVAvariablesResonantLM.size(); ++iv)
-	allVars.push_back(splitTMVAvariablesResonantLM.at(iv).first);
+        allVars.push_back(splitTMVAvariablesResonantLM.at(iv).first);
       for (unsigned int iv = 0; iv < splitTMVAvariablesNonResonant.size(); ++iv)
-	allVars.push_back(splitTMVAvariablesNonResonant.at(iv).first);
+        allVars.push_back(splitTMVAvariablesNonResonant.at(iv).first);
 
       sort(allVars.begin(), allVars.end());
       allVars.erase( unique( allVars.begin(), allVars.end() ), allVars.end() );
@@ -3891,6 +3894,346 @@ int main (int argc, char** argv)
       delete readerResonantLM;
       delete readerNonResonant;
     }
+
+
+  // NEW BDT
+  bool computeBDTsm = (gConfigParser->isDefined("BDTsm::computeMVA") ? gConfigParser->readBoolOption ("BDTsm::computeMVA") : false);
+  bool computeBDTlm = (gConfigParser->isDefined("BDTlm::computeMVA") ? gConfigParser->readBoolOption ("BDTlm::computeMVA") : false);
+  bool computeBDTmm = (gConfigParser->isDefined("BDTmm::computeMVA") ? gConfigParser->readBoolOption ("BDTmm::computeMVA") : false);
+  bool computeBDThm = (gConfigParser->isDefined("BDThm::computeMVA") ? gConfigParser->readBoolOption ("BDThm::computeMVA") : false);
+
+  if (computeBDTsm || computeBDTlm || computeBDTmm || computeBDThm)
+  {
+    cout << " ------------ ############### ----- NEW BDT ----- ############### ------------ " <<endl;
+
+    bool doSM = computeBDTsm;
+    bool doLM = computeBDTlm;
+    bool doMM = computeBDTmm;
+    bool doHM = computeBDThm;
+
+    // weights file
+    string TMVAweightsSM = "";
+    string TMVAweightsLM = "";
+    string TMVAweightsMM = "";
+    string TMVAweightsHM = "";
+    vector<float> SM_kl;
+    vector<float> LM_mass;
+    vector<float> MM_mass;
+    vector<float> HM_mass;
+    vector<int> LM_spin;
+    vector<int> MM_spin;
+    vector<int> HM_spin;
+
+    if (doSM)
+    {
+      TMVAweightsSM = gConfigParser->readStringOption ("BDTsm::weights");
+      SM_kl         = gConfigParser->readFloatListOption("BDTsm::kl");
+    }
+    if (doLM)
+    {
+      TMVAweightsLM = gConfigParser->readStringOption ("BDTlm::weights");
+      LM_mass       = gConfigParser->readFloatListOption ("BDTlm::mass");
+      LM_spin       = gConfigParser->readIntListOption ("BDTlm::spin");
+    }
+    if (doMM)
+    {
+      TMVAweightsMM = gConfigParser->readStringOption ("BDTmm::weights");
+      MM_mass       = gConfigParser->readFloatListOption ("BDTmm::mass");
+      MM_spin       = gConfigParser->readIntListOption ("BDTmm::spin");
+    }
+    if (doHM)
+    {
+      TMVAweightsHM = gConfigParser->readStringOption ("BDThm::weights");
+      HM_mass       = gConfigParser->readFloatListOption ("BDThm::mass");
+      HM_spin       = gConfigParser->readIntListOption ("BDThm::spin");
+    }
+
+    // Input variables
+    vector<string> TMVAvariablesSM = ( doSM ? gConfigParser->readStringListOption ("BDTsm::variables") : vector<string>(0) );
+    vector<string> TMVAvariablesLM = ( doLM ? gConfigParser->readStringListOption ("BDTlm::variables") : vector<string>(0) );
+    vector<string> TMVAvariablesMM = ( doMM ? gConfigParser->readStringListOption ("BDTmm::variables") : vector<string>(0) );
+    vector<string> TMVAvariablesHM = ( doHM ? gConfigParser->readStringListOption ("BDThm::variables") : vector<string>(0) );
+    
+    // Split the resonant name in two strings
+    vector<pair<string, string>> splitTMVAvariablesSM;
+    for (unsigned int iv = 0 ; iv < TMVAvariablesSM.size () ; ++iv)
+    {
+      // Split my_name:BDT_name in two strings
+      std::stringstream packedName(TMVAvariablesSM.at(iv));
+      std::string segment;
+      std::vector<std::string> unpackedNames;
+      while(std::getline(packedName, segment, ':'))
+        unpackedNames.push_back(segment);
+
+      splitTMVAvariablesSM.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1)));
+    }
+    
+    vector<pair<string, string>> splitTMVAvariablesLM;
+    for (unsigned int iv = 0 ; iv < TMVAvariablesLM.size () ; ++iv)
+    {
+      // Split my_name:BDT_name in two strings
+      std::stringstream packedName(TMVAvariablesLM.at(iv));
+      std::string segment;
+      std::vector<std::string> unpackedNames;
+      while(std::getline(packedName, segment, ':'))
+        unpackedNames.push_back(segment);
+
+      splitTMVAvariablesLM.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1)));
+    }
+
+    vector<pair<string, string>> splitTMVAvariablesMM;
+    for (unsigned int iv = 0 ; iv < TMVAvariablesMM.size () ; ++iv)
+    {
+      // Split my_name:BDT_name in two strings
+      std::stringstream packedName(TMVAvariablesMM.at(iv));
+      std::string segment;
+      std::vector<std::string> unpackedNames;
+      while(std::getline(packedName, segment, ':'))
+        unpackedNames.push_back(segment);
+
+      splitTMVAvariablesMM.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1)));
+    }
+
+    vector<pair<string, string>> splitTMVAvariablesHM;
+    for (unsigned int iv = 0 ; iv < TMVAvariablesHM.size () ; ++iv)
+    {
+      // Split my_name:BDT_name in two strings
+      std::stringstream packedName(TMVAvariablesHM.at(iv));
+      std::string segment;
+      std::vector<std::string> unpackedNames;
+      while(std::getline(packedName, segment, ':'))
+        unpackedNames.push_back(segment);
+
+      splitTMVAvariablesHM.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1)));
+    }
+
+    // Now merge all names into a vector to get a list of uniquely needed elements
+    std::vector<string> allVars;
+    for (unsigned int iv = 0; iv < splitTMVAvariablesSM.size(); ++iv)
+      allVars.push_back(splitTMVAvariablesSM.at(iv).first);
+    for (unsigned int iv = 0; iv < splitTMVAvariablesLM.size(); ++iv)
+      allVars.push_back(splitTMVAvariablesLM.at(iv).first);
+    for (unsigned int iv = 0; iv < splitTMVAvariablesMM.size(); ++iv)
+      allVars.push_back(splitTMVAvariablesMM.at(iv).first);
+    for (unsigned int iv = 0; iv < splitTMVAvariablesHM.size(); ++iv)
+      allVars.push_back(splitTMVAvariablesHM.at(iv).first);
+      
+    sort(allVars.begin(), allVars.end());
+    allVars.erase( unique( allVars.begin(), allVars.end() ), allVars.end() );
+    
+    // Create map to contain values of variables
+    std::map<string, float> allVarsMap;
+    for (string var : allVars)
+    allVarsMap[var] = 0.0;
+
+    // Open tree to be updated
+    TFile *outFile = TFile::Open(outputFile,"UPDATE");
+    TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
+    int nentries = treenew->GetEntries();
+
+    // Create vectors to store all the BDT outputs and relative vectors of TBranches
+    std::vector<float> outSM (SM_kl.size());
+    std::vector<float> outLM (LM_spin.size()*LM_mass.size());
+    std::vector<float> outMM (MM_spin.size()*MM_mass.size());
+    std::vector<float> outHM (HM_spin.size()*HM_mass.size());
+    
+    std::vector<TBranch*> branchSM (SM_kl.size());
+    std::vector<TBranch*> branchLM (LM_spin.size()*LM_mass.size());
+    std::vector<TBranch*> branchMM (MM_spin.size()*MM_mass.size());
+    std::vector<TBranch*> branchHM (HM_spin.size()*HM_mass.size());
+
+    // Declare the TMVA readers
+    TMVA::Reader * readerSM = new TMVA::Reader () ;
+    TMVA::Reader * readerLM = new TMVA::Reader () ;
+    TMVA::Reader * readerMM = new TMVA::Reader () ;
+    TMVA::Reader * readerHM = new TMVA::Reader () ;
+
+    // Assign variables to SM reader
+    for (pair<string, string> vpair : splitTMVAvariablesSM)
+	{
+	  treenew ->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
+	  readerSM->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;
+	}
+    // Add the kl variable to the SM reader
+    float kl_var;
+    readerSM->AddVariable("kl", &kl_var);
+
+
+    // Assign variables to LM reader
+    for (pair<string, string> vpair : splitTMVAvariablesLM)
+	{
+	  treenew ->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
+	  readerLM->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;
+	}
+    // Add mass, channel and spin to the LM reader
+    float mass_LM;
+    float channel_LM;
+    float spin_LM;
+    readerLM->AddVariable("mass", &mass_LM);
+    treenew ->SetBranchAddress ("BDT_channel", &channel_LM) ;
+    readerLM->AddVariable("channel", &channel_LM);
+    readerLM->AddVariable("spin", &spin_LM);
+
+
+    // Assign variables to MM reader
+    for (pair<string, string> vpair : splitTMVAvariablesMM)
+	{
+	  treenew ->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
+	  readerMM->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;
+	}
+    // Add mass, channel and spin to the LM reader
+    float mass_MM;
+    float channel_MM;
+    float spin_MM;
+    readerMM->AddVariable("mass", &mass_MM);
+    treenew ->SetBranchAddress ("BDT_channel", &channel_MM) ;
+    readerMM->AddVariable("channel", &channel_MM);
+    readerMM->AddVariable("spin", &spin_MM);
+
+
+    // Assign variables to HM reader
+    for (pair<string, string> vpair : splitTMVAvariablesHM)
+	{
+	  treenew ->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
+	  readerHM->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;
+	}
+    // Add mass, channel and spin to the LM reader
+    float mass_HM;
+    float channel_HM;
+    float spin_HM;
+    readerHM->AddVariable("mass", &mass_HM);
+    treenew ->SetBranchAddress ("BDT_channel", &channel_HM) ;
+    readerHM->AddVariable("channel", &channel_HM);
+    readerHM->AddVariable("spin", &spin_HM);
+
+
+    // Book the MVA methods
+    if(doSM) readerSM->BookMVA("Grad_3", TMVAweightsSM.c_str() );
+    if(doLM) readerLM->BookMVA("Grad_1", TMVAweightsLM.c_str() );
+    if(doMM) readerMM->BookMVA("Grad_1", TMVAweightsMM.c_str() );
+    if(doHM) readerHM->BookMVA("Grad_3", TMVAweightsHM.c_str() );
+
+    // Calculate BDT output for SM
+    if (doSM)
+    {
+        int idxSM = 0;
+        for (unsigned int ikl = 0; ikl < SM_kl.size(); ++ikl)
+        {
+            // Declare the BDT output branch
+            std::string branch_name = boost::str(boost::format("BDToutSM_kl_%d") % SM_kl.at(ikl));
+            branchSM.at(idxSM) = treenew->Branch(branch_name.c_str(), &outSM.at(idxSM));
+
+            // Assign value to parametrization variables
+            kl_var = SM_kl.at(ikl);
+
+            // Calculate BDT output
+            for(int i=0;i<nentries;i++)
+            {
+                treenew->GetEntry(i);
+                outSM.at(idxSM) = readerSM->EvaluateMVA("Grad_3");
+                branchSM.at(idxSM)->Fill();
+            }
+            ++idxSM;
+        }
+    }
+
+
+    // Calculate BDT output for LM
+    if (doLM)
+    {
+        int idxLM = 0;
+        for (unsigned int ispin = 0; ispin < LM_spin.size(); ++ispin)
+        {
+            for (unsigned int imass = 0; imass < LM_mass.size(); ++imass)
+            {
+                // Declare the BDT output branch
+                std::string branch_name = boost::str(boost::format("BDToutLM_spin_%d_mass_%d") % LM_spin.at(ispin) % LM_mass.at(imass));
+                branchLM.at(idxLM) = treenew->Branch(branch_name.c_str(), &outLM.at(idxLM));
+
+                // Assign value to parametrization variables
+                mass_LM = LM_mass.at(imass);
+                spin_LM = LM_spin.at(ispin);
+
+                // Calculate BDT output
+                for(int i=0;i<nentries;i++)
+                {
+                    treenew->GetEntry(i);
+                    outLM.at(idxLM) = readerLM->EvaluateMVA("Grad_1");
+                    branchLM.at(idxLM)->Fill();
+                }
+                ++idxLM;
+            }
+        }
+    }
+
+
+    // Calculate BDT output for MM
+    if (doMM)
+    {
+        int idxMM = 0;
+        for (unsigned int ispin = 0; ispin < MM_spin.size(); ++ispin)
+        {
+            for (unsigned int imass = 0; imass < MM_mass.size(); ++imass)
+            {
+                // Declare the BDT output branch
+                std::string branch_name = boost::str(boost::format("BDToutMM_spin_%d_mass_%d") % MM_spin.at(ispin) % MM_mass.at(imass));
+                branchMM.at(idxMM) = treenew->Branch(branch_name.c_str(), &outMM.at(idxMM));
+
+                // Assign value to parametrization variables
+                mass_MM = MM_mass.at(imass);
+                spin_MM = MM_spin.at(ispin);
+
+                // Calculate BDT output
+                for(int i=0;i<nentries;i++)
+                {
+                    treenew->GetEntry(i);
+                    outMM.at(idxMM) = readerMM->EvaluateMVA("Grad_1");
+                    branchMM.at(idxMM)->Fill();
+                }
+                ++idxMM;
+            }
+        }
+    }
+
+
+    // Calculate BDT output for HM
+    if (doHM)
+    {
+        int idxHM = 0;
+        for (unsigned int ispin = 0; ispin < HM_spin.size(); ++ispin)
+        {
+            for (unsigned int imass = 0; imass < HM_mass.size(); ++imass)
+            {
+                // Declare the BDT output branch
+                std::string branch_name = boost::str(boost::format("BDToutHM_spin_%d_mass_%d") % HM_spin.at(ispin) % HM_mass.at(imass));
+                branchHM.at(idxHM) = treenew->Branch(branch_name.c_str(), &outHM.at(idxHM));
+
+                // Assign value to parametrization variables
+                mass_HM = HM_mass.at(imass);
+                spin_HM = HM_spin.at(ispin);
+
+                // Calculate BDT output
+                for(int i=0;i<nentries;i++)
+                {
+                    treenew->GetEntry(i);
+                    outHM.at(idxHM) = readerHM->EvaluateMVA("Grad_3");
+                    branchHM.at(idxHM)->Fill();
+                }
+                ++idxHM;
+            }
+        }
+    }
+
+    // Update tree and delete readers
+    outFile->cd();
+    treenew->Write ("", TObject::kOverwrite) ;
+    delete readerSM;
+    delete readerLM;
+    delete readerMM;
+    delete readerHM;
+
+  } // End new BDT
+
 
   cout << "... SKIM finished, exiting." << endl;
   return 0 ;
