@@ -265,9 +265,9 @@ struct smallTree
       m_btau_deltaRmax = -1. ;
       m_dau1MET_deltaphi = -1. ;
       m_dau2MET_deltaphi = -1. ;
-      m_HT20     = -1;
-      m_HT50     = -1;
-      m_HT20Full = -1;
+      m_HT20     = 0;
+      m_HT50     = 0;
+      m_HT20Full = 0;
       m_jet20centrality = 0;
 
       m_HHkinsvfit_bHmass =-1;
@@ -488,7 +488,7 @@ struct smallTree
       m_BDT_tauHsvfitMet_deltaPhi     = -9. ;
       m_BDT_bHMet_deltaPhi            = -9. ;
       m_BDT_HHsvfit_abs_deltaPhi      = -9. ;
-      m_BDT_HT20                      = -9. ;
+      m_BDT_HT20                      = 0. ;
       m_BDT_topPairMasses             = -999. ;
       m_BDT_MX                        = -999. ;
       m_BDT_bH_tauH_MET_InvMass       = -999. ;

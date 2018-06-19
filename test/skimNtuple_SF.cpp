@@ -1832,6 +1832,17 @@ int main (int argc, char** argv)
 					       );
 	}
 
+    if (DEBUG)
+    {
+        cout << "------- TAU TES DEBUG -------" << endl;
+        cout << " tau1 up: " << tlv_firstLepton_tauup.Pt() << " / " << tlv_firstLepton_tauup.Eta() << endl;
+        cout << " tau1 dw: " << tlv_firstLepton_taudown.Pt() << " / " << tlv_firstLepton_taudown.Eta() << endl;
+
+        cout << " tau2 up: " << tlv_secondLepton_tauup.Pt() << " / " << tlv_secondLepton_tauup.Eta() << endl;
+        cout << " tau2 dw: " << tlv_secondLepton_taudown.Pt() << " / " << tlv_secondLepton_taudown.Eta() << endl;
+        cout << "---------------------"<< endl;
+    }
+
 
       // the following code is the match of the tau to a L1 tau seed due to an error in seed removal from path
       // needed only when analyzing 2015 data
@@ -2000,6 +2011,16 @@ int main (int argc, char** argv)
 	  theSmallTree.m_ditau_deltaR_per_tauHsvfitpt = tlv_firstLepton.DeltaR(tlv_secondLepton) * tlv_tauH_SVFIT.Pt();
 	}
 
+    if (DEBUG)
+    {
+      cout << "------- SVFIT ------" << endl;
+      cout << " is calculated ? " << theBigTree.SVfitMass->at(chosenTauPair) << endl;
+      cout << " pt/eta/phi: " << tlv_tauH_SVFIT.Pt() << " / " << tlv_tauH_SVFIT.Eta() << " / " << tlv_tauH_SVFIT.Phi() << endl;
+      cout << " is calculated UP ? " << theSmallTree.m_tauH_SVFIT_mass_up << endl;
+      cout << " is calculated DOWN ? " << theSmallTree.m_tauH_SVFIT_mass_down << endl;
+      cout << "--------------------" << endl;
+    }
+
       // check if the selected leptons A,B match the gen hard scatter products 1,2
       if (isHHsignal)
 	{
@@ -2082,7 +2103,7 @@ int main (int argc, char** argv)
 
       // Create the MET TLorentzVector for BDT variables, since it's MET --> (px,py,0,0)
       TLorentzVector tlv_MET;
-      tlv_MET.SetPxPyPzE( theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair), 0, 0);
+      tlv_MET.SetPxPyPzE( theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair), 0, std::hypot(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair)) );
 
       theSmallTree.m_tauH_MET_pt                  = (tlv_tauH + tlv_MET).Pt();
       theSmallTree.m_dau2_MET_deltaEta            = fabs(tlv_secondLepton.Eta()); // since MET.Eta()==0 by definition, dEta(tau2,MET)=|tau2.Eta()|
@@ -2155,9 +2176,7 @@ int main (int argc, char** argv)
       theSmallTree.m_dau2_dz  = theBigTree.dz->at(secondDaughterIndex) ;
       theSmallTree.m_dau2_flav = theBigTree.daughters_charge->at (secondDaughterIndex) * (theBigTree.particleType->at (secondDaughterIndex) + 1) ;
 
-      float trigSF = 1.0;
-      float idAndIsoSF = 1.0;
-      // particle 2 is always a TAU --  FIXME: not good for emu
+
 
       // DATA/MC ID and ISO ScaleFactors
       // Tau: https://indico.cern.ch/event/719250/contributions/2971854/attachments/1635435/2609013/tauid_recommendations2017.pdf
@@ -2165,6 +2184,8 @@ int main (int argc, char** argv)
       // Ele: https://twiki.cern.ch/twiki/bin/view/CMS/Egamma2017DataRecommendations#Efficiency_Scale_Factors
       // MU : https://twiki.cern.ch/twiki/bin/view/CMS/MuonReferenceEffs2017#Scale_Factors_with_statistical_e
       
+      float idAndIsoSF = 1.0;
+
       // MuTau Channel
       if (pType == 0 && isMC)
       {
@@ -2235,7 +2256,45 @@ int main (int argc, char** argv)
       theSmallTree.m_IdAndIsoSF = (isMC ? idAndIsoSF : 1.0);
 
 
+      // DATA/MC Trigger ScaleFactors
+      // https://github.com/CMS-HTT/LeptonEfficiencies
+      // https://github.com/truggles/TauTriggerSFs2017
 
+      float trigSF = 1.0;
+
+      /*if (pType == 0 && isMC)
+      {
+
+      }
+
+      // EleTau Channel
+      else if (pType == 1 && isMC)
+      {
+      
+      }
+
+      // TauTau Channel
+      else if (pType == 2 && isMC)
+      {
+      
+      }
+
+      // MuMu Channel
+      else if (pType == 3 && isMC)
+      {
+      
+      }
+
+      // EleEle Channel
+      else if (pType == 4 && isMC)
+      {
+      
+      }
+
+      theSmallTree.m_trigSF     = (isMC ? trigSF : 1.0);*/
+
+
+      // ------ OLD METHOD -- 2016 DATA ------
       // FIXME: should I compute a SF for ID-ISO for taus?
       if (pType == 0 && isMC) // mu
 	{
@@ -2559,7 +2618,7 @@ int main (int argc, char** argv)
 
       // sort jet collection by deepCSV
       sort (jets_and_sortPar.begin(), jets_and_sortPar.end(), bJetSort); //sort by first parameter, then pt (dummy if pt order chosen)
-      if (jets_and_sortPar.size () >= 2) 
+      if (jets_and_sortPar.size () >= 2)
       {
         bool isVBF = false;
         vector<pair <int, float> > jets_and_BTag;
@@ -2635,8 +2694,6 @@ int main (int argc, char** argv)
 
           if (VBFcand_Mjj.size()>0)
           {
-            theSmallTree.m_isVBF = 1;
-
             std::sort(VBFcand_Mjj.begin(),VBFcand_Mjj.end());
             isVBF = true;
             VBFidx1 = std::get<1>(*(VBFcand_Mjj.rbegin()));
@@ -2670,6 +2727,11 @@ int main (int argc, char** argv)
             }
           }
         }
+
+        if (isVBF)
+            theSmallTree.m_isVBF = 1;
+        else
+            theSmallTree.m_isVBF = 0;
 
         const int bjet2idx = isVBF? bjet2idx_isVBF : bjet2idx_notVBF;
 
@@ -2744,6 +2806,16 @@ int main (int argc, char** argv)
                           tlv_secondBjet_raw_jetdown.Phi(),
                           (1.-unc_second) *tlv_secondBjet_raw_jetdown.E()
                           );
+
+        if (DEBUG)
+        {
+            cout << "-------- JET JEC -------" << endl;
+            cout << "jet1 UP: " << tlv_firstBjet_raw_jetup.Pt() <<endl;
+            cout << "jet1 DW: " << tlv_firstBjet_raw_jetdown.Pt()<<endl;
+            cout << "jet2 UP: " << tlv_secondBjet_raw_jetup.Pt()<<endl;
+            cout << "jet2 DW: " << tlv_secondBjet_raw_jetdown.Pt()<<endl;
+            cout << "------------------------" << endl;
+        }
 
         theSmallTree.m_bjet1_pt_raw = tlv_firstBjet_raw.Pt();
         theSmallTree.m_bjet2_pt_raw = tlv_secondBjet_raw.Pt();
@@ -2824,6 +2896,7 @@ int main (int argc, char** argv)
 
         // Save HT_20, HT_50 and HT_20_BDT(with cut on |eta|<4.7)
         TLorentzVector jetVecSum (0,0,0,0);
+        if (DEBUG) cout << "----- BDT HT debug ------" << endl;
         for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
         {
           // JET PU ID cut
@@ -2850,6 +2923,7 @@ int main (int argc, char** argv)
 
             if (TMath::Abs(tlv_jet.Eta()) < 4.7)
               theSmallTree.m_BDT_HT20 += tlv_jet.Pt() ;
+              if (DEBUG) cout << " ---> Jet " << iJet << " - pt: " << tlv_jet.Pt() << " - HT: " << theSmallTree.m_BDT_HT20 << endl;
           }
 
           if (tlv_jet.Pt () > 50)
@@ -2861,6 +2935,9 @@ int main (int argc, char** argv)
         theSmallTree.m_HT20Full = theSmallTree.m_HT20 + tlv_firstLepton.Pt() + tlv_secondLepton.Pt() ;
         theSmallTree.m_jet20centrality = jetVecSum.Pt() / theSmallTree.m_HT20Full ;
 
+
+        if (DEBUG) cout << "  HT = " << theSmallTree.m_BDT_HT20 << endl;
+        if (DEBUG) cout << "---------------------" << endl;
 
         float METx = theBigTree.METx->at (chosenTauPair) ;
         float METy = theBigTree.METy->at (chosenTauPair) ;
@@ -3224,6 +3301,8 @@ int main (int argc, char** argv)
 
         } // end calcultion of MT2
 
+        if (DEBUG)  cout << "---------- MT2 DEBUG: " << theSmallTree.m_MT2 << endl;
+
         theSmallTree.m_HH_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
         theSmallTree.m_HH_deltaEta = fabs(tlv_bH.Eta()- tlv_tauH.Eta ()) ;
         theSmallTree.m_HHsvfit_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH_SVFIT.Phi ()) ;
@@ -3539,6 +3618,15 @@ int main (int argc, char** argv)
           theSmallTree.m_jet5_flav= theSmallTree.m_jets_flav.at (2);
           theSmallTree.m_jet5_hasgenjet= theSmallTree.m_jets_hasgenjet.at (2);
         }
+
+      if (DEBUG)
+      {
+        cout << "--- VBF jets ---" << endl;
+        cout << "isVBF: " << theSmallTree.m_isVBF << endl;
+        cout << "VBF1(pt,eta,phi): " << theSmallTree.m_VBFjet1_pt << " / " << theSmallTree.m_VBFjet1_eta << " / " << theSmallTree.m_VBFjet1_phi << endl;
+        cout << "VBF2(pt,eta,phi): " << theSmallTree.m_VBFjet2_pt << " / " << theSmallTree.m_VBFjet2_eta << " / " << theSmallTree.m_VBFjet2_phi << endl;
+        cout << "----------------" << endl;
+      }
 
       // Boosted section
 	  theSmallTree.m_isBoosted = 0;
