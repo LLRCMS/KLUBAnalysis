@@ -1835,9 +1835,11 @@ int main (int argc, char** argv)
     if (DEBUG)
     {
         cout << "------- TAU TES DEBUG -------" << endl;
+        cout << " tau1 centr: " << tlv_firstLepton.Pt() << " / " << tlv_firstLepton.Eta() << endl;
         cout << " tau1 up: " << tlv_firstLepton_tauup.Pt() << " / " << tlv_firstLepton_tauup.Eta() << endl;
         cout << " tau1 dw: " << tlv_firstLepton_taudown.Pt() << " / " << tlv_firstLepton_taudown.Eta() << endl;
 
+        cout << " tau2 centr: " << tlv_secondLepton.Pt() << " / " << tlv_secondLepton.Eta() << endl;
         cout << " tau2 up: " << tlv_secondLepton_tauup.Pt() << " / " << tlv_secondLepton_tauup.Eta() << endl;
         cout << " tau2 dw: " << tlv_secondLepton_taudown.Pt() << " / " << tlv_secondLepton_taudown.Eta() << endl;
         cout << "---------------------"<< endl;
@@ -2814,6 +2816,9 @@ int main (int argc, char** argv)
             cout << "jet1 DW: " << tlv_firstBjet_raw_jetdown.Pt()<<endl;
             cout << "jet2 UP: " << tlv_secondBjet_raw_jetup.Pt()<<endl;
             cout << "jet2 DW: " << tlv_secondBjet_raw_jetdown.Pt()<<endl;
+            cout << endl;
+            cout << "b1_deepCSV: " << theBigTree.bDeepCSV_probb->at(bjet1idx) + theBigTree.bDeepCSV_probbb->at(bjet1idx) << endl;
+            cout << "b2_deepCSV: " << theBigTree.bDeepCSV_probb->at(bjet2idx) + theBigTree.bDeepCSV_probbb->at(bjet2idx) << endl;
             cout << "------------------------" << endl;
         }
 
