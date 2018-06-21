@@ -844,6 +844,21 @@ int main (int argc, char** argv)
   // tau trigger SFs from Riccardo Summer 2016 MC
   tauTrigSFreader tauTrgSF ("weights/tau_trigger_SF_2016.root");
 
+  // --- 2017 SFs ---
+  // EleGamma POG SFs
+  TFile* fElePOGSF_TightID_80WP  = new TFile ("weights/SF_2017/gammaEffi.txt_EGM2D_runBCDEF_passingMVA94Xwp80iso.root");
+  TFile* fElePOGSF_MediumID_90WP = new TFile ("weights/SF_2017/gammaEffi.txt_EGM2D_runBCDEF_passingMVA94Xwp90iso.root");
+  
+  TH2* hElePOGSF_TightID_80WP  = (TH2*) fElePOGSF_TightID_80WP  -> Get("EGamma_SF2D");
+  TH2* hElePOGSF_MediumID_90WP = (TH2*) fElePOGSF_MediumID_90WP -> Get("EGamma_SF2D");
+  
+  //Muon POG SFs
+  TFile* fMuPOGSF_ID  = new TFile ("weights/SF_2017/Muon_RunBCDEF_SF_ID.root");
+  TFile* fMuPOGSF_ISO = new TFile ("weights/SF_2017/Muon_RunBCDEF_SF_ISO.root");
+  
+  TH2* hMuPOGSF_ID  = (TH2*) fMuPOGSF_ID  -> Get("NUM_TightID_DEN_genTracks_pt_abseta");
+  TH2* hMuPOGSF_ISO = (TH2*) fMuPOGSF_ISO -> Get("NUM_TightRelIso_DEN_TightIDandIPCut_pt_abseta");
+
   // ------------------------------
   // smT2 mt2Class = smT2();
 
@@ -1020,7 +1035,7 @@ int main (int argc, char** argv)
       int got = theBigTree.fChain->GetEntry(iEvent);
       if (got == 0) break;
       bool DEBUG = false;
-      //if (theBigTree.EventNumber != debugEvent) continue; //FRA
+      //if (theBigTree.EventNumber != debugEvent) continue; //FRA debug
       if (theBigTree.EventNumber == debugEvent )
 	{
 	  cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
@@ -1817,6 +1832,19 @@ int main (int argc, char** argv)
 					       );
 	}
 
+    if (DEBUG)
+    {
+        cout << "------- TAU TES DEBUG -------" << endl;
+        cout << " tau1 centr: " << tlv_firstLepton.Pt() << " / " << tlv_firstLepton.Eta() << endl;
+        cout << " tau1 up: " << tlv_firstLepton_tauup.Pt() << " / " << tlv_firstLepton_tauup.Eta() << endl;
+        cout << " tau1 dw: " << tlv_firstLepton_taudown.Pt() << " / " << tlv_firstLepton_taudown.Eta() << endl;
+
+        cout << " tau2 centr: " << tlv_secondLepton.Pt() << " / " << tlv_secondLepton.Eta() << endl;
+        cout << " tau2 up: " << tlv_secondLepton_tauup.Pt() << " / " << tlv_secondLepton_tauup.Eta() << endl;
+        cout << " tau2 dw: " << tlv_secondLepton_taudown.Pt() << " / " << tlv_secondLepton_taudown.Eta() << endl;
+        cout << "---------------------"<< endl;
+    }
+
 
       // the following code is the match of the tau to a L1 tau seed due to an error in seed removal from path
       // needed only when analyzing 2015 data
@@ -1985,6 +2013,16 @@ int main (int argc, char** argv)
 	  theSmallTree.m_ditau_deltaR_per_tauHsvfitpt = tlv_firstLepton.DeltaR(tlv_secondLepton) * tlv_tauH_SVFIT.Pt();
 	}
 
+    if (DEBUG)
+    {
+      cout << "------- SVFIT ------" << endl;
+      cout << " is calculated ? " << theBigTree.SVfitMass->at(chosenTauPair) << endl;
+      cout << " pt/eta/phi: " << tlv_tauH_SVFIT.Pt() << " / " << tlv_tauH_SVFIT.Eta() << " / " << tlv_tauH_SVFIT.Phi() << endl;
+      cout << " is calculated UP ? " << theSmallTree.m_tauH_SVFIT_mass_up << endl;
+      cout << " is calculated DOWN ? " << theSmallTree.m_tauH_SVFIT_mass_down << endl;
+      cout << "--------------------" << endl;
+    }
+
       // check if the selected leptons A,B match the gen hard scatter products 1,2
       if (isHHsignal)
 	{
@@ -2007,7 +2045,13 @@ int main (int argc, char** argv)
 
 
       theSmallTree.m_pairType    = pType ;
-      theSmallTree.m_BDT_channel = theSmallTree.m_pairType;
+      // Need to change the channel: LLR-> 0:muTau - 1:eTau  /  PI-> 0:eTau - 1:muTau
+      if      (theSmallTree.m_pairType == 0) theSmallTree.m_BDT_channel = 1.;
+      else if (theSmallTree.m_pairType == 1) theSmallTree.m_BDT_channel = 0.;
+      else if (theSmallTree.m_pairType == 2) theSmallTree.m_BDT_channel = 2.;
+
+      //cout << " ------------------> CHECK CHANNEL pairType/BDT_chan: " << theSmallTree.m_pairType << "/" << theSmallTree.m_BDT_channel << endl;
+
       theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) : 1) ;      
       theSmallTree.m_MC_weight   = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight * HHweight * trgEvtWeight : 1) ;
       theSmallTree.m_turnOnreweight   = (isMC ? trgEvtWeight : 1.);
@@ -2037,7 +2081,7 @@ int main (int argc, char** argv)
       theSmallTree.m_met_cov10 = theBigTree.MET_cov10->at (chosenTauPair);
       theSmallTree.m_met_cov11 = theBigTree.MET_cov11->at (chosenTauPair);
 
-      // Shifted MET
+      // Shifted MET for JES
       // This will be useful when splitting JECs
       //TVector2 vMET_jetup   = getShiftedMET(+1., vMET, theBigTree, DEBUG);
       //TVector2 vMET_jetdown = getShiftedMET(-1., vMET, theBigTree, DEBUG);
@@ -2048,6 +2092,14 @@ int main (int argc, char** argv)
       theSmallTree.m_met_et_jetup    = vMET_jetup.Mod();
       theSmallTree.m_met_phi_jetdown = vMET_jetdown.Phi();
       theSmallTree.m_met_et_jetdown  = vMET_jetdown.Mod();
+
+      // Shifted MET for TES
+      TVector2 vMET_tauup   (theBigTree.METx_UP_TES->at(chosenTauPair)  , theBigTree.METy_UP_TES->at(chosenTauPair));
+      TVector2 vMET_taudown (theBigTree.METx_DOWN_TES->at(chosenTauPair), theBigTree.METy_DOWN_TES->at(chosenTauPair));
+      theSmallTree.m_met_phi_tauup   = vMET_tauup.Phi();
+      theSmallTree.m_met_et_tauup    = vMET_tauup.Mod();
+      theSmallTree.m_met_phi_taudown = vMET_taudown.Phi();
+      theSmallTree.m_met_et_taudown  = vMET_taudown.Mod();
 
       theSmallTree.m_mT1       = theBigTree.mT_Dau1->at (chosenTauPair) ;
       theSmallTree.m_mT2       = theBigTree.mT_Dau2->at (chosenTauPair) ;
@@ -2067,7 +2119,7 @@ int main (int argc, char** argv)
 
       // Create the MET TLorentzVector for BDT variables, since it's MET --> (px,py,0,0)
       TLorentzVector tlv_MET;
-      tlv_MET.SetPxPyPzE( theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair), 0, 0);
+      tlv_MET.SetPxPyPzE( theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair), 0, std::hypot(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair)) );
 
       theSmallTree.m_tauH_MET_pt                  = (tlv_tauH + tlv_MET).Pt();
       theSmallTree.m_dau2_MET_deltaEta            = fabs(tlv_secondLepton.Eta()); // since MET.Eta()==0 by definition, dEta(tau2,MET)=|tau2.Eta()|
@@ -2118,8 +2170,7 @@ int main (int argc, char** argv)
       theSmallTree.m_dau1_e = theBigTree.daughters_e->at (firstDaughterIndex) ;
       theSmallTree.m_dau1_dxy = theBigTree.dxy->at(firstDaughterIndex) ;
       theSmallTree.m_dau1_dz  = theBigTree.dz->at(firstDaughterIndex) ;
-      theSmallTree.m_dau1_flav = theBigTree.daughters_charge->at (firstDaughterIndex) * 
-	(theBigTree.particleType->at (firstDaughterIndex) + 1) ;
+      theSmallTree.m_dau1_flav = theBigTree.daughters_charge->at (firstDaughterIndex) * (theBigTree.particleType->at (firstDaughterIndex) + 1) ;
       // 1 = from muons collection
       // 2 = from electrons collection
       // 3 = from tauH collection
@@ -2139,13 +2190,127 @@ int main (int argc, char** argv)
       theSmallTree.m_dau2_e = theBigTree.daughters_e->at (secondDaughterIndex) ;
       theSmallTree.m_dau2_dxy = theBigTree.dxy->at(secondDaughterIndex) ;
       theSmallTree.m_dau2_dz  = theBigTree.dz->at(secondDaughterIndex) ;
-      theSmallTree.m_dau2_flav = theBigTree.daughters_charge->at (secondDaughterIndex) * 
-	(theBigTree.particleType->at (secondDaughterIndex) + 1) ;
+      theSmallTree.m_dau2_flav = theBigTree.daughters_charge->at (secondDaughterIndex) * (theBigTree.particleType->at (secondDaughterIndex) + 1) ;
+
+
+
+      // DATA/MC ID and ISO ScaleFactors
+      // Tau: https://indico.cern.ch/event/719250/contributions/2971854/attachments/1635435/2609013/tauid_recommendations2017.pdf
+      //      https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendation13TeV#Performance_in_data_and_recommen
+      // Ele: https://twiki.cern.ch/twiki/bin/view/CMS/Egamma2017DataRecommendations#Efficiency_Scale_Factors
+      // MU : https://twiki.cern.ch/twiki/bin/view/CMS/MuonReferenceEffs2017#Scale_Factors_with_statistical_e
+      
+      float idAndIsoSF = 1.0;
+
+      // MuTau Channel
+      if (pType == 0 && isMC)
+      {
+        float mu1pt  = tlv_firstLepton.Pt();
+        float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
+
+        float idSF_leg1  = getContentHisto2D(hMuPOGSF_ID , mu1pt, mu1eta);
+        float isoSF_leg1 = getContentHisto2D(hMuPOGSF_ISO, mu1pt, mu1eta);
+        float idAndIsoSF_leg1 = idSF_leg1 * isoSF_leg1;
+        float idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
+        
+        idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+      }
+
+      // EleTau Channel
+      else if (pType == 1 && isMC)
+      {
+        float ele1pt = tlv_firstLepton.Pt();
+        float ele1eta = tlv_firstLepton.Eta();
+          
+        float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_TightID_80WP, ele1eta, ele1pt);  // EMVATight == 80% eff WP
+        float idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
+        
+        idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+      }
+
+      // TauTau Channel
+      else if (pType == 2 && isMC)
+      {
+        float idAndIsoSF_leg1 = 0.89; // TauPOG recommendation for 2017 data
+        float idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
+        
+        idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+      }
+
+      // MuMu Channel
+      else if (pType == 3 && isMC)
+      {
+        float mu1pt  = tlv_firstLepton.Pt();
+        float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
+        float mu2pt  = tlv_secondLepton.Pt();
+        float mu2eta = TMath::Abs(tlv_secondLepton.Eta());
+        
+        float idSF_leg1  = getContentHisto2D(hMuPOGSF_ID , mu1pt, mu1eta);
+        float isoSF_leg1 = getContentHisto2D(hMuPOGSF_ISO, mu1pt, mu1eta);
+        float idAndIsoSF_leg1 = idSF_leg1 * isoSF_leg1;
+        float idSF_leg2  = getContentHisto2D(hMuPOGSF_ID , mu2pt, mu2eta);
+        float isoSF_leg2 = getContentHisto2D(hMuPOGSF_ISO, mu2pt, mu2eta);
+        float idAndIsoSF_leg2 = idSF_leg2 * isoSF_leg2;
+        
+        idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+      }
+
+      // EleEle Channel
+      else if (pType == 4 && isMC)
+      {
+        float ele1pt = tlv_firstLepton.Pt();
+        float ele2pt = tlv_secondLepton.Pt();
+        float ele1eta = tlv_firstLepton.Eta();
+        float ele2eta = tlv_secondLepton.Eta();
+
+        float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_MediumID_90WP, ele1eta, ele1pt);  // EMVAMedium == 90% eff WP
+        float idAndIsoSF_leg2 = getContentHisto2D(hElePOGSF_MediumID_90WP, ele2eta, ele2pt);  // EMVAMedium == 90% eff WP
+        
+        idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+      }
+      // Save the IDandISO SF (event per event)
+      theSmallTree.m_IdAndIsoSF = (isMC ? idAndIsoSF : 1.0);
+
+
+      // DATA/MC Trigger ScaleFactors
+      // https://github.com/CMS-HTT/LeptonEfficiencies
+      // https://github.com/truggles/TauTriggerSFs2017
 
       float trigSF = 1.0;
-      float idAndIsoSF = 1.0;
-      // particle 2 is always a TAU --  FIXME: not good for emu
-    
+
+      /*if (pType == 0 && isMC)
+      {
+
+      }
+
+      // EleTau Channel
+      else if (pType == 1 && isMC)
+      {
+      
+      }
+
+      // TauTau Channel
+      else if (pType == 2 && isMC)
+      {
+      
+      }
+
+      // MuMu Channel
+      else if (pType == 3 && isMC)
+      {
+      
+      }
+
+      // EleEle Channel
+      else if (pType == 4 && isMC)
+      {
+      
+      }
+
+      theSmallTree.m_trigSF     = (isMC ? trigSF : 1.0);*/
+
+
+      // ------ OLD METHOD -- 2016 DATA ------
       // FIXME: should I compute a SF for ID-ISO for taus?
       if (pType == 0 && isMC) // mu
 	{
@@ -2469,7 +2634,7 @@ int main (int argc, char** argv)
 
       // sort jet collection by deepCSV
       sort (jets_and_sortPar.begin(), jets_and_sortPar.end(), bJetSort); //sort by first parameter, then pt (dummy if pt order chosen)
-      if (jets_and_sortPar.size () >= 2) 
+      if (jets_and_sortPar.size () >= 2)
       {
         bool isVBF = false;
         vector<pair <int, float> > jets_and_BTag;
@@ -2545,8 +2710,6 @@ int main (int argc, char** argv)
 
           if (VBFcand_Mjj.size()>0)
           {
-            theSmallTree.m_isVBF = 1;
-
             std::sort(VBFcand_Mjj.begin(),VBFcand_Mjj.end());
             isVBF = true;
             VBFidx1 = std::get<1>(*(VBFcand_Mjj.rbegin()));
@@ -2580,6 +2743,11 @@ int main (int argc, char** argv)
             }
           }
         }
+
+        if (isVBF)
+            theSmallTree.m_isVBF = 1;
+        else
+            theSmallTree.m_isVBF = 0;
 
         const int bjet2idx = isVBF? bjet2idx_isVBF : bjet2idx_notVBF;
 
@@ -2654,6 +2822,19 @@ int main (int argc, char** argv)
                           tlv_secondBjet_raw_jetdown.Phi(),
                           (1.-unc_second) *tlv_secondBjet_raw_jetdown.E()
                           );
+
+        if (DEBUG)
+        {
+            cout << "-------- JET JEC -------" << endl;
+            cout << "jet1 UP: " << tlv_firstBjet_raw_jetup.Pt() <<endl;
+            cout << "jet1 DW: " << tlv_firstBjet_raw_jetdown.Pt()<<endl;
+            cout << "jet2 UP: " << tlv_secondBjet_raw_jetup.Pt()<<endl;
+            cout << "jet2 DW: " << tlv_secondBjet_raw_jetdown.Pt()<<endl;
+            cout << endl;
+            cout << "b1_deepCSV: " << theBigTree.bDeepCSV_probb->at(bjet1idx) + theBigTree.bDeepCSV_probbb->at(bjet1idx) << endl;
+            cout << "b2_deepCSV: " << theBigTree.bDeepCSV_probb->at(bjet2idx) + theBigTree.bDeepCSV_probbb->at(bjet2idx) << endl;
+            cout << "------------------------" << endl;
+        }
 
         theSmallTree.m_bjet1_pt_raw = tlv_firstBjet_raw.Pt();
         theSmallTree.m_bjet2_pt_raw = tlv_secondBjet_raw.Pt();
@@ -2734,6 +2915,7 @@ int main (int argc, char** argv)
 
         // Save HT_20, HT_50 and HT_20_BDT(with cut on |eta|<4.7)
         TLorentzVector jetVecSum (0,0,0,0);
+        if (DEBUG) cout << "----- BDT HT debug ------" << endl;
         for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
         {
           // JET PU ID cut
@@ -2760,6 +2942,7 @@ int main (int argc, char** argv)
 
             if (TMath::Abs(tlv_jet.Eta()) < 4.7)
               theSmallTree.m_BDT_HT20 += tlv_jet.Pt() ;
+              if (DEBUG) cout << " ---> Jet " << iJet << " - pt: " << tlv_jet.Pt() << " - HT: " << theSmallTree.m_BDT_HT20 << endl;
           }
 
           if (tlv_jet.Pt () > 50)
@@ -2771,6 +2954,9 @@ int main (int argc, char** argv)
         theSmallTree.m_HT20Full = theSmallTree.m_HT20 + tlv_firstLepton.Pt() + tlv_secondLepton.Pt() ;
         theSmallTree.m_jet20centrality = jetVecSum.Pt() / theSmallTree.m_HT20Full ;
 
+
+        if (DEBUG) cout << "  HT = " << theSmallTree.m_BDT_HT20 << endl;
+        if (DEBUG) cout << "---------------------" << endl;
 
         float METx = theBigTree.METx->at (chosenTauPair) ;
         float METy = theBigTree.METy->at (chosenTauPair) ;
@@ -2788,12 +2974,17 @@ int main (int argc, char** argv)
         metcov (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
         const TMatrixD stableMetCov = metcov;
 
+        // MET shifted for JES
         // This will be useful when splitting JECs
         //const TVector2 ptmiss_jetup   = getShiftedMET(+1., ptmiss, theBigTree);
         //const TVector2 ptmiss_jetdown = getShiftedMET(-1., ptmiss, theBigTree);
         // For now we use the total shift already stored in LLR ntuples
         const TVector2 ptmiss_jetup   (theBigTree.METx_UP->at(chosenTauPair) , theBigTree.METy_UP->at(chosenTauPair));
         const TVector2 ptmiss_jetdown (theBigTree.METx_DOWN->at(chosenTauPair) , theBigTree.METy_DOWN->at(chosenTauPair));
+
+        // MET shifted for TES
+        const TVector2 ptmiss_tauup   (theBigTree.METx_UP_TES->at(chosenTauPair) , theBigTree.METy_UP_TES->at(chosenTauPair));
+        const TVector2 ptmiss_taudown (theBigTree.METx_DOWN_TES->at(chosenTauPair) , theBigTree.METy_DOWN_TES->at(chosenTauPair));
 
         theSmallTree.m_bH_pt = tlv_bH.Pt () ;
         theSmallTree.m_bH_eta = tlv_bH.Eta () ;
@@ -2853,13 +3044,13 @@ int main (int argc, char** argv)
         float HHKmass = -999;
         float HHKChi2 = -999;
         // if (runHHKinFit && tlv_HH_raw.M() > 20 && tlv_HH_raw.M() < 200)
-        //if (runHHKinFit && pairType <= 2 && tlv_bH_raw.M() > 50 && tlv_bH_raw.M() < 200 && theBigTree.SVfitMass->at (chosenTauPair) > 50 && theBigTree.SVfitMass->at (chosenTauPair) < 200) // no kinfit for ee / mumu + very loose mass window
-        if (runHHKinFit && pairType <= 2) // FIXME: temporary
+        if (runHHKinFit && pairType <= 2 && tlv_bH_raw.M() > 50 && tlv_bH_raw.M() < 200 && theBigTree.SVfitMass->at (chosenTauPair) > 50 && theBigTree.SVfitMass->at (chosenTauPair) < 200) // no kinfit for ee / mumu + very loose mass window
+        //if (runHHKinFit && pairType <= 2) // FIXME: temporary
         {
           HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton, ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
           HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
-          HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_tauup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_tauup, tlv_secondLepton_tauup,  ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
-          HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_taudown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_taudown, tlv_secondLepton_taudown,  ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
+          HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_tauup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_tauup, tlv_secondLepton_tauup,  ptmiss_tauup, stableMetCov, bjet1_JER, bjet2_JER) ;
+          HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_taudown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_taudown, tlv_secondLepton_taudown,  ptmiss_taudown, stableMetCov, bjet1_JER, bjet2_JER) ;
           HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw_jetup, tlv_secondBjet_raw_jetup, tlv_firstLepton, tlv_secondLepton,  ptmiss_jetup, stableMetCov, bjet1_JER, bjet2_JER) ;
           HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetdown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw_jetdown, tlv_secondBjet_raw_jetdown, tlv_firstLepton, tlv_secondLepton,  ptmiss_jetdown, stableMetCov, bjet1_JER, bjet2_JER) ;
 
@@ -3058,13 +3249,13 @@ int main (int argc, char** argv)
           double chiB = tlv_secondLepton.M(); // hypothesised mass of invisible on side B.  Must be >=0.
 
           // TES variations
-          double pxMiss_tauup = tlv_firstLepton_tauup.Px() + tlv_secondLepton_tauup.Px() + theBigTree.METx->at(chosenTauPair); // x component of missing transverse momentum.
-          double pyMiss_tauup = tlv_firstLepton_tauup.Py() + tlv_secondLepton_tauup.Py() + theBigTree.METy->at(chosenTauPair); // y component of missing transverse momentum.
+          double pxMiss_tauup = tlv_firstLepton_tauup.Px() + tlv_secondLepton_tauup.Px() + theBigTree.METx_UP_TES->at(chosenTauPair); // shiftedMET for TES
+          double pyMiss_tauup = tlv_firstLepton_tauup.Py() + tlv_secondLepton_tauup.Py() + theBigTree.METy_UP_TES->at(chosenTauPair); // shiftedMET for TES
           double chiA_tauup = tlv_firstLepton_tauup.M();  // hypothesised mass of invisible on side A.  Must be >=0.
           double chiB_tauup = tlv_secondLepton_tauup.M(); // hypothesised mass of invisible on side B.  Must be >=0.
 
-          double pxMiss_taudown = tlv_firstLepton_taudown.Px() + tlv_secondLepton_taudown.Px() + theBigTree.METx->at(chosenTauPair); // x component of missing transverse momentum.
-          double pyMiss_taudown = tlv_firstLepton_taudown.Py() + tlv_secondLepton_taudown.Py() + theBigTree.METy->at(chosenTauPair); // y component of missing transverse momentum.
+          double pxMiss_taudown = tlv_firstLepton_taudown.Px() + tlv_secondLepton_taudown.Px() + theBigTree.METx_DOWN_TES->at(chosenTauPair); // shiftedMET for TES
+          double pyMiss_taudown = tlv_firstLepton_taudown.Py() + tlv_secondLepton_taudown.Py() + theBigTree.METy_DOWN_TES->at(chosenTauPair); // shiftedMET for TES
           double chiA_taudown = tlv_firstLepton_taudown.M();  // hypothesised mass of invisible on side A.  Must be >=0.
           double chiB_taudown = tlv_secondLepton_taudown.M(); // hypothesised mass of invisible on side B.  Must be >=0.
 
@@ -3075,8 +3266,8 @@ int main (int argc, char** argv)
           double mVisB_jetup = tlv_secondBjet_raw_jetup.M(); // mass of visible object on side B.
           double pxB_jetup = tlv_secondBjet_raw_jetup.Px();  // x momentum of visible object on side B.
           double pyB_jetup = tlv_secondBjet_raw_jetup.Py();  // y momentum of visible object on side B.
-          double pxMiss_jetup = tlv_firstLepton.Px() + tlv_secondLepton.Px() + ptmiss_jetup.Px(); // shiftedMET_up
-          double pyMiss_jetup = tlv_firstLepton.Py() + tlv_secondLepton.Py() + ptmiss_jetup.Py(); // shiftedMET_up
+          double pxMiss_jetup = tlv_firstLepton.Px() + tlv_secondLepton.Px() + ptmiss_jetup.Px(); // shiftedMET for JES
+          double pyMiss_jetup = tlv_firstLepton.Py() + tlv_secondLepton.Py() + ptmiss_jetup.Py(); // shiftedMET for JES
 
           double mVisA_jetdown = tlv_firstBjet_raw_jetdown.M();  // mass of visible object on side A.
           double pxA_jetdown = tlv_firstBjet_raw_jetdown.Px();   // x momentum of visible object on side A.
@@ -3084,8 +3275,8 @@ int main (int argc, char** argv)
           double mVisB_jetdown = tlv_secondBjet_raw_jetdown.M(); // mass of visible object on side B.
           double pxB_jetdown = tlv_secondBjet_raw_jetdown.Px();  // x momentum of visible object on side B.
           double pyB_jetdown = tlv_secondBjet_raw_jetdown.Py();  // y momentum of visible object on side B.
-          double pxMiss_jetdown = tlv_firstLepton.Px() + tlv_secondLepton.Px() + ptmiss_jetdown.Px(); // shiftedMET_up
-          double pyMiss_jetdown = tlv_firstLepton.Py() + tlv_secondLepton.Py() + ptmiss_jetdown.Py(); // shiftedMET_up
+          double pxMiss_jetdown = tlv_firstLepton.Px() + tlv_secondLepton.Px() + ptmiss_jetdown.Px(); // shiftedMET for JES
+          double pyMiss_jetdown = tlv_firstLepton.Py() + tlv_secondLepton.Py() + ptmiss_jetdown.Py(); // shiftedMET for JES
 
           double desiredPrecisionOnMt2 = 0; // Must be >=0.  If 0 alg aims for machine precision.  if >0, MT2 computed to supplied absolute precision.
 
@@ -3133,6 +3324,8 @@ int main (int argc, char** argv)
           theSmallTree.m_MT2_jetdown = MT2_jetdown;
 
         } // end calcultion of MT2
+
+        if (DEBUG)  cout << "---------- MT2 DEBUG: " << theSmallTree.m_MT2 << endl;
 
         theSmallTree.m_HH_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
         theSmallTree.m_HH_deltaEta = fabs(tlv_bH.Eta()- tlv_tauH.Eta ()) ;
@@ -3449,6 +3642,15 @@ int main (int argc, char** argv)
           theSmallTree.m_jet5_flav= theSmallTree.m_jets_flav.at (2);
           theSmallTree.m_jet5_hasgenjet= theSmallTree.m_jets_hasgenjet.at (2);
         }
+
+      if (DEBUG)
+      {
+        cout << "--- VBF jets ---" << endl;
+        cout << "isVBF: " << theSmallTree.m_isVBF << endl;
+        cout << "VBF1(pt,eta,phi): " << theSmallTree.m_VBFjet1_pt << " / " << theSmallTree.m_VBFjet1_eta << " / " << theSmallTree.m_VBFjet1_phi << endl;
+        cout << "VBF2(pt,eta,phi): " << theSmallTree.m_VBFjet2_pt << " / " << theSmallTree.m_VBFjet2_eta << " / " << theSmallTree.m_VBFjet2_phi << endl;
+        cout << "----------------" << endl;
+      }
 
       // Boosted section
 	  theSmallTree.m_isBoosted = 0;
@@ -4108,10 +4310,10 @@ int main (int argc, char** argv)
 
 
     // Book the MVA methods
-    if(doSM) readerSM->BookMVA("Grad_3", TMVAweightsSM.c_str() );
-    if(doLM) readerLM->BookMVA("Grad_1", TMVAweightsLM.c_str() );
-    if(doMM) readerMM->BookMVA("Grad_1", TMVAweightsMM.c_str() );
-    if(doHM) readerHM->BookMVA("Grad_3", TMVAweightsHM.c_str() );
+    if(doSM) readerSM->BookMVA("Grad_1", TMVAweightsSM.c_str() );
+    if(doLM) readerLM->BookMVA("Grad_2", TMVAweightsLM.c_str() );
+    if(doMM) readerMM->BookMVA("Grad_3", TMVAweightsMM.c_str() );
+    if(doHM) readerHM->BookMVA("Grad_4", TMVAweightsHM.c_str() );
 
     // Calculate BDT output for SM
     if (doSM)
@@ -4130,7 +4332,16 @@ int main (int argc, char** argv)
             for(int i=0;i<nentries;i++)
             {
                 treenew->GetEntry(i);
-                outSM.at(idxSM) = readerSM->EvaluateMVA("Grad_3");
+
+                /*allVarsMap.at("BDT_channel") = 2.;
+                //cout << "--------  NEW ENTRY  ---------"<< endl;
+                cout << " channel: " << allVarsMap.at("BDT_channel") << endl;
+                for (pair<string, string> vpair : splitTMVAvariablesSM)
+                {
+                  cout << "Name: " << vpair.first.c_str () << "  --  val: " << allVarsMap.at (vpair.first) << endl;
+                }
+                cout << "-------------------------------"<< endl;*/
+                outSM.at(idxSM) = readerSM->EvaluateMVA("Grad_1");
                 branchSM.at(idxSM)->Fill();
             }
             ++idxSM;
@@ -4158,7 +4369,16 @@ int main (int argc, char** argv)
                 for(int i=0;i<nentries;i++)
                 {
                     treenew->GetEntry(i);
-                    outLM.at(idxLM) = readerLM->EvaluateMVA("Grad_1");
+
+                    /*cout << "--------  NEW ENTRY LM  ---------"<< endl;
+                    for (pair<string, string> vpair : splitTMVAvariablesLM)
+                    {
+                      cout << "Name: " << vpair.first.c_str () << "  --  val: " << allVarsMap.at (vpair.first) << endl;
+                    }
+                    cout << "Name: channelLM  --  val: " << channel_LM << endl;
+                    cout << "-------------------------------"<< endl;*/
+
+                    outLM.at(idxLM) = readerLM->EvaluateMVA("Grad_2");
                     branchLM.at(idxLM)->Fill();
                 }
                 ++idxLM;
@@ -4187,7 +4407,7 @@ int main (int argc, char** argv)
                 for(int i=0;i<nentries;i++)
                 {
                     treenew->GetEntry(i);
-                    outMM.at(idxMM) = readerMM->EvaluateMVA("Grad_1");
+                    outMM.at(idxMM) = readerMM->EvaluateMVA("Grad_3");
                     branchMM.at(idxMM)->Fill();
                 }
                 ++idxMM;
@@ -4216,7 +4436,7 @@ int main (int argc, char** argv)
                 for(int i=0;i<nentries;i++)
                 {
                     treenew->GetEntry(i);
-                    outHM.at(idxHM) = readerHM->EvaluateMVA("Grad_3");
+                    outHM.at(idxHM) = readerHM->EvaluateMVA("Grad_4");
                     branchHM.at(idxHM)->Fill();
                 }
                 ++idxHM;

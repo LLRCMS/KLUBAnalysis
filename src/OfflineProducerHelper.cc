@@ -553,7 +553,8 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
     bool vertexS = (fabs(tree->dz->at(iDau)) < 0.2) || byp_vertexS;
     bool agEleS = (agEleVal == 1) || byp_agEleS; 
     bool agMuS  = (agMuVal == 1) || byp_agMuS; 
-    bool isoS = (tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) < isoRaw3Hits) || byp_isoS;
+    //bool isoS = (tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) < isoRaw3Hits) || byp_isoS;
+    bool isoS = (tree->daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017->at(iDau) > 0.5) || byp_isoS;
     if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
 
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;

@@ -162,6 +162,10 @@ public :
    std::vector<float>   *METy_UP;
    std::vector<float>   *METx_DOWN;
    std::vector<float>   *METy_DOWN;
+   std::vector<float>   *METx_UP_TES;
+   std::vector<float>   *METy_UP_TES;
+   std::vector<float>   *METx_DOWN_TES;
+   std::vector<float>   *METy_DOWN_TES;
    std::vector<float>   *MET_cov00;
    std::vector<float>   *MET_cov01;
    std::vector<float>   *MET_cov10;
@@ -206,6 +210,7 @@ public :
    std::vector<float>   *daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017;
    std::vector<float>   *daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017;
    std::vector<float>   *daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017;
+   std::vector<int>     *daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017;
    std::vector<float>   *daughters_chargedIsoPtSum;
    std::vector<float>   *daughters_neutralIsoPtSum;
    std::vector<float>   *daughters_puCorrPtSum;
@@ -484,6 +489,10 @@ public :
    TBranch        *b_METy_UP;   //!
    TBranch        *b_METx_DOWN;   //!
    TBranch        *b_METy_DOWN;   //!
+   TBranch        *b_METx_UP_TES;   //!
+   TBranch        *b_METy_UP_TES;   //!
+   TBranch        *b_METx_DOWN_TES;   //!
+   TBranch        *b_METy_DOWN_TES;   //!
    TBranch        *b_MET_cov00;   //!
    TBranch        *b_MET_cov01;   //!
    TBranch        *b_MET_cov10;   //!
@@ -528,6 +537,7 @@ public :
    TBranch        *b_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017; //!
    TBranch        *b_daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017; //!
    TBranch        *b_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017;
+   TBranch        *b_daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017;
    TBranch        *b_daughters_chargedIsoPtSum;   //!
    TBranch        *b_daughters_neutralIsoPtSum;   //!
    TBranch        *b_daughters_puCorrPtSum;   //!
@@ -799,6 +809,10 @@ public :
        METy_UP = 0;
        METx_DOWN = 0;
        METy_DOWN = 0;
+       METx_UP_TES = 0;
+       METy_UP_TES = 0;
+       METx_DOWN_TES = 0;
+       METy_DOWN_TES = 0;
        MET_cov00 = 0;
        MET_cov01 = 0;
        MET_cov10 = 0;
@@ -843,6 +857,7 @@ public :
        daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017 = 0;
        daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017 = 0;
        daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017 = 0;
+       daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017 = 0;
        daughters_chargedIsoPtSum = 0;
        daughters_neutralIsoPtSum = 0;
        daughters_puCorrPtSum = 0;
@@ -1028,6 +1043,10 @@ public :
        fChain->SetBranchAddress("METy_UP", &METy_UP, &b_METy_UP);
        fChain->SetBranchAddress("METx_DOWN", &METx_DOWN, &b_METx_DOWN);
        fChain->SetBranchAddress("METy_DOWN", &METy_DOWN, &b_METy_DOWN);
+       fChain->SetBranchAddress("METx_UP_TES", &METx_UP_TES, &b_METx_UP_TES);
+       fChain->SetBranchAddress("METy_UP_TES", &METy_UP_TES, &b_METy_UP_TES);
+       fChain->SetBranchAddress("METx_DOWN_TES", &METx_DOWN_TES, &b_METx_DOWN_TES);
+       fChain->SetBranchAddress("METy_DOWN_TES", &METy_DOWN_TES, &b_METy_DOWN_TES);
        fChain->SetBranchAddress("MET_cov00", &MET_cov00, &b_MET_cov00);
        fChain->SetBranchAddress("MET_cov01", &MET_cov01, &b_MET_cov01);
        fChain->SetBranchAddress("MET_cov10", &MET_cov10, &b_MET_cov10);
@@ -1072,6 +1091,7 @@ public :
        fChain->SetBranchAddress("daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017", &daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017, &b_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017);
        fChain->SetBranchAddress("daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017", &daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017, &b_daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017);
        fChain->SetBranchAddress("daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017", &daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017, &b_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017);
+       fChain->SetBranchAddress("daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017", &daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017, &b_daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017);
        fChain->SetBranchAddress("daughters_chargedIsoPtSum", &daughters_chargedIsoPtSum, &b_daughters_chargedIsoPtSum);
        fChain->SetBranchAddress("daughters_neutralIsoPtSum", &daughters_neutralIsoPtSum, &b_daughters_neutralIsoPtSum);
        fChain->SetBranchAddress("daughters_puCorrPtSum", &daughters_puCorrPtSum, &b_daughters_puCorrPtSum);
