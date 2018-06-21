@@ -28,11 +28,15 @@ DICTHDRS  =  $(patsubst $(LINKDEF),,$(HDRS)) $(LINKDEF)
 ROOTCFLAGS    = $(shell root-config --cflags)
 ROOTGLIBS     = $(shell root-config --glibs)
 
+BOOSTFLAGS      = $(shell scram tool info boost | grep -e '^LIBDIR' | sed -e 's/LIBDIR=/-L/')
+BOOSTGLIB    = $(shell scram tool info boost | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
+
+
 ARCHL = -m64
 CXX  =  g++
-CXXFLAGS  =  -Wall -O -fPIC -I$(HDR) $(ROOTCFLAGS) 
+CXXFLAGS  =  -Wall -O -fPIC -I$(HDR) $(ROOTCFLAGS) $(BOOSTFLAGS) $(BOOSTGLIB)
 CPP  =  g++
-CPPFLAGS  = -Wall  $(ARCHL) -I$(HDR) $(ROOTCFLAGS) 
+CPPFLAGS  = -Wall  $(ARCHL) -I$(HDR) $(ROOTCFLAGS) $(BOOSTFLAGS) $(BOOSTGLIB)
 
 F    = gfortran
 FFLAGS = -c
