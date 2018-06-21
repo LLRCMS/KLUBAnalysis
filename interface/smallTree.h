@@ -63,10 +63,14 @@ struct smallTree
       
       m_met_phi = -1. ;
       m_met_et = -1. ;
-      m_met_phi_jetup = -1.  ; //FRA - shifted MET
+      m_met_phi_jetup = -1.  ; //FRA - shifted MET for JES
       m_met_et_jetup = -1.   ; //
       m_met_phi_jetdown = -1.; //
       m_met_et_jetdown = -1. ; //
+      m_met_phi_tauup = -1.  ; //FRA - shifted MET for TES
+      m_met_et_tauup = -1.   ; //
+      m_met_phi_taudown = -1.; //
+      m_met_et_taudown = -1. ; //
       m_met_et_corr =-1.;
       m_met_cov00 = -1.;
       m_met_cov01 = -1.;
@@ -549,10 +553,14 @@ struct smallTree
 
       m_smallT->Branch ("met_phi", &m_met_phi, "met_phi/F") ;
       m_smallT->Branch ("met_et", &m_met_et, "met_et/F") ;
-      m_smallT->Branch ("met_phi_jetup", &m_met_phi_jetup, "met_phi_jetup/F") ;       //FRA - shifted MET
+      m_smallT->Branch ("met_phi_jetup", &m_met_phi_jetup, "met_phi_jetup/F") ;       //FRA - shifted MET for JES
       m_smallT->Branch ("met_et_jetup", &m_met_et_jetup, "met_et_jetup/F") ;          //
       m_smallT->Branch ("met_phi_jetdown", &m_met_phi_jetdown, "met_phi_jetdown/F") ; //
       m_smallT->Branch ("met_et_jetdown", &m_met_et_jetdown, "met_et_jetdown/F") ;    //
+      m_smallT->Branch ("met_phi_tauup", &m_met_phi_tauup, "met_phi_tauup/F") ;       //FRA - shifted MET for TES
+      m_smallT->Branch ("met_et_tauup", &m_met_et_tauup, "met_et_tauup/F") ;          //
+      m_smallT->Branch ("met_phi_taudown", &m_met_phi_taudown, "met_phi_taudown/F") ; //
+      m_smallT->Branch ("met_et_taudown", &m_met_et_taudown, "met_et_taudown/F") ;    //
       m_smallT->Branch ("met_et_corr", &m_met_et_corr, "met_et_corr/F") ;
       m_smallT->Branch ("met_cov00", &m_met_cov00, "met_cov00/F") ;
       m_smallT->Branch ("met_cov01", &m_met_cov01, "met_cov01/F") ;
@@ -1030,10 +1038,14 @@ struct smallTree
   // MET
   Float_t m_met_phi ;
   Float_t m_met_et ;
-  Float_t m_met_phi_jetup ;   //FRA - shifted MET
+  Float_t m_met_phi_jetup ;   //FRA - shifted MET for JES
   Float_t m_met_et_jetup ;    //
   Float_t m_met_phi_jetdown ; //
   Float_t m_met_et_jetdown ;  //
+  Float_t m_met_phi_tauup ;   //FRA - shifted MET for TES
+  Float_t m_met_et_tauup ;    //
+  Float_t m_met_phi_taudown ; //
+  Float_t m_met_et_taudown ;  //
   Float_t m_met_et_corr;
   Float_t m_met_cov00;
   Float_t m_met_cov01;
