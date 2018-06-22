@@ -866,7 +866,7 @@ struct smallTree
       m_smallT->Branch ("VBFjj_mass_log",&m_VBFjj_mass_log,"VBFjj_mass_log/F");
       m_smallT->Branch ("jj_mass_log",&m_jj_mass_log,"jj_mass_log/F");
       
-      m_smallT->Branch ("VBFjj_mass", &m_VBFjj_mass ,"VBFjj_mass/F ");
+      m_smallT->Branch ("VBFjj_mass", &m_VBFjj_mass ,"VBFjj_mass/F");
       m_smallT->Branch ("VBFjj_deltaEta" , &m_VBFjj_deltaEta ,"VBFjj_deltaEta/F");
       m_smallT->Branch ("VBFjj_HT" , &m_VBFjj_HT ,"VBFjj_HT/F");
 
