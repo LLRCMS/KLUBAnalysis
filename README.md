@@ -2,7 +2,7 @@
 
 repo for the h->tautau/h->hh analysis within the LLR framework
 
-## New Installing 9_X_Y
+## Instructions for 2017 Analysis 
 ```
 cmsrel CMSSW_9_0_0
 cd CMSSW_9_0_0/src
@@ -24,10 +24,6 @@ source setup.sh
 ./compile.sh
 cd ..
 
-
-
-
-
 git clone https://github.com/camendola/KLUBAnalysis.git
 cd KLUBAnalysis
 git checkout VBF2017
@@ -38,16 +34,17 @@ ln -ns ../../../HHKinFit2/interface/exceptions/HHInvMConstraintException.h
 ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyRangeException.h
 ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyConstraintException.h
 cd -
-cd weights
-git clone https://github.com/CMS-HTT/LeptonEfficiencies HTT_SF_2016
 
-cd -
+
 source scripts/setup.sh
 make
 make exe
 ```
 
-## New Installing
+### Instructions for older releases/2016 analysis:
+<details>
+
+## New Installing CMSSW_7_4_7
 ```
 cmsrel CMSSW_7_4_7
 cd CMSSW_7_4_7/src
@@ -120,6 +117,7 @@ source scripts/setup.sh
 make
 make exe
 ```
+</details>
 
 ## SyncNtupleProducer
 Specify the options (channels, samples, etc.), in:

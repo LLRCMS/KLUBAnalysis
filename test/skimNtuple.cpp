@@ -1008,10 +1008,9 @@ int main (int argc, char** argv)
       if (iEvent % 1 == 0)  cout << "- reading event " << iEvent << endl ;
       // cout << "- reading event " << iEvent << endl ;
       theSmallTree.clearVars () ;
-      cout<<"cleared vars"<<endl;
       
       int got = theBigTree.fChain->GetEntry(iEvent);
-      cout<<"got "<<endl;
+
       if (got == 0) break;
       bool DEBUG = false;
       //if (theBigTree.EventNumber != debugEvent) continue; //FRA debug
