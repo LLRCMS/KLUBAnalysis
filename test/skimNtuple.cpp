@@ -140,7 +140,6 @@ TH1F* getFirstFileHisto (TString filename, bool isForTriggers=true)
       while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
       while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
       while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
-      cout<<"line"<<endl;
       if (!line.empty()) // skip empty lines
 	break;
     }
@@ -1005,7 +1004,7 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   for (Long64_t iEvent = 0 ; true ; ++iEvent) 
     {
-      if (iEvent % 1 == 0)  cout << "- reading event " << iEvent << endl ;
+      if (iEvent % 10000 == 0)  cout << "- reading event " << iEvent << endl ;
       // cout << "- reading event " << iEvent << endl ;
       theSmallTree.clearVars () ;
       
