@@ -180,7 +180,6 @@ const char *ConfigParser::readStringOption(const char *name) const
       if(!values.size())
 	throw "ConfigParser::readStringOption: No string option!";
       list<string>::const_iterator I2=values.begin();
-      cerr <<"c str"<<(*I2).c_str()<<endl;
       return strdup( (*I2).c_str());
     }
     I++;

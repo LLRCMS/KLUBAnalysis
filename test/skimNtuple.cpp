@@ -26,6 +26,8 @@
 // #include "HHReweight.h"
 #include "HHReweight5D.h"
 #include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
+#include "TauTriggerSFs2017.h"
+#include "../../HTT-utilities/LepEffInterface/interface/ScaleFactor.h"
 #include "BDTfunctionsUtils.h"
 
 // for minuit-based minimization
@@ -138,6 +140,7 @@ TH1F* getFirstFileHisto (TString filename, bool isForTriggers=true)
       while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
       while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
       while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
+      cout<<"line"<<endl;
       if (!line.empty()) // skip empty lines
 	break;
     }
@@ -710,8 +713,6 @@ int main (int argc, char** argv)
 
   // trigRewFile[2]   = 0; // tau : WARNING: UNUSED!!
   // trigRewHistos[2] = 0;
-  TFile* trigRewEle = new TFile ("weights/ele25TightEff.root"); //FIXME: move to cfg ?
-  TH1F*  trigRewEleHisto = (TH1F*) trigRewEle->Get("ele25TightEff");
 
   string bRegrWeights("");
   bool computeBregr = gConfigParser->readBoolOption ("bRegression::computeBregr");
@@ -803,46 +804,19 @@ int main (int argc, char** argv)
 
   // ------------------------------
   
-  ScaleFactor * myScaleFactor[2][2]; // [0: mu, 1: ele] [0: trigger, 1: ID]
-  for (int i = 0 ; i < 2; i++)
-    for (int j = 0; j < 2; j++)
-      myScaleFactor[i][j]= new ScaleFactor();
- 
-  // FIXME: move to cfg?
-  myScaleFactor[0][0] -> init_ScaleFactor("weights/HTT_SF_2016/Muon/Run2016BtoH/Muon_IsoMu24_OR_TkIsoMu24_2016BtoH_eff.root");
-  myScaleFactor[0][1] -> init_ScaleFactor("weights/HTT_SF_2016/Muon/Run2016BtoH/Muon_IdIso_IsoLt0p15_2016BtoH_eff.root");
-  myScaleFactor[1][0] -> init_ScaleFactor("weights/HTT_SF_2016/Electron/Run2016BtoH/Electron_Ele25_eta2p1_WPTight_eff.root");
-  myScaleFactor[1][1] -> init_ScaleFactor("weights/HTT_SF_2016/Electron/Run2016BtoH/Electron_IdIso_IsoLt0p1_eff.root");
 
-  // muon POG SFs
-  // TFile* fMuPOGSF_ID = new TFile ("weights/MuPogSF/MuonID_Z_RunBCD_prompt80X_7p65.root");
-  // TFile* fMuPOGSF_ISO = new TFile ("weights/MuPogSF/MuonIso_Z_RunBCD_prompt80X_7p65.root");
-  // TH2F* hMuPOGSF_ID  = (TH2F*) fMuPOGSF_ID -> Get("MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio");  // pt: x, eta: y
-  // TH2F* hMuPOGSF_ISO = (TH2F*) fMuPOGSF_ISO -> Get("MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio"); // pt: x, eta: y
+  //tau legs trigger SF for data and mc 2017
+  TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","medium");
+  ScaleFactor * muTauTrgSF = new ScaleFactor();
+  ScaleFactor * eTauTrgSF = new ScaleFactor();
+  ScaleFactor * muTrgSF = new ScaleFactor();
+  ScaleFactor * eTrgSF = new ScaleFactor();
+
+  muTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_MuTau_IsoMu20.root");
+  muTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_IsoMu24orIsoMu27.root");
+  eTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_EleTau_Ele24.root");
+  eTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_Ele32orEle35.root");
   
-  // muon POG SFs - summer16 MC
-  TFile* fMuPOGSF_ID_BF   = new TFile ("weights/MuPogSF/Summer16MC/IDSF/EfficienciesAndSF_BCDEF.root");
-  TFile* fMuPOGSF_ISO_BF  = new TFile ("weights/MuPogSF/Summer16MC/ISOSF/EfficienciesAndSF_BCDEF.root");
-  TFile* fMuPOGSF_trig_p3 = new TFile ("weights/MuPogSF/Summer16MC/TrigSF/EfficienciesAndSF_RunBtoF.root");
-
-  TFile* fMuPOGSF_ID_GH   = new TFile ("weights/MuPogSF/Summer16MC/IDSF/EfficienciesAndSF_GH.root");
-  TFile* fMuPOGSF_ISO_GH  = new TFile ("weights/MuPogSF/Summer16MC/ISOSF/EfficienciesAndSF_GH.root");
-  TFile* fMuPOGSF_trig_p4 = new TFile ("weights/MuPogSF/Summer16MC/TrigSF/EfficienciesAndSF_Period4.root");
-
-  TH2F* hMuPOGSF_ID_BF    = (TH2F*) fMuPOGSF_ID_BF -> Get("MC_NUM_TightID_DEN_genTracks_PAR_pt_eta/pt_abseta_ratio");  // pt: x, eta: y
-  TH2F* hMuPOGSF_ISO_BF   = (TH2F*) fMuPOGSF_ISO_BF -> Get("TightISO_TightID_pt_eta/pt_abseta_ratio"); // pt: x, eta: y
-  TH2F* hMuPOGSF_trig_p3  = (TH2F*) fMuPOGSF_trig_p3 -> Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/pt_abseta_ratio"); // pt: x, eta: y
-
-  TH2F* hMuPOGSF_ID_GH    = (TH2F*) fMuPOGSF_ID_GH -> Get("MC_NUM_TightID_DEN_genTracks_PAR_pt_eta/pt_abseta_ratio");  // pt: x, eta: y
-  TH2F* hMuPOGSF_ISO_GH   = (TH2F*) fMuPOGSF_ISO_GH -> Get("TightISO_TightID_pt_eta/pt_abseta_ratio"); // pt: x, eta: y
-  TH2F* hMuPOGSF_trig_p4  = (TH2F*) fMuPOGSF_trig_p4 -> Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/pt_abseta_ratio"); // pt: x, eta: y
-
-  // // for loose ID:
-  // MC_NUM_LooseID_DEN_genTracks_PAR_pt_spliteta_bin1
-  // MC_NUM_LooseRelIso_DEN_TightID_PAR_pt_spliteta_bin1
-
-  // tau trigger SFs from Riccardo Summer 2016 MC
-  tauTrigSFreader tauTrgSF ("weights/tau_trigger_SF_2016.root");
 
   // --- 2017 SFs ---
   // EleGamma POG SFs
@@ -855,9 +829,11 @@ int main (int argc, char** argv)
   //Muon POG SFs
   TFile* fMuPOGSF_ID  = new TFile ("weights/SF_2017/Muon_RunBCDEF_SF_ID.root");
   TFile* fMuPOGSF_ISO = new TFile ("weights/SF_2017/Muon_RunBCDEF_SF_ISO.root");
+
   
   TH2* hMuPOGSF_ID  = (TH2*) fMuPOGSF_ID  -> Get("NUM_TightID_DEN_genTracks_pt_abseta");
   TH2* hMuPOGSF_ISO = (TH2*) fMuPOGSF_ISO -> Get("NUM_TightRelIso_DEN_TightIDandIPCut_pt_abseta");
+
 
   // ------------------------------
   // smT2 mt2Class = smT2();
@@ -1029,10 +1005,12 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   for (Long64_t iEvent = 0 ; true ; ++iEvent) 
     {
-      if (iEvent % 10000 == 0)  cout << "- reading event " << iEvent << endl ;
+      if (iEvent % 1 == 0)  cout << "- reading event " << iEvent << endl ;
       // cout << "- reading event " << iEvent << endl ;
       theSmallTree.clearVars () ;
+      
       int got = theBigTree.fChain->GetEntry(iEvent);
+
       if (got == 0) break;
       bool DEBUG = false;
       //if (theBigTree.EventNumber != debugEvent) continue; //FRA debug
@@ -1925,62 +1903,8 @@ int main (int argc, char** argv)
 	  if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
 	}
 
-      // MC strategy
-      else
-	{
-	  float evtLeg1weight = 1.0;
-	  float evtLeg2weight = 1.0;
 
-	  float evtLeg1weightUp = 1.0;
-	  float evtLeg2weightUp = 1.0;
 
-	  float evtLeg1weightDown = 1.0;
-	  float evtLeg2weightDown = 1.0;
-
-	  if (pairType == 0 || pairType == 3)  //mutau -- mumu
-	    {
-	      evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), 0, myScaleFactor[type1][0], 0) ;
-	      evtLeg2weight = 1.0;
-          
-	      evtLeg1weightUp   = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_tauup.Pt(), tlv_firstLepton_tauup.Eta(), 0, myScaleFactor[type1][0], 0) : evtLeg1weight);
-	      evtLeg1weightDown = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_taudown.Pt(), tlv_firstLepton_taudown.Eta(), 0, myScaleFactor[type1][0], 0) : evtLeg1weight);
-
-	      evtLeg2weightUp   = 1.0;
-	      evtLeg2weightDown = 1.0;
-	    }
-
-	  else if (pairType == 1 || pairType == 4) //eletau -- ee
-	    {
-	      evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), trigRewEleHisto, 0, 0) ;
-	      evtLeg2weight = 1.0;        
-
-	      evtLeg1weightUp   = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_tauup.Pt(), tlv_firstLepton_tauup.Eta(), trigRewEleHisto, 0, 0)  : evtLeg1weight);
-	      evtLeg1weightDown = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_taudown.Pt(), tlv_firstLepton_taudown.Eta(), trigRewEleHisto, 0, 0)  : evtLeg1weight);
-
-	      evtLeg2weightUp   = 1.0;
-	      evtLeg2weightDown = 1.0;
-	    }
-
-	  else if (pairType == 2) //tautau
-	    {
-	      evtLeg1weight = getTriggerWeight(type1, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), 0, 0, 1, lep1HasTES) ;
-	      evtLeg2weight = getTriggerWeight(type2, tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), 0, 0, 1, lep2HasTES) ;
-
-	      evtLeg1weightUp     = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_tauup.Pt(), tlv_firstLepton_tauup.Eta(), 0, 0, 1) : evtLeg1weight , lep1HasTES) ;
-	      evtLeg1weightDown   = (lep1HasTES ? getTriggerWeight(type1, tlv_firstLepton_taudown.Pt(), tlv_firstLepton_taudown.Eta(), 0, 0, 1) : evtLeg1weight , lep2HasTES) ;
-          
-	      evtLeg2weightUp   = (lep2HasTES ? getTriggerWeight(type2, tlv_secondLepton_tauup.Pt(), tlv_secondLepton_tauup.Eta(), 0, 0, 1) : evtLeg2weight , lep1HasTES) ;
-	      evtLeg2weightDown = (lep2HasTES ? getTriggerWeight(type2, tlv_secondLepton_taudown.Pt(), tlv_secondLepton_taudown.Eta(), 0, 0, 1) : evtLeg2weight , lep2HasTES) ;
-
-	    }
-	  trgEvtWeight = evtLeg1weight*evtLeg2weight;
-	  trgEvtWeightUp   = evtLeg1weightUp*evtLeg2weightUp;
-	  trgEvtWeightDown = evtLeg1weightDown*evtLeg2weightDown;
-
-	  EvtW *= trgEvtWeight;
-	  ec.Increment ("Trigger", EvtW); // for MC, weight the event for the trigger acceptance
-	  if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
-	}
 
       // ----------------------------------------------------------
       // pair selection is now complete, compute oher quantitites
@@ -2276,227 +2200,84 @@ int main (int argc, char** argv)
       // https://github.com/CMS-HTT/LeptonEfficiencies
       // https://github.com/truggles/TauTriggerSFs2017
 
+      // recommendations for cross triggers:  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information
+
+      
       float trigSF = 1.0;
-
-      /*if (pType == 0 && isMC)
-      {
-
-      }
-
-      // EleTau Channel
-      else if (pType == 1 && isMC)
-      {
-      
-      }
-
-      // TauTau Channel
-      else if (pType == 2 && isMC)
-      {
-      
-      }
-
-      // MuMu Channel
-      else if (pType == 3 && isMC)
-      {
-      
-      }
-
-      // EleEle Channel
-      else if (pType == 4 && isMC)
-      {
-      
-      }
-
-      theSmallTree.m_trigSF     = (isMC ? trigSF : 1.0);*/
-
-
-      // ------ OLD METHOD -- 2016 DATA ------
-      // FIXME: should I compute a SF for ID-ISO for taus?
-      if (pType == 0 && isMC) // mu
+      if(applyTriggers)
 	{
-	  // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
-	  // trigSF = 1.0; // no trigger info available in MC
-
-	  float mupt  = tlv_firstLepton.Pt();
-	  float muabseta = TMath::Abs(tlv_firstLepton.Eta());
-      
-	  // to combine SF based on lumi, here is the list of lumi in /fb per run period
-	  // B 5.892
-	  // C 2.646
-	  // D 4.353
-	  // E 4.117
-	  // F 3.186
-	  // G 7.721
-	  // H 8.857
-	  // TOT: 36.772
-      
-	  // B-F : 20.194 (frac: 0.5492)
-	  // G-H : 16.578 (frac: 0.4508)
-	  // cout << "DEBUG: getting content histo 2D : " << hMuPOGSF_ID_BF << " " << hMuPOGSF_ID_GH << " " << hMuPOGSF_ISO_BF << " " << hMuPOGSF_ISO_GH << " " << hMuPOGSF_trig_p3 << " " << hMuPOGSF_trig_p4 << endl;
-	  // ID
-	  double idsf_BF = getContentHisto2D(hMuPOGSF_ID_BF, mupt, muabseta);
-	  double idsf_GH = getContentHisto2D(hMuPOGSF_ID_GH, mupt, muabseta);
-	  double idsf = 0.5492*idsf_BF + 0.4508*idsf_GH; 
-
-	  // ISO
-	  double isosf_BF = getContentHisto2D(hMuPOGSF_ISO_BF, mupt, muabseta);
-	  double isosf_GH = getContentHisto2D(hMuPOGSF_ISO_GH, mupt, muabseta);
-	  double isosf = 0.5492*isosf_BF + 0.4508*isosf_GH; 
-
-	  idAndIsoSF = idsf * isosf;
-
-	  // TRIG -- just to compute if I am not reweighting the MC
-	  if (applyTriggers)
+	  // MuTau Channel
+	  if (pType == 0 && isMC)
 	    {
-	      // NOTE: from mu POG twiki, Period 3: (3/fb) run F post L1 EMFT fix (from run 278167); Period 4: (16/fb) run GH (post HIPs fix).
-	      // so normalization is different in this case. TOT LUMI = 16+3 = 19. p3: 0.158, p4: 0.842
-	      // NOTE (11/02/17) : SFs have been updated to B-F and GH, so from now we use the same normalization as other chs
-	      double trigsf_p3 = getContentHisto2D(hMuPOGSF_trig_p3, mupt, muabseta);
-	      double trigsf_p4 = getContentHisto2D(hMuPOGSF_trig_p4, mupt, muabseta);
-
-	      trigSF = 0.5492*trigsf_p3 + 0.4508*trigsf_p4;
+	      //lepton trigger
+	      double SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+	      double SFL_MC = muTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+	      
+	      //cross-trigger
+	      //mu leg
+	      double SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+	      double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+	      
+	      //tau leg
+	          double SFtau_Data = tauTrgSF->getMuTauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
+	      double SFtau_MC = tauTrgSF->getMuTauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
+	      
+	       double Eff_Data =  SFL_Data * (1 - SFtau_Data) + SFl_Data * SFtau_Data;
+	      double Eff_MC =  SFL_MC* (1 - SFtau_MC) + SFl_MC * SFtau_MC;
+	      
+	      trigSF = Eff_Data / Eff_MC;
 	    }
-
-	  // int ptbin = hMuPOGSF_ID->GetXaxis()->FindBin(tlv_firstLepton.Pt());
-	  // if (ptbin > hMuPOGSF_ID->GetNbinsX()) ptbin = hMuPOGSF_ID->GetNbinsX();
-	  // else if (ptbin < 1) ptbin = 1;
-
-	  // int etabin = hMuPOGSF_ID->GetYaxis()->FindBin(TMath::Abs(tlv_firstLepton.Eta()));
-	  // if (etabin > hMuPOGSF_ID->GetNbinsY()) etabin = hMuPOGSF_ID->GetNbinsY();
-	  // else if (etabin < 1) etabin = 1;
-
-	  // idAndIsoSF = hMuPOGSF_ID->GetBinContent(ptbin, etabin);
-
-	  // ptbin = hMuPOGSF_ISO->GetXaxis()->FindBin(tlv_firstLepton.Pt());
-	  // if (ptbin > hMuPOGSF_ISO->GetNbinsX()) ptbin = hMuPOGSF_ISO->GetNbinsX();
-	  // else if (ptbin < 1) ptbin = 1;
-
-	  // etabin = hMuPOGSF_ISO->GetYaxis()->FindBin(TMath::Abs(tlv_firstLepton.Eta()));
-	  // if (etabin > hMuPOGSF_ISO->GetNbinsY()) etabin = hMuPOGSF_ISO->GetNbinsY();
-	  // else if (etabin < 1) etabin = 1;
-
-	  // idAndIsoSF *= hMuPOGSF_ISO->GetBinContent(ptbin, etabin);
-	  // idAndIsoSF = myScaleFactor[type1][1]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
-	}
-
-      // FIXME: should I compute a SF for ID-ISO for taus?
-      else if (pType == 1 && isMC) // ele
-	{
-	  // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
-	  // trigSF = 1.0; // no trigger info available in MC
-      
-	  // FIXME: should we use MU POG SFs?
-	  idAndIsoSF = myScaleFactor[type1][1]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
-      
-	  if (applyTriggers)
-	    trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
-	}
-
-      else if (pType == 2 && isMC) // tau tau pair
-	{
-
-	  idAndIsoSF = 1.0; // recommendation from tau POG?
-  
-	  if (applyTriggers)
-	    {      
-	      double SF1 = tauTrgSF.getSF(tlv_firstLepton.Pt(),  theBigTree.decayMode->at(firstDaughterIndex)) ;
-	      double SF2 = tauTrgSF.getSF(tlv_secondLepton.Pt(), theBigTree.decayMode->at(secondDaughterIndex)) ;
+	  
+	  // EleTau Channel
+	  else if (pType == 1 && isMC)
+	    {
+	      //lepton trigger
+	      double SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+	      double SFL_MC = eTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+	      
+	      //cross-trigger
+	      //mu leg
+	       double SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+	      double SFl_MC = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+	      
+	      //tau leg
+	      double SFtau_Data = tauTrgSF->getMuTauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
+	      double SFtau_MC = tauTrgSF->getMuTauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
+	      
+	      double Eff_Data =  SFL_Data * (1 - SFtau_Data) + SFl_Data * SFtau_Data;
+	      double Eff_MC =  SFL_MC* (1 - SFtau_MC) + SFl_MC * SFtau_MC;
+	      
+	      trigSF = Eff_Data / Eff_MC;
+	    }
+	  
+	  // TauTau Channel
+	  else if (pType == 2 && isMC)
+	    {
+	     	      double SF1 = tauTrgSF->getDiTauScaleFactor( tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_firstLepton.Phi() );
+	      double SF2 = tauTrgSF->getDiTauScaleFactor( tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi() );
 	      trigSF = SF1 * SF2;
+	     
 	    }
-	}
-
-      else if (pType == 3 && isMC) // mumu pair
-	{
-	  // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
-	  // trigSF = 1.0; // no trigger info available in MC
-
-	  ////////////////// first muon ID and ISO
-	  float mupt  = tlv_firstLepton.Pt();
-	  float muabseta = TMath::Abs(tlv_firstLepton.Eta());
-      
-	  // to combine SF based on lumi, here is the list of lumi in /fb per run period
-	  // B 5.892
-	  // C 2.646
-	  // D 4.353
-	  // E 4.117
-	  // F 3.186
-	  // G 7.721
-	  // H 8.857
-	  // TOT: 36.772
-      
-	  // B-F : 20.194 (frac: 0.5492)
-	  // G-H : 16.578 (frac: 0.4508)
-	  // cout << "DEBUG: getting content histo 2D : " << hMuPOGSF_ID_BF << " " << hMuPOGSF_ID_GH << " " << hMuPOGSF_ISO_BF << " " << hMuPOGSF_ISO_GH << " " << hMuPOGSF_trig_p3 << " " << hMuPOGSF_trig_p4 << endl;
-	  // ID
-	  double idsf_BF = getContentHisto2D(hMuPOGSF_ID_BF, mupt, muabseta);
-	  double idsf_GH = getContentHisto2D(hMuPOGSF_ID_GH, mupt, muabseta);
-	  double idsf = 0.5492*idsf_BF + 0.4508*idsf_GH; 
-
-	  // ISO
-	  double isosf_BF = getContentHisto2D(hMuPOGSF_ISO_BF, mupt, muabseta);
-	  double isosf_GH = getContentHisto2D(hMuPOGSF_ISO_GH, mupt, muabseta);
-	  double isosf = 0.5492*isosf_BF + 0.4508*isosf_GH; 
-
-	  idAndIsoSF = idsf * isosf;
-
-	  // TRIG -- just to compute if I am not reweighting the MC. Lepton 1 if the one matched to trigger
-	  if (applyTriggers)
+	  
+	  // MuMu Channel
+	  else if (pType == 3 && isMC)
 	    {
-	      // NOTE: from mu POG twiki, Period 3: (3/fb) run F post L1 EMFT fix (from run 278167); Period 4: (16/fb) run GH (post HIPs fix).
-	      // so normalization is different in this case. TOT LUMI = 16+3 = 19. p3: 0.158, p4: 0.842
-	      // NOTE (11/02/17) : SFs have been updated to B-F and GH, so from now we use the same normalization as other chs
-	      double trigsf_p3 = getContentHisto2D(hMuPOGSF_trig_p3, mupt, muabseta);
-	      double trigsf_p4 = getContentHisto2D(hMuPOGSF_trig_p4, mupt, muabseta);
-
-	      trigSF = (0.5492*trigsf_p3 + 0.4508*trigsf_p4);
+	      double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+	      trigSF = SF;
+	
 	    }
-
-
-	  ////////////////// second muon ID and ISO
-	  mupt  = tlv_secondLepton.Pt();
-	  muabseta = TMath::Abs(tlv_secondLepton.Eta());
-      
-	  // to combine SF based on lumi, here is the list of lumi in /fb per run period
-	  // B 5.892
-	  // C 2.646
-	  // D 4.353
-	  // E 4.117
-	  // F 3.186
-	  // G 7.721
-	  // H 8.857
-	  // TOT: 36.772
-      
-	  // B-F : 20.194 (frac: 0.5492)
-	  // G-H : 16.578 (frac: 0.4508)
-	  // cout << "DEBUG: getting content histo 2D : " << hMuPOGSF_ID_BF << " " << hMuPOGSF_ID_GH << " " << hMuPOGSF_ISO_BF << " " << hMuPOGSF_ISO_GH << " " << hMuPOGSF_trig_p3 << " " << hMuPOGSF_trig_p4 << endl;
-	  // ID
-	  idsf_BF = getContentHisto2D(hMuPOGSF_ID_BF, mupt, muabseta);
-	  idsf_GH = getContentHisto2D(hMuPOGSF_ID_GH, mupt, muabseta);
-	  idsf = 0.5492*idsf_BF + 0.4508*idsf_GH; 
-
-	  // ISO
-	  isosf_BF = getContentHisto2D(hMuPOGSF_ISO_BF, mupt, muabseta);
-	  isosf_GH = getContentHisto2D(hMuPOGSF_ISO_GH, mupt, muabseta);
-	  isosf = 0.5492*isosf_BF + 0.4508*isosf_GH; 
-
-	  idAndIsoSF *= (idsf * isosf);
+	  
+	  // EleEle Channel
+	  else if (pType == 4 && isMC)
+	    {
+	      double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+	      trigSF = SF;
+	      
+	    }
 	}
-
-      else if (pType == 4 && isMC) // ee pair
-	{
-	  // trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
-	  // trigSF = 1.0; // no trigger info available in MC
-      
-	  // FIXME: should we use MU POG SFs?
-	  idAndIsoSF = myScaleFactor[type1][1]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
-	  idAndIsoSF *= myScaleFactor[type1][1]->get_ScaleFactor(tlv_secondLepton.Pt(),tlv_secondLepton.Eta());
-      
-	  if (applyTriggers)
-	    trigSF = myScaleFactor[type1][0]->get_ScaleFactor(tlv_firstLepton.Pt(),tlv_firstLepton.Eta());
-	}
-
       theSmallTree.m_trigSF     = (isMC ? trigSF : 1.0);
-      theSmallTree.m_IdAndIsoSF = (isMC ? idAndIsoSF : 1.0);
+      
+
 
       // loop over leptons
       vector<pair<float, int> > thirdLeptons ; // pt, idx
@@ -2941,10 +2722,11 @@ int main (int argc, char** argv)
             jetVecSum += tlv_jet ;
 
             if (TMath::Abs(tlv_jet.Eta()) < 4.7)
-              theSmallTree.m_BDT_HT20 += tlv_jet.Pt() ;
-              if (DEBUG) cout << " ---> Jet " << iJet << " - pt: " << tlv_jet.Pt() << " - HT: " << theSmallTree.m_BDT_HT20 << endl;
-          }
-
+	      {
+		theSmallTree.m_BDT_HT20 += tlv_jet.Pt() ;
+		if (DEBUG) cout << " ---> Jet " << iJet << " - pt: " << tlv_jet.Pt() << " - HT: " << theSmallTree.m_BDT_HT20 << endl;
+	      }
+	  }
           if (tlv_jet.Pt () > 50)
           {
             ++theSmallTree.m_njets50 ;

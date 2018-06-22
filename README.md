@@ -2,17 +2,19 @@
 
 repo for the h->tautau/h->hh analysis within the LLR framework
 
-## New Installing 9_X_Y
+## Instructions for 2017 Analysis 
 ```
 cmsrel CMSSW_9_0_0
 cd CMSSW_9_0_0/src
 cmsenv
 
 git clone https://github.com/bvormwald/HHKinFit2
+git clone https://github.com/CMS-HTT/LeptonEff-interface.git HTT-utilities
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 git checkout 94x
 cd -
+
 scram b -j8
 
 cd HHKinFit2/
@@ -24,22 +26,25 @@ cd ..
 
 git clone https://github.com/camendola/KLUBAnalysis.git
 cd KLUBAnalysis
+git checkout VBF2017
+
 mkdir interface/exceptions
 cd interface/exceptions
 ln -ns ../../../HHKinFit2/interface/exceptions/HHInvMConstraintException.h
 ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyRangeException.h
 ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyConstraintException.h
 cd -
-cd weights
-git clone https://github.com/CMS-HTT/LeptonEfficiencies HTT_SF_2016
-git clone -b moriond17 https://github.com/rmanzoni/triggerSF.git tau_trigger_SF_2016
-cd -
+
+
 source scripts/setup.sh
 make
 make exe
 ```
 
-## New Installing
+### Instructions for older releases/2016 analysis:
+<details>
+
+## New Installing CMSSW_7_4_7
 ```
 cmsrel CMSSW_7_4_7
 cd CMSSW_7_4_7/src
@@ -112,6 +117,7 @@ source scripts/setup.sh
 make
 make exe
 ```
+</details>
 
 ## SyncNtupleProducer
 Specify the options (channels, samples, etc.), in:
