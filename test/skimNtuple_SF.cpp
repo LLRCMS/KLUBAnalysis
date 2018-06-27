@@ -846,18 +846,27 @@ int main (int argc, char** argv)
 
   // --- 2017 SFs ---
   // EleGamma POG SFs
-  TFile* fElePOGSF_TightID_80WP  = new TFile ("weights/SF_2017/gammaEffi.txt_EGM2D_runBCDEF_passingMVA94Xwp80iso.root");
-  TFile* fElePOGSF_MediumID_90WP = new TFile ("weights/SF_2017/gammaEffi.txt_EGM2D_runBCDEF_passingMVA94Xwp90iso.root");
+  //TFile* fElePOGSF_TightID_80WP  = new TFile ("weights/SF_2017/gammaEffi.txt_EGM2D_runBCDEF_passingMVA94Xwp80iso.root");
+  //TFile* fElePOGSF_MediumID_90WP = new TFile ("weights/SF_2017/gammaEffi.txt_EGM2D_runBCDEF_passingMVA94Xwp90iso.root");
   
-  TH2* hElePOGSF_TightID_80WP  = (TH2*) fElePOGSF_TightID_80WP  -> Get("EGamma_SF2D");
-  TH2* hElePOGSF_MediumID_90WP = (TH2*) fElePOGSF_MediumID_90WP -> Get("EGamma_SF2D");
+  //TH2* hElePOGSF_TightID_80WP  = (TH2*) fElePOGSF_TightID_80WP  -> Get("EGamma_SF2D");
+  //TH2* hElePOGSF_MediumID_90WP = (TH2*) fElePOGSF_MediumID_90WP -> Get("EGamma_SF2D");
   
   //Muon POG SFs
-  TFile* fMuPOGSF_ID  = new TFile ("weights/SF_2017/Muon_RunBCDEF_SF_ID.root");
-  TFile* fMuPOGSF_ISO = new TFile ("weights/SF_2017/Muon_RunBCDEF_SF_ISO.root");
+  //TFile* fMuPOGSF_ID  = new TFile ("weights/SF_2017/Muon_RunBCDEF_SF_ID.root");
+  //TFile* fMuPOGSF_ISO = new TFile ("weights/SF_2017/Muon_RunBCDEF_SF_ISO.root");
   
-  TH2* hMuPOGSF_ID  = (TH2*) fMuPOGSF_ID  -> Get("NUM_TightID_DEN_genTracks_pt_abseta");
-  TH2* hMuPOGSF_ISO = (TH2*) fMuPOGSF_ISO -> Get("NUM_TightRelIso_DEN_TightIDandIPCut_pt_abseta");
+  //TH2* hMuPOGSF_ID  = (TH2*) fMuPOGSF_ID  -> Get("NUM_TightID_DEN_genTracks_pt_abseta");
+  //TH2* hMuPOGSF_ISO = (TH2*) fMuPOGSF_ISO -> Get("NUM_TightRelIso_DEN_TightIDandIPCut_pt_abseta");
+  
+  ScaleFactor * myIDandISOScaleFactor[2]; // [0: mu, 1: ele]
+  for (int i = 0 ; i < 2; i++)
+        myIDandISOScaleFactor[i] = new ScaleFactor();
+
+  myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/HTT_SF_2016/Muon/Run2017/Muon_IdIso_IsoLt0.15_eff_RerecoFall17.root");
+  myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_SF_2016/Electron/Run2017/Electron_IdIso_IsoLt0.10_eff_RerecoFall17.root");
+
+  
 
   // ------------------------------
   // smT2 mt2Class = smT2();
@@ -2100,6 +2109,19 @@ int main (int argc, char** argv)
       theSmallTree.m_met_et_tauup    = vMET_tauup.Mod();
       theSmallTree.m_met_phi_taudown = vMET_taudown.Phi();
       theSmallTree.m_met_et_taudown  = vMET_taudown.Mod();
+      
+      if (DEBUG)
+      {
+        cout << "------- MET DEBUG -------" << endl;
+        cout << " met centr : " << theSmallTree.m_met_et << " / " << theSmallTree.m_met_phi << endl;
+        cout << " met jet up: " << theSmallTree.m_met_et_jetup << " / " << theSmallTree.m_met_phi_jetup << endl;
+        cout << " met jet dw: " << theSmallTree.m_met_et_jetdown << " / " << theSmallTree.m_met_phi_jetdown << endl;
+        cout << " met tau up: " << theSmallTree.m_met_et_tauup << " / " << theSmallTree.m_met_phi_tauup << endl;
+        cout << " met tau dw: " << theSmallTree.m_met_et_taudown << " / " << theSmallTree.m_met_phi_taudown << endl;
+        cout << "-------------------------" << endl;
+      }
+
+      
 
       theSmallTree.m_mT1       = theBigTree.mT_Dau1->at (chosenTauPair) ;
       theSmallTree.m_mT2       = theBigTree.mT_Dau2->at (chosenTauPair) ;
@@ -2199,18 +2221,21 @@ int main (int argc, char** argv)
       //      https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendation13TeV#Performance_in_data_and_recommen
       // Ele: https://twiki.cern.ch/twiki/bin/view/CMS/Egamma2017DataRecommendations#Efficiency_Scale_Factors
       // MU : https://twiki.cern.ch/twiki/bin/view/CMS/MuonReferenceEffs2017#Scale_Factors_with_statistical_e
-      
-      float idAndIsoSF = 1.0;
+      // Mu and Ele ID and ISO: https://github.com/CMS-HTT/LeptonEfficiencies
 
+      float idAndIsoSF = 1.0;
+      
       // MuTau Channel
       if (pType == 0 && isMC)
       {
         float mu1pt  = tlv_firstLepton.Pt();
         float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
 
-        float idSF_leg1  = getContentHisto2D(hMuPOGSF_ID , mu1pt, mu1eta);
-        float isoSF_leg1 = getContentHisto2D(hMuPOGSF_ISO, mu1pt, mu1eta);
-        float idAndIsoSF_leg1 = idSF_leg1 * isoSF_leg1;
+        //float idSF_leg1  = getContentHisto2D(hMuPOGSF_ID , mu1pt, mu1eta);
+        //float isoSF_leg1 = getContentHisto2D(hMuPOGSF_ISO, mu1pt, mu1eta);
+        //float idAndIsoSF_leg1 = idSF_leg1 * isoSF_leg1;
+        float idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
+
         float idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
         
         idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
@@ -2222,7 +2247,9 @@ int main (int argc, char** argv)
         float ele1pt = tlv_firstLepton.Pt();
         float ele1eta = tlv_firstLepton.Eta();
           
-        float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_TightID_80WP, ele1eta, ele1pt);  // EMVATight == 80% eff WP
+        //float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_TightID_80WP, ele1eta, ele1pt);  // EMVATight == 80% eff WP
+        float idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
+        
         float idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
         
         idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
@@ -2245,12 +2272,15 @@ int main (int argc, char** argv)
         float mu2pt  = tlv_secondLepton.Pt();
         float mu2eta = TMath::Abs(tlv_secondLepton.Eta());
         
-        float idSF_leg1  = getContentHisto2D(hMuPOGSF_ID , mu1pt, mu1eta);
-        float isoSF_leg1 = getContentHisto2D(hMuPOGSF_ISO, mu1pt, mu1eta);
-        float idAndIsoSF_leg1 = idSF_leg1 * isoSF_leg1;
-        float idSF_leg2  = getContentHisto2D(hMuPOGSF_ID , mu2pt, mu2eta);
-        float isoSF_leg2 = getContentHisto2D(hMuPOGSF_ISO, mu2pt, mu2eta);
-        float idAndIsoSF_leg2 = idSF_leg2 * isoSF_leg2;
+        //float idSF_leg1  = getContentHisto2D(hMuPOGSF_ID , mu1pt, mu1eta);
+        //float isoSF_leg1 = getContentHisto2D(hMuPOGSF_ISO, mu1pt, mu1eta);
+        //float idAndIsoSF_leg1 = idSF_leg1 * isoSF_leg1;
+        float idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
+        
+        //float idSF_leg2  = getContentHisto2D(hMuPOGSF_ID , mu2pt, mu2eta);
+        //float isoSF_leg2 = getContentHisto2D(hMuPOGSF_ISO, mu2pt, mu2eta);
+        //float idAndIsoSF_leg2 = idSF_leg2 * isoSF_leg2;
+        float idAndIsoSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu2pt, mu2eta);
         
         idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
       }
@@ -2263,8 +2293,11 @@ int main (int argc, char** argv)
         float ele1eta = tlv_firstLepton.Eta();
         float ele2eta = tlv_secondLepton.Eta();
 
-        float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_MediumID_90WP, ele1eta, ele1pt);  // EMVAMedium == 90% eff WP
-        float idAndIsoSF_leg2 = getContentHisto2D(hElePOGSF_MediumID_90WP, ele2eta, ele2pt);  // EMVAMedium == 90% eff WP
+        //float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_MediumID_90WP, ele1eta, ele1pt);  // EMVAMedium == 90% eff WP
+        float idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
+        
+        //float idAndIsoSF_leg2 = getContentHisto2D(hElePOGSF_MediumID_90WP, ele2eta, ele2pt);  // EMVAMedium == 90% eff WP
+        float idAndIsoSF_leg2 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele2pt, ele2eta);
         
         idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
       }
@@ -3044,8 +3077,8 @@ int main (int argc, char** argv)
         float HHKmass = -999;
         float HHKChi2 = -999;
         // if (runHHKinFit && tlv_HH_raw.M() > 20 && tlv_HH_raw.M() < 200)
-        if (runHHKinFit && pairType <= 2 && tlv_bH_raw.M() > 50 && tlv_bH_raw.M() < 200 && theBigTree.SVfitMass->at (chosenTauPair) > 50 && theBigTree.SVfitMass->at (chosenTauPair) < 200) // no kinfit for ee / mumu + very loose mass window
-        //if (runHHKinFit && pairType <= 2) // FIXME: temporary
+        //if (runHHKinFit && pairType <= 2 && tlv_bH_raw.M() > 50 && tlv_bH_raw.M() < 200 && theBigTree.SVfitMass->at (chosenTauPair) > 50 && theBigTree.SVfitMass->at (chosenTauPair) < 200) // no kinfit for ee / mumu + very loose mass window
+        if (runHHKinFit && pairType <= 2) // FIXME: temporary
         {
           HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton, ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
           HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
@@ -4250,6 +4283,10 @@ int main (int argc, char** argv)
     TMVA::Reader * readerMM = new TMVA::Reader () ;
     TMVA::Reader * readerHM = new TMVA::Reader () ;
 
+    // Use a different variable for channel, otherwise it does not work, I don't know why
+    float channel_BDT;
+    treenew ->SetBranchAddress ("BDT_channel", &channel_BDT) ;
+
     // Assign variables to SM reader
     for (pair<string, string> vpair : splitTMVAvariablesSM)
 	{
@@ -4258,6 +4295,7 @@ int main (int argc, char** argv)
 	}
     // Add the kl variable to the SM reader
     float kl_var;
+    readerSM->AddVariable("channel", &channel_BDT);
     readerSM->AddVariable("kl", &kl_var);
 
 
@@ -4269,11 +4307,9 @@ int main (int argc, char** argv)
 	}
     // Add mass, channel and spin to the LM reader
     float mass_LM;
-    float channel_LM;
     float spin_LM;
     readerLM->AddVariable("mass", &mass_LM);
-    treenew ->SetBranchAddress ("BDT_channel", &channel_LM) ;
-    readerLM->AddVariable("channel", &channel_LM);
+    readerLM->AddVariable("channel", &channel_BDT);
     readerLM->AddVariable("spin", &spin_LM);
 
 
@@ -4285,11 +4321,9 @@ int main (int argc, char** argv)
 	}
     // Add mass, channel and spin to the LM reader
     float mass_MM;
-    float channel_MM;
     float spin_MM;
     readerMM->AddVariable("mass", &mass_MM);
-    treenew ->SetBranchAddress ("BDT_channel", &channel_MM) ;
-    readerMM->AddVariable("channel", &channel_MM);
+    readerMM->AddVariable("channel", &channel_BDT);
     readerMM->AddVariable("spin", &spin_MM);
 
 
@@ -4301,11 +4335,9 @@ int main (int argc, char** argv)
 	}
     // Add mass, channel and spin to the LM reader
     float mass_HM;
-    float channel_HM;
     float spin_HM;
     readerHM->AddVariable("mass", &mass_HM);
-    treenew ->SetBranchAddress ("BDT_channel", &channel_HM) ;
-    readerHM->AddVariable("channel", &channel_HM);
+    readerHM->AddVariable("channel", &channel_BDT);
     readerHM->AddVariable("spin", &spin_HM);
 
 
@@ -4332,15 +4364,6 @@ int main (int argc, char** argv)
             for(int i=0;i<nentries;i++)
             {
                 treenew->GetEntry(i);
-
-                /*allVarsMap.at("BDT_channel") = 2.;
-                //cout << "--------  NEW ENTRY  ---------"<< endl;
-                cout << " channel: " << allVarsMap.at("BDT_channel") << endl;
-                for (pair<string, string> vpair : splitTMVAvariablesSM)
-                {
-                  cout << "Name: " << vpair.first.c_str () << "  --  val: " << allVarsMap.at (vpair.first) << endl;
-                }
-                cout << "-------------------------------"<< endl;*/
                 outSM.at(idxSM) = readerSM->EvaluateMVA("Grad_1");
                 branchSM.at(idxSM)->Fill();
             }
@@ -4369,15 +4392,6 @@ int main (int argc, char** argv)
                 for(int i=0;i<nentries;i++)
                 {
                     treenew->GetEntry(i);
-
-                    /*cout << "--------  NEW ENTRY LM  ---------"<< endl;
-                    for (pair<string, string> vpair : splitTMVAvariablesLM)
-                    {
-                      cout << "Name: " << vpair.first.c_str () << "  --  val: " << allVarsMap.at (vpair.first) << endl;
-                    }
-                    cout << "Name: channelLM  --  val: " << channel_LM << endl;
-                    cout << "-------------------------------"<< endl;*/
-
                     outLM.at(idxLM) = readerLM->EvaluateMVA("Grad_2");
                     branchLM.at(idxLM)->Fill();
                 }
