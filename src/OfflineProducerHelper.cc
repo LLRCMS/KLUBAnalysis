@@ -192,7 +192,7 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
         //leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.15, MuTight, whatApply, debug);
         leg1 = muBaseline (tree, dau1index, 10., 2.1, 0.15, MuTight, whatApply, debug);                 //FRA: for syncFeb2018
         //leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVLoose, amuTight, tauIso, whatApply, debug);
-        leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVLoose, amuTight, tauIso, whatApply, debug); //FRA: for syncFeb2018
+        leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVLoose, amuTight, tauIso, whatApply, debug); //FRA: for syncFeb2018
    }
 
     if (pairType == EHad)
@@ -201,7 +201,7 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
         //leg1 = eleBaseline (tree, dau1index, 27., 2.1, 0.1, EMVATight, whatApply, debug);
         leg1 = eleBaseline (tree, dau1index, 10., 2.1, 0.1, EMVATight, whatApply, debug); //FRA: for syncFeb2018
         //leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleTight, amuLoose, tauIso, whatApply, debug);
-        leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleTight, amuLoose, tauIso, whatApply, debug); //FRA: for syncFeb2018
+        leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleTight, amuLoose, tauIso, whatApply, debug); //FRA: for syncFeb2018
     }
 
     // ordered by pT and not by most isolated, but baseline asked in sync is the same...
@@ -216,15 +216,15 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
 
     if (pairType == EMu)
     {
-        leg1 = eleBaseline (tree, dau1index, 13., 0.15, EMVAMedium, whatApply, debug);
+      leg1 = eleBaseline (tree, dau1index, 13., 2.1, 0.15, EMVAMedium, whatApply, debug);
         leg2 = muBaseline (tree, dau2index, 9., 2.4, 0.15, MuTight, whatApply, debug);
     }
     
     // e e, mu mu are still preliminary (not from baseline)
     if (pairType == EE)
     {
-      leg1 = eleBaseline (tree, dau1index, 25., 0.15, EMVAMedium, whatApply, debug);
-      leg2 = eleBaseline (tree, dau2index, 25., 0.15, EMVAMedium, whatApply, debug);
+      leg1 = eleBaseline (tree, dau1index, 25., 2.1, 0.15, EMVAMedium, whatApply, debug);
+      leg2 = eleBaseline (tree, dau2index, 25., 2.1, 0.15, EMVAMedium, whatApply, debug);
     }
     
     if (pairType == MuMu)

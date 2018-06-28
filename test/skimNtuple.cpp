@@ -27,7 +27,6 @@
 #include "HHReweight5D.h"
 #include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 #include "TauTriggerSFs2017.h"
-#include "../../HTT-utilities/LepEffInterface/interface/ScaleFactor.h"
 #include "BDTfunctionsUtils.h"
 
 // for minuit-based minimization
@@ -37,7 +36,7 @@
 // #include "Math/Functor.h"
 #include "lester_mt2_bisect.h"
 
-//#include "../../HTT-utilities/LepEffInterface/interface/ScaleFactor.h"
+
 #include "ScaleFactor.h"
 #include "ConfigParser.h"
 #include "EffCounter.h"
@@ -813,8 +812,8 @@ int main (int argc, char** argv)
 
   muTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_MuTau_IsoMu20.root");
   muTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_IsoMu24orIsoMu27.root");
-  eTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_EleTau_Ele24.root");
-  eTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_Ele32orEle35.root");
+  eTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_EleTau_Ele24_fix.root");
+  eTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_Ele32orEle35_fix.root");
 
 
   // --- 2017 SFs ---
@@ -2243,10 +2242,10 @@ int main (int argc, char** argv)
 	      double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 	      
 	      //tau leg
-	          double SFtau_Data = tauTrgSF->getMuTauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
+	      double SFtau_Data = tauTrgSF->getMuTauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
 	      double SFtau_MC = tauTrgSF->getMuTauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
 	      
-	       double Eff_Data =  SFL_Data * (1 - SFtau_Data) + SFl_Data * SFtau_Data;
+	      double Eff_Data =  SFL_Data * (1 - SFtau_Data) + SFl_Data * SFtau_Data;
 	      double Eff_MC =  SFL_MC* (1 - SFtau_MC) + SFl_MC * SFtau_MC;
 	      
 	      trigSF = Eff_Data / Eff_MC;
@@ -2255,13 +2254,14 @@ int main (int argc, char** argv)
 	  // EleTau Channel
 	  else if (pType == 1 && isMC)
 	    {
+
 	      //lepton trigger
 	      double SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 	      double SFL_MC = eTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 	      
 	      //cross-trigger
 	      //mu leg
-	       double SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+	      double SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 	      double SFl_MC = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 	      
 	      //tau leg
@@ -2277,7 +2277,8 @@ int main (int argc, char** argv)
 	  // TauTau Channel
 	  else if (pType == 2 && isMC)
 	    {
-	     	      double SF1 = tauTrgSF->getDiTauScaleFactor( tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_firstLepton.Phi() );
+
+	      double SF1 = tauTrgSF->getDiTauScaleFactor( tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_firstLepton.Phi() );
 	      double SF2 = tauTrgSF->getDiTauScaleFactor( tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi() );
 	      trigSF = SF1 * SF2;
 	     

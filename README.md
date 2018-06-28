@@ -9,7 +9,6 @@ cd CMSSW_9_0_0/src
 cmsenv
 
 git clone https://github.com/bvormwald/HHKinFit2
-git clone https://github.com/CMS-HTT/LeptonEff-interface.git HTT-utilities
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 git checkout 94x
