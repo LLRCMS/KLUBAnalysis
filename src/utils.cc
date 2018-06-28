@@ -335,7 +335,7 @@ void printTableBodyEff  (std::ostream& out, vector<pair <TString, TCut> > & sele
         totEff *= 100;
         relEff *= 100;
 
-        int subtractspace = 0 ;
+        //int subtractspace = 0 ;
         //if (evtnum > 0) subtractspace = int (log10 (evtnum)) + precision + 1 ;
         //for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) out << " " ;
         out << setprecision (precision) << fixed << totEff;
