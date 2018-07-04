@@ -319,7 +319,7 @@ bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t mat
     return OR;
 }
 
-bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2)
+bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2, double eta_tau2)
 {
     bool OR     = false;
     bool match1 = false;
@@ -331,6 +331,7 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
     bool goodType = false;
     std::string firedPath;
     bool ptCut = false;
+    bool etaCut = false;
     for (unsigned int i = 0; i < _mtCrossTriggers.size(); i++)
     {
       OR = CheckBit (triggerbit_1, _mtCrossTriggers.at(i));
@@ -350,11 +351,15 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
           boost::regex re_tau1{".*Mu(\\d+)"};
           boost::regex re_tau2{".*Tau(\\d+)"};
           ptCut = checkPtCutCross(OR, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 2.0, 5.0);
+	  etaCut = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
         }
         else
+	  {
           ptCut = false;
+	  etaCut = false;
       }
-      if (!(OR && match && _trgNoOverlap && goodType && ptCut)) OR = false;
+      }
+      if (!(OR && match && _trgNoOverlap && goodType && ptCut && etaCut)) OR = false;
       if (OR) break;
     }
     
@@ -391,7 +396,7 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
 }
 
 
-bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2)
+bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2, double eta_tau2)
 {
     bool OR     = false;
     bool match1 = false;
@@ -403,6 +408,7 @@ bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t mat
     bool goodType = false;
     std::string firedPath;
     bool ptCut = false;
+    bool etaCut = false;
     for (unsigned int i = 0; i < _etCrossTriggers.size(); i++)
     {
       OR = CheckBit (triggerbit_1, _etCrossTriggers.at(i));
@@ -421,12 +427,17 @@ bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t mat
           firedPath = _allTriggers.at(_etCrossTriggers.at(i));
           boost::regex re_tau1{".*Ele(\\d+)"};
           boost::regex re_tau2{".*Tau(\\d+)"};
+
           ptCut = checkPtCutCross(OR, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 3.0, 5.0);
+	  etaCut = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
         }
         else
-          ptCut = false;
+          {
+	    ptCut = false;
+	    etaCut = false;
+	  }
       }
-      if (!(OR && match && _trgNoOverlap && goodType && ptCut)) OR = false;
+      if (!(OR && match && _trgNoOverlap && goodType && ptCut && etaCut)) OR = false;
       if (OR) break;
     }
     if (!OR)
@@ -477,11 +488,11 @@ bool triggerReader_cross::CheckBit (Long64_t number, int bitpos)
 //     General Check OR
 // ------------------------------
 
-bool triggerReader_cross::checkOR (int pairType, Long64_t triggerbit_1,Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2)
+bool triggerReader_cross::checkOR (int pairType, Long64_t triggerbit_1,Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2, double eta_tau2)
 {
 
-    if      (pairType == ((int) OfflineProducerHelper::MuHad) ) return checkORMuTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, pt_tau2);
-    else if (pairType == ((int) OfflineProducerHelper::EHad)  ) return checkOREleTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, pt_tau2);
+  if      (pairType == ((int) OfflineProducerHelper::MuHad) ) return checkORMuTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, pt_tau2, eta_tau2);
+  else if (pairType == ((int) OfflineProducerHelper::EHad)  ) return checkOREleTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, pt_tau2, eta_tau2);
     else if (pairType == ((int) OfflineProducerHelper::HadHad)) return checkORTauTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, pt_tau2);
     else if (pairType == ((int) OfflineProducerHelper::EMu)   ) return checkORMuEleNew (triggerbit_1,matchFlag1,trgNoOverlap,goodTriggerType1,pt_tau1);
     else if (pairType == ((int) OfflineProducerHelper::EE)    ) return checkOREleEleNew(triggerbit_1,matchFlag1,trgNoOverlap,goodTriggerType1,pt_tau1);
@@ -557,6 +568,7 @@ bool triggerReader_cross::checkPtCutSingle (bool OR, std::string firedPath, boos
     //cout << "************** REGEX accepted: " << (OR && result) << endl;
     return (OR && result);
 }
+
 
 
 // ------------------------------------------
