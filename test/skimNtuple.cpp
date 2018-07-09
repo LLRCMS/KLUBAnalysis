@@ -1850,7 +1850,7 @@ int main (int argc, char** argv)
 	  Long64_t goodTriggerType2 = (Long64_t) theBigTree.daughters_isGoodTriggerType->at(secondDaughterIndex);
 
 	  Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
-	  bool passTrg = trigReader.checkOR (pairType,triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt()) ;
+	  bool passTrg = trigReader.checkOR (pairType,triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
       isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt());
 
       /* // Old version used with single triggers
@@ -2232,56 +2232,63 @@ int main (int argc, char** argv)
 	  // MuTau Channel
 	  if (pType == 0 && isMC)
 	    {
-	      //lepton trigger
-	      double SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-	      double SFL_MC = muTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-	      
-	      //cross-trigger
-	      //mu leg
-	      double SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-	      double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-	      
-	      //tau leg
-	      double SFtau_Data = tauTrgSF->getMuTauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
-	      double SFtau_MC = tauTrgSF->getMuTauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
-	      
-	      double Eff_Data =  SFL_Data * (1 - SFtau_Data) + SFl_Data * SFtau_Data;
-	      double Eff_MC =  SFL_MC* (1 - SFtau_MC) + SFl_MC * SFtau_MC;
-	      
-	      trigSF = Eff_Data / Eff_MC;
+	      if(fabs(tlv_secondLepton.Eta()) < 2.1){ //eta region covered both by cross-trigger and single lepton trigger
+		//lepton trigger
+		double SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+		double SFL_MC = muTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+		
+		//cross-trigger
+		//mu leg
+		double SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+		double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+		
+		//tau leg
+		double SFtau_Data = tauTrgSF->getMuTauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
+		double SFtau_MC = tauTrgSF->getMuTauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
+		
+		double Eff_Data =  SFL_Data * (1 - SFtau_Data) + SFl_Data * SFtau_Data;
+		double Eff_MC =  SFL_MC * (1 - SFtau_MC) + SFl_MC * SFtau_MC;
+		
+		trigSF = Eff_Data / Eff_MC;
+	      }else{ //eta region covered only by single lepton trigger
+		double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+		trigSF = SF;
+	      }
 	    }
 	  
 	  // EleTau Channel
 	  else if (pType == 1 && isMC)
 	    {
-
-	      //lepton trigger
-	      double SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-	      double SFL_MC = eTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-	      
-	      //cross-trigger
-	      //mu leg
-	      double SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-	      double SFl_MC = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-	      
-	      //tau leg
-	      double SFtau_Data = tauTrgSF->getMuTauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
-	      double SFtau_MC = tauTrgSF->getMuTauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
-	      
-	      double Eff_Data =  SFL_Data * (1 - SFtau_Data) + SFl_Data * SFtau_Data;
-	      double Eff_MC =  SFL_MC* (1 - SFtau_MC) + SFl_MC * SFtau_MC;
-	      
-	      trigSF = Eff_Data / Eff_MC;
+	      if(fabs(tlv_secondLepton.Eta()) < 2.1){ //eta region covered both by cross-trigger and single lepton trigger
+		//lepton trigger
+		double SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+		double SFL_MC = eTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+		
+		//cross-trigger
+		//mu leg
+		double SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+		double SFl_MC = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+		
+		//tau leg
+		double SFtau_Data = tauTrgSF->getMuTauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
+		double SFtau_MC = tauTrgSF->getMuTauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
+		
+		double Eff_Data =  SFL_Data * (1 - SFtau_Data) + SFl_Data * SFtau_Data;
+		double Eff_MC =  SFL_MC* (1 - SFtau_MC) + SFl_MC * SFtau_MC;
+		
+		trigSF = Eff_Data / Eff_MC;
+	      }else{ //eta region covered only by single lepton trigger
+		double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+		trigSF = SF;
+	      }
 	    }
-	  
 	  // TauTau Channel
 	  else if (pType == 2 && isMC)
 	    {
-
 	      double SF1 = tauTrgSF->getDiTauScaleFactor( tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_firstLepton.Phi() );
 	      double SF2 = tauTrgSF->getDiTauScaleFactor( tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi() );
 	      trigSF = SF1 * SF2;
-	     
+	      
 	    }
 	  
 	  // MuMu Channel
