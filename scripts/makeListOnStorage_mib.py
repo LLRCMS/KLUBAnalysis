@@ -3,12 +3,18 @@ from subprocess import Popen, PIPE
 
 #tag = "MC_VBF_Summer16_singleTop"
 #tag = "MC_Fall17"
-tag = "MC_PU12Apr_18May2018"
+#tag = "MC_PU12Apr_18May2018"
 #tag = "Data2017BF_31Mar2018ReReco_17May2018"
+#tag = "MC_26June2018"
+#tag = "MC_28June2018_ZZ4L"
+#tag = "MC_3July2018"
+tag = "MC_4July2018_allFail"
 
 #outFolder = '/home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_17Nov_VBF'
-outFolder = '../inputFiles/Fall17_MC/'
+#outFolder = '../inputFiles/Fall17_MC/'
 #outFolder = '../inputFiles/Fall17_DATA/'
+outFolder = '../inputFiles/Files_June2018/'
+#outFolder = '../inputFiles/Files_June2018/signals/'
 
 areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
                                  # if false: only add the polgrid server to run the skim and submit on root
