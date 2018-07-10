@@ -3921,8 +3921,9 @@ int main (int argc, char** argv)
   bool computeBDTlm = (gConfigParser->isDefined("BDTlm::computeMVA") ? gConfigParser->readBoolOption ("BDTlm::computeMVA") : false);
   bool computeBDTmm = (gConfigParser->isDefined("BDTmm::computeMVA") ? gConfigParser->readBoolOption ("BDTmm::computeMVA") : false);
   bool computeBDThm = (gConfigParser->isDefined("BDThm::computeMVA") ? gConfigParser->readBoolOption ("BDThm::computeMVA") : false);
+  bool computeVBFBDT = (gConfigParser->isDefined("BDTVBF::computeMVA") ? gConfigParser->readBoolOption ("BDTVBF::computeMVA") : false);
 
-  if (computeBDTsm || computeBDTlm || computeBDTmm || computeBDThm)
+  if (computeBDTsm || computeBDTlm || computeBDTmm || computeBDThm || computeVBFBDT)
   {
     cout << " ------------ ############### ----- NEW BDT ----- ############### ------------ " <<endl;
 
@@ -3930,12 +3931,14 @@ int main (int argc, char** argv)
     bool doLM = computeBDTlm;
     bool doMM = computeBDTmm;
     bool doHM = computeBDThm;
+    bool doVBF = computeVBFBDT;
 
     // weights file
     string TMVAweightsSM = "";
     string TMVAweightsLM = "";
     string TMVAweightsMM = "";
     string TMVAweightsHM = "";
+    string TMVAweightsVBF = "";
     vector<float> SM_kl;
     vector<float> LM_mass;
     vector<float> MM_mass;
@@ -3967,13 +3970,18 @@ int main (int argc, char** argv)
       HM_mass       = gConfigParser->readFloatListOption ("BDThm::mass");
       HM_spin       = gConfigParser->readIntListOption ("BDThm::spin");
     }
+    if (doVBF)
+    {
+      TMVAweightsVBF = gConfigParser->readStringOption ("BDTVBF::weights");
+    }
 
     // Input variables
     vector<string> TMVAvariablesSM = ( doSM ? gConfigParser->readStringListOption ("BDTsm::variables") : vector<string>(0) );
     vector<string> TMVAvariablesLM = ( doLM ? gConfigParser->readStringListOption ("BDTlm::variables") : vector<string>(0) );
     vector<string> TMVAvariablesMM = ( doMM ? gConfigParser->readStringListOption ("BDTmm::variables") : vector<string>(0) );
     vector<string> TMVAvariablesHM = ( doHM ? gConfigParser->readStringListOption ("BDThm::variables") : vector<string>(0) );
-    
+    vector<string> TMVAvariablesVBF = ( doVBF ? gConfigParser->readStringListOption ("BDTVBF::variables") : vector<string>(0) );
+
     // Split the resonant name in two strings
     vector<pair<string, string>> splitTMVAvariablesSM;
     for (unsigned int iv = 0 ; iv < TMVAvariablesSM.size () ; ++iv)
@@ -4027,6 +4035,19 @@ int main (int argc, char** argv)
       splitTMVAvariablesHM.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1)));
     }
 
+    vector<pair<string, string>> splitTMVAvariablesVBF;
+    for (unsigned int iv = 0 ; iv < TMVAvariablesVBF.size () ; ++iv)
+    {
+      // Split my_name:BDT_name in two strings
+      std::stringstream packedName(TMVAvariablesVBF.at(iv));
+      std::string segment;
+      std::vector<std::string> unpackedNames;
+      while(std::getline(packedName, segment, ':'))
+        unpackedNames.push_back(segment);
+
+      splitTMVAvariablesVBF.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1)));
+    }
+
     // Now merge all names into a vector to get a list of uniquely needed elements
     std::vector<string> allVars;
     for (unsigned int iv = 0; iv < splitTMVAvariablesSM.size(); ++iv)
@@ -4037,7 +4058,9 @@ int main (int argc, char** argv)
       allVars.push_back(splitTMVAvariablesMM.at(iv).first);
     for (unsigned int iv = 0; iv < splitTMVAvariablesHM.size(); ++iv)
       allVars.push_back(splitTMVAvariablesHM.at(iv).first);
-      
+    for (unsigned int iv = 0; iv < splitTMVAvariablesVBF.size(); ++iv)
+      allVars.push_back(splitTMVAvariablesVBF.at(iv).first);
+
     sort(allVars.begin(), allVars.end());
     allVars.erase( unique( allVars.begin(), allVars.end() ), allVars.end() );
     
@@ -4056,17 +4079,20 @@ int main (int argc, char** argv)
     std::vector<float> outLM (LM_spin.size()*LM_mass.size());
     std::vector<float> outMM (MM_spin.size()*MM_mass.size());
     std::vector<float> outHM (HM_spin.size()*HM_mass.size());
-    
+    float mvaVBF;
+
     std::vector<TBranch*> branchSM (SM_kl.size());
     std::vector<TBranch*> branchLM (LM_spin.size()*LM_mass.size());
     std::vector<TBranch*> branchMM (MM_spin.size()*MM_mass.size());
     std::vector<TBranch*> branchHM (HM_spin.size()*HM_mass.size());
+    TBranch *mvaBranchVBF;
 
     // Declare the TMVA readers
     TMVA::Reader * readerSM = new TMVA::Reader () ;
     TMVA::Reader * readerLM = new TMVA::Reader () ;
     TMVA::Reader * readerMM = new TMVA::Reader () ;
     TMVA::Reader * readerHM = new TMVA::Reader () ;
+    TMVA::Reader * readerVBF = new TMVA::Reader () ;
 
     // Use a different variable for channel, otherwise it does not work, I don't know why
     float channel_BDT;
@@ -4126,11 +4152,19 @@ int main (int argc, char** argv)
     readerHM->AddVariable("spin", &spin_HM);
 
 
+    // Assign variables to VBF reader
+    for (pair<string, string> vpair : splitTMVAvariablesVBF)
+	{
+	  treenew ->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
+	  readerVBF->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;
+	}
+
     // Book the MVA methods
     if(doSM) readerSM->BookMVA("Grad_1", TMVAweightsSM.c_str() );
     if(doLM) readerLM->BookMVA("Grad_2", TMVAweightsLM.c_str() );
     if(doMM) readerMM->BookMVA("Grad_3", TMVAweightsMM.c_str() );
     if(doHM) readerHM->BookMVA("Grad_4", TMVAweightsHM.c_str() );
+    if(doVBF) readerVBF->BookMVA("VBF", TMVAweightsVBF.c_str() );
 
     // Calculate BDT output for SM
     if (doSM)
@@ -4243,6 +4277,19 @@ int main (int argc, char** argv)
         }
     }
 
+
+    // Calculate BDT output for VBF
+    if (doVBF)
+    {
+        mvaBranchVBF = treenew->Branch("BDToutVBF", &mvaVBF, "BDToutVBF/F") ;
+        for(int i=0;i<nentries;i++)
+        {
+          treenew->GetEntry(i);
+          mvaVBF= readerVBF->EvaluateMVA("VBF") ;
+          mvaBranchVBF->Fill();
+        }
+    }
+
     // Update tree and delete readers
     outFile->cd();
     treenew->Write ("", TObject::kOverwrite) ;
@@ -4250,9 +4297,9 @@ int main (int argc, char** argv)
     delete readerLM;
     delete readerMM;
     delete readerHM;
+    delete readerVBF;
 
   } // End new BDT
-
 
   cout << "... SKIM finished, exiting." << endl;
   return 0 ;
