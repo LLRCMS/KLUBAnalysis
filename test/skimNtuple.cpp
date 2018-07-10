@@ -3149,6 +3149,7 @@ int main (int argc, char** argv)
         theSmallTree.m_dib_deltaEta = fabs(tlv_firstBjet.Eta()-tlv_secondBjet.Eta ()) ;
         theSmallTree.m_dib_deltaR = tlv_firstBjet.DeltaR(tlv_secondBjet) ;
         theSmallTree.m_dib_deltaR_per_bHpt = theSmallTree.m_dib_deltaR * tlv_bH_raw.Pt();
+        theSmallTree.m_dib_dEtaSign = tlv_firstBjet.Eta() * tlv_secondBjet.Eta(); // VBF BDT
 
         theSmallTree.m_BDT_dib_deltaPhi     = ROOT::Math::VectorUtil::DeltaPhi(tlv_firstBjet, tlv_secondBjet);
         theSmallTree.m_BDT_dib_abs_deltaPhi = fabs(ROOT::Math::VectorUtil::DeltaPhi(tlv_firstBjet, tlv_secondBjet));
@@ -3205,24 +3206,27 @@ int main (int argc, char** argv)
           }
 
           // Save VBF variables
-          theSmallTree.m_VBFjj_mass        = std::get<0>(*(VBFcand_Mjj.rbegin()));
-          theSmallTree.m_VBFjj_mass_log    = log(std::get<0>(*(VBFcand_Mjj.rbegin())));
-          theSmallTree.m_VBFjj_deltaEta    = fabs(VBFjet1.Eta()-VBFjet2.Eta());
-          theSmallTree.m_VBFjet1_pt        = VBFjet1.Pt() ;
-          theSmallTree.m_VBFjet1_eta       = VBFjet1.Eta();
-          theSmallTree.m_VBFjet1_phi       = VBFjet1.Phi();
-          theSmallTree.m_VBFjet1_e         = VBFjet1.E();
-          theSmallTree.m_VBFjet1_btag      = (theBigTree.bCSVscore->at (VBFidx1)) ;
-          theSmallTree.m_VBFjet1_flav      = (theBigTree.jets_HadronFlavour->at (VBFidx1)) ;
-          theSmallTree.m_VBFjet1_hasgenjet = hasgj1_VBF ;
-          theSmallTree.m_VBFjet2_pt        = VBFjet2.Pt() ;
-          theSmallTree.m_VBFjet2_eta       = VBFjet2.Eta();
-          theSmallTree.m_VBFjet2_phi       = VBFjet2.Phi();
-          theSmallTree.m_VBFjet2_e         = VBFjet2.E();
-          theSmallTree.m_VBFjet2_btag      = (theBigTree.bCSVscore->at (VBFidx2)) ;
-          theSmallTree.m_VBFjet2_flav      = (theBigTree.jets_HadronFlavour->at (VBFidx2)) ;
-          theSmallTree.m_VBFjet2_hasgenjet = hasgj2_VBF ;
-          theSmallTree.m_VBFjj_HT          = VBFjet1.Pt()+VBFjet2.Pt();
+          theSmallTree.m_VBFjj_mass         = std::get<0>(*(VBFcand_Mjj.rbegin()));
+          theSmallTree.m_VBFjj_mass_log     = log(std::get<0>(*(VBFcand_Mjj.rbegin())));
+          theSmallTree.m_VBFjj_deltaEta     = fabs(VBFjet1.Eta()-VBFjet2.Eta());
+          theSmallTree.m_VBFjj_HT           = VBFjet1.Pt()+VBFjet2.Pt();
+          theSmallTree.m_VBFjj_dEtaSign = VBFjet1.Eta() * VBFjet2.Eta(); // VBF BDT
+          theSmallTree.m_VBFjet1_pt         = VBFjet1.Pt() ;
+          theSmallTree.m_VBFjet1_eta        = VBFjet1.Eta();
+          theSmallTree.m_VBFjet1_phi        = VBFjet1.Phi();
+          theSmallTree.m_VBFjet1_e          = VBFjet1.E();
+          theSmallTree.m_VBFjet1_btag       = (theBigTree.bCSVscore->at (VBFidx1)) ;
+          theSmallTree.m_VBFjet1_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx1)) ;
+          theSmallTree.m_VBFjet1_hasgenjet  = hasgj1_VBF ;
+          theSmallTree.m_VBFjet2_pt         = VBFjet2.Pt() ;
+          theSmallTree.m_VBFjet2_eta        = VBFjet2.Eta();
+          theSmallTree.m_VBFjet2_phi        = VBFjet2.Phi();
+          theSmallTree.m_VBFjet2_e          = VBFjet2.E();
+          theSmallTree.m_VBFjet2_btag       = (theBigTree.bCSVscore->at (VBFidx2)) ;
+          theSmallTree.m_VBFjet2_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx2)) ;
+          theSmallTree.m_VBFjet2_hasgenjet  = hasgj2_VBF ;
+          theSmallTree.m_VBFjet2_PUjetID    = (theBigTree.jets_PUJetID->at (VBFidx2)); // VBF BDT
+          theSmallTree.m_bH_VBF1_deltaEta   = fabs(tlv_bH.Eta() - VBFjet1.Eta()); // VBF BDT
 
           theSmallTree.m_dau1_z = getZ(tlv_firstLepton.Eta(),VBFjet1.Eta(),VBFjet2.Eta());
           theSmallTree.m_dau2_z = getZ(tlv_secondLepton.Eta(),VBFjet1.Eta(),VBFjet2.Eta());

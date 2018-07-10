@@ -506,7 +506,12 @@ struct smallTree
       m_BDT_b1_bH_cosTheta            = -9. ;
       m_BDT_tauH_SVFIT_reson_cosTheta = -9. ;
 
-      
+      // 4 variables for VBF BDT
+      m_VBFjj_dEtaSign   = -99.;
+      m_VBFjet2_PUjetID  = -99.;
+      m_bH_VBF1_deltaEta = -99.;
+      m_dib_dEtaSign     = -99.;
+
       return 0 ;    
     }
 
@@ -984,6 +989,11 @@ struct smallTree
       m_smallT->Branch ("BDT_MET_bH_cosTheta",            &m_BDT_MET_bH_cosTheta           , "BDT_MET_bH_cosTheta/F");
       m_smallT->Branch ("BDT_b1_bH_cosTheta",             &m_BDT_b1_bH_cosTheta            , "BDT_b1_bH_cosTheta/F");
       m_smallT->Branch ("BDT_tauH_SVFIT_reson_cosTheta",  &m_BDT_tauH_SVFIT_reson_cosTheta , "BDT_tauH_SVFIT_reson_cosTheta/F");
+
+      m_smallT->Branch ("VBFjj_dEtaSign",   &m_VBFjj_dEtaSign   , "VBFjj_dEtaSign/F");
+      m_smallT->Branch ("VBFjet2_PUjetID",  &m_VBFjet2_PUjetID  , "VBFjet2_PUjetID/F");
+      m_smallT->Branch ("bH_VBF1_deltaEta", &m_bH_VBF1_deltaEta , "bH_VBF1_deltaEta/F");
+      m_smallT->Branch ("dib_dEtaSign",     &m_dib_dEtaSign     , "dib_dEtaSign/F");
 
       return 0 ;
     }
@@ -1487,6 +1497,12 @@ struct smallTree
   Float_t m_BDT_MET_bH_cosTheta; //
   Float_t m_BDT_b1_bH_cosTheta; //
   Float_t m_BDT_tauH_SVFIT_reson_cosTheta; //
+
+  // 4 variables for VBF BDT
+  Float_t m_VBFjj_dEtaSign   ;
+  Float_t m_VBFjet2_PUjetID  ;
+  Float_t m_bH_VBF1_deltaEta ;
+  Float_t m_dib_dEtaSign     ;
 
 } ;
 
