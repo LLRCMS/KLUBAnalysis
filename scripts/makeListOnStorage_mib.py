@@ -3,12 +3,32 @@ from subprocess import Popen, PIPE
 
 #tag = "MC_VBF_Summer16_singleTop"
 #tag = "MC_Fall17"
-tag = "MC_PU12Apr_18May2018"
+#tag = "MC_PU12Apr_18May2018"
 #tag = "Data2017BF_31Mar2018ReReco_17May2018"
+#tag = "MC_26June2018"
+#tag = "MC_28June2018_ZZ4L"
+#tag = "MC_3July2018"
+#tag = "MC_4July2018_allFail"
+#tag = "MC_28June2018_DY4J"
+#tag = "MC_7July2018_GGH450"
+#tag = "MC_7July2018_GGH900"
+#tag = "MC_7July2018_VBF800"
+#tag = "MC_7July2018_VBF850"
+#tag = "MC_7July2018_VBF1250"
+#tag = "MC_7July2018_DYBB"
+#tag = "MC_7July2018_EWKminus"
+#tag = "MC_7July2018_EWK2Jets"
+#tag = "MC_7July2018_Wjets800to1200"
+#tag = "MC_7July2018_ttHnonbb"
+#tag = "MC_7July2018_TTWW"
+tag = "MC_7July2018_WW"
+#tag = "MC_7July2018_WZTo3LNu_3Jets"
 
 #outFolder = '/home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_17Nov_VBF'
-outFolder = '../inputFiles/Fall17_MC/'
+#outFolder = '../inputFiles/Fall17_MC/'
 #outFolder = '../inputFiles/Fall17_DATA/'
+outFolder = '../inputFiles/Files_June2018/'
+#outFolder = '../inputFiles/Files_June2018/signals/'
 
 areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
                                  # if false: only add the polgrid server to run the skim and submit on root
