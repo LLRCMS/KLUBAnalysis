@@ -4253,6 +4253,93 @@ int main (int argc, char** argv)
 
   } // End new BDT
 
+  // VBF BDT
+  bool computeVBFBDT = (gConfigParser->isDefined("BDTVBF::computeMVA") ? gConfigParser->readBoolOption ("BDTVBF::computeMVA") : false);
+
+  if (computeVBFBDT)
+  {
+    cout << " ------------ ############### ----- VBF BDT ----- ############### ------------ " <<endl;
+
+    bool doVBF = computeVBFBDT;
+
+    // weights file
+    string TMVAweightsVBF = "";
+
+    if (doVBF)
+    {
+      TMVAweightsVBF = gConfigParser->readStringOption ("BDTVBF::weights");
+    }
+
+    // Input variables
+    vector<string> TMVAvariablesVBF = ( doVBF ? gConfigParser->readStringListOption ("BDTVBF::variables") : vector<string>(0) );
+
+    // Split the resonant name in two strings
+    vector<pair<string, string>> splitTMVAvariablesVBF;
+    for (unsigned int iv = 0 ; iv < TMVAvariablesVBF.size () ; ++iv)
+    {
+      // Split my_name:BDT_name in two strings
+      std::stringstream packedName(TMVAvariablesVBF.at(iv));
+      std::string segment;
+      std::vector<std::string> unpackedNames;
+      while(std::getline(packedName, segment, ':'))
+        unpackedNames.push_back(segment);
+
+      splitTMVAvariablesVBF.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1)));
+    }
+
+    // Now merge all names into a vector to get a list of uniquely needed elements
+    std::vector<string> allVars;
+    for (unsigned int iv = 0; iv < splitTMVAvariablesVBF.size(); ++iv)
+      allVars.push_back(splitTMVAvariablesVBF.at(iv).first);
+
+    // sort and clean variables
+    sort(allVars.begin(), allVars.end());
+    allVars.erase( unique( allVars.begin(), allVars.end() ), allVars.end() );
+
+    // Create map to contain values of variables
+    std::map<string, float> allVarsMap;
+    for (string var : allVars)
+    allVarsMap[var] = 0.0;
+
+    // Open tree to be updated
+    TFile *outFile = TFile::Open(outputFile,"UPDATE");
+    TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
+
+    // Create vectors to store all the BDT outputs and relative vectors of TBranches
+    Float_t mvaVBF;
+    TBranch *mvaBranchVBF;
+    if (doVBF) mvaBranchVBF = treenew->Branch("BDToutVBF", &mvaVBF, "BDToutVBF/F") ;
+
+    // Declare the TMVA readers
+    TMVA::Reader * readerVBF = new TMVA::Reader () ;
+
+    // Assign variables to VBF reader
+    for (pair<string, string> vpair : splitTMVAvariablesVBF)
+	{
+	  treenew ->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
+	  readerVBF->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;
+	}
+
+    // Book the MVA methods
+    if(doVBF) readerVBF->BookMVA("VBF", TMVAweightsVBF.c_str() );
+
+
+    // Calculate BDT output for VBF
+    int nentries = treenew->GetEntries();
+    for(int i=0;i<nentries;i++)
+    {
+      treenew->GetEntry(i);
+
+	  if (doVBF)  mvaVBF= readerVBF->EvaluateMVA("VBF") ;
+	  if (doVBF)  mvaBranchVBF->Fill();
+    }
+
+    //Save output
+    outFile->cd();
+    treenew->Write ("", TObject::kOverwrite) ;
+    delete readerVBF;
+
+  } // end VBF BDT
 
   cout << "... SKIM finished, exiting." << endl;
   return 0 ;
