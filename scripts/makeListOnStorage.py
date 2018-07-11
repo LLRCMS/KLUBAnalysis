@@ -1,81 +1,11 @@
 import os, sys
 from subprocess import Popen, PIPE
 
-#tag = "llrNt_NoSVFit_bkg_27Ago2015" # tag, stesso nome del crab folder senza crab3_ all'inizio
-#tag = "llrNt_NoSVFit_data_27Ago2015"
-#tag = "llrNt_NoSVFit_data_30Ago2015_lumiMaskFix"
-#tag  = "Data25ns_SVFit_6Ott2015_resub"
-#tag = "Data25ns_noSVFit_npvFix_30Ott2015_newJson_trigFix2"
-#tag = "MC_NoSVFit_MiniAODV2_13Nov2015"
-#tag = "Data25ns_noSVFit_lumiDiff13Nov2015"
-#tag = "Data_SilverJson_SVfit"
-#tag = "MC_SilverJson_SVfit"
-#tag = "Data_SVFit_MiniAODV2_22Nov2015_SVFix"
-#tag = "MC_SVFit_MiniAODV2_22Nov2015_EssentialSamples_SVFix"
 
-#tag = "Data_SilverJson_SVfit_31Dic2015"
-#tag = "MC_SilverJson_SVfit_31Dic2015"
-#tag = "Data_2016RunB_PromptRecov2_27Mag2016"
-#tag = "data_2016_21Giu_resubSingleEle"
-#tag = "MC_80X_nonHH_21Jun2016"
-#tag = "MC_80X_HH_08Jun2016"
-#tag = "MC_80X_miniAODv2_VVAndSingleT_13Giu"
-#tag = "MC_80X_HH_21Jun2016"
-#tag = "MC_80X_miniAODv2_TT_inclusive"
-#tag = "MC_80X_miniAODv2_Radion_13Giu"
-#tag = "MC_80X_miniAODv2_Radion_ext_19Giu"
-#tag = "MC_80X_nonHH_21Jun2016"
-#tag = "MC_2016_24Giu_resubDY_VeryLong"
-#tag = "MC_80X_ttbar_28Jun2016"
-#tag = "MC_80X_HH_15Jun2016"
-#tag = "data_2016_22giuJSON_diff_16giuJSON"
-#tag = "data_2016_08lugJSON_diff_22giuJSON_runBrunC"
-#tag = "MC_80X_HH_15Jun2016"
-#tag = "MC_80X_ttbar_28Jun2016"
-#tag = "MC_80X_ttbar_07Jul2016"
-# tag = "data_2016_15lug_NoL1TJSON_diff_8lugJSON_runBrunCrunD"
-# tag = "data_2016_20lug_NoL1TJSON_diff_15lug_NoL1TJSON_runBrunCrunD"
-#tag = "data_2016_20lug_NoL1TJSON_diff_15lug_NoL1TJSON_runBrunCrunD_resSEle"
-# tag = 'data_2016_16NOV_SVFIT_NOL1T_JSON'
-# tag = 'MC_ICHEPdatasets_Rob_21Nov2016'
-# tag = 'MC_ICHEPdatasets_Luca_17Nov2016'
-# tag = 'data_2016_24NOV_promptReco_NOL1T_JSON'
-# tag = 'MC_Summer16'
-#tag = 'MC_2017_8020_30jan17'
-#tag = 'Data_23SepReReco_8Feb2017_res4'
-#tag = "Data_23SepReReco_8Feb2017_res4"
-#tag = "Data_03FEB2017ReReco_22Feb2017_runH"
-#tag = "MCSUSY_2Apr2017"
-#tag = "MC_gravitons_24Apr2017"
-#tag = "MC_gravitonsRS_29Apr2017"
-#tag = "MC_VBF_Summer16_singleTop"
-tag = "MC_PU2017_12Apr2018_15May2018"
-#outFolder = "../inputFiles/28Ago2015/" # write / at the end
-#outFolder = "../inputFiles/13Ott2015/25ns/"
-# make list of EminiAOD from storage as publication has problems
-#outFolder = "/home/llr/cms/cadamuro/HiggsTauTauFramework/CMSSW_7_4_7/src/LLRHiggsTauTau/NtupleProducer/test/inputFiles/13Ott2015/25ns/"
-#outFolder = "../inputFiles/DataRunDTrigFix4Nov/"
-#outFolder = "../inputFiles/miniAODv2/"
-#outFolder = "../inputFiles/Data14NovLumiDiff/"
-#outFolder  = "../inputFiles/miniAODv2VSfitForTalk/"
-#outFolder = "/home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/miniAODv2_silverJson/"
-#outFolder = "/home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/miniAODv2_silverJSON_TEST/"
-#outFolder = "/home/llr/cms/cadamuro/HHKlubAnalysis/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/miniAODv2_silverJSON_5Gen2016/"
-#outFolder = "../inputFiles/Data2016_27Mag/"
-#outFolder = "../inputFiles/Files80X_22Giu/"
-# outFolder = "../inputFiles/Files80X_22Giu/data15LugNOL1-20LugNOL1/"
-#outFolder = "../inputFiles/Files80X_22Giu/data16-22Giu/"
-#outFolder = "../inputFiles/Files80X_22Giu/data22Giu-8Lug/"
-# outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files80X_25Nov2016'
-#outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files80X_25Nov2016/DataPromptRecoBCD25nov2016'
-# outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files80X_25Nov2016/DataPromptRecoBCD25nov2016/29Nov2016ReList'
-# outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_7Feb2016'
-#outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_18Feb2016'
-#outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_23SepReReco_26Feb'
-#outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_22Feb2017'
-#outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_5apr_SUSY'
-#outFolder = '/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/VBF_signals_13Nov'
-outFolder = '/home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_15May2018'
+#tag = "MC_PU2017_12Apr2018_15May2018"
+tag = "Tau2017_26Jun2018"
+
+outFolder = '/home/llr/cms/amendola/HH2017/CMSSW_9_0_0/src/KLUBAnalysis/inputFiles/Data2017_26Jun2018'
 
 areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
                                  # if false: only add the polgrid server to run the skim and submit on root

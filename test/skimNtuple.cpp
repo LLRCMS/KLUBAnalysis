@@ -100,14 +100,22 @@ const float DYscale_MM[3] = {1.14119, 1.18722, 1.17042} ;
 //  {0.339954183508 , 0.284560899763 , 0.0915028373483 , 0.0922864405088 , 0.0874799674999}
 //}; // jet binned and b binned, 07 Feb 2017
 
-const float stitchWeights [][5] = {
-  {1.51432918823 , 0.0 , 0.0 , 0.0 , 0.0},
-  {0.537021861953 , 0.537498571149 , 0.0 , 0.0 , 0.0},
-  {0.598363343318 , 0.598946235287 , 0.10509584187 , 0.0 , 0.0},
-  {0.947765704522 , 0.942420974822 , 0.109982447103 , 0.108336573578 , 0.0},
-  {1.51470061251 , 1.51281269465 , 0.117228562794 , 0.118913419351 , 0.109809154254}
-};// jet binned and b binned, 15 May 2018 
+//const float stitchWeights [][5] = {
+//  {1.51432918823 , 0.0 , 0.0 , 0.0 , 0.0},
+//  {0.537021861953 , 0.537498571149 , 0.0 , 0.0 , 0.0},
+//  {0.598363343318 , 0.598946235287 , 0.10509584187 , 0.0 , 0.0},
+//  {0.947765704522 , 0.942420974822 , 0.109982447103 , 0.108336573578 , 0.0},
+//  {1.51470061251 , 1.51281269465 , 0.117228562794 , 0.118913419351 , 0.109809154254}
+//};// jet binned and b binned, 15 May 2018 
 
+
+const float stitchWeights [][5] = {
+  {1.50437157089 , 0.0 , 0.0 , 0.0 , 0.0},
+  {0.549757427781 , 0.550260336008 , 0.0 , 0.0 , 0.0},
+  {0.612466927142 , 0.613081681207 , 0.105177388196 , 0.0 , 0.0},
+  {0.951588541673 , 0.946165272042 , 0.109649575683 , 0.108005302201 , 0.0},
+  {0.707904938882 , 0.707489572546 , 0.107365495398 , 0.108784308592 , 0.101084909493}
+};// jet binned and b binned, 11 Jul 2018 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // open input txt file and append all the files it contains to TChain
 void appendFromFileList (TChain* chain, TString filename)
@@ -502,7 +510,7 @@ int main (int argc, char** argv)
       cerr << "missing input parameters : argc is: " << argc << endl ;
       cerr << "usage: " << argv[0]
            << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
-           << " xsecScale(stitch) HTMax(stitch) isTTBar DY_Nbs HHreweightFile TT_stitchType"
+           << " xsecScale(stitch) HTMax(stitch) HTMin(stitch) isTTBar DY_Nbs HHreweightFile TT_stitchType"
            << " runMT2 isHHsignal NjetRequired(stitch) kl_rew kt_rew c2_rew cg_rew c2g_rew susyModel" << endl ; 
       return 1;
     }
@@ -543,14 +551,18 @@ int main (int argc, char** argv)
   HTMax = atof(argv[8]);
   cout << "** INFO: removing HT < " << HTMax << " [-999 means no removal]" << endl;
 
-  int isTTBarI = atoi(argv[9]);
+  float HTMin = -999.0;
+  HTMax = atof(argv[9]);
+  cout << "** INFO: removing HT > " << HTMin << " [-999 means no removal]" << endl;
+
+  int isTTBarI = atoi(argv[10]);
   bool isTTBar = (isTTBarI == 1) ? true : false;
   if (!isMC) isTTBar = false; // force it, you never know...
   cout << "** INFO: is this a TTbar sample? : " << isTTBar << endl;
 
   bool DY_Nbs = false; // run on genjets to count in DY samples the number of b jets
   bool DY_tostitch = false;
-  int I_DY_Nbs = atoi(argv[10]);
+  int I_DY_Nbs = atoi(argv[11]);
   if (I_DY_Nbs == 1)
     {
       DY_Nbs = true; 
@@ -559,37 +571,37 @@ int main (int argc, char** argv)
   cout << "** INFO: loop on gen jet to do a b-based DY split? " << DY_Nbs << " " << DY_tostitch << endl;
 
   TFile* HHreweightFile = 0;
-  TString doreweight = argv[11];
+  TString doreweight = argv[12];
   cout << "** INFO: reweightin file for non-resonant hh is: " << doreweight << " [ 0 for no reweghting done ]" << endl;
   if (doreweight != TString("0"))
     HHreweightFile = new TFile (doreweight);
 
-  int TT_stitchType = atoi(argv[12]);
+  int TT_stitchType = atoi(argv[13]);
   if (!isTTBar) TT_stitchType = 0; // just force if not TT...
   cout << "** INFO: TT stitch type: " << TT_stitchType << " [0: no stitch , 1: fully had, 2: semilept t, 3: semilept tbar, 4: fully lept, 5: semilept all]" << endl;
 
   bool runMT2 = false;
-  string opt14 (argv[13]);
+  string opt14 (argv[14]);
   if (opt14 == "1") runMT2 = true;
   cout << "** INFO: running MT2: " << runMT2 << endl;
 
   bool isHHsignal = false;
-  string opt15 (argv[14]);
+  string opt15 (argv[15]);
   if (opt15 == "1") isHHsignal = true;
   cout << "** INFO: is HH signal: " << isHHsignal << endl;
 
-  int NjetRequired = atoi(argv[15]);
+  int NjetRequired = atoi(argv[16]);
   cout << "** INFO: requiring exactly " << NjetRequired << " outgoing partons [<0 for no cut on this]" << endl;
 
-  float kl_rew = atof(argv[16]);
-  float kt_rew = atof(argv[17]);
-  float c2_rew = atof(argv[18]);
-  float cg_rew = atof(argv[19]);
-  float c2g_rew = atof(argv[20]);
+  float kl_rew = atof(argv[17]);
+  float kt_rew = atof(argv[18]);
+  float c2_rew = atof(argv[19]);
+  float cg_rew = atof(argv[20]);
+  float c2g_rew = atof(argv[21]);
   cout << "** INFO: kl, kt reweight " << kl_rew << " " << kt_rew << " [kt < -990 || kl < -990 : no HH reweight]" << endl;
   cout << "**       c2, cg, c2g reweight " << c2_rew << " " << cg_rew << " " << c2g_rew << " [if any is < -990: will do only a klambda / kt reweight if requested]" << endl;
 
-  string susyModel = argv[21];
+  string susyModel = argv[22];
   cout << "** INFO: requesting SUSY model to be: -" << susyModel << "- [NOTSUSY: no request on this parameter]" << endl;
 
   // ------------------  decide what to do for the reweight of HH samples
@@ -1029,6 +1041,11 @@ int main (int argc, char** argv)
       if (HTMax > 0)
 	{
 	  if (theBigTree.lheHt > HTMax) continue;
+	}
+
+      if (HTMin > 0)
+	{
+	  if (theBigTree.lheHt < HTMin) continue;
 	}
 
       // directly reject events I want to remove in W+Jets stitching on njets
