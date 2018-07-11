@@ -2,7 +2,8 @@ from ROOT import *
 from array import *
 
 #fname = "Electron_Ele32orEle35"
-fname = "Electron_EleTau_Ele24"
+#fname = "Electron_EleTau_Ele24"
+fname = "Electron_Ele35"
 
 inFile = TFile.Open(fname+".root")
 
