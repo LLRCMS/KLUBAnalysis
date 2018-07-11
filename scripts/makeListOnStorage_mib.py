@@ -21,8 +21,8 @@ from subprocess import Popen, PIPE
 #tag = "MC_7July2018_Wjets800to1200"
 #tag = "MC_7July2018_ttHnonbb"
 #tag = "MC_7July2018_TTWW"
-tag = "MC_7July2018_WW"
-#tag = "MC_7July2018_WZTo3LNu_3Jets"
+#tag = "MC_7July2018_WW"
+tag = "MC_7July2018_WZTo3LNu_3Jets"
 
 #outFolder = '/home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_17Nov_VBF'
 #outFolder = '../inputFiles/Fall17_MC/'
