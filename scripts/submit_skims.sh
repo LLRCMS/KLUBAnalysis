@@ -1,6 +1,5 @@
-#OUTDIRR="Skims2017_10Gen2018"
-AMESSAGE="skims for 2018 synch"
-OUTDIRR="SKIMS_15May2018_Run2017B"
+AMESSAGE="Run2017 full production"
+OUTDIRR="SKIMS_11Jul2018_Run2017"
 
 source /opt/exp_soft/cms/t3/t3setup
 mkdir /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/
@@ -10,21 +9,32 @@ echo $AMESSAGE > /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/README.txt
 cp /home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/scripts/listAll.sh /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/
 
 
-# source /opt/exp_soft/cms/t3/t3setup
-# mkdir /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/
-# mkdir $OUTDIRR
-# touch /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/README.txt
-# echo $AMESSAGE > /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/README.txt
-# cp /home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/scripts/haddAll.sh /data_CMS/cms/cadamuro/test_submit_to_tier3/$OUTDIRR/
-
+#SYNCH
+#python scripts/skimNtuple.py -T Synch2018 -s True -c  config/skim_2017_sync.cfg  -n 1  -k False -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_Grav450        -i inputFiles/Synch2018/Grav450.list -v True
 
 
 ##################
 ### SKIMS 2017 ###
 ##################
 
-#SYNCH
-#python scripts/skimNtuple.py -T Synch2018 -s True -c  config/skim_2017_sync.cfg  -n 1  -k False -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_Grav450        -i inputFiles/Synch2018/Grav450.list -v True
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleMuon2017B        -i inputFiles/Data2017_26Jun2018/1_SingleMuon__Run2017B-31Mar2018-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleMuon2017C        -i inputFiles/Data2017_26Jun2018/2_SingleMuon__Run2017C-31Mar2018-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleMuon2017D        -i inputFiles/Data2017_26Jun2018/3_SingleMuon__Run2017D-31Mar2018-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleMuon2017E        -i inputFiles/Data2017_26Jun2018/4_SingleMuon__Run2017E-31Mar2018-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleMuon2017F        -i inputFiles/Data2017_26Jun2018/5_SingleMuon__Run2017F-31Mar2018-v1.txt
+
+python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleElectron2017B        -i inputFiles/Data2017_26Jun2018/1_SingleElectron__Run2017B-31Mar2018-v1.txt
+python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleElectron2017C        -i inputFiles/Data2017_26Jun2018/2_SingleElectron__Run2017C-31Mar2018-v1.txt
+python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleElectron2017D        -i inputFiles/Data2017_26Jun2018/3_SingleElectron__Run2017D-31Mar2018-v1.txt
+python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleElectron2017E        -i inputFiles/Data2017_26Jun2018/4_SingleElectron__Run2017E-31Mar2018-v1.txt
+python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_SingleElectron2017F        -i inputFiles/Data2017_26Jun2018/5_SingleElectron__Run2017F-31Mar2018-v1.txt
+
+# python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_Tau2017B        -i inputFiles/Data2017_26Jun2018/1_Tau__Run2017B-31Mar2018-v1.txt
+# python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_Tau2017C        -i inputFiles/Data2017_26Jun2018/2_Tau__Run2017C-31Mar2018-v1.txt
+# python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_Tau2017D        -i inputFiles/Data2017_26Jun2018/3_Tau__Run2017D-31Mar2018-v1.txt
+# python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_Tau2017E        -i inputFiles/Data2017_26Jun2018/4_Tau__Run2017E-31Mar2018-v1.txt
+# python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_Tau2017F        -i inputFiles/Data2017_26Jun2018/5_Tau__Run2017F-31Mar2018-v1.txt
+
 
 
 
@@ -36,9 +46,9 @@ cp /home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/scripts/listAll.sh /data_
  
 # # #####################
 # # ### tW top : 
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_antitop_5f_inclusiveDecays   -i inputFiles/Files_15May2018/9_ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 35.6
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_antitop_5f_inclusiveDecays   -i inputFiles/Files_15May2018/9_ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 35.6
 
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_top_5f_inclusiveDecays       -i inputFiles/Files_15May2018/10_ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 35.6
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 30 -k True -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_ST_tW_top_5f_inclusiveDecays       -i inputFiles/Files_15May2018/10_ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 35.6
 
 
 

@@ -1,4 +1,4 @@
-tag=15May2018_2017B
+tag=11Jul2018
 
 log=(--log)
 
@@ -7,11 +7,11 @@ channel=TauTau
 #channel=ETau
 
 #lumi=13.4
-lumi=4.7
+lumi=41.6
 reg=SR
 
-baseline=s1b1jresolved
-#baseline=baseline
+#baseline=s1b1jresolved
+baseline=baseline
 #baseline=baselineVBF_btagMfirst
 
 #baseline=baselineVBF_btagM
@@ -20,7 +20,7 @@ baseline=s1b1jresolved
 #baseline=baselineVBF_L_btagMfirst
 #baseline=baselineVBF_T_btagMfirst
 
-others="--quit"
+others=""
 
 
 mkdir plots_$channel/$tag
@@ -50,7 +50,7 @@ do
 done
 
 
-cd plots_$channel
+cd plotsHH2017_$channel
 scp -r $tag/$baseline\_$reg camendol@lxplus.cern.ch://afs/cern.ch/user/c/camendol/www/HH2017/plots$channel/$tag
 cd ..
 

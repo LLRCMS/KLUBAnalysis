@@ -47,6 +47,7 @@ def retrieveHistos (rootFile, namelist, var, sel, reg,flat,binning):
     res = {}
     for name in namelist:
         fullName = name + "_" + sel + "_" + reg + "_" + var
+        print fullName
         if not rootFile.GetListOfKeys().Contains(fullName):
             print "*** WARNING: histo " , fullName , " not available"
             continue
@@ -61,12 +62,14 @@ def retrieveHistos (rootFile, namelist, var, sel, reg,flat,binning):
     return res
                         
 def getHisto (histoName,inputList,doOverflow):
-        
+        print histoName, inputList
         for idx, name in enumerate(inputList):
+                print idx, name
                 if (name.startswith(histoName)):
                         h = inputList[name].Clone (histoName)
                         if doOverflow: h = addOverFlow(h)
                         break
+        print h        
         return h
 
 ### QCD is special and has a strange name, need data to recontruct it
@@ -336,7 +339,6 @@ if __name__ == "__main__" :
     parser.add_argument('--channel', dest='channel', help='channel = (MuTau, ETau, TauTau)', default=None)
     parser.add_argument('--siglegextratext', dest='siglegextratext', help='additional optional text to be plotted in legend after signal block', default=None)
     
-    
     #bool opts
     parser.add_argument('--log',     dest='log', help='use log scale',  action='store_true', default=False)
     parser.add_argument('--no-data', dest='dodata', help='disable plotting data',  action='store_false', default=True)
@@ -417,35 +419,19 @@ if __name__ == "__main__" :
     #sigColors["VBFC2V1"] = 2
     #sigColors["ggHH"] = kCyan
 
-
-
     bkgColors = {}
 
-
-
-    # bkgColors["DY"] = kCyan + 1 
-    # bkgColors["TT"] = kGreen-2 
-    # # bkgColors["TTfullyLep"] = kBlue+1
-    # # bkgColors["TTsemiLep"] = kCyan +2
-    # # bkgColors["TTfullyHad"] = kCyan
-    # bkgColors["WJets"] = kOrange+1
-    # bkgColors["VVJJ"] = kOrange+10 
-    # bkgColors["singleT"] = kPink+5
-    bkgColors["DY"] = kGreen+1 
-    bkgColors["TT"] = kOrange+1
-    # bkgColors["TTfullyLep"] = kBlue+1
-    # bkgColors["TTsemiLep"] = kCyan +2
-    # bkgColors["TTfullyHad"] = kCyan
-    bkgColors["WJets"] =  kGreen-2 
-    bkgColors["VVJJ"] = kCyan + 1 
-    bkgColors["singleT"] = kAzure-2
+    bkgColors["DY"] = kGreen+1
+    bkgColors["TT"] =  kOrange+1
+    bkgColors["WJets"] = kAzure-2
+    bkgColors["singleT"] = kOrange+10 
+    bkgColors["EWKW"] = kGreen+3
+    bkgColors["VV"] = kViolet
+    bkgColors["SM"] = kBlue+1
+    bkgColors["other"] = kCyan+1
     
-    
-
-
     #if args.sigscale:
     #     for i in range(0,len(sigScale)): sigScale[i] = args.sigscale
-
 
     plotTitle = ""
 
@@ -453,7 +439,7 @@ if __name__ == "__main__" :
         plotTitle = args.title
     dataList = ["data_obs"]
     print bkgList
-    #bkgList =  ["VVJJ","TTfullyHad","TTsemiLep","TTfullyLep","DY","WJets","singleT"]
+
     if cfg.hasSection("merge"): 
         for groupname in cfg.config['merge']:
             if "data" in groupname: continue
@@ -461,6 +447,8 @@ if __name__ == "__main__" :
             for x in mergelist:
                 bkgList.remove(x)
             bkgList.append(groupname)
+
+
    
 
     print bkgList
@@ -483,37 +471,32 @@ if __name__ == "__main__" :
 
     hDatas = retrieveHistos  (rootFile, dataList, args.var, args.sel,args.reg,args.flat,binning)
 
-
+    print hDatas
     
     xsecRatio = 19.56
     if not args.log: xsecRatio = xsecRatio/float(10)
     #sigScale = [1. , xsecRatio*hSigs["ggHH"].GetEntries()/float(hSigs["VBFC2V1"].GetEntries())]
 
-
-
             
     doOverflow = args.overflow
     
 
-    #hVVJJ    = getHisto ("VVJJ", hBkgs,doOverflow)
-    # hTTfullyHad    = getHisto ("TTfullyHad", hBkgs,doOverflow)
-    # hTTsemiLep    = getHisto ("TTsemiLep", hBkgs,doOverflow)
-    # hTTfullyLep    = getHisto ("TTfullyLep", hBkgs,doOverflow)
-    hTT    = getHisto ("TT", hBkgs,doOverflow)
-    hDY    = getHisto ("DY", hBkgs,doOverflow)
-    #hWJets    = getHisto ("WJets", hBkgs,doOverflow)
-    hsingleT    = getHisto ("singleT", hBkgs,doOverflow)
-    
-    
-    
 
-    #hBkgList = [hVVJJ, hTTfullyHad,hTTsemiLep,hTTfullyLep,hDY,hWJets,hsingleT] ## full list for stack
-    #hBkgList = [hsingleT,hVVJJ,hWJets, hTT,hDY] ## full list for stack
-    hBkgList = [hsingleT, hTT,hDY] ## full list for stack
+    hDY = getHisto("DY", hBkgs,doOverflow)
+    hTT = getHisto("TT", hBkgs,doOverflow)
+    hWJets = getHisto("WJets", hBkgs,doOverflow)
+    hsingleT = getHisto("singleT", hBkgs,doOverflow)
+    hEWKW = getHisto("EWKW", hBkgs,doOverflow)
+    hVV = getHisto("VV", hBkgs,doOverflow)
+    hSM = getHisto("SM", hBkgs,doOverflow)
+    hothers = getHisto("other", hBkgs,doOverflow)
 
-    #hBkgNameList = ["VVjj","t#bar{t} hh","t#bar{t} hl","t#bar{t} ll","DY+jets","WJets","single top"] # list for legend
-    #hBkgNameList = ["single top","VVjj","WJets","t#bar{t}","DY+jets"] # list for legend
-    hBkgNameList = ["single top", "t#bar{t}","DY + jets"] # list for legend
+    hBkgList = [hothers, hSM, hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
+   # hBkgList = [hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
+
+
+    hBkgNameList = ["Others","SM Higgs", "VV", "EWK", "single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
+    #hBkgNameList = ["VV", "EWK", "single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
 
 
     if cfg.hasSection('pp_QCD'):
@@ -522,9 +505,10 @@ if __name__ == "__main__" :
         hBkgList.append(hQCD)
         hBkgNameList.append("QCD")
         bkgColors["QCD"] = kPink+5
-  
-    hData = getHisto  ("data", hDatas , doOverflow)
 
+    print hDatas    
+    hData = getHisto("data_obs", hDatas , doOverflow).Clone("hData")
+    print hData
     # remove all data from blinding region before creating tgraph etc...
     if args.blindrange:
         blow = float (args.blindrange[0]) 
@@ -534,7 +518,8 @@ if __name__ == "__main__" :
             if center > blow and center < bup:
                 hData.SetBinContent(ibin, 0)
 
-    hDataNonScaled = hData.Clone("hDataNonScaled")   #pyroot fa schifo!!! senza questa cosa hData not defined dopo la creazione del testo . E se chiamo tutto hData2 non va. MAH!
+    print hData                
+    hDataNonScaled = hData.Clone("hDataNonScaled")  
     gData = makeTGraphFromHist (hData, "grData")
 
 
@@ -864,11 +849,10 @@ if __name__ == "__main__" :
         tagch = ""
         if args.channel:
             tagch = "_" + args.channel
-        saveName = "./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch 
+        saveName = "./plotsHH2017_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch 
         if args.log:
             saveName = saveName+"_log"
         if args.flat:
             saveName = saveName+"_flat"    
         c1.SaveAs (saveName+".pdf")
         c1.SaveAs (saveName+".png")
-        print "data events in plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch+": "+str(hData.Integral(0,hData.GetNbinsX()+1))
