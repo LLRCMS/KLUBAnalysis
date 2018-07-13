@@ -552,7 +552,7 @@ int main (int argc, char** argv)
   cout << "** INFO: removing HT < " << HTMax << " [-999 means no removal]" << endl;
 
   float HTMin = -999.0;
-  HTMax = atof(argv[9]);
+  HTMin = atof(argv[9]);
   cout << "** INFO: removing HT > " << HTMin << " [-999 means no removal]" << endl;
 
   int isTTBarI = atoi(argv[10]);
@@ -1038,6 +1038,7 @@ int main (int argc, char** argv)
       // if (!isMC && theBigTree.RunNumber == 274094 && theBigTree.lumi >= 105 && theBigTree.lumi <= 107) continue;
 
       // directly reject events outside HT range in case of stitching of inclusive sample-- they should not count in weights
+      //cout << " ********** HTMAX - MIN - LHE: " << HTMax << " - " << HTMin << " - " << theBigTree.lheHt << endl;
       if (HTMax > 0)
 	{
 	  if (theBigTree.lheHt > HTMax) continue;
