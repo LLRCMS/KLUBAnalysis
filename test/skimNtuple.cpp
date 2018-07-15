@@ -3234,6 +3234,7 @@ int main (int argc, char** argv)
           theSmallTree.m_VBFjet1_phi        = VBFjet1.Phi();
           theSmallTree.m_VBFjet1_e          = VBFjet1.E();
           theSmallTree.m_VBFjet1_btag       = (theBigTree.bCSVscore->at (VBFidx1)) ;
+          theSmallTree.m_VBFjet1_btag_deepCSV = theBigTree.bDeepCSV_probb->at(VBFidx1) + theBigTree.bDeepCSV_probbb->at(VBFidx1) ;
           theSmallTree.m_VBFjet1_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx1)) ;
           theSmallTree.m_VBFjet1_hasgenjet  = hasgj1_VBF ;
           theSmallTree.m_VBFjet2_pt         = VBFjet2.Pt() ;
@@ -3241,6 +3242,7 @@ int main (int argc, char** argv)
           theSmallTree.m_VBFjet2_phi        = VBFjet2.Phi();
           theSmallTree.m_VBFjet2_e          = VBFjet2.E();
           theSmallTree.m_VBFjet2_btag       = (theBigTree.bCSVscore->at (VBFidx2)) ;
+          theSmallTree.m_VBFjet2_btag_deepCSV = theBigTree.bDeepCSV_probb->at(VBFidx2) + theBigTree.bDeepCSV_probbb->at(VBFidx2) ;
           theSmallTree.m_VBFjet2_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx2)) ;
           theSmallTree.m_VBFjet2_hasgenjet  = hasgj2_VBF ;
           theSmallTree.m_VBFjet2_PUjetID    = (theBigTree.jets_PUJetID->at (VBFidx2)); // VBF BDT
