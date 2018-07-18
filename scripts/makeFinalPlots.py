@@ -226,6 +226,37 @@ def scaleGraphByBinWidth (graph):
         graph.SetPointEYlow(ipt, eyl/bw)
         graph.SetPointEYhigh(ipt, eyh/bw)
 
+
+# Get the uncertainty band from BKG to be plotted in the ratio plot
+def makeMCUncertaintyBand (bkgSum):
+    nPoints = bkgSum.GetNbinsX()
+    fX       = []
+    fY       = []
+    feYUp    = []
+    feYDown  = []
+    feXRight = []
+    feXLeft  = []
+
+    for ibin in range (1, nPoints+1):
+        central = bkgSum.GetBinContent(ibin)
+        if central > 0:
+            fX.append      (bkgSum.GetBinCenter(ibin))
+            fY.append      (1.0)
+            feYUp.append   (bkgSum.GetBinErrorUp(ibin)  / central)
+            feYDown.append (bkgSum.GetBinErrorLow(ibin) / central)
+            feXRight.append(bkgSum.GetBinLowEdge(ibin+1) - bkgSum.GetBinCenter(ibin))
+            feXLeft.append (bkgSum.GetBinCenter(ibin) - bkgSum.GetBinLowEdge(ibin))
+
+    afX       = array ("d", fX      )
+    afY       = array ("d", fY      )
+    afeYUp    = array ("d", feYUp   )
+    afeYDown  = array ("d", feYDown )
+    afeXRight = array ("d", feXRight)
+    afeXLeft  = array ("d", feXLeft )
+    gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
+    return gBand;
+
+
 ## do ratio of Data/MC
 # horErrs : do horizonta errors
 def makeDataOverMCRatioPlot (hData, hMC, newName, horErrs=False):
@@ -405,19 +436,24 @@ if __name__ == "__main__" :
         bkgList.append('QCD')
     sigList = cfg.readListOption("general::signals")
 
-
-
     #sigList = ["VBFC2V1","ggHH"]
+    #sigList = ["VBFRadion600","VBFRadion900","VBFRadion2000"]
+
     sigNameList = []
     #if args.log:
-    #        sigNameList = ["VBFC2V1","ggHH"]
+    #        #sigNameList = ["VBFC2V1","ggHH"]
+    #        sigNameList = ["VBFRadion600","VBFRadion900","VBFRadion2000"]
     #else:
-    #        sigNameList = ["VBFC2V1","ggHH (#times 0.1)"]
+            #sigNameList = ["VBFC2V1","ggHH (#times 0.1)"]
+    #        sigNameList = ["VBFRadion600","VBFRadion900","VBFRadion2000"]
 
 
     sigColors = {}
     #sigColors["VBFC2V1"] = 2
     #sigColors["ggHH"] = kCyan
+    #sigColors["VBFRadion600"]  = kBlack
+    #sigColors["VBFRadion900"]  = kBlue
+    #sigColors["VBFRadion2000"] = kCyan
 
     bkgColors = {}
 
@@ -495,7 +531,7 @@ if __name__ == "__main__" :
    # hBkgList = [hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
 
 
-    hBkgNameList = ["Others","SM Higgs", "VV", "EWK", "single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
+    hBkgNameList = ["Others","SM Higgs", "VV", "EWK", "Single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
     #hBkgNameList = ["VV", "EWK", "single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
 
 
@@ -641,7 +677,7 @@ if __name__ == "__main__" :
             leg.AddEntry(None, args.siglegextratext, "")
 
     if args.dodata:
-        leg.AddEntry(gData, "data", "pe")
+        leg.AddEntry(gData, "Data", "pe")
 
 
     ################## Y RANGE SETTINGS ############################
@@ -793,6 +829,7 @@ if __name__ == "__main__" :
 
         grRatio = makeDataOverMCRatioPlot (hDataNonScaled, hBkgEnvelopeNS, "grRatio")
         hRatio = hDataNonScaled.Clone("hRatioAxis") # for ranges only
+        grUncert = makeMCUncertaintyBand (bkgSum) # uncertainty band from MC, always centered at 1.0
 
         hRatio.GetXaxis().SetTitleFont(43) # so that size is in pixels
         hRatio.GetYaxis().SetTitleFont(43) # so that size is in pixels
@@ -802,7 +839,7 @@ if __name__ == "__main__" :
 
         #hRatio.GetXaxis().SetTitle(bkgStack.GetXaxis().GetName())
         hRatio.SetTitle(plotTitle)
-        hRatio.GetYaxis().SetTitle ("Data/MC")
+        hRatio.GetYaxis().SetTitle ("Data/Bkg.") #("Data/MC")
         if args.label: hRatio.GetXaxis().SetTitle (args.label)
         else: hRatio.GetXaxis().SetTitle (args.var)
         hRatio.GetXaxis().SetTitleOffset(3.9)
@@ -834,6 +871,10 @@ if __name__ == "__main__" :
         l1.SetLineWidth(1)
         l1.Draw("same")
 
+        grUncert.SetFillColor(kGray+2)
+        grUncert.SetFillStyle(3002)
+        grUncert.Draw("e2")
+
         pad2.RedrawAxis();
         pad2.RedrawAxis("g"); #otherwise no grid..
     ###################### DISPLAY ###################################
@@ -849,7 +890,8 @@ if __name__ == "__main__" :
         tagch = ""
         if args.channel:
             tagch = "_" + args.channel
-        saveName = "./plotsHH2017_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch 
+        saveName = "./plotsHH2017_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
+        #saveName = "./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
         if args.log:
             saveName = saveName+"_log"
         if args.flat:
