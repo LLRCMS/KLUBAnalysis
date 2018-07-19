@@ -7,12 +7,12 @@ import argparse
 import fnmatch
 import itertools
 
-tag = "23Jul2018"
-channel = "TauTau"
+tag = "14Jul2018"
+channel = "TauTau" #"ETau" "MuTau" "TauTau"
 isIsoBin = False
 isMakeRatio = True
-ratioHist =["isoDau2_QCD_SS_base","isoDau2_QCD_OSblind_base"] 
-isoHist=["SS_VBFTbtagM","OSblind_VBFTbtagM"]
+ratioHist =["isoDau2_QCD_SS_base","isoDau2_QCD_OSblind_base"]
+isoHist= ["SS_base", "OSblind_base"] #["SS_VBFTbtagM","OSblind_VBFTbtagM"]
 isoSelHist=["0","1","2","SR"]
 var = "bH_mass"
 #TT_isoDau2_5_OSblind_bH_mass
@@ -29,12 +29,9 @@ def subtractBkg(inFile, var,sel,hBkg):
 
 def sumBkg(inFile, var,sel,bkgList):
 
-
     hname = bkgList[0] + "_" + sel + "_" +var
     hnameTot = "bkgTot_" + sel + "_" +var
     hstack = THStack(hnameTot+"_stack",hnameTot+"_stack")
-    
-    
 
     hsum = inFile.Get(hname).Clone(hnameTot)
     hsum.SetTitle(hsum.GetName())
@@ -182,11 +179,6 @@ colors = [kRed,
 
 inFile = TFile.Open(fileName)
 
-                                                                  
-
-
-
-
 
 gStyle.SetOptStat(0)
 hBkg = {}
@@ -226,8 +218,7 @@ if isIsoBin:
         i = 0
         for sel in isoSelHist:
             #if "btag" in sel: continue
-            
-            
+
             reg_sel = "isoDau2_"+sel+"_"+reg
             
             
@@ -239,12 +230,11 @@ if isIsoBin:
                 hQCD[reg_sel].GetXaxis().SetTitle(var)
                 hQCD[reg_sel].GetYaxis().SetTitle("Normalized events")
                 hQCD[reg_sel].GetYaxis().SetTitleOffset(1.4)
-                hQCD[reg_sel].SetMaximum(0.30)
+                hQCD[reg_sel].SetMaximum(0.50)
                 hQCD[reg_sel].Draw("hist")
-
-
             else:
                 hQCD[reg_sel].Draw("hist same")
+
             i += 1
             canvas.Modified()
             canvas.Update()
@@ -259,13 +249,8 @@ if isIsoBin:
 
 
 
-
 if isMakeRatio:
    makeRatio(ratioHist[0],ratioHist[1],hQCD,canvas)
    raw_input()
     
 
-
-
-
-    
