@@ -3,9 +3,17 @@
 
 ###### LAUNCH COMMAND EXAMPLE:
 #
-# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau_JEC.cfg  --tag mt_jecUnc_nominal
-# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_ETau_JEC.cfg   --tag et_jecUnc_nominal
-# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau_JEC.cfg --tag tt_jecUnc_nominal
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_14Jul2018  --n 44
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_14Jul2018_VBF --n 44
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_ETau.cfg   --tag analysis_ETau_14Jul2018   --n 44
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_14Jul2018 --n 44
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_14Jul2018_SStight --n 44
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_14Jul2018_style --n 44
+#
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_MuTau.cfg  --tag lookatQCD_MuTau_14Jul2018  --n 20
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_ETau.cfg   --tag lookatQCD_ETau_14Jul2018   --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_14Jul2018 --n 44
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_14Jul2018_oldIso --n 44
 #
 ################
 
@@ -29,7 +37,7 @@ if not args.cfg:
 outDir = datetime.datetime.now().strftime('%Y.%m.%d_%H.%M.%S')
 if args.tag:
     outDir = args.tag
-outDir = "JEC_jobs_pt25/"+outDir
+#outDir = "JEC_jobs_pt25/"+outDir
 
 # pathname = os.path.dirname(sys.argv[0])        
 # here     = os.path.abspath(pathname)

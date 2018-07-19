@@ -456,16 +456,29 @@ if __name__ == "__main__" :
     #sigColors["VBFRadion2000"] = kCyan
 
     bkgColors = {}
+    #bkgColors["singleT"] = kOrange+10
+    #bkgColors["EWKW"] = kGreen+3
+    #bkgColors["VV"] = kViolet
+    #bkgColors["SM"] = kBlue+1
+    #bkgColors["DY"] = kGreen+1
+    #bkgColors["TT"] =  kOrange+1
+    #bkgColors["WJets"] = kAzure-2
+    #bkgColors["other"] = kCyan+1
 
-    bkgColors["DY"] = kGreen+1
-    bkgColors["TT"] =  kOrange+1
-    bkgColors["WJets"] = kAzure-2
-    bkgColors["singleT"] = kOrange+10 
-    bkgColors["EWKW"] = kGreen+3
-    bkgColors["VV"] = kViolet
-    bkgColors["SM"] = kBlue+1
-    bkgColors["other"] = kCyan+1
-    
+    # RGB/HEX colors
+    col = TColor()
+    bkgColors["DY"]    = col.GetColor("#44BA68") #(TColor(68 ,186,104)).GetNumber() #gROOT.GetColor("#44BA68")
+    bkgColors["TT"]    = col.GetColor("#F4B642") #(TColor(244,182,66 )).GetNumber() #gROOT.GetColor("#F4B642")
+    bkgColors["WJets"] = col.GetColor("#41B4DB") #(TColor(65 ,180,219)).GetNumber() #gROOT.GetColor("#41B4DB")
+    bkgColors["other"] = col.GetColor("#ED635E") #(TColor(237,99 ,94 )).GetNumber() #gROOT.GetColor("#ED635E")
+
+    bkgLineColors = {}
+    bkgLineColors["DY"]    = col.GetColor("#389956")
+    bkgLineColors["TT"]    = col.GetColor("#dea63c")
+    bkgLineColors["WJets"] = col.GetColor("#3ca4c8")
+    bkgLineColors["other"] = col.GetColor("#d85a56")
+
+
     #if args.sigscale:
     #     for i in range(0,len(sigScale)): sigScale[i] = args.sigscale
 
@@ -521,17 +534,19 @@ if __name__ == "__main__" :
     hDY = getHisto("DY", hBkgs,doOverflow)
     hTT = getHisto("TT", hBkgs,doOverflow)
     hWJets = getHisto("WJets", hBkgs,doOverflow)
-    hsingleT = getHisto("singleT", hBkgs,doOverflow)
-    hEWKW = getHisto("EWKW", hBkgs,doOverflow)
-    hVV = getHisto("VV", hBkgs,doOverflow)
-    hSM = getHisto("SM", hBkgs,doOverflow)
     hothers = getHisto("other", hBkgs,doOverflow)
+    #hsingleT = getHisto("singleT", hBkgs,doOverflow)
+    #hEWKW = getHisto("EWKW", hBkgs,doOverflow)
+    #hVV = getHisto("VV", hBkgs,doOverflow)
+    #hSM = getHisto("SM", hBkgs,doOverflow)
 
-    hBkgList = [hothers, hSM, hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
-   # hBkgList = [hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
+    #hBkgList = [hothers, hSM, hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
+    hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
+    #hBkgList = [hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
 
 
-    hBkgNameList = ["Others","SM Higgs", "VV", "EWK", "Single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
+    #hBkgNameList = ["Others","SM Higgs", "VV", "EWK", "Single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
+    hBkgNameList = ["Others", "W + jets", "t#bar{t}","DY + jets"] # list for legend
     #hBkgNameList = ["VV", "EWK", "single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
 
 
@@ -540,7 +555,9 @@ if __name__ == "__main__" :
         hQCD.SetName("QCD")
         hBkgList.append(hQCD)
         hBkgNameList.append("QCD")
-        bkgColors["QCD"] = kPink+5
+        #bkgColors["QCD"] = kPink+5
+        bkgColors["QCD"] = col.GetColor("#F29563") #(TColor(242,149,99)).GetNumber() #gROOT.GetColor("#F29563")
+        bkgLineColors["QCD"] = col.GetColor("#DC885A")
 
     print hDatas    
     hData = getHisto("data_obs", hDatas , doOverflow).Clone("hData")
@@ -576,9 +593,17 @@ if __name__ == "__main__" :
             for key,value in bkgColors.items():
                 if key in histoname:    
                         thecolor = int(bkgColors[key])
-                        h.SetLineColor(thecolor)
                         h.SetFillColor(thecolor)
                         h.SetFillStyle(1001)
+
+    # apply bkg lines colors if available
+    for h in hBkgList:
+        histoname = h.GetName()
+        for key,value in bkgLineColors.items():
+            if key in histoname:
+                thecolor = int(bkgLineColors[key])
+                h.SetLineColor(thecolor)
+                h.SetLineWidth(1)
 
             
     #################### REMOVE NEGARIVE BINS #######################
@@ -682,7 +707,7 @@ if __name__ == "__main__" :
 
     ################## Y RANGE SETTINGS ############################
     ymin = 0
-    if args.log: ymin = 0.01
+    if args.log: ymin = 0.1
 
     maxs = []
     
@@ -724,7 +749,7 @@ if __name__ == "__main__" :
     # interactive display
     bkgStack.Draw("HIST")
     bkgSum.SetFillColor(kGray+2);
-    bkgSum.SetFillStyle(3002);
+    bkgSum.SetFillStyle(3001); # was: 3002
     bkgSum.Draw("e2 same")
     if args.dosig:
         for key in hSigs: hSigs[key].Draw("hist same")
@@ -806,7 +831,7 @@ if __name__ == "__main__" :
         blow = float(args.blindrange[0])
         bup = float(args.blindrange[1])
         bBox = TBox (blow, ymin, bup, 0.93*ymax)
-        bBox.SetFillStyle(3002) # NB: does not appear the same in displayed box and printed pdf!!
+        bBox.SetFillStyle(3001) # NB: does not appear the same in displayed box and printed pdf!!
         bBox.SetFillColor(kGray+2) # NB: does not appear the same in displayed box and printed pdf!!
         bBox.Draw()
 
@@ -872,7 +897,7 @@ if __name__ == "__main__" :
         l1.Draw("same")
 
         grUncert.SetFillColor(kGray+2)
-        grUncert.SetFillStyle(3002)
+        grUncert.SetFillStyle(3001)
         grUncert.Draw("e2")
 
         pad2.RedrawAxis();
