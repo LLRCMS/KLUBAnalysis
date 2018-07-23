@@ -284,8 +284,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mi
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 10   -k True -o $SKIMDIR/SKIM_GluGluToRadionToHHTo2B2Tau_M-900 -i $INPUTDIR/signals/6_GluGluToRadionToHHTo2B2Tau_M-900_narrow_13TeV-madgraph__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt  -x 1.0 -a True -q shortcms
 
 
-COMMENT1
-
 
 #### VBFRadion :
 echo "Submitting - VBFRadion - "
@@ -319,14 +317,27 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mi
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 6   -k True -o $SKIMDIR/SKIM_VBFToRadionToHHTo2B2Tau_M-3000 -i $INPUTDIR/signals/19_VBFToRadionToHHTo2B2Tau_M-3000_narrow_13TeV-madgraph__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt  -x 1.0 -a True -q shortcms
 
+
+COMMENT1
+
+
+#### VBF SM :
+echo "Submitting - VBF SM - "
+echo "Submitting - VBF SM - " >> log.txt
+echo "OUTDIR = $OUTDIRR"
+echo "OUTDIR = $OUTDIRR" >> log.txt
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 10   -k True -o $SKIMDIR/SKIM_VBFSM -i $INPUTDIR/signals/20_VBFHHTo2B2Tau_SM_PrivateProduction.txt  -x 1.0 -a True -q longcms
+
+
 <<COMMENT2
 
-
 COMMENT2
+
+
+
+
 <<COMMENTFINAL
-
-
-
 ################################################################################################################################################################
 ################################################################################################################################################################
 ################################################################################################################################################################
