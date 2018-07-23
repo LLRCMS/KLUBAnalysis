@@ -36,6 +36,7 @@ struct smallTree
       m_EventNumber = 0 ;
       m_DYscale_LL = -1. ;
       m_DYscale_MM = -1. ;
+      m_DYLOtoNLOreweight = -1.;
       m_trigSF = -1.;
       m_IdAndIsoSF = -1.;
       m_nBhadrons = -1;
@@ -532,6 +533,7 @@ struct smallTree
       m_smallT->Branch ("IdAndIsoSF", &m_IdAndIsoSF, "IdAndIsoSF/F") ;
       m_smallT->Branch ("DYscale_LL", &m_DYscale_LL, "DYscale_LL/F") ;
       m_smallT->Branch ("DYscale_MM", &m_DYscale_MM, "DYscale_MM/F") ;
+      m_smallT->Branch ("DYLOtoNLOreweight", &m_DYLOtoNLOreweight, "DYLOtoNLOreweight/F");
       m_smallT->Branch ("nBhadrons", &m_nBhadrons, "nBhadrons/I") ;
       m_smallT->Branch ("lheNOutPartons", &m_lheNOutPartons, "lheNOutPartons/I");
       m_smallT->Branch ("lheNOutB", &m_lheNOutB, "lheNOutB/I");
@@ -1017,6 +1019,7 @@ struct smallTree
   Float_t m_IdAndIsoSF ;
   Float_t m_DYscale_LL ;
   Float_t m_DYscale_MM ;
+  Float_t m_DYLOtoNLOreweight;
   Int_t m_nBhadrons ;
   Int_t m_lheNOutPartons ;
   Int_t m_lheNOutB ;
