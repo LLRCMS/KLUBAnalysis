@@ -844,8 +844,8 @@ int main (int argc, char** argv)
   
   // ------------------------------
 
-  //PUReweight reweight (PUReweight::RUN2ANALYSIS); // none : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
-  PUReweight reweight (PUReweight::NONE); // none : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
+  PUReweight reweight (PUReweight::RUN2ANALYSIS); // none : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
+  //PUReweight reweight (PUReweight::NONE); // none : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
 
   // ------------------------------
 
