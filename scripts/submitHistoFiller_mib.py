@@ -3,6 +3,7 @@
 
 ###### LAUNCH COMMAND EXAMPLE:
 #
+# - HISTO FILLER for PLOTTING -
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_14Jul2018  --n 44
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_14Jul2018_VBF --n 44
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_ETau.cfg   --tag analysis_ETau_14Jul2018   --n 44
@@ -10,10 +11,19 @@
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_14Jul2018_SStight --n 44
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_14Jul2018_style --n 44
 #
-# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_MuTau.cfg  --tag lookatQCD_MuTau_14Jul2018  --n 20
-# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_ETau.cfg   --tag lookatQCD_ETau_14Jul2018   --n 40
-# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_14Jul2018 --n 44
-# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_14Jul2018_oldIso --n 44
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_25Jul2018     --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_ETau.cfg   --tag analysis_ETau_25Jul2018      --n 25
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_25Jul2018    --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_25Jul2018_reduced_oldDY --n 40
+
+
+#
+# - LOOK at QCD -
+#
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_MuTau.cfg  --tag lookatQCD_MuTau_25Jul2018  --n 25
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_ETau.cfg   --tag lookatQCD_ETau_25Jul2018   --n 25
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_25Jul2018 --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_25Jul2018_reduced --n 30
 #
 ################
 
@@ -66,5 +76,6 @@ for nj in range(0, args.njobs):
     
     os.system ('chmod u+rwx ' + outDir + '/' + scriptName)
     launchcommand = ('/usr/bin/qsub -q  longcms ' + outDir + '/' + scriptName)
+    #launchcommand = ('/usr/bin/qsub -q  shortcms ' + outDir + '/' + scriptName)
     print launchcommand
     os.system (launchcommand)

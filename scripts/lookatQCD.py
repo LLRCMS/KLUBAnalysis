@@ -7,15 +7,19 @@ import argparse
 import fnmatch
 import itertools
 
-tag = "14Jul2018"
+tag = "25Jul2018_reduced"
 channel = "TauTau" #"ETau" "MuTau" "TauTau"
 isIsoBin = False
 isMakeRatio = True
-ratioHist =["isoDau2_QCD_SS_base","isoDau2_QCD_OSblind_base"]
+ratioHist = ["isoDau2_QCD_SS_base","isoDau2_QCD_OSblind_base"] #["isoDau2_SR_SS_antiB","isoDau2_SR_OSblind_antiB"] #["isoDau2_QCD_SS_antiB","isoDau2_QCD_OSblind_antiB"]
 isoHist= ["SS_base", "OSblind_base"] #["SS_VBFTbtagM","OSblind_VBFTbtagM"]
 isoSelHist=["0","1","2","SR"]
-var = "bH_mass"
+#var = "dau2_pt"
+#vars = ["dau1_pt","dau1_eta","dau1_phi","dau2_pt","dau2_eta","dau2_phi","tauH_SVFIT_mass","tauH_mass","bH_mass"]
+vars = ["bH_mass"]
 #TT_isoDau2_5_OSblind_bH_mass
+# dau1_pt, dau1_eta, dau1_phi, dau2_pt, dau2_eta, dau2_phi, tauH_SVFIT_mass, tauH_mass, bjet1_pt, bjet2_pt, bjet1_eta, bjet2_eta, bH_mass, tauH_SVFIT_mass
+
 
 def subtractBkg(inFile, var,sel,hBkg):
     hname = "data_obs_" + sel + "_" +var
@@ -100,6 +104,7 @@ def makeRatio(histo1,histo2,hlist,canvas):
 
     pad2.cd()
     bkg = pad2.DrawFrame(xmin,0.8,xmax,1.2)
+    #bkg = pad2.DrawFrame(xmin,0.5,xmax,2.)
   
     ratio = TGraphAsymmErrors()
 
@@ -148,6 +153,8 @@ def makeRatio(histo1,histo2,hlist,canvas):
     canvas.Update()
     canvas.SaveAs(outDir+ratioHist[0]+"_"+ratioHist[1]+"_"+var+".pdf")
     canvas.SaveAs(outDir+ratioHist[0]+"_"+ratioHist[1]+"_"+var+".png")
+    #canvas.SaveAs(outDir+ratioHist[0]+"_"+ratioHist[1]+"_"+var+"_noNorm.pdf")
+    #canvas.SaveAs(outDir+ratioHist[0]+"_"+ratioHist[1]+"_"+var+"_noNorm.png")
 
     
 
@@ -192,65 +199,64 @@ if cfg.hasSection("merge"):
         bkgList.append(groupname)
 
 
+for var in vars:
+    for i in range(len(selList)):
 
-for i in range(len(selList)):
+        sel = selList[i]
+        if "SSVBF" in sel: continue
+        hBkg[sel] = sumBkg(inFile, var, sel,bkgList)
+        hBkg[sel][0].SetLineWidth(4)
+        hQCD[sel] = subtractBkg(inFile, var, sel, hBkg)
+        hQCD[sel].SetLineWidth(2)
+        hQCD[sel].Rebin(2)
 
-    sel = selList[i]
-    if "SSVBF" in sel: continue
-    hBkg[sel] = sumBkg(inFile, var, sel,bkgList)
-    hBkg[sel][0].SetLineWidth(4)
-    hQCD[sel] = subtractBkg(inFile, var, sel, hBkg)
-    hQCD[sel].SetLineWidth(2)
-    hQCD[sel].Rebin(2)
-
-    
-canvas = TCanvas("c1","c1",600,600)
-
-print regDefList
-print "#"
-print selList
-
-if isIsoBin:
-    for reg in isoHist:
-        print reg
         
-        leg = TLegend(0.4, 0.5,0.89,0.89)
-        i = 0
-        for sel in isoSelHist:
-            #if "btag" in sel: continue
+    canvas = TCanvas("c1","c1",600,600)
 
-            reg_sel = "isoDau2_"+sel+"_"+reg
-            
-            
-            if hQCD[reg_sel].Integral() < 0.1: continue
-            hQCD[reg_sel].SetLineColor(colors[i])
-            norm = 1./hQCD[reg_sel].Integral()
-            hQCD[reg_sel].Scale(norm)
-            if i == 0:
-                hQCD[reg_sel].GetXaxis().SetTitle(var)
-                hQCD[reg_sel].GetYaxis().SetTitle("Normalized events")
-                hQCD[reg_sel].GetYaxis().SetTitleOffset(1.4)
-                hQCD[reg_sel].SetMaximum(0.50)
-                hQCD[reg_sel].Draw("hist")
-            else:
-                hQCD[reg_sel].Draw("hist same")
+    print regDefList
+    print "#"
+    print selList
 
-            i += 1
+    if isIsoBin:
+        for reg in isoHist:
+            print reg
+            
+            leg = TLegend(0.4, 0.5,0.89,0.89)
+            i = 0
+            for sel in isoSelHist:
+                #if "btag" in sel: continue
+
+                reg_sel = "isoDau2_"+sel+"_"+reg
+
+                if hQCD[reg_sel].Integral() < 0.1: continue
+                hQCD[reg_sel].SetLineColor(colors[i])
+                norm = 1./hQCD[reg_sel].Integral()
+                hQCD[reg_sel].Scale(norm)
+                if i == 0:
+                    hQCD[reg_sel].GetXaxis().SetTitle(var)
+                    hQCD[reg_sel].GetYaxis().SetTitle("Normalized events")
+                    hQCD[reg_sel].GetYaxis().SetTitleOffset(1.4)
+                    hQCD[reg_sel].SetMaximum(0.50)
+                    hQCD[reg_sel].Draw("hist")
+                else:
+                    hQCD[reg_sel].Draw("hist same")
+
+                i += 1
+                canvas.Modified()
+                canvas.Update()
+
+                leg.AddEntry(hQCD[reg_sel], hQCD[reg_sel].GetTitle(),"l")
+            leg.Draw()
             canvas.Modified()
             canvas.Update()
-            
-            leg.AddEntry(hQCD[reg_sel], hQCD[reg_sel].GetTitle(),"l")
-        leg.Draw()
-        canvas.Modified()
-        canvas.Update()
-        raw_input()
-        canvas.SaveAs(inDir+reg+"_"+var+"_QCD.pdf")
-        canvas.SaveAs(inDir+reg+"_"+var+"_QCD.png")
+            #raw_input()
+            canvas.SaveAs(inDir+reg+"_"+var+"_QCD.pdf")
+            canvas.SaveAs(inDir+reg+"_"+var+"_QCD.png")
 
 
 
-if isMakeRatio:
-   makeRatio(ratioHist[0],ratioHist[1],hQCD,canvas)
-   raw_input()
+    if isMakeRatio:
+       makeRatio(ratioHist[0],ratioHist[1],hQCD,canvas)
+       #raw_input()
     
 

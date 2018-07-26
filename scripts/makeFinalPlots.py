@@ -432,7 +432,15 @@ if __name__ == "__main__" :
     cfgName  =  args.dir + "/mainCfg_"+args.channel+".cfg"
     cfg        = cfgr.ConfigReader (cfgName)
     bkgList    = cfg.readListOption("general::backgrounds")
-    if cfg.hasSection('pp_QCD'):
+    #if args.reg is 'SR':
+    #    doQCD = True
+    #else:
+    #    doQCD = False
+
+    doQCD = True
+
+    #if cfg.hasSection('pp_QCD'):
+    if doQCD:
         bkgList.append('QCD')
     sigList = cfg.readListOption("general::signals")
 
@@ -440,13 +448,14 @@ if __name__ == "__main__" :
     #sigList = ["VBFRadion600","VBFRadion900","VBFRadion2000"]
 
     sigNameList = []
-    #if args.log:
-    #        #sigNameList = ["VBFC2V1","ggHH"]
-    #        sigNameList = ["VBFRadion600","VBFRadion900","VBFRadion2000"]
-    #else:
-            #sigNameList = ["VBFC2V1","ggHH (#times 0.1)"]
-    #        sigNameList = ["VBFRadion600","VBFRadion900","VBFRadion2000"]
-
+    if args.log:
+            #sigNameList = ["VBFC2V1","ggHH"]
+            #sigNameList = ["VBFRadion600","VBFRadion900","VBFRadion2000"]
+            sigNameList = ["VBF HH SM (x10)"]
+    else:
+           #sigNameList = ["VBFC2V1","ggHH (#times 0.1)"]
+           #sigNameList = ["VBFRadion600","VBFRadion900","VBFRadion2000"]
+           sigNameList = ["VBF HH SM (x10)"]
 
     sigColors = {}
     #sigColors["VBFC2V1"] = 2
@@ -454,12 +463,13 @@ if __name__ == "__main__" :
     #sigColors["VBFRadion600"]  = kBlack
     #sigColors["VBFRadion900"]  = kBlue
     #sigColors["VBFRadion2000"] = kCyan
+    sigColors["VBFSM"] = kBlack
 
     bkgColors = {}
-    #bkgColors["singleT"] = kOrange+10
-    #bkgColors["EWKW"] = kGreen+3
-    #bkgColors["VV"] = kViolet
-    #bkgColors["SM"] = kBlue+1
+    bkgColors["singleT"] = kOrange+10
+    bkgColors["EWKW"] = kGreen+3
+    bkgColors["VV"] = kViolet
+    bkgColors["SM"] = kBlue+1
     #bkgColors["DY"] = kGreen+1
     #bkgColors["TT"] =  kOrange+1
     #bkgColors["WJets"] = kAzure-2
@@ -481,6 +491,7 @@ if __name__ == "__main__" :
 
     #if args.sigscale:
     #     for i in range(0,len(sigScale)): sigScale[i] = args.sigscale
+    sigScale = [10]
 
     plotTitle = ""
 
@@ -533,24 +544,25 @@ if __name__ == "__main__" :
 
     hDY = getHisto("DY", hBkgs,doOverflow)
     hTT = getHisto("TT", hBkgs,doOverflow)
-    hWJets = getHisto("WJets", hBkgs,doOverflow)
-    hothers = getHisto("other", hBkgs,doOverflow)
-    #hsingleT = getHisto("singleT", hBkgs,doOverflow)
+    #hWJets = getHisto("WJets", hBkgs,doOverflow)
+    #hothers = getHisto("other", hBkgs,doOverflow)
+    hsingleT = getHisto("singleT", hBkgs,doOverflow)
     #hEWKW = getHisto("EWKW", hBkgs,doOverflow)
     #hVV = getHisto("VV", hBkgs,doOverflow)
     #hSM = getHisto("SM", hBkgs,doOverflow)
 
     #hBkgList = [hothers, hSM, hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
-    hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
+    #hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
     #hBkgList = [hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
-
+    hBkgList = [hsingleT, hTT, hDY]
 
     #hBkgNameList = ["Others","SM Higgs", "VV", "EWK", "Single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
-    hBkgNameList = ["Others", "W + jets", "t#bar{t}","DY + jets"] # list for legend
+    #hBkgNameList = ["Others", "W + jets", "t#bar{t}","DY + jets"] # list for legend
     #hBkgNameList = ["VV", "EWK", "single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
+    hBkgNameList = ["Single top", "t#bar{t}", "DY + jets"]
 
-
-    if cfg.hasSection('pp_QCD'):
+    #if cfg.hasSection('pp_QCD'):
+    if doQCD:
         hQCD    = getHisto ("QCD", hBkgs,doOverflow)
         hQCD.SetName("QCD")
         hBkgList.append(hQCD)
@@ -671,9 +683,9 @@ if __name__ == "__main__" :
                 hSigs[key].Scale(intBkg/intSig)
 
     # apply sig scale
-#    for i, scale in enumerate (sigScale):
-#        histo = hSigs[sigList[i]]
-#        histo.Scale(scale)
+    for i, scale in enumerate (sigScale):
+        histo = hSigs[sigList[i]]
+        histo.Scale(scale)
                 
     ################## LEGEND ######################################
 
@@ -749,7 +761,7 @@ if __name__ == "__main__" :
     # interactive display
     bkgStack.Draw("HIST")
     bkgSum.SetFillColor(kGray+2);
-    bkgSum.SetFillStyle(3001); # was: 3002
+    bkgSum.SetFillStyle(3002);
     bkgSum.Draw("e2 same")
     if args.dosig:
         for key in hSigs: hSigs[key].Draw("hist same")
@@ -831,7 +843,7 @@ if __name__ == "__main__" :
         blow = float(args.blindrange[0])
         bup = float(args.blindrange[1])
         bBox = TBox (blow, ymin, bup, 0.93*ymax)
-        bBox.SetFillStyle(3001) # NB: does not appear the same in displayed box and printed pdf!!
+        bBox.SetFillStyle(3002) # NB: does not appear the same in displayed box and printed pdf!!
         bBox.SetFillColor(kGray+2) # NB: does not appear the same in displayed box and printed pdf!!
         bBox.Draw()
 
@@ -897,7 +909,7 @@ if __name__ == "__main__" :
         l1.Draw("same")
 
         grUncert.SetFillColor(kGray+2)
-        grUncert.SetFillStyle(3001)
+        grUncert.SetFillStyle(3002)
         grUncert.Draw("e2")
 
         pad2.RedrawAxis();
@@ -909,7 +921,7 @@ if __name__ == "__main__" :
         c1.Update()
         pad1.Update()
         if pad2: pad2.Update()
-        raw_input() # to prevent script from closing
+        #raw_input() # to prevent script from closing
 
     if args.printplot:
         tagch = ""
