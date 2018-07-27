@@ -2437,13 +2437,13 @@ int main (int argc, char** argv)
 		double SFL_MC = eTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		
 		//cross-trigger
-		//mu leg
+		//e leg
 		double SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		double SFl_MC = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		
 		//tau leg
-		double SFtau_Data = tauTrgSF->getMuTauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
-		double SFtau_MC = tauTrgSF->getMuTauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
+		double SFtau_Data = tauTrgSF->getETauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
+		double SFtau_MC = tauTrgSF->getETauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
 		
 		double Eff_Data =  SFL_Data * (1 - SFtau_Data) + SFl_Data * SFtau_Data;
 		double Eff_MC =  SFL_MC* (1 - SFtau_MC) + SFl_MC * SFtau_MC;
