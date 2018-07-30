@@ -2344,9 +2344,13 @@ int main (int argc, char** argv)
       // TauTau Channel
       else if (pType == 2 && isMC)
       {
-        float idAndIsoSF_leg1 = 0.89; // TauPOG recommendation for 2017 data
-        float idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
+        // TauPOG recommendation for 2017 data: SF = 0.89 for each tauh leg
+        float idAndIsoSF_leg1 = 1.;
+        float idAndIsoSF_leg2 = 1.;
         
+        if (lep1HasTES) idAndIsoSF_leg1 = 0.89;
+        if (lep2HasTES) idAndIsoSF_leg2 = 0.89;
+      
         idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
       }
 
