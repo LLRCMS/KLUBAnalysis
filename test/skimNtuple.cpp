@@ -1911,10 +1911,17 @@ int main (int argc, char** argv)
       const int isOS  = theBigTree.isOSCand->at (chosenTauPair) ;
       bool lep1HasTES = false;
       bool lep2HasTES = false;
+
       if (isMC)
 	{
+	  int nRealTaus= 0;
 	  lep1HasTES = (theBigTree.daughters_TauUpExists->at(firstDaughterIndex) == 1 ? true : false);
 	  lep2HasTES = (theBigTree.daughters_TauUpExists->at(secondDaughterIndex) == 1 ? true : false);
+	  theSmallTree.m_isTau1real = (lep1HasTES == true ? 1 : 0); // -1: data; 0: fake tau, 1: real tau
+	  theSmallTree.m_isTau2real = (lep2HasTES == true ? 1 : 0);
+	  if (lep1HasTES) nRealTaus +=1;
+	  if (lep2HasTES) nRealTaus +=1;
+	  theSmallTree.m_nRealTaus = nRealTaus;                     // -1: data; > 0: # real taus in MC
 	}
 
       // // x check of MC info from genJet()
@@ -2322,8 +2329,9 @@ int main (int argc, char** argv)
         //float idAndIsoSF_leg1 = idSF_leg1 * isoSF_leg1;
         float idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
 
-        float idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
-        
+        float idAndIsoSF_leg2 = 1.;
+        if (lep2HasTES) idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
+
         idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
       }
 
@@ -2336,8 +2344,9 @@ int main (int argc, char** argv)
         //float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_TightID_80WP, ele1eta, ele1pt);  // EMVATight == 80% eff WP
         float idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
 
-        float idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
-        
+        float idAndIsoSF_leg2 = 1.;
+        if (lep2HasTES) idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
+
         idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
       }
 
