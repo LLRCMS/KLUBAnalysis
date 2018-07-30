@@ -2344,9 +2344,13 @@ int main (int argc, char** argv)
       // TauTau Channel
       else if (pType == 2 && isMC)
       {
-        float idAndIsoSF_leg1 = 0.89; // TauPOG recommendation for 2017 data
-        float idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
+        // TauPOG recommendation for 2017 data: SF = 0.89 for each tauh leg
+        float idAndIsoSF_leg1 = 1.;
+        float idAndIsoSF_leg2 = 1.;
         
+        if (lep1HasTES) idAndIsoSF_leg1 = 0.89;
+        if (lep2HasTES) idAndIsoSF_leg2 = 0.89;
+      
         idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
       }
 
@@ -2437,13 +2441,13 @@ int main (int argc, char** argv)
 		double SFL_MC = eTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		
 		//cross-trigger
-		//mu leg
+		//e leg
 		double SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		double SFl_MC = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		
 		//tau leg
-		double SFtau_Data = tauTrgSF->getMuTauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
-		double SFtau_MC = tauTrgSF->getMuTauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
+		double SFtau_Data = tauTrgSF->getETauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
+		double SFtau_MC = tauTrgSF->getETauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
 		
 		double Eff_Data =  SFL_Data * (1 - SFtau_Data) + SFl_Data * SFtau_Data;
 		double Eff_MC =  SFL_MC* (1 - SFtau_MC) + SFl_MC * SFtau_MC;
