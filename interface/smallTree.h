@@ -513,6 +513,12 @@ struct smallTree
       m_bH_VBF1_deltaEta = -99.;
       m_dib_dEtaSign     = -99.;
 
+
+      // fake taus in MC
+      m_isTau1real = -1; // -1 if data
+      m_isTau2real = -1; // -1 if data
+      m_nRealTaus = -1; // -1 if data
+      
       return 0 ;    
     }
 
@@ -996,6 +1002,10 @@ struct smallTree
       m_smallT->Branch ("VBFjet2_PUjetID",  &m_VBFjet2_PUjetID  , "VBFjet2_PUjetID/F");
       m_smallT->Branch ("bH_VBF1_deltaEta", &m_bH_VBF1_deltaEta , "bH_VBF1_deltaEta/F");
       m_smallT->Branch ("dib_dEtaSign",     &m_dib_dEtaSign     , "dib_dEtaSign/F");
+
+      m_smallT->Branch ("isTau1real",     &m_isTau1real     , "isTau1real/I");
+      m_smallT->Branch ("isTau2real",     &m_isTau2real     , "isTau2real/I");
+      m_smallT->Branch ("nRealTaus",     &m_nRealTaus     , "nRealTaus/I");
 
       return 0 ;
     }
@@ -1506,7 +1516,12 @@ struct smallTree
   Float_t m_VBFjet2_PUjetID  ;
   Float_t m_bH_VBF1_deltaEta ;
   Float_t m_dib_dEtaSign     ;
-
+  
+  // fake taus
+  Int_t m_isTau1real;
+  Int_t m_isTau2real;
+  Int_t m_nRealTaus; 
+  
 } ;
 
 #endif

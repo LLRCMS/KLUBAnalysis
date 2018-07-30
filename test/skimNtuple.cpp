@@ -1911,10 +1911,17 @@ int main (int argc, char** argv)
       const int isOS  = theBigTree.isOSCand->at (chosenTauPair) ;
       bool lep1HasTES = false;
       bool lep2HasTES = false;
+
       if (isMC)
 	{
+	  int nRealTaus= 0;
 	  lep1HasTES = (theBigTree.daughters_TauUpExists->at(firstDaughterIndex) == 1 ? true : false);
 	  lep2HasTES = (theBigTree.daughters_TauUpExists->at(secondDaughterIndex) == 1 ? true : false);
+	  theSmallTree.m_isTau1real = (lep1HasTES == true ? 1 : 0); // -1: data; 0: fake tau, 1: real tau
+	  theSmallTree.m_isTau2real = (lep2HasTES == true ? 1 : 0);
+	  if (lep1HasTES) nRealTaus +=1;
+	  if (lep2HasTES) nRealTaus +=1;
+	  theSmallTree.m_nRealTaus = nRealTaus;                     // -1: data; > 0: # real taus in MC
 	}
 
       // // x check of MC info from genJet()
