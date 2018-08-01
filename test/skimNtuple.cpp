@@ -604,6 +604,10 @@ int main (int argc, char** argv)
   string susyModel = argv[22];
   cout << "** INFO: requesting SUSY model to be: -" << susyModel << "- [NOTSUSY: no request on this parameter]" << endl;
 
+  // external weight file for PUreweight - sample per sample
+  TString PUreweightFile = argv[23];
+  cout << "** INFO: PU reweight external file: " << PUreweightFile << endl;
+
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
     kNone      = 0,
@@ -844,7 +848,8 @@ int main (int argc, char** argv)
   
   // ------------------------------
 
-  PUReweight reweight (PUReweight::RUN2ANALYSIS); // none : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
+  //PUReweight reweight (PUReweight::RUN2ANALYSIS); // none : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
+  PUReweight reweight (PUReweight::RUN2ANALYSIS, PUreweightFile);
   //PUReweight reweight (PUReweight::NONE); // none : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
 
   // ------------------------------
@@ -1062,6 +1067,7 @@ int main (int argc, char** argv)
   for (Long64_t iEvent = 0 ; true ; ++iEvent) 
     {
       if (iEvent % 10000 == 0)  cout << "- reading event " << iEvent << endl ;
+      // if (iEvent == 50)  break ;
       // cout << "- reading event " << iEvent << endl ;
       theSmallTree.clearVars () ;
       
@@ -1621,9 +1627,9 @@ int main (int argc, char** argv)
 	}
       double EvtW;
       if (theBigTree.npu >= 0 && theBigTree.npu <= 99) // good PU weights
-        EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) * topPtReweight * HHweight) : 1.0;
+        EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) * topPtReweight * HHweight) : 1.0;
       else if (theBigTree.npu >= 100)                  // use the last available bin for the PU weight
-        EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,99) * topPtReweight * HHweight) : 1.0;
+        EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,99, PUreweightFile) * topPtReweight * HHweight) : 1.0;
       else                                             // if npu<0 --> bug in MC --> weight=0
         EvtW = isMC ? 0.0 : 1.0;
       theSmallTree.m_PUReweight  = (isMC ? EvtW : 1) ;
@@ -2152,9 +2158,9 @@ int main (int argc, char** argv)
       //cout << " ------------------> CHECK CHANNEL pairType/BDT_chan: " << theSmallTree.m_pairType << "/" << theSmallTree.m_BDT_channel << endl;
 
       if (theBigTree.npu >= 0 && theBigTree.npu <= 99) // good PU weights
-        theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu) : 1) ;
+        theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) : 1) ;
       else if (theBigTree.npu >= 100)                  // use the last available bin for the PU weight
-        theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,99) : 1) ;
+        theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,99,PUreweightFile) : 1) ;
       else                                             // if npu<0 --> bug in MC --> weight=0
         theSmallTree.m_PUReweight  = (isMC ? 0 : 1) ;
       theSmallTree.m_MC_weight   = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight * HHweight * trgEvtWeight : 1) ;

@@ -2,8 +2,32 @@
 
   #include <iostream>
   #include <cstdlib>
+  #include <fstream>
 
-float PUReweight::weight(int MC, int target, int input) {
+// ---------------------------------------------
+// open input txt file and return a vector with PU weights
+std::vector<float> PUReweight::LoadExternalWeights (TString filename)
+{
+  std::vector<float> externalPUweights;
+
+  //cout << "=== begin parser ===" << endl;
+  std::ifstream infile(filename.Data());
+  std::string line;
+  while (std::getline(infile, line))
+    {
+      line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
+      while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
+      while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
+      while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
+      if (!line.empty()) // skip empty lines
+      externalPUweights.push_back(atof(line.c_str()));
+    }
+
+  return externalPUweights;
+}
+// ---------------------------------------------
+
+float PUReweight::weight(int MC, int target, int input, TString filename) {
 
   if (theType == NONE) return 1.0;
 
@@ -40,6 +64,16 @@ float PUReweight::weight(int MC, int target, int input) {
       return hT2017_MCFall17_Data13c4fb.at(input) ;
     } else if (MC==2017 && target==413) {
       return hT2017_MCFall17_Data41c3fb.at(input) ;         // Full 2017
+    } else if (MC==2017 && target==999) {                   // Ful 2017 with weights for each sample read from external txt file
+      if (filename == TString(""))
+      {
+        std::cout << "ERROR: PUReweight - You requested special weights but didn't pass the external file: aborting !!! " << std::endl;
+        abort();
+      }
+      else
+      {
+        return hT2017_MCFall17_Data41c3fb_special.at(input) ;
+      }
     } else{
       std::cout << "ERROR: PUReweight: " << MC << " " << target << std::endl;
       abort();
@@ -64,8 +98,9 @@ float PUReweight::weight(int MC, int target, int input) {
 
 }
 
-PUReweight::PUReweight(Type type) : 
-theType(type) {
+PUReweight::PUReweight(Type type, TString filename) :
+theType(type),
+theFilename(filename) {
 
   // RUN2ANALYSIS MC Fall2017 target Data 4.7/fb - Run 2017B
   double npuFall17_4c7fb[100];
@@ -385,6 +420,17 @@ theType(type) {
 
   for(int k = 0 ; k < 100 ; ++k)
     hT2017_MCFall17_Data41c3fb.push_back(npuFall17_41c3fb[k]) ;
+
+  // RUN2ANALYSIS MC Fall2017 target Data 41.3/fb - Full Run 2017
+  // Special weights for each sample read from external txt file
+  if (filename == TString(""))
+  {
+    for(int k = 0 ; k < 100 ; ++k)
+        hT2017_MCFall17_Data41c3fb_special.push_back(0.0) ; // if no filename passe, initialize a vector of 0s
+  }
+  else
+    hT2017_MCFall17_Data41c3fb_special = LoadExternalWeights(theFilename);
+
 
   // RUN2ANALYSIS MC Spring2016 target Data 2.6/fb
   double npuSpring16_2c6fb[100] ; 
