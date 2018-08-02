@@ -1,9 +1,10 @@
-void makeRatio () 
+void makeRatio (string const &myFileName = "TTLep_MyMCPileupHistogram") 
 {
+  gROOT->SetBatch();
     //histo MC
     //TFile * fileMC = TFile::Open("MyMCPileupHistogram.root");
-    //TFile * fileMC = TFile::Open("TTHad_MyMCPileupHistogram.root");
-    TFile * fileMC = TFile::Open("TTSemiLep_MyMCPileupHistogram.root");
+  TFile * fileMC = TFile::Open(Form("%s.root",myFileName.c_str()));
+    //TFile * fileMC = TFile::Open("TTSemiLep_MyMCPileupHistogram.root");
     TH1D * hPUMC   = (TH1D*)fileMC->Get("myPUHisto");
 
     cout << "MC: " << hPUMC->GetName() << endl;

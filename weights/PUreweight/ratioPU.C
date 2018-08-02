@@ -1,11 +1,12 @@
-void ratioPU (uint begin = 0, uint max=50000000) 
+void ratioPU (uint begin = 0, uint max=3000,string const &infileName = "../../inputFiles/Files_June2018_LLR/13_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt", string const &myFileName = "TTLep_MyMCPileupHistogram") 
 {
 
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
 
     //std::ifstream infile("/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_7Feb2016/TT_powheg_semiLep_7Feb2017.txt");
     //std::ifstream infile("/gwpool/users/brivio/Hhh_1718/syncFeb2018/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Fall17_MC/2_TTToHadronic_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt");
-    std::ifstream infile("/gwpool/users/brivio/Hhh_1718/syncFeb2018/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Fall17_MC/3_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2.txt");
+  //std::ifstream infile("../../inputFiles/Files_June2018_LLR/13_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt");
+  std::ifstream infile(infileName);
 
     std::string line;
     while (std::getline(infile, line))
@@ -15,13 +16,13 @@ void ratioPU (uint begin = 0, uint max=50000000)
         while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
         while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
         if (!line.empty()) // skip empty lines
-            bigChain->Add(line.c_str());
+	  bigChain->Add(line.c_str());
     }
-
-  cout << "...begin " << begin << " max " << max << endl;
-
-  // bigChain->GetEntries();
-  TH1D * myPUHisto = new TH1D("myPUHisto","myPUHisto",100,0,100);
+    
+    cout << "...begin " << begin << " max " << max << endl;
+    
+    // bigChain->GetEntries();
+    TH1D * myPUHisto = new TH1D("myPUHisto","myPUHisto",100,0,100);
   // for (int i = 0 ; i < bigChain->GetEntriesFast() ; ++i) {
   //   if (i%10000 == 0) cout << "Done " << i << " of " << bigChain->GetEntriesFast() << " entries" << endl;
     // bigChain->Draw("PUNumInteractions >> myPUHisto");
@@ -50,13 +51,14 @@ void ratioPU (uint begin = 0, uint max=50000000)
   for (uint i = begin; i < stop; ++i) {
     int got = bigChain->GetEntry(i);
     if (got == 0) break;
-    if (i % 1000000 == 0) cout << i << endl;
+    if (i % 100000 == 0) cout << i << endl;
     myPUHisto->Fill(npu);
   }
 
   // }
   //TFile *myFile = new TFile(Form("MyMCPileupHistogram%i.root" , begin),"RECREATE");
-  //TFile *myFile = new TFile(Form("TTHad_MyMCPileupHistogram%i.root" , begin),"RECREATE");
-  TFile *myFile = new TFile(Form("TTSemiLep_MyMCPileupHistogram%i.root" , begin),"RECREATE");
+ 
+  //TFile *myFile = new TFile(Form("TTLep_MyMCPileupHistogram%i.root" , begin),"RECREATE");
+  TFile *myFile = new TFile(Form("%s.root",myFileName.c_str()),"RECREATE");
   myPUHisto->Write();
 }
