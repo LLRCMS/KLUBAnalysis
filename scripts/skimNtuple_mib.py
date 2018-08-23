@@ -68,6 +68,8 @@ if __name__ == "__main__":
     parser.add_option ('--c2g',              dest='c2greweight', help='c2g for dynamic reweight'            , default='-999.0')
     parser.add_option ('--susy',             dest='susyModel' , help='name of susy model to select'         , default='NOTSUSY')
     parser.add_option ('--pu',               dest='PUweights' , help='external PUweights file'              , default='none')
+    parser.add_option ('--nj',               dest='DY_nJets'  , help='number of gen Jets for DY bins'       , default='-1')
+    parser.add_option ('--nb',               dest='DY_nBJets' , help='number of gen BJets for DY bins'      , default='-1')
     
     (opt, args) = parser.parse_args()
 
@@ -237,6 +239,8 @@ if __name__ == "__main__":
         command += (" " + opt.klreweight + " " + opt.ktreweight + " " + opt.c2reweight + " " + opt.cgreweight + " " + opt.c2greweight)
         command += (" " + opt.susyModel)
         command += (" " + opt.PUweights)
+        command += (" " + opt.DY_nJets)
+        command += (" " + opt.DY_nBJets)
 
         command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
         scriptFile.write (command)

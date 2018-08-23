@@ -115,7 +115,30 @@ const float stitchWeights [][5] = {
   {0.612466927142 , 0.613081681207 , 0.105177388196 , 0.0 , 0.0},
   {0.951588541673 , 0.946165272042 , 0.109649575683 , 0.108005302201 , 0.0},
   {0.707904938882 , 0.707489572546 , 0.107365495398 , 0.108784308592 , 0.101084909493}
-};// jet binned and b binned, 11 Jul 2018 
+};// jet binned and b binned, 11 Jul 2018
+
+
+// DY binned in 0j0b, 1j0b...
+// each with it's PU weight and XS:
+// total XS= 5765.4 pb
+// myPUHisto_0j0b : xsFrac: 0.697167 - xs: 4019.4 pb
+// myPUHisto_1j0b : xsFrac: 0.196537 - xs: 1133.1 pb
+// myPUHisto_1j1b : xsFrac: 0.007292 - xs: 42.04  pb
+// myPUHisto_2j0b : xsFrac: 0.063167 - xs: 364.18 pb
+// myPUHisto_2j1b : xsFrac: 0.003200 - xs: 18.5   pb
+// myPUHisto_2j2b : xsFrac: 0.001070 - xs: 6.17   pb
+// myPUHisto_3j0b : xsFrac: 0.018860 - xs: 108.73 pb
+// myPUHisto_3j1b : xsFrac: 0.000887 - xs: 5.11   pb
+// myPUHisto_3j2b : xsFrac: 0.000704 - xs: 4.06   pb
+// myPUHisto_3j3b : xsFrac: 9.78e-06 - xs: 0.056  pb
+// myPUHisto_4j0b : xsFrac: 0.010130 - xs: 58.40  pb
+// myPUHisto_4j1b : xsFrac: 0.000425 - xs: 2.45   pb
+// myPUHisto_4j2b : xsFrac: 0.000535 - xs: 3.08   pb
+// myPUHisto_4j3b : xsFrac: 1.12e-05 - xs: 0.064  pb
+// myPUHisto_4j4b : xsFrac: 1.98e-06 - xs: 0.011  pb
+
+
+
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // open input txt file and append all the files it contains to TChain
 void appendFromFileList (TChain* chain, TString filename)
@@ -607,7 +630,10 @@ int main (int argc, char** argv)
   // external weight file for PUreweight - sample per sample
   TString PUreweightFile = argv[23];
   cout << "** INFO: PU reweight external file: " << PUreweightFile << endl;
-
+  
+  int DY_nJets  = atoi(argv[24]);
+  int DY_nBJets = atoi(argv[25]);
+  cout << "** INFO: nJets/nBjets for DY bin weights: " << DY_nJets << " / " << DY_nBJets << endl;
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
     kNone      = 0,
@@ -1067,8 +1093,8 @@ int main (int argc, char** argv)
   for (Long64_t iEvent = 0 ; true ; ++iEvent) 
     {
       if (iEvent % 10000 == 0)  cout << "- reading event " << iEvent << endl ;
-      // if (iEvent == 50)  break ;
-      // cout << "- reading event " << iEvent << endl ;
+      //if (iEvent == 20000)  break ;
+      //cout << "-------- reading event " << iEvent << endl ;
       theSmallTree.clearVars () ;
       
       int got = theBigTree.fChain->GetEntry(iEvent);
@@ -1124,6 +1150,13 @@ int main (int argc, char** argv)
 	  stitchWeight = stitchWeights[njets][nb];
 	}
 
+    if (!DY_tostitch) //FRA debug
+    {
+        int njets = theBigTree.lheNOutPartons;
+        int nb    = theBigTree.lheNOutB;
+        //cout << "- njets: " << njets << " - nb: " << nb << endl; //FRA debug
+        if (njets != DY_nJets || nb != DY_nBJets) continue;
+    }
 
       if (DEBUG && isMC)
 	{
@@ -1394,7 +1427,7 @@ int main (int argc, char** argv)
                     // bool isFirst = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
                     if (idx1 >= 0)
                     {
-                        cout << "** ERROR: more than 1 Z identified " << endl;
+                        //cout << "** ERROR: more than 1 Z identified " << endl;
                         // continue; // no need to skip the event for errors in gen info
                     }
                     idx1 = igen;

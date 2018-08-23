@@ -7,16 +7,21 @@ import argparse
 import fnmatch
 import itertools
 
-tag = "25Jul2018_reduced"
+#tag = "30Jul2018_newPU_oldSF"
+tag = "6Aug2018"
 channel = "TauTau" #"ETau" "MuTau" "TauTau"
 isIsoBin = False
 isMakeRatio = True
-ratioHist = ["isoDau2_QCD_SS_base","isoDau2_QCD_OSblind_base"] #["isoDau2_SR_SS_antiB","isoDau2_SR_OSblind_antiB"] #["isoDau2_QCD_SS_antiB","isoDau2_QCD_OSblind_antiB"]
+#ratioHist = ["isoDau2_QCD_SS_base","isoDau2_QCD_OSblind_base"] #["isoDau2_SR_SS_antiB","isoDau2_SR_OSblind_antiB"] #["isoDau2_QCD_SS_antiB","isoDau2_QCD_OSblind_antiB"]
+ratioHist = ["isoDau2_QCD_SS_base","isoDau2_QCD_OS_base"] # C/D
+#ratioHist = ["isoDau2_SR_SS_base","isoDau2_SR_OS_base"] # A/B
 isoHist= ["SS_base", "OSblind_base"] #["SS_VBFTbtagM","OSblind_VBFTbtagM"]
 isoSelHist=["0","1","2","SR"]
+#isoSelHist=["0","1","2"]
 #var = "dau2_pt"
-#vars = ["dau1_pt","dau1_eta","dau1_phi","dau2_pt","dau2_eta","dau2_phi","tauH_SVFIT_mass","tauH_mass","bH_mass"]
-vars = ["bH_mass"]
+vars = ["dau1_pt","dau1_eta","dau1_phi","dau2_pt","dau2_eta","dau2_phi","tauH_SVFIT_mass","tauH_mass","bH_mass", "bjet1_pt", "bjet2_pt", "bjet1_eta", "bjet2_eta", "met_et", "met_phi", "bH_pt", "tauH_pt", "njets"]
+vars = ["njets","dau1_pt", "dau2_pt", "tauH_mass", "bH_mass", "bH_pt", "tauH_pt"]
+#vars = ["dau1_pt","dau2_pt","tauH_SVFIT_mass","tauH_mass","bH_mass"]
 #TT_isoDau2_5_OSblind_bH_mass
 # dau1_pt, dau1_eta, dau1_phi, dau2_pt, dau2_eta, dau2_phi, tauH_SVFIT_mass, tauH_mass, bjet1_pt, bjet2_pt, bjet1_eta, bjet2_eta, bH_mass, tauH_SVFIT_mass
 
@@ -153,8 +158,10 @@ def makeRatio(histo1,histo2,hlist,canvas):
     canvas.Update()
     canvas.SaveAs(outDir+ratioHist[0]+"_"+ratioHist[1]+"_"+var+".pdf")
     canvas.SaveAs(outDir+ratioHist[0]+"_"+ratioHist[1]+"_"+var+".png")
-    #canvas.SaveAs(outDir+ratioHist[0]+"_"+ratioHist[1]+"_"+var+"_noNorm.pdf")
-    #canvas.SaveAs(outDir+ratioHist[0]+"_"+ratioHist[1]+"_"+var+"_noNorm.png")
+    #canvas.SaveAs(outDir+"/C_D_base/"+ratioHist[0]+"_"+ratioHist[1]+"_"+var+".pdf")
+    #canvas.SaveAs(outDir+"/C_D_base/"+ratioHist[0]+"_"+ratioHist[1]+"_"+var+".png")
+    #canvas.SaveAs(outDir+"/A_B_base/"+ratioHist[0]+"_"+ratioHist[1]+"_"+var+".pdf")
+    #canvas.SaveAs(outDir+"/A_B_base/"+ratioHist[0]+"_"+ratioHist[1]+"_"+var+".png")
 
     
 

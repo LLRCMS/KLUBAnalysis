@@ -432,10 +432,6 @@ if __name__ == "__main__" :
     cfgName  =  args.dir + "/mainCfg_"+args.channel+".cfg"
     cfg        = cfgr.ConfigReader (cfgName)
     bkgList    = cfg.readListOption("general::backgrounds")
-    #if args.reg is 'SR':
-    #    doQCD = True
-    #else:
-    #    doQCD = False
 
     doQCD = True
 
@@ -466,10 +462,10 @@ if __name__ == "__main__" :
     sigColors["VBFSM"] = kBlack
 
     bkgColors = {}
-    bkgColors["singleT"] = kOrange+10
-    bkgColors["EWKW"] = kGreen+3
-    bkgColors["VV"] = kViolet
-    bkgColors["SM"] = kBlue+1
+    #bkgColors["singleT"] = kOrange+10
+    #bkgColors["EWKW"] = kGreen+3
+    #bkgColors["VV"] = kViolet
+    #bkgColors["SM"] = kBlue+1
     #bkgColors["DY"] = kGreen+1
     #bkgColors["TT"] =  kOrange+1
     #bkgColors["WJets"] = kAzure-2
@@ -543,23 +539,24 @@ if __name__ == "__main__" :
 
 
     hDY = getHisto("DY", hBkgs,doOverflow)
+    #hDY.Scale(1./6.)
     hTT = getHisto("TT", hBkgs,doOverflow)
-    #hWJets = getHisto("WJets", hBkgs,doOverflow)
-    #hothers = getHisto("other", hBkgs,doOverflow)
-    hsingleT = getHisto("singleT", hBkgs,doOverflow)
+    hWJets = getHisto("WJets", hBkgs,doOverflow)
+    hothers = getHisto("other", hBkgs,doOverflow)
+    #hsingleT = getHisto("singleT", hBkgs,doOverflow)
     #hEWKW = getHisto("EWKW", hBkgs,doOverflow)
     #hVV = getHisto("VV", hBkgs,doOverflow)
     #hSM = getHisto("SM", hBkgs,doOverflow)
 
     #hBkgList = [hothers, hSM, hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
-    #hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
+    hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
     #hBkgList = [hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
-    hBkgList = [hsingleT, hTT, hDY]
+    #hBkgList = [hsingleT, hTT, hDY]
 
     #hBkgNameList = ["Others","SM Higgs", "VV", "EWK", "Single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
-    #hBkgNameList = ["Others", "W + jets", "t#bar{t}","DY + jets"] # list for legend
+    hBkgNameList = ["Others", "W + jets", "t#bar{t}","DY + jets"] # list for legend
     #hBkgNameList = ["VV", "EWK", "single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
-    hBkgNameList = ["Single top", "t#bar{t}", "DY + jets"]
+    #hBkgNameList = ["Single top", "t#bar{t}", "DY + jets"]
 
     #if cfg.hasSection('pp_QCD'):
     if doQCD:
@@ -583,8 +580,8 @@ if __name__ == "__main__" :
             if center > blow and center < bup:
                 hData.SetBinContent(ibin, 0)
 
-    print hData                
-    hDataNonScaled = hData.Clone("hDataNonScaled")  
+    print hData
+    hDataNonScaled = hData.Clone("hDataNonScaled")
     gData = makeTGraphFromHist (hData, "grData")
 
 
@@ -622,7 +619,8 @@ if __name__ == "__main__" :
     print "** INFO: removing all negative bins from bkg histos"
     makeNonNegativeHistos (hBkgList)
 
-
+    for h in hBkgList: print "Integral ", h.GetName(), " : ", h.Integral(), " - ", h.Integral(-1,-1)
+    for n in hDatas: print "Integral ", hDatas[n].GetName(), " : ", hDatas[n].Integral(), " - ", hDatas[n].Integral(-1,-1)
     #################### PERFORM DIVISION BY BIN WIDTH #######################
     #clones non scaled (else problems with graph ratio because I pass data evt hist)
     bkgStackNS = makeStack ("bkgStackNS", hBkgList)
@@ -927,8 +925,8 @@ if __name__ == "__main__" :
         tagch = ""
         if args.channel:
             tagch = "_" + args.channel
-        saveName = "./plotsHH2017_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
-        #saveName = "./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
+        #saveName = "./plotsHH2017_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
+        saveName = "./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
         if args.log:
             saveName = saveName+"_log"
         if args.flat:

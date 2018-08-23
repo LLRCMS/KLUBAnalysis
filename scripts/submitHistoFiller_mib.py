@@ -4,27 +4,32 @@
 ###### LAUNCH COMMAND EXAMPLE:
 #
 # - HISTO FILLER for PLOTTING -
-# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_14Jul2018  --n 44
-# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_14Jul2018_VBF --n 44
-# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_ETau.cfg   --tag analysis_ETau_14Jul2018   --n 44
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_6Aug2018_noNLO --n 28
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_ETau.cfg   --tag analysis_ETau_1Aug2018    --n 30
+#
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_14Jul2018 --n 44
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_14Jul2018_SStight --n 44
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_14Jul2018_style --n 44
-#
-# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_25Jul2018     --n 40
-# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_ETau.cfg   --tag analysis_ETau_25Jul2018      --n 25
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_25Jul2018    --n 40
-# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_25Jul2018_reduced_oldDY --n 40
-
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_25Jul2018_reduced_trgSF --n 50
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_28Jul2018_newSF --n 50
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_27Jul2018_pt45 --n 50
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_27Jul2018_pt45_noSF --n 50
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_30Jul2018_newPU_oldSF --n 50
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_1Aug2018_noPU_noSF_splitDY --n 30
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_8Aug2018 --n 28
 
 #
 # - LOOK at QCD -
 #
-# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_MuTau.cfg  --tag lookatQCD_MuTau_25Jul2018  --n 25
-# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_ETau.cfg   --tag lookatQCD_ETau_25Jul2018   --n 25
-# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_25Jul2018 --n 40
-# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_25Jul2018_reduced --n 30
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_MuTau.cfg  --tag lookatQCD_MuTau_1Aug2018  --n 25
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_ETau.cfg   --tag lookatQCD_ETau_1Aug2018   --n 25
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_1Aug2018 --n 50
 #
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_6Aug2018 --n 28
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_25Jul2018_newPU --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_28Jul2018_newSF --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_30Jul2018_newPU_oldSF --n 50
 ################
 
 import os
