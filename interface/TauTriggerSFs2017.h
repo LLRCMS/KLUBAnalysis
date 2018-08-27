@@ -23,7 +23,7 @@ public:
 
   enum { kCentral, kStatUp, kStatDown };
 
-  TauTriggerSFs2017(const std::string& inputFileName, const std::string& tauMVAWP = "medium");
+  TauTriggerSFs2017(const std::string& inputFileName, const std::string& inputFileNameOld, const std::string& tauWP = "medium", const std::string& wpType = "MVA");
   ~TauTriggerSFs2017();
 
   /**
@@ -62,8 +62,11 @@ public:
 protected:
   std::string inputFileName_;
   TFile* inputFile_;
+  std::string inputFileNameOld_;
+  TFile* inputFileOld_;
 
-  std::string tauMVAWP_;
+  std::string tauWP_;
+  std::string wpType_;
 
   const TH1* diTauData_;
   const TH1* diTauMC_;
@@ -87,5 +90,5 @@ protected:
   const TH2* muTauEtaPhiAvgMC_;
 };
 
-#endif 
+#endif // TauTriggerSFs2017_h
 

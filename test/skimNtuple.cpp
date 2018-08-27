@@ -890,7 +890,9 @@ int main (int argc, char** argv)
   
 
   //tau legs trigger SF for data and mc 2017
-  TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","medium");
+  //TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","medium");
+  //updated: https://hypernews.cern.ch/HyperNews/CMS/get/tauid/858.html
+  TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017_New.root","medium","MVA");
   ScaleFactor * muTauTrgSF = new ScaleFactor();
   ScaleFactor * eTauTrgSF = new ScaleFactor();
   ScaleFactor * muTrgSF = new ScaleFactor();
