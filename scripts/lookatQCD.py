@@ -53,7 +53,7 @@ def sumBkg(inFile, var,sel,bkgList):
         hstack.Add(hbkg)
         hsum.Add(hbkg)
         
-        return [hsum,hstack]
+    return [hsum,hstack]
 
 
 def makeRatio(histo1,histo2,hlist,canvas):

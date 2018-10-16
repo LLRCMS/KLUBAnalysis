@@ -476,13 +476,17 @@ if __name__ == "__main__" :
 
     # RGB/HEX colors
     col = TColor()
-    bkgColors["DY"]    = col.GetColor("#44BA68") #(TColor(68 ,186,104)).GetNumber() #gROOT.GetColor("#44BA68")
+    bkgColors["DY0b"]    = col.GetColor("#51ef86") #(TColor(68 ,186,104)).GetNumber() #gROOT.GetColor("#44BA68")
+    bkgColors["DY1b"]    = col.GetColor("#44BA68") #(TColor(68 ,186,104)).GetNumber() #gROOT.GetColor("#44BA68")
+    bkgColors["DY2b"]    = col.GetColor("#2b7c46") #(TColor(68 ,186,104)).GetNumber() #gROOT.GetColor("#44BA68")
     bkgColors["TT"]    = col.GetColor("#F4B642") #(TColor(244,182,66 )).GetNumber() #gROOT.GetColor("#F4B642")
     bkgColors["WJets"] = col.GetColor("#41B4DB") #(TColor(65 ,180,219)).GetNumber() #gROOT.GetColor("#41B4DB")
     bkgColors["other"] = col.GetColor("#ED635E") #(TColor(237,99 ,94 )).GetNumber() #gROOT.GetColor("#ED635E")
 
     bkgLineColors = {}
-    bkgLineColors["DY"]    = col.GetColor("#389956")
+    bkgLineColors["DY0b"]    = col.GetColor("#389956")
+    bkgLineColors["DY1b"]    = col.GetColor("#389956")
+    bkgLineColors["DY2b"]    = col.GetColor("#389956")
     bkgLineColors["TT"]    = col.GetColor("#dea63c")
     bkgLineColors["WJets"] = col.GetColor("#3ca4c8")
     bkgLineColors["other"] = col.GetColor("#d85a56")
@@ -542,9 +546,11 @@ if __name__ == "__main__" :
     
 
 
-    hDY = getHisto("DY", hBkgs,doOverflow)
-    #hDYbb = getHisto("DYbb", hBkgs,doOverflow)
-    #hDY.Scale(1./6.)
+    hDY0b = getHisto("DY0b", hBkgs,doOverflow)
+    hDY1b = getHisto("DY1b", hBkgs,doOverflow)
+    hDY2b = getHisto("DY2b", hBkgs,doOverflow)
+    
+
     hTT = getHisto("TT", hBkgs,doOverflow)
     hWJets = getHisto("WJets", hBkgs,doOverflow)
     hothers = getHisto("other", hBkgs,doOverflow)
@@ -554,12 +560,12 @@ if __name__ == "__main__" :
     #hSM = getHisto("SM", hBkgs,doOverflow)
 
     #hBkgList = [hothers, hSM, hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
-    hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
+    hBkgList = [hDY2b,hothers, hWJets, hTT, hDY0b, hDY1b] ## full list for stack
     #hBkgList = [hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
     #hBkgList = [hsingleT, hTT, hDY]
 
     #hBkgNameList = ["Others","SM Higgs", "VV", "EWK", "Single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
-    hBkgNameList = ["Others", "W + jets", "t#bar{t}" , "DY + jets"] # list for legend
+    hBkgNameList = ["DY 2b","Others", "W + jets", "t#bar{t}" , "DY 0b" , "DY 1b" ] # list for legend
     #hBkgNameList = ["VV", "EWK", "single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
     #hBkgNameList = ["Single top", "t#bar{t}", "DY + jets"]
 
