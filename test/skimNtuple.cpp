@@ -892,7 +892,7 @@ int main (int argc, char** argv)
   //tau legs trigger SF for data and mc 2017
   //TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","medium");
   //updated: https://hypernews.cern.ch/HyperNews/CMS/get/tauid/858.html
-  TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017_New.root","medium","MVA");
+  TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017_New.root","weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","medium","MVA");
   ScaleFactor * muTauTrgSF = new ScaleFactor();
   ScaleFactor * eTauTrgSF = new ScaleFactor();
   ScaleFactor * muTrgSF = new ScaleFactor();
@@ -1152,7 +1152,7 @@ int main (int argc, char** argv)
 	  stitchWeight = stitchWeights[njets][nb];
 	}
 
-    if (!DY_tostitch) //FRA debug
+    if (!DY_tostitch && DY_nJets >= 0) //FRA debug
     {
         int njets = theBigTree.lheNOutPartons;
         int nb    = theBigTree.lheNOutB;
@@ -1965,15 +1965,7 @@ int main (int argc, char** argv)
 	  theSmallTree.m_nRealTaus = nRealTaus;                     // -1: data; > 0: # real taus in MC
 	}
 
-      // // x check of MC info from genJet()
-      // some differences observed, and some cases of real taus also when taking fully had tt only
-      // // 
-      // int genIdx1 = theBigTree.daughters_genindex->at(firstDaughterIndex);
-      // int genIdx2 = theBigTree.daughters_genindex->at(secondDaughterIndex);
-      // int aidg1 = (genIdx1  > 0 ? abs(theBigTree.genpart_pdg->at(genIdx1)) : 0) ;
-      // int aidg2 = (genIdx2  > 0 ? abs(theBigTree.genpart_pdg->at(genIdx2)) : 0) ;
-      // if (pType == 2 && ( lep1HasTES || lep2HasTES)) cout << "OoOooooooooooooooo ci sono dei real tau!!!! " << lep1HasTES << " " << lep2HasTES << " /// " << iEvent << endl;  
-      // if (aidg1 == 15 || aidg2 == 15 || aidg1 == 66615 || aidg2 == 66615) cout << " BBBBBBBBBBBBB real tau!!! " << aidg1 << " " << aidg2 << " /// " << iEvent << endl;
+      
 
       const TLorentzVector tlv_firstLepton (
 					    theBigTree.daughters_px->at (firstDaughterIndex),
@@ -2054,7 +2046,6 @@ int main (int argc, char** argv)
       float trgEvtWeight     = 1.0;
       float trgEvtWeightUp   = 1.0;
       float trgEvtWeightDown = 1.0;
-    
       if (applyTriggers)
 	{
 	  Long64_t triggerbit = theBigTree.triggerbit;
@@ -2361,90 +2352,182 @@ int main (int argc, char** argv)
 
       // MuTau Channel
       if (pType == 0 && isMC)
-      {
-        float mu1pt  = tlv_firstLepton.Pt();
-        float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
-
-        //float idSF_leg1  = getContentHisto2D(hMuPOGSF_ID , mu1pt, mu1eta);
-        //float isoSF_leg1 = getContentHisto2D(hMuPOGSF_ISO, mu1pt, mu1eta);
-        //float idAndIsoSF_leg1 = idSF_leg1 * isoSF_leg1;
-        float idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
-
-        float idAndIsoSF_leg2 = 1.;
-        if (lep2HasTES) idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
-
-        idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-      }
-
+	{
+	  float mu1pt  = tlv_firstLepton.Pt();
+	  float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
+	  
+	  //float idSF_leg1  = getContentHisto2D(hMuPOGSF_ID , mu1pt, mu1eta);
+	  //float isoSF_leg1 = getContentHisto2D(hMuPOGSF_ISO, mu1pt, mu1eta);
+	  //float idAndIsoSF_leg1 = idSF_leg1 * isoSF_leg1;
+	  float idAndIsoSF_leg1 = 1.;
+	  float idAndIsoSF_leg2 = 1.;
+	  if (fabs(mu1eta < 2.4)){
+	    idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
+	  }
+	  
+	  if (lep2HasTES) idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
+	  
+	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+	}
+      
       // EleTau Channel
       else if (pType == 1 && isMC)
-      {
-        float ele1pt = tlv_firstLepton.Pt();
-        float ele1eta = tlv_firstLepton.Eta();
+	{
+	  float ele1pt = tlv_firstLepton.Pt();
+	  float ele1eta = tlv_firstLepton.Eta();
           
-        //float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_TightID_80WP, ele1eta, ele1pt);  // EMVATight == 80% eff WP
-        float idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
-
-        float idAndIsoSF_leg2 = 1.;
-        if (lep2HasTES) idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
-
-        idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-      }
-
+	  //float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_TightID_80WP, ele1eta, ele1pt);  // EMVATight == 80% eff WP
+	  float idAndIsoSF_leg1 = 1.;
+	  float idAndIsoSF_leg2 = 1.;
+	  
+	  if (fabs(ele1eta < 2.4)){
+	    idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
+	  }
+	  
+	  if (lep2HasTES) idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
+	  
+	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+	}
+      
       // TauTau Channel
       else if (pType == 2 && isMC)
-      {
-        // TauPOG recommendation for 2017 data: SF = 0.89 for each tauh leg
-        float idAndIsoSF_leg1 = 1.;
-        float idAndIsoSF_leg2 = 1.;
-        
-        if (lep1HasTES) idAndIsoSF_leg1 = 0.89;
-        if (lep2HasTES) idAndIsoSF_leg2 = 0.89;
+	{
+	  // TauPOG recommendation for 2017 data: SF = 0.89 for each tauh leg
+	  float idAndIsoSF_leg1 = 1.;
+	  float idAndIsoSF_leg2 = 1.;
+	  
+	  if (lep1HasTES) idAndIsoSF_leg1 = 0.89;
+	  if (lep2HasTES) idAndIsoSF_leg2 = 0.89;
+	  
+	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+	}
       
-        idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-      }
-
       // MuMu Channel
       else if (pType == 3 && isMC)
-      {
-        float mu1pt  = tlv_firstLepton.Pt();
-        float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
-        float mu2pt  = tlv_secondLepton.Pt();
-        float mu2eta = TMath::Abs(tlv_secondLepton.Eta());
-        
-        //float idSF_leg1  = getContentHisto2D(hMuPOGSF_ID , mu1pt, mu1eta);
-        //float isoSF_leg1 = getContentHisto2D(hMuPOGSF_ISO, mu1pt, mu1eta);
-        //float idAndIsoSF_leg1 = idSF_leg1 * isoSF_leg1;
-        float idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
-
-        //float idSF_leg2  = getContentHisto2D(hMuPOGSF_ID , mu2pt, mu2eta);
-        //float isoSF_leg2 = getContentHisto2D(hMuPOGSF_ISO, mu2pt, mu2eta);
-        //float idAndIsoSF_leg2 = idSF_leg2 * isoSF_leg2;
-        float idAndIsoSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu2pt, mu2eta);
-
-        idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-      }
-
+	{
+	  float mu1pt  = tlv_firstLepton.Pt();
+	  float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
+	  float mu2pt  = tlv_secondLepton.Pt();
+	  float mu2eta = TMath::Abs(tlv_secondLepton.Eta());
+	  
+	  
+	  float idAndIsoSF_leg1 = 1.;
+	  float idAndIsoSF_leg2 = 1.;
+	  
+	  if (fabs(mu1eta < 2.4)){
+	    idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
+	  }
+	  if (fabs(mu2eta < 2.4)){
+	    idAndIsoSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu2pt, mu2eta);
+	  }
+	  
+	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+	}
+      
       // EleEle Channel
       else if (pType == 4 && isMC)
-      {
-        float ele1pt = tlv_firstLepton.Pt();
-        float ele2pt = tlv_secondLepton.Pt();
-        float ele1eta = tlv_firstLepton.Eta();
-        float ele2eta = tlv_secondLepton.Eta();
-
-        //float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_MediumID_90WP, ele1eta, ele1pt);  // EMVAMedium == 90% eff WP
-        float idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
-
-        //float idAndIsoSF_leg2 = getContentHisto2D(hElePOGSF_MediumID_90WP, ele2eta, ele2pt);  // EMVAMedium == 90% eff WP
-        float idAndIsoSF_leg2 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele2pt, ele2eta);
-
-        idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-      }
+	{
+	  float ele1pt = tlv_firstLepton.Pt();
+	  float ele2pt = tlv_secondLepton.Pt();
+	  float ele1eta = tlv_firstLepton.Eta();
+	  float ele2eta = tlv_secondLepton.Eta();
+	  
+	  float idAndIsoSF_leg1 = 1.;
+	  float idAndIsoSF_leg2 = 1.;
+	  
+	  if (fabs(ele1eta < 2.4)){
+	    idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
+	  }
+	  if (fabs(ele2eta < 2.4)){
+	    idAndIsoSF_leg2 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele2pt, ele2eta);
+	  }
+	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+	}
+      
       // Save the IDandISO SF (event per event)
       theSmallTree.m_IdAndIsoSF = (isMC ? idAndIsoSF : 1.0);
+      
+      
+      // DATA/MC e, mu fake rate Scale Factors
+      // https://twiki.cern.ch/twiki/bin/view/CMS/TauIDRecommendation13TeV#Muon_to_tau_fake_rate
+      // https://twiki.cern.ch/twiki/bin/view/CMS/TauIDRecommendation13TeV#Electron_to_tau_fake_rate
+      
+      // check if taus are matched to gen e, mu
+      int genIdx1 = theBigTree.daughters_genindex->at(firstDaughterIndex);
+      int genIdx2 = theBigTree.daughters_genindex->at(secondDaughterIndex);
+      int aidg1 = (genIdx1  > 0 ? abs(theBigTree.genpart_pdg->at(genIdx1)) : 0) ;
+      int aidg2 = (genIdx2  > 0 ? abs(theBigTree.genpart_pdg->at(genIdx2)) : 0) ;
+      
+      
+      float FakeRateSF1 = 1.;
+      float FakeRateSF2 = 1.;
 
 
+      if (pairType == 2){                           //tau1
+	float tau1eta = fabs(tlv_firstLepton.Eta());
+	if (aidg1 == 11){                           // tau1 matched to gen ele
+	  
+	  if(tau1eta < 1.46){
+	    FakeRateSF1 = 1.4;
+	  }
+	  
+	  if(tau1eta > 1.558){
+	    FakeRateSF1 = 1.25;
+	  }
+	}else if(aidg1 == 13){                      // tau1 matched to gen mu
+	  
+	  if(tau1eta < 0.4){
+	    FakeRateSF1 = 1.06;
+	  }else if (tau1eta < 0.8){
+	    FakeRateSF1 = 1.02;
+	  }else if (tau1eta < 1.2){
+	    FakeRateSF1 = 1.10;
+	  }else if (tau1eta < 1.7){
+	    FakeRateSF1 = 1.03;
+	  }else if (tau1eta < 2.3){
+	    FakeRateSF1 = 1.94;
+	  }
+	  
+	}
+      }
+	
+	
+	
+	if (pairType == 0 || pairType == 1 || pairType == 2){     //tau2   
+	  float tau2eta = fabs(tlv_secondLepton.Eta()); 
+	  if (aidg2 == 11){                                         // tau2 matched to gen ele
+	    if(tau2eta < 1.46){
+	      FakeRateSF2 = 1.4;
+	  }
+	    
+	    if(tau2eta > 1.558){
+	      FakeRateSF2 = 1.25;
+	  }
+	}else if(aidg2 == 13){
+	    
+	    if(tau2eta < 0.4){                                        // tau2 matched to gen mu
+	      FakeRateSF2 = 1.06;
+	    }else if (tau2eta < 0.8){
+	      FakeRateSF2 = 1.02;
+	    }else if (tau2eta < 1.2){
+	      FakeRateSF2 = 1.10;
+	    }else if (tau2eta < 1.7){
+	      FakeRateSF2 = 1.03;
+	    }else if (tau2eta < 2.3){
+	      FakeRateSF2 = 1.94;
+	    }
+	    
+	  }
+	}
+	
+      float FakeRateSF = FakeRateSF1*FakeRateSF2;
+
+      theSmallTree.m_FakeRateSF     = (isMC ? FakeRateSF : 1.0);
+      theSmallTree.m_IdAndIsoAndFakeSF     = (isMC ? FakeRateSF*idAndIsoSF : 1.0);
+
+
+
+      
       // DATA/MC Trigger ScaleFactors
       // https://github.com/CMS-HTT/LeptonEfficiencies
       // https://github.com/truggles/TauTriggerSFs2017
