@@ -60,6 +60,7 @@ struct smallTree
       m_npu = -1. ;
       m_lumi = -1. ;
       m_triggerbit = -1. ;
+      m_pass_triggerbit = -1. ;
       m_rho = -1. ;
 
       m_pairType = -1. ;
@@ -313,6 +314,8 @@ struct smallTree
       m_njets20 = 0 ;
       m_njets50 = 0 ;
       m_nbjetscand = 0 ;
+      m_nbjets20 = 0 ;
+      m_nbjets50 = 0 ;
       m_njetsBHadFlav = 0 ;
       m_njetsCHadFlav = 0 ;
       m_dau1_jecUnc= -1;
@@ -565,7 +568,9 @@ struct smallTree
       m_smallT->Branch ("npv", &m_npv, "npv/I") ;
       m_smallT->Branch ("npu", &m_npu, "npu/F") ;
       m_smallT->Branch ("lumi", &m_lumi, "lumi/I") ;
+
       m_smallT->Branch ("triggerbit", &m_triggerbit, "triggerbit/L") ;
+      m_smallT->Branch ("pass_triggerbit", &m_pass_triggerbit, "pass_triggerbit/I") ;
       m_smallT->Branch ("rho", &m_rho, "rho/F") ;
 
       m_smallT->Branch ("pairType", &m_pairType, "pairType/I") ;
@@ -797,6 +802,8 @@ struct smallTree
       m_smallT->Branch ("addjets", &m_addjets, "addjets/I") ;
       m_smallT->Branch ("njets20", &m_njets20, "njets20/I") ;
       m_smallT->Branch ("njets50", &m_njets50, "njets50/I") ;
+      m_smallT->Branch ("nbjets20", &m_nbjets20, "nbjets20/I") ;
+      m_smallT->Branch ("nbjets50", &m_nbjets50, "nbjets50/I") ;
       m_smallT->Branch ("nbjetscand", &m_nbjetscand, "nbjetscand/I") ;
       m_smallT->Branch ("njetsBHadFlav", &m_njetsBHadFlav, "njetsBHadFlav/I") ;
       m_smallT->Branch ("njetsCHadFlav", &m_njetsCHadFlav, "njetsCHadFlav/I") ;
@@ -1059,6 +1066,7 @@ struct smallTree
   Float_t m_npu ;
   Int_t m_lumi ;
   Long64_t m_triggerbit ;
+  int m_pass_triggerbit ;
   Float_t m_rho ;
 
   Int_t m_pairType ;
@@ -1313,6 +1321,8 @@ struct smallTree
   Int_t m_njets20 ;
   Int_t m_njets50 ;
   Int_t m_nbjetscand ;
+  Int_t m_nbjets20 ;
+  Int_t m_nbjets50 ;
   Int_t m_njetsBHadFlav ;
   Int_t m_njetsCHadFlav ;
 

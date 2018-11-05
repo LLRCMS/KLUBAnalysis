@@ -859,6 +859,9 @@ int main (int argc, char** argv)
   // add VBF triggers for jet matching
   trigReader.addVBFTrigs (vbfTriggers);
 
+  // print full list (this is needed to identify the the triggers that fired in the bitwise variable)
+  trigReader.printTriggerList();
+  
   // ------------------------------
 
   OfflineProducerHelper oph (hTriggers, hTauIDS) ;
@@ -1949,6 +1952,7 @@ int main (int argc, char** argv)
       const int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
       const int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
       const int pType = pairType ;
+
       const int isOS  = theBigTree.isOSCand->at (chosenTauPair) ;
       bool lep1HasTES = false;
       bool lep2HasTES = false;
@@ -2046,6 +2050,7 @@ int main (int argc, char** argv)
       float trgEvtWeight     = 1.0;
       float trgEvtWeightUp   = 1.0;
       float trgEvtWeightDown = 1.0;
+      int pass_triggerbit = 0;
       if (applyTriggers)
 	{
 	  Long64_t triggerbit = theBigTree.triggerbit;
@@ -2056,9 +2061,8 @@ int main (int argc, char** argv)
 	  Long64_t goodTriggerType2 = (Long64_t) theBigTree.daughters_isGoodTriggerType->at(secondDaughterIndex);
 
 	  Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
-	  bool passTrg = trigReader.checkOR (pairType,triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
-      isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt());
-
+	  bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
+	  isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt());
       /* // Old version used with single triggers
       bool isCrossTrg = true;
 	  bool trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
@@ -2106,6 +2110,8 @@ int main (int argc, char** argv)
 	    }
 
 	  if (!triggerAccept) continue;
+
+	  theSmallTree.m_pass_triggerbit = pass_triggerbit;
 	  ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
 	  if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
 	}
@@ -2453,57 +2459,161 @@ int main (int argc, char** argv)
       // https://twiki.cern.ch/twiki/bin/view/CMS/TauIDRecommendation13TeV#Electron_to_tau_fake_rate
       
       // check if taus are matched to gen e, mu
-      int genIdx1 = theBigTree.daughters_genindex->at(firstDaughterIndex);
-      int genIdx2 = theBigTree.daughters_genindex->at(secondDaughterIndex);
-      int aidg1 = (genIdx1  > 0 ? abs(theBigTree.genpart_pdg->at(genIdx1)) : 0) ;
-      int aidg2 = (genIdx2  > 0 ? abs(theBigTree.genpart_pdg->at(genIdx2)) : 0) ;
-      
-      
-      float FakeRateSF1 = 1.;
-      float FakeRateSF2 = 1.;
-
-
-      if (pairType == 2){                           //tau1
-	float tau1eta = fabs(tlv_firstLepton.Eta());
-	if (aidg1 == 11){                           // tau1 matched to gen ele
-	  
-	  if(tau1eta < 1.46){
-	    FakeRateSF1 = 1.4;
-	  }
-	  
-	  if(tau1eta > 1.558){
-	    FakeRateSF1 = 1.25;
-	  }
-	}else if(aidg1 == 13){                      // tau1 matched to gen mu
-	  
-	  if(tau1eta < 0.4){
-	    FakeRateSF1 = 1.06;
-	  }else if (tau1eta < 0.8){
-	    FakeRateSF1 = 1.02;
-	  }else if (tau1eta < 1.2){
-	    FakeRateSF1 = 1.10;
-	  }else if (tau1eta < 1.7){
-	    FakeRateSF1 = 1.03;
-	  }else if (tau1eta < 2.3){
-	    FakeRateSF1 = 1.94;
-	  }
-	  
+      float FakeRateSF = 1.;
+      if(isMC){
+	std::vector< pair<float, int> > dRele_lep1; //could have made a tuple < dR, idx, pdg >  instead... with pairs I have more code but it's less confusing
+	std::vector< pair<float, int> > dRmu_lep1;
+	std::vector< pair<float, int> > dRele_lep2;
+	std::vector< pair<float, int> > dRmu_lep2;
+	for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
+	  {
+	    int pdg = theBigTree.genpart_pdg->at(igen);
+	    int genflags = theBigTree.genpart_flags->at(igen);
+	    
+	    if (fabs(pdg) == 11 || fabs(pdg) == 13){               //is ele or muon
+	      if (CheckBit(genflags, 0) || CheckBit(genflags, 5)){ //isPrompt or isDirectPromptTauDecayProduct	
+		TLorentzVector tlv_gen;
+		tlv_gen.SetPxPyPzE(theBigTree.genpart_px->at(igen),
+				   theBigTree.genpart_py->at(igen),
+				   theBigTree.genpart_pz->at(igen),
+				   theBigTree.genpart_e->at(igen)
+				   );
+		float dRlep1  = tlv_gen.DeltaR(tlv_firstLepton);
+		float dRlep2  = tlv_gen.DeltaR(tlv_secondLepton);
+		
+		
+		  if (tlv_gen.Pt() > 8 && dRlep1 < 0.2){
+		    if (fabs(pdg) == 11) dRele_lep1.push_back(make_pair(dRlep1, igen));
+		    if (fabs(pdg) == 13) dRmu_lep1.push_back(make_pair(dRlep1, igen));
+		  }
+		  
+		  if (tlv_gen.Pt() > 8 && dRlep2 < 0.2){
+		    if (fabs(pdg) == 11) dRele_lep2.push_back(make_pair(dRlep2, igen));
+		    if (fabs(pdg) == 13) dRmu_lep2.push_back(make_pair(dRlep2, igen));
+		  }		  
+	      }
+	    }
 	}
-      }
+
+	std::sort(dRele_lep1.begin(), dRele_lep1.end());
+	std::sort(dRele_lep2.begin(), dRele_lep2.end());
+	std::sort(dRmu_lep1.begin(), dRmu_lep1.end());
+	std::sort(dRmu_lep2.begin(), dRmu_lep2.end());
+
+	bool gene_lep1 = false;
+	bool gene_lep2 = false;
+	bool genmu_lep1 = false;
+	bool genmu_lep2 = false;
+	if (dRele_lep1.size() > 0) gene_lep1 = true;
+	if (dRele_lep2.size() > 0) {
+	  gene_lep2 = true;
+	  if (DEBUG){
+
+	    cout <<"gen ele"<<endl;
+	    for (unsigned int i = 0; i <dRele_lep2.size(); i++){
+
+		TLorentzVector tlv_gen;
+		tlv_gen.SetPxPyPzE(theBigTree.genpart_px->at(dRele_lep2.at(i).second),
+				   theBigTree.genpart_py->at(dRele_lep2.at(i).second),
+				   theBigTree.genpart_pz->at(dRele_lep2.at(i).second),
+				   theBigTree.genpart_e->at(dRele_lep2.at(i).second)
+				   );
+		float dRlep2  = tlv_gen.DeltaR(tlv_secondLepton);
+		cout <<tlv_gen.Pt()<<" Pt "<< tlv_gen.Eta()<<" Eta "<<tlv_gen.Phi()<<" Phi "<< dRlep2 << " DeltaR"<< endl;
+		cout <<dRele_lep2.at(i).first<<endl;
+		
+	  }
+	  }
+	}
+	if (dRmu_lep1.size() > 0) genmu_lep1 = true;
+	if (dRmu_lep2.size() > 0){
+	  genmu_lep2 = true;
+	  
+	  if (DEBUG){
+	    cout <<"gen mu"<<endl;
+	    for (unsigned int i = 0; i <dRmu_lep2.size(); i++){
+
+		TLorentzVector tlv_gen;
+		tlv_gen.SetPxPyPzE(theBigTree.genpart_px->at(dRmu_lep2.at(i).second),
+				   theBigTree.genpart_py->at(dRmu_lep2.at(i).second),
+				   theBigTree.genpart_pz->at(dRmu_lep2.at(i).second),
+				   theBigTree.genpart_e->at(dRmu_lep2.at(i).second)
+				   );
+		float dRlep2  = tlv_gen.DeltaR(tlv_secondLepton);
+		cout <<tlv_gen.Pt()<<" Pt "<< tlv_gen.Eta()<<" Eta "<<tlv_gen.Phi()<<" Phi "<< dRlep2 << " DeltaR"<< endl;
+		cout <<dRmu_lep2.at(i).first<<endl;
+		
+	    }
+	  }
+	}
+	if(gene_lep1 && genmu_lep1){
+	  if (dRele_lep1.at(0).first > dRmu_lep1.at(0).first){
+	    gene_lep1 = false;
+	  }else{
+	    genmu_lep1 = false;
+	  }
+	}
+	
+	if(gene_lep2 && genmu_lep2){
+	  if (dRele_lep2.at(0).first > dRmu_lep2.at(0).first){
+	    gene_lep2 = false;
+	  }else{
+	    genmu_lep2 = false;
+	  }
+	}   
+
+	if (DEBUG){
+	  cout<<"**** any gen e-mu matching taus? pairType "<<pairType<<endl;
+	  if (gene_lep1) cout<<"lep1 matches ele; isPrompt: "<<CheckBit(theBigTree.genpart_flags->at(dRele_lep1.at(0).second), 0)<<" isDirectPromptTauDecayProduct: "<<CheckBit(theBigTree.genpart_flags->at(dRele_lep1.at(0).second), 5)<<endl;
+	  if (genmu_lep1) cout<<"lep1 matches mu; isPrompt: "<<CheckBit(theBigTree.genpart_flags->at(dRmu_lep1.at(0).second), 0)<<" isDirectPromptTauDecayProduct: "<<CheckBit(theBigTree.genpart_flags->at(dRmu_lep1.at(0).second), 5)<<endl;
+	  if (gene_lep2) cout<<"lep2 matches ele; isPrompt: "<<CheckBit(theBigTree.genpart_flags->at(dRele_lep2.at(0).second), 0)<<" isDirectPromptTauDecayProduct: "<<CheckBit(theBigTree.genpart_flags->at(dRele_lep2.at(0).second), 5)<<endl;
+	  if (genmu_lep2) cout<<"lep2 matches mu; isPrompt: "<<CheckBit(theBigTree.genpart_flags->at(dRmu_lep2.at(0).second), 0)<<" isDirectPromptTauDecayProduct: "<<CheckBit(theBigTree.genpart_flags->at(dRmu_lep2.at(0).second), 5)<<endl; 	  
+	}
+
+	float FakeRateSF1=1;
+	float FakeRateSF2=1;
+	
+	if (pairType == 2){                           //tau1
+	  float tau1eta = fabs(tlv_firstLepton.Eta());
+	  if (gene_lep1){                           // tau1 matched to gen ele
+	    
+	    if(tau1eta < 1.46){
+	      FakeRateSF1 = 1.4;
+	    }
+	    
+	    if(tau1eta > 1.558){
+	      FakeRateSF1 = 1.25;
+	    }
+	  }else if(genmu_lep1){                      // tau1 matched to gen mu
+	    
+	    if(tau1eta < 0.4){
+	      FakeRateSF1 = 1.06;
+	    }else if (tau1eta < 0.8){
+	      FakeRateSF1 = 1.02;
+	    }else if (tau1eta < 1.2){
+	      FakeRateSF1 = 1.10;
+	    }else if (tau1eta < 1.7){
+	      FakeRateSF1 = 1.03;
+	    }else if (tau1eta < 2.3){
+	      FakeRateSF1 = 1.94;
+	    }
+	    
+	  }
+	}
 	
 	
 	
 	if (pairType == 0 || pairType == 1 || pairType == 2){     //tau2   
 	  float tau2eta = fabs(tlv_secondLepton.Eta()); 
-	  if (aidg2 == 11){                                         // tau2 matched to gen ele
+	  if (gene_lep2){                                         // tau2 matched to gen ele
 	    if(tau2eta < 1.46){
 	      FakeRateSF2 = 1.4;
-	  }
+	    }
 	    
 	    if(tau2eta > 1.558){
 	      FakeRateSF2 = 1.25;
-	  }
-	}else if(aidg2 == 13){
+	    }
+	  }else if(genmu_lep2){
 	    
 	    if(tau2eta < 0.4){                                        // tau2 matched to gen mu
 	      FakeRateSF2 = 1.06;
@@ -2520,8 +2630,10 @@ int main (int argc, char** argv)
 	  }
 	}
 	
-      float FakeRateSF = FakeRateSF1*FakeRateSF2;
-
+	FakeRateSF = FakeRateSF1*FakeRateSF2;
+      
+      }
+      
       theSmallTree.m_FakeRateSF     = (isMC ? FakeRateSF : 1.0);
       theSmallTree.m_IdAndIsoAndFakeSF     = (isMC ? FakeRateSF*idAndIsoSF : 1.0);
 
@@ -2716,27 +2828,17 @@ int main (int argc, char** argv)
         if (tlv_jet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
         if (tlv_jet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
 
-        // use these jets for HT
-        if (tlv_jet.Pt () > 20)
-        {
-          ++theSmallTree.m_njets20 ;
-          theSmallTree.m_HT20 += tlv_jet.Pt() ;
-          jetVecSum += tlv_jet ;
-        }
-
-          if (tlv_jet.Pt () > 50)
-        {
-          ++theSmallTree.m_njets50 ;
-          theSmallTree.m_HT50 += tlv_jet.Pt() ;
-        }
-
         // all jets selected as btag cands apart from eta cut
         int ajetHadFlav = abs(theBigTree.jets_HadronFlavour->at(iJet));
         if (ajetHadFlav == 5) ++theSmallTree.m_njetsBHadFlav;
         if (ajetHadFlav == 4) ++theSmallTree.m_njetsCHadFlav;
 
         if (TMath::Abs(tlv_jet.Eta()) > 2.4) continue; // 2.4 for b-tag
-
+        // n bjets candidates
+        if (tlv_jet.Pt () > 20)  ++theSmallTree.m_nbjets20 ;
+	if (tlv_jet.Pt () > 50)   ++theSmallTree.m_nbjets50 ;
+       
+	
         //float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bCSVscore->at (iJet) : tlv_jet.Pt() ;
         float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet)  : tlv_jet.Pt() ;
         if (bChoiceFlag != 1 && bChoiceFlag != 2) cout << "** WARNING : bChoiceFlag not known :" << bChoiceFlag << endl;
@@ -2744,8 +2846,7 @@ int main (int argc, char** argv)
 
       } // loop over jets
 
-      theSmallTree.m_HT20Full = theSmallTree.m_HT20 + tlv_firstLepton.Pt() + tlv_secondLepton.Pt() ;
-      theSmallTree.m_jet20centrality = jetVecSum.Pt() / theSmallTree.m_HT20Full ;
+
 
       theSmallTree.m_nbjetscand = jets_and_sortPar.size();
       theSmallTree.m_nfatjets = theBigTree.ak8jets_px->size();

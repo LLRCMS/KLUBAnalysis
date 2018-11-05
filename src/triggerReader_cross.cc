@@ -41,8 +41,12 @@ void triggerReader_cross::addTauTauTrigs (vector<string> list)
     for (unsigned int i = 0; i < list.size(); i++)
     {
         auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
-        if (it != _allTriggers.end()) _ttTriggers.push_back (it - _allTriggers.begin());
-        else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+        if (it != _allTriggers.end()){
+	  _ttTriggers.push_back (it - _allTriggers.begin());
+	  auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
+	  if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
+	}
+	  else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
     }
     return;
 }
@@ -52,8 +56,12 @@ void triggerReader_cross::addMuTauTrigs (vector<string> list)
     for (unsigned int i = 0; i < list.size(); i++)
     {
         auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
-        if (it != _allTriggers.end()) _mtTriggers.push_back (it - _allTriggers.begin());
-        else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+        if (it != _allTriggers.end()) {
+	  _mtTriggers.push_back (it - _allTriggers.begin());
+	  auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
+	  if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
+	}
+	  else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
     }
     return;
 }
@@ -63,7 +71,11 @@ void triggerReader_cross::addEleTauTrigs (vector<string> list)
     for (unsigned int i = 0; i < list.size(); i++)
     {
         auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
-        if (it != _allTriggers.end()) _etTriggers.push_back (it - _allTriggers.begin());
+        if (it != _allTriggers.end()){
+	  _etTriggers.push_back (it - _allTriggers.begin());
+	  auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
+	  if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
+	}
         else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
     }
     return;
@@ -74,8 +86,12 @@ void triggerReader_cross::addMuEleTrigs (vector<string> list)
     for (unsigned int i = 0; i < list.size(); i++)
     {
         auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
-        if (it != _allTriggers.end()) _emTriggers.push_back (it - _allTriggers.begin());
-        else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+        if (it != _allTriggers.end()){
+	  _emTriggers.push_back (it - _allTriggers.begin());
+	  auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
+	  if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
+	}
+	  else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
     }
     return;
 }
@@ -84,8 +100,12 @@ void triggerReader_cross::addEleEleTrigs (vector<string> list)
     for (unsigned int i = 0; i < list.size(); i++)
     {
         auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
-        if (it != _allTriggers.end()) _eeTriggers.push_back (it - _allTriggers.begin());
-        else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+        if (it != _allTriggers.end()){
+	  _eeTriggers.push_back (it - _allTriggers.begin());
+	  auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
+	  if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
+	}
+	  else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
     }
     return;
 }
@@ -94,8 +114,12 @@ void triggerReader_cross::addMuMuTrigs (vector<string> list)
     for (unsigned int i = 0; i < list.size(); i++)
     {
         auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
-        if (it != _allTriggers.end()) _mmTriggers.push_back (it - _allTriggers.begin());
-        else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+        if (it != _allTriggers.end()){
+	  _mmTriggers.push_back (it - _allTriggers.begin());
+	  auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
+	  if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
+	}
+	else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
     }
     return;
 }
@@ -105,7 +129,11 @@ void triggerReader_cross::addMuTauCrossTrigs (vector<string> list)
     for (unsigned int i = 0; i < list.size(); i++)
     {
         auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
-        if (it != _allTriggers.end()) _mtCrossTriggers.push_back (it - _allTriggers.begin());
+        if (it != _allTriggers.end()) {
+	  _mtCrossTriggers.push_back (it - _allTriggers.begin());
+	  auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
+	  if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
+	}
         else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
     }
     return;
@@ -116,8 +144,12 @@ void triggerReader_cross::addEleTauCrossTrigs (vector<string> list)
     for (unsigned int i = 0; i < list.size(); i++)
     {
         auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
-        if (it != _allTriggers.end()) _etCrossTriggers.push_back (it - _allTriggers.begin());
-        else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+        if (it != _allTriggers.end()){
+	  _etCrossTriggers.push_back (it - _allTriggers.begin());
+	  auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
+	  if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
+	}
+	  else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
     }
     return;
 }
@@ -127,21 +159,41 @@ void triggerReader_cross::addTauTauCrossTrigs (vector<string> list)
     for (unsigned int i = 0; i < list.size(); i++)
     {
         auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
-        if (it != _allTriggers.end()) _ttCrossTriggers.push_back (it - _allTriggers.begin());
-        else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+        if (it != _allTriggers.end()) {
+	  _ttCrossTriggers.push_back (it - _allTriggers.begin());
+	  auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
+	  if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
+	}
+	else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
     }
     return;
 }
 
 void triggerReader_cross::addVBFTrigs (vector<string> list)
 {
-    for (unsigned int i = 0; i < list.size(); i++)
+  for (unsigned int i = 0; i < list.size(); i++)
     {
-        auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
-        if (it != _allTriggers.end()) _vbfTriggers.push_back (it - _allTriggers.begin());
-        else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+      auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
+      if (it != _allTriggers.end()){
+	_vbfTriggers.push_back (it - _allTriggers.begin());
+	auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
+	if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
+      }
+      else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
     }
     return;
+}
+
+void triggerReader_cross::printTriggerList()
+{
+  cout<<endl;
+  cout<<"@ bit position - path"<<endl;
+  for (unsigned int i = 0; i < _thisSkimTriggers.size(); i++) 
+    {
+      cout<< i <<" - "<<_thisSkimTriggers.at(i)<<endl;
+    }
+  cout<<endl;
+  return;  
 }
 
 
@@ -149,108 +201,131 @@ void triggerReader_cross::addVBFTrigs (vector<string> list)
 // Check trigger filters matching
 // ------------------------------
 
-bool triggerReader_cross::checkOREleEleNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1)
+bool triggerReader_cross::checkOREleEleNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1, int *pass_triggerbit)
 {
     bool OR      = false;
+    bool thisPath      = false;
     bool _trgNoOverlap = false;
     bool match = false;
     bool goodType = false;
     std::string firedPath;
     bool ptCut = false;
-
+    
     for (unsigned int i = 0; i < _eeTriggers.size(); i++)
     {
-      OR = CheckBit (triggerbit_1, _eeTriggers.at(i));
-      if (OR)
-      {
-        match = CheckBit (matchFlag1, _eeTriggers.at(i));
-        goodType = CheckBit (goodTriggerType1, _eeTriggers.at(i));
-        _trgNoOverlap = CheckBit (trgNoOverlap, _eeTriggers.at(i));
-        if (match && _trgNoOverlap && goodType)
-        {
-          firedPath = _allTriggers.at(_eeTriggers.at(i));
-          boost::regex re_tau1{".*Ele(\\d+)"};
-          ptCut = checkPtCutSingle(OR, firedPath, re_tau1, pt_tau1, 3.0);
-        }
-        else
-          ptCut = false;
+      thisPath = false;
+      thisPath = CheckBit (triggerbit_1, _eeTriggers.at(i));
+      if (thisPath)
+	{
+	  match = CheckBit (matchFlag1, _eeTriggers.at(i));
+	  goodType = CheckBit (goodTriggerType1, _eeTriggers.at(i));
+	  _trgNoOverlap = CheckBit (trgNoOverlap, _eeTriggers.at(i));
+	  if (match && _trgNoOverlap && goodType)
+	    {
+	      firedPath = _allTriggers.at(_eeTriggers.at(i));
+	      boost::regex re_tau1{".*Ele(\\d+)"};
+	      ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 3.0);
+	    }
+	  else
+	    ptCut = false;
+	}
+      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
+      if (thisPath){
+	std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_eeTriggers.at(i)));
+	int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
+	*pass_triggerbit |=  1 << thisPathIdx;
+	OR = true;
       }
-      if (!(OR && match && _trgNoOverlap && goodType && ptCut)) OR = false;
-      if (OR) break;
+      //if (OR) break; // I want to store the information about all triggers that have fired, without breaking the loop when I find one
     }
-
     return OR;
 }
 
-bool triggerReader_cross::checkORMuEleNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1)
+bool triggerReader_cross::checkORMuEleNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1, int *pass_triggerbit)
 {
     bool OR      = false;
+    bool thisPath      = false;
     bool _trgNoOverlap = false;
     bool match = false;
     bool goodType = false;
     std::string firedPath;
     bool ptCut = false;
-
-    for (unsigned int i = 0; i < _emTriggers.size(); i++)
-    {
-      OR = CheckBit (triggerbit_1, _emTriggers.at(i));
-      if (OR)
-      {
-        match = CheckBit (matchFlag1, _emTriggers.at(i));
-        goodType = CheckBit (goodTriggerType1, _emTriggers.at(i));
-        _trgNoOverlap = CheckBit (trgNoOverlap, _emTriggers.at(i));
-        if (match && _trgNoOverlap && goodType)
-        {
-          firedPath = _allTriggers.at(_emTriggers.at(i));
-          boost::regex re_tau1{".*Mu(\\d+)"};
-          ptCut = checkPtCutSingle(OR, firedPath, re_tau1, pt_tau1, 2.0);
-        }
-        else
-          ptCut = false;
-      }
-      if (!(OR && match && _trgNoOverlap && goodType && ptCut)) OR = false;
-      if (OR) break;
-    }
     
-    return OR;
-}
-
-bool triggerReader_cross::checkORMuMuNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1)
-{
-    bool OR      = false;
-    bool _trgNoOverlap = false;
-    bool match = false;
-    bool goodType = false;
-    std::string firedPath;
-    bool ptCut = false;
-
-    for (unsigned int i = 0; i < _mmTriggers.size(); i++)
-    {
-      OR = CheckBit (triggerbit_1, _mmTriggers.at(i));
-      if (OR)
+    for (unsigned int i = 0; i < _emTriggers.size(); i++)
       {
-        match = CheckBit (matchFlag1, _mmTriggers.at(i));
-        goodType = CheckBit (goodTriggerType1, _mmTriggers.at(i));
-        _trgNoOverlap = CheckBit (trgNoOverlap, _mmTriggers.at(i));
-        if (match && _trgNoOverlap && goodType)
-        {
-          firedPath = _allTriggers.at(_mmTriggers.at(i));
-          boost::regex re_tau1{".*Mu(\\d+)"};
-          ptCut = checkPtCutSingle(OR, firedPath, re_tau1, pt_tau1, 2.0);
-        }
-        else
-          ptCut = false;
+	thisPath = false;
+	thisPath = CheckBit (triggerbit_1, _emTriggers.at(i));
+	if (thisPath)
+	  {
+	    match = CheckBit (matchFlag1, _emTriggers.at(i));
+	    goodType = CheckBit (goodTriggerType1, _emTriggers.at(i));
+	    _trgNoOverlap = CheckBit (trgNoOverlap, _emTriggers.at(i));
+	    if (match && _trgNoOverlap && goodType)
+	      {
+	      firedPath = _allTriggers.at(_mmTriggers.at(i));
+	      boost::regex re_tau1{".*Mu(\\d+)"};
+	      ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 2.0);
+	      }
+	    else
+	      ptCut = false;
+	  }
+	if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
+	if (thisPath){
+	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_emTriggers.at(i)));
+	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
+	  *pass_triggerbit |=  1 << thisPathIdx;
+	OR = true;
+	}
+	//if (OR) break; // I want to store the information about all triggers that have fired, without breaking the loop when I find one
       }
-      if (!(OR && match && _trgNoOverlap && goodType && ptCut)) OR = false;
-      if (OR) break;
-    }
-
     return OR;
 }
 
-bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2)
+
+bool triggerReader_cross::checkORMuMuNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1, int *pass_triggerbit)
+{
+  bool OR      = false;
+  bool thisPath      = false;
+  bool _trgNoOverlap = false;
+  bool match = false;
+  bool goodType = false;
+  std::string firedPath;
+  bool ptCut = false;
+  
+    for (unsigned int i = 0; i < _mmTriggers.size(); i++)
+      {
+	thisPath = false;
+	thisPath = CheckBit (triggerbit_1, _mmTriggers.at(i));
+	if (thisPath)
+	  {
+	    match = CheckBit (matchFlag1, _mmTriggers.at(i));
+	    goodType = CheckBit (goodTriggerType1, _mmTriggers.at(i));
+	    _trgNoOverlap = CheckBit (trgNoOverlap, _mmTriggers.at(i));
+	    if (match && _trgNoOverlap && goodType)
+	      {
+	      firedPath = _allTriggers.at(_mmTriggers.at(i));
+	      boost::regex re_tau1{".*Mu(\\d+)"};
+	      ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 2.0);
+	      }
+	    else
+	      ptCut = false;
+	  }
+	if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
+	if (thisPath){
+	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_mmTriggers.at(i)));
+	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
+	  *pass_triggerbit |=  1 << thisPathIdx;
+	OR = true;
+	}
+	//if (OR) break; // I want to store the information about all triggers that have fired, without breaking the loop when I find one
+      }
+    return OR;
+}
+
+bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2,int *pass_triggerbit)
 {
     bool OR     = false;
+    bool thisPath      = false;
     bool match1 = false;
     bool match2 = false;
     bool goodType1 = false;
@@ -262,8 +337,9 @@ bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t mat
     bool ptCut = false;
     for (unsigned int i = 0; i < _ttCrossTriggers.size(); i++)
     {
-      OR = CheckBit (triggerbit_1, _ttCrossTriggers.at(i));
-      if (OR)
+      thisPath = false;
+      thisPath = CheckBit (triggerbit_1, _ttCrossTriggers.at(i));
+      if (thisPath)
       {
         match1 = CheckBit (matchFlag1, _ttCrossTriggers.at(i));
         match2 = CheckBit (matchFlag2, _ttCrossTriggers.at(i));
@@ -278,50 +354,65 @@ bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t mat
           firedPath = _allTriggers.at(_ttCrossTriggers.at(i));
           boost::regex re_tau1{".*Tau(\\d+)"};
           boost::regex re_tau2{".*Tau(\\d+)"};
-          ptCut = checkPtCutCross(OR, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 5.0, 5.0);
+          ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 5.0, 5.0);
         }
         else
           ptCut = false;
       }
-      if (!(OR && match && _trgNoOverlap && goodType && ptCut)) OR = false;
-      if (OR) break;
+      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
+      if (thisPath){
+	std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_ttCrossTriggers.at(i)));
+	int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
+	*pass_triggerbit |=  1 << thisPathIdx;
+	OR = true;
+      }
+      //if (OR) break; // I want to store the information about all triggers that have fired, without breaking the loop when I find one
+      
     }
     
-    if (!OR)
-    {
-      for (unsigned int i = 0; i < _ttTriggers.size(); i++)
+    //if (!OR)
+    //{
+    for (unsigned int i = 0; i < _ttTriggers.size(); i++)
       {
-        OR = CheckBit (triggerbit_1, _ttTriggers.at(i));
-        if (OR)
-        {
-          match1 = CheckBit (matchFlag1, _ttTriggers.at(i));
-          match2 = true;
-          match = match1 && match2;
-          goodType1 = CheckBit (goodTriggerType1, _ttTriggers.at(i));
-          goodType2 = true;
-          goodType = goodType1 && goodType2;
-          _trgNoOverlap = CheckBit (trgNoOverlap, _ttTriggers.at(i));
-
-          if (match && _trgNoOverlap && goodType)
-          {
-            firedPath = _allTriggers.at(_ttTriggers.at(i));
-            boost::regex re_tau1{".*Tau(\\d+)"};
-            ptCut = checkPtCutSingle(OR, firedPath, re_tau1, pt_tau1, 5.0);
-          }
-          else
-            ptCut = false;
-        }
-        if (!(OR && match && _trgNoOverlap && goodType && ptCut)) OR = false;
-        if (OR) break;
+	thisPath = false;
+        thisPath = CheckBit (triggerbit_1, _ttTriggers.at(i));
+        if (thisPath)
+	  {
+	    match1 = CheckBit (matchFlag1, _ttTriggers.at(i));
+	    match2 = true;
+	    match = match1 && match2;
+	    goodType1 = CheckBit (goodTriggerType1, _ttTriggers.at(i));
+	    goodType2 = true;
+	    goodType = goodType1 && goodType2;
+	    _trgNoOverlap = CheckBit (trgNoOverlap, _ttTriggers.at(i));
+	    
+	    if (match && _trgNoOverlap && goodType)
+	      {
+		firedPath = _allTriggers.at(_ttTriggers.at(i));
+		boost::regex re_tau1{".*Tau(\\d+)"};
+		ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 5.0);
+	      }
+	    else
+	      ptCut = false;
+	  }
+        if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
+	if (thisPath){
+	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_ttTriggers.at(i)));
+	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
+	  *pass_triggerbit |=  1 << thisPathIdx;
+	  OR = true;
+	}
+	//if (OR) break; // I want to store the information about all triggers that have fired, without breaking the loop when I find one
       }
-    }
+    //}
 
     return OR;
 }
 
-bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2, double eta_tau2)
+bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2, double eta_tau2, int *pass_triggerbit)
 {
     bool OR     = false;
+    bool thisPath = false;
     bool match1 = false;
     bool match2 = false;
     bool goodType1 = false;
@@ -334,8 +425,9 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
     bool etaCut = false;
     for (unsigned int i = 0; i < _mtCrossTriggers.size(); i++)
     {
-      OR = CheckBit (triggerbit_1, _mtCrossTriggers.at(i));
-      if (OR)
+      thisPath = false; 
+      thisPath = CheckBit (triggerbit_1, _mtCrossTriggers.at(i));
+      if (thisPath)
       {
         match1 = CheckBit (matchFlag1, _mtCrossTriggers.at(i));
         match2 = CheckBit (matchFlag2, _mtCrossTriggers.at(i));
@@ -350,7 +442,7 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
           firedPath = _allTriggers.at(_mtCrossTriggers.at(i));
           boost::regex re_tau1{".*Mu(\\d+)"};
           boost::regex re_tau2{".*Tau(\\d+)"};
-          ptCut = checkPtCutCross(OR, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 2.0, 5.0);
+          ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 2.0, 5.0);
 	  etaCut = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
         }
         else
@@ -359,16 +451,23 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
 	  etaCut = false;
       }
       }
-      if (!(OR && match && _trgNoOverlap && goodType && ptCut && etaCut)) OR = false;
-      if (OR) break;
+      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut)) thisPath = false;
+	if (thisPath){
+	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_mtCrossTriggers.at(i)));
+	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
+	  *pass_triggerbit |=  1 << thisPathIdx;
+	  OR = true;
+	}
+      //      if (OR) break;
     }
     
-    if (!OR)
-    {
+    // if (!OR)
+    // {
       for (unsigned int i = 0; i < _mtTriggers.size(); i++)
       {
-        OR = CheckBit (triggerbit_1, _mtTriggers.at(i));
-        if (OR)
+	thisPath = false;
+        thisPath = CheckBit (triggerbit_1, _mtTriggers.at(i));
+        if (thisPath)
         {
           match1 = CheckBit (matchFlag1, _mtTriggers.at(i));
           match2 = true;
@@ -382,23 +481,30 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
           {
             firedPath = _allTriggers.at(_mtTriggers.at(i));
             boost::regex re_tau1{".*Mu(\\d+)"};
-            ptCut = checkPtCutSingle(OR, firedPath, re_tau1, pt_tau1, 2.0);
+            ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 2.0);
           }
           else
             ptCut = false;
         }
-        if (!(OR && match && _trgNoOverlap && goodType && ptCut)) OR = false;
-        if (OR) break;
+        if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
+	if (thisPath){
+	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_mtTriggers.at(i)));
+	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
+	  *pass_triggerbit |=  1 << thisPathIdx;
+	  OR = true;
+	}
+	//        if (OR) break;
       }
-    }
+      //}
 
     return OR;
 }
 
 
-bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2, double eta_tau2)
+bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2, double eta_tau2, int *pass_triggerbit)
 {
     bool OR     = false;
+    bool thisPath =false;
     bool match1 = false;
     bool match2 = false;
     bool goodType1 = false;
@@ -411,8 +517,9 @@ bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t mat
     bool etaCut = false;
     for (unsigned int i = 0; i < _etCrossTriggers.size(); i++)
     {
-      OR = CheckBit (triggerbit_1, _etCrossTriggers.at(i));
-      if (OR)
+      thisPath = false;
+      thisPath = CheckBit (triggerbit_1, _etCrossTriggers.at(i));
+      if (thisPath)
       {
         match1 = CheckBit (matchFlag1, _etCrossTriggers.at(i));
         match2 = CheckBit (matchFlag2, _etCrossTriggers.at(i));
@@ -428,7 +535,7 @@ bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t mat
           boost::regex re_tau1{".*Ele(\\d+)"};
           boost::regex re_tau2{".*Tau(\\d+)"};
 
-          ptCut = checkPtCutCross(OR, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 3.0, 5.0);
+          ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 3.0, 5.0);
 	  etaCut = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
         }
         else
@@ -437,15 +544,22 @@ bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t mat
 	    etaCut = false;
 	  }
       }
-      if (!(OR && match && _trgNoOverlap && goodType && ptCut && etaCut)) OR = false;
-      if (OR) break;
+      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut)) thisPath = false;
+	if (thisPath){
+	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_etCrossTriggers.at(i)));
+	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
+	  *pass_triggerbit |=  1 << thisPathIdx;
+	  OR = true;
+	}
+      //      if (OR) break;
     }
-    if (!OR)
-    {
+    //if (!OR)
+    // {
       for (unsigned int i = 0; i < _etTriggers.size(); i++)
       {
-        OR = CheckBit (triggerbit_1, _etTriggers.at(i));
-        if (OR)
+	thisPath = false;
+        thisPath = CheckBit (triggerbit_1, _etTriggers.at(i));
+        if (thisPath)
         {
           match1 = CheckBit (matchFlag1, _etTriggers.at(i));
           match2 = true;
@@ -459,15 +573,21 @@ bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t mat
           {
             firedPath = _allTriggers.at(_etTriggers.at(i));
             boost::regex re_tau1{".*Ele(\\d+)"};
-            ptCut = checkPtCutSingle(OR, firedPath, re_tau1, pt_tau1, 3.0);
+            ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 3.0);
           }
           else
             ptCut = false;
         }
-        if (!(OR && match && _trgNoOverlap && goodType && ptCut)) OR = false;
-        if (OR) break;
+        if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
+	if (thisPath){
+	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_etTriggers.at(i)));
+	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
+	  *pass_triggerbit |=  1 << thisPathIdx;
+	  OR = true;
+	}
+	//        if (OR) break;
       }
-    }
+      //}
 
     return OR;
 }
@@ -488,19 +608,19 @@ bool triggerReader_cross::CheckBit (Long64_t number, int bitpos)
 //     General Check OR
 // ------------------------------
 
-bool triggerReader_cross::checkOR (int pairType, Long64_t triggerbit_1,Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2, double eta_tau2)
+bool triggerReader_cross::checkOR (int pairType, Long64_t triggerbit_1, int *pass_triggerbit, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2, double eta_tau2)
 {
 
-  if      (pairType == ((int) OfflineProducerHelper::MuHad) ) return checkORMuTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, pt_tau2, eta_tau2);
-  else if (pairType == ((int) OfflineProducerHelper::EHad)  ) return checkOREleTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, pt_tau2, eta_tau2);
-    else if (pairType == ((int) OfflineProducerHelper::HadHad)) return checkORTauTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, pt_tau2);
-    else if (pairType == ((int) OfflineProducerHelper::EMu)   ) return checkORMuEleNew (triggerbit_1,matchFlag1,trgNoOverlap,goodTriggerType1,pt_tau1);
-    else if (pairType == ((int) OfflineProducerHelper::EE)    ) return checkOREleEleNew(triggerbit_1,matchFlag1,trgNoOverlap,goodTriggerType1,pt_tau1);
-    else if (pairType == ((int) OfflineProducerHelper::MuMu)  ) return checkORMuMuNew  (triggerbit_1,matchFlag1,trgNoOverlap,goodTriggerType1,pt_tau1);
-    else
+  if(pairType == ((int) OfflineProducerHelper::MuHad) ) return checkORMuTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, pt_tau2, eta_tau2, pass_triggerbit);
+  else if(pairType == ((int) OfflineProducerHelper::EHad)  ) return checkOREleTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, pt_tau2, eta_tau2, pass_triggerbit);
+  else if (pairType == ((int) OfflineProducerHelper::HadHad)) return checkORTauTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, pt_tau2, pass_triggerbit);
+  else if (pairType == ((int) OfflineProducerHelper::EMu)   ) return checkORMuEleNew (triggerbit_1,matchFlag1,trgNoOverlap,goodTriggerType1,pt_tau1, pass_triggerbit);
+  else if (pairType == ((int) OfflineProducerHelper::EE)    ) return checkOREleEleNew(triggerbit_1,matchFlag1,trgNoOverlap,goodTriggerType1,pt_tau1, pass_triggerbit);
+  else if (pairType == ((int) OfflineProducerHelper::MuMu)  ) return checkORMuMuNew  (triggerbit_1,matchFlag1,trgNoOverlap,goodTriggerType1,pt_tau1, pass_triggerbit);
+  else
     {
-        cout << " ** WARNING!! Pair type " << pairType << " not implemented for trigger" << endl;
-        return false;
+      cout << " ** WARNING!! Pair type " << pairType << " not implemented for trigger" << endl;
+      return false;
     }
 }
 
