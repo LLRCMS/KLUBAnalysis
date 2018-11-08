@@ -62,7 +62,7 @@ const double bTopRW = -0.0005;
 // const float DYscale_LL[3] = {8.72847e-01, 1.69905e+00, 1.63717e+00} ; // computed from fit for LL and MM b tag
 // const float DYscale_MM[3] = {9.44841e-01, 1.29404e+00, 1.28542e+00} ;
 const float DYscale_LL[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag
-const float DYscale_MM[3] = {1.14119, 1.18722, 1.17042} ;
+const float DYscale_MM[3] = {1.11219, 1.11436, 0.743777} ;
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
@@ -1314,7 +1314,7 @@ int main (int argc, char** argv)
       theSmallTree.m_DYscale_LL = 1.0; // all the other MC samples + data have no weight
       theSmallTree.m_DYscale_MM = 1.0;        
       // if (isMC && (DY_Nbs || isHHsignal))
-      if (isMC && DY_Nbs)
+      if (isMC && doDYLOtoNLOreweight)
 	{
 	  TLorentzVector vgj;
 	  int nbs = 0;
@@ -1670,7 +1670,7 @@ int main (int argc, char** argv)
         EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,99, PUreweightFile) * topPtReweight * HHweight) : 1.0;
       else                                             // if npu<0 --> bug in MC --> weight=0
         EvtW = isMC ? 0.0 : 1.0;
-      theSmallTree.m_PUReweight  = (isMC ? EvtW : 1) ;
+
       if (isMC)
 	{
 	  totalEvents += EvtW;
@@ -2648,6 +2648,10 @@ int main (int argc, char** argv)
 
       
       float trigSF = 1.0;
+      float trigSF_single = 1.0;
+      float trigSF_cross = 1.0;
+      
+      
       if(applyTriggers)
 	{
 	  // MuTau Channel
@@ -2657,12 +2661,12 @@ int main (int argc, char** argv)
 		//lepton trigger
 		double SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		double SFL_MC = muTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		
+
 		//cross-trigger
 		//mu leg
 		double SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		
+
 		//tau leg
 		double SFtau_Data = tauTrgSF->getMuTauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
 		double SFtau_MC = tauTrgSF->getMuTauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
@@ -2671,10 +2675,17 @@ int main (int argc, char** argv)
 		double Eff_MC =  SFL_MC * (1 - SFtau_MC) + SFl_MC * SFtau_MC;
 		
 		trigSF = Eff_Data / Eff_MC;
+
+		//trig SF for analysis only with cross-trigger
+		double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+		double SFtau = tauTrgSF->getMuTauScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
+		trigSF_cross = SFl*SFtau;
 	      }else{ //eta region covered only by single lepton trigger
 		double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		trigSF = SF;
 	      }
+	      //trig SF for analysis only with single-mu trigger
+		trigSF_single =  muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 	    }
 	  
 	  // EleTau Channel
@@ -2698,10 +2709,18 @@ int main (int argc, char** argv)
 		double Eff_MC =  SFL_MC* (1 - SFtau_MC) + SFl_MC * SFtau_MC;
 		
 		trigSF = Eff_Data / Eff_MC;
+		
+		//trig SF for analysis only with cross-trigger
+		double SFl = eTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+		double SFtau = tauTrgSF->getETauScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
+		trigSF_cross = SFl*SFtau;
+		
 	      }else{ //eta region covered only by single lepton trigger
 		double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		trigSF = SF;
 	      }
+	      //trig SF for analysis only with single-e trigger
+	      trigSF_single =  eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 	    }
 	  // TauTau Channel
 	  else if (pType == 2 && isMC)
@@ -2729,6 +2748,8 @@ int main (int argc, char** argv)
 	    }
 	}
       theSmallTree.m_trigSF     = (isMC ? trigSF : 1.0);
+      theSmallTree.m_trigSF_single     = (isMC ? trigSF_single : 1.0);
+      theSmallTree.m_trigSF_cross     = (isMC ? trigSF_cross : 1.0);
       
 
 
