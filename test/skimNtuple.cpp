@@ -859,6 +859,9 @@ int main (int argc, char** argv)
   // add VBF triggers for jet matching
   trigReader.addVBFTrigs (vbfTriggers);
 
+  // print full list (this is needed to identify the the triggers that fired in the bitwise variable)
+  trigReader.printTriggerList();
+  
   // ------------------------------
 
   OfflineProducerHelper oph (hTriggers, hTauIDS) ;
@@ -890,7 +893,9 @@ int main (int argc, char** argv)
   
 
   //tau legs trigger SF for data and mc 2017
-  TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","medium");
+  //TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","medium");
+  //updated: https://hypernews.cern.ch/HyperNews/CMS/get/tauid/858.html
+  TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017_New.root","weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","medium","MVA");
   ScaleFactor * muTauTrgSF = new ScaleFactor();
   ScaleFactor * eTauTrgSF = new ScaleFactor();
   ScaleFactor * muTrgSF = new ScaleFactor();
@@ -1150,7 +1155,7 @@ int main (int argc, char** argv)
 	  stitchWeight = stitchWeights[njets][nb];
 	}
 
-    if (!DY_tostitch) //FRA debug
+    if (!DY_tostitch && DY_nJets >= 0) //FRA debug
     {
         int njets = theBigTree.lheNOutPartons;
         int nb    = theBigTree.lheNOutB;
@@ -1947,6 +1952,7 @@ int main (int argc, char** argv)
       const int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
       const int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
       const int pType = pairType ;
+
       const int isOS  = theBigTree.isOSCand->at (chosenTauPair) ;
       bool lep1HasTES = false;
       bool lep2HasTES = false;
@@ -1963,15 +1969,7 @@ int main (int argc, char** argv)
 	  theSmallTree.m_nRealTaus = nRealTaus;                     // -1: data; > 0: # real taus in MC
 	}
 
-      // // x check of MC info from genJet()
-      // some differences observed, and some cases of real taus also when taking fully had tt only
-      // // 
-      // int genIdx1 = theBigTree.daughters_genindex->at(firstDaughterIndex);
-      // int genIdx2 = theBigTree.daughters_genindex->at(secondDaughterIndex);
-      // int aidg1 = (genIdx1  > 0 ? abs(theBigTree.genpart_pdg->at(genIdx1)) : 0) ;
-      // int aidg2 = (genIdx2  > 0 ? abs(theBigTree.genpart_pdg->at(genIdx2)) : 0) ;
-      // if (pType == 2 && ( lep1HasTES || lep2HasTES)) cout << "OoOooooooooooooooo ci sono dei real tau!!!! " << lep1HasTES << " " << lep2HasTES << " /// " << iEvent << endl;  
-      // if (aidg1 == 15 || aidg2 == 15 || aidg1 == 66615 || aidg2 == 66615) cout << " BBBBBBBBBBBBB real tau!!! " << aidg1 << " " << aidg2 << " /// " << iEvent << endl;
+      
 
       const TLorentzVector tlv_firstLepton (
 					    theBigTree.daughters_px->at (firstDaughterIndex),
@@ -2052,7 +2050,7 @@ int main (int argc, char** argv)
       float trgEvtWeight     = 1.0;
       float trgEvtWeightUp   = 1.0;
       float trgEvtWeightDown = 1.0;
-    
+      int pass_triggerbit = 0;
       if (applyTriggers)
 	{
 	  Long64_t triggerbit = theBigTree.triggerbit;
@@ -2063,9 +2061,8 @@ int main (int argc, char** argv)
 	  Long64_t goodTriggerType2 = (Long64_t) theBigTree.daughters_isGoodTriggerType->at(secondDaughterIndex);
 
 	  Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
-	  bool passTrg = trigReader.checkOR (pairType,triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
-      isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt());
-
+	  bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
+	  isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt());
       /* // Old version used with single triggers
       bool isCrossTrg = true;
 	  bool trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
@@ -2113,6 +2110,8 @@ int main (int argc, char** argv)
 	    }
 
 	  if (!triggerAccept) continue;
+
+	  theSmallTree.m_pass_triggerbit = pass_triggerbit;
 	  ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
 	  if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
 	}
@@ -2359,90 +2358,288 @@ int main (int argc, char** argv)
 
       // MuTau Channel
       if (pType == 0 && isMC)
-      {
-        float mu1pt  = tlv_firstLepton.Pt();
-        float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
-
-        //float idSF_leg1  = getContentHisto2D(hMuPOGSF_ID , mu1pt, mu1eta);
-        //float isoSF_leg1 = getContentHisto2D(hMuPOGSF_ISO, mu1pt, mu1eta);
-        //float idAndIsoSF_leg1 = idSF_leg1 * isoSF_leg1;
-        float idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
-
-        float idAndIsoSF_leg2 = 1.;
-        if (lep2HasTES) idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
-
-        idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-      }
-
+	{
+	  float mu1pt  = tlv_firstLepton.Pt();
+	  float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
+	  
+	  //float idSF_leg1  = getContentHisto2D(hMuPOGSF_ID , mu1pt, mu1eta);
+	  //float isoSF_leg1 = getContentHisto2D(hMuPOGSF_ISO, mu1pt, mu1eta);
+	  //float idAndIsoSF_leg1 = idSF_leg1 * isoSF_leg1;
+	  float idAndIsoSF_leg1 = 1.;
+	  float idAndIsoSF_leg2 = 1.;
+	  if (fabs(mu1eta < 2.4)){
+	    idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
+	  }
+	  
+	  if (lep2HasTES) idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
+	  
+	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+	}
+      
       // EleTau Channel
       else if (pType == 1 && isMC)
-      {
-        float ele1pt = tlv_firstLepton.Pt();
-        float ele1eta = tlv_firstLepton.Eta();
+	{
+	  float ele1pt = tlv_firstLepton.Pt();
+	  float ele1eta = tlv_firstLepton.Eta();
           
-        //float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_TightID_80WP, ele1eta, ele1pt);  // EMVATight == 80% eff WP
-        float idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
-
-        float idAndIsoSF_leg2 = 1.;
-        if (lep2HasTES) idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
-
-        idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-      }
-
+	  //float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_TightID_80WP, ele1eta, ele1pt);  // EMVATight == 80% eff WP
+	  float idAndIsoSF_leg1 = 1.;
+	  float idAndIsoSF_leg2 = 1.;
+	  
+	  if (fabs(ele1eta < 2.4)){
+	    idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
+	  }
+	  
+	  if (lep2HasTES) idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
+	  
+	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+	}
+      
       // TauTau Channel
       else if (pType == 2 && isMC)
-      {
-        // TauPOG recommendation for 2017 data: SF = 0.89 for each tauh leg
-        float idAndIsoSF_leg1 = 1.;
-        float idAndIsoSF_leg2 = 1.;
-        
-        if (lep1HasTES) idAndIsoSF_leg1 = 0.89;
-        if (lep2HasTES) idAndIsoSF_leg2 = 0.89;
+	{
+	  // TauPOG recommendation for 2017 data: SF = 0.89 for each tauh leg
+	  float idAndIsoSF_leg1 = 1.;
+	  float idAndIsoSF_leg2 = 1.;
+	  
+	  if (lep1HasTES) idAndIsoSF_leg1 = 0.89;
+	  if (lep2HasTES) idAndIsoSF_leg2 = 0.89;
+	  
+	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+	}
       
-        idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-      }
-
       // MuMu Channel
       else if (pType == 3 && isMC)
-      {
-        float mu1pt  = tlv_firstLepton.Pt();
-        float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
-        float mu2pt  = tlv_secondLepton.Pt();
-        float mu2eta = TMath::Abs(tlv_secondLepton.Eta());
-        
-        //float idSF_leg1  = getContentHisto2D(hMuPOGSF_ID , mu1pt, mu1eta);
-        //float isoSF_leg1 = getContentHisto2D(hMuPOGSF_ISO, mu1pt, mu1eta);
-        //float idAndIsoSF_leg1 = idSF_leg1 * isoSF_leg1;
-        float idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
-
-        //float idSF_leg2  = getContentHisto2D(hMuPOGSF_ID , mu2pt, mu2eta);
-        //float isoSF_leg2 = getContentHisto2D(hMuPOGSF_ISO, mu2pt, mu2eta);
-        //float idAndIsoSF_leg2 = idSF_leg2 * isoSF_leg2;
-        float idAndIsoSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu2pt, mu2eta);
-
-        idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-      }
-
+	{
+	  float mu1pt  = tlv_firstLepton.Pt();
+	  float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
+	  float mu2pt  = tlv_secondLepton.Pt();
+	  float mu2eta = TMath::Abs(tlv_secondLepton.Eta());
+	  
+	  
+	  float idAndIsoSF_leg1 = 1.;
+	  float idAndIsoSF_leg2 = 1.;
+	  
+	  if (fabs(mu1eta < 2.4)){
+	    idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
+	  }
+	  if (fabs(mu2eta < 2.4)){
+	    idAndIsoSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu2pt, mu2eta);
+	  }
+	  
+	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+	}
+      
       // EleEle Channel
       else if (pType == 4 && isMC)
-      {
-        float ele1pt = tlv_firstLepton.Pt();
-        float ele2pt = tlv_secondLepton.Pt();
-        float ele1eta = tlv_firstLepton.Eta();
-        float ele2eta = tlv_secondLepton.Eta();
-
-        //float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_MediumID_90WP, ele1eta, ele1pt);  // EMVAMedium == 90% eff WP
-        float idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
-
-        //float idAndIsoSF_leg2 = getContentHisto2D(hElePOGSF_MediumID_90WP, ele2eta, ele2pt);  // EMVAMedium == 90% eff WP
-        float idAndIsoSF_leg2 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele2pt, ele2eta);
-
-        idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-      }
+	{
+	  float ele1pt = tlv_firstLepton.Pt();
+	  float ele2pt = tlv_secondLepton.Pt();
+	  float ele1eta = tlv_firstLepton.Eta();
+	  float ele2eta = tlv_secondLepton.Eta();
+	  
+	  float idAndIsoSF_leg1 = 1.;
+	  float idAndIsoSF_leg2 = 1.;
+	  
+	  if (fabs(ele1eta < 2.4)){
+	    idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
+	  }
+	  if (fabs(ele2eta < 2.4)){
+	    idAndIsoSF_leg2 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele2pt, ele2eta);
+	  }
+	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+	}
+      
       // Save the IDandISO SF (event per event)
       theSmallTree.m_IdAndIsoSF = (isMC ? idAndIsoSF : 1.0);
+      
+      
+      // DATA/MC e, mu fake rate Scale Factors
+      // https://twiki.cern.ch/twiki/bin/view/CMS/TauIDRecommendation13TeV#Muon_to_tau_fake_rate
+      // https://twiki.cern.ch/twiki/bin/view/CMS/TauIDRecommendation13TeV#Electron_to_tau_fake_rate
+      
+      // check if taus are matched to gen e, mu
+      float FakeRateSF = 1.;
+      if(isMC){
+	std::vector< pair<float, int> > dRele_lep1; //could have made a tuple < dR, idx, pdg >  instead... with pairs I have more code but it's less confusing
+	std::vector< pair<float, int> > dRmu_lep1;
+	std::vector< pair<float, int> > dRele_lep2;
+	std::vector< pair<float, int> > dRmu_lep2;
+	for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
+	  {
+	    int pdg = theBigTree.genpart_pdg->at(igen);
+	    int genflags = theBigTree.genpart_flags->at(igen);
+	    
+	    if (fabs(pdg) == 11 || fabs(pdg) == 13){               //is ele or muon
+	      if (CheckBit(genflags, 0) || CheckBit(genflags, 5)){ //isPrompt or isDirectPromptTauDecayProduct	
+		TLorentzVector tlv_gen;
+		tlv_gen.SetPxPyPzE(theBigTree.genpart_px->at(igen),
+				   theBigTree.genpart_py->at(igen),
+				   theBigTree.genpart_pz->at(igen),
+				   theBigTree.genpart_e->at(igen)
+				   );
+		float dRlep1  = tlv_gen.DeltaR(tlv_firstLepton);
+		float dRlep2  = tlv_gen.DeltaR(tlv_secondLepton);
+		
+		
+		  if (tlv_gen.Pt() > 8 && dRlep1 < 0.2){
+		    if (fabs(pdg) == 11) dRele_lep1.push_back(make_pair(dRlep1, igen));
+		    if (fabs(pdg) == 13) dRmu_lep1.push_back(make_pair(dRlep1, igen));
+		  }
+		  
+		  if (tlv_gen.Pt() > 8 && dRlep2 < 0.2){
+		    if (fabs(pdg) == 11) dRele_lep2.push_back(make_pair(dRlep2, igen));
+		    if (fabs(pdg) == 13) dRmu_lep2.push_back(make_pair(dRlep2, igen));
+		  }		  
+	      }
+	    }
+	}
+
+	std::sort(dRele_lep1.begin(), dRele_lep1.end());
+	std::sort(dRele_lep2.begin(), dRele_lep2.end());
+	std::sort(dRmu_lep1.begin(), dRmu_lep1.end());
+	std::sort(dRmu_lep2.begin(), dRmu_lep2.end());
+
+	bool gene_lep1 = false;
+	bool gene_lep2 = false;
+	bool genmu_lep1 = false;
+	bool genmu_lep2 = false;
+	if (dRele_lep1.size() > 0) gene_lep1 = true;
+	if (dRele_lep2.size() > 0) {
+	  gene_lep2 = true;
+	  if (DEBUG){
+
+	    cout <<"gen ele"<<endl;
+	    for (unsigned int i = 0; i <dRele_lep2.size(); i++){
+
+		TLorentzVector tlv_gen;
+		tlv_gen.SetPxPyPzE(theBigTree.genpart_px->at(dRele_lep2.at(i).second),
+				   theBigTree.genpart_py->at(dRele_lep2.at(i).second),
+				   theBigTree.genpart_pz->at(dRele_lep2.at(i).second),
+				   theBigTree.genpart_e->at(dRele_lep2.at(i).second)
+				   );
+		float dRlep2  = tlv_gen.DeltaR(tlv_secondLepton);
+		cout <<tlv_gen.Pt()<<" Pt "<< tlv_gen.Eta()<<" Eta "<<tlv_gen.Phi()<<" Phi "<< dRlep2 << " DeltaR"<< endl;
+		cout <<dRele_lep2.at(i).first<<endl;
+		
+	  }
+	  }
+	}
+	if (dRmu_lep1.size() > 0) genmu_lep1 = true;
+	if (dRmu_lep2.size() > 0){
+	  genmu_lep2 = true;
+	  
+	  if (DEBUG){
+	    cout <<"gen mu"<<endl;
+	    for (unsigned int i = 0; i <dRmu_lep2.size(); i++){
+
+		TLorentzVector tlv_gen;
+		tlv_gen.SetPxPyPzE(theBigTree.genpart_px->at(dRmu_lep2.at(i).second),
+				   theBigTree.genpart_py->at(dRmu_lep2.at(i).second),
+				   theBigTree.genpart_pz->at(dRmu_lep2.at(i).second),
+				   theBigTree.genpart_e->at(dRmu_lep2.at(i).second)
+				   );
+		float dRlep2  = tlv_gen.DeltaR(tlv_secondLepton);
+		cout <<tlv_gen.Pt()<<" Pt "<< tlv_gen.Eta()<<" Eta "<<tlv_gen.Phi()<<" Phi "<< dRlep2 << " DeltaR"<< endl;
+		cout <<dRmu_lep2.at(i).first<<endl;
+		
+	    }
+	  }
+	}
+	if(gene_lep1 && genmu_lep1){
+	  if (dRele_lep1.at(0).first > dRmu_lep1.at(0).first){
+	    gene_lep1 = false;
+	  }else{
+	    genmu_lep1 = false;
+	  }
+	}
+	
+	if(gene_lep2 && genmu_lep2){
+	  if (dRele_lep2.at(0).first > dRmu_lep2.at(0).first){
+	    gene_lep2 = false;
+	  }else{
+	    genmu_lep2 = false;
+	  }
+	}   
+
+	if (DEBUG){
+	  cout<<"**** any gen e-mu matching taus? pairType "<<pairType<<endl;
+	  if (gene_lep1) cout<<"lep1 matches ele; isPrompt: "<<CheckBit(theBigTree.genpart_flags->at(dRele_lep1.at(0).second), 0)<<" isDirectPromptTauDecayProduct: "<<CheckBit(theBigTree.genpart_flags->at(dRele_lep1.at(0).second), 5)<<endl;
+	  if (genmu_lep1) cout<<"lep1 matches mu; isPrompt: "<<CheckBit(theBigTree.genpart_flags->at(dRmu_lep1.at(0).second), 0)<<" isDirectPromptTauDecayProduct: "<<CheckBit(theBigTree.genpart_flags->at(dRmu_lep1.at(0).second), 5)<<endl;
+	  if (gene_lep2) cout<<"lep2 matches ele; isPrompt: "<<CheckBit(theBigTree.genpart_flags->at(dRele_lep2.at(0).second), 0)<<" isDirectPromptTauDecayProduct: "<<CheckBit(theBigTree.genpart_flags->at(dRele_lep2.at(0).second), 5)<<endl;
+	  if (genmu_lep2) cout<<"lep2 matches mu; isPrompt: "<<CheckBit(theBigTree.genpart_flags->at(dRmu_lep2.at(0).second), 0)<<" isDirectPromptTauDecayProduct: "<<CheckBit(theBigTree.genpart_flags->at(dRmu_lep2.at(0).second), 5)<<endl; 	  
+	}
+
+	float FakeRateSF1=1;
+	float FakeRateSF2=1;
+	
+	if (pairType == 2){                           //tau1
+	  float tau1eta = fabs(tlv_firstLepton.Eta());
+	  if (gene_lep1){                           // tau1 matched to gen ele
+	    
+	    if(tau1eta < 1.46){
+	      FakeRateSF1 = 1.4;
+	    }
+	    
+	    if(tau1eta > 1.558){
+	      FakeRateSF1 = 1.25;
+	    }
+	  }else if(genmu_lep1){                      // tau1 matched to gen mu
+	    
+	    if(tau1eta < 0.4){
+	      FakeRateSF1 = 1.06;
+	    }else if (tau1eta < 0.8){
+	      FakeRateSF1 = 1.02;
+	    }else if (tau1eta < 1.2){
+	      FakeRateSF1 = 1.10;
+	    }else if (tau1eta < 1.7){
+	      FakeRateSF1 = 1.03;
+	    }else if (tau1eta < 2.3){
+	      FakeRateSF1 = 1.94;
+	    }
+	    
+	  }
+	}
+	
+	
+	
+	if (pairType == 0 || pairType == 1 || pairType == 2){     //tau2   
+	  float tau2eta = fabs(tlv_secondLepton.Eta()); 
+	  if (gene_lep2){                                         // tau2 matched to gen ele
+	    if(tau2eta < 1.46){
+	      FakeRateSF2 = 1.4;
+	    }
+	    
+	    if(tau2eta > 1.558){
+	      FakeRateSF2 = 1.25;
+	    }
+	  }else if(genmu_lep2){
+	    
+	    if(tau2eta < 0.4){                                        // tau2 matched to gen mu
+	      FakeRateSF2 = 1.06;
+	    }else if (tau2eta < 0.8){
+	      FakeRateSF2 = 1.02;
+	    }else if (tau2eta < 1.2){
+	      FakeRateSF2 = 1.10;
+	    }else if (tau2eta < 1.7){
+	      FakeRateSF2 = 1.03;
+	    }else if (tau2eta < 2.3){
+	      FakeRateSF2 = 1.94;
+	    }
+	    
+	  }
+	}
+	
+	FakeRateSF = FakeRateSF1*FakeRateSF2;
+      
+      }
+      
+      theSmallTree.m_FakeRateSF     = (isMC ? FakeRateSF : 1.0);
+      theSmallTree.m_IdAndIsoAndFakeSF     = (isMC ? FakeRateSF*idAndIsoSF : 1.0);
 
 
+
+      
       // DATA/MC Trigger ScaleFactors
       // https://github.com/CMS-HTT/LeptonEfficiencies
       // https://github.com/truggles/TauTriggerSFs2017
@@ -2631,27 +2828,17 @@ int main (int argc, char** argv)
         if (tlv_jet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
         if (tlv_jet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
 
-        // use these jets for HT
-        if (tlv_jet.Pt () > 20)
-        {
-          ++theSmallTree.m_njets20 ;
-          theSmallTree.m_HT20 += tlv_jet.Pt() ;
-          jetVecSum += tlv_jet ;
-        }
-
-          if (tlv_jet.Pt () > 50)
-        {
-          ++theSmallTree.m_njets50 ;
-          theSmallTree.m_HT50 += tlv_jet.Pt() ;
-        }
-
         // all jets selected as btag cands apart from eta cut
         int ajetHadFlav = abs(theBigTree.jets_HadronFlavour->at(iJet));
         if (ajetHadFlav == 5) ++theSmallTree.m_njetsBHadFlav;
         if (ajetHadFlav == 4) ++theSmallTree.m_njetsCHadFlav;
 
         if (TMath::Abs(tlv_jet.Eta()) > 2.4) continue; // 2.4 for b-tag
-
+        // n bjets candidates
+        if (tlv_jet.Pt () > 20)  ++theSmallTree.m_nbjets20 ;
+	if (tlv_jet.Pt () > 50)   ++theSmallTree.m_nbjets50 ;
+       
+	
         //float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bCSVscore->at (iJet) : tlv_jet.Pt() ;
         float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet)  : tlv_jet.Pt() ;
         if (bChoiceFlag != 1 && bChoiceFlag != 2) cout << "** WARNING : bChoiceFlag not known :" << bChoiceFlag << endl;
@@ -2659,8 +2846,7 @@ int main (int argc, char** argv)
 
       } // loop over jets
 
-      theSmallTree.m_HT20Full = theSmallTree.m_HT20 + tlv_firstLepton.Pt() + tlv_secondLepton.Pt() ;
-      theSmallTree.m_jet20centrality = jetVecSum.Pt() / theSmallTree.m_HT20Full ;
+
 
       theSmallTree.m_nbjetscand = jets_and_sortPar.size();
       theSmallTree.m_nfatjets = theBigTree.ak8jets_px->size();

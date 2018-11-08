@@ -50,6 +50,13 @@ def retrieveHistos (rootFile, namelist, var, sel):
 
 parser = argparse.ArgumentParser(description='Command line parser of plotting options')
 parser.add_argument('--dir', dest='dir', help='analysis output folder name', default="./")
+parser.add_argument('--moreDY', type=float, dest='moreDY', help='increase DY by factor moreDY', default=None)
+parser.add_argument('--moreDY0', type=float, dest='moreDY0', help='increase DY by factor moreDY0', default=None)
+parser.add_argument('--moreDY1', type=float, dest='moreDY1', help='increase DY by factor moreDY1', default=None)
+parser.add_argument('--moreDY2', type=float, dest='moreDY2', help='increase DY by factor moreDY2', default=None)
+parser.add_argument('--moreDYbin0', type=float, dest='moreDYbin0', help='increase DY by factor moreDY0', default=None)
+parser.add_argument('--moreDYbin1', type=float, dest='moreDYbin1', help='increase DY by factor moreDY1', default=None)
+parser.add_argument('--moreDYbin2', type=float, dest='moreDYbin2', help='increase DY by factor moreDY2', default=None)
 args = parser.parse_args()
 
 cfgName        = findInFolder  (args.dir+"/", 'mainCfg_*.cfg')
@@ -119,6 +126,21 @@ if cfg.hasSection('pp_rebin'):
             sel = seldef + '_' + reg
             omngr.rebin(var, sel, newbinning)
 
+if args.moreDY:
+    omngr.scaleHistos("DY", args.moreDY)
+if args.moreDY0:
+    omngr.scaleHistos("DY0", args.moreDY0)
+if args.moreDY1:
+    omngr.scaleHistos("DY1", args.moreDY1)
+if args.moreDY2:
+    omngr.scaleHistos("DY2", args.moreDY2)
+if args.moreDYbin0:
+    omngr.scaleHistos("DY", args.moreDYbin0, "pt0to50")
+if args.moreDYbin1:
+    omngr.scaleHistos("DY", args.moreDYbin1, "pt50to150")
+if args.moreDYbin2:
+    omngr.scaleHistos("DY", args.moreDYbin2, "pt150")
+            
 if cfg.hasSection('pp_QCD'):
     omngr.makeQCD(
         SR           = cfg.readOption('pp_QCD::SR'),

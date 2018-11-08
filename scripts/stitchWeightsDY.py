@@ -66,13 +66,13 @@ Nevents = {
 ########################################
 
 fractionHistosFilesNames = {
-    'inclusive' : '../weights/DYstitchMap/DYmap_inclusive.root',
-    '1jet'      : '../weights/DYstitchMap/DYmap_1jet.root',
-    '2jet'      : '../weights/DYstitchMap/DYmap_2jet.root',
-    '3jet'      : '../weights/DYstitchMap/DYmap_3jet.root',
-    '4jet'      : '../weights/DYstitchMap/DYmap_4jet.root',
+    'inclusive' : '../weights/DYstitchMap/DYmap_inclusive_2017.root',
+    '1jet'      : '../weights/DYstitchMap/DYmap_1jet_2017.root',
+    '2jet'      : '../weights/DYstitchMap/DYmap_2jet_2017.root',
+    '3jet'      : '../weights/DYstitchMap/DYmap_3jet_2017.root',
+    '4jet'      : '../weights/DYstitchMap/DYmap_4jet_2017.root',
     '1b'        : '../weights/DYstitchMap/DYmap_Bjet.root',
-    '2b'        : '../weights/DYstitchMap/DYmap_BBjet.root'
+    '2b'        : '../weights/DYstitchMap/DYmap_BBjet_2017.root'
 }
 
 fractionHistosFiles = {}
@@ -124,7 +124,7 @@ for njet in range (0, 5):
 #         print (njet, nb, fractionXS[njet][nb])
 
 
-fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined.root", "recreate")
+fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined_2017.root", "recreate")
 h2DfractionXS = TH2F ("h2DfractionXS", "h2DfractionXS;njet;nb", 5, 0, 5, 5, 0, 5)
 for njet in range (0, 5):
     for nb in range (0, 5):

@@ -163,6 +163,7 @@ if __name__ == "__main__":
 
 
     skimmer = 'skimNtuple.exe'
+    #skimmer = 'skimNtuple_oldOrder.exe' # first the bjets by deepCSV and then VBFjets as highest Mjj pair
 
     if opt.config == 'none' :
         print 'config file missing, exiting'

@@ -47,7 +47,7 @@ def retrieveHistos (rootFile, namelist, var, sel, reg,flat,binning):
     res = {}
     for name in namelist:
         fullName = name + "_" + sel + "_" + reg + "_" + var
-        print fullName
+
         if not rootFile.GetListOfKeys().Contains(fullName):
             print "*** WARNING: histo " , fullName , " not available"
             continue
@@ -62,14 +62,14 @@ def retrieveHistos (rootFile, namelist, var, sel, reg,flat,binning):
     return res
                         
 def getHisto (histoName,inputList,doOverflow):
-        print histoName, inputList
+
         for idx, name in enumerate(inputList):
-                print idx, name
-                if (name.startswith(histoName)):
+
+                if (name.startswith(histoName) and name.endswith(histoName)):
                         h = inputList[name].Clone (histoName)
                         if doOverflow: h = addOverFlow(h)
                         break
-        print h        
+
         return h
 
 ### QCD is special and has a strange name, need data to recontruct it
@@ -145,6 +145,7 @@ def makeTGraphFromHist (histo, newName):
     gData.SetLineColor(kBlack);
     gData.SetName(newName)
     return gData;
+
 # set all horizontal bar errors to 0
 def removeHErrors (graph):
     for ipt in range (0, graph.GetN()):
@@ -362,6 +363,7 @@ if __name__ == "__main__" :
     #string opts
     parser.add_argument('--var', dest='var', help='variable name', default=None)
     parser.add_argument('--sel', dest='sel', help='selection name', default=None)
+    parser.add_argument('--name', dest='name', help='selection name for plot', default=None)
     parser.add_argument('--dir', dest='dir', help='analysis output folder name', default="./")
     parser.add_argument('--tag', dest='tag', help='plots output folder name', default="./")
     parser.add_argument('--reg', dest='reg', help='region name', default=None)
@@ -434,8 +436,9 @@ if __name__ == "__main__" :
     bkgList    = cfg.readListOption("general::backgrounds")
 
     doQCD = True
-
-    #if cfg.hasSection('pp_QCD'):
+    if not "SR" in args.reg: doQCD = False
+    if not "Tau" in args.channel: doQCD = False
+    
     if doQCD:
         bkgList.append('QCD')
     sigList = cfg.readListOption("general::signals")
@@ -494,7 +497,7 @@ if __name__ == "__main__" :
     if args.title:
         plotTitle = args.title
     dataList = ["data_obs"]
-    print bkgList
+
 
     if cfg.hasSection("merge"): 
         for groupname in cfg.config['merge']:
@@ -507,14 +510,15 @@ if __name__ == "__main__" :
 
    
 
-    print bkgList
+
     ###########################################################################
     #setPlotStyle()
 
 
-    
     outplotterName = findInFolder  (args.dir+"/", 'analyzedOutPlotter.root')
     
+    if not "Tau" in args.channel:
+            outplotterName = findInFolder  (args.dir+"/", 'outPlotter.root')            
 
     rootFile = TFile.Open (args.dir+"/"+outplotterName)
 
@@ -527,7 +531,7 @@ if __name__ == "__main__" :
 
     hDatas = retrieveHistos  (rootFile, dataList, args.var, args.sel,args.reg,args.flat,binning)
 
-    print hDatas
+
     
     xsecRatio = 19.56
     if not args.log: xsecRatio = xsecRatio/float(10)
@@ -539,6 +543,7 @@ if __name__ == "__main__" :
 
 
     hDY = getHisto("DY", hBkgs,doOverflow)
+    #hDYbb = getHisto("DYbb", hBkgs,doOverflow)
     #hDY.Scale(1./6.)
     hTT = getHisto("TT", hBkgs,doOverflow)
     hWJets = getHisto("WJets", hBkgs,doOverflow)
@@ -554,7 +559,7 @@ if __name__ == "__main__" :
     #hBkgList = [hsingleT, hTT, hDY]
 
     #hBkgNameList = ["Others","SM Higgs", "VV", "EWK", "Single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
-    hBkgNameList = ["Others", "W + jets", "t#bar{t}","DY + jets"] # list for legend
+    hBkgNameList = ["Others", "W + jets", "t#bar{t}" , "DY + jets"] # list for legend
     #hBkgNameList = ["VV", "EWK", "single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
     #hBkgNameList = ["Single top", "t#bar{t}", "DY + jets"]
 
@@ -568,9 +573,9 @@ if __name__ == "__main__" :
         bkgColors["QCD"] = col.GetColor("#F29563") #(TColor(242,149,99)).GetNumber() #gROOT.GetColor("#F29563")
         bkgLineColors["QCD"] = col.GetColor("#DC885A")
 
-    print hDatas    
+
     hData = getHisto("data_obs", hDatas , doOverflow).Clone("hData")
-    print hData
+
     # remove all data from blinding region before creating tgraph etc...
     if args.blindrange:
         blow = float (args.blindrange[0]) 
@@ -580,7 +585,7 @@ if __name__ == "__main__" :
             if center > blow and center < bup:
                 hData.SetBinContent(ibin, 0)
 
-    print hData
+
     hDataNonScaled = hData.Clone("hDataNonScaled")
     gData = makeTGraphFromHist (hData, "grData")
 
@@ -777,31 +782,33 @@ if __name__ == "__main__" :
     cmsTextSize   = 0.05  # font size of the "CMS" label
     extraTextFont   = 52     # for the "preliminary"
     extraTextSize   = 0.76 * cmsTextSize # for the "preliminary"
-    xpos  = 0.177
-    ypos  = 0.92
+
+
+    
+    t = gPad.GetTopMargin()
+    b = gPad.GetBottomMargin()
+    l = gPad.GetLeftMargin()
+    r = gPad.GetRightMargin()       
     #yoffset = 0.05 # fractional shift   
 
-    CMSbox       = TLatex  (xpos, ypos         , "CMS")       
-    extraTextBox = TLatex  (xpos, ypos - 0.05 , "preliminary")
+    CMSbox       = TLatex  (l , 1 - t + 0.02, "CMS")       
+    extraTextBox = TLatex  (l + 0.1 , 1 - t + 0.02,"Preliminary")
     CMSbox.SetNDC()
     extraTextBox.SetNDC()
     CMSbox.SetTextSize(cmsTextSize)
     CMSbox.SetTextFont(cmsTextFont)
     CMSbox.SetTextColor(kBlack)
-    CMSbox.SetTextAlign(13)
+    CMSbox.SetTextAlign(11)
     extraTextBox.SetTextSize(extraTextSize)
     extraTextBox.SetTextFont(extraTextFont)
     extraTextBox.SetTextColor(kBlack)
-    extraTextBox.SetTextAlign(13)
+    extraTextBox.SetTextAlign(11)
 
     x = 0
     y = 0
     #    histoWidth = histo.GetXaxis().GetBinWidth(1)*histo.GetXaxis().GetNbins()
     #    histoHeight = histo.GetMaximum()-histo.GetMinimum()
-    t = gPad.GetTopMargin()
-    b = gPad.GetBottomMargin()
-    l = gPad.GetLeftMargin()
-    r = gPad.GetRightMargin()
+ 
 
     lumi = "%.1f fb^{-1} (13 TeV)" % args.lumi_num
     lumibox = TLatex  (1-r, 1 - t + 0.02 , lumi)       
@@ -811,8 +818,6 @@ if __name__ == "__main__" :
     lumibox.SetTextFont(42)
     lumibox.SetTextColor(kBlack)
 
-    chName = None
-    chBox = None
     if args.channel:
         if args.channel == "MuTau":
             chName = "bb #mu#tau_{h}"
@@ -820,22 +825,45 @@ if __name__ == "__main__" :
             chName = "bb e#tau_{h}"
         elif args.channel == "TauTau":
             chName = "bb #tau_{h}#tau_{h}"
+        elif args.channel == "MuMu":
+            chName = "bb #mu#mu"
         else:
             print "*** Warning: channel name must be MuTau, ETau, TauTau, you wrote: " , args.channel
 
         if chName:
-            chBox = TLatex  (l , 1 - t + 0.02, chName)
+            chBox = TLatex  (l + 0.04 , 1 - t - 0.02, chName)
             chBox.SetNDC()
             chBox.SetTextSize(cmsTextSize+20)
             chBox.SetTextFont(43)
             chBox.SetTextColor(kBlack)
-            chBox.SetTextAlign(11)
+            chBox.SetTextAlign(13)
+            
     CMSbox.Draw()
     extraTextBox.Draw()
     lumibox.Draw()
+    
     if args.legend: leg.Draw()
     if chBox: chBox.Draw()
 
+
+    if not args.name:
+            if "baseline" in args.sel:  
+                    selName = "baseline"
+            if "1b1j" in args.sel:  
+                    selName = "1b1j"
+            if "2b0j" in args.sel:  
+                    selName = "2b0j"
+    else:
+            selName = args.name
+
+    selBox = TLatex  (l + 0.04 , 1 - t - 0.02 - 0.06, selName)
+    selBox.SetNDC()
+    selBox.SetTextSize(cmsTextSize+20)
+    selBox.SetTextFont(43)
+    selBox.SetTextColor(kBlack)
+    selBox.SetTextAlign(13)
+    selBox.Draw()
+    
     ###################### BLINDING BOX ###############################
     if args.blindrange:
         blow = float(args.blindrange[0])
@@ -919,14 +947,13 @@ if __name__ == "__main__" :
         c1.Update()
         pad1.Update()
         if pad2: pad2.Update()
-        #raw_input() # to prevent script from closing
+        raw_input() # to prevent script from closing
 
     if args.printplot:
         tagch = ""
         if args.channel:
             tagch = "_" + args.channel
-        #saveName = "./plotsHH2017_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
-        saveName = "./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
+        saveName = "./plotsHH2017_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
         if args.log:
             saveName = saveName+"_log"
         if args.flat:

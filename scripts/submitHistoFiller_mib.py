@@ -18,6 +18,18 @@
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_30Jul2018_newPU_oldSF --n 50
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_1Aug2018_noPU_noSF_splitDY --n 30
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_8Aug2018 --n 28
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_19Oct2018_DY_Zpt_Zmass --n 30
+#
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_25Oct2018_TESI  --n 25
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_25Oct2018_TESI_noNLO  --n 30
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_25Oct2018_TESI_NLO  --n 30
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_25Oct2018_TESI_NLO_BDTouts  --n 30
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_ETau.cfg   --tag analysis_ETau_25Oct2018_TESI_test   --n 18
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_25Oct2018_TESI --n 25
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_25Oct2018_TESI_BDTouts --n 30
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_25Oct2018_TESI_RES --n 35
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_25Oct2018_TESI_VBF --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_25Oct2018_TESI_ggH --n 40
 
 #
 # - LOOK at QCD -
@@ -30,6 +42,13 @@
 # python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_25Jul2018_newPU --n 40
 # python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_28Jul2018_newSF --n 40
 # python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_30Jul2018_newPU_oldSF --n 50
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_8Sep2018_all --n 45
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_19Oct2018_DY_Zpt_Zmass --n 30
+#
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_MuTau.cfg  --tag lookatQCD_MuTau_25Oct2018_TESI  --n 25
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_25Oct2018_TESI --n 25
+
+
 ################
 
 import os
@@ -80,7 +99,7 @@ for nj in range(0, args.njobs):
 
     
     os.system ('chmod u+rwx ' + outDir + '/' + scriptName)
-    launchcommand = ('/usr/bin/qsub -q  longcms ' + outDir + '/' + scriptName)
-    #launchcommand = ('/usr/bin/qsub -q  shortcms ' + outDir + '/' + scriptName)
+    #launchcommand = ('/usr/bin/qsub -q  longcms ' + outDir + '/' + scriptName)
+    launchcommand = ('/usr/bin/qsub -q  shortcms ' + outDir + '/' + scriptName)
     print launchcommand
     os.system (launchcommand)

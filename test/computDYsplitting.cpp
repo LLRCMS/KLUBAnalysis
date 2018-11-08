@@ -121,7 +121,7 @@ int main(int argc, char** argv)
 
         int got = theBigTree.fChain->GetEntry(iEvent);
         if (got == 0) break;
-        // if (iEvent > 100000) break;
+         if (iEvent > 1000000) break;
 
         ++totEvents ;
 

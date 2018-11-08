@@ -226,6 +226,11 @@ class OutputManager:
                 # if var == 'MT2' and sel == 'defaultBtagLLNoIsoBBTTCut' :  print qcdYield
                 ## now scale
                 qcdYield = hyieldQCD.Integral()
+                #SBtoSRfactor=1.34
+                #if "pt0to50" in sel: SBtoSRfactor = 1.25
+                #if "pt50to150" in sel: SBtoSRfactor = 1.38
+                #if "pt150" in sel: SBtoSRfactor = 1.90
+                
                 sc = SBtoSRfactor*qcdYield/hQCD.Integral() if hQCD.Integral() > 0 else 0.0
                 hQCD.Scale(sc)
 
@@ -329,4 +334,17 @@ class OutputManager:
     #     ### so it is enough to check only the syst for every sample and for a nominal selection (sel + 'SR')
 
     #     self.systMap = {}
+
+    def scaleHistos(self,strBkg, factor, strSel = None):
+        print '... scaling histos for bkg: ' , strBkg, " ",strSel, ' by factor : ', factor        
+        for sel in self.selections:
+            if strSel:
+                if not strSel in sel: continue 
+            for var in self.variables:
+                for idx, s in enumerate(self.bkgs):
+                    if (strBkg in s):
+                        htoscale_name = makeHistoName(s, sel, var)
+                        print htoscale_name
+                        h = self.histos[htoscale_name]
+                        h.Scale(factor)
 

@@ -26,44 +26,60 @@ const TH2* loadTH2(const TFile* inputFile, const std::string& histogramName)
   return histogram;
 }
 
-TauTriggerSFs2017::TauTriggerSFs2017(const std::string& inputFileName, const std::string& tauMVAWP)
+TauTriggerSFs2017::TauTriggerSFs2017(const std::string& inputFileName, const std::string& inputFileNameOld, const std::string& tauWP, const std::string& wpType)
   : inputFileName_(inputFileName),
-    tauMVAWP_(tauMVAWP)
+    inputFileNameOld_(inputFileNameOld),
+    tauWP_(tauWP),
+    wpType_(wpType)
 {
   inputFile_ = new TFile(inputFileName_.data());
   if ( !inputFile_ ) {
     std::cerr << "Failed to open input file = '" << inputFileName_ << "' !!" << std::endl;
     assert(0);
   }
+
+  inputFileOld_ = new TFile(inputFileNameOld_.data());
+  if ( !inputFileOld_ ) {
+    std::cerr << "Failed to open input file = '" << inputFileNameOld_ << "' !!" << std::endl;
+    assert(0);
+  }
   
   // load the TH1s containing the bin by bin values
-  diTauData_ = loadTH1(inputFile_, Form("hist_diTauTriggerEfficiency_%sTauMVA_DATA", tauMVAWP_.data()));
-  diTauMC_ = loadTH1(inputFile_, Form("hist_diTauTriggerEfficiency_%sTauMVA_MC", tauMVAWP_.data()));
-  eTauData_ = loadTH1(inputFile_, Form("hist_ETauTriggerEfficiency_%sTauMVA_DATA", tauMVAWP_.data()));
-  eTauMC_ = loadTH1(inputFile_, Form("hist_ETauTriggerEfficiency_%sTauMVA_MC", tauMVAWP_.data()));
-  muTauData_ = loadTH1(inputFile_, Form("hist_MuTauTriggerEfficiency_%sTauMVA_DATA", tauMVAWP_.data()));
-  muTauMC_ = loadTH1(inputFile_, Form("hist_MuTauTriggerEfficiency_%sTauMVA_MC", tauMVAWP_.data()));
+  diTauData_ = loadTH1(inputFile_, Form("hist_diTauTriggerEfficiency_%sTau%s_DATA", tauWP_.data(), wpType_.data()));
+  diTauMC_ = loadTH1(inputFile_, Form("hist_diTauTriggerEfficiency_%sTau%s_MC", tauWP_.data(), wpType_.data()));
+  eTauData_ = loadTH1(inputFile_, Form("hist_ETauTriggerEfficiency_%sTau%s_DATA", tauWP_.data(), wpType_.data()));
+  eTauMC_ = loadTH1(inputFile_, Form("hist_ETauTriggerEfficiency_%sTau%s_MC", tauWP_.data(), wpType_.data()));
+  muTauData_ = loadTH1(inputFile_, Form("hist_MuTauTriggerEfficiency_%sTau%s_DATA", tauWP_.data(), wpType_.data()));
+  muTauMC_ = loadTH1(inputFile_, Form("hist_MuTauTriggerEfficiency_%sTau%s_MC", tauWP_.data(), wpType_.data()));
+
+
+  // FIXME: Use the eta-phi efficiency corrections from pre-re-miniaod branch
+  // Only medium, tight, and vtight are provided and they are from MVA ID
+  std::string tmpWP = tauWP_.data();
+  if (tmpWP == "vvloose" || tmpWP == "vloose" || tmpWP == "loose") tmpWP = "medium";
+  if (tmpWP == "vvtight")  tmpWP = "vtight";
         
   // load the TH2s containing the eta phi efficiency corrections
-  diTauEtaPhiData_ = loadTH2(inputFile_, Form("diTau_%s_DATA", tauMVAWP_.data()));
-  diTauEtaPhiMC_ = loadTH2(inputFile_, Form("diTau_%s_MC", tauMVAWP_.data()));
-  eTauEtaPhiData_ = loadTH2(inputFile_, Form("eTau_%s_DATA", tauMVAWP_.data()));
-  eTauEtaPhiMC_ = loadTH2(inputFile_, Form("eTau_%s_MC", tauMVAWP_.data()));
-  muTauEtaPhiData_ = loadTH2(inputFile_, Form("muTau_%s_DATA", tauMVAWP_.data()));
-  muTauEtaPhiMC_ = loadTH2(inputFile_, Form("muTau_%s_MC", tauMVAWP_.data()));
+  diTauEtaPhiData_ = loadTH2(inputFileOld_, Form("diTau_%s_DATA", tmpWP.data()));
+  diTauEtaPhiMC_ = loadTH2(inputFileOld_, Form("diTau_%s_MC", tmpWP.data()));
+  eTauEtaPhiData_ = loadTH2(inputFileOld_, Form("eTau_%s_DATA", tmpWP.data()));
+  eTauEtaPhiMC_ = loadTH2(inputFileOld_, Form("eTau_%s_MC", tmpWP.data()));
+  muTauEtaPhiData_ = loadTH2(inputFileOld_, Form("muTau_%s_DATA", tmpWP.data()));
+  muTauEtaPhiMC_ = loadTH2(inputFileOld_, Form("muTau_%s_MC", tmpWP.data()));
 
   // Eta Phi Avg
-  diTauEtaPhiAvgData_ = loadTH2(inputFile_, Form("diTau_%s_AVG_DATA", tauMVAWP_.data()));
-  diTauEtaPhiAvgMC_ = loadTH2(inputFile_, Form("diTau_%s_AVG_MC", tauMVAWP_.data()));
-  eTauEtaPhiAvgData_ = loadTH2(inputFile_, Form("eTau_%s_AVG_DATA", tauMVAWP_.data()));
-  eTauEtaPhiAvgMC_ = loadTH2(inputFile_, Form("eTau_%s_AVG_MC", tauMVAWP_.data()));
-  muTauEtaPhiAvgData_ = loadTH2(inputFile_, Form("muTau_%s_AVG_DATA", tauMVAWP_.data()));
-  muTauEtaPhiAvgMC_ = loadTH2(inputFile_, Form("muTau_%s_AVG_MC", tauMVAWP_.data()));
+  diTauEtaPhiAvgData_ = loadTH2(inputFileOld_, Form("diTau_%s_AVG_DATA", tmpWP.data()));
+  diTauEtaPhiAvgMC_ = loadTH2(inputFileOld_, Form("diTau_%s_AVG_MC", tmpWP.data()));
+  eTauEtaPhiAvgData_ = loadTH2(inputFileOld_, Form("eTau_%s_AVG_DATA", tmpWP.data()));
+  eTauEtaPhiAvgMC_ = loadTH2(inputFileOld_, Form("eTau_%s_AVG_MC", tmpWP.data()));
+  muTauEtaPhiAvgData_ = loadTH2(inputFileOld_, Form("muTau_%s_AVG_DATA", tmpWP.data()));
+  muTauEtaPhiAvgMC_ = loadTH2(inputFileOld_, Form("muTau_%s_AVG_MC", tmpWP.data()));
 }
 
 TauTriggerSFs2017::~TauTriggerSFs2017()
 {
   delete inputFile_;
+  delete inputFileOld_;
 }
 
 double getEfficiency(double pt, double eta, double phi, const TH1* effHist, const TH2* etaPhi, const TH2* etaPhiAvg, int central_or_shift = TauTriggerSFs2017::kCentral)
@@ -130,7 +146,7 @@ double TauTriggerSFs2017::getDiTauScaleFactor(double pt, double eta, double phi,
   double effMC = getDiTauEfficiencyMC(pt, eta, phi, central_or_shift);
   if ( effMC < 1e-5 ) {
     std::cerr << "Eff MC is suspiciously low. Please contact Tau POG." << std::endl;
-    std::cerr << Form(" - DiTau Trigger SF for Tau MVA: %s   pT: %3.3f   eta: %3.3f   phi: %3.3f", tauMVAWP_.data(), pt, eta, phi) << std::endl;
+    std::cerr << Form(" - DiTau Trigger SF for Tau ID: %s   WP: %s   pT: %3.3f   eta: %3.3f   phi: %3.3f", wpType_.data(), tauWP_.data(), pt, eta, phi) << std::endl;
     std::cerr << Form(" - MC Efficiency = %3.3f", effMC) << std::endl;
     return 0.;
   }
@@ -154,7 +170,7 @@ double TauTriggerSFs2017::getMuTauScaleFactor(double pt, double eta, double phi,
   double effMC = getMuTauEfficiencyMC(pt, eta, phi, central_or_shift);
   if ( effMC < 1e-5 ) {
     std::cerr << "Eff MC is suspiciously low. Please contact Tau POG." << std::endl;
-    std::cerr << Form(" - MuTau Trigger SF for Tau MVA: %s   pT: %3.3f   eta: %3.3f   phi: %3.3f", tauMVAWP_.data(), pt, eta, phi) << std::endl;
+    std::cerr << Form(" - MuTau Trigger SF for Tau ID: %s   WP: %s   pT: %3.3f   eta: %3.3f   phi: %3.3f", wpType_.data(), tauWP_.data(), pt, eta, phi) << std::endl;
     std::cerr << Form(" - MC Efficiency = %3.3f", effMC) << std::endl;
     return 0.;
   }
@@ -178,7 +194,7 @@ double TauTriggerSFs2017::getETauScaleFactor(double pt, double eta, double phi, 
   double effMC = getETauEfficiencyMC(pt, eta, phi, central_or_shift);
   if ( effMC < 1e-5 ) {
     std::cerr << "Eff MC is suspiciously low. Please contact Tau POG." << std::endl;
-    std::cerr << Form(" - ETau Trigger SF for Tau MVA: %s   pT: %3.3f   eta: %3.3f   phi: %3.3f", tauMVAWP_.data(), pt, eta, phi) << std::endl;
+    std::cerr << Form(" - ETau Trigger SF for Tau ID: %s   WP: %s   pT: %3.3f   eta: %3.3f   phi: %3.3f", wpType_.data(), tauWP_.data(), pt, eta, phi) << std::endl;
     std::cerr << Form(" - MC Efficiency = %3.3f", effMC) << std::endl;
     return 0.;
   }
