@@ -31,7 +31,8 @@ using namespace std;
 
 bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag, std::string WPset) :
     
-    m_calib("CSVv2", SFfilename.c_str()) ,
+    //m_calib("CSVv2", SFfilename.c_str()) ,
+    m_calib("DeepCSV", SFfilename.c_str()) ,
     m_readers {
         BTagCalibrationReader(BTagEntry::OP_LOOSE,  "central", {"up", "down"}),
         BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"}),
@@ -333,6 +334,7 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
         if (DEBUG) cout << "  >> DEB: tagged " << tagged[0] << " " << tagged[1] << " " << tagged[2] << endl;
         for (int iWP = 0; iWP < 3; iWP++)
         {
+            //cout << " ---> WP: " << iWP << endl;
             double tmpMC   = P_MC.at(iWP);
             double tmpData = P_Data.at(iWP);
 
@@ -346,6 +348,11 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
                 tmpMC *= (1. - effBTag[iWP]);  
                 tmpData *= (1. - (effBTag[iWP]*SF[iWP]) );  
             }
+
+            //cout << "       effBTag: " << effBTag[iWP] << endl;
+            //cout << "       SF: " << SF[iWP] << endl;
+            //cout << "       tmpMC: " << tmpMC << endl;
+            //cout << "       tmpData: " << tmpData << endl;
         
             P_MC.at(iWP)  = tmpMC;
             P_Data.at(iWP) = tmpData;

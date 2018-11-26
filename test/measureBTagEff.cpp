@@ -76,7 +76,8 @@ int main(int argc, char** argv)
 
     // -------------------------------------------------------------------------------------------
     // histos
-    float PtBins[]  =  {20, 30, 40, 50, 70, 100, 150, 200, 300, 640} ;
+    float PtBins[]  =  {20, 30, 40, 60, 100, 150, 200, 300, 1000};
+    //float PtBins[]  =  {20, 30, 40, 50, 70, 100, 150, 200, 300, 640} ;
     float EtaBins[] =  {0, 0.6, 1.2, 2.1, 2.4} ;
     int nPtBins  = sizeof(PtBins)/sizeof(float) - 1;
     int nEtaBins = sizeof(EtaBins)/sizeof(float) - 1;
@@ -449,21 +450,43 @@ int main(int argc, char** argv)
     {
         for (unsigned int isel = 0; isel < selections.size(); isel++)
         {
-            TEfficiency* pEff_b = 0;
-            TEfficiency* pEff_c = 0;
-            TEfficiency* pEff_udsg = 0;
+            //TEfficiency* pEff_b = 0;
+            //TEfficiency* pEff_c = 0;
+            //TEfficiency* pEff_udsg = 0;
 
-            eff_b.at(iWP).at(isel) = new TH2F    (Form("eff_b_%s_%s"   , WPname[iWP].c_str(), selections.at(isel).first.Data() ) , "eff_b; pT; |#eta|", nPtBins, PtBins, nEtaBins, EtaBins);
-            eff_c.at(iWP).at(isel) = new TH2F    (Form("eff_c_%s_%s"   , WPname[iWP].c_str(), selections.at(isel).first.Data() ) , "eff_c; pT; |#eta|", nPtBins, PtBins, nEtaBins, EtaBins);
-            eff_udsg.at(iWP).at(isel) = new TH2F (Form("eff_udsg_%s_%s", WPname[iWP].c_str(), selections.at(isel).first.Data() ) , "eff_udsg; pT; |#eta|", nPtBins, PtBins, nEtaBins, EtaBins);
+            //eff_b.at(iWP).at(isel) = new TH2F    (Form("eff_b_%s_%s"   , WPname[iWP].c_str(), selections.at(isel).first.Data() ) , "eff_b; pT; |#eta|", nPtBins, PtBins, nEtaBins, EtaBins);
+            //eff_c.at(iWP).at(isel) = new TH2F    (Form("eff_c_%s_%s"   , WPname[iWP].c_str(), selections.at(isel).first.Data() ) , "eff_c; pT; |#eta|", nPtBins, PtBins, nEtaBins, EtaBins);
+            //eff_udsg.at(iWP).at(isel) = new TH2F (Form("eff_udsg_%s_%s", WPname[iWP].c_str(), selections.at(isel).first.Data() ) , "eff_udsg; pT; |#eta|", nPtBins, PtBins, nEtaBins, EtaBins);
+
+            (eff_b.at(iWP).at(isel)) = (TH2F*)(h2_BTaggingEff_Num_b.at(iWP).at(isel))->Clone(Form("eff_b_%s_%s", WPname[iWP].c_str(), selections.at(isel).first.Data() ));
+            (eff_b.at(iWP).at(isel))->Sumw2();
+            (eff_b.at(iWP).at(isel))->Divide((h2_BTaggingEff_Denom_b.at(iWP).at(isel)));
+
+            (eff_c.at(iWP).at(isel)) = (TH2F*)(h2_BTaggingEff_Num_c.at(iWP).at(isel))->Clone(Form("eff_c_%s_%s", WPname[iWP].c_str(), selections.at(isel).first.Data() ));
+            (eff_c.at(iWP).at(isel))->Sumw2();
+            (eff_c.at(iWP).at(isel))->Divide((h2_BTaggingEff_Denom_c.at(iWP).at(isel)));
+
+            (eff_udsg.at(iWP).at(isel)) = (TH2F*)(h2_BTaggingEff_Num_udsg.at(iWP).at(isel))->Clone(Form("eff_udsg_%s_%s", WPname[iWP].c_str(), selections.at(isel).first.Data() ));
+            (eff_udsg.at(iWP).at(isel))->Sumw2();
+            (eff_udsg.at(iWP).at(isel))->Divide((h2_BTaggingEff_Denom_udsg.at(iWP).at(isel)));
 
             // b jets
-            if(TEfficiency::CheckConsistency( *(h2_BTaggingEff_Num_b.at(iWP).at(isel)), *(h2_BTaggingEff_Denom_b.at(iWP).at(isel)) ) )
+            /*if(TEfficiency::CheckConsistency( *(h2_BTaggingEff_Num_b.at(iWP).at(isel)), *(h2_BTaggingEff_Denom_b.at(iWP).at(isel)) ) )
             {
                 pEff_b = new TEfficiency(*(h2_BTaggingEff_Num_b.at(iWP).at(isel)), *(h2_BTaggingEff_Denom_b.at(iWP).at(isel)));
+
                 for (int gBin = 0; gBin < (h2_BTaggingEff_Num_b.at(iWP).at(isel))->GetSize(); gBin++)
                 {
                     (eff_b.at(iWP).at(isel))->SetBinContent(gBin, pEff_b->GetEfficiency(gBin));
+
+                    //cout << "  *** TESTING: "<< h2_BTaggingEff_Num_b.at(iWP).at(isel) << endl;
+                    //float numX = h2_BTaggingEff_Num_b.at(iWP).at(isel)->GetBinContent(gBin);
+                    //float denX = h2_BTaggingEff_Denom_b.at(iWP).at(isel)->GetBinContent(gBin);
+                    //cout << " ***DEB num, den, rap: " << numX << "  " << denX << "  " << numX/denX << endl;
+                    //eff_b_2D->SetBinContent(gBin, numX);
+                    //eff_b_2D = (h2_BTaggingEff_Num_b.at(iWP).at(isel))->Clone();
+                    //std::cout << " ***DEB: getErrLow: " << pEff_b->GetEfficiencyErrorLow(gBin) << endl;
+                    //std::cout << "         getErrUp : " << pEff_b->GetEfficiencyErrorUp(gBin) << endl;
                 }
                 //delete pEff_b; // ? could crash, stupid ROOT...
             }
@@ -486,7 +509,7 @@ int main(int argc, char** argv)
                     (eff_udsg.at(iWP).at(isel))->SetBinContent(gBin, pEff_udsg->GetEfficiency(gBin));
                 }
                 //delete pEff_b; // ? could crash, stupid ROOT...
-            }
+            }*/
         }
     }
     // save

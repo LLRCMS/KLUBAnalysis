@@ -19,12 +19,22 @@
 # # TauTau
 # TauTau = pairType == 2 && dau1_pt > 45 && abs (dau1_eta) < 2.1 && dau2_pt > 45 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_iso < 2.0 && dau2_iso < 2.0 && isOS != 0
 
-## 2017 - to be fixed!!
+## 2017 - first version
 ## all pt cuts lowered to 10 (20) for ele/mu (tau) since pt cuts are now NOT fixed anymore but related to the trigger fired
 ## these selections are now aligned to OfflineProducerHelper.cc
+# # MuTau
+# MuTau = pairType == 0 && dau1_pt > 10 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && dau1_iso < 0.15 && dau2_MVAisoNew < 3.0 && isOS != 0
+# # EleTau
+# EleTau = pairType == 1 && dau1_pt > 10 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && dau1_iso < 0.1 && dau2_MVAisoNew < 3.0 && isOS != 0
+# # TauTau
+# TauTau = pairType == 2 && dau1_pt > 20 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_MVAisoNew < 2.0 && dau2_MVAisoNew < 2.0 && isOS != 0
+
+
+## 2017 - Nov2018 sync
+## Pisa-like selections
 # MuTau
-MuTau = pairType == 0 && dau1_pt > 10 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && dau1_iso < 0.15 && dau2_MVAisoNew < 3.0 && isOS != 0
+MuTau  = pairType == 0 && dau1_pt > 10 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && ((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(40.*40.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(50.*50.) <  1.0
 # EleTau
-EleTau = pairType == 1 && dau1_pt > 10 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && dau1_iso < 0.1 && dau2_MVAisoNew < 3.0 && isOS != 0
+EleTau = pairType == 1 && dau1_pt > 10 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && ((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(40.*40.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(50.*50.) <  1.0
 # TauTau
-TauTau = pairType == 2 && dau1_pt > 20 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_MVAisoNew < 2.0 && dau2_MVAisoNew < 2.0 && isOS != 0
+TauTau = pairType == 2 && dau1_pt > 20 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.1 && nleps == 0 && ((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(40.*40.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(50.*50.) <  1.0
