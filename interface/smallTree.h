@@ -44,6 +44,7 @@ struct smallTree
       m_trigSF_cross = -1.;
       m_FakeRateSF = -1.;
       m_IdAndIsoSF = -1.;
+      m_jetFakeSF = -1.;
       m_IdAndIsoAndFakeSF = -1.;
       m_nBhadrons = -1;
       m_lheNOutPartons = -1;
@@ -548,6 +549,7 @@ struct smallTree
       m_smallT->Branch ("trigSF_single", &m_trigSF_single, "trigSF_single/F") ;
       m_smallT->Branch ("trigSF_cross", &m_trigSF_cross, "trigSF_cross/F") ;
       m_smallT->Branch ("FakeRateSF", &m_FakeRateSF, "FakeRateSF/F") ;
+      m_smallT->Branch ("jetFakeSF", &m_jetFakeSF, "jetFakeSF/F") ;
       m_smallT->Branch ("IdAndIsoSF", &m_IdAndIsoSF, "IdAndIsoSF/F") ;
       m_smallT->Branch ("IdAndIsoAndFakeSF", &m_IdAndIsoAndFakeSF, "IdAndIsoAndFakeSF/F") ;
       m_smallT->Branch ("DYscale_LL", &m_DYscale_LL, "DYscale_LL/F") ;
@@ -1048,6 +1050,7 @@ struct smallTree
   Float_t m_trigSF_cross ;
   Float_t m_trigSF_single ;
   Float_t m_FakeRateSF ;
+  Float_t m_jetFakeSF ;
   Float_t m_IdAndIsoSF ;
   Float_t m_IdAndIsoAndFakeSF ;
   Float_t m_DYscale_LL ;
