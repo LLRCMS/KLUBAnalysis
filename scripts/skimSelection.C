@@ -9,7 +9,6 @@ void skimSelection()
   //TString fileName = "/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_TT_fullyLep/total";
   //TString fileName = "/gwteraz/users/brivio/SKIMMED_6Nov2018/SKIM_TT_fullyLep_KinFit/output";
   TString fileName = "/gwteraz/users/brivio/SKIMMED_6Nov2018/SKIM_TT_fullyLep_lepSF/output";
-  
 
     TFile* inFile = new TFile (Form("%s.root", fileName.Data()));
     TH1F* h_eff = (TH1F*) inFile->Get("h_eff");
