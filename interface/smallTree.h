@@ -40,8 +40,11 @@ struct smallTree
       m_DYptZweight = -1.;
       m_DY_NPVweight = -1.;
       m_trigSF = -1.;
+      m_trigSF_single = -1.;
+      m_trigSF_cross = -1.;
       m_FakeRateSF = -1.;
       m_IdAndIsoSF = -1.;
+      m_jetFakeSF = -1.;
       m_IdAndIsoAndFakeSF = -1.;
       m_nBhadrons = -1;
       m_lheNOutPartons = -1;
@@ -543,7 +546,10 @@ struct smallTree
       m_smallT->Branch ("turnOnreweight_tauup", &m_turnOnreweight_tauup, "turnOnreweight_tauup/F") ;
       m_smallT->Branch ("turnOnreweight_taudown", &m_turnOnreweight_taudown, "turnOnreweight_taudown/F") ;
       m_smallT->Branch ("trigSF", &m_trigSF, "trigSF/F") ;
+      m_smallT->Branch ("trigSF_single", &m_trigSF_single, "trigSF_single/F") ;
+      m_smallT->Branch ("trigSF_cross", &m_trigSF_cross, "trigSF_cross/F") ;
       m_smallT->Branch ("FakeRateSF", &m_FakeRateSF, "FakeRateSF/F") ;
+      m_smallT->Branch ("jetFakeSF", &m_jetFakeSF, "jetFakeSF/F") ;
       m_smallT->Branch ("IdAndIsoSF", &m_IdAndIsoSF, "IdAndIsoSF/F") ;
       m_smallT->Branch ("IdAndIsoAndFakeSF", &m_IdAndIsoAndFakeSF, "IdAndIsoAndFakeSF/F") ;
       m_smallT->Branch ("DYscale_LL", &m_DYscale_LL, "DYscale_LL/F") ;
@@ -1041,7 +1047,10 @@ struct smallTree
   Float_t m_turnOnreweight_tauup ;
   Float_t m_turnOnreweight_taudown ;
   Float_t m_trigSF ;
+  Float_t m_trigSF_cross ;
+  Float_t m_trigSF_single ;
   Float_t m_FakeRateSF ;
+  Float_t m_jetFakeSF ;
   Float_t m_IdAndIsoSF ;
   Float_t m_IdAndIsoAndFakeSF ;
   Float_t m_DYscale_LL ;

@@ -70,7 +70,8 @@ if __name__ == "__main__":
     parser.add_option ('--pu',               dest='PUweights' , help='external PUweights file'              , default='none')
     parser.add_option ('--nj',               dest='DY_nJets'  , help='number of gen Jets for DY bins'       , default='-1')
     parser.add_option ('--nb',               dest='DY_nBJets' , help='number of gen BJets for DY bins'      , default='-1')
-    
+    parser.add_option ('--DY',               dest='DY'        , help='if it is a DY sample'                 , default=False)
+
     (opt, args) = parser.parse_args()
 
     currFolder = os.getcwd ()
@@ -242,6 +243,8 @@ if __name__ == "__main__":
         command += (" " + opt.PUweights)
         command += (" " + opt.DY_nJets)
         command += (" " + opt.DY_nBJets)
+        if opt.DY             : command += " 1 "
+        else                  : command += " 0 "
 
         command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
         scriptFile.write (command)

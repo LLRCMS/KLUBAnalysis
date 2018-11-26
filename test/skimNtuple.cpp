@@ -634,6 +634,8 @@ int main (int argc, char** argv)
   int DY_nJets  = atoi(argv[24]);
   int DY_nBJets = atoi(argv[25]);
   cout << "** INFO: nJets/nBjets for DY bin weights: " << DY_nJets << " / " << DY_nBJets << endl;
+  int isDYI = atoi(argv[26]);
+  bool isDY = (isDYI == 1) ? true : false;
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
     kNone      = 0,
@@ -662,6 +664,7 @@ int main (int argc, char** argv)
     }
 
   bool   beInclusive         = gConfigParser->readBoolOption   ("selections::beInclusive") ;
+  bool   cleanJets         = gConfigParser->readBoolOption   ("selections::cleanJets") ;
   float  PUjetID_minCut      = gConfigParser->readFloatOption  ("parameters::PUjetIDminCut") ;
   float  PFjetID_WP          = gConfigParser->readIntOption    ("parameters::PFjetIDWP") ;
   // int    saveOS              = gConfigParser->readIntOption    ("parameters::saveOS") ;
@@ -762,6 +765,7 @@ int main (int argc, char** argv)
 
   // DY new reweight (LO to NLO) map - Fractional Weight, Pt Weight and SF Weight maps
   bool doDYLOtoNLOreweight = (gConfigParser->isDefined("DYLOtoNLOreweight::doReweight") ? gConfigParser->readBoolOption ("DYLOtoNLOreweight::doReweight") : false);
+  if (!isDY) doDYLOtoNLOreweight = false; //skip DYLOtoNLOreweight if the sample is not DY
   cout << "** INFO: apply DY LO to NLO reweight? " << doDYLOtoNLOreweight << endl;
   map <string, double> fractional_weight_map;
   std::map<std::string, TH1D*> pt_weight_histo_map;
@@ -1313,8 +1317,8 @@ int main (int argc, char** argv)
       // 0: 0bjet, 1: 1 b jet, 2: >= 2 b jet
       theSmallTree.m_DYscale_LL = 1.0; // all the other MC samples + data have no weight
       theSmallTree.m_DYscale_MM = 1.0;        
-      // if (isMC && (DY_Nbs || isHHsignal))
-      if (isMC && doDYLOtoNLOreweight)
+
+      if (isMC && isDY) //to be done both for DY NLO and DY in jet bins
 	{
 	  TLorentzVector vgj;
 	  int nbs = 0;
@@ -1339,10 +1343,9 @@ int main (int argc, char** argv)
 	    }
 	  if (nbs > 2) nbs = 2;
 	  theSmallTree.m_nBhadrons = nbs;
-
 	  theSmallTree.m_DYscale_LL = DYscale_LL[nbs];
 	  theSmallTree.m_DYscale_MM = DYscale_MM[nbs];
-
+	  
 	  // loop through gen parts ot identify Z boson 
 	  int idx1 = -1;
 	  for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
@@ -1701,7 +1704,8 @@ int main (int argc, char** argv)
       metpass += metbit & (1 << 8);
       //if(metpass <= 0) cout << " - failed metbit(9): " << std::bitset<9>(metbit) << endl; //FRA
       
-      if(metpass > 0) continue ;
+      if(isMC && metpass < 8) continue ;
+      if(!isMC && metpass < 9) continue ;
       ec.Increment ("METfilter", EvtW);
       if (isHHsignal) ecHHsig[genHHDecMode].Increment ("METfilter", EvtW);
 
@@ -2353,7 +2357,9 @@ int main (int argc, char** argv)
       // Ele: https://twiki.cern.ch/twiki/bin/view/CMS/Egamma2017DataRecommendations#Efficiency_Scale_Factors
       // MU : https://twiki.cern.ch/twiki/bin/view/CMS/MuonReferenceEffs2017#Scale_Factors_with_statistical_e
       // Mu and Ele ID and ISO: https://github.com/CMS-HTT/LeptonEfficiencies
-
+      bool isFakeJet1 = true;
+      bool isFakeJet2 = true;
+      
       float idAndIsoSF = 1.0;
 
       // MuTau Channel
@@ -2371,7 +2377,9 @@ int main (int argc, char** argv)
 	    idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
 	  }
 	  
-	  if (lep2HasTES) idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
+	  if (lep2HasTES) {
+	    idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
+	    isFakeJet2 = false;}
 	  
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
 	}
@@ -2390,8 +2398,10 @@ int main (int argc, char** argv)
 	    idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
 	  }
 	  
-	  if (lep2HasTES) idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
-	  
+	  if (lep2HasTES){
+	    idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
+	    isFakeJet2 = false;
+	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
 	}
       
@@ -2402,9 +2412,14 @@ int main (int argc, char** argv)
 	  float idAndIsoSF_leg1 = 1.;
 	  float idAndIsoSF_leg2 = 1.;
 	  
-	  if (lep1HasTES) idAndIsoSF_leg1 = 0.89;
-	  if (lep2HasTES) idAndIsoSF_leg2 = 0.89;
-	  
+	  if (lep1HasTES) {
+	    idAndIsoSF_leg1 = 0.89;
+	    isFakeJet1 = false;
+	  }
+	  if (lep2HasTES) {
+	    idAndIsoSF_leg2 = 0.89;
+	    isFakeJet2 = false;
+	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
 	}
       
@@ -2600,32 +2615,36 @@ int main (int argc, char** argv)
         {
             float tau1eta = fabs(tlv_firstLepton.Eta()); // tau1
             if (gene_lep1)                               // tau1 matched to gen ele
-            {
+	      {
+		isFakeJet1 = false;
                 if (tau1eta < 1.46 ) FakeRateSF1 = 1.09;
                 if (tau1eta > 1.558) FakeRateSF1 = 1.19;
             }
             else if (genmu_lep1)                         // tau1 matched to gen mu
             {
-                if      (tau1eta < 0.4) FakeRateSF1 = 1.06;
-                else if (tau1eta < 0.8) FakeRateSF1 = 1.02;
-                else if (tau1eta < 1.2) FakeRateSF1 = 1.10;
-                else if (tau1eta < 1.7) FakeRateSF1 = 1.03;
-                else if (tau1eta < 2.3) FakeRateSF1 = 1.94;
+	      isFakeJet1 = false;
+	      if      (tau1eta < 0.4) FakeRateSF1 = 1.06;
+	      else if (tau1eta < 0.8) FakeRateSF1 = 1.02;
+	      else if (tau1eta < 1.2) FakeRateSF1 = 1.10;
+	      else if (tau1eta < 1.7) FakeRateSF1 = 1.03;
+	      else if (tau1eta < 2.3) FakeRateSF1 = 1.94;
             }
-
+	    
             float tau2eta = fabs(tlv_secondLepton.Eta()); // tau2
             if (gene_lep2)                                // tau2 matched to gen ele
             {
-                if (tau2eta < 1.46 ) FakeRateSF2 = 1.09;
-                if (tau2eta > 1.558) FakeRateSF2 = 1.19;
+	      isFakeJet2 = false;
+	      if (tau2eta < 1.46 ) FakeRateSF2 = 1.09;
+	      if (tau2eta > 1.558) FakeRateSF2 = 1.19;
             }
             else if (genmu_lep2)                          // tau2 matched to gen mu
             {
-                if      (tau2eta < 0.4) FakeRateSF2 = 1.06;
-                else if (tau2eta < 0.8) FakeRateSF2 = 1.02;
-                else if (tau2eta < 1.2) FakeRateSF2 = 1.10;
-                else if (tau2eta < 1.7) FakeRateSF2 = 1.03;
-                else if (tau2eta < 2.3) FakeRateSF2 = 1.94;
+	      isFakeJet2 = false;
+	      if      (tau2eta < 0.4) FakeRateSF2 = 1.06;
+	      else if (tau2eta < 0.8) FakeRateSF2 = 1.02;
+	      else if (tau2eta < 1.2) FakeRateSF2 = 1.10;
+	      else if (tau2eta < 1.7) FakeRateSF2 = 1.03;
+	      else if (tau2eta < 2.3) FakeRateSF2 = 1.94;
             }
         }
 
@@ -2635,18 +2654,20 @@ int main (int argc, char** argv)
 
             float tau2eta = fabs(tlv_secondLepton.Eta()); // tau2
             if (gene_lep2)                                // tau2 matched to gen ele
-            {
+	      {
+		isFakeJet2 = false;
                 if (tau2eta < 1.46 ) FakeRateSF2 = 1.09;
                 if (tau2eta > 1.558) FakeRateSF2 = 1.19;
-            }
+	      }
             else if (genmu_lep2)                          // tau2 matched to gen mu
-            {
-                if      (tau2eta < 0.4) FakeRateSF2 = 1.17;
-                else if (tau2eta < 0.8) FakeRateSF2 = 1.29;
-                else if (tau2eta < 1.2) FakeRateSF2 = 1.14;
-                else if (tau2eta < 1.7) FakeRateSF2 = 0.93;
-                else if (tau2eta < 2.3) FakeRateSF2 = 1.61;
-            }
+	      {
+		isFakeJet2 = false;
+		if      (tau2eta < 0.4) FakeRateSF2 = 1.17;
+		else if (tau2eta < 0.8) FakeRateSF2 = 1.29;
+		else if (tau2eta < 1.2) FakeRateSF2 = 1.14;
+		else if (tau2eta < 1.7) FakeRateSF2 = 0.93;
+		else if (tau2eta < 2.3) FakeRateSF2 = 1.61;
+	      }
         }
 
         if (pairType == 1) // ETau: anti-ele Tight / anti-mu Loose
@@ -2655,12 +2676,14 @@ int main (int argc, char** argv)
 
             float tau2eta = fabs(tlv_secondLepton.Eta()); // tau2
             if (gene_lep2)                                // tau2 matched to gen ele
-            {
+	      {
+		isFakeJet2 = false;
                 if (tau2eta < 1.46 ) FakeRateSF2 = 1.80;
                 if (tau2eta > 1.558) FakeRateSF2 = 1.53;
             }
             else if (genmu_lep2)                          // tau2 matched to gen mu
-            {
+	      {
+		isFakeJet2 = false;
                 if      (tau2eta < 0.4) FakeRateSF2 = 1.06;
                 else if (tau2eta < 0.8) FakeRateSF2 = 1.02;
                 else if (tau2eta < 1.2) FakeRateSF2 = 1.10;
@@ -2685,7 +2708,34 @@ int main (int argc, char** argv)
       theSmallTree.m_IdAndIsoAndFakeSF     = (isMC ? FakeRateSF*idAndIsoSF : 1.0);
 
 
+      //Jet faking Tau SF
+      //derived from WJet sideband: http://camendol.web.cern.ch/camendol/HH2017/plotsHH2017MuTau/31Oct2018_DYNLO_ctrlWJets_SS/antiB_jets30_tau30_SStight/
 
+    
+      double jetFakeSF1 = 1.;
+      double jetFakeSF2 = 1.;
+      if (pType == 0 || pType == 1 || pType == 2) // 2nd tau
+	{
+	  if (isFakeJet2){
+	    if(fabs(tlv_secondLepton.Eta()) < 1.46){
+	      jetFakeSF2 = 1.38469;
+	    }else{
+	      jetFakeSF2 = 1.69035;
+	    }     
+	  }
+	}
+      
+      if(pType == 2)                //1st tau
+	{
+	  if (isFakeJet1){
+	    if(fabs(tlv_firstLepton.Eta()) < 1.46){
+	      jetFakeSF1 = 1.38469;
+	    }else{
+	      jetFakeSF1 = 1.69035;
+	    }     
+	  }
+	}
+      theSmallTree.m_jetFakeSF = (isMC ? jetFakeSF1*jetFakeSF2 : 1.0);
       
       // DATA/MC Trigger ScaleFactors
       // https://github.com/CMS-HTT/LeptonEfficiencies
@@ -2896,6 +2946,7 @@ int main (int argc, char** argv)
         if (tlv_jet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
         if (tlv_jet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
 
+	
         // all jets selected as btag cands apart from eta cut
         int ajetHadFlav = abs(theBigTree.jets_HadronFlavour->at(iJet));
         if (ajetHadFlav == 5) ++theSmallTree.m_njetsBHadFlav;
@@ -2970,7 +3021,13 @@ int main (int argc, char** argv)
             if (ijet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
             if(ijet.Pt() < 30.) continue;
             if(fabs(ijet.Eta()) > 5.) continue; // keeping the whole HF acceptance for the time being
-            for (unsigned int kJet = iJet+1 ;   (kJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++kJet)
+	    if(cleanJets) // removing low pt jets in noisy area, recommended by HTT
+	      {
+		if (ijet.Pt () < 50. && fabs(ijet.Eta()) < 3.139 && fabs(ijet.Eta()) > 2.65) continue;
+	      }
+	    
+
+	    for (unsigned int kJet = iJet+1 ;   (kJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++kJet)
             {
               if (theBigTree.jets_PUJetID->at (kJet) < PUjetID_minCut) continue ;
               if (theBigTree.PFjetID->at (kJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
@@ -2987,7 +3044,11 @@ int main (int argc, char** argv)
               if (kjet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
               if(kjet.Pt() < 30.) continue;
               if(fabs(kjet.Eta()) > 5.) continue;
-              TLorentzVector jetPair = ijet+kjet;
+	      if(cleanJets) // removing low pt jets in noisy area, recommended by HTT
+		{
+		  if (kjet.Pt () < 50. && fabs(kjet.Eta()) < 3.139 && fabs(kjet.Eta()) > 2.65) continue;
+		}
+	      TLorentzVector jetPair = ijet+kjet;
 
               bool VBFjetLegsMatched = true;
               if (isVBFfired) VBFjetLegsMatched = checkVBFjetMatch(DEBUG, iJet, kJet, theBigTree);
@@ -3224,6 +3285,10 @@ int main (int argc, char** argv)
           if (tlv_jet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
           if ( (int) iJet == bjet1idx || (int) iJet == bjet2idx ) continue ;
 
+	  if(cleanJets) // removing low pt jets in noisy area, recommended by HTT
+	    {
+	      if (tlv_jet.Pt () < 50. && fabs(tlv_jet.Eta()) < 3.139 && fabs(tlv_jet.Eta()) > 2.65) continue;
+	    }
           // use these jets for HT
           if (tlv_jet.Pt () > 20)
           {
@@ -3781,7 +3846,7 @@ int main (int argc, char** argv)
           // PG filter jets at will
           if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
           if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
-      
+
           // skip the H decay candiates
           if (int (iJet) == bjet1idx ){
             theSmallTree.m_bjet1_jecUnc = theBigTree.jets_jecUnc->at(iJet);
@@ -3796,7 +3861,11 @@ int main (int argc, char** argv)
                                       theBigTree.jets_pz->at (iJet),
                                       theBigTree.jets_e->at (iJet)
                                      );
-
+	  
+	  if(cleanJets) // removing low pt jets in noisy area, recommended by HTT
+	    {
+	      if (tlv_dummyJet.Pt () < 50. && fabs(tlv_dummyJet.Eta()) < 3.139 && fabs(tlv_dummyJet.Eta()) > 2.65) continue;
+	    }
           // remove jets that overlap with the tau selected in the leg 1 and 2
           if (tlv_firstLepton.DeltaR(tlv_dummyJet) < lepCleaningCone){
             theSmallTree.m_dau1_jecUnc = theBigTree.jets_jecUnc->at(iJet);
