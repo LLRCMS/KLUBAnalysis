@@ -12,7 +12,8 @@
 #OUTDIRR="Skims_Fall17_MC_24July2018"
 #OUTDIRR="Skims_Fall17_MC_24July2018_PU"
 #OUTDIRR="Skims_Fall17_MC_28Aug2018"
-OUTDIRR="Skims_Fall17_MC_22Oct2018"
+#OUTDIRR="Skims_Fall17_MC_22Oct2018"
+OUTDIRR="Skims_Fall17_MC_6Nov2018"
 
 #INPUTDIR="inputFiles/JECproduction_Lug2017"
 #INPUTDIR="inputFiles/Fall17_MC/"
@@ -32,7 +33,8 @@ INPUTDIR="inputFiles/Files_June2018"
 #SKIMDIR="/gwpool/users/brivio/Hhh_1718/syncFeb2018/CMSSW_9_0_0/src/KLUBAnalysis/SKIM_DY"
 #SKIMDIR="/gwteraz/users/brivio/SKIMMED_28aug2018"
 #SKIMDIR="/gwpool/users/brivio/Hhh_1718/syncFeb2018/CMSSW_9_0_0/src/KLUBAnalysis/studies/VBFjetChoice/skims_tesi"
-SKIMDIR="/gwteraz/users/brivio/SKIMMED_22Oct2018"
+#SKIMDIR="/gwteraz/users/brivio/SKIMMED_22Oct2018"
+SKIMDIR="/gwteraz/users/brivio/SKIMMED_6Nov2018"
 
 PUDIR="/gwpool/users/brivio/Hhh_1718/syncFeb2018/CMSSW_9_0_0/src/KLUBAnalysis/weights/PUreweight/outputs"
 
@@ -51,6 +53,7 @@ mkdir $OUTDIRR
 
 <<COMMENT1
 
+
 ###################
 echo "----- BEGIN -----" >> log_21oct2018.txt
 
@@ -68,6 +71,7 @@ echo "OUTDIR = $OUTDIRR" >> log_21oct2018.txt
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_TT_fullyHad -i $INPUTDIR/15_TTToHadronic_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 377.96 -t True -b 1 -q shortcms --pu $PUDIR/15_TT_fullyHad.txt
 
+COMMENT1
 
 # TT lep
 echo "Submitting - TTlep - "
@@ -75,7 +79,10 @@ echo "Submitting - TTlep - " >> log_21oct2018.txt
 echo "OUTDIR = $OUTDIRR"
 echo "OUTDIR = $OUTDIRR" >> log_21oct2018.txt
 
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_TT_fullyLep -i $INPUTDIR/13_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 88.29  -t True -b 4 -q shortcms --pu $PUDIR/13_TT_fullyLep.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_TT_fullyLep_lepSF -i $INPUTDIR/13_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 88.29  -t True -b 4 -q longcms --pu $PUDIR/13_TT_fullyLep.txt
+
+
+<<COMMENT2
 
 
 # TT semi
@@ -140,67 +147,84 @@ echo "OUTDIR = $OUTDIRR" >> log_21oct2018.txt
 # myPUHisto_4j3b : xsFrac: 1.12e-05 - xs: 0.064  pb
 # myPUHisto_4j4b : xsFrac: 1.98e-06 - xs: 0.011  pb
 # total XS= 6233.55 pb - 8 october 2018
-# myPUHisto_0j0b : xsFrac: 0.746053    - xs: 4650.56 pb                                                                                                       
-# myPUHisto_1j0b : xsFrac: 0.157576    - xs: 982.26 pb                                                                                                        
-# myPUHisto_1j1b : xsFrac: 0.00658535  - xs: 41.05 pb                                                                                                         
-# myPUHisto_2j0b : xsFrac: 0.0534837   - xs: 333.39 pb                                                                                                        
-# myPUHisto_2j1b : xsFrac: 0.00273262  - xs: 17.03 pb                                                                                                         
-# myPUHisto_2j2b : xsFrac: 0.00118358  - xs: 7.38 pb                                                                                                          
-# myPUHisto_3j0b : xsFrac: 0.0188891   - xs: 117.75 pb                                                                                                        
-# myPUHisto_3j1b : xsFrac: 0.000781306 - xs: 4.87 pb                                                                                                          
-# myPUHisto_3j2b : xsFrac: 0.000881659 - xs: 5.50 pb                                                                                                          
-# myPUHisto_3j3b : xsFrac: 9.87433E-06 - xs: 0.061 pb                                                                                                         
-# myPUHisto_4j0b : xsFrac: 0.0106378   - xs: 66.31 pb                                                                                                         
-# myPUHisto_4j1b : xsFrac: 0.000360878 - xs: 2.25 pb                                                                                                          
-# myPUHisto_4j2b : xsFrac: 0.000811201 - xs: 5.06 pb                                                                                                          
-# myPUHisto_4j3b : xsFrac: 1.0322E-05  - xs: 0.064 pb                                                                                                         
+# myPUHisto_0j0b : xsFrac: 0.746053    - xs: 4650.56 pb
+# myPUHisto_1j0b : xsFrac: 0.157576    - xs: 982.26 pb
+# myPUHisto_1j1b : xsFrac: 0.00658535  - xs: 41.05 pb
+# myPUHisto_2j0b : xsFrac: 0.0534837   - xs: 333.39 pb
+# myPUHisto_2j1b : xsFrac: 0.00273262  - xs: 17.03 pb
+# myPUHisto_2j2b : xsFrac: 0.00118358  - xs: 7.38 pb
+# myPUHisto_3j0b : xsFrac: 0.0188891   - xs: 117.75 pb
+# myPUHisto_3j1b : xsFrac: 0.000781306 - xs: 4.87 pb
+# myPUHisto_3j2b : xsFrac: 0.000881659 - xs: 5.50 pb
+# myPUHisto_3j3b : xsFrac: 9.87433E-06 - xs: 0.061 pb
+# myPUHisto_4j0b : xsFrac: 0.0106378   - xs: 66.31 pb
+# myPUHisto_4j1b : xsFrac: 0.000360878 - xs: 2.25 pb
+# myPUHisto_4j2b : xsFrac: 0.000811201 - xs: 5.06 pb
+# myPUHisto_4j3b : xsFrac: 1.0322E-05  - xs: 0.064 pb
 # myPUHisto_4j4b : xsFrac: 2.77862E-05 - xs: 0.17 pb
+# total XS= 6225.42 pb - 8 october 2018
+# myPUHisto_0j0b : xsFrac: 0.746053    - xs: 4644.49 pb
+# myPUHisto_1j0b : xsFrac: 0.157576    - xs: 980.98  pb
+# myPUHisto_1j1b : xsFrac: 0.00658535  - xs: 41.00   pb
+# myPUHisto_2j0b : xsFrac: 0.0534837   - xs: 332.96  pb
+# myPUHisto_2j1b : xsFrac: 0.00273262  - xs: 17.01   pb
+# myPUHisto_2j2b : xsFrac: 0.00118358  - xs: 7.37    pb
+# myPUHisto_3j0b : xsFrac: 0.0188891   - xs: 117.59  pb
+# myPUHisto_3j1b : xsFrac: 0.000781306 - xs: 4.86    pb
+# myPUHisto_3j2b : xsFrac: 0.000881659 - xs: 5.49    pb
+# myPUHisto_3j3b : xsFrac: 9.87433E-06 - xs: 0.06    pb
+# myPUHisto_4j0b : xsFrac: 0.0106378   - xs: 66.22   pb
+# myPUHisto_4j1b : xsFrac: 0.000360878 - xs: 2.25    pb
+# myPUHisto_4j2b : xsFrac: 0.000811201 - xs: 5.05    pb
+# myPUHisto_4j3b : xsFrac: 1.0322E-05  - xs: 0.06    pb
+# myPUHisto_4j4b : xsFrac: 2.77862E-05 - xs: 0.17    pb
 
 
 #OK
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_0j0b -i $INPUTDIR/DYJets.txt -g True -x 4650.56  -q longcms --pu $PUDIR/DY_special/DY_0j0b.txt --nj 0 --nb 0
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_0j0b -i $INPUTDIR/DYJets.txt -g False -x 4644.49  -q longcms --pu $PUDIR/DY_special/DY_0j0b.txt --nj 0 --nb 0
 
 #OK
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_1j0b -i $INPUTDIR/DYJets.txt -g True -x 982.26  -q longcms --pu $PUDIR/DY_special/DY_1j0b.txt --nj 1 --nb 0
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_1j0b -i $INPUTDIR/DYJets.txt -g False -x 980.98  -q longcms --pu $PUDIR/DY_special/DY_1j0b.txt --nj 1 --nb 0
 
 #OK
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_1j1b -i $INPUTDIR/DYJets.txt -g True -x 41.05  -q longcms --pu $PUDIR/DY_special/DY_1j1b.txt --nj 1 --nb 1
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_1j1b -i $INPUTDIR/DYJets.txt -g False -x 41.00  -q longcms --pu $PUDIR/DY_special/DY_1j1b.txt --nj 1 --nb 1
 
 #OK
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_2j0b -i $INPUTDIR/DYJets.txt -g True -x 333.39  -q longcms --pu $PUDIR/DY_special/DY_2j0b.txt --nj 2 --nb 0
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_2j0b -i $INPUTDIR/DYJets.txt -g False -x 332.96  -q longcms --pu $PUDIR/DY_special/DY_2j0b.txt --nj 2 --nb 0
 
 #OK
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_2j1b -i $INPUTDIR/DYJets.txt -g True -x 17.03  -q longcms --pu $PUDIR/DY_special/DY_2j1b.txt --nj 2 --nb 1
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_2j1b -i $INPUTDIR/DYJets.txt -g False -x 17.01  -q longcms --pu $PUDIR/DY_special/DY_2j1b.txt --nj 2 --nb 1
 
 #OK
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_2j2b -i $INPUTDIR/DYJets.txt -g True -x 7.38  -q longcms --pu $PUDIR/DY_special/DY_2j2b.txt --nj 2 --nb 2
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_2j2b -i $INPUTDIR/DYJets.txt -g False -x 7.37  -q longcms --pu $PUDIR/DY_special/DY_2j2b.txt --nj 2 --nb 2
 
 #OK
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_3j0b -i $INPUTDIR/DYJets.txt -g True -x 117.75  -q longcms --pu $PUDIR/DY_special/DY_3j0b.txt --nj 3 --nb 0
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_3j0b -i $INPUTDIR/DYJets.txt -g False -x 117.59  -q longcms --pu $PUDIR/DY_special/DY_3j0b.txt --nj 3 --nb 0
 
 #OK
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_3j1b -i $INPUTDIR/DYJets.txt -g True -x 4.87  -q longcms --pu $PUDIR/DY_special/DY_3j1b.txt --nj 3 --nb 1
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_3j1b -i $INPUTDIR/DYJets.txt -g False -x 4.86  -q longcms --pu $PUDIR/DY_special/DY_3j1b.txt --nj 3 --nb 1
 
 #OK
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_3j2b -i $INPUTDIR/DYJets.txt -g True -x 5.50  -q longcms --pu $PUDIR/DY_special/DY_3j2b.txt --nj 3 --nb 2
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_3j2b -i $INPUTDIR/DYJets.txt -g False -x 5.49  -q longcms --pu $PUDIR/DY_special/DY_3j2b.txt --nj 3 --nb 2
 
 #OK
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_3j3b -i $INPUTDIR/DYJets.txt -g True -x 0.061  -q longcms --pu $PUDIR/DY_special/DY_3j3b.txt --nj 3 --nb 3
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_3j3b -i $INPUTDIR/DYJets.txt -g False -x 0.06  -q longcms --pu $PUDIR/DY_special/DY_3j3b.txt --nj 3 --nb 3
 
 #OK
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_4j0b -i $INPUTDIR/DYJets.txt -g True -x 66.31  -q longcms --pu $PUDIR/DY_special/DY_4j0b.txt --nj 4 --nb 0
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_4j0b -i $INPUTDIR/DYJets.txt -g False -x 66.22  -q longcms --pu $PUDIR/DY_special/DY_4j0b.txt --nj 4 --nb 0
 
 #OK
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_4j1b -i $INPUTDIR/DYJets.txt -g True -x 2.25  -q longcms --pu $PUDIR/DY_special/DY_4j1b.txt --nj 4 --nb 1
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_4j1b -i $INPUTDIR/DYJets.txt -g False -x 2.25  -q longcms --pu $PUDIR/DY_special/DY_4j1b.txt --nj 4 --nb 1
 
 #OK
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_4j2b -i $INPUTDIR/DYJets.txt -g True -x 5.06  -q longcms --pu $PUDIR/DY_special/DY_4j2b.txt --nj 4 --nb 2
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_4j2b -i $INPUTDIR/DYJets.txt -g False -x 5.05  -q longcms --pu $PUDIR/DY_special/DY_4j2b.txt --nj 4 --nb 2
 
 #OK
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_4j3b -i $INPUTDIR/DYJets.txt -g True -x 0.064  -q longcms --pu $PUDIR/DY_special/DY_4j3b.txt --nj 4 --nb 3
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_4j3b -i $INPUTDIR/DYJets.txt -g False -x 0.06  -q longcms --pu $PUDIR/DY_special/DY_4j3b.txt --nj 4 --nb 3
 
 #OK
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_4j4b -i $INPUTDIR/DYJets.txt -g True -x 0.17  -q longcms --pu $PUDIR/DY_special/DY_4j4b.txt --nj 4 --nb 4
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k True -o $SKIMDIR/SKIM_DYJets_4j4b -i $INPUTDIR/DYJets.txt -g False -x 0.17  -q longcms --pu $PUDIR/DY_special/DY_4j4b.txt --nj 4 --nb 4
+
 
 
 
@@ -358,11 +382,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mi
 
 
 
-COMMENT1
-<<COMMENT2
-
-
-
 #### VBF SM :
 # XS: 0.001626 pb^-1 from XSBD
 echo "Submitting - VBF SM - "
@@ -426,8 +445,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mi
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 1   -k True -o $SKIMDIR/signals_TESI/SKIM_ggRadion450 -i $INPUTDIR/signals_tesi/26_GluGluToRadionToHHTo2B2Tau_M-450_narrow_13TeV-madgraph_correctedcfg__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 1.0 -a True -q shortcms --pu $PUDIR/VBFSM.txt
 
-COMMENT2
-
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 1   -k True -o $SKIMDIR/signals_TESI/SKIM_ggRadion500 -i $INPUTDIR/signals_tesi/27_GluGluToRadionToHHTo2B2Tau_M-500_narrow_13TeV-madgraph_correctedcfg__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 1.0 -a True -q shortcms --pu $PUDIR/VBFSM.txt
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 1   -k True -o $SKIMDIR/signals_TESI/SKIM_ggRadion600 -i $INPUTDIR/signals_tesi/29_GluGluToRadionToHHTo2B2Tau_M-600_narrow_13TeV-madgraph_correctedcfg__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 1.0 -a True -q shortcms --pu $PUDIR/VBFSM.txt
@@ -459,6 +476,8 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mi
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 1   -k True -o $SKIMDIR/signals_TESI/SKIM_vbfRadion1000 -i $INPUTDIR/signals_tesi/66_VBFToRadionToHHTo2B2Tau_M-1000_narrow_13TeV-madgraph__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 1.0 -a True -q shortcms --pu $PUDIR/VBFSM.txt
 
+
+COMMENT2
 <<COMMENT3
 
 

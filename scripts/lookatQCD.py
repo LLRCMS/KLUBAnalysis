@@ -7,20 +7,22 @@ import argparse
 import fnmatch
 import itertools
 
-#tag = "30Jul2018_newPU_oldSF"
-tag = "6Aug2018"
+tag = "13Nov2018"
 channel = "TauTau" #"ETau" "MuTau" "TauTau"
 isIsoBin = False
 isMakeRatio = True
-#ratioHist = ["isoDau2_QCD_SS_base","isoDau2_QCD_OSblind_base"] #["isoDau2_SR_SS_antiB","isoDau2_SR_OSblind_antiB"] #["isoDau2_QCD_SS_antiB","isoDau2_QCD_OSblind_antiB"]
-ratioHist = ["isoDau2_QCD_SS_base","isoDau2_QCD_OS_base"] # C/D
-#ratioHist = ["isoDau2_SR_SS_base","isoDau2_SR_OS_base"] # A/B
-isoHist= ["SS_base", "OSblind_base"] #["SS_VBFTbtagM","OSblind_VBFTbtagM"]
+isMakeComparison = False
+ratioHist = ["isoDau2_QCD_SS_base","isoDau2_QCD_OSblind_base"] #["isoDau2_QCD_T_SS_base_T","isoDau2_QCD_T_OSblind_base_T"]
+#ratioHist = ["isoDau2_QCD_SS_base","isoDau2_QCD_OS_base"] # D/C
+#ratioHist = ["isoDau2_SR_SS_base","isoDau2_SR_OS_base"] # B/A
+isoHist= ["SS_base", "OSblind_base"] #["SS_base_T", "OSblind_base_T"] #["SS_VBFTbtagM","OSblind_VBFTbtagM"]
 isoSelHist=["0","1","2","SR"]
 #isoSelHist=["0","1","2"]
 #var = "dau2_pt"
+comparHisto = ["isoDau2_SR_OS_base","isoDau2_SR_SS_base","isoDau2_QCD_OS_base","isoDau2_QCD_SS_base"] # A-B-C-D
 vars = ["dau1_pt","dau1_eta","dau1_phi","dau2_pt","dau2_eta","dau2_phi","tauH_SVFIT_mass","tauH_mass","bH_mass", "bjet1_pt", "bjet2_pt", "bjet1_eta", "bjet2_eta", "met_et", "met_phi", "bH_pt", "tauH_pt", "njets"]
-vars = ["njets","dau1_pt", "dau2_pt", "tauH_mass", "bH_mass", "bH_pt", "tauH_pt"]
+vars = ["bH_mass"]
+#vars = ["njets","dau1_pt", "dau2_pt", "tauH_mass", "bH_mass", "bH_pt", "tauH_pt"]
 #vars = ["dau1_pt","dau2_pt","tauH_SVFIT_mass","tauH_mass","bH_mass"]
 #TT_isoDau2_5_OSblind_bH_mass
 # dau1_pt, dau1_eta, dau1_phi, dau2_pt, dau2_eta, dau2_phi, tauH_SVFIT_mass, tauH_mass, bjet1_pt, bjet2_pt, bjet1_eta, bjet2_eta, bH_mass, tauH_SVFIT_mass
@@ -53,7 +55,7 @@ def sumBkg(inFile, var,sel,bkgList):
         hstack.Add(hbkg)
         hsum.Add(hbkg)
         
-        return [hsum,hstack]
+    return [hsum,hstack]
 
 
 def makeRatio(histo1,histo2,hlist,canvas):
@@ -76,6 +78,12 @@ def makeRatio(histo1,histo2,hlist,canvas):
     pad2.SetFrameLineWidth(2)
     pad2.Draw()
     print "OS/SS = "+str(hlist[histo2].Integral(1,2000)/hlist[histo1].Integral(1,2000))
+
+    text_OSSS = TPaveText(0.6,0.55,0.89,0.7,'blNDC')
+    text_OSSS.SetBorderSize(1)
+    text_OSSS.SetFillColor(kWhite)
+    text_OSSS.AddText('OS/SS = ' + str(hlist[histo2].Integral(1,2000)/hlist[histo1].Integral(1,2000)))
+
     pad1.cd()
     norm = 1./hlist[histo1].Integral()
     hlist[histo1].Scale(norm)
@@ -90,7 +98,6 @@ def makeRatio(histo1,histo2,hlist,canvas):
     hlist[histo1].GetYaxis().SetTitle("Normalized events")
     
     hlist[histo1].GetYaxis().SetTitleOffset(1.2)
-#    hlist[histo1].GetXaxis().SetRangeUser(0,1)
     hlist[histo1].Draw("hist")
     hlist[histo2].SetLineColor(colors[1])
     hlist[histo2].Draw("hist same")
@@ -105,7 +112,7 @@ def makeRatio(histo1,histo2,hlist,canvas):
     l0.SetLineColor(kBlack)
     l0.SetLineStyle(3)
     l0.Draw("same")
-
+    text_OSSS.Draw()
 
     pad2.cd()
     bkg = pad2.DrawFrame(xmin,0.8,xmax,1.2)
@@ -190,6 +197,14 @@ colors = [kRed,
           kViolet
 ]
 
+colorsComp = [
+kBlue,
+kRed,
+kGreen,
+kCyan
+]
+
+namesComp = ['A - OS iso','B - SS iso','C - OS antiIso','D - SS antiIso']
 
 inFile = TFile.Open(fileName)
 
@@ -220,9 +235,10 @@ for var in vars:
         
     canvas = TCanvas("c1","c1",600,600)
 
-    print regDefList
-    print "#"
-    print selList
+    print ' --- VAR: ', var
+    #print regDefList
+    #print "#"
+    #print selList
 
     if isIsoBin:
         for reg in isoHist:
@@ -260,6 +276,37 @@ for var in vars:
             canvas.SaveAs(inDir+reg+"_"+var+"_QCD.pdf")
             canvas.SaveAs(inDir+reg+"_"+var+"_QCD.png")
 
+    if isMakeComparison:
+
+        leg = TLegend(0.4, 0.5,0.89,0.89)
+        i = 0
+
+        for reg in comparHisto:
+            print reg
+
+            if hQCD[reg].Integral() < 0.1: continue
+            hQCD[reg].SetLineColor(colorsComp[i])
+            norm = 1./hQCD[reg].Integral()
+            hQCD[reg].Scale(norm)
+            if i == 0:
+                hQCD[reg].GetXaxis().SetTitle(var)
+                hQCD[reg].GetYaxis().SetTitle("Normalized events")
+                hQCD[reg].GetYaxis().SetTitleOffset(1.4)
+                hQCD[reg].SetMaximum(0.70)
+                hQCD[reg].Draw("hist")
+            else:
+                hQCD[reg].Draw("hist same")
+
+            canvas.Modified()
+            canvas.Update()
+            leg.AddEntry(hQCD[reg], namesComp[i], "l")
+            i += 1
+
+        leg.Draw()
+        canvas.Modified()
+        canvas.Update()
+        #raw_input()
+        canvas.SaveAs(inDir+"ABCD_base/"+var+"_ABCD.pdf")
 
 
     if isMakeRatio:

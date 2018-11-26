@@ -30,6 +30,10 @@
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_25Oct2018_TESI_RES --n 35
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_25Oct2018_TESI_VBF --n 40
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_25Oct2018_TESI_ggH --n 40
+#
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_9Nov2018_testBDT  --n 20
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuMu.cfg   --tag analysis_MuMu_12Nov2018 --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_13Nov2018_DYNLO --n 40
 
 #
 # - LOOK at QCD -
@@ -47,6 +51,9 @@
 #
 # python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_MuTau.cfg  --tag lookatQCD_MuTau_25Oct2018_TESI  --n 25
 # python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_25Oct2018_TESI --n 25
+
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_13Nov2018 --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_13Nov2018_T --n 40
 
 
 ################
