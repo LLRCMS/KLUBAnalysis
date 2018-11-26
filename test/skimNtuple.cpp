@@ -2361,6 +2361,7 @@ int main (int argc, char** argv)
       bool isFakeJet2 = true;
       
       float idAndIsoSF = 1.0;
+      float idAndIsoSF_tauID92 = 1.0;
 
       // MuTau Channel
       if (pType == 0 && isMC)
@@ -2373,15 +2374,18 @@ int main (int argc, char** argv)
 	  //float idAndIsoSF_leg1 = idSF_leg1 * isoSF_leg1;
 	  float idAndIsoSF_leg1 = 1.;
 	  float idAndIsoSF_leg2 = 1.;
+	  float idAndIsoSF_leg2_tauID92 = 1.;
 	  if (fabs(mu1eta < 2.4)){
 	    idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
 	  }
 	  
 	  if (lep2HasTES) {
 	    idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
+        idAndIsoSF_leg2_tauID92 = 0.921; // https://indico.cern.ch/event/776359/contributions/3229380/attachments/1759348/2853860/tauID.pdf
 	    isFakeJet2 = false;}
 	  
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+	  idAndIsoSF_tauID92 = idAndIsoSF_leg1 * idAndIsoSF_leg2_tauID92;
 	}
       
       // EleTau Channel
@@ -2393,16 +2397,19 @@ int main (int argc, char** argv)
 	  //float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_TightID_80WP, ele1eta, ele1pt);  // EMVATight == 80% eff WP
 	  float idAndIsoSF_leg1 = 1.;
 	  float idAndIsoSF_leg2 = 1.;
-	  
+	  float idAndIsoSF_leg2_tauID92 = 1.;
+
 	  if (fabs(ele1eta < 2.4)){
 	    idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
 	  }
 	  
 	  if (lep2HasTES){
 	    idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
+        idAndIsoSF_leg2_tauID92 = 0.921; // https://indico.cern.ch/event/776359/contributions/3229380/attachments/1759348/2853860/tauID.pdf
 	    isFakeJet2 = false;
 	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+	  idAndIsoSF_tauID92 = idAndIsoSF_leg1 * idAndIsoSF_leg2_tauID92;
 	}
       
       // TauTau Channel
@@ -2411,16 +2418,21 @@ int main (int argc, char** argv)
 	  // TauPOG recommendation for 2017 data: SF = 0.89 for each tauh leg
 	  float idAndIsoSF_leg1 = 1.;
 	  float idAndIsoSF_leg2 = 1.;
-	  
+	  float idAndIsoSF_leg1_tauID92 = 1.;
+	  float idAndIsoSF_leg2_tauID92 = 1.;
+
 	  if (lep1HasTES) {
 	    idAndIsoSF_leg1 = 0.89;
+	    idAndIsoSF_leg1_tauID92 = 0.921;
 	    isFakeJet1 = false;
 	  }
 	  if (lep2HasTES) {
 	    idAndIsoSF_leg2 = 0.89;
+        idAndIsoSF_leg2_tauID92 = 0.921;
 	    isFakeJet2 = false;
 	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+      idAndIsoSF_tauID92 = idAndIsoSF_leg1_tauID92 * idAndIsoSF_leg2_tauID92;
 	}
       
       // MuMu Channel
@@ -2467,6 +2479,7 @@ int main (int argc, char** argv)
       
       // Save the IDandISO SF (event per event)
       theSmallTree.m_IdAndIsoSF = (isMC ? idAndIsoSF : 1.0);
+      theSmallTree.m_IdAndIsoSF_tauID92 = (isMC ? idAndIsoSF_tauID92 : 1.0);
       
       
       // DATA/MC e, mu fake rate Scale Factors
