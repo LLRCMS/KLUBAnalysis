@@ -29,12 +29,19 @@
 # # TauTau
 # TauTau = pairType == 2 && dau1_pt > 20 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.1 && nleps == 0 && dau1_MVAisoNew < 2.0 && dau2_MVAisoNew < 2.0 && isOS != 0
 
-
 ## 2017 - Nov2018 sync
 ## Pisa-like selections
-# MuTau
-MuTau  = pairType == 0 && dau1_pt > 10 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && ((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(40.*40.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(50.*50.) <  1.0
+## MuTau
+MuTau  = pairType == 0 && dau1_pt > 10 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && ((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(45.*45.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(55.*55.) <  1.0 && nbjetscand > 1
 # EleTau
-EleTau = pairType == 1 && dau1_pt > 10 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && ((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(40.*40.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(50.*50.) <  1.0
+EleTau = pairType == 1 && dau1_pt > 10 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.3 && nleps == 0 && ((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(45.*45.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(55.*55.) <  1.0 && nbjetscand > 1
 # TauTau
-TauTau = pairType == 2 && dau1_pt > 20 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.1 && nleps == 0 && ((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(40.*40.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(50.*50.) <  1.0
+TauTau = pairType == 2 && dau1_pt > 20 && abs (dau1_eta) < 2.1 && dau2_pt > 20 && abs (dau2_eta) < 2.1 && nleps == 0 && ((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(45.*45.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(55.*55.) <  1.0 && nbjetscand > 1
+# MuMu
+MuMu = pairType == 3 && dau1_pt > 10 && abs (dau1_eta) < 2.1 && dau2_pt > 10 && abs (dau2_eta) < 2.1 && nleps == 0 && ((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(45.*45.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(55.*55.) <  1.0 && nbjetscand > 1
+
+#MuTau  = pairType == 0 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && dau2_pt > 40 && abs (dau2_eta) < 2.3 && nleps == 0 && ((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(45.*45.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(55.*55.) <  1.0 && nbjetscand > 1
+#EleTau = pairType == 1 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && dau2_pt > 40 && abs (dau2_eta) < 2.3 && nleps == 0 && ((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(45.*45.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(55.*55.) <  1.0 && nbjetscand > 1
+#TauTau = pairType == 2 && dau1_pt > 40 && abs (dau1_eta) < 2.1 && dau2_pt > 40 && abs (dau2_eta) < 2.1 && nleps == 0 && ((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(45.*45.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(55.*55.) <  1.0 && nbjetscand > 1
+
+

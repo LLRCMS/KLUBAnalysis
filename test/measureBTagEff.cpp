@@ -42,6 +42,8 @@ int main(int argc, char** argv)
     TString config ; 
     config.Form ("%s",argv[1]) ;
 
+    bool saveSyncTree = true;
+
     if (! (gConfigParser->init (config)))
     {
         cout << ">>> parseConfigFile::Could not open configuration file " << config << endl ;
@@ -260,7 +262,8 @@ int main(int argc, char** argv)
 
                 ///////////////////////////////////////////////////////
                 // bjet1
-                if (bjet1_hasgenjet)
+                //if (bjet1_hasgenjet)
+                if (true)
                 {
                     //bTag[0] = (bjet1_bID > WPtag[0]) ;
                     //bTag[1] = (bjet1_bID > WPtag[1]) ;
@@ -314,7 +317,8 @@ int main(int argc, char** argv)
                 }
                 ///////////////////////////////////////////////////////
                 // bjet2
-                if (bjet2_hasgenjet)
+                //if (bjet2_hasgenjet)
+                if (true)
                 {
                     //bTag[0] = (bjet2_bID > WPtag[0]) ;
                     //bTag[1] = (bjet2_bID > WPtag[1]) ;
@@ -369,11 +373,12 @@ int main(int argc, char** argv)
 
                 ///////////////////////////////////////////////////////
                 // other jets
-//cout << " ON More Jest: " << jets_pt->size() << endl;
+                //cout << " ON More Jest: " << jets_pt->size() << endl;
                 for (unsigned int ijet = 0; ijet < jets_pt->size(); ijet++)
                 {
                     bool hasgenjet = jets_hasgenjet->at(ijet);
-                    if (hasgenjet)
+                    //if (hasgenjet)
+                    if (true)
                     {
                         //bTag[0] = (jets_btag->at(ijet) > WPtag[0]) ;
                         //bTag[1] = (jets_btag->at(ijet) > WPtag[1]) ;
@@ -512,6 +517,389 @@ int main(int argc, char** argv)
             }*/
         }
     }
+
+
+    // add a sync tree to the fOut for comparing bTagEff LLR-PI
+    if (saveSyncTree)
+    {
+        cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n" ;
+        cout << " --- Saving sync tree for sync exercise --- \n" << endl;
+
+        // using only the "ALL" selection
+        vector<pair <TString, TCut> > new_selections;
+        new_selections.push_back(cutallpair);
+        for (unsigned int k = 0; k < new_selections.size(); k++)
+        {
+            cout << "Selections: " << k << "  " << new_selections.at(k).first << "  " << new_selections.at(k).second << endl;
+        }
+
+        double pt_min = 20.;
+        double pt_max = 30.;
+        double eta_min = 0.;
+        double eta_max = 0.6;
+
+        // output tree
+        TTree* tOut = new TTree("bTagSyncTree","bTagSyncTree");
+        int run, LS, evt, sample_id, channel;
+        int n_b_Mtag, n_c_Mtag, n_usdg_Mtag;
+        int n_b_jets, n_c_jets, n_usdg_jets;
+        tOut->Branch("run", &run, "run/I") ;
+        tOut->Branch("lumi", &LS, "lumi/I") ;
+        tOut->Branch("evt", &evt, "evt/I") ;
+        tOut->Branch("sample_id", &sample_id, "sample_id/I") ;
+        tOut->Branch("channel", &channel, "channel/I") ;
+        tOut->Branch("n_b_Mtag", &n_b_Mtag, "n_b_Mtag/I") ;
+        tOut->Branch("n_c_Mtag", &n_c_Mtag, "n_c_Mtag/I") ;
+        tOut->Branch("n_usdg_Mtag", &n_usdg_Mtag, "n_usdg_Mtag/I") ;
+        tOut->Branch("n_b_jets", &n_b_jets, "n_b_jets/I") ;
+        tOut->Branch("n_c_jets", &n_c_jets, "n_c_jets/I") ;
+        tOut->Branch("n_usdg_jets", &n_usdg_jets, "n_usdg_jets/I") ;
+
+        // input ttrees and variables
+        int Run, Lumi;
+        ULong64_t Evt;
+        float BDT_channel;
+        float bjet1_pt ;
+        float bjet1_eta ;
+        float bjet1_bID_deepCSV ;
+        int   bjet1_flav ;
+        bool  bjet1_hasgenjet ;
+        float bjet2_pt ;
+        float bjet2_eta ;
+        float bjet2_bID_deepCSV ;
+        int   bjet2_flav ;
+        bool  bjet2_hasgenjet ;
+        float dau1_pt, dau1_eta, dau2_pt, dau2_eta;
+        int nleps, pairType;
+        float tauH_SVFIT_mass, bH_mass_raw;
+        std::vector<float>* jets_pt   = 0;
+        std::vector<float>* jets_eta  = 0;
+        std::vector<float>* jets_btag_deepCSV = 0;
+        std::vector<int>*   jets_flav = 0;
+        std::vector<bool>*  jets_hasgenjet = 0;
+
+        // loop on samples
+        for (unsigned int iSample = 0 ; iSample < samples.size () ; ++iSample)
+        {
+            //cout << "** Doing sample: " << iSample << endl;
+            TTree *tree = samples.at (iSample).sampleTree ;
+
+            // sample_ID variable
+            sample_id = iSample;
+
+            // speed up
+            tree->SetBranchStatus ("*", 0);
+            TObjArray *branchList = tree->GetListOfBranches();
+            int nBranch   = tree->GetNbranches();
+            for (int iB = 0 ; iB < nBranch; iB++)
+            {
+                TString bName = branchList->At(iB)->GetName();
+                for (unsigned int iSel = 0; iSel < new_selections.size(); iSel++)
+                {
+                    TString theCut = new_selections.at(iSel).second.GetTitle(); // gives the content of tCut as char*
+                    if (theCut.Contains (bName))
+                    {
+                      tree->SetBranchStatus (bName, 1);
+                    }
+                }
+            }
+
+            tree->SetBranchStatus ("EventNumber"   , 1);
+            tree->SetBranchStatus ("RunNumber"   , 1);
+            tree->SetBranchStatus ("lumi"   , 1);
+            tree->SetBranchStatus ("BDT_channel", 1);
+            tree->SetBranchStatus ("jets_pt"   , 1);
+            tree->SetBranchStatus ("jets_eta"  , 1);
+            tree->SetBranchStatus ("jets_btag_deepCSV" , 1);
+            tree->SetBranchStatus ("jets_flav" , 1);
+            tree->SetBranchStatus ("jets_hasgenjet" , 1);
+            tree->SetBranchStatus ("bjet1_pt"  , 1);
+            tree->SetBranchStatus ("bjet1_eta" , 1);
+            tree->SetBranchStatus ("bjet1_bID_deepCSV" , 1);
+            tree->SetBranchStatus ("bjet1_flav", 1);
+            tree->SetBranchStatus ("bjet1_hasgenjet", 1);
+            tree->SetBranchStatus ("bjet2_pt"  , 1);
+            tree->SetBranchStatus ("bjet2_eta" , 1);
+            tree->SetBranchStatus ("bjet2_bID_deepCSV" , 1);
+            tree->SetBranchStatus ("bjet2_flav", 1);
+            tree->SetBranchStatus ("bjet2_hasgenjet", 1);
+            tree->SetBranchStatus ("dau1_pt", 1);
+            tree->SetBranchStatus ("dau1_eta", 1);
+            tree->SetBranchStatus ("dau2_pt", 1);
+            tree->SetBranchStatus ("dau2_eta", 1);
+            tree->SetBranchStatus ("nleps", 1);
+            tree->SetBranchStatus ("pairType", 1);
+            tree->SetBranchStatus ("tauH_SVFIT_mass", 1);
+            tree->SetBranchStatus ("bH_mass_raw", 1);
+
+            tree->SetBranchAddress ("EventNumber", &Evt);
+            tree->SetBranchAddress ("RunNumber", &Run);
+            tree->SetBranchAddress ("lumi", &Lumi);
+            tree->SetBranchAddress ("BDT_channel", &BDT_channel);
+            tree->SetBranchAddress ("jets_pt", &jets_pt);
+            tree->SetBranchAddress ("jets_eta", &jets_eta);
+            tree->SetBranchAddress ("jets_btag_deepCSV", &jets_btag_deepCSV);
+            tree->SetBranchAddress ("jets_flav", &jets_flav);
+            tree->SetBranchAddress ("jets_hasgenjet", &jets_hasgenjet);
+            tree->SetBranchAddress ("bjet1_pt", &bjet1_pt);
+            tree->SetBranchAddress ("bjet1_eta", &bjet1_eta);
+            tree->SetBranchAddress ("bjet1_bID_deepCSV", &bjet1_bID_deepCSV);
+            tree->SetBranchAddress ("bjet1_flav", &bjet1_flav);
+            tree->SetBranchAddress ("bjet1_hasgenjet", &bjet1_hasgenjet);
+            tree->SetBranchAddress ("bjet2_pt", &bjet2_pt);
+            tree->SetBranchAddress ("bjet2_eta", &bjet2_eta);
+            tree->SetBranchAddress ("bjet2_bID_deepCSV", &bjet2_bID_deepCSV);
+            tree->SetBranchAddress ("bjet2_flav", &bjet2_flav);
+            tree->SetBranchAddress ("bjet2_hasgenjet", &bjet2_hasgenjet);
+            tree->SetBranchAddress ("dau1_pt", &dau1_pt);
+            tree->SetBranchAddress ("dau1_eta", &dau1_eta);
+            tree->SetBranchAddress ("dau2_pt", &dau2_pt);
+            tree->SetBranchAddress ("dau2_eta", &dau2_eta);
+            tree->SetBranchAddress ("nleps", &nleps);
+            tree->SetBranchAddress ("pairType", &pairType);
+            tree->SetBranchAddress ("tauH_SVFIT_mass", &tauH_SVFIT_mass);
+            tree->SetBranchAddress ("bH_mass_raw", &bH_mass_raw);
+
+            TTreeFormula** TTF = new TTreeFormula* [new_selections.size ()] ;
+            for (unsigned int isel = 0 ; isel < new_selections.size () ; ++isel)
+            {
+                samples.at(iSample).sampleFile -> cd();
+                TString fname ; fname.Form ("ttf%d",isel) ;
+                TTF[isel] = new TTreeFormula (fname.Data (), new_selections.at (isel).second, tree) ;
+                cout << "Selection: " << isel << "  " << fname << "  " << new_selections.at (isel).second << endl;
+            }
+
+            // event loop
+            int nEvts = tree->GetEntries();
+            cout << "Will process " << nEvts << " events" << endl;
+            for (int iEvent = 0 ; iEvent < nEvts ; ++iEvent)
+            {
+                if (iEvent % 100000 == 0) cout << iEvent << " / " << nEvts << endl;
+                tree->GetEntry (iEvent) ;
+
+                bool fillEvent = false;
+                bool DEBUG = false;
+                if (Evt==13364954)
+                {
+                    DEBUG = true;
+                    cout << "-------- DEBUG Event " << Run <<":"<< Lumi <<":"<<Evt<<":"<<iSample<< " -------" << endl;
+                }
+
+                // general variables
+                run = Run;
+                LS = Lumi;
+                evt = Evt;
+                channel = BDT_channel;
+
+                // btag specific variables
+                n_b_Mtag = 0;
+                n_c_Mtag = 0;
+                n_usdg_Mtag = 0;
+                n_b_jets = 0;
+                n_c_jets = 0;
+                n_usdg_jets = 0;
+
+                for (unsigned int isel = 0; isel < new_selections.size(); isel++)
+                {
+
+                    //if (DEBUG && !fillEvent)
+                    if (DEBUG)
+                    {
+                        cout << "-> Selections:" << endl;
+                        cout << "Channel: " << pairType << endl; //0:muTau  1:eTau  2:tauTau
+                        if (pairType == 0)
+                        {
+                            cout << "Pass tau1 kine   : " << bool(dau1_pt > 10 && abs (dau1_eta) < 2.1) << endl;
+                            cout << "Pass tau2 kine   : " << bool(dau2_pt > 20 && abs (dau2_eta) < 2.3) << endl;
+                            cout << "Pass ExtraLepVeto: " << bool(nleps == 0) << endl;
+                            cout << "Pass mass cut    : " << bool(((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(45.*45.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(55.*55.) <  1.0) << endl;
+                            if (!(((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(45.*45.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(55.*55.) <  1.0))
+                                cout << "   tauH_SVFIT_mass: " << tauH_SVFIT_mass << "   bH_mass: " << bH_mass_raw << endl;
+                        }
+                        if (pairType == 1)
+                        {
+                            cout << "Pass tau1 kine   : " << bool(dau1_pt > 10 && abs (dau1_eta) < 2.1) << endl;
+                            cout << "Pass tau2 kine   : " << bool(dau2_pt > 20 && abs (dau2_eta) < 2.3) << endl;
+                            cout << "Pass ExtraLepVeto: " << bool(nleps == 0) << endl;
+                            cout << "Pass mass cut    : " << bool(((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(45.*45.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(55.*55.) <  1.0) << endl;
+                            if (!(((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(45.*45.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(55.*55.) <  1.0))
+                                cout << "   tauH_SVFIT_mass: " << tauH_SVFIT_mass << "   bH_mass: " << bH_mass_raw << endl;
+                        }
+                        if (pairType == 2)
+                        {
+                            cout << "Pass tau1 kine   : " << bool(dau1_pt > 20 && abs (dau1_eta) < 2.1) << endl;
+                            cout << "Pass tau2 kine   : " << bool(dau2_pt > 20 && abs (dau2_eta) < 2.1) << endl;
+                            cout << "Pass ExtraLepVeto: " << bool(nleps == 0) << endl;
+                            cout << "Pass mass cut    : " << bool(((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(45.*45.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(55.*55.) <  1.0) << endl;
+                            if (!(((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(45.*45.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(55.*55.) <  1.0))
+                                cout << "   tauH_SVFIT_mass: " << tauH_SVFIT_mass << "   bH_mass: " << bH_mass_raw << endl;
+                        }
+                    }
+
+                    // apply analysis selection
+                    if (! TTF[isel]->EvalInstance ()) continue ;
+                    fillEvent = true;
+
+                    if (DEBUG) cout << "-> Selections: OK" << endl;
+
+                    bool bTag;
+                    //cout << " --> sel: " << isel << endl;
+
+                    // bjet1
+                    if (DEBUG) cout << "-> bjet1_hasgenjet: " << bjet1_hasgenjet << endl;
+                    //if (bjet1_hasgenjet)
+                    if (true)
+                    {
+                        bTag = (bjet1_bID_deepCSV > WPtag[1]) ;
+
+                        int   flav =  bjet1_flav;
+                        float this_pt =  bjet1_pt;
+                        float this_eta = TMath::Abs(bjet1_eta);
+
+                        //  pt (20,30) - eta (0, 0.6)
+                        bool goodJet = true;
+                        if (this_pt < pt_min || this_pt > pt_max || this_eta < eta_min || this_eta > eta_max) goodJet = false;
+                        //cout << "   --> bjet1: " << this_pt << " // " << this_eta << endl;
+
+                        //Fill variables
+                        if (goodJet)
+                        {
+                            if (abs(flav) == 5) // b jets
+                            {
+                                if (DEBUG) cout << "  it is B"<<endl;
+                                n_b_jets += 1;
+                                if(bTag) n_b_Mtag += 1;
+                            }
+
+                            else if (abs(flav) == 4) // c jets
+                            {
+                                if (DEBUG) cout << "  it is C"<<endl;
+                                n_c_jets += 1;
+                                if(bTag) n_c_Mtag += 1;
+                            }
+                            else // udsg jets
+                            {
+                                if (DEBUG) cout << "  it is OTHER"<<endl;
+                                n_usdg_jets += 1;
+                                if(bTag) n_usdg_Mtag += 1;
+                            }
+                        }
+                    } // end if bjet1
+
+                    // bjet2
+                    if (DEBUG) cout << "-> bjet2_hasgenjet: " << bjet2_hasgenjet << endl;
+                    //if (bjet2_hasgenjet)
+                    if (true)
+                    {
+                        bTag = (bjet2_bID_deepCSV > WPtag[1]) ;
+
+                        int   flav =  bjet2_flav;
+                        float this_pt =  bjet2_pt;
+                        float this_eta = TMath::Abs(bjet2_eta);
+
+                        //  pt (20,30) - eta (0, 0.6)
+                        bool goodJet = true;
+                        if (this_pt < pt_min || this_pt > pt_max || this_eta < eta_min || this_eta > eta_max) goodJet = false;
+                        //cout << "   --> bjet2: " << this_pt << " // " << this_eta << endl;
+
+                        //Fill variables
+                        if (goodJet)
+                        {
+                            if (abs(flav) == 5) // b jets
+                            {
+                                if (DEBUG) cout << "  it is B"<<endl;
+                                n_b_jets += 1;
+                                if(bTag) n_b_Mtag += 1;
+                            }
+
+                            else if (abs(flav) == 4) // c jets
+                            {
+                                if (DEBUG) cout << "  it is C"<<endl;
+                                n_c_jets += 1;
+                                if(bTag) n_c_Mtag += 1;
+                            }
+                            else // udsg jets
+                            {
+                                if (DEBUG) cout << "  it is OTHER"<<endl;
+                                n_usdg_jets += 1;
+                                if(bTag) n_usdg_Mtag += 1;
+                            }
+                        }
+                    } // end if bjet2
+
+                    // other jets
+                    for (unsigned int ijet = 0; ijet < jets_pt->size(); ijet++)
+                    {
+                        if (DEBUG) cout << "-> jets: " << ijet << " hasjetget: " << jets_hasgenjet->at(ijet) << endl;
+                        bool hasgenjet = jets_hasgenjet->at(ijet);
+                        //if (hasgenjet)
+                        if (true)
+                        {
+                            bTag = (jets_btag_deepCSV->at(ijet) > WPtag[1]) ;
+
+                            int   flav =  jets_flav->at(ijet);
+                            float this_pt =  jets_pt->at(ijet);
+                            float this_eta = TMath::Abs(jets_eta->at(ijet));
+
+                            //  pt (20,30) - eta (0, 0.6)
+                            bool goodJet = true;
+                            if (this_pt < pt_min || this_pt > pt_max || this_eta < eta_min || this_eta > eta_max) goodJet = false;
+
+                            if (goodJet)
+                            {
+                                if (abs(flav) == 5) // b jets
+                                {
+                                    if (DEBUG) cout << "  it is B"<<endl;
+                                    n_b_jets += 1;
+                                    if(bTag) n_b_Mtag += 1;
+                                }
+
+                                else if (abs(flav) == 4) // c jets
+                                {
+                                    if (DEBUG) cout << "  it is C"<<endl;
+                                    n_c_jets += 1;
+                                    if(bTag) n_c_Mtag += 1;
+                                }
+                                else // udsg jets
+                                {
+                                    if (DEBUG) cout << "  it is OTHER"<<endl;
+                                    n_usdg_jets += 1;
+                                    if(bTag) n_usdg_Mtag += 1;
+                                }
+                            }
+                        }
+                    } // end loop on other jets
+
+                }// end loop on new_selections
+
+
+                if (DEBUG)
+                {
+                  cout << "b1(pt,eta,flav,deepCSV,hasgenjet): " << bjet1_pt << "  " << bjet1_eta << "  " << bjet1_flav << "  " << bjet1_bID_deepCSV << "  " << bjet1_hasgenjet << endl;
+                  cout << "b2(pt,eta,flav,deepCSV,hasgenjet): " << bjet2_pt << "  " << bjet2_eta << "  " << bjet2_flav << "  " << bjet2_bID_deepCSV << "  " << bjet2_hasgenjet << endl;
+                  for (unsigned int i=0; i<jets_pt->size(); i++)
+                  {
+                      cout << "Jet" << i << " (pt,eta,flav,deepCSV,hasgenjet): " << jets_pt->at(i) << "  " << jets_eta->at(i) << "  " << jets_flav->at(i) << "  " << jets_btag_deepCSV->at(i) << "  " << jets_hasgenjet->at(i) << endl;
+                  }
+                  cout << "------------------------" << endl;
+                  cout << "fill,nb,nc,nusdg,nB,nC,nUSDG: "<< fillEvent << " ; " << n_b_jets << " ; " << n_c_jets << " ; " << n_usdg_jets << " ; " << n_b_Mtag << " ; " << n_c_Mtag << " ; " << n_usdg_Mtag << endl;
+                  cout << "------------------------" << endl;
+                }
+
+                if (fillEvent)
+                {
+                  tOut->Fill();
+                  //cout << "  values b-c-usdg: " << n_b_jets << "  " << n_c_jets << "  " << n_usdg_jets << endl;
+                  //cout << "  sample_id: " << sample_id  << endl;
+                }
+            } // end loop on events
+            for (unsigned int isel = 0; isel < new_selections.size(); isel++) delete TTF[isel];
+            delete[] TTF;
+
+        } // end loop on samples
+
+    } //end save sync tree
+
     // save
     fOut->Write();
 }
