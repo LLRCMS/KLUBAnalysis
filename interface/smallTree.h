@@ -36,6 +36,8 @@ struct smallTree
       m_EventNumber = 0 ;
       m_DYscale_LL = -1. ;
       m_DYscale_MM = -1. ;
+      m_DYscale_LL_NLO = -1. ;
+      m_DYscale_MM_NLO = -1. ;
       m_DYLOtoNLOreweight = -1.;
       m_DYptZweight = -1.;
       m_DY_NPVweight = -1.;
@@ -562,6 +564,8 @@ struct smallTree
       m_smallT->Branch ("IdAndIsoAndFakeSF", &m_IdAndIsoAndFakeSF, "IdAndIsoAndFakeSF/F") ;
       m_smallT->Branch ("DYscale_LL", &m_DYscale_LL, "DYscale_LL/F") ;
       m_smallT->Branch ("DYscale_MM", &m_DYscale_MM, "DYscale_MM/F") ;
+      m_smallT->Branch ("DYscale_LL_NLO", &m_DYscale_LL_NLO, "DYscale_LL_NLO/F") ;
+      m_smallT->Branch ("DYscale_MM_NLO", &m_DYscale_MM_NLO, "DYscale_MM_NLO/F") ;
       m_smallT->Branch ("DYLOtoNLOreweight", &m_DYLOtoNLOreweight, "DYLOtoNLOreweight/F");
       m_smallT->Branch ("DYptZweight", &m_DYptZweight, "DYptZweight/F");
       m_smallT->Branch ("DY_NPVweight", &m_DY_NPVweight, "DY_NPVweight/F");
@@ -1067,6 +1071,8 @@ struct smallTree
   Float_t m_IdAndIsoAndFakeSF ;
   Float_t m_DYscale_LL ;
   Float_t m_DYscale_MM ;
+  Float_t m_DYscale_LL_NLO ;
+  Float_t m_DYscale_MM_NLO ;
   Float_t m_DYLOtoNLOreweight;
   Float_t m_DYptZweight;
   Float_t m_DY_NPVweight;

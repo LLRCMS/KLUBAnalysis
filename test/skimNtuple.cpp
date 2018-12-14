@@ -61,8 +61,10 @@ const double aTopRW = 0.0615;
 const double bTopRW = -0.0005;
 // const float DYscale_LL[3] = {8.72847e-01, 1.69905e+00, 1.63717e+00} ; // computed from fit for LL and MM b tag
 // const float DYscale_MM[3] = {9.44841e-01, 1.29404e+00, 1.28542e+00} ;
-const float DYscale_LL[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag
-const float DYscale_MM[3] = {1.11219, 1.11436, 0.743777} ;
+const float DYscale_LL[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag - to be updated for DY LO once the disagreement is fixed
+const float DYscale_MM[3] = {1.11219, 1.11436, 0.743777} ; // for now we use the same numbers computed with DY NLO sample
+const float DYscale_LL_NLO[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag for the DYNLO sample
+const float DYscale_MM_NLO[3] = {1.11219, 1.11436, 0.743777} ;
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
@@ -1336,6 +1338,8 @@ int main (int argc, char** argv)
       // 0: 0bjet, 1: 1 b jet, 2: >= 2 b jet
       theSmallTree.m_DYscale_LL = 1.0; // all the other MC samples + data have no weight
       theSmallTree.m_DYscale_MM = 1.0;        
+      theSmallTree.m_DYscale_LL_NLO = 1.0; // all the other MC samples + data have no weight
+      theSmallTree.m_DYscale_MM_NLO = 1.0;
 
       if (isMC && isDY) //to be done both for DY NLO and DY in jet bins
 	{
@@ -1364,8 +1368,10 @@ int main (int argc, char** argv)
 	  theSmallTree.m_nBhadrons = nbs;
 	  theSmallTree.m_DYscale_LL = DYscale_LL[nbs];
 	  theSmallTree.m_DYscale_MM = DYscale_MM[nbs];
-	  
-	  // loop through gen parts ot identify Z boson 
+	  theSmallTree.m_DYscale_LL_NLO = DYscale_LL_NLO[nbs];
+	  theSmallTree.m_DYscale_MM_NLO = DYscale_MM_NLO[nbs];
+
+	  // loop through gen parts ot identify Z boson
 	  int idx1 = -1;
 	  for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
 	    {
