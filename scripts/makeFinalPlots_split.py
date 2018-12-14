@@ -502,68 +502,21 @@ if __name__ == "__main__" :
         bkgList.append('QCD')
     sigList = cfg.readListOption("general::signals")
 
-    #sigList = ["VBFC2V1","ggHH"]
-    #sigList = ["VBFRadion600","VBFRadion900","VBFRadion2000"]
-    #sigList = ["nodeSM", "node2", "ggRadion280", "vbfRadion280"]
-    #sigList = ["VBF_CV_1_C2V_1_C3_1", "VBF_CV_1_C2V_1_C3_0", "vbfRadion280"]
-    #sigList = ["VBF_CV_1_C2V_1_C3_1", "vbfRadion280", "vbfRadion750"]
-    sigList = ["nodeSM", "node7", "node2", "ggRadion280", "ggRadion400", "ggRadion750"]
-    sigList = ["ggRadion280", "ggRadion400", "ggRadion750"]
-    sigList = ["nodeSM", "node7", "node2"]
-    sigList = ["nodeSM", "node7"]
-    sigList = ["ggRadion280", "ggRadion750"]
-    sigList = ["nodeSM", "node7", "node2", "node3", "node4", "node9", "node12"]
-    sigList = ["nodeSM", "node4", "node12"]
-    sigList = ["ggHTauTau"]
-    sigList = ["VBFSM"]
+    #sigList = ["VBFSM"]
     sigList = ["ggHH"]
 
     sigNameList = []
     if args.log:
-            #sigNameList = ["VBFC2V1","ggHH"]
-            #sigNameList = ["VBFRadion600","VBFRadion900","VBFRadion2000"]
             sigNameList = ["VBF HH SM (x10)"]
     else:
-           #sigNameList = ["VBFC2V1","ggHH (#times 0.1)"]
-           #sigNameList = ["VBFRadion600","VBFRadion900","VBFRadion2000"]
            sigNameList = ["VBF HH SM (x10)"]
-    #sigNameList = ["node_SM", "node_2", "ggHH 280", "VBF HH 280"]
-    #sigNameList = ["20x VBF SM", "20x VBF c_{g}=0", "20x VBF radion m_{X}=280 GeV", "20x VBF radion m_{X}=750 GeV"]
-    #sigNameList = ["VBF SM", "VBF c_{g}=0", "VBF radion m_{X}=280 GeV"]
-    #sigNameList = ["VBF SM", "VBF radion m_{X}=280 GeV", "VBF radion m_{X}=750 GeV"]
-    sigNameList = ["GF SM", "Bench7 k_{#lambda}=5", "Bench2 c_{2},c_{2g},c_{g} modif", "GF radion m_{X}=280GeV", "GF radion m_{X}=400GeV",  "GF radion m_{X}=750GeV"]
-    sigNameList = ["GF radion m_{X}=280GeV", "GF radion m_{X}=400GeV",  "GF radion m_{X}=750GeV"]
-    sigNameList = ["GF SM", "Bench7 k_{#lambda}=5", "Bench2 c_{2},c_{2g},c_{g} modif"]
-    sigNameList = ["GF SM", "Bench7 k_{#lambda}=5"]
-    sigNameList = ["GF radion m_{X}=280GeV", "GF radion m_{X}=750GeV"]
-    sigNameList = ["GF SM", "Benchmark7", "Benchmark2", "Benchmark3", "Benchmark4", "Benchmark9", "Benchmark12"]
-    sigNameList = ["GF SM", "Benchmark4", "Benchmark12"]
-    sigNameList = ["dummy"]
-    sigNameList = ["VBF SM"]
-    sigNameList = ["ggHH SM (x30)"]
+
+    #sigNameList = ["VBF SM"]
+    sigNameList = ["ggHH SM (x50)"]
 
     sigColors = {}
-    #sigColors["VBFC2V1"] = 2
-    sigColors["ggHH"] = kBlack
     sigColors["VBFSM"] = kBlack
-    sigColors["vbfRadion280"]        = kCyan
-    sigColors["vbfRadion750"]        = kBlue
-    sigColors["VBF_CV_1_C2V_1_C3_0"] = kBlue
-    sigColors["VBF_CV_1_C2V_1_C3_1"] = kBlack
-    sigColors["nodeSM"]      = kBlack
-    sigColors["node7"]       = kBlue
-    sigColors["node2"]       = kCyan
-
-    sigColors["node3"]       = kRed
-    sigColors["node4"]       = kBlue
-    sigColors["node9"]       = kOrange
-    sigColors["node12"]      = kCyan
-
-    sigColors["ggRadion280"] = kBlue
-    sigColors["ggRadion400"] = kCyan
-    sigColors["ggRadion750"] = kBlack
-
-    sigColors["ggHTauTau"] = kBlack
+    sigColors["ggHH"] = kBlack
 
     bkgColors = {}
     #bkgColors["singleT"] = kOrange+10
@@ -577,22 +530,37 @@ if __name__ == "__main__" :
 
     # RGB/HEX colors
     col = TColor()
-    bkgColors["DY"]    = col.GetColor("#44BA68") #(TColor(68 ,186,104)).GetNumber() #gROOT.GetColor("#44BA68")
-    bkgColors["TT"]    = col.GetColor("#F4B642") #(TColor(244,182,66 )).GetNumber() #gROOT.GetColor("#F4B642")
+    #bkgColors["DY"]    = col.GetColor("#44BA68") #(TColor(68 ,186,104)).GetNumber() #gROOT.GetColor("#44BA68")
+    #bkgColors["TT"]    = col.GetColor("#F4B642") #(TColor(244,182,66 )).GetNumber() #gROOT.GetColor("#F4B642")
     bkgColors["WJets"] = col.GetColor("#41B4DB") #(TColor(65 ,180,219)).GetNumber() #gROOT.GetColor("#41B4DB")
     bkgColors["other"] = col.GetColor("#ED635E") #(TColor(237,99 ,94 )).GetNumber() #gROOT.GetColor("#ED635E")
+    bkgColors["DY2tau"] = col.GetColor("#51ef86")
+    bkgColors["DY1tau"] = col.GetColor("#44BA68")
+    bkgColors["DY0tau"] = col.GetColor("#2b7c46")
+    bkgColors["DYgammaTau"] = kRed
+    bkgColors["TT2tau"] = col.GetColor("#dea63c")
+    bkgColors["TT1tau"] = col.GetColor("#b18430")
+    bkgColors["TT0tau"] = col.GetColor("#856324")
+
 
     bkgLineColors = {}
-    bkgLineColors["DY"]    = col.GetColor("#389956")
-    bkgLineColors["TT"]    = col.GetColor("#dea63c")
+    #bkgLineColors["DY"]    = col.GetColor("#389956")
+    #bkgLineColors["TT"]    = col.GetColor("#dea63c")
     bkgLineColors["WJets"] = col.GetColor("#3ca4c8")
     bkgLineColors["other"] = col.GetColor("#d85a56")
+    bkgLineColors["DY2tau"] = col.GetColor("#389956")
+    bkgLineColors["DY1tau"] = col.GetColor("#389956")
+    bkgLineColors["DY0tau"] = col.GetColor("#389956")
+    bkgLineColors["DYgammaTau"] = kRed
+    bkgLineColors["TT2tau"] = col.GetColor("#dea63c")
+    bkgLineColors["TT1tau"] = col.GetColor("#b18430")
+    bkgLineColors["TT0tau"] = col.GetColor("#856324")
 
 
     #if args.sigscale:
     #     for i in range(0,len(sigScale)): sigScale[i] = args.sigscale
     sigScale = [10,10]
-    sigScaleValue = 1
+    sigScaleValue = 50
 
     plotTitle = ""
 
@@ -629,6 +597,13 @@ if __name__ == "__main__" :
 
     hSigs = retrieveHistos (rootFile, sigList, args.var, args.sel,args.reg,args.flat,binning)
     hBkgs = retrieveHistos  (rootFile, bkgList, args.var, args.sel,args.reg,args.flat,binning)
+    hBkgs_DY2tau = retrieveHistos  (rootFile, bkgList, args.var, args.sel+'_DY2tau',args.reg,args.flat,binning)
+    hBkgs_DY1tau = retrieveHistos  (rootFile, bkgList, args.var, args.sel+'_DY1tau',args.reg,args.flat,binning)
+    hBkgs_DY0tau = retrieveHistos  (rootFile, bkgList, args.var, args.sel+'_DY0tau',args.reg,args.flat,binning)
+    hBkgs_DYgammatau = retrieveHistos  (rootFile, bkgList, args.var, args.sel+'_DYgammaTau',args.reg,args.flat,binning)
+    hBkgs_TT2tau = retrieveHistos  (rootFile, bkgList, args.var, args.sel+'_TT2tau',args.reg,args.flat,binning)
+    hBkgs_TT1tau = retrieveHistos  (rootFile, bkgList, args.var, args.sel+'_TT1tau',args.reg,args.flat,binning)
+    hBkgs_TT0tau = retrieveHistos  (rootFile, bkgList, args.var, args.sel+'_TT0tau',args.reg,args.flat,binning)
 
     hDatas = retrieveHistos  (rootFile, dataList, args.var, args.sel,args.reg,args.flat,binning)
 
@@ -642,11 +617,24 @@ if __name__ == "__main__" :
     doOverflow = args.overflow
     
 
-
-    hDY = getHisto("DY", hBkgs,doOverflow)
+    hDY2tau = getHisto("DY", hBkgs_DY2tau,doOverflow)
+    hDY2tau.SetName("DY2tau")
+    hDY1tau = getHisto("DY", hBkgs_DY1tau,doOverflow)
+    hDY1tau.SetName("DY1tau")
+    hDY0tau = getHisto("DY", hBkgs_DY0tau,doOverflow)
+    hDY0tau.SetName("DY0tau")
+    hDYgammatau = getHisto("DY", hBkgs_DYgammatau,doOverflow)
+    hDYgammatau.SetName("DYgammaTau")
+    #hDY = getHisto("DY", hBkgs,doOverflow)
     #hDYbb = getHisto("DYbb", hBkgs,doOverflow)
     #hDY.Scale(1./6.)
-    hTT = getHisto("TT", hBkgs,doOverflow)
+    hTT2tau = getHisto("TT", hBkgs_TT2tau,doOverflow)
+    hTT2tau.SetName("TT2tau")
+    hTT1tau = getHisto("TT", hBkgs_TT1tau,doOverflow)
+    hTT1tau.SetName("TT1tau")
+    hTT0tau = getHisto("TT", hBkgs_TT0tau,doOverflow)
+    hTT0tau.SetName("TT0tau")
+    #hTT = getHisto("TT", hBkgs,doOverflow)
     hWJets = getHisto("WJets", hBkgs,doOverflow)
     hothers = getHisto("other", hBkgs,doOverflow)
     #hsingleT = getHisto("singleT", hBkgs,doOverflow)
@@ -654,13 +642,22 @@ if __name__ == "__main__" :
     #hVV = getHisto("VV", hBkgs,doOverflow)
     #hSM = getHisto("SM", hBkgs,doOverflow)
 
+    #SF = 1.4
+    #hDY2tau.Scale(SF*SF)
+    #hDY1tau.Scale(SF)
+    #hTT2tau.Scale(SF*SF)
+    #hTT1tau.Scale(SF)
+
+
     #hBkgList = [hothers, hSM, hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
-    hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
+    #hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
+    hBkgList = [hothers, hWJets, hTT0tau, hTT1tau, hTT2tau, hDY0tau, hDY1tau, hDY2tau, hDYgammatau] ## full list for stack
     #hBkgList = [hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
     #hBkgList = [hsingleT, hTT, hDY]
 
     #hBkgNameList = ["Others","SM Higgs", "VV", "EWK", "Single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
-    hBkgNameList = ["Others", "W + jets", "t#bar{t}" , "DY + jets"] # list for legend
+    #hBkgNameList = ["Others", "W + jets", "t#bar{t}" , "DY + jets"] # list for legend
+    hBkgNameList = ["Others", "W + jets", "t#bar{t}(0 true #tau_{h})", "t#bar{t}(1 true #tau_{h})", "t#bar{t}(2 true #tau_{h})", "DY(0 true #tau_{h})", "DY(1 true #tau_{h})","DY(2 true #tau_{h})", "DY(#gamma #tau_{h})"] # list for legend
     #hBkgNameList = ["VV", "EWK", "single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
     #hBkgNameList = ["Single top", "t#bar{t}", "DY + jets"]
 
@@ -675,9 +672,7 @@ if __name__ == "__main__" :
         bkgColors["QCD"] = col2.GetColor("#F29563") #(TColor(242,149,99)).GetNumber() #gROOT.GetColor("#F29563")
         bkgLineColors["QCD"] = col2.GetColor("#DC885A")
 
-    #PisaOrder = [0, 1, 4, 3, 2]
-    #hBkgList = [hBkgList[i] for i in PisaOrder]
-    #hBkgNameList = [hBkgNameList[i] for i in PisaOrder]
+
 
     hData = getHisto("data_obs", hDatas , doOverflow).Clone("hData")
 
@@ -698,7 +693,7 @@ if __name__ == "__main__" :
 
     # apply sig color if available
     for key in hSigs:
-        hSigs[key].SetLineWidth(2)
+        hSigs[key].SetLineWidth(3)
         if doOverflow: hSigs[key] = addOverFlow(hSigs[key])
         if key in sigColors:
             thecolor = int(sigColors[key])
@@ -1139,8 +1134,8 @@ if __name__ == "__main__" :
         tagch = ""
         if args.channel:
             tagch = "_" + args.channel
-        saveName = "./plotsHH2017_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
-        #saveName = "./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
+        #saveName = "./plotsHH2017_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
+        saveName = "./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
         if args.log:
             saveName = saveName+"_log"
         if args.flat:

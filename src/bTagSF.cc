@@ -195,8 +195,10 @@ float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta)
     int mySystIndex = (int) syst;
     int myWPIndex   = (int) wpt;
     float mypt = pt;
-    if (mypt < 30.) mypt = 30.;
-    if (mypt > 670.) mypt = 670.;
+    //if (mypt < 30.) mypt = 30.;
+    //if (mypt > 670.) mypt = 670.;
+    if (mypt < 20.) mypt = 20.;
+    if (mypt > 1000.) mypt = 1000.;
 
     if (abs(jetFlavor) == 5)
     {

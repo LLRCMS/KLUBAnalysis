@@ -7,8 +7,8 @@ import argparse
 import fnmatch
 import itertools
 
-tag = "13Nov2018"
-channel = "TauTau" #"ETau" "MuTau" "TauTau"
+tag = "4Dec2018"
+channel = "MuTau" #"ETau" "MuTau" "TauTau"
 isIsoBin = False
 isMakeRatio = True
 isMakeComparison = False

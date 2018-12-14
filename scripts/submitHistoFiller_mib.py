@@ -32,9 +32,30 @@
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_25Oct2018_TESI_ggH --n 40
 #
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_9Nov2018_testBDT  --n 20
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_4Dec2018 --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_4Dec2018_inclusive --n 40
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuMu.cfg   --tag analysis_MuMu_12Nov2018 --n 40
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_13Nov2018_DYNLO --n 40
-
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_29Nov2018 --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_29Nov2018_tauID92 --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_3Dec2018_tauID92 --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_3Dec2018 --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_3Dec2018_DYNLO --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_3Dec2018_tauID1 --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_3Dec2018_tauID1_DYNLO --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_3Dec2018_noTrg --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_3Dec2018_noTrg_DYNLO --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_3Dec2018_noSF --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_3Dec2018_noSF_DYNLO --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_3Dec2018_splitting --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_11Dec2018_nosplit --n 45
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_11Dec2018_splitting --n 45
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_11Dec2018_DYNLO_shapeSync --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_11Dec2018_DYNLO_WJetsTest --n 45
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_13Dec2018_DYNLO_newSF --n 45
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_13Dec2018_newSF_NoMass --n 45
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_13Dec2018_newSF_MCut --n 45
+#
 #
 # - LOOK at QCD -
 #
@@ -54,7 +75,13 @@
 
 # python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_13Nov2018 --n 40
 # python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_13Nov2018_T --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_29Nov2018 --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_29Nov2018_tauID92 --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_3Dec2018 --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag lookatQCD_TauTau_3Dec2018_tauID92 --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_TauTau.cfg --tag analysis_TauTau_3Dec2018_noTrg --n 40
 
+# python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_MuTau.cfg  --tag lookatQCD_MuTau_4Dec2018 --n 40
 
 ################
 
@@ -106,7 +133,7 @@ for nj in range(0, args.njobs):
 
     
     os.system ('chmod u+rwx ' + outDir + '/' + scriptName)
-    #launchcommand = ('/usr/bin/qsub -q  longcms ' + outDir + '/' + scriptName)
-    launchcommand = ('/usr/bin/qsub -q  shortcms ' + outDir + '/' + scriptName)
+    launchcommand = ('/usr/bin/qsub -q  longcms ' + outDir + '/' + scriptName)
+    #launchcommand = ('/usr/bin/qsub -q  shortcms ' + outDir + '/' + scriptName)
     print launchcommand
     os.system (launchcommand)

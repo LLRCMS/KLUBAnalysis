@@ -900,6 +900,7 @@ int main (int argc, char** argv)
   //TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","medium");
   //updated: https://hypernews.cern.ch/HyperNews/CMS/get/tauid/858.html
   TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017_New.root","weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","medium","MVA");
+  TauTriggerSFs2017 * tauTrgSFvtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017_New.root","weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","vtight","MVA");
   ScaleFactor * muTauTrgSF = new ScaleFactor();
   ScaleFactor * eTauTrgSF = new ScaleFactor();
   ScaleFactor * muTrgSF = new ScaleFactor();
@@ -1097,6 +1098,11 @@ int main (int argc, char** argv)
 	}
     }
 
+  //FRA debug
+  //int debugEvents[2] = {
+  //                      85365648,
+  //                      62741920};
+
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   for (Long64_t iEvent = 0 ; true ; ++iEvent) 
@@ -1111,6 +1117,19 @@ int main (int argc, char** argv)
       if (got == 0) break;
       bool DEBUG = false;
       //if (theBigTree.EventNumber != debugEvent) continue; //FRA debug
+      //bool goodDebugEvent = false;
+      //for (unsigned int i=0; i<sizeof(debugEvents)/sizeof(*debugEvents); i++) //FRA debug
+      //{
+      //  if (theBigTree.EventNumber == debugEvents[i]) goodDebugEvent = true;
+      //  if (goodDebugEvent)
+      //  {
+      //      DEBUG = true;
+      //      cout << "****** DEBUG: event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
+      //      break;
+      //  }
+      //}
+      //if (!goodDebugEvent) continue;
+
       if (theBigTree.EventNumber == debugEvent )
 	{
 	  cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
@@ -2083,7 +2102,7 @@ int main (int argc, char** argv)
 
 	  // require trigger + legs matched
 	  //bool triggerAccept = (passTrg && passMatch1 && passMatch2 && trgNotOverlap) ; //FRA: with crossTrigs match1&match2 are together
-	  
+
 
 	  if(DEBUG)
 	    {
@@ -2119,7 +2138,6 @@ int main (int argc, char** argv)
 	  ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
 	  if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
 	}
-
 
 
 
@@ -2183,7 +2201,6 @@ int main (int argc, char** argv)
 	  if ( (type1B && dR1B) || (type2B && dR2B))
 	    theSmallTree.m_hasgenmatch2 = true;
 	}
-
 
       theSmallTree.m_pairType    = pType ;
       // Need to change the channel: LLR-> 0:muTau - 1:eTau  /  PI-> 0:eTau - 1:muTau
@@ -2361,7 +2378,7 @@ int main (int argc, char** argv)
       bool isFakeJet2 = true;
       
       float idAndIsoSF = 1.0;
-      float idAndIsoSF_tauID92 = 1.0;
+      float idAndIsoSF_vtight = 1.0;
 
       // MuTau Channel
       if (pType == 0 && isMC)
@@ -2374,18 +2391,27 @@ int main (int argc, char** argv)
 	  //float idAndIsoSF_leg1 = idSF_leg1 * isoSF_leg1;
 	  float idAndIsoSF_leg1 = 1.;
 	  float idAndIsoSF_leg2 = 1.;
-	  float idAndIsoSF_leg2_tauID92 = 1.;
+	  float idAndIsoSF_leg2_vtight = 1.;
 	  if (fabs(mu1eta < 2.4)){
 	    idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
 	  }
 	  
 	  if (lep2HasTES) {
 	    idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
-        idAndIsoSF_leg2_tauID92 = 0.921; // https://indico.cern.ch/event/776359/contributions/3229380/attachments/1759348/2853860/tauID.pdf
+        idAndIsoSF_leg2_vtight = 0.86; // TauPOG recommendation for 2017 data (vtight WP)
 	    isFakeJet2 = false;}
 	  
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-	  idAndIsoSF_tauID92 = idAndIsoSF_leg1 * idAndIsoSF_leg2_tauID92;
+	  idAndIsoSF_vtight = idAndIsoSF_leg1 * idAndIsoSF_leg2_vtight;
+
+      if (DEBUG)
+      {
+        cout << "--- DEBUG idAndIsoSF ---" << endl;
+        cout << "pairType: " << pType << endl;
+        cout << "leg1 : " << idAndIsoSF_leg1 << endl;
+        cout << "leg2 : " << idAndIsoSF_leg2 << endl;
+        cout << "totSF: " << idAndIsoSF << endl;
+      }
 	}
       
       // EleTau Channel
@@ -2397,7 +2423,7 @@ int main (int argc, char** argv)
 	  //float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_TightID_80WP, ele1eta, ele1pt);  // EMVATight == 80% eff WP
 	  float idAndIsoSF_leg1 = 1.;
 	  float idAndIsoSF_leg2 = 1.;
-	  float idAndIsoSF_leg2_tauID92 = 1.;
+	  float idAndIsoSF_leg2_vtight = 1.;
 
 	  if (fabs(ele1eta < 2.4)){
 	    idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
@@ -2405,11 +2431,20 @@ int main (int argc, char** argv)
 	  
 	  if (lep2HasTES){
 	    idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
-        idAndIsoSF_leg2_tauID92 = 0.921; // https://indico.cern.ch/event/776359/contributions/3229380/attachments/1759348/2853860/tauID.pdf
+        idAndIsoSF_leg2_vtight = 0.86; // https://indico.cern.ch/event/776359/contributions/3229380/attachments/1759348/2853860/tauID.pdf
 	    isFakeJet2 = false;
 	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-	  idAndIsoSF_tauID92 = idAndIsoSF_leg1 * idAndIsoSF_leg2_tauID92;
+	  idAndIsoSF_vtight = idAndIsoSF_leg1 * idAndIsoSF_leg2_vtight;
+
+      if (DEBUG)
+      {
+        cout << "--- DEBUG idAndIsoSF ---" << endl;
+        cout << "pairType: " << pType << endl;
+        cout << "leg1 : " << idAndIsoSF_leg1 << endl;
+        cout << "leg2 : " << idAndIsoSF_leg2 << endl;
+        cout << "totSF: " << idAndIsoSF << endl;
+      }
 	}
       
       // TauTau Channel
@@ -2418,21 +2453,30 @@ int main (int argc, char** argv)
 	  // TauPOG recommendation for 2017 data: SF = 0.89 for each tauh leg
 	  float idAndIsoSF_leg1 = 1.;
 	  float idAndIsoSF_leg2 = 1.;
-	  float idAndIsoSF_leg1_tauID92 = 1.;
-	  float idAndIsoSF_leg2_tauID92 = 1.;
+	  float idAndIsoSF_leg1_vtight = 1.;
+	  float idAndIsoSF_leg2_vtight = 1.;
 
 	  if (lep1HasTES) {
 	    idAndIsoSF_leg1 = 0.89;
-	    idAndIsoSF_leg1_tauID92 = 0.921;
+	    idAndIsoSF_leg1_vtight = 0.86;
 	    isFakeJet1 = false;
 	  }
 	  if (lep2HasTES) {
 	    idAndIsoSF_leg2 = 0.89;
-        idAndIsoSF_leg2_tauID92 = 0.921;
+        idAndIsoSF_leg2_vtight = 0.86;
 	    isFakeJet2 = false;
 	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-      idAndIsoSF_tauID92 = idAndIsoSF_leg1_tauID92 * idAndIsoSF_leg2_tauID92;
+      idAndIsoSF_vtight = idAndIsoSF_leg1_vtight * idAndIsoSF_leg2_vtight;
+
+      if (DEBUG)
+      {
+        cout << "--- DEBUG idAndIsoSF ---" << endl;
+        cout << "pairType: " << pType << endl;
+        cout << "leg1 : " << idAndIsoSF_leg1 << endl;
+        cout << "leg2 : " << idAndIsoSF_leg2 << endl;
+        cout << "totSF: " << idAndIsoSF << endl;
+      }
 	}
       
       // MuMu Channel
@@ -2455,6 +2499,15 @@ int main (int argc, char** argv)
 	  }
 	  
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+
+      if (DEBUG)
+      {
+        cout << "--- DEBUG idAndIsoSF ---" << endl;
+        cout << "pairType: " << pType << endl;
+        cout << "leg1 : " << idAndIsoSF_leg1 << endl;
+        cout << "leg2 : " << idAndIsoSF_leg2 << endl;
+        cout << "totSF: " << idAndIsoSF << endl;
+      }
 	}
       
       // EleEle Channel
@@ -2475,11 +2528,21 @@ int main (int argc, char** argv)
 	    idAndIsoSF_leg2 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele2pt, ele2eta);
 	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+
+      if (DEBUG)
+      {
+        cout << "--- DEBUG idAndIsoSF ---" << endl;
+        cout << "pairType: " << pType << endl;
+        cout << "leg1 : " << idAndIsoSF_leg1 << endl;
+        cout << "leg2 : " << idAndIsoSF_leg2 << endl;
+        cout << "totSF: " << idAndIsoSF << endl;
+        cout << "------------------------" << endl;
+      }
 	}
       
       // Save the IDandISO SF (event per event)
       theSmallTree.m_IdAndIsoSF = (isMC ? idAndIsoSF : 1.0);
-      theSmallTree.m_IdAndIsoSF_tauID92 = (isMC ? idAndIsoSF_tauID92 : 1.0);
+      theSmallTree.m_IdAndIsoSF_vtight = (isMC ? idAndIsoSF_vtight : 1.0);
       
       
       // DATA/MC e, mu fake rate Scale Factors
@@ -2631,7 +2694,8 @@ int main (int argc, char** argv)
 	      {
 		isFakeJet1 = false;
                 if (tau1eta < 1.46 ) FakeRateSF1 = 1.09;
-                if (tau1eta > 1.558) FakeRateSF1 = 1.19;
+                else                 FakeRateSF1 = 1.19;
+                //if (tau1eta > 1.558) FakeRateSF1 = 1.19;
             }
             else if (genmu_lep1)                         // tau1 matched to gen mu
             {
@@ -2648,7 +2712,8 @@ int main (int argc, char** argv)
             {
 	      isFakeJet2 = false;
 	      if (tau2eta < 1.46 ) FakeRateSF2 = 1.09;
-	      if (tau2eta > 1.558) FakeRateSF2 = 1.19;
+	      else                 FakeRateSF2 = 1.19;
+	      //if (tau2eta > 1.558) FakeRateSF2 = 1.19;
             }
             else if (genmu_lep2)                          // tau2 matched to gen mu
             {
@@ -2670,7 +2735,8 @@ int main (int argc, char** argv)
 	      {
 		isFakeJet2 = false;
                 if (tau2eta < 1.46 ) FakeRateSF2 = 1.09;
-                if (tau2eta > 1.558) FakeRateSF2 = 1.19;
+                else                 FakeRateSF2 = 1.19;
+                //if (tau2eta > 1.558) FakeRateSF2 = 1.19;
 	      }
             else if (genmu_lep2)                          // tau2 matched to gen mu
 	      {
@@ -2692,7 +2758,8 @@ int main (int argc, char** argv)
 	      {
 		isFakeJet2 = false;
                 if (tau2eta < 1.46 ) FakeRateSF2 = 1.80;
-                if (tau2eta > 1.558) FakeRateSF2 = 1.53;
+                else                 FakeRateSF2 = 1.53;
+                //if (tau2eta > 1.558) FakeRateSF2 = 1.53;
             }
             else if (genmu_lep2)                          // tau2 matched to gen mu
 	      {
@@ -2760,7 +2827,10 @@ int main (int argc, char** argv)
       float trigSF = 1.0;
       float trigSF_single = 1.0;
       float trigSF_cross = 1.0;
-      
+
+      float trigSF_vtight = 1.0;
+      float trigSF_single_vtight = 1.0;
+      float trigSF_cross_vtight = 1.0;
       
       if(applyTriggers)
 	{
@@ -2779,17 +2849,27 @@ int main (int argc, char** argv)
 
 		//tau leg
 		double SFtau_Data = tauTrgSF->getMuTauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
-		double SFtau_MC = tauTrgSF->getMuTauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
+		double SFtau_MC = tauTrgSF->getMuTauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
 		
 		double Eff_Data =  SFL_Data * (1 - SFtau_Data) + SFl_Data * SFtau_Data;
 		double Eff_MC =  SFL_MC * (1 - SFtau_MC) + SFl_MC * SFtau_MC;
-		
+
 		trigSF = Eff_Data / Eff_MC;
+
+		double SFtau_Data_vtight = tauTrgSFvtight->getMuTauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
+		double SFtau_MC_vtight = tauTrgSFvtight->getMuTauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
+
+		double Eff_Data_vtight =  SFL_Data * (1 - SFtau_Data_vtight) + SFl_Data * SFtau_Data_vtight;
+		double Eff_MC_vtight =  SFL_MC * (1 - SFtau_MC_vtight) + SFl_MC * SFtau_MC_vtight;
+
+		trigSF_vtight = Eff_Data_vtight / Eff_MC_vtight;
 
 		//trig SF for analysis only with cross-trigger
 		double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		double SFtau = tauTrgSF->getMuTauScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
 		trigSF_cross = SFl*SFtau;
+		double SFtau_vtight = tauTrgSFvtight->getMuTauScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
+		trigSF_cross_vtight = SFl*SFtau_vtight;
 	      }else{ //eta region covered only by single lepton trigger
 		double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		trigSF = SF;
@@ -2819,12 +2899,22 @@ int main (int argc, char** argv)
 		double Eff_MC =  SFL_MC* (1 - SFtau_MC) + SFl_MC * SFtau_MC;
 		
 		trigSF = Eff_Data / Eff_MC;
+
+		double SFtau_Data_vtight = tauTrgSFvtight->getETauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
+		double SFtau_MC_vtight = tauTrgSFvtight->getETauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
 		
+		double Eff_Data_vtight =  SFL_Data * (1 - SFtau_Data_vtight) + SFl_Data * SFtau_Data_vtight;
+		double Eff_MC_vtight =  SFL_MC* (1 - SFtau_MC_vtight) + SFl_MC * SFtau_MC_vtight;
+
+		trigSF_vtight = Eff_Data_vtight / Eff_MC_vtight;
+
 		//trig SF for analysis only with cross-trigger
 		double SFl = eTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		double SFtau = tauTrgSF->getETauScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi()); 
 		trigSF_cross = SFl*SFtau;
-		
+		double SFtau_vtight = tauTrgSFvtight->getETauScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
+		trigSF_cross_vtight = SFl*SFtau_vtight;
+
 	      }else{ //eta region covered only by single lepton trigger
 		double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		trigSF = SF;
@@ -2838,7 +2928,10 @@ int main (int argc, char** argv)
 	      double SF1 = tauTrgSF->getDiTauScaleFactor( tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_firstLepton.Phi() );
 	      double SF2 = tauTrgSF->getDiTauScaleFactor( tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi() );
 	      trigSF = SF1 * SF2;
-	      
+
+	      double SF1_vtight = tauTrgSFvtight->getDiTauScaleFactor( tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_firstLepton.Phi() );
+	      double SF2_vtight = tauTrgSFvtight->getDiTauScaleFactor( tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi() );
+	      trigSF_vtight = SF1_vtight * SF2_vtight;
 	    }
 	  
 	  // MuMu Channel
@@ -2860,7 +2953,10 @@ int main (int argc, char** argv)
       theSmallTree.m_trigSF     = (isMC ? trigSF : 1.0);
       theSmallTree.m_trigSF_single     = (isMC ? trigSF_single : 1.0);
       theSmallTree.m_trigSF_cross     = (isMC ? trigSF_cross : 1.0);
-      
+
+      theSmallTree.m_trigSF_vtight        = (isMC ? trigSF_vtight : 1.0);
+      theSmallTree.m_trigSF_single_vtight = (isMC ? trigSF_single_vtight : 1.0);
+      theSmallTree.m_trigSF_cross_vtight  = (isMC ? trigSF_cross_vtight : 1.0);
 
 
       // loop over leptons
@@ -3195,10 +3291,6 @@ int main (int argc, char** argv)
             cout << "jet1 DW: " << tlv_firstBjet_raw_jetdown.Pt()<<endl;
             cout << "jet2 UP: " << tlv_secondBjet_raw_jetup.Pt()<<endl;
             cout << "jet2 DW: " << tlv_secondBjet_raw_jetdown.Pt()<<endl;
-            cout << endl;
-            cout << "b1_deepCSV: " << theBigTree.bDeepCSV_probb->at(bjet1idx) + theBigTree.bDeepCSV_probbb->at(bjet1idx) << endl;
-            cout << "b2_deepCSV: " << theBigTree.bDeepCSV_probb->at(bjet2idx) + theBigTree.bDeepCSV_probbb->at(bjet2idx) << endl;
-            cout << "------------------------" << endl;
         }
 
         theSmallTree.m_bjet1_pt_raw = tlv_firstBjet_raw.Pt();
@@ -3415,7 +3507,7 @@ int main (int argc, char** argv)
         float HHKChi2 = -999;
         // if (runHHKinFit && tlv_HH_raw.M() > 20 && tlv_HH_raw.M() < 200)
         //if (runHHKinFit && pairType <= 2 && tlv_bH_raw.M() > 50 && tlv_bH_raw.M() < 200 && theBigTree.SVfitMass->at (chosenTauPair) > 50 && theBigTree.SVfitMass->at (chosenTauPair) < 200) // no kinfit for ee / mumu + very loose mass window
-        if (runHHKinFit && pairType <= 5) // FIXME: temporary
+        if (runHHKinFit && pairType <= 3) // FIXME: temporary
         {
           HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton, ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
           HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
@@ -3957,6 +4049,19 @@ int main (int argc, char** argv)
           ++theSmallTree.m_njets ;
         } // loop over jets
 
+        if (DEBUG)
+        {
+            cout << "-------- JETS DEBUG -------" << endl;
+            cout << "b1 (pt,eta,flav, deepCSV): " << theSmallTree.m_bjet1_pt << "  " << theSmallTree.m_bjet1_eta << "  " << theSmallTree.m_bjet1_flav << "  " << theSmallTree.m_bjet1_bID_deepCSV << endl;
+            cout << "b2 (pt,eta,flav, deepCSV): " << theSmallTree.m_bjet2_pt << "  " << theSmallTree.m_bjet2_eta << "  " << theSmallTree.m_bjet2_flav << "  " << theSmallTree.m_bjet2_bID_deepCSV << endl;
+            cout << "Other jets:" << endl;
+            for (unsigned int i=0; i<theSmallTree.m_jets_pt.size(); i++)
+            {
+                cout << "Jet " << i << " (pt,eta,flav, deepCSV): " << theSmallTree.m_jets_pt.at(i) << "  " << theSmallTree.m_jets_eta.at(i) << "  " << theSmallTree.m_jets_flav.at(i) << "  " << theSmallTree.m_jets_btag_deepCSV.at(i) << endl;
+            }
+            cout << "------------------------" << endl;
+        }
+
         if (theSmallTree.m_jets_pt.size()>0)
         {
           theSmallTree.m_jet3_pt =theSmallTree.m_jets_pt.at(0);
@@ -4165,6 +4270,19 @@ int main (int argc, char** argv)
         cout << "  trig    : " << theSmallTree.m_trigSF << endl;
         cout << "  bTag    : " << theSmallTree.m_bTagweightM << endl;
         cout << "--------------" << endl;
+      }
+
+      if (DEBUG) //FRA DEBUG
+      {
+          cout << "--- DEBUG MC weights ---" << endl;
+          cout << "aMCatNLOweight: " << theBigTree.aMCatNLOweight << endl;
+          cout << "XS            : " << XS << endl;
+          cout << "stitchWeight  : " << stitchWeight << endl;
+          cout << "HHweight      : " << HHweight << endl;
+          cout << "trgEvtWeight  : " << trgEvtWeight << endl;
+          cout << "MC_weight     : " << theSmallTree.m_MC_weight << endl;
+          cout << "Yield weight  : " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoSF * theSmallTree.m_trigSF * theSmallTree.m_FakeRateSF  << endl;
+          cout << "------------------------" << endl;
       }
 
       theSmallTree.Fill () ;
