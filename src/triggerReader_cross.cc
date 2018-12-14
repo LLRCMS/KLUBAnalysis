@@ -354,7 +354,8 @@ bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t mat
           firedPath = _allTriggers.at(_ttCrossTriggers.at(i));
           boost::regex re_tau1{".*Tau(\\d+)"};
           boost::regex re_tau2{".*Tau(\\d+)"};
-          ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 5.0, 5.0);
+          //ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 5.0, 5.0);
+          ptCut = (pt_tau1 > 40. && pt_tau2 > 40.); // suggested by tauTrigger Group
         }
         else
           ptCut = false;
@@ -919,7 +920,8 @@ bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag
           firedPath_2 = _allTriggers.at(_ttCrossCleaned.at(i));
           boost::regex re_tau1{".*Tau(\\d+)"};
           boost::regex re_tau2{".*Tau(\\d+)"};
-          ptCut_2 = checkPtCutCross(OR_2, firedPath_2, re_tau1, re_tau2, pt_tau1, pt_tau2, 5.0, 5.0);
+          //ptCut_2 = checkPtCutCross(OR_2, firedPath_2, re_tau1, re_tau2, pt_tau1, pt_tau2, 5.0, 5.0);
+          ptCut_2 = (pt_tau1 > 40. && pt_tau2 > 40.); // suggested by tauTrigger Group
         }
         else
           ptCut_2 = false;
@@ -957,7 +959,7 @@ bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag
       }
     }
 
-    // Finally check if the event passes at leas one of the VBF triggers only
+    // Finally check if the event passes at least one of the VBF triggers only
     bool OR = false;
 
     // if it passed some other trigger (not VBF), then return false because the event could be NOT ONLY VBF
