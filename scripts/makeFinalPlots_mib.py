@@ -257,6 +257,65 @@ def makeMCUncertaintyBand (bkgSum):
     gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
     return gBand;
 
+# get median significance (better than s/sqrt(b))
+def getZa(s, b, sigma_b):
+    x1 = (s+b)*math.log( (s+b) * (b+(sigma_b*sigma_b)) / ((b*b)+((s+b)*(sigma_b*sigma_b))) )
+    x2 = ((b*b)/(sigma_b*sigma_b)) * math.log(1+ (sigma_b*sigma_b*s)/(b*(b+(sigma_b*sigma_b))) )
+    if (x1-x2) > 0:
+        Za = math.sqrt( 2*(x1-x2) )
+    else:
+        Za =0
+
+    return Za
+
+## do ratio of S/(S+B)
+# horErrs : do horizontal errors
+def makeSBSPlot (hData, hMC, newName, color, horErrs=False):
+    nPoints = hData.GetNbinsX()
+    fX       = []
+    fY       = []
+    feYUp    = []
+    feYDown  = []
+    feXRight = []
+    feXLeft  = []
+
+    for ibin in range (1, nPoints+1):
+        num = hData.GetBinContent(ibin)
+        den = hMC.GetBinContent(ibin)
+        den_err = hMC.GetBinError(ibin)
+        if den > 0:
+            # Y
+            Za = getZa(num, den, den_err)
+            #fY.append(num/math.sqrt(num+den)) # S/sqrt(S+B)
+            fY.append(Za)                      # Za
+            feYUp.append(0.0)
+            feYDown.append(0.0)
+
+            # X
+            fX.append (hData.GetBinCenter(ibin))
+            if horErrs:
+                feXRight.append(hData.GetBinLowEdge(ibin+1) - hData.GetBinCenter(ibin))
+                feXLeft.append(hData.GetBinCenter(ibin) - hData.GetBinLowEdge(ibin))
+            else:
+                feXLeft.append(0.0)
+                feXRight.append(0.0)
+
+    afX       = array ("d", fX      )
+    afY       = array ("d", fY      )
+    afeYUp    = array ("d", feYUp   )
+    afeYDown  = array ("d", feYDown )
+    afeXRight = array ("d", feXRight)
+    afeXLeft  = array ("d", feXLeft )
+    gSBS = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
+
+    gSBS.SetMarkerStyle(1);
+    gSBS.SetMarkerSize(1.);
+    gSBS.SetMarkerColor(color);
+    gSBS.SetLineColor(color);
+    gSBS.SetLineWidth(2);
+    gSBS.SetName(newName)
+
+    return gSBS;
 
 ## do ratio of Data/MC
 # horErrs : do horizonta errors
@@ -379,6 +438,7 @@ if __name__ == "__main__" :
     parser.add_argument('--no-legend',   dest='legend',   help = 'disable drawing legend',       action='store_false', default=True)
     parser.add_argument('--no-binwidth', dest='binwidth', help = 'disable scaling by bin width', action='store_false', default=True)
     parser.add_argument('--ratio',    dest='ratio', help = 'do ratio plot at the botton', action='store_true', default=False)
+    parser.add_argument('--sbs',    dest='sbs', help = 'do S/(S+B) plot at the botton', action='store_true', default=False)
     parser.add_argument('--no-print', dest='printplot', help = 'no pdf output', action='store_false', default=True)
     parser.add_argument('--quit',    dest='quit', help = 'quit at the end of the script, no interactive window', action='store_true', default=False)
     parser.add_argument('--overflow',    dest='overflow', help = 'add overflow bin', action='store_true', default=False)
@@ -409,13 +469,12 @@ if __name__ == "__main__" :
     pad1 = None
     pad2 = None
 
-    if args.ratio:
+    if args.ratio or args.sbs:
         pad1 = TPad ("pad1", "pad1", 0, 0.25, 1, 1.0)
         pad1.SetFrameLineWidth(3)
         pad1.SetLeftMargin(0.12);
         pad1.SetBottomMargin(0.02);
         pad1.SetTopMargin(0.055);
-        
         pad1.Draw()
     else:
         pad1 = TPad ("pad1", "pad1", 0, 0.0, 1.0, 1.0)
@@ -445,6 +504,19 @@ if __name__ == "__main__" :
 
     #sigList = ["VBFC2V1","ggHH"]
     #sigList = ["VBFRadion600","VBFRadion900","VBFRadion2000"]
+    #sigList = ["nodeSM", "node2", "ggRadion280", "vbfRadion280"]
+    #sigList = ["VBF_CV_1_C2V_1_C3_1", "VBF_CV_1_C2V_1_C3_0", "vbfRadion280"]
+    #sigList = ["VBF_CV_1_C2V_1_C3_1", "vbfRadion280", "vbfRadion750"]
+    sigList = ["nodeSM", "node7", "node2", "ggRadion280", "ggRadion400", "ggRadion750"]
+    sigList = ["ggRadion280", "ggRadion400", "ggRadion750"]
+    sigList = ["nodeSM", "node7", "node2"]
+    sigList = ["nodeSM", "node7"]
+    sigList = ["ggRadion280", "ggRadion750"]
+    sigList = ["nodeSM", "node7", "node2", "node3", "node4", "node9", "node12"]
+    sigList = ["nodeSM", "node4", "node12"]
+    sigList = ["ggHTauTau"]
+    sigList = ["VBFSM"]
+    sigList = ["ggHH"]
 
     sigNameList = []
     if args.log:
@@ -455,14 +527,43 @@ if __name__ == "__main__" :
            #sigNameList = ["VBFC2V1","ggHH (#times 0.1)"]
            #sigNameList = ["VBFRadion600","VBFRadion900","VBFRadion2000"]
            sigNameList = ["VBF HH SM (x10)"]
+    #sigNameList = ["node_SM", "node_2", "ggHH 280", "VBF HH 280"]
+    #sigNameList = ["20x VBF SM", "20x VBF c_{g}=0", "20x VBF radion m_{X}=280 GeV", "20x VBF radion m_{X}=750 GeV"]
+    #sigNameList = ["VBF SM", "VBF c_{g}=0", "VBF radion m_{X}=280 GeV"]
+    #sigNameList = ["VBF SM", "VBF radion m_{X}=280 GeV", "VBF radion m_{X}=750 GeV"]
+    sigNameList = ["GF SM", "Bench7 k_{#lambda}=5", "Bench2 c_{2},c_{2g},c_{g} modif", "GF radion m_{X}=280GeV", "GF radion m_{X}=400GeV",  "GF radion m_{X}=750GeV"]
+    sigNameList = ["GF radion m_{X}=280GeV", "GF radion m_{X}=400GeV",  "GF radion m_{X}=750GeV"]
+    sigNameList = ["GF SM", "Bench7 k_{#lambda}=5", "Bench2 c_{2},c_{2g},c_{g} modif"]
+    sigNameList = ["GF SM", "Bench7 k_{#lambda}=5"]
+    sigNameList = ["GF radion m_{X}=280GeV", "GF radion m_{X}=750GeV"]
+    sigNameList = ["GF SM", "Benchmark7", "Benchmark2", "Benchmark3", "Benchmark4", "Benchmark9", "Benchmark12"]
+    sigNameList = ["GF SM", "Benchmark4", "Benchmark12"]
+    sigNameList = ["dummy"]
+    sigNameList = ["VBF SM"]
+    sigNameList = ["ggHH SM (x30)"]
 
     sigColors = {}
     #sigColors["VBFC2V1"] = 2
-    #sigColors["ggHH"] = kCyan
-    #sigColors["VBFRadion600"]  = kBlack
-    #sigColors["VBFRadion900"]  = kBlue
-    #sigColors["VBFRadion2000"] = kCyan
+    sigColors["ggHH"] = kBlack
     sigColors["VBFSM"] = kBlack
+    sigColors["vbfRadion280"]        = kCyan
+    sigColors["vbfRadion750"]        = kBlue
+    sigColors["VBF_CV_1_C2V_1_C3_0"] = kBlue
+    sigColors["VBF_CV_1_C2V_1_C3_1"] = kBlack
+    sigColors["nodeSM"]      = kBlack
+    sigColors["node7"]       = kBlue
+    sigColors["node2"]       = kCyan
+
+    sigColors["node3"]       = kRed
+    sigColors["node4"]       = kBlue
+    sigColors["node9"]       = kOrange
+    sigColors["node12"]      = kCyan
+
+    sigColors["ggRadion280"] = kBlue
+    sigColors["ggRadion400"] = kCyan
+    sigColors["ggRadion750"] = kBlack
+
+    sigColors["ggHTauTau"] = kBlack
 
     bkgColors = {}
     #bkgColors["singleT"] = kOrange+10
@@ -476,7 +577,7 @@ if __name__ == "__main__" :
 
     # RGB/HEX colors
     col = TColor()
-    bkgColors["DY"] = col.GetColor("#44BA68") #(TColor(68 ,186,104)).GetNumber() #gROOT.GetColor("#44BA68")
+    bkgColors["DY"]    = col.GetColor("#44BA68") #(TColor(68 ,186,104)).GetNumber() #gROOT.GetColor("#44BA68")
     bkgColors["TT"]    = col.GetColor("#F4B642") #(TColor(244,182,66 )).GetNumber() #gROOT.GetColor("#F4B642")
     bkgColors["WJets"] = col.GetColor("#41B4DB") #(TColor(65 ,180,219)).GetNumber() #gROOT.GetColor("#41B4DB")
     bkgColors["other"] = col.GetColor("#ED635E") #(TColor(237,99 ,94 )).GetNumber() #gROOT.GetColor("#ED635E")
@@ -490,7 +591,8 @@ if __name__ == "__main__" :
 
     #if args.sigscale:
     #     for i in range(0,len(sigScale)): sigScale[i] = args.sigscale
-    sigScale = [10]
+    sigScale = [10,10]
+    sigScaleValue = 1
 
     plotTitle = ""
 
@@ -517,16 +619,14 @@ if __name__ == "__main__" :
 
     outplotterName = findInFolder  (args.dir+"/", 'analyzedOutPlotter.root')
     
+    if not "Tau" in args.channel:
+            outplotterName = findInFolder  (args.dir+"/", 'outPlotter.root')            
 
-    #    if not "Tau" in args.channel:
-    #           outplotterName = findInFolder  (args.dir+"/", 'outPlotter.root')            
- 
     rootFile = TFile.Open (args.dir+"/"+outplotterName)
 
     binning = None
     if (args.flat): binning = flatBinning(rootFile, sigList, args.var, args.sel,args.reg)
 
-    
     hSigs = retrieveHistos (rootFile, sigList, args.var, args.sel,args.reg,args.flat,binning)
     hBkgs = retrieveHistos  (rootFile, bkgList, args.var, args.sel,args.reg,args.flat,binning)
 
@@ -544,9 +644,8 @@ if __name__ == "__main__" :
 
 
     hDY = getHisto("DY", hBkgs,doOverflow)
-
-    
-
+    #hDYbb = getHisto("DYbb", hBkgs,doOverflow)
+    #hDY.Scale(1./6.)
     hTT = getHisto("TT", hBkgs,doOverflow)
     hWJets = getHisto("WJets", hBkgs,doOverflow)
     hothers = getHisto("other", hBkgs,doOverflow)
@@ -561,20 +660,24 @@ if __name__ == "__main__" :
     #hBkgList = [hsingleT, hTT, hDY]
 
     #hBkgNameList = ["Others","SM Higgs", "VV", "EWK", "Single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
-    hBkgNameList = ["Others", "W + jets", "t#bar{t}", "DY + jets"] # list for legend
+    hBkgNameList = ["Others", "W + jets", "t#bar{t}" , "DY + jets"] # list for legend
     #hBkgNameList = ["VV", "EWK", "single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
     #hBkgNameList = ["Single top", "t#bar{t}", "DY + jets"]
 
     #if cfg.hasSection('pp_QCD'):
     if doQCD:
+        col2 = TColor()
         hQCD    = getHisto ("QCD", hBkgs,doOverflow)
         hQCD.SetName("QCD")
         hBkgList.append(hQCD)
         hBkgNameList.append("QCD")
         #bkgColors["QCD"] = kPink+5
-        bkgColors["QCD"] = col.GetColor("#F29563") #(TColor(242,149,99)).GetNumber() #gROOT.GetColor("#F29563")
-        bkgLineColors["QCD"] = col.GetColor("#DC885A")
+        bkgColors["QCD"] = col2.GetColor("#F29563") #(TColor(242,149,99)).GetNumber() #gROOT.GetColor("#F29563")
+        bkgLineColors["QCD"] = col2.GetColor("#DC885A")
 
+    #PisaOrder = [0, 1, 4, 3, 2]
+    #hBkgList = [hBkgList[i] for i in PisaOrder]
+    #hBkgNameList = [hBkgNameList[i] for i in PisaOrder]
 
     hData = getHisto("data_obs", hDatas , doOverflow).Clone("hData")
 
@@ -593,7 +696,6 @@ if __name__ == "__main__" :
 
 
 
-
     # apply sig color if available
     for key in hSigs:
         hSigs[key].SetLineWidth(2)
@@ -601,6 +703,7 @@ if __name__ == "__main__" :
         if key in sigColors:
             thecolor = int(sigColors[key])
             hSigs[key].SetLineColor(thecolor)
+            hSigs[key].SetLineStyle(9)
 
 
     # apply bkg color if available
@@ -628,6 +731,7 @@ if __name__ == "__main__" :
 
     for h in hBkgList: print "Integral ", h.GetName(), " : ", h.Integral(), " - ", h.Integral(-1,-1)
     for n in hDatas: print "Integral ", hDatas[n].GetName(), " : ", hDatas[n].Integral(), " - ", hDatas[n].Integral(-1,-1)
+    for i, name in enumerate (sigNameList): print "Integral ", hSigs[sigList[i]].GetName(), " : ", hSigs[sigList[i]].Integral(), " - ", hSigs[sigList[i]].Integral(-1,-1)
     #################### PERFORM DIVISION BY BIN WIDTH #######################
     #clones non scaled (else problems with graph ratio because I pass data evt hist)
     bkgStackNS = makeStack ("bkgStackNS", hBkgList)
@@ -682,33 +786,34 @@ if __name__ == "__main__" :
     bkgStack.SetTitle(plotTitle)
 
 
-    for key in hSigs:
-        intSig = hSigs[key].Integral()
-        if intSig > 0:
-                hSigs[key].Scale(intBkg/intSig)
+    #for key in hSigs:
+    #    intSig = hSigs[key].Integral()
+    #    if intSig > 0:
+    #            hSigs[key].Scale(intBkg/intSig)
 
     # apply sig scale
-    for i, scale in enumerate (sigScale):
+    #for i, scale in enumerate (sigScale):
+    #    histo = hSigs[sigList[i]]
+    #    histo.Scale(scale)
+    for i, name in enumerate (sigNameList):
         histo = hSigs[sigList[i]]
-        histo.Scale(scale)
+        histo.Scale(sigScaleValue)
                 
     ################## LEGEND ######################################
 
     legmin = 0.45
     if args.lymin: legmin = args.lymin
     legminx = 0.50
-    if (len(hBkgNameList) +len(hSigs)>6): legminx = 0.4
-    leg = TLegend (legminx, legmin, 0.85, 0.93)
+    if (len(hBkgNameList) +len(hSigs)>6): legminx = 0.35
+    #leg = TLegend (legminx, legmin, 0.85, 0.93)
+    leg = TLegend (legminx, legmin, 0.90, 0.93)
     if (len(hBkgNameList) +len(hSigs)> 6): leg.SetNColumns(2)
     leg.SetFillStyle(0)
     leg.SetBorderSize(0)
     leg.SetTextFont(43)
-    leg.SetTextSize(20)
+    #leg.SetTextSize(20)
 
     # add element in same order as stack --> top-bottom
-    for i, name in reversed(list(enumerate(hBkgNameList))):
-        leg.AddEntry(hBkgList[i], name, "f")
-
     if args.dosig:
         #for i, name in enumerate (sigNameList):
         for i, name in reversed(list(enumerate (sigNameList))):
@@ -717,6 +822,9 @@ if __name__ == "__main__" :
         # null entry to complete signal Xsection
         if args.siglegextratext:
             leg.AddEntry(None, args.siglegextratext, "")
+
+    for i, name in reversed(list(enumerate(hBkgNameList))):
+        leg.AddEntry(hBkgList[i], name, "f")
 
     if args.dodata:
         leg.AddEntry(gData, "Data", "pe")
@@ -855,6 +963,10 @@ if __name__ == "__main__" :
                     selName = "1b1j"
             if "2b0j" in args.sel:  
                     selName = "2b0j"
+            if "boosted" in args.sel:
+                    selName = "boosted"
+            if "antiB" in args.sel:
+                    selName = "antiB"
     else:
             selName = args.name
 
@@ -874,6 +986,78 @@ if __name__ == "__main__" :
         bBox.SetFillStyle(3002) # NB: does not appear the same in displayed box and printed pdf!!
         bBox.SetFillColor(kGray+2) # NB: does not appear the same in displayed box and printed pdf!!
         bBox.Draw()
+
+    ###################### S/(S+B) PLOT #################################
+    if args.sbs:
+        bkgStack.GetXaxis().SetTitleSize(0.00);
+        bkgStack.GetXaxis().SetLabelSize(0.00);
+
+        c1.cd()
+        pad2 = TPad ("pad2", "pad2", 0, 0.0, 1, 0.2496)
+        pad2.SetLeftMargin(0.12);
+        pad2.SetTopMargin(0.02);
+        pad2.SetBottomMargin(0.4);
+        pad2.SetGridy(True);
+        pad2.SetFrameLineWidth(3)
+        pad2.Draw()
+        pad2.cd()
+
+
+        # create list of signal histograms clones
+        hSigsNonScaled = []
+        for nameSig in sigList:
+            histSig = hSigs[nameSig].Clone()
+            hSigsNonScaled.append(histSig)
+
+        grSBSs = []
+        for sigNS in hSigsNonScaled:
+            #grSBS = makeSBSPlot (sigNS, hBkgEnvelopeNS, "S/(S+B)", sigNS.GetLineColor())
+            grSBS = makeSBSPlot (sigNS, hBkgEnvelopeNS, "Z_{A}", sigNS.GetLineColor())
+            grSBSs.append(grSBS)
+
+        hRatio = hDataNonScaled.Clone("hRatioAxis") # for ranges only
+        hRatio.GetXaxis().SetTitleFont(43) # so that size is in pixels
+        hRatio.GetYaxis().SetTitleFont(43) # so that size is in pixels
+        hRatio.GetXaxis().SetLabelFont(43) # so that size is in pixels
+        hRatio.GetYaxis().SetLabelFont(43) # so that size is in pixels
+        hRatio.GetYaxis().SetNdivisions(505)
+
+        #hRatio.GetXaxis().SetTitle(bkgStack.GetXaxis().GetName())
+        hRatio.SetTitle(plotTitle)
+        hRatio.GetYaxis().SetTitle ("Z_{A}") #("S/#sqrt{S+B}") #("Data/MC")
+        if args.label: hRatio.GetXaxis().SetTitle (args.label)
+        else: hRatio.GetXaxis().SetTitle (args.var)
+        hRatio.GetXaxis().SetTitleOffset(3.9)
+        hRatio.GetYaxis().SetTitleOffset(1.2)
+
+        hRatio.GetXaxis().SetTitleSize(titleSize);
+        hRatio.GetXaxis().SetLabelSize(labelSize);
+        hRatio.GetYaxis().SetTitleSize(titleSize);
+        hRatio.GetYaxis().SetLabelSize(labelSize);
+
+        hRatio.GetXaxis().SetTickSize(0.10)
+        hRatio.GetYaxis().SetTickSize(0.05)
+        hRatio.SetStats(0)
+
+        minSBS = 9999999999999.0
+        maxSBS = -1.0
+        for gr in grSBSs:
+            min = TMath.MinElement(gr.GetN(),gr.GetY())
+            max = TMath.MaxElement(gr.GetN(),gr.GetY())
+            if min < minSBS: minSBS = min
+            if max > maxSBS: maxSBS = max
+
+        hRatio.SetMinimum(minSBS - ((maxSBS-minSBS)/10.0))
+        hRatio.SetMaximum(maxSBS + ((maxSBS-minSBS)/10.0))
+
+        removeEmptyPoints (grSBS)
+
+        hRatio.Draw("axis")
+        for gr in grSBSs:
+            gr.Draw("L same") # Z : no small limes at the end of points
+
+        pad2.RedrawAxis();
+        pad2.RedrawAxis("g"); #otherwise no grid..
 
 
     ###################### RATIO PLOT #################################
@@ -919,10 +1103,10 @@ if __name__ == "__main__" :
         hRatio.GetYaxis().SetTickSize(0.05)
 
         hRatio.SetStats(0)
-        # hRatio.SetMinimum(0.5)
-        # hRatio.SetMaximum(1.5)
-        hRatio.SetMinimum(0.1)
-        hRatio.SetMaximum(1.9)
+        #hRatio.SetMinimum(0.85)
+        #hRatio.SetMaximum(1.15)
+        hRatio.SetMinimum(0.1) #default value
+        hRatio.SetMaximum(1.9) #default value
 
         removeEmptyPoints (grRatio)
         hRatio.Draw("axis")
@@ -955,7 +1139,7 @@ if __name__ == "__main__" :
         tagch = ""
         if args.channel:
             tagch = "_" + args.channel
-        saveName = "./plotsHH2017_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
+        saveName = "./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
         if args.log:
             saveName = saveName+"_log"
         if args.flat:
