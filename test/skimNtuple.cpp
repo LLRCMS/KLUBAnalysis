@@ -1884,8 +1884,8 @@ int main (int argc, char** argv)
 		       << " iso="  << getIso (iLep, tlv_dummyLepton.Pt (), theBigTree)
 		       << " dxy="  << theBigTree.dxy->at(iLep)
 		       << " dz="   << theBigTree.dz->at(iLep)
-		       << " elePassConvVeto=" << theBigTree.daughters_passConversionVeto->at(iLep)
-		       << " eleMissingHits="  << theBigTree.daughters_eleMissingHits->at(iLep)
+		       //<< " elePassConvVeto=" << theBigTree.daughters_passConversionVeto->at(iLep) // FRA January2019
+		       //<< " eleMissingHits="  << theBigTree.daughters_eleMissingHits->at(iLep) // FRA January2019
 		       << endl;
 		}
           
@@ -3017,8 +3017,8 @@ int main (int argc, char** argv)
 		   << " iso="  << getIso (iLep, tlv_dummyLepton.Pt (), theBigTree)
 		   << " dxy="  << theBigTree.dxy->at(iLep)
 		   << " dz="   << theBigTree.dz->at(iLep)
-		   << " elePassConvVeto=" << theBigTree.daughters_passConversionVeto->at(iLep)
-		   << " eleMissingHits="  << theBigTree.daughters_eleMissingHits->at(iLep)
+		   //<< " elePassConvVeto=" << theBigTree.daughters_passConversionVeto->at(iLep) // FRA January2019
+		   //<< " eleMissingHits="  << theBigTree.daughters_eleMissingHits->at(iLep) // FRA January2019
 		   << endl;
 	    }
 
