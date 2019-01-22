@@ -376,7 +376,7 @@ int main(int argc, char** argv)
                 //cout << " ON More Jest: " << jets_pt->size() << endl;
                 for (unsigned int ijet = 0; ijet < jets_pt->size(); ijet++)
                 {
-                    bool hasgenjet = jets_hasgenjet->at(ijet);
+                    //bool hasgenjet = jets_hasgenjet->at(ijet);
                     //if (hasgenjet)
                     if (true)
                     {
@@ -831,7 +831,7 @@ int main(int argc, char** argv)
                     for (unsigned int ijet = 0; ijet < jets_pt->size(); ijet++)
                     {
                         if (DEBUG) cout << "-> jets: " << ijet << " hasjetget: " << jets_hasgenjet->at(ijet) << endl;
-                        bool hasgenjet = jets_hasgenjet->at(ijet);
+                        //bool hasgenjet = jets_hasgenjet->at(ijet);
                         //if (hasgenjet)
                         if (true)
                         {

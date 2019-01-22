@@ -529,7 +529,7 @@ int main (int argc, char** argv)
   for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
     {
       float value = allSamples.at (iSample).eff_den * lumi ;
-      for (int i = 0 ; i < NSpacesColumns - int (log10 (value)) ; ++i) cout << " " ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - int (log10 (value)) ; ++i) cout << " " ;
       cout << setprecision (0) << fixed << value << " |" ;
     }
   cout << "\n" ; 
@@ -541,7 +541,7 @@ int main (int argc, char** argv)
   for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
     {
       float value = allSamples.at (iSample).eff_num * lumi ;
-      for (int i = 0 ; i < NSpacesColumns - int (log10 (value)) ; ++i) cout << " " ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - int (log10 (value)) ; ++i) cout << " " ;
       cout << setprecision (0) << fixed << value << " |" ;
     }
   cout << "\n" ; 
@@ -553,7 +553,7 @@ int main (int argc, char** argv)
   for (unsigned int iSample = 0 ; iSample < allSamples.size () ; ++iSample)
     {
       float value = allSamples.at (iSample).eff * 100 ;
-      for (int i = 0 ; i < NSpacesColumns - int (log10 (value)) - precision - 1 ; ++i) cout << " " ;
+      for (unsigned int i = 0 ; i < NSpacesColumns - int (log10 (value)) - precision - 1 ; ++i) cout << " " ;
       cout << setprecision (2) << fixed << value << " |" ;
     }
   cout << "\n" ; 

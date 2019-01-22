@@ -102,7 +102,7 @@ int main()
     // ------------------------------------------------------
     int failedFindMC = 0; // counts events in which final Higgs decay products could not be found
     int matchNF = 0; // number of gen matches not found
-    int pairNF = 0; // number of pairs not found from dau indexes (must be 0)
+    //int pairNF = 0; // number of pairs not found from dau indexes (must be 0)
 
     std::vector<int> goodPairs; // contain the good pairs, to be used at a certain step of the selection . ONLY pairs of the same type of the MC decay
     std::vector<int> goodPairsAllTypes; // contain the good pairs, to be used at a certain step of the selection . ALL types of pairs (don't ask for the same MC category)
@@ -194,7 +194,7 @@ int main()
             goodPairs.clear();
             goodPairsAllTypes.clear();
 
-            for (int iMoth = 0; iMoth < tree->mothers_px->size(); iMoth++)
+            for (unsigned int iMoth = 0; iMoth < tree->mothers_px->size(); iMoth++)
             {
                 int pairType = helper.getMothPairType (tree, iMoth);
 

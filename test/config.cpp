@@ -39,15 +39,15 @@ int main (int argc, char** argv)
   cout << iTest << endl ;
   cout << fTest << endl ;
   cout << endl ;
-  for (int i = 0 ; i < ivTest.size () ; ++i)
+  for (unsigned int i = 0 ; i < ivTest.size () ; ++i)
     cout << ivTest.at (i) << " " ;
     
   cout << endl ;
-  for (int i = 0 ; i < fvTest.size () ; ++i)
+  for (unsigned int i = 0 ; i < fvTest.size () ; ++i)
     cout << fvTest.at (i) << " " ;
     
   cout << endl ;
-  for (int i = 0 ; i < svTest.size () ; ++i)
+  for (unsigned int i = 0 ; i < svTest.size () ; ++i)
     cout << svTest.at (i) << " " ;
   cout << endl ;
     
