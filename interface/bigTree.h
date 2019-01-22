@@ -26,6 +26,7 @@ public :
    Int_t           RunNumber;
    Int_t           lumi;
    Int_t           NBadMu;
+   Bool_t          passecalBadCalibFilterUpdate;
    Long64_t        triggerbit;
    Int_t           metfilterbit;
    Float_t         met;
@@ -56,6 +57,14 @@ public :
    std::vector<float>   *daughters_e_TauDown;
    std::vector<int>     *daughters_TauUpExists;
    std::vector<int>     *daughters_charge;
+   std::vector<float>   *L1_tauEt;
+   std::vector<float>   *L1_tauEta;
+   std::vector<float>   *L1_tauPhi;
+   std::vector<short>   *L1_tauIso;
+   std::vector<float>   *L1_jetEt;
+   std::vector<float>   *L1_jetEta;
+   std::vector<float>   *L1_jetPhi;
+   std::vector<float>   *daughters_highestEt_L1IsoTauMatched;
    std::vector<int>     *daughters_genindex;
    Float_t         MC_weight;
    Float_t         lheHt;
@@ -177,7 +186,6 @@ public :
    std::vector<int>     *indexDau1;
    std::vector<int>     *indexDau2;
    std::vector<int>     *particleType;
-   std::vector<float>   *discriminator;
    std::vector<int>     *daughters_muonID;
    std::vector<int>     *daughters_typeOfMuon;
    std::vector<float>   *dxy;
@@ -360,6 +368,7 @@ public :
    TBranch        *b_RunNumber;   //!
    TBranch        *b_lumi;   //!
    TBranch        *b_NBadMu; //!
+   TBranch        *b_passecalBadCalibFilterUpdate;   //!
    TBranch        *b_triggerbit;   //!
    TBranch        *b_metfilterbit;   //!
    TBranch        *b_met;   //!
@@ -390,6 +399,14 @@ public :
    TBranch        *b_daughters_e_TauDown;   //!
    TBranch        *b_daughters_TauUpExists;   //!
    TBranch        *b_daughters_charge;   //!
+   TBranch        *b_L1_tauEt;   //!
+   TBranch        *b_L1_tauEta;   //!
+   TBranch        *b_L1_tauPhi;   //!
+   TBranch        *b_L1_tauIso;   //!
+   TBranch        *b_L1_jetEt;   //!
+   TBranch        *b_L1_jetEta;   //!
+   TBranch        *b_L1_jetPhi;   //!
+   TBranch        *b_daughters_highestEt_L1IsoTauMatched;   //!
    TBranch        *b_daughters_genindex;   //!
    TBranch        *b_MC_weight;   //!
    TBranch        *b_lheHt;   //!
@@ -504,7 +521,6 @@ public :
    TBranch        *b_indexDau1;   //!
    TBranch        *b_indexDau2;   //!
    TBranch        *b_particleType;   //!
-   TBranch        *b_discriminator;   //!
    TBranch        *b_daughters_muonID;   //!
    TBranch        *b_daughters_typeOfMuon;   //!
    TBranch        *b_dxy;   //!
@@ -717,6 +733,14 @@ public :
        daughters_e_TauDown = 0;
        daughters_TauUpExists = 0;
        daughters_charge = 0;
+       L1_tauEt = 0;
+       L1_tauEta = 0;
+       L1_tauPhi = 0;
+       L1_tauIso = 0;
+       L1_jetEt = 0;
+       L1_jetEta = 0;
+       L1_jetPhi = 0;
+       daughters_highestEt_L1IsoTauMatched = 0;
        daughters_genindex = 0;
        genpart_px = 0;
        genpart_py = 0;
@@ -824,7 +848,6 @@ public :
        indexDau1 = 0;
        indexDau2 = 0;
        particleType = 0;
-       discriminator = 0;
        daughters_muonID = 0;
        daughters_typeOfMuon = 0;
        dxy = 0;
@@ -1004,6 +1027,7 @@ public :
        fChain->SetBranchAddress("RunNumber", &RunNumber, &b_RunNumber);
        fChain->SetBranchAddress("lumi", &lumi, &b_lumi);
        fChain->SetBranchAddress("NBadMu", &NBadMu, &b_NBadMu);
+       fChain->SetBranchAddress("passecalBadCalibFilterUpdate", &passecalBadCalibFilterUpdate, &b_passecalBadCalibFilterUpdate);
        fChain->SetBranchAddress("triggerbit", &triggerbit, &b_triggerbit);
        fChain->SetBranchAddress("metfilterbit", &metfilterbit, &b_metfilterbit);
        fChain->SetBranchAddress("met", &met, &b_met);
@@ -1024,6 +1048,14 @@ public :
        fChain->SetBranchAddress("daughters_pz", &daughters_pz, &b_daughters_pz);
        fChain->SetBranchAddress("daughters_e", &daughters_e, &b_daughters_e);
        fChain->SetBranchAddress("daughters_charge", &daughters_charge, &b_daughters_charge);
+       fChain->SetBranchAddress("L1_tauEt", &L1_tauEt, &b_L1_tauEt);
+       fChain->SetBranchAddress("L1_tauEta", &L1_tauEta, &b_L1_tauEta);
+       fChain->SetBranchAddress("L1_tauPhi", &L1_tauPhi, &b_L1_tauPhi);
+       fChain->SetBranchAddress("L1_tauIso", &L1_tauIso, &b_L1_tauIso);
+       fChain->SetBranchAddress("L1_jetEt", &L1_jetEt, &b_L1_jetEt);
+       fChain->SetBranchAddress("L1_jetEta", &L1_jetEta, &b_L1_jetEta);
+       fChain->SetBranchAddress("L1_jetPhi", &L1_jetPhi, &b_L1_jetPhi);
+       fChain->SetBranchAddress("daughters_highestEt_L1IsoTauMatched", &daughters_highestEt_L1IsoTauMatched, &b_daughters_highestEt_L1IsoTauMatched);
        fChain->SetBranchAddress("SVfitMass", &SVfitMass, &b_SVfitMass);
        fChain->SetBranchAddress("SVfitMassUnc", &SVfitMassUnc, &b_SVfitMassUnc);
        fChain->SetBranchAddress("SVfitTransverseMass", &SVfitTransverseMass, &b_SVfitTransverseMass);
@@ -1058,7 +1090,6 @@ public :
        fChain->SetBranchAddress("indexDau1", &indexDau1, &b_indexDau1);
        fChain->SetBranchAddress("indexDau2", &indexDau2, &b_indexDau2);
        fChain->SetBranchAddress("particleType", &particleType, &b_particleType);
-       fChain->SetBranchAddress("discriminator", &discriminator, &b_discriminator);
        fChain->SetBranchAddress("daughters_muonID", &daughters_muonID, &b_daughters_muonID);
        fChain->SetBranchAddress("daughters_typeOfMuon", &daughters_typeOfMuon, &b_daughters_typeOfMuon);
        fChain->SetBranchAddress("dxy", &dxy, &b_dxy);

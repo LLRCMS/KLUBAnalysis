@@ -64,7 +64,8 @@ const double bTopRW = -0.0005;
 const float DYscale_LL[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag - to be updated for DY LO once the disagreement is fixed
 const float DYscale_MM[3] = {1.11219, 1.11436, 0.743777} ; // for now we use the same numbers computed with DY NLO sample
 const float DYscale_LL_NLO[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag for the DYNLO sample
-const float DYscale_MM_NLO[3] = {1.11219, 1.11436, 0.743777} ;
+//const float DYscale_MM_NLO[3] = {1.11219, 1.11436, 0.743777} ;
+const float DYscale_MM_NLO[3] = {1.03277, 1.03968, 0.742346} ;
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
@@ -1726,8 +1727,10 @@ int main (int argc, char** argv)
       metpass += metbit & (1 << 3);
       metpass += metbit & (1 << 4);
       if(!isMC) metpass += metbit & (1 << 7); // "Flag_eeBadScFilter" not suggested on twiki; EDIT: now suggested for data (Moriond2018)
-      metpass += metbit & (1 << 8);
-      //if(metpass <= 0) cout << " - failed metbit(9): " << std::bitset<9>(metbit) << endl; //FRA
+      //metpass += metbit & (1 << 8);  // chia - jan2019: "Flag_ecalBadCalibFilter" is now deprecated; check theBigTree.passecalBadCalibFilterUpdate instead 
+      if (theBigTree.passecalBadCalibFilterUpdate) metpass += 1;
+
+      //(metpass <= 0) cout << " - failed metbit(9): " << std::bitset<9>(metbit) << endl; //FRA
       
       if(isMC && metpass < 8) continue ;
       if(!isMC && metpass < 9) continue ;
@@ -2091,21 +2094,29 @@ int main (int argc, char** argv)
 
 	  Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
 	  bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
-	  isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt());
-      /* // Old version used with single triggers
-      bool isCrossTrg = true;
-	  bool trgNotOverlap = trigReader.checkOR (pairType, trgNotOverlapFlag) ;
-	  // FIXME!! true only if single lep trigger for eTau and muTau
-	  if (pairType == 0 || pairType == 1 || pairType == 3 || pairType == 4)
-	  {
-          passMatch1 = trigReader.checkOR (pairType, matchFlag1) ;
-          passMatch2 = true;
-          trgNotOverlap = true; // FIXME: true only for single lepton triggers!
+	  
+	  if (isMC){
+	    if (pairType == 2){
+	      bool passL1IsoTau32 = false;
+	      if (theBigTree.daughters_highestEt_L1IsoTauMatched->at(firstDaughterIndex) > 32 && theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex) > 32){
+		passL1IsoTau32 = true;
+	      }	
+	      if (!passL1IsoTau32) passTrg = false;
+	    }
 	  }
-      */
+	  /*
+	  if(DEBUG){
+	    if (isMC && pairType == 2 && passTrg){
+	      cout << "passTrg? "<< trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta())<<endl;
+	      cout << "L1 pt1 "<<theBigTree.daughters_highestEt_L1IsoTauMatched->at(firstDaughterIndex) << "L1 pt2 "<<theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex)<<endl;
+	      cout << "---> passTrg? "<<passTrg<<endl;
+	    }
+	    }*/
+	  isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt());
+	  
 	  bool triggerAccept = false;
-	    triggerAccept = passTrg;
-
+	  triggerAccept = passTrg;
+	  
 	  // require trigger + legs matched
 	  //bool triggerAccept = (passTrg && passMatch1 && passMatch2 && trgNotOverlap) ; //FRA: with crossTrigs match1&match2 are together
 
