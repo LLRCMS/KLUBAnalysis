@@ -176,10 +176,50 @@ class OutputManager:
     #                 hFrom = self.histos[makeHistoName(sample, sel, var)]
 
 
+
+    def makeQCD_SBtoSR (self, regionC, regionD, sel, var, removeNegBins = True):
+        print "... computing C/D factor for QCD from: C =", regionC, ", D =", regionD, "in region ",sel
+        for idx, data in enumerate (self.data):
+            hnameC = makeHistoName (data, sel+"_"+regionC, var)
+            hnameD = makeHistoName (data, sel+"_"+regionD, var)
+            print hnameC
+            print hnameD
+            if idx == 0: 
+                hregC = self.histos[hnameC].Clone(makeHistoName('regC',sel+'_'+regionC, var))
+                hregC.SetTitle(hregC.GetName())
+                hregD = self.histos[hnameD].Clone(makeHistoName('regD',sel+'_'+regionD, var))
+                hregD.SetTitle(hregD.GetName())
+            else:
+                hregC.Add(self.histos[hnameC])
+                hregD.Add(self.histos[hnameD])
+                    # subtract bkg
+        for bkg in self.bkgs:
+                hnameC = makeHistoName(bkg, sel+'_'+regionC, var)
+                hregC.Add(self.histos[hnameC], -1.)
+                hnameD = makeHistoName(bkg, sel+'_'+regionD, var)
+                hregD.Add(self.histos[hnameD], -1.)
+                        
+        ## remove negative bins if needed
+        if removeNegBins:
+                for ibin in range(1, hregC.GetNbinsX()+1):
+                    if hregC.GetBinContent(ibin) < 0:
+                        hregC.SetBinContent(ibin, 1.e-6)
+                    if hregD.GetBinContent(ibin) < 0:
+                        hregD.SetBinContent(ibin, 1.e-6)
+        SBtoSRdyn = hregC.Integral()/hregD.Integral()
+        print "... C/D = ", SBtoSRdyn                  
+        return SBtoSRdyn
+
+                    # if var == 'MT2' and sel == 'defaultBtagLLNoIsoBBTTCut' : print ">> -- bkg - SHAPE: " , hname, hQCD.Integral()
     ## FIXME: how to treat systematics properly ? Do we need to do ann alternative QCD histo for every syst?
-    def makeQCD (self, SR, yieldSB, shapeSB, SBtoSRfactor, doFitIf='False', fitFunc='[0] + [1]*x', QCDname='QCD', removeNegBins = True):
+    def makeQCD (self, SR, yieldSB, shapeSB, SBtoSRfactor, regionC, regionD, doFitIf='False', fitFunc='[0] + [1]*x', computeSBtoSR = True,QCDname='QCD', removeNegBins = True):
         
         print "... building QCD w/ name:", QCDname, ". SR:" , SR, " yieldSB:", yieldSB, " shapeSB:", shapeSB, " SBtoSRfactor:", SBtoSRfactor
+        print "    >> recompute SBtoSR dynamically? "
+        if computeSBtoSR: 
+            print "    >>  yes"
+        else:
+            print "    >>  no"
         print "    >> doFitIf:", doFitIf , "fitFunction:", fitFunc , '\n'
         
         for var in self.variables:
@@ -226,11 +266,9 @@ class OutputManager:
                 # if var == 'MT2' and sel == 'defaultBtagLLNoIsoBBTTCut' :  print qcdYield
                 ## now scale
                 qcdYield = hyieldQCD.Integral()
-                #SBtoSRfactor=1.34
-                #if "pt0to50" in sel: SBtoSRfactor = 1.25
-                #if "pt50to150" in sel: SBtoSRfactor = 1.38
-                #if "pt150" in sel: SBtoSRfactor = 1.90
-                
+                        
+                if computeSBtoSR: SBtoSRfactor = self.makeQCD_SBtoSR(regionC, regionD, sel, var, removeNegBins)
+ 
                 sc = SBtoSRfactor*qcdYield/hQCD.Integral() if hQCD.Integral() > 0 else 0.0
                 hQCD.Scale(sc)
 
@@ -318,6 +356,7 @@ class OutputManager:
     def saveToFile(self, fOut, saveQCDFit=True):
         fOut.cd()
         for elem in self.histos:
+            #print elem, self.histos[elem]
             self.histos[elem].Write()
         for elem in self.histos2D:
             self.histos2D[elem].Write()
@@ -348,3 +387,14 @@ class OutputManager:
                         h = self.histos[htoscale_name]
                         h.Scale(factor)
 
+
+    def addHistos(self, strBkg, fExt):
+        print '... taking histos for bkg: ' , strBkg, 'from file : ', fExt
+        inFile = ROOT.TFile.Open(fExt)
+        for sel in self.selections:
+            for var in self.variables:
+                htoadd_name = makeHistoName(strBkg, sel, var)
+                #print htoadd_name
+                htoadd = inFile.Get(htoadd_name)
+                self.histos[htoadd_name] = htoadd.Clone(htoadd_name)
+                return self.histos[htoadd_name]
