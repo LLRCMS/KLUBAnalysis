@@ -7,7 +7,7 @@ void makeRatio (string const &myFileName = "TTLep_MyMCPileupHistogram")
     //TFile * fileMC = TFile::Open("TTSemiLep_MyMCPileupHistogram.root");
     TH1D * hPUMC   = (TH1D*)fileMC->Get("myPUHisto");
 
-    cout << "MC: " << hPUMC->GetName() << endl;
+    //cout << "MC: " << hPUMC->GetName() << endl;
 
     //histo DATA
     //TFile * fileData = TFile::Open("MyDataPileupHistogram_2016data.root");
@@ -25,7 +25,7 @@ void makeRatio (string const &myFileName = "TTLep_MyMCPileupHistogram")
     TFile * fileData = TFile::Open("MyDataPileupHistogram_2017data.root");
     TH1D * hPUData = (TH1D*)fileData->Get("pileup");
 
-    cout << "DATA: " << hPUData->GetName() << endl;
+    //cout << "DATA: " << hPUData->GetName() << endl;
 
     //histo ratio
     TH1D * hRatio = new TH1D("hRatio","hRatio",100,0,100);
@@ -48,6 +48,7 @@ void makeRatio (string const &myFileName = "TTLep_MyMCPileupHistogram")
         //cout << "npuFall17_4c7fb[" << i << "] = " <<hRatio->GetBinContent(i+1)/hRatio->Integral() <<  ";" << endl; // Run 2017B
         //cout << "npuFall17_13c4fb[" << i << "] = " <<hRatio->GetBinContent(i+1)/hRatio->Integral() <<  ";" << endl; // Run 2017F
         cout << "npuFall17_41c3fb[" << i << "] = " <<hRatio->GetBinContent(i+1)/hRatio->Integral() <<  ";" << endl; // Run 2017F
+        //cout << hRatio->GetBinContent(i+1)/hRatio->Integral() << endl;
 
     hPUMC->SetLineColor(kBlack);
     hPUData->SetLineColor(kRed);
