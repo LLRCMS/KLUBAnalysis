@@ -490,7 +490,8 @@ if __name__ == "__main__" :
 
 
     ######################### PUT USER CONFIGURATION HERE ####################
-    cfgName  =  args.dir + "/mainCfg_"+args.channel+".cfg"
+    #cfgName  =  args.dir + "/mainCfg_"+args.channel+".cfg"
+    cfgName  =  args.dir + "/mainCfg_"+args.channel+"_TESIreview.cfg"
     cfg        = cfgr.ConfigReader (cfgName)
     bkgList    = cfg.readListOption("general::backgrounds")
 
@@ -540,7 +541,7 @@ if __name__ == "__main__" :
     sigNameList = ["GF SM", "Benchmark4", "Benchmark12"]
     sigNameList = ["dummy"]
     sigNameList = ["VBF SM"]
-    sigNameList = ["ggHH SM (x30)"]
+    sigNameList = ["ggHH SM (x100)"]
 
     sigColors = {}
     #sigColors["VBFC2V1"] = 2
@@ -592,7 +593,7 @@ if __name__ == "__main__" :
     #if args.sigscale:
     #     for i in range(0,len(sigScale)): sigScale[i] = args.sigscale
     sigScale = [10,10]
-    sigScaleValue = 1
+    sigScaleValue = 100
 
     plotTitle = ""
 
@@ -648,7 +649,7 @@ if __name__ == "__main__" :
     #hDY.Scale(1./6.)
     hTT = getHisto("TT", hBkgs,doOverflow)
     hWJets = getHisto("WJets", hBkgs,doOverflow)
-    hothers = getHisto("other", hBkgs,doOverflow)
+    hothers = getHisto("others", hBkgs,doOverflow)
     #hsingleT = getHisto("singleT", hBkgs,doOverflow)
     #hEWKW = getHisto("EWKW", hBkgs,doOverflow)
     #hVV = getHisto("VV", hBkgs,doOverflow)
@@ -967,6 +968,8 @@ if __name__ == "__main__" :
                     selName = "boosted"
             if "antiB" in args.sel:
                     selName = "antiB"
+            if "DYreg" in args.sel:
+                    selName = "DYreg"
     else:
             selName = args.name
 
@@ -1105,8 +1108,10 @@ if __name__ == "__main__" :
         hRatio.SetStats(0)
         #hRatio.SetMinimum(0.85)
         #hRatio.SetMaximum(1.15)
-        hRatio.SetMinimum(0.1) #default value
-        hRatio.SetMaximum(1.9) #default value
+        #hRatio.SetMinimum(0.6) #default value
+        #hRatio.SetMaximum(1.4) #default value
+        hRatio.SetMinimum(0.1) #TESI
+        hRatio.SetMaximum(1.9) #TESI
 
         removeEmptyPoints (grRatio)
         hRatio.Draw("axis")

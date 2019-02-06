@@ -55,6 +55,16 @@
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_13Dec2018_DYNLO_newSF --n 45
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_13Dec2018_newSF_NoMass --n 45
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_13Dec2018_newSF_MCut --n 45
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_17Dec2018_VTight_inclusive --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuMu.cfg   --tag analysis_MuMu_17Dec2018 --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuMu.cfg   --tag analysis_MuMu_17Dec2018_inclusive --n 20
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_18Dec2018_inclusive_2 --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_18Dec2018_inclusive_2_HTT --n 45
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_18Dec2018_inclusive_DYreg_HTT --n 45
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_18Dec2018_inclusive_DYreg_HTT_trig --n 45
+#
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_18Dec2018_limits --n 40
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau_TESIreview.cfg --tag analysis_MuTau_5Jan2019_TESIreview_SM --n 40
 #
 #
 # - LOOK at QCD -

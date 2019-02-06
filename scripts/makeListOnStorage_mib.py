@@ -25,14 +25,22 @@ from subprocess import Popen, PIPE
 #tag = "MC_7July2018_WZTo3LNu_3Jets"
 #tag = "MC_24July2018"
 #tag = "MC_14JOct2018"
-tag = "MC_23JOct2018_signalsTESI"
+#tag = "MC_23JOct2018_signalsTESI"
+tag = "MC_bkg_25January2019"
+#tag = "MC_bkg_25January2019_njobs"
+#tag = "MC_bkg_25January2019_njobs2"
+#tag = "MC_bkg_25January2019_njobs3"
 
 #outFolder = '/home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_17Nov_VBF'
 #outFolder = '../inputFiles/Fall17_MC/'
 #outFolder = '../inputFiles/Fall17_DATA/'
 #outFolder = '../inputFiles/Files_June2018/'
 #outFolder = '../inputFiles/Files_June2018/signals/'
-outFolder = '../inputFiles/Files_June2018/signals_tesi/'
+#outFolder = '../inputFiles/Files_June2018/signals_tesi/'
+outFolder = '../inputFiles/Files_January2019/Files_January2019/'
+#outFolder = '../inputFiles/Files_January2019/Files_January2019_njobs/'
+#outFolder = '../inputFiles/Files_January2019/Files_January2019_njobs2/'
+#outFolder = '../inputFiles/Files_January2019/Files_January2019_njobs3/'
 
 areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
                                  # if false: only add the polgrid server to run the skim and submit on root
