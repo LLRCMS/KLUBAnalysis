@@ -204,7 +204,7 @@ class OutputManager:
                 for ibin in range(1, hregC.GetNbinsX()+1):
                     if hregC.GetBinContent(ibin) < 0:
                         hregC.SetBinContent(ibin, 1.e-6)
-                    if hregD.GetBinContent(ibin) < 0:
+                    if hregD.GetBinContent(ibin) < 1.e-6:
                         hregD.SetBinContent(ibin, 1.e-6)
         SBtoSRdyn = hregC.Integral()/hregD.Integral()
         print "... C/D = ", SBtoSRdyn                  
