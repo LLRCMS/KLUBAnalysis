@@ -490,8 +490,8 @@ if __name__ == "__main__" :
 
 
     ######################### PUT USER CONFIGURATION HERE ####################
-    #cfgName  =  args.dir + "/mainCfg_"+args.channel+".cfg"
-    cfgName  =  args.dir + "/mainCfg_"+args.channel+"_TESIreview.cfg"
+    cfgName  =  args.dir + "/mainCfg_"+args.channel+".cfg"
+    #cfgName  =  args.dir + "/mainCfg_"+args.channel+"_TESIreview.cfg"
     cfg        = cfgr.ConfigReader (cfgName)
     bkgList    = cfg.readListOption("general::backgrounds")
 
@@ -518,6 +518,7 @@ if __name__ == "__main__" :
     sigList = ["ggHTauTau"]
     sigList = ["VBFSM"]
     sigList = ["ggHH"]
+    sigList = ["ggHTauTau"]
 
     sigNameList = []
     if args.log:
@@ -729,6 +730,13 @@ if __name__ == "__main__" :
     #################### REMOVE NEGARIVE BINS #######################
     print "** INFO: removing all negative bins from bkg histos"
     makeNonNegativeHistos (hBkgList)
+
+    #saveName = "./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
+    with open("./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/yields.txt","a+") as yields_file:
+        yields_file.write("=== "+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/"+args.var+" ===\n")
+        for h in hBkgList: yields_file.write("Integral: "+h.GetName()+" : "+str(h.Integral())+" - "+str(h.Integral(-1,-1))+"\n")
+        for n in hDatas  : yields_file.write("Integral "+hDatas[n].GetName()+" : "+str(hDatas[n].Integral())+" - "+str(hDatas[n].Integral(-1,-1))+"\n")
+        for i, name in enumerate (sigNameList): yields_file.write("Integral "+hSigs[sigList[i]].GetName()+" : "+str(hSigs[sigList[i]].Integral())+" - "+str(hSigs[sigList[i]].Integral(-1,-1))+"\n")
 
     for h in hBkgList: print "Integral ", h.GetName(), " : ", h.Integral(), " - ", h.Integral(-1,-1)
     for n in hDatas: print "Integral ", hDatas[n].GetName(), " : ", hDatas[n].Integral(), " - ", hDatas[n].Integral(-1,-1)
