@@ -9,85 +9,57 @@
  *
  * \authors Tyler Ruggles, Wisconsin; Christian Veelken, Tallin
  *
+ * \updated February2019 Francesco Brivio, Milano-Bicocca; Chiara Amendola, LLR
+ * cf. https://indico.cern.ch/event/799374/contributions/3323191/attachments/1797874/2931826/TauTrigger2017SFv3_TauID_hsert.pdf
+ *
  */
 
 #include <TFile.h> // TFile
 #include <TH1.h> // TH1
 #include <TH2.h> // TH2
+#include <TF1.h> // TF1
 
 #include <string> // std::string
+#include <map>    // std::map
 
 class TauTriggerSFs2017
 {
 public:
 
-  enum { kCentral, kStatUp, kStatDown };
-
-  TauTriggerSFs2017(const std::string& inputFileName, const std::string& inputFileNameOld, const std::string& tauWP = "medium", const std::string& wpType = "MVA");
+  TauTriggerSFs2017(const std::string& inputFileName, const std::string& trigger, const std::string& year, const std::string& tauWP = "medium", const std::string& wpType = "MVAv2");
   ~TauTriggerSFs2017();
 
-  /**
-   * @brief Funtions to access efficiencies in data
-   * @return Values of efficiencies
-   */
-  // This is the efficiency for a single leg of the di-tau trigger
-  double getDiTauEfficiencyData(double pt, double eta, double phi, int central_or_shift = TauTriggerSFs2017::kCentral);
-  // This is the efficiency for the tau leg of the mu-tau trigger
-  double getMuTauEfficiencyData(double pt, double eta, double phi, int central_or_shift = TauTriggerSFs2017::kCentral);
-  // This is the efficiency for the tau leg of the e-tau trigger
-  double getETauEfficiencyData(double pt, double eta, double phi, int central_or_shift = TauTriggerSFs2017::kCentral);
+  // Return the data efficiency or the +/- 1 sigma uncertainty shifted efficiency
+  double getTriggerEfficiencyData(double pt, double eta, double phi, int dm);           // Nominal data efficiency
+  double getTriggerEfficiencyDataUncertUp(double pt, double eta, double phi, int dm);   // Data efficiency +1 sigma uncertainty
+  double getTriggerEfficiencyDataUncertDown(double pt, double eta, double phi, int dm); // Data efficiency -1 sigma uncertainty
 
-  /**
-   * @brief Funtions to access efficiencies in MC
-   * @return Values of efficiencies
-   */
-  // This is the efficiency for a single leg of the di-tau trigger
-  double getDiTauEfficiencyMC(double pt, double eta, double phi, int central_or_shift = TauTriggerSFs2017::kCentral);
-  // This is the efficiency for the tau leg of the mu-tau trigger
-  double getMuTauEfficiencyMC(double pt, double eta, double phi, int central_or_shift = TauTriggerSFs2017::kCentral);
-  // This is the efficiency for the tau leg of the e-tau trigger
-  double getETauEfficiencyMC(double pt, double eta, double phi, int central_or_shift = TauTriggerSFs2017::kCentral);
+  // Return the MC efficiency or the +/- 1 sigma uncertainty shifted efficiency
+  double getTriggerEfficiencyMC(double pt, double eta, double phi, int dm);           // Nominal MC efficiency
+  double getTriggerEfficiencyMCUncertUp(double pt, double eta, double phi, int dm);   // MC efficiency +1 sigma uncertainty
+  double getTriggerEfficiencyMCUncertDown(double pt, double eta, double phi, int dm); // MC efficiency -1 sigma uncertainty
 
-  /**
-   * @brief Funtions to access data/MC scale-factors
-   * @return Values of scale-factors
-   */ 
-  // This is the SF for a single leg of the di-tau trigger
-  double getDiTauScaleFactor(double pt, double eta, double phi, int central_or_shift = TauTriggerSFs2017::kCentral);
-  // This is the SF for the tau leg of the mu-tau trigger
-  double getMuTauScaleFactor(double pt, double eta, double phi, int central_or_shift = TauTriggerSFs2017::kCentral);
-  // This is the SF for the tau leg of the e-tau trigger
-  double getETauScaleFactor(double pt, double eta, double phi, int central_or_shift = TauTriggerSFs2017::kCentral);
+  // Return the Scale Factor or the +/- 1 sigma shifter Scale Factor
+  double getTriggerScaleFactor(double pt, double eta, double phi, int dm);                           // Nominal Scale Factor
+  double getTriggerScaleFactorUncert(double pt, double eta, double phi, int dm, std::string uncert); // Shifted Scale Factor
 
 protected:
   std::string inputFileName_;
   TFile* inputFile_;
-  std::string inputFileNameOld_;
-  TFile* inputFileOld_;
 
+  std::string trigger_;
+  std::string year_;
   std::string tauWP_;
   std::string wpType_;
 
-  const TH1* diTauData_;
-  const TH1* diTauMC_;
-  const TH1* eTauData_;
-  const TH1* eTauMC_;
-  const TH1* muTauData_;
-  const TH1* muTauMC_;
-
-  const TH2* diTauEtaPhiData_;
-  const TH2* diTauEtaPhiMC_;
-  const TH2* eTauEtaPhiData_;
-  const TH2* eTauEtaPhiMC_;
-  const TH2* muTauEtaPhiData_;
-  const TH2* muTauEtaPhiMC_;
-
-  const TH2* diTauEtaPhiAvgData_;
-  const TH2* diTauEtaPhiAvgMC_;
-  const TH2* eTauEtaPhiAvgData_;
-  const TH2* eTauEtaPhiAvgMC_;
-  const TH2* muTauEtaPhiAvgData_;
-  const TH2* muTauEtaPhiAvgMC_;
+  const std::map<int, const TF1*> fitDataMap_;
+  const std::map<int, const TF1*> fitMCMap_;
+  const std::map<int, const TH1*> fitUncDataMap_;
+  const std::map<int, const TH1*> fitUncMCMap_;
+  const std::map<int, const TH2*> effEtaPhiDataMap_;
+  const std::map<int, const TH2*> effEtaPhiMCMap_;
+  const std::map<int, const TH2*> effEtaPhiAvgDataMap_;
+  const std::map<int, const TH2*> effEtaPhiAvgMCMap_;
 };
 
 #endif // TauTriggerSFs2017_h

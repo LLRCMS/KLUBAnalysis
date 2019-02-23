@@ -5,6 +5,7 @@
 #include <iostream> // std::cerr, std::endl
 #include <iomanip> 
 #include <assert.h> // assert
+#include <cmath> // std::sqrt
 
 const TH1* loadTH1(const TFile* inputFile, const std::string& histogramName)
 {
@@ -16,6 +17,7 @@ const TH1* loadTH1(const TFile* inputFile, const std::string& histogramName)
   return histogram;
 }
 
+
 const TH2* loadTH2(const TFile* inputFile, const std::string& histogramName)
 {
   const TH2* histogram = dynamic_cast<TH2*>((const_cast<TFile*>(inputFile))->Get(histogramName.data()));
@@ -26,9 +28,31 @@ const TH2* loadTH2(const TFile* inputFile, const std::string& histogramName)
   return histogram;
 }
 
-TauTriggerSFs2017::TauTriggerSFs2017(const std::string& inputFileName, const std::string& inputFileNameOld, const std::string& tauWP, const std::string& wpType)
+
+const TF1* loadTF1(const TFile* inputFile, const std::string& functionName)
+{
+  const TF1* function = dynamic_cast<TF1*>((const_cast<TFile*>(inputFile))->Get(functionName.data()));
+  if ( !function ) {
+    std::cerr << "Failed to load function = '" << functionName << "' from input file !!" << std::endl;
+    assert(0);
+  }
+  return function;
+}
+
+
+// Make sure we stay on our histograms
+double ptCheck(double pt)
+{
+  if      ( pt > 450 ) pt = 450;
+  else if ( pt < 20 )  pt = 20;
+  return pt;
+}
+
+
+TauTriggerSFs2017::TauTriggerSFs2017(const std::string& inputFileName, const std::string& trigger, const std::string& year, const std::string& tauWP, const std::string& wpType)
   : inputFileName_(inputFileName),
-    inputFileNameOld_(inputFileNameOld),
+    trigger_(trigger),
+    year_(year),
     tauWP_(tauWP),
     wpType_(wpType)
 {
@@ -38,168 +62,212 @@ TauTriggerSFs2017::TauTriggerSFs2017(const std::string& inputFileName, const std
     assert(0);
   }
 
-  inputFileOld_ = new TFile(inputFileNameOld_.data());
-  if ( !inputFileOld_ ) {
-    std::cerr << "Failed to open input file = '" << inputFileNameOld_ << "' !!" << std::endl;
-    assert(0);
-  }
+  // Load the TF1s containing the analytic best-fit results
+  // This is done per decay mode: 0, 1, 10.
+  std::map<int, const TF1*> fitDataMap_;
+  std::map<int, const TF1*> fitMCMap_;
+  fitDataMap_ [ 0] = loadTF1(inputFile_, Form("%s_%s%s_dm0_DATA_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
+  fitDataMap_ [ 1] = loadTF1(inputFile_, Form("%s_%s%s_dm1_DATA_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
+  fitDataMap_ [10] = loadTF1(inputFile_, Form("%s_%s%s_dm10_DATA_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
+  fitMCMap_ [ 0] = loadTF1(inputFile_, Form("%s_%s%s_dm0_MC_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
+  fitMCMap_ [ 1] = loadTF1(inputFile_, Form("%s_%s%s_dm1_MC_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
+  fitMCMap_ [10] = loadTF1(inputFile_, Form("%s_%s%s_dm10_MC_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
   
-  // load the TH1s containing the bin by bin values
-  diTauData_ = loadTH1(inputFile_, Form("hist_diTauTriggerEfficiency_%sTau%s_DATA", tauWP_.data(), wpType_.data()));
-  diTauMC_ = loadTH1(inputFile_, Form("hist_diTauTriggerEfficiency_%sTau%s_MC", tauWP_.data(), wpType_.data()));
-  eTauData_ = loadTH1(inputFile_, Form("hist_ETauTriggerEfficiency_%sTau%s_DATA", tauWP_.data(), wpType_.data()));
-  eTauMC_ = loadTH1(inputFile_, Form("hist_ETauTriggerEfficiency_%sTau%s_MC", tauWP_.data(), wpType_.data()));
-  muTauData_ = loadTH1(inputFile_, Form("hist_MuTauTriggerEfficiency_%sTau%s_DATA", tauWP_.data(), wpType_.data()));
-  muTauMC_ = loadTH1(inputFile_, Form("hist_MuTauTriggerEfficiency_%sTau%s_MC", tauWP_.data(), wpType_.data()));
+
+  // Load the TH1s containing the analytic best-fit result in 1 GeV incriments and the associated uncertainty.
+  // This is done per decay mode: 0, 1, 10.
+  std::map<int, const TH1*> fitUncDataMap_;
+  std::map<int, const TH1*> fitUncMCMap_;
+  fitUncDataMap_ [ 0] = loadTH1(inputFile_, Form("%s_%s%s_dm0_DATA_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
+  fitUncDataMap_ [ 1] = loadTH1(inputFile_, Form("%s_%s%s_dm1_DATA_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
+  fitUncDataMap_ [10] = loadTH1(inputFile_, Form("%s_%s%s_dm10_DATA_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
+  fitUncMCMap_ [ 0] = loadTH1(inputFile_, Form("%s_%s%s_dm0_MC_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
+  fitUncMCMap_ [ 1] = loadTH1(inputFile_, Form("%s_%s%s_dm1_MC_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
+  fitUncMCMap_ [10] = loadTH1(inputFile_, Form("%s_%s%s_dm10_MC_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
 
 
-  // FIXME: Use the eta-phi efficiency corrections from pre-re-miniaod branch
-  // Only medium, tight, and vtight are provided and they are from MVA ID
-  std::string tmpWP = tauWP_.data();
-  if (tmpWP == "vvloose" || tmpWP == "vloose" || tmpWP == "loose") tmpWP = "medium";
-  if (tmpWP == "vvtight")  tmpWP = "vtight";
-        
-  // load the TH2s containing the eta phi efficiency corrections
-  diTauEtaPhiData_ = loadTH2(inputFileOld_, Form("diTau_%s_DATA", tmpWP.data()));
-  diTauEtaPhiMC_ = loadTH2(inputFileOld_, Form("diTau_%s_MC", tmpWP.data()));
-  eTauEtaPhiData_ = loadTH2(inputFileOld_, Form("eTau_%s_DATA", tmpWP.data()));
-  eTauEtaPhiMC_ = loadTH2(inputFileOld_, Form("eTau_%s_MC", tmpWP.data()));
-  muTauEtaPhiData_ = loadTH2(inputFileOld_, Form("muTau_%s_DATA", tmpWP.data()));
-  muTauEtaPhiMC_ = loadTH2(inputFileOld_, Form("muTau_%s_MC", tmpWP.data()));
+  // Load the TH2s containing the eta phi efficiency corrections
+  // This is done per decay mode: 0, 1, 10.
+  std::map<int, const TH2*> effEtaPhiDataMap_;
+  std::map<int, const TH2*> effEtaPhiMCMap_;
+  effEtaPhiDataMap_ [ 0] = loadTH2(inputFile_, Form("%s_%s%s_dm0_DATA", trigger_.data(), tauWP_.data(), wpType_.data()));
+  effEtaPhiDataMap_ [ 1] = loadTH2(inputFile_, Form("%s_%s%s_dm1_DATA", trigger_.data(), tauWP_.data(), wpType_.data()));
+  effEtaPhiDataMap_ [10] = loadTH2(inputFile_, Form("%s_%s%s_dm10_DATA", trigger_.data(), tauWP_.data(), wpType_.data()));
+  effEtaPhiMCMap_ [ 0] = loadTH2(inputFile_, Form("%s_%s%s_dm0_MC", trigger_.data(), tauWP_.data(), wpType_.data()));
+  effEtaPhiMCMap_ [ 1] = loadTH2(inputFile_, Form("%s_%s%s_dm1_MC", trigger_.data(), tauWP_.data(), wpType_.data()));
+  effEtaPhiMCMap_ [10] = loadTH2(inputFile_, Form("%s_%s%s_dm10_MC", trigger_.data(), tauWP_.data(), wpType_.data()));
 
-  // Eta Phi Avg
-  diTauEtaPhiAvgData_ = loadTH2(inputFileOld_, Form("diTau_%s_AVG_DATA", tmpWP.data()));
-  diTauEtaPhiAvgMC_ = loadTH2(inputFileOld_, Form("diTau_%s_AVG_MC", tmpWP.data()));
-  eTauEtaPhiAvgData_ = loadTH2(inputFileOld_, Form("eTau_%s_AVG_DATA", tmpWP.data()));
-  eTauEtaPhiAvgMC_ = loadTH2(inputFileOld_, Form("eTau_%s_AVG_MC", tmpWP.data()));
-  muTauEtaPhiAvgData_ = loadTH2(inputFileOld_, Form("muTau_%s_AVG_DATA", tmpWP.data()));
-  muTauEtaPhiAvgMC_ = loadTH2(inputFileOld_, Form("muTau_%s_AVG_MC", tmpWP.data()));
+
+  // Eta Phi Averages
+  // This is done per decay mode: 0, 1, 10.
+  std::map<int, const TH2*> effEtaPhiAvgDataMap_;
+  std::map<int, const TH2*> effEtaPhiAvgMCMap_;
+  effEtaPhiAvgDataMap_ [ 0] = loadTH2(inputFile_, Form("%s_%s%s_dm0_DATA_AVG", trigger_.data(), tauWP_.data(), wpType_.data()));
+  effEtaPhiAvgDataMap_ [ 1] = loadTH2(inputFile_, Form("%s_%s%s_dm1_DATA_AVG", trigger_.data(), tauWP_.data(), wpType_.data()));
+  effEtaPhiAvgDataMap_ [10] = loadTH2(inputFile_, Form("%s_%s%s_dm10_DATA_AVG", trigger_.data(), tauWP_.data(), wpType_.data()));
+  effEtaPhiAvgMCMap_ [ 0] = loadTH2(inputFile_, Form("%s_%s%s_dm0_MC_AVG", trigger_.data(), tauWP_.data(), wpType_.data()));
+  effEtaPhiAvgMCMap_ [ 1] = loadTH2(inputFile_, Form("%s_%s%s_dm1_MC_AVG", trigger_.data(), tauWP_.data(), wpType_.data()));
+  effEtaPhiAvgMCMap_ [10] = loadTH2(inputFile_, Form("%s_%s%s_dm10_MC_AVG", trigger_.data(), tauWP_.data(), wpType_.data()));
 }
+
 
 TauTriggerSFs2017::~TauTriggerSFs2017()
 {
   delete inputFile_;
-  delete inputFileOld_;
 }
 
-double getEfficiency(double pt, double eta, double phi, const TH1* effHist, const TH2* etaPhi, const TH2* etaPhiAvg, int central_or_shift = TauTriggerSFs2017::kCentral)
-{
-  const TAxis* effHist_xAxis = effHist->GetXaxis();
-  double ptMin = effHist_xAxis->GetXmin() + 1.e-1;
-  double ptMax = effHist_xAxis->GetXmax() - 1.e-1;
-  double pt_checked = pt;
-  if ( pt_checked > ptMax ) pt_checked = ptMax;
-  if ( pt_checked < ptMin ) pt_checked = ptMin;
-  int effHist_idxBin = (const_cast<TH1*>(effHist))->FindBin(pt_checked);
-  assert(effHist_idxBin >= 1 && effHist_idxBin <= effHist->GetNbinsX());
-  double eff = effHist->GetBinContent(effHist_idxBin);
 
-  double effErr = effHist->GetBinError(effHist_idxBin);
-  switch(central_or_shift)
+double getEfficiency(double pt, double eta, double phi, const TF1* fit, const TH1* uncHist, const TH2* etaPhiHist, const TH2* etaPhiAvgHist, const std::string uncert="Nominal")
+{
+  double pt_checked = ptCheck( pt );
+  double eff = fit->Eval( pt_checked );
+
+  // Shift the pt dependent efficiency by the fit uncertainty if requested
+  if (uncert != "Nominal")
   {
-    case TauTriggerSFs2017::kCentral:                 break;
-    case TauTriggerSFs2017::kStatUp:   eff += effErr; break;
-    case TauTriggerSFs2017::kStatDown: eff -= effErr; break;
-    default: assert(0);
+    if ( (uncert!="Up") && (uncert!="Down") )
+    {
+      std::cerr << "Uncertainties are provided using 'Up'/'Down'. You provided uncert = '" << uncert << "'"<< std::endl;
+      assert(0);
+    }
+    if (uncert == "Up") eff += uncHist->GetBinError( (const_cast<TH1*>(uncHist))->FindBin( pt_checked ) );
+    else                eff -= uncHist->GetBinError( (const_cast<TH1*>(uncHist))->FindBin( pt_checked ) );
   }
 
   // Adjust SF based on (eta, phi) location
   // keep eta barrel boundaries within SF region
   // but, for taus outside eta limits or with unralistic
   // phi values, return zero SF
-  const TAxis* etaPhiAvg_xAxis = etaPhiAvg->GetXaxis();
-  double etaMin = etaPhiAvg_xAxis->GetXmin() + 1.e-2;
-  double etaMax = etaPhiAvg_xAxis->GetXmax() - 1.e-2;
-  double eta_checked = eta;
-  if ( eta_checked > etaMax ) eta_checked = etaMax;
-  if ( eta_checked < etaMin ) eta_checked = etaMin;
-  int etaPhiAvg_idxBinX = etaPhiAvg_xAxis->FindBin(eta_checked);
-  assert(etaPhiAvg_idxBinX >= 1 && etaPhiAvg_idxBinX <= etaPhiAvg_xAxis->GetNbins());
-  const TAxis* etaPhiAvg_yAxis = etaPhiAvg->GetYaxis();
-  int etaPhiAvg_idxBinY = etaPhiAvg_yAxis->FindBin(phi);
-  assert(etaPhiAvg_idxBinY >= 1 && etaPhiAvg_idxBinY <= etaPhiAvg_yAxis->GetNbins());
-  double effCorr_etaPhi = etaPhi->GetBinContent((const_cast<TH2*>(etaPhi))->FindBin(eta_checked, phi));
-  double effCorr_etaPhiAvg = etaPhiAvg->GetBinContent((const_cast<TH2*>(etaPhiAvg))->FindBin(eta_checked, phi));
-  if ( effCorr_etaPhiAvg <= 0. ) {
-    std::cerr << Form("One of the provided tau (eta, phi) values (%3.3f, %3.3f) is outside the boundary of triggering taus", eta, phi) << std::endl;
-    std::cerr << "Returning efficiency = 0.0" << std::endl;
+  if      (eta ==  2.1) eta =  2.09;
+  else if (eta == -2.1) eta = -2.09;
+
+  double etaPhiVal = etaPhiHist->GetBinContent( (const_cast<TH2*>(etaPhiHist))->FindBin( eta, phi ) );
+  double etaPhiAvg = etaPhiAvgHist->GetBinContent( (const_cast<TH2*>(etaPhiAvgHist))->FindBin( eta, phi ) );
+  if (etaPhiAvg <= 0.)
+  {
+    std::cout << Form("One of the provided tau (eta, phi) values (%3.3f, %3.3f) is outside the boundary of triggering taus", eta, phi) << std::endl;
+    std::cout << "Returning efficiency = 0.0" << std::endl;
     return 0.;
-  }  
-  eff *= (effCorr_etaPhi/effCorr_etaPhiAvg);
+  }
+  eff *= etaPhiVal/etaPhiAvg;
   if ( eff > 1. ) eff = 1.;
   return eff;
 }
 
-double TauTriggerSFs2017::getDiTauEfficiencyData(double pt, double eta, double phi, int central_or_shift)
+
+// Return the data efficiency or the +/- 1 sigma uncertainty shifted efficiency
+double TauTriggerSFs2017::getTriggerEfficiencyData(double pt, double eta, double phi, int dm)
 {
-  return getEfficiency(pt, eta, phi, diTauData_, diTauEtaPhiData_, diTauEtaPhiAvgData_, central_or_shift);
+  if ( (dm!=0) && (dm!=1) && (dm!=10) )
+  {
+    std::cerr << Form("Efficiencies only provided for DMs 0, 1, 10.  You provided DM %i", dm) << std::endl;
+    assert(0);
+  }
+  return getEfficiency(pt, eta, phi, fitDataMap_.at(dm), fitUncDataMap_.at(dm), effEtaPhiDataMap_.at(dm), effEtaPhiAvgDataMap_.at(dm));
 }
 
-double TauTriggerSFs2017::getDiTauEfficiencyMC(double pt, double eta, double phi, int central_or_shift)
+double TauTriggerSFs2017::getTriggerEfficiencyDataUncertUp(double pt, double eta, double phi, int dm)
 {
-  return getEfficiency(pt, eta, phi, diTauMC_, diTauEtaPhiMC_, diTauEtaPhiAvgMC_, central_or_shift);
+  if ( (dm!=0) && (dm!=1) && (dm!=10) )
+  {
+    std::cerr << Form("Efficiencies only provided for DMs 0, 1, 10.  You provided DM %i", dm) << std::endl;
+    assert(0);
+  }
+  return getEfficiency(pt, eta, phi, fitDataMap_.at(dm), fitUncDataMap_.at(dm), effEtaPhiDataMap_.at(dm), effEtaPhiAvgDataMap_.at(dm), "Up");
 }
 
-double TauTriggerSFs2017::getDiTauScaleFactor(double pt, double eta, double phi, int central_or_shift)
+double TauTriggerSFs2017::getTriggerEfficiencyDataUncertDown(double pt, double eta, double phi, int dm)
 {
-  double effData = getDiTauEfficiencyData(pt, eta, phi, central_or_shift);
-  double effMC = getDiTauEfficiencyMC(pt, eta, phi, central_or_shift);
-  if ( effMC < 1e-5 ) {
+  if ( (dm!=0) && (dm!=1) && (dm!=10) )
+  {
+    std::cerr << Form("Efficiencies only provided for DMs 0, 1, 10.  You provided DM %i", dm) << std::endl;
+    assert(0);
+  }
+  return getEfficiency(pt, eta, phi, fitDataMap_.at(dm), fitUncDataMap_.at(dm), effEtaPhiDataMap_.at(dm), effEtaPhiAvgDataMap_.at(dm), "Down");
+}
+
+
+// Return the MC efficiency or the +/- 1 sigma uncertainty shifted efficiency
+double TauTriggerSFs2017::getTriggerEfficiencyMC(double pt, double eta, double phi, int dm)
+{
+  if ( (dm!=0) && (dm!=1) && (dm!=10) )
+  {
+    std::cerr << Form("Efficiencies only provided for DMs 0, 1, 10.  You provided DM %i", dm) << std::endl;
+    assert(0);
+  }
+  return getEfficiency(pt, eta, phi, fitMCMap_.at(dm), fitUncMCMap_.at(dm), effEtaPhiMCMap_.at(dm), effEtaPhiAvgMCMap_.at(dm));
+}
+
+double TauTriggerSFs2017::getTriggerEfficiencyMCUncertUp(double pt, double eta, double phi, int dm)
+{
+  if ( (dm!=0) && (dm!=1) && (dm!=10) )
+  {
+    std::cerr << Form("Efficiencies only provided for DMs 0, 1, 10.  You provided DM %i", dm) << std::endl;
+    assert(0);
+  }
+  return getEfficiency(pt, eta, phi, fitMCMap_.at(dm), fitUncMCMap_.at(dm), effEtaPhiMCMap_.at(dm), effEtaPhiAvgMCMap_.at(dm), "Up");
+}
+
+double TauTriggerSFs2017::getTriggerEfficiencyMCUncertDown(double pt, double eta, double phi, int dm)
+{
+  if ( (dm!=0) && (dm!=1) && (dm!=10) )
+  {
+    std::cerr << Form("Efficiencies only provided for DMs 0, 1, 10.  You provided DM %i", dm) << std::endl;
+    assert(0);
+  }
+  return getEfficiency(pt, eta, phi, fitMCMap_.at(dm), fitUncMCMap_.at(dm), effEtaPhiMCMap_.at(dm), effEtaPhiAvgMCMap_.at(dm), "Down");
+}
+
+
+// Return the data/MC scale factor
+double TauTriggerSFs2017::getTriggerScaleFactor(double pt, double eta, double phi, int dm)
+{
+  double pt_checked = ptCheck( pt );
+  double effData = getTriggerEfficiencyData( pt_checked, eta, phi, dm );
+  double effMC = getTriggerEfficiencyMC( pt_checked, eta, phi, dm );
+  if ( effMC < 1e-5 )
+  {
     std::cerr << "Eff MC is suspiciously low. Please contact Tau POG." << std::endl;
-    std::cerr << Form(" - DiTau Trigger SF for Tau ID: %s   WP: %s   pT: %3.3f   eta: %3.3f   phi: %3.3f", wpType_.data(), tauWP_.data(), pt, eta, phi) << std::endl;
-    std::cerr << Form(" - MC Efficiency = %3.3f", effMC) << std::endl;
+    std::cerr << Form(" - %s Trigger SF for Tau ID: %s   WP: %s   pT: %f   eta: %f   phi: %f", trigger_.data(), wpType_.data(), tauWP_.data(), pt, eta, phi) << std::endl;
+    std::cerr << Form(" - MC Efficiency = %f", effMC) << std::endl;
     return 0.;
   }
-  double sf = (effData/effMC);
+  double sf = effData / effMC;
   return sf;
 }
 
-double TauTriggerSFs2017::getMuTauEfficiencyData(double pt, double eta, double phi, int central_or_shift)
-{
-  return getEfficiency(pt, eta, phi, muTauData_, muTauEtaPhiData_, muTauEtaPhiAvgData_, central_or_shift);
-}
 
-double TauTriggerSFs2017::getMuTauEfficiencyMC(double pt, double eta, double phi, int central_or_shift)
+// return the data/MC scale factor with +1/-1 sigma uncertainty.
+// Data and MC fit uncertainties are treated as uncorrelated.
+// The calculated uncertainties are symmetric. Do error propagation
+// for simple division. Using getTriggerEfficiencyXXXUncertDown instead
+// of Up ensures we have the full uncertainty reported. Up sometimes
+// is clipped by efficiency max of 1.0.
+double TauTriggerSFs2017::getTriggerScaleFactorUncert(double pt, double eta, double phi, int dm, std::string uncert)
 {
-  return getEfficiency(pt, eta, phi, muTauMC_, muTauEtaPhiMC_, muTauEtaPhiAvgMC_, central_or_shift);
-}
-
-double TauTriggerSFs2017::getMuTauScaleFactor(double pt, double eta, double phi, int central_or_shift)
-{
-  double effData = getMuTauEfficiencyData(pt, eta, phi, central_or_shift);
-  double effMC = getMuTauEfficiencyMC(pt, eta, phi, central_or_shift);
-  if ( effMC < 1e-5 ) {
-    std::cerr << "Eff MC is suspiciously low. Please contact Tau POG." << std::endl;
-    std::cerr << Form(" - MuTau Trigger SF for Tau ID: %s   WP: %s   pT: %3.3f   eta: %3.3f   phi: %3.3f", wpType_.data(), tauWP_.data(), pt, eta, phi) << std::endl;
-    std::cerr << Form(" - MC Efficiency = %3.3f", effMC) << std::endl;
-    return 0.;
+  if ( (uncert!="Up") && (uncert!="Down") )
+  {
+    std::cerr << "Uncertainties are provided using 'Up'/'Down'. You provided uncert = '" << uncert << "'"<< std::endl;
+    assert(0);
   }
-  double sf = (effData/effMC);
-  return sf;
-}
 
-double TauTriggerSFs2017::getETauEfficiencyData(double pt, double eta, double phi, int central_or_shift)
-{
-  return getEfficiency(pt, eta, phi, eTauData_, eTauEtaPhiData_, eTauEtaPhiAvgData_, central_or_shift);
-}
+  double pt_checked = ptCheck( pt );
 
-double TauTriggerSFs2017::getETauEfficiencyMC(double pt, double eta, double phi, int central_or_shift)
-{
-  return getEfficiency(pt, eta, phi, eTauMC_, eTauEtaPhiMC_, eTauEtaPhiAvgMC_, central_or_shift);
-}
+  double effData = getTriggerEfficiencyData( pt_checked, eta, phi, dm );
+  double effDataDown = getTriggerEfficiencyDataUncertDown( pt_checked, eta, phi, dm );
+  double relDataDiff = (effData - effDataDown) / effData;
 
-double TauTriggerSFs2017::getETauScaleFactor(double pt, double eta, double phi, int central_or_shift)
-{
-  double effData = getETauEfficiencyData(pt, eta, phi, central_or_shift);
-  double effMC = getETauEfficiencyMC(pt, eta, phi, central_or_shift);
-  if ( effMC < 1e-5 ) {
-    std::cerr << "Eff MC is suspiciously low. Please contact Tau POG." << std::endl;
-    std::cerr << Form(" - ETau Trigger SF for Tau ID: %s   WP: %s   pT: %3.3f   eta: %3.3f   phi: %3.3f", wpType_.data(), tauWP_.data(), pt, eta, phi) << std::endl;
-    std::cerr << Form(" - MC Efficiency = %3.3f", effMC) << std::endl;
-    return 0.;
+  double effMC = getTriggerEfficiencyMC( pt_checked, eta, phi, dm );
+  double effMCDown = getTriggerEfficiencyMCUncertDown( pt_checked, eta, phi, dm );
+  if (effMC < 1e-5)
+  {
+    // Already printed an error for the nominal case...
+    return 0.0;
   }
-  double sf = (effData/effMC);
-  return sf;
+  double relMCDiff = (effMC - effMCDown) / effMC;
+
+  double deltaSF = std::sqrt( (relDataDiff*relDataDiff) + (relMCDiff*relMCDiff) );
+  double sf = (effData / effMC);
+  if (uncert == "Up") return sf * (1. + deltaSF);
+  else                return sf * (1. - deltaSF);
 }
-
-
