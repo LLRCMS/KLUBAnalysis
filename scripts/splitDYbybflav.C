@@ -73,7 +73,7 @@ void splitDYbybflavSingle (TString DYName)
         // if (nbs == 0) t0b->Fill();
         // else if (nbs == 1) t1b->Fill();
         // else t2b->Fill(); // >= 2b
-
+	
         if (nBhadrons == 0) t0b->Fill();
         else if (nBhadrons == 1) t1b->Fill();
         else t2b->Fill(); // >= 2b
@@ -87,15 +87,17 @@ void splitDYbybflavSingle (TString DYName)
     f0b->cd();
     t0b->Write();
     h_eff->Write();
+    f0b->Close();
 
     f1b->cd();
     t1b->Write();
     h_eff->Write();
-
+    f1b->Close();
+    
     f2b->cd();
     t2b->Write();
     h_eff->Write();
-
+    f2b->Close();    
 }
 
 
@@ -121,7 +123,24 @@ void splitDYbybflav()
     //v.push_back("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2016_30Nov2016_oldPair/SKIM_DY/total.root");
     //v.push_back("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_5Gen/SKIM_DY/total.root");
     //v.push_back("/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_13Giu_All/SKIM_DY/total.root");
-    v.push_back("/data_CMS/cms/amendola/HH2017Skims/Skims2017_17Nov/SKIM_DY/total.root");
+    //v.push_back("/data_CMS/cms/amendola/HH2017Skims/Skims2017_17Nov/SKIM_DY/total.root");
+
+    // v.push_back("/data_CMS/cms/amendola/HH2017Skims/SKIMS_24Jul2018_Run2017/SKIM_DY/total.root");
+    //v.push_back("/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_0j0b/total.root");
+    // v.push_back("/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_1j0b/total.root");
+    // v.push_back("/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_1j1b/total.root");
+    // v.push_back("/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_2j0b/total.root");
+    //  v.push_back("/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_2j1b/total.root");
+    // v.push_back("/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_2j2b/total.root");
+     ////v.push_back("/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_3j0b/total.root");
+    //     v.push_back("/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_3j1b/total.root");
+    // v.push_back("/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_3j2b/total.root");
+    // v.push_back("/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_3j3b/total.root");
+    //v.push_back("/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_4j0b/total.root");
+    //v.push_back("/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_4j1b/total.root");
+    // v.push_back("/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_4j2b/total.root");
+    // v.push_back("/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_4j3b/total.root");
+    //v.push_back("/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_4j4b/total.root");
 
     for (int i = 0; i < v.size(); i++)
     {

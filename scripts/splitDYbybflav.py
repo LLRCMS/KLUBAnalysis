@@ -12,7 +12,24 @@ import sys
 #inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_26Feb/SKIM_DY/'
 # inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_28Feb/SKIM_DY/'
 #inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_13Giu_All/SKIM_DY/'
-inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_11Lug_textdxyz/SKIM_DY/'
+#inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_11Lug_textdxyz/SKIM_DY/'
+
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_0j0b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_1j0b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_1j1b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_2j0b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_2j1b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_2j2b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_3j0b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_3j1b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_3j2b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_3j3b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_4j0b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_4j1b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_4j2b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_4j3b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_19Nov2018_Run2017_0jets/SKIM_DY_NLO'
+inputDir = '/gwteraz/users/brivio/SKIMMED_7Feb2019/SKIM_DY_NLO'
 
 ############################################################################################################
 ## NOTE: this script takes about 11 mins for a full DY sample (inclusive + NJet + NBJet)

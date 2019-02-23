@@ -152,7 +152,8 @@ void printYields(
 
 void FitDY(bool medTag = true)
 {
-    TFile* inFile = new TFile ("../analysis_MuMu_3Oct2018_DYsep_goodPU_goodXS/outPlotter.root") ;
+    //TFile* inFile = new TFile ("../analysis_MuMu_3Oct2018_DYNLO/outPlotter.root") ;
+    TFile* inFile = new TFile ("../analysis_MuMu_15Feb2019_DYNLO_weights/outPlotter.root") ;
 
     string sel0tag;
     string sel1tag;
@@ -160,11 +161,13 @@ void FitDY(bool medTag = true)
     string var = "tauH_mass";
     string varName = "m_{#mu#mu}";
 
+
+    //0b2jhig17, 1b1jhig17, 2b0jhig17 -- 0b2jchia17,1b1jchia17,2b0jchia17 -- 0b2jPI 1b1jPI 2b0jPI
     if (medTag)
     {
-        sel0tag = "0b2jMmetbcut_SR" ;
-        sel1tag = "1b1jMmetbcut_SR" ;
-        sel2tag = "2b0jMmetbcut_SR" ;
+        sel0tag = "0b2jhig17_SR" ;
+        sel1tag = "1b1jhig17_SR" ;
+        sel2tag = "2b0jhig17_SR" ;
     }
     else
     {
@@ -217,7 +220,7 @@ void FitDY(bool medTag = true)
     TH1F* hData0tag = retrieveHistos(inFile, vData, sel0tag, var).at(0);
     TH1F* hData1tag = retrieveHistos(inFile, vData, sel1tag, var).at(0);
     TH1F* hData2tag = retrieveHistos(inFile, vData, sel2tag, var).at(0);
-
+    
     // merge together the bkgs into a single template
     // for (auto x : hBkgs0tag)
     //     cout << x << " " << x->GetName() << " " << x->Integral() << endl;
