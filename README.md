@@ -14,11 +14,6 @@ cd HiggsAnalysis/CombinedLimit
 git checkout 94x
 cd -
 
-mkdir TauAnalysisTools
-cd TauAnalysisTools
-git clone -b final_2017_MCv2 git@github.com:truggles/TauTriggerSFs.git TauTriggerSFs
-cd -
-
 scram b -j8
 
 cd HHKinFit2/

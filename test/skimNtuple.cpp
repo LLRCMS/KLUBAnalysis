@@ -906,14 +906,14 @@ int main (int argc, char** argv)
   //TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017_New.root","weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","medium","MVA");
   //TauTriggerSFs2017 * tauTrgSFvtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017_New.root","weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","vtight","MVA");
   //updated February 2019
-  TauTriggerSFs2017 * tauTrgSF_ditau = new TauTriggerSFs2017("../../TauAnalysisTools/TauTriggerSFs/data/tauTriggerEfficiencies2017.root", "ditau", "2017", "medium", "MVAv2");
-  TauTriggerSFs2017 * tauTrgSF_ditau_vtight = new TauTriggerSFs2017("../../TauAnalysisTools/TauTriggerSFs/data/tauTriggerEfficiencies2017.root", "ditau", "2017", "vtight", "MVAv2");
+  TauTriggerSFs2017 * tauTrgSF_ditau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "ditau", "2017", "medium", "MVAv2");
+  TauTriggerSFs2017 * tauTrgSF_ditau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "ditau", "2017", "vtight", "MVAv2");
 
-  TauTriggerSFs2017 * tauTrgSF_mutau = new TauTriggerSFs2017("../../TauAnalysisTools/TauTriggerSFs/data/tauTriggerEfficiencies2017.root", "mutau", "2017", "medium", "MVAv2");
-  TauTriggerSFs2017 * tauTrgSF_mutau_vtight = new TauTriggerSFs2017("../../TauAnalysisTools/TauTriggerSFs/data/tauTriggerEfficiencies2017.root", "mutau", "2017", "vtight", "MVAv2");
+  TauTriggerSFs2017 * tauTrgSF_mutau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "mutau", "2017", "medium", "MVAv2");
+  TauTriggerSFs2017 * tauTrgSF_mutau_vtight = new TauTriggerSFs2017(".weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "mutau", "2017", "vtight", "MVAv2");
 
-  TauTriggerSFs2017 * tauTrgSF_etau = new TauTriggerSFs2017("../../TauAnalysisTools/TauTriggerSFs/data/tauTriggerEfficiencies2017.root", "etau", "2017", "medium", "MVAv2");
-  TauTriggerSFs2017 * tauTrgSF_etau_vtight = new TauTriggerSFs2017("../../TauAnalysisTools/TauTriggerSFs/data/tauTriggerEfficiencies2017.root", "etau", "2017", "vtight", "MVAv2");
+  TauTriggerSFs2017 * tauTrgSF_etau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "etau", "2017", "medium", "MVAv2");
+  TauTriggerSFs2017 * tauTrgSF_etau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "etau", "2017", "vtight", "MVAv2");
 
 
   // electron/muon leg trigger SF for data and mc 2017
