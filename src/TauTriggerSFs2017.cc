@@ -64,20 +64,16 @@ TauTriggerSFs2017::TauTriggerSFs2017(const std::string& inputFileName, const std
 
   // Load the TF1s containing the analytic best-fit results
   // This is done per decay mode: 0, 1, 10.
-  std::map<int, const TF1*> fitDataMap_;
-  std::map<int, const TF1*> fitMCMap_;
   fitDataMap_ [ 0] = loadTF1(inputFile_, Form("%s_%s%s_dm0_DATA_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
   fitDataMap_ [ 1] = loadTF1(inputFile_, Form("%s_%s%s_dm1_DATA_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
   fitDataMap_ [10] = loadTF1(inputFile_, Form("%s_%s%s_dm10_DATA_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
   fitMCMap_ [ 0] = loadTF1(inputFile_, Form("%s_%s%s_dm0_MC_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
   fitMCMap_ [ 1] = loadTF1(inputFile_, Form("%s_%s%s_dm1_MC_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
   fitMCMap_ [10] = loadTF1(inputFile_, Form("%s_%s%s_dm10_MC_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
-  
+
 
   // Load the TH1s containing the analytic best-fit result in 1 GeV incriments and the associated uncertainty.
   // This is done per decay mode: 0, 1, 10.
-  std::map<int, const TH1*> fitUncDataMap_;
-  std::map<int, const TH1*> fitUncMCMap_;
   fitUncDataMap_ [ 0] = loadTH1(inputFile_, Form("%s_%s%s_dm0_DATA_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
   fitUncDataMap_ [ 1] = loadTH1(inputFile_, Form("%s_%s%s_dm1_DATA_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
   fitUncDataMap_ [10] = loadTH1(inputFile_, Form("%s_%s%s_dm10_DATA_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
@@ -88,8 +84,6 @@ TauTriggerSFs2017::TauTriggerSFs2017(const std::string& inputFileName, const std
 
   // Load the TH2s containing the eta phi efficiency corrections
   // This is done per decay mode: 0, 1, 10.
-  std::map<int, const TH2*> effEtaPhiDataMap_;
-  std::map<int, const TH2*> effEtaPhiMCMap_;
   effEtaPhiDataMap_ [ 0] = loadTH2(inputFile_, Form("%s_%s%s_dm0_DATA", trigger_.data(), tauWP_.data(), wpType_.data()));
   effEtaPhiDataMap_ [ 1] = loadTH2(inputFile_, Form("%s_%s%s_dm1_DATA", trigger_.data(), tauWP_.data(), wpType_.data()));
   effEtaPhiDataMap_ [10] = loadTH2(inputFile_, Form("%s_%s%s_dm10_DATA", trigger_.data(), tauWP_.data(), wpType_.data()));
@@ -100,14 +94,13 @@ TauTriggerSFs2017::TauTriggerSFs2017(const std::string& inputFileName, const std
 
   // Eta Phi Averages
   // This is done per decay mode: 0, 1, 10.
-  std::map<int, const TH2*> effEtaPhiAvgDataMap_;
-  std::map<int, const TH2*> effEtaPhiAvgMCMap_;
   effEtaPhiAvgDataMap_ [ 0] = loadTH2(inputFile_, Form("%s_%s%s_dm0_DATA_AVG", trigger_.data(), tauWP_.data(), wpType_.data()));
   effEtaPhiAvgDataMap_ [ 1] = loadTH2(inputFile_, Form("%s_%s%s_dm1_DATA_AVG", trigger_.data(), tauWP_.data(), wpType_.data()));
   effEtaPhiAvgDataMap_ [10] = loadTH2(inputFile_, Form("%s_%s%s_dm10_DATA_AVG", trigger_.data(), tauWP_.data(), wpType_.data()));
   effEtaPhiAvgMCMap_ [ 0] = loadTH2(inputFile_, Form("%s_%s%s_dm0_MC_AVG", trigger_.data(), tauWP_.data(), wpType_.data()));
   effEtaPhiAvgMCMap_ [ 1] = loadTH2(inputFile_, Form("%s_%s%s_dm1_MC_AVG", trigger_.data(), tauWP_.data(), wpType_.data()));
   effEtaPhiAvgMCMap_ [10] = loadTH2(inputFile_, Form("%s_%s%s_dm10_MC_AVG", trigger_.data(), tauWP_.data(), wpType_.data()));
+
 }
 
 

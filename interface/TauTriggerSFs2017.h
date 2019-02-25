@@ -52,14 +52,14 @@ protected:
   std::string tauWP_;
   std::string wpType_;
 
-  const std::map<int, const TF1*> fitDataMap_;
-  const std::map<int, const TF1*> fitMCMap_;
-  const std::map<int, const TH1*> fitUncDataMap_;
-  const std::map<int, const TH1*> fitUncMCMap_;
-  const std::map<int, const TH2*> effEtaPhiDataMap_;
-  const std::map<int, const TH2*> effEtaPhiMCMap_;
-  const std::map<int, const TH2*> effEtaPhiAvgDataMap_;
-  const std::map<int, const TH2*> effEtaPhiAvgMCMap_;
+  std::map<int, const TF1*> fitDataMap_;
+  std::map<int, const TF1*> fitMCMap_;
+  std::map<int, const TH1*> fitUncDataMap_;
+  std::map<int, const TH1*> fitUncMCMap_;
+  std::map<int, const TH2*> effEtaPhiDataMap_;
+  std::map<int, const TH2*> effEtaPhiMCMap_;
+  std::map<int, const TH2*> effEtaPhiAvgDataMap_;
+  std::map<int, const TH2*> effEtaPhiAvgMCMap_;
 };
 
 #endif // TauTriggerSFs2017_h
