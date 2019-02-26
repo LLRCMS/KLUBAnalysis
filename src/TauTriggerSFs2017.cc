@@ -144,6 +144,7 @@ double getEfficiency(double pt, double eta, double phi, const TF1* fit, const TH
   }
   eff *= etaPhiVal/etaPhiAvg;
   if ( eff > 1. ) eff = 1.;
+  if ( eff < 0. ) eff = 0.; // Some efficiency fits go negative at very low tau pT, prevent that.
   return eff;
 }
 
