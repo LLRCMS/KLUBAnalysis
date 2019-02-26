@@ -63,10 +63,22 @@ const double bTopRW = -0.0005;
 // const float DYscale_MM[3] = {9.44841e-01, 1.29404e+00, 1.28542e+00} ;
 const float DYscale_LL[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag - to be updated for DY LO once the disagreement is fixed
 const float DYscale_MM[3] = {1.11219, 1.11436, 0.743777} ; // for now we use the same numbers computed with DY NLO sample
-const float DYscale_LL_NLO[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag for the DYNLO sample
+//const float DYscale_LL_NLO[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag for the DYNLO sample
 //const float DYscale_MM_NLO[3] = {1.11219, 1.11436, 0.743777} ;
-const float DYscale_MM_NLO[3] = {1.03277, 1.03968, 0.742346} ;
-//const float DYscale_MM_NLO[3] = {1.07955, 1.07128, 0.573243} ; // computed from PI group - preliminary
+//const float DYscale_MM_NLO[3] = {1.03277, 1.03968, 0.742346} ;
+
+// Computed from PI group for DY NLO binned
+// - number of b-jets [0b, 1b, 2b]
+// - pT(MuMu):
+//   - < 20 GeV
+//   - between 20 and 40 GeV
+//   - between 40 and 100 GeV
+//   - > 100 GeV
+const float DYscale_NLO_VLowPt[3] = {1.283, 0.699, 1.103};
+const float DYscale_NLO_LowPt [3] = {  1.1, 0.938,  0.81};
+const float DYscale_NLO_MedPt [3] = {1.006, 1.187, 0.524};
+const float DYscale_NLO_HighPt[3] = {0.918, 1.322, 0.654};
+
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
@@ -1356,62 +1368,85 @@ int main (int argc, char** argv)
       theSmallTree.m_DYscale_MM_NLO = 1.0;
 
       if (isMC && isDY) //to be done both for DY NLO and DY in jet bins
-	{
-	  TLorentzVector vgj;
-	  int nbs = 0;
-	  for (unsigned int igj = 0; igj < theBigTree.genjet_px->size(); igj++)
+      {
+        TLorentzVector vgj;
+        int nbs = 0;
+        for (unsigned int igj = 0; igj < theBigTree.genjet_px->size(); igj++)
+        {
+          vgj.SetPxPyPzE(theBigTree.genjet_px->at(igj), theBigTree.genjet_py->at(igj), theBigTree.genjet_pz->at(igj), theBigTree.genjet_e->at(igj));
+          if (vgj.Pt() > 20 && TMath::Abs(vgj.Eta()) < 2.5)
+          {
+            int theFlav = theBigTree.genjet_hadronFlavour->at(igj);
+            if (abs(theFlav) == 5) nbs++;
+          }
+
+          if(DEBUG)
+          {
+            cout << " -- gen jet : " << igj << " pt=" << vgj.Pt() << " eta=" << vgj.Eta() <<  " hadFlav=" << theBigTree.genjet_hadronFlavour->at(igj) << endl;
+          }
+        }
+        if (nbs > 2) nbs = 2;
+
+        theSmallTree.m_nBhadrons = nbs;
+        theSmallTree.m_DYscale_LL = DYscale_LL[nbs];
+        theSmallTree.m_DYscale_MM = DYscale_MM[nbs];
+
+        // loop through gen parts ot identify Z boson
+        int idx1 = -1;
+        for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
 	    {
-	      vgj.SetPxPyPzE(theBigTree.genjet_px->at(igj), theBigTree.genjet_py->at(igj), theBigTree.genjet_pz->at(igj), theBigTree.genjet_e->at(igj));
-	      if (vgj.Pt() > 20 && TMath::Abs(vgj.Eta()) < 2.5)
-		{
-
-		  int theFlav = theBigTree.genjet_hadronFlavour->at(igj);
-		  if (abs(theFlav) == 5) nbs++;
-              
-		  // about 2% of DY events print the following message :-(
-		  // if (theFlav == -999) cout << "** warning: gen jet with flav = -999 of pt: " << vgj.Pt() << " eta: " << vgj.Eta() << endl;
-		}
-
-	      if(DEBUG)
-		{
-		  cout << " -- gen jet : " << igj << " pt=" << vgj.Pt() << " eta=" << vgj.Eta() <<  " hadFlav=" << theBigTree.genjet_hadronFlavour->at(igj) << endl;
-		}
-
-	    }
-	  if (nbs > 2) nbs = 2;
-	  theSmallTree.m_nBhadrons = nbs;
-	  theSmallTree.m_DYscale_LL = DYscale_LL[nbs];
-	  theSmallTree.m_DYscale_MM = DYscale_MM[nbs];
-	  theSmallTree.m_DYscale_LL_NLO = DYscale_LL_NLO[nbs];
-	  theSmallTree.m_DYscale_MM_NLO = DYscale_MM_NLO[nbs];
-
-	  // loop through gen parts ot identify Z boson
-	  int idx1 = -1;
-	  for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
-	    {
-	      if (theBigTree.genpart_pdg->at(igen) == 23) // Z0
-		{
-		  // bool isFirst = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
-		  if (idx1 >= 0)
-		    {
-		      cout << "** ERROR: more than 1 Z identified " << endl;
-		      // continue; // no need to skip the event for errors in gen info
-		    }
-		  idx1 = igen;
-		}
+          if (theBigTree.genpart_pdg->at(igen) == 23) // Z0
+          {
+            idx1 = igen;
+          }
 	    }
 
-	  if (idx1 >= 0)
+	    // if found, Build the genZ TLorentzVector
+	    float genZ_pt = -999.;
+	    if (idx1 >= 0)
 	    {
-	      // cout << "** GOOD: could find 1 Z" << endl;
 	      // store gen decay mode of the Z identified
 	      theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1);
+
+	      // build the genZ TLorentzVector
+	      TLorentzVector genZ;
+	      genZ.SetPxPyPzE(theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1));
+	      genZ_pt = genZ.Pt();
+
+	      // Fill DY NLO weights according to nbs and pT(Z)
+          if (genZ_pt < 20.)
+          {
+            theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_VLowPt[nbs];
+            theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_VLowPt[nbs];
+          }
+          else if (genZ_pt >= 20. && genZ_pt < 40.)
+          {
+            theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_LowPt[nbs];
+            theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_LowPt[nbs];
+          }
+          else if (genZ_pt >= 40. && genZ_pt < 100.)
+          {
+            theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_MedPt[nbs];
+            theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_MedPt[nbs];
+          }
+          else /* pT(Z)>=100. */
+          {
+            theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_HighPt[nbs];
+            theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_HighPt[nbs];
+          }
 	    }
-	  // else // probably these are events mediated by a photon where I do not have Z info
-	  // {
-	  //   cout << "** ERROR: couldn't find 1 Z" << endl;
-	  // }
-	}
+
+        // Debug printout
+        if(DEBUG)
+        {
+            cout << "------- DY NLO reweight ------" << endl;
+            cout << " - nbs  : " << nbs << endl;
+            cout << " - pT(Z): " << genZ_pt << endl;
+            cout << " - DYscale_MM     : " << theSmallTree.m_DYscale_MM << endl;
+            cout << " - DYscale_MM_NLO : " << theSmallTree.m_DYscale_MM_NLO << endl;
+            cout << "--------------------------" << endl;
+        }
+      }
 
       // New DY reweight
       if (isMC && doDYLOtoNLOreweight)
@@ -1471,12 +1506,6 @@ int main (int argc, char** argv)
             {
                 if (theBigTree.genpart_pdg->at(igen) == 23) // Z0
                 {
-                    // bool isFirst = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
-                    if (idx1 >= 0)
-                    {
-                        //cout << "** ERROR: more than 1 Z identified " << endl;
-                        // continue; // no need to skip the event for errors in gen info
-                    }
                     idx1 = igen;
                 }
             }
