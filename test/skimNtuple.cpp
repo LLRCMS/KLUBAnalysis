@@ -1391,11 +1391,17 @@ int main (int argc, char** argv)
         theSmallTree.m_DYscale_LL = DYscale_LL[nbs];
         theSmallTree.m_DYscale_MM = DYscale_MM[nbs];
 
+        // Get LHE nBPartons
+        int n_bJets = theBigTree.lheNOutB ;
+        if (n_bJets>=2) n_bJets=2; // Make sure that events with n_bJets == 3 are included in the n_bJets == 2 case
+
         // loop through gen parts ot identify Z boson
         int idx1 = -1;
         for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
 	    {
-          if (theBigTree.genpart_pdg->at(igen) == 23) // Z0
+          bool isLast   = CheckBit(theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
+          bool isPrompt = CheckBit(theBigTree.genpart_flags->at(igen),  0) ; //  0 = isPrompt
+          if (theBigTree.genpart_pdg->at(igen) == 23 && isLast && isPrompt) // Z0 + isLast + isPrompt
           {
             idx1 = igen;
           }
@@ -1416,23 +1422,23 @@ int main (int argc, char** argv)
 	      // Fill DY NLO weights according to nbs and pT(Z)
           if (genZ_pt < 20.)
           {
-            theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_VLowPt[nbs];
-            theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_VLowPt[nbs];
+            theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_VLowPt[n_bJets];
+            theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_VLowPt[n_bJets];
           }
           else if (genZ_pt >= 20. && genZ_pt < 40.)
           {
-            theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_LowPt[nbs];
-            theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_LowPt[nbs];
+            theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_LowPt[n_bJets];
+            theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_LowPt[n_bJets];
           }
           else if (genZ_pt >= 40. && genZ_pt < 100.)
           {
-            theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_MedPt[nbs];
-            theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_MedPt[nbs];
+            theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_MedPt[n_bJets];
+            theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_MedPt[n_bJets];
           }
           else /* pT(Z)>=100. */
           {
-            theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_HighPt[nbs];
-            theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_HighPt[nbs];
+            theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_HighPt[n_bJets];
+            theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_HighPt[n_bJets];
           }
 	    }
 
@@ -1504,7 +1510,9 @@ int main (int argc, char** argv)
             int idx1 = -1;
             for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
             {
-                if (theBigTree.genpart_pdg->at(igen) == 23) // Z0
+                bool isLast   = CheckBit(theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
+                bool isPrompt = CheckBit(theBigTree.genpart_flags->at(igen),  0) ; //  0 = isPrompt
+                if (theBigTree.genpart_pdg->at(igen) == 23 && isLast && isPrompt) // Z0 + isLast + isPrompt
                 {
                     idx1 = igen;
                 }
