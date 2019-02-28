@@ -2962,6 +2962,13 @@ int main (int argc, char** argv)
 	  if (pType == 0 && isMC)
 	    {
 	      if(fabs(tlv_secondLepton.Eta()) < 2.1){ //eta region covered both by cross-trigger and single lepton trigger
+		
+		int passCross = 1;
+		int passSingle = 1;
+		
+		if (tlv_firstLepton.Pt() < 26.) passSingle = 0;  
+		if (tlv_secondLepton.Pt() < 32.) passCross = 0;  
+
 		//lepton trigger
 		double SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		double SFL_MC = muTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -2972,32 +2979,26 @@ int main (int argc, char** argv)
 		double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 
 		//tau leg
-		//double SFtau_Data = tauTrgSF->getMuTauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
-		//double SFtau_MC = tauTrgSF->getMuTauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
 		double SFtau_Data = tauTrgSF_mutau->getTriggerEfficiencyData(tlv_secondLepton.Pt(),tlv_secondLepton.Eta(),tlv_secondLepton.Phi(),DM2);
 		double SFtau_MC = tauTrgSF_mutau->getTriggerEfficiencyMC(tlv_secondLepton.Pt(),tlv_secondLepton.Eta(),tlv_secondLepton.Phi(),DM2);
 		
-		double Eff_Data =  SFL_Data * (1 - SFtau_Data) + SFl_Data * SFtau_Data;
-		double Eff_MC =  SFL_MC * (1 - SFtau_MC) + SFl_MC * SFtau_MC;
+		double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
+		double Eff_MC   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC) + passCross * SFl_MC * SFtau_MC;
 
 		trigSF = Eff_Data / Eff_MC;
 
-		//double SFtau_Data_vtight = tauTrgSFvtight->getMuTauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
-		//double SFtau_MC_vtight = tauTrgSFvtight->getMuTauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
 		double SFtau_Data_vtight = tauTrgSF_mutau_vtight->getTriggerEfficiencyData(tlv_secondLepton.Pt(),tlv_secondLepton.Eta(),tlv_secondLepton.Phi(),DM2);
 		double SFtau_MC_vtight = tauTrgSF_mutau_vtight->getTriggerEfficiencyMC(tlv_secondLepton.Pt(),tlv_secondLepton.Eta(),tlv_secondLepton.Phi(),DM2);
 
-		double Eff_Data_vtight =  SFL_Data * (1 - SFtau_Data_vtight) + SFl_Data * SFtau_Data_vtight;
-		double Eff_MC_vtight =  SFL_MC * (1 - SFtau_MC_vtight) + SFl_MC * SFtau_MC_vtight;
+		double Eff_Data_vtight =  passSingle * SFL_Data * (1 - passCross * SFtau_Data_vtight) + passCross * SFl_Data * SFtau_Data_vtight;
+		double Eff_MC_vtight   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC_vtight) + passCross * SFl_MC * SFtau_MC_vtight;
 
 		trigSF_vtight = Eff_Data_vtight / Eff_MC_vtight;
 
 		//trig SF for analysis only with cross-trigger
 		double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		//double SFtau = tauTrgSF->getMuTauScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
 		double SFtau = tauTrgSF_mutau->getTriggerScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi(),DM2);
 		trigSF_cross = SFl*SFtau;
-		//double SFtau_vtight = tauTrgSFvtight->getMuTauScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
 		double SFtau_vtight = tauTrgSF_mutau_vtight->getTriggerScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi(),DM2);
 		trigSF_cross_vtight = SFl*SFtau_vtight;
 	      }else{ //eta region covered only by single lepton trigger
@@ -3005,13 +3006,19 @@ int main (int argc, char** argv)
 		trigSF = SF;
 	      }
 	      //trig SF for analysis only with single-mu trigger
-		trigSF_single =  muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+	      trigSF_single =  muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 	    }
 	  
 	  // EleTau Channel
 	  else if (pType == 1 && isMC)
 	    {
 	      if(fabs(tlv_secondLepton.Eta()) < 2.1){ //eta region covered both by cross-trigger and single lepton trigger
+		int passCross = 1;
+		int passSingle = 1;
+		
+		if (tlv_firstLepton.Pt() < 35.) passSingle = 0;  
+		if (tlv_secondLepton.Pt() < 35.) passCross = 0;  
+
 		//lepton trigger
 		double SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		double SFL_MC = eTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -3022,32 +3029,26 @@ int main (int argc, char** argv)
 		double SFl_MC = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		
 		//tau leg
-		//double SFtau_Data = tauTrgSF->getETauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
-		//double SFtau_MC = tauTrgSF->getETauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
 		double SFtau_Data = tauTrgSF_etau->getTriggerEfficiencyData(tlv_secondLepton.Pt(),tlv_secondLepton.Eta(),tlv_secondLepton.Phi(),DM2);
 		double SFtau_MC = tauTrgSF_etau->getTriggerEfficiencyMC(tlv_secondLepton.Pt(),tlv_secondLepton.Eta(),tlv_secondLepton.Phi(),DM2);
 		
-		double Eff_Data =  SFL_Data * (1 - SFtau_Data) + SFl_Data * SFtau_Data;
-		double Eff_MC =  SFL_MC* (1 - SFtau_MC) + SFl_MC * SFtau_MC;
+		double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
+		double Eff_MC   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC) + passCross * SFl_MC * SFtau_MC;
 		
 		trigSF = Eff_Data / Eff_MC;
 
-		//double SFtau_Data_vtight = tauTrgSFvtight->getETauEfficiencyData(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
-		//double SFtau_MC_vtight = tauTrgSFvtight->getETauEfficiencyMC(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
 		double SFtau_Data_vtight = tauTrgSF_etau_vtight->getTriggerEfficiencyData(tlv_secondLepton.Pt(),tlv_secondLepton.Eta(),tlv_secondLepton.Phi(),DM2);
 		double SFtau_MC_vtight = tauTrgSF_etau_vtight->getTriggerEfficiencyMC(tlv_secondLepton.Pt(),tlv_secondLepton.Eta(),tlv_secondLepton.Phi(),DM2);
 
-		double Eff_Data_vtight =  SFL_Data * (1 - SFtau_Data_vtight) + SFl_Data * SFtau_Data_vtight;
-		double Eff_MC_vtight =  SFL_MC* (1 - SFtau_MC_vtight) + SFl_MC * SFtau_MC_vtight;
+		double Eff_Data_vtight =  passSingle * SFL_Data * (1 - passCross * SFtau_Data_vtight) + passCross * SFl_Data * SFtau_Data_vtight;
+		double Eff_MC_vtight   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC_vtight) + passCross * SFl_MC * SFtau_MC_vtight;
 
 		trigSF_vtight = Eff_Data_vtight / Eff_MC_vtight;
 
 		//trig SF for analysis only with cross-trigger
 		double SFl = eTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		//double SFtau = tauTrgSF->getETauScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
 		double SFtau = tauTrgSF_etau->getTriggerScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi(),DM2);
 		trigSF_cross = SFl*SFtau;
-		//double SFtau_vtight = tauTrgSFvtight->getETauScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi());
 		double SFtau_vtight = tauTrgSF_etau_vtight->getTriggerScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi(),DM2);
 		trigSF_cross_vtight = SFl*SFtau_vtight;
 
