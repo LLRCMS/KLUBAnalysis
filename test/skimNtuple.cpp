@@ -79,6 +79,21 @@ const float DYscale_NLO_LowPt [3] = {  1.1, 0.938,  0.81};
 const float DYscale_NLO_MedPt [3] = {1.006, 1.187, 0.524};
 const float DYscale_NLO_HighPt[3] = {0.918, 1.322, 0.654};
 
+// Computed from PI group for DY LO binned
+// - number of b-jets [0b, 1b, 2b]
+// - pT(MuMu):
+//   - <= 10 GeV
+//   - >10 and <=30
+//   - >30 and <=50
+//   - >50 and <=100
+//   - >100 and <=200
+//   - >200
+const float DYscale_LO_VLowPt [3] = {1.163, 0.719, 0.471};
+const float DYscale_LO_LowPt  [3] = {1.342,  1.13, 0.832};
+const float DYscale_LO_MedPt1 [3] = {1.244, 1.233, 0.908};
+const float DYscale_LO_MedPt2 [3] = {1.176, 1.251, 0.939};
+const float DYscale_LO_HighPt [3] = {1.053, 1.433, 0.838};
+const float DYscale_LO_VHighPt[3] = { 0.81, 1.723, 0.852};
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
@@ -124,14 +139,21 @@ const float DYscale_NLO_HighPt[3] = {0.918, 1.322, 0.654};
 //  {1.51470061251 , 1.51281269465 , 0.117228562794 , 0.118913419351 , 0.109809154254}
 //};// jet binned and b binned, 15 May 2018 
 
+//const float stitchWeights [][5] = {
+//  {1.50437157089 , 0.0 , 0.0 , 0.0 , 0.0},
+//  {0.549757427781 , 0.550260336008 , 0.0 , 0.0 , 0.0},
+//  {0.612466927142 , 0.613081681207 , 0.105177388196 , 0.0 , 0.0},
+//  {0.951588541673 , 0.946165272042 , 0.109649575683 , 0.108005302201 , 0.0},
+//  {0.707904938882 , 0.707489572546 , 0.107365495398 , 0.108784308592 , 0.101084909493}
+//};// jet binned and b binned, 11 Jul 2018
 
 const float stitchWeights [][5] = {
-  {1.50437157089 , 0.0 , 0.0 , 0.0 , 0.0},
-  {0.549757427781 , 0.550260336008 , 0.0 , 0.0 , 0.0},
-  {0.612466927142 , 0.613081681207 , 0.105177388196 , 0.0 , 0.0},
-  {0.951588541673 , 0.946165272042 , 0.109649575683 , 0.108005302201 , 0.0},
-  {0.707904938882 , 0.707489572546 , 0.107365495398 , 0.108784308592 , 0.101084909493}
-};// jet binned and b binned, 11 Jul 2018
+    {1.9437352898 , 0.0 , 0.0 , 0.0 , 0.0},
+    {0.338279616574 , 0.338237399666 , 0.0 , 0.0 , 0.0},
+    {0.703224977784 , 0.703022547668 , 0.0887784920115 , 0.0 , 0.0},
+    {1.23750214201 , 1.23826181452 , 0.0929601982056 , 0.0921407650285 , 0.0},
+    {1.91397145914 , 1.99919641957 , 0.1170483389 , 0.0973090477015 , 0.104743459131}
+};// jet binned and b binned, 5 Mar 2019
 
 
 // DY binned in 0j0b, 1j0b...
@@ -843,6 +865,10 @@ int main (int argc, char** argv)
   float selectedEvents = 0. ;
   int totalNoWeightsEventsNum = 0 ;
   int selectedNoWeightsEventsNum = 0 ;
+  
+  //int DY_tot  = 0;
+  //int DY_pass = 0;
+  //int DY_fail = 0;
 
   // for VBF trigger matching
   bool isVBFfired = false;
@@ -1409,8 +1435,10 @@ int main (int argc, char** argv)
 
 	    // if found, Build the genZ TLorentzVector
 	    float genZ_pt = -999.;
+        //DY_tot += 1;
 	    if (idx1 >= 0)
 	    {
+          //DY_pass +=1;
 	      // store gen decay mode of the Z identified
 	      theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1);
 
@@ -1440,22 +1468,38 @@ int main (int argc, char** argv)
             theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_HighPt[n_bJets];
             theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_HighPt[n_bJets];
           }
+
+          // Fill the DY LO weights
+          if      (genZ_pt<=10.)                  theSmallTree.m_DYLOtoNLOreweight = DYscale_LO_VLowPt [n_bJets];
+          else if (genZ_pt>10.  && genZ_pt<=30. ) theSmallTree.m_DYLOtoNLOreweight = DYscale_LO_LowPt  [n_bJets];
+          else if (genZ_pt>30.  && genZ_pt<=50. ) theSmallTree.m_DYLOtoNLOreweight = DYscale_LO_MedPt1 [n_bJets];
+          else if (genZ_pt>50.  && genZ_pt<=100.) theSmallTree.m_DYLOtoNLOreweight = DYscale_LO_MedPt2 [n_bJets];
+          else if (genZ_pt>100. && genZ_pt<=200.) theSmallTree.m_DYLOtoNLOreweight = DYscale_LO_HighPt [n_bJets];
+          else /*genZ_pt>200*/                    theSmallTree.m_DYLOtoNLOreweight = DYscale_LO_VHighPt[n_bJets];
 	    }
+        else // genZ not found: use the lowest pT bin
+        {
+            //DY_fail+=1;
+            theSmallTree.m_DYscale_LL_NLO    = DYscale_NLO_VLowPt[n_bJets];
+            theSmallTree.m_DYscale_MM_NLO    = DYscale_NLO_VLowPt[n_bJets];
+            theSmallTree.m_DYLOtoNLOreweight = DYscale_LO_VLowPt [n_bJets];
+        }
 
         // Debug printout
         if(DEBUG)
         {
-            cout << "------- DY NLO reweight ------" << endl;
+            cout << "------- DY reweight ------" << endl;
             cout << " - nbs  : " << nbs << endl;
             cout << " - pT(Z): " << genZ_pt << endl;
-            cout << " - DYscale_MM     : " << theSmallTree.m_DYscale_MM << endl;
-            cout << " - DYscale_MM_NLO : " << theSmallTree.m_DYscale_MM_NLO << endl;
+            cout << " - DYscale_MM        : " << theSmallTree.m_DYscale_MM << endl;
+            cout << " - DYscale_MM_NLO    : " << theSmallTree.m_DYscale_MM_NLO << endl;
+            cout << " - DYLOtoNLOreweight : " << theSmallTree.m_DYLOtoNLOreweight << endl;
             cout << "--------------------------" << endl;
         }
       }
 
       // New DY reweight
-      if (isMC && doDYLOtoNLOreweight)
+      if (isMC && false) /* (isMC && doDYLOtoNLOreweight) - filled in the previous if */
       {
         float fractional_weight = 0;
         float pt_weight         = 0;
@@ -4462,6 +4506,12 @@ int main (int argc, char** argv)
   h_eff.SetBinContent (3, totalNoWeightsEventsNum) ;
   h_eff.SetBinContent (4, selectedNoWeightsEventsNum) ;
   
+  //cout << " DY_tot : " << DY_tot << endl;
+  //cout << " DY_pass: " << DY_pass << endl;
+  //cout << " DY fail: " << DY_fail << endl;
+  //cout << " % pass : " << DY_pass*100./DY_tot << endl;
+  //cout << " % fail : " << DY_fail*100./DY_tot << endl;
+
   // store more detailed eff counter in output
   vector<pair<string, double> > vEffSumm = ec.GetSummary();
   TH1F* h_effSummary = new TH1F ("h_effSummary", "h_effSummary", vEffSumm.size(), 0, vEffSumm.size());

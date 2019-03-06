@@ -49,30 +49,38 @@ from ROOT import *
 
 
 #Prod datasets 2017
+#Nevents = {
+#    'inclusive' : 96711688,
+#    '1jet'      : 34227876,
+#    '2jet'      : 9497451,
+#    '3jet'      : 1149467,
+#    '4jet'      : 1208415,
+#    '1b'        : 0,
+#    '2b'        : 2695417
+#}
+
+#Prod datasets 2017 January2019production
 Nevents = {
-    'inclusive' : 96711688,
-    '1jet'      : 34227876,
-    '2jet'      : 9497451,
+    'inclusive' : 97116256,
+    '1jet'      : 75626833,
+    '2jet'      : 9790490,
     '3jet'      : 1149467,
-    '4jet'      : 1208415,
+    '4jet'      : 0,
     '1b'        : 0,
-    '2b'        : 2695417
+    '2b'        : 5085248
 }
-
-
-
 
 
 ########################################
 
 fractionHistosFilesNames = {
-    'inclusive' : '../weights/DYstitchMap/DYmap_inclusive_2017.root',
-    '1jet'      : '../weights/DYstitchMap/DYmap_1jet_2017.root',
-    '2jet'      : '../weights/DYstitchMap/DYmap_2jet_2017.root',
-    '3jet'      : '../weights/DYstitchMap/DYmap_3jet_2017.root',
+    'inclusive' : '../weights/DYstitchMap/DYmap_inclusive_2017_January2019.root',
+    '1jet'      : '../weights/DYstitchMap/DYmap_1jet_2017_January2019.root',
+    '2jet'      : '../weights/DYstitchMap/DYmap_2jet_2017_January2019.root',
+    '3jet'      : '../weights/DYstitchMap/DYmap_3jet_2017_January2019.root',
     '4jet'      : '../weights/DYstitchMap/DYmap_4jet_2017.root',
     '1b'        : '../weights/DYstitchMap/DYmap_Bjet.root',
-    '2b'        : '../weights/DYstitchMap/DYmap_BBjet_2017.root'
+    '2b'        : '../weights/DYstitchMap/DYmap_BBjet_2017_January2019.root'
 }
 
 fractionHistosFiles = {}
@@ -124,7 +132,7 @@ for njet in range (0, 5):
 #         print (njet, nb, fractionXS[njet][nb])
 
 
-fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined_2017.root", "recreate")
+fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined_2017_January2019.root", "recreate")
 h2DfractionXS = TH2F ("h2DfractionXS", "h2DfractionXS;njet;nb", 5, 0, 5, 5, 0, 5)
 for njet in range (0, 5):
     for nb in range (0, 5):
