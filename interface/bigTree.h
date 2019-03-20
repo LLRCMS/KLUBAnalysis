@@ -246,7 +246,7 @@ public :
    std::vector<int>     *jets_HadronFlavour;
    std::vector<int>     *jets_genjetIndex;
    std::vector<float>   *jets_PUJetID;
-   std::vector<float>   *jets_PUJetID_WP;
+   std::vector<int>    *jets_PUJetID_WP;
    std::vector<float>   *jets_PUJetIDupdated;
    std::vector<int>     *jets_PUJetIDupdated_WP;
    std::vector<float>   *jets_vtxPt;
