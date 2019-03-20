@@ -2,6 +2,49 @@
 
 repo for the h->tautau/h->hh analysis within the LLR framework
 
+## Instructions for 2018 Analysis 
+```
+cmsrel CMSSW_9_0_0
+cd CMSSW_9_0_0/src
+cmsenv
+
+git clone https://github.com/bvormwald/HHKinFit2
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+git checkout 94x
+cd -
+
+scram b -j8
+
+cd HHKinFit2/
+git checkout tags/v1.1.0
+ln -ns interface include
+source setup.sh
+./compile.sh
+cd ..
+
+git clone https://github.com/francescobrivio/KLUBAnalysis.git
+cd KLUBAnalysis
+git checkout VBF2018_mib
+
+mkdir interface/exceptions
+cd interface/exceptions
+ln -ns ../../../HHKinFit2/interface/exceptions/HHInvMConstraintException.h
+ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyRangeException.h
+ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyConstraintException.h
+cd -
+
+
+source scripts/setup.sh
+make
+make exe
+```
+
+
+### Instructions for older releases/2016/2017 analysis:
+<details>
+
+
 ## Instructions for 2017 Analysis 
 ```
 cmsrel CMSSW_9_0_0
@@ -40,8 +83,6 @@ make
 make exe
 ```
 
-### Instructions for older releases/2016 analysis:
-<details>
 
 ## New Installing CMSSW_7_4_7
 ```
