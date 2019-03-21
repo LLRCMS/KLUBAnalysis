@@ -23,7 +23,7 @@ source setup.sh
 ./compile.sh
 cd ..
 
-git clone https://github.com/francescobrivio/KLUBAnalysis.git
+git clone git@github.com:francescobrivio/KLUBAnalysis.git
 cd KLUBAnalysis
 git checkout VBF2018_mib
 
