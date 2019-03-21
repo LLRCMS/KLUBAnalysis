@@ -267,9 +267,6 @@ public :
    std::vector<float>   *bCSVscore;
    std::vector<float>   *bDeepCSV_probb;
    std::vector<float>   *bDeepCSV_probbb;
-   std::vector<float>   *bDeepCSV_probudsg;
-   std::vector<float>   *bDeepCSV_probc;
-   std::vector<float>   *bDeepCSV_probcc;
    std::vector<float>   *pfCombinedMVAV2BJetTags;
    std::vector<int>     *PFjetID;
    std::vector<float>   *jetRawf;
@@ -595,9 +592,6 @@ public :
    TBranch        *b_bCSVscore;   //!
    TBranch        *b_bDeepCSV_probb;   //!
    TBranch        *b_bDeepCSV_probbb;   //!
-   TBranch        *b_bDeepCSV_probudsg;   //!
-   TBranch        *b_bDeepCSV_probc;   //!
-   TBranch        *b_bDeepCSV_probcc;   //!
    TBranch        *b_pfCombinedMVAV2BJetTags; //!
    TBranch        *b_PFjetID;   //!
    TBranch        *b_jetRawf;   //!
@@ -916,9 +910,6 @@ public :
        bCSVscore = 0;
        bDeepCSV_probb = 0;
        bDeepCSV_probbb = 0;
-       bDeepCSV_probudsg = 0;
-       bDeepCSV_probc = 0;
-       bDeepCSV_probcc = 0;
        pfCombinedMVAV2BJetTags = 0;
        PFjetID = 0;
        jetRawf = 0;
@@ -1151,9 +1142,6 @@ public :
        fChain->SetBranchAddress("bCSVscore", &bCSVscore, &b_bCSVscore);
        fChain->SetBranchAddress("bDeepCSV_probb", &bDeepCSV_probb, &b_bDeepCSV_probb);
        fChain->SetBranchAddress("bDeepCSV_probbb", &bDeepCSV_probbb, &b_bDeepCSV_probbb);
-       fChain->SetBranchAddress("bDeepCSV_probudsg", &bDeepCSV_probudsg, &b_bDeepCSV_probudsg);
-       fChain->SetBranchAddress("bDeepCSV_probc", &bDeepCSV_probc, &b_bDeepCSV_probc);
-       fChain->SetBranchAddress("bDeepCSV_probcc", &bDeepCSV_probcc, &b_bDeepCSV_probcc);
        
        fChain->SetBranchAddress("pfCombinedMVAV2BJetTags", &pfCombinedMVAV2BJetTags, &b_pfCombinedMVAV2BJetTags);
        fChain->SetBranchAddress("PFjetID", &PFjetID, &b_PFjetID);
