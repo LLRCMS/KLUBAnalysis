@@ -2627,9 +2627,9 @@ int main (int argc, char** argv)
 	  if (lep1HasTES) {
 	    idAndIsoSF_leg1 = 0.89;
 	    idAndIsoSF_leg1_vtight = 0.86;
-	    if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg2_decayMode = 1.06;
-	    if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg2_decayMode = 1.;
-	    if(theSmallTree.m_dau1_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.91;
+	    if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg1_decayMode = 1.06;
+	    if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg1_decayMode = 1.;
+	    if(theSmallTree.m_dau1_decayMode == 10) idAndIsoSF_leg1_decayMode = 0.91;
 	    isFakeJet1 = false;
 	  }
 	  if (lep2HasTES) {
