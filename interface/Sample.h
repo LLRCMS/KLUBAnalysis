@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include "Weight.h"
+#include "Weight_ext.h"
 #include "ordered_map.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -73,6 +74,7 @@ class Sample
         void setWeights (std::vector<Weight> weights) {weights_ = weights;}
         void addWeight  (Weight weight) {weights_.push_back(weight);}
         void clearWeights() {weights_.clear();}
+        void clearExtWeights() {weights_ext_.clear();}
 
         TChain* getTree() {return tree_.get();}
 
@@ -100,6 +102,7 @@ class Sample
         selColl2D plots2D_;
 
         std::vector<Weight> weights_;
+        std::vector<Weight_ext> weights_ext_;
 };
 
 #endif

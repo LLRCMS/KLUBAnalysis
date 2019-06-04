@@ -1,12 +1,14 @@
 #include "CfgParser.h"
 #include <fstream>
 
+
 using namespace std;
 CfgParser::CfgParser()
 {
     lSecBlockSymb_ = "["; // regexp style
     rSecBlockSymb_ = "]"; // regexp style
     optAssignSymb_ = "="; 
+    valAssignSymb_ = ":"; 
     optListSepSymb_= ",";
     commentSymb_   = "#";
 }
@@ -163,6 +165,39 @@ std::vector<string> CfgParser::splitStringInList(std::string line)
     return result;
 }
 
+std::vector<pair<string,string> > CfgParser::splitStringWithValInList(std::string line)
+{
+  vector<pair <string, string > > result;
+    if (endsWith(line, optListSepSymb_) )
+    {
+        size_t lastindex = line.find_last_of(optListSepSymb_); 
+        line = line.substr(0, lastindex); 
+        trimLine(line);
+    }
+
+    size_t pos = 0;
+    std::string token;
+    while ((pos = line.find(optListSepSymb_)) != std::string::npos)
+    {
+        token = line.substr(0, pos);
+	auto delim = token.find(valAssignSymb_);
+	string optName  = token.substr(0, delim);
+	string valName  = token.substr(delim+valAssignSymb_.length(), pos);
+
+        result.push_back(make_pair(getTrimmedLine(optName), getTrimmedLine(valName)));
+        line.erase(0, pos + optListSepSymb_.length());
+    }
+    auto delim = line.find(valAssignSymb_);
+    string optName  = line.substr(0, delim);
+    string valName  = line.substr(delim+valAssignSymb_.length(), pos);
+    result.push_back(make_pair(getTrimmedLine(optName), getTrimmedLine(valName)));
+
+    return result;
+}
+
+
+
+
 bool CfgParser::endsWith (string line, string suffix)
 {
     return line.size() >= suffix.size() &&
@@ -292,6 +327,76 @@ vector<float> CfgParser::readFloatListOpt(string compact)
     auto split = splitCompact(compact);
     return readFloatListOpt(split.first, split.second);        
 }
+
+
+vector<pair<string, float> > CfgParser::readStringFloatListOpt(string section, string option)
+{
+  string line = readStringOpt(section, option);
+  vector<pair <string, string> >  vs = splitStringWithValInList(line);
+  vector<pair <string, float> > result;
+  for (std::pair<string, string> s : vs){
+    result.push_back(make_pair(getTrimmedLine(s.first), stof(getTrimmedLine(s.second))));
+  }
+  return result;
+}
+
+vector<pair<string, float> > CfgParser::readStringFloatListOpt(string compact)
+{
+  auto split = splitCompact(compact);
+  return readStringFloatListOpt(split.first, split.second);        
+}
+
+vector<string> CfgParser::readVarOpt(string line)
+{
+  vector<string> option;
+  vector<string> result;
+  if (endsWith(line, optListSepSymb_) )
+    {
+      size_t lastindex = line.find_last_of(optListSepSymb_);
+      line = line.substr(0, lastindex);
+      auto left = line.find(string("("));
+      auto right = line.find(string(")"));
+      // option block                                                                                                                                       
+      if (left!=string::npos && right!=string::npos && (right-left) > 0)
+        {
+	  line = line.substr(left+1, right-left-1);
+	}
+
+
+      trimLine(line);
+    }
+
+  size_t pos = 0;
+  std::string token;
+  while ((pos = line.find(string("&&"))) != std::string::npos)
+    {
+      token = line.substr(0, pos);
+      option.push_back(getTrimmedLine(token));
+      line.erase(0, pos + string("&&").length());
+      cerr <<"token "<<token<<endl;
+    }
+
+  cerr <<"line "<<line<<endl;
+  option.push_back(getTrimmedLine(line));
+  
+  for (auto var: option)
+    {
+
+      string sep= "=";
+      if  (var.find(">") != std::string::npos) sep = ">";
+      if  (var.find("<") != std::string::npos) sep = "<";
+
+      auto delim = var.find(sep);
+      string varName = var.substr(0, delim);
+
+      //      if (std::find(result.begin(), result.end(), varName) == result.end()){
+      result.push_back(getTrimmedLine(varName));
+      //cerr <<getTrimmedLine(varName)<<endl;
+      ///  }
+    }  
+  return result;
+}
+
 
 bool CfgParser::hasOpt (std::string section, std::string option)
 {

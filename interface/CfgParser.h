@@ -55,12 +55,15 @@ class CfgParser
         std::vector<float>       readFloatListOpt(std::string section, std::string option);
         std::vector<float>       readFloatListOpt(std::string compact);
 
+        std::vector<std::pair<std::string, float> >      readStringFloatListOpt(std::string section, std::string option);
+        std::vector<std::pair<std::string, float> >      readStringFloatListOpt(std::string compact);
+
         bool hasOpt (std::string section, std::string option);
         bool hasOpt (std::string compact);
 
         bool hasSect (std::string section);
         std::vector<std::string> readListOfOpts(std::string section);
-
+	std::vector<std::string> readVarOpt(std::string line);
         const cfgBlock& getCfg(){return config_;}
         std::string getCfgName(){return filename_;}
 
@@ -70,6 +73,7 @@ class CfgParser
         std::string lSecBlockSymb_;
         std::string rSecBlockSymb_;  // define a new section block
         std::string optAssignSymb_;  // used to assign value to option 
+        std::string valAssignSymb_;  // used to assign external value to option  
         std::string optListSepSymb_; // separate a list option
         std::string commentSymb_;    // introduces a comment
 
@@ -86,6 +90,7 @@ class CfgParser
         std::pair<std::string, std::string> splitOptionLine(std::string line);
         std::pair<std::string, std::string> splitCompact (std::string compact);
         std::vector<std::string> splitStringInList(std::string line);
+        std::vector<std::pair<std::string, std::string> > splitStringWithValInList(std::string line);
         bool endsWith (std::string line, std::string suffix);
 };
 

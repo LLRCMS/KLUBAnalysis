@@ -112,7 +112,7 @@ void AnalysisHelper::saveOutputsToFile()
 		  //cout << "ivar " << ivar << "/" << plotSet.at(isel).size() << endl;
                     for (uint isyst = 0; isyst < plotSet.at(isel).at(ivar).size(); ++isyst)
                     {
-                         cout << "isyst " << isyst << "/" << plotSet.at(isel).at(ivar).size() << endl;
+		      // cout << "isyst " << isyst << "/" << plotSet.at(isel).at(ivar).size() << endl;
                         plotSet.at(isel).at(ivar).at(isyst)->Write();
 			//   cout << "DONE" << endl;
                     }
@@ -126,19 +126,19 @@ void AnalysisHelper::saveOutputsToFile()
        cout << "itype " << itype << "/" << allToSave.size() << endl;
         for (uint isample = 0; isample < allToSave.at(itype)->size(); ++isample)
         {
-            cout << "isample " << isample << "/" << allToSave.at(itype)->size() << endl;
+	  // cout << "isample " << isample << "/" << allToSave.at(itype)->size() << endl;
             Sample::selColl2D& plotSet = allToSave.at(itype)->at(isample)->plots2D();
             for (uint isel = 0; isel < plotSet.size(); ++isel)
             {
-             cout << "isel " << isel << "/" << plotSet.size() << endl;
+	      //cout << "isel " << isel << "/" << plotSet.size() << endl;
                 for (uint ivar = 0; ivar < plotSet.at(isel).size(); ++ivar)
                 {
-             cout << "ivar " << ivar << "/" << plotSet.at(isel).size() << endl;
+		  //cout << "ivar " << ivar << "/" << plotSet.at(isel).size() << endl;
                     for (uint isyst = 0; isyst < plotSet.at(isel).at(ivar).size(); ++isyst)
                     {
-                         cout << "isyst " << isyst << "/" << plotSet.at(isel).at(ivar).size() << endl;
+		      //    cout << "isyst " << isyst << "/" << plotSet.at(isel).at(ivar).size() << endl;
                         plotSet.at(isel).at(ivar).at(isyst)->Write();
-                         cout << "DONE" << endl;
+			//   cout << "DONE" << endl;
                     }
                 }
             }
@@ -161,6 +161,7 @@ void AnalysisHelper::readSamples()
         shared_ptr<Sample> smp = openSample(name);
         smp->setType(Sample::kData);
         smp->clearWeights(); // no weights should be applied on data -- remove manually all weights read
+        smp->clearExtWeights(); // no weights should be applied on data -- remove manually all weights read
         data_samples_.append(name, smp);
         // cout << " " << name;
     }
@@ -247,10 +248,11 @@ void AnalysisHelper::readSelections()
     cout << "@@ Selections : reading selections : ";       
     for (string sel : selListNames)
     {
-        cout << " " << sel;
         selList.push_back(readSingleSelection(sel));
     }
     cout << endl;
+    
+
 
     vector<string> CRListNames = mainCfg_->readStringListOpt("general::regions");
     vector<Selection> CRList;
@@ -671,6 +673,21 @@ Selection AnalysisHelper::readSingleSelection (std::string name)
         s.addWeight(w);
     }
 
+
+    if (!cutCfg_->hasOpt(Form("selectionWeights_ext::%s", name.c_str())))
+        return s;
+    
+    vector<pair<string, float> > weights_ext = cutCfg_->readStringFloatListOpt(Form("selectionWeights_ext::%s", name.c_str()));
+    for (auto wfloat : weights_ext)
+    {
+      //cout << " +++ adding " << wfloat.first <<" ... "<< wfloat.second<<endl;
+      Weight_ext w_ext (wfloat.first, wfloat.second);
+        //vector<pair<string, string> > wsyst = readWeightSysts(wname, "systematics");
+        //w.addSysts(wsyst); // can be empty as well
+        s.addWeightExt(w_ext);
+    }
+
+    
     return s;
 }
 
@@ -688,6 +705,13 @@ void AnalysisHelper::printSelections(bool printWeights, bool printSysts)
                 cout << selections_.at(i).getWeights().at(iw).getName() << " ";
             }
             cout << endl;
+            for (unsigned int iw = 0; iw < selections_.at(i).getWeightsExt().size(); ++iw)
+            {
+	      cout << selections_.at(i).getWeightsExt().at(iw).getFormula() << ":" << selections_.at(i).getWeightsExt().at(iw).getValue()<< " ";
+            }
+            cout << endl;
+
+
         }
 
         if (printSysts)
@@ -851,6 +875,7 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
     // map[name][variant]
     // the value is a variant type that can contain float, double, int, bools...
     // the name is the weight/variable name (same as used in setBranchAddress)
+    // in the map for external weights, map[TTreeFormula][variant]
     //
     // NOTE: boost::variant also available in C++17, but no adequate compiler in CMSSW_7_4_7
     // could be in principle changed to std::variant if a newer release is used
@@ -861,7 +886,9 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
 
     typedef boost::variant<bool, int, float, double> varType;
     unordered_map<string, varType> valuesMap;
-    unordered_map<string, pair<string, string>> systMap;
+    unordered_map<string, varType >  extValuesMap;
+    unordered_map<string, pair<string, string> > systMap;
+
 
     if (DEBUG) cout << " ..........DEBUG: AnalysisHelper : fillHistosSample : going to setup map for SetBranchAddress --- VARS" << endl;
     // loop over all variables and weights to initialize the map
@@ -869,7 +896,7 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
     {
         if (valuesMap.find(variables_.at(ivar)) == valuesMap.end())
         {
-            valuesMap[variables_.at(ivar)] = float(0); // after will change to the proper type
+	  valuesMap[variables_.at(ivar)] = float(0); // after will change to the proper type
             if (DEBUG) cout << " .......... >> DEBUG: AnalysisHelper : fillHistosSample : sample : " << sample.getName() << " , adding var " << variables_.at(ivar) << endl;
         }
         else
@@ -892,6 +919,20 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
             if (DEBUG) cout << " .......... >> DEBUG: AnalysisHelper : fillHistosSample : sample : " << sample.getName() << " , adding var 2D " << var2 << endl;
         }
     }
+
+
+    // loop over all variables and external weights to initialize the map
+    for (unsigned int ivar = 0; ivar < variables_.size(); ++ivar)
+    {
+        if (extValuesMap.find(variables_.at(ivar)) == extValuesMap.end())
+        {
+	  extValuesMap[variables_.at(ivar)] = float(0); // after will change to the proper type
+            if (DEBUG) cout << " .......... >> DEBUG: AnalysisHelper : fillHistosSample : sample : " << sample.getName() << " , adding var " << variables_.at(ivar) << "to extValuesMap"<<endl;
+        }
+        else
+            cout << "** Warning: AnalysisHelper::fillHistosSample : sample : " << sample.getName() << " , variable " << variables_.at(ivar) << " was already added to extValuesMap, duplicated?" << endl;
+    }
+
 
     if (DEBUG) cout << " ..........DEBUG: AnalysisHelper : fillHistosSample : going to setup map for SetBranchAddress --- SAMPLE" << endl;
     // weoghts - sample
@@ -923,7 +964,8 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
 
     if (DEBUG) cout << " ..........DEBUG: AnalysisHelper : fillHistosSample : going to setup map for SetBranchAddress --- SELECTIONS" << endl;
     // selection -- probably not the most efficient as many w are shared so will be chacked many times
-    // but this function is called only a few times
+    // but this function is called only a few time
+
     for (uint isel = 0; isel < selections_.size(); ++isel)
     {
         const Selection& currSel = selections_.at(isel);
@@ -948,8 +990,24 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
                 }
             }
         }
-    }
+	//external weights
 
+	for (uint iw = 0; iw < currSel.getWeightsExt().size(); ++iw)
+	  {
+	    const Weight_ext& currW = currSel.getWeightsExt().at(iw);
+	    // setup selection group                                                                                                                                                                                       
+            if (extValuesMap.find(currW.getFormula()) == extValuesMap.end())
+	      {
+                if (DEBUG) cout << " .......... >> DEBUG: AnalysisHelper : fillHistosSample : sample : " << sample.getName() << " : sel : " << currSel.getName() << " , adding selection ext weight " << currW.getFormula() << endl;
+
+		extValuesMap[currW.getFormula()] = currW.getValue() ;
+		
+	    }
+	  }
+
+	
+    }
+    //tree->SetNotify(TTF_extWeight_g.get());
     if (DEBUG) cout << " ..........DEBUG: AnalysisHelper : fillHistosSample : valueMap created, going to assess branch types... " << endl;
 
     // decide types
@@ -993,7 +1051,8 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
             tree->SetBranchAddress(it->first.c_str(), &boost::get<float>(it->second));
         }
     }
-
+    
+    
 
 
     //////////////////////////////////////
@@ -1012,8 +1071,12 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
     // the last jobs takes up all the remainder of division -- as long as nsplit is O(10-100) is not a big problem
     // if (idxsplit_ == nsplit_-1)
     //     nStop = nEvts;
-
+    
     if (DEBUG) cout << " ..........DEBUG: AnalysisHelper : fillHistosSample : going to loop on tree entries... " << endl;
+
+
+
+
     Sample::selColl& plots = sample.plots();
     Sample::selColl2D& plots2D = sample.plots2D();
     for (long long iEv = nStart; true; ++iEv)
@@ -1025,11 +1088,12 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
 
         double wEvSample = 1.0;
         // get the product of all the event weights -- sample
-        for (unsigned int iw = 0; iw < sample.getWeights().size(); ++iw)
-        {
-            wEvSample *= boost::apply_visitor(get_variant_as_double(), valuesMap[sample.getWeights().at(iw).getName()]);
-        }
-
+	//if (sample.getType() != Sample::kData)       {
+	  for (unsigned int iw = 0; iw < sample.getWeights().size(); ++iw)
+	    {
+	      wEvSample *= boost::apply_visitor(get_variant_as_double(), valuesMap[sample.getWeights().at(iw).getName()]);
+	    }
+	
         for (unsigned int isel = 0; isel < selections_.size(); ++isel)
         {
 
@@ -1045,15 +1109,27 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
 		//         if (sample.getType() == Sample::kBkg)
 		   //cout << "~~~~~~~  : ~~~ " << iEv << " / evt sel: " << currSel.getWeights().at(iw).getName() << " = " << boost::apply_visitor(get_variant_as_double(), valuesMap[currSel.getWeights().at(iw).getName()]) << endl;
             }
-            
+	    
+
+	    for (unsigned int iw = 0; iw < currSel.getWeightsExt().size(); ++iw)
+	      {
+		double thisExtWeight = boost::apply_visitor(get_variant_as_double(), extValuesMap[currSel.getWeightsExt().at(iw).getFormula()]);		
+		if (sample.getType() != Sample::kData){
+		  TTreeFormula* TTF_extWeight = new TTreeFormula (Form("TTF_extWeight_%i", iw), currSel.getWeightsExt().at(iw).getFormula().c_str(), tree); 
+		  if (TTF_extWeight->EvalInstance())  {
+		    wEvSel *= thisExtWeight;
+		  }
+		}
+	      }
+	    
             // loop on all vars to fill
             for (unsigned int ivar = 0; ivar < variables_.size(); ++ivar)
-            {
+	      {
                 double varvalue = boost::apply_visitor( get_variant_as_double(), valuesMap[variables_.at(ivar)]);
                 if (sample.getType() == Sample::kData)
-                    plots.at(isel).at(ivar).at(0)->Fill(varvalue);
+		  plots.at(isel).at(ivar).at(0)->Fill(varvalue);
                 else
-                    plots.at(isel).at(ivar).at(0)->Fill(varvalue, wEvSample*wEvSel);
+		  plots.at(isel).at(ivar).at(0)->Fill(varvalue, wEvSample*wEvSel);
                 
                 // if (sample.getType() == Sample::kBkg)
                 //     cout << ">>>>  : >>> " << iEv << " / FILLING " << plots.at(isel).at(ivar).at(0)->GetName() << " varvalue:" << varvalue << " wEvSample:" << wEvSample << " wEvSel:" << wEvSel << " new integral:" << plots.at(isel).at(ivar).at(0)->Integral() << endl;
@@ -1157,6 +1233,18 @@ void AnalysisHelper::activateBranches(Sample& sample)
                tree->SetBranchStatus(currW.getSyst(isys).c_str(), 1); 
             }
         }
+
+	//for (uint iw = 0; iw < currSel.getWeightsExt().size(); ++iw)
+	//  {
+	//    const Weight_ext& currW = currSel.getWeightsExt().at(iw);
+	//    vector <string> varWeights= mainCfg_->readVarOpt(currSel.getWeightsExt().at(iw).getFormula().c_str());
+	//    for (string actVar: varWeights)
+	//      {
+	//	tree->SetBranchStatus(actVar.c_str(), 1);
+	//      }            
+	//
+	//  }
+
     }
     if (DEBUG) cout << " ..........DEBUG: activated selections weights branches" << endl;
 

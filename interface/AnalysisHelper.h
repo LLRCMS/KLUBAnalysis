@@ -28,6 +28,7 @@
 #include "CfgParser.h"
 #include "Sample.h"
 #include "Weight.h"
+#include "Weight_ext.h"
 #include "Selection.h"
 #include "ordered_map.h"
 
