@@ -3406,7 +3406,7 @@ int main (int argc, char** argv)
             if(fabs(ijet.Eta()) > 5.) continue; // keeping the whole HF acceptance for the time being
             if(cleanJets) // removing low pt jets in noisy area, recommended by HTT
             {
-              if (ijet.Pt () < 50. && fabs(ijet.Eta()) < 3.139 && fabs(ijet.Eta()) > 2.65 && !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 2)) ) continue;
+              if (ijet.Pt () < 50. && fabs(ijet.Eta()) < 3.139 && fabs(ijet.Eta()) > 2.65 && !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) ) continue;
             }
 
 	    for (unsigned int kJet = iJet+1 ;   (kJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++kJet)
@@ -3428,7 +3428,7 @@ int main (int argc, char** argv)
               if(fabs(kjet.Eta()) > 5.) continue;
 	      if(cleanJets) // removing low pt jets in noisy area, recommended by HTT
 		{
-		  if (kjet.Pt () < 50. && fabs(kjet.Eta()) < 3.139 && fabs(kjet.Eta()) > 2.65 && !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 2)) ) continue;
+		  if (kjet.Pt () < 50. && fabs(kjet.Eta()) < 3.139 && fabs(kjet.Eta()) > 2.65 && !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) ) continue;
 		}
 	      TLorentzVector jetPair = ijet+kjet;
 
@@ -3665,7 +3665,7 @@ int main (int argc, char** argv)
 
 	  if(cleanJets) // removing low pt jets in noisy area, recommended by HTT
 	    {
-	      if (tlv_jet.Pt () < 50. && fabs(tlv_jet.Eta()) < 3.139 && fabs(tlv_jet.Eta()) > 2.65 && !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 2)) ) continue;
+	      if (tlv_jet.Pt () < 50. && fabs(tlv_jet.Eta()) < 3.139 && fabs(tlv_jet.Eta()) > 2.65 && !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) ) continue;
 	    }
           // use these jets for HT
           if (tlv_jet.Pt () > 20)
@@ -4242,7 +4242,7 @@ int main (int argc, char** argv)
 	  
 	  if(cleanJets) // removing low pt jets in noisy area, recommended by HTT
 	    {
-	      if (tlv_dummyJet.Pt () < 50. && fabs(tlv_dummyJet.Eta()) < 3.139 && fabs(tlv_dummyJet.Eta()) > 2.65 && !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 2)) ) continue;
+	      if (tlv_dummyJet.Pt () < 50. && fabs(tlv_dummyJet.Eta()) < 3.139 && fabs(tlv_dummyJet.Eta()) > 2.65 && !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) ) continue;
 	    }
           // remove jets that overlap with the tau selected in the leg 1 and 2
           if (tlv_firstLepton.DeltaR(tlv_dummyJet) < lepCleaningCone){
