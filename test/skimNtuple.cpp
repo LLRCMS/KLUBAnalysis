@@ -74,10 +74,23 @@ const float DYscale_MM[3] = {1.11219, 1.11436, 0.743777} ; // for now we use the
 //   - between 20 and 40 GeV
 //   - between 40 and 100 GeV
 //   - > 100 GeV
-const float DYscale_NLO_VLowPt[3] = {1.283, 0.699, 1.103};
-const float DYscale_NLO_LowPt [3] = {  1.1, 0.938,  0.81};
-const float DYscale_NLO_MedPt [3] = {1.006, 1.187, 0.524};
-const float DYscale_NLO_HighPt[3] = {0.918, 1.322, 0.654};
+//loose PUjetID mtt
+//const float DYscale_NLO_VLowPt[3] = {1.31303,  0.953595, 0.80987 };
+//const float DYscale_NLO_LowPt [3] = {1.14463,  1.03926,  0.702278};
+//const float DYscale_NLO_MedPt [3] = {1.02131,  1.23579,  0.554874};
+//const float DYscale_NLO_HighPt[3] = {0.927168, 1.29899,  0.804798};
+//no PUjetID mtt
+//const float DYscale_NLO_VLowPt[3] = {1.46867,  0.5192, 0.978186 };
+//const float DYscale_NLO_LowPt [3] = {1.21142,  0.986553,  0.68062};
+//const float DYscale_NLO_MedPt [3] = {1.0527,  1.21448,  0.553397};
+//const float DYscale_NLO_HighPt[3] = {0.939918, 1.29117,  0.799882};
+
+//loose PUjetID mh
+const float DYscale_NLO_VLowPt[3] = {1.13233,  1.01982,  0.711067};
+const float DYscale_NLO_LowPt [3] = {1.03589,  0.978028, 0.845717};
+const float DYscale_NLO_MedPt [3] = {0.972632,  1.17491, 0.554073};
+const float DYscale_NLO_HighPt[3] = {0.904923, 1.31081,  0.686584};
+
 
 // Computed from PI group for DY LO binned
 // - number of b-jets [0b, 1b, 2b]
@@ -88,12 +101,30 @@ const float DYscale_NLO_HighPt[3] = {0.918, 1.322, 0.654};
 //   - >50 and <=100
 //   - >100 and <=200
 //   - >200
-const float DYscale_LO_VLowPt [3] = {1.163, 0.719, 0.471};
-const float DYscale_LO_LowPt  [3] = {1.342,  1.13, 0.832};
-const float DYscale_LO_MedPt1 [3] = {1.244, 1.233, 0.908};
-const float DYscale_LO_MedPt2 [3] = {1.176, 1.251, 0.939};
-const float DYscale_LO_HighPt [3] = {1.053, 1.433, 0.838};
-const float DYscale_LO_VHighPt[3] = { 0.81, 1.723, 0.852};
+//const float DYscale_LO_VLowPt [3] = {1.163, 0.719, 0.471};
+//const float DYscale_LO_LowPt  [3] = {1.342,  1.13, 0.832};
+//const float DYscale_LO_MedPt1 [3] = {1.244, 1.233, 0.908};
+//const float DYscale_LO_MedPt2 [3] = {1.176, 1.251, 0.939};
+//const float DYscale_LO_HighPt [3] = {1.053, 1.433, 0.838};
+//const float DYscale_LO_VHighPt[3] = { 0.81, 1.723, 0.852};
+
+//loose PUjetID, mtt
+const float DYscale_LO_VLowPt [3] = {1.14855, 0.822656, 0.765073};
+const float DYscale_LO_LowPt  [3] = {1.35142, 1.23179,  0.817443};
+const float DYscale_LO_MedPt1 [3] = {1.25914, 1.25708,  0.933082};
+const float DYscale_LO_MedPt2 [3] = {1.1834,  1.3345,   0.988823};
+const float DYscale_LO_HighPt [3] = {1.06258, 1.43929,  0.974521};
+const float DYscale_LO_VHighPt[3] = {0.786693,1.59505,  0.917797};
+
+
+//loose PUjetID, mh
+//const float DYscale_LO_VLowPt [3] = {1.03497,  1.2492,  0.512155};
+//const float DYscale_LO_LowPt  [3] = {1.24255,  1.24875, 0.834341};
+//const float DYscale_LO_MedPt1 [3] = {1.19378,  1.24953, 0.92162};
+//const float DYscale_LO_MedPt2 [3] = {1.13619,  1.28016, 0.939999};
+//const float DYscale_LO_HighPt [3] = {1.02876,  1.45217, 0.853559};
+//const float DYscale_LO_VHighPt[3] = {0.801474, 1.68679, 0.878232};
+
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
@@ -703,7 +734,7 @@ int main (int argc, char** argv)
 
   bool   beInclusive         = gConfigParser->readBoolOption   ("selections::beInclusive") ;
   bool   cleanJets         = gConfigParser->readBoolOption   ("selections::cleanJets") ;
-  float  PUjetID_minCut      = gConfigParser->readFloatOption  ("parameters::PUjetIDminCut") ;
+  float  PUjetID_WP      = gConfigParser->readFloatOption  ("parameters::PUjetIDWP") ;
   float  PFjetID_WP          = gConfigParser->readIntOption    ("parameters::PFjetIDWP") ;
   // int    saveOS              = gConfigParser->readIntOption    ("parameters::saveOS") ;
   float  lepCleaningCone     = gConfigParser->readFloatOption  ("parameters::lepCleaningCone") ;
@@ -745,7 +776,9 @@ int main (int argc, char** argv)
   vector<string> vbfTriggers     = (isMC ? gConfigParser->readStringListOption ("triggersMC::vbfTriggers") : gConfigParser->readStringListOption ("triggersData::vbfTriggers")) ;
 
   // bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
-  bool applyTriggers = isMC ? gConfigParser->readBoolOption ("parameters::applyTriggersMC") : true; // true if ask triggerbit + matching, false if doing reweight
+  //bool applyTriggers = isMC ? gConfigParser->readBoolOption ("parameters::applyTriggersMC") : true; // true if ask triggerbit + matching, false if doing reweight
+
+  bool applyTriggers = gConfigParser->readBoolOption ("parameters::applyTriggersMC") ;
 
   // applyTriggers = true;
   cout << "** INFO: apply triggers? " << applyTriggers << " [ 0: reweight , 1: triggerbit+matching ]" << endl;
@@ -848,9 +881,10 @@ int main (int argc, char** argv)
   // input and output setup
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
-  appendFromFileList (bigChain, inputFile);
-  bigTree theBigTree (bigChain) ;
 
+  appendFromFileList (bigChain, inputFile);
+  bigChain->SetCacheSize(0);
+  bigTree theBigTree (bigChain) ;
   //Create a new file + a clone of old tree header. Do not copy events
   TFile * smallFile = new TFile (outputFile, "recreate") ;
   smallFile->cd () ;
@@ -1053,6 +1087,7 @@ int main (int argc, char** argv)
 
   // MVA tau ID
   vector<int> tauMVAIDIdx;
+  //tauMVAIDIdx.push_back(getTauIDIdx(hTauIDS, "byVVLooseIsolationMVArun2v1DBoldDMwLT"));
   tauMVAIDIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseIsolationMVArun2v1DBoldDMwLT"));
   tauMVAIDIdx.push_back(getTauIDIdx(hTauIDS, "byLooseIsolationMVArun2v1DBoldDMwLT"));
   tauMVAIDIdx.push_back(getTauIDIdx(hTauIDS, "byMediumIsolationMVArun2v1DBoldDMwLT"));
@@ -1068,6 +1103,7 @@ int main (int argc, char** argv)
     
   // new MVA tau ID // FRA syncFeb2018
   vector<int> tauMVAIDIdxNew;
+  //tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byVVLooseIsolationMVArun2017v2DBoldDMwLT2017")); //SYNCH HTT
   tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byVLooseIsolationMVArun2017v2DBoldDMwLT2017"));
   tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byLooseIsolationMVArun2017v2DBoldDMwLT2017"));
   tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byMediumIsolationMVArun2017v2DBoldDMwLT2017"));
@@ -1189,6 +1225,7 @@ int main (int argc, char** argv)
 	  cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
 	  DEBUG = true;
 	}
+      //if (debugEvent > 0 && DEBUG == false) continue; 
 
       // remove a lumisection that was present in 16 Giu JSON and removed in 22 and subsequent JSON
       // 25 Nov 2016 : edit : removed line because of new reprocessing and json
@@ -1812,22 +1849,23 @@ int main (int argc, char** argv)
       //  apply MET filters
 
       int metbit = theBigTree.metfilterbit;
-      int metpass = metbit & (1 << 0);
-      metpass += metbit & (1 << 2);
-      metpass += metbit & (1 << 5);
-      metpass += metbit & (1 << 6);
+     
+      int metpass = metbit & (1 << 0); //"Flag_goodVertices"
+      metpass += metbit & (1 << 2);    //"Flag_HBHENoiseIsoFilter"
+      metpass += metbit & (1 << 5);    //"Flag_BadPFMuonFilter"
+      // metpass += metbit & (1 << 6);    //"Flag_BadChargedCandidateFilter" update March2019: removed 
       // Update Fall17 94X
-      metpass += metbit & (1 << 1);
-      metpass += metbit & (1 << 3);
-      metpass += metbit & (1 << 4);
+      metpass += metbit & (1 << 1);    //"Flag_HBHENoiseFilter"
+      metpass += metbit & (1 << 3);    //"Flag_EcalDeadCellTriggerPrimitiveFilter"
+      metpass += metbit & (1 << 4);    //"Flag_globalSuperTightHalo2016Filter"
       if(!isMC) metpass += metbit & (1 << 7); // "Flag_eeBadScFilter" not suggested on twiki; EDIT: now suggested for data (Moriond2018)
-      //metpass += metbit & (1 << 8);  // chia - jan2019: "Flag_ecalBadCalibFilter" is now deprecated; check theBigTree.passecalBadCalibFilterUpdate instead 
       if (theBigTree.passecalBadCalibFilterUpdate) metpass += 1;
-
       //(metpass <= 0) cout << " - failed metbit(9): " << std::bitset<9>(metbit) << endl; //FRA
-      
-      if(isMC && metpass < 8) continue ;
-      if(!isMC && metpass < 9) continue ;
+
+      //update March2019: "Flag_BadChargedCandidateFilter" removed
+      if(isMC && metpass < 7) continue ;
+      if(!isMC && metpass < 8) continue ;   
+     
       ec.Increment ("METfilter", EvtW);
       if (isHHsignal) ecHHsig[genHHDecMode].Increment ("METfilter", EvtW);
 
@@ -1865,16 +1903,23 @@ int main (int argc, char** argv)
 	  if (oph.isMuon(dauType))
 	    {
 	      //bool passMu = oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ; //FRA: syncFeb2018
-	      bool passMu = oph.muBaseline (&theBigTree, idau, 10., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false)) ;   //FRA: syncFeb2018
-	      bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false)) ;
+	        bool passMu = oph.muBaseline (&theBigTree, idau, 21., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false)) ;   //FRA: syncFeb2018
+		bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false)); 
+	      //SYNCH
+		     //	         bool passMu = oph.muBaseline (&theBigTree, idau, 21., 2.1, 0.15, OfflineProducerHelper::MuTight, leptonSelectionFlag , (DEBUG ? true : false)) ;   //FRA: syncFeb2018
+		     //		 bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.15, OfflineProducerHelper::MuTight, leptonSelectionFlag, (DEBUG ? true : false)) ;
+
 	      if (passMu) ++nmu;
 	      else if (passMu10) ++nmu10;
 	    }
 	  else if (oph.isElectron(dauType))
 	    {
 	      //bool passEle   = oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ; //FRA: syncFeb2018
-	      bool passEle   = oph.eleBaseline (&theBigTree, idau, 10., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false)) ; //FRA: syncFeb2018
+	      	      bool passEle   = oph.eleBaseline (&theBigTree, idau, 25., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false)) ; //FRA: syncFeb2018
 	      bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.1, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false)) ;
+	      
+	      //bool passEle   = oph.eleBaseline (&theBigTree, idau, 25., 2.1, 0.1, OfflineProducerHelper::EMVATight, leptonSelectionFlag, (DEBUG ? true : false)) ; //FRA: syncFeb2018
+	      //bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.1, OfflineProducerHelper::EMVATight, leptonSelectionFlag , (DEBUG ? true : false)) ;
 	      if (passEle) ++nele;
 	      else if (passEle10) ++nele10;
 	    }
@@ -1927,6 +1972,8 @@ int main (int argc, char** argv)
 	  else
 	    pairType = 4 ; // ele ele
 	}
+
+
       // ----------------------------------------------------------
       // choose the first pair passing baseline and being of the right pair type
 
@@ -2009,6 +2056,7 @@ int main (int argc, char** argv)
 
 	      // if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag+string("-TauRlxIzo") ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
 	      string baselineSels = ( (pairType <= 2) ? leptonSelectionFlag : (leptonSelectionFlag + "-Iso")) ; // for ee, mumu, emu, ask isolation in baseline
+
 	      if ( oph.pairPassBaseline (&theBigTree, iPair, baselineSels, (DEBUG ? true : false) ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
 		{
 		  chosenTauPair = iPair;
@@ -2233,15 +2281,26 @@ int main (int argc, char** argv)
 	    if (theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex) > 32){
 	      passL1IsoTau32 = true;
 	    }	
-	    theSmallTree.m_cross_monitoring_trig = (passL1IsoTau32 && (pass_triggerbit >> 7)&1) ; // the 7th bit corresponds to our mu-tau cross trigger 
+	    int monitor = 7;
+	    if (isMC== false) monitor = 6;
+	    theSmallTree.m_cross_monitoring_trig = (passL1IsoTau32 && CheckBit(pass_triggerbit,monitor)) ; // the 7th bit corresponds to our mu-tau cross trigger 
 	  }else{                                                                                  // if ever we change the trigger list, this should be updated 
 	    theSmallTree.m_cross_monitoring_trig = false;
 	  }
 	  
-	  
+	  // weight to be applied for IsoMu24, prescaled for ~3fb-1 in 2017
+	  // MuTau: if it didn't also pass IsoMu27 or MuTau trigger
+	  if (pairType == 0 && isMC){
+	      if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1) && !CheckBit(pass_triggerbit,7)) theSmallTree.m_prescaleWeight =  (41557. - 3625.) / 41557.; 
+	  }
+	  // MuTau: if it didn't also pass IsoMu27 
+	  if (pairType == 3 && isMC){
+	      if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1)) theSmallTree.m_prescaleWeight =  (41557. - 3625.) / 41557.; 
+	  }
+
 	  
 	  if(DEBUG){
-	    if (isMC && pairType == 2 && passTrg){
+	    if (isMC && pairType == 2){
 	      cout << "passTrg? "<< trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta())<<endl;
 	      cout << "L1 pt1 "<<theBigTree.daughters_highestEt_L1IsoTauMatched->at(firstDaughterIndex) << "L1 pt2 "<<theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex)<<endl;
 	      cout << "---> passTrg? "<<passTrg<<endl;
@@ -2554,9 +2613,9 @@ int main (int argc, char** argv)
 	  if (lep2HasTES) {
 	    idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
 	    idAndIsoSF_leg2_vtight = 0.86; // TauPOG recommendation for 2017 data (vtight WP)
-	    if(theSmallTree.m_dau2_decayMode == 0) idAndIsoSF_leg2_decayMode = 1.06;
-	    if(theSmallTree.m_dau2_decayMode == 1) idAndIsoSF_leg2_decayMode = 1.;
-	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.91;
+	    if(theSmallTree.m_dau2_decayMode == 0) idAndIsoSF_leg2_decayMode = 0.84; //computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO 
+	    if(theSmallTree.m_dau2_decayMode == 1) idAndIsoSF_leg2_decayMode = 0.92;
+	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.86;
 	    isFakeJet2 = false;
 	  }
 	  
@@ -2593,9 +2652,9 @@ int main (int argc, char** argv)
 	  if (lep2HasTES){
 	    idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
 	    idAndIsoSF_leg2_vtight = 0.86; // https://indico.cern.ch/event/776359/contributions/3229380/attachments/1759348/2853860/tauID.pdf
-	    if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 1.06;
-	    if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 1.;
-	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.91;
+	    if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 0.84; //computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
+	    if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 0.92;
+	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.86;
 	    isFakeJet2 = false;
 	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
@@ -2627,17 +2686,17 @@ int main (int argc, char** argv)
 	  if (lep1HasTES) {
 	    idAndIsoSF_leg1 = 0.89;
 	    idAndIsoSF_leg1_vtight = 0.86;
-	    if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg1_decayMode = 1.06;
-	    if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg1_decayMode = 1.;
-	    if(theSmallTree.m_dau1_decayMode == 10) idAndIsoSF_leg1_decayMode = 0.91;
+	    if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg1_decayMode = 0.97; //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
+	    if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg1_decayMode = 1.04;
+	    if(theSmallTree.m_dau1_decayMode == 10) idAndIsoSF_leg1_decayMode = 0.90;
 	    isFakeJet1 = false;
 	  }
 	  if (lep2HasTES) {
 	    idAndIsoSF_leg2 = 0.89;
 	    idAndIsoSF_leg2_vtight = 0.86;
-	    if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 1.06;
-	    if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 1.;
-	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.91;
+	    if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 0.97; //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
+	    if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 1.04;
+	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.90;
 	    isFakeJet2 = false;
 	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
@@ -3152,6 +3211,9 @@ int main (int argc, char** argv)
       theSmallTree.m_trigSF_cross_vtight  = (isMC ? trigSF_cross_vtight : 1.0);
 
 
+      theSmallTree.m_totalWeight = (isMC? (41557./7.20811e+10) * theSmallTree.m_MC_weight* theSmallTree.m_PUReweight* theSmallTree.m_DYscale_MM_NLO* trigSF* FakeRateSF* idAndIsoSF: 1.0);
+      //this is just a residual of some synch
+
       // loop over leptons
       vector<pair<float, int> > thirdLeptons ; // pt, idx
       for (unsigned int iLep = 0 ; (iLep < theBigTree.daughters_px->size ()) ; ++iLep)
@@ -3232,7 +3294,6 @@ int main (int argc, char** argv)
       for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
       {
         // JET PU ID cut
-        if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
         if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
 
         TLorentzVector tlv_jet
@@ -3266,13 +3327,20 @@ int main (int argc, char** argv)
         if (ajetHadFlav == 4) ++theSmallTree.m_njetsCHadFlav;
 
         if (TMath::Abs(tlv_jet.Eta()) > 2.4) continue; // 2.4 for b-tag
-        if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 2)) ) continue; // PU jet ID loose for all b-jet candidates
+	if (PUjetID_WP > -1){
+	  if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) ) continue; // PU jet ID WP = 2: loose for all b-jet candidates
+	}
+	//PUjetID from miniAOD, not recomputed:
+	//if(tlv_jet.Pt() < 10. && theBigTree.jets_PUJetID->at(iJet) < -0.97) continue;
+	//if(tlv_jet.Pt() > 10. && tlv_jet.Pt() < 20. && theBigTree.jets_PUJetID->at(iJet) < -0.97) continue;
+	//if(tlv_jet.Pt() > 20. && tlv_jet.Pt() < 30. && theBigTree.jets_PUJetID->at(iJet) < -0.97) continue;
+	//if(tlv_jet.Pt() > 30. && tlv_jet.Pt() < 50. && theBigTree.jets_PUJetID->at(iJet) < -0.89) continue;
+
 
         // n bjets candidates
         if (tlv_jet.Pt () > 20)  ++theSmallTree.m_nbjets20 ;
-        if (tlv_jet.Pt () > 50)   ++theSmallTree.m_nbjets50 ;
+        if (tlv_jet.Pt () > 50)  ++theSmallTree.m_nbjets50 ;
        
-	
         //float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bCSVscore->at (iJet) : tlv_jet.Pt() ;
         float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet)  : tlv_jet.Pt() ;
         if (bChoiceFlag != 1 && bChoiceFlag != 2) cout << "** WARNING : bChoiceFlag not known :" << bChoiceFlag << endl;
@@ -3321,7 +3389,7 @@ int main (int argc, char** argv)
         {
           for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
           {
-            if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
+            //if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
             if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
             if (int (iJet) == bjet1idx) continue;
             if(bPairFound && int (iJet) == bjet2idx_temp) continue;
@@ -3343,7 +3411,7 @@ int main (int argc, char** argv)
 
 	    for (unsigned int kJet = iJet+1 ;   (kJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++kJet)
             {
-              if (theBigTree.jets_PUJetID->at (kJet) < PUjetID_minCut) continue ;
+              //if (theBigTree.jets_PUJetID->at (kJet) < PUjetID_minCut) continue ;
               if (theBigTree.PFjetID->at (kJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
               if (int (kJet) == bjet1idx) continue;
               if (bPairFound && int (kJet) == bjet2idx_temp) continue;
@@ -3581,7 +3649,7 @@ int main (int argc, char** argv)
         for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
         {
           // JET PU ID cut
-          if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
+          //if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
           if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
 
           // Build the jet TLorentzVector
@@ -4154,7 +4222,7 @@ int main (int argc, char** argv)
         for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
         {
           // PG filter jets at will
-          if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
+	  // if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
           if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
 
           // skip the H decay candiates
