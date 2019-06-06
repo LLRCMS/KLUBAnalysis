@@ -214,6 +214,9 @@ public :
    std::vector<float>   *daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017;
    std::vector<float>   *daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017;
    std::vector<float>   *daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017;
+   std::vector<float>   *daughters_byDeepTau2017v2VSjetraw;
+   std::vector<float>   *daughters_byDeepTau2017v2VSeraw;
+   std::vector<float>   *daughters_byDeepTau2017v2VSmuraw;
    std::vector<int>     *daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017;
    std::vector<float>   *daughters_chargedIsoPtSum;
    std::vector<float>   *daughters_neutralIsoPtSum;
@@ -267,6 +270,9 @@ public :
    std::vector<float>   *bCSVscore;
    std::vector<float>   *bDeepCSV_probb;
    std::vector<float>   *bDeepCSV_probbb;
+   std::vector<float>   *bDeepFlavor_probb;
+   std::vector<float>   *bDeepFlavor_probbb;
+   std::vector<float>   *bDeepFlavor_problepb;
    std::vector<float>   *pfCombinedMVAV2BJetTags;
    std::vector<int>     *PFjetID;
    std::vector<float>   *jetRawf;
@@ -342,6 +348,9 @@ public :
    std::vector<float>   *ak8jets_CSV;
    std::vector<float>   *ak8jets_deepCSV_probb;
    std::vector<float>   *ak8jets_deepCSV_probbb;
+   std::vector<float>   *ak8jets_deepFlavor_probb;
+   std::vector<float>   *ak8jets_deepFlavor_probbb;
+   std::vector<float>   *ak8jets_deepFlavor_problepb;
    std::vector<int>     *ak8jets_nsubjets;
    std::vector<float>   *subjets_px;
    std::vector<float>   *subjets_py;
@@ -350,6 +359,9 @@ public :
    std::vector<float>   *subjets_CSV;
    std::vector<float>   *subjets_deepCSV_probb;
    std::vector<float>   *subjets_deepCSV_probbb;
+   std::vector<float>   *subjets_deepFlavor_probb;
+   std::vector<float>   *subjets_deepFlavor_probbb;
+   std::vector<float>   *subjets_deepFlavor_problepb;
    std::vector<int>     *subjets_ak8MotherIdx;
 
 
@@ -539,6 +551,9 @@ public :
    TBranch        *b_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017; //!
    TBranch        *b_daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017; //!
    TBranch        *b_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017;
+   TBranch        *b_daughters_byDeepTau2017v2VSjetraw;
+   TBranch        *b_daughters_byDeepTau2017v2VSeraw;
+   TBranch        *b_daughters_byDeepTau2017v2VSmuraw;
    TBranch        *b_daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017;
    TBranch        *b_daughters_chargedIsoPtSum;   //!
    TBranch        *b_daughters_neutralIsoPtSum;   //!
@@ -592,6 +607,9 @@ public :
    TBranch        *b_bCSVscore;   //!
    TBranch        *b_bDeepCSV_probb;   //!
    TBranch        *b_bDeepCSV_probbb;   //!
+   TBranch        *b_bDeepFlavor_probb;
+   TBranch        *b_bDeepFlavor_probbb;
+   TBranch        *b_bDeepFlavor_problepb;
    TBranch        *b_pfCombinedMVAV2BJetTags; //!
    TBranch        *b_PFjetID;   //!
    TBranch        *b_jetRawf;   //!
@@ -667,6 +685,9 @@ public :
    TBranch        *b_ak8jets_CSV;
    TBranch        *b_ak8jets_deepCSV_probb;
    TBranch        *b_ak8jets_deepCSV_probbb;
+   TBranch        *b_ak8jets_deepFlavor_probb;
+   TBranch        *b_ak8jets_deepFlavor_probbb;
+   TBranch        *b_ak8jets_deepFlavor_problepb;
    TBranch        *b_ak8jets_nsubjets;
    TBranch        *b_subjets_px;
    TBranch        *b_subjets_py;
@@ -675,6 +696,9 @@ public :
    TBranch        *b_subjets_CSV;
    TBranch        *b_subjets_deepCSV_probb;
    TBranch        *b_subjets_deepCSV_probbb;
+   TBranch        *b_subjets_deepFlavor_probb;
+   TBranch        *b_subjets_deepFlavor_probbb;
+   TBranch        *b_subjets_deepFlavor_problepb;
    TBranch        *b_subjets_ak8MotherIdx;
 
 
@@ -858,6 +882,9 @@ public :
        daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017 = 0;
        daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017 = 0;
        daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017 = 0;
+       daughters_byDeepTau2017v2VSjetraw = 0;
+       daughters_byDeepTau2017v2VSeraw = 0;
+       daughters_byDeepTau2017v2VSmuraw = 0;
        daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017 = 0;
        daughters_chargedIsoPtSum = 0;
        daughters_neutralIsoPtSum = 0;
@@ -910,6 +937,9 @@ public :
        bCSVscore = 0;
        bDeepCSV_probb = 0;
        bDeepCSV_probbb = 0;
+       bDeepFlavor_probb = 0;
+       bDeepFlavor_probbb = 0;
+       bDeepFlavor_problepb = 0;
        pfCombinedMVAV2BJetTags = 0;
        PFjetID = 0;
        jetRawf = 0;
@@ -983,6 +1013,9 @@ public :
        ak8jets_CSV = 0;
        ak8jets_deepCSV_probb = 0;
        ak8jets_deepCSV_probbb = 0;
+       ak8jets_deepFlavor_probb = 0;
+       ak8jets_deepFlavor_probbb = 0;
+       ak8jets_deepFlavor_problepb = 0;
        ak8jets_nsubjets = 0;
        subjets_px = 0;
        subjets_py = 0;
@@ -991,6 +1024,9 @@ public :
        subjets_CSV = 0;
        subjets_deepCSV_probb = 0;
        subjets_deepCSV_probbb = 0;
+       subjets_deepFlavor_probb = 0;
+       subjets_deepFlavor_probbb = 0;
+       subjets_deepFlavor_problepb = 0;
        subjets_ak8MotherIdx = 0;
 
        fChain->SetMakeClass(1);
@@ -1090,6 +1126,9 @@ public :
        fChain->SetBranchAddress("daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017", &daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017, &b_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017);
        fChain->SetBranchAddress("daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017", &daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017, &b_daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017);
        fChain->SetBranchAddress("daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017", &daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017, &b_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017);
+       fChain->SetBranchAddress("daughters_byDeepTau2017v2VSjetraw", &daughters_byDeepTau2017v2VSjetraw, &b_daughters_byDeepTau2017v2VSjetraw);
+       fChain->SetBranchAddress("daughters_byDeepTau2017v2VSeraw", &daughters_byDeepTau2017v2VSeraw, &b_daughters_byDeepTau2017v2VSeraw);
+       fChain->SetBranchAddress("daughters_byDeepTau2017v2VSmuraw", &daughters_byDeepTau2017v2VSmuraw, &b_daughters_byDeepTau2017v2VSmuraw);
        fChain->SetBranchAddress("daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017", &daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017, &b_daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017);
        fChain->SetBranchAddress("daughters_chargedIsoPtSum", &daughters_chargedIsoPtSum, &b_daughters_chargedIsoPtSum);
        fChain->SetBranchAddress("daughters_neutralIsoPtSum", &daughters_neutralIsoPtSum, &b_daughters_neutralIsoPtSum);
@@ -1142,7 +1181,9 @@ public :
        fChain->SetBranchAddress("bCSVscore", &bCSVscore, &b_bCSVscore);
        fChain->SetBranchAddress("bDeepCSV_probb", &bDeepCSV_probb, &b_bDeepCSV_probb);
        fChain->SetBranchAddress("bDeepCSV_probbb", &bDeepCSV_probbb, &b_bDeepCSV_probbb);
-       
+       fChain->SetBranchAddress("bDeepFlavor_probb", &bDeepFlavor_probb, &b_bDeepFlavor_probb);
+       fChain->SetBranchAddress("bDeepFlavor_probbb", &bDeepFlavor_probbb, &b_bDeepFlavor_probbb);
+       fChain->SetBranchAddress("bDeepFlavor_problepb", &bDeepFlavor_problepb, &b_bDeepFlavor_problepb);       
        fChain->SetBranchAddress("pfCombinedMVAV2BJetTags", &pfCombinedMVAV2BJetTags, &b_pfCombinedMVAV2BJetTags);
        fChain->SetBranchAddress("PFjetID", &PFjetID, &b_PFjetID);
        fChain->SetBranchAddress("jetRawf", &jetRawf, &b_jetRawf);
@@ -1217,6 +1258,9 @@ public :
        fChain->SetBranchAddress("ak8jets_CSV", &ak8jets_CSV, &b_ak8jets_CSV);
        fChain->SetBranchAddress("ak8jets_deepCSV_probb", &ak8jets_deepCSV_probb, &b_ak8jets_deepCSV_probb);
        fChain->SetBranchAddress("ak8jets_deepCSV_probbb", &ak8jets_deepCSV_probbb, &b_ak8jets_deepCSV_probbb);
+       fChain->SetBranchAddress("ak8jets_deepFlavor_probb", &ak8jets_deepFlavor_probb, &b_ak8jets_deepFlavor_probb);
+       fChain->SetBranchAddress("ak8jets_deepFlavor_probbb", &ak8jets_deepFlavor_probbb, &b_ak8jets_deepFlavor_probbb);
+       fChain->SetBranchAddress("ak8jets_deepFlavor_problepb", &ak8jets_deepFlavor_problepb, &b_ak8jets_deepFlavor_problepb);
        fChain->SetBranchAddress("ak8jets_nsubjets", &ak8jets_nsubjets, &b_ak8jets_nsubjets);
        fChain->SetBranchAddress("subjets_px", &subjets_px, &b_subjets_px);
        fChain->SetBranchAddress("subjets_py", &subjets_py, &b_subjets_py);
@@ -1225,6 +1269,9 @@ public :
        fChain->SetBranchAddress("subjets_CSV", &subjets_CSV, &b_subjets_CSV);
        fChain->SetBranchAddress("subjets_deepCSV_probb", &subjets_deepCSV_probb, &b_subjets_deepCSV_probb);
        fChain->SetBranchAddress("subjets_deepCSV_probbb", &subjets_deepCSV_probbb, &b_subjets_deepCSV_probbb);
+       fChain->SetBranchAddress("subjets_deepFlavor_probb", &subjets_deepFlavor_probb, &b_subjets_deepFlavor_probb);
+       fChain->SetBranchAddress("subjets_deepFlavor_probbb", &subjets_deepFlavor_probbb, &b_subjets_deepFlavor_probbb);
+       fChain->SetBranchAddress("subjets_deepFlavor_problepb", &subjets_deepFlavor_problepb, &b_subjets_deepFlavor_problepb);
        fChain->SetBranchAddress("subjets_ak8MotherIdx", &subjets_ak8MotherIdx, &b_subjets_ak8MotherIdx);
 
        // MC only
