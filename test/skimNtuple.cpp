@@ -733,8 +733,9 @@ int main (int argc, char** argv)
     }
 
   bool   beInclusive         = gConfigParser->readBoolOption   ("selections::beInclusive") ;
-  bool   cleanJets         = gConfigParser->readBoolOption   ("selections::cleanJets") ;
-  float  PUjetID_WP      = gConfigParser->readFloatOption  ("parameters::PUjetIDWP") ;
+  bool   cleanJets           = gConfigParser->readBoolOption   ("selections::cleanJets") ;
+  bool   useDeepFlavor       = gConfigParser->readBoolOption   ("selections::useDeepFlavor") ;
+  float  PUjetID_WP          = gConfigParser->readFloatOption  ("parameters::PUjetIDWP") ;
   float  PFjetID_WP          = gConfigParser->readIntOption    ("parameters::PFjetIDWP") ;
   // int    saveOS              = gConfigParser->readIntOption    ("parameters::saveOS") ;
   float  lepCleaningCone     = gConfigParser->readFloatOption  ("parameters::lepCleaningCone") ;
@@ -967,7 +968,9 @@ int main (int argc, char** argv)
   string bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFile") ;
   cout << "B Tag SF file: " << bTag_SFFile << endl;
   //bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "80X_MORIOND_2017"); // third field unused, but could be needed to select efficiencies for different selection levels
-  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "94X_DeepCSV_V1"); // third field unused, but could be needed to select efficiencies for different selection levels
+  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "102X_DeepCSV"); // third field unused, but could be needed to select efficiencies for different selection levels
+  if(useDeepFlavor)
+  	bTagSFHelper.SetWPset("102X_DeepFlavor"); // third field unused, but could be needed to select efficiencies for different selection levels
 
   // ------------------------------
   
@@ -1158,6 +1161,37 @@ int main (int argc, char** argv)
   vector<int> tauAntiMuIdx;
   tauAntiMuIdx.push_back(getTauIDIdx(hTauIDS, "againstMuonLoose3"));
   tauAntiMuIdx.push_back(getTauIDIdx(hTauIDS, "againstMuonTight3"));
+
+  // DNN Tau ID vs jet
+  vector<int> deepTauVsJetIdx;
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVVLooseDeepTau2017v2VSjet"));
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVLooseDeepTau2017v2VSjet")); 
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseDeepTau2017v2VSjet"));  
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byLooseDeepTau2017v2VSjet"));   
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byMediumDeepTau2017v2VSjet"));  
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byTightDeepTau2017v2VSjet"));   
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVTightDeepTau2017v2VSjet"));  
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVTightDeepTau2017v2VSjet")); 
+
+  // DNN Tau ID vs ele
+  vector<int> deepTauVsEleIdx;
+  
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVVVLooseDeepTau2017v2VSe"));  
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVVLooseDeepTau2017v2VSe")); 
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseDeepTau2017v2VSe"));   
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byLooseDeepTau2017v2VSe"));  
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byMediumDeepTau2017v2VSe"));   
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byTightDeepTau2017v2VSe"));  
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVTightDeepTau2017v2VSe"));   
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVVTightDeepTau2017v2VSe"));   
+
+  // DNN Tau ID vs mu
+  vector<int> deepTauVsMuIdx;
+
+  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byVLoosmuDmumupTau2017v2VSmu")); 
+  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byLoosmuDmumupTau2017v2VSmu")); 
+  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byMmudiumDmumupTau2017v2VSmu")); 
+  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byTightDmumupTau2017v2VSmu")); 
 
   // -----------------------------------
   // event counters for efficiency study
@@ -2533,6 +2567,9 @@ int main (int argc, char** argv)
       theSmallTree.m_dau1_CUTiso = makeIsoDiscr (firstDaughterIndex, tauCUTIDIdx, theBigTree) ;
       theSmallTree.m_dau1_antiele = makeIsoDiscr (firstDaughterIndex, tauAntiEleIdx, theBigTree) ;
       theSmallTree.m_dau1_antimu  = makeIsoDiscr (firstDaughterIndex, tauAntiMuIdx, theBigTree) ;
+      theSmallTree.m_dau1_deepTauVsJet = makeIsoDiscr (firstDaughterIndex, deepTauVsJetIdx , theBigTree) ;
+      theSmallTree.m_dau1_deepTauVsEle = makeIsoDiscr (firstDaughterIndex, deepTauVsEleIdx , theBigTree) ;
+      theSmallTree.m_dau1_deepTauVsMu = makeIsoDiscr (firstDaughterIndex, deepTauVsEleIdx , theBigTree) ;
 
       theSmallTree.m_dau1_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (firstDaughterIndex) ;
 
@@ -2567,6 +2604,9 @@ int main (int argc, char** argv)
       theSmallTree.m_dau2_CUTiso = makeIsoDiscr (secondDaughterIndex, tauCUTIDIdx, theBigTree) ;
       theSmallTree.m_dau2_antiele = makeIsoDiscr (secondDaughterIndex, tauAntiEleIdx, theBigTree) ;
       theSmallTree.m_dau2_antimu  = makeIsoDiscr (secondDaughterIndex, tauAntiMuIdx, theBigTree) ;
+      theSmallTree.m_dau2_deepTauVsJet = makeIsoDiscr (firstDaughterIndex, deepTauVsJetIdx , theBigTree) ;
+      theSmallTree.m_dau2_deepTauVsEle = makeIsoDiscr (firstDaughterIndex, deepTauVsEleIdx , theBigTree) ;
+      theSmallTree.m_dau2_deepTauVsMu = makeIsoDiscr (firstDaughterIndex, deepTauVsEleIdx , theBigTree) ;
       theSmallTree.m_dau2_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (secondDaughterIndex) ;      
       theSmallTree.m_dau2_pt = tlv_secondLepton.Pt () ;
       theSmallTree.m_dau2_pt_tauup = tlv_secondLepton_tauup.Pt () ;
@@ -3342,7 +3382,12 @@ int main (int argc, char** argv)
         if (tlv_jet.Pt () > 50)  ++theSmallTree.m_nbjets50 ;
        
         //float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bCSVscore->at (iJet) : tlv_jet.Pt() ;
-        float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet)  : tlv_jet.Pt() ;
+	float sortPar;
+        if(useDeepFlavor)
+		sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet) : tlv_jet.Pt() ;
+	else
+        	sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet) : tlv_jet.Pt() ;
+	
         if (bChoiceFlag != 1 && bChoiceFlag != 2) cout << "** WARNING : bChoiceFlag not known :" << bChoiceFlag << endl;
         jets_and_sortPar.push_back (make_pair (sortPar, iJet) );
 
@@ -3373,7 +3418,7 @@ int main (int argc, char** argv)
 
         bool bPairFound = false;
         int njets = jets_and_sortPar.size();
-        if (jets_and_sortPar.at(njets-2).first>0.4941) bPairFound = true; // medium WP is: 0.8484 for 2016 CSV, 0.4941 for 2017 DeepCSV
+        if (jets_and_sortPar.at(njets-2).first>0.4184) bPairFound = true; // medium WP is: 0.8484 for 2016 CSV, 0.4941 for 2017 DeepCSV, 0.4184 for 2018 DeepCSV,  0.2770 for 2018 DeepFlavor
 
         const int bjet1idx = jets_and_sortPar.at(njets-1).second ;
         int bjet2idx_temp  = jets_and_sortPar.at(njets-2).second ;
@@ -3593,6 +3638,7 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet1_e    = theBigTree.jets_e->at (bjet1idx) ;
         theSmallTree.m_bjet1_bID  = theBigTree.bCSVscore->at (bjet1idx) ;
         theSmallTree.m_bjet1_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet1idx) + theBigTree.bDeepCSV_probbb->at(bjet1idx) ;
+        theSmallTree.m_bjet1_bID_deepFlavor  = theBigTree.bDeepFlavor_probb->at(bjet1idx) + theBigTree.bDeepFlavor_probbb->at(bjet1idx) + theBigTree.bDeepFlavor_problepb->at(bjet1idx);
         theSmallTree.m_bjet1_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet1idx) ;
         theSmallTree.m_bjet1_flav = theBigTree.jets_HadronFlavour->at (bjet1idx) ;
         double bjet1_JER = theBigTree.jets_JER->at(bjet1idx);
@@ -3604,6 +3650,7 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet2_e    = theBigTree.jets_e->at (bjet2idx) ;
         theSmallTree.m_bjet2_bID  = theBigTree.bCSVscore->at (bjet2idx) ;
         theSmallTree.m_bjet2_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet2idx) + theBigTree.bDeepCSV_probbb->at(bjet2idx) ;
+        theSmallTree.m_bjet2_bID_deepFlavor  = theBigTree.bDeepFlavor_probb->at(bjet2idx) + theBigTree.bDeepFlavor_probbb->at(bjet2idx) + theBigTree.bDeepFlavor_problepb->at(bjet2idx);
         theSmallTree.m_bjet2_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet2idx) ;
         theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
         double bjet2_JER = theBigTree.jets_JER->at(bjet2idx);
@@ -3611,6 +3658,7 @@ int main (int argc, char** argv)
 
         theSmallTree.m_bjets_bID  = theBigTree.bCSVscore->at (bjet1idx) +theBigTree.bCSVscore->at (bjet2idx) ;
         theSmallTree.m_bjets_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet1idx) + theBigTree.bDeepCSV_probbb->at(bjet1idx) + theBigTree.bDeepCSV_probb->at(bjet2idx) + theBigTree.bDeepCSV_probbb->at(bjet2idx);
+        theSmallTree.m_bjets_bID_deepFlavor  = theBigTree.bDeepFlavor_probb->at(bjet1idx) + theBigTree.bDeepFlavor_probbb->at(bjet1idx) + theBigTree.bDeepFlavor_problepb->at(bjet1idx) + theBigTree.bDeepFlavor_probb->at(bjet2idx) + theBigTree.bDeepFlavor_probbb->at(bjet2idx) + theBigTree.bDeepFlavor_problepb->at(bjet2idx);
         
         // Save gen info for b-jets
         bool hasgj1 = false;
@@ -4138,6 +4186,7 @@ int main (int argc, char** argv)
           theSmallTree.m_VBFjet1_e          = VBFjet1.E();
           theSmallTree.m_VBFjet1_btag       = (theBigTree.bCSVscore->at (VBFidx1)) ;
           theSmallTree.m_VBFjet1_btag_deepCSV = theBigTree.bDeepCSV_probb->at(VBFidx1) + theBigTree.bDeepCSV_probbb->at(VBFidx1) ;
+          theSmallTree.m_VBFjet1_btag_deepFlavor = theBigTree.bDeepFlavor_probb->at(VBFidx1) + theBigTree.bDeepFlavor_probbb->at(VBFidx1) + theBigTree.bDeepFlavor_problepb->at(VBFidx1);
           theSmallTree.m_VBFjet1_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx1)) ;
           theSmallTree.m_VBFjet1_hasgenjet  = hasgj1_VBF ;
           theSmallTree.m_VBFjet2_pt         = VBFjet2.Pt() ;
@@ -4146,6 +4195,7 @@ int main (int argc, char** argv)
           theSmallTree.m_VBFjet2_e          = VBFjet2.E();
           theSmallTree.m_VBFjet2_btag       = (theBigTree.bCSVscore->at (VBFidx2)) ;
           theSmallTree.m_VBFjet2_btag_deepCSV = theBigTree.bDeepCSV_probb->at(VBFidx2) + theBigTree.bDeepCSV_probbb->at(VBFidx2) ;
+          theSmallTree.m_VBFjet2_btag_deepFlavor = theBigTree.bDeepFlavor_probb->at(VBFidx2) + theBigTree.bDeepFlavor_probbb->at(VBFidx2) + theBigTree.bDeepFlavor_problepb->at(VBFidx2);
           theSmallTree.m_VBFjet2_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx2)) ;
           theSmallTree.m_VBFjet2_hasgenjet  = hasgj2_VBF ;
           theSmallTree.m_VBFjet2_PUjetID    = (theBigTree.jets_PUJetID->at (VBFidx2)); // VBF BDT
@@ -4293,6 +4343,7 @@ int main (int argc, char** argv)
               theSmallTree.m_jet5_VBF_e    = tlv_dummyJet.E();
               theSmallTree.m_jet5_VBF_btag = (theBigTree.bCSVscore->at (iJet)) ;
               theSmallTree.m_jet5_VBF_btag_deepCSV = (theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet)) ;
+              theSmallTree.m_jet5_VBF_btag_deepFlavor = (theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet)) ;
               theSmallTree.m_jet5_VBF_flav = (theBigTree.jets_HadronFlavour->at (iJet)) ;
               theSmallTree.m_jet5_VBF_hasgenjet = hasgj ;
               theSmallTree.m_jet5_VBF_z = getZ(tlv_dummyJet.Eta(),theSmallTree.m_VBFjet1_eta,theSmallTree.m_VBFjet2_eta);
@@ -4316,6 +4367,7 @@ int main (int argc, char** argv)
           theSmallTree.m_jets_e.push_back (theBigTree.jets_e->at (iJet)) ;
           theSmallTree.m_jets_btag.push_back (theBigTree.bCSVscore->at (iJet)) ;
           theSmallTree.m_jets_btag_deepCSV.push_back (theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet)) ;
+          theSmallTree.m_jets_btag_deepFlavor.push_back (theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet)) ;
           theSmallTree.m_jets_flav.push_back (theBigTree.jets_HadronFlavour->at (iJet)) ;
           theSmallTree.m_jets_jecUnc.push_back (theBigTree.jets_jecUnc->at (iJet)) ;
           theSmallTree.m_jets_hasgenjet.push_back (hasgj) ;
@@ -4343,6 +4395,7 @@ int main (int argc, char** argv)
           theSmallTree.m_jet3_e =theSmallTree.m_jets_e.at(0);
           theSmallTree.m_jet3_btag= theSmallTree.m_jets_btag.at (0);
           theSmallTree.m_jet3_btag_deepCSV= theSmallTree.m_jets_btag_deepCSV.at (0);
+          theSmallTree.m_jet3_btag_deepFlavor= theSmallTree.m_jets_btag_deepFlavor.at (0);
           theSmallTree.m_jet3_flav= theSmallTree.m_jets_flav.at (0);
           theSmallTree.m_jet3_hasgenjet= theSmallTree.m_jets_hasgenjet.at (0);
         }
@@ -4354,6 +4407,7 @@ int main (int argc, char** argv)
           theSmallTree.m_jet4_e =theSmallTree.m_jets_e.at(1);
           theSmallTree.m_jet4_btag= theSmallTree.m_jets_btag.at (1);
           theSmallTree.m_jet4_btag_deepCSV= theSmallTree.m_jets_btag_deepCSV.at (1);
+          theSmallTree.m_jet4_btag_deepFlavor= theSmallTree.m_jets_btag_deepFlavor.at (1);
           theSmallTree.m_jet4_flav= theSmallTree.m_jets_flav.at (1);
           theSmallTree.m_jet4_hasgenjet= theSmallTree.m_jets_hasgenjet.at (1);
 	  
@@ -4397,6 +4451,7 @@ int main (int argc, char** argv)
           theSmallTree.m_jet5_e =theSmallTree.m_jets_e.at(2);
           theSmallTree.m_jet5_btag= theSmallTree.m_jets_btag.at (2);
           theSmallTree.m_jet5_btag_deepCSV= theSmallTree.m_jets_btag_deepCSV.at (2);
+          theSmallTree.m_jet5_btag_deepFlavor= theSmallTree.m_jets_btag_deepFlavor.at (2);
           theSmallTree.m_jet5_flav= theSmallTree.m_jets_flav.at (2);
           theSmallTree.m_jet5_hasgenjet= theSmallTree.m_jets_hasgenjet.at (2);
         }
@@ -4464,7 +4519,10 @@ int main (int argc, char** argv)
 		  if (!A1B2 && !A2B1) continue; // is not matched to resolved jets
 
 		  //fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_CSV->size(), ifj));
-		  fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_deepCSV_probb->at(ifj)+theBigTree.ak8jets_deepCSV_probbb->at(ifj), ifj));
+		  if(useDeepFlavor)
+		  	fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_deepFlavor_probb->at(ifj)+theBigTree.ak8jets_deepFlavor_probbb->at(ifj)+theBigTree.ak8jets_deepFlavor_problepb->at(ifj), ifj));
+		  else
+		  	fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_deepCSV_probb->at(ifj)+theBigTree.ak8jets_deepCSV_probbb->at(ifj), ifj));
 		}
 
 	      if(DEBUG)
@@ -4484,6 +4542,7 @@ int main (int argc, char** argv)
 		  theSmallTree.m_fatjet_e    = tlv_fj.E();
 		  theSmallTree.m_fatjet_bID  = theBigTree.ak8jets_CSV->at(fjIdx);
 		  theSmallTree.m_fatjet_bID_deepCSV  = theBigTree.ak8jets_deepCSV_probb->at(fjIdx) + theBigTree.ak8jets_deepCSV_probbb->at(fjIdx);
+		  theSmallTree.m_fatjet_bID_deepFlavor  = theBigTree.ak8jets_deepFlavor_probb->at(fjIdx) + theBigTree.ak8jets_deepFlavor_probbb->at(fjIdx) + theBigTree.ak8jets_deepFlavor_problepb->at(fjIdx);
 		  theSmallTree.m_fatjet_filteredMass = theBigTree.ak8jets_FilteredMass -> at(fjIdx) ;
 		  theSmallTree.m_fatjet_prunedMass   = theBigTree.ak8jets_PrunedMass   -> at(fjIdx) ;
 		  theSmallTree.m_fatjet_trimmedMass  = theBigTree.ak8jets_TrimmedMass  -> at(fjIdx) ;
@@ -4511,6 +4570,7 @@ int main (int argc, char** argv)
 			  theSmallTree.m_subjetjet1_e    = tlv_subj1.E();
 			  theSmallTree.m_subjetjet1_bID  = theBigTree.subjets_CSV->at(isj) ;
 			  theSmallTree.m_subjetjet1_bID_deepCSV  = theBigTree.subjets_deepCSV_probb->at(isj) + theBigTree.subjets_deepCSV_probbb->at(isj) ;
+			  theSmallTree.m_subjetjet1_bID_deepFlavor  = theBigTree.subjets_deepFlavor_probb->at(isj) + theBigTree.subjets_deepFlavor_probbb->at(isj) + theBigTree.subjets_deepFlavor_problepb->at(isj) ;
 			}
 		      if (nSJ == 2)
 			{
@@ -4521,6 +4581,7 @@ int main (int argc, char** argv)
 			  theSmallTree.m_subjetjet2_e    = tlv_subj2.E();
 			  theSmallTree.m_subjetjet2_bID  = theBigTree.subjets_CSV->at(isj) ;
 			  theSmallTree.m_subjetjet2_bID_deepCSV  = theBigTree.subjets_deepCSV_probb->at(isj) + theBigTree.subjets_deepCSV_probbb->at(isj) ;
+			  theSmallTree.m_subjetjet2_bID_deepFlavor  = theBigTree.subjets_deepFlavor_probb->at(isj) + theBigTree.subjets_deepFlavor_probbb->at(isj) + theBigTree.subjets_deepFlavor_problepb->at(isj);
 			}
 		      theSmallTree.m_dR_subj1_subj2 = tlv_subj1.DeltaR(tlv_subj2);
 		    } 
