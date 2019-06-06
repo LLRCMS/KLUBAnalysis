@@ -168,6 +168,12 @@ void bTagSF::SetWPset(std::string WPset)
     else if (WPset =="94X_DeepCSV_V1")
         SetWPset(0.1522, 0.4941, 0.8001);
 
+    else if (WPset =="102X_DeepCSV_V1")
+        SetWPset(0.1241, 0.4184, 0.7527);
+
+    else if (WPset =="102X_DeepFlavor_V1")
+        SetWPset(0.0494, 0.2770, 0.7264);
+
     else
     {
         cout << "bTagSF :: WARNING! SF set string " << WPset << " not recognized, going to use values from 80X_MORIOND_2017" << endl;
