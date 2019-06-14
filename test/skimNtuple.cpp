@@ -981,14 +981,23 @@ int main (int argc, char** argv)
   //TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017_New.root","weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","medium","MVA");
   //TauTriggerSFs2017 * tauTrgSFvtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017_New.root","weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","vtight","MVA");
   //updated February 2019
-  TauTriggerSFs2017 * tauTrgSF_ditau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "ditau", "2017", "medium", "MVAv2");
-  TauTriggerSFs2017 * tauTrgSF_ditau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "ditau", "2017", "vtight", "MVAv2");
+  //TauTriggerSFs2017 * tauTrgSF_ditau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "ditau", "2017", "medium", "MVAv2");
+  //TauTriggerSFs2017 * tauTrgSF_ditau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "ditau", "2017", "vtight", "MVAv2");
 
-  TauTriggerSFs2017 * tauTrgSF_mutau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "mutau", "2017", "medium", "MVAv2");
-  TauTriggerSFs2017 * tauTrgSF_mutau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "mutau", "2017", "vtight", "MVAv2");
+  //TauTriggerSFs2017 * tauTrgSF_mutau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "mutau", "2017", "medium", "MVAv2");
+  //TauTriggerSFs2017 * tauTrgSF_mutau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "mutau", "2017", "vtight", "MVAv2");
 
-  TauTriggerSFs2017 * tauTrgSF_etau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "etau", "2017", "medium", "MVAv2");
-  TauTriggerSFs2017 * tauTrgSF_etau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "etau", "2017", "vtight", "MVAv2");
+  //TauTriggerSFs2017 * tauTrgSF_etau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "etau", "2017", "medium", "MVAv2");
+  //TauTriggerSFs2017 * tauTrgSF_etau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "etau", "2017", "vtight", "MVAv2");
+
+  TauTriggerSFs2017 * tauTrgSF_ditau = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "ditau", "2018", "medium", "MVAv2");
+  TauTriggerSFs2017 * tauTrgSF_ditau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "ditau", "2018", "vtight", "MVAv2");
+
+  TauTriggerSFs2017 * tauTrgSF_mutau = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "mutau", "2018", "medium", "MVAv2");
+  TauTriggerSFs2017 * tauTrgSF_mutau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "mutau", "2018", "vtight", "MVAv2");
+
+  TauTriggerSFs2017 * tauTrgSF_etau = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "etau", "2018", "medium", "MVAv2");
+  TauTriggerSFs2017 * tauTrgSF_etau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "etau", "2018", "vtight", "MVAv2");
 
 
   // electron/muon leg trigger SF for data and mc 2017
@@ -997,10 +1006,15 @@ int main (int argc, char** argv)
   ScaleFactor * muTrgSF = new ScaleFactor();
   ScaleFactor * eTrgSF = new ScaleFactor();
 
-  muTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_MuTau_IsoMu20.root");
-  muTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_IsoMu24orIsoMu27.root");
-  eTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_EleTau_Ele24_fix.root");
-  eTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_Ele32orEle35_fix.root");
+  //muTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_MuTau_IsoMu20.root");
+  //muTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_IsoMu24orIsoMu27.root");
+  //eTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_EleTau_Ele24_fix.root");
+  //eTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_Ele32orEle35_fix.root");
+
+  muTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_MuTau_IsoMu20.root"); // Still missing for 2018
+  muTrgSF->init_ScaleFactor("weights/trigger_SF_2018/Muon_Run2018_IsoMu24orIsoMu27.root");
+  eTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_EleTau_Ele24_fix.root"); // Still missing for 2018
+  eTrgSF->init_ScaleFactor("weights/trigger_SF_2018/Electron_Run2018_Ele32orEle35.root.root");
 
 
   // --- 2017 SFs ---
@@ -2651,8 +2665,8 @@ int main (int argc, char** argv)
 	  }
 	  
 	  if (lep2HasTES) {
-	    idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
-	    idAndIsoSF_leg2_vtight = 0.86; // TauPOG recommendation for 2017 data (vtight WP)
+	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
+	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
 	    if(theSmallTree.m_dau2_decayMode == 0) idAndIsoSF_leg2_decayMode = 0.84; //computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO 
 	    if(theSmallTree.m_dau2_decayMode == 1) idAndIsoSF_leg2_decayMode = 0.92;
 	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.86;
@@ -2690,8 +2704,8 @@ int main (int argc, char** argv)
 	  }
 	  
 	  if (lep2HasTES){
-	    idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
-	    idAndIsoSF_leg2_vtight = 0.86; // https://indico.cern.ch/event/776359/contributions/3229380/attachments/1759348/2853860/tauID.pdf
+	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
+	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
 	    if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 0.84; //computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
 	    if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 0.92;
 	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.86;
@@ -2724,16 +2738,16 @@ int main (int argc, char** argv)
 
 
 	  if (lep1HasTES) {
-	    idAndIsoSF_leg1 = 0.89;
-	    idAndIsoSF_leg1_vtight = 0.86;
+	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
+	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
 	    if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg1_decayMode = 0.97; //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
 	    if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg1_decayMode = 1.04;
 	    if(theSmallTree.m_dau1_decayMode == 10) idAndIsoSF_leg1_decayMode = 0.90;
 	    isFakeJet1 = false;
 	  }
 	  if (lep2HasTES) {
-	    idAndIsoSF_leg2 = 0.89;
-	    idAndIsoSF_leg2_vtight = 0.86;
+	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
+	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
 	    if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 0.97; //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
 	    if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 1.04;
 	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.90;
