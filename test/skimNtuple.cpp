@@ -968,7 +968,7 @@ int main (int argc, char** argv)
   string bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFile") ;
   cout << "B Tag SF file: " << bTag_SFFile << endl;
   //bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "80X_MORIOND_2017"); // third field unused, but could be needed to select efficiencies for different selection levels
-  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "102X_DeepCSV"); // third field unused, but could be needed to select efficiencies for different selection levels
+  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "102X_DeepCSV_V1"); // third field unused, but could be needed to select efficiencies for different selection levels
   if(useDeepFlavor)
   	bTagSFHelper.SetWPset("102X_DeepFlavor"); // third field unused, but could be needed to select efficiencies for different selection levels
 
@@ -1014,7 +1014,7 @@ int main (int argc, char** argv)
   muTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_MuTau_IsoMu20.root"); // Still missing for 2018
   muTrgSF->init_ScaleFactor("weights/trigger_SF_2018/Muon_Run2018_IsoMu24orIsoMu27.root");
   eTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_EleTau_Ele24_fix.root"); // Still missing for 2018
-  eTrgSF->init_ScaleFactor("weights/trigger_SF_2018/Electron_Run2018_Ele32orEle35.root.root");
+  eTrgSF->init_ScaleFactor("weights/trigger_SF_2018/Electron_Run2018_Ele32orEle35.root");
 
 
   // --- 2017 SFs ---
