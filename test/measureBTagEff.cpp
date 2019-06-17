@@ -86,7 +86,9 @@ int main(int argc, char** argv)
 
     // float WPtag[3] = {0.460, 0.800, 0.935}; // L, M, T
     // float WPtag[3] = {0.5426, 0.8484, 0.9535}; // L, M, T -- 80X for Moriond 2017, 23SepReReco
-    float WPtag[3] = {0.1522, 0.4941, 0.8001}; // L, M, T -- 94X for Moriond 2018, 17NovReReco, version1 of the SF
+    //float WPtag[3] = {0.1522, 0.4941, 0.8001}; // L, M, T -- 94X for Moriond 2018, 17NovReReco, version1 of the SF
+    float WPtag[3] = {0.1241, 0.4184, 0.7527}; // L, M, T -- 102X MC Campaign RunIIAutumn18 - version1 of the SF for DeepCSV
+    //float WPtag[3] = {0.0494, 0.2770, 0.7264}; // L, M, T -- 102X MC Campaign RunIIAutumn18 - version1 of the SF for DeepFlavor
     string WPname[3] = {"L", "M", "T"};
 
     // FIXME: do for the 3 WP tag x the number of selections
