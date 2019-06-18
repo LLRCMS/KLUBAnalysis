@@ -1034,8 +1034,11 @@ int main (int argc, char** argv)
   for (int i = 0 ; i < 2; i++)
         myIDandISOScaleFactor[i] = new ScaleFactor();
 
-  myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/HTT_SF_2016/Muon/Run2017/Muon_IdIso_IsoLt0.15_eff_RerecoFall17.root");
-  myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_SF_2016/Electron/Run2017/Electron_IdIso_IsoLt0.10_eff_RerecoFall17.root");
+  //myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/HTT_SF_2016/Muon/Run2017/Muon_IdIso_IsoLt0.15_eff_RerecoFall17.root");
+  //myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_SF_2016/Electron/Run2017/Electron_IdIso_IsoLt0.10_eff_RerecoFall17.root");
+
+  myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/idIso_SF_2018/Muon_Run2018_IdIso.root");
+  myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/idIso_SF_2018/Electron_Run2018_IdIso.root");
 
   // ------------------------------
   // smT2 mt2Class = smT2();
@@ -1170,14 +1173,28 @@ int main (int argc, char** argv)
   tauAntiEleIdx.push_back(getTauIDIdx(hTauIDS, "againstElectronMediumMVA6"));
   tauAntiEleIdx.push_back(getTauIDIdx(hTauIDS, "againstElectronTightMVA6"));
   tauAntiEleIdx.push_back(getTauIDIdx(hTauIDS, "againstElectronVTightMVA6"));
+  if (find(tauAntiEleIdx.begin(), tauAntiEleIdx.end(), -1) != tauAntiEleIdx.end())
+    {
+      cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
+      for (unsigned int i = 0; i < tauAntiEleIdx.size(); ++i)
+	cout << tauAntiEleIdx.at(i) << " " ;
+      cout << endl;
+    }
 
   // anti-mu discr
   vector<int> tauAntiMuIdx;
   tauAntiMuIdx.push_back(getTauIDIdx(hTauIDS, "againstMuonLoose3"));
   tauAntiMuIdx.push_back(getTauIDIdx(hTauIDS, "againstMuonTight3"));
+  if (find(tauAntiMuIdx.begin(), tauAntiMuIdx.end(), -1) != tauAntiMuIdx.end())
+    {
+      cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
+      for (unsigned int i = 0; i < tauAntiMuIdx.size(); ++i)
+	cout << tauAntiMuIdx.at(i) << " " ;
+      cout << endl;
+    }
 
   // DNN Tau ID vs jet
-  vector<int> deepTauVsJetIdx;
+  /*vector<int> deepTauVsJetIdx;
   deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVVLooseDeepTau2017v2VSjet"));
   deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVLooseDeepTau2017v2VSjet")); 
   deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseDeepTau2017v2VSjet"));  
@@ -1186,10 +1203,16 @@ int main (int argc, char** argv)
   deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byTightDeepTau2017v2VSjet"));   
   deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVTightDeepTau2017v2VSjet"));  
   deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVTightDeepTau2017v2VSjet")); 
+  if (find(deepTauVsJetIdx.begin(), deepTauVsJetIdx.end(), -1) != deepTauVsJetIdx.end())
+    {
+      cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
+      for (unsigned int i = 0; i < deepTauVsJetIdx.size(); ++i)
+	cout << deepTauVsJetIdx.at(i) << " " ;
+      cout << endl;
+    }
 
   // DNN Tau ID vs ele
-  vector<int> deepTauVsEleIdx;
-  
+  vector<int> deepTauVsEleIdx;  
   deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVVVLooseDeepTau2017v2VSe"));  
   deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVVLooseDeepTau2017v2VSe")); 
   deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseDeepTau2017v2VSe"));   
@@ -1198,14 +1221,27 @@ int main (int argc, char** argv)
   deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byTightDeepTau2017v2VSe"));  
   deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVTightDeepTau2017v2VSe"));   
   deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVVTightDeepTau2017v2VSe"));   
+  if (find(deepTauVsEleIdx.begin(), deepTauVsEleIdx.end(), -1) != deepTauVsEleIdx.end())
+    {
+      cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
+      for (unsigned int i = 0; i < deepTauVsEleIdx.size(); ++i)
+	cout << deepTauVsEleIdx.at(i) << " " ;
+      cout << endl;
+    }
 
   // DNN Tau ID vs mu
   vector<int> deepTauVsMuIdx;
-
   deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byVLoosmuDmumupTau2017v2VSmu")); 
   deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byLoosmuDmumupTau2017v2VSmu")); 
   deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byMmudiumDmumupTau2017v2VSmu")); 
   deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byTightDmumupTau2017v2VSmu")); 
+  if (find(deepTauVsMuIdx.begin(), deepTauVsMuIdx.end(), -1) != deepTauVsMuIdx.end())
+    {
+      cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
+      for (unsigned int i = 0; i < deepTauVsMuIdx.size(); ++i)
+	cout << deepTauVsMuIdx.at(i) << " " ;
+      cout << endl;
+    }*/
 
   // -----------------------------------
   // event counters for efficiency study
@@ -2581,9 +2617,9 @@ int main (int argc, char** argv)
       theSmallTree.m_dau1_CUTiso = makeIsoDiscr (firstDaughterIndex, tauCUTIDIdx, theBigTree) ;
       theSmallTree.m_dau1_antiele = makeIsoDiscr (firstDaughterIndex, tauAntiEleIdx, theBigTree) ;
       theSmallTree.m_dau1_antimu  = makeIsoDiscr (firstDaughterIndex, tauAntiMuIdx, theBigTree) ;
-      theSmallTree.m_dau1_deepTauVsJet = makeIsoDiscr (firstDaughterIndex, deepTauVsJetIdx , theBigTree) ;
-      theSmallTree.m_dau1_deepTauVsEle = makeIsoDiscr (firstDaughterIndex, deepTauVsEleIdx , theBigTree) ;
-      theSmallTree.m_dau1_deepTauVsMu = makeIsoDiscr (firstDaughterIndex, deepTauVsEleIdx , theBigTree) ;
+      //theSmallTree.m_dau1_deepTauVsJet = makeIsoDiscr (firstDaughterIndex, deepTauVsJetIdx , theBigTree) ;
+      //theSmallTree.m_dau1_deepTauVsEle = makeIsoDiscr (firstDaughterIndex, deepTauVsEleIdx , theBigTree) ;
+      //theSmallTree.m_dau1_deepTauVsMu = makeIsoDiscr (firstDaughterIndex, deepTauVsMuIdx , theBigTree) ;
 
       theSmallTree.m_dau1_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (firstDaughterIndex) ;
 
@@ -2618,9 +2654,9 @@ int main (int argc, char** argv)
       theSmallTree.m_dau2_CUTiso = makeIsoDiscr (secondDaughterIndex, tauCUTIDIdx, theBigTree) ;
       theSmallTree.m_dau2_antiele = makeIsoDiscr (secondDaughterIndex, tauAntiEleIdx, theBigTree) ;
       theSmallTree.m_dau2_antimu  = makeIsoDiscr (secondDaughterIndex, tauAntiMuIdx, theBigTree) ;
-      theSmallTree.m_dau2_deepTauVsJet = makeIsoDiscr (firstDaughterIndex, deepTauVsJetIdx , theBigTree) ;
-      theSmallTree.m_dau2_deepTauVsEle = makeIsoDiscr (firstDaughterIndex, deepTauVsEleIdx , theBigTree) ;
-      theSmallTree.m_dau2_deepTauVsMu = makeIsoDiscr (firstDaughterIndex, deepTauVsEleIdx , theBigTree) ;
+      //theSmallTree.m_dau2_deepTauVsJet = makeIsoDiscr (secondDaughterIndex, deepTauVsJetIdx , theBigTree) ;
+      //theSmallTree.m_dau2_deepTauVsEle = makeIsoDiscr (secondDaughterIndex, deepTauVsEleIdx , theBigTree) ;
+      //theSmallTree.m_dau2_deepTauVsMu = makeIsoDiscr (secondDaughterIndex, deepTauVsMuIdx , theBigTree) ;
       theSmallTree.m_dau2_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (secondDaughterIndex) ;      
       theSmallTree.m_dau2_pt = tlv_secondLepton.Pt () ;
       theSmallTree.m_dau2_pt_tauup = tlv_secondLepton_tauup.Pt () ;
