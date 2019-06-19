@@ -970,7 +970,7 @@ int main (int argc, char** argv)
   //bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "80X_MORIOND_2017"); // third field unused, but could be needed to select efficiencies for different selection levels
   bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "102X_DeepCSV_V1"); // third field unused, but could be needed to select efficiencies for different selection levels
   if(useDeepFlavor)
-  	bTagSFHelper.SetWPset("102X_DeepFlavor"); // third field unused, but could be needed to select efficiencies for different selection levels
+  	bTagSFHelper.SetWPset("102X_DeepFlavor_V1"); // third field unused, but could be needed to select efficiencies for different selection levels
 
   // ------------------------------
   
