@@ -178,7 +178,7 @@ struct smallTree
       m_bjet1_pt_raw_jetdown  = -1. ;
       m_bjet1_hasgenjet = false ;
       m_bjet1_JER = -1.;
-      
+      m_bjet1_gen_matched = false;
       m_bjet2_pt  = -1. ;
       m_bjet2_eta  = -1. ;
       m_bjet2_phi  = -1. ;
@@ -193,10 +193,12 @@ struct smallTree
       m_bjet2_pt_raw_jetdown  = -1. ;
       m_bjet2_hasgenjet = false ;
       m_bjet2_JER = -1.;
+      m_bjet2_gen_matched = false;      
 
       m_bjets_bID = -1.;
       m_bjets_bID_deepCSV = -1.;
       m_bjets_bID_deepFlavor = -1.;
+      m_bjets_gen_matched = false;
       m_nfatjets = -1;
       m_fatjet_pt = -1. ;
       m_fatjet_eta  = -1. ;
@@ -725,6 +727,7 @@ struct smallTree
       m_smallT->Branch ("bjet1_pt_raw_jetdown", &m_bjet1_pt_raw_jetdown, "bjet1_pt_raw_jetdown/F") ;
       m_smallT->Branch ("bjet1_hasgenjet", &m_bjet1_hasgenjet, "bjet1_hasgenjet/O") ;
       m_smallT->Branch ("bjet1_JER", &m_bjet1_JER, "bjet1_JER/F") ;
+      m_smallT->Branch ("bjet1_gen_matched", &m_bjet1_gen_matched, "bjet1_gen_matched/O") ;
      
       m_smallT->Branch ("bjet2_pt", &m_bjet2_pt, "bjet2_pt/F") ;
       m_smallT->Branch ("bjet2_eta", &m_bjet2_eta, "bjet2_eta/F") ;
@@ -739,10 +742,12 @@ struct smallTree
       m_smallT->Branch ("bjet2_pt_raw_jetup", &m_bjet2_pt_raw_jetup, "bjet2_pt_raw_jetup/F") ;
       m_smallT->Branch ("bjet2_pt_raw_jetdown", &m_bjet2_pt_raw_jetdown, "bjet2_pt_raw_jetdown/F") ;
       m_smallT->Branch ("bjet2_hasgenjet", &m_bjet2_hasgenjet, "bjet2_hasgenjet/O") ;
+      m_smallT->Branch ("bjet2_JER", &m_bjet2_JER, "bjet2_JER/F") ;
+      m_smallT->Branch ("bjet2_gen_matched", &m_bjet2_gen_matched, "bjet2_gen_matched/O") ;
       m_smallT->Branch ("bjets_bID",&m_bjets_bID,"bjets_bID/F");
       m_smallT->Branch ("bjets_bID_deepCSV",&m_bjets_bID_deepCSV,"bjets_bID_deepCSV/F");
       m_smallT->Branch ("bjets_bID_deepFlavor",&m_bjets_bID_deepFlavor,"bjets_bID_deepFlavor/F");
-      m_smallT->Branch ("bjet2_JER", &m_bjet2_JER, "bjet2_JER/F") ;
+      m_smallT->Branch ("bjets_gen_matched", &m_bjets_gen_matched, "bjets_gen_matched/O") ;
 
       
       
@@ -1266,6 +1271,7 @@ struct smallTree
   Float_t m_bjet1_pt_raw_jetdown ;
   Bool_t  m_bjet1_hasgenjet ;
   Float_t m_bjet1_JER ;
+  Bool_t  m_bjet1_gen_matched;
 
   // the trailing pT b visible candidate  /  highest CSV score
   Float_t m_bjet2_pt ;
@@ -1282,10 +1288,12 @@ struct smallTree
   Float_t m_bjet2_pt_raw_jetdown ;
   Bool_t  m_bjet2_hasgenjet ;
   Float_t m_bjet2_JER ;
+  Bool_t  m_bjet2_gen_matched;
 
   Float_t m_bjets_bID;
   Float_t m_bjets_bID_deepCSV;
   Float_t m_bjets_bID_deepFlavor;
+  Bool_t  m_bjets_gen_matched;
   // fat jets and subjet info
   Int_t   m_nfatjets ;
   Float_t m_fatjet_pt ;
