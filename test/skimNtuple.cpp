@@ -1231,10 +1231,10 @@ int main (int argc, char** argv)
 
   // DNN Tau ID vs mu
   vector<int> deepTauVsMuIdx;
-  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byVLoosmuDmumupTau2017v2VSmu")); 
-  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byLoosmuDmumupTau2017v2VSmu")); 
-  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byMmudiumDmumupTau2017v2VSmu")); 
-  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byTightDmumupTau2017v2VSmu")); 
+  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseDeepTau2017v2VSmu")); 
+  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byLooseDeepTau2017v2VSmu")); 
+  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byMediumDeepTau2017v2VSmu")); 
+  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byTightDeepTau2017v2VSmu")); 
   if (find(deepTauVsMuIdx.begin(), deepTauVsMuIdx.end(), -1) != deepTauVsMuIdx.end())
     {
       cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
@@ -1724,6 +1724,11 @@ int main (int argc, char** argv)
       int t1hs = -1;
       int t2hs = -1;
 
+      int idx1hs_b = -1;     // bjet-1 index     // FRA DEBUG  ##QUI##
+      int idx2hs_b = -1;     // bjet-2 index                   ##QUI##
+      TLorentzVector vGenB1; // bjet-1 tlv                     ##QUI##
+      TLorentzVector vGenB2; // bjet-2 tlv                     ##QUI##
+
       // if (hreweightHH || hreweightHH2D || isHHsignal) // isHHsignal: only to do loop on genparts, but no rew
       if (isHHsignal || HHrewType == kFromHisto || HHrewType == kDynamic) // isHHsignal: only to do loop on genparts, but no rew
 	{
@@ -1742,6 +1747,7 @@ int main (int argc, char** argv)
 	      bool isFirst     = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
 	      bool isLast      = CheckBit (theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
 	      bool isHardScatt = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; //   3 = isPromptTauDecayProduct
+	      bool isHardProcess = CheckBit (theBigTree.genpart_flags->at(igen), 7) ; //  7 = isHardProcess, for b coming from H  ##QUI##
 	      // bool isDirectPromptTauDecayProduct = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; // 5 = isDirectPromptTauDecayProduct
 	      int pdg = theBigTree.genpart_pdg->at(igen);
 	      int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
@@ -1811,7 +1817,20 @@ int main (int argc, char** argv)
 		      // cout << "THIS: " << pdg << " px=" << theBigTree.genpart_px->at(igen) << endl;
 		    }
 		}
+		
+	       // FRA DEBUG - find the bjets from the Higgs decay     ##QUI##
+              if ( abs(pdg) == 5 && isHardProcess)
+              {
+        	if (idx1hs_b == -1) idx1hs_b = igen;
+        	else if (idx2hs_b == -1) idx2hs_b = igen;
+        	else
+        	{
+        	  cout << "** ERROR: there are more than 2 hard scatter b quarks: evt = " << theBigTree.EventNumber << endl;
+        	}
+              }
+
 	    }
+	    
 
 	  if (idx1 == -1 || idx2 == -1)
 	    {
@@ -1869,6 +1888,16 @@ int main (int argc, char** argv)
 	  mHH = vSum.M();
 	  vH1.Boost(-vSum.BoostVector());                     
 	  ct1 = vH1.CosTheta();
+	  
+	        // FRA DEBUG - build gen b jets       ##QUI##
+          if (idx1hs_b != -1 && idx2hs_b != -1)
+          {
+              vGenB1.SetPxPyPzE (theBigTree.genpart_px->at(idx1hs_b), theBigTree.genpart_py->at(idx1hs_b), theBigTree.genpart_pz->at(idx1hs_b), theBigTree.genpart_e->at(idx1hs_b) );
+              vGenB2.SetPxPyPzE (theBigTree.genpart_px->at(idx2hs_b), theBigTree.genpart_py->at(idx2hs_b), theBigTree.genpart_pz->at(idx2hs_b), theBigTree.genpart_e->at(idx2hs_b) );
+          }
+          else
+	    cout << "** ERROR: couldn't find 2 H->bb gen dec prod " << idx1hs_b << " " << idx2hs_b << endl;
+
 
 	  // assign a weight depending on the reweight type 
 
@@ -3583,6 +3612,15 @@ int main (int argc, char** argv)
         // Now that I've selected the bjets build the TLorentzVectors
         TLorentzVector tlv_firstBjet (theBigTree.jets_px->at(bjet1idx), theBigTree.jets_py->at(bjet1idx), theBigTree.jets_pz->at(bjet1idx), theBigTree.jets_e->at(bjet1idx));
         TLorentzVector tlv_secondBjet(theBigTree.jets_px->at(bjet2idx), theBigTree.jets_py->at(bjet2idx), theBigTree.jets_pz->at(bjet2idx), theBigTree.jets_e->at(bjet2idx));
+	
+	// ##QUI## --> QUI PUOI VEDERE UN ESEMPIO DI COME CALCOLARE LE EFFICIENZE CHE IN QUESTO CASO SONO SALVATE SU DEI BRANCH NUOVI CHE AVEVO AGGIUNTO
+        bool bjets_gen_matched = ((tlv_firstBjet .DeltaR(vGenB1)<0.5 && tlv_secondBjet.DeltaR(vGenB2)<0.5) || (tlv_firstBjet.DeltaR(vGenB2)<0.5 && tlv_secondBjet.DeltaR(vGenB1)<0.5) );
+        bool bjet1_gen_matched = ( tlv_firstBjet .DeltaR(vGenB1)<0.5 || tlv_firstBjet .DeltaR(vGenB2)<0.5 );
+        bool bjet2_gen_matched = ( tlv_secondBjet.DeltaR(vGenB1)<0.5 || tlv_secondBjet.DeltaR(vGenB2)<0.5 );
+
+        theSmallTree.m_bjets_gen_matched = bjets_gen_matched ? 1 : 0;
+        theSmallTree.m_bjet1_gen_matched = bjet1_gen_matched ? 1 : 0;
+        theSmallTree.m_bjet2_gen_matched = bjet2_gen_matched ? 1 : 0;
 
         double ptRegr[2] = {tlv_firstBjet.Pt(), tlv_secondBjet.Pt()};
         if (computeBregr)
