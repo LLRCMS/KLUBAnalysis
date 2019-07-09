@@ -657,9 +657,6 @@ struct smallTree
       //m_smallT->Branch ("dau1_deepTauVsJet",m_dau1_deepTauVsJet,"dau1_deepTauVsJet/I");
       //m_smallT->Branch ("dau1_deepTauVsEle",m_dau1_deepTauVsEle,"dau1_deepTauVsEle/I");
       //m_smallT->Branch ("dau1_deepTauVsMu",m_dau1_deepTauVsMu,"dau1_deepTauVsMu/I");
-     
-     
-     
 
       m_smallT->Branch ("dau1_photonPtSumOutsideSignalCone", &m_dau1_photonPtSumOutsideSignalCone,"dau1_photonPtSumOutsideSignalCone/F");
       m_smallT->Branch ("dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits", &m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits, "dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits/O") ;
