@@ -65,7 +65,7 @@ float PUReweight::weight(int MC, int target, int input, TString filename) {
     } else if (MC==2017 && target==413) {
       return hT2017_MCFall17_Data41c3fb.at(input) ;         // Full 2017
     } else if (MC==2018 && target==597) {
-      return hT2018_MCAutumun18_Data59c7fb.at(input) ;         // Full 2018
+      return hT2018_MCAutumn18_Data59c7fb.at(input) ;         // Full 2018
     } else if (MC==2017 && target==999) {                   // Ful 2017 with weights for each sample read from external txt file
       if (filename == TString(""))
       {
@@ -84,7 +84,7 @@ float PUReweight::weight(int MC, int target, int input, TString filename) {
       }
       else
       {
-        return hT2018_MCAutumun18_Data59c7fb_special.at(input) ;
+        return hT2018_MCAutumn18_Data59c7fb_special.at(input) ;
       }
     } else{
       std::cout << "ERROR: PUReweight: " << MC << " " << target << std::endl;
@@ -219,17 +219,17 @@ theFilename(filename) {
   npuAutumn18_59c7fb[99] = 0;		
   
   for(int k = 0 ; k < 100 ; ++k)
-  	hT2018_MCAutumun18_Data59c7fb.push_back(npuAutumn18_59c7fb[k]) ;
+  	hT2018_MCAutumn18_Data59c7fb.push_back(npuAutumn18_59c7fb[k]) ;
 
   // RUN2ANALYSIS MC Autumn2018 target Data 59.7/fb - Full Run 2018
   // Special weights for each sample read from external txt file
   if (filename == TString(""))
   {
     for(int k = 0 ; k < 100 ; ++k)
-        hT2018_MCAutumun18_Data59c7fb_special.push_back(0.0) ; // if no filename passe, initialize a vector of 0s
+        hT2018_MCAutumn18_Data59c7fb_special.push_back(0.0) ; // if no filename passe, initialize a vector of 0s
   }
   else
-    hT2018_MCAutumun18_Data59c7fb_special = LoadExternalWeights(theFilename);
+    hT2018_MCAutumn18_Data59c7fb_special = LoadExternalWeights(theFilename);
 
   // RUN2ANALYSIS MC Fall2017 target Data 4.7/fb - Run 2017B
   double npuFall17_4c7fb[100];
