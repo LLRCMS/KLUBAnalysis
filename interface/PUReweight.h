@@ -24,6 +24,10 @@ public:
   Type theType;
   TString theFilename;
 
+  // 2018 Samples
+  std::vector<float> hT2018_MCAutumn18_Data59c7fb; // Full Run2018
+  std::vector<float> hT2018_MCAutumn18_Data59c7fb_special;  // Full Run2018 - weights read from external txt file
+
   // 2017 Samples
   std::vector<float> hT2017_MCFall17_Data4c7fb  ; // Run2017B
   std::vector<float> hT2017_MCFall17_Data13c4fb ; // Run2017F

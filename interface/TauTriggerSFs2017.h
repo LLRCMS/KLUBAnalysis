@@ -30,18 +30,18 @@ public:
   ~TauTriggerSFs2017();
 
   // Return the data efficiency or the +/- 1 sigma uncertainty shifted efficiency
-  double getTriggerEfficiencyData(double pt, double eta, double phi, int dm);           // Nominal data efficiency
-  double getTriggerEfficiencyDataUncertUp(double pt, double eta, double phi, int dm);   // Data efficiency +1 sigma uncertainty
-  double getTriggerEfficiencyDataUncertDown(double pt, double eta, double phi, int dm); // Data efficiency -1 sigma uncertainty
+  double getTriggerEfficiencyData(double pt, double eta, double phi, int dm) const;           // Nominal data efficiency
+  double getTriggerEfficiencyDataUncertUp(double pt, double eta, double phi, int dm) const;   // Data efficiency +1 sigma uncertainty
+  double getTriggerEfficiencyDataUncertDown(double pt, double eta, double phi, int dm) const; // Data efficiency -1 sigma uncertainty
 
   // Return the MC efficiency or the +/- 1 sigma uncertainty shifted efficiency
-  double getTriggerEfficiencyMC(double pt, double eta, double phi, int dm);           // Nominal MC efficiency
-  double getTriggerEfficiencyMCUncertUp(double pt, double eta, double phi, int dm);   // MC efficiency +1 sigma uncertainty
-  double getTriggerEfficiencyMCUncertDown(double pt, double eta, double phi, int dm); // MC efficiency -1 sigma uncertainty
+  double getTriggerEfficiencyMC(double pt, double eta, double phi, int dm) const;           // Nominal MC efficiency
+  double getTriggerEfficiencyMCUncertUp(double pt, double eta, double phi, int dm) const;   // MC efficiency +1 sigma uncertainty
+  double getTriggerEfficiencyMCUncertDown(double pt, double eta, double phi, int dm) const; // MC efficiency -1 sigma uncertainty
 
   // Return the Scale Factor or the +/- 1 sigma shifter Scale Factor
-  double getTriggerScaleFactor(double pt, double eta, double phi, int dm);                           // Nominal Scale Factor
-  double getTriggerScaleFactorUncert(double pt, double eta, double phi, int dm, std::string uncert); // Shifted Scale Factor
+  double getTriggerScaleFactor(double pt, double eta, double phi, int dm) const;                           // Nominal Scale Factor
+  double getTriggerScaleFactorUncert(double pt, double eta, double phi, int dm, const std::string& uncert) const; // Shifted Scale Factor
 
 protected:
   std::string inputFileName_;

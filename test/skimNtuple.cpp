@@ -61,11 +61,15 @@ const double aTopRW = 0.0615;
 const double bTopRW = -0.0005;
 // const float DYscale_LL[3] = {8.72847e-01, 1.69905e+00, 1.63717e+00} ; // computed from fit for LL and MM b tag
 // const float DYscale_MM[3] = {9.44841e-01, 1.29404e+00, 1.28542e+00} ;
-const float DYscale_LL[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag - to be updated for DY LO once the disagreement is fixed
-const float DYscale_MM[3] = {1.11219, 1.11436, 0.743777} ; // for now we use the same numbers computed with DY NLO sample
+//const float DYscale_LL[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag - to be updated for DY LO once the disagreement is fixed
+//const float DYscale_MM[3] = {1.11219, 1.11436, 0.743777} ; // for now we use the same numbers computed with DY NLO sample
 //const float DYscale_LL_NLO[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag for the DYNLO sample
 //const float DYscale_MM_NLO[3] = {1.11219, 1.11436, 0.743777} ;
 //const float DYscale_MM_NLO[3] = {1.03277, 1.03968, 0.742346} ;
+
+// 2018
+const float DYscale_LL[3] = {0.760857,2.20159,0.886533} ; // computed from fit for LL and MM b tag - to be updated for DY LO once the disagreement is fixed
+const float DYscale_MM[3] = {0.860531,1.10466,1.49516} ; // for now we use the same numbers computed with DY NLO sample
 
 // Computed from PI group for DY NLO binned
 // - number of b-jets [0b, 1b, 2b]
@@ -733,8 +737,9 @@ int main (int argc, char** argv)
     }
 
   bool   beInclusive         = gConfigParser->readBoolOption   ("selections::beInclusive") ;
-  bool   cleanJets         = gConfigParser->readBoolOption   ("selections::cleanJets") ;
-  float  PUjetID_WP      = gConfigParser->readFloatOption  ("parameters::PUjetIDWP") ;
+  bool   cleanJets           = gConfigParser->readBoolOption   ("selections::cleanJets") ;
+  bool   useDeepFlavor       = gConfigParser->readBoolOption   ("selections::useDeepFlavor") ;
+  float  PUjetID_WP          = gConfigParser->readFloatOption  ("parameters::PUjetIDWP") ;
   float  PFjetID_WP          = gConfigParser->readIntOption    ("parameters::PFjetIDWP") ;
   // int    saveOS              = gConfigParser->readIntOption    ("parameters::saveOS") ;
   float  lepCleaningCone     = gConfigParser->readFloatOption  ("parameters::lepCleaningCone") ;
@@ -963,11 +968,26 @@ int main (int argc, char** argv)
 
   // ------------------------------
 
-  string bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFile") ;
-  string bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFile") ;
+  string bTag_SFFile;
+  string bTag_effFile;
+  
+  if(useDeepFlavor) 
+  {
+  	bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepFlavor");
+  	bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFileDeepFlavor");
+  }	
+  
+  else
+  {
+  	bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepCSV");
+  	bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFileDeepCSV");
+  }	
+  	
   cout << "B Tag SF file: " << bTag_SFFile << endl;
   //bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "80X_MORIOND_2017"); // third field unused, but could be needed to select efficiencies for different selection levels
-  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "94X_DeepCSV_V1"); // third field unused, but could be needed to select efficiencies for different selection levels
+  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "102X_DeepCSV_V1"); // third field unused, but could be needed to select efficiencies for different selection levels
+  if(useDeepFlavor)
+  	bTagSFHelper.SetWPset("102X_DeepFlavor_V1"); // third field unused, but could be needed to select efficiencies for different selection levels
 
   // ------------------------------
   
@@ -978,14 +998,23 @@ int main (int argc, char** argv)
   //TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017_New.root","weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","medium","MVA");
   //TauTriggerSFs2017 * tauTrgSFvtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017_New.root","weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","vtight","MVA");
   //updated February 2019
-  TauTriggerSFs2017 * tauTrgSF_ditau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "ditau", "2017", "medium", "MVAv2");
-  TauTriggerSFs2017 * tauTrgSF_ditau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "ditau", "2017", "vtight", "MVAv2");
+  //TauTriggerSFs2017 * tauTrgSF_ditau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "ditau", "2017", "medium", "MVAv2");
+  //TauTriggerSFs2017 * tauTrgSF_ditau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "ditau", "2017", "vtight", "MVAv2");
 
-  TauTriggerSFs2017 * tauTrgSF_mutau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "mutau", "2017", "medium", "MVAv2");
-  TauTriggerSFs2017 * tauTrgSF_mutau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "mutau", "2017", "vtight", "MVAv2");
+  //TauTriggerSFs2017 * tauTrgSF_mutau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "mutau", "2017", "medium", "MVAv2");
+  //TauTriggerSFs2017 * tauTrgSF_mutau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "mutau", "2017", "vtight", "MVAv2");
 
-  TauTriggerSFs2017 * tauTrgSF_etau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "etau", "2017", "medium", "MVAv2");
-  TauTriggerSFs2017 * tauTrgSF_etau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "etau", "2017", "vtight", "MVAv2");
+  //TauTriggerSFs2017 * tauTrgSF_etau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "etau", "2017", "medium", "MVAv2");
+  //TauTriggerSFs2017 * tauTrgSF_etau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "etau", "2017", "vtight", "MVAv2");
+
+  TauTriggerSFs2017 * tauTrgSF_ditau = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "ditau", "2018", "medium", "MVAv2");
+  TauTriggerSFs2017 * tauTrgSF_ditau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "ditau", "2018", "vtight", "MVAv2");
+
+  TauTriggerSFs2017 * tauTrgSF_mutau = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "mutau", "2018", "medium", "MVAv2");
+  TauTriggerSFs2017 * tauTrgSF_mutau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "mutau", "2018", "vtight", "MVAv2");
+
+  TauTriggerSFs2017 * tauTrgSF_etau = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "etau", "2018", "medium", "MVAv2");
+  TauTriggerSFs2017 * tauTrgSF_etau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "etau", "2018", "vtight", "MVAv2");
 
 
   // electron/muon leg trigger SF for data and mc 2017
@@ -994,10 +1023,15 @@ int main (int argc, char** argv)
   ScaleFactor * muTrgSF = new ScaleFactor();
   ScaleFactor * eTrgSF = new ScaleFactor();
 
-  muTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_MuTau_IsoMu20.root");
-  muTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_IsoMu24orIsoMu27.root");
-  eTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_EleTau_Ele24_fix.root");
-  eTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_Ele32orEle35_fix.root");
+  //muTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_MuTau_IsoMu20.root");
+  //muTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_IsoMu24orIsoMu27.root");
+  //eTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_EleTau_Ele24_fix.root");
+  //eTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_Ele32orEle35_fix.root");
+
+  muTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_MuTau_IsoMu20.root"); // Still missing for 2018
+  muTrgSF->init_ScaleFactor("weights/trigger_SF_2018/Muon_Run2018_IsoMu24orIsoMu27.root");
+  eTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_EleTau_Ele24_fix.root"); // Still missing for 2018
+  eTrgSF->init_ScaleFactor("weights/trigger_SF_2018/Electron_Run2018_Ele32orEle35.root");
 
 
   // --- 2017 SFs ---
@@ -1017,8 +1051,11 @@ int main (int argc, char** argv)
   for (int i = 0 ; i < 2; i++)
         myIDandISOScaleFactor[i] = new ScaleFactor();
 
-  myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/HTT_SF_2016/Muon/Run2017/Muon_IdIso_IsoLt0.15_eff_RerecoFall17.root");
-  myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_SF_2016/Electron/Run2017/Electron_IdIso_IsoLt0.10_eff_RerecoFall17.root");
+  //myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/HTT_SF_2016/Muon/Run2017/Muon_IdIso_IsoLt0.15_eff_RerecoFall17.root");
+  //myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_SF_2016/Electron/Run2017/Electron_IdIso_IsoLt0.10_eff_RerecoFall17.root");
+
+  myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/HTT_SF_2016/Muon/Run2018/Muon_Run2018_IdIso.root");
+  myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_SF_2016/Electron/Run2018/Electron_Run2018_IdIso.root");
 
   // ------------------------------
   // smT2 mt2Class = smT2();
@@ -1153,11 +1190,75 @@ int main (int argc, char** argv)
   tauAntiEleIdx.push_back(getTauIDIdx(hTauIDS, "againstElectronMediumMVA6"));
   tauAntiEleIdx.push_back(getTauIDIdx(hTauIDS, "againstElectronTightMVA6"));
   tauAntiEleIdx.push_back(getTauIDIdx(hTauIDS, "againstElectronVTightMVA6"));
+  if (find(tauAntiEleIdx.begin(), tauAntiEleIdx.end(), -1) != tauAntiEleIdx.end())
+    {
+      cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
+      for (unsigned int i = 0; i < tauAntiEleIdx.size(); ++i)
+	cout << tauAntiEleIdx.at(i) << " " ;
+      cout << endl;
+    }
 
   // anti-mu discr
   vector<int> tauAntiMuIdx;
   tauAntiMuIdx.push_back(getTauIDIdx(hTauIDS, "againstMuonLoose3"));
   tauAntiMuIdx.push_back(getTauIDIdx(hTauIDS, "againstMuonTight3"));
+  if (find(tauAntiMuIdx.begin(), tauAntiMuIdx.end(), -1) != tauAntiMuIdx.end())
+    {
+      cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
+      for (unsigned int i = 0; i < tauAntiMuIdx.size(); ++i)
+	cout << tauAntiMuIdx.at(i) << " " ;
+      cout << endl;
+    }
+
+  // DNN Tau ID vs jet
+  /*vector<int> deepTauVsJetIdx;
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVVLooseDeepTau2017v2VSjet"));
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVLooseDeepTau2017v2VSjet")); 
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseDeepTau2017v2VSjet"));  
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byLooseDeepTau2017v2VSjet"));   
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byMediumDeepTau2017v2VSjet"));  
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byTightDeepTau2017v2VSjet"));   
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVTightDeepTau2017v2VSjet"));  
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVTightDeepTau2017v2VSjet")); 
+  if (find(deepTauVsJetIdx.begin(), deepTauVsJetIdx.end(), -1) != deepTauVsJetIdx.end())
+    {
+      cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
+      for (unsigned int i = 0; i < deepTauVsJetIdx.size(); ++i)
+	cout << deepTauVsJetIdx.at(i) << " " ;
+      cout << endl;
+    }
+
+  // DNN Tau ID vs ele
+  vector<int> deepTauVsEleIdx;  
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVVVLooseDeepTau2017v2VSe"));  
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVVLooseDeepTau2017v2VSe")); 
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseDeepTau2017v2VSe"));   
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byLooseDeepTau2017v2VSe"));  
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byMediumDeepTau2017v2VSe"));   
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byTightDeepTau2017v2VSe"));  
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVTightDeepTau2017v2VSe"));   
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVVTightDeepTau2017v2VSe"));   
+  if (find(deepTauVsEleIdx.begin(), deepTauVsEleIdx.end(), -1) != deepTauVsEleIdx.end())
+    {
+      cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
+      for (unsigned int i = 0; i < deepTauVsEleIdx.size(); ++i)
+	cout << deepTauVsEleIdx.at(i) << " " ;
+      cout << endl;
+    }
+
+  // DNN Tau ID vs mu
+  vector<int> deepTauVsMuIdx;
+  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseDeepTau2017v2VSmu")); 
+  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byLooseDeepTau2017v2VSmu")); 
+  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byMediumDeepTau2017v2VSmu")); 
+  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byTightDeepTau2017v2VSmu")); 
+  if (find(deepTauVsMuIdx.begin(), deepTauVsMuIdx.end(), -1) != deepTauVsMuIdx.end())
+    {
+      cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
+      for (unsigned int i = 0; i < deepTauVsMuIdx.size(); ++i)
+	cout << deepTauVsMuIdx.at(i) << " " ;
+      cout << endl;
+    }*/
 
   // -----------------------------------
   // event counters for efficiency study
@@ -1640,6 +1741,11 @@ int main (int argc, char** argv)
       int t1hs = -1;
       int t2hs = -1;
 
+      int idx1hs_b = -1;     // bjet-1 index     // FRA DEBUG  
+      int idx2hs_b = -1;     // bjet-2 index                   
+      TLorentzVector vGenB1; // bjet-1 tlv                     
+      TLorentzVector vGenB2; // bjet-2 tlv                     
+
       // if (hreweightHH || hreweightHH2D || isHHsignal) // isHHsignal: only to do loop on genparts, but no rew
       if (isHHsignal || HHrewType == kFromHisto || HHrewType == kDynamic) // isHHsignal: only to do loop on genparts, but no rew
 	{
@@ -1658,6 +1764,7 @@ int main (int argc, char** argv)
 	      bool isFirst     = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
 	      bool isLast      = CheckBit (theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
 	      bool isHardScatt = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; //   3 = isPromptTauDecayProduct
+	      bool isHardProcess = CheckBit (theBigTree.genpart_flags->at(igen), 7) ; //  7 = isHardProcess, for b coming from H  
 	      // bool isDirectPromptTauDecayProduct = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; // 5 = isDirectPromptTauDecayProduct
 	      int pdg = theBigTree.genpart_pdg->at(igen);
 	      int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
@@ -1727,7 +1834,20 @@ int main (int argc, char** argv)
 		      // cout << "THIS: " << pdg << " px=" << theBigTree.genpart_px->at(igen) << endl;
 		    }
 		}
+		
+	       // FRA DEBUG - find the bjets from the Higgs decay     
+              if ( abs(pdg) == 5 && isHardProcess)
+              {
+        	if (idx1hs_b == -1) idx1hs_b = igen;
+        	else if (idx2hs_b == -1) idx2hs_b = igen;
+        	else
+        	{
+        	  cout << "** ERROR: there are more than 2 hard scatter b quarks: evt = " << theBigTree.EventNumber << endl;
+        	}
+              }
+
 	    }
+	    
 
 	  if (idx1 == -1 || idx2 == -1)
 	    {
@@ -1785,6 +1905,17 @@ int main (int argc, char** argv)
 	  mHH = vSum.M();
 	  vH1.Boost(-vSum.BoostVector());                     
 	  ct1 = vH1.CosTheta();
+	  
+	  
+	  // FRA DEBUG - build gen b jets       
+          if (idx1hs_b != -1 && idx2hs_b != -1)
+          {
+              vGenB1.SetPxPyPzE (theBigTree.genpart_px->at(idx1hs_b), theBigTree.genpart_py->at(idx1hs_b), theBigTree.genpart_pz->at(idx1hs_b), theBigTree.genpart_e->at(idx1hs_b) );
+              vGenB2.SetPxPyPzE (theBigTree.genpart_px->at(idx2hs_b), theBigTree.genpart_py->at(idx2hs_b), theBigTree.genpart_pz->at(idx2hs_b), theBigTree.genpart_e->at(idx2hs_b) );
+          }
+          else
+	    cout << "** ERROR: couldn't find 2 H->bb gen dec prod " << idx1hs_b << " " << idx2hs_b << endl;
+
 
 	  // assign a weight depending on the reweight type 
 
@@ -2533,6 +2664,9 @@ int main (int argc, char** argv)
       theSmallTree.m_dau1_CUTiso = makeIsoDiscr (firstDaughterIndex, tauCUTIDIdx, theBigTree) ;
       theSmallTree.m_dau1_antiele = makeIsoDiscr (firstDaughterIndex, tauAntiEleIdx, theBigTree) ;
       theSmallTree.m_dau1_antimu  = makeIsoDiscr (firstDaughterIndex, tauAntiMuIdx, theBigTree) ;
+      //theSmallTree.m_dau1_deepTauVsJet = makeIsoDiscr (firstDaughterIndex, deepTauVsJetIdx , theBigTree) ;
+      //theSmallTree.m_dau1_deepTauVsEle = makeIsoDiscr (firstDaughterIndex, deepTauVsEleIdx , theBigTree) ;
+      //theSmallTree.m_dau1_deepTauVsMu = makeIsoDiscr (firstDaughterIndex, deepTauVsMuIdx , theBigTree) ;
 
       theSmallTree.m_dau1_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (firstDaughterIndex) ;
 
@@ -2567,6 +2701,9 @@ int main (int argc, char** argv)
       theSmallTree.m_dau2_CUTiso = makeIsoDiscr (secondDaughterIndex, tauCUTIDIdx, theBigTree) ;
       theSmallTree.m_dau2_antiele = makeIsoDiscr (secondDaughterIndex, tauAntiEleIdx, theBigTree) ;
       theSmallTree.m_dau2_antimu  = makeIsoDiscr (secondDaughterIndex, tauAntiMuIdx, theBigTree) ;
+      //theSmallTree.m_dau2_deepTauVsJet = makeIsoDiscr (secondDaughterIndex, deepTauVsJetIdx , theBigTree) ;
+      //theSmallTree.m_dau2_deepTauVsEle = makeIsoDiscr (secondDaughterIndex, deepTauVsEleIdx , theBigTree) ;
+      //theSmallTree.m_dau2_deepTauVsMu = makeIsoDiscr (secondDaughterIndex, deepTauVsMuIdx , theBigTree) ;
       theSmallTree.m_dau2_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (secondDaughterIndex) ;      
       theSmallTree.m_dau2_pt = tlv_secondLepton.Pt () ;
       theSmallTree.m_dau2_pt_tauup = tlv_secondLepton_tauup.Pt () ;
@@ -2611,8 +2748,8 @@ int main (int argc, char** argv)
 	  }
 	  
 	  if (lep2HasTES) {
-	    idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
-	    idAndIsoSF_leg2_vtight = 0.86; // TauPOG recommendation for 2017 data (vtight WP)
+	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
+	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
 	    if(theSmallTree.m_dau2_decayMode == 0) idAndIsoSF_leg2_decayMode = 0.84; //computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO 
 	    if(theSmallTree.m_dau2_decayMode == 1) idAndIsoSF_leg2_decayMode = 0.92;
 	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.86;
@@ -2650,8 +2787,8 @@ int main (int argc, char** argv)
 	  }
 	  
 	  if (lep2HasTES){
-	    idAndIsoSF_leg2 = 0.89; // TauPOG recommendation for 2017 data
-	    idAndIsoSF_leg2_vtight = 0.86; // https://indico.cern.ch/event/776359/contributions/3229380/attachments/1759348/2853860/tauID.pdf
+	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
+	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
 	    if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 0.84; //computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
 	    if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 0.92;
 	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.86;
@@ -2684,16 +2821,16 @@ int main (int argc, char** argv)
 
 
 	  if (lep1HasTES) {
-	    idAndIsoSF_leg1 = 0.89;
-	    idAndIsoSF_leg1_vtight = 0.86;
+	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
+	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
 	    if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg1_decayMode = 0.97; //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
 	    if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg1_decayMode = 1.04;
 	    if(theSmallTree.m_dau1_decayMode == 10) idAndIsoSF_leg1_decayMode = 0.90;
 	    isFakeJet1 = false;
 	  }
 	  if (lep2HasTES) {
-	    idAndIsoSF_leg2 = 0.89;
-	    idAndIsoSF_leg2_vtight = 0.86;
+	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
+	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
 	    if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 0.97; //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
 	    if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 1.04;
 	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.90;
@@ -3342,7 +3479,12 @@ int main (int argc, char** argv)
         if (tlv_jet.Pt () > 50)  ++theSmallTree.m_nbjets50 ;
        
         //float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bCSVscore->at (iJet) : tlv_jet.Pt() ;
-        float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet)  : tlv_jet.Pt() ;
+	float sortPar;
+        if(useDeepFlavor)
+		sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet) : tlv_jet.Pt() ;
+	else
+        	sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet) : tlv_jet.Pt() ;
+	
         if (bChoiceFlag != 1 && bChoiceFlag != 2) cout << "** WARNING : bChoiceFlag not known :" << bChoiceFlag << endl;
         jets_and_sortPar.push_back (make_pair (sortPar, iJet) );
 
@@ -3373,7 +3515,17 @@ int main (int argc, char** argv)
 
         bool bPairFound = false;
         int njets = jets_and_sortPar.size();
-        if (jets_and_sortPar.at(njets-2).first>0.4941) bPairFound = true; // medium WP is: 0.8484 for 2016 CSV, 0.4941 for 2017 DeepCSV
+	
+	if(useDeepFlavor)
+	{
+		if (jets_and_sortPar.at(njets-2).first>0.2770) bPairFound = true;
+        }		  
+	else
+	{
+   		if (jets_and_sortPar.at(njets-2).first>0.4184) bPairFound = true;
+	}	
+
+        // medium WP is: 0.8484 for 2016 CSV, 0.4941 for 2017 DeepCSV, 0.4184 for 2018 DeepCSV, 0.2770 for 2018 DeepFlavor
 
         const int bjet1idx = jets_and_sortPar.at(njets-1).second ;
         int bjet2idx_temp  = jets_and_sortPar.at(njets-2).second ;
@@ -3488,6 +3640,14 @@ int main (int argc, char** argv)
         // Now that I've selected the bjets build the TLorentzVectors
         TLorentzVector tlv_firstBjet (theBigTree.jets_px->at(bjet1idx), theBigTree.jets_py->at(bjet1idx), theBigTree.jets_pz->at(bjet1idx), theBigTree.jets_e->at(bjet1idx));
         TLorentzVector tlv_secondBjet(theBigTree.jets_px->at(bjet2idx), theBigTree.jets_py->at(bjet2idx), theBigTree.jets_pz->at(bjet2idx), theBigTree.jets_e->at(bjet2idx));
+	
+        bool bjets_gen_matched = ((tlv_firstBjet .DeltaR(vGenB1)<0.5 && tlv_secondBjet.DeltaR(vGenB2)<0.5) || (tlv_firstBjet.DeltaR(vGenB2)<0.5 && tlv_secondBjet.DeltaR(vGenB1)<0.5) );
+        bool bjet1_gen_matched = ( tlv_firstBjet .DeltaR(vGenB1)<0.5 || tlv_firstBjet .DeltaR(vGenB2)<0.5 );
+        bool bjet2_gen_matched = ( tlv_secondBjet.DeltaR(vGenB1)<0.5 || tlv_secondBjet.DeltaR(vGenB2)<0.5 );
+
+        theSmallTree.m_bjets_gen_matched = bjets_gen_matched ? 1 : 0;
+        theSmallTree.m_bjet1_gen_matched = bjet1_gen_matched ? 1 : 0;
+        theSmallTree.m_bjet2_gen_matched = bjet2_gen_matched ? 1 : 0;
 
         double ptRegr[2] = {tlv_firstBjet.Pt(), tlv_secondBjet.Pt()};
         if (computeBregr)
@@ -3593,6 +3753,7 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet1_e    = theBigTree.jets_e->at (bjet1idx) ;
         theSmallTree.m_bjet1_bID  = theBigTree.bCSVscore->at (bjet1idx) ;
         theSmallTree.m_bjet1_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet1idx) + theBigTree.bDeepCSV_probbb->at(bjet1idx) ;
+        theSmallTree.m_bjet1_bID_deepFlavor  = theBigTree.bDeepFlavor_probb->at(bjet1idx) + theBigTree.bDeepFlavor_probbb->at(bjet1idx) + theBigTree.bDeepFlavor_problepb->at(bjet1idx);
         theSmallTree.m_bjet1_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet1idx) ;
         theSmallTree.m_bjet1_flav = theBigTree.jets_HadronFlavour->at (bjet1idx) ;
         double bjet1_JER = theBigTree.jets_JER->at(bjet1idx);
@@ -3604,6 +3765,7 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet2_e    = theBigTree.jets_e->at (bjet2idx) ;
         theSmallTree.m_bjet2_bID  = theBigTree.bCSVscore->at (bjet2idx) ;
         theSmallTree.m_bjet2_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet2idx) + theBigTree.bDeepCSV_probbb->at(bjet2idx) ;
+        theSmallTree.m_bjet2_bID_deepFlavor  = theBigTree.bDeepFlavor_probb->at(bjet2idx) + theBigTree.bDeepFlavor_probbb->at(bjet2idx) + theBigTree.bDeepFlavor_problepb->at(bjet2idx);
         theSmallTree.m_bjet2_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet2idx) ;
         theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
         double bjet2_JER = theBigTree.jets_JER->at(bjet2idx);
@@ -3611,6 +3773,7 @@ int main (int argc, char** argv)
 
         theSmallTree.m_bjets_bID  = theBigTree.bCSVscore->at (bjet1idx) +theBigTree.bCSVscore->at (bjet2idx) ;
         theSmallTree.m_bjets_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet1idx) + theBigTree.bDeepCSV_probbb->at(bjet1idx) + theBigTree.bDeepCSV_probb->at(bjet2idx) + theBigTree.bDeepCSV_probbb->at(bjet2idx);
+        theSmallTree.m_bjets_bID_deepFlavor  = theBigTree.bDeepFlavor_probb->at(bjet1idx) + theBigTree.bDeepFlavor_probbb->at(bjet1idx) + theBigTree.bDeepFlavor_problepb->at(bjet1idx) + theBigTree.bDeepFlavor_probb->at(bjet2idx) + theBigTree.bDeepFlavor_probbb->at(bjet2idx) + theBigTree.bDeepFlavor_problepb->at(bjet2idx);
         
         // Save gen info for b-jets
         bool hasgj1 = false;
@@ -4138,6 +4301,7 @@ int main (int argc, char** argv)
           theSmallTree.m_VBFjet1_e          = VBFjet1.E();
           theSmallTree.m_VBFjet1_btag       = (theBigTree.bCSVscore->at (VBFidx1)) ;
           theSmallTree.m_VBFjet1_btag_deepCSV = theBigTree.bDeepCSV_probb->at(VBFidx1) + theBigTree.bDeepCSV_probbb->at(VBFidx1) ;
+          theSmallTree.m_VBFjet1_btag_deepFlavor = theBigTree.bDeepFlavor_probb->at(VBFidx1) + theBigTree.bDeepFlavor_probbb->at(VBFidx1) + theBigTree.bDeepFlavor_problepb->at(VBFidx1);
           theSmallTree.m_VBFjet1_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx1)) ;
           theSmallTree.m_VBFjet1_hasgenjet  = hasgj1_VBF ;
           theSmallTree.m_VBFjet2_pt         = VBFjet2.Pt() ;
@@ -4146,6 +4310,7 @@ int main (int argc, char** argv)
           theSmallTree.m_VBFjet2_e          = VBFjet2.E();
           theSmallTree.m_VBFjet2_btag       = (theBigTree.bCSVscore->at (VBFidx2)) ;
           theSmallTree.m_VBFjet2_btag_deepCSV = theBigTree.bDeepCSV_probb->at(VBFidx2) + theBigTree.bDeepCSV_probbb->at(VBFidx2) ;
+          theSmallTree.m_VBFjet2_btag_deepFlavor = theBigTree.bDeepFlavor_probb->at(VBFidx2) + theBigTree.bDeepFlavor_probbb->at(VBFidx2) + theBigTree.bDeepFlavor_problepb->at(VBFidx2);
           theSmallTree.m_VBFjet2_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx2)) ;
           theSmallTree.m_VBFjet2_hasgenjet  = hasgj2_VBF ;
           theSmallTree.m_VBFjet2_PUjetID    = (theBigTree.jets_PUJetID->at (VBFidx2)); // VBF BDT
@@ -4293,6 +4458,7 @@ int main (int argc, char** argv)
               theSmallTree.m_jet5_VBF_e    = tlv_dummyJet.E();
               theSmallTree.m_jet5_VBF_btag = (theBigTree.bCSVscore->at (iJet)) ;
               theSmallTree.m_jet5_VBF_btag_deepCSV = (theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet)) ;
+              theSmallTree.m_jet5_VBF_btag_deepFlavor = (theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet)) ;
               theSmallTree.m_jet5_VBF_flav = (theBigTree.jets_HadronFlavour->at (iJet)) ;
               theSmallTree.m_jet5_VBF_hasgenjet = hasgj ;
               theSmallTree.m_jet5_VBF_z = getZ(tlv_dummyJet.Eta(),theSmallTree.m_VBFjet1_eta,theSmallTree.m_VBFjet2_eta);
@@ -4316,6 +4482,7 @@ int main (int argc, char** argv)
           theSmallTree.m_jets_e.push_back (theBigTree.jets_e->at (iJet)) ;
           theSmallTree.m_jets_btag.push_back (theBigTree.bCSVscore->at (iJet)) ;
           theSmallTree.m_jets_btag_deepCSV.push_back (theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet)) ;
+          theSmallTree.m_jets_btag_deepFlavor.push_back (theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet)) ;
           theSmallTree.m_jets_flav.push_back (theBigTree.jets_HadronFlavour->at (iJet)) ;
           theSmallTree.m_jets_jecUnc.push_back (theBigTree.jets_jecUnc->at (iJet)) ;
           theSmallTree.m_jets_hasgenjet.push_back (hasgj) ;
@@ -4343,6 +4510,7 @@ int main (int argc, char** argv)
           theSmallTree.m_jet3_e =theSmallTree.m_jets_e.at(0);
           theSmallTree.m_jet3_btag= theSmallTree.m_jets_btag.at (0);
           theSmallTree.m_jet3_btag_deepCSV= theSmallTree.m_jets_btag_deepCSV.at (0);
+          theSmallTree.m_jet3_btag_deepFlavor= theSmallTree.m_jets_btag_deepFlavor.at (0);
           theSmallTree.m_jet3_flav= theSmallTree.m_jets_flav.at (0);
           theSmallTree.m_jet3_hasgenjet= theSmallTree.m_jets_hasgenjet.at (0);
         }
@@ -4354,6 +4522,7 @@ int main (int argc, char** argv)
           theSmallTree.m_jet4_e =theSmallTree.m_jets_e.at(1);
           theSmallTree.m_jet4_btag= theSmallTree.m_jets_btag.at (1);
           theSmallTree.m_jet4_btag_deepCSV= theSmallTree.m_jets_btag_deepCSV.at (1);
+          theSmallTree.m_jet4_btag_deepFlavor= theSmallTree.m_jets_btag_deepFlavor.at (1);
           theSmallTree.m_jet4_flav= theSmallTree.m_jets_flav.at (1);
           theSmallTree.m_jet4_hasgenjet= theSmallTree.m_jets_hasgenjet.at (1);
 	  
@@ -4397,6 +4566,7 @@ int main (int argc, char** argv)
           theSmallTree.m_jet5_e =theSmallTree.m_jets_e.at(2);
           theSmallTree.m_jet5_btag= theSmallTree.m_jets_btag.at (2);
           theSmallTree.m_jet5_btag_deepCSV= theSmallTree.m_jets_btag_deepCSV.at (2);
+          theSmallTree.m_jet5_btag_deepFlavor= theSmallTree.m_jets_btag_deepFlavor.at (2);
           theSmallTree.m_jet5_flav= theSmallTree.m_jets_flav.at (2);
           theSmallTree.m_jet5_hasgenjet= theSmallTree.m_jets_hasgenjet.at (2);
         }
@@ -4464,7 +4634,10 @@ int main (int argc, char** argv)
 		  if (!A1B2 && !A2B1) continue; // is not matched to resolved jets
 
 		  //fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_CSV->size(), ifj));
-		  fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_deepCSV_probb->at(ifj)+theBigTree.ak8jets_deepCSV_probbb->at(ifj), ifj));
+		  if(useDeepFlavor)
+		  	fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_deepFlavor_probb->at(ifj)+theBigTree.ak8jets_deepFlavor_probbb->at(ifj)+theBigTree.ak8jets_deepFlavor_problepb->at(ifj), ifj));
+		  else
+		  	fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_deepCSV_probb->at(ifj)+theBigTree.ak8jets_deepCSV_probbb->at(ifj), ifj));
 		}
 
 	      if(DEBUG)
@@ -4484,6 +4657,7 @@ int main (int argc, char** argv)
 		  theSmallTree.m_fatjet_e    = tlv_fj.E();
 		  theSmallTree.m_fatjet_bID  = theBigTree.ak8jets_CSV->at(fjIdx);
 		  theSmallTree.m_fatjet_bID_deepCSV  = theBigTree.ak8jets_deepCSV_probb->at(fjIdx) + theBigTree.ak8jets_deepCSV_probbb->at(fjIdx);
+		  theSmallTree.m_fatjet_bID_deepFlavor  = theBigTree.ak8jets_deepFlavor_probb->at(fjIdx) + theBigTree.ak8jets_deepFlavor_probbb->at(fjIdx) + theBigTree.ak8jets_deepFlavor_problepb->at(fjIdx);
 		  theSmallTree.m_fatjet_filteredMass = theBigTree.ak8jets_FilteredMass -> at(fjIdx) ;
 		  theSmallTree.m_fatjet_prunedMass   = theBigTree.ak8jets_PrunedMass   -> at(fjIdx) ;
 		  theSmallTree.m_fatjet_trimmedMass  = theBigTree.ak8jets_TrimmedMass  -> at(fjIdx) ;
@@ -4511,6 +4685,7 @@ int main (int argc, char** argv)
 			  theSmallTree.m_subjetjet1_e    = tlv_subj1.E();
 			  theSmallTree.m_subjetjet1_bID  = theBigTree.subjets_CSV->at(isj) ;
 			  theSmallTree.m_subjetjet1_bID_deepCSV  = theBigTree.subjets_deepCSV_probb->at(isj) + theBigTree.subjets_deepCSV_probbb->at(isj) ;
+			  theSmallTree.m_subjetjet1_bID_deepFlavor  = theBigTree.subjets_deepFlavor_probb->at(isj) + theBigTree.subjets_deepFlavor_probbb->at(isj) + theBigTree.subjets_deepFlavor_problepb->at(isj) ;
 			}
 		      if (nSJ == 2)
 			{
@@ -4521,6 +4696,7 @@ int main (int argc, char** argv)
 			  theSmallTree.m_subjetjet2_e    = tlv_subj2.E();
 			  theSmallTree.m_subjetjet2_bID  = theBigTree.subjets_CSV->at(isj) ;
 			  theSmallTree.m_subjetjet2_bID_deepCSV  = theBigTree.subjets_deepCSV_probb->at(isj) + theBigTree.subjets_deepCSV_probbb->at(isj) ;
+			  theSmallTree.m_subjetjet2_bID_deepFlavor  = theBigTree.subjets_deepFlavor_probb->at(isj) + theBigTree.subjets_deepFlavor_probbb->at(isj) + theBigTree.subjets_deepFlavor_problepb->at(isj);
 			}
 		      theSmallTree.m_dR_subj1_subj2 = tlv_subj1.DeltaR(tlv_subj2);
 		    } 

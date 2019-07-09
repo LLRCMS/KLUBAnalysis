@@ -64,6 +64,8 @@ float PUReweight::weight(int MC, int target, int input, TString filename) {
       return hT2017_MCFall17_Data13c4fb.at(input) ;
     } else if (MC==2017 && target==413) {
       return hT2017_MCFall17_Data41c3fb.at(input) ;         // Full 2017
+    } else if (MC==2018 && target==597) {
+      return hT2018_MCAutumn18_Data59c7fb.at(input) ;         // Full 2018
     } else if (MC==2017 && target==999) {                   // Ful 2017 with weights for each sample read from external txt file
       if (filename == TString(""))
       {
@@ -73,6 +75,16 @@ float PUReweight::weight(int MC, int target, int input, TString filename) {
       else
       {
         return hT2017_MCFall17_Data41c3fb_special.at(input) ;
+      }
+    } else if (MC==2018 && target==999) {                   // Ful 2018 with weights for each sample read from external txt file
+      if (filename == TString(""))
+      {
+        std::cout << "ERROR: PUReweight - You requested special weights but didn't pass the external file: aborting !!! " << std::endl;
+        abort();
+      }
+      else
+      {
+        return hT2018_MCAutumn18_Data59c7fb_special.at(input) ;
       }
     } else{
       std::cout << "ERROR: PUReweight: " << MC << " " << target << std::endl;
@@ -101,6 +113,123 @@ float PUReweight::weight(int MC, int target, int input, TString filename) {
 PUReweight::PUReweight(Type type, TString filename) :
 theType(type),
 theFilename(filename) {
+  // RUN2ANALYSIS MC Autumn2018 target Data 59.7/fb - Full Run 2018
+  
+  double npuAutumn18_59c7fb[100];
+
+  npuAutumn18_59c7fb[0] = 0;	       
+  npuAutumn18_59c7fb[1] = 0.06442;     
+  npuAutumn18_59c7fb[2] = 0.286625;    
+  npuAutumn18_59c7fb[3] = 0.153283;    
+  npuAutumn18_59c7fb[4] = 0.0622453;   
+  npuAutumn18_59c7fb[5] = 0.053079;    
+  npuAutumn18_59c7fb[6] = 0.0371891;   
+  npuAutumn18_59c7fb[7] = 0.0285752;   
+  npuAutumn18_59c7fb[8] = 0.0197508;   
+  npuAutumn18_59c7fb[9] = 0.0158723;   
+  npuAutumn18_59c7fb[10] = 0.0127781;  
+  npuAutumn18_59c7fb[11] = 0.0106074;  
+  npuAutumn18_59c7fb[12] = 0.009366;   
+  npuAutumn18_59c7fb[13] = 0.00880646; 
+  npuAutumn18_59c7fb[14] = 0.00838302; 
+  npuAutumn18_59c7fb[15] = 0.00828725; 
+  npuAutumn18_59c7fb[16] = 0.0082256;  
+  npuAutumn18_59c7fb[17] = 0.00815946; 
+  npuAutumn18_59c7fb[18] = 0.00824007; 
+  npuAutumn18_59c7fb[19] = 0.00824518; 
+  npuAutumn18_59c7fb[20] = 0.0082274;  
+  npuAutumn18_59c7fb[21] = 0.00803604; 
+  npuAutumn18_59c7fb[22] = 0.00791764; 
+  npuAutumn18_59c7fb[23] = 0.00763971; 
+  npuAutumn18_59c7fb[24] = 0.00736075; 
+  npuAutumn18_59c7fb[25] = 0.00703923; 
+  npuAutumn18_59c7fb[26] = 0.00682214; 
+  npuAutumn18_59c7fb[27] = 0.00661442; 
+  npuAutumn18_59c7fb[28] = 0.00645829; 
+  npuAutumn18_59c7fb[29] = 0.00632646; 
+  npuAutumn18_59c7fb[30] = 0.00620795; 
+  npuAutumn18_59c7fb[31] = 0.00617589; 
+  npuAutumn18_59c7fb[32] = 0.00611222; 
+  npuAutumn18_59c7fb[33] = 0.00609296; 
+  npuAutumn18_59c7fb[34] = 0.00606389; 
+  npuAutumn18_59c7fb[35] = 0.00604833; 
+  npuAutumn18_59c7fb[36] = 0.00599539; 
+  npuAutumn18_59c7fb[37] = 0.00592327; 
+  npuAutumn18_59c7fb[38] = 0.00582087; 
+  npuAutumn18_59c7fb[39] = 0.00563801; 
+  npuAutumn18_59c7fb[40] = 0.00545694; 
+  npuAutumn18_59c7fb[41] = 0.00522322; 
+  npuAutumn18_59c7fb[42] = 0.00491274; 
+  npuAutumn18_59c7fb[43] = 0.00460614; 
+  npuAutumn18_59c7fb[44] = 0.00424888; 
+  npuAutumn18_59c7fb[45] = 0.00387752; 
+  npuAutumn18_59c7fb[46] = 0.0034976;  
+  npuAutumn18_59c7fb[47] = 0.00310888; 
+  npuAutumn18_59c7fb[48] = 0.00275458; 
+  npuAutumn18_59c7fb[49] = 0.00242246; 
+  npuAutumn18_59c7fb[50] = 0.00208891; 
+  npuAutumn18_59c7fb[51] = 0.00181793; 
+  npuAutumn18_59c7fb[52] = 0.00156684; 
+  npuAutumn18_59c7fb[53] = 0.00134021; 
+  npuAutumn18_59c7fb[54] = 0.00115961; 
+  npuAutumn18_59c7fb[55] = 0.000988669;
+  npuAutumn18_59c7fb[56] = 0.000853313;
+  npuAutumn18_59c7fb[57] = 0.000745175;
+  npuAutumn18_59c7fb[58] = 0.000643833;
+  npuAutumn18_59c7fb[59] = 0.000559676;
+  npuAutumn18_59c7fb[60] = 0.000483341;
+  npuAutumn18_59c7fb[61] = 0.000431562;
+  npuAutumn18_59c7fb[62] = 0.000371708;
+  npuAutumn18_59c7fb[63] = 0.000320522;
+  npuAutumn18_59c7fb[64] = 0.000280422;
+  npuAutumn18_59c7fb[65] = 0.000244045;
+  npuAutumn18_59c7fb[66] = 0.000209082;
+  npuAutumn18_59c7fb[67] = 0.000186454;
+  npuAutumn18_59c7fb[68] = 0.000151561;
+  npuAutumn18_59c7fb[69] = 0.000125497;
+  npuAutumn18_59c7fb[70] = 0.000103185;
+  npuAutumn18_59c7fb[71] = 9.33698e-05;
+  npuAutumn18_59c7fb[72] = 8.19999e-05;
+  npuAutumn18_59c7fb[73] = 7.95592e-05;
+  npuAutumn18_59c7fb[74] = 5.90935e-05;
+  npuAutumn18_59c7fb[75] = 4.48174e-05;
+  npuAutumn18_59c7fb[76] = 4.12284e-05;
+  npuAutumn18_59c7fb[77] = 3.13746e-05;
+  npuAutumn18_59c7fb[78] = 3.12821e-05;
+  npuAutumn18_59c7fb[79] = 1.70888e-05;
+  npuAutumn18_59c7fb[80] = 1.65228e-05;
+  npuAutumn18_59c7fb[81] = 1.32755e-05;
+  npuAutumn18_59c7fb[82] = 1.87261e-05;
+  npuAutumn18_59c7fb[83] = 1.66998e-05;
+  npuAutumn18_59c7fb[84] = 5.28467e-06;
+  npuAutumn18_59c7fb[85] = 0;	       
+  npuAutumn18_59c7fb[86] = 7.02434e-06;
+  npuAutumn18_59c7fb[87] = 1.76864e-06;
+  npuAutumn18_59c7fb[88] = 8.76294e-07;
+  npuAutumn18_59c7fb[89] = 8.5406e-07; 
+  npuAutumn18_59c7fb[90] = 2.04618e-07;
+  npuAutumn18_59c7fb[91] = 1.92764e-07;
+  npuAutumn18_59c7fb[92] = 2.97463e-08;
+  npuAutumn18_59c7fb[93] = 0;	       
+  npuAutumn18_59c7fb[94] = 9.07281e-09;
+  npuAutumn18_59c7fb[95] = 0;	       
+  npuAutumn18_59c7fb[96] = 0;	       
+  npuAutumn18_59c7fb[97] = 0;	       
+  npuAutumn18_59c7fb[98] = 0;	       
+  npuAutumn18_59c7fb[99] = 0;		
+  
+  for(int k = 0 ; k < 100 ; ++k)
+  	hT2018_MCAutumn18_Data59c7fb.push_back(npuAutumn18_59c7fb[k]) ;
+
+  // RUN2ANALYSIS MC Autumn2018 target Data 59.7/fb - Full Run 2018
+  // Special weights for each sample read from external txt file
+  if (filename == TString(""))
+  {
+    for(int k = 0 ; k < 100 ; ++k)
+        hT2018_MCAutumn18_Data59c7fb_special.push_back(0.0) ; // if no filename passe, initialize a vector of 0s
+  }
+  else
+    hT2018_MCAutumn18_Data59c7fb_special = LoadExternalWeights(theFilename);
 
   // RUN2ANALYSIS MC Fall2017 target Data 4.7/fb - Run 2017B
   double npuFall17_4c7fb[100];

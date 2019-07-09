@@ -223,7 +223,7 @@ bool triggerReader_cross::checkOREleEleNew  (Long64_t triggerbit_1, Long64_t mat
 	  if (match && _trgNoOverlap && goodType)
 	    {
 	      firedPath = _allTriggers.at(_eeTriggers.at(i));
-	      boost::regex re_tau1{".*Ele(\\d+)"};
+	      boost::regex re_tau1{"Ele(\\d+)"};
 	      ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 3.0);
 	    }
 	  else
@@ -263,7 +263,7 @@ bool triggerReader_cross::checkORMuEleNew  (Long64_t triggerbit_1, Long64_t matc
 	    if (match && _trgNoOverlap && goodType)
 	      {
 	      firedPath = _allTriggers.at(_mmTriggers.at(i));
-	      boost::regex re_tau1{".*Mu(\\d+)"};
+	      boost::regex re_tau1{"Mu(\\d+)"};
 	      ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 2.0);
 	      }
 	    else
@@ -304,7 +304,7 @@ bool triggerReader_cross::checkORMuMuNew  (Long64_t triggerbit_1, Long64_t match
 	    if (match && _trgNoOverlap && goodType)
 	      {
 	      firedPath = _allTriggers.at(_mmTriggers.at(i));
-	      boost::regex re_tau1{".*Mu(\\d+)"};
+	      boost::regex re_tau1{"Mu(\\d+)"};
 	      ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 2.0);
 	      }
 	    else
@@ -352,8 +352,8 @@ bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t mat
         if (match && _trgNoOverlap && goodType)
         {
           firedPath = _allTriggers.at(_ttCrossTriggers.at(i));
-          boost::regex re_tau1{".*Tau(\\d+)"};
-          boost::regex re_tau2{".*Tau(\\d+)"};
+          boost::regex re_tau1{"Tau(\\d+)|TauHPS(\\d+)"};
+          boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
           //ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 5.0, 5.0);
           ptCut = (pt_tau1 > 40. && pt_tau2 > 40.); // suggested by tauTrigger Group
         }
@@ -390,7 +390,7 @@ bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t mat
 	    if (match && _trgNoOverlap && goodType)
 	      {
 		firedPath = _allTriggers.at(_ttTriggers.at(i));
-		boost::regex re_tau1{".*Tau(\\d+)"};
+		boost::regex re_tau1{"Tau(\\d+)|TauHPS(\\d+)"};
 		ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 5.0);
 	      }
 	    else
@@ -441,8 +441,8 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
         if (match && _trgNoOverlap && goodType)
         {
           firedPath = _allTriggers.at(_mtCrossTriggers.at(i));
-          boost::regex re_tau1{".*Mu(\\d+)"};
-          boost::regex re_tau2{".*Tau(\\d+)"};
+          boost::regex re_tau1{"Mu(\\d+)"};
+          boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
           ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 2.0, 5.0);
 	  etaCut = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
         }
@@ -481,7 +481,7 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
           if (match && _trgNoOverlap && goodType)
           {
             firedPath = _allTriggers.at(_mtTriggers.at(i));
-            boost::regex re_tau1{".*Mu(\\d+)"};
+            boost::regex re_tau1{"Mu(\\d+)"};
             ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 2.0);
           }
           else
@@ -533,8 +533,8 @@ bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t mat
         if (match && _trgNoOverlap && goodType)
         {
           firedPath = _allTriggers.at(_etCrossTriggers.at(i));
-          boost::regex re_tau1{".*Ele(\\d+)"};
-          boost::regex re_tau2{".*Tau(\\d+)"};
+          boost::regex re_tau1{"Ele(\\d+)"};
+          boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
 
           ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 3.0, 5.0);
 	  etaCut = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
@@ -573,7 +573,7 @@ bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t mat
           if (match && _trgNoOverlap && goodType)
           {
             firedPath = _allTriggers.at(_etTriggers.at(i));
-            boost::regex re_tau1{".*Ele(\\d+)"};
+            boost::regex re_tau1{"Ele(\\d+)"};
             ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 3.0);
           }
           else
@@ -638,8 +638,13 @@ bool triggerReader_cross::checkPtCutCross (bool OR, std::string firedPath, boost
 
     if ( boost::regex_search(firedPath, what1, re_tau1) && boost::regex_search(firedPath, what2, re_tau2) )
     {
-        double ptcut_tau1 = boost::lexical_cast<double>(what1[1]) + thr1;
-        double ptcut_tau2 = boost::lexical_cast<double>(what2[1]) + thr2;
+        double ptcut_tau1; 
+	if(what1.length(1) != 0) ptcut_tau1 = boost::lexical_cast<double>(what1[1]) + thr1; // this check is necessary to deal with TauHPSNN triggers
+	else                     ptcut_tau1 = boost::lexical_cast<double>(what1[2]) + thr1;
+	 
+        double ptcut_tau2; 
+	if(what2.length(1) != 0) ptcut_tau2 = boost::lexical_cast<double>(what2[1]) + thr2; // this check is necessary to deal with TauHPSNN triggers
+	else                     ptcut_tau2 = boost::lexical_cast<double>(what2[2]) + thr2; 
 
         //cout << "************** Double REGEX " << endl;
         //cout << "************** REGEX firedPath : " << firedPath  << endl;
@@ -668,7 +673,9 @@ bool triggerReader_cross::checkPtCutSingle (bool OR, std::string firedPath, boos
 
     if ( boost::regex_search(firedPath, what1, re_tau1) )
     {
-        double ptcut_tau1 = boost::lexical_cast<double>(what1[1]) + thr1;
+        double ptcut_tau1;	 
+	if(what1.length(1) != 0) ptcut_tau1 = boost::lexical_cast<double>(what1[1]) + thr1; // this check is necessary to deal with TauHPSNN triggers
+	else                     ptcut_tau1 = boost::lexical_cast<double>(what1[2]) + thr1;
 
         //cout << "************** Single REGEX " << endl;
         //cout << "************** REGEX firedPath: " << firedPath  << endl;
@@ -918,8 +925,8 @@ bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag
         if (match_2 && _trgNoOverlap_2 && goodType_2)
         {
           firedPath_2 = _allTriggers.at(_ttCrossCleaned.at(i));
-          boost::regex re_tau1{".*Tau(\\d+)"};
-          boost::regex re_tau2{".*Tau(\\d+)"};
+          boost::regex re_tau1{"Tau(\\d+)|TauHPS(\\d+)"};
+          boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
           //ptCut_2 = checkPtCutCross(OR_2, firedPath_2, re_tau1, re_tau2, pt_tau1, pt_tau2, 5.0, 5.0);
           ptCut_2 = (pt_tau1 > 40. && pt_tau2 > 40.); // suggested by tauTrigger Group
         }
@@ -948,7 +955,7 @@ bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag
           if (match_2 && _trgNoOverlap_2 && goodType_2)
           {
             firedPath_2 = _allTriggers.at(_ttTriggers.at(i));
-            boost::regex re_tau1{".*Tau(\\d+)"};
+            boost::regex re_tau1{"Tau(\\d+)|TauHPS(\\d+)"};
             ptCut_2 = checkPtCutSingle(OR_2, firedPath_2, re_tau1, pt_tau1, 5.0);
           }
           else
@@ -993,8 +1000,8 @@ bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag
           if (match && _trgNoOverlap && goodType)
           {
             firedPath = _allTriggers.at(_vbfTriggers.at(i));
-            boost::regex re_tau1{".*Tau(\\d+)"};
-            boost::regex re_tau2{".*Tau(\\d+)"};
+            boost::regex re_tau1{"Tau(\\d+)|TauHPS(\\d+)"};
+            boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
             ptCut = checkPtCutCross(OR, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 5.0, 5.0);
           }
           else
