@@ -61,11 +61,15 @@ const double aTopRW = 0.0615;
 const double bTopRW = -0.0005;
 // const float DYscale_LL[3] = {8.72847e-01, 1.69905e+00, 1.63717e+00} ; // computed from fit for LL and MM b tag
 // const float DYscale_MM[3] = {9.44841e-01, 1.29404e+00, 1.28542e+00} ;
-const float DYscale_LL[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag - to be updated for DY LO once the disagreement is fixed
-const float DYscale_MM[3] = {1.11219, 1.11436, 0.743777} ; // for now we use the same numbers computed with DY NLO sample
+//const float DYscale_LL[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag - to be updated for DY LO once the disagreement is fixed
+//const float DYscale_MM[3] = {1.11219, 1.11436, 0.743777} ; // for now we use the same numbers computed with DY NLO sample
 //const float DYscale_LL_NLO[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag for the DYNLO sample
 //const float DYscale_MM_NLO[3] = {1.11219, 1.11436, 0.743777} ;
 //const float DYscale_MM_NLO[3] = {1.03277, 1.03968, 0.742346} ;
+
+// 2018
+const float DYscale_LL[3] = {0.760857,2.20159,0.886533} ; // computed from fit for LL and MM b tag - to be updated for DY LO once the disagreement is fixed
+const float DYscale_MM[3] = {0.860531,1.10466,1.49516} ; // for now we use the same numbers computed with DY NLO sample
 
 // Computed from PI group for DY NLO binned
 // - number of b-jets [0b, 1b, 2b]
@@ -964,8 +968,21 @@ int main (int argc, char** argv)
 
   // ------------------------------
 
-  string bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFile") ;
-  string bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFile") ;
+  string bTag_SFFile;
+  string bTag_effFile;
+  
+  if(useDeepFlavor) 
+  {
+  	bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepFlavor");
+  	bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFileDeepFlavor");
+  }	
+  
+  else
+  {
+  	bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepCSV");
+  	bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFileDeepCSV");
+  }	
+  	
   cout << "B Tag SF file: " << bTag_SFFile << endl;
   //bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "80X_MORIOND_2017"); // third field unused, but could be needed to select efficiencies for different selection levels
   bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "102X_DeepCSV_V1"); // third field unused, but could be needed to select efficiencies for different selection levels
@@ -1037,8 +1054,8 @@ int main (int argc, char** argv)
   //myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/HTT_SF_2016/Muon/Run2017/Muon_IdIso_IsoLt0.15_eff_RerecoFall17.root");
   //myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_SF_2016/Electron/Run2017/Electron_IdIso_IsoLt0.10_eff_RerecoFall17.root");
 
-  myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/idIso_SF_2018/Muon_Run2018_IdIso.root");
-  myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/idIso_SF_2018/Electron_Run2018_IdIso.root");
+  myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/HTT_SF_2016/Muon/Run2018/Muon_Run2018_IdIso.root");
+  myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_SF_2016/Electron/Run2018/Electron_Run2018_IdIso.root");
 
   // ------------------------------
   // smT2 mt2Class = smT2();
@@ -1724,10 +1741,10 @@ int main (int argc, char** argv)
       int t1hs = -1;
       int t2hs = -1;
 
-      int idx1hs_b = -1;     // bjet-1 index     // FRA DEBUG  ##QUI##
-      int idx2hs_b = -1;     // bjet-2 index                   ##QUI##
-      TLorentzVector vGenB1; // bjet-1 tlv                     ##QUI##
-      TLorentzVector vGenB2; // bjet-2 tlv                     ##QUI##
+      int idx1hs_b = -1;     // bjet-1 index     // FRA DEBUG  
+      int idx2hs_b = -1;     // bjet-2 index                   
+      TLorentzVector vGenB1; // bjet-1 tlv                     
+      TLorentzVector vGenB2; // bjet-2 tlv                     
 
       // if (hreweightHH || hreweightHH2D || isHHsignal) // isHHsignal: only to do loop on genparts, but no rew
       if (isHHsignal || HHrewType == kFromHisto || HHrewType == kDynamic) // isHHsignal: only to do loop on genparts, but no rew
@@ -1747,7 +1764,7 @@ int main (int argc, char** argv)
 	      bool isFirst     = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
 	      bool isLast      = CheckBit (theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
 	      bool isHardScatt = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; //   3 = isPromptTauDecayProduct
-	      bool isHardProcess = CheckBit (theBigTree.genpart_flags->at(igen), 7) ; //  7 = isHardProcess, for b coming from H  ##QUI##
+	      bool isHardProcess = CheckBit (theBigTree.genpart_flags->at(igen), 7) ; //  7 = isHardProcess, for b coming from H  
 	      // bool isDirectPromptTauDecayProduct = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; // 5 = isDirectPromptTauDecayProduct
 	      int pdg = theBigTree.genpart_pdg->at(igen);
 	      int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
@@ -1818,7 +1835,7 @@ int main (int argc, char** argv)
 		    }
 		}
 		
-	       // FRA DEBUG - find the bjets from the Higgs decay     ##QUI##
+	       // FRA DEBUG - find the bjets from the Higgs decay     
               if ( abs(pdg) == 5 && isHardProcess)
               {
         	if (idx1hs_b == -1) idx1hs_b = igen;
@@ -1889,7 +1906,8 @@ int main (int argc, char** argv)
 	  vH1.Boost(-vSum.BoostVector());                     
 	  ct1 = vH1.CosTheta();
 	  
-	        // FRA DEBUG - build gen b jets       ##QUI##
+	  
+	  // FRA DEBUG - build gen b jets       
           if (idx1hs_b != -1 && idx2hs_b != -1)
           {
               vGenB1.SetPxPyPzE (theBigTree.genpart_px->at(idx1hs_b), theBigTree.genpart_py->at(idx1hs_b), theBigTree.genpart_pz->at(idx1hs_b), theBigTree.genpart_e->at(idx1hs_b) );
@@ -3497,7 +3515,17 @@ int main (int argc, char** argv)
 
         bool bPairFound = false;
         int njets = jets_and_sortPar.size();
-        if (jets_and_sortPar.at(njets-2).first>0.4184) bPairFound = true; // medium WP is: 0.8484 for 2016 CSV, 0.4941 for 2017 DeepCSV, 0.4184 for 2018 DeepCSV,  0.2770 for 2018 DeepFlavor
+	
+	if(useDeepFlavor)
+	{
+		if (jets_and_sortPar.at(njets-2).first>0.2770) bPairFound = true;
+        }		  
+	else
+	{
+   		if (jets_and_sortPar.at(njets-2).first>0.4184) bPairFound = true;
+	}	
+
+        // medium WP is: 0.8484 for 2016 CSV, 0.4941 for 2017 DeepCSV, 0.4184 for 2018 DeepCSV, 0.2770 for 2018 DeepFlavor
 
         const int bjet1idx = jets_and_sortPar.at(njets-1).second ;
         int bjet2idx_temp  = jets_and_sortPar.at(njets-2).second ;
@@ -3613,7 +3641,6 @@ int main (int argc, char** argv)
         TLorentzVector tlv_firstBjet (theBigTree.jets_px->at(bjet1idx), theBigTree.jets_py->at(bjet1idx), theBigTree.jets_pz->at(bjet1idx), theBigTree.jets_e->at(bjet1idx));
         TLorentzVector tlv_secondBjet(theBigTree.jets_px->at(bjet2idx), theBigTree.jets_py->at(bjet2idx), theBigTree.jets_pz->at(bjet2idx), theBigTree.jets_e->at(bjet2idx));
 	
-	// ##QUI## --> QUI PUOI VEDERE UN ESEMPIO DI COME CALCOLARE LE EFFICIENZE CHE IN QUESTO CASO SONO SALVATE SU DEI BRANCH NUOVI CHE AVEVO AGGIUNTO
         bool bjets_gen_matched = ((tlv_firstBjet .DeltaR(vGenB1)<0.5 && tlv_secondBjet.DeltaR(vGenB2)<0.5) || (tlv_firstBjet.DeltaR(vGenB2)<0.5 && tlv_secondBjet.DeltaR(vGenB1)<0.5) );
         bool bjet1_gen_matched = ( tlv_firstBjet .DeltaR(vGenB1)<0.5 || tlv_firstBjet .DeltaR(vGenB2)<0.5 );
         bool bjet2_gen_matched = ( tlv_secondBjet.DeltaR(vGenB1)<0.5 || tlv_secondBjet.DeltaR(vGenB2)<0.5 );
