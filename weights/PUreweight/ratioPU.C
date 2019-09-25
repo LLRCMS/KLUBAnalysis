@@ -1,4 +1,6 @@
-void ratioPU (uint begin = 0, uint max=3000,string const &infileName = "../../inputFiles/Files_June2018_LLR/13_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt", string const &myFileName = "TTLep_MyMCPileupHistogram") 
+//void ratioPU (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Files_June2019/Files_June2019_firstLook/1_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt", string const &myFileName = "TTToSemiLeptonic_MyMCPileupHistogram") 
+//void ratioPU (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Files_June2019/Files_June2019_firstLook/2_TTToHadronic_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt", string const &myFileName = "TTToHadronic_MyMCPileupHistogram") 
+void ratioPU (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Files_June2019/Files_June2019_firstLook/3_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt", string const &myFileName = "TTTo2L2Nu_MyMCPileupHistogram") 
 {
 
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;

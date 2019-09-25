@@ -66,7 +66,26 @@
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_18Dec2018_limits --n 40
 # python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau_TESIreview.cfg --tag analysis_MuTau_5Jan2019_TESIreview_SM --n 40
 #
-#
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau_2018.cfg --tag analysis_TauTau_08July2019 --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau_2018.cfg --tag analysis_TauTau_09July2019_NewDYSF --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau_2018.cfg --tag analysis_TauTau_23July2019_deepFlavor_NewDYSF --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau_2018.cfg --tag analysis_TauTau_23July2019_deepFlavor_NewDYSF_HugeDY --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau_2018.cfg --tag analysis_TauTau_26Aug2019_deepFlavor_newDYSF_hugeDY --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuMu_2018.cfg --tag analysis_MuMu_09July2019_OldDY --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuMu_2018.cfg --tag analysis_MuMu_09July2019_NewDYSF --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuMu_2018.cfg --tag analysis_MuMu_09July2019_ZplusJetsStudy --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuMu_2018.cfg --tag analysis_MuMu_09July2019_ZplusJetsStudy_LooseWP --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuMu_2018.cfg --tag analysis_MuMu_09July2019_highPtLep --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuMu_2018.cfg --tag analysis_MuMu_09July2019_highPtLep_newDYSF --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuMu_2018.cfg --tag analysis_MuMu_23July2019_splitDY_deepFlavor --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuMu_2018.cfg --tag analysis_MuMu_23July2019_splitDY_deepFlavor_LooseWP --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuMu_2018.cfg --tag analysis_MuMu_23July2019_deepFlavor_highPtLep_newDYSF --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuMu_2018.cfg --tag analysis_MuMu_24July2019_deepFlavor_highPtLep_newDYSF_hugeDY --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuMu_2018.cfg --tag analysis_MuMu_26Aug2019_deepFlavor_highPtLep_newDYSF_hugeDY --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau_2018.cfg --tag analysis_MuTau_24July2019_deepFlavor_NewDYSF_HugeDY --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau_2018.cfg --tag analysis_MuTau_26Aug2019_deepFlavor_newDYSF_hugeDY --n 10
+# python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_ETau_2018.cfg --tag analysis_ETau_30Aug2019_deepFlavor_newDYSF_hugeDY --n 10
+
 # - LOOK at QCD -
 #
 # python scripts/submitHistoFiller_mib.py --cfg config/lookAtQCD_VBF_MuTau.cfg  --tag lookatQCD_MuTau_1Aug2018  --n 25
