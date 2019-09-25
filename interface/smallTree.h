@@ -107,9 +107,9 @@ struct smallTree
       m_dau1_CUTiso = -1 ;
       m_dau1_antiele = -1 ;
       m_dau1_antimu = -1 ;
-      //m_dau1_deepTauVsJet = -1;
-      //m_dau1_deepTauVsEle = -1;
-      //m_dau1_deepTauVsMu = -1;
+      m_dau1_deepTauVsJet = -1;
+      m_dau1_deepTauVsEle = -1;
+      m_dau1_deepTauVsMu = -1;
 
       m_dau1_photonPtSumOutsideSignalCone = -1;
       m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits= false;
@@ -146,9 +146,9 @@ struct smallTree
       m_dau2_CUTiso = -1 ;
       m_dau2_antiele = -1 ;
       m_dau2_antimu = -1 ;
-      //m_dau2_deepTauVsJet = -1;
-      //m_dau2_deepTauVsEle = -1;
-      //m_dau2_deepTauVsMu = -1;
+      m_dau2_deepTauVsJet = -1;
+      m_dau2_deepTauVsEle = -1;
+      m_dau2_deepTauVsMu = -1;
       m_dau2_photonPtSumOutsideSignalCone = -1;
       m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits= false;
       m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits= false;
@@ -654,9 +654,9 @@ struct smallTree
       m_smallT->Branch ("dau1_CUTiso", &m_dau1_CUTiso, "dau1_CUTiso/I") ;
       m_smallT->Branch ("dau1_antiele", &m_dau1_antiele, "dau1_antiele/I") ;
       m_smallT->Branch ("dau1_antimu", &m_dau1_antimu, "dau1_antimu/I") ;
-      //m_smallT->Branch ("dau1_deepTauVsJet",m_dau1_deepTauVsJet,"dau1_deepTauVsJet/I");
-      //m_smallT->Branch ("dau1_deepTauVsEle",m_dau1_deepTauVsEle,"dau1_deepTauVsEle/I");
-      //m_smallT->Branch ("dau1_deepTauVsMu",m_dau1_deepTauVsMu,"dau1_deepTauVsMu/I");
+      m_smallT->Branch ("dau1_deepTauVsJet",&m_dau1_deepTauVsJet,"dau1_deepTauVsJet/I");
+      m_smallT->Branch ("dau1_deepTauVsEle",&m_dau1_deepTauVsEle,"dau1_deepTauVsEle/I");
+      m_smallT->Branch ("dau1_deepTauVsMu",&m_dau1_deepTauVsMu,"dau1_deepTauVsMu/I");
 
       m_smallT->Branch ("dau1_photonPtSumOutsideSignalCone", &m_dau1_photonPtSumOutsideSignalCone,"dau1_photonPtSumOutsideSignalCone/F");
       m_smallT->Branch ("dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits", &m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits, "dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits/O") ;
@@ -692,9 +692,9 @@ struct smallTree
       m_smallT->Branch ("dau2_CUTiso", &m_dau2_CUTiso, "dau2_CUTiso/I") ;
       m_smallT->Branch ("dau2_antiele", &m_dau2_antiele, "dau2_antiele/I") ;
       m_smallT->Branch ("dau2_antimu", &m_dau2_antimu, "dau2_antimu/I") ;
-      //m_smallT->Branch ("dau2_deepTauVsJet",m_dau2_deepTauVsJet,"dau2_deepTauVsJet/I");
-      //m_smallT->Branch ("dau2_deepTauVsEle",m_dau2_deepTauVsEle,"dau2_deepTauVsEle/I");
-      //m_smallT->Branch ("dau2_deepTauVsMu",m_dau2_deepTauVsMu,"dau2_deepTauVsMu/I");
+      m_smallT->Branch ("dau2_deepTauVsJet",&m_dau2_deepTauVsJet,"dau2_deepTauVsJet/I");
+      m_smallT->Branch ("dau2_deepTauVsEle",&m_dau2_deepTauVsEle,"dau2_deepTauVsEle/I");
+      m_smallT->Branch ("dau2_deepTauVsMu",&m_dau2_deepTauVsMu,"dau2_deepTauVsMu/I");
       m_smallT->Branch ("dau2_photonPtSumOutsideSignalCone", &m_dau2_photonPtSumOutsideSignalCone, "dau2_photonPtSumOutsideSignalCone/F");
       m_smallT->Branch ("dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits", &m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits, "dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits/O") ;
       m_smallT->Branch ("dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits", &m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits, "dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits/O") ;
@@ -1196,9 +1196,9 @@ struct smallTree
   Int_t   m_dau1_CUTiso; // for taus only
   Int_t   m_dau1_antiele; // for taus only
   Int_t   m_dau1_antimu; // for taus only
-  //Int_t   m_dau1_deepTauVsJet;
-  //Int_t   m_dau1_deepTauVsEle;
-  //Int_t   m_dau1_deepTauVsMu;
+  Int_t   m_dau1_deepTauVsJet;
+  Int_t   m_dau1_deepTauVsEle;
+  Int_t   m_dau1_deepTauVsMu;
 
   Float_t m_dau1_photonPtSumOutsideSignalCone;
   Bool_t m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits;
@@ -1235,9 +1235,9 @@ struct smallTree
   Int_t   m_dau2_CUTiso; // for taus only
   Int_t   m_dau2_antiele; // for taus only
   Int_t   m_dau2_antimu; // for taus only
-  //Int_t   m_dau2_deepTauVsJet;
-  //Int_t   m_dau2_deepTauVsEle;
-  //Int_t   m_dau2_deepTauVsMu;
+  Int_t   m_dau2_deepTauVsJet;
+  Int_t   m_dau2_deepTauVsEle;
+  Int_t   m_dau2_deepTauVsMu;
   Float_t m_dau2_photonPtSumOutsideSignalCone;
   Bool_t m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits;
   Bool_t m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits;

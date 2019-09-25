@@ -67,9 +67,13 @@ const double bTopRW = -0.0005;
 //const float DYscale_MM_NLO[3] = {1.11219, 1.11436, 0.743777} ;
 //const float DYscale_MM_NLO[3] = {1.03277, 1.03968, 0.742346} ;
 
-// 2018
-const float DYscale_LL[3] = {0.760857,2.20159,0.886533} ; // computed from fit for LL and MM b tag - to be updated for DY LO once the disagreement is fixed
-const float DYscale_MM[3] = {0.860531,1.10466,1.49516} ; // for now we use the same numbers computed with DY NLO sample
+// 2018 deepCSV
+//const float DYscale_LL[3] = {0.760857,2.20159,0.886533} ; // computed from fit for LL and MM b tag - to be updated for DY LO once the disagreement is fixed
+//const float DYscale_MM[3] = {0.860531,1.10466,1.49516} ; // for now we use the same numbers computed with DY NLO sample
+
+// 2018 deepFlavor
+const float DYscale_LL[3] = {0.748154,2.15445,1.63619} ; // for now we use the same numbers computed with DY NLO sample
+const float DYscale_MM[3] = {0.862686,1.08509,1.10947} ; // for now we use the same numbers computed with DY NLO sample
 
 // Computed from PI group for DY NLO binned
 // - number of b-jets [0b, 1b, 2b]
@@ -1211,7 +1215,7 @@ int main (int argc, char** argv)
     }
 
   // DNN Tau ID vs jet
-  /*vector<int> deepTauVsJetIdx;
+  vector<int> deepTauVsJetIdx;
   deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVVLooseDeepTau2017v2VSjet"));
   deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVLooseDeepTau2017v2VSjet")); 
   deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseDeepTau2017v2VSjet"));  
@@ -1258,7 +1262,7 @@ int main (int argc, char** argv)
       for (unsigned int i = 0; i < deepTauVsMuIdx.size(); ++i)
 	cout << deepTauVsMuIdx.at(i) << " " ;
       cout << endl;
-    }*/
+    }
 
   // -----------------------------------
   // event counters for efficiency study
@@ -2664,9 +2668,9 @@ int main (int argc, char** argv)
       theSmallTree.m_dau1_CUTiso = makeIsoDiscr (firstDaughterIndex, tauCUTIDIdx, theBigTree) ;
       theSmallTree.m_dau1_antiele = makeIsoDiscr (firstDaughterIndex, tauAntiEleIdx, theBigTree) ;
       theSmallTree.m_dau1_antimu  = makeIsoDiscr (firstDaughterIndex, tauAntiMuIdx, theBigTree) ;
-      //theSmallTree.m_dau1_deepTauVsJet = makeIsoDiscr (firstDaughterIndex, deepTauVsJetIdx , theBigTree) ;
-      //theSmallTree.m_dau1_deepTauVsEle = makeIsoDiscr (firstDaughterIndex, deepTauVsEleIdx , theBigTree) ;
-      //theSmallTree.m_dau1_deepTauVsMu = makeIsoDiscr (firstDaughterIndex, deepTauVsMuIdx , theBigTree) ;
+      theSmallTree.m_dau1_deepTauVsJet = makeIsoDiscr (firstDaughterIndex, deepTauVsJetIdx , theBigTree) ;
+      theSmallTree.m_dau1_deepTauVsEle = makeIsoDiscr (firstDaughterIndex, deepTauVsEleIdx , theBigTree) ;
+      theSmallTree.m_dau1_deepTauVsMu = makeIsoDiscr (firstDaughterIndex, deepTauVsMuIdx , theBigTree) ;
 
       theSmallTree.m_dau1_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (firstDaughterIndex) ;
 
@@ -2701,9 +2705,9 @@ int main (int argc, char** argv)
       theSmallTree.m_dau2_CUTiso = makeIsoDiscr (secondDaughterIndex, tauCUTIDIdx, theBigTree) ;
       theSmallTree.m_dau2_antiele = makeIsoDiscr (secondDaughterIndex, tauAntiEleIdx, theBigTree) ;
       theSmallTree.m_dau2_antimu  = makeIsoDiscr (secondDaughterIndex, tauAntiMuIdx, theBigTree) ;
-      //theSmallTree.m_dau2_deepTauVsJet = makeIsoDiscr (secondDaughterIndex, deepTauVsJetIdx , theBigTree) ;
-      //theSmallTree.m_dau2_deepTauVsEle = makeIsoDiscr (secondDaughterIndex, deepTauVsEleIdx , theBigTree) ;
-      //theSmallTree.m_dau2_deepTauVsMu = makeIsoDiscr (secondDaughterIndex, deepTauVsMuIdx , theBigTree) ;
+      theSmallTree.m_dau2_deepTauVsJet = makeIsoDiscr (secondDaughterIndex, deepTauVsJetIdx , theBigTree) ;
+      theSmallTree.m_dau2_deepTauVsEle = makeIsoDiscr (secondDaughterIndex, deepTauVsEleIdx , theBigTree) ;
+      theSmallTree.m_dau2_deepTauVsMu = makeIsoDiscr (secondDaughterIndex, deepTauVsMuIdx , theBigTree) ;
       theSmallTree.m_dau2_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (secondDaughterIndex) ;      
       theSmallTree.m_dau2_pt = tlv_secondLepton.Pt () ;
       theSmallTree.m_dau2_pt_tauup = tlv_secondLepton_tauup.Pt () ;
