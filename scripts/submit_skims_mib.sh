@@ -17,7 +17,8 @@
 #OUTDIRR="Skims_Fall17_MC_27Nov2018"
 #OUTDIRR="Skims_Fall17_MC_14Dec2018"
 #OUTDIRR="Skims_Fall17_MC_7Feb2019"
-OUTDIRR="Skims_Fall17_MC_28Feb2019"
+#OUTDIRR="Skims_Fall17_MC_28Feb2019"
+OUTDIRR="Skims_Autumn18_MC_19Jun2019"
 
 #INPUTDIR="inputFiles/JECproduction_Lug2017"
 #INPUTDIR="inputFiles/Fall17_MC/"
@@ -25,7 +26,8 @@ OUTDIRR="Skims_Fall17_MC_28Feb2019"
 #INPUTDIR="inputFiles/Fall17_MC"
 #INPUTDIR="inputFiles/Fall17_DATA"
 #INPUTDIR="inputFiles/Files_June2018"
-INPUTDIR="inputFiles/Files_January2019/finals"
+#INPUTDIR="inputFiles/Files_January2019/finals"
+INPUTDIR="inputFiles/Files_June2019/Files_June2019_secondLook"
 
 #SKIMDIR="/gwteraz/users/brivio/SKIMMED_VBF"
 #SKIMDIR="/gwteraz/users/brivio/SKIMMED_Fall17_MC"
@@ -43,67 +45,108 @@ INPUTDIR="inputFiles/Files_January2019/finals"
 #SKIMDIR="/gwteraz/users/brivio/SKIMMED_27Nov2018"
 #SKIMDIR="/gwteraz/users/brivio/SKIMMED_14Dec2018"
 #SKIMDIR="/gwteraz/users/brivio/SKIMMED_7Feb2019"
-SKIMDIR="/gwteraz/users/brivio/SKIMMED_28Feb2019"
+#SKIMDIR="/gwteraz/users/brivio/SKIMMED_28Feb2019"
+#SKIMDIR="/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_TTBarBKG_ForDeepFlavorEfficiency"
+#SKIMDIR="/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_secondLookSkims_deepFlavor"
+#SKIMDIR="/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_secondLookSkims_deepCSV"
+#SKIMDIR="/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_Prova"
+#SKIMDIR="/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_thirdLookSkims_deepFlavor"
+SKIMDIR="/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_thirdLookSkims_deepCSV"
 
 #PUDIR="/gwpool/users/brivio/Hhh_1718/syncFeb2018/CMSSW_9_0_0/src/KLUBAnalysis/weights/PUreweight/outputs"
-PUDIR="/gwpool/users/brivio/Hhh_1718/syncFeb2018/CMSSW_9_0_0/src/KLUBAnalysis/weights/PUreweight/outputs_January2019"
+PUDIR="/gwpool/users/dzuolo/HbbtautauAnalysis2018/CMSSW_9_0_0/src/KLUBAnalysis/weights/PUreweight"
 
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 source scripts/setup.sh
-#mkdir /gwteraz/users/brivio/SKIMMED_Fall17_MC/$OUTDIRR/
 mkdir $OUTDIRR
-#cp /gwpool/users/brivio/Hhh_1718/CMSSW_7_4_7/src/KLUBAnalysis/scripts/haddAll.sh /gwteraz/users/brivio/SKIMMED_Fall17_MC/$OUTDIRR/
 
+#### GGH SM :
+# XS:  0.03349 pb^-1
+echo "Submitting - GGH SM - "
+echo "Submitting - GGH SM - " >> log_26Aug2019.txt
+echo "OUTDIR = $OUTDIRR"
+echo "OUTDIR = $OUTDIRR" >> log_26Aug2019.txt
 
-
-#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync.cfg -n 1  -o $SKIMDIR/SKIM_Graviton450_v3  -i $INPUTDIR/Graviton450_bis.txt -x 1
-#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync.cfg -n 1  -o $SKIMDIR/SKIM_TauData  -i $INPUTDIR/TauData.txt -x 1 -d True
-# <<COMMENT1
-# COMMENT1
-
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2018_sync_mib.cfg  -n 13 -k True -o $SKIMDIR/SKIM_GGHSM -i $INPUTDIR/1_GluGluToHHTo2B2Tau_node_SM_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 0.03349 -a True -q longcms --pu $PUDIR/2018_PuReWeight_SF.txt
 
 <<COMMENT1
-
-
 ###################
-echo "----- BEGIN -----" >> log_28feb2019.txt
-
 # TT
 # TT x section: 831.76 for inclusive sample, W->had 67,60% , W->l nu 3*10,8% = 32,4% (sum over all leptons)
 # hh = 45.7%
 # ll = 10.5%
 # hl = 21.9% (x2 for permutation t-tbar)
 # technical note: use -q long if splitting on ~180-350 jobs
+
 # TT had
 echo "Submitting - TThad - "
-echo "Submitting - TThad - " >> log_28feb2019.txt
+echo "Submitting - TThad - " >> log_26Aug2019.txt
 echo "OUTDIR = $OUTDIRR"
-echo "OUTDIR = $OUTDIRR" >> log_28feb2019.txt
+echo "OUTDIR = $OUTDIRR" >> log_26Aug2019.txt
 
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 13 -k False -o $SKIMDIR/SKIM_TT_fullyHad -i $INPUTDIR/TTToHadronic.txt -x 377.96 -t True -b 1 -q longcms --pu $PUDIR/PUsafe_weights.txt
-
-
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2018_sync_mib.cfg -n 13 -k True -o $SKIMDIR/SKIM_TT_fullyHad -i $INPUTDIR/4_TTToHadronic_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 377.96 -t True -b 1 -q longcms --pu $PUDIR/2018_PuReWeight_SF.txt
 
 # TT lep
 echo "Submitting - TTlep - "
-echo "Submitting - TTlep - " >> log_28feb2019.txt
+echo "Submitting - TTlep - " >> log_26Aug2019.txt
 echo "OUTDIR = $OUTDIRR"
-echo "OUTDIR = $OUTDIRR" >> log_28feb2019.txt
+echo "OUTDIR = $OUTDIRR" >> log_26Aug2019.txt
 
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 13 -k False -o $SKIMDIR/SKIM_TT_fullyLep -i $INPUTDIR/TTTo2L2Nu.txt -x 88.29  -t True -b 4 -q longcms --pu $PUDIR/PUsafe_weights.txt
-
-
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2018_sync_mib.cfg -n 13 -k True -o $SKIMDIR/SKIM_TT_fullyLep -i $INPUTDIR/1_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 88.29  -t True -b 4 -q longcms --pu $PUDIR/2018_PuReWeight_SF.txt
 
 # TT semi
 echo "Submitting - TTsemi - "
-echo "Submitting - TTsemi - " >> log_28feb2019.txt
+echo "Submitting - TTsemi - " >> log_26Aug2019.txt
 echo "OUTDIR = $OUTDIRR"
-echo "OUTDIR = $OUTDIRR" >> log_28feb2019.txt
+echo "OUTDIR = $OUTDIRR" >> log_26Aug2019.txt
 
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 13 -k False -o $SKIMDIR/SKIM_TT_semiLep -i $INPUTDIR/TTToSemiLeptonic.txt -x 365.34 -t True -b 5 -q longcms --pu $PUDIR/TT_semiLep.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2018_sync_mib.cfg -n 13 -k True -o $SKIMDIR/SKIM_TT_semiLep -i $INPUTDIR/3_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 365.34 -t True -b 5 -q longcms --pu $PUDIR/2018_PuReWeight_SF.txt
 
+# # #####################
+# Wjets
+echo "Submitting - WJets - "
+echo "Submitting - WJets - " >> log_26Aug2019.txt
+echo "OUTDIR = $OUTDIRR"
+echo "OUTDIR = $OUTDIRR" >> log_26Aug2019.txt
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2018_sync_mib.cfg -n 13 -k True -o $SKIMDIR/SKIM_WJets_Inclusive -i $INPUTDIR/1_WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v2.txt -x 52940.0 -q longcms --pu $PUDIR/2018_PuReWeight_SF.txt
+
+# #####################
+# DY NLO
+# total XS= 6225.42 pb - 8 october 2018
+echo "Submitting - DY NLO - "
+echo "Submitting - DY NLO - " >> log_26Aug2019.txt
+echo "OUTDIR = $OUTDIRR"
+echo "OUTDIR = $OUTDIRR" >> log_26Aug2019.txt
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2018_sync_mib.cfg -n 13 -k True -o $SKIMDIR/SKIM_DY_NLO_NewSF_Huge -i $INPUTDIR/1_DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1-All.txt -x 6225.42 -q longcms --pu $PUDIR/2018_PuReWeight_SF.txt  --DY True
+
+### DATA :
+echo "Submitting - DATA tau - "
+echo "Submitting - DATA tau - " >> log_26Aug2019.txt
+echo "OUTDIR = $OUTDIRR"
+echo "OUTDIR = $OUTDIRR" >> log_26Aug2019.txt
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -d True  -s True -c config/skim_2018_sync_mib.cfg -n 13 -k True -o $SKIMDIR/SKIM_Tau_2018B -i $INPUTDIR/1_Tau__Run2018B-17Sep2018-v1.txt -q longcms
+
+### DATA :
+echo "Submitting - DATA Mu - "
+echo "Submitting - DATA Mu - " >> log_26Aug2019.txt
+echo "OUTDIR = $OUTDIRR"
+echo "OUTDIR = $OUTDIRR" >> log_26Aug2019.txt
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -d True  -s True -c config/skim_2018_sync_mib.cfg -n 13 -k True -o $SKIMDIR/SKIM_Mu_2018B -i $INPUTDIR/2_SingleMuon__Run2018B-17Sep2018-v1.txt -q longcms
+
+echo "Submitting - DATA Electron - "
+echo "Submitting - DATA Electron - " >> log_26Aug2019.txt
+echo "OUTDIR = $OUTDIRR"
+echo "OUTDIR = $OUTDIRR" >> log_26Aug2019.txt
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -d True  -s True -c config/skim_2018_sync_mib.cfg -n 13 -k True -o $SKIMDIR/SKIM_EGamma_2018B -i $INPUTDIR/1_EGamma__Run2018B-17Sep2018-v1.txt -q longcms
 
 COMMENT1
+
+<<COMMENT2
 
 # # #####################
 # DY
@@ -111,7 +154,6 @@ echo "Submitting - DY LO - "
 echo "Submitting - DY LO - " >> log_28feb2019.txt
 echo "OUTDIR = $OUTDIRR"
 echo "OUTDIR = $OUTDIRR" >> log_28feb2019.txt
-
 
 #old stayle DY (no PU sample-by-sample, no LOtoNLOreweight, no split in nB and nJets)
 #python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 40 -k True -o $SKIMDIR/SKIM_DY_weights24Sep2018 -i $INPUTDIR/DYJets.txt -g True -x 5765.4  -q shortcms
@@ -209,8 +251,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mi
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 11 -k False -o $SKIMDIR/SKIM_DYJets_1j0b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 980.42  -q longcms --pu $PUDIR/DY_special/DY_1j0b.txt --nj 1 --nb 0 --DY True
 
-<<COMMENT2
-
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 3 -k False -o $SKIMDIR/SKIM_DYJets_1j1b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 41.05  -q longcms --pu $PUDIR/DY_special/DY_1j1b.txt --nj 1 --nb 1 --DY True
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 20 -k False -o $SKIMDIR/SKIM_DYJets_2j0b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 331.44  -q shortcms --pu $PUDIR/DY_special/DY_2j0b.txt --nj 2 --nb 0 --DY True
@@ -237,8 +277,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mi
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k False -o $SKIMDIR/SKIM_DYJets_4j4b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 0.017  -q longcms --pu $PUDIR/DY_special/DY_4j4b.txt --nj 4 --nb 4 --DY True
 
-
-
 # # #####################
 # DY NLO
 # total XS= 6225.42 pb - 8 october 2018
@@ -248,9 +286,6 @@ echo "OUTDIR = $OUTDIRR"
 echo "OUTDIR = $OUTDIRR" >> log_28feb2019.txt
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 45 -k False -o $SKIMDIR/SKIM_DY_NLO -i $INPUTDIR/DYJetsToLL_NLO.txt -g False -x 6225.42 -q longcms --pu $PUDIR/DYJetsToLL_NLO.txt  --DY True
-
-
-
 
 # # #####################
 # Wjets
@@ -275,8 +310,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mi
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k False -o $SKIMDIR/SKIM_WJets_HT_2500_Inf  -i $INPUTDIR/37_WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v3.txt  -y 1.213784 -x 0.03216 -Z 2500 -q longcms --pu $PUDIR/PUsafe_weights.txt
 
-
-
 # # #####################
 #### ELECTROWEAK
 echo "Submitting - EWK - "
@@ -291,8 +324,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mi
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 10 -k False -o $SKIMDIR/SKIM_EWKZ2Jets_ZToNuNu      -i $INPUTDIR/16_EWKZ2Jets_ZToNuNu_TuneCP5_13TeV-madgraph-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt        -x 10.66 -q longcms --pu $PUDIR/EWKZ2Jets_ZToNuNu.txt
 
-
-
 # # #####################
 #### tW top :
 echo "Submitting - SingleTop - "
@@ -306,9 +337,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mi
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 10 -k False -o $SKIMDIR/SKIM_ST_tchannel_antitop   -i $INPUTDIR/23_ST_t-channel_antitop_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2.txt   -x 80.95 -q longcms --pu $PUDIR/PUsafe_weights.txt
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 10 -k False -o $SKIMDIR/SKIM_ST_tchannel_top       -i $INPUTDIR/24_ST_t-channel_top_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1.txt       -x 136.02 -q longcms --pu $PUDIR/PUsafe_weights.txt
-
-
-
 
 # # #####################
 #### SM Higgs :
@@ -342,8 +370,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mi
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 2 -k False -o $SKIMDIR/SKIM_ttHJetToBB -i $INPUTDIR/70_ttHJetTobb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1.txt -x 0.507 -y 0.577 -q longcms --pu $PUDIR/PUsafe_weights.txt
 
-
-
 # # #####################
 #### Others :
 echo "Submitting - Others - "
@@ -360,8 +386,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mi
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 5 -k False -o $SKIMDIR/SKIM_TTWZ -i $INPUTDIR/74_TTWZ_TuneCP5_13TeV-madgraph-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1.txt -x 0.002441 -q shortcms --pu $PUDIR/PUsafe_weights.txt
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg -n 5 -k False -o $SKIMDIR/SKIM_TTZZ -i $INPUTDIR/78_TTZZ_TuneCP5_13TeV-madgraph-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1.txt -x 0.001386 -q shortcms --pu $PUDIR/PUsafe_weights.txt
-
-
 
 # # #####################
 # # ### DI-boson: - 7*7 + 6*5 = 49 + 30 = 79
@@ -408,10 +432,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mi
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 15   -k False -o $SKIMDIR/SKIM_ZZTo2L2Nu            -i $INPUTDIR/38_ZZTo2L2Nu_13TeV_powheg_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 0.5644 -q shortcms --pu $PUDIR/PUsafe_weights.txt
 
-
-
-
-
 #### VBF SM :
 # XS: 0.001626 pb^-1 from XSBD
 echo "Submitting - VBF SM - "
@@ -421,8 +441,6 @@ echo "OUTDIR = $OUTDIRR" >> log_28feb2019.txt
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 10   -k True -o $SKIMDIR/SKIM_VBFSM -i $INPUTDIR/signals/46_VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_13TeV-madgraph__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2.txt -x 0.001626 -a True -q shortcms --pu $PUDIR/PUsafe_weights.txt
 
-
-
 #### GGH SM :
 # XS:  0.03349 pb^-1
 echo "Submitting - GGH SM - "
@@ -431,10 +449,6 @@ echo "OUTDIR = $OUTDIRR"
 echo "OUTDIR = $OUTDIRR" >> log_28feb2019.txt
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 5   -k True -o $SKIMDIR/SKIM_GGHSM -i $INPUTDIR/signals/39_GluGluToHHTo2B2Tau_node_SM_13TeV-madgraph_correctedcfg__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 0.03349 -a True -q shortcms --pu $PUDIR/PUsafe_weights.txt
-
-
-
-
 
 #### SIGNALS TESI :
 echo "Submitting - SIGNALS TESI - "
@@ -549,7 +563,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mi
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 1   -k True -o $SKIMDIR/SKIM_CV_1_5_C2V_1_C3_1 -i $INPUTDIR/signals/50_VBFHHTo2B2Tau_CV_1_5_C2V_1_C3_1_13TeV-madgraph__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2.txt -x 1.0 -a True -q shortcms --pu $PUDIR/PUsafe_weights.txt
 
-
 # GGH Radion
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 1   -k True -o $SKIMDIR/signals_TESI/SKIM_ggRadion250 -i $INPUTDIR/signals_tesi/20_GluGluToRadionToHHTo2B2Tau_M-250_narrow_13TeV-madgraph_correctedcfg__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 1.0 -a True -q shortcms --pu $PUDIR/VBFSM.txt
 
@@ -571,7 +584,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mi
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 1   -k True -o $SKIMDIR/signals_TESI/SKIM_ggRadion1000 -i $INPUTDIR/signals_tesi/34_GluGluToRadionToHHTo2B2Tau_M-1000_narrow_13TeV-madgraph_correctedcfg__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 1.0 -a True -q shortcms --pu $PUDIR/VBFSM.txt
 
-
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 1   -k True -o $SKIMDIR/signals_TESI/SKIM_vbfRadion250 -i $INPUTDIR/signals_tesi/53_VBFToRadionToHHTo2B2Tau_M-250_narrow_13TeV-madgraph__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 1.0 -a True -q shortcms --pu $PUDIR/VBFSM.txt
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 1   -k True -o $SKIMDIR/signals_TESI/SKIM_vbfRadion280 -i $INPUTDIR/signals_tesi/56_VBFToRadionToHHTo2B2Tau_M-280_narrow_13TeV-madgraph__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 1.0 -a True -q shortcms --pu $PUDIR/VBFSM.txt
@@ -592,22 +604,7 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mi
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_2017_sync_mib.cfg  -n 1   -k True -o $SKIMDIR/signals_TESI/SKIM_vbfRadion1000 -i $INPUTDIR/signals_tesi/66_VBFToRadionToHHTo2B2Tau_M-1000_narrow_13TeV-madgraph__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 1.0 -a True -q shortcms --pu $PUDIR/VBFSM.txt
 
-
 COMMENT2
-<<COMMENT3
-
-
-### Tau Data
-#echo "Submitting - DATA Muon - "
-#echo "Submitting - DATA Muon - " >> log_28feb2019.txt
-#echo "OUTDIR = $OUTDIRR"
-#echo "OUTDIR = $OUTDIRR" >> log_28feb2019.txt
-
-#python scripts/skimNtuple_mib.py -T $OUTDIRR -d True  -s True -c config/skim_2017_sync_mib.cfg -n 1 -k True -o $SKIMDIR/SKIM_SingleMuon_2017B_test -i inputFiles/Data2017_26Jun2018/1_SingleMuon__Run2017B-31Mar2018-v1_TEST.txt -q longcms
-
-
-COMMENT3
-
 
 <<COMMENTFINAL
 ################################################################################################################################################################

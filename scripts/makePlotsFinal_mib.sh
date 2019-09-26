@@ -50,7 +50,21 @@
 #tag=18Dec2018_inclusive_2_HTT
 #tag=18Dec2018_inclusive_DYreg_HTT
 #tag=18Dec2018_inclusive_DYreg_HTT_trig
-tag=5Jan2019_TESIreview_SM
+#tag=5Jan2019_TESIreview_SM
+#tag=26June2019
+#tag=08July2019
+#tag=09July2019_OldDY
+#tag=09July2019_NewDYSF
+#tag=09July2019_highPtLep
+#tag=09July2019_highPtLep_newDYSF
+#tag=23July2019_deepFlavor_highPtLep_newDYSF 
+#tag=23July2019_deepFlavor_NewDYSF
+#tag=23July2019_deepFlavor_NewDYSF_HugeDY
+#tag=24July2019_deepFlavor_highPtLep_newDYSF_hugeDY
+#tag=24July2019_deepFlavor_NewDYSF_HugeDY
+#tag=26Aug2019_deepFlavor_newDYSF_hugeDY
+#tag=26Aug2019_deepFlavor_highPtLep_newDYSF_hugeDY
+tag=30Aug2019_deepFlavor_newDYSF_hugeDY
 
 log=(--log)
 
@@ -58,14 +72,18 @@ plotter=makeFinalPlots_mib.py
 #plotter=makeFinalPlots_split.py
 
 #channel=TauTau
-channel=MuTau
-#channel=ETau
+#channel=MuTau
+channel=ETau
 #channel=MuMu
 
 #lumi=13.4
-lumi=41.6
+#lumi=41.6
+#lumi=59.74
+lumi=7.1
 reg=SR  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
 
+#baseline=baseline6060
+#baseline=baseline5050
 #baseline=baseline
 #baseline=baselineMassCut
 #baseline=baseline_noQCD
@@ -77,13 +95,13 @@ reg=SR  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
 #baseline=baselineNoMass
 #baseline=baselineNoMass_dRs2
 
-baseline=s1b1jresolved
+#baseline=s1b1jresolved
 #baseline=s1b1jresolvedMcut
 #baseline=s1b1jresolved_dRs2
 #baseline=s1b1jresolvedNoMass
 #baseline=s1b1jresolvedNoMass_dRs2
 
-#baseline=s2b0jresolved
+baseline=s2b0jresolved
 #baseline=s2b0jresolvedMcut
 
 #baseline=sboostedLL
@@ -135,17 +153,19 @@ do
   #
   ## Hbb
   #
-    #python scripts/$plotter --dir analysis_$channel\_$tag --var bjet1_pt   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}(b_{1}) [GeV]" $sigDrawer $others  --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var bjet1_pt   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}(b_{1}) [GeV]" $sigDrawer $others  --quit
     python scripts/$plotter --dir analysis_$channel\_$tag --var bjet2_pt   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}(b_{2}) [GeV]" $sigDrawer $others --quit
 
-    #python scripts/$plotter --dir analysis_$channel\_$tag --var bjet1_eta  --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#eta(bjet_{1})" $sigDrawer $others --quit
-    #python scripts/$plotter --dir analysis_$channel\_$tag --var bjet2_eta  --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#eta_{bjet2}" $sigDrawer $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var bjet1_eta  --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#eta(bjet_{1})" $sigDrawer $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var bjet2_eta  --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#eta_{bjet2}" $sigDrawer $others --quit
 
-    #python scripts/$plotter --dir analysis_$channel\_$tag --var bH_mass        --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi  ${log[i]} --ratio  --tag $tag --label "m_{bb} [GeV]" $sigDrawer $others --quit
-    ##python scripts/$plotter --dir analysis_$channel\_$tag --var dib_dEtaSign   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi  ${log[i]} --ratio  --tag $tag --label "#eta_{bjet1}x#eta_{bjet2}" $sigDrawer $others --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var bH_mass  --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi  ${log[i]} --ratio  --tag $tag --label "m_{bb} [GeV]" $sigDrawer $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var bH_pt  --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi  ${log[i]} --ratio  --tag $tag --label "p_{T}^{Vis}(#b#b)" $sigDrawer $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var bH_mass_raw  --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi  ${log[i]} --ratio  --tag $tag --label "m_{bb} [GeV]" $sigDrawer $others --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var dib_dEtaSign   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi  ${log[i]} --ratio  --tag $tag --label "#eta_{bjet1}x#eta_{bjet2}" $sigDrawer $others --quit
     #python scripts/$plotter --dir analysis_$channel\_$tag --var dib_deltaR     --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi  ${log[i]} --ratio  --tag $tag --label "#DeltaR_{bb}" $sigDrawer $others --quit
-    python scripts/$plotter --dir analysis_$channel\_$tag --var dib_deltaEta   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi  ${log[i]} --ratio  --tag $tag --label "#Delta#eta_{bb}" $sigDrawer $others --quit
-    python scripts/$plotter --dir analysis_$channel\_$tag --var bH_MET_deltaEta   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi  ${log[i]} --ratio  --tag $tag --label "#Delta#eta(H_{bb},MET)" $sigDrawer $others --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var dib_deltaEta   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi  ${log[i]} --ratio  --tag $tag --label "#Delta#eta_{bb}" $sigDrawer $others --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var bH_MET_deltaEta   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi  ${log[i]} --ratio  --tag $tag --label "#Delta#eta(H_{bb},MET)" $sigDrawer $others --quit
 
   #
   ## Htautau
@@ -154,8 +174,8 @@ do
     python scripts/$plotter --dir analysis_$channel\_$tag --var dau1_pt         --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}(#tau_{1}) [GeV]" $sigDrawer $others --quit
     python scripts/$plotter --dir analysis_$channel\_$tag --var dau2_pt         --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}(#tau_{2}) [GeV]" $sigDrawer $others --quit
 
-    #python scripts/$plotter --dir analysis_$channel\_$tag --var dau1_eta        --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#eta_{#tau1}" $sigDrawer $others --quit
-    #python scripts/$plotter --dir analysis_$channel\_$tag --var dau2_eta        --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#eta_{#tau2}" $sigDrawer $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var dau1_eta        --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#eta_{#tau1}" $sigDrawer $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var dau2_eta        --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#eta_{#tau2}" $sigDrawer $others --quit
 
     #python scripts/$plotter --dir analysis_$channel\_$tag --var dau1_phi        --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#phi_{#tau1}" $sigDrawer $others --quit
     #python scripts/$plotter --dir analysis_$channel\_$tag --var dau2_phi        --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#phi_{#tau2}" $sigDrawer $others --quit
@@ -167,9 +187,9 @@ do
     #python scripts/$plotter --dir analysis_$channel\_$tag --var dau2_MVAisoNew  --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "MVAisoNew_{#tau2} [GeV]" $sigDrawer $others --quit
 
 
-    ####python scripts/$plotter --dir analysis_$channel\_$tag --var tauH_SVFIT_mass --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{#tau#tau}^{SVfit} [GeV]" $sigDrawer $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var tauH_SVFIT_mass --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{#tau#tau}^{SVfit} [GeV]" $sigDrawer $others --quit
     #python scripts/$plotter --dir analysis_$channel\_$tag --var tauH_mass       --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{#tau#tau}^{vis} [GeV]" $sigDrawer $others --quit
-    python scripts/$plotter --dir analysis_$channel\_$tag --var tauH_SVFIT_pt   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}^{SVfit}(H#tau#tau) [GeV]" $sigDrawer $others --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var tauH_SVFIT_pt   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}^{SVfit}(H#tau#tau) [GeV]" $sigDrawer $others --quit
 
     python scripts/$plotter --dir analysis_$channel\_$tag --var tauH_pt         --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}^{Vis}(#tau#tau) [GeV]" $sigDrawer $others --quit
     #python scripts/$plotter --dir analysis_$channel\_$tag --var ditau_deltaEta         --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#Delta#eta_{#tau#tau}" $sigDrawer $others --quit
@@ -180,12 +200,12 @@ do
   ## HH
   #
     #python scripts/$plotter --dir analysis_$channel\_$tag --var HH_deltaR --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag  --label "#DeltaR_{HH}" $sigDrawer $others --quit
-    ##python scripts/$plotter --dir analysis_$channel\_$tag --var HH_zV --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag  --label "Boson Centrality (HH)" $sigDrawer $others --quit
-    ####python scripts/$plotter --dir analysis_$channel\_$tag --var HH_mass_raw --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag  --label "m_{bb#tau#tau} [GeV]" $sigDrawer $others --quit
-    ####python scripts/$plotter --dir analysis_$channel\_$tag --var HH_pt --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag  --label "p_{T}(bb#tau#tau) [GeV]" $sigDrawer $others --quit
-    ####python scripts/$plotter --dir analysis_$channel\_$tag --var HHsvfit_mass --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag  --label "m_{bb#tau#tau}^{SVfit} [GeV]" $sigDrawer $others --quit
-    ####python scripts/$plotter --dir analysis_$channel\_$tag --var HHsvfit_pt --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag  --label "p_{T}^{SVfit}(bb#tau#tau) [GeV]" $sigDrawer $others --quit
-    python scripts/$plotter --dir analysis_$channel\_$tag --var HHKin_mass_raw_chi2 --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag  --label "#chi^{2}(HH KinFit)" $sigDrawer $others --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var HH_zV --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag  --label "Boson Centrality (HH)" $sigDrawer $others --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var HH_mass_raw --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag  --label "m_{bb#tau#tau} [GeV]" $sigDrawer $others --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var HH_pt --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag  --label "p_{T}(bb#tau#tau) [GeV]" $sigDrawer $others --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var HHsvfit_mass --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag  --label "m_{bb#tau#tau}^{SVfit} [GeV]" $sigDrawer $others --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var HHsvfit_pt --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag  --label "p_{T}^{SVfit}(bb#tau#tau) [GeV]" $sigDrawer $others --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var HHKin_mass_raw_chi2 --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag  --label "#chi^{2}(HH KinFit)" $sigDrawer $others --quit
 
   #
   ## VBF
@@ -216,38 +236,38 @@ do
   ##met
   #
   python scripts/$plotter --dir analysis_$channel\_$tag --var met_et    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "MET [GeV]" $sigDrawer $others --quit
-  #python scripts/$plotter --dir analysis_$channel\_$tag --var met_phi   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#phi_{MET}" $sigDrawer $others --quit
+  python scripts/$plotter --dir analysis_$channel\_$tag --var met_phi   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#phi_{MET}" $sigDrawer $others --quit
 
   #python scripts/$plotter --dir analysis_$channel\_$tag --var met_er_et      --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "MET no HE [GeV]" $sigDrawer $others --quit
 
   #
   ## BDT angela
   #
-  python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_MET_bH_cosTheta    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "cos#theta(bb, MET)" $sigDrawer $others --quit
-  python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_HT20    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "HT [GeV]" $sigDrawer $others --quit
-  python scripts/$plotter --dir analysis_$channel\_$tag --var HHKin_mass_raw    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{HH}^{KinFit} [GeV]" $sigDrawer $others --blind-range 250 1000 --quit
-  python scripts/$plotter --dir analysis_$channel\_$tag --var MT2    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "MT2 [GeV]" $sigDrawer $others --blind-range 200 500 --quit
-  python scripts/$plotter --dir analysis_$channel\_$tag --var bH_pt    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}(bb) [GeV]" $sigDrawer $others --quit
-  python scripts/$plotter --dir analysis_$channel\_$tag --var p_zeta    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "P_{#zeta}" $sigDrawer $others --quit
-  python scripts/$plotter --dir analysis_$channel\_$tag --var p_zeta_visible    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "P_{#zeta}^{vis}" $sigDrawer $others --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_MET_bH_cosTheta    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "cos#theta(bb, MET)" $sigDrawer $others --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_HT20    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "HT [GeV]" $sigDrawer $others --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var HHKin_mass_raw    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{HH}^{KinFit} [GeV]" $sigDrawer $others --blind-range 250 1000 --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var MT2    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "MT2 [GeV]" $sigDrawer $others --blind-range 200 500 --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var bH_pt    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}(bb) [GeV]" $sigDrawer $others --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var p_zeta    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "P_{#zeta}" $sigDrawer $others --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var p_zeta_visible    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "P_{#zeta}^{vis}" $sigDrawer $others --quit
   #python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_topPairMasses    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{topPair}" $sigDrawer $others --quit
-  python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_ditau_deltaPhi    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#Delta#phi (#tau,#tau)" $sigDrawer $others --quit
-  python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_tauHsvfitMet_deltaPhi    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#Delta#phi(MET,H_{#tau#tau})" $sigDrawer $others --quit
-  python scripts/$plotter --dir analysis_$channel\_$tag --var mT_tauH_MET    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{T}(MET,H_{#tau#tau})" $sigDrawer $others --quit
-  python scripts/$plotter --dir analysis_$channel\_$tag --var mT_total    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{T}^{total}" $sigDrawer $others --quit
-  python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_MX    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{X}" $sigDrawer $others --quit
-  python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_bH_tauH_MET_InvMass    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "InvariantMass(H_{bb},MET)" $sigDrawer $others --quit
-  python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_bH_tauH_SVFIT_InvMass    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "InvariantMass(H_{bb},H_{#tau#tau}^{SVfit})" $sigDrawer $others --quit
-  python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_bH_tauH_InvMass    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "InvariantMass(H_{bb},H_{#tau#tau}^{vis})" $sigDrawer $others --quit
-  python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_MET_bH_cosTheta    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "cos#theta(H_{bb},MET)" $sigDrawer $others --quit
-  python scripts/$plotter --dir analysis_$channel\_$tag --var mT1    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{T}(#tau_{1},MET)" $sigDrawer $others --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_ditau_deltaPhi    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#Delta#phi (#tau,#tau)" $sigDrawer $others --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_tauHsvfitMet_deltaPhi    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#Delta#phi(MET,H_{#tau#tau})" $sigDrawer $others --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var mT_tauH_MET    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{T}(MET,H_{#tau#tau})" $sigDrawer $others --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var mT_total    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{T}^{total}" $sigDrawer $others --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_MX    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{X}" $sigDrawer $others --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_bH_tauH_MET_InvMass    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "InvariantMass(H_{bb},MET)" $sigDrawer $others --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_bH_tauH_SVFIT_InvMass    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "InvariantMass(H_{bb},H_{#tau#tau}^{SVfit})" $sigDrawer $others --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_bH_tauH_InvMass    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "InvariantMass(H_{bb},H_{#tau#tau}^{vis})" $sigDrawer $others --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var BDT_MET_bH_cosTheta    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "cos#theta(H_{bb},MET)" $sigDrawer $others --quit
+  #python scripts/$plotter --dir analysis_$channel\_$tag --var mT1    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{T}(#tau_{1},MET)" $sigDrawer $others --quit
 
 
 
   #
   ## njets
   #
-  #python scripts/$plotter --dir analysis_$channel\_$tag --var njets    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "njets" $sigDrawer $others --quit
+  python scripts/$plotter --dir analysis_$channel\_$tag --var njets    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "njets" $sigDrawer $others --quit
   #python scripts/$plotter --dir analysis_$channel\_$tag --var npv    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "npv" $sigDrawer $others --quit
 
   #

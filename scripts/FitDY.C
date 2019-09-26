@@ -153,7 +153,11 @@ void printYields(
 void FitDY(bool medTag = true)
 {
     //TFile* inFile = new TFile ("../analysis_MuMu_3Oct2018_DYNLO/outPlotter.root") ;
-    TFile* inFile = new TFile ("../analysis_MuMu_15Feb2019_DYNLO_weights/outPlotter.root") ;
+    //TFile* inFile = new TFile ("../analysis_MuMu_15Feb2019_DYNLO_weights/outPlotter.root") ;
+    //TFile* inFile = new TFile ("../analysis_MuMu_09July2019_ZplusJetsStudy/outPlotter.root") ;
+    //TFile* inFile = new TFile ("../analysis_MuMu_09July2019_ZplusJetsStudy_LooseWP/outPlotter.root") ;
+    //TFile* inFile = new TFile ("../analysis_MuMu_23July2019_splitDY_deepFlavor/outPlotter.root") ;
+    TFile* inFile = new TFile ("../analysis_MuMu_23July2019_splitDY_deepFlavor_LooseWP/outPlotter.root") ;
 
     string sel0tag;
     string sel1tag;
@@ -165,9 +169,12 @@ void FitDY(bool medTag = true)
     //0b2jhig17, 1b1jhig17, 2b0jhig17 -- 0b2jchia17,1b1jchia17,2b0jchia17 -- 0b2jPI 1b1jPI 2b0jPI
     if (medTag)
     {
-        sel0tag = "0b2jhig17_SR" ;
-        sel1tag = "1b1jhig17_SR" ;
-        sel2tag = "2b0jhig17_SR" ;
+        /*sel0tag = "0b2jMmetbcut_SR" ;
+        sel1tag = "1b1jMmetbcut_SR" ;
+        sel2tag = "2b0jMmetbcut_SR" ;*/
+        sel0tag = "0b2jLmetbcut_SR" ;
+        sel1tag = "1b1jLmetbcut_SR" ;
+        sel2tag = "2b0jLmetbcut_SR" ;
     }
     else
     {
@@ -197,9 +204,11 @@ void FitDY(bool medTag = true)
     */
 
     // leave in the order 0b, 1b, 2b
-    vector<string> vDY = {"DY0b", "DY1b", "DY2b"};
+    vector<string> vDY = {"DY_NLO_allgenjets_0b","DY_NLO_allgenjets_1b", "DY_NLO_allgenjets_2b"};
+    //vector<string> vDY = {"DY0b", "DY1b", "DY2b"};
     // vector<string> vBkgs = {"TT", "WJets", "TWtop", "TWantitop", "WWToLNuQQ", "WZTo1L1Nu2Q", "WZTo1L3Nu", "WZTo2L2Q", "ZZTo2L2Q"};
-    vector<string> vBkgs = {"TT", "WJets" , "others"};
+    //vector<string> vBkgs = {"TT", "WJets" , "others"};
+    vector<string> vBkgs = {"TT", "WJets"};
     vector<string> vData = {"data_obs"};
     // vector<string> vData = {"DsingleMu"};
 

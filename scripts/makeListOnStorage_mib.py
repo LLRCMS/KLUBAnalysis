@@ -26,10 +26,24 @@ from subprocess import Popen, PIPE
 #tag = "MC_24July2018"
 #tag = "MC_14JOct2018"
 #tag = "MC_23JOct2018_signalsTESI"
-tag = "MC_bkg_25January2019"
+#tag = "MC_bkg_25January2019"
 #tag = "MC_bkg_25January2019_njobs"
 #tag = "MC_bkg_25January2019_njobs2"
 #tag = "MC_bkg_25January2019_njobs3"
+#tag = "MC_06June2019"
+#tag = "MC_07June2019"
+#tag = "MC_08June2019"
+#tag = "MC_19June2019"
+#tag = "MC_20June2019"
+#tag = "Data_26June2019"
+#tag = "MC_27June2019"
+#tag = "MC_28July2019"
+#tag = "MC_30July2019"
+#tag = "MC_31July2019"
+#tag = "MC_23Aug2019"
+#tag = "Sig_30July2019"
+#tag = "Data_30July2019"
+tag="Data_29Aug2019"
 
 #outFolder = '/home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_17Nov_VBF'
 #outFolder = '../inputFiles/Fall17_MC/'
@@ -37,10 +51,11 @@ tag = "MC_bkg_25January2019"
 #outFolder = '../inputFiles/Files_June2018/'
 #outFolder = '../inputFiles/Files_June2018/signals/'
 #outFolder = '../inputFiles/Files_June2018/signals_tesi/'
-outFolder = '../inputFiles/Files_January2019/Files_January2019/'
+#outFolder = '../inputFiles/Files_January2019/Files_January2019/'
 #outFolder = '../inputFiles/Files_January2019/Files_January2019_njobs/'
 #outFolder = '../inputFiles/Files_January2019/Files_January2019_njobs2/'
 #outFolder = '../inputFiles/Files_January2019/Files_January2019_njobs3/'
+outFolder = '../inputFiles/Files_June2019/Files_June2019_secondLook/'
 
 areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
                                  # if false: only add the polgrid server to run the skim and submit on root
@@ -79,7 +94,8 @@ print useOnly
 dpmhome = "/gwteras/cms"
 
 #partialPath = "/store/user/lcadamur/HHNtuples/" #folder contenente la produzione
-partialPath = "/store/user/fbrivio/Hhh_1718/"
+#partialPath = "/store/user/fbrivio/Hhh_1718/"
+partialPath = "/store/user/dzuolo/HHbbtautauNtuples/"
 
 
 path = dpmhome + partialPath + tag

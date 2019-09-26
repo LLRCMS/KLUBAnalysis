@@ -90,7 +90,6 @@ TauTriggerSFs2017::TauTriggerSFs2017(const std::string& inputFileName, const std
   fitUncMCMap_ [10] = loadTH1(inputFile_, Form("%s_%s%s_dm10_MC_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
 
 
-
   // Because of low statistics in the problem region of the barrel, we apply the Eta-Phi corrections
   // based on taus firing mutau trigger and passing the vloose MVA WP. This provides the most statistically
   // robust measurement for the correction. Considering the three Eta-Phi regions should not have significantly

@@ -490,7 +490,8 @@ if __name__ == "__main__" :
 
 
     ######################### PUT USER CONFIGURATION HERE ####################
-    cfgName  =  args.dir + "/mainCfg_"+args.channel+".cfg"
+    cfgName  =  args.dir + "/mainCfg_"+args.channel+"_2018.cfg"
+    #cfgName  =  args.dir + "/mainCfg_"+args.channel+".cfg"
     #cfgName  =  args.dir + "/mainCfg_"+args.channel+"_TESIreview.cfg"
     cfg        = cfgr.ConfigReader (cfgName)
     bkgList    = cfg.readListOption("general::backgrounds")
@@ -508,17 +509,18 @@ if __name__ == "__main__" :
     #sigList = ["nodeSM", "node2", "ggRadion280", "vbfRadion280"]
     #sigList = ["VBF_CV_1_C2V_1_C3_1", "VBF_CV_1_C2V_1_C3_0", "vbfRadion280"]
     #sigList = ["VBF_CV_1_C2V_1_C3_1", "vbfRadion280", "vbfRadion750"]
-    sigList = ["nodeSM", "node7", "node2", "ggRadion280", "ggRadion400", "ggRadion750"]
-    sigList = ["ggRadion280", "ggRadion400", "ggRadion750"]
-    sigList = ["nodeSM", "node7", "node2"]
-    sigList = ["nodeSM", "node7"]
-    sigList = ["ggRadion280", "ggRadion750"]
-    sigList = ["nodeSM", "node7", "node2", "node3", "node4", "node9", "node12"]
-    sigList = ["nodeSM", "node4", "node12"]
-    sigList = ["ggHTauTau"]
-    sigList = ["VBFSM"]
-    sigList = ["ggHH"]
-    sigList = ["ggHTauTau"]
+    #sigList = ["nodeSM", "node7", "node2", "ggRadion280", "ggRadion400", "ggRadion750"]
+    #sigList = ["ggRadion280", "ggRadion400", "ggRadion750"]
+    #sigList = ["nodeSM", "node7", "node2"]
+    #sigList = ["nodeSM", "node7"]
+    #sigList = ["ggRadion280", "ggRadion750"]
+    #sigList = ["nodeSM", "node7", "node2", "node3", "node4", "node9", "node12"]
+    #sigList = ["nodeSM", "node4", "node12"]
+    #sigList = ["ggHTauTau"]
+    #sigList = ["VBFSM"]
+    #sigList = ["ggHH"]
+    #sigList = ["ggHTauTau"]
+    sigList = ["nodeSM"]
 
     sigNameList = []
     if args.log:
@@ -533,15 +535,15 @@ if __name__ == "__main__" :
     #sigNameList = ["20x VBF SM", "20x VBF c_{g}=0", "20x VBF radion m_{X}=280 GeV", "20x VBF radion m_{X}=750 GeV"]
     #sigNameList = ["VBF SM", "VBF c_{g}=0", "VBF radion m_{X}=280 GeV"]
     #sigNameList = ["VBF SM", "VBF radion m_{X}=280 GeV", "VBF radion m_{X}=750 GeV"]
-    sigNameList = ["GF SM", "Bench7 k_{#lambda}=5", "Bench2 c_{2},c_{2g},c_{g} modif", "GF radion m_{X}=280GeV", "GF radion m_{X}=400GeV",  "GF radion m_{X}=750GeV"]
-    sigNameList = ["GF radion m_{X}=280GeV", "GF radion m_{X}=400GeV",  "GF radion m_{X}=750GeV"]
-    sigNameList = ["GF SM", "Bench7 k_{#lambda}=5", "Bench2 c_{2},c_{2g},c_{g} modif"]
-    sigNameList = ["GF SM", "Bench7 k_{#lambda}=5"]
-    sigNameList = ["GF radion m_{X}=280GeV", "GF radion m_{X}=750GeV"]
-    sigNameList = ["GF SM", "Benchmark7", "Benchmark2", "Benchmark3", "Benchmark4", "Benchmark9", "Benchmark12"]
-    sigNameList = ["GF SM", "Benchmark4", "Benchmark12"]
-    sigNameList = ["dummy"]
-    sigNameList = ["VBF SM"]
+    #sigNameList = ["GF SM", "Bench7 k_{#lambda}=5", "Bench2 c_{2},c_{2g},c_{g} modif", "GF radion m_{X}=280GeV", "GF radion m_{X}=400GeV",  "GF radion m_{X}=750GeV"]
+    #sigNameList = ["GF radion m_{X}=280GeV", "GF radion m_{X}=400GeV",  "GF radion m_{X}=750GeV"]
+    #sigNameList = ["GF SM", "Bench7 k_{#lambda}=5", "Bench2 c_{2},c_{2g},c_{g} modif"]
+    #sigNameList = ["GF SM", "Bench7 k_{#lambda}=5"]
+    #sigNameList = ["GF radion m_{X}=280GeV", "GF radion m_{X}=750GeV"]
+    #sigNameList = ["GF SM", "Benchmark7", "Benchmark2", "Benchmark3", "Benchmark4", "Benchmark9", "Benchmark12"]
+    #sigNameList = ["GF SM", "Benchmark4", "Benchmark12"]
+    #sigNameList = ["dummy"]
+    #sigNameList = ["VBF SM"]
     sigNameList = ["ggHH SM (x100)"]
 
     sigColors = {}
@@ -650,21 +652,23 @@ if __name__ == "__main__" :
     #hDY.Scale(1./6.)
     hTT = getHisto("TT", hBkgs,doOverflow)
     hWJets = getHisto("WJets", hBkgs,doOverflow)
-    hothers = getHisto("others", hBkgs,doOverflow)
+    #hothers = getHisto("others", hBkgs,doOverflow)
     #hsingleT = getHisto("singleT", hBkgs,doOverflow)
     #hEWKW = getHisto("EWKW", hBkgs,doOverflow)
     #hVV = getHisto("VV", hBkgs,doOverflow)
     #hSM = getHisto("SM", hBkgs,doOverflow)
 
     #hBkgList = [hothers, hSM, hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
-    hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
+    #hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
     #hBkgList = [hVV, hEWKW, hsingleT, hWJets, hTT, hDY] ## full list for stack
     #hBkgList = [hsingleT, hTT, hDY]
+    hBkgList = [hWJets, hTT, hDY] ## full list for stack
 
     #hBkgNameList = ["Others","SM Higgs", "VV", "EWK", "Single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
-    hBkgNameList = ["Others", "W + jets", "t#bar{t}" , "DY + jets"] # list for legend
+    #hBkgNameList = ["Others", "W + jets", "t#bar{t}" , "DY + jets"] # list for legend
     #hBkgNameList = ["VV", "EWK", "single top", "W + jets", "t#bar{t}","DY + jets"] # list for legend
     #hBkgNameList = ["Single top", "t#bar{t}", "DY + jets"]
+    hBkgNameList = ["W + jets", "t#bar{t}" , "DY NLO"] # list for legend
 
     #if cfg.hasSection('pp_QCD'):
     if doQCD:
