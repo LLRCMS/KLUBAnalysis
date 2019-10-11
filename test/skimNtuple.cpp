@@ -2754,9 +2754,10 @@ int main (int argc, char** argv)
 	  if (lep2HasTES) {
 	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
 	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
-	    if(theSmallTree.m_dau2_decayMode == 0) idAndIsoSF_leg2_decayMode = 0.84; //computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO 
-	    if(theSmallTree.m_dau2_decayMode == 1) idAndIsoSF_leg2_decayMode = 0.92;
-	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.86;
+	    // TauPOG recommendation for 2018 data (medium WP)
+	    if(theSmallTree.m_dau2_decayMode == 0) idAndIsoSF_leg2_decayMode = 1.16;//0.84 computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO 
+	    if(theSmallTree.m_dau2_decayMode == 1) idAndIsoSF_leg2_decayMode = 0.90;//0.92
+	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.98;//0.86
 	    isFakeJet2 = false;
 	  }
 	  
@@ -2793,9 +2794,10 @@ int main (int argc, char** argv)
 	  if (lep2HasTES){
 	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
 	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
-	    if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 0.84; //computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
-	    if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 0.92;
-	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.86;
+	    // TauPOG recommendation for 2018 data (medium WP)
+	    if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 1.16;//0.84 computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
+	    if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 0.90;//0.92
+	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.98;//0.86
 	    isFakeJet2 = false;
 	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
@@ -2827,17 +2829,19 @@ int main (int argc, char** argv)
 	  if (lep1HasTES) {
 	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
 	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
-	    if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg1_decayMode = 0.97; //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
-	    if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg1_decayMode = 1.04;
-	    if(theSmallTree.m_dau1_decayMode == 10) idAndIsoSF_leg1_decayMode = 0.90;
+	    // TauPOG recommendation for 2018 data (medium WP)
+	    if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg1_decayMode = 1.16;//0.97 //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
+	    if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg1_decayMode = 0.90;//1.04
+	    if(theSmallTree.m_dau1_decayMode == 10) idAndIsoSF_leg1_decayMode = 0.98;//0.90
 	    isFakeJet1 = false;
 	  }
 	  if (lep2HasTES) {
 	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
 	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
-	    if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 0.97; //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
-	    if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 1.04;
-	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.90;
+	    // TauPOG recommendation for 2018 data (medium WP)
+	    if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg1_decayMode = 1.16;//0.97 //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
+	    if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg1_decayMode = 0.90;//1.04
+	    if(theSmallTree.m_dau1_decayMode == 10) idAndIsoSF_leg1_decayMode = 0.98;//0.90
 	    isFakeJet2 = false;
 	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
