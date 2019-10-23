@@ -279,7 +279,8 @@ float getIso (unsigned int iDau, float pt, bigTree & theBigTree)
   if (type == 2)
     // return theBigTree.daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) ;
     //return theBigTree.daughters_byIsolationMVArun2v1DBoldDMwLTraw->at(iDau) ;
-    return theBigTree.daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017->at(iDau) ; //FRA: update for 2017 data (94X)
+    //return theBigTree.daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017->at(iDau) ; //FRA: update for 2017 data (94X)
+    return theBigTree.daughters_byDeepTau2017v2VSjetraw->at(iDau) ; //Davide: update for 2018 data (102X)
   // muon
   if (type == 1 || type == 0)
     return theBigTree.combreliso->at(iDau);
