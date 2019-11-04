@@ -214,9 +214,9 @@ public :
    std::vector<float>   *daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017;
    std::vector<float>   *daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017;
    std::vector<float>   *daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017;
-   std::vector<float>   *daughters_byDeepTau2017v2VSjetraw;
-   std::vector<float>   *daughters_byDeepTau2017v2VSeraw;
-   std::vector<float>   *daughters_byDeepTau2017v2VSmuraw;
+   std::vector<float>   *daughters_byDeepTau2017v2p1VSjetraw;
+   std::vector<float>   *daughters_byDeepTau2017v2p1VSeraw;
+   std::vector<float>   *daughters_byDeepTau2017v2p1VSmuraw;
    std::vector<int>     *daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017;
    std::vector<float>   *daughters_chargedIsoPtSum;
    std::vector<float>   *daughters_neutralIsoPtSum;
@@ -551,9 +551,9 @@ public :
    TBranch        *b_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017; //!
    TBranch        *b_daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017; //!
    TBranch        *b_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017;
-   TBranch        *b_daughters_byDeepTau2017v2VSjetraw;
-   TBranch        *b_daughters_byDeepTau2017v2VSeraw;
-   TBranch        *b_daughters_byDeepTau2017v2VSmuraw;
+   TBranch        *b_daughters_byDeepTau2017v2p1VSjetraw;
+   TBranch        *b_daughters_byDeepTau2017v2p1VSeraw;
+   TBranch        *b_daughters_byDeepTau2017v2p1VSmuraw;
    TBranch        *b_daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017;
    TBranch        *b_daughters_chargedIsoPtSum;   //!
    TBranch        *b_daughters_neutralIsoPtSum;   //!
@@ -882,9 +882,9 @@ public :
        daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017 = 0;
        daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017 = 0;
        daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017 = 0;
-       daughters_byDeepTau2017v2VSjetraw = 0;
-       daughters_byDeepTau2017v2VSeraw = 0;
-       daughters_byDeepTau2017v2VSmuraw = 0;
+       daughters_byDeepTau2017v2p1VSjetraw = 0;
+       daughters_byDeepTau2017v2p1VSeraw = 0;
+       daughters_byDeepTau2017v2p1VSmuraw = 0;
        daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017 = 0;
        daughters_chargedIsoPtSum = 0;
        daughters_neutralIsoPtSum = 0;
@@ -1126,9 +1126,9 @@ public :
        fChain->SetBranchAddress("daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017", &daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017, &b_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017);
        fChain->SetBranchAddress("daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017", &daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017, &b_daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017);
        fChain->SetBranchAddress("daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017", &daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017, &b_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017);
-       fChain->SetBranchAddress("daughters_byDeepTau2017v2VSjetraw", &daughters_byDeepTau2017v2VSjetraw, &b_daughters_byDeepTau2017v2VSjetraw);
-       fChain->SetBranchAddress("daughters_byDeepTau2017v2VSeraw", &daughters_byDeepTau2017v2VSeraw, &b_daughters_byDeepTau2017v2VSeraw);
-       fChain->SetBranchAddress("daughters_byDeepTau2017v2VSmuraw", &daughters_byDeepTau2017v2VSmuraw, &b_daughters_byDeepTau2017v2VSmuraw);
+       fChain->SetBranchAddress("daughters_byDeepTau2017v2p1VSjetraw", &daughters_byDeepTau2017v2p1VSjetraw, &b_daughters_byDeepTau2017v2p1VSjetraw);
+       fChain->SetBranchAddress("daughters_byDeepTau2017v2p1VSeraw", &daughters_byDeepTau2017v2p1VSeraw, &b_daughters_byDeepTau2017v2p1VSeraw);
+       fChain->SetBranchAddress("daughters_byDeepTau2017v2p1VSmuraw", &daughters_byDeepTau2017v2p1VSmuraw, &b_daughters_byDeepTau2017v2p1VSmuraw);
        fChain->SetBranchAddress("daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017", &daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017, &b_daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017);
        fChain->SetBranchAddress("daughters_chargedIsoPtSum", &daughters_chargedIsoPtSum, &b_daughters_chargedIsoPtSum);
        fChain->SetBranchAddress("daughters_neutralIsoPtSum", &daughters_neutralIsoPtSum, &b_daughters_neutralIsoPtSum);
