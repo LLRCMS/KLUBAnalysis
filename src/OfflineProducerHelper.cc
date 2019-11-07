@@ -190,8 +190,8 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     {
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
         //leg1 = muBaseline (tree, dau1index, 23., 2.1, 0.15, MuTight, whatApply, debug);
-        leg1 = muBaseline (tree, dau1index, 10., 2.1, 0.15, MuTight, whatApply, debug);                 //FRA: for syncFeb2018
-        //leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVLoose, amuTight, tauIso, whatApply, debug);
+	//leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVLoose, amuTight, tauIso, whatApply, debug);
+        leg1 = muBaseline  (tree, dau1index, 10., 2.1, 0.15, MuTight, whatApply, debug);                   //FRA: for syncFeb2018
         leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVVVLoose, amuMedium, tauIso, whatApply, debug); //Davide: deepTau
    }
 
@@ -199,8 +199,8 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     {
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
         //leg1 = eleBaseline (tree, dau1index, 27., 2.1, 0.1, EMVATight, whatApply, debug);
-        leg1 = eleBaseline (tree, dau1index, 10., 2.1, 0.1, EMVATight, whatApply, debug); //FRA: for syncFeb2018
-        //leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleTight, amuLoose, tauIso, whatApply, debug);
+	//leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleTight, amuLoose, tauIso, whatApply, debug);
+        leg1 = eleBaseline (tree, dau1index, 10., 2.1, 0.1, EMVATight, whatApply, debug);               //FRA: for syncFeb2018
         leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleTight, amuVLoose, tauIso, whatApply, debug); //Davide: deepTau
     }
 
@@ -210,6 +210,8 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
         float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 2.0 ;
         //leg1 = tauBaseline (tree, dau1index, 40., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
         //leg2 = tauBaseline (tree, dau2index, 40., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);
+        //leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);//FRA: for syncFeb2018
+        //leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVLoose, amuLoose, tauIso, whatApply, debug);//FRA: for syncFeb2018
         leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVVVLoose, amuVLoose, tauIso, whatApply, debug);//FRA: for syncFeb2018
         leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVVVLoose, amuVLoose, tauIso, whatApply, debug);//FRA: for syncFeb2018
     }
@@ -483,16 +485,21 @@ bool OfflineProducerHelper::muBaseline (
     return totalS;
 }
 
-// againstEleWP: 0 = VLoose, 1 = Loose, 2 = Medium, 3 = Tight, 4 = VTight [all are MVA discr]
-// againstMuWP: 0 = Loose, 1 = Tight
-// deepTauVsJet: 0 = VVVLoose, 1 = VVLoose, 2 = VLoose, 3 = Loose, 4 = Medium, 5 = Tight, 6 = VTight, 7 = VVTight
+// againstEleWP: 0 = VLoose  , 1 = Loose  , 2 = Medium, 3 = Tight, 4 = VTight
+// againstMuWP:  0 = Loose   , 1 = Tight
 // deepTauVsEle: 0 = VVVLoose, 1 = VVLoose, 2 = VLoose, 3 = Loose, 4 = Medium, 5 = Tight, 6 = VTight, 7 = VVTight
-// deepTauVsMu: 0 = VLoose, 1 = Loose, 2 = Medium, 3 = Tight
+// deepTauVsMu:  0 = VLoose  , 1 = Loose  , 2 = Medium, 3 = Tight
 
 bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin, 
          float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits, 
          TString whatApply, bool debug)
 {
+    if (tree->decayMode->at(iDau) == 5 || tree->decayMode->at(iDau) == 6 || tree->decayMode->at(iDau) == 11) 
+    {
+    	std::cout<< "Rejecting decay mode: "<< tree->decayMode->at(iDau) << std::endl;
+	return false; 	
+    }	
+	
     float px = tree->daughters_px->at(iDau);
     float py = tree->daughters_py->at(iDau);
     float pz = tree->daughters_pz->at(iDau);
@@ -526,7 +533,6 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
       if (whatApply.Contains("etaMax")) byp_etaS = false;
     }
 
-
 /*     if (againstEleWP < 0 || againstEleWP > 4) {
         cout << " ** OfflineProducerHelper::tauBaseline: againstEleWP must be between 0 and 4 --> using 0" << endl;
         againstEleWP = 0;
@@ -538,7 +544,7 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
     }
 */
     if (againstEleWP < 0 || againstEleWP > 7) {
-        cout << " ** OfflineProducerHelper::tauBaseline: againstEleWP must be between 0 and 8 --> using 0" << endl;
+        cout << " ** OfflineProducerHelper::tauBaseline: againstEleWP must be between 0 and 7 --> using 0" << endl;
         againstEleWP = 0;
     } 
 
@@ -571,13 +577,13 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
     else if (againstEleWP == 5) agEleVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("byTightDeepTau2017v2p1VSe"));
     else if (againstEleWP == 6) agEleVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("byVTightDeepTau2017v2p1VSe"));
     else if (againstEleWP == 7) agEleVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("byVVTightDeepTau2017v2p1VSe"));
-
+    
     // ag mu:
     if (againstMuWP == 0)      agMuVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("byVLooseDeepTau2017v2p1VSmu"));
     else if (againstMuWP == 1) agMuVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("byLooseDeepTau2017v2p1VSmu"));
     else if (againstMuWP == 2) agMuVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("byMediumDeepTau2017v2p1VSmu"));
     else if (againstMuWP == 3) agMuVal = checkBit(tree->tauID->at(iDau),getTAUidNumber("byTightDeepTau2017v2p1VSmu"));
- 
+    
     //bool dmfS = (tree->daughters_decayModeFindingOldDMs->at(iDau) == 1 || tree->daughters_decayModeFindingNewDMs->at(iDau) == 1) || byp_dmfS;
     //bool dmfS = (tree->daughters_decayModeFindingOldDMs->at(iDau) == 1) || byp_dmfS;
     bool dmfS = (tree->daughters_decayModeFindingNewDMs->at(iDau) == 1) || byp_dmfS;
@@ -585,7 +591,7 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
     bool vertexS = (fabs(tree->dz->at(iDau)) < 0.2) || byp_vertexS;
     bool agEleS = (agEleVal == 1) || byp_agEleS; 
     bool agMuS  = (agMuVal == 1) || byp_agMuS; 
-    
+        
     //bool isoS = (tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) < isoRaw3Hits) || byp_isoS;
     //bool isoS = (tree->daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017->at(iDau) > 0.5) || byp_isoS;
     bool isoS =  checkBit(tree->tauID->at(iDau),getTAUidNumber("byVVVLooseDeepTau2017v2p1VSjet")) || byp_isoS;
