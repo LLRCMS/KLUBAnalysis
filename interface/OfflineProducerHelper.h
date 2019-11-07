@@ -75,17 +75,6 @@ enum aeleWP {
     aeleVVTight  = 7
   };
 
-/*   enum ajetWP {
-    ajetVVVLoose = 0,
-    ajetVVLoose  = 1,
-    ajetVLoose   = 2,
-    ajetLoose    = 3,
-    ajetMedium   = 4,
-    ajetTight    = 5,
-    ajetVTight   = 6,
-    ajetVVTight  = 7
-  };
- */
   enum amuWP {
     amuVLoose = 0,
     amuLoose  = 1,
