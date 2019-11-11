@@ -279,7 +279,8 @@ float getIso (unsigned int iDau, float pt, bigTree & theBigTree)
   if (type == 2)
     // return theBigTree.daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) ;
     //return theBigTree.daughters_byIsolationMVArun2v1DBoldDMwLTraw->at(iDau) ;
-    return theBigTree.daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017->at(iDau) ; //FRA: update for 2017 data (94X)
+    //return theBigTree.daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017->at(iDau) ; //FRA: update for 2017 data (94X)
+    return theBigTree.daughters_byDeepTau2017v2p1VSjetraw->at(iDau) ; //Davide: update for 2018 data (102X)
   // muon
   if (type == 1 || type == 0)
     return theBigTree.combreliso->at(iDau);
@@ -1216,14 +1217,14 @@ int main (int argc, char** argv)
 
   // DNN Tau ID vs jet
   vector<int> deepTauVsJetIdx;
-  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVVLooseDeepTau2017v2VSjet"));
-  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVLooseDeepTau2017v2VSjet")); 
-  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseDeepTau2017v2VSjet"));  
-  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byLooseDeepTau2017v2VSjet"));   
-  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byMediumDeepTau2017v2VSjet"));  
-  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byTightDeepTau2017v2VSjet"));   
-  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVTightDeepTau2017v2VSjet"));  
-  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVTightDeepTau2017v2VSjet")); 
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVVLooseDeepTau2017v2p1VSjet"));
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVLooseDeepTau2017v2p1VSjet")); 
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseDeepTau2017v2p1VSjet"));  
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byLooseDeepTau2017v2p1VSjet"));   
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byMediumDeepTau2017v2p1VSjet"));  
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byTightDeepTau2017v2p1VSjet"));   
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVTightDeepTau2017v2p1VSjet"));  
+  deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVTightDeepTau2017v2p1VSjet")); 
   if (find(deepTauVsJetIdx.begin(), deepTauVsJetIdx.end(), -1) != deepTauVsJetIdx.end())
     {
       cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
@@ -1234,14 +1235,14 @@ int main (int argc, char** argv)
 
   // DNN Tau ID vs ele
   vector<int> deepTauVsEleIdx;  
-  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVVVLooseDeepTau2017v2VSe"));  
-  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVVLooseDeepTau2017v2VSe")); 
-  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseDeepTau2017v2VSe"));   
-  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byLooseDeepTau2017v2VSe"));  
-  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byMediumDeepTau2017v2VSe"));   
-  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byTightDeepTau2017v2VSe"));  
-  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVTightDeepTau2017v2VSe"));   
-  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVVTightDeepTau2017v2VSe"));   
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVVVLooseDeepTau2017v2p1VSe"));  
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVVLooseDeepTau2017v2p1VSe")); 
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseDeepTau2017v2p1VSe"));   
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byLooseDeepTau2017v2p1VSe"));  
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byMediumDeepTau2017v2p1VSe"));   
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byTightDeepTau2017v2p1VSe"));  
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVTightDeepTau2017v2p1VSe"));   
+  deepTauVsEleIdx.push_back(getTauIDIdx(hTauIDS, "byVVTightDeepTau2017v2p1VSe"));   
   if (find(deepTauVsEleIdx.begin(), deepTauVsEleIdx.end(), -1) != deepTauVsEleIdx.end())
     {
       cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
@@ -1252,10 +1253,10 @@ int main (int argc, char** argv)
 
   // DNN Tau ID vs mu
   vector<int> deepTauVsMuIdx;
-  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseDeepTau2017v2VSmu")); 
-  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byLooseDeepTau2017v2VSmu")); 
-  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byMediumDeepTau2017v2VSmu")); 
-  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byTightDeepTau2017v2VSmu")); 
+  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseDeepTau2017v2p1VSmu")); 
+  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byLooseDeepTau2017v2p1VSmu")); 
+  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byMediumDeepTau2017v2p1VSmu")); 
+  deepTauVsMuIdx.push_back(getTauIDIdx(hTauIDS, "byTightDeepTau2017v2p1VSmu")); 
   if (find(deepTauVsMuIdx.begin(), deepTauVsMuIdx.end(), -1) != deepTauVsMuIdx.end())
     {
       cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
@@ -2271,6 +2272,9 @@ int main (int argc, char** argv)
       if (DM1 == 2) DM1 = 1;
       if (DM2 == 2) DM2 = 1;
 
+      if (DM1 == 11) DM1 = 10; //Davide: DM 11 should be used in combination with deepTau: temporarily forced to 10 because SF ar not available
+      if (DM2 == 11) DM2 = 10;
+
       //save decaymode
       if(pairType == 0){ //mutauh
 	theSmallTree.m_dau1_decayMode = -1;
@@ -2754,9 +2758,10 @@ int main (int argc, char** argv)
 	  if (lep2HasTES) {
 	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
 	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
-	    if(theSmallTree.m_dau2_decayMode == 0) idAndIsoSF_leg2_decayMode = 0.84; //computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO 
-	    if(theSmallTree.m_dau2_decayMode == 1) idAndIsoSF_leg2_decayMode = 0.92;
-	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.86;
+	    // TauPOG recommendation for 2018 data (medium WP)
+	    if(theSmallTree.m_dau2_decayMode == 0) idAndIsoSF_leg2_decayMode = 1.16;//0.84 computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO 
+	    if(theSmallTree.m_dau2_decayMode == 1) idAndIsoSF_leg2_decayMode = 0.90;//0.92
+	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.98;//0.86
 	    isFakeJet2 = false;
 	  }
 	  
@@ -2793,9 +2798,10 @@ int main (int argc, char** argv)
 	  if (lep2HasTES){
 	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
 	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
-	    if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 0.84; //computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
-	    if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 0.92;
-	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.86;
+	    // TauPOG recommendation for 2018 data (medium WP)
+	    if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 1.16;//0.84 computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
+	    if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 0.90;//0.92
+	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.98;//0.86
 	    isFakeJet2 = false;
 	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
@@ -2827,17 +2833,19 @@ int main (int argc, char** argv)
 	  if (lep1HasTES) {
 	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
 	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
-	    if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg1_decayMode = 0.97; //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
-	    if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg1_decayMode = 1.04;
-	    if(theSmallTree.m_dau1_decayMode == 10) idAndIsoSF_leg1_decayMode = 0.90;
+	    // TauPOG recommendation for 2018 data (medium WP)
+	    if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg1_decayMode = 1.16;//0.97 //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
+	    if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg1_decayMode = 0.90;//1.04
+	    if(theSmallTree.m_dau1_decayMode == 10) idAndIsoSF_leg1_decayMode = 0.98;//0.90
 	    isFakeJet1 = false;
 	  }
 	  if (lep2HasTES) {
 	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
 	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
-	    if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 0.97; //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
-	    if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 1.04;
-	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.90;
+	    // TauPOG recommendation for 2018 data (medium WP)
+	    if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg1_decayMode = 1.16;//0.97 //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
+	    if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg1_decayMode = 0.90;//1.04
+	    if(theSmallTree.m_dau1_decayMode == 10) idAndIsoSF_leg1_decayMode = 0.98;//0.90
 	    isFakeJet2 = false;
 	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;

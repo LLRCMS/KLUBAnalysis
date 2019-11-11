@@ -60,7 +60,29 @@ class OfflineProducerHelper {
     MuHighPt = 4
   };
 
-  enum aeleWP {
+// deepTauVsJet: 0 = VVVLoose, 1 = VVLoose, 2 = VLoose, 3 = Loose, 4 = Medium, 5 = Tight, 6 = VTight, 7 = VVTight
+// deepTauVsEle: 0 = VVVLoose, 1 = VVLoose, 2 = VLoose, 3 = Loose, 4 = Medium, 5 = Tight, 6 = VTight, 7 = VVTight
+// deepTauVsMu: 0 = VLoose, 1 = Loose, 2 = Medium, 3 = Tight
+
+enum aeleWP {
+    aeleVVVLoose = 0,
+    aeleVVLoose  = 1,
+    aeleVLoose   = 2,
+    aeleLoose    = 3,
+    aeleMedium   = 4,
+    aeleTight    = 5,
+    aeleVTight   = 6,
+    aeleVVTight  = 7
+  };
+
+  enum amuWP {
+    amuVLoose = 0,
+    amuLoose  = 1,
+    amuMedium = 2,
+    amuTight  = 3
+  };
+ 
+/*   enum aeleWP {
     aeleVLoose = 0,
     aeleLoose  = 1,
     aeleMedium = 2,
@@ -72,7 +94,7 @@ class OfflineProducerHelper {
     amuLoose = 0,
     amuTight = 1
   };
-
+ */
   OfflineProducerHelper();
   OfflineProducerHelper(TH1F* hCounter, TH1F *htauids);
   OfflineProducerHelper(TH1F* hCounter);
@@ -90,7 +112,7 @@ class OfflineProducerHelper {
   int getTAUidNumber(TString tauIDname);
   
   // whatApply: use "OSCharge" (appplies on pairs only)
-  // whatApply: use "All", "Iso", "pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
+  // whatApply: use "All", "Iso", "pTMin", "etaMax", "againstEle", "againstJet", "againstMu", "Vertex"; separate various arguments with a semicolon
   // is contains "All" it will override all the other settings; additional parameters are not considered (have no effect) 
   // a selection is applied by default if no parameter is specified
   bool checkPassBaseline (bigTree* tree, int iPair, TString whatApply = "All"){return pairPassBaseline(tree,iPair,whatApply,true);}
