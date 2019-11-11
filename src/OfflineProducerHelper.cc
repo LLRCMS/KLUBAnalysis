@@ -494,7 +494,7 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
          float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits, 
          TString whatApply, bool debug)
 {
-    if (tree->decayMode->at(iDau) == 5 || tree->decayMode->at(iDau) == 6 || tree->decayMode->at(iDau) == 11) 
+    if (tree->decayMode->at(iDau) == 5 || tree->decayMode->at(iDau) == 6) 
     {
     	std::cout<< "Rejecting decay mode: "<< tree->decayMode->at(iDau) << std::endl;
 	return false; 	
