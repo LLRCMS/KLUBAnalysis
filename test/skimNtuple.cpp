@@ -2272,6 +2272,9 @@ int main (int argc, char** argv)
       if (DM1 == 2) DM1 = 1;
       if (DM2 == 2) DM2 = 1;
 
+      if (DM1 == 11) DM1 = 10; //Davide: DM 11 should be used in combination with deepTau: temporarily forced to 10 because SF ar not available
+      if (DM2 == 11) DM2 = 10;
+
       //save decaymode
       if(pairType == 0){ //mutauh
 	theSmallTree.m_dau1_decayMode = -1;
