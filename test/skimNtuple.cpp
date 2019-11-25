@@ -3505,33 +3505,28 @@ int main (int argc, char** argv)
         if (ajetHadFlav == 4) ++theSmallTree.m_njetsCHadFlav;
 
         if (TMath::Abs(tlv_jet.Eta()) > 2.4) continue; // 2.4 for b-tag
-	if (PUjetID_WP > -1){
-	  if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) ) continue; // PU jet ID WP = 2: loose for all b-jet candidates
-	}
-	//PUjetID from miniAOD, not recomputed:
-	//if(tlv_jet.Pt() < 10. && theBigTree.jets_PUJetID->at(iJet) < -0.97) continue;
-	//if(tlv_jet.Pt() > 10. && tlv_jet.Pt() < 20. && theBigTree.jets_PUJetID->at(iJet) < -0.97) continue;
-	//if(tlv_jet.Pt() > 20. && tlv_jet.Pt() < 30. && theBigTree.jets_PUJetID->at(iJet) < -0.97) continue;
-	//if(tlv_jet.Pt() > 30. && tlv_jet.Pt() < 50. && theBigTree.jets_PUJetID->at(iJet) < -0.89) continue;
-
+        if (PUjetID_WP > -1)
+        {
+          // PU jet ID WP = 2: loose for all b-jet candidates
+          // syncNov2019 - apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/PileupJetID )
+          if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_jet.Pt()<50.) continue;
+        }
 
         // n bjets candidates
         if (tlv_jet.Pt () > 20)  ++theSmallTree.m_nbjets20 ;
         if (tlv_jet.Pt () > 50)  ++theSmallTree.m_nbjets50 ;
        
         //float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bCSVscore->at (iJet) : tlv_jet.Pt() ;
-	float sortPar;
+        float sortPar;
         if(useDeepFlavor)
-		sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet) : tlv_jet.Pt() ;
-	else
-        	sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet) : tlv_jet.Pt() ;
-	
+          sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet) : tlv_jet.Pt() ;
+        else
+          sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet) : tlv_jet.Pt() ;
+
         if (bChoiceFlag != 1 && bChoiceFlag != 2) cout << "** WARNING : bChoiceFlag not known :" << bChoiceFlag << endl;
         jets_and_sortPar.push_back (make_pair (sortPar, iJet) );
 
       } // loop over jets
-
-
 
       theSmallTree.m_nbjetscand = jets_and_sortPar.size();
       theSmallTree.m_nfatjets = theBigTree.ak8jets_px->size();
