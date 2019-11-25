@@ -2424,44 +2424,46 @@ int main (int argc, char** argv)
 	  Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
 	  bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
 	  
-	  if (isMC){
-	    if (pairType == 2){
-	      bool passL1IsoTau32 = false;
-	      if (theBigTree.daughters_highestEt_L1IsoTauMatched->at(firstDaughterIndex) > 32 && theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex) > 32){
-		passL1IsoTau32 = true;
-	      }	
-	      if (!passL1IsoTau32) passTrg = false;
-	    }
-	  }
+      // FRA - syncNov2019: L1 match not needed for 2018 data, might be useful for 2017+2018 analysis
+	  //if (isMC){
+	  //  if (pairType == 2){
+	  //    bool passL1IsoTau32 = false;
+	  //    if (theBigTree.daughters_highestEt_L1IsoTauMatched->at(firstDaughterIndex) > 32 && theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex) > 32){
+      // passL1IsoTau32 = true;
+	  //    }
+	  //    if (!passL1IsoTau32) passTrg = false;
+	  //  }
+	  //}
 	  
 	  // using the same method also to mimic the monitoring mu-tau cross trigger (MC and Data)
-	  if (pairType == 0){
-	    bool passL1IsoTau32 = false;
-	    if (theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex) > 32){
-	      passL1IsoTau32 = true;
-	    }	
-	    int monitor = 7;
-	    if (isMC== false) monitor = 6;
-	    theSmallTree.m_cross_monitoring_trig = (passL1IsoTau32 && CheckBit(pass_triggerbit,monitor)) ; // the 7th bit corresponds to our mu-tau cross trigger 
-	  }else{                                                                                  // if ever we change the trigger list, this should be updated 
-	    theSmallTree.m_cross_monitoring_trig = false;
-	  }
+	  //if (pairType == 0){
+	  //  bool passL1IsoTau32 = false;
+	  //  if (theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex) > 32){
+	  //    passL1IsoTau32 = true;
+	  //  }
+	  //  int monitor = 7;
+	  //  if (isMC== false) monitor = 6;
+	  //  theSmallTree.m_cross_monitoring_trig = (passL1IsoTau32 && CheckBit(pass_triggerbit,monitor)) ; // the 7th bit corresponds to our mu-tau cross trigger
+	  //}else{                                                                                  // if ever we change the trigger list, this should be updated
+	  //  theSmallTree.m_cross_monitoring_trig = false;
+	  //}
 	  
+      // FRA - syncNov2019: not needed for 2018 data, might be useful for 2017+2018 analysis
 	  // weight to be applied for IsoMu24, prescaled for ~3fb-1 in 2017
 	  // MuTau: if it didn't also pass IsoMu27 or MuTau trigger
-	  if (pairType == 0 && isMC){
-	      if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1) && !CheckBit(pass_triggerbit,7)) theSmallTree.m_prescaleWeight =  (41557. - 3625.) / 41557.; 
-	  }
+	  //if (pairType == 0 && isMC){
+	  //    if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1) && !CheckBit(pass_triggerbit,7)) theSmallTree.m_prescaleWeight =  (41557. - 3625.) / 41557.;
+	  //}
 	  // MuTau: if it didn't also pass IsoMu27 
-	  if (pairType == 3 && isMC){
-	      if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1)) theSmallTree.m_prescaleWeight =  (41557. - 3625.) / 41557.; 
-	  }
+	  //if (pairType == 3 && isMC){
+	  //    if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1)) theSmallTree.m_prescaleWeight =  (41557. - 3625.) / 41557.;
+	  //}
 
 	  
 	  if(DEBUG){
 	    if (isMC && pairType == 2){
 	      cout << "passTrg? "<< trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta())<<endl;
-	      cout << "L1 pt1 "<<theBigTree.daughters_highestEt_L1IsoTauMatched->at(firstDaughterIndex) << "L1 pt2 "<<theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex)<<endl;
+	      //cout << "L1 pt1 "<<theBigTree.daughters_highestEt_L1IsoTauMatched->at(firstDaughterIndex) << "L1 pt2 "<<theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex)<<endl;
 	      cout << "---> passTrg? "<<passTrg<<endl;
 	    }
 	  }
