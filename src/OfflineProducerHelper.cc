@@ -496,9 +496,9 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
 {
     if (tree->decayMode->at(iDau) == 5 || tree->decayMode->at(iDau) == 6) 
     {
-    	std::cout<< "Rejecting decay mode: "<< tree->decayMode->at(iDau) << std::endl;
-	return false; 	
-    }	
+       if (debug) std::cout<< "Rejecting decay mode: "<< tree->decayMode->at(iDau) << std::endl;
+       return false;
+    }
 	
     float px = tree->daughters_px->at(iDau);
     float py = tree->daughters_py->at(iDau);
@@ -861,7 +861,7 @@ int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply,
       //bool leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply);  //FRA: SyncFeb2018
       bool leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVVVLoose, amuVLoose, 99999., whatApply);//Davide: deepTau
       bool leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVVVLoose, amuVLoose, 99999., whatApply);//Davide: deepTau
-      cout << "  > " << ipair << " idx1=" << dau1index << " idx2=" << dau2index << " ipair=" << ipair_orig
+      cout << "  > " << ipair << " tau_idx1=" << dau1index << " tau_idx2=" << dau2index << " orig_pair_idx=" << ipair_orig
            << " | iso1=" << get<1> (pp) << " pt1=" << get<0> (pp) << " iso2=" << get<4> (pp) << " pt2=" << get<3> (pp)
            << " base1=" << leg1 << " base2=" << leg2 << " dR="<< DeltaRDau(tree, dau1index, dau2index) <<endl;
     }    
@@ -896,6 +896,12 @@ int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply,
     if (leg1 && leg2 && drMin)
     {
       selPair = ipair_orig;
+      if (debug)
+      {
+        cout << "OPH final pair - orig_pair_idx:" <<selPair<<endl;
+        cout << " - idx1:"<<dau1index<<" - iso1:"<<get<1>(vPairs.at(ipair))<<" - pt1:"<<get<0>(vPairs.at(ipair))<<endl;
+        cout << " - idx2:"<<dau2index<<" - iso2:"<<get<4>(vPairs.at(ipair))<<" - pt2:"<<get<3>(vPairs.at(ipair))<<endl;
+      }
       break;
     }
   }

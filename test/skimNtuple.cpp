@@ -1331,7 +1331,7 @@ int main (int argc, char** argv)
 	  cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
 	  DEBUG = true;
 	}
-      //if (debugEvent > 0 && DEBUG == false) continue; 
+      //if (debugEvent > 0 && DEBUG == false) continue;
 
       // remove a lumisection that was present in 16 Giu JSON and removed in 22 and subsequent JSON
       // 25 Nov 2016 : edit : removed line because of new reprocessing and json
@@ -2132,7 +2132,7 @@ int main (int argc, char** argv)
       else
 	{
 	  if(DEBUG)
-	    {
+	  {
 	      for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
 		{
 		  int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;
@@ -2166,7 +2166,7 @@ int main (int argc, char** argv)
 		       << endl;
 		}
           
-	    }
+      }
 	  for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
 	    {
 	      int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;  
@@ -2257,8 +2257,20 @@ int main (int argc, char** argv)
       // ----------------------------------------------------------
       // pair has been assessed , check trigger information
 
-      const int firstDaughterIndex  = theBigTree.indexDau1->at (chosenTauPair) ;  
-      const int secondDaughterIndex = theBigTree.indexDau2->at (chosenTauPair) ;
+      // in TauTau channel make sure the first tau is the most isolated one
+      int tmp_firstDaughterIndex  = theBigTree.indexDau1->at (chosenTauPair) ;
+      int tmp_secondDaughterIndex = theBigTree.indexDau2->at (chosenTauPair) ;
+
+      if (pairType == 2 && (theBigTree.daughters_byDeepTau2017v2p1VSjetraw->at(theBigTree.indexDau1->at (chosenTauPair)) < theBigTree.daughters_byDeepTau2017v2p1VSjetraw->at(theBigTree.indexDau2->at (chosenTauPair))) )
+      {
+          tmp_firstDaughterIndex  = theBigTree.indexDau2->at (chosenTauPair) ;
+          tmp_secondDaughterIndex = theBigTree.indexDau1->at (chosenTauPair) ;
+      }
+
+      //const int firstDaughterIndex  = theBigTree.indexDau1->at (chosenTauPair) ;
+      //const int secondDaughterIndex = theBigTree.indexDau2->at (chosenTauPair) ;
+      const int firstDaughterIndex  = tmp_firstDaughterIndex ;
+      const int secondDaughterIndex = tmp_secondDaughterIndex ;
       const int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
       const int type2 = theBigTree.particleType->at (secondDaughterIndex) ;        
       const int pType = pairType ;
@@ -2362,6 +2374,14 @@ int main (int argc, char** argv)
 					       theBigTree.daughters_e_TauDown->at (secondDaughterIndex)
 					       );
 	}
+
+    if (DEBUG)
+    {
+        cout << "------- CHOSEN PAIR -------" << endl;
+        cout << " dau_1 (pt,eta,phi,iso): "<<tlv_firstLepton.Pt()<<" "<<tlv_firstLepton.Eta()<<" "<<tlv_firstLepton.Phi()<<" "<<getIso(firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree)<<endl;
+        cout << " dau_2 (pt,eta,phi,iso): "<<tlv_secondLepton.Pt()<<" "<<tlv_secondLepton.Eta()<<" "<<tlv_secondLepton.Phi()<<" "<<getIso(secondDaughterIndex, tlv_secondLepton.Pt (), theBigTree)<<endl;
+        cout << "---------------------"<< endl;
+    }
 
     if (DEBUG)
     {
@@ -2626,8 +2646,17 @@ int main (int argc, char** argv)
         cout << "-------------------------" << endl;
       }
 
-      theSmallTree.m_mT1       = theBigTree.mT_Dau1->at (chosenTauPair) ;
-      theSmallTree.m_mT2       = theBigTree.mT_Dau2->at (chosenTauPair) ;
+      // // in TauTau channel make sure the first tau is the most isolated one
+      if (pairType == 2 && (theBigTree.daughters_byDeepTau2017v2p1VSjetraw->at(theBigTree.indexDau1->at (chosenTauPair)) < theBigTree.daughters_byDeepTau2017v2p1VSjetraw->at(theBigTree.indexDau2->at (chosenTauPair))) )
+      {
+        theSmallTree.m_mT1       = theBigTree.mT_Dau2->at (chosenTauPair) ;
+        theSmallTree.m_mT2       = theBigTree.mT_Dau1->at (chosenTauPair) ;
+      }
+      else
+      {
+        theSmallTree.m_mT1       = theBigTree.mT_Dau1->at (chosenTauPair) ;
+        theSmallTree.m_mT2       = theBigTree.mT_Dau2->at (chosenTauPair) ;
+      }
 
       theSmallTree.m_tauH_pt   = tlv_tauH.Pt () ;
       theSmallTree.m_tauH_eta  = tlv_tauH.Eta () ;
