@@ -216,25 +216,26 @@ bool triggerReader_cross::checkOREleEleNew  (Long64_t triggerbit_1, Long64_t mat
       thisPath = false;
       thisPath = CheckBit (triggerbit_1, _eeTriggers.at(i));
       if (thisPath)
-	{
-	  match = CheckBit (matchFlag1, _eeTriggers.at(i));
-	  goodType = CheckBit (goodTriggerType1, _eeTriggers.at(i));
-	  _trgNoOverlap = CheckBit (trgNoOverlap, _eeTriggers.at(i));
-	  if (match && _trgNoOverlap && goodType)
-	    {
-	      firedPath = _allTriggers.at(_eeTriggers.at(i));
-	      boost::regex re_tau1{"Ele(\\d+)"};
-	      ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 3.0);
-	    }
-	  else
-	    ptCut = false;
-	}
+      {
+        match = CheckBit (matchFlag1, _eeTriggers.at(i));
+        goodType = CheckBit (goodTriggerType1, _eeTriggers.at(i));
+        _trgNoOverlap = CheckBit (trgNoOverlap, _eeTriggers.at(i));
+        if (match && _trgNoOverlap && goodType)
+        {
+          firedPath = _allTriggers.at(_eeTriggers.at(i));
+          boost::regex re_tau1{"Ele(\\d+)"};
+          ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 3.0);
+        }
+        else
+          ptCut = false;
+      }
       if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
-      if (thisPath){
-	std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_eeTriggers.at(i)));
-	int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
-	*pass_triggerbit |=  1 << thisPathIdx;
-	OR = true;
+      if (thisPath)
+      {
+        std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_eeTriggers.at(i)));
+        int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
+        *pass_triggerbit |=  1 << thisPathIdx;
+        OR = true;
       }
       //if (OR) break; // I want to store the information about all triggers that have fired, without breaking the loop when I find one
     }
@@ -252,73 +253,75 @@ bool triggerReader_cross::checkORMuEleNew  (Long64_t triggerbit_1, Long64_t matc
     bool ptCut = false;
     
     for (unsigned int i = 0; i < _emTriggers.size(); i++)
+    {
+      thisPath = false;
+      thisPath = CheckBit (triggerbit_1, _emTriggers.at(i));
+      if (thisPath)
       {
-	thisPath = false;
-	thisPath = CheckBit (triggerbit_1, _emTriggers.at(i));
-	if (thisPath)
-	  {
-	    match = CheckBit (matchFlag1, _emTriggers.at(i));
-	    goodType = CheckBit (goodTriggerType1, _emTriggers.at(i));
-	    _trgNoOverlap = CheckBit (trgNoOverlap, _emTriggers.at(i));
-	    if (match && _trgNoOverlap && goodType)
-	      {
-	      firedPath = _allTriggers.at(_mmTriggers.at(i));
-	      boost::regex re_tau1{"Mu(\\d+)"};
-	      ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 2.0);
-	      }
-	    else
-	      ptCut = false;
-	  }
-	if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
-	if (thisPath){
-	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_emTriggers.at(i)));
-	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
-	  *pass_triggerbit |=  1 << thisPathIdx;
-	OR = true;
-	}
-	//if (OR) break; // I want to store the information about all triggers that have fired, without breaking the loop when I find one
+        match = CheckBit (matchFlag1, _emTriggers.at(i));
+        goodType = CheckBit (goodTriggerType1, _emTriggers.at(i));
+        _trgNoOverlap = CheckBit (trgNoOverlap, _emTriggers.at(i));
+        if (match && _trgNoOverlap && goodType)
+        {
+          firedPath = _allTriggers.at(_mmTriggers.at(i));
+          boost::regex re_tau1{"Mu(\\d+)"};
+          ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 2.0);
+        }
+        else
+          ptCut = false;
       }
+      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
+      if (thisPath)
+      {
+        std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_emTriggers.at(i)));
+        int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
+        *pass_triggerbit |=  1 << thisPathIdx;
+        OR = true;
+      }
+      //if (OR) break; // I want to store the information about all triggers that have fired, without breaking the loop when I find one
+    }
     return OR;
 }
 
 
 bool triggerReader_cross::checkORMuMuNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1, int *pass_triggerbit)
 {
-  bool OR      = false;
-  bool thisPath      = false;
-  bool _trgNoOverlap = false;
-  bool match = false;
-  bool goodType = false;
-  std::string firedPath;
-  bool ptCut = false;
+    bool OR      = false;
+    bool thisPath      = false;
+    bool _trgNoOverlap = false;
+    bool match = false;
+    bool goodType = false;
+    std::string firedPath;
+    bool ptCut = false;
   
     for (unsigned int i = 0; i < _mmTriggers.size(); i++)
+    {
+      thisPath = false;
+      thisPath = CheckBit (triggerbit_1, _mmTriggers.at(i));
+      if (thisPath)
       {
-	thisPath = false;
-	thisPath = CheckBit (triggerbit_1, _mmTriggers.at(i));
-	if (thisPath)
-	  {
-	    match = CheckBit (matchFlag1, _mmTriggers.at(i));
-	    goodType = CheckBit (goodTriggerType1, _mmTriggers.at(i));
-	    _trgNoOverlap = CheckBit (trgNoOverlap, _mmTriggers.at(i));
-	    if (match && _trgNoOverlap && goodType)
-	      {
-	      firedPath = _allTriggers.at(_mmTriggers.at(i));
-	      boost::regex re_tau1{"Mu(\\d+)"};
-	      ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 2.0);
-	      }
-	    else
-	      ptCut = false;
-	  }
-	if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
-	if (thisPath){
-	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_mmTriggers.at(i)));
-	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
-	  *pass_triggerbit |=  1 << thisPathIdx;
-	OR = true;
-	}
-	//if (OR) break; // I want to store the information about all triggers that have fired, without breaking the loop when I find one
+        match = CheckBit (matchFlag1, _mmTriggers.at(i));
+        goodType = CheckBit (goodTriggerType1, _mmTriggers.at(i));
+        _trgNoOverlap = CheckBit (trgNoOverlap, _mmTriggers.at(i));
+        if (match && _trgNoOverlap && goodType)
+        {
+          firedPath = _allTriggers.at(_mmTriggers.at(i));
+          boost::regex re_tau1{"Mu(\\d+)"};
+          ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 2.0);
+        }
+        else
+          ptCut = false;
       }
+      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
+      if (thisPath)
+      {
+        std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_mmTriggers.at(i)));
+        int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
+        *pass_triggerbit |=  1 << thisPathIdx;
+        OR = true;
+      }
+      //if (OR) break; // I want to store the information about all triggers that have fired, without breaking the loop when I find one
+    }
     return OR;
 }
 
@@ -361,50 +364,51 @@ bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t mat
           ptCut = false;
       }
       if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
-      if (thisPath){
-	std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_ttCrossTriggers.at(i)));
-	int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
-	*pass_triggerbit |=  1 << thisPathIdx;
-	OR = true;
+      if (thisPath)
+      {
+        std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_ttCrossTriggers.at(i)));
+        int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
+        *pass_triggerbit |=  1 << thisPathIdx;
+        OR = true;
       }
       //if (OR) break; // I want to store the information about all triggers that have fired, without breaking the loop when I find one
-      
     }
-    
+
     //if (!OR)
     //{
     for (unsigned int i = 0; i < _ttTriggers.size(); i++)
-      {
-	thisPath = false;
+    {
+        thisPath = false;
         thisPath = CheckBit (triggerbit_1, _ttTriggers.at(i));
         if (thisPath)
-	  {
-	    match1 = CheckBit (matchFlag1, _ttTriggers.at(i));
-	    match2 = true;
-	    match = match1 && match2;
-	    goodType1 = CheckBit (goodTriggerType1, _ttTriggers.at(i));
-	    goodType2 = true;
-	    goodType = goodType1 && goodType2;
-	    _trgNoOverlap = CheckBit (trgNoOverlap, _ttTriggers.at(i));
+        {
+          match1 = CheckBit (matchFlag1, _ttTriggers.at(i));
+          match2 = true;
+          match = match1 && match2;
+          goodType1 = CheckBit (goodTriggerType1, _ttTriggers.at(i));
+          goodType2 = true;
+          goodType = goodType1 && goodType2;
+          _trgNoOverlap = CheckBit (trgNoOverlap, _ttTriggers.at(i));
 	    
-	    if (match && _trgNoOverlap && goodType)
-	      {
-		firedPath = _allTriggers.at(_ttTriggers.at(i));
-		boost::regex re_tau1{"Tau(\\d+)|TauHPS(\\d+)"};
-		ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 5.0);
-	      }
-	    else
-	      ptCut = false;
-	  }
+          if (match && _trgNoOverlap && goodType)
+          {
+            firedPath = _allTriggers.at(_ttTriggers.at(i));
+            boost::regex re_tau1{"Tau(\\d+)|TauHPS(\\d+)"};
+            ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 5.0);
+          }
+          else
+            ptCut = false;
+        }
         if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
-	if (thisPath){
-	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_ttTriggers.at(i)));
-	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
-	  *pass_triggerbit |=  1 << thisPathIdx;
-	  OR = true;
-	}
-	//if (OR) break; // I want to store the information about all triggers that have fired, without breaking the loop when I find one
-      }
+        if (thisPath)
+        {
+          std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_ttTriggers.at(i)));
+          int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
+          *pass_triggerbit |=  1 << thisPathIdx;
+          OR = true;
+        }
+        //if (OR) break; // I want to store the information about all triggers that have fired, without breaking the loop when I find one
+    }
     //}
 
     return OR;
@@ -444,29 +448,30 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
           boost::regex re_tau1{"Mu(\\d+)"};
           boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
           ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 2.0, 5.0);
-	  etaCut = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
+          etaCut = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
         }
         else
-	  {
+        {
           ptCut = false;
-	  etaCut = false;
-      }
+          etaCut = false;
+        }
       }
       if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut)) thisPath = false;
-	if (thisPath){
-	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_mtCrossTriggers.at(i)));
-	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
-	  *pass_triggerbit |=  1 << thisPathIdx;
-	  OR = true;
-	}
+      if (thisPath)
+      {
+        std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_mtCrossTriggers.at(i)));
+        int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
+        *pass_triggerbit |=  1 << thisPathIdx;
+        OR = true;
+      }
       //      if (OR) break;
     }
     
     // if (!OR)
     // {
-      for (unsigned int i = 0; i < _mtTriggers.size(); i++)
-      {
-	thisPath = false;
+    for (unsigned int i = 0; i < _mtTriggers.size(); i++)
+    {
+        thisPath = false;
         thisPath = CheckBit (triggerbit_1, _mtTriggers.at(i));
         if (thisPath)
         {
@@ -488,15 +493,16 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
             ptCut = false;
         }
         if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
-	if (thisPath){
-	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_mtTriggers.at(i)));
-	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
-	  *pass_triggerbit |=  1 << thisPathIdx;
-	  OR = true;
-	}
-	//        if (OR) break;
-      }
-      //}
+        if (thisPath)
+        {
+          std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_mtTriggers.at(i)));
+          int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
+          *pass_triggerbit |=  1 << thisPathIdx;
+          OR = true;
+        }
+        //        if (OR) break;
+    }
+    //}
 
     return OR;
 }
@@ -537,28 +543,29 @@ bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t mat
           boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
 
           ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 3.0, 5.0);
-	  etaCut = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
+          etaCut = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
         }
         else
-          {
-	    ptCut = false;
-	    etaCut = false;
-	  }
+        {
+          ptCut = false;
+          etaCut = false;
+        }
       }
       if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut)) thisPath = false;
-	if (thisPath){
-	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_etCrossTriggers.at(i)));
-	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
-	  *pass_triggerbit |=  1 << thisPathIdx;
-	  OR = true;
-	}
+      if (thisPath)
+      {
+        std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_etCrossTriggers.at(i)));
+        int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
+        *pass_triggerbit |=  1 << thisPathIdx;
+        OR = true;
+      }
       //      if (OR) break;
     }
     //if (!OR)
     // {
-      for (unsigned int i = 0; i < _etTriggers.size(); i++)
-      {
-	thisPath = false;
+    for (unsigned int i = 0; i < _etTriggers.size(); i++)
+    {
+        thisPath = false;
         thisPath = CheckBit (triggerbit_1, _etTriggers.at(i));
         if (thisPath)
         {
@@ -580,15 +587,16 @@ bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t mat
             ptCut = false;
         }
         if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
-	if (thisPath){
-	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_etTriggers.at(i)));
-	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it); 
-	  *pass_triggerbit |=  1 << thisPathIdx;
-	  OR = true;
-	}
-	//        if (OR) break;
-      }
-      //}
+        if (thisPath)
+        {
+          std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_etTriggers.at(i)));
+          int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
+          *pass_triggerbit |=  1 << thisPathIdx;
+          OR = true;
+        }
+        //        if (OR) break;
+    }
+    //}
 
     return OR;
 }
@@ -639,12 +647,12 @@ bool triggerReader_cross::checkPtCutCross (bool OR, std::string firedPath, boost
     if ( boost::regex_search(firedPath, what1, re_tau1) && boost::regex_search(firedPath, what2, re_tau2) )
     {
         double ptcut_tau1; 
-	if(what1.length(1) != 0) ptcut_tau1 = boost::lexical_cast<double>(what1[1]) + thr1; // this check is necessary to deal with TauHPSNN triggers
-	else                     ptcut_tau1 = boost::lexical_cast<double>(what1[2]) + thr1;
+        if(what1.length(1) != 0) ptcut_tau1 = boost::lexical_cast<double>(what1[1]) + thr1; // this check is necessary to deal with TauHPSNN triggers
+        else                     ptcut_tau1 = boost::lexical_cast<double>(what1[2]) + thr1;
 	 
         double ptcut_tau2; 
-	if(what2.length(1) != 0) ptcut_tau2 = boost::lexical_cast<double>(what2[1]) + thr2; // this check is necessary to deal with TauHPSNN triggers
-	else                     ptcut_tau2 = boost::lexical_cast<double>(what2[2]) + thr2; 
+        if(what2.length(1) != 0) ptcut_tau2 = boost::lexical_cast<double>(what2[1]) + thr2; // this check is necessary to deal with TauHPSNN triggers
+        else                     ptcut_tau2 = boost::lexical_cast<double>(what2[2]) + thr2;
 
         //cout << "************** Double REGEX " << endl;
         //cout << "************** REGEX firedPath : " << firedPath  << endl;
