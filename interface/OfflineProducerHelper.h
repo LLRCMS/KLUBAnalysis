@@ -112,7 +112,7 @@ enum aeleWP {
   int getTAUidNumber(TString tauIDname);
   
   // whatApply: use "OSCharge" (appplies on pairs only)
-  // whatApply: use "All", "Iso", "pTMin", "etaMax", "againstEle", "againstJet", "againstMu", "Vertex"; separate various arguments with a semicolon
+  // whatApply: use "All", "Iso", "pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
   // is contains "All" it will override all the other settings; additional parameters are not considered (have no effect) 
   // a selection is applied by default if no parameter is specified
   bool checkPassBaseline (bigTree* tree, int iPair, TString whatApply = "All"){return pairPassBaseline(tree,iPair,whatApply,true);}
