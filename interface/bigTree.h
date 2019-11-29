@@ -25,6 +25,7 @@ public :
    ULong64_t       EventNumber;
    Int_t           RunNumber;
    Int_t           lumi;
+   Int_t           year;
    Bool_t          passecalBadCalibFilterUpdate;
    Long64_t        triggerbit;
    Int_t           metfilterbit;
