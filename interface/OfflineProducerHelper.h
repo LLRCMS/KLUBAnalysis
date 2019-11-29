@@ -108,7 +108,7 @@ enum aeleWP {
   bool isElectron(int type){if(type == ELECTRON)return true; else return false;}
   bool isTau(int type){if(type == TAU)return true; else return false;}
   int getPairType (int type1, int type2); // return pair type giving as input the particle types of the two composants
-  bool checkBit (int word, int bitpos); // check bit "bitpos" in a word
+  bool checkBit (long word, long bitpos); // check bit "bitpos" in a word
   int getTAUidNumber(TString tauIDname);
   
   // whatApply: use "OSCharge" (appplies on pairs only)

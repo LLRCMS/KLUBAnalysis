@@ -115,9 +115,9 @@ int OfflineProducerHelper::printFiredPaths(int triggerbit){
   return nFired;
 }
 
-bool OfflineProducerHelper::checkBit (int word, int bitpos)
+bool OfflineProducerHelper::checkBit (long word, long bitpos)
 {
-    bool res = word & (1 << bitpos);
+    bool res = word & ((long)1 << bitpos);
     return res;
 }
 
