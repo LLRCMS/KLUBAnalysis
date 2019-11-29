@@ -347,6 +347,7 @@ struct smallTree
       m_nbjetscand = 0 ;
       m_nbjets20 = 0 ;
       m_nbjets50 = 0 ;
+      m_nbjets_forSync = 0;
       m_njetsBHadFlav = 0 ;
       m_njetsCHadFlav = 0 ;
       m_dau1_jecUnc= -1;
@@ -874,6 +875,7 @@ struct smallTree
       m_smallT->Branch ("nbjets20", &m_nbjets20, "nbjets20/I") ;
       m_smallT->Branch ("nbjets50", &m_nbjets50, "nbjets50/I") ;
       m_smallT->Branch ("nbjetscand", &m_nbjetscand, "nbjetscand/I") ;
+      m_smallT->Branch ("nbjets_forSync", &m_nbjets_forSync, "nbjets_forSync/I") ;
       m_smallT->Branch ("njetsBHadFlav", &m_njetsBHadFlav, "njetsBHadFlav/I") ;
       m_smallT->Branch ("njetsCHadFlav", &m_njetsCHadFlav, "njetsCHadFlav/I") ;
       m_smallT->Branch ("jets_jecUnc", &m_jets_jecUnc);
@@ -1430,6 +1432,7 @@ struct smallTree
   Int_t m_nbjetscand ;
   Int_t m_nbjets20 ;
   Int_t m_nbjets50 ;
+  Int_t m_nbjets_forSync;
   Int_t m_njetsBHadFlav ;
   Int_t m_njetsCHadFlav ;
 

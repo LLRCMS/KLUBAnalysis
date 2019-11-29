@@ -3844,6 +3844,35 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet1_hasgenjet = hasgj1 ;
         theSmallTree.m_bjet2_hasgenjet = hasgj2 ;
 
+
+        // Save nbjets_forSync variable
+        for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
+        {
+          // PF JET ID cut
+          if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
+
+          // Build the jet TLorentzVector
+          TLorentzVector tlv_jet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet)) ;
+
+          // Pt cut for jets
+          if (tlv_jet.Pt () < 20.) continue ;
+
+          // Eta cut for jets
+          if (TMath::Abs(tlv_jet.Eta()) > 4.7) continue;
+
+          // PU JET ID cut for jets with pt<50
+          if ( PUjetID_WP > -1 && !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_jet.Pt()<50. ) continue;
+
+          // Lepton cleaning
+          if (tlv_jet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
+          if (tlv_jet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
+
+          // PassEcalNoiceVetoJets
+          if ( theBigTree.year==2017 && tlv_jet.Pt () < 50. && fabs(tlv_jet.Eta()) < 3.139 && fabs(tlv_jet.Eta()) > 2.65 && !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) ) continue;
+
+          ++theSmallTree.m_nbjets_forSync;
+        }
+
         // Save HT_20, HT_50 and HT_20_BDT(with cut on |eta|<4.7)
         TLorentzVector jetVecSum (0,0,0,0);
         if (DEBUG) cout << "----- BDT HT debug ------" << endl;
