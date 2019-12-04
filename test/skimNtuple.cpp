@@ -28,6 +28,7 @@
 #include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 #include "TauTriggerSFs2017.h"
 #include "BDTfunctionsUtils.h"
+#include "TauIDSFTool.h"
 
 // for minuit-based minimization
 // #include "mt2.h"
@@ -1061,6 +1062,8 @@ int main (int argc, char** argv)
 
   myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/HTT_SF_2016/Muon/Run2018/Muon_Run2018_IdIso.root");
   myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_SF_2016/Electron/Run2018/Electron_Run2018_IdIso.root");
+
+  TauIDSFTool * myTauIDSFTool = new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSjet","Medium",1);
 
   // ------------------------------
   // smT2 mt2Class = smT2();
@@ -2461,7 +2464,7 @@ int main (int argc, char** argv)
 
 	  
 	  if(DEBUG){
-	    if (isMC && pairType == 2){
+	    if (isMC && (pairType == 2 || pairType == 1 || pairType == 0)){
 	      cout << "passTrg? "<< trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta())<<endl;
 	      //cout << "L1 pt1 "<<theBigTree.daughters_highestEt_L1IsoTauMatched->at(firstDaughterIndex) << "L1 pt2 "<<theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex)<<endl;
 	      cout << "---> passTrg? "<<passTrg<<endl;
@@ -2505,6 +2508,7 @@ int main (int argc, char** argv)
 	     
 	    }
 
+	  if (DEBUG) std::cout << "----> Final Trigger passed? " << triggerAccept << std::endl;
 	  if (!triggerAccept) continue;
 
 	  theSmallTree.m_pass_triggerbit = pass_triggerbit;
@@ -2790,9 +2794,11 @@ int main (int argc, char** argv)
 	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
 	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
 	    // TauPOG recommendation for 2018 data (medium WP)
-	    if(theSmallTree.m_dau2_decayMode == 0) idAndIsoSF_leg2_decayMode = 1.16;//0.84 computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO 
-	    if(theSmallTree.m_dau2_decayMode == 1) idAndIsoSF_leg2_decayMode = 0.90;//0.92
-	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.98;//0.86
+	    //if(theSmallTree.m_dau2_decayMode == 0) idAndIsoSF_leg2_decayMode = 1.16;//0.84 computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
+	    //if(theSmallTree.m_dau2_decayMode == 1) idAndIsoSF_leg2_decayMode = 0.90;//0.92
+	    //if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.98;//0.86
+	    // DeepTau SF
+	    idAndIsoSF_leg2_decayMode = myTauIDSFTool->getSFvsDM(theSmallTree.m_dau2_pt,theSmallTree.m_dau2_decayMode);
 	    isFakeJet2 = false;
 	  }
 	  
@@ -2830,9 +2836,11 @@ int main (int argc, char** argv)
 	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
 	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
 	    // TauPOG recommendation for 2018 data (medium WP)
-	    if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 1.16;//0.84 computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
-	    if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 0.90;//0.92
-	    if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.98;//0.86
+	    //if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 1.16;//0.84 computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
+	    //if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 0.90;//0.92
+	    //if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.98;//0.86
+	    // DeepTau SF
+	    idAndIsoSF_leg2_decayMode = myTauIDSFTool->getSFvsDM(theSmallTree.m_dau2_pt,theSmallTree.m_dau2_decayMode);
 	    isFakeJet2 = false;
 	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
@@ -2862,21 +2870,25 @@ int main (int argc, char** argv)
 
 
 	  if (lep1HasTES) {
-	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
-	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
+	    idAndIsoSF_leg1 = 0.90; // TauPOG recommendation for 2018 data
+	    idAndIsoSF_leg1_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
 	    // TauPOG recommendation for 2018 data (medium WP)
-	    if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg1_decayMode = 1.16;//0.97 //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
-	    if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg1_decayMode = 0.90;//1.04
-	    if(theSmallTree.m_dau1_decayMode == 10) idAndIsoSF_leg1_decayMode = 0.98;//0.90
+	    //if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg1_decayMode = 1.16;//0.97 //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
+	    //if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg1_decayMode = 0.90;//1.04
+	    //if(theSmallTree.m_dau1_decayMode == 10) idAndIsoSF_leg1_decayMode = 0.98;//0.90
+	    // DeepTau SF
+	    idAndIsoSF_leg1_decayMode = myTauIDSFTool->getSFvsDM(theSmallTree.m_dau1_pt,theSmallTree.m_dau1_decayMode);
 	    isFakeJet1 = false;
 	  }
 	  if (lep2HasTES) {
 	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
 	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
 	    // TauPOG recommendation for 2018 data (medium WP)
-	    if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg1_decayMode = 1.16;//0.97 //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
-	    if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg1_decayMode = 0.90;//1.04
-	    if(theSmallTree.m_dau1_decayMode == 10) idAndIsoSF_leg1_decayMode = 0.98;//0.90
+	    //if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 1.16;//0.97 //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
+	    //if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 0.90;//1.04
+	    //if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.98;//0.90
+	    // DeepTau SF
+	    idAndIsoSF_leg2_decayMode = myTauIDSFTool->getSFvsDM(theSmallTree.m_dau2_pt,theSmallTree.m_dau2_decayMode);
 	    isFakeJet2 = false;
 	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
@@ -2890,6 +2902,10 @@ int main (int argc, char** argv)
 	      cout << "leg1 : " << idAndIsoSF_leg1 << endl;
 	      cout << "leg2 : " << idAndIsoSF_leg2 << endl;
 	      cout << "totSF: " << idAndIsoSF << endl;
+	      cout << "DM1  : " << idAndIsoSF_leg1_decayMode << endl;
+	      cout << "DM2  : " << idAndIsoSF_leg2_decayMode << endl;
+	      cout << "new1 : " << myTauIDSFTool->getSFvsDM(theSmallTree.m_dau1_pt,theSmallTree.m_dau1_decayMode) << endl;
+	      cout << "new2 : " << myTauIDSFTool->getSFvsDM(theSmallTree.m_dau2_pt,theSmallTree.m_dau2_decayMode) << endl;
 	    }
 	}
       
@@ -2965,6 +2981,9 @@ int main (int argc, char** argv)
       // https://twiki.cern.ch/twiki/bin/view/CMS/TauIDRecommendation13TeV#Electron_to_tau_fake_rate
       // https://indico.cern.ch/event/719250/contributions/2971854/attachments/1635435/2609013/tauid_recommendations2017.pdf
       
+      // For DeepTau
+      // e->tau SF: https://indico.cern.ch/event/865792/contributions/3659828/attachments/1954858/3246751/ETauFR-update2Dec.pdf
+
       // check if taus are matched to gen e, mu
       float FakeRateSF = 1.;
       if(isMC){
@@ -3104,87 +3123,91 @@ int main (int argc, char** argv)
 
         if (pairType == 2) // TauTau: anti-ele VLoose / anti-mu Loose
         {
-            float tau1eta = fabs(tlv_firstLepton.Eta()); // tau1
-            if (gene_lep1)                               // tau1 matched to gen ele
-	      {
-		isFakeJet1 = false;
-                if (tau1eta < 1.46 ) FakeRateSF1 = 1.09;
-                else                 FakeRateSF1 = 1.19;
-                //if (tau1eta > 1.558) FakeRateSF1 = 1.19;
-            }
-            else if (genmu_lep1)                         // tau1 matched to gen mu
-            {
-	      isFakeJet1 = false;
-	      if      (tau1eta < 0.4) FakeRateSF1 = 1.06;
-	      else if (tau1eta < 0.8) FakeRateSF1 = 1.02;
-	      else if (tau1eta < 1.2) FakeRateSF1 = 1.10;
-	      else if (tau1eta < 1.7) FakeRateSF1 = 1.03;
-	      else if (tau1eta < 2.3) FakeRateSF1 = 1.94;
-            }
-	    
-            float tau2eta = fabs(tlv_secondLepton.Eta()); // tau2
-            if (gene_lep2)                                // tau2 matched to gen ele
-            {
-	      isFakeJet2 = false;
-	      if (tau2eta < 1.46 ) FakeRateSF2 = 1.09;
-	      else                 FakeRateSF2 = 1.19;
-	      //if (tau2eta > 1.558) FakeRateSF2 = 1.19;
-            }
-            else if (genmu_lep2)                          // tau2 matched to gen mu
-            {
-	      isFakeJet2 = false;
-	      if      (tau2eta < 0.4) FakeRateSF2 = 1.06;
-	      else if (tau2eta < 0.8) FakeRateSF2 = 1.02;
-	      else if (tau2eta < 1.2) FakeRateSF2 = 1.10;
-	      else if (tau2eta < 1.7) FakeRateSF2 = 1.03;
-	      else if (tau2eta < 2.3) FakeRateSF2 = 1.94;
-            }
+          float tau1eta = fabs(tlv_firstLepton.Eta()); // tau1
+          if (gene_lep1)                               // tau1 matched to gen ele
+          {
+            isFakeJet1 = false;
+            //if (tau1eta < 1.46 ) FakeRateSF1 = 1.09; // antiEle
+            //else                 FakeRateSF1 = 1.19;
+            if (tau1eta < 1.448 ) FakeRateSF1 = 0.91;  // deepTauVSele (Tight)
+            if (tau1eta > 1.558 ) FakeRateSF1 = 0.91;
+          }
+          else if (genmu_lep1)                         // tau1 matched to gen mu
+          {
+            isFakeJet1 = false;
+            if      (tau1eta < 0.4) FakeRateSF1 = 1.06;
+            else if (tau1eta < 0.8) FakeRateSF1 = 1.02;
+            else if (tau1eta < 1.2) FakeRateSF1 = 1.10;
+            else if (tau1eta < 1.7) FakeRateSF1 = 1.03;
+            else if (tau1eta < 2.3) FakeRateSF1 = 1.94;
+          }
+
+          float tau2eta = fabs(tlv_secondLepton.Eta()); // tau2
+          if (gene_lep2)                                // tau2 matched to gen ele
+          {
+            isFakeJet2 = false;
+            //if (tau2eta < 1.46 ) FakeRateSF2 = 1.09; // antiEle
+            //else                 FakeRateSF2 = 1.19;
+            if (tau2eta < 1.448 ) FakeRateSF2 = 0.91;  // deepTauVSele (Tight)
+            if (tau2eta > 1.558 ) FakeRateSF1 = 0.91;
+          }
+          else if (genmu_lep2)                          // tau2 matched to gen mu
+          {
+            isFakeJet2 = false;
+            if      (tau2eta < 0.4) FakeRateSF2 = 1.06;
+            else if (tau2eta < 0.8) FakeRateSF2 = 1.02;
+            else if (tau2eta < 1.2) FakeRateSF2 = 1.10;
+            else if (tau2eta < 1.7) FakeRateSF2 = 1.03;
+            else if (tau2eta < 2.3) FakeRateSF2 = 1.94;
+          }
         }
 
         if (pairType == 0) // MuTau: anti-ele VLoose / anti-mu Tight
         {
-            // tau1 is a muon --> no SF to be applied
+          // tau1 is a muon --> no SF to be applied
 
-            float tau2eta = fabs(tlv_secondLepton.Eta()); // tau2
-            if (gene_lep2)                                // tau2 matched to gen ele
-	      {
-		isFakeJet2 = false;
-                if (tau2eta < 1.46 ) FakeRateSF2 = 1.09;
-                else                 FakeRateSF2 = 1.19;
-                //if (tau2eta > 1.558) FakeRateSF2 = 1.19;
-	      }
-            else if (genmu_lep2)                          // tau2 matched to gen mu
-	      {
-		isFakeJet2 = false;
-		if      (tau2eta < 0.4) FakeRateSF2 = 1.17;
-		else if (tau2eta < 0.8) FakeRateSF2 = 1.29;
-		else if (tau2eta < 1.2) FakeRateSF2 = 1.14;
-		else if (tau2eta < 1.7) FakeRateSF2 = 0.93;
-		else if (tau2eta < 2.3) FakeRateSF2 = 1.61;
-	      }
+          float tau2eta = fabs(tlv_secondLepton.Eta()); // tau2
+          if (gene_lep2)                                // tau2 matched to gen ele
+          {
+            isFakeJet2 = false;
+            //if (tau2eta < 1.46 ) FakeRateSF2 = 1.09; // antiEle
+            //else                 FakeRateSF2 = 1.19;
+            if (tau2eta < 1.448 ) FakeRateSF2 = 0.91;  // deepTauVSele (Tight)
+            if (tau2eta > 1.558 ) FakeRateSF1 = 0.91;
+          }
+          else if (genmu_lep2)                          // tau2 matched to gen mu
+          {
+            isFakeJet2 = false;
+            if      (tau2eta < 0.4) FakeRateSF2 = 1.17;
+            else if (tau2eta < 0.8) FakeRateSF2 = 1.29;
+            else if (tau2eta < 1.2) FakeRateSF2 = 1.14;
+            else if (tau2eta < 1.7) FakeRateSF2 = 0.93;
+            else if (tau2eta < 2.3) FakeRateSF2 = 1.61;
+          }
         }
 
         if (pairType == 1) // ETau: anti-ele Tight / anti-mu Loose
         {
-            // tau1 is an electron --> no SF to be applied
+          // tau1 is an electron --> no SF to be applied
 
-            float tau2eta = fabs(tlv_secondLepton.Eta()); // tau2
-            if (gene_lep2)                                // tau2 matched to gen ele
-	      {
-		isFakeJet2 = false;
-                if (tau2eta < 1.46 ) FakeRateSF2 = 1.80;
-                else                 FakeRateSF2 = 1.53;
-                //if (tau2eta > 1.558) FakeRateSF2 = 1.53;
-            }
-            else if (genmu_lep2)                          // tau2 matched to gen mu
-	      {
-		isFakeJet2 = false;
-                if      (tau2eta < 0.4) FakeRateSF2 = 1.06;
-                else if (tau2eta < 0.8) FakeRateSF2 = 1.02;
-                else if (tau2eta < 1.2) FakeRateSF2 = 1.10;
-                else if (tau2eta < 1.7) FakeRateSF2 = 1.03;
-                else if (tau2eta < 2.3) FakeRateSF2 = 1.94;
-            }
+          float tau2eta = fabs(tlv_secondLepton.Eta()); // tau2
+          if (gene_lep2)                                // tau2 matched to gen ele
+          {
+            isFakeJet2 = false;
+            //if (tau2eta < 1.46 ) FakeRateSF2 = 1.80; // antiEle
+            //else                 FakeRateSF2 = 1.53;
+            if (tau2eta < 1.448 ) FakeRateSF2 = 1.47;  // deepTauVSele (Tight)
+            if (tau2eta > 1.558 ) FakeRateSF1 = 0.66;
+          }
+          else if (genmu_lep2)                          // tau2 matched to gen mu
+          {
+            isFakeJet2 = false;
+            if      (tau2eta < 0.4) FakeRateSF2 = 1.06;
+            else if (tau2eta < 0.8) FakeRateSF2 = 1.02;
+            else if (tau2eta < 1.2) FakeRateSF2 = 1.10;
+            else if (tau2eta < 1.7) FakeRateSF2 = 1.03;
+            else if (tau2eta < 2.3) FakeRateSF2 = 1.94;
+          }
         }
 
         if (DEBUG)
