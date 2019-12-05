@@ -224,7 +224,7 @@ bool triggerReader_cross::checkOREleEleNew  (Long64_t triggerbit_1, Long64_t mat
         {
           firedPath = _allTriggers.at(_eeTriggers.at(i));
           boost::regex re_tau1{"Ele(\\d+)"};
-          ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 3.0);
+          ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 1.0); // 1.0 GeV from HTT twiki Run2 Legacy analisys
         }
         else
           ptCut = false;
@@ -265,7 +265,7 @@ bool triggerReader_cross::checkORMuEleNew  (Long64_t triggerbit_1, Long64_t matc
         {
           firedPath = _allTriggers.at(_mmTriggers.at(i));
           boost::regex re_tau1{"Mu(\\d+)"};
-          ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 2.0);
+          ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 1.0); // 1.0 GeV from HTT twiki Run2 Legacy analisys
         }
         else
           ptCut = false;
@@ -307,7 +307,7 @@ bool triggerReader_cross::checkORMuMuNew  (Long64_t triggerbit_1, Long64_t match
         {
           firedPath = _allTriggers.at(_mmTriggers.at(i));
           boost::regex re_tau1{"Mu(\\d+)"};
-          ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 2.0);
+          ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 1.0); // 1.0 GeV from HTT twiki Run2 Legacy analisys
         }
         else
           ptCut = false;
@@ -447,7 +447,7 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
           firedPath = _allTriggers.at(_mtCrossTriggers.at(i));
           boost::regex re_tau1{"Mu(\\d+)"};
           boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
-          ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 2.0, 5.0);
+          ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 1.0, 5.0);  // 1.0 GeV from HTT twiki Run2 Legacy analisys
           etaCut = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
         }
         else
@@ -487,7 +487,7 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
           {
             firedPath = _allTriggers.at(_mtTriggers.at(i));
             boost::regex re_tau1{"Mu(\\d+)"};
-            ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 2.0);
+            ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 1.0); // 1.0 GeV from HTT twiki Run2 Legacy analisys
           }
           else
             ptCut = false;
@@ -542,7 +542,7 @@ bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t mat
           boost::regex re_tau1{"Ele(\\d+)"};
           boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
 
-          ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 3.0, 5.0);
+          ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 1.0, 5.0); // 1.0 GeV from HTT twiki Run2 Legacy analisys
           etaCut = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
         }
         else
@@ -581,7 +581,7 @@ bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t mat
           {
             firedPath = _allTriggers.at(_etTriggers.at(i));
             boost::regex re_tau1{"Ele(\\d+)"};
-            ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 3.0);
+            ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 1.0); // 1.0 GeV from HTT twiki Run2 Legacy analisys
           }
           else
             ptCut = false;
