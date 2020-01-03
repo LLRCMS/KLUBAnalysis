@@ -86,6 +86,17 @@ float PUReweight::weight(int MC, int target, int input, TString filename) {
       {
         return hT2018_MCAutumn18_Data59c7fb_special.at(input) ;
       }
+    } else if (MC==2016 && target==999) {                   // Ful 2016 with weights for each sample read from external txt file
+      if (filename == TString(""))
+      {
+        std::cout << "ERROR: PUReweight - You requested special weights but didn't pass the external file: aborting !!! " << std::endl;
+        abort();
+      }
+      else
+      {
+        return hT2016_MCSummer16_Data36c4fb_special.at(input) ;
+      }
+
     } else{
       std::cout << "ERROR: PUReweight: " << MC << " " << target << std::endl;
       abort();
@@ -665,6 +676,17 @@ theFilename(filename) {
   npuSpring16_2c6fb[99] = 0;
   for(int k = 0 ; k < 100 ; ++k)
     hT2016_MCSpring16_Data2c6fb.push_back(npuSpring16_2c6fb[k]) ;
+
+  // RUN2ANALYSIS MC Summer2016 target Data 36.4/fb - Full Run 2016
+  // Special weights for each sample read from external txt file
+  if (filename == TString(""))
+  {
+    for(int k = 0 ; k < 100 ; ++k)
+        hT2016_MCSummer16_Data36c4fb_special.push_back(0.0) ; // if no filename passe, initialize a vector of 0s
+  }
+  else
+    hT2016_MCSummer16_Data36c4fb_special = LoadExternalWeights(theFilename);
+
   
   // RUN2ANALYSIS MC Spring2016 target Data 4.0/fb
   double npuSpring16_4c0fb[100] ; 

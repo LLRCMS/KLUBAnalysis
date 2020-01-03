@@ -41,6 +41,7 @@ public:
   std::vector<float> hT2016_MCSpring16_Data12c9fb ;
   std::vector<float> hT2016_MCSpring16_Data36c4fb ;
   std::vector<float> hT2016_MCSummer16_Data36c4fb ;
+  std::vector<float> hT2016_MCSummer16_Data36c4fb_special;  // Full Run2016 - weights read from external txt file
 
   // 2015 Samples
   std::vector<float> hT2015_MC25ns_Data25ns ;
