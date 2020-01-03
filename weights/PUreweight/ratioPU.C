@@ -1,13 +1,10 @@
-//void ratioPU (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Files_June2019/Files_June2019_firstLook/1_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt", string const &myFileName = "TTToSemiLeptonic_MyMCPileupHistogram") 
-//void ratioPU (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Files_June2019/Files_June2019_firstLook/2_TTToHadronic_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt", string const &myFileName = "TTToHadronic_MyMCPileupHistogram") 
-void ratioPU (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Files_June2019/Files_June2019_firstLook/3_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt", string const &myFileName = "TTTo2L2Nu_MyMCPileupHistogram") 
+void ratioPU (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Files_Legacy_Run2/2016/Backgrounds/1_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v1.txt", string const &myFileName = "MyMCPileupHistogram_TT2016")
+//void ratioPU (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Files_Legacy_Run2/2017/Backgrounds/ !! FIXME !!", string const &myFileName = "MyMCPileupHistogram_TT2017")
+//void ratioPU (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Files_Legacy_Run2/2018/Backgrounds/ !! FIXME !!", string const &myFileName = "MyMCPileupHistogram_TT2018")
 {
 
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
 
-    //std::ifstream infile("/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_7Feb2016/TT_powheg_semiLep_7Feb2017.txt");
-    //std::ifstream infile("/gwpool/users/brivio/Hhh_1718/syncFeb2018/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Fall17_MC/2_TTToHadronic_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt");
-  //std::ifstream infile("../../inputFiles/Files_June2018_LLR/13_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt");
   std::ifstream infile(infileName);
 
     std::string line;
