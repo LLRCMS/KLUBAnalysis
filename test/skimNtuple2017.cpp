@@ -19,24 +19,16 @@
 #include "smallTree.h"
 #include "OfflineProducerHelper.h"
 #include "PUReweight.h"
-//#include "triggerReader.h" //FRA: not used anymore
-#include "triggerReader_cross.h" //FRA
+#include "triggerReader_cross.h"
 #include "bJetRegrVars.h"
 #include "bTagSF.h"
-// #include "HHReweight.h"
 #include "HHReweight5D.h"
 #include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 #include "TauTriggerSFs2017.h"
 #include "BDTfunctionsUtils.h"
 #include "TauIDSFTool.h"
 
-// for minuit-based minimization
-// #include "mt2.h"
-// #include "Math/Minimizer.h"
-// #include "Math/Factory.h"
-// #include "Math/Functor.h"
 #include "lester_mt2_bisect.h"
-
 
 #include "ScaleFactor.h"
 #include "ConfigParser.h"
@@ -968,9 +960,8 @@ int main (int argc, char** argv)
   
   // ------------------------------
 
-  //PUReweight reweight (PUReweight::RUN2ANALYSIS); // none : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
+  //PUReweight reweight (PUReweight::RUN2ANALYSIS); // NONE : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
   PUReweight reweight (PUReweight::RUN2ANALYSIS, PUreweightFile);
-  //PUReweight reweight (PUReweight::NONE); // none : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
 
   // ------------------------------
 
@@ -981,8 +972,7 @@ int main (int argc, char** argv)
   {
   	bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepFlavor");
   	bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFileDeepFlavor");
-  }	
-  
+  }
   else
   {
   	bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepCSV");
@@ -990,10 +980,9 @@ int main (int argc, char** argv)
   }	
   	
   cout << "B Tag SF file: " << bTag_SFFile << endl;
-  //bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "80X_MORIOND_2017"); // third field unused, but could be needed to select efficiencies for different selection levels
-  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "102X_DeepCSV_V1"); // third field unused, but could be needed to select efficiencies for different selection levels
+  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "94X_DeepCSV_V1");
   if(useDeepFlavor)
-  	bTagSFHelper.SetWPset("102X_DeepFlavor_V1"); // third field unused, but could be needed to select efficiencies for different selection levels
+    bTagSFHelper.SetWPset("94X_DeepFlavor_V1");
 
   // ------------------------------
   
@@ -3577,17 +3566,16 @@ int main (int argc, char** argv)
 
         bool bPairFound = false;
         int njets = jets_and_sortPar.size();
-	
-	if(useDeepFlavor)
-	{
-		if (jets_and_sortPar.at(njets-2).first>0.2770) bPairFound = true;
-        }		  
-	else
-	{
-   		if (jets_and_sortPar.at(njets-2).first>0.4184) bPairFound = true;
-	}	
 
-        // medium WP is: 0.8484 for 2016 CSV, 0.4941 for 2017 DeepCSV, 0.4184 for 2018 DeepCSV, 0.2770 for 2018 DeepFlavor
+        // medium WP for 2017 is: 0.4941 for DeepCSV, 0.3033 for DeepFlavor
+        if(useDeepFlavor)
+        {
+            if (jets_and_sortPar.at(njets-2).first>0.3033) bPairFound = true;
+        }
+        else
+        {
+            if (jets_and_sortPar.at(njets-2).first>0.4941) bPairFound = true;
+        }
 
         const int bjet1idx = jets_and_sortPar.at(njets-1).second ;
         int bjet2idx_temp  = jets_and_sortPar.at(njets-2).second ;
