@@ -46,9 +46,6 @@ struct smallTree
       m_trigSF = -1.;
       m_trigSF_single = -1.;
       m_trigSF_cross = -1.;
-      m_trigSF_vtight = -1.;
-      m_trigSF_single_vtight = -1.;
-      m_trigSF_cross_vtight = -1.;
       m_FakeRateSF = -1.;
       m_IdAndIsoSF = -1.;
       m_IdAndIsoSF_vtight = -1.;
@@ -585,9 +582,6 @@ struct smallTree
       m_smallT->Branch ("trigSF", &m_trigSF, "trigSF/F") ;
       m_smallT->Branch ("trigSF_single", &m_trigSF_single, "trigSF_single/F") ;
       m_smallT->Branch ("trigSF_cross", &m_trigSF_cross, "trigSF_cross/F") ;
-      m_smallT->Branch ("trigSF_vtight", &m_trigSF_vtight, "trigSF_vtight/F") ;
-      m_smallT->Branch ("trigSF_single_vtight", &m_trigSF_single_vtight, "trigSF_single_vtight/F") ;
-      m_smallT->Branch ("trigSF_cross_vtight", &m_trigSF_cross_vtight, "trigSF_cross_vtight/F") ;
       m_smallT->Branch ("FakeRateSF", &m_FakeRateSF, "FakeRateSF/F") ;
       m_smallT->Branch ("jetFakeSF", &m_jetFakeSF, "jetFakeSF/F") ;
       m_smallT->Branch ("IdAndIsoSF", &m_IdAndIsoSF, "IdAndIsoSF/F") ;
@@ -1122,9 +1116,6 @@ struct smallTree
   Float_t m_trigSF ;
   Float_t m_trigSF_cross ;
   Float_t m_trigSF_single ;
-  Float_t m_trigSF_vtight ;
-  Float_t m_trigSF_cross_vtight ;
-  Float_t m_trigSF_single_vtight ;
   Float_t m_FakeRateSF ;
   Float_t m_jetFakeSF ;
   Float_t m_IdAndIsoSF ;

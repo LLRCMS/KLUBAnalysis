@@ -24,7 +24,7 @@
 #include "bTagSF.h"
 #include "HHReweight5D.h"
 #include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
-#include "TauTriggerSFs2017.h"
+#include "SFProvider.h"
 #include "BDTfunctionsUtils.h"
 #include "TauIDSFTool.h"
 
@@ -33,7 +33,6 @@
 #include "ScaleFactor.h"
 #include "ConfigParser.h"
 #include "EffCounter.h"
-#include "tauTrigSFreader.h"
 #include "exceptions/HHInvMConstraintException.h"
 #include "exceptions/HHEnergyRangeException.h"
 #include "exceptions/HHEnergyConstraintException.h"
@@ -987,41 +986,17 @@ int main (int argc, char** argv)
   // ------------------------------
   
 
-  //tau legs trigger SF for data and mc 2017
-  //TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","medium");
-  //updated: https://hypernews.cern.ch/HyperNews/CMS/get/tauid/858.html
-  //TauTriggerSFs2017 * tauTrgSF = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017_New.root","weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","medium","MVA");
-  //TauTriggerSFs2017 * tauTrgSFvtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017_New.root","weights/trigger_SF_2017/tauTriggerEfficiencies2017.root","vtight","MVA");
-  //updated February 2019
-  //TauTriggerSFs2017 * tauTrgSF_ditau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "ditau", "2017", "medium", "MVAv2");
-  //TauTriggerSFs2017 * tauTrgSF_ditau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "ditau", "2017", "vtight", "MVAv2");
-
-  //TauTriggerSFs2017 * tauTrgSF_mutau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "mutau", "2017", "medium", "MVAv2");
-  //TauTriggerSFs2017 * tauTrgSF_mutau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "mutau", "2017", "vtight", "MVAv2");
-
-  //TauTriggerSFs2017 * tauTrgSF_etau = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "etau", "2017", "medium", "MVAv2");
-  //TauTriggerSFs2017 * tauTrgSF_etau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2017/tauTriggerEfficiencies2017.root", "etau", "2017", "vtight", "MVAv2");
-
-  TauTriggerSFs2017 * tauTrgSF_ditau = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "ditau", "2018", "medium", "MVAv2");
-  TauTriggerSFs2017 * tauTrgSF_ditau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "ditau", "2018", "vtight", "MVAv2");
-
-  TauTriggerSFs2017 * tauTrgSF_mutau = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "mutau", "2018", "medium", "MVAv2");
-  TauTriggerSFs2017 * tauTrgSF_mutau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "mutau", "2018", "vtight", "MVAv2");
-
-  TauTriggerSFs2017 * tauTrgSF_etau = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "etau", "2018", "medium", "MVAv2");
-  TauTriggerSFs2017 * tauTrgSF_etau_vtight = new TauTriggerSFs2017("weights/trigger_SF_2018/tauTriggerEfficiencies2018.root", "etau", "2018", "vtight", "MVAv2");
-
+  //tau legs trigger SF for data and mc
+  //from: https://github.com/cms-tau-pog/TauTriggerSFs/tree/run2_SFs
+  tau_trigger::SFProvider * tauTrgSF_ditau = new tau_trigger::SFProvider("weights/trigger_SF_Legacy/2016/2016_tauTriggerEff_DeepTau2017v2p1.root", "ditau", "Medium");
+  tau_trigger::SFProvider * tauTrgSF_mutau = new tau_trigger::SFProvider("weights/trigger_SF_Legacy/2016/2016_tauTriggerEff_DeepTau2017v2p1.root", "mutau", "Medium");
+  tau_trigger::SFProvider * tauTrgSF_etau  = new tau_trigger::SFProvider("weights/trigger_SF_Legacy/2016/2016_tauTriggerEff_DeepTau2017v2p1.root", "etau" , "Medium");
 
   // electron/muon leg trigger SF for data and mc 2017
   ScaleFactor * muTauTrgSF = new ScaleFactor();
   ScaleFactor * eTauTrgSF = new ScaleFactor();
   ScaleFactor * muTrgSF = new ScaleFactor();
   ScaleFactor * eTrgSF = new ScaleFactor();
-
-  //muTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_MuTau_IsoMu20.root");
-  //muTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_IsoMu24orIsoMu27.root");
-  //eTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_EleTau_Ele24_fix.root");
-  //eTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_Ele32orEle35_fix.root");
 
   muTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_MuTau_IsoMu20.root"); // Still missing for 2018
   muTrgSF->init_ScaleFactor("weights/trigger_SF_2018/Muon_Run2018_IsoMu24orIsoMu27.root");
@@ -3255,10 +3230,6 @@ int main (int argc, char** argv)
       float trigSF_single = 1.0;
       float trigSF_cross = 1.0;
 
-      float trigSF_vtight = 1.0;
-      float trigSF_single_vtight = 1.0;
-      float trigSF_cross_vtight = 1.0;
-      
       if(applyTriggers)
 	{
 	  // MuTau Channel
@@ -3282,28 +3253,18 @@ int main (int argc, char** argv)
 		double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 
 		//tau leg
-		double SFtau_Data = tauTrgSF_mutau->getTriggerEfficiencyData(tlv_secondLepton.Pt(),tlv_secondLepton.Eta(),tlv_secondLepton.Phi(),DM2);
-		double SFtau_MC = tauTrgSF_mutau->getTriggerEfficiencyMC(tlv_secondLepton.Pt(),tlv_secondLepton.Eta(),tlv_secondLepton.Phi(),DM2);
+		double SFtau_Data = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+		double SFtau_MC   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 		
 		double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
 		double Eff_MC   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC) + passCross * SFl_MC * SFtau_MC;
 
 		trigSF = Eff_Data / Eff_MC;
 
-		double SFtau_Data_vtight = tauTrgSF_mutau_vtight->getTriggerEfficiencyData(tlv_secondLepton.Pt(),tlv_secondLepton.Eta(),tlv_secondLepton.Phi(),DM2);
-		double SFtau_MC_vtight = tauTrgSF_mutau_vtight->getTriggerEfficiencyMC(tlv_secondLepton.Pt(),tlv_secondLepton.Eta(),tlv_secondLepton.Phi(),DM2);
-
-		double Eff_Data_vtight =  passSingle * SFL_Data * (1 - passCross * SFtau_Data_vtight) + passCross * SFl_Data * SFtau_Data_vtight;
-		double Eff_MC_vtight   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC_vtight) + passCross * SFl_MC * SFtau_MC_vtight;
-
-		trigSF_vtight = Eff_Data_vtight / Eff_MC_vtight;
-
 		//trig SF for analysis only with cross-trigger
 		double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		double SFtau = tauTrgSF_mutau->getTriggerScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi(),DM2);
+		double SFtau = tauTrgSF_mutau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 		trigSF_cross = SFl*SFtau;
-		double SFtau_vtight = tauTrgSF_mutau_vtight->getTriggerScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi(),DM2);
-		trigSF_cross_vtight = SFl*SFtau_vtight;
 	      }else{ //eta region covered only by single lepton trigger
 		double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		trigSF = SF;
@@ -3332,28 +3293,18 @@ int main (int argc, char** argv)
 		double SFl_MC = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 		
 		//tau leg
-		double SFtau_Data = tauTrgSF_etau->getTriggerEfficiencyData(tlv_secondLepton.Pt(),tlv_secondLepton.Eta(),tlv_secondLepton.Phi(),DM2);
-		double SFtau_MC = tauTrgSF_etau->getTriggerEfficiencyMC(tlv_secondLepton.Pt(),tlv_secondLepton.Eta(),tlv_secondLepton.Phi(),DM2);
+		double SFtau_Data = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+		double SFtau_MC   = tauTrgSF_etau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 		
 		double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
 		double Eff_MC   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC) + passCross * SFl_MC * SFtau_MC;
 		
 		trigSF = Eff_Data / Eff_MC;
 
-		double SFtau_Data_vtight = tauTrgSF_etau_vtight->getTriggerEfficiencyData(tlv_secondLepton.Pt(),tlv_secondLepton.Eta(),tlv_secondLepton.Phi(),DM2);
-		double SFtau_MC_vtight = tauTrgSF_etau_vtight->getTriggerEfficiencyMC(tlv_secondLepton.Pt(),tlv_secondLepton.Eta(),tlv_secondLepton.Phi(),DM2);
-
-		double Eff_Data_vtight =  passSingle * SFL_Data * (1 - passCross * SFtau_Data_vtight) + passCross * SFl_Data * SFtau_Data_vtight;
-		double Eff_MC_vtight   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC_vtight) + passCross * SFl_MC * SFtau_MC_vtight;
-
-		trigSF_vtight = Eff_Data_vtight / Eff_MC_vtight;
-
 		//trig SF for analysis only with cross-trigger
 		double SFl = eTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		double SFtau = tauTrgSF_etau->getTriggerScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi(),DM2);
+		double SFtau = tauTrgSF_etau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 		trigSF_cross = SFl*SFtau;
-		double SFtau_vtight = tauTrgSF_etau_vtight->getTriggerScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi(),DM2);
-		trigSF_cross_vtight = SFl*SFtau_vtight;
 
 	      }else{ //eta region covered only by single lepton trigger
 		double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -3365,17 +3316,9 @@ int main (int argc, char** argv)
 	  // TauTau Channel
 	  else if (pType == 2 && isMC)
 	    {
-	      //double SF1 = tauTrgSF->getDiTauScaleFactor( tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_firstLepton.Phi() );
-	      //double SF2 = tauTrgSF->getDiTauScaleFactor( tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi() );
-	      double SF1 = tauTrgSF_ditau->getTriggerScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_firstLepton.Phi(),DM1);
-	      double SF2 = tauTrgSF_ditau->getTriggerScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi(),DM2);
+	      double SF1 = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt() , DM1, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+	      double SF2 = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 	      trigSF = SF1 * SF2;
-
-	      //double SF1_vtight = tauTrgSFvtight->getDiTauScaleFactor( tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_firstLepton.Phi() );
-	      //double SF2_vtight = tauTrgSFvtight->getDiTauScaleFactor( tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi() );
-	      double SF1_vtight = tauTrgSF_ditau_vtight->getTriggerScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_firstLepton.Phi(),DM1);
-	      double SF2_vtight = tauTrgSF_ditau_vtight->getTriggerScaleFactor(tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), tlv_secondLepton.Phi(),DM2);
-	      trigSF_vtight = SF1_vtight * SF2_vtight;
 	    }
 	  
 	  // MuMu Channel
@@ -3397,11 +3340,6 @@ int main (int argc, char** argv)
       theSmallTree.m_trigSF     = (isMC ? trigSF : 1.0);
       theSmallTree.m_trigSF_single     = (isMC ? trigSF_single : 1.0);
       theSmallTree.m_trigSF_cross     = (isMC ? trigSF_cross : 1.0);
-
-      theSmallTree.m_trigSF_vtight        = (isMC ? trigSF_vtight : 1.0);
-      theSmallTree.m_trigSF_single_vtight = (isMC ? trigSF_single_vtight : 1.0);
-      theSmallTree.m_trigSF_cross_vtight  = (isMC ? trigSF_cross_vtight : 1.0);
-
 
       theSmallTree.m_totalWeight = (isMC? (41557./7.20811e+10) * theSmallTree.m_MC_weight* theSmallTree.m_PUReweight* theSmallTree.m_DYscale_MM_NLO* trigSF* FakeRateSF* idAndIsoSF: 1.0);
       //this is just a residual of some synch
