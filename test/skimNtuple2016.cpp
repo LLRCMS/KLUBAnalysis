@@ -511,57 +511,6 @@ float turnOnSF(float pt, int WP, bool realTau)
   else         return turnOnCB (pt, fake_m0[WP], fake_sigma[WP], fake_alpha[WP], fake_n[WP], fake_norm[WP] );  
 }
 
-// float getTriggerWeight(int partType, float pt, TH1F* weightHisto)
-// {
-//     if (partType == 0) return 0.95;
-//     else if (partType == 1) return 0.95;
-//     else if (partType == 2)
-//     {
-//         int ibin = weightHisto->FindBin(pt);
-//         if (ibin < 1) ibin = 1;
-//         if (ibin > weightHisto->GetNbinsX()) ibin = weightHisto->GetNbinsX() ;
-//         return weightHisto->GetBinContent(ibin);
-//     }
-//     cout << "** WARNING: trigger weight now known for particle type " << partType << endl;
-//     return 1.;
-// }
-
-
-float getTriggerWeight(int partType, float pt, float eta, TH1F* rewHisto = 0, ScaleFactor* sfreader = 0, int tauWP = 0, bool realTau = false)
-{
-  float weight = 1.0;
-    
-  switch(partType)
-    {
-    case 0: // mu
-      {
-        weight = sfreader->get_EfficiencyData(pt, eta);        
-        break;
-      }
-    case 1: // ele
-      {
-        int bin = rewHisto->FindBin (pt);
-        if (bin == 0) bin = 1;
-        if (bin >= rewHisto->GetNbinsX()+1) bin = rewHisto->GetNbinsX();
-        weight =  rewHisto->GetBinContent (bin);
-        break;
-      }
-    case 2: // tau
-      {
-        weight = turnOnSF (pt, tauWP, realTau) ;
-        break;
-      }
-    default:
-      {
-        cout << "** WARNING: trigger weight now known for particle type " << partType << endl;
-        weight =  1.;
-        break;
-      }
-    }
-
-  return weight;
-}
-
 // generic function to read content of 1D / 2D histos, taking care of x axis limit (no under/over flow)
 double getContentHisto1D(TH1* histo, double x)
 {
@@ -817,19 +766,6 @@ int main (int argc, char** argv)
       cout << endl;
     }
 
-  // // histo reweight triggers
-  // TFile* trigRewFiles  [3];
-  // TH1F*  trigRewHistos [3];
-  
-  // trigRewFile[0]   = new TFile ();  // mu
-  // trigRewHistos[0] = (TH1F*) trigRewFile[0] ->Get ();
-
-  // trigRewFile[1]   = new TFile (); // ele
-  // trigRewHistos[1] = (TH1F*) trigRewFile[1] ->Get ();
-
-  // trigRewFile[2]   = 0; // tau : WARNING: UNUSED!!
-  // trigRewHistos[2] = 0;
-
   string bRegrWeights("");
   bool computeBregr = gConfigParser->readBoolOption ("bRegression::computeBregr");
   if (computeBregr) bRegrWeights = gConfigParser->readStringOption("bRegression::weights");
@@ -913,17 +849,6 @@ int main (int argc, char** argv)
   
   TH1F* hTriggers = getFirstFileHisto (inputFile);
   TH1F* hTauIDS = getFirstFileHisto (inputFile,false);
-  /*triggerReader trigReader (hTriggers);
-  trigReader.addTauTauTrigs (trigTauTau);
-  trigReader.addMuTauTrigs  (trigMuTau);
-  trigReader.addEleTauTrigs (trigEleTau);
-  // trigReader.addMuEleTrigs  (trigEleMu);
-  trigReader.addMuMuTrigs   (trigMuMu);
-  trigReader.addEleEleTrigs (trigEleEle);
-
-  // add crossTriggers
-  trigReader.addMuTauCrossTrigs  (crossTrigMuTau);
-  trigReader.addEleTauCrossTrigs (crossTrigEleTau);*/
   
   //FRA new triggerReader_cross to take into account the usage of crossTriggers
   triggerReader_cross trigReader (hTriggers);
