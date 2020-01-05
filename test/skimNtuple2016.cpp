@@ -917,16 +917,16 @@ int main (int argc, char** argv)
   tau_trigger::SFProvider * tauTrgSF_mutau = new tau_trigger::SFProvider("weights/trigger_SF_Legacy/2016/2016_tauTriggerEff_DeepTau2017v2p1.root", "mutau", "Medium");
   tau_trigger::SFProvider * tauTrgSF_etau  = new tau_trigger::SFProvider("weights/trigger_SF_Legacy/2016/2016_tauTriggerEff_DeepTau2017v2p1.root", "etau" , "Medium");
 
-  // electron/muon leg trigger SF for data and mc 2017
+  // electron/muon leg trigger SF for data and mc
   ScaleFactor * muTauTrgSF = new ScaleFactor();
-  ScaleFactor * eTauTrgSF = new ScaleFactor();
-  ScaleFactor * muTrgSF = new ScaleFactor();
-  ScaleFactor * eTrgSF = new ScaleFactor();
+  ScaleFactor * eTauTrgSF  = new ScaleFactor();
+  ScaleFactor * muTrgSF    = new ScaleFactor();
+  ScaleFactor * eTrgSF     = new ScaleFactor();
 
-  muTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Muon_MuTau_IsoMu20.root"); // Still missing for 2018
-  muTrgSF->init_ScaleFactor("weights/trigger_SF_2018/Muon_Run2018_IsoMu24orIsoMu27.root");
-  eTauTrgSF->init_ScaleFactor("weights/trigger_SF_2017/Electron_EleTau_Ele24_fix.root"); // Still missing for 2018
-  eTrgSF->init_ScaleFactor("weights/trigger_SF_2018/Electron_Run2018_Ele32orEle35.root");
+  muTauTrgSF->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Muon_Mu19leg_2016BtoH_eff.root");
+  muTrgSF   ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Muon_Mu22OR_eta2p1_eff.root");
+  eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root");
+  eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele25WPTight_eff.root");
 
 
   // --- 2017 SFs ---
