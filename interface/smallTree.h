@@ -48,7 +48,6 @@ struct smallTree
       m_trigSF_cross = -1.;
       m_FakeRateSF = -1.;
       m_IdAndIsoSF = -1.;
-      m_IdAndIsoSF_vtight = -1.;
       m_IdAndIsoSF_decayMode= -1.;
       m_jetFakeSF = -1.;
       m_IdAndIsoAndFakeSF = -1.;
@@ -87,6 +86,10 @@ struct smallTree
       m_met_et_tauup = -1.   ; //
       m_met_phi_taudown = -1.; //
       m_met_et_taudown = -1. ; //
+      m_met_phi_eleup = -1.  ; //FRA - shifted MET for EES
+      m_met_et_eleup = -1.   ; //
+      m_met_phi_eledown = -1.; //
+      m_met_et_eledown = -1. ; //
       m_met_et_corr =-1.;
       m_met_cov00 = -1.;
       m_met_cov01 = -1.;
@@ -115,6 +118,8 @@ struct smallTree
       m_dau1_pt  = -1. ;
       m_dau1_pt_tauup  = -1. ;
       m_dau1_pt_taudown  = -1. ;
+      m_dau1_pt_eleup  = -1. ;
+      m_dau1_pt_eledown  = -1. ;
       m_dau1_eta  = -1. ;
       m_dau1_phi  = -1. ;
       m_dau1_e  = -1. ;
@@ -280,6 +285,8 @@ struct smallTree
       m_HH_mass_raw = -1. ;
       m_HH_mass_raw_tauup   = -1. ;
       m_HH_mass_raw_taudown = -1. ;
+      m_HH_mass_raw_eleup   = -1. ;
+      m_HH_mass_raw_eledown = -1. ;
       m_HHKin_mass = -1. ;
       m_HHKin_chi2 = -1. ;
 
@@ -319,6 +326,8 @@ struct smallTree
       m_MT2_taudown = -1.;
       m_MT2_jetup = -1.;
       m_MT2_jetdown = -1.;
+      m_MT2_eleup = -1.;
+      m_MT2_eledown = -1.;
       // m_MT2_covMtrxStatus = -1;
       // m_MT2_EDM = -1.;
       // m_MT2_hasConverged = -1;
@@ -373,6 +382,8 @@ struct smallTree
       m_HHKin_mass_raw_taudown = 0;
       m_HHKin_mass_raw_jetup = 0;
       m_HHKin_mass_raw_jetdown = 0;
+      m_HHKin_mass_raw_eleup = 0;
+      m_HHKin_mass_raw_eledown = 0;
       m_HHKin_mass_raw_chi2 = 0;
       m_HHKin_mass_raw_convergence = 0;
       m_HHKin_mass_raw_prob = 0;
@@ -585,7 +596,6 @@ struct smallTree
       m_smallT->Branch ("FakeRateSF", &m_FakeRateSF, "FakeRateSF/F") ;
       m_smallT->Branch ("jetFakeSF", &m_jetFakeSF, "jetFakeSF/F") ;
       m_smallT->Branch ("IdAndIsoSF", &m_IdAndIsoSF, "IdAndIsoSF/F") ;
-      m_smallT->Branch ("IdAndIsoSF_vtight", &m_IdAndIsoSF_vtight, "IdAndIsoSF_vtight/F") ;
       m_smallT->Branch ("IdAndIsoSF_decayMode", &m_IdAndIsoSF_decayMode, "IdAndIsoSF_decayMode/F") ;
       m_smallT->Branch ("IdAndIsoAndFakeSF", &m_IdAndIsoAndFakeSF, "IdAndIsoAndFakeSF/F") ;
       m_smallT->Branch ("DYscale_LL", &m_DYscale_LL, "DYscale_LL/F") ;
@@ -632,6 +642,10 @@ struct smallTree
       m_smallT->Branch ("met_et_tauup", &m_met_et_tauup, "met_et_tauup/F") ;          //
       m_smallT->Branch ("met_phi_taudown", &m_met_phi_taudown, "met_phi_taudown/F") ; //
       m_smallT->Branch ("met_et_taudown", &m_met_et_taudown, "met_et_taudown/F") ;    //
+      m_smallT->Branch ("met_phi_eleup", &m_met_phi_eleup, "met_phi_eleup/F") ;       //FRA - shifted MET for EES
+      m_smallT->Branch ("met_et_eleup", &m_met_et_eleup, "met_et_eleup/F") ;          //
+      m_smallT->Branch ("met_phi_eledown", &m_met_phi_eledown, "met_phi_eledown/F") ; //
+      m_smallT->Branch ("met_et_eledown", &m_met_et_eledown, "met_et_eledown/F") ;    //
       m_smallT->Branch ("met_et_corr", &m_met_et_corr, "met_et_corr/F") ;
       m_smallT->Branch ("met_cov00", &m_met_cov00, "met_cov00/F") ;
       m_smallT->Branch ("met_cov01", &m_met_cov01, "met_cov01/F") ;
@@ -660,6 +674,8 @@ struct smallTree
       m_smallT->Branch ("dau1_pt", &m_dau1_pt, "dau1_pt/F") ;
       m_smallT->Branch ("dau1_pt_tauup", &m_dau1_pt_tauup, "dau1_pt_tauup/F") ;
       m_smallT->Branch ("dau1_pt_taudown", &m_dau1_pt_taudown, "dau1_pt_taudown/F") ;
+      m_smallT->Branch ("dau1_pt_eleup", &m_dau1_pt_eleup, "dau1_pt_eleup/F") ;
+      m_smallT->Branch ("dau1_pt_eledown", &m_dau1_pt_eledown, "dau1_pt_eledown/F") ;
       m_smallT->Branch ("dau1_eta", &m_dau1_eta, "dau1_eta/F") ;
       m_smallT->Branch ("dau1_phi", &m_dau1_phi, "dau1_phi/F") ;
       m_smallT->Branch ("dau1_e", &m_dau1_e, "dau1_e/F") ;
@@ -823,6 +839,8 @@ struct smallTree
       m_smallT->Branch ("HH_mass_raw", &m_HH_mass_raw, "HH_mass_raw/F") ;
       m_smallT->Branch ("HH_mass_raw_tauup", &m_HH_mass_raw_tauup, "HH_mass_raw_tauup/F") ;
       m_smallT->Branch ("HH_mass_raw_taudown", &m_HH_mass_raw_taudown, "HH_mass_raw_taudown/F") ;
+      m_smallT->Branch ("HH_mass_raw_eleup", &m_HH_mass_raw_eleup, "HH_mass_raw_eleup/F") ;
+      m_smallT->Branch ("HH_mass_raw_eledown", &m_HH_mass_raw_eledown, "HH_mass_raw_eledown/F") ;
 
       m_smallT->Branch ("HHKin_mass", &m_HHKin_mass, "HHKin_mass/F") ;
       m_smallT->Branch ("HHKin_chi2", &m_HHKin_chi2, "HHKin_chi2/F") ;
@@ -898,6 +916,8 @@ struct smallTree
       m_smallT->Branch("MT2_taudown",      &m_MT2_taudown,       "MT2_taudown/F");
       m_smallT->Branch("MT2_jetup",        &m_MT2_jetup,         "MT2_jetup/F");
       m_smallT->Branch("MT2_jetdown",      &m_MT2_jetdown,       "MT2_jetdown/F");
+      m_smallT->Branch("MT2_eleup",        &m_MT2_eleup,         "MT2_eleup/F");
+      m_smallT->Branch("MT2_eledown",      &m_MT2_eledown,       "MT2_eledown/F");
       // m_smallT->Branch("MT2_covMtrxStatus", &m_MT2_covMtrxStatus, "MT2_covMtrxStatus/I");
       // m_smallT->Branch("MT2_EDM",           &m_MT2_EDM,           "MT2_EDM/F");
       // m_smallT->Branch("MT2_hasConverged",  &m_MT2_hasConverged,  "MT2_hasConverged/I");
@@ -913,6 +933,8 @@ struct smallTree
       m_smallT->Branch ("HHKin_mass_raw_taudown",&m_HHKin_mass_raw_taudown ,"HHKin_mass_raw_taudown/F");
       m_smallT->Branch ("HHKin_mass_raw_jetup",&m_HHKin_mass_raw_jetup ,"HHKin_mass_raw_jetup/F");
       m_smallT->Branch ("HHKin_mass_raw_jetdown",&m_HHKin_mass_raw_jetdown ,"HHKin_mass_raw_jetdown/F");
+      m_smallT->Branch ("HHKin_mass_raw_eleup",&m_HHKin_mass_raw_eleup ,"HHKin_mass_raw_eleup/F");
+      m_smallT->Branch ("HHKin_mass_raw_eledown",&m_HHKin_mass_raw_eledown ,"HHKin_mass_raw_eledown/F");
       m_smallT->Branch ("HHKin_mass_raw_chi2", &m_HHKin_mass_raw_chi2, "HHKin_mass_raw_chi2/F") ;
       m_smallT->Branch ("HHKin_mass_raw_convergence", &m_HHKin_mass_raw_convergence, "HHKin_mass_raw_convergence/I") ;
       m_smallT->Branch ("HHKin_mass_raw_prob", &m_HHKin_mass_raw_prob, "HHKin_mass_raw_prob/F") ;
@@ -1119,7 +1141,6 @@ struct smallTree
   Float_t m_FakeRateSF ;
   Float_t m_jetFakeSF ;
   Float_t m_IdAndIsoSF ;
-  Float_t m_IdAndIsoSF_vtight ;
   Float_t m_IdAndIsoSF_decayMode ;
   Float_t m_IdAndIsoAndFakeSF ;
   Float_t m_DYscale_LL ;
@@ -1170,6 +1191,10 @@ struct smallTree
   Float_t m_met_et_tauup ;    //
   Float_t m_met_phi_taudown ; //
   Float_t m_met_et_taudown ;  //
+  Float_t m_met_phi_eleup ;   //FRA - shifted MET for EES
+  Float_t m_met_et_eleup ;    //
+  Float_t m_met_phi_eledown ; //
+  Float_t m_met_et_eledown ;  //
   Float_t m_met_et_corr;
   Float_t m_met_cov00;
   Float_t m_met_cov01;
@@ -1200,6 +1225,8 @@ struct smallTree
   Float_t m_dau1_pt ;
   Float_t m_dau1_pt_tauup ;
   Float_t m_dau1_pt_taudown ;
+  Float_t m_dau1_pt_eleup ;
+  Float_t m_dau1_pt_eledown ;
   Float_t m_dau1_eta ;
   Float_t m_dau1_phi ;
   Float_t m_dau1_e ;
@@ -1367,6 +1394,8 @@ struct smallTree
   Float_t m_HH_mass_raw ;
   Float_t m_HH_mass_raw_tauup ;
   Float_t m_HH_mass_raw_taudown ;
+  Float_t m_HH_mass_raw_eleup ;
+  Float_t m_HH_mass_raw_eledown ;
 
   Float_t m_HHsvfit_pt ;
   Float_t m_HHsvfit_eta ;
@@ -1451,6 +1480,8 @@ struct smallTree
   Float_t m_HHKin_mass_raw_taudown;
   Float_t m_HHKin_mass_raw_jetup;
   Float_t m_HHKin_mass_raw_jetdown;
+  Float_t m_HHKin_mass_raw_eleup;
+  Float_t m_HHKin_mass_raw_eledown;
   Float_t m_HHKin_mass_raw_chi2;
   Int_t   m_HHKin_mass_raw_convergence;
   Float_t m_HHKin_mass_raw_prob;
@@ -1472,6 +1503,8 @@ struct smallTree
   Float_t m_MT2_taudown;
   Float_t m_MT2_jetup;
   Float_t m_MT2_jetdown;
+  Float_t m_MT2_eleup;
+  Float_t m_MT2_eledown;
   // Int_t   m_MT2_covMtrxStatus;
   // Float_t m_MT2_EDM;
   // Int_t   m_MT2_hasConverged;

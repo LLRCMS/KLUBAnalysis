@@ -910,7 +910,6 @@ int main (int argc, char** argv)
 
   // ------------------------------
   
-
   //tau legs trigger SF for data and mc
   //from: https://github.com/cms-tau-pog/TauTriggerSFs/tree/run2_SFs
   tau_trigger::SFProvider * tauTrgSF_ditau = new tau_trigger::SFProvider("weights/trigger_SF_Legacy/2018/2018_tauTriggerEff_DeepTau2017v2p1.root", "ditau", "Medium");
@@ -928,38 +927,22 @@ int main (int argc, char** argv)
   eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2018/Electron_Run2018_Ele24.root");
   eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2018/Electron_Run2018_Ele32orEle35.root");
 
+  // ------------------------------
 
-  // --- 2017 SFs ---
-  // EleGamma POG SFs
-  //TFile* fElePOGSF_TightID_80WP  = new TFile ("weights/SF_2017/gammaEffi.txt_EGM2D_runBCDEF_passingMVA94Xwp80iso.root");
-  //TFile* fElePOGSF_MediumID_90WP = new TFile ("weights/SF_2017/gammaEffi.txt_EGM2D_runBCDEF_passingMVA94Xwp90iso.root");
-  //TH2* hElePOGSF_TightID_80WP  = (TH2*) fElePOGSF_TightID_80WP  -> Get("EGamma_SF2D");
-  //TH2* hElePOGSF_MediumID_90WP = (TH2*) fElePOGSF_MediumID_90WP -> Get("EGamma_SF2D");
-
-  //Muon POG SFs
-  //TFile* fMuPOGSF_ID  = new TFile ("weights/SF_2017/Muon_RunBCDEF_SF_ID.root");
-  //TFile* fMuPOGSF_ISO = new TFile ("weights/SF_2017/Muon_RunBCDEF_SF_ISO.root");
-  //TH2* hMuPOGSF_ID  = (TH2*) fMuPOGSF_ID  -> Get("NUM_TightID_DEN_genTracks_pt_abseta");
-  //TH2* hMuPOGSF_ISO = (TH2*) fMuPOGSF_ISO -> Get("NUM_TightRelIso_DEN_TightIDandIPCut_pt_abseta");
-
+  // electron/muon IdAndIso SF
   ScaleFactor * myIDandISOScaleFactor[2]; // [0: mu, 1: ele]
   for (int i = 0 ; i < 2; i++)
         myIDandISOScaleFactor[i] = new ScaleFactor();
 
-  //myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/HTT_SF_2016/Muon/Run2017/Muon_IdIso_IsoLt0.15_eff_RerecoFall17.root");
-  //myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_SF_2016/Electron/Run2017/Electron_IdIso_IsoLt0.10_eff_RerecoFall17.root");
+  myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/HTT_IdAndIso_SF_Legacy/2018/Muon_Run2018_IdIso.root");
+  myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_IdAndIso_SF_Legacy/2018/Electron_Run2018_IdIso.root");
 
-  myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/HTT_SF_2016/Muon/Run2018/Muon_Run2018_IdIso.root");
-  myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_SF_2016/Electron/Run2018/Electron_Run2018_IdIso.root");
-
+  // tau IdAndIso SF
   TauIDSFTool * myTauIDSFTool = new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSjet","Medium",1);
 
   // ------------------------------
-  // smT2 mt2Class = smT2();
 
-  // ------------------------------
   // reweighting file for HH non resonant
-  
   TH1F* hreweightHH   = 0;
   TH2F* hreweightHH2D = 0;
   // if (HHreweightFile)
@@ -2170,7 +2153,9 @@ int main (int argc, char** argv)
       const int isOS  = theBigTree.isOSCand->at (chosenTauPair) ;
       bool lep1HasTES = false;
       bool lep2HasTES = false;
-      
+      bool lep1HasEES = false;
+      bool lep2HasEES = false;
+
       int DM1 = theBigTree.decayMode->at(firstDaughterIndex);
       int DM2 = theBigTree.decayMode->at(secondDaughterIndex);
       if (DM1 == 2) DM1 = 1;
@@ -2205,8 +2190,10 @@ int main (int argc, char** argv)
 	if (isMC)
 	{
 	  int nRealTaus= 0;
-	  lep1HasTES = (theBigTree.daughters_TauUpExists->at(firstDaughterIndex) == 1 ? true : false);
-	  lep2HasTES = (theBigTree.daughters_TauUpExists->at(secondDaughterIndex) == 1 ? true : false);
+	  lep1HasTES = (theBigTree.genmatch->at(firstDaughterIndex)  == 5 ? true : false);
+	  lep2HasTES = (theBigTree.genmatch->at(secondDaughterIndex) == 5 ? true : false);
+	  lep1HasEES = ( (theBigTree.genmatch->at(firstDaughterIndex)==1 || theBigTree.genmatch->at(firstDaughterIndex)==3) ? true : false);
+	  lep2HasEES = ( (theBigTree.genmatch->at(secondDaughterIndex)==1 || theBigTree.genmatch->at(secondDaughterIndex)==3) ? true : false);
 	  theSmallTree.m_isTau1real = (lep1HasTES == true ? 1 : 0); // -1: data; 0: fake tau, 1: real tau
 	  theSmallTree.m_isTau2real = (lep2HasTES == true ? 1 : 0);
 	  if (lep1HasTES) nRealTaus +=1;
@@ -2231,6 +2218,7 @@ int main (int argc, char** argv)
 					     );
 
       // scale up: only applies to tau
+      // TES up/down
       TLorentzVector tlv_firstLepton_tauup (tlv_firstLepton);
       TLorentzVector tlv_firstLepton_taudown (tlv_firstLepton);
       if (lep1HasTES)
@@ -2267,6 +2255,43 @@ int main (int argc, char** argv)
 					       );
 	}
 
+      // EES up/down
+      TLorentzVector tlv_firstLepton_eleup (tlv_firstLepton);
+      TLorentzVector tlv_firstLepton_eledown (tlv_firstLepton);
+      if (lep1HasEES)
+	{
+	  tlv_firstLepton_eleup.SetPxPyPzE (
+					    theBigTree.daughters_px_EleUp->at (firstDaughterIndex),
+					    theBigTree.daughters_py_EleUp->at (firstDaughterIndex),
+					    theBigTree.daughters_pz_EleUp->at (firstDaughterIndex),
+					    theBigTree.daughters_e_EleUp->at (firstDaughterIndex)
+					    );
+	  tlv_firstLepton_eledown.SetPxPyPzE (
+					      theBigTree.daughters_px_EleDown->at (firstDaughterIndex),
+					      theBigTree.daughters_py_EleDown->at (firstDaughterIndex),
+					      theBigTree.daughters_pz_EleDown->at (firstDaughterIndex),
+					      theBigTree.daughters_e_EleDown->at (firstDaughterIndex)
+					      );
+	}
+
+      TLorentzVector tlv_secondLepton_eleup (tlv_secondLepton);
+      TLorentzVector tlv_secondLepton_eledown (tlv_secondLepton);
+      if (lep2HasEES)
+	{
+	  tlv_secondLepton_eleup.SetPxPyPzE (
+					     theBigTree.daughters_px_EleUp->at (secondDaughterIndex),
+					     theBigTree.daughters_py_EleUp->at (secondDaughterIndex),
+					     theBigTree.daughters_pz_EleUp->at (secondDaughterIndex),
+					     theBigTree.daughters_e_EleUp->at (secondDaughterIndex)
+					     );
+	  tlv_secondLepton_eledown.SetPxPyPzE (
+					       theBigTree.daughters_px_TauDown->at (secondDaughterIndex),
+					       theBigTree.daughters_py_TauDown->at (secondDaughterIndex),
+					       theBigTree.daughters_pz_TauDown->at (secondDaughterIndex),
+					       theBigTree.daughters_e_TauDown->at (secondDaughterIndex)
+					       );
+	}
+
     if (DEBUG)
     {
         cout << "------- CHOSEN PAIR -------" << endl;
@@ -2288,6 +2313,18 @@ int main (int argc, char** argv)
         cout << "---------------------"<< endl;
     }
 
+    if (DEBUG)
+    {
+        cout << "------- TAU EES DEBUG -------" << endl;
+        cout << " tau1 centr: " << tlv_firstLepton.Pt() << " / " << tlv_firstLepton.Eta() << endl;
+        cout << " tau1 up: " << tlv_firstLepton_eleup.Pt() << " / " << tlv_firstLepton_eleup.Eta() << endl;
+        cout << " tau1 dw: " << tlv_firstLepton_eledown.Pt() << " / " << tlv_firstLepton_eledown.Eta() << endl;
+
+        cout << " tau2 centr: " << tlv_secondLepton.Pt() << " / " << tlv_secondLepton.Eta() << endl;
+        cout << " tau2 up: " << tlv_secondLepton_eleup.Pt() << " / " << tlv_secondLepton_eleup.Eta() << endl;
+        cout << " tau2 dw: " << tlv_secondLepton_eledown.Pt() << " / " << tlv_secondLepton_eledown.Eta() << endl;
+        cout << "---------------------"<< endl;
+    }
 
       // the following code is the match of the tau to a L1 tau seed due to an error in seed removal from path
       // needed only when analyzing 2015 data
@@ -2515,8 +2552,8 @@ int main (int argc, char** argv)
       //TVector2 vMET_jetup   = getShiftedMET(+1., vMET, theBigTree, DEBUG);
       //TVector2 vMET_jetdown = getShiftedMET(-1., vMET, theBigTree, DEBUG);
       // Now we use the total shift already stored in LLR ntuples
-      TVector2 vMET_jetup   (theBigTree.METx_UP->at(chosenTauPair) , theBigTree.METy_UP->at(chosenTauPair));
-      TVector2 vMET_jetdown (theBigTree.METx_DOWN->at(chosenTauPair) , theBigTree.METy_DOWN->at(chosenTauPair));
+      TVector2 vMET_jetup   (theBigTree.METx_UP_JES->at(chosenTauPair) , theBigTree.METy_UP_JES->at(chosenTauPair));
+      TVector2 vMET_jetdown (theBigTree.METx_DOWN_JES->at(chosenTauPair) , theBigTree.METy_DOWN_JES->at(chosenTauPair));
       theSmallTree.m_met_phi_jetup   = vMET_jetup.Phi();
       theSmallTree.m_met_et_jetup    = vMET_jetup.Mod();
       theSmallTree.m_met_phi_jetdown = vMET_jetdown.Phi();
@@ -2530,6 +2567,14 @@ int main (int argc, char** argv)
       theSmallTree.m_met_phi_taudown = vMET_taudown.Phi();
       theSmallTree.m_met_et_taudown  = vMET_taudown.Mod();
 
+      // Shifted MET for EES
+      TVector2 vMET_eleup   (theBigTree.METx_UP_EES->at(chosenTauPair)  , theBigTree.METy_UP_EES->at(chosenTauPair));
+      TVector2 vMET_eledown (theBigTree.METx_DOWN_EES->at(chosenTauPair), theBigTree.METy_DOWN_EES->at(chosenTauPair));
+      theSmallTree.m_met_phi_eleup   = vMET_eleup.Phi();
+      theSmallTree.m_met_et_eleup    = vMET_eleup.Mod();
+      theSmallTree.m_met_phi_eledown = vMET_eledown.Phi();
+      theSmallTree.m_met_et_eledown  = vMET_eledown.Mod();
+
       if (DEBUG)
       {
         cout << "------- MET DEBUG -------" << endl;
@@ -2538,6 +2583,8 @@ int main (int argc, char** argv)
         cout << " met jet dw: " << theSmallTree.m_met_et_jetdown << " / " << theSmallTree.m_met_phi_jetdown << endl;
         cout << " met tau up: " << theSmallTree.m_met_et_tauup << " / " << theSmallTree.m_met_phi_tauup << endl;
         cout << " met tau dw: " << theSmallTree.m_met_et_taudown << " / " << theSmallTree.m_met_phi_taudown << endl;
+        cout << " met ele up: " << theSmallTree.m_met_et_eleup << " / " << theSmallTree.m_met_phi_eleup << endl;
+        cout << " met ele dw: " << theSmallTree.m_met_et_eledown << " / " << theSmallTree.m_met_phi_eledown << endl;
         cout << "-------------------------" << endl;
       }
 
@@ -2617,6 +2664,8 @@ int main (int argc, char** argv)
       theSmallTree.m_dau1_pt = tlv_firstLepton.Pt () ;
       theSmallTree.m_dau1_pt_tauup = tlv_firstLepton_tauup.Pt () ;
       theSmallTree.m_dau1_pt_taudown = tlv_firstLepton_taudown.Pt () ;
+      theSmallTree.m_dau1_pt_eleup = tlv_firstLepton_eleup.Pt () ;
+      theSmallTree.m_dau1_pt_eledown = tlv_firstLepton_eledown.Pt () ;
       theSmallTree.m_dau1_eta = tlv_firstLepton.Eta () ;
       theSmallTree.m_dau1_phi = tlv_firstLepton.Phi () ;
       theSmallTree.m_dau1_e = theBigTree.daughters_e->at (firstDaughterIndex) ;
@@ -2659,51 +2708,47 @@ int main (int argc, char** argv)
       bool isFakeJet2 = true;
       
       float idAndIsoSF = 1.0;
-      float idAndIsoSF_vtight = 1.0;
       float idAndIsoSF_decayMode = 1.0;
 
       // MuTau Channel
       if (pType == 0 && isMC)
-	{
-	  float mu1pt  = tlv_firstLepton.Pt();
-	  float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
-	  
-	  //float idSF_leg1  = getContentHisto2D(hMuPOGSF_ID , mu1pt, mu1eta);
-	  //float isoSF_leg1 = getContentHisto2D(hMuPOGSF_ISO, mu1pt, mu1eta);
-	  //float idAndIsoSF_leg1 = idSF_leg1 * isoSF_leg1;
-	  float idAndIsoSF_leg1 = 1.;
-	  float idAndIsoSF_leg2 = 1.;
-	  float idAndIsoSF_leg2_vtight = 1.;
-	  float idAndIsoSF_leg2_decayMode = 1.;
-	  if (fabs(mu1eta < 2.4)){
-	    idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
-	  }
-	  
-	  if (lep2HasTES) {
-	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
-	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
-	    // TauPOG recommendation for 2018 data (medium WP)
-	    //if(theSmallTree.m_dau2_decayMode == 0) idAndIsoSF_leg2_decayMode = 1.16;//0.84 computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
-	    //if(theSmallTree.m_dau2_decayMode == 1) idAndIsoSF_leg2_decayMode = 0.90;//0.92
-	    //if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.98;//0.86
-	    // DeepTau SF
-	    idAndIsoSF_leg2_decayMode = myTauIDSFTool->getSFvsDM(theSmallTree.m_dau2_pt,theSmallTree.m_dau2_decayMode);
-	    isFakeJet2 = false;
-	  }
-	  
-	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-	  idAndIsoSF_vtight = idAndIsoSF_leg1 * idAndIsoSF_leg2_vtight;
-	  idAndIsoSF_decayMode = idAndIsoSF_leg1 * idAndIsoSF_leg2_decayMode;
-
-      if (DEBUG)
       {
-        cout << "--- DEBUG idAndIsoSF ---" << endl;
-        cout << "pairType: " << pType << endl;
-        cout << "leg1 : " << idAndIsoSF_leg1 << endl;
-        cout << "leg2 : " << idAndIsoSF_leg2 << endl;
-        cout << "totSF: " << idAndIsoSF << endl;
-      }
-	}
+        float mu1pt  = tlv_firstLepton.Pt();
+        float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
+
+        float idAndIsoSF_leg1 = 1.;
+        float idAndIsoSF_leg2 = 1.;
+        float idAndIsoSF_leg2_decayMode = 1.;
+
+        if (fabs(mu1eta < 2.4))
+        {
+          idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
+        }
+
+       if (lep2HasTES)
+       {
+         idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
+         // TauPOG recommendation for 2018 data (medium WP)
+         //if(theSmallTree.m_dau2_decayMode == 0) idAndIsoSF_leg2_decayMode = 1.16;//0.84 computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
+         //if(theSmallTree.m_dau2_decayMode == 1) idAndIsoSF_leg2_decayMode = 0.90;//0.92
+         //if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.98;//0.86
+         // DeepTau SF
+         idAndIsoSF_leg2_decayMode = myTauIDSFTool->getSFvsDM(theSmallTree.m_dau2_pt,theSmallTree.m_dau2_decayMode);
+         isFakeJet2 = false;
+       }
+
+       idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+       idAndIsoSF_decayMode = idAndIsoSF_leg1 * idAndIsoSF_leg2_decayMode;
+
+       if (DEBUG)
+       {
+         cout << "--- DEBUG idAndIsoSF ---" << endl;
+         cout << "pairType: " << pType << endl;
+         cout << "leg1 : " << idAndIsoSF_leg1 << endl;
+         cout << "leg2 : " << idAndIsoSF_leg2 << endl;
+         cout << "totSF: " << idAndIsoSF << endl;
+       }
+     }
       
       // EleTau Channel
       else if (pType == 1 && isMC)
@@ -2714,7 +2759,6 @@ int main (int argc, char** argv)
 	  //float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_TightID_80WP, ele1eta, ele1pt);  // EMVATight == 80% eff WP
 	  float idAndIsoSF_leg1 = 1.;
 	  float idAndIsoSF_leg2 = 1.;
-	  float idAndIsoSF_leg2_vtight = 1.;
 	  float idAndIsoSF_leg2_decayMode = 1.;
 
 	  if (fabs(ele1eta < 2.4)){
@@ -2723,7 +2767,6 @@ int main (int argc, char** argv)
 	  
 	  if (lep2HasTES){
 	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
-	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
 	    // TauPOG recommendation for 2018 data (medium WP)
 	    //if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 1.16;//0.84 computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
 	    //if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 0.90;//0.92
@@ -2733,7 +2776,6 @@ int main (int argc, char** argv)
 	    isFakeJet2 = false;
 	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-	  idAndIsoSF_vtight = idAndIsoSF_leg1 * idAndIsoSF_leg2_vtight;
 	  idAndIsoSF_decayMode = idAndIsoSF_leg1* idAndIsoSF_leg2_decayMode;
 
       if (DEBUG)
@@ -2752,15 +2794,12 @@ int main (int argc, char** argv)
 	  // TauPOG recommendation for 2017 data: SF = 0.89 for each tauh leg
 	  float idAndIsoSF_leg1 = 1.;
 	  float idAndIsoSF_leg2 = 1.;
-	  float idAndIsoSF_leg1_vtight = 1.;
-	  float idAndIsoSF_leg2_vtight = 1.;
 	  float idAndIsoSF_leg1_decayMode = 1.;
 	  float idAndIsoSF_leg2_decayMode = 1.;
 
 
 	  if (lep1HasTES) {
 	    idAndIsoSF_leg1 = 0.90; // TauPOG recommendation for 2018 data
-	    idAndIsoSF_leg1_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
 	    // TauPOG recommendation for 2018 data (medium WP)
 	    //if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg1_decayMode = 1.16;//0.97 //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
 	    //if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg1_decayMode = 0.90;//1.04
@@ -2771,7 +2810,6 @@ int main (int argc, char** argv)
 	  }
 	  if (lep2HasTES) {
 	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
-	    idAndIsoSF_leg2_vtight = 0.89; // TauPOG recommendation for 2018 data (vtight WP)
 	    // TauPOG recommendation for 2018 data (medium WP)
 	    //if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 1.16;//0.97 //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
 	    //if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 0.90;//1.04
@@ -2781,7 +2819,6 @@ int main (int argc, char** argv)
 	    isFakeJet2 = false;
 	  }
 	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-	  idAndIsoSF_vtight = idAndIsoSF_leg1_vtight * idAndIsoSF_leg2_vtight;
 	  idAndIsoSF_decayMode = idAndIsoSF_leg1_decayMode * idAndIsoSF_leg2_decayMode;
 	  
 	  if (DEBUG)
@@ -2861,7 +2898,6 @@ int main (int argc, char** argv)
       
       // Save the IDandISO SF (event per event)
       theSmallTree.m_IdAndIsoSF = (isMC ? idAndIsoSF : 1.0);
-      theSmallTree.m_IdAndIsoSF_vtight = (isMC ? idAndIsoSF_vtight : 1.0);
       theSmallTree.m_IdAndIsoSF_decayMode = (isMC ? idAndIsoSF_decayMode : 1.0);
       
       
@@ -3818,12 +3854,16 @@ int main (int argc, char** argv)
         //const TVector2 ptmiss_jetup   = getShiftedMET(+1., ptmiss, theBigTree);
         //const TVector2 ptmiss_jetdown = getShiftedMET(-1., ptmiss, theBigTree);
         // For now we use the total shift already stored in LLR ntuples
-        const TVector2 ptmiss_jetup   (theBigTree.METx_UP->at(chosenTauPair) , theBigTree.METy_UP->at(chosenTauPair));
-        const TVector2 ptmiss_jetdown (theBigTree.METx_DOWN->at(chosenTauPair) , theBigTree.METy_DOWN->at(chosenTauPair));
+        const TVector2 ptmiss_jetup   (theBigTree.METx_UP_JES->at(chosenTauPair) , theBigTree.METy_UP_JES->at(chosenTauPair));
+        const TVector2 ptmiss_jetdown (theBigTree.METx_DOWN_JES->at(chosenTauPair) , theBigTree.METy_DOWN_JES->at(chosenTauPair));
 
         // MET shifted for TES
         const TVector2 ptmiss_tauup   (theBigTree.METx_UP_TES->at(chosenTauPair) , theBigTree.METy_UP_TES->at(chosenTauPair));
         const TVector2 ptmiss_taudown (theBigTree.METx_DOWN_TES->at(chosenTauPair) , theBigTree.METy_DOWN_TES->at(chosenTauPair));
+
+        // MET shifted for EES
+        const TVector2 ptmiss_eleup   (theBigTree.METx_UP_EES->at(chosenTauPair) , theBigTree.METy_UP_EES->at(chosenTauPair));
+        const TVector2 ptmiss_eledown (theBigTree.METx_DOWN_EES->at(chosenTauPair) , theBigTree.METy_DOWN_EES->at(chosenTauPair));
 
         theSmallTree.m_bH_pt = tlv_bH.Pt () ;
         theSmallTree.m_bH_eta = tlv_bH.Eta () ;
@@ -3857,6 +3897,12 @@ int main (int argc, char** argv)
 
         theSmallTree.m_HH_mass_raw_tauup = tlv_HH_raw_tauup.M();
         theSmallTree.m_HH_mass_raw_taudown = tlv_HH_raw_taudown.M();
+
+        TLorentzVector tlv_HH_raw_eleup = tlv_bH_raw + tlv_firstLepton_eleup + tlv_secondLepton_eleup ;
+        TLorentzVector tlv_HH_raw_eledown = tlv_bH_raw + tlv_firstLepton_eledown + tlv_secondLepton_eledown ;
+
+        theSmallTree.m_HH_mass_raw_eleup = tlv_HH_raw_eleup.M();
+        theSmallTree.m_HH_mass_raw_eledown = tlv_HH_raw_eledown.M();
 
         // in case the SVFIT mass is calculated
         if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
@@ -3892,6 +3938,8 @@ int main (int argc, char** argv)
           HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_taudown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_taudown, tlv_secondLepton_taudown,  ptmiss_taudown, stableMetCov, bjet1_JER, bjet2_JER) ;
           HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw_jetup, tlv_secondBjet_raw_jetup, tlv_firstLepton, tlv_secondLepton,  ptmiss_jetup, stableMetCov, bjet1_JER, bjet2_JER) ;
           HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetdown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw_jetdown, tlv_secondBjet_raw_jetdown, tlv_firstLepton, tlv_secondLepton,  ptmiss_jetdown, stableMetCov, bjet1_JER, bjet2_JER) ;
+          HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_eleup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_eleup, tlv_secondLepton_eleup,  ptmiss_eleup, stableMetCov, bjet1_JER, bjet2_JER) ;
+          HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_eledown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_eledown, tlv_secondLepton_eledown,  ptmiss_eledown, stableMetCov, bjet1_JER, bjet2_JER) ;
 
           //           kinFits.setAdvancedBalance (&ptmiss, metcov) ;
           //           kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
@@ -3902,6 +3950,10 @@ int main (int argc, char** argv)
           kinFitsraw.addHypo(hypo_mh1,hypo_mh2);
           kinFitsraw_tauup.addHypo(hypo_mh1,hypo_mh2);
           kinFitsraw_taudown.addHypo(hypo_mh1,hypo_mh2);
+          kinFitsraw_jetup.addHypo(hypo_mh1,hypo_mh2);
+          kinFitsraw_jetdown.addHypo(hypo_mh1,hypo_mh2);
+          kinFitsraw_eleup.addHypo(hypo_mh1,hypo_mh2);
+          kinFitsraw_eledown.addHypo(hypo_mh1,hypo_mh2);
 
           try{ kinFits.fit();}
           catch(HHKinFit2::HHInvMConstraintException e)
@@ -4045,6 +4097,24 @@ int main (int argc, char** argv)
           if(!wrongHHKraw_taudown){theSmallTree.m_HHKin_mass_raw_taudown = kinFitsraw_taudown.getMH();}
           else theSmallTree.m_HHKin_mass_raw_taudown = -100 ;
 
+          // raw kinfit EES up
+          bool wrongHHKraw_eleup =false;
+          try {kinFitsraw_eleup.fit();}
+          catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_eleup=true;}
+          catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_eleup=true;}
+          catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_eleup=true;}
+          if(!wrongHHKraw_eleup){theSmallTree.m_HHKin_mass_raw_eleup = kinFitsraw_eleup.getMH();}
+          else theSmallTree.m_HHKin_mass_raw_eleup = -100 ;
+
+          // raw kinfit EES down
+          bool wrongHHKraw_eledown =false;
+          try {kinFitsraw_eledown.fit();}
+          catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_eledown=true;}
+          catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_eledown=true;}
+          catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_eledown=true;}
+          if(!wrongHHKraw_eledown){theSmallTree.m_HHKin_mass_raw_eledown = kinFitsraw_eledown.getMH();}
+          else theSmallTree.m_HHKin_mass_raw_eledown = -100 ;
+
           // raw kinfit JES up
           bool wrongHHKraw_jetup =false;
           try {kinFitsraw_jetup.fit();}
@@ -4117,6 +4187,17 @@ int main (int argc, char** argv)
           double pxMiss_jetdown = tlv_firstLepton.Px() + tlv_secondLepton.Px() + ptmiss_jetdown.Px(); // shiftedMET for JES
           double pyMiss_jetdown = tlv_firstLepton.Py() + tlv_secondLepton.Py() + ptmiss_jetdown.Py(); // shiftedMET for JES
 
+          // EES variations
+          double pxMiss_eleup = tlv_firstLepton_eleup.Px() + tlv_secondLepton_eleup.Px() + theBigTree.METx_UP_EES->at(chosenTauPair); // shiftedMET for TES
+          double pyMiss_eleup = tlv_firstLepton_eleup.Py() + tlv_secondLepton_eleup.Py() + theBigTree.METy_UP_EES->at(chosenTauPair); // shiftedMET for TES
+          double chiA_eleup = tlv_firstLepton_eleup.M();  // hypothesised mass of invisible on side A.  Must be >=0.
+          double chiB_eleup = tlv_secondLepton_eleup.M(); // hypothesised mass of invisible on side B.  Must be >=0.
+
+          double pxMiss_eledown = tlv_firstLepton_eledown.Px() + tlv_secondLepton_eledown.Px() + theBigTree.METx_DOWN_EES->at(chosenTauPair); // shiftedMET for TES
+          double pyMiss_eledown = tlv_firstLepton_eledown.Py() + tlv_secondLepton_eledown.Py() + theBigTree.METy_DOWN_EES->at(chosenTauPair); // shiftedMET for TES
+          double chiA_eledown = tlv_firstLepton_eledown.M();  // hypothesised mass of invisible on side A.  Must be >=0.
+          double chiB_eledown = tlv_secondLepton_eledown.M(); // hypothesised mass of invisible on side B.  Must be >=0.
+
           double desiredPrecisionOnMt2 = 0; // Must be >=0.  If 0 alg aims for machine precision.  if >0, MT2 computed to supplied absolute precision.
 
           asymm_mt2_lester_bisect::disableCopyrightMessage();
@@ -4156,11 +4237,27 @@ int main (int argc, char** argv)
                                chiA, chiB,
                                desiredPrecisionOnMt2);
 
+          double MT2_eleup = asymm_mt2_lester_bisect::get_mT2(
+                             mVisA, pxA, pyA,
+                             mVisB, pxB, pyB,
+                             pxMiss_eleup, pyMiss_eleup,
+                             chiA_eleup, chiB_eleup,
+                             desiredPrecisionOnMt2);
+
+          double MT2_eledown = asymm_mt2_lester_bisect::get_mT2(
+                               mVisA, pxA, pyA,
+                               mVisB, pxB, pyB,
+                               pxMiss_eledown, pyMiss_eledown,
+                               chiA_eledown, chiB_eledown,
+                               desiredPrecisionOnMt2);
+
           theSmallTree.m_MT2 = MT2;
           theSmallTree.m_MT2_tauup = MT2_tauup;
           theSmallTree.m_MT2_taudown = MT2_taudown;
           theSmallTree.m_MT2_jetup = MT2_jetup;
           theSmallTree.m_MT2_jetdown = MT2_jetdown;
+          theSmallTree.m_MT2_eleup = MT2_eleup;
+          theSmallTree.m_MT2_eledown = MT2_eledown;
 
         } // end calcultion of MT2
 
