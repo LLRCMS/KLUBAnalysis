@@ -27,6 +27,9 @@ public :
    Int_t           lumi;
    Int_t           year;
    Bool_t          passecalBadCalibFilterUpdate;
+   Float_t         prefiringweight;
+   Float_t         prefiringweightup;
+   Float_t         prefiringweightdown;
    Long64_t        triggerbit;
    Int_t           metfilterbit;
    Float_t         met;
@@ -42,10 +45,13 @@ public :
    std::vector<float>   *mothers_pz;
    std::vector<float>   *mothers_e;
    std::vector<Long64_t> *mothers_trgSeparateMatch;
+   std::vector<bool>    *daughters_isTauMatched;
+   std::vector<int>     *genmatch; // tau genMatch - 1/3:ele - 2/4:mu - 5:tauh - 6:fake
    std::vector<float>   *daughters_px;
    std::vector<float>   *daughters_py;
    std::vector<float>   *daughters_pz;
    std::vector<float>   *daughters_e;
+   std::vector<bool>    *daughters_hasTES;
    std::vector<float>   *daughters_px_TauUp;
    std::vector<float>   *daughters_py_TauUp;
    std::vector<float>   *daughters_pz_TauUp;
@@ -54,7 +60,15 @@ public :
    std::vector<float>   *daughters_py_TauDown;
    std::vector<float>   *daughters_pz_TauDown;
    std::vector<float>   *daughters_e_TauDown;
-   std::vector<int>     *daughters_TauUpExists;
+   std::vector<bool>    *daughters_hasEES;
+   std::vector<float>   *daughters_px_EleUp;
+   std::vector<float>   *daughters_py_EleUp;
+   std::vector<float>   *daughters_pz_EleUp;
+   std::vector<float>   *daughters_e_EleUp;
+   std::vector<float>   *daughters_px_EleDown;
+   std::vector<float>   *daughters_py_EleDown;
+   std::vector<float>   *daughters_pz_EleDown;
+   std::vector<float>   *daughters_e_EleDown;
    std::vector<int>     *daughters_charge;
    std::vector<float>   *L1_tauEt;
    std::vector<float>   *L1_tauEta;
@@ -163,17 +177,47 @@ public :
    std::vector<float>   *SVfit_fitMETRhoMETDown;
    std::vector<float>   *SVfit_fitMETPhiMETDown;
 
+   std::vector<float>   *SVfitMassEleUp;
+   std::vector<float>   *SVfitMassUncEleUp;
+   std::vector<float>   *SVfitTransverseMassEleUp;
+   std::vector<float>   *SVfitTransverseMassUncEleUp;
+   std::vector<float>   *SVfit_ptEleUp;
+   std::vector<float>   *SVfit_ptUncEleUp;
+   std::vector<float>   *SVfit_etaEleUp;
+   std::vector<float>   *SVfit_etaUncEleUp;
+   std::vector<float>   *SVfit_phiEleUp;
+   std::vector<float>   *SVfit_phiUncEleUp;
+   std::vector<float>   *SVfit_fitMETRhoEleUp;
+   std::vector<float>   *SVfit_fitMETPhiEleUp;
+
+   std::vector<float>   *SVfitMassEleDown;
+   std::vector<float>   *SVfitMassUncEleDown;
+   std::vector<float>   *SVfitTransverseMassEleDown;
+   std::vector<float>   *SVfitTransverseMassUncEleDown;
+   std::vector<float>   *SVfit_ptEleDown;
+   std::vector<float>   *SVfit_ptUncEleDown;
+   std::vector<float>   *SVfit_etaEleDown;
+   std::vector<float>   *SVfit_etaUncEleDown;
+   std::vector<float>   *SVfit_phiEleDown;
+   std::vector<float>   *SVfit_phiUncEleDown;
+   std::vector<float>   *SVfit_fitMETRhoEleDown;
+   std::vector<float>   *SVfit_fitMETPhiEleDown;
+
    std::vector<bool>    *isOSCand;
    std::vector<float>   *METx;
    std::vector<float>   *METy;
-   std::vector<float>   *METx_UP;
-   std::vector<float>   *METy_UP;
-   std::vector<float>   *METx_DOWN;
-   std::vector<float>   *METy_DOWN;
+   std::vector<float>   *METx_UP_JES;
+   std::vector<float>   *METy_UP_JES;
+   std::vector<float>   *METx_DOWN_JES;
+   std::vector<float>   *METy_DOWN_JES;
    std::vector<float>   *METx_UP_TES;
    std::vector<float>   *METy_UP_TES;
    std::vector<float>   *METx_DOWN_TES;
    std::vector<float>   *METy_DOWN_TES;
+   std::vector<float>   *METx_UP_EES;
+   std::vector<float>   *METy_UP_EES;
+   std::vector<float>   *METx_DOWN_EES;
+   std::vector<float>   *METy_DOWN_EES;
    std::vector<float>   *MET_cov00;
    std::vector<float>   *MET_cov01;
    std::vector<float>   *MET_cov10;
@@ -371,6 +415,9 @@ public :
    TBranch        *b_RunNumber;   //!
    TBranch        *b_lumi;   //!
    TBranch        *b_passecalBadCalibFilterUpdate;   //!
+   TBranch        *b_prefiringweight;
+   TBranch        *b_prefiringweightup;
+   TBranch        *b_prefiringweightdown;
    TBranch        *b_triggerbit;   //!
    TBranch        *b_metfilterbit;   //!
    TBranch        *b_met;   //!
@@ -386,10 +433,13 @@ public :
    TBranch        *b_mothers_pz;   //!
    TBranch        *b_mothers_e;   //!
    TBranch        *b_mothers_trgSeparateMatch; //!
+   TBranch        *b_daughters_isTauMatched;
+   TBranch        *b_genmatch;
    TBranch        *b_daughters_px;   //!
    TBranch        *b_daughters_py;   //!
    TBranch        *b_daughters_pz;   //!
    TBranch        *b_daughters_e;   //!
+   TBranch        *b_daughters_hasTES;
    TBranch        *b_daughters_px_TauUp;   //!
    TBranch        *b_daughters_py_TauUp;   //!
    TBranch        *b_daughters_pz_TauUp;   //!
@@ -398,7 +448,15 @@ public :
    TBranch        *b_daughters_py_TauDown;   //!
    TBranch        *b_daughters_pz_TauDown;   //!
    TBranch        *b_daughters_e_TauDown;   //!
-   TBranch        *b_daughters_TauUpExists;   //!
+   TBranch        *b_daughters_hasEES;
+   TBranch        *b_daughters_px_EleUp;   //!
+   TBranch        *b_daughters_py_EleUp;   //!
+   TBranch        *b_daughters_pz_EleUp;   //!
+   TBranch        *b_daughters_e_EleUp;   //!
+   TBranch        *b_daughters_px_EleDown;   //!
+   TBranch        *b_daughters_py_EleDown;   //!
+   TBranch        *b_daughters_pz_EleDown;   //!
+   TBranch        *b_daughters_e_EleDown;   //!
    TBranch        *b_daughters_charge;   //!
    TBranch        *b_L1_tauEt;   //!
    TBranch        *b_L1_tauEta;   //!
@@ -500,17 +558,45 @@ public :
    TBranch        *b_SVfit_phiUncMETDown;   //!
    TBranch        *b_SVfit_fitMETRhoMETDown;   //!
    TBranch        *b_SVfit_fitMETPhiMETDown;   //!
+   TBranch        *b_SVfitMassEleUp;   //!
+   TBranch        *b_SVfitMassUncEleUp;
+   TBranch        *b_SVfitTransverseMassEleUp;
+   TBranch        *b_SVfitTransverseMassUncEleUp;
+   TBranch        *b_SVfit_ptEleUp;   //!
+   TBranch        *b_SVfit_ptUncEleUp;   //!
+   TBranch        *b_SVfit_etaEleUp;   //!
+   TBranch        *b_SVfit_etaUncEleUp;   //!
+   TBranch        *b_SVfit_phiEleUp;   //!
+   TBranch        *b_SVfit_phiUncEleUp;   //!
+   TBranch        *b_SVfit_fitMETRhoEleUp;   //!
+   TBranch        *b_SVfit_fitMETPhiEleUp;   //!
+   TBranch        *b_SVfitMassEleDown;   //!
+   TBranch        *b_SVfitMassUncEleDown;
+   TBranch        *b_SVfitTransverseMassEleDown;
+   TBranch        *b_SVfitTransverseMassUncEleDown;
+   TBranch        *b_SVfit_ptEleDown;   //!
+   TBranch        *b_SVfit_ptUncEleDown;   //!
+   TBranch        *b_SVfit_etaEleDown;   //!
+   TBranch        *b_SVfit_etaUncEleDown;   //!
+   TBranch        *b_SVfit_phiEleDown;   //!
+   TBranch        *b_SVfit_phiUncEleDown;   //!
+   TBranch        *b_SVfit_fitMETRhoEleDown;   //!
+   TBranch        *b_SVfit_fitMETPhiEleDown;   //!
    TBranch        *b_isOSCand;   //!
    TBranch        *b_METx;   //!
    TBranch        *b_METy;   //!
-   TBranch        *b_METx_UP;   //!
-   TBranch        *b_METy_UP;   //!
-   TBranch        *b_METx_DOWN;   //!
-   TBranch        *b_METy_DOWN;   //!
+   TBranch        *b_METx_UP_JES;   //!
+   TBranch        *b_METy_UP_JES;   //!
+   TBranch        *b_METx_DOWN_JES;   //!
+   TBranch        *b_METy_DOWN_JES;   //!
    TBranch        *b_METx_UP_TES;   //!
    TBranch        *b_METy_UP_TES;   //!
    TBranch        *b_METx_DOWN_TES;   //!
    TBranch        *b_METy_DOWN_TES;   //!
+   TBranch        *b_METx_UP_EES;   //!
+   TBranch        *b_METy_UP_EES;   //!
+   TBranch        *b_METx_DOWN_EES;   //!
+   TBranch        *b_METy_DOWN_EES;   //!
    TBranch        *b_MET_cov00;   //!
    TBranch        *b_MET_cov01;   //!
    TBranch        *b_MET_cov10;   //!
@@ -724,10 +810,13 @@ public :
        mothers_pz = 0;
        mothers_e = 0;
        mothers_trgSeparateMatch = 0;
+       daughters_isTauMatched = 0;
+       genmatch = 0;
        daughters_px = 0;
        daughters_py = 0;
        daughters_pz = 0;
        daughters_e = 0;
+       daughters_hasTES = 0;
        daughters_px_TauUp = 0;
        daughters_py_TauUp = 0;
        daughters_pz_TauUp = 0;
@@ -736,7 +825,15 @@ public :
        daughters_py_TauDown = 0;
        daughters_pz_TauDown = 0;
        daughters_e_TauDown = 0;
-       daughters_TauUpExists = 0;
+       daughters_hasTES = 0;
+       daughters_px_EleUp = 0;
+       daughters_py_EleUp = 0;
+       daughters_pz_EleUp = 0;
+       daughters_e_EleUp = 0;
+       daughters_px_EleDown = 0;
+       daughters_py_EleDown = 0;
+       daughters_pz_EleDown = 0;
+       daughters_e_EleDown = 0;
        daughters_charge = 0;
        L1_tauEt = 0;
        L1_tauEta = 0;
@@ -831,17 +928,45 @@ public :
        SVfit_phiUncMETDown = 0;
        SVfit_fitMETRhoMETDown = 0;
        SVfit_fitMETPhiMETDown = 0;
+       SVfitMassEleUp = 0;
+       SVfitMassUncEleUp = 0;
+       SVfitTransverseMassEleUp = 0;
+       SVfitTransverseMassUncEleUp = 0;
+       SVfit_ptEleUp = 0;
+       SVfit_ptUncEleUp = 0;
+       SVfit_etaEleUp = 0;
+       SVfit_etaUncEleUp = 0;
+       SVfit_phiEleUp = 0;
+       SVfit_phiUncEleUp = 0;
+       SVfit_fitMETRhoEleUp = 0;
+       SVfit_fitMETPhiEleUp = 0;
+       SVfitMassEleDown = 0;
+       SVfitMassUncEleDown = 0;
+       SVfitTransverseMassEleDown = 0;
+       SVfitTransverseMassUncEleDown = 0;
+       SVfit_ptEleDown = 0;
+       SVfit_ptUncEleDown = 0;
+       SVfit_etaEleDown = 0;
+       SVfit_etaUncEleDown = 0;
+       SVfit_phiEleDown = 0;
+       SVfit_phiUncEleDown = 0;
+       SVfit_fitMETRhoEleDown = 0;
+       SVfit_fitMETPhiEleDown = 0;
        isOSCand = 0;
        METx = 0;
        METy = 0;
-       METx_UP = 0;
-       METy_UP = 0;
-       METx_DOWN = 0;
-       METy_DOWN = 0;
+       METx_UP_JES = 0;
+       METy_UP_JES = 0;
+       METx_DOWN_JES = 0;
+       METy_DOWN_JES = 0;
        METx_UP_TES = 0;
        METy_UP_TES = 0;
        METx_DOWN_TES = 0;
        METy_DOWN_TES = 0;
+       METx_UP_EES = 0;
+       METy_UP_EES = 0;
+       METx_DOWN_EES = 0;
+       METy_DOWN_EES = 0;
        MET_cov00 = 0;
        MET_cov01 = 0;
        MET_cov10 = 0;
@@ -1036,6 +1161,9 @@ public :
        fChain->SetBranchAddress("RunNumber", &RunNumber, &b_RunNumber);
        fChain->SetBranchAddress("lumi", &lumi, &b_lumi);
        fChain->SetBranchAddress("passecalBadCalibFilterUpdate", &passecalBadCalibFilterUpdate, &b_passecalBadCalibFilterUpdate);
+       fChain->SetBranchAddress("prefiringweight", &prefiringweight, &b_prefiringweight);
+       fChain->SetBranchAddress("prefiringweightup", &prefiringweightup, &b_prefiringweightup);
+       fChain->SetBranchAddress("prefiringweightdown", &prefiringweightdown, &b_prefiringweightdown);
        fChain->SetBranchAddress("triggerbit", &triggerbit, &b_triggerbit);
        fChain->SetBranchAddress("metfilterbit", &metfilterbit, &b_metfilterbit);
        fChain->SetBranchAddress("met", &met, &b_met);
@@ -1050,6 +1178,8 @@ public :
        fChain->SetBranchAddress("mothers_pz", &mothers_pz, &b_mothers_pz);
        fChain->SetBranchAddress("mothers_e", &mothers_e, &b_mothers_e);
        fChain->SetBranchAddress("mothers_trgSeparateMatch", &mothers_trgSeparateMatch, &b_mothers_trgSeparateMatch);
+       fChain->SetBranchAddress("daughters_isTauMatched", &daughters_isTauMatched, &b_daughters_isTauMatched);
+       fChain->SetBranchAddress("genmatch", &genmatch, &b_genmatch);
        fChain->SetBranchAddress("daughters_px", &daughters_px, &b_daughters_px);
        fChain->SetBranchAddress("daughters_py", &daughters_py, &b_daughters_py);
        fChain->SetBranchAddress("daughters_pz", &daughters_pz, &b_daughters_pz);
@@ -1078,14 +1208,18 @@ public :
        fChain->SetBranchAddress("isOSCand", &isOSCand, &b_isOSCand);
        fChain->SetBranchAddress("METx", &METx, &b_METx);
        fChain->SetBranchAddress("METy", &METy, &b_METy);
-       fChain->SetBranchAddress("METx_UP", &METx_UP, &b_METx_UP);
-       fChain->SetBranchAddress("METy_UP", &METy_UP, &b_METy_UP);
-       fChain->SetBranchAddress("METx_DOWN", &METx_DOWN, &b_METx_DOWN);
-       fChain->SetBranchAddress("METy_DOWN", &METy_DOWN, &b_METy_DOWN);
+       fChain->SetBranchAddress("METx_UP_JES", &METx_UP_JES, &b_METx_UP_JES);
+       fChain->SetBranchAddress("METy_UP_JES", &METy_UP_JES, &b_METy_UP_JES);
+       fChain->SetBranchAddress("METx_DOWN_JES", &METx_DOWN_JES, &b_METx_DOWN_JES);
+       fChain->SetBranchAddress("METy_DOWN_JES", &METy_DOWN_JES, &b_METy_DOWN_JES);
        fChain->SetBranchAddress("METx_UP_TES", &METx_UP_TES, &b_METx_UP_TES);
        fChain->SetBranchAddress("METy_UP_TES", &METy_UP_TES, &b_METy_UP_TES);
        fChain->SetBranchAddress("METx_DOWN_TES", &METx_DOWN_TES, &b_METx_DOWN_TES);
        fChain->SetBranchAddress("METy_DOWN_TES", &METy_DOWN_TES, &b_METy_DOWN_TES);
+       fChain->SetBranchAddress("METx_UP_EES", &METx_UP_EES, &b_METx_UP_EES);
+       fChain->SetBranchAddress("METy_UP_EES", &METy_UP_EES, &b_METy_UP_EES);
+       fChain->SetBranchAddress("METx_DOWN_EES", &METx_DOWN_EES, &b_METx_DOWN_EES);
+       fChain->SetBranchAddress("METy_DOWN_EES", &METy_DOWN_EES, &b_METy_DOWN_EES);
        fChain->SetBranchAddress("MET_cov00", &MET_cov00, &b_MET_cov00);
        fChain->SetBranchAddress("MET_cov01", &MET_cov01, &b_MET_cov01);
        fChain->SetBranchAddress("MET_cov10", &MET_cov10, &b_MET_cov10);
@@ -1307,6 +1441,7 @@ public :
             fChain->SetBranchAddress("lheHt", &lheHt, &b_lheHt);
             fChain->SetBranchAddress("lheNOutPartons", &lheNOutPartons, &b_lheNOutPartons);
             fChain->SetBranchAddress("lheNOutB", &lheNOutB, &b_lheNOutB);
+            fChain->SetBranchAddress("daughters_hasTES", &daughters_hasTES, &b_daughters_hasTES);
             fChain->SetBranchAddress("daughters_px_TauUp", &daughters_px_TauUp, &b_daughters_px_TauUp);
             fChain->SetBranchAddress("daughters_py_TauUp", &daughters_py_TauUp, &b_daughters_py_TauUp);
             fChain->SetBranchAddress("daughters_pz_TauUp", &daughters_pz_TauUp, &b_daughters_pz_TauUp);
@@ -1315,7 +1450,15 @@ public :
             fChain->SetBranchAddress("daughters_py_TauDown", &daughters_py_TauDown, &b_daughters_py_TauDown);
             fChain->SetBranchAddress("daughters_pz_TauDown", &daughters_pz_TauDown, &b_daughters_pz_TauDown);
             fChain->SetBranchAddress("daughters_e_TauDown", &daughters_e_TauDown, &b_daughters_e_TauDown);
-            fChain->SetBranchAddress("daughters_TauUpExists", &daughters_TauUpExists, &b_daughters_TauUpExists);
+            fChain->SetBranchAddress("daughters_hasEES", &daughters_hasEES, &b_daughters_hasEES);
+            fChain->SetBranchAddress("daughters_px_EleUp", &daughters_px_EleUp, &b_daughters_px_EleUp);
+            fChain->SetBranchAddress("daughters_py_EleUp", &daughters_py_EleUp, &b_daughters_py_EleUp);
+            fChain->SetBranchAddress("daughters_pz_EleUp", &daughters_pz_EleUp, &b_daughters_pz_EleUp);
+            fChain->SetBranchAddress("daughters_e_EleUp", &daughters_e_EleUp, &b_daughters_e_EleUp);
+            fChain->SetBranchAddress("daughters_px_EleDown", &daughters_px_EleDown, &b_daughters_px_EleDown);
+            fChain->SetBranchAddress("daughters_py_EleDown", &daughters_py_EleDown, &b_daughters_py_EleDown);
+            fChain->SetBranchAddress("daughters_pz_EleDown", &daughters_pz_EleDown, &b_daughters_pz_EleDown);
+            fChain->SetBranchAddress("daughters_e_EleDown", &daughters_e_EleDown, &b_daughters_e_EleDown);
             fChain->SetBranchAddress("SVfitMassTauUp", &SVfitMassTauUp, &b_SVfitMassTauUp);
             fChain->SetBranchAddress("SVfitMassUncTauUp", &SVfitMassUncTauUp, &b_SVfitMassUncTauUp);
             fChain->SetBranchAddress("SVfitTransverseMassTauUp", &SVfitTransverseMassTauUp, &b_SVfitTransverseMassTauUp);
@@ -1364,6 +1507,30 @@ public :
             fChain->SetBranchAddress("SVfit_phiUncMETDown", &SVfit_phiUncMETDown, &b_SVfit_phiUncMETDown);
             fChain->SetBranchAddress("SVfit_fitMETRhoMETDown", &SVfit_fitMETRhoMETDown, &b_SVfit_fitMETRhoMETDown);
             fChain->SetBranchAddress("SVfit_fitMETPhiMETDown", &SVfit_fitMETPhiMETDown, &b_SVfit_fitMETPhiMETDown);
+            fChain->SetBranchAddress("SVfitMassEleUp", &SVfitMassEleUp, &b_SVfitMassEleUp);
+            fChain->SetBranchAddress("SVfitMassUncEleUp", &SVfitMassUncEleUp, &b_SVfitMassUncEleUp);
+            fChain->SetBranchAddress("SVfitTransverseMassEleUp", &SVfitTransverseMassEleUp, &b_SVfitTransverseMassEleUp);
+            fChain->SetBranchAddress("SVfitTransverseMassUncEleUp", &SVfitTransverseMassUncEleUp, &b_SVfitTransverseMassUncEleUp);
+            fChain->SetBranchAddress("SVfit_ptEleUp", &SVfit_ptEleUp, &b_SVfit_ptEleUp);
+            fChain->SetBranchAddress("SVfit_ptUncEleUp", &SVfit_ptUncEleUp, &b_SVfit_ptUncEleUp);
+            fChain->SetBranchAddress("SVfit_etaEleUp", &SVfit_etaEleUp, &b_SVfit_etaEleUp);
+            fChain->SetBranchAddress("SVfit_etaUncEleUp", &SVfit_etaUncEleUp, &b_SVfit_etaUncEleUp);
+            fChain->SetBranchAddress("SVfit_phiEleUp", &SVfit_phiEleUp, &b_SVfit_phiEleUp);
+            fChain->SetBranchAddress("SVfit_phiUncEleUp", &SVfit_phiUncEleUp, &b_SVfit_phiUncEleUp);
+            fChain->SetBranchAddress("SVfit_fitMETRhoEleUp", &SVfit_fitMETRhoEleUp, &b_SVfit_fitMETRhoEleUp);
+            fChain->SetBranchAddress("SVfit_fitMETPhiEleUp", &SVfit_fitMETPhiEleUp, &b_SVfit_fitMETPhiEleUp);
+            fChain->SetBranchAddress("SVfitMassEleDown", &SVfitMassEleDown, &b_SVfitMassEleDown);
+            fChain->SetBranchAddress("SVfitMassUncEleDown", &SVfitMassUncEleDown, &b_SVfitMassUncEleDown);
+            fChain->SetBranchAddress("SVfitTransverseMassEleDown", &SVfitTransverseMassEleDown, &b_SVfitTransverseMassEleDown);
+            fChain->SetBranchAddress("SVfitTransverseMassUncEleDown", &SVfitTransverseMassUncEleDown, &b_SVfitTransverseMassUncEleDown);
+            fChain->SetBranchAddress("SVfit_ptEleDown", &SVfit_ptEleDown, &b_SVfit_ptEleDown);
+            fChain->SetBranchAddress("SVfit_ptUncEleDown", &SVfit_ptUncEleDown, &b_SVfit_ptUncEleDown);
+            fChain->SetBranchAddress("SVfit_etaEleDown", &SVfit_etaEleDown, &b_SVfit_etaEleDown);
+            fChain->SetBranchAddress("SVfit_etaUncEleDown", &SVfit_etaUncEleDown, &b_SVfit_etaUncEleDown);
+            fChain->SetBranchAddress("SVfit_phiEleDown", &SVfit_phiEleDown, &b_SVfit_phiEleDown);
+            fChain->SetBranchAddress("SVfit_phiUncEleDown", &SVfit_phiUncEleDown, &b_SVfit_phiUncEleDown);
+            fChain->SetBranchAddress("SVfit_fitMETRhoEleDown", &SVfit_fitMETRhoEleDown, &b_SVfit_fitMETRhoEleDown);
+            fChain->SetBranchAddress("SVfit_fitMETPhiEleDown", &SVfit_fitMETPhiEleDown, &b_SVfit_fitMETPhiEleDown);
        }
        
     }
