@@ -938,7 +938,12 @@ int main (int argc, char** argv)
   myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_IdAndIso_SF_Legacy/2016/Electron_Run2016_legacy_IdIso.root");
 
   // tau IdAndIso SF
-  TauIDSFTool * myTauIDSFTool = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSjet","Medium",1);
+  TauIDSFTool * tauSFTool_MVA        = new TauIDSFTool("2016Legacy","MVAoldDM2017v2","Medium",1);       // for MVA2017v2 vs jets
+  TauIDSFTool * antiEleSFTool_vloose = new TauIDSFTool("2016Legacy","antiEleMVA6"   ,"VLoose");         // for MVA2017v2 vs ele VLoose
+  TauIDSFTool * antiEleSFTool_tight  = new TauIDSFTool("2016Legacy","antiEleMVA6"   ,"Tight");          // for MVA2017v2 vs ele Tight
+  TauIDSFTool * antiMuSFTool_loose   = new TauIDSFTool("2016Legacy","antiMu3"       ,"Loose");          // for MVA2017v2 vs mu Loose
+  TauIDSFTool * antiMuSFTool_tight   = new TauIDSFTool("2016Legacy","antiMu3"       ,"Tight");          // for MVA2017v2 vs mu Tight
+  TauIDSFTool * tauSFTool_deep       = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets
 
   // ------------------------------
 
@@ -2699,462 +2704,319 @@ int main (int argc, char** argv)
 
 
       // DATA/MC ID and ISO ScaleFactors
-      // Tau: https://indico.cern.ch/event/719250/contributions/2971854/attachments/1635435/2609013/tauid_recommendations2017.pdf
-      //      https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendation13TeV#Performance_in_data_and_recommen
-      // Ele: https://twiki.cern.ch/twiki/bin/view/CMS/Egamma2017DataRecommendations#Efficiency_Scale_Factors
-      // MU : https://twiki.cern.ch/twiki/bin/view/CMS/MuonReferenceEffs2017#Scale_Factors_with_statistical_e
       // Mu and Ele ID and ISO: https://github.com/CMS-HTT/LeptonEfficiencies
+      // Tau ID and ISO (MVA and DeepTau): https://twiki.cern.ch/twiki/bin/view/CMS/TauIDRecommendationForRun2
+      // Still preliminary:
+      // DeepTauVSele: https://indico.cern.ch/event/865792/contributions/3659828/attachments/1954858/3246751/ETauFR-update2Dec.pdf
+      // DeepTauVSmu : https://indico.cern.ch/event/866243/contributions/3650016/attachments/1950974/3238736/mutauFRRun2_Yiwen_20191121.pdf
       bool isFakeJet1 = true;
       bool isFakeJet2 = true;
-      
-      float idAndIsoSF = 1.0;
-      float idAndIsoSF_decayMode = 1.0;
 
-      // MuTau Channel
+      float idAndIsoSF_MVA  = 1.0;       // use this for MVA2017v2
+      float idAndIsoSF_deep = 1.0;       // use this for DeepTauv2p1
+      float idAndIsoAndFakeSF_MVA  = 1.0; // use this for MVA2017v2 + e/mu->tauh fake SF
+      float idAndIsoAndFakeSF_deep = 1.0; // use this for DeepTauv2p1 + e/mu->tauh fake SF
+
+      // MuTau Channel // anti-ele VLoose / anti-mu Tight / anti-jet Medium
       if (pType == 0 && isMC)
       {
         float mu1pt  = tlv_firstLepton.Pt();
         float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
 
-        float idAndIsoSF_leg1 = 1.;
-        float idAndIsoSF_leg2 = 1.;
-        float idAndIsoSF_leg2_decayMode = 1.;
+        float tau2pt  = tlv_secondLepton.Pt();
+        float tau2eta = TMath::Abs(tlv_secondLepton.Eta());
+        float tau2DM  = theSmallTree.m_dau2_decayMode;
+        float tau2Genmatch = theBigTree.genmatch->at(secondDaughterIndex);
 
-        if (fabs(mu1eta < 2.4))
+        float idAndIsoSF_leg1      = 1.;
+        float idAndIsoSF_leg2_MVA_vsJet = 1.;
+        float idAndIsoSF_leg2_MVA_vsEle = 1.;
+        float idAndIsoSF_leg2_MVA_vsMu  = 1.;
+        float idAndIsoSF_leg2_deep_vsJet = 1.;
+        float idAndIsoSF_leg2_deep_vsEle = 1.;
+        float idAndIsoSF_leg2_deep_vsMu  = 1.;
+
+        if (mu1eta < 2.4)
         {
           idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
         }
 
-       if (lep2HasTES)
-       {
-         idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
-         // TauPOG recommendation for 2018 data (medium WP)
-         //if(theSmallTree.m_dau2_decayMode == 0) idAndIsoSF_leg2_decayMode = 1.16;//0.84 computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
-         //if(theSmallTree.m_dau2_decayMode == 1) idAndIsoSF_leg2_decayMode = 0.90;//0.92
-         //if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.98;//0.86
-         // DeepTau SF
-         idAndIsoSF_leg2_decayMode = myTauIDSFTool->getSFvsDM(theSmallTree.m_dau2_pt,theSmallTree.m_dau2_decayMode);
-         isFakeJet2 = false;
-       }
+        idAndIsoSF_leg2_MVA_vsJet = tauSFTool_MVA        ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsEle = antiEleSFTool_vloose ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsMu  = antiMuSFTool_tight   ->getSFvsEta(tau2eta, tau2Genmatch);
 
-       idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-       idAndIsoSF_decayMode = idAndIsoSF_leg1 * idAndIsoSF_leg2_decayMode;
+        idAndIsoSF_leg2_deep_vsJet = tauSFTool_deep->getSFvsDM(tau2pt, tau2DM, tau2Genmatch);
 
-       if (DEBUG)
-       {
-         cout << "--- DEBUG idAndIsoSF ---" << endl;
-         cout << "pairType: " << pType << endl;
-         cout << "leg1 : " << idAndIsoSF_leg1 << endl;
-         cout << "leg2 : " << idAndIsoSF_leg2 << endl;
-         cout << "totSF: " << idAndIsoSF << endl;
-       }
-     }
+        //idAndIsoSF_leg2_deep_vsEle --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
+        if (tau2Genmatch == 1 || tau2Genmatch == 3 ) // e->tauh fake
+        {
+          if (tau2eta < 1.448 ) idAndIsoSF_leg2_deep_vsEle = 1.22; // anti-ele Vloose
+          if (tau2eta > 1.558 ) idAndIsoSF_leg2_deep_vsEle = 1.13; // anti-ele Vloose
+        }
 
-      // EleTau Channel
-      else if (pType == 1 && isMC)
-	{
-	  float ele1pt = tlv_firstLepton.Pt();
-	  float ele1eta = tlv_firstLepton.Eta();
-          
-	  //float idAndIsoSF_leg1 = getContentHisto2D(hElePOGSF_TightID_80WP, ele1eta, ele1pt);  // EMVATight == 80% eff WP
-	  float idAndIsoSF_leg1 = 1.;
-	  float idAndIsoSF_leg2 = 1.;
-	  float idAndIsoSF_leg2_decayMode = 1.;
+        //idAndIsoSF_leg2_deep_vsMu  --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
+        if (tau2Genmatch == 2 || tau2Genmatch == 4 ) // mu->tauh fake
+        {
+          if      (tau2eta < 0.4) idAndIsoSF_leg2_deep_vsMu = 1.379; // anti-mu Tight
+          else if (tau2eta < 0.8) idAndIsoSF_leg2_deep_vsMu = 0.723; // anti-mu Tight
+          else if (tau2eta < 1.2) idAndIsoSF_leg2_deep_vsMu = 1.339; // anti-mu Tight
+          else if (tau2eta < 1.7) idAndIsoSF_leg2_deep_vsMu = 1.031; // anti-mu Tight
+          else if (tau2eta < 2.3) idAndIsoSF_leg2_deep_vsMu = 5.046; // anti-mu Tight
+        }
 
-	  if (fabs(ele1eta < 2.4)){
-	    idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
-	  }
-	  
-	  if (lep2HasTES){
-	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
-	    // TauPOG recommendation for 2018 data (medium WP)
-	    //if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 1.16;//0.84 computed on 28 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
-	    //if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 0.90;//0.92
-	    //if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.98;//0.86
-	    // DeepTau SF
-	    idAndIsoSF_leg2_decayMode = myTauIDSFTool->getSFvsDM(theSmallTree.m_dau2_pt,theSmallTree.m_dau2_decayMode);
-	    isFakeJet2 = false;
-	  }
-	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-	  idAndIsoSF_decayMode = idAndIsoSF_leg1* idAndIsoSF_leg2_decayMode;
+        if (tau2Genmatch==1 || tau2Genmatch==2 || tau2Genmatch==3 || tau2Genmatch==4 || tau2Genmatch==5)
+        {
+          isFakeJet2 = false;
+        }
 
-      if (DEBUG)
-      {
-        cout << "--- DEBUG idAndIsoSF ---" << endl;
-        cout << "pairType: " << pType << endl;
-        cout << "leg1 : " << idAndIsoSF_leg1 << endl;
-        cout << "leg2 : " << idAndIsoSF_leg2 << endl;
-        cout << "totSF: " << idAndIsoSF << endl;
+        idAndIsoSF_MVA  = idAndIsoSF_leg1 * idAndIsoSF_leg2_MVA_vsJet;
+        idAndIsoSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet;
+        idAndIsoAndFakeSF_MVA  = idAndIsoSF_leg1 * idAndIsoSF_leg2_MVA_vsJet  * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
+        idAndIsoAndFakeSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+
+        if (DEBUG)
+        {
+          cout << "--- DEBUG idAndIsoSF ---" << endl;
+          cout << "pairType  : " << pType << endl;
+          cout << "totSF MVA : " << idAndIsoSF_MVA << endl;
+          cout << "totSF deep: " << idAndIsoSF_deep << endl;
+        }
       }
-	}
-      
-      // TauTau Channel
+
+      // EleTau Channel // anti-ele Tight / anti-mu Loose / anti-jet Medium
+      else if (pType == 1 && isMC)
+      {
+        float ele1pt  = tlv_firstLepton.Pt();
+        float ele1eta = TMath::Abs(tlv_firstLepton.Eta());
+
+        float tau2pt  = tlv_secondLepton.Pt();
+        float tau2eta = TMath::Abs(tlv_secondLepton.Eta());
+        float tau2DM  = theSmallTree.m_dau2_decayMode;
+        float tau2Genmatch = theBigTree.genmatch->at(secondDaughterIndex);
+
+        float idAndIsoSF_leg1      = 1.;
+        float idAndIsoSF_leg2_MVA_vsJet = 1.;
+        float idAndIsoSF_leg2_MVA_vsEle = 1.;
+        float idAndIsoSF_leg2_MVA_vsMu  = 1.;
+        float idAndIsoSF_leg2_deep_vsJet = 1.;
+        float idAndIsoSF_leg2_deep_vsEle = 1.;
+        float idAndIsoSF_leg2_deep_vsMu  = 1.;
+
+        if (ele1eta < 2.4)
+        {
+          idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
+        }
+
+        idAndIsoSF_leg2_MVA_vsJet = tauSFTool_MVA       ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsEle = antiEleSFTool_tight ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsMu  = antiMuSFTool_loose  ->getSFvsEta(tau2eta, tau2Genmatch);
+
+        idAndIsoSF_leg2_deep_vsJet = tauSFTool_deep->getSFvsDM(tau2pt, tau2DM, tau2Genmatch);
+
+        //idAndIsoSF_leg2_deep_vsEle --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
+        if (tau2Genmatch == 1 || tau2Genmatch == 3 ) // e->tauh fake
+        {
+          if (tau2eta < 1.448 ) idAndIsoSF_leg2_deep_vsEle = 1.22; // anti-ele Tight
+          if (tau2eta > 1.558 ) idAndIsoSF_leg2_deep_vsEle = 1.47; // anti-ele Tight
+        }
+
+        //idAndIsoSF_leg2_deep_vsMu  --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
+        if (tau2Genmatch == 2 || tau2Genmatch == 4 ) // mu->tauh fake
+        {
+          if      (tau2eta < 0.4) idAndIsoSF_leg2_deep_vsMu = 1.310; // anti-mu Loose
+          else if (tau2eta < 0.8) idAndIsoSF_leg2_deep_vsMu = 0.959; // anti-mu Loose
+          else if (tau2eta < 1.2) idAndIsoSF_leg2_deep_vsMu = 1.324; // anti-mu Loose
+          else if (tau2eta < 1.7) idAndIsoSF_leg2_deep_vsMu = 1.113; // anti-mu Loose
+          else if (tau2eta < 2.3) idAndIsoSF_leg2_deep_vsMu = 5.700; // anti-mu Loose
+        }
+
+        if (tau2Genmatch==1 || tau2Genmatch==2 || tau2Genmatch==3 || tau2Genmatch==4 || tau2Genmatch==5)
+        {
+          isFakeJet2 = false;
+        }
+
+        idAndIsoSF_MVA  = idAndIsoSF_leg1 * idAndIsoSF_leg2_MVA_vsJet;
+        idAndIsoSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet;
+        idAndIsoAndFakeSF_MVA  = idAndIsoSF_leg1 * idAndIsoSF_leg2_MVA_vsJet  * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
+        idAndIsoAndFakeSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+
+        if (DEBUG)
+        {
+          cout << "--- DEBUG idAndIsoSF ---" << endl;
+          cout << "pairType  : " << pType << endl;
+          cout << "totSF MVA : " << idAndIsoSF_MVA << endl;
+          cout << "totSF deep: " << idAndIsoSF_deep << endl;
+        }
+      }
+
+      // TauTau Channel // anti-ele VLoose / anti-mu Loose / anti-jet Medium
       else if (pType == 2 && isMC)
-	{
-	  // TauPOG recommendation for 2017 data: SF = 0.89 for each tauh leg
-	  float idAndIsoSF_leg1 = 1.;
-	  float idAndIsoSF_leg2 = 1.;
-	  float idAndIsoSF_leg1_decayMode = 1.;
-	  float idAndIsoSF_leg2_decayMode = 1.;
+      {
 
+        float tau1pt  = tlv_firstLepton.Pt();
+        float tau1eta = TMath::Abs(tlv_firstLepton.Eta());
+        float tau1DM  = theSmallTree.m_dau1_decayMode;
+        float tau1Genmatch = theBigTree.genmatch->at(firstDaughterIndex);
 
-	  if (lep1HasTES) {
-	    idAndIsoSF_leg1 = 0.90; // TauPOG recommendation for 2018 data
-	    // TauPOG recommendation for 2018 data (medium WP)
-	    //if(theSmallTree.m_dau1_decayMode == 0)  idAndIsoSF_leg1_decayMode = 1.16;//0.97 //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
-	    //if(theSmallTree.m_dau1_decayMode == 1)  idAndIsoSF_leg1_decayMode = 0.90;//1.04
-	    //if(theSmallTree.m_dau1_decayMode == 10) idAndIsoSF_leg1_decayMode = 0.98;//0.90
-	    // DeepTau SF
-	    idAndIsoSF_leg1_decayMode = myTauIDSFTool->getSFvsDM(theSmallTree.m_dau1_pt,theSmallTree.m_dau1_decayMode);
-	    isFakeJet1 = false;
-	  }
-	  if (lep2HasTES) {
-	    idAndIsoSF_leg2 = 0.90; // TauPOG recommendation for 2018 data
-	    // TauPOG recommendation for 2018 data (medium WP)
-	    //if(theSmallTree.m_dau2_decayMode == 0)  idAndIsoSF_leg2_decayMode = 1.16;//0.97 //computed on 11 March in deltaR < 2, m_vis > 55, with DYscale_MM and DY_LO
-	    //if(theSmallTree.m_dau2_decayMode == 1)  idAndIsoSF_leg2_decayMode = 0.90;//1.04
-	    //if(theSmallTree.m_dau2_decayMode == 10) idAndIsoSF_leg2_decayMode = 0.98;//0.90
-	    // DeepTau SF
-	    idAndIsoSF_leg2_decayMode = myTauIDSFTool->getSFvsDM(theSmallTree.m_dau2_pt,theSmallTree.m_dau2_decayMode);
-	    isFakeJet2 = false;
-	  }
-	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-	  idAndIsoSF_decayMode = idAndIsoSF_leg1_decayMode * idAndIsoSF_leg2_decayMode;
-	  
-	  if (DEBUG)
-	    {
-	      cout << "--- DEBUG idAndIsoSF ---" << endl;
-	      cout << "pairType: " << pType << endl;
-	      cout << "leg1 : " << idAndIsoSF_leg1 << endl;
-	      cout << "leg2 : " << idAndIsoSF_leg2 << endl;
-	      cout << "totSF: " << idAndIsoSF << endl;
-	      cout << "DM1  : " << idAndIsoSF_leg1_decayMode << endl;
-	      cout << "DM2  : " << idAndIsoSF_leg2_decayMode << endl;
-	      cout << "new1 : " << myTauIDSFTool->getSFvsDM(theSmallTree.m_dau1_pt,theSmallTree.m_dau1_decayMode) << endl;
-	      cout << "new2 : " << myTauIDSFTool->getSFvsDM(theSmallTree.m_dau2_pt,theSmallTree.m_dau2_decayMode) << endl;
-	    }
-	}
-      
+        float tau2pt  = tlv_secondLepton.Pt();
+        float tau2eta = TMath::Abs(tlv_secondLepton.Eta());
+        float tau2DM  = theSmallTree.m_dau2_decayMode;
+        float tau2Genmatch = theBigTree.genmatch->at(secondDaughterIndex);
+
+        float idAndIsoSF_leg1_MVA_vsJet = 1.;
+        float idAndIsoSF_leg1_MVA_vsEle = 1.;
+        float idAndIsoSF_leg1_MVA_vsMu  = 1.;
+        float idAndIsoSF_leg1_deep_vsJet = 1.;
+        float idAndIsoSF_leg1_deep_vsEle = 1.;
+        float idAndIsoSF_leg1_deep_vsMu  = 1.;
+
+        float idAndIsoSF_leg2_MVA_vsJet = 1.;
+        float idAndIsoSF_leg2_MVA_vsEle = 1.;
+        float idAndIsoSF_leg2_MVA_vsMu  = 1.;
+        float idAndIsoSF_leg2_deep_vsJet = 1.;
+        float idAndIsoSF_leg2_deep_vsEle = 1.;
+        float idAndIsoSF_leg2_deep_vsMu  = 1.;
+
+        idAndIsoSF_leg1_MVA_vsJet = tauSFTool_MVA        ->getSFvsDM (tau1pt , tau1DM, tau1Genmatch);
+        idAndIsoSF_leg1_MVA_vsEle = antiEleSFTool_vloose ->getSFvsEta(tau1eta, tau1Genmatch);
+        idAndIsoSF_leg1_MVA_vsMu  = antiMuSFTool_loose   ->getSFvsEta(tau1eta, tau1Genmatch);
+
+        idAndIsoSF_leg1_deep_vsJet = tauSFTool_deep->getSFvsDM(tau1pt, tau1DM, tau1Genmatch);
+
+        //idAndIsoSF_leg1_deep_vsEle --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
+        if (tau1Genmatch == 1 || tau1Genmatch == 3 ) // e->tauh fake
+        {
+          if (tau1eta < 1.448 ) idAndIsoSF_leg1_deep_vsEle = 1.22; // anti-ele VLoose
+          if (tau1eta > 1.558 ) idAndIsoSF_leg1_deep_vsEle = 1.13; // anti-ele VLoose
+        }
+
+        //idAndIsoSF_leg1_deep_vsMu  --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
+        if (tau1Genmatch == 2 || tau1Genmatch == 4 ) // mu->tauh fake
+        {
+          if      (tau1eta < 0.4) idAndIsoSF_leg1_deep_vsMu = 1.310; // anti-mu Loose
+          else if (tau1eta < 0.8) idAndIsoSF_leg1_deep_vsMu = 0.959; // anti-mu Loose
+          else if (tau1eta < 1.2) idAndIsoSF_leg1_deep_vsMu = 1.324; // anti-mu Loose
+          else if (tau1eta < 1.7) idAndIsoSF_leg1_deep_vsMu = 1.113; // anti-mu Loose
+          else if (tau1eta < 2.3) idAndIsoSF_leg1_deep_vsMu = 5.700; // anti-mu Loose
+        }
+
+        idAndIsoSF_leg2_MVA_vsJet = tauSFTool_MVA        ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsEle = antiEleSFTool_vloose ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsMu  = antiMuSFTool_loose   ->getSFvsEta(tau2eta, tau2Genmatch);
+
+        idAndIsoSF_leg2_deep_vsJet = tauSFTool_deep->getSFvsDM(tau2pt, tau2DM, tau2Genmatch);
+
+        //idAndIsoSF_leg2_deep_vsEle --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
+        if (tau2Genmatch == 1 || tau2Genmatch == 3 ) // e->tauh fake
+        {
+          if (tau2eta < 1.448 ) idAndIsoSF_leg2_deep_vsEle = 1.22; // anti-ele VLoose
+          if (tau2eta > 1.558 ) idAndIsoSF_leg2_deep_vsEle = 1.13; // anti-ele VLoose
+        }
+
+        //idAndIsoSF_leg2_deep_vsMu  --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
+        if (tau2Genmatch == 2 || tau2Genmatch == 4 ) // mu->tauh fake
+        {
+          if      (tau2eta < 0.4) idAndIsoSF_leg2_deep_vsMu = 1.310; // anti-mu Loose
+          else if (tau2eta < 0.8) idAndIsoSF_leg2_deep_vsMu = 0.959; // anti-mu Loose
+          else if (tau2eta < 1.2) idAndIsoSF_leg2_deep_vsMu = 1.324; // anti-mu Loose
+          else if (tau2eta < 1.7) idAndIsoSF_leg2_deep_vsMu = 1.113; // anti-mu Loose
+          else if (tau2eta < 2.3) idAndIsoSF_leg2_deep_vsMu = 5.700; // anti-mu Loose
+        }
+
+        if (tau1Genmatch==1 || tau1Genmatch==2 || tau1Genmatch==3 || tau1Genmatch==4 || tau1Genmatch==5)
+        {
+          isFakeJet1 = false;
+        }
+
+        if (tau2Genmatch==1 || tau2Genmatch==2 || tau2Genmatch==3 || tau2Genmatch==4 || tau2Genmatch==5)
+        {
+          isFakeJet2 = false;
+        }
+
+        idAndIsoSF_MVA  = idAndIsoSF_leg1_MVA_vsJet * idAndIsoSF_leg2_MVA_vsJet;
+        idAndIsoSF_deep = idAndIsoSF_leg1_deep_vsJet * idAndIsoSF_leg2_deep_vsJet;
+        idAndIsoAndFakeSF_MVA  = idAndIsoSF_leg1_MVA_vsJet * idAndIsoSF_leg1_MVA_vsEle * idAndIsoSF_leg1_MVA_vsMu * idAndIsoSF_leg2_MVA_vsJet  * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
+        idAndIsoAndFakeSF_deep = idAndIsoSF_leg1_deep_vsJet * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+
+        if (DEBUG)
+        {
+          cout << "--- DEBUG idAndIsoSF ---" << endl;
+          cout << "pairType  : " << pType << endl;
+          cout << "totSF MVA : " << idAndIsoSF_MVA << endl;
+          cout << "totSF deep: " << idAndIsoSF_deep << endl;
+        }
+      }
+
       // MuMu Channel
       else if (pType == 3 && isMC)
-	{
-	  float mu1pt  = tlv_firstLepton.Pt();
-	  float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
-	  float mu2pt  = tlv_secondLepton.Pt();
-	  float mu2eta = TMath::Abs(tlv_secondLepton.Eta());
-	  
-	  
-	  float idAndIsoSF_leg1 = 1.;
-	  float idAndIsoSF_leg2 = 1.;
-	  
-	  if (fabs(mu1eta < 2.4)){
-	    idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
-	  }
-	  if (fabs(mu2eta < 2.4)){
-	    idAndIsoSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu2pt, mu2eta);
-	  }
-	  
-	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+      {
+        float mu1pt  = tlv_firstLepton.Pt();
+        float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
+        float mu2pt  = tlv_secondLepton.Pt();
+        float mu2eta = TMath::Abs(tlv_secondLepton.Eta());
 
-	  if (DEBUG)
-	    {
-	      cout << "--- DEBUG idAndIsoSF ---" << endl;
-	      cout << "pairType: " << pType << endl;
-	      cout << "leg1 : " << idAndIsoSF_leg1 << endl;
-	      cout << "leg2 : " << idAndIsoSF_leg2 << endl;
-	      cout << "totSF: " << idAndIsoSF << endl;
-	    }
-	}
+        float idAndIsoSF_leg1 = 1.;
+        float idAndIsoSF_leg2 = 1.;
+
+        if (mu1eta < 2.4)
+        {
+          idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
+        }
+        if (mu2eta < 2.4)
+        {
+          idAndIsoSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu2pt, mu2eta);
+        }
+
+        idAndIsoSF_MVA = idAndIsoSF_deep = idAndIsoAndFakeSF_MVA = idAndIsoAndFakeSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+
+        if (DEBUG)
+        {
+          cout << "--- DEBUG idAndIsoSF ---" << endl;
+          cout << "pairType  : " << pType << endl;
+          cout << "totSF MVA : " << idAndIsoSF_MVA << endl;
+          cout << "totSF deep: " << idAndIsoSF_deep << endl;
+        }
+      }
       
       // EleEle Channel
       else if (pType == 4 && isMC)
-	{
-	  float ele1pt = tlv_firstLepton.Pt();
-	  float ele2pt = tlv_secondLepton.Pt();
-	  float ele1eta = tlv_firstLepton.Eta();
-	  float ele2eta = tlv_secondLepton.Eta();
-	  
-	  float idAndIsoSF_leg1 = 1.;
-	  float idAndIsoSF_leg2 = 1.;
-	  
-	  if (fabs(ele1eta < 2.4)){
-	    idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
-	  }
-	  if (fabs(ele2eta < 2.4)){
-	    idAndIsoSF_leg2 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele2pt, ele2eta);
-	  }
-	  idAndIsoSF = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-
-      if (DEBUG)
       {
-        cout << "--- DEBUG idAndIsoSF ---" << endl;
-        cout << "pairType: " << pType << endl;
-        cout << "leg1 : " << idAndIsoSF_leg1 << endl;
-        cout << "leg2 : " << idAndIsoSF_leg2 << endl;
-        cout << "totSF: " << idAndIsoSF << endl;
-        cout << "------------------------" << endl;
+        float ele1pt  = tlv_firstLepton.Pt();
+        float ele1eta = TMath::Abs(tlv_firstLepton.Eta());
+        float ele2pt  = tlv_secondLepton.Pt();
+        float ele2eta = TMath::Abs(tlv_secondLepton.Eta());
+
+        float idAndIsoSF_leg1 = 1.;
+        float idAndIsoSF_leg2 = 1.;
+
+        if (ele1eta < 2.4)
+        {
+          idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
+        }
+        if (ele2eta < 2.4)
+        {
+          idAndIsoSF_leg2 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele2pt, ele2eta);
+        }
+
+        idAndIsoSF_MVA = idAndIsoSF_deep = idAndIsoAndFakeSF_MVA = idAndIsoAndFakeSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2;
+
+        if (DEBUG)
+        {
+          cout << "--- DEBUG idAndIsoSF ---" << endl;
+          cout << "pairType  : " << pType << endl;
+          cout << "totSF MVA : " << idAndIsoSF_MVA << endl;
+          cout << "totSF deep: " << idAndIsoSF_deep << endl;
+        }
       }
-	}
-      
+
       // Save the IDandISO SF (event per event)
-      theSmallTree.m_IdAndIsoSF = (isMC ? idAndIsoSF : 1.0);
-      theSmallTree.m_IdAndIsoSF_decayMode = (isMC ? idAndIsoSF_decayMode : 1.0);
-      
-      
-      // DATA/MC e, mu fake rate Scale Factors
-      // https://twiki.cern.ch/twiki/bin/view/CMS/TauIDRecommendation13TeV#Muon_to_tau_fake_rate
-      // https://twiki.cern.ch/twiki/bin/view/CMS/TauIDRecommendation13TeV#Electron_to_tau_fake_rate
-      // https://indico.cern.ch/event/719250/contributions/2971854/attachments/1635435/2609013/tauid_recommendations2017.pdf
-      
-      // For DeepTau
-      // e->tau SF: https://indico.cern.ch/event/865792/contributions/3659828/attachments/1954858/3246751/ETauFR-update2Dec.pdf
-
-      // check if taus are matched to gen e, mu
-      float FakeRateSF = 1.;
-      if(isMC){
-        std::vector< pair<float, int> > dRele_lep1; //could have made a tuple < dR, idx, pdg >  instead... with pairs I have more code but it's less confusing
-        std::vector< pair<float, int> > dRmu_lep1;
-        std::vector< pair<float, int> > dRele_lep2;
-        std::vector< pair<float, int> > dRmu_lep2;
-        for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
-        {
-            int pdg = theBigTree.genpart_pdg->at(igen);
-            int genflags = theBigTree.genpart_flags->at(igen);
-
-            if (fabs(pdg) == 11 || fabs(pdg) == 13) //is ele or muon
-            {
-              if (CheckBit(genflags, 0) || CheckBit(genflags, 5)){ //isPrompt or isDirectPromptTauDecayProduct
-                TLorentzVector tlv_gen;
-                tlv_gen.SetPxPyPzE(theBigTree.genpart_px->at(igen),
-                           theBigTree.genpart_py->at(igen),
-                           theBigTree.genpart_pz->at(igen),
-                           theBigTree.genpart_e->at(igen)
-                           );
-
-                float dRlep1  = tlv_gen.DeltaR(tlv_firstLepton);
-                if (tlv_gen.Pt() > 8 && dRlep1 < 0.2){
-                  if (fabs(pdg) == 11) dRele_lep1.push_back(make_pair(dRlep1, igen));
-                  if (fabs(pdg) == 13) dRmu_lep1.push_back(make_pair(dRlep1, igen));
-                }
-
-                float dRlep2  = tlv_gen.DeltaR(tlv_secondLepton);
-                if (tlv_gen.Pt() > 8 && dRlep2 < 0.2){
-                  if (fabs(pdg) == 11) dRele_lep2.push_back(make_pair(dRlep2, igen));
-                  if (fabs(pdg) == 13) dRmu_lep2.push_back(make_pair(dRlep2, igen));
-                }
-              }
-            }
-        }
-
-        std::sort(dRele_lep1.begin(), dRele_lep1.end());
-        std::sort(dRele_lep2.begin(), dRele_lep2.end());
-        std::sort(dRmu_lep1.begin(), dRmu_lep1.end());
-        std::sort(dRmu_lep2.begin(), dRmu_lep2.end());
-
-        if (DEBUG)
-        {
-          cout <<"**** FakeRate debug: list of match between gen and reco"<<endl;
-          for (unsigned int i=0; i<dRele_lep1.size(); i++) cout << " --- dRele_lep1: "<< dRele_lep1.at(i).first << " ;; " << dRele_lep1.at(i).second << endl;
-          for (unsigned int i=0; i<dRele_lep2.size(); i++) cout << " --- dRele_lep2: "<< dRele_lep2.at(i).first << " ;; " << dRele_lep2.at(i).second << endl;
-          for (unsigned int i=0; i<dRmu_lep1.size(); i++) cout << " --- dRmu_lep1: "<< dRmu_lep1.at(i).first << " ;; " << dRmu_lep1.at(i).second << endl;
-          for (unsigned int i=0; i<dRmu_lep2.size(); i++) cout << " --- dRmu_lep2: "<< dRmu_lep2.at(i).first << " ;; " << dRmu_lep2.at(i).second << endl;
-        }
-
-        bool gene_lep1 = false;
-        bool gene_lep2 = false;
-        bool genmu_lep1 = false;
-        bool genmu_lep2 = false;
-        if (dRele_lep1.size() > 0) {
-          gene_lep1 = true;
-          if (DEBUG){
-
-            cout <<"**** FakeRate debug:"<<endl;
-            for (unsigned int i = 0; i <dRele_lep1.size(); i++){
-
-            TLorentzVector tlv_gen;
-            tlv_gen.SetPxPyPzE(theBigTree.genpart_px->at(dRele_lep1.at(i).second),
-                       theBigTree.genpart_py->at(dRele_lep1.at(i).second),
-                       theBigTree.genpart_pz->at(dRele_lep1.at(i).second),
-                       theBigTree.genpart_e->at(dRele_lep1.at(i).second)
-                       );
-            cout << "genEle: " << tlv_gen.Pt()<<" Pt "<< tlv_gen.Eta()<<" Eta "<<tlv_gen.Phi()<<" Phi "<<endl;
-            cout << "lep1: " << tlv_firstLepton.Pt()<<" Pt "<< tlv_firstLepton.Eta()<<" Eta "<<tlv_firstLepton.Phi()<<" Phi "<< tlv_gen.DeltaR(tlv_firstLepton) << " DeltaR "<<endl;
-          }
-          }
-        }
-        if (dRele_lep2.size() > 0) {
-          gene_lep2 = true;
-          if (DEBUG){
-
-            cout <<"**** FakeRate debug:"<<endl;
-            for (unsigned int i = 0; i <dRele_lep2.size(); i++){
-
-            TLorentzVector tlv_gen;
-            tlv_gen.SetPxPyPzE(theBigTree.genpart_px->at(dRele_lep2.at(i).second),
-                       theBigTree.genpart_py->at(dRele_lep2.at(i).second),
-                       theBigTree.genpart_pz->at(dRele_lep2.at(i).second),
-                       theBigTree.genpart_e->at(dRele_lep2.at(i).second)
-                       );
-            cout << "genEle: " << tlv_gen.Pt()<<" Pt "<< tlv_gen.Eta()<<" Eta "<<tlv_gen.Phi()<<" Phi "<<endl;
-            cout << "lep2: " << tlv_secondLepton.Pt()<<" Pt "<< tlv_secondLepton.Eta()<<" Eta "<<tlv_secondLepton.Phi()<<" Phi "<< tlv_gen.DeltaR(tlv_secondLepton) << " DeltaR "<<endl;
-          }
-          }
-        }
-        if (dRmu_lep1.size() > 0) genmu_lep1 = true;
-        if (dRmu_lep2.size() > 0){
-          genmu_lep2 = true;
-
-          if (DEBUG){
-            cout <<"**** FakeRate debug:"<<endl;
-            for (unsigned int i = 0; i <dRmu_lep2.size(); i++){
-
-            TLorentzVector tlv_gen;
-            tlv_gen.SetPxPyPzE(theBigTree.genpart_px->at(dRmu_lep2.at(i).second),
-                       theBigTree.genpart_py->at(dRmu_lep2.at(i).second),
-                       theBigTree.genpart_pz->at(dRmu_lep2.at(i).second),
-                       theBigTree.genpart_e->at(dRmu_lep2.at(i).second)
-                       );
-            cout << "genMu: " <<tlv_gen.Pt()<<" Pt "<< tlv_gen.Eta()<<" Eta "<<tlv_gen.Phi()<<" Phi "<<endl;
-            cout << "lep2: " << tlv_secondLepton.Pt()<<" Pt "<< tlv_secondLepton.Eta()<<" Eta "<<tlv_secondLepton.Phi()<<" Phi "<< tlv_gen.DeltaR(tlv_secondLepton) << " DeltaR "<<endl;
-            }
-          }
-        }
-        if(gene_lep1 && genmu_lep1){
-          if (dRele_lep1.at(0).first > dRmu_lep1.at(0).first){
-            gene_lep1 = false;
-          }else{
-            genmu_lep1 = false;
-          }
-        }
-
-        if(gene_lep2 && genmu_lep2){
-          if (dRele_lep2.at(0).first > dRmu_lep2.at(0).first){
-            gene_lep2 = false;
-          }else{
-            genmu_lep2 = false;
-          }
-        }
-
-        if (DEBUG){
-          cout<<"**** FakeRate debug: any gen e-mu matching taus? pairType "<<pairType<<endl;
-          if (gene_lep1) cout<<"lep1 matches ele; isPrompt: "<<CheckBit(theBigTree.genpart_flags->at(dRele_lep1.at(0).second), 0)<<" isDirectPromptTauDecayProduct: "<<CheckBit(theBigTree.genpart_flags->at(dRele_lep1.at(0).second), 5)<<endl;
-          if (genmu_lep1) cout<<"lep1 matches mu; isPrompt: "<<CheckBit(theBigTree.genpart_flags->at(dRmu_lep1.at(0).second), 0)<<" isDirectPromptTauDecayProduct: "<<CheckBit(theBigTree.genpart_flags->at(dRmu_lep1.at(0).second), 5)<<endl;
-          if (gene_lep2) cout<<"lep2 matches ele; isPrompt: "<<CheckBit(theBigTree.genpart_flags->at(dRele_lep2.at(0).second), 0)<<" isDirectPromptTauDecayProduct: "<<CheckBit(theBigTree.genpart_flags->at(dRele_lep2.at(0).second), 5)<<endl;
-          if (genmu_lep2) cout<<"lep2 matches mu; isPrompt: "<<CheckBit(theBigTree.genpart_flags->at(dRmu_lep2.at(0).second), 0)<<" isDirectPromptTauDecayProduct: "<<CheckBit(theBigTree.genpart_flags->at(dRmu_lep2.at(0).second), 5)<<endl; 	  
-        }
-
-        float FakeRateSF1=1;
-        float FakeRateSF2=1;
-
-        if (pairType == 2) // TauTau: anti-ele VLoose / anti-mu Loose
-        {
-          float tau1eta = fabs(tlv_firstLepton.Eta()); // tau1
-          if (gene_lep1)                               // tau1 matched to gen ele
-          {
-            isFakeJet1 = false;
-            //if (tau1eta < 1.46 ) FakeRateSF1 = 1.09; // antiEle
-            //else                 FakeRateSF1 = 1.19;
-            if (tau1eta < 1.448 ) FakeRateSF1 = 0.91;  // deepTauVSele (Tight)
-            if (tau1eta > 1.558 ) FakeRateSF1 = 0.91;
-          }
-          else if (genmu_lep1)                         // tau1 matched to gen mu
-          {
-            isFakeJet1 = false;
-            if      (tau1eta < 0.4) FakeRateSF1 = 1.06;
-            else if (tau1eta < 0.8) FakeRateSF1 = 1.02;
-            else if (tau1eta < 1.2) FakeRateSF1 = 1.10;
-            else if (tau1eta < 1.7) FakeRateSF1 = 1.03;
-            else if (tau1eta < 2.3) FakeRateSF1 = 1.94;
-          }
-
-          float tau2eta = fabs(tlv_secondLepton.Eta()); // tau2
-          if (gene_lep2)                                // tau2 matched to gen ele
-          {
-            isFakeJet2 = false;
-            //if (tau2eta < 1.46 ) FakeRateSF2 = 1.09; // antiEle
-            //else                 FakeRateSF2 = 1.19;
-            if (tau2eta < 1.448 ) FakeRateSF2 = 0.91;  // deepTauVSele (Tight)
-            if (tau2eta > 1.558 ) FakeRateSF1 = 0.91;
-          }
-          else if (genmu_lep2)                          // tau2 matched to gen mu
-          {
-            isFakeJet2 = false;
-            if      (tau2eta < 0.4) FakeRateSF2 = 1.06;
-            else if (tau2eta < 0.8) FakeRateSF2 = 1.02;
-            else if (tau2eta < 1.2) FakeRateSF2 = 1.10;
-            else if (tau2eta < 1.7) FakeRateSF2 = 1.03;
-            else if (tau2eta < 2.3) FakeRateSF2 = 1.94;
-          }
-        }
-
-        if (pairType == 0) // MuTau: anti-ele VLoose / anti-mu Tight
-        {
-          // tau1 is a muon --> no SF to be applied
-
-          float tau2eta = fabs(tlv_secondLepton.Eta()); // tau2
-          if (gene_lep2)                                // tau2 matched to gen ele
-          {
-            isFakeJet2 = false;
-            //if (tau2eta < 1.46 ) FakeRateSF2 = 1.09; // antiEle
-            //else                 FakeRateSF2 = 1.19;
-            if (tau2eta < 1.448 ) FakeRateSF2 = 0.91;  // deepTauVSele (Tight)
-            if (tau2eta > 1.558 ) FakeRateSF1 = 0.91;
-          }
-          else if (genmu_lep2)                          // tau2 matched to gen mu
-          {
-            isFakeJet2 = false;
-            if      (tau2eta < 0.4) FakeRateSF2 = 1.17;
-            else if (tau2eta < 0.8) FakeRateSF2 = 1.29;
-            else if (tau2eta < 1.2) FakeRateSF2 = 1.14;
-            else if (tau2eta < 1.7) FakeRateSF2 = 0.93;
-            else if (tau2eta < 2.3) FakeRateSF2 = 1.61;
-          }
-        }
-
-        if (pairType == 1) // ETau: anti-ele Tight / anti-mu Loose
-        {
-          // tau1 is an electron --> no SF to be applied
-
-          float tau2eta = fabs(tlv_secondLepton.Eta()); // tau2
-          if (gene_lep2)                                // tau2 matched to gen ele
-          {
-            isFakeJet2 = false;
-            //if (tau2eta < 1.46 ) FakeRateSF2 = 1.80; // antiEle
-            //else                 FakeRateSF2 = 1.53;
-            if (tau2eta < 1.448 ) FakeRateSF2 = 1.47;  // deepTauVSele (Tight)
-            if (tau2eta > 1.558 ) FakeRateSF1 = 0.66;
-          }
-          else if (genmu_lep2)                          // tau2 matched to gen mu
-          {
-            isFakeJet2 = false;
-            if      (tau2eta < 0.4) FakeRateSF2 = 1.06;
-            else if (tau2eta < 0.8) FakeRateSF2 = 1.02;
-            else if (tau2eta < 1.2) FakeRateSF2 = 1.10;
-            else if (tau2eta < 1.7) FakeRateSF2 = 1.03;
-            else if (tau2eta < 2.3) FakeRateSF2 = 1.94;
-          }
-        }
-
-        if (DEBUG)
-        {
-            cout<<"**** FakeRate debug: final SFs" << endl;
-            cout<<" FakeRateSF1: " << FakeRateSF1 << endl;
-            cout<<" FakeRateSF2: " << FakeRateSF2 << endl;
-            cout<<" Final:       " << FakeRateSF1*FakeRateSF2 << endl;
-        }
-
-        FakeRateSF = FakeRateSF1*FakeRateSF2;
-      
-      }
-      
-      theSmallTree.m_FakeRateSF     = (isMC ? FakeRateSF : 1.0);
-      theSmallTree.m_IdAndIsoAndFakeSF     = (isMC ? FakeRateSF*idAndIsoSF : 1.0);
-
+      theSmallTree.m_IdAndIsoSF_MVA  = (isMC ? idAndIsoSF_MVA  : 1.0);
+      theSmallTree.m_IdAndIsoSF_deep = (isMC ? idAndIsoSF_deep : 1.0);
+      theSmallTree.m_IdAndIsoAndFakeSF_MVA  = (isMC ? idAndIsoAndFakeSF_MVA  : 1.0);
+      theSmallTree.m_IdAndIsoAndFakeSF_deep = (isMC ? idAndIsoAndFakeSF_deep : 1.0);
 
       //Jet faking Tau SF
       //derived from WJet sideband: http://camendol.web.cern.ch/camendol/HH2017/plotsHH2017MuTau/31Oct2018_DYNLO_ctrlWJets_SS/antiB_jets30_tau30_SStight/
-
-    
       double jetFakeSF1 = 1.;
       double jetFakeSF2 = 1.;
       if (pType == 0 || pType == 1 || pType == 2) // 2nd tau
@@ -3179,14 +3041,14 @@ int main (int argc, char** argv)
 	  }
 	}
       theSmallTree.m_jetFakeSF = (isMC ? jetFakeSF1*jetFakeSF2 : 1.0);
-      
+
+
       // DATA/MC Trigger ScaleFactors
       // https://github.com/CMS-HTT/LeptonEfficiencies
       // https://github.com/truggles/TauTriggerSFs2017
 
       // recommendations for cross triggers:  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information
 
-      
       float trigSF = 1.0;
       float trigSF_single = 1.0;
       float trigSF_cross = 1.0;
@@ -3302,7 +3164,7 @@ int main (int argc, char** argv)
       theSmallTree.m_trigSF_single     = (isMC ? trigSF_single : 1.0);
       theSmallTree.m_trigSF_cross     = (isMC ? trigSF_cross : 1.0);
 
-      theSmallTree.m_totalWeight = (isMC? (41557./7.20811e+10) * theSmallTree.m_MC_weight* theSmallTree.m_PUReweight* theSmallTree.m_DYscale_MM_NLO* trigSF* FakeRateSF* idAndIsoSF: 1.0);
+      theSmallTree.m_totalWeight = (isMC? (41557./7.20811e+10) * theSmallTree.m_MC_weight* theSmallTree.m_PUReweight* theSmallTree.m_DYscale_MM_NLO* trigSF* theSmallTree.m_IdAndIsoAndFakeSF_deep: 1.0);
       //this is just a residual of some synch
 
       // loop over leptons
@@ -4751,12 +4613,13 @@ int main (int argc, char** argv)
       {
         cout << "--------------" << endl;
         cout << " - Debug SFs -" << endl;
-        cout << "  PU      : " << theSmallTree.m_PUReweight << endl;
-        cout << "  IDandISO: " << theSmallTree.m_IdAndIsoSF << endl;
-        cout << "  FakeRate: " << theSmallTree.m_FakeRateSF << endl;
-        cout << "  IDISOFR : " << theSmallTree.m_IdAndIsoAndFakeSF << endl;
-        cout << "  trig    : " << theSmallTree.m_trigSF << endl;
-        cout << "  bTag    : " << theSmallTree.m_bTagweightM << endl;
+        cout << "  PU           : " << theSmallTree.m_PUReweight << endl;
+        cout << "  IDandISO MVA : " << theSmallTree.m_IdAndIsoSF_MVA << endl;
+        cout << "    w/ FakeRate: " << theSmallTree.m_IdAndIsoAndFakeSF_MVA << endl;
+        cout << "  IDandISO deep: " << theSmallTree.m_IdAndIsoSF_deep << endl;
+        cout << "    w/ FakeRate: " << theSmallTree.m_IdAndIsoAndFakeSF_deep << endl;
+        cout << "  trig         : " << theSmallTree.m_trigSF << endl;
+        cout << "  bTag         : " << theSmallTree.m_bTagweightM << endl;
         cout << "--------------" << endl;
       }
 
@@ -4769,7 +4632,8 @@ int main (int argc, char** argv)
           cout << "HHweight      : " << HHweight << endl;
           cout << "trgEvtWeight  : " << trgEvtWeight << endl;
           cout << "MC_weight     : " << theSmallTree.m_MC_weight << endl;
-          cout << "Yield weight  : " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoSF * theSmallTree.m_trigSF * theSmallTree.m_FakeRateSF  << endl;
+          cout << "Yield weight MVA : " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_MVA * theSmallTree.m_trigSF << endl;
+          cout << "Yield weight deep: " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_deep * theSmallTree.m_trigSF << endl;
           cout << "------------------------" << endl;
       }
 

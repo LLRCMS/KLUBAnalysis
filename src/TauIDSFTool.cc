@@ -1,6 +1,7 @@
 #include "TauIDSFTool.h"
 #include <iostream> // std::cerr, std::endl
 #include <iomanip> 
+#include <assert.h> // assert
 
 TFile* ensureTFile(const TString filename, bool verbose=false){
   if(verbose)
@@ -37,7 +38,7 @@ TauIDSFTool::TauIDSFTool(const std::string& year, const std::string& id, const s
   
   bool verbose = false;
   //std::string datapath                = Form("%s/src/TauPOG/TauIDSFs/data",getenv("CMSSW_BASE"));
-  std::string datapath                = Form("%s/src/KLUBAnalysis/weights/tau_ID_ScaleFactors",getenv("CMSSW_BASE"));
+  std::string datapath                = Form("%s/src/KLUBAnalysis/weights/tau_ID_ScaleFactors_Legacy",getenv("CMSSW_BASE"));
   std::vector<std::string> years      = {"2016Legacy","2017ReReco","2018ReReco"};
   std::vector<std::string> antiJetIDs = {"MVAoldDM2017v2","DeepTau2017v2p1VSjet"};
   std::vector<std::string> antiEleIDs = {"antiEleMVA6"};
