@@ -1905,89 +1905,72 @@ int main (int argc, char** argv)
       int nmu10 = 0; // low pt muons for DY sideband, not entering in nmu
       int nele = 0;
       int nele10 = 0;
-      // int ntau = 0;
     
       if(DEBUG)
-	{
-	  cout << "***** DEBUG: reco particles (remember: check if baseline sels are aligned to OfflineProducerHelper)" << endl;
-	}
+      {
+        cout << "***** DEBUG: reco particles (remember: check if baseline sels are aligned to OfflineProducerHelper)" << endl;
+      }
 
       for (unsigned int idau = 0; idau < theBigTree.daughters_px->size(); ++idau)
-	{
-	  int dauType = theBigTree.particleType->at(idau);
-	  if (oph.isMuon(dauType))
-	    {
-	      //bool passMu = oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ; //FRA: syncFeb2018
-	        bool passMu = oph.muBaseline (&theBigTree, idau, 21., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false)) ;   //FRA: syncFeb2018
-		bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false)); 
-	      //SYNCH
-		     //	         bool passMu = oph.muBaseline (&theBigTree, idau, 21., 2.1, 0.15, OfflineProducerHelper::MuTight, leptonSelectionFlag , (DEBUG ? true : false)) ;   //FRA: syncFeb2018
-		     //		 bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.15, OfflineProducerHelper::MuTight, leptonSelectionFlag, (DEBUG ? true : false)) ;
+      {
+        int dauType = theBigTree.particleType->at(idau);
+        if (oph.isMuon(dauType))
+        {
+          bool passMu   = oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
+          bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
 
-	      if (passMu) ++nmu;
-	      else if (passMu10) ++nmu10;
-	    }
-	  else if (oph.isElectron(dauType))
-	    {
-	      //bool passEle   = oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (theBigTree.EventNumber == debugEvent ? true : false)) ; //FRA: syncFeb2018
-	      	      bool passEle   = oph.eleBaseline (&theBigTree, idau, 25., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false)) ; //FRA: syncFeb2018
-	      bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.1, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false)) ;
-	      
-	      //bool passEle   = oph.eleBaseline (&theBigTree, idau, 25., 2.1, 0.1, OfflineProducerHelper::EMVATight, leptonSelectionFlag, (DEBUG ? true : false)) ; //FRA: syncFeb2018
-	      //bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.1, OfflineProducerHelper::EMVATight, leptonSelectionFlag , (DEBUG ? true : false)) ;
-	      if (passEle) ++nele;
-	      else if (passEle10) ++nele10;
-	    }
+          if (passMu) ++nmu;
+          else if (passMu10) ++nmu10;
+        }
+        else if (oph.isElectron(dauType))
+        {
+          bool passEle   = oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false));
+          bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false));
 
-	  if(DEBUG)
-	    {
-	      TLorentzVector dauTlvDebug (
-					  theBigTree.daughters_px->at (idau),
-					  theBigTree.daughters_py->at (idau),
-					  theBigTree.daughters_pz->at (idau),
-					  theBigTree.daughters_e->at (idau)
-					  );
+          if (passEle) ++nele;
+          else if (passEle10) ++nele10;
+        }
+
+        if(DEBUG)
+        {
+          TLorentzVector dauTlvDebug (
+                  theBigTree.daughters_px->at (idau),
+                  theBigTree.daughters_py->at (idau),
+                  theBigTree.daughters_pz->at (idau),
+                  theBigTree.daughters_e ->at (idau));
 
 	      // NB: remember to align this debug to the content of OfflineProducerHelper
-	      cout << ".... reco part "
-		   << " idx dau="   << setw(3) << left << idau
-		   << " type="      << setw(3) << left << dauType
-		   << " pt="        << setw(10) << left << dauTlvDebug.Pt()
-		// << " px="        << setw(10) << left << theBigTree.daughters_px->at (idau)
-		// << " py="        << setw(10) << left << theBigTree.daughters_py->at (idau)
-		   << " eta="       << setw(10) << left << dauTlvDebug.Eta()
-		   << " phi="       << setw(10) << left << dauTlvDebug.Phi()
-		   << " iso="       << setw(10) << left << getIso (idau, dauTlvDebug.Pt (), theBigTree)
-		   << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
-		   << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
-		   << " mutightID=" << setw(3) << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
-		   //<< " mubase="    << setw(3) << left << oph.muBaseline (&theBigTree, idau, 23., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All")) //FRA: syncFeb2018
-		   << " mubase="    << setw(3) << left << oph.muBaseline (&theBigTree, idau, 10., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All"))   //FRA: syncFeb2018
-		   //<< " ebase="     << setw(3) << left << oph.eleBaseline (&theBigTree, idau, 27., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All"))
-		   << " ebase="     << setw(3) << left << oph.eleBaseline (&theBigTree, idau, 10., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All")) //FRA: syncFeb2018
-		//<< " taubase="   << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 25., 2.3, OfflineProducerHelper::aeleVLoose, OfflineProducerHelper::amuTight, 3.0, string("All"), 1)
-		// << " passaele="  << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstEle")) 
-		// << " passamu="   << setw(3) << left << oph.tauBaseline (&theBigTree, idau, 0., 999., 0, 1, 999., string("againstMu")) 
-		   << endl;
-	    }
+          cout << ".... reco part "
+          << " idx dau="   << setw(3)  << left << idau
+          << " type="      << setw(3)  << left << dauType
+          << " pt="        << setw(10) << left << dauTlvDebug.Pt()
+          << " eta="       << setw(10) << left << dauTlvDebug.Eta()
+          << " phi="       << setw(10) << left << dauTlvDebug.Phi()
+          << " iso="       << setw(10) << left << getIso (idau, dauTlvDebug.Pt (), theBigTree)
+          << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
+          << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
+          << " mutightID=" << setw(3)  << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
+          << " mubase="    << setw(3)  << left << oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.15, OfflineProducerHelper::MuTight, string("All"))
+          << " ebase="     << setw(3)  << left << oph.eleBaseline(&theBigTree, idau, 10., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All"))
+          << endl;
+        }
+      } // end loop on daughters
 
-	}
       int pairType = 2; // tau tau
       if (nmu > 0)
-	{
-	  if (nmu == 1 && nmu10 == 0)
-	    pairType = 0 ; // mu tau
-	  else
-	    pairType = 3 ; // mu mu
-	}
+      {
+        if (nmu == 1 && nmu10 == 0)
+          pairType = 0 ; // mu tau
+        else
+          pairType = 3 ; // mu mu
+      }
       else if (nele > 0)
-	{
-	  if (nele == 1 && nele10 == 0)
-	    pairType = 1;
-	  else
-	    pairType = 4 ; // ele ele
-	}
-
+      {
+      if (nele == 1 && nele10 == 0)
+        pairType = 1;  // ele tau
+      else
+        pairType = 4 ; // ele ele
+      }
 
       // ----------------------------------------------------------
       // choose the first pair passing baseline and being of the right pair type
