@@ -129,17 +129,6 @@ enum aeleWP {
   bool EleMVAID (float BDT, float eta, float pT, int strength) ;
   // bool jetPassPuID (bigTree* tree, int ijet);
 
-  /*
-  // separate check of various requirements applied in baseline
-  bool combRelIso (bigTree* tree, int iDau, float iso); // for mu, ele
-  bool combIsodBetaRaw3Hits (bigTree* tree, int iDau, float iso); // for tau
-  bool passEleID (bigTree* tree, int iDau); // tight ele ID
-  bool passMuID (bigTree* tree, int iDau); // medium mu ID
-  bool passTauID (bigTree* tree, int iDau); // tau pog ID (decay Mode Finding OLD || NEW)
-  bool passTauAntiEle (bigTree* tree, int iDau, int againstEleWP);
-  bool passTauAntiMu  (bigTree* tree, int iDau, int againstMuWP); 
-  */
-
   TLorentzVector buildDauP4 (bigTree* tree, int iDau); // build daughter 4 vector
   TLorentzVector buildMothP4 (bigTree* tree, int iMoth); // build pair 4 vector
   TLorentzVector buildGenP4 (bigTree* tree, int iGen); // build pair 4 vector
@@ -163,7 +152,6 @@ enum aeleWP {
   bool getHardTauFinalVisGenProducts (bigTree* tree, int& ind1, int& ind2); // find hard scatter tau decay products and store their indices; return false if problems, else true
   bool drMatchGenReco (bigTree* tree, int iGen, int iReco, float dRcone = 0.5);
   int getRecoMatchedToGen (bigTree* tree, int iGen, bool checkId = true, bool checkCharge = false, float dRcone = 0.5);
-  // std::pair<int, int> getHardScatterSonsIdx(bigTree* tree, int iGenH);
 
   ~OfflineProducerHelper(){}
 
