@@ -683,7 +683,6 @@ int main (int argc, char** argv)
     }
 
   bool   beInclusive         = gConfigParser->readBoolOption   ("selections::beInclusive") ;
-  bool   cleanJets           = gConfigParser->readBoolOption   ("selections::cleanJets") ;
   bool   useDeepFlavor       = gConfigParser->readBoolOption   ("selections::useDeepFlavor") ;
   float  PUjetID_WP          = gConfigParser->readFloatOption  ("parameters::PUjetIDWP") ;
   float  PFjetID_WP          = gConfigParser->readIntOption    ("parameters::PFjetIDWP") ;
@@ -3247,7 +3246,7 @@ int main (int argc, char** argv)
       for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
       {
         // JET PU ID cut
-        if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
+        if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
         TLorentzVector tlv_jet
         (
@@ -3273,25 +3272,26 @@ int main (int argc, char** argv)
         if (tlv_jet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
         if (tlv_jet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
 
-	
+        // Apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets )
+        // PU jet ID WP = 2: loose
+        if (PUjetID_WP > -1)
+        {
+          if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_jet.Pt()<50.) continue;
+        }
+
         // all jets selected as btag cands apart from eta cut
         int ajetHadFlav = abs(theBigTree.jets_HadronFlavour->at(iJet));
         if (ajetHadFlav == 5) ++theSmallTree.m_njetsBHadFlav;
         if (ajetHadFlav == 4) ++theSmallTree.m_njetsCHadFlav;
 
-        if (TMath::Abs(tlv_jet.Eta()) > 2.4) continue; // 2.4 for b-tag
-        if (PUjetID_WP > -1)
-        {
-          // PU jet ID WP = 2: loose for all b-jet candidates
-          // syncNov2019 - apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/PileupJetID )
-          if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_jet.Pt()<50.) continue;
-        }
+        // 2.4 for b-tag
+        if (TMath::Abs(tlv_jet.Eta()) > 2.4) continue;
 
         // n bjets candidates
         if (tlv_jet.Pt () > 20)  ++theSmallTree.m_nbjets20 ;
         if (tlv_jet.Pt () > 50)  ++theSmallTree.m_nbjets50 ;
        
-        //float sortPar = (bChoiceFlag == 1 ) ? theBigTree.bCSVscore->at (iJet) : tlv_jet.Pt() ;
+        //SortParameter = (bChoiceFlag == 1 ) ? bTag : Pt ;
         float sortPar;
         if(useDeepFlavor)
           sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet) : tlv_jet.Pt() ;
@@ -3351,10 +3351,13 @@ int main (int argc, char** argv)
         {
           for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
           {
-            //if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
-            if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
+            // JET PU ID cut
+            if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
+
+            // Skip the already selected b-jets
             if (int (iJet) == bjet1idx) continue;
             if(bPairFound && int (iJet) == bjet2idx_temp) continue;
+
             TLorentzVector ijet;
             ijet.SetPxPyPzE(
                            theBigTree.jets_px->at (iJet),
@@ -3362,21 +3365,32 @@ int main (int argc, char** argv)
                            theBigTree.jets_pz->at (iJet),
                            theBigTree.jets_e ->at (iJet)
                            );
+
             if (ijet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
             if (ijet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
             if(ijet.Pt() < 30.) continue;
-            if(fabs(ijet.Eta()) > 5.) continue; // keeping the whole HF acceptance for the time being
-            if(cleanJets) // removing low pt jets in noisy area, recommended by HTT
+            if(fabs(ijet.Eta()) > 4.7) continue; // max eta allowed: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
+
+            // Apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets )
+            // PU jet ID WP = 2: loose
+            if (PUjetID_WP > -1)
             {
-              if (ijet.Pt () < 50. && fabs(ijet.Eta()) < 3.139 && fabs(ijet.Eta()) > 2.65 && !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) ) continue;
+              if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && ijet.Pt()<50.) continue;
             }
 
-	    for (unsigned int kJet = iJet+1 ;   (kJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++kJet)
+            // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
+            // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
+            if ( ijet.Pt()<50. && fabs(ijet.Eta())>2.65 && fabs(ijet.Eta()<3.139) ) continue;
+
+            for (unsigned int kJet = iJet+1 ;   (kJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++kJet)
             {
-              //if (theBigTree.jets_PUJetID->at (kJet) < PUjetID_minCut) continue ;
-              if (theBigTree.PFjetID->at (kJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
+              // JET PU ID cut
+              if (theBigTree.PFjetID->at (kJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
+
+              // Skip the already selected b-jets
               if (int (kJet) == bjet1idx) continue;
               if (bPairFound && int (kJet) == bjet2idx_temp) continue;
+
               TLorentzVector kjet;
               kjet.SetPxPyPzE(
                              theBigTree.jets_px->at (kJet),
@@ -3384,15 +3398,24 @@ int main (int argc, char** argv)
                              theBigTree.jets_pz->at (kJet),
                              theBigTree.jets_e ->at (kJet)
                              );
+
               if (kjet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
               if (kjet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
               if(kjet.Pt() < 30.) continue;
-              if(fabs(kjet.Eta()) > 5.) continue;
-	      if(cleanJets) // removing low pt jets in noisy area, recommended by HTT
-		{
-		  if (kjet.Pt () < 50. && fabs(kjet.Eta()) < 3.139 && fabs(kjet.Eta()) > 2.65 && !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) ) continue;
-		}
-	      TLorentzVector jetPair = ijet+kjet;
+              if(fabs(kjet.Eta()) > 4.7) continue; // max eta allowed: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
+
+              // Apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets )
+              // PU jet ID WP = 2: loose
+              if (PUjetID_WP > -1)
+              {
+                if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(kJet), PUjetID_WP)) && kjet.Pt()<50.) continue;
+              }
+
+              // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
+              // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
+              if ( kjet.Pt()<50. && fabs(kjet.Eta())>2.65 && fabs(kjet.Eta()<3.139) ) continue;
+
+              TLorentzVector jetPair = ijet+kjet;
 
               bool VBFjetLegsMatched = true;
               if (isVBFfired) VBFjetLegsMatched = checkVBFjetMatch(DEBUG, iJet, kJet, theBigTree);
@@ -3616,43 +3639,13 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet1_hasgenjet = hasgj1 ;
         theSmallTree.m_bjet2_hasgenjet = hasgj2 ;
 
-
-        // Save nbjets_forSync variable
-        for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
-        {
-          // PF JET ID cut
-          if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
-
-          // Build the jet TLorentzVector
-          TLorentzVector tlv_jet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet)) ;
-
-          // Pt cut for jets
-          if (tlv_jet.Pt () < 20.) continue ;
-
-          // Eta cut for jets
-          if (TMath::Abs(tlv_jet.Eta()) > 4.7) continue;
-
-          // PU JET ID cut for jets with pt<50
-          if ( PUjetID_WP > -1 && !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_jet.Pt()<50. ) continue;
-
-          // Lepton cleaning
-          if (tlv_jet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
-          if (tlv_jet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
-
-          // PassEcalNoiceVetoJets
-          if ( theBigTree.year==2017 && tlv_jet.Pt () < 50. && fabs(tlv_jet.Eta()) < 3.139 && fabs(tlv_jet.Eta()) > 2.65 && !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) ) continue;
-
-          ++theSmallTree.m_nbjets_forSync;
-        }
-
         // Save HT_20, HT_50 and HT_20_BDT(with cut on |eta|<4.7)
         TLorentzVector jetVecSum (0,0,0,0);
         if (DEBUG) cout << "----- BDT HT debug ------" << endl;
         for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
         {
           // JET PU ID cut
-          //if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
-          if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
+          if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
           // Build the jet TLorentzVector
           TLorentzVector tlv_jet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet)) ;
@@ -3665,10 +3658,17 @@ int main (int argc, char** argv)
           if (tlv_jet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
           if ( (int) iJet == bjet1idx || (int) iJet == bjet2idx ) continue ;
 
-	  if(cleanJets) // removing low pt jets in noisy area, recommended by HTT
-	    {
-	      if (tlv_jet.Pt () < 50. && fabs(tlv_jet.Eta()) < 3.139 && fabs(tlv_jet.Eta()) > 2.65 && !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) ) continue;
-	    }
+          // Apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets )
+          // PU jet ID WP = 2: loose
+          if (PUjetID_WP > -1)
+          {
+            if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_jet.Pt()<50.) continue;
+          }
+
+          // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
+          // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
+          if ( tlv_jet.Pt()<50. && fabs(tlv_jet.Eta())>2.65 && fabs(tlv_jet.Eta()<3.139) ) continue;
+
           // use these jets for HT
           if (tlv_jet.Pt () > 20)
           {
@@ -3677,11 +3677,11 @@ int main (int argc, char** argv)
             jetVecSum += tlv_jet ;
 
             if (TMath::Abs(tlv_jet.Eta()) < 4.7)
-	      {
-		theSmallTree.m_BDT_HT20 += tlv_jet.Pt() ;
-		if (DEBUG) cout << " ---> Jet " << iJet << " - pt: " << tlv_jet.Pt() << " - HT: " << theSmallTree.m_BDT_HT20 << endl;
-	      }
-	  }
+            {
+              theSmallTree.m_BDT_HT20 += tlv_jet.Pt() ;
+              if (DEBUG) cout << " ---> Jet " << iJet << " - pt: " << tlv_jet.Pt() << " - HT: " << theSmallTree.m_BDT_HT20 << endl;
+            }
+          }
           if (tlv_jet.Pt () > 50)
           {
             ++theSmallTree.m_njets50 ;
@@ -3690,7 +3690,6 @@ int main (int argc, char** argv)
         }
         theSmallTree.m_HT20Full = theSmallTree.m_HT20 + tlv_firstLepton.Pt() + tlv_secondLepton.Pt() ;
         theSmallTree.m_jet20centrality = jetVecSum.Pt() / theSmallTree.m_HT20Full ;
-
 
         if (DEBUG) cout << "  HT = " << theSmallTree.m_BDT_HT20 << endl;
         if (DEBUG) cout << "---------------------" << endl;
@@ -4287,8 +4286,7 @@ int main (int argc, char** argv)
         for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
         {
           // PG filter jets at will
-	  // if (theBigTree.jets_PUJetID->at (iJet) < PUjetID_minCut) continue ;
-          if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: loose, 2: tight, 3: tightLepVeto
+          if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
           // skip the H decay candiates
           if (int (iJet) == bjet1idx ){
@@ -4304,11 +4302,18 @@ int main (int argc, char** argv)
                                       theBigTree.jets_pz->at (iJet),
                                       theBigTree.jets_e->at (iJet)
                                      );
-	  
-	  if(cleanJets) // removing low pt jets in noisy area, recommended by HTT
-	    {
-	      if (tlv_dummyJet.Pt () < 50. && fabs(tlv_dummyJet.Eta()) < 3.139 && fabs(tlv_dummyJet.Eta()) > 2.65 && !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) ) continue;
-	    }
+
+          // Apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets )
+          // PU jet ID WP = 2: loose
+          if (PUjetID_WP > -1)
+          {
+            if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_dummyJet.Pt()<50.) continue;
+          }
+
+          // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
+          // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
+          if ( tlv_dummyJet.Pt()<50. && fabs(tlv_dummyJet.Eta())>2.65 && fabs(tlv_dummyJet.Eta()<3.139) ) continue;
+
           // remove jets that overlap with the tau selected in the leg 1 and 2
           if (tlv_firstLepton.DeltaR(tlv_dummyJet) < lepCleaningCone){
             theSmallTree.m_dau1_jecUnc = theBigTree.jets_jecUnc->at(iJet);
