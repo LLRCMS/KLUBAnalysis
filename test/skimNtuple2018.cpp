@@ -3102,76 +3102,76 @@ int main (int argc, char** argv)
       theSmallTree.m_totalWeight = (isMC? (41557./7.20811e+10) * theSmallTree.m_MC_weight* theSmallTree.m_PUReweight* theSmallTree.m_DYscale_MM_NLO* trigSF* theSmallTree.m_IdAndIsoAndFakeSF_deep: 1.0);
       //this is just a residual of some synch
 
+      // Third lepton veto
       // loop over leptons
       vector<pair<float, int> > thirdLeptons ; // pt, idx
       for (unsigned int iLep = 0 ; (iLep < theBigTree.daughters_px->size ()) ; ++iLep)
-	{
-	  // skip the H decay candiates
-	  if (int (iLep) == firstDaughterIndex || 
-	      int (iLep) == secondDaughterIndex) continue ;
+      {
+        // skip the H decay candiates
+        if (int (iLep) == firstDaughterIndex || int (iLep) == secondDaughterIndex) continue;
 
-	  // remove taus
-	  if (theBigTree.particleType->at (iLep) == 2)
-	    {
-	      continue ;
-	    }  
-	  else if (theBigTree.particleType->at (iLep) == 0) // muons
-	    {
-	      //if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuLoose)) continue ;
-	      if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuMedium)) continue ; // suggested by HTT group
-	    }
-	  else if (theBigTree.particleType->at (iLep) == 1) // electrons
-	    {
-	      if (!oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium)) continue ;  //FRA: syncFeb2018
-	    }
-	  TLorentzVector tlv_dummyLepton
-	    (
-	     theBigTree.daughters_px->at (iLep),
-	     theBigTree.daughters_py->at (iLep),
-	     theBigTree.daughters_pz->at (iLep),
-	     theBigTree.daughters_e->at (iLep)
-	     ) ;
-	  thirdLeptons.push_back (make_pair(tlv_dummyLepton.Pt(), iLep)) ;
-      
-	  if(DEBUG)
-	    {
-	      cout << "** 3rd lep veto passed"
-		   << " idx="  << iLep
-		   << " type=" << theBigTree.particleType->at(iLep)
-		   << " pt="   << tlv_dummyLepton.Pt()
-		   << " eta="  << tlv_dummyLepton.Eta()
-		   << " phi="  << tlv_dummyLepton.Phi()
-		   << " iso="  << getIso (iLep, tlv_dummyLepton.Pt (), theBigTree)
-		   << " dxy="  << theBigTree.dxy->at(iLep)
-		   << " dz="   << theBigTree.dz->at(iLep)
-		   << endl;
-	    }
+        // remove taus
+        if (theBigTree.particleType->at (iLep) == 2)
+        {
+          continue ;
+        }
+        else if (theBigTree.particleType->at (iLep) == 0) // muons
+        {
+          if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuMedium)) continue;
+        }
+        else if (theBigTree.particleType->at (iLep) == 1) // electrons
+        {
+          if (!oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium)) continue;  //FRA: syncFeb2018
+        }
 
-	} // loop over leptons
+        TLorentzVector tlv_dummyLepton
+        (
+          theBigTree.daughters_px->at (iLep),
+          theBigTree.daughters_py->at (iLep),
+          theBigTree.daughters_pz->at (iLep),
+          theBigTree.daughters_e->at (iLep)
+        );
+        thirdLeptons.push_back (make_pair(tlv_dummyLepton.Pt(), iLep)) ;
+
+        if(DEBUG)
+        {
+          cout << "** 3rd lep veto passed"
+          << " idx="  << iLep
+          << " type=" << theBigTree.particleType->at(iLep)
+          << " pt="   << tlv_dummyLepton.Pt()
+          << " eta="  << tlv_dummyLepton.Eta()
+          << " phi="  << tlv_dummyLepton.Phi()
+          << " iso="  << getIso (iLep, tlv_dummyLepton.Pt (), theBigTree)
+          << " dxy="  << theBigTree.dxy->at(iLep)
+          << " dz="   << theBigTree.dz->at(iLep)
+          << endl;
+        }
+      } // loop over leptons
+
       sort (thirdLeptons.begin(), thirdLeptons.end()) ;
       // reverse loop to start from last one == highest pT
       for (int iLep = thirdLeptons.size() -1; (iLep >=0) && (theSmallTree.m_nleps < 2) ; iLep--)
-	{
-	  TLorentzVector tlv_dummyLepton
-	    (
-	     theBigTree.daughters_px->at (iLep),
-	     theBigTree.daughters_py->at (iLep),
-	     theBigTree.daughters_pz->at (iLep),
-	     theBigTree.daughters_e->at (iLep)
-	     ) ;
+      {
+        TLorentzVector tlv_dummyLepton
+        (
+          theBigTree.daughters_px->at (iLep),
+          theBigTree.daughters_py->at (iLep),
+          theBigTree.daughters_pz->at (iLep),
+          theBigTree.daughters_e->at (iLep)
+        );
 
-	  theSmallTree.m_leps_pt.push_back   (tlv_dummyLepton.Pt ()) ;
-	  theSmallTree.m_leps_eta.push_back  (tlv_dummyLepton.Eta ()) ;
-	  theSmallTree.m_leps_phi.push_back  (tlv_dummyLepton.Phi ()) ;
-	  theSmallTree.m_leps_e.push_back    (tlv_dummyLepton.E ()) ;
-	  theSmallTree.m_leps_flav.push_back (theBigTree.particleType->at (iLep)) ;
-	  ++theSmallTree.m_nleps ;
-	} 
+        theSmallTree.m_leps_pt.push_back   (tlv_dummyLepton.Pt ()) ;
+        theSmallTree.m_leps_eta.push_back  (tlv_dummyLepton.Eta ()) ;
+        theSmallTree.m_leps_phi.push_back  (tlv_dummyLepton.Phi ()) ;
+        theSmallTree.m_leps_e.push_back    (tlv_dummyLepton.E ()) ;
+        theSmallTree.m_leps_flav.push_back (theBigTree.particleType->at (iLep)) ;
+        ++theSmallTree.m_nleps ;
+      }
 
       if(DEBUG)
-	{
-	  cout << "***** DEBUG: nleps="<< theSmallTree.m_nleps<< endl;
-	}
+      {
+        cout << "***** DEBUG: nleps="<< theSmallTree.m_nleps<< endl;
+      }
 
       // ----------------------------------------------------------
       // select jets 
