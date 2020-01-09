@@ -9,6 +9,7 @@
 #include "TTree.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TH3F.h"
 #include "TFile.h"
 #include "TBranch.h"
 #include "TString.h"
@@ -537,6 +538,28 @@ double getContentHisto2D(TH2* histo, double x, double y)
   return histo->GetBinContent(ibinx, ibiny);
 }
 
+double getContentHisto3D(TH3* histo, double x, double y, double z)
+{
+  int nbinsx = histo->GetNbinsX();
+  int nbinsy = histo->GetNbinsY();
+  int nbinsz = histo->GetNbinsZ();
+
+  int ibinx = histo->GetXaxis()->FindBin(x);
+  int ibiny = histo->GetYaxis()->FindBin(y);
+  int ibinz = histo->GetZaxis()->FindBin(z);
+
+  if (ibinx == 0)     ibinx = 1;
+  if (ibinx > nbinsx) ibinx = nbinsx;
+
+  if (ibiny == 0)     ibiny = 1;
+  if (ibiny > nbinsy) ibiny = nbinsy;
+
+  if (ibinz == 0)     ibinz = 1;
+  if (ibinz > nbinsz) ibinz = nbinsz;
+
+  return histo->GetBinContent(ibinx, ibiny, ibinz);
+}
+
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
@@ -925,6 +948,10 @@ int main (int argc, char** argv)
   muTrgSF   ->init_ScaleFactor("weights/trigger_SF_Legacy/2017/Muon_IsoMu24orIsoMu27.root");
   eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2017/Electron_EleTau_Ele24_fix.root");
   eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2017/Electron_Ele32orEle35_fix.root");
+
+  //VBF trigger weights -- jet legs
+  TFile* VBFjets_file = new TFile ("weights/trigger_SF_Legacy/2017/VBFHTauTauHLT_jetlegs_3Dcoarse.root");
+  TH3D*  VBFjets_SF   = (TH3D*) VBFjets_file->Get("SF_mjj_pT1_pT2");
 
   // ------------------------------
 
@@ -3364,6 +3391,9 @@ int main (int argc, char** argv)
         else
             theSmallTree.m_isVBF = 0;
 
+        // Use this for VBF trigger SF
+        if (isVBF && isVBFfired) theSmallTree.m_isVBFtrigger = 1;
+
         const int bjet2idx = isVBF? bjet2idx_isVBF : bjet2idx_notVBF;
 
         // Now that I've selected the bjets build the TLorentzVectors
@@ -4052,6 +4082,37 @@ int main (int argc, char** argv)
 
           bool hasgj1_VBF = false;
           bool hasgj2_VBF = false;
+
+          if (isMC && theSmallTree.m_isVBFtrigger == 1)
+          {
+            double jetSF = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt());
+
+            double SFTau1 = 1.;
+            if      (tlv_firstLepton.Pt() <  25) SFTau1 = 0.97;
+            else if (tlv_firstLepton.Pt() <  30) SFTau1 = 0.755;
+            else if (tlv_firstLepton.Pt() <  35) SFTau1 = 0.715;
+            else if (tlv_firstLepton.Pt() <  40) SFTau1 = 0.75;
+            else if (tlv_firstLepton.Pt() <  45) SFTau1 = 0.78;
+            else if (tlv_firstLepton.Pt() <  50) SFTau1 = 0.835;
+            else if (tlv_firstLepton.Pt() <  80) SFTau1 = 0.942;
+            else if (tlv_firstLepton.Pt() < 200) SFTau1 = 0.91;
+            else                                 SFTau1 = 0.97;
+
+            double SFTau2 = 1.;
+            if      (tlv_secondLepton.Pt() <  25) SFTau2 = 0.97;
+            else if (tlv_secondLepton.Pt() <  30) SFTau2 = 0.755;
+            else if (tlv_secondLepton.Pt() <  35) SFTau2 = 0.715;
+            else if (tlv_secondLepton.Pt() <  40) SFTau2 = 0.75;
+            else if (tlv_secondLepton.Pt() <  45) SFTau2 = 0.78;
+            else if (tlv_secondLepton.Pt() <  50) SFTau2 = 0.835;
+            else if (tlv_secondLepton.Pt() <  80) SFTau2 = 0.942;
+            else if (tlv_secondLepton.Pt() < 200) SFTau2 = 0.91;
+            else                                  SFTau2 = 0.97;
+
+            float VBFtrigNorm = 27.07/41.557;   // norm to RunD-F lumi: in 2017 VBF triggers online from RunD
+
+            theSmallTree.m_VBFtrigSF = jetSF * SFTau1 * SFTau2 * VBFtrigNorm;
+          }
 
           // Save gen info for VBF jets
           if (isMC)

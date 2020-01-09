@@ -44,6 +44,7 @@ struct smallTree
       m_trigSF = -1.;
       m_trigSF_single = -1.;
       m_trigSF_cross = -1.;
+      m_VBFtrigSF = 1.;
       m_FakeRateSF = -1.;
       m_IdAndIsoSF_MVA = -1.;
       m_IdAndIsoSF_deep = -1.;
@@ -56,6 +57,7 @@ struct smallTree
       m_RunNumber = -1. ;
       m_isBoosted = -1 ;
       m_isVBF = 0 ;
+      m_isVBFtrigger = 0;
       
       m_genDecMode1 = -1;
       m_genDecMode2 = -1;
@@ -589,6 +591,7 @@ struct smallTree
       m_smallT->Branch ("trigSF", &m_trigSF, "trigSF/F") ;
       m_smallT->Branch ("trigSF_single", &m_trigSF_single, "trigSF_single/F") ;
       m_smallT->Branch ("trigSF_cross", &m_trigSF_cross, "trigSF_cross/F") ;
+      m_smallT->Branch ("VBFtrigSF", &m_VBFtrigSF, "VBFtrigSF/F") ;
       m_smallT->Branch ("FakeRateSF", &m_FakeRateSF, "FakeRateSF/F") ;
       m_smallT->Branch ("jetFakeSF", &m_jetFakeSF, "jetFakeSF/F") ;
       m_smallT->Branch ("IdAndIsoSF_MVA", &m_IdAndIsoSF_MVA, "IdAndIsoSF_MVA/F") ;
@@ -609,6 +612,7 @@ struct smallTree
       m_smallT->Branch ("RunNumber", &m_RunNumber, "RunNumber/I") ;
       m_smallT->Branch ("isBoosted", &m_isBoosted, "isBoosted/I") ;
       m_smallT->Branch ("isVBF", &m_isVBF, "isVBF/I") ;
+      m_smallT->Branch ("isVBFtrigger", &m_isVBFtrigger, "isVBFtrigger/I") ;
 
       m_smallT->Branch("genDecMode1", &m_genDecMode1, "genDecMode1/I");
       m_smallT->Branch("genDecMode2", &m_genDecMode2, "genDecMode2/I");
@@ -1132,6 +1136,7 @@ struct smallTree
   Float_t m_trigSF ;
   Float_t m_trigSF_cross ;
   Float_t m_trigSF_single ;
+  Float_t m_VBFtrigSF;
   Float_t m_FakeRateSF ;
   Float_t m_jetFakeSF ;
   Float_t m_IdAndIsoSF_MVA ;
@@ -1152,6 +1157,7 @@ struct smallTree
   Int_t m_RunNumber ;
   Int_t m_isBoosted ;
   Int_t m_isVBF;
+  Int_t m_isVBFtrigger;
 
   Int_t m_genDecMode1 ;
   Int_t m_genDecMode2 ;
