@@ -33,9 +33,6 @@ struct smallTree
       m_TTtopPtreweight = -1. ;
       m_TTtopPtreweight_up   = -1. ;
       m_TTtopPtreweight_down = -1. ;
-      m_turnOnreweight = -1. ;
-      m_turnOnreweight_tauup = -1. ;
-      m_turnOnreweight_taudown = -1. ;
       m_EventNumber = 0 ;
       m_DYscale_LL = -1. ;
       m_DYscale_MM = -1. ;
@@ -589,9 +586,6 @@ struct smallTree
       m_smallT->Branch ("TTtopPtreweight", &m_TTtopPtreweight, "TTtopPtreweight/F") ;
       m_smallT->Branch ("TTtopPtreweight_up", &m_TTtopPtreweight_up, "TTtopPtreweight_up/F") ;
       m_smallT->Branch ("TTtopPtreweight_down", &m_TTtopPtreweight_down, "TTtopPtreweight_down/F") ;
-      m_smallT->Branch ("turnOnreweight", &m_turnOnreweight, "turnOnreweight/F") ;
-      m_smallT->Branch ("turnOnreweight_tauup", &m_turnOnreweight_tauup, "turnOnreweight_tauup/F") ;
-      m_smallT->Branch ("turnOnreweight_taudown", &m_turnOnreweight_taudown, "turnOnreweight_taudown/F") ;
       m_smallT->Branch ("trigSF", &m_trigSF, "trigSF/F") ;
       m_smallT->Branch ("trigSF_single", &m_trigSF_single, "trigSF_single/F") ;
       m_smallT->Branch ("trigSF_cross", &m_trigSF_cross, "trigSF_cross/F") ;
@@ -1135,9 +1129,6 @@ struct smallTree
   Float_t m_TTtopPtreweight ;
   Float_t m_TTtopPtreweight_up ;
   Float_t m_TTtopPtreweight_down ;
-  Float_t m_turnOnreweight ;
-  Float_t m_turnOnreweight_tauup ;
-  Float_t m_turnOnreweight_taudown ;
   Float_t m_trigSF ;
   Float_t m_trigSF_cross ;
   Float_t m_trigSF_single ;

@@ -2107,42 +2107,39 @@ int main (int argc, char** argv)
 
       //save decaymode
       if(pairType == 0){ //mutauh
-	theSmallTree.m_dau1_decayMode = -1;
-	theSmallTree.m_dau2_decayMode = DM2;
+        theSmallTree.m_dau1_decayMode = -1;
+        theSmallTree.m_dau2_decayMode = DM2;
       }
 
       if(pairType == 1){ //etauh
-	theSmallTree.m_dau1_decayMode = -1;
-	theSmallTree.m_dau2_decayMode = DM2;
+        theSmallTree.m_dau1_decayMode = -1;
+        theSmallTree.m_dau2_decayMode = DM2;
       }
 
       if(pairType == 2){ //tauhtauh
-	theSmallTree.m_dau1_decayMode = DM1;
-	theSmallTree.m_dau2_decayMode = DM2;
+        theSmallTree.m_dau1_decayMode = DM1;
+        theSmallTree.m_dau2_decayMode = DM2;
       }
 
       if(pairType > 2){ //pairs without tauh
-	theSmallTree.m_dau1_decayMode = -1;
-	theSmallTree.m_dau2_decayMode = -1;
+        theSmallTree.m_dau1_decayMode = -1;
+        theSmallTree.m_dau2_decayMode = -1;
       }
 
+      if (isMC)
+      {
+        int nRealTaus= 0;
+        lep1HasTES = (theBigTree.genmatch->at(firstDaughterIndex)  == 5 ? true : false);
+        lep2HasTES = (theBigTree.genmatch->at(secondDaughterIndex) == 5 ? true : false);
+        lep1HasEES = ( (theBigTree.genmatch->at(firstDaughterIndex)==1 || theBigTree.genmatch->at(firstDaughterIndex)==3) ? true : false);
+        lep2HasEES = ( (theBigTree.genmatch->at(secondDaughterIndex)==1 || theBigTree.genmatch->at(secondDaughterIndex)==3) ? true : false);
+        theSmallTree.m_isTau1real = (lep1HasTES == true ? 1 : 0); // -1: data; 0: fake tau, 1: real tau
+        theSmallTree.m_isTau2real = (lep2HasTES == true ? 1 : 0);
+        if (lep1HasTES) nRealTaus +=1;
+        if (lep2HasTES) nRealTaus +=1;
+        theSmallTree.m_nRealTaus = nRealTaus;                     // -1: data; > 0: # real taus in MC
+      }
 
-
-	if (isMC)
-	{
-	  int nRealTaus= 0;
-	  lep1HasTES = (theBigTree.genmatch->at(firstDaughterIndex)  == 5 ? true : false);
-	  lep2HasTES = (theBigTree.genmatch->at(secondDaughterIndex) == 5 ? true : false);
-	  lep1HasEES = ( (theBigTree.genmatch->at(firstDaughterIndex)==1 || theBigTree.genmatch->at(firstDaughterIndex)==3) ? true : false);
-	  lep2HasEES = ( (theBigTree.genmatch->at(secondDaughterIndex)==1 || theBigTree.genmatch->at(secondDaughterIndex)==3) ? true : false);
-	  theSmallTree.m_isTau1real = (lep1HasTES == true ? 1 : 0); // -1: data; 0: fake tau, 1: real tau
-	  theSmallTree.m_isTau2real = (lep2HasTES == true ? 1 : 0);
-	  if (lep1HasTES) nRealTaus +=1;
-	  if (lep2HasTES) nRealTaus +=1;
-	  theSmallTree.m_nRealTaus = nRealTaus;                     // -1: data; > 0: # real taus in MC
-	}
-
-      
 
       const TLorentzVector tlv_firstLepton (
 					    theBigTree.daughters_px->at (firstDaughterIndex),
@@ -2163,86 +2160,86 @@ int main (int argc, char** argv)
       TLorentzVector tlv_firstLepton_tauup (tlv_firstLepton);
       TLorentzVector tlv_firstLepton_taudown (tlv_firstLepton);
       if (lep1HasTES)
-	{
-	  tlv_firstLepton_tauup.SetPxPyPzE (
-					    theBigTree.daughters_px_TauUp->at (firstDaughterIndex),
-					    theBigTree.daughters_py_TauUp->at (firstDaughterIndex),
-					    theBigTree.daughters_pz_TauUp->at (firstDaughterIndex),
-					    theBigTree.daughters_e_TauUp->at (firstDaughterIndex)
-					    );
-	  tlv_firstLepton_taudown.SetPxPyPzE (
-					      theBigTree.daughters_px_TauDown->at (firstDaughterIndex),
-					      theBigTree.daughters_py_TauDown->at (firstDaughterIndex),
-					      theBigTree.daughters_pz_TauDown->at (firstDaughterIndex),
-					      theBigTree.daughters_e_TauDown->at (firstDaughterIndex)
-					      );
-	}
+      {
+        tlv_firstLepton_tauup.SetPxPyPzE (
+                        theBigTree.daughters_px_TauUp->at (firstDaughterIndex),
+                        theBigTree.daughters_py_TauUp->at (firstDaughterIndex),
+                        theBigTree.daughters_pz_TauUp->at (firstDaughterIndex),
+                        theBigTree.daughters_e_TauUp->at (firstDaughterIndex)
+                        );
+        tlv_firstLepton_taudown.SetPxPyPzE (
+                          theBigTree.daughters_px_TauDown->at (firstDaughterIndex),
+                          theBigTree.daughters_py_TauDown->at (firstDaughterIndex),
+                          theBigTree.daughters_pz_TauDown->at (firstDaughterIndex),
+                          theBigTree.daughters_e_TauDown->at (firstDaughterIndex)
+                          );
+      }
 
       TLorentzVector tlv_secondLepton_tauup (tlv_secondLepton);
       TLorentzVector tlv_secondLepton_taudown (tlv_secondLepton);
       if (lep2HasTES)
-	{
-	  tlv_secondLepton_tauup.SetPxPyPzE (
-					     theBigTree.daughters_px_TauUp->at (secondDaughterIndex),
-					     theBigTree.daughters_py_TauUp->at (secondDaughterIndex),
-					     theBigTree.daughters_pz_TauUp->at (secondDaughterIndex),
-					     theBigTree.daughters_e_TauUp->at (secondDaughterIndex)
-					     );
-	  tlv_secondLepton_taudown.SetPxPyPzE (
-					       theBigTree.daughters_px_TauDown->at (secondDaughterIndex),
-					       theBigTree.daughters_py_TauDown->at (secondDaughterIndex),
-					       theBigTree.daughters_pz_TauDown->at (secondDaughterIndex),
-					       theBigTree.daughters_e_TauDown->at (secondDaughterIndex)
-					       );
-	}
+      {
+        tlv_secondLepton_tauup.SetPxPyPzE (
+                         theBigTree.daughters_px_TauUp->at (secondDaughterIndex),
+                         theBigTree.daughters_py_TauUp->at (secondDaughterIndex),
+                         theBigTree.daughters_pz_TauUp->at (secondDaughterIndex),
+                         theBigTree.daughters_e_TauUp->at (secondDaughterIndex)
+                         );
+        tlv_secondLepton_taudown.SetPxPyPzE (
+                           theBigTree.daughters_px_TauDown->at (secondDaughterIndex),
+                           theBigTree.daughters_py_TauDown->at (secondDaughterIndex),
+                           theBigTree.daughters_pz_TauDown->at (secondDaughterIndex),
+                           theBigTree.daughters_e_TauDown->at (secondDaughterIndex)
+                           );
+      }
 
       // EES up/down
       TLorentzVector tlv_firstLepton_eleup (tlv_firstLepton);
       TLorentzVector tlv_firstLepton_eledown (tlv_firstLepton);
       if (lep1HasEES)
-	{
-	  tlv_firstLepton_eleup.SetPxPyPzE (
-					    theBigTree.daughters_px_EleUp->at (firstDaughterIndex),
-					    theBigTree.daughters_py_EleUp->at (firstDaughterIndex),
-					    theBigTree.daughters_pz_EleUp->at (firstDaughterIndex),
-					    theBigTree.daughters_e_EleUp->at (firstDaughterIndex)
-					    );
-	  tlv_firstLepton_eledown.SetPxPyPzE (
-					      theBigTree.daughters_px_EleDown->at (firstDaughterIndex),
-					      theBigTree.daughters_py_EleDown->at (firstDaughterIndex),
-					      theBigTree.daughters_pz_EleDown->at (firstDaughterIndex),
-					      theBigTree.daughters_e_EleDown->at (firstDaughterIndex)
-					      );
-	}
+      {
+        tlv_firstLepton_eleup.SetPxPyPzE (
+                        theBigTree.daughters_px_EleUp->at (firstDaughterIndex),
+                        theBigTree.daughters_py_EleUp->at (firstDaughterIndex),
+                        theBigTree.daughters_pz_EleUp->at (firstDaughterIndex),
+                        theBigTree.daughters_e_EleUp->at (firstDaughterIndex)
+                        );
+        tlv_firstLepton_eledown.SetPxPyPzE (
+                          theBigTree.daughters_px_EleDown->at (firstDaughterIndex),
+                          theBigTree.daughters_py_EleDown->at (firstDaughterIndex),
+                          theBigTree.daughters_pz_EleDown->at (firstDaughterIndex),
+                          theBigTree.daughters_e_EleDown->at (firstDaughterIndex)
+                          );
+      }
 
       TLorentzVector tlv_secondLepton_eleup (tlv_secondLepton);
       TLorentzVector tlv_secondLepton_eledown (tlv_secondLepton);
       if (lep2HasEES)
-	{
-	  tlv_secondLepton_eleup.SetPxPyPzE (
-					     theBigTree.daughters_px_EleUp->at (secondDaughterIndex),
-					     theBigTree.daughters_py_EleUp->at (secondDaughterIndex),
-					     theBigTree.daughters_pz_EleUp->at (secondDaughterIndex),
-					     theBigTree.daughters_e_EleUp->at (secondDaughterIndex)
-					     );
-	  tlv_secondLepton_eledown.SetPxPyPzE (
-					       theBigTree.daughters_px_TauDown->at (secondDaughterIndex),
-					       theBigTree.daughters_py_TauDown->at (secondDaughterIndex),
-					       theBigTree.daughters_pz_TauDown->at (secondDaughterIndex),
-					       theBigTree.daughters_e_TauDown->at (secondDaughterIndex)
-					       );
-	}
+      {
+        tlv_secondLepton_eleup.SetPxPyPzE (
+                         theBigTree.daughters_px_EleUp->at (secondDaughterIndex),
+                         theBigTree.daughters_py_EleUp->at (secondDaughterIndex),
+                         theBigTree.daughters_pz_EleUp->at (secondDaughterIndex),
+                         theBigTree.daughters_e_EleUp->at (secondDaughterIndex)
+                         );
+        tlv_secondLepton_eledown.SetPxPyPzE (
+                           theBigTree.daughters_px_TauDown->at (secondDaughterIndex),
+                           theBigTree.daughters_py_TauDown->at (secondDaughterIndex),
+                           theBigTree.daughters_pz_TauDown->at (secondDaughterIndex),
+                           theBigTree.daughters_e_TauDown->at (secondDaughterIndex)
+                           );
+      }
 
-    if (DEBUG)
-    {
+      if (DEBUG)
+      {
         cout << "------- CHOSEN PAIR -------" << endl;
         cout << " dau_1 (pt,eta,phi,iso): "<<tlv_firstLepton.Pt()<<" "<<tlv_firstLepton.Eta()<<" "<<tlv_firstLepton.Phi()<<" "<<getIso(firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree)<<endl;
         cout << " dau_2 (pt,eta,phi,iso): "<<tlv_secondLepton.Pt()<<" "<<tlv_secondLepton.Eta()<<" "<<tlv_secondLepton.Phi()<<" "<<getIso(secondDaughterIndex, tlv_secondLepton.Pt (), theBigTree)<<endl;
         cout << "---------------------"<< endl;
-    }
+      }
 
-    if (DEBUG)
-    {
+      if (DEBUG)
+      {
         cout << "------- TAU TES DEBUG -------" << endl;
         cout << " tau1 centr: " << tlv_firstLepton.Pt() << " / " << tlv_firstLepton.Eta() << endl;
         cout << " tau1 up: " << tlv_firstLepton_tauup.Pt() << " / " << tlv_firstLepton_tauup.Eta() << endl;
@@ -2252,10 +2249,10 @@ int main (int argc, char** argv)
         cout << " tau2 up: " << tlv_secondLepton_tauup.Pt() << " / " << tlv_secondLepton_tauup.Eta() << endl;
         cout << " tau2 dw: " << tlv_secondLepton_taudown.Pt() << " / " << tlv_secondLepton_taudown.Eta() << endl;
         cout << "---------------------"<< endl;
-    }
+      }
 
-    if (DEBUG)
-    {
+      if (DEBUG)
+      {
         cout << "------- TAU EES DEBUG -------" << endl;
         cout << " tau1 centr: " << tlv_firstLepton.Pt() << " / " << tlv_firstLepton.Eta() << endl;
         cout << " tau1 up: " << tlv_firstLepton_eleup.Pt() << " / " << tlv_firstLepton_eleup.Eta() << endl;
@@ -2265,22 +2262,10 @@ int main (int argc, char** argv)
         cout << " tau2 up: " << tlv_secondLepton_eleup.Pt() << " / " << tlv_secondLepton_eleup.Eta() << endl;
         cout << " tau2 dw: " << tlv_secondLepton_eledown.Pt() << " / " << tlv_secondLepton_eledown.Eta() << endl;
         cout << "---------------------"<< endl;
-    }
+      }
 
-      // the following code is the match of the tau to a L1 tau seed due to an error in seed removal from path
-      // needed only when analyzing 2015 data
-      // if (pairType == 2 && isMC)
-      // {
-      //   bool hasL1Match_1 = theBigTree.daughters_isL1IsoTau28Matched->at (firstDaughterIndex);
-      //   bool hasL1Match_2 = theBigTree.daughters_isL1IsoTau28Matched->at (secondDaughterIndex);
-      //   bool goodL1 = (hasL1Match_1 && hasL1Match_2);
-      //   if (!goodL1) continue;
-      // }
 
       // DATA strategy
-      float trgEvtWeight     = 1.0;
-      float trgEvtWeightUp   = 1.0;
-      float trgEvtWeightDown = 1.0;
       int pass_triggerbit = 0;
       if (applyTriggers)
 	{
@@ -2460,10 +2445,7 @@ int main (int argc, char** argv)
         theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,99,PUreweightFile) : 1) ;
       else                                             // if npu<0 --> bug in MC --> weight=0
         theSmallTree.m_PUReweight  = (isMC ? 0 : 1) ;
-      theSmallTree.m_MC_weight   = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight * HHweight * trgEvtWeight : 1) ;
-      theSmallTree.m_turnOnreweight   = (isMC ? trgEvtWeight : 1.);
-      theSmallTree.m_turnOnreweight_tauup    = (isMC ? trgEvtWeightUp  : 1.);
-      theSmallTree.m_turnOnreweight_taudown  = (isMC ? trgEvtWeightDown : 1.);
+      theSmallTree.m_MC_weight   = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight * HHweight : 1) ;
       theSmallTree.m_lheht       = (isMC ? theBigTree.lheHt : 0) ;
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
       theSmallTree.m_RunNumber   = theBigTree.RunNumber ;
@@ -4574,7 +4556,6 @@ int main (int argc, char** argv)
           cout << "XS            : " << XS << endl;
           cout << "stitchWeight  : " << stitchWeight << endl;
           cout << "HHweight      : " << HHweight << endl;
-          cout << "trgEvtWeight  : " << trgEvtWeight << endl;
           cout << "MC_weight     : " << theSmallTree.m_MC_weight << endl;
           cout << "Yield weight MVA : " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_MVA * theSmallTree.m_trigSF << endl;
           cout << "Yield weight deep: " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_deep * theSmallTree.m_trigSF << endl;
