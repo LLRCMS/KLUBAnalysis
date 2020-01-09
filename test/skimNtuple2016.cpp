@@ -2268,106 +2268,55 @@ int main (int argc, char** argv)
       // DATA strategy
       int pass_triggerbit = 0;
       if (applyTriggers)
-	{
-	  Long64_t triggerbit = theBigTree.triggerbit;
+      {
+        Long64_t triggerbit = theBigTree.triggerbit;
 
-	  Long64_t matchFlag1 = (Long64_t) theBigTree.daughters_trgMatched->at(firstDaughterIndex);
-	  Long64_t matchFlag2 = (Long64_t) theBigTree.daughters_trgMatched->at(secondDaughterIndex);
-	  Long64_t goodTriggerType1 = (Long64_t) theBigTree.daughters_isGoodTriggerType->at(firstDaughterIndex);
-	  Long64_t goodTriggerType2 = (Long64_t) theBigTree.daughters_isGoodTriggerType->at(secondDaughterIndex);
+        Long64_t matchFlag1 = (Long64_t) theBigTree.daughters_trgMatched->at(firstDaughterIndex);
+        Long64_t matchFlag2 = (Long64_t) theBigTree.daughters_trgMatched->at(secondDaughterIndex);
+        Long64_t goodTriggerType1 = (Long64_t) theBigTree.daughters_isGoodTriggerType->at(firstDaughterIndex);
+        Long64_t goodTriggerType2 = (Long64_t) theBigTree.daughters_isGoodTriggerType->at(secondDaughterIndex);
 
-	  Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
-	  bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
-	  
-      // FRA - syncNov2019: L1 match not needed for 2018 data, might be useful for 2017+2018 analysis
-	  //if (isMC){
-	  //  if (pairType == 2){
-	  //    bool passL1IsoTau32 = false;
-	  //    if (theBigTree.daughters_highestEt_L1IsoTauMatched->at(firstDaughterIndex) > 32 && theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex) > 32){
-      // passL1IsoTau32 = true;
-	  //    }
-	  //    if (!passL1IsoTau32) passTrg = false;
-	  //  }
-	  //}
-	  
-	  // using the same method also to mimic the monitoring mu-tau cross trigger (MC and Data)
-	  //if (pairType == 0){
-	  //  bool passL1IsoTau32 = false;
-	  //  if (theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex) > 32){
-	  //    passL1IsoTau32 = true;
-	  //  }
-	  //  int monitor = 7;
-	  //  if (isMC== false) monitor = 6;
-	  //  theSmallTree.m_cross_monitoring_trig = (passL1IsoTau32 && CheckBit(pass_triggerbit,monitor)) ; // the 7th bit corresponds to our mu-tau cross trigger
-	  //}else{                                                                                  // if ever we change the trigger list, this should be updated
-	  //  theSmallTree.m_cross_monitoring_trig = false;
-	  //}
-	  
-      // FRA - syncNov2019: not needed for 2018 data, might be useful for 2017+2018 analysis
-	  // weight to be applied for IsoMu24, prescaled for ~3fb-1 in 2017
-	  // MuTau: if it didn't also pass IsoMu27 or MuTau trigger
-	  //if (pairType == 0 && isMC){
-	  //    if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1) && !CheckBit(pass_triggerbit,7)) theSmallTree.m_prescaleWeight =  (41557. - 3625.) / 41557.;
-	  //}
-	  // MuTau: if it didn't also pass IsoMu27 
-	  //if (pairType == 3 && isMC){
-	  //    if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1)) theSmallTree.m_prescaleWeight =  (41557. - 3625.) / 41557.;
-	  //}
+        Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
+        bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
 
-	  
-	  if(DEBUG){
-	    if (isMC && (pairType == 2 || pairType == 1 || pairType == 0)){
-	      cout << "passTrg? "<< trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta())<<endl;
-	      //cout << "L1 pt1 "<<theBigTree.daughters_highestEt_L1IsoTauMatched->at(firstDaughterIndex) << "L1 pt2 "<<theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex)<<endl;
-	      cout << "---> passTrg? "<<passTrg<<endl;
-	    }
-	  }
-	  
-	  isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt());
-	  
-	  bool triggerAccept = false;
-	  triggerAccept = passTrg;
-	  
-	  // require trigger + legs matched
-	  //bool triggerAccept = (passTrg && passMatch1 && passMatch2 && trgNotOverlap) ; //FRA: with crossTrigs match1&match2 are together
+        if(DEBUG)
+        {
+          if (isMC && (pairType == 2 || pairType == 1 || pairType == 0))
+          {
+            cout << "passTrg? "<< trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta())<<endl;
+            cout << "L1 pt1 "<<theBigTree.daughters_highestEt_L1IsoTauMatched->at(firstDaughterIndex) << "L1 pt2 "<<theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex)<<endl;
+            cout << "---> passTrg? "<<passTrg<<endl;
+          }
+        }
 
+        isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt());
 
-	  if(DEBUG)
-	    {
-	      //Long64_t matchFlag1LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(firstDaughterIndex);
-	      //Long64_t matchFlag2LF = (Long64_t) theBigTree.daughters_L3FilterFired->at(secondDaughterIndex);
-	      //Long64_t matchFlag1L3 = (Long64_t) theBigTree.daughters_L3FilterFiredLast->at(firstDaughterIndex);
-	      //Long64_t matchFlag2L3 = (Long64_t) theBigTree.daughters_L3FilterFiredLast->at(secondDaughterIndex);
-	      //bool isLF1 = trigReader.checkOR (pairType, matchFlag1LF);
-	      //bool isL31 = trigReader.checkOR (pairType, matchFlag1L3);
-	      //bool isLF2 = trigReader.checkOR (pairType, matchFlag2LF);
-	      //bool isL32 = trigReader.checkOR (pairType, matchFlag2L3);
-	      //cout << "** trg check: trgAccept=" << triggerAccept << " passTrg=" << passTrg << " passMatch=" << passMatch << " noOverlap=" << trgNotOverlap<<" goodTriggerType= "<<goodTriggerType<<endl;
-		  //cout <<  " LF1=" << isLF1 << " L31=" << isL31 <<  " LF2=" << isLF2 << " L32=" << isL32 << endl;
-		  //cout << "** trg check: trgAccept=" << triggerAccept	     <<endl;
-		  if(pairType == 0)//MuTau
-		  {
-		    trigReader.listMuTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
-		  }
-		  if(pairType == 1)//ETau
-		  {
-		     trigReader.listETau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
-		  }
-		  if(pairType == 2)//TauTau
-		  {
-		    trigReader.listTauTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
-		  }
-	     
-	    }
+        bool triggerAccept = false;
+        triggerAccept = passTrg;
 
-	  if (DEBUG) std::cout << "----> Final Trigger passed? " << triggerAccept << std::endl;
-	  if (!triggerAccept) continue;
+        if(DEBUG)
+        {
+          if(pairType == 0)//MuTau
+          {
+            trigReader.listMuTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
+          }
+          if(pairType == 1)//ETau
+          {
+             trigReader.listETau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
+          }
+          if(pairType == 2)//TauTau
+          {
+            trigReader.listTauTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
+          }
+        }
 
-	  theSmallTree.m_pass_triggerbit = pass_triggerbit;
-	  ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
-	  if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
-	}
+        if (DEBUG) std::cout << "----> Final Trigger passed? " << triggerAccept << std::endl;
+        if (!triggerAccept) continue;
 
+        theSmallTree.m_pass_triggerbit = pass_triggerbit;
+        ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
+        if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
+      }
 
 
       // ----------------------------------------------------------
