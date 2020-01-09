@@ -1977,144 +1977,100 @@ int main (int argc, char** argv)
 
       int chosenTauPair = -1;
 
-      // vector <pair<float, int>> chosenTauPairsIso;   // sum pt , index
-      // vector <pair<float, int>> chosenTauPairsRlxIso;
-
       if (pairType == 2 && sortStrategyThTh == kHTauTau)
-	{
-	  chosenTauPair = oph.getBestPairHTauTau(&theBigTree, leptonSelectionFlag, (DEBUG ? true : false));
-	}
+      {
+        chosenTauPair = oph.getBestPairHTauTau(&theBigTree, leptonSelectionFlag, (DEBUG ? true : false));
+      }
 
       else if (pairType == 2 && sortStrategyThTh == kPtAndRawIso)
-	{
-	  chosenTauPair = oph.getBestPairPtAndRawIsoOrd(&theBigTree, leptonSelectionFlag, (DEBUG ? true : false));
-	}
+      {
+        chosenTauPair = oph.getBestPairPtAndRawIsoOrd(&theBigTree, leptonSelectionFlag, (DEBUG ? true : false));
+      }
 
       // (mu tauh), (e tauh), (tauhtauh && kLLRFramDefault)
       else
-	{
-	  if(DEBUG)
-	  {
-	      for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
-		{
-		  int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;
-		  int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
-		  int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
-		  int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;
-		  cout << " **## Pair: " << iPair << " indexes(" <<t_firstDaughterIndex << "," << t_secondDaughterIndex << ") pairType: "<< pairType << " getPairType: "<< oph.getPairType (t_type1, t_type2) << endl;
-		}
-          
-	      for (unsigned int iLep = 0 ; (iLep < theBigTree.daughters_px->size ()) ; ++iLep)
-		{
-          
-          	  TLorentzVector tlv_dummyLepton
-		    (
-		     theBigTree.daughters_px->at (iLep),
-		     theBigTree.daughters_py->at (iLep),
-		     theBigTree.daughters_pz->at (iLep),
-		     theBigTree.daughters_e->at (iLep)
-		     ) ;
-      
-		  cout << " idx="  << iLep
-		       << " type=" << theBigTree.particleType->at(iLep)
-		       << " DM="   << theBigTree.decayMode->at(iLep)
-		       << " DMold="<< theBigTree.daughters_decayModeFindingOldDMs->at(iLep)
-		       << " pt="   << tlv_dummyLepton.Pt()
-		       << " eta="  << tlv_dummyLepton.Eta()
-		       << " phi="  << tlv_dummyLepton.Phi()
-		       << " iso="  << getIso (iLep, tlv_dummyLepton.Pt (), theBigTree)
-		       << " dxy="  << theBigTree.dxy->at(iLep)
-		       << " dz="   << theBigTree.dz->at(iLep)
-		       << endl;
-		}
-          
-      }
-	  for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
-	    {
-	      int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;  
-	      int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
-	      int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
-	      int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;
-	      if ( oph.getPairType (t_type1, t_type2) != pairType ) continue ;
-	      // string whatApplyForIsoLep = "Vertex-LepID-pTMin-etaMax-againstEle-againstMu-Iso" ;
-	      // if ( oph.pairPassBaseline (&theBigTree, iPair, string("Vertex-LepID-pTMin-etaMax-againstEle-againstMu") ) )
-          
-	      // TLorentzVector t_tlv_firstLepton (
-	      //   theBigTree.daughters_px->at (t_firstDaughterIndex),
-	      //   theBigTree.daughters_py->at (t_firstDaughterIndex),
-	      //   theBigTree.daughters_pz->at (t_firstDaughterIndex),
-	      //   theBigTree.daughters_e->at (t_firstDaughterIndex)
-	      // );
-	      // TLorentzVector t_tlv_secondLepton (
-	      //   theBigTree.daughters_px->at (t_secondDaughterIndex),
-	      //   theBigTree.daughters_py->at (t_secondDaughterIndex),
-	      //   theBigTree.daughters_pz->at (t_secondDaughterIndex),
-	      //   theBigTree.daughters_e->at (t_secondDaughterIndex)
-	      // );
+      {
+        if(DEBUG)
+        {
+          for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
+          {
+            int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;
+            int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
+            int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
+            int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;
+            cout << " **## Pair: " << iPair << " indexes(" <<t_firstDaughterIndex << "," << t_secondDaughterIndex << ") pairType: "<< pairType << " getPairType: "<< oph.getPairType (t_type1, t_type2) << endl;
+          }
 
-	      // if ( oph.pairPassBaseline (&theBigTree, iPair, leptonSelectionFlag+string("-TauRlxIzo") ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
-	      string baselineSels = ( (pairType <= 2) ? leptonSelectionFlag : (leptonSelectionFlag + "-Iso")) ; // for ee, mumu, emu, ask isolation in baseline
+          for (unsigned int iLep = 0 ; (iLep < theBigTree.daughters_px->size ()) ; ++iLep)
+          {
+            TLorentzVector tlv_dummyLepton(
+                theBigTree.daughters_px->at (iLep),
+                theBigTree.daughters_py->at (iLep),
+                theBigTree.daughters_pz->at (iLep),
+                theBigTree.daughters_e ->at (iLep)) ;
 
-	      if ( oph.pairPassBaseline (&theBigTree, iPair, baselineSels, (DEBUG ? true : false) ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
-		{
-		  chosenTauPair = iPair;
-		  break;          
-		}
-	      // if ( oph.pairPassBaseline (&theBigTree, iPair, (leptonSelectionFlag+string("-Iso")) ) )
-	      // {
-	      //     chosenTauPairsIso.push_back(make_pair(t_tlv_firstLepton.Pt()+t_tlv_secondLepton.Pt(), iPair));
-	      //     // chosenTauPair = iPair;
-	      //     // break;
-	      // }
-	      // if ( oph.pairPassBaseline (&theBigTree, iPair, (leptonSelectionFlag+string("-TauRlxIzo")) ) )
-	      // {
-	      //     chosenTauPairsIso.push_back(make_pair(t_tlv_firstLepton.Pt()+t_tlv_secondLepton.Pt(), iPair));
-	      // }
-	    }
-	}
+            cout << " idx="  << iLep
+               << " type=" << theBigTree.particleType->at(iLep)
+               << " DM="   << theBigTree.decayMode->at(iLep)
+               << " DMold="<< theBigTree.daughters_decayModeFindingOldDMs->at(iLep)
+               << " pt="   << tlv_dummyLepton.Pt()
+               << " eta="  << tlv_dummyLepton.Eta()
+               << " phi="  << tlv_dummyLepton.Phi()
+               << " iso="  << getIso (iLep, tlv_dummyLepton.Pt (), theBigTree)
+               << " dxy="  << theBigTree.dxy->at(iLep)
+               << " dz="   << theBigTree.dz->at(iLep)
+               << endl;
+          }
+        } // end DEBUG
+
+        for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
+        {
+          int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;
+          int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
+          int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
+          int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;
+          if ( oph.getPairType (t_type1, t_type2) != pairType ) continue ;
+          string baselineSels = ( (pairType <= 2) ? leptonSelectionFlag : (leptonSelectionFlag + "-Iso")) ; // for ee, mumu, emu, ask isolation in baseline
+
+          if ( oph.pairPassBaseline (&theBigTree, iPair, baselineSels, (DEBUG ? true : false) ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
+          {
+            chosenTauPair = iPair;
+            break;
+          }
+        }
+      } // end else (mu tauh), (e tauh), (tauhtauh && kLLRFramDefault)
 
       if(DEBUG)
-	{
-	  cout << "**** DEBUG : chosen pair : " << chosenTauPair << " str=" << leptonSelectionFlag << " pairType==" << pairType << endl;
-	  cout << "     ... going to list all pairs of same pairType as the one assessed with reco leptons" << endl;
-	  for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
-	    {
-	      int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;  
-	      int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
-	      int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
-	      int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;        
-	      if ( oph.getPairType (t_type1, t_type2) != pairType ) continue ;
-	      TLorentzVector tttt (
-				   theBigTree.daughters_px->at (t_secondDaughterIndex),
-				   theBigTree.daughters_py->at (t_secondDaughterIndex),
-				   theBigTree.daughters_pz->at (t_secondDaughterIndex),
-				   theBigTree.daughters_e->at (t_secondDaughterIndex)
-				   );
-	      cout << "- " << iPair << " idx1=" << t_firstDaughterIndex << " idx2=" << t_secondDaughterIndex << " isoTau=" <<  getIso (t_secondDaughterIndex, tttt.Pt (), theBigTree) << " tauPt=" << tttt.Pt() << " type2=" << t_type2 << " eta=" << tttt.Eta() << " phi=" << tttt.Phi() << endl;
-	      cout << "   >>> DM=" << theBigTree.daughters_decayModeFindingOldDMs->at(t_secondDaughterIndex) << " dxy=" << theBigTree.dxy->at(t_secondDaughterIndex) << " dz=" << theBigTree.dz->at(t_secondDaughterIndex) << endl;
-	      // cout << "   >>> tauBase="
-	    }      
-	}
-      // if (chosenTauPairsIso.size() > 0)
-      // {
-      //   sort(chosenTauPairsIso.begin(), chosenTauPairsIso.end()); // will get highest pt sum
-      //   chosenTauPair = chosenTauPairsIso.back().second;
-      // }
-      // else if (chosenTauPairsRlxIso.size() > 0)
-      // {
-      //   sort(chosenTauPairsRlxIso.begin(), chosenTauPairsRlxIso.end()); // will get highest pt sum
-      //   chosenTauPair = chosenTauPairsRlxIso.back().second;
-      // }
-      // else continue; // no pair found
+      {
+        cout << "**** DEBUG : chosen pair : " << chosenTauPair << " str=" << leptonSelectionFlag << " pairType==" << pairType << endl;
+        cout << "     ... going to list all pairs of same pairType as the one assessed with reco leptons" << endl;
+        for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
+        {
+          int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;
+          int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
+          int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
+          int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;
+          if ( oph.getPairType (t_type1, t_type2) != pairType ) continue ;
+          TLorentzVector tttt (
+            theBigTree.daughters_px->at (t_secondDaughterIndex),
+            theBigTree.daughters_py->at (t_secondDaughterIndex),
+            theBigTree.daughters_pz->at (t_secondDaughterIndex),
+            theBigTree.daughters_e ->at (t_secondDaughterIndex));
+
+          cout << "- " << iPair << " idx1=" << t_firstDaughterIndex << " idx2=" << t_secondDaughterIndex << " isoTau=" <<  getIso (t_secondDaughterIndex, tttt.Pt (), theBigTree) << " tauPt=" << tttt.Pt() << " type2=" << t_type2 << " eta=" << tttt.Eta() << " phi=" << tttt.Phi() << endl;
+          cout << "   >>> DM=" << theBigTree.daughters_decayModeFindingOldDMs->at(t_secondDaughterIndex) << " dxy=" << theBigTree.dxy->at(t_secondDaughterIndex) << " dz=" << theBigTree.dz->at(t_secondDaughterIndex) << endl;
+        }
+      }
 
       if (chosenTauPair < 0) continue; // no pair found over baseline
+
       ec.Increment ("PairFoundBaseline", EvtW);
       if (isHHsignal)
-	{
-	  ecHHsig[genHHDecMode].Increment ("PairFoundBaseline", EvtW);
-	  if (pairType == genHHDecMode) 
-	    ecHHsig[genHHDecMode].Increment ("PairMatchesGen", EvtW);
-	}
+      {
+        ecHHsig[genHHDecMode].Increment ("PairFoundBaseline", EvtW);
+        if (pairType == genHHDecMode)
+          ecHHsig[genHHDecMode].Increment ("PairMatchesGen", EvtW);
+      }
 
       // ----------------------------------------------------------
       // pair has been assessed , check trigger information
@@ -2129,8 +2085,6 @@ int main (int argc, char** argv)
           tmp_secondDaughterIndex = theBigTree.indexDau1->at (chosenTauPair) ;
       }
 
-      //const int firstDaughterIndex  = theBigTree.indexDau1->at (chosenTauPair) ;
-      //const int secondDaughterIndex = theBigTree.indexDau2->at (chosenTauPair) ;
       const int firstDaughterIndex  = tmp_firstDaughterIndex ;
       const int secondDaughterIndex = tmp_secondDaughterIndex ;
       const int type1 = theBigTree.particleType->at (firstDaughterIndex) ;
