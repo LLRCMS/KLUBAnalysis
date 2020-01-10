@@ -950,7 +950,7 @@ int main (int argc, char** argv)
   eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2017/Electron_Ele32orEle35_fix.root");
 
   //VBF trigger weights -- jet legs
-  TFile* VBFjets_file = new TFile ("weights/trigger_SF_Legacy/2017/VBFHTauTauHLT_jetlegs_3Dcoarse.root");
+  TFile* VBFjets_file = new TFile ("weights/trigger_SF_Legacy/2017/VBFHTauTauHLT_jetlegs_3Dcoarse.root"); // !! FIXME !! to be updated for DeepTauV2p1
   TH3D*  VBFjets_SF   = (TH3D*) VBFjets_file->Get("SF_mjj_pT1_pT2");
 
   // ------------------------------
@@ -4088,6 +4088,7 @@ int main (int argc, char** argv)
             double jetSF = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt());
 
             double SFTau1 = 1.;
+            // !! FIXME !! to be updated for DeepTauV2p1
             if      (tlv_firstLepton.Pt() <  25) SFTau1 = 0.97;
             else if (tlv_firstLepton.Pt() <  30) SFTau1 = 0.755;
             else if (tlv_firstLepton.Pt() <  35) SFTau1 = 0.715;
@@ -4099,6 +4100,7 @@ int main (int argc, char** argv)
             else                                 SFTau1 = 0.97;
 
             double SFTau2 = 1.;
+            // !! FIXME !! to be updated for DeepTauV2p1
             if      (tlv_secondLepton.Pt() <  25) SFTau2 = 0.97;
             else if (tlv_secondLepton.Pt() <  30) SFTau2 = 0.755;
             else if (tlv_secondLepton.Pt() <  35) SFTau2 = 0.715;

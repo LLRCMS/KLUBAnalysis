@@ -4051,6 +4051,7 @@ int main (int argc, char** argv)
             double jetSF = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt());
 
             double SFTau1 = 1.;
+            // !! FIXME !! - dummy values for now
             if      (tlv_firstLepton.Pt() <  25) SFTau1 = 0.97;
             else if (tlv_firstLepton.Pt() <  30) SFTau1 = 0.755;
             else if (tlv_firstLepton.Pt() <  35) SFTau1 = 0.715;
@@ -4062,6 +4063,7 @@ int main (int argc, char** argv)
             else                                 SFTau1 = 0.97;
 
             double SFTau2 = 1.;
+            // !! FIXME !! - dummy values for now
             if      (tlv_secondLepton.Pt() <  25) SFTau2 = 0.97;
             else if (tlv_secondLepton.Pt() <  30) SFTau2 = 0.755;
             else if (tlv_secondLepton.Pt() <  35) SFTau2 = 0.715;
