@@ -2591,6 +2591,8 @@ int main (int argc, char** argv)
       theSmallTree.m_dau2_pt = tlv_secondLepton.Pt () ;
       theSmallTree.m_dau2_pt_tauup = tlv_secondLepton_tauup.Pt () ;
       theSmallTree.m_dau2_pt_taudown = tlv_secondLepton_taudown.Pt () ;
+      theSmallTree.m_dau2_pt_eleup = tlv_secondLepton_eleup.Pt () ;
+      theSmallTree.m_dau2_pt_eledown = tlv_secondLepton_eledown.Pt () ;
       theSmallTree.m_dau2_eta = tlv_secondLepton.Eta () ;
       theSmallTree.m_dau2_phi = tlv_secondLepton.Phi () ;
       theSmallTree.m_dau2_e = theBigTree.daughters_e->at (secondDaughterIndex) ;

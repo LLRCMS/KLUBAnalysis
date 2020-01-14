@@ -159,6 +159,8 @@ struct smallTree
       m_dau2_pt  = -1. ;
       m_dau2_pt_tauup  = -1. ;
       m_dau2_pt_taudown  = -1. ;
+      m_dau2_pt_eleup  = -1. ;
+      m_dau2_pt_eledown  = -1. ;
       m_dau2_eta  = -1. ;
       m_dau2_phi  = -1. ;
       m_dau2_e  = -1. ;
@@ -714,6 +716,8 @@ struct smallTree
       m_smallT->Branch ("dau2_pt", &m_dau2_pt, "dau2_pt/F") ;
       m_smallT->Branch ("dau2_pt_tauup", &m_dau2_pt_tauup, "dau2_pt_tauup/F") ;
       m_smallT->Branch ("dau2_pt_taudown", &m_dau2_pt_taudown, "dau2_pt_taudown/F") ;
+      m_smallT->Branch ("dau2_pt_eleup", &m_dau2_pt_eleup, "dau2_pt_eleup/F") ;
+      m_smallT->Branch ("dau2_pt_eledown", &m_dau2_pt_eledown, "dau2_pt_eledown/F") ;
       m_smallT->Branch ("dau2_eta", &m_dau2_eta, "dau2_eta/F") ;
       m_smallT->Branch ("dau2_phi", &m_dau2_phi, "dau2_phi/F") ;
       m_smallT->Branch ("dau2_e", &m_dau2_e, "dau2_e/F") ;
@@ -1266,6 +1270,8 @@ struct smallTree
   Float_t m_dau2_pt ;
   Float_t m_dau2_pt_tauup ;
   Float_t m_dau2_pt_taudown ;
+  Float_t m_dau2_pt_eleup ;
+  Float_t m_dau2_pt_eledown ;
   Float_t m_dau2_eta ;
   Float_t m_dau2_phi ;
   Float_t m_dau2_e ;
