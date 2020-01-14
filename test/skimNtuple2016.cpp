@@ -2564,6 +2564,8 @@ int main (int argc, char** argv)
       theSmallTree.m_dau2_pt = tlv_secondLepton.Pt () ;
       theSmallTree.m_dau2_pt_tauup = tlv_secondLepton_tauup.Pt () ;
       theSmallTree.m_dau2_pt_taudown = tlv_secondLepton_taudown.Pt () ;
+      theSmallTree.m_dau2_pt_eleup = tlv_secondLepton_eleup.Pt () ;
+      theSmallTree.m_dau2_pt_eledown = tlv_secondLepton_eledown.Pt () ;
       theSmallTree.m_dau2_eta = tlv_secondLepton.Eta () ;
       theSmallTree.m_dau2_phi = tlv_secondLepton.Phi () ;
       theSmallTree.m_dau2_e = theBigTree.daughters_e->at (secondDaughterIndex) ;
@@ -2620,8 +2622,8 @@ int main (int argc, char** argv)
         //idAndIsoSF_leg2_deep_vsEle --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
         if (tau2Genmatch == 1 || tau2Genmatch == 3 ) // e->tauh fake
         {
-          if (tau2eta < 1.448 ) idAndIsoSF_leg2_deep_vsEle = 1.22; // anti-ele Vloose
-          if (tau2eta > 1.558 ) idAndIsoSF_leg2_deep_vsEle = 1.13; // anti-ele Vloose
+          if (tau2eta < 1.448 ) idAndIsoSF_leg2_deep_vsEle = 1.38; // anti-ele VVloose
+          if (tau2eta > 1.558 ) idAndIsoSF_leg2_deep_vsEle = 1.29; // anti-ele VVloose
         }
 
         //idAndIsoSF_leg2_deep_vsMu  --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
@@ -2756,8 +2758,8 @@ int main (int argc, char** argv)
         //idAndIsoSF_leg1_deep_vsEle --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
         if (tau1Genmatch == 1 || tau1Genmatch == 3 ) // e->tauh fake
         {
-          if (tau1eta < 1.448 ) idAndIsoSF_leg1_deep_vsEle = 1.22; // anti-ele VLoose
-          if (tau1eta > 1.558 ) idAndIsoSF_leg1_deep_vsEle = 1.13; // anti-ele VLoose
+          if (tau1eta < 1.448 ) idAndIsoSF_leg1_deep_vsEle = 1.38; // anti-ele VVLoose
+          if (tau1eta > 1.558 ) idAndIsoSF_leg1_deep_vsEle = 1.29; // anti-ele VVLoose
         }
 
         //idAndIsoSF_leg1_deep_vsMu  --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
@@ -2779,8 +2781,8 @@ int main (int argc, char** argv)
         //idAndIsoSF_leg2_deep_vsEle --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
         if (tau2Genmatch == 1 || tau2Genmatch == 3 ) // e->tauh fake
         {
-          if (tau2eta < 1.448 ) idAndIsoSF_leg2_deep_vsEle = 1.22; // anti-ele VLoose
-          if (tau2eta > 1.558 ) idAndIsoSF_leg2_deep_vsEle = 1.13; // anti-ele VLoose
+          if (tau2eta < 1.448 ) idAndIsoSF_leg2_deep_vsEle = 1.38; // anti-ele VVLoose
+          if (tau2eta > 1.558 ) idAndIsoSF_leg2_deep_vsEle = 1.29; // anti-ele VVLoose
         }
 
         //idAndIsoSF_leg2_deep_vsMu  --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
