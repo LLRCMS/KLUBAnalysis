@@ -1,13 +1,13 @@
 #include "analysisUtils.h"
 #include <algorithm>
 
-using namespace std ;
+//using namespace std ;
 
 
-vector<pair <TString, TCut> >
-addSelection (vector<pair <TString, TCut> > m_cuts, string cut, string tag)
+std::vector<std::pair <TString, TCut> >
+addSelection (std::vector<std::pair <TString, TCut> > m_cuts, std::string cut, std::string tag)
 {
-  vector<pair <TString, TCut> > output = m_cuts ;
+  std::vector<std::pair <TString, TCut> > output = m_cuts ;
   for (unsigned int i = 0 ; i < output.size () ; ++i)
     {
       output.at (i).first = TString (tag.c_str ()) + output.at (i).first ;
@@ -22,15 +22,15 @@ addSelection (vector<pair <TString, TCut> > m_cuts, string cut, string tag)
 
 std::pair<int, int> leptonsType (int pairType)
 {
-  if (pairType == 0) return pair<int,int> (0, 2) ;
-  if (pairType == 1) return pair<int,int> (1, 2) ;
-  if (pairType == 2) return pair<int,int> (2, 2) ;
-  if (pairType == 3) return pair<int,int> (0, 0) ;
-  if (pairType == 4) return pair<int,int> (1, 1) ;
-  if (pairType == 5) return pair<int,int> (1, 0) ; // FIXME are they ordered per flavour?
-  if (pairType == 6) return pair<int,int> (1, 1) ;
-  if (pairType == 7) return pair<int,int> (0, 0) ;
-  return pair<int,int> (-1, -1) ;
+  if (pairType == 0) return std::pair<int,int> (0, 2) ;
+  if (pairType == 1) return std::pair<int,int> (1, 2) ;
+  if (pairType == 2) return std::pair<int,int> (2, 2) ;
+  if (pairType == 3) return std::pair<int,int> (0, 0) ;
+  if (pairType == 4) return std::pair<int,int> (1, 1) ;
+  if (pairType == 5) return std::pair<int,int> (1, 0) ; // FIXME are they ordered per flavour?
+  if (pairType == 6) return std::pair<int,int> (1, 1) ;
+  if (pairType == 7) return std::pair<int,int> (0, 0) ;
+  return std::pair<int,int> (-1, -1) ;
 }
 
 
@@ -49,10 +49,10 @@ bool isIsolated (int leptonType, float threshold, float isoDeposits, float pT)
 
 
 void
-addHistos (vector<sample> & samples, 
+addHistos (std::vector<mysample> & samples,
            HistoManager * manager,
-           vector<string> & variablesList,
-           vector<pair <TString, TCut> > & selections,
+           std::vector<std::string> & variablesList,
+           std::vector<std::pair <TString, TCut> > & selections,
            bool isSignal,
            bool isData)
 {
@@ -74,13 +74,13 @@ addHistos (vector<sample> & samples,
                               selections.at (k).first.Data ()
                               ) ;
               // remove not alphanumeric symbols from the var name
-              string varID = variablesList.at (i) ;
+              std::string varID = variablesList.at (i) ;
               varID.erase (std::remove_if (varID.begin (), varID.end (), isNOTalnum ()), varID.end ()) ;
               // get histo nbins and range
               int hcolor = gConfigParser->isDefined (TString ("colors::") + samples.at (j).sampleName.Data ())
                           ? gConfigParser->readIntOption (TString ("colors::") + samples.at (j).sampleName.Data ())
                           : 1;
-              vector <float> limits = 
+              std::vector <float> limits =
                 gConfigParser->readFloatListOption (TString ("histos::") 
                     + varID.c_str ()) ;
               manager->AddNewHisto (histoName.Data (),histoName.Data (),
@@ -100,17 +100,17 @@ addHistos (vector<sample> & samples,
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 counters
-fillHistos (vector<sample> & samples, 
+fillHistos (std::vector<mysample> & samples,
             plotContainer & plots,
-            vector<string> & variablesList,
-            vector<pair <TString, TCut> > & selections,
+            std::vector<std::string> & variablesList,
+            std::vector<std::pair <TString, TCut> > & selections,
             float lumi,
-            const vector<float> & scale,
+            const std::vector<float> & scale,
             bool isData,
             bool isSignal,
             int maxEvts, TFile* fOut)
 {
-    vector<pair<string,string>> variables2DList (0);
+    std::vector<std::pair<std::string,std::string>> variables2DList (0);
     return fillHistos (
             samples, 
             plots,
@@ -127,13 +127,13 @@ fillHistos (vector<sample> & samples,
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 counters
-fillHistos (vector<sample> & samples, 
+fillHistos (std::vector<mysample> & samples,
             plotContainer & plots,
-            vector<string> & variablesList,
-            vector<pair<string,string>> & variables2DList,
-            vector<pair <TString, TCut> > & selections,
+            std::vector<std::string> & variablesList,
+            std::vector<std::pair<std::string,std::string>> & variables2DList,
+            std::vector<std::pair <TString, TCut> > & selections,
             float lumi,
-            const vector<float> & scale,
+            const std::vector<float> & scale,
             bool isData,
             bool isSignal,
             int maxEvts, TFile* fOut)
@@ -149,16 +149,16 @@ fillHistos (vector<sample> & samples,
       double eff = samples.at (iSample).eff ;
       localCounter.initEfficiencies.push_back (eff) ;
 
-      localCounter.counters.push_back (vector<float> (selections.size () + 1, 0.)) ;
+      localCounter.counters.push_back (std::vector<float> (selections.size () + 1, 0.)) ;
       
       TTree *tree = samples.at (iSample).sampleTree ;
       TTreeFormula * TTF[selections.size ()] ;
       
       // specifies the type of bTagreweight weight in the selection. 0: no weight; 1: bTagL, 2: bTagM, 3: bTagT
-      vector<int> selBTagWeight (selections.size());
+      std::vector<int> selBTagWeight (selections.size());
       
       // specifies the type of top pt reweight in the selection. 0: nominal; 1: UP, 2: DOWN
-      vector<int> selTopRewType (selections.size());
+      std::vector<int> selTopRewType (selections.size());
       for (unsigned int isel = 0 ; isel < selections.size () ; ++isel)
         {
           TString fname ; fname.Form ("ttf%d",isel) ;
@@ -231,24 +231,24 @@ fillHistos (vector<sample> & samples,
       float scaling = 1. / samples.at (iSample).eff_den ;
       if (scale.size () > 0) scaling *= scale.at (iSample) ;
 
-      cout << "Opening sample: "
+      std::cout << "Opening sample: "
            << samples.at (iSample).sampleName
            << "\t with initial weighted events\t" << samples.at (iSample).eff_den
-           << endl ;
+           << std::endl ;
 
 
       // find how many variables needed for 2D are not in the list of the 1D vars
-      vector<string> allvars (variablesList);
-      vector<pair<int,int>> var2Didxmap; // this maps each entry of 2Dvarlist to allvars to be more efficient in retrieving values
+      std::vector<std::string> allvars (variablesList);
+      std::vector<std::pair<int,int>> var2Didxmap; // this maps each entry of 2Dvarlist to allvars to be more efficient in retrieving values
 
-      std::vector<string>::iterator it;
+      std::vector<std::string>::iterator it;
       for (unsigned int ivar = 0; ivar < variables2DList.size(); ivar++)
       {
         int ind1 = -1;
         int ind2 = -1;
 
         // var 1 (x)
-        string var1 = variables2DList.at(ivar).first;
+        std::string var1 = variables2DList.at(ivar).first;
         it = find (allvars.begin(), allvars.end(), var1);
         if ( it == allvars.end() )
         {
@@ -259,7 +259,7 @@ fillHistos (vector<sample> & samples,
           ind1 = distance (allvars.begin(), it);
 
         // var 2 (y)
-        string var2 = variables2DList.at(ivar).second;
+        std::string var2 = variables2DList.at(ivar).second;
         it = find (allvars.begin(), allvars.end(), var2);
         if ( it == allvars.end() )
         {
@@ -270,13 +270,13 @@ fillHistos (vector<sample> & samples,
           ind2 = distance (allvars.begin(), it);
 
         // save indexes
-        var2Didxmap.push_back (make_pair(ind1, ind2));
+        var2Didxmap.push_back (std::make_pair(ind1, ind2));
       }
 
       // set tbranch addresses for 1D histos
-      vector<float> address (allvars.size(), 0.) ;
-      vector<int> addressInt (allvars.size(), 0.) ;
-      vector<int> indexInt ;
+      std::vector<float> address (allvars.size(), 0.) ;
+      std::vector<int> addressInt (allvars.size(), 0.) ;
+      std::vector<int> indexInt ;
       for (unsigned int iv = 0 ; iv < allvars.size () ; ++iv)
       {
         if(allvars.at(iv)=="njets" || allvars.at(iv)=="npu" || allvars.at(iv)=="npv" || allvars.at(iv)=="dau1_MVAiso" || allvars.at(iv)=="dau2_MVAiso" || allvars.at(iv)=="lheNOutPartons")
@@ -291,7 +291,7 @@ fillHistos (vector<sample> & samples,
       int nEvts = tree->GetEntries();
       if (maxEvts > 0)
       {
-        nEvts = min(nEvts, maxEvts);
+        nEvts = std::min(nEvts, maxEvts);
         scaling *= (1.*tree->GetEntries() / nEvts); // scales if nEvts != entries in the tree
       }
 
@@ -492,17 +492,17 @@ makeCounter (plotContainer & plots, float initEff = 1.0, float initTotNum = 0.0)
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
-vector<THStack *> 
-stackHistos (vector<sample> & samples, HistoManager * manager, 
-             vector<string> & variablesList,
-             vector<pair <TString, TCut> > & selections,
-             const string & tag)
+std::vector<THStack *>
+stackHistos (std::vector<mysample> & samples, HistoManager * manager,
+             std::vector<std::string> & variablesList,
+             std::vector<std::pair <TString, TCut> > & selections,
+             const std::string & tag)
 {
   int nVars = variablesList.size () ;
   int nSel = selections.size () ;
   TString outputName, histoName ;
   
-  vector <THStack *> hstack (nVars*nSel) ; //one stack for variable
+  std::vector <THStack *> hstack (nVars*nSel) ; //one stack for variable
 
   for (int isel = 0 ; isel < nSel ; ++isel)
     {
@@ -533,8 +533,8 @@ stackHistos (vector<sample> & samples, HistoManager * manager,
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---0
 std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bkgPlots, plotContainer& sigPlots,
-                                      string varName, string selName,
-                                      TCanvas* canvas, std::vector <pair <string, string> >& addInLegend, std::vector <pair <string, string> >& axisTitles,
+                                      std::string varName, std::string selName,
+                                      TCanvas* canvas, std::vector <std::pair <std::string, std::string> >& addInLegend, std::vector <std::pair <std::string, std::string> >& axisTitles,
                                       bool LogY, bool makeRatioPlot, bool drawLegend, bool doShapes, bool forceNonNegMin, bool drawGrassForData,
                                       bool drawSignal, bool drawData, bool drawMC)
 {
@@ -553,7 +553,7 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
   if (LogY)                    forceNonNegMin = false; // the min finder already thinsk about it if LOG
   if (! (drawSignal || drawData || drawMC) )
   {
-    cout << " ** analysisUtils::makeStackPlot: qualcosa lo devi pur disegnare, enabling MC+data+sig" << endl;
+    std::cout << " ** analysisUtils::makeStackPlot: qualcosa lo devi pur disegnare, enabling MC+data+sig" << std::endl;
     drawSignal = drawData = drawMC = true;
   }  
   //if (doShapes) drawSignal = true; // FIXME: enable shapes with bkgr only
@@ -567,16 +567,16 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
   THStack * bkg_stack =  (drawMC     ? bkgPlots.makeStack ( varName, selName )  : 0);
   THStack * DATA_stack = (drawData   ? dataPlots.makeStack ( varName, selName ) : 0);
 
-  vector<float> extremes_bkg; 
-  vector<float> extremes_sig; 
-  vector<float> extremes_DATA;
+  std::vector<float> extremes_bkg;
+  std::vector<float> extremes_sig;
+  std::vector<float> extremes_DATA;
   
   if (drawMC)     extremes_bkg = getExtremes (bkg_stack, LogY) ;
   if (drawSignal) extremes_sig = getExtremes (sig_stack, LogY) ;
   if (drawData)   extremes_DATA = getExtremes (DATA_stack, LogY) ;
   
   // fill all vectors with dummy values to avoid many other "if" everywhere
-  vector<float> vZeroes (4, 0.);
+  std::vector<float> vZeroes (4, 0.);
   if (extremes_bkg.size() == 0) extremes_bkg.insert (extremes_bkg.begin(),    vZeroes.begin(), vZeroes.end());
   if (extremes_sig.size() == 0) extremes_sig.insert (extremes_sig.begin(),    vZeroes.begin(), vZeroes.end());
   if (extremes_DATA.size() == 0) extremes_DATA.insert (extremes_DATA.begin(), vZeroes.begin(), vZeroes.end());
@@ -670,7 +670,7 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
     allocatedStuff.push_back(hstack_bkg_norm);
 
     hstack_sig_norm = normaliseStack (sig_stack, true) ;
-    vector<float> extremes_sig_norm = getExtremes (hstack_sig_norm, LogY, true) ;
+    std::vector<float> extremes_sig_norm = getExtremes (hstack_sig_norm, LogY, true) ;
 
     //hstack_data_norm = normaliseStack (DATA_stack) ;
     //hshape_data = (TH1F*) hstack_data_norm->GetStack () ->Last() ;
@@ -725,10 +725,10 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
   // frame->GetXaxis()->SetTickSize(0);
 
   TString xTitle = frame->GetXaxis()->GetTitle();
-  string xTitlestr (xTitle.Data());
+  std::string xTitlestr (xTitle.Data());
   auto it = std::find_if(axisTitles.begin(), 
                    axisTitles.end(), 
-                  [&xTitlestr](const pair<string, string>& p)
+                  [&xTitlestr](const std::pair<std::string, std::string>& p)
                   { return p.first == xTitlestr; });
 
   if (it != axisTitles.end()) xTitle = (it->second).c_str();
@@ -818,45 +818,45 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
     allocatedStuff.push_back(leg);
 
     // sample names -- bkg
-    for (map<string, TH1F *>::iterator iSample = bkgPlots.m_histos[varName][selName].begin () ;
+    for (std::map<std::string, TH1F *>::iterator iSample = bkgPlots.m_histos[varName][selName].begin () ;
         iSample != bkgPlots.m_histos[varName][selName].end () && drawMC; ++iSample)
     {
-      string samplename = iSample->first ;
-      string thisname = "EMPTY";
+      std::string samplename = iSample->first ;
+      std::string thisname = "EMPTY";
 
       auto it = std::find_if(addInLegend.begin(), 
                        addInLegend.end(), 
-                      [&samplename](const pair<string, string>& p)
+                      [&samplename](const std::pair<std::string, std::string>& p)
                       { return p.first == samplename; });
 
       if (it != addInLegend.end()) thisname = it->second;
       else thisname = samplename;
       
-      if (thisname != string ("NODRAW") ) leg->AddEntry (iSample->second, thisname.c_str(), "f") ;
+      if (thisname != std::string ("NODRAW") ) leg->AddEntry (iSample->second, thisname.c_str(), "f") ;
     }    
 
     // sample names -- signal
-    for (map<string, TH1F *>::iterator iSample = sigPlots.m_histos[varName][selName].begin () ;
+    for (std::map<std::string, TH1F *>::iterator iSample = sigPlots.m_histos[varName][selName].begin () ;
         iSample != sigPlots.m_histos[varName][selName].end () && drawSignal; ++iSample)
     {
-      string samplename = iSample->first ;
-      string thisname = "EMPTY";
+      std::string samplename = iSample->first ;
+      std::string thisname = "EMPTY";
 
       auto it = std::find_if(addInLegend.begin(), 
                        addInLegend.end(), 
-                      [&samplename](const pair<string, string>& p)
+                      [&samplename](const std::pair<std::string, std::string>& p)
                       { return p.first == samplename; });
 
       if (it != addInLegend.end()) thisname = it->second;
       else thisname = samplename;      
-      if (thisname != string ("NODRAW") ) leg->AddEntry (iSample->second, thisname.c_str(), "l") ;
+      if (thisname != std::string ("NODRAW") ) leg->AddEntry (iSample->second, thisname.c_str(), "l") ;
 
     }
 
     if (drawData)
     {
       //TH1F* dataHisto = dataPlots.getHisto(varName, selName, addInLegend.at(i).first );      
-      map<string, TH1F *>::iterator iData = dataPlots.m_histos[varName][selName].begin() ;  // all data have the same format!
+      std::map<std::string, TH1F *>::iterator iData = dataPlots.m_histos[varName][selName].begin() ;  // all data have the same format!
       leg->AddEntry (iData->second, "data", "lep") ;
     }        
     leg->Draw();
@@ -1006,8 +1006,8 @@ std::vector<TObject*> makeStackPlot (plotContainer& dataPlots, plotContainer& bk
   // now plot lumi!
   float lumi_num = gConfigParser->readFloatOption ("general::lumi");
   lumi_num = lumi_num/1000.; // is in pb-1
-  stringstream stream;
-  stream << fixed << setprecision(1) << lumi_num;
+  std::stringstream stream;
+  stream << std::fixed << std::setprecision(1) << lumi_num;
   TString lumi = stream.str().c_str();
   lumi += " fb^{-1} (13 TeV)";
 

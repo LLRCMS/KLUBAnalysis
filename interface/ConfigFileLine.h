@@ -13,13 +13,13 @@
 #include <string>
 #include <list>
 
-using namespace std;
+//using namespace std;
 
 class ConfigFileLine {
  public:
 
   //! Constructor with name of the option and a single option value (no list!)
-  ConfigFileLine(const string &option, const string &value="");
+  ConfigFileLine(const std::string &option, const std::string &value="");
 
   //! Destructor: Does currently nothing
   virtual ~ConfigFileLine();
@@ -31,7 +31,7 @@ class ConfigFileLine {
   void appendList(const ConfigFileLine &other);
 
   //! Check whether name of option is "name"
-  bool isOption(const string &name) const{
+  bool isOption(const std::string &name) const{
     return name==option;
   }
 
@@ -41,38 +41,38 @@ class ConfigFileLine {
   }
 
   //! Return the list of configuration values
-  list<string> getValues() const{
+  std::list<std::string> getValues() const{
     // This operation is somewhat time-consuming!
     return values;
   }
 
   //! Sets the list of configuration values
-  void setValues(const list<string> &v){
+  void setValues(const std::list<std::string> &v){
     values=v;
   }
 
   //! Get option name
-  const string &getOptionName() const{
+  const std::string &getOptionName() const{
     return option;
   }
 
   //! Sets the scope by prepending "scope":: to the option name
-  void setScope(const string &scope);
+  void setScope(const std::string &scope);
   
   //! Print the contents of the rule to stdout
   void print() const;
 
   //! stream operator
-  friend ostream & operator<< (ostream & out, const ConfigFileLine & line) ;
+  friend std::ostream & operator<< (std::ostream & out, const ConfigFileLine & line) ;
 
  private:
 
-  string option;                //!< The name of the option
-  list<string> values;     //!< The list of option values
+  std::string option;                //!< The name of the option
+  std::list<std::string> values;     //!< The list of option values
 
   //! For convinience a ValueIterator type is defined which walks along
   //! the list of option strings
-  typedef list<string>::const_iterator ValueIterator;
+  typedef std::list<std::string>::const_iterator ValueIterator;
 
 };
 

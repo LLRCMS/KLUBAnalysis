@@ -32,11 +32,11 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   vector<string> sigSamplesList = gConfigParser->readStringListOption ("general::signals") ;
-  vector<sample> sigSamples ;
+  vector<mysample> sigSamples ;
   readSamples (sigSamples, sigSamplesList) ;
 
   vector<string> bkgSamplesList = gConfigParser->readStringListOption ("general::backgrounds") ;
-  vector<sample> bkgSamples ;
+  vector<mysample> bkgSamples ;
   readSamples (bkgSamples, bkgSamplesList) ;
 
   // get the selections to be applied

@@ -1,9 +1,9 @@
 #include "utils.h"
 
-using namespace std ;
+//using namespace std ;
 
 
-sample::sample (TString theSampleName, TString theSampleFileName, 
+mysample::mysample (TString theSampleName, TString theSampleFileName,
                 TString readingOption, TString treeName) : 
   sampleName (theSampleName),
   sampleFileName (theSampleFileName) 
@@ -18,7 +18,7 @@ sample::sample (TString theSampleName, TString theSampleFileName,
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
-float sample::calcEfficiency ()
+float mysample::calcEfficiency ()
 {
   TH1F * effHisto = (TH1F *) sampleFile->Get ("h_eff") ;
   if (effHisto->GetBinContent (1) == 0) 
@@ -39,17 +39,17 @@ float sample::calcEfficiency ()
 
 
 int
-readSamples (vector<sample> & samples, vector<string> & samplesList, TString readOption)
+readSamples (std::vector<mysample> & samples, std::vector<std::string> & samplesList, TString readOption)
 {
   for (unsigned int iSample = 0 ; iSample < samplesList.size () ; ++iSample)
     {
       TString sampleFolder = gConfigParser->readStringOption (
           TString ("samples::") + samplesList.at (iSample).c_str ()
         ) ;
-      cout << "reading " << samplesList.at (iSample) << " from : " << sampleFolder << "\n" ; 
-      samples.push_back (sample (samplesList.at (iSample), sampleFolder + "/total.root", readOption)) ; 
+      std::cout << "reading " << samplesList.at (iSample) << " from : " << sampleFolder << "\n" ;
+      samples.push_back (mysample (samplesList.at (iSample), sampleFolder + "/total.root", readOption)) ;
       int done = samples.back ().sampleTree->GetEntries () ;  
-      cout << " --> read " << done << " events\n" ; 
+      std::cout << " --> read " << done << " events\n" ;
     }
   return 0 ;
 }
@@ -58,19 +58,19 @@ readSamples (vector<sample> & samples, vector<string> & samplesList, TString rea
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 int
-readSamples (vector<sample> & samples, vector<string> & samplesList, const unique_ptr<CfgParser> & lConfigParser, TString readOption)
+readSamples (std::vector<mysample> & samples, std::vector<std::string> & samplesList, const std::unique_ptr<CfgParser> & lConfigParser, TString readOption)
 {
   for (unsigned int iSample = 0 ; iSample < samplesList.size () ; ++iSample)
     {
       TString sampleFolder = lConfigParser->readStringOpt (
 							   (TString ("samples::") + samplesList.at (iSample).c_str ()).Data()
 							   ) ;
-      cout << "reading " << samplesList.at (iSample) << " from : " << sampleFolder << "\n" ; 
+      std::cout << "reading " << samplesList.at (iSample) << " from : " << sampleFolder << "\n" ;
       //vector<Sample> sample (new Sample(samplesList.at (iSample) , (sampleFolder + string("/goodfiles.txt")).Data()));
       //#samples.push_back (sample);
-      samples.push_back (sample (samplesList.at (iSample), sampleFolder + "/total.root", readOption)) ; 
+      samples.push_back (mysample (samplesList.at (iSample), sampleFolder + "/total.root", readOption)) ;
       int done = samples.back ().sampleTree->GetEntries () ;  
-      cout << " --> read " << done << " events\n" ; 
+      std::cout << " --> read " << done << " events\n" ;
     }
   return 0 ;
 }
@@ -79,28 +79,28 @@ readSamples (vector<sample> & samples, vector<string> & samplesList, const uniqu
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
-vector<pair<TString, TCut> >
-readCutsFile (string filename)
+std::vector<std::pair<TString, TCut> >
+readCutsFile (std::string filename)
 {
-  ifstream infile (filename) ;
-  vector<pair<TString, TCut> > selections ;
+  std::ifstream infile (filename) ;
+  std::vector<std::pair<TString, TCut> > selections ;
 
-  string line ;
+  std::string line ;
   while (getline (infile, line))
     {
-      istringstream iss (line) ;
-      string dummy ;
+      std::istringstream iss (line) ;
+      std::string dummy ;
       iss >> dummy ;
       if (dummy.size () < 2) continue ;
       size_t found = dummy.find ("%") ;
-      if (found != string::npos) continue ;
+      if (found != std::string::npos) continue ;
       size_t limit = line.find_first_of ("=") ;
-      if (limit == string::npos) continue ;
+      if (limit == std::string::npos) continue ;
 //       cout << line << endl ;
 //       cout << limit << endl ;
-      string selection = line.substr (limit+1) ;
+      std::string selection = line.substr (limit+1) ;
 //       cout << dummy << "|" << selection << endl ;
-      selections.push_back (pair<TString, TCut> (dummy.c_str (), selection.c_str ())) ;
+      selections.push_back (std::pair<TString, TCut> (dummy.c_str (), selection.c_str ())) ;
     }
   return selections ;  
 }
@@ -109,31 +109,31 @@ readCutsFile (string filename)
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
-vector<pair <TString, TCut> > 
-readCutsFile (vector<string> activeSelections, string filename)
+std::vector<std::pair <TString, TCut> >
+readCutsFile (std::vector<std::string> activeSelections, std::string filename)
 {
-  ifstream infile (filename) ;
-  vector<pair<TString, TCut> > selections ;
+  std::ifstream infile (filename) ;
+  std::vector<std::pair<TString, TCut> > selections ;
 
-  string line ;
+  std::string line ;
   while (getline (infile, line))
     {
-      istringstream iss (line) ;
-      string dummy ;
+      std::istringstream iss (line) ;
+      std::string dummy ;
       iss >> dummy ;
       if (dummy.size () < 2) continue ;
       size_t found = dummy.find ("#") ;
-      if (found != string::npos) continue ;
+      if (found != std::string::npos) continue ;
       size_t limit = line.find_first_of ("=") ;
-      if (limit == string::npos) continue ;
+      if (limit == std::string::npos) continue ;
 //       cout << line << endl ;
 //       cout << limit << endl ;
-      string selection = line.substr (limit+1) ;
+      std::string selection = line.substr (limit+1) ;
 //       cout << dummy << "|" << selection << endl ;
       if (find (activeSelections.begin (), activeSelections.end (), dummy) 
           == activeSelections.end ())
         continue ;
-      selections.push_back (pair<TString, TCut> (dummy.c_str (), selection.c_str ())) ;
+      selections.push_back (std::pair<TString, TCut> (dummy.c_str (), selection.c_str ())) ;
     }
   return selections ;  
 }
@@ -141,38 +141,38 @@ readCutsFile (vector<string> activeSelections, string filename)
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-vector<pair <string, string> > readVarNamesFile (vector<string> varList, string filename)
+std::vector<std::pair <std::string, std::string> > readVarNamesFile (std::vector<std::string> varList, std::string filename)
 {
-  ifstream infile (filename) ;
-  vector<pair<string, string> > varNames ;
+  std::ifstream infile (filename) ;
+  std::vector<std::pair<std::string, std::string> > varNames ;
 
-  string comments("@@@");
+  std::string comments("@@@");
 
-  string line ;
+  std::string line ;
   while (getline (infile, line))
   {
-      istringstream iss (line) ;
-      string dummy ;
+      std::istringstream iss (line) ;
+      std::string dummy ;
       iss >> dummy ;
       //cout << "PARSE:--" << dummy << endl;
       if (dummy.size () < 2) continue ;
       size_t found = dummy.find (comments) ;
-      if (found != string::npos) continue ;
+      if (found != std::string::npos) continue ;
       size_t limit = line.find_first_of ("=") ;
-      if (limit == string::npos) continue ;    
-      string name = line.substr (limit+1) ;
+      if (limit == std::string::npos) continue ;
+      std::string name = line.substr (limit+1) ;
       if (find (varList.begin (), varList.end (), dummy) 
           == varList.end ())
         continue ;
       // trim tring as whitespace interfere with ROOT positioning
-      size_t first = name.find_first_not_of(string(" \t\f\v\n\r"));
-      size_t last = name.find_last_not_of(string(" \t\f\v\n\r"));
+      size_t first = name.find_first_not_of(std::string(" \t\f\v\n\r"));
+      size_t last = name.find_last_not_of(std::string(" \t\f\v\n\r"));
       name = name.substr(first, (last-first+1));
 
       //name = string(boost::algorithm::trim( name )) ;
       //varNames.push_back (pair<string, string> (dummy, name) ) ;
       //cout << "!" << dummy << "! !" << name << "!" << endl;
-      varNames.push_back(make_pair(dummy, name));
+      varNames.push_back(std::make_pair(dummy, name));
   }
   return varNames;
 }
@@ -204,7 +204,7 @@ std::vector<std::string> split(const std::string &s, char delim)
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
-void addTo (vector<float> & total, vector<float> & addition)
+void addTo (std::vector<float> & total, std::vector<float> & addition)
 {
   for (unsigned int i = 0 ; i < total.size () ; ++i)
     total.at (i) += addition.at (i) ;
@@ -213,13 +213,13 @@ void addTo (vector<float> & total, vector<float> & addition)
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-void printTableTitle (std::ostream& out, vector<string> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
+void printTableTitle (std::ostream& out, std::vector<std::string> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns)
 {
   for (unsigned int i = 0 ; i < NSpacesColZero ; ++i) out << " " ;
   out << "| " ;
   for (unsigned int iSample = 0 ; iSample < sample.size () ; ++iSample)
     {
-      string word = sample.at (iSample).substr (0, NSpacesColumns) ;
+      std::string word = sample.at (iSample).substr (0, NSpacesColumns) ;
       out << word ;
       if ( NSpacesColumns < word.size () ) NSpacesColumns = word.size();
       for (unsigned int i = 0 ; i < NSpacesColumns - word.size () ; ++i) out << " " ;
@@ -231,9 +231,9 @@ void printTableTitle (std::ostream& out, vector<string> & sample, unsigned int N
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-void printTableTitle (std::ostream& out, vector<sample> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
+void printTableTitle (std::ostream& out, std::vector<mysample> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns)
 {
-  vector<string> names ;
+  std::vector<std::string> names ;
   for (unsigned int iSample = 0 ; iSample < sample.size () ; ++iSample)
     names.push_back (sample.at (iSample).sampleName.Data ()) ;
   printTableTitle (out, names, NSpacesColZero, NSpacesColumns) ;
@@ -242,9 +242,9 @@ void printTableTitle (std::ostream& out, vector<sample> & sample, unsigned int N
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-void printTableTitle (std::ostream& out, vector<sample> & sample, vector<string> & DataDrivenBkgsName, unsigned int NSpacesColZero, unsigned int NSpacesColumns)
+void printTableTitle (std::ostream& out, std::vector<mysample> & sample, std::vector<std::string> & DataDrivenBkgsName, unsigned int NSpacesColZero, unsigned int NSpacesColumns)
 {
-  vector<string> names ;
+  std::vector<std::string> names ;
   for (unsigned int iSample = 0 ; iSample < sample.size () ; ++iSample)
     names.push_back (sample.at (iSample).sampleName.Data ()) ;
 
@@ -256,14 +256,14 @@ void printTableTitle (std::ostream& out, vector<sample> & sample, vector<string>
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-void printTableBody  (std::ostream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples,
+void printTableBody  (std::ostream& out, std::vector<std::pair <TString, TCut> > & selections, counters & count, std::vector<mysample> & samples,
                       unsigned int NSpacesColZero, unsigned int NSpacesColumns, unsigned int precision)
 {
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
   {
     out << selections.at (iSel).first ;
-    if ( NSpacesColZero < string(selections.at (iSel).first.Data ()).size () ) NSpacesColZero = string(selections.at (iSel).first.Data ()).size () ; //guard if name too long
-    for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) out << " " ;
+    if ( NSpacesColZero < std::string(selections.at (iSel).first.Data ()).size () ) NSpacesColZero = std::string(selections.at (iSel).first.Data ()).size () ; //guard if name too long
+    for (unsigned int i = 0 ; i < NSpacesColZero - std::string(selections.at (iSel).first.Data ()).size () ; ++i) out << " " ;
     out << "|" ;
     for (unsigned int iSample = 0 ; iSample < samples.size () ; ++iSample)
       {
@@ -271,7 +271,7 @@ void printTableBody  (std::ostream& out, vector<pair <TString, TCut> > & selecti
         int subtractspace = 0 ;
         if (evtnum > 0) subtractspace = int (log10 (evtnum)) + precision + 1 ;
         for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) out << " " ;
-        out << setprecision (precision) << fixed << evtnum
+        out << std::setprecision (precision) << std::fixed << evtnum
              << " |" ;
       }
     out << "\n" ;
@@ -279,14 +279,14 @@ void printTableBody  (std::ostream& out, vector<pair <TString, TCut> > & selecti
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-void printTableBody  (std::ostream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples, vector<vector<float>> & DataDrivenSamplesYields,
+void printTableBody  (std::ostream& out, std::vector<std::pair <TString, TCut> > & selections, counters & count, std::vector<mysample> & samples, std::vector<std::vector<float>> & DataDrivenSamplesYields,
                       unsigned int NSpacesColZero, unsigned int NSpacesColumns, unsigned int precision)
 {
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
   {
     out << selections.at (iSel).first ;
-    if ( NSpacesColZero < string(selections.at (iSel).first.Data ()).size () ) NSpacesColZero = string(selections.at (iSel).first.Data ()).size () ; //guard if name too long
-    for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) out << " " ;
+    if ( NSpacesColZero < std::string(selections.at (iSel).first.Data ()).size () ) NSpacesColZero = std::string(selections.at (iSel).first.Data ()).size () ; //guard if name too long
+    for (unsigned int i = 0 ; i < NSpacesColZero - std::string(selections.at (iSel).first.Data ()).size () ; ++i) out << " " ;
     out << "|" ;
     
     for (unsigned int iSample = 0 ; iSample < samples.size () ; ++iSample)
@@ -295,7 +295,7 @@ void printTableBody  (std::ostream& out, vector<pair <TString, TCut> > & selecti
         int subtractspace = 0 ;
         if (evtnum > 0) subtractspace = int (log10 (evtnum)) + precision + 1 ;
         for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) out << " " ;
-        out << setprecision (precision) << fixed << evtnum
+        out << std::setprecision (precision) << std::fixed << evtnum
              << " |" ;
       }
     for (unsigned int iDDSample = 0 ; iDDSample < DataDrivenSamplesYields.size () ; ++iDDSample)
@@ -304,7 +304,7 @@ void printTableBody  (std::ostream& out, vector<pair <TString, TCut> > & selecti
         int subtractspace = 0 ;
         if (evtnum > 0) subtractspace = int (log10 (evtnum)) + precision + 1 ;
         for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) out << " " ;
-        out << setprecision (precision) << fixed << evtnum
+        out << std::setprecision (precision) << std::fixed << evtnum
              << " |" ;
       }
 
@@ -314,14 +314,14 @@ void printTableBody  (std::ostream& out, vector<pair <TString, TCut> > & selecti
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-void printTableBodyEff  (std::ostream& out, vector<pair <TString, TCut> > & selections, counters & count, vector<sample> & samples,
+void printTableBodyEff  (std::ostream& out, std::vector<std::pair <TString, TCut> > & selections, counters & count, std::vector<mysample> & samples,
                       unsigned int NSpacesColZero, unsigned int NSpacesColumns, unsigned int precision)
 {
   for (unsigned int iSel = 0 ; iSel < selections.size () ; ++iSel)
   {
     out << selections.at (iSel).first ;
-    if ( NSpacesColZero < string(selections.at (iSel).first.Data ()).size () ) NSpacesColZero = string(selections.at (iSel).first.Data ()).size () ; //guard if name too long
-    for (unsigned int i = 0 ; i < NSpacesColZero - string(selections.at (iSel).first.Data ()).size () ; ++i) out << " " ;
+    if ( NSpacesColZero < std::string(selections.at (iSel).first.Data ()).size () ) NSpacesColZero = std::string(selections.at (iSel).first.Data ()).size () ; //guard if name too long
+    for (unsigned int i = 0 ; i < NSpacesColZero - std::string(selections.at (iSel).first.Data ()).size () ; ++i) out << " " ;
     out << "|" ;
     for (unsigned int iSample = 0 ; iSample < samples.size () ; ++iSample)
       {
@@ -338,9 +338,9 @@ void printTableBodyEff  (std::ostream& out, vector<pair <TString, TCut> > & sele
         //int subtractspace = 0 ;
         //if (evtnum > 0) subtractspace = int (log10 (evtnum)) + precision + 1 ;
         //for (unsigned int i = 0 ; i < NSpacesColumns - subtractspace ; ++i) out << " " ;
-        out << setprecision (precision) << fixed << totEff;
+        out << std::setprecision (precision) << std::fixed << totEff;
         out << " (";
-        out << setprecision (precision) << fixed << relEff;
+        out << std::setprecision (precision) << std::fixed << relEff;
         out << " %)";
         //out << "INPUT: " << count.counters.at (iSample).at(iSel+1) << " / " << count.counters.at (iSample).at(0);
         out << " |" ;

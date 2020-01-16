@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 
     // read MC sample
     vector<string> bkgSamplesList = gConfigParser->readStringListOption ("general::backgrounds") ;   
-    vector<sample> samples ;
+    vector<mysample> samples ;
     readSamples (samples, bkgSamplesList) ;
 
     // read list of selections

@@ -47,7 +47,7 @@ void printTitle (vector<string> & sample, unsigned int NSpacesColZero, unsigned 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
-void printTitle (vector<sample> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns) 
+void printTitle (vector<mysample> & sample, unsigned int NSpacesColZero, unsigned int NSpacesColumns)
 {
   vector<string> names ;
   for (unsigned int iSample = 0 ; iSample < sample.size () ; ++iSample)
@@ -61,7 +61,7 @@ void printTitle (vector<sample> & sample, unsigned int NSpacesColZero, unsigned 
 
 
 void
-add2DHistos (vector<sample> & samples, HistoManager * manager,
+add2DHistos (vector<mysample> & samples, HistoManager * manager,
              vector<vector<string> > & variablesList,
              vector<pair <TString, TCut> > & selections,
              bool isSignal,
@@ -133,7 +133,7 @@ vector<string> listNeededVars (vector<vector<string> > & variablesList)
 
 
 void
-fill2DHistos (vector<sample> & samples, HistoManager * manager, 
+fill2DHistos (vector<mysample> & samples, HistoManager * manager,
               vector<vector<string> > & variablesList,
               vector<pair <TString, TCut> > & selections,
               float lumi,
@@ -219,7 +219,7 @@ fill2DHistos (vector<sample> & samples, HistoManager * manager,
 
 
 vector<THStack *> 
-stackHistos (vector<sample> & samples, HistoManager * manager, 
+stackHistos (vector<mysample> & samples, HistoManager * manager,
             vector<string> & variablesList,
             vector<pair <TString, TCut> > & selections,
             const string & tag)
@@ -284,7 +284,7 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   
   vector<string> sigSamplesList = gConfigParser->readStringListOption ("general::signals") ;
-  vector<sample> sigSamples ;
+  vector<mysample> sigSamples ;
   readSamples (sigSamples, sigSamplesList) ;
 
   vector<float> signalScales ;
@@ -296,11 +296,11 @@ int main (int argc, char** argv)
     }
 
   vector<string> bkgSamplesList = gConfigParser->readStringListOption ("general::backgrounds") ;
-  vector<sample> bkgSamples ;
+  vector<mysample> bkgSamples ;
   readSamples (bkgSamples, bkgSamplesList) ;
 
   vector<string> DATASamplesList = gConfigParser->readStringListOption ("general::data") ;
-  vector<sample> DATASamples ;
+  vector<mysample> DATASamples ;
   readSamples (DATASamples, DATASamplesList) ;
 
   // get the selections to be applied

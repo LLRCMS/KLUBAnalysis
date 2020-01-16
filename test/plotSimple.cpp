@@ -63,13 +63,13 @@ int main (int argc, char** argv)
     
     vector<string> sigSamplesList; 
     vector<float> signalScales ;
-    vector<sample> sigSamples ;
+    vector<mysample> sigSamples ;
   
     vector<string> bkgSamplesList;
-    vector<sample> bkgSamples ;
+    vector<mysample> bkgSamples ;
   
     vector<string> DATASamplesList;
-    vector<sample> DATASamples ;
+    vector<mysample> DATASamples ;
   
   
     if (gConfigParser->isDefined ("general::signals"))
