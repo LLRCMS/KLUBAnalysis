@@ -1,6 +1,6 @@
 # KLUBAnalysis
 
-Repo for the h->hh->bbtautau analysis within the LLR framework
+Repo for the hh->bbtautau analysis within the LLR framework
 
 ## Instructions for Run2 Legacy Analysis
 ```
@@ -157,7 +157,7 @@ make exe
 ```
 </details>
 
-+## How To
+## How To
 Please refer to:
 ```
 https://codimd.web.cern.ch/s/HJM-lQ2AX#
