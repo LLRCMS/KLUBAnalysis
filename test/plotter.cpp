@@ -72,7 +72,7 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   
   vector<string> sigSamplesList = gConfigParser->readStringListOption ("general::signals") ;
-  vector<sample> sigSamples ;
+  vector<mysample> sigSamples ;
   readSamples (sigSamples, sigSamplesList) ;
 
   vector<float> signalScales ;
@@ -84,11 +84,11 @@ int main (int argc, char** argv)
     }
 
   vector<string> bkgSamplesList = gConfigParser->readStringListOption ("general::backgrounds") ;
-  vector<sample> bkgSamples ;
+  vector<mysample> bkgSamples ;
   readSamples (bkgSamples, bkgSamplesList) ;
 
   // FIXME si riesce ad evitare questa duplicazione?
-  vector<sample> allSamples (bkgSamples) ;  
+  vector<mysample> allSamples (bkgSamples) ;
   allSamples.insert (allSamples.end (), sigSamples.begin (), sigSamples.end ()) ;
   
   // get the selections to be applied

@@ -37,11 +37,11 @@ void addOverFlow (TH1F * input) {
   if(input->GetDefaultSumw2())
     dummy->Sumw2 () ;
 
-  string name = input->GetName () ;
+  std::string name = input->GetName () ;
   input->SetName ("trash") ;
   dummy->GetXaxis()->SetTitle(input->GetXaxis()->GetTitle());
   dummy->SetName (name.c_str ()) ;
-  swap (*input, *dummy) ;
+  std::swap (*input, *dummy) ;
   return ;
 
 }
@@ -119,10 +119,10 @@ void setAsymmetricErrorsTo2DHisto (TH2F * input) { // set the error in each bin 
                                                                                               
 TH1F *  getHistoOfErrors (TH1F * input, int isLog) {
 
-  string name = "err_" ;
+  std::string name = "err_" ;
   name += input->GetName () ;
   if(isLog) name +="_log";
-  string title = "errors of " ;
+  std::string title = "errors of " ;
   title += input->GetTitle () ;
   TH1F * dummy = new TH1F (
 			   name.c_str (),
@@ -147,7 +147,7 @@ TH1F *  getHistoOfErrors (TH1F * input, int isLog) {
 TH1F* unRollingHistogram (TH2F* histo, int errorType){
 
   TH1F* dummy = new TH1F("dummy","",(histo->GetNbinsX())*(histo->GetNbinsY()),0,histo->GetNbinsX()*histo->GetNbinsY());
-  dummy->SetName((string(histo->GetName())+"_dummy").c_str());
+  dummy->SetName((std::string(histo->GetName())+"_dummy").c_str());
   dummy->Sumw2();
 
   // copy all the entries (basic structure inside the matrix)                                                                                                                  
@@ -202,7 +202,7 @@ TH1F* unRollingHistogram (TH2F* histo, int errorType){
                                                                                              
 THStack * stackMe (TH1F * histo)
 {
-  string name = histo->GetName () ;
+  std::string name = histo->GetName () ;
   name += "_st" ;
   THStack * dummy = new THStack (name.c_str (), "") ;
   dummy->Add (histo) ;
@@ -213,7 +213,7 @@ THStack * stackMe (TH1F * histo)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----  
 
                                                                                                  
-TH1F* mirrorHistogram(string name, TH1F* h1, TH1F*h2)
+TH1F* mirrorHistogram(std::string name, TH1F* h1, TH1F*h2)
 {
   TH1F* dummy = (TH1F*) h1->Clone(name.c_str());
   dummy->Reset();
@@ -327,7 +327,7 @@ float findNonNullMinimum (TH1F * histo)
 // xmin ymin xmax ymax
 // islog : search only non-null minima
 // nostack: search the max of each histo and not the max of the stack itself
-vector<float> getExtremes (THStack * hstack, bool islog, bool nostack)
+std::vector<float> getExtremes (THStack * hstack, bool islog, bool nostack)
 {
   float ymax = hstack->GetMaximum () ;
   float xmin = ((TH1F*)(hstack->GetStack()->Last()))->GetXaxis()->GetXmin() ; 
@@ -371,7 +371,7 @@ vector<float> getExtremes (THStack * hstack, bool islog, bool nostack)
     else ymax = -999999999999.; // can happen that some histos are empty, return dummy value
   }
 
-  vector<float> extremes (4, 0.) ;
+  std::vector<float> extremes (4, 0.) ;
   extremes.at (0) = xmin ;
   extremes.at (1) = ymin ;
   extremes.at (2) = xmax ;
@@ -385,7 +385,7 @@ vector<float> getExtremes (THStack * hstack, bool islog, bool nostack)
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // xmin ymin xmax ymax
-vector<float> getExtremes (std::vector<TH1F*>& histos, bool islog)
+std::vector<float> getExtremes (std::vector<TH1F*>& histos, bool islog)
 {
   float xmin = 1. ;
   float xmax = 0. ;
@@ -416,7 +416,7 @@ vector<float> getExtremes (std::vector<TH1F*>& histos, bool islog)
       xmax = histo->GetXaxis ()->GetXmax () ;
     }
   }
-  vector<float> extremes (4, 0.) ;
+  std::vector<float> extremes (4, 0.) ;
   extremes.at (0) = xmin ;
   extremes.at (1) = ymin ;
   extremes.at (2) = xmax ;
@@ -430,7 +430,7 @@ vector<float> getExtremes (std::vector<TH1F*>& histos, bool islog)
 
 float min3 (float uno, float due, float tre)
 {
-  return min (min (uno, due), tre) ;
+  return std::min (std::min (uno, due), tre) ;
 }
 
 
@@ -439,7 +439,7 @@ float min3 (float uno, float due, float tre)
 
 float max3 (float uno, float due, float tre)
 {
-  return max (max (uno, due), tre) ;
+  return std::max (std::max (uno, due), tre) ;
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -447,9 +447,9 @@ float max3 (float uno, float due, float tre)
 float min3Select (float uno, float due, float tre, bool useUno, bool useDue, bool useTre)
 {
   if (useUno && useDue && useTre) return min3 (uno, due, tre);
-  if (useUno && useDue)           return min (uno, due); 
-  if (useUno && useTre)           return min (uno, tre); 
-  if (useDue && useTre)           return min (due, tre); 
+  if (useUno && useDue)           return std::min (uno, due);
+  if (useUno && useTre)           return std::min (uno, tre);
+  if (useDue && useTre)           return std::min (due, tre);
   if (useUno)                     return uno;
   if (useDue)                     return due;
   if (useTre)                     return tre;
@@ -462,9 +462,9 @@ float min3Select (float uno, float due, float tre, bool useUno, bool useDue, boo
 float max3Select (float uno, float due, float tre, bool useUno, bool useDue, bool useTre)
 {
   if (useUno && useDue && useTre) return max3 (uno, due, tre);
-  if (useUno && useDue)           return max (uno, due); 
-  if (useUno && useTre)           return max (uno, tre); 
-  if (useDue && useTre)           return max (due, tre); 
+  if (useUno && useDue)           return std::max (uno, due);
+  if (useUno && useTre)           return std::max (uno, tre);
+  if (useDue && useTre)           return std::max (due, tre);
   if (useUno)                     return uno;
   if (useDue)                     return due;
   if (useTre)                     return tre;

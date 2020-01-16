@@ -27,7 +27,7 @@
 #include "HistoManager.h"
 #include "plotContainer.h"
 
-using namespace std ;
+//using namespace std ;
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----                                                                                                
 
@@ -72,7 +72,7 @@ void copyTitles (TH1F * histogram, THStack * hstack) ;
 float findNonNullMinimum (TH1F * histo) ;
 
 //mirror an histogram h1 wrt to h2
-TH1F* mirrorHistogram(string name, TH1F* h1, TH1F*h2) ;
+TH1F* mirrorHistogram(std::string name, TH1F* h1, TH1F*h2) ;
 
 // re-roll unrolled 2D distributions and return a TH2F.                                                                                                                    
 // templated on RooFit objects, works for RooHist and RooCurve,                                                                                                                 
@@ -90,7 +90,7 @@ TH2F * roll ( T * original,    // thing to be re-rolled
    
   if (nBinsY * nBinsX != nBinsOriginal)
     {
-      cerr << " problems in number of bins" << endl ;
+      std::cerr << " problems in number of bins" << std::endl ;
       exit (1) ;
     }
   TString name = "roll_" ;
@@ -111,8 +111,8 @@ TH2F * roll ( T * original,    // thing to be re-rolled
 }
  
 // xmin ymin xmax ymax
-vector<float> getExtremes (THStack * hstack, bool islog = false, bool nostack = false) ;
-vector<float> getExtremes (std::vector<TH1F*>& histos, bool islog = false) ;
+std::vector<float> getExtremes (THStack * hstack, bool islog = false, bool nostack = false) ;
+std::vector<float> getExtremes (std::vector<TH1F*>& histos, bool islog = false) ;
 
 float min3 (float uno, float due, float tre) ;
 float max3 (float uno, float due, float tre) ;

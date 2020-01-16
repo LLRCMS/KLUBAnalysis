@@ -28,7 +28,7 @@ using namespace std ;
 
 
 void
-calcTMVA (sample & thisSample, 
+calcTMVA (mysample & thisSample,
           vector<string> & trainingVariables, 
           vector<string> & spectatorVariables, 
           string mvaName, string weightsFile)
@@ -93,7 +93,7 @@ calcTMVA (sample & thisSample,
 
 
 void
-calcTMVA (vector<sample> & samples,
+calcTMVA (vector<mysample> & samples,
           vector<string> & trainingVariables,
           vector<string> & spectatorVariables,            
           string mvaName, string weightsFile)
@@ -138,7 +138,7 @@ int main (int argc, char** argv)
   // get the samples to be analised
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   
-  vector<sample> samples ;
+  vector<mysample> samples ;
   vector<string> samplesList = gConfigParser->readStringListOption ("general::signals") ;
   readSamples (samples, samplesList, "UPDATE") ;
   samplesList.clear () ;

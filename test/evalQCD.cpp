@@ -163,7 +163,7 @@ int main (int argc, char** argv)
   // .... .... .... .... .... .... .... .... .... .... .... ....
   
   vector<string> sigSamplesList = gConfigParser->readStringListOption ("general::signals") ;
-  vector<sample> sigSamples ;
+  vector<mysample> sigSamples ;
   readSamples (sigSamples, sigSamplesList) ;
 
   vector<float> signalScales (0);
@@ -175,11 +175,11 @@ int main (int argc, char** argv)
   //   }
 
   vector<string> bkgSamplesList = gConfigParser->readStringListOption ("general::backgrounds") ;
-  vector<sample> bkgSamples ;
+  vector<mysample> bkgSamples ;
   readSamples (bkgSamples, bkgSamplesList) ;
 
   vector<string> DATASamplesList = gConfigParser->readStringListOption ("general::data") ;
-  vector<sample> DATASamples ;
+  vector<mysample> DATASamples ;
   readSamples (DATASamples, DATASamplesList) ;
 
 /*
