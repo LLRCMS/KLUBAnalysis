@@ -1,17 +1,17 @@
 # KLUBAnalysis
 
-repo for the h->tautau/h->hh analysis within the LLR framework
+Repo for the h->hh->bbtautau analysis within the LLR framework
 
-## Instructions for 2018 Analysis 
+## Instructions for Run2 Legacy Analysis
 ```
-cmsrel CMSSW_9_0_0
-cd CMSSW_9_0_0/src
+cmsrel CMSSW_10_2_16
+cd CMSSW_10_2_16/src
 cmsenv
 
 git clone https://github.com/bvormwald/HHKinFit2
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
-git checkout 94x
+git checkout v8.0.1
 cd -
 
 scram b -j8
@@ -23,17 +23,15 @@ source setup.sh
 ./compile.sh
 cd ..
 
-git clone git@github.com:francescobrivio/KLUBAnalysis.git
+git clone git@github.com:LLRCMS/KLUBAnalysis.git
 cd KLUBAnalysis
-git checkout VBF2018_mib
+git checkout VBF_legacy
 
-mkdir interface/exceptions
 cd interface/exceptions
 ln -ns ../../../HHKinFit2/interface/exceptions/HHInvMConstraintException.h
 ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyRangeException.h
 ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyConstraintException.h
 cd -
-
 
 source scripts/setup.sh
 make
@@ -159,6 +157,15 @@ make exe
 ```
 </details>
 
++## How To
+Please refer to:
+```
+https://codimd.web.cern.ch/s/HJM-lQ2AX#
+```
+
+### (Old) How To:
+<details>
+
 ## SyncNtupleProducer
 Specify the options (channels, samples, etc.), in:
 ```
@@ -262,3 +269,4 @@ The MVA info is then added to the SKIM tree with:
 ```
 ./bin/addTMVA.exe config/addTMVA.cfg 
 ```
+</details>
