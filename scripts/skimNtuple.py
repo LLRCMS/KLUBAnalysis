@@ -37,6 +37,7 @@ if __name__ == "__main__":
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
     parser.add_option ('-i', '--input'     , dest='input'     , help='input folder'                          , default='none')
+    parser.add_option ('-Y', '--year'     , dest='year'     , help='year'     , default='2018')
     parser.add_option ('-x', '--xs'        , dest='xs'        , help='sample xs'                             , default='1.')
     parser.add_option ('-f', '--force'     , dest='force'     , help='replace existing reduced ntuples'      , default=False)
     parser.add_option ('-o', '--output'    , dest='output'    , help='output folder'                         , default='none')
@@ -50,7 +51,7 @@ if __name__ == "__main__":
     parser.add_option ('-H', '--hadd'      , dest='hadd'      , help='hadd the resulting ntuples'            , default='none')
     parser.add_option ('-c', '--config'    , dest='config'    , help='skim config file'                      , default='none')
     parser.add_option ('-n', '--njobs'     , dest='njobs'     , help='number of skim jobs'                   , default=100, type = int)
-    parser.add_option ('-k', '--kinfit'    , dest='dokinfit'  , help='run HH kin fitter'                     , default=False)
+    parser.add_option ('-k', '--kinfit'    , dest='dokinfit'  , help='run HH kin fitter'                     , default="True")
     parser.add_option ('-m', '--mt2'       , dest='domt2'     , help='run stransverse mass calculation'      , default=True)
     parser.add_option ('-y', '--xsscale'   , dest='xsscale'   , help='scale to apply on XS for stitching'    , default='1.0')
     parser.add_option ('-Z', '--htcutlow'  , dest='htcutlow'  , help='HT low cut for stitching on inclusive' , default='-999.0')
@@ -84,8 +85,8 @@ if __name__ == "__main__":
         scriptFile = open (opt.output + '/hadder.sh', 'w')
         scriptFile.write ('#!/bin/bash\n')
         scriptFile.write ('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
-        scriptFile.write ('cd /data_CMS/cms/govoni/CMSSW_7_4_5/src\n')
-        scriptFile.write ('export SCRAM_ARCH=slc6_amd64_gcc472\n')
+        scriptFile.write ('cd /home/llr/cms/amendola/HHLegacy/CMSSW_10_2_16/src\n')
+        scriptFile.write ('export SCRAM_ARCH=slc6_amd64_gcc700\n')
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('cd %s\n'%currFolder)
         scriptFile.write ('source scripts/setup.sh\n')
@@ -164,8 +165,13 @@ if __name__ == "__main__":
 
 #    skimmer = './bin/skimNtuple.exe'
     # skimmer = 'skimNtupleInclusive_Luca.exe'
-    skimmer = 'skimNtuple.exe'
-    # skimmer = 'getSelectionEfficiencyNew.exe'
+
+    skimmer = 'skimNtuple2018.exe'
+    if (opt.year == 2017):
+        skimmer = 'skimNtuple2016.exe'
+    elif (opt.year == 2016):
+        skimmer = 'skimNtuple2016.exe'
+# skimmer = 'getSelectionEfficiencyNew.exe'
 
     if opt.config == 'none' :
         print 'config file missing, exiting'
@@ -195,7 +201,7 @@ if __name__ == "__main__":
     jobsDir = currFolder + tagname + '/SKIM_' + basename (opt.input)
     jobsDir = jobsDir.rstrip (".txt")
     if os.path.exists (jobsDir) : os.system ('rm -f ' + jobsDir + '/*')
-    else                        : os.system ('mkdir ' + jobsDir)
+    else                        : os.system ('mkdir -p ' + jobsDir)
 
     # proc = subprocess.Popen ('voms-proxy-info', stdout=subprocess.PIPE)
     # tmp = [word for word in proc.stdout.read ().split ('\n') if 'timeleft' in word]
@@ -215,7 +221,7 @@ if __name__ == "__main__":
         scriptFile.write ('#!/bin/bash\n')
         scriptFile.write ('export X509_USER_PROXY=~/.t3/proxy.cert\n')
         scriptFile.write ('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
-        scriptFile.write ('cd /home/llr/cms/amendola/HH2017/CMSSW_9_0_0/src\n')
+        scriptFile.write ('cd /home/llr/cms/amendola/HHLegacy/CMSSW_10_2_16/src\n')
         #scriptFile.write ('export SCRAM_ARCH=slc6_amd64_gcc472\n')
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('cd %s\n'%currFolder)
@@ -254,8 +260,9 @@ if __name__ == "__main__":
         scriptFile.close ()
         os.system ('chmod u+rwx %s/skimJob_%d.sh'% (jobsDir,n))
 
-        # command = ('/opt/exp_soft/cms/t3/t3submit -q ' + opt.queue + ' \'' + jobsDir + '/skimJob_' + str (n) + '.sh\'')
-        command = '/opt/exp_soft/cms/t3/t3submit_el7 -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
+        
+        #command = '/opt/exp_soft/cms/t3/t3submit_el7 -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
+        command = '/home/llr/cms/amendola/t3submit_el7 -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
         if opt.sleep : time.sleep (0.1)
         os.system (command)
         commandFile.write (command + '\n')

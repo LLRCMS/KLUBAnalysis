@@ -2,10 +2,19 @@ import os, sys
 from subprocess import Popen, PIPE
 
 
-#tag = "MC_PU2017_12Apr2018_15May2018"
-tag = "Tau2017_26Jun2018"
 
-outFolder = '/home/llr/cms/amendola/HH2017/CMSSW_9_0_0/src/KLUBAnalysis/inputFiles/Data2017_26Jun2018'
+#tag = "Data2018A_Dec2019_resub_egamma"
+#tag = "Data2018ABC_Dec2019"
+#tag = "Data2018D_Dec2019"
+#tag = "Data2018D_Dec2019_resub"
+tag = "Data2018D_Dec2019_resub_egamma"
+#tag = "MC2018_Dec2019"
+#tag = "MC2018_Dec2019_resub"
+#tag = "Signals2018_Dec2019"
+
+outFolder = '/home/llr/cms/amendola/HHLegacy/CMSSW_10_2_16/src/KLUBAnalysis/inputFiles/Legacy2018_data/'
+#outFolder = '/home/llr/cms/amendola/HHLegacy/CMSSW_10_2_16/src/KLUBAnalysis/inputFiles/Legacy2018_backgrounds/'
+#outFolder = '/home/llr/cms/amendola/HHLegacy/CMSSW_10_2_16/src/KLUBAnalysis/inputFiles/Legacy2018_signals/'
 
 areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
                                  # if false: only add the polgrid server to run the skim and submit on root
@@ -44,7 +53,7 @@ print useOnly
 
 dpmhome = "/dpm/in2p3.fr/home/cms/trivcat"
 
-partialPath = "/store/user/camendol/HHNtuples2017/"
+partialPath = "/store/user/camendol/HHNtuples2018Legacy/"
 
 
 path = dpmhome + partialPath + tag
