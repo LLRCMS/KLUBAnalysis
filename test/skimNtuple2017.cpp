@@ -966,12 +966,17 @@ int main (int argc, char** argv)
   myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_IdAndIso_SF_Legacy/2017/Electron_Run2017_IdIso.root");
 
   // tau IdAndIso SF
-  TauIDSFTool * tauSFTool_MVA        = new TauIDSFTool("2017ReReco","MVAoldDM2017v2","Medium",1);       // for MVA2017v2 vs jets
-  TauIDSFTool * antiEleSFTool_vloose = new TauIDSFTool("2017ReReco","antiEleMVA6"   ,"VLoose");         // for MVA2017v2 vs ele VLoose
-  TauIDSFTool * antiEleSFTool_tight  = new TauIDSFTool("2017ReReco","antiEleMVA6"   ,"Tight");          // for MVA2017v2 vs ele Tight
-  TauIDSFTool * antiMuSFTool_loose   = new TauIDSFTool("2017ReReco","antiMu3"       ,"Loose");          // for MVA2017v2 vs mu Loose
-  TauIDSFTool * antiMuSFTool_tight   = new TauIDSFTool("2017ReReco","antiMu3"       ,"Tight");          // for MVA2017v2 vs mu Tight
-  TauIDSFTool * tauSFTool_deep       = new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets
+  TauIDSFTool * MVA_antiJet_medium = new TauIDSFTool("2016Legacy","MVAoldDM2017v2","Medium",1);         // for MVA2017v2 vs jets Medium
+  TauIDSFTool * MVA_antiEle_vloose = new TauIDSFTool("2016Legacy","antiEleMVA6"   ,"VLoose");           // for MVA2017v2 vs ele VLoose
+  TauIDSFTool * MVA_antiEle_tight  = new TauIDSFTool("2016Legacy","antiEleMVA6"   ,"Tight");            // for MVA2017v2 vs ele Tight
+  TauIDSFTool * MVA_antiMu_loose   = new TauIDSFTool("2016Legacy","antiMu3"       ,"Loose");            // for MVA2017v2 vs mu Loose
+  TauIDSFTool * MVA_antiMu_tight   = new TauIDSFTool("2016Legacy","antiMu3"       ,"Tight");            // for MVA2017v2 vs mu Tight
+
+  TauIDSFTool * Deep_antiJet_medium  = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets Medium
+  TauIDSFTool * Deep_antiEle_vvloose = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSe"  ,"VVLoose");  // for DeepTauv2p1 vs ele VVLoose
+  TauIDSFTool * Deep_antiEle_tight   = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSe"  ,"Tight");    // for DeepTauv2p1 vs ele Tight
+  TauIDSFTool * Deep_antiMu_loose    = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSmu" ,"Loose");    // for DeepTauv2p1 vs mu Loose
+  TauIDSFTool * Deep_antiMu_tight    = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
 
   // ------------------------------
 
@@ -2667,28 +2672,13 @@ int main (int argc, char** argv)
           idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
         }
 
-        idAndIsoSF_leg2_MVA_vsJet = tauSFTool_MVA        ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
-        idAndIsoSF_leg2_MVA_vsEle = antiEleSFTool_vloose ->getSFvsEta(tau2eta, tau2Genmatch);
-        idAndIsoSF_leg2_MVA_vsMu  = antiMuSFTool_tight   ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsJet = MVA_antiJet_medium ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsEle = MVA_antiEle_vloose ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsMu  = MVA_antiMu_tight   ->getSFvsEta(tau2eta, tau2Genmatch);
 
-        idAndIsoSF_leg2_deep_vsJet = tauSFTool_deep->getSFvsDM(tau2pt, tau2DM, tau2Genmatch);
-
-        //idAndIsoSF_leg2_deep_vsEle --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
-        if (tau2Genmatch == 1 || tau2Genmatch == 3 ) // e->tauh fake
-        {
-          if (tau2eta < 1.448 ) idAndIsoSF_leg2_deep_vsEle = 1.11; // anti-ele VVloose
-          if (tau2eta > 1.558 ) idAndIsoSF_leg2_deep_vsEle = 1.03; // anti-ele VVloose
-        }
-
-        //idAndIsoSF_leg2_deep_vsMu  --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
-        if (tau2Genmatch == 2 || tau2Genmatch == 4 ) // mu->tauh fake
-        {
-          if      (tau2eta < 0.4) idAndIsoSF_leg2_deep_vsMu = 0.917; // anti-mu Tight
-          else if (tau2eta < 0.8) idAndIsoSF_leg2_deep_vsMu = 0.791; // anti-mu Tight
-          else if (tau2eta < 1.2) idAndIsoSF_leg2_deep_vsMu = 0.668; // anti-mu Tight
-          else if (tau2eta < 1.7) idAndIsoSF_leg2_deep_vsMu = 1.068; // anti-mu Tight
-          else if (tau2eta < 2.3) idAndIsoSF_leg2_deep_vsMu = 4.074; // anti-mu Tight
-        }
+        idAndIsoSF_leg2_deep_vsJet = Deep_antiJet_medium  ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsEle = Deep_antiEle_vvloose ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsMu  = Deep_antiMu_tight    ->getSFvsEta(tau2eta, tau2Genmatch);
 
         if (tau2Genmatch==1 || tau2Genmatch==2 || tau2Genmatch==3 || tau2Genmatch==4 || tau2Genmatch==5)
         {
@@ -2733,28 +2723,13 @@ int main (int argc, char** argv)
           idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
         }
 
-        idAndIsoSF_leg2_MVA_vsJet = tauSFTool_MVA       ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
-        idAndIsoSF_leg2_MVA_vsEle = antiEleSFTool_tight ->getSFvsEta(tau2eta, tau2Genmatch);
-        idAndIsoSF_leg2_MVA_vsMu  = antiMuSFTool_loose  ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsJet = MVA_antiJet_medium ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsEle = MVA_antiEle_tight  ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsMu  = MVA_antiMu_loose   ->getSFvsEta(tau2eta, tau2Genmatch);
 
-        idAndIsoSF_leg2_deep_vsJet = tauSFTool_deep->getSFvsDM(tau2pt, tau2DM, tau2Genmatch);
-
-        //idAndIsoSF_leg2_deep_vsEle --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
-        if (tau2Genmatch == 1 || tau2Genmatch == 3 ) // e->tauh fake
-        {
-          if (tau2eta < 1.448 ) idAndIsoSF_leg2_deep_vsEle = 1.22; // anti-ele Tight
-          if (tau2eta > 1.558 ) idAndIsoSF_leg2_deep_vsEle = 0.93; // anti-ele Tight
-        }
-
-        //idAndIsoSF_leg2_deep_vsMu  --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
-        if (tau2Genmatch == 2 || tau2Genmatch == 4 ) // mu->tauh fake
-        {
-          if      (tau2eta < 0.4) idAndIsoSF_leg2_deep_vsMu = 1.024; // anti-mu Loose
-          else if (tau2eta < 0.8) idAndIsoSF_leg2_deep_vsMu = 0.695; // anti-mu Loose
-          else if (tau2eta < 1.2) idAndIsoSF_leg2_deep_vsMu = 0.987; // anti-mu Loose
-          else if (tau2eta < 1.7) idAndIsoSF_leg2_deep_vsMu = 0.906; // anti-mu Loose
-          else if (tau2eta < 2.3) idAndIsoSF_leg2_deep_vsMu = 5.447; // anti-mu Loose
-        }
+        idAndIsoSF_leg2_deep_vsJet = Deep_antiJet_medium ->getSFvsDM (tau2pt,  tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsEle = Deep_antiEle_tight  ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsMu  = Deep_antiMu_loose   ->getSFvsEta(tau2eta, tau2Genmatch);
 
         if (tau2Genmatch==1 || tau2Genmatch==2 || tau2Genmatch==3 || tau2Genmatch==4 || tau2Genmatch==5)
         {
@@ -2803,51 +2778,24 @@ int main (int argc, char** argv)
         float idAndIsoSF_leg2_deep_vsEle = 1.;
         float idAndIsoSF_leg2_deep_vsMu  = 1.;
 
-        idAndIsoSF_leg1_MVA_vsJet = tauSFTool_MVA        ->getSFvsDM (tau1pt , tau1DM, tau1Genmatch);
-        idAndIsoSF_leg1_MVA_vsEle = antiEleSFTool_vloose ->getSFvsEta(tau1eta, tau1Genmatch);
-        idAndIsoSF_leg1_MVA_vsMu  = antiMuSFTool_loose   ->getSFvsEta(tau1eta, tau1Genmatch);
+        // Leg 1
+        idAndIsoSF_leg1_MVA_vsJet = MVA_antiJet_medium ->getSFvsDM (tau1pt , tau1DM, tau1Genmatch);
+        idAndIsoSF_leg1_MVA_vsEle = MVA_antiEle_vloose ->getSFvsEta(tau1eta, tau1Genmatch);
+        idAndIsoSF_leg1_MVA_vsMu  = MVA_antiMu_loose   ->getSFvsEta(tau1eta, tau1Genmatch);
 
-        idAndIsoSF_leg1_deep_vsJet = tauSFTool_deep->getSFvsDM(tau1pt, tau1DM, tau1Genmatch);
+        idAndIsoSF_leg1_deep_vsJet = Deep_antiJet_medium  ->getSFvsDM(tau1pt, tau1DM, tau1Genmatch);
+        idAndIsoSF_leg1_deep_vsEle = Deep_antiEle_vvloose ->getSFvsEta(tau1eta, tau1Genmatch);
+        idAndIsoSF_leg1_deep_vsMu  = Deep_antiMu_loose    ->getSFvsEta(tau1eta, tau1Genmatch);
 
-        //idAndIsoSF_leg1_deep_vsEle --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
-        if (tau1Genmatch == 1 || tau1Genmatch == 3 ) // e->tauh fake
-        {
-          if (tau1eta < 1.448 ) idAndIsoSF_leg1_deep_vsEle = 1.11; // anti-ele VVLoose
-          if (tau1eta > 1.558 ) idAndIsoSF_leg1_deep_vsEle = 1.03; // anti-ele VVLoose
-        }
+        // Leg 2
+        idAndIsoSF_leg2_MVA_vsJet = MVA_antiJet_medium ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsEle = MVA_antiEle_vloose ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsMu  = MVA_antiMu_loose   ->getSFvsEta(tau2eta, tau2Genmatch);
 
-        //idAndIsoSF_leg1_deep_vsMu  --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
-        if (tau1Genmatch == 2 || tau1Genmatch == 4 ) // mu->tauh fake
-        {
-          if      (tau2eta < 0.4) idAndIsoSF_leg2_deep_vsMu = 1.024; // anti-mu Loose
-          else if (tau2eta < 0.8) idAndIsoSF_leg2_deep_vsMu = 0.695; // anti-mu Loose
-          else if (tau2eta < 1.2) idAndIsoSF_leg2_deep_vsMu = 0.987; // anti-mu Loose
-          else if (tau2eta < 1.7) idAndIsoSF_leg2_deep_vsMu = 0.906; // anti-mu Loose
-          else if (tau2eta < 2.3) idAndIsoSF_leg2_deep_vsMu = 5.447; // anti-mu Loose
-        }
+        idAndIsoSF_leg2_deep_vsJet = Deep_antiJet_medium  ->getSFvsDM(tau2pt, tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsEle = Deep_antiEle_vvloose ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsMu  = Deep_antiMu_loose    ->getSFvsEta(tau2eta, tau2Genmatch);
 
-        idAndIsoSF_leg2_MVA_vsJet = tauSFTool_MVA        ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
-        idAndIsoSF_leg2_MVA_vsEle = antiEleSFTool_vloose ->getSFvsEta(tau2eta, tau2Genmatch);
-        idAndIsoSF_leg2_MVA_vsMu  = antiMuSFTool_loose   ->getSFvsEta(tau2eta, tau2Genmatch);
-
-        idAndIsoSF_leg2_deep_vsJet = tauSFTool_deep->getSFvsDM(tau2pt, tau2DM, tau2Genmatch);
-
-        //idAndIsoSF_leg2_deep_vsEle --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
-        if (tau2Genmatch == 1 || tau2Genmatch == 3 ) // e->tauh fake
-        {
-          if (tau2eta < 1.448 ) idAndIsoSF_leg2_deep_vsEle = 1.11; // anti-ele VVLoose
-          if (tau2eta > 1.558 ) idAndIsoSF_leg2_deep_vsEle = 1.03; // anti-ele VVLoose
-        }
-
-        //idAndIsoSF_leg2_deep_vsMu  --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
-        if (tau2Genmatch == 2 || tau2Genmatch == 4 ) // mu->tauh fake
-        {
-          if      (tau2eta < 0.4) idAndIsoSF_leg2_deep_vsMu = 1.024; // anti-mu Loose
-          else if (tau2eta < 0.8) idAndIsoSF_leg2_deep_vsMu = 0.695; // anti-mu Loose
-          else if (tau2eta < 1.2) idAndIsoSF_leg2_deep_vsMu = 0.987; // anti-mu Loose
-          else if (tau2eta < 1.7) idAndIsoSF_leg2_deep_vsMu = 0.906; // anti-mu Loose
-          else if (tau2eta < 2.3) idAndIsoSF_leg2_deep_vsMu = 5.447; // anti-mu Loose
-        }
 
         if (tau1Genmatch==1 || tau1Genmatch==2 || tau1Genmatch==3 || tau1Genmatch==4 || tau1Genmatch==5)
         {
