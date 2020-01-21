@@ -788,11 +788,11 @@ int main (int argc, char** argv)
       cout << endl;
     }
 
-  string bRegrWeights("");
-  bool computeBregr = gConfigParser->readBoolOption ("bRegression::computeBregr");
-  if (computeBregr) bRegrWeights = gConfigParser->readStringOption("bRegression::weights");
+  //string bRegrWeights("");
+  //bool computeBregr = gConfigParser->readBoolOption ("bRegression::computeBregr");
+  //if (computeBregr) bRegrWeights = gConfigParser->readStringOption("bRegression::weights");
 
-  cout << "** INFO: computing b jet regression? " << computeBregr << " with weights " << bRegrWeights << endl;
+  //cout << "** INFO: computing b jet regression? " << computeBregr << " with weights " << bRegrWeights << endl;
 
   // DY new reweight (LO to NLO) map - Fractional Weight, Pt Weight and SF Weight maps
   bool doDYLOtoNLOreweight = (gConfigParser->isDefined("DYLOtoNLOreweight::doReweight") ? gConfigParser->readBoolOption ("DYLOtoNLOreweight::doReweight") : false);
@@ -897,12 +897,12 @@ int main (int argc, char** argv)
 
   // ------------------------------
 
-  bJetRegrVars bjrv;
-  TMVA::Reader *bRreader = new TMVA::Reader();
-  bjrv.setReader (bRreader);
-  string bRegrMethodName = "BDTG method";
-  if (computeBregr)
-    bRreader->BookMVA( bRegrMethodName.c_str(), bRegrWeights.c_str() ); 
+  //bJetRegrVars bjrv;
+  //TMVA::Reader *bRreader = new TMVA::Reader();
+  //bjrv.setReader (bRreader);
+  //string bRegrMethodName = "BDTG method";
+  //if (computeBregr)
+  //  bRreader->BookMVA( bRegrMethodName.c_str(), bRegrWeights.c_str() );
   
   // ------------------------------
 
@@ -910,6 +910,8 @@ int main (int argc, char** argv)
   PUReweight reweight (PUReweight::RUN2ANALYSIS, PUreweightFile);
 
   // ------------------------------
+
+  cout << "** INFO: useDepFlavor? " << useDeepFlavor << endl;
 
   string bTag_SFFile;
   string bTag_effFile;
@@ -1262,10 +1264,10 @@ int main (int argc, char** argv)
 	}
 
       // skip event if I want a specific SUSY point from the fastsim
-      if (susyModel != string("NOTSUSY"))
-	{
-	  if (string(theBigTree.susyModel.Data()) != susyModel) continue;  
-	}
+      //if (susyModel != string("NOTSUSY"))
+      //{
+      //  if (string(theBigTree.susyModel.Data()) != susyModel) continue;
+      //}
 
       float stitchWeight = 1.0;
       if (DY_tostitch)
@@ -3378,33 +3380,33 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet2_gen_matched = bjet2_gen_matched ? 1 : 0;
 
         double ptRegr[2] = {tlv_firstBjet.Pt(), tlv_secondBjet.Pt()};
-        if (computeBregr)
-        {
-          for (int iBJet = 0; iBJet <=1; iBJet++)
-          {
-            int bidx = (iBJet == 0 ? bjet1idx : bjet2idx);
-            bjrv.Jet_pt     = (iBJet == 0 ? tlv_firstBjet.Pt()  : tlv_secondBjet.Pt());
-            bjrv.Jet_eta    = (iBJet == 0 ? tlv_firstBjet.Eta() : tlv_secondBjet.Eta());
-            //bjrv.Jet_corr         = theBigTree.jets_rawPt->at(bidx);
-            bjrv.Jet_corr         = theBigTree.jetRawf->at(bidx); // should be 1./jetrawf ??
-            bjrv.rho              = theBigTree.rho;
-            bjrv.Jet_mt           = theBigTree.jets_mT->at(bidx);
-            bjrv.Jet_leadTrackPt  = theBigTree.jets_leadTrackPt->at(bidx);
-            bjrv.Jet_leptonPtRel  = theBigTree.jets_leptonPtRel->at(bidx);
-            bjrv.Jet_leptonPt     = theBigTree.jets_leptonPt->at(bidx);
-            bjrv.Jet_leptonDeltaR = theBigTree.jets_leptonDeltaR->at(bidx);
-            bjrv.Jet_neHEF   = theBigTree.jets_nHEF->at(bidx);
-            bjrv.Jet_neEmEF  = theBigTree.jets_nEmEF->at(bidx);
-            bjrv.Jet_chMult  = theBigTree.jets_chMult->at(bidx);
-            bjrv.Jet_vtxPt   = theBigTree.jets_vtxPt->at(bidx);
-            bjrv.Jet_vtxMass = theBigTree.jets_vtxMass->at(bidx);
-            bjrv.Jet_vtx3dL  = theBigTree.jets_vtx3dL->at(bidx);
-            bjrv.Jet_vtxNtrk = theBigTree.jets_vtxNtrk->at(bidx);
-            bjrv.Jet_vtx3deL = theBigTree.jets_vtx3deL->at(bidx);
+        //if (computeBregr)
+        //{
+        //  for (int iBJet = 0; iBJet <=1; iBJet++)
+        //  {
+        //    int bidx = (iBJet == 0 ? bjet1idx : bjet2idx);
+        //    bjrv.Jet_pt     = (iBJet == 0 ? tlv_firstBjet.Pt()  : tlv_secondBjet.Pt());
+        //    bjrv.Jet_eta    = (iBJet == 0 ? tlv_firstBjet.Eta() : tlv_secondBjet.Eta());
+        //    //bjrv.Jet_corr         = theBigTree.jets_rawPt->at(bidx);
+        //    bjrv.Jet_corr         = theBigTree.jetRawf->at(bidx); // should be 1./jetrawf ??
+        //    bjrv.rho              = theBigTree.rho;
+        //    bjrv.Jet_mt           = theBigTree.jets_mT->at(bidx);
+        //    bjrv.Jet_leadTrackPt  = theBigTree.jets_leadTrackPt->at(bidx);
+        //    bjrv.Jet_leptonPtRel  = theBigTree.jets_leptonPtRel->at(bidx);
+        //    bjrv.Jet_leptonPt     = theBigTree.jets_leptonPt->at(bidx);
+        //    bjrv.Jet_leptonDeltaR = theBigTree.jets_leptonDeltaR->at(bidx);
+        //    bjrv.Jet_neHEF   = theBigTree.jets_nHEF->at(bidx);
+        //    bjrv.Jet_neEmEF  = theBigTree.jets_nEmEF->at(bidx);
+        //    bjrv.Jet_chMult  = theBigTree.jets_chMult->at(bidx);
+        //    bjrv.Jet_vtxPt   = theBigTree.jets_vtxPt->at(bidx);
+        //    bjrv.Jet_vtxMass = theBigTree.jets_vtxMass->at(bidx);
+        //    bjrv.Jet_vtx3dL  = theBigTree.jets_vtx3dL->at(bidx);
+        //    bjrv.Jet_vtxNtrk = theBigTree.jets_vtxNtrk->at(bidx);
+        //    bjrv.Jet_vtx3deL = theBigTree.jets_vtx3deL->at(bidx);
 
-            ptRegr[iBJet] = (bRreader->EvaluateRegression (bRegrMethodName.c_str()))[0];
-          }
-        }
+        //    ptRegr[iBJet] = (bRreader->EvaluateRegression (bRegrMethodName.c_str()))[0];
+        //  }
+        //}
 
         // save the b-jets
         TLorentzVector tlv_firstBjet_raw = tlv_firstBjet;

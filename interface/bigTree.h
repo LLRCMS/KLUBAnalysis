@@ -84,7 +84,7 @@ public :
    Int_t           lheNOutPartons;
    Int_t           lheNOutB;
    Float_t         aMCatNLOweight;
-   TString         susyModel;
+   //TString         susyModel;
 
    std::vector<float>   *genpart_px;
    std::vector<float>   *genpart_py;
@@ -244,8 +244,6 @@ public :
    std::vector<int>     *decayMode;
    std::vector<Long64_t> *tauID;
    std::vector<float>   *combreliso;
-   // std::vector<float>   *daughters_IetaIeta;
-   // std::vector<float>   *daughters_deltaPhiSuperClusterTrackAtVtx;
    std::vector<float>   *daughters_depositR03_tracker;
    std::vector<float>   *daughters_depositR03_ecal;
    std::vector<float>   *daughters_depositR03_hcal;
@@ -255,10 +253,7 @@ public :
    std::vector<float>   *photonPtSumOutsideSignalCone;
    std::vector<int>     *daughters_decayModeFindingNewDMs;
    std::vector<float>   *daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;
-   std::vector<float>   *daughters_byIsolationMVArun2v1DBoldDMwLTraw;
-   std::vector<float>   *daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017;
    std::vector<float>   *daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017;
-   std::vector<float>   *daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017;
    std::vector<float>   *daughters_byDeepTau2017v2p1VSjetraw;
    std::vector<float>   *daughters_byDeepTau2017v2p1VSeraw;
    std::vector<float>   *daughters_byDeepTau2017v2p1VSmuraw;
@@ -326,6 +321,7 @@ public :
    // JEC uncertainty sources
    std::vector<float> *jets_jetUnc_AbsoluteFlavMap_up; // up variations
    std::vector<float> *jets_jetUnc_AbsoluteMPFBias_up;
+   std::vector<float> *jets_jetUnc_AbsoluteSample_up;
    std::vector<float> *jets_jetUnc_AbsoluteScale_up;
    std::vector<float> *jets_jetUnc_AbsoluteStat_up;
    std::vector<float> *jets_jetUnc_FlavorQCD_up;
@@ -345,6 +341,7 @@ public :
    std::vector<float> *jets_jetUnc_RelativePtEC1_up;
    std::vector<float> *jets_jetUnc_RelativePtEC2_up;
    std::vector<float> *jets_jetUnc_RelativePtHF_up;
+   std::vector<float> *jets_jetUnc_RelativeSample_up;
    std::vector<float> *jets_jetUnc_RelativeStatEC_up;
    std::vector<float> *jets_jetUnc_RelativeStatFSR_up;
    std::vector<float> *jets_jetUnc_RelativeStatHF_up;
@@ -353,6 +350,7 @@ public :
    std::vector<float> *jets_jetUnc_TimePtEta_up;
    std::vector<float> *jets_jetUnc_AbsoluteFlavMap_dw; // down variations
    std::vector<float> *jets_jetUnc_AbsoluteMPFBias_dw;
+   std::vector<float> *jets_jetUnc_AbsoluteSample_dw;
    std::vector<float> *jets_jetUnc_AbsoluteScale_dw;
    std::vector<float> *jets_jetUnc_AbsoluteStat_dw;
    std::vector<float> *jets_jetUnc_FlavorQCD_dw;
@@ -372,6 +370,7 @@ public :
    std::vector<float> *jets_jetUnc_RelativePtEC1_dw;
    std::vector<float> *jets_jetUnc_RelativePtEC2_dw;
    std::vector<float> *jets_jetUnc_RelativePtHF_dw;
+   std::vector<float> *jets_jetUnc_RelativeSample_dw;
    std::vector<float> *jets_jetUnc_RelativeStatEC_dw;
    std::vector<float> *jets_jetUnc_RelativeStatFSR_dw;
    std::vector<float> *jets_jetUnc_RelativeStatHF_dw;
@@ -414,6 +413,7 @@ public :
    TBranch        *b_EventNumber;   //!
    TBranch        *b_RunNumber;   //!
    TBranch        *b_lumi;   //!
+   TBranch        *b_year;   //!
    TBranch        *b_passecalBadCalibFilterUpdate;   //!
    TBranch        *b_prefiringweight;
    TBranch        *b_prefiringweightup;
@@ -472,7 +472,7 @@ public :
    TBranch        *b_lheNOutPartons; //!
    TBranch        *b_lheNOutB; //!
    TBranch        *b_aMCatNLOweight;   //!
-   TBranch        *b_susyModel;   //!
+   //TBranch        *b_susyModel;   //!
    TBranch        *b_genpart_px;   //!
    TBranch        *b_genpart_py;   //!
    TBranch        *b_genpart_pz;   //!
@@ -634,10 +634,10 @@ public :
    TBranch        *b_photonPtSumOutsideSignalCone;   //!
    TBranch        *b_daughters_decayModeFindingNewDMs;   //!
    TBranch        *b_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;   //!
-   TBranch        *b_daughters_byIsolationMVArun2v1DBoldDMwLTraw; //!
-   TBranch        *b_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017; //!
+   //TBranch        *b_daughters_byIsolationMVArun2v1DBoldDMwLTraw; //!
+   //TBranch        *b_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017; //!
    TBranch        *b_daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017; //!
-   TBranch        *b_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017;
+   //TBranch        *b_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017;
    TBranch        *b_daughters_byDeepTau2017v2p1VSjetraw;
    TBranch        *b_daughters_byDeepTau2017v2p1VSeraw;
    TBranch        *b_daughters_byDeepTau2017v2p1VSmuraw;
@@ -705,6 +705,7 @@ public :
    // JEC uncertainties
    TBranch        *b_jets_jetUnc_AbsoluteFlavMap_up; // Up variations
    TBranch        *b_jets_jetUnc_AbsoluteMPFBias_up;
+   TBranch        *b_jets_jetUnc_AbsoluteSample_up;
    TBranch        *b_jets_jetUnc_AbsoluteScale_up;
    TBranch        *b_jets_jetUnc_AbsoluteStat_up;
    TBranch        *b_jets_jetUnc_FlavorQCD_up;
@@ -724,6 +725,7 @@ public :
    TBranch        *b_jets_jetUnc_RelativePtEC1_up;
    TBranch        *b_jets_jetUnc_RelativePtEC2_up;
    TBranch        *b_jets_jetUnc_RelativePtHF_up;
+   TBranch        *b_jets_jetUnc_RelativeSample_up;
    TBranch        *b_jets_jetUnc_RelativeStatEC_up;
    TBranch        *b_jets_jetUnc_RelativeStatFSR_up;
    TBranch        *b_jets_jetUnc_RelativeStatHF_up;
@@ -732,6 +734,7 @@ public :
    TBranch        *b_jets_jetUnc_TimePtEta_up;
    TBranch        *b_jets_jetUnc_AbsoluteFlavMap_dw;  // Down variations
    TBranch        *b_jets_jetUnc_AbsoluteMPFBias_dw;
+   TBranch        *b_jets_jetUnc_AbsoluteSample_dw;
    TBranch        *b_jets_jetUnc_AbsoluteScale_dw;
    TBranch        *b_jets_jetUnc_AbsoluteStat_dw;
    TBranch        *b_jets_jetUnc_FlavorQCD_dw;
@@ -751,6 +754,7 @@ public :
    TBranch        *b_jets_jetUnc_RelativePtEC1_dw;
    TBranch        *b_jets_jetUnc_RelativePtEC2_dw;
    TBranch        *b_jets_jetUnc_RelativePtHF_dw;
+   TBranch        *b_jets_jetUnc_RelativeSample_dw;
    TBranch        *b_jets_jetUnc_RelativeStatEC_dw;
    TBranch        *b_jets_jetUnc_RelativeStatFSR_dw;
    TBranch        *b_jets_jetUnc_RelativeStatHF_dw;
@@ -825,7 +829,7 @@ public :
        daughters_py_TauDown = 0;
        daughters_pz_TauDown = 0;
        daughters_e_TauDown = 0;
-       daughters_hasTES = 0;
+       daughters_hasEES = 0;
        daughters_px_EleUp = 0;
        daughters_py_EleUp = 0;
        daughters_pz_EleUp = 0;
@@ -993,8 +997,6 @@ public :
        decayMode = 0;
        tauID = 0;
        combreliso = 0;
-       // daughters_IetaIeta = 0;
-       // daughters_deltaPhiSuperClusterTrackAtVtx = 0;
        daughters_depositR03_tracker = 0;
        daughters_depositR03_ecal = 0;
        daughters_depositR03_hcal = 0;
@@ -1004,10 +1006,7 @@ public :
        photonPtSumOutsideSignalCone = 0;
        daughters_decayModeFindingNewDMs = 0;
        daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits = 0;
-       daughters_byIsolationMVArun2v1DBoldDMwLTraw = 0;
-       daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017 = 0;
        daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017 = 0;
-       daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017 = 0;
        daughters_byDeepTau2017v2p1VSjetraw = 0;
        daughters_byDeepTau2017v2p1VSeraw = 0;
        daughters_byDeepTau2017v2p1VSmuraw = 0;
@@ -1073,6 +1072,7 @@ public :
        jets_JER = 0;
        jets_jetUnc_AbsoluteFlavMap_up = 0;
        jets_jetUnc_AbsoluteMPFBias_up = 0;
+       jets_jetUnc_AbsoluteSample_up = 0;
        jets_jetUnc_AbsoluteScale_up = 0;
        jets_jetUnc_AbsoluteStat_up = 0;
        jets_jetUnc_FlavorQCD_up = 0;
@@ -1092,6 +1092,7 @@ public :
        jets_jetUnc_RelativePtEC1_up = 0;
        jets_jetUnc_RelativePtEC2_up = 0;
        jets_jetUnc_RelativePtHF_up = 0;
+       jets_jetUnc_RelativeSample_up = 0;
        jets_jetUnc_RelativeStatEC_up = 0;
        jets_jetUnc_RelativeStatFSR_up = 0;
        jets_jetUnc_RelativeStatHF_up = 0;
@@ -1100,6 +1101,7 @@ public :
        jets_jetUnc_TimePtEta_up = 0;
        jets_jetUnc_AbsoluteFlavMap_dw = 0;
        jets_jetUnc_AbsoluteMPFBias_dw = 0;
+       jets_jetUnc_AbsoluteSample_dw = 0;
        jets_jetUnc_AbsoluteScale_dw = 0;
        jets_jetUnc_AbsoluteStat_dw = 0;
        jets_jetUnc_FlavorQCD_dw = 0;
@@ -1119,6 +1121,7 @@ public :
        jets_jetUnc_RelativePtEC1_dw = 0;
        jets_jetUnc_RelativePtEC2_dw = 0;
        jets_jetUnc_RelativePtHF_dw = 0;
+       jets_jetUnc_RelativeSample_dw = 0;
        jets_jetUnc_RelativeStatEC_dw = 0;
        jets_jetUnc_RelativeStatFSR_dw = 0;
        jets_jetUnc_RelativeStatHF_dw = 0;
@@ -1160,6 +1163,7 @@ public :
        fChain->SetBranchAddress("EventNumber", &EventNumber, &b_EventNumber);
        fChain->SetBranchAddress("RunNumber", &RunNumber, &b_RunNumber);
        fChain->SetBranchAddress("lumi", &lumi, &b_lumi);
+       fChain->SetBranchAddress("year", &year, &b_year);
        fChain->SetBranchAddress("passecalBadCalibFilterUpdate", &passecalBadCalibFilterUpdate, &b_passecalBadCalibFilterUpdate);
        fChain->SetBranchAddress("prefiringweight", &prefiringweight, &b_prefiringweight);
        fChain->SetBranchAddress("prefiringweightup", &prefiringweightup, &b_prefiringweightup);
@@ -1257,10 +1261,10 @@ public :
        fChain->SetBranchAddress("photonPtSumOutsideSignalCone", &photonPtSumOutsideSignalCone, &b_photonPtSumOutsideSignalCone);
        fChain->SetBranchAddress("daughters_decayModeFindingNewDMs", &daughters_decayModeFindingNewDMs, &b_daughters_decayModeFindingNewDMs);
        fChain->SetBranchAddress("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits, &b_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
-       fChain->SetBranchAddress("daughters_byIsolationMVArun2v1DBoldDMwLTraw", &daughters_byIsolationMVArun2v1DBoldDMwLTraw, &b_daughters_byIsolationMVArun2v1DBoldDMwLTraw);
-       fChain->SetBranchAddress("daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017", &daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017, &b_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017);
+       //fChain->SetBranchAddress("daughters_byIsolationMVArun2v1DBoldDMwLTraw", &daughters_byIsolationMVArun2v1DBoldDMwLTraw, &b_daughters_byIsolationMVArun2v1DBoldDMwLTraw);
+       //fChain->SetBranchAddress("daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017", &daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017, &b_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017);
        fChain->SetBranchAddress("daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017", &daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017, &b_daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017);
-       fChain->SetBranchAddress("daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017", &daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017, &b_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017);
+       //fChain->SetBranchAddress("daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017", &daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017, &b_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017);
        fChain->SetBranchAddress("daughters_byDeepTau2017v2p1VSjetraw", &daughters_byDeepTau2017v2p1VSjetraw, &b_daughters_byDeepTau2017v2p1VSjetraw);
        fChain->SetBranchAddress("daughters_byDeepTau2017v2p1VSeraw", &daughters_byDeepTau2017v2p1VSeraw, &b_daughters_byDeepTau2017v2p1VSeraw);
        fChain->SetBranchAddress("daughters_byDeepTau2017v2p1VSmuraw", &daughters_byDeepTau2017v2p1VSmuraw, &b_daughters_byDeepTau2017v2p1VSmuraw);
@@ -1326,6 +1330,7 @@ public :
        fChain->SetBranchAddress("jets_JER", &jets_JER, &b_jets_JER);
        fChain->SetBranchAddress("jets_jetUnc_AbsoluteFlavMap_up",   &jets_jetUnc_AbsoluteFlavMap_up,    &b_jets_jetUnc_AbsoluteFlavMap_up);
        fChain->SetBranchAddress("jets_jetUnc_AbsoluteMPFBias_up",   &jets_jetUnc_AbsoluteMPFBias_up,    &b_jets_jetUnc_AbsoluteMPFBias_up);
+       fChain->SetBranchAddress("jets_jetUnc_AbsoluteSample_up",    &jets_jetUnc_AbsoluteSample_up,     &b_jets_jetUnc_AbsoluteSample_up);
        fChain->SetBranchAddress("jets_jetUnc_AbsoluteScale_up",     &jets_jetUnc_AbsoluteScale_up,      &b_jets_jetUnc_AbsoluteScale_up);
        fChain->SetBranchAddress("jets_jetUnc_AbsoluteStat_up",      &jets_jetUnc_AbsoluteStat_up,       &b_jets_jetUnc_AbsoluteStat_up);
        fChain->SetBranchAddress("jets_jetUnc_FlavorQCD_up",         &jets_jetUnc_FlavorQCD_up,          &b_jets_jetUnc_FlavorQCD_up);
@@ -1345,6 +1350,7 @@ public :
        fChain->SetBranchAddress("jets_jetUnc_RelativePtEC1_up",     &jets_jetUnc_RelativePtEC1_up,      &b_jets_jetUnc_RelativePtEC1_up);
        fChain->SetBranchAddress("jets_jetUnc_RelativePtEC2_up",     &jets_jetUnc_RelativePtEC2_up,      &b_jets_jetUnc_RelativePtEC2_up);
        fChain->SetBranchAddress("jets_jetUnc_RelativePtHF_up",      &jets_jetUnc_RelativePtHF_up,       &b_jets_jetUnc_RelativePtHF_up);
+       fChain->SetBranchAddress("jets_jetUnc_RelativeSample_up",    &jets_jetUnc_RelativeSample_up,     &b_jets_jetUnc_RelativeSample_up);
        fChain->SetBranchAddress("jets_jetUnc_RelativeStatEC_up",    &jets_jetUnc_RelativeStatEC_up,     &b_jets_jetUnc_RelativeStatEC_up);
        fChain->SetBranchAddress("jets_jetUnc_RelativeStatFSR_up",   &jets_jetUnc_RelativeStatFSR_up,    &b_jets_jetUnc_RelativeStatFSR_up);
        fChain->SetBranchAddress("jets_jetUnc_RelativeStatHF_up",    &jets_jetUnc_RelativeStatHF_up,     &b_jets_jetUnc_RelativeStatHF_up);
@@ -1353,6 +1359,7 @@ public :
        fChain->SetBranchAddress("jets_jetUnc_TimePtEta_up",         &jets_jetUnc_TimePtEta_up,          &b_jets_jetUnc_TimePtEta_up);
        fChain->SetBranchAddress("jets_jetUnc_AbsoluteFlavMap_dw",   &jets_jetUnc_AbsoluteFlavMap_dw,    &b_jets_jetUnc_AbsoluteFlavMap_dw);
        fChain->SetBranchAddress("jets_jetUnc_AbsoluteMPFBias_dw",   &jets_jetUnc_AbsoluteMPFBias_dw,    &b_jets_jetUnc_AbsoluteMPFBias_dw);
+       fChain->SetBranchAddress("jets_jetUnc_AbsoluteSample_dw",    &jets_jetUnc_AbsoluteSample_dw,     &b_jets_jetUnc_AbsoluteSample_dw);
        fChain->SetBranchAddress("jets_jetUnc_AbsoluteScale_dw",     &jets_jetUnc_AbsoluteScale_dw,      &b_jets_jetUnc_AbsoluteScale_dw);
        fChain->SetBranchAddress("jets_jetUnc_AbsoluteStat_dw",      &jets_jetUnc_AbsoluteStat_dw,       &b_jets_jetUnc_AbsoluteStat_dw);
        fChain->SetBranchAddress("jets_jetUnc_FlavorQCD_dw",         &jets_jetUnc_FlavorQCD_dw,          &b_jets_jetUnc_FlavorQCD_dw);
@@ -1372,6 +1379,7 @@ public :
        fChain->SetBranchAddress("jets_jetUnc_RelativePtEC1_dw",     &jets_jetUnc_RelativePtEC1_dw,      &b_jets_jetUnc_RelativePtEC1_dw);
        fChain->SetBranchAddress("jets_jetUnc_RelativePtEC2_dw",     &jets_jetUnc_RelativePtEC2_dw,      &b_jets_jetUnc_RelativePtEC2_dw);
        fChain->SetBranchAddress("jets_jetUnc_RelativePtHF_dw",      &jets_jetUnc_RelativePtHF_dw,       &b_jets_jetUnc_RelativePtHF_dw);
+       fChain->SetBranchAddress("jets_jetUnc_RelativeSample_dw",    &jets_jetUnc_RelativeSample_dw,     &b_jets_jetUnc_RelativeSample_dw);
        fChain->SetBranchAddress("jets_jetUnc_RelativeStatEC_dw",    &jets_jetUnc_RelativeStatEC_dw,     &b_jets_jetUnc_RelativeStatEC_dw);
        fChain->SetBranchAddress("jets_jetUnc_RelativeStatFSR_dw",   &jets_jetUnc_RelativeStatFSR_dw,    &b_jets_jetUnc_RelativeStatFSR_dw);
        fChain->SetBranchAddress("jets_jetUnc_RelativeStatHF_dw",    &jets_jetUnc_RelativeStatHF_dw,     &b_jets_jetUnc_RelativeStatHF_dw);
@@ -1414,7 +1422,7 @@ public :
        {
             fChain->SetBranchAddress("PUNumInteractions", &PUNumInteractions, &b_PUNumInteractions);
             fChain->SetBranchAddress("aMCatNLOweight", &aMCatNLOweight, &b_aMCatNLOweight);
-            fChain->SetBranchAddress("susyModel", &susyModel, &b_susyModel);
+            //fChain->SetBranchAddress("susyModel", &susyModel, &b_susyModel);
             fChain->SetBranchAddress("MC_weight", &MC_weight, &b_MC_weight);
             fChain->SetBranchAddress("daughters_genindex", &daughters_genindex, &b_daughters_genindex);
             fChain->SetBranchAddress("genpart_px", &genpart_px, &b_genpart_px);

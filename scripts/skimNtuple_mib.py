@@ -163,7 +163,8 @@ if __name__ == "__main__":
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-    skimmer = 'skimNtuple.exe'
+    #skimmer = 'skimNtuple.exe'
+    skimmer = 'skimNtuple2016.exe'
     #skimmer = 'skimNtuple_oldOrder.exe' # first the bjets by deepCSV and then VBFjets as highest Mjj pair
 
     if opt.config == 'none' :
@@ -253,12 +254,21 @@ if __name__ == "__main__":
         scriptFile.close ()
         os.system ('chmod u+rwx %s/skimJob_%d.sh'% (jobsDir,n))
 
-        command = '/usr/bin/qsub -q '+opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
+        condorFile = open ('%s/condorLauncher_%d.sh'% (jobsDir,n), 'w')
+        condorFile.write ('Universe = vanilla\n')
+        condorFile.write ('Executable  = '+jobsDir + '/skimJob_' + str (n) + '.sh\n')
+        condorFile.write ('Log         = condor_job_$(ProcId).log\n')
+        condorFile.write ('Output      = condor_job_$(ProcId).out\n')
+        condorFile.write ('Error       = condor_job_$(ProcId).error\n')
+        condorFile.write ('queue 1\n')
+        condorFile.close ()
+
+        #command = '/usr/bin/qsub -q '+opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
+        command = 'condor_submit '+ jobsDir + '/condorLauncher_' + str (n) + '.sh'
         if opt.sleep : time.sleep (0.1)
         os.system (command)
         commandFile.write (command + '\n')
         n = n + 1
     commandFile.close ()
-    
 
 
