@@ -1951,7 +1951,7 @@ int main (int argc, char** argv)
         if (oph.isMuon(dauType))
         {
           bool passMu   = oph.muBaseline (&theBigTree, idau, 21., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
-          bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
+          bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
 
           if (passMu) ++nmu;
           else if (passMu10) ++nmu10;
@@ -1984,7 +1984,7 @@ int main (int argc, char** argv)
           << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
           << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
           << " mutightID=" << setw(3)  << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
-          << " mubase="    << setw(3)  << left << oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.15, OfflineProducerHelper::MuTight, string("All"))
+          << " mubase="    << setw(3)  << left << oph.muBaseline (&theBigTree, idau, 10., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All"))
           << " ebase="     << setw(3)  << left << oph.eleBaseline(&theBigTree, idau, 10., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All"))
           << endl;
         }
