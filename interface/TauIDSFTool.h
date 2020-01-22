@@ -25,8 +25,6 @@
 #include <map>       // std::map
 #include <stdlib.h>  // getenv
 #include <functional>
-#include <algorithm>
-#include <assert.h> // assert
 
 class TauIDSFTool {
     
@@ -49,7 +47,8 @@ class TauIDSFTool {
     bool isVsDM  = false;
     bool isVsEta = false;
     
-    TauIDSFTool(const std::string& year, const std::string& id="MVAoldDM2017v2", const std::string& wp="Tight", const bool dm=false);
+    TauIDSFTool(const std::string& year, const std::string& id="MVAoldDM2017v2", const std::string& wp="Tight",
+                const bool dm=false, const bool embedding=false);
     ~TauIDSFTool() { }
     
     float getSFvsPT( double pt,          int genmatch, const std::string& unc="");

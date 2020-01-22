@@ -788,11 +788,11 @@ int main (int argc, char** argv)
       cout << endl;
     }
 
-  string bRegrWeights("");
-  bool computeBregr = gConfigParser->readBoolOption ("bRegression::computeBregr");
-  if (computeBregr) bRegrWeights = gConfigParser->readStringOption("bRegression::weights");
+  //string bRegrWeights("");
+  //bool computeBregr = gConfigParser->readBoolOption ("bRegression::computeBregr");
+  //if (computeBregr) bRegrWeights = gConfigParser->readStringOption("bRegression::weights");
 
-  cout << "** INFO: computing b jet regression? " << computeBregr << " with weights " << bRegrWeights << endl;
+  //cout << "** INFO: computing b jet regression? " << computeBregr << " with weights " << bRegrWeights << endl;
 
   // DY new reweight (LO to NLO) map - Fractional Weight, Pt Weight and SF Weight maps
   bool doDYLOtoNLOreweight = (gConfigParser->isDefined("DYLOtoNLOreweight::doReweight") ? gConfigParser->readBoolOption ("DYLOtoNLOreweight::doReweight") : false);
@@ -897,12 +897,12 @@ int main (int argc, char** argv)
 
   // ------------------------------
 
-  bJetRegrVars bjrv;
-  TMVA::Reader *bRreader = new TMVA::Reader();
-  bjrv.setReader (bRreader);
-  string bRegrMethodName = "BDTG method";
-  if (computeBregr)
-    bRreader->BookMVA( bRegrMethodName.c_str(), bRegrWeights.c_str() ); 
+  //bJetRegrVars bjrv;
+  //TMVA::Reader *bRreader = new TMVA::Reader();
+  //bjrv.setReader (bRreader);
+  //string bRegrMethodName = "BDTG method";
+  //if (computeBregr)
+  //  bRreader->BookMVA( bRegrMethodName.c_str(), bRegrWeights.c_str() );
   
   // ------------------------------
 
@@ -910,6 +910,8 @@ int main (int argc, char** argv)
   PUReweight reweight (PUReweight::RUN2ANALYSIS, PUreweightFile);
 
   // ------------------------------
+
+  cout << "** INFO: useDepFlavor? " << useDeepFlavor << endl;
 
   string bTag_SFFile;
   string bTag_effFile;
@@ -964,12 +966,17 @@ int main (int argc, char** argv)
   myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_IdAndIso_SF_Legacy/2018/Electron_Run2018_IdIso.root");
 
   // tau IdAndIso SF
-  TauIDSFTool * tauSFTool_MVA        = new TauIDSFTool("2018ReReco","MVAoldDM2017v2","Medium",1);       // for MVA2017v2 vs jets
-  TauIDSFTool * antiEleSFTool_vloose = new TauIDSFTool("2018ReReco","antiEleMVA6"   ,"VLoose");         // for MVA2017v2 vs ele VLoose
-  TauIDSFTool * antiEleSFTool_tight  = new TauIDSFTool("2018ReReco","antiEleMVA6"   ,"Tight");          // for MVA2017v2 vs ele Tight
-  TauIDSFTool * antiMuSFTool_loose   = new TauIDSFTool("2018ReReco","antiMu3"       ,"Loose");          // for MVA2017v2 vs mu Loose
-  TauIDSFTool * antiMuSFTool_tight   = new TauIDSFTool("2018ReReco","antiMu3"       ,"Tight");          // for MVA2017v2 vs mu Tight
-  TauIDSFTool * tauSFTool_deep       = new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets
+  TauIDSFTool * MVA_antiJet_medium = new TauIDSFTool("2016Legacy","MVAoldDM2017v2","Medium",1);         // for MVA2017v2 vs jets Medium
+  TauIDSFTool * MVA_antiEle_vloose = new TauIDSFTool("2016Legacy","antiEleMVA6"   ,"VLoose");           // for MVA2017v2 vs ele VLoose
+  TauIDSFTool * MVA_antiEle_tight  = new TauIDSFTool("2016Legacy","antiEleMVA6"   ,"Tight");            // for MVA2017v2 vs ele Tight
+  TauIDSFTool * MVA_antiMu_loose   = new TauIDSFTool("2016Legacy","antiMu3"       ,"Loose");            // for MVA2017v2 vs mu Loose
+  TauIDSFTool * MVA_antiMu_tight   = new TauIDSFTool("2016Legacy","antiMu3"       ,"Tight");            // for MVA2017v2 vs mu Tight
+
+  TauIDSFTool * Deep_antiJet_medium  = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets Medium
+  TauIDSFTool * Deep_antiEle_vvloose = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSe"  ,"VVLoose");  // for DeepTauv2p1 vs ele VVLoose
+  TauIDSFTool * Deep_antiEle_tight   = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSe"  ,"Tight");    // for DeepTauv2p1 vs ele Tight
+  TauIDSFTool * Deep_antiMu_loose    = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSmu" ,"Loose");    // for DeepTauv2p1 vs mu Loose
+  TauIDSFTool * Deep_antiMu_tight    = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
 
   // ------------------------------
 
@@ -1262,10 +1269,10 @@ int main (int argc, char** argv)
 	}
 
       // skip event if I want a specific SUSY point from the fastsim
-      if (susyModel != string("NOTSUSY"))
-	{
-	  if (string(theBigTree.susyModel.Data()) != susyModel) continue;  
-	}
+      //if (susyModel != string("NOTSUSY"))
+      //{
+      //  if (string(theBigTree.susyModel.Data()) != susyModel) continue;
+      //}
 
       float stitchWeight = 1.0;
       if (DY_tostitch)
@@ -1944,7 +1951,7 @@ int main (int argc, char** argv)
         if (oph.isMuon(dauType))
         {
           bool passMu   = oph.muBaseline (&theBigTree, idau, 21., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
-          bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
+          bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
 
           if (passMu) ++nmu;
           else if (passMu10) ++nmu10;
@@ -1977,7 +1984,7 @@ int main (int argc, char** argv)
           << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
           << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
           << " mutightID=" << setw(3)  << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
-          << " mubase="    << setw(3)  << left << oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.15, OfflineProducerHelper::MuTight, string("All"))
+          << " mubase="    << setw(3)  << left << oph.muBaseline (&theBigTree, idau, 10., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All"))
           << " ebase="     << setw(3)  << left << oph.eleBaseline(&theBigTree, idau, 10., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All"))
           << endl;
         }
@@ -2304,19 +2311,19 @@ int main (int argc, char** argv)
         Long64_t goodTriggerType2 = (Long64_t) theBigTree.daughters_isGoodTriggerType->at(secondDaughterIndex);
 
         Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
-        bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
+        bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
 
         if(DEBUG)
         {
           if (isMC && (pairType == 2 || pairType == 1 || pairType == 0))
           {
-            cout << "passTrg? "<< trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta())<<endl;
+            cout << "passTrg? "<< trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta())<<endl;
             cout << "L1 pt1 "<<theBigTree.daughters_highestEt_L1IsoTauMatched->at(firstDaughterIndex) << "L1 pt2 "<<theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex)<<endl;
             cout << "---> passTrg? "<<passTrg<<endl;
           }
         }
 
-        isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_secondLepton.Pt());
+        isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta());
 
         bool triggerAccept = false;
         triggerAccept = passTrg;
@@ -2640,28 +2647,13 @@ int main (int argc, char** argv)
           idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
         }
 
-        idAndIsoSF_leg2_MVA_vsJet = tauSFTool_MVA        ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
-        idAndIsoSF_leg2_MVA_vsEle = antiEleSFTool_vloose ->getSFvsEta(tau2eta, tau2Genmatch);
-        idAndIsoSF_leg2_MVA_vsMu  = antiMuSFTool_tight   ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsJet = MVA_antiJet_medium ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsEle = MVA_antiEle_vloose ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsMu  = MVA_antiMu_tight   ->getSFvsEta(tau2eta, tau2Genmatch);
 
-        idAndIsoSF_leg2_deep_vsJet = tauSFTool_deep->getSFvsDM(tau2pt, tau2DM, tau2Genmatch);
-
-        //idAndIsoSF_leg2_deep_vsEle --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
-        if (tau2Genmatch == 1 || tau2Genmatch == 3 ) // e->tauh fake
-        {
-          if (tau2eta < 1.448 ) idAndIsoSF_leg2_deep_vsEle = 0.91; // anti-ele VVloose
-          if (tau2eta > 1.558 ) idAndIsoSF_leg2_deep_vsEle = 0.91; // anti-ele VVloose
-        }
-
-        //idAndIsoSF_leg2_deep_vsMu  --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
-        if (tau2Genmatch == 2 || tau2Genmatch == 4 ) // mu->tauh fake
-        {
-          if      (tau2eta < 0.4) idAndIsoSF_leg2_deep_vsMu = 0.806; // anti-mu Tight
-          else if (tau2eta < 0.8) idAndIsoSF_leg2_deep_vsMu = 1.017; // anti-mu Tight
-          else if (tau2eta < 1.2) idAndIsoSF_leg2_deep_vsMu = 0.923; // anti-mu Tight
-          else if (tau2eta < 1.7) idAndIsoSF_leg2_deep_vsMu = 0.834; // anti-mu Tight
-          else if (tau2eta < 2.3) idAndIsoSF_leg2_deep_vsMu = 4.524; // anti-mu Tight
-        }
+        idAndIsoSF_leg2_deep_vsJet = Deep_antiJet_medium  ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsEle = Deep_antiEle_vvloose ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsMu  = Deep_antiMu_tight    ->getSFvsEta(tau2eta, tau2Genmatch);
 
         if (tau2Genmatch==1 || tau2Genmatch==2 || tau2Genmatch==3 || tau2Genmatch==4 || tau2Genmatch==5)
         {
@@ -2706,28 +2698,13 @@ int main (int argc, char** argv)
           idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_ScaleFactor(ele1pt, ele1eta);
         }
 
-        idAndIsoSF_leg2_MVA_vsJet = tauSFTool_MVA       ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
-        idAndIsoSF_leg2_MVA_vsEle = antiEleSFTool_tight ->getSFvsEta(tau2eta, tau2Genmatch);
-        idAndIsoSF_leg2_MVA_vsMu  = antiMuSFTool_loose  ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsJet = MVA_antiJet_medium ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsEle = MVA_antiEle_tight  ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsMu  = MVA_antiMu_loose   ->getSFvsEta(tau2eta, tau2Genmatch);
 
-        idAndIsoSF_leg2_deep_vsJet = tauSFTool_deep->getSFvsDM(tau2pt, tau2DM, tau2Genmatch);
-
-        //idAndIsoSF_leg2_deep_vsEle --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
-        if (tau2Genmatch == 1 || tau2Genmatch == 3 ) // e->tauh fake
-        {
-          if (tau2eta < 1.448 ) idAndIsoSF_leg2_deep_vsEle = 1.47; // anti-ele Tight
-          if (tau2eta > 1.558 ) idAndIsoSF_leg2_deep_vsEle = 0.66; // anti-ele Tight
-        }
-
-        //idAndIsoSF_leg2_deep_vsMu  --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
-        if (tau2Genmatch == 2 || tau2Genmatch == 4 ) // mu->tauh fake
-        {
-          if      (tau2eta < 0.4) idAndIsoSF_leg2_deep_vsMu = 0.999; // anti-mu Loose
-          else if (tau2eta < 0.8) idAndIsoSF_leg2_deep_vsMu = 1.170; // anti-mu Loose
-          else if (tau2eta < 1.2) idAndIsoSF_leg2_deep_vsMu = 1.027; // anti-mu Loose
-          else if (tau2eta < 1.7) idAndIsoSF_leg2_deep_vsMu = 0.815; // anti-mu Loose
-          else if (tau2eta < 2.3) idAndIsoSF_leg2_deep_vsMu = 5.493; // anti-mu Loose
-        }
+        idAndIsoSF_leg2_deep_vsJet = Deep_antiJet_medium ->getSFvsDM (tau2pt,  tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsEle = Deep_antiEle_tight  ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsMu  = Deep_antiMu_loose   ->getSFvsEta(tau2eta, tau2Genmatch);
 
         if (tau2Genmatch==1 || tau2Genmatch==2 || tau2Genmatch==3 || tau2Genmatch==4 || tau2Genmatch==5)
         {
@@ -2776,51 +2753,24 @@ int main (int argc, char** argv)
         float idAndIsoSF_leg2_deep_vsEle = 1.;
         float idAndIsoSF_leg2_deep_vsMu  = 1.;
 
-        idAndIsoSF_leg1_MVA_vsJet = tauSFTool_MVA        ->getSFvsDM (tau1pt , tau1DM, tau1Genmatch);
-        idAndIsoSF_leg1_MVA_vsEle = antiEleSFTool_vloose ->getSFvsEta(tau1eta, tau1Genmatch);
-        idAndIsoSF_leg1_MVA_vsMu  = antiMuSFTool_loose   ->getSFvsEta(tau1eta, tau1Genmatch);
+        // Leg 1
+        idAndIsoSF_leg1_MVA_vsJet = MVA_antiJet_medium ->getSFvsDM (tau1pt , tau1DM, tau1Genmatch);
+        idAndIsoSF_leg1_MVA_vsEle = MVA_antiEle_vloose ->getSFvsEta(tau1eta, tau1Genmatch);
+        idAndIsoSF_leg1_MVA_vsMu  = MVA_antiMu_loose   ->getSFvsEta(tau1eta, tau1Genmatch);
 
-        idAndIsoSF_leg1_deep_vsJet = tauSFTool_deep->getSFvsDM(tau1pt, tau1DM, tau1Genmatch);
+        idAndIsoSF_leg1_deep_vsJet = Deep_antiJet_medium  ->getSFvsDM(tau1pt, tau1DM, tau1Genmatch);
+        idAndIsoSF_leg1_deep_vsEle = Deep_antiEle_vvloose ->getSFvsEta(tau1eta, tau1Genmatch);
+        idAndIsoSF_leg1_deep_vsMu  = Deep_antiMu_loose    ->getSFvsEta(tau1eta, tau1Genmatch);
 
-        //idAndIsoSF_leg1_deep_vsEle --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
-        if (tau1Genmatch == 1 || tau1Genmatch == 3 ) // e->tauh fake
-        {
-          if (tau1eta < 1.448 ) idAndIsoSF_leg1_deep_vsEle = 0.91; // anti-ele VVLoose
-          if (tau1eta > 1.558 ) idAndIsoSF_leg1_deep_vsEle = 0.91; // anti-ele VVLoose
-        }
+        // Leg 2
+        idAndIsoSF_leg2_MVA_vsJet = MVA_antiJet_medium ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsEle = MVA_antiEle_vloose ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsMu  = MVA_antiMu_loose   ->getSFvsEta(tau2eta, tau2Genmatch);
 
-        //idAndIsoSF_leg1_deep_vsMu  --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
-        if (tau1Genmatch == 2 || tau1Genmatch == 4 ) // mu->tauh fake
-        {
-          if      (tau2eta < 0.4) idAndIsoSF_leg2_deep_vsMu = 0.999; // anti-mu Loose
-          else if (tau2eta < 0.8) idAndIsoSF_leg2_deep_vsMu = 1.170; // anti-mu Loose
-          else if (tau2eta < 1.2) idAndIsoSF_leg2_deep_vsMu = 1.027; // anti-mu Loose
-          else if (tau2eta < 1.7) idAndIsoSF_leg2_deep_vsMu = 0.815; // anti-mu Loose
-          else if (tau2eta < 2.3) idAndIsoSF_leg2_deep_vsMu = 5.493; // anti-mu Loose
-        }
+        idAndIsoSF_leg2_deep_vsJet = Deep_antiJet_medium  ->getSFvsDM(tau2pt, tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsEle = Deep_antiEle_vvloose ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsMu  = Deep_antiMu_loose    ->getSFvsEta(tau2eta, tau2Genmatch);
 
-        idAndIsoSF_leg2_MVA_vsJet = tauSFTool_MVA        ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
-        idAndIsoSF_leg2_MVA_vsEle = antiEleSFTool_vloose ->getSFvsEta(tau2eta, tau2Genmatch);
-        idAndIsoSF_leg2_MVA_vsMu  = antiMuSFTool_loose   ->getSFvsEta(tau2eta, tau2Genmatch);
-
-        idAndIsoSF_leg2_deep_vsJet = tauSFTool_deep->getSFvsDM(tau2pt, tau2DM, tau2Genmatch);
-
-        //idAndIsoSF_leg2_deep_vsEle --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
-        if (tau2Genmatch == 1 || tau2Genmatch == 3 ) // e->tauh fake
-        {
-          if (tau2eta < 1.448 ) idAndIsoSF_leg2_deep_vsEle = 0.91; // anti-ele VVLoose
-          if (tau2eta > 1.558 ) idAndIsoSF_leg2_deep_vsEle = 0.91; // anti-ele VVLoose
-        }
-
-        //idAndIsoSF_leg2_deep_vsMu  --> FIXME: not included in TauIDSFTool for now, preliminary version hardcoded here:
-        if (tau2Genmatch == 2 || tau2Genmatch == 4 ) // mu->tauh fake
-        {
-          if      (tau2eta < 0.4) idAndIsoSF_leg2_deep_vsMu = 0.999; // anti-mu Loose
-          else if (tau2eta < 0.8) idAndIsoSF_leg2_deep_vsMu = 1.170; // anti-mu Loose
-          else if (tau2eta < 1.2) idAndIsoSF_leg2_deep_vsMu = 1.027; // anti-mu Loose
-          else if (tau2eta < 1.7) idAndIsoSF_leg2_deep_vsMu = 0.815; // anti-mu Loose
-          else if (tau2eta < 2.3) idAndIsoSF_leg2_deep_vsMu = 5.493; // anti-mu Loose
-        }
 
         if (tau1Genmatch==1 || tau1Genmatch==2 || tau1Genmatch==3 || tau1Genmatch==4 || tau1Genmatch==5)
         {
@@ -2940,127 +2890,132 @@ int main (int argc, char** argv)
 	  }
 	}
       theSmallTree.m_jetFakeSF = (isMC ? jetFakeSF1*jetFakeSF2 : 1.0);
-      
+
+
       // DATA/MC Trigger ScaleFactors
       // https://github.com/CMS-HTT/LeptonEfficiencies
       // https://github.com/truggles/TauTriggerSFs2017
 
       // recommendations for cross triggers:  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information
 
-      
       float trigSF = 1.0;
       float trigSF_single = 1.0;
       float trigSF_cross = 1.0;
 
       if(applyTriggers)
-	{
-	  // MuTau Channel
-	  if (pType == 0 && isMC)
-	    {
-	      if(fabs(tlv_secondLepton.Eta()) < 2.1){ //eta region covered both by cross-trigger and single lepton trigger
-		
-		int passCross = 1;
-		int passSingle = 1;
-		
-		if (tlv_firstLepton.Pt() < 26.) passSingle = 0;  
-		if (tlv_secondLepton.Pt() < 32.) passCross = 0;  
+      {
+        // MuTau Channel
+        if (pType == 0 && isMC)
+        {
+          if(fabs(tlv_secondLepton.Eta()) < 2.1) //eta region covered both by cross-trigger and single lepton trigger
+          {
+            int passCross = 1;
+            int passSingle = 1;
 
-		//lepton trigger
-		double SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		double SFL_MC = muTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            if (tlv_firstLepton.Pt() < 25.) passSingle = 0;
+            if (tlv_secondLepton.Pt() < 32.) passCross = 0;
 
-		//cross-trigger
-		//mu leg
-		double SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            //lepton trigger
+            double SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SFL_MC = muTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 
-		//tau leg
-		double SFtau_Data = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-		double SFtau_MC   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-		
-		double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
-		double Eff_MC   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC) + passCross * SFl_MC * SFtau_MC;
+            //cross-trigger
+            //mu leg
+            double SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 
-		trigSF = Eff_Data / Eff_MC;
+            //tau leg
+            double SFtau_Data = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+            double SFtau_MC   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 
-		//trig SF for analysis only with cross-trigger
-		double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		double SFtau = tauTrgSF_mutau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-		trigSF_cross = SFl*SFtau;
-	      }else{ //eta region covered only by single lepton trigger
-		double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		trigSF = SF;
-	      }
-	      //trig SF for analysis only with single-mu trigger
-	      trigSF_single =  muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-	    }
-	  
-	  // EleTau Channel
-	  else if (pType == 1 && isMC)
-	    {
-	      if(fabs(tlv_secondLepton.Eta()) < 2.1){ //eta region covered both by cross-trigger and single lepton trigger
-		int passCross = 1;
-		int passSingle = 1;
-		
-		if (tlv_firstLepton.Pt() < 35.) passSingle = 0;  
-		if (tlv_secondLepton.Pt() < 35.) passCross = 0;  
+            double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
+            double Eff_MC   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC) + passCross * SFl_MC * SFtau_MC;
 
-		//lepton trigger
-		double SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		double SFL_MC = eTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		
-		//cross-trigger
-		//e leg
-		double SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		double SFl_MC = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		
-		//tau leg
-		double SFtau_Data = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-		double SFtau_MC   = tauTrgSF_etau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-		
-		double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
-		double Eff_MC   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC) + passCross * SFl_MC * SFtau_MC;
-		
-		trigSF = Eff_Data / Eff_MC;
+            trigSF = Eff_Data / Eff_MC;
 
-		//trig SF for analysis only with cross-trigger
-		double SFl = eTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		double SFtau = tauTrgSF_etau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-		trigSF_cross = SFl*SFtau;
-	      }else{ //eta region covered only by single lepton trigger
-		double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		trigSF = SF;
-	      }
-	      //trig SF for analysis only with single-e trigger
-	      trigSF_single =  eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-	    }
-	  // TauTau Channel
-	  else if (pType == 2 && isMC)
-	    {
-	      double SF1 = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt() , DM1, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-	      double SF2 = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-	      trigSF = SF1 * SF2;
-	    }
-	  
-	  // MuMu Channel
-	  else if (pType == 3 && isMC)
-	    {
-	      double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-	      trigSF = SF;
-	
-	    }
-	  
-	  // EleEle Channel
-	  else if (pType == 4 && isMC)
-	    {
-	      double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-	      trigSF = SF;
-	      
-	    }
-	}
-      theSmallTree.m_trigSF     = (isMC ? trigSF : 1.0);
-      theSmallTree.m_trigSF_single     = (isMC ? trigSF_single : 1.0);
-      theSmallTree.m_trigSF_cross     = (isMC ? trigSF_cross : 1.0);
+            //trig SF for analysis only with cross-trigger
+            double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SFtau = tauTrgSF_mutau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+            trigSF_cross = SFl*SFtau;
+          }
+          else //eta region covered only by single lepton trigger
+          {
+            double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            trigSF = SF;
+          }
+          //trig SF for analysis only with single-mu trigger
+          trigSF_single =  muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+        }
+
+        // EleTau Channel
+        else if (pType == 1 && isMC)
+        {
+          if(fabs(tlv_secondLepton.Eta()) < 2.1) //eta region covered both by cross-trigger and single lepton trigger
+          {
+            int passCross = 1;
+            int passSingle = 1;
+
+            if (tlv_firstLepton.Pt() < 33.) passSingle = 0;
+            if (tlv_secondLepton.Pt() < 35.) passCross = 0;
+
+            //lepton trigger
+            double SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SFL_MC = eTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+
+            //cross-trigger
+            //e leg
+            double SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SFl_MC = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+
+            //tau leg
+            double SFtau_Data = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+            double SFtau_MC   = tauTrgSF_etau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+
+            double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
+            double Eff_MC   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC) + passCross * SFl_MC * SFtau_MC;
+
+            trigSF = Eff_Data / Eff_MC;
+
+            //trig SF for analysis only with cross-trigger
+            double SFl = eTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SFtau = tauTrgSF_etau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+            trigSF_cross = SFl*SFtau;
+          }
+          else //eta region covered only by single lepton trigger
+          {
+            double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            trigSF = SF;
+          }
+          //trig SF for analysis only with single-e trigger
+          trigSF_single =  eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+        }
+
+        // TauTau Channel
+        else if (pType == 2 && isMC)
+        {
+          double SF1 = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt() , DM1, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+          double SF2 = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+          trigSF = SF1 * SF2;
+        }
+
+        // MuMu Channel
+        else if (pType == 3 && isMC)
+        {
+          double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+          trigSF = SF;
+        }
+
+        // EleEle Channel
+        else if (pType == 4 && isMC)
+        {
+          double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+          trigSF = SF;
+        }
+      } // end if(applytriggers)
+
+      theSmallTree.m_trigSF        = (isMC ? trigSF : 1.0);
+      theSmallTree.m_trigSF_single = (isMC ? trigSF_single : 1.0);
+      theSmallTree.m_trigSF_cross  = (isMC ? trigSF_cross : 1.0);
 
       theSmallTree.m_totalWeight = (isMC? (41557./7.20811e+10) * theSmallTree.m_MC_weight* theSmallTree.m_PUReweight* theSmallTree.m_DYscale_MM_NLO* trigSF* theSmallTree.m_IdAndIsoAndFakeSF_deep: 1.0);
       //this is just a residual of some synch
@@ -3378,33 +3333,33 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet2_gen_matched = bjet2_gen_matched ? 1 : 0;
 
         double ptRegr[2] = {tlv_firstBjet.Pt(), tlv_secondBjet.Pt()};
-        if (computeBregr)
-        {
-          for (int iBJet = 0; iBJet <=1; iBJet++)
-          {
-            int bidx = (iBJet == 0 ? bjet1idx : bjet2idx);
-            bjrv.Jet_pt     = (iBJet == 0 ? tlv_firstBjet.Pt()  : tlv_secondBjet.Pt());
-            bjrv.Jet_eta    = (iBJet == 0 ? tlv_firstBjet.Eta() : tlv_secondBjet.Eta());
-            //bjrv.Jet_corr         = theBigTree.jets_rawPt->at(bidx);
-            bjrv.Jet_corr         = theBigTree.jetRawf->at(bidx); // should be 1./jetrawf ??
-            bjrv.rho              = theBigTree.rho;
-            bjrv.Jet_mt           = theBigTree.jets_mT->at(bidx);
-            bjrv.Jet_leadTrackPt  = theBigTree.jets_leadTrackPt->at(bidx);
-            bjrv.Jet_leptonPtRel  = theBigTree.jets_leptonPtRel->at(bidx);
-            bjrv.Jet_leptonPt     = theBigTree.jets_leptonPt->at(bidx);
-            bjrv.Jet_leptonDeltaR = theBigTree.jets_leptonDeltaR->at(bidx);
-            bjrv.Jet_neHEF   = theBigTree.jets_nHEF->at(bidx);
-            bjrv.Jet_neEmEF  = theBigTree.jets_nEmEF->at(bidx);
-            bjrv.Jet_chMult  = theBigTree.jets_chMult->at(bidx);
-            bjrv.Jet_vtxPt   = theBigTree.jets_vtxPt->at(bidx);
-            bjrv.Jet_vtxMass = theBigTree.jets_vtxMass->at(bidx);
-            bjrv.Jet_vtx3dL  = theBigTree.jets_vtx3dL->at(bidx);
-            bjrv.Jet_vtxNtrk = theBigTree.jets_vtxNtrk->at(bidx);
-            bjrv.Jet_vtx3deL = theBigTree.jets_vtx3deL->at(bidx);
+        //if (computeBregr)
+        //{
+        //  for (int iBJet = 0; iBJet <=1; iBJet++)
+        //  {
+        //    int bidx = (iBJet == 0 ? bjet1idx : bjet2idx);
+        //    bjrv.Jet_pt     = (iBJet == 0 ? tlv_firstBjet.Pt()  : tlv_secondBjet.Pt());
+        //    bjrv.Jet_eta    = (iBJet == 0 ? tlv_firstBjet.Eta() : tlv_secondBjet.Eta());
+        //    //bjrv.Jet_corr         = theBigTree.jets_rawPt->at(bidx);
+        //    bjrv.Jet_corr         = theBigTree.jetRawf->at(bidx); // should be 1./jetrawf ??
+        //    bjrv.rho              = theBigTree.rho;
+        //    bjrv.Jet_mt           = theBigTree.jets_mT->at(bidx);
+        //    bjrv.Jet_leadTrackPt  = theBigTree.jets_leadTrackPt->at(bidx);
+        //    bjrv.Jet_leptonPtRel  = theBigTree.jets_leptonPtRel->at(bidx);
+        //    bjrv.Jet_leptonPt     = theBigTree.jets_leptonPt->at(bidx);
+        //    bjrv.Jet_leptonDeltaR = theBigTree.jets_leptonDeltaR->at(bidx);
+        //    bjrv.Jet_neHEF   = theBigTree.jets_nHEF->at(bidx);
+        //    bjrv.Jet_neEmEF  = theBigTree.jets_nEmEF->at(bidx);
+        //    bjrv.Jet_chMult  = theBigTree.jets_chMult->at(bidx);
+        //    bjrv.Jet_vtxPt   = theBigTree.jets_vtxPt->at(bidx);
+        //    bjrv.Jet_vtxMass = theBigTree.jets_vtxMass->at(bidx);
+        //    bjrv.Jet_vtx3dL  = theBigTree.jets_vtx3dL->at(bidx);
+        //    bjrv.Jet_vtxNtrk = theBigTree.jets_vtxNtrk->at(bidx);
+        //    bjrv.Jet_vtx3deL = theBigTree.jets_vtx3deL->at(bidx);
 
-            ptRegr[iBJet] = (bRreader->EvaluateRegression (bRegrMethodName.c_str()))[0];
-          }
-        }
+        //    ptRegr[iBJet] = (bRreader->EvaluateRegression (bRegrMethodName.c_str()))[0];
+        //  }
+        //}
 
         // save the b-jets
         TLorentzVector tlv_firstBjet_raw = tlv_firstBjet;

@@ -201,7 +201,7 @@ void triggerReader_cross::printTriggerList()
 // Check trigger filters matching
 // ------------------------------
 
-bool triggerReader_cross::checkOREleEleNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1, int *pass_triggerbit)
+bool triggerReader_cross::checkOREleEleNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1, double eta_tau1, double eta_tau2, int *pass_triggerbit)
 {
     bool OR      = false;
     bool thisPath      = false;
@@ -210,6 +210,8 @@ bool triggerReader_cross::checkOREleEleNew  (Long64_t triggerbit_1, Long64_t mat
     bool goodType = false;
     std::string firedPath;
     bool ptCut = false;
+    bool etaCut1 = false;
+    bool etaCut2 = false;
     
     for (unsigned int i = 0; i < _eeTriggers.size(); i++)
     {
@@ -225,11 +227,17 @@ bool triggerReader_cross::checkOREleEleNew  (Long64_t triggerbit_1, Long64_t mat
           firedPath = _allTriggers.at(_eeTriggers.at(i));
           boost::regex re_tau1{"Ele(\\d+)"};
           ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 1.0); // 1.0 GeV from HTT twiki Run2 Legacy analisys
+          etaCut1 = (fabs(eta_tau1) < 2.1); //electron threshold
+          etaCut2 = (fabs(eta_tau2) < 2.1); //electron threshold
         }
         else
+        {
           ptCut = false;
+          etaCut1 = false;
+          etaCut2 = false;
+        }
       }
-      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
+      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut1 && etaCut2)) thisPath = false;
       if (thisPath)
       {
         std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_eeTriggers.at(i)));
@@ -242,7 +250,7 @@ bool triggerReader_cross::checkOREleEleNew  (Long64_t triggerbit_1, Long64_t mat
     return OR;
 }
 
-bool triggerReader_cross::checkORMuEleNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1, int *pass_triggerbit)
+bool triggerReader_cross::checkORMuEleNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1, double eta_tau1, double eta_tau2, int *pass_triggerbit)
 {
     bool OR      = false;
     bool thisPath      = false;
@@ -251,6 +259,8 @@ bool triggerReader_cross::checkORMuEleNew  (Long64_t triggerbit_1, Long64_t matc
     bool goodType = false;
     std::string firedPath;
     bool ptCut = false;
+    bool etaCut1 = false;
+    bool etaCut2 = false;
     
     for (unsigned int i = 0; i < _emTriggers.size(); i++)
     {
@@ -266,11 +276,17 @@ bool triggerReader_cross::checkORMuEleNew  (Long64_t triggerbit_1, Long64_t matc
           firedPath = _allTriggers.at(_mmTriggers.at(i));
           boost::regex re_tau1{"Mu(\\d+)"};
           ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 1.0); // 1.0 GeV from HTT twiki Run2 Legacy analisys
+          etaCut1 = (fabs(eta_tau1) < 2.1); //muon threshold
+          etaCut2 = (fabs(eta_tau2) < 2.1); //electron threshold
         }
         else
+        {
           ptCut = false;
+          etaCut1 = false;
+          etaCut2 = false;
+        }
       }
-      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
+      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut1 && etaCut2)) thisPath = false;
       if (thisPath)
       {
         std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_emTriggers.at(i)));
@@ -284,7 +300,7 @@ bool triggerReader_cross::checkORMuEleNew  (Long64_t triggerbit_1, Long64_t matc
 }
 
 
-bool triggerReader_cross::checkORMuMuNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1, int *pass_triggerbit)
+bool triggerReader_cross::checkORMuMuNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1, double eta_tau1, double eta_tau2, int *pass_triggerbit)
 {
     bool OR      = false;
     bool thisPath      = false;
@@ -293,6 +309,8 @@ bool triggerReader_cross::checkORMuMuNew  (Long64_t triggerbit_1, Long64_t match
     bool goodType = false;
     std::string firedPath;
     bool ptCut = false;
+    bool etaCut1 = false;
+    bool etaCut2 = false;
   
     for (unsigned int i = 0; i < _mmTriggers.size(); i++)
     {
@@ -308,11 +326,17 @@ bool triggerReader_cross::checkORMuMuNew  (Long64_t triggerbit_1, Long64_t match
           firedPath = _allTriggers.at(_mmTriggers.at(i));
           boost::regex re_tau1{"Mu(\\d+)"};
           ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 1.0); // 1.0 GeV from HTT twiki Run2 Legacy analisys
+          etaCut1 = (fabs(eta_tau1) < 2.1); //muon threshold
+          etaCut2 = (fabs(eta_tau2) < 2.1); //muon threshold
         }
         else
+        {
           ptCut = false;
+          etaCut1 = false;
+          etaCut2 = false;
+        }
       }
-      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
+      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut1 && etaCut2)) thisPath = false;
       if (thisPath)
       {
         std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_mmTriggers.at(i)));
@@ -325,7 +349,7 @@ bool triggerReader_cross::checkORMuMuNew  (Long64_t triggerbit_1, Long64_t match
     return OR;
 }
 
-bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2,int *pass_triggerbit)
+bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double eta_tau1, double pt_tau2, double eta_tau2, int *pass_triggerbit)
 {
     bool OR     = false;
     bool thisPath      = false;
@@ -338,6 +362,8 @@ bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t mat
     bool goodType = false;
     std::string firedPath;
     bool ptCut = false;
+    bool etaCut1 = false;
+    bool etaCut2 = false;
     for (unsigned int i = 0; i < _ttCrossTriggers.size(); i++)
     {
       thisPath = false;
@@ -359,11 +385,17 @@ bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t mat
           boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
           //ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 5.0, 5.0);
           ptCut = (pt_tau1 > 40. && pt_tau2 > 40.); // suggested by tauTrigger Group
+          etaCut1 = (fabs(eta_tau1) < 2.1); //tau threshold
+          etaCut2 = (fabs(eta_tau2) < 2.1); //tau threshold
         }
         else
+        {
           ptCut = false;
+          etaCut1 = false;
+          etaCut2 = false;
+        }
       }
-      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
+      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut1 && etaCut2)) thisPath = false;
       if (thisPath)
       {
         std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_ttCrossTriggers.at(i)));
@@ -395,11 +427,17 @@ bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t mat
             firedPath = _allTriggers.at(_ttTriggers.at(i));
             boost::regex re_tau1{"Tau(\\d+)|TauHPS(\\d+)"};
             ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 5.0);
+            etaCut1 = (fabs(eta_tau1) < 2.1); //tau threshold
+            etaCut2 = (fabs(eta_tau2) < 2.1); //tau threshold
           }
           else
+          {
             ptCut = false;
+            etaCut1 = false;
+            etaCut2 = false;
+          }
         }
-        if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
+        if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut1 && etaCut2)) thisPath = false;
         if (thisPath)
         {
           std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_ttTriggers.at(i)));
@@ -414,7 +452,7 @@ bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t mat
     return OR;
 }
 
-bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2, double eta_tau2, int *pass_triggerbit)
+bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double eta_tau1, double pt_tau2, double eta_tau2, int *pass_triggerbit)
 {
     bool OR     = false;
     bool thisPath = false;
@@ -427,7 +465,8 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
     bool goodType = false;
     std::string firedPath;
     bool ptCut = false;
-    bool etaCut = false;
+    bool etaCut1 = false;
+    bool etaCut2 = false;
     for (unsigned int i = 0; i < _mtCrossTriggers.size(); i++)
     {
       thisPath = false; 
@@ -448,15 +487,17 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
           boost::regex re_tau1{"Mu(\\d+)"};
           boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
           ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 1.0, 5.0);  // 1.0 GeV from HTT twiki Run2 Legacy analisys
-          etaCut = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
+          etaCut1 = (fabs(eta_tau1) < 2.1); //muon threshold
+          etaCut2 = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
         }
         else
         {
           ptCut = false;
-          etaCut = false;
+          etaCut1 = false;
+          etaCut2 = false;
         }
       }
-      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut)) thisPath = false;
+      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut1 && etaCut2)) thisPath = false;
       if (thisPath)
       {
         std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_mtCrossTriggers.at(i)));
@@ -488,11 +529,17 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
             firedPath = _allTriggers.at(_mtTriggers.at(i));
             boost::regex re_tau1{"Mu(\\d+)"};
             ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 1.0); // 1.0 GeV from HTT twiki Run2 Legacy analisys
+            etaCut1 = (fabs(eta_tau1) < 2.1); //muon threshold
+            etaCut2 = (fabs(eta_tau2) < 2.3); //single trigger tau threshold
           }
           else
+          {
             ptCut = false;
+            etaCut1 = false;
+            etaCut2 = false;
+          }
         }
-        if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
+        if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut1 && etaCut2)) thisPath = false;
         if (thisPath)
         {
           std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_mtTriggers.at(i)));
@@ -508,7 +555,7 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
 }
 
 
-bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2, double eta_tau2, int *pass_triggerbit)
+bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double eta_tau1, double pt_tau2, double eta_tau2, int *pass_triggerbit)
 {
     bool OR     = false;
     bool thisPath =false;
@@ -521,7 +568,8 @@ bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t mat
     bool goodType = false;
     std::string firedPath;
     bool ptCut = false;
-    bool etaCut = false;
+    bool etaCut1 = false;
+    bool etaCut2 = false;
     for (unsigned int i = 0; i < _etCrossTriggers.size(); i++)
     {
       thisPath = false;
@@ -543,15 +591,17 @@ bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t mat
           boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
 
           ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 1.0, 5.0); // 1.0 GeV from HTT twiki Run2 Legacy analisys
-          etaCut = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
+          etaCut1 = (fabs(eta_tau1) < 2.1); //electron threshold
+          etaCut2 = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
         }
         else
         {
           ptCut = false;
-          etaCut = false;
+          etaCut1 = false;
+          etaCut2 = false;
         }
       }
-      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut)) thisPath = false;
+      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut1 && etaCut2)) thisPath = false;
       if (thisPath)
       {
         std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_etCrossTriggers.at(i)));
@@ -582,11 +632,17 @@ bool triggerReader_cross::checkOREleTauNew  (Long64_t triggerbit_1, Long64_t mat
             firedPath = _allTriggers.at(_etTriggers.at(i));
             boost::regex re_tau1{"Ele(\\d+)"};
             ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 1.0); // 1.0 GeV from HTT twiki Run2 Legacy analisys
+            etaCut1 = (fabs(eta_tau1) < 2.1); //electron threshold
+            etaCut2 = (fabs(eta_tau2) < 2.3); //single trigger tau threshold
           }
           else
+          {
             ptCut = false;
+            etaCut1 = false;
+            etaCut2 = false;
+          }
         }
-        if (!(thisPath && match && _trgNoOverlap && goodType && ptCut)) thisPath = false;
+        if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut1 && etaCut2)) thisPath = false;
         if (thisPath)
         {
           std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_etTriggers.at(i)));
@@ -617,15 +673,15 @@ bool triggerReader_cross::CheckBit (Long64_t number, int bitpos)
 //     General Check OR
 // ------------------------------
 
-bool triggerReader_cross::checkOR (int pairType, Long64_t triggerbit_1, int *pass_triggerbit, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2, double eta_tau2)
+bool triggerReader_cross::checkOR (int pairType, Long64_t triggerbit_1, int *pass_triggerbit, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double eta_tau1, double pt_tau2, double eta_tau2)
 {
 
-  if(pairType == ((int) OfflineProducerHelper::MuHad) ) return checkORMuTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, pt_tau2, eta_tau2, pass_triggerbit);
-  else if(pairType == ((int) OfflineProducerHelper::EHad)  ) return checkOREleTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, pt_tau2, eta_tau2, pass_triggerbit);
-  else if (pairType == ((int) OfflineProducerHelper::HadHad)) return checkORTauTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, pt_tau2, pass_triggerbit);
-  else if (pairType == ((int) OfflineProducerHelper::EMu)   ) return checkORMuEleNew (triggerbit_1,matchFlag1,trgNoOverlap,goodTriggerType1,pt_tau1, pass_triggerbit);
-  else if (pairType == ((int) OfflineProducerHelper::EE)    ) return checkOREleEleNew(triggerbit_1,matchFlag1,trgNoOverlap,goodTriggerType1,pt_tau1, pass_triggerbit);
-  else if (pairType == ((int) OfflineProducerHelper::MuMu)  ) return checkORMuMuNew  (triggerbit_1,matchFlag1,trgNoOverlap,goodTriggerType1,pt_tau1, pass_triggerbit);
+  if(pairType == ((int) OfflineProducerHelper::MuHad) ) return checkORMuTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, eta_tau1, pt_tau2, eta_tau2, pass_triggerbit);
+  else if(pairType == ((int) OfflineProducerHelper::EHad)  ) return checkOREleTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, eta_tau1, pt_tau2, eta_tau2, pass_triggerbit);
+  else if (pairType == ((int) OfflineProducerHelper::HadHad)) return checkORTauTauNew(triggerbit_1, matchFlag1, matchFlag2, trgNoOverlap,goodTriggerType1, goodTriggerType2, pt_tau1, eta_tau1, pt_tau2, eta_tau2, pass_triggerbit);
+  else if (pairType == ((int) OfflineProducerHelper::EMu)   ) return checkORMuEleNew (triggerbit_1,matchFlag1,trgNoOverlap,goodTriggerType1,pt_tau1,eta_tau1,eta_tau2, pass_triggerbit);
+  else if (pairType == ((int) OfflineProducerHelper::EE)    ) return checkOREleEleNew(triggerbit_1,matchFlag1,trgNoOverlap,goodTriggerType1,pt_tau1,eta_tau1,eta_tau2, pass_triggerbit);
+  else if (pairType == ((int) OfflineProducerHelper::MuMu)  ) return checkORMuMuNew  (triggerbit_1,matchFlag1,trgNoOverlap,goodTriggerType1,pt_tau1,eta_tau1,eta_tau2, pass_triggerbit);
   else
     {
       cout << " ** WARNING!! Pair type " << pairType << " not implemented for trigger" << endl;
@@ -892,7 +948,7 @@ void triggerReader_cross::listMuTau  (Long64_t triggerbit_1, Long64_t matchFlag1
 //  only the VBF triggers list
 // --------------------------------------------
 
-bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double pt_tau2)
+bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double eta_tau1, double pt_tau2, double eta_tau2)
 {
 
     // Clean the ttCrossTriggers from the VBF triggers
@@ -917,6 +973,8 @@ bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag
     bool goodType_2 = false;
     std::string firedPath_2;
     bool ptCut_2 = false;
+    bool etaCut1_2 = false;
+    bool etaCut2_2 = false;
     for (unsigned int i = 0; i < _ttCrossCleaned.size(); i++)
     {
       OR_2 = CheckBit (triggerbit_1, _ttCrossCleaned.at(i));
@@ -937,11 +995,17 @@ bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag
           boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
           //ptCut_2 = checkPtCutCross(OR_2, firedPath_2, re_tau1, re_tau2, pt_tau1, pt_tau2, 5.0, 5.0);
           ptCut_2 = (pt_tau1 > 40. && pt_tau2 > 40.); // suggested by tauTrigger Group
+          etaCut1_2 = (fabs(eta_tau1) < 2.1); //tau threshold
+          etaCut2_2 = (fabs(eta_tau2) < 2.1); //tau threshold
         }
         else
+        {
           ptCut_2 = false;
+          etaCut1_2 = false;
+          etaCut2_2 = false;
+        }
       }
-      if (!(OR_2 && match_2 && _trgNoOverlap_2 && goodType_2 && ptCut_2)) OR_2 = false;
+      if (!(OR_2 && match_2 && _trgNoOverlap_2 && goodType_2 && ptCut_2 && etaCut1_2 && etaCut2_2)) OR_2 = false;
       if (OR_2) break;
     }
     // Check the singleTriggers
@@ -965,11 +1029,17 @@ bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag
             firedPath_2 = _allTriggers.at(_ttTriggers.at(i));
             boost::regex re_tau1{"Tau(\\d+)|TauHPS(\\d+)"};
             ptCut_2 = checkPtCutSingle(OR_2, firedPath_2, re_tau1, pt_tau1, 5.0);
+            etaCut1_2 = (fabs(eta_tau1) < 2.1); //tau threshold
+            etaCut2_2 = (fabs(eta_tau2) < 2.1); //tau threshold
           }
           else
+          {
             ptCut_2 = false;
+            etaCut1_2 = false;
+            etaCut2_2 = false;
+          }
         }
-        if (!(OR_2 && match_2 && _trgNoOverlap_2 && goodType_2 && ptCut_2)) OR_2 = false;
+        if (!(OR_2 && match_2 && _trgNoOverlap_2 && goodType_2 && ptCut_2 && etaCut1_2 && etaCut2_2)) OR_2 = false;
         if (OR_2) break;
       }
     }
@@ -992,6 +1062,8 @@ bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag
       bool goodType = false;
       std::string firedPath;
       bool ptCut = false;
+      bool etaCut1 = false;
+      bool etaCut2 = false;
       for (unsigned int i = 0; i < _vbfTriggers.size(); i++)
       {
         OR = CheckBit (triggerbit_1, _vbfTriggers.at(i));
@@ -1011,11 +1083,17 @@ bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag
             boost::regex re_tau1{"Tau(\\d+)|TauHPS(\\d+)"};
             boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
             ptCut = checkPtCutCross(OR, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 5.0, 5.0);
+            etaCut1 = (fabs(eta_tau1) < 2.1); //tau threshold
+            etaCut2 = (fabs(eta_tau2) < 2.1); //tau threshold
           }
           else
+          {
             ptCut = false;
+            etaCut1 = false;
+            etaCut2 = false;
+          }
         }
-        if (!(OR && match && _trgNoOverlap && goodType && ptCut)) OR = false;
+        if (!(OR && match && _trgNoOverlap && goodType && ptCut && etaCut1 && etaCut2)) OR = false;
         if (OR) break;
       }
     }

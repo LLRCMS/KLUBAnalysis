@@ -1,61 +1,21 @@
 import os, sys
 from subprocess import Popen, PIPE
 
-#tag = "MC_VBF_Summer16_singleTop"
-#tag = "MC_Fall17"
-#tag = "MC_PU12Apr_18May2018"
-#tag = "Data2017BF_31Mar2018ReReco_17May2018"
-#tag = "MC_26June2018"
-#tag = "MC_28June2018_ZZ4L"
-#tag = "MC_3July2018"
-#tag = "MC_4July2018_allFail"
-#tag = "MC_28June2018_DY4J"
-#tag = "MC_7July2018_GGH450"
-#tag = "MC_7July2018_GGH900"
-#tag = "MC_7July2018_VBF800"
-#tag = "MC_7July2018_VBF850"
-#tag = "MC_7July2018_VBF1250"
-#tag = "MC_7July2018_DYBB"
-#tag = "MC_7July2018_EWKminus"
-#tag = "MC_7July2018_EWK2Jets"
-#tag = "MC_7July2018_Wjets800to1200"
-#tag = "MC_7July2018_ttHnonbb"
-#tag = "MC_7July2018_TTWW"
-#tag = "MC_7July2018_WW"
-#tag = "MC_7July2018_WZTo3LNu_3Jets"
-#tag = "MC_24July2018"
-#tag = "MC_14JOct2018"
-#tag = "MC_23JOct2018_signalsTESI"
-#tag = "MC_bkg_25January2019"
-#tag = "MC_bkg_25January2019_njobs"
-#tag = "MC_bkg_25January2019_njobs2"
-#tag = "MC_bkg_25January2019_njobs3"
-#tag = "MC_06June2019"
-#tag = "MC_07June2019"
-#tag = "MC_08June2019"
-#tag = "MC_19June2019"
-#tag = "MC_20June2019"
-#tag = "Data_26June2019"
-#tag = "MC_27June2019"
-#tag = "MC_28July2019"
-#tag = "MC_30July2019"
-#tag = "MC_31July2019"
-#tag = "MC_23Aug2019"
-#tag = "Sig_30July2019"
-#tag = "Data_30July2019"
-tag="Data_29Aug2019"
+#tag="Legacy2016_Signals_Dec2019"
+#tag="Legacy2016_Backgrounds_Dec2019"
+#tag="Legacy2016_Backgrounds2_Dec2019"
+#tag="Legacy2016_Backgrounds5_Dec2019"
+tag="Legacy2016_Data_Muon_Dec2019"
+#tag="Legacy2016_Data_Electron_Dec2019"
+#tag="Legacy2016_Data_Tau_Dec2019"
 
-#outFolder = '/home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_17Nov_VBF'
-#outFolder = '../inputFiles/Fall17_MC/'
-#outFolder = '../inputFiles/Fall17_DATA/'
-#outFolder = '../inputFiles/Files_June2018/'
-#outFolder = '../inputFiles/Files_June2018/signals/'
-#outFolder = '../inputFiles/Files_June2018/signals_tesi/'
-#outFolder = '../inputFiles/Files_January2019/Files_January2019/'
-#outFolder = '../inputFiles/Files_January2019/Files_January2019_njobs/'
-#outFolder = '../inputFiles/Files_January2019/Files_January2019_njobs2/'
-#outFolder = '../inputFiles/Files_January2019/Files_January2019_njobs3/'
-outFolder = '../inputFiles/Files_June2019/Files_June2019_secondLook/'
+#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Signals/'
+#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds/'
+#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds2/'
+#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds5/'
+outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Muon/'
+#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Electron/'
+#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Tau/'
 
 areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
                                  # if false: only add the polgrid server to run the skim and submit on root
@@ -94,8 +54,8 @@ print useOnly
 dpmhome = "/gwteras/cms"
 
 #partialPath = "/store/user/lcadamur/HHNtuples/" #folder contenente la produzione
-#partialPath = "/store/user/fbrivio/Hhh_1718/"
-partialPath = "/store/user/dzuolo/HHbbtautauNtuples/"
+partialPath = "/store/user/fbrivio/Hhh_1718/"
+#partialPath = "/store/user/dzuolo/HHbbtautauNtuples/"
 
 
 path = dpmhome + partialPath + tag
