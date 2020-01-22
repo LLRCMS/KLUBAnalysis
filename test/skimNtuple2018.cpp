@@ -2890,127 +2890,132 @@ int main (int argc, char** argv)
 	  }
 	}
       theSmallTree.m_jetFakeSF = (isMC ? jetFakeSF1*jetFakeSF2 : 1.0);
-      
+
+
       // DATA/MC Trigger ScaleFactors
       // https://github.com/CMS-HTT/LeptonEfficiencies
       // https://github.com/truggles/TauTriggerSFs2017
 
       // recommendations for cross triggers:  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information
 
-      
       float trigSF = 1.0;
       float trigSF_single = 1.0;
       float trigSF_cross = 1.0;
 
       if(applyTriggers)
-	{
-	  // MuTau Channel
-	  if (pType == 0 && isMC)
-	    {
-	      if(fabs(tlv_secondLepton.Eta()) < 2.1){ //eta region covered both by cross-trigger and single lepton trigger
-		
-		int passCross = 1;
-		int passSingle = 1;
-		
-		if (tlv_firstLepton.Pt() < 26.) passSingle = 0;  
-		if (tlv_secondLepton.Pt() < 32.) passCross = 0;  
+      {
+        // MuTau Channel
+        if (pType == 0 && isMC)
+        {
+          if(fabs(tlv_secondLepton.Eta()) < 2.1) //eta region covered both by cross-trigger and single lepton trigger
+          {
+            int passCross = 1;
+            int passSingle = 1;
 
-		//lepton trigger
-		double SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		double SFL_MC = muTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            if (tlv_firstLepton.Pt() < 25.) passSingle = 0;
+            if (tlv_secondLepton.Pt() < 32.) passCross = 0;
 
-		//cross-trigger
-		//mu leg
-		double SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            //lepton trigger
+            double SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SFL_MC = muTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 
-		//tau leg
-		double SFtau_Data = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-		double SFtau_MC   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-		
-		double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
-		double Eff_MC   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC) + passCross * SFl_MC * SFtau_MC;
+            //cross-trigger
+            //mu leg
+            double SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 
-		trigSF = Eff_Data / Eff_MC;
+            //tau leg
+            double SFtau_Data = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+            double SFtau_MC   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 
-		//trig SF for analysis only with cross-trigger
-		double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		double SFtau = tauTrgSF_mutau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-		trigSF_cross = SFl*SFtau;
-	      }else{ //eta region covered only by single lepton trigger
-		double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		trigSF = SF;
-	      }
-	      //trig SF for analysis only with single-mu trigger
-	      trigSF_single =  muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-	    }
-	  
-	  // EleTau Channel
-	  else if (pType == 1 && isMC)
-	    {
-	      if(fabs(tlv_secondLepton.Eta()) < 2.1){ //eta region covered both by cross-trigger and single lepton trigger
-		int passCross = 1;
-		int passSingle = 1;
-		
-		if (tlv_firstLepton.Pt() < 35.) passSingle = 0;  
-		if (tlv_secondLepton.Pt() < 35.) passCross = 0;  
+            double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
+            double Eff_MC   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC) + passCross * SFl_MC * SFtau_MC;
 
-		//lepton trigger
-		double SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		double SFL_MC = eTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		
-		//cross-trigger
-		//e leg
-		double SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		double SFl_MC = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		
-		//tau leg
-		double SFtau_Data = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-		double SFtau_MC   = tauTrgSF_etau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-		
-		double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
-		double Eff_MC   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC) + passCross * SFl_MC * SFtau_MC;
-		
-		trigSF = Eff_Data / Eff_MC;
+            trigSF = Eff_Data / Eff_MC;
 
-		//trig SF for analysis only with cross-trigger
-		double SFl = eTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		double SFtau = tauTrgSF_etau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-		trigSF_cross = SFl*SFtau;
-	      }else{ //eta region covered only by single lepton trigger
-		double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-		trigSF = SF;
-	      }
-	      //trig SF for analysis only with single-e trigger
-	      trigSF_single =  eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-	    }
-	  // TauTau Channel
-	  else if (pType == 2 && isMC)
-	    {
-	      double SF1 = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt() , DM1, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-	      double SF2 = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-	      trigSF = SF1 * SF2;
-	    }
-	  
-	  // MuMu Channel
-	  else if (pType == 3 && isMC)
-	    {
-	      double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-	      trigSF = SF;
-	
-	    }
-	  
-	  // EleEle Channel
-	  else if (pType == 4 && isMC)
-	    {
-	      double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-	      trigSF = SF;
-	      
-	    }
-	}
-      theSmallTree.m_trigSF     = (isMC ? trigSF : 1.0);
-      theSmallTree.m_trigSF_single     = (isMC ? trigSF_single : 1.0);
-      theSmallTree.m_trigSF_cross     = (isMC ? trigSF_cross : 1.0);
+            //trig SF for analysis only with cross-trigger
+            double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SFtau = tauTrgSF_mutau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+            trigSF_cross = SFl*SFtau;
+          }
+          else //eta region covered only by single lepton trigger
+          {
+            double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            trigSF = SF;
+          }
+          //trig SF for analysis only with single-mu trigger
+          trigSF_single =  muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+        }
+
+        // EleTau Channel
+        else if (pType == 1 && isMC)
+        {
+          if(fabs(tlv_secondLepton.Eta()) < 2.1) //eta region covered both by cross-trigger and single lepton trigger
+          {
+            int passCross = 1;
+            int passSingle = 1;
+
+            if (tlv_firstLepton.Pt() < 33.) passSingle = 0;
+            if (tlv_secondLepton.Pt() < 35.) passCross = 0;
+
+            //lepton trigger
+            double SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SFL_MC = eTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+
+            //cross-trigger
+            //e leg
+            double SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SFl_MC = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+
+            //tau leg
+            double SFtau_Data = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+            double SFtau_MC   = tauTrgSF_etau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+
+            double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
+            double Eff_MC   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC) + passCross * SFl_MC * SFtau_MC;
+
+            trigSF = Eff_Data / Eff_MC;
+
+            //trig SF for analysis only with cross-trigger
+            double SFl = eTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SFtau = tauTrgSF_etau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+            trigSF_cross = SFl*SFtau;
+          }
+          else //eta region covered only by single lepton trigger
+          {
+            double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            trigSF = SF;
+          }
+          //trig SF for analysis only with single-e trigger
+          trigSF_single =  eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+        }
+
+        // TauTau Channel
+        else if (pType == 2 && isMC)
+        {
+          double SF1 = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt() , DM1, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+          double SF2 = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+          trigSF = SF1 * SF2;
+        }
+
+        // MuMu Channel
+        else if (pType == 3 && isMC)
+        {
+          double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+          trigSF = SF;
+        }
+
+        // EleEle Channel
+        else if (pType == 4 && isMC)
+        {
+          double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+          trigSF = SF;
+        }
+      } // end if(applytriggers)
+
+      theSmallTree.m_trigSF        = (isMC ? trigSF : 1.0);
+      theSmallTree.m_trigSF_single = (isMC ? trigSF_single : 1.0);
+      theSmallTree.m_trigSF_cross  = (isMC ? trigSF_cross : 1.0);
 
       theSmallTree.m_totalWeight = (isMC? (41557./7.20811e+10) * theSmallTree.m_MC_weight* theSmallTree.m_PUReweight* theSmallTree.m_DYscale_MM_NLO* trigSF* theSmallTree.m_IdAndIsoAndFakeSF_deep: 1.0);
       //this is just a residual of some synch
