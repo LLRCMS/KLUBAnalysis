@@ -1,8 +1,10 @@
 AMESSAGE="First 2018 Legacy ntuples"
 
-OUTDIRR="SKIMS_21March2020_forBTagEff"
-#OUTDIRR="SKIMS_20Sept2019_Run2017_0jets_privatesignals"
+OUTDIRR="SKIMS_22Jan2020"
+
 INPUTDIR_BKG="inputFiles/Legacy2018_backgrounds"
+INPUTDIR_DATA="inputFiles/Legacy2018_data"
+INPUTDIR_SIG="inputFiles/Legacy2018_signals"
 #INPUTDIR="inputFiles/MC2017_Jan2019"
 PUDIR="weights/PUreweight/outputs_January2019"
 SKIMDIR="/data_CMS/cms/amendola/HHLegacy_2018_SKIMS"
@@ -20,50 +22,39 @@ cp /home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/scripts/listAll.sh $SKIMD
 #########################
 ### SKIMS LEGACY 2018 ###
 #########################
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -o $SKIMDIR/$OUTDIRR/SKIM_SingleMuon2017A   -k True     -i inputFiles/Data2017_Jan2019/1_SingleMuon__Run2017B-31Mar2018-v1.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -o $SKIMDIR/$OUTDIRR/SKIM_SingleMuon2017B   -k True     -i inputFiles/Data2017_Jan2019/1_SingleMuon__Run2017B-31Mar2018-v1.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -o $SKIMDIR/$OUTDIRR/SKIM_SingleMuon2017C    -k True     -i inputFiles/Data2017_Jan2019/2_SingleMuon__Run2017C-31Mar2018-v1.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -o $SKIMDIR/$OUTDIRR/SKIM_SingleMuon2017D     -k True    -i inputFiles/Data2017_Jan2019/3_SingleMuon__Run2017D-31Mar2018-v1.txt
 
+#DATA->OK
 
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2017B     -k True    -i inputFiles/Data2017_Jan2019/1_SingleElectron__Run2017B-31Mar2018-v1.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2017C    -k True     -i inputFiles/Data2017_Jan2019/2_SingleElectron__Run2017C-31Mar2018-v1.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2017D    -k True     -i inputFiles/Data2017_Jan2019/3_SingleElectron__Run2017D-31Mar2018-v1.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2017E    -k True     -i inputFiles/Data2017_Jan2019/4_SingleElectron__Run2017E-31Mar2018-v1.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2017F     -k True    -i inputFiles/Data2017_Jan2019/5_SingleElectron__Run2017F-31Mar2018-v1.txt
-##sleep 30m
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o $SKIMDIR/$OUTDIRR/SKIM_Tau2017B    -k True     -i inputFiles/Data2017_Jan2019/1_Tau__Run2017B-31Mar2018-v1.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o $SKIMDIR/$OUTDIRR/SKIM_Tau2017C     -k True    -i inputFiles/Data2017_Jan2019/2_Tau__Run2017C-31Mar2018-v1.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o $SKIMDIR/$OUTDIRR/SKIM_Tau2017D     -k True    -i inputFiles/Data2017_Jan2019/3_Tau__Run2017D-31Mar2018-v1.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o $SKIMDIR/$OUTDIRR/SKIM_Tau2017E     -k True    -i inputFiles/Data2017_Jan2019/4_Tau__Run2017E-31Mar2018-v1.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_2017.cfg  -n 200   -o $SKIMDIR/$OUTDIRR/SKIM_Tau2017F    -k True     -i inputFiles/Data2017_Jan2019/5_Tau__Run2017F-31Mar2018-v1.txt
-#
-##sleep 45m
-#
-####
-####
-##sleep 45m
-##### TT
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleMuon2017A   -k True     -i $INPUTDIR_DATA/4_SingleMuon__Run2018A-17Sep2018-v2.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleMuon2017B   -k True     -i $INPUTDIR_DATA/5_SingleMuon__Run2018B-17Sep2018-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleMuon2017C   -k True     -i $INPUTDIR_DATA/6_SingleMuon__Run2018C-17Sep2018-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleMuon2017D   -k True     -i $INPUTDIR_DATA/2_SingleMuon__Run2018D-PromptReco-v2.txt
+
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2017A   -k True     -i $INPUTDIR_DATA/1_EGamma__Run2018A-17Sep2018-v2.txt 
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2017B   -k True     -i $INPUTDIR_DATA/2_EGamma__Run2018B-17Sep2018-v1.txt 
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2017C   -k True     -i $INPUTDIR_DATA/3_EGamma__Run2018C-17Sep2018-v1.txt 
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2017D   -k True     -i $INPUTDIR_DATA/1_EGamma__Run2018D-PromptReco-v2.txt
+
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_Tau2017A   -k True     -i $INPUTDIR_DATA/7_Tau__Run2018A-17Sep2018-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_Tau2017B   -k True     -i $INPUTDIR_DATA/8_Tau__Run2018B-17Sep2018-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_Tau2017C   -k True     -i $INPUTDIR_DATA/9_Tau__Run2018C-17Sep2018-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_Tau2017D   -k True     -i $INPUTDIR_DATA/3_Tau__Run2018D-PromptReco-v2.txt
+
+##### TT->OK
 ##### TT x section: 831.76 for inclusive sample, W->had 67,60% , W->l nu 3*10,8% = 32,4% (sum over all leptons)
 ##### hh = 45.7%
 ##### ll = 10.5%
 ##### hl = 21.9% (x2 for permutation t-tbar)
 ####
 
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 700  -Y 2018 -k True -o $SKIMDIR/$OUTDIRR/SKIM_TT_fullyHad -i $INPUTDIR_BKG/2_TTToHadronic_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 377.96 -t True -b 1  
 
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 700  -Y 2018 -k False -o $SKIMDIR/$OUTDIRR/SKIM_TT_fullyHad -i $INPUTDIR_BKG/2_TTToHadronic_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 377.96 -t True -b 1  
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 1000  -Y 2018 -k True -o $SKIMDIR/$OUTDIRR/SKIM_TT_fullyLep -i $INPUTDIR_BKG/1_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 88.29  -t True -b 4 
 
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 1000  -Y 2018 -k False -o $SKIMDIR/$OUTDIRR/SKIM_TT_fullyLep -i $INPUTDIR_BKG/1_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 88.29  -t True -b 4 
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 1000  -Y 2018 -k True -o $SKIMDIR/$OUTDIRR/SKIM_TT_semiLep -i $INPUTDIR_BKG/1_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 365.34 -t True -b 5 
 
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 1000  -Y 2018 -k False -o $SKIMDIR/$OUTDIRR/SKIM_TT_semiLep -i $INPUTDIR_BKG/1_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 365.34 -t True -b 5 
+###DY ->outdated
 
-##sleep 40m
-###sleep 1h
-####
-#####
-#####
-####
-####### DY
 ####
 ##### total XS= 6225.42 pb - 5 march 2019
 ##### myPUHisto_0j0b : xsFrac: 0.746231    - xs: 4645.60 pb
@@ -83,102 +74,74 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -
 ##### myPUHisto_4j4b : xsFrac: 2.77162E-06 - xs: 0.017   pb
 ####
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_DYJets_0j0b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 4645.60 --pu $PUDIR/DY_special/DY_LO_0j0b.txt --nj 0 --nb 0 --DY True --tag $OUTDIRR/SKIM_DYJets_0b0j
-##sleep 10m
+
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_DYJets_1j0b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 980.42  --pu $PUDIR/DY_special/DY_LO_1j0b.txt --nj 1 --nb 0 --DY True --tag $OUTDIRR/SKIM_DYJets_1b0j
-##sleep 10m
+
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_DYJets_1j1b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 41.05   --pu $PUDIR/DY_special/DY_LO_1j1b.txt --nj 1 --nb 1 --DY True --tag $OUTDIRR/SKIM_DYJets_1b1j
-#sleep 25m
+
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 800  -o $SKIMDIR/$OUTDIRR/SKIM_DYJets_2j0b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 331.44  --pu $PUDIR/DY_special/DY_LO_2j0b.txt --nj 2 --nb 0 --DY True --tag $OUTDIRR/SKIM_DYJets_2b0j
-#sleep 25m
+
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_DYJets_2j1b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 17.20  --pu $PUDIR/DY_special/DY_LO_2j1b.txt --nj 2 --nb 1 --DY True --tag $OUTDIRR/SKIM_DYJets_2b1j
-#sleep 25m
+
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_DYJets_2j2b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 7.14    --pu $PUDIR/DY_special/DY_LO_2j2b.txt --nj 2 --nb 2 --DY True --tag $OUTDIRR/SKIM_DYJets_2b2j
-#sleep 25m
+
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_DYJets_3j0b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 118.64  --pu $PUDIR/DY_special/DY_LO_3j0b.txt --nj 3 --nb 0 --DY True --tag $OUTDIRR/SKIM_DYJets_3b0j
-#sleep 25m
+
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_DYJets_3j1b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 4.91    --pu $PUDIR/DY_special/DY_LO_3j1b.txt --nj 3 --nb 1 --DY True --tag $OUTDIRR/SKIM_DYJets_3b1j
-#sleep 25m
+
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_DYJets_3j2b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 5.54    --pu $PUDIR/DY_special/DY_LO_3j2b.txt --nj 3 --nb 2 --DY True --tag $OUTDIRR/SKIM_DYJets_3b2j
-#sleep 25m
+
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_DYJets_3j3b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 0.062   --pu $PUDIR/DY_special/DY_LO_3j3b.txt --nj 3 --nb 3 --DY True --tag $OUTDIRR/SKIM_DYJets_3b3j
 #
-#sleep 25m
+
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_DYJets_4j0b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 66.06   --pu $PUDIR/DY_special/DY_LO_4j0b.txt --nj 4 --nb 0 --DY True --tag $OUTDIRR/SKIM_DYJets_4b0j 
-#sleep 25m
+
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_DYJets_4j1b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 2.24   --pu $PUDIR/DY_special/DY_LO_4j1b.txt --nj 4 --nb 1 --DY True --tag $OUTDIRR/SKIM_DYJets_4b1j 
-#sleep 25m
+
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_DYJets_4j2b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 5.04    --pu $PUDIR/DY_special/DY_LO_4j2b.txt --nj 4 --nb 2 --DY True --tag $OUTDIRR/SKIM_DYJets_4b2j
-#sleep 25m
+
 #
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_DYJets_4j3b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 0.064   --pu $PUDIR/DY_special/DY_LO_4j3b.txt --nj 4 --nb 3 --DY True --tag $OUTDIRR/SKIM_DYJets_4b3j
-#sleep 25m
+
 #
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_DYJets_4j4b -i $INPUTDIR/DYJetsToLL_LO.txt -g False -x 0.017   --pu $PUDIR/DY_special/DY_LO_4j4b.txt --nj 4 --nb 4 --DY True --tag $OUTDIRR/SKIM_DYJets_4b4j
-#sleep 10m
-##
-#
-## ########
-## # DY NLO
-## #
-#
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_DY_NLO -i $INPUTDIR/DYJetsToLL_NLO.txt  -x  6225.42  --pu $PUDIR/DYJetsToLL_NLO.txt  --DY True --tag $OUTDIRR/SKIM_DYJets_4b4j
-#
-###python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 200  -o /data_CMS/cms/amendola/HH2017Skims/$OUTDIRR/SKIM_DY_QQ -i inputFiles/MC2017_Jan2019/1_DYJetsToQQ_HT180_13TeV_TuneCP5-madgraphMLM-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x  1728  --pu $PUDIR/WJets.txt #--DY True
-#
-#
-#
-#
-#
+
+
 ### # #####################
-### Wjets
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_WJets_HT_0_100     -i $INPUTDIR/WJetsToLNu_HT-0To100.txt    -y 1.213784 -x 48917.48 -z 100  --pu $PUDIR/PUsafe_weights.txt  
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_WJets_HT_100_200   -i $INPUTDIR/31_WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2.txt  -y 1.213784 -x 1345  --pu $PUDIR/PUsafe_weights.txt 
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_WJets_HT_200_400   -i $INPUTDIR/32_WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt   -y 1.213784 -x 359.7  --pu $PUDIR/PUsafe_weights.txt 
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_WJets_HT_400_600   -i $INPUTDIR/33_WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt   -y 1.213784 -x 48.91  --pu $PUDIR/PUsafe_weights.txt 
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_WJets_HT_600_800   -i $INPUTDIR/34_WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt   -y 1.213784 -x 12.05  --pu $PUDIR/PUsafe_weights.txt 
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_WJets_HT_800_1200  -i $INPUTDIR/35_WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt  -y 1.213784 -x 5.501  --pu $PUDIR/PUsafe_weights.txt 
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_WJets_HT_1200_2500 -i $INPUTDIR/36_WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt  -y 1.213784 -x 1.329  --pu $PUDIR/PUsafe_weights.txt 
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_WJets_HT_2500_Inf  -i $INPUTDIR/37_WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v3.txt  -y 1.213784 -x 0.03216 -Z 2500  --pu $PUDIR/PUsafe_weights.txt
-#sleep 10m
+### Wjets ->OK
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 200  -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_WJets_HT_0_100     -i $INPUTDIR_BKG/4_WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v2.txt    -y 1.213784 -x 48917.48 -z 100   --tag WJetsToLNu_HT-0To100.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 200  -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_WJets_HT_100_200   -i $INPUTDIR_BKG/5_WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 200  -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_WJets_HT_200_400   -i $INPUTDIR_BKG/6_WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 200  -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_WJets_HT_400_600   -i $INPUTDIR_BKG/7_WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 200  -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_WJets_HT_600_800   -i $INPUTDIR_BKG/8_WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 200  -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_WJets_HT_800_1200  -i $INPUTDIR_BKG/9_WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 200  -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_WJets_HT_1200_2500 -i $INPUTDIR_BKG/10_WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 200  -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_WJets_HT_2500_Inf  -i $INPUTDIR_BKG/11_WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
+
 #  
 #
 ## # #####################
-##### ELECTROWEAK
+##### ELECTROWEAK -> OK
 #
 #
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg  -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_EWKWPlus2Jets_WToLNu   -i $INPUTDIR/13_EWKWPlus2Jets_WToLNu_M-50_TuneCP5_13TeV-madgraph-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt   -x 25.62  --pu $PUDIR/EWKWPlus2Jets_WToLNu.txt
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg  -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_EWKWMinus2Jets_WToLNu  -i $INPUTDIR/14_EWKWMinus2Jets_WToLNu_M-50_TuneCP5_13TeV-madgraph-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt  -x 20.25  --pu $PUDIR/EWKWMinus2Jets_WToLNu.txt
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg  -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_EWKZ2Jets_ZToLL        -i $INPUTDIR/15_EWKZ2Jets_ZToLL_M-50_TuneCP5_13TeV-madgraph-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt        -x 3.987  --pu $PUDIR/EWKZ2Jets_ZToLL.txt
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg  -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_EWKZ2Jets_ZToNuNu      -i $INPUTDIR/16_EWKZ2Jets_ZToNuNu_TuneCP5_13TeV-madgraph-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt        -x 10.66  --pu $PUDIR/EWKZ2Jets_ZToNuNu.txt
-#sleep 10m
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -Y 2018 -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_EWKWPlus2Jets_WToLNu   -x 25.62 -i $INPUTDIR_BKG/27_EWKWPlus2Jets_WToLNu_M-50_TuneCP5_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -Y 2018 -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_EWKWMinus2Jets_WToLNu -x 20.25 -i $INPUTDIR_BKG/28_EWKWMinus2Jets_WToLNu_M-50_TuneCP5_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -Y 2018 -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_EWKZ2Jets_ZToLL       -x 3.987 -i $INPUTDIR_BKG/25_EWKZ2Jets_ZToLL_M-50_TuneCP5_PSweights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -Y 2018 -n 200  -o $SKIMDIR/$OUTDIRR/SKIM_EWKZ2Jets_ZToNuNu    -x 10.66  -i $INPUTDIR_BKG/26_EWKZ2Jets_ZToNuNu_TuneCP5_PSweights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
 #
 #
 #
 #
 # # #####################
-##### single top :
-#sleep 20m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg  -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ST_tW_antitop         -i $INPUTDIR/ST_tW_antitop.txt   -x 34.97  --pu $PUDIR/ST_tW_antitop.txt
-#sleep 4m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg  -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ST_tW_top             -i $INPUTDIR/ST_tW_top.txt       -x 35.6  --pu $PUDIR/ST_tW_top.txt
-#sleep 4m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg  -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ST_tchannel_antitop   -i $INPUTDIR/23_ST_t-channel_antitop_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2.txt   -x 80.95  --pu $PUDIR/PUsafe_weights.txt
-#sleep 4m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg  -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ST_tchannel_top       -i $INPUTDIR/24_ST_t-channel_top_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1.txt       -x 136.02  --pu $PUDIR/PUsafe_weights.txt
-#sleep 4m
+##### single top : ->OK
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -Y 2018 -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ST_tW_antitop         -i $INPUTDIR_BKG/21_ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v1.txt   -x 34.97 
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -Y 2018 -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ST_tW_top             -i $INPUTDIR_BKG/22_ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v1.txt       -x 35.6  
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -Y 2018 -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ST_tchannel_antitop   -i $INPUTDIR_BKG/23_ST_t-channel_antitop_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 80.95
+# Missing ### python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -Y 2018 -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ST_tchannel_top    -x 136.02   -i 
+
 
 ## # #####################
-##### SM Higgs :
+##### SM Higgs : -> OK
 #### HXSWG: xs(ZH) = 0.8839 pb
 #### Z->qq : 69.91% , Z->ll : 3,3658% (x3 for all the leptons)
 #### H->bb : 57.7%  , H->tautau : 6.32%
@@ -186,28 +149,18 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -
 #### ZH (Zqq, Hbb)      : XSBD (xs ZH * BR Z) * H->bb
 #### ZH (Zall, Htautau) : XS teor ZH * BR H->tautau
 #
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ZH_HBB_ZLL -i $INPUTDIR/59_ZH_HToBB_ZToLL_M125_13TeV_powheg_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 0.07924 -y 0.577  --pu $PUDIR/ZH_HToBB_ZToLL.txt
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ZH_HBB_ZQQ -i $INPUTDIR/60_ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 0.554 -y 0.577  --pu $PUDIR/ZH_HToBB_ZToQQ.txt
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ZH_HTauTau -i $INPUTDIR/63_ZHToTauTau_M125_13TeV_powheg_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 0.8696 -y 0.0632  --pu $PUDIR/ZHToTauTau.txt
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ggHTauTau -i $INPUTDIR/GluGluHToTauTau.txt -x 21.46 -y 0.0632  --pu $PUDIR/GluGluHToTauTau.txt
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_WplusHTauTau -i $INPUTDIR/67_WplusHToTauTau_M125_13TeV_powheg_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 0.867 -y 0.0632  --pu $PUDIR/WplusHToTauTau.txt
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 50  -o $SKIMDIR/$OUTDIRR/SKIM_VBFHTauTau -i $INPUTDIR/66_VBFHToTauTau_M125_13TeV_powheg_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 3.861 -y 0.0632  --pu $PUDIR/VBFHToTauTau.txt
-#sleep 10m
-#### 
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_WminusHTauTau -i $INPUTDIR/68_WminusHToTauTau_M125_13TeV_powheg_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 0.5412 -y 0.0632  --pu $PUDIR/WminusHToTauTau.txt
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ttHJetTononBB -i $INPUTDIR/69_ttHJetToNonbb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1.txt -x 0.507 -y 0.423  --pu $PUDIR/PUsafe_weights.txt
-#sleep 10m
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ttHJetToBB -i $INPUTDIR/70_ttHJetTobb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1.txt -x 0.507 -y 0.577  --pu $PUDIR/PUsafe_weights.txt
-#sleep 10m
-###sleep30m
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -Y 2018 -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ZH_HBB_ZLL -i $INPUTDIR_BKG/29_ZH_HToBB_ZToLL_M125_13TeV_powheg_pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v2.txt -x 0.07924 -y 0.577  
+# ggZH?
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -Y 2018 -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ZH_HTauTau -i $INPUTDIR_BKG/32_ZHToTauTau_M125_13TeV_powheg_pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v2.txt -x 0.8696 -y 0.0632  
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -Y 2018 -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ggHTauTau -i $INPUTDIR_BKG/33_GluGluHToTauTau_M125_13TeV_powheg_pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v2.txt -x 21.46 -y 0.0632  
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -Y 2018 -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_WplusHTauTau -i $INPUTDIR_BKG/35_WplusHToTauTau_M125_13TeV_powheg_pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v2.txt -x 0.867 -y 0.0632  
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -Y 2018 -n 50  -o $SKIMDIR/$OUTDIRR/SKIM_VBFHTauTau -i $INPUTDIR_BKG/34_VBFHToTauTau_M125_13TeV_powheg_pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v1.txt -x 3.861 -y 0.0632 
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg  -Y 2018 -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_WminusHTauTau -i $INPUTDIR_BKG/36_WminusHToTauTau_M125_13TeV_powheg_pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v2.txt -x 0.5412 -y 0.0632 
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg  -Y 2018 -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ttHJetTononBB -i $INPUTDIR_BKG/37_ttHJetToNonbb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 0.507 -y 0.423  
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg  -Y 2018 -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_ttHJetToBB -i $INPUTDIR_BKG/38_ttHJetTobb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 0.507 -y 0.577  
+
 ### # #####################
-###### Others :
+###### Others : -> outdated
 ##
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg -n 100  -o $SKIMDIR/$OUTDIRR/SKIM_TTWJetsToLNu -i $INPUTDIR/71_TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 0.2043  --pu $PUDIR/TTWJetsToLNu.txt
 #sleep 10m
@@ -223,8 +176,8 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -
 
 
 #
-## # #####################
-## # ### DI-boson: - 7*7 + 6*5 = 49 + 30 = 79
+## # ##################### 
+## # ### DI-boson: - 7*7 + 6*5 = 49 + 30 = 79 -> outdated 
 ## # # note2: all njobs listed here were increased by x10 to make them run on the short queue
 ## # #XS taken from here: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Diboson
 ## ## for Z->4Q, I scaled from ZZ->2nu2Q using BR(2Nu2Q) = 2 * 20% * 69.91%
@@ -256,7 +209,7 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg  -n 100    -o $SKIMDIR/$OUTDIRR/SKIM_ZZTo2L2Nu            -i $INPUTDIR/38_ZZTo2L2Nu_13TeV_powheg_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 0.5644  --pu $PUDIR/PUsafe_weights.txt
 
 
-# signals
+# signals ->outdated
 #sleep 10m
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg  -n 100   -k True -o $SKIMDIR/$OUTDIRR/SKIM_VBFSM -i inputFiles/Files_January2019_signals/46_VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_13TeV-madgraph__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2.txt -x 0.001626 -a True --pu $PUDIR/PUsafe_weights.txt
 #sleep 10m
@@ -266,45 +219,6 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_2017.cfg  -n 100   -k True -o $SKIMDIR/$OUTDIRR/SKIM_GGHSM_private -i inputFiles/Files_January2019_signals/PrivateProduction/GluGluToHHTo2B2Taus_12jets_SM.txt -x 0.03349 -a True --pu $PUDIR/PUsafe_weights.txt
 
 
-
-# # #####################
-# # ### Radion signals
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-250   -i inputFiles/Files_7Feb2016/allRadion/58_GluGluToRadionToHHTo2B2Tau_M-250_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-270   -i inputFiles/Files_7Feb2016/allRadion/59_GluGluToRadionToHHTo2B2Tau_M-270_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-280   -i inputFiles/Files_7Feb2016/allRadion/60_GluGluToRadionToHHTo2B2Tau_M-280_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 50 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-300   -i inputFiles/Files_7Feb2016/allRadion/61_GluGluToRadionToHHTo2B2Tau_M-300_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1.txt  -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-350   -i inputFiles/Files_7Feb2016/allRadion/62_GluGluToRadionToHHTo2B2Tau_M-350_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 50 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-400   -i inputFiles/Files_7Feb2016/allRadion/63_GluGluToRadionToHHTo2B2Tau_M-400_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v3.txt  -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-450   -i inputFiles/Files_7Feb2016/allRadion/64_GluGluToRadionToHHTo2B2Tau_M-450_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-500   -i inputFiles/Files_7Feb2016/allRadion/65_GluGluToRadionToHHTo2B2Tau_M-500_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-550   -i inputFiles/Files_7Feb2016/allRadion/66_GluGluToRadionToHHTo2B2Tau_M-550_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-600   -i inputFiles/Files_7Feb2016/allRadion/67_GluGluToRadionToHHTo2B2Tau_M-600_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-650   -i inputFiles/Files_7Feb2016/allRadion/68_GluGluToRadionToHHTo2B2Tau_M-650_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-750   -i inputFiles/Files_7Feb2016/allRadion/69_GluGluToRadionToHHTo2B2Tau_M-750_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToRadionToHHTo2B2Tau_M-900   -i inputFiles/Files_7Feb2016/allRadion/70_GluGluToRadionToHHTo2B2Tau_M-900_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-
-# #####################
-# ### Graviton signals
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToBulkGravitonToHHTo2B2Tau_M-250   -i inputFiles/Files_29Apr2016_gravitons/1_GluGluToBulkGravitonToHHTo2B2Tau_M-250_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToBulkGravitonToHHTo2B2Tau_M-260   -i inputFiles/Files_29Apr2016_gravitons/2_GluGluToBulkGravitonToHHTo2B2Tau_M-260_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToBulkGravitonToHHTo2B2Tau_M-270   -i inputFiles/Files_29Apr2016_gravitons/3_GluGluToBulkGravitonToHHTo2B2Tau_M-270_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToBulkGravitonToHHTo2B2Tau_M-280   -i inputFiles/Files_29Apr2016_gravitons/4_GluGluToBulkGravitonToHHTo2B2Tau_M-280_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToBulkGravitonToHHTo2B2Tau_M-300   -i inputFiles/Files_29Apr2016_gravitons/5_GluGluToBulkGravitonToHHTo2B2Tau_M-300_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToBulkGravitonToHHTo2B2Tau_M-320   -i inputFiles/Files_29Apr2016_gravitons/6_GluGluToBulkGravitonToHHTo2B2Tau_M-320_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToBulkGravitonToHHTo2B2Tau_M-340   -i inputFiles/Files_29Apr2016_gravitons/7_GluGluToBulkGravitonToHHTo2B2Tau_M-340_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToBulkGravitonToHHTo2B2Tau_M-350   -i inputFiles/Files_29Apr2016_gravitons/8_GluGluToBulkGravitonToHHTo2B2Tau_M-350_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToBulkGravitonToHHTo2B2Tau_M-400   -i inputFiles/Files_29Apr2016_gravitons/9_GluGluToBulkGravitonToHHTo2B2Tau_M-400_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToBulkGravitonToHHTo2B2Tau_M-450   -i inputFiles/Files_29Apr2016_gravitons/10_GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToBulkGravitonToHHTo2B2Tau_M-500   -i inputFiles/Files_29Apr2016_gravitons/11_GluGluToBulkGravitonToHHTo2B2Tau_M-500_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToBulkGravitonToHHTo2B2Tau_M-550   -i inputFiles/Files_29Apr2016_gravitons/12_GluGluToBulkGravitonToHHTo2B2Tau_M-550_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToBulkGravitonToHHTo2B2Tau_M-600   -i inputFiles/Files_29Apr2016_gravitons/13_GluGluToBulkGravitonToHHTo2B2Tau_M-600_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToBulkGravitonToHHTo2B2Tau_M-650   -i inputFiles/Files_29Apr2016_gravitons/14_GluGluToBulkGravitonToHHTo2B2Tau_M-650_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToBulkGravitonToHHTo2B2Tau_M-750   -i inputFiles/Files_29Apr2016_gravitons/15_GluGluToBulkGravitonToHHTo2B2Tau_M-750_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToBulkGravitonToHHTo2B2Tau_M-800   -i inputFiles/Files_29Apr2016_gravitons/16_GluGluToBulkGravitonToHHTo2B2Tau_M-800_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToRSGravitonToHHTo2B2Tau_M-300   -i inputFiles/Files_29Apr2016_gravitons/1_GluGluToRSGravitonToHHTo2B2Tau_M-300_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToRSGravitonToHHTo2B2Tau_M-650   -i inputFiles/Files_29Apr2016_gravitons/2_GluGluToRSGravitonToHHTo2B2Tau_M-650_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
-# python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_2017.cfg  -n 10 -k True -o $SKIMDIR/$OUTDIRR/SKIM_GluGluToRSGravitonToHHTo2B2Tau_M-900   -i inputFiles/Files_29Apr2016_gravitons/3_GluGluToRSGravitonToHHTo2B2Tau_M-900_narrow_13TeV-madgraph__RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1.txt       -x 1.0 -a True
 
 
 
