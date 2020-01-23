@@ -133,10 +133,10 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_Legacy2018.cfg 
 
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg  -n 100 -Y 2018    -o $SKIMDIR/$OUTDIRR/SKIM_WWW                 -i $INPUTDIR_BKG/39_WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2.txt -x 0.2086   
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg  -n 100 -Y 2018    -o $SKIMDIR/$OUTDIRR/SKIM_WWZ                 -i $INPUTDIR_BKG/41_WWZ_TuneCP5_13TeV-amcatnlo-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2.txt -x 0.1651  
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg  -n 100 -Y 2018    -o $SKIMDIR/$OUTDIRR/SKIM_WW                  -i $INPUTDIR_BKG/18_WW_TuneCP5_13TeV-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v2.txt -x 3.974   
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg  -n 100 -Y 2018    -o $SKIMDIR/$OUTDIRR/SKIM_WZ                  -i $INPUTDIR_BKG/19_WZ_TuneCP5_13TeV-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v3.txt -x 47.13   
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg  -n 100 -Y 2018    -o $SKIMDIR/$OUTDIRR/SKIM_WW                  -i $INPUTDIR_BKG/18_WW_TuneCP5_13TeV-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v2.txt -x 64.28   
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg  -n 100 -Y 2018    -o $SKIMDIR/$OUTDIRR/SKIM_WZ                  -i $INPUTDIR_BKG/19_WZ_TuneCP5_13TeV-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v3.txt -x 23.48   
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg  -n 100 -Y 2018    -o $SKIMDIR/$OUTDIRR/SKIM_WZZ                 -i $INPUTDIR_BKG/40_WZZ_TuneCP5_13TeV-amcatnlo-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2.txt -x 0.05565 
-#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg  -n 100 -Y 2018    -o $SKIMDIR/$OUTDIRR/SKIM_ZZ                  -i $INPUTDIR_BKG/20_ZZ_TuneCP5_13TeV-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v2.txt -x 16.523   
+#python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg  -n 100 -Y 2018    -o $SKIMDIR/$OUTDIRR/SKIM_ZZ                  -i $INPUTDIR_BKG/20_ZZ_TuneCP5_13TeV-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v2.txt -x 10.16  
 
 
 # signals ->outdated
