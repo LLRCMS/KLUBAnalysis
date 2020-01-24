@@ -8,6 +8,7 @@
 # Example TauTau: python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_14Jul2018 --n 44
 
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_23Jan2020 --n 60
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_23Jan2020_invQCD --n 60
 
 
 ################
@@ -61,7 +62,7 @@ for nj in range(0, args.njobs):
 
     condorFile = open ('%s/condorLauncher_%d.sh'% (outDir,nj), 'w')
     condorFile.write ('Universe = vanilla\n')
-    condorFile.write ('Executable  = '+outDir + '/' + scriptName)
+    condorFile.write ('Executable  = '+outDir + '/' + scriptName +'\n')
     condorFile.write ('Log         = condor_filler_$(ProcId).log\n')
     condorFile.write ('Output      = condor_filler_$(ProcId).out\n')
     condorFile.write ('Error       = condor_filler_$(ProcId).error\n')
