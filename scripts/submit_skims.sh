@@ -7,7 +7,7 @@ INPUTDIR_DATA="inputFiles/Legacy2018_data"
 INPUTDIR_SIG="inputFiles/Legacy2018_signals"
 #INPUTDIR="inputFiles/MC2017_Jan2019"
 PUDIR="weights/PUreweight/outputs_January2019"
-SKIMDIR="/data_CMS/cms/amendola/HHLegacy_2018_SKIMS"
+SKIMDIR="/data_CMS/cms/davignon/HHLegacy_2018_SKIMS_22_01_20"
 
 source scripts/setup.sh
 source /opt/exp_soft/cms/t3/t3setup
@@ -15,7 +15,7 @@ mkdir -p $SKIMDIR/$OUTDIRR/
 #mkdir $OUTDIRR
 touch $SKIMDIR/$OUTDIRR/README.txt
 echo $AMESSAGE > $SKIMDIR/$OUTDIRR/README.txt
-cp /home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/scripts/listAll.sh $SKIMDIR/$OUTDIRR/
+cp /data_CMS/cms/davignon/HHbbtautau_01_20/CMSSW_10_2_16/src/KLUBAnalysis/scripts/listAll.sh $SKIMDIR/$OUTDIRR/
 
 
 
@@ -25,20 +25,20 @@ cp /home/llr/cms/amendola/CMSSW_7_4_7/src/KLUBAnalysis/scripts/listAll.sh $SKIMD
 
 #DATA->OK
 
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleMuon2017A   -k True     -i $INPUTDIR_DATA/4_SingleMuon__Run2018A-17Sep2018-v2.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleMuon2017B   -k True     -i $INPUTDIR_DATA/5_SingleMuon__Run2018B-17Sep2018-v1.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleMuon2017C   -k True     -i $INPUTDIR_DATA/6_SingleMuon__Run2018C-17Sep2018-v1.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleMuon2017D   -k True     -i $INPUTDIR_DATA/2_SingleMuon__Run2018D-PromptReco-v2.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleMuon2018A   -k True     -i $INPUTDIR_DATA/4_SingleMuon__Run2018A-17Sep2018-v2.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleMuon2018B   -k True     -i $INPUTDIR_DATA/5_SingleMuon__Run2018B-17Sep2018-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleMuon2018C   -k True     -i $INPUTDIR_DATA/6_SingleMuon__Run2018C-17Sep2018-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleMuon2018D   -k True     -i $INPUTDIR_DATA/2_SingleMuon__Run2018D-PromptReco-v2.txt
 
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2017A   -k True     -i $INPUTDIR_DATA/1_EGamma__Run2018A-17Sep2018-v2.txt 
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2017B   -k True     -i $INPUTDIR_DATA/2_EGamma__Run2018B-17Sep2018-v1.txt 
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2017C   -k True     -i $INPUTDIR_DATA/3_EGamma__Run2018C-17Sep2018-v1.txt 
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2017D   -k True     -i $INPUTDIR_DATA/1_EGamma__Run2018D-PromptReco-v2.txt
+python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2018A   -k True     -i $INPUTDIR_DATA/1_EGamma__Run2018A-17Sep2018-v2.txt 
+python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2018B   -k True     -i $INPUTDIR_DATA/2_EGamma__Run2018B-17Sep2018-v1.txt 
+python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2018C   -k True     -i $INPUTDIR_DATA/3_EGamma__Run2018C-17Sep2018-v1.txt 
+python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_SingleElectron2018D   -k True     -i $INPUTDIR_DATA/1_EGamma__Run2018D-PromptReco-v2.txt
 
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_Tau2017A   -k True     -i $INPUTDIR_DATA/7_Tau__Run2018A-17Sep2018-v1.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_Tau2017B   -k True     -i $INPUTDIR_DATA/8_Tau__Run2018B-17Sep2018-v1.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_Tau2017C   -k True     -i $INPUTDIR_DATA/9_Tau__Run2018C-17Sep2018-v1.txt
-#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_Tau2017D   -k True     -i $INPUTDIR_DATA/3_Tau__Run2018D-PromptReco-v2.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_Tau2018A   -k True     -i $INPUTDIR_DATA/7_Tau__Run2018A-17Sep2018-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_Tau2018B   -k True     -i $INPUTDIR_DATA/8_Tau__Run2018B-17Sep2018-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_Tau2018C   -k True     -i $INPUTDIR_DATA/9_Tau__Run2018C-17Sep2018-v1.txt
+#python scripts/skimNtuple.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018.cfg  -n 200   -Y 2018 -o $SKIMDIR/$OUTDIRR/SKIM_Tau2018D   -k True     -i $INPUTDIR_DATA/3_Tau__Run2018D-PromptReco-v2.txt
 
 ##### TT->OK
 ##### TT x section: 831.76 for inclusive sample, W->had 67,60% , W->l nu 3*10,8% = 32,4% (sum over all leptons)

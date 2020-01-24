@@ -42,7 +42,7 @@ int main(int argc, char** argv)
     TString config ; 
     config.Form ("%s",argv[1]) ;
 
-    bool saveSyncTree = true;
+    bool saveSyncTree = false;
 
     if (! (gConfigParser->init (config)))
     {
@@ -87,8 +87,12 @@ int main(int argc, char** argv)
     // float WPtag[3] = {0.460, 0.800, 0.935}; // L, M, T
     // float WPtag[3] = {0.5426, 0.8484, 0.9535}; // L, M, T -- 80X for Moriond 2017, 23SepReReco
     //float WPtag[3] = {0.1522, 0.4941, 0.8001}; // L, M, T -- 94X for Moriond 2018, 17NovReReco, version1 of the SF
-    float WPtag[3] = {0.1241, 0.4184, 0.7527}; // L, M, T -- 102X MC Campaign RunIIAutumn18 - version1 of the SF for DeepCSV
+    //float WPtag[3] = {0.1241, 0.4184, 0.7527}; // L, M, T -- 102X MC Campaign RunIIAutumn18 - version1 of the SF for DeepCSV
     //float WPtag[3] = {0.0494, 0.2770, 0.7264}; // L, M, T -- 102X MC Campaign RunIIAutumn18 - version1 of the SF for DeepFlavor
+
+    //float WPtag[3] = {0.2217, 0.6321, 0.8953}; // L, M, T -- Legacy 2016 DeepCSV
+    float WPtag[3] = {0.0614, 0.3093, 0.7221}; // L, M, T -- Legacy 2016 DeepFlavor
+
     string WPname[3] = {"L", "M", "T"};
 
     // FIXME: do for the 3 WP tag x the number of selections
@@ -190,18 +194,21 @@ int main(int argc, char** argv)
         tree->SetBranchStatus ("jets_eta"  , 1);
         tree->SetBranchStatus ("jets_btag" , 1);
         tree->SetBranchStatus ("jets_btag_deepCSV" , 1);
+        tree->SetBranchStatus ("jets_btag_deepFlavor" , 1);
         tree->SetBranchStatus ("jets_flav" , 1);
         tree->SetBranchStatus ("jets_hasgenjet" , 1);
         tree->SetBranchStatus ("bjet1_pt"  , 1);
         tree->SetBranchStatus ("bjet1_eta" , 1);
         tree->SetBranchStatus ("bjet1_bID" , 1);
         tree->SetBranchStatus ("bjet1_bID_deepCSV" , 1);
+        tree->SetBranchStatus ("bjet1_bID_deepFlavor" , 1);
         tree->SetBranchStatus ("bjet1_flav", 1);
         tree->SetBranchStatus ("bjet1_hasgenjet", 1);
         tree->SetBranchStatus ("bjet2_pt"  , 1);
         tree->SetBranchStatus ("bjet2_eta" , 1);
         tree->SetBranchStatus ("bjet2_bID" , 1);
         tree->SetBranchStatus ("bjet2_bID_deepCSV" , 1);
+        tree->SetBranchStatus ("bjet2_bID_deepFlavor" , 1);
         tree->SetBranchStatus ("bjet2_flav", 1);
         tree->SetBranchStatus ("bjet2_hasgenjet", 1);
 
@@ -210,21 +217,24 @@ int main(int argc, char** argv)
         tree->SetBranchAddress ("jets_pt", &jets_pt);
         tree->SetBranchAddress ("jets_eta", &jets_eta);
         tree->SetBranchAddress ("jets_btag", &jets_btag);
-        tree->SetBranchAddress ("jets_btag_deepCSV", &jets_btag_deepCSV);
+        //tree->SetBranchAddress ("jets_btag_deepCSV", &jets_btag_deepCSV);
+        tree->SetBranchAddress ("jets_btag_deepFlavor", &jets_btag_deepCSV);
         tree->SetBranchAddress ("jets_flav", &jets_flav);
         tree->SetBranchAddress ("jets_hasgenjet", &jets_hasgenjet);
         
         tree->SetBranchAddress ("bjet1_pt", &bjet1_pt);
         tree->SetBranchAddress ("bjet1_eta", &bjet1_eta);
         tree->SetBranchAddress ("bjet1_bID", &bjet1_bID);
-        tree->SetBranchAddress ("bjet1_bID_deepCSV", &bjet1_bID_deepCSV);
+        //tree->SetBranchAddress ("bjet1_bID_deepCSV", &bjet1_bID_deepCSV);
+        tree->SetBranchAddress ("bjet1_bID_deepFlavor", &bjet1_bID_deepCSV);
         tree->SetBranchAddress ("bjet1_flav", &bjet1_flav);
         tree->SetBranchAddress ("bjet1_hasgenjet", &bjet1_hasgenjet);
         
         tree->SetBranchAddress ("bjet2_pt", &bjet2_pt);
         tree->SetBranchAddress ("bjet2_eta", &bjet2_eta);
         tree->SetBranchAddress ("bjet2_bID", &bjet2_bID);
-        tree->SetBranchAddress ("bjet2_bID_deepCSV", &bjet2_bID_deepCSV);
+        //tree->SetBranchAddress ("bjet2_bID_deepCSV", &bjet2_bID_deepCSV);
+        tree->SetBranchAddress ("bjet2_bID_deepFlavor", &bjet2_bID_deepCSV);
         tree->SetBranchAddress ("bjet2_flav", &bjet2_flav);
         tree->SetBranchAddress ("bjet2_hasgenjet", &bjet2_hasgenjet);
 
