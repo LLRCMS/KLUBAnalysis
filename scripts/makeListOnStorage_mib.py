@@ -5,7 +5,9 @@ from subprocess import Popen, PIPE
 #tag="Legacy2016_Backgrounds_Dec2019"
 #tag="Legacy2016_Backgrounds2_Dec2019"
 #tag="Legacy2016_Backgrounds5_Dec2019"
-tag="Legacy2016_Data_Muon_Dec2019"
+#tag="Legacy2016_Backgrounds6_Dec2019"
+tag="Legacy2016_Backgrounds7_Dec2019"
+#tag="Legacy2016_Data_Muon_Dec2019"
 #tag="Legacy2016_Data_Electron_Dec2019"
 #tag="Legacy2016_Data_Tau_Dec2019"
 
@@ -13,7 +15,9 @@ tag="Legacy2016_Data_Muon_Dec2019"
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds2/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds5/'
-outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Muon/'
+#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds6/'
+outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds7/'
+#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Muon/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Electron/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Tau/'
 
