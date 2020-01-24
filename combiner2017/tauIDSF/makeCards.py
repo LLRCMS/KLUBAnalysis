@@ -136,7 +136,7 @@ inFileDir = "../../analysis_"+args.ch+"_"+args.tag
 inFileName = "/analyzedOutPlotter.root"
 inFile = TFile.Open(inFileDir+inFileName)
 
-cfgName  =  inFileDir + "/mainCfg_"+args.ch+"_tauIDSF.cfg"
+cfgName  =  inFileDir + "/mainCfg_"+args.ch+"_Legacy2018_tauIDSF.cfg"
 cfg        = cfgr.ConfigReader (cfgName)
 bkgList    = cfg.readListOption("general::backgrounds")
 dataList   = ["data_obs"]
