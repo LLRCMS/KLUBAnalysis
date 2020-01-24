@@ -1,16 +1,17 @@
-#tag=23Jan2020
-tag=23Jan2020_invQCD
+tag=23Jan2020
+#tag=23Jan2020_invQCD
 
 log=(--log)
 
 plotter=makeFinalPlots_Legacy2016.py
 
-channel=TauTau
+#channel=TauTau
 #channel=MuTau
 #channel=ETau
-#channel=MuMu
+channel=MuMu
 
-lumi=27.84
+#lumi=27.84
+lumi=35.92
 
 reg=SR  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
 

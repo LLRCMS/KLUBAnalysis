@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 
 ###### LAUNCH COMMAND EXAMPLE:
-#
-# - HISTO FILLER for PLOTTING -
-# Example MuTau : python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_MuTau.cfg  --tag analysis_MuTau_6Aug2018_noNLO --n 28
-# Example ETau  : python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_ETau.cfg   --tag analysis_ETau_1Aug2018    --n 30
-# Example TauTau: python scripts/submitHistoFiller_mib.py --cfg config/mainCfg_TauTau.cfg --tag analysis_TauTau_14Jul2018 --n 44
 
+# - TauTau -
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_23Jan2020 --n 60
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_23Jan2020_invQCD --n 60
+
+# - MuTau -
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuTau_Legacy2016.cfg --tag analysis_MuTau_23Jan2020 --n 60
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuTau_Legacy2016.cfg --tag analysis_MuTau_23Jan2020_invQCD --n 60
+
+# - MuMu -
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuMu_Legacy2016.cfg --tag analysis_MuMu_23Jan2020 --n 60
 
 
 ################
