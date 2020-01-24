@@ -60,27 +60,38 @@ from ROOT import *
 #}
 
 #Prod datasets 2017 January2019production
+#Nevents = {
+#    'inclusive' : 97116256,
+#    '1jet'      : 75626833,
+#    '2jet'      : 9790490,
+#    '3jet'      : 1149467,
+#    '4jet'      : 0,
+#    '1b'        : 0,
+#    '2b'        : 5085248
+#}
+
+#Prod datasets Legacy2018, 23/01/2020
 Nevents = {
-    'inclusive' : 97116256,
-    '1jet'      : 75626833,
-    '2jet'      : 9790490,
-    '3jet'      : 1149467,
-    '4jet'      : 0,
+    'inclusive' : 15076452,
+    '1jet'      : 19333314,
+    '2jet'      : 20456037,
+    '3jet'      : 5652357,
+    '4jet'      : 2817812,
     '1b'        : 0,
-    '2b'        : 5085248
+    '2b'        : 5039926
 }
 
 
 ########################################
 
 fractionHistosFilesNames = {
-    'inclusive' : '../weights/DYstitchMap/DYmap_inclusive_2017_January2019.root',
-    '1jet'      : '../weights/DYstitchMap/DYmap_1jet_2017_January2019.root',
-    '2jet'      : '../weights/DYstitchMap/DYmap_2jet_2017_January2019.root',
-    '3jet'      : '../weights/DYstitchMap/DYmap_3jet_2017_January2019.root',
-    '4jet'      : '../weights/DYstitchMap/DYmap_4jet_2017.root',
-    '1b'        : '../weights/DYstitchMap/DYmap_Bjet.root',
-    '2b'        : '../weights/DYstitchMap/DYmap_BBjet_2017_January2019.root'
+    'inclusive' : '../weights/DYstitchMap/DYmap_inclusive_Legacy2018_22Jan2020.root',
+    '1jet'      : '../weights/DYstitchMap/DYmap_1jet_Legacy2018_22Jan2020.root',
+    '2jet'      : '../weights/DYstitchMap/DYmap_2jet_Legacy2018_22Jan2020.root',
+    '3jet'      : '../weights/DYstitchMap/DYmap_3jet_Legacy2018_22Jan2020.root',
+    '4jet'      : '../weights/DYstitchMap/DYmap_4jet_Legacy2018_22Jan2020.root',
+    '1b'        : '../weights/DYstitchMap/DYmap_Bjet.root', # this is dummy, we didn't use DY1B this year
+    '2b'        : '../weights/DYstitchMap/DYmap_BBjet_Legacy2018_22Jan2020.root'
 }
 
 fractionHistosFiles = {}
@@ -132,7 +143,7 @@ for njet in range (0, 5):
 #         print (njet, nb, fractionXS[njet][nb])
 
 
-fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined_2017_January2019.root", "recreate")
+fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined_Legacy2018_22Jan2020.root", "recreate")
 h2DfractionXS = TH2F ("h2DfractionXS", "h2DfractionXS;njet;nb", 5, 0, 5, 5, 0, 5)
 for njet in range (0, 5):
     for nb in range (0, 5):
