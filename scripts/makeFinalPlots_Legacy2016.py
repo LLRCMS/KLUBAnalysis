@@ -483,7 +483,7 @@ if __name__ == "__main__" :
     
     
     sigList = cfg.readListOption("general::signals")
-    sigList = ["ggHTauTau"]
+    sigList = ["GGFSM"]
 
 
     sigNameList = []
@@ -491,7 +491,7 @@ if __name__ == "__main__" :
             sigNameList = ["VBF HH SM (x10)"]
     else:
            sigNameList = ["VBF HH SM (x10)"]
-    sigNameList = ["dummy"]
+    sigNameList = ["ggHH SM"]
 
 
     sigColors = {}
