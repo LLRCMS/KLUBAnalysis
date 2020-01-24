@@ -2643,10 +2643,12 @@ int main (int argc, char** argv)
       bool isFakeJet1 = true;
       bool isFakeJet2 = true;
 
-      float idAndIsoSF_MVA  = 1.0;       // use this for MVA2017v2
-      float idAndIsoSF_deep = 1.0;       // use this for DeepTauv2p1
+      float idAndIsoSF_MVA  = 1.0;        // use this for MVA2017v2
+      float idAndIsoSF_deep = 1.0;        // use this for DeepTauV2p1
       float idAndIsoAndFakeSF_MVA  = 1.0; // use this for MVA2017v2 + e/mu->tauh fake SF
-      float idAndIsoAndFakeSF_deep = 1.0; // use this for DeepTauv2p1 + e/mu->tauh fake SF
+      float idAndIsoAndFakeSF_deep = 1.0; // use this for DeepTauV2p1 + e/mu->tauh fake SF
+      float fakeRateSF_MVA  = 1.0;        // use this for e/mu->tauh fake SF MVA
+      float fakeRateSF_deep = 1.0;        // use this for e/mu->tauh fake SF DeepTau
 
       // MuTau Channel // anti-ele VLoose / anti-mu Tight / anti-jet Medium
       if (pType == 0 && isMC)
@@ -2689,6 +2691,8 @@ int main (int argc, char** argv)
         idAndIsoSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet;
         idAndIsoAndFakeSF_MVA  = idAndIsoSF_leg1 * idAndIsoSF_leg2_MVA_vsJet  * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
         idAndIsoAndFakeSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        fakeRateSF_MVA  = idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
+        fakeRateSF_deep = idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
 
         if (DEBUG)
         {
@@ -2740,6 +2744,8 @@ int main (int argc, char** argv)
         idAndIsoSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet;
         idAndIsoAndFakeSF_MVA  = idAndIsoSF_leg1 * idAndIsoSF_leg2_MVA_vsJet  * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
         idAndIsoAndFakeSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        fakeRateSF_MVA  = idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
+        fakeRateSF_deep = idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
 
         if (DEBUG)
         {
@@ -2811,6 +2817,8 @@ int main (int argc, char** argv)
         idAndIsoSF_deep = idAndIsoSF_leg1_deep_vsJet * idAndIsoSF_leg2_deep_vsJet;
         idAndIsoAndFakeSF_MVA  = idAndIsoSF_leg1_MVA_vsJet * idAndIsoSF_leg1_MVA_vsEle * idAndIsoSF_leg1_MVA_vsMu * idAndIsoSF_leg2_MVA_vsJet  * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
         idAndIsoAndFakeSF_deep = idAndIsoSF_leg1_deep_vsJet * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        fakeRateSF_MVA  = idAndIsoSF_leg1_MVA_vsEle * idAndIsoSF_leg1_MVA_vsMu * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
+        fakeRateSF_deep = idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
 
         if (DEBUG)
         {
@@ -2888,6 +2896,8 @@ int main (int argc, char** argv)
       theSmallTree.m_IdAndIsoSF_deep = (isMC ? idAndIsoSF_deep : 1.0);
       theSmallTree.m_IdAndIsoAndFakeSF_MVA  = (isMC ? idAndIsoAndFakeSF_MVA  : 1.0);
       theSmallTree.m_IdAndIsoAndFakeSF_deep = (isMC ? idAndIsoAndFakeSF_deep : 1.0);
+      theSmallTree.m_FakeRateSF_MVA  = (isMC ? fakeRateSF_MVA  : 1.0);
+      theSmallTree.m_FakeRateSF_deep = (isMC ? fakeRateSF_deep : 1.0);
 
       //Jet faking Tau SF
       //derived from WJet sideband: http://camendol.web.cern.ch/camendol/HH2017/plotsHH2017MuTau/31Oct2018_DYNLO_ctrlWJets_SS/antiB_jets30_tau30_SStight/
