@@ -10,6 +10,7 @@ tag="Legacy2016_Backgrounds7_Dec2019"
 #tag="Legacy2016_Data_Muon_Dec2019"
 #tag="Legacy2016_Data_Electron_Dec2019"
 #tag="Legacy2016_Data_Tau_Dec2019"
+#tag="Legacy2016_Data_Tau2_Dec2019"
 
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Signals/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds/'
@@ -20,6 +21,7 @@ outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds7/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Muon/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Electron/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Tau/'
+#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Tau2/'
 
 areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
                                  # if false: only add the polgrid server to run the skim and submit on root
