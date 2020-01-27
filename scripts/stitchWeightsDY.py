@@ -73,12 +73,12 @@ from ROOT import *
 #Prod datasets Legacy2016 January2020production
 Nevents = {
     'inclusive' : 31711,
-    '1jet'      : 0,
+    '1jet'      : 4183771,
     '2jet'      : 19257179,
     '3jet'      : 5743335,
     '4jet'      : 3527386,
     '1b'        : 0,
-    '2b'        : 2097222
+    '2b'        : 2554303
 }
 
 
@@ -95,13 +95,13 @@ Nevents = {
 #}
 
 fractionHistosFilesNames = {
-    'inclusive' : '../weights/DYstitchMap/DYmap_incl_Legacy2016_23Jan2020.root',
-    '1jet'      : '../weights/DYstitchMap/DYmap_1jet_2017_January2019.root',      # <- dummy
-    '2jet'      : '../weights/DYstitchMap/DYmap_2jet_Legacy2016_23Jan2020.root',
-    '3jet'      : '../weights/DYstitchMap/DYmap_3jet_Legacy2016_23Jan2020.root',
-    '4jet'      : '../weights/DYstitchMap/DYmap_4jet_Legacy2016_23Jan2020.root',
+    'inclusive' : '../weights/DYstitchMap/DYmap_inclusive_Legacy2016_27Jan2020.root',
+    '1jet'      : '../weights/DYstitchMap/DYmap_1jet_Legacy2016_27Jan2020.root',
+    '2jet'      : '../weights/DYstitchMap/DYmap_2jet_Legacy2016_27Jan2020.root',
+    '3jet'      : '../weights/DYstitchMap/DYmap_3jet_Legacy2016_27Jan2020.root',
+    '4jet'      : '../weights/DYstitchMap/DYmap_4jet_Legacy2016_27Jan2020.root',
     '1b'        : '../weights/DYstitchMap/DYmap_Bjet.root',                       # <- dummy
-    '2b'        : '../weights/DYstitchMap/DYmap_BB_Legacy2016_23Jan2020.root'
+    '2b'        : '../weights/DYstitchMap/DYmap_BBjet_Legacy2016_27Jan2020.root'
 }
 
 fractionHistosFiles = {}
@@ -154,7 +154,7 @@ for njet in range (0, 5):
 
 
 #fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined_2017_January2019.root", "recreate")
-fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined_Legacy2016_23Jan2020.root", "recreate")
+fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined_Legacy2016_27Jan2020.root", "recreate")
 h2DfractionXS = TH2F ("h2DfractionXS", "h2DfractionXS;njet;nb", 5, 0, 5, 5, 0, 5)
 for njet in range (0, 5):
     for nb in range (0, 5):
