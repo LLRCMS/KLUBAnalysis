@@ -8,7 +8,7 @@
 #tag=30Apr2019_decaymodes_DYenr_loosepu_mh_noID
 #tag=30Apr2019_decaymodes_loosepu_mtt_DYenr_notauID
 #tag=4May2019_decaymodes_DYLO_loosepu_mtt_notauID
-tag=12Set2019_decaymodes_DYLO_loosepu_mtt_1_2
+tag=22Jan2020_DMs_tauIDSF_inter
 ####TauTau channel
 ### same decay mode
 #taking the QCD already computed, without making the fit
@@ -21,6 +21,7 @@ tag=12Set2019_decaymodes_DYLO_loosepu_mtt_1_2
 python makeCards.py --tag $tag --ch TauTau --decay bothDM0 --sel baselineHTauTau_bothDM0_DY
 python makeCards.py --tag $tag --ch TauTau --decay bothDM1 --sel baselineHTauTau_bothDM1_DY
 python makeCards.py --tag $tag --ch TauTau --decay bothDM10 --sel baselineHTauTau_bothDM10_DY
+python makeCards.py --tag $tag --ch TauTau --decay bothDM11 --sel baselineHTauTau_bothDM11_DY
 #### output is combined.txt
 #
 #
