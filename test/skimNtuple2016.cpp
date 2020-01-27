@@ -51,17 +51,6 @@ using namespace std ;
 
 const double aTopRW = 0.0615;
 const double bTopRW = -0.0005;
-// const float DYscale_LL[3] = {8.72847e-01, 1.69905e+00, 1.63717e+00} ; // computed from fit for LL and MM b tag
-// const float DYscale_MM[3] = {9.44841e-01, 1.29404e+00, 1.28542e+00} ;
-//const float DYscale_LL[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag - to be updated for DY LO once the disagreement is fixed
-//const float DYscale_MM[3] = {1.11219, 1.11436, 0.743777} ; // for now we use the same numbers computed with DY NLO sample
-//const float DYscale_LL_NLO[3] = {1.13604, 0.784789, 1.06947} ; // computed from fit for LL and MM b tag for the DYNLO sample
-//const float DYscale_MM_NLO[3] = {1.11219, 1.11436, 0.743777} ;
-//const float DYscale_MM_NLO[3] = {1.03277, 1.03968, 0.742346} ;
-
-// 2018 deepCSV
-//const float DYscale_LL[3] = {0.760857,2.20159,0.886533} ; // computed from fit for LL and MM b tag - to be updated for DY LO once the disagreement is fixed
-//const float DYscale_MM[3] = {0.860531,1.10466,1.49516} ; // for now we use the same numbers computed with DY NLO sample
 
 // 2018 deepFlavor
 const float DYscale_LL[3] = {0.748154,2.15445,1.63619} ; // for now we use the same numbers computed with DY NLO sample
@@ -74,17 +63,6 @@ const float DYscale_MM[3] = {0.862686,1.08509,1.10947} ; // for now we use the s
 //   - between 20 and 40 GeV
 //   - between 40 and 100 GeV
 //   - > 100 GeV
-//loose PUjetID mtt
-//const float DYscale_NLO_VLowPt[3] = {1.31303,  0.953595, 0.80987 };
-//const float DYscale_NLO_LowPt [3] = {1.14463,  1.03926,  0.702278};
-//const float DYscale_NLO_MedPt [3] = {1.02131,  1.23579,  0.554874};
-//const float DYscale_NLO_HighPt[3] = {0.927168, 1.29899,  0.804798};
-//no PUjetID mtt
-//const float DYscale_NLO_VLowPt[3] = {1.46867,  0.5192, 0.978186 };
-//const float DYscale_NLO_LowPt [3] = {1.21142,  0.986553,  0.68062};
-//const float DYscale_NLO_MedPt [3] = {1.0527,  1.21448,  0.553397};
-//const float DYscale_NLO_HighPt[3] = {0.939918, 1.29117,  0.799882};
-
 //loose PUjetID mh
 const float DYscale_NLO_VLowPt[3] = {1.13233,  1.01982,  0.711067};
 const float DYscale_NLO_LowPt [3] = {1.03589,  0.978028, 0.845717};
@@ -101,13 +79,6 @@ const float DYscale_NLO_HighPt[3] = {0.904923, 1.31081,  0.686584};
 //   - >50 and <=100
 //   - >100 and <=200
 //   - >200
-//const float DYscale_LO_VLowPt [3] = {1.163, 0.719, 0.471};
-//const float DYscale_LO_LowPt  [3] = {1.342,  1.13, 0.832};
-//const float DYscale_LO_MedPt1 [3] = {1.244, 1.233, 0.908};
-//const float DYscale_LO_MedPt2 [3] = {1.176, 1.251, 0.939};
-//const float DYscale_LO_HighPt [3] = {1.053, 1.433, 0.838};
-//const float DYscale_LO_VHighPt[3] = { 0.81, 1.723, 0.852};
-
 //loose PUjetID, mtt
 const float DYscale_LO_VLowPt [3] = {1.14855, 0.822656, 0.765073};
 const float DYscale_LO_LowPt  [3] = {1.35142, 1.23179,  0.817443};
@@ -117,14 +88,6 @@ const float DYscale_LO_HighPt [3] = {1.06258, 1.43929,  0.974521};
 const float DYscale_LO_VHighPt[3] = {0.786693,1.59505,  0.917797};
 
 
-//loose PUjetID, mh
-//const float DYscale_LO_VLowPt [3] = {1.03497,  1.2492,  0.512155};
-//const float DYscale_LO_LowPt  [3] = {1.24255,  1.24875, 0.834341};
-//const float DYscale_LO_MedPt1 [3] = {1.19378,  1.24953, 0.92162};
-//const float DYscale_LO_MedPt2 [3] = {1.13619,  1.28016, 0.939999};
-//const float DYscale_LO_HighPt [3] = {1.02876,  1.45217, 0.853559};
-//const float DYscale_LO_VHighPt[3] = {0.801474, 1.68679, 0.878232};
-
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
@@ -132,88 +95,15 @@ const float DYscale_LO_VHighPt[3] = {0.786693,1.59505,  0.917797};
 ** = then sigma_i = f_i * sigmal_LO
 ** - stitchWeight (0jet) = f_0 / (f_0 * N_inclusive)
 ** - stitchWeight (njet) = f_n / (f_n * N_inclusive + N_njets)
-*/ 
-
-// const float stitchWeights [5] = {1.11179e-7, 3.04659e-9, 3.28633e-9, 3.48951e-9, 2.5776e-9} ; // weights DY stitch in njets, to be updated at each production (depend on n evtsn processed)
-// const float stitchWeights [5] = {11.55916, 0.316751, 0.341677, 0.362801, 0.267991} ; // weights DY stitch in njets, to be updated at each production (depend on n evts processed)
-
-// const float stitchWeights [5] = {2.01536E-08, 2.71202E-09, 2.92616E-09, 3.0373E-09, 2.38728E-09} ; // jet binned only, 27 giu 2016
-// const float stitchWeights [][5] = {
-//     {2.98077961089 , 0.0 , 0.0 , 0.0 , 0.0},
-//     {0.400849633946 , 0.313302746388 , 0.0 , 0.0 , 0.0},
-//     {0.434801486598 , 0.334010654578 , 0.102986214642 , 0.0 , 0.0},
-//     {0.449060210108 , 0.342010066467 , 0.101739957862 , 0.100837020714 , 0.0},
-//     {0.354615200387 , 0.285223034235 , 0.0977183487048 , 0.098552902997 , 0.0936281612454}
-// }; // jet binned and b binned, 8 jul 2016
-
-// const float stitchWeights [][5] = {
-//     {2.97927051428 , 0.0 , 0.0 , 0.0 , 0.0},
-//     {0.401700471936 , 0.313567146487 , 0.0 , 0.0 , 0.0},
-//     {0.43376913912 , 0.33311444536 , 0.101563317164 , 0.0 , 0.0},
-//     {0.44761355606 , 0.340870252304 , 0.10029914665 , 0.0994092045617 , 0.0},
-//     {0.353436942964 , 0.284254291888 , 0.0963966329522 , 0.0972197079415 , 0.092337393936}
-// };  // jet binned and b binned, 28 nov 2016
-
-//const float stitchWeights [][5] = {
-//  {2.96970591027 , 0.0 , 0.0 , 0.0 , 0.0},
-//  {0.40848145146 , 0.33006603191 , 0.0 , 0.0 , 0.0},
-//  {0.420075226373 , 0.337888056259 , 0.096536134169 , 0.0 , 0.0},
-//  {0.431426212048 , 0.344817310665 , 0.0952166256522 , 0.094350931903 , 0.0},
-//  {0.339954183508 , 0.284560899763 , 0.0915028373483 , 0.0922864405088 , 0.0874799674999}
-//}; // jet binned and b binned, 07 Feb 2017
-
-//const float stitchWeights [][5] = {
-//  {1.51432918823 , 0.0 , 0.0 , 0.0 , 0.0},
-//  {0.537021861953 , 0.537498571149 , 0.0 , 0.0 , 0.0},
-//  {0.598363343318 , 0.598946235287 , 0.10509584187 , 0.0 , 0.0},
-//  {0.947765704522 , 0.942420974822 , 0.109982447103 , 0.108336573578 , 0.0},
-//  {1.51470061251 , 1.51281269465 , 0.117228562794 , 0.118913419351 , 0.109809154254}
-//};// jet binned and b binned, 15 May 2018 
-
-//const float stitchWeights [][5] = {
-//  {1.50437157089 , 0.0 , 0.0 , 0.0 , 0.0},
-//  {0.549757427781 , 0.550260336008 , 0.0 , 0.0 , 0.0},
-//  {0.612466927142 , 0.613081681207 , 0.105177388196 , 0.0 , 0.0},
-//  {0.951588541673 , 0.946165272042 , 0.109649575683 , 0.108005302201 , 0.0},
-//  {0.707904938882 , 0.707489572546 , 0.107365495398 , 0.108784308592 , 0.101084909493}
-//};// jet binned and b binned, 11 Jul 2018
-
-//const float stitchWeights [][5] = {
-//    {1.9437352898 , 0.0 , 0.0 , 0.0 , 0.0},
-//    {0.338279616574 , 0.338237399666 , 0.0 , 0.0 , 0.0},
-//    {0.703224977784 , 0.703022547668 , 0.0887784920115 , 0.0 , 0.0},
-//    {1.23750214201 , 1.23826181452 , 0.0929601982056 , 0.0921407650285 , 0.0},
-//    {1.91397145914 , 1.99919641957 , 0.1170483389 , 0.0973090477015 , 0.104743459131}
-//};// jet binned and b binned, 5 Mar 2019
-
-// computed for Legacy2016, 23Jan2020
+*/
+// computed for Legacy2016, 27Jan2020
 const float stitchWeights [][5] = {
-    {966.757055911 , 0.0 , 0.0 , 0.0 , 0.0},
-    {960.452888969 , 1146.46784155 , 0.0 , 0.0 , 0.0},
-    {0.10536331539 , 0.105365086901 , 0.0255736014256 , 0.0 , 0.0},
-    {0.105865981609 , 0.105864790926 , 0.0248871013943 , 0.0247975395264 , 0.0},
-    {0.0981074331063 , 0.0981097097337 , 0.0257371430609 , 0.0261027481283 , 0.0242669239662}
+    {1113.1053893 , 0.0 , 0.0 , 0.0 , 0.0},
+    {1.763522979 , 1.76367228052 , 0.0 , 0.0 , 0.0},
+    {0.121313284944 , 0.121315324626 , 0.025264578338 , 0.0 , 0.0},
+    {0.121892045113 , 0.121890674183 , 0.0245692395134 , 0.0244095368559 , 0.0},
+    {0.112959002319 , 0.112961623584 , 0.0255395155779 , 0.025672220552 , 0.0241748281355}
 };
-
-// DY binned in 0j0b, 1j0b...
-// each with it's PU weight and XS:
-// total XS= 5765.4 pb
-// myPUHisto_0j0b : xsFrac: 0.697167 - xs: 4019.4 pb
-// myPUHisto_1j0b : xsFrac: 0.196537 - xs: 1133.1 pb
-// myPUHisto_1j1b : xsFrac: 0.007292 - xs: 42.04  pb
-// myPUHisto_2j0b : xsFrac: 0.063167 - xs: 364.18 pb
-// myPUHisto_2j1b : xsFrac: 0.003200 - xs: 18.5   pb
-// myPUHisto_2j2b : xsFrac: 0.001070 - xs: 6.17   pb
-// myPUHisto_3j0b : xsFrac: 0.018860 - xs: 108.73 pb
-// myPUHisto_3j1b : xsFrac: 0.000887 - xs: 5.11   pb
-// myPUHisto_3j2b : xsFrac: 0.000704 - xs: 4.06   pb
-// myPUHisto_3j3b : xsFrac: 9.78e-06 - xs: 0.056  pb
-// myPUHisto_4j0b : xsFrac: 0.010130 - xs: 58.40  pb
-// myPUHisto_4j1b : xsFrac: 0.000425 - xs: 2.45   pb
-// myPUHisto_4j2b : xsFrac: 0.000535 - xs: 3.08   pb
-// myPUHisto_4j3b : xsFrac: 1.12e-05 - xs: 0.064  pb
-// myPUHisto_4j4b : xsFrac: 1.98e-06 - xs: 0.011  pb
-
 
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
@@ -2599,10 +2489,12 @@ int main (int argc, char** argv)
       bool isFakeJet1 = true;
       bool isFakeJet2 = true;
 
-      float idAndIsoSF_MVA  = 1.0;       // use this for MVA2017v2
-      float idAndIsoSF_deep = 1.0;       // use this for DeepTauv2p1
+      float idAndIsoSF_MVA  = 1.0;        // use this for MVA2017v2
+      float idAndIsoSF_deep = 1.0;        // use this for DeepTauV2p1
       float idAndIsoAndFakeSF_MVA  = 1.0; // use this for MVA2017v2 + e/mu->tauh fake SF
-      float idAndIsoAndFakeSF_deep = 1.0; // use this for DeepTauv2p1 + e/mu->tauh fake SF
+      float idAndIsoAndFakeSF_deep = 1.0; // use this for DeepTauV2p1 + e/mu->tauh fake SF
+      float fakeRateSF_MVA  = 1.0;        // use this for e/mu->tauh fake SF MVA
+      float fakeRateSF_deep = 1.0;        // use this for e/mu->tauh fake SF DeepTau
 
       // MuTau Channel // anti-ele VLoose / anti-mu Tight / anti-jet Medium
       if (pType == 0 && isMC)
@@ -2645,6 +2537,8 @@ int main (int argc, char** argv)
         idAndIsoSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet;
         idAndIsoAndFakeSF_MVA  = idAndIsoSF_leg1 * idAndIsoSF_leg2_MVA_vsJet  * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
         idAndIsoAndFakeSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        fakeRateSF_MVA  = idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
+        fakeRateSF_deep = idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
 
         if (DEBUG)
         {
@@ -2696,6 +2590,8 @@ int main (int argc, char** argv)
         idAndIsoSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet;
         idAndIsoAndFakeSF_MVA  = idAndIsoSF_leg1 * idAndIsoSF_leg2_MVA_vsJet  * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
         idAndIsoAndFakeSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        fakeRateSF_MVA  = idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
+        fakeRateSF_deep = idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
 
         if (DEBUG)
         {
@@ -2767,6 +2663,8 @@ int main (int argc, char** argv)
         idAndIsoSF_deep = idAndIsoSF_leg1_deep_vsJet * idAndIsoSF_leg2_deep_vsJet;
         idAndIsoAndFakeSF_MVA  = idAndIsoSF_leg1_MVA_vsJet * idAndIsoSF_leg1_MVA_vsEle * idAndIsoSF_leg1_MVA_vsMu * idAndIsoSF_leg2_MVA_vsJet  * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
         idAndIsoAndFakeSF_deep = idAndIsoSF_leg1_deep_vsJet * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        fakeRateSF_MVA  = idAndIsoSF_leg1_MVA_vsEle * idAndIsoSF_leg1_MVA_vsMu * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
+        fakeRateSF_deep = idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
 
         if (DEBUG)
         {
@@ -2844,6 +2742,8 @@ int main (int argc, char** argv)
       theSmallTree.m_IdAndIsoSF_deep = (isMC ? idAndIsoSF_deep : 1.0);
       theSmallTree.m_IdAndIsoAndFakeSF_MVA  = (isMC ? idAndIsoAndFakeSF_MVA  : 1.0);
       theSmallTree.m_IdAndIsoAndFakeSF_deep = (isMC ? idAndIsoAndFakeSF_deep : 1.0);
+      theSmallTree.m_FakeRateSF_MVA  = (isMC ? fakeRateSF_MVA  : 1.0);
+      theSmallTree.m_FakeRateSF_deep = (isMC ? fakeRateSF_deep : 1.0);
 
       //Jet faking Tau SF
       //derived from WJet sideband: http://camendol.web.cern.ch/camendol/HH2017/plotsHH2017MuTau/31Oct2018_DYNLO_ctrlWJets_SS/antiB_jets30_tau30_SStight/
