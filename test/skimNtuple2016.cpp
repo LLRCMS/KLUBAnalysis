@@ -52,41 +52,35 @@ using namespace std ;
 const double aTopRW = 0.0615;
 const double bTopRW = -0.0005;
 
-// 2018 deepFlavor
+// Computed in 2019 for 2018 data with deepFlavor - NOT USED for Legacy
 const float DYscale_LL[3] = {0.748154,2.15445,1.63619} ; // for now we use the same numbers computed with DY NLO sample
 const float DYscale_MM[3] = {0.862686,1.08509,1.10947} ; // for now we use the same numbers computed with DY NLO sample
 
-// Computed from PI group for DY NLO binned
+
+// Computed from PI group for DY LO binned for Legacy2016
 // - number of b-jets [0b, 1b, 2b]
-// - pT(MuMu):
-//   - < 20 GeV
-//   - between 20 and 40 GeV
-//   - between 40 and 100 GeV
-//   - > 100 GeV
-//loose PUjetID mh
-const float DYscale_NLO_VLowPt[3] = {1.13233,  1.01982,  0.711067};
-const float DYscale_NLO_LowPt [3] = {1.03589,  0.978028, 0.845717};
-const float DYscale_NLO_MedPt [3] = {0.972632,  1.17491, 0.554073};
-const float DYscale_NLO_HighPt[3] = {0.904923, 1.31081,  0.686584};
+// - pT(MuMu)
+//   - vLowPt  : <= 10 GeV
+//   - LowPt   : >10 and <=50
+//   - Med1Pt  : >50 and <=80
+//   - Med2Pt  : >80 and <=110
+//   - HighPt  : >110 and <=190
+//   - vHighPt : >190
+// Requiring an elliptical mass cut (relaxed by +5 GeV)
+const float DYscale_MH_vLowPt [3] = {1.161, 0.515, 0.1  };
+const float DYscale_MH_LowPt  [3] = {1.151, 1.042, 1.150};
+const float DYscale_MH_Med1Pt [3] = {1.144, 1.152, 1.149};
+const float DYscale_MH_Med2Pt [3] = {1.151, 1.333, 1.218};
+const float DYscale_MH_HighPt [3] = {1.169, 1.458, 0.997};
+const float DYscale_MH_vHighPt[3] = {1.061, 1.963, 1.185};
 
-
-// Computed from PI group for DY LO binned
-// - number of b-jets [0b, 1b, 2b]
-// - pT(MuMu):
-//   - <= 10 GeV
-//   - >10 and <=30
-//   - >30 and <=50
-//   - >50 and <=100
-//   - >100 and <=200
-//   - >200
-//loose PUjetID, mtt
-const float DYscale_LO_VLowPt [3] = {1.14855, 0.822656, 0.765073};
-const float DYscale_LO_LowPt  [3] = {1.35142, 1.23179,  0.817443};
-const float DYscale_LO_MedPt1 [3] = {1.25914, 1.25708,  0.933082};
-const float DYscale_LO_MedPt2 [3] = {1.1834,  1.3345,   0.988823};
-const float DYscale_LO_HighPt [3] = {1.06258, 1.43929,  0.974521};
-const float DYscale_LO_VHighPt[3] = {0.786693,1.59505,  0.917797};
-
+// Requiring M(mumu) > 50 GeV
+const float DYscale_MTT_vLowPt [3] = {1.195, 0.536, 0.1  };
+const float DYscale_MTT_LowPt  [3] = {1.17 , 1.046, 1.408};
+const float DYscale_MTT_Med1Pt [3] = {1.172, 1.128, 1.644};
+const float DYscale_MTT_Med2Pt [3] = {1.184, 1.182, 1.911};
+const float DYscale_MTT_HighPt [3] = {1.182, 1.476, 1.537};
+const float DYscale_MTT_vHighPt[3] = {1.092, 1.778, 0.934};
 
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
@@ -669,50 +663,6 @@ int main (int argc, char** argv)
 
   //cout << "** INFO: computing b jet regression? " << computeBregr << " with weights " << bRegrWeights << endl;
 
-  // DY new reweight (LO to NLO) map - Fractional Weight, Pt Weight and SF Weight maps
-  bool doDYLOtoNLOreweight = (gConfigParser->isDefined("DYLOtoNLOreweight::doReweight") ? gConfigParser->readBoolOption ("DYLOtoNLOreweight::doReweight") : false);
-  if (!isDY) doDYLOtoNLOreweight = false; //skip DYLOtoNLOreweight if the sample is not DY
-  cout << "** INFO: apply DY LO to NLO reweight? " << doDYLOtoNLOreweight << endl;
-  map <string, double> fractional_weight_map;
-  std::map<std::string, TH1D*> pt_weight_histo_map;
-  std::map<std::string,double> scale_factor_map;
-  if (doDYLOtoNLOreweight)
-  {
-    // Fractional weight map
-    fractional_weight_map["0Jet"]       = 0.93;
-    fractional_weight_map["1Jet_0bJet"] = 1.02;
-    fractional_weight_map["1Jet_1bJet"] = 1.38;
-    fractional_weight_map["2Jet_0bJet"] = 0.99;
-    fractional_weight_map["2Jet_1bJet"] = 1.15;
-    fractional_weight_map["2Jet_2bJet"] = 1.39;
-
-    // LO to NLO pt file and map
-    TString NLO_weight_file_name = gConfigParser->readStringOption("DYLOtoNLOreweight::inputFile");
-    TFile* NLO_weight_file = new TFile (NLO_weight_file_name);
-    cout << "** INFO: apply DY LO to NLO reweight with NLOfile: " << NLO_weight_file_name << endl;
-
-    pt_weight_histo_map["0Jet"]       = (TH1D*) NLO_weight_file->Get("h_ratio_pt0Jet");
-    pt_weight_histo_map["1Jet_0bJet"] = (TH1D*) NLO_weight_file->Get("h_ratio_pt1Jet_0bJet");
-    pt_weight_histo_map["1Jet_1bJet"] = (TH1D*) NLO_weight_file->Get("h_ratio_pt1Jet_0bJet");
-    pt_weight_histo_map["2Jet_0bJet"] = (TH1D*) NLO_weight_file->Get("h_ratio_pt2Jet_0bJet");
-    pt_weight_histo_map["2Jet_1bJet"] = (TH1D*) NLO_weight_file->Get("h_ratio_pt2Jet_1bJet");
-    pt_weight_histo_map["2Jet_2bJet"] = (TH1D*) NLO_weight_file->Get("h_ratio_pt2Jet_2bJet");
-
-    // SF file and map
-    TString sf_weight_file_name = gConfigParser->readStringOption("DYLOtoNLOreweight::sfFile");
-    TFile* sf_weight_file = new TFile (sf_weight_file_name);
-    cout << "** INFO: apply DY LO to NLO reweight with SFfile: " << sf_weight_file_name << endl;
-
-    TH1D* DY_sf_histo = (TH1D*) sf_weight_file->Get("NbjetBins_NjetBins/scale_factors");
-    int nbins = DY_sf_histo->GetNbinsX();
-    for(int i=1; i<=nbins;i++)
-    {
-        std::string scale_factor_name = DY_sf_histo->GetXaxis()->GetBinLabel(i);
-        double value = DY_sf_histo->GetBinContent(i);
-        scale_factor_map[scale_factor_name] = value;
-    }
-  }
-
   // input and output setup
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
@@ -734,10 +684,6 @@ int main (int argc, char** argv)
   float selectedEvents = 0. ;
   int totalNoWeightsEventsNum = 0 ;
   int selectedNoWeightsEventsNum = 0 ;
-  
-  //int DY_tot  = 0;
-  //int DY_pass = 0;
-  //int DY_fail = 0;
 
   // for VBF trigger matching
   bool isVBFfired = false;
@@ -1159,7 +1105,8 @@ int main (int argc, char** argv)
 	  stitchWeight = stitchWeights[njets][nb];
 	}
 
-    if (!DY_tostitch && DY_nJets >= 0) //FRA debug
+    // Should never enter here (DY_tostitch should be always true)
+    if (!DY_tostitch && DY_nJets >= 0)
     {
         int njets = theBigTree.lheNOutPartons;
         int nb    = theBigTree.lheNOutB;
@@ -1315,10 +1262,10 @@ int main (int argc, char** argv)
 
       // For Drell-Yan only: loop on genjets and count how many are there with 0,1,2 b
       // 0: 0bjet, 1: 1 b jet, 2: >= 2 b jet
-      theSmallTree.m_DYscale_LL = 1.0; // all the other MC samples + data have no weight
-      theSmallTree.m_DYscale_MM = 1.0;        
-      theSmallTree.m_DYscale_LL_NLO = 1.0; // all the other MC samples + data have no weight
-      theSmallTree.m_DYscale_MM_NLO = 1.0;
+      theSmallTree.m_DYscale_LL  = 1.0; // all the other MC samples + data have no weight
+      theSmallTree.m_DYscale_MM  = 1.0;
+      theSmallTree.m_DYscale_MH  = 1.0; // to be used with elliptical mass cut
+      theSmallTree.m_DYscale_MTT = 1.0; // to be used with M(tautau) > 50 GeV
 
       if (isMC && isDY) //to be done both for DY NLO and DY in jet bins
       {
@@ -1351,65 +1298,64 @@ int main (int argc, char** argv)
         // loop through gen parts ot identify Z boson
         int idx1 = -1;
         for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
-	    {
+        {
           bool isLast   = CheckBit(theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
           bool isPrompt = CheckBit(theBigTree.genpart_flags->at(igen),  0) ; //  0 = isPrompt
           if (theBigTree.genpart_pdg->at(igen) == 23 && isLast && isPrompt) // Z0 + isLast + isPrompt
           {
             idx1 = igen;
           }
+        }
+
+        // if found, Build the genZ TLorentzVector
+        float genZ_pt = -999.;
+        if (idx1 >= 0)
+        {
+          // store gen decay mode of the Z identified
+          theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1);
+
+          // build the genZ TLorentzVector
+          TLorentzVector genZ;
+          genZ.SetPxPyPzE(theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1));
+          genZ_pt = genZ.Pt();
+
+          // Save DY LO weights according to nbs and pT(Z)
+          if (genZ_pt <= 10.)
+          {
+            theSmallTree.m_DYscale_MH  = DYscale_MH_vLowPt [n_bJets];
+            theSmallTree.m_DYscale_MTT = DYscale_MTT_vLowPt[n_bJets];
+          }
+          else if (genZ_pt > 10. && genZ_pt <= 50.)
+          {
+            theSmallTree.m_DYscale_MH  = DYscale_MH_LowPt [n_bJets];
+            theSmallTree.m_DYscale_MTT = DYscale_MTT_LowPt[n_bJets];
+          }
+          else if (genZ_pt > 50. && genZ_pt <= 80.)
+          {
+            theSmallTree.m_DYscale_MH  = DYscale_MH_Med1Pt [n_bJets];
+            theSmallTree.m_DYscale_MTT = DYscale_MTT_Med1Pt[n_bJets];
+          }
+          else if (genZ_pt > 80. && genZ_pt <= 110.)
+          {
+            theSmallTree.m_DYscale_MH  = DYscale_MH_Med2Pt [n_bJets];
+            theSmallTree.m_DYscale_MTT = DYscale_MTT_Med2Pt[n_bJets];
+          }
+          else if (genZ_pt > 110. && genZ_pt <= 190.)
+          {
+            theSmallTree.m_DYscale_MH  = DYscale_MH_HighPt [n_bJets];
+            theSmallTree.m_DYscale_MTT = DYscale_MTT_HighPt[n_bJets];
+          }
+          else /* pT(Z)>=190. */
+          {
+            theSmallTree.m_DYscale_MH  = DYscale_MH_vHighPt [n_bJets];
+            theSmallTree.m_DYscale_MTT = DYscale_MTT_vHighPt[n_bJets];
+          }
 	    }
 
-	    // if found, Build the genZ TLorentzVector
-	    float genZ_pt = -999.;
-        //DY_tot += 1;
-	    if (idx1 >= 0)
-	    {
-          //DY_pass +=1;
-	      // store gen decay mode of the Z identified
-	      theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1);
-
-	      // build the genZ TLorentzVector
-	      TLorentzVector genZ;
-	      genZ.SetPxPyPzE(theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1));
-	      genZ_pt = genZ.Pt();
-
-	      // Fill DY NLO weights according to nbs and pT(Z)
-          if (genZ_pt < 20.)
-          {
-            theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_VLowPt[n_bJets];
-            theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_VLowPt[n_bJets];
-          }
-          else if (genZ_pt >= 20. && genZ_pt < 40.)
-          {
-            theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_LowPt[n_bJets];
-            theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_LowPt[n_bJets];
-          }
-          else if (genZ_pt >= 40. && genZ_pt < 100.)
-          {
-            theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_MedPt[n_bJets];
-            theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_MedPt[n_bJets];
-          }
-          else /* pT(Z)>=100. */
-          {
-            theSmallTree.m_DYscale_LL_NLO = DYscale_NLO_HighPt[n_bJets];
-            theSmallTree.m_DYscale_MM_NLO = DYscale_NLO_HighPt[n_bJets];
-          }
-
-          // Fill the DY LO weights
-          if      (genZ_pt<=10.)                  theSmallTree.m_DYLOtoNLOreweight = DYscale_LO_VLowPt [n_bJets];
-          else if (genZ_pt>10.  && genZ_pt<=30. ) theSmallTree.m_DYLOtoNLOreweight = DYscale_LO_LowPt  [n_bJets];
-          else if (genZ_pt>30.  && genZ_pt<=50. ) theSmallTree.m_DYLOtoNLOreweight = DYscale_LO_MedPt1 [n_bJets];
-          else if (genZ_pt>50.  && genZ_pt<=100.) theSmallTree.m_DYLOtoNLOreweight = DYscale_LO_MedPt2 [n_bJets];
-          else if (genZ_pt>100. && genZ_pt<=200.) theSmallTree.m_DYLOtoNLOreweight = DYscale_LO_HighPt [n_bJets];
-          else /*genZ_pt>200*/                    theSmallTree.m_DYLOtoNLOreweight = DYscale_LO_VHighPt[n_bJets];
-	    }
         else // genZ not found: use the lowest pT bin
         {
-            //DY_fail+=1;
-            theSmallTree.m_DYscale_LL_NLO    = DYscale_NLO_VLowPt[n_bJets];
-            theSmallTree.m_DYscale_MM_NLO    = DYscale_NLO_VLowPt[n_bJets];
-            theSmallTree.m_DYLOtoNLOreweight = DYscale_LO_VLowPt [n_bJets];
+            theSmallTree.m_DYscale_MH  = DYscale_MH_vLowPt [n_bJets];
+            theSmallTree.m_DYscale_MTT = DYscale_MTT_vLowPt[n_bJets];
         }
 
         // Debug printout
@@ -1418,106 +1364,12 @@ int main (int argc, char** argv)
             cout << "------- DY reweight ------" << endl;
             cout << " - nbs  : " << nbs << endl;
             cout << " - pT(Z): " << genZ_pt << endl;
-            cout << " - DYscale_MM        : " << theSmallTree.m_DYscale_MM << endl;
-            cout << " - DYscale_MM_NLO    : " << theSmallTree.m_DYscale_MM_NLO << endl;
-            cout << " - DYLOtoNLOreweight : " << theSmallTree.m_DYLOtoNLOreweight << endl;
+            cout << " - DYscale_MM  : " << theSmallTree.m_DYscale_MM << endl;
+            cout << " - DYscale_MH  : " << theSmallTree.m_DYscale_MH << endl;
+            cout << " - DYscale_MTT : " << theSmallTree.m_DYscale_MTT << endl;
             cout << "--------------------------" << endl;
         }
       }
-
-      // New DY reweight
-      if (isMC && false) /* (isMC && doDYLOtoNLOreweight) - filled in the previous if */
-      {
-        float fractional_weight = 0;
-        float pt_weight         = 0;
-        float sf_weight         = 1;
-
-        // Get LHE nPartons and nBPartons
-        float n_selected_gen_jets = theBigTree.lheNOutPartons ;
-        float n_bJets = theBigTree.lheNOutB ;
-
-        // fraction map categories
-        std::string lhe_category = "";
-        if(n_selected_gen_jets==0) lhe_category="0Jet";
-        else if (n_selected_gen_jets == 1)
-        {
-            if      (n_bJets==0) lhe_category="1Jet_0bJet";
-            else if (n_bJets==1) lhe_category="1Jet_1bJet";
-        }
-        else if (n_selected_gen_jets==2)
-        {
-            if      (n_bJets==0) lhe_category="2Jet_0bJet";
-            else if (n_bJets==1) lhe_category="2Jet_1bJet";
-            else if (n_bJets==2) lhe_category="2Jet_2bJet";
-        }
-
-
-        // SF map categories
-        std::string sf_category  = "";
-        if (n_bJets==0)
-        {
-            if      (n_selected_gen_jets <= 2) sf_category = "DY_MC_0b_0Jet";
-            else if (n_selected_gen_jets >  2) sf_category = "DY_MC_0b_2Jet";
-        }
-        else if (n_bJets==1)
-        {
-            if      (n_selected_gen_jets <= 2) sf_category = "DY_MC_1b_0Jet";
-            else if (n_selected_gen_jets >  2) sf_category = "DY_MC_1b_2Jet";
-        }
-        else if (n_bJets==2)
-        {
-            if      (n_selected_gen_jets <= 2) sf_category = "DY_MC_2b_0Jet";
-            else if (n_selected_gen_jets == 2) sf_category = "DY_MC_2b_2Jet";
-        }
-
-        // DY NLO samples have only <= 2 gen jets, so use the reweight only if n_selected_gen_jets <= 2
-        if (n_selected_gen_jets <= 2)
-        {
-            // Fractional weight
-            fractional_weight = fractional_weight_map[lhe_category];
-
-            // Pt weight
-            // loop through gen parts ot identify Z boson
-            int idx1 = -1;
-            for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
-            {
-                bool isLast   = CheckBit(theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
-                bool isPrompt = CheckBit(theBigTree.genpart_flags->at(igen),  0) ; //  0 = isPrompt
-                if (theBigTree.genpart_pdg->at(igen) == 23 && isLast && isPrompt) // Z0 + isLast + isPrompt
-                {
-                    idx1 = igen;
-                }
-            }
-
-            // if found, Build the genZ TLorentzVector
-            float genZ_pt = -999.;
-            if (idx1 >= 0)
-            {
-                TLorentzVector genZ;
-                genZ.SetPxPyPzE(theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1));
-
-                genZ_pt = genZ.Pt();
-                pt_weight = pt_weight_histo_map[lhe_category]->GetBinContent(pt_weight_histo_map[lhe_category]->FindBin(genZ_pt));
-            }
-        }
-
-        // SF weight
-        sf_weight = scale_factor_map[sf_category];
-
-        // Debug printout
-        if(DEBUG)
-        {
-            cout << "------- DY reweight ------" << endl;
-            cout << " - LHE Npartons / Bpartons: " << n_selected_gen_jets << " / " << n_bJets << endl;
-            cout << " - lhe_category: " << lhe_category << endl;
-            cout << " - sf_category : " << sf_category << endl;
-            cout << " - weights (fractional/pt/sf/ total): "<<fractional_weight << " / " << pt_weight << " / " << sf_weight <<" / " << fractional_weight * pt_weight * sf_weight <<endl;
-            cout << "--------------------------" << endl;
-        }
-
-        theSmallTree.m_DYLOtoNLOreweight = fractional_weight * pt_weight * sf_weight;
-
-      } // end new DY reweight
 
       // HH reweight for non resonant
       float HHweight = 1.0;
@@ -2898,7 +2750,7 @@ int main (int argc, char** argv)
       theSmallTree.m_trigSF_single = (isMC ? trigSF_single : 1.0);
       theSmallTree.m_trigSF_cross  = (isMC ? trigSF_cross : 1.0);
 
-      theSmallTree.m_totalWeight = (isMC? (41557./7.20811e+10) * theSmallTree.m_MC_weight* theSmallTree.m_PUReweight* theSmallTree.m_DYscale_MM_NLO* trigSF* theSmallTree.m_IdAndIsoAndFakeSF_deep: 1.0);
+      theSmallTree.m_totalWeight = (isMC? (41557./7.20811e+10) * theSmallTree.m_MC_weight* theSmallTree.m_PUReweight* theSmallTree.m_DYscale_MH* trigSF* theSmallTree.m_IdAndIsoAndFakeSF_deep: 1.0);
       //this is just a residual of some synch
 
       // Third lepton veto
@@ -4375,12 +4227,6 @@ int main (int argc, char** argv)
   h_eff.SetBinContent (2, selectedEvents) ;
   h_eff.SetBinContent (3, totalNoWeightsEventsNum) ;
   h_eff.SetBinContent (4, selectedNoWeightsEventsNum) ;
-  
-  //cout << " DY_tot : " << DY_tot << endl;
-  //cout << " DY_pass: " << DY_pass << endl;
-  //cout << " DY fail: " << DY_fail << endl;
-  //cout << " % pass : " << DY_pass*100./DY_tot << endl;
-  //cout << " % fail : " << DY_fail*100./DY_tot << endl;
 
   // store more detailed eff counter in output
   vector<pair<string, double> > vEffSumm = ec.GetSummary();
