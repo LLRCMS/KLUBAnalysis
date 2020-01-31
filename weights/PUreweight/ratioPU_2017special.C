@@ -1,6 +1,10 @@
-//void ratioPU (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Files_Legacy_Run2/2016/Backgrounds/1_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v1.txt", string const &myFileName = "MyMCPileupHistogram_TT2016")
+//void ratioPU_2017special (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/2_WZ_TuneCP5_13TeV-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt", string const &myFileName = "MyMCPileupHistogram_WZ2017")
+//void ratioPU_2017special (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/11_ZH_HToBB_ZToLL_M125_13TeV_powheg_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt", string const &myFileName = "MyMCPileupHistogram_ZH2017")
+//void ratioPU_2017special (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/12_ggZH_HToBB_ZToLL_M125_13TeV_powheg_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt", string const &myFileName = "MyMCPileupHistogram_ggZHtoLL2017")
+//void ratioPU_2017special (uint begin = 0, uint max=10000000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/ggZHNuNu.txt", string const &myFileName = "MyMCPileupHistogram_ggZHtoNuNu2017")
+//void ratioPU_2017special (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/15_WplusHToTauTau_M125_13TeV_powheg_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt", string const &myFileName = "MyMCPileupHistogram_Wplus2017")
+void ratioPU_2017special (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/16_WminusHToTauTau_M125_13TeV_powheg_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt", string const &myFileName = "MyMCPileupHistogram_Wminus2017")
 
-void ratioPU (uint begin = 0, uint max=70000000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/TT.txt", string const &myFileName = "MyMCPileupHistogram_TT2017")
 {
 
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;

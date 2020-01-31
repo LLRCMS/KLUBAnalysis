@@ -1,6 +1,9 @@
-//void makeRatio (string const &myFileName = "MyMCPileupHistogram_TT2016")
-void makeRatio (string const &myFileName = "MyMCPileupHistogram_TT2017")
-//void makeRatio (string const &myFileName = "MyMCPileupHistogram_TT2018")
+//void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_WZ2017")
+//void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_ZH2017")
+//void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_ggZHtoLL2017")
+//void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_ggZHtoNuNu2017")
+//void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_Wplus2017")
+void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_Wminus2017")
 {
   gROOT->SetBatch();
     //histo MC
@@ -8,9 +11,7 @@ void makeRatio (string const &myFileName = "MyMCPileupHistogram_TT2017")
     TH1D * hPUMC   = (TH1D*)fileMC->Get("myPUHisto");
 
     //histo DATA
-    //TFile * fileData = TFile::Open("MyDataPileupHistogram_Legacy2016.root");
     TFile * fileData = TFile::Open("MyDataPileupHistogram_Legacy2017.root");
-    //TFile * fileData = TFile::Open("MyDataPileupHistogram_Legacy2018.root");
     TH1D * hPUData = (TH1D*)fileData->Get("pileup");
 
     //histo ratio

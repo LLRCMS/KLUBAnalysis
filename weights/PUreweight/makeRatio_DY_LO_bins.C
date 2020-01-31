@@ -6,7 +6,7 @@ void makeRatio_DY_LO_bins (string const &myFileName = "TTLep_MyMCPileupHistogram
     TH1D * hPUMC   = (TH1D*)fileMC->Get(Form("%s",myHistoName.c_str()));
 
     //histo DATA
-    TFile * fileData = TFile::Open("MyDataPileupHistogram_2017data.root");
+    TFile * fileData = TFile::Open("MyDataPileupHistogram_Legacy2017.root");
     TH1D * hPUData = (TH1D*)fileData->Get("pileup");
 
     //histo ratio

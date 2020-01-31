@@ -2,7 +2,7 @@ void ratioPU_DY_LO_bins (uint begin = 0, uint max=200000000)
 {
     // Read input files and create a TChain
     TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
-    std::ifstream infile("../../inputFiles/Files_January2019/finals/DYJetsToLL_LO.txt");
+    std::ifstream infile("../../inputFiles/Legacy2017_backgrounds/DY_merged.txt");
     std::string line;
     while (std::getline(infile, line))
     {
@@ -76,7 +76,7 @@ void ratioPU_DY_LO_bins (uint begin = 0, uint max=200000000)
     }
 
     // Declare output file and save histos
-    TFile *myFile = new TFile("outputs_January2019/DY_special/DYJets_special_MyMCPileupHistogram.root","RECREATE");
+    TFile *myFile = new TFile("MyMCPileupHistogram_DYspecial2017.root","RECREATE");
     myPUHisto_0j0b->Write();
     myPUHisto_1j0b->Write();
     myPUHisto_1j1b->Write();
