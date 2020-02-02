@@ -90,7 +90,7 @@ const float DYscale_MTT_vHighPt[3] = {0.835, 1.71 , 1.141};
 ** - stitchWeight (0jet) = f_0 / (f_0 * N_inclusive)
 ** - stitchWeight (njet) = f_n / (f_n * N_inclusive + N_njets)
 */ 
-// to be updated for Legacy2017
+// Legacy2017 - These are not used in the skimming since the DY sample is already split in jet bins and the weight is included in the XS
 const float stitchWeights [][5] = {
     {1.9437352898 , 0.0 , 0.0 , 0.0 , 0.0},
     {0.338279616574 , 0.338237399666 , 0.0 , 0.0 , 0.0},
