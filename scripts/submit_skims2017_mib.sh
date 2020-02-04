@@ -4,6 +4,7 @@ OUTDIRR="Skims_Legacy2017_30Jan2020"
 # INPUT
 INPUTDIR="inputFiles/Legacy2017_backgrounds"
 INPUTDIR_DATA="inputFiles/Legacy2017_data"
+INPUTDIR_SIG="inputFiles/Legacy2017_signals"
 
 # OUTPUT
 SKIMDIR="/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_Legacy2017_02Feb2020"
@@ -58,9 +59,9 @@ echo "Submitting - WJets - " >> log_23Jan2020.txt
 echo "OUTDIR = $OUTDIRR"
 echo "OUTDIR = $OUTDIRR" >> log_23Jan2020.txt
 
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 30 -k True -o $SKIMDIR/SKIM_WJets              -i $INPUTDIR/WJetsToLNu_HT-0To100_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14.txt  -y 1.213784 -x 48917.48 -z 100 -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 30 -k True -o $SKIMDIR/SKIM_WJets_HT_0_100     -i $INPUTDIR/WJetsToLNu_HT-0To100_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14.txt  -y 1.213784 -x 48917.48 -z 100 -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 30 -k True -o $SKIMDIR/SKIM_WJets_HT_100_200   -i $INPUTDIR/5_WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2.txt  -y 1.213784 -x 1345 -z 100 -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 30 -k True -o $SKIMDIR/SKIM_WJets_HT_100_200   -i $INPUTDIR/5_WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v2.txt  -y 1.213784 -x 1345 -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 30 -k True -o $SKIMDIR/SKIM_WJets_HT_200_400   -i $INPUTDIR/6_WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt  -y 1.213784 -x 359.7 -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
@@ -228,8 +229,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_m
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_TTWW -i $INPUTDIR/28_TTWW_TuneCP5_13TeV-madgraph-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14_ext1-v1.txt -x 0.007834 -q shortcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
 
-COMMENT1
-
 
 ######################
 ### DATA :
@@ -268,3 +267,13 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Lega
 python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2017_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_Ele_2017E -i $INPUTDIR_DATA/4_SingleElectron__Run2017E-31Mar2018-v1.txt -q longcms
 python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2017_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_Ele_2017F -i $INPUTDIR_DATA/5_SingleElectron__Run2017F-31Mar2018-v1.txt -q longcms
 
+#### GGH SM :
+# XS:  0.03349 pb^-1
+echo "Submitting - GGH SM - "
+echo "Submitting - GGH SM - " >> log_23Jan2020.txt
+echo "OUTDIR = $OUTDIRR"
+echo "OUTDIR = $OUTDIRR" >> log_23Jan2020.txt
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 50 -k True -o $SKIMDIR/SKIM_GGHHSM -i $INPUTDIR_SIG/7_GluGluToHHTo2B2Tau_node_SM_13TeV-madgraph_correctedcfg__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
+
+COMMENT1
