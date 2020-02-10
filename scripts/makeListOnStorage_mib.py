@@ -6,22 +6,35 @@ from subprocess import Popen, PIPE
 #tag="Legacy2016_Backgrounds2_Dec2019"
 #tag="Legacy2016_Backgrounds5_Dec2019"
 #tag="Legacy2016_Backgrounds6_Dec2019"
-tag="Legacy2016_Backgrounds7_Dec2019"
+#tag="Legacy2016_Backgrounds7_Dec2019"
 #tag="Legacy2016_Data_Muon_Dec2019"
 #tag="Legacy2016_Data_Electron_Dec2019"
 #tag="Legacy2016_Data_Tau_Dec2019"
 #tag="Legacy2016_Data_Tau2_Dec2019"
+#tag="Legacy2016_Data_Muon3_Dec2019"
+#tag="Legacy2016_Data_Electron3_Dec2019"
+#tag="Legacy2016_Data_Tau3_Dec2019"
+#tag="Legacy2016_Data_Muon4_Dec2019"
+#tag="Legacy2016_Data_Electron4_Dec2019"
+tag="Legacy2016_Data_Tau4_Dec2019"
+
 
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Signals/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds2/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds5/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds6/'
-outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds7/'
+#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds7/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Muon/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Electron/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Tau/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Tau2/'
+#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Muon3/'
+#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Electron3/'
+#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Tau3/'
+#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Muon4/'
+#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Electron4/'
+outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Tau4/'
 
 areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
                                  # if false: only add the polgrid server to run the skim and submit on root
