@@ -7,10 +7,17 @@
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_23Jan2020_invQCD --n 60
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_27Jan2020_noTauIDSF --n 60
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_27Jan2020_noTauIDSF_invQCD --n 60
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_29Jan2020_DYrew --n 60
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_29Jan2020_DYrew_invQCD --n 60
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_29Jan2020_QCD_VVLoose --n 60
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_29Jan2020_invQCD_VVLoose --n 60
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_29Jan2020_invQCD_VVLoose_MCut --n 70
 
 # - MuTau -
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuTau_Legacy2016.cfg --tag analysis_MuTau_23Jan2020 --n 60
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuTau_Legacy2016.cfg --tag analysis_MuTau_23Jan2020_invQCD --n 60
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuTau_Legacy2016.cfg --tag analysis_MuTau_29Jan2020_QCD_VVLoose --n 60
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuTau_Legacy2016.cfg --tag analysis_MuTau_29Jan2020_invQCD_VVLoose --n 60
 
 # - MuMu -
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuMu_Legacy2016.cfg --tag analysis_MuMu_23Jan2020 --n 60

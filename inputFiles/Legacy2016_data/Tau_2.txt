@@ -1,3 +1,12 @@
+/gwteras/cms/store/user/fbrivio/Hhh_1718/Legacy2016_Data_Tau4_Dec2019/1_Tau__Run2016B-17Jul2018_ver2-v1/Tau/Tau_Legacy2016_Data_Tau4_Dec2019_1/200131_162825/0000/HTauTauAnalysis_2.root
+/gwteras/cms/store/user/fbrivio/Hhh_1718/Legacy2016_Data_Tau4_Dec2019/1_Tau__Run2016B-17Jul2018_ver2-v1/Tau/Tau_Legacy2016_Data_Tau4_Dec2019_1/200131_162825/0000/HTauTauAnalysis_6.root
+/gwteras/cms/store/user/fbrivio/Hhh_1718/Legacy2016_Data_Tau4_Dec2019/1_Tau__Run2016B-17Jul2018_ver2-v1/Tau/Tau_Legacy2016_Data_Tau4_Dec2019_1/200131_162825/0000/HTauTauAnalysis_1.root
+/gwteras/cms/store/user/fbrivio/Hhh_1718/Legacy2016_Data_Tau4_Dec2019/1_Tau__Run2016B-17Jul2018_ver2-v1/Tau/Tau_Legacy2016_Data_Tau4_Dec2019_1/200131_162825/0000/HTauTauAnalysis_3.root
+/gwteras/cms/store/user/fbrivio/Hhh_1718/Legacy2016_Data_Tau4_Dec2019/1_Tau__Run2016B-17Jul2018_ver2-v1/Tau/Tau_Legacy2016_Data_Tau4_Dec2019_1/200131_162825/0000/HTauTauAnalysis_4.root
+/gwteras/cms/store/user/fbrivio/Hhh_1718/Legacy2016_Data_Tau4_Dec2019/1_Tau__Run2016B-17Jul2018_ver2-v1/Tau/Tau_Legacy2016_Data_Tau4_Dec2019_1/200131_162825/0000/HTauTauAnalysis_5.root
+/gwteras/cms/store/user/fbrivio/Hhh_1718/Legacy2016_Data_Tau3_Dec2019/1_Tau__Run2016B-17Jul2018_ver2-v1/Tau/Tau_Legacy2016_Data_Tau3_Dec2019_1/200127_100336/0000/HTauTauAnalysis_1-4.root
+/gwteras/cms/store/user/fbrivio/Hhh_1718/Legacy2016_Data_Tau3_Dec2019/1_Tau__Run2016B-17Jul2018_ver2-v1/Tau/Tau_Legacy2016_Data_Tau3_Dec2019_1/200127_100336/0000/HTauTauAnalysis_1-2.root
+/gwteras/cms/store/user/fbrivio/Hhh_1718/Legacy2016_Data_Tau3_Dec2019/1_Tau__Run2016B-17Jul2018_ver2-v1/Tau/Tau_Legacy2016_Data_Tau3_Dec2019_1/200127_100336/0000/HTauTauAnalysis_1-3.root
 /gwteras/cms/store/user/fbrivio/Hhh_1718/Legacy2016_Data_Tau_Dec2019/2_Tau__Run2016B-17Jul2018_ver2-v1/Tau/Tau_Legacy2016_Data_Tau_Dec2019_2/200103_102017/0000/HTauTauAnalysis_3-77.root
 /gwteras/cms/store/user/fbrivio/Hhh_1718/Legacy2016_Data_Tau_Dec2019/2_Tau__Run2016B-17Jul2018_ver2-v1/Tau/Tau_Legacy2016_Data_Tau_Dec2019_2/200103_102017/0000/HTauTauAnalysis_3-199.root
 /gwteras/cms/store/user/fbrivio/Hhh_1718/Legacy2016_Data_Tau_Dec2019/2_Tau__Run2016B-17Jul2018_ver2-v1/Tau/Tau_Legacy2016_Data_Tau_Dec2019_2/200103_102017/0000/HTauTauAnalysis_3-215.root

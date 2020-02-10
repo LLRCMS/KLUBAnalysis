@@ -1034,8 +1034,10 @@ if __name__ == "__main__" :
         #hRatio.SetMaximum(1.15)
         #hRatio.SetMinimum(0.6) #default value
         #hRatio.SetMaximum(1.4) #default value
-        hRatio.SetMinimum(0.1) #TESI
-        hRatio.SetMaximum(1.9) #TESI
+        #hRatio.SetMinimum(0.1) #TESI
+        #hRatio.SetMaximum(1.9) #TESI
+        hRatio.SetMinimum(0.5)
+        hRatio.SetMaximum(1.5)
 
         removeEmptyPoints (grRatio)
         hRatio.Draw("axis")
