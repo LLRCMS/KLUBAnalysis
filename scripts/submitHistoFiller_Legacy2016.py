@@ -12,6 +12,7 @@
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_29Jan2020_QCD_VVLoose --n 60
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_29Jan2020_invQCD_VVLoose --n 60
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_29Jan2020_invQCD_VVLoose_MCut --n 70
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_invertedQCD_13Feb2020_Legacy2016 --n 70
 
 # - MuTau -
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuTau_Legacy2016.cfg --tag analysis_MuTau_23Jan2020 --n 60
@@ -25,7 +26,7 @@
 
 # - TauTau tauIDSF -
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016_tauIDSF.cfg --tag analysis_TauTau_27Jan2020_DMs_tauIDSF --n 60
-
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016_tauIDSF.cfg --tag analysis_TauTau_tauIDSF_13Feb2020_Legacy2016 --n 60
 
 ################
 
@@ -86,7 +87,7 @@ for nj in range(0, args.njobs):
     condorFile.close ()
 
     #launchcommand = ('/usr/bin/qsub -q  longcms ' + outDir + '/' + scriptName)
-    launchcommand = ('/usr/bin/qsub -q  longcms ' + outDir + '/' + scriptName)
+    #launchcommand = ('/usr/bin/qsub -q  longcms ' + outDir + '/' + scriptName)
     launchcommand = ('condor_submit '+ outDir + '/condorLauncher_' + str (nj) + '.sh')
 
     print launchcommand

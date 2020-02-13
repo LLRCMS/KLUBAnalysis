@@ -483,7 +483,7 @@ if __name__ == "__main__" :
     
     
     sigList = cfg.readListOption("general::signals")
-    sigList = ["GGFSM"]
+    sigList = ["GGHHSM"]
 
 
     sigNameList = []
