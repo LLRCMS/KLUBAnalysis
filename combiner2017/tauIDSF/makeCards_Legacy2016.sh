@@ -1,5 +1,5 @@
 # Tag
-tag=27Jan2020_DMs_tauIDSF
+tag=tauIDSF_13Feb2020_Legacy2016
 
 # Options to launch
 # --ch    : channels
