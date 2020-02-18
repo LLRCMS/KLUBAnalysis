@@ -248,6 +248,7 @@ void AnalysisHelper::readSelections()
     cout << "@@ Selections : reading selections : ";       
     for (string sel : selListNames)
     {
+        cout << " " << sel;
         selList.push_back(readSingleSelection(sel));
     }
     cout << endl;
@@ -1269,7 +1270,7 @@ void AnalysisHelper::activateBranches(Sample& sample)
     tree->SetBranchStatus("dau2_decayMode",1);
     tree->SetBranchStatus("isTau1real",1);
     tree->SetBranchStatus("isTau2real",1);
-    if (DEBUG) cout << " ..........DEBUG: activated external weight variables branches" << endl;
+    if (DEBUG) cout << " ..........DEBUG: activated selectionWeights_ext branches" << endl;
 }
 
 pair <string, string> AnalysisHelper::unpack2DName (string packedName)
