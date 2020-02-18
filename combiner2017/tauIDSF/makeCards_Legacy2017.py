@@ -208,7 +208,7 @@ for reg in regions:
     	else:
     	    with open("templates/datacard_template2017"+suffix+".txt","r") as template:
     	        card = template.read()
-    	
+
     	    card = card.replace('_NDATA'+suffix+'_',  str(round(hData.GetBinContent(0),2)))    
     	    card = card.replace('_N0TAUS'+suffix+'_', str(round(bkgSum.GetBinContent(1),2)))    
     	    card = card.replace('_N1TAUS'+suffix+'_', str(round(bkgSum.GetBinContent(2),2)))    
