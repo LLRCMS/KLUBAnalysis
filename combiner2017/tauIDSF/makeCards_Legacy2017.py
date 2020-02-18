@@ -191,7 +191,7 @@ for reg in regions:
     #### same decay mode
     if "both" in args.decay:
     	if args.qcd: 
-    	    with open("templates/datacard_template"+suffix+".txt","r") as template:
+    	    with open("templates/datacard_template2017"+suffix+".txt","r") as template:
     	        lines = template.readlines()
     	        with open(args.tag+"/"+args.ch+"/"+sel+"/datacard_QCD.txt", "w+") as outfile:
     	            for line in lines:
@@ -206,9 +206,9 @@ for reg in regions:
     	                    outfile.write(line)
     	
     	else:
-    	    with open("templates/datacard_template"+suffix+".txt","r") as template:
+    	    with open("templates/datacard_template2017"+suffix+".txt","r") as template:
     	        card = template.read()
-    	
+
     	    card = card.replace('_NDATA'+suffix+'_',  str(round(hData.GetBinContent(0),2)))    
     	    card = card.replace('_N0TAUS'+suffix+'_', str(round(bkgSum.GetBinContent(1),2)))    
     	    card = card.replace('_N1TAUS'+suffix+'_', str(round(bkgSum.GetBinContent(2),2)))    
@@ -227,7 +227,7 @@ for reg in regions:
         decay2 = decays[2]
         print decay1, decay2
         if args.qcd: 
-    	    with open("templates/datacard_template_cross"+suffix+".txt","r") as template:
+    	    with open("templates/datacard_template2017_cross"+suffix+".txt","r") as template:
     	        lines = template.readlines()
     	        with open(args.tag+"/"+args.ch+"/"+sel+"/datacard_QCD.txt", "w+") as outfile:
     	            for line in lines:
@@ -245,7 +245,7 @@ for reg in regions:
     	                    outfile.write(line)
     	
     	else:
-    	    with open("templates/datacard_template_cross"+suffix+".txt","r") as template:
+    	    with open("templates/datacard_template2017_cross"+suffix+".txt","r") as template:
     	        card = template.read()
     	
     	    card = card.replace('_NDATA'+suffix+'_',  str(round(hData.GetBinContent(0),2)))    
