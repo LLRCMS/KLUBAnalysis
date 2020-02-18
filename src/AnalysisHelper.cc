@@ -1265,6 +1265,11 @@ void AnalysisHelper::activateBranches(Sample& sample)
     }
     if (DEBUG) cout << " ..........DEBUG: activated cut variables branches" << endl;
 
+    tree->SetBranchStatus("dau1_decayMode",1);
+    tree->SetBranchStatus("dau2_decayMode",1);
+    tree->SetBranchStatus("isTau1real",1);
+    tree->SetBranchStatus("isTau2real",1);
+    if (DEBUG) cout << " ..........DEBUG: activated external weight variables branches" << endl;
 }
 
 pair <string, string> AnalysisHelper::unpack2DName (string packedName)
