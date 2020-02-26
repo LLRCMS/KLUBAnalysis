@@ -422,8 +422,7 @@ bool OfflineProducerHelper::muBaseline (
     bool etaS = (fabs(p4.Eta()) < etaMax) || byp_etaS;
     
     bool totalS = (vertexS && idS && isoS && ptS && etaS);
-    //if (debug)
-    if (true)
+    if (debug)
     {
       cout << "@ mu baseline" << endl;
       cout << " idS     "  << idS     << " skypped? " << byp_idS << endl;
