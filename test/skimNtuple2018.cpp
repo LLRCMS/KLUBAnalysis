@@ -2879,6 +2879,10 @@ int main (int argc, char** argv)
           cout << "Pass Loose : " << CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 2) << endl;
           cout << "Pass Medium: " << CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 1) << endl;
           cout << "Pass Tight : " << CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 0) << endl;
+          cout << "dR(tau1)   : " << tlv_jet.DeltaR (tlv_firstLepton) << " - lepCleaningCone: " << lepCleaningCone << endl;
+          cout << "dR(tau2)   : " << tlv_jet.DeltaR (tlv_secondLepton) << " - lepCleaningCone: " << lepCleaningCone << endl;
+          cout << "pT < 20    : " << (tlv_jet.Pt () < 20.) << endl;
+          cout << "eta > 2.4  : " << (TMath::Abs(tlv_jet.Eta()) > 2.4) << endl;
           cout << "---------------------------------" << endl;
         }
 
@@ -4272,6 +4276,13 @@ int main (int argc, char** argv)
           cout << "Yield weight MVA : " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_MVA * theSmallTree.m_trigSF << endl;
           cout << "Yield weight deep: " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_deep * theSmallTree.m_trigSF << endl;
           cout << "------------------------" << endl;
+      }
+
+      if (DEBUG) //FRA DEBUG
+      {
+          cout << "--- FINAL DEBUG ---" << endl;
+          cout << "nbjetscand: " << theSmallTree.m_nbjetscand << endl;
+          cout << "-------------------" << endl;
       }
 
       theSmallTree.Fill () ;
