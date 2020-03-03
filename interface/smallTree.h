@@ -362,6 +362,7 @@ struct smallTree
       m_bjet1_jecUnc = -1;
       m_bjet2_jecUnc = -1;
       m_jets_jecUnc.clear() ;
+      m_PUjetID.clear() ;
 
       m_leps_pt.clear () ;
       m_leps_eta.clear () ;
@@ -898,6 +899,7 @@ struct smallTree
       m_smallT->Branch ("bjet1_jecUnc", &m_bjet1_jecUnc,"bjet1_jecUnc/F");
       m_smallT->Branch ("bjet2_jecUnc", &m_bjet2_jecUnc,"bjet2_jecUnc/F");
 
+      m_smallT->Branch ("PUjetIDupdated", &m_PUjetID);
 
       m_smallT->Branch ("leps_pt", &m_leps_pt) ;
       m_smallT->Branch ("leps_eta", &m_leps_eta) ;
@@ -1464,6 +1466,8 @@ struct smallTree
   Float_t m_dau2_jecUnc;
   Float_t m_bjet1_jecUnc;
   Float_t m_bjet2_jecUnc;
+
+  std::vector<Float_t> m_PUjetID;
 
   // additional leptons
   std::vector<Float_t> m_leps_pt ;
