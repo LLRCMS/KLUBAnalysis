@@ -1631,12 +1631,12 @@ int main (int argc, char** argv)
       metpass += metbit & (1 << 3);    //"Flag_EcalDeadCellTriggerPrimitiveFilter"
       metpass += metbit & (1 << 4);    //"Flag_globalSuperTightHalo2016Filter"
       if(!isMC) metpass += metbit & (1 << 7); // "Flag_eeBadScFilter" not suggested on twiki; EDIT: now suggested for data (Moriond2018)
-      if (theBigTree.passecalBadCalibFilterUpdate) metpass += 1;
+      //if (theBigTree.passecalBadCalibFilterUpdate) metpass += 1; // not needed for 2016
       //(metpass <= 0) cout << " - failed metbit(9): " << std::bitset<9>(metbit) << endl; //FRA
 
       //update March2019: "Flag_BadChargedCandidateFilter" removed
-      if(isMC && metpass < 7) continue ;
-      if(!isMC && metpass < 8) continue ;   
+      if(isMC && metpass < 6) continue ;
+      if(!isMC && metpass < 7) continue ;
      
       ec.Increment ("METfilter", EvtW);
       if (isHHsignal) ecHHsig[genHHDecMode].Increment ("METfilter", EvtW);
