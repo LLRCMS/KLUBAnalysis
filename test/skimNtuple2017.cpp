@@ -1699,7 +1699,7 @@ int main (int argc, char** argv)
         int dauType = theBigTree.particleType->at(idau);
         if (oph.isMuon(dauType))
         {
-          bool passMu   = oph.muBaseline (&theBigTree, idau, 21., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
+          bool passMu   = oph.muBaseline (&theBigTree, idau, 20., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
           bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
 
           if (passMu) ++nmu;
@@ -1707,7 +1707,7 @@ int main (int argc, char** argv)
         }
         else if (oph.isElectron(dauType))
         {
-          bool passEle   = oph.eleBaseline (&theBigTree, idau, 25., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false));
+          bool passEle   = oph.eleBaseline (&theBigTree, idau, 24., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false));
           bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false));
 
           if (passEle) ++nele;
@@ -2883,7 +2883,7 @@ int main (int argc, char** argv)
       TLorentzVector jetVecSum (0,0,0,0);
       for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
       {
-        // JET PU ID cut
+        // JET PF ID cut
         if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
         TLorentzVector tlv_jet
@@ -2903,6 +2903,10 @@ int main (int argc, char** argv)
           cout << "Pass Loose : " << CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 2) << endl;
           cout << "Pass Medium: " << CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 1) << endl;
           cout << "Pass Tight : " << CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 0) << endl;
+          cout << "dR(tau1)   : " << tlv_jet.DeltaR (tlv_firstLepton) << " - lepCleaningCone: " << lepCleaningCone << endl;
+          cout << "dR(tau2)   : " << tlv_jet.DeltaR (tlv_secondLepton) << " - lepCleaningCone: " << lepCleaningCone << endl;
+          cout << "pT < 20    : " << (tlv_jet.Pt () < 20.) << endl;
+          cout << "eta > 2.4  : " << (TMath::Abs(tlv_jet.Eta()) > 2.4) << endl;
           cout << "---------------------------------" << endl;
         }
 
@@ -2940,6 +2944,14 @@ int main (int argc, char** argv)
         jets_and_sortPar.push_back (make_pair (sortPar, iJet) );
 
       } // loop over jets
+
+      // Save PUjetID for jets with pT > 15 GeV for sync with Pisa
+      for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
+      {
+        if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
+        TLorentzVector tlv_jet(theBigTree.jets_px->at (iJet), theBigTree.jets_py->at (iJet), theBigTree.jets_pz->at (iJet), theBigTree.jets_e->at (iJet));
+        if (tlv_jet.Pt() > 15.) theSmallTree.m_PUjetID.push_back(theBigTree.jets_PUJetIDupdated->at(iJet));
+      }
 
       theSmallTree.m_nbjetscand = jets_and_sortPar.size();
       theSmallTree.m_nfatjets = theBigTree.ak8jets_px->size();
@@ -2989,7 +3001,7 @@ int main (int argc, char** argv)
         {
           for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
           {
-            // JET PU ID cut
+            // JET PF ID cut
             if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
             // Skip the already selected b-jets
@@ -3022,7 +3034,7 @@ int main (int argc, char** argv)
 
             for (unsigned int kJet = iJet+1 ;   (kJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++kJet)
             {
-              // JET PU ID cut
+              // JET PF ID cut
               if (theBigTree.PFjetID->at (kJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
               // Skip the already selected b-jets
@@ -3285,7 +3297,7 @@ int main (int argc, char** argv)
         if (DEBUG) cout << "----- BDT HT debug ------" << endl;
         for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
         {
-          // JET PU ID cut
+          // JET PF ID cut
           if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
           // Build the jet TLorentzVector
@@ -4312,6 +4324,13 @@ int main (int argc, char** argv)
           cout << "Yield weight MVA : " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_MVA * theSmallTree.m_trigSF << endl;
           cout << "Yield weight deep: " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_deep * theSmallTree.m_trigSF << endl;
           cout << "------------------------" << endl;
+      }
+
+      if (DEBUG) //FRA DEBUG
+      {
+          cout << "--- FINAL DEBUG ---" << endl;
+          cout << "nbjetscand: " << theSmallTree.m_nbjetscand << endl;
+          cout << "-------------------" << endl;
       }
 
       theSmallTree.Fill () ;
