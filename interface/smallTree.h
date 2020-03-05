@@ -176,6 +176,7 @@ struct smallTree
       m_bjet1_bID_deepCSV = -1.;
       m_bjet1_bID_deepFlavor = -1.;
       m_bjet1_bMVAID = -1. ;
+      m_bjet1_PUjetIDupdated = -99. ;
       m_bjet1_flav = -1 ;
       m_bjet1_pt_raw  = -1. ;
       m_bjet1_pt_raw_jetup  = -1. ;
@@ -191,6 +192,7 @@ struct smallTree
       m_bjet2_bID_deepCSV = -1.;
       m_bjet2_bID_deepFlavor = -1.;
       m_bjet2_bMVAID = -1. ;
+      m_bjet2_PUjetIDupdated = -99. ;
       m_bjet2_flav = -1 ;
       m_bjet2_pt_raw  = -1. ;
       m_bjet2_pt_raw_jetup  = -1. ;
@@ -404,6 +406,7 @@ struct smallTree
       m_VBFjet1_btag= -999. ;
       m_VBFjet1_btag_deepCSV= -999. ;
       m_VBFjet1_btag_deepFlavor= -999. ;
+      m_VBFjet1_PUjetIDupdated= -99. ;
       m_VBFjet1_flav= 0 ;
       m_VBFjet1_hasgenjet= false ;
 
@@ -419,6 +422,7 @@ struct smallTree
       m_VBFjet2_btag= -999. ;
       m_VBFjet2_btag_deepCSV= -999. ;
       m_VBFjet2_btag_deepFlavor= -999. ;
+      m_VBFjet2_PUjetIDupdated= -99. ;
       m_VBFjet2_flav= 0 ;
       m_VBFjet2_hasgenjet= false ;
 
@@ -733,6 +737,7 @@ struct smallTree
       m_smallT->Branch ("bjet1_bID_deepCSV", &m_bjet1_bID_deepCSV, "bjet1_bID_deepCSV/F") ;
       m_smallT->Branch ("bjet1_bID_deepFlavor", &m_bjet1_bID_deepFlavor, "bjet1_bID_deepFlavor/F") ;
       m_smallT->Branch ("bjet1_bMVAID", &m_bjet1_bMVAID, "bjet1_bMVAID/F") ;
+      m_smallT->Branch ("bjet1_PUjetIDupdated", &m_bjet1_PUjetIDupdated, "bjet1_PUjetIDupdated/F") ;
       m_smallT->Branch ("bjet1_flav", &m_bjet1_flav, "bjet1_flav/I") ;
       m_smallT->Branch ("bjet1_pt_raw", &m_bjet1_pt_raw, "bjet1_pt_raw/F") ;
       m_smallT->Branch ("bjet1_pt_raw_jetup", &m_bjet1_pt_raw_jetup, "bjet1_pt_raw_jetup/F") ;
@@ -749,6 +754,7 @@ struct smallTree
       m_smallT->Branch ("bjet2_bID_deepCSV", &m_bjet2_bID_deepCSV, "bjet2_bID_deepCSV/F") ;
       m_smallT->Branch ("bjet2_bID_deepFlavor", &m_bjet2_bID_deepFlavor, "bjet2_bID_deepFlavor/F") ;
       m_smallT->Branch ("bjet2_bMVAID", &m_bjet2_bMVAID, "bjet2m_bMVAID/F") ;
+      m_smallT->Branch ("bjet2_PUjetIDupdated", &m_bjet2_PUjetIDupdated, "bjet2_PUjetIDupdated/F") ;
       m_smallT->Branch ("bjet2_flav", &m_bjet2_flav, "bjet2_flav/I") ;
       m_smallT->Branch ("bjet2_pt_raw", &m_bjet2_pt_raw, "bjet2_pt_raw/F") ;
       m_smallT->Branch ("bjet2_pt_raw_jetup", &m_bjet2_pt_raw_jetup, "bjet2_pt_raw_jetup/F") ;
@@ -960,6 +966,7 @@ struct smallTree
       m_smallT->Branch ("VBFjet1_btag",&m_VBFjet1_btag,"VBFjet1_btag/F");
       m_smallT->Branch ("VBFjet1_btag_deepCSV",&m_VBFjet1_btag_deepCSV,"VBFjet1_btag_deepCSV/F");
       m_smallT->Branch ("VBFjet1_btag_deepFlavor",&m_VBFjet1_btag_deepFlavor,"VBFjet1_btag_deepFlavor/F");
+      m_smallT->Branch ("VBFjet1_PUjetIDupdated",&m_VBFjet1_PUjetIDupdated,"VBFjet1_PUjetIDupdated/F");
       m_smallT->Branch ("VBFjet1_flav",&m_VBFjet1_flav,"VBFjet1_flav/I");
       m_smallT->Branch ("VBFjet1_hasgenjet",&m_VBFjet1_hasgenjet,"VBFjet1_hasgenjet/O");
 
@@ -976,6 +983,7 @@ struct smallTree
       m_smallT->Branch ("VBFjet2_btag",&m_VBFjet2_btag,"VBFjet2_btag/F");
       m_smallT->Branch ("VBFjet2_btag_deepCSV",&m_VBFjet2_btag_deepCSV,"VBFjet2_btag_deepCSV/F");
       m_smallT->Branch ("VBFjet2_btag_deepFlavor",&m_VBFjet2_btag_deepFlavor,"VBFjet2_btag_deepFlavor/F");
+      m_smallT->Branch ("VBFjet2_PUjetIDupdated",&m_VBFjet2_PUjetIDupdated,"VBFjet2_PUjetIDupdated/F");
       m_smallT->Branch ("VBFjet2_flav",&m_VBFjet2_flav,"VBFjet2_flav/I");
       m_smallT->Branch ("VBFjet2_hasgenjet",&m_VBFjet2_hasgenjet,"VBFjet2_hasgenjet/O");
 
@@ -1288,6 +1296,7 @@ struct smallTree
   Float_t m_bjet1_bID_deepCSV ;
   Float_t m_bjet1_bID_deepFlavor ;
   Float_t m_bjet1_bMVAID ;
+  Float_t m_bjet1_PUjetIDupdated;
   Int_t   m_bjet1_flav ;
   Float_t m_bjet1_pt_raw ;
   Float_t m_bjet1_pt_raw_jetup ;
@@ -1305,6 +1314,7 @@ struct smallTree
   Float_t m_bjet2_bID_deepCSV ;
   Float_t m_bjet2_bID_deepFlavor ;
   Float_t m_bjet2_bMVAID ;
+  Float_t m_bjet2_PUjetIDupdated;
   Int_t   m_bjet2_flav ;
   Float_t m_bjet2_pt_raw ;
   Float_t m_bjet2_pt_raw_jetup ;
@@ -1529,6 +1539,7 @@ struct smallTree
   Float_t m_VBFjet1_btag;
   Float_t m_VBFjet1_btag_deepCSV;
   Float_t m_VBFjet1_btag_deepFlavor;
+  Float_t m_VBFjet1_PUjetIDupdated;
   Int_t m_VBFjet1_flav;
   Bool_t m_VBFjet1_hasgenjet;
 
@@ -1544,6 +1555,7 @@ struct smallTree
   Float_t m_VBFjet2_btag;
   Float_t m_VBFjet2_btag_deepCSV;
   Float_t m_VBFjet2_btag_deepFlavor;
+  Float_t m_VBFjet2_PUjetIDupdated;
   Int_t m_VBFjet2_flav;
   Bool_t m_VBFjet2_hasgenjet;
 

@@ -1648,19 +1648,31 @@ int main (int argc, char** argv)
 
       int metbit = theBigTree.metfilterbit;
      
-      int metpass = metbit & (1 << 0); //"Flag_goodVertices"
-      metpass += metbit & (1 << 2);    //"Flag_HBHENoiseIsoFilter"
-      metpass += metbit & (1 << 5);    //"Flag_BadPFMuonFilter"
-      // metpass += metbit & (1 << 6);    //"Flag_BadChargedCandidateFilter" update March2019: removed 
-      // Update Fall17 94X
-      metpass += metbit & (1 << 1);    //"Flag_HBHENoiseFilter"
-      metpass += metbit & (1 << 3);    //"Flag_EcalDeadCellTriggerPrimitiveFilter"
-      metpass += metbit & (1 << 4);    //"Flag_globalSuperTightHalo2016Filter"
-      if(!isMC) metpass += metbit & (1 << 7); // "Flag_eeBadScFilter" not suggested on twiki; EDIT: now suggested for data (Moriond2018)
-      if (theBigTree.passecalBadCalibFilterUpdate) metpass += 1;
-      //(metpass <= 0) cout << " - failed metbit(9): " << std::bitset<9>(metbit) << endl; //FRA
+      int metpass = (metbit & (1 << 0)) ? 1 : 0; //"Flag_goodVertices"
+      metpass    += (metbit & (1 << 1)) ? 1 : 0; //"Flag_HBHENoiseFilter"
+      metpass    += (metbit & (1 << 2)) ? 1 : 0; //"Flag_HBHENoiseIsoFilter"
+      metpass    += (metbit & (1 << 3)) ? 1 : 0; //"Flag_EcalDeadCellTriggerPrimitiveFilter"
+      metpass    += (metbit & (1 << 4)) ? 1 : 0; //"Flag_globalSuperTightHalo2016Filter"
+      metpass    += (metbit & (1 << 5)) ? 1 : 0; //"Flag_BadPFMuonFilter"
+      if(!isMC) metpass += (metbit & (1 << 7)) ? 1 : 0; // "Flag_eeBadScFilter" not suggested on twiki; EDIT: now suggested for data (Moriond2018)
+      if (theBigTree.passecalBadCalibFilterUpdate) metpass += 1; //passecalBadCalibFilterUpdate for 2017 and 2018
 
-      //update March2019: "Flag_BadChargedCandidateFilter" removed
+      if(DEBUG)
+      {
+        cout << "metpass: " << metpass << endl;
+        cout << "metfilterbit (int): " << metbit << endl;
+        cout << "metfilterbit (binary):         " << std::bitset<10>(theBigTree.metfilterbit) << endl;
+        cout << "metfilterbit (metbit binary) : " << std::bitset<10>(metbit) << endl;
+        cout << "Flag_goodVertices      : " << (metbit & (1 << 0)) << endl;
+        cout << "Flag_HBHENoiseIsoFilter: " << (metbit & (1 << 2)) << endl;
+        cout << "Flag_BadPFMuonFilter   : " << (metbit & (1 << 5)) << endl;
+        cout << "Flag_HBHENoiseFilter   : " << (metbit & (1 << 1)) << endl;
+        cout << "Flag_EcalDeadCellTriggerPrimitiveFilter: " << (metbit & (1 << 3)) << endl;
+        cout << "Flag_globalSuperTightHalo2016Filter    : " << (metbit & (1 << 4)) << endl;
+        if(!isMC) cout << "Flag_eeBadScFilter: " << (metbit & (1 << 7)) << endl;
+        cout << "passecalBadCalibFilterUpdate:" << (theBigTree.passecalBadCalibFilterUpdate) << endl;
+      }
+
       if(isMC && metpass < 7) continue ;
       if(!isMC && metpass < 8) continue ;   
      
@@ -3241,6 +3253,7 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet1_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet1idx) + theBigTree.bDeepCSV_probbb->at(bjet1idx) ;
         theSmallTree.m_bjet1_bID_deepFlavor  = theBigTree.bDeepFlavor_probb->at(bjet1idx) + theBigTree.bDeepFlavor_probbb->at(bjet1idx) + theBigTree.bDeepFlavor_problepb->at(bjet1idx);
         theSmallTree.m_bjet1_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet1idx) ;
+        theSmallTree.m_bjet1_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at(bjet1idx);
         theSmallTree.m_bjet1_flav = theBigTree.jets_HadronFlavour->at (bjet1idx) ;
         double bjet1_JER = theBigTree.jets_JER->at(bjet1idx);
         theSmallTree.m_bjet1_JER = bjet1_JER ;
@@ -3253,6 +3266,7 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet2_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet2idx) + theBigTree.bDeepCSV_probbb->at(bjet2idx) ;
         theSmallTree.m_bjet2_bID_deepFlavor  = theBigTree.bDeepFlavor_probb->at(bjet2idx) + theBigTree.bDeepFlavor_probbb->at(bjet2idx) + theBigTree.bDeepFlavor_problepb->at(bjet2idx);
         theSmallTree.m_bjet2_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet2idx) ;
+        theSmallTree.m_bjet2_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at(bjet2idx);
         theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
         double bjet2_JER = theBigTree.jets_JER->at(bjet2idx);
         theSmallTree.m_bjet2_JER = bjet2_JER ;
@@ -3887,6 +3901,7 @@ int main (int argc, char** argv)
           theSmallTree.m_VBFjet1_btag       = (theBigTree.bCSVscore->at (VBFidx1)) ;
           theSmallTree.m_VBFjet1_btag_deepCSV = theBigTree.bDeepCSV_probb->at(VBFidx1) + theBigTree.bDeepCSV_probbb->at(VBFidx1) ;
           theSmallTree.m_VBFjet1_btag_deepFlavor = theBigTree.bDeepFlavor_probb->at(VBFidx1) + theBigTree.bDeepFlavor_probbb->at(VBFidx1) + theBigTree.bDeepFlavor_problepb->at(VBFidx1);
+          theSmallTree.m_VBFjet1_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at (VBFidx1) ;
           theSmallTree.m_VBFjet1_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx1)) ;
           theSmallTree.m_VBFjet1_hasgenjet  = hasgj1_VBF ;
           theSmallTree.m_VBFjet2_pt         = VBFjet2.Pt() ;
@@ -3896,6 +3911,7 @@ int main (int argc, char** argv)
           theSmallTree.m_VBFjet2_btag       = (theBigTree.bCSVscore->at (VBFidx2)) ;
           theSmallTree.m_VBFjet2_btag_deepCSV = theBigTree.bDeepCSV_probb->at(VBFidx2) + theBigTree.bDeepCSV_probbb->at(VBFidx2) ;
           theSmallTree.m_VBFjet2_btag_deepFlavor = theBigTree.bDeepFlavor_probb->at(VBFidx2) + theBigTree.bDeepFlavor_probbb->at(VBFidx2) + theBigTree.bDeepFlavor_problepb->at(VBFidx2);
+          theSmallTree.m_VBFjet2_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at (VBFidx2) ;
           theSmallTree.m_VBFjet2_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx2)) ;
           theSmallTree.m_VBFjet2_hasgenjet  = hasgj2_VBF ;
           theSmallTree.m_VBFjet2_PUjetID    = (theBigTree.jets_PUJetID->at (VBFidx2)); // VBF BDT
