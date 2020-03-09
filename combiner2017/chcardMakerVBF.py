@@ -82,7 +82,7 @@ def  writeCard(input,theLambda,select,region=-1) :
 	dname = "_"+opt.channel+opt.outDir
 	out_dir = "cards{1}/{0}/".format(theOutputDir,dname)
 	print "out_dir = ", out_dir
-	#in_dir = "/grid_mnt/vol__vol_U__u/llr/cms/ortona/diHiggs/CMSSW_7_4_7/src/KLUBAnalysis/combiner/cards_MuTauprova/HHSM2b0jMcutBDTMT2/";
+
 	cmb1 = ch.CombineHarvester()
 	cmb1.SetFlag('workspaces-use-clone', True)
 
@@ -109,8 +109,7 @@ def  writeCard(input,theLambda,select,region=-1) :
 
 	#read config
 	categories = []
-	#for icat in range(len(input.selections)) :
-	#	categories.append((icat, input.selections[icat]))
+
 	categories.append((0,select))
 	backgrounds=[]
 	MCbackgrounds=[]
@@ -164,9 +163,7 @@ def  writeCard(input,theLambda,select,region=-1) :
 	cmb1.AddProcesses([theLambda.replace(lambdaName,"")], variables, ['13TeV'], [opt.channel], [lambdaName], categories, True) #signals[0]
 
 	if region < 0 :
-
 		#Systematics (I need to add by hand the shape ones)
-		#potrei sostituire theLambda con "signal"
 		#syst = systReader("../config/systematics.cfg",[theLambda],backgrounds,file)
 		syst = systReader("../config/systematics.cfg",[lambdaName],backgrounds,file)
 		syst.writeOutput(False)
@@ -177,14 +174,8 @@ def  writeCard(input,theLambda,select,region=-1) :
                             syst.addSystFile("../config/systematics_VBFtight.cfg")
 		elif(opt.channel == "MuTau" ): 
 			syst.addSystFile("../config/systematics_mutau.cfg")
-			#if(opt.isResonant):
-			#	syst.addSystFile("../config/systematics_resonant.cfg")
-			#else : syst.addSystFile("../config/systematics_nonresonant.cfg")
 		elif(opt.channel == "ETau" ): 
 			syst.addSystFile("../config/systematics_etau.cfg")
-			#if(opt.isResonant):
-			#	syst.addSystFile("../config/systematics_resonant.cfg")
-			#else : syst.addSystFile("../config/systematics_nonresonant.cfg")
 		if opt.theory : syst.addSystFile("../config/syst_th.cfg")
 		syst.writeSystematics()
                 #print syst.SystNames
@@ -226,11 +217,6 @@ def  writeCard(input,theLambda,select,region=-1) :
 	    #	$PROCESS    --> proc.process()
 	    #	$MASS       --> proc.mass()
 	    #	$SYSTEMATIC --> syst.name()
-#		cmb1.cp().ExtractShapes(
-#			opt.filename,
-#			"$PROCESS_$BIN_{1}_{0}".format(variables[0],regionSuffix[region+1]),
-#			"$PROCESS_$BIN_{1}_{0}_$SYSTEMATIC".format(variables[0],regionSuffix[region+1]))
-
 		cmb1.cp().backgrounds().ExtractShapes(
 			opt.filename,
 			"$PROCESS_$BIN_{1}_{0}".format(variables[0],regionSuffix[region+1]),
@@ -249,12 +235,9 @@ def  writeCard(input,theLambda,select,region=-1) :
 			bbbQCD.MergeBinErrors(cmb1.cp().process(["QCD"]))
 			bbbQCD.AddBinByBin(cmb1.cp().process(["QCD"]), cmb1)
 			bbb.AddBinByBin(cmb1.cp().process(MCbackgrounds), cmb1)
-		#cmb1.cp().PrintProcs().PrintSysts()
 
-		#outroot = TFile.Open(opt.outDir+"/chCard{0}{2}_{1}_{3}.input.root".format(theLambda,opt.channel,regionName[region+1],select),"RECREATE")
-		#outtxt = "hh_{0}_C{1}_L{2}_13TeV.txt".format(theChannel,theCat,theHHLambda)
 		outroot = TFile.Open(out_dir+"hh_{0}_C{1}_L{2}_13TeV.input.root".format(thechannel,theCat,theLambda),"RECREATE")
-		#cmb1.WriteDatacard(out_dir+outFile,out_dir+"hh_{0}_C{1}_L{2}_13TeV.input.root".format(thechannel,theCat,theLambda))
+
                 cmb1.SetGroup("theory", ["QCDscale_VBFHH","pdf_VBFHH","HH_BR_Hbb","HH_BR_Htt"])
                 
                 cmb1.WriteDatacard(out_dir+outFile,outroot)
@@ -266,13 +249,7 @@ def  writeCard(input,theLambda,select,region=-1) :
 		print thechannel,theCat,theLambda #,regionName2[region+1]
 		outFile = "hh_{0}_C{1}_L{2}_13TeV.txt".format(thechannel,theCat,theLambda)
 		#print region, allQCD
-		#print regionName2[region+1]
-		#print outFile
-		#print "hh_"+thechannel#+"_C"+theCat+"_L"+theLambda+"_13TeV_"+regionName[region+1]+".txt"
-		#print "hh_"+thechannel+"_C"+theCat#+"_L"+theLambda+"_13TeV_"+regionName[region+1]+".txt"
-		#print "hh_"+thechannel+"_C"+theCat+"_L"+theLambda#+"_13TeV_"+regionName[region+1]+".txt"
-		#print "hh_"+thechannel+"_C"+theCat+"_L"+theLambda+"_13TeV_"#+regionName[region+1]+".txt"
-		#print outFile
+
 		outFile = "hh_{0}_C{1}_L{2}_13TeV_{3}.txt".format(thechannel,theCat,theLambda,regionName[region+1])
 		file = open( out_dir+outFile, "wb")
 
@@ -354,11 +331,10 @@ else : allSel = [opt.overSel]
 
 if not opt.overLambda == "" :
 	input.signals = [opt.overLambda]
-#C2V = [-20.0, -15.0, -10.0, -4.0, -3.0, -2.0, -1.5, -1.0, 0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 10.0, 15.0, 20.0]
-#C2V = [1.0]
+
+C2V = [1.0]
 CV = [1.0]
-#CV=[-8.0, -6.0, -4.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0]
-C2V=[-4.0, -3.5, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
+#C2V=[-4.0, -3.5, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
 
 input.signals = []
 for c2V in range(len(C2V)) :
