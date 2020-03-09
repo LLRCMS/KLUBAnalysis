@@ -1025,9 +1025,30 @@ int main (int argc, char** argv)
     }
 
   //FRA debug
-  //int debugEvents[2] = {
-  //                      85365648,
-  //                      62741920};
+/*  unsigned long long int debugEvents[22] = {
+50315396,
+645060545,
+682745953,
+1899485,
+553031320,
+560275762,
+236432628,
+1324977377,
+1344300323,
+2168439206,
+2583273332,
+2584625707,
+369174100,
+369407943,
+370296386,
+24890294,
+45269213,
+342779910,
+659329151,
+659822298,
+659962759,
+898649337
+                                           };*/
 
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -1043,19 +1064,19 @@ int main (int argc, char** argv)
       if (got == 0) break;
       bool DEBUG = false;
       //if (theBigTree.EventNumber != debugEvent) continue; //FRA debug
-      //bool goodDebugEvent = false;
-      //for (unsigned int i=0; i<sizeof(debugEvents)/sizeof(*debugEvents); i++) //FRA debug
-      //{
-      //  if (theBigTree.EventNumber == debugEvents[i]) goodDebugEvent = true;
-      //  if (goodDebugEvent)
-      //  {
-      //      DEBUG = true;
-      //      cout << "****** DEBUG: event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
-      //      break;
-      //  }
-      //}
-      //if (!goodDebugEvent) continue;
-
+/*       bool goodDebugEvent = false;
+      for (unsigned int i=0; i<sizeof(debugEvents)/sizeof(*debugEvents); i++) //FRA debug
+      {
+        if (theBigTree.EventNumber == debugEvents[i]) goodDebugEvent = true;
+        if (goodDebugEvent)
+        {
+            DEBUG = true;
+            cout << "****** DEBUG: event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
+            break;
+        }
+      }
+      if (!goodDebugEvent) continue;
+ */
       if (theBigTree.EventNumber == debugEvent )
 	{
 	  cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
