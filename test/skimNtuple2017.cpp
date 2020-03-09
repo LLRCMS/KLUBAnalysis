@@ -1051,10 +1051,49 @@ int main (int argc, char** argv)
     }
 
   //FRA debug
-  //int debugEvents[2] = {
-  //                      85365648,
-  //                      62741920};
+  /*  unsigned long long int debugEvents[31] = {
+    /* 748418029,
+304658214,
+324926136,
+325013260,
+338132804,
+364771716,
+366426623,
+367755419,
+374607795,
+375228245,
+375904312,
+376792343,
+377016060,
+378235770,
+379135855,
+396111678,
+578705153,
+599760262,
+602313118,
+603052431,
+604178059,
+641938063,
+649085398,
+650208721,
+654743099,
+654831393,
+667512923,
+668424098,
+676053699,
+683285380,
+686058464  
 
+547885367,
+335117740,
+348292868,
+390055098,
+393809987,
+638603066,
+647347622,
+684575531
+                                            }; */
+ 
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   for (Long64_t iEvent = 0 ; true ; ++iEvent) 
@@ -1069,19 +1108,19 @@ int main (int argc, char** argv)
       if (got == 0) break;
       bool DEBUG = false;
       //if (theBigTree.EventNumber != debugEvent) continue; //FRA debug
-      //bool goodDebugEvent = false;
-      //for (unsigned int i=0; i<sizeof(debugEvents)/sizeof(*debugEvents); i++) //FRA debug
-      //{
-      //  if (theBigTree.EventNumber == debugEvents[i]) goodDebugEvent = true;
-      //  if (goodDebugEvent)
-      //  {
-      //      DEBUG = true;
-      //      cout << "****** DEBUG: event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
-      //      break;
-      //  }
-      //}
-      //if (!goodDebugEvent) continue;
-
+      /*bool goodDebugEvent = false;
+      for (unsigned int i=0; i<sizeof(debugEvents)/sizeof(*debugEvents); i++) //FRA debug
+      {
+        if (theBigTree.EventNumber == debugEvents[i]) goodDebugEvent = true;
+        if (goodDebugEvent)
+        {
+            DEBUG = true;
+            cout << "****** DEBUG: event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
+            break;
+        }
+      }
+      if (!goodDebugEvent) continue;*/
+ 
       if (theBigTree.EventNumber == debugEvent )
 	{
 	  cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
@@ -2074,9 +2113,15 @@ int main (int argc, char** argv)
         Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
         bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
 
+        if(DEBUG)
+	{
+          cout << "L1 match for first daughter: " << theBigTree.daughters_highestEt_L1IsoTauMatched->at(firstDaughterIndex) << endl;
+          cout << "L1 match for second daughter: " << theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex) << endl;
+        }
+
         // L1 match for 2017 data
-        if (isMC)
-        {
+        //if (isMC) // Commented after March 2020 sync
+        //{
           if (pairType == 2)
           {
             bool passL1IsoTau32 = false;
@@ -2086,7 +2131,7 @@ int main (int argc, char** argv)
             }
             if (!passL1IsoTau32) passTrg = false;
           }
-        }
+	  //}
 
         // !! FIXME !! --> update the trigger bits to the right paths
         // Weight to be applied for IsoMu24, prescaled for ~3fb-1 in 2017
@@ -2919,7 +2964,8 @@ int main (int argc, char** argv)
           cout << "dR(tau2)   : " << tlv_jet.DeltaR (tlv_secondLepton) << " - lepCleaningCone: " << lepCleaningCone << endl;
           cout << "pT < 20    : " << (tlv_jet.Pt () < 20.) << endl;
           cout << "eta > 2.4  : " << (TMath::Abs(tlv_jet.Eta()) > 2.4) << endl;
-          cout << "---------------------------------" << endl;
+          cout << "deepFlavour: " << theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet);
+	  cout << "---------------------------------" << endl;
         }
 
         if (tlv_jet.Pt () < 20.) continue ;
@@ -3042,7 +3088,7 @@ int main (int argc, char** argv)
 
             // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
             // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
-            if ( ijet.Pt()<50. && fabs(ijet.Eta())>2.65 && fabs(ijet.Eta()<3.139) ) continue;
+            //if ( ijet.Pt()<50. && fabs(ijet.Eta())>2.65 && fabs(ijet.Eta()<3.139) ) continue; //Commented during March20 sync
 
             for (unsigned int kJet = iJet+1 ;   (kJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++kJet)
             {
@@ -3075,7 +3121,7 @@ int main (int argc, char** argv)
 
               // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
               // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
-              if ( kjet.Pt()<50. && fabs(kjet.Eta())>2.65 && fabs(kjet.Eta()<3.139) ) continue;
+              //if ( kjet.Pt()<50. && fabs(kjet.Eta())>2.65 && fabs(kjet.Eta()<3.139) ) continue; //Commented during March20 sync
 
               TLorentzVector jetPair = ijet+kjet;
 
@@ -3334,7 +3380,7 @@ int main (int argc, char** argv)
 
           // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
           // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
-          if ( tlv_jet.Pt()<50. && fabs(tlv_jet.Eta())>2.65 && fabs(tlv_jet.Eta()<3.139) ) continue;
+          //if ( tlv_jet.Pt()<50. && fabs(tlv_jet.Eta())>2.65 && fabs(tlv_jet.Eta()<3.139) ) continue; //Commented during March20 sync
 
           // use these jets for HT
           if (tlv_jet.Pt () > 20)
@@ -4014,7 +4060,7 @@ int main (int argc, char** argv)
 
           // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
           // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
-          if ( tlv_dummyJet.Pt()<50. && fabs(tlv_dummyJet.Eta())>2.65 && fabs(tlv_dummyJet.Eta()<3.139) ) continue;
+          //if ( tlv_dummyJet.Pt()<50. && fabs(tlv_dummyJet.Eta())>2.65 && fabs(tlv_dummyJet.Eta()<3.139) ) continue; //Commented during March20 sync
 
           // remove jets that overlap with the tau selected in the leg 1 and 2
           if (tlv_firstLepton.DeltaR(tlv_dummyJet) < lepCleaningCone){
