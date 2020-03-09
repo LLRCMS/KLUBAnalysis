@@ -1051,16 +1051,49 @@ int main (int argc, char** argv)
     }
 
   //FRA debug
-/*   unsigned long long int debugEvents[7] = {
-674638010, 
-676171143, 
-677626838, 
-679408460, 
-680975409, 
-686506309, 
-732902203 
-};
- */
+  /*  unsigned long long int debugEvents[31] = {
+    /* 748418029,
+304658214,
+324926136,
+325013260,
+338132804,
+364771716,
+366426623,
+367755419,
+374607795,
+375228245,
+375904312,
+376792343,
+377016060,
+378235770,
+379135855,
+396111678,
+578705153,
+599760262,
+602313118,
+603052431,
+604178059,
+641938063,
+649085398,
+650208721,
+654743099,
+654831393,
+667512923,
+668424098,
+676053699,
+683285380,
+686058464  
+
+547885367,
+335117740,
+348292868,
+390055098,
+393809987,
+638603066,
+647347622,
+684575531
+                                            }; */
+ 
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   for (Long64_t iEvent = 0 ; true ; ++iEvent) 
@@ -1075,7 +1108,7 @@ int main (int argc, char** argv)
       if (got == 0) break;
       bool DEBUG = false;
       //if (theBigTree.EventNumber != debugEvent) continue; //FRA debug
-/*       bool goodDebugEvent = false;
+      /*bool goodDebugEvent = false;
       for (unsigned int i=0; i<sizeof(debugEvents)/sizeof(*debugEvents); i++) //FRA debug
       {
         if (theBigTree.EventNumber == debugEvents[i]) goodDebugEvent = true;
@@ -1086,8 +1119,8 @@ int main (int argc, char** argv)
             break;
         }
       }
-      if (!goodDebugEvent) continue;
- */
+      if (!goodDebugEvent) continue;*/
+ 
       if (theBigTree.EventNumber == debugEvent )
 	{
 	  cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
@@ -2080,9 +2113,15 @@ int main (int argc, char** argv)
         Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
         bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
 
+        if(DEBUG)
+	{
+          cout << "L1 match for first daughter: " << theBigTree.daughters_highestEt_L1IsoTauMatched->at(firstDaughterIndex) << endl;
+          cout << "L1 match for second daughter: " << theBigTree.daughters_highestEt_L1IsoTauMatched->at(secondDaughterIndex) << endl;
+        }
+
         // L1 match for 2017 data
-        if (isMC)
-        {
+        //if (isMC) // Commented after March 2020 sync
+        //{
           if (pairType == 2)
           {
             bool passL1IsoTau32 = false;
@@ -2092,7 +2131,7 @@ int main (int argc, char** argv)
             }
             if (!passL1IsoTau32) passTrg = false;
           }
-        }
+	  //}
 
         // !! FIXME !! --> update the trigger bits to the right paths
         // Weight to be applied for IsoMu24, prescaled for ~3fb-1 in 2017
