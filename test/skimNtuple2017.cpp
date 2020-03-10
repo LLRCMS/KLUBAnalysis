@@ -2154,10 +2154,13 @@ int main (int argc, char** argv)
           }
         }
 
-        isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta());
+        if (pairType == 2)
+        {
+          isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta());
+        }
 
         bool triggerAccept = false;
-        triggerAccept = passTrg;
+        triggerAccept = passTrg || isVBFfired;
 
         if(DEBUG)
         {
