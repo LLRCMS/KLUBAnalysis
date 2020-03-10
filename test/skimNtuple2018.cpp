@@ -1712,7 +1712,7 @@ int main (int argc, char** argv)
         if (oph.isMuon(dauType))
         {
           bool passMu   = oph.muBaseline (&theBigTree, idau, 20., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
-          bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
+          bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.30, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
 
           if (passMu) ++nmu;
           else if (passMu10) ++nmu10;
@@ -1720,7 +1720,7 @@ int main (int argc, char** argv)
         else if (oph.isElectron(dauType))
         {
           bool passEle   = oph.eleBaseline (&theBigTree, idau, 24., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false));
-          bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false));
+          bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.3, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false));
 
           if (passEle) ++nele;
           else if (passEle10) ++nele10;
@@ -2806,7 +2806,10 @@ int main (int argc, char** argv)
         }
         else if (theBigTree.particleType->at (iLep) == 0) // muons
         {
-          if (!oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuMedium)) continue;
+          // Fra Mar2020: for muon, Tight does not imply Medium so we check both
+          bool passMed = oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuMedium);
+          bool passTig = oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuTight);
+          if (!passMed && !passTig) continue;
         }
         else if (theBigTree.particleType->at (iLep) == 1) // electrons
         {
