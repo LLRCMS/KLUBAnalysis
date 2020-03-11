@@ -1025,30 +1025,12 @@ int main (int argc, char** argv)
     }
 
   //FRA debug
-/*  unsigned long long int debugEvents[22] = {
-50315396,
-645060545,
-682745953,
-1899485,
-553031320,
-560275762,
-236432628,
-1324977377,
-1344300323,
-2168439206,
-2583273332,
-2584625707,
-369174100,
-369407943,
-370296386,
-24890294,
-45269213,
-342779910,
-659329151,
-659822298,
-659962759,
-898649337
-                                           };*/
+  unsigned long long int debugEvents[4] = {
+76401667,
+81719078,
+49083910,
+41120531
+                                           };
 
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -1064,7 +1046,7 @@ int main (int argc, char** argv)
       if (got == 0) break;
       bool DEBUG = false;
       //if (theBigTree.EventNumber != debugEvent) continue; //FRA debug
-/*       bool goodDebugEvent = false;
+       bool goodDebugEvent = false;
       for (unsigned int i=0; i<sizeof(debugEvents)/sizeof(*debugEvents); i++) //FRA debug
       {
         if (theBigTree.EventNumber == debugEvents[i]) goodDebugEvent = true;
@@ -1076,7 +1058,7 @@ int main (int argc, char** argv)
         }
       }
       if (!goodDebugEvent) continue;
- */
+
       if (theBigTree.EventNumber == debugEvent )
 	{
 	  cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
@@ -1712,8 +1694,8 @@ int main (int argc, char** argv)
         }
         else if (oph.isElectron(dauType))
         {
-          bool passEle   = oph.eleBaseline (&theBigTree, idau, 25., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false));
-          bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.3, OfflineProducerHelper::EMVATight, string("All") , (DEBUG ? true : false));
+          bool passEle   = oph.eleBaseline (&theBigTree, idau, 25., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
+          bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.3, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
 
           if (passEle) ++nele;
           else if (passEle10) ++nele10;
@@ -1739,7 +1721,7 @@ int main (int argc, char** argv)
           << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
           << " mutightID=" << setw(3)  << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
           << " mubase="    << setw(3)  << left << oph.muBaseline (&theBigTree, idau, 10., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All"))
-          << " ebase="     << setw(3)  << left << oph.eleBaseline(&theBigTree, idau, 10., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("All"))
+          << " ebase="     << setw(3)  << left << oph.eleBaseline(&theBigTree, idau, 10., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"))
           << endl;
         }
       } // end loop on daughters
@@ -2807,8 +2789,9 @@ int main (int argc, char** argv)
         else if (theBigTree.particleType->at (iLep) == 1) // electrons
         {
           // Fra Mar2020: for electron, we check (mvaEleID-Fall17-iso-V2-wp90 OR (mvaEleID-Fall17-noIso-V2-wp90 AND pfRelIso < 0.3))
-          bool passIso    = oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium, string("Vertex-LepID-pTMin-etaMax"));
-          bool passNonISo = oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium, string("thirdLep"));
+          if (DEBUG) std::cout << "--- Debug for extra electrons:" << std::endl;
+          bool passIso    = oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
+          bool passNonISo = oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium, string("thirdLep"), (DEBUG ? true : false));
           if (!passIso && !passNonISo) continue; // if it passes one of the two --> the "if" is false and the lepton is saved as an extra lepton
         }
 
