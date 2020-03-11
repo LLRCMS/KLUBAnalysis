@@ -1046,7 +1046,7 @@ int main (int argc, char** argv)
       if (got == 0) break;
       bool DEBUG = false;
       //if (theBigTree.EventNumber != debugEvent) continue; //FRA debug
-       bool goodDebugEvent = false;
+/*       bool goodDebugEvent = false;
       for (unsigned int i=0; i<sizeof(debugEvents)/sizeof(*debugEvents); i++) //FRA debug
       {
         if (theBigTree.EventNumber == debugEvents[i]) goodDebugEvent = true;
@@ -1058,7 +1058,7 @@ int main (int argc, char** argv)
         }
       }
       if (!goodDebugEvent) continue;
-
+ */
       if (theBigTree.EventNumber == debugEvent )
 	{
 	  cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
