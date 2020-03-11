@@ -2802,7 +2802,7 @@ int main (int argc, char** argv)
           // Fra Mar2020: for muon, Tight does not imply Medium so we check both
           bool passMed = oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuMedium);
           bool passTig = oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuTight);
-          if (!passMed && !passTig) continue;
+          if (!passMed && !passTig) continue; // if it passes one of the two --> the "if" is false and the lepton is saved as an extra lepton
         }
         else if (theBigTree.particleType->at (iLep) == 1) // electrons
         {
