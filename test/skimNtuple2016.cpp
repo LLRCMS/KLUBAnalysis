@@ -1025,7 +1025,7 @@ int main (int argc, char** argv)
 	}
     }
 
-  //FRA debug
+//FRA debug
 /*unsigned long long int debugEvents[4] = {
 1325696726,
 355916253,
