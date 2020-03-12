@@ -21,12 +21,15 @@ def parseOptions():
     parser.add_option('-f', '--filename',   dest='filename',   type='string', default="",  help='input plots')
     parser.add_option('-o', '--dir', dest='outDir', type='string', default='', help='outdput dir')
     parser.add_option('-c', '--channel',   dest='channel', type='string', default='TauTau',  help='final state')
+    #parser.add_option('-b', '--category',   dest='category', type='int', default='999',  help='btag category')
     parser.add_option('-i', '--config',   dest='config', type='string', default='',  help='config file')
     parser.add_option('-s', '--selection', dest='overSel', type='string', default='', help='overwrite selection string')
     parser.add_option('-l', '--lambda', dest='overLambda', type='string', default='', help='use only this signal sample')
+    #parser.add_option('-v', '--variable', dest='overVar', type='string', default='bH_mass', help='overwrite plot variable (only1D)')
     parser.add_option('-r', '--resonant',  action="store_true",  dest='isResonant', help='is Resonant analysis')
     parser.add_option('-y', '--binbybin',  action="store_true", dest='binbybin', help='add bin by bins systematics')
     parser.add_option('-t', '--theory',  action="store_true", dest='theory', help='add theory systematics')
+    #parser.add_option('-u', '--shape',  action="store_true", dest='shapeUnc', help='add shape uncertainties')
     parser.add_option('-u', '--shape', dest='shapeUnc', type='int', default=1, help='1:add 0:disable shape uncertainties')
 
     # store options and arguments as global variables
@@ -35,7 +38,7 @@ def parseOptions():
     global lambdaName
 
 def hackTheCard(origName,destName) :
-    #I need to do this for the rateParams
+	#I need to do this for the rateParams
     infile = open(origName)
     print "opening",origName,"and sending to",destName
     file = open(destName, "wb")
@@ -79,6 +82,7 @@ def  writeCard(input,theLambda,select,kLambda,region=-1) :
 	dname = "_"+opt.channel+opt.outDir
 	out_dir = "cards{1}/{0}/".format(theOutputDir,dname)
 	print "out_dir = ", out_dir
+	#in_dir = "/grid_mnt/vol__vol_U__u/llr/cms/ortona/diHiggs/CMSSW_7_4_7/src/KLUBAnalysis/combiner/cards_MuTauprova/HHSM2b0jMcutBDTMT2/";
 	cmb1 = ch.CombineHarvester()
 	cmb1.SetFlag('workspaces-use-clone', True)
 
@@ -105,6 +109,8 @@ def  writeCard(input,theLambda,select,kLambda,region=-1) :
 
 	#read config
 	categories = []
+	#for icat in range(len(input.selections)) :
+	#	categories.append((icat, input.selections[icat]))
 	categories.append((0,select))
 	backgrounds=[]
 	MCbackgrounds=[]
@@ -143,7 +149,13 @@ def  writeCard(input,theLambda,select,kLambda,region=-1) :
 
 	if allQCDs[0]>0 and allQCDs[1]>0 and allQCDs[2]>0 and allQCDs[3]>0 : allQCD = True
 	for i in range(4) : print allQCDs[i]
-
+	#add processes to CH
+	#masses->125 
+	#analyses->Res/non-Res(HHKin_fit,MT2)
+	#eras->13TeV 
+	#channels->mutau/tautau/etau 
+	#bin->bjet categories
+	#print signals, signals[0]
 	cmb1.AddObservations([theLambda.replace(lambdaName,"")], variables, ['13TeV'], [opt.channel], categories)
 	cmb1.AddProcesses([theLambda.replace(lambdaName,"")], variables, ['13TeV'], [opt.channel], backgrounds, categories, False)
 	cmb1.AddProcesses([theLambda.replace(lambdaName,"")], variables, ['13TeV'], [opt.channel], [lambdaName], categories, True) #signals[0]
@@ -151,6 +163,8 @@ def  writeCard(input,theLambda,select,kLambda,region=-1) :
 	if region < 0 :
 
 		#Systematics (I need to add by hand the shape ones)
+		#potrei sostituire theLambda con "signal"
+		#syst = systReader("../config/systematics.cfg",[theLambda],backgrounds,file)
 		syst = systReader("../config/systematics.cfg",[lambdaName],backgrounds,file)
 		syst.writeOutput(False)
 		syst.verbose(True)
@@ -160,8 +174,14 @@ def  writeCard(input,theLambda,select,kLambda,region=-1) :
                             syst.addSystFile("../config/systematics_VBFtight.cfg")
 		elif(opt.channel == "MuTau" ): 
 			syst.addSystFile("../config/systematics_mutau.cfg")
-                elif(opt.channel == "ETau" ): 
+			#if(opt.isResonant):
+			#	syst.addSystFile("../config/systematics_resonant.cfg")
+			#else : syst.addSystFile("../config/systematics_nonresonant.cfg")
+		elif(opt.channel == "ETau" ): 
 			syst.addSystFile("../config/systematics_etau.cfg")
+			#if(opt.isResonant):
+			#	syst.addSystFile("../config/systematics_resonant.cfg")
+			#else : syst.addSystFile("../config/systematics_nonresonant.cfg")
 		if opt.theory : syst.addSystFile("../config/syst_th.cfg")
 		syst.writeSystematics()
                 
@@ -192,16 +212,20 @@ def  writeCard(input,theLambda,select,kLambda,region=-1) :
                             
                         if "VBF" in select:
                             if opt.channel== "TauTau": jesproc.remove("WZ")
-                        #cmb1.cp().process(jesproc).AddSyst(cmb1, "CMS_scale_j_13TeV","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
-			#cmb1.cp().process(jesproc).AddSyst(cmb1, "CMS_scale_t_13TeV","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
-                        cmb1.cp().process(jesproc).AddSyst(cmb1, "shape","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
+                        
+                        cmb1.cp().process(jesproc).AddSyst(cmb1, "CMS_scale_j_13TeV","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
+			cmb1.cp().process(jesproc).AddSyst(cmb1, "CMS_scale_t_13TeV","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
+                        #cmb1.cp().process(jesproc).AddSyst(cmb1, "shape","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
 			cmb1.cp().process(["TT"]).AddSyst(cmb1, "top","shape",ch.SystMap('channel','bin_id')([opt.channel],[0],1.000))
 
 	    #	$BIN        --> proc.bin()
 	    #	$PROCESS    --> proc.process()
 	    #	$MASS       --> proc.mass()
 	    #	$SYSTEMATIC --> syst.name()
-
+#		cmb1.cp().ExtractShapes(
+#			opt.filename,
+#			"$PROCESS_$BIN_{1}_{0}".format(variables[0],regionSuffix[region+1]),
+#			"$PROCESS_$BIN_{1}_{0}_$SYSTEMATIC".format(variables[0],regionSuffix[region+1]))
 
 		cmb1.cp().backgrounds().ExtractShapes(
 			opt.filename,
@@ -223,8 +247,10 @@ def  writeCard(input,theLambda,select,kLambda,region=-1) :
 			bbb.AddBinByBin(cmb1.cp().process(MCbackgrounds), cmb1)
 		#cmb1.cp().PrintProcs().PrintSysts()
 
-
+		#outroot = TFile.Open(opt.outDir+"/chCard{0}{2}_{1}_{3}.input.root".format(theLambda,opt.channel,regionName[region+1],select),"RECREATE")
+		#outtxt = "hh_{0}_C{1}_L{2}_13TeV.txt".format(theChannel,theCat,theHHLambda)
 		outroot = TFile.Open(out_dir+"hh_{0}_C{1}_L{2}_13TeV.input.root".format(thechannel,theCat,theLambda),"RECREATE")
+		#cmb1.WriteDatacard(out_dir+outFile,out_dir+"hh_{0}_C{1}_L{2}_13TeV.input.root".format(thechannel,theCat,theLambda))
                 cmb1.SetGroup("theory", ["QCDscale_ggHH","pdf_ggHH","HH_BR_Hbb","HH_BR_Htt"])
                 
                 cmb1.WriteDatacard(out_dir+outFile,outroot)
@@ -270,7 +296,7 @@ def  writeCard(input,theLambda,select,kLambda,region=-1) :
 		file.write("process ")
 		for chan in backgrounds:
 			file.write("{0} ".format(chan))
-
+		#file.write("QCD ")
 		file.write("\n")
 
 		file.write("process ")
@@ -313,11 +339,13 @@ input = configReader(configname)
 input.readInputs()
 
 print input
-
-lambdaName="ggHH_bbtt"
+if opt.isResonant:
+	lambdaName="Radion"
+else:
+	lambdaName="ggHH_bbtt"
 
 if opt.overSel == "" :
-	allSel = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut", "VBFloose", "VBFtight"]
+	allSel = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut"]#, "VBFloose", "VBFtight"]
 else : allSel = [opt.overSel]
 
 if not opt.overLambda == "" :
@@ -328,13 +356,18 @@ for il in range(len(input.signals)) :
 	input.signals[il] = input.signals[il].replace("lambdarew","ggHH_bbtt")	
 	input.signals[il] = input.signals[il].replace("bidimrew","ggHH_bbtt")	
 
-#kLambdas=[-20, -15, -10, -8, -6, -4, -3, -2, -1, 0.001, 1, 2,  3, 2.45,  4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 25, 30]
-kLambdas=[1]
-
+kLambdas=[-20, -15, -10, -8, -6, -4, -3, -2, -1, 0.001, 1, 2,  3, 2.45,  4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 25, 30]
 for (theLambda,kLambda) in zip(input.signals, kLambdas):
 	if not lambdaName in theLambda : 
 		continue
         for sel in allSel : 
+
+
+		#if not "lambda" in theLambda and not "Radion" in theLambda : continue
+#		if opt.isResonant :
+#			if not "Radion" in theLambda : continue
+#		else :
+#			if not "ggHH_bbtt" in theLambda : continue
 	    for ireg in range(-1,3) :
                         print "theLambda = ",theLambda
 			writeCard(input,theLambda,sel,str(kLambda),ireg)
