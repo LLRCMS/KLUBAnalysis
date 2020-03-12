@@ -809,17 +809,18 @@ int main (int argc, char** argv)
   myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_IdAndIso_SF_Legacy/2017/Electron_Run2017_IdIso.root");
 
   // tau IdAndIso SF
-  TauIDSFTool * MVA_antiJet_medium = new TauIDSFTool("2016Legacy","MVAoldDM2017v2","Medium",1);         // for MVA2017v2 vs jets Medium
-  TauIDSFTool * MVA_antiEle_vloose = new TauIDSFTool("2016Legacy","antiEleMVA6"   ,"VLoose");           // for MVA2017v2 vs ele VLoose
-  TauIDSFTool * MVA_antiEle_tight  = new TauIDSFTool("2016Legacy","antiEleMVA6"   ,"Tight");            // for MVA2017v2 vs ele Tight
-  TauIDSFTool * MVA_antiMu_loose   = new TauIDSFTool("2016Legacy","antiMu3"       ,"Loose");            // for MVA2017v2 vs mu Loose
-  TauIDSFTool * MVA_antiMu_tight   = new TauIDSFTool("2016Legacy","antiMu3"       ,"Tight");            // for MVA2017v2 vs mu Tight
+  TauIDSFTool * MVA_antiJet_medium = new TauIDSFTool("2017ReReco","MVAoldDM2017v2","Medium",1);         // for MVA2017v2 vs jets Medium
+  TauIDSFTool * MVA_antiEle_vloose = new TauIDSFTool("2017ReReco","antiEleMVA6"   ,"VLoose");           // for MVA2017v2 vs ele VLoose
+  TauIDSFTool * MVA_antiEle_tight  = new TauIDSFTool("2017ReReco","antiEleMVA6"   ,"Tight");            // for MVA2017v2 vs ele Tight
+  TauIDSFTool * MVA_antiMu_loose   = new TauIDSFTool("2017ReReco","antiMu3"       ,"Loose");            // for MVA2017v2 vs mu Loose
+  TauIDSFTool * MVA_antiMu_tight   = new TauIDSFTool("2017ReReco","antiMu3"       ,"Tight");            // for MVA2017v2 vs mu Tight
 
-  TauIDSFTool * Deep_antiJet_medium  = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets Medium
-  TauIDSFTool * Deep_antiEle_vvloose = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSe"  ,"VVLoose");  // for DeepTauv2p1 vs ele VVLoose
-  TauIDSFTool * Deep_antiEle_tight   = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSe"  ,"Tight");    // for DeepTauv2p1 vs ele Tight
-  TauIDSFTool * Deep_antiMu_loose    = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSmu" ,"Loose");    // for DeepTauv2p1 vs mu Loose
-  TauIDSFTool * Deep_antiMu_tight    = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
+  TauIDSFTool * Deep_antiJet_medium    = new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets Medium
+  TauIDSFTool * Deep_antiJet_medium_pt = new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSjet","Medium");   // for DeepTauv2p1 vs jets Medium
+  TauIDSFTool * Deep_antiEle_vvloose   = new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSe"  ,"VVLoose");  // for DeepTauv2p1 vs ele VVLoose
+  TauIDSFTool * Deep_antiEle_tight     = new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSe"  ,"Tight");    // for DeepTauv2p1 vs ele Tight
+  TauIDSFTool * Deep_antiMu_loose      = new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSmu" ,"Loose");    // for DeepTauv2p1 vs mu Loose
+  TauIDSFTool * Deep_antiMu_tight      = new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
 
   // ------------------------------
 
@@ -1051,48 +1052,20 @@ int main (int argc, char** argv)
     }
 
   //FRA debug
-  /*  unsigned long long int debugEvents[31] = {
-748418029,
-304658214,
-324926136,
-325013260,
-338132804,
-364771716,
-366426623,
-367755419,
-374607795,
-375228245,
-375904312,
-376792343,
-377016060,
-378235770,
-379135855,
-396111678,
-578705153,
-599760262,
-602313118,
-603052431,
-604178059,
-641938063,
-649085398,
-650208721,
-654743099,
-654831393,
-667512923,
-668424098,
-676053699,
-683285380,
-686058464  
-
-547885367,
-335117740,
-348292868,
-390055098,
-393809987,
-638603066,
-647347622,
-684575531
-                                            }; */
+/*unsigned long long int debugEvents[12] = {
+537621112,
+538855447,
+540452948,
+326296633,
+328306950,
+334818534,
+347105759,
+365718739,
+571229876,
+583040266,
+599505758,
+629661432
+};*/ 
  
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -1119,7 +1092,7 @@ int main (int argc, char** argv)
             break;
         }
       }
-      if (!goodDebugEvent) continue;*/
+      if (!goodDebugEvent) continue; */
  
       if (theBigTree.EventNumber == debugEvent )
 	{
@@ -2453,12 +2426,14 @@ int main (int argc, char** argv)
       bool isFakeJet1 = true;
       bool isFakeJet2 = true;
 
-      float idAndIsoSF_MVA  = 1.0;        // use this for MVA2017v2
-      float idAndIsoSF_deep = 1.0;        // use this for DeepTauV2p1
-      float idAndIsoAndFakeSF_MVA  = 1.0; // use this for MVA2017v2 + e/mu->tauh fake SF
-      float idAndIsoAndFakeSF_deep = 1.0; // use this for DeepTauV2p1 + e/mu->tauh fake SF
-      float fakeRateSF_MVA  = 1.0;        // use this for e/mu->tauh fake SF MVA
-      float fakeRateSF_deep = 1.0;        // use this for e/mu->tauh fake SF DeepTau
+      float idAndIsoSF_MVA  = 1.0;           // use this for MVA2017v2
+      float idAndIsoSF_deep = 1.0;           // use this for DeepTauV2p1 DM dependent
+      float idAndIsoSF_deep_pt = 1.0;        // use this for DeepTauV2p1 pt dependent
+      float idAndIsoAndFakeSF_MVA  = 1.0;    // use this for MVA2017v2 + e/mu->tauh fake SF
+      float idAndIsoAndFakeSF_deep = 1.0;    // use this for DeepTauV2p1 DM dependent + e/mu->tauh fake SF
+      float idAndIsoAndFakeSF_deep_pt = 1.0; // use this for DeepTauV2p1 pt dependent + e/mu->tauh fake SF
+      float fakeRateSF_MVA  = 1.0;           // use this for e/mu->tauh fake SF MVA
+      float fakeRateSF_deep = 1.0;           // use this for e/mu->tauh fake SF DeepTau
 
       // MuTau Channel // anti-ele VLoose / anti-mu Tight / anti-jet Medium
       if (pType == 0 && isMC)
@@ -2471,13 +2446,14 @@ int main (int argc, char** argv)
         float tau2DM  = theSmallTree.m_dau2_decayMode;
         float tau2Genmatch = theBigTree.genmatch->at(secondDaughterIndex);
 
-        float idAndIsoSF_leg1      = 1.;
-        float idAndIsoSF_leg2_MVA_vsJet = 1.;
-        float idAndIsoSF_leg2_MVA_vsEle = 1.;
-        float idAndIsoSF_leg2_MVA_vsMu  = 1.;
-        float idAndIsoSF_leg2_deep_vsJet = 1.;
-        float idAndIsoSF_leg2_deep_vsEle = 1.;
-        float idAndIsoSF_leg2_deep_vsMu  = 1.;
+        float idAndIsoSF_leg1               = 1.;
+        float idAndIsoSF_leg2_MVA_vsJet     = 1.;
+        float idAndIsoSF_leg2_MVA_vsEle     = 1.;
+        float idAndIsoSF_leg2_MVA_vsMu      = 1.;
+        float idAndIsoSF_leg2_deep_vsJet    = 1.;
+        float idAndIsoSF_leg2_deep_vsJet_pt = 1.;
+        float idAndIsoSF_leg2_deep_vsEle    = 1.;
+        float idAndIsoSF_leg2_deep_vsMu     = 1.;
 
         if (mu1eta < 2.4)
         {
@@ -2488,9 +2464,10 @@ int main (int argc, char** argv)
         idAndIsoSF_leg2_MVA_vsEle = MVA_antiEle_vloose ->getSFvsEta(tau2eta, tau2Genmatch);
         idAndIsoSF_leg2_MVA_vsMu  = MVA_antiMu_tight   ->getSFvsEta(tau2eta, tau2Genmatch);
 
-        idAndIsoSF_leg2_deep_vsJet = Deep_antiJet_medium  ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
-        idAndIsoSF_leg2_deep_vsEle = Deep_antiEle_vvloose ->getSFvsEta(tau2eta, tau2Genmatch);
-        idAndIsoSF_leg2_deep_vsMu  = Deep_antiMu_tight    ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsJet    = Deep_antiJet_medium   ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsJet_pt = Deep_antiJet_medium_pt->getSFvsPT (tau2pt , tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsEle    = Deep_antiEle_vvloose  ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsMu     = Deep_antiMu_tight     ->getSFvsEta(tau2eta, tau2Genmatch);
 
         if (tau2Genmatch==1 || tau2Genmatch==2 || tau2Genmatch==3 || tau2Genmatch==4 || tau2Genmatch==5)
         {
@@ -2498,9 +2475,11 @@ int main (int argc, char** argv)
         }
 
         idAndIsoSF_MVA  = idAndIsoSF_leg1 * idAndIsoSF_leg2_MVA_vsJet;
-        idAndIsoSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet;
+        idAndIsoSF_deep    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet;
+        idAndIsoSF_deep_pt = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt;
         idAndIsoAndFakeSF_MVA  = idAndIsoSF_leg1 * idAndIsoSF_leg2_MVA_vsJet  * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
         idAndIsoAndFakeSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        idAndIsoAndFakeSF_deep_pt = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
         fakeRateSF_MVA  = idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
         fakeRateSF_deep = idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
 
@@ -2524,13 +2503,14 @@ int main (int argc, char** argv)
         float tau2DM  = theSmallTree.m_dau2_decayMode;
         float tau2Genmatch = theBigTree.genmatch->at(secondDaughterIndex);
 
-        float idAndIsoSF_leg1      = 1.;
-        float idAndIsoSF_leg2_MVA_vsJet = 1.;
-        float idAndIsoSF_leg2_MVA_vsEle = 1.;
-        float idAndIsoSF_leg2_MVA_vsMu  = 1.;
-        float idAndIsoSF_leg2_deep_vsJet = 1.;
-        float idAndIsoSF_leg2_deep_vsEle = 1.;
-        float idAndIsoSF_leg2_deep_vsMu  = 1.;
+        float idAndIsoSF_leg1               = 1.;
+        float idAndIsoSF_leg2_MVA_vsJet     = 1.;
+        float idAndIsoSF_leg2_MVA_vsEle     = 1.;
+        float idAndIsoSF_leg2_MVA_vsMu      = 1.;
+        float idAndIsoSF_leg2_deep_vsJet    = 1.;
+        float idAndIsoSF_leg2_deep_vsJet_pt = 1.;
+        float idAndIsoSF_leg2_deep_vsEle    = 1.;
+        float idAndIsoSF_leg2_deep_vsMu     = 1.;
 
         if (ele1eta < 2.4)
         {
@@ -2541,9 +2521,10 @@ int main (int argc, char** argv)
         idAndIsoSF_leg2_MVA_vsEle = MVA_antiEle_tight  ->getSFvsEta(tau2eta, tau2Genmatch);
         idAndIsoSF_leg2_MVA_vsMu  = MVA_antiMu_loose   ->getSFvsEta(tau2eta, tau2Genmatch);
 
-        idAndIsoSF_leg2_deep_vsJet = Deep_antiJet_medium ->getSFvsDM (tau2pt,  tau2DM, tau2Genmatch);
-        idAndIsoSF_leg2_deep_vsEle = Deep_antiEle_tight  ->getSFvsEta(tau2eta, tau2Genmatch);
-        idAndIsoSF_leg2_deep_vsMu  = Deep_antiMu_loose   ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsJet    = Deep_antiJet_medium    ->getSFvsDM (tau2pt,  tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsJet_pt = Deep_antiJet_medium_pt ->getSFvsPT (tau2pt,  tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsEle    = Deep_antiEle_tight     ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsMu     = Deep_antiMu_loose      ->getSFvsEta(tau2eta, tau2Genmatch);
 
         if (tau2Genmatch==1 || tau2Genmatch==2 || tau2Genmatch==3 || tau2Genmatch==4 || tau2Genmatch==5)
         {
@@ -2552,8 +2533,10 @@ int main (int argc, char** argv)
 
         idAndIsoSF_MVA  = idAndIsoSF_leg1 * idAndIsoSF_leg2_MVA_vsJet;
         idAndIsoSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet;
+        idAndIsoSF_deep_pt = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt;
         idAndIsoAndFakeSF_MVA  = idAndIsoSF_leg1 * idAndIsoSF_leg2_MVA_vsJet  * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
         idAndIsoAndFakeSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        idAndIsoAndFakeSF_deep_pt = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
         fakeRateSF_MVA  = idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
         fakeRateSF_deep = idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
 
@@ -2580,37 +2563,41 @@ int main (int argc, char** argv)
         float tau2DM  = theSmallTree.m_dau2_decayMode;
         float tau2Genmatch = theBigTree.genmatch->at(secondDaughterIndex);
 
-        float idAndIsoSF_leg1_MVA_vsJet = 1.;
-        float idAndIsoSF_leg1_MVA_vsEle = 1.;
-        float idAndIsoSF_leg1_MVA_vsMu  = 1.;
-        float idAndIsoSF_leg1_deep_vsJet = 1.;
-        float idAndIsoSF_leg1_deep_vsEle = 1.;
-        float idAndIsoSF_leg1_deep_vsMu  = 1.;
+        float idAndIsoSF_leg1_MVA_vsJet     = 1.;
+        float idAndIsoSF_leg1_MVA_vsEle     = 1.;
+        float idAndIsoSF_leg1_MVA_vsMu      = 1.;
+        float idAndIsoSF_leg1_deep_vsJet    = 1.;
+        float idAndIsoSF_leg1_deep_vsJet_pt = 1.;
+        float idAndIsoSF_leg1_deep_vsEle    = 1.;
+        float idAndIsoSF_leg1_deep_vsMu     = 1.;
 
-        float idAndIsoSF_leg2_MVA_vsJet = 1.;
-        float idAndIsoSF_leg2_MVA_vsEle = 1.;
-        float idAndIsoSF_leg2_MVA_vsMu  = 1.;
-        float idAndIsoSF_leg2_deep_vsJet = 1.;
-        float idAndIsoSF_leg2_deep_vsEle = 1.;
-        float idAndIsoSF_leg2_deep_vsMu  = 1.;
+        float idAndIsoSF_leg2_MVA_vsJet     = 1.;
+        float idAndIsoSF_leg2_MVA_vsEle     = 1.;
+        float idAndIsoSF_leg2_MVA_vsMu      = 1.;
+        float idAndIsoSF_leg2_deep_vsJet    = 1.;
+        float idAndIsoSF_leg2_deep_vsJet_pt = 1.;
+        float idAndIsoSF_leg2_deep_vsEle    = 1.;
+        float idAndIsoSF_leg2_deep_vsMu     = 1.;
 
         // Leg 1
-        idAndIsoSF_leg1_MVA_vsJet = MVA_antiJet_medium ->getSFvsDM (tau1pt , tau1DM, tau1Genmatch);
-        idAndIsoSF_leg1_MVA_vsEle = MVA_antiEle_vloose ->getSFvsEta(tau1eta, tau1Genmatch);
-        idAndIsoSF_leg1_MVA_vsMu  = MVA_antiMu_loose   ->getSFvsEta(tau1eta, tau1Genmatch);
+        idAndIsoSF_leg1_MVA_vsJet     = MVA_antiJet_medium    ->getSFvsDM (tau1pt , tau1DM, tau1Genmatch);
+        idAndIsoSF_leg1_MVA_vsEle     = MVA_antiEle_vloose    ->getSFvsEta(tau1eta, tau1Genmatch);
+        idAndIsoSF_leg1_MVA_vsMu      = MVA_antiMu_loose      ->getSFvsEta(tau1eta, tau1Genmatch);
 
-        idAndIsoSF_leg1_deep_vsJet = Deep_antiJet_medium  ->getSFvsDM(tau1pt, tau1DM, tau1Genmatch);
-        idAndIsoSF_leg1_deep_vsEle = Deep_antiEle_vvloose ->getSFvsEta(tau1eta, tau1Genmatch);
-        idAndIsoSF_leg1_deep_vsMu  = Deep_antiMu_loose    ->getSFvsEta(tau1eta, tau1Genmatch);
+        idAndIsoSF_leg1_deep_vsJet    = Deep_antiJet_medium   ->getSFvsDM(tau1pt, tau1DM, tau1Genmatch);
+        idAndIsoSF_leg1_deep_vsJet_pt = Deep_antiJet_medium_pt->getSFvsPT(tau1pt, tau1Genmatch);
+        idAndIsoSF_leg1_deep_vsEle    = Deep_antiEle_vvloose  ->getSFvsEta(tau1eta, tau1Genmatch);
+        idAndIsoSF_leg1_deep_vsMu     = Deep_antiMu_loose     ->getSFvsEta(tau1eta, tau1Genmatch);
 
         // Leg 2
-        idAndIsoSF_leg2_MVA_vsJet = MVA_antiJet_medium ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
-        idAndIsoSF_leg2_MVA_vsEle = MVA_antiEle_vloose ->getSFvsEta(tau2eta, tau2Genmatch);
-        idAndIsoSF_leg2_MVA_vsMu  = MVA_antiMu_loose   ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsJet     = MVA_antiJet_medium    ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsEle     = MVA_antiEle_vloose    ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_MVA_vsMu      = MVA_antiMu_loose      ->getSFvsEta(tau2eta, tau2Genmatch);
 
-        idAndIsoSF_leg2_deep_vsJet = Deep_antiJet_medium  ->getSFvsDM(tau2pt, tau2DM, tau2Genmatch);
-        idAndIsoSF_leg2_deep_vsEle = Deep_antiEle_vvloose ->getSFvsEta(tau2eta, tau2Genmatch);
-        idAndIsoSF_leg2_deep_vsMu  = Deep_antiMu_loose    ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsJet    = Deep_antiJet_medium   ->getSFvsDM(tau2pt, tau2DM, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsJet_pt = Deep_antiJet_medium_pt->getSFvsPT(tau2pt, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsEle    = Deep_antiEle_vvloose  ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsMu     = Deep_antiMu_loose     ->getSFvsEta(tau2eta, tau2Genmatch);
 
 
         if (tau1Genmatch==1 || tau1Genmatch==2 || tau1Genmatch==3 || tau1Genmatch==4 || tau1Genmatch==5)
@@ -2625,8 +2612,10 @@ int main (int argc, char** argv)
 
         idAndIsoSF_MVA  = idAndIsoSF_leg1_MVA_vsJet * idAndIsoSF_leg2_MVA_vsJet;
         idAndIsoSF_deep = idAndIsoSF_leg1_deep_vsJet * idAndIsoSF_leg2_deep_vsJet;
+        idAndIsoSF_deep_pt = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsJet_pt;
         idAndIsoAndFakeSF_MVA  = idAndIsoSF_leg1_MVA_vsJet * idAndIsoSF_leg1_MVA_vsEle * idAndIsoSF_leg1_MVA_vsMu * idAndIsoSF_leg2_MVA_vsJet  * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
         idAndIsoAndFakeSF_deep = idAndIsoSF_leg1_deep_vsJet * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        idAndIsoAndFakeSF_deep_pt = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
         fakeRateSF_MVA  = idAndIsoSF_leg1_MVA_vsEle * idAndIsoSF_leg1_MVA_vsMu * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
         fakeRateSF_deep = idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
 
@@ -2702,12 +2691,14 @@ int main (int argc, char** argv)
       }
 
       // Save the IDandISO SF (event per event)
-      theSmallTree.m_IdAndIsoSF_MVA  = (isMC ? idAndIsoSF_MVA  : 1.0);
-      theSmallTree.m_IdAndIsoSF_deep = (isMC ? idAndIsoSF_deep : 1.0);
-      theSmallTree.m_IdAndIsoAndFakeSF_MVA  = (isMC ? idAndIsoAndFakeSF_MVA  : 1.0);
-      theSmallTree.m_IdAndIsoAndFakeSF_deep = (isMC ? idAndIsoAndFakeSF_deep : 1.0);
-      theSmallTree.m_FakeRateSF_MVA  = (isMC ? fakeRateSF_MVA  : 1.0);
-      theSmallTree.m_FakeRateSF_deep = (isMC ? fakeRateSF_deep : 1.0);
+      theSmallTree.m_IdAndIsoSF_MVA            = (isMC ? idAndIsoSF_MVA            : 1.0);
+      theSmallTree.m_IdAndIsoSF_deep           = (isMC ? idAndIsoSF_deep           : 1.0);
+      theSmallTree.m_IdAndIsoSF_deep_pt        = (isMC ? idAndIsoSF_deep_pt        : 1.0);
+      theSmallTree.m_IdAndIsoAndFakeSF_MVA     = (isMC ? idAndIsoAndFakeSF_MVA     : 1.0);
+      theSmallTree.m_IdAndIsoAndFakeSF_deep    = (isMC ? idAndIsoAndFakeSF_deep    : 1.0);
+      theSmallTree.m_IdAndIsoAndFakeSF_deep_pt = (isMC ? idAndIsoAndFakeSF_deep_pt : 1.0);
+      theSmallTree.m_FakeRateSF_MVA            = (isMC ? fakeRateSF_MVA            : 1.0);
+      theSmallTree.m_FakeRateSF_deep           = (isMC ? fakeRateSF_deep           : 1.0);
 
       //Jet faking Tau SF
       //derived from WJet sideband: http://camendol.web.cern.ch/camendol/HH2017/plotsHH2017MuTau/31Oct2018_DYNLO_ctrlWJets_SS/antiB_jets30_tau30_SStight/

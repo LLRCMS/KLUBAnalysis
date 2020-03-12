@@ -45,8 +45,10 @@ struct smallTree
       m_FakeRateSF = -1.;
       m_IdAndIsoSF_MVA = -1.;
       m_IdAndIsoSF_deep = -1.;
+      m_IdAndIsoSF_deep_pt = -1.;
       m_IdAndIsoAndFakeSF_MVA = -1.;
       m_IdAndIsoAndFakeSF_deep = -1.;
+      m_IdAndIsoAndFakeSF_deep_pt = -1.;
       m_FakeRateSF_MVA = -1.;
       m_FakeRateSF_deep = -1.;
       m_jetFakeSF = -1.;
@@ -602,8 +604,10 @@ struct smallTree
       m_smallT->Branch ("jetFakeSF", &m_jetFakeSF, "jetFakeSF/F") ;
       m_smallT->Branch ("IdAndIsoSF_MVA", &m_IdAndIsoSF_MVA, "IdAndIsoSF_MVA/F") ;
       m_smallT->Branch ("IdAndIsoSF_deep", &m_IdAndIsoSF_deep, "IdAndIsoSF_deep/F") ;
+      m_smallT->Branch ("IdAndIsoSF_deep_pt", &m_IdAndIsoSF_deep_pt, "IdAndIsoSF_deep_pt/F") ;
       m_smallT->Branch ("IdAndIsoAndFakeSF_MVA", &m_IdAndIsoAndFakeSF_MVA, "IdAndIsoAndFakeSF_MVA/F") ;
       m_smallT->Branch ("IdAndIsoAndFakeSF_deep", &m_IdAndIsoAndFakeSF_deep, "IdAndIsoAndFakeSF_deep/F") ;
+      m_smallT->Branch ("IdAndIsoAndFakeSF_deep_pt", &m_IdAndIsoAndFakeSF_deep_pt, "IdAndIsoAndFakeSF_deep_pt/F") ;
       m_smallT->Branch ("FakeRateSF_MVA", &m_FakeRateSF_MVA, "FakeRateSF_MVA/F") ;
       m_smallT->Branch ("FakeRateSF_deep", &m_FakeRateSF_deep, "FakeRateSF_deep/F") ;
       m_smallT->Branch ("DYscale_LL", &m_DYscale_LL, "DYscale_LL/F") ;
@@ -1153,8 +1157,10 @@ struct smallTree
   Float_t m_jetFakeSF ;
   Float_t m_IdAndIsoSF_MVA ;
   Float_t m_IdAndIsoSF_deep ;
+  Float_t m_IdAndIsoSF_deep_pt ;
   Float_t m_IdAndIsoAndFakeSF_MVA ;
   Float_t m_IdAndIsoAndFakeSF_deep ;
+  Float_t m_IdAndIsoAndFakeSF_deep_pt ;
   Float_t m_FakeRateSF_MVA;
   Float_t m_FakeRateSF_deep;
   Float_t m_DYscale_LL ;
