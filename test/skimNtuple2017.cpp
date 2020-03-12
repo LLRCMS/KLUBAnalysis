@@ -2132,12 +2132,15 @@ int main (int argc, char** argv)
         {
           isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta());
         }
+        else
+          isVBFfired = false;
 
         bool triggerAccept = false;
         triggerAccept = passTrg || isVBFfired;
 
         if(DEBUG)
         {
+          cout << "---> isVBFfired?  "<<isVBFfired<<endl;
           if(pairType == 0)//MuTau
           {
             trigReader.listMuTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
@@ -2880,7 +2883,7 @@ int main (int argc, char** argv)
           // Fra Mar2020: for electron, we check (mvaEleID-Fall17-iso-V2-wp90 OR (mvaEleID-Fall17-noIso-V2-wp90 AND pfRelIso < 0.3))
           if (DEBUG) std::cout << "--- Debug for extra electrons:" << std::endl;
           bool passIso    = oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
-          bool passNonISo = oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium, string("thirdLep"), (DEBUG ? true : false));
+          bool passNonISo = oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium, string("Vertex-pTMin-etaMax-thirdLep"), (DEBUG ? true : false));
           if (!passIso && !passNonISo) continue; // if it passes one of the two --> the "if" is false and the lepton is saved as an extra lepton
         }
 
