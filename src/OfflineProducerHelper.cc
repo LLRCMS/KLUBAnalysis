@@ -323,49 +323,62 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
     TLorentzVector p4 (px, py, pz, e);
  
     // bypasser(s) and taker according to the string content
-    bool byp_vertexS = false;
-    bool byp_idS  = false;
-    bool byp_isoS = false;
-    bool byp_ptS  = false;
-    bool byp_etaS = false;
+    bool byp_vertexS  = false;
+    bool byp_idS      = false;
+    bool byp_ptS      = false;
+    bool byp_etaS     = false;
+    bool byp_isoS     = false;
+    bool byp_noISOidS = false;
 
     // whatApply: use "All", "Iso", "LepID", pTMin", "etaMax", "againstEle", "againstMu", "Vertex", "SScharge"; separate various arguments with a semicolon
     if (!whatApply.Contains("All") && 
         !whatApply.Contains("SScharge") && 
         !whatApply.Contains("OScharge"))
     {
-      byp_vertexS = byp_idS = byp_isoS = byp_ptS = byp_etaS = true;
+      byp_vertexS = byp_idS = byp_isoS = byp_ptS = byp_etaS = byp_noISOidS = true;  // For signal elect and first lepton veto: first bypass all...
       // set selections
-      if (whatApply.Contains("Vertex")) byp_vertexS = false; 
-      if (whatApply.Contains("Iso"))    byp_isoS = false; 
+      if (whatApply.Contains("Vertex")) byp_vertexS = false;                        // ...then use only these four selections
       if (whatApply.Contains("LepID"))  byp_idS = false; 
       if (whatApply.Contains("pTMin"))  byp_ptS = false; 
       if (whatApply.Contains("etaMax")) byp_etaS = false;
+      if (whatApply.Contains("thirdLep"))                                           // For second lepton veto use noISO-MVA and relIso
+      {                                                                             // instead of ISO-MVA
+        byp_isoS     = false; // use pfRelIso < 0.3
+        byp_noISOidS = false; // use    nonIsoMVA (mvaEleID-Fall17-noIso-V2-wp90)
+        byp_idS      = true;  // bypass IsoMVA    (mvaEleID-Fall17-Iso-V2-wp90)
+      }
     }
 
     bool vertexS = (fabs(tree->dxy->at(iDau)) < 0.045 && fabs(tree->dz->at(iDau)) < 0.2) || byp_vertexS;
     bool ptS = (p4.Pt() > ptMin) || byp_ptS;
     bool etaS = (fabs(p4.Eta()) < etaMax) || byp_etaS;
+    bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
     bool idS = false;
+    bool nISOidS = false;
     if (MVAIDflag == 0) // Tight = 80%
     {
       idS = tree->daughters_iseleWP80->at(iDau) || byp_idS ;
+      nISOidS = tree->daughters_iseleNoIsoWP80->at(iDau) || byp_noISOidS;
     }
     else if (MVAIDflag == 1) // Medium = 90 %
     {
       idS = tree->daughters_iseleWP90->at(iDau) || byp_idS ;
+      nISOidS = tree->daughters_iseleNoIsoWP90->at(iDau) || byp_noISOidS;
     }
     else // Loose WP
     {
       idS = tree->daughters_iseleWPLoose->at(iDau) || byp_idS ;
+      nISOidS = tree->daughters_iseleNoIsoWPLoose->at(iDau) || byp_noISOidS;
     }
     
-    bool totalS = (vertexS && idS && ptS && etaS);
+    bool totalS = (vertexS && idS && ptS && etaS && isoS && nISOidS);
 
     if (debug)
     {
       cout << "@ ele baseline" << endl;
       cout << " idS     "  << idS     << " skypped? " << byp_idS << endl;
+      cout << " nISOidS "  << nISOidS << " skypped? " << byp_noISOidS << endl;
+      cout << " isoS    "  << isoS    << " skypped? " << byp_isoS << endl;
       cout << " vertexS "  << vertexS << " skypped? " << byp_vertexS << endl;
       cout << " ptS     "  << ptS     << " skypped? " << byp_ptS << endl;
       cout << " etaS    "  << etaS    << " skypped? " << byp_etaS << endl;
