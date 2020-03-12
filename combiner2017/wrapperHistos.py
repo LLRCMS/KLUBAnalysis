@@ -38,55 +38,57 @@ if opt.analysis == "GGF":
 elif opt.analysis == "VBF":
     procnames = [ "TT", "WJets", "TW","EWK", "WW", "WW", "WZ", "ZH","other",  "ZZ", "DY0b","DY1b", "DY2b","GGF_xs", "VBFHH_CV_"]
 
-for sel in selnames:
-    for proc in procnames:
-        template_syst = []
-        ih = 0
-        for key in inFile.GetListOfKeys() :
-        	ih = ih + 1
-        	if (ih%100 == 0) : print key,ih,"/",toth
-        	kname = key.GetName()
-                if "BDToutSM" in kname and sel in kname and proc in kname:
-                    if opt.analysis == "GGF":
-                        template_syst.append(inFile.Get(kname))
-        
-        for i, k in enumerate(template_syst):
 
-            histo_syst_up = k.Clone()
-            histo_syst_down = k.Clone()
-            histo_syst_up.SetName(k.GetName().replace("lambdarew","ggHH_bbtt")+"_shapeUp")
-            histo_syst_up.SetTitle(k.GetTitle().replace("lambdarew","ggHH_bbtt")+"_shapeUp")
-            histo_syst_down.SetName(k.GetName().replace("lambdarew","ggHH_bbtt")+"_shapeDown")
-            histo_syst_down.SetTitle(k.GetTitle().replace("lambdarew","ggHH_bbtt")+"_shapeDown")
-        
-            for bin in range(0, k.GetNbinsX()+1):
-                maxbin = max([histo.GetBinContent(bin) for histo  in template_syst])
-           
-                minbin = min([histo.GetBinContent(bin) for histo  in template_syst])
-           
-                if minbin < 0: minbin = 0.0001
-                if maxbin < 0: maxbin = 0.0001
-                histo_syst_up.SetBinContent(bin,maxbin)
-                histo_syst_down.SetBinContent(bin,minbin)
-
-            if histo_syst_up.Integral() > 0.0001:
-                histo_syst_up.Scale(k.Integral()/histo_syst_up.Integral())
-            else:
-                histo_syst_up = k.Clone()
-                histo_syst_up.SetName(k.GetName().replace("lambdarew","ggHH_bbtt")+"_shapeUp")
-                histo_syst_up.SetTitle(k.GetTitle().replace("lambdarew","ggHH_bbtt")+"_shapeUp")
-
-            if histo_syst_down.Integral() > 0.0001:
-                histo_syst_down.Scale(k.Integral()/histo_syst_down.Integral())
-            else:
-                histo_syst_down = k.Clone()
-                histo_syst_down.SetName(k.GetName().replace("lambdarew","ggHH_bbtt")+"_shapeDown")
-                histo_syst_down.SetTitle(k.GetTitle().replace("lambdarew","ggHH_bbtt")+"_shapeDown")
-
-
-             
-            histos_syst_up.append(histo_syst_up)
-            histos_syst_down.append(histo_syst_down)
+#only for kL scan
+#for sel in selnames:
+#    for proc in procnames:
+#        template_syst = []
+#        ih = 0
+#        for key in inFile.GetListOfKeys() :
+#        	ih = ih + 1
+#        	if (ih%100 == 0) : print key,ih,"/",toth
+#        	kname = key.GetName()
+#                if "BDToutSM" in kname and sel in kname and proc in kname:
+#                    if opt.analysis == "GGF":
+#                        template_syst.append(inFile.Get(kname))
+#        
+#        for i, k in enumerate(template_syst):
+#
+#            histo_syst_up = k.Clone()
+#            histo_syst_down = k.Clone()
+#            histo_syst_up.SetName(k.GetName().replace("lambdarew","ggHH_bbtt")+"_shapeUp")
+#            histo_syst_up.SetTitle(k.GetTitle().replace("lambdarew","ggHH_bbtt")+"_shapeUp")
+#            histo_syst_down.SetName(k.GetName().replace("lambdarew","ggHH_bbtt")+"_shapeDown")
+#            histo_syst_down.SetTitle(k.GetTitle().replace("lambdarew","ggHH_bbtt")+"_shapeDown")
+#        
+#            for bin in range(0, k.GetNbinsX()+1):
+#                maxbin = max([histo.GetBinContent(bin) for histo  in template_syst])
+#           
+#                minbin = min([histo.GetBinContent(bin) for histo  in template_syst])
+#           
+#                if minbin < 0: minbin = 0.0001
+#                if maxbin < 0: maxbin = 0.0001
+#                histo_syst_up.SetBinContent(bin,maxbin)
+#                histo_syst_down.SetBinContent(bin,minbin)
+#
+#            if histo_syst_up.Integral() > 0.0001:
+#                histo_syst_up.Scale(k.Integral()/histo_syst_up.Integral())
+#            else:
+#                histo_syst_up = k.Clone()
+#                histo_syst_up.SetName(k.GetName().replace("lambdarew","ggHH_bbtt")+"_shapeUp")
+#                histo_syst_up.SetTitle(k.GetTitle().replace("lambdarew","ggHH_bbtt")+"_shapeUp")
+#
+#            if histo_syst_down.Integral() > 0.0001:
+#                histo_syst_down.Scale(k.Integral()/histo_syst_down.Integral())
+#            else:
+#                histo_syst_down = k.Clone()
+#                histo_syst_down.SetName(k.GetName().replace("lambdarew","ggHH_bbtt")+"_shapeDown")
+#                histo_syst_down.SetTitle(k.GetTitle().replace("lambdarew","ggHH_bbtt")+"_shapeDown")
+#
+#
+#             
+#            histos_syst_up.append(histo_syst_up)
+#            histos_syst_down.append(histo_syst_down)
 
 ih = 0
 
