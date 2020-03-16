@@ -1052,20 +1052,10 @@ int main (int argc, char** argv)
     }
 
   //FRA debug
-/*unsigned long long int debugEvents[12] = {
-537621112,
-538855447,
-540452948,
-326296633,
-328306950,
-334818534,
-347105759,
-365718739,
-571229876,
-583040266,
-599505758,
-629661432
-};*/ 
+/*unsigned long long int debugEvents[2] = {
+57924,
+59095
+};*/
  
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -2128,7 +2118,7 @@ int main (int argc, char** argv)
         }
 
         // Remember: isVBFfired means it passed ONLY a VBF trigger
-        if (pairType == 2)
+        if (pairType == 2 && !passTrg)
         {
           isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta());
         }
@@ -2152,6 +2142,7 @@ int main (int argc, char** argv)
           if(pairType == 2)//TauTau
           {
             trigReader.listTauTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
+            trigReader.listVBF(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta());
           }
         }
 
@@ -2969,8 +2960,8 @@ int main (int argc, char** argv)
           cout << "dR(tau2)   : " << tlv_jet.DeltaR (tlv_secondLepton) << " - lepCleaningCone: " << lepCleaningCone << endl;
           cout << "pT < 20    : " << (tlv_jet.Pt () < 20.) << endl;
           cout << "eta > 2.4  : " << (TMath::Abs(tlv_jet.Eta()) > 2.4) << endl;
-          cout << "deepFlavour: " << theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet);
-	  cout << "---------------------------------" << endl;
+          cout << "deepFlavour: " << theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet) << endl;
+          cout << "---------------------------------" << endl;
         }
 
         if (tlv_jet.Pt () < 20.) continue ;
@@ -3174,6 +3165,12 @@ int main (int argc, char** argv)
               }
             }
           }
+        }
+
+        if (isVBFfired && !isVBF)
+        {
+          if(DEBUG) cout << "---> Evt rejected because (isVBFfired && !isVBF) (VBF trig fired but no good VBF jet candidates available)" << endl;
+          continue;
         }
 
         if (isVBF)
