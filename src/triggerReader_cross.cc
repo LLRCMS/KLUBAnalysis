@@ -950,152 +950,105 @@ void triggerReader_cross::listMuTau  (Long64_t triggerbit_1, Long64_t matchFlag1
 
 bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double eta_tau1, double pt_tau2, double eta_tau2)
 {
-
-    // Clean the ttCrossTriggers from the VBF triggers
-    std::vector<Long64_t> _ttCrossCleaned = _ttCrossTriggers;
-    for (unsigned int i=0; i < _ttCrossCleaned.size(); i++)
+  bool OR = false;
+  bool match1 = false;
+  bool match2 = false;
+  bool goodType1 = false;
+  bool goodType2 = false;
+  bool _trgNoOverlap = false;
+  bool match = false;
+  bool goodType = false;
+  std::string firedPath;
+  bool ptCut = false;
+  bool etaCut1 = false;
+  bool etaCut2 = false;
+  for (unsigned int i = 0; i < _vbfTriggers.size(); i++)
+  {
+    OR = CheckBit (triggerbit_1, _vbfTriggers.at(i));
+    if (OR)
     {
-      for (unsigned int j=0; j < _vbfTriggers.size(); j++)
+      match1 = CheckBit (matchFlag1, _vbfTriggers.at(i));
+      match2 = CheckBit (matchFlag2, _vbfTriggers.at(i));
+      match = match1 && match2;
+      goodType1 = CheckBit (goodTriggerType1, _vbfTriggers.at(i));
+      goodType2 = CheckBit (goodTriggerType2, _vbfTriggers.at(i));
+      goodType = goodType1 && goodType2;
+      _trgNoOverlap = CheckBit (trgNoOverlap, _vbfTriggers.at(i));
+
+      if (match && _trgNoOverlap && goodType)
       {
-        if (_ttCrossCleaned.at(i) == _vbfTriggers.at(j)) _ttCrossCleaned.erase(_ttCrossCleaned.begin() + i);
+        firedPath = _allTriggers.at(_vbfTriggers.at(i));
+        boost::regex re_tau1{"Tau(\\d+)|TauHPS(\\d+)"};
+        boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
+        ptCut = checkPtCutCross(OR, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 5.0, 5.0);
+        etaCut1 = (fabs(eta_tau1) < 2.1); //tau threshold
+        etaCut2 = (fabs(eta_tau2) < 2.1); //tau threshold
+      }
+      else
+      {
+        ptCut = false;
+        etaCut1 = false;
+        etaCut2 = false;
       }
     }
+    if (!(OR && match && _trgNoOverlap && goodType && ptCut && etaCut1 && etaCut2)) OR = false;
+    if (OR) break;
+  }
+  return OR;
+}
 
-    // Use this list to check that the event does NOT pass any trigger (except for VBF)
-    // Check the crossTriggers (cleaned from the VBF)
-    bool OR_2     = false;
-    bool match1_2 = false;
-    bool match2_2 = false;
-    bool goodType1_2 = false;
-    bool goodType2_2 = false;
-    bool _trgNoOverlap_2 = false;
-    bool match_2 = false;
-    bool goodType_2 = false;
-    std::string firedPath_2;
-    bool ptCut_2 = false;
-    bool etaCut1_2 = false;
-    bool etaCut2_2 = false;
-    for (unsigned int i = 0; i < _ttCrossCleaned.size(); i++)
-    {
-      OR_2 = CheckBit (triggerbit_1, _ttCrossCleaned.at(i));
-      if (OR_2)
-      {
-        match1_2 = CheckBit (matchFlag1, _ttCrossCleaned.at(i));
-        match2_2 = CheckBit (matchFlag2, _ttCrossCleaned.at(i));
-        match_2 = match1_2 && match2_2;
-        goodType1_2 = CheckBit (goodTriggerType1, _ttCrossCleaned.at(i));
-        goodType2_2 = CheckBit (goodTriggerType2, _ttCrossCleaned.at(i));
-        goodType_2 = goodType1_2 && goodType2_2;
-        _trgNoOverlap_2 = CheckBit (trgNoOverlap, _ttCrossCleaned.at(i));
-
-        if (match_2 && _trgNoOverlap_2 && goodType_2)
-        {
-          firedPath_2 = _allTriggers.at(_ttCrossCleaned.at(i));
-          boost::regex re_tau1{"Tau(\\d+)|TauHPS(\\d+)"};
-          boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
-          //ptCut_2 = checkPtCutCross(OR_2, firedPath_2, re_tau1, re_tau2, pt_tau1, pt_tau2, 5.0, 5.0);
-          ptCut_2 = (pt_tau1 > 40. && pt_tau2 > 40.); // suggested by tauTrigger Group
-          etaCut1_2 = (fabs(eta_tau1) < 2.1); //tau threshold
-          etaCut2_2 = (fabs(eta_tau2) < 2.1); //tau threshold
-        }
-        else
-        {
-          ptCut_2 = false;
-          etaCut1_2 = false;
-          etaCut2_2 = false;
-        }
-      }
-      if (!(OR_2 && match_2 && _trgNoOverlap_2 && goodType_2 && ptCut_2 && etaCut1_2 && etaCut2_2)) OR_2 = false;
-      if (OR_2) break;
-    }
-    // Check the singleTriggers
-    if (!OR_2)
-    {
-      for (unsigned int i = 0; i < _ttTriggers.size(); i++)
-      {
-        OR_2 = CheckBit (triggerbit_1, _ttTriggers.at(i));
-        if (OR_2)
-        {
-          match1_2 = CheckBit (matchFlag1, _ttTriggers.at(i));
-          match2_2 = true;
-          match_2 = match1_2 && match2_2;
-          goodType1_2 = CheckBit (goodTriggerType1, _ttTriggers.at(i));
-          goodType2_2 = true;
-          goodType_2 = goodType1_2 && goodType2_2;
-          _trgNoOverlap_2 = CheckBit (trgNoOverlap, _ttTriggers.at(i));
-
-          if (match_2 && _trgNoOverlap_2 && goodType_2)
-          {
-            firedPath_2 = _allTriggers.at(_ttTriggers.at(i));
-            boost::regex re_tau1{"Tau(\\d+)|TauHPS(\\d+)"};
-            ptCut_2 = checkPtCutSingle(OR_2, firedPath_2, re_tau1, pt_tau1, 5.0);
-            etaCut1_2 = (fabs(eta_tau1) < 2.1); //tau threshold
-            etaCut2_2 = (fabs(eta_tau2) < 2.1); //tau threshold
-          }
-          else
-          {
-            ptCut_2 = false;
-            etaCut1_2 = false;
-            etaCut2_2 = false;
-          }
-        }
-        if (!(OR_2 && match_2 && _trgNoOverlap_2 && goodType_2 && ptCut_2 && etaCut1_2 && etaCut2_2)) OR_2 = false;
-        if (OR_2) break;
-      }
-    }
-
-    // Finally check if the event passes at least one of the VBF triggers only
-    bool OR = false;
-
-    // if it passed some other trigger (not VBF), then return false because the event could be NOT ONLY VBF
-    if (OR_2)
-        return OR;
-    // else check if maybe it passed a VBF trigger, in this case for sure is VBF ONLY
+void triggerReader_cross::listVBF (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double eta_tau1, double pt_tau2, double eta_tau2)
+{
+  bool OR = false;
+  bool match1 = false;
+  bool match2 = false;
+  bool goodType1 = false;
+  bool goodType2 = false;
+  bool _trgNoOverlap = false;
+  bool match = false;
+  bool goodType = false;
+  std::string firedPath;
+  bool ptCut = false;
+  bool etaCut1 = false;
+  bool etaCut2 = false;
+  for (unsigned int i = 0; i < _vbfTriggers.size(); i++)
+  {
+    OR = CheckBit (triggerbit_1, _vbfTriggers.at(i));
+    if (OR)
+      cout <<"** trg: VBF fired: "<<_allTriggers.at(_vbfTriggers.at(i))<<endl;
     else
-    {
-      bool match1 = false;
-      bool match2 = false;
-      bool goodType1 = false;
-      bool goodType2 = false;
-      bool _trgNoOverlap = false;
-      bool match = false;
-      bool goodType = false;
-      std::string firedPath;
-      bool ptCut = false;
-      bool etaCut1 = false;
-      bool etaCut2 = false;
-      for (unsigned int i = 0; i < _vbfTriggers.size(); i++)
-      {
-        OR = CheckBit (triggerbit_1, _vbfTriggers.at(i));
-        if (OR)
-        {
-          match1 = CheckBit (matchFlag1, _vbfTriggers.at(i));
-          match2 = CheckBit (matchFlag2, _vbfTriggers.at(i));
-          match = match1 && match2;
-          goodType1 = CheckBit (goodTriggerType1, _vbfTriggers.at(i));
-          goodType2 = CheckBit (goodTriggerType2, _vbfTriggers.at(i));
-          goodType = goodType1 && goodType2;
-          _trgNoOverlap = CheckBit (trgNoOverlap, _vbfTriggers.at(i));
+      cout <<"** trg: VBF NOT fired: "<<_allTriggers.at(_vbfTriggers.at(i))<<endl;
 
-          if (match && _trgNoOverlap && goodType)
-          {
-            firedPath = _allTriggers.at(_vbfTriggers.at(i));
-            boost::regex re_tau1{"Tau(\\d+)|TauHPS(\\d+)"};
-            boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
-            ptCut = checkPtCutCross(OR, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 5.0, 5.0);
-            etaCut1 = (fabs(eta_tau1) < 2.1); //tau threshold
-            etaCut2 = (fabs(eta_tau2) < 2.1); //tau threshold
-          }
-          else
-          {
-            ptCut = false;
-            etaCut1 = false;
-            etaCut2 = false;
-          }
-        }
-        if (!(OR && match && _trgNoOverlap && goodType && ptCut && etaCut1 && etaCut2)) OR = false;
-        if (OR) break;
+    if (OR)
+    {
+      match1 = CheckBit (matchFlag1, _vbfTriggers.at(i));
+      match2 = CheckBit (matchFlag2, _vbfTriggers.at(i));
+      match = match1 && match2;
+      goodType1 = CheckBit (goodTriggerType1, _vbfTriggers.at(i));
+      goodType2 = CheckBit (goodTriggerType2, _vbfTriggers.at(i));
+      goodType = goodType1 && goodType2;
+      _trgNoOverlap = CheckBit (trgNoOverlap, _vbfTriggers.at(i));
+
+      if (match && _trgNoOverlap && goodType)
+      {
+        firedPath = _allTriggers.at(_vbfTriggers.at(i));
+        boost::regex re_tau1{"Tau(\\d+)|TauHPS(\\d+)"};
+        boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
+        ptCut = checkPtCutCross(OR, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 5.0, 5.0);
+        etaCut1 = (fabs(eta_tau1) < 2.1); //tau threshold
+        etaCut2 = (fabs(eta_tau2) < 2.1); //tau threshold
+      }
+      else
+      {
+        ptCut = false;
+        etaCut1 = false;
+        etaCut2 = false;
       }
     }
-    return OR;
+    cout <<"   matchFlag    "<< match<<endl;
+    cout <<"   trgNoOverlap "<< _trgNoOverlap<<endl;
+    cout <<"   goodType     "<< goodType<<endl;
+    cout <<"   ptCut        "<< ptCut<<endl;
+    cout <<"   etaCut1      "<< (etaCut1 && etaCut2)<<endl;
+  }
 }
