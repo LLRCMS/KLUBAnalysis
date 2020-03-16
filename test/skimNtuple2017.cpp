@@ -3120,10 +3120,6 @@ int main (int argc, char** argv)
               //if ( kjet.Pt()<50. && fabs(kjet.Eta())>2.65 && fabs(kjet.Eta()<3.139) ) continue; //Commented during March20 sync
 
               TLorentzVector jetPair = ijet+kjet;
-
-              bool VBFjetLegsMatched = true;
-              if (isVBFfired) VBFjetLegsMatched = checkVBFjetMatch(DEBUG, iJet, kJet, theBigTree);
-              if (isVBFfired && !VBFjetLegsMatched) continue;
               VBFcand_Mjj.push_back(make_tuple(jetPair.M(),iJet,kJet));
             }
           }
@@ -3171,6 +3167,17 @@ int main (int argc, char** argv)
         {
           if(DEBUG) cout << "---> Evt rejected because (isVBFfired && !isVBF) (VBF trig fired but no good VBF jet candidates available)" << endl;
           continue;
+        }
+
+        // Check that the the VBFjet-pair candidate is trigger matched
+        if (isVBFfired && isVBF)
+        {
+          bool VBFjetLegsMatched = checkVBFjetMatch(DEBUG, VBFidx1, VBFidx2, theBigTree);
+          if (!VBFjetLegsMatched)
+          {
+            if(DEBUG) cout << "---> Evt rejected because VBFjet-pair candidate is not trigger matched" << endl;
+            continue;
+          }
         }
 
         if (isVBF)
@@ -4230,8 +4237,8 @@ int main (int argc, char** argv)
       {
         cout << "--- VBF jets ---" << endl;
         cout << "isVBF: " << theSmallTree.m_isVBF << endl;
-        cout << "VBF1(pt,eta,phi): " << theSmallTree.m_VBFjet1_pt << " / " << theSmallTree.m_VBFjet1_eta << " / " << theSmallTree.m_VBFjet1_phi << endl;
-        cout << "VBF2(pt,eta,phi): " << theSmallTree.m_VBFjet2_pt << " / " << theSmallTree.m_VBFjet2_eta << " / " << theSmallTree.m_VBFjet2_phi << endl;
+        cout << "VBF1(pt,eta,phi,e): " << theSmallTree.m_VBFjet1_pt << " / " << theSmallTree.m_VBFjet1_eta << " / " << theSmallTree.m_VBFjet1_phi << " / " << theSmallTree.m_VBFjet1_e << endl;
+        cout << "VBF2(pt,eta,phi,e): " << theSmallTree.m_VBFjet2_pt << " / " << theSmallTree.m_VBFjet2_eta << " / " << theSmallTree.m_VBFjet2_phi << " / " << theSmallTree.m_VBFjet2_e << endl;
         cout << "----------------" << endl;
       }
 
