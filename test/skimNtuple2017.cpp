@@ -1052,20 +1052,10 @@ int main (int argc, char** argv)
     }
 
   //FRA debug
-/*unsigned long long int debugEvents[12] = {
-537621112,
-538855447,
-540452948,
-326296633,
-328306950,
-334818534,
-347105759,
-365718739,
-571229876,
-583040266,
-599505758,
-629661432
-};*/ 
+/*unsigned long long int debugEvents[2] = {
+57924,
+59095
+};*/
  
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -2128,7 +2118,7 @@ int main (int argc, char** argv)
         }
 
         // Remember: isVBFfired means it passed ONLY a VBF trigger
-        if (pairType == 2)
+        if (pairType == 2 && !passTrg)
         {
           isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta());
         }
@@ -2152,6 +2142,7 @@ int main (int argc, char** argv)
           if(pairType == 2)//TauTau
           {
             trigReader.listTauTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
+            trigReader.listVBF(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta());
           }
         }
 
@@ -2969,8 +2960,8 @@ int main (int argc, char** argv)
           cout << "dR(tau2)   : " << tlv_jet.DeltaR (tlv_secondLepton) << " - lepCleaningCone: " << lepCleaningCone << endl;
           cout << "pT < 20    : " << (tlv_jet.Pt () < 20.) << endl;
           cout << "eta > 2.4  : " << (TMath::Abs(tlv_jet.Eta()) > 2.4) << endl;
-          cout << "deepFlavour: " << theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet);
-	  cout << "---------------------------------" << endl;
+          cout << "deepFlavour: " << theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet) << endl;
+          cout << "---------------------------------" << endl;
         }
 
         if (tlv_jet.Pt () < 20.) continue ;
@@ -3129,10 +3120,6 @@ int main (int argc, char** argv)
               //if ( kjet.Pt()<50. && fabs(kjet.Eta())>2.65 && fabs(kjet.Eta()<3.139) ) continue; //Commented during March20 sync
 
               TLorentzVector jetPair = ijet+kjet;
-
-              bool VBFjetLegsMatched = true;
-              if (isVBFfired) VBFjetLegsMatched = checkVBFjetMatch(DEBUG, iJet, kJet, theBigTree);
-              if (isVBFfired && !VBFjetLegsMatched) continue;
               VBFcand_Mjj.push_back(make_tuple(jetPair.M(),iJet,kJet));
             }
           }
@@ -3173,6 +3160,23 @@ int main (int argc, char** argv)
                 VBFcand_Mjj.clear();
               }
             }
+          }
+        }
+
+        if (isVBFfired && !isVBF)
+        {
+          if(DEBUG) cout << "---> Evt rejected because (isVBFfired && !isVBF) (VBF trig fired but no good VBF jet candidates available)" << endl;
+          continue;
+        }
+
+        // Check that the the VBFjet-pair candidate is trigger matched
+        if (isVBFfired && isVBF)
+        {
+          bool VBFjetLegsMatched = checkVBFjetMatch(DEBUG, VBFidx1, VBFidx2, theBigTree);
+          if (!VBFjetLegsMatched)
+          {
+            if(DEBUG) cout << "---> Evt rejected because VBFjet-pair candidate is not trigger matched" << endl;
+            continue;
           }
         }
 
@@ -4233,8 +4237,8 @@ int main (int argc, char** argv)
       {
         cout << "--- VBF jets ---" << endl;
         cout << "isVBF: " << theSmallTree.m_isVBF << endl;
-        cout << "VBF1(pt,eta,phi): " << theSmallTree.m_VBFjet1_pt << " / " << theSmallTree.m_VBFjet1_eta << " / " << theSmallTree.m_VBFjet1_phi << endl;
-        cout << "VBF2(pt,eta,phi): " << theSmallTree.m_VBFjet2_pt << " / " << theSmallTree.m_VBFjet2_eta << " / " << theSmallTree.m_VBFjet2_phi << endl;
+        cout << "VBF1(pt,eta,phi,e): " << theSmallTree.m_VBFjet1_pt << " / " << theSmallTree.m_VBFjet1_eta << " / " << theSmallTree.m_VBFjet1_phi << " / " << theSmallTree.m_VBFjet1_e << endl;
+        cout << "VBF2(pt,eta,phi,e): " << theSmallTree.m_VBFjet2_pt << " / " << theSmallTree.m_VBFjet2_eta << " / " << theSmallTree.m_VBFjet2_phi << " / " << theSmallTree.m_VBFjet2_e << endl;
         cout << "----------------" << endl;
       }
 
