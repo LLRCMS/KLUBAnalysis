@@ -686,7 +686,8 @@ int main (int argc, char** argv)
   int selectedNoWeightsEventsNum = 0 ;
 
   // for VBF trigger matching
-  bool isVBFfired = false;
+  // No VBF Triggers in 2016
+  //bool isVBFfired = false;
 
   // ------------------------------
   
@@ -2060,7 +2061,8 @@ int main (int argc, char** argv)
           }
         }
 
-        isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta());
+        // No VBF Triggers in 2016
+	//isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta());
 
         bool triggerAccept = false;
         triggerAccept = passTrg;
@@ -3050,15 +3052,18 @@ int main (int argc, char** argv)
 
               TLorentzVector jetPair = ijet+kjet;
 
-              bool VBFjetLegsMatched = true;
-              if (isVBFfired) VBFjetLegsMatched = checkVBFjetMatch(DEBUG, iJet, kJet, theBigTree);
-              if (isVBFfired && !VBFjetLegsMatched) continue;
-              VBFcand_Mjj.push_back(make_tuple(jetPair.M(),iJet,kJet));
+              //No VBF Triggers in 2016
+              //bool VBFjetLegsMatched = true;
+              //if (isVBFfired) VBFjetLegsMatched = checkVBFjetMatch(DEBUG, iJet, kJet, theBigTree);
+              //if (isVBFfired && !VBFjetLegsMatched) continue;
+              
+	      VBFcand_Mjj.push_back(make_tuple(jetPair.M(),iJet,kJet));
             }
           }
 
           // if is a VBF event (in the tautau channel) but no good candidate is found --> throw away the event
-          if (isVBFfired && VBFcand_Mjj.size()<=0) continue;
+          //No VBF Trigger in 2016
+	  //if (isVBFfired && VBFcand_Mjj.size()<=0) continue;
 
           if (VBFcand_Mjj.size()>0)
           {
