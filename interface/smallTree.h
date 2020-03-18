@@ -556,6 +556,7 @@ struct smallTree
       m_BDT_HHsvfit_abs_deltaPhi      = -9. ;
       m_BDT_HT20                      = 0. ;
       m_BDT_topPairMasses             = -999. ;
+      m_BDT_topPairMasses2            = -999. ;
       m_BDT_MX                        = -999. ;
       m_BDT_bH_tauH_MET_InvMass       = -999. ;
       m_BDT_bH_tauH_SVFIT_InvMass     = -999. ;
@@ -1110,6 +1111,7 @@ struct smallTree
       m_smallT->Branch ("BDT_HHsvfit_abs_deltaPhi",       &m_BDT_HHsvfit_abs_deltaPhi      , "BDT_HHsvfit_abs_deltaPhi/F");
       m_smallT->Branch ("BDT_HT20",                       &m_BDT_HT20                      , "BDT_HT20/F");
       m_smallT->Branch ("BDT_topPairMasses",              &m_BDT_topPairMasses             , "BDT_topPairMasses/F");
+      m_smallT->Branch ("BDT_topPairMasses2",             &m_BDT_topPairMasses2            , "BDT_topPairMasses2/F");
       m_smallT->Branch ("BDT_MX",                         &m_BDT_MX                        , "BDT_MX/F");
       m_smallT->Branch ("BDT_bH_tauH_MET_InvMass",        &m_BDT_bH_tauH_MET_InvMass       , "BDT_bH_tauH_MET_InvMass/F");
       m_smallT->Branch ("BDT_bH_tauH_SVFIT_InvMass",      &m_BDT_bH_tauH_SVFIT_InvMass     , "BDT_bH_tauH_SVFIT_InvMass/F");
@@ -1686,6 +1688,7 @@ struct smallTree
   Float_t m_BDT_HHsvfit_abs_deltaPhi; //
   Float_t m_BDT_HT20; //
   Float_t m_BDT_topPairMasses; //
+  Float_t m_BDT_topPairMasses2; //
   Float_t m_BDT_MX; //
   Float_t m_BDT_bH_tauH_MET_InvMass; //
   Float_t m_BDT_bH_tauH_SVFIT_InvMass; //
