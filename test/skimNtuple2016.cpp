@@ -685,9 +685,6 @@ int main (int argc, char** argv)
   int totalNoWeightsEventsNum = 0 ;
   int selectedNoWeightsEventsNum = 0 ;
 
-  // for VBF trigger matching
-  bool isVBFfired = false;
-
   // ------------------------------
   
   TH1F* hTriggers = getFirstFileHisto (inputFile);
@@ -2060,8 +2057,6 @@ int main (int argc, char** argv)
           }
         }
 
-        isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta());
-
         bool triggerAccept = false;
         triggerAccept = passTrg;
 
@@ -2885,7 +2880,7 @@ int main (int argc, char** argv)
 
         if (DEBUG)
         {
-          cout << "------- Jet PU ID  DEBUG---------" << endl;
+          cout << "------- Jets DEBUG---------" << endl;
           cout << "iJet: " << iJet << "  -- pT/Eta/Phi: " << tlv_jet.Pt() << "/" << tlv_jet.Eta() << "/" << tlv_jet.Phi() << endl;
           cout << "discr: " << theBigTree.jets_PUJetID->at(iJet) << " --  discrUpdated: " << theBigTree.jets_PUJetIDupdated->at(iJet) << endl;
           cout << "discrWP: " << theBigTree.jets_PUJetIDupdated_WP->at(iJet) << " -- bitwise: " << std::bitset<5>(theBigTree.jets_PUJetIDupdated_WP->at(iJet)) << endl;
@@ -2896,6 +2891,8 @@ int main (int argc, char** argv)
           cout << "dR(tau2)   : " << tlv_jet.DeltaR (tlv_secondLepton) << " - lepCleaningCone: " << lepCleaningCone << endl;
           cout << "pT < 20    : " << (tlv_jet.Pt () < 20.) << endl;
           cout << "eta > 2.4  : " << (TMath::Abs(tlv_jet.Eta()) > 2.4) << endl;
+          cout << "deepFlavour: " << theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet) << endl;
+          cout << "Only PF Jet ID Cut applied before this printout" << endl;
           cout << "---------------------------------" << endl;
         }
 
@@ -3048,15 +3045,9 @@ int main (int argc, char** argv)
 
               TLorentzVector jetPair = ijet+kjet;
 
-              bool VBFjetLegsMatched = true;
-              if (isVBFfired) VBFjetLegsMatched = checkVBFjetMatch(DEBUG, iJet, kJet, theBigTree);
-              if (isVBFfired && !VBFjetLegsMatched) continue;
-              VBFcand_Mjj.push_back(make_tuple(jetPair.M(),iJet,kJet));
+	      VBFcand_Mjj.push_back(make_tuple(jetPair.M(),iJet,kJet));
             }
           }
-
-          // if is a VBF event (in the tautau channel) but no good candidate is found --> throw away the event
-          if (isVBFfired && VBFcand_Mjj.size()<=0) continue;
 
           if (VBFcand_Mjj.size()>0)
           {
@@ -4024,12 +4015,12 @@ int main (int argc, char** argv)
         if (DEBUG)
         {
             cout << "-------- JETS DEBUG -------" << endl;
-            cout << "b1 (pt,eta,flav, deepCSV): " << theSmallTree.m_bjet1_pt << "  " << theSmallTree.m_bjet1_eta << "  " << theSmallTree.m_bjet1_flav << "  " << theSmallTree.m_bjet1_bID_deepCSV << endl;
-            cout << "b2 (pt,eta,flav, deepCSV): " << theSmallTree.m_bjet2_pt << "  " << theSmallTree.m_bjet2_eta << "  " << theSmallTree.m_bjet2_flav << "  " << theSmallTree.m_bjet2_bID_deepCSV << endl;
+            cout << "b1 (pt,eta,flav, deepFlavor): " << theSmallTree.m_bjet1_pt << "  " << theSmallTree.m_bjet1_eta << "  " << theSmallTree.m_bjet1_flav << "  " << theSmallTree.m_bjet1_bID_deepFlavor << endl;
+            cout << "b2 (pt,eta,flav, deepFlavor): " << theSmallTree.m_bjet2_pt << "  " << theSmallTree.m_bjet2_eta << "  " << theSmallTree.m_bjet2_flav << "  " << theSmallTree.m_bjet2_bID_deepFlavor << endl;
             cout << "Other jets:" << endl;
             for (unsigned int i=0; i<theSmallTree.m_jets_pt.size(); i++)
             {
-                cout << "Jet " << i << " (pt,eta,flav, deepCSV): " << theSmallTree.m_jets_pt.at(i) << "  " << theSmallTree.m_jets_eta.at(i) << "  " << theSmallTree.m_jets_flav.at(i) << "  " << theSmallTree.m_jets_btag_deepCSV.at(i) << endl;
+                cout << "Jet " << i << " (pt,eta,flav, deepFlavor): " << theSmallTree.m_jets_pt.at(i) << "  " << theSmallTree.m_jets_eta.at(i) << "  " << theSmallTree.m_jets_flav.at(i) << "  " << theSmallTree.m_jets_btag_deepFlavor.at(i) << endl;
             }
             cout << "------------------------" << endl;
         }
