@@ -8,6 +8,12 @@ cmsrel CMSSW_10_2_16
 cd CMSSW_10_2_16/src
 cmsenv
 
+# DNN packages
+git clone git@github.com:GilesStrong/cms_hh_proc_interface.git
+git clone git@github.com:GilesStrong/cms_hh_tf_inference.git
+git clone git@github.com:GilesStrong/cms_runII_dnn_models.git
+
+# KinFit and Combine packages
 git clone https://github.com/bvormwald/HHKinFit2
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit

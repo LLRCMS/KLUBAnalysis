@@ -31,12 +31,18 @@ ROOTGLIBS     = $(shell root-config --glibs)
 BOOSTFLAGS      = $(shell scram tool info boost | grep -e '^LIBDIR' | sed -e 's/LIBDIR=/-L/')
 BOOSTLIB    = $(shell scram tool info boost | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
 
+TensFLowFLAGS = $(shell scram tool info tensorflow | grep -e '^LIBDIR' | sed -e 's/LIBDIR=/-L/')
+TensFLowLIB   = $(shell scram tool info tensorflow | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
+
+PROTOBUFLIB   = $(shell scram tool info protobuf | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
+EIGENLIB   = $(shell scram tool info eigen | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
+BASELIBS = -I$(shell echo $$CMSSW_RELEASE_BASE | sed -e 's/$$/\/src/')
 
 ARCHL = -m64
 CXX  =  g++
 CXXFLAGS  =  -Wall -O -fPIC -I$(HDR) $(ROOTCFLAGS) $(BOOSTFLAGS) $(BOOSTLIB)
 CPP  =  g++
-CPPFLAGS  = -Wall  $(ARCHL) -I$(HDR) $(ROOTCFLAGS) $(BOOSTFLAGS) $(BOOSTLIB)
+CPPFLAGS  = -Wall  $(ARCHL) -I$(HDR) $(ROOTCFLAGS) $(BOOSTFLAGS) $(BOOSTLIB) $(BASELIBS) $(TensFLowLIB) $(PROTOBUFLIB) $(EIGENLIB)
 
 F    = gfortran
 FFLAGS = -c
@@ -47,8 +53,11 @@ SONAME	 =  libDoubleHiggs.so
 SONAME2  =  DoubleHiggs
 SOFLAGS  =  -Wl,-soname,$(SONAME)
 
-GLIBS   =  -lm -ldl -rdynamic $(ROOTGLIBS) -lGenVector -lFoam -lMinuit -lTMVA -lMLP -lXMLIO -lGpad  -lTreePlayer -lRooFit -lRooFitCore -lRooStats -lHHKinFit2 -L../../HHKinFit2 -lboost_regex
+GLIBS   =  -lm -ldl -rdynamic $(ROOTGLIBS) -lGenVector -lFoam -lMinuit -lTMVA -lMLP -lXMLIO -lGpad  -lTreePlayer -lRooFit -lRooFitCore -lRooStats -lHHKinFit2 -L../../HHKinFit2 -lboost_regex -ltensorflow_cc -ltensorflow_framework $(TensFLowFLAGS)
 
+DNNARCH = $(shell scram arch)
+DNNPATH = $(shell echo $$CMSSW_BASE | grep "CMSSW" | sed -e 's/$$/\/lib/')/$(DNNARCH)/
+DNNLIBS = -lcms_hh_proc_interfaceprocessing -lcms_hh_tf_inferenceinference -L$(DNNPATH)
 
 #################################################
 #if mac 64
@@ -82,6 +91,8 @@ test:
 	@echo "OBJS = $(OBJS)"
 	@echo "PRGS = $(PRGS)"
 	@echo "BINS = $(BIN)%$(BinSuf): $(PRG)%$(PrgSuf)"
+	@echo "DNNLIBS   = $(DNNLIBS)"
+	@echo "CMSSWPATH = $(CMSSWPATH)"
 
 
 $(OBJ)%$(ObjSuf): %$(SrcSuf) $(HDRS)
@@ -97,7 +108,7 @@ $(LIB)$(SONAME): $(OBJS) $(OBJ)mydict.o
         @echo "Linking $(SONAME):"
 
 $(BIN)%$(BinSuf): $(PRG)%$(PrgSuf) $(HDRS) $(LIB)$(SONAME)
-	$(CPP) $<  -l$(SONAME2) $(CPPFLAGS) -L$(LIB) $(GLIBS)  -o $@
+	$(CPP) $<  -l$(SONAME2) $(CPPFLAGS) -L$(LIB) $(GLIBS) $(DNNLIBS) -o $@
 
 
 clean:

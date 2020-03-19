@@ -14,6 +14,8 @@
 #include "TBranch.h"
 #include "TString.h"
 #include "TLorentzVector.h"
+#include <TTreeReader.h>
+#include <TTreeReaderValue.h>
 
 // bigTree is produced on an existing ntuple as follows (see at the end of the file) 
 #include "bigTree.h" 
@@ -47,8 +49,16 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/format.hpp>
 #include <Math/VectorUtil.h>
+#include <Math/LorentzVector.h>
+#include <Math/PxPyPzM4D.h>
+
+// DNN
+#include "../../cms_hh_tf_inference/inference/interface/inf_wrapper.hh"
+#include "../../cms_hh_proc_interface/processing/interface/feat_comp.hh"
+#include "../../cms_hh_proc_interface/processing/interface/evt_proc.hh"
 
 using namespace std ;
+using DNNVector = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<float>>;
 
 const double aTopRW = 0.0615;
 const double bTopRW = -0.0005;
@@ -3459,7 +3469,8 @@ int main (int argc, char** argv)
         theSmallTree.m_bH_MET_deltaR      = tlv_bH.DeltaR(tlv_MET);
         theSmallTree.m_bH_tauH_MET_deltaR = tlv_bH.DeltaR(tlv_tauH + tlv_MET);
         theSmallTree.m_BDT_bHMet_deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(tlv_bH, tlv_MET);
-        theSmallTree.m_BDT_topPairMasses  = Calculate_topPairMasses(getLVfromTLV(tlv_firstLepton), getLVfromTLV(tlv_secondLepton), getLVfromTLV(tlv_firstBjet), getLVfromTLV(tlv_secondBjet), getLVfromTLV(tlv_MET)).first;
+        theSmallTree.m_BDT_topPairMasses   = Calculate_topPairMasses(getLVfromTLV(tlv_firstLepton), getLVfromTLV(tlv_secondLepton), getLVfromTLV(tlv_firstBjet), getLVfromTLV(tlv_secondBjet), getLVfromTLV(tlv_MET)).first;
+        theSmallTree.m_BDT_topPairMasses2  = Calculate_topPairMasses(getLVfromTLV(tlv_firstLepton), getLVfromTLV(tlv_secondLepton), getLVfromTLV(tlv_firstBjet), getLVfromTLV(tlv_secondBjet), getLVfromTLV(tlv_MET)).second;
         theSmallTree.m_BDT_MX             = Calculate_MX(tlv_firstLepton, tlv_secondLepton, tlv_firstBjet, tlv_secondBjet, tlv_MET);
         theSmallTree.m_BDT_bH_tauH_MET_InvMass = ROOT::Math::VectorUtil::InvariantMass(tlv_bH, tlv_tauH + tlv_MET);
         theSmallTree.m_BDT_bH_tauH_InvMass     = ROOT::Math::VectorUtil::InvariantMass(tlv_bH, tlv_tauH);
@@ -5113,6 +5124,295 @@ int main (int argc, char** argv)
     delete readerVBF;
 
   } // End new BDT
+
+  // NEW DNN
+  bool computeDNN = (gConfigParser->isDefined("DNN::computeMVA") ? gConfigParser->readBoolOption("DNN::computeMVA") : false);
+  if (computeDNN)
+  {
+    cout << " ------------ ############### ----- NEW DNN ----- ############### ------------ " <<endl;
+
+    // Declare constants
+    const double E_MASS  = 0.0005109989; //GeV
+    const double MU_MASS = 0.1056583715; //GeV
+
+    // Reaf from configs
+    std::string model_dir = gConfigParser->readStringOption ("DNN::weights");
+    std::cout << "DNN::weights   : " << model_dir << std::endl;
+
+    vector<float> DNN_kl;
+    DNN_kl = gConfigParser->readFloatListOption("DNN::kl");
+
+    // Declare the wrapper
+    InfWrapper wrapper(model_dir, 1, false);
+
+    // Open file to read values and compute predictions
+    TFile* in_file = TFile::Open(outputFile);
+
+    // Store prediction in vector of vectors of floats:
+    // [kl=1 : [evt1_pred, evt2_pred, evt3_pred ...], kl=2 : [evt1_opred, evt2_pred, evt3_pred...]]
+    std::vector<std::vector<float>> outDNN;
+
+    // Requested features to be computed
+    std::vector<std::string> requested{"vbf_1_pT",
+                                       "l_2_pT",
+                                       "b_1_pT",
+                                       "dR_b1_b2_x_h_bb_pT",
+                                       "dphi_httvis_met",
+                                       "hh_kinfit_m",
+                                       "sv_mass",
+                                       "diH_mass_X",
+                                       "h_bb_mass",
+                                       "dphi_l1_met",
+                                       "dR_l1_l2_x_h_tt_met_pT",
+                                       "dR_b1_b2_boosted_hbb",
+                                       "costheta_l1_htt",
+                                       "l_1_pT",
+                                       "dphi_hbb_sv",
+                                       "costheta_met_hbb",
+                                       "costheta_htt_met_hh_met",
+                                       "vbf_2_pT",
+                                       "deta_l1_l2",
+                                       "costheta_met_htt",
+                                       "dphi_vbf1_vbf2",
+                                       "dR_l1_l2_boosted_htt_met",
+                                       "vbf_1_E",
+                                       "hh_pT",
+                                       "boosted",
+                                       "channel",
+                                       "jet_1_quality",
+                                       "jet_2_quality",
+                                       "year"};
+
+    // Initialize the EvtProc
+    EvtProc evt_proc(false, requested, true);
+
+    // Declare "service" variables
+    TLorentzVector pep_b_1, pep_b_2, pep_l_1, pep_l_2, pep_met, pep_svfit, pep_vbf_1, pep_vbf_2;
+    int DNN_pType;
+
+    // Declare variables input to the EvtProc
+    DNNVector DNN_b_1, DNN_b_2, DNN_l_1, DNN_l_2, DNN_met, DNN_svfit, DNN_vbf_1, DNN_vbf_2;
+    float DNN_kinfit_mass, DNN_kinfit_chi2, DNN_mt2, DNN_mt_tot, DNN_top_1_mass, DNN_top_2_mass, DNN_p_zetavisible, DNN_p_zeta;
+    float DNN_b_1_deepflav, DNN_b_2_deepflav, DNN_b_1_deepcsv, DNN_b_2_deepcsv;
+    int DNN_is_boosted, DNN_n_vbf, DNN_isvbf;
+    float DNN_l_1_mt, DNN_l_2_mt;
+    unsigned long long int DNN_evt;
+    bool DNN_svfit_conv, DNN_hh_kinfit_conv;
+
+    Channel DNN_e_channel;
+    Year DNN_e_year(y16);
+    Spin DNN_spin(nonres);
+    float DNN_klambda;
+    float DNN_res_mass = 125.; // FIXME
+
+    // Declare TTreeReaders
+    TTreeReader reader("HTauTauTree", in_file);
+
+    // Declare TTreeReaderValue
+    TTreeReaderValue<unsigned long long> rv_evt(reader, "EventNumber");
+    TTreeReaderValue<int> rv_ptype(reader, "pairType");
+    TTreeReaderValue<int> rv_isboosted(reader, "isBoosted");
+    TTreeReaderValue<int> rv_isvbf(reader, "isVBF");
+
+    TTreeReaderValue<float> rv_kinfit_mass(reader, "HHKin_mass_raw");
+    TTreeReaderValue<float> rv_kinfit_chi2(reader, "HHKin_mass_raw_chi2");
+    TTreeReaderValue<float> rv_mt2(reader, "MT2");
+    TTreeReaderValue<float> rv_mt_tot(reader, "mT_total");
+    TTreeReaderValue<float> rv_top_1_mass(reader, "BDT_topPairMasses");
+    TTreeReaderValue<float> rv_top_2_mass(reader, "BDT_topPairMasses2");
+    TTreeReaderValue<float> rv_p_zetavisible(reader, "p_zeta_visible");
+    TTreeReaderValue<float> rv_p_zeta(reader, "p_zeta");
+
+    TTreeReaderValue<float> rv_b_1_deepcsv(reader, "bjet1_bID_deepCSV");
+    TTreeReaderValue<float> rv_b_2_deepcsv(reader, "bjet2_bID_deepCSV");
+    TTreeReaderValue<float> rv_b_1_deepflav(reader, "bjet1_bID_deepFlavor");
+    TTreeReaderValue<float> rv_b_2_deepflav(reader, "bjet2_bID_deepFlavor");
+
+    TTreeReaderValue<float> rv_svfit_pT(reader, "tauH_SVFIT_pt");
+    TTreeReaderValue<float> rv_svfit_eta(reader, "tauH_SVFIT_eta");
+    TTreeReaderValue<float> rv_svfit_phi(reader, "tauH_SVFIT_phi");
+    TTreeReaderValue<float> rv_svfit_mass(reader, "tauH_SVFIT_mass");
+
+    TTreeReaderValue<float> rv_l_1_pT(reader, "dau1_pt");
+    TTreeReaderValue<float> rv_l_1_eta(reader, "dau1_eta");
+    TTreeReaderValue<float> rv_l_1_phi(reader, "dau1_phi");
+    TTreeReaderValue<float> rv_l_1_e(reader, "dau1_e");
+    TTreeReaderValue<float> rv_l_1_mt(reader, "mT1");
+
+    TTreeReaderValue<float> rv_l_2_pT(reader, "dau2_pt");
+    TTreeReaderValue<float> rv_l_2_eta(reader, "dau2_eta");
+    TTreeReaderValue<float> rv_l_2_phi(reader, "dau2_phi");
+    TTreeReaderValue<float> rv_l_2_e(reader, "dau2_e");
+    TTreeReaderValue<float> rv_l_2_mt(reader, "mT2");
+
+    TTreeReaderValue<float> rv_met_pT(reader, "met_et");
+    TTreeReaderValue<float> rv_met_phi(reader, "met_phi");
+
+    TTreeReaderValue<float> rv_b_1_pT(reader, "bjet1_pt");
+    TTreeReaderValue<float> rv_b_1_eta(reader, "bjet1_eta");
+    TTreeReaderValue<float> rv_b_1_phi(reader, "bjet1_phi");
+    TTreeReaderValue<float> rv_b_1_e(reader, "bjet1_e");
+
+    TTreeReaderValue<float> rv_b_2_pT(reader, "bjet2_pt");
+    TTreeReaderValue<float> rv_b_2_eta(reader, "bjet2_eta");
+    TTreeReaderValue<float> rv_b_2_phi(reader, "bjet2_phi");
+    TTreeReaderValue<float> rv_b_2_e(reader, "bjet2_e");
+
+    TTreeReaderValue<float> rv_vbf_1_pT(reader, "VBFjet1_pt");
+    TTreeReaderValue<float> rv_vbf_1_eta(reader, "VBFjet1_eta");
+    TTreeReaderValue<float> rv_vbf_1_phi(reader, "VBFjet1_phi");
+    TTreeReaderValue<float> rv_vbf_1_e(reader, "VBFjet1_e");
+
+    TTreeReaderValue<float> rv_vbf_2_pT(reader, "VBFjet2_pt");
+    TTreeReaderValue<float> rv_vbf_2_eta(reader, "VBFjet2_eta");
+    TTreeReaderValue<float> rv_vbf_2_phi(reader, "VBFjet2_phi");
+    TTreeReaderValue<float> rv_vbf_2_e(reader, "VBFjet2_e");
+
+    // Declare feature values and model prediction values
+    std::vector<float> feat_vals;
+    float DNN_pred;
+
+    // Index and number of entries for loop on entries
+    long int c_event(0), n_tot_events(reader.GetEntries(true));
+
+    // Resize output vector to store all DNN predictions
+    outDNN.resize(DNN_kl.size(), std::vector<float>(n_tot_events));
+    std::cout << "DNN::DNN_kl size   : " << DNN_kl.size() << endl;
+    std::cout << "DNN::DNN_kl values : ";
+    for (uint i=0; i<DNN_kl.size();i++) cout << DNN_kl.at(i) << " ";
+    std::cout << endl;
+    std::cout << "DNN::n_tot_events  : " << n_tot_events << endl;
+
+    // Loop on entries with TTreeReader
+    while (reader.Next())
+    {
+      if (c_event%5000 == 0) std::cout << "DNN::event " << c_event << " / " << n_tot_events << "\n";
+
+      // Load values
+      DNN_evt =  *rv_evt;
+      DNN_pType = *rv_ptype;
+      DNN_is_boosted = *rv_isboosted;
+      DNN_isvbf = *rv_isvbf;
+
+      DNN_kinfit_mass   = *rv_kinfit_mass;
+      DNN_kinfit_chi2   = *rv_kinfit_chi2;
+      DNN_mt2           = *rv_mt2;
+      DNN_mt_tot        = *rv_mt_tot;
+      DNN_top_1_mass    = *rv_top_1_mass;
+      DNN_top_2_mass    = *rv_top_2_mass;
+      DNN_p_zetavisible = *rv_p_zetavisible;
+      DNN_p_zeta        = *rv_p_zeta;
+      DNN_l_1_mt        = *rv_l_1_mt;
+      DNN_l_2_mt        = *rv_l_2_mt;
+
+      DNN_b_1_deepflav = *rv_b_1_deepflav;
+      DNN_b_2_deepflav = *rv_b_2_deepflav;
+      DNN_b_1_deepcsv  = *rv_b_1_deepcsv;
+      DNN_b_2_deepcsv  = *rv_b_2_deepcsv;
+
+      DNN_svfit_conv     = *rv_svfit_mass  > 0;
+      DNN_hh_kinfit_conv = DNN_kinfit_chi2 > 0;
+
+      // Load PEP Vectors first
+      pep_l_1  .SetPtEtaPhiE (*rv_l_1_pT, *rv_l_1_eta, *rv_l_1_phi, *rv_l_1_e);
+      pep_l_2  .SetPtEtaPhiE (*rv_l_2_pT, *rv_l_2_eta, *rv_l_2_phi, *rv_l_2_e);
+      pep_met  .SetPtEtaPhiE (*rv_met_pT, 0, *rv_met_phi, 0);
+      pep_svfit.SetPtEtaPhiM (*rv_svfit_pT, *rv_svfit_eta, *rv_svfit_phi, *rv_svfit_mass);
+      pep_b_1  .SetPtEtaPhiE (*rv_b_1_pT, *rv_b_1_eta, *rv_b_1_phi, *rv_b_1_e);
+      pep_b_2  .SetPtEtaPhiE (*rv_b_2_pT, *rv_b_2_eta, *rv_b_2_phi, *rv_b_2_e);
+      pep_vbf_1.SetPtEtaPhiE (*rv_vbf_1_pT, *rv_vbf_1_eta, *rv_vbf_1_phi, *rv_vbf_1_e);
+      pep_vbf_2.SetPtEtaPhiE (*rv_vbf_2_pT, *rv_vbf_2_eta, *rv_vbf_2_phi, *rv_vbf_2_e);
+
+      // Use PEP Vectors to declare DNN vectors
+      DNN_l_1.SetCoordinates(pep_l_1.Px(),     pep_l_1.Py(),   pep_l_1.Pz(),   pep_l_1.M());
+      if      (DNN_pType == 0 )
+      {
+        DNN_e_channel = muTau;
+        DNN_l_1.SetM(MU_MASS);
+      }
+      else if (DNN_pType == 1)
+      {
+        DNN_e_channel = eTau;
+        DNN_l_1.SetM(E_MASS);
+      }
+      else if (DNN_pType == 2)
+      {
+        DNN_e_channel = tauTau;
+      }
+      DNN_l_2.SetCoordinates(pep_l_2.Px(),     pep_l_2.Py(),   pep_l_2.Pz(),   pep_l_2.M());
+      DNN_met.SetCoordinates(pep_met.Px(),     pep_met.Py(),   0,              0);
+      DNN_svfit.SetCoordinates(pep_svfit.Px(), pep_svfit.Py(), pep_svfit.Pz(), pep_svfit.M());
+      DNN_b_1.SetCoordinates(pep_b_1.Px(),     pep_b_1.Py(),   pep_b_1.Pz(),   pep_b_1.M());
+      DNN_b_2.SetCoordinates(pep_b_2.Px(),     pep_b_2.Py(),   pep_b_2.Pz(),   pep_b_2.M());
+      DNN_vbf_1.SetCoordinates(pep_vbf_1.Px(), pep_vbf_1.Py(), pep_vbf_1.Pz(), pep_vbf_1.M());
+      DNN_vbf_2.SetCoordinates(pep_vbf_2.Px(), pep_vbf_2.Py(), pep_vbf_2.Pz(), pep_vbf_2.M());
+
+      DNN_n_vbf = 0;
+      if (DNN_isvbf) {
+          if (*rv_vbf_1_e != std::numeric_limits<float>::lowest()) DNN_n_vbf++;
+          if (*rv_vbf_2_e != std::numeric_limits<float>::lowest()) DNN_n_vbf++;
+      }
+
+      // Loop on configurable options to get the output prediction
+      // For each event save the predictions for all the kl values requested
+      for (unsigned int jkl = 0; jkl < DNN_kl.size(); ++jkl)
+      {
+        // Assign external values
+        DNN_klambda = DNN_kl.at(jkl);
+
+        // Compute fatures
+        feat_vals = evt_proc.process_as_vec(DNN_b_1, DNN_b_2, DNN_l_1, DNN_l_2, DNN_met, DNN_svfit, DNN_vbf_1, DNN_vbf_2,
+            DNN_kinfit_mass, DNN_kinfit_chi2, DNN_mt2, DNN_mt_tot, DNN_p_zetavisible, DNN_p_zeta, DNN_top_1_mass, DNN_top_2_mass,
+            DNN_l_1_mt, DNN_l_2_mt, DNN_is_boosted, DNN_b_1_deepflav, DNN_b_2_deepflav, DNN_b_1_deepcsv, DNN_b_2_deepcsv,
+            DNN_e_channel, DNN_e_year, DNN_res_mass, DNN_spin, DNN_klambda,
+            DNN_n_vbf, DNN_svfit_conv, DNN_hh_kinfit_conv);
+
+        // Get model prediction
+        DNN_pred = wrapper.predict(feat_vals, DNN_evt);
+        if (c_event%5000 == 0) cout << " -> kl: "<< DNN_klambda << " - pred: " << DNN_pred << endl;
+        //std::vector<std::string>  debug_feats = evt_proc.get_feats();
+        //cout << "   - feats: " << endl;
+        //for (uint i=0;i<debug_feats.size(); i++) cout << "      " << debug_feats.at(i) << " : " << feat_vals.at(i) << endl ;
+
+        // store prediction in vector as:
+        // [evt_1_kl_1, evt_1_kl_2, evt_2_kl_1, evt_2_kl_2 ....]
+        outDNN[jkl][c_event] = DNN_pred;
+      }
+
+      c_event++;
+    } // end loop on entries with TTreeReader
+
+    // Open file and get TTree that must be updated
+    TFile *outFile = TFile::Open(outputFile,"UPDATE");
+    TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
+
+    // Declare one new branch for each value of klambda
+    std::vector<float> outDNNval (DNN_kl.size());
+    std::vector<TBranch*> branchDNN (DNN_kl.size()); // prediction branches
+    //cout << " - branchDNN size: " << branchDNN.size() << endl;
+
+    for (unsigned int ikl = 0; ikl < DNN_kl.size(); ++ikl)
+    {
+      std::string branch_name = boost::str(boost::format("DNNoutSM_kl_%d") % DNN_kl.at(ikl));
+      branchDNN.at(ikl) = treenew->Branch(branch_name.c_str(), &outDNNval.at(ikl));
+    }
+
+    // Fill the new branches
+    for (int i=0; i<n_tot_events; i++)
+    {
+      treenew->GetEntry(i);
+      for (unsigned int jkl=0; jkl<DNN_kl.size(); ++jkl)
+      {
+        outDNNval[jkl] = outDNN[jkl][i];
+        branchDNN.at(jkl)->Fill();
+      }
+    }
+
+    // Update tree and delete readers
+    treenew->Write ("", TObject::kOverwrite) ;
+    in_file->Close();
+
+  } // END NEW DNN
 
   cout << "... SKIM finished, exiting." << endl;
   return 0 ;
