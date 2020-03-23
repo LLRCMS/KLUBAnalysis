@@ -23,7 +23,6 @@ cd -
 scram b -j8
 
 cd HHKinFit2/
-git checkout tags/v1.1.0
 ln -ns interface include
 source setup.sh
 ./compile.sh
