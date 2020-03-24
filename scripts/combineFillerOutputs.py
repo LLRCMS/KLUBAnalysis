@@ -190,5 +190,34 @@ if cfg.hasSection('pp_QCD'):
         computeSBtoSR = computeSBtoSRdyn
         )
 
+# VBF HH Reweighting
+# reads from the config the 6 input samples and the target couplings
+if cfg.hasSection('VBF_rew'):
+    if eval(cfg.readOption('VBF_rew::doReweighting')):
+        print "--- VBF Reweighting ---"
+        inputSigList = cfg.readListOption("VBF_rew::inputSignals")
+        if len(inputSigList) != 6:
+            print "** ERROR: VBF reweighting requires 6 input samples! You only provided:", len(inputSigList), " --> Skipping VBF reweighting!"
+        else:
+            print "** INFO: VBF reweighting requires the input samples to be in the order: node1, node2, node3, node4, node5, node19!"
+            print "** INFO: I will assume they are passed in the correct order!"
+
+            # Check that all input samples are present in sigList
+            goodSamples = True
+            for sig in inputSigList:
+                if sig not in sigList:
+                    goodSamples = False
+                    print "** ERROR: VBF node ", sig, " not between provided signals  --> Skipping VBF reweighting!"
+
+            # Apply the actual VBF reweighting
+            if goodSamples:
+                target_kl  = [float(kl)  for kl  in cfg.readListOption("VBF_rew::target_kl") ]
+                target_cv  = [float(cv)  for cv  in cfg.readListOption("VBF_rew::target_cv") ]
+                target_c2v = [float(c2v) for c2v in cfg.readListOption("VBF_rew::target_c2v")]
+                target_xs  = float(cfg.readOption("VBF_rew::target_xs")) if cfg.hasOption("VBF_rew::target_xs") else -1.0
+
+                omngr.makeVBFrew(inputSigList, target_kl, target_cv, target_c2v, target_xs)
+
+
 fOut = ROOT.TFile(args.dir+"/" + 'analyzedOutPlotter.root', 'recreate')
 omngr.saveToFile(fOut)
