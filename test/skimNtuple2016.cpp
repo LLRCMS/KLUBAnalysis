@@ -1023,11 +1023,9 @@ int main (int argc, char** argv)
     }
 
 //FRA debug
-/*unsigned long long int debugEvents[4] = {
-1325696726,
-355916253,
-357046414,
-659128517					   
+/*unsigned long long int debugEvents[2] = {
+109382,
+220760
 };*/
 
   // loop over events
@@ -3436,6 +3434,24 @@ int main (int argc, char** argv)
           kinFitsraw_eleup.addHypo(hypo_mh1,hypo_mh2);
           kinFitsraw_eledown.addHypo(hypo_mh1,hypo_mh2);
 
+	  if(DEBUG)
+	  {
+	     cout<<"---Kinfit Input debug---"<<endl;
+	     cout<<"L1"<<endl;
+	     cout<<"(pt,eta,phi,e) "<<tlv_firstLepton.Pt()<<","<<tlv_firstLepton.Eta()<<","<<tlv_firstLepton.Phi()<<","<<tlv_firstLepton.E()<<endl;
+	     cout<<"L2"<<endl;
+	     cout<<"(pt,eta,phi,e) "<<tlv_secondLepton.Pt()<<","<<tlv_secondLepton.Eta()<<","<<tlv_secondLepton.Phi()<<","<<tlv_secondLepton.E()<<endl;
+	     cout<<"B1"<<endl;
+	     cout<<"(pt,eta,phi,e,res) "<<tlv_firstBjet.Pt()<<","<<tlv_firstBjet.Eta()<<","<<tlv_firstBjet.Phi()<<","<<tlv_firstBjet.E()<<","<<bjet1_JER<<endl;
+	     cout<<"B2"<<endl;
+	     cout<<"(pt,eta,phi,e,res) "<<tlv_secondBjet.Pt()<<","<<tlv_secondBjet.Eta()<<","<<tlv_secondBjet.Phi()<<","<<tlv_secondBjet.E()<<","<<bjet2_JER<<endl;
+	     cout<<"MET"<<endl;
+	     cout<<"(Px,Py) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
+	     cout<<"METCOV "<<endl;
+	     cout<<metcov(0,0)<<"  "<<metcov(0,1)<<endl;
+	     cout<<metcov(1,0)<<"  "<<metcov(1,1)<<endl;
+	  }
+
           try{ kinFits.fit();}
           catch(HHKinFit2::HHInvMConstraintException e)
           {
@@ -3543,6 +3559,13 @@ int main (int argc, char** argv)
             theSmallTree.m_HHKin_mass_raw_chi2        = kinFitsraw.getChi2();
             theSmallTree.m_HHKin_mass_raw_convergence = kinFitsraw.getConvergence();
             theSmallTree.m_HHKin_mass_raw_prob        = kinFitsraw.getFitProb();
+	    if(DEBUG)
+	    {
+	       cout<<"---Kinfit Output debug---"<<endl;
+	       cout<<"KinFit mass = " << kinFitsraw.getMH() << endl;
+	       cout<<"KinFit chi2 = " << kinFitsraw.getChi2()<< endl;
+	       cout<<"KinFit conv = " << kinFitsraw.getConvergence()<< endl;
+	    }
           }
           else theSmallTree.m_HHKin_mass_raw = -100 ;
           if (theBigTree.SVfitMass->at (chosenTauPair) > -900. && !wrongHHK)
