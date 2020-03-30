@@ -5167,6 +5167,19 @@ int main (int argc, char** argv)
     vector<float> DNN_kl;
     DNN_kl = gConfigParser->readFloatListOption("DNN::kl");
 
+    std::string features_file = gConfigParser->readStringOption ("DNN::features");
+    std::cout << "DNN::features  : " << features_file << std::endl;
+
+    // Read from file the requested features to be computed
+    std::ifstream features_infile(features_file);
+    std::vector<std::string> requested;
+    std::string featureName;
+    while ( features_infile >> featureName)
+    {
+      requested.push_back(featureName);
+    }
+    features_infile.close();
+
     // Declare the wrapper
     InfWrapper wrapper(model_dir, 1, false);
 
@@ -5176,37 +5189,6 @@ int main (int argc, char** argv)
     // Store prediction in vector of vectors of floats:
     // [kl=1 : [evt1_pred, evt2_pred, evt3_pred ...], kl=2 : [evt1_opred, evt2_pred, evt3_pred...]]
     std::vector<std::vector<float>> outDNN;
-
-    // Requested features to be computed
-    std::vector<std::string> requested{"vbf_1_pT",
-                                       "l_2_pT",
-                                       "b_1_pT",
-                                       "dR_b1_b2_x_h_bb_pT",
-                                       "dphi_httvis_met",
-                                       "hh_kinfit_m",
-                                       "sv_mass",
-                                       "diH_mass_X",
-                                       "h_bb_mass",
-                                       "dphi_l1_met",
-                                       "dR_l1_l2_x_h_tt_met_pT",
-                                       "dR_b1_b2_boosted_hbb",
-                                       "costheta_l1_htt",
-                                       "l_1_pT",
-                                       "dphi_hbb_sv",
-                                       "costheta_met_hbb",
-                                       "costheta_htt_met_hh_met",
-                                       "vbf_2_pT",
-                                       "deta_l1_l2",
-                                       "costheta_met_htt",
-                                       "dphi_vbf1_vbf2",
-                                       "dR_l1_l2_boosted_htt_met",
-                                       "vbf_1_E",
-                                       "hh_pT",
-                                       "boosted",
-                                       "channel",
-                                       "jet_1_quality",
-                                       "jet_2_quality",
-                                       "year"};
 
     // Initialize the EvtProc
     EvtProc evt_proc(false, requested, true);
