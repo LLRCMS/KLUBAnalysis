@@ -5374,8 +5374,8 @@ int main (int argc, char** argv)
 
       DNN_n_vbf = 0;
       if (DNN_isvbf) {
-          if (*rv_vbf_1_e != std::numeric_limits<float>::lowest()) DNN_n_vbf++;
-          if (*rv_vbf_2_e != std::numeric_limits<float>::lowest()) DNN_n_vbf++;
+          if (*rv_vbf_1_e != -999.) DNN_n_vbf++;
+          if (*rv_vbf_2_e != -999.) DNN_n_vbf++;
       }
 
       // Loop on configurable options to get the output prediction
