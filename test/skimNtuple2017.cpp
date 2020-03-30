@@ -5205,6 +5205,7 @@ int main (int argc, char** argv)
     float DNN_l_1_mt, DNN_l_2_mt;
     unsigned long long int DNN_evt;
     bool DNN_svfit_conv, DNN_hh_kinfit_conv;
+    int DNN_nleps, DNN_nbjetscand;
 
     Channel DNN_e_channel;
     Year DNN_e_year(y17);
@@ -5220,6 +5221,8 @@ int main (int argc, char** argv)
     TTreeReaderValue<int> rv_ptype(reader, "pairType");
     TTreeReaderValue<int> rv_isboosted(reader, "isBoosted");
     TTreeReaderValue<int> rv_isvbf(reader, "isVBF");
+    TTreeReaderValue<int> rv_nleps(reader, "nleps");
+    TTreeReaderValue<int> rv_nbjetscand(reader, "nbjetscand");
 
     TTreeReaderValue<float> rv_kinfit_mass(reader, "HHKin_mass_raw");
     TTreeReaderValue<float> rv_kinfit_chi2(reader, "HHKin_mass_raw_chi2");
@@ -5282,8 +5285,8 @@ int main (int argc, char** argv)
     // Index and number of entries for loop on entries
     long int c_event(0), n_tot_events(reader.GetEntries(true));
 
-    // Resize output vector to store all DNN predictions
-    outDNN.resize(DNN_kl.size(), std::vector<float>(n_tot_events));
+    // Resize output vector to store all DNN predictions (initialized to -1.0)
+    outDNN.resize(DNN_kl.size(), std::vector<float>(n_tot_events,-1.));
     std::cout << "DNN::DNN_kl size   : " << DNN_kl.size() << endl;
     std::cout << "DNN::DNN_kl values : ";
     for (uint i=0; i<DNN_kl.size();i++) cout << DNN_kl.at(i) << " ";
@@ -5295,9 +5298,19 @@ int main (int argc, char** argv)
     {
       if (c_event%5000 == 0) std::cout << "DNN::event " << c_event << " / " << n_tot_events << "\n";
 
+      // Apply minimal baseline selection (3rd lept veto, n bjet cands and channel)
+      DNN_nbjetscand = *rv_nbjetscand;
+      DNN_nleps      = *rv_nleps;
+      DNN_pType      = *rv_ptype;
+      if (DNN_nleps!=0 || DNN_nbjetscand < 2 || DNN_pType>2)
+      {
+        //std::cout << "DNN::skipping evtNumber: " << *rv_evt << " because nleps=" << DNN_nleps << ", nbjetscand=" << DNN_nbjetscand  << "and channel=" << DNN_pType << endl;
+        c_event++;
+        continue;
+      }
+
       // Load values
       DNN_evt        = *rv_evt;
-      DNN_pType      = *rv_ptype;
       DNN_is_boosted = *rv_isboosted;
       DNN_isvbf      = *rv_isvbf;
 
