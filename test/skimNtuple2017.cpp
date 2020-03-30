@@ -5225,7 +5225,7 @@ int main (int argc, char** argv)
     bool DNN_svfit_conv, DNN_hh_kinfit_conv;
 
     Channel DNN_e_channel;
-    Year DNN_e_year(y16);
+    Year DNN_e_year(y17);
     Spin DNN_spin(nonres);
     float DNN_klambda;
     float DNN_res_mass = 125.; // FIXME
