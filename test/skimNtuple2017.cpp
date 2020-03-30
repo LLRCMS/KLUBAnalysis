@@ -5296,10 +5296,10 @@ int main (int argc, char** argv)
       if (c_event%5000 == 0) std::cout << "DNN::event " << c_event << " / " << n_tot_events << "\n";
 
       // Load values
-      DNN_evt =  *rv_evt;
-      DNN_pType = *rv_ptype;
+      DNN_evt        = *rv_evt;
+      DNN_pType      = *rv_ptype;
       DNN_is_boosted = *rv_isboosted;
-      DNN_isvbf = *rv_isvbf;
+      DNN_isvbf      = *rv_isvbf;
 
       DNN_kinfit_mass   = *rv_kinfit_mass;
       DNN_kinfit_chi2   = *rv_kinfit_chi2;
@@ -5321,18 +5321,18 @@ int main (int argc, char** argv)
       DNN_hh_kinfit_conv = DNN_kinfit_chi2 > 0;
 
       // Load PEP Vectors first
-      pep_l_1  .SetPtEtaPhiE (*rv_l_1_pT, *rv_l_1_eta, *rv_l_1_phi, *rv_l_1_e);
-      pep_l_2  .SetPtEtaPhiE (*rv_l_2_pT, *rv_l_2_eta, *rv_l_2_phi, *rv_l_2_e);
-      pep_met  .SetPtEtaPhiE (*rv_met_pT, 0, *rv_met_phi, 0);
+      pep_l_1  .SetPtEtaPhiE (*rv_l_1_pT  , *rv_l_1_eta  , *rv_l_1_phi  , *rv_l_1_e);
+      pep_l_2  .SetPtEtaPhiE (*rv_l_2_pT  , *rv_l_2_eta  , *rv_l_2_phi  , *rv_l_2_e);
+      pep_met  .SetPtEtaPhiE (*rv_met_pT  , 0            , *rv_met_phi  , 0);
       pep_svfit.SetPtEtaPhiM (*rv_svfit_pT, *rv_svfit_eta, *rv_svfit_phi, *rv_svfit_mass);
-      pep_b_1  .SetPtEtaPhiE (*rv_b_1_pT, *rv_b_1_eta, *rv_b_1_phi, *rv_b_1_e);
-      pep_b_2  .SetPtEtaPhiE (*rv_b_2_pT, *rv_b_2_eta, *rv_b_2_phi, *rv_b_2_e);
+      pep_b_1  .SetPtEtaPhiE (*rv_b_1_pT  , *rv_b_1_eta  , *rv_b_1_phi  , *rv_b_1_e);
+      pep_b_2  .SetPtEtaPhiE (*rv_b_2_pT  , *rv_b_2_eta  , *rv_b_2_phi  , *rv_b_2_e);
       pep_vbf_1.SetPtEtaPhiE (*rv_vbf_1_pT, *rv_vbf_1_eta, *rv_vbf_1_phi, *rv_vbf_1_e);
       pep_vbf_2.SetPtEtaPhiE (*rv_vbf_2_pT, *rv_vbf_2_eta, *rv_vbf_2_phi, *rv_vbf_2_e);
 
       // Use PEP Vectors to declare DNN vectors
-      DNN_l_1.SetCoordinates(pep_l_1.Px(),     pep_l_1.Py(),   pep_l_1.Pz(),   pep_l_1.M());
-      if      (DNN_pType == 0 )
+      DNN_l_1.SetCoordinates(pep_l_1.Px(), pep_l_1.Py(), pep_l_1.Pz(), pep_l_1.M());
+      if      (DNN_pType == 0)
       {
         DNN_e_channel = muTau;
         DNN_l_1.SetM(MU_MASS);
@@ -5346,11 +5346,11 @@ int main (int argc, char** argv)
       {
         DNN_e_channel = tauTau;
       }
-      DNN_l_2.SetCoordinates(pep_l_2.Px(),     pep_l_2.Py(),   pep_l_2.Pz(),   pep_l_2.M());
-      DNN_met.SetCoordinates(pep_met.Px(),     pep_met.Py(),   0,              0);
+      DNN_l_2.SetCoordinates  (pep_l_2.Px()  , pep_l_2.Py()  , pep_l_2.Pz()  , pep_l_2.M());
+      DNN_met.SetCoordinates  (pep_met.Px()  , pep_met.Py()  , 0             , 0);
       DNN_svfit.SetCoordinates(pep_svfit.Px(), pep_svfit.Py(), pep_svfit.Pz(), pep_svfit.M());
-      DNN_b_1.SetCoordinates(pep_b_1.Px(),     pep_b_1.Py(),   pep_b_1.Pz(),   pep_b_1.M());
-      DNN_b_2.SetCoordinates(pep_b_2.Px(),     pep_b_2.Py(),   pep_b_2.Pz(),   pep_b_2.M());
+      DNN_b_1.SetCoordinates  (pep_b_1.Px()  , pep_b_1.Py()  , pep_b_1.Pz()  , pep_b_1.M());
+      DNN_b_2.SetCoordinates  (pep_b_2.Px()  , pep_b_2.Py()  , pep_b_2.Pz()  , pep_b_2.M());
       DNN_vbf_1.SetCoordinates(pep_vbf_1.Px(), pep_vbf_1.Py(), pep_vbf_1.Pz(), pep_vbf_1.M());
       DNN_vbf_2.SetCoordinates(pep_vbf_2.Px(), pep_vbf_2.Py(), pep_vbf_2.Pz(), pep_vbf_2.M());
 
