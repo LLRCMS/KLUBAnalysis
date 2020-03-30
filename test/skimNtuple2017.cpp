@@ -4756,6 +4756,8 @@ int main (int argc, char** argv)
       outFile->cd () ;
       h_eff.Write () ;
       treenew->Write ("", TObject::kOverwrite) ;
+      outFile->Write();
+      outFile->Close();
 
       delete reader;
       delete readerResonant;
@@ -5142,6 +5144,9 @@ int main (int argc, char** argv)
     // Update tree and delete readers
     outFile->cd();
     treenew->Write ("", TObject::kOverwrite) ;
+    outFile->Write();
+    outFile->Close();
+
     delete readerSM;
     delete readerLM;
     delete readerMM;
