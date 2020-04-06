@@ -169,7 +169,7 @@ int main (int argc, char** argv)
 
   "VBFjj_mass", "VBFjj_deltaEta",                                      // VBF selection
 
-  "HHKin_mass","HHKin_chi2"                                            // KinFit
+  "HHKin_mass","HHKin_chi2", "MT2"                                     // Old values KinFit, MT2
   };
 
   // Activate only branches I need/want to store
@@ -216,7 +216,7 @@ int main (int argc, char** argv)
   float dau1_pt, dau1_eta, dau1_phi, dau1_e, dau2_pt, dau2_eta, dau2_phi, dau2_e;
   float bjet1_pt, bjet1_eta, bjet1_phi, bjet1_e, bjet1_JER, bjet2_pt, bjet2_eta, bjet2_phi, bjet2_e, bjet2_JER;
   float met_phi, met_et, met_cov00, met_cov01, met_cov10, met_cov11;
-  float HHKin_mass, HHKin_chi2;
+  float HHKin_mass, HHKin_chi2, MT2;
 
   outTree->SetBranchAddress("dau1_pt" , &dau1_pt);
   outTree->SetBranchAddress("dau1_eta", &dau1_eta);
@@ -247,11 +247,13 @@ int main (int argc, char** argv)
 
   outTree->SetBranchAddress("HHKin_mass", &HHKin_mass); // FIXME: To be removed later
   outTree->SetBranchAddress("HHKin_chi2", &HHKin_chi2); // FIXME: To be removed later
+  outTree->SetBranchAddress("MT2", &MT2);               // FIXME: To be removed later
 
   // Declare new branches
-  double HHKin_mass_new, HHKin_mass_chi2_new;
+  double HHKin_mass_new, HHKin_mass_chi2_new, MT2_new;
   TBranch* b_HHKin_mass_new = outTree->Branch("HHKin_mass_new", &HHKin_mass_new);
   TBranch* b_HHKin_mass_chi2_new = outTree->Branch("HHKin_mass_chi2_new", &HHKin_mass_chi2_new);
+  TBranch* b_MT2_new = outTree->Branch("MT2_new", &MT2_new);
 
   // Loop on selected entries
   for(int i=0;i<outTree->GetEntries();i++)
@@ -299,10 +301,34 @@ int main (int argc, char** argv)
       HHKin_mass_chi2_new = 0.;
     }
 
+
+    // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+    // MT2 computation
+    double desiredPrecisionOnMt2 = 0; // Must be >=0.  If 0 alg aims for machine precision.  if >0, MT2 computed to supplied absolute precision.
+    asymm_mt2_lester_bisect::disableCopyrightMessage();
+
+    double mVisA = bjet1.M();  // mass of visible object on side A.  Must be >=0.
+    double pxA   = bjet1.Px(); // x momentum of visible object on side A.
+    double pyA   = bjet1.Py(); // y momentum of visible object on side A.
+
+    double mVisB = bjet2.M();  // mass of visible object on side B.  Must be >=0.
+    double pxB   = bjet2.Px(); // x momentum of visible object on side B.
+    double pyB   = bjet2.Py(); // y momentum of visible object on side B.
+
+    double pxMiss = tau1.Px() + tau2.Px() + met.Px(); // x component of missing transverse momentum.
+    double pyMiss = tau1.Py() + tau2.Py() + met.Py(); // y component of missing transverse momentum.
+
+    double chiA = tau1.M(); // hypothesised mass of invisible on side A.  Must be >=0.
+    double chiB = tau2.M(); // hypothesised mass of invisible on side B.  Must be >=0.
+
+    MT2_new = asymm_mt2_lester_bisect::get_mT2( mVisA, pxA, pyA, mVisB, pxB, pyB, pxMiss, pyMiss, chiA, chiB, desiredPrecisionOnMt2);
+
+
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
     // Fill new branches
     b_HHKin_mass_new->Fill();
     b_HHKin_mass_chi2_new->Fill();
+    b_MT2_new->Fill();
   }
 
   cout << "Final entries: " << outTree->GetEntries() << endl;
