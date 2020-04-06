@@ -134,7 +134,7 @@ int main (int argc, char** argv)
   TFile *inputFile = new TFile (inputFileName, "read") ;
   TTree *inputChain = (TTree*)inputFile->Get("HTauTauTree");
   Long64_t nentries = inputChain->GetEntries();
-  cout << "Initial entries: " << nentries << endl;
+  cout << "** INFO: Initial entries: " << nentries << endl;
 
   // Declare the only two branches needed for skimming the initial entries 
   int nleps, pairType, nbjetscand;
@@ -183,16 +183,17 @@ int main (int argc, char** argv)
   TTree *treenew = inputChain->CloneTree(0);
 
   // Loop on input events to apply minimal selection
+  cout << "** INFO: Cloning with minimal selection..." << endl;
   for (Long64_t iEvent = 0 ; iEvent<nentries ; ++iEvent) 
   {
-    if (iEvent % 500 == 0)  cout << "- reading event " << iEvent << endl ;
+    if (iEvent % 500 == 0)  cout << "  - reading event " << iEvent << endl ;
     if (iEvent == 5000 ) break;
 
     inputChain->GetEntry(iEvent);
     if ( nleps!=0 || nbjetscand<2 || pairType>3) continue;
     treenew->Fill() ;
   }
-  cout << "Selected entries: " << treenew->GetEntries() << endl;
+  cout << "** INFO: ...Cloned entries: " << treenew->GetEntries() << endl;
 
   // Save and close cloneFile and inputFile
   cloneFile->cd();
@@ -212,7 +213,7 @@ int main (int argc, char** argv)
   int hypo_mh1 = 125;
   int hypo_mh2 = 125;
 
-  // Read needed branches
+  // Read branches needed for computation of KinFit, MT2, SVfit, BDT, DNN
   float dau1_pt, dau1_eta, dau1_phi, dau1_e, dau2_pt, dau2_eta, dau2_phi, dau2_e;
   float bjet1_pt, bjet1_eta, bjet1_phi, bjet1_e, bjet1_JER, bjet2_pt, bjet2_eta, bjet2_phi, bjet2_e, bjet2_JER;
   float met_phi, met_et, met_cov00, met_cov01, met_cov10, met_cov11;
@@ -256,6 +257,7 @@ int main (int argc, char** argv)
   TBranch* b_MT2_new = outTree->Branch("MT2_new", &MT2_new);
 
   // Loop on selected entries
+  cout << "** INFO: Adding new branches..." << endl;
   for(int i=0;i<outTree->GetEntries();i++)
   {
     if (i % 500 == 0)  cout << "- reading event " << i << endl ;
@@ -330,8 +332,8 @@ int main (int argc, char** argv)
     b_HHKin_mass_chi2_new->Fill();
     b_MT2_new->Fill();
   }
-
-  cout << "Final entries: " << outTree->GetEntries() << endl;
+  cout << "** INFO: ..Added new branches" << endl;
+  cout << "** INFO: Final entries: " << outTree->GetEntries() << endl;
 
   outFile->cd();
   outTree->Write ("", TObject::kOverwrite) ;
