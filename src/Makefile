@@ -37,12 +37,13 @@ TensFLowLIB   = $(shell scram tool info tensorflow | grep -e '^INCLUDE' | sed -e
 PROTOBUFLIB   = $(shell scram tool info protobuf | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
 EIGENLIB   = $(shell scram tool info eigen | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
 BASELIBS = -I$(shell echo $$CMSSW_RELEASE_BASE | sed -e 's/$$/\/src/')
+CMSSWLIBS = -I$(shell echo $$CMSSW_BASE | sed -e 's/$$/\/src/')
 
 ARCHL = -m64
 CXX  =  g++
-CXXFLAGS  =  -Wall -O -fPIC -I$(HDR) $(ROOTCFLAGS) $(BOOSTFLAGS) $(BOOSTLIB)
+CXXFLAGS  =  -Wall -O -fPIC -I$(HDR) $(ROOTCFLAGS) $(BOOSTFLAGS) $(BOOSTLIB) $(BASELIBS) $(CMSSWLIBS)
 CPP  =  g++
-CPPFLAGS  = -Wall  $(ARCHL) -I$(HDR) $(ROOTCFLAGS) $(BOOSTFLAGS) $(BOOSTLIB) $(BASELIBS) $(TensFLowLIB) $(PROTOBUFLIB) $(EIGENLIB)
+CPPFLAGS  = -Wall  $(ARCHL) -I$(HDR) $(ROOTCFLAGS) $(BOOSTFLAGS) $(BOOSTLIB) $(BASELIBS) $(CMSSWLIBS) $(TensFLowLIB) $(PROTOBUFLIB) $(EIGENLIB)
 
 F    = gfortran
 FFLAGS = -c
@@ -58,6 +59,8 @@ GLIBS   =  -lm -ldl -rdynamic $(ROOTGLIBS) -lGenVector -lFoam -lMinuit -lTMVA -l
 DNNARCH = $(shell scram arch)
 DNNPATH = $(shell echo $$CMSSW_BASE | grep "CMSSW" | sed -e 's/$$/\/lib/')/$(DNNARCH)/
 DNNLIBS = -lcms_hh_proc_interfaceprocessing -lcms_hh_tf_inferenceinference -L$(DNNPATH)
+
+SVfitLIBS = -lTauAnalysisClassicSVfit -lTauAnalysisSVfitTF -L$(DNNPATH)
 
 #################################################
 #if mac 64
@@ -108,7 +111,7 @@ $(LIB)$(SONAME): $(OBJS) $(OBJ)mydict.o
         @echo "Linking $(SONAME):"
 
 $(BIN)%$(BinSuf): $(PRG)%$(PrgSuf) $(HDRS) $(LIB)$(SONAME)
-	$(CPP) $<  -l$(SONAME2) $(CPPFLAGS) -L$(LIB) $(GLIBS) $(DNNLIBS) -o $@
+	$(CPP) $<  -l$(SONAME2) $(CPPFLAGS) -L$(LIB) $(GLIBS) $(DNNLIBS) $(SVfitLIBS) -o $@
 
 
 clean:

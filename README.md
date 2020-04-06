@@ -20,6 +20,10 @@ cd HiggsAnalysis/CombinedLimit
 git checkout v8.0.1
 cd -
 
+# SVfit packages
+git clone https://github.com/LLRCMS/ClassicSVfit.git TauAnalysis/ClassicSVfit -b bbtautau_LegacyRun2
+git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
+
 scram b -j8
 
 cd HHKinFit2/

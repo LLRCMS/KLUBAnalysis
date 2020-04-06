@@ -25,6 +25,8 @@
 
 #include "lester_mt2_bisect.h"
 
+#include "SVfitKLUBinterface.h"
+
 #include "ConfigParser.h"
 #include "EffCounter.h"
 #include "exceptions/HHInvMConstraintException.h"
@@ -156,6 +158,8 @@ int main (int argc, char** argv)
 
   "dau1_iso", "dau2_iso", "dau1_deepTauVsJet", "dau2_deepTauVsJet",    // Isolation
 
+  "dau1_decayMode", "dau2_decayMode",                                  // Tau decay mode
+
   "bjet1_bID_deepFlavor", "bjet2_bID_deepFlavor",                      // b-tagging          
   "bjet1_bID_deepCSV", "bjet2_bID_deepCSV",
 
@@ -169,7 +173,8 @@ int main (int argc, char** argv)
 
   "VBFjj_mass", "VBFjj_deltaEta",                                      // VBF selection
 
-  "HHKin_mass","HHKin_chi2", "MT2"                                     // Old values KinFit, MT2
+  "HHKin_mass","HHKin_chi2", "MT2",                                    // Old values KinFit, MT2, SVfit
+  "tauH_SVFIT_pt","tauH_SVFIT_eta","tauH_SVFIT_phi","tauH_SVFIT_mass"
   };
 
   // Activate only branches I need/want to store
@@ -215,9 +220,10 @@ int main (int argc, char** argv)
 
   // Read branches needed for computation of KinFit, MT2, SVfit, BDT, DNN
   float dau1_pt, dau1_eta, dau1_phi, dau1_e, dau2_pt, dau2_eta, dau2_phi, dau2_e;
+  int DM1, DM2, pType;
   float bjet1_pt, bjet1_eta, bjet1_phi, bjet1_e, bjet1_JER, bjet2_pt, bjet2_eta, bjet2_phi, bjet2_e, bjet2_JER;
   float met_phi, met_et, met_cov00, met_cov01, met_cov10, met_cov11;
-  float HHKin_mass, HHKin_chi2, MT2;
+  float HHKin_mass, HHKin_chi2, MT2, tauH_SVFIT_pt, tauH_SVFIT_eta, tauH_SVFIT_phi, tauH_SVFIT_mass;
 
   outTree->SetBranchAddress("dau1_pt" , &dau1_pt);
   outTree->SetBranchAddress("dau1_eta", &dau1_eta);
@@ -227,6 +233,10 @@ int main (int argc, char** argv)
   outTree->SetBranchAddress("dau2_eta", &dau2_eta);
   outTree->SetBranchAddress("dau2_phi", &dau2_phi);
   outTree->SetBranchAddress("dau2_e"  , &dau2_e);
+
+  outTree->SetBranchAddress("dau1_decayMode", &DM1);
+  outTree->SetBranchAddress("dau2_decayMode", &DM2);
+  outTree->SetBranchAddress("pairType"      , &pType);
 
   outTree->SetBranchAddress("bjet1_pt" , &bjet1_pt);
   outTree->SetBranchAddress("bjet1_eta", &bjet1_eta);
@@ -249,12 +259,21 @@ int main (int argc, char** argv)
   outTree->SetBranchAddress("HHKin_mass", &HHKin_mass); // FIXME: To be removed later
   outTree->SetBranchAddress("HHKin_chi2", &HHKin_chi2); // FIXME: To be removed later
   outTree->SetBranchAddress("MT2", &MT2);               // FIXME: To be removed later
+  outTree->SetBranchAddress("tauH_SVFIT_pt"  , &tauH_SVFIT_pt  ); // FIXME: To be removed later
+  outTree->SetBranchAddress("tauH_SVFIT_eta" , &tauH_SVFIT_eta ); // FIXME: To be removed later
+  outTree->SetBranchAddress("tauH_SVFIT_phi" , &tauH_SVFIT_phi ); // FIXME: To be removed later
+  outTree->SetBranchAddress("tauH_SVFIT_mass", &tauH_SVFIT_mass); // FIXME: To be removed later
 
   // Declare new branches
   double HHKin_mass_new, HHKin_mass_chi2_new, MT2_new;
+  double tauH_SVFIT_pt_new, tauH_SVFIT_eta_new, tauH_SVFIT_phi_new, tauH_SVFIT_mass_new;
   TBranch* b_HHKin_mass_new = outTree->Branch("HHKin_mass_new", &HHKin_mass_new);
   TBranch* b_HHKin_mass_chi2_new = outTree->Branch("HHKin_mass_chi2_new", &HHKin_mass_chi2_new);
   TBranch* b_MT2_new = outTree->Branch("MT2_new", &MT2_new);
+  TBranch* b_tauH_SVFIT_pt_new   = outTree->Branch("tauH_SVFIT_pt_new"  , &tauH_SVFIT_pt_new);
+  TBranch* b_tauH_SVFIT_eta_new  = outTree->Branch("tauH_SVFIT_eta_new" , &tauH_SVFIT_eta_new);
+  TBranch* b_tauH_SVFIT_phi_new  = outTree->Branch("tauH_SVFIT_phi_new" , &tauH_SVFIT_phi_new);
+  TBranch* b_tauH_SVFIT_mass_new = outTree->Branch("tauH_SVFIT_mass_new", &tauH_SVFIT_mass_new);
 
   // Loop on selected entries
   cout << "** INFO: Adding new branches..." << endl;
@@ -327,10 +346,24 @@ int main (int argc, char** argv)
 
 
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+    // SVfit computation
+    SVfitKLUBinterface algo_central(0, tau1, tau2, met, stableMetCov, pType, DM1, DM2);
+    std::vector<double> svfitRes = algo_central.FitAndGetResult();
+    tauH_SVFIT_pt_new   = svfitRes.at(0);
+    tauH_SVFIT_eta_new  = svfitRes.at(1);
+    tauH_SVFIT_phi_new  = svfitRes.at(2);
+    tauH_SVFIT_mass_new = svfitRes.at(3);
+
+
+    // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
     // Fill new branches
     b_HHKin_mass_new->Fill();
     b_HHKin_mass_chi2_new->Fill();
     b_MT2_new->Fill();
+    b_tauH_SVFIT_pt_new->Fill();
+    b_tauH_SVFIT_eta_new->Fill();
+    b_tauH_SVFIT_phi_new->Fill();
+    b_tauH_SVFIT_mass_new->Fill();
   }
   cout << "** INFO: ..Added new branches" << endl;
   cout << "** INFO: Final entries: " << outTree->GetEntries() << endl;
