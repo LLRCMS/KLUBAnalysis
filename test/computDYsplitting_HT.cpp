@@ -97,8 +97,8 @@ int main(int argc, char** argv)
     float zbins[10] = {0.0,70.0,100.0,200.0,400.0,600.0,800.0,1200.0,2500.0,10000.0};
 	    
     TFile* fOut = new TFile (outputFileName.c_str(), "recreate");
-    TH3F* h_nJets_nBs    = new TH3F ("h_nJets_nBs"   , ";nJets;nBs;ht", 5, xbins, 5, ybins, 9, zbins);
-    TH3I* hINT_nJets_nBs = new TH3I ("hINT_nJets_nBs", ";nJets;nBs;ht", 5, xbins, 5, ybins, 9, zbins);
+    TH3F* h_nJets_nBs_ht    = new TH3F ("h_nJets_nBs_ht"   , ";nJets;nBs;ht", 5, xbins, 5, ybins, 9, zbins);
+    TH3I* hINT_nJets_nBs_ht = new TH3I ("hINT_nJets_nBs_ht", ";nJets;nBs;ht", 5, xbins, 5, ybins, 9, zbins);
 
     // speed up
     theBigTree.fChain->SetBranchStatus("*", 0);
@@ -139,9 +139,14 @@ int main(int argc, char** argv)
         if (DEBUG) cout << "NBs = " << nbs << endl;
 	
 	float ht = theBigTree.lheHt;
+	if (ht >= 10000)
+        {
+            cout << " --> ev: " << iEvent << " ht is " << ht << " lowered to 9999" << endl;
+            ht = 9999.;
+	}    
 	
-        h_nJets_nBs->Fill (npartons, nbs, ht);
-        hINT_nJets_nBs->Fill (npartons, nbs, ht);
+        h_nJets_nBs_ht   ->Fill (npartons, nbs, ht);
+        hINT_nJets_nBs_ht->Fill (npartons, nbs, ht);
 
 	if (ht >= 0    && ht < 70  ) allEvts[npartons][nbs][0] += 1;
 	if (ht >= 70   && ht < 100 ) allEvts[npartons][nbs][1] += 1;
@@ -155,8 +160,8 @@ int main(int argc, char** argv)
     }
 
     fOut->cd();
-    h_nJets_nBs -> Write();
-    hINT_nJets_nBs -> Write();
+    h_nJets_nBs_ht   -> Write();
+    hINT_nJets_nBs_ht-> Write();
 
     for (int nj = 0; nj < 5; nj++)
     {
