@@ -43,7 +43,7 @@ SVfitKLUBinterface::SVfitKLUBinterface (int verbosity, TLorentzVector tau1, TLor
 
   else // TauTau
   {
-    l1Type = classic_svFit::MeasuredTauLepton::kTauToElecDecay;
+    l1Type = classic_svFit::MeasuredTauLepton::kTauToHadDecay;
     mass1  = tau1.M();
     decay1 = DM1;
     l2Type = classic_svFit::MeasuredTauLepton::kTauToHadDecay;
