@@ -53,6 +53,8 @@
 using namespace std ;
 using DNNVector = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<float>>;
 
+const int nMaxEvts = 1;
+
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // open input txt file and append all the files it contains to TChain
 void appendFromFileList (TChain* chain, TString filename)
@@ -127,7 +129,8 @@ float getZ (float eta, float eta1, float eta2)
 int main (int argc, char** argv)
 {
 
-  TString inputFileName = "/gwteraz/users/brivio/SKIMMED_Legacy2017_27mar2020_DNN/SKIM_GGHHSM/output_0.root";
+  //TString inputFileName = "/gwteraz/users/brivio/SKIMMED_Legacy2017_27mar2020_DNN/SKIM_GGHHSM/output_0.root";
+  TString inputFileName = "/afs/cern.ch/user/d/dzuolo/public/VBF2016_Sync_26mar20.root";
   TString outputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/DNN2/CMSSW_10_2_16/src/KLUBAnalysis/systTEST.root";
   cout << "** INFO: inputFile  : " << inputFileName << endl;
   cout << "** INFO: outputFile : " << outputFileName << endl;
@@ -192,7 +195,7 @@ int main (int argc, char** argv)
   for (Long64_t iEvent = 0 ; iEvent<nentries ; ++iEvent) 
   {
     if (iEvent % 500 == 0)  cout << "  - reading event " << iEvent << endl ;
-    if (iEvent == 5000 ) break;
+    if (iEvent == nMaxEvts ) break;
 
     inputChain->GetEntry(iEvent);
     if ( nleps!=0 || nbjetscand<2 || pairType>3) continue;
@@ -219,11 +222,14 @@ int main (int argc, char** argv)
   int hypo_mh2 = 125;
 
   // Read branches needed for computation of KinFit, MT2, SVfit, BDT, DNN
-  float dau1_pt, dau1_eta, dau1_phi, dau1_e, dau2_pt, dau2_eta, dau2_phi, dau2_e;
-  int DM1, DM2, pType;
-  float bjet1_pt, bjet1_eta, bjet1_phi, bjet1_e, bjet1_JER, bjet2_pt, bjet2_eta, bjet2_phi, bjet2_e, bjet2_JER;
-  float met_phi, met_et, met_cov00, met_cov01, met_cov10, met_cov11;
-  float HHKin_mass, HHKin_chi2, MT2, tauH_SVFIT_pt, tauH_SVFIT_eta, tauH_SVFIT_phi, tauH_SVFIT_mass;
+  ULong64_t EventNumber;
+  Float_t dau1_pt, dau1_eta, dau1_phi, dau1_e, dau2_pt, dau2_eta, dau2_phi, dau2_e;
+  Int_t DM1, DM2, pType;
+  Float_t bjet1_pt, bjet1_eta, bjet1_phi, bjet1_e, bjet1_JER, bjet2_pt, bjet2_eta, bjet2_phi, bjet2_e, bjet2_JER;
+  Float_t met_phi, met_et, met_cov00, met_cov01, met_cov10, met_cov11;
+  Float_t HHKin_mass, HHKin_chi2, MT2, tauH_SVFIT_pt, tauH_SVFIT_eta, tauH_SVFIT_phi, tauH_SVFIT_mass;
+
+  outTree->SetBranchAddress("EventNumber" , &EventNumber);
 
   outTree->SetBranchAddress("dau1_pt" , &dau1_pt);
   outTree->SetBranchAddress("dau1_eta", &dau1_eta);
@@ -265,8 +271,8 @@ int main (int argc, char** argv)
   outTree->SetBranchAddress("tauH_SVFIT_mass", &tauH_SVFIT_mass); // FIXME: To be removed later
 
   // Declare new branches
-  double HHKin_mass_new, HHKin_mass_chi2_new, MT2_new;
-  double tauH_SVFIT_pt_new, tauH_SVFIT_eta_new, tauH_SVFIT_phi_new, tauH_SVFIT_mass_new;
+  Float_t HHKin_mass_new, HHKin_mass_chi2_new, MT2_new;
+  Float_t tauH_SVFIT_pt_new, tauH_SVFIT_eta_new, tauH_SVFIT_phi_new, tauH_SVFIT_mass_new;
   TBranch* b_HHKin_mass_new = outTree->Branch("HHKin_mass_new", &HHKin_mass_new);
   TBranch* b_HHKin_mass_chi2_new = outTree->Branch("HHKin_mass_chi2_new", &HHKin_mass_chi2_new);
   TBranch* b_MT2_new = outTree->Branch("MT2_new", &MT2_new);
@@ -280,7 +286,7 @@ int main (int argc, char** argv)
   for(int i=0;i<outTree->GetEntries();i++)
   {
     if (i % 500 == 0)  cout << "- reading event " << i << endl ;
-    if (i == 5000 ) break;
+    if (i == nMaxEvts ) break;
 
     // Get Entry
     outTree->GetEntry(i);
