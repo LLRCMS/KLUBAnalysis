@@ -1964,112 +1964,172 @@ int main (int argc, char** argv)
 
       // scale up: only applies to tau
       // TES up/down
-      TLorentzVector tlv_firstLepton_tauup (tlv_firstLepton);
-      TLorentzVector tlv_firstLepton_taudown (tlv_firstLepton);
-      if (lep1HasTES)
-      {
-        tlv_firstLepton_tauup.SetPxPyPzE (
-                        theBigTree.daughters_px_TauUp->at (firstDaughterIndex),
-                        theBigTree.daughters_py_TauUp->at (firstDaughterIndex),
-                        theBigTree.daughters_pz_TauUp->at (firstDaughterIndex),
-                        theBigTree.daughters_e_TauUp->at (firstDaughterIndex)
-                        );
-        tlv_firstLepton_taudown.SetPxPyPzE (
-                          theBigTree.daughters_px_TauDown->at (firstDaughterIndex),
-                          theBigTree.daughters_py_TauDown->at (firstDaughterIndex),
-                          theBigTree.daughters_pz_TauDown->at (firstDaughterIndex),
-                          theBigTree.daughters_e_TauDown->at (firstDaughterIndex)
-                          );
-      }
+      int N_tauhDM = 4; 
 
-      TLorentzVector tlv_secondLepton_tauup (tlv_secondLepton);
-      TLorentzVector tlv_secondLepton_taudown (tlv_secondLepton);
-      if (lep2HasTES)
-      {
-        tlv_secondLepton_tauup.SetPxPyPzE (
-                         theBigTree.daughters_px_TauUp->at (secondDaughterIndex),
-                         theBigTree.daughters_py_TauUp->at (secondDaughterIndex),
-                         theBigTree.daughters_pz_TauUp->at (secondDaughterIndex),
-                         theBigTree.daughters_e_TauUp->at (secondDaughterIndex)
-                         );
-        tlv_secondLepton_taudown.SetPxPyPzE (
-                           theBigTree.daughters_px_TauDown->at (secondDaughterIndex),
-                           theBigTree.daughters_py_TauDown->at (secondDaughterIndex),
-                           theBigTree.daughters_pz_TauDown->at (secondDaughterIndex),
-                           theBigTree.daughters_e_TauDown->at (secondDaughterIndex)
-                           );
-      }
+      vector <double> unc_TES_first(N_tauhDM);
+      vector <double> unc_TES_second(N_tauhDM);
 
-      // EES up/down
-      TLorentzVector tlv_firstLepton_eleup (tlv_firstLepton);
-      TLorentzVector tlv_firstLepton_eledown (tlv_firstLepton);
-      if (lep1HasEES)
-      {
-        tlv_firstLepton_eleup.SetPxPyPzE (
-                        theBigTree.daughters_px_EleUp->at (firstDaughterIndex),
-                        theBigTree.daughters_py_EleUp->at (firstDaughterIndex),
-                        theBigTree.daughters_pz_EleUp->at (firstDaughterIndex),
-                        theBigTree.daughters_e_EleUp->at (firstDaughterIndex)
-                        );
-        tlv_firstLepton_eledown.SetPxPyPzE (
-                          theBigTree.daughters_px_EleDown->at (firstDaughterIndex),
-                          theBigTree.daughters_py_EleDown->at (firstDaughterIndex),
-                          theBigTree.daughters_pz_EleDown->at (firstDaughterIndex),
-                          theBigTree.daughters_e_EleDown->at (firstDaughterIndex)
-                          );
-      }
+      unc_TES_first.push_back(theBigTree.daughters_TESshiftDM0 ->at (firstDaughterIndex)); // first daughter, DM 0
+      unc_TES_first.push_back(theBigTree.daughters_TESshiftDM1 ->at (firstDaughterIndex)); // first daughter, DM 1
+      unc_TES_first.push_back(theBigTree.daughters_TESshiftDM10 ->at (firstDaughterIndex)); // first daughter, DM 10
+      unc_TES_first.push_back(theBigTree.daughters_TESshiftDM11 ->at (firstDaughterIndex)); // first daughter, DM 11
 
-      TLorentzVector tlv_secondLepton_eleup (tlv_secondLepton);
-      TLorentzVector tlv_secondLepton_eledown (tlv_secondLepton);
-      if (lep2HasEES)
-      {
-        tlv_secondLepton_eleup.SetPxPyPzE (
-                         theBigTree.daughters_px_EleUp->at (secondDaughterIndex),
-                         theBigTree.daughters_py_EleUp->at (secondDaughterIndex),
-                         theBigTree.daughters_pz_EleUp->at (secondDaughterIndex),
-                         theBigTree.daughters_e_EleUp->at (secondDaughterIndex)
-                         );
-        tlv_secondLepton_eledown.SetPxPyPzE (
-                           theBigTree.daughters_px_TauDown->at (secondDaughterIndex),
-                           theBigTree.daughters_py_TauDown->at (secondDaughterIndex),
-                           theBigTree.daughters_pz_TauDown->at (secondDaughterIndex),
-                           theBigTree.daughters_e_TauDown->at (secondDaughterIndex)
-                           );
-      }
+      unc_TES_second.push_back(theBigTree.daughters_TESshiftDM0 ->at (secondDaughterIndex)); // second daughter, DM 0
+      unc_TES_second.push_back(theBigTree.daughters_TESshiftDM1 ->at (secondDaughterIndex)); // second daughter, DM 1
+      unc_TES_second.push_back(theBigTree.daughters_TESshiftDM10 ->at (secondDaughterIndex)); // second daughter, DM 10
+      unc_TES_second.push_back(theBigTree.daughters_TESshiftDM11 ->at (secondDaughterIndex)); // second daughter, DM 11
 
-      if (DEBUG)
-      {
-        cout << "------- CHOSEN PAIR -------" << endl;
-        cout << " dau_1 (pt,eta,phi,iso): "<<tlv_firstLepton.Pt()<<" "<<tlv_firstLepton.Eta()<<" "<<tlv_firstLepton.Phi()<<" "<<getIso(firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree)<<endl;
-        cout << " dau_2 (pt,eta,phi,iso): "<<tlv_secondLepton.Pt()<<" "<<tlv_secondLepton.Eta()<<" "<<tlv_secondLepton.Phi()<<" "<<getIso(secondDaughterIndex, tlv_secondLepton.Pt (), theBigTree)<<endl;
-        cout << "---------------------"<< endl;
-      }
 
-      if (DEBUG)
-      {
-        cout << "------- TAU TES DEBUG -------" << endl;
-        cout << " tau1 centr: " << tlv_firstLepton.Pt() << " / " << tlv_firstLepton.Eta() << endl;
-        cout << " tau1 up: " << tlv_firstLepton_tauup.Pt() << " / " << tlv_firstLepton_tauup.Eta() << endl;
-        cout << " tau1 dw: " << tlv_firstLepton_taudown.Pt() << " / " << tlv_firstLepton_taudown.Eta() << endl;
+      vector <TLorentzVector> tlv_firstLepton_tauup (N_tauhDM); 
+      vector <TLorentzVector> tlv_firstLepton_taudown (N_tauhDM); 
+      vector <TLorentzVector> tlv_secondLepton_tauup (N_tauhDM); 
+      vector <TLorentzVector> tlv_secondLepton_taudown (N_tauhDM); 
 
-        cout << " tau2 centr: " << tlv_secondLepton.Pt() << " / " << tlv_secondLepton.Eta() << endl;
-        cout << " tau2 up: " << tlv_secondLepton_tauup.Pt() << " / " << tlv_secondLepton_tauup.Eta() << endl;
-        cout << " tau2 dw: " << tlv_secondLepton_taudown.Pt() << " / " << tlv_secondLepton_taudown.Eta() << endl;
-        cout << "---------------------"<< endl;
-      }
+      //EES:
+      int N_tauhDM_EES = 2; 
+      vector <double> unc_EES_first(N_tauhDM_EES);
+      vector <double> unc_EES_second(N_tauhDM_EES);
 
-      if (DEBUG)
-      {
-        cout << "------- TAU EES DEBUG -------" << endl;
-        cout << " tau1 centr: " << tlv_firstLepton.Pt() << " / " << tlv_firstLepton.Eta() << endl;
-        cout << " tau1 up: " << tlv_firstLepton_eleup.Pt() << " / " << tlv_firstLepton_eleup.Eta() << endl;
-        cout << " tau1 dw: " << tlv_firstLepton_eledown.Pt() << " / " << tlv_firstLepton_eledown.Eta() << endl;
+      unc_EES_first.push_back(theBigTree.daughters_EESshiftDM0 ->at (firstDaughterIndex)); // first daughter, DM 0
+      unc_EES_first.push_back(theBigTree.daughters_EESshiftDM1 ->at (firstDaughterIndex)); // first daughter, DM 1
 
-        cout << " tau2 centr: " << tlv_secondLepton.Pt() << " / " << tlv_secondLepton.Eta() << endl;
-        cout << " tau2 up: " << tlv_secondLepton_eleup.Pt() << " / " << tlv_secondLepton_eleup.Eta() << endl;
-        cout << " tau2 dw: " << tlv_secondLepton_eledown.Pt() << " / " << tlv_secondLepton_eledown.Eta() << endl;
-        cout << "---------------------"<< endl;
-      }
+      unc_EES_second.push_back(theBigTree.daughters_EESshiftDM0 ->at (secondDaughterIndex)); // second daughter, DM 0
+      unc_EES_second.push_back(theBigTree.daughters_EESshiftDM1 ->at (secondDaughterIndex)); // second daughter, DM 1
+
+      vector <TLorentzVector> tlv_firstLepton_eleup(N_tauhDM_EES); 
+      vector <TLorentzVector> tlv_firstLepton_eledown(N_tauhDM_EES); 
+      vector <TLorentzVector> tlv_secondLepton_eleup(N_tauhDM_EES); 
+      vector <TLorentzVector> tlv_secondLepton_eledown(N_tauhDM_EES); 
+      
+      // for each decay mode, bool indicating if this lepton matches the dacay mode in the loop
+      vector<bool> isthisDM_first = {
+	(theSmallTree.m_dau1_decayMode == 0? true :  false), 
+	(theSmallTree.m_dau1_decayMode == 1? true :  false), 
+	(theSmallTree.m_dau1_decayMode == 10? true :  false), 
+	(theSmallTree.m_dau1_decayMode == 11? true :  false)
+      };
+
+      vector<bool> isthisDM_second = {
+	(theSmallTree.m_dau2_decayMode == 0? true :  false), 
+	(theSmallTree.m_dau2_decayMode == 1? true :  false), 
+	(theSmallTree.m_dau2_decayMode == 10? true :  false), 
+	(theSmallTree.m_dau2_decayMode == 11? true :  false)
+      };
+      
+      
+      // loop over DMs to fill the shifted TLVs
+      for (int idm  = 0; idm < N_tauhDM; idm ++)
+	{
+	  
+	  tlv_firstLepton_tauup.push_back(tlv_firstLepton);
+	  tlv_firstLepton_taudown.push_back(tlv_firstLepton);
+	  tlv_secondLepton_tauup.push_back(tlv_secondLepton);
+          tlv_secondLepton_taudown.push_back(tlv_secondLepton);
+	  
+	  if (lep1HasTES)
+	    {
+	      double px_up = ((isthisDM_first[idm])? tlv_firstLepton.Px() : tlv_firstLepton.Px() * ( 1 + unc_TES_first[idm]));
+	      double py_up = ((isthisDM_first[idm])? tlv_firstLepton.Py() : tlv_firstLepton.Py() * ( 1 + unc_TES_first[idm]));
+	      double pz_up = ((isthisDM_first[idm])? tlv_firstLepton.Pz() : tlv_firstLepton.Pz() * ( 1 + unc_TES_first[idm]));
+	      double m_up =  ((isthisDM_first[idm] && idm > 0)? tlv_firstLepton.M() : tlv_firstLepton.M() * ( 1 + unc_TES_first[idm]));  // no mass shift for DM == 0
+	      double e_up = TMath::Sqrt(px_up*px_up + py_up*py_up + pz_up*pz_up + m_up*m_up);
+	      tlv_firstLepton_tauup[idm].SetPxPyPzE (px_up, py_up, pz_up, e_up);
+	      
+	      double px_down = ((isthisDM_first[idm])? tlv_firstLepton.Px() : tlv_firstLepton.Px() * ( 1 - unc_TES_first[idm]));
+	      double py_down = ((isthisDM_first[idm])? tlv_firstLepton.Py() : tlv_firstLepton.Py() * ( 1 - unc_TES_first[idm]));
+	      double pz_down = ((isthisDM_first[idm])? tlv_firstLepton.Pz() : tlv_firstLepton.Pz() * ( 1 - unc_TES_first[idm]));
+	      double m_down =  ((isthisDM_first[idm] && idm > 0)? tlv_firstLepton.M() : tlv_firstLepton.M() * ( 1 - unc_TES_first[idm]));  // no mass shift for DM == 0
+	      double e_down = TMath::Sqrt(px_down*px_down + py_down*py_down + pz_down*pz_down + m_down*m_down);
+	      tlv_firstLepton_taudown[idm].SetPxPyPzE (px_down, py_down, pz_down, e_down);
+	      
+	    }else if(lep1HasEES && idm < N_tauhDM_EES){
+	    
+	    double px_up = ((isthisDM_first[idm])? tlv_firstLepton.Px() : tlv_firstLepton.Px() * ( 1 + unc_EES_first[idm]));
+	    double py_up = ((isthisDM_first[idm])? tlv_firstLepton.Py() : tlv_firstLepton.Py() * ( 1 + unc_EES_first[idm]));
+	    double pz_up = ((isthisDM_first[idm])? tlv_firstLepton.Pz() : tlv_firstLepton.Pz() * ( 1 + unc_EES_first[idm]));
+	    double m_up =  ((isthisDM_first[idm])? tlv_firstLepton.M()  : tlv_firstLepton.M()  * ( 1 + unc_EES_first[idm]));  
+	    double e_up = TMath::Sqrt(px_up*px_up + py_up*py_up + pz_up*pz_up + m_up*m_up);
+	    tlv_firstLepton_eleup[idm].SetPxPyPzE (px_up, py_up, pz_up, e_up);
+	    
+	    double px_down = ((isthisDM_first[idm])? tlv_firstLepton.Px() : tlv_firstLepton.Px() * ( 1 - unc_EES_first[idm]));
+	    double py_down = ((isthisDM_first[idm])? tlv_firstLepton.Py() : tlv_firstLepton.Py() * ( 1 - unc_EES_first[idm]));
+	    double pz_down = ((isthisDM_first[idm])? tlv_firstLepton.Pz() : tlv_firstLepton.Pz() * ( 1 - unc_EES_first[idm]));
+	    double m_down =  ((isthisDM_first[idm])? tlv_firstLepton.M()  : tlv_firstLepton.M() * ( 1 - unc_EES_first[idm]));  
+	    double e_down = TMath::Sqrt(px_down*px_down + py_down*py_down + pz_down*pz_down + m_down*m_down);
+	    tlv_firstLepton_eledown[idm].SetPxPyPzE (px_down, py_down, pz_down, e_down);
+	  
+	  }
+	  
+	  
+	  if (lep2HasTES)
+	    {
+	      double px_up = ((isthisDM_second[idm])? tlv_secondLepton.Px() : tlv_secondLepton.Px() * ( 1 + unc_TES_second[idm]));
+	      double py_up = ((isthisDM_second[idm])? tlv_secondLepton.Py() : tlv_secondLepton.Py() * ( 1 + unc_TES_second[idm]));
+	      double pz_up = ((isthisDM_second[idm])? tlv_secondLepton.Pz() : tlv_secondLepton.Pz() * ( 1 + unc_TES_second[idm]));
+	      double m_up =  ((isthisDM_second[idm] && idm > 0)? tlv_secondLepton.M() : tlv_secondLepton.M() * ( 1 + unc_TES_second[idm]));  // no mass shift for DM == 0
+	      double e_up = TMath::Sqrt(px_up*px_up + py_up*py_up + pz_up*pz_up + m_up*m_up);
+	      tlv_secondLepton_tauup[idm].SetPxPyPzE (px_up, py_up, pz_up, e_up);
+	      
+	      double px_down = ((isthisDM_second[idm])? tlv_secondLepton.Px() : tlv_secondLepton.Px() * ( 1 - unc_TES_second[idm]));
+	      double py_down = ((isthisDM_second[idm])? tlv_secondLepton.Py() : tlv_secondLepton.Py() * ( 1 - unc_TES_second[idm]));
+	      double pz_down = ((isthisDM_second[idm])? tlv_secondLepton.Pz() : tlv_secondLepton.Pz() * ( 1 - unc_TES_second[idm]));
+	      double m_down =  ((isthisDM_second[idm] && idm > 0)? tlv_secondLepton.M() : tlv_secondLepton.M() * ( 1 - unc_TES_second[idm]));  // no mass shift for DM == 0
+	      double e_down = TMath::Sqrt(px_down*px_down + py_down*py_down + pz_down*pz_down + m_down*m_down);
+	      tlv_secondLepton_taudown[idm].SetPxPyPzE (px_down, py_down, pz_down, e_down);
+	      
+	    }else if(lep2HasEES && idm < N_tauhDM_EES){
+	    
+	    double px_up = ((isthisDM_second[idm])? tlv_secondLepton.Px() : tlv_secondLepton.Px() * ( 1 + unc_EES_second[idm]));
+	    double py_up = ((isthisDM_second[idm])? tlv_secondLepton.Py() : tlv_secondLepton.Py() * ( 1 + unc_EES_second[idm]));
+	    double pz_up = ((isthisDM_second[idm])? tlv_secondLepton.Pz() : tlv_secondLepton.Pz() * ( 1 + unc_EES_second[idm]));
+	    double m_up =  ((isthisDM_second[idm])? tlv_secondLepton.M()  : tlv_secondLepton.M()  * ( 1 + unc_EES_second[idm]));
+	    double e_up = TMath::Sqrt(px_up*px_up + py_up*py_up + pz_up*pz_up + m_up*m_up);
+	    tlv_secondLepton_eleup[idm].SetPxPyPzE (px_up, py_up, pz_up, e_up);
+	    
+	    double px_down = ((isthisDM_second[idm])? tlv_secondLepton.Px() : tlv_secondLepton.Px() * ( 1 - unc_EES_second[idm]));
+	    double py_down = ((isthisDM_second[idm])? tlv_secondLepton.Py() : tlv_secondLepton.Py() * ( 1 - unc_EES_second[idm]));
+	    double pz_down = ((isthisDM_second[idm])? tlv_secondLepton.Pz() : tlv_secondLepton.Pz() * ( 1 - unc_EES_second[idm]));
+	    double m_down =  ((isthisDM_second[idm])? tlv_secondLepton.M() : tlv_secondLepton.M() * ( 1 - unc_EES_second[idm]));
+	    double e_down = TMath::Sqrt(px_down*px_down + py_down*py_down + pz_down*pz_down + m_down*m_down);
+	    tlv_secondLepton_eledown[idm].SetPxPyPzE (px_down, py_down, pz_down, e_down);
+	    
+	  }
+	  
+	}
+
+ //     if (DEBUG)
+ //     {
+ //       cout << "------- CHOSEN PAIR -------" << endl;
+ //       cout << " dau_1 (pt,eta,phi,iso): "<<tlv_firstLepton.Pt()<<" "<<tlv_firstLepton.Eta()<<" "<<tlv_firstLepton.Phi()<<" "<<getIso(firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree)<<endl;
+ //       cout << " dau_2 (pt,eta,phi,iso): "<<tlv_secondLepton.Pt()<<" "<<tlv_secondLepton.Eta()<<" "<<tlv_secondLepton.Phi()<<" "<<getIso(secondDaughterIndex, tlv_secondLepton.Pt (), theBigTree)<<endl;
+ //       cout << "---------------------"<< endl;
+ //     }
+ //
+ //     if (DEBUG)
+ //     {
+ //       cout << "------- TAU TES DEBUG -------" << endl;
+ //       cout << " tau1 centr: " << tlv_firstLepton.Pt() << " / " << tlv_firstLepton.Eta() << endl;
+ //       cout << " tau1 up: " << tlv_firstLepton_tauup.Pt() << " / " << tlv_firstLepton_tauup.Eta() << endl;
+ //       cout << " tau1 dw: " << tlv_firstLepton_taudown.Pt() << " / " << tlv_firstLepton_taudown.Eta() << endl;
+ //
+ //       cout << " tau2 centr: " << tlv_secondLepton.Pt() << " / " << tlv_secondLepton.Eta() << endl;
+ //       cout << " tau2 up: " << tlv_secondLepton_tauup.Pt() << " / " << tlv_secondLepton_tauup.Eta() << endl;
+ //       cout << " tau2 dw: " << tlv_secondLepton_taudown.Pt() << " / " << tlv_secondLepton_taudown.Eta() << endl;
+ //       cout << "---------------------"<< endl;
+ //     }
+
+ //     if (DEBUG)
+ //     {
+ //       cout << "------- TAU EES DEBUG -------" << endl;
+ //       cout << " tau1 centr: " << tlv_firstLepton.Pt() << " / " << tlv_firstLepton.Eta() << endl;
+ //       cout << " tau1 up: " << tlv_firstLepton_eleup.Pt() << " / " << tlv_firstLepton_eleup.Eta() << endl;
+ //       cout << " tau1 dw: " << tlv_firstLepton_eledown.Pt() << " / " << tlv_firstLepton_eledown.Eta() << endl;
+ //
+ //       cout << " tau2 centr: " << tlv_secondLepton.Pt() << " / " << tlv_secondLepton.Eta() << endl;
+ //       cout << " tau2 up: " << tlv_secondLepton_eleup.Pt() << " / " << tlv_secondLepton_eleup.Eta() << endl;
+ //       cout << " tau2 dw: " << tlv_secondLepton_eledown.Pt() << " / " << tlv_secondLepton_eledown.Eta() << endl;
+ //       cout << "---------------------"<< endl;
+ //     }
 
 
       // DATA strategy
@@ -2273,39 +2333,39 @@ int main (int argc, char** argv)
       //TVector2 vMET_jetup   = getShiftedMET(+1., vMET, theBigTree, DEBUG);
       //TVector2 vMET_jetdown = getShiftedMET(-1., vMET, theBigTree, DEBUG);
       // Now we use the total shift already stored in LLR ntuples
-      TVector2 vMET_jetup   (theBigTree.METx_UP_JES->at(chosenTauPair) , theBigTree.METy_UP_JES->at(chosenTauPair));
-      TVector2 vMET_jetdown (theBigTree.METx_DOWN_JES->at(chosenTauPair) , theBigTree.METy_DOWN_JES->at(chosenTauPair));
-      theSmallTree.m_met_phi_jetup   = vMET_jetup.Phi();
-      theSmallTree.m_met_et_jetup    = vMET_jetup.Mod();
-      theSmallTree.m_met_phi_jetdown = vMET_jetdown.Phi();
-      theSmallTree.m_met_et_jetdown  = vMET_jetdown.Mod();
+      //TVector2 vMET_jetup   (theBigTree.METx_UP_JES->at(chosenTauPair) , theBigTree.METy_UP_JES->at(chosenTauPair)); //CHIA
+      //TVector2 vMET_jetdown (theBigTree.METx_DOWN_JES->at(chosenTauPair) , theBigTree.METy_DOWN_JES->at(chosenTauPair));
+      //theSmallTree.m_met_phi_jetup   = vMET_jetup.Phi();
+      //theSmallTree.m_met_et_jetup    = vMET_jetup.Mod();
+      //theSmallTree.m_met_phi_jetdown = vMET_jetdown.Phi();
+      //theSmallTree.m_met_et_jetdown  = vMET_jetdown.Mod();
 
-      // Shifted MET for TES
-      TVector2 vMET_tauup   (theBigTree.METx_UP_TES->at(chosenTauPair)  , theBigTree.METy_UP_TES->at(chosenTauPair));
-      TVector2 vMET_taudown (theBigTree.METx_DOWN_TES->at(chosenTauPair), theBigTree.METy_DOWN_TES->at(chosenTauPair));
-      theSmallTree.m_met_phi_tauup   = vMET_tauup.Phi();
-      theSmallTree.m_met_et_tauup    = vMET_tauup.Mod();
-      theSmallTree.m_met_phi_taudown = vMET_taudown.Phi();
-      theSmallTree.m_met_et_taudown  = vMET_taudown.Mod();
+      // Shifted MET for TES //CHIA
+      //TVector2 vMET_tauup   (theBigTree.METx_UP_TES->at(chosenTauPair)  , theBigTree.METy_UP_TES->at(chosenTauPair));
+      //TVector2 vMET_taudown (theBigTree.METx_DOWN_TES->at(chosenTauPair), theBigTree.METy_DOWN_TES->at(chosenTauPair));
+      //theSmallTree.m_met_phi_tauup   = vMET_tauup.Phi();
+      //theSmallTree.m_met_et_tauup    = vMET_tauup.Mod();
+      //theSmallTree.m_met_phi_taudown = vMET_taudown.Phi();
+      //theSmallTree.m_met_et_taudown  = vMET_taudown.Mod();
 
-      // Shifted MET for EES
-      TVector2 vMET_eleup   (theBigTree.METx_UP_EES->at(chosenTauPair)  , theBigTree.METy_UP_EES->at(chosenTauPair));
-      TVector2 vMET_eledown (theBigTree.METx_DOWN_EES->at(chosenTauPair), theBigTree.METy_DOWN_EES->at(chosenTauPair));
-      theSmallTree.m_met_phi_eleup   = vMET_eleup.Phi();
-      theSmallTree.m_met_et_eleup    = vMET_eleup.Mod();
-      theSmallTree.m_met_phi_eledown = vMET_eledown.Phi();
-      theSmallTree.m_met_et_eledown  = vMET_eledown.Mod();
+      // Shifted MET for EES //CHIA
+      //TVector2 vMET_eleup   (theBigTree.METx_UP_EES->at(chosenTauPair)  , theBigTree.METy_UP_EES->at(chosenTauPair));
+      //TVector2 vMET_eledown (theBigTree.METx_DOWN_EES->at(chosenTauPair), theBigTree.METy_DOWN_EES->at(chosenTauPair));
+      //theSmallTree.m_met_phi_eleup   = vMET_eleup.Phi();
+      //theSmallTree.m_met_et_eleup    = vMET_eleup.Mod();
+      //theSmallTree.m_met_phi_eledown = vMET_eledown.Phi();
+      //theSmallTree.m_met_et_eledown  = vMET_eledown.Mod();
 
       if (DEBUG)
       {
         cout << "------- MET DEBUG -------" << endl;
         cout << " met centr : " << theSmallTree.m_met_et << " / " << theSmallTree.m_met_phi << endl;
-        cout << " met jet up: " << theSmallTree.m_met_et_jetup << " / " << theSmallTree.m_met_phi_jetup << endl;
-        cout << " met jet dw: " << theSmallTree.m_met_et_jetdown << " / " << theSmallTree.m_met_phi_jetdown << endl;
-        cout << " met tau up: " << theSmallTree.m_met_et_tauup << " / " << theSmallTree.m_met_phi_tauup << endl;
-        cout << " met tau dw: " << theSmallTree.m_met_et_taudown << " / " << theSmallTree.m_met_phi_taudown << endl;
-        cout << " met ele up: " << theSmallTree.m_met_et_eleup << " / " << theSmallTree.m_met_phi_eleup << endl;
-        cout << " met ele dw: " << theSmallTree.m_met_et_eledown << " / " << theSmallTree.m_met_phi_eledown << endl;
+        //cout << " met jet up: " << theSmallTree.m_met_et_jetup << " / " << theSmallTree.m_met_phi_jetup << endl;
+        //cout << " met jet dw: " << theSmallTree.m_met_et_jetdown << " / " << theSmallTree.m_met_phi_jetdown << endl;
+        //cout << " met tau up: " << theSmallTree.m_met_et_tauup << " / " << theSmallTree.m_met_phi_tauup << endl;
+        //cout << " met tau dw: " << theSmallTree.m_met_et_taudown << " / " << theSmallTree.m_met_phi_taudown << endl;
+        //cout << " met ele up: " << theSmallTree.m_met_et_eleup << " / " << theSmallTree.m_met_phi_eleup << endl;
+        //cout << " met ele dw: " << theSmallTree.m_met_et_eledown << " / " << theSmallTree.m_met_phi_eledown << endl;
         cout << "-------------------------" << endl;
       }
 
@@ -2383,10 +2443,37 @@ int main (int argc, char** argv)
       theSmallTree.m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (secondDaughterIndex) & (1 << ibit) ) ? true : false ;
 
       theSmallTree.m_dau1_pt = tlv_firstLepton.Pt () ;
-      theSmallTree.m_dau1_pt_tauup = tlv_firstLepton_tauup.Pt () ;
-      theSmallTree.m_dau1_pt_taudown = tlv_firstLepton_taudown.Pt () ;
-      theSmallTree.m_dau1_pt_eleup = tlv_firstLepton_eleup.Pt () ;
-      theSmallTree.m_dau1_pt_eledown = tlv_firstLepton_eledown.Pt () ;
+      theSmallTree.m_dau1_pt_tauup_DM0    = (tlv_firstLepton_tauup[0]).Pt () ;
+      theSmallTree.m_dau1_pt_tauup_DM1    = (tlv_firstLepton_tauup[1]).Pt () ;
+      theSmallTree.m_dau1_pt_tauup_DM10   = (tlv_firstLepton_tauup[2]).Pt () ;
+      theSmallTree.m_dau1_pt_tauup_DM11   = (tlv_firstLepton_tauup[3]).Pt () ;
+      theSmallTree.m_dau1_pt_taudown_DM0  = (tlv_firstLepton_taudown[0]).Pt () ;
+      theSmallTree.m_dau1_pt_taudown_DM1  = (tlv_firstLepton_taudown[1]).Pt () ;
+      theSmallTree.m_dau1_pt_taudown_DM10 = (tlv_firstLepton_taudown[2]).Pt () ;
+      theSmallTree.m_dau1_pt_taudown_DM11 = (tlv_firstLepton_taudown[3]).Pt () ;
+      
+      theSmallTree.m_dau1_pt_eleup_DM0 = (tlv_firstLepton_eleup[0]).Pt () ;
+      theSmallTree.m_dau1_pt_eleup_DM1 = (tlv_firstLepton_eleup[1]).Pt () ;
+
+      theSmallTree.m_dau1_pt_eledown_DM0 = (tlv_firstLepton_eledown[0]).Pt () ;
+      theSmallTree.m_dau1_pt_eledown_DM1 = (tlv_firstLepton_eledown[1]).Pt () ;
+
+      theSmallTree.m_dau1_mass_tauup_DM0    = (tlv_firstLepton_tauup[0]).M () ;
+      theSmallTree.m_dau1_mass_tauup_DM1    = (tlv_firstLepton_tauup[1]).M () ;
+      theSmallTree.m_dau1_mass_tauup_DM10   = (tlv_firstLepton_tauup[2]).M () ;
+      theSmallTree.m_dau1_mass_tauup_DM11   = (tlv_firstLepton_tauup[3]).M () ;
+      theSmallTree.m_dau1_mass_taudown_DM0  = (tlv_firstLepton_taudown[0]).M () ;
+      theSmallTree.m_dau1_mass_taudown_DM1  = (tlv_firstLepton_taudown[1]).M () ;
+      theSmallTree.m_dau1_mass_taudown_DM10 = (tlv_firstLepton_taudown[2]).M () ;
+      theSmallTree.m_dau1_mass_taudown_DM11 = (tlv_firstLepton_taudown[3]).M () ;
+      
+      theSmallTree.m_dau1_mass_eleup_DM0 = (tlv_firstLepton_eleup[0]).M () ;
+      theSmallTree.m_dau1_mass_eleup_DM1 = (tlv_firstLepton_eleup[1]).M () ;
+
+      theSmallTree.m_dau1_mass_eledown_DM0 = (tlv_firstLepton_eledown[0]).M () ;
+      theSmallTree.m_dau1_mass_eledown_DM1 = (tlv_firstLepton_eledown[1]).M () ;
+
+
       theSmallTree.m_dau1_eta = tlv_firstLepton.Eta () ;
       theSmallTree.m_dau1_phi = tlv_firstLepton.Phi () ;
       theSmallTree.m_dau1_e = theBigTree.daughters_e->at (firstDaughterIndex) ;
@@ -2408,10 +2495,37 @@ int main (int argc, char** argv)
       theSmallTree.m_dau2_deepTauVsMu = makeIsoDiscr (secondDaughterIndex, deepTauVsMuIdx , theBigTree) ;
       theSmallTree.m_dau2_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (secondDaughterIndex) ;      
       theSmallTree.m_dau2_pt = tlv_secondLepton.Pt () ;
-      theSmallTree.m_dau2_pt_tauup = tlv_secondLepton_tauup.Pt () ;
-      theSmallTree.m_dau2_pt_taudown = tlv_secondLepton_taudown.Pt () ;
-      theSmallTree.m_dau2_pt_eleup = tlv_secondLepton_eleup.Pt () ;
-      theSmallTree.m_dau2_pt_eledown = tlv_secondLepton_eledown.Pt () ;
+
+      theSmallTree.m_dau2_pt_tauup_DM0    = (tlv_secondLepton_tauup[0]).Pt () ;
+      theSmallTree.m_dau2_pt_tauup_DM1    = (tlv_secondLepton_tauup[1]).Pt () ;
+      theSmallTree.m_dau2_pt_tauup_DM10   = (tlv_secondLepton_tauup[2]).Pt () ;
+      theSmallTree.m_dau2_pt_tauup_DM11   = (tlv_secondLepton_tauup[3]).Pt () ;
+      theSmallTree.m_dau2_pt_taudown_DM0  = (tlv_secondLepton_taudown[0]).Pt () ;
+      theSmallTree.m_dau2_pt_taudown_DM1  = (tlv_secondLepton_taudown[1]).Pt () ;
+      theSmallTree.m_dau2_pt_taudown_DM10 = (tlv_secondLepton_taudown[2]).Pt () ;
+      theSmallTree.m_dau2_pt_taudown_DM11 = (tlv_secondLepton_taudown[3]).Pt () ;
+      
+      theSmallTree.m_dau2_pt_eleup_DM0 = (tlv_secondLepton_eleup[0]).Pt () ;
+      theSmallTree.m_dau2_pt_eleup_DM1 = (tlv_secondLepton_eleup[1]).Pt () ;
+
+      theSmallTree.m_dau2_pt_eledown_DM0 = (tlv_secondLepton_eledown[0]).Pt () ;
+      theSmallTree.m_dau2_pt_eledown_DM1 = (tlv_secondLepton_eledown[1]).Pt () ;
+
+      theSmallTree.m_dau2_mass_tauup_DM0    = (tlv_secondLepton_tauup[0]).M () ;
+      theSmallTree.m_dau2_mass_tauup_DM1    = (tlv_secondLepton_tauup[1]).M () ;
+      theSmallTree.m_dau2_mass_tauup_DM10   = (tlv_secondLepton_tauup[2]).M () ;
+      theSmallTree.m_dau2_mass_tauup_DM11   = (tlv_secondLepton_tauup[3]).M () ;
+      theSmallTree.m_dau2_mass_taudown_DM0  = (tlv_secondLepton_taudown[0]).M () ;
+      theSmallTree.m_dau2_mass_taudown_DM1  = (tlv_secondLepton_taudown[1]).M () ;
+      theSmallTree.m_dau2_mass_taudown_DM10 = (tlv_secondLepton_taudown[2]).M () ;
+      theSmallTree.m_dau2_mass_taudown_DM11 = (tlv_secondLepton_taudown[3]).M () ;
+      
+      theSmallTree.m_dau2_mass_eleup_DM0 = (tlv_secondLepton_eleup[0]).M () ;
+      theSmallTree.m_dau2_mass_eleup_DM1 = (tlv_secondLepton_eleup[1]).M () ;
+
+      theSmallTree.m_dau2_mass_eledown_DM0 = (tlv_secondLepton_eledown[0]).M () ;
+      theSmallTree.m_dau2_mass_eledown_DM1 = (tlv_secondLepton_eledown[1]).M () ;
+
       theSmallTree.m_dau2_eta = tlv_secondLepton.Eta () ;
       theSmallTree.m_dau2_phi = tlv_secondLepton.Phi () ;
       theSmallTree.m_dau2_e = theBigTree.daughters_e->at (secondDaughterIndex) ;
@@ -3246,64 +3360,274 @@ int main (int argc, char** argv)
         TLorentzVector tlv_firstBjet_raw = tlv_firstBjet;
         TLorentzVector tlv_secondBjet_raw = tlv_secondBjet;
 
-        // ----- up/down variation using JEC
-        double unc_first = theBigTree.jets_jecUnc->at (bjet1idx);
-        TLorentzVector tlv_firstBjet_raw_jetup = tlv_firstBjet_raw;
-        TLorentzVector tlv_firstBjet_raw_jetdown = tlv_firstBjet_raw;
+        // ----- up/down variation using 11 JEC sources
+	// https://github.com/LLRCMS/LLRHiggsTauTau/blob/102X_HH/NtupleProducer/plugins/HTauTauNtuplizer.cc#L2182-L2238
+	// store the up down variations in vectors:
+	int N_jecSources = 11; 
+	vector <double> unc_first_up(N_jecSources); 
+	unc_first_up.push_back(theBigTree.jets_jetUncRegrouped_FlavorQCD_up ->at (bjet1idx));               // first bjet, uncertainty source 1 , up
+	unc_first_up.push_back(theBigTree.jets_jetUncRegrouped_RelativeBal_up ->at (bjet1idx));             // first bjet, ...                  , up
+	unc_first_up.push_back(theBigTree.jets_jetUncRegrouped_HF_up ->at (bjet1idx));                      // first bjet, ...                  , up
+	unc_first_up.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_up ->at (bjet1idx));                   // first bjet, ...                  , up
+	unc_first_up.push_back(theBigTree.jets_jetUncRegrouped_EC2_up ->at (bjet1idx));                     // first bjet, ...                  , up
+	unc_first_up.push_back(theBigTree.jets_jetUncRegrouped_Absolute_up ->at (bjet1idx));                // first bjet, ...                  , up
+	unc_first_up.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_YEAR_up ->at (bjet1idx));              // first bjet, ...                  , up
+	unc_first_up.push_back(theBigTree.jets_jetUncRegrouped_EC2_YEAR_up ->at (bjet1idx));                // first bjet, ...                  , up
+	unc_first_up.push_back(theBigTree.jets_jetUncRegrouped_Absolute_YEAR_up ->at (bjet1idx));           // first bjet, ...                  , up
+	unc_first_up.push_back(theBigTree.jets_jetUncRegrouped_HF_YEAR_up ->at (bjet1idx));                 // first bjet, ...                  , up
+	unc_first_up.push_back(theBigTree.jets_jetUncRegrouped_RelativeSample_YEAR_up ->at (bjet1idx));      // first bjet, uncertainty source 11, up
 
-        tlv_firstBjet_raw_jetup.SetPtEtaPhiE(
-                           (1.+unc_first) *tlv_firstBjet_raw_jetup.Pt(),
-                           tlv_firstBjet_raw_jetup.Eta(),
-                           tlv_firstBjet_raw_jetup.Phi(),
-                           (1.+unc_first) *tlv_firstBjet_raw_jetup.E()
-                           );
-        tlv_firstBjet_raw_jetdown.SetPtEtaPhiE(
-                         (1.-unc_first) *tlv_firstBjet_raw_jetdown.Pt(),
-                         tlv_firstBjet_raw_jetdown.Eta(),
-                         tlv_firstBjet_raw_jetdown.Phi(),
-                         (1.-unc_first) *tlv_firstBjet_raw_jetdown.E()
-                         );
+	vector <double> unc_first_down(N_jecSources); 
+	unc_first_down.push_back(theBigTree.jets_jetUncRegrouped_FlavorQCD_dw ->at (bjet1idx));               // first bjet, uncertainty source 1 , down
+	unc_first_down.push_back(theBigTree.jets_jetUncRegrouped_RelativeBal_dw ->at (bjet1idx));             // first bjet, ...                  , down
+	unc_first_down.push_back(theBigTree.jets_jetUncRegrouped_HF_dw ->at (bjet1idx));                      // first bjet, ...                  , down
+	unc_first_down.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_dw ->at (bjet1idx));                   // first bjet, ...                  , down
+	unc_first_down.push_back(theBigTree.jets_jetUncRegrouped_EC2_dw ->at (bjet1idx));                     // first bjet, ...                  , down
+	unc_first_down.push_back(theBigTree.jets_jetUncRegrouped_Absolute_dw ->at (bjet1idx));                // first bjet, ...                  , down
+	unc_first_down.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_YEAR_dw ->at (bjet1idx));              // first bjet, ...                  , down
+	unc_first_down.push_back(theBigTree.jets_jetUncRegrouped_EC2_YEAR_dw ->at (bjet1idx));                // first bjet, ...                  , down
+	unc_first_down.push_back(theBigTree.jets_jetUncRegrouped_Absolute_YEAR_dw ->at (bjet1idx));           // first bjet, ...                  , down
+	unc_first_down.push_back(theBigTree.jets_jetUncRegrouped_HF_YEAR_dw ->at (bjet1idx));                 // first bjet, ...                  , down
+	unc_first_down.push_back(theBigTree.jets_jetUncRegrouped_RelativeSample_YEAR_dw ->at (bjet1idx));     // first bjet, uncertainty source 11, down
 
-        double unc_second = theBigTree.jets_jecUnc->at (bjet2idx);
-        TLorentzVector tlv_secondBjet_raw_jetup = tlv_secondBjet_raw;
-        TLorentzVector tlv_secondBjet_raw_jetdown = tlv_secondBjet_raw;
+	vector <double> unc_second_up(N_jecSources); 
+	unc_second_up.push_back(theBigTree.jets_jetUncRegrouped_FlavorQCD_up ->at (bjet2idx));               // second bjet, uncertainty source 1 , up
+	unc_second_up.push_back(theBigTree.jets_jetUncRegrouped_RelativeBal_up ->at (bjet2idx));             // second bjet, ...                  , up
+	unc_second_up.push_back(theBigTree.jets_jetUncRegrouped_HF_up ->at (bjet2idx));                      // second bjet, ...                  , up
+	unc_second_up.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_up ->at (bjet2idx));                   // second bjet, ...                  , up
+	unc_second_up.push_back(theBigTree.jets_jetUncRegrouped_EC2_up ->at (bjet2idx));                     // second bjet, ...                  , up
+	unc_second_up.push_back(theBigTree.jets_jetUncRegrouped_Absolute_up ->at (bjet2idx));                // second bjet, ...                  , up
+	unc_second_up.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_YEAR_up ->at (bjet2idx));              // second bjet, ...                  , up
+	unc_second_up.push_back(theBigTree.jets_jetUncRegrouped_EC2_YEAR_up ->at (bjet2idx));                // second bjet, ...                  , up
+	unc_second_up.push_back(theBigTree.jets_jetUncRegrouped_Absolute_YEAR_up ->at (bjet2idx));           // second bjet, ...                  , up
+	unc_second_up.push_back(theBigTree.jets_jetUncRegrouped_HF_YEAR_up ->at (bjet2idx));                 // second bjet, ...                  , up
+	unc_second_up.push_back(theBigTree.jets_jetUncRegrouped_RelativeSample_YEAR_up ->at (bjet2idx));     // second bjet, uncertainty source 11, up
 
-        tlv_secondBjet_raw_jetup.SetPtEtaPhiE(
-                        (1.+unc_second) *tlv_secondBjet_raw_jetup.Pt(),
-                        tlv_secondBjet_raw_jetup.Eta(),
-                        tlv_secondBjet_raw_jetup.Phi(),
-                        (1.+unc_second) *tlv_secondBjet_raw_jetup.E()
-                        );
-        tlv_secondBjet_raw_jetdown.SetPtEtaPhiE(
-                          (1.-unc_second) *tlv_secondBjet_raw_jetdown.Pt(),
-                          tlv_secondBjet_raw_jetdown.Eta(),
-                          tlv_secondBjet_raw_jetdown.Phi(),
-                          (1.-unc_second) *tlv_secondBjet_raw_jetdown.E()
-                          );
+	vector <double> unc_second_down(N_jecSources); 
+	unc_second_down.push_back(theBigTree.jets_jetUncRegrouped_FlavorQCD_dw ->at (bjet2idx));               // second bjet, uncertainty source 1 , down
+	unc_second_down.push_back(theBigTree.jets_jetUncRegrouped_RelativeBal_dw ->at (bjet2idx));             // second bjet, ...                  , down
+	unc_second_down.push_back(theBigTree.jets_jetUncRegrouped_HF_dw ->at (bjet2idx));                      // second bjet, ...                  , down
+	unc_second_down.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_dw ->at (bjet2idx));                   // second bjet, ...                  , down
+	unc_second_down.push_back(theBigTree.jets_jetUncRegrouped_EC2_dw ->at (bjet2idx));                     // second bjet, ...                  , down
+	unc_second_down.push_back(theBigTree.jets_jetUncRegrouped_Absolute_dw ->at (bjet2idx));                // second bjet, ...                  , down
+	unc_second_down.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_YEAR_dw ->at (bjet2idx));              // second bjet, ...                  , down
+	unc_second_down.push_back(theBigTree.jets_jetUncRegrouped_EC2_YEAR_dw ->at (bjet2idx));                // second bjet, ...                  , down
+	unc_second_down.push_back(theBigTree.jets_jetUncRegrouped_Absolute_YEAR_dw ->at (bjet2idx));           // second bjet, ...                  , down
+	unc_second_down.push_back(theBigTree.jets_jetUncRegrouped_HF_YEAR_dw ->at (bjet2idx));                 // second bjet, ...                  , down
+	unc_second_down.push_back(theBigTree.jets_jetUncRegrouped_RelativeSample_YEAR_dw ->at (bjet2idx));     // second bjet, uncertainty source 11, down
 
-        if (DEBUG)
-        {
-            cout << "-------- JET JEC -------" << endl;
-            cout << "jet1 UP: " << tlv_firstBjet_raw_jetup.Pt() <<endl;
-            cout << "jet1 DW: " << tlv_firstBjet_raw_jetdown.Pt()<<endl;
-            cout << "jet2 UP: " << tlv_secondBjet_raw_jetup.Pt()<<endl;
-            cout << "jet2 DW: " << tlv_secondBjet_raw_jetdown.Pt()<<endl;
-        }
+
+
+	// compute all shifted bjets
+        vector <TLorentzVector> tlv_firstBjet_raw_jetup(N_jecSources); 
+        vector <TLorentzVector> tlv_firstBjet_raw_jetdown(N_jecSources);
+        vector <TLorentzVector> tlv_secondBjet_raw_jetup(N_jecSources); 
+        vector <TLorentzVector> tlv_secondBjet_raw_jetdown(N_jecSources);
+
+	for (int isource = 0; isource < N_jecSources; isource++){
+            tlv_firstBjet_raw_jetup[isource].SetPtEtaPhiE(
+			       (1.+unc_first_up.at(isource)) *tlv_firstBjet_raw.Pt(),
+                               tlv_firstBjet_raw.Eta(),
+                               tlv_firstBjet_raw.Phi(),
+                               (1.+unc_first_up.at(isource)) *tlv_firstBjet_raw.E()
+                               );
+            tlv_firstBjet_raw_jetdown[isource].SetPtEtaPhiE(
+                               (1.-unc_first_down.at(isource)) *tlv_firstBjet_raw.Pt(),
+                               tlv_firstBjet_raw.Eta(),
+                               tlv_firstBjet_raw.Phi(),
+                               (1.-unc_first_down.at(isource)) *tlv_firstBjet_raw.E()
+                               );
+            tlv_secondBjet_raw_jetup[isource].SetPtEtaPhiE(
+                               (1.+unc_second_up.at(isource)) *tlv_secondBjet_raw.Pt(),
+                               tlv_secondBjet_raw.Eta(),
+                               tlv_secondBjet_raw.Phi(),
+                               (1.+unc_second_up.at(isource)) *tlv_secondBjet_raw.E()
+                               );
+            tlv_secondBjet_raw_jetdown[isource].SetPtEtaPhiE(
+                               (1.-unc_second_down.at(isource)) *tlv_secondBjet_raw.Pt(),
+                               tlv_secondBjet_raw.Eta(),
+                               tlv_secondBjet_raw.Phi(),
+                               (1.-unc_second_down.at(isource)) *tlv_secondBjet_raw.E()
+                               );
+
+	}
+
+
+
+//        if (DEBUG)
+//        {
+//            cout << "-------- JET JEC -------" << endl;
+//            cout << "jet1 UP: " << tlv_firstBjet_raw_jetup.Pt() <<endl;
+//            cout << "jet1 DW: " << tlv_firstBjet_raw_jetdown.Pt()<<endl;
+//            cout << "jet2 UP: " << tlv_secondBjet_raw_jetup.Pt()<<endl;
+//            cout << "jet2 DW: " << tlv_secondBjet_raw_jetdown.Pt()<<endl;
+//        }
 
         theSmallTree.m_bjet1_pt_raw = tlv_firstBjet_raw.Pt();
         theSmallTree.m_bjet2_pt_raw = tlv_secondBjet_raw.Pt();
-        theSmallTree.m_bjet1_pt_raw_jetup = tlv_firstBjet_raw_jetup.Pt();
-        theSmallTree.m_bjet2_pt_raw_jetup = tlv_secondBjet_raw_jetup.Pt();
-        theSmallTree.m_bjet1_pt_raw_jetdown = tlv_firstBjet_raw_jetdown.Pt();
-        theSmallTree.m_bjet2_pt_raw_jetdown = tlv_secondBjet_raw_jetdown.Pt();
+  
+	//store shifted pt
+        theSmallTree.m_bjet1_pt_raw_jetup1  = (tlv_firstBjet_raw_jetup[1]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetup2  = (tlv_firstBjet_raw_jetup[2]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetup3  = (tlv_firstBjet_raw_jetup[3]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetup4  = (tlv_firstBjet_raw_jetup[4]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetup5  = (tlv_firstBjet_raw_jetup[5]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetup6  = (tlv_firstBjet_raw_jetup[6]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetup7  = (tlv_firstBjet_raw_jetup[7]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetup8  = (tlv_firstBjet_raw_jetup[8]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetup9  = (tlv_firstBjet_raw_jetup[9]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetup10 = (tlv_firstBjet_raw_jetup[10]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetup11 = (tlv_firstBjet_raw_jetup[11]).Pt();
 
+        theSmallTree.m_bjet1_pt_raw_jetdown1  = (tlv_firstBjet_raw_jetdown[1]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetdown2  = (tlv_firstBjet_raw_jetdown[2]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetdown3  = (tlv_firstBjet_raw_jetdown[3]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetdown4  = (tlv_firstBjet_raw_jetdown[4]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetdown5  = (tlv_firstBjet_raw_jetdown[5]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetdown6  = (tlv_firstBjet_raw_jetdown[6]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetdown7  = (tlv_firstBjet_raw_jetdown[7]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetdown8  = (tlv_firstBjet_raw_jetdown[8]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetdown9  = (tlv_firstBjet_raw_jetdown[9]).Pt(); 
+        theSmallTree.m_bjet1_pt_raw_jetdown10 = (tlv_firstBjet_raw_jetdown[10]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetdown11 = (tlv_firstBjet_raw_jetdown[11]).Pt();
+
+        theSmallTree.m_bjet2_pt_raw_jetup1  = (tlv_secondBjet_raw_jetup[1]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetup2  = (tlv_secondBjet_raw_jetup[2]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetup3  = (tlv_secondBjet_raw_jetup[3]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetup4  = (tlv_secondBjet_raw_jetup[4]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetup5  = (tlv_secondBjet_raw_jetup[5]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetup6  = (tlv_secondBjet_raw_jetup[6]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetup7  = (tlv_secondBjet_raw_jetup[7]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetup8  = (tlv_secondBjet_raw_jetup[8]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetup9  = (tlv_secondBjet_raw_jetup[9]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetup10 = (tlv_secondBjet_raw_jetup[10]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetup11 = (tlv_secondBjet_raw_jetup[11]).Pt();
+
+        theSmallTree.m_bjet2_pt_raw_jetdown1  = (tlv_secondBjet_raw_jetdown[1]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetdown2  = (tlv_secondBjet_raw_jetdown[2]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetdown3  = (tlv_secondBjet_raw_jetdown[3]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetdown4  = (tlv_secondBjet_raw_jetdown[4]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetdown5  = (tlv_secondBjet_raw_jetdown[5]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetdown6  = (tlv_secondBjet_raw_jetdown[6]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetdown7  = (tlv_secondBjet_raw_jetdown[7]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetdown8  = (tlv_secondBjet_raw_jetdown[8]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetdown9  = (tlv_secondBjet_raw_jetdown[9]).Pt(); 
+        theSmallTree.m_bjet2_pt_raw_jetdown10 = (tlv_secondBjet_raw_jetdown[10]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetdown11 = (tlv_secondBjet_raw_jetdown[11]).Pt();
+
+
+	//store shifted mass
+        theSmallTree.m_bjet1_mass_raw_jetup1  = (tlv_firstBjet_raw_jetup[1]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetup2  = (tlv_firstBjet_raw_jetup[2]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetup3  = (tlv_firstBjet_raw_jetup[3]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetup4  = (tlv_firstBjet_raw_jetup[4]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetup5  = (tlv_firstBjet_raw_jetup[5]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetup6  = (tlv_firstBjet_raw_jetup[6]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetup7  = (tlv_firstBjet_raw_jetup[7]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetup8  = (tlv_firstBjet_raw_jetup[8]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetup9  = (tlv_firstBjet_raw_jetup[9]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetup10 = (tlv_firstBjet_raw_jetup[10]).M();
+        theSmallTree.m_bjet1_mass_raw_jetup11 = (tlv_firstBjet_raw_jetup[11]).M();
+
+        theSmallTree.m_bjet1_mass_raw_jetdown1  = (tlv_firstBjet_raw_jetdown[1]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetdown2  = (tlv_firstBjet_raw_jetdown[2]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetdown3  = (tlv_firstBjet_raw_jetdown[3]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetdown4  = (tlv_firstBjet_raw_jetdown[4]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetdown5  = (tlv_firstBjet_raw_jetdown[5]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetdown6  = (tlv_firstBjet_raw_jetdown[6]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetdown7  = (tlv_firstBjet_raw_jetdown[7]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetdown8  = (tlv_firstBjet_raw_jetdown[8]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetdown9  = (tlv_firstBjet_raw_jetdown[9]).M(); 
+        theSmallTree.m_bjet1_mass_raw_jetdown10 = (tlv_firstBjet_raw_jetdown[10]).M();
+        theSmallTree.m_bjet1_mass_raw_jetdown11 = (tlv_firstBjet_raw_jetdown[11]).M();
+
+        theSmallTree.m_bjet2_mass_raw_jetup1  = (tlv_secondBjet_raw_jetup[1]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetup2  = (tlv_secondBjet_raw_jetup[2]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetup3  = (tlv_secondBjet_raw_jetup[3]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetup4  = (tlv_secondBjet_raw_jetup[4]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetup5  = (tlv_secondBjet_raw_jetup[5]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetup6  = (tlv_secondBjet_raw_jetup[6]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetup7  = (tlv_secondBjet_raw_jetup[7]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetup8  = (tlv_secondBjet_raw_jetup[8]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetup9  = (tlv_secondBjet_raw_jetup[9]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetup10 = (tlv_secondBjet_raw_jetup[10]).M();
+        theSmallTree.m_bjet2_mass_raw_jetup11 = (tlv_secondBjet_raw_jetup[11]).M();
+
+        theSmallTree.m_bjet2_mass_raw_jetdown1  = (tlv_secondBjet_raw_jetdown[1]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetdown2  = (tlv_secondBjet_raw_jetdown[2]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetdown3  = (tlv_secondBjet_raw_jetdown[3]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetdown4  = (tlv_secondBjet_raw_jetdown[4]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetdown5  = (tlv_secondBjet_raw_jetdown[5]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetdown6  = (tlv_secondBjet_raw_jetdown[6]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetdown7  = (tlv_secondBjet_raw_jetdown[7]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetdown8  = (tlv_secondBjet_raw_jetdown[8]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetdown9  = (tlv_secondBjet_raw_jetdown[9]).M(); 
+        theSmallTree.m_bjet2_mass_raw_jetdown10 = (tlv_secondBjet_raw_jetdown[10]).M();
+        theSmallTree.m_bjet2_mass_raw_jetdown11 = (tlv_secondBjet_raw_jetdown[11]).M();
+
+
+	// variations propagated to bH 
         TLorentzVector tlv_bH_raw = tlv_firstBjet + tlv_secondBjet ;
-        TLorentzVector tlv_bH_raw_jetup   = tlv_firstBjet_raw_jetup + tlv_secondBjet_raw_jetup ;
-        TLorentzVector tlv_bH_raw_jetdown =  tlv_firstBjet_raw_jetdown + tlv_secondBjet_raw_jetdown ;
+	vector <TLorentzVector> tlv_bH_raw_jetup(N_jecSources);
+	vector <TLorentzVector> tlv_bH_raw_jetdown(N_jecSources);
+
+        for (int isource = 0; isource < N_jecSources; isource++)
+	  {
+	    tlv_bH_raw_jetup.push_back(tlv_firstBjet_raw_jetup.at(isource) + tlv_secondBjet_raw_jetup.at(isource)) ;
+	    tlv_bH_raw_jetdown.push_back(tlv_firstBjet_raw_jetdown.at(isource) + tlv_secondBjet_raw_jetdown.at(isource));
+	  }
 
         theSmallTree.m_bH_mass_raw = tlv_bH_raw.M();
-        theSmallTree.m_bH_mass_raw_jetup   = tlv_bH_raw_jetup.M();
-        theSmallTree.m_bH_mass_raw_jetdown = tlv_bH_raw_jetdown.M();
+        theSmallTree.m_bH_pt_raw = tlv_bH_raw.Pt();
+
+        theSmallTree.m_bH_mass_raw_jetup1    = (tlv_bH_raw_jetup[0]).M();
+        theSmallTree.m_bH_mass_raw_jetup2    = (tlv_bH_raw_jetup[1]).M();
+        theSmallTree.m_bH_mass_raw_jetup3    = (tlv_bH_raw_jetup[2]).M();
+        theSmallTree.m_bH_mass_raw_jetup4    = (tlv_bH_raw_jetup[3]).M();
+        theSmallTree.m_bH_mass_raw_jetup5    = (tlv_bH_raw_jetup[4]).M();
+        theSmallTree.m_bH_mass_raw_jetup6    = (tlv_bH_raw_jetup[5]).M();
+        theSmallTree.m_bH_mass_raw_jetup7    = (tlv_bH_raw_jetup[6]).M();
+        theSmallTree.m_bH_mass_raw_jetup8    = (tlv_bH_raw_jetup[7]).M();
+        theSmallTree.m_bH_mass_raw_jetup9    = (tlv_bH_raw_jetup[8]).M();
+        theSmallTree.m_bH_mass_raw_jetup10   = (tlv_bH_raw_jetup[9]).M();
+	theSmallTree.m_bH_mass_raw_jetup11   = (tlv_bH_raw_jetup[10]).M();
+
+        theSmallTree.m_bH_mass_raw_jetup1    = (tlv_bH_raw_jetdown[0]).M();
+        theSmallTree.m_bH_mass_raw_jetup2    = (tlv_bH_raw_jetdown[1]).M();
+        theSmallTree.m_bH_mass_raw_jetup3    = (tlv_bH_raw_jetdown[2]).M();
+        theSmallTree.m_bH_mass_raw_jetup4    = (tlv_bH_raw_jetdown[3]).M();
+        theSmallTree.m_bH_mass_raw_jetup5    = (tlv_bH_raw_jetdown[4]).M();
+        theSmallTree.m_bH_mass_raw_jetup6    = (tlv_bH_raw_jetdown[5]).M();
+        theSmallTree.m_bH_mass_raw_jetup7    = (tlv_bH_raw_jetdown[6]).M();
+        theSmallTree.m_bH_mass_raw_jetup8    = (tlv_bH_raw_jetdown[7]).M();
+        theSmallTree.m_bH_mass_raw_jetup9    = (tlv_bH_raw_jetdown[8]).M();
+        theSmallTree.m_bH_mass_raw_jetup10   = (tlv_bH_raw_jetdown[9]).M();
+	theSmallTree.m_bH_mass_raw_jetup11   = (tlv_bH_raw_jetdown[10]).M();
+
+        theSmallTree.m_bH_pt_raw_jetup1    = (tlv_bH_raw_jetup[0]).M();
+        theSmallTree.m_bH_pt_raw_jetup2    = (tlv_bH_raw_jetup[1]).M();
+        theSmallTree.m_bH_pt_raw_jetup3    = (tlv_bH_raw_jetup[2]).M();
+        theSmallTree.m_bH_pt_raw_jetup4    = (tlv_bH_raw_jetup[3]).M();
+        theSmallTree.m_bH_pt_raw_jetup5    = (tlv_bH_raw_jetup[4]).M();
+        theSmallTree.m_bH_pt_raw_jetup6    = (tlv_bH_raw_jetup[5]).M();
+        theSmallTree.m_bH_pt_raw_jetup7    = (tlv_bH_raw_jetup[6]).M();
+        theSmallTree.m_bH_pt_raw_jetup8    = (tlv_bH_raw_jetup[7]).M();
+        theSmallTree.m_bH_pt_raw_jetup9    = (tlv_bH_raw_jetup[8]).M();
+        theSmallTree.m_bH_pt_raw_jetup10   = (tlv_bH_raw_jetup[9]).M();
+	theSmallTree.m_bH_pt_raw_jetup11   = (tlv_bH_raw_jetup[10]).M();
+
+        theSmallTree.m_bH_pt_raw_jetup1    = (tlv_bH_raw_jetdown[0]).M();
+        theSmallTree.m_bH_pt_raw_jetup2    = (tlv_bH_raw_jetdown[1]).M();
+        theSmallTree.m_bH_pt_raw_jetup3    = (tlv_bH_raw_jetdown[2]).M();
+        theSmallTree.m_bH_pt_raw_jetup4    = (tlv_bH_raw_jetdown[3]).M();
+        theSmallTree.m_bH_pt_raw_jetup5    = (tlv_bH_raw_jetdown[4]).M();
+        theSmallTree.m_bH_pt_raw_jetup6    = (tlv_bH_raw_jetdown[5]).M();
+        theSmallTree.m_bH_pt_raw_jetup7    = (tlv_bH_raw_jetdown[6]).M();
+        theSmallTree.m_bH_pt_raw_jetup8    = (tlv_bH_raw_jetdown[7]).M();
+        theSmallTree.m_bH_pt_raw_jetup9    = (tlv_bH_raw_jetdown[8]).M();
+        theSmallTree.m_bH_pt_raw_jetup10   = (tlv_bH_raw_jetdown[9]).M();
+	theSmallTree.m_bH_pt_raw_jetup11   = (tlv_bH_raw_jetdown[10]).M();
+
 
         // FIXME : here mass is manually set to 0, should we change it?
         float ptScale1 = ptRegr[0] / tlv_firstBjet.Pt() ;
@@ -3487,17 +3811,73 @@ int main (int argc, char** argv)
         theSmallTree.m_HH_mass_raw = tlv_HH_raw.M () ;
         theSmallTree.m_HH_deltaR = tlv_bH.DeltaR(tlv_tauH);
 
-        TLorentzVector tlv_HH_raw_tauup = tlv_bH_raw + tlv_firstLepton_tauup + tlv_secondLepton_tauup ;
-        TLorentzVector tlv_HH_raw_taudown = tlv_bH_raw + tlv_firstLepton_taudown + tlv_secondLepton_taudown ;
+        vector <TLorentzVector> tlv_HH_raw_tauup (N_tauhDM);
+	vector <TLorentzVector> tlv_HH_raw_taudown (N_tauhDM);
+	vector <TLorentzVector> tlv_HH_raw_eleup (N_tauhDM_EES);
+	vector <TLorentzVector> tlv_HH_raw_eledown (N_tauhDM_EES);
 
-        theSmallTree.m_HH_mass_raw_tauup = tlv_HH_raw_tauup.M();
-        theSmallTree.m_HH_mass_raw_taudown = tlv_HH_raw_taudown.M();
+	for (int idm  = 0; idm < N_tauhDM; idm++)
+	  { 
+	    tlv_HH_raw_tauup[idm] = tlv_bH_raw + tlv_firstLepton_tauup[idm] + tlv_secondLepton_tauup[idm] ; 
+	    tlv_HH_raw_taudown[idm] = tlv_bH_raw + tlv_firstLepton_taudown[idm] + tlv_secondLepton_taudown[idm] ; 
+	
+	    if(idm < N_tauhDM_EES)
+	      {
+		tlv_HH_raw_eleup[idm] = tlv_bH_raw + tlv_firstLepton_eleup[idm] + tlv_secondLepton_eleup[idm] ; 
+		tlv_HH_raw_eledown[idm] = tlv_bH_raw + tlv_firstLepton_eledown[idm] + tlv_secondLepton_eledown[idm] ; 
+	      }
+	  }
+	
 
-        TLorentzVector tlv_HH_raw_eleup = tlv_bH_raw + tlv_firstLepton_eleup + tlv_secondLepton_eleup ;
-        TLorentzVector tlv_HH_raw_eledown = tlv_bH_raw + tlv_firstLepton_eledown + tlv_secondLepton_eledown ;
+        theSmallTree.m_HH_pt_raw_tauup_DM0 = tlv_HH_raw_tauup[0].Pt();
+        theSmallTree.m_HH_pt_raw_tauup_DM1 = tlv_HH_raw_tauup[1].Pt();
+        theSmallTree.m_HH_pt_raw_tauup_DM10 = tlv_HH_raw_tauup[2].Pt();
+        theSmallTree.m_HH_pt_raw_tauup_DM11 = tlv_HH_raw_tauup[3].Pt();
+	
+        theSmallTree.m_HH_pt_raw_taudown_DM0 = tlv_HH_raw_taudown[0].Pt();
+        theSmallTree.m_HH_pt_raw_taudown_DM1 = tlv_HH_raw_taudown[1].Pt();
+        theSmallTree.m_HH_pt_raw_taudown_DM10 = tlv_HH_raw_taudown[2].Pt();
+        theSmallTree.m_HH_pt_raw_taudown_DM11 = tlv_HH_raw_taudown[3].Pt();
+	
+        theSmallTree.m_HH_pt_raw_eleup_DM0 = tlv_HH_raw_eleup[0].Pt();
+        theSmallTree.m_HH_pt_raw_eleup_DM1 = tlv_HH_raw_eleup[1].Pt();
 
-        theSmallTree.m_HH_mass_raw_eleup = tlv_HH_raw_eleup.M();
-        theSmallTree.m_HH_mass_raw_eledown = tlv_HH_raw_eledown.M();
+        theSmallTree.m_HH_pt_raw_eledown_DM0 = tlv_HH_raw_eledown[0].Pt();
+        theSmallTree.m_HH_pt_raw_eledown_DM1 = tlv_HH_raw_eledown[1].Pt();
+
+	vector <TLorentzVector> tlv_HH_raw_jetup(N_jecSources);
+	vector <TLorentzVector> tlv_HH_raw_jetdown(N_jecSources);
+
+	for (int isource  = 0; isource < N_jecSources; isource++)
+	  { 
+	    tlv_HH_raw_jetup[isource] = tlv_bH_raw_jetup[isource]+ tlv_firstLepton + tlv_secondLepton ; 
+	    tlv_HH_raw_jetdown[isource] = tlv_bH_raw_jetdown[isource] + tlv_firstLepton + tlv_secondLepton ; 
+	  }
+
+        theSmallTree.m_HH_pt_raw_jetup1  = tlv_HH_raw_jetup[0].Pt();
+        theSmallTree.m_HH_pt_raw_jetup2  = tlv_HH_raw_jetup[1].Pt();
+        theSmallTree.m_HH_pt_raw_jetup3  = tlv_HH_raw_jetup[2].Pt();
+        theSmallTree.m_HH_pt_raw_jetup4  = tlv_HH_raw_jetup[3].Pt();
+        theSmallTree.m_HH_pt_raw_jetup5  = tlv_HH_raw_jetup[4].Pt();
+        theSmallTree.m_HH_pt_raw_jetup6  = tlv_HH_raw_jetup[5].Pt();
+        theSmallTree.m_HH_pt_raw_jetup7  = tlv_HH_raw_jetup[6].Pt();
+        theSmallTree.m_HH_pt_raw_jetup8  = tlv_HH_raw_jetup[7].Pt();
+        theSmallTree.m_HH_pt_raw_jetup9  = tlv_HH_raw_jetup[8].Pt();
+        theSmallTree.m_HH_pt_raw_jetup10 = tlv_HH_raw_jetup[9].Pt();
+        theSmallTree.m_HH_pt_raw_jetup11 = tlv_HH_raw_jetup[10].Pt();
+
+        theSmallTree.m_HH_pt_raw_jetdown1  = tlv_HH_raw_jetdown[0].Pt();
+        theSmallTree.m_HH_pt_raw_jetdown2  = tlv_HH_raw_jetdown[1].Pt();
+        theSmallTree.m_HH_pt_raw_jetdown3  = tlv_HH_raw_jetdown[2].Pt();
+        theSmallTree.m_HH_pt_raw_jetdown4  = tlv_HH_raw_jetdown[3].Pt();
+        theSmallTree.m_HH_pt_raw_jetdown5  = tlv_HH_raw_jetdown[4].Pt();
+        theSmallTree.m_HH_pt_raw_jetdown6  = tlv_HH_raw_jetdown[5].Pt();
+        theSmallTree.m_HH_pt_raw_jetdown7  = tlv_HH_raw_jetdown[6].Pt();
+        theSmallTree.m_HH_pt_raw_jetdown8  = tlv_HH_raw_jetdown[7].Pt();
+        theSmallTree.m_HH_pt_raw_jetdown9  = tlv_HH_raw_jetdown[8].Pt();
+        theSmallTree.m_HH_pt_raw_jetdown10 = tlv_HH_raw_jetdown[9].Pt();
+        theSmallTree.m_HH_pt_raw_jetdown11 = tlv_HH_raw_jetdown[10].Pt();
+
 
         // in case the SVFIT mass is calculated
         if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
@@ -3529,12 +3909,12 @@ int main (int argc, char** argv)
         {
           HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton, ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
           HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
-          HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_tauup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_tauup, tlv_secondLepton_tauup,  ptmiss_tauup, stableMetCov, bjet1_JER, bjet2_JER) ;
-          HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_taudown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_taudown, tlv_secondLepton_taudown,  ptmiss_taudown, stableMetCov, bjet1_JER, bjet2_JER) ;
-          HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw_jetup, tlv_secondBjet_raw_jetup, tlv_firstLepton, tlv_secondLepton,  ptmiss_jetup, stableMetCov, bjet1_JER, bjet2_JER) ;
-          HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetdown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw_jetdown, tlv_secondBjet_raw_jetdown, tlv_firstLepton, tlv_secondLepton,  ptmiss_jetdown, stableMetCov, bjet1_JER, bjet2_JER) ;
-          HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_eleup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_eleup, tlv_secondLepton_eleup,  ptmiss_eleup, stableMetCov, bjet1_JER, bjet2_JER) ;
-          HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_eledown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_eledown, tlv_secondLepton_eledown,  ptmiss_eledown, stableMetCov, bjet1_JER, bjet2_JER) ;
+          //HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_tauup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_tauup, tlv_secondLepton_tauup,  ptmiss_tauup, stableMetCov, bjet1_JER, bjet2_JER) ; ///CHIA
+	  // HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_taudown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_taudown, tlv_secondLepton_taudown,  ptmiss_taudown, stableMetCov, bjet1_JER, bjet2_JER) ; //CHIA
+          //HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw_jetup, tlv_secondBjet_raw_jetup, tlv_firstLepton, tlv_secondLepton,  ptmiss_jetup, stableMetCov, bjet1_JER, bjet2_JER) ; //CHIA
+          //HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetdown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw_jetdown, tlv_secondBjet_raw_jetdown, tlv_firstLepton, tlv_secondLepton,  ptmiss_jetdown, stableMetCov, bjet1_JER, bjet2_JER) ;
+          //HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_eleup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_eleup, tlv_secondLepton_eleup,  ptmiss_eleup, stableMetCov, bjet1_JER, bjet2_JER) ; //CHIA
+          //HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_eledown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_eledown, tlv_secondLepton_eledown,  ptmiss_eledown, stableMetCov, bjet1_JER, bjet2_JER) ; //CHIA
 
           //           kinFits.setAdvancedBalance (&ptmiss, metcov) ;
           //           kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
@@ -3543,12 +3923,12 @@ int main (int argc, char** argv)
           //           kinFits.addMh2Hypothesis (hypo_mh2) ;
           kinFits.   addHypo(hypo_mh1,hypo_mh2);
           kinFitsraw.addHypo(hypo_mh1,hypo_mh2);
-          kinFitsraw_tauup.addHypo(hypo_mh1,hypo_mh2);
-          kinFitsraw_taudown.addHypo(hypo_mh1,hypo_mh2);
-          kinFitsraw_jetup.addHypo(hypo_mh1,hypo_mh2);
-          kinFitsraw_jetdown.addHypo(hypo_mh1,hypo_mh2);
-          kinFitsraw_eleup.addHypo(hypo_mh1,hypo_mh2);
-          kinFitsraw_eledown.addHypo(hypo_mh1,hypo_mh2);
+          //kinFitsraw_tauup.addHypo(hypo_mh1,hypo_mh2); //CHIA
+          //kinFitsraw_taudown.addHypo(hypo_mh1,hypo_mh2);
+          //kinFitsraw_jetup.addHypo(hypo_mh1,hypo_mh2);
+          //kinFitsraw_jetdown.addHypo(hypo_mh1,hypo_mh2);
+          //kinFitsraw_eleup.addHypo(hypo_mh1,hypo_mh2);
+          //kinFitsraw_eledown.addHypo(hypo_mh1,hypo_mh2);
 
 	  if(DEBUG)
 	  {
@@ -3699,59 +4079,59 @@ int main (int argc, char** argv)
             theSmallTree.m_HHkinsvfit_m   = tlv_HHsvfit.M () ;
           } // in case the SVFIT mass is calculated
 
-          // raw kinfit TES up
-          bool wrongHHKraw_tauup =false;
-          try {kinFitsraw_tauup.fit();}
-          catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_tauup=true;}
-          catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_tauup=true;}
-          catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_tauup=true;}
-          if(!wrongHHKraw_tauup){theSmallTree.m_HHKin_mass_raw_tauup = kinFitsraw_tauup.getMH();}
-          else theSmallTree.m_HHKin_mass_raw_tauup = -100 ;
+          // raw kinfit TES up //CHIA
+          //bool wrongHHKraw_tauup =false;
+          //try {kinFitsraw_tauup.fit();}
+          //catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_tauup=true;}
+          //catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_tauup=true;}
+          //catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_tauup=true;}
+          //if(!wrongHHKraw_tauup){theSmallTree.m_HHKin_mass_raw_tauup = kinFitsraw_tauup.getMH();}
+          //else theSmallTree.m_HHKin_mass_raw_tauup = -100 ;
 
-          // raw kinfit TES down
-          bool wrongHHKraw_taudown =false;
-          try {kinFitsraw_taudown.fit();}
-          catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_taudown=true;}
-          catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_taudown=true;}
-          catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_taudown=true;}
-          if(!wrongHHKraw_taudown){theSmallTree.m_HHKin_mass_raw_taudown = kinFitsraw_taudown.getMH();}
-          else theSmallTree.m_HHKin_mass_raw_taudown = -100 ;
+          // raw kinfit TES down //CHIA
+          //bool wrongHHKraw_taudown =false;
+          //try {kinFitsraw_taudown.fit();}
+          //catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_taudown=true;}
+          //catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_taudown=true;}
+          //catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_taudown=true;}
+          //if(!wrongHHKraw_taudown){theSmallTree.m_HHKin_mass_raw_taudown = kinFitsraw_taudown.getMH();}
+          //else theSmallTree.m_HHKin_mass_raw_taudown = -100 ;
 
-          // raw kinfit EES up
-          bool wrongHHKraw_eleup =false;
-          try {kinFitsraw_eleup.fit();}
-          catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_eleup=true;}
-          catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_eleup=true;}
-          catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_eleup=true;}
-          if(!wrongHHKraw_eleup){theSmallTree.m_HHKin_mass_raw_eleup = kinFitsraw_eleup.getMH();}
-          else theSmallTree.m_HHKin_mass_raw_eleup = -100 ;
+          //// raw kinfit EES up //CHIA
+          //bool wrongHHKraw_eleup =false;
+          //try {kinFitsraw_eleup.fit();}
+          //catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_eleup=true;}
+          //catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_eleup=true;}
+          //catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_eleup=true;}
+          //if(!wrongHHKraw_eleup){theSmallTree.m_HHKin_mass_raw_eleup = kinFitsraw_eleup.getMH();}
+          //else theSmallTree.m_HHKin_mass_raw_eleup = -100 ;
 
-          // raw kinfit EES down
-          bool wrongHHKraw_eledown =false;
-          try {kinFitsraw_eledown.fit();}
-          catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_eledown=true;}
-          catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_eledown=true;}
-          catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_eledown=true;}
-          if(!wrongHHKraw_eledown){theSmallTree.m_HHKin_mass_raw_eledown = kinFitsraw_eledown.getMH();}
-          else theSmallTree.m_HHKin_mass_raw_eledown = -100 ;
+          // raw kinfit EES down //CHIA
+          //bool wrongHHKraw_eledown =false;
+          //try {kinFitsraw_eledown.fit();}
+          //catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_eledown=true;}
+          //catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_eledown=true;}
+          //catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_eledown=true;}
+          //if(!wrongHHKraw_eledown){theSmallTree.m_HHKin_mass_raw_eledown = kinFitsraw_eledown.getMH();}
+          //else theSmallTree.m_HHKin_mass_raw_eledown = -100 ;
 
-          // raw kinfit JES up
-          bool wrongHHKraw_jetup =false;
-          try {kinFitsraw_jetup.fit();}
-          catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_jetup=true;}
-          catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_jetup=true;}
-          catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_jetup=true;}
-          if(!wrongHHKraw_jetup){theSmallTree.m_HHKin_mass_raw_jetup = kinFitsraw_jetup.getMH();}
-          else theSmallTree.m_HHKin_mass_raw_jetup = -100 ;
+          // raw kinfit JES up //CHIA
+          //bool wrongHHKraw_jetup =false;
+          //try {kinFitsraw_jetup.fit();}
+          //catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_jetup=true;}
+          //catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_jetup=true;}
+          //catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_jetup=true;}
+          //if(!wrongHHKraw_jetup){theSmallTree.m_HHKin_mass_raw_jetup = kinFitsraw_jetup.getMH();}
+          //else theSmallTree.m_HHKin_mass_raw_jetup = -100 ;
 
-          // raw kinfit JES down
-          bool wrongHHKraw_jetdown =false;
-          try {kinFitsraw_jetdown.fit();}
-          catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_jetdown=true;}
-          catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_jetdown=true;}
-          catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_jetdown=true;}
-          if(!wrongHHKraw_jetdown){theSmallTree.m_HHKin_mass_raw_jetdown = kinFitsraw_jetdown.getMH();}
-          else theSmallTree.m_HHKin_mass_raw_jetdown = -100 ;
+          // raw kinfit JES down //CHIA
+          //bool wrongHHKraw_jetdown =false;
+          //try {kinFitsraw_jetdown.fit();}
+          //catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_jetdown=true;}
+          //catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_jetdown=true;}
+          //catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_jetdown=true;}
+          //if(!wrongHHKraw_jetdown){theSmallTree.m_HHKin_mass_raw_jetdown = kinFitsraw_jetdown.getMH();}
+          //else theSmallTree.m_HHKin_mass_raw_jetdown = -100 ;
 
         } // end if doing HHKinFit
 
@@ -3777,46 +4157,46 @@ int main (int argc, char** argv)
           double chiA = tlv_firstLepton.M();  // hypothesised mass of invisible on side A.  Must be >=0.
           double chiB = tlv_secondLepton.M(); // hypothesised mass of invisible on side B.  Must be >=0.
 
-          // TES variations
-          double pxMiss_tauup = tlv_firstLepton_tauup.Px() + tlv_secondLepton_tauup.Px() + theBigTree.METx_UP_TES->at(chosenTauPair); // shiftedMET for TES
-          double pyMiss_tauup = tlv_firstLepton_tauup.Py() + tlv_secondLepton_tauup.Py() + theBigTree.METy_UP_TES->at(chosenTauPair); // shiftedMET for TES
-          double chiA_tauup = tlv_firstLepton_tauup.M();  // hypothesised mass of invisible on side A.  Must be >=0.
-          double chiB_tauup = tlv_secondLepton_tauup.M(); // hypothesised mass of invisible on side B.  Must be >=0.
+          // TES variations //CHIA
+          //double pxMiss_tauup = tlv_firstLepton_tauup.Px() + tlv_secondLepton_tauup.Px() + theBigTree.METx_UP_TES->at(chosenTauPair); // shiftedMET for TES
+          //double pyMiss_tauup = tlv_firstLepton_tauup.Py() + tlv_secondLepton_tauup.Py() + theBigTree.METy_UP_TES->at(chosenTauPair); // shiftedMET for TES
+          //double chiA_tauup = tlv_firstLepton_tauup.M();  // hypothesised mass of invisible on side A.  Must be >=0.
+          //double chiB_tauup = tlv_secondLepton_tauup.M(); // hypothesised mass of invisible on side B.  Must be >=0.
 
-          double pxMiss_taudown = tlv_firstLepton_taudown.Px() + tlv_secondLepton_taudown.Px() + theBigTree.METx_DOWN_TES->at(chosenTauPair); // shiftedMET for TES
-          double pyMiss_taudown = tlv_firstLepton_taudown.Py() + tlv_secondLepton_taudown.Py() + theBigTree.METy_DOWN_TES->at(chosenTauPair); // shiftedMET for TES
-          double chiA_taudown = tlv_firstLepton_taudown.M();  // hypothesised mass of invisible on side A.  Must be >=0.
-          double chiB_taudown = tlv_secondLepton_taudown.M(); // hypothesised mass of invisible on side B.  Must be >=0.
+          //double pxMiss_taudown = tlv_firstLepton_taudown.Px() + tlv_secondLepton_taudown[0].Px() + theBigTree.METx_DOWN_TES->at(chosenTauPair); // shiftedMET for TES
+          //double pyMiss_taudown = tlv_firstLepton_taudown.Py() + tlv_secondLepton_taudown[0].Py() + theBigTree.METy_DOWN_TES->at(chosenTauPair); // shiftedMET for TES
+          //double chiA_taudown = tlv_firstLepton_taudown.M();  // hypothesised mass of invisible on side A.  Must be >=0.
+          //double chiB_taudown = tlv_secondLepton_taudown.M(); // hypothesised mass of invisible on side B.  Must be >=0.
 
-          // JES variations
-          double mVisA_jetup = tlv_firstBjet_raw_jetup.M();  // mass of visible object on side A.
-          double pxA_jetup = tlv_firstBjet_raw_jetup.Px();   // x momentum of visible object on side A.
-          double pyA_jetup = tlv_firstBjet_raw_jetup.Py();   // y momentum of visible object on side A.
-          double mVisB_jetup = tlv_secondBjet_raw_jetup.M(); // mass of visible object on side B.
-          double pxB_jetup = tlv_secondBjet_raw_jetup.Px();  // x momentum of visible object on side B.
-          double pyB_jetup = tlv_secondBjet_raw_jetup.Py();  // y momentum of visible object on side B.
-          double pxMiss_jetup = tlv_firstLepton.Px() + tlv_secondLepton.Px() + ptmiss_jetup.Px(); // shiftedMET for JES
-          double pyMiss_jetup = tlv_firstLepton.Py() + tlv_secondLepton.Py() + ptmiss_jetup.Py(); // shiftedMET for JES
+          // JES variations //CHIA
+          //double mVisA_jetup = tlv_firstBjet_raw_jetup.M();  // mass of visible object on side A. //CHIA
+          //double pxA_jetup = tlv_firstBjet_raw_jetup.Px();   // x momentum of visible object on side A.
+          //double pyA_jetup = tlv_firstBjet_raw_jetup.Py();   // y momentum of visible object on side A.
+          //double mVisB_jetup = tlv_secondBjet_raw_jetup.M(); // mass of visible object on side B.
+          //double pxB_jetup = tlv_secondBjet_raw_jetup.Px();  // x momentum of visible object on side B.
+          //double pyB_jetup = tlv_secondBjet_raw_jetup.Py();  // y momentum of visible object on side B.
+          //double pxMiss_jetup = tlv_firstLepton.Px() + tlv_secondLepton.Px() + ptmiss_jetup.Px(); // shiftedMET for JES
+          //double pyMiss_jetup = tlv_firstLepton.Py() + tlv_secondLepton.Py() + ptmiss_jetup.Py(); // shiftedMET for JES
 
-          double mVisA_jetdown = tlv_firstBjet_raw_jetdown.M();  // mass of visible object on side A.
-          double pxA_jetdown = tlv_firstBjet_raw_jetdown.Px();   // x momentum of visible object on side A.
-          double pyA_jetdown = tlv_firstBjet_raw_jetdown.Py();   // y momentum of visible object on side A.
-          double mVisB_jetdown = tlv_secondBjet_raw_jetdown.M(); // mass of visible object on side B.
-          double pxB_jetdown = tlv_secondBjet_raw_jetdown.Px();  // x momentum of visible object on side B.
-          double pyB_jetdown = tlv_secondBjet_raw_jetdown.Py();  // y momentum of visible object on side B.
-          double pxMiss_jetdown = tlv_firstLepton.Px() + tlv_secondLepton.Px() + ptmiss_jetdown.Px(); // shiftedMET for JES
-          double pyMiss_jetdown = tlv_firstLepton.Py() + tlv_secondLepton.Py() + ptmiss_jetdown.Py(); // shiftedMET for JES
+          //double mVisA_jetdown = tlv_firstBjet_raw_jetdown.M();  // mass of visible object on side A. //CHIA
+          //double pxA_jetdown = tlv_firstBjet_raw_jetdown.Px();   // x momentum of visible object on side A.
+          //double pyA_jetdown = tlv_firstBjet_raw_jetdown.Py();   // y momentum of visible object on side A.
+          //double mVisB_jetdown = tlv_secondBjet_raw_jetdown.M(); // mass of visible object on side B.
+          //double pxB_jetdown = tlv_secondBjet_raw_jetdown.Px();  // x momentum of visible object on side B.
+          //double pyB_jetdown = tlv_secondBjet_raw_jetdown.Py();  // y momentum of visible object on side B.
+          //double pxMiss_jetdown = tlv_firstLepton.Px() + tlv_secondLepton.Px() + ptmiss_jetdown.Px(); // shiftedMET for JES
+          //double pyMiss_jetdown = tlv_firstLepton.Py() + tlv_secondLepton.Py() + ptmiss_jetdown.Py(); // shiftedMET for JES
 
-          // EES variations
-          double pxMiss_eleup = tlv_firstLepton_eleup.Px() + tlv_secondLepton_eleup.Px() + theBigTree.METx_UP_EES->at(chosenTauPair); // shiftedMET for TES
-          double pyMiss_eleup = tlv_firstLepton_eleup.Py() + tlv_secondLepton_eleup.Py() + theBigTree.METy_UP_EES->at(chosenTauPair); // shiftedMET for TES
-          double chiA_eleup = tlv_firstLepton_eleup.M();  // hypothesised mass of invisible on side A.  Must be >=0.
-          double chiB_eleup = tlv_secondLepton_eleup.M(); // hypothesised mass of invisible on side B.  Must be >=0.
+          // EES variations //CHIA
+          //double pxMiss_eleup = tlv_firstLepton_eleup.Px() + tlv_secondLepton_eleup.Px() + theBigTree.METx_UP_EES->at(chosenTauPair); // shiftedMET for TES
+          //double pyMiss_eleup = tlv_firstLepton_eleup.Py() + tlv_secondLepton_eleup.Py() + theBigTree.METy_UP_EES->at(chosenTauPair); // shiftedMET for TES
+          //double chiA_eleup = tlv_firstLepton_eleup.M();  // hypothesised mass of invisible on side A.  Must be >=0.
+          //double chiB_eleup = tlv_secondLepton_eleup.M(); // hypothesised mass of invisible on side B.  Must be >=0.
 
-          double pxMiss_eledown = tlv_firstLepton_eledown.Px() + tlv_secondLepton_eledown.Px() + theBigTree.METx_DOWN_EES->at(chosenTauPair); // shiftedMET for TES
-          double pyMiss_eledown = tlv_firstLepton_eledown.Py() + tlv_secondLepton_eledown.Py() + theBigTree.METy_DOWN_EES->at(chosenTauPair); // shiftedMET for TES
-          double chiA_eledown = tlv_firstLepton_eledown.M();  // hypothesised mass of invisible on side A.  Must be >=0.
-          double chiB_eledown = tlv_secondLepton_eledown.M(); // hypothesised mass of invisible on side B.  Must be >=0.
+          //double pxMiss_eledown = tlv_firstLepton_eledown.Px() + tlv_secondLepton_eledown.Px() + theBigTree.METx_DOWN_EES->at(chosenTauPair); // shiftedMET for TES
+          //double pyMiss_eledown = tlv_firstLepton_eledown.Py() + tlv_secondLepton_eledown.Py() + theBigTree.METy_DOWN_EES->at(chosenTauPair); // shiftedMET for TES
+          //double chiA_eledown = tlv_firstLepton_eledown.M();  // hypothesised mass of invisible on side A.  Must be >=0.
+          //double chiB_eledown = tlv_secondLepton_eledown.M(); // hypothesised mass of invisible on side B.  Must be >=0.
 
           double desiredPrecisionOnMt2 = 0; // Must be >=0.  If 0 alg aims for machine precision.  if >0, MT2 computed to supplied absolute precision.
 
@@ -3829,7 +4209,7 @@ int main (int argc, char** argv)
                        chiA, chiB,
                        desiredPrecisionOnMt2);
 
-          double MT2_tauup = asymm_mt2_lester_bisect::get_mT2(
+          /*double MT2_tauup = asymm_mt2_lester_bisect::get_mT2(
                              mVisA, pxA, pyA,
                              mVisB, pxB, pyB,
                              pxMiss_tauup, pyMiss_tauup,
@@ -3870,14 +4250,14 @@ int main (int argc, char** argv)
                                pxMiss_eledown, pyMiss_eledown,
                                chiA_eledown, chiB_eledown,
                                desiredPrecisionOnMt2);
-
+	  */
           theSmallTree.m_MT2 = MT2;
-          theSmallTree.m_MT2_tauup = MT2_tauup;
-          theSmallTree.m_MT2_taudown = MT2_taudown;
-          theSmallTree.m_MT2_jetup = MT2_jetup;
-          theSmallTree.m_MT2_jetdown = MT2_jetdown;
-          theSmallTree.m_MT2_eleup = MT2_eleup;
-          theSmallTree.m_MT2_eledown = MT2_eledown;
+          //theSmallTree.m_MT2_tauup = MT2_tauup;
+          //theSmallTree.m_MT2_taudown = MT2_taudown;
+          //theSmallTree.m_MT2_jetup = MT2_jetup;
+          //theSmallTree.m_MT2_jetdown = MT2_jetdown;
+          //theSmallTree.m_MT2_eleup = MT2_eleup;
+          //theSmallTree.m_MT2_eledown = MT2_eledown;
 
         } // end calcultion of MT2
 
