@@ -4733,15 +4733,6 @@ int main (int argc, char** argv)
           theSmallTree.m_jj_deltaEta = fabs(tlv_jet1.Eta() - tlv_jet2.Eta());
           theSmallTree.m_jj_HT = tlv_jet1.Pt()+tlv_jet2.Pt();
 
-          TLorentzVector b = tlv_firstBjet;
-          if(tlv_secondBjet.Pt() > tlv_firstBjet.Pt()) b = tlv_secondBjet;
-          TLorentzVector top_Wjj_b = b + tlv_jetPair; //2 highest pt additional jets + highest pt bjet
-          theSmallTree.m_top_Wjj_b_mass = top_Wjj_b.M();
-
-          TLorentzVector bclose = tlv_firstBjet;
-          if(tlv_secondBjet.DeltaR(tlv_jetPair) < tlv_firstBjet.DeltaR(tlv_jetPair)) bclose =tlv_secondBjet;
-          TLorentzVector top_Wjj_bclose = b + tlv_jetPair; //2 highest pt additional jets + closest bjet
-          theSmallTree.m_top_Wjj_bclose_mass = top_Wjj_bclose.M();
         }
         if (theSmallTree.m_jets_pt.size()>2)
         {

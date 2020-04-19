@@ -80,18 +80,18 @@ struct smallTree
       
       m_met_phi = -1. ;
       m_met_et = -1. ;
-      m_met_phi_jetup = -1.  ; //FRA - shifted MET for JES
-      m_met_et_jetup = -1.   ; //
-      m_met_phi_jetdown = -1.; //
-      m_met_et_jetdown = -1. ; //
-      m_met_phi_tauup = -1.  ; //FRA - shifted MET for TES
-      m_met_et_tauup = -1.   ; //
-      m_met_phi_taudown = -1.; //
-      m_met_et_taudown = -1. ; //
-      m_met_phi_eleup = -1.  ; //FRA - shifted MET for EES
-      m_met_et_eleup = -1.   ; //
-      m_met_phi_eledown = -1.; //
-      m_met_et_eledown = -1. ; //
+      //m_met_phi_jetup = -1.  ; //FRA - shifted MET for JES
+      //m_met_et_jetup = -1.   ; //
+      //m_met_phi_jetdown = -1.; //
+      //m_met_et_jetdown = -1. ; //
+      //m_met_phi_tauup = -1.  ; //FRA - shifted MET for TES
+      //m_met_et_tauup = -1.   ; //
+      //m_met_phi_taudown = -1.; //
+      //m_met_et_taudown = -1. ; //
+      //m_met_phi_eleup = -1.  ; //FRA - shifted MET for EES
+      //m_met_et_eleup = -1.   ; //
+      //m_met_phi_eledown = -1.; //
+      //m_met_et_eledown = -1. ; //
       m_met_et_corr =-1.;
       m_met_cov00 = -1.;
       m_met_cov01 = -1.;
@@ -879,16 +879,7 @@ struct smallTree
       m_genjet5_VBF_phi= -999. ;
       m_genjet5_VBF_e= -999. ;
 
-      m_top_Wc_bclose_mass = -1.;
-      m_top_Wc_bcentral_mass = -1.;
-      m_top_Wc_bforward_mass = -1.;
-      m_top_Wf_bclose_mass = -1.;
-      m_top_Wf_bcentral_mass = -1.;
-      m_top_Wf_bforward_mass = -1.;
-      m_top_Wmass_bclose_mass = -1.;
-      m_top_Wjj_b_mass = -1.;
-      m_top_Wjj_bclose_mass = -1.;
-
+      
       m_BDT_channel                   = -9. ;
       m_tauH_MET_pt                   = -9. ;
       m_dau2_MET_deltaEta             = -9. ;
@@ -1000,18 +991,18 @@ struct smallTree
 
       m_smallT->Branch ("met_phi", &m_met_phi, "met_phi/F") ;
       m_smallT->Branch ("met_et", &m_met_et, "met_et/F") ;
-      m_smallT->Branch ("met_phi_jetup", &m_met_phi_jetup, "met_phi_jetup/F") ;       //FRA - shifted MET for JES
-      m_smallT->Branch ("met_et_jetup", &m_met_et_jetup, "met_et_jetup/F") ;          //
-      m_smallT->Branch ("met_phi_jetdown", &m_met_phi_jetdown, "met_phi_jetdown/F") ; //
-      m_smallT->Branch ("met_et_jetdown", &m_met_et_jetdown, "met_et_jetdown/F") ;    //
-      m_smallT->Branch ("met_phi_tauup", &m_met_phi_tauup, "met_phi_tauup/F") ;       //FRA - shifted MET for TES
-      m_smallT->Branch ("met_et_tauup", &m_met_et_tauup, "met_et_tauup/F") ;          //
-      m_smallT->Branch ("met_phi_taudown", &m_met_phi_taudown, "met_phi_taudown/F") ; //
-      m_smallT->Branch ("met_et_taudown", &m_met_et_taudown, "met_et_taudown/F") ;    //
-      m_smallT->Branch ("met_phi_eleup", &m_met_phi_eleup, "met_phi_eleup/F") ;       //FRA - shifted MET for EES
-      m_smallT->Branch ("met_et_eleup", &m_met_et_eleup, "met_et_eleup/F") ;          //
-      m_smallT->Branch ("met_phi_eledown", &m_met_phi_eledown, "met_phi_eledown/F") ; //
-      m_smallT->Branch ("met_et_eledown", &m_met_et_eledown, "met_et_eledown/F") ;    //
+      //m_smallT->Branch ("met_phi_jetup", &m_met_phi_jetup, "met_phi_jetup/F") ;       //FRA - shifted MET for JES
+      //m_smallT->Branch ("met_et_jetup", &m_met_et_jetup, "met_et_jetup/F") ;          //
+      //m_smallT->Branch ("met_phi_jetdown", &m_met_phi_jetdown, "met_phi_jetdown/F") ; //
+      //m_smallT->Branch ("met_et_jetdown", &m_met_et_jetdown, "met_et_jetdown/F") ;    //
+      //m_smallT->Branch ("met_phi_tauup", &m_met_phi_tauup, "met_phi_tauup/F") ;       //FRA - shifted MET for TES
+      //m_smallT->Branch ("met_et_tauup", &m_met_et_tauup, "met_et_tauup/F") ;          //
+      //m_smallT->Branch ("met_phi_taudown", &m_met_phi_taudown, "met_phi_taudown/F") ; //
+      //m_smallT->Branch ("met_et_taudown", &m_met_et_taudown, "met_et_taudown/F") ;    //
+      //m_smallT->Branch ("met_phi_eleup", &m_met_phi_eleup, "met_phi_eleup/F") ;       //FRA - shifted MET for EES
+      //m_smallT->Branch ("met_et_eleup", &m_met_et_eleup, "met_et_eleup/F") ;          //
+      //m_smallT->Branch ("met_phi_eledown", &m_met_phi_eledown, "met_phi_eledown/F") ; //
+      //m_smallT->Branch ("met_et_eledown", &m_met_et_eledown, "met_et_eledown/F") ;    //
       m_smallT->Branch ("met_et_corr", &m_met_et_corr, "met_et_corr/F") ;
       m_smallT->Branch ("met_cov00", &m_met_cov00, "met_cov00/F") ;
       m_smallT->Branch ("met_cov01", &m_met_cov01, "met_cov01/F") ;
@@ -1793,18 +1784,6 @@ struct smallTree
       m_smallT->Branch ("genjet5_VBF_phi",&m_genjet5_VBF_phi,"genjet5_VBF_phi/F");
       m_smallT->Branch ("genjet5_VBF_e",&m_genjet5_VBF_e,"genjet5_VBF_e/F");
 
-      m_smallT->Branch ("top_Wc_bclose_mass", &m_top_Wc_bclose_mass  ,"top_Wc_bclose_mass/F");
-      m_smallT->Branch ("top_Wc_bcentral_mass",&m_top_Wc_bcentral_mass,"top_Wc_bcentral_mass/F");
-      m_smallT->Branch ("top_Wc_bforward_mass",&m_top_Wc_bforward_mass,"top_Wc_bforward_mass/F");
-      m_smallT->Branch ("top_Wf_bclose_mass", &m_top_Wf_bclose_mass  ,"top_Wf_bclose_mass/F");
-      m_smallT->Branch ("top_Wf_bcentral_mass",&m_top_Wf_bcentral_mass,"top_Wf_bcentral_mass/F");
-      m_smallT->Branch ("top_Wf_bforward_mass",&m_top_Wf_bforward_mass,"top_Wf_bforward_mass/F");
-
-
-      m_smallT->Branch ("top_Wmass_bclose_mass",&m_top_Wmass_bclose_mass,"top_Wmass_bclose_mass/F");
-      m_smallT->Branch ("top_Wjj_b_mass",&m_top_Wjj_b_mass,"top_Wjj_b_mass/F");
-      m_smallT->Branch ("top_Wjj_bclose_mass",&m_top_Wjj_bclose_mass,"top_Wjj_bclose_mass/F");
-
       // For Angela's BDT
       m_smallT->Branch ("BDT_channel",                    &m_BDT_channel                   , "BDT_channel/F");
       m_smallT->Branch ("tauH_MET_pt",                    &m_tauH_MET_pt                   , "tauH_MET_pt/F");
@@ -1920,18 +1899,18 @@ struct smallTree
   // MET
   Float_t m_met_phi ;
   Float_t m_met_et ;
-  Float_t m_met_phi_jetup ;   //FRA - shifted MET for JES
-  Float_t m_met_et_jetup ;    //
-  Float_t m_met_phi_jetdown ; //
-  Float_t m_met_et_jetdown ;  //
-  Float_t m_met_phi_tauup ;   //FRA - shifted MET for TES
-  Float_t m_met_et_tauup ;    //
-  Float_t m_met_phi_taudown ; //
-  Float_t m_met_et_taudown ;  //
-  Float_t m_met_phi_eleup ;   //FRA - shifted MET for EES
-  Float_t m_met_et_eleup ;    //
-  Float_t m_met_phi_eledown ; //
-  Float_t m_met_et_eledown ;  //
+  //Float_t m_met_phi_jetup ;   //FRA - shifted MET for JES
+  //Float_t m_met_et_jetup ;    //
+  //Float_t m_met_phi_jetdown ; //
+  //Float_t m_met_et_jetdown ;  //
+  //Float_t m_met_phi_tauup ;   //FRA - shifted MET for TES
+  //Float_t m_met_et_tauup ;    //
+  //Float_t m_met_phi_taudown ; //
+  //Float_t m_met_et_taudown ;  //
+  //Float_t m_met_phi_eleup ;   //FRA - shifted MET for EES
+  //Float_t m_met_et_eleup ;    //
+  //Float_t m_met_phi_eledown ; //
+  //Float_t m_met_et_eledown ;  //
   Float_t m_met_et_corr;
   Float_t m_met_cov00;
   Float_t m_met_cov01;
@@ -2709,17 +2688,6 @@ struct smallTree
   Float_t m_genjet5_eta;
   Float_t m_genjet5_phi;
   Float_t m_genjet5_e;
-
-  Float_t m_top_Wc_bclose_mass    ;
-  Float_t m_top_Wc_bcentral_mass  ;
-  Float_t m_top_Wc_bforward_mass  ;
-  Float_t m_top_Wf_bclose_mass    ;
-  Float_t m_top_Wf_bcentral_mass  ;
-  Float_t m_top_Wf_bforward_mass  ;  
-
-  Float_t m_top_Wmass_bclose_mass;
-  Float_t m_top_Wjj_b_mass;
-  Float_t m_top_Wjj_bclose_mass;
   
   // Angela's BDT missing variables
   Float_t m_BDT_channel; //
