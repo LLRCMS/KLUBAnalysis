@@ -305,59 +305,197 @@ vector<int> findSubjetIdxs (unsigned int iFatJet, bigTree & theBigTree)
 }
 
 
+pair <vector <double>, vector <double> > getJetUpDown(int idx, int size, bigTree & theBigTree){
+  vector <double> unc_up(size);
+  vector <double> unc_down(size);
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_FlavorQCD_up ->at (idx));               //  uncertainty source 1 , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_RelativeBal_up ->at (idx));             //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_HF_up ->at (idx));                      //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_up ->at (idx));                   //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_EC2_up ->at (idx));                     //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_Absolute_up ->at (idx));                //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_YEAR_up ->at (idx));              //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_EC2_YEAR_up ->at (idx));                //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_Absolute_YEAR_up ->at (idx));           //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_HF_YEAR_up ->at (idx));                 //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_RelativeSample_YEAR_up ->at (idx));     //  uncertainty source 11, up
+
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_FlavorQCD_up ->at (idx));               //  uncertainty source 1 , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_RelativeBal_up ->at (idx));             //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_HF_up ->at (idx));                      //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_up ->at (idx));                   //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_EC2_up ->at (idx));                     //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_Absolute_up ->at (idx));                //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_YEAR_up ->at (idx));              //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_EC2_YEAR_up ->at (idx));                //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_Absolute_YEAR_up ->at (idx));           //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_HF_YEAR_up ->at (idx));                 //  ...                  , up
+  unc_up.push_back(theBigTree.jets_jetUncRegrouped_RelativeSample_YEAR_up ->at (idx));     //  uncertainty source 11, up
+  return make_pair(unc_up, unc_down);
+}
+
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // get shifted MET
-TVector2 getShiftedMET (float shift, TVector2 MET, bigTree & theBigTree, bool DEBUG=false)
-{
-  double corrMETx = MET.Px();
-  double corrMETy = MET.Py();
 
+pair <vector <TVector2>, vector <TVector2> > getShiftedMET_jet (int N_jecSources, TVector2 MET, bigTree & theBigTree, bool DEBUG=false)
+{
+  
   if (DEBUG) cout << "*********** DEBUGGING JETS *********** "<< endl;
 
-  for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
-  {
-    // if (theBigTree.PFjetID->at (iJet) < 1) continue;
+  vector <double> corrMETx_up(N_jecSources, MET.Px());
+  vector <double> corrMETy_up(N_jecSources, MET.Py());
+  vector <double> corrMETx_down(N_jecSources, MET.Px());
+  vector <double> corrMETy_down(N_jecSources, MET.Py());
+
+  vector <TVector2> shiftedMET_up(N_jecSources);
+  vector <TVector2> shiftedMET_down(N_jecSources);
+  
+  for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet){
     // build original jet
     TLorentzVector tlv_jet (theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
-
     // get uncertainty
-    double unc = theBigTree.jets_jecUnc->at(iJet);
-
+    pair <vector <double>, vector<double>> unc_updown = getJetUpDown(iJet, N_jecSources, theBigTree);
     // build shifted jet
-    TLorentzVector tlv_jet_shifted = tlv_jet;
-    tlv_jet_shifted.SetPtEtaPhiE(
-        (1.+shift*unc) * tlv_jet.Pt(),
+  
+    vector <TLorentzVector> tlv_jetup(N_jecSources);
+    vector <TLorentzVector> tlv_jetdown(N_jecSources);
+  
+    for (int isource = 0; isource < N_jecSources; isource++)
+    {
+  
+      tlv_jetup[isource].SetPtEtaPhiE(
+        (1.+unc_updown.first.at(isource)) * tlv_jet.Pt(),
         tlv_jet.Eta(),
         tlv_jet.Phi(),
-        (1.+shift*unc) * tlv_jet.E()
+        (1.+unc_updown.first.at(isource)) * tlv_jet.E()
         );
-
-    // shift MET - first the original jet
-    corrMETx += tlv_jet.Px();
-    corrMETy += tlv_jet.Py();
-
-    // shift MET - then the shifted jet
-    corrMETx -= tlv_jet_shifted.Px();
-    corrMETy -= tlv_jet_shifted.Py();
-
-    // Debug printing
-    if (DEBUG)
-    {
-      cout << " Jet "   << setw(1) << left << iJet
-      << " - pt: "      << setw(7) << left << tlv_jet.Pt()
-      << " - eta: "     << setw(9) << left << tlv_jet.Eta()
-      << " - sf: "      << setw(8) << left << (1.+shift*unc)
-      << " - unc: "     << setw(10) << left << unc
-      << " - pfjetID: " << setw(2) <<left << theBigTree.PFjetID->at(iJet) << endl;
+      tlv_jetdown[isource].SetPtEtaPhiE(
+        (1.-unc_updown.second.at(isource)) * tlv_jet.Pt(),
+        tlv_jet.Eta(),
+        tlv_jet.Phi(),
+        (1.-unc_updown.second.at(isource)) * tlv_jet.E()
+        );
+        // shift MET - first the original jet
+      corrMETx_up[isource] += tlv_jet.Px();
+      corrMETy_up[isource] += tlv_jet.Py();
+      corrMETx_down[isource] += tlv_jet.Px();
+      corrMETy_down[isource] += tlv_jet.Py();
+    
+      // shift MET - then the shifted jet
+      corrMETx_up[isource] -= tlv_jetup[isource].Px();
+      corrMETy_up[isource] -= tlv_jetup[isource].Py();
+      corrMETx_down[isource] -= tlv_jetdown[isource].Px();
+      corrMETy_down[isource] -= tlv_jetdown[isource].Py();
+      // Debug printing
+      //if (DEBUG)
+      //{
+      //  cout << " Jet "   << setw(1) << left << iJet
+      //  << " - pt: "      << setw(7) << left << tlv_jet.Pt()
+      //  << " - eta: "     << setw(9) << left << tlv_jet.Eta()
+      //  << " - sf: "      << setw(8) << left << (1.+shift*unc)
+      //  << " - unc: "     << setw(10) << left << unc
+      //  << " - pfjetID: " << setw(2) <<left << theBigTree.PFjetID->at(iJet) << endl;
+      //}
+      if (DEBUG) cout << "*********** ************** *********** "<< endl;
     }
   }
-
-  TVector2 shiftedMET(corrMETx, corrMETy);
-
-  if (DEBUG) cout << "*********** ************** *********** "<< endl;
-
-  return shiftedMET;
+  for (int isource = 0; isource < N_jecSources; isource++)
+  {
+    shiftedMET_up[isource].Set(corrMETx_up[isource], corrMETy_up[isource]);
+    shiftedMET_up[isource].Set(corrMETx_up[isource], corrMETy_up[isource]);
+    shiftedMET_down[isource].Set(corrMETx_down[isource], corrMETy_down[isource]);
+    shiftedMET_down[isource].Set(corrMETx_down[isource], corrMETy_down[isource]);
+  }
+  return make_pair(shiftedMET_up, shiftedMET_down);
 }
+
+pair <vector <TVector2>, vector <TVector2> > getShiftedMET_tes_ees (int N_tauhDM, int N_tauhDM_EES, TVector2 MET, bigTree & theBigTree, bool DEBUG=false)
+{
+  vector <double> corrMETx_tauup(N_tauhDM, MET.Px());
+  vector <double> corrMETy_tauup(N_tauhDM, MET.Py());
+  vector <double> corrMETx_taudown(N_tauhDM, MET.Px());
+  vector <double> corrMETy_taudown(N_tauhDM, MET.Py());
+
+  vector <TVector2> shiftedMET_tauup(N_tauhDM);
+  vector <TVector2> shiftedMET_taudown(N_tauhDM);
+  
+  for (unsigned int idau = 0 ; idau < theBigTree.daughters_px->size () ; ++idau)
+  {
+    // build original jet
+    TLorentzVector tlv_dau (theBigTree.daughters_px->at(idau), theBigTree.daughters_py->at(idau), theBigTree.daughters_pz->at(idau), theBigTree.daughters_e->at(idau));
+    // get uncertainty
+    int N_tauhDM = 4; 
+
+    vector <double> unc_TES(N_tauhDM);
+
+    unc_TES.push_back(theBigTree.daughters_TESshiftDM0 ->at (idau)); // first daughter, DM 0
+    unc_TES.push_back(theBigTree.daughters_TESshiftDM1 ->at (idau)); // first daughter, DM 1
+    unc_TES.push_back(theBigTree.daughters_TESshiftDM10 ->at (idau)); // first daughter, DM 10
+    unc_TES.push_back(theBigTree.daughters_TESshiftDM11 ->at (idau)); // first daughter, DM 11
+
+    vector <TLorentzVector> tlv_dau_tauup (N_tauhDM); 
+    vector <TLorentzVector> tlv_dau_taudown (N_tauhDM); 
+
+    // for each decay mode, bool indicating if this lepton matches the dacay mode in the loop
+    vector<bool> isthisDM = {
+     (theBigTree.decayMode->at (idau) == 0? true :  false), 
+     (theBigTree.decayMode->at (idau) == 1? true :  false), 
+     (theBigTree.decayMode->at (idau) == 10? true :  false), 
+     (theBigTree.decayMode->at (idau) == 11? true :  false)
+    };
+
+    // loop over DMs to fill the shifted TLVs
+    for (int idm = 0; idm< N_tauhDM; idm++)
+    {
+        vector <TLorentzVector> tlv_dau_tauup(N_tauhDM);
+        vector <TLorentzVector> tlv_dau_taudown(N_tauhDM);
+  
+      tlv_dau_tauup[idm].SetPtEtaPhiE(
+        (1.+(unc_TES.at(idm)*isthisDM[idm])) * tlv_dau.Pt(),
+        tlv_dau.Eta(),
+        tlv_dau.Phi(),
+        (1.+(unc_TES.at(idm)*isthisDM[idm])) * tlv_dau.E()
+        );
+      tlv_dau_taudown[idm].SetPtEtaPhiE(
+        (1.-(unc_TES.at(idm)*isthisDM[idm])) * tlv_dau.Pt(),
+        tlv_dau.Eta(),
+        tlv_dau.Phi(),
+        (1.-(unc_TES.at(idm)*isthisDM[idm])) * tlv_dau.E()
+        );
+        // shift MET - first the original jet
+      corrMETx_tauup[idm] += tlv_dau.Px();
+      corrMETy_tauup[idm] += tlv_dau.Py();
+      corrMETx_taudown[idm] += tlv_dau.Px();
+      corrMETy_taudown[idm] += tlv_dau.Py();
+    
+      // shift MET - then the shifted jet
+      corrMETx_tauup[idm] -= tlv_dau_tauup[idm].Px();
+      corrMETy_tauup[idm] -= tlv_dau_tauup[idm].Py();
+      corrMETx_taudown[idm] -= tlv_dau_taudown[idm].Px();
+      corrMETy_taudown[idm] -= tlv_dau_taudown[idm].Py();
+      // Debug printing
+      //if (DEBUG)
+      //{
+      //  cout << " Jet "   << setw(1) << left << iJet
+      //  << " - pt: "      << setw(7) << left << tlv_jet.Pt()
+      //  << " - eta: "     << setw(9) << left << tlv_jet.Eta()
+      //  << " - sf: "      << setw(8) << left << (1.+shift*unc)
+      //  << " - unc: "     << setw(10) << left << unc
+      //  << " - pfjetID: " << setw(2) <<left << theBigTree.PFjetID->at(iJet) << endl;
+      //}
+      if (DEBUG) cout << "*********** ************** *********** "<< endl;
+    }
+  }
+  for (int idm = 0; idm < N_tauhDM; idm++)
+  {
+    shiftedMET_tauup[idm].Set(corrMETx_tauup[idm], corrMETy_tauup[idm]);
+    shiftedMET_tauup[idm].Set(corrMETx_tauup[idm], corrMETy_tauup[idm]);
+    shiftedMET_taudown[idm].Set(corrMETx_taudown[idm], corrMETy_taudown[idm]);
+    shiftedMET_taudown[idm].Set(corrMETx_taudown[idm], corrMETy_taudown[idm]);
+  }
+  return make_pair(shiftedMET_tauup, shiftedMET_taudown);
+}
+
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // turn on function for trigger reweight
@@ -461,34 +599,7 @@ double getContentHisto3D(TH3* histo, double x, double y, double z)
   return histo->GetBinContent(ibinx, ibiny, ibinz);
 }
 
-pair <vector <double>, vector <double> > getJetUpDown(int idx, int size, bigTree & theBigTree){
-  vector <double> unc_up(size);
-  vector <double> unc_down(size);
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_FlavorQCD_up ->at (idx));               //  uncertainty source 1 , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_RelativeBal_up ->at (idx));             //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_HF_up ->at (idx));                      //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_up ->at (idx));                   //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_EC2_up ->at (idx));                     //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_Absolute_up ->at (idx));                //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_YEAR_up ->at (idx));              //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_EC2_YEAR_up ->at (idx));                //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_Absolute_YEAR_up ->at (idx));           //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_HF_YEAR_up ->at (idx));                 //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_RelativeSample_YEAR_up ->at (idx));     //  uncertainty source 11, up
 
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_FlavorQCD_up ->at (idx));               //  uncertainty source 1 , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_RelativeBal_up ->at (idx));             //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_HF_up ->at (idx));                      //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_up ->at (idx));                   //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_EC2_up ->at (idx));                     //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_Absolute_up ->at (idx));                //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_YEAR_up ->at (idx));              //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_EC2_YEAR_up ->at (idx));                //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_Absolute_YEAR_up ->at (idx));           //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_HF_YEAR_up ->at (idx));                 //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_RelativeSample_YEAR_up ->at (idx));     //  uncertainty source 11, up
-  return make_pair(unc_up, unc_down);
-}
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
@@ -2032,28 +2143,28 @@ int main (int argc, char** argv)
       
       // for each decay mode, bool indicating if this lepton matches the dacay mode in the loop
       vector<bool> isthisDM_first = {
-	(theSmallTree.m_dau1_decayMode == 0? true :  false), 
-	(theSmallTree.m_dau1_decayMode == 1? true :  false), 
-	(theSmallTree.m_dau1_decayMode == 10? true :  false), 
-	(theSmallTree.m_dau1_decayMode == 11? true :  false)
+	     (theSmallTree.m_dau1_decayMode == 0? true :  false), 
+	     (theSmallTree.m_dau1_decayMode == 1? true :  false), 
+	     (theSmallTree.m_dau1_decayMode == 10? true :  false), 
+	     (theSmallTree.m_dau1_decayMode == 11? true :  false)
       };
 
       vector<bool> isthisDM_second = {
-	(theSmallTree.m_dau2_decayMode == 0? true :  false), 
-	(theSmallTree.m_dau2_decayMode == 1? true :  false), 
-	(theSmallTree.m_dau2_decayMode == 10? true :  false), 
-	(theSmallTree.m_dau2_decayMode == 11? true :  false)
+	     (theSmallTree.m_dau2_decayMode == 0? true :  false), 
+	     (theSmallTree.m_dau2_decayMode == 1? true :  false), 
+	     (theSmallTree.m_dau2_decayMode == 10? true :  false), 
+	     (theSmallTree.m_dau2_decayMode == 11? true :  false)
       };
       
       
       // loop over DMs to fill the shifted TLVs
       for (int idm  = 0; idm < N_tauhDM; idm ++)
-	{
-	  
-	  tlv_firstLepton_tauup.push_back(tlv_firstLepton);
-	  tlv_firstLepton_taudown.push_back(tlv_firstLepton);
-	  tlv_secondLepton_tauup.push_back(tlv_secondLepton);
-          tlv_secondLepton_taudown.push_back(tlv_secondLepton);
+	   {
+	     
+	     tlv_firstLepton_tauup.push_back(tlv_firstLepton);
+	     tlv_firstLepton_taudown.push_back(tlv_firstLepton);
+	     tlv_secondLepton_tauup.push_back(tlv_secondLepton);
+       tlv_secondLepton_taudown.push_back(tlv_secondLepton);
 	  
 	  if (lep1HasTES)
 	    {
@@ -2344,11 +2455,11 @@ int main (int argc, char** argv)
       theSmallTree.m_lheNOutB = theBigTree.lheNOutB ;
       // theSmallTree.m_met_phi = theBigTree.metphi ;
       // theSmallTree.m_met_et = theBigTree.met ;
-      theSmallTree.m_met_er_phi = theBigTree.met_er_phi ;
-      theSmallTree.m_met_er_et = theBigTree.met_er ;
       TVector2 vMET (theBigTree.METx->at(chosenTauPair) , theBigTree.METy->at(chosenTauPair));
       theSmallTree.m_met_phi   = vMET.Phi();
       theSmallTree.m_met_et    = vMET.Mod();
+      //theSmallTree.m_METx    = vMET.X();
+      //theSmallTree.m_METy    = vMET.Y();
       theSmallTree.m_met_cov00 = theBigTree.MET_cov00->at (chosenTauPair);
       theSmallTree.m_met_cov01 = theBigTree.MET_cov01->at (chosenTauPair);
       theSmallTree.m_met_cov10 = theBigTree.MET_cov10->at (chosenTauPair);
@@ -2358,18 +2469,7 @@ int main (int argc, char** argv)
       theSmallTree.m_L1pref_weight = theBigTree.prefiringweight;
 
       // Shifted MET for JES
-      // This will be useful when splitting JECs
-      //TVector2 vMET_jetup   = getShiftedMET(+1., vMET, theBigTree, DEBUG);
-      //TVector2 vMET_jetdown = getShiftedMET(-1., vMET, theBigTree, DEBUG);
-      // Now we use the total shift already stored in LLR ntuples
-      //TVector2 vMET_jetup   (theBigTree.METx_UP_JES->at(chosenTauPair) , theBigTree.METy_UP_JES->at(chosenTauPair)); //CHIA
-      //TVector2 vMET_jetdown (theBigTree.METx_DOWN_JES->at(chosenTauPair) , theBigTree.METy_DOWN_JES->at(chosenTauPair));
-      //theSmallTree.m_met_phi_jetup   = vMET_jetup.Phi();
-      //theSmallTree.m_met_et_jetup    = vMET_jetup.Mod();
-      //theSmallTree.m_met_phi_jetdown = vMET_jetdown.Phi();
-      //theSmallTree.m_met_et_jetdown  = vMET_jetdown.Mod();
-
-      // Shifted MET for TES //CHIA
+      
       //TVector2 vMET_tauup   (theBigTree.METx_UP_TES->at(chosenTauPair)  , theBigTree.METy_UP_TES->at(chosenTauPair));
       //TVector2 vMET_taudown (theBigTree.METx_DOWN_TES->at(chosenTauPair), theBigTree.METy_DOWN_TES->at(chosenTauPair));
       //theSmallTree.m_met_phi_tauup   = vMET_tauup.Phi();
@@ -3390,22 +3490,22 @@ int main (int argc, char** argv)
         TLorentzVector tlv_secondBjet_raw = tlv_secondBjet;
 
         // ----- up/down variation using 11 JEC sources
-	// https://github.com/LLRCMS/LLRHiggsTauTau/blob/102X_HH/NtupleProducer/plugins/HTauTauNtuplizer.cc#L2182-L2238
-	// store the up down variations in vectors:
-	int N_jecSources = 11; 
+        // https://github.com/LLRCMS/LLRHiggsTauTau/blob/102X_HH/NtupleProducer/plugins/HTauTauNtuplizer.cc#L2182-L2238
+        // store the up down variations in vectors:
+        int N_jecSources = 11; 
 
         pair <vector <double>, vector<double>> unc_first_updown = getJetUpDown(bjet1idx, N_jecSources, theBigTree);
         pair <vector <double>, vector<double>> unc_second_updown = getJetUpDown(bjet2idx, N_jecSources, theBigTree);
 
-	// compute all shifted bjets
+        // compute all shifted bjets
         vector <TLorentzVector> tlv_firstBjet_raw_jetup(N_jecSources); 
         vector <TLorentzVector> tlv_firstBjet_raw_jetdown(N_jecSources);
         vector <TLorentzVector> tlv_secondBjet_raw_jetup(N_jecSources); 
         vector <TLorentzVector> tlv_secondBjet_raw_jetdown(N_jecSources);
 
-	for (int isource = 0; isource < N_jecSources; isource++){
+        for (int isource = 0; isource < N_jecSources; isource++){
             tlv_firstBjet_raw_jetup[isource].SetPtEtaPhiE(
-			       (1.+unc_first_updown.first.at(isource)) *tlv_firstBjet_raw.Pt(),
+            (1.+unc_first_updown.first.at(isource)) *tlv_firstBjet_raw.Pt(),
                                tlv_firstBjet_raw.Eta(),
                                tlv_firstBjet_raw.Phi(),
                                (1.+unc_first_updown.first.at(isource)) *tlv_firstBjet_raw.E()
@@ -3429,7 +3529,7 @@ int main (int argc, char** argv)
                                (1.-unc_second_updown.second.at(isource)) *tlv_secondBjet_raw.E()
                                );
 
-	}
+        }
 
 
 
@@ -3547,14 +3647,14 @@ int main (int argc, char** argv)
 
 	// variations propagated to bH 
         TLorentzVector tlv_bH_raw = tlv_firstBjet + tlv_secondBjet ;
-	vector <TLorentzVector> tlv_bH_raw_jetup(N_jecSources);
-	vector <TLorentzVector> tlv_bH_raw_jetdown(N_jecSources);
+        vector <TLorentzVector> tlv_bH_raw_jetup(N_jecSources);
+        vector <TLorentzVector> tlv_bH_raw_jetdown(N_jecSources);
 
         for (int isource = 0; isource < N_jecSources; isource++)
-	  {
-	    tlv_bH_raw_jetup.push_back(tlv_firstBjet_raw_jetup.at(isource) + tlv_secondBjet_raw_jetup.at(isource)) ;
-	    tlv_bH_raw_jetdown.push_back(tlv_firstBjet_raw_jetdown.at(isource) + tlv_secondBjet_raw_jetdown.at(isource));
-	  }
+        {
+          tlv_bH_raw_jetup.push_back(tlv_firstBjet_raw_jetup.at(isource) + tlv_secondBjet_raw_jetup.at(isource)) ;
+          tlv_bH_raw_jetdown.push_back(tlv_firstBjet_raw_jetdown.at(isource) + tlv_secondBjet_raw_jetdown.at(isource));
+        }
 
         theSmallTree.m_bH_mass_raw = tlv_bH_raw.M();
         theSmallTree.m_bH_pt_raw = tlv_bH_raw.Pt();
@@ -3569,7 +3669,7 @@ int main (int argc, char** argv)
         theSmallTree.m_bH_mass_raw_jetup8    = (tlv_bH_raw_jetup[7]).M();
         theSmallTree.m_bH_mass_raw_jetup9    = (tlv_bH_raw_jetup[8]).M();
         theSmallTree.m_bH_mass_raw_jetup10   = (tlv_bH_raw_jetup[9]).M();
-	theSmallTree.m_bH_mass_raw_jetup11   = (tlv_bH_raw_jetup[10]).M();
+        theSmallTree.m_bH_mass_raw_jetup11   = (tlv_bH_raw_jetup[10]).M();
 
         theSmallTree.m_bH_mass_raw_jetup1    = (tlv_bH_raw_jetdown[0]).M();
         theSmallTree.m_bH_mass_raw_jetup2    = (tlv_bH_raw_jetdown[1]).M();
@@ -3581,7 +3681,7 @@ int main (int argc, char** argv)
         theSmallTree.m_bH_mass_raw_jetup8    = (tlv_bH_raw_jetdown[7]).M();
         theSmallTree.m_bH_mass_raw_jetup9    = (tlv_bH_raw_jetdown[8]).M();
         theSmallTree.m_bH_mass_raw_jetup10   = (tlv_bH_raw_jetdown[9]).M();
-	theSmallTree.m_bH_mass_raw_jetup11   = (tlv_bH_raw_jetdown[10]).M();
+        theSmallTree.m_bH_mass_raw_jetup11   = (tlv_bH_raw_jetdown[10]).M();
 
         theSmallTree.m_bH_pt_raw_jetup1    = (tlv_bH_raw_jetup[0]).M();
         theSmallTree.m_bH_pt_raw_jetup2    = (tlv_bH_raw_jetup[1]).M();
@@ -3593,7 +3693,7 @@ int main (int argc, char** argv)
         theSmallTree.m_bH_pt_raw_jetup8    = (tlv_bH_raw_jetup[7]).M();
         theSmallTree.m_bH_pt_raw_jetup9    = (tlv_bH_raw_jetup[8]).M();
         theSmallTree.m_bH_pt_raw_jetup10   = (tlv_bH_raw_jetup[9]).M();
-	theSmallTree.m_bH_pt_raw_jetup11   = (tlv_bH_raw_jetup[10]).M();
+        theSmallTree.m_bH_pt_raw_jetup11   = (tlv_bH_raw_jetup[10]).M();
 
         theSmallTree.m_bH_pt_raw_jetup1    = (tlv_bH_raw_jetdown[0]).M();
         theSmallTree.m_bH_pt_raw_jetup2    = (tlv_bH_raw_jetdown[1]).M();
@@ -3605,8 +3705,75 @@ int main (int argc, char** argv)
         theSmallTree.m_bH_pt_raw_jetup8    = (tlv_bH_raw_jetdown[7]).M();
         theSmallTree.m_bH_pt_raw_jetup9    = (tlv_bH_raw_jetdown[8]).M();
         theSmallTree.m_bH_pt_raw_jetup10   = (tlv_bH_raw_jetdown[9]).M();
-	theSmallTree.m_bH_pt_raw_jetup11   = (tlv_bH_raw_jetdown[10]).M();
+        theSmallTree.m_bH_pt_raw_jetup11   = (tlv_bH_raw_jetdown[10]).M();
 
+        //JER: in LLR it is saved as jets_JER = JER (in %) * jet_energy:
+        //https://github.com/LLRCMS/LLRHiggsTauTau/blob/102X_HH/NtupleProducer/plugins/HTauTauNtuplizer.cc#L2316
+        double bjet1_JER = theBigTree.jets_JER->at(bjet1idx);
+        double bjet2_JER = theBigTree.jets_JER->at(bjet2idx);
+        theSmallTree.m_bjet1_JER = bjet1_JER;
+        theSmallTree.m_bjet2_JER = bjet2_JER;
+
+        vector <double> bjet1_JER_jetup(N_jecSources);
+        vector <double> bjet1_JER_jetdown(N_jecSources);
+        vector <double> bjet2_JER_jetup(N_jecSources);
+        vector <double> bjet2_JER_jetdown(N_jecSources);
+
+        for (int isource = 0; isource < N_jecSources; isource++)
+          {
+            bjet1_JER_jetup[isource] = bjet1_JER * tlv_firstBjet_raw_jetup[isource].E() /  tlv_firstBjet_raw.E() ;
+            bjet1_JER_jetdown[isource] = bjet1_JER * tlv_firstBjet_raw_jetdown[isource].E() /  tlv_firstBjet_raw.E() ;
+            bjet2_JER_jetup[isource] = bjet2_JER * tlv_secondBjet_raw_jetup[isource].E() /  tlv_secondBjet_raw.E() ;
+            bjet2_JER_jetdown[isource] = bjet2_JER * tlv_secondBjet_raw_jetdown[isource].E() /  tlv_secondBjet_raw.E() ;
+          }
+
+        theSmallTree.m_bjet1_JER_jetup1 = bjet1_JER_jetup[0];
+        theSmallTree.m_bjet1_JER_jetup2 = bjet1_JER_jetup[1];
+        theSmallTree.m_bjet1_JER_jetup3 = bjet1_JER_jetup[2];
+        theSmallTree.m_bjet1_JER_jetup4 = bjet1_JER_jetup[3];
+        theSmallTree.m_bjet1_JER_jetup5 = bjet1_JER_jetup[4];
+        theSmallTree.m_bjet1_JER_jetup6 = bjet1_JER_jetup[5];
+        theSmallTree.m_bjet1_JER_jetup7 = bjet1_JER_jetup[6];
+        theSmallTree.m_bjet1_JER_jetup8 = bjet1_JER_jetup[7];
+        theSmallTree.m_bjet1_JER_jetup9 = bjet1_JER_jetup[8];
+        theSmallTree.m_bjet1_JER_jetup10  = bjet1_JER_jetup[9];
+        theSmallTree.m_bjet1_JER_jetup11  = bjet1_JER_jetup[11];
+
+        theSmallTree.m_bjet1_JER_jetdown1 =   bjet1_JER_jetdown[0];
+        theSmallTree.m_bjet1_JER_jetdown2 =   bjet1_JER_jetdown[1];
+        theSmallTree.m_bjet1_JER_jetdown3 =   bjet1_JER_jetdown[2];
+        theSmallTree.m_bjet1_JER_jetdown4 =   bjet1_JER_jetdown[3];
+        theSmallTree.m_bjet1_JER_jetdown5 =   bjet1_JER_jetdown[4];
+        theSmallTree.m_bjet1_JER_jetdown6 =   bjet1_JER_jetdown[5];
+        theSmallTree.m_bjet1_JER_jetdown7 =   bjet1_JER_jetdown[6];
+        theSmallTree.m_bjet1_JER_jetdown8 =   bjet1_JER_jetdown[7];
+        theSmallTree.m_bjet1_JER_jetdown9 =   bjet1_JER_jetdown[8];
+        theSmallTree.m_bjet1_JER_jetdown10  = bjet1_JER_jetdown[9];
+        theSmallTree.m_bjet1_JER_jetdown11  = bjet1_JER_jetdown[11];
+        
+        theSmallTree.m_bjet2_JER_jetup1 = bjet2_JER_jetup[0];
+        theSmallTree.m_bjet2_JER_jetup2 = bjet2_JER_jetup[1];
+        theSmallTree.m_bjet2_JER_jetup3 = bjet2_JER_jetup[2];
+        theSmallTree.m_bjet2_JER_jetup4 = bjet2_JER_jetup[3];
+        theSmallTree.m_bjet2_JER_jetup5 = bjet2_JER_jetup[4];
+        theSmallTree.m_bjet2_JER_jetup6 = bjet2_JER_jetup[5];
+        theSmallTree.m_bjet2_JER_jetup7 = bjet2_JER_jetup[6];
+        theSmallTree.m_bjet2_JER_jetup8 = bjet2_JER_jetup[7];
+        theSmallTree.m_bjet2_JER_jetup9 = bjet2_JER_jetup[8];
+        theSmallTree.m_bjet2_JER_jetup10  = bjet2_JER_jetup[9];
+        theSmallTree.m_bjet2_JER_jetup11  = bjet2_JER_jetup[11];
+
+        theSmallTree.m_bjet2_JER_jetdown1 =   bjet2_JER_jetdown[0];
+        theSmallTree.m_bjet2_JER_jetdown2 =   bjet2_JER_jetdown[1];
+        theSmallTree.m_bjet2_JER_jetdown3 =   bjet2_JER_jetdown[2];
+        theSmallTree.m_bjet2_JER_jetdown4 =   bjet2_JER_jetdown[3];
+        theSmallTree.m_bjet2_JER_jetdown5 =   bjet2_JER_jetdown[4];
+        theSmallTree.m_bjet2_JER_jetdown6 =   bjet2_JER_jetdown[5];
+        theSmallTree.m_bjet2_JER_jetdown7 =   bjet2_JER_jetdown[6];
+        theSmallTree.m_bjet2_JER_jetdown8 =   bjet2_JER_jetdown[7];
+        theSmallTree.m_bjet2_JER_jetdown9 =   bjet2_JER_jetdown[8];
+        theSmallTree.m_bjet2_JER_jetdown10  = bjet2_JER_jetdown[9];
+        theSmallTree.m_bjet2_JER_jetdown11  = bjet2_JER_jetdown[11];
 
         // FIXME : here mass is manually set to 0, should we change it?
         float ptScale1 = ptRegr[0] / tlv_firstBjet.Pt() ;
@@ -3624,8 +3791,6 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet1_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet1idx) ;
         theSmallTree.m_bjet1_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at(bjet1idx);
         theSmallTree.m_bjet1_flav = theBigTree.jets_HadronFlavour->at (bjet1idx) ;
-        double bjet1_JER = theBigTree.jets_JER->at(bjet1idx);
-        theSmallTree.m_bjet1_JER = bjet1_JER ;
 
         theSmallTree.m_bjet2_pt   = tlv_secondBjet.Pt () ;
         theSmallTree.m_bjet2_eta  = tlv_secondBjet.Eta () ;
@@ -3637,8 +3802,7 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet2_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet2idx) ;
         theSmallTree.m_bjet2_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at(bjet2idx);
         theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
-        double bjet2_JER = theBigTree.jets_JER->at(bjet2idx);
-        theSmallTree.m_bjet2_JER = bjet2_JER ;
+
 
         theSmallTree.m_bjets_bID  = theBigTree.bCSVscore->at (bjet1idx) +theBigTree.bCSVscore->at (bjet2idx) ;
         theSmallTree.m_bjets_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet1idx) + theBigTree.bDeepCSV_probbb->at(bjet1idx) + theBigTree.bDeepCSV_probb->at(bjet2idx) + theBigTree.bDeepCSV_probbb->at(bjet2idx);
@@ -3747,6 +3911,61 @@ int main (int argc, char** argv)
         const TMatrixD stableMetCov = metcov;
 
         // MET shifted for JES
+        pair <vector <TVector2>, vector <TVector2> >  vMET_shift_jet = getShiftedMET_jet(N_jecSources, vMET, theBigTree, DEBUG);
+
+      theSmallTree.m_METx_jetup1   = vMET_shift_jet.first.at(0).X();
+      theSmallTree.m_METx_jetup2   = vMET_shift_jet.first.at(1).X();
+      theSmallTree.m_METx_jetup3   = vMET_shift_jet.first.at(2).X();
+      theSmallTree.m_METx_jetup4   = vMET_shift_jet.first.at(3).X();
+      theSmallTree.m_METx_jetup5   = vMET_shift_jet.first.at(4).X();
+      theSmallTree.m_METx_jetup6   = vMET_shift_jet.first.at(5).X();
+      theSmallTree.m_METx_jetup7   = vMET_shift_jet.first.at(6).X();
+      theSmallTree.m_METx_jetup8   = vMET_shift_jet.first.at(7).X();
+      theSmallTree.m_METx_jetup9   = vMET_shift_jet.first.at(8).X();
+      theSmallTree.m_METx_jetup10   = vMET_shift_jet.first.at(9).X();
+      theSmallTree.m_METx_jetup11   = vMET_shift_jet.first.at(10).X();
+//
+      theSmallTree.m_METx_jetdown1    = vMET_shift_jet.second.at(0).X();
+      theSmallTree.m_METx_jetdown2    = vMET_shift_jet.second.at(1).X();
+      theSmallTree.m_METx_jetdown3    = vMET_shift_jet.second.at(2).X();
+      theSmallTree.m_METx_jetdown4    = vMET_shift_jet.second.at(3).X();
+      theSmallTree.m_METx_jetdown5    = vMET_shift_jet.second.at(4).X();
+      theSmallTree.m_METx_jetdown6    = vMET_shift_jet.second.at(5).X();
+      theSmallTree.m_METx_jetdown7    = vMET_shift_jet.second.at(6).X();
+      theSmallTree.m_METx_jetdown8    = vMET_shift_jet.second.at(7).X();
+      theSmallTree.m_METx_jetdown9    = vMET_shift_jet.second.at(8).X();
+      theSmallTree.m_METx_jetdown10   = vMET_shift_jet.second.at(9).X();
+      theSmallTree.m_METx_jetdown11   = vMET_shift_jet.second.at(10).X();
+//
+      theSmallTree.m_METy_jetup1   = vMET_shift_jet.first.at(0).Y();
+      theSmallTree.m_METy_jetup2   = vMET_shift_jet.first.at(1).Y();
+      theSmallTree.m_METy_jetup3   = vMET_shift_jet.first.at(2).Y();
+      theSmallTree.m_METy_jetup4   = vMET_shift_jet.first.at(3).Y();
+      theSmallTree.m_METy_jetup5   = vMET_shift_jet.first.at(4).Y();
+      theSmallTree.m_METy_jetup6   = vMET_shift_jet.first.at(5).Y();
+      theSmallTree.m_METy_jetup7   = vMET_shift_jet.first.at(6).Y();
+      theSmallTree.m_METy_jetup8   = vMET_shift_jet.first.at(7).Y();
+      theSmallTree.m_METy_jetup9   = vMET_shift_jet.first.at(8).Y();
+      theSmallTree.m_METy_jetup10  = vMET_shift_jet.first.at(9).Y();
+      theSmallTree.m_METy_jetup11  = vMET_shift_jet.first.at(10).Y();
+//
+      theSmallTree.m_METy_jetdown1    = vMET_shift_jet.second.at(0).Y();
+      theSmallTree.m_METy_jetdown2    = vMET_shift_jet.second.at(1).Y();
+      theSmallTree.m_METy_jetdown3    = vMET_shift_jet.second.at(2).Y();
+      theSmallTree.m_METy_jetdown4    = vMET_shift_jet.second.at(3).Y();
+      theSmallTree.m_METy_jetdown5    = vMET_shift_jet.second.at(4).Y();
+      theSmallTree.m_METy_jetdown6    = vMET_shift_jet.second.at(5).Y();
+      theSmallTree.m_METy_jetdown7    = vMET_shift_jet.second.at(6).Y();
+      theSmallTree.m_METy_jetdown8    = vMET_shift_jet.second.at(7).Y();
+      theSmallTree.m_METy_jetdown9    = vMET_shift_jet.second.at(8).Y();
+      theSmallTree.m_METy_jetdown10   = vMET_shift_jet.second.at(9).Y();
+      theSmallTree.m_METy_jetdown11   = vMET_shift_jet.second.at(10).Y();
+
+      // Shifted MET for TES 
+      pair <vector <TVector2>, vector <TVector2> >  vMET_tes = getShiftedMET_tes_ees(N_tauhDM, N_tauhDM_EES, vMET, theBigTree, DEBUG);
+
+
+
         // This will be useful when splitting JECs
         //const TVector2 ptmiss_jetup   = getShiftedMET(+1., ptmiss, theBigTree);
         //const TVector2 ptmiss_jetdown = getShiftedMET(-1., ptmiss, theBigTree);
@@ -3878,7 +4097,7 @@ int main (int argc, char** argv)
 
         } // in case the SVFIT mass is calculated
 
-        // compute HHKinFit -- ask a reasonable mass window to suppress most error messages
+        // compute HHKinFit -- ask a ronable mass window to suppress most error messages
         bool wrongHHK=false;
         float HHKmass = -999;
         float HHKChi2 = -999;
