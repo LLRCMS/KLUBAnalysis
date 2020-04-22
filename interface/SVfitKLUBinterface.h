@@ -31,6 +31,7 @@
 #include "../../TauAnalysis/ClassicSVfit/interface/MeasuredTauLepton.h"
 #include "../../TauAnalysis/ClassicSVfit/interface/svFitHistogramAdapter.h"
 
+using namespace classic_svFit;
 
 // SVfitKLUBinterface class
 class SVfitKLUBinterface {
@@ -47,6 +48,7 @@ class SVfitKLUBinterface {
     double METx_;
     double METy_;
     TMatrixD covMET_;
+    double kappa_;
 
 };
 
