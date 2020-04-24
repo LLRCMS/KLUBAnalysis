@@ -86,15 +86,19 @@ struct smallTree
       m_METx_jetup.clear()  ;
       m_METx_tauup.clear()  ;
       m_METx_eleup.clear()  ;
+      m_METx_muup = -1. ;
       m_METy_jetup.clear()  ;
       m_METy_tauup.clear()  ;
       m_METy_eleup.clear()  ;
+      m_METy_muup = -1. ;
       m_METx_jetdown.clear()  ;
       m_METx_taudown.clear()  ;
       m_METx_eledown.clear()  ;
+      m_METx_mudown = -1. ;
       m_METy_jetdown.clear()  ;
       m_METy_taudown.clear()  ;
       m_METy_eledown.clear()  ;
+      m_METy_mudown = -1. ;
 
       m_met_et_corr =-1.;
       m_met_cov00 = -1.;
@@ -129,6 +133,11 @@ struct smallTree
       m_dau1_pt_eledown.clear() ;
       m_dau1_mass_eleup.clear() ;
       m_dau1_mass_eledown.clear() ;
+
+      m_dau1_pt_muup    = -1.;
+      m_dau1_pt_mudown  = -1. ;
+      m_dau1_mass_muup   = -1.;
+      m_dau1_mass_mudown = -1.;
 
       m_dau1_pt_tauup_DM0  = -1. ;
       m_dau1_pt_tauup_DM1  = -1. ;
@@ -190,6 +199,12 @@ struct smallTree
       m_dau2_pt_eledown.clear() ;
       m_dau2_mass_eleup.clear() ;
       m_dau2_mass_eledown.clear() ;
+
+      m_dau2_pt_muup    = -1.;
+      m_dau2_pt_mudown  = -1. ;
+      m_dau2_mass_muup   = -1.;
+      m_dau2_mass_mudown = -1.;
+
       m_dau2_pt_tauup_DM0  = -1. ;
       m_dau2_pt_tauup_DM1  = -1. ;
       m_dau2_pt_tauup_DM10  = -1. ;
@@ -222,6 +237,7 @@ struct smallTree
       m_bjet1_bID = -1. ;
       m_bjet1_bID_deepCSV = -1.;
       m_bjet1_bID_deepFlavor = -1.;
+      m_bjet1_cID_deepFlavor = -1.;
       m_bjet1_bMVAID = -1. ;
       m_bjet1_PUjetIDupdated = -99. ;
       m_bjet1_flav = -1 ;
@@ -245,6 +261,7 @@ struct smallTree
       m_bjet2_bID = -1. ;
       m_bjet2_bID_deepCSV = -1.;
       m_bjet2_bID_deepFlavor = -1.;
+      m_bjet2_cID_deepFlavor = -1.;
       m_bjet2_bMVAID = -1. ;
       m_bjet2_PUjetIDupdated = -99. ;
       m_bjet2_flav = -1 ;
@@ -264,6 +281,7 @@ struct smallTree
       m_bjets_bID = -1.;
       m_bjets_bID_deepCSV = -1.;
       m_bjets_bID_deepFlavor = -1.;
+      m_bjets_cID_deepFlavor = -1.;
       m_bjets_gen_matched = false;
       m_nfatjets = -1;
       m_fatjet_pt = -1. ;
@@ -411,6 +429,7 @@ struct smallTree
       m_jets_btag.clear () ;
       m_jets_btag_deepCSV.clear () ;
       m_jets_btag_deepFlavor.clear () ;
+      m_jets_ctag_deepFlavor.clear () ;
       m_jets_flav.clear () ;
       m_jets_isH.clear () ;
       m_jets_hasgenjet.clear () ;
@@ -521,6 +540,7 @@ struct smallTree
       m_VBFjet1_btag= -999. ;
       m_VBFjet1_btag_deepCSV= -999. ;
       m_VBFjet1_btag_deepFlavor= -999. ;
+      m_VBFjet1_ctag_deepFlavor= -999. ;
       m_VBFjet1_PUjetIDupdated= -99. ;
       m_VBFjet1_flav= 0 ;
       m_VBFjet1_hasgenjet= false ;
@@ -565,6 +585,7 @@ struct smallTree
       m_VBFjet2_btag= -999. ;
       m_VBFjet2_btag_deepCSV= -999. ;
       m_VBFjet2_btag_deepFlavor= -999. ;
+      m_VBFjet2_ctag_deepFlavor= -999. ;
       m_VBFjet2_PUjetIDupdated= -99. ;
       m_VBFjet2_flav= 0 ;
       m_VBFjet2_hasgenjet= false ;
@@ -630,6 +651,7 @@ struct smallTree
       m_jet3_btag= -999. ;
       m_jet3_btag_deepCSV= -999. ;
       m_jet3_btag_deepFlavor= -999. ;
+      m_jet3_ctag_deepFlavor= -999. ;
       m_jet3_flav= 0 ;
       m_jet3_hasgenjet= false ;
       
@@ -646,6 +668,7 @@ struct smallTree
       m_jet4_btag= -999. ;
       m_jet4_btag_deepCSV= -999. ;
       m_jet4_btag_deepFlavor= -999. ;
+      m_jet4_ctag_deepFlavor= -999. ;
       m_jet4_flav= 0 ;
       m_jet4_hasgenjet= false ;
       
@@ -663,6 +686,7 @@ struct smallTree
       m_jet5_btag= -999. ;
       m_jet5_btag_deepCSV= -999. ;
       m_jet5_btag_deepFlavor= -999. ;
+      m_jet5_ctag_deepFlavor= -999. ;
       m_jet5_flav= 0 ;
       m_jet5_hasgenjet= false ;
       m_jet5_z= -999. ;
@@ -681,6 +705,7 @@ struct smallTree
       m_jet5_VBF_btag= -999. ;
       m_jet5_VBF_btag_deepCSV= -999. ;
       m_jet5_VBF_btag_deepFlavor= -999. ;
+      m_jet5_VBF_ctag_deepFlavor= -999. ;
       m_jet5_VBF_flav= 0 ;
       m_jet5_VBF_hasgenjet= false ;
       m_jet5_VBF_z= -999. ;
@@ -810,16 +835,20 @@ struct smallTree
       m_smallT->Branch ("METx_jetup",  &m_METx_jetup) ;
       m_smallT->Branch ("METx_tauup",  &m_METx_tauup) ; 
       m_smallT->Branch ("METx_eleup",  &m_METx_eleup) ; 
+      m_smallT->Branch ("METx_muup",   &m_METx_muup, "METx_muup/F") ; 
       m_smallT->Branch ("METy_jetup",  &m_METy_jetup) ;
       m_smallT->Branch ("METy_tauup",  &m_METy_tauup) ; 
       m_smallT->Branch ("METy_eleup",  &m_METy_eleup) ; 
+      m_smallT->Branch ("METy_muup",   &m_METy_muup, "METy_muup/F") ; 
 
       m_smallT->Branch ("METx_jetdown",  &m_METx_jetdown) ;
       m_smallT->Branch ("METx_taudown",  &m_METx_taudown) ; 
       m_smallT->Branch ("METx_eledown",  &m_METx_eledown) ; 
+      m_smallT->Branch ("METx_mudown",  &m_METx_mudown, "METx_mudown/F") ; 
       m_smallT->Branch ("METy_jetdown",  &m_METy_jetdown) ;
       m_smallT->Branch ("METy_taudown",  &m_METy_taudown) ; 
       m_smallT->Branch ("METy_eledown",  &m_METy_eledown) ; 
+      m_smallT->Branch ("METy_mudown",  &m_METy_mudown, "METy_mudown/F") ; 
 
       m_smallT->Branch ("met_et_corr", &m_met_et_corr, "met_et_corr/F") ;
       m_smallT->Branch ("met_cov00", &m_met_cov00, "met_cov00/F") ;
@@ -853,6 +882,10 @@ struct smallTree
       m_smallT->Branch ("dau1_pt_eledown",  &m_dau1_pt_eledown);
       m_smallT->Branch ("dau1_mass_eleup",  &m_dau1_mass_eleup);
       m_smallT->Branch ("dau1_mass_eledown",&m_dau1_mass_eledown);
+      m_smallT->Branch ("dau1_pt_muup",    &m_dau1_pt_muup, "dau1_pt_muup/F");
+      m_smallT->Branch ("dau1_pt_mudown",  &m_dau1_pt_mudown, "dau1_pt_mudown/F");
+      m_smallT->Branch ("dau1_mass_muup",  &m_dau1_mass_muup, "dau1_mass_muup/F");
+      m_smallT->Branch ("dau1_mass_mudown",&m_dau1_mass_mudown, "dau1_pt_mudown/F");
 
       m_smallT->Branch ("dau1_pt_tauup_DM0 ", &m_dau1_pt_tauup_DM0 , "dau1_pt_tauup_DM0/F") ;
       m_smallT->Branch ("dau1_pt_tauup_DM1 ", &m_dau1_pt_tauup_DM1 , "dau1_pt_tauup_DM1/F") ;
@@ -913,6 +946,10 @@ struct smallTree
       m_smallT->Branch ("dau2_pt_eledown",  &m_dau2_pt_eledown);
       m_smallT->Branch ("dau2_mass_eleup",  &m_dau2_mass_eleup);
       m_smallT->Branch ("dau2_mass_eledown",&m_dau2_mass_eledown);
+      m_smallT->Branch ("dau2_pt_muup",    &m_dau2_pt_muup, "dau2_pt_muup/F");
+      m_smallT->Branch ("dau2_pt_mudown",  &m_dau2_pt_mudown, "dau2_pt_mudown/F");
+      m_smallT->Branch ("dau2_mass_muup",  &m_dau2_mass_muup, "dau2_mass_muup/F");
+      m_smallT->Branch ("dau2_mass_mudown",&m_dau2_mass_mudown, "dau2_pt_mudown/F");
 
       m_smallT->Branch ("dau2_pt_tauup_DM0 ", &m_dau2_pt_tauup_DM0 , "dau2_pt_tauup_DM0/F") ;
       m_smallT->Branch ("dau2_pt_tauup_DM1 ", &m_dau2_pt_tauup_DM1 , "dau2_pt_tauup_DM1/F") ;
@@ -945,6 +982,7 @@ struct smallTree
       m_smallT->Branch ("bjet1_bID", &m_bjet1_bID, "bjet1_bID/F") ;
       m_smallT->Branch ("bjet1_bID_deepCSV", &m_bjet1_bID_deepCSV, "bjet1_bID_deepCSV/F") ;
       m_smallT->Branch ("bjet1_bID_deepFlavor", &m_bjet1_bID_deepFlavor, "bjet1_bID_deepFlavor/F") ;
+      m_smallT->Branch ("bjet1_cID_deepFlavor", &m_bjet1_cID_deepFlavor, "bjet1_cID_deepFlavor/F") ;
       m_smallT->Branch ("bjet1_bMVAID", &m_bjet1_bMVAID, "bjet1_bMVAID/F") ;
       m_smallT->Branch ("bjet1_PUjetIDupdated", &m_bjet1_PUjetIDupdated, "bjet1_PUjetIDupdated/F") ;
       m_smallT->Branch ("bjet1_flav", &m_bjet1_flav, "bjet1_flav/I") ;
@@ -969,7 +1007,8 @@ struct smallTree
       m_smallT->Branch ("bjet2_bID", &m_bjet2_bID, "bjet2m_bID/F") ;
       m_smallT->Branch ("bjet2_bID_deepCSV", &m_bjet2_bID_deepCSV, "bjet2_bID_deepCSV/F") ;
       m_smallT->Branch ("bjet2_bID_deepFlavor", &m_bjet2_bID_deepFlavor, "bjet2_bID_deepFlavor/F") ;
-      m_smallT->Branch ("bjet2_bMVAID", &m_bjet2_bMVAID, "bjet2m_bMVAID/F") ;
+      m_smallT->Branch ("bjet2_cID_deepFlavor", &m_bjet2_cID_deepFlavor, "bjet2_cID_deepFlavor/F") ;
+      m_smallT->Branch ("bjet2_bMVAID", &m_bjet2_bMVAID, "bjet2_bMVAID/F") ;
       m_smallT->Branch ("bjet2_PUjetIDupdated", &m_bjet2_PUjetIDupdated, "bjet2_PUjetIDupdated/F") ;
       m_smallT->Branch ("bjet2_flav", &m_bjet2_flav, "bjet2_flav/I") ;
       m_smallT->Branch ("bjet2_pt_raw", &m_bjet2_pt_raw, "bjet2_pt_raw/F") ;
@@ -988,6 +1027,8 @@ struct smallTree
       m_smallT->Branch ("bjets_bID",&m_bjets_bID,"bjets_bID/F");
       m_smallT->Branch ("bjets_bID_deepCSV",&m_bjets_bID_deepCSV,"bjets_bID_deepCSV/F");
       m_smallT->Branch ("bjets_bID_deepFlavor",&m_bjets_bID_deepFlavor,"bjets_bID_deepFlavor/F");
+      m_smallT->Branch ("bjets_cID_deepFlavor",&m_bjets_cID_deepFlavor,"bjets_cID_deepFlavor/F");
+
       m_smallT->Branch ("bjets_gen_matched", &m_bjets_gen_matched, "bjets_gen_matched/O") ;
 
       m_smallT->Branch ("nfatjets", &m_nfatjets, "nfatjets/I");
@@ -1072,15 +1113,19 @@ struct smallTree
       m_smallT->Branch ("HH_pt_raw_tauup", &m_HH_pt_raw_tauup) ;
       m_smallT->Branch ("HH_pt_raw_jetup", &m_HH_pt_raw_jetup) ;
       m_smallT->Branch ("HH_pt_raw_eleup", &m_HH_pt_raw_eleup) ;
+      m_smallT->Branch ("HH_pt_raw_muup", &m_HH_pt_raw_muup, "HH_pt_raw_muup/F") ;
       m_smallT->Branch ("HH_pt_raw_taudown", &m_HH_pt_raw_taudown) ;
       m_smallT->Branch ("HH_pt_raw_jetdown", &m_HH_pt_raw_jetdown) ;
       m_smallT->Branch ("HH_pt_raw_eledown", &m_HH_pt_raw_eledown) ;
-      m_smallT->Branch ("HH_mass_raw_tauup", &m_HH_pt_raw_tauup) ;
-      m_smallT->Branch ("HH_mass_raw_jetup", &m_HH_pt_raw_jetup) ;
-      m_smallT->Branch ("HH_mass_raw_eleup", &m_HH_pt_raw_eleup) ;
-      m_smallT->Branch ("HH_mass_raw_taudown", &m_HH_pt_raw_taudown) ;
-      m_smallT->Branch ("HH_mass_raw_jetdown", &m_HH_pt_raw_jetdown) ;
-      m_smallT->Branch ("HH_mass_raw_eledown", &m_HH_pt_raw_eledown) ;
+      m_smallT->Branch ("HH_pt_raw_mudown", &m_HH_pt_raw_mudown, "HH_pt_raw_mudown/F") ;
+      m_smallT->Branch ("HH_mass_raw_tauup", &m_HH_mass_raw_tauup) ;
+      m_smallT->Branch ("HH_mass_raw_jetup", &m_HH_mass_raw_jetup) ;
+      m_smallT->Branch ("HH_mass_raw_eleup", &m_HH_mass_raw_eleup) ;
+      m_smallT->Branch ("HH_mass_raw_muup", &m_HH_mass_raw_muup, "HH_mass_raw_muup/F") ;
+      m_smallT->Branch ("HH_mass_raw_taudown", &m_HH_mass_raw_taudown) ;
+      m_smallT->Branch ("HH_mass_raw_jetdown", &m_HH_mass_raw_jetdown) ;
+      m_smallT->Branch ("HH_mass_raw_eledown", &m_HH_mass_raw_eledown) ;
+      m_smallT->Branch ("HH_mass_raw_mudown", &m_HH_mass_raw_mudown, "HH_mass_raw_mudown/F") ;
 
 
       m_smallT->Branch ("HHKin_mass", &m_HHKin_mass, "HHKin_mass/F") ;
@@ -1118,6 +1163,7 @@ struct smallTree
       m_smallT->Branch ("jets_btag", &m_jets_btag) ;
       m_smallT->Branch ("jets_btag_deepCSV", &m_jets_btag_deepCSV) ;
       m_smallT->Branch ("jets_btag_deepFlavor", &m_jets_btag_deepFlavor) ;
+      m_smallT->Branch ("jets_ctag_deepFlavor", &m_jets_ctag_deepFlavor) ;
       m_smallT->Branch ("jets_flav", &m_jets_flav) ;
       m_smallT->Branch ("jets_isH", &m_jets_isH) ;
       m_smallT->Branch ("jets_hasgenjet", &m_jets_hasgenjet) ;
@@ -1242,6 +1288,7 @@ struct smallTree
       m_smallT->Branch ("VBFjet1_btag",&m_VBFjet1_btag,"VBFjet1_btag/F");
       m_smallT->Branch ("VBFjet1_btag_deepCSV",&m_VBFjet1_btag_deepCSV,"VBFjet1_btag_deepCSV/F");
       m_smallT->Branch ("VBFjet1_btag_deepFlavor",&m_VBFjet1_btag_deepFlavor,"VBFjet1_btag_deepFlavor/F");
+      m_smallT->Branch ("VBFjet1_ctag_deepFlavor",&m_VBFjet1_ctag_deepFlavor,"VBFjet1_ctag_deepFlavor/F");
       m_smallT->Branch ("VBFjet1_PUjetIDupdated",&m_VBFjet1_PUjetIDupdated,"VBFjet1_PUjetIDupdated/F");
       m_smallT->Branch ("VBFjet1_flav",&m_VBFjet1_flav,"VBFjet1_flav/I");
       m_smallT->Branch ("VBFjet1_hasgenjet",&m_VBFjet1_hasgenjet,"VBFjet1_hasgenjet/O");
@@ -1289,6 +1336,7 @@ struct smallTree
       m_smallT->Branch ("VBFjet2_btag",&m_VBFjet2_btag,"VBFjet2_btag/F");
       m_smallT->Branch ("VBFjet2_btag_deepCSV",&m_VBFjet2_btag_deepCSV,"VBFjet2_btag_deepCSV/F");
       m_smallT->Branch ("VBFjet2_btag_deepFlavor",&m_VBFjet2_btag_deepFlavor,"VBFjet2_btag_deepFlavor/F");
+      m_smallT->Branch ("VBFjet2_ctag_deepFlavor",&m_VBFjet2_ctag_deepFlavor,"VBFjet2_ctag_deepFlavor/F");
       m_smallT->Branch ("VBFjet2_PUjetIDupdated",&m_VBFjet2_PUjetIDupdated,"VBFjet2_PUjetIDupdated/F");
       m_smallT->Branch ("VBFjet2_flav",&m_VBFjet2_flav,"VBFjet2_flav/I");
       m_smallT->Branch ("VBFjet2_hasgenjet",&m_VBFjet2_hasgenjet,"VBFjet2_hasgenjet/O");
@@ -1337,6 +1385,8 @@ struct smallTree
       m_smallT->Branch ("jet3_btag", &m_jet3_btag,"jet3_btag/F");
       m_smallT->Branch ("jet3_btag_deepCSV", &m_jet3_btag_deepCSV,"jet3_btag_deepCSV/F");
       m_smallT->Branch ("jet3_btag_deepFlavor", &m_jet3_btag_deepFlavor,"jet3_btag_deepFlavor/F");
+      m_smallT->Branch ("jet3_ctag_deepFlavor", &m_jet3_ctag_deepFlavor,"jet3_ctag_deepFlavor/F");
+
       m_smallT->Branch ("jet3_flav", &m_jet3_flav,"jet3_flav/I");
       m_smallT->Branch ("jet3_hasgenjet", &m_jet3_hasgenjet,"jet3_hasgenjet/O");
 
@@ -1352,6 +1402,7 @@ struct smallTree
       m_smallT->Branch ("jet4_btag", &m_jet4_btag,"jet4_btag/F");
       m_smallT->Branch ("jet4_btag_deepCSV", &m_jet4_btag_deepCSV,"jet4_btag_deepCSV/F");
       m_smallT->Branch ("jet4_btag_deepFlavor", &m_jet4_btag_deepFlavor,"jet4_btag_deepFlavor/F");
+      m_smallT->Branch ("jet4_ctag_deepFlavor", &m_jet4_ctag_deepFlavor,"jet4_ctag_deepFlavor/F");
       m_smallT->Branch ("jet4_flav", &m_jet4_flav,"jet4_flav/I");
       m_smallT->Branch ("jet4_hasgenjet", &m_jet4_hasgenjet,"jet4_hasgenjet/O");
 
@@ -1383,6 +1434,7 @@ struct smallTree
       m_smallT->Branch ("jet5_btag", &m_jet5_btag,"jet5_btag/F");
       m_smallT->Branch ("jet5_btag_deepCSV", &m_jet5_btag_deepCSV,"jet5_btag_deepCSV/F");
       m_smallT->Branch ("jet5_btag_deepFlavor", &m_jet5_btag_deepFlavor,"jet5_btag_deepFlavor/F");
+      m_smallT->Branch ("jet5_ctag_deepFlavor", &m_jet5_ctag_deepFlavor,"jet5_ctag_deepFlavor/F");
       m_smallT->Branch ("jet5_flav", &m_jet5_flav,"jet5_flav/I");
       m_smallT->Branch ("jet5_hasgenjet", &m_jet5_hasgenjet,"jet5_hasgenjet/O");
       m_smallT->Branch ("jet5_z", &m_jet5_z,"jet5_z/F");
@@ -1394,6 +1446,7 @@ struct smallTree
       m_smallT->Branch ("jet5_VBF_btag",&m_jet5_VBF_btag,"jet5_VBF_btag/F");
       m_smallT->Branch ("jet5_VBF_btag_deepCSV",&m_jet5_VBF_btag_deepCSV,"jet5_VBF_btag_deepCSV/F");
       m_smallT->Branch ("jet5_VBF_btag_deepFlavor",&m_jet5_VBF_btag_deepFlavor,"jet5_VBF_btag_deepFlavor/F");
+      m_smallT->Branch ("jet5_VBF_ctag_deepFlavor",&m_jet5_VBF_ctag_deepFlavor,"jet5_VBF_ctag_deepFlavor/F");
       m_smallT->Branch ("jet5_VBF_flav",&m_jet5_VBF_flav,"jet5_VBF_flav/F");
       m_smallT->Branch ("jet5_VBF_hasgenjet",&m_jet5_VBF_hasgenjet,"jet5_VBF_hasgenjet/O");
       m_smallT->Branch ("jet5_VBF_z",&m_jet5_VBF_z,"jet5_VBF_z/F");
@@ -1524,15 +1577,19 @@ struct smallTree
   std::vector<Float_t> m_METx_jetup ; 
   std::vector<Float_t> m_METx_tauup ; 
   std::vector<Float_t> m_METx_eleup ; 
+  Float_t m_METx_muup; 
   std::vector<Float_t> m_METx_jetdown ; 
   std::vector<Float_t> m_METx_taudown ; 
   std::vector<Float_t> m_METx_eledown ; 
+  Float_t m_METx_mudown; 
   std::vector<Float_t> m_METy_jetup ; 
   std::vector<Float_t> m_METy_tauup ; 
   std::vector<Float_t> m_METy_eleup ; 
+  Float_t m_METy_muup; 
   std::vector<Float_t> m_METy_jetdown ; 
   std::vector<Float_t> m_METy_taudown ; 
   std::vector<Float_t> m_METy_eledown ;
+  Float_t m_METy_mudown; 
 
   Float_t m_met_et_corr;
   Float_t m_met_cov00;
@@ -1568,6 +1625,11 @@ struct smallTree
   std::vector <Float_t> m_dau1_pt_eledown ;
   std::vector <Float_t> m_dau1_mass_eleup ;
   std::vector <Float_t> m_dau1_mass_eledown ;
+  
+  Float_t m_dau1_pt_muup ;
+  Float_t m_dau1_pt_mudown ;
+  Float_t m_dau1_mass_muup ;
+  Float_t m_dau1_mass_mudown ;
 
   Float_t m_dau1_pt_tauup_DM0 ;
   Float_t m_dau1_pt_tauup_DM1 ;
@@ -1627,6 +1689,11 @@ struct smallTree
   std::vector <Float_t> m_dau2_mass_eleup ;
   std::vector <Float_t> m_dau2_mass_eledown ;
 
+  Float_t m_dau2_pt_muup ;
+  Float_t m_dau2_pt_mudown ;
+  Float_t m_dau2_mass_muup ;
+  Float_t m_dau2_mass_mudown ;
+
   Float_t m_dau2_pt_tauup_DM0 ;
   Float_t m_dau2_pt_tauup_DM1 ;
   Float_t m_dau2_pt_tauup_DM10 ;
@@ -1655,6 +1722,7 @@ struct smallTree
   Float_t m_bjet1_bID ;
   Float_t m_bjet1_bID_deepCSV ;
   Float_t m_bjet1_bID_deepFlavor ;
+  Float_t m_bjet1_cID_deepFlavor ;
   Float_t m_bjet1_bMVAID ;
   Float_t m_bjet1_PUjetIDupdated;
   Int_t   m_bjet1_flav ;
@@ -1680,6 +1748,7 @@ struct smallTree
   Float_t m_bjet2_bID ;
   Float_t m_bjet2_bID_deepCSV ;
   Float_t m_bjet2_bID_deepFlavor ;
+  Float_t m_bjet2_cID_deepFlavor ;
   Float_t m_bjet2_bMVAID ;
   Float_t m_bjet2_PUjetIDupdated;
   Int_t   m_bjet2_flav ;
@@ -1700,6 +1769,7 @@ struct smallTree
   Float_t m_bjets_bID;
   Float_t m_bjets_bID_deepCSV;
   Float_t m_bjets_bID_deepFlavor;
+  Float_t m_bjets_cID_deepFlavor;
   Bool_t  m_bjets_gen_matched;
   // fat jets and subjet info
   Int_t   m_nfatjets ;
@@ -1786,16 +1856,20 @@ struct smallTree
   std::vector<Float_t> m_HH_pt_raw_tauup ;
   std::vector<Float_t> m_HH_pt_raw_eleup ;
   std::vector<Float_t> m_HH_pt_raw_jetup ;
+  Float_t m_HH_pt_raw_muup ;
   std::vector<Float_t> m_HH_pt_raw_taudown ;
   std::vector<Float_t> m_HH_pt_raw_eledown ;
   std::vector<Float_t> m_HH_pt_raw_jetdown ;
+  Float_t m_HH_pt_raw_mudown ;
   std::vector<Float_t> m_HH_mass_raw_tauup ;
   std::vector<Float_t> m_HH_mass_raw_eleup ;
   std::vector<Float_t> m_HH_mass_raw_jetup ;
+  Float_t m_HH_mass_raw_muup ;
   std::vector<Float_t> m_HH_mass_raw_taudown ;
   std::vector<Float_t> m_HH_mass_raw_eledown ;
   std::vector<Float_t> m_HH_mass_raw_jetdown ;
-
+  Float_t m_HH_mass_raw_mudown ;
+ 
   Float_t m_HHsvfit_pt ;
   Float_t m_HHsvfit_eta ;
   Float_t m_HHsvfit_phi ;
@@ -1841,6 +1915,7 @@ struct smallTree
   std::vector<Float_t> m_jets_btag ;
   std::vector<Float_t> m_jets_btag_deepCSV ;
   std::vector<Float_t> m_jets_btag_deepFlavor ;
+  std::vector<Float_t> m_jets_ctag_deepFlavor ;
   std::vector<Int_t> m_jets_flav ;
   std::vector<Int_t> m_jets_isH ;
   std::vector<Bool_t> m_jets_hasgenjet ;
@@ -1968,6 +2043,7 @@ struct smallTree
   Float_t m_VBFjet1_btag;
   Float_t m_VBFjet1_btag_deepCSV;
   Float_t m_VBFjet1_btag_deepFlavor;
+  Float_t m_VBFjet1_ctag_deepFlavor;
   Float_t m_VBFjet1_PUjetIDupdated;
   Int_t m_VBFjet1_flav;
   Bool_t m_VBFjet1_hasgenjet;
@@ -2012,6 +2088,7 @@ struct smallTree
   Float_t m_VBFjet2_btag;
   Float_t m_VBFjet2_btag_deepCSV;
   Float_t m_VBFjet2_btag_deepFlavor;
+  Float_t m_VBFjet2_ctag_deepFlavor;
   Float_t m_VBFjet2_PUjetIDupdated;
   Int_t m_VBFjet2_flav;
   Bool_t m_VBFjet2_hasgenjet;
@@ -2061,6 +2138,7 @@ struct smallTree
   Float_t m_jet3_btag;
   Float_t m_jet3_btag_deepCSV;
   Float_t m_jet3_btag_deepFlavor;
+  Float_t m_jet3_ctag_deepFlavor;
   Int_t   m_jet3_flav;
   Bool_t  m_jet3_hasgenjet;
 
@@ -2076,6 +2154,7 @@ struct smallTree
   Float_t m_jet4_btag;
   Float_t m_jet4_btag_deepCSV;
   Float_t m_jet4_btag_deepFlavor;
+  Float_t m_jet4_ctag_deepFlavor;
   Int_t m_jet4_flav;
   Bool_t m_jet4_hasgenjet;
 
@@ -2105,6 +2184,7 @@ struct smallTree
   Float_t m_jet5_VBF_btag;
   Float_t m_jet5_VBF_btag_deepCSV;
   Float_t m_jet5_VBF_btag_deepFlavor;
+  Float_t m_jet5_VBF_ctag_deepFlavor;
   Float_t m_jet5_VBF_flav;
   Bool_t m_jet5_VBF_hasgenjet;
   Float_t m_jet5_VBF_z;
@@ -2120,6 +2200,7 @@ struct smallTree
   Float_t m_jet5_btag;
   Float_t m_jet5_btag_deepCSV;
   Float_t m_jet5_btag_deepFlavor;
+  Float_t m_jet5_ctag_deepFlavor;
   Int_t m_jet5_flav;
   Bool_t m_jet5_hasgenjet;
   Float_t m_jet5_z; 
