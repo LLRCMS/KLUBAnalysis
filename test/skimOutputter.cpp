@@ -27,6 +27,7 @@
 
 #include "SVfitKLUBinterface.h"
 #include "DNNKLUBinterface.h"
+#include "BDTKLUBinterface.h"
 
 #include "ConfigParser.h"
 #include "EffCounter.h"
@@ -133,7 +134,7 @@ int main (int argc, char** argv)
   //TString inputFileName = "/gwteraz/users/brivio/SKIMMED_Legacy2017_27mar2020_DNN/SKIM_GGHHSM/output_0.root";
   //TString inputFileName = "/afs/cern.ch/user/d/dzuolo/public/VBF2016_Sync_26mar20.root";
   //TString inputFileName = "/gwteraz/users/brivio/SKIMMED_Legacy2017_27mar2020_DNN/SKIM_VBFHHSM/output_1.root";
-  TString inputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/DNN2/CMSSW_10_2_16/src/KLUBAnalysis/skimmed_output1_10evts.root";
+  TString inputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/DNN2/CMSSW_10_2_16/src/KLUBAnalysis/skimmed_output1_ALL.root";
   TString outputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/DNN2/CMSSW_10_2_16/src/KLUBAnalysis/systTEST.root";
   cout << "** INFO: inputFile  : " << inputFileName << endl;
   cout << "** INFO: outputFile : " << outputFileName << endl;
@@ -142,6 +143,7 @@ int main (int argc, char** argv)
   bool doKinFit = false; // FIXME: read from cfg file
   bool doSVfit  = false; // FIXME: read from cfg file
   bool doDNN    = true;  // FIXME: read from cfg file
+  bool doBDT    = true;  // FIXME: read from cfg file
 
   // Input setup
   TFile *inputFile = new TFile (inputFileName, "read") ;
@@ -189,9 +191,11 @@ int main (int argc, char** argv)
 
   "VBFjj_mass", "VBFjj_deltaEta",                                      // VBF selection
 
-  "HHKin_mass","HHKin_chi2", "MT2",                                    // Old values KinFit, MT2, SVfit, DNN
+  "BDT_HT20",                                                          // BDT variables
+
+  "HHKin_mass","HHKin_chi2", "MT2",                                    // Old values KinFit, MT2, SVfit, DNN, BDT
   "tauH_SVFIT_pt","tauH_SVFIT_eta","tauH_SVFIT_phi","tauH_SVFIT_mass",
-  "DNNoutSM_kl_1"
+  "DNNoutSM_kl_1","BDToutSM_kl_1"
   };
 
   // Activate only branches I need/want to store
@@ -235,6 +239,9 @@ int main (int argc, char** argv)
   int hypo_mh1 = 125;
   int hypo_mh2 = 125;
 
+  // Target kls for DNN and BDT
+  std::vector<float> target_kls {1.};
+
   // Declare DNNKLUBinterface
   std::string model_dir = "../cms_runII_dnn_models/models/nonres_gluglu/2020-03-11-0/ensemble";
   std::string features_file = "../cms_runII_dnn_models/models/nonres_gluglu/2020-03-11-0/features.txt";
@@ -246,9 +253,12 @@ int main (int argc, char** argv)
     requested.push_back(featureName);
   }
   features_infile.close();
-  std::vector<float> target_kls {1.};
   DNNKLUBinterface DNNreader(model_dir, requested, target_kls);
   DNNreader.SetGlobalInputs(y17, nonres);
+
+  // Declare BDTKLUBinterface
+  std::string weights = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/CMSSW_10_2_16/src/KLUBAnalysis/weights/newBDT/BDTnewSM.xml";
+  BDTKLUBinterface BDTreader(weights, target_kls);
 
   // Read branches needed for computation of KinFit, MT2, SVfit, BDT, DNN
   ULong64_t EventNumber;
@@ -257,8 +267,9 @@ int main (int argc, char** argv)
   Float_t bjet1_pt, bjet1_eta, bjet1_phi, bjet1_e, bjet1_JER, bjet2_pt, bjet2_eta, bjet2_phi, bjet2_e, bjet2_JER;
   Float_t vbfjet1_pt, vbfjet1_eta, vbfjet1_phi, vbfjet1_e, vbfjet2_pt, vbfjet2_eta, vbfjet2_phi, vbfjet2_e;
   Float_t met_phi, met_et, met_cov00, met_cov01, met_cov10, met_cov11; // met_x, met_y;
-  Float_t HHKin_mass, HHKin_chi2, MT2, tauH_SVFIT_pt, tauH_SVFIT_eta, tauH_SVFIT_phi, tauH_SVFIT_mass, DNNoutSM_kl_1;
+  Float_t HHKin_mass, HHKin_chi2, MT2, tauH_SVFIT_pt, tauH_SVFIT_eta, tauH_SVFIT_phi, tauH_SVFIT_mass, DNNoutSM_kl_1, BDToutSM_kl_1;
   float bjet1_bID_deepFlavor, bjet2_bID_deepFlavor, bjet1_bID_deepCSV, bjet2_bID_deepCSV;
+  float BDT_HT20;
 
   outTree->SetBranchAddress("EventNumber" , &EventNumber);
   outTree->SetBranchAddress("isBoosted"   , &isBoosted);
@@ -311,6 +322,8 @@ int main (int argc, char** argv)
   //outTree->SetBranchAddress("met_x"     , &met_x);
   //outTree->SetBranchAddress("met_y"     , &met_y);
 
+  outTree->SetBranchAddress("BDT_HT20", &BDT_HT20);
+
   outTree->SetBranchAddress("MT2", &MT2);                         // FIXME: To be removed later
   outTree->SetBranchAddress("HHKin_mass", &HHKin_mass);           // FIXME: To be removed later
   outTree->SetBranchAddress("HHKin_chi2", &HHKin_chi2);           // FIXME: To be removed later
@@ -319,11 +332,12 @@ int main (int argc, char** argv)
   outTree->SetBranchAddress("tauH_SVFIT_phi" , &tauH_SVFIT_phi ); // FIXME: To be removed later
   outTree->SetBranchAddress("tauH_SVFIT_mass", &tauH_SVFIT_mass); // FIXME: To be removed later
   outTree->SetBranchAddress("DNNoutSM_kl_1", &DNNoutSM_kl_1);     // FIXME: To be removed later
+  outTree->SetBranchAddress("BDToutSM_kl_1", &BDToutSM_kl_1);     // FIXME: To be removed later
 
   // Declare new branches
   Float_t HHKin_mass_new, HHKin_mass_chi2_new, MT2_new;
   Float_t tauH_SVFIT_pt_new, tauH_SVFIT_eta_new, tauH_SVFIT_phi_new, tauH_SVFIT_mass_new;
-  Float_t DNNoutSM_kl_1_new;
+  Float_t DNNoutSM_kl_1_new, BDToutSM_kl_1_new;
   TBranch* b_HHKin_mass_new = outTree->Branch("HHKin_mass_new", &HHKin_mass_new);
   TBranch* b_HHKin_mass_chi2_new = outTree->Branch("HHKin_mass_chi2_new", &HHKin_mass_chi2_new);
   TBranch* b_MT2_new = outTree->Branch("MT2_new", &MT2_new);
@@ -332,6 +346,7 @@ int main (int argc, char** argv)
   TBranch* b_tauH_SVFIT_phi_new  = outTree->Branch("tauH_SVFIT_phi_new" , &tauH_SVFIT_phi_new);
   TBranch* b_tauH_SVFIT_mass_new = outTree->Branch("tauH_SVFIT_mass_new", &tauH_SVFIT_mass_new);
   TBranch* b_DNNoutSM_kl_1_new = outTree->Branch("DNNoutSM_kl_1_new", &DNNoutSM_kl_1_new);
+  TBranch* b_BDToutSM_kl_1_new = outTree->Branch("BDToutSM_kl_1_new", &BDToutSM_kl_1_new);
 
   // Loop on selected entries
   cout << "** INFO: Adding new branches..." << endl;
@@ -339,11 +354,13 @@ int main (int argc, char** argv)
   {
     if (i % 500 == 0)  cout << "- reading event " << i << endl ;
     if (i == nMaxEvts ) break;
-    //std::cout << "---------------- Event: " << i << " : " << EventNumber << " -------------------" << std::endl;
 
     // Get Entry
     outTree->GetEntry(i);
 
+    //std::cout << "---------------- Event: " << i << " : " << EventNumber << " -------------------" << std::endl;
+
+    // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
     // Build needed quantities
     TLorentzVector tau1, tau2, bjet1, bjet2, vbfjet1, vbfjet2, met, svfit;
     tau1.SetPtEtaPhiE(dau1_pt, dau1_eta, dau1_phi, dau1_e);
@@ -361,6 +378,28 @@ int main (int argc, char** argv)
     stableMetCov (1,0) = met_cov01;
     stableMetCov (0,1) = met_cov10;
     stableMetCov (1,1) = met_cov11;
+
+    bool KinFitConv = HHKin_chi2 > 0;
+    bool SVfitConv  = tauH_SVFIT_mass > 0;
+    float mTtot     = Calculate_TotalMT(tau1, tau2, met);
+    float pzeta_vis = Calculate_visiblePzeta(tau1, tau2);
+    float pzeta     = Calculate_Pzeta(tau1, tau2, met);
+    float mt1       = ComputeMT(tau1,met);
+    float mt2       = ComputeMT(tau2,met);
+
+    // For Calculate_topPairMasses use a redefined met (avoid rounding problems)
+    TLorentzVector metDNN;
+    metDNN.SetPxPyPzE( met.Px(), met.Py(), 0, std::hypot(met.Px(), met.Py()));
+    std::pair<double, double> topMasses = Calculate_topPairMasses(getLVfromTLV(tau1), getLVfromTLV(tau2), getLVfromTLV(bjet1), getLVfromTLV(bjet2), getLVfromTLV(metDNN));
+
+    float BDT_ditau_deltaPhi        = ROOT::Math::VectorUtil::DeltaPhi(tau1, tau2);
+    float BDT_tauHsvfitMet_deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(svfit, metDNN);
+    float mT_tauH_MET               = Calculate_MT( (tau1+tau2)+metDNN, metDNN);
+    float BDT_MX                    = Calculate_MX(tau1, tau2, bjet1, bjet2, metDNN);
+    float BDT_bH_tauH_MET_InvMass   = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1+tau2)+metDNN);
+    float BDT_bH_tauH_SVFIT_InvMass = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), svfit);
+    float BDT_bH_tauH_InvMass       = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1+tau2));
+    float BDT_MET_bH_cosTheta       = Calculate_cosTheta_2bodies(getLVfromTLV(metDNN), getLVfromTLV(bjet1+bjet2));
 
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
     // KinFit computation
@@ -462,27 +501,40 @@ int main (int argc, char** argv)
           bjet1_bID_deepCSV, bjet2_bID_deepCSV, nvbf, EventNumber);
 
       // Set quantities that change for each event (shifted for TES, JES...)
-      bool KinFitConv = HHKin_chi2 > 0;
-      bool SVfitConv  = tauH_SVFIT_mass > 0;
-      float mTtot     = Calculate_TotalMT(tau1, tau2, met);
-      float pzeta_vis = Calculate_visiblePzeta(tau1, tau2);
-      float pzeta     = Calculate_Pzeta(tau1, tau2, met);
-      float mt1       = ComputeMT(tau1,met);
-      float mt2       = ComputeMT(tau2,met);
-
-      // For Calculate_topPairMasses use a redefined met (avoid rounding problems)
-      TLorentzVector metDNN;
-      metDNN.SetPxPyPzE( met.Px(), met.Py(), 0, std::hypot(met.Px(), met.Py()));
-      std::pair<double, double> topMasses = Calculate_topPairMasses(getLVfromTLV(tau1), getLVfromTLV(tau2), getLVfromTLV(bjet1), getLVfromTLV(bjet2), getLVfromTLV(metDNN));
-
       DNNreader.SetShiftedInputs(bjet1, bjet2, tau1, tau2, vbfjet1, vbfjet1, met, svfit,
           HHKin_mass, HHKin_chi2, KinFitConv, SVfitConv, MT2,
           mTtot, pzeta_vis, pzeta, topMasses.first, topMasses.second, mt1, mt2);
 
-      //std::cout << "----- getting predictions..." << std::endl;
+      // Get predictions
       std::vector<float> outs = DNNreader.GetPredictions();
       //std::cout << "----- ...gotten predictions: " << outs.at(0) << std::endl;
       DNNoutSM_kl_1_new = outs.at(0);
+    }
+
+
+    // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+    // BDT computation
+    if (doBDT)
+    {
+      // Redefine BDT channel (defined differently in the BDT weights)
+      float BDT_channel;
+      if      (pType == 0) BDT_channel = 1.;
+      else if (pType == 1) BDT_channel = 0.;
+      else if (pType == 2) BDT_channel = 2.;
+
+      // Set inputs to BDT
+      BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1.Pt(),
+        tau2.Pt(), svfit.Pt(), BDT_channel,
+        BDT_HT20, pzeta, pzeta_vis, BDT_ditau_deltaPhi,
+        BDT_tauHsvfitMet_deltaPhi, mT_tauH_MET, mTtot, MT2,
+        BDT_MX, BDT_bH_tauH_MET_InvMass, BDT_bH_tauH_SVFIT_InvMass,
+        BDT_bH_tauH_InvMass, HHKin_mass, HHKin_chi2, BDT_MET_bH_cosTheta);
+
+      // Get BDT outputs
+      std::vector<float> BDTouts = BDTreader.GetPredictions();
+      BDToutSM_kl_1_new = BDTouts.at(0);
+      //std::cout << " - newBDT: " << BDToutSM_kl_1_new << std::endl;
+      //std::cout << " - oldBDT: " << BDToutSM_kl_1 << std::endl;
     }
 
 
@@ -496,6 +548,7 @@ int main (int argc, char** argv)
     b_tauH_SVFIT_phi_new->Fill();
     b_tauH_SVFIT_mass_new->Fill();
     b_DNNoutSM_kl_1_new->Fill();
+    b_BDToutSM_kl_1_new->Fill();
   }
   cout << "** INFO: ..Added new branches" << endl;
   cout << "** INFO: Final entries: " << outTree->GetEntries() << endl;
