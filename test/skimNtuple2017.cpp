@@ -3639,6 +3639,55 @@ int main (int argc, char** argv)
 
         }
 
+
+        theSmallTree.m_bjet1_pt_raw_jetup1    = (tlv_firstBjet_raw_jetup[0]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetup2    = (tlv_firstBjet_raw_jetup[1]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetup3    = (tlv_firstBjet_raw_jetup[2]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetup4    = (tlv_firstBjet_raw_jetup[3]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetup5    = (tlv_firstBjet_raw_jetup[4]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetup6    = (tlv_firstBjet_raw_jetup[5]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetup7    = (tlv_firstBjet_raw_jetup[6]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetup8    = (tlv_firstBjet_raw_jetup[7]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetup9    = (tlv_firstBjet_raw_jetup[8]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetup10   = (tlv_firstBjet_raw_jetup[9]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetup11   = (tlv_firstBjet_raw_jetup[10]).Pt();
+
+        theSmallTree.m_bjet2_pt_raw_jetup1    = (tlv_secondBjet_raw_jetup[0]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetup2    = (tlv_secondBjet_raw_jetup[1]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetup3    = (tlv_secondBjet_raw_jetup[2]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetup4    = (tlv_secondBjet_raw_jetup[3]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetup5    = (tlv_secondBjet_raw_jetup[4]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetup6    = (tlv_secondBjet_raw_jetup[5]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetup7    = (tlv_secondBjet_raw_jetup[6]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetup8    = (tlv_secondBjet_raw_jetup[7]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetup9    = (tlv_secondBjet_raw_jetup[8]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetup10   = (tlv_secondBjet_raw_jetup[9]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetup11   = (tlv_secondBjet_raw_jetup[10]).Pt();
+
+        theSmallTree.m_bjet1_pt_raw_jetdown1    = (tlv_firstBjet_raw_jetdown[0]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetdown2    = (tlv_firstBjet_raw_jetdown[1]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetdown3    = (tlv_firstBjet_raw_jetdown[2]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetdown4    = (tlv_firstBjet_raw_jetdown[3]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetdown5    = (tlv_firstBjet_raw_jetdown[4]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetdown6    = (tlv_firstBjet_raw_jetdown[5]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetdown7    = (tlv_firstBjet_raw_jetdown[6]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetdown8    = (tlv_firstBjet_raw_jetdown[7]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetdown9    = (tlv_firstBjet_raw_jetdown[8]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetdown10   = (tlv_firstBjet_raw_jetdown[9]).Pt();
+        theSmallTree.m_bjet1_pt_raw_jetdown11   = (tlv_firstBjet_raw_jetdown[10]).Pt();
+
+        theSmallTree.m_bjet2_pt_raw_jetdown1    = (tlv_secondBjet_raw_jetdown[0]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetdown2    = (tlv_secondBjet_raw_jetdown[1]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetdown3    = (tlv_secondBjet_raw_jetdown[2]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetdown4    = (tlv_secondBjet_raw_jetdown[3]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetdown5    = (tlv_secondBjet_raw_jetdown[4]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetdown6    = (tlv_secondBjet_raw_jetdown[5]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetdown7    = (tlv_secondBjet_raw_jetdown[6]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetdown8    = (tlv_secondBjet_raw_jetdown[7]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetdown9    = (tlv_secondBjet_raw_jetdown[8]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetdown10   = (tlv_secondBjet_raw_jetdown[9]).Pt();
+        theSmallTree.m_bjet2_pt_raw_jetdown11   = (tlv_secondBjet_raw_jetdown[10]).Pt();
+
         theSmallTree.m_bH_mass_raw = tlv_bH_raw.M();
         theSmallTree.m_bH_pt_raw = tlv_bH_raw.Pt();
 
@@ -3897,51 +3946,6 @@ int main (int argc, char** argv)
         theSmallTree.m_HH_mass = tlv_HH.M () ;
         theSmallTree.m_HH_mass_raw = tlv_HH_raw.M () ;
         theSmallTree.m_HH_deltaR = tlv_bH.DeltaR(tlv_tauH);
-
-        vector <TLorentzVector> tlv_HH_raw_tauup (N_tauhDM,tlv_HH_raw);
-        vector <TLorentzVector> tlv_HH_raw_taudown (N_tauhDM,tlv_HH_raw);
-        vector <TLorentzVector> tlv_HH_raw_eleup (N_tauhDM_EES,tlv_HH_raw);
-        vector <TLorentzVector> tlv_HH_raw_eledown (N_tauhDM_EES,tlv_HH_raw);
-
-        for (int idm  = 0; idm < N_tauhDM; idm++)
-        { 
-          tlv_HH_raw_tauup[idm] = tlv_bH_raw + tlv_firstLepton_tauup[idm] + tlv_secondLepton_tauup[idm] ; 
-          tlv_HH_raw_taudown[idm] = tlv_bH_raw + tlv_firstLepton_taudown[idm] + tlv_secondLepton_taudown[idm] ; 
-          theSmallTree.m_HH_pt_raw_tauup.push_back(tlv_HH_raw_tauup[idm].Pt());
-          theSmallTree.m_HH_pt_raw_taudown.push_back(tlv_HH_raw_taudown[idm].Pt());
-          theSmallTree.m_HH_mass_raw_tauup.push_back(tlv_HH_raw_tauup[idm].M());
-          theSmallTree.m_HH_mass_raw_taudown.push_back(tlv_HH_raw_taudown[idm].M());
-          if(idm < N_tauhDM_EES)
-          {
-           tlv_HH_raw_eleup[idm] = tlv_bH_raw + tlv_firstLepton_eleup[idm] + tlv_secondLepton_eleup[idm] ; 
-           tlv_HH_raw_eledown[idm] = tlv_bH_raw + tlv_firstLepton_eledown[idm] + tlv_secondLepton_eledown[idm] ; 
-           theSmallTree.m_HH_pt_raw_eleup.push_back(tlv_HH_raw_eleup[idm].Pt());
-           theSmallTree.m_HH_pt_raw_eledown.push_back(tlv_HH_raw_eledown[idm].Pt());
-           theSmallTree.m_HH_mass_raw_eleup.push_back(tlv_HH_raw_eleup[idm].M());
-           theSmallTree.m_HH_mass_raw_eledown.push_back(tlv_HH_raw_eledown[idm].M());
-          }
-       }
-        TLorentzVector tlv_HH_raw_muup   = tlv_bH_raw + tlv_firstLepton_muup + tlv_secondLepton_muup;  
-        TLorentzVector tlv_HH_raw_mudown = tlv_bH_raw + tlv_firstLepton_mudown + tlv_secondLepton_mudown;  
-        theSmallTree.m_HH_pt_raw_muup     = tlv_HH_raw_muup.Pt();
-        theSmallTree.m_HH_pt_raw_mudown   = tlv_HH_raw_mudown.Pt();
-        theSmallTree.m_HH_mass_raw_muup   = tlv_HH_raw_muup.M();
-        theSmallTree.m_HH_mass_raw_mudown = tlv_HH_raw_mudown.M();
-
-
-        vector <TLorentzVector> tlv_HH_raw_jetup(N_jecSources,tlv_HH_raw);
-        vector <TLorentzVector> tlv_HH_raw_jetdown(N_jecSources,tlv_HH_raw);
-
-        for (int isource  = 0; isource < N_jecSources; isource++)
-          { 
-            tlv_HH_raw_jetup[isource] = tlv_bH_raw_jetup[isource]+ tlv_firstLepton + tlv_secondLepton ; 
-            tlv_HH_raw_jetdown[isource] = tlv_bH_raw_jetdown[isource] + tlv_firstLepton + tlv_secondLepton ; 
-            theSmallTree.m_HH_pt_raw_jetup.push_back(tlv_HH_raw_jetup [isource].Pt());
-            theSmallTree.m_HH_pt_raw_jetdown.push_back(tlv_HH_raw_jetdown [isource].Pt());
-            theSmallTree.m_HH_mass_raw_jetup.push_back(tlv_HH_raw_jetup [isource].M());
-            theSmallTree.m_HH_mass_raw_jetdown.push_back(tlv_HH_raw_jetdown [isource].M());
-
-          }
 
 
         // in case the SVFIT mass is calculated
