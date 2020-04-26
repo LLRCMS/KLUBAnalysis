@@ -52,6 +52,10 @@ public :
    std::vector<float>   *daughters_pz;
    std::vector<float>   *daughters_e;
    std::vector<bool>    *daughters_hasTES;
+   std::vector<float>    *daughters_TESshiftDM0;
+   std::vector<float>    *daughters_TESshiftDM1;
+   std::vector<float>    *daughters_TESshiftDM10;
+   std::vector<float>    *daughters_TESshiftDM11;
    std::vector<float>   *daughters_px_TauUp;
    std::vector<float>   *daughters_py_TauUp;
    std::vector<float>   *daughters_pz_TauUp;
@@ -61,6 +65,12 @@ public :
    std::vector<float>   *daughters_pz_TauDown;
    std::vector<float>   *daughters_e_TauDown;
    std::vector<bool>    *daughters_hasEES;
+   std::vector<float>    *daughters_EESshiftDM0up;
+   std::vector<float>    *daughters_EESshiftDM1up;
+   std::vector<float>    *daughters_EESshiftDM0dw;
+   std::vector<float>    *daughters_EESshiftDM1dw;
+   std::vector<float>   *daughters_MESshiftup;
+   std::vector<float>   *daughters_MESshiftdw;
    std::vector<float>   *daughters_px_EleUp;
    std::vector<float>   *daughters_py_EleUp;
    std::vector<float>   *daughters_pz_EleUp;
@@ -313,6 +323,7 @@ public :
    std::vector<float>   *bDeepFlavor_probb;
    std::vector<float>   *bDeepFlavor_probbb;
    std::vector<float>   *bDeepFlavor_problepb;
+   std::vector<float>   *bDeepFlavor_probc;
    std::vector<float>   *pfCombinedMVAV2BJetTags;
    std::vector<int>     *PFjetID;
    std::vector<float>   *jetRawf;
@@ -377,7 +388,30 @@ public :
    std::vector<float> *jets_jetUnc_SinglePionECAL_dw;
    std::vector<float> *jets_jetUnc_SinglePionHCAL_dw;
    std::vector<float> *jets_jetUnc_TimePtEta_dw;
-
+   std::vector<float>   *jets_jetUncRegrouped_FlavorQCD_up;
+   std::vector<float>   *jets_jetUncRegrouped_RelativeBal_up;
+   std::vector<float>   *jets_jetUncRegrouped_HF_up;
+   std::vector<float>   *jets_jetUncRegrouped_BBEC1_up;
+   std::vector<float>   *jets_jetUncRegrouped_EC2_up;
+   std::vector<float>   *jets_jetUncRegrouped_Absolute_up;
+   std::vector<float>   *jets_jetUncRegrouped_Total_up;
+   std::vector<float>   *jets_jetUncRegrouped_FlavorQCD_dw;
+   std::vector<float>   *jets_jetUncRegrouped_RelativeBal_dw;
+   std::vector<float>   *jets_jetUncRegrouped_HF_dw;
+   std::vector<float>   *jets_jetUncRegrouped_BBEC1_dw;
+   std::vector<float>   *jets_jetUncRegrouped_EC2_dw;
+   std::vector<float>   *jets_jetUncRegrouped_Absolute_dw;
+   std::vector<float>   *jets_jetUncRegrouped_Total_dw;
+   std::vector<float>   *jets_jetUncRegrouped_BBEC1_YEAR_up;
+   std::vector<float>   *jets_jetUncRegrouped_EC2_YEAR_up;
+   std::vector<float>   *jets_jetUncRegrouped_Absolute_YEAR_up;
+   std::vector<float>   *jets_jetUncRegrouped_HF_YEAR_up;
+   std::vector<float>   *jets_jetUncRegrouped_RelativeSample_YEAR_up;
+   std::vector<float>   *jets_jetUncRegrouped_BBEC1_YEAR_dw;
+   std::vector<float>   *jets_jetUncRegrouped_EC2_YEAR_dw;
+   std::vector<float>   *jets_jetUncRegrouped_Absolute_YEAR_dw;
+   std::vector<float>   *jets_jetUncRegrouped_HF_YEAR_dw;
+   std::vector<float>   *jets_jetUncRegrouped_RelativeSample_YEAR_dw;
    std::vector<float>   *ak8jets_px;
    std::vector<float>   *ak8jets_py;
    std::vector<float>   *ak8jets_pz;
@@ -440,6 +474,10 @@ public :
    TBranch        *b_daughters_pz;   //!
    TBranch        *b_daughters_e;   //!
    TBranch        *b_daughters_hasTES;
+   TBranch        *b_daughters_TESshiftDM0; //!
+   TBranch        *b_daughters_TESshiftDM1; //!
+   TBranch        *b_daughters_TESshiftDM10; //!
+   TBranch        *b_daughters_TESshiftDM11; //!
    TBranch        *b_daughters_px_TauUp;   //!
    TBranch        *b_daughters_py_TauUp;   //!
    TBranch        *b_daughters_pz_TauUp;   //!
@@ -449,6 +487,12 @@ public :
    TBranch        *b_daughters_pz_TauDown;   //!
    TBranch        *b_daughters_e_TauDown;   //!
    TBranch        *b_daughters_hasEES;
+   TBranch        *b_daughters_EESshiftDM0up; //!
+   TBranch        *b_daughters_EESshiftDM1up; //!
+   TBranch        *b_daughters_EESshiftDM0dw; //!
+   TBranch        *b_daughters_EESshiftDM1dw; //!
+   TBranch        *b_daughters_MESshiftup;   //!
+   TBranch        *b_daughters_MESshiftdw;   //!
    TBranch        *b_daughters_px_EleUp;   //!
    TBranch        *b_daughters_py_EleUp;   //!
    TBranch        *b_daughters_pz_EleUp;   //!
@@ -696,6 +740,7 @@ public :
    TBranch        *b_bDeepCSV_probbb;   //!
    TBranch        *b_bDeepFlavor_probb;
    TBranch        *b_bDeepFlavor_probbb;
+   TBranch        *b_bDeepFlavor_probc;
    TBranch        *b_bDeepFlavor_problepb;
    TBranch        *b_pfCombinedMVAV2BJetTags; //!
    TBranch        *b_PFjetID;   //!
@@ -761,7 +806,30 @@ public :
    TBranch        *b_jets_jetUnc_SinglePionECAL_dw;
    TBranch        *b_jets_jetUnc_SinglePionHCAL_dw;
    TBranch        *b_jets_jetUnc_TimePtEta_dw;
-
+   TBranch        *b_jets_jetUncRegrouped_FlavorQCD_up;   //!
+   TBranch        *b_jets_jetUncRegrouped_RelativeBal_up;   //!
+   TBranch        *b_jets_jetUncRegrouped_HF_up;   //!
+   TBranch        *b_jets_jetUncRegrouped_BBEC1_up;   //!
+   TBranch        *b_jets_jetUncRegrouped_EC2_up;   //!
+   TBranch        *b_jets_jetUncRegrouped_Absolute_up;   //!
+   TBranch        *b_jets_jetUncRegrouped_Total_up;   //!
+   TBranch        *b_jets_jetUncRegrouped_FlavorQCD_dw;   //!
+   TBranch        *b_jets_jetUncRegrouped_RelativeBal_dw;   //!
+   TBranch        *b_jets_jetUncRegrouped_HF_dw;   //!
+   TBranch        *b_jets_jetUncRegrouped_BBEC1_dw;   //!
+   TBranch        *b_jets_jetUncRegrouped_EC2_dw;   //!
+   TBranch        *b_jets_jetUncRegrouped_Absolute_dw;   //!
+   TBranch        *b_jets_jetUncRegrouped_Total_dw;   //!
+   TBranch        *b_jets_jetUncRegrouped_BBEC1_YEAR_up;   //!
+   TBranch        *b_jets_jetUncRegrouped_EC2_YEAR_up;   //!
+   TBranch        *b_jets_jetUncRegrouped_Absolute_YEAR_up;   //!
+   TBranch        *b_jets_jetUncRegrouped_HF_YEAR_up;   //!
+   TBranch        *b_jets_jetUncRegrouped_RelativeSample_YEAR_up;   //!
+   TBranch        *b_jets_jetUncRegrouped_BBEC1_YEAR_dw;   //!
+   TBranch        *b_jets_jetUncRegrouped_EC2_YEAR_dw;   //!
+   TBranch        *b_jets_jetUncRegrouped_Absolute_YEAR_dw;   //!
+   TBranch        *b_jets_jetUncRegrouped_HF_YEAR_dw;   //!
+   TBranch        *b_jets_jetUncRegrouped_RelativeSample_YEAR_dw;   //!
    TBranch        *b_ak8jets_px;
    TBranch        *b_ak8jets_py;
    TBranch        *b_ak8jets_pz;
@@ -821,6 +889,10 @@ public :
        daughters_pz = 0;
        daughters_e = 0;
        daughters_hasTES = 0;
+       daughters_TESshiftDM0 = 0; 
+       daughters_TESshiftDM1 = 0; 
+       daughters_TESshiftDM10 = 0; 
+       daughters_TESshiftDM11 = 0; 
        daughters_px_TauUp = 0;
        daughters_py_TauUp = 0;
        daughters_pz_TauUp = 0;
@@ -830,6 +902,12 @@ public :
        daughters_pz_TauDown = 0;
        daughters_e_TauDown = 0;
        daughters_hasEES = 0;
+       daughters_EESshiftDM0up = 0;
+       daughters_EESshiftDM0dw = 0;
+       daughters_EESshiftDM1up = 0;
+       daughters_EESshiftDM1dw = 0;
+       daughters_MESshiftup = 0;
+       daughters_MESshiftdw = 0;
        daughters_px_EleUp = 0;
        daughters_py_EleUp = 0;
        daughters_pz_EleUp = 0;
@@ -1065,6 +1143,7 @@ public :
        bDeepFlavor_probb = 0;
        bDeepFlavor_probbb = 0;
        bDeepFlavor_problepb = 0;
+       bDeepFlavor_probc = 0;
        pfCombinedMVAV2BJetTags = 0;
        PFjetID = 0;
        jetRawf = 0;
@@ -1128,6 +1207,30 @@ public :
        jets_jetUnc_SinglePionECAL_dw = 0;
        jets_jetUnc_SinglePionHCAL_dw = 0;
        jets_jetUnc_TimePtEta_dw = 0;
+       jets_jetUncRegrouped_FlavorQCD_up = 0;
+       jets_jetUncRegrouped_RelativeBal_up = 0;
+       jets_jetUncRegrouped_HF_up = 0;
+       jets_jetUncRegrouped_BBEC1_up = 0;
+       jets_jetUncRegrouped_EC2_up = 0;
+       jets_jetUncRegrouped_Absolute_up = 0;
+       jets_jetUncRegrouped_Total_up = 0;
+       jets_jetUncRegrouped_FlavorQCD_dw = 0;
+       jets_jetUncRegrouped_RelativeBal_dw = 0;
+       jets_jetUncRegrouped_HF_dw = 0;
+       jets_jetUncRegrouped_BBEC1_dw = 0;
+       jets_jetUncRegrouped_EC2_dw = 0;
+       jets_jetUncRegrouped_Absolute_dw = 0;
+       jets_jetUncRegrouped_Total_dw = 0;
+       jets_jetUncRegrouped_BBEC1_YEAR_up = 0;
+       jets_jetUncRegrouped_EC2_YEAR_up = 0;
+       jets_jetUncRegrouped_Absolute_YEAR_up = 0;
+       jets_jetUncRegrouped_HF_YEAR_up = 0;
+       jets_jetUncRegrouped_RelativeSample_YEAR_up = 0;
+       jets_jetUncRegrouped_BBEC1_YEAR_dw = 0;
+       jets_jetUncRegrouped_EC2_YEAR_dw = 0;
+       jets_jetUncRegrouped_Absolute_YEAR_dw = 0;
+       jets_jetUncRegrouped_HF_YEAR_dw = 0;
+       jets_jetUncRegrouped_RelativeSample_YEAR_dw = 0;
        ak8jets_px = 0;
        ak8jets_py = 0;
        ak8jets_pz = 0;
@@ -1322,6 +1425,7 @@ public :
        fChain->SetBranchAddress("bDeepCSV_probbb", &bDeepCSV_probbb, &b_bDeepCSV_probbb);
        fChain->SetBranchAddress("bDeepFlavor_probb", &bDeepFlavor_probb, &b_bDeepFlavor_probb);
        fChain->SetBranchAddress("bDeepFlavor_probbb", &bDeepFlavor_probbb, &b_bDeepFlavor_probbb);
+       fChain->SetBranchAddress("bDeepFlavor_probc", &bDeepFlavor_probc, &b_bDeepFlavor_probc);
        fChain->SetBranchAddress("bDeepFlavor_problepb", &bDeepFlavor_problepb, &b_bDeepFlavor_problepb);       
        fChain->SetBranchAddress("pfCombinedMVAV2BJetTags", &pfCombinedMVAV2BJetTags, &b_pfCombinedMVAV2BJetTags);
        fChain->SetBranchAddress("PFjetID", &PFjetID, &b_PFjetID);
@@ -1386,8 +1490,31 @@ public :
        fChain->SetBranchAddress("jets_jetUnc_SinglePionECAL_dw",    &jets_jetUnc_SinglePionECAL_dw,     &b_jets_jetUnc_SinglePionECAL_dw);
        fChain->SetBranchAddress("jets_jetUnc_SinglePionHCAL_dw",    &jets_jetUnc_SinglePionHCAL_dw,     &b_jets_jetUnc_SinglePionHCAL_dw);
        fChain->SetBranchAddress("jets_jetUnc_TimePtEta_dw",         &jets_jetUnc_TimePtEta_dw,          &b_jets_jetUnc_TimePtEta_dw);
-
-       fChain->SetBranchAddress("ak8jets_px", &ak8jets_px, &b_ak8jets_px);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_FlavorQCD_up",          &jets_jetUncRegrouped_FlavorQCD_up,           &b_jets_jetUncRegrouped_FlavorQCD_up);                 
+       fChain->SetBranchAddress("jets_jetUncRegrouped_RelativeBal_up",        &jets_jetUncRegrouped_RelativeBal_up,         &b_jets_jetUncRegrouped_RelativeBal_up);             
+       fChain->SetBranchAddress("jets_jetUncRegrouped_HF_up",                 &jets_jetUncRegrouped_HF_up,                  &b_jets_jetUncRegrouped_HF_up);                               
+       fChain->SetBranchAddress("jets_jetUncRegrouped_BBEC1_up",              &jets_jetUncRegrouped_BBEC1_up,               &b_jets_jetUncRegrouped_BBEC1_up);                         
+       fChain->SetBranchAddress("jets_jetUncRegrouped_EC2_up",                &jets_jetUncRegrouped_EC2_up,                 &b_jets_jetUncRegrouped_EC2_up);                             
+       fChain->SetBranchAddress("jets_jetUncRegrouped_Absolute_up",           &jets_jetUncRegrouped_Absolute_up,            &b_jets_jetUncRegrouped_Absolute_up);                   
+       fChain->SetBranchAddress("jets_jetUncRegrouped_Total_up",              &jets_jetUncRegrouped_Total_up,               &b_jets_jetUncRegrouped_Total_up);                         
+       fChain->SetBranchAddress("jets_jetUncRegrouped_FlavorQCD_dw",          &jets_jetUncRegrouped_FlavorQCD_dw,           &b_jets_jetUncRegrouped_FlavorQCD_dw);                 
+       fChain->SetBranchAddress("jets_jetUncRegrouped_RelativeBal_dw",        &jets_jetUncRegrouped_RelativeBal_dw,         &b_jets_jetUncRegrouped_RelativeBal_dw);             
+       fChain->SetBranchAddress("jets_jetUncRegrouped_HF_dw",                 &jets_jetUncRegrouped_HF_dw,                  &b_jets_jetUncRegrouped_HF_dw);                               
+       fChain->SetBranchAddress("jets_jetUncRegrouped_BBEC1_dw",              &jets_jetUncRegrouped_BBEC1_dw,               &b_jets_jetUncRegrouped_BBEC1_dw);                         
+       fChain->SetBranchAddress("jets_jetUncRegrouped_EC2_dw",                &jets_jetUncRegrouped_EC2_dw,                 &b_jets_jetUncRegrouped_EC2_dw);                             
+       fChain->SetBranchAddress("jets_jetUncRegrouped_Absolute_dw",           &jets_jetUncRegrouped_Absolute_dw,            &b_jets_jetUncRegrouped_Absolute_dw);                   
+       fChain->SetBranchAddress("jets_jetUncRegrouped_Total_dw",              &jets_jetUncRegrouped_Total_dw,               &b_jets_jetUncRegrouped_Total_dw);                         
+       fChain->SetBranchAddress("jets_jetUncRegrouped_BBEC1_YEAR_up",         &jets_jetUncRegrouped_BBEC1_YEAR_up,          &b_jets_jetUncRegrouped_BBEC1_YEAR_up);               
+       fChain->SetBranchAddress("jets_jetUncRegrouped_EC2_YEAR_up",           &jets_jetUncRegrouped_EC2_YEAR_up,            &b_jets_jetUncRegrouped_EC2_YEAR_up);                   
+       fChain->SetBranchAddress("jets_jetUncRegrouped_Absolute_YEAR_up",      &jets_jetUncRegrouped_Absolute_YEAR_up,       &b_jets_jetUncRegrouped_Absolute_YEAR_up);         
+       fChain->SetBranchAddress("jets_jetUncRegrouped_HF_YEAR_up",            &jets_jetUncRegrouped_HF_YEAR_up,             &b_jets_jetUncRegrouped_HF_YEAR_up);                     
+       fChain->SetBranchAddress("jets_jetUncRegrouped_RelativeSample_YEAR_up",&jets_jetUncRegrouped_RelativeSample_YEAR_up, &b_jets_jetUncRegrouped_RelativeSample_YEAR_up);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_BBEC1_YEAR_dw",         &jets_jetUncRegrouped_BBEC1_YEAR_dw,          &b_jets_jetUncRegrouped_BBEC1_YEAR_dw);               
+       fChain->SetBranchAddress("jets_jetUncRegrouped_EC2_YEAR_dw",           &jets_jetUncRegrouped_EC2_YEAR_dw,            &b_jets_jetUncRegrouped_EC2_YEAR_dw);                   
+       fChain->SetBranchAddress("jets_jetUncRegrouped_Absolute_YEAR_dw",      &jets_jetUncRegrouped_Absolute_YEAR_dw,       &b_jets_jetUncRegrouped_Absolute_YEAR_dw);         
+       fChain->SetBranchAddress("jets_jetUncRegrouped_HF_YEAR_dw",            &jets_jetUncRegrouped_HF_YEAR_dw,             &b_jets_jetUncRegrouped_HF_YEAR_dw);                     
+       fChain->SetBranchAddress("jets_jetUncRegrouped_RelativeSample_YEAR_dw",&jets_jetUncRegrouped_RelativeSample_YEAR_dw, &b_jets_jetUncRegrouped_RelativeSample_YEAR_dw);
+       fChain->SetBranchAddress("ak8jets_px",                                 &ak8jets_px, &b_ak8jets_px);                                                               
        fChain->SetBranchAddress("ak8jets_py", &ak8jets_py, &b_ak8jets_py);
        fChain->SetBranchAddress("ak8jets_pz", &ak8jets_pz, &b_ak8jets_pz);
        fChain->SetBranchAddress("ak8jets_e", &ak8jets_e, &b_ak8jets_e);
@@ -1450,6 +1577,10 @@ public :
             fChain->SetBranchAddress("lheNOutPartons", &lheNOutPartons, &b_lheNOutPartons);
             fChain->SetBranchAddress("lheNOutB", &lheNOutB, &b_lheNOutB);
             fChain->SetBranchAddress("daughters_hasTES", &daughters_hasTES, &b_daughters_hasTES);
+            fChain->SetBranchAddress("daughters_TESshiftDM0", &daughters_TESshiftDM0, &b_daughters_TESshiftDM0);
+            fChain->SetBranchAddress("daughters_TESshiftDM1", &daughters_TESshiftDM1, &b_daughters_TESshiftDM1);
+            fChain->SetBranchAddress("daughters_TESshiftDM10", &daughters_TESshiftDM10, &b_daughters_TESshiftDM10);
+            fChain->SetBranchAddress("daughters_TESshiftDM11", &daughters_TESshiftDM11, &b_daughters_TESshiftDM11);
             fChain->SetBranchAddress("daughters_px_TauUp", &daughters_px_TauUp, &b_daughters_px_TauUp);
             fChain->SetBranchAddress("daughters_py_TauUp", &daughters_py_TauUp, &b_daughters_py_TauUp);
             fChain->SetBranchAddress("daughters_pz_TauUp", &daughters_pz_TauUp, &b_daughters_pz_TauUp);
@@ -1459,6 +1590,12 @@ public :
             fChain->SetBranchAddress("daughters_pz_TauDown", &daughters_pz_TauDown, &b_daughters_pz_TauDown);
             fChain->SetBranchAddress("daughters_e_TauDown", &daughters_e_TauDown, &b_daughters_e_TauDown);
             fChain->SetBranchAddress("daughters_hasEES", &daughters_hasEES, &b_daughters_hasEES);
+            fChain->SetBranchAddress("daughters_EESshiftDM0up", &daughters_EESshiftDM0up, &b_daughters_EESshiftDM0up);
+            fChain->SetBranchAddress("daughters_EESshiftDM1up", &daughters_EESshiftDM1up, &b_daughters_EESshiftDM1up);
+            fChain->SetBranchAddress("daughters_EESshiftDM0dw", &daughters_EESshiftDM0dw, &b_daughters_EESshiftDM0dw);
+            fChain->SetBranchAddress("daughters_EESshiftDM1dw", &daughters_EESshiftDM1dw, &b_daughters_EESshiftDM1dw);
+            fChain->SetBranchAddress("daughters_MESshiftup", &daughters_MESshiftup, &b_daughters_MESshiftup);
+            fChain->SetBranchAddress("daughters_MESshiftdw", &daughters_MESshiftdw, &b_daughters_MESshiftdw);
             fChain->SetBranchAddress("daughters_px_EleUp", &daughters_px_EleUp, &b_daughters_px_EleUp);
             fChain->SetBranchAddress("daughters_py_EleUp", &daughters_py_EleUp, &b_daughters_py_EleUp);
             fChain->SetBranchAddress("daughters_pz_EleUp", &daughters_pz_EleUp, &b_daughters_pz_EleUp);
