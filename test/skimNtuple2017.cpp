@@ -308,7 +308,7 @@ vector<int> findSubjetIdxs (unsigned int iFatJet, bigTree & theBigTree)
 //returns a pair of vectors
 //first: up variations
 //second: down variations
-pair <vector <double>, vector <double> > getJetUpDown(int idx, int size, bigTree & theBigTree){
+pair <vector <double>, vector <double> > getJetUpDown(int idx, bigTree & theBigTree){
   vector <double> unc_up;
   vector <double> unc_down;
   unc_up.push_back(theBigTree.jets_jetUncRegrouped_FlavorQCD_up ->at (idx));               //  uncertainty source 1 , up
@@ -382,7 +382,7 @@ pair <vector <TVector2>, vector <TVector2> > getShiftedMET_jet (int N_jecSources
     // build original jet
     TLorentzVector tlv_jet (theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
     // get uncertainty
-    pair <vector <double>, vector<double>> unc_updown = getJetUpDown(iJet, N_jecSources, theBigTree);
+    pair <vector <double>, vector<double>> unc_updown = getJetUpDown(iJet, theBigTree);
     // build shifted jet
     for (int isource = 0; isource < N_jecSources; isource++)
     {
@@ -416,8 +416,6 @@ pair <vector <TVector2>, vector <TVector2> > getShiftedMET_jet (int N_jecSources
   for (int isource = 0; isource < N_jecSources; isource++)
   {
     shiftedMET_up[isource].Set(corrMETx_up[isource], corrMETy_up[isource]);
-    shiftedMET_up[isource].Set(corrMETx_up[isource], corrMETy_up[isource]);
-    shiftedMET_down[isource].Set(corrMETx_down[isource], corrMETy_down[isource]);
     shiftedMET_down[isource].Set(corrMETx_down[isource], corrMETy_down[isource]);
   }
   return make_pair(shiftedMET_up, shiftedMET_down);
@@ -2289,8 +2287,8 @@ int main (int argc, char** argv)
           tlv_secondLepton_tauup[idm]   = getShiftedDau(tlv_secondLepton, 1.,  unc_TES_second[idm], isthisDM_second[idm], (idm != 0));  // no mass shift for DM == 0 (idm == 0)
           tlv_secondLepton_taudown[idm] = getShiftedDau(tlv_secondLepton, -1., unc_TES_second[idm], isthisDM_second[idm], (idm != 0));  // no mass shift for DM == 0 (idm == 0)
         }else if(lep2HasEES && idm < N_tauhDM_EES){
-          tlv_secondLepton_tauup[idm]   = getShiftedDau(tlv_secondLepton, 1.,  unc_EESup_second[idm], isthisDM_second[idm]);  
-          tlv_secondLepton_taudown[idm] = getShiftedDau(tlv_secondLepton, -1., unc_EESdw_second[idm], isthisDM_second[idm]);  
+          tlv_secondLepton_eleup[idm]   = getShiftedDau(tlv_secondLepton, 1.,  unc_EESup_second[idm], isthisDM_second[idm]);  
+          tlv_secondLepton_eledown[idm] = getShiftedDau(tlv_secondLepton, -1., unc_EESdw_second[idm], isthisDM_second[idm]);  
         }
 
 
@@ -2312,7 +2310,8 @@ int main (int argc, char** argv)
           theSmallTree.m_dau2_pt_eleup.push_back(tlv_secondLepton_eleup[idm].Pt());
           theSmallTree.m_dau2_pt_eledown.push_back(tlv_secondLepton_eledown[idm].Pt());
           theSmallTree.m_dau2_mass_eleup.push_back(tlv_secondLepton_eleup[idm].M());
-        
+          theSmallTree.m_dau2_mass_eledown.push_back(tlv_secondLepton_eledown[idm].M());
+                
         }
       }
       //MES:
@@ -3823,10 +3822,12 @@ int main (int argc, char** argv)
             theSmallTree.m_HT20 += tlv_jet.Pt() ;
             jetVecSum += tlv_jet ;
 
-            if (TMath::Abs(tlv_jet.Eta()) < 4.7)
+
+          }
+          if (TMath::Abs(tlv_jet.Eta()) < 4.7)
             {
              
-              theSmallTree.m_BDT_HT20 += tlv_jet.Pt() ;
+              if (tlv_jet.Pt () > 20) theSmallTree.m_BDT_HT20 += tlv_jet.Pt() ;
 
               if (DEBUG) cout << " ---> Jet " << iJet << " - pt: " << tlv_jet.Pt() << " - HT: " << theSmallTree.m_BDT_HT20 << endl;
               pair <vector <double>, vector<double>> unc_updown = getJetUpDown(iJet, N_jecSources, theBigTree);
@@ -3835,11 +3836,10 @@ int main (int argc, char** argv)
               {
                 TLorentzVector tlv_jetup   = getShiftedJet(tlv_jet, +1., unc_updown.first[isource]);
                 TLorentzVector tlv_jetdown = getShiftedJet(tlv_jet, -1., unc_updown.second[isource]);
-                BDT_HT20_jetup[isource]   += tlv_jetup.Pt();
-                BDT_HT20_jetdown[isource] += tlv_jetdown.Pt();
+                if (tlv_jetup.Pt () > 20)   BDT_HT20_jetup[isource]   += tlv_jetup.Pt();
+                if (tlv_jetdown.Pt () > 20) BDT_HT20_jetdown[isource] += tlv_jetdown.Pt();
               }
             }
-          }
           if (tlv_jet.Pt () > 50)
           {
             ++theSmallTree.m_njets50 ;
@@ -3878,7 +3878,7 @@ int main (int argc, char** argv)
         theSmallTree.m_METy_jetdown.push_back(vMET_shift_jet.second.at(isource).Y());
       }
 
-      // Shifted MET for TES 
+      // Shifted MET for TES/EES 
       auto vMET_shifts_tes_ees = getShiftedMET_tes_ees(N_tauhDM, N_tauhDM_EES, vMET, theBigTree, DEBUG);
       //unpack: first is tes, second is ees
       auto vMET_shift_tes = vMET_shifts_tes_ees.first;
@@ -3896,7 +3896,7 @@ int main (int argc, char** argv)
           theSmallTree.m_METy_eledown.push_back(vMET_shift_ees.second.at(idm).Y());
         }
       }
-       // Shifted MET for TES 
+       // Shifted MET for MES 
       auto vMET_shift_mes = getShiftedMET_mes(vMET, theBigTree, DEBUG);
       theSmallTree.m_METx_muup = vMET_shift_mes.first.X();
       theSmallTree.m_METy_muup = vMET_shift_mes.first.Y();
@@ -3968,7 +3968,7 @@ int main (int argc, char** argv)
 
         } // in case the SVFIT mass is calculated
 
-        // compute HHKinFit -- ask a ronable mass window to suppress most error messages
+        // compute HHKinFit -- ask a reasonable mass window to suppress most error messages
         bool wrongHHK=false;
         float HHKmass = -999;
         float HHKChi2 = -999;
@@ -4365,7 +4365,7 @@ int main (int argc, char** argv)
 	  pair <vector <double>, vector<double>> unc_VBF1_updown = getJetUpDown(VBFidx1, N_jecSources, theBigTree);
 	  pair <vector <double>, vector<double>> unc_VBF2_updown = getJetUpDown(VBFidx2, N_jecSources, theBigTree);
 	  
-	  // compute all shifted bjets
+	  // compute all shifted VBFjets
 	  vector <TLorentzVector> VBFjet1_jetup(N_jecSources,VBFjet1); 
 	  vector <TLorentzVector> VBFjet1_jetdown(N_jecSources,VBFjet1);
 	  vector <TLorentzVector> VBFjet2_jetup(N_jecSources,VBFjet2); 
