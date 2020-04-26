@@ -3572,8 +3572,8 @@ int main (int argc, char** argv)
         // ----- up/down variation using 11 JEC sources
         // https://github.com/LLRCMS/LLRHiggsTauTau/blob/102X_HH/NtupleProducer/plugins/HTauTauNtuplizer.cc#L2182-L2238
         // store the up down variations in vectors:
-        pair <vector <double>, vector<double>> unc_first_updown = getJetUpDown(bjet1idx, N_jecSources, theBigTree);
-        pair <vector <double>, vector<double>> unc_second_updown = getJetUpDown(bjet2idx, N_jecSources, theBigTree);
+        pair <vector <double>, vector<double>> unc_first_updown = getJetUpDown(bjet1idx, theBigTree);
+        pair <vector <double>, vector<double>> unc_second_updown = getJetUpDown(bjet2idx, theBigTree);
 
         vector <TLorentzVector> tlv_firstBjet_raw_jetup(N_jecSources, tlv_firstBjet_raw); 
         vector <TLorentzVector> tlv_firstBjet_raw_jetdown(N_jecSources,tlv_firstBjet_raw);
@@ -3830,7 +3830,7 @@ int main (int argc, char** argv)
               if (tlv_jet.Pt () > 20) theSmallTree.m_BDT_HT20 += tlv_jet.Pt() ;
 
               if (DEBUG) cout << " ---> Jet " << iJet << " - pt: " << tlv_jet.Pt() << " - HT: " << theSmallTree.m_BDT_HT20 << endl;
-              pair <vector <double>, vector<double>> unc_updown = getJetUpDown(iJet, N_jecSources, theBigTree);
+              pair <vector <double>, vector<double>> unc_updown = getJetUpDown(iJet, theBigTree);
               // build shifted jet
               for (int isource = 0; isource < N_jecSources; isource++)
               {
@@ -4362,8 +4362,8 @@ int main (int argc, char** argv)
           TLorentzVector VBFjet2;
           VBFjet2.SetPxPyPzE( theBigTree.jets_px->at(VBFidx2), theBigTree.jets_py->at(VBFidx2), theBigTree.jets_pz->at(VBFidx2), theBigTree.jets_e->at(VBFidx2) );
 
-	  pair <vector <double>, vector<double>> unc_VBF1_updown = getJetUpDown(VBFidx1, N_jecSources, theBigTree);
-	  pair <vector <double>, vector<double>> unc_VBF2_updown = getJetUpDown(VBFidx2, N_jecSources, theBigTree);
+	  pair <vector <double>, vector<double>> unc_VBF1_updown = getJetUpDown(VBFidx1, theBigTree);
+	  pair <vector <double>, vector<double>> unc_VBF2_updown = getJetUpDown(VBFidx2, theBigTree);
 	  
 	  // compute all shifted VBFjets
 	  vector <TLorentzVector> VBFjet1_jetup(N_jecSources,VBFjet1); 
