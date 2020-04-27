@@ -1,9 +1,8 @@
-//void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_WZ2017")
-//void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_ZH2017")
-//void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_ggZHtoLL2017")
-//void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_ggZHtoNuNu2017")
-//void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_Wplus2017")
-void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_Wminus2017")
+void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_ZH_HToBB_ZToLL_2017")
+//void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_ZH_HToBB_ZToQQ_2017")
+//void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_ggZH_HToBB_ZToLL_2017")
+//void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_WplusHToTauTau_2017")
+//void makeRatio_2017special (string const &myFileName = "MyMCPileupHistogram_WminusHToTauTau_2017")
 {
   gROOT->SetBatch();
     //histo MC
