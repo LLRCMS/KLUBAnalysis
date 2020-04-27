@@ -924,21 +924,21 @@ struct smallTree
       m_smallT->Branch ("dau1_mass_muup",  &m_dau1_mass_muup, "dau1_mass_muup/F");
       m_smallT->Branch ("dau1_mass_mudown",&m_dau1_mass_mudown, "dau1_pt_mudown/F");
 
-      m_smallT->Branch ("dau1_pt_tauup_DM0 ", &m_dau1_pt_tauup_DM0 , "dau1_pt_tauup_DM0/F") ;
-      m_smallT->Branch ("dau1_pt_tauup_DM1 ", &m_dau1_pt_tauup_DM1 , "dau1_pt_tauup_DM1/F") ;
+      m_smallT->Branch ("dau1_pt_tauup_DM0" , &m_dau1_pt_tauup_DM0 , "dau1_pt_tauup_DM0/F") ;
+      m_smallT->Branch ("dau1_pt_tauup_DM1" , &m_dau1_pt_tauup_DM1 , "dau1_pt_tauup_DM1/F") ;
       m_smallT->Branch ("dau1_pt_tauup_DM10", &m_dau1_pt_tauup_DM10, "dau1_pt_tauup_DM10/F") ;
       m_smallT->Branch ("dau1_pt_tauup_DM11", &m_dau1_pt_tauup_DM11, "dau1_pt_tauup_DM11/F") ;
 
-      m_smallT->Branch ("dau1_pt_taudown_DM0 ", &m_dau1_pt_taudown_DM0 , "dau1_pt_taudown_DM0/F") ;
-      m_smallT->Branch ("dau1_pt_taudown_DM1 ", &m_dau1_pt_taudown_DM1 , "dau1_pt_taudown_DM1/F") ;
+      m_smallT->Branch ("dau1_pt_taudown_DM0" , &m_dau1_pt_taudown_DM0 , "dau1_pt_taudown_DM0/F") ;
+      m_smallT->Branch ("dau1_pt_taudown_DM1" , &m_dau1_pt_taudown_DM1 , "dau1_pt_taudown_DM1/F") ;
       m_smallT->Branch ("dau1_pt_taudown_DM10", &m_dau1_pt_taudown_DM10, "dau1_pt_taudown_DM10/F") ;
       m_smallT->Branch ("dau1_pt_taudown_DM11", &m_dau1_pt_taudown_DM11, "dau1_pt_taudown_DM11/F") ;
 
-      m_smallT->Branch ("dau1_pt_eleup_DM0 ", &m_dau1_pt_eleup_DM0 , "dau1_pt_eleup_DM0/F") ;
-      m_smallT->Branch ("dau1_pt_eleup_DM1 ", &m_dau1_pt_eleup_DM1 , "dau1_pt_eleup_DM1/F") ;
+      m_smallT->Branch ("dau1_pt_eleup_DM0", &m_dau1_pt_eleup_DM0 , "dau1_pt_eleup_DM0/F") ;
+      m_smallT->Branch ("dau1_pt_eleup_DM1", &m_dau1_pt_eleup_DM1 , "dau1_pt_eleup_DM1/F") ;
 
-      m_smallT->Branch ("dau1_pt_eledown_DM0 ", &m_dau1_pt_eledown_DM0 , "dau1_pt_eledown_DM0/F") ;
-      m_smallT->Branch ("dau1_pt_eledown_DM1 ", &m_dau1_pt_eledown_DM1 , "dau1_pt_eledown_DM1/F") ;
+      m_smallT->Branch ("dau1_pt_eledown_DM0", &m_dau1_pt_eledown_DM0 , "dau1_pt_eledown_DM0/F") ;
+      m_smallT->Branch ("dau1_pt_eledown_DM1", &m_dau1_pt_eledown_DM1 , "dau1_pt_eledown_DM1/F") ;
 
       m_smallT->Branch ("dau1_eta", &m_dau1_eta, "dau1_eta/F") ;
       m_smallT->Branch ("dau1_phi", &m_dau1_phi, "dau1_phi/F") ;
@@ -988,21 +988,21 @@ struct smallTree
       m_smallT->Branch ("dau2_mass_muup",  &m_dau2_mass_muup, "dau2_mass_muup/F");
       m_smallT->Branch ("dau2_mass_mudown",&m_dau2_mass_mudown, "dau2_pt_mudown/F");
 
-      m_smallT->Branch ("dau2_pt_tauup_DM0 ", &m_dau2_pt_tauup_DM0 , "dau2_pt_tauup_DM0/F") ;
-      m_smallT->Branch ("dau2_pt_tauup_DM1 ", &m_dau2_pt_tauup_DM1 , "dau2_pt_tauup_DM1/F") ;
+      m_smallT->Branch ("dau2_pt_tauup_DM0" , &m_dau2_pt_tauup_DM0 , "dau2_pt_tauup_DM0/F") ;
+      m_smallT->Branch ("dau2_pt_tauup_DM1" , &m_dau2_pt_tauup_DM1 , "dau2_pt_tauup_DM1/F") ;
       m_smallT->Branch ("dau2_pt_tauup_DM10", &m_dau2_pt_tauup_DM10, "dau2_pt_tauup_DM10/F") ;
       m_smallT->Branch ("dau2_pt_tauup_DM11", &m_dau2_pt_tauup_DM11, "dau2_pt_tauup_DM11/F") ;
 
-      m_smallT->Branch ("dau2_pt_taudown_DM0 ", &m_dau2_pt_taudown_DM0 , "dau2_pt_taudown_DM0/F") ;
-      m_smallT->Branch ("dau2_pt_taudown_DM1 ", &m_dau2_pt_taudown_DM1 , "dau2_pt_taudown_DM1/F") ;
+      m_smallT->Branch ("dau2_pt_taudown_DM0" , &m_dau2_pt_taudown_DM0 , "dau2_pt_taudown_DM0/F") ;
+      m_smallT->Branch ("dau2_pt_taudown_DM1" , &m_dau2_pt_taudown_DM1 , "dau2_pt_taudown_DM1/F") ;
       m_smallT->Branch ("dau2_pt_taudown_DM10", &m_dau2_pt_taudown_DM10, "dau2_pt_taudown_DM10/F") ;
       m_smallT->Branch ("dau2_pt_taudown_DM11", &m_dau2_pt_taudown_DM11, "dau2_pt_taudown_DM11/F") ;
 
-      m_smallT->Branch ("dau2_pt_eleup_DM0 ", &m_dau2_pt_eleup_DM0 , "dau2_pt_eleup_DM0/F") ;
-      m_smallT->Branch ("dau2_pt_eleup_DM1 ", &m_dau2_pt_eleup_DM1 , "dau2_pt_eleup_DM1/F") ;
+      m_smallT->Branch ("dau2_pt_eleup_DM0", &m_dau2_pt_eleup_DM0 , "dau2_pt_eleup_DM0/F") ;
+      m_smallT->Branch ("dau2_pt_eleup_DM1", &m_dau2_pt_eleup_DM1 , "dau2_pt_eleup_DM1/F") ;
 
-      m_smallT->Branch ("dau2_pt_eledown_DM0 ", &m_dau2_pt_eledown_DM0 , "dau2_pt_eledown_DM0/F") ;
-      m_smallT->Branch ("dau2_pt_eledown_DM1 ", &m_dau2_pt_eledown_DM1 , "dau2_pt_eledown_DM1/F") ;
+      m_smallT->Branch ("dau2_pt_eledown_DM0", &m_dau2_pt_eledown_DM0 , "dau2_pt_eledown_DM0/F") ;
+      m_smallT->Branch ("dau2_pt_eledown_DM1", &m_dau2_pt_eledown_DM1 , "dau2_pt_eledown_DM1/F") ;
 
       m_smallT->Branch ("dau2_eta", &m_dau2_eta, "dau2_eta/F") ;
       m_smallT->Branch ("dau2_phi", &m_dau2_phi, "dau2_phi/F") ;
