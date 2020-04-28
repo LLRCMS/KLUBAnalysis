@@ -1,9 +1,8 @@
-//void ratioPU_2017special (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/2_WZ_TuneCP5_13TeV-pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt", string const &myFileName = "MyMCPileupHistogram_WZ2017")
-//void ratioPU_2017special (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/11_ZH_HToBB_ZToLL_M125_13TeV_powheg_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt", string const &myFileName = "MyMCPileupHistogram_ZH2017")
-//void ratioPU_2017special (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/12_ggZH_HToBB_ZToLL_M125_13TeV_powheg_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt", string const &myFileName = "MyMCPileupHistogram_ggZHtoLL2017")
-//void ratioPU_2017special (uint begin = 0, uint max=10000000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/ggZHNuNu.txt", string const &myFileName = "MyMCPileupHistogram_ggZHtoNuNu2017")
-//void ratioPU_2017special (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/15_WplusHToTauTau_M125_13TeV_powheg_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt", string const &myFileName = "MyMCPileupHistogram_Wplus2017")
-void ratioPU_2017special (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/16_WminusHToTauTau_M125_13TeV_powheg_pythia8__RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1.txt", string const &myFileName = "MyMCPileupHistogram_Wminus2017")
+//void ratioPU_2017special (uint begin = 0, uint max=9000000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/ZH_HToBB_ZToLL.txt", string const &myFileName = "MyMCPileupHistogram_ZH_HToBB_ZToLL_2017")
+//void ratioPU_2017special (uint begin = 0, uint max=450000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/ZH_HToBB_ZToQQ.txt", string const &myFileName = "MyMCPileupHistogram_ZH_HToBB_ZToQQ_2017")
+//void ratioPU_2017special (uint begin = 0, uint max=2500000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/ggZH_HToBB_ZToLL.txt", string const &myFileName = "MyMCPileupHistogram_ggZH_HToBB_ZToLL_2017")
+//void ratioPU_2017special (uint begin = 0, uint max=3500000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/WplusHToTauTau.txt", string const &myFileName = "MyMCPileupHistogram_WplusHToTauTau_2017")
+void ratioPU_2017special (uint begin = 0, uint max=3500000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/WminusHToTauTau.txt", string const &myFileName = "MyMCPileupHistogram_WminusHToTauTau_2017")
 
 {
 

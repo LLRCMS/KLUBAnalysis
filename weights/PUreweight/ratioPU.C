@@ -1,6 +1,6 @@
 //void ratioPU (uint begin = 0, uint max=5000000,string const &infileName = "../../inputFiles/Files_Legacy_Run2/2016/Backgrounds/1_TT_TuneCUETP8M2T4_13TeV-powheg-pythia8__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v1.txt", string const &myFileName = "MyMCPileupHistogram_TT2016")
 
-void ratioPU (uint begin = 0, uint max=70000000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/TT.txt", string const &myFileName = "MyMCPileupHistogram_TT2017")
+void ratioPU (uint begin = 0, uint max=300000000,string const &infileName = "../../inputFiles/Legacy2017_backgrounds/ttbar.txt", string const &myFileName = "MyMCPileupHistogram_TT2017_24Apr2020")
 {
 
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
