@@ -7,7 +7,7 @@ INPUTDIR_DATA="inputFiles/Legacy2017_data"
 INPUTDIR_SIG="inputFiles/Legacy2017_signals"
 
 # OUTPUT
-SKIMDIR="/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_Legacy2017_24Apr2020_bTagEff"
+SKIMDIR="/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_Legacy2017_27Apr2020"
 
 # PU weights
 PUDIR="/gwpool/users/dzuolo/HHbbtautatuAnalysisLegacy/CMSSW_10_2_16/src/KLUBAnalysis/weights/PUreweight/Legacy_Run2_PU_SF/2017"
@@ -20,6 +20,11 @@ mkdir $OUTDIRR
 ###################
 # TT
 # XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
+# TT x section: 831.76 for inclusive sample, W->had 67,60% , W->l nu 3*10,8% = 32,4% (sum over all leptons)
+# hh = 45.7%
+# ll = 10.5%
+# hl = 21.9% (x2 for permutation t-tbar)
+
 # TT had
 echo "Submitting - TThad - "
 echo "Submitting - TThad - " >> log_23Jan2020.txt
