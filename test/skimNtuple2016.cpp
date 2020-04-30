@@ -3454,8 +3454,8 @@ int main (int argc, char** argv)
            theSmallTree.m_bjet2_pt_raw_jetdown.push_back(tlv_secondBjet_raw_jetdown[isource].Pt()); 
 	   
            // variations propagated to bH 
-           tlv_bH_raw_jetup.push_back(tlv_firstBjet_raw_jetup.at(isource) + tlv_secondBjet_raw_jetup.at(isource)) ;
-           tlv_bH_raw_jetdown.push_back(tlv_firstBjet_raw_jetdown.at(isource) + tlv_secondBjet_raw_jetdown.at(isource));
+           tlv_bH_raw_jetup.push_back(tlv_firstBjet_raw_jetup[isource] + tlv_secondBjet_raw_jetup[isource]) ;
+           tlv_bH_raw_jetdown.push_back(tlv_firstBjet_raw_jetdown[isource] + tlv_secondBjet_raw_jetdown.at[isource]);
            theSmallTree.m_bH_mass_raw_jetup.push_back((tlv_bH_raw_jetup[isource]).M());
            theSmallTree.m_bH_mass_raw_jetdown.push_back((tlv_bH_raw_jetdown[isource]).M());
            theSmallTree.m_bH_pt_raw_jetup.push_back((tlv_bH_raw_jetup[isource]).Pt());
@@ -3645,7 +3645,7 @@ int main (int argc, char** argv)
             ++theSmallTree.m_njets20 ;
             theSmallTree.m_HT20 += tlv_jet.Pt() ;
             jetVecSum += tlv_jet ;
-	  }  
+          }  
 
           if (TMath::Abs(tlv_jet.Eta()) < 4.7)
           {
@@ -3656,12 +3656,12 @@ int main (int argc, char** argv)
               // build shifted jet
               
 	      for (int isource = 0; isource < N_jecSources; isource++)
-              {
+	      {
                  TLorentzVector tlv_jetup   = getShiftedJet(tlv_jet, +1., unc_updown.first[isource]);
                  TLorentzVector tlv_jetdown = getShiftedJet(tlv_jet, -1., unc_updown.second[isource]);
                  if (tlv_jetup.Pt () > 20)   BDT_HT20_jetup[isource]   += tlv_jetup.Pt();
                  if (tlv_jetdown.Pt () > 20) BDT_HT20_jetdown[isource] += tlv_jetdown.Pt();
-              }
+	      }
           }
 	  
           if (tlv_jet.Pt () > 50)
