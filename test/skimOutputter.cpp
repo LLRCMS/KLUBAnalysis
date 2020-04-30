@@ -148,6 +148,7 @@ int main (int argc, char** argv)
   bool doDNN    = true; // FIXME: read from cfg file
   bool doBDT    = true; // FIXME: read from cfg file
 
+  bool doMES = true; // FIXME: read from cfg file
   bool doEES = true; // FIXME: read from cfg file
   bool doTES = true; // FIXME: read from cfg file
 
@@ -501,11 +502,8 @@ int main (int argc, char** argv)
   TBranch* b_tauH_SVFIT_mass_new = outTree->Branch("tauH_SVFIT_mass_new", &tauH_SVFIT_mass_new);
 
   // MES variations
-  Float_t HHKin_mass_muup, HHKin_chi2_muup, HHKin_mass_mudown, HHKin_chi2_mudown;
-  Float_t MT2_muup, MT2_mudown;
-  Float_t tauH_SVFIT_pt_muup, tauH_SVFIT_eta_muup, tauH_SVFIT_phi_muup, tauH_SVFIT_mass_muup;
-  Float_t tauH_SVFIT_pt_mudown, tauH_SVFIT_eta_mudown, tauH_SVFIT_phi_mudown, tauH_SVFIT_mass_mudown;
-  Float_t DNNoutSM_kl_1_muup, BDToutSM_kl_1_muup, DNNoutSM_kl_1_mudown, BDToutSM_kl_1_mudown;
+  Float_t tauH_SVFIT_mass_muup, DNNoutSM_kl_1_muup, BDToutSM_kl_1_muup;
+  Float_t tauH_SVFIT_mass_mudown, DNNoutSM_kl_1_mudown, BDToutSM_kl_1_mudown;
   TBranch* b_tauH_SVFIT_mass_muup   = outTree->Branch("tauH_SVFIT_mass_muup"  , &tauH_SVFIT_mass_muup);
   TBranch* b_DNNoutSM_kl_1_muup     = outTree->Branch("DNNoutSM_kl_1_muup"    , &DNNoutSM_kl_1_muup);
   TBranch* b_BDToutSM_kl_1_muup     = outTree->Branch("BDToutSM_kl_1_muup"    , &BDToutSM_kl_1_muup);
@@ -604,20 +602,6 @@ int main (int argc, char** argv)
     bool KinFitConv                     = HHKin_chi2 > 0;
     bool SVfitConv                      = tauH_SVFIT_mass > 0;
 
-
-    // --- --- --- MES variations --- --- ---
-    TLorentzVector tau1_muup, tau2_muup, met_muup;
-    tau1_muup.SetPtEtaPhiM(dau1_pt_muup, dau1_eta, dau1_phi, dau1_mass_muup);
-    tau2_muup.SetPtEtaPhiM(dau2_pt_muup, dau2_eta, dau2_phi, dau2_mass_muup);
-    met_muup .SetPxPyPzE(METx_muup, METy_muup, 0, std::hypot(METx_muup, METy_muup));
-    TVector2 ptmiss_muup = TVector2(METx_muup, METy_muup);
-
-    TLorentzVector tau1_mudown, tau2_mudown, met_mudown;
-    tau1_mudown.SetPtEtaPhiM(dau1_pt_mudown, dau1_eta, dau1_phi, dau1_mass_mudown);
-    tau2_mudown.SetPtEtaPhiM(dau2_pt_mudown, dau2_eta, dau2_phi, dau2_mass_mudown);
-    met_mudown .SetPxPyPzE(METx_mudown, METy_mudown, 0, std::hypot(METx_mudown, METy_mudown));
-    TVector2 ptmiss_mudown = TVector2(METx_mudown, METy_mudown);
-
     // --- --- --- Redefine BDT channel (defined differently in the BDT weights)
     float BDT_channel;
     if      (pType == 0) BDT_channel = 1.;
@@ -645,7 +629,7 @@ int main (int argc, char** argv)
 
 
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-    // KinFit computation - Central & MES
+    // KinFit computation - Central value
     if (doKinFit)
     {
       // nominal kinfit
@@ -666,48 +650,10 @@ int main (int argc, char** argv)
         HHKin_mass_new = -333.;
         HHKin_chi2_new = 0.;
       }
-
-      // MES variations
-      HHKinFit2::HHKinFitMasterHeavyHiggs kinFits_muup = HHKinFit2::HHKinFitMasterHeavyHiggs(bjet1, bjet2, tau1_muup, tau2_muup, ptmiss_muup, stableMetCov, bjet1_JER, bjet2_JER) ;
-      kinFits_muup.addHypo(hypo_mh1,hypo_mh2);
-      bool wrongHHK_muup =false;
-      try {kinFits_muup.fit();}
-      catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK_muup=true;}
-      catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK_muup=true;}
-      catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK_muup=true;}
-      if(!wrongHHK_muup)
-      {
-        HHKin_mass_muup = kinFits_muup.getMH();
-        HHKin_chi2_muup = kinFits_muup.getChi2();
-      }
-      else
-      {
-        HHKin_mass_muup = -333.;
-        HHKin_chi2_muup = 0.;
-      }
-
-      HHKinFit2::HHKinFitMasterHeavyHiggs kinFits_mudown = HHKinFit2::HHKinFitMasterHeavyHiggs(bjet1, bjet2, tau1_mudown, tau2_mudown, ptmiss_mudown, stableMetCov, bjet1_JER, bjet2_JER) ;
-      kinFits_mudown.addHypo(hypo_mh1,hypo_mh2);
-      bool wrongHHK_mudown =false;
-      try {kinFits_mudown.fit();}
-      catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK_mudown=true;}
-      catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK_mudown=true;}
-      catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK_mudown=true;}
-      if(!wrongHHK_mudown)
-      {
-        HHKin_mass_mudown = kinFits_mudown.getMH();
-        HHKin_chi2_mudown = kinFits_mudown.getChi2();
-      }
-      else
-      {
-        HHKin_mass_mudown = -333.;
-        HHKin_chi2_mudown = 0.;
-      }
-
     }
 
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-    // MT2 computation - Central & MES
+    // MT2 computation - Central value
     if (doMT2)
     {
       MT2_new = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
@@ -715,23 +661,10 @@ int main (int argc, char** argv)
                                                   (tau1.Px() + tau2.Px() + met.Px()),
                                                   (tau1.Py() + tau2.Py() + met.Py()),
                                                   tau1.M(), tau2.M(), desiredPrecisionOnMt2);
-
-      // MES variations
-      MT2_muup = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
-                                                   bjet2.M(), bjet2.Px(), bjet2.Py(),
-                                                   (tau1_muup.Px() + tau2_muup.Px() + met_muup.Px()),
-                                                   (tau1_muup.Py() + tau2_muup.Py() + met_muup.Py()),
-                                                   tau1_muup.M(), tau2_muup.M(), desiredPrecisionOnMt2);
-
-      MT2_mudown = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
-                                                     bjet2.M(), bjet2.Px(), bjet2.Py(),
-                                                     (tau1_mudown.Px() + tau2_mudown.Px() + met_mudown.Px()),
-                                                     (tau1_mudown.Py() + tau2_mudown.Py() + met_mudown.Py()),
-                                                     tau1_mudown.M(), tau2_mudown.M(), desiredPrecisionOnMt2);
     }
 
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-    // SVfit computation - Central & MES
+    // SVfit computation - Central value
     if (doSVfit)
     {
       //std::cout << std::setprecision(5) << std::fixed;
@@ -750,66 +683,10 @@ int main (int argc, char** argv)
       tauH_SVFIT_mass_new = svfitRes.at(3);
       //std::cout << " - newSVfit: " << tauH_SVFIT_pt_new << " " << tauH_SVFIT_eta_new << " " << tauH_SVFIT_phi_new << " " << tauH_SVFIT_mass_new << std::endl;
       //std::cout << " - oldSVfit: " << tauH_SVFIT_pt << " " << tauH_SVFIT_eta << " " << tauH_SVFIT_phi << " " << tauH_SVFIT_mass << std::endl;
-
-      // MES variations
-      SVfitKLUBinterface algo_muup(0, tau1_muup, tau2_muup, met_muup, stableMetCov, pType, DM1, DM2);
-      std::vector<double> svfitRes_muup = algo_muup.FitAndGetResult();
-      tauH_SVFIT_pt_muup   = svfitRes_muup.at(0);
-      tauH_SVFIT_eta_muup  = svfitRes_muup.at(1);
-      tauH_SVFIT_phi_muup  = svfitRes_muup.at(2);
-      tauH_SVFIT_mass_muup = svfitRes_muup.at(3);
-
-      SVfitKLUBinterface algo_mudown(0, tau1_mudown, tau2_mudown, met_mudown, stableMetCov, pType, DM1, DM2);
-      std::vector<double> svfitRes_mudown = algo_mudown.FitAndGetResult();
-      tauH_SVFIT_pt_mudown   = svfitRes_mudown.at(0);
-      tauH_SVFIT_eta_mudown  = svfitRes_mudown.at(1);
-      tauH_SVFIT_phi_mudown  = svfitRes_mudown.at(2);
-      tauH_SVFIT_mass_mudown = svfitRes_mudown.at(3);
     }
 
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-    // MES DNN/BDT quantities
-    TLorentzVector svfit_muup;
-    svfit_muup.SetPtEtaPhiM(tauH_SVFIT_pt_muup, tauH_SVFIT_eta_muup, tauH_SVFIT_phi_muup, tauH_SVFIT_mass_muup);
-    float mTtot_muup                         = Calculate_TotalMT(tau1_muup, tau2_muup, met_muup);
-    float pzeta_vis_muup                     = Calculate_visiblePzeta(tau1_muup, tau2_muup);
-    float pzeta_muup                         = Calculate_Pzeta(tau1_muup, tau2_muup, met_muup);
-    float mt1_muup                           = ComputeMT(tau1_muup, met_muup);
-    float mt2_muup                           = ComputeMT(tau2_muup, met_muup);
-    float BDT_ditau_deltaPhi_muup            = ROOT::Math::VectorUtil::DeltaPhi(tau1_muup, tau2_muup);
-    float BDT_tauHsvfitMet_deltaPhi_muup     = ROOT::Math::VectorUtil::DeltaPhi(svfit_muup, met_muup);
-    float mT_tauH_MET_muup                   = Calculate_MT( (tau1_muup+tau2_muup)+met_muup, met_muup);
-    float BDT_MX_muup                        = Calculate_MX(tau1_muup, tau2_muup, bjet1, bjet2, met_muup);
-    float BDT_bH_tauH_MET_InvMass_muup       = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1_muup+tau2_muup)+met_muup);
-    float BDT_bH_tauH_SVFIT_InvMass_muup     = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), svfit_muup);
-    float BDT_bH_tauH_InvMass_muup           = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1_muup+tau2_muup));
-    float BDT_MET_bH_cosTheta_muup           = Calculate_cosTheta_2bodies(getLVfromTLV(met_muup), getLVfromTLV(bjet1+bjet2));
-    std::pair<double, double> topMasses_muup = Calculate_topPairMasses(getLVfromTLV(tau1_muup), getLVfromTLV(tau2_muup), getLVfromTLV(bjet1), getLVfromTLV(bjet2), getLVfromTLV(met_muup));
-    bool KinFitConv_muup                     = HHKin_chi2_muup > 0;
-    bool SVfitConv_muup                      = tauH_SVFIT_mass_muup > 0;
-
-    TLorentzVector svfit_mudown;
-    svfit_mudown.SetPtEtaPhiM(tauH_SVFIT_pt_mudown, tauH_SVFIT_eta_mudown, tauH_SVFIT_phi_mudown, tauH_SVFIT_mass_mudown);
-    float mTtot_mudown                         = Calculate_TotalMT(tau1_mudown, tau2_mudown, met_mudown);
-    float pzeta_vis_mudown                     = Calculate_visiblePzeta(tau1_mudown, tau2_mudown);
-    float pzeta_mudown                         = Calculate_Pzeta(tau1_mudown, tau2_mudown, met_mudown);
-    float mt1_mudown                           = ComputeMT(tau1_mudown, met_mudown);
-    float mt2_mudown                           = ComputeMT(tau2_mudown, met_mudown);
-    float BDT_ditau_deltaPhi_mudown            = ROOT::Math::VectorUtil::DeltaPhi(tau1_mudown, tau2_mudown);
-    float BDT_tauHsvfitMet_deltaPhi_mudown     = ROOT::Math::VectorUtil::DeltaPhi(svfit_mudown, met_mudown);
-    float mT_tauH_MET_mudown                   = Calculate_MT( (tau1_mudown+tau2_mudown)+met_mudown, met_mudown);
-    float BDT_MX_mudown                        = Calculate_MX(tau1_mudown, tau2_mudown, bjet1, bjet2, met_mudown);
-    float BDT_bH_tauH_MET_InvMass_mudown       = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1_mudown+tau2_mudown)+met_mudown);
-    float BDT_bH_tauH_SVFIT_InvMass_mudown     = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), svfit_mudown);
-    float BDT_bH_tauH_InvMass_mudown           = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1_mudown+tau2_mudown));
-    float BDT_MET_bH_cosTheta_mudown           = Calculate_cosTheta_2bodies(getLVfromTLV(met_mudown), getLVfromTLV(bjet1+bjet2));
-    std::pair<double, double> topMasses_mudown = Calculate_topPairMasses(getLVfromTLV(tau1_mudown), getLVfromTLV(tau2_mudown), getLVfromTLV(bjet1), getLVfromTLV(bjet2), getLVfromTLV(met_mudown));
-    bool KinFitConv_mudown                     = HHKin_chi2_mudown > 0;
-    bool SVfitConv_mudown                      = tauH_SVFIT_mass_mudown > 0;
-
-
-    // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-    // DNN computation - Central & MES
+    // DNN computation - Central value
     if (doDNN)
     {
       // Set quantities that change for each event (shifted for TES, JES...)
@@ -820,23 +697,10 @@ int main (int argc, char** argv)
       std::vector<float> outs = DNNreader.GetPredictions();
       //std::cout << "----- ...gotten predictions: " << outs.at(0) << std::endl;
       DNNoutSM_kl_1_new = outs.at(0);
-
-      // MES variations
-      DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_muup, tau2_muup, vbfjet1, vbfjet1, met_muup, svfit_muup,
-          HHKin_mass_muup, HHKin_chi2_muup, KinFitConv_muup, SVfitConv_muup, MT2_muup,
-          mTtot_muup, pzeta_vis_muup, pzeta_muup, topMasses_muup.first, topMasses_muup.second, mt1_muup, mt2_muup);
-      std::vector<float> outs_muup = DNNreader.GetPredictions();
-      DNNoutSM_kl_1_muup = outs_muup.at(0);
-
-      DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_mudown, tau2_mudown, vbfjet1, vbfjet1, met_mudown, svfit_mudown,
-          HHKin_mass_mudown, HHKin_chi2_mudown, KinFitConv_mudown, SVfitConv_mudown, MT2_mudown,
-          mTtot_mudown, pzeta_vis_mudown, pzeta_mudown, topMasses_mudown.first, topMasses_mudown.second, mt1_mudown, mt2_mudown);
-      std::vector<float> outs_mudown = DNNreader.GetPredictions();
-      DNNoutSM_kl_1_mudown = outs_mudown.at(0);
     }
 
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-    // BDT computation - Central & MES
+    // BDT computation - Central value
     if (doBDT)
     {
       // Set inputs to BDT
@@ -852,27 +716,179 @@ int main (int argc, char** argv)
       BDToutSM_kl_1_new = BDTouts.at(0);
       //std::cout << " - newBDT: " << BDToutSM_kl_1_new << std::endl;
       //std::cout << " - oldBDT: " << BDToutSM_kl_1 << std::endl;
-
-      // MES variations
-      BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_muup.Pt(),
-        tau2_muup.Pt(), svfit_muup.Pt(), BDT_channel,
-        BDT_HT20, pzeta_muup, pzeta_vis_muup, BDT_ditau_deltaPhi_muup,
-        BDT_tauHsvfitMet_deltaPhi_muup, mT_tauH_MET_muup, mTtot_muup, MT2_muup,
-        BDT_MX_muup, BDT_bH_tauH_MET_InvMass_muup, BDT_bH_tauH_SVFIT_InvMass_muup,
-        BDT_bH_tauH_InvMass_muup, HHKin_mass_muup, HHKin_chi2_muup, BDT_MET_bH_cosTheta_muup);
-      std::vector<float> BDTouts_muup = BDTreader.GetPredictions();
-      BDToutSM_kl_1_muup = BDTouts_muup.at(0);
-
-      BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_mudown.Pt(),
-        tau2_mudown.Pt(), svfit_mudown.Pt(), BDT_channel,
-        BDT_HT20, pzeta_mudown, pzeta_vis_mudown, BDT_ditau_deltaPhi_mudown,
-        BDT_tauHsvfitMet_deltaPhi_mudown, mT_tauH_MET_mudown, mTtot, MT2_mudown,
-        BDT_MX_mudown, BDT_bH_tauH_MET_InvMass_mudown, BDT_bH_tauH_SVFIT_InvMass_mudown,
-        BDT_bH_tauH_InvMass_mudown, HHKin_mass_mudown, HHKin_chi2_mudown, BDT_MET_bH_cosTheta_mudown);
-      std::vector<float> BDTouts_mudown = BDTreader.GetPredictions();
-      BDToutSM_kl_1_mudown = BDTouts_mudown.at(0);
     }
 
+    // ---- ---- ---- ---- ---- ---- ----
+    // ---- ---- Do all MES now ---- ----
+    // ---- ---- ---- ---- ---- ---- ----
+    if (doMES)
+    {
+      // Build shifted taus and MET
+      TLorentzVector tau1_muup, tau2_muup, met_muup;
+      tau1_muup.SetPtEtaPhiM(dau1_pt_muup, dau1_eta, dau1_phi, dau1_mass_muup);
+      tau2_muup.SetPtEtaPhiM(dau2_pt_muup, dau2_eta, dau2_phi, dau2_mass_muup);
+      met_muup .SetPxPyPzE(METx_muup, METy_muup, 0, std::hypot(METx_muup, METy_muup));
+      TVector2 ptmiss_muup = TVector2(METx_muup, METy_muup);
+
+      TLorentzVector tau1_mudown, tau2_mudown, met_mudown;
+      tau1_mudown.SetPtEtaPhiM(dau1_pt_mudown, dau1_eta, dau1_phi, dau1_mass_mudown);
+      tau2_mudown.SetPtEtaPhiM(dau2_pt_mudown, dau2_eta, dau2_phi, dau2_mass_mudown);
+      met_mudown .SetPxPyPzE(METx_mudown, METy_mudown, 0, std::hypot(METx_mudown, METy_mudown));
+      TVector2 ptmiss_mudown = TVector2(METx_mudown, METy_mudown);
+
+      // Declare other useful shifted variables
+      float HHKin_mass_muup, HHKin_chi2_muup, HHKin_mass_mudown, HHKin_chi2_mudown;
+      float MT2_muup, MT2_mudown;
+      float tauH_SVFIT_pt_muup, tauH_SVFIT_eta_muup, tauH_SVFIT_phi_muup;
+      float tauH_SVFIT_pt_mudown, tauH_SVFIT_eta_mudown, tauH_SVFIT_phi_mudown;
+
+      if (doKinFit)
+      {
+        // MES variations
+        HHKinFit2::HHKinFitMasterHeavyHiggs kinFits_muup = HHKinFit2::HHKinFitMasterHeavyHiggs(bjet1, bjet2, tau1_muup, tau2_muup, ptmiss_muup, stableMetCov, bjet1_JER, bjet2_JER) ;
+        kinFits_muup.addHypo(hypo_mh1,hypo_mh2);
+        bool wrongHHK_muup =false;
+        try {kinFits_muup.fit();}
+        catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK_muup=true;}
+        catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK_muup=true;}
+        catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK_muup=true;}
+        if(!wrongHHK_muup)
+        {
+          HHKin_mass_muup = kinFits_muup.getMH();
+          HHKin_chi2_muup = kinFits_muup.getChi2();
+        }
+        else
+        {
+          HHKin_mass_muup = -333.;
+          HHKin_chi2_muup = 0.;
+        }
+
+        HHKinFit2::HHKinFitMasterHeavyHiggs kinFits_mudown = HHKinFit2::HHKinFitMasterHeavyHiggs(bjet1, bjet2, tau1_mudown, tau2_mudown, ptmiss_mudown, stableMetCov, bjet1_JER, bjet2_JER) ;
+        kinFits_mudown.addHypo(hypo_mh1,hypo_mh2);
+        bool wrongHHK_mudown =false;
+        try {kinFits_mudown.fit();}
+        catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK_mudown=true;}
+        catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK_mudown=true;}
+        catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK_mudown=true;}
+        if(!wrongHHK_mudown)
+        {
+          HHKin_mass_mudown = kinFits_mudown.getMH();
+          HHKin_chi2_mudown = kinFits_mudown.getChi2();
+        }
+        else
+        {
+          HHKin_mass_mudown = -333.;
+          HHKin_chi2_mudown = 0.;
+        }
+      }
+
+      if (doMT2)
+      {
+        MT2_muup = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
+                                                      bjet2.M(), bjet2.Px(), bjet2.Py(),
+                                                      (tau1_muup.Px() + tau2_muup.Px() + met_muup.Px()),
+                                                      (tau1_muup.Py() + tau2_muup.Py() + met_muup.Py()),
+                                                      tau1_muup.M(), tau2_muup.M(), desiredPrecisionOnMt2);
+
+        MT2_mudown = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
+                                                        bjet2.M(), bjet2.Px(), bjet2.Py(),
+                                                        (tau1_mudown.Px() + tau2_mudown.Px() + met_mudown.Px()),
+                                                        (tau1_mudown.Py() + tau2_mudown.Py() + met_mudown.Py()),
+                                                        tau1_mudown.M(), tau2_mudown.M(), desiredPrecisionOnMt2);
+      }
+
+      if (doSVfit)
+      {
+        SVfitKLUBinterface algo_muup(0, tau1_muup, tau2_muup, met_muup, stableMetCov, pType, DM1, DM2);
+        std::vector<double> svfitRes_muup = algo_muup.FitAndGetResult();
+        tauH_SVFIT_pt_muup   = svfitRes_muup.at(0);
+        tauH_SVFIT_eta_muup  = svfitRes_muup.at(1);
+        tauH_SVFIT_phi_muup  = svfitRes_muup.at(2);
+        tauH_SVFIT_mass_muup = svfitRes_muup.at(3);
+
+        SVfitKLUBinterface algo_mudown(0, tau1_mudown, tau2_mudown, met_mudown, stableMetCov, pType, DM1, DM2);
+        std::vector<double> svfitRes_mudown = algo_mudown.FitAndGetResult();
+        tauH_SVFIT_pt_mudown   = svfitRes_mudown.at(0);
+        tauH_SVFIT_eta_mudown  = svfitRes_mudown.at(1);
+        tauH_SVFIT_phi_mudown  = svfitRes_mudown.at(2);
+        tauH_SVFIT_mass_mudown = svfitRes_mudown.at(3);
+      }
+
+      // --- --- --- MES DNN/BDT quantities --- --- ---
+      TLorentzVector svfit_muup;
+      svfit_muup.SetPtEtaPhiM(tauH_SVFIT_pt_muup, tauH_SVFIT_eta_muup, tauH_SVFIT_phi_muup, tauH_SVFIT_mass_muup);
+      float mTtot_muup                         = Calculate_TotalMT(tau1_muup, tau2_muup, met_muup);
+      float pzeta_vis_muup                     = Calculate_visiblePzeta(tau1_muup, tau2_muup);
+      float pzeta_muup                         = Calculate_Pzeta(tau1_muup, tau2_muup, met_muup);
+      float mt1_muup                           = ComputeMT(tau1_muup, met_muup);
+      float mt2_muup                           = ComputeMT(tau2_muup, met_muup);
+      float BDT_ditau_deltaPhi_muup            = ROOT::Math::VectorUtil::DeltaPhi(tau1_muup, tau2_muup);
+      float BDT_tauHsvfitMet_deltaPhi_muup     = ROOT::Math::VectorUtil::DeltaPhi(svfit_muup, met_muup);
+      float mT_tauH_MET_muup                   = Calculate_MT( (tau1_muup+tau2_muup)+met_muup, met_muup);
+      float BDT_MX_muup                        = Calculate_MX(tau1_muup, tau2_muup, bjet1, bjet2, met_muup);
+      float BDT_bH_tauH_MET_InvMass_muup       = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1_muup+tau2_muup)+met_muup);
+      float BDT_bH_tauH_SVFIT_InvMass_muup     = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), svfit_muup);
+      float BDT_bH_tauH_InvMass_muup           = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1_muup+tau2_muup));
+      float BDT_MET_bH_cosTheta_muup           = Calculate_cosTheta_2bodies(getLVfromTLV(met_muup), getLVfromTLV(bjet1+bjet2));
+      std::pair<double, double> topMasses_muup = Calculate_topPairMasses(getLVfromTLV(tau1_muup), getLVfromTLV(tau2_muup), getLVfromTLV(bjet1), getLVfromTLV(bjet2), getLVfromTLV(met_muup));
+      bool KinFitConv_muup                     = HHKin_chi2_muup > 0;
+      bool SVfitConv_muup                      = tauH_SVFIT_mass_muup > 0;
+
+      TLorentzVector svfit_mudown;
+      svfit_mudown.SetPtEtaPhiM(tauH_SVFIT_pt_mudown, tauH_SVFIT_eta_mudown, tauH_SVFIT_phi_mudown, tauH_SVFIT_mass_mudown);
+      float mTtot_mudown                         = Calculate_TotalMT(tau1_mudown, tau2_mudown, met_mudown);
+      float pzeta_vis_mudown                     = Calculate_visiblePzeta(tau1_mudown, tau2_mudown);
+      float pzeta_mudown                         = Calculate_Pzeta(tau1_mudown, tau2_mudown, met_mudown);
+      float mt1_mudown                           = ComputeMT(tau1_mudown, met_mudown);
+      float mt2_mudown                           = ComputeMT(tau2_mudown, met_mudown);
+      float BDT_ditau_deltaPhi_mudown            = ROOT::Math::VectorUtil::DeltaPhi(tau1_mudown, tau2_mudown);
+      float BDT_tauHsvfitMet_deltaPhi_mudown     = ROOT::Math::VectorUtil::DeltaPhi(svfit_mudown, met_mudown);
+      float mT_tauH_MET_mudown                   = Calculate_MT( (tau1_mudown+tau2_mudown)+met_mudown, met_mudown);
+      float BDT_MX_mudown                        = Calculate_MX(tau1_mudown, tau2_mudown, bjet1, bjet2, met_mudown);
+      float BDT_bH_tauH_MET_InvMass_mudown       = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1_mudown+tau2_mudown)+met_mudown);
+      float BDT_bH_tauH_SVFIT_InvMass_mudown     = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), svfit_mudown);
+      float BDT_bH_tauH_InvMass_mudown           = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1_mudown+tau2_mudown));
+      float BDT_MET_bH_cosTheta_mudown           = Calculate_cosTheta_2bodies(getLVfromTLV(met_mudown), getLVfromTLV(bjet1+bjet2));
+      std::pair<double, double> topMasses_mudown = Calculate_topPairMasses(getLVfromTLV(tau1_mudown), getLVfromTLV(tau2_mudown), getLVfromTLV(bjet1), getLVfromTLV(bjet2), getLVfromTLV(met_mudown));
+      bool KinFitConv_mudown                     = HHKin_chi2_mudown > 0;
+      bool SVfitConv_mudown                      = tauH_SVFIT_mass_mudown > 0;
+
+      if (doDNN)
+      {
+        DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_muup, tau2_muup, vbfjet1, vbfjet1, met_muup, svfit_muup,
+            HHKin_mass_muup, HHKin_chi2_muup, KinFitConv_muup, SVfitConv_muup, MT2_muup,
+            mTtot_muup, pzeta_vis_muup, pzeta_muup, topMasses_muup.first, topMasses_muup.second, mt1_muup, mt2_muup);
+        std::vector<float> outs_muup = DNNreader.GetPredictions();
+        DNNoutSM_kl_1_muup = outs_muup.at(0);
+
+        DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_mudown, tau2_mudown, vbfjet1, vbfjet1, met_mudown, svfit_mudown,
+            HHKin_mass_mudown, HHKin_chi2_mudown, KinFitConv_mudown, SVfitConv_mudown, MT2_mudown,
+            mTtot_mudown, pzeta_vis_mudown, pzeta_mudown, topMasses_mudown.first, topMasses_mudown.second, mt1_mudown, mt2_mudown);
+        std::vector<float> outs_mudown = DNNreader.GetPredictions();
+        DNNoutSM_kl_1_mudown = outs_mudown.at(0);
+      }
+
+      if (doBDT)
+      {
+        BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_muup.Pt(),
+          tau2_muup.Pt(), svfit_muup.Pt(), BDT_channel,
+          BDT_HT20, pzeta_muup, pzeta_vis_muup, BDT_ditau_deltaPhi_muup,
+          BDT_tauHsvfitMet_deltaPhi_muup, mT_tauH_MET_muup, mTtot_muup, MT2_muup,
+          BDT_MX_muup, BDT_bH_tauH_MET_InvMass_muup, BDT_bH_tauH_SVFIT_InvMass_muup,
+          BDT_bH_tauH_InvMass_muup, HHKin_mass_muup, HHKin_chi2_muup, BDT_MET_bH_cosTheta_muup);
+        std::vector<float> BDTouts_muup = BDTreader.GetPredictions();
+        BDToutSM_kl_1_muup = BDTouts_muup.at(0);
+
+        BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_mudown.Pt(),
+          tau2_mudown.Pt(), svfit_mudown.Pt(), BDT_channel,
+          BDT_HT20, pzeta_mudown, pzeta_vis_mudown, BDT_ditau_deltaPhi_mudown,
+          BDT_tauHsvfitMet_deltaPhi_mudown, mT_tauH_MET_mudown, mTtot, MT2_mudown,
+          BDT_MX_mudown, BDT_bH_tauH_MET_InvMass_mudown, BDT_bH_tauH_SVFIT_InvMass_mudown,
+          BDT_bH_tauH_InvMass_mudown, HHKin_mass_mudown, HHKin_chi2_mudown, BDT_MET_bH_cosTheta_mudown);
+        std::vector<float> BDTouts_mudown = BDTreader.GetPredictions();
+        BDToutSM_kl_1_mudown = BDTouts_mudown.at(0);
+      }
+    }
 
     // ---- ---- ---- ---- ---- ---- ----
     // ---- ---- Do all EES now ---- ----
