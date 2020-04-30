@@ -3717,6 +3717,7 @@ int main (int argc, char** argv)
            theSmallTree.m_METy_tauup.push_back(vMET_shift_tes.first.at(idm).Y());
            theSmallTree.m_METx_taudown.push_back(vMET_shift_tes.second.at(idm).X());
            theSmallTree.m_METy_taudown.push_back(vMET_shift_tes.second.at(idm).Y());
+        }
 	   
         if (idm <N_tauhDM_EES)
         {
@@ -3725,8 +3726,7 @@ int main (int argc, char** argv)
            theSmallTree.m_METx_eledown.push_back(vMET_shift_ees.second.at(idm).X());
            theSmallTree.m_METy_eledown.push_back(vMET_shift_ees.second.at(idm).Y());
         }
-        }
-	
+
         // Shifted MET for MES 
         auto vMET_shift_mes = getShiftedMET_mes(vMET, theBigTree, DEBUG);
         theSmallTree.m_METx_muup = vMET_shift_mes.first.X();
