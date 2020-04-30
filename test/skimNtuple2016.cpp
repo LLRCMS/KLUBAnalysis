@@ -2227,7 +2227,7 @@ int main (int argc, char** argv)
       // loop over DMs to fill the shifted TLVs
       for (int idm  = 0; idm < N_tauhDM; idm ++)
       {
-         if(lep1HasTES)
+	 if(lep1HasTES)
 	 {
 	   tlv_firstLepton_tauup[idm]   = getShiftedDau(tlv_firstLepton, 1.,  unc_TES_first[idm], isthisDM_first[idm], (idm != 0));  // no mass shift for DM == 0 (idm == 0)
 	   tlv_firstLepton_taudown[idm] = getShiftedDau(tlv_firstLepton, -1., unc_TES_first[idm], isthisDM_first[idm], (idm != 0));  // no mass shift for DM == 0 (idm == 0)
@@ -2251,7 +2251,7 @@ int main (int argc, char** argv)
 	   tlv_secondLepton_eledown[idm] = getShiftedDau(tlv_secondLepton, -1., unc_EESdw_second[idm], isthisDM_second[idm]);
 	 }
 	 
-	 theSmallTree.m_dau1_pt_tauup.push_back(tlv_firstLepton_tauup[idm].Pt());
+         theSmallTree.m_dau1_pt_tauup.push_back(tlv_firstLepton_tauup[idm].Pt());
          theSmallTree.m_dau1_pt_taudown.push_back(tlv_firstLepton_taudown[idm].Pt());
          theSmallTree.m_dau1_mass_tauup.push_back(tlv_firstLepton_tauup[idm].M());
          theSmallTree.m_dau1_mass_taudown.push_back(tlv_firstLepton_taudown[idm].M());
@@ -2280,10 +2280,10 @@ int main (int argc, char** argv)
        double unc_MESup_second;
        double unc_MESdw_second;
 
-       unc_MESup_first = theBigTree.daughters_MESshiftup->at (firstDaughterIndex); // first daughter, DM 0
-       unc_MESdw_first = theBigTree.daughters_MESshiftdw->at (firstDaughterIndex); // first daughter, DM 0
-       unc_MESup_second = theBigTree.daughters_MESshiftup ->at (secondDaughterIndex); // second daughter, DM 0
-       unc_MESdw_second = theBigTree.daughters_MESshiftdw ->at (secondDaughterIndex); // second daughter, DM 0
+       unc_MESup_first = theBigTree.daughters_MESshiftup->at (firstDaughterIndex); // first daughter, up
+       unc_MESdw_first = theBigTree.daughters_MESshiftdw->at (firstDaughterIndex); // first daughter, down
+       unc_MESup_second = theBigTree.daughters_MESshiftup ->at (secondDaughterIndex); // second daughter, up
+       unc_MESdw_second = theBigTree.daughters_MESshiftdw ->at (secondDaughterIndex); // second daughter, down
 
        TLorentzVector tlv_firstLepton_muup    =tlv_firstLepton; 
        TLorentzVector tlv_firstLepton_mudown  =tlv_firstLepton; 
@@ -3423,7 +3423,7 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet1_pt_raw = tlv_firstBjet_raw.Pt();
         theSmallTree.m_bjet2_pt_raw = tlv_secondBjet_raw.Pt();
 	
-	TLorentzVector tlv_bH_raw = tlv_firstBjet + tlv_secondBjet ;
+        TLorentzVector tlv_bH_raw = tlv_firstBjet + tlv_secondBjet ;
         vector <TLorentzVector> tlv_bH_raw_jetup(N_jecSources, tlv_bH_raw);
         vector <TLorentzVector> tlv_bH_raw_jetdown(N_jecSources, tlv_bH_raw);
 
@@ -3437,7 +3437,7 @@ int main (int argc, char** argv)
 
         //compute and store variations
         for (int isource = 0; isource < N_jecSources; isource++)
-	{
+        {
 	   // compute all shifted bjets
            tlv_firstBjet_raw_jetup[isource]   = getShiftedJet(tlv_firstBjet_raw, +1., unc_first_updown.first[isource]);
            tlv_firstBjet_raw_jetdown[isource] = getShiftedJet(tlv_firstBjet_raw, -1., unc_first_updown.second[isource]);
@@ -3466,7 +3466,7 @@ int main (int argc, char** argv)
            theSmallTree.m_bjet1_JER_jetdown.push_back(bjet1_JER * tlv_firstBjet_raw_jetdown[isource].E() /  tlv_firstBjet_raw.E()) ;
            theSmallTree.m_bjet2_JER_jetup.push_back(bjet2_JER * tlv_secondBjet_raw_jetup[isource].E() /  tlv_secondBjet_raw.E()) ;
            theSmallTree.m_bjet2_JER_jetdown.push_back(bjet2_JER * tlv_secondBjet_raw_jetdown[isource].E() /  tlv_secondBjet_raw.E()) ;
-	}
+        }
        
         theSmallTree.m_bjet1_pt_raw_jetup1    = (tlv_firstBjet_raw_jetup[0]).Pt();
         theSmallTree.m_bjet1_pt_raw_jetup2    = (tlv_firstBjet_raw_jetup[1]).Pt();
@@ -3614,10 +3614,10 @@ int main (int argc, char** argv)
         TLorentzVector jetVecSum (0,0,0,0);
         vector <Float_t> BDT_HT20_jetup(N_jecSources);
         vector <Float_t> BDT_HT20_jetdown(N_jecSources);
-	if (DEBUG) cout << "----- BDT HT debug ------" << endl;
+        if (DEBUG) cout << "----- BDT HT debug ------" << endl;
         
 	for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
-        {
+	{
           // JET PF ID cut
           if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
@@ -3670,10 +3670,11 @@ int main (int argc, char** argv)
             theSmallTree.m_HT50 += tlv_jet.Pt() ;
           }
         }
+	
         theSmallTree.m_HT20Full = theSmallTree.m_HT20 + tlv_firstLepton.Pt() + tlv_secondLepton.Pt() ;
         theSmallTree.m_jet20centrality = jetVecSum.Pt() / theSmallTree.m_HT20Full ;
 	
-	theSmallTree.m_BDT_HT20_jetup   = BDT_HT20_jetup;
+        theSmallTree.m_BDT_HT20_jetup   = BDT_HT20_jetup;
         theSmallTree.m_BDT_HT20_jetdown = BDT_HT20_jetdown;
 
         if (DEBUG) cout << "  HT = " << theSmallTree.m_BDT_HT20 << endl;
@@ -3698,7 +3699,7 @@ int main (int argc, char** argv)
         // Shifted MET for JES
         auto vMET_shift_jet = getShiftedMET_jet(N_jecSources, vMET, theBigTree, DEBUG);
         for (int isource = 0; isource < N_jecSources; isource++)
-	{
+        {
            theSmallTree.m_METx_jetup.push_back(vMET_shift_jet.first.at(isource).X());
            theSmallTree.m_METy_jetup.push_back(vMET_shift_jet.first.at(isource).Y());
            theSmallTree.m_METx_jetdown.push_back(vMET_shift_jet.second.at(isource).X());
@@ -3717,13 +3718,13 @@ int main (int argc, char** argv)
            theSmallTree.m_METx_taudown.push_back(vMET_shift_tes.second.at(idm).X());
            theSmallTree.m_METy_taudown.push_back(vMET_shift_tes.second.at(idm).Y());
 	   
-           if (idm <N_tauhDM_EES)
-	   {
-             theSmallTree.m_METx_eleup.push_back(vMET_shift_ees.first.at(idm).X());
-             theSmallTree.m_METy_eleup.push_back(vMET_shift_ees.first.at(idm).Y());
-             theSmallTree.m_METx_eledown.push_back(vMET_shift_ees.second.at(idm).X());
-             theSmallTree.m_METy_eledown.push_back(vMET_shift_ees.second.at(idm).Y());
-           }
+        if (idm <N_tauhDM_EES)
+        {
+           theSmallTree.m_METx_eleup.push_back(vMET_shift_ees.first.at(idm).X());
+           theSmallTree.m_METy_eleup.push_back(vMET_shift_ees.first.at(idm).Y());
+           theSmallTree.m_METx_eledown.push_back(vMET_shift_ees.second.at(idm).X());
+           theSmallTree.m_METy_eledown.push_back(vMET_shift_ees.second.at(idm).Y());
+        }
         }
 	
         // Shifted MET for MES 
@@ -4174,7 +4175,7 @@ int main (int argc, char** argv)
           TLorentzVector VBFjet2;
           VBFjet2.SetPxPyPzE( theBigTree.jets_px->at(VBFidx2), theBigTree.jets_py->at(VBFidx2), theBigTree.jets_pz->at(VBFidx2), theBigTree.jets_e->at(VBFidx2) );
 
-          pair <vector <double>, vector<double>> unc_VBF1_updown = getJetUpDown(VBFidx1, theBigTree);
+ 	  pair <vector <double>, vector<double>> unc_VBF1_updown = getJetUpDown(VBFidx1, theBigTree);
  	  pair <vector <double>, vector<double>> unc_VBF2_updown = getJetUpDown(VBFidx2, theBigTree);
 
  	  // compute all shifted VBFjets
@@ -4203,8 +4204,8 @@ int main (int argc, char** argv)
            theSmallTree.m_VBFjet2_mass_jetup.push_back(VBFjet2_jetup[isource].M());
            theSmallTree.m_VBFjet2_mass_jetdown.push_back(VBFjet2_jetdown[isource].M());
 	   
-	   VBFjj_jetup[isource] = VBFjet1_jetup[isource] + VBFjet2_jetup[isource];
-	   VBFjj_jetdown[isource] = VBFjet1_jetdown[isource] + VBFjet2_jetdown[isource];
+           VBFjj_jetup[isource] = VBFjet1_jetup[isource] + VBFjet2_jetup[isource];
+           VBFjj_jetdown[isource] = VBFjet1_jetdown[isource] + VBFjet2_jetdown[isource];
 	      
            theSmallTree.m_VBFjj_mass_jetup.push_back(VBFjj_jetup[isource].M());
            theSmallTree.m_VBFjj_mass_jetdown.push_back(VBFjj_jetdown[isource].M());
@@ -4248,7 +4249,7 @@ int main (int argc, char** argv)
           // Save VBF variables
           theSmallTree.m_VBFjj_mass         = std::get<0>(*(VBFcand_Mjj.rbegin()));
 
-          theSmallTree.m_VBFjj_mass_jetup1       = VBFjj_jetup[0].M();   
+          theSmallTree.m_VBFjj_mass_jetup1	 = VBFjj_jetup[0].M();   
           theSmallTree.m_VBFjj_mass_jetup2	 = VBFjj_jetup[1].M();        
           theSmallTree.m_VBFjj_mass_jetup3	 = VBFjj_jetup[2].M();        
           theSmallTree.m_VBFjj_mass_jetup4	 = VBFjj_jetup[3].M();        
@@ -4273,13 +4274,13 @@ int main (int argc, char** argv)
           theSmallTree.m_VBFjj_mass_jetdown11	 = VBFjj_jetdown[10].M();     
 
           theSmallTree.m_VBFjj_deltaEta     	 = fabs(VBFjet1.Eta()-VBFjet2.Eta());
-          theSmallTree.m_VBFjj_deltaPhi          = VBFjet1.DeltaPhi(VBFjet2);
+          theSmallTree.m_VBFjj_deltaPhi     	 = VBFjet1.DeltaPhi(VBFjet2);
           theSmallTree.m_VBFjj_HT           	 = VBFjet1.Pt()+VBFjet2.Pt();
           theSmallTree.m_VBFjj_dEtaSign     	 = VBFjet1.Eta() * VBFjet2.Eta(); // VBF BDT
 
           theSmallTree.m_VBFjet1_pt         	 = VBFjet1.Pt() ;
 
-          theSmallTree.m_VBFjet1_pt_jetup1       = VBFjet1_jetup[0].Pt();   
+          theSmallTree.m_VBFjet1_pt_jetup1	 = VBFjet1_jetup[0].Pt();   
           theSmallTree.m_VBFjet1_pt_jetup2	 = VBFjet1_jetup[1].Pt();   
           theSmallTree.m_VBFjet1_pt_jetup3	 = VBFjet1_jetup[2].Pt();   
           theSmallTree.m_VBFjet1_pt_jetup4	 = VBFjet1_jetup[3].Pt();   
@@ -4304,13 +4305,13 @@ int main (int argc, char** argv)
           theSmallTree.m_VBFjet1_pt_jetdown11	 = VBFjet1_jetdown[10].Pt();	 
 
           theSmallTree.m_VBFjet1_eta        	 = VBFjet1.Eta();
-          theSmallTree.m_VBFjet1_phi        	 = VBFjet1.Phi();
+          theSmallTree.m_VBFjet1_phi     	 = VBFjet1.Phi();
           theSmallTree.m_VBFjet1_e          	 = VBFjet1.E();
           theSmallTree.m_VBFjet1_btag       	 = (theBigTree.bCSVscore->at (VBFidx1)) ;
           theSmallTree.m_VBFjet1_btag_deepCSV    = theBigTree.bDeepCSV_probb->at(VBFidx1) + theBigTree.bDeepCSV_probbb->at(VBFidx1) ;
           theSmallTree.m_VBFjet1_btag_deepFlavor = theBigTree.bDeepFlavor_probb->at(VBFidx1) + theBigTree.bDeepFlavor_probbb->at(VBFidx1) + theBigTree.bDeepFlavor_problepb->at(VBFidx1);
-	  theSmallTree.m_VBFjet1_ctag_deepFlavor = theBigTree.bDeepFlavor_probc->at(VBFidx1) ;          
-	  theSmallTree.m_VBFjet1_PUjetIDupdated  = theBigTree.jets_PUJetIDupdated->at (VBFidx1) ;
+          theSmallTree.m_VBFjet1_ctag_deepFlavor = theBigTree.bDeepFlavor_probc->at(VBFidx1) ;          
+          theSmallTree.m_VBFjet1_PUjetIDupdated  = theBigTree.jets_PUJetIDupdated->at (VBFidx1) ;
           theSmallTree.m_VBFjet1_flav            = (theBigTree.jets_HadronFlavour->at (VBFidx1)) ;
           theSmallTree.m_VBFjet1_hasgenjet       = hasgj1_VBF ;
 
@@ -4480,7 +4481,7 @@ int main (int argc, char** argv)
           theSmallTree.m_jets_btag_deepCSV.push_back (theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet)) ;
           theSmallTree.m_jets_btag_deepFlavor.push_back (theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet)) ;
           theSmallTree.m_jets_ctag_deepFlavor.push_back (theBigTree.bDeepFlavor_probc->at(iJet));          
-	  theSmallTree.m_jets_flav.push_back (theBigTree.jets_HadronFlavour->at (iJet)) ;
+          theSmallTree.m_jets_flav.push_back (theBigTree.jets_HadronFlavour->at (iJet)) ;
           theSmallTree.m_jets_jecUnc.push_back (theBigTree.jets_jecUnc->at (iJet)) ;
           theSmallTree.m_jets_hasgenjet.push_back (hasgj) ;
           ++theSmallTree.m_njets ;
@@ -4508,8 +4509,8 @@ int main (int argc, char** argv)
           theSmallTree.m_jet3_btag= theSmallTree.m_jets_btag.at (0);
           theSmallTree.m_jet3_btag_deepCSV= theSmallTree.m_jets_btag_deepCSV.at (0);
           theSmallTree.m_jet3_btag_deepFlavor= theSmallTree.m_jets_btag_deepFlavor.at (0);
-	  theSmallTree.m_jet3_ctag_deepFlavor= theSmallTree.m_jets_ctag_deepFlavor.at (0);
-	  theSmallTree.m_jet3_flav= theSmallTree.m_jets_flav.at (0);
+          theSmallTree.m_jet3_ctag_deepFlavor= theSmallTree.m_jets_ctag_deepFlavor.at (0);
+          theSmallTree.m_jet3_flav= theSmallTree.m_jets_flav.at (0);
           theSmallTree.m_jet3_hasgenjet= theSmallTree.m_jets_hasgenjet.at (0);
         }
         if (theSmallTree.m_jets_pt.size()>1)
