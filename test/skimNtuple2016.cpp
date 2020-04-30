@@ -5069,7 +5069,9 @@ int main (int argc, char** argv)
       outFile->cd () ;
       h_eff.Write () ;
       treenew->Write ("", TObject::kOverwrite) ;
-
+      outFile->Write();
+      outFile->Close();
+      
       delete reader;
       delete readerResonant;
       delete readerResonantHM;
@@ -5455,6 +5457,9 @@ int main (int argc, char** argv)
     // Update tree and delete readers
     outFile->cd();
     treenew->Write ("", TObject::kOverwrite) ;
+    outFile->Write();
+    outFile->Close();
+
     delete readerSM;
     delete readerLM;
     delete readerMM;
@@ -5479,6 +5484,19 @@ int main (int argc, char** argv)
 
      vector<float> DNN_kl;
      DNN_kl = gConfigParser->readFloatListOption("DNN::kl");
+     
+     std::string features_file = gConfigParser->readStringOption ("DNN::features");
+     std::cout << "DNN::features  : " << features_file << std::endl;
+
+     // Read from file the requested features to be computed
+     std::ifstream features_infile(features_file);
+     std::vector<std::string> requested;
+     std::string featureName;
+     while ( features_infile >> featureName)
+     {
+       requested.push_back(featureName);
+     }
+     features_infile.close();
 
      // Declare the wrapper
      InfWrapper wrapper(model_dir, 1, false);
@@ -5489,37 +5507,6 @@ int main (int argc, char** argv)
      // Store prediction in vector of vectors of floats:
      // [kl=1 : [evt1_pred, evt2_pred, evt3_pred ...], kl=2 : [evt1_opred, evt2_pred, evt3_pred...]]
      std::vector<std::vector<float>> outDNN;
-
-     // Requested features to be computed
-     std::vector<std::string> requested{"vbf_1_pT",
-                                        "l_2_pT",
-                                        "b_1_pT",
-                                        "dR_b1_b2_x_h_bb_pT",
-                                        "dphi_httvis_met",
-                                        "hh_kinfit_m",
-                                        "sv_mass",
-                                        "diH_mass_X",
-                                        "h_bb_mass",
-                                        "dphi_l1_met",
-                                        "dR_l1_l2_x_h_tt_met_pT",
-                                        "dR_b1_b2_boosted_hbb",
-                                        "costheta_l1_htt",
-                                        "l_1_pT",
-                                        "dphi_hbb_sv",
-                                        "costheta_met_hbb",
-                                        "costheta_htt_met_hh_met",
-                                        "vbf_2_pT",
-                                        "deta_l1_l2",
-                                        "costheta_met_htt",
-                                        "dphi_vbf1_vbf2",
-                                        "dR_l1_l2_boosted_htt_met",
-                                        "vbf_1_E",
-                                        "hh_pT",
-                                        "boosted",
-                                        "channel",
-                                        "jet_1_quality",
-                                        "jet_2_quality",
-                                        "year"};
 
      // Initialize the EvtProc
      EvtProc evt_proc(false, requested, true);
@@ -5536,6 +5523,7 @@ int main (int argc, char** argv)
      float DNN_l_1_mt, DNN_l_2_mt;
      unsigned long long int DNN_evt;
      bool DNN_svfit_conv, DNN_hh_kinfit_conv;
+     int DNN_nleps, DNN_nbjetscand;
 
      Channel DNN_e_channel;
      Year DNN_e_year(y16);
@@ -5551,7 +5539,9 @@ int main (int argc, char** argv)
      TTreeReaderValue<int> rv_ptype(reader, "pairType");
      TTreeReaderValue<int> rv_isboosted(reader, "isBoosted");
      TTreeReaderValue<int> rv_isvbf(reader, "isVBF");
-
+     TTreeReaderValue<int> rv_nleps(reader, "nleps");
+     TTreeReaderValue<int> rv_nbjetscand(reader, "nbjetscand");
+     
      TTreeReaderValue<float> rv_kinfit_mass(reader, "HHKin_mass_raw");
      TTreeReaderValue<float> rv_kinfit_chi2(reader, "HHKin_mass_raw_chi2");
      TTreeReaderValue<float> rv_mt2(reader, "MT2");
@@ -5613,8 +5603,8 @@ int main (int argc, char** argv)
      // Index and number of entries for loop on entries
      long int c_event(0), n_tot_events(reader.GetEntries(true));
 
-     // Resize output vector to store all DNN predictions
-     outDNN.resize(DNN_kl.size(), std::vector<float>(n_tot_events));
+     // Resize output vector to store all DNN predictions (initialized to -1.0)
+     outDNN.resize(DNN_kl.size(), std::vector<float>(n_tot_events,-1.));     
      std::cout << "DNN::DNN_kl size   : " << DNN_kl.size() << endl;
      std::cout << "DNN::DNN_kl values : ";
      for (uint i=0; i<DNN_kl.size();i++) cout << DNN_kl.at(i) << " ";
@@ -5626,11 +5616,21 @@ int main (int argc, char** argv)
      {
        if (c_event%5000 == 0) std::cout << "DNN::event " << c_event << " / " << n_tot_events << "\n";
 
+       // Apply minimal baseline selection (3rd lept veto, n bjet cands and channel)
+       DNN_nbjetscand = *rv_nbjetscand;
+       DNN_nleps      = *rv_nleps;
+       DNN_pType      = *rv_ptype;
+       if (DNN_nleps!=0 || DNN_nbjetscand < 2 || DNN_pType>2)
+       {
+         //std::cout << "DNN::skipping evtNumber: " << *rv_evt << " because nleps=" << DNN_nleps << ", nbjetscand=" << DNN_nbjetscand  << "and channel=" << DNN_pType << endl;
+         c_event++;
+         continue;
+       }
+
        // Load values
-       DNN_evt =  *rv_evt;
-       DNN_pType = *rv_ptype;
+       DNN_evt        = *rv_evt;
        DNN_is_boosted = *rv_isboosted;
-       DNN_isvbf = *rv_isvbf;
+       DNN_isvbf      = *rv_isvbf;
 
        DNN_kinfit_mass   = *rv_kinfit_mass;
        DNN_kinfit_chi2   = *rv_kinfit_chi2;
@@ -5652,14 +5652,14 @@ int main (int argc, char** argv)
        DNN_hh_kinfit_conv = DNN_kinfit_chi2 > 0;
 
        // Load PEP Vectors first
-       pep_l_1  .SetPtEtaPhiE (*rv_l_1_pT, *rv_l_1_eta, *rv_l_1_phi, *rv_l_1_e);
-       pep_l_2  .SetPtEtaPhiE (*rv_l_2_pT, *rv_l_2_eta, *rv_l_2_phi, *rv_l_2_e);
-       pep_met  .SetPtEtaPhiE (*rv_met_pT, 0, *rv_met_phi, 0);
-       pep_svfit.SetPtEtaPhiM (*rv_svfit_pT, *rv_svfit_eta, *rv_svfit_phi, *rv_svfit_mass);
-       pep_b_1  .SetPtEtaPhiE (*rv_b_1_pT, *rv_b_1_eta, *rv_b_1_phi, *rv_b_1_e);
-       pep_b_2  .SetPtEtaPhiE (*rv_b_2_pT, *rv_b_2_eta, *rv_b_2_phi, *rv_b_2_e);
-       pep_vbf_1.SetPtEtaPhiE (*rv_vbf_1_pT, *rv_vbf_1_eta, *rv_vbf_1_phi, *rv_vbf_1_e);
-       pep_vbf_2.SetPtEtaPhiE (*rv_vbf_2_pT, *rv_vbf_2_eta, *rv_vbf_2_phi, *rv_vbf_2_e);
+       pep_l_1  .SetPtEtaPhiE(*rv_l_1_pT  , *rv_l_1_eta  , *rv_l_1_phi  , *rv_l_1_e	);
+       pep_l_2  .SetPtEtaPhiE(*rv_l_2_pT  , *rv_l_2_eta  , *rv_l_2_phi  , *rv_l_2_e	);
+       pep_met  .SetPtEtaPhiE(*rv_met_pT  , 0            , *rv_met_phi  , 0		);
+       pep_svfit.SetPtEtaPhiM(*rv_svfit_pT, *rv_svfit_eta, *rv_svfit_phi, *rv_svfit_mass);
+       pep_b_1  .SetPtEtaPhiE(*rv_b_1_pT  , *rv_b_1_eta  , *rv_b_1_phi  , *rv_b_1_e	);
+       pep_b_2  .SetPtEtaPhiE(*rv_b_2_pT  , *rv_b_2_eta  , *rv_b_2_phi  , *rv_b_2_e	);
+       pep_vbf_1.SetPtEtaPhiE(*rv_vbf_1_pT, *rv_vbf_1_eta, *rv_vbf_1_phi, *rv_vbf_1_e	);
+       pep_vbf_2.SetPtEtaPhiE(*rv_vbf_2_pT, *rv_vbf_2_eta, *rv_vbf_2_phi, *rv_vbf_2_e	);
 
        // Use PEP Vectors to declare DNN vectors
        DNN_l_1.SetCoordinates(pep_l_1.Px(),     pep_l_1.Py(),   pep_l_1.Pz(),   pep_l_1.M());
@@ -5677,18 +5677,18 @@ int main (int argc, char** argv)
        {
          DNN_e_channel = tauTau;
        }
-       DNN_l_2.SetCoordinates(pep_l_2.Px(),     pep_l_2.Py(),   pep_l_2.Pz(),   pep_l_2.M());
-       DNN_met.SetCoordinates(pep_met.Px(),     pep_met.Py(),   0,              0);
+       DNN_l_2.SetCoordinates  (pep_l_2.Px()  , pep_l_2.Py()  , pep_l_2.Pz()  , pep_l_2.M()  );
+       DNN_met.SetCoordinates  (pep_met.Px()  , pep_met.Py()  , 0             , 0            );
        DNN_svfit.SetCoordinates(pep_svfit.Px(), pep_svfit.Py(), pep_svfit.Pz(), pep_svfit.M());
-       DNN_b_1.SetCoordinates(pep_b_1.Px(),     pep_b_1.Py(),   pep_b_1.Pz(),   pep_b_1.M());
-       DNN_b_2.SetCoordinates(pep_b_2.Px(),     pep_b_2.Py(),   pep_b_2.Pz(),   pep_b_2.M());
+       DNN_b_1.SetCoordinates  (pep_b_1.Px()  , pep_b_1.Py()  , pep_b_1.Pz()  , pep_b_1.M()  );
+       DNN_b_2.SetCoordinates  (pep_b_2.Px()  , pep_b_2.Py()  , pep_b_2.Pz()  , pep_b_2.M()  );
        DNN_vbf_1.SetCoordinates(pep_vbf_1.Px(), pep_vbf_1.Py(), pep_vbf_1.Pz(), pep_vbf_1.M());
        DNN_vbf_2.SetCoordinates(pep_vbf_2.Px(), pep_vbf_2.Py(), pep_vbf_2.Pz(), pep_vbf_2.M());
 
        DNN_n_vbf = 0;
        if (DNN_isvbf) {
-           if (*rv_vbf_1_e != std::numeric_limits<float>::lowest()) DNN_n_vbf++;
-           if (*rv_vbf_2_e != std::numeric_limits<float>::lowest()) DNN_n_vbf++;
+           if (*rv_vbf_1_e != -999.) DNN_n_vbf++;
+           if (*rv_vbf_2_e != -999.) DNN_n_vbf++;
        }
 
        // Loop on configurable options to get the output prediction
