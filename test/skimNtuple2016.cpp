@@ -3455,11 +3455,11 @@ int main (int argc, char** argv)
 	   
            // variations propagated to bH 
            tlv_bH_raw_jetup.push_back(tlv_firstBjet_raw_jetup[isource] + tlv_secondBjet_raw_jetup[isource]) ;
-           tlv_bH_raw_jetdown.push_back(tlv_firstBjet_raw_jetdown[isource] + tlv_secondBjet_raw_jetdown.at[isource]);
+           tlv_bH_raw_jetdown.push_back(tlv_firstBjet_raw_jetdown[isource] + tlv_secondBjet_raw_jetdown[isource]);
            theSmallTree.m_bH_mass_raw_jetup.push_back((tlv_bH_raw_jetup[isource]).M());
            theSmallTree.m_bH_mass_raw_jetdown.push_back((tlv_bH_raw_jetdown[isource]).M());
            theSmallTree.m_bH_pt_raw_jetup.push_back((tlv_bH_raw_jetup[isource]).Pt());
-           theSmallTree.m_bH_pt_raw_jetdown.push_back((tlv_bH_raw_jetup[isource]).Pt());
+           theSmallTree.m_bH_pt_raw_jetdown.push_back((tlv_bH_raw_jetdown[isource]).Pt());
 
            // JER variations
            theSmallTree.m_bjet1_JER_jetup.push_back(bjet1_JER * tlv_firstBjet_raw_jetup[isource].E() /  tlv_firstBjet_raw.E() );
@@ -3532,17 +3532,17 @@ int main (int argc, char** argv)
         theSmallTree.m_bH_mass_raw_jetup10   = (tlv_bH_raw_jetup[9]).M();		 
         theSmallTree.m_bH_mass_raw_jetup11   = (tlv_bH_raw_jetup[10]).M();		 
 
-        theSmallTree.m_bH_mass_raw_jetup1    = (tlv_bH_raw_jetdown[0]).M();		 
-        theSmallTree.m_bH_mass_raw_jetup2    = (tlv_bH_raw_jetdown[1]).M();		 
-        theSmallTree.m_bH_mass_raw_jetup3    = (tlv_bH_raw_jetdown[2]).M();		 
-        theSmallTree.m_bH_mass_raw_jetup4    = (tlv_bH_raw_jetdown[3]).M();		 
-        theSmallTree.m_bH_mass_raw_jetup5    = (tlv_bH_raw_jetdown[4]).M();		 
-        theSmallTree.m_bH_mass_raw_jetup6    = (tlv_bH_raw_jetdown[5]).M();		 
-        theSmallTree.m_bH_mass_raw_jetup7    = (tlv_bH_raw_jetdown[6]).M();		 
-        theSmallTree.m_bH_mass_raw_jetup8    = (tlv_bH_raw_jetdown[7]).M();		 
-        theSmallTree.m_bH_mass_raw_jetup9    = (tlv_bH_raw_jetdown[8]).M();		 
-        theSmallTree.m_bH_mass_raw_jetup10   = (tlv_bH_raw_jetdown[9]).M();		 
-        theSmallTree.m_bH_mass_raw_jetup11   = (tlv_bH_raw_jetdown[10]).M();	
+        theSmallTree.m_bH_mass_raw_jetdown1    = (tlv_bH_raw_jetdown[0]).M();		 
+        theSmallTree.m_bH_mass_raw_jetdown2    = (tlv_bH_raw_jetdown[1]).M();		 
+        theSmallTree.m_bH_mass_raw_jetdown3    = (tlv_bH_raw_jetdown[2]).M();		 
+        theSmallTree.m_bH_mass_raw_jetdown4    = (tlv_bH_raw_jetdown[3]).M();		 
+        theSmallTree.m_bH_mass_raw_jetdown5    = (tlv_bH_raw_jetdown[4]).M();		 
+        theSmallTree.m_bH_mass_raw_jetdown6    = (tlv_bH_raw_jetdown[5]).M();		 
+        theSmallTree.m_bH_mass_raw_jetdown7    = (tlv_bH_raw_jetdown[6]).M();		 
+        theSmallTree.m_bH_mass_raw_jetdown8    = (tlv_bH_raw_jetdown[7]).M();		 
+        theSmallTree.m_bH_mass_raw_jetdown9    = (tlv_bH_raw_jetdown[8]).M();		 
+        theSmallTree.m_bH_mass_raw_jetdown10   = (tlv_bH_raw_jetdown[9]).M();		 
+        theSmallTree.m_bH_mass_raw_jetdown11   = (tlv_bH_raw_jetdown[10]).M();	
 		 
         // FIXME : here mass is manually set to 0, should we change it?
         float ptScale1 = ptRegr[0] / tlv_firstBjet.Pt() ;
@@ -3717,15 +3717,16 @@ int main (int argc, char** argv)
            theSmallTree.m_METy_tauup.push_back(vMET_shift_tes.first.at(idm).Y());
            theSmallTree.m_METx_taudown.push_back(vMET_shift_tes.second.at(idm).X());
            theSmallTree.m_METy_taudown.push_back(vMET_shift_tes.second.at(idm).Y());
-        }
 	   
-        if (idm <N_tauhDM_EES)
-        {
-           theSmallTree.m_METx_eleup.push_back(vMET_shift_ees.first.at(idm).X());
-           theSmallTree.m_METy_eleup.push_back(vMET_shift_ees.first.at(idm).Y());
-           theSmallTree.m_METx_eledown.push_back(vMET_shift_ees.second.at(idm).X());
-           theSmallTree.m_METy_eledown.push_back(vMET_shift_ees.second.at(idm).Y());
-        }
+           if (idm <N_tauhDM_EES)
+           {
+             theSmallTree.m_METx_eleup.push_back(vMET_shift_ees.first.at(idm).X());
+             theSmallTree.m_METy_eleup.push_back(vMET_shift_ees.first.at(idm).Y());
+             theSmallTree.m_METx_eledown.push_back(vMET_shift_ees.second.at(idm).X());
+             theSmallTree.m_METy_eledown.push_back(vMET_shift_ees.second.at(idm).Y());
+           }
+	   
+	}
 
         // Shifted MET for MES 
         auto vMET_shift_mes = getShiftedMET_mes(vMET, theBigTree, DEBUG);
@@ -3961,15 +3962,15 @@ int main (int argc, char** argv)
             theSmallTree.m_HHkinsvfit_m   = tlv_HHsvfit.M () ;
           } // in case the SVFIT mass is calculated
 
-          // raw kinfit TES up
-          bool wrongHHKraw_tauup =false;
-          try {kinFitsraw_tauup.fit();}
-          catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_tauup=true;}
-          catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_tauup=true;}
-          catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_tauup=true;}
-          if(!wrongHHKraw_tauup){theSmallTree.m_HHKin_mass_raw_tauup = kinFitsraw_tauup.getMH();}
-          else theSmallTree.m_HHKin_mass_raw_tauup = -100 ;
-
+//           // raw kinfit TES up
+//           bool wrongHHKraw_tauup =false;
+//           try {kinFitsraw_tauup.fit();}
+//           catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_tauup=true;}
+//           catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_tauup=true;}
+//           catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_tauup=true;}
+//           if(!wrongHHKraw_tauup){theSmallTree.m_HHKin_mass_raw_tauup = kinFitsraw_tauup.getMH();}
+//           else theSmallTree.m_HHKin_mass_raw_tauup = -100 ;
+// 
 //           // raw kinfit TES down
 //           bool wrongHHKraw_taudown =false;
 //           try {kinFitsraw_taudown.fit();}
