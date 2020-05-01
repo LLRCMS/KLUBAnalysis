@@ -3464,8 +3464,8 @@ int main (int argc, char** argv)
            theSmallTree.m_bjet2_pt_raw_jetdown.push_back(tlv_secondBjet_raw_jetdown[isource].Pt()); 
 	   
            // variations propagated to bH 
-           tlv_bH_raw_jetup.push_back(tlv_firstBjet_raw_jetup[isource] + tlv_secondBjet_raw_jetup[isource]) ;
-           tlv_bH_raw_jetdown.push_back(tlv_firstBjet_raw_jetdown[isource] + tlv_secondBjet_raw_jetdown[isource]);
+           tlv_bH_raw_jetup.push_back(tlv_firstBjet_raw_jetup.at(isource) + tlv_secondBjet_raw_jetup.at(isource)) ;
+           tlv_bH_raw_jetdown.push_back(tlv_firstBjet_raw_jetdown.at(isource) + tlv_secondBjet_raw_jetdown.at(isource));
            theSmallTree.m_bH_mass_raw_jetup.push_back((tlv_bH_raw_jetup[isource]).M());
            theSmallTree.m_bH_mass_raw_jetdown.push_back((tlv_bH_raw_jetdown[isource]).M());
            theSmallTree.m_bH_pt_raw_jetup.push_back((tlv_bH_raw_jetup[isource]).Pt());
