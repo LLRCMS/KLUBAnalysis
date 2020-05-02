@@ -4275,6 +4275,8 @@ int main (int argc, char** argv)
         theSmallTree.m_VBFjet2_pt_jetdown  .resize(N_jecSources,-999.);
         theSmallTree.m_VBFjet2_mass_jetup  .resize(N_jecSources,-999.);
         theSmallTree.m_VBFjet2_mass_jetdown.resize(N_jecSources,-999.);
+        theSmallTree.m_VBFjj_mass_jetup    .resize(N_jecSources,-999.);
+        theSmallTree.m_VBFjj_mass_jetdown  .resize(N_jecSources,-999.);
 
         // Save other VBF related quantities
         if ( theBigTree.jets_px->size()> 1 && VBFcand_Mjj.size()>0 )
@@ -4334,8 +4336,8 @@ int main (int argc, char** argv)
            VBFjj_jetup[isource] = VBFjet1_jetup[isource] + VBFjet2_jetup[isource];
            VBFjj_jetdown[isource] = VBFjet1_jetdown[isource] + VBFjet2_jetdown[isource];
 	      
-           theSmallTree.m_VBFjj_mass_jetup.push_back(VBFjj_jetup[isource].M());
-           theSmallTree.m_VBFjj_mass_jetdown.push_back(VBFjj_jetdown[isource].M());
+           theSmallTree.m_VBFjj_mass_jetup  [isource] = VBFjj_jetup[isource].M();
+           theSmallTree.m_VBFjj_mass_jetdown[isource] = VBFjj_jetdown[isource].M();
 
  	  }
 
