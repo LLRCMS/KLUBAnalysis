@@ -136,8 +136,8 @@ float ComputeMT (TLorentzVector visP4, TLorentzVector METP4)
 int main (int argc, char** argv)
 {
 
-  //TString inputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/DNN2/CMSSW_10_2_16/src/KLUBAnalysis/skimmed_output1_ALL.root"; // FIXME: read from cfg file
-  TString inputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/DNN2/CMSSW_10_2_16/src/KLUBAnalysis/skimmed_output1_SYST.root";  // FIXME: read from cfg file
+  //TString inputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/DNN2/CMSSW_10_2_16/src/KLUBAnalysis/skimmed_output1_SYST.root";  // FIXME: read from cfg file
+  TString inputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/DNN2/CMSSW_10_2_16/src/KLUBAnalysis/skimmed_output2016_SYST.root";  // FIXME: read from cfg file
   TString outputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/DNN2/CMSSW_10_2_16/src/KLUBAnalysis/systTEST_MES.root";         // FIXME: read from cfg file
   cout << "** INFO: inputFile  : " << inputFileName << endl;
   cout << "** INFO: outputFile : " << outputFileName << endl;
@@ -148,11 +148,11 @@ int main (int argc, char** argv)
   bool doDNN    = true; // FIXME: read from cfg file
   bool doBDT    = true; // FIXME: read from cfg file
 
-  bool doMES       = true; // FIXME: read from cfg file
-  bool doEES       = true; // FIXME: read from cfg file
-  bool doTES       = true; // FIXME: read from cfg file
-  bool doSplitJES  = true; // FIXME: read from cfg file
-  bool doSingleJES = true; // FIXME: read from cfg file
+  bool doMES      = true; // FIXME: read from cfg file
+  bool doEES      = true; // FIXME: read from cfg file
+  bool doTES      = true; // FIXME: read from cfg file
+  bool doSplitJES = true; // FIXME: read from cfg file
+  bool doTotalJES = true; // FIXME: read from cfg file
 
   // Input setup
   TFile *inputFile = new TFile (inputFileName, "read") ;
@@ -242,6 +242,13 @@ int main (int argc, char** argv)
   "bjet2_pt_raw_jetdown7","bjet2_pt_raw_jetdown8","bjet2_pt_raw_jetdown9",
   "bjet2_pt_raw_jetdown10","bjet2_pt_raw_jetdown11",
 
+  "bjet1_pt_raw_jetupTot","bjet1_pt_raw_jetdownTot",                   // b-jets JES Total
+  "bjet1_mass_raw_jetupTot","bjet1_mass_raw_jetdownTot",
+  "bjet1_JER_jetupTot","bjet1_JER_jetdownTot",
+  "bjet2_pt_raw_jetupTot","bjet2_pt_raw_jetdownTot",
+  "bjet2_mass_raw_jetupTot","bjet2_mass_raw_jetdownTot",
+  "bjet2_JER_jetupTot","bjet2_JER_jetdownTot",
+
   "bH_mass_raw_jetup1","bH_mass_raw_jetup2","bH_mass_raw_jetup3",      // bH masses JES
   "bH_mass_raw_jetup4","bH_mass_raw_jetup5","bH_mass_raw_jetup6",
   "bH_mass_raw_jetup7","bH_mass_raw_jetup8","bH_mass_raw_jetup9",
@@ -250,6 +257,8 @@ int main (int argc, char** argv)
   "bH_mass_raw_jetdown4","bH_mass_raw_jetdown5","bH_mass_raw_jetdown6",
   "bH_mass_raw_jetdown7","bH_mass_raw_jetdown8","bH_mass_raw_jetdown9",
   "bH_mass_raw_jetdown10","bH_mass_raw_jetdown11",
+
+  "bH_mass_raw_jetupTot","bH_mass_raw_jetdownTot",                     // bH masses JES Total
 
   "VBFjet1_pt","VBFjet1_eta","VBFjet1_phi","VBFjet1_e",                // VBF-jets
   "VBFjet2_pt","VBFjet2_eta","VBFjet2_phi","VBFjet2_e",
@@ -275,6 +284,11 @@ int main (int argc, char** argv)
   "VBFjet2_pt_jetdown7","VBFjet2_pt_jetdown8","VBFjet2_pt_jetdown9",
   "VBFjet2_pt_jetdown10","VBFjet2_pt_jetdown11",
 
+  "VBFjet1_pt_jetupTot","VBFjet1_pt_jetdownTot",                       // VBF-jets JES Total
+  "VBFjet1_mass_jetupTot","VBFjet1_mass_jetdownTot",
+  "VBFjet2_pt_jetupTot","VBFjet2_pt_jetdownTot",
+  "VBFjet2_mass_jetupTot","VBFjet2_mass_jetdownTot",
+
   "VBFjj_mass_jetup1","VBFjj_mass_jetup2","VBFjj_mass_jetup3",         // VBFjj mass JES
   "VBFjj_mass_jetup4","VBFjj_mass_jetup5","VBFjj_mass_jetup6",
   "VBFjj_mass_jetup7","VBFjj_mass_jetup8","VBFjj_mass_jetup9",
@@ -284,6 +298,8 @@ int main (int argc, char** argv)
   "VBFjj_mass_jetdown7","VBFjj_mass_jetdown8","VBFjj_mass_jetdown9",
   "VBFjj_mass_jetdown10","VBFjj_mass_jetdown11",
 
+  "VBFjj_mass_jetupTot","VBFjj_mass_jetdownTot",                       // VBFjj mass JES Total
+
   "met_phi","met_et","METx","METy",                                    // MET
   "met_cov00","met_cov01","met_cov10","met_cov11",
 
@@ -291,11 +307,14 @@ int main (int argc, char** argv)
   "METx_eleup","METy_eleup","METx_eledown","METy_eledown",             // MET EES
   "METx_tauup","METy_tauup","METx_taudown","METy_taudown",             // MET TES
   "METx_jetup","METy_jetup","METx_jetdown","METy_jetdown",             // MET JES
+  "METx_jetupTot","METy_jetupTot",                                     // MET JES Total
+  "METx_jetdownTot","METy_jetdownTot",
 
   "VBFjj_mass", "VBFjj_deltaEta",                                      // VBF selection
 
   "BDT_HT20",                                                          // BDT_HT20
   "BDT_HT20_jetup","BDT_HT20_jetdown",                                 // BDT_HT20 JES
+  "BDT_HT20_jetupTot","BDT_HT20_jetdownTot",                           // BDT_HT20 JES Total
 
   "HHKin_mass","HHKin_chi2", "MT2",                                    // Old values KinFit, MT2, SVfit, DNN, BDT
   "tauH_SVFIT_pt","tauH_SVFIT_eta","tauH_SVFIT_phi","tauH_SVFIT_mass",
@@ -397,6 +416,15 @@ int main (int argc, char** argv)
   std::vector<Float_t> *VBFjet2_pt_jetup, *VBFjet2_pt_jetdown, *VBFjet2_mass_jetup, *VBFjet2_mass_jetdown;
   std::vector<Float_t> *BDT_HT20_jetup, *BDT_HT20_jetdown;
 
+  Float_t METx_jetupTot, METy_jetupTot, METx_jetdownTot, METy_jetdownTot;
+  Float_t bjet1_pt_raw_jetupTot, bjet1_pt_raw_jetdownTot, bjet1_mass_raw_jetupTot, bjet1_mass_raw_jetdownTot;
+  Float_t bjet2_pt_raw_jetupTot, bjet2_pt_raw_jetdownTot, bjet2_mass_raw_jetupTot, bjet2_mass_raw_jetdownTot;
+  Float_t bjet1_JER_jetupTot, bjet1_JER_jetdownTot;
+  Float_t bjet2_JER_jetupTot, bjet2_JER_jetdownTot;
+  Float_t VBFjet1_pt_jetupTot, VBFjet1_pt_jetdownTot, VBFjet1_mass_jetupTot, VBFjet1_mass_jetdownTot;
+  Float_t VBFjet2_pt_jetupTot, VBFjet2_pt_jetdownTot, VBFjet2_mass_jetupTot, VBFjet2_mass_jetdownTot;
+  Float_t BDT_HT20_jetupTot, BDT_HT20_jetdownTot;
+
   outTree->SetBranchAddress("EventNumber" , &EventNumber);
   outTree->SetBranchAddress("isBoosted"   , &isBoosted);
   outTree->SetBranchAddress("isVBF"       , &isVBF);
@@ -463,6 +491,19 @@ int main (int argc, char** argv)
   outTree->SetBranchAddress("bjet2_JER_jetup"        , &bjet2_JER_jetup);
   outTree->SetBranchAddress("bjet2_JER_jetdown"      , &bjet2_JER_jetdown);
 
+  outTree->SetBranchAddress("bjet1_pt_raw_jetupTot"     , &bjet1_pt_raw_jetupTot);
+  outTree->SetBranchAddress("bjet1_pt_raw_jetdownTot"   , &bjet1_pt_raw_jetdownTot);
+  outTree->SetBranchAddress("bjet1_mass_raw_jetupTot"   , &bjet1_mass_raw_jetupTot);
+  outTree->SetBranchAddress("bjet1_mass_raw_jetdownTot" , &bjet1_mass_raw_jetdownTot);
+  outTree->SetBranchAddress("bjet2_pt_raw_jetupTot"     , &bjet2_pt_raw_jetupTot);
+  outTree->SetBranchAddress("bjet2_pt_raw_jetdownTot"   , &bjet2_pt_raw_jetdownTot);
+  outTree->SetBranchAddress("bjet2_mass_raw_jetupTot"   , &bjet2_mass_raw_jetupTot);
+  outTree->SetBranchAddress("bjet2_mass_raw_jetdownTot" , &bjet2_mass_raw_jetdownTot);
+  outTree->SetBranchAddress("bjet1_JER_jetupTot"        , &bjet1_JER_jetupTot);
+  outTree->SetBranchAddress("bjet1_JER_jetdownTot"      , &bjet1_JER_jetdownTot);
+  outTree->SetBranchAddress("bjet2_JER_jetupTot"        , &bjet2_JER_jetupTot);
+  outTree->SetBranchAddress("bjet2_JER_jetdownTot"      , &bjet2_JER_jetdownTot);
+
   outTree->SetBranchAddress("VBFjet1_pt" , &vbfjet1_pt);
   outTree->SetBranchAddress("VBFjet1_eta", &vbfjet1_eta);
   outTree->SetBranchAddress("VBFjet1_phi", &vbfjet1_phi);
@@ -480,6 +521,15 @@ int main (int argc, char** argv)
   outTree->SetBranchAddress("VBFjet2_pt_jetdown"   , &VBFjet2_pt_jetdown);
   outTree->SetBranchAddress("VBFjet2_mass_jetup"   , &VBFjet2_mass_jetup);
   outTree->SetBranchAddress("VBFjet2_mass_jetdown" , &VBFjet2_mass_jetdown);
+
+  outTree->SetBranchAddress("VBFjet1_pt_jetupTot"     , &VBFjet1_pt_jetupTot);
+  outTree->SetBranchAddress("VBFjet1_pt_jetdownTot"   , &VBFjet1_pt_jetdownTot);
+  outTree->SetBranchAddress("VBFjet1_mass_jetupTot"   , &VBFjet1_mass_jetupTot);
+  outTree->SetBranchAddress("VBFjet1_mass_jetdownTot" , &VBFjet1_mass_jetdownTot);
+  outTree->SetBranchAddress("VBFjet2_pt_jetupTot"     , &VBFjet2_pt_jetupTot);
+  outTree->SetBranchAddress("VBFjet2_pt_jetdownTot"   , &VBFjet2_pt_jetdownTot);
+  outTree->SetBranchAddress("VBFjet2_mass_jetupTot"   , &VBFjet2_mass_jetupTot);
+  outTree->SetBranchAddress("VBFjet2_mass_jetdownTot" , &VBFjet2_mass_jetdownTot);
 
   outTree->SetBranchAddress("bjet1_bID_deepFlavor" , &bjet1_bID_deepFlavor);
   outTree->SetBranchAddress("bjet2_bID_deepFlavor" , &bjet2_bID_deepFlavor);
@@ -509,10 +559,16 @@ int main (int argc, char** argv)
   outTree->SetBranchAddress("METy_jetup"  , &METy_jetup);
   outTree->SetBranchAddress("METx_jetdown", &METx_jetdown);
   outTree->SetBranchAddress("METy_jetdown", &METy_jetdown);
+  outTree->SetBranchAddress("METx_jetupTot"  , &METx_jetupTot);
+  outTree->SetBranchAddress("METy_jetupTot"  , &METy_jetupTot);
+  outTree->SetBranchAddress("METx_jetdownTot", &METx_jetdownTot);
+  outTree->SetBranchAddress("METy_jetdownTot", &METy_jetdownTot);
 
   outTree->SetBranchAddress("BDT_HT20"        , &BDT_HT20);
   outTree->SetBranchAddress("BDT_HT20_jetup"  , &BDT_HT20_jetup);
   outTree->SetBranchAddress("BDT_HT20_jetdown", &BDT_HT20_jetdown);
+  outTree->SetBranchAddress("BDT_HT20_jetupTot"  , &BDT_HT20_jetupTot);
+  outTree->SetBranchAddress("BDT_HT20_jetdownTot", &BDT_HT20_jetdownTot);
 
   outTree->SetBranchAddress("MT2", &MT2);                         // FIXME: To be removed later
   outTree->SetBranchAddress("HHKin_mass", &HHKin_mass);           // FIXME: To be removed later
@@ -630,6 +686,16 @@ int main (int argc, char** argv)
     b_DNNoutSM_kl_1_jetdown  .push_back(tmp_DNN_down_branch);
     b_BDToutSM_kl_1_jetdown  .push_back(tmp_DBT_down_branch);
   }
+
+  // JES variations Total
+  Float_t tauH_SVFIT_mass_jetupTot, DNNoutSM_kl_1_jetupTot, BDToutSM_kl_1_jetupTot;
+  Float_t tauH_SVFIT_mass_jetdownTot, DNNoutSM_kl_1_jetdownTot, BDToutSM_kl_1_jetdownTot;
+  TBranch* b_tauH_SVFIT_mass_jetupTot   = outTree->Branch("tauH_SVFIT_mass_jetupTot"  , &tauH_SVFIT_mass_jetupTot);
+  TBranch* b_DNNoutSM_kl_1_jetupTot     = outTree->Branch("DNNoutSM_kl_1_jetupTot"    , &DNNoutSM_kl_1_jetupTot);
+  TBranch* b_BDToutSM_kl_1_jetupTot     = outTree->Branch("BDToutSM_kl_1_jetupTot"    , &BDToutSM_kl_1_jetupTot);
+  TBranch* b_tauH_SVFIT_mass_jetdownTot = outTree->Branch("tauH_SVFIT_mass_jetdownTot", &tauH_SVFIT_mass_jetdownTot);
+  TBranch* b_DNNoutSM_kl_1_jetdownTot   = outTree->Branch("DNNoutSM_kl_1_jetdownTot"  , &DNNoutSM_kl_1_jetdownTot);
+  TBranch* b_BDToutSM_kl_1_jetdownTot   = outTree->Branch("BDToutSM_kl_1_jetdownTot"  , &BDToutSM_kl_1_jetdownTot);
 
   // Loop on selected entries
   cout << "** INFO: Adding new branches..." << endl;
@@ -1496,6 +1562,185 @@ int main (int argc, char** argv)
       }
     }  // End doSplitJES
 
+    // ---- ---- ---- ---- ---- ---- ----
+    // ---- ----  Do total JES  ---- ----
+    // ---- ---- ---- ---- ---- ---- ----
+    if (doTotalJES)
+    {
+      // Build shifted b-jets, MET and VBF-jets
+      TLorentzVector bjet1_jetupTot, bjet2_jetupTot, met_jetupTot;
+      bjet1_jetupTot.SetPtEtaPhiM(bjet1_pt_raw_jetupTot, bjet1_eta, bjet1_phi, bjet1_mass_raw_jetupTot);
+      bjet2_jetupTot.SetPtEtaPhiM(bjet2_pt_raw_jetupTot, bjet2_eta, bjet2_phi, bjet2_mass_raw_jetupTot);
+      met_jetupTot  .SetPxPyPzE(METx_jetupTot, METy_jetupTot, 0, std::hypot(METx_jetupTot, METy_jetupTot));
+      TVector2 ptmiss_jetupTot = TVector2(METx_jetupTot, METy_jetupTot);
+
+      TLorentzVector bjet1_jetdownTot, bjet2_jetdownTot, met_jetdownTot;
+      bjet1_jetdownTot.SetPtEtaPhiM(bjet1_pt_raw_jetdownTot, bjet1_eta, bjet1_phi, bjet1_mass_raw_jetdownTot);
+      bjet2_jetdownTot.SetPtEtaPhiM(bjet2_pt_raw_jetdownTot, bjet2_eta, bjet2_phi, bjet2_mass_raw_jetdownTot);
+      met_jetdownTot  .SetPxPyPzE(METx_jetdownTot, METy_jetdownTot, 0, std::hypot(METx_jetdownTot, METy_jetdownTot));
+      TVector2 ptmiss_jetdownTot = TVector2(METx_jetdownTot, METy_jetdownTot);
+
+      TLorentzVector vbfjet1_jetupTot, vbfjet2_jetupTot;
+      vbfjet1_jetupTot.SetPtEtaPhiM(VBFjet1_pt_jetupTot, vbfjet1_eta, vbfjet1_phi, VBFjet1_mass_jetupTot);
+      vbfjet2_jetupTot.SetPtEtaPhiM(VBFjet2_pt_jetupTot, vbfjet2_eta, vbfjet1_phi, VBFjet2_mass_jetupTot);
+
+      TLorentzVector vbfjet1_jetdownTot, vbfjet2_jetdownTot;
+      vbfjet1_jetdownTot.SetPtEtaPhiM(VBFjet1_pt_jetdownTot, vbfjet1_eta, vbfjet1_phi, VBFjet1_mass_jetdownTot);
+      vbfjet2_jetdownTot.SetPtEtaPhiM(VBFjet2_pt_jetdownTot, vbfjet2_eta, vbfjet1_phi, VBFjet2_mass_jetdownTot);
+
+      // Declare other useful shifted variables
+      float HHKin_mass_jetupTot, HHKin_chi2_jetupTot, HHKin_mass_jetdownTot, HHKin_chi2_jetdownTot;
+      float MT2_jetupTot, MT2_jetdownTot;
+      float tauH_SVFIT_pt_jetupTot, tauH_SVFIT_eta_jetupTot, tauH_SVFIT_phi_jetupTot;
+      float tauH_SVFIT_pt_jetdownTot, tauH_SVFIT_eta_jetdownTot, tauH_SVFIT_phi_jetdownTot;
+
+      if (doKinFit)
+      {
+        HHKinFit2::HHKinFitMasterHeavyHiggs kinFits_jetupTot = HHKinFit2::HHKinFitMasterHeavyHiggs(bjet1_jetupTot, bjet2_jetupTot, tau1, tau2, ptmiss_jetupTot, stableMetCov, bjet1_JER_jetupTot, bjet2_JER_jetupTot) ;
+        kinFits_jetupTot.addHypo(hypo_mh1,hypo_mh2);
+        bool wrongHHK_jetupTot =false;
+        try {kinFits_jetupTot.fit();}
+        catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK_jetupTot=true;}
+        catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK_jetupTot=true;}
+        catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK_jetupTot=true;}
+        if(!wrongHHK_jetupTot)
+        {
+          HHKin_mass_jetupTot = kinFits_jetupTot.getMH();
+          HHKin_chi2_jetupTot = kinFits_jetupTot.getChi2();
+        }
+        else
+        {
+          HHKin_mass_jetupTot = -333.;
+          HHKin_chi2_jetupTot = 0.;
+        }
+
+        HHKinFit2::HHKinFitMasterHeavyHiggs kinFits_jetdownTot = HHKinFit2::HHKinFitMasterHeavyHiggs(bjet1_jetdownTot, bjet2_jetdownTot, tau1, tau2, ptmiss_jetdownTot, stableMetCov, bjet1_JER_jetdownTot, bjet2_JER_jetdownTot);
+        kinFits_jetdownTot.addHypo(hypo_mh1,hypo_mh2);
+        bool wrongHHK_jetdownTot =false;
+        try {kinFits_jetdownTot.fit();}
+        catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK_jetdownTot=true;}
+        catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK_jetdownTot=true;}
+        catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK_jetdownTot=true;}
+        if(!wrongHHK_jetdownTot)
+        {
+          HHKin_mass_jetdownTot = kinFits_jetdownTot.getMH();
+          HHKin_chi2_jetdownTot = kinFits_jetdownTot.getChi2();
+        }
+        else
+        {
+          HHKin_mass_jetdownTot = -333.;
+          HHKin_chi2_jetdownTot = 0.;
+        }
+      }
+
+      if (doMT2)
+      {
+        MT2_jetupTot = asymm_mt2_lester_bisect::get_mT2( bjet1_jetupTot.M(), bjet1_jetupTot.Px(), bjet1_jetupTot.Py(),
+                                                         bjet2_jetupTot.M(), bjet2_jetupTot.Px(), bjet2_jetupTot.Py(),
+                                                         (tau1.Px() + tau2.Px() + met.Px()),
+                                                         (tau1.Py() + tau2.Py() + met.Py()),
+                                                         tau1.M(), tau2.M(), desiredPrecisionOnMt2);
+
+        MT2_jetdownTot = asymm_mt2_lester_bisect::get_mT2( bjet1_jetdownTot.M(), bjet1_jetdownTot.Px(), bjet1_jetdownTot.Py(),
+                                                           bjet2_jetdownTot.M(), bjet2_jetdownTot.Px(), bjet2_jetdownTot.Py(),
+                                                           (tau1.Px() + tau2.Px() + met.Px()),
+                                                           (tau1.Py() + tau2.Py() + met.Py()),
+                                                           tau1.M(), tau2.M(), desiredPrecisionOnMt2);
+      }
+
+      if (doSVfit)
+      {
+        SVfitKLUBinterface algo_jetupTot(0, tau1, tau2, met_jetupTot, stableMetCov, pType, DM1, DM2);
+        std::vector<double> svfitRes_jetupTot = algo_jetupTot.FitAndGetResult();
+        tauH_SVFIT_pt_jetupTot   = svfitRes_jetupTot.at(0);
+        tauH_SVFIT_eta_jetupTot  = svfitRes_jetupTot.at(1);
+        tauH_SVFIT_phi_jetupTot  = svfitRes_jetupTot.at(2);
+        tauH_SVFIT_mass_jetupTot = svfitRes_jetupTot.at(3);
+
+        SVfitKLUBinterface algo_jetdownTot(0, tau1, tau2, met_jetdownTot, stableMetCov, pType, DM1, DM2);
+        std::vector<double> svfitRes_jetdownTot = algo_jetdownTot.FitAndGetResult();
+        tauH_SVFIT_pt_jetdownTot   = svfitRes_jetdownTot.at(0);
+        tauH_SVFIT_eta_jetdownTot  = svfitRes_jetdownTot.at(1);
+        tauH_SVFIT_phi_jetdownTot  = svfitRes_jetdownTot.at(2);
+        tauH_SVFIT_mass_jetdownTot = svfitRes_jetdownTot.at(3);
+      }
+
+      // --- --- --- JES Total DNN/BDT quantities --- --- ---
+      TLorentzVector svfit_jetupTot;
+      svfit_jetupTot.SetPtEtaPhiM(tauH_SVFIT_pt_jetupTot, tauH_SVFIT_eta_jetupTot, tauH_SVFIT_phi_jetupTot, tauH_SVFIT_mass_jetupTot);
+      float mTtot_jetupTot                         = Calculate_TotalMT(tau1, tau2, met_jetupTot);
+      float pzeta_vis_jetupTot                     = Calculate_visiblePzeta(tau1, tau2);
+      float pzeta_jetupTot                         = Calculate_Pzeta(tau1, tau2, met_jetupTot);
+      float mt1_jetupTot                           = ComputeMT(tau1, met_jetupTot);
+      float mt2_jetupTot                           = ComputeMT(tau2, met_jetupTot);
+      float BDT_ditau_deltaPhi_jetupTot            = ROOT::Math::VectorUtil::DeltaPhi(tau1, tau2);
+      float BDT_tauHsvfitMet_deltaPhi_jetupTot     = ROOT::Math::VectorUtil::DeltaPhi(svfit_jetupTot, met_jetupTot);
+      float mT_tauH_MET_jetupTot                   = Calculate_MT( (tau1+tau2)+met_jetupTot, met_jetupTot);
+      float BDT_MX_jetupTot                        = Calculate_MX(tau1, tau2, bjet1_jetupTot, bjet2_jetupTot, met_jetupTot);
+      float BDT_bH_tauH_MET_InvMass_jetupTot       = ROOT::Math::VectorUtil::InvariantMass((bjet1_jetupTot+bjet2_jetupTot), (tau1+tau2)+met_jetupTot);
+      float BDT_bH_tauH_SVFIT_InvMass_jetupTot     = ROOT::Math::VectorUtil::InvariantMass((bjet1_jetupTot+bjet2_jetupTot), svfit_jetupTot);
+      float BDT_bH_tauH_InvMass_jetupTot           = ROOT::Math::VectorUtil::InvariantMass((bjet1_jetupTot+bjet2_jetupTot), (tau1+tau2));
+      float BDT_MET_bH_cosTheta_jetupTot           = Calculate_cosTheta_2bodies(getLVfromTLV(met_jetupTot), getLVfromTLV(bjet1_jetupTot+bjet2_jetupTot));
+      std::pair<double, double> topMasses_jetupTot = Calculate_topPairMasses(getLVfromTLV(tau1), getLVfromTLV(tau2), getLVfromTLV(bjet1_jetupTot), getLVfromTLV(bjet2_jetupTot), getLVfromTLV(met_jetupTot));
+      bool KinFitConv_jetupTot                     = HHKin_chi2_jetupTot > 0;
+      bool SVfitConv_jetupTot                      = tauH_SVFIT_mass_jetupTot > 0;
+
+      TLorentzVector svfit_jetdownTot;
+      svfit_jetdownTot.SetPtEtaPhiM(tauH_SVFIT_pt_jetdownTot, tauH_SVFIT_eta_jetdownTot, tauH_SVFIT_phi_jetdownTot, tauH_SVFIT_mass_jetdownTot);
+      float mTtot_jetdownTot                         = Calculate_TotalMT(tau1, tau2, met_jetdownTot);
+      float pzeta_vis_jetdownTot                     = Calculate_visiblePzeta(tau1, tau2);
+      float pzeta_jetdownTot                         = Calculate_Pzeta(tau1, tau2, met_jetdownTot);
+      float mt1_jetdownTot                           = ComputeMT(tau1, met_jetdownTot);
+      float mt2_jetdownTot                           = ComputeMT(tau2, met_jetdownTot);
+      float BDT_ditau_deltaPhi_jetdownTot            = ROOT::Math::VectorUtil::DeltaPhi(tau1, tau2);
+      float BDT_tauHsvfitMet_deltaPhi_jetdownTot     = ROOT::Math::VectorUtil::DeltaPhi(svfit_jetdownTot, met_jetdownTot);
+      float mT_tauH_MET_jetdownTot                   = Calculate_MT( (tau1+tau2)+met_jetdownTot, met_jetdownTot);
+      float BDT_MX_jetdownTot                        = Calculate_MX(tau1, tau2, bjet1_jetdownTot, bjet2_jetdownTot, met_jetdownTot);
+      float BDT_bH_tauH_MET_InvMass_jetdownTot       = ROOT::Math::VectorUtil::InvariantMass((bjet1_jetdownTot+bjet2_jetdownTot), (tau1+tau2)+met_jetdownTot);
+      float BDT_bH_tauH_SVFIT_InvMass_jetdownTot     = ROOT::Math::VectorUtil::InvariantMass((bjet1_jetdownTot+bjet2_jetdownTot), svfit_jetdownTot);
+      float BDT_bH_tauH_InvMass_jetdownTot           = ROOT::Math::VectorUtil::InvariantMass((bjet1_jetdownTot+bjet2_jetdownTot), (tau1+tau2));
+      float BDT_MET_bH_cosTheta_jetdownTot           = Calculate_cosTheta_2bodies(getLVfromTLV(met_jetdownTot), getLVfromTLV(bjet1_jetdownTot+bjet2_jetdownTot));
+      std::pair<double, double> topMasses_jetdownTot = Calculate_topPairMasses(getLVfromTLV(tau1), getLVfromTLV(tau2), getLVfromTLV(bjet1_jetdownTot), getLVfromTLV(bjet2_jetdownTot), getLVfromTLV(met_jetdownTot));
+      bool KinFitConv_jetdownTot                     = HHKin_chi2_jetdownTot > 0;
+      bool SVfitConv_jetdownTot                      = tauH_SVFIT_mass_jetdownTot > 0;
+
+      if (doDNN)
+      {
+        DNNreader.SetShiftedInputs(bjet1_jetupTot, bjet2_jetupTot, tau1, tau2, vbfjet1_jetupTot, vbfjet2_jetupTot, met_jetupTot, svfit_jetupTot,
+            HHKin_mass_jetupTot, HHKin_chi2_jetupTot, KinFitConv_jetupTot, SVfitConv_jetupTot, MT2_jetupTot,
+            mTtot_jetupTot, pzeta_vis_jetupTot, pzeta_jetupTot, topMasses_jetupTot.first, topMasses_jetupTot.second, mt1_jetupTot, mt2_jetupTot);
+        std::vector<float> outs_jetupTot = DNNreader.GetPredictions();
+        DNNoutSM_kl_1_jetupTot = outs_jetupTot.at(0);
+
+        DNNreader.SetShiftedInputs(bjet1_jetdownTot, bjet2_jetdownTot, tau1, tau2, vbfjet1_jetdownTot, vbfjet2_jetdownTot, met_jetdownTot, svfit_jetdownTot,
+            HHKin_mass_jetdownTot, HHKin_chi2_jetdownTot, KinFitConv_jetdownTot, SVfitConv_jetdownTot, MT2_jetdownTot,
+            mTtot_jetdownTot, pzeta_vis_jetdownTot, pzeta_jetdownTot, topMasses_jetdownTot.first, topMasses_jetdownTot.second, mt1_jetdownTot, mt2_jetdownTot);
+        std::vector<float> outs_jetdownTot = DNNreader.GetPredictions();
+        DNNoutSM_kl_1_jetdownTot = outs_jetdownTot.at(0);
+      }
+
+      if (doBDT)
+      {
+        BDTreader.SetInputValues(bjet2_jetupTot.Pt(), (bjet1_jetupTot+bjet2_jetupTot).Pt(), tau1.Pt(),
+          tau2.Pt(), svfit_jetupTot.Pt(), BDT_channel,
+          BDT_HT20_jetupTot, pzeta_jetupTot, pzeta_vis_jetupTot, BDT_ditau_deltaPhi_jetupTot,
+          BDT_tauHsvfitMet_deltaPhi_jetupTot, mT_tauH_MET_jetupTot, mTtot_jetupTot, MT2_jetupTot,
+          BDT_MX_jetupTot, BDT_bH_tauH_MET_InvMass_jetupTot, BDT_bH_tauH_SVFIT_InvMass_jetupTot,
+          BDT_bH_tauH_InvMass_jetupTot, HHKin_mass_jetupTot, HHKin_chi2_jetupTot, BDT_MET_bH_cosTheta_jetupTot);
+        std::vector<float> BDTouts_jetupTot = BDTreader.GetPredictions();
+        BDToutSM_kl_1_jetupTot = BDTouts_jetupTot.at(0);
+
+        BDTreader.SetInputValues(bjet2_jetdownTot.Pt(), (bjet1_jetdownTot+bjet2_jetdownTot).Pt(), tau1.Pt(),
+          tau2.Pt(), svfit_jetdownTot.Pt(), BDT_channel,
+          BDT_HT20_jetdownTot, pzeta_jetdownTot, pzeta_vis_jetdownTot, BDT_ditau_deltaPhi_jetdownTot,
+          BDT_tauHsvfitMet_deltaPhi_jetdownTot, mT_tauH_MET_jetdownTot, mTtot, MT2_jetdownTot,
+          BDT_MX_jetdownTot, BDT_bH_tauH_MET_InvMass_jetdownTot, BDT_bH_tauH_SVFIT_InvMass_jetdownTot,
+          BDT_bH_tauH_InvMass_jetdownTot, HHKin_mass_jetdownTot, HHKin_chi2_jetdownTot, BDT_MET_bH_cosTheta_jetdownTot);
+        std::vector<float> BDTouts_jetdownTot = BDTreader.GetPredictions();
+        BDToutSM_kl_1_jetdownTot = BDTouts_jetdownTot.at(0);
+      }
+    }
+
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
     // Fill new branches
     // Central values
@@ -1567,6 +1812,14 @@ int main (int argc, char** argv)
       b_DNNoutSM_kl_1_jetdown  .at(i)->Fill();
       b_BDToutSM_kl_1_jetdown  .at(i)->Fill();
     }
+
+    // JES Total variations
+    b_tauH_SVFIT_mass_jetupTot  ->Fill();
+    b_DNNoutSM_kl_1_jetupTot    ->Fill();
+    b_BDToutSM_kl_1_jetupTot    ->Fill();
+    b_tauH_SVFIT_mass_jetdownTot->Fill();
+    b_DNNoutSM_kl_1_jetdownTot  ->Fill();
+    b_BDToutSM_kl_1_jetdownTot  ->Fill();
   }
   cout << "** INFO: ..Added new branches" << endl;
   cout << "** INFO: Final entries: " << outTree->GetEntries() << endl;
