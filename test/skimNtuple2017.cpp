@@ -4048,12 +4048,6 @@ int main (int argc, char** argv)
         {
           HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton, ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
           HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
-          //HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_tauup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_tauup, tlv_secondLepton_tauup,  ptmiss_tauup, stableMetCov, bjet1_JER, bjet2_JER) ; ///CHIA
-	        // HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_taudown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_taudown, tlv_secondLepton_taudown,  ptmiss_taudown, stableMetCov, bjet1_JER, bjet2_JER) ; //CHIA
-          //HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw_jetup, tlv_secondBjet_raw_jetup, tlv_firstLepton, tlv_secondLepton,  ptmiss_jetup, stableMetCov, bjet1_JER, bjet2_JER) ; //CHIA
-          //HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_jetdown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw_jetdown, tlv_secondBjet_raw_jetdown, tlv_firstLepton, tlv_secondLepton,  ptmiss_jetdown, stableMetCov, bjet1_JER, bjet2_JER) ;
-          //HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_eleup = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_eleup, tlv_secondLepton_eleup,  ptmiss_eleup, stableMetCov, bjet1_JER, bjet2_JER) ; //CHIA
-          //HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw_eledown = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet_raw, tlv_secondBjet_raw, tlv_firstLepton_eledown, tlv_secondLepton_eledown,  ptmiss_eledown, stableMetCov, bjet1_JER, bjet2_JER) ; //CHIA
 
           //           kinFits.setAdvancedBalance (&ptmiss, metcov) ;
           //           kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
@@ -4062,12 +4056,6 @@ int main (int argc, char** argv)
           //           kinFits.addMh2Hypothesis (hypo_mh2) ;
           kinFits.   addHypo(hypo_mh1,hypo_mh2);
           kinFitsraw.addHypo(hypo_mh1,hypo_mh2);
-          //kinFitsraw_tauup.addHypo(hypo_mh1,hypo_mh2); //CHIA
-          //kinFitsraw_taudown.addHypo(hypo_mh1,hypo_mh2);
-          //kinFitsraw_jetup.addHypo(hypo_mh1,hypo_mh2);
-          //kinFitsraw_jetdown.addHypo(hypo_mh1,hypo_mh2);
-          //kinFitsraw_eleup.addHypo(hypo_mh1,hypo_mh2);
-          //kinFitsraw_eledown.addHypo(hypo_mh1,hypo_mh2);
 
 	  if(DEBUG)
 	  {
@@ -4218,60 +4206,6 @@ int main (int argc, char** argv)
             theSmallTree.m_HHkinsvfit_m   = tlv_HHsvfit.M () ;
           } // in case the SVFIT mass is calculated
 
-          // raw kinfit TES up //CHIA
-          //bool wrongHHKraw_tauup =false;
-          //try {kinFitsraw_tauup.fit();}
-          //catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_tauup=true;}
-          //catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_tauup=true;}
-          //catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_tauup=true;}
-          //if(!wrongHHKraw_tauup){theSmallTree.m_HHKin_mass_raw_tauup = kinFitsraw_tauup.getMH();}
-          //else theSmallTree.m_HHKin_mass_raw_tauup = -100 ;
-
-          // raw kinfit TES down //CHIA
-          //bool wrongHHKraw_taudown =false;
-          //try {kinFitsraw_taudown.fit();}
-          //catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_taudown=true;}
-          //catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_taudown=true;}
-          //catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_taudown=true;}
-          //if(!wrongHHKraw_taudown){theSmallTree.m_HHKin_mass_raw_taudown = kinFitsraw_taudown.getMH();}
-          //else theSmallTree.m_HHKin_mass_raw_taudown = -100 ;
-
-          //// raw kinfit EES up //CHIA
-          //bool wrongHHKraw_eleup =false;
-          //try {kinFitsraw_eleup.fit();}
-          //catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_eleup=true;}
-          //catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_eleup=true;}
-          //catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_eleup=true;}
-          //if(!wrongHHKraw_eleup){theSmallTree.m_HHKin_mass_raw_eleup = kinFitsraw_eleup.getMH();}
-          //else theSmallTree.m_HHKin_mass_raw_eleup = -100 ;
-
-          // raw kinfit EES down //CHIA
-          //bool wrongHHKraw_eledown =false;
-          //try {kinFitsraw_eledown.fit();}
-          //catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_eledown=true;}
-          //catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_eledown=true;}
-          //catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_eledown=true;}
-          //if(!wrongHHKraw_eledown){theSmallTree.m_HHKin_mass_raw_eledown = kinFitsraw_eledown.getMH();}
-          //else theSmallTree.m_HHKin_mass_raw_eledown = -100 ;
-
-          // raw kinfit JES up //CHIA
-          //bool wrongHHKraw_jetup =false;
-          //try {kinFitsraw_jetup.fit();}
-          //catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_jetup=true;}
-          //catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_jetup=true;}
-          //catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_jetup=true;}
-          //if(!wrongHHKraw_jetup){theSmallTree.m_HHKin_mass_raw_jetup = kinFitsraw_jetup.getMH();}
-          //else theSmallTree.m_HHKin_mass_raw_jetup = -100 ;
-
-          // raw kinfit JES down //CHIA
-          //bool wrongHHKraw_jetdown =false;
-          //try {kinFitsraw_jetdown.fit();}
-          //catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw_jetdown=true;}
-          //catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw_jetdown=true;}
-          //catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw_jetdown=true;}
-          //if(!wrongHHKraw_jetdown){theSmallTree.m_HHKin_mass_raw_jetdown = kinFitsraw_jetdown.getMH();}
-          //else theSmallTree.m_HHKin_mass_raw_jetdown = -100 ;
-
         } // end if doing HHKinFit
 
         theSmallTree.m_HHKin_mass_raw_copy = theSmallTree.m_HHKin_mass_raw ; // store twice if different binning needed
@@ -4296,47 +4230,6 @@ int main (int argc, char** argv)
           double chiA = tlv_firstLepton.M();  // hypothesised mass of invisible on side A.  Must be >=0.
           double chiB = tlv_secondLepton.M(); // hypothesised mass of invisible on side B.  Must be >=0.
 
-          // TES variations //CHIA
-          //double pxMiss_tauup = tlv_firstLepton_tauup.Px() + tlv_secondLepton_tauup.Px() + theBigTree.METx_UP_TES->at(chosenTauPair); // shiftedMET for TES
-          //double pyMiss_tauup = tlv_firstLepton_tauup.Py() + tlv_secondLepton_tauup.Py() + theBigTree.METy_UP_TES->at(chosenTauPair); // shiftedMET for TES
-          //double chiA_tauup = tlv_firstLepton_tauup.M();  // hypothesised mass of invisible on side A.  Must be >=0.
-          //double chiB_tauup = tlv_secondLepton_tauup.M(); // hypothesised mass of invisible on side B.  Must be >=0.
-
-          //double pxMiss_taudown = tlv_firstLepton_taudown.Px() + tlv_secondLepton_taudown[0].Px() + theBigTree.METx_DOWN_TES->at(chosenTauPair); // shiftedMET for TES
-          //double pyMiss_taudown = tlv_firstLepton_taudown.Py() + tlv_secondLepton_taudown[0].Py() + theBigTree.METy_DOWN_TES->at(chosenTauPair); // shiftedMET for TES
-          //double chiA_taudown = tlv_firstLepton_taudown.M();  // hypothesised mass of invisible on side A.  Must be >=0.
-          //double chiB_taudown = tlv_secondLepton_taudown.M(); // hypothesised mass of invisible on side B.  Must be >=0.
-
-          // JES variations //CHIA
-          //double mVisA_jetup = tlv_firstBjet_raw_jetup.M();  // mass of visible object on side A. //CHIA
-          //double pxA_jetup = tlv_firstBjet_raw_jetup.Px();   // x momentum of visible object on side A.
-          //double pyA_jetup = tlv_firstBjet_raw_jetup.Py();   // y momentum of visible object on side A.
-          //double mVisB_jetup = tlv_secondBjet_raw_jetup.M(); // mass of visible object on side B.
-          //double pxB_jetup = tlv_secondBjet_raw_jetup.Px();  // x momentum of visible object on side B.
-          //double pyB_jetup = tlv_secondBjet_raw_jetup.Py();  // y momentum of visible object on side B.
-          //double pxMiss_jetup = tlv_firstLepton.Px() + tlv_secondLepton.Px() + ptmiss_jetup.Px(); // shiftedMET for JES
-          //double pyMiss_jetup = tlv_firstLepton.Py() + tlv_secondLepton.Py() + ptmiss_jetup.Py(); // shiftedMET for JES
-
-          //double mVisA_jetdown = tlv_firstBjet_raw_jetdown.M();  // mass of visible object on side A. //CHIA
-          //double pxA_jetdown = tlv_firstBjet_raw_jetdown.Px();   // x momentum of visible object on side A.
-          //double pyA_jetdown = tlv_firstBjet_raw_jetdown.Py();   // y momentum of visible object on side A.
-          //double mVisB_jetdown = tlv_secondBjet_raw_jetdown.M(); // mass of visible object on side B.
-          //double pxB_jetdown = tlv_secondBjet_raw_jetdown.Px();  // x momentum of visible object on side B.
-          //double pyB_jetdown = tlv_secondBjet_raw_jetdown.Py();  // y momentum of visible object on side B.
-          //double pxMiss_jetdown = tlv_firstLepton.Px() + tlv_secondLepton.Px() + ptmiss_jetdown.Px(); // shiftedMET for JES
-          //double pyMiss_jetdown = tlv_firstLepton.Py() + tlv_secondLepton.Py() + ptmiss_jetdown.Py(); // shiftedMET for JES
-
-          // EES variations //CHIA
-          //double pxMiss_eleup = tlv_firstLepton_eleup.Px() + tlv_secondLepton_eleup.Px() + theBigTree.METx_UP_EES->at(chosenTauPair); // shiftedMET for TES
-          //double pyMiss_eleup = tlv_firstLepton_eleup.Py() + tlv_secondLepton_eleup.Py() + theBigTree.METy_UP_EES->at(chosenTauPair); // shiftedMET for TES
-          //double chiA_eleup = tlv_firstLepton_eleup.M();  // hypothesised mass of invisible on side A.  Must be >=0.
-          //double chiB_eleup = tlv_secondLepton_eleup.M(); // hypothesised mass of invisible on side B.  Must be >=0.
-
-          //double pxMiss_eledown = tlv_firstLepton_eledown.Px() + tlv_secondLepton_eledown.Px() + theBigTree.METx_DOWN_EES->at(chosenTauPair); // shiftedMET for TES
-          //double pyMiss_eledown = tlv_firstLepton_eledown.Py() + tlv_secondLepton_eledown.Py() + theBigTree.METy_DOWN_EES->at(chosenTauPair); // shiftedMET for TES
-          //double chiA_eledown = tlv_firstLepton_eledown.M();  // hypothesised mass of invisible on side A.  Must be >=0.
-          //double chiB_eledown = tlv_secondLepton_eledown.M(); // hypothesised mass of invisible on side B.  Must be >=0.
-
           double desiredPrecisionOnMt2 = 0; // Must be >=0.  If 0 alg aims for machine precision.  if >0, MT2 computed to supplied absolute precision.
 
           asymm_mt2_lester_bisect::disableCopyrightMessage();
@@ -4347,56 +4240,8 @@ int main (int argc, char** argv)
                        pxMiss, pyMiss,
                        chiA, chiB,
                        desiredPrecisionOnMt2);  
-          //CHIA  
-          /*double MT2_tauup = asymm_mt2_lester_bisect::get_mT2(
-                             mVisA, pxA, pyA,
-                             mVisB, pxB, pyB,
-                             pxMiss_tauup, pyMiss_tauup,
-                             chiA_tauup, chiB_tauup,
-                             desiredPrecisionOnMt2);
 
-          double MT2_taudown = asymm_mt2_lester_bisect::get_mT2(
-                               mVisA, pxA, pyA,
-                               mVisB, pxB, pyB,
-                               pxMiss_taudown, pyMiss_taudown,
-                               chiA_taudown, chiB_taudown,
-                               desiredPrecisionOnMt2);
-
-          double MT2_jetup = asymm_mt2_lester_bisect::get_mT2(
-                             mVisA_jetup, pxA_jetup, pyA_jetup,
-                             mVisB_jetup, pxB_jetup, pyB_jetup,
-                             pxMiss_jetup, pyMiss_jetup, // shiftedMET
-                             chiA, chiB,
-                             desiredPrecisionOnMt2);
-
-          double MT2_jetdown = asymm_mt2_lester_bisect::get_mT2(
-                               mVisA_jetdown, pxA_jetdown, pyA_jetdown,
-                               mVisB_jetdown, pxB_jetdown, pyB_jetdown,
-                               pxMiss_jetdown, pyMiss_jetdown, // shiftedMET
-                               chiA, chiB,
-                               desiredPrecisionOnMt2);
-
-          double MT2_eleup = asymm_mt2_lester_bisect::get_mT2(
-                             mVisA, pxA, pyA,
-                             mVisB, pxB, pyB,
-                             pxMiss_eleup, pyMiss_eleup,
-                             chiA_eleup, chiB_eleup,
-                             desiredPrecisionOnMt2);
-
-          double MT2_eledown = asymm_mt2_lester_bisect::get_mT2(
-                               mVisA, pxA, pyA,
-                               mVisB, pxB, pyB,
-                               pxMiss_eledown, pyMiss_eledown,
-                               chiA_eledown, chiB_eledown,
-                               desiredPrecisionOnMt2);
-	  */
           theSmallTree.m_MT2 = MT2;
-          //theSmallTree.m_MT2_tauup = MT2_tauup;
-          //theSmallTree.m_MT2_taudown = MT2_taudown;
-          //theSmallTree.m_MT2_jetup = MT2_jetup;
-          //theSmallTree.m_MT2_jetdown = MT2_jetdown;
-          //theSmallTree.m_MT2_eleup = MT2_eleup;
-          //theSmallTree.m_MT2_eledown = MT2_eledown;
 
         } // end calcultion of MT2
 
