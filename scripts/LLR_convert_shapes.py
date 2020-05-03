@@ -37,7 +37,8 @@ def NumToName(x):
 
 def OpenLLRFile(channel):
     #file_name = '{}/{}.root'.format(args.input_path, channel)
-    file_name = args.input_path
+    #file_name = args.input_path
+    file_name = args.input_path+channel+'.root'
     return TFile(file_name, 'OPEN')
 
 def GetLLRHistName(sample, category, region, variable, uncertainty = None):
@@ -49,9 +50,9 @@ def GetLLRHistName(sample, category, region, variable, uncertainty = None):
 signal_region = 'SR'
 regions = {
     'SR'        : '',
-    'SStight'   : 'SS_iso',
-    'OSinviso'  : 'OS_antiiso',
-    'SSinviso'  : 'SS_antiiso'
+#    'SStight'   : 'SS_iso',
+#    'OSinviso'  : 'OS_antiiso',
+#    'SSinviso'  : 'SS_antiiso'
 }
 
 era = '13TeV'
@@ -181,11 +182,11 @@ bins = [
     BinDesc('data_obs', ['data_obs'], save_all_regions = False),
     BinDesc('DY'      , ['DY']      , unc_list = [ ], save_all_regions = False),
     BinDesc('TT'      , ['TT']      , unc_list = [ ], save_all_regions = False),
-    BinDesc('W'       , ['WJets']   , unc_list = [ ], save_all_regions = False),
+    BinDesc('W'       , ['W']       , unc_list = [ ], save_all_regions = False),
     BinDesc('QCD'     , ['QCD']     , unc_list = [ ], save_all_regions = False),
-    BinDesc('EWK'     , ['EWKW']    , unc_list = [ ], save_all_regions = False),
+    BinDesc('EWK'     , ['EWK']     , unc_list = [ ], save_all_regions = False),
     BinDesc('singleT' , ['singleT'] , unc_list = [ ], save_all_regions = False),
-    BinDesc('H'       , ['SM']      , unc_list = [ ], save_all_regions = False),
+    BinDesc('H'       , ['H']       , unc_list = [ ], save_all_regions = False),
     BinDesc('VVV'     , ['VVV']     , unc_list = [ ], save_all_regions = False),
     BinDesc('TTV'     , ['TTV']     , unc_list = [ ], save_all_regions = False),
     BinDesc('TTVV'    , ['TTVV']    , unc_list = [ ], save_all_regions = False),
@@ -233,8 +234,12 @@ else:
 #}
 
 if args.analysis == 'sync':
-    tauTau_categories = {'2j' : 'baselineMassCut'}
-    channels = {'tauTau' : [ 'TauTau', tauTau_categories]}
+    tauTau_categories = {'2j': 'baseline', 'res1b': 's1b1jresolved', 'res2b': 's2b0jresolved', 'boosted': 'sboostedLL'}
+    channels = {
+        'eTau'   : [ 'ETau'  , tauTau_categories],
+        'muTau'  : [ 'MuTau' , tauTau_categories],
+        'tauTau' : [ 'TauTau', tauTau_categories],
+    }
 
 output = TFile(args.output, 'RECREATE')
 
@@ -243,6 +248,7 @@ for channel,channel_desc in channels.iteritems():
     categories = channel_desc[1]
     print '{} -> {}'.format(LLR_channel, channel)
     input_file = OpenLLRFile(LLR_channel)
+    print '  opening file:', input_file
     for category,LLR_category in categories.iteritems():
         output_dir_name = '{}_{}'.format(channel, category)
         #tauES_unc.norm_correction_dict = NormCorrectionDictionary(args.norm_unc_path, LLR_channel, LLR_category, 'tes')

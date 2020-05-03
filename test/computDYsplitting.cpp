@@ -168,6 +168,7 @@ int main(int argc, char** argv)
     fOut->cd();
     h_nJets_nBs -> Write();
     hINT_nJets_nBs -> Write();
+    fOut->Close();
 
     for (int nj = 0; nj < 5; nj++)
     {

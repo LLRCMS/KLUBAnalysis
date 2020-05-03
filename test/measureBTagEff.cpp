@@ -84,14 +84,14 @@ int main(int argc, char** argv)
     int nPtBins  = sizeof(PtBins)/sizeof(float) - 1;
     int nEtaBins = sizeof(EtaBins)/sizeof(float) - 1;
 
-    // float WPtag[3] = {0.460, 0.800, 0.935}; // L, M, T
-    // float WPtag[3] = {0.5426, 0.8484, 0.9535}; // L, M, T -- 80X for Moriond 2017, 23SepReReco
-    //float WPtag[3] = {0.1522, 0.4941, 0.8001}; // L, M, T -- 94X for Moriond 2018, 17NovReReco, version1 of the SF
-    //float WPtag[3] = {0.1241, 0.4184, 0.7527}; // L, M, T -- 102X MC Campaign RunIIAutumn18 - version1 of the SF for DeepCSV
-    //float WPtag[3] = {0.0494, 0.2770, 0.7264}; // L, M, T -- 102X MC Campaign RunIIAutumn18 - version1 of the SF for DeepFlavor
-
     //float WPtag[3] = {0.2217, 0.6321, 0.8953}; // L, M, T -- Legacy 2016 DeepCSV
-    float WPtag[3] = {0.0614, 0.3093, 0.7221}; // L, M, T -- Legacy 2016 DeepFlavor
+    //float WPtag[3] = {0.0614, 0.3093, 0.7221}; // L, M, T -- Legacy 2016 DeepFlavor
+
+    //float WPtag[3] = {0.1522, 0.4941, 0.8001}; // L, M, T -- Legacy 2017 DeepCSV
+    float WPtag[3] = {0.0521, 0.3033, 0.7489}; // L, M, T -- Legacy 2017 DeepFlavor
+
+    //float WPtag[3] = {0.1241, 0.4184, 0.7527}; // L, M, T -- Legacy 2018 DeepCSV
+    //float WPtag[3] = {0.0494, 0.2770, 0.7264}; // L, M, T -- Legacy 2018 DeepFlavor
 
     string WPname[3] = {"L", "M", "T"};
 
