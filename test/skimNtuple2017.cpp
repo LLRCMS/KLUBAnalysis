@@ -1401,10 +1401,6 @@ int main (int argc, char** argv)
 	}
       //if (debugEvent > 0 && DEBUG == false) continue;
 
-      // remove a lumisection that was present in 16 Giu JSON and removed in 22 and subsequent JSON
-      // 25 Nov 2016 : edit : removed line because of new reprocessing and json
-      // if (!isMC && theBigTree.RunNumber == 274094 && theBigTree.lumi >= 105 && theBigTree.lumi <= 107) continue;
-
       // directly reject events outside HT range in case of stitching of inclusive sample-- they should not count in weights
       //cout << " ********** HTMAX - MIN - LHE: " << HTMax << " - " << HTMin << " - " << theBigTree.lheHt << endl;
       if (HTMax > 0)
@@ -2401,32 +2397,6 @@ int main (int argc, char** argv)
         cout << " dau_2 (pt,eta,phi,iso): "<<tlv_secondLepton.Pt()<<" "<<tlv_secondLepton.Eta()<<" "<<tlv_secondLepton.Phi()<<" "<<getIso(secondDaughterIndex, tlv_secondLepton.Pt (), theBigTree)<<endl;
         cout << "---------------------"<< endl;
       }
- //
- //     if (DEBUG)
- //     {
- //       cout << "------- TAU TES DEBUG -------" << endl;
- //       cout << " tau1 centr: " << tlv_firstLepton.Pt() << " / " << tlv_firstLepton.Eta() << endl;
- //       cout << " tau1 up: " << tlv_firstLepton_tauup.Pt() << " / " << tlv_firstLepton_tauup.Eta() << endl;
- //       cout << " tau1 dw: " << tlv_firstLepton_taudown.Pt() << " / " << tlv_firstLepton_taudown.Eta() << endl;
- //
- //       cout << " tau2 centr: " << tlv_secondLepton.Pt() << " / " << tlv_secondLepton.Eta() << endl;
- //       cout << " tau2 up: " << tlv_secondLepton_tauup.Pt() << " / " << tlv_secondLepton_tauup.Eta() << endl;
- //       cout << " tau2 dw: " << tlv_secondLepton_taudown.Pt() << " / " << tlv_secondLepton_taudown.Eta() << endl;
- //       cout << "---------------------"<< endl;
- //     }
-
- //     if (DEBUG)
- //     {
- //       cout << "------- TAU EES DEBUG -------" << endl;
- //       cout << " tau1 centr: " << tlv_firstLepton.Pt() << " / " << tlv_firstLepton.Eta() << endl;
- //       cout << " tau1 up: " << tlv_firstLepton_eleup.Pt() << " / " << tlv_firstLepton_eleup.Eta() << endl;
- //       cout << " tau1 dw: " << tlv_firstLepton_eledown.Pt() << " / " << tlv_firstLepton_eledown.Eta() << endl;
- //
- //       cout << " tau2 centr: " << tlv_secondLepton.Pt() << " / " << tlv_secondLepton.Eta() << endl;
- //       cout << " tau2 up: " << tlv_secondLepton_eleup.Pt() << " / " << tlv_secondLepton_eleup.Eta() << endl;
- //       cout << " tau2 dw: " << tlv_secondLepton_eledown.Pt() << " / " << tlv_secondLepton_eledown.Eta() << endl;
- //       cout << "---------------------"<< endl;
- //     }
 
       // DATA strategy
       int pass_triggerbit = 0;
@@ -2623,33 +2593,11 @@ int main (int argc, char** argv)
 
       // L1ECALPrefiringWeight - https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
       theSmallTree.m_L1pref_weight = theBigTree.prefiringweight;
-      // Shifted MET for JES
-      
-      //TVector2 vMET_tauup   (theBigTree.METx_UP_TES->at(chosenTauPair)  , theBigTree.METy_UP_TES->at(chosenTauPair));
-      //TVector2 vMET_taudown (theBigTree.METx_DOWN_TES->at(chosenTauPair), theBigTree.METy_DOWN_TES->at(chosenTauPair));
-      //theSmallTree.m_met_phi_tauup   = vMET_tauup.Phi();
-      //theSmallTree.m_met_et_tauup    = vMET_tauup.Mod();
-      //theSmallTree.m_met_phi_taudown = vMET_taudown.Phi();
-      //theSmallTree.m_met_et_taudown  = vMET_taudown.Mod();
-
-      // Shifted MET for EES //CHIA
-      //TVector2 vMET_eleup   (theBigTree.METx_UP_EES->at(chosenTauPair)  , theBigTree.METy_UP_EES->at(chosenTauPair));
-      //TVector2 vMET_eledown (theBigTree.METx_DOWN_EES->at(chosenTauPair), theBigTree.METy_DOWN_EES->at(chosenTauPair));
-      //theSmallTree.m_met_phi_eleup   = vMET_eleup.Phi();
-      //theSmallTree.m_met_et_eleup    = vMET_eleup.Mod();
-      //theSmallTree.m_met_phi_eledown = vMET_eledown.Phi();
-      //theSmallTree.m_met_et_eledown  = vMET_eledown.Mod();
 
       if (DEBUG)
       {
         cout << "------- MET DEBUG -------" << endl;
         cout << " met centr : " << theSmallTree.m_met_et << " / " << theSmallTree.m_met_phi << endl;
-        //cout << " met jet up: " << theSmallTree.m_met_et_jetup << " / " << theSmallTree.m_met_phi_jetup << endl;
-        //cout << " met jet dw: " << theSmallTree.m_met_et_jetdown << " / " << theSmallTree.m_met_phi_jetdown << endl;
-        //cout << " met tau up: " << theSmallTree.m_met_et_tauup << " / " << theSmallTree.m_met_phi_tauup << endl;
-        //cout << " met tau dw: " << theSmallTree.m_met_et_taudown << " / " << theSmallTree.m_met_phi_taudown << endl;
-        //cout << " met ele up: " << theSmallTree.m_met_et_eleup << " / " << theSmallTree.m_met_phi_eleup << endl;
-        //cout << " met ele dw: " << theSmallTree.m_met_et_eledown << " / " << theSmallTree.m_met_phi_eledown << endl;
         cout << "-------------------------" << endl;
       }
 

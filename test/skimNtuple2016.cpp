@@ -1357,10 +1357,6 @@ int main (int argc, char** argv)
 	}
       //if (debugEvent > 0 && DEBUG == false) continue;
 
-      // remove a lumisection that was present in 16 Giu JSON and removed in 22 and subsequent JSON
-      // 25 Nov 2016 : edit : removed line because of new reprocessing and json
-      // if (!isMC && theBigTree.RunNumber == 274094 && theBigTree.lumi >= 105 && theBigTree.lumi <= 107) continue;
-
       // directly reject events outside HT range in case of stitching of inclusive sample-- they should not count in weights
       //cout << " ********** HTMAX - MIN - LHE: " << HTMax << " - " << HTMin << " - " << theBigTree.lheHt << endl;
       if (HTMax > 0)
@@ -2534,6 +2530,7 @@ int main (int argc, char** argv)
       {
         cout << "------- MET DEBUG -------" << endl;
         cout << " met centr : " << theSmallTree.m_met_et << " / " << theSmallTree.m_met_phi << endl;
+        cout << "-------------------------" << endl;
       }
 
       // // in TauTau channel make sure the first tau is the most isolated one
