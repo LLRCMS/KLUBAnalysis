@@ -51,11 +51,6 @@ using namespace std ;
 
 const int nMaxEvts = 100;
 
-// systematics
-const int N_tauhDM     =  4; //tauh DMs
-const int N_tauhDM_EES =  2; //tauh DMs with EES
-const int N_jecSources = 11; //jec sources
-
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // open input txt file and append all the files it contains to TChain
 void appendFromFileList (TChain* chain, TString filename)
@@ -156,6 +151,17 @@ int main (int argc, char** argv)
 
   // Input setup
   TFile *inputFile = new TFile (inputFileName, "read") ;
+
+  // Systematics histogram
+  TH1F* h_syst = (TH1F*)inputFile->Get("h_syst");
+  const int N_jecSources = h_syst->GetBinContent(1); //jec sources
+  const int N_tauhDM     = h_syst->GetBinContent(2); //tauh DMs
+  const int N_tauhDM_EES = h_syst->GetBinContent(3); //tauh DMs with EES
+  std::cout << "** INFO: N_jecSources: " << N_jecSources << std::endl;
+  std::cout << "** INFO: N_tauhDM    : " << N_tauhDM << std::endl;
+  std::cout << "** INFO: N_tauhDM_EES: " << N_tauhDM_EES << std::endl;
+
+  // Input TTree
   TTree *inputChain = (TTree*)inputFile->Get("HTauTauTree");
   Long64_t nentries = inputChain->GetEntries();
   cout << "** INFO: Initial entries: " << nentries << endl;
