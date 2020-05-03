@@ -964,7 +964,7 @@ int main (int argc, char** argv)
         BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_mudown.Pt(),
           tau2_mudown.Pt(), svfit_mudown.Pt(), BDT_channel,
           BDT_HT20, pzeta_mudown, pzeta_vis_mudown, BDT_ditau_deltaPhi_mudown,
-          BDT_tauHsvfitMet_deltaPhi_mudown, mT_tauH_MET_mudown, mTtot, MT2_mudown,
+          BDT_tauHsvfitMet_deltaPhi_mudown, mT_tauH_MET_mudown, mTtot_mudown, MT2_mudown,
           BDT_MX_mudown, BDT_bH_tauH_MET_InvMass_mudown, BDT_bH_tauH_SVFIT_InvMass_mudown,
           BDT_bH_tauH_InvMass_mudown, HHKin_mass_mudown, HHKin_chi2_mudown, BDT_MET_bH_cosTheta_mudown);
         std::vector<float> BDTouts_mudown = BDTreader.GetPredictions();
@@ -1137,7 +1137,7 @@ int main (int argc, char** argv)
           BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_eledown.Pt(),
             tau2_eledown.Pt(), svfit_eledown.Pt(), BDT_channel,
             BDT_HT20, pzeta_eledown, pzeta_vis_eledown, BDT_ditau_deltaPhi_eledown,
-            BDT_tauHsvfitMet_deltaPhi_eledown, mT_tauH_MET_eledown, mTtot, MT2_eledown,
+            BDT_tauHsvfitMet_deltaPhi_eledown, mT_tauH_MET_eledown, mTtot_eledown, MT2_eledown,
             BDT_MX_eledown, BDT_bH_tauH_MET_InvMass_eledown, BDT_bH_tauH_SVFIT_InvMass_eledown,
             BDT_bH_tauH_InvMass_eledown, HHKin_mass_eledown, HHKin_chi2_eledown, BDT_MET_bH_cosTheta_eledown);
           std::vector<float> BDTouts_eledown = BDTreader.GetPredictions();
@@ -1243,7 +1243,7 @@ int main (int argc, char** argv)
           tauH_SVFIT_mass_taudown.at(i) = svfitRes_taudown.at(3);
         }
 
-        // --- --- --- EES DNN/BDT quantities --- --- ---
+        // --- --- --- TES DNN/BDT quantities --- --- ---
         TLorentzVector svfit_tauup;
         svfit_tauup.SetPtEtaPhiM(tauH_SVFIT_pt_tauup, tauH_SVFIT_eta_tauup, tauH_SVFIT_phi_tauup, tauH_SVFIT_mass_tauup.at(i));
         float mTtot_tauup                         = Calculate_TotalMT(tau1_tauup, tau2_tauup, met_tauup);
@@ -1311,7 +1311,7 @@ int main (int argc, char** argv)
           BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_taudown.Pt(),
             tau2_taudown.Pt(), svfit_taudown.Pt(), BDT_channel,
             BDT_HT20, pzeta_taudown, pzeta_vis_taudown, BDT_ditau_deltaPhi_taudown,
-            BDT_tauHsvfitMet_deltaPhi_taudown, mT_tauH_MET_taudown, mTtot, MT2_taudown,
+            BDT_tauHsvfitMet_deltaPhi_taudown, mT_tauH_MET_taudown, mTtot_taudown, MT2_taudown,
             BDT_MX_taudown, BDT_bH_tauH_MET_InvMass_taudown, BDT_bH_tauH_SVFIT_InvMass_taudown,
             BDT_bH_tauH_InvMass_taudown, HHKin_mass_taudown, HHKin_chi2_taudown, BDT_MET_bH_cosTheta_taudown);
           std::vector<float> BDTouts_taudown = BDTreader.GetPredictions();
@@ -1397,14 +1397,14 @@ int main (int argc, char** argv)
         {
           MT2_jetup = asymm_mt2_lester_bisect::get_mT2( bjet1_jetup.M(), bjet1_jetup.Px(), bjet1_jetup.Py(),
                                                         bjet2_jetup.M(), bjet2_jetup.Px(), bjet2_jetup.Py(),
-                                                        (tau1.Px() + tau2.Px() + met.Px()),
-                                                        (tau1.Py() + tau2.Py() + met.Py()),
+                                                        (tau1.Px() + tau2.Px() + met_jetup.Px()),
+                                                        (tau1.Py() + tau2.Py() + met_jetup.Py()),
                                                         tau1.M(), tau2.M(), desiredPrecisionOnMt2);
 
           MT2_jetdown = asymm_mt2_lester_bisect::get_mT2( bjet1_jetdown.M(), bjet1_jetdown.Px(), bjet1_jetdown.Py(),
                                                           bjet2_jetdown.M(), bjet2_jetdown.Px(), bjet2_jetdown.Py(),
-                                                          (tau1.Px() + tau2.Px() + met.Px()),
-                                                          (tau1.Py() + tau2.Py() + met.Py()),
+                                                          (tau1.Px() + tau2.Px() + met_jetdown.Px()),
+                                                          (tau1.Py() + tau2.Py() + met_jetdown.Py()),
                                                           tau1.M(), tau2.M(), desiredPrecisionOnMt2);
         }
 
@@ -1493,7 +1493,7 @@ int main (int argc, char** argv)
           BDTreader.SetInputValues(bjet2_jetdown.Pt(), (bjet1_jetdown+bjet2_jetdown).Pt(), tau1.Pt(),
             tau2.Pt(), svfit_jetdown.Pt(), BDT_channel,
             BDT_HT20_jetdown->at(i), pzeta_jetdown, pzeta_vis_jetdown, BDT_ditau_deltaPhi_jetdown,
-            BDT_tauHsvfitMet_deltaPhi_jetdown, mT_tauH_MET_jetdown, mTtot, MT2_jetdown,
+            BDT_tauHsvfitMet_deltaPhi_jetdown, mT_tauH_MET_jetdown, mTtot_jetdown, MT2_jetdown,
             BDT_MX_jetdown, BDT_bH_tauH_MET_InvMass_jetdown, BDT_bH_tauH_SVFIT_InvMass_jetdown,
             BDT_bH_tauH_InvMass_jetdown, HHKin_mass_jetdown, HHKin_chi2_jetdown, BDT_MET_bH_cosTheta_jetdown);
           std::vector<float> BDTouts_jetdown = BDTreader.GetPredictions();
@@ -1577,14 +1577,14 @@ int main (int argc, char** argv)
       {
         MT2_jetupTot = asymm_mt2_lester_bisect::get_mT2( bjet1_jetupTot.M(), bjet1_jetupTot.Px(), bjet1_jetupTot.Py(),
                                                          bjet2_jetupTot.M(), bjet2_jetupTot.Px(), bjet2_jetupTot.Py(),
-                                                         (tau1.Px() + tau2.Px() + met.Px()),
-                                                         (tau1.Py() + tau2.Py() + met.Py()),
+                                                         (tau1.Px() + tau2.Px() + met_jetupTot.Px()),
+                                                         (tau1.Py() + tau2.Py() + met_jetupTot.Py()),
                                                          tau1.M(), tau2.M(), desiredPrecisionOnMt2);
 
         MT2_jetdownTot = asymm_mt2_lester_bisect::get_mT2( bjet1_jetdownTot.M(), bjet1_jetdownTot.Px(), bjet1_jetdownTot.Py(),
                                                            bjet2_jetdownTot.M(), bjet2_jetdownTot.Px(), bjet2_jetdownTot.Py(),
-                                                           (tau1.Px() + tau2.Px() + met.Px()),
-                                                           (tau1.Py() + tau2.Py() + met.Py()),
+                                                           (tau1.Px() + tau2.Px() + met_jetdownTot.Px()),
+                                                           (tau1.Py() + tau2.Py() + met_jetdownTot.Py()),
                                                            tau1.M(), tau2.M(), desiredPrecisionOnMt2);
       }
 
@@ -1673,7 +1673,7 @@ int main (int argc, char** argv)
         BDTreader.SetInputValues(bjet2_jetdownTot.Pt(), (bjet1_jetdownTot+bjet2_jetdownTot).Pt(), tau1.Pt(),
           tau2.Pt(), svfit_jetdownTot.Pt(), BDT_channel,
           BDT_HT20_jetdownTot, pzeta_jetdownTot, pzeta_vis_jetdownTot, BDT_ditau_deltaPhi_jetdownTot,
-          BDT_tauHsvfitMet_deltaPhi_jetdownTot, mT_tauH_MET_jetdownTot, mTtot, MT2_jetdownTot,
+          BDT_tauHsvfitMet_deltaPhi_jetdownTot, mT_tauH_MET_jetdownTot, mTtot_jetdownTot, MT2_jetdownTot,
           BDT_MX_jetdownTot, BDT_bH_tauH_MET_InvMass_jetdownTot, BDT_bH_tauH_SVFIT_InvMass_jetdownTot,
           BDT_bH_tauH_InvMass_jetdownTot, HHKin_mass_jetdownTot, HHKin_chi2_jetdownTot, BDT_MET_bH_cosTheta_jetdownTot);
         std::vector<float> BDTouts_jetdownTot = BDTreader.GetPredictions();
