@@ -49,7 +49,7 @@
 
 using namespace std ;
 
-const int nMaxEvts = 100;
+const int nMaxEvts = 1;
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // open input txt file and append all the files it contains to TChain
@@ -107,13 +107,6 @@ float deltaPhi (float phi1, float phi2)
   if (deltaphi > 6.283185308) deltaphi -= 6.283185308 ;
   if (deltaphi > 3.141592654) deltaphi = 6.283185308 - deltaphi ;
   return deltaphi ;
-}
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-float getZ (float eta, float eta1, float eta2)
-{
-  float Z  =  (eta - 0.5*(eta1 + eta2)) / fabs (eta1 - eta2) ;
-  return Z;
 }
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -200,53 +193,25 @@ int main (int argc, char** argv)
   "dau2_pt_muup","dau2_pt_mudown",
   "dau2_mass_muup", "dau2_mass_mudown",
 
-  "dau1_pt_eleup_DM0","dau1_pt_eleup_DM1",                             // Tau EES
-  "dau1_pt_eledown_DM0","dau1_pt_eledown_DM1",
-  "dau1_pt_eleup","dau1_mass_eleup",
-  "dau1_pt_eledown","dau1_mass_eledown",
-  "dau2_pt_eleup_DM0","dau2_pt_eleup_DM1",
-  "dau2_pt_eledown_DM0","dau2_pt_eledown_DM1",
-  "dau2_pt_eleup","dau2_mass_eleup",
-  "dau2_pt_eledown","dau2_mass_eledown",
+  "dau1_pt_eleup*","dau1_mass_eleup",                                  // Tau EES
+  "dau1_pt_eledown*","dau1_mass_eledown",
+  "dau2_pt_eleup*","dau2_mass_eleup",
+  "dau2_pt_eledown*","dau2_mass_eledown",
 
-  "dau1_pt_tauup_DM0","dau1_pt_tauup_DM1",                             // Tau TES
-  "dau1_pt_tauup_DM10","dau1_pt_tauup_DM11",
-  "dau1_pt_taudown_DM0","dau1_pt_taudown_DM1",
-  "dau1_pt_taudown_DM10","dau1_pt_taudown_DM11",
-  "dau1_pt_tauup","dau1_pt_taudown",
+  "dau1_pt_tauup*","dau1_pt_taudown*",                                 // Tau TES
   "dau1_mass_tauup","dau1_mass_taudown",
-  "dau2_pt_tauup_DM0","dau2_pt_tauup_DM1",
-  "dau2_pt_tauup_DM10","dau2_pt_tauup_DM11",
-  "dau2_pt_taudown_DM0","dau2_pt_taudown_DM1",
-  "dau2_pt_taudown_DM10","dau2_pt_taudown_DM11",
-  "dau2_pt_tauup","dau2_pt_taudown",
+  "dau2_pt_tauup*","dau2_pt_taudown*",
   "dau2_mass_tauup","dau2_mass_taudown",
 
   "bjet1_pt","bjet1_eta","bjet1_phi","bjet1_e","bjet1_JER",            // b-jets
   "bjet2_pt","bjet2_eta","bjet2_phi","bjet2_e","bjet2_JER",
 
-  "bjet1_pt_raw_jetup","bjet1_pt_raw_jetdown",                         // b-jets JES
+  "bjet1_pt_raw_jetup*","bjet1_pt_raw_jetdown*",                       // b-jets JES
   "bjet1_mass_raw_jetup","bjet1_mass_raw_jetdown",
   "bjet1_JER_jetup","bjet1_JER_jetdown",
-  "bjet1_pt_raw_jetup1","bjet1_pt_raw_jetup2","bjet1_pt_raw_jetup3",
-  "bjet1_pt_raw_jetup4","bjet1_pt_raw_jetup5","bjet1_pt_raw_jetup6",
-  "bjet1_pt_raw_jetup7","bjet1_pt_raw_jetup8","bjet1_pt_raw_jetup9",
-  "bjet1_pt_raw_jetup10","bjet1_pt_raw_jetup11",
-  "bjet1_pt_raw_jetdown1","bjet1_pt_raw_jetdown2","bjet1_pt_raw_jetdown3",
-  "bjet1_pt_raw_jetdown4","bjet1_pt_raw_jetdown5","bjet1_pt_raw_jetdown6",
-  "bjet1_pt_raw_jetdown7","bjet1_pt_raw_jetdown8","bjet1_pt_raw_jetdown9",
-  "bjet1_pt_raw_jetdown10","bjet1_pt_raw_jetdown11",
-  "bjet2_pt_raw_jetup","bjet2_pt_raw_jetdown",
+  "bjet2_pt_raw_jetup*","bjet2_pt_raw_jetdown*",
   "bjet2_mass_raw_jetup","bjet2_mass_raw_jetdown",
   "bjet2_JER_jetup","bjet2_JER_jetdown",
-  "bjet2_pt_raw_jetup1","bjet2_pt_raw_jetup2","bjet2_pt_raw_jetup3",
-  "bjet2_pt_raw_jetup4","bjet2_pt_raw_jetup5","bjet2_pt_raw_jetup6",
-  "bjet2_pt_raw_jetup7","bjet2_pt_raw_jetup8","bjet2_pt_raw_jetup9",
-  "bjet2_pt_raw_jetup10","bjet2_pt_raw_jetup11",
-  "bjet2_pt_raw_jetdown1","bjet2_pt_raw_jetdown2","bjet2_pt_raw_jetdown3",
-  "bjet2_pt_raw_jetdown4","bjet2_pt_raw_jetdown5","bjet2_pt_raw_jetdown6",
-  "bjet2_pt_raw_jetdown7","bjet2_pt_raw_jetdown8","bjet2_pt_raw_jetdown9",
-  "bjet2_pt_raw_jetdown10","bjet2_pt_raw_jetdown11",
 
   "bjet1_pt_raw_jetupTot","bjet1_pt_raw_jetdownTot",                   // b-jets JES Total
   "bjet1_mass_raw_jetupTot","bjet1_mass_raw_jetdownTot",
@@ -255,66 +220,35 @@ int main (int argc, char** argv)
   "bjet2_mass_raw_jetupTot","bjet2_mass_raw_jetdownTot",
   "bjet2_JER_jetupTot","bjet2_JER_jetdownTot",
 
-  "bH_mass_raw_jetup1","bH_mass_raw_jetup2","bH_mass_raw_jetup3",      // bH masses JES
-  "bH_mass_raw_jetup4","bH_mass_raw_jetup5","bH_mass_raw_jetup6",
-  "bH_mass_raw_jetup7","bH_mass_raw_jetup8","bH_mass_raw_jetup9",
-  "bH_mass_raw_jetup10","bH_mass_raw_jetup11",
-  "bH_mass_raw_jetdown1","bH_mass_raw_jetdown2","bH_mass_raw_jetdown3",
-  "bH_mass_raw_jetdown4","bH_mass_raw_jetdown5","bH_mass_raw_jetdown6",
-  "bH_mass_raw_jetdown7","bH_mass_raw_jetdown8","bH_mass_raw_jetdown9",
-  "bH_mass_raw_jetdown10","bH_mass_raw_jetdown11",
+  "bH_mass_raw_jetup*","bH_mass_raw_jetdown*",                         // bH masses JES
 
   "bH_mass_raw_jetupTot","bH_mass_raw_jetdownTot",                     // bH masses JES Total
 
   "VBFjet1_pt","VBFjet1_eta","VBFjet1_phi","VBFjet1_e",                // VBF-jets
   "VBFjet2_pt","VBFjet2_eta","VBFjet2_phi","VBFjet2_e",
 
-  "VBFjet1_pt_jetup","VBFjet1_pt_jetdown",                             // VBF-jets JES
+  "VBFjet1_pt_jetup*","VBFjet1_pt_jetdown*",                           // VBF-jets JES
   "VBFjet1_mass_jetup","VBFjet1_mass_jetdown",
-  "VBFjet1_pt_jetup1","VBFjet1_pt_jetup2","VBFjet1_pt_jetup3",
-  "VBFjet1_pt_jetup4","VBFjet1_pt_jetup5","VBFjet1_pt_jetup6",
-  "VBFjet1_pt_jetup7","VBFjet1_pt_jetup8","VBFjet1_pt_jetup9",
-  "VBFjet1_pt_jetup10","VBFjet1_pt_jetup11",
-  "VBFjet1_pt_jetdown1","VBFjet1_pt_jetdown2","VBFjet1_pt_jetdown3",
-  "VBFjet1_pt_jetdown4","VBFjet1_pt_jetdown5","VBFjet1_pt_jetdown6",
-  "VBFjet1_pt_jetdown7","VBFjet1_pt_jetdown8","VBFjet1_pt_jetdown9",
-  "VBFjet1_pt_jetdown10","VBFjet1_pt_jetdown11",
-  "VBFjet2_pt_jetup","VBFjet2_pt_jetdown",
+  "VBFjet2_pt_jetup*","VBFjet2_pt_jetdown*",
   "VBFjet2_mass_jetup","VBFjet2_mass_jetdown",
-  "VBFjet2_pt_jetup1","VBFjet2_pt_jetup2","VBFjet2_pt_jetup3",
-  "VBFjet2_pt_jetup4","VBFjet2_pt_jetup5","VBFjet2_pt_jetup6",
-  "VBFjet2_pt_jetup7","VBFjet2_pt_jetup8","VBFjet2_pt_jetup9",
-  "VBFjet2_pt_jetup10","VBFjet2_pt_jetup11",
-  "VBFjet2_pt_jetdown1","VBFjet2_pt_jetdown2","VBFjet2_pt_jetdown3",
-  "VBFjet2_pt_jetdown4","VBFjet2_pt_jetdown5","VBFjet2_pt_jetdown6",
-  "VBFjet2_pt_jetdown7","VBFjet2_pt_jetdown8","VBFjet2_pt_jetdown9",
-  "VBFjet2_pt_jetdown10","VBFjet2_pt_jetdown11",
 
   "VBFjet1_pt_jetupTot","VBFjet1_pt_jetdownTot",                       // VBF-jets JES Total
   "VBFjet1_mass_jetupTot","VBFjet1_mass_jetdownTot",
   "VBFjet2_pt_jetupTot","VBFjet2_pt_jetdownTot",
   "VBFjet2_mass_jetupTot","VBFjet2_mass_jetdownTot",
 
-  "VBFjj_mass_jetup1","VBFjj_mass_jetup2","VBFjj_mass_jetup3",         // VBFjj mass JES
-  "VBFjj_mass_jetup4","VBFjj_mass_jetup5","VBFjj_mass_jetup6",
-  "VBFjj_mass_jetup7","VBFjj_mass_jetup8","VBFjj_mass_jetup9",
-  "VBFjj_mass_jetup10","VBFjj_mass_jetup11",
-  "VBFjj_mass_jetdown1","VBFjj_mass_jetdown2","VBFjj_mass_jetdown3",
-  "VBFjj_mass_jetdown4","VBFjj_mass_jetdown5","VBFjj_mass_jetdown6",
-  "VBFjj_mass_jetdown7","VBFjj_mass_jetdown8","VBFjj_mass_jetdown9",
-  "VBFjj_mass_jetdown10","VBFjj_mass_jetdown11",
+  "VBFjj_mass_jetup*","VBFjj_mass_jetdown*",                           // VBFjj mass JES
 
   "VBFjj_mass_jetupTot","VBFjj_mass_jetdownTot",                       // VBFjj mass JES Total
 
   "met_phi","met_et","METx","METy",                                    // MET
   "met_cov00","met_cov01","met_cov10","met_cov11",
 
-  "METx_muup" ,"METy_muup" ,"METx_mudown" ,"METy_mudown",              // MET MES
-  "METx_eleup","METy_eleup","METx_eledown","METy_eledown",             // MET EES
-  "METx_tauup","METy_tauup","METx_taudown","METy_taudown",             // MET TES
-  "METx_jetup","METy_jetup","METx_jetdown","METy_jetdown",             // MET JES
-  "METx_jetupTot","METy_jetupTot",                                     // MET JES Total
-  "METx_jetdownTot","METy_jetdownTot",
+  "MET*_muup"    ,"MET*_mudown",                                       // MET MES
+  "MET*_eleup"   ,"MET*_eledown",                                      // MET EES
+  "MET*_tauup"   ,"MET*_taudown",                                      // MET TES
+  "MET*_jetup"   ,"MET*_jetdown",                                      // MET JES
+  "MET*_jetupTot","MET*_jetdownTot",                                   // MET JES Total
 
   "VBFjj_mass", "VBFjj_deltaEta",                                      // VBF selection
 
