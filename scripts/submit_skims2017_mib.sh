@@ -24,7 +24,6 @@ mkdir $OUTDIRR
 # hh = 45.7%
 # ll = 10.5%
 # hl = 21.9% (x2 for permutation t-tbar)
-
 # TT had
 echo "Submitting - TThad - "
 echo "Submitting - TThad - " >> log_23Jan2020.txt
@@ -119,10 +118,11 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_m
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 30 -k True -o $SKIMDIR/SKIM_DYJets_4j4b -i $INPUTDIR/DY_merged_4j4b.txt -g False -x 0.017445    -q longcms --pu $PUDIR/PU_Legacy2017_SF_DY_LO_4j4b.txt --nj 4 --nb 4 --DY True
 
+
 # # #####################
 # DY Low Mass
-echo "Submitting - DY Low Mass- "
-echo "Submitting - DY Low Mass- " >> log_23Jan2020.txt
+echo "Submitting - DY Low Mass - "
+echo "Submitting - DY Low Mass - " >> log_23Jan2020.txt
 echo "OUTDIR = $OUTDIRR"
 echo "OUTDIR = $OUTDIRR" >> log_23Jan2020.txt
 
@@ -176,7 +176,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_m
 ### ZH (Zll, Hbb)      : XSBD (xs ZH * BR Z) * H->bb
 ### ZH (Zqq, Hbb)      : XSBD (xs ZH * BR Z) * H->bb
 ### ZH (Zall, Htautau) : XS teor ZH * BR H->tautau
-
 echo "Submitting - SM Higgs - "
 echo "Submitting - SM Higgs - " >> log_23Jan2020.txt
 echo "OUTDIR = $OUTDIRR"
@@ -208,7 +207,7 @@ echo "OUTDIR = $OUTDIRR" >> log_23Jan2020.txt
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 15  -k True -o $SKIMDIR/SKIM_ZZTo4L      -i $INPUTDIR/ZZTo4L.txt      -x 1.26   -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 15  -k True -o $SKIMDIR/SKIM_ZZTo2L2Nu   -i $INPUTDIR/ZZTo2L2Nu.txt   -x 0.564  -q longcms --pu $PUDIR/PU_Legacy2017_SF_WZ.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 15  -k True -o $SKIMDIR/SKIM_ZZTo2L2Nu   -i $INPUTDIR/ZZTo2L2Nu.txt   -x 0.564  -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 15  -k True -o $SKIMDIR/SKIM_ZZTo2L2Q    -i $INPUTDIR/ZZTo2L2Q.txt    -x 3.38   -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
@@ -220,7 +219,7 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_m
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 15  -k True -o $SKIMDIR/SKIM_WZTo1L3Nu   -i $INPUTDIR/WZTo1L3Nu.txt   -x 3.033  -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 15  -k True -o $SKIMDIR/SKIM_WZTo2L2Q    -i $INPUTDIR/WZTo2L2Q.txt    -x 5.52   -q longcms --pu $PUDIR/PU_Legacy2017_SF_WZ.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 15  -k True -o $SKIMDIR/SKIM_WZTo2L2Q    -i $INPUTDIR/WZTo2L2Q.txt    -x 5.52   -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 15  -k True -o $SKIMDIR/SKIM_WWTo2L2Nu   -i $INPUTDIR/WWTo2L2Nu.txt   -x 12.18  -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
@@ -238,10 +237,10 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_m
 
 
 # # #####################
-#### Others :
+#### TTX :
 # HXSWG: xs(ttH) = 0.5071 pb
-echo "Submitting - Others - "
-echo "Submitting - Others - " >> log_23Jan2020.txt
+echo "Submitting - TTX - "
+echo "Submitting - TTX - " >> log_23Jan2020.txt
 echo "OUTDIR = $OUTDIRR"
 echo "OUTDIR = $OUTDIRR" >> log_23Jan2020.txt
 
