@@ -1,3 +1,0 @@
-/data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_data_76X_missingEle_23Feb_-1Events_0Skipped_1456184760.36/HTauTauAnalysis_0.root
-/data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_data_76X_missingEle_23Feb_-1Events_0Skipped_1456184760.36/HTauTauAnalysis_1.root
-/data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_data_76X_missingEle_23Feb_-1Events_0Skipped_1456184760.36/HTauTauAnalysis_2.root
