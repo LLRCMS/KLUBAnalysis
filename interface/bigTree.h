@@ -1285,7 +1285,6 @@ public :
        fChain->SetBranchAddress("mothers_pz", &mothers_pz, &b_mothers_pz);
        fChain->SetBranchAddress("mothers_e", &mothers_e, &b_mothers_e);
        fChain->SetBranchAddress("mothers_trgSeparateMatch", &mothers_trgSeparateMatch, &b_mothers_trgSeparateMatch);
-       fChain->SetBranchAddress("daughters_isTauMatched", &daughters_isTauMatched, &b_daughters_isTauMatched);
        fChain->SetBranchAddress("genmatch", &genmatch, &b_genmatch);
        fChain->SetBranchAddress("daughters_px", &daughters_px, &b_daughters_px);
        fChain->SetBranchAddress("daughters_py", &daughters_py, &b_daughters_py);
@@ -1551,6 +1550,7 @@ public :
             fChain->SetBranchAddress("aMCatNLOweight", &aMCatNLOweight, &b_aMCatNLOweight);
             //fChain->SetBranchAddress("susyModel", &susyModel, &b_susyModel);
             fChain->SetBranchAddress("MC_weight", &MC_weight, &b_MC_weight);
+            fChain->SetBranchAddress("daughters_isTauMatched", &daughters_isTauMatched, &b_daughters_isTauMatched);
             fChain->SetBranchAddress("daughters_genindex", &daughters_genindex, &b_daughters_genindex);
             fChain->SetBranchAddress("genpart_px", &genpart_px, &b_genpart_px);
             fChain->SetBranchAddress("genpart_py", &genpart_py, &b_genpart_py);

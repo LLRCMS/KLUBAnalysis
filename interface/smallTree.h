@@ -81,28 +81,28 @@ struct smallTree
       m_met_phi = -1. ;
       m_met_et = -1. ;
 
-      m_METx = -1.  ;
-      m_METy = -1.  ;
+      m_METx = 0.  ;
+      m_METy = 0.  ;
       m_METx_jetup.clear()  ;
       m_METx_tauup.clear()  ;
       m_METx_eleup.clear()  ;
-      m_METx_muup = -1. ;
-      m_METx_jetupTot = -1. ;
+      m_METx_muup = 0. ;
+      m_METx_jetupTot = 0. ;
       m_METy_jetup.clear()  ;
       m_METy_tauup.clear()  ;
       m_METy_eleup.clear()  ;
-      m_METy_muup = -1. ;
-      m_METy_jetupTot = -1. ;
+      m_METy_muup = 0. ;
+      m_METy_jetupTot = 0. ;
       m_METx_jetdown.clear()  ;
       m_METx_taudown.clear()  ;
       m_METx_eledown.clear()  ;
-      m_METx_mudown = -1. ;
-      m_METx_jetdownTot = -1. ;
+      m_METx_mudown = 0. ;
+      m_METx_jetdownTot = 0. ;
       m_METy_jetdown.clear()  ;
       m_METy_taudown.clear()  ;
       m_METy_eledown.clear()  ;
-      m_METy_mudown = -1. ;
-      m_METy_jetdownTot = -1. ;
+      m_METy_mudown = 0. ;
+      m_METy_jetdownTot = 0. ;
 
       m_met_et_corr =-1.;
       m_met_cov00 = -1.;
