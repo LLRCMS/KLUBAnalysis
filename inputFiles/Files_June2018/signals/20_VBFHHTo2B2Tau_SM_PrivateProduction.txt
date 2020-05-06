@@ -1,6 +1,0 @@
-/gwpool/users/brivio/HH_PRODUCTION/CMSSW_9_4_6_patch1/src/LLRNtuple/HTauTauAnalysis_VBF_1.root
-/gwpool/users/brivio/HH_PRODUCTION/CMSSW_9_4_6_patch1/src/LLRNtuple/HTauTauAnalysis_VBF_2.root
-/gwpool/users/brivio/HH_PRODUCTION/CMSSW_9_4_6_patch1/src/LLRNtuple/HTauTauAnalysis_VBF_3.root
-/gwpool/users/brivio/HH_PRODUCTION/CMSSW_9_4_6_patch1/src/LLRNtuple/HTauTauAnalysis_VBF_4.root
-/gwpool/users/brivio/HH_PRODUCTION/CMSSW_9_4_6_patch1/src/LLRNtuple/HTauTauAnalysis_VBF_5.root
-/gwpool/users/brivio/HH_PRODUCTION/CMSSW_9_4_6_patch1/src/LLRNtuple/HTauTauAnalysis_VBF_6.root
