@@ -2280,15 +2280,18 @@ int main (int argc, char** argv)
       // TES up/down
       vector <double> unc_TES_first;
       vector <double> unc_TES_second;
-      unc_TES_first.push_back(theBigTree.daughters_TESshiftDM0 ->at (firstDaughterIndex)); // first daughter, DM 0
-      unc_TES_first.push_back(theBigTree.daughters_TESshiftDM1 ->at (firstDaughterIndex)); // first daughter, DM 1
-      unc_TES_first.push_back(theBigTree.daughters_TESshiftDM10 ->at (firstDaughterIndex)); // first daughter, DM 10
-      unc_TES_first.push_back(theBigTree.daughters_TESshiftDM11 ->at (firstDaughterIndex)); // first daughter, DM 11
+      if (isMC)
+      {
+        unc_TES_first.push_back(theBigTree.daughters_TESshiftDM0 ->at (firstDaughterIndex)); // first daughter, DM 0
+        unc_TES_first.push_back(theBigTree.daughters_TESshiftDM1 ->at (firstDaughterIndex)); // first daughter, DM 1
+        unc_TES_first.push_back(theBigTree.daughters_TESshiftDM10 ->at (firstDaughterIndex)); // first daughter, DM 10
+        unc_TES_first.push_back(theBigTree.daughters_TESshiftDM11 ->at (firstDaughterIndex)); // first daughter, DM 11
 
-      unc_TES_second.push_back(theBigTree.daughters_TESshiftDM0 ->at (secondDaughterIndex)); // second daughter, DM 0
-      unc_TES_second.push_back(theBigTree.daughters_TESshiftDM1 ->at (secondDaughterIndex)); // second daughter, DM 1
-      unc_TES_second.push_back(theBigTree.daughters_TESshiftDM10 ->at (secondDaughterIndex)); // second daughter, DM 10
-      unc_TES_second.push_back(theBigTree.daughters_TESshiftDM11 ->at (secondDaughterIndex)); // second daughter, DM 11
+        unc_TES_second.push_back(theBigTree.daughters_TESshiftDM0 ->at (secondDaughterIndex)); // second daughter, DM 0
+        unc_TES_second.push_back(theBigTree.daughters_TESshiftDM1 ->at (secondDaughterIndex)); // second daughter, DM 1
+        unc_TES_second.push_back(theBigTree.daughters_TESshiftDM10 ->at (secondDaughterIndex)); // second daughter, DM 10
+        unc_TES_second.push_back(theBigTree.daughters_TESshiftDM11 ->at (secondDaughterIndex)); // second daughter, DM 11
+      }
 
 
       vector <TLorentzVector> tlv_firstLepton_tauup    (N_tauhDM, tlv_firstLepton);
@@ -2302,15 +2305,18 @@ int main (int argc, char** argv)
       vector <double> unc_EESdw_first ;
       vector <double> unc_EESdw_second;
 
-      unc_EESup_first.push_back(theBigTree.daughters_EESshiftDM0up ->at (firstDaughterIndex)); // first daughter, DM 0
-      unc_EESup_first.push_back(theBigTree.daughters_EESshiftDM1up ->at (firstDaughterIndex)); // first daughter, DM 1
-      unc_EESdw_first.push_back(theBigTree.daughters_EESshiftDM0dw ->at (firstDaughterIndex)); // first daughter, DM 0
-      unc_EESdw_first.push_back(theBigTree.daughters_EESshiftDM1dw ->at (firstDaughterIndex)); // first daughter, DM 1
+      if (isMC)
+      {
+        unc_EESup_first.push_back(theBigTree.daughters_EESshiftDM0up ->at (firstDaughterIndex)); // first daughter, DM 0
+        unc_EESup_first.push_back(theBigTree.daughters_EESshiftDM1up ->at (firstDaughterIndex)); // first daughter, DM 1
+        unc_EESdw_first.push_back(theBigTree.daughters_EESshiftDM0dw ->at (firstDaughterIndex)); // first daughter, DM 0
+        unc_EESdw_first.push_back(theBigTree.daughters_EESshiftDM1dw ->at (firstDaughterIndex)); // first daughter, DM 1
 
-      unc_EESup_second.push_back(theBigTree.daughters_EESshiftDM0up ->at (secondDaughterIndex)); // second daughter, DM 0
-      unc_EESup_second.push_back(theBigTree.daughters_EESshiftDM1up ->at (secondDaughterIndex)); // second daughter, DM 1
-      unc_EESdw_second.push_back(theBigTree.daughters_EESshiftDM0dw ->at (secondDaughterIndex)); // second daughter, DM 0
-      unc_EESdw_second.push_back(theBigTree.daughters_EESshiftDM1dw ->at (secondDaughterIndex)); // second daughter, DM 1
+        unc_EESup_second.push_back(theBigTree.daughters_EESshiftDM0up ->at (secondDaughterIndex)); // second daughter, DM 0
+        unc_EESup_second.push_back(theBigTree.daughters_EESshiftDM1up ->at (secondDaughterIndex)); // second daughter, DM 1
+        unc_EESdw_second.push_back(theBigTree.daughters_EESshiftDM0dw ->at (secondDaughterIndex)); // second daughter, DM 0
+        unc_EESdw_second.push_back(theBigTree.daughters_EESshiftDM1dw ->at (secondDaughterIndex)); // second daughter, DM 1
+      }
 
       vector <TLorentzVector> tlv_firstLepton_eleup    (N_tauhDM_EES, tlv_firstLepton);
       vector <TLorentzVector> tlv_firstLepton_eledown  (N_tauhDM_EES, tlv_firstLepton);
@@ -2387,10 +2393,13 @@ int main (int argc, char** argv)
       double unc_MESup_second;
       double unc_MESdw_second;
 
-      unc_MESup_first = theBigTree.daughters_MESshiftup->at (firstDaughterIndex); // first daughter, up
-      unc_MESdw_first = theBigTree.daughters_MESshiftdw->at (firstDaughterIndex); // first daughter, down
-      unc_MESup_second = theBigTree.daughters_MESshiftup ->at (secondDaughterIndex); // second daughter, up
-      unc_MESdw_second = theBigTree.daughters_MESshiftdw ->at (secondDaughterIndex); // second daughter, down
+      if (isMC)
+      {
+        unc_MESup_first = theBigTree.daughters_MESshiftup->at (firstDaughterIndex); // first daughter, up
+        unc_MESdw_first = theBigTree.daughters_MESshiftdw->at (firstDaughterIndex); // first daughter, down
+        unc_MESup_second = theBigTree.daughters_MESshiftup ->at (secondDaughterIndex); // second daughter, up
+        unc_MESdw_second = theBigTree.daughters_MESshiftdw ->at (secondDaughterIndex); // second daughter, down
+      }
 
       TLorentzVector tlv_firstLepton_muup    =tlv_firstLepton;
       TLorentzVector tlv_firstLepton_mudown  =tlv_firstLepton;
@@ -3865,37 +3874,41 @@ int main (int argc, char** argv)
             theSmallTree.m_METy_jetdown.push_back(vMET_shift_jet.second.at(isource).Y());
           }
 
-          // Shifted MET for TES/EES
-          auto vMET_shifts_tes_ees = getShiftedMET_tes_ees(N_tauhDM, N_tauhDM_EES, vMET, theBigTree, DEBUG);
-          //unpack: first is tes, second is ees
-          auto vMET_shift_tes = vMET_shifts_tes_ees.first;
-          auto vMET_shift_ees = vMET_shifts_tes_ees.second;
-          for (int idm = 0; idm < N_tauhDM; idm++)
+          if (isMC)
           {
-            theSmallTree.m_METx_tauup.push_back(vMET_shift_tes.first.at(idm).X());
-            theSmallTree.m_METy_tauup.push_back(vMET_shift_tes.first.at(idm).Y());
-            theSmallTree.m_METx_taudown.push_back(vMET_shift_tes.second.at(idm).X());
-            theSmallTree.m_METy_taudown.push_back(vMET_shift_tes.second.at(idm).Y());
-            if (idm <N_tauhDM_EES){
-              theSmallTree.m_METx_eleup.push_back(vMET_shift_ees.first.at(idm).X());
-              theSmallTree.m_METy_eleup.push_back(vMET_shift_ees.first.at(idm).Y());
-              theSmallTree.m_METx_eledown.push_back(vMET_shift_ees.second.at(idm).X());
-              theSmallTree.m_METy_eledown.push_back(vMET_shift_ees.second.at(idm).Y());
+            // Shifted MET for TES/EES
+            auto vMET_shifts_tes_ees = getShiftedMET_tes_ees(N_tauhDM, N_tauhDM_EES, vMET, theBigTree, DEBUG);
+            //unpack: first is tes, second is ees
+            auto vMET_shift_tes = vMET_shifts_tes_ees.first;
+            auto vMET_shift_ees = vMET_shifts_tes_ees.second;
+            for (int idm = 0; idm < N_tauhDM; idm++)
+            {
+              theSmallTree.m_METx_tauup.push_back(vMET_shift_tes.first.at(idm).X());
+              theSmallTree.m_METy_tauup.push_back(vMET_shift_tes.first.at(idm).Y());
+              theSmallTree.m_METx_taudown.push_back(vMET_shift_tes.second.at(idm).X());
+              theSmallTree.m_METy_taudown.push_back(vMET_shift_tes.second.at(idm).Y());
+              if (idm <N_tauhDM_EES){
+                theSmallTree.m_METx_eleup.push_back(vMET_shift_ees.first.at(idm).X());
+                theSmallTree.m_METy_eleup.push_back(vMET_shift_ees.first.at(idm).Y());
+                theSmallTree.m_METx_eledown.push_back(vMET_shift_ees.second.at(idm).X());
+                theSmallTree.m_METy_eledown.push_back(vMET_shift_ees.second.at(idm).Y());
+              }
             }
-          }
-           // Shifted MET for MES
-          auto vMET_shift_mes = getShiftedMET_mes(vMET, theBigTree, DEBUG);
-          theSmallTree.m_METx_muup = vMET_shift_mes.first.X();
-          theSmallTree.m_METy_muup = vMET_shift_mes.first.Y();
-          theSmallTree.m_METx_mudown = vMET_shift_mes.second.X();
-          theSmallTree.m_METy_mudown = vMET_shift_mes.second.Y();
 
-          // Shifted MET for JES total
-          auto vMET_shift_jetTot = getShiftedMET_jetTot(vMET, theBigTree, DEBUG);
-          theSmallTree.m_METx_jetupTot   = vMET_shift_jetTot.first.X();
-          theSmallTree.m_METy_jetupTot   = vMET_shift_jetTot.first.Y();
-          theSmallTree.m_METx_jetdownTot = vMET_shift_jetTot.second.X();
-          theSmallTree.m_METy_jetdownTot = vMET_shift_jetTot.second.Y();
+            // Shifted MET for MES
+            auto vMET_shift_mes = getShiftedMET_mes(vMET, theBigTree, DEBUG);
+            theSmallTree.m_METx_muup = vMET_shift_mes.first.X();
+            theSmallTree.m_METy_muup = vMET_shift_mes.first.Y();
+            theSmallTree.m_METx_mudown = vMET_shift_mes.second.X();
+            theSmallTree.m_METy_mudown = vMET_shift_mes.second.Y();
+
+            // Shifted MET for JES total
+            auto vMET_shift_jetTot = getShiftedMET_jetTot(vMET, theBigTree, DEBUG);
+            theSmallTree.m_METx_jetupTot   = vMET_shift_jetTot.first.X();
+            theSmallTree.m_METy_jetupTot   = vMET_shift_jetTot.first.Y();
+            theSmallTree.m_METx_jetdownTot = vMET_shift_jetTot.second.X();
+            theSmallTree.m_METy_jetdownTot = vMET_shift_jetTot.second.Y();
+          }
 
           theSmallTree.m_bH_pt = tlv_bH.Pt () ;
           theSmallTree.m_bH_eta = tlv_bH.Eta () ;
