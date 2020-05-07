@@ -4,12 +4,17 @@
 
 # - TauTau -
 # python scripts/submitHistoFiller_Legacy2017.py --cfg config/mainCfg_TauTau_Legacy2017.cfg --tag analysis_TauTau_05Feb2020_MTTWeightEvent --n 30
+# python scripts/submitHistoFiller_Legacy2017.py --cfg config/mainCfg_TauTau_Legacy2017_tauIDSF.cfg --tag analysis_TauTau_tauIDSF_13Feb2020_Legacy2017 --n 30
+# python scripts/submitHistoFiller_Legacy2017.py --cfg config/mainCfg_TauTau_Legacy2017.cfg --tag analysis_TauTau_13Feb2020_homeMadeTauIDSF --n 30
+# python scripts/submitHistoFiller_Legacy2017.py --cfg config/mainCfg_TauTau_Legacy2017.cfg --tag analysis_TauTau_08May2020_SecondProd_FirstSkim_First --n 80
 
 # - MuTau -
 # python scripts/submitHistoFiller_Legacy2017.py --cfg config/mainCfg_MuTau_Legacy2017.cfg --tag analysis_MuTau_05Feb2020_MTTWeightEvent --n 30
+# python scripts/submitHistoFiller_Legacy2017.py --cfg config/mainCfg_MuTau_Legacy2017.cfg --tag analysis_MuTau_08May2020_SecondProd_FirstSkim_First --n 80
 
 # - ETau -
 # python scripts/submitHistoFiller_Legacy2017.py --cfg config/mainCfg_ETau_Legacy2017.cfg --tag analysis_ETau_05Feb2020_MTTWeightEvent --n 30
+# python scripts/submitHistoFiller_Legacy2017.py --cfg config/mainCfg_ETau_Legacy2017.cfg --tag analysis_ETau_08May2020_SecondProd_FirstSkim_First --n 80
 
 ################
 

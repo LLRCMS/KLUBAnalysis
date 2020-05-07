@@ -1,22 +1,32 @@
 #tag=23Jan2020
 #tag=23Jan2020_invQCD
 #tag=27Jan2020_noTauIDSF
-tag=05Feb2020_MTTWeightEvent
+tag=08May2020_SecondProd_FirstSkim_First
 
 log=(--log)
 
 plotter=makeFinalPlots_Legacy2017.py
 
-#channel=TauTau
+channel=TauTau
 #channel=MuTau
-channel=ETau
+#channel=ETau
 #channel=MuMu
 
 lumi=41.557
 
 reg=SR  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
 
-baseline=baseline55
+baseline=baseline
+#baseline=s1b1jresolved
+#baseline=s2b0jresolved
+#baseline=sboostedLL
+#baseline=baseline
+#baseline=baseline40to70
+#baseline=baseline70
+#baseline=baseline_both0
+#baseline=baseline_both1
+#baseline=baseline_both10
+#baseline=baseline_both11
 
 others=""
 
@@ -57,8 +67,3 @@ do
 
 
 done
-
-
-
-
-
