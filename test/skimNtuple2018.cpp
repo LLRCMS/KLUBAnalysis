@@ -36,9 +36,9 @@
 #include "ScaleFactor.h"
 #include "ConfigParser.h"
 #include "EffCounter.h"
-#include "/home/llr/cms/motta/CMSSW_10_2_16/src/HHKinFit2/interface/exceptions/HHInvMConstraintException.h"
-#include "/home/llr/cms/motta/CMSSW_10_2_16/src/HHKinFit2/interface/exceptions/HHEnergyRangeException.h"
-#include "/home/llr/cms/motta/CMSSW_10_2_16/src/HHKinFit2/interface/exceptions/HHEnergyConstraintException.h"
+#include "exceptions/HHInvMConstraintException.h"
+#include "exceptions/HHEnergyRangeException.h"
+#include "exceptions/HHEnergyConstraintException.h"
 
 #include "TMVA/MsgLogger.h"
 #include "TMVA/Config.h"
