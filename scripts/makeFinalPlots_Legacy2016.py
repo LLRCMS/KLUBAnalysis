@@ -584,7 +584,7 @@ if __name__ == "__main__" :
 
     hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
 
-    hBkgNameList = ["Others", "W + jets", "t#bar{t}" , "DY NLO"] # list for legend
+    hBkgNameList = ["Others", "W + jets", "t#bar{t}" , "DY"] # list for legend
 
     if doQCD:
         col2 = TColor()
@@ -884,6 +884,8 @@ if __name__ == "__main__" :
     if not args.name:
             if "baseline" in args.sel:  
                     selName = "baseline"
+            if "MTT" in args.sel:
+                    selName = "baseline_MTT"
             if "1b1j" in args.sel:  
                     selName = "1b1j"
             if "2b0j" in args.sel:  
