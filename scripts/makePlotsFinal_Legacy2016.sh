@@ -1,20 +1,19 @@
-tag=invertedQCD_13Feb2020_Legacy2016
-#tag=newSF2_13Feb2020_Legacy2016
+tag=10May2020_Legacy2016
 
 log=(--log)
 
 plotter=makeFinalPlots_Legacy2016.py
 
 #channel=TauTau
-channel=MuTau
+#channel=MuTau
 #channel=ETau
-#channel=MuMu
+channel=MuMu
 
 lumi=35.92
 
 reg=SR  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
 
-baseline=s2b0jresolved #baseline, s1b1jresolved, s2b0jresolved, sboostedLL
+baseline=baseline_MTT  # baseline, s1b1jresolved, s2b0jresolved, sboostedLL, baseline_noQCD, baseline_MTT
 
 others=""
 
