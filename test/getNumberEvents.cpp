@@ -72,7 +72,8 @@ int totEvtsFromFileHisto (TString filename, int nFiles)
             }
             std::cout << "] " << int(progress * 100.0) << " % (" << nFiles << " files)\r";
             std::cout.flush();
-	    TFile* fIn = TFile::Open (line.c_str());
+
+            TFile* fIn = TFile::Open (line.c_str());
             TH1F* dummy = (TH1F*) fIn->Get ("HTauTauTree/Counters");
             nEvts += (int) dummy->GetBinContent(1) ;
             fIn->Close();
