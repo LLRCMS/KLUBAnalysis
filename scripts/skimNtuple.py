@@ -262,8 +262,9 @@ if __name__ == "__main__":
 
         
         #command = '/opt/exp_soft/cms/t3/t3submit_el7 -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
-        command = '/home/llr/cms/amendola/t3submit_el7 -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
+        command = '/home/llr/cms/amendola/t3submit -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
         if opt.sleep : time.sleep (0.1)
+        if ((n > 0) and (n % 500 == 0)): time.sleep (1800)
         os.system (command)
         commandFile.write (command + '\n')
         n = n + 1

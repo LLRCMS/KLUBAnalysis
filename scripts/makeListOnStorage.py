@@ -10,11 +10,12 @@ from subprocess import Popen, PIPE
 #tag = "Data2018D_Dec2019_resub_egamma"
 #tag = "MC2018_Dec2019"
 #tag = "MC2018_Dec2019_resub"
-tag = "MC2018_Dec2019_resub2"
+#tag = "MC2018_Dec2019_resub2"
 #tag = "Signals2018_Dec2019"
-
-#outFolder = '/home/llr/cms/amendola/HHLegacy/CMSSW_10_2_16/src/KLUBAnalysis/inputFiles/Legacy2018_data/'
-outFolder = '/home/llr/cms/amendola/HHLegacy/CMSSW_10_2_16/src/KLUBAnalysis/inputFiles/Legacy2018_backgrounds/'
+tag= "Tau2018D_missingFile_3"
+#tag="Signals2018_GF_4"
+outFolder = '/home/llr/cms/amendola/HHLegacy/CMSSW_10_2_16/src/KLUBAnalysis/inputFiles/Legacy2018_data_missing/'
+#outFolder = '/home/llr/cms/amendola/HHLegacy/CMSSW_10_2_16/src/KLUBAnalysis/inputFiles/Legacy2018_backgrounds/'
 #outFolder = '/home/llr/cms/amendola/HHLegacy/CMSSW_10_2_16/src/KLUBAnalysis/inputFiles/Legacy2018_signals/'
 
 areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
@@ -54,7 +55,7 @@ print useOnly
 
 dpmhome = "/dpm/in2p3.fr/home/cms/trivcat"
 
-partialPath = "/store/user/camendol/HHNtuples2018Legacy/"
+partialPath = "/store/user/camendol/HHNtuples2018_Legacy_v2/"
 
 
 path = dpmhome + partialPath + tag
