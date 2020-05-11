@@ -52,8 +52,10 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -
 
 ######################
 #### DY - filelists up to date
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_Legacy2018.cfg  -n 200 -k True -n 200  -Y 2018 -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_DY -i $INPUTDIR_BKG/DYmerged.txt -x 6225.42 -g True --DY True
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_Legacy2018.cfg  -n 200 -k True -n 200  -Y 2018 -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_DY_lowMass -i $INPUTDIR_BKG/DYJetsToLL_M-10to50_merged.txt -x 18610 
+### xsec from:
+### https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#DY_Z
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_Legacy2018.cfg  -n 200 -q long -k True  -Y 2018 --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_DY -i $INPUTDIR_BKG/DYmerged.txt -x 6077.22 -g True --DY True
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_Legacy2018.cfg  -n 200 -q long -k True  -Y 2018 --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_DY_lowMass -i $INPUTDIR_BKG/DYJetsToLL_M-10to50_merged.txt -x 18610 
 
 #######################
 #### Wjets - filelists up to date
