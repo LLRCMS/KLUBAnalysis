@@ -1,19 +1,19 @@
-tag=10May2020_Legacy2016
+tag=12May2020_Legacy2016_tauIDhomemade
 
 log=(--log)
 
 plotter=makeFinalPlots_Legacy2016.py
 
-#channel=TauTau
+channel=TauTau
 #channel=MuTau
 #channel=ETau
-channel=MuMu
+#channel=MuMu
 
 lumi=35.92
 
 reg=SR  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
 
-baseline=baseline_MTT  # baseline, s1b1jresolved, s2b0jresolved, sboostedLL, baseline_noQCD, baseline_MTT
+baseline=baseline  # baseline, s1b1jresolved, s2b0jresolved, sboostedLL, baseline_noQCD, baseline_MTT
 
 others=""
 
