@@ -1,15 +1,22 @@
 #tag=23Jan2020
 #tag=23Jan2020_invQCD
 #tag=27Jan2020_noTauIDSF
-tag=08May2020_SecondProd_FirstSkim_First
+#tag=08May2020_SecondProd_FirstSkim_Second_InvQCD
+#tag=08May2020
+#tag=08May2020_SecondProd_FirstSkim_Third_InvQCD_pTBinnedTauIDSF
+#tag=08May2020_SecondProd_FirstSkim_Fourth_InvQCD_homeMadeTauIDSF
+#tag=08May2020_SecondProd_FirstSkim_Fifth_InvQCD_noTauIDSF
+#tag=08May2020_SecondProd_FirstSkim_Sixth_InvQCD_noDYMTTSF
+#tag=08May2020_SecondProd_FirstSkim_Seventh_InvQCD_specialMerging
+tag=08May2020_SecondProd_FirstSkim_Eighth_InvQCD_newRationRange
 
 log=(--log)
 
 plotter=makeFinalPlots_Legacy2017.py
 
-channel=TauTau
+#channel=TauTau
 #channel=MuTau
-#channel=ETau
+channel=ETau
 #channel=MuMu
 
 lumi=41.557
@@ -21,6 +28,7 @@ baseline=baseline
 #baseline=s2b0jresolved
 #baseline=sboostedLL
 #baseline=VBFloose
+#baseline=baseline_MTT
 #baseline=baseline40to70
 #baseline=baseline70
 #baseline=baseline_both0
@@ -44,10 +52,12 @@ do
   #
   ## Hbb
   #
-    python scripts/$plotter --dir analysis_$channel\_$tag --var bjet1_pt   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}(b_{1}) [GeV]" $sigDrawer $others --quit
-    python scripts/$plotter --dir analysis_$channel\_$tag --var bjet2_pt   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}(b_{2}) [GeV]" $sigDrawer $others --quit
-    python scripts/$plotter --dir analysis_$channel\_$tag --var bH_pt      --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T} [GeV]"        $sigDrawer $others --quit
-    python scripts/$plotter --dir analysis_$channel\_$tag --var bH_mass    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{bb} [GeV]"       $sigDrawer $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var bjet1_pt               --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}(b_{1}) [GeV]" $sigDrawer $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var bjet2_pt               --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}(b_{2}) [GeV]" $sigDrawer $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var bjet1_bID_deepFlavor   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "bjet1_deepFlavor"   $sigDrawer $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var bjet2_bID_deepFlavor   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "bjet2_deepFlavor"   $sigDrawer $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var bH_pt                  --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T} [GeV]"        $sigDrawer $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var bH_mass                --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{bb} [GeV]"       $sigDrawer $others --quit
 
   #
   ## Htautau
@@ -64,6 +74,16 @@ do
 
     python scripts/$plotter --dir analysis_$channel\_$tag --var ditau_deltaR    --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#DeltaR_{#tau#tau}"          $sigDrawer $others --quit
 
+  #
+  ## HH
+  #
+    python scripts/$plotter --dir analysis_$channel\_$tag --var HH_mass_raw  --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag  --label "m_{bb#tau#tau} [GeV]" $sigDrawer $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var HH_pt        --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag  --label "p_{T}(bb#tau#tau) [GeV]" $sigDrawer $others --quit
 
+  #
+  ## BDT OUTS 
+  #
+  
+    python scripts/$plotter --dir analysis_$channel\_$tag --var BDToutSM_kl_1 --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "BDT score (#tau#tau, k_{#lambda}=1)" $sigDrawer $others --quit
 
 done

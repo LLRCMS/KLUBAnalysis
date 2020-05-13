@@ -1459,7 +1459,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0001/HTauTauAnalysis_1459.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0001/HTauTauAnalysis_1460.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0001/HTauTauAnalysis_1461.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0001/HTauTauAnalysis_1462.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0001/HTauTauAnalysis_1463.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0001/HTauTauAnalysis_1464.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0001/HTauTauAnalysis_1465.root
@@ -2759,7 +2758,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0002/HTauTauAnalysis_2759.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0002/HTauTauAnalysis_2760.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0002/HTauTauAnalysis_2761.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0002/HTauTauAnalysis_2762.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0002/HTauTauAnalysis_2763.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0002/HTauTauAnalysis_2764.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0002/HTauTauAnalysis_2765.root
@@ -3488,7 +3486,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0003/HTauTauAnalysis_3488.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0003/HTauTauAnalysis_3489.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0003/HTauTauAnalysis_3490.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0003/HTauTauAnalysis_3491.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0003/HTauTauAnalysis_3492.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0003/HTauTauAnalysis_3493.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0003/HTauTauAnalysis_3494.root
@@ -3564,7 +3561,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0003/HTauTauAnalysis_3564.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0003/HTauTauAnalysis_3565.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0003/HTauTauAnalysis_3566.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0003/HTauTauAnalysis_3567.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0003/HTauTauAnalysis_3568.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0003/HTauTauAnalysis_3569.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0003/HTauTauAnalysis_3570.root
@@ -4940,8 +4936,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0004/HTauTauAnalysis_4943.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0004/HTauTauAnalysis_4944.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0004/HTauTauAnalysis_4945.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0004/HTauTauAnalysis_4946.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0004/HTauTauAnalysis_4947.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0004/HTauTauAnalysis_4948.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0004/HTauTauAnalysis_4949.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0004/HTauTauAnalysis_4950.root
@@ -5048,12 +5042,10 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5052.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5053.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5054.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5055.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5056.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5057.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5058.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5059.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5060.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5061.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5062.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5063.root
@@ -5078,7 +5070,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5082.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5083.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5084.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5085.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5086.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5087.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5088.root
@@ -5095,7 +5086,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5099.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5100.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5101.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5102.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5103.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5104.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5105.root
@@ -5155,7 +5145,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5161.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5162.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5163.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5164.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5165.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5166.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5167.root
@@ -5181,7 +5170,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5187.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5188.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5189.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5190.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5191.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5192.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5193.root
@@ -5191,7 +5179,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5197.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5198.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5199.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5200.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5201.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5202.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5203.root
@@ -5209,7 +5196,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5215.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5216.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5217.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5218.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5219.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5220.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5221.root
@@ -5218,7 +5204,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5224.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5225.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5226.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5227.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5228.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5229.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5230.root
@@ -5235,7 +5220,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5241.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5242.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5243.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5244.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5245.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5246.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5247.root
@@ -5280,7 +5264,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5287.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5288.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5289.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5290.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5291.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5292.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5293.root
@@ -5304,7 +5287,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5311.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5312.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5313.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5314.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5315.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5316.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5317.root
@@ -5357,7 +5339,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5364.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5365.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5366.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5367.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5368.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5369.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5370.root
@@ -5367,7 +5348,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5374.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5376.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5377.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5378.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5379.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5380.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5381.root
@@ -5385,13 +5365,11 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5393.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5394.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5395.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5396.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5397.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5398.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5399.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5400.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5401.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5402.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5403.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5404.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5405.root
@@ -5413,7 +5391,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5421.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5422.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5423.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5424.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5425.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5426.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5427.root
@@ -5433,7 +5410,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5441.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5442.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5443.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5444.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5445.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5446.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5447.root
@@ -5504,7 +5480,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5512.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5513.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5514.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5515.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5516.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5517.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5518.root
@@ -5535,7 +5510,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5543.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5544.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5545.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5546.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5547.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5548.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5549.root
@@ -5602,7 +5576,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5612.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5613.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5614.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5615.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5616.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5617.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5618.root
@@ -5666,7 +5639,6 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5677.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5678.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5679.root
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5680.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5681.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5682.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_1/200330_155230/0005/HTauTauAnalysis_5683.root
@@ -5814,3 +5786,8 @@ root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNt
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D_missingFile_2/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_missingFile_2_1/200428_150020/0000/HTauTauAnalysis_2.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D_missingFile_2/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_missingFile_2_1/200428_150020/0000/HTauTauAnalysis_3.root
 root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D_missingFile_2/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_missingFile_2_1/200428_150020/0000/HTauTauAnalysis_4.root
+root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D_missingFile_3/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_missingFile_3_1/200510_143455/0000/HTauTauAnalysis_1.root
+root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D_missingFile_3/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_missingFile_3_1/200510_143455/0000/HTauTauAnalysis_2.root
+root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D_missingFile_3/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_missingFile_3_1/200510_143455/0000/HTauTauAnalysis_3.root
+root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D_missingFile_3/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_missingFile_3_1/200510_143455/0000/HTauTauAnalysis_4.root
+root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/camendol/HHNtuples2018_Legacy_v2/Tau2018D_missingFile_3/1_Tau__Run2018D-PromptReco-v2/Tau/Tau_Tau2018D_missingFile_3_1/200510_143455/0000/HTauTauAnalysis_5.root
