@@ -17,7 +17,7 @@ fi
 #tag=4May2019_decaymodes_DYLO_loosepu_mtt_tauIDSF
 #tag=4May2019_decaymodes_DYLO_DYenr_loosepu_mtt_tauIDSF
 #tag=4May2019_decaymodes_DYLO_DYenr_loosepu_mtt_notauID
-tag=4May2019_decaymodes_DYLO_loosepu_mtt_tauIDSF
+tag=homemadeSFno11_13May2020_Legacy2017
 #tag=4May2019_decaymodes_DYLO_DYenr_notauIDSF
 log=(--log)
 
@@ -39,51 +39,51 @@ reg=SR  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
 #reg=SSinviso
 #reg=SRVTight
 
-baseline=baselineHTauTau55
-others="--ratio"
+baseline=baselineHTauTau
+others="--quit --ratio"
 #others=""
-others="--quit --ratio --name DY~enriched"
+#others="--quit --ratio --name DY~enriched"
 #others="--no-binwidth"
 #others="--quit --name baseline40"
 #others="--quit --name \"baseline~w/o~lep~veto\""
 
-mkdir plotsHH2017_$channel
-mkdir plotsHH2017_$channel/$tag
-mkdir plotsHH2017_$channel/$tag/$baseline\_$reg
+mkdir plotsHHLegacy2017_$channel
+mkdir plotsHHLegacy2017_$channel/$tag
+mkdir plotsHHLegacy2017_$channel/$tag/$baseline\_$reg
 
 
 
 python scripts/$plotter --dir analysis_$channel\_$tag --var dau1_eta        --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi  --tag $tag --label "#eta_{#tau1}" --no-sig $others 
 
 
-cd plotsHH2017_$channel
-mkdir /eos/home-c/camendol/www/HH2017/plotsHH2017$channel\_Jan2019/$tag
-if [ -d  /eos/home-c/camendol/www/HH2017/plotsHH2017$channel\_Jan2019/$tag/$baseline\_$reg ]
+cd plotsHHLegacy2017_$channel
+mkdir -p /eos/home-c/camendol/www/HHLegacy2017/plotsHHLegacy2017_$channel/$tag
+if [ -d  /eos/home-c/camendol/www/HHLegacy2017/plotsHHLegacy2017_$channel/$tag/$baseline\_$reg ]
 then
     echo "removing"
-    rm -rf  /eos/home-c/camendol/www/HH2017/plotsHH2017$channel\_Jan2019/$tag/$baseline\_$reg
+    rm -rf  /eos/home-c/camendol/www/HHLegacy2017/plotsHHLegacy2017_$channel/$tag/$baseline\_$reg
 fi
-if [ -d  /eos/home-c/camendol/www/HH2017/plotsHH2017$channel\_Jan2019/$tag/$baseline\_$reg ]
+if [ -d  /eos/home-c/camendol/www/HHLegacy2017/plotsHHLegacy2017_$channel/$tag/$baseline\_$reg ]
 then
     echo "pippa"
 fi
-mkdir /eos/home-c/camendol/www/HH2017/plotsHH2017$channel\_Jan2019/$tag/$baseline\_$reg
-cp $tag/$baseline\_$reg/* /eos/home-c/camendol/www/HH2017/plotsHH2017$channel\_Jan2019/$tag/$baseline\_$reg
+mkdir /eos/home-c/camendol/www/HHLegacy2017/plotsHHLegacy2017_$channel/$tag/$baseline\_$reg
+cp $tag/$baseline\_$reg/* /eos/home-c/camendol/www/HHLegacy2017/plotsHHLegacy2017_$channel/$tag/$baseline\_$reg
 cd ..
 
-cp /eos/home-c/camendol/www/index.php /eos/home-c/camendol/www/HH2017/plotsHH2017$channel\_Jan2019/$tag
-cp /eos/home-c/camendol/www/index.php /eos/home-c/camendol/www/HH2017/plotsHH2017$channel\_Jan2019/$tag/$baseline\_$reg
+cp /eos/home-c/camendol/www/index.php /eos/home-c/camendol/www/HHLegacy2017/plotsHHLegacy2017_$channel/$tag
+cp /eos/home-c/camendol/www/index.php /eos/home-c/camendol/www/HHLegacy2017/plotsHHLegacy2017_$channel/$tag/$baseline\_$reg
 
 
-cd plotsHH2017_$channel
+cd plotsHHLegacy2017_$channel
 
 
 
-#ssh camendol@lxplus.cern.ch "mkdir -p /eos/home-c/camendol/www/HH2017/plotsHH2017$channel/$tag" && scp -r $tag/$baseline\_$reg camendol@lxplus.cern.ch://eos/home-c/camendol/www/HH2017/plotsHH2017$channel/$tag && scp ../index.php camendol@lxplus.cern.ch://eos/home-c/camendol/www/HH2017/plotsHH2017$channel/$tag && scp ../index.php camendol@lxplus.cern.ch://eos/home-c/camendol/www/HH2017/plotsHH2017$channel/$tag/$baseline\_$reg
+#ssh camendol@lxplus.cern.ch "mkdir -p /eos/home-c/camendol/www/HHLegacy2017/plotsHH2017$channel/$tag" && scp -r $tag/$baseline\_$reg camendol@lxplus.cern.ch://eos/home-c/camendol/www/HH2017/plotsHH2017$channel/$tag && scp ../index.php camendol@lxplus.cern.ch://eos/home-c/camendol/www/HH2017/plotsHH2017$channel/$tag && scp ../index.php camendol@lxplus.cern.ch://eos/home-c/camendol/www/HH2017/plotsHH2017$channel/$tag/$baseline\_$reg
 
 #ssh camendol@lxplus.cern.ch "mkdir -p //eos/home-c/camendol/www/HH2017_Jan2019/plotsHH2017$channel/$tag"
 #scp -r $tag/$baseline\_$reg camendol@lxplus.cern.ch://eos/home-c/camendol/www/HH2017_Jan2019/plotsHH2017$channel/$tag
 #ssh camendol@lxplus.cern.ch "cp /eos/home-c/camendol/www/index.php /eos/home-c/camendol/www/HH2017_Jan2019/plotsHH2017$channel/$tag ; /eos/home-c/camendol/www/index.php /eos/home-c/camendol/www/HH2017_Jan2019/plotsHH2017$channel/$tag/$baseline\_$reg"
 #cd ..
 
-echo [Alt + CMD + 2click]: http://camendol.web.cern.ch/camendol/HH2017/plotsHH2017$channel\_Jan2019/$tag/$baseline\_$reg
+echo [Alt + CMD + 2click]: http://camendol.web.cern.ch/camendol/HHLegacy2017/plotsHHLegacy2017_$channel/$tag/$baseline\_$reg
