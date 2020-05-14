@@ -5,11 +5,15 @@
 # - TauTau -
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_10May2020_Legacy2016 --n 60
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_10May2020_Legacy2016_DY_LM --n 90
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_10May2020_Legacy2016_forLimits --n 100
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_12May2020_Legacy2016_tauIDhomemade --n 150
 
 
 # - MuTau -
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuTau_Legacy2016.cfg --tag analysis_MuTau_23Jan2020 --n 60
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuTau_Legacy2016.cfg --tag analysis_MuTau_10May2020_Legacy2016 --n 90
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuTau_Legacy2016.cfg --tag analysis_MuTau_10May2020_Legacy2016_forLimits --n 100
+
 
 # - ETau -
 # python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_ETau_Legacy2016.cfg --tag analysis_ETau_invertedQCD_13Feb2020_Legacy2016 --n 70
@@ -19,8 +23,7 @@
 
 
 # - TauTau tauIDSF -
-# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016_tauIDSF.cfg --tag analysis_TauTau_27Jan2020_DMs_tauIDSF --n 60
-# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016_tauIDSF.cfg --tag analysis_TauTau_tauIDSF_13Feb2020_Legacy2016 --n 60
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016_tauIDSF.cfg --tag analysis_TauTau_tauIDSF_12May2020_Legacy2016 --n 90
 
 ################
 
