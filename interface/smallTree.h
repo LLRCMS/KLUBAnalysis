@@ -114,6 +114,7 @@ struct smallTree
       m_mT2 = -1. ;
     
       m_dau1_iso  = -1. ;
+      m_dau1_eleMVAiso = -1;
       m_dau1_MVAiso = -1 ;
       m_dau1_MVAisoNew = -1 ; //FRA syncFeb2018
       m_dau1_MVAisoNewdR0p3 = -1; //FRA syncApr2018
@@ -932,6 +933,7 @@ struct smallTree
       m_smallT->Branch ("mT2", &m_mT2, "mT2/F") ;
 
       m_smallT->Branch ("dau1_iso", &m_dau1_iso, "dau1_iso/F") ;
+      m_smallT->Branch ("dau1_eleMVAiso", &m_dau1_eleMVAiso, "dau1_eleMVAiso/I") ;
       m_smallT->Branch ("dau1_MVAiso", &m_dau1_MVAiso, "dau1_MVAiso/I") ;
       m_smallT->Branch ("dau1_MVAisoNew", &m_dau1_MVAisoNew, "dau1_MVAisoNew/I") ; //FRA syncFeb2018
       m_smallT->Branch ("dau1_MVAisoNewdR0p3", &m_dau1_MVAisoNewdR0p3, "dau1_MVAisoNewdR0p3/I") ; //FRA syncApr2018
@@ -1739,6 +1741,7 @@ struct smallTree
 
   // the largest pT daughter visible candidate
   Float_t m_dau1_iso ;
+  Int_t   m_dau1_eleMVAiso;
   Int_t   m_dau1_MVAiso; // for taus only
   Int_t   m_dau1_MVAisoNew; // for taus only //FRA syncFeb2018
   Int_t   m_dau1_MVAisoNewdR0p3; // for taus only //FRA syncApr2018
