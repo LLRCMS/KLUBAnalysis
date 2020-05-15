@@ -404,7 +404,7 @@ if __name__ == "__main__" :
     
     ######################### CANVASES #################################
 
-    c1 = TCanvas ("c1", "c1", 600, 600)
+    c1 = TCanvas ("c1", "c1", 800, 600)
     # c1.SetLeftMargin(0.15);
     # c1.SetBottomMargin(0.12);
     # c1.SetTopMargin(0.055);
@@ -435,18 +435,16 @@ if __name__ == "__main__" :
 
 
     ######################### PUT USER CONFIGURATION HERE ####################
-    cfgName  =  args.dir + "/mainCfg_"+args.channel+"_tauIDSF.cfg"
+    cfgName  =  args.dir + "/mainCfg_"+args.channel+"_Legacy2017_tauIDSF.cfg"
     cfg        = cfgr.ConfigReader (cfgName)
     bkgList    = cfg.readListOption("general::backgrounds")
-    cfgNameBin  =  args.dir + "/binCategories.cfg"
-    cfgBins        = cfgr.ConfigReader (cfgNameBin)
-    catList = cfgBins.readListOption("general::categories")
-    catLabels = cfgBins.readListOption("general::labels")
+    catList = cfg.readListOption("pp_bins::categories")
+    catLabels = cfg.readListOption("pp_bins::labels")
 
     for il,label in enumerate(catLabels):
 
-            #catLabels[il] =  str(label).replace("tau", "#tau")
-            catLabels[il] =  str(label).replace("\\", "#")
+            catLabels[il] =  str(label).replace("tau", "#tau")
+            #catLabels[il] =  str(label).replace("\\", "#")
 
 
     doQCD = True
@@ -920,7 +918,44 @@ if __name__ == "__main__" :
         tagch = ""
         if args.channel:
             tagch = "_" + args.channel
-        saveName = "./plotsHH2017_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_decaymodes_" + args.sel +"_" + args.reg+ tagch
+        saveName = "./plotsHHLegacy2017_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_decaymodes_" + args.sel +"_" + args.reg+ tagch
         
         c1.SaveAs (saveName+".pdf")
         c1.SaveAs (saveName+".png")
+
+    hRatioPlot = hDataNonScaled.Clone("hRatioPlot")
+    hRatioPlot.Divide(hBkgEnvelopeNS)
+
+    DMmap = TH2F("DMmap","DMmap", 4, 0, 4, 4, 0, 4)
+    DMs = {"DM0":1, "DM1":2, "DM10":3, "DM11":4}
+    for p in range(2, hRatioPlot.GetNbinsX()+1): 
+        print hRatio.GetXaxis().GetBinLabel(p) 
+        print hRatioPlot.GetBinContent(p)
+        tau1,tau2 = hRatio.GetXaxis().GetBinLabel(p).split("-")
+        tau1 = tau1.replace("#tau_{1} ", "").strip()
+        tau2 = tau2.replace("#tau_{2} ", "").strip()
+        DMmap.SetBinContent(DMs[tau1],DMs[tau2], hRatioPlot.GetBinContent(p))
+    for k,v in DMs.items():
+        #print k,v
+        DMmap.GetXaxis().SetBinLabel(v,k)  
+        DMmap.GetYaxis().SetBinLabel(v,k)
+    gStyle.SetOptStat(0)
+    DMmap.SetMaximum(1.2)
+    DMmap.SetMinimum(0.8)
+    gStyle.SetPalette(kTemperatureMap)
+    DMmap.SetTitle('')
+    DMmap.GetXaxis().SetTitle("#tau_{1} DM")
+    DMmap.GetYaxis().SetTitle("#tau_{2} DM")
+    DMmap.GetZaxis().SetTitle("Data/Bkg")
+    c2 = TCanvas ("c2", "c2", 650, 600)
+    c2.SetRightMargin(0.15);
+    c2.Draw()
+    DMmap.Draw("colz")
+    if args.printplot:
+        tagch = ""
+        if args.channel:
+            tagch = "_" + args.channel
+        saveName = "./plotsHHLegacy2017_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_decaymodes_map_" + args.sel +"_" + args.reg+ tagch
+        
+        c2.SaveAs (saveName+".pdf")
+        c2.SaveAs (saveName+".png")
