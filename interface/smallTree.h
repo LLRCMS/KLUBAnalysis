@@ -1090,15 +1090,15 @@ struct smallTree
       m_smallT->Branch ("bjet2_flav", &m_bjet2_flav, "bjet2_flav/I") ;
       m_smallT->Branch ("bjet2_pt_raw", &m_bjet2_pt_raw, "bjet2_pt_raw/F") ;
 
-      m_smallT->Branch ("bjet2_pt_raw_jetup",     &m_bjet1_pt_raw_jetup) ;
-      m_smallT->Branch ("bjet2_pt_raw_jetdown",   &m_bjet1_pt_raw_jetdown) ;
-      m_smallT->Branch ("bjet2_mass_raw_jetup",   &m_bjet1_mass_raw_jetup) ;
-      m_smallT->Branch ("bjet2_mass_raw_jetdown", &m_bjet1_mass_raw_jetdown) ;
+      m_smallT->Branch ("bjet2_pt_raw_jetup",     &m_bjet2_pt_raw_jetup) ;
+      m_smallT->Branch ("bjet2_pt_raw_jetdown",   &m_bjet2_pt_raw_jetdown) ;
+      m_smallT->Branch ("bjet2_mass_raw_jetup",   &m_bjet2_mass_raw_jetup) ;
+      m_smallT->Branch ("bjet2_mass_raw_jetdown", &m_bjet2_mass_raw_jetdown) ;
 
-      m_smallT->Branch ("bjet2_hasgenjet", &m_bjet1_hasgenjet, "bjet1_hasgenjet/O") ;
-      m_smallT->Branch ("bjet2_JER",        &m_bjet1_JER, "bjet1_JER/F") ;
-      m_smallT->Branch ("bjet2_JER_jetup",  &m_bjet1_JER_jetup) ;
-      m_smallT->Branch ("bjet2_JER_jetdown",&m_bjet1_JER_jetdown) ;
+      m_smallT->Branch ("bjet2_hasgenjet", &m_bjet2_hasgenjet, "bjet2_hasgenjet/O") ;
+      m_smallT->Branch ("bjet2_JER",        &m_bjet2_JER, "bjet2_JER/F") ;
+      m_smallT->Branch ("bjet2_JER_jetup",  &m_bjet2_JER_jetup) ;
+      m_smallT->Branch ("bjet2_JER_jetdown",&m_bjet2_JER_jetdown) ;
       m_smallT->Branch ("bjet2_JER_jetupTot"  , &m_bjet2_JER_jetupTot  , "bjet2_JER_jetupTot/F") ;
       m_smallT->Branch ("bjet2_JER_jetdownTot", &m_bjet2_JER_jetdownTot, "bjet2_JER_jetdownTot/F") ;
 
