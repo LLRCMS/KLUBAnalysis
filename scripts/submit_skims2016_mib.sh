@@ -258,7 +258,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_m
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_DY_Low_Mass -i $INPUTDIR/DYJetsToLL_M-10to50.txt -x 18610   -q longcms --pu $PUDIR/PU_Legacy2016_SF.txt
 
-COMMENT1
 
 ######################
 ### DATA :
@@ -276,8 +275,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Lega
 python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 30 -k True -o $SKIMDIR/SKIM_Tau_2016G -i $INPUTDIR_DATA/Tau_2016G.txt -q longcms
 python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 30 -k True -o $SKIMDIR/SKIM_Tau_2016H -i $INPUTDIR_DATA/Tau_2016H.txt -q longcms
 
-<<COMMENT2
-
 
 echo "Submitting - DATA Mu - "
 echo "Submitting - DATA Mu - " >> log_6May2020.txt
@@ -293,18 +290,21 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Lega
 python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 30 -k True -o $SKIMDIR/SKIM_Mu_2016H -i $INPUTDIR_DATA/Muon_2016H.txt -q longcms
 
 
+COMMENT1
+
 echo "Submitting - DATA Electron - "
 echo "Submitting - DATA Electron - " >> log_6May2020.txt
 echo "OUTDIR = $OUTDIRR"
 echo "OUTDIR = $OUTDIRR" >> log_6May2020.txt
 
-python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_Ele_2016B -i $INPUTDIR_DATA/1_SingleElectron__Run2016B-17Jul2018_ver2-v1.txt -q longcms
-python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_Ele_2016C -i $INPUTDIR_DATA/2_SingleElectron__Run2016C-17Jul2018-v1.txt	   -q longcms
-python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_Ele_2016D -i $INPUTDIR_DATA/3_SingleElectron__Run2016D-17Jul2018-v1.txt	   -q longcms
-python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_Ele_2016E -i $INPUTDIR_DATA/4_SingleElectron__Run2016E-17Jul2018-v1.txt	   -q longcms
-python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_Ele_2016F -i $INPUTDIR_DATA/5_SingleElectron__Run2016F-17Jul2018-v1.txt	   -q longcms
-python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_Ele_2016G -i $INPUTDIR_DATA/6_SingleElectron__Run2016G-17Jul2018-v1.txt	   -q longcms
-python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_Ele_2016H -i $INPUTDIR_DATA/7_SingleElectron__Run2016H-17Jul2018-v1.txt	   -q longcms
+python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 35 -k True -o $SKIMDIR/SKIM_Ele_2016B -i $INPUTDIR_DATA/Electron_2016B.txt -q longcms
+python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 35 -k True -o $SKIMDIR/SKIM_Ele_2016C -i $INPUTDIR_DATA/Electron_2016C.txt -q longcms
+python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 35 -k True -o $SKIMDIR/SKIM_Ele_2016D -i $INPUTDIR_DATA/Electron_2016D.txt -q longcms
+python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 35 -k True -o $SKIMDIR/SKIM_Ele_2016E -i $INPUTDIR_DATA/Electron_2016E.txt -q longcms
+python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 35 -k True -o $SKIMDIR/SKIM_Ele_2016F -i $INPUTDIR_DATA/Electron_2016F.txt -q longcms
+python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 35 -k True -o $SKIMDIR/SKIM_Ele_2016G -i $INPUTDIR_DATA/Electron_2016G.txt -q longcms
+python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Legacy2016_mib.cfg -n 35 -k True -o $SKIMDIR/SKIM_Ele_2016H -i $INPUTDIR_DATA/Electron_2016H.txt -q longcms
 
+<<COMMENT2
 
 COMMENT2
