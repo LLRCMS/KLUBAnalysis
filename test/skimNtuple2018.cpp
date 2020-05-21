@@ -1071,10 +1071,11 @@ int main (int argc, char** argv)
 
   // add VBF triggers for jet matching
   trigReader.addVBFTrigs (vbfTriggers);
-
+  
   // print full list (this is needed to identify the the triggers that fired in the bitwise variable)
-  trigReader.printTriggerList();
-
+  int isHPS = trigReader.printTriggerList(); //bitwise variable for the position of HPS triggers 
+  cout << "HPS = " << std::bitset<16>(isHPS) << endl;
+  
   // ------------------------------
 
   OfflineProducerHelper oph (hTriggers, hTauIDS) ;
@@ -2492,11 +2493,35 @@ int main (int argc, char** argv)
           Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
           bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
 
+     	  if (!isMC && passTrg && theBigTree.RunNumber < 317509){
+	    if (DEBUG) 
+	      { 
+		cout << "@@@ Run in period without HPS triggers "<<endl;
+		cout << "isHPS = " << std::bitset<16>(isHPS) << endl;
+		cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
+	      }
+	    if ((pass_triggerbit & (~ isHPS)) == 0) {
+	      if (DEBUG) cout << "only HPS trigger fired, reject"<<endl;
+	      passTrg = false; 
+	    }
+	  }
           // Remember: isVBFfired means it passed ONLY a VBF trigger
           if (pairType == 2 && !passTrg)
             {
-              isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta());
-            }
+              isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit); 
+
+	      if (!isMC && isVBFfired && theBigTree.RunNumber < 317509){ //check again to discard VBF HPS 
+		if (DEBUG)
+		  { 
+		    cout << "add VBF bits to pass_triggerbit:" << endl; 
+		    cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
+		  }
+		if ((pass_triggerbit & (~ isHPS)) == 0) {
+		  if (DEBUG) cout << "only VBF HPS trigger fired, reject"<<endl;
+		  isVBFfired = false; 
+		}
+	      }            
+	    }
           else
             isVBFfired = false;
 
@@ -2523,7 +2548,6 @@ int main (int argc, char** argv)
 
           if (DEBUG) std::cout << "----> Final Trigger passed? " << triggerAccept << std::endl;
           if (!triggerAccept) continue;
-
           theSmallTree.m_pass_triggerbit = pass_triggerbit;
           ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
           if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
