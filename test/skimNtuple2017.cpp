@@ -3181,8 +3181,8 @@ int main (int argc, char** argv)
       theSmallTree.m_trigSF_single = (isMC ? trigSF_single : 1.0);
       theSmallTree.m_trigSF_cross  = (isMC ? trigSF_cross : 1.0);
 
-      theSmallTree.m_totalWeight = (isMC? (41557./7.20811e+10) * theSmallTree.m_MC_weight* theSmallTree.m_PUReweight* theSmallTree.m_DYscale_MH* trigSF* theSmallTree.m_IdAndIsoAndFakeSF_deep: 1.0);
-      //this is just a residual of some synch
+      theSmallTree.m_totalWeight = (isMC ? (41557./5.8094733e+08) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_DYscale_MTT * trigSF * theSmallTree.m_IdAndIsoAndFakeSF_deep_pt * theSmallTree.m_L1pref_weight: 1.0);
+      //total weight used for sync: the denominator must be changed for each sample as h_eff->GetBinContent(1), the numerator is the luminosity
 
       // Third lepton veto
       // loop over leptons
