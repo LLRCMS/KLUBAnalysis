@@ -184,21 +184,20 @@ void triggerReader_cross::addVBFTrigs (vector<string> list)
     return;
 }
 
-int triggerReader_cross::printTriggerList()
+std::pair <int, int> triggerReader_cross::printTriggerList()
 {
   int isHPS = 0;
+  int isTau = 0;
   cout<<endl;
   cout<<"@ bit position - path"<<endl;
   for (unsigned int i = 0; i < _thisSkimTriggers.size(); i++) 
     {
       cout<< i <<" - "<<_thisSkimTriggers.at(i)<<endl;
-      if (_thisSkimTriggers.at(i).find("HPS") != std::string::npos)
-      {
-        isHPS |=  1 << i;
-      }
+      if (_thisSkimTriggers.at(i).find("HPS") != std::string::npos)  isHPS |=  1 << i;
+      if (_thisSkimTriggers.at(i).find("Tau") != std::string::npos)  isTau |=  1 << i;
     }
   cout<<endl;
-  return isHPS;  
+  return std::make_pair(isHPS, isTau);  
 }
 
 
@@ -548,16 +547,16 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
         }
         if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut1 && etaCut2)) thisPath = false;
         if (thisPath)
-        {
-          std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_mtTriggers.at(i)));
-          int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
-          *pass_triggerbit |=  1 << thisPathIdx;
-          OR = true;
-        }
+	  {
+	    std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_mtTriggers.at(i)));
+	    int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
+	    *pass_triggerbit |=  1 << thisPathIdx;
+	    OR = true;
+	  }
         //        if (OR) break;
     }
     //}
-
+    
     return OR;
 }
 
