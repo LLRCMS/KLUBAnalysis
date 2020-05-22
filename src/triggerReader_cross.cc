@@ -969,6 +969,9 @@ bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag
   bool ptCut = false;
   bool etaCut1 = false;
   bool etaCut2 = false;
+
+  int temp = 0;
+  if (!pass_triggerbit) pass_triggerbit = &(temp);
   for (unsigned int i = 0; i < _vbfTriggers.size(); i++)
   {
     thisPath = false;

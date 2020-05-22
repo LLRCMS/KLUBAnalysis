@@ -2499,7 +2499,7 @@ int main (int argc, char** argv)
           Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
           bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
 
-     	  if (!isMC && passTrg) {
+          if (!isMC && passTrg) {
 	    if(theBigTree.RunNumber < 317509){
 	      if (DEBUG) 
 		{ 
@@ -2521,7 +2521,7 @@ int main (int argc, char** argv)
 		}
 	      
 	      if ((pass_triggerbit & (~ isTauTrigger)) == 0) {
-		if (DEBUG) cout << "only HPS trigger fired, reject"<<endl;
+		if (DEBUG) cout << "only non-HPS trigger fired, reject"<<endl;
 		passTrg = false; 
 	      }
 	    }
