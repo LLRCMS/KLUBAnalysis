@@ -1071,10 +1071,17 @@ int main (int argc, char** argv)
 
   // add VBF triggers for jet matching
   trigReader.addVBFTrigs (vbfTriggers);
+  
 
   // print full list (this is needed to identify the the triggers that fired in the bitwise variable)
-  trigReader.printTriggerList();
-
+  pair <int, int> triggerFlags = trigReader.printTriggerList(); //bitwise variable for the position of HPS triggers and tau triggers
+  int isHPSTauTrigger = triggerFlags.first; 
+  int hasTau = triggerFlags.second;
+  int isTauTrigger = hasTau & (~isHPSTauTrigger);
+  cout << "isHPSTauTrigger    = " << std::bitset<16>(isHPSTauTrigger) << endl;
+  cout << "hasTau             = " << std::bitset<16>(hasTau) << endl;  
+  cout << "isTauTrigger       = " << std::bitset<16>(isTauTrigger) << endl;  
+  cout << endl; 
   // ------------------------------
 
   OfflineProducerHelper oph (hTriggers, hTauIDS) ;
@@ -2492,11 +2499,64 @@ int main (int argc, char** argv)
           Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
           bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
 
+          if (!isMC && passTrg) {
+	    if(theBigTree.RunNumber < 317509){
+	      if (DEBUG) 
+		{ 
+		  cout << "@@@ Run in period without HPS triggers "<<endl;
+		  cout << "isHPSTauTrigger = " << std::bitset<16>(isHPSTauTrigger) << endl;
+		  cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
+		}
+	      if ((pass_triggerbit & (~ isHPSTauTrigger)) == 0) {
+		if (DEBUG) cout << "only HPS trigger fired, reject"<<endl;
+		passTrg = false; 
+	      }
+	    }else{
+	      if (DEBUG) 
+		{ 
+		  cout << "@@@ Run in period with HPS triggers "<<endl;
+		  cout << "isHPSTauTrigger = " << std::bitset<16>(isHPSTauTrigger) << endl;
+		  cout << "isTauTrigger =    " << std::bitset<16>(isTauTrigger) << endl;
+		  cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
+		}
+	      
+	      if ((pass_triggerbit & (~ isTauTrigger)) == 0) {
+		if (DEBUG) cout << "only non-HPS trigger fired, reject"<<endl;
+		passTrg = false; 
+	      }
+	    }
+	  }
           // Remember: isVBFfired means it passed ONLY a VBF trigger
           if (pairType == 2 && !passTrg)
             {
-              isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta());
-            }
+              isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit); 
+	      
+	      if (!isMC && isVBFfired){ //check again to discard VBF HPS 
+		if(theBigTree.RunNumber < 317509){
+		  if (DEBUG)
+		    { 
+		      cout << "add VBF bits to pass_triggerbit:" << endl; 
+		      cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
+		    }
+		  if ((pass_triggerbit & (~ isHPSTauTrigger)) == 0) 
+		    {
+		      if (DEBUG) cout << "only VBF HPS trigger fired, reject"<<endl;
+		      isVBFfired = false; 
+		    }
+		}else{
+		  if (DEBUG)
+		    { 
+		      cout << "add VBF bits to pass_triggerbit:" << endl; 
+		      cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
+		    }
+		  if ((pass_triggerbit & (~ isTauTrigger)) == 0) 
+		    {
+		      if (DEBUG) cout << "only VBF non-HPS trigger fired, reject"<<endl;
+		      isVBFfired = false; 
+		    }
+		}	     
+	      }	                  
+	    }
           else
             isVBFfired = false;
 
@@ -2523,7 +2583,6 @@ int main (int argc, char** argv)
 
           if (DEBUG) std::cout << "----> Final Trigger passed? " << triggerAccept << std::endl;
           if (!triggerAccept) continue;
-
           theSmallTree.m_pass_triggerbit = pass_triggerbit;
           ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
           if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
