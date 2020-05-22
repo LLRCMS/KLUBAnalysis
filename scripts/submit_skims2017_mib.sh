@@ -250,7 +250,7 @@ echo "OUTDIR = $OUTDIRR" >> log_23Jan2020.txt
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_ttHJetToBB    -i $INPUTDIR/ttHTobb.txt      -x 0.5071 -y 0.577  -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_ttHJetTononBB -i $INPUTDIR/ttHToNonbb.txt   -x 0.5071 -y 0.423  -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_ttHJetTononBB -i $INPUTDIR/ttHToNonbb.txt   -x 0.5071 -y 0.3598  -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt --ttHToNonBB True
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_ttHToTauTau   -i $INPUTDIR/ttHToTauTau.txt  -x 0.5071 -y 0.0632 -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 

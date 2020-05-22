@@ -904,6 +904,12 @@ int main (int argc, char** argv)
   cout << "** INFO: nJets/nBjets for DY bin weights: " << DY_nJets << " / " << DY_nBJets << endl;
   int isDYI = atoi(argv[26]);
   bool isDY = (isDYI == 1) ? true : false;
+
+  bool isttHToNonBB = false;
+  int isttHToNonBBI = atoi(argv[27]);
+  if (isttHToNonBBI == 1) isttHToNonBB = true;
+  cout << "** INFO: isttHToNonBB: " << isttHToNonBB << endl;
+
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
     kNone      = 0,
@@ -1655,6 +1661,51 @@ int main (int argc, char** argv)
               theSmallTree.m_genDecMode2 = decayTop2;
             }
         }
+
+      // For ttHToNonBB only: loop on gen particles to find the Higgs
+      // if the Higgs decays to TauTau --> throw away the event!
+      if (isttHToNonBB)
+      {
+        // Loop on gen to find Higgs
+        int idx1 = -1;
+        for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
+        {
+          bool isLast = CheckBit (theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
+
+          int pdg = theBigTree.genpart_pdg->at(igen);
+          if (abs(pdg) == 25)
+          {
+            if (isLast)
+            {
+              if (idx1 >= 0)
+              {
+                cout << "** ERROR: ttH - more than 1 H identified" << endl;
+                continue;
+              }
+              else
+              {
+                idx1 = igen;
+              }
+            }
+          }
+        } // end loop on gen part to find H from ttH
+
+        // Find decay mode of the Higgs
+        if ( idx1 == -1)
+        {
+          cout << "** ERROR: ttH - couldn't find 1 H" << endl;
+          continue;
+        }
+        else
+        {
+          int ttHdecayMode = theBigTree.genpart_HZDecayMode->at(idx1);
+          if (ttHdecayMode <= 6)
+          {
+            if (DEBUG) cout << "** ttH stitcher: found ttH->TauTau event with decay mode: " << ttHdecayMode << " --> rejecting event!" << endl;
+            continue;
+          }
+        }
+      } // end ttHToNonBB only
 
       // For Drell-Yan only: loop on genjets and count how many are there with 0,1,2 b
       // 0: 0bjet, 1: 1 b jet, 2: >= 2 b jet
