@@ -962,9 +962,21 @@ int main (int argc, char** argv)
     }
   cout << "** INFO: thth sorting strategy? [0: kLLRFramDefault, 1: kHTauTau, 2: kPtAndRawIso]" << sortStrategyThTh << endl;
 
-  ULong64_t debugEvent = -1; // will be converted to numerical max, and never reached
+  vector<ULong64_t> debugEvents;
   if (gConfigParser->isDefined("parameters::debugEvent"))
-    debugEvent = (ULong64_t) gConfigParser->readIntOption("parameters::debugEvent");
+    {
+
+      string stringEvent = gConfigParser->readStringOption("parameters::debugEvent");
+      stringstream streamEvent(stringEvent);
+      std::string line;
+      cout << "** INFO: Debugging events:"<<endl;
+      while(std::getline(streamEvent,line,'-'))
+        {
+          ULong64_t nevent = std::stoul(line);
+          debugEvents.push_back(nevent);
+          cout<<"         "<<nevent<<endl;
+        }
+    }
 
 
   vector<string> trigMuTau   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuTau")  : gConfigParser->readStringListOption ("triggersData::MuTau")) ;
@@ -1405,22 +1417,6 @@ int main (int argc, char** argv)
 	}
     }
 
-  //FRA debug
-/*  unsigned long long int debugEvents[11] = {
-16623192,
-145124490,
-151780167,
-155092938,
-289155077,
-364080940,
-397487286,
-402618789,
-405271493,
-450639108,
-456551397
-};*/
-
-
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   for (Long64_t iEvent = 0 ; true ; ++iEvent)
@@ -1434,21 +1430,8 @@ int main (int argc, char** argv)
 
       if (got == 0) break;
       bool DEBUG = false;
-      //if (theBigTree.EventNumber != debugEvent) continue; //FRA debug
-      /*bool goodDebugEvent = false;
-      for (unsigned int i=0; i<sizeof(debugEvents)/sizeof(*debugEvents); i++) //FRA debug
-      {
-        if (theBigTree.EventNumber == debugEvents[i]) goodDebugEvent = true;
-        if (goodDebugEvent)
-        {
-            DEBUG = true;
-            cout << "****** DEBUG: event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
-            break;
-        }
-      }
-      if (!goodDebugEvent) continue; */
 
-      if (theBigTree.EventNumber == debugEvent )
+      if (std::find(debugEvents.begin(), debugEvents.end(), theBigTree.EventNumber) != debugEvents.end())
         {
           cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
           DEBUG = true;
