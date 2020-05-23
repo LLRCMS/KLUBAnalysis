@@ -931,10 +931,20 @@ int main (int argc, char** argv)
     }
   cout << "** INFO: thth sorting strategy? [0: kLLRFramDefault, 1: kHTauTau, 2: kPtAndRawIso]" << sortStrategyThTh << endl;
 
-  ULong64_t debugEvent = -1; // will be converted to numerical max, and never reached
+  vector<ULong64_t> debugEvents;
   if (gConfigParser->isDefined("parameters::debugEvent"))
-    debugEvent = (ULong64_t) gConfigParser->readIntOption("parameters::debugEvent");
-
+  {
+    string stringEvent = gConfigParser->readStringOption("parameters::debugEvent");
+    stringstream streamEvent(stringEvent);
+    std::string line;
+    cout << "** INFO: Debugging events:"<<endl;
+    while(std::getline(streamEvent,line,'-'))
+    {
+      ULong64_t nevent = std::stoul(line);
+      debugEvents.push_back(nevent);
+      cout<<"         "<<nevent<<endl;
+    }
+  }
 
   vector<string> trigMuTau   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuTau")  : gConfigParser->readStringListOption ("triggersData::MuTau")) ;
   vector<string> trigTauTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::TauTau") : gConfigParser->readStringListOption ("triggersData::TauTau")) ;
@@ -1357,11 +1367,6 @@ int main (int argc, char** argv)
 	}
     }
 
-//FRA debug
-/*unsigned long long int debugEvents[2] = {
-109382,
-220760
-};*/
 
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -1371,30 +1376,17 @@ int main (int argc, char** argv)
       //if (iEvent == 20000)  break ;
       //cout << "-------- reading event " << iEvent << endl ;
       theSmallTree.clearVars () ;
-      
+
       int got = theBigTree.fChain->GetEntry(iEvent);
 
       if (got == 0) break;
       bool DEBUG = false;
-      //if (theBigTree.EventNumber != debugEvent) continue; //FRA debug
-      /*bool goodDebugEvent = false;
-      for (unsigned int i=0; i<sizeof(debugEvents)/sizeof(*debugEvents); i++) //FRA debug
+
+      if (std::find(debugEvents.begin(), debugEvents.end(), theBigTree.EventNumber) != debugEvents.end())
       {
-        if (theBigTree.EventNumber == debugEvents[i]) goodDebugEvent = true;
-        if (goodDebugEvent)
-        {
-            DEBUG = true;
-            cout << "****** DEBUG: event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
-            break;
-        }
+        cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
+        DEBUG = true;
       }
-      if (!goodDebugEvent) continue;*/
- 
-      if (theBigTree.EventNumber == debugEvent )
-	{
-	  cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
-	  DEBUG = true;
-	}
       //if (debugEvent > 0 && DEBUG == false) continue;
 
       // directly reject events outside HT range in case of stitching of inclusive sample-- they should not count in weights
