@@ -24,17 +24,33 @@ void DNNKLUBinterface::SetGlobalInputs(Year year, Spin spin)
 
 
 // SetEventInputs: set inputs that change every event
-void DNNKLUBinterface::SetEventInputs(Channel channel, int is_boosted, float deepFlav1, float deepFlav2, 
-    float deepCSV1, float deepCSV2, int nvbf, unsigned long long int eventn)
+void DNNKLUBinterface::SetEventInputs(Channel channel, int is_boosted, int nvbf, unsigned long long int eventn,
+  float deepFlav1, float deepFlav2, float CvsL_b1, float CvsL_b2, float CvsL_vbf1, float CvsL_vbf2,
+  float CvsB_b1, float CvsB_b2, float CvsB_vbf1, float CvsB_vbf2,
+  float HHbtag_b1, float HHbtag_b2, float HHbtag_vbf1, float HHbtag_vbf2)
 {
   DNN_e_channel_    = channel;
   DNN_is_boosted_   = is_boosted;
-  DNN_b_1_deepflav_ = deepFlav1;
-  DNN_b_2_deepflav_ = deepFlav2;
-  DNN_b_1_deepcsv_  = deepCSV1;
-  DNN_b_2_deepcsv_  = deepCSV2;
   DNN_n_vbf_        = nvbf;
   DNN_evt_          = eventn;
+
+  DNN_b_1_deepflav_ = deepFlav1;
+  DNN_b_2_deepflav_ = deepFlav2;
+
+  DNN_b_1_cvsl_     = CvsL_b1;
+  DNN_b_2_cvsl_     = CvsL_b2;
+  DNN_vbf_1_cvsl_   = CvsL_vbf1;
+  DNN_vbf_2_cvsl_   = CvsL_vbf2;
+
+  DNN_b_1_cvsb_     = CvsB_b1;
+  DNN_b_2_cvsb_     = CvsB_b2;
+  DNN_vbf_1_cvsb_   = CvsB_vbf1;
+  DNN_vbf_2_cvsb_   = CvsB_vbf2;
+
+  DNN_b_1_hhbtag_   = HHbtag_b1;
+  DNN_b_2_hhbtag_   = HHbtag_b2;
+  DNN_vbf_1_hhbtag_ = HHbtag_vbf1;
+  DNN_vbf_2_hhbtag_ = HHbtag_vbf2;
 }
 
 
@@ -42,8 +58,7 @@ void DNNKLUBinterface::SetEventInputs(Channel channel, int is_boosted, float dee
 // due to TES, EES, MES, JES
 void DNNKLUBinterface::SetShiftedInputs(TLorentzVector b1, TLorentzVector b2, TLorentzVector l1, TLorentzVector l2, 
     TLorentzVector vbf1, TLorentzVector vbf2, TLorentzVector met, TLorentzVector svfit, 
-    float KinFitMass, float KinFitChi2, bool KinFitConv, bool SVfitConv, float MT2, 
-    float mTtot, float pzeta_vis, float pzeta, float top1m, float top2m, float mt1, float mt2)
+    float KinFitMass, float KinFitChi2, bool KinFitConv, bool SVfitConv, float MT2)
 {
   // Taus
   DNN_l_1_.SetCoordinates(l1.Px(), l1.Py(), l1.Pz(), l1.M());
@@ -75,15 +90,6 @@ void DNNKLUBinterface::SetShiftedInputs(TLorentzVector b1, TLorentzVector b2, TL
   DNN_hh_kinfit_conv_ = KinFitConv;
   DNN_svfit_conv_     = SVfitConv;
   DNN_mt2_            = MT2;
-
-  // Other global variables
-  DNN_mt_tot_        = mTtot;
-  DNN_p_zetavisible_ = pzeta_vis;
-  DNN_p_zeta_        = pzeta;
-  DNN_top_1_mass_    = top1m;
-  DNN_top_2_mass_    = top2m;
-  DNN_l_1_mt_        = mt1;
-  DNN_l_2_mt_        = mt2;
 }
 
 
@@ -101,10 +107,14 @@ std::vector<float> DNNKLUBinterface::GetPredictions()
     // Compute fatures
     std::vector<float> feat_vals = evt_proc_.process_as_vec(
         DNN_b_1_, DNN_b_2_, DNN_l_1_, DNN_l_2_, DNN_met_, DNN_svfit_, DNN_vbf_1_, DNN_vbf_2_,
-        DNN_kinfit_mass_, DNN_kinfit_chi2_, DNN_mt2_, DNN_mt_tot_, DNN_p_zetavisible_, DNN_p_zeta_, DNN_top_1_mass_, DNN_top_2_mass_,
-        DNN_l_1_mt_, DNN_l_2_mt_, DNN_is_boosted_, DNN_b_1_deepflav_, DNN_b_2_deepflav_, DNN_b_1_deepcsv_, DNN_b_2_deepcsv_,
+        DNN_kinfit_mass_, DNN_kinfit_chi2_, DNN_mt2_, DNN_is_boosted_, DNN_b_1_deepflav_, DNN_b_2_deepflav_,
         DNN_e_channel_, DNN_e_year_, DNN_res_mass_, DNN_spin_, DNN_klambda_,
-        DNN_n_vbf_, DNN_svfit_conv_, DNN_hh_kinfit_conv_);
+        DNN_n_vbf_, DNN_svfit_conv_, DNN_hh_kinfit_conv_,
+        DNN_b_1_hhbtag_, DNN_b_2_hhbtag_, DNN_vbf_1_hhbtag_, DNN_vbf_2_hhbtag_,
+        DNN_b_1_cvsl_, DNN_b_2_cvsl_, DNN_vbf_1_cvsl_, DNN_vbf_2_cvsl_,
+        DNN_b_1_cvsb_, DNN_b_2_cvsb_, DNN_vbf_1_cvsb_, DNN_vbf_2_cvsb_,
+        0, 0, 0 // cv, c2v, c3
+        );
 
     std::vector<std::string> feats_names = evt_proc_.get_feats();
 
