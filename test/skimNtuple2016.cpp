@@ -5532,10 +5532,12 @@ int main (int argc, char** argv)
 
      // Declare variables input to the EvtProc
      DNNVector DNN_b_1, DNN_b_2, DNN_l_1, DNN_l_2, DNN_met, DNN_svfit, DNN_vbf_1, DNN_vbf_2;
-     float DNN_kinfit_mass, DNN_kinfit_chi2, DNN_mt2, DNN_mt_tot, DNN_top_1_mass, DNN_top_2_mass, DNN_p_zetavisible, DNN_p_zeta;
-     float DNN_b_1_deepflav, DNN_b_2_deepflav, DNN_b_1_deepcsv, DNN_b_2_deepcsv;
+     float DNN_kinfit_mass, DNN_kinfit_chi2, DNN_mt2;
+     float DNN_b_1_deepflav, DNN_b_2_deepflav;
+     float DNN_b_1_CvsL=1., DNN_b_2_CvsL=1., DNN_vbf_1_CvsL=1., DNN_vbf_2_CvsL=1.;          // FIXME: read from branches
+     float DNN_b_1_CvsB=1., DNN_b_2_CvsB=1., DNN_vbf_1_CvsB=1., DNN_vbf_2_CvsB=1.;          // FIXME: read from branches
+     float DNN_b_1_HHbtag=1., DNN_b_2_HHbtag=1., DNN_vbf_1_HHbtag=1., DNN_vbf_2_HHbtag=1.;  // FIXME: read from branches
      int DNN_is_boosted, DNN_n_vbf, DNN_isvbf;
-     float DNN_l_1_mt, DNN_l_2_mt;
      unsigned long long int DNN_evt;
      bool DNN_svfit_conv, DNN_hh_kinfit_conv;
      int DNN_nleps, DNN_nbjetscand;
@@ -5560,16 +5562,21 @@ int main (int argc, char** argv)
      TTreeReaderValue<float> rv_kinfit_mass(reader, "HHKin_mass_raw");
      TTreeReaderValue<float> rv_kinfit_chi2(reader, "HHKin_mass_raw_chi2");
      TTreeReaderValue<float> rv_mt2(reader, "MT2");
-     TTreeReaderValue<float> rv_mt_tot(reader, "mT_total");
-     TTreeReaderValue<float> rv_top_1_mass(reader, "BDT_topPairMasses");
-     TTreeReaderValue<float> rv_top_2_mass(reader, "BDT_topPairMasses2");
-     TTreeReaderValue<float> rv_p_zetavisible(reader, "p_zeta_visible");
-     TTreeReaderValue<float> rv_p_zeta(reader, "p_zeta");
 
-     TTreeReaderValue<float> rv_b_1_deepcsv(reader, "bjet1_bID_deepCSV");
-     TTreeReaderValue<float> rv_b_2_deepcsv(reader, "bjet2_bID_deepCSV");
      TTreeReaderValue<float> rv_b_1_deepflav(reader, "bjet1_bID_deepFlavor");
      TTreeReaderValue<float> rv_b_2_deepflav(reader, "bjet2_bID_deepFlavor");
+     //TTreeReaderValue<float> rv_b_1_CvsL    (reader, ""); // FIXME: read from branches
+     //TTreeReaderValue<float> rv_b_2_CvsL    (reader, ""); // FIXME: read from branches
+     //TTreeReaderValue<float> rv_vbf_1_CvsL  (reader, ""); // FIXME: read from branches
+     //TTreeReaderValue<float> rv_vbf_2_CvsL  (reader, ""); // FIXME: read from branches
+     //TTreeReaderValue<float> rv_b_1_CvsB    (reader, ""); // FIXME: read from branches
+     //TTreeReaderValue<float> rv_b_2_CvsB    (reader, ""); // FIXME: read from branches
+     //TTreeReaderValue<float> rv_vbf_1_CvsB  (reader, ""); // FIXME: read from branches
+     //TTreeReaderValue<float> rv_vbf_2_CvsB  (reader, ""); // FIXME: read from branches
+     //TTreeReaderValue<float> rv_b_1_HHbtag  (reader, ""); // FIXME: read from branches
+     //TTreeReaderValue<float> rv_b_2_HHbtag  (reader, ""); // FIXME: read from branches
+     //TTreeReaderValue<float> rv_vbf_1_HHbtag(reader, ""); // FIXME: read from branches
+     //TTreeReaderValue<float> rv_vbf_2_HHbtag(reader, ""); // FIXME: read from branches
 
      TTreeReaderValue<float> rv_svfit_pT(reader, "tauH_SVFIT_pt");
      TTreeReaderValue<float> rv_svfit_eta(reader, "tauH_SVFIT_eta");
@@ -5580,13 +5587,11 @@ int main (int argc, char** argv)
      TTreeReaderValue<float> rv_l_1_eta(reader, "dau1_eta");
      TTreeReaderValue<float> rv_l_1_phi(reader, "dau1_phi");
      TTreeReaderValue<float> rv_l_1_e(reader, "dau1_e");
-     TTreeReaderValue<float> rv_l_1_mt(reader, "mT1");
 
      TTreeReaderValue<float> rv_l_2_pT(reader, "dau2_pt");
      TTreeReaderValue<float> rv_l_2_eta(reader, "dau2_eta");
      TTreeReaderValue<float> rv_l_2_phi(reader, "dau2_phi");
      TTreeReaderValue<float> rv_l_2_e(reader, "dau2_e");
-     TTreeReaderValue<float> rv_l_2_mt(reader, "mT2");
 
      TTreeReaderValue<float> rv_met_pT(reader, "met_et");
      TTreeReaderValue<float> rv_met_phi(reader, "met_phi");
@@ -5650,18 +5655,22 @@ int main (int argc, char** argv)
        DNN_kinfit_mass   = *rv_kinfit_mass;
        DNN_kinfit_chi2   = *rv_kinfit_chi2;
        DNN_mt2           = *rv_mt2;
-       DNN_mt_tot        = *rv_mt_tot;
-       DNN_top_1_mass    = *rv_top_1_mass;
-       DNN_top_2_mass    = *rv_top_2_mass;
-       DNN_p_zetavisible = *rv_p_zetavisible;
-       DNN_p_zeta        = *rv_p_zeta;
-       DNN_l_1_mt        = *rv_l_1_mt;
-       DNN_l_2_mt        = *rv_l_2_mt;
 
        DNN_b_1_deepflav = *rv_b_1_deepflav;
        DNN_b_2_deepflav = *rv_b_2_deepflav;
-       DNN_b_1_deepcsv  = *rv_b_1_deepcsv;
-       DNN_b_2_deepcsv  = *rv_b_2_deepcsv;
+
+       //DNN_b_1_CvsL   = *rv_b_1_CvsL;       // FIXME: read from branches
+       //DNN_b_2_CvsL   = *rv_b_2_CvsL;       // FIXME: read from branches
+       //DNN_vbf_1_CvsL = *rv_vbf_1_CvsL;     // FIXME: read from branches
+       //DNN_vbf_2_CvsL = *rv_vbf_2_CvsL;     // FIXME: read from branches
+       //DNN_b_1_CvsB   = *rv_b_1_CvsB;       // FIXME: read from branches
+       //DNN_b_2_CvsB   = *rv_b_2_CvsB;       // FIXME: read from branches
+       //DNN_vbf_1_CvsB = *rv_vbf_1_CvsB;     // FIXME: read from branches
+       //DNN_vbf_2_CvsB = *rv_vbf_2_CvsB;     // FIXME: read from branches
+       //DNN_b_1_HHbtag   = *rv_b_1_HHbtag;   // FIXME: read from branches
+       //DNN_b_2_HHbtag   = *rv_b_2_HHbtag;   // FIXME: read from branches
+       //DNN_vbf_1_HHbtag = *rv_vbf_1_HHbtag; // FIXME: read from branches
+       //DNN_vbf_2_HHbtag = *rv_vbf_2_HHbtag; // FIXME: read from branches
 
        DNN_svfit_conv     = *rv_svfit_mass  > 0;
        DNN_hh_kinfit_conv = DNN_kinfit_chi2 > 0;
@@ -5715,10 +5724,13 @@ int main (int argc, char** argv)
 
          // Compute fatures
          feat_vals = evt_proc.process_as_vec(DNN_b_1, DNN_b_2, DNN_l_1, DNN_l_2, DNN_met, DNN_svfit, DNN_vbf_1, DNN_vbf_2,
-             DNN_kinfit_mass, DNN_kinfit_chi2, DNN_mt2, DNN_mt_tot, DNN_p_zetavisible, DNN_p_zeta, DNN_top_1_mass, DNN_top_2_mass,
-             DNN_l_1_mt, DNN_l_2_mt, DNN_is_boosted, DNN_b_1_deepflav, DNN_b_2_deepflav, DNN_b_1_deepcsv, DNN_b_2_deepcsv,
-             DNN_e_channel, DNN_e_year, DNN_res_mass, DNN_spin, DNN_klambda,
-             DNN_n_vbf, DNN_svfit_conv, DNN_hh_kinfit_conv);
+            DNN_kinfit_mass, DNN_kinfit_chi2, DNN_mt2, DNN_is_boosted, DNN_b_1_deepflav, DNN_b_2_deepflav,
+            DNN_e_channel, DNN_e_year, DNN_res_mass, DNN_spin, DNN_klambda,
+            DNN_n_vbf, DNN_svfit_conv, DNN_hh_kinfit_conv,
+            DNN_b_1_HHbtag, DNN_b_2_HHbtag, DNN_vbf_1_HHbtag, DNN_vbf_2_HHbtag,
+            DNN_b_1_CvsL, DNN_b_2_CvsL, DNN_vbf_1_CvsL, DNN_vbf_2_CvsL,
+            DNN_b_1_CvsB, DNN_b_2_CvsB, DNN_vbf_1_CvsB, DNN_vbf_2_CvsB,
+            0, 0, 0); // cv, c2v, c3
 
          // Get model prediction
          DNN_pred = wrapper.predict(feat_vals, DNN_evt);
