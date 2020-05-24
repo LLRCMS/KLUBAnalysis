@@ -22,6 +22,7 @@
 #include "OfflineProducerHelper.h"
 #include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 #include "BDTfunctionsUtils.h"
+#include "skimUtils.h"
 
 #include "lester_mt2_bisect.h"
 
@@ -50,55 +51,6 @@
 using namespace std ;
 
 const int nMaxEvts = 1;
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
-// open input txt file and append all the files it contains to TChain
-void appendFromFileList (TChain* chain, TString filename)
-{
-  //cout << "=== inizio parser ===" << endl;
-  std::ifstream infile(filename.Data());
-  std::string line;
-  while (std::getline(infile, line))
-    {
-      line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
-      while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
-      while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
-      while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
-      if (!line.empty()) // skip empty lines
-	chain->Add(line.c_str());
-    }
-  return;
-}
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
-// open the first file in the input list, retrieve the histogram "Counters" for the trigger names and return a copy of it
-TH1F* getFirstFileHisto (TString filename, bool isForTriggers=true)
-{
-  std::ifstream infile(filename.Data());
-  std::string line;
-  while (std::getline(infile, line))
-    {
-      line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
-      while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
-      while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
-      while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
-      if (!line.empty()) // skip empty lines
-	break;
-    }
-    
-  TFile* fIn = TFile::Open (line.c_str());
-  TH1F* dummy = (TH1F*) fIn->Get ("HTauTauTree/Counters");
-  TString name = "Counters_perTrigger";
-  if(!isForTriggers) {
-    dummy = (TH1F*) fIn->Get ("HTauTauTree/TauIDs");
-    name = "Counters_pertauID";
-  }
-  TH1F* histo = new TH1F (*dummy);
-  histo-> SetDirectory(0);
-  histo->SetName (name.Data());
-  fIn->Close();
-  return histo;
-}
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
@@ -143,10 +95,14 @@ int main (int argc, char** argv)
   cout << "** INFO: Initial entries: " << nentries << endl;
 
   // Declare the only two branches needed for skimming the initial entries 
-  int nleps, pairType, nbjetscand;
+  int nleps, pairType, nbjetscand, dau1_deepTauVsJet, dau1_eleMVAiso;
+  float dau1_iso;
   inputChain->SetBranchAddress("nleps", &nleps);
   inputChain->SetBranchAddress("pairType", &pairType);
   inputChain->SetBranchAddress("nbjetscand", &nbjetscand);
+  inputChain->SetBranchAddress("dau1_deepTauVsJet", &dau1_deepTauVsJet);
+  inputChain->SetBranchAddress("dau1_iso", &dau1_iso);
+  inputChain->SetBranchAddress("dau1_eleMVAiso", &dau1_eleMVAiso);
 
   // De-activate all branches
   inputChain->SetBranchStatus("*", 0);
@@ -162,7 +118,7 @@ int main (int argc, char** argv)
   "isVBFtrigger", "isVBF",                                             // Trigger vbf selection
 
   "dau1_deepTauVsJet","dau2_deepTauVsJet",                             // Isolation
-  "dau1_iso", "dau2_iso", "dau1_eleMVAiso"
+  "dau1_iso", "dau2_iso", "dau1_eleMVAiso",
 
   "dau1_decayMode", "dau2_decayMode",                                  // Tau decay mode
 
@@ -267,6 +223,9 @@ int main (int argc, char** argv)
 
     inputChain->GetEntry(iEvent);
     if ( nleps!=0 || nbjetscand<2 || pairType>2) continue;
+    if ( pairType==0 && dau1_iso>=0.15 ) continue;
+    if ( pairType==1 && dau1_eleMVAiso!=1 ) continue;
+    if ( pairType==2 && dau1_deepTauVsJet<5 ) continue;
     treenew->Fill() ;
   }
   cout << "** INFO: ...Cloned entries: " << treenew->GetEntries() << endl;
