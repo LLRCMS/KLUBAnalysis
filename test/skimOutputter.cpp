@@ -161,12 +161,16 @@ int main (int argc, char** argv)
 
   "isVBFtrigger", "isVBF",                                             // Trigger vbf selection
 
-  "dau1_iso", "dau2_iso", "dau1_deepTauVsJet", "dau2_deepTauVsJet",    // Isolation
+  "dau1_deepTauVsJet","dau2_deepTauVsJet",                             // Isolation
+  "dau1_iso", "dau2_iso", "dau1_eleMVAiso"
 
   "dau1_decayMode", "dau2_decayMode",                                  // Tau decay mode
 
   "bjet1_bID_deepFlavor", "bjet2_bID_deepFlavor",                      // b-tagging          
   "bjet1_bID_deepCSV", "bjet2_bID_deepCSV",
+  "bjet1_Cvs*","bjet2_Cvs*","VBFjet1_Cvs*","VBFjet2_Cvs*",
+
+  "bjet1_HHbtag","bjet2_HHbtag","VBFjet1_HHbtag","VBFjet2_HHbtag",     // HHbtag
 
   "dau1_pt","dau1_eta","dau1_phi","dau1_e",                            // Tau central
   "dau2_pt","dau2_eta","dau2_phi","dau2_e",
