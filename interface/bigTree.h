@@ -324,6 +324,8 @@ public :
    std::vector<float>   *bDeepFlavor_probbb;
    std::vector<float>   *bDeepFlavor_problepb;
    std::vector<float>   *bDeepFlavor_probc;
+   std::vector<float>   *bDeepFlavor_probuds;
+   std::vector<float>   *bDeepFlavor_probg;
    std::vector<float>   *pfCombinedMVAV2BJetTags;
    std::vector<int>     *PFjetID;
    std::vector<float>   *jetRawf;
@@ -742,6 +744,8 @@ public :
    TBranch        *b_bDeepFlavor_probbb;
    TBranch        *b_bDeepFlavor_probc;
    TBranch        *b_bDeepFlavor_problepb;
+   TBranch        *b_bDeepFlavor_probuds;
+   TBranch        *b_bDeepFlavor_probg;
    TBranch        *b_pfCombinedMVAV2BJetTags; //!
    TBranch        *b_PFjetID;   //!
    TBranch        *b_jetRawf;   //!
@@ -1144,6 +1148,8 @@ public :
        bDeepFlavor_probbb = 0;
        bDeepFlavor_problepb = 0;
        bDeepFlavor_probc = 0;
+       bDeepFlavor_probuds = 0;
+       bDeepFlavor_probg = 0;
        pfCombinedMVAV2BJetTags = 0;
        PFjetID = 0;
        jetRawf = 0;
@@ -1426,6 +1432,8 @@ public :
        fChain->SetBranchAddress("bDeepFlavor_probbb", &bDeepFlavor_probbb, &b_bDeepFlavor_probbb);
        fChain->SetBranchAddress("bDeepFlavor_probc", &bDeepFlavor_probc, &b_bDeepFlavor_probc);
        fChain->SetBranchAddress("bDeepFlavor_problepb", &bDeepFlavor_problepb, &b_bDeepFlavor_problepb);       
+       fChain->SetBranchAddress("bDeepFlavor_probuds", &bDeepFlavor_probuds, &b_bDeepFlavor_probuds);
+       fChain->SetBranchAddress("bDeepFlavor_probg", &bDeepFlavor_probg, &b_bDeepFlavor_probg);
        fChain->SetBranchAddress("pfCombinedMVAV2BJetTags", &pfCombinedMVAV2BJetTags, &b_pfCombinedMVAV2BJetTags);
        fChain->SetBranchAddress("PFjetID", &PFjetID, &b_PFjetID);
        fChain->SetBranchAddress("jetRawf", &jetRawf, &b_jetRawf);
