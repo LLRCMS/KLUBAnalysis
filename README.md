@@ -10,6 +10,9 @@ cmsenv
 
 # DNN packages
 git clone git@github.com:GilesStrong/cms_hh_proc_interface.git
+cd cms_hh_proc_interface
+git checkout tags/v2.0
+cd -
 git clone git@github.com:GilesStrong/cms_hh_tf_inference.git
 git clone git@github.com:GilesStrong/cms_runII_dnn_models.git
 
