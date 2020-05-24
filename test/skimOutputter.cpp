@@ -108,9 +108,8 @@ TH1F* getFirstFileHisto (TString filename, bool isForTriggers=true)
 int main (int argc, char** argv)
 {
 
-  //TString inputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/DNN2/CMSSW_10_2_16/src/KLUBAnalysis/skimmed_output1_SYST.root";  // FIXME: read from cfg file
-  TString inputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/DNN2/CMSSW_10_2_16/src/KLUBAnalysis/skimmed_output2016_SYST.root";  // FIXME: read from cfg file
-  TString outputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/DNN2/CMSSW_10_2_16/src/KLUBAnalysis/systTEST_MES.root";         // FIXME: read from cfg file
+  TString inputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/HHbtag/CMSSW_10_2_16/src/KLUBAnalysis/skimmed_output2016_SYST.root";  // FIXME: read from cfg file
+  TString outputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/HHbtag/CMSSW_10_2_16/src/KLUBAnalysis/systTEST_DNN.root";            // FIXME: read from cfg file
   cout << "** INFO: inputFile  : " << inputFileName << endl;
   cout << "** INFO: outputFile : " << outputFileName << endl;
 
@@ -323,9 +322,9 @@ int main (int argc, char** argv)
   Float_t METx_muup, METy_muup, METx_mudown, METy_mudown;
   Float_t HHKin_mass, HHKin_chi2, MT2, tauH_SVFIT_pt, tauH_SVFIT_eta, tauH_SVFIT_phi, tauH_SVFIT_mass, DNNoutSM_kl_1, BDToutSM_kl_1;
   float bjet1_bID_deepFlavor, bjet2_bID_deepFlavor;
-  float CvsL_b1=1., CvsL_b2=1., CvsL_vbf1=1., CvsL_vbf2=1.;          // FIXME: read from branches
-  float CvsB_b1=1., CvsB_b2=1., CvsB_vbf1=1., CvsB_vbf2=1.;          // FIXME: read from branches
-  float HHbtag_b1=1., HHbtag_b2=1., HHbtag_vbf1=1., HHbtag_vbf2=1.;  // FIXME: read from branches
+  float CvsL_b1, CvsL_b2, CvsL_vbf1, CvsL_vbf2;
+  float CvsB_b1, CvsB_b2, CvsB_vbf1, CvsB_vbf2;
+  float HHbtag_b1, HHbtag_b2, HHbtag_vbf1, HHbtag_vbf2;
   float BDT_HT20;
   std::vector<Float_t> *METx_eleup, *METy_eleup, *METx_eledown, *METy_eledown;
   std::vector<Float_t> *dau1_pt_eleup, *dau1_pt_eledown, *dau1_mass_eleup, *dau1_mass_eledown;
@@ -460,18 +459,18 @@ int main (int argc, char** argv)
 
   outTree->SetBranchAddress("bjet1_bID_deepFlavor" , &bjet1_bID_deepFlavor);
   outTree->SetBranchAddress("bjet2_bID_deepFlavor" , &bjet2_bID_deepFlavor);
-  //outTree->SetBranchAddress("", &CvsL_b1);     // FIXME: read from branches
-  //outTree->SetBranchAddress("", &CvsL_b2);     // FIXME: read from branches
-  //outTree->SetBranchAddress("", &CvsL_vbf1);   // FIXME: read from branches
-  //outTree->SetBranchAddress("", &CvsL_vbf2);   // FIXME: read from branches
-  //outTree->SetBranchAddress("", &CvsB_b1);     // FIXME: read from branches
-  //outTree->SetBranchAddress("", &CvsB_b2);     // FIXME: read from branches
-  //outTree->SetBranchAddress("", &CvsB_vbf1);   // FIXME: read from branches
-  //outTree->SetBranchAddress("", &CvsB_vbf2);   // FIXME: read from branches
-  //outTree->SetBranchAddress("", &HHbtag_b1);   // FIXME: read from branches
-  //outTree->SetBranchAddress("", &HHbtag_b2);   // FIXME: read from branches
-  //outTree->SetBranchAddress("", &HHbtag_vbf1); // FIXME: read from branches
-  //outTree->SetBranchAddress("", &HHbtag_vbf2); // FIXME: read from branches
+  outTree->SetBranchAddress("bjet1_CvsL"    , &CvsL_b1);
+  outTree->SetBranchAddress("bjet2_CvsL"    , &CvsL_b2);
+  outTree->SetBranchAddress("VBFjet1_CvsL"  , &CvsL_vbf1);
+  outTree->SetBranchAddress("VBFjet2_CvsL"  , &CvsL_vbf2);
+  outTree->SetBranchAddress("bjet1_CvsB"    , &CvsB_b1);
+  outTree->SetBranchAddress("bjet2_CvsB"    , &CvsB_b2);
+  outTree->SetBranchAddress("VBFjet1_CvsB"  , &CvsB_vbf1);
+  outTree->SetBranchAddress("VBFjet2_CvsB"  , &CvsB_vbf2);
+  outTree->SetBranchAddress("bjet1_HHbtag"  , &HHbtag_b1);
+  outTree->SetBranchAddress("bjet2_HHbtag"  , &HHbtag_b2);
+  outTree->SetBranchAddress("VBFjet1_HHbtag", &HHbtag_vbf1);
+  outTree->SetBranchAddress("VBFjet2_HHbtag", &HHbtag_vbf2);
 
   outTree->SetBranchAddress("met_cov00" , &met_cov00);
   outTree->SetBranchAddress("met_cov01" , &met_cov01);

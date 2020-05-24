@@ -1249,7 +1249,7 @@ struct smallTree
       m_smallT->Branch ("jets_ctag_deepFlavor", &m_jets_ctag_deepFlavor) ;
       m_smallT->Branch ("jets_CvsL", &m_jets_CvsL) ;
       m_smallT->Branch ("jets_CvsB", &m_jets_CvsB) ;
-      m_smallT->Branch ("jets_HHbtag", &jets_HHbtag) ;
+      m_smallT->Branch ("jets_HHbtag", &m_jets_HHbtag) ;
       m_smallT->Branch ("jets_flav", &m_jets_flav) ;
       m_smallT->Branch ("jets_isH", &m_jets_isH) ;
       m_smallT->Branch ("jets_hasgenjet", &m_jets_hasgenjet) ;

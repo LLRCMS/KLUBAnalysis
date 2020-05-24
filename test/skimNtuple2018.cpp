@@ -5746,9 +5746,9 @@ int main (int argc, char** argv)
     DNNVector DNN_b_1, DNN_b_2, DNN_l_1, DNN_l_2, DNN_met, DNN_svfit, DNN_vbf_1, DNN_vbf_2;
     float DNN_kinfit_mass, DNN_kinfit_chi2, DNN_mt2;
     float DNN_b_1_deepflav, DNN_b_2_deepflav;
-    float DNN_b_1_CvsL=1., DNN_b_2_CvsL=1., DNN_vbf_1_CvsL=1., DNN_vbf_2_CvsL=1.;          // FIXME: read from branches
-    float DNN_b_1_CvsB=1., DNN_b_2_CvsB=1., DNN_vbf_1_CvsB=1., DNN_vbf_2_CvsB=1.;          // FIXME: read from branches
-    float DNN_b_1_HHbtag=1., DNN_b_2_HHbtag=1., DNN_vbf_1_HHbtag=1., DNN_vbf_2_HHbtag=1.;  // FIXME: read from branches
+    float DNN_b_1_CvsL, DNN_b_2_CvsL, DNN_vbf_1_CvsL, DNN_vbf_2_CvsL;
+    float DNN_b_1_CvsB, DNN_b_2_CvsB, DNN_vbf_1_CvsB, DNN_vbf_2_CvsB;
+    float DNN_b_1_HHbtag, DNN_b_2_HHbtag, DNN_vbf_1_HHbtag, DNN_vbf_2_HHbtag;
     int DNN_is_boosted, DNN_n_vbf, DNN_isvbf;
     unsigned long long int DNN_evt;
     bool DNN_svfit_conv, DNN_hh_kinfit_conv;
@@ -5777,18 +5777,18 @@ int main (int argc, char** argv)
 
     TTreeReaderValue<float> rv_b_1_deepflav(reader, "bjet1_bID_deepFlavor");
     TTreeReaderValue<float> rv_b_2_deepflav(reader, "bjet2_bID_deepFlavor");
-    //TTreeReaderValue<float> rv_b_1_CvsL    (reader, ""); // FIXME: read from branches
-    //TTreeReaderValue<float> rv_b_2_CvsL    (reader, ""); // FIXME: read from branches
-    //TTreeReaderValue<float> rv_vbf_1_CvsL  (reader, ""); // FIXME: read from branches
-    //TTreeReaderValue<float> rv_vbf_2_CvsL  (reader, ""); // FIXME: read from branches
-    //TTreeReaderValue<float> rv_b_1_CvsB    (reader, ""); // FIXME: read from branches
-    //TTreeReaderValue<float> rv_b_2_CvsB    (reader, ""); // FIXME: read from branches
-    //TTreeReaderValue<float> rv_vbf_1_CvsB  (reader, ""); // FIXME: read from branches
-    //TTreeReaderValue<float> rv_vbf_2_CvsB  (reader, ""); // FIXME: read from branches
-    //TTreeReaderValue<float> rv_b_1_HHbtag  (reader, ""); // FIXME: read from branches
-    //TTreeReaderValue<float> rv_b_2_HHbtag  (reader, ""); // FIXME: read from branches
-    //TTreeReaderValue<float> rv_vbf_1_HHbtag(reader, ""); // FIXME: read from branches
-    //TTreeReaderValue<float> rv_vbf_2_HHbtag(reader, ""); // FIXME: read from branches
+    TTreeReaderValue<float> rv_b_1_CvsL    (reader, "bjet1_CvsL");
+    TTreeReaderValue<float> rv_b_2_CvsL    (reader, "bjet2_CvsL");
+    TTreeReaderValue<float> rv_vbf_1_CvsL  (reader, "VBFjet1_CvsL");
+    TTreeReaderValue<float> rv_vbf_2_CvsL  (reader, "VBFjet2_CvsL");
+    TTreeReaderValue<float> rv_b_1_CvsB    (reader, "bjet1_CvsB");
+    TTreeReaderValue<float> rv_b_2_CvsB    (reader, "bjet2_CvsB");
+    TTreeReaderValue<float> rv_vbf_1_CvsB  (reader, "VBFjet1_CvsB");
+    TTreeReaderValue<float> rv_vbf_2_CvsB  (reader, "VBFjet2_CvsB");
+    TTreeReaderValue<float> rv_b_1_HHbtag  (reader, "bjet1_HHbtag");
+    TTreeReaderValue<float> rv_b_2_HHbtag  (reader, "bjet2_HHbtag");
+    TTreeReaderValue<float> rv_vbf_1_HHbtag(reader, "VBFjet1_HHbtag");
+    TTreeReaderValue<float> rv_vbf_2_HHbtag(reader, "VBFjet2_HHbtag");
 
     TTreeReaderValue<float> rv_svfit_pT(reader, "tauH_SVFIT_pt");
     TTreeReaderValue<float> rv_svfit_eta(reader, "tauH_SVFIT_eta");
@@ -5871,18 +5871,18 @@ int main (int argc, char** argv)
         DNN_b_1_deepflav = *rv_b_1_deepflav;
         DNN_b_2_deepflav = *rv_b_2_deepflav;
 
-        //DNN_b_1_CvsL   = *rv_b_1_CvsL;       // FIXME: read from branches
-        //DNN_b_2_CvsL   = *rv_b_2_CvsL;       // FIXME: read from branches
-        //DNN_vbf_1_CvsL = *rv_vbf_1_CvsL;     // FIXME: read from branches
-        //DNN_vbf_2_CvsL = *rv_vbf_2_CvsL;     // FIXME: read from branches
-        //DNN_b_1_CvsB   = *rv_b_1_CvsB;       // FIXME: read from branches
-        //DNN_b_2_CvsB   = *rv_b_2_CvsB;       // FIXME: read from branches
-        //DNN_vbf_1_CvsB = *rv_vbf_1_CvsB;     // FIXME: read from branches
-        //DNN_vbf_2_CvsB = *rv_vbf_2_CvsB;     // FIXME: read from branches
-        //DNN_b_1_HHbtag   = *rv_b_1_HHbtag;   // FIXME: read from branches
-        //DNN_b_2_HHbtag   = *rv_b_2_HHbtag;   // FIXME: read from branches
-        //DNN_vbf_1_HHbtag = *rv_vbf_1_HHbtag; // FIXME: read from branches
-        //DNN_vbf_2_HHbtag = *rv_vbf_2_HHbtag; // FIXME: read from branches
+        DNN_b_1_CvsL     = *rv_b_1_CvsL;
+        DNN_b_2_CvsL     = *rv_b_2_CvsL;
+        DNN_vbf_1_CvsL   = *rv_vbf_1_CvsL;
+        DNN_vbf_2_CvsL   = *rv_vbf_2_CvsL;
+        DNN_b_1_CvsB     = *rv_b_1_CvsB;
+        DNN_b_2_CvsB     = *rv_b_2_CvsB;
+        DNN_vbf_1_CvsB   = *rv_vbf_1_CvsB;
+        DNN_vbf_2_CvsB   = *rv_vbf_2_CvsB;
+        DNN_b_1_HHbtag   = *rv_b_1_HHbtag;
+        DNN_b_2_HHbtag   = *rv_b_2_HHbtag;
+        DNN_vbf_1_HHbtag = *rv_vbf_1_HHbtag;
+        DNN_vbf_2_HHbtag = *rv_vbf_2_HHbtag;
 
         DNN_svfit_conv     = *rv_svfit_mass  > 0;
         DNN_hh_kinfit_conv = DNN_kinfit_chi2 > 0;
