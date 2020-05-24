@@ -30,6 +30,7 @@
 #include "SFProvider.h"
 #include "BDTfunctionsUtils.h"
 #include "TauIDSFTool.h"
+#include "skimUtils.h"
 
 #include "lester_mt2_bisect.h"
 
@@ -3864,7 +3865,8 @@ int main (int argc, char** argv)
           theSmallTree.m_bjet1_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet1idx) + theBigTree.bDeepCSV_probbb->at(bjet1idx) ;
           theSmallTree.m_bjet1_bID_deepFlavor  = theBigTree.bDeepFlavor_probb->at(bjet1idx) + theBigTree.bDeepFlavor_probbb->at(bjet1idx) + theBigTree.bDeepFlavor_problepb->at(bjet1idx);
           theSmallTree.m_bjet1_cID_deepFlavor  = theBigTree.bDeepFlavor_probc->at(bjet1idx);
-
+          theSmallTree.m_bjet1_CvsL = getCvsL(theBigTree, bjet1idx);
+          theSmallTree.m_bjet1_CvsB = getCvsB(theBigTree, bjet1idx);
           theSmallTree.m_bjet1_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet1idx) ;
           theSmallTree.m_bjet1_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at(bjet1idx);
           theSmallTree.m_bjet1_flav = theBigTree.jets_HadronFlavour->at (bjet1idx) ;
@@ -3877,6 +3879,8 @@ int main (int argc, char** argv)
           theSmallTree.m_bjet2_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet2idx) + theBigTree.bDeepCSV_probbb->at(bjet2idx) ;
           theSmallTree.m_bjet2_bID_deepFlavor  = theBigTree.bDeepFlavor_probb->at(bjet2idx) + theBigTree.bDeepFlavor_probbb->at(bjet2idx) + theBigTree.bDeepFlavor_problepb->at(bjet2idx);
           theSmallTree.m_bjet2_cID_deepFlavor  = theBigTree.bDeepFlavor_probc->at(bjet2idx) ;
+          theSmallTree.m_bjet2_CvsL = getCvsL(theBigTree, bjet2idx);
+          theSmallTree.m_bjet2_CvsB = getCvsB(theBigTree, bjet2idx);
           theSmallTree.m_bjet2_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet2idx) ;
           theSmallTree.m_bjet2_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at(bjet2idx);
           theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
@@ -4530,6 +4534,8 @@ int main (int argc, char** argv)
               theSmallTree.m_VBFjet1_btag_deepCSV = theBigTree.bDeepCSV_probb->at(VBFidx1) + theBigTree.bDeepCSV_probbb->at(VBFidx1) ;
               theSmallTree.m_VBFjet1_btag_deepFlavor = theBigTree.bDeepFlavor_probb->at(VBFidx1) + theBigTree.bDeepFlavor_probbb->at(VBFidx1) + theBigTree.bDeepFlavor_problepb->at(VBFidx1);
               theSmallTree.m_VBFjet1_ctag_deepFlavor = theBigTree.bDeepFlavor_probc->at(VBFidx1) ;
+              theSmallTree.m_VBFjet1_CvsL = getCvsL(theBigTree, VBFidx1);
+              theSmallTree.m_VBFjet1_CvsB = getCvsB(theBigTree, VBFidx1);
               theSmallTree.m_VBFjet1_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at (VBFidx1) ;
               theSmallTree.m_VBFjet1_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx1)) ;
               theSmallTree.m_VBFjet1_hasgenjet  = hasgj1_VBF ;
@@ -4567,6 +4573,8 @@ int main (int argc, char** argv)
               theSmallTree.m_VBFjet2_btag_deepCSV = theBigTree.bDeepCSV_probb->at(VBFidx2) + theBigTree.bDeepCSV_probbb->at(VBFidx2) ;
               theSmallTree.m_VBFjet2_btag_deepFlavor = theBigTree.bDeepFlavor_probb->at(VBFidx2) + theBigTree.bDeepFlavor_probbb->at(VBFidx2) + theBigTree.bDeepFlavor_problepb->at(VBFidx2);
               theSmallTree.m_VBFjet2_ctag_deepFlavor = theBigTree.bDeepFlavor_probc->at(VBFidx2) ;
+              theSmallTree.m_VBFjet2_CvsL = getCvsL(theBigTree, VBFidx2);
+              theSmallTree.m_VBFjet2_CvsB = getCvsB(theBigTree, VBFidx2);
               theSmallTree.m_VBFjet2_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at (VBFidx2) ;
               theSmallTree.m_VBFjet2_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx2)) ;
               theSmallTree.m_VBFjet2_hasgenjet  = hasgj2_VBF ;
@@ -4707,6 +4715,8 @@ int main (int argc, char** argv)
               theSmallTree.m_jets_btag_deepCSV.push_back (theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet)) ;
               theSmallTree.m_jets_btag_deepFlavor.push_back (theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet)) ;
               theSmallTree.m_jets_ctag_deepFlavor.push_back (theBigTree.bDeepFlavor_probc->at(iJet));
+              theSmallTree.m_jets_CvsL.push_back( getCvsL(theBigTree, iJet) );
+              theSmallTree.m_jets_CvsB.push_back( getCvsB(theBigTree, iJet) );
               theSmallTree.m_jets_flav.push_back (theBigTree.jets_HadronFlavour->at (iJet)) ;
               theSmallTree.m_jets_jecUnc.push_back (theBigTree.jets_jecUnc->at (iJet)) ;
               theSmallTree.m_jets_hasgenjet.push_back (hasgj) ;
