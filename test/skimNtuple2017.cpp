@@ -1838,15 +1838,28 @@ int main (int argc, char** argv)
           }
 	  //}
 
-        // !! FIXME !! --> update the trigger bits to the right paths
+        // !! WARNING !! --> update the trigger bits to the right paths
         // Weight to be applied for IsoMu24, prescaled for ~3fb-1 in 2017
         // MuTau: if it didn't also pass IsoMu27 or MuTau trigger
+        // weight to be applied: 0.91613901 from https://twiki.cern.ch/twiki/bin/viewauth/CMS/DoubleHiggsToBBTauTauWorkingLegacyRun2#Triggers
+        //@ bit position - path
+        // 0 - HLT_IsoMu24_v
+        // 1 - HLT_IsoMu27_v
+        // 2 - HLT_Ele32_WPTight_Gsf_v
+        // 3 - HLT_Ele35_WPTight_Gsf_v
+        // 4 - HLT_DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v
+        // 5 - HLT_DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v
+        // 6 - HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v
+        // 7 - HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v
+        // 8 - HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v
+        // 9 - HLT_VBF_DoubleLooseChargedIsoPFTau20_Trk1_eta2p1_Reg_v
+
         if (pairType == 0 && isMC){
-            if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1) && !CheckBit(pass_triggerbit,7)) theSmallTree.m_prescaleWeight =  (41557. - 3625.) / 41557.;
+            if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1) && !CheckBit(pass_triggerbit,7)) theSmallTree.m_prescaleWeight =  0.91613901;
         }
         // MuMu: if it didn't also pass IsoMu27
         if (pairType == 3 && isMC){
-            if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1)) theSmallTree.m_prescaleWeight =  (41557. - 3625.) / 41557.;
+            if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1)) theSmallTree.m_prescaleWeight =  0.91613901;
         }
 
         if(DEBUG)
@@ -3736,7 +3749,9 @@ int main (int argc, char** argv)
             else if (tlv_secondLepton.Pt() < 200) SFTau2 = 0.91;
             else                                  SFTau2 = 0.97;
 
-            float VBFtrigNorm = 27.07/41.557;   // norm to RunD-F lumi: in 2017 VBF triggers online from RunD
+            // norm to RunD-F lumi: in 2017 VBF triggers online from RunD
+            // from: https://twiki.cern.ch/twiki/bin/viewauth/CMS/DoubleHiggsToBBTauTauWorkingLegacyRun2#Triggers
+            float VBFtrigNorm = 0.65308574;
 
             theSmallTree.m_VBFtrigSF = jetSF * SFTau1 * SFTau2 * VBFtrigNorm;
           }

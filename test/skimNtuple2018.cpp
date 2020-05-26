@@ -3791,7 +3791,7 @@ int main (int argc, char** argv)
                   else if (tlv_secondLepton.Pt() < 200) SFTau2 = 0.91;
                   else                                  SFTau2 = 0.97;
 
-                  float VBFtrigNorm = 1.;   // No need to normalize for 2018
+                  float VBFtrigNorm = 0.990342;   // from: https://twiki.cern.ch/twiki/bin/viewauth/CMS/DoubleHiggsToBBTauTauWorkingLegacyRun2#Triggers
 
                   theSmallTree.m_VBFtrigSF = jetSF * SFTau1 * SFTau2 * VBFtrigNorm;
                 }

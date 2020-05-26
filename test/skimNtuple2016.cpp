@@ -1828,6 +1828,51 @@ int main (int argc, char** argv)
         Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
         bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
 
+        // !! WARNING !! --> update the trigger bits to the right paths
+        // Weight to be applied in 2016 from https://twiki.cern.ch/twiki/bin/viewauth/CMS/DoubleHiggsToBBTauTauWorkingLegacyRun2#Triggers
+        //   - HLT_IsoMu22 and HLT_IsoTkMu22               : 0.795221971
+        //   - HLT_IsoMu22_eta2p1 and HLT_IsoTkMu22_eta2p1 : 0.923782353
+        //@ bit position - path
+        // 0 - HLT_IsoMu22_v
+        // 1 - HLT_IsoTkMu22_v
+        // 2 - HLT_IsoMu22_eta2p1_v
+        // 3 - HLT_IsoTkMu22_eta2p1_v
+        // 4 - HLT_Ele25_eta2p1_WPTight_Gsf_v
+        // 5 - HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v
+        // 6 - HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg_v
+        // 7 - HLT_IsoMu19_eta2p1_LooseIsoPFTau20_v
+        // 8 - HLT_IsoMu19_eta2p1_LooseIsoPFTau20_SingleL1_v
+
+        // MuTau
+        if (pairType == 0 && isMC)
+        {
+          if ( CheckBit(pass_triggerbit,7) || CheckBit(pass_triggerbit,8) )
+          {
+            theSmallTree.m_prescaleWeight = 1.; // no need for prescale for cross triggers
+          }
+          else if ( CheckBit(pass_triggerbit,2) || CheckBit(pass_triggerbit,3) )
+          {
+            theSmallTree.m_prescaleWeight = 0.923782353; // passes (HLT_IsoMu22_eta2p1_v OR HLT_IsoTkMu22_eta2p1_v)
+          }
+          else if ( CheckBit(pass_triggerbit,0) || CheckBit(pass_triggerbit,1) )
+          {
+            theSmallTree.m_prescaleWeight = 0.795221971; // passes only (HLT_IsoMu22_v OR HLT_IsoTkMu22_v)
+          }
+        }
+
+        // MuMu
+        if (pairType == 3 && isMC)
+        {
+          if ( CheckBit(pass_triggerbit,2) || CheckBit(pass_triggerbit,3) )
+          {
+            theSmallTree.m_prescaleWeight = 0.923782353; // passes (HLT_IsoMu22_eta2p1_v OR HLT_IsoTkMu22_eta2p1_v)
+          }
+          else if ( CheckBit(pass_triggerbit,0) || CheckBit(pass_triggerbit,1) )
+          {
+            theSmallTree.m_prescaleWeight = 0.795221971; // passes only (HLT_IsoMu22_v OR HLT_IsoTkMu22_v)
+          }
+        }
+
         if(DEBUG)
         {
           if (isMC && (pairType == 2 || pairType == 1 || pairType == 0))
