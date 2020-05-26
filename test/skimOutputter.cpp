@@ -22,6 +22,7 @@
 #include "OfflineProducerHelper.h"
 #include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 #include "BDTfunctionsUtils.h"
+#include "skimUtils.h"
 
 #include "lester_mt2_bisect.h"
 
@@ -52,71 +53,6 @@ using namespace std ;
 const int nMaxEvts = 1;
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
-// open input txt file and append all the files it contains to TChain
-void appendFromFileList (TChain* chain, TString filename)
-{
-  //cout << "=== inizio parser ===" << endl;
-  std::ifstream infile(filename.Data());
-  std::string line;
-  while (std::getline(infile, line))
-    {
-      line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
-      while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
-      while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
-      while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
-      if (!line.empty()) // skip empty lines
-	chain->Add(line.c_str());
-    }
-  return;
-}
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
-// open the first file in the input list, retrieve the histogram "Counters" for the trigger names and return a copy of it
-TH1F* getFirstFileHisto (TString filename, bool isForTriggers=true)
-{
-  std::ifstream infile(filename.Data());
-  std::string line;
-  while (std::getline(infile, line))
-    {
-      line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
-      while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
-      while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
-      while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
-      if (!line.empty()) // skip empty lines
-	break;
-    }
-    
-  TFile* fIn = TFile::Open (line.c_str());
-  TH1F* dummy = (TH1F*) fIn->Get ("HTauTauTree/Counters");
-  TString name = "Counters_perTrigger";
-  if(!isForTriggers) {
-    dummy = (TH1F*) fIn->Get ("HTauTauTree/TauIDs");
-    name = "Counters_pertauID";
-  }
-  TH1F* histo = new TH1F (*dummy);
-  histo-> SetDirectory(0);
-  histo->SetName (name.Data());
-  fIn->Close();
-  return histo;
-}
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
-float deltaPhi (float phi1, float phi2)
-{
-  float deltaphi = fabs (phi1 - phi2) ;
-  if (deltaphi > 6.283185308) deltaphi -= 6.283185308 ;
-  if (deltaphi > 3.141592654) deltaphi = 6.283185308 - deltaphi ;
-  return deltaphi ;
-}
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-float ComputeMT (TLorentzVector visP4, TLorentzVector METP4)
-{
-    double dphi = deltaPhi(visP4.Phi(), METP4.Phi());
-    return sqrt(2.*visP4.Pt()*METP4.Pt()*(1.-cos(dphi)));
-}
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 
@@ -124,9 +60,8 @@ float ComputeMT (TLorentzVector visP4, TLorentzVector METP4)
 int main (int argc, char** argv)
 {
 
-  //TString inputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/DNN2/CMSSW_10_2_16/src/KLUBAnalysis/skimmed_output1_SYST.root";  // FIXME: read from cfg file
-  TString inputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/DNN2/CMSSW_10_2_16/src/KLUBAnalysis/skimmed_output2016_SYST.root";  // FIXME: read from cfg file
-  TString outputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/DNN2/CMSSW_10_2_16/src/KLUBAnalysis/systTEST_MES.root";         // FIXME: read from cfg file
+  TString inputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/HHbtag/CMSSW_10_2_16/src/KLUBAnalysis/skimmed_output2016_SYST.root";  // FIXME: read from cfg file
+  TString outputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/HHbtag/CMSSW_10_2_16/src/KLUBAnalysis/systTEST_DNN.root";            // FIXME: read from cfg file
   cout << "** INFO: inputFile  : " << inputFileName << endl;
   cout << "** INFO: outputFile : " << outputFileName << endl;
 
@@ -139,7 +74,7 @@ int main (int argc, char** argv)
   bool doMES      = true; // FIXME: read from cfg file
   bool doEES      = true; // FIXME: read from cfg file
   bool doTES      = true; // FIXME: read from cfg file
-  bool doSplitJES = true; // FIXME: read from cfg file
+  bool doSplitJES = false; // FIXME: read from cfg file
   bool doTotalJES = true; // FIXME: read from cfg file
 
   // Input setup
@@ -160,10 +95,14 @@ int main (int argc, char** argv)
   cout << "** INFO: Initial entries: " << nentries << endl;
 
   // Declare the only two branches needed for skimming the initial entries 
-  int nleps, pairType, nbjetscand;
+  int nleps, pairType, nbjetscand, dau1_deepTauVsJet, dau1_eleMVAiso;
+  float dau1_iso;
   inputChain->SetBranchAddress("nleps", &nleps);
   inputChain->SetBranchAddress("pairType", &pairType);
   inputChain->SetBranchAddress("nbjetscand", &nbjetscand);
+  inputChain->SetBranchAddress("dau1_deepTauVsJet", &dau1_deepTauVsJet);
+  inputChain->SetBranchAddress("dau1_iso", &dau1_iso);
+  inputChain->SetBranchAddress("dau1_eleMVAiso", &dau1_eleMVAiso);
 
   // De-activate all branches
   inputChain->SetBranchStatus("*", 0);
@@ -178,12 +117,16 @@ int main (int argc, char** argv)
 
   "isVBFtrigger", "isVBF",                                             // Trigger vbf selection
 
-  "dau1_iso", "dau2_iso", "dau1_deepTauVsJet", "dau2_deepTauVsJet",    // Isolation
+  "dau1_deepTauVsJet","dau2_deepTauVsJet",                             // Isolation
+  "dau1_iso", "dau2_iso", "dau1_eleMVAiso",
 
   "dau1_decayMode", "dau2_decayMode",                                  // Tau decay mode
 
   "bjet1_bID_deepFlavor", "bjet2_bID_deepFlavor",                      // b-tagging          
   "bjet1_bID_deepCSV", "bjet2_bID_deepCSV",
+  "bjet1_Cvs*","bjet2_Cvs*","VBFjet1_Cvs*","VBFjet2_Cvs*",
+
+  "bjet1_HHbtag","bjet2_HHbtag","VBFjet1_HHbtag","VBFjet2_HHbtag",     // HHbtag
 
   "dau1_pt","dau1_eta","dau1_phi","dau1_e",                            // Tau central
   "dau2_pt","dau2_eta","dau2_phi","dau2_e",
@@ -280,6 +223,9 @@ int main (int argc, char** argv)
 
     inputChain->GetEntry(iEvent);
     if ( nleps!=0 || nbjetscand<2 || pairType>2) continue;
+    if ( pairType==0 && dau1_iso>=0.15 ) continue;
+    if ( pairType==1 && dau1_eleMVAiso!=1 ) continue;
+    if ( pairType==2 && dau1_deepTauVsJet<5 ) continue;
     treenew->Fill() ;
   }
   cout << "** INFO: ...Cloned entries: " << treenew->GetEntries() << endl;
@@ -310,8 +256,8 @@ int main (int argc, char** argv)
   std::vector<float> target_kls {1.}; // FIXME: read from cfg file
 
   // Declare DNNKLUBinterface
-  std::string model_dir = "../cms_runII_dnn_models/models/nonres_gluglu/2020-03-11-0/ensemble";         // FIXME: read from cfg file
-  std::string features_file = "../cms_runII_dnn_models/models/nonres_gluglu/2020-03-11-0/features.txt"; // FIXME: read from cfg file
+  std::string model_dir = "../cms_runII_dnn_models/models/nonres_gluglu/2020-05-18-2/ensemble";         // FIXME: read from cfg file
+  std::string features_file = "../cms_runII_dnn_models/models/nonres_gluglu/2020-05-18-2/features.txt"; // FIXME: read from cfg file
   std::vector<std::string> requested;
   std::ifstream features_infile(features_file);
   std::string featureName;
@@ -338,7 +284,10 @@ int main (int argc, char** argv)
   Float_t METx, METy, met_cov00, met_cov01, met_cov10, met_cov11;
   Float_t METx_muup, METy_muup, METx_mudown, METy_mudown;
   Float_t HHKin_mass, HHKin_chi2, MT2, tauH_SVFIT_pt, tauH_SVFIT_eta, tauH_SVFIT_phi, tauH_SVFIT_mass, DNNoutSM_kl_1, BDToutSM_kl_1;
-  float bjet1_bID_deepFlavor, bjet2_bID_deepFlavor, bjet1_bID_deepCSV, bjet2_bID_deepCSV;
+  float bjet1_bID_deepFlavor, bjet2_bID_deepFlavor;
+  float CvsL_b1, CvsL_b2, CvsL_vbf1, CvsL_vbf2;
+  float CvsB_b1, CvsB_b2, CvsB_vbf1, CvsB_vbf2;
+  float HHbtag_b1, HHbtag_b2, HHbtag_vbf1, HHbtag_vbf2;
   float BDT_HT20;
   std::vector<Float_t> *METx_eleup, *METy_eleup, *METx_eledown, *METy_eledown;
   std::vector<Float_t> *dau1_pt_eleup, *dau1_pt_eledown, *dau1_mass_eleup, *dau1_mass_eledown;
@@ -473,8 +422,18 @@ int main (int argc, char** argv)
 
   outTree->SetBranchAddress("bjet1_bID_deepFlavor" , &bjet1_bID_deepFlavor);
   outTree->SetBranchAddress("bjet2_bID_deepFlavor" , &bjet2_bID_deepFlavor);
-  outTree->SetBranchAddress("bjet1_bID_deepCSV"    , &bjet1_bID_deepCSV);
-  outTree->SetBranchAddress("bjet2_bID_deepCSV"    , &bjet2_bID_deepCSV);
+  outTree->SetBranchAddress("bjet1_CvsL"    , &CvsL_b1);
+  outTree->SetBranchAddress("bjet2_CvsL"    , &CvsL_b2);
+  outTree->SetBranchAddress("VBFjet1_CvsL"  , &CvsL_vbf1);
+  outTree->SetBranchAddress("VBFjet2_CvsL"  , &CvsL_vbf2);
+  outTree->SetBranchAddress("bjet1_CvsB"    , &CvsB_b1);
+  outTree->SetBranchAddress("bjet2_CvsB"    , &CvsB_b2);
+  outTree->SetBranchAddress("VBFjet1_CvsB"  , &CvsB_vbf1);
+  outTree->SetBranchAddress("VBFjet2_CvsB"  , &CvsB_vbf2);
+  outTree->SetBranchAddress("bjet1_HHbtag"  , &HHbtag_b1);
+  outTree->SetBranchAddress("bjet2_HHbtag"  , &HHbtag_b2);
+  outTree->SetBranchAddress("VBFjet1_HHbtag", &HHbtag_vbf1);
+  outTree->SetBranchAddress("VBFjet2_HHbtag", &HHbtag_vbf2);
 
   outTree->SetBranchAddress("met_cov00" , &met_cov00);
   outTree->SetBranchAddress("met_cov01" , &met_cov01);
@@ -670,8 +629,6 @@ int main (int argc, char** argv)
     float mTtot                         = Calculate_TotalMT(tau1, tau2, met);
     float pzeta_vis                     = Calculate_visiblePzeta(tau1, tau2);
     float pzeta                         = Calculate_Pzeta(tau1, tau2, met);
-    float mt1                           = ComputeMT(tau1, met);
-    float mt2                           = ComputeMT(tau2, met);
     float BDT_ditau_deltaPhi            = ROOT::Math::VectorUtil::DeltaPhi(tau1, tau2);
     float BDT_tauHsvfitMet_deltaPhi     = ROOT::Math::VectorUtil::DeltaPhi(svfit, met);
     float mT_tauH_MET                   = Calculate_MT( (tau1+tau2)+met, met);
@@ -680,7 +637,6 @@ int main (int argc, char** argv)
     float BDT_bH_tauH_SVFIT_InvMass     = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), svfit);
     float BDT_bH_tauH_InvMass           = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1+tau2));
     float BDT_MET_bH_cosTheta           = Calculate_cosTheta_2bodies(getLVfromTLV(met), getLVfromTLV(bjet1+bjet2));
-    std::pair<double, double> topMasses = Calculate_topPairMasses(getLVfromTLV(tau1), getLVfromTLV(tau2), getLVfromTLV(bjet1), getLVfromTLV(bjet2), getLVfromTLV(met));
     bool KinFitConv                     = HHKin_chi2 > 0;
     bool SVfitConv                      = tauH_SVFIT_mass > 0;
 
@@ -706,8 +662,9 @@ int main (int argc, char** argv)
       if (vbfjet1_e != -999.) nvbf++;
       if (vbfjet2_e != -999.) nvbf++;
     }
-    DNNreader.SetEventInputs(channel, isBoosted, bjet1_bID_deepFlavor, bjet2_bID_deepFlavor,
-        bjet1_bID_deepCSV, bjet2_bID_deepCSV, nvbf, EventNumber);
+    DNNreader.SetEventInputs(channel, isBoosted, nvbf, EventNumber,
+        bjet1_bID_deepFlavor, bjet2_bID_deepFlavor, CvsL_b1, CvsL_b2, CvsL_vbf1, CvsL_vbf2,
+        CvsB_b1, CvsB_b2, CvsB_vbf1, CvsB_vbf2, HHbtag_b1, HHbtag_b2, HHbtag_vbf1, HHbtag_vbf2);
 
 
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -774,8 +731,7 @@ int main (int argc, char** argv)
       // Set quantities that change for each event (shifted for TES, JES...)
       // Central value
       DNNreader.SetShiftedInputs(bjet1, bjet2, tau1, tau2, vbfjet1, vbfjet2, met, svfit,
-          HHKin_mass, HHKin_chi2, KinFitConv, SVfitConv, MT2,
-          mTtot, pzeta_vis, pzeta, topMasses.first, topMasses.second, mt1, mt2);
+          HHKin_mass, HHKin_chi2, KinFitConv, SVfitConv, MT2);
       std::vector<float> outs = DNNreader.GetPredictions();
       //std::cout << "----- ...gotten predictions: " << outs.at(0) << std::endl;
       DNNoutSM_kl_1_new = outs.at(0);
@@ -902,8 +858,6 @@ int main (int argc, char** argv)
       float mTtot_muup                         = Calculate_TotalMT(tau1_muup, tau2_muup, met_muup);
       float pzeta_vis_muup                     = Calculate_visiblePzeta(tau1_muup, tau2_muup);
       float pzeta_muup                         = Calculate_Pzeta(tau1_muup, tau2_muup, met_muup);
-      float mt1_muup                           = ComputeMT(tau1_muup, met_muup);
-      float mt2_muup                           = ComputeMT(tau2_muup, met_muup);
       float BDT_ditau_deltaPhi_muup            = ROOT::Math::VectorUtil::DeltaPhi(tau1_muup, tau2_muup);
       float BDT_tauHsvfitMet_deltaPhi_muup     = ROOT::Math::VectorUtil::DeltaPhi(svfit_muup, met_muup);
       float mT_tauH_MET_muup                   = Calculate_MT( (tau1_muup+tau2_muup)+met_muup, met_muup);
@@ -912,7 +866,6 @@ int main (int argc, char** argv)
       float BDT_bH_tauH_SVFIT_InvMass_muup     = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), svfit_muup);
       float BDT_bH_tauH_InvMass_muup           = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1_muup+tau2_muup));
       float BDT_MET_bH_cosTheta_muup           = Calculate_cosTheta_2bodies(getLVfromTLV(met_muup), getLVfromTLV(bjet1+bjet2));
-      std::pair<double, double> topMasses_muup = Calculate_topPairMasses(getLVfromTLV(tau1_muup), getLVfromTLV(tau2_muup), getLVfromTLV(bjet1), getLVfromTLV(bjet2), getLVfromTLV(met_muup));
       bool KinFitConv_muup                     = HHKin_chi2_muup > 0;
       bool SVfitConv_muup                      = tauH_SVFIT_mass_muup > 0;
 
@@ -921,8 +874,6 @@ int main (int argc, char** argv)
       float mTtot_mudown                         = Calculate_TotalMT(tau1_mudown, tau2_mudown, met_mudown);
       float pzeta_vis_mudown                     = Calculate_visiblePzeta(tau1_mudown, tau2_mudown);
       float pzeta_mudown                         = Calculate_Pzeta(tau1_mudown, tau2_mudown, met_mudown);
-      float mt1_mudown                           = ComputeMT(tau1_mudown, met_mudown);
-      float mt2_mudown                           = ComputeMT(tau2_mudown, met_mudown);
       float BDT_ditau_deltaPhi_mudown            = ROOT::Math::VectorUtil::DeltaPhi(tau1_mudown, tau2_mudown);
       float BDT_tauHsvfitMet_deltaPhi_mudown     = ROOT::Math::VectorUtil::DeltaPhi(svfit_mudown, met_mudown);
       float mT_tauH_MET_mudown                   = Calculate_MT( (tau1_mudown+tau2_mudown)+met_mudown, met_mudown);
@@ -931,21 +882,18 @@ int main (int argc, char** argv)
       float BDT_bH_tauH_SVFIT_InvMass_mudown     = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), svfit_mudown);
       float BDT_bH_tauH_InvMass_mudown           = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1_mudown+tau2_mudown));
       float BDT_MET_bH_cosTheta_mudown           = Calculate_cosTheta_2bodies(getLVfromTLV(met_mudown), getLVfromTLV(bjet1+bjet2));
-      std::pair<double, double> topMasses_mudown = Calculate_topPairMasses(getLVfromTLV(tau1_mudown), getLVfromTLV(tau2_mudown), getLVfromTLV(bjet1), getLVfromTLV(bjet2), getLVfromTLV(met_mudown));
       bool KinFitConv_mudown                     = HHKin_chi2_mudown > 0;
       bool SVfitConv_mudown                      = tauH_SVFIT_mass_mudown > 0;
 
       if (doDNN)
       {
         DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_muup, tau2_muup, vbfjet1, vbfjet2, met_muup, svfit_muup,
-            HHKin_mass_muup, HHKin_chi2_muup, KinFitConv_muup, SVfitConv_muup, MT2_muup,
-            mTtot_muup, pzeta_vis_muup, pzeta_muup, topMasses_muup.first, topMasses_muup.second, mt1_muup, mt2_muup);
+            HHKin_mass_muup, HHKin_chi2_muup, KinFitConv_muup, SVfitConv_muup, MT2_muup);
         std::vector<float> outs_muup = DNNreader.GetPredictions();
         DNNoutSM_kl_1_muup = outs_muup.at(0);
 
         DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_mudown, tau2_mudown, vbfjet1, vbfjet2, met_mudown, svfit_mudown,
-            HHKin_mass_mudown, HHKin_chi2_mudown, KinFitConv_mudown, SVfitConv_mudown, MT2_mudown,
-            mTtot_mudown, pzeta_vis_mudown, pzeta_mudown, topMasses_mudown.first, topMasses_mudown.second, mt1_mudown, mt2_mudown);
+            HHKin_mass_mudown, HHKin_chi2_mudown, KinFitConv_mudown, SVfitConv_mudown, MT2_mudown);
         std::vector<float> outs_mudown = DNNreader.GetPredictions();
         DNNoutSM_kl_1_mudown = outs_mudown.at(0);
       }
@@ -1075,8 +1023,6 @@ int main (int argc, char** argv)
         float mTtot_eleup                         = Calculate_TotalMT(tau1_eleup, tau2_eleup, met_eleup);
         float pzeta_vis_eleup                     = Calculate_visiblePzeta(tau1_eleup, tau2_eleup);
         float pzeta_eleup                         = Calculate_Pzeta(tau1_eleup, tau2_eleup, met_eleup);
-        float mt1_eleup                           = ComputeMT(tau1_eleup, met_eleup);
-        float mt2_eleup                           = ComputeMT(tau2_eleup, met_eleup);
         float BDT_ditau_deltaPhi_eleup            = ROOT::Math::VectorUtil::DeltaPhi(tau1_eleup, tau2_eleup);
         float BDT_tauHsvfitMet_deltaPhi_eleup     = ROOT::Math::VectorUtil::DeltaPhi(svfit_eleup, met_eleup);
         float mT_tauH_MET_eleup                   = Calculate_MT( (tau1_eleup+tau2_eleup)+met_eleup, met_eleup);
@@ -1085,7 +1031,6 @@ int main (int argc, char** argv)
         float BDT_bH_tauH_SVFIT_InvMass_eleup     = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), svfit_eleup);
         float BDT_bH_tauH_InvMass_eleup           = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1_eleup+tau2_eleup));
         float BDT_MET_bH_cosTheta_eleup           = Calculate_cosTheta_2bodies(getLVfromTLV(met_eleup), getLVfromTLV(bjet1+bjet2));
-        std::pair<double, double> topMasses_eleup = Calculate_topPairMasses(getLVfromTLV(tau1_eleup), getLVfromTLV(tau2_eleup), getLVfromTLV(bjet1), getLVfromTLV(bjet2), getLVfromTLV(met_eleup));
         bool KinFitConv_eleup                     = HHKin_chi2_eleup > 0;
         bool SVfitConv_eleup                      = tauH_SVFIT_mass_eleup.at(i) > 0;
 
@@ -1094,8 +1039,6 @@ int main (int argc, char** argv)
         float mTtot_eledown                         = Calculate_TotalMT(tau1_eledown, tau2_eledown, met_eledown);
         float pzeta_vis_eledown                     = Calculate_visiblePzeta(tau1_eledown, tau2_eledown);
         float pzeta_eledown                         = Calculate_Pzeta(tau1_eledown, tau2_eledown, met_eledown);
-        float mt1_eledown                           = ComputeMT(tau1_eledown, met_eledown);
-        float mt2_eledown                           = ComputeMT(tau2_eledown, met_eledown);
         float BDT_ditau_deltaPhi_eledown            = ROOT::Math::VectorUtil::DeltaPhi(tau1_eledown, tau2_eledown);
         float BDT_tauHsvfitMet_deltaPhi_eledown     = ROOT::Math::VectorUtil::DeltaPhi(svfit_eledown, met_eledown);
         float mT_tauH_MET_eledown                   = Calculate_MT( (tau1_eledown+tau2_eledown)+met_eledown, met_eledown);
@@ -1104,21 +1047,18 @@ int main (int argc, char** argv)
         float BDT_bH_tauH_SVFIT_InvMass_eledown     = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), svfit_eledown);
         float BDT_bH_tauH_InvMass_eledown           = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1_eledown+tau2_eledown));
         float BDT_MET_bH_cosTheta_eledown           = Calculate_cosTheta_2bodies(getLVfromTLV(met_eledown), getLVfromTLV(bjet1+bjet2));
-        std::pair<double, double> topMasses_eledown = Calculate_topPairMasses(getLVfromTLV(tau1_eledown), getLVfromTLV(tau2_eledown), getLVfromTLV(bjet1), getLVfromTLV(bjet2), getLVfromTLV(met_eledown));
         bool KinFitConv_eledown                     = HHKin_chi2_eledown > 0;
         bool SVfitConv_eledown                      = tauH_SVFIT_mass_eledown.at(i) > 0;
 
         if (doDNN)
         {
           DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_eleup, tau2_eleup, vbfjet1, vbfjet2, met_eleup, svfit_eleup,
-              HHKin_mass_eleup, HHKin_chi2_eleup, KinFitConv_eleup, SVfitConv_eleup, MT2_eleup,
-              mTtot_eleup, pzeta_vis_eleup, pzeta_eleup, topMasses_eleup.first, topMasses_eleup.second, mt1_eleup, mt2_eleup);
+              HHKin_mass_eleup, HHKin_chi2_eleup, KinFitConv_eleup, SVfitConv_eleup, MT2_eleup);
           std::vector<float> outs_eleup = DNNreader.GetPredictions();
           DNNoutSM_kl_1_eleup.at(i) = outs_eleup.at(0);
 
           DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_eledown, tau2_eledown, vbfjet1, vbfjet2, met_eledown, svfit_eledown,
-              HHKin_mass_eledown, HHKin_chi2_eledown, KinFitConv_eledown, SVfitConv_eledown, MT2_eledown,
-              mTtot_eledown, pzeta_vis_eledown, pzeta_eledown, topMasses_eledown.first, topMasses_eledown.second, mt1_eledown, mt2_eledown);
+              HHKin_mass_eledown, HHKin_chi2_eledown, KinFitConv_eledown, SVfitConv_eledown, MT2_eledown);
           std::vector<float> outs_eledown = DNNreader.GetPredictions();
           DNNoutSM_kl_1_eledown.at(i) = outs_eledown.at(0);
         }
@@ -1249,8 +1189,6 @@ int main (int argc, char** argv)
         float mTtot_tauup                         = Calculate_TotalMT(tau1_tauup, tau2_tauup, met_tauup);
         float pzeta_vis_tauup                     = Calculate_visiblePzeta(tau1_tauup, tau2_tauup);
         float pzeta_tauup                         = Calculate_Pzeta(tau1_tauup, tau2_tauup, met_tauup);
-        float mt1_tauup                           = ComputeMT(tau1_tauup, met_tauup);
-        float mt2_tauup                           = ComputeMT(tau2_tauup, met_tauup);
         float BDT_ditau_deltaPhi_tauup            = ROOT::Math::VectorUtil::DeltaPhi(tau1_tauup, tau2_tauup);
         float BDT_tauHsvfitMet_deltaPhi_tauup     = ROOT::Math::VectorUtil::DeltaPhi(svfit_tauup, met_tauup);
         float mT_tauH_MET_tauup                   = Calculate_MT( (tau1_tauup+tau2_tauup)+met_tauup, met_tauup);
@@ -1259,7 +1197,6 @@ int main (int argc, char** argv)
         float BDT_bH_tauH_SVFIT_InvMass_tauup     = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), svfit_tauup);
         float BDT_bH_tauH_InvMass_tauup           = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1_tauup+tau2_tauup));
         float BDT_MET_bH_cosTheta_tauup           = Calculate_cosTheta_2bodies(getLVfromTLV(met_tauup), getLVfromTLV(bjet1+bjet2));
-        std::pair<double, double> topMasses_tauup = Calculate_topPairMasses(getLVfromTLV(tau1_tauup), getLVfromTLV(tau2_tauup), getLVfromTLV(bjet1), getLVfromTLV(bjet2), getLVfromTLV(met_tauup));
         bool KinFitConv_tauup                     = HHKin_chi2_tauup > 0;
         bool SVfitConv_tauup                      = tauH_SVFIT_mass_tauup.at(i) > 0;
 
@@ -1268,8 +1205,6 @@ int main (int argc, char** argv)
         float mTtot_taudown                         = Calculate_TotalMT(tau1_taudown, tau2_taudown, met_taudown);
         float pzeta_vis_taudown                     = Calculate_visiblePzeta(tau1_taudown, tau2_taudown);
         float pzeta_taudown                         = Calculate_Pzeta(tau1_taudown, tau2_taudown, met_taudown);
-        float mt1_taudown                           = ComputeMT(tau1_taudown, met_taudown);
-        float mt2_taudown                           = ComputeMT(tau2_taudown, met_taudown);
         float BDT_ditau_deltaPhi_taudown            = ROOT::Math::VectorUtil::DeltaPhi(tau1_taudown, tau2_taudown);
         float BDT_tauHsvfitMet_deltaPhi_taudown     = ROOT::Math::VectorUtil::DeltaPhi(svfit_taudown, met_taudown);
         float mT_tauH_MET_taudown                   = Calculate_MT( (tau1_taudown+tau2_taudown)+met_taudown, met_taudown);
@@ -1278,21 +1213,18 @@ int main (int argc, char** argv)
         float BDT_bH_tauH_SVFIT_InvMass_taudown     = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), svfit_taudown);
         float BDT_bH_tauH_InvMass_taudown           = ROOT::Math::VectorUtil::InvariantMass((bjet1+bjet2), (tau1_taudown+tau2_taudown));
         float BDT_MET_bH_cosTheta_taudown           = Calculate_cosTheta_2bodies(getLVfromTLV(met_taudown), getLVfromTLV(bjet1+bjet2));
-        std::pair<double, double> topMasses_taudown = Calculate_topPairMasses(getLVfromTLV(tau1_taudown), getLVfromTLV(tau2_taudown), getLVfromTLV(bjet1), getLVfromTLV(bjet2), getLVfromTLV(met_taudown));
         bool KinFitConv_taudown                     = HHKin_chi2_taudown > 0;
         bool SVfitConv_taudown                      = tauH_SVFIT_mass_taudown.at(i) > 0;
 
         if (doDNN)
         {
           DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_tauup, tau2_tauup, vbfjet1, vbfjet1, met_tauup, svfit_tauup,
-              HHKin_mass_tauup, HHKin_chi2_tauup, KinFitConv_tauup, SVfitConv_tauup, MT2_tauup,
-              mTtot_tauup, pzeta_vis_tauup, pzeta_tauup, topMasses_tauup.first, topMasses_tauup.second, mt1_tauup, mt2_tauup);
+              HHKin_mass_tauup, HHKin_chi2_tauup, KinFitConv_tauup, SVfitConv_tauup, MT2_tauup);
           std::vector<float> outs_tauup = DNNreader.GetPredictions();
           DNNoutSM_kl_1_tauup.at(i) = outs_tauup.at(0);
 
           DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_taudown, tau2_taudown, vbfjet1, vbfjet1, met_taudown, svfit_taudown,
-              HHKin_mass_taudown, HHKin_chi2_taudown, KinFitConv_taudown, SVfitConv_taudown, MT2_taudown,
-              mTtot_taudown, pzeta_vis_taudown, pzeta_taudown, topMasses_taudown.first, topMasses_taudown.second, mt1_taudown, mt2_taudown);
+              HHKin_mass_taudown, HHKin_chi2_taudown, KinFitConv_taudown, SVfitConv_taudown, MT2_taudown);
           std::vector<float> outs_taudown = DNNreader.GetPredictions();
           DNNoutSM_kl_1_taudown.at(i) = outs_taudown.at(0);
         }
@@ -1431,8 +1363,6 @@ int main (int argc, char** argv)
         float mTtot_jetup                         = Calculate_TotalMT(tau1, tau2, met_jetup);
         float pzeta_vis_jetup                     = Calculate_visiblePzeta(tau1, tau2);
         float pzeta_jetup                         = Calculate_Pzeta(tau1, tau2, met_jetup);
-        float mt1_jetup                           = ComputeMT(tau1, met_jetup);
-        float mt2_jetup                           = ComputeMT(tau2, met_jetup);
         float BDT_ditau_deltaPhi_jetup            = ROOT::Math::VectorUtil::DeltaPhi(tau1, tau2);
         float BDT_tauHsvfitMet_deltaPhi_jetup     = ROOT::Math::VectorUtil::DeltaPhi(svfit_jetup, met_jetup);
         float mT_tauH_MET_jetup                   = Calculate_MT( (tau1+tau2)+met_jetup, met_jetup);
@@ -1441,7 +1371,6 @@ int main (int argc, char** argv)
         float BDT_bH_tauH_SVFIT_InvMass_jetup     = ROOT::Math::VectorUtil::InvariantMass((bjet1_jetup+bjet2_jetup), svfit_jetup);
         float BDT_bH_tauH_InvMass_jetup           = ROOT::Math::VectorUtil::InvariantMass((bjet1_jetup+bjet2_jetup), (tau1+tau2));
         float BDT_MET_bH_cosTheta_jetup           = Calculate_cosTheta_2bodies(getLVfromTLV(met_jetup), getLVfromTLV(bjet1_jetup+bjet2_jetup));
-        std::pair<double, double> topMasses_jetup = Calculate_topPairMasses(getLVfromTLV(tau1), getLVfromTLV(tau2), getLVfromTLV(bjet1_jetup), getLVfromTLV(bjet2_jetup), getLVfromTLV(met_jetup));
         bool KinFitConv_jetup                     = HHKin_chi2_jetup > 0;
         bool SVfitConv_jetup                      = tauH_SVFIT_mass_jetup.at(i) > 0;
 
@@ -1450,8 +1379,6 @@ int main (int argc, char** argv)
         float mTtot_jetdown                         = Calculate_TotalMT(tau1, tau2, met_jetdown);
         float pzeta_vis_jetdown                     = Calculate_visiblePzeta(tau1, tau2);
         float pzeta_jetdown                         = Calculate_Pzeta(tau1, tau2, met_jetdown);
-        float mt1_jetdown                           = ComputeMT(tau1, met_jetdown);
-        float mt2_jetdown                           = ComputeMT(tau2, met_jetdown);
         float BDT_ditau_deltaPhi_jetdown            = ROOT::Math::VectorUtil::DeltaPhi(tau1, tau2);
         float BDT_tauHsvfitMet_deltaPhi_jetdown     = ROOT::Math::VectorUtil::DeltaPhi(svfit_jetdown, met_jetdown);
         float mT_tauH_MET_jetdown                   = Calculate_MT( (tau1+tau2)+met_jetdown, met_jetdown);
@@ -1460,21 +1387,18 @@ int main (int argc, char** argv)
         float BDT_bH_tauH_SVFIT_InvMass_jetdown     = ROOT::Math::VectorUtil::InvariantMass((bjet1_jetdown+bjet2_jetdown), svfit_jetdown);
         float BDT_bH_tauH_InvMass_jetdown           = ROOT::Math::VectorUtil::InvariantMass((bjet1_jetdown+bjet2_jetdown), (tau1+tau2));
         float BDT_MET_bH_cosTheta_jetdown           = Calculate_cosTheta_2bodies(getLVfromTLV(met_jetdown), getLVfromTLV(bjet1_jetdown+bjet2_jetdown));
-        std::pair<double, double> topMasses_jetdown = Calculate_topPairMasses(getLVfromTLV(tau1), getLVfromTLV(tau2), getLVfromTLV(bjet1_jetdown), getLVfromTLV(bjet2_jetdown), getLVfromTLV(met_jetdown));
         bool KinFitConv_jetdown                     = HHKin_chi2_jetdown > 0;
         bool SVfitConv_jetdown                      = tauH_SVFIT_mass_jetdown.at(i) > 0;
 
         if (doDNN)
         {
           DNNreader.SetShiftedInputs(bjet1_jetup, bjet2_jetup, tau1, tau2, vbfjet1_jetup, vbfjet2_jetup, met_jetup, svfit_jetup,
-              HHKin_mass_jetup, HHKin_chi2_jetup, KinFitConv_jetup, SVfitConv_jetup, MT2_jetup,
-              mTtot_jetup, pzeta_vis_jetup, pzeta_jetup, topMasses_jetup.first, topMasses_jetup.second, mt1_jetup, mt2_jetup);
+              HHKin_mass_jetup, HHKin_chi2_jetup, KinFitConv_jetup, SVfitConv_jetup, MT2_jetup);
           std::vector<float> outs_jetup = DNNreader.GetPredictions();
           DNNoutSM_kl_1_jetup.at(i) = outs_jetup.at(0);
 
           DNNreader.SetShiftedInputs(bjet1_jetdown, bjet2_jetdown, tau1, tau2, vbfjet1_jetdown, vbfjet2_jetdown, met_jetdown, svfit_jetdown,
-              HHKin_mass_jetdown, HHKin_chi2_jetdown, KinFitConv_jetdown, SVfitConv_jetdown, MT2_jetdown,
-              mTtot_jetdown, pzeta_vis_jetdown, pzeta_jetdown, topMasses_jetdown.first, topMasses_jetdown.second, mt1_jetdown, mt2_jetdown);
+              HHKin_mass_jetdown, HHKin_chi2_jetdown, KinFitConv_jetdown, SVfitConv_jetdown, MT2_jetdown);
           std::vector<float> outs_jetdown = DNNreader.GetPredictions();
           DNNoutSM_kl_1_jetdown.at(i) = outs_jetdown.at(0);
         }
@@ -1611,8 +1535,6 @@ int main (int argc, char** argv)
       float mTtot_jetupTot                         = Calculate_TotalMT(tau1, tau2, met_jetupTot);
       float pzeta_vis_jetupTot                     = Calculate_visiblePzeta(tau1, tau2);
       float pzeta_jetupTot                         = Calculate_Pzeta(tau1, tau2, met_jetupTot);
-      float mt1_jetupTot                           = ComputeMT(tau1, met_jetupTot);
-      float mt2_jetupTot                           = ComputeMT(tau2, met_jetupTot);
       float BDT_ditau_deltaPhi_jetupTot            = ROOT::Math::VectorUtil::DeltaPhi(tau1, tau2);
       float BDT_tauHsvfitMet_deltaPhi_jetupTot     = ROOT::Math::VectorUtil::DeltaPhi(svfit_jetupTot, met_jetupTot);
       float mT_tauH_MET_jetupTot                   = Calculate_MT( (tau1+tau2)+met_jetupTot, met_jetupTot);
@@ -1621,7 +1543,6 @@ int main (int argc, char** argv)
       float BDT_bH_tauH_SVFIT_InvMass_jetupTot     = ROOT::Math::VectorUtil::InvariantMass((bjet1_jetupTot+bjet2_jetupTot), svfit_jetupTot);
       float BDT_bH_tauH_InvMass_jetupTot           = ROOT::Math::VectorUtil::InvariantMass((bjet1_jetupTot+bjet2_jetupTot), (tau1+tau2));
       float BDT_MET_bH_cosTheta_jetupTot           = Calculate_cosTheta_2bodies(getLVfromTLV(met_jetupTot), getLVfromTLV(bjet1_jetupTot+bjet2_jetupTot));
-      std::pair<double, double> topMasses_jetupTot = Calculate_topPairMasses(getLVfromTLV(tau1), getLVfromTLV(tau2), getLVfromTLV(bjet1_jetupTot), getLVfromTLV(bjet2_jetupTot), getLVfromTLV(met_jetupTot));
       bool KinFitConv_jetupTot                     = HHKin_chi2_jetupTot > 0;
       bool SVfitConv_jetupTot                      = tauH_SVFIT_mass_jetupTot > 0;
 
@@ -1630,8 +1551,6 @@ int main (int argc, char** argv)
       float mTtot_jetdownTot                         = Calculate_TotalMT(tau1, tau2, met_jetdownTot);
       float pzeta_vis_jetdownTot                     = Calculate_visiblePzeta(tau1, tau2);
       float pzeta_jetdownTot                         = Calculate_Pzeta(tau1, tau2, met_jetdownTot);
-      float mt1_jetdownTot                           = ComputeMT(tau1, met_jetdownTot);
-      float mt2_jetdownTot                           = ComputeMT(tau2, met_jetdownTot);
       float BDT_ditau_deltaPhi_jetdownTot            = ROOT::Math::VectorUtil::DeltaPhi(tau1, tau2);
       float BDT_tauHsvfitMet_deltaPhi_jetdownTot     = ROOT::Math::VectorUtil::DeltaPhi(svfit_jetdownTot, met_jetdownTot);
       float mT_tauH_MET_jetdownTot                   = Calculate_MT( (tau1+tau2)+met_jetdownTot, met_jetdownTot);
@@ -1640,21 +1559,18 @@ int main (int argc, char** argv)
       float BDT_bH_tauH_SVFIT_InvMass_jetdownTot     = ROOT::Math::VectorUtil::InvariantMass((bjet1_jetdownTot+bjet2_jetdownTot), svfit_jetdownTot);
       float BDT_bH_tauH_InvMass_jetdownTot           = ROOT::Math::VectorUtil::InvariantMass((bjet1_jetdownTot+bjet2_jetdownTot), (tau1+tau2));
       float BDT_MET_bH_cosTheta_jetdownTot           = Calculate_cosTheta_2bodies(getLVfromTLV(met_jetdownTot), getLVfromTLV(bjet1_jetdownTot+bjet2_jetdownTot));
-      std::pair<double, double> topMasses_jetdownTot = Calculate_topPairMasses(getLVfromTLV(tau1), getLVfromTLV(tau2), getLVfromTLV(bjet1_jetdownTot), getLVfromTLV(bjet2_jetdownTot), getLVfromTLV(met_jetdownTot));
       bool KinFitConv_jetdownTot                     = HHKin_chi2_jetdownTot > 0;
       bool SVfitConv_jetdownTot                      = tauH_SVFIT_mass_jetdownTot > 0;
 
       if (doDNN)
       {
         DNNreader.SetShiftedInputs(bjet1_jetupTot, bjet2_jetupTot, tau1, tau2, vbfjet1_jetupTot, vbfjet2_jetupTot, met_jetupTot, svfit_jetupTot,
-            HHKin_mass_jetupTot, HHKin_chi2_jetupTot, KinFitConv_jetupTot, SVfitConv_jetupTot, MT2_jetupTot,
-            mTtot_jetupTot, pzeta_vis_jetupTot, pzeta_jetupTot, topMasses_jetupTot.first, topMasses_jetupTot.second, mt1_jetupTot, mt2_jetupTot);
+            HHKin_mass_jetupTot, HHKin_chi2_jetupTot, KinFitConv_jetupTot, SVfitConv_jetupTot, MT2_jetupTot);
         std::vector<float> outs_jetupTot = DNNreader.GetPredictions();
         DNNoutSM_kl_1_jetupTot = outs_jetupTot.at(0);
 
         DNNreader.SetShiftedInputs(bjet1_jetdownTot, bjet2_jetdownTot, tau1, tau2, vbfjet1_jetdownTot, vbfjet2_jetdownTot, met_jetdownTot, svfit_jetdownTot,
-            HHKin_mass_jetdownTot, HHKin_chi2_jetdownTot, KinFitConv_jetdownTot, SVfitConv_jetdownTot, MT2_jetdownTot,
-            mTtot_jetdownTot, pzeta_vis_jetdownTot, pzeta_jetdownTot, topMasses_jetdownTot.first, topMasses_jetdownTot.second, mt1_jetdownTot, mt2_jetdownTot);
+            HHKin_mass_jetdownTot, HHKin_chi2_jetdownTot, KinFitConv_jetdownTot, SVfitConv_jetdownTot, MT2_jetdownTot);
         std::vector<float> outs_jetdownTot = DNNreader.GetPredictions();
         DNNoutSM_kl_1_jetdownTot = outs_jetdownTot.at(0);
       }
