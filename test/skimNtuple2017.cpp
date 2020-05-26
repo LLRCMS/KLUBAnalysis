@@ -752,7 +752,7 @@ int main (int argc, char** argv)
         cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
         DEBUG = true;
       }
-      //if (debugEvent > 0 && DEBUG == false) continue;
+      if (debugEvents.size() > 0 && DEBUG == false) continue;
 
       // directly reject events outside HT range in case of stitching of inclusive sample-- they should not count in weights
       //cout << " ********** HTMAX - MIN - LHE: " << HTMax << " - " << HTMin << " - " << theBigTree.lheHt << endl;
