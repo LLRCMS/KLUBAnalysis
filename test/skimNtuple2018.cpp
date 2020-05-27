@@ -58,6 +58,9 @@
 #include "../../cms_hh_proc_interface/processing/interface/feat_comp.hh"
 #include "../../cms_hh_proc_interface/processing/interface/evt_proc.hh"
 
+// HHbtag
+#include "HHbtagKLUBinterface.h"
+
 using namespace std ;
 using DNNVector = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<float>>;
 
@@ -498,6 +501,19 @@ int main (int argc, char** argv)
 
   // ------------------------------
 
+  // HHbtag model
+  std::string HHbtag_model = gConfigParser->readStringOption ("HHbtag::weights");
+  cout << "** INFO: HHbtag_model: " << HHbtag_model << endl;
+  std::array<std::string, 2> models;
+  for(size_t n = 0; n < 2; ++n)
+  {
+    std::ostringstream ss_model;
+    ss_model <<HHbtag_model << n;
+    models.at(n) = ss_model.str();
+  }
+  HHbtagKLUBinterface HHbtagTagger(models, 2018);
+
+  // ------------------------------
   //tau legs trigger SF for data and mc
   //from: https://github.com/cms-tau-pog/TauTriggerSFs/tree/run2_SFs
   tau_trigger::SFProvider * tauTrgSF_ditau = new tau_trigger::SFProvider("weights/trigger_SF_Legacy/2018/2018_tauTriggerEff_DeepTau2017v2p1.root", "ditau", "Medium");
@@ -3224,7 +3240,6 @@ int main (int argc, char** argv)
           theSmallTree.m_bjet1_cID_deepFlavor  = theBigTree.bDeepFlavor_probc->at(bjet1idx);
           theSmallTree.m_bjet1_CvsL = getCvsL(theBigTree, bjet1idx);
           theSmallTree.m_bjet1_CvsB = getCvsB(theBigTree, bjet1idx);
-          theSmallTree.m_bjet1_HHbtag = 0.; // dummy value for now
           theSmallTree.m_bjet1_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet1idx) ;
           theSmallTree.m_bjet1_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at(bjet1idx);
           theSmallTree.m_bjet1_flav = theBigTree.jets_HadronFlavour->at (bjet1idx) ;
@@ -3239,7 +3254,6 @@ int main (int argc, char** argv)
           theSmallTree.m_bjet2_cID_deepFlavor  = theBigTree.bDeepFlavor_probc->at(bjet2idx) ;
           theSmallTree.m_bjet2_CvsL = getCvsL(theBigTree, bjet2idx);
           theSmallTree.m_bjet2_CvsB = getCvsB(theBigTree, bjet2idx);
-          theSmallTree.m_bjet2_HHbtag = 0.; // dummy value for now
           theSmallTree.m_bjet2_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet2idx) ;
           theSmallTree.m_bjet2_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at(bjet2idx);
           theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
@@ -3895,7 +3909,6 @@ int main (int argc, char** argv)
               theSmallTree.m_VBFjet1_ctag_deepFlavor = theBigTree.bDeepFlavor_probc->at(VBFidx1) ;
               theSmallTree.m_VBFjet1_CvsL = getCvsL(theBigTree, VBFidx1);
               theSmallTree.m_VBFjet1_CvsB = getCvsB(theBigTree, VBFidx1);
-              theSmallTree.m_VBFjet1_HHbtag = 0.; // dummy value for now
               theSmallTree.m_VBFjet1_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at (VBFidx1) ;
               theSmallTree.m_VBFjet1_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx1)) ;
               theSmallTree.m_VBFjet1_hasgenjet  = hasgj1_VBF ;
@@ -3935,7 +3948,6 @@ int main (int argc, char** argv)
               theSmallTree.m_VBFjet2_ctag_deepFlavor = theBigTree.bDeepFlavor_probc->at(VBFidx2) ;
               theSmallTree.m_VBFjet2_CvsL = getCvsL(theBigTree, VBFidx2);
               theSmallTree.m_VBFjet2_CvsB = getCvsB(theBigTree, VBFidx2);
-              theSmallTree.m_VBFjet2_HHbtag = 0.; // dummy value for now
               theSmallTree.m_VBFjet2_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at (VBFidx2) ;
               theSmallTree.m_VBFjet2_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx2)) ;
               theSmallTree.m_VBFjet2_hasgenjet  = hasgj2_VBF ;
@@ -4169,6 +4181,78 @@ int main (int argc, char** argv)
               cout << "----------------" << endl;
             }
 
+          // --------------------------------------------
+          // HHbtag: set input values
+          HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,
+              tlv_firstLepton, tlv_secondLepton, tlv_tauH, tlv_MET, theSmallTree.m_EventNumber);
+
+          // HHbtag: get scores and save them in a map<jet_idx,HHbtag_score>
+          std::map<int,float> jets_and_HHbtag = HHbtagTagger.GetScore();
+
+          // Save HHbtag values in smallTree
+          // b-jet 1
+          if (jets_and_HHbtag.find(bjet1idx) != jets_and_HHbtag.end())
+          {
+            theSmallTree.m_bjet1_HHbtag = jets_and_HHbtag[bjet1idx];
+          }
+          else
+          {
+            std::cout << "**ERROR: HHbtag score not found for bjet1, setting to -1 !!" << endl;
+            theSmallTree.m_bjet1_HHbtag = -1.;
+          }
+
+          // b-jet 2
+          if (jets_and_HHbtag.find(bjet2idx) != jets_and_HHbtag.end())
+          {
+            theSmallTree.m_bjet2_HHbtag = jets_and_HHbtag[bjet2idx];
+          }
+          else
+          {
+            std::cout << "**ERROR: HHbtag score not found for bjet2, setting to -1 !!" << endl;
+            theSmallTree.m_bjet2_HHbtag = -1.;
+          }
+
+          // VBF-jet 1
+          if (jets_and_HHbtag.find(VBFidx1) != jets_and_HHbtag.end())
+          {
+            theSmallTree.m_VBFjet1_HHbtag = jets_and_HHbtag[VBFidx1];
+          }
+          else
+          {
+            // The VBFjets might fall outside eta=2.4 or the event can be non-VBF
+            // so they don't have an HHbtag score. In this case
+            // the HHbtag score MUST be set manually to -1
+            theSmallTree.m_VBFjet1_HHbtag = -1.;
+          }
+
+          // VBF-jet 2
+          if (jets_and_HHbtag.find(VBFidx2) != jets_and_HHbtag.end())
+          {
+            theSmallTree.m_VBFjet2_HHbtag = jets_and_HHbtag[VBFidx2];
+          }
+          else
+          {
+            // The VBFjets might fall outside eta=2.4 or the event can be non-VBF
+            // so they don't have an HHbtag score. In this case
+            // the HHbtag score MUST be set manually to -1
+            theSmallTree.m_VBFjet2_HHbtag = -1.;
+          }
+
+          if (DEBUG)
+          {
+            std::cout << "---- HHbtag debug ----" << std::endl;
+            std::cout << "isVBF: " << theSmallTree.m_isVBF << "  - Evt: " << theSmallTree.m_EventNumber << std::endl;
+            std::cout << "HHbtag scores: ";
+            for(auto elem : jets_and_HHbtag)  std::cout << " " << elem.first << ":" << elem.second;
+            std::cout << std::endl;
+            std::cout << "b1   - idx: " << bjet1idx << " HHbtag: " << theSmallTree.m_bjet1_HHbtag << std::endl;
+            std::cout << "b2   - idx: " << bjet2idx << " HHbtag: " << theSmallTree.m_bjet2_HHbtag << std::endl;
+            std::cout << "VBF1 - idx: " << VBFidx1  << " HHbtag: " << theSmallTree.m_VBFjet1_HHbtag << std::endl;
+            std::cout << "VBF2 - idx: " << VBFidx2  << " HHbtag: " << theSmallTree.m_VBFjet2_HHbtag << std::endl;
+            std::cout << "----------------------" << std::endl;
+          }
+
+          // --------------------------------------------
           // Boosted section
           theSmallTree.m_isBoosted = 0;
           if (theBigTree.ak8jets_px->size() > 0)
