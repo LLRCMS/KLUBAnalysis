@@ -2956,6 +2956,8 @@ int main (int argc, char** argv)
                         {
                           isVBF = false;         // discard the jets as VBF jets
                           VBFcand_Mjj.clear();
+                          VBFidx1 = -1;
+                          VBFidx2 = -1;
                         }
                     }
                 }
