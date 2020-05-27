@@ -3453,7 +3453,7 @@ int main (int argc, char** argv)
 	  }
 
           try{ kinFits.fit();}
-          catch(HHKinFit2::HHInvMConstraintException e)
+          catch(HHKinFit2::HHInvMConstraintException &e)
           {
             cout<<"INVME THIS EVENT WAS WRONG, INV MASS CONSTRAIN EXCEPTION"<<endl;
             cout<<"INVME masshypo1 = 125,    masshypo2 = 125"<<endl;
@@ -3481,7 +3481,7 @@ int main (int argc, char** argv)
             tlv_secondBjet.Print();
             wrongHHK=true;
           }
-          catch (HHKinFit2::HHEnergyRangeException e)
+          catch (HHKinFit2::HHEnergyRangeException &e)
           {
             cout<<"ERANGE THIS EVENT WAS WRONG, ENERGY RANGE EXCEPTION"<<endl;
             cout<<"ERANGE masshypo1 = 125,    masshypo2 = 125"<<endl;
@@ -3509,7 +3509,7 @@ int main (int argc, char** argv)
             tlv_secondBjet.Print();
             wrongHHK=true;
           }
-          catch(HHKinFit2::HHEnergyConstraintException e)
+          catch(HHKinFit2::HHEnergyConstraintException &e)
           {
             cout<<"ECON THIS EVENT WAS WRONG, ENERGY CONSTRAIN EXCEPTION"<<endl;
             cout<<"ECON masshypo1 = 125,    masshypo2 = 125"<<endl;
@@ -3550,9 +3550,9 @@ int main (int argc, char** argv)
           // nominal kinfit raw
           bool wrongHHKraw =false;
           try {kinFitsraw.fit();}
-          catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw=true;}
-          catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw=true;}
-          catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw=true;}
+          catch(HHKinFit2::HHInvMConstraintException   &e){wrongHHKraw=true;}
+          catch(HHKinFit2::HHEnergyConstraintException &e){wrongHHKraw=true;}
+          catch(HHKinFit2::HHEnergyRangeException      &e){wrongHHKraw=true;}
           if(!wrongHHKraw)
           {
             theSmallTree.m_HHKin_mass_raw = kinFitsraw.getMH();

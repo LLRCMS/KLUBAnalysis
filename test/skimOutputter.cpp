@@ -676,9 +676,9 @@ int main (int argc, char** argv)
       kinFits.addHypo(hypo_mh1,hypo_mh2);
       bool wrongHHK =false;
       try {kinFits.fit();}
-      catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK=true;}
-      catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK=true;}
-      catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK=true;}
+      catch(HHKinFit2::HHInvMConstraintException   &e) {wrongHHK=true;}
+      catch(HHKinFit2::HHEnergyConstraintException &e) {wrongHHK=true;}
+      catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK=true;}
       if(!wrongHHK)
       {
         HHKin_mass_new = kinFits.getMH();
@@ -787,9 +787,9 @@ int main (int argc, char** argv)
         kinFits_muup.addHypo(hypo_mh1,hypo_mh2);
         bool wrongHHK_muup =false;
         try {kinFits_muup.fit();}
-        catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK_muup=true;}
-        catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK_muup=true;}
-        catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK_muup=true;}
+        catch(HHKinFit2::HHInvMConstraintException   &e) {wrongHHK_muup=true;}
+        catch(HHKinFit2::HHEnergyConstraintException &e) {wrongHHK_muup=true;}
+        catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK_muup=true;}
         if(!wrongHHK_muup)
         {
           HHKin_mass_muup = kinFits_muup.getMH();
@@ -805,9 +805,9 @@ int main (int argc, char** argv)
         kinFits_mudown.addHypo(hypo_mh1,hypo_mh2);
         bool wrongHHK_mudown =false;
         try {kinFits_mudown.fit();}
-        catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK_mudown=true;}
-        catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK_mudown=true;}
-        catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK_mudown=true;}
+        catch(HHKinFit2::HHInvMConstraintException   &e) {wrongHHK_mudown=true;}
+        catch(HHKinFit2::HHEnergyConstraintException &e) {wrongHHK_mudown=true;}
+        catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK_mudown=true;}
         if(!wrongHHK_mudown)
         {
           HHKin_mass_mudown = kinFits_mudown.getMH();
@@ -952,9 +952,9 @@ int main (int argc, char** argv)
           kinFits_eleup.addHypo(hypo_mh1,hypo_mh2);
           bool wrongHHK_eleup =false;
           try {kinFits_eleup.fit();}
-          catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK_eleup=true;}
-          catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK_eleup=true;}
-          catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK_eleup=true;}
+          catch(HHKinFit2::HHInvMConstraintException   &e) {wrongHHK_eleup=true;}
+          catch(HHKinFit2::HHEnergyConstraintException &e) {wrongHHK_eleup=true;}
+          catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK_eleup=true;}
           if(!wrongHHK_eleup)
           {
             HHKin_mass_eleup = kinFits_eleup.getMH();
@@ -970,9 +970,9 @@ int main (int argc, char** argv)
           kinFits_eledown.addHypo(hypo_mh1,hypo_mh2);
           bool wrongHHK_eledown =false;
           try {kinFits_eledown.fit();}
-          catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK_eledown=true;}
-          catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK_eledown=true;}
-          catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK_eledown=true;}
+          catch(HHKinFit2::HHInvMConstraintException   &e) {wrongHHK_eledown=true;}
+          catch(HHKinFit2::HHEnergyConstraintException &e) {wrongHHK_eledown=true;}
+          catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK_eledown=true;}
           if(!wrongHHK_eledown)
           {
             HHKin_mass_eledown = kinFits_eledown.getMH();
@@ -1118,9 +1118,9 @@ int main (int argc, char** argv)
           kinFits_tauup.addHypo(hypo_mh1,hypo_mh2);
           bool wrongHHK_tauup =false;
           try {kinFits_tauup.fit();}
-          catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK_tauup=true;}
-          catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK_tauup=true;}
-          catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK_tauup=true;}
+          catch(HHKinFit2::HHInvMConstraintException   &e) {wrongHHK_tauup=true;}
+          catch(HHKinFit2::HHEnergyConstraintException &e) {wrongHHK_tauup=true;}
+          catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK_tauup=true;}
           if(!wrongHHK_tauup)
           {
             HHKin_mass_tauup = kinFits_tauup.getMH();
@@ -1136,9 +1136,9 @@ int main (int argc, char** argv)
           kinFits_taudown.addHypo(hypo_mh1,hypo_mh2);
           bool wrongHHK_taudown =false;
           try {kinFits_taudown.fit();}
-          catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK_taudown=true;}
-          catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK_taudown=true;}
-          catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK_taudown=true;}
+          catch(HHKinFit2::HHInvMConstraintException   &e) {wrongHHK_taudown=true;}
+          catch(HHKinFit2::HHEnergyConstraintException &e) {wrongHHK_taudown=true;}
+          catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK_taudown=true;}
           if(!wrongHHK_taudown)
           {
             HHKin_mass_taudown = kinFits_taudown.getMH();
@@ -1292,9 +1292,9 @@ int main (int argc, char** argv)
           kinFits_jetup.addHypo(hypo_mh1,hypo_mh2);
           bool wrongHHK_jetup =false;
           try {kinFits_jetup.fit();}
-          catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK_jetup=true;}
-          catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK_jetup=true;}
-          catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK_jetup=true;}
+          catch(HHKinFit2::HHInvMConstraintException   &e) {wrongHHK_jetup=true;}
+          catch(HHKinFit2::HHEnergyConstraintException &e) {wrongHHK_jetup=true;}
+          catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK_jetup=true;}
           if(!wrongHHK_jetup)
           {
             HHKin_mass_jetup = kinFits_jetup.getMH();
@@ -1310,9 +1310,9 @@ int main (int argc, char** argv)
           kinFits_jetdown.addHypo(hypo_mh1,hypo_mh2);
           bool wrongHHK_jetdown =false;
           try {kinFits_jetdown.fit();}
-          catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK_jetdown=true;}
-          catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK_jetdown=true;}
-          catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK_jetdown=true;}
+          catch(HHKinFit2::HHInvMConstraintException   &e) {wrongHHK_jetdown=true;}
+          catch(HHKinFit2::HHEnergyConstraintException &e) {wrongHHK_jetdown=true;}
+          catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK_jetdown=true;}
           if(!wrongHHK_jetdown)
           {
             HHKin_mass_jetdown = kinFits_jetdown.getMH();
@@ -1464,9 +1464,9 @@ int main (int argc, char** argv)
         kinFits_jetupTot.addHypo(hypo_mh1,hypo_mh2);
         bool wrongHHK_jetupTot =false;
         try {kinFits_jetupTot.fit();}
-        catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK_jetupTot=true;}
-        catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK_jetupTot=true;}
-        catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK_jetupTot=true;}
+        catch(HHKinFit2::HHInvMConstraintException   &e) {wrongHHK_jetupTot=true;}
+        catch(HHKinFit2::HHEnergyConstraintException &e) {wrongHHK_jetupTot=true;}
+        catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK_jetupTot=true;}
         if(!wrongHHK_jetupTot)
         {
           HHKin_mass_jetupTot = kinFits_jetupTot.getMH();
@@ -1482,9 +1482,9 @@ int main (int argc, char** argv)
         kinFits_jetdownTot.addHypo(hypo_mh1,hypo_mh2);
         bool wrongHHK_jetdownTot =false;
         try {kinFits_jetdownTot.fit();}
-        catch(HHKinFit2::HHInvMConstraintException   e) {wrongHHK_jetdownTot=true;}
-        catch(HHKinFit2::HHEnergyConstraintException e) {wrongHHK_jetdownTot=true;}
-        catch(HHKinFit2::HHEnergyRangeException      e) {wrongHHK_jetdownTot=true;}
+        catch(HHKinFit2::HHInvMConstraintException   &e) {wrongHHK_jetdownTot=true;}
+        catch(HHKinFit2::HHEnergyConstraintException &e) {wrongHHK_jetdownTot=true;}
+        catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK_jetdownTot=true;}
         if(!wrongHHK_jetdownTot)
         {
           HHKin_mass_jetdownTot = kinFits_jetdownTot.getMH();
