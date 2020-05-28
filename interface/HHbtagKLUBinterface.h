@@ -30,7 +30,7 @@
 #include "../../HHTools/HHbtag/interface/HH_BTag.h"
 
 
-// BDTKLUBinterface class
+// HHbtagKLUBinterface class
 class HHbtagKLUBinterface {
 
   public:
@@ -60,4 +60,4 @@ class HHbtagKLUBinterface {
     float HHbtag_tauH_pt_, HHbtag_tauH_eta_;
 };
 
-#endif // HHbtagKLUBinterface_h
+#endif // HHbtagKLUBinterface
