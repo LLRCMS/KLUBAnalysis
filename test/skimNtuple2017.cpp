@@ -2253,11 +2253,11 @@ int main (int argc, char** argv)
           cout << "totSF deep: "                    << idAndIsoAndFakeSF_deep        << endl;
           cout << "totSF deep_pt: "                 << idAndIsoAndFakeSF_deep_pt     << endl;
           cout << "idAndIsoSF_leg1: "               << idAndIsoSF_leg1               << endl;
-	  cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;   
-	  cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl; 
-	  cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;   
-  	  cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;   
-	}
+          cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;
+          cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl;
+          cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;
+          cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;
+        }
       }
 
       // EleTau Channel // anti-ele Tight / anti-mu Tight / anti-jet Medium
@@ -2315,11 +2315,11 @@ int main (int argc, char** argv)
           cout << "totSF deep: "                    << idAndIsoAndFakeSF_deep        << endl;
           cout << "totSF deep_pt: "                 << idAndIsoAndFakeSF_deep_pt     << endl;
           cout << "idAndIsoSF_leg1: "               << idAndIsoSF_leg1               << endl;
-	  cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;   
-	  cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl; 
-	  cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;   
-  	  cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;   
-	}
+          cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;
+          cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl;
+          cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;
+          cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;
+        }
       }
 
       // TauTau Channel // anti-ele VVLoose / anti-mu VLoose / anti-jet Medium
@@ -2398,15 +2398,15 @@ int main (int argc, char** argv)
           cout << "pairType  : "                    << pType                         << endl;
           cout << "totSF deep: "                    << idAndIsoAndFakeSF_deep        << endl;
           cout << "totSF deep_pt: "                 << idAndIsoAndFakeSF_deep_pt     << endl;
-	  cout << "idAndIsoSF_leg1_deep_vsJet: "    << idAndIsoSF_leg1_deep_vsJet    << endl;   
-	  cout << "idAndIsoSF_leg1_deep_vsJet_pt: " << idAndIsoSF_leg1_deep_vsJet_pt << endl; 
-	  cout << "idAndIsoSF_leg1_deep_vsEle: "    << idAndIsoSF_leg1_deep_vsEle    << endl;   
-  	  cout << "idAndIsoSF_leg1_deep_vsMu: "     << idAndIsoSF_leg1_deep_vsMu     << endl;   
-	  cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;   
-	  cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl; 
-	  cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;   
-  	  cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;   
-	}
+          cout << "idAndIsoSF_leg1_deep_vsJet: "    << idAndIsoSF_leg1_deep_vsJet    << endl;
+          cout << "idAndIsoSF_leg1_deep_vsJet_pt: " << idAndIsoSF_leg1_deep_vsJet_pt << endl;
+          cout << "idAndIsoSF_leg1_deep_vsEle: "    << idAndIsoSF_leg1_deep_vsEle    << endl;
+          cout << "idAndIsoSF_leg1_deep_vsMu: "     << idAndIsoSF_leg1_deep_vsMu     << endl;
+          cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;
+          cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl;
+          cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;
+          cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;
+        }
       }
 
       // MuMu Channel
@@ -2549,19 +2549,19 @@ int main (int argc, char** argv)
 
             double Eff_Data = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data + passCross * SFl_Data * SFtau_Data;
             double Eff_MC   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC   + passCross * SFl_MC   * SFtau_MC;
-            
-            if(DEBUG)
-	    {
-	      cout << "--- DEBUG Trigger weights --- " << endl;	    
-	      cout << "SFL_Data: "   << SFL_Data   << endl;
-	      cout << "SFL_MC: "     << SFL_MC     << endl;
-	      cout << "SFl_Data: "   << SFl_Data   << endl;
-	      cout << "SFl_MC: "     << SFl_MC     << endl;
-	      cout << "SFtau_Data: " << SFtau_Data << endl;
-	      cout << "SFtau_MC: "   << SFtau_MC   << endl; 
-	    }
 
-	    trigSF = Eff_Data / Eff_MC;
+            if(DEBUG)
+            {
+              cout << "--- DEBUG Trigger weights --- " << endl;
+              cout << "SFL_Data: "   << SFL_Data   << endl;
+              cout << "SFL_MC: "     << SFL_MC     << endl;
+              cout << "SFl_Data: "   << SFl_Data   << endl;
+              cout << "SFl_MC: "     << SFl_MC     << endl;
+              cout << "SFtau_Data: " << SFtau_Data << endl;
+              cout << "SFtau_MC: "   << SFtau_MC   << endl;
+            }
+
+            trigSF = Eff_Data / Eff_MC;
 
             //trig SF for analysis only with cross-trigger
             double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -2608,15 +2608,15 @@ int main (int argc, char** argv)
             double Eff_MC   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC   + passCross * SFl_MC   * SFtau_MC;
 
             if(DEBUG)
-	    {
-	      cout << "--- DEBUG Trigger weights --- " << endl;	    
-	      cout << "SFL_Data: "   << SFL_Data   << endl;
-	      cout << "SFL_MC: "     << SFL_MC     << endl;
-	      cout << "SFl_Data: "   << SFl_Data   << endl;
-	      cout << "SFl_MC: "     << SFl_MC     << endl;
-	      cout << "SFtau_Data: " << SFtau_Data << endl;
-	      cout << "SFtau_MC: "   << SFtau_MC   << endl; 
-	    }
+            {
+              cout << "--- DEBUG Trigger weights --- " << endl;
+              cout << "SFL_Data: "   << SFL_Data   << endl;
+              cout << "SFL_MC: "     << SFL_MC     << endl;
+              cout << "SFl_Data: "   << SFl_Data   << endl;
+              cout << "SFl_MC: "     << SFl_MC     << endl;
+              cout << "SFtau_Data: " << SFtau_Data << endl;
+              cout << "SFtau_MC: "   << SFtau_MC   << endl;
+            }
 
             trigSF = Eff_Data / Eff_MC;
 
@@ -4416,8 +4416,8 @@ int main (int argc, char** argv)
         cout << "    w/ FakeRate: " << theSmallTree.m_IdAndIsoAndFakeSF_deep << endl;
         cout << "  trig         : " << theSmallTree.m_trigSF << endl;
         cout << "  bTag         : " << theSmallTree.m_bTagweightM << endl;
-	cout << "  prescale     : " << theSmallTree.m_prescaleWeight<< endl;
-	cout << "  prefiring    : " << theSmallTree.m_L1pref_weight<< endl;
+        cout << "  prescale     : " << theSmallTree.m_prescaleWeight<< endl;
+        cout << "  prefiring    : " << theSmallTree.m_L1pref_weight<< endl;
         cout << "--------------" << endl;
       }
 
