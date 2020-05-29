@@ -30,6 +30,7 @@
 #include "BDTfunctionsUtils.h"
 #include "TauIDSFTool.h"
 #include "skimUtils.h"
+#include "PuJetIdSF.h"
 
 #include "lester_mt2_bisect.h"
 
@@ -486,6 +487,12 @@ int main (int argc, char** argv)
   bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "80X_DeepCSV_V1");
   if(useDeepFlavor)
     bTagSFHelper.SetWPset("80X_DeepFlavor_V1");
+
+  // ------------------------------
+
+  std::string PUjetID_SF_directory = gConfigParser->readStringOption ("PUjetIDScaleFactors::files");
+  cout << "** INFO: PU jet ID SF directory: " << PUjetID_SF_directory << std::endl;
+  PuJetIdSF PUjetIDSFprovider(PUjetID_SF_directory, "2016");
 
   // ------------------------------
 
@@ -4062,6 +4069,19 @@ int main (int argc, char** argv)
         cout << "VBF1(pt,eta,phi): " << theSmallTree.m_VBFjet1_pt << " / " << theSmallTree.m_VBFjet1_eta << " / " << theSmallTree.m_VBFjet1_phi << endl;
         cout << "VBF2(pt,eta,phi): " << theSmallTree.m_VBFjet2_pt << " / " << theSmallTree.m_VBFjet2_eta << " / " << theSmallTree.m_VBFjet2_phi << endl;
         cout << "----------------" << endl;
+      }
+
+      // --------------------------------------------
+      // PUjetIDSFprovider
+      if (isMC)
+      {
+        theSmallTree.m_PUjetID_SF = PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton);
+        if (DEBUG)
+        {
+          std::cout << "---- PUjetID_SF debug ----" << std::endl;
+          std::cout << "PUjetID_SF: " << theSmallTree.m_PUjetID_SF << std::endl;
+          std::cout << "--------------------------" << std::endl;
+        }
       }
 
       // --------------------------------------------
