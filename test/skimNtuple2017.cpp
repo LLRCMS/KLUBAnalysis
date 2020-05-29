@@ -2226,10 +2226,15 @@ int main (int argc, char** argv)
         if (DEBUG)
         {
           cout << "--- DEBUG idAndIsoSF ---" << endl;
-          cout << "pairType  : " << pType << endl;
-          cout << "totSF MVA : " << idAndIsoSF_MVA << endl;
-          cout << "totSF deep: " << idAndIsoSF_deep << endl;
-        }
+          cout << "pairType  : "                    << pType                         << endl;
+          cout << "totSF deep: "                    << idAndIsoAndFakeSF_deep        << endl;
+          cout << "totSF deep_pt: "                 << idAndIsoAndFakeSF_deep_pt     << endl;
+          cout << "idAndIsoSF_leg1: "               << idAndIsoSF_leg1               << endl;
+	  cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;   
+	  cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl; 
+	  cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;   
+  	  cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;   
+	}
       }
 
       // EleTau Channel // anti-ele Tight / anti-mu Tight / anti-jet Medium
@@ -2283,10 +2288,15 @@ int main (int argc, char** argv)
         if (DEBUG)
         {
           cout << "--- DEBUG idAndIsoSF ---" << endl;
-          cout << "pairType  : " << pType << endl;
-          cout << "totSF MVA : " << idAndIsoSF_MVA << endl;
-          cout << "totSF deep: " << idAndIsoSF_deep << endl;
-        }
+          cout << "pairType  : "                    << pType                         << endl;
+          cout << "totSF deep: "                    << idAndIsoAndFakeSF_deep        << endl;
+          cout << "totSF deep_pt: "                 << idAndIsoAndFakeSF_deep_pt     << endl;
+          cout << "idAndIsoSF_leg1: "               << idAndIsoSF_leg1               << endl;
+	  cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;   
+	  cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl; 
+	  cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;   
+  	  cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;   
+	}
       }
 
       // TauTau Channel // anti-ele VVLoose / anti-mu VLoose / anti-jet Medium
@@ -2362,10 +2372,18 @@ int main (int argc, char** argv)
         if (DEBUG)
         {
           cout << "--- DEBUG idAndIsoSF ---" << endl;
-          cout << "pairType  : " << pType << endl;
-          cout << "totSF MVA : " << idAndIsoSF_MVA << endl;
-          cout << "totSF deep: " << idAndIsoSF_deep << endl;
-        }
+          cout << "pairType  : "                    << pType                         << endl;
+          cout << "totSF deep: "                    << idAndIsoAndFakeSF_deep        << endl;
+          cout << "totSF deep_pt: "                 << idAndIsoAndFakeSF_deep_pt     << endl;
+	  cout << "idAndIsoSF_leg1_deep_vsJet: "    << idAndIsoSF_leg1_deep_vsJet    << endl;   
+	  cout << "idAndIsoSF_leg1_deep_vsJet_pt: " << idAndIsoSF_leg1_deep_vsJet_pt << endl; 
+	  cout << "idAndIsoSF_leg1_deep_vsEle: "    << idAndIsoSF_leg1_deep_vsEle    << endl;   
+  	  cout << "idAndIsoSF_leg1_deep_vsMu: "     << idAndIsoSF_leg1_deep_vsMu     << endl;   
+	  cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;   
+	  cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl; 
+	  cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;   
+  	  cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;   
+	}
       }
 
       // MuMu Channel
@@ -2503,10 +2521,24 @@ int main (int argc, char** argv)
             double SFtau_Data = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
             double SFtau_MC   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 
-            double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
-            double Eff_MC   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC) + passCross * SFl_MC * SFtau_MC;
+            //double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
+            //double Eff_MC   =  passSingle * SFL_MC   * (1 - passCross * SFtau_MC)   + passCross * SFl_MC   * SFtau_MC;
 
-            trigSF = Eff_Data / Eff_MC;
+            double Eff_Data = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data + passCross * SFl_Data * SFtau_Data;
+            double Eff_MC   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC   + passCross * SFl_MC   * SFtau_MC;
+            
+            if(DEBUG)
+	    {
+	      cout << "--- DEBUG Trigger weights --- " << endl;	    
+	      cout << "SFL_Data: "   << SFL_Data   << endl;
+	      cout << "SFL_MC: "     << SFL_MC     << endl;
+	      cout << "SFl_Data: "   << SFl_Data   << endl;
+	      cout << "SFl_MC: "     << SFl_MC     << endl;
+	      cout << "SFtau_Data: " << SFtau_Data << endl;
+	      cout << "SFtau_MC: "   << SFtau_MC   << endl; 
+	    }
+
+	    trigSF = Eff_Data / Eff_MC;
 
             //trig SF for analysis only with cross-trigger
             double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -2546,8 +2578,22 @@ int main (int argc, char** argv)
             double SFtau_Data = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
             double SFtau_MC   = tauTrgSF_etau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 
-            double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
-            double Eff_MC   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC) + passCross * SFl_MC * SFtau_MC;
+            //double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
+            //double Eff_MC   =  passSingle * SFL_MC   * (1 - passCross * SFtau_MC)   + passCross * SFl_MC   * SFtau_MC;
+
+            double Eff_Data = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data + passCross * SFl_Data * SFtau_Data;
+            double Eff_MC   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC   + passCross * SFl_MC   * SFtau_MC;
+
+            if(DEBUG)
+	    {
+	      cout << "--- DEBUG Trigger weights --- " << endl;	    
+	      cout << "SFL_Data: "   << SFL_Data   << endl;
+	      cout << "SFL_MC: "     << SFL_MC     << endl;
+	      cout << "SFl_Data: "   << SFl_Data   << endl;
+	      cout << "SFl_MC: "     << SFl_MC     << endl;
+	      cout << "SFtau_Data: " << SFtau_Data << endl;
+	      cout << "SFtau_MC: "   << SFtau_MC   << endl; 
+	    }
 
             trigSF = Eff_Data / Eff_MC;
 
@@ -2566,7 +2612,7 @@ int main (int argc, char** argv)
         }
 
         // TauTau Channel
-        else if (pType == 2 && isMC)
+        else if (pType == 2 && isMC && isVBFfired == 0)
         {
           double SF1 = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt() , DM1, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
           double SF2 = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
@@ -2592,7 +2638,7 @@ int main (int argc, char** argv)
       theSmallTree.m_trigSF_single = (isMC ? trigSF_single : 1.0);
       theSmallTree.m_trigSF_cross  = (isMC ? trigSF_cross : 1.0);
 
-      theSmallTree.m_totalWeight = (isMC ? (41557./5.8094733e+08) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_DYscale_MTT * trigSF * theSmallTree.m_IdAndIsoAndFakeSF_deep_pt * theSmallTree.m_L1pref_weight: 1.0);
+      theSmallTree.m_totalWeight = (isMC ? (41529./71203856.) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_DYscale_MTT * trigSF * theSmallTree.m_IdAndIsoAndFakeSF_deep_pt * theSmallTree.m_L1pref_weight * theSmallTree.m_prescaleWeight: 1.0);
       //total weight used for sync: the denominator must be changed for each sample as h_eff->GetBinContent(1), the numerator is the luminosity
 
       // Third lepton veto
@@ -4264,6 +4310,8 @@ int main (int argc, char** argv)
         cout << "    w/ FakeRate: " << theSmallTree.m_IdAndIsoAndFakeSF_deep << endl;
         cout << "  trig         : " << theSmallTree.m_trigSF << endl;
         cout << "  bTag         : " << theSmallTree.m_bTagweightM << endl;
+	cout << "  prescale     : " << theSmallTree.m_prescaleWeight<< endl;
+	cout << "  prefiring    : " << theSmallTree.m_L1pref_weight<< endl;
         cout << "--------------" << endl;
       }
 
