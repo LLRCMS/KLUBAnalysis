@@ -4,8 +4,8 @@ Repo for the hh->bbtautau analysis within the LLR framework
 
 ## Instructions for Run2 Legacy Analysis
 ```
-cmsrel CMSSW_10_2_16
-cd CMSSW_10_2_16/src
+cmsrel CMSSW_11_1_0_pre6
+cd CMSSW_11_1_0_pre6/src
 cmsenv
 
 # DNN packages
@@ -15,6 +15,12 @@ git checkout tags/v2.0
 cd -
 git clone git@github.com:GilesStrong/cms_hh_tf_inference.git
 git clone git@github.com:GilesStrong/cms_runII_dnn_models.git
+cd cms_runII_dnn_models/models/test/
+mv test.cc test.cc_x
+cd -
+
+# HHbtag package
+git clone git@github.com:hh-italian-group/HHbtag.git HHTools/HHbtag
 
 # KinFit and Combine packages
 git clone git@github.com:LLRCMS/HHKinFit2.git -b bbtautau_LegacyRun2

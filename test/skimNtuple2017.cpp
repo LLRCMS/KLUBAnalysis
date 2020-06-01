@@ -31,6 +31,7 @@
 #include "BDTfunctionsUtils.h"
 #include "TauIDSFTool.h"
 #include "skimUtils.h"
+#include "PuJetIdSF.h"
 
 #include "lester_mt2_bisect.h"
 
@@ -57,6 +58,9 @@
 #include "../../cms_hh_tf_inference/inference/interface/inf_wrapper.hh"
 #include "../../cms_hh_proc_interface/processing/interface/feat_comp.hh"
 #include "../../cms_hh_proc_interface/processing/interface/evt_proc.hh"
+
+// HHbtag
+#include "HHbtagKLUBinterface.h"
 
 using namespace std ;
 using DNNVector = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<float>>;
@@ -456,7 +460,26 @@ int main (int argc, char** argv)
     bTagSFHelper.SetWPset("94X_DeepFlavor_V1");
 
   // ------------------------------
-  
+
+  std::string PUjetID_SF_directory = gConfigParser->readStringOption ("PUjetIDScaleFactors::files");
+  cout << "** INFO: PU jet ID SF directory: " << PUjetID_SF_directory << std::endl;
+  PuJetIdSF PUjetIDSFprovider(PUjetID_SF_directory, "2017");
+
+  // ------------------------------
+
+  // HHbtag model
+  std::string HHbtag_model = gConfigParser->readStringOption ("HHbtag::weights");
+  cout << "** INFO: HHbtag_model: " << HHbtag_model << endl;
+  std::array<std::string, 2> models;
+  for(size_t n = 0; n < 2; ++n)
+  {
+    std::ostringstream ss_model;
+    ss_model <<HHbtag_model << n;
+    models.at(n) = ss_model.str();
+  }
+  HHbtagKLUBinterface HHbtagTagger(models, 2017);
+
+  // ------------------------------
   //tau legs trigger SF for data and mc
   //from: https://github.com/cms-tau-pog/TauTriggerSFs/tree/run2_SFs
   tau_trigger::SFProvider * tauTrgSF_ditau = new tau_trigger::SFProvider("weights/trigger_SF_Legacy/2017/2017_tauTriggerEff_DeepTau2017v2p1.root", "ditau", "Medium");
@@ -2230,11 +2253,11 @@ int main (int argc, char** argv)
           cout << "totSF deep: "                    << idAndIsoAndFakeSF_deep        << endl;
           cout << "totSF deep_pt: "                 << idAndIsoAndFakeSF_deep_pt     << endl;
           cout << "idAndIsoSF_leg1: "               << idAndIsoSF_leg1               << endl;
-	  cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;   
-	  cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl; 
-	  cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;   
-  	  cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;   
-	}
+          cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;
+          cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl;
+          cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;
+          cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;
+        }
       }
 
       // EleTau Channel // anti-ele Tight / anti-mu Tight / anti-jet Medium
@@ -2292,11 +2315,11 @@ int main (int argc, char** argv)
           cout << "totSF deep: "                    << idAndIsoAndFakeSF_deep        << endl;
           cout << "totSF deep_pt: "                 << idAndIsoAndFakeSF_deep_pt     << endl;
           cout << "idAndIsoSF_leg1: "               << idAndIsoSF_leg1               << endl;
-	  cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;   
-	  cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl; 
-	  cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;   
-  	  cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;   
-	}
+          cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;
+          cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl;
+          cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;
+          cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;
+        }
       }
 
       // TauTau Channel // anti-ele VVLoose / anti-mu VLoose / anti-jet Medium
@@ -2375,15 +2398,15 @@ int main (int argc, char** argv)
           cout << "pairType  : "                    << pType                         << endl;
           cout << "totSF deep: "                    << idAndIsoAndFakeSF_deep        << endl;
           cout << "totSF deep_pt: "                 << idAndIsoAndFakeSF_deep_pt     << endl;
-	  cout << "idAndIsoSF_leg1_deep_vsJet: "    << idAndIsoSF_leg1_deep_vsJet    << endl;   
-	  cout << "idAndIsoSF_leg1_deep_vsJet_pt: " << idAndIsoSF_leg1_deep_vsJet_pt << endl; 
-	  cout << "idAndIsoSF_leg1_deep_vsEle: "    << idAndIsoSF_leg1_deep_vsEle    << endl;   
-  	  cout << "idAndIsoSF_leg1_deep_vsMu: "     << idAndIsoSF_leg1_deep_vsMu     << endl;   
-	  cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;   
-	  cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl; 
-	  cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;   
-  	  cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;   
-	}
+          cout << "idAndIsoSF_leg1_deep_vsJet: "    << idAndIsoSF_leg1_deep_vsJet    << endl;
+          cout << "idAndIsoSF_leg1_deep_vsJet_pt: " << idAndIsoSF_leg1_deep_vsJet_pt << endl;
+          cout << "idAndIsoSF_leg1_deep_vsEle: "    << idAndIsoSF_leg1_deep_vsEle    << endl;
+          cout << "idAndIsoSF_leg1_deep_vsMu: "     << idAndIsoSF_leg1_deep_vsMu     << endl;
+          cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;
+          cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl;
+          cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;
+          cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;
+        }
       }
 
       // MuMu Channel
@@ -2526,19 +2549,19 @@ int main (int argc, char** argv)
 
             double Eff_Data = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data + passCross * SFl_Data * SFtau_Data;
             double Eff_MC   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC   + passCross * SFl_MC   * SFtau_MC;
-            
-            if(DEBUG)
-	    {
-	      cout << "--- DEBUG Trigger weights --- " << endl;	    
-	      cout << "SFL_Data: "   << SFL_Data   << endl;
-	      cout << "SFL_MC: "     << SFL_MC     << endl;
-	      cout << "SFl_Data: "   << SFl_Data   << endl;
-	      cout << "SFl_MC: "     << SFl_MC     << endl;
-	      cout << "SFtau_Data: " << SFtau_Data << endl;
-	      cout << "SFtau_MC: "   << SFtau_MC   << endl; 
-	    }
 
-	    trigSF = Eff_Data / Eff_MC;
+            if(DEBUG)
+            {
+              cout << "--- DEBUG Trigger weights --- " << endl;
+              cout << "SFL_Data: "   << SFL_Data   << endl;
+              cout << "SFL_MC: "     << SFL_MC     << endl;
+              cout << "SFl_Data: "   << SFl_Data   << endl;
+              cout << "SFl_MC: "     << SFl_MC     << endl;
+              cout << "SFtau_Data: " << SFtau_Data << endl;
+              cout << "SFtau_MC: "   << SFtau_MC   << endl;
+            }
+
+            trigSF = Eff_Data / Eff_MC;
 
             //trig SF for analysis only with cross-trigger
             double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -2585,15 +2608,15 @@ int main (int argc, char** argv)
             double Eff_MC   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC   + passCross * SFl_MC   * SFtau_MC;
 
             if(DEBUG)
-	    {
-	      cout << "--- DEBUG Trigger weights --- " << endl;	    
-	      cout << "SFL_Data: "   << SFL_Data   << endl;
-	      cout << "SFL_MC: "     << SFL_MC     << endl;
-	      cout << "SFl_Data: "   << SFl_Data   << endl;
-	      cout << "SFl_MC: "     << SFl_MC     << endl;
-	      cout << "SFtau_Data: " << SFtau_Data << endl;
-	      cout << "SFtau_MC: "   << SFtau_MC   << endl; 
-	    }
+            {
+              cout << "--- DEBUG Trigger weights --- " << endl;
+              cout << "SFL_Data: "   << SFL_Data   << endl;
+              cout << "SFL_MC: "     << SFL_MC     << endl;
+              cout << "SFl_Data: "   << SFl_Data   << endl;
+              cout << "SFl_MC: "     << SFl_MC     << endl;
+              cout << "SFtau_Data: " << SFtau_Data << endl;
+              cout << "SFtau_MC: "   << SFtau_MC   << endl;
+            }
 
             trigSF = Eff_Data / Eff_MC;
 
@@ -2951,6 +2974,8 @@ int main (int argc, char** argv)
               {
                 isVBF = false;         // discard the jets as VBF jets
                 VBFcand_Mjj.clear();
+                VBFidx1 = -1;
+                VBFidx2 = -1;
               }
             }
           }
@@ -3218,7 +3243,6 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet1_cID_deepFlavor  = theBigTree.bDeepFlavor_probc->at(bjet1idx);
         theSmallTree.m_bjet1_CvsL = getCvsL(theBigTree, bjet1idx);
         theSmallTree.m_bjet1_CvsB = getCvsB(theBigTree, bjet1idx);
-        theSmallTree.m_bjet1_HHbtag = 0.; // dummy value for now
         theSmallTree.m_bjet1_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet1idx) ;
         theSmallTree.m_bjet1_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at(bjet1idx);
         theSmallTree.m_bjet1_flav = theBigTree.jets_HadronFlavour->at (bjet1idx) ;
@@ -3233,7 +3257,6 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet2_cID_deepFlavor  = theBigTree.bDeepFlavor_probc->at(bjet2idx) ;
         theSmallTree.m_bjet2_CvsL = getCvsL(theBigTree, bjet2idx);
         theSmallTree.m_bjet2_CvsB = getCvsB(theBigTree, bjet2idx);
-        theSmallTree.m_bjet2_HHbtag = 0.; // dummy value for now
         theSmallTree.m_bjet2_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet2idx) ;
         theSmallTree.m_bjet2_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at(bjet2idx);
         theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
@@ -3499,7 +3522,7 @@ int main (int argc, char** argv)
 	  }
 
           try{ kinFits.fit();}
-          catch(HHKinFit2::HHInvMConstraintException e)
+          catch(HHKinFit2::HHInvMConstraintException &e)
           {
             cout<<"INVME THIS EVENT WAS WRONG, INV MASS CONSTRAIN EXCEPTION"<<endl;
             cout<<"INVME masshypo1 = 125,    masshypo2 = 125"<<endl;
@@ -3527,7 +3550,7 @@ int main (int argc, char** argv)
             tlv_secondBjet.Print();
             wrongHHK=true;
           }
-          catch (HHKinFit2::HHEnergyRangeException e)
+          catch (HHKinFit2::HHEnergyRangeException &e)
           {
             cout<<"ERANGE THIS EVENT WAS WRONG, ENERGY RANGE EXCEPTION"<<endl;
             cout<<"ERANGE masshypo1 = 125,    masshypo2 = 125"<<endl;
@@ -3555,7 +3578,7 @@ int main (int argc, char** argv)
             tlv_secondBjet.Print();
             wrongHHK=true;
           }
-          catch(HHKinFit2::HHEnergyConstraintException e)
+          catch(HHKinFit2::HHEnergyConstraintException &e)
           {
             cout<<"ECON THIS EVENT WAS WRONG, ENERGY CONSTRAIN EXCEPTION"<<endl;
             cout<<"ECON masshypo1 = 125,    masshypo2 = 125"<<endl;
@@ -3596,9 +3619,9 @@ int main (int argc, char** argv)
           // nominal kinfit raw
           bool wrongHHKraw =false;
           try {kinFitsraw.fit();}
-          catch(HHKinFit2::HHInvMConstraintException e){wrongHHKraw=true;}
-          catch(HHKinFit2::HHEnergyConstraintException e){wrongHHKraw=true;}
-          catch (HHKinFit2::HHEnergyRangeException e){wrongHHKraw=true;}
+          catch(HHKinFit2::HHInvMConstraintException   &e){wrongHHKraw=true;}
+          catch(HHKinFit2::HHEnergyConstraintException &e){wrongHHKraw=true;}
+          catch(HHKinFit2::HHEnergyRangeException      &e){wrongHHKraw=true;}
           if(!wrongHHKraw)
           {
             theSmallTree.m_HHKin_mass_raw = kinFitsraw.getMH();
@@ -3900,7 +3923,6 @@ int main (int argc, char** argv)
           theSmallTree.m_VBFjet1_ctag_deepFlavor = theBigTree.bDeepFlavor_probc->at(VBFidx1) ;
           theSmallTree.m_VBFjet1_CvsL = getCvsL(theBigTree, VBFidx1);
           theSmallTree.m_VBFjet1_CvsB = getCvsB(theBigTree, VBFidx1);
-          theSmallTree.m_VBFjet1_HHbtag = 0.; // dummy value for now
           theSmallTree.m_VBFjet1_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at (VBFidx1) ;
           theSmallTree.m_VBFjet1_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx1)) ;
           theSmallTree.m_VBFjet1_hasgenjet  = hasgj1_VBF ;
@@ -3940,7 +3962,6 @@ int main (int argc, char** argv)
           theSmallTree.m_VBFjet2_ctag_deepFlavor = theBigTree.bDeepFlavor_probc->at(VBFidx2) ;
           theSmallTree.m_VBFjet2_CvsL = getCvsL(theBigTree, VBFidx2);
           theSmallTree.m_VBFjet2_CvsB = getCvsB(theBigTree, VBFidx2);
-          theSmallTree.m_VBFjet2_HHbtag = 0.; // dummy value for now
           theSmallTree.m_VBFjet2_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at (VBFidx2) ;
           theSmallTree.m_VBFjet2_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx2)) ;
           theSmallTree.m_VBFjet2_hasgenjet  = hasgj2_VBF ;
@@ -4171,6 +4192,91 @@ int main (int argc, char** argv)
         cout << "----------------" << endl;
       }
 
+      // --------------------------------------------
+      // PUjetIDSFprovider
+      if (isMC)
+      {
+        theSmallTree.m_PUjetID_SF = PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton);
+        if (DEBUG)
+        {
+          std::cout << "---- PUjetID_SF debug ----" << std::endl;
+          std::cout << "PUjetID_SF: " << theSmallTree.m_PUjetID_SF << std::endl;
+          std::cout << "--------------------------" << std::endl;
+        }
+      }
+
+      // --------------------------------------------
+      // HHbtag: set input values
+      HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,
+          tlv_firstLepton, tlv_secondLepton, tlv_tauH, tlv_MET, theSmallTree.m_EventNumber);
+
+      // HHbtag: get scores and save them in a map<jet_idx,HHbtag_score>
+      std::map<int,float> jets_and_HHbtag = HHbtagTagger.GetScore();
+
+      // Save HHbtag values in smallTree
+      // b-jet 1
+      if (jets_and_HHbtag.find(bjet1idx) != jets_and_HHbtag.end())
+      {
+        theSmallTree.m_bjet1_HHbtag = jets_and_HHbtag[bjet1idx];
+      }
+      else
+      {
+        std::cout << "**ERROR: HHbtag score not found for bjet1, setting to -1 !!" << endl;
+        theSmallTree.m_bjet1_HHbtag = -1.;
+      }
+
+      // b-jet 2
+      if (jets_and_HHbtag.find(bjet2idx) != jets_and_HHbtag.end())
+      {
+        theSmallTree.m_bjet2_HHbtag = jets_and_HHbtag[bjet2idx];
+      }
+      else
+      {
+        std::cout << "**ERROR: HHbtag score not found for bjet2, setting to -1 !!" << endl;
+        theSmallTree.m_bjet2_HHbtag = -1.;
+      }
+
+      // VBF-jet 1
+      if (jets_and_HHbtag.find(VBFidx1) != jets_and_HHbtag.end())
+      {
+        theSmallTree.m_VBFjet1_HHbtag = jets_and_HHbtag[VBFidx1];
+      }
+      else
+      {
+        // The VBFjets might fall outside eta=2.4 or the event can be non-VBF
+        // so they don't have an HHbtag score. In this case
+        // the HHbtag score MUST be set manually to -1
+        theSmallTree.m_VBFjet1_HHbtag = -1.;
+      }
+
+      // VBF-jet 2
+      if (jets_and_HHbtag.find(VBFidx2) != jets_and_HHbtag.end())
+      {
+        theSmallTree.m_VBFjet2_HHbtag = jets_and_HHbtag[VBFidx2];
+      }
+      else
+      {
+        // The VBFjets might fall outside eta=2.4 or the event can be non-VBF
+        // so they don't have an HHbtag score. In this case
+        // the HHbtag score MUST be set manually to -1
+        theSmallTree.m_VBFjet2_HHbtag = -1.;
+      }
+
+      if (DEBUG)
+      {
+        std::cout << "---- HHbtag debug ----" << std::endl;
+        std::cout << "isVBF: " << theSmallTree.m_isVBF << "  - Evt: " << theSmallTree.m_EventNumber << std::endl;
+        std::cout << "HHbtag scores: ";
+        for(auto elem : jets_and_HHbtag)  std::cout << " " << elem.first << ":" << elem.second;
+        std::cout << std::endl;
+        std::cout << "b1   - idx: " << bjet1idx << " HHbtag: " << theSmallTree.m_bjet1_HHbtag << std::endl;
+        std::cout << "b2   - idx: " << bjet2idx << " HHbtag: " << theSmallTree.m_bjet2_HHbtag << std::endl;
+        std::cout << "VBF1 - idx: " << VBFidx1  << " HHbtag: " << theSmallTree.m_VBFjet1_HHbtag << std::endl;
+        std::cout << "VBF2 - idx: " << VBFidx2  << " HHbtag: " << theSmallTree.m_VBFjet2_HHbtag << std::endl;
+        std::cout << "----------------------" << std::endl;
+      }
+
+      // --------------------------------------------
       // Boosted section
 	  theSmallTree.m_isBoosted = 0;
 	  if (theBigTree.ak8jets_px->size() > 0)
@@ -4310,8 +4416,8 @@ int main (int argc, char** argv)
         cout << "    w/ FakeRate: " << theSmallTree.m_IdAndIsoAndFakeSF_deep << endl;
         cout << "  trig         : " << theSmallTree.m_trigSF << endl;
         cout << "  bTag         : " << theSmallTree.m_bTagweightM << endl;
-	cout << "  prescale     : " << theSmallTree.m_prescaleWeight<< endl;
-	cout << "  prefiring    : " << theSmallTree.m_L1pref_weight<< endl;
+        cout << "  prescale     : " << theSmallTree.m_prescaleWeight<< endl;
+        cout << "  prefiring    : " << theSmallTree.m_L1pref_weight<< endl;
         cout << "--------------" << endl;
       }
 
