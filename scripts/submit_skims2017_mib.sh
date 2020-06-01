@@ -7,10 +7,10 @@ INPUTDIR_DATA="inputFiles/Legacy2017_data"
 INPUTDIR_SIG="inputFiles/Legacy2017_signals"
 
 # OUTPUT
-SKIMDIR="/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_Legacy2017_06May2020"
+SKIMDIR="/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_Legacy2017_01June2020"
 
 # PU weights
-PUDIR="/gwpool/users/dzuolo/HHbbtautatuAnalysisLegacy/CMSSW_10_2_16/src/KLUBAnalysis/weights/PUreweight/Legacy_Run2_PU_SF/2017"
+PUDIR="/gwpool/users/dzuolo/HHbbtautatuAnalysisLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/weights/PUreweight/Legacy_Run2_PU_SF/2017"
 
 # Environment
 source /cvmfs/cms.cern.ch/cmsset_default.sh
