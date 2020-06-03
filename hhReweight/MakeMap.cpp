@@ -41,11 +41,7 @@ bool CheckBit (int number, int bitpos)
 int main ()
 {
     // make tchain of all samples
-    // TString filename = "/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files80X_22Giu/allhhV2nonresonant.txt";
-    // TString filename = "/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files80X_22Giu/lesshhV2nonresonant.txt";
-    // TString filename = "/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files80X_25Nov2016/filelist_allNonRes.txt";
-    TString filename = "/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_7Feb2016/allNonResNodes.txt";
-
+    TString filename = "/home/llr/cms/amendola/HHLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signals/GluGluToHHTo2B2Tau_LO_allNodes.txt"; 
     TChain* ch = new TChain ("HTauTauTree/HTauTauTree");
     appendFromFileList (ch, filename);
 
