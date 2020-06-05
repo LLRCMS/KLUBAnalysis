@@ -331,13 +331,13 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_m
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_12  	  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_12.txt       -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_cHHH0    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_cHHH0.txt    -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_cHHH0    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_cHHH0.txt    -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt --hhNLO True
 
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_cHHH1    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_cHHH1.txt    -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_cHHH1    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_cHHH1.txt    -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt --hhNLO True
 
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_cHHH2p45 -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_cHHH2p45.txt -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_cHHH2p45 -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_cHHH2p45.txt -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt --hhNLO True
 
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_cHHH5    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_cHHH5.txt    -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_cHHH5    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_cHHH5.txt    -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt --hhNLO True
 
 
 #### VBF SM :

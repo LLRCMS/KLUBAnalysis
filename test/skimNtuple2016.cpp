@@ -272,6 +272,19 @@ int main (int argc, char** argv)
   cout << "** INFO: nJets/nBjets for DY bin weights: " << DY_nJets << " / " << DY_nBJets << endl;
   int isDYI = atoi(argv[26]);
   bool isDY = (isDYI == 1) ? true : false;
+
+  // this value is read just for "consistency", but is never actually used,
+  // since in 2016 there is no ttHToTauTau sample, hence this stitching is not needed
+  bool isttHToNonBB = false;
+  int isttHToNonBBI = atoi(argv[27]);
+  if (isttHToNonBBI == 1) isttHToNonBB = true;
+  cout << "** INFO: isttHToNonBB: " << isttHToNonBB << endl;
+
+  bool isHHNLO = false;
+  int isHHNLOI = atoi(argv[28]);
+  if (isHHNLOI == 1) isHHNLO = true;
+  cout << "** INFO: isHHNLO: " << isHHNLO << endl;
+
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
     kNone      = 0,
@@ -819,6 +832,12 @@ int main (int argc, char** argv)
 	{
 	  if (theBigTree.lheNOutPartons != NjetRequired) continue;
 	}
+
+      // For ggHH NLO samples only: if the genWeight is > 0.5 the event should be rejected
+      if (isHHNLO)
+      {
+        if ( abs(theBigTree.aMCatNLOweight) > 0.5 ) continue;
+      } // end isHHNLO
 
       // skip event if I want a specific SUSY point from the fastsim
       //if (susyModel != string("NOTSUSY"))
