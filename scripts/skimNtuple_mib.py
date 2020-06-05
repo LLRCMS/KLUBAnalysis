@@ -72,6 +72,7 @@ if __name__ == "__main__":
     parser.add_option ('--nb',               dest='DY_nBJets' , help='number of gen BJets for DY bins'      , default='-1')
     parser.add_option ('--DY',               dest='DY'        , help='if it is a DY sample'                 , default=False)
     parser.add_option ('--ttHToNonBB',       dest='ttHToNonBB', help='if it is a ttHToNonBB sample'         , default=False)
+    parser.add_option ('--hhNLO',            dest='hhNLO'     , help='if it is an HH NLO sample'            , default=False)
 
     (opt, args) = parser.parse_args()
 
@@ -248,6 +249,8 @@ if __name__ == "__main__":
         if opt.DY             : command += " 1 "
         else                  : command += " 0 "
         if opt.ttHToNonBB     : command += " 1 "
+        else                  : command += " 0 "
+        if opt.hhNLO          : command += " 1 "
         else                  : command += " 0 "
         command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
         scriptFile.write (command)

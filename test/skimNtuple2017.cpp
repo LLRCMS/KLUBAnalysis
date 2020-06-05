@@ -239,6 +239,11 @@ int main (int argc, char** argv)
   if (isttHToNonBBI == 1) isttHToNonBB = true;
   cout << "** INFO: isttHToNonBB: " << isttHToNonBB << endl;
 
+  bool isHHNLO = false;
+  int isHHNLOI = atoi(argv[28]);
+  if (isHHNLOI == 1) isHHNLO = true;
+  cout << "** INFO: isHHNLO: " << isHHNLO << endl;
+
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
     kNone      = 0,
@@ -794,6 +799,12 @@ int main (int argc, char** argv)
 	{
 	  if (theBigTree.lheNOutPartons != NjetRequired) continue;
 	}
+
+      // For ggHH NLO samples only: if the genWeight is > 0.5 the event should be rejected
+      if (isHHNLO)
+      {
+        if ( abs(theBigTree.aMCatNLOweight) > 0.5 ) continue;
+      } // end isHHNLO
 
       // skip event if I want a specific SUSY point from the fastsim
       //if (susyModel != string("NOTSUSY"))

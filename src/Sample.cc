@@ -20,8 +20,8 @@ Sample::Sample (string name, string filelistname, string treename, string histon
 // Sample (name, treename)
 {
     name_ = name;
-    // tree_ = new TChain (treename.c_str());
-    tree_ = unique_ptr<TChain>(new TChain(treename.c_str()));
+    tree_ = new TChain (treename.c_str());
+    //tree_ = unique_ptr<TChain>(new TChain(treename.c_str()));
     filelistname_ = filelistname;
     eff_         = 0.;
     evt_num_     = 0.;
