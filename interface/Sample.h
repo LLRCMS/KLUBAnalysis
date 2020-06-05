@@ -76,7 +76,8 @@ class Sample
         void clearWeights() {weights_.clear();}
         void clearExtWeights() {weights_ext_.clear();}
 
-        TChain* getTree() {return tree_.get();}
+        //TChain* getTree() {return tree_.get();}
+        TChain* getTree() {return tree_;}
 
         const std::vector<Weight>& getWeights() const {return weights_;}
         std::vector<Weight>& getWeights() {return weights_;}
@@ -87,8 +88,8 @@ class Sample
         std::string filelistname_;
         std::string treename_;
         std::string histoname_;
-        // TChain* tree_;
-        std::unique_ptr<TChain> tree_;
+        TChain* tree_;
+        //std::unique_ptr<TChain> tree_;
         std::string name_;
         
         int    bin_eff_den_;
