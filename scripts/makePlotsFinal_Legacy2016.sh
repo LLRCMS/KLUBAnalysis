@@ -1,4 +1,4 @@
-tag=12May2020_Legacy2016_tauIDhomemade
+tag=2016_6June2020
 
 log=(--log)
 

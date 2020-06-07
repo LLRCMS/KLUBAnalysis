@@ -3,23 +3,22 @@
 ###### LAUNCH COMMAND EXAMPLE:
 
 # - TauTau -
-# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_10May2020_Legacy2016 --n 60
-# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_10May2020_Legacy2016_DY_LM --n 90
-# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_10May2020_Legacy2016_forLimits --n 100
-# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_12May2020_Legacy2016_tauIDhomemade --n 150
-
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_2016_6June2020 --n 100
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_2016_6June2020_oldQCD --n 100
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_TauTau_Legacy2016.cfg --tag analysis_TauTau_2016_6June2020_DMtauID --n 84
 
 # - MuTau -
-# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuTau_Legacy2016.cfg --tag analysis_MuTau_23Jan2020 --n 60
-# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuTau_Legacy2016.cfg --tag analysis_MuTau_10May2020_Legacy2016 --n 90
-# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuTau_Legacy2016.cfg --tag analysis_MuTau_10May2020_Legacy2016_forLimits --n 100
-
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuTau_Legacy2016.cfg --tag analysis_MuTau_2016_6June2020 --n 100
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuTau_Legacy2016.cfg --tag analysis_MuTau_2016_6June2020_oldQCD --n 100
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuTau_Legacy2016.cfg --tag analysis_MuTau_2016_6June2020_DMtauID --n 84
 
 # - ETau -
-# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_ETau_Legacy2016.cfg --tag analysis_ETau_invertedQCD_13Feb2020_Legacy2016 --n 70
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_ETau_Legacy2016.cfg --tag analysis_ETau_2016_6June2020 --n 100
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_ETau_Legacy2016.cfg --tag analysis_ETau_2016_6June2020_oldQCD --n 100
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_ETau_Legacy2016.cfg --tag analysis_ETau_2016_6June2020_DMtauID --n 84
 
 # - MuMu -
-# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuMu_Legacy2016.cfg --tag analysis_MuMu_10May2020_Legacy2016 --n 90
+# python scripts/submitHistoFiller_Legacy2016.py --cfg config/mainCfg_MuMu_Legacy2016.cfg --tag analysis_MuMu_2016_6June2020 --n 150
 
 
 # - TauTau tauIDSF -
