@@ -19,6 +19,8 @@ parser.add_argument('--analysis', required=True, dest='analysis', type=str, meta
                     help="res_lm, res_hm, nonres or sync")
 parser.add_argument('--norm-unc-path', required=False, dest='norm_unc_path', default='', type=str, metavar='NORM_PATH',
                     help="path to the text files with normailzation variations for shape uncertainties")
+parser.add_argument('--year', required=False, dest='year', default='2016', type=str, metavar='YEAR',
+                    help="year of the analysis, for TDirectory structure")
 parser.add_argument('--ignoreShapeUnc', action="store_true", help="Ignore shape uncertainties.")
 args = parser.parse_args()
 
@@ -257,8 +259,7 @@ for channel,channel_desc in channels.iteritems():
         #tauES_unc.norm_correction_dict = NormCorrectionDictionary(args.norm_unc_path, LLR_channel, LLR_category, 'tes')
         #jetES_unc.norm_correction_dict = NormCorrectionDictionary(args.norm_unc_path, LLR_channel, LLR_category, 'jes')
         for LLR_region,region in regions.iteritems():
-            output_dir_name = '{}_{}'.format(channel, category)
-            #output_dir_name = '2016_' + channel + '_' + category
+            output_dir_name = '{}_{}_{}'.format(args.year, channel, category)
             if len(region) > 0:
                 output_dir_name += '_{}'.format(region)
             print '\tprocessing {}'.format(output_dir_name)
