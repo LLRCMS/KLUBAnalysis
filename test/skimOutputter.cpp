@@ -102,11 +102,13 @@ int main (int argc, char** argv)
   cout << "** INFO: doDNN    : " << doDNN    << endl;
   cout << "** INFO: doBDT    : " << doBDT    << endl;
 
+  bool doNominal  = gConfigParser->readBoolOption("outPutter::doNominal" );
   bool doMES      = gConfigParser->readBoolOption("outPutter::doMES"     );
   bool doEES      = gConfigParser->readBoolOption("outPutter::doEES"     );
   bool doTES      = gConfigParser->readBoolOption("outPutter::doTES"     );
   bool doSplitJES = gConfigParser->readBoolOption("outPutter::doSplitJES");
   bool doTotalJES = gConfigParser->readBoolOption("outPutter::doTotalJES");
+  cout << "** INFO: doNominal  : " << doNominal  << endl;
   cout << "** INFO: doMES      : " << doMES      << endl;
   cout << "** INFO: doEES      : " << doEES      << endl;
   cout << "** INFO: doTES      : " << doTES      << endl;
@@ -672,8 +674,9 @@ int main (int argc, char** argv)
   TBranch* b_BDToutSM_kl_1_jetdownTot   = outTree->Branch("BDToutSM_kl_1_jetdownTot"  , &BDToutSM_kl_1_jetdownTot);
 
   // Add some branches to store timing information
-  double time_prep, time_TES, time_EES, time_MES, time_splitJES, time_totalJES, time_tot;
+  double time_prep, time_nominal, time_TES, time_EES, time_MES, time_splitJES, time_totalJES, time_tot;
   TBranch* b_time_prep     = outTree->Branch("time_preparation", &time_prep);
+  TBranch* b_time_nominal  = outTree->Branch("time_nominal"    , &time_nominal);
   TBranch* b_time_TES      = outTree->Branch("time_TES"        , &time_TES);
   TBranch* b_time_EES      = outTree->Branch("time_EES"        , &time_EES);
   TBranch* b_time_MES      = outTree->Branch("time_MES"        , &time_MES);
@@ -755,98 +758,109 @@ int main (int argc, char** argv)
         bjet1_bID_deepFlavor, bjet2_bID_deepFlavor, CvsL_b1, CvsL_b2, CvsL_vbf1, CvsL_vbf2,
         CvsB_b1, CvsB_b2, CvsB_vbf1, CvsB_vbf2, HHbtag_b1, HHbtag_b2, HHbtag_vbf1, HHbtag_vbf2);
 
-
-    // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-    // KinFit computation - Central value
-    if (doKinFit)
-    {
-      // nominal kinfit
-      HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs(bjet1, bjet2, tau1, tau2, ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
-      kinFits.addHypo(hypo_mh1,hypo_mh2);
-      bool wrongHHK =false;
-      try {kinFits.fit();}
-      catch(HHKinFit2::HHInvMConstraintException   &e) {wrongHHK=true;}
-      catch(HHKinFit2::HHEnergyConstraintException &e) {wrongHHK=true;}
-      catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK=true;}
-      if(!wrongHHK)
-      {
-        HHKin_mass_new = kinFits.getMH();
-        HHKin_chi2_new = kinFits.getChi2();
-      }
-      else
-      {
-        HHKin_mass_new = -333.;
-        HHKin_chi2_new = 0.;
-      }
-    }
-
-    // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-    // MT2 computation - Central value
-    if (doMT2)
-    {
-      MT2_new = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
-                                                  bjet2.M(), bjet2.Px(), bjet2.Py(),
-                                                  (tau1.Px() + tau2.Px() + met.Px()),
-                                                  (tau1.Py() + tau2.Py() + met.Py()),
-                                                  tau1.M(), tau2.M(), desiredPrecisionOnMt2);
-    }
-
-    // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-    // SVfit computation - Central value
-    if (doSVfit)
-    {
-      //std::cout << std::setprecision(5) << std::fixed;
-      //std::cout << "pairType: " <<  pType << std::endl;
-      //std::cout << "orig  tau1: " << dau1_pt << " " << dau1_eta << " " << dau1_phi << " " << dau1_e << std::endl;
-      //std::cout << "input tau1: " << tau1.Pt() << " " << tau1.Eta() << " " << tau1.Phi() << " " << tau1.E() << " " << tau1.Px() << " " << tau1.Py()<< std::endl;
-      //std::cout << "orig  tau2: " << dau2_pt << " " << dau2_eta << " " << dau2_phi << " " << dau2_e << std::endl;
-      //std::cout << "input tau2: " << tau2.Pt() << " " << tau2.Eta() << " " << tau2.Phi() << " " << tau2.E() << " " << tau2.Px() << " " << tau2.Py()<< std::endl;
-      //std::cout << "input met: " << met.Pt() << " " << met.Eta() << " " << met.Phi() << " " << met.Px() << " " << met.Py() << std::endl;
-
-      SVfitKLUBinterface algo_central(0, tau1, tau2, met, stableMetCov, pType, DM1, DM2);
-      std::vector<double> svfitRes = algo_central.FitAndGetResult();
-      tauH_SVFIT_pt_new   = svfitRes.at(0);
-      tauH_SVFIT_eta_new  = svfitRes.at(1);
-      tauH_SVFIT_phi_new  = svfitRes.at(2);
-      tauH_SVFIT_mass_new = svfitRes.at(3);
-      //std::cout << " - newSVfit: " << tauH_SVFIT_pt_new << " " << tauH_SVFIT_eta_new << " " << tauH_SVFIT_phi_new << " " << tauH_SVFIT_mass_new << std::endl;
-      //std::cout << " - oldSVfit: " << tauH_SVFIT_pt << " " << tauH_SVFIT_eta << " " << tauH_SVFIT_phi << " " << tauH_SVFIT_mass << std::endl;
-    }
-
-    // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-    // DNN computation - Central value
-    if (doDNN)
-    {
-      // Set quantities that change for each event (shifted for TES, JES...)
-      // Central value
-      DNNreader.SetShiftedInputs(bjet1, bjet2, tau1, tau2, vbfjet1, vbfjet2, met, svfit,
-          HHKin_mass, HHKin_chi2, KinFitConv, SVfitConv, MT2);
-      std::vector<float> outs = DNNreader.GetPredictions();
-      //std::cout << "----- ...gotten predictions: " << outs.at(0) << std::endl;
-      DNNoutSM_kl_1_new = outs.at(0);
-    }
-
-    // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-    // BDT computation - Central value
-    if (doBDT)
-    {
-      // Set inputs to BDT
-      BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1.Pt(),
-        tau2.Pt(), svfit.Pt(), BDT_channel,
-        BDT_HT20, pzeta, pzeta_vis, BDT_ditau_deltaPhi,
-        BDT_tauHsvfitMet_deltaPhi, mT_tauH_MET, mTtot, MT2,
-        BDT_MX, BDT_bH_tauH_MET_InvMass, BDT_bH_tauH_SVFIT_InvMass,
-        BDT_bH_tauH_InvMass, HHKin_mass, HHKin_chi2, BDT_MET_bH_cosTheta);
-
-      // Get BDT outputs
-      std::vector<float> BDTouts = BDTreader.GetPredictions();
-      BDToutSM_kl_1_new = BDTouts.at(0);
-      //std::cout << " - newBDT: " << BDToutSM_kl_1_new << std::endl;
-      //std::cout << " - oldBDT: " << BDToutSM_kl_1 << std::endl;
-    }
-
     // Timing info
     auto end_prep = high_resolution_clock::now();
+
+    // ---- ---- ---- ---- ---- ---- ----
+    // ---- ---- Do nominal now ---- ----
+    // ---- ---- ---- ---- ---- ---- ----
+    // This section is just for testing purposes and should be
+    // skipped (i.e. doNominal set to false in the config)
+
+    // Timing info
+    auto start_nomin = high_resolution_clock::now();
+    if (doNominal)
+    {
+      // KinFit computation - Central value
+      if (doKinFit)
+      {
+        // nominal kinfit
+        HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs(bjet1, bjet2, tau1, tau2, ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
+        kinFits.addHypo(hypo_mh1,hypo_mh2);
+        bool wrongHHK =false;
+        try {kinFits.fit();}
+        catch(HHKinFit2::HHInvMConstraintException   &e) {wrongHHK=true;}
+        catch(HHKinFit2::HHEnergyConstraintException &e) {wrongHHK=true;}
+        catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK=true;}
+        if(!wrongHHK)
+        {
+          HHKin_mass_new = kinFits.getMH();
+          HHKin_chi2_new = kinFits.getChi2();
+        }
+        else
+        {
+          HHKin_mass_new = -333.;
+          HHKin_chi2_new = 0.;
+        }
+      }
+
+      // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+      // MT2 computation - Central value
+      if (doMT2)
+      {
+        MT2_new = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
+                                                    bjet2.M(), bjet2.Px(), bjet2.Py(),
+                                                    (tau1.Px() + tau2.Px() + met.Px()),
+                                                    (tau1.Py() + tau2.Py() + met.Py()),
+                                                    tau1.M(), tau2.M(), desiredPrecisionOnMt2);
+      }
+
+      // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+      // SVfit computation - Central value
+      if (doSVfit)
+      {
+        //std::cout << std::setprecision(5) << std::fixed;
+        //std::cout << "pairType: " <<  pType << std::endl;
+        //std::cout << "orig  tau1: " << dau1_pt << " " << dau1_eta << " " << dau1_phi << " " << dau1_e << std::endl;
+        //std::cout << "input tau1: " << tau1.Pt() << " " << tau1.Eta() << " " << tau1.Phi() << " " << tau1.E() << " " << tau1.Px() << " " << tau1.Py()<< std::endl;
+        //std::cout << "orig  tau2: " << dau2_pt << " " << dau2_eta << " " << dau2_phi << " " << dau2_e << std::endl;
+        //std::cout << "input tau2: " << tau2.Pt() << " " << tau2.Eta() << " " << tau2.Phi() << " " << tau2.E() << " " << tau2.Px() << " " << tau2.Py()<< std::endl;
+        //std::cout << "input met: " << met.Pt() << " " << met.Eta() << " " << met.Phi() << " " << met.Px() << " " << met.Py() << std::endl;
+
+        SVfitKLUBinterface algo_central(0, tau1, tau2, met, stableMetCov, pType, DM1, DM2);
+        std::vector<double> svfitRes = algo_central.FitAndGetResult();
+        tauH_SVFIT_pt_new   = svfitRes.at(0);
+        tauH_SVFIT_eta_new  = svfitRes.at(1);
+        tauH_SVFIT_phi_new  = svfitRes.at(2);
+        tauH_SVFIT_mass_new = svfitRes.at(3);
+        //std::cout << " - newSVfit: " << tauH_SVFIT_pt_new << " " << tauH_SVFIT_eta_new << " " << tauH_SVFIT_phi_new << " " << tauH_SVFIT_mass_new << std::endl;
+        //std::cout << " - oldSVfit: " << tauH_SVFIT_pt << " " << tauH_SVFIT_eta << " " << tauH_SVFIT_phi << " " << tauH_SVFIT_mass << std::endl;
+      }
+
+      // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+      // DNN computation - Central value
+      if (doDNN)
+      {
+        // Set quantities that change for each event (shifted for TES, JES...)
+        // Central value
+        DNNreader.SetShiftedInputs(bjet1, bjet2, tau1, tau2, vbfjet1, vbfjet2, met, svfit,
+            HHKin_mass, HHKin_chi2, KinFitConv, SVfitConv, MT2);
+        std::vector<float> outs = DNNreader.GetPredictions();
+        //std::cout << "----- ...gotten predictions: " << outs.at(0) << std::endl;
+        DNNoutSM_kl_1_new = outs.at(0);
+      }
+
+      // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+      // BDT computation - Central value
+      if (doBDT)
+      {
+        // Set inputs to BDT
+        BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1.Pt(),
+          tau2.Pt(), svfit.Pt(), BDT_channel,
+          BDT_HT20, pzeta, pzeta_vis, BDT_ditau_deltaPhi,
+          BDT_tauHsvfitMet_deltaPhi, mT_tauH_MET, mTtot, MT2,
+          BDT_MX, BDT_bH_tauH_MET_InvMass, BDT_bH_tauH_SVFIT_InvMass,
+          BDT_bH_tauH_InvMass, HHKin_mass, HHKin_chi2, BDT_MET_bH_cosTheta);
+
+        // Get BDT outputs
+        std::vector<float> BDTouts = BDTreader.GetPredictions();
+        BDToutSM_kl_1_new = BDTouts.at(0);
+        //std::cout << " - newBDT: " << BDToutSM_kl_1_new << std::endl;
+        //std::cout << " - oldBDT: " << BDToutSM_kl_1 << std::endl;
+      }
+    } // End doCentral
+    // Timing info
+    auto end_nomin = high_resolution_clock::now();
 
     // ---- ---- ---- ---- ---- ---- ----
     // ---- ---- Do all MES now ---- ----
@@ -1793,6 +1807,7 @@ int main (int argc, char** argv)
 
     // Timing branches
     time_prep     = (end_prep     - start_prep    ).count() * 1.e-9;
+    time_nominal  = (end_nomin    - start_nomin   ).count() * 1.e-9;
     time_TES      = (end_TES      - start_TES     ).count() * 1.e-9;
     time_EES      = (end_EES      - start_EES     ).count() * 1.e-9;
     time_MES      = (end_MES      - start_MES     ).count() * 1.e-9;
@@ -1801,6 +1816,7 @@ int main (int argc, char** argv)
     time_tot      = (end_tot      - start_tot     ).count() * 1.e-9;
 
     b_time_prep     -> Fill();
+    b_time_nominal  -> Fill();
     b_time_TES      -> Fill();
     b_time_EES      -> Fill();
     b_time_MES      -> Fill();
