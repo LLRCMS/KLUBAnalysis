@@ -154,8 +154,10 @@ int main (int argc, char** argv)
   "EventNumber", "RunNumber","nleps","pairType","nbjetscand",          // General
   "isOS", "isBoosted",
 
-  "MC_weight", "PUReweight", "L1pref_weight", "trigSF",                // Weights
-  "IdAndIsoAndFakeSF_deep", "DYscale_MTT", "TTtopPtreweight",
+  "MC_weight","PUReweight","PUjetID_SF","L1pref_weight",               // Weights and SFs
+  "prescaleWeight","trigSF","VBFtrigSF","DYscale_MTT","DYscale_MH",
+  "IdAndIsoAndFakeSF_deep","IdAndIsoAndFakeSF_deep_pt",
+  "TTtopPtreweight",
 
   "isVBFtrigger", "isVBF",                                             // Trigger vbf selection
 
