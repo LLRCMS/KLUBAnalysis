@@ -19,6 +19,8 @@ parser.add_argument('--analysis', required=True, dest='analysis', type=str, meta
                     help="res_lm, res_hm, nonres or sync")
 parser.add_argument('--norm-unc-path', required=False, dest='norm_unc_path', default='', type=str, metavar='NORM_PATH',
                     help="path to the text files with normailzation variations for shape uncertainties")
+parser.add_argument('--year', required=False, dest='year', default='2016', type=str, metavar='YEAR',
+                    help="year of the analysis, for TDirectory structure")
 parser.add_argument('--ignoreShapeUnc', action="store_true", help="Ignore shape uncertainties.")
 args = parser.parse_args()
 
@@ -38,7 +40,8 @@ def NumToName(x):
 def OpenLLRFile(channel):
     #file_name = '{}/{}.root'.format(args.input_path, channel)
     #file_name = args.input_path
-    file_name = args.input_path+channel+'.root'
+    #file_name = args.input_path+channel+'.root'
+    file_name = 'analysis_'+ channel + '_' + args.input_path + '/analyzedOutPlotter.root'
     return TFile(file_name, 'OPEN')
 
 def GetLLRHistName(sample, category, region, variable, uncertainty = None):
@@ -181,6 +184,7 @@ topPt_unc = UncDesc('topPt', CorrelationRange.Experiment, 'top', True)
 bins = [
     BinDesc('data_obs', ['data_obs'], save_all_regions = False),
     BinDesc('DY'      , ['DY']      , unc_list = [ ], save_all_regions = False),
+    BinDesc('DY_LM'   , ['DY_LM']   , unc_list = [ ], save_all_regions = False),
     BinDesc('TT'      , ['TT']      , unc_list = [ ], save_all_regions = False),
     BinDesc('W'       , ['W']       , unc_list = [ ], save_all_regions = False),
     BinDesc('QCD'     , ['QCD']     , unc_list = [ ], save_all_regions = False),
@@ -234,7 +238,8 @@ else:
 #}
 
 if args.analysis == 'sync':
-    tauTau_categories = {'2j': 'baseline', 'res1b': 's1b1jresolved', 'res2b': 's2b0jresolved', 'boosted': 'sboostedLL'}
+    #tauTau_categories = {'2j': 'baseline', 'res1b': 's1b1jresolved', 'res2b': 's2b0jresolved', 'boosted': 'sboostedLL'}
+    tauTau_categories = {'2j': 'baseline'}
     channels = {
         'eTau'   : [ 'ETau'  , tauTau_categories],
         'muTau'  : [ 'MuTau' , tauTau_categories],
@@ -254,7 +259,7 @@ for channel,channel_desc in channels.iteritems():
         #tauES_unc.norm_correction_dict = NormCorrectionDictionary(args.norm_unc_path, LLR_channel, LLR_category, 'tes')
         #jetES_unc.norm_correction_dict = NormCorrectionDictionary(args.norm_unc_path, LLR_channel, LLR_category, 'jes')
         for LLR_region,region in regions.iteritems():
-            output_dir_name = '{}_{}'.format(channel, category)
+            output_dir_name = '{}_{}_{}'.format(args.year, channel, category)
             if len(region) > 0:
                 output_dir_name += '_{}'.format(region)
             print '\tprocessing {}'.format(output_dir_name)
