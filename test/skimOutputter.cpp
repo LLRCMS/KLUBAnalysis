@@ -50,8 +50,6 @@
 
 using namespace std ;
 
-const int nMaxEvts = 1;
-
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
@@ -59,23 +57,67 @@ const int nMaxEvts = 1;
 // Main
 int main (int argc, char** argv)
 {
+  // Usage printout
+  if (argc < 4)
+  {
+    cerr << "missing input parameters : argc is: " << argc << endl;
+    cerr << "usage: " << argv[0]
+         << " inputFileNameList outputFileName configFile" << endl;
+    return 1;
+  }
 
-  TString inputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/HHbtag/CMSSW_10_2_16/src/KLUBAnalysis/skimmed_output2016_SYST.root";  // FIXME: read from cfg file
-  TString outputFileName = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/HHbtag/CMSSW_10_2_16/src/KLUBAnalysis/systTEST_DNN.root";            // FIXME: read from cfg file
+  // Input and output files
+  TString inputFileName  = argv[1] ;
+  TString outputFileName = argv[2] ;
   cout << "** INFO: inputFile  : " << inputFileName << endl;
   cout << "** INFO: outputFile : " << outputFileName << endl;
 
-  bool doMT2    = true; // FIXME: read from cfg file
-  bool doKinFit = true; // FIXME: read from cfg file
-  bool doSVfit  = true; // FIXME: read from cfg file
-  bool doDNN    = true; // FIXME: read from cfg file
-  bool doBDT    = true; // FIXME: read from cfg file
+  // Read options from config
+  if (gConfigParser) return 1;
+  gConfigParser = new ConfigParser();
+  TString config;
+  config.Form ("%s",argv[3]) ;
+  cout << "** INFO: reading config : " << config << endl;
 
-  bool doMES      = true; // FIXME: read from cfg file
-  bool doEES      = true; // FIXME: read from cfg file
-  bool doTES      = true; // FIXME: read from cfg file
-  bool doSplitJES = false; // FIXME: read from cfg file
-  bool doTotalJES = true; // FIXME: read from cfg file
+  if (!(gConfigParser->init(config)))
+  {
+    cout << ">>> parseConfigFile::Could not open configuration file " << config << endl ;
+    return -1 ;
+  }
+
+  // Max events to be analyzed, read from config
+  int nMaxEvts = gConfigParser->readIntOption("outPutter::nMaxEvts");
+
+  // Read bools from config
+  bool doMT2    = gConfigParser->readBoolOption("outPutter::doMT2"   );
+  bool doKinFit = gConfigParser->readBoolOption("outPutter::doKinFit");
+  bool doSVfit  = gConfigParser->readBoolOption("outPutter::doSVfit" );
+  bool doDNN    = gConfigParser->readBoolOption("outPutter::doDNN"   );
+  bool doBDT    = gConfigParser->readBoolOption("outPutter::doBDT"   );
+  cout << "** INFO: doMT2    : " << doMT2    << endl;
+  cout << "** INFO: doKinFit : " << doKinFit << endl;
+  cout << "** INFO: doSVfit  : " << doSVfit  << endl;
+  cout << "** INFO: doDNN    : " << doDNN    << endl;
+  cout << "** INFO: doBDT    : " << doBDT    << endl;
+
+  bool doMES      = gConfigParser->readBoolOption("outPutter::doMES"     );
+  bool doEES      = gConfigParser->readBoolOption("outPutter::doEES"     );
+  bool doTES      = gConfigParser->readBoolOption("outPutter::doTES"     );
+  bool doSplitJES = gConfigParser->readBoolOption("outPutter::doSplitJES");
+  bool doTotalJES = gConfigParser->readBoolOption("outPutter::doTotalJES");
+  cout << "** INFO: doMES      : " << doMES      << endl;
+  cout << "** INFO: doEES      : " << doEES      << endl;
+  cout << "** INFO: doTES      : " << doTES      << endl;
+  cout << "** INFO: doSplitJES : " << doSplitJES << endl;
+  cout << "** INFO: doTotalJES : " << doTotalJES << endl;
+
+  // General settings, read from configs
+  int YEAR = gConfigParser->readIntOption("outPutter::year");
+  cout << "** INFO: year          : " << YEAR << endl;
+
+  int analysis_type =  gConfigParser->readIntOption("outPutter::analysis");
+  cout << "** INFO: analysis type : " << analysis_type << " (0:radion, 1:graviton, 2:nonres)" << endl;
+
 
   // Input setup
   TFile *inputFile = new TFile (inputFileName, "read") ;
@@ -85,14 +127,14 @@ int main (int argc, char** argv)
   const int N_jecSources = h_syst->GetBinContent(1); //jec sources
   const int N_tauhDM     = h_syst->GetBinContent(2); //tauh DMs
   const int N_tauhDM_EES = h_syst->GetBinContent(3); //tauh DMs with EES
-  std::cout << "** INFO: N_jecSources: " << N_jecSources << std::endl;
-  std::cout << "** INFO: N_tauhDM    : " << N_tauhDM << std::endl;
-  std::cout << "** INFO: N_tauhDM_EES: " << N_tauhDM_EES << std::endl;
+  std::cout << "** ANALYSIS: N_jecSources: " << N_jecSources << std::endl;
+  std::cout << "** ANALYSIS: N_tauhDM    : " << N_tauhDM << std::endl;
+  std::cout << "** ANALYSIS: N_tauhDM_EES: " << N_tauhDM_EES << std::endl;
 
   // Input TTree
   TTree *inputChain = (TTree*)inputFile->Get("HTauTauTree");
   Long64_t nentries = inputChain->GetEntries();
-  cout << "** INFO: Initial entries: " << nentries << endl;
+  cout << "** ANALYSIS: Initial entries: " << nentries << endl;
 
   // Declare the only two branches needed for skimming the initial entries 
   int nleps, pairType, nbjetscand, dau1_deepTauVsJet, dau1_eleMVAiso;
@@ -215,7 +257,7 @@ int main (int argc, char** argv)
   TTree *treenew = inputChain->CloneTree(0);
 
   // Loop on input events to apply minimal selection
-  cout << "** INFO: Cloning with minimal selection..." << endl;
+  cout << "** ANALYSIS: Cloning with minimal selection..." << endl;
   for (Long64_t iEvent = 0 ; iEvent<nentries ; ++iEvent) 
   {
     if (iEvent % 500 == 0)  cout << "  - reading event " << iEvent << endl ;
@@ -228,7 +270,7 @@ int main (int argc, char** argv)
     if ( pairType==2 && dau1_deepTauVsJet<5 ) continue;
     treenew->Fill() ;
   }
-  cout << "** INFO: ...Cloned entries: " << treenew->GetEntries() << endl;
+  cout << "** ANALYSIS: ...Cloned entries: " << treenew->GetEntries() << endl;
 
   // Save and close cloneFile and inputFile
   cloneFile->cd();
@@ -253,11 +295,12 @@ int main (int argc, char** argv)
   double desiredPrecisionOnMt2 = 0; // Must be >=0.  If 0 alg aims for machine precision.  if >0, MT2 computed to supplied absolute precision.
 
   // Target kls for DNN and BDT
-  std::vector<float> target_kls {1.}; // FIXME: read from cfg file
+  std::vector<float> target_kls;
+  target_kls = gConfigParser->readFloatListOption("outPutter::kl");
 
   // Declare DNNKLUBinterface
-  std::string model_dir = "../cms_runII_dnn_models/models/nonres_gluglu/2020-05-18-2/ensemble";         // FIXME: read from cfg file
-  std::string features_file = "../cms_runII_dnn_models/models/nonres_gluglu/2020-05-18-2/features.txt"; // FIXME: read from cfg file
+  std::string model_dir     = gConfigParser->readStringOption("DNN::weights" );
+  std::string features_file = gConfigParser->readStringOption("DNN::features");
   std::vector<std::string> requested;
   std::ifstream features_infile(features_file);
   std::string featureName;
@@ -267,10 +310,38 @@ int main (int argc, char** argv)
   }
   features_infile.close();
   DNNKLUBinterface DNNreader(model_dir, requested, target_kls);
-  DNNreader.SetGlobalInputs(y17, nonres); // FIXME: read from cfg file
+
+  Year DNNyear;
+  if      (YEAR == 2016)
+  {
+    DNNyear = y16;
+  }
+  else if (YEAR == 2017)
+  {
+    DNNyear = y17;
+  }
+  else  /*YEAR == 2018*/
+  {
+    DNNyear = y18;
+  }
+
+  Spin DNNanalysis;
+  if      (analysis_type == 0)
+  {
+    DNNanalysis = radion;
+  }
+  else if (analysis_type == 1)
+  {
+    DNNanalysis = graviton;
+  }
+  else /* analysis_type == 2 */
+  {
+    DNNanalysis = nonres;
+  }
+  DNNreader.SetGlobalInputs(DNNyear, DNNanalysis);
 
   // Declare BDTKLUBinterface
-  std::string weights = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/CMSSW_10_2_16/src/KLUBAnalysis/weights/newBDT/BDTnewSM.xml"; // FIXME: read from cfg file
+  std::string weights = gConfigParser->readStringOption("BDTsm::weights");
   BDTKLUBinterface BDTreader(weights, target_kls);
 
   // Read branches needed for computation of KinFit, MT2, SVfit, BDT, DNN
@@ -289,21 +360,21 @@ int main (int argc, char** argv)
   float CvsB_b1, CvsB_b2, CvsB_vbf1, CvsB_vbf2;
   float HHbtag_b1, HHbtag_b2, HHbtag_vbf1, HHbtag_vbf2;
   float BDT_HT20;
-  std::vector<Float_t> *METx_eleup, *METy_eleup, *METx_eledown, *METy_eledown;
-  std::vector<Float_t> *dau1_pt_eleup, *dau1_pt_eledown, *dau1_mass_eleup, *dau1_mass_eledown;
-  std::vector<Float_t> *dau2_pt_eleup, *dau2_pt_eledown, *dau2_mass_eleup, *dau2_mass_eledown;
-  std::vector<Float_t> *METx_tauup, *METy_tauup, *METx_taudown, *METy_taudown;
-  std::vector<Float_t> *dau1_pt_tauup, *dau1_pt_taudown, *dau1_mass_tauup, *dau1_mass_taudown;
-  std::vector<Float_t> *dau2_pt_tauup, *dau2_pt_taudown, *dau2_mass_tauup, *dau2_mass_taudown;
+  std::vector<Float_t> *METx_eleup    = 0, *METy_eleup      = 0, *METx_eledown    = 0, *METy_eledown      = 0;
+  std::vector<Float_t> *dau1_pt_eleup = 0, *dau1_pt_eledown = 0, *dau1_mass_eleup = 0, *dau1_mass_eledown = 0;
+  std::vector<Float_t> *dau2_pt_eleup = 0, *dau2_pt_eledown = 0, *dau2_mass_eleup = 0, *dau2_mass_eledown = 0;
+  std::vector<Float_t> *METx_tauup    = 0, *METy_tauup      = 0, *METx_taudown    = 0 , *METy_taudown     = 0;
+  std::vector<Float_t> *dau1_pt_tauup = 0, *dau1_pt_taudown = 0, *dau1_mass_tauup = 0, *dau1_mass_taudown = 0;
+  std::vector<Float_t> *dau2_pt_tauup = 0, *dau2_pt_taudown = 0, *dau2_mass_tauup = 0, *dau2_mass_taudown = 0;
 
-  std::vector<Float_t> *METx_jetup, *METy_jetup, *METx_jetdown, *METy_jetdown;
-  std::vector<Float_t> *bjet1_pt_raw_jetup, *bjet1_pt_raw_jetdown, *bjet1_mass_raw_jetup, *bjet1_mass_raw_jetdown;
-  std::vector<Float_t> *bjet2_pt_raw_jetup, *bjet2_pt_raw_jetdown, *bjet2_mass_raw_jetup, *bjet2_mass_raw_jetdown;
-  std::vector<Float_t> *bjet1_JER_jetup, *bjet1_JER_jetdown;
-  std::vector<Float_t> *bjet2_JER_jetup, *bjet2_JER_jetdown;
-  std::vector<Float_t> *VBFjet1_pt_jetup, *VBFjet1_pt_jetdown, *VBFjet1_mass_jetup, *VBFjet1_mass_jetdown;
-  std::vector<Float_t> *VBFjet2_pt_jetup, *VBFjet2_pt_jetdown, *VBFjet2_mass_jetup, *VBFjet2_mass_jetdown;
-  std::vector<Float_t> *BDT_HT20_jetup, *BDT_HT20_jetdown;
+  std::vector<Float_t> *METx_jetup         = 0, *METy_jetup           = 0, *METx_jetdown         = 0, *METy_jetdown           = 0;
+  std::vector<Float_t> *bjet1_pt_raw_jetup = 0, *bjet1_pt_raw_jetdown = 0, *bjet1_mass_raw_jetup = 0, *bjet1_mass_raw_jetdown = 0;
+  std::vector<Float_t> *bjet2_pt_raw_jetup = 0, *bjet2_pt_raw_jetdown = 0, *bjet2_mass_raw_jetup = 0, *bjet2_mass_raw_jetdown = 0;
+  std::vector<Float_t> *bjet1_JER_jetup    = 0, *bjet1_JER_jetdown    = 0;
+  std::vector<Float_t> *bjet2_JER_jetup    = 0, *bjet2_JER_jetdown    = 0;
+  std::vector<Float_t> *VBFjet1_pt_jetup   = 0, *VBFjet1_pt_jetdown   = 0, *VBFjet1_mass_jetup   = 0, *VBFjet1_mass_jetdown   = 0;
+  std::vector<Float_t> *VBFjet2_pt_jetup   = 0, *VBFjet2_pt_jetdown   = 0, *VBFjet2_mass_jetup   = 0, *VBFjet2_mass_jetdown   = 0;
+  std::vector<Float_t> *BDT_HT20_jetup     = 0, *BDT_HT20_jetdown     = 0;
 
   Float_t METx_jetupTot, METy_jetupTot, METx_jetdownTot, METy_jetdownTot;
   Float_t bjet1_pt_raw_jetupTot, bjet1_pt_raw_jetdownTot, bjet1_mass_raw_jetupTot, bjet1_mass_raw_jetdownTot;
@@ -597,7 +668,7 @@ int main (int argc, char** argv)
   TBranch* b_BDToutSM_kl_1_jetdownTot   = outTree->Branch("BDToutSM_kl_1_jetdownTot"  , &BDToutSM_kl_1_jetdownTot);
 
   // Loop on selected entries
-  cout << "** INFO: Adding new branches..." << endl;
+  cout << "** ANALYSIS: Adding new branches..." << endl;
   for(int i=0;i<outTree->GetEntries();i++)
   {
     if (i % 500 == 0) cout << "- reading event " << i << endl ;
@@ -1677,8 +1748,8 @@ int main (int argc, char** argv)
     b_DNNoutSM_kl_1_jetdownTot  ->Fill();
     b_BDToutSM_kl_1_jetdownTot  ->Fill();
   }
-  cout << "** INFO: ..Added new branches" << endl;
-  cout << "** INFO: Final entries: " << outTree->GetEntries() << endl;
+  cout << "** ANALYSIS: ..Added new branches" << endl;
+  cout << "** ANALYSIS: Final entries: " << outTree->GetEntries() << endl;
 
   outFile->cd();
   outTree->Write ("", TObject::kOverwrite) ;
