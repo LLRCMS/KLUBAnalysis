@@ -6,6 +6,7 @@
 #include <sstream>
 #include <bitset>
 #include <map>
+#include <chrono>
 #include "TTree.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -49,6 +50,7 @@
 #include <Math/PxPyPzM4D.h>
 
 using namespace std ;
+using namespace std::chrono;
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
@@ -669,6 +671,16 @@ int main (int argc, char** argv)
   TBranch* b_DNNoutSM_kl_1_jetdownTot   = outTree->Branch("DNNoutSM_kl_1_jetdownTot"  , &DNNoutSM_kl_1_jetdownTot);
   TBranch* b_BDToutSM_kl_1_jetdownTot   = outTree->Branch("BDToutSM_kl_1_jetdownTot"  , &BDToutSM_kl_1_jetdownTot);
 
+  // Add some branches to store timing information
+  double time_prep, time_TES, time_EES, time_MES, time_splitJES, time_totalJES, time_tot;
+  TBranch* b_time_prep     = outTree->Branch("time_preparation", &time_prep);
+  TBranch* b_time_TES      = outTree->Branch("time_TES"        , &time_TES);
+  TBranch* b_time_EES      = outTree->Branch("time_EES"        , &time_EES);
+  TBranch* b_time_MES      = outTree->Branch("time_MES"        , &time_MES);
+  TBranch* b_time_splitJES = outTree->Branch("time_splitJES"   , &time_splitJES);
+  TBranch* b_time_totalJES = outTree->Branch("time_totalJES"   , &time_totalJES);
+  TBranch* b_time_tot      = outTree->Branch("time_tot"        , &time_tot);
+
   // Loop on selected entries
   cout << "** ANALYSIS: Adding new branches..." << endl;
   for(int i=0;i<outTree->GetEntries();i++)
@@ -680,6 +692,10 @@ int main (int argc, char** argv)
     outTree->GetEntry(i);
 
     if (i % 500 == 0) std::cout << "---------------- Event: " << i << " -------------------" << std::endl;
+
+    // Timing info
+    auto start_tot  = high_resolution_clock::now();
+    auto start_prep = high_resolution_clock::now();
 
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
     // Build central quantities
@@ -829,9 +845,14 @@ int main (int argc, char** argv)
       //std::cout << " - oldBDT: " << BDToutSM_kl_1 << std::endl;
     }
 
+    // Timing info
+    auto end_prep = high_resolution_clock::now();
+
     // ---- ---- ---- ---- ---- ---- ----
     // ---- ---- Do all MES now ---- ----
     // ---- ---- ---- ---- ---- ---- ----
+    // Timing info
+    auto start_MES = high_resolution_clock::now();
     if (doMES)
     {
       // Build shifted taus and MET
@@ -992,10 +1013,14 @@ int main (int argc, char** argv)
         BDToutSM_kl_1_mudown = BDTouts_mudown.at(0);
       }
     }  // End doMES
+    // Timing info
+    auto end_MES = high_resolution_clock::now();
 
     // ---- ---- ---- ---- ---- ---- ----
     // ---- ---- Do all EES now ---- ----
     // ---- ---- ---- ---- ---- ---- ----
+    // Timing info
+    auto start_EES = high_resolution_clock::now();
     if (doEES)
     {
       for (int i=0; i<N_tauhDM_EES; i++)
@@ -1158,10 +1183,14 @@ int main (int argc, char** argv)
         }
       }
     }  // End doEES
+    // Timing info
+    auto end_EES = high_resolution_clock::now();
 
     // ---- ---- ---- ---- ---- ---- ----
     // ---- ---- Do all TES now ---- ----
     // ---- ---- ---- ---- ---- ---- ----
+    // Timing info
+    auto start_TES = high_resolution_clock::now();
     if (doTES)
     {
       for (int i=0; i<N_tauhDM; i++)
@@ -1324,10 +1353,14 @@ int main (int argc, char** argv)
         }
       }
     }  // End doTES
+    // Timing info
+    auto end_TES = high_resolution_clock::now();
 
     // ---- ---- ---- ---- ---- ---- ---- ----
     // ---- ---- Do splitted JES now ---- ----
     // ---- ---- ---- ---- ---- ---- ---- ----
+    // Timing info
+    auto start_splitJES = high_resolution_clock::now();
     if (doSplitJES)
     {
       for (int i=0; i<N_jecSources; i++)
@@ -1498,10 +1531,14 @@ int main (int argc, char** argv)
         }
       }
     }  // End doSplitJES
+    // Timing info
+    auto end_splitJES = high_resolution_clock::now();
 
     // ---- ---- ---- ---- ---- ---- ----
     // ---- ----  Do total JES  ---- ----
     // ---- ---- ---- ---- ---- ---- ----
+    // Timing info
+    auto start_totalJES = high_resolution_clock::now();
     if (doTotalJES)
     {
       // Build shifted b-jets, MET and VBF-jets
@@ -1668,7 +1705,11 @@ int main (int argc, char** argv)
         std::vector<float> BDTouts_jetdownTot = BDTreader.GetPredictions();
         BDToutSM_kl_1_jetdownTot = BDTouts_jetdownTot.at(0);
       }
-    }
+    } // End doTotalJES
+
+    // Timing info
+    auto end_totalJES = high_resolution_clock::now();
+    auto end_tot = high_resolution_clock::now();
 
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
     // Fill new branches
@@ -1749,6 +1790,23 @@ int main (int argc, char** argv)
     b_tauH_SVFIT_mass_jetdownTot->Fill();
     b_DNNoutSM_kl_1_jetdownTot  ->Fill();
     b_BDToutSM_kl_1_jetdownTot  ->Fill();
+
+    // Timing branches
+    time_prep     = (end_prep     - start_prep    ).count() * 1.e-9;
+    time_TES      = (end_TES      - start_TES     ).count() * 1.e-9;
+    time_EES      = (end_EES      - start_EES     ).count() * 1.e-9;
+    time_MES      = (end_MES      - start_MES     ).count() * 1.e-9;
+    time_splitJES = (end_splitJES - start_splitJES).count() * 1.e-9;
+    time_totalJES = (end_totalJES - start_totalJES).count() * 1.e-9;
+    time_tot      = (end_tot      - start_tot     ).count() * 1.e-9;
+
+    b_time_prep     -> Fill();
+    b_time_TES      -> Fill();
+    b_time_EES      -> Fill();
+    b_time_MES      -> Fill();
+    b_time_splitJES -> Fill();
+    b_time_totalJES -> Fill();
+    b_time_tot      -> Fill();
   }
   cout << "** ANALYSIS: ..Added new branches" << endl;
   cout << "** ANALYSIS: Final entries: " << outTree->GetEntries() << endl;
