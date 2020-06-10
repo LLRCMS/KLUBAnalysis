@@ -74,6 +74,7 @@ if __name__ == "__main__":
     parser.add_option ('--DY',               dest='DY'        , help='if it is a DY sample'                 , default=False)
     parser.add_option ('--ttHToNonBB',       dest='ttHToNonBB', help='if it is a ttHToNonBB sample'         , default=False)
     parser.add_option ('--hhNLO',            dest='hhNLO'     , help='if it is an HH NLO sample'            , default=False)
+    parser.add_option ('--doSyst',           dest='doSyst'    , help='compute up/down values of outputs'    , default=False)
 
     (opt, args) = parser.parse_args()
 
@@ -262,6 +263,15 @@ if __name__ == "__main__":
         command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
         scriptFile.write (command)
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
+
+        if opt.doSyst:
+            sys_command = "skimOutputter.exe"
+            sys_command += (" " + opt.output + "/output_"+str(n)+".root")
+            sys_command += (" " + opt.output + "/syst_output_"+str(n)+".root")
+            sys_command += (" " + opt.config)
+            sys_command += (" " + ">& " + opt.output + "/syst_output_"+str(n)+".log\n")
+            scriptFile.write(sys_command)
+
         scriptFile.write ('echo "All done for job %d" \n'%n)
         scriptFile.close ()
         os.system ('chmod u+rwx %s/skimJob_%d.sh'% (jobsDir,n))
