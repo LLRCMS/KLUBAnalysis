@@ -79,10 +79,12 @@ std::vector<double> SVfitKLUBinterface::FitAndGetResult()
   // Declare algo
   ClassicSVfit algo(verbosity_);
 
-  // Actually integrate
-  algo.integrate(measuredTauLeptons_, METx_, METy_, covMET_);
+  // Configure more options
   algo.addLogM_fixed(false, kappa_);
   algo.addLogM_dynamic(false);
+
+  // Actually integrate
+  algo.integrate(measuredTauLeptons_, METx_, METy_, covMET_);
 
   // Return SVfit quantities if the integration succeeded 
   // otherwise vector of -999 if the integration failed
