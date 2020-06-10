@@ -79,9 +79,9 @@ if __name__ == "__main__":
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('source scripts/setup.sh\n')
         command  = skimmer + ' ' + inputfile
-        command += (" " + opt.workdir + "/Syst_output_"+str(n)+".root")
+        command += (" " + opt.workdir + "/syst_output_"+str(n)+".root")
         command += (" " + opt.config)
-        command += (" " + ">& " + opt.workdir + "/Syst_output_"+str(n)+".log\n")
+        command += (" " + ">& " + opt.workdir + "/syst_output_"+str(n)+".log\n")
         scriptFile.write(command)
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
         scriptFile.write ('echo "All done for job %d" \n'%n)
