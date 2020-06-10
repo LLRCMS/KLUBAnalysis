@@ -161,7 +161,7 @@ int main (int argc, char** argv)
   "MC_weight","PUReweight","PUjetID_SF","L1pref_weight",               // Weights and SFs
   "prescaleWeight","trigSF","VBFtrigSF","DYscale_MTT","DYscale_MH",
   "IdAndIsoAndFakeSF_deep","IdAndIsoAndFakeSF_deep_pt",
-  "TTtopPtreweight",
+  "TTtopPtreweight", "bTagWeightM", "bTagWeightL",
 
   "isVBFtrigger", "isVBF",                                             // Trigger vbf selection
 
@@ -178,6 +178,7 @@ int main (int argc, char** argv)
 
   "dau1_pt","dau1_eta","dau1_phi","dau1_e",                            // Tau central
   "dau2_pt","dau2_eta","dau2_phi","dau2_e",
+  "ditau_deltaR",
 
   "dau1_pt_muup","dau1_pt_mudown",                                     // Tau MES
   "dau1_mass_muup", "dau1_mass_mudown",
