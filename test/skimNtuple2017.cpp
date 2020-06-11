@@ -4100,7 +4100,7 @@ int main (int argc, char** argv)
 		      jets++;
             }
             if(int (iJet) != VBFidx1 && int (iJet) != VBFidx2) ++ theSmallTree.m_addjets;
-	      }
+	  }
 
           theSmallTree.m_jets_pt.push_back (tlv_dummyJet.Pt ()) ;
           theSmallTree.m_jets_eta.push_back (tlv_dummyJet.Eta ()) ;
@@ -4112,7 +4112,6 @@ int main (int argc, char** argv)
           theSmallTree.m_jets_ctag_deepFlavor.push_back (theBigTree.bDeepFlavor_probc->at(iJet));
           theSmallTree.m_jets_CvsL.push_back( getCvsL(theBigTree, iJet) );
           theSmallTree.m_jets_CvsB.push_back( getCvsB(theBigTree, iJet) );
-          theSmallTree.m_jets_HHbtag.push_back(0.); // dummy value for now
           theSmallTree.m_jets_flav.push_back (theBigTree.jets_HadronFlavour->at (iJet)) ;
           theSmallTree.m_jets_jecUnc.push_back (theBigTree.jets_jecUnc->at (iJet)) ;
           theSmallTree.m_jets_hasgenjet.push_back (hasgj) ;
@@ -4272,6 +4271,49 @@ int main (int argc, char** argv)
         // the HHbtag score MUST be set manually to -1
         theSmallTree.m_VBFjet2_HHbtag = -1.;
       }
+      
+      //Other jets
+      for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
+      {
+        // PG filter jets at will
+        if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
+
+        // skip the H decay candiates
+        if (int (iJet) == bjet1idx) continue;
+        if (int (iJet) == bjet2idx) continue ;
+
+        TLorentzVector tlv_dummyJet(
+                                    theBigTree.jets_px->at (iJet),
+                                    theBigTree.jets_py->at (iJet),
+                                    theBigTree.jets_pz->at (iJet),
+                                    theBigTree.jets_e->at (iJet)
+                                   );
+
+        // Apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets )
+        // PU jet ID WP = 2: loose
+        if (PUjetID_WP > -1)
+        {
+          if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_dummyJet.Pt()<50.) continue;
+        }
+
+        // remove jets that overlap with the tau selected in the leg 1 and 2
+        if (tlv_firstLepton.DeltaR(tlv_dummyJet)  < lepCleaningCone) continue;
+        if (tlv_secondLepton.DeltaR(tlv_dummyJet) < lepCleaningCone) continue;
+
+        if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end())
+        {
+          theSmallTree.m_jets_HHbtag.push_back(jets_and_HHbtag[iJet]);
+        }
+        else
+        {
+          if(DEBUG)
+          {
+            std::cout << "**WARNING: HHbtag score not found for jet " << iJet << " , setting to -1 !!" << endl;
+          }
+	    
+          theSmallTree.m_jets_HHbtag.push_back(-1.);
+        }
+      }	
 
       if (DEBUG)
       {
