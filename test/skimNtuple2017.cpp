@@ -4279,13 +4279,9 @@ int main (int argc, char** argv)
         if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
         // skip the H decay candiates
-        if (int (iJet) == bjet1idx ){
-          theSmallTree.m_bjet1_jecUnc = theBigTree.jets_jecUnc->at(iJet);
-          continue;
-        }else if(int (iJet) == bjet2idx){
-          theSmallTree.m_bjet2_jecUnc = theBigTree.jets_jecUnc->at(iJet);
-          continue ;
-        }
+        if (int (iJet) == bjet1idx) continue;
+        if (int (iJet) == bjet2idx) continue ;
+
         TLorentzVector tlv_dummyJet(
                                     theBigTree.jets_px->at (iJet),
                                     theBigTree.jets_py->at (iJet),
@@ -4300,19 +4296,9 @@ int main (int argc, char** argv)
           if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_dummyJet.Pt()<50.) continue;
         }
 
-        // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
-        // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
-        //if ( tlv_dummyJet.Pt()<50. && fabs(tlv_dummyJet.Eta())>2.65 && fabs(tlv_dummyJet.Eta()<3.139) ) continue; //Commented during March20 sync
-
         // remove jets that overlap with the tau selected in the leg 1 and 2
-        if (tlv_firstLepton.DeltaR(tlv_dummyJet) < lepCleaningCone){
-          theSmallTree.m_dau1_jecUnc = theBigTree.jets_jecUnc->at(iJet);
-          continue;
-        }
-        if (tlv_secondLepton.DeltaR(tlv_dummyJet) < lepCleaningCone){
-          theSmallTree.m_dau2_jecUnc = theBigTree.jets_jecUnc->at(iJet);
-          continue;
-        }
+        if (tlv_firstLepton.DeltaR(tlv_dummyJet)  < lepCleaningCone) continue;
+        if (tlv_secondLepton.DeltaR(tlv_dummyJet) < lepCleaningCone) continue;
 
         if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end())
         {
@@ -4320,7 +4306,11 @@ int main (int argc, char** argv)
         }
         else
         {
-          std::cout << "**ERROR: HHbtag score not found for jet " << iJet << " , setting to -1 !!" << endl;
+	  if(DEBUG)
+	  {
+            std::cout << "**WARNING: HHbtag score not found for jet " << iJet << " , setting to -1 !!" << endl;
+	  }
+	    
           theSmallTree.m_jets_HHbtag.push_back(-1.);
         }
       }	
