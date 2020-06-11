@@ -4306,10 +4306,10 @@ int main (int argc, char** argv)
         }
         else
         {
-	  if(DEBUG)
-	  {
+          if(DEBUG)
+          {
             std::cout << "**WARNING: HHbtag score not found for jet " << iJet << " , setting to -1 !!" << endl;
-	  }
+          }
 	    
           theSmallTree.m_jets_HHbtag.push_back(-1.);
         }
