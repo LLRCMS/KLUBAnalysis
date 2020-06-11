@@ -203,6 +203,7 @@ int main (int argc, char** argv)
 
   "bjet1_pt","bjet1_eta","bjet1_phi","bjet1_e","bjet1_JER",            // b-jets
   "bjet2_pt","bjet2_eta","bjet2_phi","bjet2_e","bjet2_JER",
+  "bH_mass_raw",
 
   "bjet1_pt_raw_jetup*","bjet1_pt_raw_jetdown*",                       // b-jets JES
   "bjet1_mass_raw_jetup","bjet1_mass_raw_jetdown",
