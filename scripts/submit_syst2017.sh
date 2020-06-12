@@ -142,4 +142,28 @@ python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_VBFHH_CV_1_C2V_1_C
 python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_VBFHH_CV_1_C2V_2_C3_1   -c config/skim_Legacy2017_mib.cfg
 
 
+# Tau
+python scripts/systNtuple_mib.py -d True -T $OUTDIRR -w $WORKDIR/SKIM_Tau_2017B -c config/skim_Legacy2017_mib.cfg
+python scripts/systNtuple_mib.py -d True -T $OUTDIRR -w $WORKDIR/SKIM_Tau_2017C -c config/skim_Legacy2017_mib.cfg
+python scripts/systNtuple_mib.py -d True -T $OUTDIRR -w $WORKDIR/SKIM_Tau_2017D -c config/skim_Legacy2017_mib.cfg
+python scripts/systNtuple_mib.py -d True -T $OUTDIRR -w $WORKDIR/SKIM_Tau_2017E -c config/skim_Legacy2017_mib.cfg
+python scripts/systNtuple_mib.py -d True -T $OUTDIRR -w $WORKDIR/SKIM_Tau_2017F -c config/skim_Legacy2017_mib.cfg
+
+
+# Muon
+python scripts/systNtuple_mib.py -d True -T $OUTDIRR -w $WORKDIR/SKIM_Mu_2017B -c config/skim_Legacy2017_mib.cfg
+python scripts/systNtuple_mib.py -d True -T $OUTDIRR -w $WORKDIR/SKIM_Mu_2017C -c config/skim_Legacy2017_mib.cfg
+python scripts/systNtuple_mib.py -d True -T $OUTDIRR -w $WORKDIR/SKIM_Mu_2017D -c config/skim_Legacy2017_mib.cfg
+python scripts/systNtuple_mib.py -d True -T $OUTDIRR -w $WORKDIR/SKIM_Mu_2017E -c config/skim_Legacy2017_mib.cfg
+python scripts/systNtuple_mib.py -d True -T $OUTDIRR -w $WORKDIR/SKIM_Mu_2017F -c config/skim_Legacy2017_mib.cfg
+
+
+# Ele
+python scripts/systNtuple_mib.py -d True -T $OUTDIRR -w $WORKDIR/SKIM_Ele_2017B -c config/skim_Legacy2017_mib.cfg
+python scripts/systNtuple_mib.py -d True -T $OUTDIRR -w $WORKDIR/SKIM_Ele_2017C -c config/skim_Legacy2017_mib.cfg
+python scripts/systNtuple_mib.py -d True -T $OUTDIRR -w $WORKDIR/SKIM_Ele_2017D -c config/skim_Legacy2017_mib.cfg
+python scripts/systNtuple_mib.py -d True -T $OUTDIRR -w $WORKDIR/SKIM_Ele_2017E -c config/skim_Legacy2017_mib.cfg
+python scripts/systNtuple_mib.py -d True -T $OUTDIRR -w $WORKDIR/SKIM_Ele_2017F -c config/skim_Legacy2017_mib.cfg
+
+
 COMMENT1

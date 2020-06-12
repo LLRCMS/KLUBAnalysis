@@ -21,6 +21,7 @@ if __name__ == "__main__":
     parser.add_option ('-c', '--config' , dest='config' , help='skim config file'    , default='none')
     parser.add_option ('-s', '--sleep'  , dest='sleep'  , help='sleep in submission' , default=False)
     parser.add_option ('-q', '--queue'  , dest='queue'  , help='batch queue'         , default='short')
+    parser.add_option ('-d', '--isData' , dest='isData' , help='isData'              , default=False)
 
     (opt, args) = parser.parse_args()
 
@@ -81,6 +82,8 @@ if __name__ == "__main__":
         command  = skimmer + ' ' + inputfile
         command += (" " + opt.workdir + "/syst_output_"+str(n)+".root")
         command += (" " + opt.config)
+        if opt.isData : command += " 1 "
+        else          : command += " 0 "
         command += (" " + ">& " + opt.workdir + "/syst_output_"+str(n)+".log\n")
         scriptFile.write(command)
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
