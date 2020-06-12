@@ -83,7 +83,8 @@ if __name__ == "__main__":
     # verify the result of the process
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-    if (opt.hadd != 'none') :
+    if (False) :
+    #if (opt.hadd != 'none') :
 
         scriptFile = open (opt.output + '/hadder.sh', 'w')
         scriptFile.write ('#!/bin/bash\n')
@@ -222,9 +223,9 @@ if __name__ == "__main__":
         thisinputlistFile.close()
         scriptFile = open ('%s/skimJob_%d.sh'% (jobsDir,n), 'w')
         scriptFile.write ('#!/bin/bash\n')
-        scriptFile.write ('export X509_USER_PROXY=~/.t3/proxy.cert\n')
+        # scriptFile.write ('export X509_USER_PROXY=~/.t3/proxy.cert\n')
         scriptFile.write ('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
-        scriptFile.write ('cd /home/llr/cms/amendola/HHLegacy/CMSSW_10_2_16/src\n')
+        #scriptFile.write ('cd /home/llr/cms/amendola/HHLegacy/CMSSW_10_2_16/src\n')
         #scriptFile.write ('export SCRAM_ARCH=slc6_amd64_gcc472\n')
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('cd %s\n'%currFolder)
@@ -278,10 +279,10 @@ if __name__ == "__main__":
 
         
         #command = '/opt/exp_soft/cms/t3/t3submit_el7 -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
-        command = '/home/llr/cms/amendola/t3submit_el7 -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
+        #command = '/home/llr/cms/amendola/t3submit_el7 -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
         if opt.sleep : time.sleep (0.1)
-        os.system (command)
-        commandFile.write (command + '\n')
+        #os.system (command)
+        #commandFile.write (command + '\n')
         n = n + 1
     commandFile.close ()
     

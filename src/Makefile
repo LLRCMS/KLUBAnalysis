@@ -55,11 +55,11 @@ SONAME	 =  libDoubleHiggs.so
 SONAME2  =  DoubleHiggs
 SOFLAGS  =  -Wl,-soname,$(SONAME)
 
-GLIBS   =  -lm -ldl -rdynamic $(ROOTGLIBS) -lGenVector -lFoam -lMinuit -lTMVA -lMLP -lXMLIO -lGpad  -lTreePlayer -lRooFit -lRooFitCore -lRooStats -lHHKinFit2 -L../../HHKinFit2 -lboost_regex -ltensorflow_cc -ltensorflow_framework $(TensFLowFLAGS)
+GLIBS   =  -lm -ldl -rdynamic $(ROOTGLIBS) -lGenVector -lFoam -lMinuit -lTMVA -lMLP -lXMLIO -lGpad  -lTreePlayer -lRooFit -lRooFitCore -lRooStats -lFWCoreUtilities -L/cvmfs/cms.cern.ch/slc7_amd64_gcc820/cms/cmssw/CMSSW_11_1_0_pre6/lib/slc7_amd64_gcc820/ -lHHKinFit2 -L../../HHKinFit2 -lboost_regex -ltensorflow_cc -ltensorflow_framework $(TensFLowFLAGS)
 
 DNNARCH = $(shell scram arch)
 DNNPATH = $(shell echo $$CMSSW_BASE | grep "CMSSW" | sed -e 's/$$/\/lib/')/$(DNNARCH)/
-DNNLIBS = -lcms_hh_proc_interfaceprocessing -lcms_hh_tf_inferenceinference -L$(DNNPATH)
+DNNLIBS = -lcms_hh_proc_interfaceprocessing -lcms_hh_tf_inferenceinference -lMulticlassInferenceMulticlassInference -L$(DNNPATH)
 
 SVfitLIBS = -lTauAnalysisClassicSVfit -lTauAnalysisSVfitTF -L$(DNNPATH)
 HHbtagLIBS = -lHHToolsHHbtag -L${DNNPATH}

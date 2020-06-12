@@ -62,6 +62,9 @@
 // HHbtag
 #include "HHbtagKLUBinterface.h"
 
+// Multiclass
+#include "../../MulticlassInference/MulticlassInference/interface/hmc.h"
+
 using namespace std ;
 using DNNVector = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<float>>;
 
@@ -5507,7 +5510,285 @@ int main (int argc, char** argv)
     treenew->Write ("", TObject::kOverwrite) ;
     in_file->Close();
   } // END NEW DNN
+  
+  // MULTICLASS
+  bool compute_multiclass = (gConfigParser->isDefined("Multiclass::computeMVA") ? gConfigParser->readBoolOption("Multiclass::computeMVA") : false);
+  if (compute_multiclass)
+  {
+	cout << " ------------ ############### ----- Multiclass ----- ############### ------------ " <<endl;
+	
+	// Open file to read values and compute predictions
+    TFile* in_file = TFile::Open(outputFile);
+	
+	// Declare TTreeReaders
+    TTreeReader reader("HTauTauTree", in_file);
+	
+	// Declare TTreeReaderValue
+    TTreeReaderValue<unsigned long long> rv_evt(reader, "EventNumber");
+    TTreeReaderValue<int> rv_ptype(reader, "pairType");
+    TTreeReaderValue<int> rv_isboosted(reader, "isBoosted");
+    TTreeReaderValue<int> rv_isvbf(reader, "isVBF");
+	TTreeReaderValue<int> rv_isvbftrigger(reader, "isVBFtrigger");
+    TTreeReaderValue<int> rv_nleps(reader, "nleps");
+	TTreeReaderValue<int> rv_njets20(reader, "njets20");
+	TTreeReaderValue<int> rv_nbjets20(reader, "nbjets20");
+    TTreeReaderValue<int> rv_nbjetscand(reader, "nbjetscand");
 
+    TTreeReaderValue<float> rv_kinfit_mass(reader, "HHKin_mass_raw");
+    TTreeReaderValue<float> rv_kinfit_chi2(reader, "HHKin_mass_raw_chi2");
+    TTreeReaderValue<float> rv_mt2(reader, "MT2");
+
+    TTreeReaderValue<float> rv_b_1_b_deepflav(reader, "bjet1_bID_deepFlavor");
+    TTreeReaderValue<float> rv_b_2_b_deepflav(reader, "bjet2_bID_deepFlavor");
+	TTreeReaderValue<float> rv_b_1_c_deepflav(reader, "bjet1_cID_deepFlavor");
+    TTreeReaderValue<float> rv_b_2_c_deepflav(reader, "bjet2_cID_deepFlavor");
+	
+	TTreeReaderValue<float> rv_vbf_1_b_deepflav(reader, "VBFjet1_bID_deepFlavor");
+    TTreeReaderValue<float> rv_vbf_2_b_deepflav(reader, "VBFjet2_bID_deepFlavor");
+	TTreeReaderValue<float> rv_vbf_1_c_deepflav(reader, "VBFjet1_cID_deepFlavor");
+    TTreeReaderValue<float> rv_vbf_2_c_deepflav(reader, "VBfjet2_cID_deepFlavor");
+	
+	TTreeReaderValue<float> rv_j_3_b_deepflav(reader, "jet3_btag_deepFlavor");
+	TTreeReaderValue<float> rv_j_4_b_deepflav(reader, "jet4_btag_deepFlavor");
+	TTreeReaderValue<float> rv_j_5_b_deepflav(reader, "jet5_btag_deepFlavor");
+	TTreeReaderValue<float> rv_j_3_c_deepflav(reader, "jet3_ctag_deepFlavor");
+	TTreeReaderValue<float> rv_j_4_c_deepflav(reader, "jet4_ctag_deepFlavor");
+	TTreeReaderValue<float> rv_j_5_c_deepflav(reader, "jet5_ctag_deepFlavor");
+		
+    TTreeReaderValue<float> rv_b_1_CvsL    (reader, "bjet1_CvsL");
+    TTreeReaderValue<float> rv_b_2_CvsL    (reader, "bjet2_CvsL");
+    TTreeReaderValue<float> rv_vbf_1_CvsL  (reader, "VBFjet1_CvsL");
+    TTreeReaderValue<float> rv_vbf_2_CvsL  (reader, "VBFjet2_CvsL");
+    TTreeReaderValue<float> rv_b_1_CvsB    (reader, "bjet1_CvsB");
+    TTreeReaderValue<float> rv_b_2_CvsB    (reader, "bjet2_CvsB");
+    TTreeReaderValue<float> rv_vbf_1_CvsB  (reader, "VBFjet1_CvsB");
+    TTreeReaderValue<float> rv_vbf_2_CvsB  (reader, "VBFjet2_CvsB");
+    TTreeReaderValue<float> rv_b_1_HHbtag  (reader, "bjet1_HHbtag");
+    TTreeReaderValue<float> rv_b_2_HHbtag  (reader, "bjet2_HHbtag");
+    TTreeReaderValue<float> rv_vbf_1_HHbtag(reader, "VBFjet1_HHbtag");
+    TTreeReaderValue<float> rv_vbf_2_HHbtag(reader, "VBFjet2_HHbtag");
+	
+	TTreeReaderValue<float> rv_fatjet_softmass(reader, "fatjet_softdropMass");
+
+    TTreeReaderValue<float> rv_svfit_pT(reader, "tauH_SVFIT_pt");
+    TTreeReaderValue<float> rv_svfit_eta(reader, "tauH_SVFIT_eta");
+    TTreeReaderValue<float> rv_svfit_phi(reader, "tauH_SVFIT_phi");
+    TTreeReaderValue<float> rv_svfit_mass(reader, "tauH_SVFIT_mass");
+	
+	TTreeReaderValue<float> rv_bh_mass_raw(reader, "bH_mass_raw");
+	TTreeReaderValue<float> rv_bh_pT(reader, "bH_pt");
+    TTreeReaderValue<float> rv_bh_eta(reader, "bH_eta");
+    TTreeReaderValue<float> rv_bh_phi(reader, "bH_phi");
+    TTreeReaderValue<float> rv_bh_e(reader, "bH_e");
+
+    TTreeReaderValue<float> rv_l_1_pT(reader, "dau1_pt");
+    TTreeReaderValue<float> rv_l_1_eta(reader, "dau1_eta");
+    TTreeReaderValue<float> rv_l_1_phi(reader, "dau1_phi");
+    TTreeReaderValue<float> rv_l_1_e(reader, "dau1_e");
+
+    TTreeReaderValue<float> rv_l_2_pT(reader, "dau2_pt");
+    TTreeReaderValue<float> rv_l_2_eta(reader, "dau2_eta");
+    TTreeReaderValue<float> rv_l_2_phi(reader, "dau2_phi");
+    TTreeReaderValue<float> rv_l_2_e(reader, "dau2_e");
+
+    TTreeReaderValue<float> rv_met_pT(reader, "met_et");
+    TTreeReaderValue<float> rv_met_phi(reader, "met_phi");
+
+    TTreeReaderValue<float> rv_b_1_pT(reader, "bjet1_pt");
+    TTreeReaderValue<float> rv_b_1_eta(reader, "bjet1_eta");
+    TTreeReaderValue<float> rv_b_1_phi(reader, "bjet1_phi");
+    TTreeReaderValue<float> rv_b_1_e(reader, "bjet1_e");
+
+    TTreeReaderValue<float> rv_b_2_pT(reader, "bjet2_pt");
+    TTreeReaderValue<float> rv_b_2_eta(reader, "bjet2_eta");
+    TTreeReaderValue<float> rv_b_2_phi(reader, "bjet2_phi");
+    TTreeReaderValue<float> rv_b_2_e(reader, "bjet2_e");
+    
+	TTreeReaderValue<float> rv_j_3_pT(reader, "jet3_pt");
+    TTreeReaderValue<float> rv_j_3_eta(reader, "jet3_eta");
+    TTreeReaderValue<float> rv_j_3_phi(reader, "jet3_phi");
+    TTreeReaderValue<float> rv_j_3_e(reader, "jet3_e");
+
+	TTreeReaderValue<float> rv_j_4_pT(reader, "jet4_pt");
+    TTreeReaderValue<float> rv_j_4_eta(reader, "jet4_eta");
+    TTreeReaderValue<float> rv_j_4_phi(reader, "jet4_phi");
+    TTreeReaderValue<float> rv_j_4_e(reader, "jet4_e");
+	
+	TTreeReaderValue<float> rv_j_5_pT(reader, "jet5_pt");
+    TTreeReaderValue<float> rv_j_5_eta(reader, "jet5_eta");
+    TTreeReaderValue<float> rv_j_5_phi(reader, "jet5_phi");
+    TTreeReaderValue<float> rv_j_5_e(reader, "jet5_e");
+
+    TTreeReaderValue<float> rv_vbf_1_pT(reader, "VBFjet1_pt");
+    TTreeReaderValue<float> rv_vbf_1_eta(reader, "VBFjet1_eta");
+    TTreeReaderValue<float> rv_vbf_1_phi(reader, "VBFjet1_phi");
+    TTreeReaderValue<float> rv_vbf_1_e(reader, "VBFjet1_e");
+
+    TTreeReaderValue<float> rv_vbf_2_pT(reader, "VBFjet2_pt");
+    TTreeReaderValue<float> rv_vbf_2_eta(reader, "VBFjet2_eta");
+    TTreeReaderValue<float> rv_vbf_2_phi(reader, "VBFjet2_phi");
+    TTreeReaderValue<float> rv_vbf_2_e(reader, "VBFjet2_e");
+	
+	TTreeReaderValue<float> rv_vbf_jj_deltaeta(reader, "VBFjj_deltaEta");
+	TTreeReaderValue<float> rv_vbf_jj_mass(reader, "VBFjj_mass");
+	
+	TLorentzVector pep_svfit;
+	
+	// Store DNN outputs
+	std::map <std::string, std::vector<float>> dnn_outputs; 
+	
+	// Index and number of entries for loop on entries
+    long int c_event(0), n_tot_events(reader.GetEntries(true));
+	
+	// load the model v0 for 2018
+	hmc::Model* model = hmc::loadModel(hmc::Year::Y2018, hmc::Version::V0);
+	
+	// Loop on entries with TTreeReader
+    while (reader.Next())
+      {
+        if (c_event%5000 == 0) std::cout << "Multiclass::event " << c_event << " / " << n_tot_events << "\n";
+
+		pep_svfit.SetPtEtaPhiM (*rv_svfit_pT, *rv_svfit_eta, *rv_svfit_phi, *rv_svfit_mass);
+		
+		// Category definitions
+		bool baseline_mutau = *rv_ptype == 0 && *rv_l_1_pT > 20 && abs(*rv_l_1_eta) < 2.1 && *rv_l_2_pT > 20 && abs(*rv_l_2_eta) < 2.3 && *rv_nleps == 0
+			&& *rv_nbjetscand > 1 && *rv_isvbftrigger == 0;
+		bool baseline_etau = *rv_ptype == 1 && *rv_l_1_pT > 40 && abs(*rv_l_1_eta) < 2.1 && *rv_l_2_pT > 20 && abs(*rv_l_2_eta) < 2.3 && *rv_nleps == 0
+			&& *rv_nbjetscand > 1 && *rv_isvbftrigger == 0;
+		bool baseline_tautau = *rv_ptype == 2 && *rv_l_1_pT > 40 && abs(*rv_l_1_eta) < 2.1 && *rv_l_2_pT > 40 && abs(*rv_l_2_eta) < 2.1 && *rv_nleps == 0
+			&& *rv_nbjetscand > 1 && *rv_isvbftrigger == 0;
+		bool baseline = baseline_mutau || baseline_etau || baseline_tautau;
+		
+		bool mass_ellipse_sel = (((*rv_svfit_mass - 116.)*(*rv_svfit_mass - 116.) / (35.*35.)) + ((*rv_bh_mass_raw - 111.)*(*rv_bh_mass_raw - 111.) / (45.*45.))) <  1.;
+		bool mass_rect_sel = *rv_svfit_mass > 79.5 && *rv_svfit_mass < 152.5 && *rv_fatjet_softmass > 90 && *rv_fatjet_softmass < 160; 
+		
+		bool btagMfirst = *rv_b_1_b_deepflav > 0.2770;
+		bool btagM = *rv_b_1_b_deepflav > 0.2770 && *rv_b_2_b_deepflav < 0.2770;
+		bool btagMM = *rv_b_1_b_deepflav > 0.2770 && *rv_b_2_b_deepflav > 0.2770;
+		bool btagLL = *rv_b_1_b_deepflav > 0.0494 && *rv_b_2_b_deepflav > 0.0494;
+		
+		bool excl_vbf_loose = *rv_isvbf == 1 && *rv_vbf_jj_mass > 500 && *rv_vbf_jj_deltaeta > 3 && btagMfirst; 
+		bool vbf_loose_cat = baseline && mass_ellipse_sel && excl_vbf_loose; 
+		bool vbf_tight_cat = *rv_ptype == 2 && *rv_l_1_pT > 25 && abs(*rv_l_1_eta) < 2.1 && *rv_l_2_pT > 25 && abs(*rv_l_2_eta) < 2.1 && *rv_nleps == 0
+			&& *rv_nbjetscand > 1 && *rv_isvbf == 1 && *rv_svfit_mass > 50 && *rv_vbf_jj_mass > 800 && *rv_vbf_1_eta > 140 && *rv_vbf_2_eta > 60
+			&& mass_ellipse_sel && btagMfirst;
+		
+		bool resolved_1b_cat = baseline && btagM && mass_ellipse_sel && *rv_isboosted != 1  && !(excl_vbf_loose);
+		bool resolved_2b_cat = baseline && btagMM && mass_ellipse_sel && *rv_isboosted != 1  && !(excl_vbf_loose);
+		bool boosted_cat = baseline && btagLL && mass_rect_sel && *rv_isboosted == 1  && !(excl_vbf_loose);
+			
+		model->input.setValue("is_mutau", *rv_ptype == 0);
+		model->input.setValue("is_etau", *rv_ptype == 1);
+		model->input.setValue("is_tautau", *rv_ptype == 2);
+		model->input.setValue("n_jets_20", *rv_njets20);
+		model->input.setValue("n_bjets_20", *rv_nbjets20);
+		model->input.setValue("is_vbf_loose_cat", vbf_loose_cat);
+		model->input.setValue("is_vbf_tight_cat", vbf_tight_cat);
+		model->input.setValue("is_resolved_1b_cat", resolved_1b_cat);
+		model->input.setValue("is_resolved_2b_cat", resolved_2b_cat);
+		model->input.setValue("is_boosted_cat", boosted_cat);
+		model->input.setValue("bjet1_pt", *rv_b_1_pT);
+		model->input.setValue("bjet1_eta", *rv_b_1_eta);
+		model->input.setValue("bjet1_phi", *rv_b_1_phi);
+		model->input.setValue("bjet1_e", *rv_b_1_e);
+		model->input.setValue("bjet1_deepflavor_b", *rv_b_1_b_deepflav);
+		model->input.setValue("bjet1_deepflavor_c", *rv_b_1_c_deepflav);
+		model->input.setValue("bjet2_pt", *rv_b_2_pT);
+		model->input.setValue("bjet2_eta", *rv_b_2_eta);
+		model->input.setValue("bjet2_phi", *rv_b_2_phi);
+		model->input.setValue("bjet2_e", *rv_b_2_e);
+		model->input.setValue("bjet2_deepflavor_b", *rv_b_2_b_deepflav);
+		model->input.setValue("bjet2_deepflavor_c", *rv_b_2_c_deepflav);
+		model->input.setValue("jet3_pt", *rv_j_3_pT);
+		model->input.setValue("jet3_eta", *rv_j_3_eta);
+		model->input.setValue("jet3_phi", *rv_j_3_phi);
+		model->input.setValue("jet3_e", *rv_j_3_e);
+		model->input.setValue("jet3_deepflavor_b", *rv_j_3_b_deepflav);
+		model->input.setValue("jet3_deepflavor_c", *rv_j_3_c_deepflav);
+		model->input.setValue("jet4_pt", *rv_j_4_pT);
+		model->input.setValue("jet4_eta", *rv_j_4_eta);
+		model->input.setValue("jet4_phi", *rv_j_4_phi);
+		model->input.setValue("jet4_e", *rv_j_4_e);
+		model->input.setValue("jet4_deepflavor_b", *rv_j_4_b_deepflav);
+		model->input.setValue("jet4_deepflavor_c", *rv_j_4_c_deepflav);
+		model->input.setValue("jet5_pt", *rv_j_5_pT);
+		model->input.setValue("jet5_eta", *rv_j_5_eta);
+		model->input.setValue("jet5_phi", *rv_j_5_phi);
+		model->input.setValue("jet5_e", *rv_j_5_e);
+		model->input.setValue("jet5_deepflavor_b", *rv_j_5_b_deepflav);
+		model->input.setValue("jet5_deepflavor_c", *rv_j_5_c_deepflav);
+		model->input.setValue("vbfjet1_pt", *rv_vbf_1_pT);
+		model->input.setValue("vbfjet1_eta", *rv_vbf_1_eta);
+		model->input.setValue("vbfjet1_phi", *rv_vbf_1_phi);
+		model->input.setValue("vbfjet1_e", *rv_vbf_1_e);
+		model->input.setValue("vbfjet1_deepflavor_b", *rv_vbf_1_b_deepflav);
+		model->input.setValue("vbfjet1_deepflavor_c", *rv_vbf_1_c_deepflav);
+		model->input.setValue("vbfjet2_pt", *rv_vbf_2_pT);
+		model->input.setValue("vbfjet2_eta", *rv_vbf_2_eta);
+		model->input.setValue("vbfjet2_phi", *rv_vbf_2_phi);
+		model->input.setValue("vbfjet2_e", *rv_vbf_2_e);
+		model->input.setValue("vbfjet2_deepflavor_b", *rv_vbf_2_b_deepflav);
+		model->input.setValue("vbfjet2_deepflavor_c", *rv_vbf_2_c_deepflav);
+		model->input.setValue("lep1_pt", *rv_l_1_pT);
+		model->input.setValue("lep1_eta", *rv_l_1_eta);
+		model->input.setValue("lep1_phi", *rv_l_1_phi);
+		model->input.setValue("lep1_e", -*rv_l_1_e);
+		model->input.setValue("lep2_pt", *rv_l_2_pT);
+		model->input.setValue("lep2_eta", *rv_l_2_eta);
+		model->input.setValue("lep2_phi", *rv_l_2_phi);
+		model->input.setValue("lep2_e", *rv_l_2_e);
+		model->input.setValue("met_pt", *rv_met_pT);
+		model->input.setValue("met_phi", *rv_met_phi);
+		model->input.setValue("bh_pt", *rv_bh_pT);
+		model->input.setValue("bh_eta", *rv_bh_eta);
+		model->input.setValue("bh_phi", *rv_bh_phi);
+		model->input.setValue("bh_e", *rv_bh_e);
+		model->input.setValue("tauh_sv_pt", *rv_svfit_pT);
+		model->input.setValue("tauh_sv_eta", *rv_svfit_eta);
+		model->input.setValue("tauh_sv_phi", *rv_svfit_phi);
+		model->input.setValue("tauh_sv_e", pep_svfit.E());
+
+		// Run the inference
+		model->run(*rv_evt);
+
+		// Store the results
+		for (const auto& it : model->output) 
+		  {
+			dnn_outputs[it.first].push_back(it.second);
+		  }
+		c_event++;
+	}
+	// Open file and get TTree that must be updated
+    TFile *outFile = TFile::Open(outputFile,"UPDATE");
+    TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
+
+    // Declare one new branch for each value of klambda
+    std::map<std::string, float> outputDNN;
+    std::map<std::string, TBranch*> branchDNN; // prediction branches
+    //cout << " - branchDNN size: " << branchDNN.size() << endl;
+	
+	for (auto &dnn_output: dnn_outputs)
+	  {
+		std::string branch_name = boost::str(boost::format("multiclass_%s") % dnn_output.first);  
+		branchDNN[dnn_output.first] = treenew->Branch(branch_name.c_str(), &outputDNN[dnn_output.first]);
+	  }
+
+    // Fill the new branches
+    for (int i=0; i<n_tot_events; i++)
+      {
+        treenew->GetEntry(i);
+		for (auto &dnn_output: dnn_outputs)
+		  {
+            outputDNN[dnn_output.first] = dnn_output.second[i];
+            branchDNN[dnn_output.first]->Fill();
+          }
+      }
+
+    // Update tree and delete readers
+    treenew->Write ("", TObject::kOverwrite) ;
+    in_file->Close();
+
+  }
 
   cout << "... SKIM finished, exiting." << endl;
   return 0 ;
