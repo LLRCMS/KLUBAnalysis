@@ -5543,10 +5543,10 @@ int main (int argc, char** argv)
 	TTreeReaderValue<float> rv_b_1_c_deepflav(reader, "bjet1_cID_deepFlavor");
     TTreeReaderValue<float> rv_b_2_c_deepflav(reader, "bjet2_cID_deepFlavor");
 	
-	TTreeReaderValue<float> rv_vbf_1_b_deepflav(reader, "VBFjet1_bID_deepFlavor");
-    TTreeReaderValue<float> rv_vbf_2_b_deepflav(reader, "VBFjet2_bID_deepFlavor");
-	TTreeReaderValue<float> rv_vbf_1_c_deepflav(reader, "VBFjet1_cID_deepFlavor");
-    TTreeReaderValue<float> rv_vbf_2_c_deepflav(reader, "VBfjet2_cID_deepFlavor");
+	TTreeReaderValue<float> rv_vbf_1_b_deepflav(reader, "VBFjet1_btag_deepFlavor");
+    TTreeReaderValue<float> rv_vbf_2_b_deepflav(reader, "VBFjet2_btag_deepFlavor");
+	TTreeReaderValue<float> rv_vbf_1_c_deepflav(reader, "VBFjet1_ctag_deepFlavor");
+    TTreeReaderValue<float> rv_vbf_2_c_deepflav(reader, "VBFjet2_ctag_deepFlavor");
 	
 	TTreeReaderValue<float> rv_j_3_b_deepflav(reader, "jet3_btag_deepFlavor");
 	TTreeReaderValue<float> rv_j_4_b_deepflav(reader, "jet4_btag_deepFlavor");
@@ -5641,11 +5641,12 @@ int main (int argc, char** argv)
     long int c_event(0), n_tot_events(reader.GetEntries(true));
 	
 	// load the model v0 for 2018
-	hmc::Model* model = hmc::loadModel(hmc::Year::Y2018, hmc::Version::V0);
+	hmc::Model* model = hmc::loadModel(2018, "v0", "kl1_c2v1_c31");
 	
 	// Loop on entries with TTreeReader
     while (reader.Next())
       {
+        cout << c_event << endl; 
         if (c_event%5000 == 0) std::cout << "Multiclass::event " << c_event << " / " << n_tot_events << "\n";
 
 		pep_svfit.SetPtEtaPhiM (*rv_svfit_pT, *rv_svfit_eta, *rv_svfit_phi, *rv_svfit_mass);
@@ -5676,7 +5677,8 @@ int main (int argc, char** argv)
 		bool resolved_1b_cat = baseline && btagM && mass_ellipse_sel && *rv_isboosted != 1  && !(excl_vbf_loose);
 		bool resolved_2b_cat = baseline && btagMM && mass_ellipse_sel && *rv_isboosted != 1  && !(excl_vbf_loose);
 		bool boosted_cat = baseline && btagLL && mass_rect_sel && *rv_isboosted == 1  && !(excl_vbf_loose);
-			
+		
+		model->input.clear();
 		model->input.setValue("is_mutau", *rv_ptype == 0);
 		model->input.setValue("is_etau", *rv_ptype == 1);
 		model->input.setValue("is_tautau", *rv_ptype == 2);
@@ -5751,21 +5753,31 @@ int main (int argc, char** argv)
 		// Run the inference
 		model->run(*rv_evt);
 
+		// Fill the maximum node distributions
+		double max_dnn_output = -999.;
+		std::string max_dnn_output_name = "";
+
 		// Store the results
 		for (const auto& it : model->output) 
 		  {
+			cout << it.first << " " << it.second << endl;
 			dnn_outputs[it.first].push_back(it.second);
+			if (it.second >= max_dnn_output)
+			  {
+			    max_dnn_output = it.second; 
+				max_dnn_output_name = it.first; 
+			  }
 		  }
+		// dnn_outputs[max_dnn_output_name + "_mpp"].push_back(max_dnn_output); 
 		c_event++;
 	}
 	// Open file and get TTree that must be updated
     TFile *outFile = TFile::Open(outputFile,"UPDATE");
     TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 
-    // Declare one new branch for each value of klambda
+    // Declare one new branch for each DNN node
     std::map<std::string, float> outputDNN;
     std::map<std::string, TBranch*> branchDNN; // prediction branches
-    //cout << " - branchDNN size: " << branchDNN.size() << endl;
 	
 	for (auto &dnn_output: dnn_outputs)
 	  {
@@ -5785,7 +5797,7 @@ int main (int argc, char** argv)
       }
 
     // Update tree and delete readers
-    treenew->Write ("", TObject::kOverwrite) ;
+    treenew->Write ("", TObject::kOverwrite);
     in_file->Close();
 
   }
