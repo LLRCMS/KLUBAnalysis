@@ -69,6 +69,7 @@ python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_WWW  
 python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_WWZ       -c config/skim_Legacy2018.cfg        
 
 
+
 # WZ
 python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_WZTo1L1Nu2Q -c config/skim_Legacy2018.cfg
 python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_WZTo1L3Nu   -c config/skim_Legacy2018.cfg
@@ -132,5 +133,24 @@ python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_VBFHH
 python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_VBFHH_CV_1_C2V_2_C3_1   -c config/skim_Legacy2018.cfg
 
 
+# Muon
+python scripts/systNtuple.py -d True -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_SingleMuon2018A -c config/skim_Legacy2018.cfg
+python scripts/systNtuple.py -d True -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_SingleMuon2018B -c config/skim_Legacy2018.cfg
+python scripts/systNtuple.py -d True -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_SingleMuon2018C -c config/skim_Legacy2018.cfg
+python scripts/systNtuple.py -d True -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_SingleMuon2018D -c config/skim_Legacy2018.cfg
+
+
+# Ele
+python scripts/systNtuple.py -d True -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_SingleElectron2018A -c config/skim_Legacy2018.cfg
+python scripts/systNtuple.py -d True -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_SingleElectron2018B -c config/skim_Legacy2018.cfg
+python scripts/systNtuple.py -d True -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_SingleElectron2018C -c config/skim_Legacy2018.cfg
+python scripts/systNtuple.py -d True -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_SingleElectron2018D -c config/skim_Legacy2018.cfg
+
+
+# Tau
+python scripts/systNtuple.py -d True -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_Tau2018A -c config/skim_Legacy2018.cfg
+python scripts/systNtuple.py -d True -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_Tau2018B -c config/skim_Legacy2018.cfg
+python scripts/systNtuple.py -d True -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_Tau2018C -c config/skim_Legacy2018.cfg
+python scripts/systNtuple.py -d True -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_Tau2018D -c config/skim_Legacy2018.cfg
 
 
