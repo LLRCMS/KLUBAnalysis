@@ -5661,17 +5661,17 @@ int main (int argc, char** argv)
         bool baseline = baseline_mutau || baseline_etau || baseline_tautau;
         
         bool mass_ellipse_sel = (((*rv_svfit_mass - 116.)*(*rv_svfit_mass - 116.) / (35.*35.)) + ((*rv_bh_mass_raw - 111.)*(*rv_bh_mass_raw - 111.) / (45.*45.))) <  1.;
-        bool mass_rect_sel = *rv_svfit_mass > 79.5 && *rv_svfit_mass < 152.5 && *rv_fatjet_softmass > 90 && *rv_fatjet_softmass < 160; 
+        bool mass_rect_sel = (*rv_svfit_mass > 79.5) && (*rv_svfit_mass < 152.5) && (*rv_fatjet_softmass > 90) && (*rv_fatjet_softmass < 160); 
         
-        bool btagMfirst = *rv_b_1_b_deepflav > 0.2770;
-        bool btagM = *rv_b_1_b_deepflav > 0.2770 && *rv_b_2_b_deepflav < 0.2770;
-        bool btagMM = *rv_b_1_b_deepflav > 0.2770 && *rv_b_2_b_deepflav > 0.2770;
-        bool btagLL = *rv_b_1_b_deepflav > 0.0494 && *rv_b_2_b_deepflav > 0.0494;
+        bool btagMfirst = (*rv_b_1_b_deepflav > 0.2770);
+        bool btagM = (*rv_b_1_b_deepflav > 0.2770) && (*rv_b_2_b_deepflav < 0.2770);
+        bool btagMM = (*rv_b_1_b_deepflav > 0.2770) && (*rv_b_2_b_deepflav > 0.2770);
+        bool btagLL = (*rv_b_1_b_deepflav > 0.0494) && (*rv_b_2_b_deepflav > 0.0494);
         
-        bool excl_vbf_loose = *rv_isvbf == 1 && *rv_vbf_jj_mass > 500 && *rv_vbf_jj_deltaeta > 3 && btagMfirst; 
+        bool excl_vbf_loose = (*rv_isvbf == 1) && (*rv_vbf_jj_mass > 500) && (*rv_vbf_jj_deltaeta > 3) && btagMfirst; 
         bool vbf_loose_cat = baseline && mass_ellipse_sel && excl_vbf_loose; 
-        bool vbf_tight_cat = *rv_ptype == 2 && *rv_l_1_pT > 25 && abs(*rv_l_1_eta) < 2.1 && *rv_l_2_pT > 25 && abs(*rv_l_2_eta) < 2.1 && *rv_nleps == 0
-            && *rv_nbjetscand > 1 && *rv_isvbf == 1 && *rv_svfit_mass > 50 && *rv_vbf_jj_mass > 800 && *rv_vbf_1_eta > 140 && *rv_vbf_2_eta > 60
+        bool vbf_tight_cat = (*rv_ptype == 2) && (*rv_l_1_pT > 25) && (abs(*rv_l_1_eta) < 2.1) && (*rv_l_2_pT > 25) && (abs(*rv_l_2_eta) < 2.1) && (*rv_nleps == 0)
+            && (*rv_nbjetscand > 1) && (*rv_isvbf == 1) && (*rv_svfit_mass > 50) && (*rv_vbf_jj_mass > 800) && (*rv_vbf_1_eta > 140) && (*rv_vbf_2_eta > 60)
             && mass_ellipse_sel && btagMfirst;
         
         bool resolved_1b_cat = baseline && btagM && mass_ellipse_sel && *rv_isboosted != 1  && !(excl_vbf_loose);
