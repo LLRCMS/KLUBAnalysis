@@ -5534,10 +5534,6 @@ int main (int argc, char** argv)
     TTreeReaderValue<int> rv_nbjets20(reader, "nbjets20");
     TTreeReaderValue<int> rv_nbjetscand(reader, "nbjetscand");
 
-    TTreeReaderValue<float> rv_kinfit_mass(reader, "HHKin_mass_raw");
-    TTreeReaderValue<float> rv_kinfit_chi2(reader, "HHKin_mass_raw_chi2");
-    TTreeReaderValue<float> rv_mt2(reader, "MT2");
-
     TTreeReaderValue<float> rv_b_1_b_deepflav(reader, "bjet1_bID_deepFlavor");
     TTreeReaderValue<float> rv_b_2_b_deepflav(reader, "bjet2_bID_deepFlavor");
     TTreeReaderValue<float> rv_b_1_c_deepflav(reader, "bjet1_cID_deepFlavor");
@@ -5554,7 +5550,8 @@ int main (int argc, char** argv)
     TTreeReaderValue<float> rv_j_3_c_deepflav(reader, "jet3_ctag_deepFlavor");
     TTreeReaderValue<float> rv_j_4_c_deepflav(reader, "jet4_ctag_deepFlavor");
     TTreeReaderValue<float> rv_j_5_c_deepflav(reader, "jet5_ctag_deepFlavor");
-        
+
+    /*
     TTreeReaderValue<float> rv_b_1_CvsL    (reader, "bjet1_CvsL");
     TTreeReaderValue<float> rv_b_2_CvsL    (reader, "bjet2_CvsL");
     TTreeReaderValue<float> rv_vbf_1_CvsL  (reader, "VBFjet1_CvsL");
@@ -5567,6 +5564,7 @@ int main (int argc, char** argv)
     TTreeReaderValue<float> rv_b_2_HHbtag  (reader, "bjet2_HHbtag");
     TTreeReaderValue<float> rv_vbf_1_HHbtag(reader, "VBFjet1_HHbtag");
     TTreeReaderValue<float> rv_vbf_2_HHbtag(reader, "VBFjet2_HHbtag");
+    */
     
     TTreeReaderValue<float> rv_fatjet_softmass(reader, "fatjet_softdropMass");
 
