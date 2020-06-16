@@ -63,7 +63,7 @@
 #include "HHbtagKLUBinterface.h"
 
 // Multiclass
-#include "../../MulticlassInference/MulticlassInference/interface/hmc.h"
+#include "../src/MulticlassInterface.cc"
 
 using namespace std ;
 using DNNVector = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<float>>;
@@ -809,7 +809,7 @@ int main (int argc, char** argv)
   for (Long64_t iEvent = 0 ; true ; ++iEvent)
     {
       if (iEvent % 10000 == 0)  cout << "- reading event " << iEvent << endl ;
-      //if (iEvent == 20000)  break ;
+      if (iEvent == 100000)  break ;
       //cout << "-------- reading event " << iEvent << endl ;
       theSmallTree.clearVars () ;
 
@@ -5641,12 +5641,12 @@ int main (int argc, char** argv)
     long int c_event(0), n_tot_events(reader.GetEntries(true));
     
     // load the model v0 for 2018
-    hmc::Model* model = hmc::loadModel(2018, "v0", "kl1_c2v1_c31");
+    MulticlassInterface multiclass(2018, "v0", "kl1_c2v1_c31");
     
     // Loop on entries with TTreeReader
     while (reader.Next())
       {
-        cout << c_event << endl; 
+        cout << c_event <<  ": EventNumber " << *rv_evt  <<endl; 
         if (c_event%5000 == 0) std::cout << "Multiclass::event " << c_event << " / " << n_tot_events << "\n";
 
         pep_svfit.SetPtEtaPhiM (*rv_svfit_pT, *rv_svfit_eta, *rv_svfit_phi, *rv_svfit_mass);
@@ -5678,87 +5678,23 @@ int main (int argc, char** argv)
         bool resolved_2b_cat = baseline && btagMM && mass_ellipse_sel && *rv_isboosted != 1  && !(excl_vbf_loose);
         bool boosted_cat = baseline && btagLL && mass_rect_sel && *rv_isboosted == 1  && !(excl_vbf_loose);
         
-        model->input.clear();
-        model->input.setValue("is_mutau", *rv_ptype == 0);
-        model->input.setValue("is_etau", *rv_ptype == 1);
-        model->input.setValue("is_tautau", *rv_ptype == 2);
-        model->input.setValue("n_jets_20", *rv_njets20);
-        model->input.setValue("n_bjets_20", *rv_nbjets20);
-        model->input.setValue("is_vbf_loose_cat", vbf_loose_cat);
-        model->input.setValue("is_vbf_tight_cat", vbf_tight_cat);
-        model->input.setValue("is_resolved_1b_cat", resolved_1b_cat);
-        model->input.setValue("is_resolved_2b_cat", resolved_2b_cat);
-        model->input.setValue("is_boosted_cat", boosted_cat);
-        model->input.setValue("bjet1_pt", *rv_b_1_pT);
-        model->input.setValue("bjet1_eta", *rv_b_1_eta);
-        model->input.setValue("bjet1_phi", *rv_b_1_phi);
-        model->input.setValue("bjet1_e", *rv_b_1_e);
-        model->input.setValue("bjet1_deepflavor_b", *rv_b_1_b_deepflav);
-        model->input.setValue("bjet1_deepflavor_c", *rv_b_1_c_deepflav);
-        model->input.setValue("bjet2_pt", *rv_b_2_pT);
-        model->input.setValue("bjet2_eta", *rv_b_2_eta);
-        model->input.setValue("bjet2_phi", *rv_b_2_phi);
-        model->input.setValue("bjet2_e", *rv_b_2_e);
-        model->input.setValue("bjet2_deepflavor_b", *rv_b_2_b_deepflav);
-        model->input.setValue("bjet2_deepflavor_c", *rv_b_2_c_deepflav);
-        model->input.setValue("jet3_pt", *rv_j_3_pT);
-        model->input.setValue("jet3_eta", *rv_j_3_eta);
-        model->input.setValue("jet3_phi", *rv_j_3_phi);
-        model->input.setValue("jet3_e", *rv_j_3_e);
-        model->input.setValue("jet3_deepflavor_b", *rv_j_3_b_deepflav);
-        model->input.setValue("jet3_deepflavor_c", *rv_j_3_c_deepflav);
-        model->input.setValue("jet4_pt", *rv_j_4_pT);
-        model->input.setValue("jet4_eta", *rv_j_4_eta);
-        model->input.setValue("jet4_phi", *rv_j_4_phi);
-        model->input.setValue("jet4_e", *rv_j_4_e);
-        model->input.setValue("jet4_deepflavor_b", *rv_j_4_b_deepflav);
-        model->input.setValue("jet4_deepflavor_c", *rv_j_4_c_deepflav);
-        model->input.setValue("jet5_pt", *rv_j_5_pT);
-        model->input.setValue("jet5_eta", *rv_j_5_eta);
-        model->input.setValue("jet5_phi", *rv_j_5_phi);
-        model->input.setValue("jet5_e", *rv_j_5_e);
-        model->input.setValue("jet5_deepflavor_b", *rv_j_5_b_deepflav);
-        model->input.setValue("jet5_deepflavor_c", *rv_j_5_c_deepflav);
-        model->input.setValue("vbfjet1_pt", *rv_vbf_1_pT);
-        model->input.setValue("vbfjet1_eta", *rv_vbf_1_eta);
-        model->input.setValue("vbfjet1_phi", *rv_vbf_1_phi);
-        model->input.setValue("vbfjet1_e", *rv_vbf_1_e);
-        model->input.setValue("vbfjet1_deepflavor_b", *rv_vbf_1_b_deepflav);
-        model->input.setValue("vbfjet1_deepflavor_c", *rv_vbf_1_c_deepflav);
-        model->input.setValue("vbfjet2_pt", *rv_vbf_2_pT);
-        model->input.setValue("vbfjet2_eta", *rv_vbf_2_eta);
-        model->input.setValue("vbfjet2_phi", *rv_vbf_2_phi);
-        model->input.setValue("vbfjet2_e", *rv_vbf_2_e);
-        model->input.setValue("vbfjet2_deepflavor_b", *rv_vbf_2_b_deepflav);
-        model->input.setValue("vbfjet2_deepflavor_c", *rv_vbf_2_c_deepflav);
-        model->input.setValue("lep1_pt", *rv_l_1_pT);
-        model->input.setValue("lep1_eta", *rv_l_1_eta);
-        model->input.setValue("lep1_phi", *rv_l_1_phi);
-        model->input.setValue("lep1_e", -*rv_l_1_e);
-        model->input.setValue("lep2_pt", *rv_l_2_pT);
-        model->input.setValue("lep2_eta", *rv_l_2_eta);
-        model->input.setValue("lep2_phi", *rv_l_2_phi);
-        model->input.setValue("lep2_e", *rv_l_2_e);
-        model->input.setValue("met_pt", *rv_met_pT);
-        model->input.setValue("met_phi", *rv_met_phi);
-        model->input.setValue("bh_pt", *rv_bh_pT);
-        model->input.setValue("bh_eta", *rv_bh_eta);
-        model->input.setValue("bh_phi", *rv_bh_phi);
-        model->input.setValue("bh_e", *rv_bh_e);
-        model->input.setValue("tauh_sv_pt", *rv_svfit_pT);
-        model->input.setValue("tauh_sv_eta", *rv_svfit_eta);
-        model->input.setValue("tauh_sv_phi", *rv_svfit_phi);
-        model->input.setValue("tauh_sv_e", pep_svfit.E());
-
+                
+        std::vector<float> input_features = {(float) (*rv_ptype == 0), (float) (*rv_ptype == 1), (float) (*rv_ptype == 2), (float) *rv_njets20, (float) *rv_nbjets20, (float) vbf_loose_cat, (float) vbf_tight_cat, (float) resolved_1b_cat,
+            (float) resolved_2b_cat, (float) boosted_cat, *rv_b_1_pT, *rv_b_1_eta, *rv_b_1_phi, *rv_b_1_e, *rv_b_1_b_deepflav, *rv_b_1_c_deepflav, *rv_b_2_pT, *rv_b_2_eta, *rv_b_2_phi, *rv_b_2_e, *rv_b_2_b_deepflav,
+            *rv_b_2_c_deepflav, *rv_j_3_pT, *rv_j_3_eta, *rv_j_3_phi, *rv_j_3_e, *rv_j_3_b_deepflav, *rv_j_3_c_deepflav, *rv_j_4_pT, *rv_j_4_eta, *rv_j_4_phi, *rv_j_4_e, *rv_j_4_b_deepflav, *rv_j_4_c_deepflav, 
+            *rv_j_5_pT, *rv_j_5_eta, *rv_j_5_phi, *rv_j_5_e, *rv_j_5_b_deepflav, *rv_j_5_c_deepflav, *rv_vbf_1_pT, *rv_vbf_1_eta, *rv_vbf_1_phi, *rv_vbf_1_e, *rv_vbf_1_b_deepflav, *rv_vbf_1_c_deepflav, *rv_vbf_2_pT, 
+            *rv_vbf_2_eta, *rv_vbf_2_phi, *rv_vbf_2_e, *rv_vbf_2_b_deepflav, *rv_vbf_2_c_deepflav, *rv_l_1_pT, *rv_l_1_eta, *rv_l_1_phi, *rv_l_1_e, *rv_l_2_pT, *rv_l_2_eta, *rv_l_2_phi, *rv_l_2_e, *rv_met_pT, *rv_met_phi,
+            *rv_bh_pT, *rv_bh_eta, *rv_bh_phi, *rv_bh_e, *rv_svfit_pT, *rv_svfit_eta, *rv_svfit_phi, (float) pep_svfit.E()};
+        
         // Run the inference
-        model->run(*rv_evt);
+        std::map <std::string, float> model_outputs = multiclass.run(input_features, *rv_evt);
 
         // Fill the maximum node distributions
         double max_dnn_output = -999.;
         std::string max_dnn_output_name = "";
 
         // Store the results
-        for (const auto& it : model->output) 
+        for (const auto& it : model_outputs) 
           {
             cout << it.first << " " << it.second << endl;
             dnn_outputs[it.first].push_back(it.second);
