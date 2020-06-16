@@ -8,13 +8,11 @@ WORKDIR="/data_CMS/cms/amendola/HHLegacy_2018_v2"
 source scripts/setup.sh
 source /opt/exp_soft/cms/t3/t3setup
 mkdir $OUTDIRR
-
+cp scripts/listSyst.sh $SKIMDIR/$OUTDIRR/
 
 ################################################################################################################################
 ################################################################################################################################
 
-
-<<COMMENT1
 
 # DY
 python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_DY         -c config/skim_Legacy2018.cfg
@@ -68,7 +66,8 @@ python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_WWTo2
 python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_WWTo4Q    -c config/skim_Legacy2018.cfg
 python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_WWToLNuQQ -c config/skim_Legacy2018.cfg
 python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_WWW       -c config/skim_Legacy2018.cfg
-python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_WWZ       -c config/skim_Legacy2018.cfg
+python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_WWZ       -c config/skim_Legacy2018.cfg        
+
 
 
 # WZ
@@ -125,7 +124,6 @@ python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_GGHH_
 # GGF HH Rew
 python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_HHRew_SM  -c config/skim_Legacy2018.cfg
 
-
 # VBF HH
 python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_VBFHH_CV_1_C2V_1_C3_1   -c config/skim_Legacy2018.cfg
 python scripts/systNtuple.py -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_VBFHH_CV_0_5_C2V_1_C3_1 -c config/skim_Legacy2018.cfg
@@ -156,4 +154,3 @@ python scripts/systNtuple.py -d True -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SK
 python scripts/systNtuple.py -d True -T $OUTDIRR -q long -w $WORKDIR/$OUTDIRR/SKIM_Tau2018D -c config/skim_Legacy2018.cfg
 
 
-COMMENT1
