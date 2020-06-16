@@ -311,7 +311,7 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -d True -s True -c config/skim_Lega
 
 
 #### GGH SM :
-# XS:  0.03349 pb^-1
+# XS:  0.03349 pb
 echo "Submitting - GGH SM - "
 echo "Submitting - GGH SM - " >> log_18Feb2020.txt
 echo "OUTDIR = $OUTDIRR"
@@ -331,6 +331,10 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_m
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_12  	  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_12.txt       -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
+
+#### Signals ggF non res  - filelists up to date                                        
+### norm xs = 1 pb
+
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_cHHH0    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_cHHH0.txt    -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt --hhNLO True
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_cHHH1    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_cHHH1.txt    -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt --hhNLO True
@@ -339,13 +343,36 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_m
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_cHHH5    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_cHHH5.txt    -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt --hhNLO True
 
+### norm to theoretical xs 
+# sigma_NNLO+FTapprox for SM: 31.05 fb
+# sigma_NNLO+FTapprox / sigma_NLO  = 1.115 for SM # TEMPORARY: need to fix with factor kL dependent (pag. 129: https://arxiv.org/pdf/2003.01700.pdf)
+# f(kL) = A + B*kL + C*kL**2 
+# A = 62.5339 
+# B = -44.323
+# C = 9.6340
+# (slide 10: https://indico.cern.ch/event/885273/contributions/3812533/attachments/2016615/3370728/HH_combine_model_7Apr2018.pdf)
+# xs (kL = 1)                      = 0.03105 pb
+# xs (kL = 0)    = f(0)    * 1.115 = 0.06972 pb
+# xs (kL = 2.45) = f(2.45) * 1.115 = 0.01312 pb
+# xs (kL = 5)    = f(5)    * 1.115 = 0.09117 pb
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_cHHH0_xs    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_cHHH0.txt    -x 0.06972 -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt --hhNLO True
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_cHHH1_xs    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_cHHH1.txt    -x 0.03105 -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt --hhNLO True
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_cHHH2p45_xs -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_cHHH2p45.txt -x 0.01312 -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt --hhNLO True
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_GGHH_node_cHHH5_xs    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_node_cHHH5.txt    -x 0.09117 -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt --hhNLO True
+
+
 
 #### VBF SM :
-# XS: 0.001626 pb^-1 from XSBD
 echo "Submitting - VBF SM - "
 echo "Submitting - VBF SM - " >> log_18Feb2020.txt
 echo "OUTDIR = $OUTDIRR"
 echo "OUTDIR = $OUTDIRR" >> log_18Feb2020.txt
+
+### norm xs = 1 pb
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHHSM                 -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_1_C3_1.txt   -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
@@ -359,4 +386,28 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_m
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_2_C3_1   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_2_C3_1.txt   -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
+
+### norm to theoretical xs 
+# xs_theo(SM) = 0.001726
+#  CV C2V C3 |  xs_MG5      * xs_theo(SM)/xs_MG5(SM)
+#   1   1  1 |  0.001668 pb * 1.034772182             =   0.001726 pb
+# 0.5   1  1 |  0.01046  pb * 1.034772182             =   0.010824 pb <--- missing this year
+# 1.5   1  1 |  0.0638   pb * 1.034772182             =   0.066018 pb
+#   1   1  0 |  0.004454 pb * 1.034772182             =   0.004609 pb
+#   1   1  2 |  0.001375 pb * 1.034772182             =   0.001423 pb
+#   1   2  1 |  0.01374  pb * 1.034772182             =   0.014218 pb
+#   1   0  2 |  0.01705  pb * 1.034772182             =   0.017643 pb <--- madgraph chiara
+
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_1_C3_1_xs   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_1_C3_1.txt   -x 0.001726 -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_0_C3_2_xs   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_0_C3_2.txt   -x 0.017643 -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
+											
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1_5_C2V_1_C3_xs_1 -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_5_C2V_1_C3_1.txt -x 0.066018 -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
+											
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_1_C3_0_xs   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_1_C3_0.txt   -x 0.004609 -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
+											
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_1_C3_2_xs   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_1_C3_2.txt   -x 0.001423 -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_2_C3_1_xs   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_2_C3_1.txt   -x 0.014218 -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 COMMENT2

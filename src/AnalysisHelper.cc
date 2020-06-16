@@ -202,7 +202,12 @@ shared_ptr<Sample> AnalysisHelper::openSample(string sampleName)
     if (DEBUG) cout << " ..........DEBUG: entering AnalysisHelper::openSample for sample " << sampleName << endl;
 
     string filename = sampleCfg_->readStringOpt(Form("samples::%s",sampleName.c_str()));
-    shared_ptr<Sample> sample (new Sample(sampleName, filename + string("/goodfiles.txt")));
+    string sampleCfgName = mainCfg_->readStringOpt("configs::sampleCfg");
+    string list_pattern = "goodfiles"; 
+    if (mainCfg_->hasOpt("configs::cutCfg")){
+      list_pattern = mainCfg_->readStringOpt("configs::pattern");
+    }
+    shared_ptr<Sample> sample (new Sample(sampleName, filename + string("/") + list_pattern + string(".txt")));
     if (sampleCfg_->hasOpt(Form("userEffBin::%s",sampleName.c_str())))
     {
         int ubin = sampleCfg_->readIntOpt(Form("userEffBin::%s",sampleName.c_str()));
