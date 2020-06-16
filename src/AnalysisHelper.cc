@@ -204,7 +204,7 @@ shared_ptr<Sample> AnalysisHelper::openSample(string sampleName)
     string filename = sampleCfg_->readStringOpt(Form("samples::%s",sampleName.c_str()));
     string sampleCfgName = mainCfg_->readStringOpt("configs::sampleCfg");
     string list_pattern = "goodfiles"; 
-    if (mainCfg_->hasOpt("configs::cutCfg")){
+    if (mainCfg_->hasOpt("configs::pattern")){
       list_pattern = mainCfg_->readStringOpt("configs::pattern");
     }
     shared_ptr<Sample> sample (new Sample(sampleName, filename + string("/") + list_pattern + string(".txt")));
