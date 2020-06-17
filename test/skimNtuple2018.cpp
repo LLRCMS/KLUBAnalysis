@@ -5807,7 +5807,7 @@ int main (int argc, char** argv)
     treenew->Write ("", TObject::kOverwrite);
     in_file->Close();
 
-  }
+  } // END MULTICLASS
 
   cout << "... SKIM finished, exiting." << endl;
   return 0 ;
