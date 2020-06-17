@@ -18,6 +18,9 @@
 #include <cmath>
 #include <map>
 
+#include <boost/format.hpp>
+#include <boost/algorithm/string/replace.hpp>
+
 // Multiclass DNN
 #include "MulticlassInference/MulticlassInference/interface/hmc.h"
 
@@ -27,47 +30,49 @@ using namespace hmc;
 class MulticlassInterface {
 
   public:
-    MulticlassInterface (int year, const std::string &version, const std::string &tag)
-    : multiclass_year(year), multiclass_version(version), multiclass_tag(tag)
+    MulticlassInterface (int year, const std::vector <std::pair <std::string, std::string>> models_def)
+    : multiclass_year(year)
     {
-        model = loadModel(multiclass_year, multiclass_version, multiclass_tag);
+        for (auto &model : models_def) {
+            models.push_back(loadModel(multiclass_year, model.first, model.second));
+        }
     }
     
-    std::map<std::string, float> run(std::vector <float> input_features, long long ev_number)
+    std::map<std::string, float> run(std::map <std::string, float> input_features, long long ev_number)
     {
         // Printing for debug, clean later
         // std::cout << input_features.size() << "/" <<model->getNumberOfFeatures() << " features included"<<std::endl; 
-        // for (int i = 0; i<input_features.size(); i++){
+        // for (size_t i = 0; i<input_features.size(); i++){
         //     std::cout << model->getFeatureName(i) << " " << input_features[i] << std::endl; 
         // }
-
-        model->input.clear();
-        for (size_t i = 0; i < input_features.size(); i++)
-          {
-            std::string featureName = model->getFeatureName(i);
-            if (input_features[i] != -999.) // Checking no -999s
-              {
-                model->input.setValue(featureName, input_features[i]);
-              }
-            else // Change -999 to the feature's default value
-              {
-                auto feature = model->getFeatureSpecs()[i];
-                model->input.setValue(featureName, feature.getDefaultValue());
-              }
-          }
-
-        model->run(ev_number);
         std::map <std::string, float> model_outputs;
-        for (const auto& it : model->output)
-          {
-            model_outputs[it.first] = it.second;    
-          }
+        for (auto &model : models) 
+        {
+            model->input.clear();
+            for (size_t i = 0; i < model->getFeatureSpecs().size(); i++)
+              {
+                std::string feature_name = model->getFeatureName(i);
+                if (input_features[feature_name] != -999.) // Checking no -999s
+                  {
+                    model->input.setValue(feature_name, input_features[feature_name]);
+                  }
+                else // Change -999 to the feature's default value
+                  {
+                    auto feature = model->getFeatureSpecs()[i];
+                    model->input.setValue(feature_name, feature.getDefaultValue());
+                  }
+              }
+
+            model->run(ev_number);
+            for (const auto& it : model->output)
+              {
+                model_outputs[boost::str(boost::format("%s__%s__%s") % model->getVersion() % model->getTag() % it.first)] = it.second;    
+              }
+        }
         return model_outputs;
     }
 
   private:
-    hmc::Model* model;
+    std::vector<hmc::Model*> models;
     int multiclass_year; 
-    const std::string &multiclass_version; 
-    const std::string &multiclass_tag; 
 };

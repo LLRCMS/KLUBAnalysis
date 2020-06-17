@@ -809,7 +809,7 @@ int main (int argc, char** argv)
   for (Long64_t iEvent = 0 ; true ; ++iEvent)
     {
       if (iEvent % 10000 == 0)  cout << "- reading event " << iEvent << endl ;
-      if (iEvent == 100000)  break ;
+      if (iEvent == 1000)  break ;
       //cout << "-------- reading event " << iEvent << endl ;
       theSmallTree.clearVars () ;
 
@@ -5677,12 +5677,10 @@ int main (int argc, char** argv)
     
     // Index and number of entries for loop on entries
     long int c_event(0), n_tot_events(reader.GetEntries(true));
-    
-    // load the model v0 for 2018
-    std::string version = "v0";
-    std::string tag = "kl1_c2v1_c31";
-    MulticlassInterface multiclass(2018, version, tag);
-    
+
+    std::vector <std::pair<std::string, std::string>> models = {std::make_pair("v0", "kl1_c2v1_c31")};
+    MulticlassInterface multiclass(2018, models);
+        
     // Loop on entries with TTreeReader
     while (reader.Next())
       {
@@ -5721,7 +5719,7 @@ int main (int argc, char** argv)
         bool boosted_cat = baseline && btagLL && mass_rect_sel && *rv_isboosted == 1  && !(excl_vbf_loose);
         */
                 
-        std::vector<float> input_features = {
+        std::vector<float> feature_values = {
             (float) (*rv_ptype == 0), (float) (*rv_ptype == 1), (float) (*rv_ptype == 2),
             *rv_b_1_pT, *rv_b_1_eta, *rv_b_1_phi, *rv_b_1_e, *rv_b_1_b_deepflav,
             *rv_b_1_CvsB, *rv_b_1_CvsL, *rv_b_1_HHbtag,
@@ -5737,6 +5735,27 @@ int main (int argc, char** argv)
             *rv_bh_pT, *rv_bh_eta, *rv_bh_phi, *rv_bh_e,
             *rv_svfit_pT, *rv_svfit_eta, *rv_svfit_phi, (float) pep_svfit.E()
         };
+        
+        std::vector<std::string> feature_names = { 
+            "is_mutau", "is_etau", "is_tautau", "bjet1_pt",
+            "bjet1_eta", "bjet1_phi", "bjet1_e", "bjet1_deepflavor_b", "bjet1_deepflavor_cvsb",
+            "bjet1_deepflavor_cvsl", "bjet1_hhbtag", "bjet2_pt", "bjet2_eta", "bjet2_phi", "bjet2_e",
+            "bjet2_deepflavor_b", "bjet2_deepflavor_cvsb", "bjet2_deepflavor_cvsl", "bjet2_hhbtag",
+            "vbfjet1_pt", "vbfjet1_eta", "vbfjet1_phi", "vbfjet1_e", "vbfjet1_deepflavor_b",
+            "vbfjet1_deepflavor_cvsb", "vbfjet1_deepflavor_cvsl", "vbfjet1_hhbtag", "vbfjet2_pt",
+            "vbfjet2_eta", "vbfjet2_phi", "vbfjet2_e", "vbfjet2_deepflavor_b", "vbfjet2_deepflavor_cvsb",
+            "vbfjet2_deepflavor_cvsl", "vbfjet2_hhbtag", "lep1_pt", "lep1_eta", "lep1_phi", "lep1_e",
+            "lep2_pt", "lep2_eta", "lep2_phi", "lep2_e", "met_pt", "met_phi", "bh_pt", "bh_eta", "bh_phi",
+            "bh_e", "tauh_sv_pt", "tauh_sv_eta", "tauh_sv_phi", "tauh_sv_e"
+        };
+
+
+        std::map <std::string, float> input_features;  
+        for (size_t i = 0; i < feature_names.size(); i++)
+          {
+            input_features[feature_names[i]] = feature_values[i]; 
+          }
+        
         
         // Run the inference
         std::map <std::string, float> model_outputs = multiclass.run(input_features, *rv_evt);
@@ -5769,7 +5788,7 @@ int main (int argc, char** argv)
     
     for (auto &dnn_output: dnn_outputs)
       {
-        std::string branch_name = boost::str(boost::format("mdnn__%s__%s__%s") % version % tag % dnn_output.first);  
+        std::string branch_name = boost::str(boost::format("mdnn__%s") % dnn_output.first);  
         branchDNN[dnn_output.first] = treenew->Branch(branch_name.c_str(), &outputDNN[dnn_output.first]);
       }
 
