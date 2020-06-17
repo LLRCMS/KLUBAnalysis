@@ -36,10 +36,10 @@ class MulticlassInterface {
     std::map<std::string, float> run(std::vector <float> input_features, long long ev_number)
     {
         // Printing for debug, clean later
-        std::cout << input_features.size() << "/" <<model->getNumberOfFeatures() << " features included"<<std::endl; 
-        for (int i = 0; i<input_features.size(); i++){
-            std::cout << model->getFeatureName(i) << " " << input_features[i] << std::endl; 
-        }
+        // std::cout << input_features.size() << "/" <<model->getNumberOfFeatures() << " features included"<<std::endl; 
+        // for (int i = 0; i<input_features.size(); i++){
+        //     std::cout << model->getFeatureName(i) << " " << input_features[i] << std::endl; 
+        // }
 
         model->input.clear();
         for (size_t i = 0; i < input_features.size(); i++)

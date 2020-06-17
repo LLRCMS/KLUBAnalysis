@@ -809,7 +809,7 @@ int main (int argc, char** argv)
   for (Long64_t iEvent = 0 ; true ; ++iEvent)
     {
       if (iEvent % 10000 == 0)  cout << "- reading event " << iEvent << endl ;
-      if (iEvent == 1000)  break ;
+      if (iEvent == 100000)  break ;
       //cout << "-------- reading event " << iEvent << endl ;
       theSmallTree.clearVars () ;
 
@@ -5550,8 +5550,7 @@ int main (int argc, char** argv)
     TTreeReaderValue<float> rv_j_3_c_deepflav(reader, "jet3_ctag_deepFlavor");
     TTreeReaderValue<float> rv_j_4_c_deepflav(reader, "jet4_ctag_deepFlavor");
     TTreeReaderValue<float> rv_j_5_c_deepflav(reader, "jet5_ctag_deepFlavor");
-
-    /*
+    
     TTreeReaderValue<float> rv_b_1_CvsL    (reader, "bjet1_CvsL");
     TTreeReaderValue<float> rv_b_2_CvsL    (reader, "bjet2_CvsL");
     TTreeReaderValue<float> rv_vbf_1_CvsL  (reader, "VBFjet1_CvsL");
@@ -5564,8 +5563,7 @@ int main (int argc, char** argv)
     TTreeReaderValue<float> rv_b_2_HHbtag  (reader, "bjet2_HHbtag");
     TTreeReaderValue<float> rv_vbf_1_HHbtag(reader, "VBFjet1_HHbtag");
     TTreeReaderValue<float> rv_vbf_2_HHbtag(reader, "VBFjet2_HHbtag");
-    */
-    
+        
     TTreeReaderValue<float> rv_fatjet_softmass(reader, "fatjet_softdropMass");
 
     TTreeReaderValue<float> rv_svfit_pT(reader, "tauH_SVFIT_pt");
@@ -5651,7 +5649,9 @@ int main (int argc, char** argv)
 
         pep_svfit.SetPtEtaPhiM (*rv_svfit_pT, *rv_svfit_eta, *rv_svfit_phi, *rv_svfit_mass);
         
-        // Category definitions
+        // Category definitions. Left commented in case of adding them in the future. 
+        
+        /* 
         bool baseline_mutau = *rv_ptype == 0 && *rv_l_1_pT > 20 && abs(*rv_l_1_eta) < 2.1 && *rv_l_2_pT > 20 && abs(*rv_l_2_eta) < 2.3 && *rv_nleps == 0
             && *rv_nbjetscand > 1 && *rv_isvbftrigger == 0;
         bool baseline_etau = *rv_ptype == 1 && *rv_l_1_pT > 40 && abs(*rv_l_1_eta) < 2.1 && *rv_l_2_pT > 20 && abs(*rv_l_2_eta) < 2.3 && *rv_nleps == 0
@@ -5677,19 +5677,24 @@ int main (int argc, char** argv)
         bool resolved_1b_cat = baseline && btagM && mass_ellipse_sel && *rv_isboosted != 1  && !(excl_vbf_loose);
         bool resolved_2b_cat = baseline && btagMM && mass_ellipse_sel && *rv_isboosted != 1  && !(excl_vbf_loose);
         bool boosted_cat = baseline && btagLL && mass_rect_sel && *rv_isboosted == 1  && !(excl_vbf_loose);
-        
+        */
                 
-        std::vector<float> input_features = {(float) (*rv_ptype == 0), (float) (*rv_ptype == 1), (float) (*rv_ptype == 2),
-            (float) *rv_njets20, (float) *rv_nbjets20, (float) vbf_loose_cat, (float) vbf_tight_cat, (float) resolved_1b_cat,
-            (float) resolved_2b_cat, (float) boosted_cat, *rv_b_1_pT, *rv_b_1_eta, *rv_b_1_phi, *rv_b_1_e, *rv_b_1_b_deepflav,
-            *rv_b_1_c_deepflav, *rv_b_2_pT, *rv_b_2_eta, *rv_b_2_phi, *rv_b_2_e, *rv_b_2_b_deepflav, *rv_b_2_c_deepflav,
-            *rv_j_3_pT, *rv_j_3_eta, *rv_j_3_phi, *rv_j_3_e, *rv_j_3_b_deepflav, *rv_j_3_c_deepflav, *rv_j_4_pT, *rv_j_4_eta,
-            *rv_j_4_phi, *rv_j_4_e, *rv_j_4_b_deepflav, *rv_j_4_c_deepflav, *rv_j_5_pT, *rv_j_5_eta, *rv_j_5_phi, *rv_j_5_e,
-            *rv_j_5_b_deepflav, *rv_j_5_c_deepflav, *rv_vbf_1_pT, *rv_vbf_1_eta, *rv_vbf_1_phi, *rv_vbf_1_e, *rv_vbf_1_b_deepflav,
-            *rv_vbf_1_c_deepflav, *rv_vbf_2_pT, *rv_vbf_2_eta, *rv_vbf_2_phi, *rv_vbf_2_e, *rv_vbf_2_b_deepflav,
-            *rv_vbf_2_c_deepflav, *rv_l_1_pT, *rv_l_1_eta, *rv_l_1_phi, *rv_l_1_e, *rv_l_2_pT, *rv_l_2_eta, *rv_l_2_phi,
-            *rv_l_2_e, *rv_met_pT, *rv_met_phi, *rv_bh_pT, *rv_bh_eta, *rv_bh_phi, *rv_bh_e, *rv_svfit_pT, *rv_svfit_eta,
-            *rv_svfit_phi, (float) pep_svfit.E()};
+        std::vector<float> input_features = {
+            (float) (*rv_ptype == 0), (float) (*rv_ptype == 1), (float) (*rv_ptype == 2),
+            *rv_b_1_pT, *rv_b_1_eta, *rv_b_1_phi, *rv_b_1_e, *rv_b_1_b_deepflav,
+            *rv_b_1_CvsB, *rv_b_1_CvsL, *rv_b_1_HHbtag,
+            *rv_b_2_pT, *rv_b_2_eta, *rv_b_2_phi, *rv_b_2_e, *rv_b_2_b_deepflav,
+            *rv_b_2_CvsB, *rv_b_2_CvsL, *rv_b_2_HHbtag,
+            *rv_vbf_1_pT, *rv_vbf_1_eta, *rv_vbf_1_phi, *rv_vbf_1_e, *rv_vbf_1_b_deepflav,
+            *rv_vbf_1_CvsB, *rv_vbf_1_CvsL, *rv_vbf_1_HHbtag,
+            *rv_vbf_2_pT, *rv_vbf_2_eta, *rv_vbf_2_phi, *rv_vbf_2_e, *rv_vbf_2_b_deepflav,
+            *rv_vbf_2_CvsB, *rv_vbf_2_CvsL, *rv_vbf_2_HHbtag,
+            *rv_l_1_pT, *rv_l_1_eta, *rv_l_1_phi, *rv_l_1_e,
+            *rv_l_2_pT, *rv_l_2_eta, *rv_l_2_phi, *rv_l_2_e,
+            *rv_met_pT, *rv_met_phi,
+            *rv_bh_pT, *rv_bh_eta, *rv_bh_phi, *rv_bh_e,
+            *rv_svfit_pT, *rv_svfit_eta, *rv_svfit_phi, (float) pep_svfit.E()
+        };
         
         // Run the inference
         std::map <std::string, float> model_outputs = multiclass.run(input_features, *rv_evt);
