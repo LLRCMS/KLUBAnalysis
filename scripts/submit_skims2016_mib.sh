@@ -218,7 +218,7 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_m
 
 
 #### GGH SM :
-# XS:  0.03349 pb^-1
+# XS:  0.03349 pb
 echo "Submitting - GGH SM - "
 echo "Submitting - GGH SM - " >> log_1June2020.txt
 echo "OUTDIR = $OUTDIRR"
@@ -243,7 +243,6 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_m
 
 
 #### VBF SM :
-# XS: 0.001626 pb^-1 from XSBD
 echo "Submitting - VBF SM - "
 echo "Submitting - VBF SM - " >> log_1June2020.txt
 echo "OUTDIR = $OUTDIRR"
@@ -257,13 +256,22 @@ echo "OUTDIR = $OUTDIRR" >> log_1June2020.txt
 #python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_VBFHHTo2B2Tau_CV_1_C2V_1_C3_2   -i $INPUTDIR_SIG/13_VBFHHTo2B2Tau_CV_1_C2V_1_C3_2_13TeV-madgraph__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2.txt    -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2016_SF.txt
 #python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_VBFHHTo2B2Tau_CV_1_C2V_2_C3_1   -i $INPUTDIR_SIG/14_VBFHHTo2B2Tau_CV_1_C2V_2_C3_1_13TeV-madgraph__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2.txt    -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2016_SF.txt
 
-### norm to theoretical xs
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_VBFHHTo2B2Tau_CV_1_C2V_1_C3_1   -i $INPUTDIR_SIG/9_VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_13TeV-madgraph__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2.txt     -x 0.001601 -a True -q longcms --pu $PUDIR/PU_Legacy2016_SF.txt
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_VBFHHTo2B2Tau_CV_0_5_C2V_1_C3_1 -i $INPUTDIR_SIG/10_VBFHHTo2B2Tau_CV_0_5_C2V_1_C3_1_13TeV-madgraph__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2.txt  -x 0.01009  -a True -q longcms --pu $PUDIR/PU_Legacy2016_SF.txt
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_VBFHHTo2B2Tau_CV_1_5_C2V_1_C3_1 -i $INPUTDIR_SIG/11_VBFHHTo2B2Tau_CV_1_5_C2V_1_C3_1_13TeV-madgraph__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2.txt  -x 0.06153  -a True -q longcms --pu $PUDIR/PU_Legacy2016_SF.txt
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_VBFHHTo2B2Tau_CV_1_C2V_1_C3_0   -i $INPUTDIR_SIG/12_VBFHHTo2B2Tau_CV_1_C2V_1_C3_0_13TeV-madgraph__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2.txt    -x 0.004259 -a True -q longcms --pu $PUDIR/PU_Legacy2016_SF.txt
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_VBFHHTo2B2Tau_CV_1_C2V_1_C3_2   -i $INPUTDIR_SIG/13_VBFHHTo2B2Tau_CV_1_C2V_1_C3_2_13TeV-madgraph__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2.txt    -x 0.001327 -a True -q longcms --pu $PUDIR/PU_Legacy2016_SF.txt
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_VBFHHTo2B2Tau_CV_1_C2V_2_C3_1   -i $INPUTDIR_SIG/14_VBFHHTo2B2Tau_CV_1_C2V_2_C3_1_13TeV-madgraph__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2.txt    -x 0.01335  -a True -q longcms --pu $PUDIR/PU_Legacy2016_SF.txt
+### norm to theoretical xs 
+# xs_theo(SM) = 0.001726
+#  CV C2V C3 |  xs_MG5      * xs_theo(SM)/xs_MG5(SM)
+#   1   1  1 |  0.001601 pb * 1.078076202             =   0.001726 pb
+# 0.5   1  1 |  0.01009  pb * 1.078076202             =   0.010878 pb
+# 1.5   1  1 |  0.06153  pb * 1.078076202             =   0.066334 pb
+#   1   1  0 |  0.004259 pb * 1.078076202             =   0.004591 pb
+#   1   1  2 |  0.001327 pb * 1.078076202             =   0.001431 pb
+#   1   2  1 |  0.01335  pb * 1.078076202             =   0.014392 pb
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_VBFHHTo2B2Tau_CV_1_C2V_1_C3_1   -i $INPUTDIR_SIG/9_VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_13TeV-madgraph__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2.txt     -x 0.001726 -a True -q longcms --pu $PUDIR/PU_Legacy2016_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_VBFHHTo2B2Tau_CV_0_5_C2V_1_C3_1 -i $INPUTDIR_SIG/10_VBFHHTo2B2Tau_CV_0_5_C2V_1_C3_1_13TeV-madgraph__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2.txt  -x 0.010878  -a True -q longcms --pu $PUDIR/PU_Legacy2016_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_VBFHHTo2B2Tau_CV_1_5_C2V_1_C3_1 -i $INPUTDIR_SIG/11_VBFHHTo2B2Tau_CV_1_5_C2V_1_C3_1_13TeV-madgraph__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2.txt  -x 0.066334  -a True -q longcms --pu $PUDIR/PU_Legacy2016_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_VBFHHTo2B2Tau_CV_1_C2V_1_C3_0   -i $INPUTDIR_SIG/12_VBFHHTo2B2Tau_CV_1_C2V_1_C3_0_13TeV-madgraph__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2.txt    -x 0.004591 -a True -q longcms --pu $PUDIR/PU_Legacy2016_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_VBFHHTo2B2Tau_CV_1_C2V_1_C3_2   -i $INPUTDIR_SIG/13_VBFHHTo2B2Tau_CV_1_C2V_1_C3_2_13TeV-madgraph__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2.txt    -x 0.001431 -a True -q longcms --pu $PUDIR/PU_Legacy2016_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_VBFHHTo2B2Tau_CV_1_C2V_2_C3_1   -i $INPUTDIR_SIG/14_VBFHHTo2B2Tau_CV_1_C2V_2_C3_1_13TeV-madgraph__RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2.txt    -x 0.014392  -a True -q longcms --pu $PUDIR/PU_Legacy2016_SF.txt
 
 
 
