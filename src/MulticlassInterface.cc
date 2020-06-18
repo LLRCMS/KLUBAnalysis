@@ -32,7 +32,7 @@
 
 class FeatureProvider {
 public:
-  FeatureProvider(int year, TTree *ttree);
+  FeatureProvider(int year, TTree *inTree);
 
   FeatureProvider(const FeatureProvider &) = delete;
 
@@ -136,7 +136,7 @@ private:
   std::vector<hmc::Model *> models_;
 };
 
-FeatureProvider::FeatureProvider(int year, TTree *ttree) : year_(year) {
+FeatureProvider::FeatureProvider(int year, TTree *inTree) : year_(year) {
   // define names of variables to read
   std::vector<std::string> boolNames = {};
   std::vector<std::string> intNames = {"pairType"};
@@ -159,19 +159,19 @@ FeatureProvider::FeatureProvider(int year, TTree *ttree) : year_(year) {
   // register them in input maps and set branch addresses
   for (const auto &name : boolNames) {
     boolInputs_.emplace(name, 0.);
-    ttree->SetBranchAddress(name.c_str(), &boolInputs_.at(name));
+    inTree->SetBranchAddress(name.c_str(), &boolInputs_.at(name));
   }
   for (const auto &name : intNames) {
     intInputs_.emplace(name, 0.);
-    ttree->SetBranchAddress(name.c_str(), &intInputs_.at(name));
+    inTree->SetBranchAddress(name.c_str(), &intInputs_.at(name));
   }
   for (const auto &name : ulong64Names) {
     ulong64Inputs_.emplace(name, 0);
-    ttree->SetBranchAddress(name.c_str(), &ulong64Inputs_.at(name));
+    inTree->SetBranchAddress(name.c_str(), &ulong64Inputs_.at(name));
   }
   for (const auto &name : floatNames) {
     floatInputs_.emplace(name, 0.);
-    ttree->SetBranchAddress(name.c_str(), &floatInputs_.at(name));
+    inTree->SetBranchAddress(name.c_str(), &floatInputs_.at(name));
   }
 }
 
