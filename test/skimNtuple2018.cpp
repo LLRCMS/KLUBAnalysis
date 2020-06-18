@@ -456,17 +456,17 @@ int main (int argc, char** argv)
 
   // add VBF triggers for jet matching
   trigReader.addVBFTrigs (vbfTriggers);
-
+  
 
   // print full list (this is needed to identify the the triggers that fired in the bitwise variable)
   pair <int, int> triggerFlags = trigReader.printTriggerList(); //bitwise variable for the position of HPS triggers and tau triggers
-  int isHPSTauTrigger = triggerFlags.first;
+  int isHPSTauTrigger = triggerFlags.first; 
   int hasTau = triggerFlags.second;
   int isTauTrigger = hasTau & (~isHPSTauTrigger);
   cout << "isHPSTauTrigger    = " << std::bitset<16>(isHPSTauTrigger) << endl;
-  cout << "hasTau             = " << std::bitset<16>(hasTau) << endl;
-  cout << "isTauTrigger       = " << std::bitset<16>(isTauTrigger) << endl;
-  cout << endl;
+  cout << "hasTau             = " << std::bitset<16>(hasTau) << endl;  
+  cout << "isTauTrigger       = " << std::bitset<16>(isTauTrigger) << endl;  
+  cout << endl; 
   // ------------------------------
 
   OfflineProducerHelper oph (hTriggers, hTauIDS) ;
@@ -494,13 +494,13 @@ int main (int argc, char** argv)
 
   if(useDeepFlavor)
   {
-    bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepFlavor");
-    bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFileDeepFlavor");
+  	bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepFlavor");
+  	bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFileDeepFlavor");
   }
   else
   {
-    bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepCSV");
-    bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFileDeepCSV");
+  	bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepCSV");
+  	bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFileDeepCSV");
   }
 
   cout << "B Tag SF file: " << bTag_SFFile << endl;
@@ -628,13 +628,13 @@ int main (int argc, char** argv)
   for (int ibin = 0; ibin < hTauIDS->GetNbinsX(); ++ibin)
     {
       if (string(hTauIDS->GetXaxis()->GetBinLabel(ibin+1)) == string("byLooseCombinedIsolationDeltaBetaCorr3Hits") )
-    tauIDsMap ["byLooseCombinedIsolationDeltaBetaCorr3Hits"] = ibin ;
+	tauIDsMap ["byLooseCombinedIsolationDeltaBetaCorr3Hits"] = ibin ;
 
       if (string(hTauIDS->GetXaxis()->GetBinLabel(ibin+1)) == string("byMediumCombinedIsolationDeltaBetaCorr3Hits") )
-    tauIDsMap ["byLooseCombinedIsolationDeltaBetaCorr3Hits"] = ibin ;
+	tauIDsMap ["byLooseCombinedIsolationDeltaBetaCorr3Hits"] = ibin ;
 
       if (string(hTauIDS->GetXaxis()->GetBinLabel(ibin+1)) == string("byTightCombinedIsolationDeltaBetaCorr3Hits") )
-    tauIDsMap ["byLooseCombinedIsolationDeltaBetaCorr3Hits"] = ibin ;
+	tauIDsMap ["byLooseCombinedIsolationDeltaBetaCorr3Hits"] = ibin ;
     }
 
   // MVA tau ID
@@ -649,7 +649,7 @@ int main (int argc, char** argv)
     {
       cout << "** WARNING!! did not find some MVA tau IDs" << endl;
       for (unsigned int i = 0; i < tauMVAIDIdx.size(); ++i)
-    cout << tauMVAIDIdx.at(i) << " " ;
+	cout << tauMVAIDIdx.at(i) << " " ;
       cout << endl;
     }
 
@@ -665,7 +665,7 @@ int main (int argc, char** argv)
     {
       cout << "** WARNING!! did not find some MVA tau IDs New" << endl;
       for (unsigned int i = 0; i < tauMVAIDIdxNew.size(); ++i)
-    cout << tauMVAIDIdxNew.at(i) << " " ;
+	cout << tauMVAIDIdxNew.at(i) << " " ;
       cout << endl;
     }
 
@@ -680,7 +680,7 @@ int main (int argc, char** argv)
     {
       cout << "** WARNING!! did not find some MVA tau IDs New" << endl;
       for (unsigned int i = 0; i < tauMVAIDIdxNewdR0p3.size(); ++i)
-    cout << tauMVAIDIdxNewdR0p3.at(i) << " " ;
+	cout << tauMVAIDIdxNewdR0p3.at(i) << " " ;
       cout << endl;
     }
 
@@ -693,7 +693,7 @@ int main (int argc, char** argv)
     {
       cout << "** WARNING!! did not find some cut-based tau IDs" << endl;
       for (unsigned int i = 0; i < tauCUTIDIdx.size(); ++i)
-    cout << tauCUTIDIdx.at(i) << " " ;
+	cout << tauCUTIDIdx.at(i) << " " ;
       cout << endl;
     }
 
@@ -709,7 +709,7 @@ int main (int argc, char** argv)
     {
       cout << "** WARNING!! did not find some cut-based tau IDs" << endl;
       for (unsigned int i = 0; i < tauAntiEleIdx.size(); ++i)
-    cout << tauAntiEleIdx.at(i) << " " ;
+	cout << tauAntiEleIdx.at(i) << " " ;
       cout << endl;
     }
 
@@ -721,7 +721,7 @@ int main (int argc, char** argv)
     {
       cout << "** WARNING!! did not find some cut-based tau IDs" << endl;
       for (unsigned int i = 0; i < tauAntiMuIdx.size(); ++i)
-    cout << tauAntiMuIdx.at(i) << " " ;
+	cout << tauAntiMuIdx.at(i) << " " ;
       cout << endl;
     }
 
@@ -739,7 +739,7 @@ int main (int argc, char** argv)
     {
       cout << "** WARNING!! did not find some cut-based tau IDs" << endl;
       for (unsigned int i = 0; i < deepTauVsJetIdx.size(); ++i)
-    cout << deepTauVsJetIdx.at(i) << " " ;
+	cout << deepTauVsJetIdx.at(i) << " " ;
       cout << endl;
     }
 
@@ -757,7 +757,7 @@ int main (int argc, char** argv)
     {
       cout << "** WARNING!! did not find some cut-based tau IDs" << endl;
       for (unsigned int i = 0; i < deepTauVsEleIdx.size(); ++i)
-    cout << deepTauVsEleIdx.at(i) << " " ;
+	cout << deepTauVsEleIdx.at(i) << " " ;
       cout << endl;
     }
 
@@ -771,7 +771,7 @@ int main (int argc, char** argv)
     {
       cout << "** WARNING!! did not find some cut-based tau IDs" << endl;
       for (unsigned int i = 0; i < deepTauVsMuIdx.size(); ++i)
-    cout << deepTauVsMuIdx.at(i) << " " ;
+	cout << deepTauVsMuIdx.at(i) << " " ;
       cout << endl;
     }
 
@@ -792,16 +792,16 @@ int main (int argc, char** argv)
     {
       ecHHsig = new EffCounter[6];
       for (int ic = 0; ic < 6; ++ic)
-    {
-      ecHHsig[ic].AddMarker ("all");
-      ecHHsig[ic].AddMarker ("METfilter");
-      ecHHsig[ic].AddMarker ("NoBadMuons");
-      ecHHsig[ic].AddMarker ("PairExists");
-      ecHHsig[ic].AddMarker ("PairFoundBaseline");
-      ecHHsig[ic].AddMarker ("PairMatchesGen");
-      ecHHsig[ic].AddMarker ("Trigger");
-      ecHHsig[ic].AddMarker ("TwoJets");
-    }
+	{
+	  ecHHsig[ic].AddMarker ("all");
+	  ecHHsig[ic].AddMarker ("METfilter");
+	  ecHHsig[ic].AddMarker ("NoBadMuons");
+	  ecHHsig[ic].AddMarker ("PairExists");
+	  ecHHsig[ic].AddMarker ("PairFoundBaseline");
+	  ecHHsig[ic].AddMarker ("PairMatchesGen");
+	  ecHHsig[ic].AddMarker ("Trigger");
+	  ecHHsig[ic].AddMarker ("TwoJets");
+	}
     }
 
   // loop over events
@@ -809,7 +809,7 @@ int main (int argc, char** argv)
   for (Long64_t iEvent = 0 ; true ; ++iEvent)
     {
       if (iEvent % 10000 == 0)  cout << "- reading event " << iEvent << endl ;
-      if (iEvent == 1000)  break ;
+      //if (iEvent == 20000)  break ;
       //cout << "-------- reading event " << iEvent << endl ;
       theSmallTree.clearVars () ;
 
@@ -1927,63 +1927,63 @@ int main (int argc, char** argv)
           bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
 
           if (!isMC && passTrg) {
-        if(theBigTree.RunNumber < 317509){
-          if (DEBUG)
-        {
-          cout << "@@@ Run in period without HPS triggers "<<endl;
-          cout << "isHPSTauTrigger = " << std::bitset<16>(isHPSTauTrigger) << endl;
-          cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
-        }
-          if ((pass_triggerbit & (~ isHPSTauTrigger)) == 0) {
-        if (DEBUG) cout << "only HPS trigger fired, reject"<<endl;
-        passTrg = false;
-          }
-        }else{
-          if (DEBUG)
-        {
-          cout << "@@@ Run in period with HPS triggers "<<endl;
-          cout << "isHPSTauTrigger = " << std::bitset<16>(isHPSTauTrigger) << endl;
-          cout << "isTauTrigger =    " << std::bitset<16>(isTauTrigger) << endl;
-          cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
-        }
-
-          if ((pass_triggerbit & (~ isTauTrigger)) == 0) {
-        if (DEBUG) cout << "only non-HPS trigger fired, reject"<<endl;
-        passTrg = false;
-          }
-        }
-      }
+	    if(theBigTree.RunNumber < 317509){
+	      if (DEBUG) 
+		{ 
+		  cout << "@@@ Run in period without HPS triggers "<<endl;
+		  cout << "isHPSTauTrigger = " << std::bitset<16>(isHPSTauTrigger) << endl;
+		  cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
+		}
+	      if ((pass_triggerbit & (~ isHPSTauTrigger)) == 0) {
+		if (DEBUG) cout << "only HPS trigger fired, reject"<<endl;
+		passTrg = false; 
+	      }
+	    }else{
+	      if (DEBUG) 
+		{ 
+		  cout << "@@@ Run in period with HPS triggers "<<endl;
+		  cout << "isHPSTauTrigger = " << std::bitset<16>(isHPSTauTrigger) << endl;
+		  cout << "isTauTrigger =    " << std::bitset<16>(isTauTrigger) << endl;
+		  cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
+		}
+	      
+	      if ((pass_triggerbit & (~ isTauTrigger)) == 0) {
+		if (DEBUG) cout << "only non-HPS trigger fired, reject"<<endl;
+		passTrg = false; 
+	      }
+	    }
+	  }
           // Remember: isVBFfired means it passed ONLY a VBF trigger
           if (pairType == 2 && !passTrg)
             {
-              isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
-
-          if (!isMC && isVBFfired){ //check again to discard VBF HPS
-        if(theBigTree.RunNumber < 317509){
-          if (DEBUG)
-            {
-              cout << "add VBF bits to pass_triggerbit:" << endl;
-              cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
-            }
-          if ((pass_triggerbit & (~ isHPSTauTrigger)) == 0)
-            {
-              if (DEBUG) cout << "only VBF HPS trigger fired, reject"<<endl;
-              isVBFfired = false;
-            }
-        }else{
-          if (DEBUG)
-            {
-              cout << "add VBF bits to pass_triggerbit:" << endl;
-              cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
-            }
-          if ((pass_triggerbit & (~ isTauTrigger)) == 0)
-            {
-              if (DEBUG) cout << "only VBF non-HPS trigger fired, reject"<<endl;
-              isVBFfired = false;
-            }
-        }
-          }
-        }
+              isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit); 
+	      
+	      if (!isMC && isVBFfired){ //check again to discard VBF HPS 
+		if(theBigTree.RunNumber < 317509){
+		  if (DEBUG)
+		    { 
+		      cout << "add VBF bits to pass_triggerbit:" << endl; 
+		      cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
+		    }
+		  if ((pass_triggerbit & (~ isHPSTauTrigger)) == 0) 
+		    {
+		      if (DEBUG) cout << "only VBF HPS trigger fired, reject"<<endl;
+		      isVBFfired = false; 
+		    }
+		}else{
+		  if (DEBUG)
+		    { 
+		      cout << "add VBF bits to pass_triggerbit:" << endl; 
+		      cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
+		    }
+		  if ((pass_triggerbit & (~ isTauTrigger)) == 0) 
+		    {
+		      if (DEBUG) cout << "only VBF non-HPS trigger fired, reject"<<endl;
+		      isVBFfired = false; 
+		    }
+		}	     
+	      }	                  
+	    }
           else
             isVBFfired = false;
 
@@ -4315,48 +4315,48 @@ int main (int argc, char** argv)
             theSmallTree.m_VBFjet2_HHbtag = -1.;
           }
 
-           //Other jets
-           for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
-           {
-             // PG filter jets at will
-             if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
+      	   //Other jets
+      	   for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
+      	   {
+      	     // PG filter jets at will
+      	     if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
-             // skip the H decay candiates
-             if (int (iJet) == bjet1idx) continue;
-             if (int (iJet) == bjet2idx) continue ;
+      	     // skip the H decay candiates
+      	     if (int (iJet) == bjet1idx) continue;
+      	     if (int (iJet) == bjet2idx) continue ;
 
-             TLorentzVector tlv_dummyJet(
-                   theBigTree.jets_px->at (iJet),
-                   theBigTree.jets_py->at (iJet),
-                   theBigTree.jets_pz->at (iJet),
-                   theBigTree.jets_e->at (iJet)
-                  );
+      	     TLorentzVector tlv_dummyJet(
+      	   				 theBigTree.jets_px->at (iJet),
+      	   				 theBigTree.jets_py->at (iJet),
+      	   				 theBigTree.jets_pz->at (iJet),
+      	   				 theBigTree.jets_e->at (iJet)
+      	   				);
 
-             // Apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets )
-             // PU jet ID WP = 2: loose
-             if (PUjetID_WP > -1)
-             {
-               if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_dummyJet.Pt()<50.) continue;
-             }
+      	     // Apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets )
+      	     // PU jet ID WP = 2: loose
+      	     if (PUjetID_WP > -1)
+      	     {
+      	       if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_dummyJet.Pt()<50.) continue;
+      	     }
 
-             // remove jets that overlap with the tau selected in the leg 1 and 2
-             if (tlv_firstLepton.DeltaR(tlv_dummyJet)  < lepCleaningCone) continue;
-             if (tlv_secondLepton.DeltaR(tlv_dummyJet) < lepCleaningCone) continue;
+      	     // remove jets that overlap with the tau selected in the leg 1 and 2
+      	     if (tlv_firstLepton.DeltaR(tlv_dummyJet)  < lepCleaningCone) continue;
+      	     if (tlv_secondLepton.DeltaR(tlv_dummyJet) < lepCleaningCone) continue;
 
-             if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end())
-             {
-               theSmallTree.m_jets_HHbtag.push_back(jets_and_HHbtag[iJet]);
-             }
-             else
-             {
-               if(DEBUG)
-               {
-             std::cout << "**WARNING: HHbtag score not found for jet " << iJet << " , setting to -1 !!" << endl;
-               }
-
-               theSmallTree.m_jets_HHbtag.push_back(-1.);
-             }
-           }
+      	     if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end())
+      	     {
+      	       theSmallTree.m_jets_HHbtag.push_back(jets_and_HHbtag[iJet]);
+      	     }
+      	     else
+      	     {
+      	       if(DEBUG)
+      	       {
+      	   	 std::cout << "**WARNING: HHbtag score not found for jet " << iJet << " , setting to -1 !!" << endl;
+      	       }
+	   	 
+      	       theSmallTree.m_jets_HHbtag.push_back(-1.);
+      	     }
+      	   } 
 
           if (DEBUG)
           {
@@ -5582,6 +5582,7 @@ int main (int argc, char** argv)
     outFile->Close();
 
   } // END MULTICLASS
+
 
   cout << "... SKIM finished, exiting." << endl;
   return 0 ;
