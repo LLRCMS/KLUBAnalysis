@@ -5,7 +5,7 @@
 //                                                                                                                //
 //   Class to compute DNN output from the Multiclass approach //
 //                                                                                                                //
-//   Author: Jaime Leon Holgado (CIEMAT) // Date  : June 2020 //
+//   Author: Jaime Leon Holgado (CIEMAT), Marcel Rieger (CERN) // Date  : June 2020 //
 //                                                                                                                //
 // --------------------------------------------------------------------------------------------------------------
 // //
