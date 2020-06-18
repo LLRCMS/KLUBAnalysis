@@ -54,7 +54,7 @@ public:
     const auto &it = features_.find(featureName);
     if (it == features_.end()) {
       // throw std::exception("FeatureProvider: unknown feature '" + featureName + "'");
-      std::cout << "FeatureProvider: unknown feature '" << featureName << "'" << std::endl; 
+      std::cout << "FeatureProvider: unknown feature '" << featureName << "'" << std::endl;
       throw std::exception();
     }
     return it->second;
@@ -72,8 +72,8 @@ private:
 class MulticlassInterface {
 public:
   MulticlassInterface(int year, const std::vector<std::pair<std::string, std::string>> &modelSpecs,
-      TTree *tree)
-      : year_(year), ttree_(tree), features_(year_, ttree_) {
+      TTree *inTree, TTree *outTree)
+      : year_(year), inTree_(inTree), outTree_(outTree), features_(year_, inTree_) {
     // load models and define output branches
     for (const auto &modelSpec : modelSpecs) {
       const std::string &version = modelSpec.first;
@@ -91,7 +91,7 @@ public:
       // define branches per output node
       for (const auto &nodeName : model->getAllNodeNames()) {
         auto branchName = "mdnn__" + version + "__" + tag + "__" + nodeName;
-        ttree_->Branch(branchName.c_str(), model->output.getOutputAddress(nodeName),
+        outTree_->Branch(branchName.c_str(), model->output.getOutputAddress(nodeName),
             (branchName + "/F").c_str());
       }
     }
@@ -107,10 +107,10 @@ public:
 
   void run() {
     // start iterating
-    int nEntries = ttree_->GetEntries();
+    int nEntries = inTree_->GetEntries();
     for (int i = 0; i < nEntries; i++) {
       // load the entry and calculate features
-      ttree_->GetEntry(i);
+      inTree_->GetEntry(i);
       features_.calculate();
 
       // fill features of all models and run them
@@ -124,13 +124,14 @@ public:
       }
 
       // fill the output tree
-      ttree_->Fill();
+      outTree_->Fill();
     }
   }
 
 private:
   int year_;
-  TTree *ttree_;
+  TTree *inTree_;
+  TTree *outTree_;
   FeatureProvider features_;
   std::vector<hmc::Model *> models_;
 };
@@ -299,7 +300,7 @@ void FeatureProvider::calculate() {
     } else if (it.first == "tauh_sv_e") {
       it.second = CHECK_EMPTY(tauHSet, tauH.E());
     } else {
-      std::cout << "MulticlassInference: unhandled feature '" << it.first << "'" << std::endl; 
+      std::cout << "MulticlassInference: unhandled feature '" << it.first << "'" << std::endl;
       throw std::exception();
       //throw std::exception("MulticlassInference: unhandled feature '" + it.first + "'");
     }

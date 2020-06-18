@@ -5568,18 +5568,31 @@ int main (int argc, char** argv)
       { "v0", "kl1_c2v1_c31_vbfbsm" }
     };
 
-    // open the output file again and read the tree
-    TFile* tfile = TFile::Open(outputFile, "UPDATE");
-    TTree* ttree = (TTree*)tfile->Get("HTauTauTree");
+    // move the file
+    std::string outputFileTmp = std::string(outputFile) + ".tmp";
+    boost::filesystem::rename(std::string(outputFile), outputFileTmp);
+
+    // read the input tree
+    TFile inFile = TFile::Open(outputFileTmp.c_str(), "READ");
+    Tree* inTree = (TTree*)inFile.Get("HTauTauTree");
+
+    // copy it into the new output file
+    TFile outFile = TFile::Open(outputFile, "RECREATE");
+    outFile.cd();
+    TTree* outTree = inTree->CopyTree("dau1_pt > -9999.");
 
     // create the multiclass inferface and run it
-    MulticlassInterface mci(year, modelSpecs, ttree);
+    MulticlassInterface mci(year, modelSpecs, inTree, outTree);
     mci.run();
 
-    // write and close
-    ttree->Write("", TObject::kOverwrite);
-    tfile->Close();
+    // write the output file
+    // outTree->Write("", TObject::kOverwrite);  // TODO: is this needed?
+    outFile.Write();
+    outFile.Close();
 
+    // close the temporary input file and remove it
+    inFile.Close();
+    boost::filesystem::remove(outputFileTmp);
   } // END MULTICLASS
 
   cout << "... SKIM finished, exiting." << endl;
