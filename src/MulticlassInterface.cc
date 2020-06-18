@@ -145,7 +145,7 @@ public:
     for (size_t i = 0; i < models_.size(); i++) {
       hmc::Model *&model = models_[i];
       const std::string &version = modelSpecs_[i].first;
-      const std::string &tag = modelSpec_[i].second;
+      const std::string &tag = modelSpecs_[i].second;
 
       // register required features with the feature provider
       for (const auto &featureName : model->getFeatureNames()) {
