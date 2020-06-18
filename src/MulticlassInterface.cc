@@ -72,8 +72,8 @@ private:
 class MulticlassInterface {
 public:
   MulticlassInterface(int year, const std::vector<std::pair<std::string, std::string>> &modelSpecs,
-      TTree *inTree, TTree *outTree)
-      : year_(year), inTree_(inTree), outTree_(outTree), features_(year_, inTree_) {
+      TTree *outTree)
+      : year_(year), outTree_(outTree), features_(year_, outTree_) {
     // load models and define output branches
     for (const auto &modelSpec : modelSpecs) {
       const std::string &version = modelSpec.first;
@@ -102,25 +102,19 @@ public:
     }
   }
 
-  ~MulticlassInterface() {
-    // delete models
-    for (auto &model : models_) {
-      delete model;
-    }
-    models_.clear();
-  }
+  ~MulticlassInterface() {}
 
   void run() {
     // start iterating
-    int nEntries = inTree_->GetEntries();
+    int nEntries = outTree_->GetEntries();
     for (int i = 0; i < nEntries; i++) {
       // load the entry and calculate features
-      inTree_->GetEntry(i);
+      outTree_->GetEntry(i);
       features_.calculate();
 
       // fill features of all models and run them
       for (size_t i = 0; i < models_.size(); i++) {
-        hmc::Model*& = models_[i];
+        hmc::Model*& model = models_[i];
         model->input.clear();
         for (const auto &featureName : model->getFeatureNames()) {
           model->input.setValue(featureName, features_.get(featureName));
@@ -141,14 +135,13 @@ public:
 
 private:
   int year_;
-  TTree *inTree_;
   TTree *outTree_;
   FeatureProvider features_;
   std::vector<hmc::Model *> models_;
   std::vector<std::vector<TBranch*>> branches_;
 };
 
-FeatureProvider::FeatureProvider(int year, TTree *inTree) : year_(year) {
+FeatureProvider::FeatureProvider(int year, TTree *outTree) : year_(year) {
   // define names of variables to read
   std::vector<std::string> boolNames = {};
   std::vector<std::string> intNames = {"pairType"};
@@ -171,19 +164,19 @@ FeatureProvider::FeatureProvider(int year, TTree *inTree) : year_(year) {
   // register them in input maps and set branch addresses
   for (const auto &name : boolNames) {
     boolInputs_.emplace(name, 0.);
-    inTree->SetBranchAddress(name.c_str(), &boolInputs_.at(name));
+    outTree->SetBranchAddress(name.c_str(), &boolInputs_.at(name));
   }
   for (const auto &name : intNames) {
     intInputs_.emplace(name, 0.);
-    inTree->SetBranchAddress(name.c_str(), &intInputs_.at(name));
+    outTree->SetBranchAddress(name.c_str(), &intInputs_.at(name));
   }
   for (const auto &name : ulong64Names) {
     ulong64Inputs_.emplace(name, 0);
-    inTree->SetBranchAddress(name.c_str(), &ulong64Inputs_.at(name));
+    outTree->SetBranchAddress(name.c_str(), &ulong64Inputs_.at(name));
   }
   for (const auto &name : floatNames) {
     floatInputs_.emplace(name, 0.);
-    inTree->SetBranchAddress(name.c_str(), &floatInputs_.at(name));
+    outTree->SetBranchAddress(name.c_str(), &floatInputs_.at(name));
   }
 }
 

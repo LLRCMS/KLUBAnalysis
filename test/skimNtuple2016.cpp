@@ -5434,35 +5434,36 @@ int main (int argc, char** argv)
 
    } // END NEW DNN
    
-   // MULTICLASS
-   bool compute_multiclass = (gConfigParser->isDefined("Multiclass::computeMVA") ? gConfigParser->readBoolOption("Multiclass::computeMVA") : false);
-   if (compute_multiclass)
-     {
-     cout << " ------------ ############### ----- Multiclass ----- ############### ------------ " << endl;
+   
+  // MULTICLASS
+  bool compute_multiclass = (gConfigParser->isDefined("Multiclass::computeMVA") ? gConfigParser->readBoolOption("Multiclass::computeMVA") : false);
+  if (compute_multiclass)
+  {
+    cout << " ------------ ############### ----- Multiclass ----- ############### ------------ " << endl;
 
-     // set the multiclass year
-     int year = 2016;
+    // set the multiclass year
+    int year = 2016;
 
-     // models to load for inference
-     std::vector<std::pair<std::string, std::string>> modelSpecs = {
-       { "v0", "kl1_c2v1_c31" },
-       { "v0", "kl1_c2v1_c31_vbfbsm" }
-     };
+    // models to load for inference
+    std::vector<std::pair<std::string, std::string>> modelSpecs = {
+      { "v0", "kl1_c2v1_c31" },
+      { "v0", "kl1_c2v1_c31_vbfbsm" }
+    };
 
-     // open the output file again and read the tree
-     TFile* tfile = TFile::Open(outputFile, "UPDATE");
-     TTree* ttree = (TTree*)tfile->Get("HTauTauTree");
+    // read the input tree
+    TFile* outFile = TFile::Open(outputFile, "UPDATE");
+    TTree* outTree = (TTree*)outFile->Get("HTauTauTree");
 
-     // create the multiclass inferface and run it
-     MulticlassInterface mci(year, modelSpecs, ttree);
-     mci.run();
+    // create the multiclass inferface and run it
+    MulticlassInterface mci(year, modelSpecs, outTree);
+    mci.run();
 
-     // write and close
-     ttree->Write("", TObject::kOverwrite);
-     tfile->Close();
+    // write the output file
+    outTree->Write("", TObject::kOverwrite);  // TODO: is this needed?
+    //outFile->Write();
+    outFile->Close();
 
-     } // END MULTICLASS
-
+  } // END MULTICLASS
 
   cout << "... SKIM finished, exiting." << endl;
   return 0 ;
