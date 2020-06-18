@@ -53,9 +53,7 @@ public:
   inline float get(const std::string &featureName) const {
     const auto &it = features_.find(featureName);
     if (it == features_.end()) {
-      // throw std::exception("FeatureProvider: unknown feature '" + featureName + "'");
-      std::cout << "FeatureProvider: unknown feature '" << featureName << "'" << std::endl;
-      throw std::exception();
+      throw std::runtime_error("FeatureProvider: unknown feature '" + featureName + "'");
     }
     return it->second;
   }
@@ -305,9 +303,7 @@ void FeatureProvider::calculate() {
     } else if (it.first == "tauh_sv_e") {
       it.second = CHECK_EMPTY(tauHSet, tauH.E());
     } else {
-      std::cout << "MulticlassInference: unhandled feature '" << it.first << "'" << std::endl;
-      throw std::exception();
-      //throw std::exception("MulticlassInference: unhandled feature '" + it.first + "'");
+      throw std::runtime_error("MulticlassInference: unhandled feature '" + it.first + "'");
     }
   }
 }
