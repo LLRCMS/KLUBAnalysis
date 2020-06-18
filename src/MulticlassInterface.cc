@@ -91,20 +91,38 @@ public:
   }
 
   inline const std::vector<std::string>& getNodeNames(size_t modelIndex) const {
-    if (modelIndex >= models_.size()) {
-      throw std::runtime_error("modelIndex " + std::to_string(modelIndex)
-          + "too large for number of models " + std::to_string(models_.size()));
+    checkModelIndex_(modelIndex);
+    return nodeNames_[modelIndex];
+  }
+
+  inline void clearInputs() {
+    for (auto& model : models_) {
+      model->input.clear();
+    }
+  }
+
+  inline void setInput(size_t modelIndex, const std::string& featureName, float value) {
+    checkModelIndex_(modelIndex);
+    models_[modelIndex]->input.setValue(feaureName, value);
+  }
+
+  std::vector<std::pair<std::string, float>> predict(hmc::EventId eventId, size_t modelIndex) {
+    checkModelIndex_(modelIndex);
+
+    // check if the input spec is complete, i.e., if all values were set
+    if (!models_[modelIndex]->input.complete()) {
+      throw std::runtime_error("model input spec is incomplete, only "
+          + std::to_string(inputSpec.getNumberOfSetFeatures()) + " out of "
+          + std::to_string(inputSpec.getNumberOfFeatures()) + " features set");
     }
 
-    return nodeNames_[modelIndex];
+    // run the prediction with input values
+    return predict(eventId, modelIndex, models_[modelIndex]->input.getValues());
   }
 
   std::vector<std::pair<std::string, float>> predict(hmc::EventId eventId, size_t modelIndex,
       const std::vector<float>& inputs) {
-    if (modelIndex >= models_.size()) {
-      throw std::runtime_error("modelIndex " + std::to_string(modelIndex)
-          + "too large for number of models " + std::to_string(models_.size()));
-    }
+    checkModelIndex_(modelIndex);
 
     // run the model
     hmc::Model*& model = models_[modelIndex];
@@ -193,6 +211,13 @@ private:
   std::vector<std::pair<std::string, std::string>> modelSpecs_;
   std::vector<hmc::Model *> models_;
   std::vector<std::vector<std::string>> nodeNames_;
+
+  inline void checkModelIndex_(size_t modelIndex) const {
+    if (modelIndex >= models_.size()) {
+      throw std::runtime_error("modelIndex " + std::to_string(modelIndex)
+          + "too large for number of models " + std::to_string(models_.size()));
+    }
+  }
 };
 
 FeatureProvider::FeatureProvider(int year, TTree *tree) : year_(year) {
