@@ -16,6 +16,11 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <exception>
+
+// ROOT
+#include "TTree.h"
+#include "TLorentzVector.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/format.hpp>
@@ -48,7 +53,9 @@ public:
   inline float get(const std::string &featureName) const {
     const auto &it = features_.find(featureName);
     if (it == features_.end()) {
-      throw exception("FeatureProvider: unknown feature '" + featureName + "'");
+      // throw std::exception("FeatureProvider: unknown feature '" + featureName + "'");
+      std::cout << "FeatureProvider: unknown feature '" << featureName << "'" << std::endl; 
+      throw std::exception();
     }
     return it->second;
   }
@@ -57,7 +64,7 @@ private:
   int year_;
   std::map<std::string, bool> boolInputs_;
   std::map<std::string, int> intInputs_;
-  std::map<std::string, ULong64_t> ulong64Inputs_;
+  std::map<std::string, long long> ulong64Inputs_;
   std::map<std::string, float> floatInputs_;
   std::map<std::string, float> features_;
 };
@@ -66,7 +73,7 @@ class MulticlassInterface {
 public:
   MulticlassInterface(int year, const std::vector<std::pair<std::string, std::string>> &modelSpecs,
       TTree *tree)
-      : year_(year), tree_(tree), features(year_, ttree_) {
+      : year_(year), ttree_(tree), features_(year_, ttree_) {
     // load models and define output branches
     for (const auto &modelSpec : modelSpecs) {
       const std::string &version = modelSpec.first;
@@ -103,7 +110,7 @@ public:
     int nEntries = ttree_->GetEntries();
     for (int i = 0; i < nEntries; i++) {
       // load the entry and calculate features
-      ttree->GetEntry(i);
+      ttree_->GetEntry(i);
       features_.calculate();
 
       // fill features of all models and run them
@@ -292,7 +299,9 @@ void FeatureProvider::calculate() {
     } else if (it.first == "tauh_sv_e") {
       it.second = CHECK_EMPTY(tauHSet, tauH.E());
     } else {
-      throw exception("MulticlassInference: unhandled feature '" + it.first + "'");
+      std::cout << "MulticlassInference: unhandled feature '" << it.first << "'" << std::endl; 
+      throw std::exception();
+      //throw std::exception("MulticlassInference: unhandled feature '" + it.first + "'");
     }
   }
 }

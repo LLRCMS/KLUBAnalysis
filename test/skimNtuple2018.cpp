@@ -5573,7 +5573,7 @@ int main (int argc, char** argv)
     TTree* ttree = (TTree*)tfile->Get("HTauTauTree");
 
     // create the multiclass inferface and run it
-    MulticlassInterface mci(year, modelSpecs, tree);
+    MulticlassInterface mci(year, modelSpecs, ttree);
     mci.run();
 
     // write and close
