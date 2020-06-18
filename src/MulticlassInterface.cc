@@ -95,7 +95,7 @@ public:
     return nodeNames_[modelIndex];
   }
 
-  inline void clearInputs() {
+  void clearInputs() {
     for (auto& model : models_) {
       model->input.clear();
     }
@@ -104,6 +104,13 @@ public:
   inline void setInput(size_t modelIndex, const std::string& featureName, float value) {
     checkModelIndex_(modelIndex);
     models_[modelIndex]->input.setValue(feaureName, value);
+  }
+
+  void setInputs(size_t modelIndex, const std::vector<std::pair<std::string, float>>& inputs) {
+    checkModelIndex_(modelIndex);
+    for (const auto& pair : inputs) {
+      models_[modelIndex]->input.setValue(pair.first, pair.second);
+    }
   }
 
   std::vector<std::pair<std::string, float>> predict(hmc::EventId eventId, size_t modelIndex) {
