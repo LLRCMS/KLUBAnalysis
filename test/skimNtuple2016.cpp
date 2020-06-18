@@ -5455,12 +5455,11 @@ int main (int argc, char** argv)
     TTree* outTree = (TTree*)outFile->Get("HTauTauTree");
 
     // create the multiclass inferface and run it
-    MulticlassInterface mci(year, modelSpecs, outTree);
-    mci.run();
+    MulticlassInterface mci(year, modelSpecs);
+    mci.extendTree(outTree);
 
     // write the output file
-    outTree->Write("", TObject::kOverwrite);  // TODO: is this needed?
-    //outFile->Write();
+    outTree->Write("", TObject::kOverwrite);
     outFile->Close();
 
   } // END MULTICLASS
