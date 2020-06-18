@@ -89,11 +89,16 @@ public:
       }
 
       // define branches per output node
+      std::vector<TBranch*> branches;
       for (const auto &nodeName : model->getAllNodeNames()) {
         auto branchName = "mdnn__" + version + "__" + tag + "__" + nodeName;
-        outTree_->Branch(branchName.c_str(), model->output.getOutputAddress(nodeName),
+        TBranch* b = outTree_->Branch(branchName.c_str(), model->output.getOutputAddress(nodeName),
             (branchName + "/F").c_str());
+        branches.push_back(b);
       }
+
+      // save branches
+      branches_.push_back(branches);
     }
   }
 
@@ -114,17 +119,23 @@ public:
       features_.calculate();
 
       // fill features of all models and run them
-      for (hmc::Model *&model : models_) {
+      for (size_t i = 0; i < models_.size(); i++) {
+        hmc::Model*& = models_[i];
         model->input.clear();
         for (const auto &featureName : model->getFeatureNames()) {
           model->input.setValue(featureName, features_.get(featureName));
         }
 
         model->run(features_.getEventId());
+
+        // fill branches
+        for (TBranch*& b : branches_[i]) {
+          b->Fill();
+        }
       }
 
       // fill the output tree
-      outTree_->Fill();
+      // outTree_->Fill();
     }
   }
 
@@ -134,6 +145,7 @@ private:
   TTree *outTree_;
   FeatureProvider features_;
   std::vector<hmc::Model *> models_;
+  std::vector<std::vector<TBranch*>> branches_;
 };
 
 FeatureProvider::FeatureProvider(int year, TTree *inTree) : year_(year) {
