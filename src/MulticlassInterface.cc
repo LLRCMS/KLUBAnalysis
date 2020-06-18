@@ -103,7 +103,7 @@ public:
 
   inline void setInput(size_t modelIndex, const std::string& featureName, float value) {
     checkModelIndex_(modelIndex);
-    models_[modelIndex]->input.setValue(feaureName, value);
+    models_[modelIndex]->input.setValue(featureName, value);
   }
 
   void setInputs(size_t modelIndex, const std::vector<std::pair<std::string, float>>& inputs) {
@@ -117,14 +117,15 @@ public:
     checkModelIndex_(modelIndex);
 
     // check if the input spec is complete, i.e., if all values were set
-    if (!models_[modelIndex]->input.complete()) {
+    auto& inputSpec = models_[modelIndex]->input;
+    if (!inputSpec.complete()) {
       throw std::runtime_error("model input spec is incomplete, only "
           + std::to_string(inputSpec.getNumberOfSetFeatures()) + " out of "
           + std::to_string(inputSpec.getNumberOfFeatures()) + " features set");
     }
 
     // run the prediction with input values
-    return predict(eventId, modelIndex, models_[modelIndex]->input.getValues());
+    return predict(eventId, modelIndex, inputSpec.getValues());
   }
 
   std::vector<std::pair<std::string, float>> predict(hmc::EventId eventId, size_t modelIndex,
