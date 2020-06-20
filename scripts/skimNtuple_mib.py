@@ -262,6 +262,8 @@ if __name__ == "__main__":
             sys_command += (" " + opt.output + "/output_"+str(n)+".root")
             sys_command += (" " + opt.output + "/syst_output_"+str(n)+".root")
             sys_command += (" " + opt.config)
+            if opt.isdata : sys_command += ' 1 '
+            else          : sys_command += ' 0 '
             sys_command += (" " + ">& " + opt.output + "/syst_output_"+str(n)+".log\n")
             scriptFile.write(sys_command)
 
