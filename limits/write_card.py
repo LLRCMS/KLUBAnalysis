@@ -74,27 +74,6 @@ def  writeCard(backgrounds,signals, select,region=-1) :
 			if bkg is not "QCD" :
                             MCbackgrounds.append(bkg)
 
-	allQCD = False
-	allQCDs = [0,0,0,0]
-	for regionsuff in range(len(regionSuffix)) :
-		for ichan in range(len(backgrounds)):
-			if "QCD" in backgrounds[ichan] :
-				fname = "data_obs"
-				if regionSuffix[regionsuff] == "SR" :
-					fname="QCD"
-				templateName = "{0}_{1}_{3}_{2}".format(fname,select,variable,regionSuffix[regionsuff])
-				template = inRoot.Get(templateName)
-				#allQCDs.append(template.Integral())
-				allQCDs[regionsuff]= allQCDs[regionsuff]+template.Integral()
-				iQCD = ichan
-			elif regionSuffix[regionsuff] is not "SR" :
-				templateName = "{0}_{1}_{3}_{2}".format(backgrounds[ichan],select,variable,regionSuffix[regionsuff])
-				template = inRoot.Get(templateName)
-				allQCDs[regionsuff] = allQCDs[regionsuff] - template.Integral()
-
-	if allQCDs[0]>0 and allQCDs[1]>0 and allQCDs[2]>0 and allQCDs[3]>0 : allQCD = True
-	#for i in range(4) : print allQCDs[i]
-
         rates = []
         iQCD = -1
         totRate = 0
@@ -103,25 +82,30 @@ def  writeCard(backgrounds,signals, select,region=-1) :
         obs = template.GetEntries()
 
         for proc in range(len(backgrounds)):
-            if "QCD" in backgrounds[proc] :
+            if "QCD" in backgrounds[proc] and region > 0:
                 rates.append(-1)
                 iQCD = proc
             else :
                 templateName = "{0}_{1}_{3}_{2}".format(backgrounds[proc],select,variable,regionSuffix[region])
                 template = inRoot.Get(templateName)
-
                 brate = template.Integral()
                 rates.append(brate)
                 totRate = totRate + brate
-        if iQCD >= 0 : rates[iQCD] = TMath.Max(0.0000001,obs-totRate)
+        if iQCD >= 0 and region > 0: rates[iQCD] = TMath.Max(0.0000001,obs-totRate)
+        print str(region), rates
 
-        for proc in range(len(signals)):
-            templateName = "{0}_{1}_{3}_{2}".format(signals[proc],select,variable,regionSuffix[region])
-            template = inRoot.Get(templateName)
-            srate = template.Integral()
-            rates.append(srate)
 
+            
         if region == 0 :
+
+            for proc in range(len(signals)):
+                templateName = "{0}_{1}_{3}_{2}".format(signals[proc],select,variable,regionSuffix[region])
+                
+                template = inRoot.Get(templateName)
+                srate = template.Integral()
+                rates.append(srate)
+            
+
             syst = systReader("../config/systematics.cfg",signals,backgrounds,None)
             syst.writeOutput(False)
             syst.verbose(True)
@@ -139,6 +123,8 @@ def  writeCard(backgrounds,signals, select,region=-1) :
 
             systsShape  = ["CMS_scale_t_13TeV_DM0"] # <-- ADD HERE THE OTHER TES/JES SYST SHAPES (TOP SYST SHAPE IS ADDED BY HAND LATER)
             systsNorm   = []                        # <-- THIS WILL BE FILLED FROM CONFIGS
+            
+
 
             for isy in range(len(syst.SystNames)) :
                 if "CMS_scale_t" in syst.SystNames[isy] or "CMS_scale_j" in syst.SystNames[isy]: continue
@@ -151,19 +137,51 @@ def  writeCard(backgrounds,signals, select,region=-1) :
                         print "adding Syst",systVal,syst.SystNames[isy],syst.SystTypes[isy],"to",syst.SystProcesses[isy][iproc]                        
                         proc_syst[syst.SystProcesses[isy][iproc]][syst.SystNames[isy]] = [syst.SystTypes[isy], systVal]
                         systsNorm.append(syst.SystNames[isy])
+                
+            nominalShapes_toSave = []            
+            nominalShapes_newName = []            
+
+            shiftShapes_toSave = []            
+            shiftShapes_newName = []
+
+            for proc in backgrounds: 
+                nominalShapes_toSave.append("{0}_{1}_{2}_{3}".format(proc, select, regionSuffix[region], variable))
+                nominalShapes_newName.append(proc)
+            
+            for proc in signals:  
+                nominalShapes_toSave.append("{0}_{1}_{2}_{3}".format(proc, select, regionSuffix[region], variable))
+                nominalShapes_newName.append(proc)
+            
+            nominalShapes_toSave.append("data_obs_{0}_{1}_{2}".format(select, regionSuffix[region], variable))
+            nominalShapes_newName.append("data_obs")
 
             if opt.shapeUnc > 0:
                 for name in systsShape:
-                    for proc in MCbackgrounds: proc_syst[proc][name] = ["shape", 1.]   #applying jes or tes to all MC backgrounds
-                    for proc in signals:       proc_syst[proc][name] = ["shape", 1.]   #applying jes or tes to all signals 
-                #proc_syst["TT"]["top"] = ["shape", 1] ### NEED TO UNCOMMENT THESE TWO LINES  
-                #systsShape.append("top")              ### WHEN TOP BKGS ARE IN
+                    for proc in backgrounds: 
+                        proc_syst[proc][name] = ["shape", 1.]   #applying jes or tes to all MC backgrounds
+                        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,  regionSuffix[region], variable, name))
+                        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable, name))
+                        shiftShapes_newName.append(proc+"_"+name+"Up")
+                        shiftShapes_newName.append(proc+"_"+name+"Down")
 
-            col1 = '{: <40}'
-            colsysN = '{: <30}'
+                    for proc in signals:       
+                        proc_syst[proc][name] = ["shape", 1.]   #applying jes or tes to all signals 
+                        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,   regionSuffix[region],variable,  name))
+                        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable,  name))
+                        shiftShapes_newName.append(proc+"_"+name+"Up")
+                        shiftShapes_newName.append(proc+"_"+name+"Down")
+                #proc_syst["TT"]["top"] = ["shape", 1] ### NEED TO UNCOMMENT THESE LINES  
+                #systsShape.append("top")              ### WHEN TOP BKGS ARE IN
+                #shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format("TT", select,  regionSuffix[region], variable,  name))
+                #shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format("TT", select, regionSuffix[region],variable,  name))
+                #shiftShapes_newName.append("TT_"+name+"Up")
+                #shiftShapes_newName.append("TT_"+name+"Down")
+
+            col1       = '{: <40}'
+            colsysN    = '{: <30}'
             colsysType = '{: <10}'
-            cols = '{: >25}'
-            ratecols = '{0: > 25.4f}'
+            cols       = '{: >25}'
+            ratecols   = '{0: > 25.4f}'
         	
             shapes_lines_toWrite = []
             lnN_lines_toWrite     = []
@@ -194,7 +212,7 @@ def  writeCard(backgrounds,signals, select,region=-1) :
 	    file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
 	    ## shapes
 	    
-	    file.write    ('shapes * %s %s $PROCESS $PROCESS_$SYSTEMATIC\n'%(select, opt.filename))
+	    file.write    ('shapes * %s %s $PROCESS $PROCESS_$SYSTEMATIC\n'%(select, "hh_{0}_C{1}_13TeV.input.root".format(thechannel,theCat)))
 	    file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
 	    
 	    file.write    ((col1+cols+'\n').format('bin', select)) ### blind for now
@@ -236,71 +254,91 @@ def  writeCard(backgrounds,signals, select,region=-1) :
             file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')            
             
                 
-            file.write    ('theory group = HH_BR_Hbb HH_BR_Htt QCDscale_ggHH pdf_ggHH\n')
+            #file.write    ('theory group = HH_BR_Hbb HH_BR_Htt QCDscale_ggHH pdf_ggHH\n')   #### NEED TO UPDATE THE NAMING
                         
             file.write    ("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(select))
              
             if (opt.binbybin): file.write('\n* autoMCStats 10')
             
             file.close()
+            outroot = TFile.Open(out_dir+"hh_{0}_C{1}_13TeV.input.root".format(thechannel,theCat),"RECREATE")
+
+            for i, name in enumerate(nominalShapes_toSave):
+                print name
+                h = inRoot.Get(name)
+                
+                h.SetTitle(nominalShapes_newName[i])
+                h.SetName(nominalShapes_newName[i])
+                outroot.cd()
+                h.Write()
+
+            for i, name in enumerate(shiftShapes_toSave):
+                h = inRoot.Get(name)
+                h.SetTitle(shiftShapes_newName[i])
+                h.SetName(shiftShapes_newName[i])
+                outroot.cd()
+                h.Write()
+
+            outroot.Close()
 
         else :
-		outFile = "hh_{0}_C{1}_13TeV_{2}.txt".format(thechannel,theCat,regionName[region])
-
-		file = open( out_dir+outFile, "wb")
-
-		file.write("imax 1\n")
-		file.write("jmax {0}\n".format(len(backgrounds)-1))
-		file.write("kmax *\n")
-
-		file.write("------------\n")
-		file.write("shapes * * FAKE\n".format(opt.channel,regionName[region]))
-		file.write("------------\n")
-
-		templateName = "data_obs_{1}_{3}_{2}".format(bkg,select,variable,regionSuffix[region])
-		template = inRoot.Get(templateName)        
-		file.write("bin {0} \n".format(select))
-		obs = template.GetEntries()
-		file.write("observation {0} \n".format(obs))
-
-		file.write("------------\n")
-
-		file.write("bin ")        
-		for chan in backgrounds:
-			file.write("{0}\t ".format(select))
-		file.write("\n")      
-
-		file.write("process ")
-		for chan in backgrounds:
-			file.write("{0}\t ".format(chan))
-
-		file.write("\n")
-
-		file.write("process ")
-		for chan in range(len(backgrounds)): #+1 for the QCD
-			file.write("{0}\t ".format(chan+1))
-		file.write("\n")
-
-		file.write("rate ")
-		rates = []
-		iQCD = -1
-		totRate = 0
-		for ichan in range(len(backgrounds)):
-			if "QCD" in backgrounds[ichan] :
-				rates.append(-1)
-				iQCD = ichan
-			else :
-				templateName = "{0}_{1}_{3}_{2}".format(backgrounds[ichan],select,variable,regionSuffix[region])
-				template = inRoot.Get(templateName)
-				brate = template.Integral()
-				rates.append(brate)
-				totRate = totRate + brate
-		if iQCD >= 0 : rates[iQCD] = TMath.Max(0.0000001,obs-totRate)
-		for ichan in range(len(backgrounds)):
-			file.write("{0:.4f}\t".format(rates[ichan]))
-		file.write("\n")
-		file.write("------------\n")
-		file.write("QCD_{0} rateParam  {1} QCD 1 \n".format(regionName[region],select))
+            outFile = "hh_{0}_C{1}_13TeV_{2}.txt".format(thechannel,theCat,regionName[region])
+        	
+	    file = open( out_dir+outFile, "wb")
+            
+	    file.write("imax 1\n")
+	    file.write("jmax {0}\n".format(len(backgrounds)-1))
+	    file.write("kmax *\n")
+            
+	    file.write("------------\n")
+	    file.write("shapes * * FAKE\n".format(opt.channel,regionName[region]))
+	    file.write("------------\n")
+            
+	    templateName = "data_obs_{1}_{3}_{2}".format(bkg,select,variable,regionSuffix[region])
+	    template = inRoot.Get(templateName)        
+	    file.write("bin {0} \n".format(select))
+	    obs = template.GetEntries()
+	    file.write("observation {0} \n".format(obs))
+            
+	    file.write("------------\n")
+            
+	    file.write("bin ")        
+	    for chan in backgrounds:
+	    	file.write("{0}\t ".format(select))
+	    file.write("\n")      
+            
+	    file.write("process ")
+	    for chan in backgrounds:
+	    	file.write("{0}\t ".format(chan))
+            
+	    file.write("\n")
+            
+	    file.write("process ")
+	    for chan in range(len(backgrounds)): #+1 for the QCD
+	    	file.write("{0}\t ".format(chan+1))
+	    file.write("\n")
+            
+	    file.write("rate ")
+	    rates = []
+	    iQCD = -1
+	    totRate = 0
+            
+	    for ichan in range(len(backgrounds)):
+	    	if "QCD" in backgrounds[ichan] :
+	    		rates.append(-1)
+	    		iQCD = ichan
+	    	else :
+	    		templateName = "{0}_{1}_{3}_{2}".format(backgrounds[ichan],select,variable,regionSuffix[region])
+	    		template = inRoot.Get(templateName)
+	    		brate = template.Integral()
+	    		rates.append(brate)
+	    		totRate = totRate + brate
+	    if iQCD >= 0 : rates[iQCD] = TMath.Max(0.0000001,obs-totRate)
+	    for ichan in range(len(backgrounds)):
+	    	file.write("{0:.4f}\t".format(rates[ichan]))
+	    file.write("\n")
+	    file.write("------------\n")
+	    file.write("QCD_{0} rateParam  {1} QCD 1 \n".format(regionName[region],select))
 
         return (out_dir+outFile)
 
@@ -346,10 +384,9 @@ for i,sig in enumerate(signals):
 
 datacards = []
 
+
+
 for sel in allSel : 
     for ireg in range(0,4) :
          card = writeCard(backgrounds,signals, sel,ireg)
-         datacards.append(card)
-
-if opt.makeworkspace:
-    for card in datacards: os.system('text2workspace.py %s -P HHModel:HHdefault &'%card)
+         if ireg == 0: datacards.append(card)
