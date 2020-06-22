@@ -118,9 +118,9 @@ def  writeCard(backgrounds,signals, select,region=-1) :
         for proc in range(len(signals)):
             templateName = "{0}_{1}_{3}_{2}".format(signals[proc],select,variable,regionSuffix[region])
             template = inRoot.Get(templateName)
-
             srate = template.Integral()
             rates.append(srate)
+
         if region == 0 :
             syst = systReader("../config/systematics.cfg",signals,backgrounds,None)
             syst.writeOutput(False)
@@ -134,11 +134,11 @@ def  writeCard(backgrounds,signals, select,region=-1) :
             if opt.theory : syst.addSystFile("../config/syst_th.cfg")
             syst.writeSystematics()
             proc_syst = {} # key = proc name; value = {systName: [systType, systVal]] } # too nested? \_(``)_/
-            for proc in backgrounds:
-                proc_syst[proc] = {}
-            for proc in signals:
-                proc_syst[proc] = {}
+            for proc in backgrounds:   proc_syst[proc] = {}
+            for proc in signals:       proc_syst[proc] = {}
 
+            systsShape  = ["CMS_scale_t_13TeV_DM0"] # <-- ADD HERE THE OTHER TES/JES SYST SHAPES (TOP SYST SHAPE IS ADDED BY HAND LATER)
+            systsNorm   = []                        # <-- THIS WILL BE FILLED FROM CONFIGS
 
             for isy in range(len(syst.SystNames)) :
                 if "CMS_scale_t" in syst.SystNames[isy] or "CMS_scale_j" in syst.SystNames[isy]: continue
@@ -150,114 +150,100 @@ def  writeCard(backgrounds,signals, select,region=-1) :
                         systVal = float(syst.SystValues[isy][iproc])
                         print "adding Syst",systVal,syst.SystNames[isy],syst.SystTypes[isy],"to",syst.SystProcesses[isy][iproc]                        
                         proc_syst[syst.SystProcesses[isy][iproc]][syst.SystNames[isy]] = [syst.SystTypes[isy], systVal]
+                        systsNorm.append(syst.SystNames[isy])
 
             if opt.shapeUnc > 0:
-                for proc in MCbackgrounds:    #applying jes or tes to all MC backgrounds
-                    proc_syst[proc]["CMS_scale_t_13TeV_DM0"] = ["shape", 1.]
-                for proc in signals:          #applying jes or tes to all signals backgrounds
-                    proc_syst[proc]["CMS_scale_t_13TeV_DM0"] = ["shape", 1.]
-            #proc_syst["TT"]["top"] = ["shape", 1]
-            
+                for name in systsShape:
+                    for proc in MCbackgrounds: proc_syst[proc][name] = ["shape", 1.]   #applying jes or tes to all MC backgrounds
+                    for proc in signals:       proc_syst[proc][name] = ["shape", 1.]   #applying jes or tes to all signals 
+                #proc_syst["TT"]["top"] = ["shape", 1] ### NEED TO UNCOMMENT THESE TWO LINES  
+                #systsShape.append("top")              ### WHEN TOP BKGS ARE IN
 
-        	col1 = '{: <60}'
-        	colsysN = '{: <50}'
-        	colsysType = '{: <10}'
-        	cols = '{: >25}'
-        	ratecols = '{0: > 25.4f}'
+            col1 = '{: <40}'
+            colsysN = '{: <30}'
+            colsysType = '{: <10}'
+            cols = '{: >25}'
+            ratecols = '{0: > 25.4f}'
         	
-        	shapes_lines_toWrite = []
-        	lnN_lines_toWrite     = []
+            shapes_lines_toWrite = []
+            lnN_lines_toWrite     = []
         	
-		for proc in backgrounds:
-        	        for systName, systL in proc_syst[proc].items():
-        	            if systL[0] == "shape": 
-        	                shapes_lines_toWrite.append(colsysN.format(proc+"_"+select+"_"+variable+"_"+regionSuffix[region]))
-        	                shapes_lines_toWrite.append(colsysType.format("shape"))
-        	                for lineproc in backgrounds: shapes_lines_toWrite.append(cols.format("1" if lineproc == proc else "-"))
-        	                for lineproc in signals:     shapes_lines_toWrite.append(cols.format("-"))
-        	                shapes_lines_toWrite.append("\n")
-        	            else: 
-        	                lnN_lines_toWrite.append(colsysN.format(proc+"_"+select+"_"+variable+"_"+regionSuffix[region]))
-        	                lnN_lines_toWrite.append(colsysType.format("lnN"))
-        	                for lineproc in backgrounds: lnN_lines_toWrite.append(cols.format(systL[1] if lineproc == proc else "-"))
-        	                for lineproc in signals:     lnN_lines_toWrite.append(cols.format("-"))
-        	                lnN_lines_toWrite.append("\n")
-        	
-        	for proc in signals:
-        	        for systName, systL in proc_syst[proc].items():
-        	            if systL[0] == "shape":
-        	                shapes_lines_toWrite.append(colsysN.format(proc+"_"+select+"_"+variable+"_"+regionSuffix[region]))
-        	                shapes_lines_toWrite.append(colsysType.format("shape"))
-        	                for lineproc in backgrounds: shapes_lines_toWrite.append(cols.format("-"))
-        	                for lineproc in signals:     shapes_lines_toWrite.append(cols.format("1" if lineproc == proc else "-"))
-        	                shapes_lines_toWrite.append("\n")
-        	            else: 
-        	                lnN_lines_toWrite.append(colsysN.format(proc+"_"+select+"_"+variable+"_"+regionSuffix[region]))
-        	                lnN_lines_toWrite.append(colsysType.format("shape"))
-        	                for lineproc in backgrounds: lnN_lines_toWrite.append(cols.format("-"))
-        	                for lineproc in signals:     lnN_lines_toWrite.append(cols.format(systL[1] if lineproc == proc else "-"))
-        	                lnN_lines_toWrite.append("\n")
-        	
-        	########################
-        	outFile = "hh_{0}_C{1}_13TeV.txt".format(thechannel,theCat)
-        	
-		file = open(out_dir+outFile, "wb")
+            for name in systsShape:
+                shapes_lines_toWrite.append(colsysN.format(name))
+                shapes_lines_toWrite.append(colsysType.format("shape"))
+                for lineproc in backgrounds: shapes_lines_toWrite.append(cols.format("1" if name in proc_syst[lineproc].keys() else "-"))
+                for lineproc in signals:     shapes_lines_toWrite.append(cols.format("1" if name in proc_syst[lineproc].keys() else "-"))
+                shapes_lines_toWrite.append("\n")
 
-	        file.write    ('imax *  number of channels\n')
-	        file.write    ('jmax *  number of processes minus 1\n')
-	        file.write    ('kmax *  number of nuisance parameters\n')
-	        file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
-	        ## shapes
-	
-	        file.write    ('shapes * %s %s $PROCESS $PROCESS_$SYSTEMATIC\n'%(select, opt.filename))
-	        file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
-	
-	        file.write    ((col1+cols+'\n').format('bin', select)) ### blind for now
-	        ## observation
-	        file.write    ((col1+cols+'\n').format('observation', '-1')) ### blind for now
-	
-	        file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
-	        ## processes 
-	        file.write    ('# list the expected events for signal and all backgrounds in that bin\n')
-	        file.write    ('# the second process line must have a positive number for backgrounds, and 0 or neg for signal\n')
-	        file.write    (col1.format('bin'))
-	        for i in range(0,len(backgrounds)+len(signals)): 
-	            file.write(cols.format(select))
-	        file.write    ("\n")
-	        file.write    (col1.format('process'))
-	        for proc in backgrounds: 
-	            file.write(cols.format(proc))
-	        for proc in signals: 
-	            file.write(cols.format(proc))
-	        file.write    ("\n")
-	        file.write    (col1.format("process"))
-	        for i in range(1,len(backgrounds)+1): 
-	            file.write(cols.format(i))
-	        for i in range(0,len(signals)): 
-	            file.write(cols.format(str(-int(i))))
-	        file.write    ("\n")
-	        file.write    (col1.format("rate"))
-	        for proc in range(len(backgrounds)+len(signals)):
-	            file.write(ratecols.format(rates[proc]))
-	        file.write    ("\n")
-	        file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
+            for name in systsNorm:
+                lnN_lines_toWrite.append(colsysN.format(name))
+                lnN_lines_toWrite.append(colsysType.format("lnN"))
+                for lineproc in backgrounds: lnN_lines_toWrite.append(cols.format("1" if name in proc_syst[lineproc].keys() else "-"))
+                for lineproc in signals:     lnN_lines_toWrite.append(cols.format("1" if name in proc_syst[lineproc].keys() else "-"))
+                lnN_lines_toWrite.append("\n")
 
-        
-                for line in shapes_lines_toWrite:
-                    file.write(line)
-                for line in lnN_lines_toWrite:
-                    file.write(line)
+            ########################
             
-                file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')            
+            outFile = "hh_{0}_C{1}_13TeV.txt".format(thechannel,theCat)
             
-                    
-                file.write    ('theory group = HH_BR_Hbb HH_BR_Htt QCDscale_ggHH pdf_ggHH\n')
-                            
-                file.write("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(select))
-                 
-                if (opt.binbybin): file.write('\n* autoMCStats 10')
+	    file = open(out_dir+outFile, "wb")
             
-                file.close()
+	    file.write    ('imax *  number of channels\n')
+	    file.write    ('jmax *  number of processes minus 1\n')
+	    file.write    ('kmax *  number of nuisance parameters\n')
+	    file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
+	    ## shapes
+	    
+	    file.write    ('shapes * %s %s $PROCESS $PROCESS_$SYSTEMATIC\n'%(select, opt.filename))
+	    file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
+	    
+	    file.write    ((col1+cols+'\n').format('bin', select)) ### blind for now
+	    ## observation
+	    file.write    ((col1+cols+'\n').format('observation', '-1')) ### blind for now
+	    
+	    file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
+	    ## processes 
+	    file.write    ('# list the expected events for signal and all backgrounds in that bin\n')
+	    file.write    ('# the second process line must have a positive number for backgrounds, and 0 or neg for signal\n')
+	    file.write    (col1.format('bin'))
+	    for i in range(0,len(backgrounds)+len(signals)): 
+	        file.write(cols.format(select))
+	    file.write    ("\n")
+	    file.write    (col1.format('process'))
+	    for proc in backgrounds: 
+	        file.write(cols.format(proc))
+	    for proc in signals: 
+	        file.write(cols.format(proc))
+	    file.write    ("\n")
+	    file.write    (col1.format("process"))
+	    for i in range(1,len(backgrounds)+1): 
+	        file.write(cols.format(i))
+	    for i in range(0,len(signals)): 
+	        file.write(cols.format(str(-int(i))))
+	    file.write    ("\n")
+	    file.write    (col1.format("rate"))
+	    for proc in range(len(backgrounds)+len(signals)):
+	        file.write(ratecols.format(rates[proc]))
+	    file.write    ("\n")
+	    file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
+            
+            
+            for line in shapes_lines_toWrite:
+                file.write(line)
+            for line in lnN_lines_toWrite:
+                file.write(line)
+            
+            file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')            
+            
+                
+            file.write    ('theory group = HH_BR_Hbb HH_BR_Htt QCDscale_ggHH pdf_ggHH\n')
+                        
+            file.write    ("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(select))
+             
+            if (opt.binbybin): file.write('\n* autoMCStats 10')
+            
+            file.close()
+
         else :
 		outFile = "hh_{0}_C{1}_13TeV_{2}.txt".format(thechannel,theCat,regionName[region])
 
@@ -366,4 +352,4 @@ for sel in allSel :
          datacards.append(card)
 
 if opt.makeworkspace:
-    for card in datacards: os.system('text2workspace.py %s -D %s -P HHModel:HHdefault &'%card)
+    for card in datacards: os.system('text2workspace.py %s -P HHModel:HHdefault &'%card)
