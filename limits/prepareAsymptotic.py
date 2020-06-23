@@ -43,7 +43,7 @@ if __name__ == "__main__":
         command = command + " --run blind "
         
     command = command + "%s/comb.root" % jobsDir
-    #command = command + "%s/comb_cat.root" % jobsDir # <-- when combining categories
+    #command = command + "%s/comb_cat.root" % jobsDir # <-- when combining categories
     set_parameters = []
     red_parameters = []
     fre_parameters = []
