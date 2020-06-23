@@ -35,7 +35,8 @@ def parseOptions():
 
 def  writeCard(backgrounds,signals, select,region=-1) :
 
-        variable = 'DNNoutSM_kl_1'
+	#variable = 'DNNoutSM_kl_5_new'
+	variable = 'DNNoutSM_kl_1'
 
 	theOutputDir = "{0}{1}".format(select,variable)
 	dname = "_"+opt.channel+opt.outDir
@@ -43,7 +44,7 @@ def  writeCard(backgrounds,signals, select,region=-1) :
 
 	cmd = "mkdir -p {0}".format(out_dir)
         
-        regionName = ["","regB","regC","regD"]
+	regionName = ["","regB","regC","regD"]
 	regionSuffix = ["SR","SStight","OSinviso","SSinviso"]
 	status, output = commands.getstatusoutput(cmd)   
 	thechannel = "2"
@@ -100,7 +101,6 @@ def  writeCard(backgrounds,signals, select,region=-1) :
 
             for proc in range(len(signals)):
                 templateName = "{0}_{1}_{3}_{2}".format(signals[proc],select,variable,regionSuffix[region])
-                
                 template = inRoot.Get(templateName)
                 srate = template.Integral()
                 rates.append(srate)
@@ -121,7 +121,7 @@ def  writeCard(backgrounds,signals, select,region=-1) :
             for proc in backgrounds:   proc_syst[proc] = {}
             for proc in signals:       proc_syst[proc] = {}
 
-            systsShape  = ["CMS_scale_t_13TeV_DM0"] # <-- ADD HERE THE OTHER TES/JES SYST SHAPES (TOP SYST SHAPE IS ADDED BY HAND LATER)
+            systsShape  = [] #["CMS_scale_t_13TeV_DM0"] # <-- ADD HERE THE OTHER TES/JES SYST SHAPES (TOP SYST SHAPE IS ADDED BY HAND LATER)
             systsNorm   = []                        # <-- THIS WILL BE FILLED FROM CONFIGS
             
 
@@ -129,15 +129,20 @@ def  writeCard(backgrounds,signals, select,region=-1) :
             for isy in range(len(syst.SystNames)) :
                 if "CMS_scale_t" in syst.SystNames[isy] or "CMS_scale_j" in syst.SystNames[isy]: continue
                 for iproc in range(len(syst.SystProcesses[isy])) :
-                    if "/" in syst.SystValues[isy][iproc] :
-                        f = syst.SystValues[isy][iproc].split("/")
-                        systVal = (float(f[0]),float(f[1]))
-                    else :
-                        systVal = float(syst.SystValues[isy][iproc])
-                        print "adding Syst",systVal,syst.SystNames[isy],syst.SystTypes[isy],"to",syst.SystProcesses[isy][iproc]                        
-                        proc_syst[syst.SystProcesses[isy][iproc]][syst.SystNames[isy]] = [syst.SystTypes[isy], systVal]
-                        systsNorm.append(syst.SystNames[isy])
+                    #if "/" in syst.SystValues[isy][iproc] :
+                    #    f = syst.SystValues[isy][iproc].split("/")
+                    #    systVal = (float(f[0]),float(f[1]))
+                    #    if syst.SystNames[isy] == "HH_BR_Hbb":
+                    #        import pdb; pdb.set_trace()
+                    #else :
+                    #systVal = float(syst.SystValues[isy][iproc])
+                    systVal = syst.SystValues[isy][iproc]
+                    print "adding Syst",systVal,syst.SystNames[isy],syst.SystTypes[isy],"to",syst.SystProcesses[isy][iproc]
+                    proc_syst[syst.SystProcesses[isy][iproc]][syst.SystNames[isy]] = [syst.SystTypes[isy], systVal]
+                    systsNorm.append(syst.SystNames[isy])
                 
+            if len(systsNorm) > 0:  systsNorm = list(dict.fromkeys(systsNorm))
+
             nominalShapes_toSave = []            
             nominalShapes_newName = []            
 
@@ -180,8 +185,8 @@ def  writeCard(backgrounds,signals, select,region=-1) :
             col1       = '{: <40}'
             colsysN    = '{: <30}'
             colsysType = '{: <10}'
-            cols       = '{: >25}'
-            ratecols   = '{0: > 25.4f}'
+            cols       = '{: >30}'
+            ratecols   = '{0: > 30.4f}'
         	
             shapes_lines_toWrite = []
             lnN_lines_toWrite     = []
@@ -196,8 +201,8 @@ def  writeCard(backgrounds,signals, select,region=-1) :
             for name in systsNorm:
                 lnN_lines_toWrite.append(colsysN.format(name))
                 lnN_lines_toWrite.append(colsysType.format("lnN"))
-                for lineproc in backgrounds: lnN_lines_toWrite.append(cols.format("1" if name in proc_syst[lineproc].keys() else "-"))
-                for lineproc in signals:     lnN_lines_toWrite.append(cols.format("1" if name in proc_syst[lineproc].keys() else "-"))
+                for lineproc in backgrounds: lnN_lines_toWrite.append(cols.format(proc_syst[lineproc][name][1] if name in proc_syst[lineproc].keys() else "-"))
+                for lineproc in signals:     lnN_lines_toWrite.append(cols.format(proc_syst[lineproc][name][1] if name in proc_syst[lineproc].keys() else "-"))
                 lnN_lines_toWrite.append("\n")
 
             ########################
@@ -254,7 +259,7 @@ def  writeCard(backgrounds,signals, select,region=-1) :
             file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')            
             
                 
-            #file.write    ('theory group = HH_BR_Hbb HH_BR_Htt QCDscale_ggHH pdf_ggHH\n')   #### NEED TO UPDATE THE NAMING
+            file.write    ('theory group = HH_BR_Hbb HH_BR_Htt QCDscale_ggHH pdf_ggHH QCDscale_qqHH pdf_qqHH\n')   #### NEED TO UPDATE THE VALUES in cfg/syst_th.cfg
                         
             file.write    ("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(select))
              
@@ -380,7 +385,7 @@ backgrounds.append("QCD")
 # rename signals following model convention
 for i,sig in enumerate(signals):
         if "GGHH_NLO" in sig: signals[i] = sig.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_bbtt").replace("cHHH", "kl_")
-        if "VBFHH"in sig:     signals[i] = sig.replace("VBFHH","qqHH").replace("C3","kl") #write 1_5 as 1p5 from the beginning
+        if "VBFHH"in sig:     signals[i] = sig.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_bbtt") #write 1_5 as 1p5 from the beginning
 
 datacards = []
 
