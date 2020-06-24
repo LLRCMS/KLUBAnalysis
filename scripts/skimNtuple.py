@@ -41,7 +41,6 @@ if __name__ == "__main__":
     parser.add_option ('-x', '--xs'        , dest='xs'        , help='sample xs'                             , default='1.')
     parser.add_option ('-f', '--force'     , dest='force'     , help='replace existing reduced ntuples'      , default=False)
     parser.add_option ('-o', '--output'    , dest='output'    , help='output folder'                         , default='none')
-    # parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='cms')
     parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='short')
     parser.add_option ('-r', '--resub'     , dest='resub'     , help='resubmit failed jobs'                  , default='none')
     parser.add_option ('-v', '--verb'      , dest='verb'      , help='verbose'                               , default=False)
@@ -73,8 +72,8 @@ if __name__ == "__main__":
     parser.add_option ('--nb',               dest='DY_nBJets' , help='number of gen BJets for DY bins'      , default='-1')
     parser.add_option ('--DY',               dest='DY'        , help='if it is a DY sample'                 , default=False)
     parser.add_option ('--ttHToNonBB',       dest='ttHToNonBB', help='if it is a ttHToNonBB sample'         , default=False)
-    parser.add_option ('--hhNLO',            dest='hhNLO'     , help='if it is an HH NLO sample'            , default=False)
-    parser.add_option ('--doSyst',           dest='doSyst'    , help='compute up/down values of outputs'    , default=False)
+    parser.add_option ('--hhNLO',            dest='hhNLO'     , help='if it is an HH NLO sample'            , default=False,  action = 'store_true')
+    parser.add_option ('--doSyst',           dest='doSyst'    , help='compute up/down values of outputs'    , default=False,  action = 'store_true')
 
     (opt, args) = parser.parse_args()
 
@@ -88,8 +87,7 @@ if __name__ == "__main__":
         scriptFile = open (opt.output + '/hadder.sh', 'w')
         scriptFile.write ('#!/bin/bash\n')
         scriptFile.write ('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
-        scriptFile.write ('cd /home/llr/cms/amendola/HHLegacy/CMSSW_10_2_16/src\n')
-        scriptFile.write ('export SCRAM_ARCH=slc6_amd64_gcc700\n')
+        scriptFile.write ('cd /home/llr/cms/amendola/HHLegacy/CMSSW_11_1_0pre6/src\n')
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('cd %s\n'%currFolder)
         scriptFile.write ('source scripts/setup.sh\n')
@@ -166,15 +164,12 @@ if __name__ == "__main__":
     # submit the jobs
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-#    skimmer = './bin/skimNtuple.exe'
-    # skimmer = 'skimNtupleInclusive_Luca.exe'
-
-    skimmer = 'skimNtuple2018.exe'
+    skimmer = 'skimNtuple2018_VBFHLT.exe'
     if (opt.year == 2017):
         skimmer = 'skimNtuple2016.exe'
     elif (opt.year == 2016):
         skimmer = 'skimNtuple2016.exe'
-# skimmer = 'getSelectionEfficiencyNew.exe'
+
 
     if opt.config == 'none' :
         print 'config file missing, exiting'
@@ -224,7 +219,7 @@ if __name__ == "__main__":
         scriptFile.write ('#!/bin/bash\n')
         scriptFile.write ('export X509_USER_PROXY=~/.t3/proxy.cert\n')
         scriptFile.write ('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
-        scriptFile.write ('cd /home/llr/cms/amendola/HHLegacy/CMSSW_10_2_16/src\n')
+        scriptFile.write ('cd /home/llr/cms/amendola/HHLegacy/CMSSW_11_1_0pre6/src\n')
         #scriptFile.write ('export SCRAM_ARCH=slc6_amd64_gcc472\n')
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('cd %s\n'%currFolder)
@@ -280,7 +275,7 @@ if __name__ == "__main__":
 
         
         #command = '/opt/exp_soft/cms/t3/t3submit_el7 -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
-        command = '/home/llr/cms/amendola/t3submit_el7 -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
+        command = '/home/llr/cms/amendola/t3submit -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
         if opt.sleep : time.sleep (0.1)
         os.system (command)
         commandFile.write (command + '\n')
