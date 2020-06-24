@@ -17,8 +17,8 @@ def parseOptions():
 
 
 listHistos = []
-systNamesOUT=["CMS_scale_t_13TeV_DM0"] #,"CMS_scale_j_13TeV"]
-systNames=["tesXXX_DM0"] #<--- to fix
+systNamesOUT=[] #["CMS_scale_t_13TeV_DM0"] #,"CMS_scale_j_13TeV"]
+systNames=[] #["tesXXX_DM0"] #<--- to fix
 
 
 
@@ -34,11 +34,10 @@ histos_syst_down = []
 yieldFolder = "scales2018/"
 
 #procnames = [ "TT", "WJets", "TW","EWK", "WW", "WW", "WZ", "ZH","other", "ZZ", "DY0b","DY1b", "DY2b","GGHH_NLO_"]
-procnames = ["DY","GGHH_NLO_"]
+procnames = ["TT", "WJets", "EWK", "single", "ZH", "WH", "WW", "WZ", "ttH", "others", "DY", "GGHH_NLO_"]
+
 
 ih = 0
-
-
 
 for key in inFile.GetListOfKeys() :
 	ih = ih + 1
@@ -47,7 +46,7 @@ for key in inFile.GetListOfKeys() :
 	template = inFile.Get(kname)
 
 	if "GGHH_NLO" in kname: kname = kname.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_bbtt").replace("cHHH", "kl_")
-        if "VBFHH"    in kname: kname = kname.replace("VBFHH","qqHH").replace("C3","kl") #write 1_5 as 1p5 from the beginning
+        if "VBFHH"    in kname: kname = kname.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_bbtt") #write 1_5 as 1p5 from the beginning
 
         print kname
 	#protection against empty bins

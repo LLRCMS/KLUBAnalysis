@@ -1,6 +1,12 @@
-var="DNNoutSM_kl_1"
 selections="s1b1jresolvedMcut s2b0jresolvedMcut sboostedLLMcut VBFloose"
-tag="cards_TauTauprova" 
+
+#var="DNNoutSM_kl_1_new"
+#var="DNNoutSM_kl_5_new"
+var="DNNoutSM_kl_1"
+
+#tag="cards_TauTaukl1new"
+#tag="cards_TauTaukl5new"
+tag="cards_TauTaukl1"
 
 for sel in $selections
 do 
