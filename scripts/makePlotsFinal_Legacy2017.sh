@@ -8,18 +8,18 @@
 #tag=08May2020_SecondProd_FirstSkim_Fifth_InvQCD_noTauIDSF
 #tag=08May2020_SecondProd_FirstSkim_Sixth_InvQCD_noDYMTTSF
 #tag=08May2020_SecondProd_FirstSkim_Seventh_InvQCD_specialMerging
-tag=08May2020_SecondProd_FirstSkim_Eighth_InvQCD_newRationRange
+tag=Legacy2017_15June2020_pt_Dep_SF
 
 log=(--log)
 
 plotter=makeFinalPlots_Legacy2017.py
 
-#channel=TauTau
+channel=TauTau
 #channel=MuTau
-channel=ETau
+#channel=ETau
 #channel=MuMu
 
-lumi=41.557
+lumi=41.529
 
 reg=SR  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
 
@@ -85,5 +85,6 @@ do
   #
   
     python scripts/$plotter --dir analysis_$channel\_$tag --var BDToutSM_kl_1 --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "BDT score (#tau#tau, k_{#lambda}=1)" $sigDrawer $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var DNNoutSM_kl_1 --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "BDT score (#tau#tau, k_{#lambda}=1)" $sigDrawer $others --quit
 
 done
