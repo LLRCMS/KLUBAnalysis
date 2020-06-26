@@ -1,9 +1,9 @@
 from ROOT import *
 
-#MClist  = ['DY', 'GGHH_NLO_cHHH1_xs', 'GGHH_NLO_cHHH0_xs', 'GGHH_NLO_cHHH2p45_xs','GGH_NLO_cHHH5_xs']
-MClist  = ['DY', 'GGHH_NLO_cHHH1_xs', 'GGHH_NLO_cHHH2p45_xs','GGHH_NLO_cHHH5_xs']
 
-#channels = ['TauTau', 'ETau', 'MuTau']
+MClist  = ['TT','WJets',   'EWK',     'singleT', 'ZH',      'WH',      'WW',      'WZ',      'ttH','others', 'DY','GGHH_NLO_cHHH1_xs', 'GGHH_NLO_cHHH2p45_xs','GGHH_NLO_cHHH5_xs','VBFHH_CV_1_C2V_1_C3_1_xs' , 'VBFHH_CV_0p5_C2V_1_C3_1_xs', 'VBFHH_CV_1p5_C2V_1_C3_1_xs', 'VBFHH_CV_1_C2V_1_C3_0_xs' ,'VBFHH_CV_1_C2V_1_C3_2_xs' ,'VBFHH_CV_1_C2V_2_C3_1_xs']
+
+ #channels = ['TauTau', 'ETau', 'MuTau']
 channels = ['TauTau']
 selections = ['s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut','VBFloose']
 
@@ -18,12 +18,12 @@ year = 2018
 
 #toscan = ['tes', 'jes'] ## will append "Up/Down"
 
-toscan = ['tesXXX_DM0']
+toscan = ['tesXXX_DM0','tesXXX_DM1','tesXXX_DM10','tesXXX_DM11','eesXXX_DM0','eesXXX_DM1','mesXXX', 'jesXXX_Tot']
 
 
 for channel in channels:
 	print "doing channel: ", channel 
-	inputFile = '../analysis_%s_synch_11June2020_syst_prova/outPlotter.root' % channel
+	inputFile = '../analysis_%s_24June2020_syst/outPlotter.root' % channel
 	print inputFile	
 	fIn = TFile.Open(inputFile)
 	

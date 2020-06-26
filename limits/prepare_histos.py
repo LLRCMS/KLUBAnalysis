@@ -17,9 +17,9 @@ def parseOptions():
 
 
 listHistos = []
-systNamesOUT=[] #["CMS_scale_t_13TeV_DM0"] #,"CMS_scale_j_13TeV"]
-systNames=[] #["tesXXX_DM0"] #<--- to fix
 
+systNamesOUT=["CMS_scale_t_13TeV_DM0","CMS_scale_t_13TeV_DM1","CMS_scale_t_13TeV_DM10","CMS_scale_t_13TeV_DM11", "CMS_scale_es_13TeV_DM0", "CMS_scale_es_13TeV_DM1", "CMS_scale_mes_13TeV", "CMS_scale_j_13TeV"]
+systNames = ['tesXXX_DM0','tesXXX_DM1','tesXXX_DM10','tesXXX_DM11','eesXXX_DM0','eesXXX_DM1','mesXXX', 'jesXXXTot']
 
 
 parseOptions()
@@ -34,7 +34,7 @@ histos_syst_down = []
 yieldFolder = "scales2018/"
 
 #procnames = [ "TT", "WJets", "TW","EWK", "WW", "WW", "WZ", "ZH","other", "ZZ", "DY0b","DY1b", "DY2b","GGHH_NLO_"]
-procnames = ["TT", "WJets", "EWK", "single", "ZH", "WH", "WW", "WZ", "ttH", "others", "DY", "GGHH_NLO_"]
+procnames =  ['TT','WJets',   'EWK', 'singleT', 'ZH',      'WH',      'WW',      'WZ',      'ttH','others', 'DY','GGHH_NLO_','VBFHH_']
 
 
 ih = 0
@@ -47,6 +47,7 @@ for key in inFile.GetListOfKeys() :
 
 	if "GGHH_NLO" in kname: kname = kname.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_bbtt").replace("cHHH", "kl_")
         if "VBFHH"    in kname: kname = kname.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_bbtt") #write 1_5 as 1p5 from the beginning
+
 
         print kname
 	#protection against empty bins
@@ -62,31 +63,33 @@ for key in inFile.GetListOfKeys() :
 	if template.Integral()>0 and changedInt : template.Scale(integral/template.Integral())
 	if "TH1" in template.ClassName(): 
 		for isyst in range(len(systNames)):
-			lineToCheckDown = systNames[isyst].replace('XXX',"down").replace("tes","tau")
-			lineToCheckUp = systNames[isyst].replace('XXX',"up").replace("tes","tau")
+			lineToCheckDown = systNames[isyst].replace('XXX',"down").replace("tes","tau").replace("ees","ele").replace("mes","mu").replace("jes","jet")
+			lineToCheckUp = systNames[isyst].replace('XXX',"up").replace("tes","tau").replace("ees","ele").replace("mes","mu").replace("jes","jet")
 			found = -1
                         print '---->', lineToCheckDown
-			if lineToCheckDown in kname :
+			if kname.endswith(lineToCheckDown) :
 				appString = "Down"
 				remString = "down"
 				found = 1
-			elif lineToCheckUp in kname:
+			elif kname.endswith(lineToCheckUp):
 				appString = "Up"
 				remString = "up"
 				found =0
 			if found>=0 :
 				names = kname.split("_")
+                                print names
                                 for i in range(0,len(names)):
                                     print names[i]
                                     if (names[i].startswith('s') or names[i].startswith('VBFloose')):
 					for j in range(1, i):
                                             names[0] += "_"+str(names[j])
-                                        names[1] = names[i]
+                                        if not (names[i]== "singleT") : names[1] = names[i]
                                         break
 				proc = names[0]
 				#print names
+                                print names
 				yieldName=yieldFolder+"/"+opt.channel+"_"+names[1]
-				yieldName =yieldName+'_'+systNames[isyst].replace('XXX','')+".txt"
+				yieldName =yieldName+'_'+systNames[isyst].replace('XXX','').replace("jesTot","jes_Tot")+".txt"
 				infile = open(yieldName)
 				scale = 1.000
 				for line in infile :
@@ -98,7 +101,7 @@ for key in inFile.GetListOfKeys() :
 				template.Scale(scale)
 				#print proc,scale,yieldName
 				#if abs(1-scale)>0.02 : print "correct",yieldName, proc,scale
-				kname = kname.replace("_"+systNames[isyst].replace('XXX',remString).replace("tes","tau"),"")
+				kname = kname.replace("_"+systNames[isyst].replace('XXX',remString).replace("tes","tau").replace("ees","ele").replace("mes","mu").replace("jes","jet"),"")
 				#print "toReplace:",systNames[isyst]+remString,"temporary:", newName
 				kname = kname + "_"+ systNamesOUT[isyst] + appString
 				print kname
