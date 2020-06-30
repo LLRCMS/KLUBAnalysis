@@ -4748,7 +4748,34 @@ int main (int argc, char** argv)
       delete readerResonantLM;
       delete readerNonResonant;
     }
+    // MULTICLASS
+    bool compute_multiclass = (gConfigParser->isDefined("Multiclass::computeMVA") ? gConfigParser->readBoolOption("Multiclass::computeMVA") : false);
+    if (compute_multiclass)
+    {
+        cout << " ------------ ############### ----- Multiclass ----- ############### ------------ " << endl;
 
+        // set the multiclass year
+        int year = 2016;
+
+        // models to load for inference
+        std::vector<std::pair<std::string, std::string>> modelSpecs = {
+          { "v0", "kl1_c2v1_c31" },
+          { "v0", "kl1_c2v1_c31_vbfbsm" }
+        };
+
+        // read the input tree
+        TFile* outFile = TFile::Open(outputFile, "UPDATE");
+        TTree* outTree = (TTree*)outFile->Get("HTauTauTree");
+
+        // create the multiclass inferface and run it
+        MulticlassInterface mci(year, modelSpecs);
+        mci.extendTree(outTree);
+
+        // write the output file
+        outTree->Write("", TObject::kOverwrite);
+        outFile->Close();
+
+    } // END MULTICLASS
 
   // NEW BDT
   bool computeBDTsm = (gConfigParser->isDefined("BDTsm::computeMVA") ? gConfigParser->readBoolOption ("BDTsm::computeMVA") : false);
@@ -5433,36 +5460,7 @@ int main (int argc, char** argv)
      in_file->Close();
 
    } // END NEW DNN
-   
-   
-  // MULTICLASS
-  bool compute_multiclass = (gConfigParser->isDefined("Multiclass::computeMVA") ? gConfigParser->readBoolOption("Multiclass::computeMVA") : false);
-  if (compute_multiclass)
-  {
-    cout << " ------------ ############### ----- Multiclass ----- ############### ------------ " << endl;
-
-    // set the multiclass year
-    int year = 2016;
-
-    // models to load for inference
-    std::vector<std::pair<std::string, std::string>> modelSpecs = {
-      { "v0", "kl1_c2v1_c31" },
-      { "v0", "kl1_c2v1_c31_vbfbsm" }
-    };
-
-    // read the input tree
-    TFile* outFile = TFile::Open(outputFile, "UPDATE");
-    TTree* outTree = (TTree*)outFile->Get("HTauTauTree");
-
-    // create the multiclass inferface and run it
-    MulticlassInterface mci(year, modelSpecs);
-    mci.extendTree(outTree);
-
-    // write the output file
-    outTree->Write("", TObject::kOverwrite);
-    outFile->Close();
-
-  } // END MULTICLASS
+  
 
   cout << "... SKIM finished, exiting." << endl;
   return 0 ;
