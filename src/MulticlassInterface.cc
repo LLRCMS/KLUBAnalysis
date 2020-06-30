@@ -62,7 +62,7 @@ private:
   int year_;
   std::map<std::string, bool> boolInputs_;
   std::map<std::string, int> intInputs_;
-  std::map<std::string, long long> ulong64Inputs_;
+  std::map<std::string, ULong64_t> ulong64Inputs_;
   std::map<std::string, float> floatInputs_;
   std::map<std::string, float> features_;
 };
