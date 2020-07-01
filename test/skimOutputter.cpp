@@ -132,6 +132,10 @@ int main (int argc, char** argv)
   // Input setup
   TFile *inputFile = new TFile (inputFileName, "read") ;
 
+  // Efficiency histograms
+  TH1F* h_eff        = (TH1F*)inputFile->Get("h_eff");
+  TH1F* h_effSummary = (TH1F*)inputFile->Get("h_effSummary");
+
   // Systematics histogram
   TH1F* h_syst = (TH1F*)inputFile->Get("h_syst");
   const int N_jecSources = h_syst->GetBinContent(1); //jec sources
@@ -162,12 +166,12 @@ int main (int argc, char** argv)
   // Define branches to be activated
   std::vector<std::string> toBeActivated {
   "EventNumber", "RunNumber","nleps","pairType","nbjetscand",          // General
-  "isOS", "isBoosted",
+  "isOS","isBoosted","isTau1real","isTau2real",
 
   "MC_weight","PUReweight","PUjetID_SF","L1pref_weight",               // Weights and SFs
   "prescaleWeight","trigSF","VBFtrigSF","DYscale_MTT","DYscale_MH",
   "IdAndIsoAndFakeSF_deep","IdAndIsoAndFakeSF_deep_pt",
-  "TTtopPtreweight", "bTagweightM", "bTagweightL",
+  "TTtopPtreweight*","bTagweightM","bTagweightL",
 
   "isVBFtrigger", "isVBF",                                             // Trigger vbf selection
 
@@ -179,6 +183,7 @@ int main (int argc, char** argv)
   "bjet1_bID_deepFlavor", "bjet2_bID_deepFlavor",                      // b-tagging          
   "bjet1_bID_deepCSV", "bjet2_bID_deepCSV",
   "bjet1_Cvs*","bjet2_Cvs*","VBFjet1_Cvs*","VBFjet2_Cvs*",
+  "VBFjet1_btag_deepFlavor","VBFjet2_btag_deepFlavor",
 
   "bjet1_HHbtag","bjet2_HHbtag","VBFjet1_HHbtag","VBFjet2_HHbtag",     // HHbtag
 
@@ -257,7 +262,7 @@ int main (int argc, char** argv)
 
   "HHKin_mass","HHKin_chi2", "MT2",                                    // Old values KinFit, MT2, SVfit, DNN, BDT
   "tauH_SVFIT_pt","tauH_SVFIT_eta","tauH_SVFIT_phi","tauH_SVFIT_mass",
-  "DNNoutSM_kl_1","BDToutSM_kl_1"
+  "DNNoutSM_kl_1","BDToutSM_kl_1","mdnn*"
   };
 
   // Activate only branches I need/want to store
@@ -288,6 +293,9 @@ int main (int argc, char** argv)
 
   // Save and close cloneFile and inputFile
   cloneFile->cd();
+  h_eff->Write();
+  h_effSummary->Write();
+  h_syst->Write();
   treenew->Write();
   cloneFile->Write();
   cloneFile->Close();
