@@ -59,7 +59,7 @@ GLIBS   =  -lm -ldl -rdynamic $(ROOTGLIBS) -lGenVector -lFoam -lMinuit -lTMVA -l
 
 DNNARCH = $(shell scram arch)
 DNNPATH = $(shell echo $$CMSSW_BASE | grep "CMSSW" | sed -e 's/$$/\/lib/')/$(DNNARCH)/
-DNNLIBS = -lcms_hh_proc_interfaceprocessing -lcms_hh_tf_inferenceinference -L$(DNNPATH)
+DNNLIBS = -lcms_hh_proc_interfaceprocessing -lcms_hh_tf_inferenceinference -lMulticlassInferenceMulticlassInference -L$(DNNPATH)
 
 SVfitLIBS = -lTauAnalysisClassicSVfit -lTauAnalysisSVfitTF -L$(DNNPATH)
 HHbtagLIBS = -lHHToolsHHbtag -L${DNNPATH}
