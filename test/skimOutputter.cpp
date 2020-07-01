@@ -2161,10 +2161,13 @@ int main (int argc, char** argv)
     for (int i=0; i<mdnnSM0_size; i++)
     {
       b_mdnnSM0_new.at(i)->Fill();
-      b_mdnnSM1_new.at(i)->Fill();
       b_mdnnSM0_muup.at(i)->Fill();
-      b_mdnnSM1_muup.at(i)->Fill();
       b_mdnnSM0_mudown.at(i)->Fill();
+    }
+    for (int i=0; i<mdnnSM1_size; i++)
+    {
+      b_mdnnSM1_new.at(i)->Fill();
+      b_mdnnSM1_muup.at(i)->Fill();
       b_mdnnSM1_mudown.at(i)->Fill();
     }
     for (int i=0; i<mdnnBSM0_size; i++)
