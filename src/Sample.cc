@@ -1,6 +1,7 @@
 #include "Sample.h"
 #include <fstream>
 #include <assert.h>
+#include <regex>
 
 using namespace std;
 
@@ -97,13 +98,16 @@ bool Sample::openFileAndTree()
             ++counter;
             tree_->Add(line.c_str());
             
-            TFile* f = new TFile (line.c_str());
-            TH1F* h = (TH1F*) f->Get(histoname_.c_str());
+            //TFile* f = new TFile (line.c_str());
+	    string line_nominal = std::regex_replace(line, std::regex("syst_output"), "output");
+	    TFile* fh = new TFile (line_nominal.c_str());
+            TH1F* h = (TH1F*) fh->Get(histoname_.c_str());
             evt_num_  += h->GetBinContent (2) ;
             evt_den_  += h->GetBinContent (bin_eff_den_) ;
             nentries_ += h->GetBinContent (4) ; // NB! rounding errors could make this different from the actual entries in the tree --> better to use TH1D
             delete h;
-            delete f;
+            //delete f;
+	    delete fh; 
         }
     }
     eff_ = evt_num_ / evt_den_ ;
