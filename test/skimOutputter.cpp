@@ -1109,9 +1109,9 @@ int main (int argc, char** argv)
 
         // VBF multiclass
         mci.clearInputs();
-        for (uint i=0; i<mci.getNumberOfModels(); i++)
+        for (uint j=0; j<mci.getNumberOfModels(); j++)
         {
-          mci.setInputs(i,
+          mci.setInputs(j,
           {
             {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
             {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
@@ -1132,12 +1132,12 @@ int main (int argc, char** argv)
         auto mdnnSM0_score_new  = mci.predict(EventNumber, 0);
         auto mdnnSM1_score_new  = mci.predict(EventNumber, 1);
         auto mdnnBSM0_score_new = mci.predict(EventNumber, 2);
-        for (uint i=0; i<mdnnSM0_score_new.size(); i++)
-          mdnnSM0_output_new.at(i) = mdnnSM0_score_new.at(i).second;
-        for (uint i=0; i<mdnnSM1_score_new.size(); i++)
-          mdnnSM1_output_new.at(i) = mdnnSM1_score_new.at(i).second;
-        for (uint i=0; i<mdnnBSM0_score_new.size(); i++)
-          mdnnBSM0_output_new.at(i) = mdnnBSM0_score_new.at(i).second;
+        for (uint k=0; k<mdnnSM0_score_new.size(); k++)
+          mdnnSM0_output_new.at(k) = mdnnSM0_score_new.at(k).second;
+        for (uint k=0; k<mdnnSM1_score_new.size(); k++)
+          mdnnSM1_output_new.at(k) = mdnnSM1_score_new.at(k).second;
+        for (uint k=0; k<mdnnBSM0_score_new.size(); k++)
+          mdnnBSM0_output_new.at(k) = mdnnBSM0_score_new.at(k).second;
       }
       else /*isMC*/
       {
@@ -1215,9 +1215,9 @@ int main (int argc, char** argv)
         if (doMult)
         {
           mci.clearInputs();
-          for (uint i=0; i<mci.getNumberOfModels(); i++)
+          for (uint j=0; j<mci.getNumberOfModels(); j++)
           {
-            mci.setInputs(i,
+            mci.setInputs(j,
             {
               {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
               {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
@@ -1238,12 +1238,12 @@ int main (int argc, char** argv)
           auto mdnnSM0_score_new  = mci.predict(EventNumber, 0);
           auto mdnnSM1_score_new  = mci.predict(EventNumber, 1);
           auto mdnnBSM0_score_new = mci.predict(EventNumber, 2);
-          for (uint i=0; i<mdnnSM0_score_new.size(); i++)
-            mdnnSM0_output_new.at(i) = mdnnSM0_score_new.at(i).second;
-          for (uint i=0; i<mdnnSM1_score_new.size(); i++)
-            mdnnSM1_output_new.at(i) = mdnnSM1_score_new.at(i).second;
-          for (uint i=0; i<mdnnBSM0_score_new.size(); i++)
-            mdnnBSM0_output_new.at(i) = mdnnBSM0_score_new.at(i).second;
+          for (uint k=0; k<mdnnSM0_score_new.size(); k++)
+            mdnnSM0_output_new.at(k) = mdnnSM0_score_new.at(k).second;
+          for (uint k=0; k<mdnnSM1_score_new.size(); k++)
+            mdnnSM1_output_new.at(k) = mdnnSM1_score_new.at(k).second;
+          for (uint k=0; k<mdnnBSM0_score_new.size(); k++)
+            mdnnBSM0_output_new.at(k) = mdnnBSM0_score_new.at(k).second;
         }
 
         // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -1288,9 +1288,9 @@ int main (int argc, char** argv)
 
         // VBF multiclass
         mci.clearInputs();
-        for (uint i=0; i<mci.getNumberOfModels(); i++)
+        for (uint j=0; j<mci.getNumberOfModels(); j++)
         {
-          mci.setInputs(i,
+          mci.setInputs(j,
           {
             {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
             {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
@@ -1311,20 +1311,20 @@ int main (int argc, char** argv)
         auto mdnnSM0_score_mes  = mci.predict(EventNumber, 0);
         auto mdnnSM1_score_mes  = mci.predict(EventNumber, 1);
         auto mdnnBSM0_score_mes = mci.predict(EventNumber, 2);
-        for (uint i=0; i<mdnnSM0_score_mes.size(); i++)
+        for (uint k=0; k<mdnnSM0_score_mes.size(); k++)
         {
-          mdnnSM0_output_muup.at(i)   = mdnnSM0_score_mes.at(i).second;
-          mdnnSM0_output_mudown.at(i) = mdnnSM0_score_mes.at(i).second;
+          mdnnSM0_output_muup.at(k)   = mdnnSM0_score_mes.at(k).second;
+          mdnnSM0_output_mudown.at(k) = mdnnSM0_score_mes.at(k).second;
         }
-        for (uint i=0; i<mdnnSM1_score_mes.size(); i++)
+        for (uint k=0; k<mdnnSM1_score_mes.size(); k++)
         {
-          mdnnSM1_output_muup.at(i)   = mdnnSM1_score_mes.at(i).second;
-          mdnnSM1_output_mudown.at(i) = mdnnSM1_score_mes.at(i).second;
+          mdnnSM1_output_muup.at(k)   = mdnnSM1_score_mes.at(k).second;
+          mdnnSM1_output_mudown.at(k) = mdnnSM1_score_mes.at(k).second;
         }
-        for (uint i=0; i<mdnnBSM0_score_mes.size(); i++)
+        for (uint k=0; k<mdnnBSM0_score_mes.size(); k++)
         {
-          mdnnBSM0_output_muup.at(i)   = mdnnBSM0_score_mes.at(i).second;
-          mdnnBSM0_output_mudown.at(i) = mdnnBSM0_score_mes.at(i).second;
+          mdnnBSM0_output_muup.at(k)   = mdnnBSM0_score_mes.at(k).second;
+          mdnnBSM0_output_mudown.at(k) = mdnnBSM0_score_mes.at(k).second;
         }
       }
       else /*isMC*/
@@ -1469,9 +1469,9 @@ int main (int argc, char** argv)
         if (doMult)
         {
           mci.clearInputs();
-          for (uint i=0; i<mci.getNumberOfModels(); i++)
+          for (uint j=0; j<mci.getNumberOfModels(); j++)
           {
-            mci.setInputs(i,
+            mci.setInputs(j,
             {
               {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
               {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
@@ -1492,17 +1492,17 @@ int main (int argc, char** argv)
           auto mdnnSM0_score_muup  = mci.predict(EventNumber, 0);
           auto mdnnSM1_score_muup  = mci.predict(EventNumber, 1);
           auto mdnnBSM0_score_muup = mci.predict(EventNumber, 2);
-          for (uint i=0; i<mdnnSM0_score_muup.size(); i++)
-            mdnnSM0_output_muup.at(i) = mdnnSM0_score_muup.at(i).second;
-          for (uint i=0; i<mdnnSM1_score_muup.size(); i++)
-            mdnnSM1_output_muup.at(i) = mdnnSM1_score_muup.at(i).second;
-          for (uint i=0; i<mdnnBSM0_score_muup.size(); i++)
-            mdnnBSM0_output_muup.at(i) = mdnnBSM0_score_muup.at(i).second;
+          for (uint k=0; k<mdnnSM0_score_muup.size(); k++)
+            mdnnSM0_output_muup.at(k) = mdnnSM0_score_muup.at(k).second;
+          for (uint k=0; k<mdnnSM1_score_muup.size(); k++)
+            mdnnSM1_output_muup.at(k) = mdnnSM1_score_muup.at(k).second;
+          for (uint k=0; k<mdnnBSM0_score_muup.size(); k++)
+            mdnnBSM0_output_muup.at(k) = mdnnBSM0_score_muup.at(k).second;
 
           mci.clearInputs();
-          for (uint i=0; i<mci.getNumberOfModels(); i++)
+          for (uint j=0; j<mci.getNumberOfModels(); j++)
           {
-            mci.setInputs(i,
+            mci.setInputs(j,
             {
               {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
               {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
@@ -1523,12 +1523,12 @@ int main (int argc, char** argv)
           auto mdnnSM0_score_mudown  = mci.predict(EventNumber, 0);
           auto mdnnSM1_score_mudown  = mci.predict(EventNumber, 1);
           auto mdnnBSM0_score_mudown = mci.predict(EventNumber, 2);
-          for (uint i=0; i<mdnnSM0_score_mudown.size(); i++)
-            mdnnSM0_output_mudown.at(i) = mdnnSM0_score_mudown.at(i).second;
-          for (uint i=0; i<mdnnSM1_score_mudown.size(); i++)
-            mdnnSM1_output_mudown.at(i) = mdnnSM1_score_mudown.at(i).second;
-          for (uint i=0; i<mdnnBSM0_score_mudown.size(); i++)
-            mdnnBSM0_output_mudown.at(i) = mdnnBSM0_score_mudown.at(i).second;
+          for (uint k=0; k<mdnnSM0_score_mudown.size(); k++)
+            mdnnSM0_output_mudown.at(k) = mdnnSM0_score_mudown.at(k).second;
+          for (uint k=0; k<mdnnSM1_score_mudown.size(); k++)
+            mdnnSM1_output_mudown.at(k) = mdnnSM1_score_mudown.at(k).second;
+          for (uint k=0; k<mdnnBSM0_score_mudown.size(); k++)
+            mdnnBSM0_output_mudown.at(k) = mdnnBSM0_score_mudown.at(k).second;
         }
 
         if (doBDT)
@@ -1574,6 +1574,47 @@ int main (int argc, char** argv)
           DNNoutSM_kl_1_eledown.at(i)   = DNNoutSM_kl_1;
           BDToutSM_kl_1_eleup.at(i)     = BDToutSM_kl_1;
           BDToutSM_kl_1_eledown.at(i)   = BDToutSM_kl_1;
+
+          // VBF multiclass
+          mci.clearInputs();
+          for (uint j=0; j<mci.getNumberOfModels(); j++)
+          {
+            mci.setInputs(j,
+            {
+              {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+              {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+              {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+              {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+              {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+              {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+              {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+              {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+              {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+              {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
+              {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
+              {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
+              {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+              {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}
+            });
+          }
+          auto mdnnSM0_score_ees  = mci.predict(EventNumber, 0);
+          auto mdnnSM1_score_ees  = mci.predict(EventNumber, 1);
+          auto mdnnBSM0_score_ees = mci.predict(EventNumber, 2);
+          for (uint k=0; k<mdnnSM0_score_ees.size(); k++)
+          {
+            mdnnSM0_output_eleup  [i].at(k) = mdnnSM0_score_ees.at(k).second;
+            mdnnSM0_output_eledown[i].at(k) = mdnnSM0_score_ees.at(k).second;
+          }
+          for (uint k=0; k<mdnnSM1_score_ees.size(); k++)
+          {
+            mdnnSM1_output_eleup  [i].at(k) = mdnnSM1_score_ees.at(k).second;
+            mdnnSM1_output_eledown[i].at(k) = mdnnSM1_score_ees.at(k).second;
+          }
+          for (uint k=0; k<mdnnBSM0_score_ees.size(); k++)
+          {
+            mdnnBSM0_output_eleup  [i].at(k) = mdnnBSM0_score_ees.at(k).second;
+            mdnnBSM0_output_eledown[i].at(k) = mdnnBSM0_score_ees.at(k).second;
+          }
         }
         else /*isMC*/
         {
@@ -1711,6 +1752,71 @@ int main (int argc, char** argv)
                 HHKin_mass_eledown, HHKin_chi2_eledown, KinFitConv_eledown, SVfitConv_eledown, MT2_eledown);
             std::vector<float> outs_eledown = DNNreader.GetPredictions();
             DNNoutSM_kl_1_eledown.at(i) = outs_eledown.at(0);
+          }
+
+          if (doMult)
+          {
+            mci.clearInputs();
+            for (uint j=0; j<mci.getNumberOfModels(); j++)
+            {
+              mci.setInputs(j,
+              {
+                {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+                {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+                {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+                {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+                {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+                {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+                {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+                {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+                {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+                {"lep1_pt", tau1_eleup.Pt()}, {"lep1_eta", tau1_eleup.Eta()}, {"lep1_phi", tau1_eleup.Phi()}, {"lep1_e", tau1_eleup.E()},
+                {"lep2_pt", tau2_eleup.Pt()}, {"lep2_eta", tau2_eleup.Eta()}, {"lep2_phi", tau2_eleup.Phi()}, {"lep2_e", tau2_eleup.E()},
+                {"met_pt", met_eleup.Pt()}, {"met_phi", met_eleup.Phi()},
+                {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+                {"tauh_sv_pt", svfit_eleup.Pt()}, {"tauh_sv_eta", svfit_eleup.Eta()}, {"tauh_sv_phi", svfit_eleup.Phi()}, {"tauh_sv_e", svfit_eleup.E()}
+              });
+            }
+            auto mdnnSM0_score_eleup  = mci.predict(EventNumber, 0);
+            auto mdnnSM1_score_eleup  = mci.predict(EventNumber, 1);
+            auto mdnnBSM0_score_eleup = mci.predict(EventNumber, 2);
+            for (uint k=0; k<mdnnSM0_score_eleup.size(); k++)
+              mdnnSM0_output_eleup[i].at(k) = mdnnSM0_score_eleup.at(k).second;
+            for (uint k=0; k<mdnnSM1_score_eleup.size(); k++)
+              mdnnSM1_output_eleup[i].at(k) = mdnnSM1_score_eleup.at(k).second;
+            for (uint k=0; k<mdnnBSM0_score_eleup.size(); k++)
+              mdnnBSM0_output_eleup[i].at(k) = mdnnBSM0_score_eleup.at(k).second;
+
+            mci.clearInputs();
+            for (uint j=0; j<mci.getNumberOfModels(); j++)
+            {
+              mci.setInputs(j,
+              {
+                {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+                {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+                {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+                {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+                {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+                {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+                {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+                {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+                {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+                {"lep1_pt", tau1_eledown.Pt()}, {"lep1_eta", tau1_eledown.Eta()}, {"lep1_phi", tau1_eledown.Phi()}, {"lep1_e", tau1_eledown.E()},
+                {"lep2_pt", tau2_eledown.Pt()}, {"lep2_eta", tau2_eledown.Eta()}, {"lep2_phi", tau2_eledown.Phi()}, {"lep2_e", tau2_eledown.E()},
+                {"met_pt", met_eledown.Pt()}, {"met_phi", met_eledown.Phi()},
+                {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+                {"tauh_sv_pt", svfit_eledown.Pt()}, {"tauh_sv_eta", svfit_eledown.Eta()}, {"tauh_sv_phi", svfit_eledown.Phi()}, {"tauh_sv_e", svfit_eledown.E()}
+              });
+            }
+            auto mdnnSM0_score_eledown  = mci.predict(EventNumber, 0);
+            auto mdnnSM1_score_eledown  = mci.predict(EventNumber, 1);
+            auto mdnnBSM0_score_eledown = mci.predict(EventNumber, 2);
+            for (uint k=0; k<mdnnSM0_score_eledown.size(); k++)
+              mdnnSM0_output_eledown[i].at(k) = mdnnSM0_score_eledown.at(k).second;
+            for (uint k=0; k<mdnnSM1_score_eledown.size(); k++)
+              mdnnSM1_output_eledown[i].at(k) = mdnnSM1_score_eledown.at(k).second;
+            for (uint k=0; k<mdnnBSM0_score_eledown.size(); k++)
+              mdnnBSM0_output_eledown[i].at(k) = mdnnBSM0_score_eledown.at(k).second;
           }
 
           if (doBDT)
@@ -2132,9 +2238,9 @@ int main (int argc, char** argv)
 
         // VBF multiclass
         mci.clearInputs();
-        for (uint i=0; i<mci.getNumberOfModels(); i++)
+        for (uint j=0; j<mci.getNumberOfModels(); j++)
         {
-          mci.setInputs(i,
+          mci.setInputs(j,
           {
             {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
             {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
@@ -2155,20 +2261,20 @@ int main (int argc, char** argv)
         auto mdnnSM0_score_jetTot  = mci.predict(EventNumber, 0);
         auto mdnnSM1_score_jetTot  = mci.predict(EventNumber, 1);
         auto mdnnBSM0_score_jetTot = mci.predict(EventNumber, 2);
-        for (uint i=0; i<mdnnSM0_score_jetTot.size(); i++)
+        for (uint k=0; k<mdnnSM0_score_jetTot.size(); k++)
         {
-          mdnnSM0_output_jetupTot.at(i)   = mdnnSM0_score_jetTot.at(i).second;
-          mdnnSM0_output_jetdownTot.at(i) = mdnnSM0_score_jetTot.at(i).second;
+          mdnnSM0_output_jetupTot.at(k)   = mdnnSM0_score_jetTot.at(k).second;
+          mdnnSM0_output_jetdownTot.at(k) = mdnnSM0_score_jetTot.at(k).second;
         }
-        for (uint i=0; i<mdnnSM1_score_jetTot.size(); i++)
+        for (uint k=0; k<mdnnSM1_score_jetTot.size(); k++)
         {
-          mdnnSM1_output_jetupTot.at(i)   = mdnnSM1_score_jetTot.at(i).second;
-          mdnnSM1_output_jetdownTot.at(i) = mdnnSM1_score_jetTot.at(i).second;
+          mdnnSM1_output_jetupTot.at(k)   = mdnnSM1_score_jetTot.at(k).second;
+          mdnnSM1_output_jetdownTot.at(k) = mdnnSM1_score_jetTot.at(k).second;
         }
-        for (uint i=0; i<mdnnBSM0_score_jetTot.size(); i++)
+        for (uint k=0; k<mdnnBSM0_score_jetTot.size(); k++)
         {
-          mdnnBSM0_output_jetupTot.at(i)   = mdnnBSM0_score_jetTot.at(i).second;
-          mdnnBSM0_output_jetdownTot.at(i) = mdnnBSM0_score_jetTot.at(i).second;
+          mdnnBSM0_output_jetupTot.at(k)   = mdnnBSM0_score_jetTot.at(k).second;
+          mdnnBSM0_output_jetdownTot.at(k) = mdnnBSM0_score_jetTot.at(k).second;
         }
       }
       else /*isMC*/
@@ -2320,9 +2426,9 @@ int main (int argc, char** argv)
         if (doMult)
         {
           mci.clearInputs();
-          for (uint i=0; i<mci.getNumberOfModels(); i++)
+          for (uint j=0; j<mci.getNumberOfModels(); j++)
           {
-            mci.setInputs(i,
+            mci.setInputs(j,
             {
               {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
               {"bjet1_pt", bjet1_jetupTot.Pt()}, {"bjet1_eta", bjet1_jetupTot.Eta()}, {"bjet1_phi", bjet1_jetupTot.Phi()}, {"bjet1_e", bjet1_jetupTot.E()},
@@ -2343,17 +2449,17 @@ int main (int argc, char** argv)
           auto mdnnSM0_score_jetupTot  = mci.predict(EventNumber, 0);
           auto mdnnSM1_score_jetupTot  = mci.predict(EventNumber, 1);
           auto mdnnBSM0_score_jetupTot = mci.predict(EventNumber, 2);
-          for (uint i=0; i<mdnnSM0_score_jetupTot.size(); i++)
-            mdnnSM0_output_jetupTot.at(i) = mdnnSM0_score_jetupTot.at(i).second;
-          for (uint i=0; i<mdnnSM1_score_jetupTot.size(); i++)
-            mdnnSM1_output_jetupTot.at(i) = mdnnSM1_score_jetupTot.at(i).second;
-          for (uint i=0; i<mdnnBSM0_score_jetupTot.size(); i++)
-            mdnnBSM0_output_jetupTot.at(i) = mdnnBSM0_score_jetupTot.at(i).second;
+          for (uint k=0; k<mdnnSM0_score_jetupTot.size(); k++)
+            mdnnSM0_output_jetupTot.at(k) = mdnnSM0_score_jetupTot.at(k).second;
+          for (uint k=0; k<mdnnSM1_score_jetupTot.size(); k++)
+            mdnnSM1_output_jetupTot.at(k) = mdnnSM1_score_jetupTot.at(k).second;
+          for (uint k=0; k<mdnnBSM0_score_jetupTot.size(); k++)
+            mdnnBSM0_output_jetupTot.at(k) = mdnnBSM0_score_jetupTot.at(k).second;
 
           mci.clearInputs();
-          for (uint i=0; i<mci.getNumberOfModels(); i++)
+          for (uint j=0; j<mci.getNumberOfModels(); j++)
           {
-            mci.setInputs(i,
+            mci.setInputs(j,
             {
               {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
               {"bjet1_pt", bjet1_jetdownTot.Pt()}, {"bjet1_eta", bjet1_jetdownTot.Eta()}, {"bjet1_phi", bjet1_jetdownTot.Phi()}, {"bjet1_e", bjet1_jetdownTot.E()},
@@ -2374,12 +2480,12 @@ int main (int argc, char** argv)
           auto mdnnSM0_score_jetdownTot  = mci.predict(EventNumber, 0);
           auto mdnnSM1_score_jetdownTot  = mci.predict(EventNumber, 1);
           auto mdnnBSM0_score_jetdownTot = mci.predict(EventNumber, 2);
-          for (uint i=0; i<mdnnSM0_score_jetdownTot.size(); i++)
-            mdnnSM0_output_jetdownTot.at(i) = mdnnSM0_score_jetdownTot.at(i).second;
-          for (uint i=0; i<mdnnSM1_score_jetdownTot.size(); i++)
-            mdnnSM1_output_jetdownTot.at(i) = mdnnSM1_score_jetdownTot.at(i).second;
-          for (uint i=0; i<mdnnBSM0_score_jetdownTot.size(); i++)
-            mdnnBSM0_output_jetdownTot.at(i) = mdnnBSM0_score_jetdownTot.at(i).second;
+          for (uint k=0; k<mdnnSM0_score_jetdownTot.size(); k++)
+            mdnnSM0_output_jetdownTot.at(k) = mdnnSM0_score_jetdownTot.at(k).second;
+          for (uint k=0; k<mdnnSM1_score_jetdownTot.size(); k++)
+            mdnnSM1_output_jetdownTot.at(k) = mdnnSM1_score_jetdownTot.at(k).second;
+          for (uint k=0; k<mdnnBSM0_score_jetdownTot.size(); k++)
+            mdnnBSM0_output_jetdownTot.at(k) = mdnnBSM0_score_jetdownTot.at(k).second;
         }
 
         if (doBDT)
@@ -2495,6 +2601,10 @@ int main (int argc, char** argv)
       b_mdnnSM0_new.at(i)->Fill();
       b_mdnnSM0_muup.at(i)->Fill();
       b_mdnnSM0_mudown.at(i)->Fill();
+      b_mdnnSM0_eleup_DM0.at(i)->Fill();
+      b_mdnnSM0_eledown_DM0.at(i)->Fill();
+      b_mdnnSM0_eleup_DM1.at(i)->Fill();
+      b_mdnnSM0_eledown_DM1.at(i)->Fill();
       b_mdnnSM0_jetupTot.at(i)->Fill();
       b_mdnnSM0_jetdownTot.at(i)->Fill();
     }
@@ -2503,6 +2613,10 @@ int main (int argc, char** argv)
       b_mdnnSM1_new.at(i)->Fill();
       b_mdnnSM1_muup.at(i)->Fill();
       b_mdnnSM1_mudown.at(i)->Fill();
+      b_mdnnSM1_eleup_DM0.at(i)->Fill();
+      b_mdnnSM1_eledown_DM0.at(i)->Fill();
+      b_mdnnSM1_eleup_DM1.at(i)->Fill();
+      b_mdnnSM1_eledown_DM1.at(i)->Fill();
       b_mdnnSM1_jetupTot.at(i)->Fill();
       b_mdnnSM1_jetdownTot.at(i)->Fill();
     }
@@ -2511,6 +2625,10 @@ int main (int argc, char** argv)
       b_mdnnBSM0_new.at(i)->Fill();
       b_mdnnBSM0_muup.at(i)->Fill();
       b_mdnnBSM0_mudown.at(i)->Fill();
+      b_mdnnBSM0_eleup_DM0.at(i)->Fill();
+      b_mdnnBSM0_eledown_DM0.at(i)->Fill();
+      b_mdnnBSM0_eleup_DM1.at(i)->Fill();
+      b_mdnnBSM0_eledown_DM1.at(i)->Fill();
       b_mdnnBSM0_jetupTot.at(i)->Fill();
       b_mdnnBSM0_jetdownTot.at(i)->Fill();
     }
