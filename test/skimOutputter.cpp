@@ -765,6 +765,9 @@ int main (int argc, char** argv)
   // TES variations
   std::vector<Float_t> tauH_SVFIT_mass_tauup(N_tauhDM), DNNoutSM_kl_1_tauup(N_tauhDM), BDToutSM_kl_1_tauup(N_tauhDM);
   std::vector<Float_t> tauH_SVFIT_mass_taudown(N_tauhDM), DNNoutSM_kl_1_taudown(N_tauhDM), BDToutSM_kl_1_taudown(N_tauhDM);
+  std::vector<std::vector<Float_t>> mdnnSM0_output_tauup (N_tauhDM, std::vector<Float_t>(mdnnSM0_size)) , mdnnSM0_output_taudown (N_tauhDM, std::vector<Float_t>(mdnnSM0_size));
+  std::vector<std::vector<Float_t>> mdnnSM1_output_tauup (N_tauhDM, std::vector<Float_t>(mdnnSM1_size)) , mdnnSM1_output_taudown (N_tauhDM, std::vector<Float_t>(mdnnSM1_size));
+  std::vector<std::vector<Float_t>> mdnnBSM0_output_tauup(N_tauhDM, std::vector<Float_t>(mdnnBSM0_size)), mdnnBSM0_output_taudown(N_tauhDM, std::vector<Float_t>(mdnnBSM0_size));
   TBranch* b_tauH_SVFIT_mass_tauup_DM0    = outTree->Branch("tauH_SVFIT_mass_tauup_DM0"   , &tauH_SVFIT_mass_tauup.at(0));    // DM 0
   TBranch* b_DNNoutSM_kl_1_tauup_DM0      = outTree->Branch("DNNoutSM_kl_1_tauup_DM0"     , &DNNoutSM_kl_1_tauup.at(0));
   TBranch* b_BDToutSM_kl_1_tauup_DM0      = outTree->Branch("BDToutSM_kl_1_tauup_DM0"     , &BDToutSM_kl_1_tauup.at(0));
@@ -789,6 +792,123 @@ int main (int argc, char** argv)
   TBranch* b_tauH_SVFIT_mass_taudown_DM11 = outTree->Branch("tauH_SVFIT_mass_taudown_DM11", &tauH_SVFIT_mass_taudown.at(3));
   TBranch* b_DNNoutSM_kl_1_taudown_DM11   = outTree->Branch("DNNoutSM_kl_1_taudown_DM11"  , &DNNoutSM_kl_1_taudown.at(3));
   TBranch* b_BDToutSM_kl_1_taudown_DM11   = outTree->Branch("BDToutSM_kl_1_taudown_DM11"  , &BDToutSM_kl_1_taudown.at(3));
+  std::vector<TBranch*> b_mdnnSM0_tauup_DM0  , b_mdnnSM0_taudown_DM0;
+  std::vector<TBranch*> b_mdnnSM0_tauup_DM1  , b_mdnnSM0_taudown_DM1;
+  std::vector<TBranch*> b_mdnnSM0_tauup_DM10 , b_mdnnSM0_taudown_DM10;
+  std::vector<TBranch*> b_mdnnSM0_tauup_DM11 , b_mdnnSM0_taudown_DM11;
+  std::vector<TBranch*> b_mdnnSM1_tauup_DM0  , b_mdnnSM1_taudown_DM0;
+  std::vector<TBranch*> b_mdnnSM1_tauup_DM1  , b_mdnnSM1_taudown_DM1;
+  std::vector<TBranch*> b_mdnnSM1_tauup_DM10 , b_mdnnSM1_taudown_DM10;
+  std::vector<TBranch*> b_mdnnSM1_tauup_DM11 , b_mdnnSM1_taudown_DM11;
+  std::vector<TBranch*> b_mdnnBSM0_tauup_DM0 , b_mdnnBSM0_taudown_DM0;
+  std::vector<TBranch*> b_mdnnBSM0_tauup_DM1 , b_mdnnBSM0_taudown_DM1;
+  std::vector<TBranch*> b_mdnnBSM0_tauup_DM10, b_mdnnBSM0_taudown_DM10;
+  std::vector<TBranch*> b_mdnnBSM0_tauup_DM11, b_mdnnBSM0_taudown_DM11;
+  boost::format mdnnSM0name_tauup_DM0    ("mdnn__v0__kl1_c2v1_c31__%1%_tauup_DM0");
+  boost::format mdnnSM0name_taudown_DM0  ("mdnn__v0__kl1_c2v1_c31__%1%_taudown_DM0");
+  boost::format mdnnSM0name_tauup_DM1    ("mdnn__v0__kl1_c2v1_c31__%1%_tauup_DM1");
+  boost::format mdnnSM0name_taudown_DM1  ("mdnn__v0__kl1_c2v1_c31__%1%_taudown_DM1");
+  boost::format mdnnSM0name_tauup_DM10   ("mdnn__v0__kl1_c2v1_c31__%1%_tauup_DM10");
+  boost::format mdnnSM0name_taudown_DM10 ("mdnn__v0__kl1_c2v1_c31__%1%_taudown_DM10");
+  boost::format mdnnSM0name_tauup_DM11   ("mdnn__v0__kl1_c2v1_c31__%1%_tauup_DM11");
+  boost::format mdnnSM0name_taudown_DM11 ("mdnn__v0__kl1_c2v1_c31__%1%_taudown_DM11");
+  boost::format mdnnSM1name_tauup_DM0    ("mdnn__v1__kl1_c2v1_c31__%1%_tauup_DM0");
+  boost::format mdnnSM1name_taudown_DM0  ("mdnn__v1__kl1_c2v1_c31__%1%_taudown_DM0");
+  boost::format mdnnSM1name_tauup_DM1    ("mdnn__v1__kl1_c2v1_c31__%1%_tauup_DM1");
+  boost::format mdnnSM1name_taudown_DM1  ("mdnn__v1__kl1_c2v1_c31__%1%_taudown_DM1");
+  boost::format mdnnSM1name_tauup_DM10   ("mdnn__v1__kl1_c2v1_c31__%1%_tauup_DM10");
+  boost::format mdnnSM1name_taudown_DM10 ("mdnn__v1__kl1_c2v1_c31__%1%_taudown_DM10");
+  boost::format mdnnSM1name_tauup_DM11   ("mdnn__v1__kl1_c2v1_c31__%1%_tauup_DM11");
+  boost::format mdnnSM1name_taudown_DM11 ("mdnn__v1__kl1_c2v1_c31__%1%_taudown_DM11");
+  boost::format mdnnBSM0name_tauup_DM0   ("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_tauup_DM0");
+  boost::format mdnnBSM0name_taudown_DM0 ("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_taudown_DM0");
+  boost::format mdnnBSM0name_tauup_DM1   ("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_tauup_DM1");
+  boost::format mdnnBSM0name_taudown_DM1 ("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_taudown_DM1");
+  boost::format mdnnBSM0name_tauup_DM10  ("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_tauup_DM10");
+  boost::format mdnnBSM0name_taudown_DM10("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_taudown_DM10");
+  boost::format mdnnBSM0name_tauup_DM11  ("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_tauup_DM11");
+  boost::format mdnnBSM0name_taudown_DM11("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_taudown_DM11");
+  for (int i=0; i<mdnnSM0_size; i++)
+  {
+    std::string tmp_mdnnSM0_branch_name_up_DM0    = boost::str( mdnnSM0name_tauup_DM0    % (mci.getNodeNames(0)).at(i) );
+    std::string tmp_mdnnSM0_branch_name_down_DM0  = boost::str( mdnnSM0name_taudown_DM0  % (mci.getNodeNames(0)).at(i) );
+    std::string tmp_mdnnSM0_branch_name_up_DM1    = boost::str( mdnnSM0name_tauup_DM1    % (mci.getNodeNames(0)).at(i) );
+    std::string tmp_mdnnSM0_branch_name_down_DM1  = boost::str( mdnnSM0name_taudown_DM1  % (mci.getNodeNames(0)).at(i) );
+    std::string tmp_mdnnSM0_branch_name_up_DM10   = boost::str( mdnnSM0name_tauup_DM10   % (mci.getNodeNames(0)).at(i) );
+    std::string tmp_mdnnSM0_branch_name_down_DM10 = boost::str( mdnnSM0name_taudown_DM10 % (mci.getNodeNames(0)).at(i) );
+    std::string tmp_mdnnSM0_branch_name_up_DM11   = boost::str( mdnnSM0name_tauup_DM11   % (mci.getNodeNames(0)).at(i) );
+    std::string tmp_mdnnSM0_branch_name_down_DM11 = boost::str( mdnnSM0name_taudown_DM11 % (mci.getNodeNames(0)).at(i) );
+    TBranch* tmp_mdnnSM0_branch_up_DM0    = outTree->Branch(tmp_mdnnSM0_branch_name_up_DM0.c_str()   , &mdnnSM0_output_tauup  [0].at(i));
+    TBranch* tmp_mdnnSM0_branch_down_DM0  = outTree->Branch(tmp_mdnnSM0_branch_name_down_DM0.c_str() , &mdnnSM0_output_taudown[0].at(i));
+    TBranch* tmp_mdnnSM0_branch_up_DM1    = outTree->Branch(tmp_mdnnSM0_branch_name_up_DM1.c_str()   , &mdnnSM0_output_tauup  [1].at(i));
+    TBranch* tmp_mdnnSM0_branch_down_DM1  = outTree->Branch(tmp_mdnnSM0_branch_name_down_DM1.c_str() , &mdnnSM0_output_taudown[1].at(i));
+    TBranch* tmp_mdnnSM0_branch_up_DM10   = outTree->Branch(tmp_mdnnSM0_branch_name_up_DM10.c_str()  , &mdnnSM0_output_tauup  [2].at(i));
+    TBranch* tmp_mdnnSM0_branch_down_DM10 = outTree->Branch(tmp_mdnnSM0_branch_name_down_DM10.c_str(), &mdnnSM0_output_taudown[2].at(i));
+    TBranch* tmp_mdnnSM0_branch_up_DM11   = outTree->Branch(tmp_mdnnSM0_branch_name_up_DM11.c_str()  , &mdnnSM0_output_tauup  [3].at(i));
+    TBranch* tmp_mdnnSM0_branch_down_DM11 = outTree->Branch(tmp_mdnnSM0_branch_name_down_DM11.c_str(), &mdnnSM0_output_taudown[3].at(i));
+    b_mdnnSM0_tauup_DM0   .push_back(tmp_mdnnSM0_branch_up_DM0);
+    b_mdnnSM0_taudown_DM0 .push_back(tmp_mdnnSM0_branch_down_DM0);
+    b_mdnnSM0_tauup_DM1   .push_back(tmp_mdnnSM0_branch_up_DM1);
+    b_mdnnSM0_taudown_DM1 .push_back(tmp_mdnnSM0_branch_down_DM1);
+    b_mdnnSM0_tauup_DM10  .push_back(tmp_mdnnSM0_branch_up_DM10);
+    b_mdnnSM0_taudown_DM10.push_back(tmp_mdnnSM0_branch_down_DM10);
+    b_mdnnSM0_tauup_DM11  .push_back(tmp_mdnnSM0_branch_up_DM11);
+    b_mdnnSM0_taudown_DM11.push_back(tmp_mdnnSM0_branch_down_DM11);
+  }
+  for (int i=0; i<mdnnSM1_size; i++)
+  {
+    std::string tmp_mdnnSM1_branch_name_up_DM0    = boost::str( mdnnSM1name_tauup_DM0    % (mci.getNodeNames(1)).at(i) );
+    std::string tmp_mdnnSM1_branch_name_down_DM0  = boost::str( mdnnSM1name_taudown_DM0  % (mci.getNodeNames(1)).at(i) );
+    std::string tmp_mdnnSM1_branch_name_up_DM1    = boost::str( mdnnSM1name_tauup_DM1    % (mci.getNodeNames(1)).at(i) );
+    std::string tmp_mdnnSM1_branch_name_down_DM1  = boost::str( mdnnSM1name_taudown_DM1  % (mci.getNodeNames(1)).at(i) );
+    std::string tmp_mdnnSM1_branch_name_up_DM10   = boost::str( mdnnSM1name_tauup_DM10   % (mci.getNodeNames(1)).at(i) );
+    std::string tmp_mdnnSM1_branch_name_down_DM10 = boost::str( mdnnSM1name_taudown_DM10 % (mci.getNodeNames(1)).at(i) );
+    std::string tmp_mdnnSM1_branch_name_up_DM11   = boost::str( mdnnSM1name_tauup_DM11   % (mci.getNodeNames(1)).at(i) );
+    std::string tmp_mdnnSM1_branch_name_down_DM11 = boost::str( mdnnSM1name_taudown_DM11 % (mci.getNodeNames(1)).at(i) );
+    TBranch* tmp_mdnnSM1_branch_up_DM0    = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM0.c_str()   , &mdnnSM1_output_tauup  [0].at(i));
+    TBranch* tmp_mdnnSM1_branch_down_DM0  = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM0.c_str() , &mdnnSM1_output_taudown[0].at(i));
+    TBranch* tmp_mdnnSM1_branch_up_DM1    = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM1.c_str()   , &mdnnSM1_output_tauup  [1].at(i));
+    TBranch* tmp_mdnnSM1_branch_down_DM1  = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM1.c_str() , &mdnnSM1_output_taudown[1].at(i));
+    TBranch* tmp_mdnnSM1_branch_up_DM10   = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM10.c_str()  , &mdnnSM1_output_tauup  [2].at(i));
+    TBranch* tmp_mdnnSM1_branch_down_DM10 = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM10.c_str(), &mdnnSM1_output_taudown[2].at(i));
+    TBranch* tmp_mdnnSM1_branch_up_DM11   = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM11.c_str()  , &mdnnSM1_output_tauup  [3].at(i));
+    TBranch* tmp_mdnnSM1_branch_down_DM11 = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM11.c_str(), &mdnnSM1_output_taudown[3].at(i));
+    b_mdnnSM1_tauup_DM0   .push_back(tmp_mdnnSM1_branch_up_DM0);
+    b_mdnnSM1_taudown_DM0 .push_back(tmp_mdnnSM1_branch_down_DM0);
+    b_mdnnSM1_tauup_DM1   .push_back(tmp_mdnnSM1_branch_up_DM1);
+    b_mdnnSM1_taudown_DM1 .push_back(tmp_mdnnSM1_branch_down_DM1);
+    b_mdnnSM1_tauup_DM10  .push_back(tmp_mdnnSM1_branch_up_DM10);
+    b_mdnnSM1_taudown_DM10.push_back(tmp_mdnnSM1_branch_down_DM10);
+    b_mdnnSM1_tauup_DM11  .push_back(tmp_mdnnSM1_branch_up_DM11);
+    b_mdnnSM1_taudown_DM11.push_back(tmp_mdnnSM1_branch_down_DM11);
+  }
+  for (int i=0; i<mdnnBSM0_size; i++)
+  {
+    std::string tmp_mdnnBSM0_branch_name_up_DM0    = boost::str( mdnnBSM0name_tauup_DM0    % (mci.getNodeNames(2)).at(i) );
+    std::string tmp_mdnnBSM0_branch_name_down_DM0  = boost::str( mdnnBSM0name_taudown_DM0  % (mci.getNodeNames(2)).at(i) );
+    std::string tmp_mdnnBSM0_branch_name_up_DM1    = boost::str( mdnnBSM0name_tauup_DM1    % (mci.getNodeNames(2)).at(i) );
+    std::string tmp_mdnnBSM0_branch_name_down_DM1  = boost::str( mdnnBSM0name_taudown_DM1  % (mci.getNodeNames(2)).at(i) );
+    std::string tmp_mdnnBSM0_branch_name_up_DM10   = boost::str( mdnnBSM0name_tauup_DM10   % (mci.getNodeNames(2)).at(i) );
+    std::string tmp_mdnnBSM0_branch_name_down_DM10 = boost::str( mdnnBSM0name_taudown_DM10 % (mci.getNodeNames(2)).at(i) );
+    std::string tmp_mdnnBSM0_branch_name_up_DM11   = boost::str( mdnnBSM0name_tauup_DM11   % (mci.getNodeNames(2)).at(i) );
+    std::string tmp_mdnnBSM0_branch_name_down_DM11 = boost::str( mdnnBSM0name_taudown_DM11 % (mci.getNodeNames(2)).at(i) );
+    TBranch* tmp_mdnnBSM0_branch_up_DM0    = outTree->Branch(tmp_mdnnBSM0_branch_name_up_DM0.c_str()   , &mdnnBSM0_output_tauup  [0].at(i));
+    TBranch* tmp_mdnnBSM0_branch_down_DM0  = outTree->Branch(tmp_mdnnBSM0_branch_name_down_DM0.c_str() , &mdnnBSM0_output_taudown[0].at(i));
+    TBranch* tmp_mdnnBSM0_branch_up_DM1    = outTree->Branch(tmp_mdnnBSM0_branch_name_up_DM1.c_str()   , &mdnnBSM0_output_tauup  [1].at(i));
+    TBranch* tmp_mdnnBSM0_branch_down_DM1  = outTree->Branch(tmp_mdnnBSM0_branch_name_down_DM1.c_str() , &mdnnBSM0_output_taudown[1].at(i));
+    TBranch* tmp_mdnnBSM0_branch_up_DM10   = outTree->Branch(tmp_mdnnBSM0_branch_name_up_DM10.c_str()  , &mdnnBSM0_output_tauup  [2].at(i));
+    TBranch* tmp_mdnnBSM0_branch_down_DM10 = outTree->Branch(tmp_mdnnBSM0_branch_name_down_DM10.c_str(), &mdnnBSM0_output_taudown[2].at(i));
+    TBranch* tmp_mdnnBSM0_branch_up_DM11   = outTree->Branch(tmp_mdnnBSM0_branch_name_up_DM11.c_str()  , &mdnnBSM0_output_tauup  [3].at(i));
+    TBranch* tmp_mdnnBSM0_branch_down_DM11 = outTree->Branch(tmp_mdnnBSM0_branch_name_down_DM11.c_str(), &mdnnBSM0_output_taudown[3].at(i));
+    b_mdnnBSM0_tauup_DM0   .push_back(tmp_mdnnBSM0_branch_up_DM0);
+    b_mdnnBSM0_taudown_DM0 .push_back(tmp_mdnnBSM0_branch_down_DM0);
+    b_mdnnBSM0_tauup_DM1   .push_back(tmp_mdnnBSM0_branch_up_DM1);
+    b_mdnnBSM0_taudown_DM1 .push_back(tmp_mdnnBSM0_branch_down_DM1);
+    b_mdnnBSM0_tauup_DM10  .push_back(tmp_mdnnBSM0_branch_up_DM10);
+    b_mdnnBSM0_taudown_DM10.push_back(tmp_mdnnBSM0_branch_down_DM10);
+    b_mdnnBSM0_tauup_DM11  .push_back(tmp_mdnnBSM0_branch_up_DM11);
+    b_mdnnBSM0_taudown_DM11.push_back(tmp_mdnnBSM0_branch_down_DM11);
+  }
 
   // JES variations
   std::vector<Float_t> tauH_SVFIT_mass_jetup(N_jecSources), DNNoutSM_kl_1_jetup(N_jecSources), BDToutSM_kl_1_jetup(N_jecSources);
