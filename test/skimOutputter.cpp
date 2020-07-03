@@ -2129,6 +2129,47 @@ int main (int argc, char** argv)
         DNNoutSM_kl_1_jetdownTot   = DNNoutSM_kl_1;
         BDToutSM_kl_1_jetupTot     = BDToutSM_kl_1;
         BDToutSM_kl_1_jetdownTot   = BDToutSM_kl_1;
+
+        // VBF multiclass
+        mci.clearInputs();
+        for (uint i=0; i<mci.getNumberOfModels(); i++)
+        {
+          mci.setInputs(i,
+          {
+            {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+            {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+            {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+            {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+            {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+            {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+            {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+            {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+            {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+            {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
+            {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
+            {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
+            {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+            {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}
+          });
+        }
+        auto mdnnSM0_score_jetTot  = mci.predict(EventNumber, 0);
+        auto mdnnSM1_score_jetTot  = mci.predict(EventNumber, 1);
+        auto mdnnBSM0_score_jetTot = mci.predict(EventNumber, 2);
+        for (uint i=0; i<mdnnSM0_score_jetTot.size(); i++)
+        {
+          mdnnSM0_output_jetupTot.at(i)   = mdnnSM0_score_jetTot.at(i).second;
+          mdnnSM0_output_jetdownTot.at(i) = mdnnSM0_score_jetTot.at(i).second;
+        }
+        for (uint i=0; i<mdnnSM1_score_jetTot.size(); i++)
+        {
+          mdnnSM1_output_jetupTot.at(i)   = mdnnSM1_score_jetTot.at(i).second;
+          mdnnSM1_output_jetdownTot.at(i) = mdnnSM1_score_jetTot.at(i).second;
+        }
+        for (uint i=0; i<mdnnBSM0_score_jetTot.size(); i++)
+        {
+          mdnnBSM0_output_jetupTot.at(i)   = mdnnBSM0_score_jetTot.at(i).second;
+          mdnnBSM0_output_jetdownTot.at(i) = mdnnBSM0_score_jetTot.at(i).second;
+        }
       }
       else /*isMC*/
       {
@@ -2276,6 +2317,71 @@ int main (int argc, char** argv)
           DNNoutSM_kl_1_jetdownTot = outs_jetdownTot.at(0);
         }
 
+        if (doMult)
+        {
+          mci.clearInputs();
+          for (uint i=0; i<mci.getNumberOfModels(); i++)
+          {
+            mci.setInputs(i,
+            {
+              {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+              {"bjet1_pt", bjet1_jetupTot.Pt()}, {"bjet1_eta", bjet1_jetupTot.Eta()}, {"bjet1_phi", bjet1_jetupTot.Phi()}, {"bjet1_e", bjet1_jetupTot.E()},
+              {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+              {"bjet2_pt", bjet2_jetupTot.Pt()}, {"bjet2_eta", bjet2_jetupTot.Eta()}, {"bjet2_phi", bjet2_jetupTot.Phi()}, {"bjet2_e", bjet2_jetupTot.E()},
+              {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+              {"vbfjet1_pt", vbfjet1_jetupTot.Pt()}, {"vbfjet1_eta", vbfjet1_jetupTot.Eta()}, {"vbfjet1_phi", vbfjet1_jetupTot.Phi()}, {"vbfjet1_e", vbfjet1_jetupTot.E()},
+              {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+              {"vbfjet2_pt", vbfjet2_jetupTot.Pt()}, {"vbfjet2_eta", vbfjet2_jetupTot.Eta()}, {"vbfjet2_phi", vbfjet2_jetupTot.Phi()}, {"vbfjet2_e", vbfjet2_jetupTot.E()},
+              {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+              {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
+              {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
+              {"met_pt", met_jetupTot.Pt()}, {"met_phi", met_jetupTot.Phi()},
+              {"bh_pt", (bjet1_jetupTot+bjet2_jetupTot).Pt()}, {"bh_eta", (bjet1_jetupTot+bjet2_jetupTot).Eta()}, {"bh_phi", (bjet1_jetupTot+bjet2_jetupTot).Phi()}, {"bh_e", (bjet1_jetupTot+bjet2_jetupTot).E()},
+              {"tauh_sv_pt", svfit_jetupTot.Pt()}, {"tauh_sv_eta", svfit_jetupTot.Eta()}, {"tauh_sv_phi", svfit_jetupTot.Phi()}, {"tauh_sv_e", svfit_jetupTot.E()}
+            });
+          }
+          auto mdnnSM0_score_jetupTot  = mci.predict(EventNumber, 0);
+          auto mdnnSM1_score_jetupTot  = mci.predict(EventNumber, 1);
+          auto mdnnBSM0_score_jetupTot = mci.predict(EventNumber, 2);
+          for (uint i=0; i<mdnnSM0_score_jetupTot.size(); i++)
+            mdnnSM0_output_jetupTot.at(i) = mdnnSM0_score_jetupTot.at(i).second;
+          for (uint i=0; i<mdnnSM1_score_jetupTot.size(); i++)
+            mdnnSM1_output_jetupTot.at(i) = mdnnSM1_score_jetupTot.at(i).second;
+          for (uint i=0; i<mdnnBSM0_score_jetupTot.size(); i++)
+            mdnnBSM0_output_jetupTot.at(i) = mdnnBSM0_score_jetupTot.at(i).second;
+
+          mci.clearInputs();
+          for (uint i=0; i<mci.getNumberOfModels(); i++)
+          {
+            mci.setInputs(i,
+            {
+              {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+              {"bjet1_pt", bjet1_jetdownTot.Pt()}, {"bjet1_eta", bjet1_jetdownTot.Eta()}, {"bjet1_phi", bjet1_jetdownTot.Phi()}, {"bjet1_e", bjet1_jetdownTot.E()},
+              {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+              {"bjet2_pt", bjet2_jetdownTot.Pt()}, {"bjet2_eta", bjet2_jetdownTot.Eta()}, {"bjet2_phi", bjet2_jetdownTot.Phi()}, {"bjet2_e", bjet2_jetdownTot.E()},
+              {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+              {"vbfjet1_pt", vbfjet1_jetdownTot.Pt()}, {"vbfjet1_eta", vbfjet1_jetdownTot.Eta()}, {"vbfjet1_phi", vbfjet1_jetdownTot.Phi()}, {"vbfjet1_e", vbfjet1_jetdownTot.E()},
+              {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+              {"vbfjet2_pt", vbfjet2_jetdownTot.Pt()}, {"vbfjet2_eta", vbfjet2_jetdownTot.Eta()}, {"vbfjet2_phi", vbfjet2_jetdownTot.Phi()}, {"vbfjet2_e", vbfjet2_jetdownTot.E()},
+              {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+              {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
+              {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
+              {"met_pt", met_jetdownTot.Pt()}, {"met_phi", met_jetdownTot.Phi()},
+              {"bh_pt", (bjet1_jetdownTot+bjet2_jetdownTot).Pt()}, {"bh_eta", (bjet1_jetdownTot+bjet2_jetdownTot).Eta()}, {"bh_phi", (bjet1_jetdownTot+bjet2_jetdownTot).Phi()}, {"bh_e", (bjet1_jetdownTot+bjet2_jetdownTot).E()},
+              {"tauh_sv_pt", svfit_jetdownTot.Pt()}, {"tauh_sv_eta", svfit_jetdownTot.Eta()}, {"tauh_sv_phi", svfit_jetdownTot.Phi()}, {"tauh_sv_e", svfit_jetdownTot.E()}
+            });
+          }
+          auto mdnnSM0_score_jetdownTot  = mci.predict(EventNumber, 0);
+          auto mdnnSM1_score_jetdownTot  = mci.predict(EventNumber, 1);
+          auto mdnnBSM0_score_jetdownTot = mci.predict(EventNumber, 2);
+          for (uint i=0; i<mdnnSM0_score_jetdownTot.size(); i++)
+            mdnnSM0_output_jetdownTot.at(i) = mdnnSM0_score_jetdownTot.at(i).second;
+          for (uint i=0; i<mdnnSM1_score_jetdownTot.size(); i++)
+            mdnnSM1_output_jetdownTot.at(i) = mdnnSM1_score_jetdownTot.at(i).second;
+          for (uint i=0; i<mdnnBSM0_score_jetdownTot.size(); i++)
+            mdnnBSM0_output_jetdownTot.at(i) = mdnnBSM0_score_jetdownTot.at(i).second;
+        }
+
         if (doBDT)
         {
           BDTreader.SetInputValues(bjet2_jetupTot.Pt(), (bjet1_jetupTot+bjet2_jetupTot).Pt(), tau1.Pt(),
@@ -2389,18 +2495,24 @@ int main (int argc, char** argv)
       b_mdnnSM0_new.at(i)->Fill();
       b_mdnnSM0_muup.at(i)->Fill();
       b_mdnnSM0_mudown.at(i)->Fill();
+      b_mdnnSM0_jetupTot.at(i)->Fill();
+      b_mdnnSM0_jetdownTot.at(i)->Fill();
     }
     for (int i=0; i<mdnnSM1_size; i++)
     {
       b_mdnnSM1_new.at(i)->Fill();
       b_mdnnSM1_muup.at(i)->Fill();
       b_mdnnSM1_mudown.at(i)->Fill();
+      b_mdnnSM1_jetupTot.at(i)->Fill();
+      b_mdnnSM1_jetdownTot.at(i)->Fill();
     }
     for (int i=0; i<mdnnBSM0_size; i++)
     {
       b_mdnnBSM0_new.at(i)->Fill();
       b_mdnnBSM0_muup.at(i)->Fill();
       b_mdnnBSM0_mudown.at(i)->Fill();
+      b_mdnnBSM0_jetupTot.at(i)->Fill();
+      b_mdnnBSM0_jetdownTot.at(i)->Fill();
     }
 
     // Timing branches
