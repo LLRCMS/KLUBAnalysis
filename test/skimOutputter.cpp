@@ -950,12 +950,51 @@ int main (int argc, char** argv)
   // JES variations Total
   Float_t tauH_SVFIT_mass_jetupTot, DNNoutSM_kl_1_jetupTot, BDToutSM_kl_1_jetupTot;
   Float_t tauH_SVFIT_mass_jetdownTot, DNNoutSM_kl_1_jetdownTot, BDToutSM_kl_1_jetdownTot;
+  std::vector<Float_t> mdnnSM0_output_jetupTot (mdnnSM0_size) , mdnnSM0_output_jetdownTot (mdnnSM0_size);
+  std::vector<Float_t> mdnnSM1_output_jetupTot (mdnnSM1_size) , mdnnSM1_output_jetdownTot (mdnnSM1_size);
+  std::vector<Float_t> mdnnBSM0_output_jetupTot(mdnnBSM0_size), mdnnBSM0_output_jetdownTot(mdnnBSM0_size);
   TBranch* b_tauH_SVFIT_mass_jetupTot   = outTree->Branch("tauH_SVFIT_mass_jetupTot"  , &tauH_SVFIT_mass_jetupTot);
   TBranch* b_DNNoutSM_kl_1_jetupTot     = outTree->Branch("DNNoutSM_kl_1_jetupTot"    , &DNNoutSM_kl_1_jetupTot);
   TBranch* b_BDToutSM_kl_1_jetupTot     = outTree->Branch("BDToutSM_kl_1_jetupTot"    , &BDToutSM_kl_1_jetupTot);
   TBranch* b_tauH_SVFIT_mass_jetdownTot = outTree->Branch("tauH_SVFIT_mass_jetdownTot", &tauH_SVFIT_mass_jetdownTot);
   TBranch* b_DNNoutSM_kl_1_jetdownTot   = outTree->Branch("DNNoutSM_kl_1_jetdownTot"  , &DNNoutSM_kl_1_jetdownTot);
   TBranch* b_BDToutSM_kl_1_jetdownTot   = outTree->Branch("BDToutSM_kl_1_jetdownTot"  , &BDToutSM_kl_1_jetdownTot);
+  std::vector<TBranch*> b_mdnnSM0_jetupTot , b_mdnnSM0_jetdownTot;
+  std::vector<TBranch*> b_mdnnSM1_jetupTot , b_mdnnSM1_jetdownTot;
+  std::vector<TBranch*> b_mdnnBSM0_jetupTot, b_mdnnBSM0_jetdownTot;
+  boost::format mdnnSM0name_jetupTot   ("mdnn__v0__kl1_c2v1_c31__%1%_jetupTot");
+  boost::format mdnnSM0name_jetdownTot ("mdnn__v0__kl1_c2v1_c31__%1%_jetdownTot");
+  boost::format mdnnSM1name_jetupTot   ("mdnn__v1__kl1_c2v1_c31__%1%_jetupTot");
+  boost::format mdnnSM1name_jetdownTot ("mdnn__v1__kl1_c2v1_c31__%1%_jetdownTot");
+  boost::format mdnnBSM0name_jetupTot  ("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_jetupTot");
+  boost::format mdnnBSM0name_jetdownTot("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_jetdownTot");
+  for (int i=0; i<mdnnSM0_size; i++)
+  {
+    std::string tmp_mdnnSM0_branch_name_up   = boost::str( mdnnSM0name_jetupTot   % (mci.getNodeNames(0)).at(i) );
+    std::string tmp_mdnnSM0_branch_name_down = boost::str( mdnnSM0name_jetdownTot % (mci.getNodeNames(0)).at(i) );
+    TBranch* tmp_mdnnSM0_branch_up   = outTree->Branch(tmp_mdnnSM0_branch_name_up.c_str()  , &mdnnSM0_output_jetupTot.at(i));
+    TBranch* tmp_mdnnSM0_branch_down = outTree->Branch(tmp_mdnnSM0_branch_name_down.c_str(), &mdnnSM0_output_jetdownTot.at(i));
+    b_mdnnSM0_jetupTot  .push_back(tmp_mdnnSM0_branch_up);
+    b_mdnnSM0_jetdownTot.push_back(tmp_mdnnSM0_branch_down);
+  }
+  for (int i=0; i<mdnnSM1_size; i++)
+  {
+    std::string tmp_mdnnSM1_branch_name_up   = boost::str( mdnnSM1name_jetupTot   % (mci.getNodeNames(1)).at(i) );
+    std::string tmp_mdnnSM1_branch_name_down = boost::str( mdnnSM1name_jetdownTot % (mci.getNodeNames(1)).at(i) );
+    TBranch* tmp_mdnnSM1_branch_up   = outTree->Branch(tmp_mdnnSM1_branch_name_up.c_str()  , &mdnnSM1_output_jetupTot.at(i));
+    TBranch* tmp_mdnnSM1_branch_down = outTree->Branch(tmp_mdnnSM1_branch_name_down.c_str(), &mdnnSM1_output_jetdownTot.at(i));
+    b_mdnnSM1_jetupTot  .push_back(tmp_mdnnSM1_branch_up);
+    b_mdnnSM1_jetdownTot.push_back(tmp_mdnnSM1_branch_down);
+  }
+  for (int i=0; i<mdnnBSM0_size; i++)
+  {
+    std::string tmp_mdnnBSM0_branch_name_up   = boost::str( mdnnBSM0name_jetupTot   % (mci.getNodeNames(2)).at(i) );
+    std::string tmp_mdnnBSM0_branch_name_down = boost::str( mdnnBSM0name_jetdownTot % (mci.getNodeNames(2)).at(i) );
+    TBranch* tmp_mdnnBSM0_branch_up   = outTree->Branch(tmp_mdnnBSM0_branch_name_up.c_str()  , &mdnnBSM0_output_jetupTot.at(i));
+    TBranch* tmp_mdnnBSM0_branch_down = outTree->Branch(tmp_mdnnBSM0_branch_name_down.c_str(), &mdnnBSM0_output_jetdownTot.at(i));
+    b_mdnnBSM0_jetupTot  .push_back(tmp_mdnnBSM0_branch_up);
+    b_mdnnBSM0_jetdownTot.push_back(tmp_mdnnBSM0_branch_down);
+  }
 
   // Add some branches to store timing information
   double time_prep, time_nominal, time_TES, time_EES, time_MES, time_splitJES, time_totalJES, time_tot;
