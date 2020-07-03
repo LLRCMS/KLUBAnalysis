@@ -634,8 +634,8 @@ int main (int argc, char** argv)
   // MES variations
   Float_t tauH_SVFIT_mass_muup, DNNoutSM_kl_1_muup, BDToutSM_kl_1_muup;
   Float_t tauH_SVFIT_mass_mudown, DNNoutSM_kl_1_mudown, BDToutSM_kl_1_mudown;
-  std::vector<Float_t> mdnnSM0_output_muup(mdnnSM0_size), mdnnSM0_output_mudown(mdnnSM0_size);
-  std::vector<Float_t> mdnnSM1_output_muup(mdnnSM1_size), mdnnSM1_output_mudown(mdnnSM1_size);
+  std::vector<Float_t> mdnnSM0_output_muup (mdnnSM0_size) , mdnnSM0_output_mudown (mdnnSM0_size);
+  std::vector<Float_t> mdnnSM1_output_muup (mdnnSM1_size) , mdnnSM1_output_mudown (mdnnSM1_size);
   std::vector<Float_t> mdnnBSM0_output_muup(mdnnBSM0_size), mdnnBSM0_output_mudown(mdnnBSM0_size);
   TBranch* b_tauH_SVFIT_mass_muup   = outTree->Branch("tauH_SVFIT_mass_muup"  , &tauH_SVFIT_mass_muup);
   TBranch* b_DNNoutSM_kl_1_muup     = outTree->Branch("DNNoutSM_kl_1_muup"    , &DNNoutSM_kl_1_muup);
@@ -643,14 +643,15 @@ int main (int argc, char** argv)
   TBranch* b_tauH_SVFIT_mass_mudown = outTree->Branch("tauH_SVFIT_mass_mudown", &tauH_SVFIT_mass_mudown);
   TBranch* b_DNNoutSM_kl_1_mudown   = outTree->Branch("DNNoutSM_kl_1_mudown"  , &DNNoutSM_kl_1_mudown);
   TBranch* b_BDToutSM_kl_1_mudown   = outTree->Branch("BDToutSM_kl_1_mudown"  , &BDToutSM_kl_1_mudown);
-  std::vector<TBranch*> b_mdnnSM0_muup  , b_mdnnSM1_muup  , b_mdnnBSM0_muup;
-  std::vector<TBranch*> b_mdnnSM0_mudown, b_mdnnSM1_mudown, b_mdnnBSM0_mudown;
-  boost::format mdnnSM0name_muup  ("mdnn__v0__kl1_c2v1_c31__%1%_muup");
-  boost::format mdnnSM1name_muup  ("mdnn__v1__kl1_c2v1_c31__%1%_muup");
-  boost::format mdnnBSM0name_muup ("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_muup");
-  boost::format mdnnSM0name_mudown  ("mdnn__v0__kl1_c2v1_c31__%1%_mudown");
-  boost::format mdnnSM1name_mudown  ("mdnn__v1__kl1_c2v1_c31__%1%_mudown");
-  boost::format mdnnBSM0name_mudown ("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_mudown");
+  std::vector<TBranch*> b_mdnnSM0_muup , b_mdnnSM0_mudown;
+  std::vector<TBranch*> b_mdnnSM1_muup , b_mdnnSM1_mudown;
+  std::vector<TBranch*> b_mdnnBSM0_muup, b_mdnnBSM0_mudown;
+  boost::format mdnnSM0name_muup   ("mdnn__v0__kl1_c2v1_c31__%1%_muup");
+  boost::format mdnnSM0name_mudown ("mdnn__v0__kl1_c2v1_c31__%1%_mudown");
+  boost::format mdnnSM1name_muup   ("mdnn__v1__kl1_c2v1_c31__%1%_muup");
+  boost::format mdnnSM1name_mudown ("mdnn__v1__kl1_c2v1_c31__%1%_mudown");
+  boost::format mdnnBSM0name_muup  ("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_muup");
+  boost::format mdnnBSM0name_mudown("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_mudown");
   for (int i=0; i<mdnnSM0_size; i++)
   {
     std::string tmp_mdnnSM0_branch_name_up   = boost::str( mdnnSM0name_muup   % (mci.getNodeNames(0)).at(i) );
@@ -680,8 +681,11 @@ int main (int argc, char** argv)
   }
 
   // EES variations
-  std::vector<Float_t> tauH_SVFIT_mass_eleup(2), DNNoutSM_kl_1_eleup(2), BDToutSM_kl_1_eleup(2);
-  std::vector<Float_t> tauH_SVFIT_mass_eledown(2), DNNoutSM_kl_1_eledown(2), BDToutSM_kl_1_eledown(2);
+  std::vector<Float_t> tauH_SVFIT_mass_eleup(N_tauhDM_EES), DNNoutSM_kl_1_eleup(N_tauhDM_EES), BDToutSM_kl_1_eleup(N_tauhDM_EES);
+  std::vector<Float_t> tauH_SVFIT_mass_eledown(N_tauhDM_EES), DNNoutSM_kl_1_eledown(N_tauhDM_EES), BDToutSM_kl_1_eledown(N_tauhDM_EES);
+  std::vector<std::vector<Float_t>> mdnnSM0_output_eleup (N_tauhDM_EES, std::vector<Float_t>(mdnnSM0_size)) , mdnnSM0_output_eledown (N_tauhDM_EES, std::vector<Float_t>(mdnnSM0_size));
+  std::vector<std::vector<Float_t>> mdnnSM1_output_eleup (N_tauhDM_EES, std::vector<Float_t>(mdnnSM1_size)) , mdnnSM1_output_eledown (N_tauhDM_EES, std::vector<Float_t>(mdnnSM1_size));
+  std::vector<std::vector<Float_t>> mdnnBSM0_output_eleup(N_tauhDM_EES, std::vector<Float_t>(mdnnBSM0_size)), mdnnBSM0_output_eledown(N_tauhDM_EES, std::vector<Float_t>(mdnnBSM0_size));
   TBranch* b_tauH_SVFIT_mass_eleup_DM0   = outTree->Branch("tauH_SVFIT_mass_eleup_DM0"  , &tauH_SVFIT_mass_eleup.at(0));    // DM 0
   TBranch* b_DNNoutSM_kl_1_eleup_DM0     = outTree->Branch("DNNoutSM_kl_1_eleup_DM0"    , &DNNoutSM_kl_1_eleup.at(0));
   TBranch* b_BDToutSM_kl_1_eleup_DM0     = outTree->Branch("BDToutSM_kl_1_eleup_DM0"    , &BDToutSM_kl_1_eleup.at(0));
@@ -694,10 +698,73 @@ int main (int argc, char** argv)
   TBranch* b_tauH_SVFIT_mass_eledown_DM1 = outTree->Branch("tauH_SVFIT_mass_eledown_DM1", &tauH_SVFIT_mass_eledown.at(1));
   TBranch* b_DNNoutSM_kl_1_eledown_DM1   = outTree->Branch("DNNoutSM_kl_1_eledown_DM1"  , &DNNoutSM_kl_1_eledown.at(1));
   TBranch* b_BDToutSM_kl_1_eledown_DM1   = outTree->Branch("BDToutSM_kl_1_eledown_DM1"  , &BDToutSM_kl_1_eledown.at(1));
+  std::vector<TBranch*> b_mdnnSM0_eleup_DM0 , b_mdnnSM0_eledown_DM0;
+  std::vector<TBranch*> b_mdnnSM0_eleup_DM1 , b_mdnnSM0_eledown_DM1;
+  std::vector<TBranch*> b_mdnnSM1_eleup_DM0 , b_mdnnSM1_eledown_DM0;
+  std::vector<TBranch*> b_mdnnSM1_eleup_DM1 , b_mdnnSM1_eledown_DM1;
+  std::vector<TBranch*> b_mdnnBSM0_eleup_DM0, b_mdnnBSM0_eledown_DM0;
+  std::vector<TBranch*> b_mdnnBSM0_eleup_DM1, b_mdnnBSM0_eledown_DM1;
+  boost::format mdnnSM0name_eleup_DM0   ("mdnn__v0__kl1_c2v1_c31__%1%_eleup_DM0");
+  boost::format mdnnSM0name_eledown_DM0 ("mdnn__v0__kl1_c2v1_c31__%1%_eledown_DM0");
+  boost::format mdnnSM0name_eleup_DM1   ("mdnn__v0__kl1_c2v1_c31__%1%_eleup_DM1");
+  boost::format mdnnSM0name_eledown_DM1 ("mdnn__v0__kl1_c2v1_c31__%1%_eledown_DM1");
+  boost::format mdnnSM1name_eleup_DM0   ("mdnn__v1__kl1_c2v1_c31__%1%_eleup_DM0");
+  boost::format mdnnSM1name_eledown_DM0 ("mdnn__v1__kl1_c2v1_c31__%1%_eledown_DM0");
+  boost::format mdnnSM1name_eleup_DM1   ("mdnn__v1__kl1_c2v1_c31__%1%_eleup_DM1");
+  boost::format mdnnSM1name_eledown_DM1 ("mdnn__v1__kl1_c2v1_c31__%1%_eledown_DM1");
+  boost::format mdnnBSM0name_eleup_DM0  ("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_eleup_DM0");
+  boost::format mdnnBSM0name_eledown_DM0("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_eledown_DM0");
+  boost::format mdnnBSM0name_eleup_DM1  ("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_eleup_DM1");
+  boost::format mdnnBSM0name_eledown_DM1("mdnn__v0__kl1_c2v1_c31_vbfbsm__%1%_eledown_DM1");
+  for (int i=0; i<mdnnSM0_size; i++)
+  {
+    std::string tmp_mdnnSM0_branch_name_up_DM0   = boost::str( mdnnSM0name_eleup_DM0   % (mci.getNodeNames(0)).at(i) );
+    std::string tmp_mdnnSM0_branch_name_down_DM0 = boost::str( mdnnSM0name_eledown_DM0 % (mci.getNodeNames(0)).at(i) );
+    std::string tmp_mdnnSM0_branch_name_up_DM1   = boost::str( mdnnSM0name_eleup_DM1   % (mci.getNodeNames(0)).at(i) );
+    std::string tmp_mdnnSM0_branch_name_down_DM1 = boost::str( mdnnSM0name_eledown_DM1 % (mci.getNodeNames(0)).at(i) );
+    TBranch* tmp_mdnnSM0_branch_up_DM0   = outTree->Branch(tmp_mdnnSM0_branch_name_up_DM0.c_str()  , &mdnnSM0_output_eleup  [0].at(i));
+    TBranch* tmp_mdnnSM0_branch_down_DM0 = outTree->Branch(tmp_mdnnSM0_branch_name_down_DM0.c_str(), &mdnnSM0_output_eledown[0].at(i));
+    TBranch* tmp_mdnnSM0_branch_up_DM1   = outTree->Branch(tmp_mdnnSM0_branch_name_up_DM1.c_str()  , &mdnnSM0_output_eleup  [1].at(i));
+    TBranch* tmp_mdnnSM0_branch_down_DM1 = outTree->Branch(tmp_mdnnSM0_branch_name_down_DM1.c_str(), &mdnnSM0_output_eledown[1].at(i));
+    b_mdnnSM0_eleup_DM0  .push_back(tmp_mdnnSM0_branch_up_DM0);
+    b_mdnnSM0_eledown_DM0.push_back(tmp_mdnnSM0_branch_down_DM0);
+    b_mdnnSM0_eleup_DM1  .push_back(tmp_mdnnSM0_branch_up_DM1);
+    b_mdnnSM0_eledown_DM1.push_back(tmp_mdnnSM0_branch_down_DM1);
+  }
+  for (int i=0; i<mdnnSM1_size; i++)
+  {
+    std::string tmp_mdnnSM1_branch_name_up_DM0   = boost::str( mdnnSM1name_eleup_DM0   % (mci.getNodeNames(1)).at(i) );
+    std::string tmp_mdnnSM1_branch_name_down_DM0 = boost::str( mdnnSM1name_eledown_DM0 % (mci.getNodeNames(1)).at(i) );
+    std::string tmp_mdnnSM1_branch_name_up_DM1   = boost::str( mdnnSM1name_eleup_DM1   % (mci.getNodeNames(1)).at(i) );
+    std::string tmp_mdnnSM1_branch_name_down_DM1 = boost::str( mdnnSM1name_eledown_DM1 % (mci.getNodeNames(1)).at(i) );
+    TBranch* tmp_mdnnSM1_branch_up_DM0   = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM0.c_str()  , &mdnnSM1_output_eleup  [0].at(i));
+    TBranch* tmp_mdnnSM1_branch_down_DM0 = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM0.c_str(), &mdnnSM1_output_eledown[0].at(i));
+    TBranch* tmp_mdnnSM1_branch_up_DM1   = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM1.c_str()  , &mdnnSM1_output_eleup  [1].at(i));
+    TBranch* tmp_mdnnSM1_branch_down_DM1 = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM1.c_str(), &mdnnSM1_output_eledown[1].at(i));
+    b_mdnnSM1_eleup_DM0  .push_back(tmp_mdnnSM1_branch_up_DM0);
+    b_mdnnSM1_eledown_DM0.push_back(tmp_mdnnSM1_branch_down_DM0);
+    b_mdnnSM1_eleup_DM1  .push_back(tmp_mdnnSM1_branch_up_DM1);
+    b_mdnnSM1_eledown_DM1.push_back(tmp_mdnnSM1_branch_down_DM1);
+  }
+  for (int i=0; i<mdnnBSM0_size; i++)
+  {
+    std::string tmp_mdnnBSM0_branch_name_up_DM0   = boost::str( mdnnBSM0name_eleup_DM0   % (mci.getNodeNames(2)).at(i) );
+    std::string tmp_mdnnBSM0_branch_name_down_DM0 = boost::str( mdnnBSM0name_eledown_DM0 % (mci.getNodeNames(2)).at(i) );
+    std::string tmp_mdnnBSM0_branch_name_up_DM1   = boost::str( mdnnBSM0name_eleup_DM1   % (mci.getNodeNames(2)).at(i) );
+    std::string tmp_mdnnBSM0_branch_name_down_DM1 = boost::str( mdnnBSM0name_eledown_DM1 % (mci.getNodeNames(2)).at(i) );
+    TBranch* tmp_mdnnBSM0_branch_up_DM0   = outTree->Branch(tmp_mdnnBSM0_branch_name_up_DM0.c_str()  , &mdnnBSM0_output_eleup  [0].at(i));
+    TBranch* tmp_mdnnBSM0_branch_down_DM0 = outTree->Branch(tmp_mdnnBSM0_branch_name_down_DM0.c_str(), &mdnnBSM0_output_eledown[0].at(i));
+    TBranch* tmp_mdnnBSM0_branch_up_DM1   = outTree->Branch(tmp_mdnnBSM0_branch_name_up_DM1.c_str()  , &mdnnBSM0_output_eleup  [1].at(i));
+    TBranch* tmp_mdnnBSM0_branch_down_DM1 = outTree->Branch(tmp_mdnnBSM0_branch_name_down_DM1.c_str(), &mdnnBSM0_output_eledown[1].at(i));
+    b_mdnnBSM0_eleup_DM0  .push_back(tmp_mdnnBSM0_branch_up_DM0);
+    b_mdnnBSM0_eledown_DM0.push_back(tmp_mdnnBSM0_branch_down_DM0);
+    b_mdnnBSM0_eleup_DM1  .push_back(tmp_mdnnBSM0_branch_up_DM1);
+    b_mdnnBSM0_eledown_DM1.push_back(tmp_mdnnBSM0_branch_down_DM1);
+  }
 
   // TES variations
-  std::vector<Float_t> tauH_SVFIT_mass_tauup(4), DNNoutSM_kl_1_tauup(4), BDToutSM_kl_1_tauup(4);
-  std::vector<Float_t> tauH_SVFIT_mass_taudown(4), DNNoutSM_kl_1_taudown(4), BDToutSM_kl_1_taudown(4);
+  std::vector<Float_t> tauH_SVFIT_mass_tauup(N_tauhDM), DNNoutSM_kl_1_tauup(N_tauhDM), BDToutSM_kl_1_tauup(N_tauhDM);
+  std::vector<Float_t> tauH_SVFIT_mass_taudown(N_tauhDM), DNNoutSM_kl_1_taudown(N_tauhDM), BDToutSM_kl_1_taudown(N_tauhDM);
   TBranch* b_tauH_SVFIT_mass_tauup_DM0    = outTree->Branch("tauH_SVFIT_mass_tauup_DM0"   , &tauH_SVFIT_mass_tauup.at(0));    // DM 0
   TBranch* b_DNNoutSM_kl_1_tauup_DM0      = outTree->Branch("DNNoutSM_kl_1_tauup_DM0"     , &DNNoutSM_kl_1_tauup.at(0));
   TBranch* b_BDToutSM_kl_1_tauup_DM0      = outTree->Branch("BDToutSM_kl_1_tauup_DM0"     , &BDToutSM_kl_1_tauup.at(0));
