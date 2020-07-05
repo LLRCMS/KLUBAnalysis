@@ -19,6 +19,9 @@ cd cms_runII_dnn_models/models/test/
 mv test.cc test.cc_x
 cd -
 
+# Multiclassifier
+git clone https://gitlab.cern.ch/hh/bbtautau/MulticlassInference.git
+
 # HHbtag package
 git clone git@github.com:hh-italian-group/HHbtag.git HHTools/HHbtag
 
