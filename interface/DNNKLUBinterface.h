@@ -79,7 +79,7 @@ class DNNKLUBinterface {
     float DNN_vbf_2_hhbtag_, DNN_vbf_2_cvsl_, DNN_vbf_2_cvsb_;
     int DNN_is_boosted_, DNN_n_vbf_;
     unsigned long long int DNN_evt_;
-    bool DNN_svfit_conv_, DNN_hh_kinfit_conv_;
+    bool DNN_svfit_conv_, DNN_hh_kinfit_conv_, DNN_pass_massCut_;
     Channel DNN_e_channel_;
     Year DNN_e_year_;
     Spin DNN_spin_;

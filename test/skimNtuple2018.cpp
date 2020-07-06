@@ -5345,7 +5345,7 @@ int main (int argc, char** argv)
     float DNN_b_1_HHbtag, DNN_b_2_HHbtag, DNN_vbf_1_HHbtag, DNN_vbf_2_HHbtag;
     int DNN_is_boosted, DNN_n_vbf, DNN_isvbf;
     unsigned long long int DNN_evt;
-    bool DNN_svfit_conv, DNN_hh_kinfit_conv;
+    bool DNN_svfit_conv, DNN_hh_kinfit_conv, DNN_pass_massCut;
     int DNN_nleps, DNN_nbjetscand;
 
     Channel DNN_e_channel;
@@ -5522,6 +5522,8 @@ int main (int argc, char** argv)
             if (*rv_vbf_2_e != -999.) DNN_n_vbf++;
           }
 
+        DNN_pass_massCut = ( ((DNN_svfit.M()-116.)*(DNN_svfit.M()-116.))/(35.*35.) + (((DNN_b_1+DNN_b_2).M()-111.)*((DNN_b_1+DNN_b_2).M()-111.))/(45.*45.) <  1.0 );
+
         // Loop on configurable options to get the output prediction
         // For each event save the predictions for all the kl values requested
         for (unsigned int jkl = 0; jkl < DNN_kl.size(); ++jkl)
@@ -5537,7 +5539,8 @@ int main (int argc, char** argv)
              DNN_b_1_HHbtag, DNN_b_2_HHbtag, DNN_vbf_1_HHbtag, DNN_vbf_2_HHbtag,
              DNN_b_1_CvsL, DNN_b_2_CvsL, DNN_vbf_1_CvsL, DNN_vbf_2_CvsL,
              DNN_b_1_CvsB, DNN_b_2_CvsB, DNN_vbf_1_CvsB, DNN_vbf_2_CvsB,
-             0, 0, 0); // cv, c2v, c3
+             0, 0, 0, // cv, c2v, c3
+             DNN_pass_massCut);
 
           // Get model prediction
           DNN_pred = wrapper.predict(feat_vals, DNN_evt);
