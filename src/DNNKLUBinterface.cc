@@ -90,6 +90,11 @@ void DNNKLUBinterface::SetShiftedInputs(TLorentzVector b1, TLorentzVector b2, TL
   DNN_hh_kinfit_conv_ = KinFitConv;
   DNN_svfit_conv_     = SVfitConv;
   DNN_mt2_            = MT2;
+
+  // Pass ellyptic mass cut
+  // ((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(35.*35.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(45.*45.) <  1.0
+  DNN_pass_massCut_ = ( ((svfit.M()-116.)*(svfit.M()-116.))/(35.*35.) + (((b1+b2).M()-111.)*((b1+b2).M()-111.))/(45.*45.) <  1.0 );
+
 }
 
 
@@ -113,8 +118,8 @@ std::vector<float> DNNKLUBinterface::GetPredictions()
         DNN_b_1_hhbtag_, DNN_b_2_hhbtag_, DNN_vbf_1_hhbtag_, DNN_vbf_2_hhbtag_,
         DNN_b_1_cvsl_, DNN_b_2_cvsl_, DNN_vbf_1_cvsl_, DNN_vbf_2_cvsl_,
         DNN_b_1_cvsb_, DNN_b_2_cvsb_, DNN_vbf_1_cvsb_, DNN_vbf_2_cvsb_,
-        0, 0, 0 // cv, c2v, c3
-        );
+        0, 0, 0, // cv, c2v, c3
+        DNN_pass_massCut_);
 
     std::vector<std::string> feats_names = evt_proc_.get_feats();
 
