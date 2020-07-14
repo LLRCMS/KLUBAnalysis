@@ -1,0 +1,1 @@
+root://polgrid4.in2p3.fr:11001//store/user/davignon/HHNtuples2018_Legacy_v2/MC_02Apr2020_TTbar/3_TTToHadronic_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/TTToHadronic_TuneCP5_13TeV-powheg-pythia8_MC_02Apr2020_TTbar_3/200403_100029/0000/HTauTauAnalysis_1.root
