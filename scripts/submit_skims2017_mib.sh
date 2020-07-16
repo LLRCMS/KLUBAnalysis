@@ -122,6 +122,33 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_m
 
 
 # # #####################
+# DY split in sample types
+# XS of inclusice sample: 6077.22 (XS DY NLO)
+# The inclusive xs should be ok for all samples since here we apply the stitch weights
+echo "Submitting - DY LO in samples - "
+echo "Submitting - DY LO in samples - " >> log_23Jan2020.txt
+echo "OUTDIR = $OUTDIRR"
+echo "OUTDIR = $OUTDIRR" >> log_23Jan2020.txt
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_DYincl         -i $INPUTDIR/DYJetsToLL_M-50.txt               -g True --DY True -x 6077.22 --pu $PUDIR/PU_Legacy2017_SF_DYinclusive.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_DY1Jets        -i $INPUTDIR/DY1JetsToLL.txt                   -g True --DY True -x 6077.22 --pu $PUDIR/PU_Legacy2017_SF_DY1Jets.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_DY2Jets        -i $INPUTDIR/DY2JetsToLL.txt                   -g True --DY True -x 6077.22 --pu $PUDIR/PU_Legacy2017_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_DY3Jets        -i $INPUTDIR/DY3JetsToLL.txt                   -g True --DY True -x 6077.22 --pu $PUDIR/PU_Legacy2017_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_DY4Jets        -i $INPUTDIR/DY4JetsToLL.txt                   -g True --DY True -x 6077.22 --pu $PUDIR/PU_Legacy2017_SF_DY4Jets.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_DYBBJets       -i $INPUTDIR/DYBBJetsToLL.txt                  -g True --DY True -x 6077.22 --pu $PUDIR/PU_Legacy2017_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_DYHT70to100    -i $INPUTDIR/DYJetsToLL_M-50_HT-70to100.txt    -g True --DY True -x 6077.22 --pu $PUDIR/PU_Legacy2017_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_DYHT100to200   -i $INPUTDIR/DYJetsToLL_M-50_HT-100to200.txt   -g True --DY True -x 6077.22 --pu $PUDIR/PU_Legacy2017_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_DYHT200to400   -i $INPUTDIR/DYJetsToLL_M-50_HT-200to400.txt   -g True --DY True -x 6077.22 --pu $PUDIR/PU_Legacy2017_SF_DYHT200to400.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_DYHT400to600   -i $INPUTDIR/DYJetsToLL_M-50_HT-400to600.txt   -g True --DY True -x 6077.22 --pu $PUDIR/PU_Legacy2017_SF_DYHT400to600.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_DYHT600to800   -i $INPUTDIR/DYJetsToLL_M-50_HT-600to800.txt   -g True --DY True -x 6077.22 --pu $PUDIR/PU_Legacy2017_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_DYHT800to1200  -i $INPUTDIR/DYJetsToLL_M-50_HT-800to1200.txt  -g True --DY True -x 6077.22 --pu $PUDIR/PU_Legacy2017_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_DYHT1200to2500 -i $INPUTDIR/DYJetsToLL_M-50_HT-1200to2500.txt -g True --DY True -x 6077.22 --pu $PUDIR/PU_Legacy2017_SF_DYHT1200to2500.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg -n 50 -k True -o $SKIMDIR/SKIM_DYHT2500toInf  -i $INPUTDIR/DYJetsToLL_M-50_HT-2500toInf.txt  -g True --DY True -x 6077.22 --pu $PUDIR/PU_Legacy2017_SF.txt
+
+
+
+
+# # #####################
 # DY Low Mass
 echo "Submitting - DY Low Mass - "
 echo "Submitting - DY Low Mass - " >> log_23Jan2020.txt
@@ -376,7 +403,7 @@ echo "OUTDIR = $OUTDIRR" >> log_18Feb2020.txt
 
 #python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_0_C3_2   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_0_C3_2.txt   -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
-#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1_5_C2V_1_C3_1 -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_5_C2V_1_C3_1.txt -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1p5_C2V_1_C3_1 -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_5_C2V_1_C3_1.txt -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
 #python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_1_C3_0   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_1_C3_0.txt   -x 1. -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
@@ -399,7 +426,7 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_m
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_0_C3_2_xs   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_0_C3_2.txt   -x 0.017643 -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 											
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1_5_C2V_1_C3_1_xs -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_5_C2V_1_C3_1.txt -x 0.066018 -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1p5_C2V_1_C3_1_xs -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_5_C2V_1_C3_1.txt -x 0.066018 -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 											
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_1_C3_0_xs   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_1_C3_0.txt   -x 0.004609 -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 											

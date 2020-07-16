@@ -11,13 +11,16 @@ cmsenv
 # DNN packages
 git clone git@github.com:GilesStrong/cms_hh_proc_interface.git
 cd cms_hh_proc_interface
-git checkout tags/v2.0
+git checkout tags/V4.0
 cd -
 git clone git@github.com:GilesStrong/cms_hh_tf_inference.git
 git clone git@github.com:GilesStrong/cms_runII_dnn_models.git
 cd cms_runII_dnn_models/models/test/
 mv test.cc test.cc_x
 cd -
+
+# Multiclassifier
+git clone https://gitlab.cern.ch/hh/bbtautau/MulticlassInference.git
 
 # HHbtag package
 git clone git@github.com:hh-italian-group/HHbtag.git HHTools/HHbtag

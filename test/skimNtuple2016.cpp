@@ -61,6 +61,9 @@
 // HHbtag
 #include "HHbtagKLUBinterface.h"
 
+// Multiclass
+#include "../src/MulticlassInterface.cc"
+
 using namespace std ;
 using DNNVector = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<float>>;
 
@@ -4745,7 +4748,35 @@ int main (int argc, char** argv)
       delete readerResonantLM;
       delete readerNonResonant;
     }
+    // MULTICLASS
+    bool compute_multiclass = (gConfigParser->isDefined("Multiclass::computeMVA") ? gConfigParser->readBoolOption("Multiclass::computeMVA") : false);
+    if (compute_multiclass)
+    {
+        cout << " ------------ ############### ----- Multiclass ----- ############### ------------ " << endl;
 
+        // set the multiclass year
+        int year = 2016;
+
+        // models to load for inference
+        std::vector<std::pair<std::string, std::string>> modelSpecs = {
+          { "v0", "kl1_c2v1_c31" },
+          { "v1", "kl1_c2v1_c31" },
+          { "v0", "kl1_c2v1_c31_vbfbsm" }
+        };
+
+        // read the input tree
+        TFile* outFile = TFile::Open(outputFile, "UPDATE");
+        TTree* outTree = (TTree*)outFile->Get("HTauTauTree");
+
+        // create the multiclass inferface and run it
+        MulticlassInterface mci(year, modelSpecs);
+        mci.extendTree(outTree);
+
+        // write the output file
+        outTree->Write("", TObject::kOverwrite);
+        outFile->Close();
+
+    } // END MULTICLASS
 
   // NEW BDT
   bool computeBDTsm = (gConfigParser->isDefined("BDTsm::computeMVA") ? gConfigParser->readBoolOption ("BDTsm::computeMVA") : false);
@@ -5191,7 +5222,7 @@ int main (int argc, char** argv)
      float DNN_b_1_HHbtag, DNN_b_2_HHbtag, DNN_vbf_1_HHbtag, DNN_vbf_2_HHbtag;
      int DNN_is_boosted, DNN_n_vbf, DNN_isvbf;
      unsigned long long int DNN_evt;
-     bool DNN_svfit_conv, DNN_hh_kinfit_conv;
+     bool DNN_svfit_conv, DNN_hh_kinfit_conv, DNN_pass_massCut;
      int DNN_nleps, DNN_nbjetscand;
 
      Channel DNN_e_channel;
@@ -5367,6 +5398,8 @@ int main (int argc, char** argv)
            if (*rv_vbf_2_e != -999.) DNN_n_vbf++;
        }
 
+       DNN_pass_massCut = ( ((DNN_svfit.M()-116.)*(DNN_svfit.M()-116.))/(35.*35.) + (((DNN_b_1+DNN_b_2).M()-111.)*((DNN_b_1+DNN_b_2).M()-111.))/(45.*45.) <  1.0 );
+
        // Loop on configurable options to get the output prediction
        // For each event save the predictions for all the kl values requested
        for (unsigned int jkl = 0; jkl < DNN_kl.size(); ++jkl)
@@ -5382,7 +5415,8 @@ int main (int argc, char** argv)
             DNN_b_1_HHbtag, DNN_b_2_HHbtag, DNN_vbf_1_HHbtag, DNN_vbf_2_HHbtag,
             DNN_b_1_CvsL, DNN_b_2_CvsL, DNN_vbf_1_CvsL, DNN_vbf_2_CvsL,
             DNN_b_1_CvsB, DNN_b_2_CvsB, DNN_vbf_1_CvsB, DNN_vbf_2_CvsB,
-            0, 0, 0); // cv, c2v, c3
+            0, 0, 0, // cv, c2v, c3
+            DNN_pass_massCut);
 
          // Get model prediction
          DNN_pred = wrapper.predict(feat_vals, DNN_evt);
@@ -5430,6 +5464,7 @@ int main (int argc, char** argv)
      in_file->Close();
 
    } // END NEW DNN
+  
 
   cout << "... SKIM finished, exiting." << endl;
   return 0 ;
