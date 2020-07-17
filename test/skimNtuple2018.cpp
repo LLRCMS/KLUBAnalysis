@@ -118,32 +118,32 @@ const float stitchWeights [5][5][9] = {
   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
  },
  {
-  {0.51898547586 , 0.307918393636 , 0.299712383744 , 0.152457027204 , 0.017727351316 , 0.00960959105875 , 0.0118479734376 , 0.0297037347566 , 0.0},
-  {0.521376206466 , 0.308647458404 , 0.305485779629 , 0.152859451028 , 0.0176935784475 , 0.0096261248727 , 0.0 , 0.0 , 0.0},
+  {0.51898547586 , 0.307918393636 , 0.299712383744 , 0.152457027204 , 0.017727351316 , 0.00960959105875 , 0.0118479734376 , 0.0153247097079 , 0.0},
+  {0.521376206466 , 0.308647458404 , 0.305485779629 , 0.152859451028 , 0.0176935784475 , 0.0096261248727 , 0.0121070399122 , 0.0 , 0.0},
   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
  },
  {
-  {0.580157109833 , 0.323048584481 , 0.316235063773 , 0.155031902758 , 0.0166252750008 , 0.00929109993408 , 0.0109079212315 , 0.0155571504236 , 0.000294085695839},
-  {0.576159635871 , 0.32225013185 , 0.317509585462 , 0.156832157172 , 0.0160785062389 , 0.00959797340356 , 0.0119359304201 , 0.0155762370921 , 0.0},
-  {0.114285902101 , 0.0983303196122 , 0.0960268363933 , 0.0716322046668 , 0.0160449241071 , 0.00911109415307 , 0.0113069937242 , 0.0 , 0.0},
+  {0.580157109833 , 0.323048584481 , 0.316235063773 , 0.155031902758 , 0.0166252750008 , 0.00929109993408 , 0.0119071053391 , 0.0155571504236 , 0.000294085695839},
+  {0.576159635871 , 0.32225013185 , 0.317509585462 , 0.156832157172 , 0.0176872450509 , 0.00959797340356 , 0.0119359304201 , 0.0116739568912 , 0.000294219655312},
+  {0.114285902101 , 0.0983303196122 , 0.0960268363933 , 0.0716322046668 , 0.0160449241071 , 0.00911109415307 , 0.0113069937242 , 0.0141381182245 , 0.000294219655312},
   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
  },
  {
   {0.682278722716 , 0.362765385278 , 0.352621143228 , 0.165382670894 , 0.0174462106614 , 0.00958560178972 , 0.0113611990133 , 0.0155822731809 , 0.00029419199659},
-  {0.658904274958 , 0.355925643213 , 0.346908775498 , 0.160894989801 , 0.0172806075072 , 0.00961908326477 , 0.0118871488334 , 0.015698805782 , 0.0},
+  {0.658904274958 , 0.355925643213 , 0.346908775498 , 0.160894989801 , 0.0172806075072 , 0.00961908326477 , 0.0118871488334 , 0.015698805782 , 0.000294219655312},
   {0.116329810304 , 0.103266407792 , 0.101348794702 , 0.0755949912983 , 0.0146934201983 , 0.00901755115964 , 0.0110541461103 , 0.0145892891019 , 0.000294219655312},
-  {0.11037555227 , 0.0966682739915 , 0.0983978355988 , 0.0707927004997 , 0.0158861665046 , 0.00717647158826 , 0.0 , 0.0 , 0.0},
+  {0.11037555227 , 0.0943817218953 , 0.0935595693025 , 0.0707927004997 , 0.0158861665046 , 0.00910876641137 , 0.0109700992432 , 0.0 , 0.0},
   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
  },
  {
   {0.39949438878 , 0.374723947015 , 0.376569839917 , 0.172402895473 , 0.0180531001354 , 0.00967811533818 , 0.0120470434947 , 0.0155848428971 , 0.000294072214121},
-  {0.94120829317 , 0.373314693384 , 0.376696425396 , 0.171730043145 , 0.0186814560654 , 0.0095357673104 , 0.0121745338689 , 0.015490698255 , 0.000293965944772},
-  {0.0649324013904 , 0.0868542494347 , 0.0907644237315 , 0.0698678272198 , 0.0146930461579 , 0.00814494915235 , 0.011051375833 , 0.014209820022 , 0.000293717221136},
-  {0.0 , 0.0967397955117 , 0.090127867732 , 0.0686712984949 , 0.0156626168091 , 0.00902743165164 , 0.0108147123949 , 0.014651354602 , 0.0},
-  {0.0 , 0.0928514258164 , 0.0892665638494 , 0.0675120069126 , 0.0156701331724 , 0.00894531805894 , 0.0111842302729 , 0.102710118659 , 0.0}
+  {0.414012232227 , 0.373314693384 , 0.376696425396 , 0.171730043145 , 0.0186814560654 , 0.0095357673104 , 0.0119075584174 , 0.015490698255 , 0.000293965944772},
+  {0.116854871611 , 0.0868542494347 , 0.0907644237315 , 0.0698678272198 , 0.0146930461579 , 0.00814494915235 , 0.011051375833 , 0.014209820022 , 0.000293717221136},
+  {0.116039136671 , 0.0967397955117 , 0.0961209059992 , 0.0706452766584 , 0.0156626168091 , 0.00902743165164 , 0.0108147123949 , 0.014651354602 , 0.000294219655312},
+  {0.0 , 0.0928514258164 , 0.0892665638494 , 0.0675120069126 , 0.0156701331724 , 0.00894531805894 , 0.0111842302729 , 0.01400886702 , 0.0}
  }
 };
 
@@ -1926,66 +1926,94 @@ int main (int argc, char** argv)
           Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
           bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
 
-          if (!isMC && passTrg) {
-	    if(theBigTree.RunNumber < 317509){
-	      if (DEBUG) 
-		{ 
-		  cout << "@@@ Run in period without HPS triggers "<<endl;
-		  cout << "isHPSTauTrigger = " << std::bitset<16>(isHPSTauTrigger) << endl;
-		  cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
-		}
-	      if ((pass_triggerbit & (~ isHPSTauTrigger)) == 0) {
-		if (DEBUG) cout << "only HPS trigger fired, reject"<<endl;
-		passTrg = false; 
-	      }
-	    }else{
-	      if (DEBUG) 
-		{ 
-		  cout << "@@@ Run in period with HPS triggers "<<endl;
-		  cout << "isHPSTauTrigger = " << std::bitset<16>(isHPSTauTrigger) << endl;
-		  cout << "isTauTrigger =    " << std::bitset<16>(isTauTrigger) << endl;
-		  cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
-		}
-	      
-	      if ((pass_triggerbit & (~ isTauTrigger)) == 0) {
-		if (DEBUG) cout << "only non-HPS trigger fired, reject"<<endl;
-		passTrg = false; 
-	      }
-	    }
-	  }
+          if (!isMC && passTrg)
+          {
+            if(theBigTree.RunNumber < 317509)
+            {
+              if (DEBUG)
+              {
+                cout << "@@@ Run in period without HPS triggers "<<endl;
+                cout << "isHPSTauTrigger = " << std::bitset<16>(isHPSTauTrigger) << endl;
+                cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
+              }
+              if ((pass_triggerbit & (~ isHPSTauTrigger)) == 0)
+              {
+                if (DEBUG) cout << "only HPS trigger fired, reject"<<endl;
+                passTrg = false;
+              }
+            }
+            else
+            {
+              if (DEBUG)
+              {
+                cout << "@@@ Run in period with HPS triggers "<<endl;
+                cout << "isHPSTauTrigger = " << std::bitset<16>(isHPSTauTrigger) << endl;
+                cout << "isTauTrigger =    " << std::bitset<16>(isTauTrigger) << endl;
+                cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
+              }
+              if ((pass_triggerbit & (~ isTauTrigger)) == 0)
+              {
+                if (DEBUG) cout << "only non-HPS trigger fired, reject"<<endl;
+                passTrg = false;
+              }
+            }
+          }
+
           // Remember: isVBFfired means it passed ONLY a VBF trigger
           if (pairType == 2 && !passTrg)
-            {
-              isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit); 
+          {
+            isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
 	      
-	      if (!isMC && isVBFfired){ //check again to discard VBF HPS 
-		if(theBigTree.RunNumber < 317509){
-		  if (DEBUG)
-		    { 
-		      cout << "add VBF bits to pass_triggerbit:" << endl; 
-		      cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
-		    }
-		  if ((pass_triggerbit & (~ isHPSTauTrigger)) == 0) 
-		    {
-		      if (DEBUG) cout << "only VBF HPS trigger fired, reject"<<endl;
-		      isVBFfired = false; 
-		    }
-		}else{
-		  if (DEBUG)
-		    { 
-		      cout << "add VBF bits to pass_triggerbit:" << endl; 
-		      cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
-		    }
-		  if ((pass_triggerbit & (~ isTauTrigger)) == 0) 
-		    {
-		      if (DEBUG) cout << "only VBF non-HPS trigger fired, reject"<<endl;
-		      isVBFfired = false; 
-		    }
-		}	     
-	      }	                  
-	    }
+            if (!isMC && isVBFfired) //check again to discard VBF HPS
+            {
+              if(theBigTree.RunNumber < 317509)
+              {
+                if (DEBUG)
+                {
+                  cout << "add VBF bits to pass_triggerbit:" << endl;
+                  cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
+                }
+                if ((pass_triggerbit & (~ isHPSTauTrigger)) == 0)
+                {
+                  if (DEBUG) cout << "only VBF HPS trigger fired, reject"<<endl;
+                  isVBFfired = false;
+                }
+              }
+              else
+              {
+                if (DEBUG)
+                {
+                  cout << "add VBF bits to pass_triggerbit:" << endl;
+                  cout << "pass_triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
+                }
+                if ((pass_triggerbit & (~ isTauTrigger)) == 0)
+                {
+                  if (DEBUG) cout << "only VBF non-HPS trigger fired, reject"<<endl;
+                  isVBFfired = false;
+                }
+              }
+            }
+          }
           else
             isVBFfired = false;
+
+          // !! WARNING !! --> update the trigger bits to the right paths
+          // Weight to be applied for HLT_VBF_DoubleLooseChargedIsoPFTauHPS20_Trk1_eta2p1, prescaled in 2018
+          // weight to be applied: 0.990342 from https://twiki.cern.ch/twiki/bin/viewauth/CMS/DoubleHiggsToBBTauTauWorkingLegacyRun2#2018
+          // @ bit position - path
+          // 0 - HLT_IsoMu24_v
+          // 1 - HLT_IsoMu27_v
+          // 2 - HLT_Ele32_WPTight_Gsf_v
+          // 3 - HLT_Ele35_WPTight_Gsf_v
+          // 4 - HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v
+          // 5 - HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v
+          // 6 - HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v
+          // 7 - HLT_VBF_DoubleLooseChargedIsoPFTau20_Trk1_eta2p1_v
+          // 8 - HLT_VBF_DoubleLooseChargedIsoPFTauHPS20_Trk1_eta2p1_v
+          if (isVBFfired && isMC)
+          {
+            if (CheckBit(pass_triggerbit,8) && !CheckBit(pass_triggerbit,7)) theSmallTree.m_prescaleWeight =  0.990342;
+          }
 
           bool triggerAccept = false;
           triggerAccept = passTrg || isVBFfired;
@@ -3872,9 +3900,7 @@ int main (int argc, char** argv)
                   else if (tlv_secondLepton.Pt() < 200) SFTau2 = 0.91;
                   else                                  SFTau2 = 0.97;
 
-                  float VBFtrigNorm = 0.990342;   // from: https://twiki.cern.ch/twiki/bin/viewauth/CMS/DoubleHiggsToBBTauTauWorkingLegacyRun2#Triggers
-
-                  theSmallTree.m_VBFtrigSF = jetSF * SFTau1 * SFTau2 * VBFtrigNorm;
+                  theSmallTree.m_VBFtrigSF = jetSF * SFTau1 * SFTau2;
                 }
 
               // Save gen info for VBF jets

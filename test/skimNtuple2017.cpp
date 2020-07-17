@@ -127,32 +127,32 @@ const float stitchWeights [5][5][9] = {
   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
  },
  {
-  {0.461117683668 , 0.288238720368 , 0.244019240573 , 0.135712598664 , 0.0269283578771 , 0.00941836691982 , 0.0114129617531 , 0.0260121303815 , 0.0},
-  {0.461212654939 , 0.290136436976 , 0.244986053293 , 0.136124152655 , 0.0279796670743 , 0.00930161903327 , 0.0 , 0.0 , 0.0},
+  {0.461117683668 , 0.288238720368 , 0.244019240573 , 0.135712598664 , 0.0269283578771 , 0.00941836691982 , 0.0114129617531 , 0.011988459216 , 0.0},
+  {0.461212654939 , 0.290136436976 , 0.244986053293 , 0.136124152655 , 0.0279796670743 , 0.00930161903327 , 0.0110697147831 , 0.0 , 0.0},
   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
  },
  {
   {0.949886615633 , 0.427077416714 , 0.337222105969 , 0.163365897405 , 0.0274860094365 , 0.0085763948538 , 0.00984568261813 , 0.0127266252667 , 0.000332160869},
-  {0.951726921973 , 0.426627652639 , 0.337677509383 , 0.165532173003 , 0.0276083457065 , 0.00946915409563 , 0.0115775376776 , 0.0128101172201 , 0.0},
-  {0.121324851414 , 0.106045639829 , 0.100815528572 , 0.0780316234378 , 0.0247725227854 , 0.00901472262325 , 0.0110643844762 , 0.0239218699044 , 0.0},
+  {0.951726921973 , 0.426627652639 , 0.337677509383 , 0.165532173003 , 0.0276083457065 , 0.00946915409563 , 0.0115775376776 , 0.0128101172201 , 0.00033226404057},
+  {0.121324851414 , 0.106045639829 , 0.100815528572 , 0.0780316234378 , 0.0247725227854 , 0.00901472262325 , 0.0110643844762 , 0.0124032384969 , 0.00033226404057},
   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
  },
  {
-  {0.577067228092 , 0.339488860229 , 0.281949193594 , 0.150675590712 , 0.0284045541296 , 0.00901824980452 , 0.0109304611343 , 0.012648401037 , 0.000332089281822},
-  {0.556659233845 , 0.340642946262 , 0.280794949338 , 0.151779081379 , 0.0299185936652 , 0.00939894134359 , 0.0115118981289 , 0.0125472761053 , 0.0},
+  {0.577067228092 , 0.339488860229 , 0.281949193594 , 0.150675590712 , 0.0284045541296 , 0.00901824980452 , 0.0109304611343 , 0.0123845395413 , 0.000332089281822},
+  {0.556659233845 , 0.340642946262 , 0.280794949338 , 0.151779081379 , 0.0299185936652 , 0.00939894134359 , 0.0115118981289 , 0.0125472761053 , 0.00033226404057},
   {0.110789928447 , 0.0988388485028 , 0.0928127275372 , 0.0725867160614 , 0.0232600189656 , 0.00885064768037 , 0.0106222671228 , 0.0115267375239 , 0.00033226404057},
-  {0.112408736859 , 0.0931192442339 , 0.0896787822135 , 0.069381210731 , 0.0222605939937 , 0.00994340643945 , 0.0 , 0.0 , 0.0},
+  {0.112408736859 , 0.0931192442339 , 0.0896787822135 , 0.0622383718531 , 0.0222605939937 , 0.00885290573742 , 0.0107109740262 , 0.0 , 0.0},
   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
  },
  {
   {0.265905408184 , 0.318351907391 , 0.277460603301 , 0.14951447431 , 0.0286698923867 , 0.00952507054503 , 0.0115701542716 , 0.0125887043617 , 0.000332055200272},
   {0.676589412083 , 0.319984941653 , 0.27316522003 , 0.146338413189 , 0.0288698984769 , 0.00939038668954 , 0.0109420127173 , 0.0125827030236 , 0.000332070131004},
-  {0.0464734673092 , 0.0900754237066 , 0.0886977006279 , 0.0706148949084 , 0.0237342746423 , 0.00840780447228 , 0.0105286850737 , 0.0115681226813 , 0.000331184452335},
-  {0.0487136259871 , 0.0983207166623 , 0.0923879113549 , 0.0763313187779 , 0.0238773034326 , 0.0088172397373 , 0.0103986787623 , 0.0114508669773 , 0.0},
-  {0.0 , 0.103082430047 , 0.0928705976969 , 0.0711515443696 , 0.0240498812676 , 0.00865341559255 , 0.0103416300943 , 0.0 , 0.0}
+  {0.139908908454 , 0.0900754237066 , 0.0886977006279 , 0.0706148949084 , 0.0237342746423 , 0.00840780447228 , 0.0108117809972 , 0.0115681226813 , 0.000331184452335},
+  {0.109026527077 , 0.0983207166623 , 0.0923879113549 , 0.0763313187779 , 0.0238773034326 , 0.0088172397373 , 0.0103986787623 , 0.0114508669773 , 0.00033226404057},
+  {0.081627606458 , 0.103082430047 , 0.0890246573134 , 0.0766960714492 , 0.0240498812676 , 0.00865341559255 , 0.0103416300943 , 0.0104291494869 , 0.00033226404057}
  }
 };
 
@@ -1950,7 +1950,7 @@ int main (int argc, char** argv)
         if (pairType == 3 && isMC){
             if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1)) theSmallTree.m_prescaleWeight =  0.91613901;
         }
-
+	    
         if(DEBUG)
         {
           if (isMC && (pairType == 2 || pairType == 1 || pairType == 0))
@@ -1968,6 +1968,11 @@ int main (int argc, char** argv)
         }
         else
           isVBFfired = false;
+
+        // norm to RunD-F lumi: in 2017 VBF triggers online from RunD
+        // from: https://twiki.cern.ch/twiki/bin/viewauth/CMS/DoubleHiggsToBBTauTauWorkingLegacyRun2#Triggers
+        
+        if (isVBFfired && isMC) theSmallTree.m_prescaleWeight =  0.65308574;
 
         bool triggerAccept = false;
         triggerAccept = passTrg || isVBFfired;
@@ -2727,8 +2732,6 @@ int main (int argc, char** argv)
       theSmallTree.m_trigSF_single = (isMC ? trigSF_single : 1.0);
       theSmallTree.m_trigSF_cross  = (isMC ? trigSF_cross : 1.0);
 
-      theSmallTree.m_totalWeight = (isMC ? (41529./71203856.) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_DYscale_MTT * trigSF * theSmallTree.m_IdAndIsoAndFakeSF_deep_pt * theSmallTree.m_L1pref_weight * theSmallTree.m_prescaleWeight: 1.0);
-      //total weight used for sync: the denominator must be changed for each sample as h_eff->GetBinContent(1), the numerator is the luminosity
 
       // Third lepton veto
       // loop over leptons
@@ -3884,11 +3887,7 @@ int main (int argc, char** argv)
             else if (tlv_secondLepton.Pt() < 200) SFTau2 = 0.91;
             else                                  SFTau2 = 0.97;
 
-            // norm to RunD-F lumi: in 2017 VBF triggers online from RunD
-            // from: https://twiki.cern.ch/twiki/bin/viewauth/CMS/DoubleHiggsToBBTauTauWorkingLegacyRun2#Triggers
-            float VBFtrigNorm = 0.65308574;
-
-            theSmallTree.m_VBFtrigSF = jetSF * SFTau1 * SFTau2 * VBFtrigNorm;
+            theSmallTree.m_VBFtrigSF = jetSF * SFTau1 * SFTau2;
           }
 
           // Save gen info for VBF jets
@@ -4270,6 +4269,12 @@ int main (int argc, char** argv)
         }
       }
 
+      theSmallTree.m_totalWeight = (isMC ? (41529./472545790.) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_DYscale_MTT * trigSF * theSmallTree.m_IdAndIsoAndFakeSF_deep_pt * theSmallTree.m_L1pref_weight * theSmallTree.m_prescaleWeight * theSmallTree.m_PUjetID_SF: 1.0);
+      //total weight used for sync: the denominator must be changed for each sample as h_eff->GetBinContent(1), the numerator is the luminosity
+      //fullyHad: 580947330
+      //semiLep: 472545790
+      //fullyLep: 71203848 
+      
       // --------------------------------------------
       // HHbtag: set input values
       HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,
@@ -4520,8 +4525,8 @@ int main (int argc, char** argv)
         cout << "  PU           : " << theSmallTree.m_PUReweight << endl;
         cout << "  IDandISO MVA : " << theSmallTree.m_IdAndIsoSF_MVA << endl;
         cout << "    w/ FakeRate: " << theSmallTree.m_IdAndIsoAndFakeSF_MVA << endl;
-        cout << "  IDandISO deep: " << theSmallTree.m_IdAndIsoSF_deep << endl;
-        cout << "    w/ FakeRate: " << theSmallTree.m_IdAndIsoAndFakeSF_deep << endl;
+        cout << "  IDandISO deep: " << theSmallTree.m_IdAndIsoSF_deep_pt << endl;
+        cout << "    w/ FakeRate: " << theSmallTree.m_IdAndIsoAndFakeSF_deep_pt << endl;
         cout << "  trig         : " << theSmallTree.m_trigSF << endl;
         cout << "  bTag         : " << theSmallTree.m_bTagweightM << endl;
         cout << "  prescale     : " << theSmallTree.m_prescaleWeight<< endl;
@@ -4537,8 +4542,8 @@ int main (int argc, char** argv)
           cout << "stitchWeight  : " << stitchWeight << endl;
           cout << "HHweight      : " << HHweight << endl;
           cout << "MC_weight     : " << theSmallTree.m_MC_weight << endl;
-          cout << "Yield weight MVA : " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_MVA * theSmallTree.m_trigSF << endl;
-          cout << "Yield weight deep: " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_deep * theSmallTree.m_trigSF << endl;
+          //cout << "Yield weight MVA : " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_MVA * theSmallTree.m_trigSF << endl;
+          //cout << "Yield weight deep: " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_deep * theSmallTree.m_trigSF << endl;
           cout << "------------------------" << endl;
       }
 
