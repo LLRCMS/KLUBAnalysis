@@ -18,8 +18,10 @@ badInclusiveBins = [
 [1, 1, 6],
 [1, 1, 7],
 [1, 1, 8],
+[2, 0, 6],
 [2, 0, 7],
 [2, 0, 8],
+[2, 1, 4],
 [2, 1, 5],
 [2, 1, 6],
 [2, 1, 7],
@@ -40,6 +42,8 @@ badInclusiveBins = [
 [3, 2, 7],
 [3, 2, 8],
 [3, 3, 0],
+[3, 3, 1],
+[3, 3, 2],
 [3, 3, 3],
 [3, 3, 4],
 [3, 3, 5],
@@ -48,13 +52,17 @@ badInclusiveBins = [
 [3, 3, 8],
 [4, 0, 8],
 [4, 1, 0],
+[4, 1, 6],
 [4, 1, 7],
 [4, 1, 8],
+[4, 2, 0],
 [4, 2, 6],
 [4, 2, 7],
 [4, 2, 8],
 [4, 3, 0],
 [4, 3, 1],
+[4, 3, 2],
+[4, 3, 3],
 [4, 3, 4],
 [4, 3, 5],
 [4, 3, 6],
@@ -73,20 +81,30 @@ badInclusiveBins = [
 
 good2BBins = [
 [3, 3, 0],
+[3, 3, 1],
+[3, 3, 2],
 [3, 3, 3],
-[3, 3, 5],
+[4, 2, 0],
+[4, 3, 0],
 [4, 3, 1],
+[4, 3, 2],
+[4, 3, 3],
 [4, 4, 1],
 [4, 4, 2],
 [4, 4, 3]
 ]
 
-good4jetBins = [
-[4, 1, 0]
+good1jetBins = [
+#[4, 1, 0]
 ]
+
+#good4jetBins = [
+#[4, 1, 0]
+#]
 
 goodHT4Bins = [
 [1, 1, 4],
+[2, 1, 4],
 [2, 2, 4],
 [3, 3, 4],
 [4, 3, 4],
@@ -100,40 +118,51 @@ goodHT5Bins = [
 [2, 2, 5],
 [3, 1, 5],
 [3, 2, 5],
+[3, 3, 5],
 [4, 3, 5],
 [4, 4, 5]
 ]
 
 goodHT6Bins = [
 [1, 0, 6],
+[1, 1, 6],
+[2, 0, 6],
 [2, 1, 6],
 [2, 2, 6],
 [3, 1, 6],
 [3, 2, 6],
+[3, 3, 6],
+[4, 1, 6],
 [4, 2, 6],
 [4, 3, 6],
 [4, 4, 6]
 ]
 
 goodHT7Bins = [
-[2, 0, 7],
-[2, 1, 7],
-[3, 0, 7],
-[3, 1, 7],
-[3, 2, 7],
 [4, 1, 7],
 [4, 2, 7],
-[4, 3, 7]
+[4, 3, 7],
+[4, 4, 7],
+[1, 0, 7],
+[2, 0, 7],
+[2, 2, 7],
+[3, 0, 7],
+[3, 1, 7],
+[3, 2, 7]
 ]
 
 goodHT8Bins = [
 [2, 0, 8],
+#[2, 1, 7],
+[2, 1, 8],
+[2, 2, 8],
 [3, 0, 8],
+[3, 1, 8],
 [3, 2, 8],
-[3, 3, 8],
 [4, 0, 8],
 [4, 1, 8],
-[4, 2, 8]
+[4, 2, 8],
+[4, 3, 8]
 ]
 
 ########################################
@@ -236,17 +265,17 @@ for njet in range (0, lenX):
                         fractionXS[njet][nb][ht] = fractionHistos['inclusive'].GetBinContent(njet+1, nb+1, ht+1)
                         #print (" - Set to inclusive value:", fractionXS[njet][nb][ht])
 
-                    # then do good bins from 4jets
-                    elif nJnBnHT in good4jetBins:
+                    # then do good bins from 1jets
+                    elif nJnBnHT in good1jetBins:
                         inclTot   = fractionHistos['inclusive'].Integral()                                 # matrix
                         inclStrip = fractionHistos['inclusive'].Integral(njet+1, njet+1, 1, lenY, 1, lenZ) # column
-                        subTot    = fractionHistos['4jet'].Integral()                                      #
-                        subStrip  = fractionHistos['4jet'].Integral(njet+1, njet+1, 1, lenY, 1, lenZ)      # sub-column
+                        subTot    = fractionHistos['1jet'].Integral()                                      #
+                        subStrip  = fractionHistos['1jet'].Integral(njet+1, njet+1, 1, lenY, 1, lenZ)      # sub-column
                         if subTot != subStrip:
                             print ("WARNING: integral of subTot:", subTot, " do not match", subStrip, "for", nJnBnHT)
-                        entries = fractionHistos['4jet'].GetBinContent(njet+1, nb+1, ht+1)                 # bin
+                        entries = fractionHistos['1jet'].GetBinContent(njet+1, nb+1, ht+1)                 # bin
                         fractionXS[njet][nb][ht] = 1.*(entries/subStrip)*(inclStrip/inclTot)
-                        #print (" - Set to 4jet value:", fractionXS[njet][nb][ht])
+                        #print (" - Set to 1jet value:", fractionXS[njet][nb][ht])
 
                     # then do good bins from 2B
                     elif nJnBnHT in good2BBins:
@@ -332,7 +361,8 @@ for njet in range (0, lenX):
 #        for ht in range (0,lenZ):
 #            print (njet, nb, ht, fractionXS[njet][nb][ht])
 
-fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined_Legacy2018_07May2020.root", "recreate")
+#fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined_Legacy2018_07May2020.root", "recreate")
+fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined_Legacy2018_15July2020.root", "recreate")
 h3DfractionXS = TH3F ("h3DfractionXS", "h3DfractionXS;njet;nb;ht", lenX, array('d',xbins), lenY, array('d',ybins), lenZ, array('d',zbins))
 for njet in range (0,lenX):
     for nb in range (0,lenY):
