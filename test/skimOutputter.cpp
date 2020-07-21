@@ -250,6 +250,8 @@ int main (int argc, char** argv)
 
   "VBFjj_mass_jetupTot","VBFjj_mass_jetdownTot",                       // VBFjj mass JES Total
 
+  "addJetCentr*","addJetForw*",                                        // Additional jets
+
   "met_phi","met_et","METx","METy",                                    // MET
   "met_cov00","met_cov01","met_cov10","met_cov11",
 
