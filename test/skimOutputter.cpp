@@ -172,9 +172,11 @@ int main (int argc, char** argv)
   "isOS","isBoosted","isTau1real","isTau2real",
 
   "MC_weight","PUReweight","PUjetID_SF","L1pref_weight",               // Weights and SFs
-  "prescaleWeight","trigSF","VBFtrigSF","DYscale_MTT","DYscale_MH",
+  "prescaleWeight","trigSF","trigSF_DM*","VBFtrigSF",
+  "DYscale_MTT","DYscale_MH","bTagweightM","bTagweightL",
   "IdAndIsoAndFakeSF_deep","IdAndIsoAndFakeSF_deep_pt",
-  "TTtopPtreweight*","bTagweightM","bTagweightL",
+  "TTtopPtreweight*","idAndIsoAndFakeSF_tauid*",
+  "idAndIsoAndFakeSF_mutauFR*","idAndIsoAndFakeSF_etauFR*",
 
   "isVBFtrigger", "isVBF",                                             // Trigger vbf selection
 
