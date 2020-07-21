@@ -4507,6 +4507,49 @@ int main (int argc, char** argv)
       // Store additional jets (excluding bjets and VBFjets):
       // - 5 central jets that pass b-jet selection and have |eta|<=2.4
       // - 5 forward jets that pass VBF-jet selection and have 2.4<|eta|<=4.7
+
+      // Resize additional jets up/down variations to N_jecSources
+      theSmallTree.m_addJetCentr1_pt_jetup    .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr1_pt_jetdown  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr1_mass_jetup  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr1_mass_jetdown.resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr2_pt_jetup    .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr2_pt_jetdown  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr2_mass_jetup  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr2_mass_jetdown.resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr3_pt_jetup    .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr3_pt_jetdown  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr3_mass_jetup  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr3_mass_jetdown.resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr4_pt_jetup    .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr4_pt_jetdown  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr4_mass_jetup  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr4_mass_jetdown.resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr5_pt_jetup    .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr5_pt_jetdown  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr5_mass_jetup  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetCentr5_mass_jetdown.resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw1_pt_jetup    .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw1_pt_jetdown  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw1_mass_jetup  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw1_mass_jetdown.resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw2_pt_jetup    .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw2_pt_jetdown  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw2_mass_jetup  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw2_mass_jetdown.resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw3_pt_jetup    .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw3_pt_jetdown  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw3_mass_jetup  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw3_mass_jetdown.resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw4_pt_jetup    .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw4_pt_jetdown  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw4_mass_jetup  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw4_mass_jetdown.resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw5_pt_jetup    .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw5_pt_jetdown  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw5_mass_jetup  .resize(N_jecSources,-999.);
+      theSmallTree.m_addJetForw5_mass_jetdown.resize(N_jecSources,-999.);
+
       // Jets are ordered by pT in the theBigTree.jets_px collection
       for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
       {
@@ -4532,6 +4575,9 @@ int main (int argc, char** argv)
 
         //std::cout << "  -IDX: " << iJet << " --> pt/eta/phi: " << tlv_additionalJet.Pt() <<" "<< tlv_additionalJet.Eta() <<" "<< tlv_additionalJet.Phi() << std::endl;
 
+        // get up/down uncertainty for this additional jet
+        pair <vector <double>, vector<double>> unc_additionalJet_updown = getJetUpDown(iJet, theBigTree);
+
         // Central jets ( |eta| <= 2.4 ) that pass b-jet selection
         if (TMath::Abs(tlv_additionalJet.Eta()) <= 2.4)
         {
@@ -4545,6 +4591,13 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetCentr1_CvsL            = getCvsL(theBigTree, iJet);
             theSmallTree.m_addJetCentr1_CvsB            = getCvsB(theBigTree, iJet);
             if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr1_HHbtag = jets_and_HHbtag[iJet];
+            for (int isource = 0; isource < N_jecSources; isource++)
+            {
+              theSmallTree.m_addJetCentr1_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
+              theSmallTree.m_addJetCentr1_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
+              theSmallTree.m_addJetCentr1_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
+              theSmallTree.m_addJetCentr1_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
+            }
           }
           else if (theSmallTree.m_addJetCentr2_pt < 0.)
           {
@@ -4556,7 +4609,13 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetCentr2_CvsL            = getCvsL(theBigTree, iJet);
             theSmallTree.m_addJetCentr2_CvsB            = getCvsB(theBigTree, iJet);
             if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr2_HHbtag = jets_and_HHbtag[iJet];
-
+            for (int isource = 0; isource < N_jecSources; isource++)
+            {
+              theSmallTree.m_addJetCentr2_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
+              theSmallTree.m_addJetCentr2_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
+              theSmallTree.m_addJetCentr2_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
+              theSmallTree.m_addJetCentr2_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
+            }
           }
           else if (theSmallTree.m_addJetCentr3_pt < 0.)
           {
@@ -4568,7 +4627,13 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetCentr3_CvsL            = getCvsL(theBigTree, iJet);
             theSmallTree.m_addJetCentr3_CvsB            = getCvsB(theBigTree, iJet);
             if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr3_HHbtag = jets_and_HHbtag[iJet];
-
+            for (int isource = 0; isource < N_jecSources; isource++)
+            {
+              theSmallTree.m_addJetCentr3_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
+              theSmallTree.m_addJetCentr3_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
+              theSmallTree.m_addJetCentr3_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
+              theSmallTree.m_addJetCentr3_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
+            }
           }
           else if (theSmallTree.m_addJetCentr4_pt < 0.)
           {
@@ -4580,7 +4645,13 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetCentr4_CvsL            = getCvsL(theBigTree, iJet);
             theSmallTree.m_addJetCentr4_CvsB            = getCvsB(theBigTree, iJet);
             if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr4_HHbtag = jets_and_HHbtag[iJet];
-
+            for (int isource = 0; isource < N_jecSources; isource++)
+            {
+              theSmallTree.m_addJetCentr4_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
+              theSmallTree.m_addJetCentr4_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
+              theSmallTree.m_addJetCentr4_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
+              theSmallTree.m_addJetCentr4_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
+            }
           }
           else if (theSmallTree.m_addJetCentr5_pt < 0.)
           {
@@ -4592,7 +4663,13 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetCentr5_CvsL            = getCvsL(theBigTree, iJet);
             theSmallTree.m_addJetCentr5_CvsB            = getCvsB(theBigTree, iJet);
             if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr5_HHbtag = jets_and_HHbtag[iJet];
-
+            for (int isource = 0; isource < N_jecSources; isource++)
+            {
+              theSmallTree.m_addJetCentr5_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
+              theSmallTree.m_addJetCentr5_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
+              theSmallTree.m_addJetCentr5_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
+              theSmallTree.m_addJetCentr5_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
+            }
           }
         }
 
@@ -4605,6 +4682,13 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetForw1_eta = tlv_additionalJet.Eta();
             theSmallTree.m_addJetForw1_phi = tlv_additionalJet.Phi();
             theSmallTree.m_addJetForw1_e   = tlv_additionalJet.E();
+            for (int isource = 0; isource < N_jecSources; isource++)
+            {
+              theSmallTree.m_addJetForw1_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
+              theSmallTree.m_addJetForw1_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
+              theSmallTree.m_addJetForw1_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
+              theSmallTree.m_addJetForw1_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
+            }
           }
           else if (theSmallTree.m_addJetForw2_pt < 0.)
           {
@@ -4612,6 +4696,13 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetForw2_eta = tlv_additionalJet.Eta();
             theSmallTree.m_addJetForw2_phi = tlv_additionalJet.Phi();
             theSmallTree.m_addJetForw2_e   = tlv_additionalJet.E();
+            for (int isource = 0; isource < N_jecSources; isource++)
+            {
+              theSmallTree.m_addJetForw2_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
+              theSmallTree.m_addJetForw2_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
+              theSmallTree.m_addJetForw2_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
+              theSmallTree.m_addJetForw2_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
+            }
           }
           else if (theSmallTree.m_addJetForw3_pt < 0.)
           {
@@ -4619,6 +4710,13 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetForw3_eta = tlv_additionalJet.Eta();
             theSmallTree.m_addJetForw3_phi = tlv_additionalJet.Phi();
             theSmallTree.m_addJetForw3_e   = tlv_additionalJet.E();
+            for (int isource = 0; isource < N_jecSources; isource++)
+            {
+              theSmallTree.m_addJetForw3_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
+              theSmallTree.m_addJetForw3_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
+              theSmallTree.m_addJetForw3_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
+              theSmallTree.m_addJetForw3_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
+            }
           }
           else if (theSmallTree.m_addJetForw4_pt < 0.)
           {
@@ -4626,6 +4724,13 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetForw4_eta = tlv_additionalJet.Eta();
             theSmallTree.m_addJetForw4_phi = tlv_additionalJet.Phi();
             theSmallTree.m_addJetForw4_e   = tlv_additionalJet.E();
+            for (int isource = 0; isource < N_jecSources; isource++)
+            {
+              theSmallTree.m_addJetForw4_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
+              theSmallTree.m_addJetForw4_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
+              theSmallTree.m_addJetForw4_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
+              theSmallTree.m_addJetForw4_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
+            }
           }
           else if (theSmallTree.m_addJetForw5_pt < 0.)
           {
@@ -4633,6 +4738,13 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetForw5_eta = tlv_additionalJet.Eta();
             theSmallTree.m_addJetForw5_phi = tlv_additionalJet.Phi();
             theSmallTree.m_addJetForw5_e   = tlv_additionalJet.E();
+            for (int isource = 0; isource < N_jecSources; isource++)
+            {
+              theSmallTree.m_addJetForw5_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
+              theSmallTree.m_addJetForw5_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
+              theSmallTree.m_addJetForw5_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
+              theSmallTree.m_addJetForw5_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
+            }
           }
         }
       } // end loop on additional jets

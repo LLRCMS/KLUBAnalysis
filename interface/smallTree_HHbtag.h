@@ -786,6 +786,26 @@ struct smallTree
       m_addJetCentr4_HHbtag          = -999.;
       m_addJetCentr5_HHbtag          = -999.;
 
+      m_addJetCentr1_pt_jetup.clear();
+      m_addJetCentr1_pt_jetdown.clear();
+      m_addJetCentr1_mass_jetup.clear();
+      m_addJetCentr1_mass_jetdown.clear();
+      m_addJetCentr2_pt_jetup.clear();
+      m_addJetCentr2_pt_jetdown.clear();
+      m_addJetCentr2_mass_jetup.clear();
+      m_addJetCentr2_mass_jetdown.clear();
+      m_addJetCentr3_pt_jetup.clear();
+      m_addJetCentr3_pt_jetdown.clear();
+      m_addJetCentr3_mass_jetup.clear();
+      m_addJetCentr3_mass_jetdown.clear();
+      m_addJetCentr4_pt_jetup.clear();
+      m_addJetCentr4_pt_jetdown.clear();
+      m_addJetCentr4_mass_jetup.clear();
+      m_addJetCentr4_mass_jetdown.clear();
+      m_addJetCentr5_pt_jetup.clear();
+      m_addJetCentr5_pt_jetdown.clear();
+      m_addJetCentr5_mass_jetup.clear();
+      m_addJetCentr5_mass_jetdown.clear();
 
       // Additional forward (|eta| > 2.4) jets that pass selection for VBF-candidates
       m_addJetForw1_pt  = -999.;
@@ -808,6 +828,27 @@ struct smallTree
       m_addJetForw3_e   = -999.;
       m_addJetForw4_e   = -999.;
       m_addJetForw5_e   = -999.;
+
+      m_addJetForw1_pt_jetup.clear();
+      m_addJetForw1_pt_jetdown.clear();
+      m_addJetForw1_mass_jetup.clear();
+      m_addJetForw1_mass_jetdown.clear();
+      m_addJetForw2_pt_jetup.clear();
+      m_addJetForw2_pt_jetdown.clear();
+      m_addJetForw2_mass_jetup.clear();
+      m_addJetForw2_mass_jetdown.clear();
+      m_addJetForw3_pt_jetup.clear();
+      m_addJetForw3_pt_jetdown.clear();
+      m_addJetForw3_mass_jetup.clear();
+      m_addJetForw3_mass_jetdown.clear();
+      m_addJetForw4_pt_jetup.clear();
+      m_addJetForw4_pt_jetdown.clear();
+      m_addJetForw4_mass_jetup.clear();
+      m_addJetForw4_mass_jetdown.clear();
+      m_addJetForw5_pt_jetup.clear();
+      m_addJetForw5_pt_jetdown.clear();
+      m_addJetForw5_mass_jetup.clear();
+      m_addJetForw5_mass_jetdown.clear();
 
       // Additional variables
       m_dau1_z  = -999.;
@@ -1638,6 +1679,27 @@ struct smallTree
       m_smallT->Branch ("addJetCentr4_HHbtag"          , &m_addJetCentr4_HHbtag          , "m_addJetCentr4_HHbtag/F");
       m_smallT->Branch ("addJetCentr5_HHbtag"          , &m_addJetCentr5_HHbtag          , "m_addJetCentr5_HHbtag/F");
 
+      m_smallT->Branch ("m_addJetCentr1_pt_jetup"    , &m_addJetCentr1_pt_jetup);
+      m_smallT->Branch ("m_addJetCentr1_pt_jetdown"  , &m_addJetCentr1_pt_jetdown);
+      m_smallT->Branch ("m_addJetCentr1_mass_jetup"  , &m_addJetCentr1_mass_jetup);
+      m_smallT->Branch ("m_addJetCentr1_mass_jetdown", &m_addJetCentr1_mass_jetdown);
+      m_smallT->Branch ("m_addJetCentr2_pt_jetup"    , &m_addJetCentr2_pt_jetup);
+      m_smallT->Branch ("m_addJetCentr2_pt_jetdown"  , &m_addJetCentr2_pt_jetdown);
+      m_smallT->Branch ("m_addJetCentr2_mass_jetup"  , &m_addJetCentr2_mass_jetup);
+      m_smallT->Branch ("m_addJetCentr2_mass_jetdown", &m_addJetCentr2_mass_jetdown);
+      m_smallT->Branch ("m_addJetCentr3_pt_jetup"    , &m_addJetCentr3_pt_jetup);
+      m_smallT->Branch ("m_addJetCentr3_pt_jetdown"  , &m_addJetCentr3_pt_jetdown);
+      m_smallT->Branch ("m_addJetCentr3_mass_jetup"  , &m_addJetCentr3_mass_jetup);
+      m_smallT->Branch ("m_addJetCentr3_mass_jetdown", &m_addJetCentr3_mass_jetdown);
+      m_smallT->Branch ("m_addJetCentr4_pt_jetup"    , &m_addJetCentr4_pt_jetup);
+      m_smallT->Branch ("m_addJetCentr4_pt_jetdown"  , &m_addJetCentr4_pt_jetdown);
+      m_smallT->Branch ("m_addJetCentr4_mass_jetup"  , &m_addJetCentr4_mass_jetup);
+      m_smallT->Branch ("m_addJetCentr4_mass_jetdown", &m_addJetCentr4_mass_jetdown);
+      m_smallT->Branch ("m_addJetCentr5_pt_jetup"    , &m_addJetCentr5_pt_jetup);
+      m_smallT->Branch ("m_addJetCentr5_pt_jetdown"  , &m_addJetCentr5_pt_jetdown);
+      m_smallT->Branch ("m_addJetCentr5_mass_jetup"  , &m_addJetCentr5_mass_jetup);
+      m_smallT->Branch ("m_addJetCentr5_mass_jetdown", &m_addJetCentr5_mass_jetdown);
+
       // Additional forward jets
       m_smallT->Branch ("addJetForw1_pt"  , &m_addJetForw1_pt  , "m_addJetForw1_pt/F");
       m_smallT->Branch ("addJetForw2_pt"  , &m_addJetForw2_pt  , "m_addJetForw2_pt/F");
@@ -1659,6 +1721,27 @@ struct smallTree
       m_smallT->Branch ("addJetForw3_e"   , &m_addJetForw3_e   , "m_addJetForw3_e/F");
       m_smallT->Branch ("addJetForw4_e"   , &m_addJetForw4_e   , "m_addJetForw4_e/F");
       m_smallT->Branch ("addJetForw5_e"   , &m_addJetForw5_e   , "m_addJetForw5_e/F");
+
+      m_smallT->Branch ("m_addJetForw1_pt_jetup"    , &m_addJetForw1_pt_jetup);
+      m_smallT->Branch ("m_addJetForw1_pt_jetdown"  , &m_addJetForw1_pt_jetdown);
+      m_smallT->Branch ("m_addJetForw1_mass_jetup"  , &m_addJetForw1_mass_jetup);
+      m_smallT->Branch ("m_addJetForw1_mass_jetdown", &m_addJetForw1_mass_jetdown);
+      m_smallT->Branch ("m_addJetForw2_pt_jetup"    , &m_addJetForw2_pt_jetup);
+      m_smallT->Branch ("m_addJetForw2_pt_jetdown"  , &m_addJetForw2_pt_jetdown);
+      m_smallT->Branch ("m_addJetForw2_mass_jetup"  , &m_addJetForw2_mass_jetup);
+      m_smallT->Branch ("m_addJetForw2_mass_jetdown", &m_addJetForw2_mass_jetdown);
+      m_smallT->Branch ("m_addJetForw3_pt_jetup"    , &m_addJetForw3_pt_jetup);
+      m_smallT->Branch ("m_addJetForw3_pt_jetdown"  , &m_addJetForw3_pt_jetdown);
+      m_smallT->Branch ("m_addJetForw3_mass_jetup"  , &m_addJetForw3_mass_jetup);
+      m_smallT->Branch ("m_addJetForw3_mass_jetdown", &m_addJetForw3_mass_jetdown);
+      m_smallT->Branch ("m_addJetForw4_pt_jetup"    , &m_addJetForw4_pt_jetup);
+      m_smallT->Branch ("m_addJetForw4_pt_jetdown"  , &m_addJetForw4_pt_jetdown);
+      m_smallT->Branch ("m_addJetForw4_mass_jetup"  , &m_addJetForw4_mass_jetup);
+      m_smallT->Branch ("m_addJetForw4_mass_jetdown", &m_addJetForw4_mass_jetdown);
+      m_smallT->Branch ("m_addJetForw5_pt_jetup"    , &m_addJetForw5_pt_jetup);
+      m_smallT->Branch ("m_addJetForw5_pt_jetdown"  , &m_addJetForw5_pt_jetdown);
+      m_smallT->Branch ("m_addJetForw5_mass_jetup"  , &m_addJetForw5_mass_jetup);
+      m_smallT->Branch ("m_addJetForw5_mass_jetdown", &m_addJetForw5_mass_jetdown);
 
       // Additional variables
       m_smallT->Branch ("dau1_z",&m_dau1_z, "dau1_z/F") ;
@@ -2504,6 +2587,26 @@ struct smallTree
   Float_t m_addJetCentr4_HHbtag;
   Float_t m_addJetCentr5_HHbtag;
 
+  std::vector<Float_t> m_addJetCentr1_pt_jetup;
+  std::vector<Float_t> m_addJetCentr1_pt_jetdown;
+  std::vector<Float_t> m_addJetCentr1_mass_jetup;
+  std::vector<Float_t> m_addJetCentr1_mass_jetdown;
+  std::vector<Float_t> m_addJetCentr2_pt_jetup;
+  std::vector<Float_t> m_addJetCentr2_pt_jetdown;
+  std::vector<Float_t> m_addJetCentr2_mass_jetup;
+  std::vector<Float_t> m_addJetCentr2_mass_jetdown;
+  std::vector<Float_t> m_addJetCentr3_pt_jetup;
+  std::vector<Float_t> m_addJetCentr3_pt_jetdown;
+  std::vector<Float_t> m_addJetCentr3_mass_jetup;
+  std::vector<Float_t> m_addJetCentr3_mass_jetdown;
+  std::vector<Float_t> m_addJetCentr4_pt_jetup;
+  std::vector<Float_t> m_addJetCentr4_pt_jetdown;
+  std::vector<Float_t> m_addJetCentr4_mass_jetup;
+  std::vector<Float_t> m_addJetCentr4_mass_jetdown;
+  std::vector<Float_t> m_addJetCentr5_pt_jetup;
+  std::vector<Float_t> m_addJetCentr5_pt_jetdown;
+  std::vector<Float_t> m_addJetCentr5_mass_jetup;
+  std::vector<Float_t> m_addJetCentr5_mass_jetdown;
 
   // Additional forward jets
   Float_t m_addJetForw1_pt;
@@ -2526,6 +2629,27 @@ struct smallTree
   Float_t m_addJetForw3_e;
   Float_t m_addJetForw4_e;
   Float_t m_addJetForw5_e;
+
+  std::vector<Float_t> m_addJetForw1_pt_jetup;
+  std::vector<Float_t> m_addJetForw1_pt_jetdown;
+  std::vector<Float_t> m_addJetForw1_mass_jetup;
+  std::vector<Float_t> m_addJetForw1_mass_jetdown;
+  std::vector<Float_t> m_addJetForw2_pt_jetup;
+  std::vector<Float_t> m_addJetForw2_pt_jetdown;
+  std::vector<Float_t> m_addJetForw2_mass_jetup;
+  std::vector<Float_t> m_addJetForw2_mass_jetdown;
+  std::vector<Float_t> m_addJetForw3_pt_jetup;
+  std::vector<Float_t> m_addJetForw3_pt_jetdown;
+  std::vector<Float_t> m_addJetForw3_mass_jetup;
+  std::vector<Float_t> m_addJetForw3_mass_jetdown;
+  std::vector<Float_t> m_addJetForw4_pt_jetup;
+  std::vector<Float_t> m_addJetForw4_pt_jetdown;
+  std::vector<Float_t> m_addJetForw4_mass_jetup;
+  std::vector<Float_t> m_addJetForw4_mass_jetdown;
+  std::vector<Float_t> m_addJetForw5_pt_jetup;
+  std::vector<Float_t> m_addJetForw5_pt_jetdown;
+  std::vector<Float_t> m_addJetForw5_mass_jetup;
+  std::vector<Float_t> m_addJetForw5_mass_jetdown;
 
   // additional variables
   Float_t m_dau1_z;
