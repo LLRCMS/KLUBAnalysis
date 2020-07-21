@@ -2269,6 +2269,73 @@ int main (int argc, char** argv)
       float fakeRateSF_MVA  = 1.0;           // use this for e/mu->tauh fake SF MVA
       float fakeRateSF_deep = 1.0;           // use this for e/mu->tauh fake SF DeepTau
 
+      float idAndIsoAndFakeSF_tauid_pt20to25_up    = 1.0;
+      float idAndIsoAndFakeSF_tauid_pt25to30_up    = 1.0;
+      float idAndIsoAndFakeSF_tauid_pt30to35_up    = 1.0;
+      float idAndIsoAndFakeSF_tauid_pt35to40_up    = 1.0;
+      float idAndIsoAndFakeSF_tauid_pt40toInf_up   = 1.0;
+      float idAndIsoAndFakeSF_tauid_pt20to25_down  = 1.0;
+      float idAndIsoAndFakeSF_tauid_pt25to30_down  = 1.0;
+      float idAndIsoAndFakeSF_tauid_pt30to35_down  = 1.0;
+      float idAndIsoAndFakeSF_tauid_pt35to40_down  = 1.0;
+      float idAndIsoAndFakeSF_tauid_pt40toInf_down = 1.0;
+
+      float idAndIsoAndFakeSF_mutauFR_etaLt0p4_up      = 1.0;
+      float idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_up   = 1.0;
+      float idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_up   = 1.0;
+      float idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_up   = 1.0;
+      float idAndIsoAndFakeSF_mutauFR_etaGt1p7_up      = 1.0;
+      float idAndIsoAndFakeSF_mutauFR_etaLt0p4_down    = 1.0;
+      float idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_down = 1.0;
+      float idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_down = 1.0;
+      float idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_down = 1.0;
+      float idAndIsoAndFakeSF_mutauFR_etaGt1p7_down    = 1.0;
+
+      float idAndIsoAndFakeSF_etauFR_barrel_up   = 1.0;
+      float idAndIsoAndFakeSF_etauFR_endcap_up   = 1.0;
+      float idAndIsoAndFakeSF_etauFR_barrel_down = 1.0;
+      float idAndIsoAndFakeSF_etauFR_endcap_down = 1.0;
+
+      // bool helpers for tauID syst bins
+      vector<bool> isthisPt_IDbin_first = { // 20, 25, 30, 35, 40, infty
+      ((theSmallTree.m_dau1_pt >= 20 && theSmallTree.m_dau1_pt < 25) ? true : false),
+      ((theSmallTree.m_dau1_pt >= 25 && theSmallTree.m_dau1_pt < 30) ? true : false),
+      ((theSmallTree.m_dau1_pt >= 30 && theSmallTree.m_dau1_pt < 35) ? true : false),
+      ((theSmallTree.m_dau1_pt >= 35 && theSmallTree.m_dau1_pt < 40) ? true : false),
+      ((theSmallTree.m_dau1_pt >= 40) ? true : false)
+      };
+      vector<bool> isthisPt_IDbin_second = { // 20, 25, 30, 35, 40, infty
+      ((theSmallTree.m_dau2_pt >= 20 && theSmallTree.m_dau2_pt < 25) ? true : false),
+      ((theSmallTree.m_dau2_pt >= 25 && theSmallTree.m_dau2_pt < 30) ? true : false),
+      ((theSmallTree.m_dau2_pt >= 30 && theSmallTree.m_dau2_pt < 35) ? true : false),
+      ((theSmallTree.m_dau2_pt >= 35 && theSmallTree.m_dau2_pt < 40) ? true : false),
+      ((theSmallTree.m_dau2_pt >= 40) ? true : false)
+      };
+
+      vector<bool> isthisEta_IDbin_first = { // 0, 0.4, 0.8, 1.2, 1.7, infty
+      ((fabs(theSmallTree.m_dau1_eta) >= 0   && fabs(theSmallTree.m_dau1_eta < 0.4)) ? true : false),
+      ((fabs(theSmallTree.m_dau1_eta) >= 0.4 && fabs(theSmallTree.m_dau1_eta < 0.8)) ? true : false),
+      ((fabs(theSmallTree.m_dau1_eta) >= 0.8 && fabs(theSmallTree.m_dau1_eta < 1.2)) ? true : false),
+      ((fabs(theSmallTree.m_dau1_eta) >= 1.2 && fabs(theSmallTree.m_dau1_eta < 1.7)) ? true : false),
+      ((fabs(theSmallTree.m_dau1_eta) >= 1.7) ? true : false)
+      };
+      vector<bool> isthisEta_IDbin_second = {  // 0, 0.4, 0.8, 1.2, 1.7, infty
+      ((fabs(theSmallTree.m_dau2_eta) >= 0   && fabs(theSmallTree.m_dau2_eta < 0.4)) ? true : false),
+      ((fabs(theSmallTree.m_dau2_eta) >= 0.4 && fabs(theSmallTree.m_dau2_eta < 0.8)) ? true : false),
+      ((fabs(theSmallTree.m_dau2_eta) >= 0.8 && fabs(theSmallTree.m_dau2_eta < 1.2)) ? true : false),
+      ((fabs(theSmallTree.m_dau2_eta) >= 1.2 && fabs(theSmallTree.m_dau2_eta < 1.7)) ? true : false),
+      ((fabs(theSmallTree.m_dau2_eta) >= 1.7) ? true : false)
+      };
+
+      vector<bool> isthisSDet_IDbin_first = {  // barrel, endcap
+      ((fabs(theSmallTree.m_dau1_eta) >= 0   && fabs(theSmallTree.m_dau1_eta < 1.46)) ? true : false),
+      ((fabs(theSmallTree.m_dau1_eta) >= 1.46) ? true : false)
+      };
+      vector<bool> isthisSDet_IDbin_second = {  // barrel, endcap
+      ((fabs(theSmallTree.m_dau2_eta) >= 0   && fabs(theSmallTree.m_dau2_eta < 1.46)) ? true : false),
+      ((fabs(theSmallTree.m_dau2_eta) >= 1.46) ? true : false)
+      };
+
       // MuTau Channel // anti-ele VLoose / anti-mu Tight / anti-jet Medium
       if (pType == 0 && isMC)
       {
@@ -2303,6 +2370,41 @@ int main (int argc, char** argv)
         idAndIsoSF_leg2_deep_vsEle    = Deep_antiEle_vloose   ->getSFvsEta(tau2eta, tau2Genmatch);
         idAndIsoSF_leg2_deep_vsMu     = Deep_antiMu_tight     ->getSFvsEta(tau2eta, tau2Genmatch);
 
+        vector<float> idAndIsoSF_leg2_deep_vsJet_pt_up (5, idAndIsoSF_leg2_deep_vsJet); // in bins of pt: 20, 25, 30, 35, 40, infty
+        vector<float> idAndIsoSF_leg2_deep_vsEle_up    (2, idAndIsoSF_leg2_deep_vsEle); // in bins of eta: barrel, endcap
+        vector<float> idAndIsoSF_leg2_deep_vsMu_up     (5, idAndIsoSF_leg2_deep_vsMu);  // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
+
+        vector<float> idAndIsoSF_leg2_deep_vsJet_pt_down (5, idAndIsoSF_leg2_deep_vsJet); // in bins of pt: 20, 25, 30, 35, 40, infty
+        vector<float> idAndIsoSF_leg2_deep_vsEle_down    (2, idAndIsoSF_leg2_deep_vsEle); // in bins of eta: barrel, endcap
+        vector<float> idAndIsoSF_leg2_deep_vsMu_down     (5, idAndIsoSF_leg2_deep_vsMu);  // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
+
+        for (int bin = 0; bin < (int) isthisPt_IDbin_second.size(); bin++)
+        {
+          if (isthisPt_IDbin_second[bin])
+          {
+            idAndIsoSF_leg2_deep_vsJet_pt_up[bin]   = Deep_antiJet_medium_pt ->getSFvsPT(tau2pt, tau2Genmatch,   "Up");
+            idAndIsoSF_leg2_deep_vsJet_pt_down[bin] = Deep_antiJet_medium_pt ->getSFvsPT(tau2pt, tau2Genmatch, "Down");
+          }
+        }
+
+        for (int bin = 0; bin < (int) isthisEta_IDbin_second.size(); bin++)
+        {
+          if (isthisEta_IDbin_second[bin])
+          {
+            idAndIsoSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight ->getSFvsEta(tau2eta, tau2Genmatch,   "Up");
+            idAndIsoSF_leg2_deep_vsMu_down[bin] = Deep_antiMu_tight ->getSFvsEta(tau2eta, tau2Genmatch, "Down");
+          }
+        }
+
+        for (int bin = 0; bin < (int) isthisSDet_IDbin_second.size(); bin++)
+        {
+          if (isthisSDet_IDbin_second[bin])
+          {
+            idAndIsoSF_leg2_deep_vsEle_up[bin]   = Deep_antiEle_vloose ->getSFvsEta(tau2eta, tau2Genmatch,   "Up");
+            idAndIsoSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vloose ->getSFvsEta(tau2eta, tau2Genmatch, "Down");
+          }
+        }
+
         if (tau2Genmatch==1 || tau2Genmatch==2 || tau2Genmatch==3 || tau2Genmatch==4 || tau2Genmatch==5)
         {
           isFakeJet2 = false;
@@ -2316,6 +2418,33 @@ int main (int argc, char** argv)
         idAndIsoAndFakeSF_deep_pt = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
         fakeRateSF_MVA  = idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
         fakeRateSF_deep = idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+
+        idAndIsoAndFakeSF_tauid_pt20to25_up    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_up[0]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        idAndIsoAndFakeSF_tauid_pt25to30_up    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_up[1]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        idAndIsoAndFakeSF_tauid_pt30to35_up    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_up[2]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        idAndIsoAndFakeSF_tauid_pt35to40_up    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_up[3]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        idAndIsoAndFakeSF_tauid_pt40toInf_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_up[4]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        idAndIsoAndFakeSF_tauid_pt20to25_down  = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_down[0] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        idAndIsoAndFakeSF_tauid_pt25to30_down  = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_down[1] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        idAndIsoAndFakeSF_tauid_pt30to35_down  = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_down[2] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        idAndIsoAndFakeSF_tauid_pt35to40_down  = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_down[3] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        idAndIsoAndFakeSF_tauid_pt40toInf_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_down[4] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+
+        idAndIsoAndFakeSF_mutauFR_etaLt0p4_up      = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[0];
+        idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[1];
+        idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[2];
+        idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[3];
+        idAndIsoAndFakeSF_mutauFR_etaGt1p7_up      = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[4];
+        idAndIsoAndFakeSF_mutauFR_etaLt0p4_down    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[0];
+        idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[1];
+        idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[2];
+        idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[3];
+        idAndIsoAndFakeSF_mutauFR_etaGt1p7_down    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[4];
+
+        idAndIsoAndFakeSF_etauFR_barrel_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_up[0]   * idAndIsoSF_leg2_deep_vsMu;
+        idAndIsoAndFakeSF_etauFR_endcap_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_up[1]   * idAndIsoSF_leg2_deep_vsMu;
+        idAndIsoAndFakeSF_etauFR_barrel_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[0] * idAndIsoSF_leg2_deep_vsMu;
+        idAndIsoAndFakeSF_etauFR_endcap_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[1] * idAndIsoSF_leg2_deep_vsMu;
 
         if (DEBUG)
         {
@@ -2551,6 +2680,31 @@ int main (int argc, char** argv)
       theSmallTree.m_IdAndIsoAndFakeSF_deep_pt = (isMC ? idAndIsoAndFakeSF_deep_pt : 1.0);
       theSmallTree.m_FakeRateSF_MVA            = (isMC ? fakeRateSF_MVA            : 1.0);
       theSmallTree.m_FakeRateSF_deep           = (isMC ? fakeRateSF_deep           : 1.0);
+
+      theSmallTree.m_idAndIsoAndFakeSF_tauid_pt20to25_up        = (isMC ? idAndIsoAndFakeSF_tauid_pt20to25_up        : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_tauid_pt25to30_up        = (isMC ? idAndIsoAndFakeSF_tauid_pt25to30_up        : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_tauid_pt30to35_up        = (isMC ? idAndIsoAndFakeSF_tauid_pt30to35_up        : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_tauid_pt35to40_up        = (isMC ? idAndIsoAndFakeSF_tauid_pt35to40_up        : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_tauid_pt40toInf_up       = (isMC ? idAndIsoAndFakeSF_tauid_pt40toInf_up       : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_tauid_pt20to25_down      = (isMC ? idAndIsoAndFakeSF_tauid_pt20to25_down      : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_tauid_pt25to30_down      = (isMC ? idAndIsoAndFakeSF_tauid_pt25to30_down      : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_tauid_pt30to35_down      = (isMC ? idAndIsoAndFakeSF_tauid_pt30to35_down      : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_tauid_pt35to40_down      = (isMC ? idAndIsoAndFakeSF_tauid_pt35to40_down      : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_tauid_pt40toInf_down     = (isMC ? idAndIsoAndFakeSF_tauid_pt40toInf_down     : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_mutauFR_etaLt0p4_up      = (isMC ? idAndIsoAndFakeSF_mutauFR_etaLt0p4_up      : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_up   = (isMC ? idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_up   : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_up   = (isMC ? idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_up   : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_up   = (isMC ? idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_up   : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_mutauFR_etaGt1p7_up      = (isMC ? idAndIsoAndFakeSF_mutauFR_etaGt1p7_up      : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_mutauFR_etaLt0p4_down    = (isMC ? idAndIsoAndFakeSF_mutauFR_etaLt0p4_down    : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_down = (isMC ? idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_down : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_down = (isMC ? idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_down : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_down = (isMC ? idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_down : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_mutauFR_etaGt1p7_down    = (isMC ? idAndIsoAndFakeSF_mutauFR_etaGt1p7_down    : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_etauFR_barrel_up         = (isMC ? idAndIsoAndFakeSF_etauFR_barrel_up         : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_etauFR_endcap_up         = (isMC ? idAndIsoAndFakeSF_etauFR_endcap_up         : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_etauFR_barrel_down       = (isMC ? idAndIsoAndFakeSF_etauFR_barrel_down       : 1);
+      theSmallTree.m_idAndIsoAndFakeSF_etauFR_endcap_down       = (isMC ? idAndIsoAndFakeSF_etauFR_endcap_down       : 1);
 
       //Jet faking Tau SF
       //derived from WJet sideband: http://camendol.web.cern.ch/camendol/HH2017/plotsHH2017MuTau/31Oct2018_DYNLO_ctrlWJets_SS/antiB_jets30_tau30_SStight/
