@@ -3248,22 +3248,6 @@ int main (int argc, char** argv)
           continue;
         }
 
-        //bool bPairFound = false;
-        //int njets = jets_and_sortPar.size();
-
-        // medium WP for 2016 is: 0.6321 for DeepCSV, 0.3093 for DeepFlavor
-        //if(useDeepFlavor)
-        //{
-        //    if (jets_and_sortPar.at(njets-2).first>0.3093) bPairFound = true;
-        //}
-        //else
-        //{
-        //    if (jets_and_sortPar.at(njets-2).first>0.6321) bPairFound = true;
-        //}
-
-        //const int bjet1idx = jets_and_sortPar.at(njets-1).second ;
-        //int bjet2idx_temp  = jets_and_sortPar.at(njets-2).second ;
-
         //VBF tag
         int VBFidx1 = -1;
         int VBFidx2 = -1;
@@ -3281,7 +3265,6 @@ int main (int argc, char** argv)
             // Skip the already selected b-jets
             if (int (iJet) == bjet1idx) continue;
             if (int (iJet) == bjet2idx) continue;
-            //if(bPairFound && int (iJet) == bjet2idx_temp) continue;
 
             TLorentzVector ijet;
             ijet.SetPxPyPzE(
@@ -3311,7 +3294,6 @@ int main (int argc, char** argv)
               // Skip the already selected b-jets
               if (int (kJet) == bjet1idx) continue;
               if (int (kJet) == bjet2idx) continue;
-              //if (bPairFound && int (kJet) == bjet2idx_temp) continue;
 
               TLorentzVector kjet;
               kjet.SetPxPyPzE(
@@ -3348,40 +3330,10 @@ int main (int argc, char** argv)
 
         } // all possible VBF jets pairs built
 
-        //int bjet2idx_notVBF = bjet2idx;  // assign 2nd jet by CSV in any case, then:
-        //int bjet2idx_isVBF  = bjet2idx;
-
-        //if (!bPairFound)  // if the bjet2 was not definitive yet
-        //{
-        //  if(isVBF)
-        //  {
-        //    if ((bjet2idx_temp == VBFidx1) || (bjet2idx_temp == VBFidx2))   // and the 2nd jet by CSV was already picked as VBF jet
-        //    {
-        //      for (int bidx = 2; bidx<=int(jets_and_sortPar.size()); bidx++)  // look for the next jet by CSV
-        //      {
-        //        int idxbyCSV = jets_and_sortPar.at(njets-bidx).second;
-        //        if ((idxbyCSV== VBFidx1)||(idxbyCSV== VBFidx2)) continue;
-        //        bPairFound = true;
-        //        bjet2idx_isVBF = idxbyCSV;
-        //        break;
-        //      }
-        //      if(bPairFound == false)  // if there were not enough jets
-        //      {
-        //        isVBF = false;         // discard the jets as VBF jets
-        //        VBFcand_Mjj.clear();
-        //        VBFidx1 = -1;
-        //        VBFidx2 = -1;
-        //      }
-        //    }
-        //  }
-        //}
-
         if (isVBF)
             theSmallTree.m_isVBF = 1;
         else
             theSmallTree.m_isVBF = 0;
-
-        //const int bjet2idx = isVBF? bjet2idx_isVBF : bjet2idx_notVBF;
 
         // Now that I've selected the bjets build the TLorentzVectors
         TLorentzVector tlv_firstBjet (theBigTree.jets_px->at(bjet1idx), theBigTree.jets_py->at(bjet1idx), theBigTree.jets_pz->at(bjet1idx), theBigTree.jets_e->at(bjet1idx));
