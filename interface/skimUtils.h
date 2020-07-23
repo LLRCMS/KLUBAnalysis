@@ -16,6 +16,17 @@
 
 using namespace std ;
 
+// ------------------------------------------------
+// Returns pair<key,value> for highest value in map
+template<typename KeyType, typename ValueType>
+std::pair<KeyType,ValueType> get_max_map( const std::map<KeyType,ValueType>& x ) {
+  using pairtype=std::pair<KeyType,ValueType>;
+  return *std::max_element(x.begin(), x.end(), [] (const pairtype & p1, const pairtype & p2) {
+        return p1.second < p2.second;
+  });
+}
+
+
 // -----------------------------------------
 // General function to check bit variables
 bool CheckBit (int number, int bitpos)
