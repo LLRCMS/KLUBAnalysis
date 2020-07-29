@@ -3352,7 +3352,7 @@ int main (int argc, char** argv)
         HHbtag_idx_map.erase(HHbtagmax.first);
         auto HHbtagmax2 = get_max_map(HHbtag_idx_map);
 
-        if(useDeepFlavor)
+        if(DEBUG)
         {
           std::cout << "-------------- jets_and_HHbtag --------------" << std::endl;
           for (auto elem : jets_and_HHbtag)
