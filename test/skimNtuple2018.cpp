@@ -93,12 +93,20 @@ const float DYscale_MH_HighPt [3] = {1.037, 1.440, 1.603};
 const float DYscale_MH_vHighPt[3] = {0.835, 1.994, 1.037};
 
 // Requiring M(mumu) > 50 GeV
-const float DYscale_MTT_vLowPt [3] = {1.132, 0.00001, 0.00001};
-const float DYscale_MTT_LowPt  [3] = {1.334, 1.034  , 1.078  };
-const float DYscale_MTT_Med1Pt [3] = {1.239, 1.309  , 1.298  };
-const float DYscale_MTT_Med2Pt [3] = {1.172, 1.421  , 1.613  };
-const float DYscale_MTT_HighPt [3] = {1.056, 1.575  , 1.657  };
-const float DYscale_MTT_vHighPt[3] = {0.820, 1.999  , 0.897  };
+//const float DYscale_MTT_vLowPt [3] = {1.132, 0.00001, 0.00001};
+//const float DYscale_MTT_LowPt  [3] = {1.334, 1.034  , 1.078  };
+//const float DYscale_MTT_Med1Pt [3] = {1.239, 1.309  , 1.298  };
+//const float DYscale_MTT_Med2Pt [3] = {1.172, 1.421  , 1.613  };
+//const float DYscale_MTT_HighPt [3] = {1.056, 1.575  , 1.657  };
+//const float DYscale_MTT_vHighPt[3] = {0.820, 1.999  , 0.897  };
+
+// Computed August 2020 - Requiring M(mumu) > 50 GeV
+const float DYscale_MTT_vLowPt [3] = {0.87720949, 0.010000006, 0.010000025};
+const float DYscale_MTT_LowPt  [3] = {1.2191486 , 0.010001064, 0.29051790 };
+const float DYscale_MTT_Med1Pt [3] = {1.1816037 , 0.82760074 , 0.84809836 };
+const float DYscale_MTT_Med2Pt [3] = {1.1579303 , 1.1240148  , 0.92974364 };
+const float DYscale_MTT_HighPt [3] = {1.0469869 , 1.3690206  , 1.0024774  };
+const float DYscale_MTT_vHighPt[3] = {0.80838089, 1.7465338  , 0.73211715 };
 
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
