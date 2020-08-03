@@ -5957,7 +5957,8 @@ int main (int argc, char** argv)
            if (*rv_vbf_2_e != -999.) DNN_n_vbf++;
        }
 
-       DNN_pass_massCut = ( ((DNN_svfit.M()-116.)*(DNN_svfit.M()-116.))/(35.*35.) + (((DNN_b_1+DNN_b_2).M()-111.)*((DNN_b_1+DNN_b_2).M()-111.))/(45.*45.) <  1.0 );
+       //DNN_pass_massCut = ( ((DNN_svfit.M()-116.)*(DNN_svfit.M()-116.))/(35.*35.) + (((DNN_b_1+DNN_b_2).M()-111.)*((DNN_b_1+DNN_b_2).M()-111.))/(45.*45.) <  1.0 );
+       DNN_pass_massCut = true; // since training 2020-07-31-0 this feature is not used, so it is set always to true
 
        // Loop on configurable options to get the output prediction
        // For each event save the predictions for all the kl values requested
