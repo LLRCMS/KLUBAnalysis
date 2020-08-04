@@ -2688,8 +2688,8 @@ int main (int argc, char** argv)
           vector<float> idAndIsoSF_leg1_deep_vsMu_up     (5, idAndIsoSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 
           vector<float> idAndIsoSF_leg1_deep_vsJet_pt_down (5, idAndIsoSF_leg1_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
-          vector<float> idAndIsoSF_leg1_deep_vsEle_down    (2, idAndIsoSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
-          vector<float> idAndIsoSF_leg1_deep_vsMu_down     (5, idAndIsoSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
+          vector<float> idAndIsoSF_leg1_deep_vsEle_down    (2, idAndIsoSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
+          vector<float> idAndIsoSF_leg1_deep_vsMu_down     (5, idAndIsoSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 
           for (int bin = 0; bin < (int) isthisPt_IDbin_first.size(); bin++)
           {
@@ -2798,7 +2798,7 @@ int main (int argc, char** argv)
           idAndIsoAndFakeSF_etauFR_barrel_up   = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_up[0]   * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_up[0]   * idAndIsoSF_leg2_deep_vsMu;
           idAndIsoAndFakeSF_etauFR_endcap_up   = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_up[1]   * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_up[1]   * idAndIsoSF_leg2_deep_vsMu;
           idAndIsoAndFakeSF_etauFR_barrel_down = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_down[0] * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[0] * idAndIsoSF_leg2_deep_vsMu;
-          idAndIsoAndFakeSF_etauFR_endcap_down = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_down[0] * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[0] * idAndIsoSF_leg2_deep_vsMu;
+          idAndIsoAndFakeSF_etauFR_endcap_down = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_down[1] * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[1] * idAndIsoSF_leg2_deep_vsMu;
 
           if (DEBUG)
             {
