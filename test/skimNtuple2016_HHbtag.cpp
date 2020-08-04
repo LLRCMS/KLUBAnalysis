@@ -93,12 +93,20 @@ const float DYscale_MH_HighPt [3] = {1.169, 1.458, 0.997};
 const float DYscale_MH_vHighPt[3] = {1.061, 1.963, 1.185};
 
 // Requiring M(mumu) > 50 GeV
-const float DYscale_MTT_vLowPt [3] = {1.195, 0.536, 0.1  };
-const float DYscale_MTT_LowPt  [3] = {1.17 , 1.046, 1.408};
-const float DYscale_MTT_Med1Pt [3] = {1.172, 1.128, 1.644};
-const float DYscale_MTT_Med2Pt [3] = {1.184, 1.182, 1.911};
-const float DYscale_MTT_HighPt [3] = {1.182, 1.476, 1.537};
-const float DYscale_MTT_vHighPt[3] = {1.092, 1.778, 0.934};
+//const float DYscale_MTT_vLowPt [3] = {1.195, 0.536, 0.1  };
+//const float DYscale_MTT_LowPt  [3] = {1.17 , 1.046, 1.408};
+//const float DYscale_MTT_Med1Pt [3] = {1.172, 1.128, 1.644};
+//const float DYscale_MTT_Med2Pt [3] = {1.184, 1.182, 1.911};
+//const float DYscale_MTT_HighPt [3] = {1.182, 1.476, 1.537};
+//const float DYscale_MTT_vHighPt[3] = {1.092, 1.778, 0.934};
+
+// Computed August 2020 - Requiring M(mumu) > 50 GeV
+const float DYscale_MTT_vLowPt [3] = {1.1630144, 0.010000393, 0.010000000};
+const float DYscale_MTT_LowPt  [3] = {1.2194740, 1.1250249  , 1.0609708  };
+const float DYscale_MTT_Med1Pt [3] = {1.2536864, 1.2376837  , 1.1901911  };
+const float DYscale_MTT_Med2Pt [3] = {1.2763251, 1.2972053  , 1.2731480  };
+const float DYscale_MTT_HighPt [3] = {1.2785250, 1.4578434  , 1.2241989  };
+const float DYscale_MTT_vHighPt[3] = {1.1649714, 1.6778047  , 1.1510545  };
 
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
@@ -2588,8 +2596,8 @@ int main (int argc, char** argv)
         vector<float> idAndIsoSF_leg1_deep_vsMu_up     (5, idAndIsoSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 
         vector<float> idAndIsoSF_leg1_deep_vsJet_pt_down (5, idAndIsoSF_leg1_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
-        vector<float> idAndIsoSF_leg1_deep_vsEle_down    (2, idAndIsoSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
-        vector<float> idAndIsoSF_leg1_deep_vsMu_down     (5, idAndIsoSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
+        vector<float> idAndIsoSF_leg1_deep_vsEle_down    (2, idAndIsoSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
+        vector<float> idAndIsoSF_leg1_deep_vsMu_down     (5, idAndIsoSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 
         for (int bin = 0; bin < (int) isthisPt_IDbin_first.size(); bin++)
         {
@@ -2698,7 +2706,7 @@ int main (int argc, char** argv)
         idAndIsoAndFakeSF_etauFR_barrel_up   = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_up[0]   * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_up[0]   * idAndIsoSF_leg2_deep_vsMu;
         idAndIsoAndFakeSF_etauFR_endcap_up   = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_up[1]   * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_up[1]   * idAndIsoSF_leg2_deep_vsMu;
         idAndIsoAndFakeSF_etauFR_barrel_down = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_down[0] * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[0] * idAndIsoSF_leg2_deep_vsMu;
-        idAndIsoAndFakeSF_etauFR_endcap_down = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_down[0] * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[0] * idAndIsoSF_leg2_deep_vsMu;
+        idAndIsoAndFakeSF_etauFR_endcap_down = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_down[1] * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[1] * idAndIsoSF_leg2_deep_vsMu;
 
         if (DEBUG)
         {
@@ -5957,7 +5965,8 @@ int main (int argc, char** argv)
            if (*rv_vbf_2_e != -999.) DNN_n_vbf++;
        }
 
-       DNN_pass_massCut = ( ((DNN_svfit.M()-116.)*(DNN_svfit.M()-116.))/(35.*35.) + (((DNN_b_1+DNN_b_2).M()-111.)*((DNN_b_1+DNN_b_2).M()-111.))/(45.*45.) <  1.0 );
+       //DNN_pass_massCut = ( ((DNN_svfit.M()-116.)*(DNN_svfit.M()-116.))/(35.*35.) + (((DNN_b_1+DNN_b_2).M()-111.)*((DNN_b_1+DNN_b_2).M()-111.))/(45.*45.) <  1.0 );
+       DNN_pass_massCut = true; // since training 2020-07-31-0 this feature is not used, so it is set always to true
 
        // Loop on configurable options to get the output prediction
        // For each event save the predictions for all the kl values requested
