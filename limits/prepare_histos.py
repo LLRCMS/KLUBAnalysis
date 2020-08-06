@@ -53,15 +53,15 @@ for key in inFile.GetListOfKeys():
 
 	#protection against empty bins
 	changedInt = False
+	integral = template.Integral()
 	for ibin in range(1,template.GetNbinsX()+1):
-		integral = template.Integral()
 		if template.GetBinContent(ibin) <= 0:
 			changedInt = True
 			template.SetBinContent(ibin,0.000001)
 			template.SetBinError(ibin,0.000001)
 
-                    
-	if template.Integral()>0 and changedInt: template.Scale(integral/template.Integral())
+	if integral>0 and changedInt and template.Integral()>0: template.Scale(integral/template.Integral())
+
 	if "TH1" in template.ClassName(): 
 		for isyst in range(len(systNames)):
 			lineToCheckDown = systNames[isyst].replace('XXX',"down").replace("tes","tau").replace("ees","ele").replace("mes","mu").replace("jes","jet")
