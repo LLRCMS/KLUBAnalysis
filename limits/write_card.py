@@ -207,7 +207,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         file.write    ('kmax *  number of nuisance parameters\n')
         file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
         ## shapes
-        file.write    ('shapes * %s %s $PROCESS $PROCESS_$SYSTEMATIC\n'%(select, "hh_{0}_C{1}_13TeV.input.root".format(thechannel,theCat)))
+        file.write    ('shapes * %s %s $PROCESS $PROCESS_$SYSTEMATIC\n'%(select, "hh_{0}_{1}_C{2}_13TeV.input.root".format(opt.year,thechannel,theCat)))
         file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
         file.write    ((col1+cols+'\n').format('bin', select)) ### blind for now
         ## observation
@@ -243,13 +243,13 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             file.write(line)
         file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
 
-        file.write    ('theory group = HH_BR_Hbb HH_BR_Htt QCDscale_ggHH pdf_ggHH QCDscale_qqHH pdf_qqHH\n')   #### NEED TO UPDATE THE VALUES in cfg/syst_th.cfg
+        file.write    ('theory group = HH_BR_Hbb HH_BR_Htt QCDscale_ggHH pdf_ggHH mtop_ggHH QCDscale_qqHH pdf_qqHH\n')
         file.write    ("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(select))
 
         if (opt.binbybin): file.write('\n* autoMCStats 10')
 
         file.close()
-        outroot = TFile.Open(out_dir+"hh_{0}_C{1}_13TeV.input.root".format(thechannel,theCat),"RECREATE")
+        outroot = TFile.Open(out_dir+"hh_{0}_{1}_C{2}_13TeV.input.root".format(opt.year,thechannel,theCat),"RECREATE")
 
         for i, name in enumerate(nominalShapes_toSave):
             print name
