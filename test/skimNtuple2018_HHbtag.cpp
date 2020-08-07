@@ -2154,7 +2154,9 @@ int main (int argc, char** argv)
       theSmallTree.m_met_cov11 = theBigTree.MET_cov11->at (chosenTauPair);
 
       // L1ECALPrefiringWeight - https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
-      theSmallTree.m_L1pref_weight = theBigTree.prefiringweight;
+      theSmallTree.m_L1pref_weight      = theBigTree.prefiringweight;
+      theSmallTree.m_L1pref_weight_up   = theBigTree.prefiringweightup;
+      theSmallTree.m_L1pref_weight_down = theBigTree.prefiringweightdown;
 
       if (DEBUG)
         {
