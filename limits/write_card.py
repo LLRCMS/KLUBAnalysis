@@ -166,12 +166,14 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable,  name))
                     shiftShapes_newName.append(proc+"_"+name+"Up")
                     shiftShapes_newName.append(proc+"_"+name+"Down")
-            #proc_syst["TT"]["top"] = ["shape", 1] ### NEED TO UNCOMMENT THESE LINES
-            #systsShape.append("top")              ### WHEN TOP BKGS ARE IN
-            #shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format("TT", select,  regionSuffix[region], variable,  name))
-            #shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format("TT", select, regionSuffix[region],variable,  name))
-            #shiftShapes_newName.append("TT_"+name+"Up")
-            #shiftShapes_newName.append("TT_"+name+"Down")
+
+            # Add top Pt uncertainty
+            proc_syst["TT"]["top"] = ["shape", 1]
+            systsShape.append("top")
+            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format("TT", select,  regionSuffix[region], variable, name))
+            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format("TT", select, regionSuffix[region],variable, name))
+            shiftShapes_newName.append("TT_"+name+"Up")
+            shiftShapes_newName.append("TT_"+name+"Down")
 
         col1       = '{: <40}'
         colsysN    = '{: <30}'
