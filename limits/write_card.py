@@ -170,10 +170,10 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             # Add top Pt uncertainty
             proc_syst["TT"]["top"] = ["shape", 1]
             systsShape.append("top")
-            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format("TT", select,  regionSuffix[region], variable, name))
-            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format("TT", select, regionSuffix[region],variable, name))
-            shiftShapes_newName.append("TT_"+name+"Up")
-            shiftShapes_newName.append("TT_"+name+"Down")
+            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format("TT", select,  regionSuffix[region], variable, "top"))
+            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format("TT", select, regionSuffix[region],variable, "top"))
+            shiftShapes_newName.append("TT_topUp")
+            shiftShapes_newName.append("TT_topDown")
 
             # Add prefiring uncertainty (only to MC) for 2016 and 2017
             if opt.year == '2016' or opt.year == '2017':
