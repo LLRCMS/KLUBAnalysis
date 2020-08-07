@@ -192,6 +192,24 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_newName.append(proc+"_"+"prefUp")
                     shiftShapes_newName.append(proc+"_"+"prefDown")
 
+            # Add tau trigger uncertainties (4 different uncertainties depending on DM)
+            DMs = ["0","1","10","11"]
+            for DMname in DMs:
+                trigDMname = "trigSFDM" + DMname
+                for proc in backgrounds:
+                    proc_syst[proc][trigDMname] = ["shape", 1.]   #applying trigger to all MC backgrounds
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable, trigDMname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable, trigDMname))
+                    shiftShapes_newName.append(proc+"_"+trigDMname+"Up")
+                    shiftShapes_newName.append(proc+"_"+trigDMname+"Down")
+
+                for proc in signals:
+                    proc_syst[proc][trigDMname] = ["shape", 1.]   #applying trigger to all signals
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable, trigDMname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable, trigDMname))
+                    shiftShapes_newName.append(proc+"_"+trigDMname+"Up")
+                    shiftShapes_newName.append(proc+"_"+trigDMname+"Down")
+
         col1       = '{: <40}'
         colsysN    = '{: <30}'
         colsysType = '{: <10}'
