@@ -175,6 +175,23 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             shiftShapes_newName.append("TT_"+name+"Up")
             shiftShapes_newName.append("TT_"+name+"Down")
 
+            # Add prefiring uncertainty (only to MC) for 2016 and 2017
+            if opt.year == '2016' or opt.year == '2017':
+
+                for proc in backgrounds:
+                    proc_syst[proc]["pref"] = ["shape", 1.]   #applying prefiring to all MC backgrounds
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable, "pref"))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable, "pref"))
+                    shiftShapes_newName.append(proc+"_"+"prefUp")
+                    shiftShapes_newName.append(proc+"_"+"prefDown")
+
+                for proc in signals:
+                    proc_syst[proc]["pref"] = ["shape", 1.]   #applying prefiring to all signals
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable, "pref"))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable, "pref"))
+                    shiftShapes_newName.append(proc+"_"+"prefUp")
+                    shiftShapes_newName.append(proc+"_"+"prefDown")
+
         col1       = '{: <40}'
         colsysN    = '{: <30}'
         colsysType = '{: <10}'
