@@ -173,7 +173,7 @@ int main (int argc, char** argv)
 
   "MC_weight","PUReweight","PUjetID_SF","L1pref_weight*",               // Weights and SFs
   "prescaleWeight","trigSF","trigSF_DM*","VBFtrigSF",
-  "DYscale_MTT","DYscale_MH","bTagweightM","bTagweightL",
+  "DYscale_MTT","DYscale_MH","bTagweightM*","bTagweightL*",
   "IdAndIsoAndFakeSF_deep","IdAndIsoAndFakeSF_deep_pt",
   "TTtopPtreweight*","idAndIsoAndFakeSF_tauid*",
   "idAndIsoAndFakeSF_mutauFR*","idAndIsoAndFakeSF_etauFR*",
