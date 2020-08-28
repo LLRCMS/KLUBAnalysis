@@ -165,10 +165,10 @@ if __name__ == "__main__":
     # submit the jobs
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-
-    #skimmer = 'skimNtuple.exe'
-    skimmer = 'skimNtuple2016.exe'
-    #skimmer = 'skimNtuple_oldOrder.exe' # first the bjets by deepCSV and then VBFjets as highest Mjj pair
+    #skimmer = 'skimNtuple2016.exe'
+    #skimmer = 'skimNtuple2017.exe'
+    skimmer = 'skimNtuple2016_HHbtag.exe'
+    #skimmer = 'skimNtuple2017_HHbtag.exe'
 
     if opt.config == 'none' :
         print 'config file missing, exiting'
