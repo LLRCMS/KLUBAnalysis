@@ -166,7 +166,8 @@ if __name__ == "__main__":
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-    skimmer = 'skimNtuple2018.exe'
+    #skimmer = 'skimNtuple2018.exe'
+    skimmer = 'skimNtuple2018_HHbtag.exe'
 
     if opt.config == 'none' :
         print 'config file missing, exiting'

@@ -20,7 +20,7 @@ class bTagSF
         void SetWPset(std::string WPset);
         void SetWPset(double loose, double medium, double tight);
    
-        std::vector<float> getEvtWeight (std::vector <std::pair <int, float> >& jets_and_btag, std::vector<float> *jets_px, std::vector<float> *jets_py, std::vector<float> *jets_pz, std::vector<float> *jets_e, std::vector<int> *jets_HadronFlavour, int channel);
+        std::vector<float> getEvtWeight (std::vector <std::pair <int, float> >& jets_and_btag, std::vector<float> *jets_px, std::vector<float> *jets_py, std::vector<float> *jets_pz, std::vector<float> *jets_e, std::vector<int> *jets_HadronFlavour, int channel, SFsyst systWP);
     private:
         // related to scale factors
         BTagCalibration m_calib;

@@ -16,7 +16,11 @@ from subprocess import Popen, PIPE
 #tag="Legacy2016_Data_Tau3_Dec2019"
 #tag="Legacy2016_Data_Muon4_Dec2019"
 #tag="Legacy2016_Data_Electron4_Dec2019"
-tag="Legacy2016_Data_Tau4_Dec2019"
+#tag="Legacy2016_Data_Tau4_Dec2019"
+#tag="Signals_Legacy2018"
+#tag="Signals_Legacy2016_v2"
+#tag="Signals_Legacy2017"
+tag="Signals_Legacy2016_v3"
 
 
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Signals/'
@@ -34,7 +38,10 @@ tag="Legacy2016_Data_Tau4_Dec2019"
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Tau3/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Muon4/'
 #outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Electron4/'
-outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Tau4/'
+#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Tau4/'
+#outFolder = '../inputFiles/Legacy2018_signalsMIB/'
+outFolder = '../inputFiles/Legacy2016_signals/'
+#outFolder = '../inputFiles/Legacy2017_signals/'
 
 areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
                                  # if false: only add the polgrid server to run the skim and submit on root
@@ -73,7 +80,7 @@ print useOnly
 dpmhome = "/gwteras/cms"
 
 #partialPath = "/store/user/lcadamur/HHNtuples/" #folder contenente la produzione
-partialPath = "/store/user/fbrivio/Hhh_1718/"
+partialPath = "/store/user/fbrivio/HH_LegacyRun2/"
 #partialPath = "/store/user/dzuolo/HHbbtautauNtuples/"
 
 

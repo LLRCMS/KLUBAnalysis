@@ -3372,10 +3372,20 @@ int main (int argc, char** argv)
           for (auto pair : jets_and_sortPar) jets_and_BTag.push_back (make_pair(pair.second, pair.first)); // just for compatibility...
 
           // NB !!! the following function only works if jets_and_sortPar contains <CVSscore, idx>
-          vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType) ;
+          vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType, bTagSF::central) ;
           theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
           theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
           theSmallTree.m_bTagweightT = (isMC ? bTagWeight.at(2) : 1.0) ;
+
+          vector<float> bTagWeight_up = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType, bTagSF::up) ;
+          theSmallTree.m_bTagweightL_up = (isMC ? bTagWeight_up.at(0) : 1.0) ;
+          theSmallTree.m_bTagweightM_up = (isMC ? bTagWeight_up.at(1) : 1.0) ;
+          theSmallTree.m_bTagweightT_up = (isMC ? bTagWeight_up.at(2) : 1.0) ;
+
+          vector<float> bTagWeight_down = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType, bTagSF::down) ;
+          theSmallTree.m_bTagweightL_down = (isMC ? bTagWeight_down.at(0) : 1.0) ;
+          theSmallTree.m_bTagweightM_down = (isMC ? bTagWeight_down.at(1) : 1.0) ;
+          theSmallTree.m_bTagweightT_down = (isMC ? bTagWeight_down.at(2) : 1.0) ;
 
           // Set HHbtaginterface for ordering jets
           HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,
