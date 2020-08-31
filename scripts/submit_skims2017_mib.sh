@@ -441,7 +441,7 @@ echo "OUTDIR = $OUTDIRR" >> log_18Feb2020.txt
 # xs_theo(SM) = 0.001726
 #  CV C2V C3 |  xs_MG5      * xs_theo(SM)/xs_MG5(SM)
 #   1   1  1 |  0.001668 pb * 1.034772182             =   0.001726 pb
-# 0.5   1  1 |  0.01046  pb * 1.034772182             =   0.010824 pb <--- missing this year
+# 0.5   1  1 |  0.01046  pb * 1.034772182             =   0.010824 pb ----> BR * xs = 0.073056256 * 0.010824 = 0.0007907609149 [pb]
 # 1.5   1  1 |  0.0638   pb * 1.034772182             =   0.066018 pb
 #   1   1  0 |  0.004454 pb * 1.034772182             =   0.004609 pb
 #   1   1  2 |  0.001375 pb * 1.034772182             =   0.001423 pb
@@ -460,5 +460,7 @@ python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_m
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_1_C3_2_xs   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_1_C3_2.txt   -x 0.00010396 -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
 
 python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_2_C3_1_xs   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_2_C3_1.txt   -x 0.0010387 -a True -q longcms --pu $PUDIR/PU_Legacy2017_SF.txt
+
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2017_mib.cfg  -n 20 -k True -o $SKIMDIR/SKIM_VBFHH_CV_0p5_C2V_1_C3_1_xs -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_0_5_C2V_1_C3_1.txt -x 0.0007907609149 -a True --pu $PUDIR/PU_Legacy2017_SF.txt
 
 COMMENT2

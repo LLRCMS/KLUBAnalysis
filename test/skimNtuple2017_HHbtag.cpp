@@ -5537,8 +5537,9 @@ int main (int argc, char** argv)
         // models to load for inference
         std::vector<std::pair<std::string, std::string>> modelSpecs = {
           //{ "v0", "kl1_c2v1_c31" },
-          { "v1", "kl1_c2v1_c31" }
           //{ "v0", "kl1_c2v1_c31_vbfbsm" }
+          { "v1", "kl1_c2v1_c31" },
+          { "v2", "kl1_c2v1_c31" }
         };
 
         // read the input tree

@@ -101,15 +101,19 @@ public:
     }
   }
 
-  inline void setInput(size_t modelIndex, const std::string& featureName, float value) {
+  inline void setInput(size_t modelIndex, const std::string& featureName, float value, bool optional=true) {
     checkModelIndex_(modelIndex);
-    models_[modelIndex]->input.setValue(featureName, value);
+    if (!optional || models_[modelIndex]->hasFeatureSpec(featureName)) {
+      models_[modelIndex]->input.setValue(featureName, value);
+    }
   }
 
-  void setInputs(size_t modelIndex, const std::vector<std::pair<std::string, float>>& inputs) {
+  void setInputs(size_t modelIndex, const std::vector<std::pair<std::string, float>>& inputs, bool optional=true) {
     checkModelIndex_(modelIndex);
     for (const auto& pair : inputs) {
-      models_[modelIndex]->input.setValue(pair.first, pair.second);
+      if (!optional || models_[modelIndex]->hasFeatureSpec(pair.first)) {
+        models_[modelIndex]->input.setValue(pair.first, pair.second);
+      }
     }
   }
 
