@@ -7,7 +7,7 @@ INPUTDIR_DATA="inputFiles/Legacy2018_dataMIB"
 INPUTDIR_SIG="inputFiles/Legacy2018_signalsMIB"
 
 # OUTPUT
-SKIMDIR="/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_Legacy2018_15July2020"
+SKIMDIR="/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_Legacy2018_20July2020"
 
 # PU weights
 PUDIR="/gwpool/users/dzuolo/HHbbtautatuAnalysisLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/weights/PUreweight/Legacy_Run2_PU_SF/2018"
@@ -42,7 +42,6 @@ python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -d True  -s True -c  config/sk
 python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018_mib.cfg  -n 100 -q longcms -o $SKIMDIR/SKIM_Tau2018C              -k True -i $INPUTDIR_DATA/3_Tau__Run2018C-17Sep2018-v1.txt
 python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -d True  -s True -c  config/skim_Legacy2018_mib.cfg  -n 100 -q longcms -o $SKIMDIR/SKIM_Tau2018D              -k True -i $INPUTDIR_DATA/1_Tau__Run2018D-PromptReco-v2.txt
 
-COMMENT1
 
 #######################
 ##### TT - filelists up to date
@@ -56,15 +55,15 @@ python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2
 #python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg -n 200 -q longcms  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_TT_fullyLep -x 88.29  -t True -b 4 -i $INPUTDIR_BKG/1_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
 #python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg -n 200 -q longcms  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_TT_semiLep  -x 365.34 -t True -b 5 -i $INPUTDIR_BKG/2_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
 
-<<COMMENT2
 
 ######################
 #### DY - filelists up to date
 ### xsec from:
 ### https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#DY_Z
 #sleep 1h
-python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c  config/skim_Legacy2018_mib.cfg  -n 200 -q longcms -k True  --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_DY         -i $INPUTDIR_BKG/DYmerged.txt -x 6077.22 -g True --DY True
-python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c  config/skim_Legacy2018_mib.cfg  -n 200 -q longcms -k True  --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_DY_lowMass -i $INPUTDIR_BKG/DYJetsToLL_M-10to50_merged.txt -x 18610 
+#python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c  config/skim_Legacy2018_mib.cfg  -n 200 -q longcms -k True  --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_DY         -i $INPUTDIR_BKG/DYmerged.txt -x 6077.22 -g True --DY True
+#python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c  config/skim_Legacy2018_mib.cfg  -n 200 -q longcms -k True  --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_DY_lowMass -i $INPUTDIR_BKG/DYJetsToLL_M-10to50_merged.txt -x 18610 
+python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c  config/skim_Legacy2018_mib.cfg  -n 200 -q longcms -k True  --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_DY_Incl -i $INPUTDIR_BKG/1_DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 6077.22 --DY True 
 
 
 #######################
@@ -84,8 +83,8 @@ python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2
 ##### ELECTROWEAK - filelists up to date
 ### XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
 #sleep 1h
-python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 100 -q longcms -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_EWKWPlus2Jets_WToLNu   -x 29.59 -i $INPUTDIR_BKG/1_EWKWPlus2Jets_WToLNu_M-50_TuneCP5_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
-python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 100 -q longcms -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_EWKWMinus2Jets_WToLNu  -x 23.24 -i $INPUTDIR_BKG/2_EWKWMinus2Jets_WToLNu_M-50_TuneCP5_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
+python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 100 -q longcms -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_EWKWPlus2Jets_WToLNu -x 25.62 -i $INPUTDIR_BKG/1_EWKWPlus2Jets_WToLNu_M-50_TuneCP5_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
+python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 100 -q longcms -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_EWKWMinus2Jets_WToLNu -x 20.25 -i $INPUTDIR_BKG/2_EWKWMinus2Jets_WToLNu_M-50_TuneCP5_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
 python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 100 -q longcms -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_EWKZ2Jets_ZToLL	-x 3.987 -i $INPUTDIR_BKG/3_EWKZ2Jets_ZToLL_M-50_TuneCP5_PSweights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
 
 ######################
@@ -241,4 +240,4 @@ python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c  config/skim_Legacy
 #this is just for cross check with LO node SM, which wrongly has c2g set to 1
 #python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c  config/skim_Legacy2018_mib.cfg  -n 20 -q longcms -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_HHRew_SM_wrong  -x 1.0 --kl 1.0  --kt 1.0 --c2 0.0 --cg 0.0 --c2g 1. -a True -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_LO_allNodes.txt
 
-COMMENT2
+COMMENT1

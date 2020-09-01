@@ -93,7 +93,8 @@ void DNNKLUBinterface::SetShiftedInputs(TLorentzVector b1, TLorentzVector b2, TL
 
   // Pass ellyptic mass cut
   // ((tauH_SVFIT_mass-116.)*(tauH_SVFIT_mass-116.))/(35.*35.) + ((bH_mass_raw-111.)*(bH_mass_raw-111.))/(45.*45.) <  1.0
-  DNN_pass_massCut_ = ( ((svfit.M()-116.)*(svfit.M()-116.))/(35.*35.) + (((b1+b2).M()-111.)*((b1+b2).M()-111.))/(45.*45.) <  1.0 );
+  //DNN_pass_massCut_ = ( ((svfit.M()-116.)*(svfit.M()-116.))/(35.*35.) + (((b1+b2).M()-111.)*((b1+b2).M()-111.))/(45.*45.) <  1.0 );
+  DNN_pass_massCut_ = true; // since training 2020-07-31-0 this feature is not used, so it is set always to true
 
 }
 

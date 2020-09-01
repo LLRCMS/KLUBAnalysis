@@ -93,12 +93,20 @@ const float DYscale_MH_HighPt [3] = {1.037, 1.440, 1.603};
 const float DYscale_MH_vHighPt[3] = {0.835, 1.994, 1.037};
 
 // Requiring M(mumu) > 50 GeV
-const float DYscale_MTT_vLowPt [3] = {1.132, 0.00001, 0.00001};
-const float DYscale_MTT_LowPt  [3] = {1.334, 1.034  , 1.078  };
-const float DYscale_MTT_Med1Pt [3] = {1.239, 1.309  , 1.298  };
-const float DYscale_MTT_Med2Pt [3] = {1.172, 1.421  , 1.613  };
-const float DYscale_MTT_HighPt [3] = {1.056, 1.575  , 1.657  };
-const float DYscale_MTT_vHighPt[3] = {0.820, 1.999  , 0.897  };
+//const float DYscale_MTT_vLowPt [3] = {1.132, 0.00001, 0.00001};
+//const float DYscale_MTT_LowPt  [3] = {1.334, 1.034  , 1.078  };
+//const float DYscale_MTT_Med1Pt [3] = {1.239, 1.309  , 1.298  };
+//const float DYscale_MTT_Med2Pt [3] = {1.172, 1.421  , 1.613  };
+//const float DYscale_MTT_HighPt [3] = {1.056, 1.575  , 1.657  };
+//const float DYscale_MTT_vHighPt[3] = {0.820, 1.999  , 0.897  };
+
+// Computed August 2020 - Requiring M(mumu) > 50 GeV
+const float DYscale_MTT_vLowPt [3] = {0.87720949, 0.010000006, 0.010000025};
+const float DYscale_MTT_LowPt  [3] = {1.2191486 , 0.010001064, 0.29051790 };
+const float DYscale_MTT_Med1Pt [3] = {1.1816037 , 0.82760074 , 0.84809836 };
+const float DYscale_MTT_Med2Pt [3] = {1.1579303 , 1.1240148  , 0.92974364 };
+const float DYscale_MTT_HighPt [3] = {1.0469869 , 1.3690206  , 1.0024774  };
+const float DYscale_MTT_vHighPt[3] = {0.80838089, 1.7465338  , 0.73211715 };
 
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
@@ -2680,8 +2688,8 @@ int main (int argc, char** argv)
           vector<float> idAndIsoSF_leg1_deep_vsMu_up     (5, idAndIsoSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 
           vector<float> idAndIsoSF_leg1_deep_vsJet_pt_down (5, idAndIsoSF_leg1_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
-          vector<float> idAndIsoSF_leg1_deep_vsEle_down    (2, idAndIsoSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
-          vector<float> idAndIsoSF_leg1_deep_vsMu_down     (5, idAndIsoSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
+          vector<float> idAndIsoSF_leg1_deep_vsEle_down    (2, idAndIsoSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
+          vector<float> idAndIsoSF_leg1_deep_vsMu_down     (5, idAndIsoSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 
           for (int bin = 0; bin < (int) isthisPt_IDbin_first.size(); bin++)
           {
@@ -2790,7 +2798,7 @@ int main (int argc, char** argv)
           idAndIsoAndFakeSF_etauFR_barrel_up   = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_up[0]   * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_up[0]   * idAndIsoSF_leg2_deep_vsMu;
           idAndIsoAndFakeSF_etauFR_endcap_up   = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_up[1]   * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_up[1]   * idAndIsoSF_leg2_deep_vsMu;
           idAndIsoAndFakeSF_etauFR_barrel_down = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_down[0] * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[0] * idAndIsoSF_leg2_deep_vsMu;
-          idAndIsoAndFakeSF_etauFR_endcap_down = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_down[0] * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[0] * idAndIsoSF_leg2_deep_vsMu;
+          idAndIsoAndFakeSF_etauFR_endcap_down = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_down[1] * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[1] * idAndIsoSF_leg2_deep_vsMu;
 
           if (DEBUG)
             {
@@ -3364,10 +3372,20 @@ int main (int argc, char** argv)
           for (auto pair : jets_and_sortPar) jets_and_BTag.push_back (make_pair(pair.second, pair.first)); // just for compatibility...
 
           // NB !!! the following function only works if jets_and_sortPar contains <CVSscore, idx>
-          vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType) ;
+          vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType, bTagSF::central) ;
           theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
           theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
           theSmallTree.m_bTagweightT = (isMC ? bTagWeight.at(2) : 1.0) ;
+
+          vector<float> bTagWeight_up = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType, bTagSF::up) ;
+          theSmallTree.m_bTagweightL_up = (isMC ? bTagWeight_up.at(0) : 1.0) ;
+          theSmallTree.m_bTagweightM_up = (isMC ? bTagWeight_up.at(1) : 1.0) ;
+          theSmallTree.m_bTagweightT_up = (isMC ? bTagWeight_up.at(2) : 1.0) ;
+
+          vector<float> bTagWeight_down = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType, bTagSF::down) ;
+          theSmallTree.m_bTagweightL_down = (isMC ? bTagWeight_down.at(0) : 1.0) ;
+          theSmallTree.m_bTagweightM_down = (isMC ? bTagWeight_down.at(1) : 1.0) ;
+          theSmallTree.m_bTagweightT_down = (isMC ? bTagWeight_down.at(2) : 1.0) ;
 
           // Set HHbtaginterface for ordering jets
           HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,
@@ -5530,8 +5548,9 @@ int main (int argc, char** argv)
         // models to load for inference
         std::vector<std::pair<std::string, std::string>> modelSpecs = {
           //{ "v0", "kl1_c2v1_c31" },
-          { "v1", "kl1_c2v1_c31" }
           //{ "v0", "kl1_c2v1_c31_vbfbsm" }
+          { "v1", "kl1_c2v1_c31" },
+          { "v2", "kl1_c2v1_c31" }
         };
 
         // read the input tree
@@ -6172,7 +6191,8 @@ int main (int argc, char** argv)
             if (*rv_vbf_2_e != -999.) DNN_n_vbf++;
           }
 
-        DNN_pass_massCut = ( ((DNN_svfit.M()-116.)*(DNN_svfit.M()-116.))/(35.*35.) + (((DNN_b_1+DNN_b_2).M()-111.)*((DNN_b_1+DNN_b_2).M()-111.))/(45.*45.) <  1.0 );
+        //DNN_pass_massCut = ( ((DNN_svfit.M()-116.)*(DNN_svfit.M()-116.))/(35.*35.) + (((DNN_b_1+DNN_b_2).M()-111.)*((DNN_b_1+DNN_b_2).M()-111.))/(45.*45.) <  1.0 );
+        DNN_pass_massCut = true; // since training 2020-07-31-0 this feature is not used, so it is set always to true
 
         // Loop on configurable options to get the output prediction
         // For each event save the predictions for all the kl values requested

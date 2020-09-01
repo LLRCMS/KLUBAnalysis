@@ -171,7 +171,7 @@ int main (int argc, char** argv)
   "EventNumber", "RunNumber","nleps","pairType","nbjetscand",          // General
   "isOS","isBoosted","isTau1real","isTau2real",
 
-  "MC_weight","PUReweight","PUjetID_SF","L1pref_weight",               // Weights and SFs
+  "MC_weight","PUReweight","PUjetID_SF","L1pref_weight*",               // Weights and SFs
   "prescaleWeight","trigSF","trigSF_DM*","VBFtrigSF",
   "DYscale_MTT","DYscale_MH","bTagweightM","bTagweightL",
   "IdAndIsoAndFakeSF_deep","IdAndIsoAndFakeSF_deep_pt",

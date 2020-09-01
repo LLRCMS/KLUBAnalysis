@@ -101,15 +101,19 @@ public:
     }
   }
 
-  inline void setInput(size_t modelIndex, const std::string& featureName, float value) {
+  inline void setInput(size_t modelIndex, const std::string& featureName, float value, bool optional=true) {
     checkModelIndex_(modelIndex);
-    models_[modelIndex]->input.setValue(featureName, value);
+    if (!optional || models_[modelIndex]->hasFeatureSpec(featureName)) {
+      models_[modelIndex]->input.setValue(featureName, value);
+    }
   }
 
-  void setInputs(size_t modelIndex, const std::vector<std::pair<std::string, float>>& inputs) {
+  void setInputs(size_t modelIndex, const std::vector<std::pair<std::string, float>>& inputs, bool optional=true) {
     checkModelIndex_(modelIndex);
     for (const auto& pair : inputs) {
-      models_[modelIndex]->input.setValue(pair.first, pair.second);
+      if (!optional || models_[modelIndex]->hasFeatureSpec(pair.first)) {
+        models_[modelIndex]->input.setValue(pair.first, pair.second);
+      }
     }
   }
 
@@ -238,6 +242,11 @@ FeatureProvider::FeatureProvider(int year, TTree *tree) : year_(year) {
     "bjet1_CvsL", "bjet1_HHbtag",
     "bjet2_pt", "bjet2_eta", "bjet2_phi", "bjet2_e", "bjet2_bID_deepFlavor", "bjet2_CvsB",
     "bjet2_CvsL", "bjet2_HHbtag",
+    "addJetCentr1_pt", "addJetCentr1_eta", "addJetCentr1_phi", "addJetCentr1_e", "addJetCentr1_btag_deepFlavor", "addJetCentr1_HHbtag",
+    "addJetCentr2_pt", "addJetCentr2_eta", "addJetCentr2_phi", "addJetCentr2_e", "addJetCentr2_btag_deepFlavor", "addJetCentr2_HHbtag",
+    "addJetCentr3_pt", "addJetCentr3_eta", "addJetCentr3_phi", "addJetCentr3_e", "addJetCentr3_btag_deepFlavor", "addJetCentr3_HHbtag",
+    "addJetForw1_pt", "addJetForw1_eta", "addJetForw1_phi", "addJetForw1_e",
+    "addJetForw2_pt", "addJetForw2_eta", "addJetForw2_phi", "addJetForw2_e", 
     "VBFjet1_pt", "VBFjet1_eta", "VBFjet1_phi", "VBFjet1_e", "VBFjet1_btag_deepFlavor",
     "VBFjet1_CvsB", "VBFjet1_CvsL", "VBFjet1_HHbtag",
     "VBFjet2_pt", "VBFjet2_eta", "VBFjet2_phi", "VBFjet2_e", "VBFjet2_btag_deepFlavor",
@@ -271,6 +280,11 @@ void FeatureProvider::calculate() {
   // check if objects are set
   bool b1Set = floatInputs_.at("bjet1_pt") > 0;
   bool b2Set = floatInputs_.at("bjet2_pt") > 0;
+  bool ctjet1Set = floatInputs_.at("addJetCentr1_pt") > 0;
+  bool ctjet2Set = floatInputs_.at("addJetCentr2_pt") > 0;
+  bool ctjet3Set = floatInputs_.at("addJetCentr3_pt") > 0;
+  bool fwjet1Set = floatInputs_.at("addJetForw1_pt") > 0;
+  bool fwjet2Set = floatInputs_.at("addJetForw2_pt") > 0;
   bool vbfj1Set = floatInputs_.at("VBFjet1_pt") > 0;
   bool vbfj2Set = floatInputs_.at("VBFjet2_pt") > 0;
   bool lep1Set = floatInputs_.at("dau1_pt") > 0;
@@ -291,6 +305,12 @@ void FeatureProvider::calculate() {
       it.second = float(intInputs_.at("pairType") == 1);
     } else if (it.first == "is_tautau") {
       it.second = float(intInputs_.at("pairType") == 2);
+    } else if (it.first == "is_2016") {
+      it.second = (year_ == 2016);
+    } else if (it.first == "is_2017") {
+      it.second = (year_ == 2017);
+    } else if (it.first == "is_2018") {
+      it.second = (year_ == 2018);
     } else if (it.first == "bjet1_pt") {
       it.second = CHECK_EMPTY(b1Set, floatInputs_.at("bjet1_pt"));
     } else if (it.first == "bjet1_eta") {
@@ -323,6 +343,58 @@ void FeatureProvider::calculate() {
       it.second = CHECK_EMPTY(b2Set, floatInputs_.at("bjet2_CvsL"));
     } else if (it.first == "bjet2_hhbtag") {
       it.second = CHECK_EMPTY(b2Set, floatInputs_.at("bjet2_HHbtag"));
+    } else if (it.first == "ctjet1_pt") {
+      it.second = CHECK_EMPTY(ctjet1Set, floatInputs_.at("addJetCentr1_pt"));
+    } else if (it.first == "ctjet1_eta") {
+      it.second = CHECK_EMPTY(ctjet1Set, floatInputs_.at("addJetCentr1_eta"));
+    } else if (it.first == "ctjet1_phi") {
+      it.second = CHECK_EMPTY(ctjet1Set, floatInputs_.at("addJetCentr1_phi"));
+    } else if (it.first == "ctjet1_e") {
+      it.second = CHECK_EMPTY(ctjet1Set, floatInputs_.at("addJetCentr1_e"));
+    } else if (it.first == "ctjet1_deepflavor_b") {
+      it.second = CHECK_EMPTY(ctjet1Set, floatInputs_.at("addJetCentr1_btag_deepFlavor"));
+    } else if (it.first == "ctjet1_hhbtag") {
+      it.second = CHECK_EMPTY(ctjet1Set, floatInputs_.at("addJetCentr1_HHbtag"));
+    } else if (it.first == "ctjet2_pt") {
+      it.second = CHECK_EMPTY(ctjet2Set, floatInputs_.at("addJetCentr2_pt"));
+    } else if (it.first == "ctjet2_eta") {
+      it.second = CHECK_EMPTY(ctjet2Set, floatInputs_.at("addJetCentr2_eta"));
+    } else if (it.first == "ctjet2_phi") {
+      it.second = CHECK_EMPTY(ctjet2Set, floatInputs_.at("addJetCentr2_phi"));
+    } else if (it.first == "ctjet2_e") {
+      it.second = CHECK_EMPTY(ctjet2Set, floatInputs_.at("addJetCentr2_e"));
+    } else if (it.first == "ctjet2_deepflavor_b") {
+      it.second = CHECK_EMPTY(ctjet2Set, floatInputs_.at("addJetCentr2_btag_deepFlavor"));
+    } else if (it.first == "ctjet2_hhbtag") {
+      it.second = CHECK_EMPTY(ctjet2Set, floatInputs_.at("addJetCentr2_HHbtag"));
+    } else if (it.first == "ctjet3_pt") {
+      it.second = CHECK_EMPTY(ctjet3Set, floatInputs_.at("addJetCentr3_pt"));
+    } else if (it.first == "ctjet3_eta") {
+      it.second = CHECK_EMPTY(ctjet3Set, floatInputs_.at("addJetCentr3_eta"));
+    } else if (it.first == "ctjet3_phi") {
+      it.second = CHECK_EMPTY(ctjet3Set, floatInputs_.at("addJetCentr3_phi"));
+    } else if (it.first == "ctjet3_e") {
+      it.second = CHECK_EMPTY(ctjet3Set, floatInputs_.at("addJetCentr3_e"));
+    } else if (it.first == "ctjet3_deepflavor_b") {
+      it.second = CHECK_EMPTY(ctjet3Set, floatInputs_.at("addJetCentr3_btag_deepFlavor"));
+    } else if (it.first == "ctjet3_hhbtag") {
+      it.second = CHECK_EMPTY(ctjet3Set, floatInputs_.at("addJetCentr3_HHbtag"));
+    } else if (it.first == "fwjet1_pt") {
+      it.second = CHECK_EMPTY(fwjet1Set, floatInputs_.at("addJetForw1_pt"));
+    } else if (it.first == "fwjet1_eta") {
+      it.second = CHECK_EMPTY(fwjet1Set, floatInputs_.at("addJetForw1_eta"));
+    } else if (it.first == "fwjet1_phi") {
+      it.second = CHECK_EMPTY(fwjet1Set, floatInputs_.at("addJetForw1_phi"));
+    } else if (it.first == "fwjet1_e") {
+      it.second = CHECK_EMPTY(fwjet1Set, floatInputs_.at("addJetForw1_e"));
+    } else if (it.first == "fwjet2_pt") {
+      it.second = CHECK_EMPTY(fwjet2Set, floatInputs_.at("addJetForw2_pt"));
+    } else if (it.first == "fwjet2_eta") {
+      it.second = CHECK_EMPTY(fwjet2Set, floatInputs_.at("addJetForw2_eta"));
+    } else if (it.first == "fwjet2_phi") {
+      it.second = CHECK_EMPTY(fwjet2Set, floatInputs_.at("addJetForw2_phi"));
+    } else if (it.first == "fwjet2_e") {
+      it.second = CHECK_EMPTY(fwjet2Set, floatInputs_.at("addJetForw2_e"));
     } else if (it.first == "vbfjet1_pt") {
       it.second = CHECK_EMPTY(vbfj1Set, floatInputs_.at("VBFjet1_pt"));
     } else if (it.first == "vbfjet1_eta") {
