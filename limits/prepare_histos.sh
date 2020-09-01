@@ -1,10 +1,7 @@
-#input='../analysis_TauTau_synch_11June2020_limits_prova'
-# prepare files with yield variations
-#python compute_scales.py
-# prepare histograms with systematics 
-#python prepare_histos.py -f ../analysis_TauTau_synch_11June2020_limits_prova/analyzedOutPlotter.root -o prova -c TauTau
+# Two steps for this:
 
+# 1 - prepare files with yield variations --> REMEMBER to modify hardcoded strings (channel, folder...)
+python compute_scales.py -y 2018
 
-#python prepare_histos.py -f ../analysis_TauTau_2016_22June2020_limits/analyzedOutPlotter.root -o kl1new -c TauTau
-#python prepare_histos.py -f ../analysis_TauTau_2016_22June2020_limits/analyzedOutPlotter.root -o kl5new -c TauTau
-python prepare_histos.py -f ../analysis_TauTau_2016_22June2020_limits/analyzedOutPlotter.root -o kl1 -c TauTau
+# 2 - prepare histograms with systematics
+python prepare_histos.py -f ../analysis_TauTau_synch_11June2020_limits_prova/analyzedOutPlotter.root -o prova -c TauTau -y 2018
