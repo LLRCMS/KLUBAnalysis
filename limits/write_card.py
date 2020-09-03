@@ -36,9 +36,33 @@ def parseOptions():
 
 def  writeCard(backgrounds,signals,select,region=-1) :
 
-    variable = 'DNNoutSM_kl_1'
+    if   "0b0j"       in select : theCat = "0"
+    if   "2b0j"       in select : theCat = "2"
+    elif "1b1j"       in select : theCat = "1"
+    elif "boosted"    in select : theCat = "3"
+    elif "VBFloose"   in select : theCat = "4"
+    elif "GGFclass"   in select : theCat = "5"
+    elif "VBFclass"   in select : theCat = "6"
+    elif "ttHclass"   in select : theCat = "7"
+    elif "TTlepclass" in select : theCat = "8"
+    elif "TThadclass" in select : theCat = "9"
+    elif "DYclass"    in select : theCat = "10"
 
-    theOutputDir = "{0}{1}".format(select,variable)
+    variable = {
+        "0"  : "DNNoutSM_kl_1",
+        "1"  : "DNNoutSM_kl_1",
+        "2"  : "DNNoutSM_kl_1",
+        "3"  : "DNNoutSM_kl_1",
+        "4"  : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__hh_vbf",
+        "5"  : "mdnn__v2__kl1_c2v1_c31__hh_ggf",
+        "6"  : "mdnn__v2__kl1_c2v1_c31__hh_vbf",
+        "7"  : "mdnn__v2__kl1_c2v1_c31__tth",
+        "8"  : "mdnn__v2__kl1_c2v1_c31__tt_lep",
+        "9"  : "mdnn__v2__kl1_c2v1_c31__tt_fh",
+        "10" : "mdnn__v2__kl1_c2v1_c31__dy",
+    }
+
+    theOutputDir = "{0}{1}".format(select,variable[theCat])
     dname = "_"+opt.channel+opt.outDir
     out_dir = "cards{1}/{0}/".format(theOutputDir,dname)
 
@@ -51,12 +75,6 @@ def  writeCard(backgrounds,signals,select,region=-1) :
     if opt.channel == "ETau" : thechannel="1"
     elif opt.channel == "MuTau" : thechannel = "0"
 
-    if   "0b0j"     in select : theCat = "0"
-    if   "2b0j"     in select : theCat = "2"
-    elif "1b1j"     in select : theCat = "1"
-    elif "boosted"  in select : theCat = "3"
-    elif "VBFloose" in select : theCat = "4"
-
     #read config
     categories = []
     categories.append((0,select))
@@ -65,7 +83,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
     inRoot = TFile.Open(opt.filename)
     for bkg in backgrounds:
         #Add protection against empty processes => If I remove this I could build all bins at once instead of looping on the selections
-        templateName = "{0}_{1}_SR_{2}".format(bkg,select,variable)
+        templateName = "{0}_{1}_SR_{2}".format(bkg,select,variable[theCat])
         template = inRoot.Get(templateName)
         if template.Integral()>0.000001 :
             processes.append(bkg)
@@ -75,7 +93,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
     rates = []
     iQCD = -1
     totRate = 0
-    templateName = "data_obs_{0}_{2}_{1}".format(select,variable,regionSuffix[region])
+    templateName = "data_obs_{0}_{2}_{1}".format(select,variable[theCat],regionSuffix[region])
     template = inRoot.Get(templateName)
     obs = template.GetEntries()
 
@@ -84,7 +102,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             rates.append(-1)
             iQCD = proc
         else :
-            templateName = "{0}_{1}_{3}_{2}".format(backgrounds[proc],select,variable,regionSuffix[region])
+            templateName = "{0}_{1}_{3}_{2}".format(backgrounds[proc],select,variable[theCat],regionSuffix[region])
             template = inRoot.Get(templateName)
             brate = template.Integral()
             rates.append(brate)
@@ -94,7 +112,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
 
     if region == 0 :
         for proc in range(len(signals)):
-            templateName = "{0}_{1}_{3}_{2}".format(signals[proc],select,variable,regionSuffix[region])
+            templateName = "{0}_{1}_{3}_{2}".format(signals[proc],select,variable[theCat],regionSuffix[region])
             template = inRoot.Get(templateName)
             srate = template.Integral()
             rates.append(srate)
@@ -141,37 +159,37 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         shiftShapes_newName = []
 
         for proc in backgrounds:
-            nominalShapes_toSave.append("{0}_{1}_{2}_{3}".format(proc, select, regionSuffix[region], variable))
+            nominalShapes_toSave.append("{0}_{1}_{2}_{3}".format(proc, select, regionSuffix[region], variable[theCat]))
             nominalShapes_newName.append(proc)
 
         for proc in signals:
-            nominalShapes_toSave.append("{0}_{1}_{2}_{3}".format(proc, select, regionSuffix[region], variable))
+            nominalShapes_toSave.append("{0}_{1}_{2}_{3}".format(proc, select, regionSuffix[region], variable[theCat]))
             nominalShapes_newName.append(proc)
 
-        nominalShapes_toSave.append("data_obs_{0}_{1}_{2}".format(select, regionSuffix[region], variable))
+        nominalShapes_toSave.append("data_obs_{0}_{1}_{2}".format(select, regionSuffix[region], variable[theCat]))
         nominalShapes_newName.append("data_obs")
 
         if opt.shapeUnc > 0:
             for name in systsShape:
                 for proc in backgrounds:
                     proc_syst[proc][name] = ["shape", 1.]   #applying jes or tes to all MC backgrounds
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,  regionSuffix[region], variable, name))
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable, name))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,  regionSuffix[region], variable[theCat], name))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable[theCat], name))
                     shiftShapes_newName.append(proc+"_"+name+"Up")
                     shiftShapes_newName.append(proc+"_"+name+"Down")
 
                 for proc in signals:
                     proc_syst[proc][name] = ["shape", 1.]   #applying jes or tes to all signals
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,   regionSuffix[region],variable,  name))
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable,  name))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,   regionSuffix[region],variable[theCat],  name))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable[theCat],  name))
                     shiftShapes_newName.append(proc+"_"+name+"Up")
                     shiftShapes_newName.append(proc+"_"+name+"Down")
 
             # Add top Pt uncertainty
             proc_syst["TT"]["top"] = ["shape", 1]
             systsShape.append("top")
-            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format("TT", select,  regionSuffix[region], variable, "top"))
-            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format("TT", select, regionSuffix[region],variable, "top"))
+            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format("TT", select,  regionSuffix[region], variable[theCat], "top"))
+            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format("TT", select, regionSuffix[region],variable[theCat], "top"))
             shiftShapes_newName.append("TT_topUp")
             shiftShapes_newName.append("TT_topDown")
 
@@ -181,15 +199,15 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 trigDMname = "trigSFDM" + DMname
                 for proc in backgrounds:
                     proc_syst[proc][trigDMname] = ["shape", 1.]   #applying trigger to all MC backgrounds
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable, trigDMname))
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable, trigDMname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
                     shiftShapes_newName.append(proc+"_"+trigDMname+"Up")
                     shiftShapes_newName.append(proc+"_"+trigDMname+"Down")
 
                 for proc in signals:
                     proc_syst[proc][trigDMname] = ["shape", 1.]   #applying trigger to all signals
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable, trigDMname))
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable, trigDMname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
                     shiftShapes_newName.append(proc+"_"+trigDMname+"Up")
                     shiftShapes_newName.append(proc+"_"+trigDMname+"Down")
 
@@ -199,15 +217,15 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 tauPTname = "tauid_pt" + PTname
                 for proc in backgrounds:
                     proc_syst[proc][tauPTname] = ["shape", 1.]   #applying trigger to all MC backgrounds
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable, tauPTname))
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable, tauPTname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
                     shiftShapes_newName.append(proc+"_"+tauPTname+"Up")
                     shiftShapes_newName.append(proc+"_"+tauPTname+"Down")
 
                 for proc in signals:
                     proc_syst[proc][tauPTname] = ["shape", 1.]   #applying trigger to all signals
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable, tauPTname))
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable, tauPTname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
                     shiftShapes_newName.append(proc+"_"+tauPTname+"Up")
                     shiftShapes_newName.append(proc+"_"+tauPTname+"Down")
 
@@ -217,15 +235,15 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 tauETAname = "mutauFR_eta" + ETAname
                 for proc in backgrounds:
                     proc_syst[proc][tauETAname] = ["shape", 1.]   #applying trigger to all MC backgrounds
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable, tauETAname))
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable, tauETAname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauETAname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauETAname))
                     shiftShapes_newName.append(proc+"_"+tauETAname+"Up")
                     shiftShapes_newName.append(proc+"_"+tauETAname+"Down")
 
                 for proc in signals:
                     proc_syst[proc][tauETAname] = ["shape", 1.]   #applying trigger to all signals
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable, tauETAname))
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable, tauETAname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauETAname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauETAname))
                     shiftShapes_newName.append(proc+"_"+tauETAname+"Up")
                     shiftShapes_newName.append(proc+"_"+tauETAname+"Down")
 
@@ -235,15 +253,15 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 tauELEname = "etauFR_" + ELEname
                 for proc in backgrounds:
                     proc_syst[proc][tauELEname] = ["shape", 1.]   #applying trigger to all MC backgrounds
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable, tauELEname))
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable, tauELEname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
                     shiftShapes_newName.append(proc+"_"+tauELEname+"Up")
                     shiftShapes_newName.append(proc+"_"+tauELEname+"Down")
 
                 for proc in signals:
                     proc_syst[proc][tauELEname] = ["shape", 1.]   #applying trigger to all signals
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable, tauELEname))
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable, tauELEname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
                     shiftShapes_newName.append(proc+"_"+tauELEname+"Up")
                     shiftShapes_newName.append(proc+"_"+tauELEname+"Down")
 
@@ -355,7 +373,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         file.write("shapes * * FAKE\n".format(opt.channel,regionName[region]))
         file.write("------------\n")
 
-        templateName = "data_obs_{1}_{3}_{2}".format(bkg,select,variable,regionSuffix[region])
+        templateName = "data_obs_{1}_{3}_{2}".format(bkg,select,variable[theCat],regionSuffix[region])
         template = inRoot.Get(templateName)
         file.write("bin {0} \n".format(select))
         obs = template.GetEntries()
@@ -389,7 +407,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 rates.append(-1)
                 iQCD = ichan
             else:
-                templateName = "{0}_{1}_{3}_{2}".format(backgrounds[ichan],select,variable,regionSuffix[region])
+                templateName = "{0}_{1}_{3}_{2}".format(backgrounds[ichan],select,variable[theCat],regionSuffix[region])
                 template = inRoot.Get(templateName)
                 brate = template.Integral()
                 rates.append(brate)
