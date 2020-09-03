@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
     # Submit the jobs
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-    skimmer = 'skimOutputter.exe'
+    skimmer = 'skimOutputter_HHbtag.exe'
 
     tagname = "/" + opt.tag if opt.tag else ''
     jobsDir = currFolder + tagname + '/SYST_' + basename(opt.workdir)
