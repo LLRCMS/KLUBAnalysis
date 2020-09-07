@@ -40,8 +40,11 @@ if __name__ == "__main__":
     if opt.blind:
         command = command + " --run blind "
 
-    command = command + "%s/comb.root" % jobsDir
-    #command = command + "%s/comb_cat.root" % jobsDir # <-- when combining categories
+    currFolder = os.getcwd ()
+    if 'comb' in currFolder:
+        command = command + "%s/comb_cat.root" % jobsDir # <-- when combining categories
+    else:
+        command = command + "%s/comb.root" % jobsDir
     set_parameters = []
     red_parameters = []
     fre_parameters = []
