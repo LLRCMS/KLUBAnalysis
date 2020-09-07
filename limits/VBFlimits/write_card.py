@@ -117,17 +117,17 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             srate = template.Integral()
             rates.append(srate)
 
-        syst = systReader("../config/systematics_"+opt.year+".cfg",signals,backgrounds,None)
+        syst = systReader("../../config/systematics_"+opt.year+".cfg",signals,backgrounds,None)
         syst.writeOutput(False)
         syst.verbose(True)
-        if opt.theory:
-            syst.addSystFile("../config/syst_th.cfg")
+        if opt.theory : 
+            syst.addSystFile("../../config/syst_th.cfg")
         if(opt.channel == "TauTau"):
-            syst.addSystFile("../config/systematics_tautau.cfg")
+            syst.addSystFile("../../config/systematics_tautau.cfg")
         elif(opt.channel == "MuTau"):
-            syst.addSystFile("../config/systematics_mutau.cfg")
+            syst.addSystFile("../../config/systematics_mutau.cfg")
         elif(opt.channel == "ETau"):
-            syst.addSystFile("../config/systematics_etau.cfg")
+            syst.addSystFile("../../config/systematics_etau.cfg")
         syst.writeSystematics()
         proc_syst = {} # key = proc name; value = {systName: [systType, systVal]] } # too nested? \_(``)_/
         for proc in backgrounds: proc_syst[proc] = {}
@@ -448,7 +448,8 @@ print configname
 input = ConfigReader(configname)
 
 if opt.overSel == "" :
-    allSel = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut", "VBFloose"]
+    #allSel = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut", "VBFloose"]
+    allSel = ["GGFclass", "VBFclass", "ttHclass", "TTlepclass", "TThadclass", "DYclass"]
 else : allSel = [opt.overSel]
 
 data        = input.readListOption("general::data")
