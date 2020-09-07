@@ -344,21 +344,39 @@ void AnalysisHelper::prepareSamplesHistos()
                 for (uint ivar = 0; ivar < variables_.size(); ++ivar)
                 {
                     string varName = variables_.at(ivar);
+                    string selName = selections_.at(isel).getName();
+                    string sel_var = selName + ":" + varName;
 
                     varcoll.append(varName, Sample::systColl());
                     Sample::systColl& systcoll = varcoll.back();
                     
                     bool   hasUserBinning = cutCfg_->hasOpt(Form("binning::%s", varName.c_str()));
-		    int    nbins = -1;
+                    bool   hasUserBinning_thisSel = cutCfg_->hasOpt(Form("binning::%s", sel_var.c_str()));
+                    int    nbins = -1;
                     float  xlow = -1.;
                     float  xup = -1.;
                     float* binning = 0;
 
-                    if (hasUserBinning)
+                    if (hasUserBinning | hasUserBinning_thisSel )
                     {
-                        vector<float> vBins = cutCfg_->readFloatListOpt(Form("binning::%s", varName.c_str()));
+                        vector<float> vBins;
+                        if (hasUserBinning_thisSel)
+                            vBins = cutCfg_->readFloatListOpt(Form("binning::%s", sel_var.c_str()));
+                        else if (hasUserBinning)
+                            vBins = cutCfg_->readFloatListOpt(Form("binning::%s", varName.c_str()));
+
+                        if (DEBUG)
+                        {
+                            cout << " ..........DEBUG: printing special binnings for selections:" << endl;
+
+                            cout << " ---> Selection: " << sel_var << endl;
+                            cout << "      Binning: ";
+                            for (uint i=0; i<vBins.size(); i++) cout << " " << vBins.at(i);
+                            cout << endl;
+                        }
+
                         nbins = vBins.size() -1;
-                        
+
                         if (nbins < 1) // wrong
                         {
                             cerr << "** AnalysisHelper : prepareSamplesHistos : error : binning of " << varName << " must have at least 2 numbers, dummy one used" << endl;                        
@@ -393,7 +411,6 @@ void AnalysisHelper::prepareSamplesHistos()
                     const Sample& currSample = *(samcoll->at(isample));
                     const Selection& currSel = selections_.at(isel);
                     string sampleName = currSample.getName();
-                    string selName    = currSel.getName();
 
                     string hname = formHistoName (sampleName, selName, varName, nominal_name_);
                     std::shared_ptr<TH1F> hist;
