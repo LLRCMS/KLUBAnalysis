@@ -357,7 +357,7 @@ void AnalysisHelper::prepareSamplesHistos()
                     float  xup = -1.;
                     float* binning = 0;
 
-                    if (hasUserBinning | hasUserBinning_thisSel )
+                    if (hasUserBinning || hasUserBinning_thisSel )
                     {
                         vector<float> vBins;
                         if (hasUserBinning_thisSel)
@@ -450,7 +450,7 @@ void AnalysisHelper::prepareSamplesHistos()
                         }
                     }
 
-                    if (hasUserBinning) delete[] binning ; // was allocated with new
+                    if (hasUserBinning || hasUserBinning_thisSel) delete[] binning ; // was allocated with new
 
                     // set Sumw2() and other stuff for all the histos
                     for (uint ih = 0; ih < systcoll.size(); ++ih)
