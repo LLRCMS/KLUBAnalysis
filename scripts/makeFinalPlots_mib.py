@@ -982,6 +982,20 @@ if __name__ == "__main__" :
                     selName = "antiB"
             if "DYreg" in args.sel:
                     selName = "DYreg"
+            if "VBFloose" in args.sel:
+                    selName = "VBF loose"
+            if "GGFclass" in args.sel:
+                    selName = "VBF - GGF mpp"
+            if "VBFclass" in args.sel:
+                    selName = "VBF - VBF mpp"
+            if "TTlepclass" in args.sel:
+                    selName = "VBF - TTlep mpp"
+            if "TThadclass" in args.sel:
+                    selName = "VBF - TThad mpp"
+            if "ttHclass" in args.sel:
+                    selName = "VBF - ttH mpp"
+            if "DYclass" in args.sel:
+                    selName = "VBF - DY mpp"
     else:
             selName = args.name
 
