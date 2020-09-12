@@ -1,7 +1,6 @@
 import re, optparse
 import os.path
 from math import *
-# from ROOT import *
 import ROOT
 
 #####
@@ -62,7 +61,7 @@ c1.SetGridy()
 mg = ROOT.TMultiGraph()
 
 channel = "ETau" # TauTau MuTau ETau
-year    = "2016" # 2016 2017 2018  
+year    = "2018" # 2016 2017 2018
 tagName = "10Sept_NS_V2"
 
 if   year == "2016":
@@ -94,9 +93,14 @@ for i,cat in enumerate(categories):
 
     for ipt in range(0, len(lambdas)):
         fName = 'cards_'+channel+tag[0]+'/'+cat+tag[1]+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
-        #fName = '/gwpool/users/brivio/Hhh_1718/LegacyRun2/May2020/CMSSW_11_1_0_pre6/src/KLUBAnalysis/limits/cards_'+channel+tag[0]+'/'+cat+tag[1]+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
-        exp   = getXStheo(klval[ipt]) * parseFile(fName) / 31.05
+
         xval = klval[ipt]
+
+        # Can get different results on r_gghh:
+        #exp = parseFile(fName)                                          # <- How many times the SM I'm excluding
+        #exp = parseFile(fName) * getXStheo(klval[ipt]) * 1.115          # <- Excluded HH cross section
+        exp = parseFile(fName)  * getXStheo(klval[ipt]) * 1.115 * 0.073  # <- Excluded HH cross section times BR(bbtautau)
+
         ptsList.append((xval, exp))
 
     ptsList.sort()
@@ -160,8 +164,8 @@ else                    : pt3.AddText(" bb e#tau_{h}")
 hframe = ROOT.TH1F('hframe', '', 100, -22, 22)
 #hframe = ROOT.TH1F('hframe', '', 100, -5, 5)
 hframe.SetMinimum(0.1)
-if   year == "2016": hframe.SetMaximum(5000)
-else               : hframe.SetMaximum(1000)
+if   year == "2016": hframe.SetMaximum(15000)
+else               : hframe.SetMaximum(2500)
 
 hframe.GetYaxis().SetTitleSize(0.047)
 hframe.GetXaxis().SetTitleSize(0.055)
@@ -192,4 +196,4 @@ c1.Update()
 
 c1.Print('plots/comparison_categories_'+channel+'_'+tag[0]+'.pdf','pdf')
 
-import pdb; pdb.set_trace()
+#import pdb; pdb.set_trace()

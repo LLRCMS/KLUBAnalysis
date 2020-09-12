@@ -62,7 +62,7 @@ c1.SetGridy()
 mg = ROOT.TMultiGraph()
 
 category = "comb_cat" # sboostedLLMcut  s1b1jresolvedMcut  s2b0jresolvedMcut  VBFloose
-year = "2018" # 2016 2017 2018
+year = "2016" # 2016 2017 2018
 tagName = "10Sept_NS_V2"
 
 
@@ -98,8 +98,13 @@ for i,channel in enumerate(channels):
         else:
             fName = 'cards_'+channel+tag[0]+'/'+category+tag[1]+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
 
-        exp   = getXStheo(klval[ipt]) * parseFile(fName) / 31.05
         xval = klval[ipt]
+
+        # Can get different results on r_gghh:
+        #exp = parseFile(fName)                                          # <- How many times the SM I'm excluding
+        #exp = parseFile(fName) * getXStheo(klval[ipt]) * 1.115          # <- Excluded HH cross section
+        exp = parseFile(fName)  * getXStheo(klval[ipt]) * 1.115 * 0.073  # <- Excluded HH cross section times BR(bbtautau)
+
         ptsList.append((xval, exp))
 
     ptsList.sort()
@@ -166,12 +171,14 @@ else                                 : pt3.AddText("?category not defined?")
 hframe = ROOT.TH1F('hframe', '', 100, -22, 22)
 #hframe = ROOT.TH1F('hframe', '', 100, -5, 5)
 hframe.SetMinimum(0.1)
-if   category == "comb_cat"          : hframe.SetMaximum(1000)
-elif category == "sboostedLLMcut"    : hframe.SetMaximum(5000)
-elif category == "s1b1jresolvedMcut" : hframe.SetMaximum(2000)
-elif category == "s2b0jresolvedMcut" : hframe.SetMaximum(1000)
-elif category == "VBFloose"          : hframe.SetMaximum(5000)
-else                                 : hframe.SetMaximum(5000)
+if   year == "2016"          : hframe.SetMaximum(2100)
+else                         : hframe.SetMaximum(500)
+#if   category == "comb_cat"          : hframe.SetMaximum(15000)
+#elif category == "sboostedLLMcut"    : hframe.SetMaximum(5000)
+#elif category == "s1b1jresolvedMcut" : hframe.SetMaximum(2000)
+#elif category == "s2b0jresolvedMcut" : hframe.SetMaximum(1000)
+#elif category == "VBFloose"          : hframe.SetMaximum(5000)
+#else                                 : hframe.SetMaximum(5000)
 
 hframe.GetYaxis().SetTitleSize(0.047)
 hframe.GetXaxis().SetTitleSize(0.055)
