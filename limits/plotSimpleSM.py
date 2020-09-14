@@ -60,39 +60,34 @@ c1.SetGridy()
 mg = ROOT.TMultiGraph()
 
 var = 'DNNoutSM_kl_1'
+tag = '10Sept_NS_V2'
 
 selections = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut", "VBFloose"]
 
-
-
 ### read the scan with normal width
-
-
 gr2sigma = ROOT.TGraphAsymmErrors()
 gr1sigma = ROOT.TGraphAsymmErrors()
 grexp = ROOT.TGraph()
 grobs = ROOT.TGraph()
 
 ptsList = [] # (x, obs, exp, p2s, p1s, m1s, m2s)
-for i, ch in enumerate(['ETau', 'MuTau', 'TauTau', '']):
-    #fName = 'cards_Combined_2019_10_11/ggHH_bbtt{0}BDToutSM_kl_{1}/out_Asym_ggHH_bbtt{0}_noTH.log'.format(lambdas[ipt], klval[ipt])
-    #fName = 'cards_Combined_2017_03_10_lmr70/ggHH_bbtt{0}MT2/out_Asym_ggHH_bbtt{0}_noTH.log'.format(lambdas[ipt])
-    fName = 'cards_'+ch+'24June/comb_cat/out_Asym_24June_noTH.log'
-    if ch == '':         fName = 'cards_'+ch+'24June/comb/out_Asym_24June_noTH.log'
+for i, ch in enumerate(['2016', '2017', '2018','']):
 
-    #exp   = (1./0.073)*parseFile(fName)
-    #obs   = (1./0.073)*parseFile(fName, exp=False)
-    #m1s_t = (1./0.073)*parseFile(fName, CL='16.0')
-    #p1s_t = (1./0.073)*parseFile(fName, CL='84.0')
-    #m2s_t = (1./0.073)*parseFile(fName, CL=' 2.5')
-    #p2s_t = (1./0.073)*parseFile(fName, CL='97.5')
+    fName = 'cards_CombChan_'+ch+'_'+tag+'/out_Asym_SM_noTH.log'
+    if ch == '':
+        fName = 'cards_CombAll_'+tag+'/out_Asym_SM_noTH.log'
 
-    exp   = getXStheo(1) * parseFile(fName)
-    obs   = getXStheo(1) * parseFile(fName, exp=False)
-    m1s_t = getXStheo(1) * parseFile(fName, CL='16.0')
-    p1s_t = getXStheo(1) * parseFile(fName, CL='84.0')
-    m2s_t = getXStheo(1) * parseFile(fName, CL=' 2.5')
-    p2s_t = getXStheo(1) * parseFile(fName, CL='97.5')
+    # Can get different results on r_gghh:
+    #exp = parseFile(fName)                  # <- How many times the SM I'm excluding
+    #exp = parseFile(fName) * 31.05          # <- Excluded HH cross section
+    #exp = parseFile(fName) * 31.05 * 0.073  # <- Excluded HH cross section times BR(bbtautau)
+
+    exp   = parseFile(fName)
+    obs   = parseFile(fName, exp=False)
+    m1s_t = parseFile(fName, CL='16.0')
+    p1s_t = parseFile(fName, CL='84.0')
+    m2s_t = parseFile(fName, CL=' 2.5')
+    p2s_t = parseFile(fName, CL='97.5')
 
     ## because the other code wants +/ sigma vars as deviations, without sign, from the centeal exp value...
     p2s = p2s_t - exp
@@ -287,7 +282,7 @@ pt5.SetTextAlign(32)
 
 hframe = ROOT.TH1F('hframe', '', 4, 0, 4)
 hframe.SetMinimum(0.1)
-hframe.SetMaximum(150)
+hframe.SetMaximum(25)
 
 hframe.GetYaxis().SetTitleSize(0.047)
 hframe.GetXaxis().SetTitleSize(0.055)
@@ -297,16 +292,20 @@ hframe.GetXaxis().SetLabelOffset(0.012)
 hframe.GetYaxis().SetTitleOffset(1.2)
 hframe.GetXaxis().SetTitleOffset(1.1)
 
-hframe.GetYaxis().SetTitle("95% CL on #sigma #times #bf{#it{#Beta}}(HH#rightarrow bb#tau#tau) [fb]")
-#hframe.GetXaxis().SetTitle("k_{#lambda}/k_{t}")
-#hframe.GetXaxis().SetTitle("k_{#lambda}")
+#hframe.GetYaxis().SetTitle("95% CL on #sigma #times #bf{#it{#Beta}}(HH#rightarrow bb#tau#tau) [fb]")
+hframe.GetYaxis().SetTitle("95% CL on #sigma_{obs} / #sigma_{SM}")
+
 
 hframe.SetStats(0)
 ROOT.gPad.SetTicky()
 hframe.Draw()
-hframe.GetXaxis().SetBinLabel(1, "ETau")
-hframe.GetXaxis().SetBinLabel(2, "MuTau")
-hframe.GetXaxis().SetBinLabel(3, "TauTau")
+#hframe.GetXaxis().SetBinLabel(1, "ETau")
+#hframe.GetXaxis().SetBinLabel(2, "MuTau")
+#hframe.GetXaxis().SetBinLabel(3, "TauTau")
+#hframe.GetXaxis().SetBinLabel(4, "Comb")
+hframe.GetXaxis().SetBinLabel(1, "2016")
+hframe.GetXaxis().SetBinLabel(2, "2017")
+hframe.GetXaxis().SetBinLabel(3, "2018")
 hframe.GetXaxis().SetBinLabel(4, "Comb")
 # mg.Draw("pmc plc same")
 gr2sigma.Draw("3same")
@@ -320,7 +319,7 @@ grexp.Draw("Lsame")
 #Graph_syst_Scale2.Draw("e3 same");
 
 pt.Draw()
-pt2.Draw()
+#pt2.Draw()
 # pt4.Draw()
 #txt_kt1.Draw()
 #txt_kt2.Draw()
@@ -332,7 +331,7 @@ legend.Draw()
 #pt4.Draw()
 #pt5.Draw()
 c1.Update()
-raw_input()
+#raw_input()
 
 
 smXS = 31.05*0.073
@@ -362,8 +361,8 @@ if False:
     gr1sigma.Print()
 
 c1.Draw()
-raw_input()
-c1.Print("combined.pdf", 'pdf')
+#raw_input()
+c1.Print("plots/plot_SMpoint.pdf", 'pdf')
 # for m in masses :
 #     fileLocation = "cards_"+channels[c]+"_"+folder+"/"+app+str(m)+catstring+"/higgsCombine"+app+str(m)+"_forLim_noTH.Asymptotic.mH"+str(m)+".root"
 #     if plotByCategory :
