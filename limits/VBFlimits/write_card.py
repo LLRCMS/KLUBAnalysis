@@ -48,18 +48,23 @@ def  writeCard(backgrounds,signals,select,region=-1) :
     elif "TThadclass" in select : theCat = "9"
     elif "DYclass"    in select : theCat = "10"
 
+
+    # Possible models are:
+    # V2 --> "v2__kl1_c2v1_c31_*_new"
+    # V3 --> "v3__kl1_c2v1_c31_vbf_*_new"
+    # V4 --> "v3__kl1_c2v1_c31_vr_*_new"
     variable = {
         "0"  : "DNNoutSM_kl_1",
         "1"  : "DNNoutSM_kl_1",
         "2"  : "DNNoutSM_kl_1",
         "3"  : "DNNoutSM_kl_1",
         "4"  : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__hh_vbf",
-        "5"  : "mdnn__v2__kl1_c2v1_c31__hh_ggf",
-        "6"  : "mdnn__v2__kl1_c2v1_c31__hh_vbf",
-        "7"  : "mdnn__v2__kl1_c2v1_c31__tth",
-        "8"  : "mdnn__v2__kl1_c2v1_c31__tt_lep",
-        "9"  : "mdnn__v2__kl1_c2v1_c31__tt_fh",
-        "10" : "mdnn__v2__kl1_c2v1_c31__dy",
+        "5"  : "mdnn__v3__kl1_c2v1_c31_vr__hh_ggf_new",
+        "6"  : "mdnn__v3__kl1_c2v1_c31_vr__hh_vbf_new",
+        "7"  : "mdnn__v3__kl1_c2v1_c31_vr__tth_new",
+        "8"  : "mdnn__v3__kl1_c2v1_c31_vr__tt_lep_new",
+        "9"  : "mdnn__v3__kl1_c2v1_c31_vr__tt_fh_new",
+        "10" : "mdnn__v3__kl1_c2v1_c31_vr__dy_new",
     }
 
     theOutputDir = "{0}{1}".format(select,variable[theCat])
@@ -187,12 +192,12 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_newName.append(proc+"_"+name+"Down")
 
             # Add top Pt uncertainty
-            proc_syst["TT"]["top"] = ["shape", 1]
-            systsShape.append("top")
-            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format("TT", select,  regionSuffix[region], variable[theCat], "top"))
-            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format("TT", select, regionSuffix[region],variable[theCat], "top"))
-            shiftShapes_newName.append("TT_topUp")
-            shiftShapes_newName.append("TT_topDown")
+            #proc_syst["TT"]["top"] = ["shape", 1]
+            #systsShape.append("top")
+            #shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format("TT", select,  regionSuffix[region], variable[theCat], "top"))
+            #shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format("TT", select, regionSuffix[region],variable[theCat], "top"))
+            #shiftShapes_newName.append("TT_topUp")
+            #shiftShapes_newName.append("TT_topDown")
 
             # Add tau trigger uncertainties (4 different uncertainties depending on DM)
             #DMs = ["0","1","10","11"]
@@ -449,7 +454,10 @@ input = ConfigReader(configname)
 
 if opt.overSel == "" :
     #allSel = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut", "VBFloose"]
-    allSel = ["GGFclass", "VBFclass", "ttHclass", "TTlepclass", "TThadclass", "DYclass"]
+    #allSel = ["GGFclass", "VBFclass", "ttHclass", "TTlepclass", "TThadclass", "DYclass"]
+    #allSel = ["GGFclassV3", "VBFclassV3", "ttHclassV3", "TTlepclassV3", "TThadclassV3", "DYclassV3"]
+    allSel = ["GGFclassV4", "VBFclassV4", "ttHclassV4", "TTlepclassV4", "TThadclassV4", "DYclassV4"]
+
 else : allSel = [opt.overSel]
 
 data        = input.readListOption("general::data")
