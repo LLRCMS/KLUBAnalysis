@@ -43,7 +43,7 @@ if __name__ == "__main__":
         command = command + " --run blind "
         
     currFolder = os.getcwd ()
-    command = command + "%s/comb.root" % jobsDir
+    command = command + " %s/comb.root" % jobsDir
     set_parameters = []
     red_parameters = []
     fre_parameters = []
