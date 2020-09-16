@@ -936,10 +936,12 @@ int main (int argc, char** argv)
             {
               int pdg = theBigTree.genpart_pdg->at(igen);
               int genflags = theBigTree.genpart_flags->at(igen);
-              bool isFirst = CheckBit (genflags, 12);  //if (fl.isFirstCopy()) flags |= (1 << 12);
+              //bool isFirst = CheckBit (genflags, 12);  //if (fl.isFirstCopy()) flags |= (1 << 12);
+              // From: https://twiki.cern.ch/twiki/bin/view/CMS/TopPtReweighting?rev=30#How_to_practically_apply_default
+              bool isLast = CheckBit (genflags, 13);  //if (fl.isLastCopy()) flags |= (1 << 13);
               //int topDM = theBigTree.genpart_TopDecayMode->at(igen);
 
-              if (abs(pdg) == 6 && isFirst) // top -- pt reweight wants to have ME tops
+              if (abs(pdg) == 6 && isLast) // top -- pt reweight (derived after radiation and before decay)
                 {
                   TLorentzVector TopV;
                   TopV.SetPxPyPzE (theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen) ) ;
