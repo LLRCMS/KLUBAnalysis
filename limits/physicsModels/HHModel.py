@@ -440,9 +440,9 @@ VBF_sample_list = [
 # VBF : val_kl, val_kt
 GGF_sample_list = [
     GGFHHSample(1,1,      val_xs = 0.02675, label = 'ggHH_kl_1_kt_1'  ),
-    #GGFHHSample(0,1,      val_xs = 0.06007, label = 'ggHH_kl_0_kt_1'  ),
+    GGFHHSample(0,1,      val_xs = 0.06007, label = 'ggHH_kl_0_kt_1'  ),
     GGFHHSample(5,1,      val_xs = 0.07903, label = 'ggHH_kl_5_kt_1'  ),
-    GGFHHSample(2.45,1,   val_xs = 0.01133, label = 'ggHH_kl_2p45_kt_1'  ),
+    #GGFHHSample(2.45,1,   val_xs = 0.01133, label = 'ggHH_kl_2p45_kt_1'  ),
 ]
 
 HHdefault = HHModel(

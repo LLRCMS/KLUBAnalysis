@@ -27,6 +27,7 @@ def parseFile(filename, CL='50.0', exp=True):
     matches = []
     for line in f:
         search = ('Expected %s%%: r_gghh <'%CL)
+        import pdb; pdb.set_trace()
         if not exp: search = 'Observed Limit: r <'
 
         if not search in line:
@@ -63,6 +64,7 @@ mg = ROOT.TMultiGraph()
 var = 'DNNoutSM_kl_1'
 
 selections = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut", "VBFloose"]
+selections = ["comb_cat"]
 
 lambdas = [x for x in range(1, 42)]
 print lambdas
@@ -82,9 +84,12 @@ for sel in selections:
     ptsList = [] # (x, obs, exp, p2s, p1s, m1s, m2s)
 
     for ipt in range(0, len(lambdas)):
-        #fName = 'cards_Combined_2019_10_11/ggHH_bbtt{0}BDToutSM_kl_{1}/out_Asym_ggHH_bbtt{0}_noTH.log'.format(lambdas[ipt], klval[ipt])
-        #fName = 'cards_Combined_2017_03_10_lmr70/ggHH_bbtt{0}MT2/out_Asym_ggHH_bbtt{0}_noTH.log'.format(lambdas[ipt])
-        fName = 'cards_TauTaukl1/{0}'.format(sel)+var+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
+        if "comb" in sel:
+            fName = 'cards_TauTau1Sept_noShape_GGF/{0}'.format(sel)+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
+        else:
+            #fName = 'cards_Combined_2019_10_11/ggHH_bbtt{0}BDToutSM_kl_{1}/out_Asym_ggHH_bbtt{0}_noTH.log'.format(lambdas[ipt], klval[ipt])
+            #fName = 'cards_Combined_2017_03_10_lmr70/ggHH_bbtt{0}MT2/out_Asym_ggHH_bbtt{0}_noTH.log'.format(lambdas[ipt])
+            fName = 'cards_TauTau1Sept_noShape_GGF/{0}'.format(sel)+var+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
 
         #exp   = (1./0.073)*parseFile(fName)
         #obs   = (1./0.073)*parseFile(fName, exp=False)

@@ -41,7 +41,7 @@ toscan = ['tesXXX_DM0','tesXXX_DM1','tesXXX_DM10','tesXXX_DM11','eesXXX_DM0','ee
 
 for channel in channels:
 	print "doing channel: ", channel 
-	inputFile = '../analysis_%s_1Sept2020_syst/outPlotter.root' % channel
+	inputFile = '../../analysis_%s_1Sept2020_syst/outPlotter.root' % channel
 	print inputFile	
 	fIn = TFile.Open(inputFile)
 	
