@@ -45,6 +45,8 @@ struct smallTree
       m_DYscale_MM = -1. ;
       m_DYscale_MH = -1. ;
       m_DYscale_MTT = -1. ;
+      m_DYscale_MTT_up   = -1. ;
+      m_DYscale_MTT_down = -1. ;
       m_trigSF = -1.;
       m_trigSF_DM0_up = -1.;
       m_trigSF_DM1_up = -1.;
@@ -1034,6 +1036,8 @@ struct smallTree
       m_smallT->Branch ("DYscale_MM", &m_DYscale_MM, "DYscale_MM/F") ;
       m_smallT->Branch ("DYscale_MH", &m_DYscale_MH, "DYscale_MH/F") ;
       m_smallT->Branch ("DYscale_MTT", &m_DYscale_MTT, "DYscale_MTT/F") ;
+      m_smallT->Branch ("DYscale_MTT_up", &m_DYscale_MTT_up, "DYscale_MTT_up/F") ;
+      m_smallT->Branch ("DYscale_MTT_down", &m_DYscale_MTT_down, "DYscale_MTT_down/F") ;
       m_smallT->Branch ("nBhadrons", &m_nBhadrons, "nBhadrons/I") ;
       m_smallT->Branch ("lheNOutPartons", &m_lheNOutPartons, "lheNOutPartons/I");
       m_smallT->Branch ("lheNOutB", &m_lheNOutB, "lheNOutB/I");
@@ -1976,6 +1980,8 @@ struct smallTree
   Float_t m_DYscale_MM ;
   Float_t m_DYscale_MH ;
   Float_t m_DYscale_MTT ;
+  Float_t m_DYscale_MTT_up ;
+  Float_t m_DYscale_MTT_down ;
   Int_t m_nBhadrons ;
   Int_t m_lheNOutPartons ;
   Int_t m_lheNOutB ;

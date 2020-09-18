@@ -108,6 +108,12 @@ const float DYscale_MTT_Med2Pt [3] = {1.1579303 , 1.1240148  , 0.92974364 };
 const float DYscale_MTT_HighPt [3] = {1.0469869 , 1.3690206  , 1.0024774  };
 const float DYscale_MTT_vHighPt[3] = {0.80838089, 1.7465338  , 0.73211715 };
 
+const float DYscale_MTT_vLowPt_err [3] = {0.0014349486, 0.00085205781, 0.00094359815};
+const float DYscale_MTT_LowPt_err  [3] = {0.0013417125, 0.0044914533 , 0.025179988  };
+const float DYscale_MTT_Med1Pt_err [3] = {0.0016262942, 0.021066553  , 0.025609469  };
+const float DYscale_MTT_Med2Pt_err [3] = {0.0014769770, 0.018984114  , 0.019089746  };
+const float DYscale_MTT_HighPt_err [3] = {0.0022691835, 0.035830965  , 0.027803721  };
+const float DYscale_MTT_vHighPt_err[3] = {0.0046517215, 0.11443309   , 0.064519398  };
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
@@ -1099,6 +1105,8 @@ int main (int argc, char** argv)
       theSmallTree.m_DYscale_MM  = 1.0;
       theSmallTree.m_DYscale_MH  = 1.0; // to be used with elliptical mass cut
       theSmallTree.m_DYscale_MTT = 1.0; // to be used with M(tautau) > 50 GeV
+      theSmallTree.m_DYscale_MTT_up   = 1.0; // up variation of DYscale_MTT (val+variation)
+      theSmallTree.m_DYscale_MTT_down = 1.0; // down variation of DYscale_MTT (val-variation)
 
       if (isMC && isDY) //to be done both for DY NLO and DY in jet bins
         {
@@ -1157,37 +1165,51 @@ int main (int argc, char** argv)
                 {
                   theSmallTree.m_DYscale_MH  = DYscale_MH_vLowPt [n_bJets];
                   theSmallTree.m_DYscale_MTT = DYscale_MTT_vLowPt[n_bJets];
+                  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_vLowPt[n_bJets] + DYscale_MTT_vLowPt_err[n_bJets];
+                  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_vLowPt[n_bJets] - DYscale_MTT_vLowPt_err[n_bJets];
                 }
               else if (genZ_pt > 10. && genZ_pt <= 30.)
                 {
                   theSmallTree.m_DYscale_MH  = DYscale_MH_LowPt [n_bJets];
                   theSmallTree.m_DYscale_MTT = DYscale_MTT_LowPt[n_bJets];
+                  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_LowPt[n_bJets] + DYscale_MTT_LowPt_err[n_bJets];
+                  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_LowPt[n_bJets] - DYscale_MTT_LowPt_err[n_bJets];
                 }
               else if (genZ_pt > 30. && genZ_pt <= 50.)
                 {
                   theSmallTree.m_DYscale_MH  = DYscale_MH_Med1Pt [n_bJets];
                   theSmallTree.m_DYscale_MTT = DYscale_MTT_Med1Pt[n_bJets];
+                  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_Med1Pt[n_bJets] + DYscale_MTT_Med1Pt_err[n_bJets];
+                  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_Med1Pt[n_bJets] - DYscale_MTT_Med1Pt_err[n_bJets];
                 }
               else if (genZ_pt > 50. && genZ_pt <= 100.)
                 {
                   theSmallTree.m_DYscale_MH  = DYscale_MH_Med2Pt [n_bJets];
                   theSmallTree.m_DYscale_MTT = DYscale_MTT_Med2Pt[n_bJets];
+                  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_Med2Pt[n_bJets] + DYscale_MTT_Med2Pt_err[n_bJets];
+                  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_Med2Pt[n_bJets] - DYscale_MTT_Med2Pt_err[n_bJets];
                 }
               else if (genZ_pt > 100. && genZ_pt <= 200.)
                 {
                   theSmallTree.m_DYscale_MH  = DYscale_MH_HighPt [n_bJets];
                   theSmallTree.m_DYscale_MTT = DYscale_MTT_HighPt[n_bJets];
+                  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_HighPt[n_bJets] + DYscale_MTT_HighPt_err[n_bJets];
+                  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_HighPt[n_bJets] - DYscale_MTT_HighPt_err[n_bJets];
                 }
               else /* pT(Z)>=200. */
                 {
                   theSmallTree.m_DYscale_MH  = DYscale_MH_vHighPt [n_bJets];
                   theSmallTree.m_DYscale_MTT = DYscale_MTT_vHighPt[n_bJets];
+                  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_vHighPt[n_bJets] + DYscale_MTT_vHighPt_err[n_bJets];
+                  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_vHighPt[n_bJets] - DYscale_MTT_vHighPt_err[n_bJets];
                 }
             }
           else // genZ not found: use the lowest pT bin
             {
                 theSmallTree.m_DYscale_MH  = DYscale_MH_vLowPt [n_bJets];
                 theSmallTree.m_DYscale_MTT = DYscale_MTT_vLowPt[n_bJets];
+                theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_vLowPt[n_bJets] + DYscale_MTT_vLowPt_err[n_bJets];
+                theSmallTree.m_DYscale_MTT_down = DYscale_MTT_vLowPt[n_bJets] - DYscale_MTT_vLowPt_err[n_bJets];
             }
 
           // Debug printout
