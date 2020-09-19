@@ -21,6 +21,8 @@ listHistos = []
 
 systNamesOUT=["CMS_scale_t_13TeV_DM0","CMS_scale_t_13TeV_DM1","CMS_scale_t_13TeV_DM10","CMS_scale_t_13TeV_DM11", "CMS_scale_es_13TeV_DM0", "CMS_scale_es_13TeV_DM1", "CMS_scale_mes_13TeV", "CMS_scale_j_13TeV"]
 systNames = ['tesXXX_DM0','tesXXX_DM1','tesXXX_DM10','tesXXX_DM11','eesXXX_DM0','eesXXX_DM1','mesXXX', 'jesXXXTot']
+
+# if running WITHOUT the shape syst, uncomment uncomment these 2 lines:
 systNamesOUT=[]
 systNames = []
 

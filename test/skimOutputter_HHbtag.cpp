@@ -378,15 +378,18 @@ int main (int argc, char** argv)
   std::vector<std::pair<std::string, std::string>> modelSpecs = {
     //{ "v0", "kl1_c2v1_c31" },
     //{ "v1", "kl1_c2v1_c31" },
-    { "v2", "kl1_c2v1_c31" },
-    { "v3", "kl1_c2v1_c31_vbf"},
-    { "v3", "kl1_c2v1_c31_vr" }
+    //{ "v2", "kl1_c2v1_c31" },
+    { "v3" , "kl1_c2v1_c31_vbf"},
+    { "v3" , "kl1_c2v1_c31_vr" },
+    { "v3b", "kl1_c2v1_c31_vbf"},
+    { "v3b", "kl1_c2v1_c31_vr" }
   };
   MulticlassInterface mci(YEAR, modelSpecs);
   mci.clearInputs();
   int mdnnSM0_size = (mci.getNodeNames(0)).size();
   int mdnnSM1_size = (mci.getNodeNames(1)).size();
   int mdnnSM2_size = (mci.getNodeNames(2)).size();
+  int mdnnSM3_size = (mci.getNodeNames(3)).size();
 
   // Read branches needed for computation of KinFit, MT2, SVfit, BDT, DNN
   ULong64_t EventNumber;
@@ -694,6 +697,7 @@ int main (int argc, char** argv)
   std::vector<Float_t> mdnnSM0_output_new(mdnnSM0_size);
   std::vector<Float_t> mdnnSM1_output_new(mdnnSM1_size);
   std::vector<Float_t> mdnnSM2_output_new(mdnnSM2_size);
+  std::vector<Float_t> mdnnSM3_output_new(mdnnSM3_size);
   TBranch* b_HHKin_mass_new      = outTree->Branch("HHKin_mass_new"  , &HHKin_mass_new);
   TBranch* b_HHKin_chi2_new      = outTree->Branch("HHKin_chi2_new"  , &HHKin_chi2_new);
   TBranch* b_MT2_new             = outTree->Branch("MT2_new"  , &MT2_new);
@@ -703,10 +707,11 @@ int main (int argc, char** argv)
   TBranch* b_tauH_SVFIT_eta_new  = outTree->Branch("tauH_SVFIT_eta_new" , &tauH_SVFIT_eta_new);
   TBranch* b_tauH_SVFIT_phi_new  = outTree->Branch("tauH_SVFIT_phi_new" , &tauH_SVFIT_phi_new);
   TBranch* b_tauH_SVFIT_mass_new = outTree->Branch("tauH_SVFIT_mass_new", &tauH_SVFIT_mass_new);
-  std::vector<TBranch*> b_mdnnSM0_new, b_mdnnSM1_new, b_mdnnSM2_new;
-  boost::format mdnnSM0name_new ("mdnn__v2__kl1_c2v1_c31__%1%_new");
-  boost::format mdnnSM1name_new ("mdnn__v3__kl1_c2v1_c31_vbf__%1%_new");
-  boost::format mdnnSM2name_new ("mdnn__v3__kl1_c2v1_c31_vr__%1%_new");
+  std::vector<TBranch*> b_mdnnSM0_new, b_mdnnSM1_new, b_mdnnSM2_new, b_mdnnSM3_new;
+  boost::format mdnnSM0name_new ("mdnn__v3__kl1_c2v1_c31_vbf__%1%_new");
+  boost::format mdnnSM1name_new ("mdnn__v3__kl1_c2v1_c31_vr__%1%_new");
+  boost::format mdnnSM2name_new ("mdnn__v3b__kl1_c2v1_c31_vbf__%1%_new");
+  boost::format mdnnSM3name_new ("mdnn__v3b__kl1_c2v1_c31_vr__%1%_new");
   for (int i=0; i<mdnnSM0_size; i++)
   {
     std::string tmp_mdnnSM0_branch_name = boost::str( mdnnSM0name_new % (mci.getNodeNames(0)).at(i) );
@@ -724,6 +729,12 @@ int main (int argc, char** argv)
     std::string tmp_mdnnSM2_branch_name = boost::str( mdnnSM2name_new % (mci.getNodeNames(2)).at(i) );
     TBranch* tmp_mdnnSM2_branch = outTree->Branch(tmp_mdnnSM2_branch_name.c_str(), &mdnnSM2_output_new.at(i));
     b_mdnnSM2_new.push_back(tmp_mdnnSM2_branch);
+  }
+  for (int i=0; i<mdnnSM3_size; i++)
+  {
+    std::string tmp_mdnnSM3_branch_name = boost::str( mdnnSM3name_new % (mci.getNodeNames(3)).at(i) );
+    TBranch* tmp_mdnnSM3_branch = outTree->Branch(tmp_mdnnSM3_branch_name.c_str(), &mdnnSM3_output_new.at(i));
+    b_mdnnSM3_new.push_back(tmp_mdnnSM3_branch);
   }
 
   // MES variations
@@ -1277,12 +1288,15 @@ int main (int argc, char** argv)
         auto mdnnSM0_score_new = mci.predict(EventNumber, 0);
         auto mdnnSM1_score_new = mci.predict(EventNumber, 1);
         auto mdnnSM2_score_new = mci.predict(EventNumber, 2);
+        auto mdnnSM3_score_new = mci.predict(EventNumber, 3);
         for (uint k=0; k<mdnnSM0_score_new.size(); k++)
           mdnnSM0_output_new.at(k) = mdnnSM0_score_new.at(k).second;
         for (uint k=0; k<mdnnSM1_score_new.size(); k++)
           mdnnSM1_output_new.at(k) = mdnnSM1_score_new.at(k).second;
         for (uint k=0; k<mdnnSM2_score_new.size(); k++)
           mdnnSM2_output_new.at(k) = mdnnSM2_score_new.at(k).second;
+        for (uint k=0; k<mdnnSM3_score_new.size(); k++)
+          mdnnSM3_output_new.at(k) = mdnnSM3_score_new.at(k).second;
       }
       else /*isMC*/
       {
@@ -1388,12 +1402,15 @@ int main (int argc, char** argv)
           auto mdnnSM0_score_new = mci.predict(EventNumber, 0);
           auto mdnnSM1_score_new = mci.predict(EventNumber, 1);
           auto mdnnSM2_score_new = mci.predict(EventNumber, 2);
+          auto mdnnSM3_score_new = mci.predict(EventNumber, 3);
           for (uint k=0; k<mdnnSM0_score_new.size(); k++)
             mdnnSM0_output_new.at(k) = mdnnSM0_score_new.at(k).second;
           for (uint k=0; k<mdnnSM1_score_new.size(); k++)
             mdnnSM1_output_new.at(k) = mdnnSM1_score_new.at(k).second;
           for (uint k=0; k<mdnnSM2_score_new.size(); k++)
             mdnnSM2_output_new.at(k) = mdnnSM2_score_new.at(k).second;
+          for (uint k=0; k<mdnnSM3_score_new.size(); k++)
+            mdnnSM3_output_new.at(k) = mdnnSM3_score_new.at(k).second;
         }
 
         // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -3135,6 +3152,10 @@ int main (int argc, char** argv)
         b_mdnnSM2_jetup  [jec].at(i)->Fill();
         b_mdnnSM2_jetdown[jec].at(i)->Fill();
       }
+    }
+    for (int i=0; i<mdnnSM3_size; i++)
+    {
+      b_mdnnSM3_new.at(i)->Fill();
     }
 
     // Timing branches

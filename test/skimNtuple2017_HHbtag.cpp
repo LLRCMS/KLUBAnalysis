@@ -108,6 +108,12 @@ const float DYscale_MTT_Med2Pt [3] = {1.2485879 , 1.2376612  , 1.0745893  };
 const float DYscale_MTT_HighPt [3] = {1.1273438 , 1.5564765  , 1.0578688  };
 const float DYscale_MTT_vHighPt[3] = {0.87293424, 1.4469675  , 1.1665250  };
 
+const float DYscale_MTT_vLowPt_err [3] = {0.0020977215, 0.0014144677, 0.0015785401};
+const float DYscale_MTT_LowPt_err  [3] = {0.0018789754, 0.028074073 , 0.033416855 };
+const float DYscale_MTT_Med1Pt_err [3] = {0.0022982702, 0.028221735 , 0.032660541 };
+const float DYscale_MTT_Med2Pt_err [3] = {0.0019811270, 0.024603319 , 0.024254387 };
+const float DYscale_MTT_HighPt_err [3] = {0.0030012172, 0.046576904 , 0.035949714 };
+const float DYscale_MTT_vHighPt_err[3] = {0.0061768066, 0.15213682  , 0.091582069 };
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
@@ -933,10 +939,12 @@ int main (int argc, char** argv)
 	    {
 	      int pdg = theBigTree.genpart_pdg->at(igen);
 	      int genflags = theBigTree.genpart_flags->at(igen);
-	      bool isFirst = CheckBit (genflags, 12);  //if (fl.isFirstCopy()) flags |= (1 << 12);
+	      //bool isFirst = CheckBit (genflags, 12);  //if (fl.isFirstCopy()) flags |= (1 << 12);
+	      // From: https://twiki.cern.ch/twiki/bin/view/CMS/TopPtReweighting?rev=30#How_to_practically_apply_default
+	      bool isLast = CheckBit (genflags, 13);  //if (fl.isLastCopy()) flags |= (1 << 13);
 	      //int topDM = theBigTree.genpart_TopDecayMode->at(igen);
 
-	      if (abs(pdg) == 6 && isFirst) // top -- pt reweight wants to have ME tops
+	      if (abs(pdg) == 6 && isLast) // top -- pt reweight (derived after radiation and before decay)
 		{
 		  TLorentzVector TopV;
 		  TopV.SetPxPyPzE (theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen) ) ;
@@ -1093,6 +1101,9 @@ int main (int argc, char** argv)
       theSmallTree.m_DYscale_MM  = 1.0;
       theSmallTree.m_DYscale_MH  = 1.0; // to be used with elliptical mass cut
       theSmallTree.m_DYscale_MTT = 1.0; // to be used with M(tautau) > 50 GeV
+      theSmallTree.m_DYscale_MTT_up   = 1.0; // up variation of DYscale_MTT (val+variation)
+      theSmallTree.m_DYscale_MTT_down = 1.0; // down variation of DYscale_MTT (val-variation)
+
       if (isMC && isDY) //to be done both for DY NLO and DY in jet bins
       {
         TLorentzVector vgj;
@@ -1150,31 +1161,43 @@ int main (int argc, char** argv)
           {
             theSmallTree.m_DYscale_MH  = DYscale_MH_vLowPt [n_bJets];
             theSmallTree.m_DYscale_MTT = DYscale_MTT_vLowPt[n_bJets];
+            theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_vLowPt[n_bJets] + DYscale_MTT_vLowPt_err[n_bJets];
+            theSmallTree.m_DYscale_MTT_down = DYscale_MTT_vLowPt[n_bJets] - DYscale_MTT_vLowPt_err[n_bJets];
           }
           else if (genZ_pt > 10. && genZ_pt <= 30.)
           {
             theSmallTree.m_DYscale_MH  = DYscale_MH_LowPt [n_bJets];
             theSmallTree.m_DYscale_MTT = DYscale_MTT_LowPt[n_bJets];
+            theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_LowPt[n_bJets] + DYscale_MTT_LowPt_err[n_bJets];
+            theSmallTree.m_DYscale_MTT_down = DYscale_MTT_LowPt[n_bJets] - DYscale_MTT_LowPt_err[n_bJets];
           }
           else if (genZ_pt > 30. && genZ_pt <= 50.)
           {
             theSmallTree.m_DYscale_MH  = DYscale_MH_Med1Pt [n_bJets];
             theSmallTree.m_DYscale_MTT = DYscale_MTT_Med1Pt[n_bJets];
+            theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_Med1Pt[n_bJets] + DYscale_MTT_Med1Pt_err[n_bJets];
+            theSmallTree.m_DYscale_MTT_down = DYscale_MTT_Med1Pt[n_bJets] - DYscale_MTT_Med1Pt_err[n_bJets];
           }
           else if (genZ_pt > 50. && genZ_pt <= 100.)
           {
             theSmallTree.m_DYscale_MH  = DYscale_MH_Med2Pt [n_bJets];
             theSmallTree.m_DYscale_MTT = DYscale_MTT_Med2Pt[n_bJets];
+            theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_Med2Pt[n_bJets] + DYscale_MTT_Med2Pt_err[n_bJets];
+            theSmallTree.m_DYscale_MTT_down = DYscale_MTT_Med2Pt[n_bJets] - DYscale_MTT_Med2Pt_err[n_bJets];
           }
           else if (genZ_pt > 100. && genZ_pt <= 200.)
           {
             theSmallTree.m_DYscale_MH  = DYscale_MH_HighPt [n_bJets];
             theSmallTree.m_DYscale_MTT = DYscale_MTT_HighPt[n_bJets];
+            theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_HighPt[n_bJets] + DYscale_MTT_HighPt_err[n_bJets];
+            theSmallTree.m_DYscale_MTT_down = DYscale_MTT_HighPt[n_bJets] - DYscale_MTT_HighPt_err[n_bJets];
           }
           else /* pT(Z)>=200. */
           {
             theSmallTree.m_DYscale_MH  = DYscale_MH_vHighPt [n_bJets];
             theSmallTree.m_DYscale_MTT = DYscale_MTT_vHighPt[n_bJets];
+            theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_vHighPt[n_bJets] + DYscale_MTT_vHighPt_err[n_bJets];
+            theSmallTree.m_DYscale_MTT_down = DYscale_MTT_vHighPt[n_bJets] - DYscale_MTT_vHighPt_err[n_bJets];
           }
         }
 
@@ -1182,6 +1205,8 @@ int main (int argc, char** argv)
         {
             theSmallTree.m_DYscale_MH  = DYscale_MH_vLowPt [n_bJets];
             theSmallTree.m_DYscale_MTT = DYscale_MTT_vLowPt[n_bJets];
+            theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_vLowPt[n_bJets] + DYscale_MTT_vLowPt_err[n_bJets];
+            theSmallTree.m_DYscale_MTT_down = DYscale_MTT_vLowPt[n_bJets] - DYscale_MTT_vLowPt_err[n_bJets];
         }
 
         // Debug printout
@@ -5539,9 +5564,11 @@ int main (int argc, char** argv)
           //{ "v0", "kl1_c2v1_c31" },
           //{ "v0", "kl1_c2v1_c31_vbfbsm" }
           //{ "v1", "kl1_c2v1_c31" },
-          { "v2", "kl1_c2v1_c31" },
-          { "v3", "kl1_c2v1_c31_vbf"},
-          { "v3", "kl1_c2v1_c31_vr" }
+          //{ "v2", "kl1_c2v1_c31" },
+          { "v3" , "kl1_c2v1_c31_vbf"},
+          { "v3" , "kl1_c2v1_c31_vr" },
+          { "v3b", "kl1_c2v1_c31_vbf"},
+          { "v3b", "kl1_c2v1_c31_vr" }
         };
 
         // read the input tree
