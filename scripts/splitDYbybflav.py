@@ -32,7 +32,8 @@ import sys
 #inputDir = '/gwteraz/users/brivio/SKIMMED_7Feb2019/SKIM_DY_NLO'
 #inputDir = '/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_secondLookSkims_deepFlavor/SKIM_DY_NLO'
 #inputDir = '/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_secondLookSkims_deepCSV/SKIM_DY_NLO'
-inputDir = '/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_secondLookSkims_deepFlavor/SKIM_DY_NLO'
+#inputDir = '/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_secondLookSkims_deepFlavor/SKIM_DY_NLO'
+inputDir = '/gwteraz/users/brivio/SKIMMED_Legacy2016_1September2020/SKIM_DY_updown'
 
 ############################################################################################################
 ## NOTE: this script takes about 11 mins for a full DY sample (inclusive + NJet + NBJet)
@@ -48,7 +49,8 @@ if not os.path.isfile(inputList):
     print "Could not find file:", inputList
     sys.exit()
 
-suffix = ['_allgenjets_0b', '_allgenjets_1b', '_allgenjets_2b']
+#suffix = ['_allgenjets_0b', '_allgenjets_1b', '_allgenjets_2b']
+suffix = ['_allLHEjets_0b', '_allLHEjets_1b', '_allLHEjets_2b']
 
 outDirs = [inputDir+x for x in suffix]
 # outDirProto = '/'.join(inputDir.split('/')[:-1])
@@ -84,7 +86,8 @@ for idx, line in enumerate(inputListFile):
     ## 0 jet
     fOut = ROOT.TFile(outDirs[0]+'/'+fileName, 'recreate')
     fOut.cd()
-    tOut = tIn.CopyTree('nBhadrons==0')
+    #tOut = tIn.CopyTree('nBhadrons==0')
+    tOut = tIn.CopyTree('lheNOutB==0')
     tOut.Write()
     h_eff.Write()
     fOut.Close()
@@ -92,7 +95,8 @@ for idx, line in enumerate(inputListFile):
     ## 1 jet
     fOut = ROOT.TFile(outDirs[1]+'/'+fileName, 'recreate')
     fOut.cd()
-    tOut = tIn.CopyTree('nBhadrons==1')
+    #tOut = tIn.CopyTree('nBhadrons==1')
+    tOut = tIn.CopyTree('lheNOutB==1')
     tOut.Write()
     h_eff.Write()
     fOut.Close()
@@ -100,7 +104,8 @@ for idx, line in enumerate(inputListFile):
     ## >=2 jet
     fOut = ROOT.TFile(outDirs[2]+'/'+fileName, 'recreate')
     fOut.cd()
-    tOut = tIn.CopyTree('nBhadrons>=2')
+    #tOut = tIn.CopyTree('nBhadrons>=2')
+    tOut = tIn.CopyTree('lheNOutB>=2')
     tOut.Write()
     h_eff.Write()
     fOut.Close()
