@@ -133,8 +133,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         for proc in backgrounds: proc_syst[proc] = {}
         for proc in signals:     proc_syst[proc] = {}
 
-        systsShape = [] #["CMS_scale_t_13TeV_DM0"] # <-- ADD HERE THE OTHER TES/JES SYST SHAPES (TOP SYST SHAPE IS ADDED BY HAND LATER)
-        systsNorm  = []                            # <-- THIS WILL BE FILLED FROM CONFIGS
+        systsShape = ["CMS_scale_t_13TeV_DM0","CMS_scale_t_13TeV_DM1","CMS_scale_t_13TeV_DM10","CMS_scale_t_13TeV_DM11", "CMS_scale_es_13TeV_DM0", "CMS_scale_es_13TeV_DM1", "CMS_scale_mes_13TeV", "CMS_scale_j_13TeV"] #["CMS_scale_t_13TeV_DM0"] # <-- ADD HERE THE OTHER TES/JES SYST SHAPES (TOP SYST SHAPE IS ADDED BY HAND LATER)
+        systsNorm  = []  # <-- THIS WILL BE FILLED FROM CONFIGS
 
         for isy in range(len(syst.SystNames)) :
             if "CMS_scale_t" in syst.SystNames[isy] or "CMS_scale_j" in syst.SystNames[isy]: continue
@@ -187,12 +187,12 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_newName.append(proc+"_"+name+"Down")
 
             # Add top Pt uncertainty
-            proc_syst["TT"]["top"] = ["shape", 1]
-            systsShape.append("top")
-            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format("TT", select,  regionSuffix[region], variable[theCat], "top"))
-            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format("TT", select, regionSuffix[region],variable[theCat], "top"))
-            shiftShapes_newName.append("TT_topUp")
-            shiftShapes_newName.append("TT_topDown")
+            #proc_syst["TT"]["top"] = ["shape", 1]
+            #systsShape.append("top")
+            #shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format("TT", select,  regionSuffix[region], variable[theCat], "top"))
+            #shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format("TT", select, regionSuffix[region],variable[theCat], "top"))
+            #shiftShapes_newName.append("TT_topUp")
+            #shiftShapes_newName.append("TT_topDown")
 
             # Add tau trigger uncertainties (4 different uncertainties depending on DM)
             #DMs = ["0","1","10","11"]
