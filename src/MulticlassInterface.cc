@@ -461,8 +461,9 @@ void FeatureProvider::calculate() {
       it.second = CHECK_EMPTY(tauHSet, tauH.Eta());
     } else if (it.first == "tauh_sv_phi") {
       it.second = CHECK_EMPTY(tauHSet, tauH.Phi());
-    } else if (it.first == "tauh_sv_e") {
-      //it.second = CHECK_EMPTY(tauHSet, tauH.E());
+    } else if (it.first == "tauh_sv_e") {  // used in v3b
+      it.second = CHECK_EMPTY(tauHSet, tauH.E());
+    } else if (it.first == "tauh_sv_ez") {  // used in v3 and before
       it.second = CHECK_EMPTY(tauHSet, pow(pow(tauH.Pz(), 2) + pow(tauH.M(), 2), 0.5));
     } else {
       throw std::runtime_error("MulticlassInference: unhandled feature '" + it.first + "'");

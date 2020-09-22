@@ -1,5 +1,5 @@
 from ROOT import *
-
+import optparse
 
 def parseOptions():
 
@@ -16,11 +16,12 @@ def parseOptions():
 
 parseOptions()
 
-channels = ['TauTau'] # TauTau MuTau ETau
+channels = ['TauTau', 'MuTau', 'ETau']
 
-MClist  = ['TT', 'WJets', 'EWK', 'singleT', 'ZH', 'WH', 'WW', 'WZ', 'ZZ', 'ttH', 'TTX', 'ggH', 'VBFH', 'VVV', 'DY', 'GGHH_NLO_cHHH1_xs', 'GGHH_NLO_cHHH0_xs', 'GGHH_NLO_cHHH5_xs', 'VBFHH_CV_1_C2V_1_C3_1_xs' , 'VBFHH_CV_0p5_C2V_1_C3_1_xs', 'VBFHH_CV_1p5_C2V_1_C3_1_xs', 'VBFHH_CV_1_C2V_1_C3_0_xs', 'VBFHH_CV_1_C2V_1_C3_2_xs', 'VBFHH_CV_1_C2V_2_C3_1_xs']
+MClist  = ['TT', 'WJets', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'WW', 'WZ', 'ZZ', 'ttH', 'TTX', 'ggH', 'VBFH', 'VVV', 'DY', 'GGHH_NLO_cHHH1_xs', 'GGHH_NLO_cHHH0_xs', 'GGHH_NLO_cHHH5_xs', 'VBFHH_CV_1_C2V_1_C3_1_xs' , 'VBFHH_CV_0p5_C2V_1_C3_1_xs', 'VBFHH_CV_1p5_C2V_1_C3_1_xs', 'VBFHH_CV_1_C2V_1_C3_0_xs', 'VBFHH_CV_1_C2V_1_C3_2_xs', 'VBFHH_CV_1_C2V_2_C3_1_xs']
 
-selections = ['s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut', 'VBFloose', 'GGFclass', 'VBFclass', 'ttHclass', 'TTlepclass', 'TThadclass', 'DYclass']
+#selections = ['s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut', 'VBFloose', 'GGFclass', 'VBFclass', 'ttHclass', 'TTlepclass', 'TThadclass', 'DYclass']
+selections = ['s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut', 'VBFloose']
 
 var = {
 	's1b1jresolvedMcut' : 'DNNoutSM_kl_1',
@@ -41,7 +42,7 @@ toscan = ['tesXXX_DM0','tesXXX_DM1','tesXXX_DM10','tesXXX_DM11','eesXXX_DM0','ee
 
 for channel in channels:
 	print "doing channel: ", channel 
-	inputFile = '../analysis_%s_1Sept2020_syst/outPlotter.root' % channel
+	inputFile = '../analysis_%s_%s_20Sept2020_syst/outPlotter.root' % (channel, opt.year)
 	print inputFile	
 	fIn = TFile.Open(inputFile)
 	
