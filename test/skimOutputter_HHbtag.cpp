@@ -170,7 +170,7 @@ int main (int argc, char** argv)
   std::vector<std::string> toBeActivated {
   "EventNumber", "RunNumber","nleps","pairType","nbjetscand",          // General
   "isOS","isBoosted","isTau1real","isTau2real",
-  "lhe*","nBhadrons","npu","npv",
+  "lhe*","nBhadrons","npu","npv","genZ_pt",
 
   "MC_weight","PUReweight","PUjetID_SF","L1pref_weight*",              // Weights and SFs
   "prescaleWeight","trigSF","trigSF_DM*","VBFtrigSF",

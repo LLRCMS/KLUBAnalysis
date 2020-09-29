@@ -1155,6 +1155,7 @@ int main (int argc, char** argv)
           TLorentzVector genZ;
           genZ.SetPxPyPzE(theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1));
           genZ_pt = genZ.Pt();
+          theSmallTree.m_genZ_pt = genZ_pt;
 
           // Save DY LO weights according to nbs and pT(Z)
           if (genZ_pt <= 10.)
