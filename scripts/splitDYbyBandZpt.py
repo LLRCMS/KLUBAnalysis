@@ -39,7 +39,10 @@ suffix = [
     ["_2b_50JPt" , "lheNOutB>=2 && genZ_pt >  50.  && genZ_pt <= 80."],
     ["_2b_80JPt" , "lheNOutB>=2 && genZ_pt >  80.  && genZ_pt <= 110."],
     ["_2b_110JPt", "lheNOutB>=2 && genZ_pt >  110. && genZ_pt <= 190."],
-    ["_2b_190JPt", "lheNOutB>=2 && genZ_pt >  190."]
+    ["_2b_190JPt", "lheNOutB>=2 && genZ_pt >  190."],
+    # This last one "_toBeRemoved" is DUMMY, it ends up being empty, but must be kept anyway
+    # otherwise ROOT won't close properly the "_2b_190JPt" sample \_(``)_/
+    ["_toBeRemoved", "lheNOutB==100"]
 ]
 if year == 2017 or year == 2018:
     suffix = [
@@ -60,8 +63,11 @@ if year == 2017 or year == 2018:
         ["_2b_30JPt" , "lheNOutB>=2 && genZ_pt >  30.  && genZ_pt <= 50."],
         ["_2b_50JPt" , "lheNOutB>=2 && genZ_pt >  50.  && genZ_pt <= 100."],
         ["_2b_100JPt", "lheNOutB>=2 && genZ_pt >  100. && genZ_pt <= 200."],
-        ["_2b_200JPt", "lheNOutB>=2 && genZ_pt >  200."]
-    ]    
+        ["_2b_200JPt", "lheNOutB>=2 && genZ_pt >  200."],
+        # This last one "_toBeRemoved" is DUMMY, it ends up being empty, but must be kept anyway
+        # otherwise ROOT won't close properly the "_2b_200JPt" sample \_(``)_/
+        ["_toBeRemoved", "lheNOutB==100"]
+    ]
 
 outDirs = [inputDir+x[0] for x in suffix]
 
@@ -84,7 +90,7 @@ for idx, line in enumerate(inputListFile):
     print 'file num' , idx
 
     # if reading a goodfile, copy it to destination directory
-    for ff in range(0,17):
+    for ff in range(0,len(suffix)-1):
         outGoodFiles[ff].write(line.replace(inputDir, outDirs[ff])+'\n')
 
     fIn = ROOT.TFile(line)
