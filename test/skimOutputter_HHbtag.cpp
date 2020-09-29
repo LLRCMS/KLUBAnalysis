@@ -380,10 +380,12 @@ int main (int argc, char** argv)
     //{ "v0", "kl1_c2v1_c31" },
     //{ "v1", "kl1_c2v1_c31" },
     //{ "v2", "kl1_c2v1_c31" },
-    { "v3" , "kl1_c2v1_c31_vbf"},
-    { "v3" , "kl1_c2v1_c31_vr" },
+    //{ "v3" , "kl1_c2v1_c31_vbf"},
+    //{ "v3" , "kl1_c2v1_c31_vr" },
     { "v3b", "kl1_c2v1_c31_vbf"},
-    { "v3b", "kl1_c2v1_c31_vr" }
+    { "v3b", "kl1_c2v1_c31_vr" },
+    { "v4" , "kl1_c2v1_c31_vbf"},
+    { "v4" , "kl1_c2v1_c31_vr" }
   };
   MulticlassInterface mci(YEAR, modelSpecs);
   mci.clearInputs();
@@ -709,10 +711,10 @@ int main (int argc, char** argv)
   TBranch* b_tauH_SVFIT_phi_new  = outTree->Branch("tauH_SVFIT_phi_new" , &tauH_SVFIT_phi_new);
   TBranch* b_tauH_SVFIT_mass_new = outTree->Branch("tauH_SVFIT_mass_new", &tauH_SVFIT_mass_new);
   std::vector<TBranch*> b_mdnnSM0_new, b_mdnnSM1_new, b_mdnnSM2_new, b_mdnnSM3_new;
-  boost::format mdnnSM0name_new ("mdnn__v3__kl1_c2v1_c31_vbf__%1%_new");
-  boost::format mdnnSM1name_new ("mdnn__v3__kl1_c2v1_c31_vr__%1%_new");
-  boost::format mdnnSM2name_new ("mdnn__v3b__kl1_c2v1_c31_vbf__%1%_new");
-  boost::format mdnnSM3name_new ("mdnn__v3b__kl1_c2v1_c31_vr__%1%_new");
+  boost::format mdnnSM0name_new ("mdnn__v3b__kl1_c2v1_c31_vbf__%1%_new");
+  boost::format mdnnSM1name_new ("mdnn__v3b__kl1_c2v1_c31_vr__%1%_new");
+  boost::format mdnnSM2name_new ("mdnn__v4__kl1_c2v1_c31_vbf__%1%_new");
+  boost::format mdnnSM3name_new ("mdnn__v4__kl1_c2v1_c31_vr__%1%_new");
   for (int i=0; i<mdnnSM0_size; i++)
   {
     std::string tmp_mdnnSM0_branch_name = boost::str( mdnnSM0name_new % (mci.getNodeNames(0)).at(i) );
