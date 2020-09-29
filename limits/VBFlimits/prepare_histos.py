@@ -37,7 +37,7 @@ histos_syst_down = []
 
 yieldFolder = "scales"+opt.year+"/"
 
-procnames  = ['TT', 'WJets', 'EWK', 'singleT', 'ZH', 'WH', 'WW', 'WZ', 'ZZ', 'ttH', 'TTX', 'ggH', 'VBFH', 'VVV', 'DY', 'GGHH_NLO_cHHH1_xs', 'GGHH_NLO_cHHH0_xs', 'GGHH_NLO_cHHH5_xs', 'VBFHH_CV_1_C2V_1_C3_1_xs' , 'VBFHH_CV_0p5_C2V_1_C3_1_xs', 'VBFHH_CV_1p5_C2V_1_C3_1_xs', 'VBFHH_CV_1_C2V_1_C3_0_xs', 'VBFHH_CV_1_C2V_1_C3_2_xs', 'VBFHH_CV_1_C2V_2_C3_1_xs']
+procnames  = ['TT', 'WJets', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'WW', 'WZ', 'ZZ', 'ttH', 'TTX', 'ggH', 'VBFH', 'VVV', 'DY', 'GGHH_NLO_cHHH1_xs', 'GGHH_NLO_cHHH0_xs', 'GGHH_NLO_cHHH5_xs', 'VBFHH_CV_1_C2V_1_C3_1_xs' , 'VBFHH_CV_0p5_C2V_1_C3_1_xs', 'VBFHH_CV_1p5_C2V_1_C3_1_xs', 'VBFHH_CV_1_C2V_1_C3_0_xs', 'VBFHH_CV_1_C2V_1_C3_2_xs', 'VBFHH_CV_1_C2V_2_C3_1_xs']
 
 ih = 0
 

@@ -62,16 +62,16 @@ c1.SetGridy()
 mg = ROOT.TMultiGraph()
 
 category = "comb_cat" # sboostedLLMcut  s1b1jresolvedMcut  s2b0jresolvedMcut  VBFloose
-year = "2016" # 2016 2017 2018
-tagName = "10Sept_NS_V2"
+year = "2018" # 2016 2017 2018
+tagName = "22Sep2020"
 
 
 if   year == "2016":
-    tag = [year+"_"+tagName,"DNNoutSM_kl_1","35.9"]
+    tag = [year+"_"+tagName,"DNNoutSM_kl_1","2016 - 35.9"]
 elif year == "2017":
-    tag = [year+"_"+tagName,"DNNoutSM_kl_1","41.5"]
+    tag = [year+"_"+tagName,"DNNoutSM_kl_1","2017 - 41.5"]
 else:  #year == "2018"
-    tag = [year+"_"+tagName,"DNNoutSM_kl_1","59.7"]
+    tag = [year+"_"+tagName,"DNNoutSM_kl_1","2018 - 59.7"]
 
 colors = [ROOT.kBlack, ROOT.kBlue, ROOT.kRed, ROOT.kCyan]
 
@@ -144,7 +144,7 @@ pt.SetFillColor(0)
 pt.SetFillStyle(0)
 pt.AddText("CMS #font[52]{Internal}" )
 
-pt2 = ROOT.TPaveText(0.79,0.9066667,0.8997773,0.957037,"brNDC")
+pt2 = ROOT.TPaveText(0.736111,0.9066667,0.847222,0.954641,"brNDC")
 pt2.SetBorderSize(0)
 pt2.SetFillColor(0)
 pt2.SetTextSize(0.040)

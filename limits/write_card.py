@@ -120,6 +120,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         syst = systReader("../config/systematics_"+opt.year+".cfg",signals,backgrounds,None)
         syst.writeOutput(False)
         syst.verbose(True)
+        syst.addSystFile("../config/systematics_DY"+opt.year+".cfg")
         if opt.theory:
             syst.addSystFile("../config/syst_th.cfg")
         if(opt.channel == "TauTau"):

@@ -60,9 +60,9 @@ c1.SetGridy()
 mg = ROOT.TMultiGraph()
 
 var = 'DNNoutSM_kl_1'
-tag = '10Sept_NS_V2'
+tag = '22Sep2020'
 
-selections = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut", "VBFloose"]
+years = ['2016', '2017', '2018','']
 
 ### read the scan with normal width
 gr2sigma = ROOT.TGraphAsymmErrors()
@@ -71,10 +71,10 @@ grexp = ROOT.TGraph()
 grobs = ROOT.TGraph()
 
 ptsList = [] # (x, obs, exp, p2s, p1s, m1s, m2s)
-for i, ch in enumerate(['2016', '2017', '2018','']):
+for i, year in enumerate(years):
 
-    fName = 'cards_CombChan_'+ch+'_'+tag+'/out_Asym_SM_noTH.log'
-    if ch == '':
+    fName = 'cards_CombChan_'+year+'_'+tag+'/out_Asym_SM_noTH.log'
+    if year == '':
         fName = 'cards_CombAll_'+tag+'/out_Asym_SM_noTH.log'
 
     # Can get different results on r_gghh:
@@ -180,22 +180,13 @@ mg.Add(grobs, "L")
 
 ###########
 
-# legend.SetX1(0.17)
-# legend.SetY1(0.69)
-# legend.SetX2(0.466)
-# legend.SetY2(0.362-0.171+0.69)          
 legend = ROOT.TLegend(0,0,0,0)
-
-legend.SetX1(0.5284)
+legend.SetX1(0.574297)
 legend.SetY1(0.70526)
-# legend.SetX2(0.5)
-legend.SetX2(0.88)
+legend.SetX2(0.925703)
 legend.SetY2(0.88)
-
-
 legend.SetFillColor(ROOT.kWhite)
 legend.SetBorderSize(0)
-# legend
 legend.SetHeader('95% CL upper limits')
 #legend.AddEntry(grobs,"Observed","l")
 legend.AddEntry(grexp, "Median expected", "l")
@@ -362,7 +353,7 @@ if False:
 
 c1.Draw()
 #raw_input()
-c1.Print("plots/plot_SMpoint.pdf", 'pdf')
+c1.Print("plots/plot_SMpoint_"+tag+".pdf", 'pdf')
 # for m in masses :
 #     fileLocation = "cards_"+channels[c]+"_"+folder+"/"+app+str(m)+catstring+"/higgsCombine"+app+str(m)+"_forLim_noTH.Asymptotic.mH"+str(m)+".root"
 #     if plotByCategory :

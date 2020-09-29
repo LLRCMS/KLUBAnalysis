@@ -27,7 +27,6 @@ def parseFile(filename, CL='50.0', exp=True):
     matches = []
     for line in f:
         search = ('Expected %s%%: r_gghh <'%CL)
-        import pdb; pdb.set_trace()
         if not exp: search = 'Observed Limit: r <'
 
         if not search in line:
@@ -63,6 +62,10 @@ mg = ROOT.TMultiGraph()
 
 var = 'DNNoutSM_kl_1'
 
+#tag = 'CombChan_2016_22Sep2020'
+#tag = 'CombChan_2017_22Sep2020'
+tag = 'CombChan_2018_22Sep2020'
+
 selections = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut", "VBFloose"]
 selections = ["comb_cat"]
 
@@ -84,7 +87,9 @@ for sel in selections:
     ptsList = [] # (x, obs, exp, p2s, p1s, m1s, m2s)
 
     for ipt in range(0, len(lambdas)):
-        if "comb" in sel:
+        if 'Chan' in tag:
+            fName = 'cards_'+tag+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
+        elif "comb" in sel:
             fName = 'cards_TauTau1Sept_noShape_GGF/{0}'.format(sel)+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
         else:
             #fName = 'cards_Combined_2019_10_11/ggHH_bbtt{0}BDToutSM_kl_{1}/out_Asym_ggHH_bbtt{0}_noTH.log'.format(lambdas[ipt], klval[ipt])
@@ -98,12 +103,17 @@ for sel in selections:
         #m2s_t = (1./0.073)*parseFile(fName, CL=' 2.5')
         #p2s_t = (1./0.073)*parseFile(fName, CL='97.5')
 
-        exp   = getXStheo(klval[ipt]) * parseFile(fName)
-        obs   = getXStheo(klval[ipt]) * parseFile(fName, exp=False)
-        m1s_t = getXStheo(klval[ipt]) * parseFile(fName, CL='16.0')
-        p1s_t = getXStheo(klval[ipt]) * parseFile(fName, CL='84.0')
-        m2s_t = getXStheo(klval[ipt]) * parseFile(fName, CL=' 2.5')
-        p2s_t = getXStheo(klval[ipt]) * parseFile(fName, CL='97.5')
+        # Can get different results on r_gghh:
+        #exp = parseFile(fName)                                          # <- How many times the SM I'm excluding
+        #exp = parseFile(fName) * getXStheo(klval[ipt]) * 1.115          # <- Excluded HH cross section
+        #exp = parseFile(fName) * getXStheo(klval[ipt]) * 1.115 * 0.073  # <- Excluded HH cross section times BR(bbtautau)
+
+        exp   = getXStheo(klval[ipt]) * parseFile(fName)            * 1.115
+        obs   = getXStheo(klval[ipt]) * parseFile(fName, exp=False) * 1.115
+        m1s_t = getXStheo(klval[ipt]) * parseFile(fName, CL='16.0') * 1.115
+        p1s_t = getXStheo(klval[ipt]) * parseFile(fName, CL='84.0') * 1.115
+        m2s_t = getXStheo(klval[ipt]) * parseFile(fName, CL=' 2.5') * 1.115
+        p2s_t = getXStheo(klval[ipt]) * parseFile(fName, CL='97.5') * 1.115
 
         ## because the other code wants +/ sigma vars as deviations, without sign, from the centeal exp value...
         p2s = p2s_t - exp
@@ -234,14 +244,18 @@ for sel in selections:
     pt.AddText("CMS #font[52]{Internal}" )
     #pt.AddText("CMS" )
     # pt.AddText("#font[52]{preliminary}")
-    pt2 = ROOT.TPaveText(0.79,0.9066667,0.8997773,0.957037,"brNDC")
+    pt2 = ROOT.TPaveText(0.736111,0.9066667,0.847222,0.954641,"brNDC")
     pt2.SetBorderSize(0)
     pt2.SetFillColor(0)
     pt2.SetTextSize(0.040)
     pt2.SetTextFont(42)
     pt2.SetFillStyle(0)
-    #pt2.AddText("41.6 fb^{-1} (13 TeV)")
-    pt2.AddText("35.9 fb^{-1} (13 TeV)")
+    if '2016' in tag:
+        pt2.AddText("2016 - 35.9 fb^{-1} (13 TeV)")
+    elif '2017' in tag:
+        pt2.AddText("2017 - 41.6 fb^{-1} (13 TeV)")
+    else:
+        pt2.AddText("2018 - 59.7 fb^{-1} (13 TeV)")
 
     pt4 = ROOT.TPaveText(0.4819196+0.036,0.7780357+0.015+0.02,0.9008929+0.036,0.8675595+0.015,"brNDC")
     pt4.SetTextAlign(12)
@@ -254,7 +268,9 @@ for sel in selections:
     # pt4.AddText("bb #mu_{}#tau_{h} + bb e#tau_{h} + bb #tau_{h}#tau_{h}") 
     #pt4.AddText("bb #tau_{#mu}#tau_{h} + bb #tau_{e}#tau_{h} + bb #tau_{h}#tau_{h}") 
     #pt4.AddText("bb #tau_{e}#tau_{h}") 
-    pt4.AddText(" bb #tau_{h}#tau_{h}") 
+    #pt4.AddText(" bb #tau_{h}#tau_{h}")
+    pt4.AddText("GGF-HH Comb. cat.")
+    pt4.AddText("HH #rightarrow bb#tau#tau")
 
     offs = 0.020
     height = 0.05
@@ -351,9 +367,15 @@ for sel in selections:
     #graph2.SetLineWidth(2);
 
 
-    hframe = ROOT.TH1F('hframe', '', 100, -22, 33)
+    hframe = ROOT.TH1F('hframe', '', 100, -22, 22)
     hframe.SetMinimum(0.1)
-    hframe.SetMaximum(500)
+    if '2016' in tag:
+        hframe.SetMaximum(16000)
+    elif '2017' in tag:
+        hframe.SetMaximum(5000)
+    else:
+        hframe.SetMaximum(4000)
+
 
     hframe.GetYaxis().SetTitleSize(0.047)
     hframe.GetXaxis().SetTitleSize(0.055)
@@ -363,8 +385,8 @@ for sel in selections:
     hframe.GetYaxis().SetTitleOffset(1.2)
     hframe.GetXaxis().SetTitleOffset(1.1)
 
-    hframe.GetYaxis().SetTitle("95% CL on #sigma #times #bf{#it{#Beta}}(HH#rightarrow bb#tau#tau) [fb]")
-    #hframe.GetXaxis().SetTitle("k_{#lambda}/k_{t}")
+    #hframe.GetYaxis().SetTitle("95% CL on #sigma #times #bf{#it{#Beta}}(HH#rightarrow bb#tau#tau) [fb]")
+    hframe.GetYaxis().SetTitle("95% CL on #sigma_{ggF} (pp#rightarrow HH) [fb]")
     hframe.GetXaxis().SetTitle("k_{#lambda}")
 
     hframe.SetStats(0)
@@ -425,7 +447,7 @@ for sel in selections:
         gr1sigma.Print()
 
 
-    c1.Print("combined_"+sel+".pdf", 'pdf')
+    c1.Print("plots/klscan_"+tag+".pdf", 'pdf')
 # for m in masses :
 #     fileLocation = "cards_"+channels[c]+"_"+folder+"/"+app+str(m)+catstring+"/higgsCombine"+app+str(m)+"_forLim_noTH.Asymptotic.mH"+str(m)+".root"
 #     if plotByCategory :

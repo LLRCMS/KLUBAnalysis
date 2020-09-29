@@ -125,6 +125,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         syst = systReader("../../config/systematics_"+opt.year+".cfg",signals,backgrounds,None)
         syst.writeOutput(False)
         syst.verbose(True)
+        syst.addSystFile("../../config/systematics_DY"+opt.year+".cfg")
         if opt.theory : 
             syst.addSystFile("../../config/syst_th.cfg")
         if(opt.channel == "TauTau"):
@@ -454,9 +455,7 @@ input = ConfigReader(configname)
 
 if opt.overSel == "" :
     #allSel = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut", "VBFloose"]
-    #allSel = ["GGFclass", "VBFclass", "ttHclass", "TTlepclass", "TThadclass", "DYclass"]
-    #allSel = ["GGFclassV3", "VBFclassV3", "ttHclassV3", "TTlepclassV3", "TThadclassV3", "DYclassV3"]
-    allSel = ["GGFclassV4", "VBFclassV4", "ttHclassV4", "TTlepclassV4", "TThadclassV4", "DYclassV4"]
+    allSel = ["GGFclass", "VBFclass", "ttHclass", "TTlepclass", "TThadclass", "DYclass"]
 
 else : allSel = [opt.overSel]
 
