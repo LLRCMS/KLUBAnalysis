@@ -2,6 +2,7 @@
 #include "TString.h" // just for Form, else use string
 #include "TTreeFormulaGroup.h"
 #include "TTreeFormula.h"
+#include "TMath.h"
 #include <iomanip>
 #include <boost/variant.hpp>
 #include <unordered_map>
@@ -1114,7 +1115,10 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
 	//if (sample.getType() != Sample::kData)       {
 	  for (unsigned int iw = 0; iw < sample.getWeights().size(); ++iw)
 	    {
-	      wEvSample *= boost::apply_visitor(get_variant_as_double(), valuesMap[sample.getWeights().at(iw).getName()]);
+              int isNAN = TMath::IsNaN(boost::apply_visitor(get_variant_as_double(), valuesMap[sample.getWeights().at(iw).getName()]));
+              if (isNAN== 1 )cout<<"NaN weight: "<< sample.getWeights().at(iw).getName()<<endl;
+              wEvSample *= ( (isNAN == 1)? 0 : boost::apply_visitor(get_variant_as_double(), valuesMap[sample.getWeights().at(iw).getName()]));
+
 	    }
 	
         for (unsigned int isel = 0; isel < selections_.size(); ++isel)
@@ -1127,7 +1131,9 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
             const Selection& currSel = selections_.at(isel);
             for (unsigned int iw = 0; iw < currSel.getWeights().size(); ++iw)
             {   
-                wEvSel *= boost::apply_visitor(get_variant_as_double(), valuesMap[currSel.getWeights().at(iw).getName()]);
+	      int isNAN = TMath::IsNaN(boost::apply_visitor(get_variant_as_double(), valuesMap[currSel.getWeights().at(iw).getName()]));
+              if (isNAN== 1 ) cout<<"NaN weight: "<< currSel.getWeights().at(iw).getName()<<endl;
+              wEvSel *= ( (isNAN == 1 )? 0 :boost::apply_visitor(get_variant_as_double(), valuesMap[currSel.getWeights().at(iw).getName()]));
                 
 		//         if (sample.getType() == Sample::kBkg)
 		   //cout << "~~~~~~~  : ~~~ " << iEv << " / evt sel: " << currSel.getWeights().at(iw).getName() << " = " << boost::apply_visitor(get_variant_as_double(), valuesMap[currSel.getWeights().at(iw).getName()]) << endl;
