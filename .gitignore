@@ -18,3 +18,7 @@ analysis_MuTau*/
 analysis_TauTau*/
 analysis_MuMu*/
 *._*
+limits/VBFlimits/cards_*/
+limits/cards_*/
+limits/VBFlimits/analyzedOutPlotter*
+limits/analyzedOutPlotter*
