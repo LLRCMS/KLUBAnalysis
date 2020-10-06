@@ -60,7 +60,7 @@ c1.SetGridy()
 mg = ROOT.TMultiGraph()
 
 var = 'DNNoutSM_kl_1'
-tag = '22Sep2020'
+tag = '4Oct2020'
 
 years = ['2016', '2017', '2018','']
 

@@ -62,8 +62,8 @@ c1.SetGridy()
 mg = ROOT.TMultiGraph()
 
 category = "comb_cat" # sboostedLLMcut  s1b1jresolvedMcut  s2b0jresolvedMcut  VBFloose
-year = "2018" # 2016 2017 2018
-tagName = "22Sep2020"
+year = "2016" # 2016 2017 2018
+tagName = "2Oct2020"
 
 
 if   year == "2016":
@@ -171,7 +171,7 @@ else                                 : pt3.AddText("?category not defined?")
 hframe = ROOT.TH1F('hframe', '', 100, -22, 22)
 #hframe = ROOT.TH1F('hframe', '', 100, -5, 5)
 hframe.SetMinimum(0.1)
-if   year == "2016"          : hframe.SetMaximum(2100)
+if   year == "2016"          : hframe.SetMaximum(600)
 else                         : hframe.SetMaximum(500)
 #if   category == "comb_cat"          : hframe.SetMaximum(15000)
 #elif category == "sboostedLLMcut"    : hframe.SetMaximum(5000)

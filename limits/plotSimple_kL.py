@@ -62,9 +62,10 @@ mg = ROOT.TMultiGraph()
 
 var = 'DNNoutSM_kl_1'
 
-#tag = 'CombChan_2016_22Sep2020'
-#tag = 'CombChan_2017_22Sep2020'
-tag = 'CombChan_2018_22Sep2020'
+#tag = 'CombChan_2016_4Oct2020'
+#tag = 'CombChan_2017_4Oct2020'
+#tag = 'CombChan_2018_4Oct2020'
+tag = 'CombAll_4Oct2020'
 
 selections = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut", "VBFloose"]
 selections = ["comb_cat"]
@@ -87,7 +88,7 @@ for sel in selections:
     ptsList = [] # (x, obs, exp, p2s, p1s, m1s, m2s)
 
     for ipt in range(0, len(lambdas)):
-        if 'Chan' in tag:
+        if 'Chan' in tag or 'All' in tag:
             fName = 'cards_'+tag+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
         elif "comb" in sel:
             fName = 'cards_TauTau1Sept_noShape_GGF/{0}'.format(sel)+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
@@ -224,12 +225,12 @@ for sel in selections:
     legend.AddEntry(gr1sigma, "68% expected", "f")
     legend.AddEntry(gr2sigma, "95% expected", "f")
 
-    #fakePlot3 = ROOT.TGraphAsymmErrors()
-    #fakePlot3.SetFillColor(ROOT.kRed)
-    #fakePlot3.SetFillStyle(3001)
-    #fakePlot3.SetLineColor(ROOT.kRed)
-    #fakePlot3.SetLineWidth(3)
-    #legend.AddEntry(fakePlot3, "Theoretical prediction", "lf")
+    fakePlot3 = ROOT.TGraphAsymmErrors()
+    fakePlot3.SetFillColor(ROOT.kRed)
+    fakePlot3.SetFillStyle(3001)
+    fakePlot3.SetLineColor(ROOT.kRed)
+    fakePlot3.SetLineWidth(3)
+    legend.AddEntry(fakePlot3, "Theoretical prediction", "lf")
 
 
     ##### text
@@ -254,8 +255,10 @@ for sel in selections:
         pt2.AddText("2016 - 35.9 fb^{-1} (13 TeV)")
     elif '2017' in tag:
         pt2.AddText("2017 - 41.6 fb^{-1} (13 TeV)")
-    else:
+    elif '2018' in tag:
         pt2.AddText("2018 - 59.7 fb^{-1} (13 TeV)")
+    else:
+        pt2.AddText("Run2 - 137.1 fb^{-1} (13 TeV)")
 
     pt4 = ROOT.TPaveText(0.4819196+0.036,0.7780357+0.015+0.02,0.9008929+0.036,0.8675595+0.015,"brNDC")
     pt4.SetTextAlign(12)
@@ -307,18 +310,21 @@ for sel in selections:
     # xmin=-20.4
     # xmax=31.4
     xmin=-20
-    xmax=31.1
+    xmax=+20
+
+    # yt == 1 line
     yt=1
     BR = 1
-    myFunc =  ROOT.TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*[0]*x*[0] -1.37*[0]*[0]*[0]*x*[0])*2.44185/[1]",xmin,xmax);
-    myFunc.SetParameter(0,yt); 
-    myFunc.SetParameter(1,BR); 
+    #myFunc =  ROOT.TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*[0]*x*[0] -1.37*[0]*[0]*[0]*x*[0])*2.44185/[1]",xmin,xmax);
+    myFunc =  ROOT.TF1("myFunc","(62.5339 -44.323*x + 9.6340*x*x)*1.115",xmin,xmax);
+    #myFunc.SetParameter(0,yt);
+    #myFunc.SetParameter(1,BR);
     #myFunc.SetParameter(2,yt); 
     graph = ROOT.TGraph(myFunc);
     ci = ROOT.TColor.GetColor("#ff0000");
     graph.SetLineColor(ci);
     graph.SetLineWidth(2);
-    # graph.Draw("l");
+    #graph.Draw("l");
     nP = int((xmax-xmin)*10.0)
     Graph_syst_Scale =  ROOT.TGraphAsymmErrors(nP)
     for i in range(nP) : 
@@ -333,49 +339,52 @@ for sel in selections:
     Graph_syst_Scale.SetFillColor(ROOT.kRed)
     Graph_syst_Scale.SetFillStyle(3001)
     #graph.Print()
-    ytbis = 2
-    # Graph_syst_Scale2 =  ROOT.TGraphAsymmErrors(nP)
-    Graph_syst_Scale2 =  ROOT.TGraphAsymmErrors()
-    for i in range(nP) : 
-        # print Graph_syst_Scale2.GetN(), i
-        Graph_syst_Scale2_x=(xmin+(i*1.)/10.)
-        Graph_syst_Scale2_y=(getExpValue(2*(xmin+(i*1.)/10.),ytbis))
-        # if Graph_syst_Scale2_y > 800:
-        if Graph_syst_Scale2_x > 10.9 or Graph_syst_Scale2_x < -5.3:
-            continue
-        # print i
-        Graph_syst_Scale2_x_err=(0)
-        Graph_syst_Scale2_y_errup=(  (2.09*ytbis*ytbis*ytbis*ytbis+0.28*ytbis*ytbis*2*(xmin+(i*1.)/10.)*2*(xmin+(i*1.)/10.)-1.37*ytbis*ytbis*ytbis*2*(xmin+(i*1.)/10.))*2.44185*0.053/BR)
-        Graph_syst_Scale2_y_errdown=((2.09*ytbis*ytbis*ytbis*ytbis+0.28*ytbis*ytbis*2*(xmin+(i*1.)/10.)*2*(xmin+(i*1.)/10.)-1.37*ytbis*ytbis*ytbis*2*(xmin+(i*1.)/10.))*2.44185*0.067/BR)
-        Graph_syst_Scale2.SetPoint(Graph_syst_Scale2.GetN(),Graph_syst_Scale2_x,Graph_syst_Scale2_y)
-        Graph_syst_Scale2.SetPointError(Graph_syst_Scale2.GetN()-1,Graph_syst_Scale2_x_err,Graph_syst_Scale2_x_err,Graph_syst_Scale2_y_errup,Graph_syst_Scale2_y_errdown)
-    Graph_syst_Scale2.SetLineColor(ROOT.kRed+2)
-    Graph_syst_Scale2.SetFillColor(ROOT.kRed+2)
-    Graph_syst_Scale2.SetFillStyle(3001)
-    myFunc.SetParameter(0,ytbis); 
-    myFunc.SetParameter(1,BR); 
-    myFunc.SetNpx(200)
-    graph2 = ROOT.TGraph(myFunc);
-    for ipt in reversed(range(0, graph2.GetN())):
-        x = ROOT.Double(0)
-        y = ROOT.Double(0)
-        graph2.GetPoint(ipt, x, y)
-        if x >= 10.9 or x < -5.3    :
-            graph2.RemovePoint(ipt)
 
-    #graph2.SetLineColor(ROOT.kRed+1);
-    #graph2.SetLineWidth(2);
+    ## yt == 2 line
+    #ytbis = 2
+    ## Graph_syst_Scale2 =  ROOT.TGraphAsymmErrors(nP)
+    #Graph_syst_Scale2 =  ROOT.TGraphAsymmErrors()
+    #for i in range(nP) :
+    #    # print Graph_syst_Scale2.GetN(), i
+    #    Graph_syst_Scale2_x=(xmin+(i*1.)/10.)
+    #    Graph_syst_Scale2_y=(getExpValue(2*(xmin+(i*1.)/10.),ytbis))
+    #    # if Graph_syst_Scale2_y > 800:
+    #    if Graph_syst_Scale2_x > 10.9 or Graph_syst_Scale2_x < -5.3:
+    #        continue
+    #    # print i
+    #    Graph_syst_Scale2_x_err=(0)
+    #    Graph_syst_Scale2_y_errup=(  (2.09*ytbis*ytbis*ytbis*ytbis+0.28*ytbis*ytbis*2*(xmin+(i*1.)/10.)*2*(xmin+(i*1.)/10.)-1.37*ytbis*ytbis*ytbis*2*(xmin+(i*1.)/10.))*2.44185*0.053/BR)
+    #    Graph_syst_Scale2_y_errdown=((2.09*ytbis*ytbis*ytbis*ytbis+0.28*ytbis*ytbis*2*(xmin+(i*1.)/10.)*2*(xmin+(i*1.)/10.)-1.37*ytbis*ytbis*ytbis*2*(xmin+(i*1.)/10.))*2.44185*0.067/BR)
+    #    Graph_syst_Scale2.SetPoint(Graph_syst_Scale2.GetN(),Graph_syst_Scale2_x,Graph_syst_Scale2_y)
+    #    Graph_syst_Scale2.SetPointError(Graph_syst_Scale2.GetN()-1,Graph_syst_Scale2_x_err,Graph_syst_Scale2_x_err,Graph_syst_Scale2_y_errup,Graph_syst_Scale2_y_errdown)
+    #Graph_syst_Scale2.SetLineColor(ROOT.kRed+2)
+    #Graph_syst_Scale2.SetFillColor(ROOT.kRed+2)
+    #Graph_syst_Scale2.SetFillStyle(3001)
+    #myFunc.SetParameter(0,ytbis);
+    #myFunc.SetParameter(1,BR);
+    #myFunc.SetNpx(200)
+    #graph2 = ROOT.TGraph(myFunc);
+    #for ipt in reversed(range(0, graph2.GetN())):
+    #    x = ROOT.Double(0)
+    #    y = ROOT.Double(0)
+    #    graph2.GetPoint(ipt, x, y)
+    #    if x >= 10.9 or x < -5.3    :
+    #        graph2.RemovePoint(ipt)
+    #
+    ##graph2.SetLineColor(ROOT.kRed+1);
+    ##graph2.SetLineWidth(2);
 
 
     hframe = ROOT.TH1F('hframe', '', 100, -22, 22)
     hframe.SetMinimum(0.1)
     if '2016' in tag:
-        hframe.SetMaximum(16000)
+        hframe.SetMaximum(5000)
     elif '2017' in tag:
         hframe.SetMaximum(5000)
-    else:
+    elif '2018' in tag:
         hframe.SetMaximum(4000)
-
+    else:
+        hframe.SetMaximum(3000)
 
     hframe.GetYaxis().SetTitleSize(0.047)
     hframe.GetXaxis().SetTitleSize(0.055)
@@ -399,7 +408,7 @@ for sel in selections:
     grexp.Draw("Lsame")
     #grobs.Draw("Lsame")
 
-    #graph.Draw("l same")
+    graph.Draw("l same")
     #graph2.Draw("l same")
     #Graph_syst_Scale.Draw("e3 same");
     #Graph_syst_Scale2.Draw("e3 same");
@@ -429,12 +438,12 @@ for sel in selections:
     #    if x == 1.0:
     #        print 'OBS LIMIT W.R.T. SM: ', y/(smXS), 'limit in fb:' , y
 
-    for ipt in range(0, grexp.GetN()):
-        ptx = ROOT.Double(0.0)
-        pty = ROOT.Double(0.0)
-        grexp.GetPoint(ipt, x, y)
-        if x == 1.0:
-            print 'EXP LIMIT W.R.T. SM: ', y/smXS, 'limit in fb:' , y/0.073
+    #for ipt in range(0, grexp.GetN()):
+    #    ptx = ROOT.Double(0.0)
+    #    pty = ROOT.Double(0.0)
+    #    grexp.GetPoint(ipt, x, y)
+    #    if x == 1.0:
+    #        print 'EXP LIMIT W.R.T. SM: ', y/smXS, 'limit in fb:' , y/0.073
 
     if False:
         print "OBS GRAPH"
@@ -447,7 +456,8 @@ for sel in selections:
         gr1sigma.Print()
 
 
-    c1.Print("plots/klscan_"+tag+".pdf", 'pdf')
+    #c1.Print("plots/klscan_"+tag+".pdf", 'pdf')
+    c1.Print("plots/klscan_"+tag+"_theor.pdf", 'pdf')
 # for m in masses :
 #     fileLocation = "cards_"+channels[c]+"_"+folder+"/"+app+str(m)+catstring+"/higgsCombine"+app+str(m)+"_forLim_noTH.Asymptotic.mH"+str(m)+".root"
 #     if plotByCategory :

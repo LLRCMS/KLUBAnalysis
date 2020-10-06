@@ -134,7 +134,9 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         for proc in backgrounds: proc_syst[proc] = {}
         for proc in signals:     proc_syst[proc] = {}
 
-        systsShape = ["CMS_scale_t_13TeV_DM0","CMS_scale_t_13TeV_DM1","CMS_scale_t_13TeV_DM10","CMS_scale_t_13TeV_DM11", "CMS_scale_es_13TeV_DM0", "CMS_scale_es_13TeV_DM1", "CMS_scale_mes_13TeV", "CMS_scale_j_13TeV"] #["CMS_scale_t_13TeV_DM0"] # <-- ADD HERE THE OTHER TES/JES SYST SHAPES (TOP SYST SHAPE IS ADDED BY HAND LATER)
+        systsShape =["CMS_scale_t_13TeV_"+opt.year+"_DM0","CMS_scale_t_13TeV_"+opt.year+"_DM1","CMS_scale_t_13TeV_"+opt.year+"_DM10","CMS_scale_t_13TeV_"+opt.year+"_DM11", "CMS_scale_es_13TeV_"+opt.year+"_DM0", "CMS_scale_es_13TeV_"+opt.year+"_DM1", "CMS_scale_mes_13TeV_"+opt.year+"", "CMS_scale_j_13TeV_"+opt.year+""]
+        #systsShape = ["CMS_scale_t_13TeV_DM0","CMS_scale_t_13TeV_DM1","CMS_scale_t_13TeV_DM10","CMS_scale_t_13TeV_DM11", "CMS_scale_es_13TeV_DM0", "CMS_scale_es_13TeV_DM1", "CMS_scale_mes_13TeV", "CMS_scale_j_13TeV"] #["CMS_scale_t_13TeV_DM0"] # <-- ADD HERE THE OTHER TES/JES SYST SHAPES (TOP SYST SHAPE IS ADDED BY HAND LATER)
+        #systsShape = []
         systsNorm  = []  # <-- THIS WILL BE FILLED FROM CONFIGS
 
         for isy in range(len(syst.SystNames)) :

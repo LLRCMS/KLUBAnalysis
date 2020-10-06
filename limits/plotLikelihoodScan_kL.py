@@ -17,8 +17,7 @@ def redrawBorder():
 
 
 # User settables
-tag = "22Sep2020"
-
+tag = "4Oct2020"
 
 colors = [ROOT.kRed, ROOT.kBlue, ROOT.kCyan, ROOT.kBlack]
 years  = ["2016", "2017", "2018", "comb"]
