@@ -2,8 +2,8 @@ import ROOT
 import os
 import sys
 
-inputDir = '/gwteraz/users/brivio/SKIMMED_Legacy2016_1September2020/SKIM_DY_updown2'
 #inputDir = '/gwteraz/users/brivio/SKIMMED_Legacy2018_1Sep2020/SKIM_DY_updown'
+inputDir = '/gwteraz/users/brivio/SKIMMED_Legacy2016_1September2020/SKIM_DY'
 
 year = 2016
 
