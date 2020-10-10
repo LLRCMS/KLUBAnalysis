@@ -201,10 +201,10 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             #DMs = ["0","1","10","11"]
             #for DMname in DMs:
             #    trigDMname = "trigSFDM" + DMname
+            #    systsShape.append(trigDMname)
             #    for proc in backgrounds:
             #        if "QCD" in proc: continue
             #        proc_syst[proc][trigDMname] = ["shape", 1.]   #applying trigger to all MC backgrounds
-            #        systsShape.append(trigDMname)
             #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
             #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
             #        shiftShapes_newName.append(proc+"_"+trigDMname+"Up")
@@ -212,41 +212,42 @@ def  writeCard(backgrounds,signals,select,region=-1) :
 
             #    for proc in signals:
             #        proc_syst[proc][trigDMname] = ["shape", 1.]   #applying trigger to all signals
-            #        systsShape.append(trigDMname)
             #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
             #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
             #        shiftShapes_newName.append(proc+"_"+trigDMname+"Up")
             #        shiftShapes_newName.append(proc+"_"+trigDMname+"Down")
 
             # Add deepTauVSjet uncertainties (5 different uncertainties binned in pT)
-            #PTs = ["20to25", "25to30", "30to35", "35to40", "40toInf"]
-            #for PTname in PTs:
-            #    tauPTname = "tauid_pt" + PTname
-            #    for proc in backgrounds:
-            #        if "QCD" in proc: continue
-            #        proc_syst[proc][tauPTname] = ["shape", 1.]   #applying trigger to all MC backgrounds
-            #        systsShape.append(tauPTname)
-            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
-            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
-            #        shiftShapes_newName.append(proc+"_"+tauPTname+"Up")
-            #        shiftShapes_newName.append(proc+"_"+tauPTname+"Down")
+            if "2" in thechannel:
+                PTs = ["40toInf"]
+            else:
+                PTs = ["20to25", "25to30", "30to35", "35to40", "40toInf"]
+            for PTname in PTs:
+                tauPTname = "tauid_pt" + PTname
+                systsShape.append(tauPTname)
+                for proc in backgrounds:
+                    if "QCD" in proc: continue
+                    proc_syst[proc][tauPTname] = ["shape", 1.]   #applying trigger to all MC backgrounds
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
+                    shiftShapes_newName.append(proc+"_"+tauPTname+"Up")
+                    shiftShapes_newName.append(proc+"_"+tauPTname+"Down")
 
-            #    for proc in signals:
-            #        proc_syst[proc][tauPTname] = ["shape", 1.]   #applying trigger to all signals
-            #        systsShape.append(tauPTname)
-            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
-            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
-            #        shiftShapes_newName.append(proc+"_"+tauPTname+"Up")
-            #        shiftShapes_newName.append(proc+"_"+tauPTname+"Down")
+                for proc in signals:
+                    proc_syst[proc][tauPTname] = ["shape", 1.]   #applying trigger to all signals
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
+                    shiftShapes_newName.append(proc+"_"+tauPTname+"Up")
+                    shiftShapes_newName.append(proc+"_"+tauPTname+"Down")
 
             # Add deepTauVSmu uncertainties (5 different uncertainties binned in eta)
             #ETAs = ["Lt0p4", "0p4to0p8", "0p8to1p2", "1p2to1p7", "Gt1p7"]
             #for ETAname in ETAs:
             #    tauETAname = "mutauFR_eta" + ETAname
+            #    systsShape.append(tauETAname)
             #    for proc in backgrounds:
             #        if "QCD" in proc: continue
             #        proc_syst[proc][tauETAname] = ["shape", 1.]   #applying trigger to all MC backgrounds
-            #        systsShape.append(tauETAname)
             #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauETAname))
             #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauETAname))
             #        shiftShapes_newName.append(proc+"_"+tauETAname+"Up")
@@ -254,32 +255,30 @@ def  writeCard(backgrounds,signals,select,region=-1) :
 
             #    for proc in signals:
             #        proc_syst[proc][tauETAname] = ["shape", 1.]   #applying trigger to all signals
-            #        systsShape.append(tauETAname)
             #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauETAname))
             #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauETAname))
             #        shiftShapes_newName.append(proc+"_"+tauETAname+"Up")
             #        shiftShapes_newName.append(proc+"_"+tauETAname+"Down")
 
             # Add deepTauVSele uncertainties (2 different uncertainties for barrel and endcap)
-            #ELEs = ["barrel", "endcap"]
-            #for ELEname in ELEs:
-            #    tauELEname = "etauFR_" + ELEname
-            #    for proc in backgrounds:
-            #        if "QCD" in proc: continue
-            #        proc_syst[proc][tauELEname] = ["shape", 1.]   #applying trigger to all MC backgrounds
-            #        systsShape.append(tauELEname)
-            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
-            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
-            #        shiftShapes_newName.append(proc+"_"+tauELEname+"Up")
-            #        shiftShapes_newName.append(proc+"_"+tauELEname+"Down")
+            ELEs = ["barrel", "endcap"]
+            for ELEname in ELEs:
+                tauELEname = "etauFR_" + ELEname
+                systsShape.append(tauELEname)
+                for proc in backgrounds:
+                    if "QCD" in proc: continue
+                    proc_syst[proc][tauELEname] = ["shape", 1.]   #applying trigger to all MC backgrounds
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
+                    shiftShapes_newName.append(proc+"_"+tauELEname+"Up")
+                    shiftShapes_newName.append(proc+"_"+tauELEname+"Down")
 
-            #    for proc in signals:
-            #        proc_syst[proc][tauELEname] = ["shape", 1.]   #applying trigger to all signals
-            #        systsShape.append(tauELEname)
-            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
-            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
-            #        shiftShapes_newName.append(proc+"_"+tauELEname+"Up")
-            #        shiftShapes_newName.append(proc+"_"+tauELEname+"Down")
+                for proc in signals:
+                    proc_syst[proc][tauELEname] = ["shape", 1.]   #applying trigger to all signals
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
+                    shiftShapes_newName.append(proc+"_"+tauELEname+"Up")
+                    shiftShapes_newName.append(proc+"_"+tauELEname+"Down")
 
         col1       = '{: <40}'
         colsysN    = '{: <30}'
