@@ -17,32 +17,34 @@ def redrawBorder():
 
 
 # User settables
-tag = "10Sept_NS_V2"
+tag = "4Oct2020"
 
-
-
+colors = [ROOT.kRed, ROOT.kBlue, ROOT.kCyan, ROOT.kBlack]
+years  = ["2016", "2017", "2018", "comb"]
 years  = ["2016", "2017", "2018"]
-colors = [ROOT.kBlack, ROOT.kRed, ROOT.kBlue]
 
 leg = ROOT.TLegend(0,0,0,0)
-leg.SetX1(0.17284)
+leg.SetX1(0.45)
 leg.SetY1(0.630526)
-leg.SetX2(0.420062)
+leg.SetX2(0.6)
 leg.SetY2(0.88)
 leg.SetFillColor(ROOT.kWhite)
 
 mg = ROOT.TMultiGraph()
-mg.GetYaxis().SetTitle("2*deltaNLL")
+mg.GetYaxis().SetTitle("-2 #Delta ln(L)")
 mg.GetXaxis().SetTitle("k_{#lambda}")
 
 mg_zoom = ROOT.TMultiGraph()
-mg_zoom.GetYaxis().SetTitle("2*deltaNLL")
+mg_zoom.GetYaxis().SetTitle("-2 #Delta ln(L)")
 mg_zoom.GetXaxis().SetTitle("k_{#lambda}")
 
 
 for i,year in enumerate(years):
 
-    file = "cards_CombChan_"+year+"_"+tag+"/higgsCombinekl_scan.MultiDimFit.mH120.root"
+    if "comb" in year:
+        file = "cards_CombAll_"+tag+"/higgsCombinekl_scan.MultiDimFit.mH120.root"
+    else:
+        file = "cards_CombChan_"+year+"_"+tag+"/higgsCombinekl_scan.MultiDimFit.mH120.root"
     fIn = ROOT.TFile(file, "READ")
     tree = fIn.Get("limit")
 
@@ -55,7 +57,7 @@ for i,year in enumerate(years):
         if iev==0: continue
         #print 'kl:', ev.kl, '2*deltaNLL:', 2*ev.deltaNLL
 
-        if 2*ev.deltaNLL>10: continue
+        if 2*ev.deltaNLL>12.5: continue
         kls.append(ev.kl)
         vals.append(2*ev.deltaNLL)
 
@@ -116,7 +118,7 @@ hframe.GetXaxis().SetLabelSize(0.045)
 hframe.GetXaxis().SetLabelOffset(0.012)
 hframe.GetYaxis().SetTitleOffset(1.2)
 hframe.GetXaxis().SetTitleOffset(1.1)
-hframe.GetYaxis().SetTitle("2*deltaNLL")
+hframe.GetYaxis().SetTitle("-2 #Delta ln(L)")
 hframe.GetXaxis().SetTitle("k_{#lambda}")
 hframe.SetStats(0)
 ROOT.gPad.SetTicky()
@@ -131,7 +133,6 @@ c1.RedrawAxis("g")
 leg.Draw()
 c1.Update()
 c1.Print('plots/comparison_kl_scan_'+tag+'.pdf','pdf')
-
 
 #### 
 c2 = ROOT.TCanvas("c1", "c1", 650, 500)
@@ -153,7 +154,7 @@ hframe2.GetXaxis().SetLabelSize(0.045)
 hframe2.GetXaxis().SetLabelOffset(0.012)
 hframe2.GetYaxis().SetTitleOffset(1.2)
 hframe2.GetXaxis().SetTitleOffset(1.1)
-hframe2.GetYaxis().SetTitle("2*deltaNLL")
+hframe2.GetYaxis().SetTitle("-2*#Deltaln(L)")
 hframe2.GetXaxis().SetTitle("k_{#lambda}")
 hframe2.SetStats(0)
 ROOT.gPad.SetTicky()

@@ -57,7 +57,7 @@ if __name__ == "__main__":
     if opt.VBF and not opt.ggF:
         red_parameters.append("r_qqhh")
         fre_parameters.append("r")
-        set_parameters.append("r_gghh=0")
+        set_parameters.append("r_gghh=1")
 
     # limits on r - NOT to be used for now!
     #if opt.ggF and opt.VBF:

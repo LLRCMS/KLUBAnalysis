@@ -3,7 +3,7 @@ selections="s1b1jresolvedMcut s2b0jresolvedMcut sboostedLLMcut VBFloose"
 channels="TauTau MuTau ETau" 
 years="2016 2017 2018"
 
-tag="_10Sept_NS_V2"
+tag="_4Oct2020"
 
 mkdir cards_CombAll$tag
 

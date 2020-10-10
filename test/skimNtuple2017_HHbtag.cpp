@@ -1155,6 +1155,7 @@ int main (int argc, char** argv)
           TLorentzVector genZ;
           genZ.SetPxPyPzE(theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1));
           genZ_pt = genZ.Pt();
+          theSmallTree.m_genZ_pt = genZ_pt;
 
           // Save DY LO weights according to nbs and pT(Z)
           if (genZ_pt <= 10.)
@@ -5565,10 +5566,12 @@ int main (int argc, char** argv)
           //{ "v0", "kl1_c2v1_c31_vbfbsm" }
           //{ "v1", "kl1_c2v1_c31" },
           //{ "v2", "kl1_c2v1_c31" },
-          { "v3" , "kl1_c2v1_c31_vbf"},
-          { "v3" , "kl1_c2v1_c31_vr" },
+          //{ "v3" , "kl1_c2v1_c31_vbf"},
+          //{ "v3" , "kl1_c2v1_c31_vr" },
           { "v3b", "kl1_c2v1_c31_vbf"},
-          { "v3b", "kl1_c2v1_c31_vr" }
+          { "v3b", "kl1_c2v1_c31_vr" },
+          { "v4" , "kl1_c2v1_c31_vbf"},
+          { "v4" , "kl1_c2v1_c31_vr" }
         };
 
         // read the input tree

@@ -52,19 +52,19 @@ def  writeCard(backgrounds,signals,select,region=-1) :
     # Possible models are:
     # V2 --> "v2__kl1_c2v1_c31_*_new"
     # V3 --> "v3__kl1_c2v1_c31_vbf_*_new"
-    # V4 --> "v3__kl1_c2v1_c31_vr_*_new"
+    # V4 --> "v4__kl1_c2v1_c31_vbf_*_new"
     variable = {
         "0"  : "DNNoutSM_kl_1",
         "1"  : "DNNoutSM_kl_1",
         "2"  : "DNNoutSM_kl_1",
         "3"  : "DNNoutSM_kl_1",
         "4"  : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__hh_vbf",
-        "5"  : "mdnn__v3__kl1_c2v1_c31_vr__hh_ggf_new",
-        "6"  : "mdnn__v3__kl1_c2v1_c31_vr__hh_vbf_new",
-        "7"  : "mdnn__v3__kl1_c2v1_c31_vr__tth_new",
-        "8"  : "mdnn__v3__kl1_c2v1_c31_vr__tt_lep_new",
-        "9"  : "mdnn__v3__kl1_c2v1_c31_vr__tt_fh_new",
-        "10" : "mdnn__v3__kl1_c2v1_c31_vr__dy_new",
+        "5"  : "mdnn__v4__kl1_c2v1_c31_vbf__hh_ggf_new",
+        "6"  : "mdnn__v4__kl1_c2v1_c31_vbf__hh_vbf_new",
+        "7"  : "mdnn__v4__kl1_c2v1_c31_vbf__tth_new",
+        "8"  : "mdnn__v4__kl1_c2v1_c31_vbf__tt_lep_new",
+        "9"  : "mdnn__v4__kl1_c2v1_c31_vbf__tt_fh_new",
+        "10" : "mdnn__v4__kl1_c2v1_c31_vbf__dy_new",
     }
 
     theOutputDir = "{0}{1}".format(select,variable[theCat])
@@ -125,6 +125,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         syst = systReader("../../config/systematics_"+opt.year+".cfg",signals,backgrounds,None)
         syst.writeOutput(False)
         syst.verbose(True)
+        syst.addSystFile("../../config/systematics_DY"+opt.year+".cfg")
         if opt.theory : 
             syst.addSystFile("../../config/syst_th.cfg")
         if(opt.channel == "TauTau"):
@@ -138,6 +139,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         for proc in backgrounds: proc_syst[proc] = {}
         for proc in signals:     proc_syst[proc] = {}
 
+        #systsShape =["CMS_scale_t_13TeV_"+opt.year+"_DM0","CMS_scale_t_13TeV_"+opt.year+"_DM1","CMS_scale_t_13TeV_"+opt.year+"_DM10","CMS_scale_t_13TeV_"+opt.year+"_DM11", "CMS_scale_es_13TeV_"+opt.year+"_DM0", "CMS_scale_es_13TeV_"+opt.year+"_DM1", "CMS_scale_mes_13TeV_"+opt.year+"", "CMS_scale_j_13TeV_"+opt.year+""]
         systsShape = [] #["CMS_scale_t_13TeV_DM0"] # <-- ADD HERE THE OTHER TES/JES SYST SHAPES (TOP SYST SHAPE IS ADDED BY HAND LATER)
         systsNorm  = []                            # <-- THIS WILL BE FILLED FROM CONFIGS
 
@@ -454,9 +456,7 @@ input = ConfigReader(configname)
 
 if opt.overSel == "" :
     #allSel = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut", "VBFloose"]
-    #allSel = ["GGFclass", "VBFclass", "ttHclass", "TTlepclass", "TThadclass", "DYclass"]
-    #allSel = ["GGFclassV3", "VBFclassV3", "ttHclassV3", "TTlepclassV3", "TThadclassV3", "DYclassV3"]
-    allSel = ["GGFclassV4", "VBFclassV4", "ttHclassV4", "TTlepclassV4", "TThadclassV4", "DYclassV4"]
+    allSel = ["GGFclass", "VBFclass", "ttHclass", "TTlepclass", "TThadclass", "DYclass"]
 
 else : allSel = [opt.overSel]
 

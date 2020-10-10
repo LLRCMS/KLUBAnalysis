@@ -33,7 +33,8 @@ import sys
 #inputDir = '/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_secondLookSkims_deepFlavor/SKIM_DY_NLO'
 #inputDir = '/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_secondLookSkims_deepCSV/SKIM_DY_NLO'
 #inputDir = '/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_secondLookSkims_deepFlavor/SKIM_DY_NLO'
-inputDir = '/gwteraz/users/brivio/SKIMMED_Legacy2016_1September2020/SKIM_DY_updown'
+#inputDir = '/gwteraz/users/brivio/SKIMMED_Legacy2016_1September2020/SKIM_DY_updown'
+inputDir = '/gwteraz/users/brivio/SKIMMED_Legacy2018_1Sep2020/SKIM_DY_updown'
 
 ############################################################################################################
 ## NOTE: this script takes about 11 mins for a full DY sample (inclusive + NJet + NBJet)
@@ -81,7 +82,9 @@ for idx, line in enumerate(inputListFile):
 
     fIn = ROOT.TFile(line)
     tIn = fIn.Get('HTauTauTree')
-    h_eff = fIn.Get('h_eff')
+    h_eff        = fIn.Get('h_eff')
+    h_effSummary = fIn.Get('h_effSummary')
+    h_syst       = fIn.Get('h_syst')
 
     ## 0 jet
     fOut = ROOT.TFile(outDirs[0]+'/'+fileName, 'recreate')
@@ -90,6 +93,8 @@ for idx, line in enumerate(inputListFile):
     tOut = tIn.CopyTree('lheNOutB==0')
     tOut.Write()
     h_eff.Write()
+    h_effSummary.Write()
+    h_syst.Write()
     fOut.Close()
 
     ## 1 jet
@@ -99,6 +104,8 @@ for idx, line in enumerate(inputListFile):
     tOut = tIn.CopyTree('lheNOutB==1')
     tOut.Write()
     h_eff.Write()
+    h_effSummary.Write()
+    h_syst.Write()
     fOut.Close()
 
     ## >=2 jet
@@ -108,6 +115,8 @@ for idx, line in enumerate(inputListFile):
     tOut = tIn.CopyTree('lheNOutB>=2')
     tOut.Write()
     h_eff.Write()
+    h_effSummary.Write()
+    h_syst.Write()
     fOut.Close()
 
     fIn.Close()

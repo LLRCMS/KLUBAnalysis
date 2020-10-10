@@ -2,9 +2,9 @@ var="DNNoutSM_kl_1"
 selections="s1b1jresolvedMcut s2b0jresolvedMcut sboostedLLMcut VBFloose"
 channels="TauTau MuTau ETau" 
 
-#tag="2016_10Sept_NS_V2"
-#tag="2017_10Sept_NS_V2"
-#tag="2018_10Sept_NS_V2"
+#tag="2016_4Oct2020"
+tag="2017_4Oct2020"
+#tag="2018_4Oct2020"
 
 mkdir cards_CombChan_$tag
 
