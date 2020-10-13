@@ -2970,10 +2970,14 @@ int main (int argc, char** argv)
       // recommendations for cross triggers:  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information
 
       float trigSF = 1.0;
+      float trigSF_ele_up    = 1.0;
+      float trigSF_mu_up     = 1.0;
       float trigSF_DM0_up    = 1.0;
       float trigSF_DM1_up    = 1.0;
       float trigSF_DM10_up   = 1.0;
       float trigSF_DM11_up   = 1.0;
+      float trigSF_ele_down  = 1.0;
+      float trigSF_mu_down   = 1.0;
       float trigSF_DM0_down  = 1.0;
       float trigSF_DM1_down  = 1.0;
       float trigSF_DM10_down = 1.0;
@@ -2998,19 +3002,39 @@ int main (int argc, char** argv)
                   double SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
                   double SFL_MC = muTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 
+                  double SFL_Data_Err = muTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+                  double SFL_MC_Err = muTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+
+                  double SFL_Data_up   = SFL_Data + 1. * SFL_Data_Err;
+                  double SFL_Data_down = SFL_Data - 1. * SFL_Data_Err;
+                  double SFL_MC_up     = SFL_MC   + 1. * SFL_MC_Err;
+                  double SFL_MC_down   = SFL_MC   - 1. * SFL_MC_Err;
+
                   //cross-trigger
                   //mu leg
                   double SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
                   double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 
+                  double SFl_Data_Err = muTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+                  double SFl_MC_Err = muTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+
+                  double SFl_Data_up   = SFl_Data + 1. * SFl_Data_Err;
+                  double SFl_Data_down = SFl_Data - 1. * SFl_Data_Err;
+                  double SFl_MC_up     = SFl_MC   + 1. * SFl_MC_Err;
+                  double SFl_MC_down   = SFl_MC   - 1. * SFl_MC_Err;
+
                   //tau leg
                   double SFtau_Data = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
                   double SFtau_MC   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 
-                  //double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
-                  //double Eff_MC   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC) + passCross * SFl_MC * SFtau_MC;
+                  // Compute efficiencies
                   double Eff_Data = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data + passCross * SFl_Data * SFtau_Data;
                   double Eff_MC   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC   + passCross * SFl_MC   * SFtau_MC;
+
+                  double Eff_Data_mu_up   = passSingle * SFL_Data_up   - passCross * passSingle * std::min(SFl_Data_up  , SFL_Data_up)   * SFtau_Data + passCross * SFl_Data_up   * SFtau_Data;
+                  double Eff_MC_mu_up     = passSingle * SFL_MC_up     - passCross * passSingle * std::min(SFl_MC_up    , SFL_MC_up)     * SFtau_MC   + passCross * SFl_MC_up     * SFtau_MC;
+                  double Eff_Data_mu_down = passSingle * SFL_Data_down - passCross * passSingle * std::min(SFl_Data_down, SFL_Data_down) * SFtau_Data + passCross * SFl_Data_down * SFtau_Data;
+                  double Eff_MC_mu_down   = passSingle * SFL_MC_down   - passCross * passSingle * std::min(SFl_MC_down  , SFL_MC_down)   * SFtau_MC   + passCross * SFl_MC_down   * SFtau_MC;
 
                   // for each DM, fill a trigSF branch with the up/down values if the tauh has the corresponding DM, otherwise fill with nominal trigSF value
                   vector <double> SFtau_Data_up   (N_tauhDM, SFtau_Data);
@@ -3049,6 +3073,8 @@ int main (int argc, char** argv)
                   }
 
                   trigSF = Eff_Data / Eff_MC;
+                  trigSF_mu_up     = Eff_Data_mu_up / Eff_MC_mu_up;
+                  trigSF_mu_down   = Eff_Data_mu_down / Eff_MC_mu_down;
                   trigSF_DM0_up    = Eff_Data_up[0] / Eff_MC_up[0];
                   trigSF_DM1_up    = Eff_Data_up[1] / Eff_MC_up[1];
                   trigSF_DM10_up   = Eff_Data_up[2] / Eff_MC_up[2];
@@ -3066,7 +3092,10 @@ int main (int argc, char** argv)
               else //eta region covered only by single lepton trigger
                 {
                   double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+                  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
                   trigSF = SF;
+                  trigSF_mu_up   = SF + 1. * SF_Err;
+                  trigSF_mu_down = SF - 1. * SF_Err;
                 }
               //trig SF for analysis only with single-mu trigger
               trigSF_single =  muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -3087,19 +3116,39 @@ int main (int argc, char** argv)
                   double SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
                   double SFL_MC = eTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 
+                  double SFL_Data_Err = eTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+                  double SFL_MC_Err = eTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+
+                  double SFL_Data_up   = SFL_Data + 1. * SFL_Data_Err;
+                  double SFL_Data_down = SFL_Data - 1. * SFL_Data_Err;
+                  double SFL_MC_up     = SFL_MC   + 1. * SFL_MC_Err;
+                  double SFL_MC_down   = SFL_MC   - 1. * SFL_MC_Err;
+
                   //cross-trigger
                   //e leg
                   double SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
                   double SFl_MC = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 
+                  double SFl_Data_Err = eTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+                  double SFl_MC_Err = eTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+
+                  double SFl_Data_up   = SFl_Data + 1. * SFl_Data_Err;
+                  double SFl_Data_down = SFl_Data - 1. * SFl_Data_Err;
+                  double SFl_MC_up     = SFl_MC   + 1. * SFl_MC_Err;
+                  double SFl_MC_down   = SFl_MC   - 1. * SFl_MC_Err;
+
                   //tau leg
                   double SFtau_Data = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
                   double SFtau_MC   = tauTrgSF_etau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 
-                  //double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
-                  //double Eff_MC   =  passSingle * SFL_MC * (1 - passCross * SFtau_MC) + passCross * SFl_MC * SFtau_MC;
+                  // Compute efficiencies
                   double Eff_Data = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data + passCross * SFl_Data * SFtau_Data;
                   double Eff_MC   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC   + passCross * SFl_MC   * SFtau_MC;
+
+                  double Eff_Data_ele_up   = passSingle * SFL_Data_up   - passCross * passSingle * std::min(SFl_Data_up  , SFL_Data_up)   * SFtau_Data + passCross * SFl_Data_up   * SFtau_Data;
+                  double Eff_MC_ele_up     = passSingle * SFL_MC_up     - passCross * passSingle * std::min(SFl_MC_up    , SFL_MC_up)     * SFtau_MC   + passCross * SFl_MC_up     * SFtau_MC;
+                  double Eff_Data_ele_down = passSingle * SFL_Data_down - passCross * passSingle * std::min(SFl_Data_down, SFL_Data_down) * SFtau_Data + passCross * SFl_Data_down * SFtau_Data;
+                  double Eff_MC_ele_down   = passSingle * SFL_MC_down   - passCross * passSingle * std::min(SFl_MC_down  , SFL_MC_down)   * SFtau_MC   + passCross * SFl_MC_down   * SFtau_MC;
 
                   // for each DM, fill a trigSF branch with the up/down values if the tauh has the corresponding DM, otherwise fill with nominal trigSF value
                   vector <double> SFtau_Data_up   (N_tauhDM, SFtau_Data);
@@ -3138,10 +3187,12 @@ int main (int argc, char** argv)
                   }
 
                   trigSF = Eff_Data / Eff_MC;
-                  trigSF_DM0_up  = Eff_Data_up[0] / Eff_MC_up[0];
-                  trigSF_DM1_up  = Eff_Data_up[1] / Eff_MC_up[1];
-                  trigSF_DM10_up = Eff_Data_up[2] / Eff_MC_up[2];
-                  trigSF_DM11_up = Eff_Data_up[3] / Eff_MC_up[3];
+                  trigSF_ele_up    = Eff_Data_ele_up / Eff_MC_ele_up;
+                  trigSF_ele_down  = Eff_Data_ele_down / Eff_MC_ele_down;
+                  trigSF_DM0_up    = Eff_Data_up[0] / Eff_MC_up[0];
+                  trigSF_DM1_up    = Eff_Data_up[1] / Eff_MC_up[1];
+                  trigSF_DM10_up   = Eff_Data_up[2] / Eff_MC_up[2];
+                  trigSF_DM11_up   = Eff_Data_up[3] / Eff_MC_up[3];
                   trigSF_DM0_down  = Eff_Data_down[0] / Eff_MC_down[0];
                   trigSF_DM1_down  = Eff_Data_down[1] / Eff_MC_down[1];
                   trigSF_DM10_down = Eff_Data_down[2] / Eff_MC_down[2];
@@ -3155,7 +3206,10 @@ int main (int argc, char** argv)
               else //eta region covered only by single lepton trigger
                 {
                   double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+                  double SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
                   trigSF = SF;
+                  trigSF_ele_up   = SF + 1. * SF_Err;
+                  trigSF_ele_down = SF - 1. * SF_Err;
                 }
               //trig SF for analysis only with single-e trigger
               trigSF_single =  eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -3202,22 +3256,32 @@ int main (int argc, char** argv)
           else if (pType == 3 && isMC)
             {
               double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+              double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
               trigSF = SF;
+              trigSF_mu_up   = SF + 1. * SF_Err;
+              trigSF_mu_down = SF - 1. * SF_Err;
             }
 
           // EleEle Channel
           else if (pType == 4 && isMC)
             {
               double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+              double SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
               trigSF = SF;
+              trigSF_ele_up   = SF + 1. * SF_Err;
+              trigSF_ele_down = SF - 1. * SF_Err;
             }
         } // end if(applytriggers)
 
       theSmallTree.m_trigSF           = (isMC ? trigSF : 1.0);
+      theSmallTree.m_trigSF_ele_up    = (isMC ? trigSF_ele_up : 1.0);
+      theSmallTree.m_trigSF_mu_up     = (isMC ? trigSF_mu_up : 1.0);
       theSmallTree.m_trigSF_DM0_up    = (isMC ? trigSF_DM0_up : 1.0);
       theSmallTree.m_trigSF_DM1_up    = (isMC ? trigSF_DM1_up : 1.0);
       theSmallTree.m_trigSF_DM10_up   = (isMC ? trigSF_DM10_up : 1.0);
       theSmallTree.m_trigSF_DM11_up   = (isMC ? trigSF_DM11_up : 1.0);
+      theSmallTree.m_trigSF_ele_down  = (isMC ? trigSF_ele_down : 1.0);
+      theSmallTree.m_trigSF_mu_down   = (isMC ? trigSF_mu_down : 1.0);
       theSmallTree.m_trigSF_DM0_down  = (isMC ? trigSF_DM0_down : 1.0);
       theSmallTree.m_trigSF_DM1_down  = (isMC ? trigSF_DM1_down : 1.0);
       theSmallTree.m_trigSF_DM10_down = (isMC ? trigSF_DM10_down : 1.0);
