@@ -552,9 +552,9 @@ int main (int argc, char** argv)
   ScaleFactor * eTrgSF     = new ScaleFactor();
 
   muTauTrgSF->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Muon_Mu19leg_2016BtoH_eff.root");
-  muTrgSF   ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Muon_Mu22OR_eta2p1_eff.root");
+  muTrgSF   ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Muon_Run2016_legacy_IsoMu22.root");
   //eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root");
-  eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele25WPTight_eff.root");
+  eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Run2016_legacy_Ele25.root");
 
   // ------------------------------
 
