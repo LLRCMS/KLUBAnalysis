@@ -4710,7 +4710,7 @@ int main (int argc, char** argv)
           // PUjetIDSFprovider
           if (isMC)
           {
-            theSmallTree.m_PUjetID_SF = PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton);
+            theSmallTree.m_PUjetID_SF = (PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton)).at(0);
             if (DEBUG)
             {
               std::cout << "---- PUjetID_SF debug ----" << std::endl;

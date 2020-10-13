@@ -27,6 +27,8 @@ struct smallTree
       m_prescaleWeight = 1. ;
       m_L1pref_weight = 1.;
       m_PUjetID_SF = 1.;
+      m_PUjetID_SF_up = 1.;
+      m_PUjetID_SF_down = 1.;
       m_PUReweight = -1. ;
       m_bTagweightL = -1. ;
       m_bTagweightL_up = -1. ;
@@ -978,6 +980,8 @@ struct smallTree
       m_smallT->Branch ("prescaleWeight", &m_prescaleWeight, "prescaleWeight/F") ;
       m_smallT->Branch ("L1pref_weight", &m_L1pref_weight, "L1pref_weight/F") ;
       m_smallT->Branch ("PUjetID_SF", &m_PUjetID_SF, "PUjetID_SF/F") ;
+      m_smallT->Branch ("PUjetID_SF_up", &m_PUjetID_SF_up, "PUjetID_SF_up/F") ;
+      m_smallT->Branch ("PUjetID_SF_down", &m_PUjetID_SF_down, "PUjetID_SF_down/F") ;
       m_smallT->Branch ("PUReweight", &m_PUReweight, "PUReweight/F") ;
       m_smallT->Branch ("bTagweightL", &m_bTagweightL, "bTagweightL/F") ;
       m_smallT->Branch ("bTagweightL_up", &m_bTagweightL_up, "bTagweightL_up/F") ;
@@ -1927,6 +1931,8 @@ struct smallTree
   Float_t m_prescaleWeight ;
   Float_t m_L1pref_weight ;
   Float_t m_PUjetID_SF ;
+  Float_t m_PUjetID_SF_up ;
+  Float_t m_PUjetID_SF_down ;
   Float_t m_PUReweight ;
   Float_t m_bTagweightL ;
   Float_t m_bTagweightL_up ;

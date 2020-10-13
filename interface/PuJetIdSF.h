@@ -12,6 +12,7 @@
 //                                                                                                                //
 //   Author: Francesco Brivio (Milano-Bicocca)                                                                    //
 //   Date  : May 2020                                                                                             //
+//   Update: October 2020 - add up/down variations                                                                //
 //                                                                                                                //
 // -------------------------------------------------------------------------------------------------------------- //
 
@@ -39,16 +40,19 @@ class PuJetIdSF {
 
     bool CheckBit(int number, int bitpos);
 
-    float getEff(bool isReal, float pt, float eta);
-    float getSF (bool isReal, float pt, float eta);
+    float getEff    (bool isReal, float pt, float eta);
+    float getSF     (bool isReal, float pt, float eta);
+    float getSFError(bool isReal, float pt, float eta);
 
-    float getEvtWeight (bigTree &theBigTree, TLorentzVector tau1, TLorentzVector tau2);
+    std::vector<float> getEvtWeight (bigTree &theBigTree, TLorentzVector tau1, TLorentzVector tau2);
 
   private:
     TH2F* h_eff_;
     TH2F* h_eff_SF_;
+    TH2F* h_eff_SF_err_;
     TH2F* h_mistag_;
     TH2F* h_mistag_SF_;
+    TH2F* h_mistag_SF_err_;
 };
 
 #endif // PuJetIdSF
