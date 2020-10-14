@@ -42,8 +42,10 @@ PuJetIdSF::~PuJetIdSF()
 {
   if (h_eff_) delete h_eff_;
   if (h_eff_SF_) delete h_eff_SF_;
+  if (h_eff_SF_err_) delete h_eff_SF_err_;
   if (h_mistag_) delete h_mistag_;
   if (h_mistag_SF_) delete h_mistag_SF_;
+  if (h_mistag_SF_err_) delete h_mistag_SF_err_;
 }
 
 // check bit
