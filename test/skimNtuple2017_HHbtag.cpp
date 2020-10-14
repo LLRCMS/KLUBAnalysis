@@ -2303,6 +2303,14 @@ int main (int argc, char** argv)
       float fakeRateSF_MVA  = 1.0;           // use this for e/mu->tauh fake SF MVA
       float fakeRateSF_deep = 1.0;           // use this for e/mu->tauh fake SF DeepTau
       float customTauIdSF = 1.0;             // computed only for tautau2017 --> to be applied on top of pt dependent SFs
+      float customTauIdSF_DM0_up    = 1.0;
+      float customTauIdSF_DM0_down  = 1.0;
+      float customTauIdSF_DM1_up    = 1.0;
+      float customTauIdSF_DM1_down  = 1.0;
+      float customTauIdSF_DM10_up   = 1.0;
+      float customTauIdSF_DM10_down = 1.0;
+      float customTauIdSF_DM11_up   = 1.0;
+      float customTauIdSF_DM11_down = 1.0;
 
       float idAndIsoAndFakeSF_tauid_pt20to25_up    = 1.0;
       float idAndIsoAndFakeSF_tauid_pt25to30_up    = 1.0;
@@ -2651,6 +2659,22 @@ int main (int argc, char** argv)
 
         float customSFtau1 = 1.;
         float customSFtau2 = 1.;
+        float customSFtau1_DM0_up    = 1.;
+        float customSFtau1_DM0_down  = 1.;
+        float customSFtau1_DM1_up    = 1.;
+        float customSFtau1_DM1_down  = 1.;
+        float customSFtau1_DM10_up   = 1.;
+        float customSFtau1_DM10_down = 1.;
+        float customSFtau1_DM11_up   = 1.;
+        float customSFtau1_DM11_down = 1.;
+        float customSFtau2_DM0_up    = 1.;
+        float customSFtau2_DM0_down  = 1.;
+        float customSFtau2_DM1_up    = 1.;
+        float customSFtau2_DM1_down  = 1.;
+        float customSFtau2_DM10_up   = 1.;
+        float customSFtau2_DM10_down = 1.;
+        float customSFtau2_DM11_up   = 1.;
+        float customSFtau2_DM11_down = 1.;
 
         // Custom tauID SF - Computed on top of pt binned - with HHBtag - 3 Sept 2020
         // SF_DM0  : +1.078 -0.036/+0.034
@@ -2658,15 +2682,55 @@ int main (int argc, char** argv)
         // SF_DM10 : +0.984 -0.067/+0.063
         // SF_DM11 : +0.759 -0.259/+0.178
 
-        if (tau1DM == 0  && theSmallTree.m_isTau1real) customSFtau1 = 1.078;
-        if (tau1DM == 1  && theSmallTree.m_isTau1real) customSFtau1 = 1.112;
-        if (tau1DM == 10 && theSmallTree.m_isTau1real) customSFtau1 = 0.984;
-        if (tau1DM == 11 && theSmallTree.m_isTau1real) customSFtau1 = 0.759;
+        if (tau1DM == 0  && theSmallTree.m_isTau1real)
+        {
+          customSFtau1 = 1.078;
+          customSFtau1_DM0_up   = customSFtau1 + 0.034;
+          customSFtau1_DM0_down = customSFtau1 - 0.036;
+        }
+        if (tau1DM == 1  && theSmallTree.m_isTau1real)
+        {
+          customSFtau1 = 1.112;
+          customSFtau1_DM1_up   = customSFtau1 + 0.023;
+          customSFtau1_DM1_down = customSFtau1 - 0.023;
+        }
+        if (tau1DM == 10 && theSmallTree.m_isTau1real)
+        {
+          customSFtau1 = 0.984;
+          customSFtau1_DM10_up   = customSFtau1 + 0.063;
+          customSFtau1_DM10_down = customSFtau1 - 0.067;
+        }
+        if (tau1DM == 11 && theSmallTree.m_isTau1real)
+        {
+          customSFtau1 = 0.759;
+          customSFtau1_DM11_up   = customSFtau1 + 0.178;
+          customSFtau1_DM11_down = customSFtau1 - 0.259;
+        }
 
-        if (tau2DM == 0  && theSmallTree.m_isTau2real) customSFtau2 = 1.078;
-        if (tau2DM == 1  && theSmallTree.m_isTau2real) customSFtau2 = 1.112;
-        if (tau2DM == 10 && theSmallTree.m_isTau2real) customSFtau2 = 0.984;
-        if (tau2DM == 11 && theSmallTree.m_isTau2real) customSFtau2 = 0.759;
+        if (tau2DM == 0  && theSmallTree.m_isTau2real)
+        {
+          customSFtau2 = 1.078;
+          customSFtau2_DM0_up   = customSFtau2 + 0.034;
+          customSFtau2_DM0_down = customSFtau2 - 0.036;
+        }
+        if (tau2DM == 1  && theSmallTree.m_isTau2real)
+        {
+          customSFtau2 = 1.112;
+          customSFtau2_DM1_up   = customSFtau2 + 0.023;
+          customSFtau2_DM1_down = customSFtau2 - 0.023;
+        }
+        if (tau2DM == 10 && theSmallTree.m_isTau2real)
+        {
+          customSFtau2 = 0.984;
+          customSFtau2_DM10_up   = customSFtau2 + 0.063;
+          customSFtau2_DM10_down = customSFtau2 - 0.067;
+        }
+        if (tau2DM == 11 && theSmallTree.m_isTau2real)
+        {
+          customSFtau2 = 0.759;
+          customSFtau2_DM11_up   = customSFtau2 + 0.178;
+          customSFtau2_DM11_down = customSFtau2 - 0.259;
+        }
 
         // Leg 1
         idAndIsoSF_leg1_MVA_vsJet     = MVA_antiJet_medium    ->getSFvsDM (tau1pt , tau1DM, tau1Genmatch);
@@ -2779,6 +2843,14 @@ int main (int argc, char** argv)
         fakeRateSF_MVA  = idAndIsoSF_leg1_MVA_vsEle * idAndIsoSF_leg1_MVA_vsMu * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
         fakeRateSF_deep = idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
         customTauIdSF = customSFtau1 * customSFtau2;
+        customTauIdSF_DM0_up    = customSFtau1_DM0_up    * customSFtau2_DM0_up;
+        customTauIdSF_DM0_down  = customSFtau1_DM0_down  * customSFtau2_DM0_down;
+        customTauIdSF_DM1_up    = customSFtau1_DM1_up    * customSFtau2_DM1_up;
+        customTauIdSF_DM1_down  = customSFtau1_DM1_down  * customSFtau2_DM1_down;
+        customTauIdSF_DM10_up   = customSFtau1_DM10_up   * customSFtau2_DM10_up;
+        customTauIdSF_DM10_down = customSFtau1_DM10_down * customSFtau2_DM10_down;
+        customTauIdSF_DM11_up   = customSFtau1_DM11_up   * customSFtau2_DM11_up;
+        customTauIdSF_DM11_down = customSFtau1_DM11_down * customSFtau2_DM11_down;
 
         idAndIsoAndFakeSF_tauid_pt20to25_up    = idAndIsoSF_leg1_deep_vsJet_pt_up[0]   * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt_up[0]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
         idAndIsoAndFakeSF_tauid_pt25to30_up    = idAndIsoSF_leg1_deep_vsJet_pt_up[1]   * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt_up[1]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
@@ -2896,6 +2968,14 @@ int main (int argc, char** argv)
       theSmallTree.m_FakeRateSF_MVA            = (isMC ? fakeRateSF_MVA            : 1.0);
       theSmallTree.m_FakeRateSF_deep           = (isMC ? fakeRateSF_deep           : 1.0);
       theSmallTree.m_customTauIdSF             = (isMC ? customTauIdSF             : 1.0);
+      theSmallTree.m_customTauIdSF_DM0_up      = (isMC ? customTauIdSF_DM0_up      : 1.0);
+      theSmallTree.m_customTauIdSF_DM0_down    = (isMC ? customTauIdSF_DM0_down    : 1.0);
+      theSmallTree.m_customTauIdSF_DM1_up      = (isMC ? customTauIdSF_DM1_up      : 1.0);
+      theSmallTree.m_customTauIdSF_DM1_down    = (isMC ? customTauIdSF_DM1_down    : 1.0);
+      theSmallTree.m_customTauIdSF_DM10_up     = (isMC ? customTauIdSF_DM10_up     : 1.0);
+      theSmallTree.m_customTauIdSF_DM10_down   = (isMC ? customTauIdSF_DM10_down   : 1.0);
+      theSmallTree.m_customTauIdSF_DM11_up     = (isMC ? customTauIdSF_DM11_up     : 1.0);
+      theSmallTree.m_customTauIdSF_DM11_down   = (isMC ? customTauIdSF_DM11_down   : 1.0);
 
       theSmallTree.m_idAndIsoAndFakeSF_tauid_pt20to25_up        = (isMC ? idAndIsoAndFakeSF_tauid_pt20to25_up        : 1);
       theSmallTree.m_idAndIsoAndFakeSF_tauid_pt25to30_up        = (isMC ? idAndIsoAndFakeSF_tauid_pt25to30_up        : 1);
