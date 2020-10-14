@@ -75,6 +75,7 @@ struct smallTree
       m_IdAndIsoAndFakeSF_deep_pt = -1.;
       m_FakeRateSF_MVA = -1.;
       m_FakeRateSF_deep = -1.;
+      m_customTauIdSF = 1.;
       m_idAndIsoAndFakeSF_tauid_pt20to25_up        = -1.;
       m_idAndIsoAndFakeSF_tauid_pt25to30_up        = -1.;
       m_idAndIsoAndFakeSF_tauid_pt30to35_up        = -1.;
@@ -1021,6 +1022,7 @@ struct smallTree
       m_smallT->Branch ("IdAndIsoAndFakeSF_deep_pt", &m_IdAndIsoAndFakeSF_deep_pt, "IdAndIsoAndFakeSF_deep_pt/F") ;
       m_smallT->Branch ("FakeRateSF_MVA", &m_FakeRateSF_MVA, "FakeRateSF_MVA/F") ;
       m_smallT->Branch ("FakeRateSF_deep", &m_FakeRateSF_deep, "FakeRateSF_deep/F") ;
+      m_smallT->Branch ("customTauIdSF", &m_customTauIdSF, "customTauIdSF/F") ;
       m_smallT->Branch ("idAndIsoAndFakeSF_tauid_pt20to25_up"       , &m_idAndIsoAndFakeSF_tauid_pt20to25_up       , "idAndIsoAndFakeSF_tauid_pt20to25_up/F");
       m_smallT->Branch ("idAndIsoAndFakeSF_tauid_pt25to30_up"       , &m_idAndIsoAndFakeSF_tauid_pt25to30_up       , "idAndIsoAndFakeSF_tauid_pt25to30_up/F");
       m_smallT->Branch ("idAndIsoAndFakeSF_tauid_pt30to35_up"       , &m_idAndIsoAndFakeSF_tauid_pt30to35_up       , "idAndIsoAndFakeSF_tauid_pt30to35_up/F");
@@ -1972,6 +1974,7 @@ struct smallTree
   Float_t m_IdAndIsoAndFakeSF_deep_pt ;
   Float_t m_FakeRateSF_MVA;
   Float_t m_FakeRateSF_deep;
+  Float_t m_customTauIdSF;
   Float_t m_idAndIsoAndFakeSF_tauid_pt20to25_up       ;
   Float_t m_idAndIsoAndFakeSF_tauid_pt25to30_up       ;
   Float_t m_idAndIsoAndFakeSF_tauid_pt30to35_up       ;

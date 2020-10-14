@@ -2302,6 +2302,7 @@ int main (int argc, char** argv)
       float idAndIsoAndFakeSF_deep_pt = 1.0; // use this for DeepTauV2p1 pt dependent + e/mu->tauh fake SF
       float fakeRateSF_MVA  = 1.0;           // use this for e/mu->tauh fake SF MVA
       float fakeRateSF_deep = 1.0;           // use this for e/mu->tauh fake SF DeepTau
+      float customTauIdSF = 1.0;             // computed only for tautau2017 --> to be applied on top of pt dependent SFs
 
       float idAndIsoAndFakeSF_tauid_pt20to25_up    = 1.0;
       float idAndIsoAndFakeSF_tauid_pt25to30_up    = 1.0;
@@ -2648,6 +2649,25 @@ int main (int argc, char** argv)
         float idAndIsoSF_leg2_deep_vsEle    = 1.;
         float idAndIsoSF_leg2_deep_vsMu     = 1.;
 
+        float customSFtau1 = 1.;
+        float customSFtau2 = 1.;
+
+        // Custom tauID SF - Computed on top of pt binned - with HHBtag - 3 Sept 2020
+        // SF_DM0  : +1.078 -0.036/+0.034
+        // SF_DM1  : +1.112 -0.023/+0.023
+        // SF_DM10 : +0.984 -0.067/+0.063
+        // SF_DM11 : +0.759 -0.259/+0.178
+
+        if (tau1DM == 0  && theSmallTree.m_isTau1real) customSFtau1 = 1.078;
+        if (tau1DM == 1  && theSmallTree.m_isTau1real) customSFtau1 = 1.112;
+        if (tau1DM == 10 && theSmallTree.m_isTau1real) customSFtau1 = 0.984;
+        if (tau1DM == 11 && theSmallTree.m_isTau1real) customSFtau1 = 0.759;
+
+        if (tau2DM == 0  && theSmallTree.m_isTau2real) customSFtau2 = 1.078;
+        if (tau2DM == 1  && theSmallTree.m_isTau2real) customSFtau2 = 1.112;
+        if (tau2DM == 10 && theSmallTree.m_isTau2real) customSFtau2 = 0.984;
+        if (tau2DM == 11 && theSmallTree.m_isTau2real) customSFtau2 = 0.759;
+
         // Leg 1
         idAndIsoSF_leg1_MVA_vsJet     = MVA_antiJet_medium    ->getSFvsDM (tau1pt , tau1DM, tau1Genmatch);
         idAndIsoSF_leg1_MVA_vsEle     = MVA_antiEle_vloose    ->getSFvsEta(tau1eta, tau1Genmatch);
@@ -2758,6 +2778,7 @@ int main (int argc, char** argv)
         idAndIsoAndFakeSF_deep_pt = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
         fakeRateSF_MVA  = idAndIsoSF_leg1_MVA_vsEle * idAndIsoSF_leg1_MVA_vsMu * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
         fakeRateSF_deep = idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        customTauIdSF = customSFtau1 * customSFtau2;
 
         idAndIsoAndFakeSF_tauid_pt20to25_up    = idAndIsoSF_leg1_deep_vsJet_pt_up[0]   * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt_up[0]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
         idAndIsoAndFakeSF_tauid_pt25to30_up    = idAndIsoSF_leg1_deep_vsJet_pt_up[1]   * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt_up[1]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
@@ -2874,6 +2895,7 @@ int main (int argc, char** argv)
       theSmallTree.m_IdAndIsoAndFakeSF_deep_pt = (isMC ? idAndIsoAndFakeSF_deep_pt : 1.0);
       theSmallTree.m_FakeRateSF_MVA            = (isMC ? fakeRateSF_MVA            : 1.0);
       theSmallTree.m_FakeRateSF_deep           = (isMC ? fakeRateSF_deep           : 1.0);
+      theSmallTree.m_customTauIdSF             = (isMC ? customTauIdSF             : 1.0);
 
       theSmallTree.m_idAndIsoAndFakeSF_tauid_pt20to25_up        = (isMC ? idAndIsoAndFakeSF_tauid_pt20to25_up        : 1);
       theSmallTree.m_idAndIsoAndFakeSF_tauid_pt25to30_up        = (isMC ? idAndIsoAndFakeSF_tauid_pt25to30_up        : 1);
