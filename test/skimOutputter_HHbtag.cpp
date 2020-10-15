@@ -172,8 +172,8 @@ int main (int argc, char** argv)
   "isOS","isBoosted","isTau1real","isTau2real",
   "lhe*","nBhadrons","npu","npv","genZ_pt",
 
-  "MC_weight","PUReweight","PUjetID_SF","L1pref_weight*",              // Weights and SFs
-  "prescaleWeight","trigSF","trigSF_DM*","VBFtrigSF",
+  "MC_weight","PUReweight","PUjetID_SF*","L1pref_weight*",             // Weights and SFs
+  "prescaleWeight","trigSF*","VBFtrigSF","customTauIdSF*",
   "DYscale_MTT*","DYscale_MH","bTagweightM*","bTagweightL*",
   "IdAndIsoAndFakeSF_deep","IdAndIsoAndFakeSF_deep_pt",
   "TTtopPtreweight*","idAndIsoAndFakeSF_tauid*",
