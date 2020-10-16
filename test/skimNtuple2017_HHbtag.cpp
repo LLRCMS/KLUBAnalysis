@@ -1447,9 +1447,9 @@ int main (int argc, char** argv)
 	}
       double EvtW;
       if (theBigTree.npu >= 0 && theBigTree.npu <= 99) // good PU weights
-        EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) * topPtReweight * HHweight) : 1.0;
+        EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) * topPtReweight * HHweight * stitchWeight) : 1.0;
       else if (theBigTree.npu >= 100)                  // use the last available bin for the PU weight
-        EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,99, PUreweightFile) * topPtReweight * HHweight) : 1.0;
+        EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,99, PUreweightFile) * topPtReweight * HHweight * stitchWeight) : 1.0;
       else                                             // if npu<0 --> bug in MC --> weight=0
         EvtW = isMC ? 0.0 : 1.0;
 
