@@ -5737,10 +5737,11 @@ int main (int argc, char** argv)
           //{ "v2", "kl1_c2v1_c31" },
           //{ "v3" , "kl1_c2v1_c31_vbf"},
           //{ "v3" , "kl1_c2v1_c31_vr" },
-          { "v3b", "kl1_c2v1_c31_vbf"},
-          { "v3b", "kl1_c2v1_c31_vr" },
+          //({ "v3b", "kl1_c2v1_c31_vbf"},
+          //({ "v3b", "kl1_c2v1_c31_vr" },
           { "v4" , "kl1_c2v1_c31_vbf"},
-          { "v4" , "kl1_c2v1_c31_vr" }
+          { "v4" , "kl1_c2v1_c31_vr" },
+          { "v5" , "kl1_c2v1_c31_vbf"}
         };
 
         // read the input tree
