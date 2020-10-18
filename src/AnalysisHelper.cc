@@ -420,7 +420,19 @@ void AnalysisHelper::prepareSamplesHistos()
                     systcoll.append(nominal_name_, hist);
 
                     // now loop over available syst and create more histos
-                    if (doselW.at(ismpc) == 1)
+                    // skip the up/down variables and only add the systematics to the nominal variables
+                    std::vector<string> shiftVarNames {"tauup", "taudown", "eleup", "eledown", "muup", "mudown", "jetup", "jetdown"};
+                    bool isVarShifted = false;
+                    for (uint idx=0; idx<shiftVarNames.size(); idx++)
+                    {
+                        if (varName.find(shiftVarNames.at(idx)) != string::npos)
+                        {
+                            isVarShifted = true;
+                            break;
+                        }
+                    }
+                    if (DEBUG) std::cout << "************* varName: " << varName << " --> isVarShifted: " << isVarShifted << std::endl;
+                    if (doselW.at(ismpc) == 1 && !isVarShifted)
                     {
                         // sample
                         for (uint iw = 0; iw < currSample.getWeights().size(); ++iw)

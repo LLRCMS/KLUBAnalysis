@@ -1447,9 +1447,9 @@ int main (int argc, char** argv)
 	}
       double EvtW;
       if (theBigTree.npu >= 0 && theBigTree.npu <= 99) // good PU weights
-        EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) * topPtReweight * HHweight) : 1.0;
+        EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) * topPtReweight * HHweight * stitchWeight) : 1.0;
       else if (theBigTree.npu >= 100)                  // use the last available bin for the PU weight
-        EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,99, PUreweightFile) * topPtReweight * HHweight) : 1.0;
+        EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,99, PUreweightFile) * topPtReweight * HHweight * stitchWeight) : 1.0;
       else                                             // if npu<0 --> bug in MC --> weight=0
         EvtW = isMC ? 0.0 : 1.0;
 
@@ -2302,6 +2302,15 @@ int main (int argc, char** argv)
       float idAndIsoAndFakeSF_deep_pt = 1.0; // use this for DeepTauV2p1 pt dependent + e/mu->tauh fake SF
       float fakeRateSF_MVA  = 1.0;           // use this for e/mu->tauh fake SF MVA
       float fakeRateSF_deep = 1.0;           // use this for e/mu->tauh fake SF DeepTau
+      float customTauIdSF = 1.0;             // computed only for tautau2017 --> to be applied on top of pt dependent SFs
+      float customTauIdSF_DM0_up    = 1.0;
+      float customTauIdSF_DM0_down  = 1.0;
+      float customTauIdSF_DM1_up    = 1.0;
+      float customTauIdSF_DM1_down  = 1.0;
+      float customTauIdSF_DM10_up   = 1.0;
+      float customTauIdSF_DM10_down = 1.0;
+      float customTauIdSF_DM11_up   = 1.0;
+      float customTauIdSF_DM11_down = 1.0;
 
       float idAndIsoAndFakeSF_tauid_pt20to25_up    = 1.0;
       float idAndIsoAndFakeSF_tauid_pt25to30_up    = 1.0;
@@ -2648,6 +2657,81 @@ int main (int argc, char** argv)
         float idAndIsoSF_leg2_deep_vsEle    = 1.;
         float idAndIsoSF_leg2_deep_vsMu     = 1.;
 
+        float customSFtau1 = 1.;
+        float customSFtau2 = 1.;
+        float customSFtau1_DM0_up    = 1.;
+        float customSFtau1_DM0_down  = 1.;
+        float customSFtau1_DM1_up    = 1.;
+        float customSFtau1_DM1_down  = 1.;
+        float customSFtau1_DM10_up   = 1.;
+        float customSFtau1_DM10_down = 1.;
+        float customSFtau1_DM11_up   = 1.;
+        float customSFtau1_DM11_down = 1.;
+        float customSFtau2_DM0_up    = 1.;
+        float customSFtau2_DM0_down  = 1.;
+        float customSFtau2_DM1_up    = 1.;
+        float customSFtau2_DM1_down  = 1.;
+        float customSFtau2_DM10_up   = 1.;
+        float customSFtau2_DM10_down = 1.;
+        float customSFtau2_DM11_up   = 1.;
+        float customSFtau2_DM11_down = 1.;
+
+        // Custom tauID SF - Computed on top of pt binned - with HHBtag - 3 Sept 2020
+        // SF_DM0  : +1.078 -0.036/+0.034
+        // SF_DM1  : +1.112 -0.023/+0.023
+        // SF_DM10 : +0.984 -0.067/+0.063
+        // SF_DM11 : +0.759 -0.259/+0.178
+
+        if (tau1DM == 0  && theSmallTree.m_isTau1real)
+        {
+          customSFtau1 = 1.078;
+          customSFtau1_DM0_up   = customSFtau1 + 0.034;
+          customSFtau1_DM0_down = customSFtau1 - 0.036;
+        }
+        if (tau1DM == 1  && theSmallTree.m_isTau1real)
+        {
+          customSFtau1 = 1.112;
+          customSFtau1_DM1_up   = customSFtau1 + 0.023;
+          customSFtau1_DM1_down = customSFtau1 - 0.023;
+        }
+        if (tau1DM == 10 && theSmallTree.m_isTau1real)
+        {
+          customSFtau1 = 0.984;
+          customSFtau1_DM10_up   = customSFtau1 + 0.063;
+          customSFtau1_DM10_down = customSFtau1 - 0.067;
+        }
+        if (tau1DM == 11 && theSmallTree.m_isTau1real)
+        {
+          customSFtau1 = 0.759;
+          customSFtau1_DM11_up   = customSFtau1 + 0.178;
+          customSFtau1_DM11_down = customSFtau1 - 0.259;
+        }
+
+        if (tau2DM == 0  && theSmallTree.m_isTau2real)
+        {
+          customSFtau2 = 1.078;
+          customSFtau2_DM0_up   = customSFtau2 + 0.034;
+          customSFtau2_DM0_down = customSFtau2 - 0.036;
+        }
+        if (tau2DM == 1  && theSmallTree.m_isTau2real)
+        {
+          customSFtau2 = 1.112;
+          customSFtau2_DM1_up   = customSFtau2 + 0.023;
+          customSFtau2_DM1_down = customSFtau2 - 0.023;
+        }
+        if (tau2DM == 10 && theSmallTree.m_isTau2real)
+        {
+          customSFtau2 = 0.984;
+          customSFtau2_DM10_up   = customSFtau2 + 0.063;
+          customSFtau2_DM10_down = customSFtau2 - 0.067;
+        }
+        if (tau2DM == 11 && theSmallTree.m_isTau2real)
+        {
+          customSFtau2 = 0.759;
+          customSFtau2_DM11_up   = customSFtau2 + 0.178;
+          customSFtau2_DM11_down = customSFtau2 - 0.259;
+        }
+
         // Leg 1
         idAndIsoSF_leg1_MVA_vsJet     = MVA_antiJet_medium    ->getSFvsDM (tau1pt , tau1DM, tau1Genmatch);
         idAndIsoSF_leg1_MVA_vsEle     = MVA_antiEle_vloose    ->getSFvsEta(tau1eta, tau1Genmatch);
@@ -2758,6 +2842,15 @@ int main (int argc, char** argv)
         idAndIsoAndFakeSF_deep_pt = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
         fakeRateSF_MVA  = idAndIsoSF_leg1_MVA_vsEle * idAndIsoSF_leg1_MVA_vsMu * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
         fakeRateSF_deep = idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+        customTauIdSF = customSFtau1 * customSFtau2;
+        customTauIdSF_DM0_up    = customSFtau1_DM0_up    * customSFtau2_DM0_up;
+        customTauIdSF_DM0_down  = customSFtau1_DM0_down  * customSFtau2_DM0_down;
+        customTauIdSF_DM1_up    = customSFtau1_DM1_up    * customSFtau2_DM1_up;
+        customTauIdSF_DM1_down  = customSFtau1_DM1_down  * customSFtau2_DM1_down;
+        customTauIdSF_DM10_up   = customSFtau1_DM10_up   * customSFtau2_DM10_up;
+        customTauIdSF_DM10_down = customSFtau1_DM10_down * customSFtau2_DM10_down;
+        customTauIdSF_DM11_up   = customSFtau1_DM11_up   * customSFtau2_DM11_up;
+        customTauIdSF_DM11_down = customSFtau1_DM11_down * customSFtau2_DM11_down;
 
         idAndIsoAndFakeSF_tauid_pt20to25_up    = idAndIsoSF_leg1_deep_vsJet_pt_up[0]   * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt_up[0]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
         idAndIsoAndFakeSF_tauid_pt25to30_up    = idAndIsoSF_leg1_deep_vsJet_pt_up[1]   * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt_up[1]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
@@ -2874,6 +2967,15 @@ int main (int argc, char** argv)
       theSmallTree.m_IdAndIsoAndFakeSF_deep_pt = (isMC ? idAndIsoAndFakeSF_deep_pt : 1.0);
       theSmallTree.m_FakeRateSF_MVA            = (isMC ? fakeRateSF_MVA            : 1.0);
       theSmallTree.m_FakeRateSF_deep           = (isMC ? fakeRateSF_deep           : 1.0);
+      theSmallTree.m_customTauIdSF             = (isMC ? customTauIdSF             : 1.0);
+      theSmallTree.m_customTauIdSF_DM0_up      = (isMC ? customTauIdSF_DM0_up      : 1.0);
+      theSmallTree.m_customTauIdSF_DM0_down    = (isMC ? customTauIdSF_DM0_down    : 1.0);
+      theSmallTree.m_customTauIdSF_DM1_up      = (isMC ? customTauIdSF_DM1_up      : 1.0);
+      theSmallTree.m_customTauIdSF_DM1_down    = (isMC ? customTauIdSF_DM1_down    : 1.0);
+      theSmallTree.m_customTauIdSF_DM10_up     = (isMC ? customTauIdSF_DM10_up     : 1.0);
+      theSmallTree.m_customTauIdSF_DM10_down   = (isMC ? customTauIdSF_DM10_down   : 1.0);
+      theSmallTree.m_customTauIdSF_DM11_up     = (isMC ? customTauIdSF_DM11_up     : 1.0);
+      theSmallTree.m_customTauIdSF_DM11_down   = (isMC ? customTauIdSF_DM11_down   : 1.0);
 
       theSmallTree.m_idAndIsoAndFakeSF_tauid_pt20to25_up        = (isMC ? idAndIsoAndFakeSF_tauid_pt20to25_up        : 1);
       theSmallTree.m_idAndIsoAndFakeSF_tauid_pt25to30_up        = (isMC ? idAndIsoAndFakeSF_tauid_pt25to30_up        : 1);
@@ -2934,10 +3036,14 @@ int main (int argc, char** argv)
       // recommendations for cross triggers:  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information
 
       float trigSF = 1.0;
+      float trigSF_ele_up    = 1.0;
+      float trigSF_mu_up     = 1.0;
       float trigSF_DM0_up    = 1.0;
       float trigSF_DM1_up    = 1.0;
       float trigSF_DM10_up   = 1.0;
       float trigSF_DM11_up   = 1.0;
+      float trigSF_ele_down  = 1.0;
+      float trigSF_mu_down   = 1.0;
       float trigSF_DM0_down  = 1.0;
       float trigSF_DM1_down  = 1.0;
       float trigSF_DM10_down = 1.0;
@@ -2962,20 +3068,39 @@ int main (int argc, char** argv)
             double SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
             double SFL_MC = muTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 
+            double SFL_Data_Err = muTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SFL_MC_Err = muTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+
+            double SFL_Data_up   = SFL_Data + 1. * SFL_Data_Err;
+            double SFL_Data_down = SFL_Data - 1. * SFL_Data_Err;
+            double SFL_MC_up     = SFL_MC   + 1. * SFL_MC_Err;
+            double SFL_MC_down   = SFL_MC   - 1. * SFL_MC_Err;
+
             //cross-trigger
             //mu leg
             double SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
             double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 
+            double SFl_Data_Err = muTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SFl_MC_Err = muTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+
+            double SFl_Data_up   = SFl_Data + 1. * SFl_Data_Err;
+            double SFl_Data_down = SFl_Data - 1. * SFl_Data_Err;
+            double SFl_MC_up     = SFl_MC   + 1. * SFl_MC_Err;
+            double SFl_MC_down   = SFl_MC   - 1. * SFl_MC_Err;
+
             //tau leg
             double SFtau_Data = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
             double SFtau_MC   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 
-            //double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
-            //double Eff_MC   =  passSingle * SFL_MC   * (1 - passCross * SFtau_MC)   + passCross * SFl_MC   * SFtau_MC;
-
+            // Compute efficiencies
             double Eff_Data = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data + passCross * SFl_Data * SFtau_Data;
             double Eff_MC   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC   + passCross * SFl_MC   * SFtau_MC;
+
+            double Eff_Data_mu_up   = passSingle * SFL_Data_up   - passCross * passSingle * std::min(SFl_Data_up  , SFL_Data_up)   * SFtau_Data + passCross * SFl_Data_up   * SFtau_Data;
+            double Eff_MC_mu_up     = passSingle * SFL_MC_up     - passCross * passSingle * std::min(SFl_MC_up    , SFL_MC_up)     * SFtau_MC   + passCross * SFl_MC_up     * SFtau_MC;
+            double Eff_Data_mu_down = passSingle * SFL_Data_down - passCross * passSingle * std::min(SFl_Data_down, SFL_Data_down) * SFtau_Data + passCross * SFl_Data_down * SFtau_Data;
+            double Eff_MC_mu_down   = passSingle * SFL_MC_down   - passCross * passSingle * std::min(SFl_MC_down  , SFL_MC_down)   * SFtau_MC   + passCross * SFl_MC_down   * SFtau_MC;
 
             // for each DM, fill a trigSF branch with the up/down values if the tauh has the corresponding DM, otherwise fill with nominal trigSF value
             vector <double> SFtau_Data_up   (N_tauhDM, SFtau_Data);
@@ -3014,6 +3139,8 @@ int main (int argc, char** argv)
             }
 
             trigSF = Eff_Data / Eff_MC;
+            trigSF_mu_up     = Eff_Data_mu_up / Eff_MC_mu_up;
+            trigSF_mu_down   = Eff_Data_mu_down / Eff_MC_mu_down;
             trigSF_DM0_up    = Eff_Data_up[0] / Eff_MC_up[0];
             trigSF_DM1_up    = Eff_Data_up[1] / Eff_MC_up[1];
             trigSF_DM10_up   = Eff_Data_up[2] / Eff_MC_up[2];
@@ -3031,7 +3158,10 @@ int main (int argc, char** argv)
           else //eta region covered only by single lepton trigger
           {
             double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
             trigSF = SF;
+            trigSF_mu_up   = SF + 1. * SF_Err;
+            trigSF_mu_down = SF - 1. * SF_Err;
           }
           //trig SF for analysis only with single-mu trigger
           trigSF_single =  muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -3052,20 +3182,39 @@ int main (int argc, char** argv)
             double SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
             double SFL_MC = eTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 
+            double SFL_Data_Err = eTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SFL_MC_Err = eTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+
+            double SFL_Data_up   = SFL_Data + 1. * SFL_Data_Err;
+            double SFL_Data_down = SFL_Data - 1. * SFL_Data_Err;
+            double SFL_MC_up     = SFL_MC   + 1. * SFL_MC_Err;
+            double SFL_MC_down   = SFL_MC   - 1. * SFL_MC_Err;
+
             //cross-trigger
             //e leg
             double SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
             double SFl_MC = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 
+            double SFl_Data_Err = eTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SFl_MC_Err = eTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+
+            double SFl_Data_up   = SFl_Data + 1. * SFl_Data_Err;
+            double SFl_Data_down = SFl_Data - 1. * SFl_Data_Err;
+            double SFl_MC_up     = SFl_MC   + 1. * SFl_MC_Err;
+            double SFl_MC_down   = SFl_MC   - 1. * SFl_MC_Err;
+
             //tau leg
             double SFtau_Data = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
             double SFtau_MC   = tauTrgSF_etau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 
-            //double Eff_Data =  passSingle * SFL_Data * (1 - passCross * SFtau_Data) + passCross * SFl_Data * SFtau_Data;
-            //double Eff_MC   =  passSingle * SFL_MC   * (1 - passCross * SFtau_MC)   + passCross * SFl_MC   * SFtau_MC;
-
+            // Compute efficiencies
             double Eff_Data = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data + passCross * SFl_Data * SFtau_Data;
             double Eff_MC   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC   + passCross * SFl_MC   * SFtau_MC;
+
+            double Eff_Data_ele_up   = passSingle * SFL_Data_up   - passCross * passSingle * std::min(SFl_Data_up  , SFL_Data_up)   * SFtau_Data + passCross * SFl_Data_up   * SFtau_Data;
+            double Eff_MC_ele_up     = passSingle * SFL_MC_up     - passCross * passSingle * std::min(SFl_MC_up    , SFL_MC_up)     * SFtau_MC   + passCross * SFl_MC_up     * SFtau_MC;
+            double Eff_Data_ele_down = passSingle * SFL_Data_down - passCross * passSingle * std::min(SFl_Data_down, SFL_Data_down) * SFtau_Data + passCross * SFl_Data_down * SFtau_Data;
+            double Eff_MC_ele_down   = passSingle * SFL_MC_down   - passCross * passSingle * std::min(SFl_MC_down  , SFL_MC_down)   * SFtau_MC   + passCross * SFl_MC_down   * SFtau_MC;
 
             // for each DM, fill a trigSF branch with the up/down values if the tauh has the corresponding DM, otherwise fill with nominal trigSF value
             vector <double> SFtau_Data_up   (N_tauhDM, SFtau_Data);
@@ -3104,6 +3253,8 @@ int main (int argc, char** argv)
             }
 
             trigSF = Eff_Data / Eff_MC;
+            trigSF_ele_up    = Eff_Data_ele_up / Eff_MC_ele_up;
+            trigSF_ele_down  = Eff_Data_ele_down / Eff_MC_ele_down;
             trigSF_DM0_up    = Eff_Data_up[0] / Eff_MC_up[0];
             trigSF_DM1_up    = Eff_Data_up[1] / Eff_MC_up[1];
             trigSF_DM10_up   = Eff_Data_up[2] / Eff_MC_up[2];
@@ -3121,7 +3272,10 @@ int main (int argc, char** argv)
           else //eta region covered only by single lepton trigger
           {
             double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+            double SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
             trigSF = SF;
+            trigSF_ele_up   = SF + 1. * SF_Err;
+            trigSF_ele_down = SF - 1. * SF_Err;
           }
           //trig SF for analysis only with single-e trigger
           trigSF_single =  eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -3168,22 +3322,32 @@ int main (int argc, char** argv)
         else if (pType == 3 && isMC)
         {
           double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+          double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
           trigSF = SF;
+          trigSF_mu_up   = SF + 1. * SF_Err;
+          trigSF_mu_down = SF - 1. * SF_Err;
         }
 
         // EleEle Channel
         else if (pType == 4 && isMC)
         {
           double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+          double SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
           trigSF = SF;
+          trigSF_ele_up   = SF + 1. * SF_Err;
+          trigSF_ele_down = SF - 1. * SF_Err;
         }
       } // end if(applytriggers)
 
       theSmallTree.m_trigSF           = (isMC ? trigSF : 1.0);
+      theSmallTree.m_trigSF_ele_up    = (isMC ? trigSF_ele_up : 1.0);
+      theSmallTree.m_trigSF_mu_up     = (isMC ? trigSF_mu_up : 1.0);
       theSmallTree.m_trigSF_DM0_up    = (isMC ? trigSF_DM0_up : 1.0);
       theSmallTree.m_trigSF_DM1_up    = (isMC ? trigSF_DM1_up : 1.0);
       theSmallTree.m_trigSF_DM10_up   = (isMC ? trigSF_DM10_up : 1.0);
       theSmallTree.m_trigSF_DM11_up   = (isMC ? trigSF_DM11_up : 1.0);
+      theSmallTree.m_trigSF_ele_down  = (isMC ? trigSF_ele_down : 1.0);
+      theSmallTree.m_trigSF_mu_down   = (isMC ? trigSF_mu_down : 1.0);
       theSmallTree.m_trigSF_DM0_down  = (isMC ? trigSF_DM0_down : 1.0);
       theSmallTree.m_trigSF_DM1_down  = (isMC ? trigSF_DM1_down : 1.0);
       theSmallTree.m_trigSF_DM10_down = (isMC ? trigSF_DM10_down : 1.0);
@@ -4637,11 +4801,16 @@ int main (int argc, char** argv)
       // PUjetIDSFprovider
       if (isMC)
       {
-        theSmallTree.m_PUjetID_SF = PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton);
+        std::vector<float> PUjetID_SF_values = PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton);
+        theSmallTree.m_PUjetID_SF      = PUjetID_SF_values.at(0);
+        theSmallTree.m_PUjetID_SF_up   = PUjetID_SF_values.at(1);
+        theSmallTree.m_PUjetID_SF_down = PUjetID_SF_values.at(2);
         if (DEBUG)
         {
           std::cout << "---- PUjetID_SF debug ----" << std::endl;
-          std::cout << "PUjetID_SF: " << theSmallTree.m_PUjetID_SF << std::endl;
+          std::cout << "PUjetID_SF     : " << theSmallTree.m_PUjetID_SF << std::endl;
+          std::cout << "PUjetID_SF_up  : " << theSmallTree.m_PUjetID_SF_up << std::endl;
+          std::cout << "PUjetID_SF_down: " << theSmallTree.m_PUjetID_SF_down << std::endl;
           std::cout << "--------------------------" << std::endl;
         }
       }
@@ -5568,10 +5737,11 @@ int main (int argc, char** argv)
           //{ "v2", "kl1_c2v1_c31" },
           //{ "v3" , "kl1_c2v1_c31_vbf"},
           //{ "v3" , "kl1_c2v1_c31_vr" },
-          { "v3b", "kl1_c2v1_c31_vbf"},
-          { "v3b", "kl1_c2v1_c31_vr" },
+          //({ "v3b", "kl1_c2v1_c31_vbf"},
+          //({ "v3b", "kl1_c2v1_c31_vr" },
           { "v4" , "kl1_c2v1_c31_vbf"},
-          { "v4" , "kl1_c2v1_c31_vr" }
+          { "v4" , "kl1_c2v1_c31_vr" },
+          { "v5" , "kl1_c2v1_c31_vbf"}
         };
 
         // read the input tree

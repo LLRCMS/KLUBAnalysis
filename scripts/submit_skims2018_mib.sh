@@ -223,13 +223,15 @@ python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2
 #   1   1  0 |  0.004454 pb * 1.034772182             =   0.004609 pb
 #   1   1  2 |  0.001375 pb * 1.034772182             =   0.001423 pb
 #   1   2  1 |  0.01374  pb * 1.034772182             =   0.014218 pb
+#   1   0  1 |  0.02617 pb  * 1.034772182             =   0.027080 pb ----> BR * xs = 0.073056256 * 0.027080 = 0.001978363412 [pb]
 
-python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 10 -q longcms -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_1_C3_1_xs -i $INPUTDIR_SIG/1_VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt     -x 0.001726  -a True
-python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 10 -q longcms -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_VBFHH_CV_0_5_C2V_1_C3_1_xs -i $INPUTDIR_SIG/2_VBFHHTo2B2Tau_CV_0_5_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 0.010824  -a True
-python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 10 -q longcms -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_VBFHH_CV_1_5_C2V_1_C3_1_xs -i $INPUTDIR_SIG/3_VBFHHTo2B2Tau_CV_1_5_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 0.066018  -a True
-python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 10 -q longcms -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_1_C3_0_xs -i $INPUTDIR_SIG/4_VBFHHTo2B2Tau_CV_1_C2V_1_C3_0_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt     -x 0.004609  -a True
-python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 10 -q longcms -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_1_C3_2_xs -i $INPUTDIR_SIG/5_VBFHHTo2B2Tau_CV_1_C2V_1_C3_2_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt     -x 0.001423  -a True
-python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 10 -q longcms -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_2_C3_1_xs -i $INPUTDIR_SIG/6_VBFHHTo2B2Tau_CV_1_C2V_2_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt     -x 0.014218  -a True
+python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 10 -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_1_C3_1_xs   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_dipoleRecoilOff.txt    -x 0.001726  -a True
+python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 10 -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_VBFHH_CV_0_5_C2V_1_C3_1_xs -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_0_5_C2V_1_C3_1_dipoleRecoilOff.txt  -x 0.010824  -a True
+python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 10 -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_VBFHH_CV_1_5_C2V_1_C3_1_xs -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_5_C2V_1_C3_1_dipoleRecoilOff.txt  -x 0.066018  -a True
+python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 10 -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_1_C3_0_xs   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_1_C3_0_dipoleRecoilOff.txt    -x 0.004609  -a True
+python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 10 -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_1_C3_2_xs   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_1_C3_2_dipoleRecoilOff.txt    -x 0.001423  -a True
+python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 10 -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_2_C3_1_xs   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_2_C3_1_dipoleRecoilOff.txt    -x 0.014218  -a True
+python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c config/skim_Legacy2018_mib.cfg  -n 10 -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/SKIM_VBFHH_CV_1_C2V_0_C3_1_xs   -i $INPUTDIR_SIG/VBFHHTo2B2Tau_CV_1_C2V_0_C3_1_dipoleRecoilOff.txt    -x 0.027080  -a True
 
 
 ######################
@@ -241,3 +243,4 @@ python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c  config/skim_Legacy
 #python scripts/skimNtuple_mib_2018.py -T $OUTDIRR -s True -c  config/skim_Legacy2018_mib.cfg  -n 20 -q longcms -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_HHRew_SM_wrong  -x 1.0 --kl 1.0  --kt 1.0 --c2 0.0 --cg 0.0 --c2g 1. -a True -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_LO_allNodes.txt
 
 COMMENT1
+
