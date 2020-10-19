@@ -96,6 +96,7 @@ int main (int argc, char** argv)
 
   // Max events to be analyzed, read from config
   int nMaxEvts = gConfigParser->readIntOption("outPutter::nMaxEvts");
+  cout << "** INFO: n evts to be analyzed : " << nMaxEvts << " [ -1 means all events ]" << endl;
 
   // Read bools from config
   bool doMT2    = gConfigParser->readBoolOption("outPutter::doMT2"   );
@@ -154,14 +155,19 @@ int main (int argc, char** argv)
   cout << "** ANALYSIS: Initial entries: " << nentries << endl;
 
   // Declare the only two branches needed for skimming the initial entries 
-  int nleps, pairType, nbjetscand, dau1_deepTauVsJet, dau1_eleMVAiso;
-  float dau1_iso;
+  int nleps, pairType, nbjetscand, dau1_deepTauVsJet, dau1_eleMVAiso, ISVBF;
+  float dau1_iso, tauHSVFITmass, bHmassraw, bjet1bIDdeepFlavor, bjet2bIDdeepFlavor;
   inputChain->SetBranchAddress("nleps", &nleps);
   inputChain->SetBranchAddress("pairType", &pairType);
   inputChain->SetBranchAddress("nbjetscand", &nbjetscand);
   inputChain->SetBranchAddress("dau1_deepTauVsJet", &dau1_deepTauVsJet);
   inputChain->SetBranchAddress("dau1_iso", &dau1_iso);
   inputChain->SetBranchAddress("dau1_eleMVAiso", &dau1_eleMVAiso);
+  inputChain->SetBranchAddress("isVBF", &ISVBF);
+  inputChain->SetBranchAddress("tauH_SVFIT_mass", &tauHSVFITmass);
+  inputChain->SetBranchAddress("bH_mass_raw", &bHmassraw);
+  inputChain->SetBranchAddress("bjet1_bID_deepFlavor", &bjet1bIDdeepFlavor);
+  inputChain->SetBranchAddress("bjet2_bID_deepFlavor", &bjet2bIDdeepFlavor);
 
   // De-activate all branches
   inputChain->SetBranchStatus("*", 0);
@@ -288,7 +294,7 @@ int main (int argc, char** argv)
   cout << "** ANALYSIS: Cloning with minimal selection..." << endl;
   for (Long64_t iEvent = 0 ; iEvent<nentries ; ++iEvent) 
   {
-    if (iEvent % 500 == 0)  cout << "  - reading event " << iEvent << endl ;
+    if (iEvent % 5000 == 0)  cout << "  - reading event " << iEvent << endl ;
     if (iEvent == nMaxEvts ) break;
 
     inputChain->GetEntry(iEvent);
@@ -296,6 +302,8 @@ int main (int argc, char** argv)
     if ( pairType==0 && dau1_iso>=0.15 ) continue;
     if ( pairType==1 && dau1_eleMVAiso!=1 ) continue;
     if ( pairType==2 && dau1_deepTauVsJet<5 ) continue;
+    if ( ISVBF!=1 && (((tauHSVFITmass-128.)*(tauHSVFITmass-128.))/(65.*65.)+((bHmassraw-169.)*(bHmassraw-169.))/(150.*150.) >  1.0) ) continue;
+    if ( ISVBF!=1 && ((bjet1bIDdeepFlavor < 0.0614) && (bjet2bIDdeepFlavor < 0.0614)) ) continue;
     treenew->Fill() ;
   }
   cout << "** ANALYSIS: ...Cloned entries: " << treenew->GetEntries() << endl;
