@@ -1212,6 +1212,8 @@ int main (int argc, char** argv)
     stableMetCov (0,1) = met_cov10;
     stableMetCov (1,1) = met_cov11;
 
+    Float_t tauH_SVFIT_e;
+    tauH_SVFIT_e = (tauH_SVFIT_pt >= 0) ? svfit.E() : -999.;
     float mTtot                         = Calculate_TotalMT(tau1, tau2, met);
     float pzeta_vis                     = Calculate_visiblePzeta(tau1, tau2);
     float pzeta                         = Calculate_Pzeta(tau1, tau2, met);
@@ -1308,7 +1310,7 @@ int main (int argc, char** argv)
             {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
             {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
             {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-            {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}, {"tauh_sv_ez", Elong}
+            {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", tauH_SVFIT_e}, {"tauh_sv_ez", Elong}
           });
         }
         auto mdnnSM0_score_new = mci.predict(EventNumber, 0);
@@ -1422,7 +1424,7 @@ int main (int argc, char** argv)
               {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
               {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
               {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-              {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}, {"tauh_sv_ez", Elong}
+              {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", tauH_SVFIT_e}, {"tauh_sv_ez", Elong}
             });
           }
           auto mdnnSM0_score_new = mci.predict(EventNumber, 0);
@@ -1503,7 +1505,7 @@ int main (int argc, char** argv)
             {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
             {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
             {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-            {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}, {"tauh_sv_ez", Elong}
+            {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", tauH_SVFIT_e}, {"tauh_sv_ez", Elong}
           });
         }
         auto mdnnSM0_score_mes = mci.predict(EventNumber, 0);
@@ -1543,8 +1545,8 @@ int main (int argc, char** argv)
         // Declare other useful shifted variables
         float HHKin_mass_muup, HHKin_chi2_muup, HHKin_mass_mudown, HHKin_chi2_mudown;
         float MT2_muup, MT2_mudown;
-        float tauH_SVFIT_pt_muup, tauH_SVFIT_eta_muup, tauH_SVFIT_phi_muup;
-        float tauH_SVFIT_pt_mudown, tauH_SVFIT_eta_mudown, tauH_SVFIT_phi_mudown;
+        float tauH_SVFIT_pt_muup, tauH_SVFIT_eta_muup, tauH_SVFIT_phi_muup, tauH_SVFIT_e_muup;
+        float tauH_SVFIT_pt_mudown, tauH_SVFIT_eta_mudown, tauH_SVFIT_phi_mudown, tauH_SVFIT_e_mudown;
 
         if (doKinFit)
         {
@@ -1621,6 +1623,7 @@ int main (int argc, char** argv)
         // --- --- --- MES DNN/BDT quantities --- --- ---
         TLorentzVector svfit_muup;
         svfit_muup.SetPtEtaPhiM(tauH_SVFIT_pt_muup, tauH_SVFIT_eta_muup, tauH_SVFIT_phi_muup, tauH_SVFIT_mass_muup);
+        tauH_SVFIT_e_muup = (tauH_SVFIT_pt_muup>=0) ? svfit_muup.E() : -999.;
         float mTtot_muup                         = Calculate_TotalMT(tau1_muup, tau2_muup, met_muup);
         float pzeta_vis_muup                     = Calculate_visiblePzeta(tau1_muup, tau2_muup);
         float pzeta_muup                         = Calculate_Pzeta(tau1_muup, tau2_muup, met_muup);
@@ -1637,6 +1640,7 @@ int main (int argc, char** argv)
 
         TLorentzVector svfit_mudown;
         svfit_mudown.SetPtEtaPhiM(tauH_SVFIT_pt_mudown, tauH_SVFIT_eta_mudown, tauH_SVFIT_phi_mudown, tauH_SVFIT_mass_mudown);
+        tauH_SVFIT_e_mudown = (tauH_SVFIT_pt_mudown>=0) ? svfit_mudown.E() : -999.;
         float mTtot_mudown                         = Calculate_TotalMT(tau1_mudown, tau2_mudown, met_mudown);
         float pzeta_vis_mudown                     = Calculate_visiblePzeta(tau1_mudown, tau2_mudown);
         float pzeta_mudown                         = Calculate_Pzeta(tau1_mudown, tau2_mudown, met_mudown);
@@ -1689,7 +1693,7 @@ int main (int argc, char** argv)
               {"lep2_pt", tau2_muup.Pt()}, {"lep2_eta", tau2_muup.Eta()}, {"lep2_phi", tau2_muup.Phi()}, {"lep2_e", tau2_muup.E()},
               {"met_pt", met_muup.Pt()}, {"met_phi", met_muup.Phi()},
               {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-              {"tauh_sv_pt", svfit_muup.Pt()}, {"tauh_sv_eta", svfit_muup.Eta()}, {"tauh_sv_phi", svfit_muup.Phi()}, {"tauh_sv_e", svfit_muup.E()}, {"tauh_sv_ez", Elong_muup}
+              {"tauh_sv_pt", tauH_SVFIT_pt_muup}, {"tauh_sv_eta", tauH_SVFIT_eta_muup}, {"tauh_sv_phi", tauH_SVFIT_phi_muup}, {"tauh_sv_e", tauH_SVFIT_e_muup}, {"tauh_sv_ez", Elong_muup}
             });
           }
           auto mdnnSM0_score_muup = mci.predict(EventNumber, 0);
@@ -1725,7 +1729,7 @@ int main (int argc, char** argv)
               {"lep2_pt", tau2_mudown.Pt()}, {"lep2_eta", tau2_mudown.Eta()}, {"lep2_phi", tau2_mudown.Phi()}, {"lep2_e", tau2_mudown.E()},
               {"met_pt", met_mudown.Pt()}, {"met_phi", met_mudown.Phi()},
               {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-              {"tauh_sv_pt", svfit_mudown.Pt()}, {"tauh_sv_eta", svfit_mudown.Eta()}, {"tauh_sv_phi", svfit_mudown.Phi()}, {"tauh_sv_e", svfit_mudown.E()}, {"tauh_sv_ez", Elong_mudown}
+              {"tauh_sv_pt", tauH_SVFIT_pt_mudown}, {"tauh_sv_eta", tauH_SVFIT_eta_mudown}, {"tauh_sv_phi", tauH_SVFIT_phi_mudown}, {"tauh_sv_e", tauH_SVFIT_e_mudown}, {"tauh_sv_ez", Elong_mudown}
             });
           }
           auto mdnnSM0_score_mudown = mci.predict(EventNumber, 0);
@@ -1807,7 +1811,7 @@ int main (int argc, char** argv)
               {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
               {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
               {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-              {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}, {"tauh_sv_ez", Elong}
+              {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", tauH_SVFIT_e}, {"tauh_sv_ez", Elong}
             });
           }
           auto mdnnSM0_score_ees = mci.predict(EventNumber, 0);
@@ -1847,8 +1851,8 @@ int main (int argc, char** argv)
           // Declare other useful shifted variables
           float HHKin_mass_eleup, HHKin_chi2_eleup, HHKin_mass_eledown, HHKin_chi2_eledown;
           float MT2_eleup, MT2_eledown;
-          float tauH_SVFIT_pt_eleup, tauH_SVFIT_eta_eleup, tauH_SVFIT_phi_eleup;
-          float tauH_SVFIT_pt_eledown, tauH_SVFIT_eta_eledown, tauH_SVFIT_phi_eledown;
+          float tauH_SVFIT_pt_eleup, tauH_SVFIT_eta_eleup, tauH_SVFIT_phi_eleup, tauH_SVFIT_e_eleup;
+          float tauH_SVFIT_pt_eledown, tauH_SVFIT_eta_eledown, tauH_SVFIT_phi_eledown, tauH_SVFIT_e_eledown;
 
           if (doKinFit)
           {
@@ -1924,6 +1928,7 @@ int main (int argc, char** argv)
           // --- --- --- EES DNN/BDT quantities --- --- ---
           TLorentzVector svfit_eleup;
           svfit_eleup.SetPtEtaPhiM(tauH_SVFIT_pt_eleup, tauH_SVFIT_eta_eleup, tauH_SVFIT_phi_eleup, tauH_SVFIT_mass_eleup.at(i));
+          tauH_SVFIT_e_eleup = (tauH_SVFIT_pt_eleup>=0) ? svfit_eleup.E() : -999.;
           float mTtot_eleup                         = Calculate_TotalMT(tau1_eleup, tau2_eleup, met_eleup);
           float pzeta_vis_eleup                     = Calculate_visiblePzeta(tau1_eleup, tau2_eleup);
           float pzeta_eleup                         = Calculate_Pzeta(tau1_eleup, tau2_eleup, met_eleup);
@@ -1940,6 +1945,7 @@ int main (int argc, char** argv)
 
           TLorentzVector svfit_eledown;
           svfit_eledown.SetPtEtaPhiM(tauH_SVFIT_pt_eledown, tauH_SVFIT_eta_eledown, tauH_SVFIT_phi_eledown, tauH_SVFIT_mass_eledown.at(i));
+          tauH_SVFIT_e_eledown = (tauH_SVFIT_pt_eledown>=0) ? svfit_eledown.E() : -999.;
           float mTtot_eledown                         = Calculate_TotalMT(tau1_eledown, tau2_eledown, met_eledown);
           float pzeta_vis_eledown                     = Calculate_visiblePzeta(tau1_eledown, tau2_eledown);
           float pzeta_eledown                         = Calculate_Pzeta(tau1_eledown, tau2_eledown, met_eledown);
@@ -1992,7 +1998,7 @@ int main (int argc, char** argv)
                 {"lep2_pt", tau2_eleup.Pt()}, {"lep2_eta", tau2_eleup.Eta()}, {"lep2_phi", tau2_eleup.Phi()}, {"lep2_e", tau2_eleup.E()},
                 {"met_pt", met_eleup.Pt()}, {"met_phi", met_eleup.Phi()},
                 {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-                {"tauh_sv_pt", svfit_eleup.Pt()}, {"tauh_sv_eta", svfit_eleup.Eta()}, {"tauh_sv_phi", svfit_eleup.Phi()}, {"tauh_sv_e", svfit_eleup.E()}, {"tauh_sv_ez", Elong_eleup}
+                {"tauh_sv_pt", tauH_SVFIT_pt_eleup}, {"tauh_sv_eta", tauH_SVFIT_eta_eleup}, {"tauh_sv_phi", tauH_SVFIT_phi_eleup}, {"tauh_sv_e", tauH_SVFIT_e_eleup}, {"tauh_sv_ez", Elong_eleup}
               });
             }
             auto mdnnSM0_score_eleup = mci.predict(EventNumber, 0);
@@ -2028,7 +2034,7 @@ int main (int argc, char** argv)
                 {"lep2_pt", tau2_eledown.Pt()}, {"lep2_eta", tau2_eledown.Eta()}, {"lep2_phi", tau2_eledown.Phi()}, {"lep2_e", tau2_eledown.E()},
                 {"met_pt", met_eledown.Pt()}, {"met_phi", met_eledown.Phi()},
                 {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-                {"tauh_sv_pt", svfit_eledown.Pt()}, {"tauh_sv_eta", svfit_eledown.Eta()}, {"tauh_sv_phi", svfit_eledown.Phi()}, {"tauh_sv_e", svfit_eledown.E()}, {"tauh_sv_ez", Elong_eledown}
+                {"tauh_sv_pt", tauH_SVFIT_pt_eledown}, {"tauh_sv_eta", tauH_SVFIT_eta_eledown}, {"tauh_sv_phi", tauH_SVFIT_phi_eledown}, {"tauh_sv_e", tauH_SVFIT_e_eledown}, {"tauh_sv_ez", Elong_eledown}
               });
             }
             auto mdnnSM0_score_eledown = mci.predict(EventNumber, 0);
@@ -2111,7 +2117,7 @@ int main (int argc, char** argv)
               {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
               {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
               {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-              {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}, {"tauh_sv_ez", Elong}
+              {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", tauH_SVFIT_e}, {"tauh_sv_ez", Elong}
             });
           }
           auto mdnnSM0_score_tes = mci.predict(EventNumber, 0);
@@ -2151,8 +2157,8 @@ int main (int argc, char** argv)
           // Declare other useful shifted variables
           float HHKin_mass_tauup, HHKin_chi2_tauup, HHKin_mass_taudown, HHKin_chi2_taudown;
           float MT2_tauup, MT2_taudown;
-          float tauH_SVFIT_pt_tauup, tauH_SVFIT_eta_tauup, tauH_SVFIT_phi_tauup;
-          float tauH_SVFIT_pt_taudown, tauH_SVFIT_eta_taudown, tauH_SVFIT_phi_taudown;
+          float tauH_SVFIT_pt_tauup, tauH_SVFIT_eta_tauup, tauH_SVFIT_phi_tauup, tauH_SVFIT_e_tauup;
+          float tauH_SVFIT_pt_taudown, tauH_SVFIT_eta_taudown, tauH_SVFIT_phi_taudown, tauH_SVFIT_e_taudown;
 
           if (doKinFit)
           {
@@ -2228,6 +2234,7 @@ int main (int argc, char** argv)
           // --- --- --- TES DNN/BDT quantities --- --- ---
           TLorentzVector svfit_tauup;
           svfit_tauup.SetPtEtaPhiM(tauH_SVFIT_pt_tauup, tauH_SVFIT_eta_tauup, tauH_SVFIT_phi_tauup, tauH_SVFIT_mass_tauup.at(i));
+          tauH_SVFIT_e_tauup = (tauH_SVFIT_pt_tauup>=0) ? svfit_tauup.E() : -999.;
           float mTtot_tauup                         = Calculate_TotalMT(tau1_tauup, tau2_tauup, met_tauup);
           float pzeta_vis_tauup                     = Calculate_visiblePzeta(tau1_tauup, tau2_tauup);
           float pzeta_tauup                         = Calculate_Pzeta(tau1_tauup, tau2_tauup, met_tauup);
@@ -2244,6 +2251,7 @@ int main (int argc, char** argv)
 
           TLorentzVector svfit_taudown;
           svfit_taudown.SetPtEtaPhiM(tauH_SVFIT_pt_taudown, tauH_SVFIT_eta_taudown, tauH_SVFIT_phi_taudown, tauH_SVFIT_mass_taudown.at(i));
+          tauH_SVFIT_e_taudown = (tauH_SVFIT_pt_taudown>=0) ? svfit_taudown.E() : -999.;
           float mTtot_taudown                         = Calculate_TotalMT(tau1_taudown, tau2_taudown, met_taudown);
           float pzeta_vis_taudown                     = Calculate_visiblePzeta(tau1_taudown, tau2_taudown);
           float pzeta_taudown                         = Calculate_Pzeta(tau1_taudown, tau2_taudown, met_taudown);
@@ -2296,7 +2304,7 @@ int main (int argc, char** argv)
                 {"lep2_pt", tau2_tauup.Pt()}, {"lep2_eta", tau2_tauup.Eta()}, {"lep2_phi", tau2_tauup.Phi()}, {"lep2_e", tau2_tauup.E()},
                 {"met_pt", met_tauup.Pt()}, {"met_phi", met_tauup.Phi()},
                 {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-                {"tauh_sv_pt", svfit_tauup.Pt()}, {"tauh_sv_eta", svfit_tauup.Eta()}, {"tauh_sv_phi", svfit_tauup.Phi()}, {"tauh_sv_e", svfit_tauup.E()}, {"tauh_sv_ez", Elong_tauup}
+                {"tauh_sv_pt", tauH_SVFIT_pt_tauup}, {"tauh_sv_eta", tauH_SVFIT_eta_tauup}, {"tauh_sv_phi", tauH_SVFIT_phi_tauup}, {"tauh_sv_e", tauH_SVFIT_e_tauup}, {"tauh_sv_ez", Elong_tauup}
               });
             }
             auto mdnnSM0_score_tauup = mci.predict(EventNumber, 0);
@@ -2332,7 +2340,7 @@ int main (int argc, char** argv)
                 {"lep2_pt", tau2_taudown.Pt()}, {"lep2_eta", tau2_taudown.Eta()}, {"lep2_phi", tau2_taudown.Phi()}, {"lep2_e", tau2_taudown.E()},
                 {"met_pt", met_taudown.Pt()}, {"met_phi", met_taudown.Phi()},
                 {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-                {"tauh_sv_pt", svfit_taudown.Pt()}, {"tauh_sv_eta", svfit_taudown.Eta()}, {"tauh_sv_phi", svfit_taudown.Phi()}, {"tauh_sv_e", svfit_taudown.E()}, {"tauh_sv_ez", Elong_taudown}
+                {"tauh_sv_pt", tauH_SVFIT_pt_taudown}, {"tauh_sv_eta", tauH_SVFIT_eta_taudown}, {"tauh_sv_phi", tauH_SVFIT_phi_taudown}, {"tauh_sv_e", tauH_SVFIT_e_taudown}, {"tauh_sv_ez", Elong_taudown}
               });
             }
             auto mdnnSM0_score_taudown = mci.predict(EventNumber, 0);
@@ -2415,7 +2423,7 @@ int main (int argc, char** argv)
               {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
               {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
               {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-              {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}, {"tauh_sv_ez", Elong}
+              {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", tauH_SVFIT_e}, {"tauh_sv_ez", Elong}
             });
           }
           auto mdnnSM0_score_jes = mci.predict(EventNumber, 0);
@@ -2816,7 +2824,7 @@ int main (int argc, char** argv)
             {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
             {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
             {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-            {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}, {"tauh_sv_ez", Elong}
+            {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", tauH_SVFIT_e}, {"tauh_sv_ez", Elong}
           });
         }
         auto mdnnSM0_score_jetTot = mci.predict(EventNumber, 0);
