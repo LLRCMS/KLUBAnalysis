@@ -22,6 +22,8 @@ if __name__ == "__main__":
     parser.add_option ('-s', '--sleep'  , dest='sleep'  , help='sleep in submission' , default=False)
     parser.add_option ('-q', '--queue'  , dest='queue'  , help='batch queue'         , default='short')
     parser.add_option ('-d', '--isData' , dest='isData' , help='isData'              , default=False)
+    parser.add_option ('-i', '--i'      , dest='nI'     , default=-1  , help='first file to be processed', type=int)
+    parser.add_option ('-f', '--f'      , dest='nF'     , default=-1  , help='last file to be processed' , type=int)
 
     (opt, args) = parser.parse_args()
 
@@ -40,10 +42,29 @@ if __name__ == "__main__":
         print 'Config file missing, exiting'
         sys.exit (1)
 
+    # The sub-range [nI,nF] can be correctly defined
+    if opt.nI >= 0 and opt.nF < 0:
+        print 'Final file is missing, exiting'
+        sys.exit (1)
+
+    if opt.nI < 0 and opt.nF >= 0:
+        print 'Initial file is missing, exiting'
+        sys.exit (1)
+
+    if opt.nI > opt.nF:
+        print 'Initial file is n', opt.nI, 'while final file is n', opt.nF, ': can not create proper range, exiting'
+        sys.exit (1)
+
     # Input/output folder already contains systematics files
-    if os.path.isfile(opt.workdir + "/syst_output_0.log"):
-        print 'A file named', opt.workdir+'/syst_output_0.log', 'is already present in the directory, exiting'
-        sys.exit(1)
+    if opt.nI < 0:
+        if os.path.isfile(opt.workdir + "/syst_output_0.root"):
+            print 'A file named', opt.workdir+'/syst_output_0.root', 'is already present in the directory, exiting'
+            sys.exit(1)
+    else:
+        if os.path.isfile(opt.workdir + "/syst_output_"+str(opt.nI)+".root"):
+            print "A file named", opt.workdir+"/syst_output_"+str(opt.nI)+".root", "is already present in the directory, exiting"
+            sys.exit(1)
+
 
 
     # Input/Output setup
@@ -52,8 +73,21 @@ if __name__ == "__main__":
     allthings = os.listdir(opt.workdir)
     onlyfiles = [f for f in os.listdir(opt.workdir) if os.path.isfile(os.path.join(opt.workdir, f))]
 
-    # Get output_*.root from skims to be used as input for syst
-    inputfiles = [f for f in onlyfiles if f[0:6]=='output' and f[-4:]=='root']
+    # Get all output_*.root files from skims to be used as input for syst
+    rootfiles = [f for f in onlyfiles if f[0:6]=='output' and f[-4:]=='root']
+
+    # Create ordered list of output_*.root files
+    inputfiles = []
+    for x in range(0,len(rootfiles)):
+        inputfiles.append('output_'+str(x)+'.root')
+
+    # If running on a user-define range select only the requested input files
+    if opt.nI >= 0:
+        userfiles = []
+        for jobIdx in range(opt.nI,opt.nF+1):
+            userfiles.append('output_'+str(jobIdx)+'.root')
+
+        inputfiles = [f for f in inputfiles if f in userfiles]
 
     # Append full path
     inputfiles = [os.path.join(opt.workdir, f) for f in inputfiles]
@@ -69,6 +103,8 @@ if __name__ == "__main__":
     else                        : os.system ('mkdir -p ' + jobsDir)
 
     n = int (0)
+    if opt.nI >=0:
+        n = int (opt.nI)
     commandFile = open (jobsDir + '/submit.sh', 'w')
     for inputfile in inputfiles : 
 
