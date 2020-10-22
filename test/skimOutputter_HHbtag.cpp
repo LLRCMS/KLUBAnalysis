@@ -250,7 +250,8 @@ int main (int argc, char** argv)
   "bjet2_mass_raw_jetupTot","bjet2_mass_raw_jetdownTot",
   "bjet2_JER_jetupTot","bjet2_JER_jetdownTot",
 
-  "bH_mass_raw_jetup*","bH_mass_raw_jetdown*",                         // bH masses JES
+  // bH masses JES - temporarily disabled since they are not correctly computed in the skims
+  //"bH_mass_raw_jetup*","bH_mass_raw_jetdown*",
 
   "bH_mass_raw_jetupTot","bH_mass_raw_jetdownTot",                     // bH masses JES Total
 
@@ -423,7 +424,7 @@ int main (int argc, char** argv)
   Float_t dau1_pt, dau1_eta, dau1_phi, dau1_e, dau2_pt, dau2_eta, dau2_phi, dau2_e;
   Float_t dau1_pt_muup, dau1_pt_mudown, dau1_mass_muup, dau1_mass_mudown;
   Float_t dau2_pt_muup, dau2_pt_mudown, dau2_mass_muup, dau2_mass_mudown;
-  Float_t bjet1_pt, bjet1_eta, bjet1_phi, bjet1_e, bjet1_JER, bjet2_pt, bjet2_eta, bjet2_phi, bjet2_e, bjet2_JER;
+  Float_t bjet1_pt, bjet1_eta, bjet1_phi, bjet1_e, bjet1_JER, bjet2_pt, bjet2_eta, bjet2_phi, bjet2_e, bjet2_JER, bH_mass_raw;
   Float_t addJetCentr1_pt, addJetCentr1_eta, addJetCentr1_phi, addJetCentr1_e, addJetCentr1_btag_deepFlavor, addJetCentr1_HHbtag;
   Float_t addJetCentr2_pt, addJetCentr2_eta, addJetCentr2_phi, addJetCentr2_e, addJetCentr2_btag_deepFlavor, addJetCentr2_HHbtag;
   Float_t addJetCentr3_pt, addJetCentr3_eta, addJetCentr3_phi, addJetCentr3_e, addJetCentr3_btag_deepFlavor, addJetCentr3_HHbtag;
@@ -553,6 +554,8 @@ int main (int argc, char** argv)
   outTree->SetBranchAddress("bjet1_JER_jetdownTot"      , &bjet1_JER_jetdownTot);
   outTree->SetBranchAddress("bjet2_JER_jetupTot"        , &bjet2_JER_jetupTot);
   outTree->SetBranchAddress("bjet2_JER_jetdownTot"      , &bjet2_JER_jetdownTot);
+
+  outTree->SetBranchAddress("bH_mass_raw", &bH_mass_raw);
 
   outTree->SetBranchAddress("VBFjet1_pt" , &vbfjet1_pt);
   outTree->SetBranchAddress("VBFjet1_eta", &vbfjet1_eta);
@@ -1043,23 +1046,26 @@ int main (int argc, char** argv)
   //}
 
   // JES variations
-  std::vector<Float_t> tauH_SVFIT_mass_jetup(N_jecSources), DNNoutSM_kl_1_jetup(N_jecSources), BDToutSM_kl_1_jetup(N_jecSources);
-  std::vector<Float_t> tauH_SVFIT_mass_jetdown(N_jecSources), DNNoutSM_kl_1_jetdown(N_jecSources), BDToutSM_kl_1_jetdown(N_jecSources);
+  std::vector<Float_t> tauH_SVFIT_mass_jetup(N_jecSources), DNNoutSM_kl_1_jetup(N_jecSources), BDToutSM_kl_1_jetup(N_jecSources), bH_mass_raw_jetup(N_jecSources);
+  std::vector<Float_t> tauH_SVFIT_mass_jetdown(N_jecSources), DNNoutSM_kl_1_jetdown(N_jecSources), BDToutSM_kl_1_jetdown(N_jecSources), bH_mass_raw_jetdown(N_jecSources);
   std::vector<std::vector<Float_t>> mdnnSM0_output_jetup(N_jecSources, std::vector<Float_t>(mdnnSM0_size)), mdnnSM0_output_jetdown(N_jecSources, std::vector<Float_t>(mdnnSM0_size));
   std::vector<std::vector<Float_t>> mdnnSM1_output_jetup(N_jecSources, std::vector<Float_t>(mdnnSM1_size)), mdnnSM1_output_jetdown(N_jecSources, std::vector<Float_t>(mdnnSM1_size));
   //std::vector<std::vector<Float_t>> mdnnSM2_output_jetup(N_jecSources, std::vector<Float_t>(mdnnSM2_size)), mdnnSM2_output_jetdown(N_jecSources, std::vector<Float_t>(mdnnSM2_size));
   std::vector<TBranch*> b_tauH_SVFIT_mass_jetup, b_tauH_SVFIT_mass_jetdown;
   std::vector<TBranch*> b_DNNoutSM_kl_1_jetup  , b_DNNoutSM_kl_1_jetdown  ;
   std::vector<TBranch*> b_BDToutSM_kl_1_jetup  , b_BDToutSM_kl_1_jetdown  ;
+  std::vector<TBranch*> b_bH_mass_raw_jetup    , b_bH_mass_raw_jetdown    ;
   std::vector<std::vector<TBranch*>> b_mdnnSM0_jetup(N_jecSources, std::vector<TBranch*>(mdnnSM0_size)), b_mdnnSM0_jetdown(N_jecSources, std::vector<TBranch*>(mdnnSM0_size));
   std::vector<std::vector<TBranch*>> b_mdnnSM1_jetup(N_jecSources, std::vector<TBranch*>(mdnnSM1_size)), b_mdnnSM1_jetdown(N_jecSources, std::vector<TBranch*>(mdnnSM1_size));
   //std::vector<std::vector<TBranch*>> b_mdnnSM2_jetup(N_jecSources, std::vector<TBranch*>(mdnnSM2_size)), b_mdnnSM2_jetdown(N_jecSources, std::vector<TBranch*>(mdnnSM2_size));
   boost::format tauHName_up  ("tauH_SVFIT_mass_jetup%i");
   boost::format DNNName_up   ("DNNoutSM_kl_1_jetup%i");
   boost::format BDTName_up   ("BDToutSM_kl_1_jetup%i");
+  boost::format bHName_up    ("bH_mass_raw_jetup%i");
   boost::format tauHName_down("tauH_SVFIT_mass_jetdown%i");
   boost::format DNNName_down ("DNNoutSM_kl_1_jetdown%i");
   boost::format BDTName_down ("BDToutSM_kl_1_jetdown%i");
+  boost::format bHName_down  ("bH_mass_raw_jetdown%i");
   boost::format mdnnSM0name_jetup  ("mdnn__v4__kl1_c2v1_c31_vbf__%1%_jetup%2%");
   boost::format mdnnSM0name_jetdown("mdnn__v4__kl1_c2v1_c31_vbf__%1%_jetdown%2%");
   boost::format mdnnSM1name_jetup  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_jetup%2%");
@@ -1071,23 +1077,29 @@ int main (int argc, char** argv)
     std::string tmp_tauH_up_branch_name   = boost::str(tauHName_up   % (i+1));
     std::string tmp_DNN_up_branch_name    = boost::str(DNNName_up    % (i+1));
     std::string tmp_BDT_up_branch_name    = boost::str(BDTName_up    % (i+1));
+    std::string tmp_bH_up_branch_name     = boost::str(bHName_up     % (i+1));
     std::string tmp_tauH_down_branch_name = boost::str(tauHName_down % (i+1));
     std::string tmp_DNN_down_branch_name  = boost::str(DNNName_down  % (i+1));
     std::string tmp_BDT_down_branch_name  = boost::str(BDTName_down  % (i+1));
+    std::string tmp_bH_down_branch_name   = boost::str(bHName_down   % (i+1));
 
     TBranch* tmp_tauH_up_branch   = outTree->Branch(tmp_tauH_up_branch_name  .c_str(), &tauH_SVFIT_mass_jetup.at(i));
     TBranch* tmp_DNN_up_branch    = outTree->Branch(tmp_DNN_up_branch_name   .c_str(), &DNNoutSM_kl_1_jetup.at(i));
     TBranch* tmp_BDT_up_branch    = outTree->Branch(tmp_BDT_up_branch_name   .c_str(), &BDToutSM_kl_1_jetup.at(i));
+    TBranch* tmp_bH_up_branch     = outTree->Branch(tmp_bH_up_branch_name    .c_str(), &bH_mass_raw_jetup.at(i));
     TBranch* tmp_tauH_down_branch = outTree->Branch(tmp_tauH_down_branch_name.c_str(), &tauH_SVFIT_mass_jetdown.at(i));
     TBranch* tmp_DNN_down_branch  = outTree->Branch(tmp_DNN_down_branch_name .c_str(), &DNNoutSM_kl_1_jetdown.at(i));
     TBranch* tmp_DBT_down_branch  = outTree->Branch(tmp_BDT_down_branch_name .c_str(), &BDToutSM_kl_1_jetdown.at(i));
+    TBranch* tmp_bH_down_branch   = outTree->Branch(tmp_bH_down_branch_name  .c_str(), &bH_mass_raw_jetdown.at(i));
 
     b_tauH_SVFIT_mass_jetup  .push_back(tmp_tauH_up_branch);
     b_DNNoutSM_kl_1_jetup    .push_back(tmp_DNN_up_branch);
     b_BDToutSM_kl_1_jetup    .push_back(tmp_BDT_up_branch);
+    b_bH_mass_raw_jetup      .push_back(tmp_bH_up_branch);
     b_tauH_SVFIT_mass_jetdown.push_back(tmp_tauH_down_branch);
     b_DNNoutSM_kl_1_jetdown  .push_back(tmp_DNN_down_branch);
     b_BDToutSM_kl_1_jetdown  .push_back(tmp_DBT_down_branch);
+    b_bH_mass_raw_jetdown    .push_back(tmp_bH_down_branch);
 
     for (int k=0; k<mdnnSM0_size; k++)
     {
@@ -2398,6 +2410,8 @@ int main (int argc, char** argv)
           DNNoutSM_kl_1_jetdown.at(i)   = DNNoutSM_kl_1;
           BDToutSM_kl_1_jetup.at(i)     = BDToutSM_kl_1;
           BDToutSM_kl_1_jetdown.at(i)   = BDToutSM_kl_1;
+          bH_mass_raw_jetup.at(i)       = bH_mass_raw;
+          bH_mass_raw_jetdown.at(i)     = bH_mass_raw;
 
           // VBF multiclass
           float Elong = pow(pow(svfit.Pz(), 2) + pow(svfit.M(), 2), 0.5);
@@ -2453,12 +2467,14 @@ int main (int argc, char** argv)
           bjet2_jetup.SetPtEtaPhiM(bjet2_pt_raw_jetup->at(i), bjet2_eta, bjet2_phi, bjet2_mass_raw_jetup->at(i));
           met_jetup  .SetPxPyPzE(METx_jetup->at(i), METy_jetup->at(i), 0, std::hypot(METx_jetup->at(i), METy_jetup->at(i)));
           TVector2 ptmiss_jetup = TVector2(METx_jetup->at(i), METy_jetup->at(i));
+          bH_mass_raw_jetup.at(i) = (bjet1_jetup+bjet2_jetup).M();
 
           TLorentzVector bjet1_jetdown, bjet2_jetdown, met_jetdown;
           bjet1_jetdown.SetPtEtaPhiM(bjet1_pt_raw_jetdown->at(i), bjet1_eta, bjet1_phi, bjet1_mass_raw_jetdown->at(i));
           bjet2_jetdown.SetPtEtaPhiM(bjet2_pt_raw_jetdown->at(i), bjet2_eta, bjet2_phi, bjet2_mass_raw_jetdown->at(i));
           met_jetdown  .SetPxPyPzE(METx_jetdown->at(i), METy_jetdown->at(i), 0, std::hypot(METx_jetdown->at(i), METy_jetdown->at(i)));
           TVector2 ptmiss_jetdown = TVector2(METx_jetdown->at(i), METy_jetdown->at(i));
+          bH_mass_raw_jetdown.at(i) = (bjet1_jetdown+bjet2_jetdown).M();
 
           TLorentzVector vbfjet1_jetup, vbfjet2_jetup;
           vbfjet1_jetup.SetPtEtaPhiM(VBFjet1_pt_jetup->at(i), vbfjet1_eta, vbfjet1_phi, VBFjet1_mass_jetup->at(i));
@@ -3253,9 +3269,11 @@ int main (int argc, char** argv)
       b_tauH_SVFIT_mass_jetup  .at(i)->Fill();
       b_DNNoutSM_kl_1_jetup    .at(i)->Fill();
       b_BDToutSM_kl_1_jetup    .at(i)->Fill();
+      b_bH_mass_raw_jetup      .at(i)->Fill();
       b_tauH_SVFIT_mass_jetdown.at(i)->Fill();
       b_DNNoutSM_kl_1_jetdown  .at(i)->Fill();
       b_BDToutSM_kl_1_jetdown  .at(i)->Fill();
+      b_bH_mass_raw_jetdown    .at(i)->Fill();
     }
 
     // JES Total variations
