@@ -188,9 +188,9 @@ int main (int argc, char** argv)
 
   // Define branches to be activated
   std::vector<std::string> toBeActivated {
-  "EventNumber", "RunNumber","nleps","pairType","nbjetscand",          // General
+  "EventNumber","RunNumber","nleps","pairType","nbjetscand",           // General
   "isOS","isBoosted","isTau1real","isTau2real",
-  "lhe*","nBhadrons","npu","npv","genZ_pt",
+  "lhe*","nBhadrons","npu","npv","genZ_pt","isMC",
 
   "MC_weight","PUReweight","PUjetID_SF*","L1pref_weight*",             // Weights and SFs
   "prescaleWeight","trigSF*","VBFtrigSF","customTauIdSF*",
