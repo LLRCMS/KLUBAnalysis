@@ -38,8 +38,7 @@ histos_syst_down = []
 
 yieldFolder = "scales"+opt.year+"/"
 
-procnames = ['TT', 'WJets', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'WW', 'WZ', 'ZZ', 'ttH', 'TTX', 'ggH', 'VBFH', 'VVV', 'DY', 'GGHH_NLO_cHHH1_xs', 'GGHH_NLO_cHHH0_xs', 'GGHH_NLO_cHHH5_xs', 'VBFHH_CV_1_C2V_1_C3_1_xs' , 'VBFHH_CV_0p5_C2V_1_C3_1_xs', 'VBFHH_CV_1p5_C2V_1_C3_1_xs', 'VBFHH_CV_1_C2V_1_C3_0_xs', 'VBFHH_CV_1_C2V_1_C3_2_xs', 'VBFHH_CV_1_C2V_2_C3_1_xs']
-#procnames = ['TT', 'WJets', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'WW', 'WZ', 'ZZ', 'ttH', 'TTX', 'ggH', 'VBFH', 'VVV', 'DY_0b_0JPt', 'DY_0b_10JPt', 'DY_0b_50JPt', 'DY_0b_80JPt', 'DY_0b_110JPt', 'DY_0b_190JPt', 'DY_1b_0JPt', 'DY_1b_10JPt', 'DY_1b_50JPt', 'DY_1b_80JPt', 'DY_1b_110JPt', 'DY_1b_190JPt', 'DY_2b_0JPt', 'DY_2b_10JPt', 'DY_2b_50JPt', 'DY_2b_80JPt', 'DY_2b_110JPt', 'DY_2b_190JPt', 'DY_LM', 'GGHH_NLO_cHHH1_xs', 'GGHH_NLO_cHHH0_xs', 'GGHH_NLO_cHHH5_xs', 'VBFHH_CV_1_C2V_1_C3_1_xs' , 'VBFHH_CV_0p5_C2V_1_C3_1_xs', 'VBFHH_CV_1p5_C2V_1_C3_1_xs', 'VBFHH_CV_1_C2V_1_C3_0_xs', 'VBFHH_CV_1_C2V_1_C3_2_xs', 'VBFHH_CV_1_C2V_2_C3_1_xs']
+procnames = ['TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'VBFH', 'VVV', 'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt', 'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt', 'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt', 'DY_LM', 'GGHH_NLO_cHHH1_xs', 'GGHH_NLO_cHHH2p45_xs', 'GGHH_NLO_cHHH5_xs', 'VBFHH_CV_1_C2V_1_C3_1_xs' , 'VBFHH_CV_0p5_C2V_1_C3_1_xs', 'VBFHH_CV_1p5_C2V_1_C3_1_xs', 'VBFHH_CV_1_C2V_1_C3_0_xs', 'VBFHH_CV_1_C2V_1_C3_2_xs', 'VBFHH_CV_1_C2V_2_C3_1_xs']
 
 ih = 0
 
