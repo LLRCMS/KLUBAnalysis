@@ -200,14 +200,27 @@ class OutputManager:
                 hregC.Add(self.histos[hnameC], -1.)
                 hnameD = makeHistoName(bkg, sel+'_'+regionD, var)
                 hregD.Add(self.histos[hnameD], -1.)
-                        
-        ## remove negative bins if needed
-        if removeNegBins:
-                for ibin in range(1, hregC.GetNbinsX()+1):
-                    if hregC.GetBinContent(ibin) < 0:
-                        hregC.SetBinContent(ibin, 1.e-6)
-                    if hregD.GetBinContent(ibin) < 1.e-6:
-                        hregD.SetBinContent(ibin, 1.e-6)
+
+        # Negative bins should be preserved in order to have
+        # correct integrals to compute SBtoSR ---> so these lines are commented out
+        #if removeNegBins:
+        #        for ibin in range(1, hregC.GetNbinsX()+1):
+        #            if hregC.GetBinContent(ibin) < 0:
+        #                hregC.SetBinContent(ibin, 1.e-6)
+        #            if hregD.GetBinContent(ibin) < 1.e-6:
+        #                hregD.SetBinContent(ibin, 1.e-6)
+
+        # Check if total integrals (without removing negative bins) are <= 0
+        # if yes, return 0 --> no QCD contribution is present for this variable/selection
+        intC = hregC.Integral()
+        intD = hregD.Integral()
+        if intC <= 0.0:
+            print '*** WARNING: integral of numerator is:', intC, ' returning SBtoSRdyn = 0 !'
+            return 0.0
+        if intD <= 0.0:
+            print '*** WARNING: integral of denominator is:', intD, ' returning SBtoSRdyn = 0 !'
+            return 0.0
+
         SBtoSRdyn = hregC.Integral()/hregD.Integral()
         print "... C/D = ", SBtoSRdyn                  
         return SBtoSRdyn
@@ -270,8 +283,13 @@ class OutputManager:
                 qcdYield = hyieldQCD.Integral()
                         
                 if computeSBtoSR: SBtoSRfactor = self.makeQCD_SBtoSR(regionC, regionD, sel, var, removeNegBins)
- 
-                sc = SBtoSRfactor*qcdYield/hQCD.Integral() if hQCD.Integral() > 0 else 0.0
+
+                #sc = SBtoSRfactor*qcdYield/hQCD.Integral() if hQCD.Integral() > 0 else 0.0
+                if qcdYield <= 0.0:
+                    print '*** WARNING: integral of shapeQCD histo is:', qcdYield, ' setting QCD = 0 !!'
+                    sc = 0.0
+                else:
+                    sc = SBtoSRfactor*qcdYield/hQCD.Integral() if hQCD.Integral() > 0 else 0.0
                 hQCD.Scale(sc)
 
                 ## add to collection
