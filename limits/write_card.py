@@ -197,6 +197,47 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             #shiftShapes_newName.append("TT_topUp")
             #shiftShapes_newName.append("TT_topDown")
 
+            # Add PUjetID SF uncertainty
+            PUjetIDname = "PUjetIDSF"
+            systsShape.append(PUjetIDname)
+            for proc in backgrounds:
+                if "QCD" in proc: continue
+                proc_syst[proc][PUjetIDname] = ["shape", 1.]   #applying trigger to all MC backgrounds
+                shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], PUjetIDname))
+                shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], PUjetIDname))
+                shiftShapes_newName.append(proc+"_"+PUjetIDname+"Up")
+                shiftShapes_newName.append(proc+"_"+PUjetIDname+"Down")
+
+            for proc in signals:
+                proc_syst[proc][PUjetIDname] = ["shape", 1.]   #applying trigger to all signals
+                shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], PUjetIDname))
+                shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], PUjetIDname))
+                shiftShapes_newName.append(proc+"_"+PUjetIDname+"Up")
+                shiftShapes_newName.append(proc+"_"+PUjetIDname+"Down")
+
+            # Add bTag SF uncertainty
+            if "boosted" in select:
+                WPs = ["L"]
+            else:
+                WPs = ["M"]
+            for WPname in WPs:
+                bTagWPname = "bTagSF" + WPname
+                systsShape.append(bTagWPname)
+                for proc in backgrounds:
+                    if "QCD" in proc: continue
+                    proc_syst[proc][bTagWPname] = ["shape", 1.]   #applying trigger to all MC backgrounds
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
+                    shiftShapes_newName.append(proc+"_"+bTagWPname+"Up")
+                    shiftShapes_newName.append(proc+"_"+bTagWPname+"Down")
+
+                for proc in signals:
+                    proc_syst[proc][bTagWPname] = ["shape", 1.]   #applying trigger to all signals
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
+                    shiftShapes_newName.append(proc+"_"+bTagWPname+"Up")
+                    shiftShapes_newName.append(proc+"_"+bTagWPname+"Down")
+
             # Add tau trigger uncertainties (4 different uncertainties depending on DM)
             #DMs = ["0","1","10","11"]
             #for DMname in DMs:
@@ -473,8 +514,8 @@ backgrounds.append("QCD")
 
 # rename signals following model convention
 for i,sig in enumerate(signals):
-    if "GGHH_NLO" in sig: signals[i] = sig.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_bbtt").replace("cHHH", "kl_")
-    if "VBFHH"in sig:     signals[i] = sig.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_bbtt") #write 1_5 as 1p5 from the beginning
+    if "GGHH_NLO" in sig: signals[i] = sig.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_hbbhtautau").replace("cHHH", "kl_")
+    if "VBFHH"in sig:     signals[i] = sig.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_hbbhtautau") #write 1_5 as 1p5 from the beginning
 
 datacards = []
 

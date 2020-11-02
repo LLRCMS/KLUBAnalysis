@@ -18,7 +18,8 @@ parseOptions()
 
 channels = ['TauTau', 'MuTau', 'ETau']
 
-MClist  = ['TT', 'WJets', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'WW', 'WZ', 'ZZ', 'ttH', 'TTX', 'ggH', 'VBFH', 'VVV', 'DY', 'GGHH_NLO_cHHH1_xs', 'GGHH_NLO_cHHH0_xs', 'GGHH_NLO_cHHH5_xs', 'VBFHH_CV_1_C2V_1_C3_1_xs' , 'VBFHH_CV_0p5_C2V_1_C3_1_xs', 'VBFHH_CV_1p5_C2V_1_C3_1_xs', 'VBFHH_CV_1_C2V_1_C3_0_xs', 'VBFHH_CV_1_C2V_1_C3_2_xs', 'VBFHH_CV_1_C2V_2_C3_1_xs']
+MClist = ['TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'VBFH', 'VVV', 'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt', 'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt', 'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt', 'DY_LM', 'GGHH_NLO_cHHH1_xs', 'GGHH_NLO_cHHH2p45_xs', 'GGHH_NLO_cHHH5_xs', 'VBFHH_CV_1_C2V_1_C3_1_xs' , 'VBFHH_CV_0p5_C2V_1_C3_1_xs', 'VBFHH_CV_1p5_C2V_1_C3_1_xs', 'VBFHH_CV_1_C2V_1_C3_0_xs', 'VBFHH_CV_1_C2V_1_C3_2_xs', 'VBFHH_CV_1_C2V_2_C3_1_xs']
+
 
 #selections = ['s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut', 'VBFloose', 'GGFclass', 'VBFclass', 'ttHclass', 'TTlepclass', 'TThadclass', 'DYclass']
 selections = ['s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut', 'VBFloose']
