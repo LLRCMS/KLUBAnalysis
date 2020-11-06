@@ -240,7 +240,11 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_newName.append(proc+"_"+bTagWPname+"Down")
 
             # Add tau trigger uncertainties (4 unc. depending on DM for tau legs + 2 unc. for ele and mu legs)
-            DMs = ["DM0","DM1","DM10","DM11","ele","mu"]
+            DMs = ["DM0","DM1","DM10","DM11"]
+            if "0" in thechannel:
+                DMs.append("mu")
+            if "1" in thechannel:
+                DMs.appen("ele")
             for DMname in DMs:
                 trigDMname = "trigSF" + DMname
                 systsShape.append(trigDMname)
