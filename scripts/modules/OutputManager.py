@@ -2,6 +2,7 @@ import ROOT
 import collections
 import fnmatch
 import array
+import math
 
 from VBFReweightModules import inputSample, VBFReweight, printProgressBar
 
@@ -178,6 +179,33 @@ class OutputManager:
     #                 hFrom = self.histos[makeHistoName(sample, sel, var)]
 
 
+    # Check if the integral of "histo" is compatible with "value"
+    # only stat uncertainties are considered: errors of each bin are
+    # summed in quadrature to get the total statistical uncertainty
+    def isIntegralCompatible(self, histo, value, debug=False):
+
+        # original integral of histo
+        origIntegral = histo.Integral()
+
+        # get the stat. uncertainty by looping on all bins
+        unc = 0.0
+        for ibin in range(1, histo.GetNbinsX()+1):
+            err = histo.GetBinError(ibin)
+            unc = unc + (err*err)
+        sq_unc = math.sqrt(unc)
+
+        # check if compatible with value
+        delta = origIntegral - value
+        isCompatible = abs(delta) < sq_unc
+
+        if (debug):
+            print '---> Original Integral:', origIntegral
+            print '---> Unc:', unc, '  - sq_unc:', sq_unc
+            print '---> delta:', delta
+            print '---> isCompatible:', isCompatible
+
+        return isCompatible
+
 
     def makeQCD_SBtoSR (self, regionC, regionD, sel, var, removeNegBins = True):
         print "... computing C/D factor for QCD from: C =", regionC, ", D =", regionD, "in region ",sel
@@ -200,14 +228,27 @@ class OutputManager:
                 hregC.Add(self.histos[hnameC], -1.)
                 hnameD = makeHistoName(bkg, sel+'_'+regionD, var)
                 hregD.Add(self.histos[hnameD], -1.)
-                        
-        ## remove negative bins if needed
-        if removeNegBins:
-                for ibin in range(1, hregC.GetNbinsX()+1):
-                    if hregC.GetBinContent(ibin) < 0:
-                        hregC.SetBinContent(ibin, 1.e-6)
-                    if hregD.GetBinContent(ibin) < 1.e-6:
-                        hregD.SetBinContent(ibin, 1.e-6)
+
+        # Negative bins should be preserved in order to have
+        # correct integrals to compute SBtoSR ---> so these lines are commented out
+        #if removeNegBins:
+        #        for ibin in range(1, hregC.GetNbinsX()+1):
+        #            if hregC.GetBinContent(ibin) < 0:
+        #                hregC.SetBinContent(ibin, 1.e-6)
+        #            if hregD.GetBinContent(ibin) < 1.e-6:
+        #                hregD.SetBinContent(ibin, 1.e-6)
+
+        # Check if total integrals (without removing negative bins) are <=0 OR compatible with 0
+        # if yes, return 0 --> no QCD contribution is present for this variable/selection
+        intC = hregC.Integral()
+        intD = hregD.Integral()
+        if intC <= 0.0 or self.isIntegralCompatible(hregC,0):
+            print '*** WARNING: integral of numerator is negative or compatible with Zero! Returning SBtoSRdyn = 0 !'
+            return 0.0
+        if intD <= 0.0 or self.isIntegralCompatible(hregD,0):
+            print '*** WARNING: integral of denominator is negative or compatible with Zero! Returning SBtoSRdyn = 0 !'
+            return 0.0
+
         SBtoSRdyn = hregC.Integral()/hregD.Integral()
         print "... C/D = ", SBtoSRdyn                  
         return SBtoSRdyn
@@ -270,8 +311,15 @@ class OutputManager:
                 qcdYield = hyieldQCD.Integral()
                         
                 if computeSBtoSR: SBtoSRfactor = self.makeQCD_SBtoSR(regionC, regionD, sel, var, removeNegBins)
- 
-                sc = SBtoSRfactor*qcdYield/hQCD.Integral() if hQCD.Integral() > 0 else 0.0
+
+                # Check if original integral of shape histo (without removing negative bins) is <= 0 OR compatible with 0
+                # if yes, return 0 --> no QCD contribution is present for this variable/selection
+                if qcdYield <= 0.0 or self.isIntegralCompatible(hyieldQCD,0):
+                    print '*** WARNING: integral of shapeQCD is negative or compatible with Zero! Setting QCD = 0 !'
+                    sc = 0.0
+                else:
+                    sc = SBtoSRfactor*qcdYield/hQCD.Integral() if hQCD.Integral() > 0 else 0.0
+
                 hQCD.Scale(sc)
 
                 ## add to collection
