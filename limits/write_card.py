@@ -54,12 +54,12 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         "2"  : "DNNoutSM_kl_1",
         "3"  : "DNNoutSM_kl_1",
         "4"  : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__hh_vbf",
-        "5"  : "mdnn__v2__kl1_c2v1_c31__hh_ggf",
-        "6"  : "mdnn__v2__kl1_c2v1_c31__hh_vbf",
-        "7"  : "mdnn__v2__kl1_c2v1_c31__tth",
-        "8"  : "mdnn__v2__kl1_c2v1_c31__tt_lep",
-        "9"  : "mdnn__v2__kl1_c2v1_c31__tt_fh",
-        "10" : "mdnn__v2__kl1_c2v1_c31__dy",
+        "5"  : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__hh_ggf",
+        "6"  : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__hh_vbf",
+        "7"  : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__tth",
+        "8"  : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__tt_lep",
+        "9"  : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__tt_fh",
+        "10" : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__dy",
     }
 
     theOutputDir = "{0}{1}".format(select,variable[theCat])
@@ -135,8 +135,9 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         for proc in signals:     proc_syst[proc] = {}
 
         systsShape =["CMS_scale_t_13TeV_"+opt.year+"_DM0","CMS_scale_t_13TeV_"+opt.year+"_DM1","CMS_scale_t_13TeV_"+opt.year+"_DM10","CMS_scale_t_13TeV_"+opt.year+"_DM11", "CMS_scale_es_13TeV_"+opt.year+"_DM0", "CMS_scale_es_13TeV_"+opt.year+"_DM1", "CMS_scale_mes_13TeV_"+opt.year+"", "CMS_scale_j_13TeV_"+opt.year+""]
-        #systsShape = ["CMS_scale_t_13TeV_DM0","CMS_scale_t_13TeV_DM1","CMS_scale_t_13TeV_DM10","CMS_scale_t_13TeV_DM11", "CMS_scale_es_13TeV_DM0", "CMS_scale_es_13TeV_DM1", "CMS_scale_mes_13TeV", "CMS_scale_j_13TeV"] #["CMS_scale_t_13TeV_DM0"] # <-- ADD HERE THE OTHER TES/JES SYST SHAPES (TOP SYST SHAPE IS ADDED BY HAND LATER)
+        # If running without the TES/EES/JES... uncomment the following line:
         #systsShape = []
+
         systsNorm  = []  # <-- THIS WILL BE FILLED FROM CONFIGS
 
         for isy in range(len(syst.SystNames)) :
@@ -238,25 +239,25 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_newName.append(proc+"_"+bTagWPname+"Up")
                     shiftShapes_newName.append(proc+"_"+bTagWPname+"Down")
 
-            # Add tau trigger uncertainties (4 different uncertainties depending on DM)
-            #DMs = ["0","1","10","11"]
-            #for DMname in DMs:
-            #    trigDMname = "trigSFDM" + DMname
-            #    systsShape.append(trigDMname)
-            #    for proc in backgrounds:
-            #        if "QCD" in proc: continue
-            #        proc_syst[proc][trigDMname] = ["shape", 1.]   #applying trigger to all MC backgrounds
-            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
-            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
-            #        shiftShapes_newName.append(proc+"_"+trigDMname+"Up")
-            #        shiftShapes_newName.append(proc+"_"+trigDMname+"Down")
+            # Add tau trigger uncertainties (4 unc. depending on DM for tau legs + 2 unc. for ele and mu legs)
+            DMs = ["DM0","DM1","DM10","DM11","ele","mu"]
+            for DMname in DMs:
+                trigDMname = "trigSF" + DMname
+                systsShape.append(trigDMname)
+                for proc in backgrounds:
+                    if "QCD" in proc: continue
+                    proc_syst[proc][trigDMname] = ["shape", 1.]   #applying trigger to all MC backgrounds
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
+                    shiftShapes_newName.append(proc+"_"+trigDMname+"Up")
+                    shiftShapes_newName.append(proc+"_"+trigDMname+"Down")
 
-            #    for proc in signals:
-            #        proc_syst[proc][trigDMname] = ["shape", 1.]   #applying trigger to all signals
-            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
-            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
-            #        shiftShapes_newName.append(proc+"_"+trigDMname+"Up")
-            #        shiftShapes_newName.append(proc+"_"+trigDMname+"Down")
+                for proc in signals:
+                    proc_syst[proc][trigDMname] = ["shape", 1.]   #applying trigger to all signals
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
+                    shiftShapes_newName.append(proc+"_"+trigDMname+"Up")
+                    shiftShapes_newName.append(proc+"_"+trigDMname+"Down")
 
             # Add deepTauVSjet uncertainties (5 different uncertainties binned in pT)
             if "2" in thechannel:
