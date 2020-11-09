@@ -11,7 +11,7 @@
 class bTagSF
 {
     public:
-        enum WP {loose = 0, medium = 1, tight = 2};
+        enum WP {loose = 0, medium = 1, tight = 2, reshaping = 3};
         enum SFsyst {central = 0, up = 1, down = 2};
         bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag, std::string WPset="80X_ICHEP_2016");
         ~bTagSF();
@@ -24,7 +24,7 @@ class bTagSF
     private:
         // related to scale factors
         BTagCalibration m_calib;
-        BTagCalibrationReader m_readers [3]; // [loose, medium, tight]
+        BTagCalibrationReader m_readers [4]; // [loose, medium, tight, reshaping]
 
         // related to b tag efficiency
         TFile* m_fileEff;

@@ -15,9 +15,10 @@ bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effH
     m_readers {
         BTagCalibrationReader(BTagEntry::OP_LOOSE,  "central", {"up", "down"}),
         BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"}),
-        BTagCalibrationReader(BTagEntry::OP_TIGHT,  "central", {"up", "down"})}
+        BTagCalibrationReader(BTagEntry::OP_TIGHT,  "central", {"up", "down"}),
+        BTagCalibrationReader(BTagEntry::OP_RESHAPING, "central", {})}
 {
-    // load readers [loose, medium, tight]
+    // load readers [loose, medium, tight, reshaping]
     m_readers[0].load(m_calib, BTagEntry::FLAV_B, "comb");
     m_readers[0].load(m_calib, BTagEntry::FLAV_C, "comb");
     m_readers[0].load(m_calib, BTagEntry::FLAV_UDSG, "incl");
@@ -29,6 +30,10 @@ bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effH
     m_readers[2].load(m_calib, BTagEntry::FLAV_B, "comb");
     m_readers[2].load(m_calib, BTagEntry::FLAV_C, "comb");
     m_readers[2].load(m_calib, BTagEntry::FLAV_UDSG, "incl");
+
+    m_readers[3].load(m_calib, BTagEntry::FLAV_B, "iterativefit");
+    m_readers[3].load(m_calib, BTagEntry::FLAV_C, "iterativefit");
+    m_readers[3].load(m_calib, BTagEntry::FLAV_UDSG, "iterativefit");
 
     m_fileEff = new TFile (effFileName.c_str());
  
@@ -175,7 +180,8 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
 
     vector<double> P_MC   (3, 1.0); // 0 = L, 1 = M, 2 = T
     vector<double> P_Data (3, 1.0); // 0 = L, 1 = M, 2 = T
-    
+    double SFreshaping = 1.;        // reshaping SF
+
     TLorentzVector vJet (0,0,0,0);
 
     for (unsigned int ijet = 0; ijet < jets_and_btag.size(); ijet++)
@@ -190,7 +196,11 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
         SF[0] = getSF (loose,  systWP, flav, vJet.Pt(), vJet.Eta());
         SF[1] = getSF (medium, systWP, flav, vJet.Pt(), vJet.Eta());
         SF[2] = getSF (tight,  systWP, flav, vJet.Pt(), vJet.Eta());
-        if (DEBUG) cout << "  >> DEB: SFs " << SF[0] << " " << SF[1] << " " << SF[2] << endl;
+        if (systWP == central)
+        {
+            SFreshaping *= getSF (reshaping,  systWP, flav, vJet.Pt(), vJet.Eta());
+        }
+        if (DEBUG) cout << "  >> DEB: SFs " << SF[0] << " " << SF[1] << " " << SF[2] << " " << SFreshaping << endl;
 
         double effBTag[3];
         effBTag[0] = getEff (static_cast<WP> (0), flav, channel, vJet.Pt(), vJet.Eta()) ;
@@ -231,18 +241,19 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
         }
     }
     // return ratio
-    vector<float> weight (3);
+    vector<float> weight (4);
     weight.at(0) = P_Data.at(0) / P_MC.at(0);
     weight.at(1) = P_Data.at(1) / P_MC.at(1);
     weight.at(2) = P_Data.at(2) / P_MC.at(2);
-    
+    weight.at(3) = SFreshaping;
+
     if (weight.at(0) < 0.05) 
     {
         cout << "------ ERROR Null B-TAG weight!!" << endl;
         cout << "    >>> " << P_Data.at(0) << " / " << P_MC.at(0) << " , "
                            << P_Data.at(1) << " / " << P_MC.at(1) << " , "
                            << P_Data.at(2) << " / " << P_MC.at(2) << " , "
-                           << endl;
+                           << SFreshaping << endl;
     }
     //cout << "weights: " << weight.at(0) << " " << weight.at(1) << " " << weight.at(2) << endl;
     return weight;

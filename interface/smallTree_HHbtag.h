@@ -39,6 +39,7 @@ struct smallTree
       m_bTagweightT = -1. ;
       m_bTagweightT_up = -1. ;
       m_bTagweightT_down = -1. ;
+      m_bTagweightReshape = -1.;
       m_TTtopPtreweight = -1. ;
       m_TTtopPtreweight_up   = -1. ;
       m_TTtopPtreweight_down = -1. ;
@@ -1001,6 +1002,7 @@ struct smallTree
       m_smallT->Branch ("bTagweightT", &m_bTagweightT, "bTagweightT/F") ;
       m_smallT->Branch ("bTagweightT_up", &m_bTagweightT_up, "bTagweightT_up/F") ;
       m_smallT->Branch ("bTagweightT_down", &m_bTagweightT_down, "bTagweightT_down/F") ;
+      m_smallT->Branch ("bTagweightReshape", &m_bTagweightReshape, "bTagweightReshape/F") ;
       m_smallT->Branch ("TTtopPtreweight", &m_TTtopPtreweight, "TTtopPtreweight/F") ;
       m_smallT->Branch ("TTtopPtreweight_up", &m_TTtopPtreweight_up, "TTtopPtreweight_up/F") ;
       m_smallT->Branch ("TTtopPtreweight_down", &m_TTtopPtreweight_down, "TTtopPtreweight_down/F") ;
@@ -1961,6 +1963,7 @@ struct smallTree
   Float_t m_bTagweightT ;
   Float_t m_bTagweightT_up ;
   Float_t m_bTagweightT_down ;
+  Float_t m_bTagweightReshape ;
   Float_t m_TTtopPtreweight ;
   Float_t m_TTtopPtreweight_up ;
   Float_t m_TTtopPtreweight_down ;

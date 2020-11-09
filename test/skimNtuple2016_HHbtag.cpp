@@ -3282,6 +3282,7 @@ int main (int argc, char** argv)
         theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
         theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
         theSmallTree.m_bTagweightT = (isMC ? bTagWeight.at(2) : 1.0) ;
+        theSmallTree.m_bTagweightReshape = (isMC ? bTagWeight.at(3) : 1.0) ;
 
         vector<float> bTagWeight_up = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType, bTagSF::up) ;
         theSmallTree.m_bTagweightL_up = (isMC ? bTagWeight_up.at(0) : 1.0) ;
