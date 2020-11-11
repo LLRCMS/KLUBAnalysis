@@ -67,8 +67,8 @@ struct smallTree
       m_trigSF_single = -1.;
       m_trigSF_cross = -1.;
       m_VBFtrigSF = 1.;
-      m_VBFtrigSF_jetLegUp = 1.;
-      m_VBFtrigSF_jetLegDown = 1.;
+      m_trigSF_vbfjet_up = 1.;
+      m_trigSF_vbfjet_down = 1.;
       m_FakeRateSF = -1.;
       m_IdAndIsoSF_MVA = -1.;
       m_IdAndIsoSF_deep = -1.;
@@ -1024,8 +1024,8 @@ struct smallTree
       m_smallT->Branch ("trigSF_single", &m_trigSF_single, "trigSF_single/F") ;
       m_smallT->Branch ("trigSF_cross", &m_trigSF_cross, "trigSF_cross/F") ;
       m_smallT->Branch ("VBFtrigSF", &m_VBFtrigSF, "VBFtrigSF/F") ;
-      m_smallT->Branch ("VBFtrigSF_jetLegUp", &m_VBFtrigSF_jetLegUp, "VBFtrigSF_jetLegUp/F") ;
-      m_smallT->Branch ("VBFtrigSF_jetLegDown", &m_VBFtrigSF_jetLegDown, "VBFtrigSF_jetLegDown/F") ;
+      m_smallT->Branch ("trigSF_vbfjet_up", &m_trigSF_vbfjet_up, "trigSF_vbfjet_up/F") ;
+      m_smallT->Branch ("trigSF_vbfjet_down", &m_trigSF_vbfjet_down, "trigSF_vbfjet_down/F") ;
       m_smallT->Branch ("FakeRateSF", &m_FakeRateSF, "FakeRateSF/F") ;
       m_smallT->Branch ("jetFakeSF", &m_jetFakeSF, "jetFakeSF/F") ;
       m_smallT->Branch ("IdAndIsoSF_MVA", &m_IdAndIsoSF_MVA, "IdAndIsoSF_MVA/F") ;
@@ -1987,8 +1987,8 @@ struct smallTree
   Float_t m_trigSF_cross ;
   Float_t m_trigSF_single ;
   Float_t m_VBFtrigSF;
-  Float_t m_VBFtrigSF_jetLegUp;
-  Float_t m_VBFtrigSF_jetLegDown;
+  Float_t m_trigSF_vbfjet_up;
+  Float_t m_trigSF_vbfjet_down;
   Float_t m_FakeRateSF ;
   Float_t m_jetFakeSF ;
   Float_t m_IdAndIsoSF_MVA ;

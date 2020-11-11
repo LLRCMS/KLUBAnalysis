@@ -4408,40 +4408,6 @@ int main (int argc, char** argv)
               bool hasgj1_VBF = false;
               bool hasgj2_VBF = false;
 
-              if (isMC && theSmallTree.m_isVBFtrigger == 1)
-                {
-                  double jetSF    = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt(), 0); // 0: central value
-                  double jetSFerr = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt(), 1); // 1: error of value
-
-                  double SFTau1 = 1.;
-                  // !! FIXME !! - dummy values for now
-                  if      (tlv_firstLepton.Pt() <  25) SFTau1 = 0.97;
-                  else if (tlv_firstLepton.Pt() <  30) SFTau1 = 0.755;
-                  else if (tlv_firstLepton.Pt() <  35) SFTau1 = 0.715;
-                  else if (tlv_firstLepton.Pt() <  40) SFTau1 = 0.75;
-                  else if (tlv_firstLepton.Pt() <  45) SFTau1 = 0.78;
-                  else if (tlv_firstLepton.Pt() <  50) SFTau1 = 0.835;
-                  else if (tlv_firstLepton.Pt() <  80) SFTau1 = 0.942;
-                  else if (tlv_firstLepton.Pt() < 200) SFTau1 = 0.91;
-                  else                                 SFTau1 = 0.97;
-
-                  double SFTau2 = 1.;
-                  // !! FIXME !! - dummy values for now
-                  if      (tlv_secondLepton.Pt() <  25) SFTau2 = 0.97;
-                  else if (tlv_secondLepton.Pt() <  30) SFTau2 = 0.755;
-                  else if (tlv_secondLepton.Pt() <  35) SFTau2 = 0.715;
-                  else if (tlv_secondLepton.Pt() <  40) SFTau2 = 0.75;
-                  else if (tlv_secondLepton.Pt() <  45) SFTau2 = 0.78;
-                  else if (tlv_secondLepton.Pt() <  50) SFTau2 = 0.835;
-                  else if (tlv_secondLepton.Pt() <  80) SFTau2 = 0.942;
-                  else if (tlv_secondLepton.Pt() < 200) SFTau2 = 0.91;
-                  else                                  SFTau2 = 0.97;
-
-                  theSmallTree.m_VBFtrigSF            = jetSF * SFTau1 * SFTau2;
-                  theSmallTree.m_VBFtrigSF_jetLegUp   = (jetSF + jetSFerr) * SFTau1 * SFTau2;
-                  theSmallTree.m_VBFtrigSF_jetLegDown = (jetSF - jetSFerr) * SFTau1 * SFTau2;
-                }
-
               // Save gen info for VBF jets
               if (isMC)
                 {
@@ -4603,6 +4569,50 @@ int main (int argc, char** argv)
               TVector3 v_bH = tlv_bH.Vect();
               float HH_A = (v_tauH + v_bH).Mag()/(tlv_tauH.Pt() + tlv_bH.Pt());
               theSmallTree.m_HH_A = HH_A;
+
+              if (isMC && theSmallTree.m_isVBFtrigger == 1)
+              // Logic of VBF trigger SF:
+              // 1. - if the event is in the diTau trigger phase space (taupt_1 > 40 && tau_pt_2 > 40): use the diTau trigger SF
+              // 2. - else if the event is in the VBF trigger phase space (mjj > 800 && pt_j1 > 140 && pt_j2 > 60 && taupt_1 > 25 && taupt_2 > 25): use VBF trigger SF
+              // 3. - else: SF = 0
+              // In our framework case 1. is the default: in the VBF trigger phase space (case 2.) the branch m_trigSF is overwritten
+              // with the VBF_SF, because "trigSF" is the actual weight used later in the analysis
+              if (isMC && theSmallTree.m_VBFjj_mass > 800 && theSmallTree.m_VBFjet1_pt > 140 && theSmallTree.m_VBFjet2_pt > 60 &&
+                  theSmallTree.m_dau1_pt > 25 && theSmallTree.m_dau2_pt > 25 && theSmallTree.m_dau1_pt <= 40 && theSmallTree.m_dau2_pt <= 40)
+              {
+                double jetSF    = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt(), 0); // 0: central value
+                double jetSFerr = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt(), 1); // 1: error of value
+
+                double SFTau1 = 1.;
+                // !! FIXME !! - dummy values for now
+                if      (tlv_firstLepton.Pt() <  25) SFTau1 = 0.97;
+                else if (tlv_firstLepton.Pt() <  30) SFTau1 = 0.755;
+                else if (tlv_firstLepton.Pt() <  35) SFTau1 = 0.715;
+                else if (tlv_firstLepton.Pt() <  40) SFTau1 = 0.75;
+                else if (tlv_firstLepton.Pt() <  45) SFTau1 = 0.78;
+                else if (tlv_firstLepton.Pt() <  50) SFTau1 = 0.835;
+                else if (tlv_firstLepton.Pt() <  80) SFTau1 = 0.942;
+                else if (tlv_firstLepton.Pt() < 200) SFTau1 = 0.91;
+                else                                 SFTau1 = 0.97;
+
+                double SFTau2 = 1.;
+                // !! FIXME !! - dummy values for now
+                if      (tlv_secondLepton.Pt() <  25) SFTau2 = 0.97;
+                else if (tlv_secondLepton.Pt() <  30) SFTau2 = 0.755;
+                else if (tlv_secondLepton.Pt() <  35) SFTau2 = 0.715;
+                else if (tlv_secondLepton.Pt() <  40) SFTau2 = 0.75;
+                else if (tlv_secondLepton.Pt() <  45) SFTau2 = 0.78;
+                else if (tlv_secondLepton.Pt() <  50) SFTau2 = 0.835;
+                else if (tlv_secondLepton.Pt() <  80) SFTau2 = 0.942;
+                else if (tlv_secondLepton.Pt() < 200) SFTau2 = 0.91;
+                else                                  SFTau2 = 0.97;
+
+                theSmallTree.m_VBFtrigSF           = jetSF * SFTau1 * SFTau2; // store anyway the value
+                theSmallTree.m_trigSF              = jetSF * SFTau1 * SFTau2; // overwrite the trigSF
+                theSmallTree.m_trigSF_vbfjet_up    = (jetSF + jetSFerr) * SFTau1 * SFTau2;
+                theSmallTree.m_trigSF_vbfjet_down  = (jetSF - jetSFerr) * SFTau1 * SFTau2;
+              }
+
             }
 
           // loop over jets
