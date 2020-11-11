@@ -4570,7 +4570,6 @@ int main (int argc, char** argv)
               float HH_A = (v_tauH + v_bH).Mag()/(tlv_tauH.Pt() + tlv_bH.Pt());
               theSmallTree.m_HH_A = HH_A;
 
-              if (isMC && theSmallTree.m_isVBFtrigger == 1)
               // Logic of VBF trigger SF:
               // 1. - if the event is in the diTau trigger phase space (taupt_1 > 40 && tau_pt_2 > 40): use the diTau trigger SF
               // 2. - else if the event is in the VBF trigger phase space (mjj > 800 && pt_j1 > 140 && pt_j2 > 60 && taupt_1 > 25 && taupt_2 > 25): use VBF trigger SF
