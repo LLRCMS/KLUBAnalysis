@@ -559,7 +559,7 @@ int main (int argc, char** argv)
   eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2017/Electron_Ele32orEle35_fix.root");
 
   //VBF trigger weights -- jet legs
-  TFile* VBFjets_file = new TFile ("weights/trigger_SF_Legacy/2017/VBFHTauTauHLT_jetlegs_3Dcoarse.root"); // !! FIXME !! to be updated for DeepTauV2p1
+  TFile* VBFjets_file = new TFile ("weights/trigger_SF_Legacy/2017/2017_VBFHTauTauTrigger_JetLegs.root");
   TH3D*  VBFjets_SF   = (TH3D*) VBFjets_file->Get("SF_mjj_pT1_pT2");
 
   // ------------------------------
@@ -4497,7 +4497,8 @@ int main (int argc, char** argv)
 
           if (isMC && theSmallTree.m_isVBFtrigger == 1)
           {
-            double jetSF = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt());
+            double jetSF    = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt(), 0); // 0: central value
+            double jetSFerr = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt(), 1); // 1: error of value
 
             double SFTau1 = 1.;
             // !! FIXME !! to be updated for DeepTauV2p1
@@ -4523,7 +4524,9 @@ int main (int argc, char** argv)
             else if (tlv_secondLepton.Pt() < 200) SFTau2 = 0.91;
             else                                  SFTau2 = 0.97;
 
-            theSmallTree.m_VBFtrigSF = jetSF * SFTau1 * SFTau2;
+            theSmallTree.m_VBFtrigSF            = jetSF * SFTau1 * SFTau2;
+            theSmallTree.m_VBFtrigSF_jetLegUp   = (jetSF + jetSFerr) * SFTau1 * SFTau2;
+            theSmallTree.m_VBFtrigSF_jetLegDown = (jetSF - jetSFerr) * SFTau1 * SFTau2;
           }
 
           // Save gen info for VBF jets
