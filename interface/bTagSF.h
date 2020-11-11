@@ -16,11 +16,14 @@ class bTagSF
         bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag, std::string WPset="80X_ICHEP_2016");
         ~bTagSF();
         float getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta);
+        float getSFshifted (std::string systName, int jetFlavor, float pt, float eta);
         float getEff (WP wpt, int jetFlavor, int channel, float pt, float eta); // FIXME: to do: retrieve MC efficiency from a data format
         void SetWPset(std::string WPset);
         void SetWPset(double loose, double medium, double tight);
-   
+
         std::vector<float> getEvtWeight (std::vector <std::pair <int, float> >& jets_and_btag, std::vector<float> *jets_px, std::vector<float> *jets_py, std::vector<float> *jets_pz, std::vector<float> *jets_e, std::vector<int> *jets_HadronFlavour, int channel, SFsyst systWP);
+        std::vector<float> getEvtWeightShifted (std::vector <std::pair <int, float> >& jets_and_btag, std::vector<float> *jets_px, std::vector<float> *jets_py, std::vector<float> *jets_pz, std::vector<float> *jets_e, std::vector<int> *jets_HadronFlavour);
+
     private:
         // related to scale factors
         BTagCalibration m_calib;
