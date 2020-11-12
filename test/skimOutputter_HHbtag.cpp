@@ -188,7 +188,7 @@ int main (int argc, char** argv)
 
   // Define branches to be activated
   std::vector<std::string> toBeActivated {
-  "EventNumber","RunNumber","nleps","pairType","nbjetscand",           // General
+  "EventNumber","lumi","RunNumber","nleps","pairType","nbjetscand",           // General
   "isOS","isBoosted","isTau1real","isTau2real",
   "lhe*","nBhadrons","npu","npv","genZ_pt","isMC",
 
