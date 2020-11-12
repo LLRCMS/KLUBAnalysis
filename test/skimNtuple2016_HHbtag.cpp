@@ -3294,6 +3294,26 @@ int main (int argc, char** argv)
         theSmallTree.m_bTagweightM_down = (isMC ? bTagWeight_down.at(1) : 1.0) ;
         theSmallTree.m_bTagweightT_down = (isMC ? bTagWeight_down.at(2) : 1.0) ;
 
+        vector<float> bTagWeightReshapeshifts = bTagSFHelper.getEvtWeightShifted (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour) ;
+        theSmallTree.m_bTagweightReshape_jes_up        = (isMC ? bTagWeightReshapeshifts.at(0) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_lf_up         = (isMC ? bTagWeightReshapeshifts.at(1) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_hf_up         = (isMC ? bTagWeightReshapeshifts.at(2) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_hfstats1_up   = (isMC ? bTagWeightReshapeshifts.at(3) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_hfstats2_up   = (isMC ? bTagWeightReshapeshifts.at(4) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_lfstats1_up   = (isMC ? bTagWeightReshapeshifts.at(5) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_lfstats2_up   = (isMC ? bTagWeightReshapeshifts.at(6) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_cferr1_up     = (isMC ? bTagWeightReshapeshifts.at(7) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_cferr2_up     = (isMC ? bTagWeightReshapeshifts.at(8) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jes_down      = (isMC ? bTagWeightReshapeshifts.at(9) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_lf_down       = (isMC ? bTagWeightReshapeshifts.at(10) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_hf_down       = (isMC ? bTagWeightReshapeshifts.at(11) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_hfstats1_down = (isMC ? bTagWeightReshapeshifts.at(12) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_hfstats2_down = (isMC ? bTagWeightReshapeshifts.at(13) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_lfstats1_down = (isMC ? bTagWeightReshapeshifts.at(14) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_lfstats2_down = (isMC ? bTagWeightReshapeshifts.at(15) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_cferr1_down   = (isMC ? bTagWeightReshapeshifts.at(16) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_cferr2_down   = (isMC ? bTagWeightReshapeshifts.at(17) : 1.0) ;
+
         // Set HHbtaginterface for ordering jets
         HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,
           tlv_firstLepton, tlv_secondLepton, tlv_tauH, tlv_MET, theSmallTree.m_EventNumber);
