@@ -104,7 +104,7 @@ void bTagSF::SetWPset(double loose, double medium, double tight)
     _WPtag[2] = tight;
 }
 
-float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta)
+float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta, float discr)
 {
     // cout << "   ~~ requesting SF for WP=" << wpt << " SFsyst=" << syst << " jetFlavor=" << jetFlavor << " pt=" << pt << " eta=" << eta << endl;
 
@@ -133,13 +133,13 @@ float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta)
     if (DEBUG) cout << "   ~~ requesting SF for WP=" << wpt << "," << myWPIndex << " SFsyst=" << syst << "," << mySystIndex << " jetFlavor=" << jetFlavor << " pt=" << pt << " eta=" << eta << endl;
 
     string systName[3] = {"central", "up", "down"}; // like SFsyst enum;
-    SF = m_readers[myWPIndex].eval_auto_bounds(systName[mySystIndex], flav, eta, pt);
+    SF = m_readers[myWPIndex].eval_auto_bounds(systName[mySystIndex], flav, eta, pt, discr);
 
     if (DEBUG) cout << "   ~~ returning " << SF << endl;
     return SF;
 }
 
-float bTagSF::getSFshifted (std::string systName, int jetFlavor, float pt, float eta)
+float bTagSF::getSFshifted (std::string systName, int jetFlavor, float pt, float eta, float discr)
 {
     float SF = 1.0;
 
@@ -170,13 +170,13 @@ float bTagSF::getSFshifted (std::string systName, int jetFlavor, float pt, float
     {
         SF = 1.;
     }
-    else if (flav == BTagEntry::FLAV_C && !(systName.find("cferr") != std::string::npos) )
+    else if (flav == BTagEntry::FLAV_C && systName.find("cferr") == std::string::npos)
     {
         SF = 1.;
     }
     else
     {
-        SF = m_readers[3].eval_auto_bounds(systName, flav, eta, pt);
+        SF = m_readers[3].eval_auto_bounds(systName, flav, eta, pt, discr);
     }
 
     if (DEBUG) cout << "   ~~ returning " << SF << endl;
@@ -238,6 +238,7 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
         if (DEBUG) cout << "DEB: ijet " << ijet << " , size = " << jets_and_btag.size() << endl;
 
         int idx = jets_and_btag.at(ijet).first;
+        float discr = jets_and_btag.at(ijet).second;
         vJet.SetPxPyPzE (jets_px->at(idx), jets_py->at(idx), jets_pz->at(idx), jets_e->at(idx));
         
         int flav = jets_HadronFlavour->at(idx);
@@ -247,7 +248,7 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
         SF[2] = getSF (tight,  systWP, flav, vJet.Pt(), vJet.Eta());
         if (systWP == central)
         {
-            SFreshaping *= getSF (reshaping,  systWP, flav, vJet.Pt(), vJet.Eta());
+            SFreshaping *= getSF (reshaping,  systWP, flav, vJet.Pt(), vJet.Eta(), discr);
         }
         if (DEBUG) cout << "  >> DEB: SFs " << SF[0] << " " << SF[1] << " " << SF[2] << " " << SFreshaping << endl;
 

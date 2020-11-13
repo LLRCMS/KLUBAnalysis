@@ -15,8 +15,8 @@ class bTagSF
         enum SFsyst {central = 0, up = 1, down = 2};
         bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag, std::string WPset="80X_ICHEP_2016");
         ~bTagSF();
-        float getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta);
-        float getSFshifted (std::string systName, int jetFlavor, float pt, float eta);
+        float getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta, float discr=0.);
+        float getSFshifted (std::string systName, int jetFlavor, float pt, float eta, float discr=0.);
         float getEff (WP wpt, int jetFlavor, int channel, float pt, float eta); // FIXME: to do: retrieve MC efficiency from a data format
         void SetWPset(std::string WPset);
         void SetWPset(double loose, double medium, double tight);
