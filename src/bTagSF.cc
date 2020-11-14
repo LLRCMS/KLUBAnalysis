@@ -166,13 +166,14 @@ float bTagSF::getSFshifted (std::string systName, int jetFlavor, float pt, float
     // From Twiki: Owing to the iterative approach, "jes", "lf", "hf", "hfstats1/2",
     // and "lfstats1/2" uncertainties are applied to both b and udsg jets.
     // For c-flavored jets, only "cferr1/2" uncertainties are applied.
+    // For other cases (e.g. b-jet with cferr uncrtainty): use the central value of the SF.
     if (flav != BTagEntry::FLAV_C && systName.find("cferr") != std::string::npos)
     {
-        SF = 1.;
+        SF = m_readers[3].eval_auto_bounds("central", flav, eta, pt, discr);
     }
     else if (flav == BTagEntry::FLAV_C && systName.find("cferr") == std::string::npos)
     {
-        SF = 1.;
+        SF = m_readers[3].eval_auto_bounds("central", flav, eta, pt, discr);
     }
     else
     {
