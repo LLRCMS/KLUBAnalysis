@@ -548,6 +548,7 @@ int main (int argc, char** argv)
   tau_trigger::SFProvider * tauTrgSF_ditau = new tau_trigger::SFProvider("weights/trigger_SF_Legacy/2018/2018_tauTriggerEff_DeepTau2017v2p1.root", "ditau", "Medium");
   tau_trigger::SFProvider * tauTrgSF_mutau = new tau_trigger::SFProvider("weights/trigger_SF_Legacy/2018/2018_tauTriggerEff_DeepTau2017v2p1.root", "mutau", "Medium");
   tau_trigger::SFProvider * tauTrgSF_etau  = new tau_trigger::SFProvider("weights/trigger_SF_Legacy/2018/2018_tauTriggerEff_DeepTau2017v2p1.root", "etau" , "Medium");
+  tau_trigger::SFProvider * tauTrgSF_vbf   = new tau_trigger::SFProvider("weights/trigger_SF_Legacy/2018/2018_tauTriggerEff_DeepTau2017v2p1.root", "ditauvbf", "Medium");
 
   // electron/muon leg trigger SF for data and mc
   ScaleFactor * muTauTrgSF = new ScaleFactor();
@@ -561,7 +562,7 @@ int main (int argc, char** argv)
   eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2018/Electron_Run2018_Ele32orEle35.root");
 
   //VBF trigger weights -- jet legs
-  TFile* VBFjets_file = new TFile ("weights/trigger_SF_Legacy/2018/VBFHTauTauHLT_jetlegs_3Dcoarse.root"); // !! FIXME !! - dummy file for now
+  TFile* VBFjets_file = new TFile ("weights/trigger_SF_Legacy/2018/2018_VBFHTauTauTrigger_JetLegs.root");
   TH3D*  VBFjets_SF   = (TH3D*) VBFjets_file->Get("SF_mjj_pT1_pT2");
 
   // ------------------------------
@@ -3465,6 +3466,7 @@ int main (int argc, char** argv)
           theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
           theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
           theSmallTree.m_bTagweightT = (isMC ? bTagWeight.at(2) : 1.0) ;
+          theSmallTree.m_bTagweightReshape = (isMC ? bTagWeight.at(3) : 1.0) ;
 
           vector<float> bTagWeight_up = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType, bTagSF::up) ;
           theSmallTree.m_bTagweightL_up = (isMC ? bTagWeight_up.at(0) : 1.0) ;
@@ -3475,6 +3477,26 @@ int main (int argc, char** argv)
           theSmallTree.m_bTagweightL_down = (isMC ? bTagWeight_down.at(0) : 1.0) ;
           theSmallTree.m_bTagweightM_down = (isMC ? bTagWeight_down.at(1) : 1.0) ;
           theSmallTree.m_bTagweightT_down = (isMC ? bTagWeight_down.at(2) : 1.0) ;
+
+          vector<float> bTagWeightReshapeshifts = bTagSFHelper.getEvtWeightShifted (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour) ;
+          theSmallTree.m_bTagweightReshape_jes_up        = (isMC ? bTagWeightReshapeshifts.at(0) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_lf_up         = (isMC ? bTagWeightReshapeshifts.at(1) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_hf_up         = (isMC ? bTagWeightReshapeshifts.at(2) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_hfstats1_up   = (isMC ? bTagWeightReshapeshifts.at(3) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_hfstats2_up   = (isMC ? bTagWeightReshapeshifts.at(4) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_lfstats1_up   = (isMC ? bTagWeightReshapeshifts.at(5) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_lfstats2_up   = (isMC ? bTagWeightReshapeshifts.at(6) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_cferr1_up     = (isMC ? bTagWeightReshapeshifts.at(7) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_cferr2_up     = (isMC ? bTagWeightReshapeshifts.at(8) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_jes_down      = (isMC ? bTagWeightReshapeshifts.at(9) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_lf_down       = (isMC ? bTagWeightReshapeshifts.at(10) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_hf_down       = (isMC ? bTagWeightReshapeshifts.at(11) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_hfstats1_down = (isMC ? bTagWeightReshapeshifts.at(12) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_hfstats2_down = (isMC ? bTagWeightReshapeshifts.at(13) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_lfstats1_down = (isMC ? bTagWeightReshapeshifts.at(14) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_lfstats2_down = (isMC ? bTagWeightReshapeshifts.at(15) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_cferr1_down   = (isMC ? bTagWeightReshapeshifts.at(16) : 1.0) ;
+          theSmallTree.m_bTagweightReshape_cferr2_down   = (isMC ? bTagWeightReshapeshifts.at(17) : 1.0) ;
 
           // Set HHbtaginterface for ordering jets
           HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,
@@ -4407,37 +4429,6 @@ int main (int argc, char** argv)
               bool hasgj1_VBF = false;
               bool hasgj2_VBF = false;
 
-              if (isMC && theSmallTree.m_isVBFtrigger == 1)
-                {
-                  double jetSF = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt());
-
-                  double SFTau1 = 1.;
-                  // !! FIXME !! - dummy values for now
-                  if      (tlv_firstLepton.Pt() <  25) SFTau1 = 0.97;
-                  else if (tlv_firstLepton.Pt() <  30) SFTau1 = 0.755;
-                  else if (tlv_firstLepton.Pt() <  35) SFTau1 = 0.715;
-                  else if (tlv_firstLepton.Pt() <  40) SFTau1 = 0.75;
-                  else if (tlv_firstLepton.Pt() <  45) SFTau1 = 0.78;
-                  else if (tlv_firstLepton.Pt() <  50) SFTau1 = 0.835;
-                  else if (tlv_firstLepton.Pt() <  80) SFTau1 = 0.942;
-                  else if (tlv_firstLepton.Pt() < 200) SFTau1 = 0.91;
-                  else                                 SFTau1 = 0.97;
-
-                  double SFTau2 = 1.;
-                  // !! FIXME !! - dummy values for now
-                  if      (tlv_secondLepton.Pt() <  25) SFTau2 = 0.97;
-                  else if (tlv_secondLepton.Pt() <  30) SFTau2 = 0.755;
-                  else if (tlv_secondLepton.Pt() <  35) SFTau2 = 0.715;
-                  else if (tlv_secondLepton.Pt() <  40) SFTau2 = 0.75;
-                  else if (tlv_secondLepton.Pt() <  45) SFTau2 = 0.78;
-                  else if (tlv_secondLepton.Pt() <  50) SFTau2 = 0.835;
-                  else if (tlv_secondLepton.Pt() <  80) SFTau2 = 0.942;
-                  else if (tlv_secondLepton.Pt() < 200) SFTau2 = 0.91;
-                  else                                  SFTau2 = 0.97;
-
-                  theSmallTree.m_VBFtrigSF = jetSF * SFTau1 * SFTau2;
-                }
-
               // Save gen info for VBF jets
               if (isMC)
                 {
@@ -4599,6 +4590,66 @@ int main (int argc, char** argv)
               TVector3 v_bH = tlv_bH.Vect();
               float HH_A = (v_tauH + v_bH).Mag()/(tlv_tauH.Pt() + tlv_bH.Pt());
               theSmallTree.m_HH_A = HH_A;
+
+              // Logic of VBF trigger SF:
+              // 1. - if the event is in the diTau trigger phase space (taupt_1 > 40 && tau_pt_2 > 40): use the diTau trigger SF
+              // 2. - else if the event is in the VBF trigger phase space (mjj > 800 && pt_j1 > 140 && pt_j2 > 60 && taupt_1 > 25 && taupt_2 > 25): use VBF trigger SF
+              // 3. - else: SF = 0
+              // In our framework case 1. is the default: in the VBF trigger phase space (case 2.) the branch m_trigSF is overwritten
+              // with the VBF_SF, because "trigSF" is the actual weight used later in the analysis
+              if (isMC && pairType == 2 && theSmallTree.m_VBFjj_mass > 800 && theSmallTree.m_VBFjet1_pt > 140 && theSmallTree.m_VBFjet2_pt > 60 &&
+                  theSmallTree.m_dau1_pt > 25 && theSmallTree.m_dau2_pt > 25 && theSmallTree.m_dau1_pt <= 40 && theSmallTree.m_dau2_pt <= 40)
+              {
+                // Jet legs SF
+                double jetSF    = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt(), 0); // 0: central value
+                double jetSFerr = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt(), 1); // 1: error of value
+
+                // Tau legs SF
+                double SFTau1 = tauTrgSF_vbf->getSF(tlv_firstLepton.Pt() , theSmallTree.m_dau1_decayMode, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+                double SFTau2 = tauTrgSF_vbf->getSF(tlv_secondLepton.Pt(), theSmallTree.m_dau2_decayMode, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+
+                // for each DM, fill a trigSF branch with the up/down values if tauhs have the corresponding DM, otherwise fill with nominal trigSF value
+                vector <double> SFTau1_up (N_tauhDM, SFTau1);
+                vector <double> SFTau2_up (N_tauhDM, SFTau2);
+                vector <double> SFTau1_down (N_tauhDM, SFTau1);
+                vector <double> SFTau2_down (N_tauhDM, SFTau2);
+                for (int idm  = 0; idm < N_tauhDM; idm ++)
+                {
+                  if (isthisDM_first[idm])
+                  {
+                    SFTau1_up[idm]   = tauTrgSF_vbf->getSF(tlv_firstLepton.Pt(), theSmallTree.m_dau1_decayMode, 1);
+                    SFTau1_down[idm] = tauTrgSF_vbf->getSF(tlv_firstLepton.Pt(), theSmallTree.m_dau1_decayMode, -1);
+                  }
+                  if (isthisDM_second[idm])
+                  {
+                    SFTau2_up[idm]   = tauTrgSF_vbf->getSF(tlv_secondLepton.Pt(), theSmallTree.m_dau2_decayMode, 1);
+                    SFTau2_down[idm] = tauTrgSF_vbf->getSF(tlv_secondLepton.Pt(), theSmallTree.m_dau2_decayMode, -1);
+                  }
+                }
+                trigSF_DM0_up    = SFTau1_up[0]   * SFTau2_up[0];
+                trigSF_DM1_up    = SFTau1_up[1]   * SFTau2_up[1];
+                trigSF_DM10_up   = SFTau1_up[2]   * SFTau2_up[2];
+                trigSF_DM11_up   = SFTau1_up[3]   * SFTau2_up[3];
+                trigSF_DM0_down  = SFTau1_down[0] * SFTau2_down[0];
+                trigSF_DM1_down  = SFTau1_down[1] * SFTau2_down[1];
+                trigSF_DM10_down = SFTau1_down[2] * SFTau2_down[2];
+                trigSF_DM11_down = SFTau1_down[3] * SFTau2_down[3];
+
+                // Save final VBF trig SF
+                theSmallTree.m_VBFtrigSF          = jetSF * SFTau1 * SFTau2; // store anyway the value
+                theSmallTree.m_trigSF             = jetSF * SFTau1 * SFTau2;               // overwrite the trigSF values for VBF events
+                theSmallTree.m_trigSF_vbfjet_up   = (jetSF + jetSFerr) * SFTau1 * SFTau2;
+                theSmallTree.m_trigSF_vbfjet_down = (jetSF - jetSFerr) * SFTau1 * SFTau2;
+                theSmallTree.m_trigSF_DM0_up      = jetSF * trigSF_DM0_up;
+                theSmallTree.m_trigSF_DM1_up      = jetSF * trigSF_DM1_up;
+                theSmallTree.m_trigSF_DM10_up     = jetSF * trigSF_DM10_up;
+                theSmallTree.m_trigSF_DM11_up     = jetSF * trigSF_DM11_up;
+                theSmallTree.m_trigSF_DM0_down    = jetSF * trigSF_DM0_down;
+                theSmallTree.m_trigSF_DM1_down    = jetSF * trigSF_DM1_down;
+                theSmallTree.m_trigSF_DM10_down   = jetSF * trigSF_DM10_down;
+                theSmallTree.m_trigSF_DM11_down   = jetSF * trigSF_DM11_down;
+              }
+
             }
 
           // loop over jets

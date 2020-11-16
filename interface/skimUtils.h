@@ -257,7 +257,7 @@ double getContentHisto2D(TH2* histo, double x, double y)
   return histo->GetBinContent(ibinx, ibiny);
 }
 
-double getContentHisto3D(TH3* histo, double x, double y, double z)
+double getContentHisto3D(TH3* histo, double x, double y, double z, int unc_scale = 0)
 {
   int nbinsx = histo->GetNbinsX();
   int nbinsy = histo->GetNbinsY();
@@ -276,7 +276,7 @@ double getContentHisto3D(TH3* histo, double x, double y, double z)
   if (ibinz == 0)     ibinz = 1;
   if (ibinz > nbinsz) ibinz = nbinsz;
 
-  return histo->GetBinContent(ibinx, ibiny, ibinz);
+  return ( unc_scale == 0 ? histo->GetBinContent(ibinx, ibiny, ibinz) : histo->GetBinError(ibinx, ibiny, ibinz) );
 }
 
 

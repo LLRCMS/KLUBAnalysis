@@ -15,9 +15,15 @@ bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effH
     m_readers {
         BTagCalibrationReader(BTagEntry::OP_LOOSE,  "central", {"up", "down"}),
         BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"}),
-        BTagCalibrationReader(BTagEntry::OP_TIGHT,  "central", {"up", "down"})}
+        BTagCalibrationReader(BTagEntry::OP_TIGHT,  "central", {"up", "down"}),
+        BTagCalibrationReader(BTagEntry::OP_RESHAPING, "central", {
+            "up_jes", "up_lf", "up_hf", "up_hfstats1", "up_hfstats2", "up_lfstats1",
+            "up_lfstats2", "up_cferr1", "up_cferr2",
+            "down_jes", "down_lf", "down_hf", "down_hfstats1", "down_hfstats2", "down_lfstats1",
+            "down_lfstats2", "down_cferr1", "down_cferr2"
+        })}
 {
-    // load readers [loose, medium, tight]
+    // load readers [loose, medium, tight, reshaping]
     m_readers[0].load(m_calib, BTagEntry::FLAV_B, "comb");
     m_readers[0].load(m_calib, BTagEntry::FLAV_C, "comb");
     m_readers[0].load(m_calib, BTagEntry::FLAV_UDSG, "incl");
@@ -29,6 +35,10 @@ bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effH
     m_readers[2].load(m_calib, BTagEntry::FLAV_B, "comb");
     m_readers[2].load(m_calib, BTagEntry::FLAV_C, "comb");
     m_readers[2].load(m_calib, BTagEntry::FLAV_UDSG, "incl");
+
+    m_readers[3].load(m_calib, BTagEntry::FLAV_B, "iterativefit");
+    m_readers[3].load(m_calib, BTagEntry::FLAV_C, "iterativefit");
+    m_readers[3].load(m_calib, BTagEntry::FLAV_UDSG, "iterativefit");
 
     m_fileEff = new TFile (effFileName.c_str());
  
@@ -94,7 +104,7 @@ void bTagSF::SetWPset(double loose, double medium, double tight)
     _WPtag[2] = tight;
 }
 
-float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta)
+float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta, float discr)
 {
     // cout << "   ~~ requesting SF for WP=" << wpt << " SFsyst=" << syst << " jetFlavor=" << jetFlavor << " pt=" << pt << " eta=" << eta << endl;
 
@@ -123,12 +133,57 @@ float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta)
     if (DEBUG) cout << "   ~~ requesting SF for WP=" << wpt << "," << myWPIndex << " SFsyst=" << syst << "," << mySystIndex << " jetFlavor=" << jetFlavor << " pt=" << pt << " eta=" << eta << endl;
 
     string systName[3] = {"central", "up", "down"}; // like SFsyst enum;
-    SF = m_readers[myWPIndex].eval_auto_bounds(systName[mySystIndex], flav, eta, pt);
+    SF = m_readers[myWPIndex].eval_auto_bounds(systName[mySystIndex], flav, eta, pt, discr);
 
     if (DEBUG) cout << "   ~~ returning " << SF << endl;
     return SF;
 }
 
+float bTagSF::getSFshifted (std::string systName, int jetFlavor, float pt, float eta, float discr)
+{
+    float SF = 1.0;
+
+    BTagEntry::JetFlavor flav;
+    float mypt = pt;
+    if (mypt < 20.) mypt = 20.;
+    if (mypt > 1000.) mypt = 1000.;
+
+    if (abs(jetFlavor) == 5)
+    {
+        flav = BTagEntry::FLAV_B;
+    }
+    else if (abs(jetFlavor) == 4)
+    {
+        flav = BTagEntry::FLAV_C;
+    }
+    else
+    {
+        flav = BTagEntry::FLAV_UDSG;
+    }
+
+    if (DEBUG) cout << "   ~~ requesting SF for systName= " << systName << " BTagEntry::FLAV=" << flav << " pt=" << pt << " eta=" << eta << endl;
+
+    // From Twiki: Owing to the iterative approach, "jes", "lf", "hf", "hfstats1/2",
+    // and "lfstats1/2" uncertainties are applied to both b and udsg jets.
+    // For c-flavored jets, only "cferr1/2" uncertainties are applied.
+    // For other cases (e.g. b-jet with cferr uncrtainty): use the central value of the SF.
+    if (flav != BTagEntry::FLAV_C && systName.find("cferr") != std::string::npos)
+    {
+        SF = m_readers[3].eval_auto_bounds("central", flav, eta, pt, discr);
+    }
+    else if (flav == BTagEntry::FLAV_C && systName.find("cferr") == std::string::npos)
+    {
+        SF = m_readers[3].eval_auto_bounds("central", flav, eta, pt, discr);
+    }
+    else
+    {
+        SF = m_readers[3].eval_auto_bounds(systName, flav, eta, pt, discr);
+    }
+
+    if (DEBUG) cout << "   ~~ returning " << SF << endl;
+
+    return SF;
+}
 
 float bTagSF::getEff (WP wpt, int jetFlavor, int channel, float pt, float eta)
 {
@@ -175,7 +230,8 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
 
     vector<double> P_MC   (3, 1.0); // 0 = L, 1 = M, 2 = T
     vector<double> P_Data (3, 1.0); // 0 = L, 1 = M, 2 = T
-    
+    double SFreshaping = 1.;        // reshaping SF
+
     TLorentzVector vJet (0,0,0,0);
 
     for (unsigned int ijet = 0; ijet < jets_and_btag.size(); ijet++)
@@ -183,6 +239,7 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
         if (DEBUG) cout << "DEB: ijet " << ijet << " , size = " << jets_and_btag.size() << endl;
 
         int idx = jets_and_btag.at(ijet).first;
+        float discr = jets_and_btag.at(ijet).second;
         vJet.SetPxPyPzE (jets_px->at(idx), jets_py->at(idx), jets_pz->at(idx), jets_e->at(idx));
         
         int flav = jets_HadronFlavour->at(idx);
@@ -190,7 +247,11 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
         SF[0] = getSF (loose,  systWP, flav, vJet.Pt(), vJet.Eta());
         SF[1] = getSF (medium, systWP, flav, vJet.Pt(), vJet.Eta());
         SF[2] = getSF (tight,  systWP, flav, vJet.Pt(), vJet.Eta());
-        if (DEBUG) cout << "  >> DEB: SFs " << SF[0] << " " << SF[1] << " " << SF[2] << endl;
+        if (systWP == central)
+        {
+            SFreshaping *= getSF (reshaping,  systWP, flav, vJet.Pt(), vJet.Eta(), discr);
+        }
+        if (DEBUG) cout << "  >> DEB: SFs " << SF[0] << " " << SF[1] << " " << SF[2] << " " << SFreshaping << endl;
 
         double effBTag[3];
         effBTag[0] = getEff (static_cast<WP> (0), flav, channel, vJet.Pt(), vJet.Eta()) ;
@@ -231,22 +292,66 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
         }
     }
     // return ratio
-    vector<float> weight (3);
+    vector<float> weight (4);
     weight.at(0) = P_Data.at(0) / P_MC.at(0);
     weight.at(1) = P_Data.at(1) / P_MC.at(1);
     weight.at(2) = P_Data.at(2) / P_MC.at(2);
-    
+    weight.at(3) = SFreshaping;
+
     if (weight.at(0) < 0.05) 
     {
         cout << "------ ERROR Null B-TAG weight!!" << endl;
         cout << "    >>> " << P_Data.at(0) << " / " << P_MC.at(0) << " , "
                            << P_Data.at(1) << " / " << P_MC.at(1) << " , "
                            << P_Data.at(2) << " / " << P_MC.at(2) << " , "
-                           << endl;
+                           << SFreshaping << endl;
     }
     //cout << "weights: " << weight.at(0) << " " << weight.at(1) << " " << weight.at(2) << endl;
     return weight;
 }
 
+
+// Systematics according to: https://twiki.cern.ch/twiki/bin/view/CMS/BTagShapeCalibration#Systematic_uncertainties
+// Returns a vector containing the reshape weights for all the systematics described in the twiki:
+// weights = {
+//             "up_jes", "up_lf", "up_hf", "up_hfstats1", "up_hfstats2", "up_lfstats1",
+//             "up_lfstats2", "up_cferr1", "up_cferr2",
+//             "down_jes", "down_lf", "down_hf", "down_hfstats1", "down_hfstats2", "down_lfstats1",
+//             "down_lfstats2", "down_cferr1", "down_cferr2"
+//           }
+std::vector<float> bTagSF::getEvtWeightShifted (std::vector <std::pair <int, float> >& jets_and_btag, std::vector<float> *jets_px, std::vector<float> *jets_py, std::vector<float> *jets_pz, std::vector<float> *jets_e, std::vector<int> *jets_HadronFlavour)
+{
+    // Systematics names
+    std::vector<std::string> systNames = {
+        "up_jes", "up_lf", "up_hf", "up_hfstats1", "up_hfstats2", "up_lfstats1",
+        "up_lfstats2", "up_cferr1", "up_cferr2",
+        "down_jes", "down_lf", "down_hf", "down_hfstats1", "down_hfstats2", "down_lfstats1",
+        "down_lfstats2", "down_cferr1", "down_cferr2"
+    };
+
+    // Values of shifted SFs all initialized to 1
+    std::vector<float> SFs (systNames.size(), 1.);
+
+    // Loop on jets
+    TLorentzVector vJet (0,0,0,0);
+    for (unsigned int ijet = 0; ijet < jets_and_btag.size(); ijet++)
+    {
+        if (DEBUG) cout << "DEB: ijet " << ijet << " , size = " << jets_and_btag.size() << endl;
+
+        // Build jet quantities
+        int idx = jets_and_btag.at(ijet).first;
+        vJet.SetPxPyPzE (jets_px->at(idx), jets_py->at(idx), jets_pz->at(idx), jets_e->at(idx));
+        int flav = jets_HadronFlavour->at(idx);
+
+        // Loop on systematics
+        for (unsigned int iname = 0; iname < systNames.size(); iname++)
+        {
+            SFs.at(iname) *= getSFshifted(systNames.at(iname), flav, vJet.Pt(), vJet.Eta());
+        }
+    }
+
+    // Return SFs shifted
+    return SFs;
+}
 
 
