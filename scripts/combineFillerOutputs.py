@@ -174,6 +174,7 @@ if args.moreDYbin2:
     
 if cfg.hasSection('pp_QCD'):
     SBtoSRforQCD =float(cfg.readOption('pp_QCD::SBtoSRfactor'))
+    doUpDownQCD = eval(cfg.readOption('pp_QCD::doUnc')) if cfg.hasOption('pp_QCD::doUnc') else False
     computeSBtoSRdyn = False
     if SBtoSRforQCD == 1 and not args.SBtoSR: 
         computeSBtoSRdyn = True
@@ -189,6 +190,23 @@ if cfg.hasSection('pp_QCD'):
         fitFunc      = cfg.readOption('pp_QCD::fitFunc'),
         computeSBtoSR = computeSBtoSRdyn
         )
+    if doUpDownQCD:
+        # Compute up/down variation of QCD by taking the shape
+        # from SStight and the correction factor from OSinviso/SSinviso
+        print "--- Computing Up/Down variation of QCD ---"
+        omngr.makeQCD(
+            SR           = cfg.readOption('pp_QCD::SR'),
+            yieldSB      = cfg.readOption('pp_QCD::regionC'), # SStight
+            shapeSB      = cfg.readOption('pp_QCD::regionC'), # SStight
+            SBtoSRfactor = SBtoSRforQCD,
+            regionC      = cfg.readOption('pp_QCD::yieldSB'), # OSinviso
+            regionD      = cfg.readOption('pp_QCD::regionD'), # SSinviso
+            doFitIf      = cfg.readOption('pp_QCD::doFitIf'),
+            fitFunc      = cfg.readOption('pp_QCD::fitFunc'),
+            computeSBtoSR = computeSBtoSRdyn,
+            doUpDown      = doUpDownQCD
+            )
+
 
 # VBF HH Reweighting
 # reads from the config the 6 input samples and the target couplings

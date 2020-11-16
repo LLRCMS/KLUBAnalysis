@@ -255,9 +255,9 @@ class OutputManager:
 
                     # if var == 'MT2' and sel == 'defaultBtagLLNoIsoBBTTCut' : print ">> -- bkg - SHAPE: " , hname, hQCD.Integral()
     ## FIXME: how to treat systematics properly ? Do we need to do ann alternative QCD histo for every syst?
-    def makeQCD (self, SR, yieldSB, shapeSB, SBtoSRfactor, regionC, regionD, doFitIf='False', fitFunc='[0] + [1]*x', computeSBtoSR = True,QCDname='QCD', removeNegBins = True):
+    def makeQCD (self, SR, yieldSB, shapeSB, SBtoSRfactor, regionC, regionD, doFitIf='False', fitFunc='[0] + [1]*x', computeSBtoSR = True,QCDname='QCD', removeNegBins = True, doUpDown = False):
         
-        print "... building QCD w/ name:", QCDname, ". SR:" , SR, " yieldSB:", yieldSB, " shapeSB:", shapeSB, " SBtoSRfactor:", SBtoSRfactor
+        print "... building QCD w/ name:", QCDname, ". SR:" , SR, " yieldSB:", yieldSB, " shapeSB:", shapeSB, " SBtoSRfactor:", SBtoSRfactor, " doUpDown:", doUpDown
         print "    >> recompute SBtoSR dynamically? "
         if computeSBtoSR: 
             print "    >>  yes"
@@ -352,10 +352,22 @@ class OutputManager:
                     normaliz = hQCD.Integral()
                     hQCDCorr.Multiply(fFitFunc) # NOTE: multiplication is done in the function range, so it's important to set this properly before. Errors are propagated.
                     hQCDCorr.Scale(normaliz/hQCDCorr.Integral())
-                    self.histos[hQCDCorr.GetName()] = hQCDCorr
+                    if doUpDown:
+                        hQCDCorrup   = hQCD.Clone(hQCDCorr.GetName()+"_Up")
+                        hQCDCorrdown = hQCD.Clone(hQCDCorr.GetName()+"_Down")
+                        self.histos[hQCDCorr.GetName()+"_Up"]   = hQCDCorrup
+                        self.histos[hQCDCorr.GetName()+"_Down"] = hQCDCorrdown
+                    else:
+                        self.histos[hQCDCorr.GetName()] = hQCDCorr
 
                 ## store hQCD - is either 'QCD' if no fit was done or uncorrQCD if fit was done, in any case is the final one to plot
-                self.histos[hQCD.GetName()] = hQCD
+                if doUpDown:
+                    hQCDup   = hQCD.Clone(hQCD.GetName()+"_Up")
+                    hQCDdown = hQCD.Clone(hQCD.GetName()+"_Down")
+                    self.histos[hQCD.GetName()+"_Up"]   = hQCDup
+                    self.histos[hQCD.GetName()+"_Down"] = hQCDdown
+                else:
+                    self.histos[hQCD.GetName()] = hQCD
             
 
         ### FIXME: now do 2D histos
