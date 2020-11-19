@@ -25,8 +25,8 @@ systNamesOUT=["CMS_scale_t_13TeV_"+opt.year+"_DM0","CMS_scale_t_13TeV_"+opt.year
 systNames = ['tesXXX_DM0','tesXXX_DM1','tesXXX_DM10','tesXXX_DM11','eesXXX_DM0','eesXXX_DM1','mesXXX', 'jesXXXTot']
 
 # if running WITHOUT the shape syst, uncomment uncomment these 2 lines:
-#systNamesOUT=[]
-#systNames = []
+systNamesOUT=[]
+systNames = []
 
 print "Running"
 inFile = TFile.Open(opt.filename)
@@ -51,7 +51,7 @@ for key in inFile.GetListOfKeys():
 	if "GGHH_NLO" in kname: kname = kname.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_hbbhtautau").replace("cHHH", "kl_")
 	if "VBFHH"    in kname: kname = kname.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_hbbhtautau") #write 1_5 as 1p5 from the beginning
 
-	print kname
+	#print kname
 
 	#protection against empty bins
 	changedInt = False

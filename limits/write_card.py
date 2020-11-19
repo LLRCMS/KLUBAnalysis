@@ -24,6 +24,7 @@ def parseOptions():
     parser.add_option('-s', '--selection', dest='overSel'   , type='string', default=''      , help='overwrite selection string')
     parser.add_option('-y', '--year'     , dest='year'      , type='string', default='2016'  , help='year')
     parser.add_option('-u', '--shape'    , dest='shapeUnc'  , type='int'   , default=1       , help='1:add 0:disable shape uncertainties')
+    parser.add_option('-q', '--dynamQCD' , dest='dynamQCD'  , type='int'   , default=1       , help='1:do QCD as rateParam / 0:read QCD from file')
     parser.add_option('-r', '--resonant' , dest='isResonant', action="store_true"            , help='is Resonant analysis')
     parser.add_option('-b', '--binbybin' , dest='binbybin'  , action="store_true"            , help='add bin by bins systematics')
     parser.add_option('-t', '--theory'   , dest='theory'    , action="store_true"            , help='add theory systematics')
@@ -37,29 +38,29 @@ def parseOptions():
 def  writeCard(backgrounds,signals,select,region=-1) :
 
     if   "0b0j"       in select : theCat = "0"
-    if   "2b0j"       in select : theCat = "2"
     elif "1b1j"       in select : theCat = "1"
+    elif "2b0j"       in select : theCat = "2"
     elif "boosted"    in select : theCat = "3"
-    elif "VBFloose"   in select : theCat = "4"
-    elif "GGFclass"   in select : theCat = "5"
-    elif "VBFclass"   in select : theCat = "6"
-    elif "ttHclass"   in select : theCat = "7"
-    elif "TTlepclass" in select : theCat = "8"
-    elif "TThadclass" in select : theCat = "9"
-    elif "DYclass"    in select : theCat = "10"
+    elif "GGFclass"   in select : theCat = "4"
+    elif "VBFclass"   in select : theCat = "5"
+    elif "ttHclass"   in select : theCat = "6"
+    elif "TTlepclass" in select : theCat = "7"
+    elif "TThadclass" in select : theCat = "8"
+    elif "DYclass"    in select : theCat = "9"
+    elif "VBFloose"   in select : theCat = "10"
 
     variable = {
         "0"  : "DNNoutSM_kl_1",
         "1"  : "DNNoutSM_kl_1",
         "2"  : "DNNoutSM_kl_1",
         "3"  : "DNNoutSM_kl_1",
-        "4"  : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__hh_vbf",
-        "5"  : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__hh_ggf",
-        "6"  : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__hh_vbf",
-        "7"  : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__tth",
-        "8"  : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__tt_lep",
-        "9"  : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__tt_fh",
-        "10" : "DNNoutSM_kl_1", # "mdnn__v2__kl1_c2v1_c31__dy",
+        "4"  : "DNNoutSM_kl_1",
+        "5"  : "DNNoutSM_kl_1",
+        "6"  : "DNNoutSM_kl_1",
+        "7"  : "DNNoutSM_kl_1",
+        "8"  : "DNNoutSM_kl_1",
+        "9"  : "DNNoutSM_kl_1",
+        "10" : "DNNoutSM_kl_1",
     }
 
     theOutputDir = "{0}{1}".format(select,variable[theCat])
@@ -136,7 +137,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
 
         systsShape =["CMS_scale_t_13TeV_"+opt.year+"_DM0","CMS_scale_t_13TeV_"+opt.year+"_DM1","CMS_scale_t_13TeV_"+opt.year+"_DM10","CMS_scale_t_13TeV_"+opt.year+"_DM11", "CMS_scale_es_13TeV_"+opt.year+"_DM0", "CMS_scale_es_13TeV_"+opt.year+"_DM1", "CMS_scale_mes_13TeV_"+opt.year+"", "CMS_scale_j_13TeV_"+opt.year+""]
         # If running without the TES/EES/JES... uncomment the following line:
-        #systsShape = []
+        systsShape = []
 
         systsNorm  = []  # <-- THIS WILL BE FILLED FROM CONFIGS
 
@@ -198,6 +199,36 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             #shiftShapes_newName.append("TT_topUp")
             #shiftShapes_newName.append("TT_topDown")
 
+            # Add QCD Up/Down shape uncertainty (e.g. QCD_s1b1jresolvedMcut_SR_DNNoutSM_kl_1_Up)
+            proc_syst["QCD"]["QCDshape"] = ["shape", 1.]
+            systsShape.append("QCDshape")
+            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_Up"  .format("QCD", select, "SR", variable[theCat]))
+            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_Down".format("QCD", select, "SR", variable[theCat]))
+            shiftShapes_newName.append("QCD_QCDshapeUp")
+            shiftShapes_newName.append("QCD_QCDshapeDown")
+
+            # Add customSF uncertainties (4 unc. depending on DM) for TauTau channel in 2017
+            if "2" in thechannel and "2017" in opt.year:
+                customDMs = ["DM0","DM1","DM10","DM11"]
+            else:
+                customDMs = []
+            for customDMname in customDMs:
+                customTauIdSFname = "customTauIdSF" + customDMname
+                systsShape.append(customTauIdSFname)
+                for proc in backgrounds:
+                    if "QCD" in proc: continue
+                    proc_syst[proc][customTauIdSFname] = ["shape", 1.]   #applying trigger to all MC backgrounds
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], customTauIdSFname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], customTauIdSFname))
+                    shiftShapes_newName.append(proc+"_"+customTauIdSFname+"Up")
+                    shiftShapes_newName.append(proc+"_"+customTauIdSFname+"Down")
+                for proc in signals:
+                    proc_syst[proc][customTauIdSFname] = ["shape", 1.]   #applying trigger to all signals
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], customTauIdSFname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], customTauIdSFname))
+                    shiftShapes_newName.append(proc+"_"+customTauIdSFname+"Up")
+                    shiftShapes_newName.append(proc+"_"+customTauIdSFname+"Down")
+
             # Add PUjetID SF uncertainty
             PUjetIDname = "PUjetIDSF"
             systsShape.append(PUjetIDname)
@@ -208,7 +239,6 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], PUjetIDname))
                 shiftShapes_newName.append(proc+"_"+PUjetIDname+"Up")
                 shiftShapes_newName.append(proc+"_"+PUjetIDname+"Down")
-
             for proc in signals:
                 proc_syst[proc][PUjetIDname] = ["shape", 1.]   #applying trigger to all signals
                 shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], PUjetIDname))
@@ -216,35 +246,56 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 shiftShapes_newName.append(proc+"_"+PUjetIDname+"Up")
                 shiftShapes_newName.append(proc+"_"+PUjetIDname+"Down")
 
-            # Add bTag SF uncertainty
-            if "boosted" in select:
-                WPs = ["L"]
-            else:
-                WPs = ["M"]
-            for WPname in WPs:
-                bTagWPname = "bTagSF" + WPname
-                systsShape.append(bTagWPname)
+            ## Add bTag SF uncertainty
+            #if "boosted" in select:
+            #    WPs = ["L"]
+            #else:
+            #    WPs = ["M"]
+            #for WPname in WPs:
+            #    bTagWPname = "bTagSF" + WPname
+            #    systsShape.append(bTagWPname)
+            #    for proc in backgrounds:
+            #        if "QCD" in proc: continue
+            #        proc_syst[proc][bTagWPname] = ["shape", 1.]   #applying trigger to all MC backgrounds
+            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
+            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
+            #        shiftShapes_newName.append(proc+"_"+bTagWPname+"Up")
+            #        shiftShapes_newName.append(proc+"_"+bTagWPname+"Down")
+            #    for proc in signals:
+            #        proc_syst[proc][bTagWPname] = ["shape", 1.]   #applying trigger to all signals
+            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
+            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
+            #        shiftShapes_newName.append(proc+"_"+bTagWPname+"Up")
+            #        shiftShapes_newName.append(proc+"_"+bTagWPname+"Down")
+
+            # bTagReshape uncertainties. To be added once we understand it: "JES"
+            bTagSysts = ["LF","HF","HFSTATS1","HFSTATS2","LFSTATS1","LFSTATS2","CFERR1","CFERR2"]
+            for bTagSyst in bTagSysts:
+                bTagSystName = "bTagweightReshape" + bTagSyst
+                systsShape.append(bTagSystName)
                 for proc in backgrounds:
                     if "QCD" in proc: continue
-                    proc_syst[proc][bTagWPname] = ["shape", 1.]   #applying trigger to all MC backgrounds
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
-                    shiftShapes_newName.append(proc+"_"+bTagWPname+"Up")
-                    shiftShapes_newName.append(proc+"_"+bTagWPname+"Down")
-
+                    proc_syst[proc][bTagSystName] = ["shape", 1.]   #applying trigger to all MC backgrounds
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    shiftShapes_newName.append(proc+"_"+bTagSystName+"Up")
+                    shiftShapes_newName.append(proc+"_"+bTagSystName+"Down")
                 for proc in signals:
-                    proc_syst[proc][bTagWPname] = ["shape", 1.]   #applying trigger to all signals
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
-                    shiftShapes_newName.append(proc+"_"+bTagWPname+"Up")
-                    shiftShapes_newName.append(proc+"_"+bTagWPname+"Down")
+                    proc_syst[proc][bTagSystName] = ["shape", 1.]   #applying trigger to all signals
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    shiftShapes_newName.append(proc+"_"+bTagSystName+"Up")
+                    shiftShapes_newName.append(proc+"_"+bTagSystName+"Down")
 
             # Add tau trigger uncertainties (4 unc. depending on DM for tau legs + 2 unc. for ele and mu legs)
+            # For TauTau channel in 2017 and 2018 add also the the VBF trigger of jet legs
             DMs = ["DM0","DM1","DM10","DM11"]
             if "0" in thechannel:
                 DMs.append("mu")
             if "1" in thechannel:
-                DMs.appen("ele")
+                DMs.append("ele")
+            if "2" in thechannel and opt.year in ("2017", "2018"):
+                DMs.append("Jet")
             for DMname in DMs:
                 trigDMname = "trigSF" + DMname
                 systsShape.append(trigDMname)
@@ -255,7 +306,6 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
                     shiftShapes_newName.append(proc+"_"+trigDMname+"Up")
                     shiftShapes_newName.append(proc+"_"+trigDMname+"Down")
-
                 for proc in signals:
                     proc_syst[proc][trigDMname] = ["shape", 1.]   #applying trigger to all signals
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
@@ -278,7 +328,6 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
                     shiftShapes_newName.append(proc+"_"+tauPTname+"Up")
                     shiftShapes_newName.append(proc+"_"+tauPTname+"Down")
-
                 for proc in signals:
                     proc_syst[proc][tauPTname] = ["shape", 1.]   #applying trigger to all signals
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
@@ -298,7 +347,6 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauETAname))
             #        shiftShapes_newName.append(proc+"_"+tauETAname+"Up")
             #        shiftShapes_newName.append(proc+"_"+tauETAname+"Down")
-
             #    for proc in signals:
             #        proc_syst[proc][tauETAname] = ["shape", 1.]   #applying trigger to all signals
             #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauETAname))
@@ -318,7 +366,6 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
                     shiftShapes_newName.append(proc+"_"+tauELEname+"Up")
                     shiftShapes_newName.append(proc+"_"+tauELEname+"Down")
-
                 for proc in signals:
                     proc_syst[proc][tauELEname] = ["shape", 1.]   #applying trigger to all signals
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
@@ -329,8 +376,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         col1       = '{: <40}'
         colsysN    = '{: <30}'
         colsysType = '{: <10}'
-        cols       = '{: >30}'
-        ratecols   = '{0: > 30.4f}'
+        cols       = '{: >35}'
+        ratecols   = '{0: > 35.4f}'
 
         shapes_lines_toWrite = []
         lnN_lines_toWrite     = []
@@ -397,7 +444,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
 
         file.write    ('theory group = HH_BR_Hbb HH_BR_Htt QCDscale_ggHH pdf_ggHH mtop_ggHH QCDscale_qqHH pdf_qqHH\n')
-        file.write    ("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(select))
+        if opt.dynamQCD:
+            file.write("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(select))
 
         if (opt.binbybin): file.write('\n* autoMCStats 10')
 
@@ -496,7 +544,8 @@ print configname
 input = ConfigReader(configname)
 
 if opt.overSel == "" :
-    allSel = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut", "VBFloose"]
+    #allSel = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut", "VBFloose"]
+    allSel = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut", "GGFclass", "VBFclass", "ttHclass", "TTlepclass", "TThadclass", "DYclass"]
 else : allSel = [opt.overSel]
 
 data        = input.readListOption("general::data")
@@ -524,7 +573,18 @@ for i,sig in enumerate(signals):
 
 datacards = []
 
+
 for sel in allSel : 
-    for ireg in range(0,4) :
-        card = writeCard(backgrounds,signals,sel,ireg)
-        if ireg == 0: datacards.append(card)
+
+    # Use rateParam for QCD
+    if opt.dynamQCD:
+        print 'QCD from rateParam'
+        for ireg in range(0,4) :
+            card = writeCard(backgrounds,signals,sel,ireg)
+            if ireg == 0: datacards.append(card)
+
+    # Take QCD from file
+    else:
+        print 'QCD from file'
+        card = writeCard(backgrounds,signals,sel,0)
+        datacards.append(card)

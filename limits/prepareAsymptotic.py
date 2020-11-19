@@ -13,10 +13,10 @@ def parseOptions():
     parser.add_option('-b'   , '--blind', dest='blind',                default=False, action='store_true')
     parser.add_option('--ggF',            dest='ggF'  ,                default=False, action='store_true')
     parser.add_option('--VBF',            dest='VBF'  ,                default=False, action='store_true')
-    parser.add_option('--kl' ,            dest='kl'   , type='string', default=None                      )
-    parser.add_option('--kt' ,            dest='kt'   , type='string', default=None                      )
-    parser.add_option('--CV' ,            dest='CV'   , type='string', default=None                      )
-    parser.add_option('--C2V',            dest='C2V'  , type='string', default=None                      )
+    parser.add_option('--kl' ,            dest='kl'   , type='string', default='1'                       )
+    parser.add_option('--kt' ,            dest='kt'   , type='string', default='1'                       )
+    parser.add_option('--CV' ,            dest='CV'   , type='string', default='1'                       )
+    parser.add_option('--C2V',            dest='C2V'  , type='string', default='1'                       )
  
     # store options and arguments as global variables
     global opt, args
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     if opt.ggF and not opt.VBF:
         red_parameters.append("r_gghh")
         fre_parameters.append("r")
-        set_parameters.append("r_qqhh=0")
+        set_parameters.append("r_qqhh=1")
 
     # limits only on r_qqhh
     if opt.VBF and not opt.ggF:
@@ -61,11 +61,11 @@ if __name__ == "__main__":
         fre_parameters.append("r")
         set_parameters.append("r_gghh=1")
 
-    # limits on r - NOT to be used for now!
-    #if opt.ggF and opt.VBF:
-    #    red_parameters.append("r")
-    #    freeze   = False
-    #    set_parameters.append("r_qqhh=0")
+    # limits on r
+    if opt.ggF and opt.VBF:
+        red_parameters.append("r")
+        freeze = False # all parameters except r already frozen by default
+        set_parameters.append("r_qqhh=1,r_gghh=1")
 
     command     = command + " --redefineSignalPOIs " + ",".join(red_parameters)
     if freeze:

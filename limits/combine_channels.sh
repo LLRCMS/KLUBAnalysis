@@ -1,10 +1,10 @@
 var="DNNoutSM_kl_1"
-selections="s1b1jresolvedMcut s2b0jresolvedMcut sboostedLLMcut VBFloose"
+selections="s1b1jresolvedMcut s2b0jresolvedMcut sboostedLLMcut GGFclass VBFclass ttHclass TTlepclass TThadclass DYclass"
 channels="TauTau MuTau ETau" 
 
-#tag="2016_4Oct2020"
-tag="2017_4Oct2020"
-#tag="2018_4Oct2020"
+tag="2016_17Nov2020_noQCD"
+#tag="2017_17Nov2020_noQCD"
+#tag="2018_17Nov2020_noQCD"
 
 mkdir cards_CombChan_$tag
 
