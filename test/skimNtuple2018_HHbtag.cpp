@@ -4598,7 +4598,7 @@ int main (int argc, char** argv)
               // In our framework case 1. is the default: in the VBF trigger phase space (case 2.) the branch m_trigSF is overwritten
               // with the VBF_SF, because "trigSF" is the actual weight used later in the analysis
               if (isMC && pairType == 2 && theSmallTree.m_VBFjj_mass > 800 && theSmallTree.m_VBFjet1_pt > 140 && theSmallTree.m_VBFjet2_pt > 60 &&
-                  theSmallTree.m_dau1_pt > 25 && theSmallTree.m_dau2_pt > 25 && theSmallTree.m_dau1_pt <= 40 && theSmallTree.m_dau2_pt <= 40)
+                  theSmallTree.m_dau1_pt > 25 && theSmallTree.m_dau2_pt > 25 && (theSmallTree.m_dau1_pt <= 40 || theSmallTree.m_dau2_pt <= 40) )
               {
                 // Jet legs SF
                 double jetSF    = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt(), 0); // 0: central value

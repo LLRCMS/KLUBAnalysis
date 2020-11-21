@@ -470,70 +470,53 @@ if __name__ == "__main__" :
 
 
     ######################### PUT USER CONFIGURATION HERE ####################
-    cfgName  =  args.dir + "/mainCfg_"+args.channel+"_Legacy2017.cfg"
+    cfgName  =  args.dir + "/mainCfg_"+args.channel+"_Legacy2017_limits.cfg"
     cfg        = cfgr.ConfigReader (cfgName)
     bkgList    = cfg.readListOption("general::backgrounds")
 
     doQCD = True
     if not "SR" in args.reg: doQCD = False
     if not "Tau" in args.channel: doQCD = False
-    
     if doQCD:
         bkgList.append('QCD')
-    
-    
-    sigList = cfg.readListOption("general::signals")
-    sigList = ["GGHHSM"]
 
+
+    sigList = cfg.readListOption("general::signals")
+    sigList = ["GGHH_NLO_cHHH1_xs", "VBFHH_CV_1_C2V_1_C3_1_xs"]
 
     sigNameList = []
     if args.log:
             sigNameList = ["VBF HH SM (x10)"]
     else:
            sigNameList = ["VBF HH SM (x10)"]
-    sigNameList = ["ggHH SM"]
-
+    sigNameList = ["ggHH SM x 20", "qqHH SM x 100"]
 
     sigColors = {}
-    sigColors["ggHH"] = kBlack
-    sigColors["VBFSM"] = kBlack
-    sigColors["vbfRadion280"]        = kCyan
-    sigColors["vbfRadion750"]        = kBlue
-    sigColors["VBF_CV_1_C2V_1_C3_0"] = kBlue
-    sigColors["VBF_CV_1_C2V_1_C3_1"] = kBlack
-    sigColors["nodeSM"]      = kBlack
-    sigColors["node7"]       = kBlue
-    sigColors["node2"]       = kCyan
-    sigColors["node3"]       = kRed
-    sigColors["node4"]       = kBlue
-    sigColors["node9"]       = kOrange
-    sigColors["node12"]      = kCyan
-    sigColors["ggRadion280"] = kBlue
-    sigColors["ggRadion400"] = kCyan
-    sigColors["ggRadion750"] = kBlack
-    sigColors["ggHTauTau"] = kBlack
+    sigColors["GGHH_NLO_cHHH1_xs"] = kBlack
+    sigColors["VBFHH_CV_1_C2V_1_C3_1_xs"] = kCyan
 
 
     # RGB/HEX colors
     col = TColor()
 
     bkgColors = {}
-    bkgColors["DY"]    = col.GetColor("#44BA68") #(TColor(68 ,186,104)).GetNumber() #gROOT.GetColor("#44BA68")
-    bkgColors["TT"]    = col.GetColor("#F4B642") #(TColor(244,182,66 )).GetNumber() #gROOT.GetColor("#F4B642")
-    bkgColors["WJets"] = col.GetColor("#41B4DB") #(TColor(65 ,180,219)).GetNumber() #gROOT.GetColor("#41B4DB")
-    bkgColors["other"] = col.GetColor("#ED635E") #(TColor(237,99 ,94 )).GetNumber() #gROOT.GetColor("#ED635E")
+    bkgColors["DY"]      = col.GetColor("#44BA68") #(TColor(68 ,186,104)).GetNumber() #gROOT.GetColor("#44BA68")
+    bkgColors["TT"]      = col.GetColor("#F4B642") #(TColor(244,182,66 )).GetNumber() #gROOT.GetColor("#F4B642")
+    #bkgColors["WJets"]  = col.GetColor("#41B4DB") #(TColor(65 ,180,219)).GetNumber() #gROOT.GetColor("#41B4DB")
+    bkgColors["singleH"] = col.GetColor("#41B4DB") #(TColor(65 ,180,219)).GetNumber() #gROOT.GetColor("#41B4DB")
+    bkgColors["other"]    = col.GetColor("#ED635E") #(TColor(237,99 ,94 )).GetNumber() #gROOT.GetColor("#ED635E")
 
     bkgLineColors = {}
-    bkgLineColors["DY"]    = col.GetColor("#389956")
-    bkgLineColors["TT"]    = col.GetColor("#dea63c")
-    bkgLineColors["WJets"] = col.GetColor("#3ca4c8")
-    bkgLineColors["other"] = col.GetColor("#d85a56")
+    bkgLineColors["DY"]      = col.GetColor("#389956")
+    bkgLineColors["TT"]      = col.GetColor("#dea63c")
+    bkgLineColors["singleH"] = col.GetColor("#3ca4c8")
+    bkgLineColors["other"]   = col.GetColor("#d85a56")
 
 
     #if args.sigscale:
     #     for i in range(0,len(sigScale)): sigScale[i] = args.sigscale
-    sigScale = [10,10]
-    sigScaleValue = 100
+    sigScale = [20,100]
+    sigScaleValue = 1000
 
     plotTitle = ""
 
@@ -579,19 +562,19 @@ if __name__ == "__main__" :
 
     hDY = getHisto("DY", hBkgs,doOverflow)
     hTT = getHisto("TT", hBkgs,doOverflow)
-    hWJets = getHisto("WJets", hBkgs,doOverflow)
+    hWJets = getHisto("singleH", hBkgs,doOverflow)
     hothers = getHisto("other", hBkgs,doOverflow)
 
     hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
 
-    hBkgNameList = ["Others", "W + jets", "t#bar{t}" , "DY NLO"] # list for legend
+    hBkgNameList = ["Others", "single H", "t#bar{t}" , "DY NLO"] # list for legend
 
     if doQCD:
         col2 = TColor()
         hQCD    = getHisto ("QCD", hBkgs,doOverflow)
         hQCD.SetName("QCD")
-        hBkgList.append(hQCD)
-        hBkgNameList.append("QCD")
+        hBkgList = [hothers, hWJets, hQCD, hDY, hTT]
+        hBkgNameList = ["others", "single H", "QCD", "DY", "t#bar{t}"]
         bkgColors["QCD"] = col2.GetColor("#F29563") #(TColor(242,149,99)).GetNumber() #gROOT.GetColor("#F29563")
         bkgLineColors["QCD"] = col2.GetColor("#DC885A")
 
@@ -616,12 +599,13 @@ if __name__ == "__main__" :
 
     # apply sig color if available
     for key in hSigs:
+        print key
         hSigs[key].SetLineWidth(2)
         if doOverflow: hSigs[key] = addOverFlow(hSigs[key])
         if key in sigColors:
-            thecolor = int(sigColors[key])
+            thecolor = sigColors[key]
             hSigs[key].SetLineColor(thecolor)
-            hSigs[key].SetLineStyle(9)
+            #hSigs[key].SetLineStyle(9)
 
 
     # apply bkg color if available
@@ -647,12 +631,18 @@ if __name__ == "__main__" :
     print "** INFO: removing all negative bins from bkg histos"
     makeNonNegativeHistos (hBkgList)
 
-    #saveName = "./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
-    with open("./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/yields.txt","a+") as yields_file:
-        yields_file.write("=== "+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/"+args.var+" ===\n")
-        for h in hBkgList: yields_file.write("Integral: "+h.GetName()+" : "+str(h.Integral())+" - "+str(h.Integral(-1,-1))+"\n")
-        for n in hDatas  : yields_file.write("Integral "+hDatas[n].GetName()+" : "+str(hDatas[n].Integral())+" - "+str(hDatas[n].Integral(-1,-1))+"\n")
-        for i, name in enumerate (sigNameList): yields_file.write("Integral "+hSigs[sigList[i]].GetName()+" : "+str(hSigs[sigList[i]].Integral())+" - "+str(hSigs[sigList[i]].Integral(-1,-1))+"\n")
+    if "class" in args.sel:
+        with open("./plots_"+args.channel+"/"+args.tag+"/scores_"+args.reg+"/yields.txt","a+") as yields_file:
+            yields_file.write("=== "+args.channel+"/"+args.tag+"/scores_"+args.reg+"/"+args.var+" ===\n")
+            for h in hBkgList: yields_file.write("Integral: "+h.GetName()+" : "+str(h.Integral())+" - "+str(h.Integral(-1,-1))+"\n")
+            for n in hDatas  : yields_file.write("Integral "+hDatas[n].GetName()+" : "+str(hDatas[n].Integral())+" - "+str(hDatas[n].Integral(-1,-1))+"\n")
+            for i, name in enumerate (sigNameList): yields_file.write("Integral "+hSigs[sigList[i]].GetName()+" : "+str(hSigs[sigList[i]].Integral())+" - "+str(hSigs[sigList[i]].Integral(-1,-1))+"\n")
+    else:
+        with open("./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/yields.txt","a+") as yields_file:
+            yields_file.write("=== "+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/"+args.var+" ===\n")
+            for h in hBkgList: yields_file.write("Integral: "+h.GetName()+" : "+str(h.Integral())+" - "+str(h.Integral(-1,-1))+"\n")
+            for n in hDatas  : yields_file.write("Integral "+hDatas[n].GetName()+" : "+str(hDatas[n].Integral())+" - "+str(hDatas[n].Integral(-1,-1))+"\n")
+            for i, name in enumerate (sigNameList): yields_file.write("Integral "+hSigs[sigList[i]].GetName()+" : "+str(hSigs[sigList[i]].Integral())+" - "+str(hSigs[sigList[i]].Integral(-1,-1))+"\n")
 
     for h in hBkgList: print "Integral ", h.GetName(), " : ", h.Integral(), " - ", h.Integral(-1,-1)
     for n in hDatas: print "Integral ", hDatas[n].GetName(), " : ", hDatas[n].Integral(), " - ", hDatas[n].Integral(-1,-1)
@@ -702,6 +692,8 @@ if __name__ == "__main__" :
 
     width = ((bkgStack.GetXaxis().GetXmax() - bkgStack.GetXaxis().GetXmin())/bkgStack.GetStack().Last().GetNbinsX())
     ylabel = "Events/%.1f" % width
+    if not args.binwidth:
+        ylabel = "Events"
     if args.label:
         if "GeV" in args.label: ylabel +=" GeV"
     bkgStack.GetYaxis().SetTitle(ylabel)
@@ -717,13 +709,13 @@ if __name__ == "__main__" :
     #            hSigs[key].Scale(intBkg/intSig)
 
     # apply sig scale
-    #for i, scale in enumerate (sigScale):
-    #    histo = hSigs[sigList[i]]
-    #    histo.Scale(scale)
-    for i, name in enumerate (sigNameList):
+    for i, scale in enumerate (sigScale):
         histo = hSigs[sigList[i]]
-        histo.Scale(sigScaleValue)
-                
+        histo.Scale(scale)
+    #for i, name in enumerate (sigNameList):
+    #    histo = hSigs[sigList[i]]
+    #    histo.Scale(sigScaleValue)
+
     ################## LEGEND ######################################
 
     legmin = 0.45
@@ -777,7 +769,7 @@ if __name__ == "__main__" :
     ymax = max(maxs)
 
     # scale max to leave some space (~10%)
-    extraspace = 0.3
+    extraspace = 0.5
 
     if not args.log:
         ymax += extraspace* (ymax-ymin)
@@ -882,34 +874,34 @@ if __name__ == "__main__" :
 
 
     if not args.name:
-            if "baseline" in args.sel:  
-                    selName = "baseline"
-            if "1b1j" in args.sel:  
-                    selName = "1b1j"
-            if "2b0j" in args.sel:  
-                    selName = "2b0j"
-            if "boosted" in args.sel:
-                    selName = "boosted"
-            if "antiB" in args.sel:
-                    selName = "antiB"
-            if "DYreg" in args.sel:
-                    selName = "DYreg"
-            if "VBFloose" in args.sel:
-                    selName = "VBF loose"
-            if "GGFclass" in args.sel:
-                    selName = "VBF - GGF mpp"
-            if "VBFclass" in args.sel:
-                    selName = "VBF - VBF mpp"
-            if "TTlepclass" in args.sel:
-                    selName = "VBF - TTlep mpp"
-            if "TThadclass" in args.sel:
-                    selName = "VBF - TThad mpp"
-            if "ttHclass" in args.sel:
-                    selName = "VBF - ttH mpp"
-            if "DYclass" in args.sel:
-                    selName = "VBF - DY mpp"
+        if "baseline" in args.sel:
+            selName = "baseline"
+        if "1b1j" in args.sel:
+            selName = "1b1j"
+        if "2b0j" in args.sel:
+            selName = "2b0j"
+        if "boosted" in args.sel:
+            selName = "boosted"
+        if "antiB" in args.sel:
+            selName = "antiB"
+        if "DYreg" in args.sel:
+            selName = "DYreg"
+        if "VBFloose" in args.sel:
+            selName = "VBFloose"
+        if "GGFclass" in args.sel:
+            selName = "GGFclass"
+        if "VBFclass" in args.sel:
+            selName = "VBFclass"
+        if "DYclass" in args.sel:
+            selName = "DYclass"
+        if "ttHclass" in args.sel:
+            selName = "ttHclass"
+        if "TTlepclass" in args.sel:
+            selName = "TTlepclass"
+        if "TThadclass" in args.sel:
+            selName = "TThadclass"
     else:
-            selName = args.name
+        selName = args.name
 
     selBox = TLatex  (l + 0.04 , 1 - t - 0.02 - 0.06, selName)
     selBox.SetNDC()
@@ -920,13 +912,13 @@ if __name__ == "__main__" :
     selBox.Draw()
     
     ###################### BLINDING BOX ###############################
-    if args.blindrange:
-        blow = float(args.blindrange[0])
-        bup = float(args.blindrange[1])
-        bBox = TBox (blow, ymin, bup, 0.93*ymax)
-        bBox.SetFillStyle(3002) # NB: does not appear the same in displayed box and printed pdf!!
-        bBox.SetFillColor(kGray+2) # NB: does not appear the same in displayed box and printed pdf!!
-        bBox.Draw()
+    #if args.blindrange:
+    #    blow = float(args.blindrange[0])
+    #    bup = float(args.blindrange[1])
+    #    bBox = TBox (blow, ymin, bup, 0.93*ymax)
+    #    bBox.SetFillStyle(3002) # NB: does not appear the same in displayed box and printed pdf!!
+    #    bBox.SetFillColor(kGray+2) # NB: does not appear the same in displayed box and printed pdf!!
+    #    bBox.Draw()
 
     ###################### S/(S+B) PLOT #################################
     if args.sbs:
@@ -1046,10 +1038,10 @@ if __name__ == "__main__" :
         hRatio.SetStats(0)
         #hRatio.SetMinimum(0.85)
         #hRatio.SetMaximum(1.15)
-        #hRatio.SetMinimum(0.6) #default value
-        #hRatio.SetMaximum(1.4) #default value
-        hRatio.SetMinimum(0.7) #TESI
-        hRatio.SetMaximum(1.25) #TESI
+        hRatio.SetMinimum(0.6) #default value
+        hRatio.SetMaximum(1.4) #default value
+        #hRatio.SetMinimum(0.0) #TESI
+        #hRatio.SetMaximum(2.0) #TESI
 
         removeEmptyPoints (grRatio)
         hRatio.Draw("axis")
@@ -1082,7 +1074,12 @@ if __name__ == "__main__" :
         tagch = ""
         if args.channel:
             tagch = "_" + args.channel
-        saveName = "./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
+        if not args.binwidth:
+            tagch += "_noBinWidt"
+        if "class" in args.sel:
+            saveName = "./plots_"+args.channel+"/"+args.tag+"/scores_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
+        else:
+            saveName = "./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
         if args.log:
             saveName = saveName+"_log"
         if args.flat:

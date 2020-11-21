@@ -24,6 +24,7 @@
 #include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 #include "BDTfunctionsUtils.h"
 #include "skimUtils.h"
+#include "SFProvider.h"
 
 #include "lester_mt2_bisect.h"
 
@@ -112,12 +113,14 @@ int main (int argc, char** argv)
   cout << "** INFO: doBDT    : " << doBDT    << endl;
   cout << "** INFO: doMult   : " << doMult    << endl;
 
+  bool doVBFtrig  = gConfigParser->isDefined("outPutter::doVBFtrig") ? gConfigParser->readBoolOption("outPutter::doVBFtrig") : false;
   bool doNominal  = gConfigParser->readBoolOption("outPutter::doNominal" );
   bool doMES      = gConfigParser->readBoolOption("outPutter::doMES"     );
   bool doEES      = gConfigParser->readBoolOption("outPutter::doEES"     );
   bool doTES      = gConfigParser->readBoolOption("outPutter::doTES"     );
   bool doSplitJES = gConfigParser->readBoolOption("outPutter::doSplitJES");
   bool doTotalJES = gConfigParser->readBoolOption("outPutter::doTotalJES");
+  cout << "** INFO: doVBFtrig  : " << doVBFtrig  << endl;
   cout << "** INFO: doNominal  : " << doNominal  << endl;
   cout << "** INFO: doMES      : " << doMES      << endl;
   cout << "** INFO: doEES      : " << doEES      << endl;
@@ -154,7 +157,7 @@ int main (int argc, char** argv)
   Long64_t nentries = inputChain->GetEntries();
   cout << "** ANALYSIS: Initial entries: " << nentries << endl;
 
-  // Declare the only two branches needed for skimming the initial entries 
+  // Declare the only the branches needed for skimming the initial entries
   int nleps, pairType, nbjetscand, dau1_deepTauVsJet, dau1_eleMVAiso, ISVBF;
   float dau1_iso, tauHSVFITmass, bHmassraw, bjet1bIDdeepFlavor, bjet2bIDdeepFlavor;
   inputChain->SetBranchAddress("nleps", &nleps);
@@ -188,7 +191,7 @@ int main (int argc, char** argv)
 
   // Define branches to be activated
   std::vector<std::string> toBeActivated {
-  "EventNumber","lumi","RunNumber","nleps","pairType","nbjetscand",           // General
+  "EventNumber","lumi","RunNumber","nleps","pairType","nbjetscand",    // General
   "isOS","isBoosted","isTau1real","isTau2real",
   "lhe*","nBhadrons","npu","npv","genZ_pt","isMC",
 
@@ -418,6 +421,14 @@ int main (int argc, char** argv)
   //int mdnnSM2_size = (mci.getNodeNames(2)).size();
   //int mdnnSM3_size = (mci.getNodeNames(3)).size();
 
+  // Fix VBF trig SF
+  // Load VBF trigger SF (both jet and tau legs)
+  std::string YEARstring = std::to_string(YEAR);
+  if (YEAR == 2016) YEARstring = "2017";   // VBF triggers are not used in 2016 so we can load 2017 files: they will not be used anyway
+  TFile* VBFjets_file = new TFile ( ("weights/trigger_SF_Legacy/"+YEARstring+"/"+YEARstring+"_VBFHTauTauTrigger_JetLegs.root").c_str() );
+  TH3D*  VBFjets_SF   = (TH3D*) VBFjets_file->Get("SF_mjj_pT1_pT2");
+  tau_trigger::SFProvider* tauTrgSF_vbf = new tau_trigger::SFProvider("weights/trigger_SF_Legacy/"+YEARstring+"/"+YEARstring+"_tauTriggerEff_DeepTau2017v2p1.root", "ditauvbf", "Medium");
+
   // Read branches needed for computation of KinFit, MT2, SVfit, BDT, DNN
   ULong64_t EventNumber;
   Int_t DM1, DM2, pType, isBoosted, isVBF;
@@ -430,7 +441,7 @@ int main (int argc, char** argv)
   Float_t addJetCentr3_pt, addJetCentr3_eta, addJetCentr3_phi, addJetCentr3_e, addJetCentr3_btag_deepFlavor, addJetCentr3_HHbtag;
   Float_t addJetForw1_pt, addJetForw1_eta, addJetForw1_phi, addJetForw1_e;
   Float_t addJetForw2_pt, addJetForw2_eta, addJetForw2_phi, addJetForw2_e;
-  Float_t vbfjet1_pt, vbfjet1_eta, vbfjet1_phi, vbfjet1_e, vbfjet2_pt, vbfjet2_eta, vbfjet2_phi, vbfjet2_e;
+  Float_t vbfjet1_pt, vbfjet1_eta, vbfjet1_phi, vbfjet1_e, vbfjet2_pt, vbfjet2_eta, vbfjet2_phi, vbfjet2_e, VBFjj_mass;
   Float_t METx, METy, met_cov00, met_cov01, met_cov10, met_cov11;
   Float_t METx_muup, METy_muup, METx_mudown, METy_mudown;
   Float_t HHKin_mass, HHKin_chi2, MT2, tauH_SVFIT_pt, tauH_SVFIT_eta, tauH_SVFIT_phi, tauH_SVFIT_mass, DNNoutSM_kl_1, BDToutSM_kl_1;
@@ -440,6 +451,9 @@ int main (int argc, char** argv)
   float CvsB_b1, CvsB_b2, CvsB_vbf1, CvsB_vbf2;
   float HHbtag_b1, HHbtag_b2, HHbtag_vbf1, HHbtag_vbf2;
   float BDT_HT20;
+  float VBFtrigSF, trigSF;
+  float trigSF_vbfjet_up, trigSF_DM0_up, trigSF_DM1_up, trigSF_DM10_up, trigSF_DM11_up;
+  float trigSF_vbfjet_down, trigSF_DM0_down, trigSF_DM1_down, trigSF_DM10_down, trigSF_DM11_down;
   std::vector<Float_t> *METx_eleup    = 0, *METy_eleup      = 0, *METx_eledown    = 0, *METy_eledown      = 0;
   std::vector<Float_t> *dau1_pt_eleup = 0, *dau1_pt_eledown = 0, *dau1_mass_eleup = 0, *dau1_mass_eledown = 0;
   std::vector<Float_t> *dau2_pt_eleup = 0, *dau2_pt_eledown = 0, *dau2_mass_eleup = 0, *dau2_mass_eledown = 0;
@@ -479,6 +493,19 @@ int main (int argc, char** argv)
   outTree->SetBranchAddress("EventNumber" , &EventNumber);
   outTree->SetBranchAddress("isBoosted"   , &isBoosted);
   outTree->SetBranchAddress("isVBF"       , &isVBF);
+
+  outTree->SetBranchAddress("trigSF"             , &trigSF);
+  outTree->SetBranchAddress("trigSF_DM0_up"      , &trigSF_DM0_up);
+  outTree->SetBranchAddress("trigSF_DM0_down"    , &trigSF_DM0_down);
+  outTree->SetBranchAddress("trigSF_DM1_up"      , &trigSF_DM1_up);
+  outTree->SetBranchAddress("trigSF_DM1_down"    , &trigSF_DM1_down);
+  outTree->SetBranchAddress("trigSF_DM10_up"     , &trigSF_DM10_up);
+  outTree->SetBranchAddress("trigSF_DM10_down"   , &trigSF_DM10_down);
+  outTree->SetBranchAddress("trigSF_DM11_up"     , &trigSF_DM11_up);
+  outTree->SetBranchAddress("trigSF_DM11_down"   , &trigSF_DM11_down);
+  outTree->SetBranchAddress("trigSF_vbfjet_up"   , &trigSF_vbfjet_up);
+  outTree->SetBranchAddress("trigSF_vbfjet_down" , &trigSF_vbfjet_down);
+  outTree->SetBranchAddress("VBFtrigSF"          , &VBFtrigSF);
 
   outTree->SetBranchAddress("dau1_pt" , &dau1_pt);
   outTree->SetBranchAddress("dau1_eta", &dau1_eta);
@@ -556,6 +583,7 @@ int main (int argc, char** argv)
   outTree->SetBranchAddress("bjet2_JER_jetdownTot"      , &bjet2_JER_jetdownTot);
 
   outTree->SetBranchAddress("bH_mass_raw", &bH_mass_raw);
+  outTree->SetBranchAddress("VBFjj_mass", &VBFjj_mass);
 
   outTree->SetBranchAddress("VBFjet1_pt" , &vbfjet1_pt);
   outTree->SetBranchAddress("VBFjet1_eta", &vbfjet1_eta);
@@ -718,6 +746,23 @@ int main (int argc, char** argv)
   outTree->SetBranchAddress("BDToutSM_kl_1"  , &BDToutSM_kl_1);
 
   // Declare new branches
+  // VBF trig SF fix
+  Float_t VBFtrigSF_new, trigSF_new;
+  Float_t trigSF_vbfjet_up_new, trigSF_DM0_up_new, trigSF_DM1_up_new, trigSF_DM10_up_new, trigSF_DM11_up_new;
+  Float_t trigSF_vbfjet_down_new, trigSF_DM0_down_new, trigSF_DM1_down_new, trigSF_DM10_down_new, trigSF_DM11_down_new;
+  TBranch* b_trigSF_new             = outTree->Branch("trigSF_new"            , &trigSF_new);
+  TBranch* b_trigSF_DM0_up_new      = outTree->Branch("trigSF_DM0_up_new"     , &trigSF_DM0_up_new);
+  TBranch* b_trigSF_DM0_down_new    = outTree->Branch("trigSF_DM0_down_new"   , &trigSF_DM0_down_new);
+  TBranch* b_trigSF_DM1_up_new      = outTree->Branch("trigSF_DM1_up_new"     , &trigSF_DM1_up_new);
+  TBranch* b_trigSF_DM1_down_new    = outTree->Branch("trigSF_DM1_down_new"   , &trigSF_DM1_down_new);
+  TBranch* b_trigSF_DM10_up_new     = outTree->Branch("trigSF_DM10_up_new"    , &trigSF_DM10_up_new);
+  TBranch* b_trigSF_DM10_down_new   = outTree->Branch("trigSF_DM10_down_new"  , &trigSF_DM10_down_new);
+  TBranch* b_trigSF_DM11_up_new     = outTree->Branch("trigSF_DM11_up_new"    , &trigSF_DM11_up_new);
+  TBranch* b_trigSF_DM11_down_new   = outTree->Branch("trigSF_DM11_down_new"  , &trigSF_DM11_down_new);
+  TBranch* b_trigSF_vbfjet_up_new   = outTree->Branch("trigSF_vbfjet_up_new"  , &trigSF_vbfjet_up_new);
+  TBranch* b_trigSF_vbfjet_down_new = outTree->Branch("trigSF_vbfjet_down_new", &trigSF_vbfjet_down_new);
+  TBranch* b_VBFtrigSF_new          = outTree->Branch("VBFtrigSF_new"         , &VBFtrigSF_new);
+
   // Central values
   Float_t HHKin_mass_new, HHKin_chi2_new;
   Float_t MT2_new;
@@ -1280,6 +1325,115 @@ int main (int argc, char** argv)
 
     // Timing info
     auto end_prep = high_resolution_clock::now();
+
+    // ---- ---- ---- ---- ---- ---- ---- ----
+    // ---- ---- Do VBFtriggerSF now ---- ----
+    // ---- ---- ---- ---- ---- ---- ---- ----
+    // Fix VBF trig SF
+    if (doVBFtrig)
+    {
+      if (isData)
+      {
+          // No SF for data
+          VBFtrigSF_new          = 1.0;
+          trigSF_new             = 1.0;
+          trigSF_vbfjet_up_new   = 1.0;
+          trigSF_vbfjet_down_new = 1.0;
+          trigSF_DM0_up_new      = 1.0;
+          trigSF_DM1_up_new      = 1.0;
+          trigSF_DM10_up_new     = 1.0;
+          trigSF_DM11_up_new     = 1.0;
+          trigSF_DM0_down_new    = 1.0;
+          trigSF_DM1_down_new    = 1.0;
+          trigSF_DM10_down_new   = 1.0;
+          trigSF_DM11_down_new   = 1.0;
+      }
+      else /*isMC*/
+      {
+        // Logic of VBF trigger SF:
+        // 1. - if the event is in the diTau trigger phase space (taupt_1 > 40 && tau_pt_2 > 40): use the diTau trigger SF
+        // 2. - else if the event is in the VBF trigger phase space (mjj > 800 && pt_j1 > 140 && pt_j2 > 60 && taupt_1 > 25 && taupt_2 > 25): use VBF trigger SF
+        // 3. - else: SF = 0
+        // In our framework case 1. is the default: in the VBF trigger phase space (case 2.) the branch m_trigSF is overwritten
+        // with the VBF_SF, because "trigSF" is the actual weight used later in the analysis
+        if (pType == 2 && VBFjj_mass > 800 && vbfjet1_pt > 140 && vbfjet2_pt > 60 && dau1_pt > 25 && dau2_pt > 25 && (dau1_pt <= 40 || dau2_pt <= 40) )
+        {
+          // Jet legs SF
+          double jetSF    = getContentHisto3D(VBFjets_SF, VBFjj_mass, vbfjet1_pt, vbfjet2_pt, 0); // 0: central value
+          double jetSFerr = getContentHisto3D(VBFjets_SF, VBFjj_mass, vbfjet1_pt, vbfjet2_pt, 1); // 1: error of value
+
+          // Tau legs SF
+          double SFTau1 = tauTrgSF_vbf->getSF(dau1_pt, DM1, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+          double SFTau2 = tauTrgSF_vbf->getSF(dau2_pt, DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+
+          // for each decay mode, bool indicating if this lepton matches the dacay mode in the loop
+          vector<bool> isthisDM_first  = { (DM1 == 0? true : false), (DM1 == 1? true : false), (DM1 == 10? true : false), (DM1 == 11? true : false) };
+          vector<bool> isthisDM_second = { (DM2 == 0? true : false), (DM2 == 1? true : false), (DM2 == 10? true : false), (DM2 == 11? true : false) };
+
+          // for each DM, fill a trigSF branch with the up/down values if tauhs have the corresponding DM, otherwise fill with nominal trigSF value
+          vector <double> SFTau1_up  (N_tauhDM, SFTau1);
+          vector <double> SFTau2_up  (N_tauhDM, SFTau2);
+          vector <double> SFTau1_down(N_tauhDM, SFTau1);
+          vector <double> SFTau2_down(N_tauhDM, SFTau2);
+          for (int idm  = 0; idm < N_tauhDM; idm ++)
+          {
+            if (isthisDM_first[idm])
+            {
+              SFTau1_up[idm]   = tauTrgSF_vbf->getSF(dau1_pt, DM1, 1);
+              SFTau1_down[idm] = tauTrgSF_vbf->getSF(dau1_pt, DM1, -1);
+            }
+            if (isthisDM_second[idm])
+            {
+              SFTau2_up[idm]   = tauTrgSF_vbf->getSF(dau2_pt, DM2, 1);
+              SFTau2_down[idm] = tauTrgSF_vbf->getSF(dau2_pt, DM2, -1);
+            }
+          }
+          float trigSF_DM0_up    = SFTau1_up[0]   * SFTau2_up[0];
+          float trigSF_DM1_up    = SFTau1_up[1]   * SFTau2_up[1];
+          float trigSF_DM10_up   = SFTau1_up[2]   * SFTau2_up[2];
+          float trigSF_DM11_up   = SFTau1_up[3]   * SFTau2_up[3];
+          float trigSF_DM0_down  = SFTau1_down[0] * SFTau2_down[0];
+          float trigSF_DM1_down  = SFTau1_down[1] * SFTau2_down[1];
+          float trigSF_DM10_down = SFTau1_down[2] * SFTau2_down[2];
+          float trigSF_DM11_down = SFTau1_down[3] * SFTau2_down[3];
+
+          // Save final VBF trig SF
+          VBFtrigSF_new          = jetSF * SFTau1 * SFTau2;
+          trigSF_new             = jetSF * SFTau1 * SFTau2;
+          trigSF_vbfjet_up_new   = (jetSF + jetSFerr) * SFTau1 * SFTau2;
+          trigSF_vbfjet_down_new = (jetSF - jetSFerr) * SFTau1 * SFTau2;
+          trigSF_DM0_up_new      = jetSF * trigSF_DM0_up;
+          trigSF_DM1_up_new      = jetSF * trigSF_DM1_up;
+          trigSF_DM10_up_new     = jetSF * trigSF_DM10_up;
+          trigSF_DM11_up_new     = jetSF * trigSF_DM11_up;
+          trigSF_DM0_down_new    = jetSF * trigSF_DM0_down;
+          trigSF_DM1_down_new    = jetSF * trigSF_DM1_down;
+          trigSF_DM10_down_new   = jetSF * trigSF_DM10_down;
+          trigSF_DM11_down_new   = jetSF * trigSF_DM11_down;
+
+          //std::cout << "------------> Changing trigSF for Event: " << EventNumber << std::endl;
+          //std::cout << "   original VBFtrigSF: " << VBFtrigSF << std::endl;
+          //std::cout << "   VBFtrigSF_new     : " << VBFtrigSF_new << std::endl;
+        }
+        else /* event no VBF trig SF to be applied */
+        {
+          // The value already stored was correct so use that
+          VBFtrigSF_new          = VBFtrigSF;
+          trigSF_new             = trigSF;
+          trigSF_vbfjet_up_new   = trigSF_vbfjet_up;
+          trigSF_vbfjet_down_new = trigSF_vbfjet_down;
+          trigSF_DM0_up_new      = trigSF_DM0_up;
+          trigSF_DM1_up_new      = trigSF_DM1_up;
+          trigSF_DM10_up_new     = trigSF_DM10_up;
+          trigSF_DM11_up_new     = trigSF_DM11_up;
+          trigSF_DM0_down_new    = trigSF_DM0_down;
+          trigSF_DM1_down_new    = trigSF_DM1_down;
+          trigSF_DM10_down_new   = trigSF_DM10_down;
+          trigSF_DM11_down_new   = trigSF_DM11_down;
+        }
+      } // End isMC
+    } // End doVBFtrig
+
 
     // ---- ---- ---- ---- ---- ---- ----
     // ---- ---- Do nominal now ---- ----
@@ -3204,6 +3358,20 @@ int main (int argc, char** argv)
 
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
     // Fill new branches
+    // VBF trig SF fix
+    b_trigSF_new            ->Fill();
+    b_trigSF_DM0_up_new     ->Fill();
+    b_trigSF_DM0_down_new   ->Fill();
+    b_trigSF_DM1_up_new     ->Fill();
+    b_trigSF_DM1_down_new   ->Fill();
+    b_trigSF_DM10_up_new    ->Fill();
+    b_trigSF_DM10_down_new  ->Fill();
+    b_trigSF_DM11_up_new    ->Fill();
+    b_trigSF_DM11_down_new  ->Fill();
+    b_trigSF_vbfjet_up_new  ->Fill();
+    b_trigSF_vbfjet_down_new->Fill();
+    b_VBFtrigSF_new         ->Fill();
+
     // Central values
     b_HHKin_mass_new   ->Fill();
     b_HHKin_chi2_new   ->Fill();
