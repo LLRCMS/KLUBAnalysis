@@ -197,7 +197,7 @@ float PuJetIdSF::getSFError(bool isReal, float pt, float eta)
 }
 
 //getEvtWeight - Returns a vector with {central SF, SF_up, SF_down}
-std::vector<float> PuJetIdSF::getEvtWeight(bigTree &theBigTree, TLorentzVector tau1, TLorentzVector tau2)
+std::vector<float> PuJetIdSF::getEvtWeight(bigTree &theBigTree, TLorentzVector tau1, TLorentzVector tau2, bool cleanJets)
 {
   // Weight for each event
   std::vector<float> eventWeight(3);
@@ -224,6 +224,10 @@ std::vector<float> PuJetIdSF::getEvtWeight(bigTree &theBigTree, TLorentzVector t
     if (TMath::Abs(tlv_jet.Eta()) > 4.7) continue;
     if (tlv_jet.DeltaR(tau1) < 0.5) continue;
     if (tlv_jet.DeltaR(tau2) < 0.5) continue;
+
+    // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
+    // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
+    if (cleanJets && TMath::Abs(tlv_jet.Eta()) > 2.65 && TMath::Abs(tlv_jet.Eta()) < 3.139) continue;
 
     // Build genJet and check if it is matched
     bool isRealJet = false;

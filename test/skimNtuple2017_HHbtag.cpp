@@ -3650,7 +3650,7 @@ int main (int argc, char** argv)
 
             // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
             // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
-            //if ( ijet.Pt()<50. && fabs(ijet.Eta())>2.65 && fabs(ijet.Eta()<3.139) ) continue; //Commented during March20 sync
+            if ( ijet.Pt()<50. && fabs(ijet.Eta())>2.65 && fabs(ijet.Eta())<3.139 ) continue;
 
             for (unsigned int kJet = iJet+1 ;   (kJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++kJet)
             {
@@ -3683,7 +3683,7 @@ int main (int argc, char** argv)
 
               // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
               // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
-              //if ( kjet.Pt()<50. && fabs(kjet.Eta())>2.65 && fabs(kjet.Eta()<3.139) ) continue; //Commented during March20 sync
+              if ( kjet.Pt()<50. && fabs(kjet.Eta())>2.65 && fabs(kjet.Eta())<3.139 ) continue;
 
               TLorentzVector jetPair = ijet+kjet;
               VBFcand_Mjj.push_back(make_tuple(jetPair.M(),iJet,kJet));
@@ -4054,7 +4054,7 @@ int main (int argc, char** argv)
 
           // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
           // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
-          //if ( tlv_jet.Pt()<50. && fabs(tlv_jet.Eta())>2.65 && fabs(tlv_jet.Eta()<3.139) ) continue; //Commented during March20 sync
+          if ( tlv_jet.Pt()<50. && fabs(tlv_jet.Eta())>2.65 && fabs(tlv_jet.Eta())<3.139 ) continue;
 
           // use these jets for HT
           if (tlv_jet.Pt () > 20)
@@ -4772,7 +4772,7 @@ int main (int argc, char** argv)
 
           // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
           // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
-          //if ( tlv_dummyJet.Pt()<50. && fabs(tlv_dummyJet.Eta())>2.65 && fabs(tlv_dummyJet.Eta()<3.139) ) continue; //Commented during March20 sync
+          if ( tlv_dummyJet.Pt()>20. && tlv_dummyJet.Pt()<50. && fabs(tlv_dummyJet.Eta())>2.65 && fabs(tlv_dummyJet.Eta())<3.139 ) continue;
 
           // remove jets that overlap with the tau selected in the leg 1 and 2
           if (tlv_firstLepton.DeltaR(tlv_dummyJet) < lepCleaningCone){
@@ -4852,7 +4852,7 @@ int main (int argc, char** argv)
       // PUjetIDSFprovider
       if (isMC)
       {
-        std::vector<float> PUjetID_SF_values = PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton);
+        std::vector<float> PUjetID_SF_values = PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton, true);
         theSmallTree.m_PUjetID_SF      = PUjetID_SF_values.at(0);
         theSmallTree.m_PUjetID_SF_up   = PUjetID_SF_values.at(1);
         theSmallTree.m_PUjetID_SF_down = PUjetID_SF_values.at(2);
@@ -4982,6 +4982,7 @@ int main (int argc, char** argv)
 
         // Kinematic selections + lepton cleaning
         if (tlv_additionalJet.Pt() < 20.) continue ;
+
         if (tlv_additionalJet.DeltaR(tlv_firstLepton)  < lepCleaningCone) continue ;
         if (tlv_additionalJet.DeltaR(tlv_secondLepton) < lepCleaningCone) continue ;
 
@@ -4990,6 +4991,10 @@ int main (int argc, char** argv)
         {
           if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_additionalJet.Pt()<50.) continue;
         }
+
+        // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
+        // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
+        if ( tlv_additionalJet.Pt()<50. && fabs(tlv_additionalJet.Eta())>2.65 && fabs(tlv_additionalJet.Eta())<3.139 ) continue;
 
         // get up/down uncertainty for this additional jet
         pair <vector <double>, vector<double>> unc_additionalJet_updown = getJetUpDown(iJet, theBigTree);
@@ -5243,6 +5248,10 @@ int main (int argc, char** argv)
         // remove jets that overlap with the tau selected in the leg 1 and 2
         if (tlv_firstLepton.DeltaR(tlv_dummyJet)  < lepCleaningCone) continue;
         if (tlv_secondLepton.DeltaR(tlv_dummyJet) < lepCleaningCone) continue;
+
+        // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
+        // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
+        if ( tlv_dummyJet.Pt()>20. && tlv_dummyJet.Pt()<50. && fabs(tlv_dummyJet.Eta())>2.65 && fabs(tlv_dummyJet.Eta())<3.139 ) continue;
 
         if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end())
         {
