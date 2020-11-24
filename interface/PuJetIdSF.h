@@ -44,7 +44,7 @@ class PuJetIdSF {
     float getSF     (bool isReal, float pt, float eta);
     float getSFError(bool isReal, float pt, float eta);
 
-    std::vector<float> getEvtWeight (bigTree &theBigTree, TLorentzVector tau1, TLorentzVector tau2);
+    std::vector<float> getEvtWeight (bigTree &theBigTree, TLorentzVector tau1, TLorentzVector tau2, bool cleanJets=false);
 
   private:
     TH2F* h_eff_;
