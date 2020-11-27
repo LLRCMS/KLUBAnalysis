@@ -18,7 +18,7 @@ for ch in $CHANNELS
 do 
 	cd ../MY_ttCRlimits_${Y}inclusive/${ch}/
 	hadd outPlotter${ch}.root outPlotter_*.root 
-	#rm outPlotter_*.root
+	rm outPlotter_*.root
 	cd -
 done 
 
