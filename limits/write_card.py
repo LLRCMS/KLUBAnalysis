@@ -563,7 +563,7 @@ input = ConfigReader(configname)
 if opt.overSel == "" :
     #allSel = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut", "VBFloose"]
     allSel = ["s1b1jresolvedMcut", "s2b0jresolvedMcut", "sboostedLLMcut", "GGFclass", "VBFclass", "ttHclass", "TTclass", "DYclass"]
- lse : allSel = [opt.overSel]
+else : allSel = [opt.overSel]
 
 data        = input.readListOption("general::data")
 signals     = input.readListOption("general::signals")
