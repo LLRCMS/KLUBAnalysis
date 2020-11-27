@@ -202,12 +202,12 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             #shiftShapes_newName.append("TT_topDown")
 
             # Add QCD Up/Down shape uncertainty (e.g. QCD_s1b1jresolvedMcut_SR_DNNoutSM_kl_1_Up)
-            proc_syst["QCD"]["CMS_bbtautau_QCDshape"] = ["shape", 1.]
-            systsShape.append("CMS_bbtautau_QCDshape")
+            proc_syst["QCD"]["CMS_bbtautau_"+opt.year+"_QCDshape"] = ["shape", 1.]
+            systsShape.append("CMS_bbtautau_"+opt.year+"_QCDshape")
             shiftShapes_toSave.append("{0}_{1}_{2}_{3}_Up"  .format("QCD", select, "SR", variable[theCat]))
             shiftShapes_toSave.append("{0}_{1}_{2}_{3}_Down".format("QCD", select, "SR", variable[theCat]))
-            shiftShapes_newName.append("QCD_CMS_bbtautau_QCDshapeUp")
-            shiftShapes_newName.append("QCD_CMS_bbtautau_QCDshapeDown")
+            shiftShapes_newName.append("QCD_CMS_bbtautau_"+opt.year+"_QCDshapeUp")
+            shiftShapes_newName.append("QCD_CMS_bbtautau_"+opt.year+"_QCDshapeDown")
 
             # Add customSF uncertainties (4 unc. depending on DM) for TauTau channel in 2017
             if "2" in thechannel and "2017" in opt.year:
@@ -259,7 +259,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             else:
                 WPs = ["M"]
             for WPname in WPs:
-                CMS_bTagWPname = "CMS_bbtautau_bTagSF" + WPname
+                CMS_bTagWPname = "CMS_bbtautau_"+opt.year+"_bTagSF" + WPname
                 bTagWPname = "bTagSF" + WPname
                 systsShape.append(CMS_bTagWPname)
                 for proc in backgrounds:
@@ -306,7 +306,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             if "2" in thechannel and opt.year in ("2017", "2018"):
                 DMs.append("Jet")
             for DMname in DMs:
-                CMS_trigDMname = "CMS_bbtautau_trigSF" + DMname
+                CMS_trigDMname = "CMS_bbtautau_"+opt.year+"_trigSF" + DMname
                 trigDMname = "trigSF" + DMname
                 systsShape.append(CMS_trigDMname)
                 for proc in backgrounds:
@@ -330,7 +330,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             else:
                 PTs = ["20to25", "25to30", "30to35", "35to40", "40toInf"]
             for PTname in PTs:
-                CMS_tauPTname = "CMS_bbtautau_tauid_pt" + PTname
+                CMS_tauPTname = "CMS_bbtautau_"+opt.year+"_tauid_pt" + PTname
                 tauPTname = "tauid_pt" + PTname
                 systsShape.append(CMS_tauPTname)
                 for proc in backgrounds:
@@ -348,7 +348,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_newName.append(proc+"_"+CMS_tauPTname+"Up")
                     shiftShapes_newName.append(proc+"_"+CMS_tauPTname+"Down")
 
-            # Add deepTauVSmu uncertainties (5 different uncertainties binned in eta)
+            # Add deepTauVSmu uncertainties (5 different uncertainties binned in eta) --> NOT USED
             #ETAs = ["Lt0p4", "0p4to0p8", "0p8to1p2", "1p2to1p7", "Gt1p7"]
             #for ETAname in ETAs:
             #    CMS_tauETAname = "CMS_bbtautau_mutauFR_eta" + ETAname
@@ -371,7 +371,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             # Add deepTauVSele uncertainties (2 different uncertainties for barrel and endcap)
             ELEs = ["barrel", "endcap"]
             for ELEname in ELEs:
-                CMS_tauELEname = "CMS_bbtautau_etauFR_" + ELEname
+                CMS_tauELEname = "CMS_bbtautau_"+opt.year+"_etauFR_" + ELEname
                 tauELEname = "etauFR_" + ELEname
                 systsShape.append(CMS_tauELEname)
                 for proc in backgrounds:
@@ -389,11 +389,11 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_newName.append(proc+"_"+CMS_tauELEname+"Up")
                     shiftShapes_newName.append(proc+"_"+CMS_tauELEname+"Down")
 
-        col1       = '{: <40}'
-        colsysN    = '{: <30}'
-        colsysType = '{: <10}'
-        cols       = '{: >35}'
-        ratecols   = '{0: > 35.4f}'
+        col1       = '{: <41}'      # must be equal to colsysN + colsysType
+        colsysN    = '{: <35}'      # name of systematic
+        colsysType = '{: <6}'       # type of syst: "lnN" or "shape"
+        cols       = '{: >35}'      # must be equal to ratecols
+        ratecols   = '{0: > 35.4f}' # must be equal to cols
 
         shapes_lines_toWrite = []
         lnN_lines_toWrite     = []
@@ -459,7 +459,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             file.write(line)
         file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
 
-        file.write    ('theory group = HH_BR_Hbb HH_BR_Htautau QCDscale_ggHH pdf_ggHH m_top_unc_HH QCDscale_qqHH pdf_qqHH\n')
+        file.write    ('theory group = BR_hbb BR_htautau QCDscale_ggHH pdf_ggHH m_top_unc_HH QCDscale_qqHH pdf_qqHH\n')
         if opt.dynamQCD:
             file.write("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(select))
 
