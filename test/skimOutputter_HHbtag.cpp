@@ -172,18 +172,21 @@ int main (int argc, char** argv)
   inputChain->SetBranchAddress("bjet1_bID_deepFlavor", &bjet1bIDdeepFlavor);
   inputChain->SetBranchAddress("bjet2_bID_deepFlavor", &bjet2bIDdeepFlavor);
 
-  float loosebTagWP;
+  float loosebTagWP, mediumbTagWP;
   if      (YEAR == 2016)
   {
-    loosebTagWP = 0.0614;
+    loosebTagWP  = 0.0614;
+    mediumbTagWP = 0.3093;
   }
   else if (YEAR == 2017)
   {
-    loosebTagWP = 0.0521;
+    loosebTagWP  = 0.0521;
+    mediumbTagWP = 0.3033;
   }
   else  /*YEAR == 2018*/
   {
-    loosebTagWP = 0.0494;
+    loosebTagWP  = 0.0494;
+    mediumbTagWP = 0.2770;
   }
 
   // De-activate all branches
@@ -320,8 +323,8 @@ int main (int argc, char** argv)
     if ( pairType==0 && dau1_iso>=0.15 ) continue;
     if ( pairType==1 && dau1_eleMVAiso!=1 ) continue;
     if ( pairType==2 && dau1_deepTauVsJet<5 ) continue;
-    if ( ISVBF!=1 && (((tauHSVFITmass-128.)*(tauHSVFITmass-128.))/(65.*65.)+((bHmassraw-169.)*(bHmassraw-169.))/(150.*150.) >  1.0) ) continue;
-    if ( ISVBF!=1 && ((bjet1bIDdeepFlavor < loosebTagWP) && (bjet2bIDdeepFlavor < loosebTagWP)) ) continue;
+    if ( ISVBF!=1 && bjet1bIDdeepFlavor<loosebTagWP && bjet2bIDdeepFlavor<loosebTagWP ) continue;
+    if ( ISVBF!=1 && bjet1bIDdeepFlavor<mediumbTagWP && bjet2bIDdeepFlavor<mediumbTagWP && (((tauHSVFITmass-128.)*(tauHSVFITmass-128.))/(65.*65.)+((bHmassraw-169.)*(bHmassraw-169.))/(150.*150.) >  1.0) ) continue;
     treenew->Fill() ;
   }
   cout << "** ANALYSIS: ...Cloned entries: " << treenew->GetEntries() << endl;
