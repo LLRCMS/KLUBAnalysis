@@ -461,7 +461,8 @@ class OutputManager:
                 if not strSel in sel: continue 
             for var in self.variables:
                 for idx, s in enumerate(self.bkgs):
-                    if (strBkg in s):
+                    #if (strBkg in s):
+                    if (strBkg == s):
                         htoscale_name = makeHistoName(s, sel, var)
                         print htoscale_name
                         h = self.histos[htoscale_name]
