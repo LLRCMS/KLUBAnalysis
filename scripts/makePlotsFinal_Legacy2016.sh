@@ -29,20 +29,22 @@ do
   #
   ## Hbb
   #
-    python scripts/$plotter --dir analysis_$channel\_$tag --var bjet1_bID_deepFlavor  --reg $reg --sel $baseline --channel $channel --name $baseline --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "b_{1} DeepFlavor" $others --quit
-    python scripts/$plotter --dir analysis_$channel\_$tag --var bjet2_bID_deepFlavor  --reg $reg --sel $baseline --channel $channel --name $baseline --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "b_{2} DeepFlavor" $others --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var bjet1_bID_deepFlavor  --reg $reg --sel $baseline --channel $channel --name $baseline --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "b_{1} DeepFlavor" $others --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var bjet2_bID_deepFlavor  --reg $reg --sel $baseline --channel $channel --name $baseline --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "b_{2} DeepFlavor" $others --quit
 
   #
   ## Htautau
   #
-    python scripts/$plotter --dir analysis_$channel\_$tag --var dau1_pt         --reg $reg --sel $baseline --channel $channel --name $baseline --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}(#tau_{1}) [GeV]" $others --quit
-    python scripts/$plotter --dir analysis_$channel\_$tag --var dau1_eta        --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#eta_{#tau1}" $others --quit
-    python scripts/$plotter --dir analysis_$channel\_$tag --var tauH_SVFIT_mass --reg $reg --sel $baseline --channel $channel --name $baseline --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{#tau#tau}^{SVfit} [GeV]" $others --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var dau1_pt         --reg $reg --sel $baseline --channel $channel --name $baseline --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}(#tau_{1}) [GeV]" $others --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var dau1_eta        --reg $reg --sel $baseline --channel $channel --name $baseline --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#eta_{#tau1}" $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var dau2_pt         --reg $reg --sel $baseline --channel $channel --name $baseline --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "p_{T}(#tau_{2}) [GeV]" $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var dau2_eta        --reg $reg --sel $baseline --channel $channel --name $baseline --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "#eta_{#tau2}" $others --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var tauH_SVFIT_mass --reg $reg --sel $baseline --channel $channel --name $baseline --lymin 0.7 --lumi $lumi ${log[i]} --ratio  --tag $tag --label "m_{#tau#tau}^{SVfit} [GeV]" $others --quit
 
   #
   ## DNN scores
   #
-    python scripts/$plotter --dir analysis_$channel\_$tag --var DNNoutSM_kl_1 --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[0]} --ratio --tag $tag --label "DNN score" $others --blind-range 0.6 1.0 --quit
+    #python scripts/$plotter --dir analysis_$channel\_$tag --var DNNoutSM_kl_1 --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[0]} --ratio --tag $tag --label "DNN score" $others --blind-range 0.6 1.0 --quit
 
 done
 
@@ -53,10 +55,9 @@ done
 ##
 ##
 ### VBF score
-### GGFclass, VBFclass, ttHclass, TTlepclass, TThadclass, DYclass
-#python scripts/$plotter --dir analysis_$channel\_$tag --var DNNoutSM_kl_1 --reg $reg --sel GGFclass   --channel $channel --name GGFclass   --lymin 0.7 --lumi $lumi ${log[0]} --ratio --tag $tag --label "DNN score" $others --blind-range 0.6 1.0 --quit
-#python scripts/$plotter --dir analysis_$channel\_$tag --var DNNoutSM_kl_1 --reg $reg --sel VBFclass   --channel $channel --name VBFclass   --lymin 0.7 --lumi $lumi ${log[0]} --ratio --tag $tag --label "DNN score" $others --blind-range 0.6 1.0 --quit
-#python scripts/$plotter --dir analysis_$channel\_$tag --var DNNoutSM_kl_1 --reg $reg --sel ttHclass   --channel $channel --name ttHclass   --lymin 0.7 --lumi $lumi ${log[0]} --ratio --tag $tag --label "DNN score" $others --blind-range 0.6 1.0 --quit
-#python scripts/$plotter --dir analysis_$channel\_$tag --var DNNoutSM_kl_1 --reg $reg --sel TTlepclass --channel $channel --name TTlepclass --lymin 0.7 --lumi $lumi ${log[0]} --ratio --tag $tag --label "DNN score" $others --blind-range 0.6 1.0 --quit
-#python scripts/$plotter --dir analysis_$channel\_$tag --var DNNoutSM_kl_1 --reg $reg --sel TThadclass --channel $channel --name TThadclass --lymin 0.7 --lumi $lumi ${log[0]} --ratio --tag $tag --label "DNN score" $others --blind-range 0.6 1.0 --quit
-#python scripts/$plotter --dir analysis_$channel\_$tag --var DNNoutSM_kl_1 --reg $reg --sel DYclass    --channel $channel --name DYclass    --lymin 0.7 --lumi $lumi ${log[0]} --ratio --tag $tag --label "DNN score" $others --blind-range 0.6 1.0 --quit
+### GGFclass, VBFclass, ttHclass, TTclass, DYclass
+#python scripts/$plotter --dir analysis_$channel\_$tag --var DNNoutSM_kl_1 --reg $reg --sel GGFclass --channel $channel --name GGFclass  --lymin 0.7 --lumi $lumi ${log[0]} --ratio --tag $tag --label "DNN score" $others --blind-range 0.6 1.0 --quit
+#python scripts/$plotter --dir analysis_$channel\_$tag --var DNNoutSM_kl_1 --reg $reg --sel VBFclass --channel $channel --name VBFclass  --lymin 0.7 --lumi $lumi ${log[0]} --ratio --tag $tag --label "DNN score" $others --blind-range 0.6 1.0 --quit
+#python scripts/$plotter --dir analysis_$channel\_$tag --var DNNoutSM_kl_1 --reg $reg --sel ttHclass --channel $channel --name ttHclass  --lymin 0.7 --lumi $lumi ${log[0]} --ratio --tag $tag --label "DNN score" $others --blind-range 0.6 1.0 --quit
+#python scripts/$plotter --dir analysis_$channel\_$tag --var DNNoutSM_kl_1 --reg $reg --sel TTclass  --channel $channel --name TTclass   --lymin 0.7 --lumi $lumi ${log[0]} --ratio --tag $tag --label "DNN score" $others --blind-range 0.6 1.0 --quit
+#python scripts/$plotter --dir analysis_$channel\_$tag --var DNNoutSM_kl_1 --reg $reg --sel DYclass  --channel $channel --name DYclass   --lymin 0.7 --lumi $lumi ${log[0]} --ratio --tag $tag --label "DNN score" $others --blind-range 0.6 1.0 --quit
