@@ -463,7 +463,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         if opt.dynamQCD:
             file.write("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(select))
 
-        if (opt.binbybin): file.write('\n* autoMCStats 10')
+        #if (opt.binbybin): file.write('\n* autoMCStats 10')
+        if (opt.binbybin): file.write('\n* autoMCStats 1')
 
         file.close()
         outroot = TFile.Open(out_dir+"hh_{0}_{1}_C{2}_13TeV.input.root".format(opt.year,thechannel,theCat),"RECREATE")
@@ -568,6 +569,12 @@ else : allSel = [opt.overSel]
 data        = input.readListOption("general::data")
 signals     = input.readListOption("general::signals")
 backgrounds = input.readListOption("general::backgrounds")
+
+# protection against using too many signal samples (HHmodel will complain otherwise)
+if "GGHH_NLO_cHHH0_xs" in signals:
+    signals.remove("GGHH_NLO_cHHH0_xs")
+if "VBFHH_CV_1_C2V_0_C3_1_xs" in signals:
+    signals.remove("VBFHH_CV_1_C2V_0_C3_1_xs")
 
 ## replace what was merged
 if input.hasSection("merge"):
