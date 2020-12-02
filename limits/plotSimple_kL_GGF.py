@@ -25,8 +25,8 @@ def parseFile(filename, CL='50.0', exp=True):
     f = open(filename)
     matches = []
     for line in f:
-        search = ('Expected %s%%: r <'%CL)
-        if not exp: search = 'Observed Limit: r <'
+        search = ('Expected %s%%: r_gghh <'%CL)
+        if not exp: search = 'Observed Limit: r_gghh <'
 
         if not search in line:
             continue
@@ -91,7 +91,7 @@ mg = ROOT.TMultiGraph()
 
 var = 'DNNoutSM_kl_1'
 
-#year = '2016'
+#year = '2018'
 #tag = 'CombChan_'+year+'_27Nov2020'
 year = '2018'
 tag = 'CombAll_27Nov2020'
@@ -117,9 +117,9 @@ for sel in selections:
 
     for ipt in range(0, len(lambdas)):
         if 'Chan' in tag:
-            fName = 'cards_'+tag+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
+            fName = 'cards_'+tag+'/out_Asym_GGF{0}_noTH.log'.format(lambdas[ipt])
         elif 'All' in tag:
-            fName = 'cards_CombAll_27Nov2020_autoMC1/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
+            fName = 'cards_CombAll_27Nov2020_autoMC1/out_Asym_GGF{0}_noTH.log'.format(lambdas[ipt])
         else:
             #fName = 'cards_Combined_2019_10_11/ggHH_bbtt{0}BDToutSM_kl_{1}/out_Asym_ggHH_bbtt{0}_noTH.log'.format(lambdas[ipt], klval[ipt])
             #fName = 'cards_Combined_2017_03_10_lmr70/ggHH_bbtt{0}MT2/out_Asym_ggHH_bbtt{0}_noTH.log'.format(lambdas[ipt])
@@ -131,19 +131,17 @@ for sel in selections:
         if year == "2016":
             corrFactor = 1.078076202
 
-        xstheoVBF = getXStheoVBF (1,xval,year) * corrFactor * 1000.0  # C2V,kl,year (VBF needs conversion to [fb])
-        xstheoGGF = getXStheoGGF (xval) * 1.115                       # kl
-        xstheoTOT = xstheoVBF + xstheoGGF
+        xstheoGGF = getXStheoGGF (xval) * 1.115  # kl
 
         # Can get different results on r_gghh:
-        #exp  = parseFile(fName)                                  # <- How many times the SM I'm excluding
-        #exp  = parseFile(fName)            * xstheoTOT           # <- Excluded HH cross section
-        exp   = parseFile(fName)            * xstheoTOT #* 0.073  # <- Excluded HH cross section times BR(bbtautau)
-        obs   = parseFile(fName, exp=False) * xstheoTOT #* 0.073
-        m1s_t = parseFile(fName, CL='16.0') * xstheoTOT #* 0.073
-        p1s_t = parseFile(fName, CL='84.0') * xstheoTOT #* 0.073
-        m2s_t = parseFile(fName, CL=' 2.5') * xstheoTOT #* 0.073
-        p2s_t = parseFile(fName, CL='97.5') * xstheoTOT #* 0.073
+        #exp  = parseFile(fName)                                   # <- How many times the SM I'm excluding
+        #exp  = parseFile(fName)            * xstheoGGF            # <- Excluded HH cross section
+        exp   = parseFile(fName)            * xstheoGGF # * 0.073  # <- Excluded HH cross section times BR(bbtautau)
+        obs   = parseFile(fName, exp=False) * xstheoGGF # * 0.073
+        m1s_t = parseFile(fName, CL='16.0') * xstheoGGF # * 0.073
+        p1s_t = parseFile(fName, CL='84.0') * xstheoGGF # * 0.073
+        m2s_t = parseFile(fName, CL=' 2.5') * xstheoGGF # * 0.073
+        p2s_t = parseFile(fName, CL='97.5') * xstheoGGF # * 0.073
 
         ## because the other code wants +/ sigma vars as deviations, without sign, from the centeal exp value...
         p2s = p2s_t - exp
@@ -152,7 +150,6 @@ for sel in selections:
         m1s = exp - m1s_t
 
         ptsList.append((xval, obs, exp, p2s, p1s, m1s, m2s))
-
 
     ptsList.sort()
     for ipt, pt in enumerate(ptsList):
@@ -225,6 +222,7 @@ for sel in selections:
     fakePlot3.SetLineWidth(3)
     legend.AddEntry(fakePlot3, "Theoretical prediction", "lf")
 
+
     ##### text
     pt = ROOT.TPaveText(0.1663218-0.02,0.886316,0.3045977-0.02,0.978947,"brNDC")
     pt.SetBorderSize(0)
@@ -258,7 +256,7 @@ for sel in selections:
     pt4.SetTextSize(0.05)
     pt4.SetBorderSize(0)
     pt4.SetTextAlign(32)
-    pt4.AddText("HH GGF+VBF production")
+    pt4.AddText("HH GGF production")
     pt4.AddText("HH #rightarrow bb#tau#tau")
 
     ##### theory lines
@@ -267,17 +265,12 @@ for sel in selections:
 
     yt=1
     BR = 1
-    C2V = 1
-    CV = 1
-    #myFunc =  ROOT.TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*[0]*x*[0] -1.37*[0]*[0]*[0]*x*[0])*2.44185/[1]",xmin,xmax); # 2016 data
-    #myFunc =  ROOT.TF1("myFunc","(62.5339 -44.323*x + 9.6340*x*x)*1.115",xmin,xmax); # GGF only
-    myFunc =  ROOT.TF1("myFunc","( (62.5339 -44.323*x + 9.6340*x*x)*1.115) + ( ( 0.001668*(-3.3*[1]**2 + 1.3*[1]*[0]**2 + 7.6*[1]*[0]*x + 2.0*[0]**4 - 5.6*[0]**3*x - 1.0*[0]**2*x**2) + 0.01374*(1.5*[1]**2 + 0.5*[1]*[0]**2 - 4.0*[1]*[0]*x - 2.0*[0]**4 + 4.0*[0]**3*x) + 0.001375*(0.35*[1]**2 - 0.0166666666666667*[1]*[0]**2 - 1.03333333333333*[1]*[0]*x - 0.333333333333333*[0]**4 + 0.533333333333333*[0]**3*x + 0.5*[0]**2*x**2) + 0.004454*(-0.45*[1]**2 + 0.45*[1]*[0]**2 + 0.9*[1]*[0]*x + 1.0*[0]**4 - 2.4*[0]**3*x + 0.5*[0]**2*x**2) + 0.01046*(-2.0*[1]**2 - 3.33333333333333*[1]*[0]**2 + 9.33333333333333*[1]*[0]*x + 5.33333333333333*[0]**4 - 9.33333333333333*[0]**3*x) + 0.0638*(0.4*[1]**2 - 0.4*[1]*[0]**2 - 0.8*[1]*[0]*x + 0.8*[0]**3*x) ) * 1.034772182 * 1000.0 ) ",xmin,xmax)
-    myFunc.SetParameter(0,CV)
-    myFunc.SetParameter(1,C2V)
-    graph = ROOT.TGraph(myFunc)
-    ci = ROOT.TColor.GetColor("#ff0000")
-    graph.SetLineColor(ci)
-    graph.SetLineWidth(2)
+    #myFunc =  ROOT.TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*[0]*x*[0] -1.37*[0]*[0]*[0]*x*[0])*2.44185/[1]",xmin,xmax);
+    myFunc =  ROOT.TF1("myFunc","(62.5339 -44.323*x + 9.6340*x*x)*1.115",xmin,xmax);
+    graph = ROOT.TGraph(myFunc);
+    ci = ROOT.TColor.GetColor("#ff0000");
+    graph.SetLineColor(ci);
+    graph.SetLineWidth(2);
     nP = int((xmax-xmin)*10.0)
     Graph_syst_Scale =  ROOT.TGraphAsymmErrors(nP)
     for i in range(nP) : 
@@ -293,7 +286,6 @@ for sel in selections:
     Graph_syst_Scale.SetFillStyle(3001)
     #graph.Print()
 
-    # hframe
     hframe = ROOT.TH1F('hframe', '', 100, -22, 22)
     hframe.SetMinimum(0.1)
     if '2016' in tag:
@@ -313,7 +305,7 @@ for sel in selections:
     hframe.GetYaxis().SetTitleOffset(1.2)
     hframe.GetXaxis().SetTitleOffset(1.1)
 
-    hframe.GetYaxis().SetTitle("95% CL on #sigma #times #bf{#it{#Beta}}(HH#rightarrow bb#tau#tau) [fb]")
+    hframe.GetYaxis().SetTitle("95% CL on #sigma_{ggF} (pp#rightarrow HH) [fb]")
     hframe.GetXaxis().SetTitle("k_{#lambda}")
 
     hframe.SetStats(0)
@@ -337,7 +329,7 @@ for sel in selections:
     pt4.Draw()
     c1.Update()
 
-    c1.Print("plots/klscan_"+tag+"_theor.pdf", 'pdf')
+    c1.Print("plots/klscanGGF_"+tag+"_theor.pdf", 'pdf')
 
 import pdb; pdb.set_trace()
 

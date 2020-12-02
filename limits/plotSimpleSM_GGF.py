@@ -25,8 +25,8 @@ def parseFile(filename, CL='50.0', exp=True):
     f = open(filename)
     matches = []
     for line in f:
-       search = ('Expected %s%%: r <'%CL)
-       if not exp: search = 'Observed Limit: r <'
+       search = ('Expected %s%%: r_gghh <'%CL)
+       if not exp: search = 'Observed Limit: r_gghh <'
        if not search in line:
            continue
        val = line.replace(search, '')
@@ -72,9 +72,9 @@ grobs = ROOT.TGraph()
 ptsList = [] # (x, obs, exp, p2s, p1s, m1s, m2s)
 for i, year in enumerate(years):
 
-    fName = 'cards_CombChan_'+year+'_'+tag+'/out_Asym_SM_noTH.log'
+    fName = 'cards_CombChan_'+year+'_'+tag+'/out_Asym_GGF22_noTH.log'
     if year == '':
-        fName = 'cards_CombAll_'+tag+'_autoMC1/out_Asym_SM_noTH.log'
+        fName = 'cards_CombAll_'+tag+'_autoMC1/out_Asym_GGF22_noTH.log'
 
     # Can get different results on r_gghh:
     #exp = parseFile(fName)                  # <- How many times the SM I'm excluding
@@ -163,6 +163,7 @@ legend.AddEntry(grexp, "Median expected", "l")
 legend.AddEntry(gr1sigma, "68% expected", "f")
 legend.AddEntry(gr2sigma, "95% expected", "f")
 
+
 ##### text
 pt = ROOT.TPaveText(0.1663218-0.02,0.886316,0.3045977-0.02,0.978947,"brNDC")
 pt.SetBorderSize(0)
@@ -179,7 +180,7 @@ pt2.SetFillColor(0)
 pt2.SetTextSize(0.040)
 pt2.SetTextFont(42)
 pt2.SetFillStyle(0)
-pt2.AddText("Run2 - HH #rightarrow bb#tau#tau")
+pt2.AddText("Run2 - GGF HH #rightarrow bb#tau#tau")
 
 hframe = ROOT.TH1F('hframe', '', 4, 0, 4)
 hframe.SetMinimum(0.1)
@@ -193,7 +194,7 @@ hframe.GetXaxis().SetLabelOffset(0.012)
 hframe.GetYaxis().SetTitleOffset(1.2)
 hframe.GetXaxis().SetTitleOffset(1.1)
 
-hframe.GetYaxis().SetTitle("95% CL on #sigma_{obs} / #sigma_{SM}")
+hframe.GetYaxis().SetTitle("95% CL on GGF HH #sigma_{obs} / #sigma_{SM}")
 
 
 hframe.SetStats(0)
@@ -217,7 +218,7 @@ legend.Draw()
 c1.Update()
 
 c1.Draw()
-c1.Print("plots/plot_SMpoint_"+tag+".pdf", 'pdf')
+c1.Print("plots/plot_SMpointGGF_"+tag+".pdf", 'pdf')
 
 import pdb; pdb.set_trace()
 

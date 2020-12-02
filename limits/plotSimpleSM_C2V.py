@@ -25,8 +25,8 @@ def parseFile(filename, CL='50.0', exp=True):
     f = open(filename)
     matches = []
     for line in f:
-       search = ('Expected %s%%: r <'%CL)
-       if not exp: search = 'Observed Limit: r <'
+       search = ('Expected %s%%: r_qqhh <'%CL)
+       if not exp: search = 'Observed Limit: r_qqhh <'
        if not search in line:
            continue
        val = line.replace(search, '')
@@ -38,14 +38,6 @@ def parseFile(filename, CL='50.0', exp=True):
         return -1.0
     else:
         return matches[-1]
-
-def getXStheo (kL): 
-    A = 62.5339
-    B = -44.323
-    C = 9.6340
-
-    val = A + B*kL + C*kL*kL
-    return val
 
 
 c1 = ROOT.TCanvas("c1", "c1", 500, 500)
@@ -72,14 +64,14 @@ grobs = ROOT.TGraph()
 ptsList = [] # (x, obs, exp, p2s, p1s, m1s, m2s)
 for i, year in enumerate(years):
 
-    fName = 'cards_CombChan_'+year+'_'+tag+'/out_Asym_SM_noTH.log'
+    fName = 'cards_CombChan_'+year+'_'+tag+'/out_Asym_VBFSM_noTH.log'
+    if year == '2017':
+        fName = 'cards_CombChan_'+year+'_'+tag+'_autoMC1/out_Asym_VBFSM_noTH.log'
     if year == '':
-        fName = 'cards_CombAll_'+tag+'_autoMC1/out_Asym_SM_noTH.log'
+        fName = 'cards_CombAll_'+tag+'_autoMC1/out_Asym_VBFSM_noTH.log'
 
     # Can get different results on r_gghh:
     #exp = parseFile(fName)                  # <- How many times the SM I'm excluding
-    #exp = parseFile(fName) * 31.05          # <- Excluded HH cross section
-    #exp = parseFile(fName) * 31.05 * 0.073  # <- Excluded HH cross section times BR(bbtautau)
 
     exp   = parseFile(fName)
     obs   = parseFile(fName, exp=False)
@@ -163,6 +155,7 @@ legend.AddEntry(grexp, "Median expected", "l")
 legend.AddEntry(gr1sigma, "68% expected", "f")
 legend.AddEntry(gr2sigma, "95% expected", "f")
 
+
 ##### text
 pt = ROOT.TPaveText(0.1663218-0.02,0.886316,0.3045977-0.02,0.978947,"brNDC")
 pt.SetBorderSize(0)
@@ -179,21 +172,22 @@ pt2.SetFillColor(0)
 pt2.SetTextSize(0.040)
 pt2.SetTextFont(42)
 pt2.SetFillStyle(0)
-pt2.AddText("Run2 - HH #rightarrow bb#tau#tau")
+pt2.AddText("Run2 - VBF HH #rightarrow bb#tau#tau")
+
 
 hframe = ROOT.TH1F('hframe', '', 4, 0, 4)
 hframe.SetMinimum(0.1)
-hframe.SetMaximum(25)
+hframe.SetMaximum(1000)
 
 hframe.GetYaxis().SetTitleSize(0.047)
 hframe.GetXaxis().SetTitleSize(0.055)
 hframe.GetYaxis().SetLabelSize(0.045)
 hframe.GetXaxis().SetLabelSize(0.045)
 hframe.GetXaxis().SetLabelOffset(0.012)
-hframe.GetYaxis().SetTitleOffset(1.2)
+hframe.GetYaxis().SetTitleOffset(1.5)
 hframe.GetXaxis().SetTitleOffset(1.1)
 
-hframe.GetYaxis().SetTitle("95% CL on #sigma_{obs} / #sigma_{SM}")
+hframe.GetYaxis().SetTitle("95% CL on VBF HH #sigma_{obs} / #sigma_{SM}")
 
 
 hframe.SetStats(0)
@@ -217,9 +211,10 @@ legend.Draw()
 c1.Update()
 
 c1.Draw()
-c1.Print("plots/plot_SMpoint_"+tag+".pdf", 'pdf')
+c1.Print("plots/plot_SMpointC2V_"+tag+".pdf", 'pdf')
 
 import pdb; pdb.set_trace()
+
 
 ##### print a YAML format for HepDATA
 #print "\n\nHEP DATA - x variable"
