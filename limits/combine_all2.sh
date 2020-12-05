@@ -1,9 +1,9 @@
 var="DNNoutSM_kl_1"
-selections="s1b1jresolvedMcut s2b0jresolvedMcut sboostedLLMcut VBFloose"
+selections="s1b1jresolvedMcut s2b0jresolvedMcut sboostedLLMcut GGFclass VBFclass ttHclass TTclass DYclass"
 channels="TauTau MuTau ETau" 
 years="2016 2017 2018"
 
-tag="_4Oct2020"
+tag="_27Nov2020"
 
 mkdir cards_CombAll$tag
 
@@ -21,5 +21,6 @@ done
 cd cards_CombAll$tag
 rm comb.txt
 combineCards.py -S hh_*.txt >> comb.txt
+ulimit -s unlimited
 text2workspace.py comb.txt -P HHModel:HHdefault -o comb.root
 cd -

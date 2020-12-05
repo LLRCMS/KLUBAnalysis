@@ -470,17 +470,19 @@ if __name__ == "__main__" :
 
 
     ######################### PUT USER CONFIGURATION HERE ####################
-    cfgName  =  args.dir + "/mainCfg_"+args.channel+"_Legacy2017_limits.cfg"
+    cfgName  =  args.dir + "/mainCfg_"+args.channel+"_Legacy2018_limits.cfg"
+    #cfgName  =  args.dir + "/mainCfg_"+args.channel+"_Legacy2018_tauIDSF.cfg"
     cfg        = cfgr.ConfigReader (cfgName)
     bkgList    = cfg.readListOption("general::backgrounds")
 
     doQCD = True
     if not "SR" in args.reg: doQCD = False
     if not "Tau" in args.channel: doQCD = False
+    
     if doQCD:
         bkgList.append('QCD')
-
-
+    
+    
     sigList = cfg.readListOption("general::signals")
     sigList = ["GGHH_NLO_cHHH1_xs", "VBFHH_CV_1_C2V_1_C3_1_xs"]
 
@@ -490,6 +492,7 @@ if __name__ == "__main__" :
     else:
            sigNameList = ["VBF HH SM (x10)"]
     sigNameList = ["ggHH SM x 20", "qqHH SM x 100"]
+
 
     sigColors = {}
     sigColors["GGHH_NLO_cHHH1_xs"] = kBlack
@@ -509,6 +512,7 @@ if __name__ == "__main__" :
     bkgLineColors = {}
     bkgLineColors["DY"]      = col.GetColor("#389956")
     bkgLineColors["TT"]      = col.GetColor("#dea63c")
+    #bkgLineColors["WJets"]  = col.GetColor("#3ca4c8")
     bkgLineColors["singleH"] = col.GetColor("#3ca4c8")
     bkgLineColors["other"]   = col.GetColor("#d85a56")
 
@@ -562,11 +566,13 @@ if __name__ == "__main__" :
 
     hDY = getHisto("DY", hBkgs,doOverflow)
     hTT = getHisto("TT", hBkgs,doOverflow)
+    #hWJets = getHisto("WJets", hBkgs,doOverflow)
     hWJets = getHisto("singleH", hBkgs,doOverflow)
     hothers = getHisto("other", hBkgs,doOverflow)
 
     hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
 
+    #hBkgNameList = ["Others", "W + jets", "t#bar{t}" , "DY NLO"] # list for legend
     hBkgNameList = ["Others", "single H", "t#bar{t}" , "DY"] # list for legend
 
     if doQCD:
@@ -574,6 +580,7 @@ if __name__ == "__main__" :
         hQCD    = getHisto ("QCD", hBkgs,doOverflow)
         hQCD.SetName("QCD")
         hBkgList = [hothers, hWJets, hQCD, hDY, hTT]
+        #hBkgNameList = ["others", "W + Jets", "QCD", "DY", "t#bar{t}"]
         hBkgNameList = ["others", "single H", "QCD", "DY", "t#bar{t}"]
         bkgColors["QCD"] = col2.GetColor("#F29563") #(TColor(242,149,99)).GetNumber() #gROOT.GetColor("#F29563")
         bkgLineColors["QCD"] = col2.GetColor("#DC885A")
@@ -715,7 +722,7 @@ if __name__ == "__main__" :
     #for i, name in enumerate (sigNameList):
     #    histo = hSigs[sigList[i]]
     #    histo.Scale(sigScaleValue)
-
+                
     ################## LEGEND ######################################
 
     legmin = 0.45
@@ -874,34 +881,34 @@ if __name__ == "__main__" :
 
 
     if not args.name:
-        if "baseline" in args.sel:
-            selName = "baseline"
-        if "1b1j" in args.sel:
-            selName = "1b1j"
-        if "2b0j" in args.sel:
-            selName = "2b0j"
-        if "boosted" in args.sel:
-            selName = "boosted"
-        if "antiB" in args.sel:
-            selName = "antiB"
-        if "DYreg" in args.sel:
-            selName = "DYreg"
-        if "VBFloose" in args.sel:
-            selName = "VBFloose"
-        if "GGFclass" in args.sel:
-            selName = "GGFclass"
-        if "VBFclass" in args.sel:
-            selName = "VBFclass"
-        if "DYclass" in args.sel:
-            selName = "DYclass"
-        if "ttHclass" in args.sel:
-            selName = "ttHclass"
-        if "TTlepclass" in args.sel:
-            selName = "TTlepclass"
-        if "TThadclass" in args.sel:
-            selName = "TThadclass"
+            if "baseline" in args.sel:  
+                    selName = "baseline"
+            if "1b1j" in args.sel:  
+                    selName = "1b1j"
+            if "2b0j" in args.sel:  
+                    selName = "2b0j"
+            if "boosted" in args.sel:
+                    selName = "boosted"
+            if "antiB" in args.sel:
+                    selName = "antiB"
+            if "DYreg" in args.sel:
+                    selName = "DYreg"
+            if "VBFloose" in args.sel:
+                    selName = "VBFloose"
+            if "GGFclass" in args.sel:  
+                    selName = "GGFclass"
+            if "VBFclass" in args.sel:  
+                    selName = "VBFclass"
+            if "DYclass" in args.sel:  
+                    selName = "DYclass"
+            if "ttHclass" in args.sel:
+                    selName = "ttHclass"
+            if "TTlepclass" in args.sel:
+                    selName = "TTlepclass"
+            if "TThadclass" in args.sel:
+                    selName = "TThadclass"
     else:
-        selName = args.name
+            selName = args.name
 
     selBox = TLatex  (l + 0.04 , 1 - t - 0.02 - 0.06, selName)
     selBox.SetNDC()
@@ -915,7 +922,7 @@ if __name__ == "__main__" :
     #if args.blindrange:
     #    blow = float(args.blindrange[0])
     #    bup = float(args.blindrange[1])
-    #    bBox = TBox (blow, ymin, bup, 0.93*ymax)
+    #    bBox = TBox (blow, ymin, bup, 0.7*ymax)
     #    bBox.SetFillStyle(3002) # NB: does not appear the same in displayed box and printed pdf!!
     #    bBox.SetFillColor(kGray+2) # NB: does not appear the same in displayed box and printed pdf!!
     #    bBox.Draw()

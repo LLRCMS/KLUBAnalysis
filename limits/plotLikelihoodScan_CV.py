@@ -32,35 +32,36 @@ leg.SetFillColor(ROOT.kWhite)
 
 mg = ROOT.TMultiGraph()
 mg.GetYaxis().SetTitle("-2 #Delta ln(L)")
-mg.GetXaxis().SetTitle("k_{#lambda}")
+mg.GetXaxis().SetTitle("C_{V}")
+
 
 for i,year in enumerate(years):
 
     if "comb" in year:
-        file = "cards_CombAll_"+tag+"_autoMC1/higgsCombinekl_scan.MultiDimFit.mH120.root"
+        file = "cards_CombAll_"+tag+"_autoMC1/higgsCombineCV_scan.MultiDimFit.mH120.root"
     else:
         if "2018" in year:
-            file = "cards_CombChan_"+year+"_"+tag+"/higgsCombinekl_scan.MultiDimFit.mH120.root"
+            file = "cards_CombChan_"+year+"_"+tag+"/higgsCombineCV_scan.MultiDimFit.mH120.root"
         else:
-            file = "cards_CombChan_"+year+"_"+tag+"_autoMC1/higgsCombinekl_scan.MultiDimFit.mH120.root"
+            file = "cards_CombChan_"+year+"_"+tag+"_autoMC1/higgsCombineCV_scan.MultiDimFit.mH120.root"
 
     fIn = ROOT.TFile(file, "READ")
     tree = fIn.Get("limit")
 
-    kls  = []
+    CVs  = []
     vals = []
 
     for iev,ev in enumerate(tree):
         if iev==0: continue
-        #print 'kl:', ev.kl, '2*deltaNLL:', 2*ev.deltaNLL
+        #print 'CV:', ev.CV, '2*deltaNLL:', 2*ev.deltaNLL
 
         if 2*ev.deltaNLL>10.0: continue
-        kls.append(ev.kl)
+        CVs.append(ev.CV)
         vals.append(2*ev.deltaNLL)
 
     gr = ROOT.TGraph()
-    for ikl, kl in enumerate(kls):
-        gr.SetPoint(ikl, kl, vals[ikl])
+    for iCV, CV in enumerate(CVs):
+        gr.SetPoint(iCV, CV, vals[iCV])
 
     gr.SetLineColor(colors[i])
     gr.SetMarkerColor(colors[i])
@@ -111,7 +112,7 @@ hframe.GetXaxis().SetLabelOffset(0.012)
 hframe.GetYaxis().SetTitleOffset(1.2)
 hframe.GetXaxis().SetTitleOffset(1.1)
 hframe.GetYaxis().SetTitle("-2 #Delta ln(L)")
-hframe.GetXaxis().SetTitle("k_{#lambda}")
+hframe.GetXaxis().SetTitle("C_{V}")
 hframe.SetStats(0)
 ROOT.gPad.SetTicky()
 hframe.Draw()
@@ -141,8 +142,8 @@ if 'comb' not in year:
     leg.Draw()
 c1.Update()
 if 'comb' in year:
-    c1.Print('plots/kl_1Dlikelihood_Run2_'+tag+'.pdf','pdf')
+    c1.Print('plots/CV_1Dlikelihood_Run2_'+tag+'.pdf','pdf')
 else:
-    c1.Print('plots/kl_1Dlikelihood_comparison_'+tag+'.pdf','pdf')
+    c1.Print('plots/CV_1Dlikelihood_comparison_'+tag+'.pdf','pdf')
 
 import pdb; pdb.set_trace()

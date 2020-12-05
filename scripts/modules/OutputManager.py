@@ -291,6 +291,11 @@ class OutputManager:
             for sel in self.sel_def:
                 for syst in allSysts:
 
+                    # for boosted category we use 'L' bTag WP
+                    if 'boost' in sel:
+                        if 'bTagSF' in syst:
+                            syst = syst.replace('M','L')
+
                     ## make shape hist
                     for idx, data in enumerate(self.data):
                         hname = makeHistoName(data, sel+'_'+shapeSB, var)
@@ -456,7 +461,8 @@ class OutputManager:
                 if not strSel in sel: continue 
             for var in self.variables:
                 for idx, s in enumerate(self.bkgs):
-                    if (strBkg in s):
+                    #if (strBkg in s):
+                    if (strBkg == s):
                         htoscale_name = makeHistoName(s, sel, var)
                         print htoscale_name
                         h = self.histos[htoscale_name]

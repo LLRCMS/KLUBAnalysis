@@ -36,6 +36,7 @@ if __name__ == "__main__":
     scriptFile.write('cd {}\n'.format(cmsswBase + '/src/'))
     scriptFile.write('eval `scram r -sh`\n')
     scriptFile.write('cd %s\n'%jobsDir)
+    scriptFile.write('ulimit -s unlimited \n')
     command = "combine -M AsymptoticLimits"
     if opt.blind:
         command = command + " --run blind "
@@ -68,8 +69,8 @@ if __name__ == "__main__":
     command     = command + " --redefineSignalPOIs " + ",".join(red_parameters)
     if freeze:
         command = command + " --freezeParameters "   + ",".join(fre_parameters)
-    command     = command + " --setParameters "
     if len(set_parameters)>0:
+        command = command + " --setParameters "
         command = command + ",".join(set_parameters) + ","
 
     couplings = []
