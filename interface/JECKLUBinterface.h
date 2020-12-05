@@ -5,7 +5,7 @@
 //                                                                                                                //
 //   class JECKLUBinterface                                                                                       //
 //                                                                                                                //
-//   Class to compute read the JEC uncrtainties from txt files                                                    //
+//   Class to read the JEC uncertainties from the txt files                                                       //
 //   Reference:                                                                                                   //
 //    - https://twiki.cern.ch/twiki/bin/view/CMS/JECUncertaintySources#Run_2_reduced_set_of_uncertainty           //
 //   Original recipe from LLRHiggsTauTau/plugins/HTauTauNtuplizer.cc:                                             //

@@ -5,9 +5,6 @@
 // Constructor
 JECKLUBinterface::JECKLUBinterface (std::string year, std::string version)
 {
-//  - dichiaro i nomi in base all anno (m_jec_sources_regrouped_2016) e il provider (jecSourceUncRegroupedProviders)
-//  - loop sui nomi per riempire il provider con le unc
-
   // Get the correct txt file and set the uncertainty names
   std::string TXTfile;
   if (year == "2016")
@@ -76,7 +73,7 @@ std::pair<std::vector<double>,std::vector<double>> JECKLUBinterface::getJECUncVe
     theBigTree.jets_e->at(idx)
   );
 
-  // Loop on provider (i.e. on all sources) and compute value of uncertainty for each source
+  // Loop on names (preserves the order) and compute value of uncertainty for each source
   for (auto sourceName : m_jec_sources_regrouped_)
   {
     // up variations
