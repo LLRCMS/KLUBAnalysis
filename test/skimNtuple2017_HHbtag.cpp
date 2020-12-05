@@ -4126,7 +4126,7 @@ int main (int argc, char** argv)
         const TMatrixD stableMetCov = metcov;
 
       // MET shifted for JES
-      auto vMET_shift_jet = getShiftedMET_jet(N_jecSources, vMET, theBigTree, DEBUG);
+      auto vMET_shift_jet = getShiftedMET_jet(N_jecSources, vMET, theBigTree, JECprovider, DEBUG);
       for (int isource = 0; isource < N_jecSources; isource++){
         theSmallTree.m_METx_jetup.push_back(vMET_shift_jet.first.at(isource).X());
         theSmallTree.m_METy_jetup.push_back(vMET_shift_jet.first.at(isource).Y());

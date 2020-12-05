@@ -31,6 +31,7 @@
 #include "TauIDSFTool.h"
 #include "skimUtils.h"
 #include "PuJetIdSF.h"
+#include "JECKLUBinterface.h"
 
 #include "lester_mt2_bisect.h"
 
@@ -517,6 +518,11 @@ int main (int argc, char** argv)
   std::string PUjetID_SF_directory = gConfigParser->readStringOption ("PUjetIDScaleFactors::files");
   cout << "** INFO: PU jet ID SF directory: " << PUjetID_SF_directory << std::endl;
   PuJetIdSF PUjetIDSFprovider(PUjetID_SF_directory, "2016");
+
+  // ------------------------------
+
+  // V2 is the correct version to be used
+  JECKLUBinterface JECprovider("2016", "V2");
 
   // ------------------------------
 
@@ -3418,8 +3424,10 @@ int main (int argc, char** argv)
         // https://github.com/LLRCMS/LLRHiggsTauTau/blob/102X_HH/NtupleProducer/plugins/HTauTauNtuplizer.cc#L2182-L2238
         // store the up down variations in vectors:
 	
-        pair <vector <double>, vector<double>> unc_first_updown = getJetUpDown(bjet1idx, theBigTree);
-        pair <vector <double>, vector<double>> unc_second_updown = getJetUpDown(bjet2idx, theBigTree);
+        //pair <vector <double>, vector<double>> unc_first_updown = getJetUpDown(bjet1idx, theBigTree);
+        //pair <vector <double>, vector<double>> unc_second_updown = getJetUpDown(bjet2idx, theBigTree);
+        pair <vector <double>, vector<double>> unc_first_updown = JECprovider.getJECUncVectors(bjet1idx, theBigTree);
+        pair <vector <double>, vector<double>> unc_second_updown = JECprovider.getJECUncVectors(bjet2idx, theBigTree);
 
         vector <TLorentzVector> tlv_firstBjet_raw_jetup(N_jecSources, tlv_firstBjet_raw); 
         vector <TLorentzVector> tlv_firstBjet_raw_jetdown(N_jecSources,tlv_firstBjet_raw);
@@ -3678,7 +3686,8 @@ int main (int argc, char** argv)
               if (tlv_jetupTot.Pt()   > 20) theSmallTree.m_BDT_HT20_jetupTot += tlv_jetupTot.Pt();
               if (tlv_jetdownTot.Pt() > 20) theSmallTree.m_BDT_HT20_jetdownTot += tlv_jetdownTot.Pt();
 
-	      pair <vector <double>, vector<double>> unc_updown = getJetUpDown(iJet, theBigTree);
+	      //pair <vector <double>, vector<double>> unc_updown = getJetUpDown(iJet, theBigTree);
+	      pair <vector <double>, vector<double>> unc_updown = JECprovider.getJECUncVectors(iJet, theBigTree);
               // build shifted jet
               
 	      for (int isource = 0; isource < N_jecSources; isource++)
@@ -3723,7 +3732,7 @@ int main (int argc, char** argv)
         const TMatrixD stableMetCov = metcov;
 
         // Shifted MET for JES
-        auto vMET_shift_jet = getShiftedMET_jet(N_jecSources, vMET, theBigTree, DEBUG);
+        auto vMET_shift_jet = getShiftedMET_jet(N_jecSources, vMET, theBigTree, JECprovider, DEBUG);
         for (int isource = 0; isource < N_jecSources; isource++)
         {
            theSmallTree.m_METx_jetup.push_back(vMET_shift_jet.first.at(isource).X());
@@ -4086,8 +4095,10 @@ int main (int argc, char** argv)
           theSmallTree.m_VBFjj_mass_jetupTot       = (tlv_VBFjet1_jetupTot + tlv_VBFjet2_jetupTot).M();
           theSmallTree.m_VBFjj_mass_jetdownTot     = (tlv_VBFjet1_jetdownTot + tlv_VBFjet2_jetdownTot).M();
 
- 	  pair <vector <double>, vector<double>> unc_VBF1_updown = getJetUpDown(VBFidx1, theBigTree);
- 	  pair <vector <double>, vector<double>> unc_VBF2_updown = getJetUpDown(VBFidx2, theBigTree);
+ 	  //pair <vector <double>, vector<double>> unc_VBF1_updown = getJetUpDown(VBFidx1, theBigTree);
+ 	  //pair <vector <double>, vector<double>> unc_VBF2_updown = getJetUpDown(VBFidx2, theBigTree);
+ 	  pair <vector <double>, vector<double>> unc_VBF1_updown = JECprovider.getJECUncVectors(VBFidx1, theBigTree);
+ 	  pair <vector <double>, vector<double>> unc_VBF2_updown = JECprovider.getJECUncVectors(VBFidx2, theBigTree);
 
  	  // compute all shifted VBFjets
  	  vector <TLorentzVector> VBFjet1_jetup(N_jecSources,VBFjet1); 
