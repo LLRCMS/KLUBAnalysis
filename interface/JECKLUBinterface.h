@@ -48,9 +48,11 @@ class JECKLUBinterface {
     // To be used in skimNtuple201*.cpp
     std::pair<std::vector<double>,std::vector<double>> getJECUncVectors(int idx, bigTree & theBigTree);
 
-    // Returns directly the shifted TlorentzVector starting from "index of JEC source" and the original TLorentzVector
+    // Returns the shifted TLorentzVector starting from "index of JEC source" and the original TLorentzVector
     // To be used (mainly) in skimOutputter*.cpp
-    //TLorentzVector getJECUncJet(int idx, TLorentzVector bjet1);
+    // unc = +1 --> up variation
+    // unc = -1 --> down variation
+    TLorentzVector getJECUncJet(int idx, TLorentzVector nominalJet, float unc);
 
   private:
     std::vector<std::string> m_jec_sources_regrouped_;

@@ -82,6 +82,7 @@ std::pair<std::vector<double>,std::vector<double>> JECKLUBinterface::getJECUncVe
     double uncertainty_up = jecSourceUncRegroupedProviders_[sourceName]->getUncertainty(true);
     unc_up.push_back(uncertainty_up);
 
+    // down variations
     jecSourceUncRegroupedProviders_[sourceName]->setJetEta(jet.Eta());
     jecSourceUncRegroupedProviders_[sourceName]->setJetPt(jet.Pt());
     double uncertainty_down = jecSourceUncRegroupedProviders_[sourceName]->getUncertainty(false);
@@ -95,9 +96,45 @@ std::pair<std::vector<double>,std::vector<double>> JECKLUBinterface::getJECUncVe
 }
 
 
-// Returns directly the shifted TlorentzVector starting from "index of JEC source" and the original TLorentzVector
-// To be used (mainly) in skimOutputter*.cpp
-//TLorentzVector JECKLUBinterface::getJECUncJet(int idx, TLorentzVector bjet1)
-//{}
+// Returns the shifted TLorentzVector starting from "index of JEC source" and the original TLorentzVector
+TLorentzVector JECKLUBinterface::getJECUncJet(int idx, TLorentzVector nominalJet, float unc)
+{
+  // Declare the shifted jet
+  TLorentzVector shiftedJet;
+
+  // Get the name of the source
+  std::string sourceName = m_jec_sources_regrouped_.at(idx);
+
+  // Get the shift
+  jecSourceUncRegroupedProviders_[sourceName]->setJetEta(nominalJet.Eta());
+  jecSourceUncRegroupedProviders_[sourceName]->setJetPt(nominalJet.Pt());
+  float shift = 1.;
+  if (unc > 0) // up variations
+  {
+    shift = jecSourceUncRegroupedProviders_[sourceName]->getUncertainty(true);
+  }
+  else // down variations
+  {
+    shift = jecSourceUncRegroupedProviders_[sourceName]->getUncertainty(false);
+  }
+
+  // Shift the jet
+  shiftedJet.SetPtEtaPhiE(
+    (1.+(shift*unc)) * nominalJet.Pt(),
+    nominalJet.Eta(),
+    nominalJet.Phi(),
+    (1.+(shift*unc)) * nominalJet.E()
+  );
+
+  if (DEBUG)
+  {
+    std::cout << "   Original jet: "; nominalJet.Print();
+    std::cout << "   Shift: " << shift << "  unc: " << unc << std::endl;
+    std::cout << "   Shifted jet : "; shiftedJet.Print();
+  }
+
+  // Return the shifted jet
+  return shiftedJet;
+}
 
 
