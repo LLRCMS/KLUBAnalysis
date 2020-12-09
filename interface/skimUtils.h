@@ -9,6 +9,7 @@
 #include <map>
 
 #include "bigTree.h"
+#include "JECKLUBinterface.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TH3F.h"
@@ -379,7 +380,7 @@ TLorentzVector getShiftedDau(TLorentzVector tlv_nominal, double shift, double un
 // returns a pair of vectors of TVector2 objects
 // first: up variations
 // second: down variations
-pair <vector <TVector2>, vector <TVector2> > getShiftedMET_jet (int N_jecSources, TVector2 MET, bigTree & theBigTree, bool DEBUG=false)
+pair <vector <TVector2>, vector <TVector2> > getShiftedMET_jet (int N_jecSources, TVector2 MET, bigTree & theBigTree, JECKLUBinterface & JECprovider, bool DEBUG=false)
 {
 
   if (DEBUG) cout << "*********** DEBUGGING JETS *********** "<< endl;
@@ -399,7 +400,8 @@ pair <vector <TVector2>, vector <TVector2> > getShiftedMET_jet (int N_jecSources
     TLorentzVector tlv_jet (theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
 
     // get uncertainty
-    pair <vector <double>, vector<double>> unc_updown = getJetUpDown(iJet, theBigTree);
+    //pair <vector <double>, vector<double>> unc_updown = getJetUpDown(iJet, theBigTree);
+    pair <vector <double>, vector<double>> unc_updown = JECprovider.getJECUncVectors(iJet, theBigTree);
 
     // build shifted jet
     for (int isource = 0; isource < N_jecSources; isource++)
