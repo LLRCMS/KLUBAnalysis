@@ -109,7 +109,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             srate = template.Integral()
             rates.append(srate)
 
-        syst = systReader("../config/MY_systematics_ttCR.cfg",signals,backgrounds,None)
+        syst = systReader("../config/systematics_ttCR.cfg",signals,backgrounds,None)
         syst.writeOutput(False)
         syst.verbose(True)
         if theCat != '4':
