@@ -238,15 +238,20 @@ class OutputManager:
         #            if hregD.GetBinContent(ibin) < 1.e-6:
         #                hregD.SetBinContent(ibin, 1.e-6)
 
-        # Check if total integrals (without removing negative bins) are <=0 OR compatible with 0
+        # Check if total integrals (without removing negative bins) are <=0
         # if yes, return 0 --> no QCD contribution is present for this variable/selection
+        # (if is compatible with 0 (but >0) we keep it, the uncertainty will be large anyway)
         intC = hregC.Integral()
         intD = hregD.Integral()
-        if intC <= 0.0 or self.isIntegralCompatible(hregC,0):
-            print '*** WARNING: integral of numerator is negative or compatible with Zero! Returning SBtoSRdyn = 0 !'
+        #if intC <= 0.0 or self.isIntegralCompatible(hregC,0):
+        if intC <= 0.0:
+            #print '*** WARNING: integral of numerator is negative or compatible with Zero! Returning SBtoSRdyn = 0 !'
+            print '*** WARNING: integral of numerator is negative! Returning SBtoSRdyn = 0 !'
             return 0.0
-        if intD <= 0.0 or self.isIntegralCompatible(hregD,0):
-            print '*** WARNING: integral of denominator is negative or compatible with Zero! Returning SBtoSRdyn = 0 !'
+        #if intD <= 0.0 or self.isIntegralCompatible(hregD,0):
+        if intD <= 0.0:
+            #print '*** WARNING: integral of denominator is negative or compatible with Zero! Returning SBtoSRdyn = 0 !'
+            print '*** WARNING: integral of denominator is negative! Returning SBtoSRdyn = 0 !'
             return 0.0
 
         SBtoSRdyn = hregC.Integral()/hregD.Integral()
@@ -333,10 +338,13 @@ class OutputManager:
 
                     if computeSBtoSR: SBtoSRfactor = self.makeQCD_SBtoSR(regionC, regionD, sel, var, syst, removeNegBins)
 
-                    # Check if original integral of shape histo (without removing negative bins) is <= 0 OR compatible with 0
+                    # Check if original integral of shape histo (without removing negative bins) is <= 0
                     # if yes, return 0 --> no QCD contribution is present for this variable/selection
-                    if qcdYield <= 0.0 or self.isIntegralCompatible(hyieldQCD,0):
-                        print '*** WARNING: integral of shapeQCD is negative or compatible with Zero! Setting QCD = 0 !'
+                    # (if is compatible with 0 (but >0) we keep it, the uncertainty will be large anyway)
+                    # ( if qcdYield <= 0.0 or self.isIntegralCompatible(hyieldQCD,0): )
+                    if qcdYield <= 0.0:
+                        #print '*** WARNING: integral of shapeQCD is negative or compatible with Zero! Setting QCD = 0 !'
+                        print '*** WARNING: integral of shapeQCD is negative! Setting QCD = 0 !'
                         sc = 0.0
                     else:
                         sc = SBtoSRfactor*qcdYield/hQCD.Integral() if hQCD.Integral() > 0 else 0.0
