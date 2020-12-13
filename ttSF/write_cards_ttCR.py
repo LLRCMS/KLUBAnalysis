@@ -109,6 +109,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             srate = template.Integral()
             rates.append(srate)
 
+        # For the moment, the file systematics_ttCR.cfg is just an empty file because we decided not to insert any syst in the CR. 
+        # If we decide to add some systs to the CR then there it's where they go
         syst = systReader("../config/systematics_ttCR.cfg",signals,backgrounds,None)
         syst.writeOutput(False)
         syst.verbose(True)
