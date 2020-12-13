@@ -430,9 +430,9 @@ class OutputManager:
             #### FIXME: to be generalized! (with the previous function)
 
             allSysts = []
-            if s == 'TT':
-                allSysts = ['topUp', 'topDown']
-                print '.. this is a TT sample, hence the only one with systs', allSysts
+            #if s == 'TT':
+            #    allSysts = ['topUp', 'topDown']
+            #    print '.. this is a TT sample, hence the only one with systs', allSysts
             
             for syst in allSysts:
                 htorebin_name = makeHistoName(s, sel, var, syst)
