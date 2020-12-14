@@ -610,8 +610,8 @@ backgrounds = input.readListOption("general::backgrounds")
 # protection against using too many signal samples (HHmodel will complain otherwise)
 if "GGHH_NLO_cHHH0_xs" in signals:
     signals.remove("GGHH_NLO_cHHH0_xs")
-if "VBFHH_CV_1_C2V_0_C3_1_xs" in signals:
-    signals.remove("VBFHH_CV_1_C2V_0_C3_1_xs")
+if "VBFHH_CV_0p5_C2V_1_C3_1_xs" in signals:
+    signals.remove("VBFHH_CV_0p5_C2V_1_C3_1_xs")
 
 ## replace what was merged
 if input.hasSection("merge"):

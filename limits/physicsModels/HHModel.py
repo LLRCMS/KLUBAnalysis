@@ -435,6 +435,7 @@ VBF_sample_list = [
     VBFHHSample(1,1,0,   val_xs = 0.00145/(0.3364), label = 'qqHH_CV_1_C2V_1_kl_0'  ),
     VBFHHSample(0.5,1,1, val_xs = 0.00353/(0.3364), label = 'qqHH_CV_0p5_C2V_1_kl_1'),
     VBFHHSample(1.5,1,1, val_xs = 0.02149/(0.3364), label = 'qqHH_CV_1p5_C2V_1_kl_1'),
+    VBFHHSample(1,0,1,   val_xs = 0.0270800       , label = 'qqHH_CV_1_C2V_0_kl_1'  ),
 ]
 
 # VBF : val_kl, val_kt
