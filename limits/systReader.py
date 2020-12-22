@@ -15,9 +15,8 @@ class systReader:
         
         # input file
         self.theInput = [inputTextFile]
-        self.channels = signalList+backgroundList
+        self.processes = signalList+backgroundList
         self.theOutputFile = outputFile
-        #self.OutputLines = []
         self.writeOut = True
         self.printResult = True
 
@@ -30,91 +29,114 @@ class systReader:
         self.theInput.append(theOtherFile)
 
     def writeSystematics(self):
-        print "reading systematics"
+        print "- Reading systematics -"
         section = ""
         outputLine = ""
         OutputLines = []
         activeProc = []
         activeVal = []
-        systLine={'ggH':"- "}
-        for chan in self.channels :
-            systLine[chan] = "- "
+        systLine = {}
 
-        #varYname = ""
-        #varnames = []
+        # At first set all syst values to '-' for all processes
+        for proc in self.processes :
+            systLine[proc] = "- "
+
+        # Read config files to parse the syst and their values
         for ifile in range(len(self.theInput)):
-            print "reading systematics"
             section = ""
             outputLine = ""
             activeProc = []
             activeVal = []
-            for chan in self.channels :
-                systLine[chan] = "- "
+
+            # Set all syst values to '-' for all processes
+            # (for safety and in case of multiple syst files)
+            for proc in self.processes :
+                systLine[proc] = "- "
+
+            # Actually parse the file line by line
             for line in open(self.theInput[ifile],'r'):
                 f = line.split()
-                #print f
+                #print ' Line: ', f
+
+                # Skip empty lines
                 if len(f) < 1: continue
+
+                # Skip commented lines
                 if f[0].startswith("#"): continue
 
+                # If new section (i.e. new systematic) start parsing
                 if f[0].startswith('['):
                     f = re.split('\W+',line)
                     section = f[1]
-                    newSection = True
 
-                    #print "before ",outputLine
+                    # If outputLine is filled already ('sysName sysType') add correct
+                    # values for each process and add outputLine to OutputLines.
+                    # Also add to activeProcesses the processes from this section (i.e. this syst)
+                    #print " Before outputLine: ", outputLine
                     if outputLine is not "" :
-                        #OutputLines.append(outputLine)
-                        for chan in self.channels :
-                            outputLine += systLine[chan]
-                            systLine[chan] = "- "
-
+                        for proc in self.processes :
+                            outputLine += systLine[proc]
+                            systLine[proc] = "- "
                         OutputLines.append(outputLine)
-                        if self.printResult : print outputLine
-                        outputLine = ""
                         self.SystProcesses.append(activeProc)
                         self.SystValues.append(activeVal)
+                        #if self.printResult : print " ", outputLine
+
+                        # Restore outputLine and activeProcvesses before going to next section
+                        outputLine = ""
                         activeProc = []
                         activeVal = []
 
-                    if self.printResult : print "writing syst for ", section
+                    # If outputLine is empty (at the beginning or after every section) parse the next line
+                    if self.printResult : print " Writing syst for ", section
                     self.SystNames.append(section)
                     continue
-                
+
+                # Else (not new section) start filling the outputLine with 'sysName sysType'...
                 if f[0] == "type":
-                    #print "TYPE: ",f
+                    #print " TYPE: ", f
                     outputLine+=section+" "+f[2]+" "
                     self.SystTypes.append(f[2])
                     continue
+
                 elif f[0] == "param":
                     outputLine=section+" "+line
                     continue
-                for chan in self.channels:
-                    #print "SYST: ",f
-                    if chan == f[0]: 
-                        systLine[chan] = " "+f[2]+" "
+
+                # ... and parse the values of this syst for each process
+                #print " SYST: ", f
+                for proc in self.processes:
+                    if proc == f[0]:
+                        systLine[proc] = " "+f[2]+" "
                         activeProc.append(f[0])
                         activeVal.append(f[2])
-            #indent qui
-            for chan in self.channels :
+
+            # The last systematic parsed needs to be dumped in the outputLine
+            # after the loop on all lines and it's also added to the OutputLines.
+            # Also add to activeProcesses the processes from this last systematic parsed
+            for proc in self.processes :
                 if not "param" in outputLine: 
-                    outputLine += systLine[chan]
+                    outputLine += systLine[proc]
             OutputLines.append(outputLine)
-            if self.printResult : print outputLine
             self.SystProcesses.append(activeProc)
             self.SystValues.append(activeVal)
-        if self.printResult : 
+            #if self.printResult : print " ", outputLine
+
+        if self.printResult:
+            print " Parsed systematics:"
             for line in OutputLines:
-                print outputLine
+                print " ", line
+
         if self.writeOut:
             for line in OutputLines:
                 self.theOutputFile.write(line+"\n")
 
-    def writeOneLine(self,channel,string,value=1):
+    def writeOneLine(self,process,string,value=1):
         outputLine = string
-        #print "channels:", channel
-        for chan in self.channels :
-            #print chan
-            if (chan in channel) or ("bkg_"+chan in channel) :
+        #print " processes:", process
+        for proc in self.processes :
+            #print " ", proc
+            if (proc in process) or ("bkg_"+proc in process) :
                 outputLine += str(value)+" "
             else:
                 outputLine += "- "
