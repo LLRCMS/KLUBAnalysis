@@ -39,7 +39,7 @@ cd ttSF
 python prepare_histos.py -f ../ttCRlimits_${Y}inclusive/analyzedOutPlotter.root -o CR -c 'inclusive' -y ${Y}
 mv -v analyzedOutPlotter_${Y}_inclusive_CR.root ../ttCRlimits_${Y}inclusive/
 
-python write_cards_ttCRstudy.py --filename ../ttCRlimits_${Y}inclusive/analyzedOutPlotter_${Y}_inclusive_CR.root --dir '' --channel 'inclusive' --year ${Y} --selection ttCR_invMcut --binbybin 1 --shape 0 --theory --config ../ttCRlimits_${Y}inclusive/main*.cfg --dynamQCD 0
+python write_cards_ttCR.py --filename ../ttCRlimits_${Y}inclusive/analyzedOutPlotter_${Y}_inclusive_CR.root --dir '' --channel 'inclusive' --year ${Y} --selection ttCR_invMcut --binbybin 1 --shape 0 --theory --config ../ttCRlimits_${Y}inclusive/main*.cfg --dynamQCD 0
 
 cd cards_inclusive
 combineCards.py ttCR_invMcutDNNoutSM_kl_1/hh_*.txt >> comb.txt

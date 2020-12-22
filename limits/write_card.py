@@ -37,18 +37,42 @@ def parseOptions():
 
 def  writeCard(backgrounds,signals,select,region=-1) :
 
-    if   "0b0j"       in select : theCat = "0"
-    elif "1b1j"       in select : theCat = "1"
-    elif "2b0j"       in select : theCat = "2"
-    elif "boosted"    in select : theCat = "3"
-    elif "GGFclass"   in select : theCat = "4"
-    elif "VBFclass"   in select : theCat = "5"
-    elif "ttHclass"   in select : theCat = "6"
-    elif "TTlepclass" in select : theCat = "7"
-    elif "TThadclass" in select : theCat = "8"
-    elif "DYclass"    in select : theCat = "9"
-    elif "VBFloose"   in select : theCat = "10"
-    elif "TTclass"    in select : theCat = "11"
+    if   "0b0j"       in select:
+        theCat = "0"
+        theCatName = "base"
+    elif "1b1j"       in select:
+        theCat = "1"
+        theCatName = "res1b"
+    elif "2b0j"       in select:
+        theCat = "2"
+        theCatName = "res2b"
+    elif "boosted"    in select:
+        theCat = "3"
+        theCatName = "boosted"
+    elif "GGFclass"   in select:
+        theCat = "4"
+        theCatName = "classGGF"
+    elif "VBFclass"   in select:
+        theCat = "5"
+        theCatName = "classVBF"
+    elif "ttHclass"   in select:
+        theCat = "6"
+        theCatName = "classttH"
+    elif "TTlepclass" in select:
+        theCat = "7"
+        theCatName = "classTTlep"
+    elif "TThadclass" in select:
+        theCat = "8"
+        theCatName = "classTThad"
+    elif "DYclass"    in select:
+        theCat = "9"
+        theCatName = "classDY"
+    elif "VBFloose"   in select:
+        theCat = "10"
+        theCatName = "VBFincl"
+    elif "TTclass"    in select:
+        theCat = "11"
+        theCatName = "classTT"
 
     variable = {
         "0"  : "DNNoutSM_kl_1",
@@ -75,8 +99,17 @@ def  writeCard(backgrounds,signals,select,region=-1) :
     regionSuffix = ["SR","SStight","OSinviso","SSinviso"]
     status, output = commands.getstatusoutput(cmd)
     thechannel = "2"
-    if opt.channel == "ETau" : thechannel="1"
-    elif opt.channel == "MuTau" : thechannel = "0"
+    thechannelName = "tauTau"
+    if opt.channel == "ETau":
+        thechannel="1"
+        thechannelName = "eTau"
+    elif opt.channel == "MuTau":
+        thechannel = "0"
+        thechannelName = "muTau"
+
+    # Name used both for the combine "bins" and for the datacard files:
+    # {category}_{channel}_{year}
+    selectName = theCatName+"_"+thechannelName+"_"+opt.year
 
     #read config
     categories = []
@@ -414,7 +447,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
 
         ########################
 
-        outFile = "hh_{0}_{1}_C{2}_13TeV.txt".format(opt.year,thechannel,theCat)
+        #outFile = "hh_{0}_{1}_C{2}_13TeV.txt".format(opt.year,thechannel,theCat)
+        outFile = "hh_{0}_13TeV.txt".format(selectName)
 
         file = open(out_dir+outFile, "wb")
 
@@ -423,9 +457,10 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         file.write    ('kmax *  number of nuisance parameters\n')
         file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
         ## shapes
-        file.write    ('shapes * %s %s $PROCESS $PROCESS_$SYSTEMATIC\n'%(select, "hh_{0}_{1}_C{2}_13TeV.input.root".format(opt.year,thechannel,theCat)))
+        #file.write    ('shapes * %s %s $PROCESS $PROCESS_$SYSTEMATIC\n'%(select, "hh_{0}_{1}_C{2}_13TeV.input.root".format(opt.year,thechannel,theCat)))
+        file.write    ('shapes * %s %s $PROCESS $PROCESS_$SYSTEMATIC\n'%(selectName, "hh_{0}_13TeV.input.root".format(selectName)))
         file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
-        file.write    ((col1+cols+'\n').format('bin', select)) ### blind for now
+        file.write    ((col1+cols+'\n').format('bin', selectName)) ### blind for now
         ## observation
         file.write    ((col1+cols+'\n').format('observation', '-1')) ### blind for now
         file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
@@ -434,7 +469,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         file.write    ('# the second process line must have a positive number for backgrounds, and 0 or neg for signal\n')
         file.write    (col1.format('bin'))
         for i in range(0,len(backgrounds)+len(signals)):
-            file.write(cols.format(select))
+            file.write(cols.format(selectName))
         file.write    ("\n")
         file.write    (col1.format('process'))
         for proc in backgrounds:
@@ -461,13 +496,14 @@ def  writeCard(backgrounds,signals,select,region=-1) :
 
         file.write    ('theory group = BR_hbb BR_htautau QCDscale_ggHH pdf_ggHH m_top_unc_HH QCDscale_qqHH pdf_qqHH\n')
         if opt.dynamQCD:
-            file.write("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(select))
+            file.write("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(selectName))
 
         #if (opt.binbybin): file.write('\n* autoMCStats 10')
         if (opt.binbybin): file.write('\n* autoMCStats 1')
 
         file.close()
-        outroot = TFile.Open(out_dir+"hh_{0}_{1}_C{2}_13TeV.input.root".format(opt.year,thechannel,theCat),"RECREATE")
+        #outroot = TFile.Open(out_dir+"hh_{0}_{1}_C{2}_13TeV.input.root".format(opt.year,thechannel,theCat),"RECREATE")
+        outroot = TFile.Open(out_dir+"hh_{0}_13TeV.input.root".format(selectName),"RECREATE")
 
         for i, name in enumerate(nominalShapes_toSave):
             #print name
@@ -488,7 +524,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         outroot.Close()
 
     else :
-        outFile = "hh_{0}_{1}_C{2}_13TeV_{3}.txt".format(opt.year,thechannel,theCat,regionName[region])
+        #outFile = "hh_{0}_{1}_C{2}_13TeV_{3}.txt".format(opt.year,thechannel,theCat,regionName[region])
+        outFile = "hh_{0}_13TeV_{1}.txt".format(selectName,regionName[region])
 
         file = open( out_dir+outFile, "wb")
 
@@ -502,7 +539,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
 
         templateName = "data_obs_{1}_{3}_{2}".format(bkg,select,variable[theCat],regionSuffix[region])
         template = inRoot.Get(templateName)
-        file.write("bin {0} \n".format(select))
+        file.write("bin {0} \n".format(selectName))
         obs = template.GetEntries()
         file.write("observation {0} \n".format(obs))
 
@@ -510,7 +547,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
 
         file.write("bin ")
         for chan in backgrounds:
-            file.write("{0}\t ".format(select))
+            file.write("{0}\t ".format(selectName))
         file.write("\n")
 
         file.write("process ")
@@ -544,7 +581,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             file.write("{0:.4f}\t".format(rates[ichan]))
         file.write("\n")
         file.write("------------\n")
-        file.write("QCD_{0} rateParam  {1} QCD 1 \n".format(regionName[region],select))
+        file.write("QCD_{0} rateParam  {1} QCD 1 \n".format(regionName[region],selectName))
 
     return (out_dir+outFile)
 
@@ -573,8 +610,8 @@ backgrounds = input.readListOption("general::backgrounds")
 # protection against using too many signal samples (HHmodel will complain otherwise)
 if "GGHH_NLO_cHHH0_xs" in signals:
     signals.remove("GGHH_NLO_cHHH0_xs")
-if "VBFHH_CV_1_C2V_0_C3_1_xs" in signals:
-    signals.remove("VBFHH_CV_1_C2V_0_C3_1_xs")
+if "VBFHH_CV_0p5_C2V_1_C3_1_xs" in signals:
+    signals.remove("VBFHH_CV_0p5_C2V_1_C3_1_xs")
 
 ## replace what was merged
 if input.hasSection("merge"):

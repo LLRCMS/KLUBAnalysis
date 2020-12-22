@@ -31,8 +31,8 @@ do
 	cd ttSF
 	python prepare_histos.py -f ../ttCRlimits_${Y}inclusive/SR/${CH}/analyzedOutPlotter.root -o SR -c ${CH} -y ${Y}
 	mv -v analyzedOutPlotter_${Y}_${CH}_SR.root ../ttCRlimits_${Y}inclusive/SR/${CH}
-	python write_cards_ttCRstudy.py --filename ../ttCRlimits_${Y}inclusive/SR/${CH}/analyzedOutPlotter_${Y}_${CH}_SR.root --dir '' --channel ${CH} --year ${Y} --selection s2b0jresolvedMcut --binbybin 1 --shape 0 --theory --config ../ttCRlimits_${Y}inclusive/SR/${CH}/mainCfg_${CH}_Legacy${Y}.cfg 
-	python write_cards_ttCRstudy.py --filename ../ttCRlimits_${Y}inclusive/SR/${CH}/analyzedOutPlotter_${Y}_${CH}_SR.root --dir '' --channel ${CH} --year ${Y} --selection s1b1jresolvedMcut --binbybin 1 --shape 0 --theory --config ../ttCRlimits_${Y}inclusive/SR/${CH}/mainCfg_${CH}_Legacy${Y}.cfg 
+	python write_cards_ttCR.py --filename ../ttCRlimits_${Y}inclusive/SR/${CH}/analyzedOutPlotter_${Y}_${CH}_SR.root --dir '' --channel ${CH} --year ${Y} --selection s2b0jresolvedMcut --binbybin 1 --shape 0 --theory --config ../ttCRlimits_${Y}inclusive/SR/${CH}/mainCfg_${CH}_Legacy${Y}.cfg
+	python write_cards_ttCR.py --filename ../ttCRlimits_${Y}inclusive/SR/${CH}/analyzedOutPlotter_${Y}_${CH}_SR.root --dir '' --channel ${CH} --year ${Y} --selection s1b1jresolvedMcut --binbybin 1 --shape 0 --theory --config ../ttCRlimits_${Y}inclusive/SR/${CH}/mainCfg_${CH}_Legacy${Y}.cfg
 done
 
 mkdir cards_${Y}CR+SR
