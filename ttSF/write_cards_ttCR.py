@@ -109,11 +109,11 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             srate = template.Integral()
             rates.append(srate)
 
-        syst = systReader("../config/systematics_ttCR.cfg",signals,backgrounds,None)
+        syst = systReader("../config/systematics_"+opt.year+".cfg",signals,backgrounds,None)
         syst.writeOutput(False)
         syst.verbose(True)
+        #syst.addSystFile("../config/systematics_ttCR.cfg")
         if theCat != '4':
-            syst.addSystFile("../config/systematics_"+opt.year+".cfg")
             syst.addSystFile("../config/systematics_DY"+opt.year+".cfg")
             if opt.theory:
                 syst.addSystFile("../config/syst_th.cfg")
