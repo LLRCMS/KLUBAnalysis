@@ -3,6 +3,7 @@ import os
 import re
 import math
 import collections
+import ConfigParser
 from ROOT import *
 from array import array
 
@@ -19,6 +20,7 @@ class systReader:
         self.theOutputFile = outputFile
         self.writeOut = True
         self.printResult = True
+        self.theQCDdict = {}
 
         self.SystNames = []
         self.SystTypes = []
@@ -130,6 +132,67 @@ class systReader:
         if self.writeOut:
             for line in OutputLines:
                 self.theOutputFile.write(line+"\n")
+
+    def addQCDSystFile(self, theQCDFile):
+        if not os.path.exists(theQCDFile):
+            raise RuntimeError, "File {0} does not exist!!!".format(theQCDFile)
+
+        # Read from config and save in dictionary
+        config = ConfigParser.SafeConfigParser()
+        config.read(theQCDFile)
+
+        # Get sections and iterate over each
+        sections = config.sections()
+        for section in sections:
+            options = config.options(section)
+            temp_dict = {}
+            for option in options:
+                temp_dict[option] = config.get(section,option)
+            self.theQCDdict[section] = temp_dict
+
+    def writeQCDSystematics(self, theChan,theCat):
+        print "- Reading QCD systematics -"
+        outputLine = ""
+        OutputLines = []
+        activeProc = []
+        activeVal = []
+        systLine = {}
+
+        if len(self.theQCDdict) == 1:
+            raise RuntimeError, "Dictionary for QCD systematics is empty!!!"
+
+        sectionname = theChan+'_'+theCat
+        QCDuncs = self.theQCDdict[sectionname].keys()
+
+        for unc in QCDuncs:
+            f = re.split(':',self.theQCDdict[sectionname][unc])
+            systname = f[0]
+            systval = f[1]
+
+            outputLine = systname + " lnN "
+            for proc in self.processes:
+                if proc == "QCD":
+                    outputLine += " "+systval+" "
+                    activeProc.append("QCD")
+                    activeVal.append(systval)
+                else:
+                    outputLine += "- "
+
+            OutputLines.append(outputLine)
+            self.SystNames.append(systname)
+            self.SystTypes.append("lnN")
+            self.SystProcesses.append(activeProc)
+            self.SystValues.append(activeVal)
+
+            # Restore outputLine and activeProcvesses before going to next section
+            outputLine = ""
+            activeProc = []
+            activeVal = []
+
+        if self.printResult:
+            print " Parsed QCD systematics:"
+            for line in OutputLines:
+                print " ", line
 
     def writeOneLine(self,process,string,value=1):
         outputLine = string

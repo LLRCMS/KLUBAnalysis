@@ -155,7 +155,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
 
         syst = systReader("../config/systematics_"+opt.year+".cfg",signals,backgrounds,None)
         syst.writeOutput(False)
-        syst.verbose(True)
+        syst.verbose(False)
         syst.addSystFile("../config/systematics_DY"+opt.year+".cfg")
         if opt.theory:
             syst.addSystFile("../config/syst_th.cfg")
@@ -166,6 +166,12 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         elif(opt.channel == "ETau"):
             syst.addSystFile("../config/systematics_etau.cfg")
         syst.writeSystematics()
+
+        # Add QCD uncertainties
+        syst.addQCDSystFile("../config/systematics_QCD"+opt.year+".cfg")
+        syst.writeQCDSystematics(opt.channel,theCatName)
+
+        # Declare dictionary to be filled with systs
         proc_syst = {} # key = proc name; value = {systName: [systType, systVal]] } # too nested? \_(``)_/
         for proc in backgrounds: proc_syst[proc] = {}
         for proc in signals:     proc_syst[proc] = {}
@@ -179,13 +185,6 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         for isy in range(len(syst.SystNames)) :
             if "CMS_scale_t" in syst.SystNames[isy] or "CMS_scale_j" in syst.SystNames[isy]: continue
             for iproc in range(len(syst.SystProcesses[isy])) :
-                #if "/" in syst.SystValues[isy][iproc] :
-                #    f = syst.SystValues[isy][iproc].split("/")
-                #    systVal = (float(f[0]),float(f[1]))
-                #    if syst.SystNames[isy] == "HH_BR_Hbb":
-                #        import pdb; pdb.set_trace()
-                #else :
-                #systVal = float(syst.SystValues[isy][iproc])
                 systVal = syst.SystValues[isy][iproc]
                 print "adding Syst",systVal,syst.SystNames[isy],syst.SystTypes[isy],"to",syst.SystProcesses[isy][iproc]
                 proc_syst[syst.SystProcesses[isy][iproc]][syst.SystNames[isy]] = [syst.SystTypes[isy], systVal]
