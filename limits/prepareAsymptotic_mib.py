@@ -9,14 +9,15 @@ def parseOptions():
              + '%prog -h for help')
     parser = optparse.OptionParser(usage)
     
-    parser.add_option('-n'   , '--name' , dest='n'    , type='string', default=''   , help='name'        )
-    parser.add_option('-b'   , '--blind', dest='blind',                default=False, action='store_true')
-    parser.add_option('--ggF',            dest='ggF'  ,                default=False, action='store_true')
-    parser.add_option('--VBF',            dest='VBF'  ,                default=False, action='store_true')
-    parser.add_option('--kl' ,            dest='kl'   , type='string', default='1'                       )
-    parser.add_option('--kt' ,            dest='kt'   , type='string', default='1'                       )
-    parser.add_option('--CV' ,            dest='CV'   , type='string', default='1'                       )
-    parser.add_option('--C2V',            dest='C2V'  , type='string', default='1'                       )
+    parser.add_option('-n'    , '--name' , dest='n'    , type='string', default=''   , help='name'        )
+    parser.add_option('-b'    , '--blind', dest='blind',                default=False, action='store_true')
+    parser.add_option('--ggF' ,            dest='ggF'  ,                default=False, action='store_true')
+    parser.add_option('--VBF' ,            dest='VBF'  ,                default=False, action='store_true')
+    parser.add_option('--fast',            dest='fast' ,                default=False, action='store_true')
+    parser.add_option('--kl'  ,            dest='kl'   , type='string', default='1'                       )
+    parser.add_option('--kt'  ,            dest='kt'   , type='string', default='1'                       )
+    parser.add_option('--CV'  ,            dest='CV'   , type='string', default='1'                       )
+    parser.add_option('--C2V' ,            dest='C2V'  , type='string', default='1'                       )
  
     # store options and arguments as global variables
     global opt, args
@@ -74,13 +75,16 @@ if __name__ == "__main__":
         command = command + ",".join(set_parameters) + ","
 
     couplings = []
-
     if opt.kt:  couplings.append("kt="+opt.kt)
     if opt.kl:  couplings.append("kl="+opt.kl)
     if opt.CV:  couplings.append("CV="+opt.CV)
     if opt.C2V: couplings.append("C2V="+opt.C2V)
-
     command = command + ",".join(couplings)
+
+    # add options to make combine faster
+    if opt.fast:
+        command = command + " --cminDefaultMinimizerType Minuit2 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,0:1.0 "
+
     #scriptFile.write('%s -n %s_forLim &> out_Asym_%s.log \n' % (command, opt.n,opt.n))
     scriptFile.write('%s -n %s_forLim_noTH --freezeNuisanceGroups theory &> out_Asym_%s_noTH.log \n' % (command,opt.n,opt.n))
     scriptFile.write('echo "All done for job %s" \n'%opt.n)
