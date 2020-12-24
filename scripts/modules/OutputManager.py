@@ -260,7 +260,8 @@ class OutputManager:
 
                     # if var == 'MT2' and sel == 'defaultBtagLLNoIsoBBTTCut' : print ">> -- bkg - SHAPE: " , hname, hQCD.Integral()
     ## FIXME: how to treat systematics properly ? Do we need to do ann alternative QCD histo for every syst?
-    def makeQCD (self, SR, yieldSB, shapeSB, SBtoSRfactor, regionC, regionD, doFitIf='False', fitFunc='[0] + [1]*x', computeSBtoSR = True,QCDname='QCD', removeNegBins = True, doUpDown = False):
+    def makeQCD (self, SR, yieldSB, shapeSB, SBtoSRfactor, regionC, regionD, doFitIf='False', fitFunc='[0] + [1]*x', computeSBtoSR = True, QCDname = 'QCD',
+                 removeNegBins = True, doUpDown = False, boostSBtoSR = 1., classSBtoSR = 1.):
         
         print "... building QCD w/ name:", QCDname, ". SR:" , SR, " yieldSB:", yieldSB, " shapeSB:", shapeSB, " SBtoSRfactor:", SBtoSRfactor, " doUpDown:", doUpDown
         print "    >> recompute SBtoSR dynamically? "
@@ -336,7 +337,21 @@ class OutputManager:
                     ## now scale
                     qcdYield = hyieldQCD.Integral()
 
-                    if computeSBtoSR: SBtoSRfactor = self.makeQCD_SBtoSR(regionC, regionD, sel, var, syst, removeNegBins)
+                    # SBtoSR ratio computation is dynamic for res1b and res2b, while it's
+                    # hard-coded for boosted and VBF multicategories, for more details see:
+                    # https://indico.cern.ch/event/987490/contributions/4157106/attachments/2165647/3655229/201218_QCD_JLH_posMeeting.pdf
+                    if computeSBtoSR:
+                        # If category is boosted use boost B/D (no-bTag)
+                        if 'boost' in sel and boostSBtoSR != 1.:
+                            SBtoSRfactor = boostSBtoSR
+                            print "... static boosted C/D = ", boostSBtoSR
+                        # Else is one of the VBF multiclasses use B/D from VBf inclusive
+                        elif 'class' in sel and classSBtoSR != 1.:
+                            SBtoSRfactor = classSBtoSR
+                            print "... static VBF multiclass C/D = ", classSBtoSR
+                        # else (res1b/res2b) compute dynamically the QCD
+                        else:
+                            SBtoSRfactor = self.makeQCD_SBtoSR(regionC, regionD, sel, var, syst, removeNegBins)
 
                     # Check if original integral of shape histo (without removing negative bins) is <= 0
                     # if yes, return 0 --> no QCD contribution is present for this variable/selection
