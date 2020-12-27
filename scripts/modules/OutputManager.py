@@ -297,6 +297,16 @@ class OutputManager:
             for sel in self.sel_def:
                 for syst in allSysts:
 
+                    # If var already contains one of the shape systs (tauup, taudown, jetup...)
+                    # skip the syst from allSysts (otherwise it look for histograms with two systematics
+                    # like 'var_sel_SR_tauup_PUjetIDUp' which do not make sense)
+                    doubleSyst = False
+                    for doubleName in namesToBeRemoved:
+                        if doubleName in var:
+                            doubleSyst = True
+                            break
+                    if syst != '' and doubleSyst: continue
+
                     # for boosted category we use 'L' bTag WP
                     if 'boost' in sel:
                         if 'bTagSF' in syst:
