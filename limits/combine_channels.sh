@@ -20,5 +20,5 @@ done
 cd cards_CombChan_$tag
 rm comb.txt
 combineCards.py -S hh_*.txt >> comb.txt
-text2workspace.py comb.txt -P HHModel:HHdefault -o comb.root
+text2workspace.py comb.txt -P HHModelPinv:model_bbtautau -o comb.root
 cd -
