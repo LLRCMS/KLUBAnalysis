@@ -14,6 +14,7 @@ def parseOptions():
     parser.add_option('--ggF' ,            dest='ggF'  ,                default=False, action='store_true')
     parser.add_option('--VBF' ,            dest='VBF'  ,                default=False, action='store_true')
     parser.add_option('--fast',            dest='fast' ,                default=False, action='store_true')
+    parser.add_option('--frTH',            dest='frTH' ,                default=False, action='store_true')
     parser.add_option('--kl'  ,            dest='kl'   , type='string', default='1'                       )
     parser.add_option('--kt'  ,            dest='kt'   , type='string', default='1'                       )
     parser.add_option('--CV'  ,            dest='CV'   , type='string', default='1'                       )
@@ -85,8 +86,15 @@ if __name__ == "__main__":
     if opt.fast:
         command = command + " --cminDefaultMinimizerType Minuit2 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,0:1.0 "
 
+    # Freeze theory uncretainties group
+    theoryName = ""
+    if opt.frTH:
+        command = command + " --freezeNuisanceGroups theory "
+        theoryName = "_noTH"
+
     #scriptFile.write('%s -n %s_forLim &> out_Asym_%s.log \n' % (command, opt.n,opt.n))
-    scriptFile.write('%s -n %s_forLim_noTH --freezeNuisanceGroups theory &> out_Asym_%s_noTH.log \n' % (command,opt.n,opt.n))
+    #scriptFile.write('%s -n %s_forLim_noTH --freezeNuisanceGroups theory &> out_Asym_%s_noTH.log \n' % (command,opt.n,opt.n))
+    scriptFile.write('%s -n %s_forLim%s &> out_Asym_%s%s.log \n' % (command,opt.n,theoryName,opt.n,theoryName))
     scriptFile.write('echo "All done for job %s" \n'%opt.n)
     scriptFile.close()
     os.system('chmod u+rwx %s/runJob_Asym_%s.sh'%(jobsDir,opt.n))
