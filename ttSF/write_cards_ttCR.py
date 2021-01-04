@@ -109,14 +109,11 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             srate = template.Integral()
             rates.append(srate)
 
-        if theCat == '4':
-            syst = systReader("../config/systematics_ttCR.cfg",signals,backgrounds,None)
-            syst.writeOutput(False)
-            syst.verbose(True)
+        syst = systReader("../config/systematics_"+opt.year+".cfg",signals,backgrounds,None)
+        syst.writeOutput(False)
+        syst.verbose(True)
+        #syst.addSystFile("../config/systematics_ttCR.cfg")
         if theCat != '4':
-            syst = systReader("../config/systematics_"+opt.year+".cfg",signals,backgrounds,None)
-            syst.writeOutput(False)
-            syst.verbose(True)
             syst.addSystFile("../config/systematics_DY"+opt.year+".cfg")
             if opt.theory:
                 syst.addSystFile("../config/syst_th.cfg")
@@ -249,9 +246,9 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         if opt.dynamQCD:
             file.write("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(select))
 
-        if (opt.binbybin): file.write('* autoMCStats 10\n')
+        if (opt.binbybin): file.write('\n* autoMCStats 10')
 
-        file.write('rate_TT rateParam {0} TT 1.0 [0,2]\n'.format(select))
+        file.write('\nrate_TT rateParam {0} TT 1.0 [0,2]'.format(select))
 
         file.close()
         outroot = TFile.Open(out_dir+"hh_{0}_{1}_C{2}_13TeV.input.root".format(opt.year,thechannel,theCat),"RECREATE")
