@@ -2,7 +2,7 @@
 # and gives as output the comb.root file containing teh fitted ttSF from a CR+SR fit
 # 
 # If you have used the ttCR_inclusiveOutPlotter_creator.sh sccript on SR first, then you need 
-# to comment out everything up to the call of write_cards_ttCRstudy.py (not included)
+# to comment out everything up to the call of write_cards_ttCR.py (not included)
 #
 # To make this work we first have to:
 # 	1. crate the following folders: 
@@ -17,7 +17,7 @@
 # This will create the .root files that then have to be passed to the write_cards script 
 
 
-export Y="2017"
+export Y="2018"
 export CHANNELS="TauTau MuTau ETau"
 
 for CH in $CHANNELS
@@ -31,8 +31,8 @@ do
 	cd ttSF
 	python prepare_histos.py -f ../ttCRlimits_${Y}inclusive/SR/${CH}/analyzedOutPlotter.root -o SR -c ${CH} -y ${Y}
 	mv -v analyzedOutPlotter_${Y}_${CH}_SR.root ../ttCRlimits_${Y}inclusive/SR/${CH}
-	python write_cards_ttCR.py --filename ../ttCRlimits_${Y}inclusive/SR/${CH}/analyzedOutPlotter_${Y}_${CH}_SR.root --dir '' --channel ${CH} --year ${Y} --selection s2b0jresolvedMcut --binbybin 1 --shape 0 --theory --config ../ttCRlimits_${Y}inclusive/SR/${CH}/mainCfg_${CH}_Legacy${Y}.cfg
-	python write_cards_ttCR.py --filename ../ttCRlimits_${Y}inclusive/SR/${CH}/analyzedOutPlotter_${Y}_${CH}_SR.root --dir '' --channel ${CH} --year ${Y} --selection s1b1jresolvedMcut --binbybin 1 --shape 0 --theory --config ../ttCRlimits_${Y}inclusive/SR/${CH}/mainCfg_${CH}_Legacy${Y}.cfg
+	python write_cards_ttCR.py --filename ../ttCRlimits_${Y}inclusive/SR/${CH}/analyzedOutPlotter_${Y}_${CH}_SR.root --dir '' --channel ${CH} --year ${Y} --selection s2b0jresolvedMcut --binbybin 1 --shape 0 --theory --config ../ttCRlimits_${Y}inclusive/SR/${CH}/mainCfg_${CH}_Legacy${Y}.cfg 
+	python write_cards_ttCR.py --filename ../ttCRlimits_${Y}inclusive/SR/${CH}/analyzedOutPlotter_${Y}_${CH}_SR.root --dir '' --channel ${CH} --year ${Y} --selection s1b1jresolvedMcut --binbybin 1 --shape 0 --theory --config ../ttCRlimits_${Y}inclusive/SR/${CH}/mainCfg_${CH}_Legacy${Y}.cfg 
 done
 
 mkdir cards_${Y}CR+SR
@@ -51,7 +51,7 @@ combineCards.py hh_*.txt >> SR2b0j.txt
 cd ../s1b1jresolvedMcutDNNoutSM_kl_1
 combineCards.py hh_*.txt >> SR1b1j.txt
 cd .. # return to cards_${Y}CR+SR
-cp -vR ../../ttCRlimits_${Y}inclusive/cards_CR20bin/ttCR_invMcutDNNoutSM_kl_1 .  # HERE PUT THE CORRECT PATH TO THE CR DATACARDS PREVIOUSLY CREATED WITH CRlimits.sh WHEN DOING THE CR ONLY FIT
+cp -vR ../../ttCRlimits_${Y}inclusive/cards_CR1bin/ttCR_invMcutDNNoutSM_kl_1 .  # HERE PUT THE CORRECT PATH TO THE CR DATACARDS PREVIOUSLY CREATED WITH CRlimits.sh WHEN DOING THE CR ONLY FIT
 cd ttCR_invMcutDNNoutSM_kl_1
 combineCards.py hh_*.txt >> CR.txt
 cd .. # return to cards_${Y}CR+SR
