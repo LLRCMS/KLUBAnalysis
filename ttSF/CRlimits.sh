@@ -16,7 +16,7 @@
 # This will create the .root files that then have to be passed to the write_cards script 
 
 
-export Y="2018"
+export Y="2017"
 export CHANNELS="TauTau MuTau ETau"
 
 
