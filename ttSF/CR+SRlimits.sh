@@ -2,7 +2,7 @@
 # and gives as output the comb.root file containing teh fitted ttSF from a CR+SR fit
 # 
 # If you have used the ttCR_inclusiveOutPlotter_creator.sh sccript on SR first, then you need 
-# to comment out everything up to the call of write_cards_ttCRstudy.py (not included)
+# to comment out everything up to the call of write_cards_ttCR.py (not included)
 #
 # To make this work we first have to:
 # 	1. crate the following folders: 
