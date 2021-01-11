@@ -2,7 +2,7 @@
 # and gives as output the comb.root file containing teh fitted ttSF from a CR only fit
 # 
 # If you have used the ttCR_inclusiveOutPlotter_creator.sh sccript on CR first, then you need 
-# to comment out everything up to the call of write_cards_ttCRstudy.py (not included)
+# to comment out everything up to the call of write_cards_ttCR.py (not included)
 #
 # To make this work we first have to:
 # 	1. crate the following folders: 
@@ -23,19 +23,17 @@ export CHANNELS="TauTau MuTau ETau"
 for ch in $CHANNELS
 do 
 	cd ../ttCRlimits_${Y}inclusive/${ch}/
-	hadd outPlotter${ch}.root outPlotter_*.root 
+	hadd outPlotter.root outPlotter_*.root
 	rm outPlotter_*.root
+	python ../../scripts/combineFillerOutputs.py --dir ../../ttCRlimits_${Y}inclusive/${ch}/
 	cd -
 done 
 
 cd ../ttCRlimits_${Y}inclusive/
-hadd outPlotter.root ETau/outPlotterETau.root MuTau/outPlotterMuTau.root TauTau/outPlotterTauTau.root 
+hadd analyzedOutPlotter.root ETau/analyzedOutPlotter.root MuTau/analyzedOutPlotter.root TauTau/analyzedOutPlotter.root 
 cp TauTau/main*.cfg ./mainCfg_ttCR_Legacy${Y}.cfg
 
-cd ..
-python scripts/combineFillerOutputs.py --dir ttCRlimits_${Y}inclusive/
-
-cd ttSF
+cd ../ttSF
 python prepare_histos.py -f ../ttCRlimits_${Y}inclusive/analyzedOutPlotter.root -o CR -c 'inclusive' -y ${Y}
 mv -v analyzedOutPlotter_${Y}_inclusive_CR.root ../ttCRlimits_${Y}inclusive/
 
