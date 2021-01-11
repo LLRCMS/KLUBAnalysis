@@ -2774,7 +2774,23 @@ int main (int argc, char** argv)
           {
             idAndIsoSF_leg1_deep_vsJet_pt_up[bin]   = Deep_antiJet_medium_pt ->getSFvsPT(tau1pt, tau1Genmatch,   "Up");
             idAndIsoSF_leg1_deep_vsJet_pt_down[bin] = Deep_antiJet_medium_pt ->getSFvsPT(tau1pt, tau1Genmatch, "Down");
-          }
+
+	    //Additional uncertainty see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_to_be_applied_to_gen
+
+	    double error = fabs(idAndIsoSF_leg1_deep_vsJet_pt - idAndIsoSF_leg1_deep_vsJet_pt_up[bin]);
+	  
+	    if (tau1pt < 100)
+	    {
+	      idAndIsoSF_leg1_deep_vsJet_pt_up[bin]   = idAndIsoSF_leg1_deep_vsJet_pt*1.03 + error;
+	      idAndIsoSF_leg1_deep_vsJet_pt_down[bin] = idAndIsoSF_leg1_deep_vsJet_pt*0.97 - error;
+	    }
+
+	    else
+	    {
+	      idAndIsoSF_leg1_deep_vsJet_pt_up[bin]   = idAndIsoSF_leg1_deep_vsJet_pt*1.15 + error;
+	      idAndIsoSF_leg1_deep_vsJet_pt_down[bin] = idAndIsoSF_leg1_deep_vsJet_pt*0.85 - error;
+	    }
+	  }  
         }
 
         for (int bin = 0; bin < (int) isthisEta_IDbin_first.size(); bin++)
@@ -2810,7 +2826,23 @@ int main (int argc, char** argv)
           {
             idAndIsoSF_leg2_deep_vsJet_pt_up[bin]   = Deep_antiJet_medium_pt ->getSFvsPT(tau2pt, tau2Genmatch,   "Up");
             idAndIsoSF_leg2_deep_vsJet_pt_down[bin] = Deep_antiJet_medium_pt ->getSFvsPT(tau2pt, tau2Genmatch, "Down");
-          }
+	    
+	    //Additional uncertainty see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_to_be_applied_to_gen
+
+	    double error = fabs(idAndIsoSF_leg2_deep_vsJet_pt - idAndIsoSF_leg2_deep_vsJet_pt_up[bin]);
+
+	    if (tau2pt < 100)
+	    {
+	      idAndIsoSF_leg2_deep_vsJet_pt_up[bin]   = idAndIsoSF_leg2_deep_vsJet_pt*1.03 + error;
+	      idAndIsoSF_leg2_deep_vsJet_pt_down[bin] = idAndIsoSF_leg2_deep_vsJet_pt*0.97 - error;
+	    }
+
+	    else
+	    {
+	      idAndIsoSF_leg2_deep_vsJet_pt_up[bin]   = idAndIsoSF_leg2_deep_vsJet_pt*1.15 + error;
+	      idAndIsoSF_leg2_deep_vsJet_pt_down[bin] = idAndIsoSF_leg2_deep_vsJet_pt*0.85 - error;
+	    }
+	  }  
         }
 
         for (int bin = 0; bin < (int) isthisEta_IDbin_second.size(); bin++)
