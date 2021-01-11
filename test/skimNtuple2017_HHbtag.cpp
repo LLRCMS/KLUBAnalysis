@@ -2777,18 +2777,19 @@ int main (int argc, char** argv)
 
             //Additional uncertainty see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_to_be_applied_to_gen
 
-            double error = fabs(idAndIsoSF_leg1_deep_vsJet_pt - idAndIsoSF_leg1_deep_vsJet_pt_up[bin]);
+            double error_up   = fabs(idAndIsoSF_leg1_deep_vsJet_pt - idAndIsoSF_leg1_deep_vsJet_pt_up[bin]);
+            double error_down = fabs(idAndIsoSF_leg1_deep_vsJet_pt - idAndIsoSF_leg1_deep_vsJet_pt_down[bin]);
 	  
             if (tau1pt < 100)
             {
-              idAndIsoSF_leg1_deep_vsJet_pt_up[bin]   = idAndIsoSF_leg1_deep_vsJet_pt*1.03 + error;
-              idAndIsoSF_leg1_deep_vsJet_pt_down[bin] = idAndIsoSF_leg1_deep_vsJet_pt*0.97 - error;
+              idAndIsoSF_leg1_deep_vsJet_pt_up[bin]   = idAndIsoSF_leg1_deep_vsJet_pt*1.03 + error_up;
+              idAndIsoSF_leg1_deep_vsJet_pt_down[bin] = idAndIsoSF_leg1_deep_vsJet_pt*0.97 - error_down;
             }
 
             else
             {
-              idAndIsoSF_leg1_deep_vsJet_pt_up[bin]   = idAndIsoSF_leg1_deep_vsJet_pt*1.15 + error;
-              idAndIsoSF_leg1_deep_vsJet_pt_down[bin] = idAndIsoSF_leg1_deep_vsJet_pt*0.85 - error;
+              idAndIsoSF_leg1_deep_vsJet_pt_up[bin]   = idAndIsoSF_leg1_deep_vsJet_pt*1.15 + error_up;
+              idAndIsoSF_leg1_deep_vsJet_pt_down[bin] = idAndIsoSF_leg1_deep_vsJet_pt*0.85 - error_down;
             }
           }  
         }
@@ -2829,18 +2830,19 @@ int main (int argc, char** argv)
 	    
             //Additional uncertainty see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_to_be_applied_to_gen
 
-            double error = fabs(idAndIsoSF_leg2_deep_vsJet_pt - idAndIsoSF_leg2_deep_vsJet_pt_up[bin]);
+            double error_up   = fabs(idAndIsoSF_leg2_deep_vsJet_pt - idAndIsoSF_leg2_deep_vsJet_pt_up[bin]);
+            double error_down = fabs(idAndIsoSF_leg2_deep_vsJet_pt - idAndIsoSF_leg2_deep_vsJet_pt_down[bin]);
 
             if (tau2pt < 100)
             {
-              idAndIsoSF_leg2_deep_vsJet_pt_up[bin]   = idAndIsoSF_leg2_deep_vsJet_pt*1.03 + error;
-              idAndIsoSF_leg2_deep_vsJet_pt_down[bin] = idAndIsoSF_leg2_deep_vsJet_pt*0.97 - error;
+              idAndIsoSF_leg2_deep_vsJet_pt_up[bin]   = idAndIsoSF_leg2_deep_vsJet_pt*1.03 + error_up;
+              idAndIsoSF_leg2_deep_vsJet_pt_down[bin] = idAndIsoSF_leg2_deep_vsJet_pt*0.97 - error_down;
             }
 
             else
             {
-              idAndIsoSF_leg2_deep_vsJet_pt_up[bin]   = idAndIsoSF_leg2_deep_vsJet_pt*1.15 + error;
-              idAndIsoSF_leg2_deep_vsJet_pt_down[bin] = idAndIsoSF_leg2_deep_vsJet_pt*0.85 - error;
+              idAndIsoSF_leg2_deep_vsJet_pt_up[bin]   = idAndIsoSF_leg2_deep_vsJet_pt*1.15 + error_up;
+              idAndIsoSF_leg2_deep_vsJet_pt_down[bin] = idAndIsoSF_leg2_deep_vsJet_pt*0.85 - error_down;
             }
           }  
         }
