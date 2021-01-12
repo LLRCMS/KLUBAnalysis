@@ -1,7 +1,3 @@
-var="DNNoutSM_kl_1"
-#selections="s1b1jresolvedMcut s2b0jresolvedMcut sboostedLLMcut GGFclass VBFclass ttHclass TTlepclass TThadclass DYclass"
-selections="s1b1jresolvedMcut s2b0jresolvedMcut sboostedLLMcut GGFclass VBFclass ttHclass TTclass DYclass"
-
 #tag="cards_TauTau2016_27Nov2020"
 #tag="cards_MuTau2016_27Nov2020"
 #tag="cards_ETau2016_27Nov2020"
@@ -19,5 +15,5 @@ pwd
 mkdir comb_cat
 rm comb_cat/comb_cat.txt
 combineCards.py -S */hh_*.txt >> comb_cat/comb.txt
-text2workspace.py comb_cat/comb.txt -P HHModel:HHdefault -o comb_cat/comb.root
+text2workspace.py comb_cat/comb.txt -P HHModelPinv:model_bbtautau -o comb_cat/comb.root
 cd -

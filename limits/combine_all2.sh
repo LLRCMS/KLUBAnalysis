@@ -22,5 +22,5 @@ cd cards_CombAll$tag
 rm comb.txt
 combineCards.py -S hh_*.txt >> comb.txt
 ulimit -s unlimited
-text2workspace.py comb.txt -P HHModel:HHdefault -o comb.root
+text2workspace.py comb.txt -P HHModelPinv:model_bbtautau -o comb.root
 cd -

@@ -155,37 +155,41 @@ def  writeCard(backgrounds,signals,select,region=-1) :
 
         syst = systReader("../config/systematics_"+opt.year+".cfg",signals,backgrounds,None)
         syst.writeOutput(False)
-        syst.verbose(True)
+        syst.verbose(False)
         syst.addSystFile("../config/systematics_DY"+opt.year+".cfg")
         if opt.theory:
             syst.addSystFile("../config/syst_th.cfg")
-        if(opt.channel == "TauTau"):
-            syst.addSystFile("../config/systematics_tautau.cfg")
-        elif(opt.channel == "MuTau"):
+        #if(opt.channel == "TauTau"):
+        #    syst.addSystFile("../config/systematics_tautau.cfg")
+        if(opt.channel == "MuTau"):
             syst.addSystFile("../config/systematics_mutau.cfg")
         elif(opt.channel == "ETau"):
             syst.addSystFile("../config/systematics_etau.cfg")
         syst.writeSystematics()
+
+        # Add QCD uncertainties
+        syst.addQCDSystFile("../config/systematics_QCD"+opt.year+".cfg")
+        syst.writeQCDSystematics(opt.channel,theCatName)
+
+        # Declare dictionary to be filled with systs
         proc_syst = {} # key = proc name; value = {systName: [systType, systVal]] } # too nested? \_(``)_/
         for proc in backgrounds: proc_syst[proc] = {}
         for proc in signals:     proc_syst[proc] = {}
 
-        systsShape =["CMS_scale_t_13TeV_"+opt.year+"_DM0","CMS_scale_t_13TeV_"+opt.year+"_DM1","CMS_scale_t_13TeV_"+opt.year+"_DM10","CMS_scale_t_13TeV_"+opt.year+"_DM11", "CMS_scale_es_13TeV_"+opt.year+"_DM0", "CMS_scale_es_13TeV_"+opt.year+"_DM1", "CMS_scale_mes_13TeV_"+opt.year+"", "CMS_scale_j_13TeV_"+opt.year+""]
+        systsShape = ["CMS_scale_t_13TeV_"+opt.year+"_DM0","CMS_scale_t_13TeV_"+opt.year+"_DM1","CMS_scale_t_13TeV_"+opt.year+"_DM10","CMS_scale_t_13TeV_"+opt.year+"_DM11",
+                      "CMS_scale_es_13TeV_"+opt.year+"_DM0", "CMS_scale_es_13TeV_"+opt.year+"_DM1", "CMS_scale_mes_13TeV_"+opt.year,
+                      "CMS_JES_FlavQCD", "CMS_JES_RelBal", "CMS_JES_HF", "CMS_JES_BBEC1", "CMS_JES_EC2", "CMS_JES_Abs", "CMS_JES_BBEC1_"+opt.year, "CMS_JES_EC2_"+opt.year,
+                      "CMS_JES_Abs_"+opt.year, "CMS_JES_HF_"+opt.year, "CMS_JES_RelSample_"+opt.year]
+                      #"CMS_scale_j_13TeV_"+opt.year+""]
+
         # If running without the TES/EES/JES... uncomment the following line:
-        systsShape = []
+        #systsShape = []
 
         systsNorm  = []  # <-- THIS WILL BE FILLED FROM CONFIGS
 
         for isy in range(len(syst.SystNames)) :
             if "CMS_scale_t" in syst.SystNames[isy] or "CMS_scale_j" in syst.SystNames[isy]: continue
             for iproc in range(len(syst.SystProcesses[isy])) :
-                #if "/" in syst.SystValues[isy][iproc] :
-                #    f = syst.SystValues[isy][iproc].split("/")
-                #    systVal = (float(f[0]),float(f[1]))
-                #    if syst.SystNames[isy] == "HH_BR_Hbb":
-                #        import pdb; pdb.set_trace()
-                #else :
-                #systVal = float(syst.SystValues[isy][iproc])
                 systVal = syst.SystValues[isy][iproc]
                 print "adding Syst",systVal,syst.SystNames[isy],syst.SystTypes[isy],"to",syst.SystProcesses[isy][iproc]
                 proc_syst[syst.SystProcesses[isy][iproc]][syst.SystNames[isy]] = [syst.SystTypes[isy], systVal]
@@ -287,27 +291,27 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 shiftShapes_newName.append(proc+"_"+CMS_PUjetIDname+"Down")
 
             # Add bTag SF uncertainty - for WP scle factors
-            if "boosted" in select:
-                WPs = ["L"]
-            else:
-                WPs = ["M"]
-            for WPname in WPs:
-                CMS_bTagWPname = "CMS_bbtautau_"+opt.year+"_bTagSF" + WPname
-                bTagWPname = "bTagSF" + WPname
-                systsShape.append(CMS_bTagWPname)
-                for proc in backgrounds:
-                    if "QCD" in proc: continue
-                    proc_syst[proc][CMS_bTagWPname] = ["shape", 1.]   #applying trigger to all MC backgrounds
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
-                    shiftShapes_newName.append(proc+"_"+CMS_bTagWPname+"Up")
-                    shiftShapes_newName.append(proc+"_"+CMS_bTagWPname+"Down")
-                for proc in signals:
-                    proc_syst[proc][CMS_bTagWPname] = ["shape", 1.]   #applying trigger to all signals
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
-                    shiftShapes_newName.append(proc+"_"+CMS_bTagWPname+"Up")
-                    shiftShapes_newName.append(proc+"_"+CMS_bTagWPname+"Down")
+            #if "boosted" in select:
+            #    WPs = ["L"]
+            #else:
+            #    WPs = ["M"]
+            #for WPname in WPs:
+            #    CMS_bTagWPname = "CMS_bbtautau_"+opt.year+"_bTagSF" + WPname
+            #    bTagWPname = "bTagSF" + WPname
+            #    systsShape.append(CMS_bTagWPname)
+            #    for proc in backgrounds:
+            #        if "QCD" in proc: continue
+            #        proc_syst[proc][CMS_bTagWPname] = ["shape", 1.]   #applying trigger to all MC backgrounds
+            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
+            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
+            #        shiftShapes_newName.append(proc+"_"+CMS_bTagWPname+"Up")
+            #        shiftShapes_newName.append(proc+"_"+CMS_bTagWPname+"Down")
+            #    for proc in signals:
+            #        proc_syst[proc][CMS_bTagWPname] = ["shape", 1.]   #applying trigger to all signals
+            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
+            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagWPname))
+            #        shiftShapes_newName.append(proc+"_"+CMS_bTagWPname+"Up")
+            #        shiftShapes_newName.append(proc+"_"+CMS_bTagWPname+"Down")
 
             # Add bTagReshape uncertainties --> NOT USED
             #bTagSysts = ["JES", "LF","HF","HFSTATS1","HFSTATS2","LFSTATS1","LFSTATS2","CFERR1","CFERR2"]
@@ -494,7 +498,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             file.write(line)
         file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
 
-        file.write    ('theory group = BR_hbb BR_htautau QCDscale_ggHH pdf_ggHH m_top_unc_HH QCDscale_qqHH pdf_qqHH\n')
+        #file.write    ('theory group = BR_hbb BR_htautau QCDscale_ggHH pdf_ggHH m_top_unc_HH QCDscale_qqHH pdf_qqHH\n')
+        file.write    ('theory group = BR_hbb BR_htautau pdf_ggHH m_top_unc_HH QCDscale_qqHH pdf_qqHH\n')
         if opt.dynamQCD:
             file.write("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(selectName))
 

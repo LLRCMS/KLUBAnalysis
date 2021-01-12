@@ -287,35 +287,39 @@ if cfg.hasSection('bTagRfactor'):
     
 if cfg.hasSection('pp_QCD'):
     SBtoSRforQCD =float(cfg.readOption('pp_QCD::SBtoSRfactor'))
+    SBtoSRforQCDboost = float(cfg.readOption('pp_QCD::boostSBtoSR')) if cfg.hasOption('pp_QCD::boostSBtoSR') else 1.
+    SBtoSRforQCDclass = float(cfg.readOption('pp_QCD::classSBtoSR')) if cfg.hasOption('pp_QCD::classSBtoSR') else 1.
     doUpDownQCD = eval(cfg.readOption('pp_QCD::doUnc')) if cfg.hasOption('pp_QCD::doUnc') else False
     computeSBtoSRdyn = False
     if SBtoSRforQCD == 1 and not args.SBtoSR: 
         computeSBtoSRdyn = True
     if args.SBtoSR: SBtoSRforQCD = args.SBtoSR
     omngr.makeQCD(
-        SR           = cfg.readOption('pp_QCD::SR'),
-        yieldSB      = cfg.readOption('pp_QCD::yieldSB'),
-        shapeSB      = cfg.readOption('pp_QCD::shapeSB'),
-        SBtoSRfactor = SBtoSRforQCD,
-        regionC      = cfg.readOption('pp_QCD::regionC'),   
-        regionD      = cfg.readOption('pp_QCD::regionD'),   
-        doFitIf      = cfg.readOption('pp_QCD::doFitIf'),
-        fitFunc      = cfg.readOption('pp_QCD::fitFunc'),
-        computeSBtoSR = computeSBtoSRdyn
+        SR            = cfg.readOption('pp_QCD::SR'),
+        yieldSB       = cfg.readOption('pp_QCD::yieldSB'),
+        shapeSB       = cfg.readOption('pp_QCD::shapeSB'),
+        SBtoSRfactor  = SBtoSRforQCD,
+        regionC       = cfg.readOption('pp_QCD::regionC'),
+        regionD       = cfg.readOption('pp_QCD::regionD'),
+        doFitIf       = cfg.readOption('pp_QCD::doFitIf'),
+        fitFunc       = cfg.readOption('pp_QCD::fitFunc'),
+        computeSBtoSR = computeSBtoSRdyn,
+        boostSBtoSR   = SBtoSRforQCDboost,
+        classSBtoSR   = SBtoSRforQCDclass
         )
     if doUpDownQCD:
         # Compute up/down variation of QCD by taking the shape
         # from SStight and the correction factor from OSinviso/SSinviso
         print "--- Computing Up/Down variation of QCD ---"
         omngr.makeQCD(
-            SR           = cfg.readOption('pp_QCD::SR'),
-            yieldSB      = cfg.readOption('pp_QCD::regionC'), # SStight
-            shapeSB      = cfg.readOption('pp_QCD::regionC'), # SStight
-            SBtoSRfactor = SBtoSRforQCD,
-            regionC      = cfg.readOption('pp_QCD::yieldSB'), # OSinviso
-            regionD      = cfg.readOption('pp_QCD::regionD'), # SSinviso
-            doFitIf      = cfg.readOption('pp_QCD::doFitIf'),
-            fitFunc      = cfg.readOption('pp_QCD::fitFunc'),
+            SR            = cfg.readOption('pp_QCD::SR'),
+            yieldSB       = cfg.readOption('pp_QCD::regionC'), # SStight
+            shapeSB       = cfg.readOption('pp_QCD::regionC'), # SStight
+            SBtoSRfactor  = SBtoSRforQCD,
+            regionC       = cfg.readOption('pp_QCD::yieldSB'), # OSinviso
+            regionD       = cfg.readOption('pp_QCD::regionD'), # SSinviso
+            doFitIf       = cfg.readOption('pp_QCD::doFitIf'),
+            fitFunc       = cfg.readOption('pp_QCD::fitFunc'),
             computeSBtoSR = computeSBtoSRdyn,
             doUpDown      = doUpDownQCD
             )
