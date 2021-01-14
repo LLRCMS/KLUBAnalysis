@@ -340,13 +340,14 @@ std::vector<float> bTagSF::getEvtWeightShifted (std::vector <std::pair <int, flo
 
         // Build jet quantities
         int idx = jets_and_btag.at(ijet).first;
+        float discr = jets_and_btag.at(ijet).second;
         vJet.SetPxPyPzE (jets_px->at(idx), jets_py->at(idx), jets_pz->at(idx), jets_e->at(idx));
         int flav = jets_HadronFlavour->at(idx);
 
         // Loop on systematics
         for (unsigned int iname = 0; iname < systNames.size(); iname++)
         {
-            SFs.at(iname) *= getSFshifted(systNames.at(iname), flav, vJet.Pt(), vJet.Eta());
+            SFs.at(iname) *= getSFshifted(systNames.at(iname), flav, vJet.Pt(), vJet.Eta(), discr);
         }
     }
 
