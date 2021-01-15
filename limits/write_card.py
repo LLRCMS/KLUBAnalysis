@@ -313,25 +313,25 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             #        shiftShapes_newName.append(proc+"_"+CMS_bTagWPname+"Up")
             #        shiftShapes_newName.append(proc+"_"+CMS_bTagWPname+"Down")
 
-            # Add bTagReshape uncertainties --> NOT USED
-            #bTagSysts = ["JES", "LF","HF","HFSTATS1","HFSTATS2","LFSTATS1","LFSTATS2","CFERR1","CFERR2"]
-            #for bTagSyst in bTagSysts:
-            #    CMS_bTagSystName = "CMS_bbtautau_bTagweightReshape" + bTagSyst
-            #    bTagSystName = "bTagweightReshape" + bTagSyst
-            #    systsShape.append(CMS_bTagSystName)
-            #    for proc in backgrounds:
-            #        if opt.dynamQCD and "QCD" in proc: continue
-            #        proc_syst[proc][CMS_bTagSystName] = ["shape", 1.]   #applying trigger to all MC backgrounds
-            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
-            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
-            #        shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Up")
-            #        shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Down")
-            #    for proc in signals:
-            #        proc_syst[proc][CMS_bTagSystName] = ["shape", 1.]   #applying trigger to all signals
-            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
-            #        shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
-            #        shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Up")
-            #        shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Down")
+            # Add bTagReshape uncertainties
+            bTagSysts = ["LF","HF","HFSTATS1","HFSTATS2","LFSTATS1","LFSTATS2","CFERR1","CFERR2"]
+            for bTagSyst in bTagSysts:
+                CMS_bTagSystName = "CMS_bbtautau_bTagweightReshape" + bTagSyst
+                bTagSystName = "bTagweightReshape" + bTagSyst
+                systsShape.append(CMS_bTagSystName)
+                for proc in backgrounds:
+                    if opt.dynamQCD and "QCD" in proc: continue
+                    proc_syst[proc][CMS_bTagSystName] = ["shape", 1.]   #applying trigger to all MC backgrounds
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Up")
+                    shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Down")
+                for proc in signals:
+                    proc_syst[proc][CMS_bTagSystName] = ["shape", 1.]   #applying trigger to all signals
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Up")
+                    shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Down")
 
             # Add tau trigger uncertainties (4 unc. depending on DM for tau legs + 2 unc. for ele and mu legs)
             # For TauTau channel in 2017 and 2018 add also the the VBF trigger of jet legs
