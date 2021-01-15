@@ -1928,34 +1928,36 @@ int main (int argc, char** argv)
         // 8 - HLT_IsoMu19_eta2p1_LooseIsoPFTau20_SingleL1_v
 
         // MuTau
-        if (pairType == 0 && isMC)
-        {
-          if ( CheckBit(pass_triggerbit,7) || CheckBit(pass_triggerbit,8) )
-          {
-            theSmallTree.m_prescaleWeight = 1.; // no need for prescale for cross triggers
-          }
-          else if ( CheckBit(pass_triggerbit,2) || CheckBit(pass_triggerbit,3) )
-          {
-            theSmallTree.m_prescaleWeight = 0.923782353; // passes (HLT_IsoMu22_eta2p1_v OR HLT_IsoTkMu22_eta2p1_v)
-          }
-          else if ( CheckBit(pass_triggerbit,0) || CheckBit(pass_triggerbit,1) )
-          {
-            theSmallTree.m_prescaleWeight = 0.795221971; // passes only (HLT_IsoMu22_v OR HLT_IsoTkMu22_v)
-          }
-        }
+        // Jan 2021: prescales commented as they are already included in the trigger SFs
+        //if (pairType == 0 && isMC)
+        //{
+        //  if ( CheckBit(pass_triggerbit,7) || CheckBit(pass_triggerbit,8) )
+        //  {
+        //    theSmallTree.m_prescaleWeight = 1.; // no need for prescale for cross triggers
+        //  }
+        //  else if ( CheckBit(pass_triggerbit,2) || CheckBit(pass_triggerbit,3) )
+        //  {
+        //    theSmallTree.m_prescaleWeight = 0.923782353; // passes (HLT_IsoMu22_eta2p1_v OR HLT_IsoTkMu22_eta2p1_v)
+        //  }
+        //  else if ( CheckBit(pass_triggerbit,0) || CheckBit(pass_triggerbit,1) )
+        //  {
+        //    theSmallTree.m_prescaleWeight = 0.795221971; // passes only (HLT_IsoMu22_v OR HLT_IsoTkMu22_v)
+        //  }
+        //}
 
         // MuMu
-        if (pairType == 3 && isMC)
-        {
-          if ( CheckBit(pass_triggerbit,2) || CheckBit(pass_triggerbit,3) )
-          {
-            theSmallTree.m_prescaleWeight = 0.923782353; // passes (HLT_IsoMu22_eta2p1_v OR HLT_IsoTkMu22_eta2p1_v)
-          }
-          else if ( CheckBit(pass_triggerbit,0) || CheckBit(pass_triggerbit,1) )
-          {
-            theSmallTree.m_prescaleWeight = 0.795221971; // passes only (HLT_IsoMu22_v OR HLT_IsoTkMu22_v)
-          }
-        }
+        // Jan 2021: prescales commented as they are already included in the trigger SFs
+        //if (pairType == 3 && isMC)
+        //{
+        //  if ( CheckBit(pass_triggerbit,2) || CheckBit(pass_triggerbit,3) )
+        //  {
+        //    theSmallTree.m_prescaleWeight = 0.923782353; // passes (HLT_IsoMu22_eta2p1_v OR HLT_IsoTkMu22_eta2p1_v)
+        //  }
+        //  else if ( CheckBit(pass_triggerbit,0) || CheckBit(pass_triggerbit,1) )
+        //  {
+        //    theSmallTree.m_prescaleWeight = 0.795221971; // passes only (HLT_IsoMu22_v OR HLT_IsoTkMu22_v)
+        //  }
+        //}
 
         if(DEBUG)
         {

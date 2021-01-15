@@ -1984,13 +1984,14 @@ int main (int argc, char** argv)
         // 8 - HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v
         // 9 - HLT_VBF_DoubleLooseChargedIsoPFTau20_Trk1_eta2p1_Reg_v
 
-        if (pairType == 0 && isMC){
-            if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1) && !CheckBit(pass_triggerbit,7)) theSmallTree.m_prescaleWeight =  0.91613901;
-        }
-        // MuMu: if it didn't also pass IsoMu27
-        if (pairType == 3 && isMC){
-            if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1)) theSmallTree.m_prescaleWeight =  0.91613901;
-        }
+        // Jan 2021: prescales commented as they are already included in the trigger SFs
+        //if (pairType == 0 && isMC){
+        //    if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1) && !CheckBit(pass_triggerbit,7)) theSmallTree.m_prescaleWeight =  0.91613901;
+        //}
+        //// MuMu: if it didn't also pass IsoMu27
+        //if (pairType == 3 && isMC){
+        //    if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1)) theSmallTree.m_prescaleWeight =  0.91613901;
+        //}
 	    
         if(DEBUG)
         {
