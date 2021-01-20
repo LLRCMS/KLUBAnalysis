@@ -272,26 +272,10 @@ class OutputManager:
             print "    >>  no"
         print "    >> doFitIf:", doFitIf , "fitFunction:", fitFunc
 
-        # Build systematics list: use first element of self values just to build the protoName
-        protoProcess = self.bkgs[0]
-        protoSel     = self.sel_def[0]
-        protoVar     = self.variables[0]
-        protoName    = makeHistoName(protoProcess, protoSel+'_'+SR, protoVar)
-        print "    >> Using as protoname for systematics: ", protoName, '\n'
-
-        # Get the actual syst names
-        allSysts = matchInDictionary(self.histos, protoName+'_*')
-        allSysts = [x.replace(protoName+'_', '') for x in allSysts]
-
-        # Exclude TES/EES/MES/JES from the list of systematics
-        namesToBeRemoved = ["tauup", "taudown", "eleup", "eledown", "muup", "mudown", "jetup", "jetdown"]
-        allSysts = [ x for x in allSysts if not any(b in x for b in namesToBeRemoved) ]
-
-        # If computing the up/down QCD shape uncertainty don't apply systematics
-        if doUpDown: allSysts = []
-
-        # Add empty string to get the central QCD histo in any case
-        allSysts.insert(0, "")
+        # Since we always use the nominal QCD histogram we do not need to
+        # loop on all the systematics to compute the shifted QCD histograms.
+        # Can easily be changed by setting: allSysts = self.systList
+        allSysts = [""]
 
         # Do actual QCD computation: loop on vars --> selections --> systs
         for var in self.variables:
@@ -302,6 +286,7 @@ class OutputManager:
                     # skip the syst from allSysts (otherwise it look for histograms with two systematics
                     # like 'var_sel_SR_tauup_PUjetIDUp' which do not make sense)
                     doubleSyst = False
+                    namesToBeRemoved = ["tauup", "taudown", "eleup", "eledown", "muup", "mudown", "jetup", "jetdown"]
                     for doubleName in namesToBeRemoved:
                         if doubleName in var:
                             doubleSyst = True
