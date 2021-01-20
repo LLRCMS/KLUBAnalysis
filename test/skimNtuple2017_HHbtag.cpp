@@ -3090,6 +3090,8 @@ int main (int argc, char** argv)
       float trigSF_DM1_down  = 1.0;
       float trigSF_DM10_down = 1.0;
       float trigSF_DM11_down = 1.0;
+      float trigSF_vbfjet_up   = 1.0;
+      float trigSF_vbfjet_down = 1.0;
       float trigSF_single = 1.0;
       float trigSF_cross = 1.0;
 
@@ -3358,6 +3360,8 @@ int main (int argc, char** argv)
           trigSF_DM1_down  = SF1_down[1] *	SF2_down[1];
           trigSF_DM10_down = SF1_down[2] *	SF2_down[2];
           trigSF_DM11_down = SF1_down[3] *	SF2_down[3];
+          trigSF_vbfjet_up   = SF1 * SF2;
+          trigSF_vbfjet_down = SF1 * SF2;
         }
 
         // MuMu Channel
@@ -3394,6 +3398,8 @@ int main (int argc, char** argv)
       theSmallTree.m_trigSF_DM1_down  = (isMC ? trigSF_DM1_down : 1.0);
       theSmallTree.m_trigSF_DM10_down = (isMC ? trigSF_DM10_down : 1.0);
       theSmallTree.m_trigSF_DM11_down = (isMC ? trigSF_DM11_down : 1.0);
+      theSmallTree.m_trigSF_vbfjet_up   = (isMC ? trigSF_vbfjet_up : 1.0);
+      theSmallTree.m_trigSF_vbfjet_down = (isMC ? trigSF_vbfjet_down : 1.0);
       theSmallTree.m_trigSF_single = (isMC ? trigSF_single : 1.0);
       theSmallTree.m_trigSF_cross  = (isMC ? trigSF_cross : 1.0);
 
