@@ -2762,8 +2762,8 @@ int main (int argc, char** argv)
         if (tau2DM == 11 && theSmallTree.m_isTau2real)
         {
           customSFtau2 = 0.759;
-          customSFtau2_DM1_errUp = 0.178;
-          customSFtau2_DM1_errDw = 0.259;
+          customSFtau2_DM11_errUp = 0.178;
+          customSFtau2_DM11_errDw = 0.259;
         }
 
         customSFtau2_DM0_up    = customSFtau2 + customSFtau2_DM0_errUp;
