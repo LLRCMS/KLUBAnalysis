@@ -335,11 +335,15 @@ def  writeCard(backgrounds,signals,select,region=-1) :
 
             # Add tau trigger uncertainties (4 unc. depending on DM for tau legs + 2 unc. for ele and mu legs)
             # For TauTau channel in 2017 and 2018 add also the the VBF trigger of jet legs
+            # In 2016 we only use the SingleEle trigger in ETau so no uncertainties on the tau triggers should be added
             DMs = ["DM0","DM1","DM10","DM11"]
             if "0" in thechannel:
                 DMs.append("mu")
             if "1" in thechannel:
-                DMs.append("ele")
+                if "2016" in opt.year:
+                    DMs = ["ele"]
+                else:
+                    DMs.append("ele")
             if "2" in thechannel and opt.year in ("2017", "2018"):
                 DMs.append("Jet")
             for DMname in DMs:
