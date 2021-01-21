@@ -1984,13 +1984,14 @@ int main (int argc, char** argv)
         // 8 - HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v
         // 9 - HLT_VBF_DoubleLooseChargedIsoPFTau20_Trk1_eta2p1_Reg_v
 
-        if (pairType == 0 && isMC){
-            if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1) && !CheckBit(pass_triggerbit,7)) theSmallTree.m_prescaleWeight =  0.91613901;
-        }
-        // MuMu: if it didn't also pass IsoMu27
-        if (pairType == 3 && isMC){
-            if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1)) theSmallTree.m_prescaleWeight =  0.91613901;
-        }
+        // Jan 2021: prescales commented as they are already included in the trigger SFs
+        //if (pairType == 0 && isMC){
+        //    if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1) && !CheckBit(pass_triggerbit,7)) theSmallTree.m_prescaleWeight =  0.91613901;
+        //}
+        //// MuMu: if it didn't also pass IsoMu27
+        //if (pairType == 3 && isMC){
+        //    if (CheckBit(pass_triggerbit,0) && !CheckBit(pass_triggerbit,1)) theSmallTree.m_prescaleWeight =  0.91613901;
+        //}
 	    
         if(DEBUG)
         {
@@ -2683,6 +2684,23 @@ int main (int argc, char** argv)
         float customSFtau2_DM11_up   = 1.;
         float customSFtau2_DM11_down = 1.;
 
+        float customSFtau1_DM0_errUp  = 0.;
+        float customSFtau1_DM0_errDw  = 0.;
+        float customSFtau1_DM1_errUp  = 0.;
+        float customSFtau1_DM1_errDw  = 0.;
+        float customSFtau1_DM10_errUp = 0.;
+        float customSFtau1_DM10_errDw = 0.;
+        float customSFtau1_DM11_errUp = 0.;
+        float customSFtau1_DM11_errDw = 0.;
+        float customSFtau2_DM0_errUp  = 0.;
+        float customSFtau2_DM0_errDw  = 0.;
+        float customSFtau2_DM1_errUp  = 0.;
+        float customSFtau2_DM1_errDw  = 0.;
+        float customSFtau2_DM10_errUp = 0.;
+        float customSFtau2_DM10_errDw = 0.;
+        float customSFtau2_DM11_errUp = 0.;
+        float customSFtau2_DM11_errDw = 0.;
+
         // Custom tauID SF - Computed on top of pt binned - with HHBtag - 3 Sept 2020
         // SF_DM0  : +1.078 -0.036/+0.034
         // SF_DM1  : +1.112 -0.023/+0.023
@@ -2692,52 +2710,70 @@ int main (int argc, char** argv)
         if (tau1DM == 0  && theSmallTree.m_isTau1real)
         {
           customSFtau1 = 1.078;
-          customSFtau1_DM0_up   = customSFtau1 + 0.034;
-          customSFtau1_DM0_down = customSFtau1 - 0.036;
+          customSFtau1_DM0_errUp = 0.034;
+          customSFtau1_DM0_errDw = 0.036;
         }
         if (tau1DM == 1  && theSmallTree.m_isTau1real)
         {
           customSFtau1 = 1.112;
-          customSFtau1_DM1_up   = customSFtau1 + 0.023;
-          customSFtau1_DM1_down = customSFtau1 - 0.023;
+          customSFtau1_DM1_errUp = 0.023;
+          customSFtau1_DM1_errDw = 0.023;
         }
         if (tau1DM == 10 && theSmallTree.m_isTau1real)
         {
           customSFtau1 = 0.984;
-          customSFtau1_DM10_up   = customSFtau1 + 0.063;
-          customSFtau1_DM10_down = customSFtau1 - 0.067;
+          customSFtau1_DM10_errUp = 0.063;
+          customSFtau1_DM10_errDw = 0.067;
         }
         if (tau1DM == 11 && theSmallTree.m_isTau1real)
         {
           customSFtau1 = 0.759;
-          customSFtau1_DM11_up   = customSFtau1 + 0.178;
-          customSFtau1_DM11_down = customSFtau1 - 0.259;
+          customSFtau1_DM11_errUp = 0.178;
+          customSFtau1_DM11_errDw = 0.259;
         }
+
+        customSFtau1_DM0_up    = customSFtau1 + customSFtau1_DM0_errUp;
+        customSFtau1_DM0_down  = customSFtau1 - customSFtau1_DM0_errDw;
+        customSFtau1_DM1_up    = customSFtau1 + customSFtau1_DM1_errUp;
+        customSFtau1_DM1_down  = customSFtau1 - customSFtau1_DM1_errDw;
+        customSFtau1_DM10_up   = customSFtau1 + customSFtau1_DM10_errUp;
+        customSFtau1_DM10_down = customSFtau1 - customSFtau1_DM10_errDw;
+        customSFtau1_DM11_up   = customSFtau1 + customSFtau1_DM11_errUp;
+        customSFtau1_DM11_down = customSFtau1 - customSFtau1_DM11_errDw;
 
         if (tau2DM == 0  && theSmallTree.m_isTau2real)
         {
           customSFtau2 = 1.078;
-          customSFtau2_DM0_up   = customSFtau2 + 0.034;
-          customSFtau2_DM0_down = customSFtau2 - 0.036;
+          customSFtau2_DM0_errUp = 0.034;
+          customSFtau2_DM0_errDw = 0.036;
         }
         if (tau2DM == 1  && theSmallTree.m_isTau2real)
         {
           customSFtau2 = 1.112;
-          customSFtau2_DM1_up   = customSFtau2 + 0.023;
-          customSFtau2_DM1_down = customSFtau2 - 0.023;
+          customSFtau2_DM1_errUp = 0.023;
+          customSFtau2_DM1_errDw = 0.023;
         }
         if (tau2DM == 10 && theSmallTree.m_isTau2real)
         {
           customSFtau2 = 0.984;
-          customSFtau2_DM10_up   = customSFtau2 + 0.063;
-          customSFtau2_DM10_down = customSFtau2 - 0.067;
+          customSFtau2_DM10_errUp = 0.063;
+          customSFtau2_DM10_errDw = 0.067;
         }
         if (tau2DM == 11 && theSmallTree.m_isTau2real)
         {
           customSFtau2 = 0.759;
-          customSFtau2_DM11_up   = customSFtau2 + 0.178;
-          customSFtau2_DM11_down = customSFtau2 - 0.259;
+          customSFtau2_DM11_errUp = 0.178;
+          customSFtau2_DM11_errDw = 0.259;
         }
+
+        customSFtau2_DM0_up    = customSFtau2 + customSFtau2_DM0_errUp;
+        customSFtau2_DM0_down  = customSFtau2 - customSFtau2_DM0_errDw;
+        customSFtau2_DM1_up    = customSFtau2 + customSFtau2_DM1_errUp;
+        customSFtau2_DM1_down  = customSFtau2 - customSFtau2_DM1_errDw;
+        customSFtau2_DM10_up   = customSFtau2 + customSFtau2_DM10_errUp;
+        customSFtau2_DM10_down = customSFtau2 - customSFtau2_DM10_errDw;
+        customSFtau2_DM11_up   = customSFtau2 + customSFtau2_DM11_errUp;
+        customSFtau2_DM11_down = customSFtau2 - customSFtau2_DM11_errDw;
 
         // Leg 1
         idAndIsoSF_leg1_MVA_vsJet     = MVA_antiJet_medium    ->getSFvsDM (tau1pt , tau1DM, tau1Genmatch);
@@ -3089,6 +3125,8 @@ int main (int argc, char** argv)
       float trigSF_DM1_down  = 1.0;
       float trigSF_DM10_down = 1.0;
       float trigSF_DM11_down = 1.0;
+      float trigSF_vbfjet_up   = 1.0;
+      float trigSF_vbfjet_down = 1.0;
       float trigSF_single = 1.0;
       float trigSF_cross = 1.0;
 
@@ -3357,6 +3395,8 @@ int main (int argc, char** argv)
           trigSF_DM1_down  = SF1_down[1] *	SF2_down[1];
           trigSF_DM10_down = SF1_down[2] *	SF2_down[2];
           trigSF_DM11_down = SF1_down[3] *	SF2_down[3];
+          trigSF_vbfjet_up   = SF1 * SF2;
+          trigSF_vbfjet_down = SF1 * SF2;
         }
 
         // MuMu Channel
@@ -3393,6 +3433,8 @@ int main (int argc, char** argv)
       theSmallTree.m_trigSF_DM1_down  = (isMC ? trigSF_DM1_down : 1.0);
       theSmallTree.m_trigSF_DM10_down = (isMC ? trigSF_DM10_down : 1.0);
       theSmallTree.m_trigSF_DM11_down = (isMC ? trigSF_DM11_down : 1.0);
+      theSmallTree.m_trigSF_vbfjet_up   = (isMC ? trigSF_vbfjet_up : 1.0);
+      theSmallTree.m_trigSF_vbfjet_down = (isMC ? trigSF_vbfjet_down : 1.0);
       theSmallTree.m_trigSF_single = (isMC ? trigSF_single : 1.0);
       theSmallTree.m_trigSF_cross  = (isMC ? trigSF_cross : 1.0);
 

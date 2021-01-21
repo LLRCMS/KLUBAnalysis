@@ -45,6 +45,7 @@ class OutputManager:
         self.sel_regions = []
         self.variables   = []
         self.variables2D = []
+        self.systList    = []
         # self.samples     = []
         self.data        = []
         self.bkgs        = []
@@ -270,27 +271,11 @@ class OutputManager:
         else:
             print "    >>  no"
         print "    >> doFitIf:", doFitIf , "fitFunction:", fitFunc
-        
-        # Build systematics list: use first element of self values just to build the protoName
-        protoProcess = self.bkgs[0]
-        protoSel     = self.sel_def[0]
-        protoVar     = self.variables[0]
-        protoName    = makeHistoName(protoProcess, protoSel+'_'+SR, protoVar)
-        print "    >> Using as protoname for systematics: ", protoName, '\n'
 
-        # Get the actual syst names
-        allSysts = matchInDictionary(self.histos, protoName+'_*')
-        allSysts = [x.replace(protoName+'_', '') for x in allSysts]
-
-        # Exclude TES/EES/MES/JES from the list of systematics
-        namesToBeRemoved = ["tauup", "taudown", "eleup", "eledown", "muup", "mudown", "jetup", "jetdown"]
-        allSysts = [ x for x in allSysts if not any(b in x for b in namesToBeRemoved) ]
-
-        # If computing the up/down QCD shape uncertainty don't apply systematics
-        if doUpDown: allSysts = []
-
-        # Add empty string to get the central QCD histo in any case
-        allSysts.insert(0, "")
+        # Since we always use the nominal QCD histogram we do not need to
+        # loop on all the systematics to compute the shifted QCD histograms.
+        # Can easily be changed by setting: allSysts = self.systList
+        allSysts = [""]
 
         # Do actual QCD computation: loop on vars --> selections --> systs
         for var in self.variables:
@@ -301,6 +286,7 @@ class OutputManager:
                     # skip the syst from allSysts (otherwise it look for histograms with two systematics
                     # like 'var_sel_SR_tauup_PUjetIDUp' which do not make sense)
                     doubleSyst = False
+                    namesToBeRemoved = ["tauup", "taudown", "eleup", "eledown", "muup", "mudown", "jetup", "jetdown"]
                     for doubleName in namesToBeRemoved:
                         if doubleName in var:
                             doubleSyst = True
@@ -479,28 +465,61 @@ class OutputManager:
             for elem in self.QCDfitresults:
                 self.QCDfitresults[elem].Write()
 
-    # def buildSystMap(self):
-    #     """ make a dictionary with all the possible systematics as suffix to speed up repeated histo lookup """
+    def buildSystList(self):
+        """ make a list of the suffixes of all shape systematics excluding:
+            tauup, taudown, eleup, eledown, muup, mudown, jetup, jetdown
+            which are already included in the variable names  """
 
-    #     ### note: there are (currently!) no syst associated to vars, and to specific regions
-    #     ### so it is enough to check only the syst for every sample and for a nominal selection (sel + 'SR')
+        # Build systematics list:
+        print '... creating systematics list'
 
-    #     self.systMap = {}
+        # Use first element of self values just to build the protoName
+        protoProcess = self.bkgs[0]
+        protoSel     = self.sel_def[0]
+        protoRegion  = self.sel_regions[0]
+        protoVar     = self.variables[0]
+        protoName    = makeHistoName(protoProcess, protoSel+'_'+protoRegion, protoVar)
+        print "    >> Using as protoname: ", protoName
+
+        # Get the actual syst names
+        allSysts = matchInDictionary(self.histos, protoName+'_*')
+        allSysts = [x.replace(protoName+'_', '') for x in allSysts]
+
+        # Exclude TES/EES/MES/JES from the list of systematics
+        namesToBeRemoved = ["tauup", "taudown", "eleup", "eledown", "muup", "mudown", "jetup", "jetdown"]
+        allSysts = [ x for x in allSysts if not any(b in x for b in namesToBeRemoved) ]
+
+        # Add empty string to get the nominal histo
+        allSysts.insert(0, "")
+
+        print "    >> systematics list: ", allSysts
+        self.systList = allSysts
 
     def scaleHistos(self,strBkg, factor, strSel = None):
-        print '... scaling histos for bkg: ' , strBkg, " ",strSel, ' by factor : ', factor        
+        print '... scaling histos for bkg: ' , strBkg, " ",strSel, ' by factor : ', factor
         for sel in self.selections:
             if strSel:
                 if not strSel in sel: continue 
             for var in self.variables:
-                for idx, s in enumerate(self.bkgs):
-                    #if (strBkg in s):
-                    if (strBkg == s):
-                        htoscale_name = makeHistoName(s, sel, var)
-                        print htoscale_name
-                        h = self.histos[htoscale_name]
-                        h.Scale(factor)
+                for syst in self.systList:
+                    # If var already contains one of the shape systs (tauup, taudown, jetup...)
+                    # skip the syst from allSysts (otherwise it look for histograms with two systematics
+                    # like 'var_sel_SR_tauup_PUjetIDUp' which do not make sense)
+                    doubleSyst = False
+                    namesToBeRemoved = ["tauup", "taudown", "eleup", "eledown", "muup", "mudown", "jetup", "jetdown"]
+                    for doubleName in namesToBeRemoved:
+                        if doubleName in var:
+                            doubleSyst = True
+                            break
+                    if syst != '' and doubleSyst: continue
 
+                    for idx, s in enumerate(self.bkgs):
+                        #if (strBkg in s):
+                        if (strBkg == s):
+                            htoscale_name = makeHistoName(s, sel, var, syst)
+                            print htoscale_name
+                            h = self.histos[htoscale_name]
+                            h.Scale(factor)
 
     def addHistos(self, strBkg, fExt):
         print '... taking histos for bkg: ' , strBkg, 'from file : ', fExt

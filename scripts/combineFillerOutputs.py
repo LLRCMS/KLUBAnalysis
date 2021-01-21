@@ -103,6 +103,7 @@ omngr.data        = dataList
 omngr.sigs        = sigList
 omngr.bkgs        = bkgList
 omngr.readAll(rootfile)
+omngr.buildSystList()
 
 ## always group together the data and rename them to 'data'
 # omngr.groupTogether('data_obs', dataList)
