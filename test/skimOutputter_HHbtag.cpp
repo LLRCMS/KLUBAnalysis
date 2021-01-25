@@ -324,7 +324,7 @@ int main (int argc, char** argv)
     if ( pairType==1 && dau1_eleMVAiso!=1 ) continue;
     if ( pairType==2 && dau1_deepTauVsJet<5 ) continue;
     if ( ISVBF!=1 && bjet1bIDdeepFlavor<loosebTagWP && bjet2bIDdeepFlavor<loosebTagWP ) continue;
-    if ( ISVBF!=1 && bjet1bIDdeepFlavor<mediumbTagWP && bjet2bIDdeepFlavor<mediumbTagWP && (((tauHSVFITmass-128.)*(tauHSVFITmass-128.))/(65.*65.)+((bHmassraw-169.)*(bHmassraw-169.))/(150.*150.) >  1.0) ) continue;
+    if ( ISVBF!=1 && (((tauHSVFITmass-128.)*(tauHSVFITmass-128.))/(65.*65.)+((bHmassraw-169.)*(bHmassraw-169.))/(150.*150.) >  1.0) ) continue;
     treenew->Fill() ;
   }
   cout << "** ANALYSIS: ...Cloned entries: " << treenew->GetEntries() << endl;
