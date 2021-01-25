@@ -10,6 +10,7 @@
 
 #include "bigTree.h"
 #include "JECKLUBinterface.h"
+#include "SmearedJetProducer.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TH3F.h"
@@ -478,6 +479,39 @@ pair <TVector2, TVector2> getShiftedMET_jetTot (TVector2 MET, bigTree & theBigTr
   shiftedMET_down.Set(corrMETx_down, corrMETy_down);
 
   return make_pair(shiftedMET_up, shiftedMET_down);
+}
+
+// -----------------------------------------
+// get shifted MET due to jet smearing (JER)
+// returns a TVector2 of the smeared MET
+TVector2 getShiftedMET_smear (float METx, float METy, bigTree & theBigTree, SmearedJetProducer & smearer)
+{
+  float smearedMETx = METx;
+  float smearedMETy = METy;
+
+  TVector2 smearedMET;
+
+  for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
+  {
+
+    // Build original jet
+    TLorentzVector tlv_jet (theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
+
+    // Build smeared jet
+    TLorentzVector tlv_jet_smeared = smearer.getSmearedJet(tlv_jet, theBigTree);
+
+    // shift MET - first the original jet
+    smearedMETx += tlv_jet.Px();
+    smearedMETy += tlv_jet.Py();
+
+    // shift MET - then the shifted jet
+    smearedMETx -= tlv_jet_smeared.Px();
+    smearedMETy -= tlv_jet_smeared.Py();
+  }
+
+  smearedMET.Set(smearedMETx, smearedMETy);
+
+  return smearedMET;
 }
 
 
