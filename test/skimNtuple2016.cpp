@@ -32,6 +32,7 @@
 #include "skimUtils.h"
 #include "PuJetIdSF.h"
 #include "JECKLUBinterface.h"
+#include "SmearedJetProducer.h"
 
 #include "lester_mt2_bisect.h"
 
@@ -523,6 +524,12 @@ int main (int argc, char** argv)
 
   // V2 is the correct version to be used
   JECKLUBinterface JECprovider("2016", "V2");
+
+  // ------------------------------
+
+  // JER smeareing provider: year - doSmearing - variation (0:nominal  +1:up  -1:down)
+  bool doSmearing = gConfigParser->readBoolOption("JetSmearing::doSmearing");
+  SmearedJetProducer Smearer("2016", doSmearing, 0);
 
   // ------------------------------
 
@@ -3217,7 +3224,7 @@ int main (int argc, char** argv)
         for (auto pair : jets_and_sortPar) jets_and_BTag.push_back (make_pair(pair.second, pair.first)); // just for compatibility...
 
         // NB !!! the following function only works if jets_and_sortPar contains <CVSscore, idx>
-        vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType, bTagSF::central) ;
+        vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree, Smearer, pType, bTagSF::central) ;
         theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
         theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
         theSmallTree.m_bTagweightT = (isMC ? bTagWeight.at(2) : 1.0) ;
@@ -4503,7 +4510,7 @@ int main (int argc, char** argv)
       // PUjetIDSFprovider
       if (isMC)
       {
-        theSmallTree.m_PUjetID_SF = (PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton)).at(0);
+        theSmallTree.m_PUjetID_SF = (PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton, Smearer)).at(0);
         if (DEBUG)
         {
           std::cout << "---- PUjetID_SF debug ----" << std::endl;
@@ -4515,7 +4522,7 @@ int main (int argc, char** argv)
       // --------------------------------------------
       // HHbtag: set input values
       HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,
-          tlv_firstLepton, tlv_secondLepton, tlv_tauH, tlv_MET, theSmallTree.m_EventNumber);
+          tlv_firstLepton, tlv_secondLepton, tlv_tauH, tlv_MET, theSmallTree.m_EventNumber, Smearer);
 
       // HHbtag: get scores and save them in a map<jet_idx,HHbtag_score>
       std::map<int,float> jets_and_HHbtag = HHbtagTagger.GetScore();
