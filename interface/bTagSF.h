@@ -8,6 +8,10 @@
 #include "TFile.h"
 #include "TH1F.h"
 
+// KLUB libraries
+#include "bigTree.h"
+#include "SmearedJetProducer.h"
+
 class bTagSF
 {
     public:
@@ -21,8 +25,8 @@ class bTagSF
         void SetWPset(std::string WPset);
         void SetWPset(double loose, double medium, double tight);
 
-        std::vector<float> getEvtWeight (std::vector <std::pair <int, float> >& jets_and_btag, std::vector<float> *jets_px, std::vector<float> *jets_py, std::vector<float> *jets_pz, std::vector<float> *jets_e, std::vector<int> *jets_HadronFlavour, int channel, SFsyst systWP);
-        std::vector<float> getEvtWeightShifted (std::vector <std::pair <int, float> >& jets_and_btag, std::vector<float> *jets_px, std::vector<float> *jets_py, std::vector<float> *jets_pz, std::vector<float> *jets_e, std::vector<int> *jets_HadronFlavour);
+        std::vector<float> getEvtWeight (std::vector <std::pair <int, float> >& jets_and_btag, bigTree &theBigTree, SmearedJetProducer &smearer, int channel, SFsyst systWP);
+        std::vector<float> getEvtWeightShifted (std::vector <std::pair <int, float> >& jets_and_btag, bigTree &theBigTree, SmearedJetProducer &smearer);
 
     private:
         // related to scale factors

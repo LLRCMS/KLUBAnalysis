@@ -15,7 +15,7 @@ HHbtagKLUBinterface::~HHbtagKLUBinterface() {}
 
 // SetEventInputs: set inputs that change for every event
 void HHbtagKLUBinterface::SetInputValues(bigTree &theBigTree, std::vector<std::pair<float,int>> jets_and_sortPar, int channel,
-  TLorentzVector tlv_tau1, TLorentzVector tlv_tau2, TLorentzVector tlv_tauH, TLorentzVector tlv_MET, unsigned long long event)
+  TLorentzVector tlv_tau1, TLorentzVector tlv_tau2, TLorentzVector tlv_tauH, TLorentzVector tlv_MET, unsigned long long event, SmearedJetProducer &smearer)
 {
   // Clear the vectors
   HHbtag_jet_pt_.clear();
@@ -37,8 +37,7 @@ void HHbtagKLUBinterface::SetInputValues(bigTree &theBigTree, std::vector<std::p
   for (unsigned int i = 0; i < jets_and_sortPar.size(); i++)
   {
     unsigned int idx = jets_and_sortPar.at(i).second;
-    TLorentzVector tlv_jet;
-    tlv_jet.SetPxPyPzE(theBigTree.jets_px->at(idx),theBigTree.jets_py->at(idx),theBigTree.jets_pz->at(idx),theBigTree.jets_e->at(idx));
+    TLorentzVector tlv_jet = smearer.getSmearedJetFromIdx(idx, theBigTree);
 
     HHbtag_jet_pt_ .push_back(tlv_jet.Pt());
     HHbtag_jet_eta_.push_back(tlv_jet.Eta());
