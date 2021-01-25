@@ -33,6 +33,8 @@
 #include "skimUtils.h"
 #include "PuJetIdSF.h"
 #include "JECKLUBinterface.h"
+#include "SVfitKLUBinterface.h"
+#include "SmearedJetProducer.h"
 
 #include "lester_mt2_bisect.h"
 
@@ -531,6 +533,12 @@ int main (int argc, char** argv)
 
   // V2 is the correct version to be used
   JECKLUBinterface JECprovider("2017", "V2");
+
+  // ------------------------------
+
+  // JER smearing provider: year - doSmearing - variation (0:nominal  +1:up  -1:down)
+  bool doSmearing = (isMC ? gConfigParser->readBoolOption("JetSmearing::doSmearing") : false);
+  SmearedJetProducer Smearer("2017", doSmearing, 0);
 
   // ------------------------------
 
@@ -2048,64 +2056,95 @@ int main (int argc, char** argv)
 
       // ----------------------------------------------------------
       // pair selection is now complete, compute oher quantitites
-    
+
       TLorentzVector tlv_tauH = tlv_firstLepton + tlv_secondLepton ;
       TLorentzVector tlv_tauH_SVFIT ;
 
+      TVector2 vMET(theBigTree.METx->at(chosenTauPair) , theBigTree.METy->at(chosenTauPair));
+      TLorentzVector tlv_MET;
+      tlv_MET.SetPxPyPzE(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair), 0, std::hypot(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair)));
+
       theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
-      //theSmallTree.m_tauH_SVFIT_mass_up   = (isMC ? theBigTree.SVfitMassTauUp->at (chosenTauPair) : theSmallTree.m_tauH_SVFIT_mass);
-      //theSmallTree.m_tauH_SVFIT_mass_down = (isMC ? theBigTree.SVfitMassTauDown->at (chosenTauPair) : theSmallTree.m_tauH_SVFIT_mass);
-      //theSmallTree.m_tauH_SVFIT_mass_METup   = (isMC ? theBigTree.SVfitMassMETUp->at (chosenTauPair) : theSmallTree.m_tauH_SVFIT_mass);
-      //theSmallTree.m_tauH_SVFIT_mass_METdown = (isMC ? theBigTree.SVfitMassMETDown->at (chosenTauPair) : theSmallTree.m_tauH_SVFIT_mass);
-      // in case the SVFIT mass is calculated
-      if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
-	{
-	  theSmallTree.m_tauH_SVFIT_pt     = theBigTree.SVfit_pt->at  (chosenTauPair) ;
-	  theSmallTree.m_tauH_SVFIT_eta    = theBigTree.SVfit_eta->at (chosenTauPair) ;
-	  theSmallTree.m_tauH_SVFIT_phi    = theBigTree.SVfit_phi->at (chosenTauPair) ;
-	  theSmallTree.m_tauH_SVFIT_METphi = theBigTree.SVfit_fitMETPhi->at (chosenTauPair) ;
-	  theSmallTree.m_tauH_SVFIT_METrho = theBigTree.SVfit_fitMETRho->at (chosenTauPair) ;      
 
-	  tlv_tauH_SVFIT.SetPtEtaPhiM (
-				       theBigTree.SVfit_pt->at (chosenTauPair),
-				       theBigTree.SVfit_eta->at (chosenTauPair),
-				       theBigTree.SVfit_phi->at (chosenTauPair),
-				       theBigTree.SVfitMass->at (chosenTauPair)
-				       ) ;
+      if (doSmearing)
+      {
+        // Smear MET
+        float METx = theBigTree.METx->at(chosenTauPair);
+        float METy = theBigTree.METy->at(chosenTauPair);
+        TVector2 metSmeared = getShiftedMET_smear(METx, METy, theBigTree, Smearer);
+        vMET = metSmeared;
+        tlv_MET.SetPxPyPzE(metSmeared.Px(), metSmeared.Py(), 0, std::hypot(metSmeared.Px(), metSmeared.Py()));
 
-	  theSmallTree.m_tauHsvfitMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_tauH_SVFIT.Phi ()) ;
-	  theSmallTree.m_ditau_deltaR_per_tauHsvfitpt = tlv_firstLepton.DeltaR(tlv_secondLepton) * tlv_tauH_SVFIT.Pt();
-	}
+        // Recompute SVfit after smearing the MET
+        TMatrixD metcov (2, 2) ;
+        metcov (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
+        metcov (1,0) = theBigTree.MET_cov10->at (chosenTauPair) ;
+        metcov (0,1) = theBigTree.MET_cov01->at (chosenTauPair) ;
+        metcov (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
 
-    if (DEBUG)
-    {
-      cout << "------- SVFIT ------" << endl;
-      cout << " is calculated ? " << theBigTree.SVfitMass->at(chosenTauPair) << endl;
-      cout << " pt/eta/phi: " << tlv_tauH_SVFIT.Pt() << " / " << tlv_tauH_SVFIT.Eta() << " / " << tlv_tauH_SVFIT.Phi() << endl;
-      cout << " is calculated UP ? " << theSmallTree.m_tauH_SVFIT_mass_up << endl;
-      cout << " is calculated DOWN ? " << theSmallTree.m_tauH_SVFIT_mass_down << endl;
-      cout << "--------------------" << endl;
-    }
+        SVfitKLUBinterface algo_central(0, tlv_firstLepton, tlv_secondLepton, tlv_MET, metcov, pType, theSmallTree.m_dau1_decayMode, theSmallTree.m_dau2_decayMode);
+        std::vector<double> svfitResSmeared = algo_central.FitAndGetResult();
+        theSmallTree.m_tauH_SVFIT_mass = svfitResSmeared.at(3);
+        if (theSmallTree.m_tauH_SVFIT_mass > 0)
+        {
+          theSmallTree.m_tauH_SVFIT_pt   = svfitResSmeared.at(0);
+          theSmallTree.m_tauH_SVFIT_eta  = svfitResSmeared.at(1);
+          theSmallTree.m_tauH_SVFIT_phi  = svfitResSmeared.at(2);
+          tlv_tauH_SVFIT.SetPtEtaPhiM(svfitResSmeared.at(0), svfitResSmeared.at(1), svfitResSmeared.at(2), svfitResSmeared.at(3));
+
+          theSmallTree.m_tauHsvfitMet_deltaPhi = deltaPhi (vMET.Phi(), tlv_tauH_SVFIT.Phi ()) ;
+          theSmallTree.m_ditau_deltaR_per_tauHsvfitpt = tlv_firstLepton.DeltaR(tlv_secondLepton) * tlv_tauH_SVFIT.Pt();
+        }
+      }
+
+      if (!doSmearing && theBigTree.SVfitMass->at (chosenTauPair) > -900.)
+      {
+        theSmallTree.m_tauH_SVFIT_pt     = theBigTree.SVfit_pt->at  (chosenTauPair) ;
+        theSmallTree.m_tauH_SVFIT_eta    = theBigTree.SVfit_eta->at (chosenTauPair) ;
+        theSmallTree.m_tauH_SVFIT_phi    = theBigTree.SVfit_phi->at (chosenTauPair) ;
+        theSmallTree.m_tauH_SVFIT_METphi = theBigTree.SVfit_fitMETPhi->at (chosenTauPair) ;
+        theSmallTree.m_tauH_SVFIT_METrho = theBigTree.SVfit_fitMETRho->at (chosenTauPair) ;
+
+        tlv_tauH_SVFIT.SetPtEtaPhiM (
+                    theBigTree.SVfit_pt->at (chosenTauPair),
+                    theBigTree.SVfit_eta->at (chosenTauPair),
+                    theBigTree.SVfit_phi->at (chosenTauPair),
+                    theBigTree.SVfitMass->at (chosenTauPair)
+                    ) ;
+
+        theSmallTree.m_tauHsvfitMet_deltaPhi = deltaPhi (vMET.Phi(), tlv_tauH_SVFIT.Phi ()) ;
+        theSmallTree.m_ditau_deltaR_per_tauHsvfitpt = tlv_firstLepton.DeltaR(tlv_secondLepton) * tlv_tauH_SVFIT.Pt();
+      }
+
+      if (DEBUG)
+      {
+        cout << "------- SVFIT ------" << endl;
+        cout << " is calculated ? " << theBigTree.SVfitMass->at(chosenTauPair) << endl;
+        cout << " pt/eta/phi: " << tlv_tauH_SVFIT.Pt() << " / " << tlv_tauH_SVFIT.Eta() << " / " << tlv_tauH_SVFIT.Phi() << endl;
+        cout << " is calculated UP ? " << theSmallTree.m_tauH_SVFIT_mass_up << endl;
+        cout << " is calculated DOWN ? " << theSmallTree.m_tauH_SVFIT_mass_down << endl;
+        cout << "--------------------" << endl;
+      }
 
       // check if the selected leptons A,B match the gen hard scatter products 1,2
       if (isHHsignal)
-	{
-	  bool type1A = (abs(t1hs) == abs(type1));
-	  bool type1B = (abs(t1hs) == abs(type2));
-	  bool type2A = (abs(t2hs) == abs(type1));
-	  bool type2B = (abs(t2hs) == abs(type2));
-    
-	  bool dR1A = (vHardScatter1.DeltaR(tlv_firstLepton) < 0.5);
-	  bool dR1B = (vHardScatter1.DeltaR(tlv_secondLepton) < 0.5);
-	  bool dR2A = (vHardScatter2.DeltaR(tlv_firstLepton) < 0.5);
-	  bool dR2B = (vHardScatter2.DeltaR(tlv_secondLepton) < 0.5);
+      {
+        bool type1A = (abs(t1hs) == abs(type1));
+        bool type1B = (abs(t1hs) == abs(type2));
+        bool type2A = (abs(t2hs) == abs(type1));
+        bool type2B = (abs(t2hs) == abs(type2));
 
-	  // FIXME: fill gen matched info pt/eta/phi/e
-	  if ( (type1A && dR1A) || (type2A && dR2A))
-	    theSmallTree.m_hasgenmatch1 = true;
-	  if ( (type1B && dR1B) || (type2B && dR2B))
-	    theSmallTree.m_hasgenmatch2 = true;
-	}
+        bool dR1A = (vHardScatter1.DeltaR(tlv_firstLepton) < 0.5);
+        bool dR1B = (vHardScatter1.DeltaR(tlv_secondLepton) < 0.5);
+        bool dR2A = (vHardScatter2.DeltaR(tlv_firstLepton) < 0.5);
+        bool dR2B = (vHardScatter2.DeltaR(tlv_secondLepton) < 0.5);
+
+        // FIXME: fill gen matched info pt/eta/phi/e
+        if ( (type1A && dR1A) || (type2A && dR2A))
+          theSmallTree.m_hasgenmatch1 = true;
+        if ( (type1B && dR1B) || (type2B && dR2B))
+          theSmallTree.m_hasgenmatch2 = true;
+      }
 
       theSmallTree.m_pairType    = pType ;
       // Need to change the channel: LLR-> 0:muTau - 1:eTau  /  PI-> 0:eTau - 1:muTau
@@ -2134,13 +2173,10 @@ int main (int argc, char** argv)
       theSmallTree.m_isOS = theBigTree.isOSCand->at (chosenTauPair) ;
       theSmallTree.m_lheNOutPartons = theBigTree.lheNOutPartons ;
       theSmallTree.m_lheNOutB = theBigTree.lheNOutB ;
-      // theSmallTree.m_met_phi = theBigTree.metphi ;
-      // theSmallTree.m_met_et = theBigTree.met ;
-      TVector2 vMET (theBigTree.METx->at(chosenTauPair) , theBigTree.METy->at(chosenTauPair));
       theSmallTree.m_met_phi   = vMET.Phi();
       theSmallTree.m_met_et    = vMET.Mod();
-      theSmallTree.m_METx    = vMET.X();
-      theSmallTree.m_METy    = vMET.Y();
+      theSmallTree.m_METx      = vMET.X();
+      theSmallTree.m_METy      = vMET.Y();
       theSmallTree.m_met_cov00 = theBigTree.MET_cov00->at (chosenTauPair);
       theSmallTree.m_met_cov01 = theBigTree.MET_cov01->at (chosenTauPair);
       theSmallTree.m_met_cov10 = theBigTree.MET_cov10->at (chosenTauPair);
@@ -2174,16 +2210,12 @@ int main (int argc, char** argv)
       theSmallTree.m_tauH_e    = tlv_tauH.E () ;
       theSmallTree.m_tauH_mass = tlv_tauH.M () ;
 
-      theSmallTree.m_tauHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_tauH.Phi ()) ;
+      theSmallTree.m_tauHMet_deltaPhi = deltaPhi (vMET.Phi(), tlv_tauH.Phi ()) ;
       theSmallTree.m_ditau_deltaPhi = deltaPhi (tlv_firstLepton.Phi (), tlv_secondLepton.Phi ()) ;
       theSmallTree.m_ditau_deltaEta = fabs(tlv_firstLepton.Eta ()- tlv_secondLepton.Eta ()) ;
       theSmallTree.m_ditau_deltaR = tlv_firstLepton.DeltaR(tlv_secondLepton) ;
-      theSmallTree.m_dau1MET_deltaphi = deltaPhi (theBigTree.metphi , tlv_firstLepton.Phi ()) ;
-      theSmallTree.m_dau2MET_deltaphi = deltaPhi (theBigTree.metphi , tlv_secondLepton.Phi ()) ;
-
-      // Create the MET TLorentzVector for BDT variables, since it's MET --> (px,py,0,0)
-      TLorentzVector tlv_MET;
-      tlv_MET.SetPxPyPzE( theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair), 0, std::hypot(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair)) );
+      theSmallTree.m_dau1MET_deltaphi = deltaPhi (vMET.Phi() , tlv_firstLepton.Phi ()) ;
+      theSmallTree.m_dau2MET_deltaphi = deltaPhi (vMET.Phi() , tlv_secondLepton.Phi ()) ;
 
       theSmallTree.m_tauH_MET_pt                  = (tlv_tauH + tlv_MET).Pt();
       theSmallTree.m_dau2_MET_deltaEta            = fabs(tlv_secondLepton.Eta()); // since MET.Eta()==0 by definition, dEta(tau2,MET)=|tau2.Eta()|
@@ -2194,7 +2226,7 @@ int main (int argc, char** argv)
 
       theSmallTree.m_mT_tauH_MET       = Calculate_MT(tlv_tauH + tlv_MET, tlv_MET);
       theSmallTree.m_mT_total          = Calculate_TotalMT(tlv_firstLepton, tlv_secondLepton, tlv_MET);
-      if (theBigTree.SVfitMass->at (chosenTauPair) > -900.) // in case SVfit is calculated
+      if (theBigTree.SVfitMass->at(chosenTauPair) > -900. || (doSmearing && theSmallTree.m_tauH_SVFIT_mass > 0))
       {
         theSmallTree.m_mT_tauH_SVFIT_MET             = Calculate_MT(tlv_tauH_SVFIT, tlv_MET);
         theSmallTree.m_BDT_tauHsvfitMet_abs_deltaPhi = fabs(ROOT::Math::VectorUtil::DeltaPhi(tlv_tauH_SVFIT, tlv_MET));
@@ -3529,13 +3561,8 @@ int main (int argc, char** argv)
         // JET PF ID cut
         if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
-        TLorentzVector tlv_jet
-        (
-         theBigTree.jets_px->at (iJet),
-         theBigTree.jets_py->at (iJet),
-         theBigTree.jets_pz->at (iJet),
-         theBigTree.jets_e->at (iJet)
-        ) ;
+        TLorentzVector tlv_jet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet)) ;
+        if (doSmearing) tlv_jet = Smearer.getSmearedJetFromIdx(iJet, theBigTree);
 
         if (DEBUG)
         {
@@ -3595,6 +3622,7 @@ int main (int argc, char** argv)
       {
         if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
         TLorentzVector tlv_jet(theBigTree.jets_px->at (iJet), theBigTree.jets_py->at (iJet), theBigTree.jets_pz->at (iJet), theBigTree.jets_e->at (iJet));
+        if (doSmearing) tlv_jet = Smearer.getSmearedJetFromIdx(iJet, theBigTree);
         if (tlv_jet.Pt() > 15.) theSmallTree.m_PUjetID.push_back(theBigTree.jets_PUJetIDupdated->at(iJet));
       }
 
@@ -3614,23 +3642,23 @@ int main (int argc, char** argv)
         for (auto pair : jets_and_sortPar) jets_and_BTag.push_back (make_pair(pair.second, pair.first)); // just for compatibility...
 
         // NB !!! the following function only works if jets_and_sortPar contains <CVSscore, idx>
-        vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType, bTagSF::central) ;
+        vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree, Smearer, pType, bTagSF::central) ;
         theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
         theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
         theSmallTree.m_bTagweightT = (isMC ? bTagWeight.at(2) : 1.0) ;
         theSmallTree.m_bTagweightReshape = (isMC ? bTagWeight.at(3) : 1.0) ;
 
-        vector<float> bTagWeight_up = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType, bTagSF::up) ;
+        vector<float> bTagWeight_up = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree, Smearer, pType, bTagSF::up) ;
         theSmallTree.m_bTagweightL_up = (isMC ? bTagWeight_up.at(0) : 1.0) ;
         theSmallTree.m_bTagweightM_up = (isMC ? bTagWeight_up.at(1) : 1.0) ;
         theSmallTree.m_bTagweightT_up = (isMC ? bTagWeight_up.at(2) : 1.0) ;
 
-        vector<float> bTagWeight_down = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour, pType, bTagSF::down) ;
+        vector<float> bTagWeight_down = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree, Smearer, pType, bTagSF::down) ;
         theSmallTree.m_bTagweightL_down = (isMC ? bTagWeight_down.at(0) : 1.0) ;
         theSmallTree.m_bTagweightM_down = (isMC ? bTagWeight_down.at(1) : 1.0) ;
         theSmallTree.m_bTagweightT_down = (isMC ? bTagWeight_down.at(2) : 1.0) ;
 
-        vector<float> bTagWeightReshapeshifts = bTagSFHelper.getEvtWeightShifted (jets_and_BTag, theBigTree.jets_px, theBigTree.jets_py, theBigTree.jets_pz, theBigTree.jets_e, theBigTree.jets_HadronFlavour) ;
+        vector<float> bTagWeightReshapeshifts = bTagSFHelper.getEvtWeightShifted (jets_and_BTag, theBigTree, Smearer) ;
         theSmallTree.m_bTagweightReshape_jes_up        = (isMC ? bTagWeightReshapeshifts.at(0) : 1.0) ;
         theSmallTree.m_bTagweightReshape_lf_up         = (isMC ? bTagWeightReshapeshifts.at(1) : 1.0) ;
         theSmallTree.m_bTagweightReshape_hf_up         = (isMC ? bTagWeightReshapeshifts.at(2) : 1.0) ;
@@ -3652,7 +3680,7 @@ int main (int argc, char** argv)
 
         // Set HHbtaginterface for ordering jets
         HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,
-          tlv_firstLepton, tlv_secondLepton, tlv_tauH, tlv_MET, theSmallTree.m_EventNumber);
+          tlv_firstLepton, tlv_secondLepton, tlv_tauH, tlv_MET, theSmallTree.m_EventNumber, Smearer);
 
         // Get HHbtag scores in a map <jet_idx, HHbtag_score>
         std::map<int,float> jets_and_HHbtag = HHbtagTagger.GetScore();
@@ -3711,12 +3739,8 @@ int main (int argc, char** argv)
             if (int (iJet) == bjet2idx) continue;
 
             TLorentzVector ijet;
-            ijet.SetPxPyPzE(
-                           theBigTree.jets_px->at (iJet),
-                           theBigTree.jets_py->at (iJet),
-                           theBigTree.jets_pz->at (iJet),
-                           theBigTree.jets_e ->at (iJet)
-                           );
+            ijet.SetPxPyPzE(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e ->at(iJet));
+            if (doSmearing) ijet = Smearer.getSmearedJetFromIdx(iJet, theBigTree);
 
             if (ijet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
             if (ijet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
@@ -3744,12 +3768,8 @@ int main (int argc, char** argv)
               if (int (kJet) == bjet2idx) continue;
 
               TLorentzVector kjet;
-              kjet.SetPxPyPzE(
-                             theBigTree.jets_px->at (kJet),
-                             theBigTree.jets_py->at (kJet),
-                             theBigTree.jets_pz->at (kJet),
-                             theBigTree.jets_e ->at (kJet)
-                             );
+              kjet.SetPxPyPzE(theBigTree.jets_px->at(kJet), theBigTree.jets_py->at(kJet), theBigTree.jets_pz->at(kJet), theBigTree.jets_e ->at(kJet));
+              if (doSmearing) kjet = Smearer.getSmearedJetFromIdx(kJet, theBigTree);
 
               if (kjet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
               if (kjet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
@@ -3811,7 +3831,10 @@ int main (int argc, char** argv)
 
         // Now that I've selected the bjets build the TLorentzVectors
         TLorentzVector tlv_firstBjet (theBigTree.jets_px->at(bjet1idx), theBigTree.jets_py->at(bjet1idx), theBigTree.jets_pz->at(bjet1idx), theBigTree.jets_e->at(bjet1idx));
+        if (doSmearing) tlv_firstBjet = Smearer.getSmearedJet(tlv_firstBjet, theBigTree);
         TLorentzVector tlv_secondBjet(theBigTree.jets_px->at(bjet2idx), theBigTree.jets_py->at(bjet2idx), theBigTree.jets_pz->at(bjet2idx), theBigTree.jets_e->at(bjet2idx));
+        if (doSmearing) tlv_secondBjet = Smearer.getSmearedJet(tlv_secondBjet, theBigTree);
+
         if (DEBUG)
         {
           std::cout << "------BJETS----" << std::endl;
@@ -3913,6 +3936,11 @@ int main (int argc, char** argv)
         //https://github.com/LLRCMS/LLRHiggsTauTau/blob/102X_HH/NtupleProducer/plugins/HTauTauNtuplizer.cc#L2316
         double bjet1_JER = theBigTree.jets_JER->at(bjet1idx);
         double bjet2_JER = theBigTree.jets_JER->at(bjet2idx);
+        if (doSmearing)
+        {
+          bjet1_JER = Smearer.getResolution(bjet1idx, theBigTree) * tlv_firstBjet_raw.E();
+          bjet2_JER = Smearer.getResolution(bjet2idx, theBigTree) * tlv_secondBjet_raw.E();
+        }
         theSmallTree.m_bjet1_JER = bjet1_JER;
         theSmallTree.m_bjet2_JER = bjet2_JER;
 
@@ -4120,6 +4148,7 @@ int main (int argc, char** argv)
 
           // Build the jet TLorentzVector
           TLorentzVector tlv_jet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet)) ;
+          if (doSmearing) tlv_jet = Smearer.getSmearedJet(tlv_jet, theBigTree);
 
           // Pt cut for jets
           if (tlv_jet.Pt () < 20.) continue ;
@@ -4150,28 +4179,27 @@ int main (int argc, char** argv)
 
           }
           if (TMath::Abs(tlv_jet.Eta()) < 4.7)
+          {
+            if (tlv_jet.Pt () > 20) theSmallTree.m_BDT_HT20 += tlv_jet.Pt() ;
+            if (DEBUG) cout << " ---> Jet " << iJet << " - pt: " << tlv_jet.Pt() << " - HT: " << theSmallTree.m_BDT_HT20 << endl;
+
+            // JES total shift
+            TLorentzVector tlv_jetupTot   = getShiftedJet(tlv_jet, +1., theBigTree.jets_jetUncRegrouped_Total_up->at(iJet));
+            TLorentzVector tlv_jetdownTot = getShiftedJet(tlv_jet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet));
+            if (tlv_jetupTot.Pt()   > 20) theSmallTree.m_BDT_HT20_jetupTot += tlv_jetupTot.Pt();
+            if (tlv_jetdownTot.Pt() > 20) theSmallTree.m_BDT_HT20_jetdownTot += tlv_jetdownTot.Pt();
+
+            //pair <vector <double>, vector<double>> unc_updown = getJetUpDown(iJet, theBigTree);
+            pair <vector <double>, vector<double>> unc_updown = JECprovider.getJECUncVectors(iJet, theBigTree);
+            // build shifted jet
+            for (int isource = 0; isource < N_jecSources; isource++)
             {
-             
-              if (tlv_jet.Pt () > 20) theSmallTree.m_BDT_HT20 += tlv_jet.Pt() ;
-              if (DEBUG) cout << " ---> Jet " << iJet << " - pt: " << tlv_jet.Pt() << " - HT: " << theSmallTree.m_BDT_HT20 << endl;
-
-              // JES total shift
-              TLorentzVector tlv_jetupTot   = getShiftedJet(tlv_jet, +1., theBigTree.jets_jetUncRegrouped_Total_up->at(iJet));
-              TLorentzVector tlv_jetdownTot = getShiftedJet(tlv_jet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet));
-              if (tlv_jetupTot.Pt()   > 20) theSmallTree.m_BDT_HT20_jetupTot += tlv_jetupTot.Pt();
-              if (tlv_jetdownTot.Pt() > 20) theSmallTree.m_BDT_HT20_jetdownTot += tlv_jetdownTot.Pt();
-
-              //pair <vector <double>, vector<double>> unc_updown = getJetUpDown(iJet, theBigTree);
-              pair <vector <double>, vector<double>> unc_updown = JECprovider.getJECUncVectors(iJet, theBigTree);
-              // build shifted jet
-              for (int isource = 0; isource < N_jecSources; isource++)
-              {
-                TLorentzVector tlv_jetup   = getShiftedJet(tlv_jet, +1., unc_updown.first[isource]);
-                TLorentzVector tlv_jetdown = getShiftedJet(tlv_jet, -1., unc_updown.second[isource]);
-                if (tlv_jetup.Pt () > 20)   BDT_HT20_jetup[isource]   += tlv_jetup.Pt();
-                if (tlv_jetdown.Pt () > 20) BDT_HT20_jetdown[isource] += tlv_jetdown.Pt();
-              }
+              TLorentzVector tlv_jetup   = getShiftedJet(tlv_jet, +1., unc_updown.first[isource]);
+              TLorentzVector tlv_jetdown = getShiftedJet(tlv_jet, -1., unc_updown.second[isource]);
+              if (tlv_jetup.Pt () > 20)   BDT_HT20_jetup[isource]   += tlv_jetup.Pt();
+              if (tlv_jetdown.Pt () > 20) BDT_HT20_jetdown[isource] += tlv_jetdown.Pt();
             }
+          }
           if (tlv_jet.Pt () > 50)
           {
             ++theSmallTree.m_njets50 ;
@@ -4187,7 +4215,12 @@ int main (int argc, char** argv)
 
         float METx = theBigTree.METx->at (chosenTauPair) ;
         float METy = theBigTree.METy->at (chosenTauPair) ;
-        //float METpt = 0;//TMath::Sqrt (METx*METx + METy*METy) ;
+        if (doSmearing)
+        {
+          TVector2 metSmeared = getShiftedMET_smear(METx, METy, theBigTree, Smearer);
+          METx = metSmeared.Px();
+          METy = metSmeared.Py();
+        }
 
         TLorentzVector tlv_bH = tlv_firstBjet + tlv_secondBjet ;
         TLorentzVector tlv_neutrinos =  tlv_bH - tlv_bH_raw;
@@ -4276,7 +4309,7 @@ int main (int argc, char** argv)
 
 
         // in case the SVFIT mass is calculated
-        if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
+        if (theBigTree.SVfitMass->at(chosenTauPair) > -900. || (doSmearing && theSmallTree.m_tauH_SVFIT_mass > 0))
         {
           TLorentzVector tlv_HHsvfit  = tlv_bH + tlv_tauH_SVFIT ;
           theSmallTree.m_HHsvfit_pt   = tlv_HHsvfit.Pt () ;
@@ -4448,7 +4481,7 @@ int main (int argc, char** argv)
 	    }
           }
           else theSmallTree.m_HHKin_mass_raw = -100 ;
-          if (theBigTree.SVfitMass->at (chosenTauPair) > -900. && !wrongHHK)
+          if ( (theBigTree.SVfitMass->at(chosenTauPair) > -900. || (doSmearing && theSmallTree.m_tauH_SVFIT_mass > 0)) && !wrongHHK)
           {
             TLorentzVector b1 = kinFits.getFittedBJet1();
             TLorentzVector b2 = kinFits.getFittedBJet2();
@@ -4481,8 +4514,8 @@ int main (int argc, char** argv)
           double pxB = tlv_secondBjet_raw.Px();  // x momentum of visible object on side B.
           double pyB = tlv_secondBjet_raw.Py();  // y momentum of visible object on side B.
 
-          double pxMiss = tlv_firstLepton.Px() + tlv_secondLepton.Px() + theBigTree.METx->at(chosenTauPair); // x component of missing transverse momentum.
-          double pyMiss = tlv_firstLepton.Py() + tlv_secondLepton.Py() + theBigTree.METy->at(chosenTauPair); // y component of missing transverse momentum.
+          double pxMiss = tlv_firstLepton.Px() + tlv_secondLepton.Px() + theSmallTree.m_METx; // x component of missing transverse momentum.
+          double pyMiss = tlv_firstLepton.Py() + tlv_secondLepton.Py() + theSmallTree.m_METy; // y component of missing transverse momentum.
 
           double chiA = tlv_firstLepton.M();  // hypothesised mass of invisible on side A.  Must be >=0.
           double chiB = tlv_secondLepton.M(); // hypothesised mass of invisible on side B.  Must be >=0.
@@ -4507,7 +4540,7 @@ int main (int argc, char** argv)
         theSmallTree.m_HH_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
         theSmallTree.m_HH_deltaEta = fabs(tlv_bH.Eta()- tlv_tauH.Eta ()) ;
         theSmallTree.m_HHsvfit_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH_SVFIT.Phi ()) ;
-        theSmallTree.m_bHMet_deltaPhi = deltaPhi (theBigTree.metphi, tlv_bH.Phi ()) ;
+         theSmallTree.m_bHMet_deltaPhi = deltaPhi (vMET.Phi(), tlv_bH.Phi ()) ;
         theSmallTree.m_dib_deltaPhi = deltaPhi (tlv_firstBjet.Phi (), tlv_secondBjet.Phi ()) ;
         theSmallTree.m_dib_deltaEta = fabs(tlv_firstBjet.Eta()-tlv_secondBjet.Eta ()) ;
         theSmallTree.m_dib_deltaR = tlv_firstBjet.DeltaR(tlv_secondBjet) ;
@@ -4546,6 +4579,12 @@ int main (int argc, char** argv)
           TLorentzVector VBFjet2;
           VBFjet2.SetPxPyPzE( theBigTree.jets_px->at(VBFidx2), theBigTree.jets_py->at(VBFidx2), theBigTree.jets_pz->at(VBFidx2), theBigTree.jets_e->at(VBFidx2) );
 
+          if (doSmearing)
+          {
+            VBFjet1 = Smearer.getSmearedJet(VBFjet1, theBigTree);
+            VBFjet2 = Smearer.getSmearedJet(VBFjet2, theBigTree);
+          }
+
           // Total JES up/down variation
           TLorentzVector tlv_VBFjet1_jetupTot   = getShiftedJet(VBFjet1, +1., theBigTree.jets_jetUncRegrouped_Total_up->at(VBFidx1));
           TLorentzVector tlv_VBFjet1_jetdownTot = getShiftedJet(VBFjet1, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(VBFidx1));
@@ -4563,42 +4602,41 @@ int main (int argc, char** argv)
           theSmallTree.m_VBFjj_mass_jetupTot       = (tlv_VBFjet1_jetupTot + tlv_VBFjet2_jetupTot).M();
           theSmallTree.m_VBFjj_mass_jetdownTot     = (tlv_VBFjet1_jetdownTot + tlv_VBFjet2_jetdownTot).M();
 
-	  //pair <vector <double>, vector<double>> unc_VBF1_updown = getJetUpDown(VBFidx1, theBigTree);
-	  //pair <vector <double>, vector<double>> unc_VBF2_updown = getJetUpDown(VBFidx2, theBigTree);
-	  pair <vector <double>, vector<double>> unc_VBF1_updown = JECprovider.getJECUncVectors(VBFidx1, theBigTree);
-	  pair <vector <double>, vector<double>> unc_VBF2_updown = JECprovider.getJECUncVectors(VBFidx2, theBigTree);
-	  
-	  // compute all shifted VBFjets
-	  vector <TLorentzVector> VBFjet1_jetup(N_jecSources,VBFjet1); 
-	  vector <TLorentzVector> VBFjet1_jetdown(N_jecSources,VBFjet1);
-	  vector <TLorentzVector> VBFjet2_jetup(N_jecSources,VBFjet2); 
-	  vector <TLorentzVector> VBFjet2_jetdown(N_jecSources,VBFjet2);
+          //pair <vector <double>, vector<double>> unc_VBF1_updown = getJetUpDown(VBFidx1, theBigTree);
+          //pair <vector <double>, vector<double>> unc_VBF2_updown = getJetUpDown(VBFidx2, theBigTree);
+          pair <vector <double>, vector<double>> unc_VBF1_updown = JECprovider.getJECUncVectors(VBFidx1, theBigTree);
+          pair <vector <double>, vector<double>> unc_VBF2_updown = JECprovider.getJECUncVectors(VBFidx2, theBigTree);
 
-	  vector <TLorentzVector> VBFjj_jetup(N_jecSources, VBFjet1+VBFjet2); 
-	  vector <TLorentzVector> VBFjj_jetdown(N_jecSources, VBFjet1+VBFjet2);
+          // compute all shifted VBFjets
+          vector <TLorentzVector> VBFjet1_jetup(N_jecSources,VBFjet1);
+          vector <TLorentzVector> VBFjet1_jetdown(N_jecSources,VBFjet1);
+          vector <TLorentzVector> VBFjet2_jetup(N_jecSources,VBFjet2);
+          vector <TLorentzVector> VBFjet2_jetdown(N_jecSources,VBFjet2);
 
-	  for (int isource = 0; isource < N_jecSources; isource++)
-	    {
-	      VBFjet1_jetup[isource]   = getShiftedJet(VBFjet1, +1., unc_VBF1_updown.first[isource]);
-	      VBFjet1_jetdown[isource] = getShiftedJet(VBFjet1, -1., unc_VBF1_updown.second[isource]);
-	      VBFjet2_jetup[isource]  = getShiftedJet(VBFjet2, +1., unc_VBF2_updown.first[isource]);
-	      VBFjet2_jetdown[isource]= getShiftedJet(VBFjet2, -1., unc_VBF2_updown.second[isource]);
+          vector <TLorentzVector> VBFjj_jetup(N_jecSources, VBFjet1+VBFjet2);
+          vector <TLorentzVector> VBFjj_jetdown(N_jecSources, VBFjet1+VBFjet2);
 
-	      theSmallTree.m_VBFjet1_pt_jetup    [isource] = VBFjet1_jetup[isource].Pt();
-	      theSmallTree.m_VBFjet1_pt_jetdown  [isource] = VBFjet1_jetdown[isource].Pt();
-	      theSmallTree.m_VBFjet1_mass_jetup  [isource] = VBFjet1_jetup[isource].M();
-	      theSmallTree.m_VBFjet1_mass_jetdown[isource] = VBFjet1_jetdown[isource].M();
-	      theSmallTree.m_VBFjet2_pt_jetup    [isource] = VBFjet2_jetup[isource].Pt();
-	      theSmallTree.m_VBFjet2_pt_jetdown  [isource] = VBFjet2_jetdown[isource].Pt();
-	      theSmallTree.m_VBFjet2_mass_jetup  [isource] = VBFjet2_jetup[isource].M();
-	      theSmallTree.m_VBFjet2_mass_jetdown[isource] = VBFjet2_jetdown[isource].M();
+          for (int isource = 0; isource < N_jecSources; isource++)
+          {
+            VBFjet1_jetup[isource]   = getShiftedJet(VBFjet1, +1., unc_VBF1_updown.first[isource]);
+            VBFjet1_jetdown[isource] = getShiftedJet(VBFjet1, -1., unc_VBF1_updown.second[isource]);
+            VBFjet2_jetup[isource]  = getShiftedJet(VBFjet2, +1., unc_VBF2_updown.first[isource]);
+            VBFjet2_jetdown[isource]= getShiftedJet(VBFjet2, -1., unc_VBF2_updown.second[isource]);
 
-	      VBFjj_jetup[isource] = VBFjet1_jetup[isource] + VBFjet2_jetup[isource];
-	      VBFjj_jetdown[isource] = VBFjet1_jetdown[isource] + VBFjet2_jetdown[isource];
-	      theSmallTree.m_VBFjj_mass_jetup  [isource] = VBFjj_jetup[isource].M();
-	      theSmallTree.m_VBFjj_mass_jetdown[isource] = VBFjj_jetdown[isource].M();
+            theSmallTree.m_VBFjet1_pt_jetup    [isource] = VBFjet1_jetup[isource].Pt();
+            theSmallTree.m_VBFjet1_pt_jetdown  [isource] = VBFjet1_jetdown[isource].Pt();
+            theSmallTree.m_VBFjet1_mass_jetup  [isource] = VBFjet1_jetup[isource].M();
+            theSmallTree.m_VBFjet1_mass_jetdown[isource] = VBFjet1_jetdown[isource].M();
+            theSmallTree.m_VBFjet2_pt_jetup    [isource] = VBFjet2_jetup[isource].Pt();
+            theSmallTree.m_VBFjet2_pt_jetdown  [isource] = VBFjet2_jetdown[isource].Pt();
+            theSmallTree.m_VBFjet2_mass_jetup  [isource] = VBFjet2_jetup[isource].M();
+            theSmallTree.m_VBFjet2_mass_jetdown[isource] = VBFjet2_jetdown[isource].M();
 
-	    }
+            VBFjj_jetup[isource] = VBFjet1_jetup[isource] + VBFjet2_jetup[isource];
+            VBFjj_jetdown[isource] = VBFjet1_jetdown[isource] + VBFjet2_jetdown[isource];
+            theSmallTree.m_VBFjj_mass_jetup  [isource] = VBFjj_jetup[isource].M();
+            theSmallTree.m_VBFjj_mass_jetdown[isource] = VBFjj_jetdown[isource].M();
+          }
 
           bool hasgj1_VBF = false;
           bool hasgj2_VBF = false;
@@ -4843,12 +4881,8 @@ int main (int argc, char** argv)
             theSmallTree.m_bjet2_jecUnc = theBigTree.jets_jecUnc->at(iJet);
             continue ;
           }
-          TLorentzVector tlv_dummyJet(
-                                      theBigTree.jets_px->at (iJet),
-                                      theBigTree.jets_py->at (iJet),
-                                      theBigTree.jets_pz->at (iJet),
-                                      theBigTree.jets_e->at (iJet)
-                                     );
+          TLorentzVector tlv_dummyJet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
+          if (doSmearing) tlv_dummyJet = Smearer.getSmearedJet(tlv_dummyJet, theBigTree);
 
           // Apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets )
           // PU jet ID WP = 2: loose
@@ -4900,7 +4934,7 @@ int main (int argc, char** argv)
           theSmallTree.m_jets_pt.push_back (tlv_dummyJet.Pt ()) ;
           theSmallTree.m_jets_eta.push_back (tlv_dummyJet.Eta ()) ;
           theSmallTree.m_jets_phi.push_back (tlv_dummyJet.Phi ()) ;
-          theSmallTree.m_jets_e.push_back (theBigTree.jets_e->at (iJet)) ;
+          theSmallTree.m_jets_e.push_back (tlv_dummyJet.E ()) ;
           theSmallTree.m_jets_btag.push_back (theBigTree.bCSVscore->at (iJet)) ;
           theSmallTree.m_jets_btag_deepCSV.push_back (theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet)) ;
           theSmallTree.m_jets_btag_deepFlavor.push_back (theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet)) ;
@@ -4939,7 +4973,7 @@ int main (int argc, char** argv)
       // PUjetIDSFprovider
       if (isMC)
       {
-        std::vector<float> PUjetID_SF_values = PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton, true);
+        std::vector<float> PUjetID_SF_values = PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton, Smearer, true);
         theSmallTree.m_PUjetID_SF      = PUjetID_SF_values.at(0);
         theSmallTree.m_PUjetID_SF_up   = PUjetID_SF_values.at(1);
         theSmallTree.m_PUjetID_SF_down = PUjetID_SF_values.at(2);
@@ -5066,6 +5100,7 @@ int main (int argc, char** argv)
 
         // build the tlv
         TLorentzVector tlv_additionalJet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
+        if (doSmearing) tlv_additionalJet = Smearer.getSmearedJet(tlv_additionalJet, theBigTree);
 
         // Kinematic selections + lepton cleaning
         if (tlv_additionalJet.Pt() < 20.) continue ;
@@ -5325,6 +5360,7 @@ int main (int argc, char** argv)
         if (int (iJet) == bjet2idx) continue ;
 
         TLorentzVector tlv_dummyJet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
+        if (doSmearing) tlv_dummyJet = Smearer.getSmearedJet(tlv_dummyJet, theBigTree);
 
         // Apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets )
         // PU jet ID WP = 2: loose
