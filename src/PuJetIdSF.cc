@@ -184,7 +184,7 @@ float PuJetIdSF::getSFError(bool isReal, float pt, float eta)
       if (binx > nx) binx = nx;
       if (biny > ny) biny = ny;
 
-      sferr = h_mistag_SF_->GetBinContent (binx, biny);
+      sferr = h_mistag_SF_err_->GetBinContent (binx, biny);
     }
     else /* fabs(eta) < 2.5 */
     {
