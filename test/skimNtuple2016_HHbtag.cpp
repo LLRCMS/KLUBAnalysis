@@ -3355,6 +3355,28 @@ int main (int argc, char** argv)
         theSmallTree.m_bTagweightReshape_lfstats2_down = (isMC ? bTagWeightReshapeshifts.at(15) : 1.0) ;
         theSmallTree.m_bTagweightReshape_cferr1_down   = (isMC ? bTagWeightReshapeshifts.at(16) : 1.0) ;
         theSmallTree.m_bTagweightReshape_cferr2_down   = (isMC ? bTagWeightReshapeshifts.at(17) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetup1        = (isMC ? bTagWeightReshapeshifts.at(18) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetup2        = (isMC ? bTagWeightReshapeshifts.at(19) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetup3        = (isMC ? bTagWeightReshapeshifts.at(20) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetup4        = (isMC ? bTagWeightReshapeshifts.at(21) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetup5        = (isMC ? bTagWeightReshapeshifts.at(22) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetup6        = (isMC ? bTagWeightReshapeshifts.at(23) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetup7        = (isMC ? bTagWeightReshapeshifts.at(24) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetup8        = (isMC ? bTagWeightReshapeshifts.at(25) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetup9        = (isMC ? bTagWeightReshapeshifts.at(26) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetup10       = (isMC ? bTagWeightReshapeshifts.at(27) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetup11       = (isMC ? bTagWeightReshapeshifts.at(28) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetdown1      = (isMC ? bTagWeightReshapeshifts.at(29) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetdown2      = (isMC ? bTagWeightReshapeshifts.at(30) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetdown3      = (isMC ? bTagWeightReshapeshifts.at(31) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetdown4      = (isMC ? bTagWeightReshapeshifts.at(32) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetdown5      = (isMC ? bTagWeightReshapeshifts.at(33) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetdown6      = (isMC ? bTagWeightReshapeshifts.at(34) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetdown7      = (isMC ? bTagWeightReshapeshifts.at(35) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetdown8      = (isMC ? bTagWeightReshapeshifts.at(36) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetdown9      = (isMC ? bTagWeightReshapeshifts.at(37) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetdown10     = (isMC ? bTagWeightReshapeshifts.at(38) : 1.0) ;
+        theSmallTree.m_bTagweightReshape_jetdown11     = (isMC ? bTagWeightReshapeshifts.at(39) : 1.0) ;
 
         // Set HHbtaginterface for ordering jets
         HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,
@@ -5479,16 +5501,16 @@ int main (int argc, char** argv)
 
         // models to load for inference
         std::vector<std::pair<std::string, std::string>> modelSpecs = {
-          //{ "v0", "kl1_c2v1_c31" },
-          //{ "v0", "kl1_c2v1_c31_vbfbsm" }
-          //{ "v1", "kl1_c2v1_c31" },
-          //{ "v2", "kl1_c2v1_c31" },
+          //{ "v0" , "kl1_c2v1_c31"    },
+          //{ "v0" , "kl1_c2v1_c31_vbfbsm" }
+          //{ "v1" , "kl1_c2v1_c31"    },
+          //{ "v2" , "kl1_c2v1_c31"    },
           //{ "v3" , "kl1_c2v1_c31_vbf"},
           //{ "v3" , "kl1_c2v1_c31_vr" },
-          //({ "v3b", "kl1_c2v1_c31_vbf"},
-          //({ "v3b", "kl1_c2v1_c31_vr" },
-          { "v4" , "kl1_c2v1_c31_vbf"},
-          { "v4" , "kl1_c2v1_c31_vr" },
+          //{ "v3b", "kl1_c2v1_c31_vbf"},
+          //{ "v3b", "kl1_c2v1_c31_vr" },
+          //{ "v4" , "kl1_c2v1_c31_vbf"},
+          //{ "v4" , "kl1_c2v1_c31_vr" },
           { "v5" , "kl1_c2v1_c31_vbf"}
         };
 
