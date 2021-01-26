@@ -664,7 +664,7 @@ if __name__ == "__main__" :
     legminx = 0.5
     legmin = 0.7
     if args.lymin: legmin = args.lymin
-    if (len(hBkgNameList) +len(hSigs)>6): legminx = 0.4
+    if (len(hBkgNameList) +len(hSigs)>6): legminx = 0.325
     leg = TLegend (legminx, legmin, 0.85, 0.93)
     if (len(hBkgNameList) +len(hSigs)> 6): leg.SetNColumns(2)
     leg.SetFillStyle(0)
