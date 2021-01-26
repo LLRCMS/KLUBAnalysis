@@ -2135,7 +2135,7 @@ int main (int argc, char** argv)
         }
       }
 
-      if (theBigTree.SVfitMass->at (chosenTauPair) > -900.)
+      if (!doSmearing && theBigTree.SVfitMass->at (chosenTauPair) > -900.)
       {
         theSmallTree.m_tauH_SVFIT_pt     = theBigTree.SVfit_pt->at  (chosenTauPair) ;
         theSmallTree.m_tauH_SVFIT_eta    = theBigTree.SVfit_eta->at (chosenTauPair) ;
