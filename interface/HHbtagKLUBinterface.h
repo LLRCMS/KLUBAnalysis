@@ -21,6 +21,7 @@
 
 // KLUB libraries
 #include "bigTree.h"
+#include "SmearedJetProducer.h"
 
 // ROOT libraries
 #include "TLorentzVector.h"
@@ -39,7 +40,7 @@ class HHbtagKLUBinterface {
 
     void SetInputValues(bigTree &theBigTree, std::vector<std::pair<float,int>> jets_and_sortPar, int channel,
           TLorentzVector tlv_tau1, TLorentzVector tlv_tau2, TLorentzVector tlv_tauH, TLorentzVector tlv_MET,
-          unsigned long long event);
+          unsigned long long event, SmearedJetProducer &smearer);
 
     std::map<int,float> GetScore();
 

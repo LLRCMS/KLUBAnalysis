@@ -61,7 +61,7 @@ DNNARCH = $(shell scram arch)
 DNNPATH = $(shell echo $$CMSSW_BASE | grep "CMSSW" | sed -e 's/$$/\/lib/')/$(DNNARCH)/
 DNNLIBS = -lcms_hh_proc_interfaceprocessing -lcms_hh_tf_inferenceinference -lMulticlassInferenceMulticlassInference -L$(DNNPATH)
 FWCOREPATH = $(shell echo $$CMSSW_RELEASE_BASE | sed -e 's/$$/\/lib/')/$(DNNARCH)/
-FWCORELIBS = -lFWCoreMessageLogger -lCondFormatsJetMETObjects -L$(FWCOREPATH)
+FWCORELIBS = -lFWCoreMessageLogger -lCondFormatsJetMETObjects -lJetMETCorrectionsModules -L$(FWCOREPATH)
 
 SVfitLIBS = -lTauAnalysisClassicSVfit -lTauAnalysisSVfitTF -L$(DNNPATH)
 HHbtagLIBS = -lHHToolsHHbtag -L${DNNPATH}

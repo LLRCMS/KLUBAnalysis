@@ -197,7 +197,7 @@ float PuJetIdSF::getSFError(bool isReal, float pt, float eta)
 }
 
 //getEvtWeight - Returns a vector with {central SF, SF_up, SF_down}
-std::vector<float> PuJetIdSF::getEvtWeight(bigTree &theBigTree, TLorentzVector tau1, TLorentzVector tau2, bool cleanJets)
+std::vector<float> PuJetIdSF::getEvtWeight(bigTree &theBigTree, TLorentzVector tau1, TLorentzVector tau2, SmearedJetProducer &smearer, bool cleanJets)
 {
   // Weight for each event
   std::vector<float> eventWeight(3);
@@ -215,7 +215,7 @@ std::vector<float> PuJetIdSF::getEvtWeight(bigTree &theBigTree, TLorentzVector t
     if (theBigTree.PFjetID->at (iJet) < 1) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
     // Build jet
-    TLorentzVector tlv_jet(theBigTree.jets_px->at (iJet), theBigTree.jets_py->at (iJet), theBigTree.jets_pz->at (iJet), theBigTree.jets_e->at (iJet));
+    TLorentzVector tlv_jet = smearer.getSmearedJetFromIdx(iJet, theBigTree);
 
     if (DEBUG) std::cout << " iJet: " << iJet << "  pt: " << tlv_jet.Pt() << " eta: " << tlv_jet.Eta() << " phi: " << tlv_jet.Phi() << std::endl;
 
