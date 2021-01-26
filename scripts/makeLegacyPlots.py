@@ -138,20 +138,6 @@ def addOverFlow (histo):
     dummy.SetName (name) 
     histo, dummy = dummy, histo
     return histo
-
-def addOverAndUnderFlow ( histo):
-  histo.SetBinContent(histo.GetNbinsX(),histo.GetBinContent(histo.GetNbinsX())+histo.GetBinContent(histo.GetNbinsX()+1)); 
-  histo.SetBinContent(1,histo.GetBinContent(1)+histo.GetBinContent(0))
-  
-  if (histo.GetBinErrorOption() != TH1.kPoisson):
-    histo.SetBinError(histo.GetNbinsX(),sqrt(pow(histo.GetBinError(histo.GetNbinsX()),2)+pow(histo.GetBinError(histo.GetNbinsX()+1),2)))
-    histo.SetBinError(1,sqrt(pow(histo.GetBinError(1),2)+pow(histo.GetBinError(0),2)))
-
-  histo.SetBinContent(0,0)
-  histo.SetBinContent(histo.GetNbinsX()+1,0)
-  if (histo.GetBinErrorOption() != TH1.kPoisson):
-      histo.SetBinError(0,0)
-      histo.SetBinError(histo.GetNbinsX()+1,0)
     
 # NB!! need to be called BEFORE removeHErrors or cannot know bin width
 def scaleGraphByBinWidth (graph):
@@ -253,22 +239,6 @@ def findMaxOfGraph (graph):
         uppers.append (y + graph.GetErrorYhigh(i))
     return max(uppers)
 
-# def makeSystUpDownStack (bkgList, systList, newNamePart):
-#     for i, name in bkgList:
-#         scale = systList[i] # error on nominal histo
-#         hUp = None   # the histograms with up/down syst
-#         hDown = None #
-#         if i == 0:
-#             hUp = bkgList[i].Clone (newNamePart + "_up")
-#             hDown = bkgList[i].Clone (newNamePart + "_up")
-#             hUp.Scale (1.0 + scale)
-#             hDown.Scale (1.0 - scale)
-#         else:
-#             hTempUp   = bkgList[i].Clone (newNamePart + "_tmp_up" + i)
-#             hTempDown = bkgList[i].Clone (newNamePart + "_tmp_up" + i)
-#             hTempUp.Scale (1.0 + scale)
-#             hTempDown.Scale (1.0 - scale)
-
 ## remove negative bins and reset yield accordingly
 ## NB: must be done BEFORE bin width division
 def makeNonNegativeHistos (hList):
@@ -320,7 +290,7 @@ def makeStatSystUncertaintyBand (bkgSum,hBkgList,hBkgNameList,systCfgList,channe
             if f[0].startswith('qq'): continue # skipp VBFHH systs
             if f[0].startswith('gg'): continue # skip GGHH systs
             if f[0] == 'type': continue # skip type declarations (they are all lnN)
-            # QCD systematics files are written have a different layout wrt the others, so we parse them separately
+            # QCD systematics files have a different layout wrt the others, so we parse them separately
             if 'QCD' in cfg:
                 if f[0].startswith('['):
                     ch = f[0].split('_')[0].replace('[','')
@@ -329,15 +299,14 @@ def makeStatSystUncertaintyBand (bkgSum,hBkgList,hBkgNameList,systCfgList,channe
                     if ch != channel: gate = False; continue # skip when channel is not matching
                     if sel != selection: gate = False; continue # skip when selection is not matching
                 if f[0].startswith('unc') and gate:
-                    up = abs(round(float(f[2].split(':')[1])-1,3))
-                    down = abs(round(float(f[2].split(':')[1])-1,3))
-                    # append value to the QCD column
-                    syst_df['QCD']['up'] += up**2
-                    syst_df['QCD']['down'] += down**2
+                    # append values to the QCD column
+                    syst_df['QCD']['up'] += abs(round(float(f[2].split(':')[1])-1,3))**2
+                    syst_df['QCD']['down'] += abs(round(float(f[2].split(':')[1])-1,3))**2
             else:
                 if f[0].startswith('['): continue # skip sections headers
                 # read the actual values of the syst
-                if '/' in f[2]:
+                # if there is a / the up and down are different, else they are the same
+                if '/' in f[2]: 
                     up = abs(round(float(f[2].split("/")[1])-1,3))
                     down = abs(round(float(f[2].split("/")[0])-1,3))
                 else:
@@ -359,8 +328,10 @@ def makeStatSystUncertaintyBand (bkgSum,hBkgList,hBkgNameList,systCfgList,channe
         central = bkgSum.GetBinContent(ibin)
         if central <= 0: continue
         for bkg, ibkg in zip(hSystBkgNameList, range(len(hSystBkgList))):
+        		# the weight is just the number of events of the specific bkg inside the bin under consideration
                 sup += max(0,hSystBkgList[ibkg].GetBinContent(ibin)) * syst_df[bkg]['up']
                 sdown += max(0,hSystBkgList[ibkg].GetBinContent(ibin)) * syst_df[bkg]['down']
+        
         fX.append      (bkgSum.GetBinCenter(ibin))
         fY.append      (1.0)
         feYUp.append   ((sup**2 + bkgSum.GetBinErrorUp(ibin)**2)**0.5 / central)
@@ -853,17 +824,6 @@ if __name__ == "__main__" :
     selBox.SetTextColor(kBlack)
     selBox.SetTextAlign(13)
     selBox.Draw()
-
-
-    ###################### BLINDING BOX ###############################
-    if args.blindrange:
-        blow = float(args.blindrange[0])
-        bup = float(args.blindrange[1])
-        bBox = TBox (blow, ymin, bup, 0.93*ymax)
-        bBox.SetFillStyle(3002) # NB: does not appear the same in displayed box and printed pdf!!
-        bBox.SetFillColor(kGray+2) # NB: does not appear the same in displayed box and printed pdf!!
-        bBox.Draw()
-
 
     ###################### RATIO PLOT #################################
     if args.ratio:

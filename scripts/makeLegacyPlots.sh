@@ -1,6 +1,6 @@
 basedir=/home/llr/cms/motta/HHLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis
 tag=/MY_impacts2018
-plotter=makeDNNplots.py
+plotter=makeLegacyPlots.py
 
 channel=TauTau
 #channel=MuTau
@@ -60,49 +60,61 @@ echo $obj1,$obj2
 
 #################################################################
 #################################################################
+# The plotting script has some bool options that can be called to make the plot as we like it to be:
+# 	  1. --doStatSystBand -> do the stat+syst uncertainty band in the ratio plot (as of now the uncertainty band on the stack is only the statistical)
+# 	  2. --no-binwidth    -> turn off the scaling of the histogram by the bin-width
+# 	  3. --binNXaxis      -> make the plot with the bin number on the x-axis instead of the values of the variable being plotted
+# 	  4. --ratio          -> plot the Data/MC ratio plot
+# 	  5. --no-sig         -> do not plot the signal superimposed to the stack plot
+# 	  6. --no-data        -> do not plot the data superimposed to the stack plot
+#     7. --dynamicRatioY  -> fix the range of the ratio plot depending on the values of the ratio itself instead of fixed values
+# and an option to unblind only part of the DNN score spectrum:
+# 	  1. --blind-range    -> do not plot the data in teh specified range 
+#						  -> takes as input two numbers: MIN and MAX of range to be blinded
+
 
 # PLOTS WITH BIN-WIDTH SCALING
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel2 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel3 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel4 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel5 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel6 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel7 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel8 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel2 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel3 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel4 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel5 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel6 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.0 0.5 --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel7 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.0 0.5 --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel8 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.0 0.5 --doStatSystBand
 
 
 # PLOTS WITHOUT BIN-WIDTH SCALING
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --no-binwidth --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel2 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --no-binwidth --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel3 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --no-binwidth --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel4 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --no-binwidth --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel5 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --no-binwidth --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel6 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --no-binwidth --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel7 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --no-binwidth --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel8 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --no-binwidth --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel2 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel3 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel4 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel5 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel6 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.0 0.5 --no-binwidth --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel7 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.0 0.5 --no-binwidth --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel8 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.0 0.5 --no-binwidth --doStatSystBand
 
 
 # PLOTS WITH BIN-NUMBER AS X-AXIS
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --no-binwidth --binNXaxis --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel2 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --no-binwidth --binNXaxis --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel3 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --no-binwidth --binNXaxis --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel4 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --no-binwidth --binNXaxis --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel5 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --no-binwidth --binNXaxis --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel6 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --no-binwidth --binNXaxis --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel7 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --no-binwidth --binNXaxis --doStatSystBand
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel8 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --no-binwidth --binNXaxis --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel2 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel3 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel4 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel5 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel6 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --blind-range 0.0 0.5 --no-binwidth --binNXaxis --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel7 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --blind-range 0.0 0.5 --no-binwidth --binNXaxis --doStatSystBand
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel8 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --blind-range 0.0 0.5 --no-binwidth --binNXaxis --doStatSystBand
 
 
 # PLOTS WITH BIN-NUMBER AS X-AXIS AND NO SYST BAND
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --no-binwidth --binNXaxis
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel2 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --no-binwidth --binNXaxis
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel3 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --no-binwidth --binNXaxis
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel4 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --no-binwidth --binNXaxis
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel5 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --no-binwidth --binNXaxis
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel6 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --no-binwidth --binNXaxis
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel7 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --no-binwidth --binNXaxis
-python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel8 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --no-binwidth --binNXaxis
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel2 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel3 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel4 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel5 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel6 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --blind-range 0.0 0.5 --no-binwidth --binNXaxis
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel7 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --blind-range 0.0 0.5 --no-binwidth --binNXaxis
+python scripts/$plotter --dir $basedir/$tag/$channel --year 2018 --var DNNoutSM_kl_1 --reg $reg --sel $sel8 --channel $channel --tag $tag --label "DNN bin number" --quit --ratio --log --blind-range 0.0 0.5 --no-binwidth --binNXaxis
 
 
 
