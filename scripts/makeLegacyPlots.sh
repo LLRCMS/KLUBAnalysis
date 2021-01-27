@@ -18,23 +18,23 @@ sel7=ttHclass
 sel8=TTclass
 
 # CREATE DIRECTORIES FOR THE SINGLE SELECTIONS
-mkdir -p ./plots/$channel/$sel1
-mkdir -p ./plots/$channel/$sel2
-mkdir -p ./plots/$channel/$sel3
-mkdir -p ./plots/$channel/$sel4
-mkdir -p ./plots/$channel/$sel5
-mkdir -p ./plots/$channel/$sel6
-mkdir -p ./plots/$channel/$sel7
-mkdir -p ./plots/$channel/$sel8
+mkdir -p ./LegacyPlots/$channel/$sel1
+mkdir -p ./LegacyPlots/$channel/$sel2
+mkdir -p ./LegacyPlots/$channel/$sel3
+mkdir -p ./LegacyPlots/$channel/$sel4
+mkdir -p ./LegacyPlots/$channel/$sel5
+mkdir -p ./LegacyPlots/$channel/$sel6
+mkdir -p ./LegacyPlots/$channel/$sel7
+mkdir -p ./LegacyPlots/$channel/$sel8
 # COPY THE index.php FILE
-cp $basedir/index.php ./plots/$channel/$sel1
-cp $basedir/index.php ./plots/$channel/$sel2
-cp $basedir/index.php ./plots/$channel/$sel3
-cp $basedir/index.php ./plots/$channel/$sel4
-cp $basedir/index.php ./plots/$channel/$sel5
-cp $basedir/index.php ./plots/$channel/$sel6
-cp $basedir/index.php ./plots/$channel/$sel7
-cp $basedir/index.php ./plots/$channel/$sel8
+cp $basedir/index.php ./LegacyPlots/$channel/$sel1
+cp $basedir/index.php ./LegacyPlots/$channel/$sel2
+cp $basedir/index.php ./LegacyPlots/$channel/$sel3
+cp $basedir/index.php ./LegacyPlots/$channel/$sel4
+cp $basedir/index.php ./LegacyPlots/$channel/$sel5
+cp $basedir/index.php ./LegacyPlots/$channel/$sel6
+cp $basedir/index.php ./LegacyPlots/$channel/$sel7
+cp $basedir/index.php ./LegacyPlots/$channel/$sel8
 
 
 if [[ ${channel} = *"MuTau"* ]]
