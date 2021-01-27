@@ -4096,7 +4096,7 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet1_pt   = tlv_firstBjet.Pt () ;
         theSmallTree.m_bjet1_eta  = tlv_firstBjet.Eta () ;
         theSmallTree.m_bjet1_phi  = tlv_firstBjet.Phi () ;
-        theSmallTree.m_bjet1_e    = theBigTree.jets_e->at (bjet1idx) ;
+        theSmallTree.m_bjet1_e    = tlv_firstBjet.E () ;
         theSmallTree.m_bjet1_bID  = theBigTree.bCSVscore->at (bjet1idx) ;
         theSmallTree.m_bjet1_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet1idx) + theBigTree.bDeepCSV_probbb->at(bjet1idx) ;
         theSmallTree.m_bjet1_bID_deepFlavor  = theBigTree.bDeepFlavor_probb->at(bjet1idx) + theBigTree.bDeepFlavor_probbb->at(bjet1idx) + theBigTree.bDeepFlavor_problepb->at(bjet1idx);
@@ -4110,7 +4110,7 @@ int main (int argc, char** argv)
         theSmallTree.m_bjet2_pt   = tlv_secondBjet.Pt () ;
         theSmallTree.m_bjet2_eta  = tlv_secondBjet.Eta () ;
         theSmallTree.m_bjet2_phi  = tlv_secondBjet.Phi () ;
-        theSmallTree.m_bjet2_e    = theBigTree.jets_e->at (bjet2idx) ;
+        theSmallTree.m_bjet2_e    = tlv_secondBjet.E () ;
         theSmallTree.m_bjet2_bID  = theBigTree.bCSVscore->at (bjet2idx) ;
         theSmallTree.m_bjet2_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet2idx) + theBigTree.bDeepCSV_probbb->at(bjet2idx) ;
         theSmallTree.m_bjet2_bID_deepFlavor  = theBigTree.bDeepFlavor_probb->at(bjet2idx) + theBigTree.bDeepFlavor_probbb->at(bjet2idx) + theBigTree.bDeepFlavor_problepb->at(bjet2idx);
