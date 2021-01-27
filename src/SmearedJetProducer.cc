@@ -110,7 +110,7 @@ double SmearedJetProducer::getSmearFactor(TLorentzVector jet, bigTree & theBigTr
 
   // Get the resolution and SF
   double jet_resolution = resolution_from_file_->getResolution({{JME::Binning::JetPt, jet.Pt()}, {JME::Binning::JetEta, jet.Eta()}, {JME::Binning::Rho, theBigTree.rho}});
-  double jer_sf = scale_factor_from_file_->getScaleFactor({{JME::Binning::JetEta, jet.Eta()}}, systematic_variation_);
+  double jer_sf = scale_factor_from_file_->getScaleFactor({{JME::Binning::JetPt, jet.Pt()}, {JME::Binning::JetEta, jet.Eta()}}, systematic_variation_);
 
   if (DEBUG) 
   {
