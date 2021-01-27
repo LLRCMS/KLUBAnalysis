@@ -268,7 +268,8 @@ def Xaxis2binNumber (histo):
     return new_histo
     
 def makeStatSystUncertaintyBand (bkgSum,hBkgs,hBkgNameList,systCfgList,channel,selection,hShapes,hShapesNameList):
-    # we read the systematic configs to calculate the systematic error
+    # we read the systematic configs to calculate the lnN systematic uncertainty
+    # we read all the shape variated historams to calculate the shape systematic uncertainty
     # as an approximation we jut sum in quadrature all the sources and do not consider any correlation
 
     nPoints   = bkgSum.GetNbinsX()
@@ -333,7 +334,7 @@ def makeStatSystUncertaintyBand (bkgSum,hBkgs,hBkgNameList,systCfgList,channel,s
             lnNup += max(0,hSystBkgList[ibkg].GetBinContent(ibin)) * syst_df[bkg]['lnNup']
             lnNdown += max(0,hSystBkgList[ibkg].GetBinContent(ibin)) * syst_df[bkg]['lnNdown']
 
-            # loop o all shape syst to get the absolute value of events associated to a shape source
+            # loop on all shape syst to get the absolute value of events associated to a shape source
             for shape in hShapesNameList:
                 hShape = getHisto(bkg+'_'+shape, hShapes, doOverflow)    
                 hBkg   = getHisto(bkg, hBkgs, doOverflow)
