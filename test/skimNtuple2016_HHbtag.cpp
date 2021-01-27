@@ -536,6 +536,7 @@ int main (int argc, char** argv)
 
   // JER smearing provider: year - doSmearing - variation (0:nominal  +1:up  -1:down)
   bool doSmearing = (isMC ? gConfigParser->readBoolOption("JetSmearing::doSmearing") : false);
+  cout << "** INFO: doSmearing? " << doSmearing << endl;
   SmearedJetProducer Smearer("2016", doSmearing, 0);
 
   // ------------------------------
