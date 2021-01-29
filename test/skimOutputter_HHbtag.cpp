@@ -413,14 +413,14 @@ int main (int argc, char** argv)
     //{ "v3" , "kl1_c2v1_c31_vr" },
     //{ "v3b", "kl1_c2v1_c31_vbf"},
     //{ "v3b", "kl1_c2v1_c31_vr" },
-    { "v4" , "kl1_c2v1_c31_vbf"},
+    //{ "v4" , "kl1_c2v1_c31_vbf"},
     //{ "v4" , "kl1_c2v1_c31_vr" },
     { "v5" , "kl1_c2v1_c31_vbf"}
   };
   MulticlassInterface mci(YEAR, modelSpecs);
   mci.clearInputs();
   int mdnnSM0_size = (mci.getNodeNames(0)).size();
-  int mdnnSM1_size = (mci.getNodeNames(1)).size();
+  //int mdnnSM1_size = (mci.getNodeNames(1)).size();
   //int mdnnSM2_size = (mci.getNodeNames(2)).size();
   //int mdnnSM3_size = (mci.getNodeNames(3)).size();
 
@@ -772,7 +772,7 @@ int main (int argc, char** argv)
   Float_t tauH_SVFIT_pt_new, tauH_SVFIT_eta_new, tauH_SVFIT_phi_new, tauH_SVFIT_mass_new;
   Float_t DNNoutSM_kl_1_new, BDToutSM_kl_1_new;   // FIXME: read from cfg file
   std::vector<Float_t> mdnnSM0_output_new(mdnnSM0_size);
-  std::vector<Float_t> mdnnSM1_output_new(mdnnSM1_size);
+  //std::vector<Float_t> mdnnSM1_output_new(mdnnSM1_size);
   //std::vector<Float_t> mdnnSM2_output_new(mdnnSM2_size);
   //std::vector<Float_t> mdnnSM3_output_new(mdnnSM3_size);
   TBranch* b_HHKin_mass_new      = outTree->Branch("HHKin_mass_new"  , &HHKin_mass_new);
@@ -784,9 +784,9 @@ int main (int argc, char** argv)
   TBranch* b_tauH_SVFIT_eta_new  = outTree->Branch("tauH_SVFIT_eta_new" , &tauH_SVFIT_eta_new);
   TBranch* b_tauH_SVFIT_phi_new  = outTree->Branch("tauH_SVFIT_phi_new" , &tauH_SVFIT_phi_new);
   TBranch* b_tauH_SVFIT_mass_new = outTree->Branch("tauH_SVFIT_mass_new", &tauH_SVFIT_mass_new);
-  std::vector<TBranch*> b_mdnnSM0_new, b_mdnnSM1_new; //, b_mdnnSM2_new, b_mdnnSM3_new;
-  boost::format mdnnSM0name_new ("mdnn__v4__kl1_c2v1_c31_vbf__%1%_new");
-  boost::format mdnnSM1name_new ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_new");
+  std::vector<TBranch*> b_mdnnSM0_new; //, b_mdnnSM1_new, b_mdnnSM2_new, b_mdnnSM3_new;
+  boost::format mdnnSM0name_new ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_new");
+  //boost::format mdnnSM1name_new ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_new");
   //boost::format mdnnSM2name_new ("mdnn__v4__kl1_c2v1_c31_vbf__%1%_new");
   //boost::format mdnnSM3name_new ("mdnn__v4__kl1_c2v1_c31_vr__%1%_new");
   for (int i=0; i<mdnnSM0_size; i++)
@@ -795,12 +795,12 @@ int main (int argc, char** argv)
     TBranch* tmp_mdnnSM0_branch = outTree->Branch(tmp_mdnnSM0_branch_name.c_str(), &mdnnSM0_output_new.at(i));
     b_mdnnSM0_new.push_back(tmp_mdnnSM0_branch);
   }
-  for (int i=0; i<mdnnSM1_size; i++)
-  {
-    std::string tmp_mdnnSM1_branch_name = boost::str( mdnnSM1name_new % (mci.getNodeNames(1)).at(i) );
-    TBranch* tmp_mdnnSM1_branch = outTree->Branch(tmp_mdnnSM1_branch_name.c_str(), &mdnnSM1_output_new.at(i));
-    b_mdnnSM1_new.push_back(tmp_mdnnSM1_branch);
-  }
+  //for (int i=0; i<mdnnSM1_size; i++)
+  //{
+  //  std::string tmp_mdnnSM1_branch_name = boost::str( mdnnSM1name_new % (mci.getNodeNames(1)).at(i) );
+  //  TBranch* tmp_mdnnSM1_branch = outTree->Branch(tmp_mdnnSM1_branch_name.c_str(), &mdnnSM1_output_new.at(i));
+  //  b_mdnnSM1_new.push_back(tmp_mdnnSM1_branch);
+  //}
   //for (int i=0; i<mdnnSM2_size; i++)
   //{
   //  std::string tmp_mdnnSM2_branch_name = boost::str( mdnnSM2name_new % (mci.getNodeNames(2)).at(i) );
@@ -818,7 +818,7 @@ int main (int argc, char** argv)
   Float_t tauH_SVFIT_mass_muup, DNNoutSM_kl_1_muup, BDToutSM_kl_1_muup;
   Float_t tauH_SVFIT_mass_mudown, DNNoutSM_kl_1_mudown, BDToutSM_kl_1_mudown;
   std::vector<Float_t> mdnnSM0_output_muup(mdnnSM0_size), mdnnSM0_output_mudown(mdnnSM0_size);
-  std::vector<Float_t> mdnnSM1_output_muup(mdnnSM1_size), mdnnSM1_output_mudown(mdnnSM1_size);
+  //std::vector<Float_t> mdnnSM1_output_muup(mdnnSM1_size), mdnnSM1_output_mudown(mdnnSM1_size);
   //std::vector<Float_t> mdnnSM2_output_muup(mdnnSM2_size), mdnnSM2_output_mudown(mdnnSM2_size);
   TBranch* b_tauH_SVFIT_mass_muup   = outTree->Branch("tauH_SVFIT_mass_muup"  , &tauH_SVFIT_mass_muup);
   TBranch* b_DNNoutSM_kl_1_muup     = outTree->Branch("DNNoutSM_kl_1_muup"    , &DNNoutSM_kl_1_muup);
@@ -827,12 +827,12 @@ int main (int argc, char** argv)
   TBranch* b_DNNoutSM_kl_1_mudown   = outTree->Branch("DNNoutSM_kl_1_mudown"  , &DNNoutSM_kl_1_mudown);
   TBranch* b_BDToutSM_kl_1_mudown   = outTree->Branch("BDToutSM_kl_1_mudown"  , &BDToutSM_kl_1_mudown);
   std::vector<TBranch*> b_mdnnSM0_muup, b_mdnnSM0_mudown;
-  std::vector<TBranch*> b_mdnnSM1_muup, b_mdnnSM1_mudown;
+  //std::vector<TBranch*> b_mdnnSM1_muup, b_mdnnSM1_mudown;
   //std::vector<TBranch*> b_mdnnSM2_muup, b_mdnnSM2_mudown;
-  boost::format mdnnSM0name_muup  ("mdnn__v4__kl1_c2v1_c31_vbf__%1%_muup");
-  boost::format mdnnSM0name_mudown("mdnn__v4__kl1_c2v1_c31_vbf__%1%_mudown");
-  boost::format mdnnSM1name_muup  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_muup");
-  boost::format mdnnSM1name_mudown("mdnn__v5__kl1_c2v1_c31_vbf__%1%_mudown");
+  boost::format mdnnSM0name_muup  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_muup");
+  boost::format mdnnSM0name_mudown("mdnn__v5__kl1_c2v1_c31_vbf__%1%_mudown");
+  //boost::format mdnnSM1name_muup  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_muup");
+  //boost::format mdnnSM1name_mudown("mdnn__v5__kl1_c2v1_c31_vbf__%1%_mudown");
   //boost::format mdnnSM2name_muup  ("mdnn__v3__kl1_c2v1_c31_vr__%1%_muup");
   //boost::format mdnnSM2name_mudown("mdnn__v3__kl1_c2v1_c31_vr__%1%_mudown");
   for (int i=0; i<mdnnSM0_size; i++)
@@ -844,15 +844,15 @@ int main (int argc, char** argv)
     b_mdnnSM0_muup  .push_back(tmp_mdnnSM0_branch_up);
     b_mdnnSM0_mudown.push_back(tmp_mdnnSM0_branch_down);
   }
-  for (int i=0; i<mdnnSM1_size; i++)
-  {
-    std::string tmp_mdnnSM1_branch_name_up   = boost::str( mdnnSM1name_muup   % (mci.getNodeNames(1)).at(i) );
-    std::string tmp_mdnnSM1_branch_name_down = boost::str( mdnnSM1name_mudown % (mci.getNodeNames(1)).at(i) );
-    TBranch* tmp_mdnnSM1_branch_up   = outTree->Branch(tmp_mdnnSM1_branch_name_up.c_str()  , &mdnnSM1_output_muup.at(i));
-    TBranch* tmp_mdnnSM1_branch_down = outTree->Branch(tmp_mdnnSM1_branch_name_down.c_str(), &mdnnSM1_output_mudown.at(i));
-    b_mdnnSM1_muup  .push_back(tmp_mdnnSM1_branch_up);
-    b_mdnnSM1_mudown.push_back(tmp_mdnnSM1_branch_down);
-  }
+  //for (int i=0; i<mdnnSM1_size; i++)
+  //{
+  //  std::string tmp_mdnnSM1_branch_name_up   = boost::str( mdnnSM1name_muup   % (mci.getNodeNames(1)).at(i) );
+  //  std::string tmp_mdnnSM1_branch_name_down = boost::str( mdnnSM1name_mudown % (mci.getNodeNames(1)).at(i) );
+  //  TBranch* tmp_mdnnSM1_branch_up   = outTree->Branch(tmp_mdnnSM1_branch_name_up.c_str()  , &mdnnSM1_output_muup.at(i));
+  //  TBranch* tmp_mdnnSM1_branch_down = outTree->Branch(tmp_mdnnSM1_branch_name_down.c_str(), &mdnnSM1_output_mudown.at(i));
+  //  b_mdnnSM1_muup  .push_back(tmp_mdnnSM1_branch_up);
+  //  b_mdnnSM1_mudown.push_back(tmp_mdnnSM1_branch_down);
+  //}
   //for (int i=0; i<mdnnSM2_size; i++)
   //{
   //  std::string tmp_mdnnSM2_branch_name_up   = boost::str( mdnnSM2name_muup   % (mci.getNodeNames(2)).at(i) );
@@ -867,7 +867,7 @@ int main (int argc, char** argv)
   std::vector<Float_t> tauH_SVFIT_mass_eleup(N_tauhDM_EES), DNNoutSM_kl_1_eleup(N_tauhDM_EES), BDToutSM_kl_1_eleup(N_tauhDM_EES);
   std::vector<Float_t> tauH_SVFIT_mass_eledown(N_tauhDM_EES), DNNoutSM_kl_1_eledown(N_tauhDM_EES), BDToutSM_kl_1_eledown(N_tauhDM_EES);
   std::vector<std::vector<Float_t>> mdnnSM0_output_eleup(N_tauhDM_EES, std::vector<Float_t>(mdnnSM0_size)), mdnnSM0_output_eledown(N_tauhDM_EES, std::vector<Float_t>(mdnnSM0_size));
-  std::vector<std::vector<Float_t>> mdnnSM1_output_eleup(N_tauhDM_EES, std::vector<Float_t>(mdnnSM1_size)), mdnnSM1_output_eledown(N_tauhDM_EES, std::vector<Float_t>(mdnnSM1_size));
+  //std::vector<std::vector<Float_t>> mdnnSM1_output_eleup(N_tauhDM_EES, std::vector<Float_t>(mdnnSM1_size)), mdnnSM1_output_eledown(N_tauhDM_EES, std::vector<Float_t>(mdnnSM1_size));
   //std::vector<std::vector<Float_t>> mdnnSM2_output_eleup(N_tauhDM_EES, std::vector<Float_t>(mdnnSM2_size)), mdnnSM2_output_eledown(N_tauhDM_EES, std::vector<Float_t>(mdnnSM2_size));
   TBranch* b_tauH_SVFIT_mass_eleup_DM0   = outTree->Branch("tauH_SVFIT_mass_eleup_DM0"  , &tauH_SVFIT_mass_eleup.at(0));    // DM 0
   TBranch* b_DNNoutSM_kl_1_eleup_DM0     = outTree->Branch("DNNoutSM_kl_1_eleup_DM0"    , &DNNoutSM_kl_1_eleup.at(0));
@@ -883,18 +883,18 @@ int main (int argc, char** argv)
   TBranch* b_BDToutSM_kl_1_eledown_DM1   = outTree->Branch("BDToutSM_kl_1_eledown_DM1"  , &BDToutSM_kl_1_eledown.at(1));
   std::vector<TBranch*> b_mdnnSM0_eleup_DM0, b_mdnnSM0_eledown_DM0;
   std::vector<TBranch*> b_mdnnSM0_eleup_DM1, b_mdnnSM0_eledown_DM1;
-  std::vector<TBranch*> b_mdnnSM1_eleup_DM0, b_mdnnSM1_eledown_DM0;
-  std::vector<TBranch*> b_mdnnSM1_eleup_DM1, b_mdnnSM1_eledown_DM1;
+  //std::vector<TBranch*> b_mdnnSM1_eleup_DM0, b_mdnnSM1_eledown_DM0;
+  //std::vector<TBranch*> b_mdnnSM1_eleup_DM1, b_mdnnSM1_eledown_DM1;
   //std::vector<TBranch*> b_mdnnSM2_eleup_DM0, b_mdnnSM2_eledown_DM0;
   //std::vector<TBranch*> b_mdnnSM2_eleup_DM1, b_mdnnSM2_eledown_DM1;
-  boost::format mdnnSM0name_eleup_DM0  ("mdnn__v4__kl1_c2v1_c31_vbf__%1%_eleup_DM0");
-  boost::format mdnnSM0name_eledown_DM0("mdnn__v4__kl1_c2v1_c31_vbf__%1%_eledown_DM0");
-  boost::format mdnnSM0name_eleup_DM1  ("mdnn__v4__kl1_c2v1_c31_vbf__%1%_eleup_DM1");
-  boost::format mdnnSM0name_eledown_DM1("mdnn__v4__kl1_c2v1_c31_vbf__%1%_eledown_DM1");
-  boost::format mdnnSM1name_eleup_DM0  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_eleup_DM0");
-  boost::format mdnnSM1name_eledown_DM0("mdnn__v5__kl1_c2v1_c31_vbf__%1%_eledown_DM0");
-  boost::format mdnnSM1name_eleup_DM1  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_eleup_DM1");
-  boost::format mdnnSM1name_eledown_DM1("mdnn__v5__kl1_c2v1_c31_vbf__%1%_eledown_DM1");
+  boost::format mdnnSM0name_eleup_DM0  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_eleup_DM0");
+  boost::format mdnnSM0name_eledown_DM0("mdnn__v5__kl1_c2v1_c31_vbf__%1%_eledown_DM0");
+  boost::format mdnnSM0name_eleup_DM1  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_eleup_DM1");
+  boost::format mdnnSM0name_eledown_DM1("mdnn__v5__kl1_c2v1_c31_vbf__%1%_eledown_DM1");
+  //boost::format mdnnSM1name_eleup_DM0  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_eleup_DM0");
+  //boost::format mdnnSM1name_eledown_DM0("mdnn__v5__kl1_c2v1_c31_vbf__%1%_eledown_DM0");
+  //boost::format mdnnSM1name_eleup_DM1  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_eleup_DM1");
+  //boost::format mdnnSM1name_eledown_DM1("mdnn__v5__kl1_c2v1_c31_vbf__%1%_eledown_DM1");
   //boost::format mdnnSM2name_eleup_DM0  ("mdnn__v3__kl1_c2v1_c31_vr__%1%_eleup_DM0");
   //boost::format mdnnSM2name_eledown_DM0("mdnn__v3__kl1_c2v1_c31_vr__%1%_eledown_DM0");
   //boost::format mdnnSM2name_eleup_DM1  ("mdnn__v3__kl1_c2v1_c31_vr__%1%_eleup_DM1");
@@ -914,21 +914,21 @@ int main (int argc, char** argv)
     b_mdnnSM0_eleup_DM1  .push_back(tmp_mdnnSM0_branch_up_DM1);
     b_mdnnSM0_eledown_DM1.push_back(tmp_mdnnSM0_branch_down_DM1);
   }
-  for (int i=0; i<mdnnSM1_size; i++)
-  {
-    std::string tmp_mdnnSM1_branch_name_up_DM0   = boost::str( mdnnSM1name_eleup_DM0   % (mci.getNodeNames(1)).at(i) );
-    std::string tmp_mdnnSM1_branch_name_down_DM0 = boost::str( mdnnSM1name_eledown_DM0 % (mci.getNodeNames(1)).at(i) );
-    std::string tmp_mdnnSM1_branch_name_up_DM1   = boost::str( mdnnSM1name_eleup_DM1   % (mci.getNodeNames(1)).at(i) );
-    std::string tmp_mdnnSM1_branch_name_down_DM1 = boost::str( mdnnSM1name_eledown_DM1 % (mci.getNodeNames(1)).at(i) );
-    TBranch* tmp_mdnnSM1_branch_up_DM0   = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM0.c_str()  , &mdnnSM1_output_eleup  [0].at(i));
-    TBranch* tmp_mdnnSM1_branch_down_DM0 = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM0.c_str(), &mdnnSM1_output_eledown[0].at(i));
-    TBranch* tmp_mdnnSM1_branch_up_DM1   = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM1.c_str()  , &mdnnSM1_output_eleup  [1].at(i));
-    TBranch* tmp_mdnnSM1_branch_down_DM1 = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM1.c_str(), &mdnnSM1_output_eledown[1].at(i));
-    b_mdnnSM1_eleup_DM0  .push_back(tmp_mdnnSM1_branch_up_DM0);
-    b_mdnnSM1_eledown_DM0.push_back(tmp_mdnnSM1_branch_down_DM0);
-    b_mdnnSM1_eleup_DM1  .push_back(tmp_mdnnSM1_branch_up_DM1);
-    b_mdnnSM1_eledown_DM1.push_back(tmp_mdnnSM1_branch_down_DM1);
-  }
+  //for (int i=0; i<mdnnSM1_size; i++)
+  //{
+  //  std::string tmp_mdnnSM1_branch_name_up_DM0   = boost::str( mdnnSM1name_eleup_DM0   % (mci.getNodeNames(1)).at(i) );
+  //  std::string tmp_mdnnSM1_branch_name_down_DM0 = boost::str( mdnnSM1name_eledown_DM0 % (mci.getNodeNames(1)).at(i) );
+  //  std::string tmp_mdnnSM1_branch_name_up_DM1   = boost::str( mdnnSM1name_eleup_DM1   % (mci.getNodeNames(1)).at(i) );
+  //  std::string tmp_mdnnSM1_branch_name_down_DM1 = boost::str( mdnnSM1name_eledown_DM1 % (mci.getNodeNames(1)).at(i) );
+  //  TBranch* tmp_mdnnSM1_branch_up_DM0   = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM0.c_str()  , &mdnnSM1_output_eleup  [0].at(i));
+  //  TBranch* tmp_mdnnSM1_branch_down_DM0 = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM0.c_str(), &mdnnSM1_output_eledown[0].at(i));
+  //  TBranch* tmp_mdnnSM1_branch_up_DM1   = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM1.c_str()  , &mdnnSM1_output_eleup  [1].at(i));
+  //  TBranch* tmp_mdnnSM1_branch_down_DM1 = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM1.c_str(), &mdnnSM1_output_eledown[1].at(i));
+  //  b_mdnnSM1_eleup_DM0  .push_back(tmp_mdnnSM1_branch_up_DM0);
+  //  b_mdnnSM1_eledown_DM0.push_back(tmp_mdnnSM1_branch_down_DM0);
+  //  b_mdnnSM1_eleup_DM1  .push_back(tmp_mdnnSM1_branch_up_DM1);
+  //  b_mdnnSM1_eledown_DM1.push_back(tmp_mdnnSM1_branch_down_DM1);
+  //}
   //for (int i=0; i<mdnnSM2_size; i++)
   //{
   //  std::string tmp_mdnnSM2_branch_name_up_DM0   = boost::str( mdnnSM2name_eleup_DM0   % (mci.getNodeNames(2)).at(i) );
@@ -949,7 +949,7 @@ int main (int argc, char** argv)
   std::vector<Float_t> tauH_SVFIT_mass_tauup(N_tauhDM), DNNoutSM_kl_1_tauup(N_tauhDM), BDToutSM_kl_1_tauup(N_tauhDM);
   std::vector<Float_t> tauH_SVFIT_mass_taudown(N_tauhDM), DNNoutSM_kl_1_taudown(N_tauhDM), BDToutSM_kl_1_taudown(N_tauhDM);
   std::vector<std::vector<Float_t>> mdnnSM0_output_tauup(N_tauhDM, std::vector<Float_t>(mdnnSM0_size)), mdnnSM0_output_taudown(N_tauhDM, std::vector<Float_t>(mdnnSM0_size));
-  std::vector<std::vector<Float_t>> mdnnSM1_output_tauup(N_tauhDM, std::vector<Float_t>(mdnnSM1_size)), mdnnSM1_output_taudown(N_tauhDM, std::vector<Float_t>(mdnnSM1_size));
+  //std::vector<std::vector<Float_t>> mdnnSM1_output_tauup(N_tauhDM, std::vector<Float_t>(mdnnSM1_size)), mdnnSM1_output_taudown(N_tauhDM, std::vector<Float_t>(mdnnSM1_size));
   //std::vector<std::vector<Float_t>> mdnnSM2_output_tauup(N_tauhDM, std::vector<Float_t>(mdnnSM2_size)), mdnnSM2_output_taudown(N_tauhDM, std::vector<Float_t>(mdnnSM2_size));
   TBranch* b_tauH_SVFIT_mass_tauup_DM0    = outTree->Branch("tauH_SVFIT_mass_tauup_DM0"   , &tauH_SVFIT_mass_tauup.at(0));    // DM 0
   TBranch* b_DNNoutSM_kl_1_tauup_DM0      = outTree->Branch("DNNoutSM_kl_1_tauup_DM0"     , &DNNoutSM_kl_1_tauup.at(0));
@@ -979,30 +979,30 @@ int main (int argc, char** argv)
   std::vector<TBranch*> b_mdnnSM0_tauup_DM1 , b_mdnnSM0_taudown_DM1;
   std::vector<TBranch*> b_mdnnSM0_tauup_DM10, b_mdnnSM0_taudown_DM10;
   std::vector<TBranch*> b_mdnnSM0_tauup_DM11, b_mdnnSM0_taudown_DM11;
-  std::vector<TBranch*> b_mdnnSM1_tauup_DM0 , b_mdnnSM1_taudown_DM0;
-  std::vector<TBranch*> b_mdnnSM1_tauup_DM1 , b_mdnnSM1_taudown_DM1;
-  std::vector<TBranch*> b_mdnnSM1_tauup_DM10, b_mdnnSM1_taudown_DM10;
-  std::vector<TBranch*> b_mdnnSM1_tauup_DM11, b_mdnnSM1_taudown_DM11;
+  //std::vector<TBranch*> b_mdnnSM1_tauup_DM0 , b_mdnnSM1_taudown_DM0;
+  //std::vector<TBranch*> b_mdnnSM1_tauup_DM1 , b_mdnnSM1_taudown_DM1;
+  //std::vector<TBranch*> b_mdnnSM1_tauup_DM10, b_mdnnSM1_taudown_DM10;
+  //std::vector<TBranch*> b_mdnnSM1_tauup_DM11, b_mdnnSM1_taudown_DM11;
   //std::vector<TBranch*> b_mdnnSM2_tauup_DM0 , b_mdnnSM2_taudown_DM0;
   //std::vector<TBranch*> b_mdnnSM2_tauup_DM1 , b_mdnnSM2_taudown_DM1;
   //std::vector<TBranch*> b_mdnnSM2_tauup_DM10, b_mdnnSM2_taudown_DM10;
   //std::vector<TBranch*> b_mdnnSM2_tauup_DM11, b_mdnnSM2_taudown_DM11;
-  boost::format mdnnSM0name_tauup_DM0   ("mdnn__v4__kl1_c2v1_c31_vbf__%1%_tauup_DM0");
-  boost::format mdnnSM0name_taudown_DM0 ("mdnn__v4__kl1_c2v1_c31_vbf__%1%_taudown_DM0");
-  boost::format mdnnSM0name_tauup_DM1   ("mdnn__v4__kl1_c2v1_c31_vbf__%1%_tauup_DM1");
-  boost::format mdnnSM0name_taudown_DM1 ("mdnn__v4__kl1_c2v1_c31_vbf__%1%_taudown_DM1");
-  boost::format mdnnSM0name_tauup_DM10  ("mdnn__v4__kl1_c2v1_c31_vbf__%1%_tauup_DM10");
-  boost::format mdnnSM0name_taudown_DM10("mdnn__v4__kl1_c2v1_c31_vbf__%1%_taudown_DM10");
-  boost::format mdnnSM0name_tauup_DM11  ("mdnn__v4__kl1_c2v1_c31_vbf__%1%_tauup_DM11");
-  boost::format mdnnSM0name_taudown_DM11("mdnn__v4__kl1_c2v1_c31_vbf__%1%_taudown_DM11");
-  boost::format mdnnSM1name_tauup_DM0   ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_tauup_DM0");
-  boost::format mdnnSM1name_taudown_DM0 ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_taudown_DM0");
-  boost::format mdnnSM1name_tauup_DM1   ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_tauup_DM1");
-  boost::format mdnnSM1name_taudown_DM1 ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_taudown_DM1");
-  boost::format mdnnSM1name_tauup_DM10  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_tauup_DM10");
-  boost::format mdnnSM1name_taudown_DM10("mdnn__v5__kl1_c2v1_c31_vbf__%1%_taudown_DM10");
-  boost::format mdnnSM1name_tauup_DM11  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_tauup_DM11");
-  boost::format mdnnSM1name_taudown_DM11("mdnn__v5__kl1_c2v1_c31_vbf__%1%_taudown_DM11");
+  boost::format mdnnSM0name_tauup_DM0   ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_tauup_DM0");
+  boost::format mdnnSM0name_taudown_DM0 ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_taudown_DM0");
+  boost::format mdnnSM0name_tauup_DM1   ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_tauup_DM1");
+  boost::format mdnnSM0name_taudown_DM1 ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_taudown_DM1");
+  boost::format mdnnSM0name_tauup_DM10  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_tauup_DM10");
+  boost::format mdnnSM0name_taudown_DM10("mdnn__v5__kl1_c2v1_c31_vbf__%1%_taudown_DM10");
+  boost::format mdnnSM0name_tauup_DM11  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_tauup_DM11");
+  boost::format mdnnSM0name_taudown_DM11("mdnn__v5__kl1_c2v1_c31_vbf__%1%_taudown_DM11");
+  //boost::format mdnnSM1name_tauup_DM0   ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_tauup_DM0");
+  //boost::format mdnnSM1name_taudown_DM0 ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_taudown_DM0");
+  //boost::format mdnnSM1name_tauup_DM1   ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_tauup_DM1");
+  //boost::format mdnnSM1name_taudown_DM1 ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_taudown_DM1");
+  //boost::format mdnnSM1name_tauup_DM10  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_tauup_DM10");
+  //boost::format mdnnSM1name_taudown_DM10("mdnn__v5__kl1_c2v1_c31_vbf__%1%_taudown_DM10");
+  //boost::format mdnnSM1name_tauup_DM11  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_tauup_DM11");
+  //boost::format mdnnSM1name_taudown_DM11("mdnn__v5__kl1_c2v1_c31_vbf__%1%_taudown_DM11");
   //boost::format mdnnSM2name_tauup_DM0   ("mdnn__v3__kl1_c2v1_c31_vr__%1%_tauup_DM0");
   //boost::format mdnnSM2name_taudown_DM0 ("mdnn__v3__kl1_c2v1_c31_vr__%1%_taudown_DM0");
   //boost::format mdnnSM2name_tauup_DM1   ("mdnn__v3__kl1_c2v1_c31_vr__%1%_tauup_DM1");
@@ -1038,33 +1038,33 @@ int main (int argc, char** argv)
     b_mdnnSM0_tauup_DM11  .push_back(tmp_mdnnSM0_branch_up_DM11);
     b_mdnnSM0_taudown_DM11.push_back(tmp_mdnnSM0_branch_down_DM11);
   }
-  for (int i=0; i<mdnnSM1_size; i++)
-  {
-    std::string tmp_mdnnSM1_branch_name_up_DM0    = boost::str( mdnnSM1name_tauup_DM0    % (mci.getNodeNames(1)).at(i) );
-    std::string tmp_mdnnSM1_branch_name_down_DM0  = boost::str( mdnnSM1name_taudown_DM0  % (mci.getNodeNames(1)).at(i) );
-    std::string tmp_mdnnSM1_branch_name_up_DM1    = boost::str( mdnnSM1name_tauup_DM1    % (mci.getNodeNames(1)).at(i) );
-    std::string tmp_mdnnSM1_branch_name_down_DM1  = boost::str( mdnnSM1name_taudown_DM1  % (mci.getNodeNames(1)).at(i) );
-    std::string tmp_mdnnSM1_branch_name_up_DM10   = boost::str( mdnnSM1name_tauup_DM10   % (mci.getNodeNames(1)).at(i) );
-    std::string tmp_mdnnSM1_branch_name_down_DM10 = boost::str( mdnnSM1name_taudown_DM10 % (mci.getNodeNames(1)).at(i) );
-    std::string tmp_mdnnSM1_branch_name_up_DM11   = boost::str( mdnnSM1name_tauup_DM11   % (mci.getNodeNames(1)).at(i) );
-    std::string tmp_mdnnSM1_branch_name_down_DM11 = boost::str( mdnnSM1name_taudown_DM11 % (mci.getNodeNames(1)).at(i) );
-    TBranch* tmp_mdnnSM1_branch_up_DM0    = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM0.c_str()   , &mdnnSM1_output_tauup  [0].at(i));
-    TBranch* tmp_mdnnSM1_branch_down_DM0  = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM0.c_str() , &mdnnSM1_output_taudown[0].at(i));
-    TBranch* tmp_mdnnSM1_branch_up_DM1    = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM1.c_str()   , &mdnnSM1_output_tauup  [1].at(i));
-    TBranch* tmp_mdnnSM1_branch_down_DM1  = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM1.c_str() , &mdnnSM1_output_taudown[1].at(i));
-    TBranch* tmp_mdnnSM1_branch_up_DM10   = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM10.c_str()  , &mdnnSM1_output_tauup  [2].at(i));
-    TBranch* tmp_mdnnSM1_branch_down_DM10 = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM10.c_str(), &mdnnSM1_output_taudown[2].at(i));
-    TBranch* tmp_mdnnSM1_branch_up_DM11   = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM11.c_str()  , &mdnnSM1_output_tauup  [3].at(i));
-    TBranch* tmp_mdnnSM1_branch_down_DM11 = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM11.c_str(), &mdnnSM1_output_taudown[3].at(i));
-    b_mdnnSM1_tauup_DM0   .push_back(tmp_mdnnSM1_branch_up_DM0);
-    b_mdnnSM1_taudown_DM0 .push_back(tmp_mdnnSM1_branch_down_DM0);
-    b_mdnnSM1_tauup_DM1   .push_back(tmp_mdnnSM1_branch_up_DM1);
-    b_mdnnSM1_taudown_DM1 .push_back(tmp_mdnnSM1_branch_down_DM1);
-    b_mdnnSM1_tauup_DM10  .push_back(tmp_mdnnSM1_branch_up_DM10);
-    b_mdnnSM1_taudown_DM10.push_back(tmp_mdnnSM1_branch_down_DM10);
-    b_mdnnSM1_tauup_DM11  .push_back(tmp_mdnnSM1_branch_up_DM11);
-    b_mdnnSM1_taudown_DM11.push_back(tmp_mdnnSM1_branch_down_DM11);
-  }
+  //for (int i=0; i<mdnnSM1_size; i++)
+  //{
+  //  std::string tmp_mdnnSM1_branch_name_up_DM0    = boost::str( mdnnSM1name_tauup_DM0    % (mci.getNodeNames(1)).at(i) );
+  //  std::string tmp_mdnnSM1_branch_name_down_DM0  = boost::str( mdnnSM1name_taudown_DM0  % (mci.getNodeNames(1)).at(i) );
+  //  std::string tmp_mdnnSM1_branch_name_up_DM1    = boost::str( mdnnSM1name_tauup_DM1    % (mci.getNodeNames(1)).at(i) );
+  //  std::string tmp_mdnnSM1_branch_name_down_DM1  = boost::str( mdnnSM1name_taudown_DM1  % (mci.getNodeNames(1)).at(i) );
+  //  std::string tmp_mdnnSM1_branch_name_up_DM10   = boost::str( mdnnSM1name_tauup_DM10   % (mci.getNodeNames(1)).at(i) );
+  //  std::string tmp_mdnnSM1_branch_name_down_DM10 = boost::str( mdnnSM1name_taudown_DM10 % (mci.getNodeNames(1)).at(i) );
+  //  std::string tmp_mdnnSM1_branch_name_up_DM11   = boost::str( mdnnSM1name_tauup_DM11   % (mci.getNodeNames(1)).at(i) );
+  //  std::string tmp_mdnnSM1_branch_name_down_DM11 = boost::str( mdnnSM1name_taudown_DM11 % (mci.getNodeNames(1)).at(i) );
+  //  TBranch* tmp_mdnnSM1_branch_up_DM0    = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM0.c_str()   , &mdnnSM1_output_tauup  [0].at(i));
+  //  TBranch* tmp_mdnnSM1_branch_down_DM0  = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM0.c_str() , &mdnnSM1_output_taudown[0].at(i));
+  //  TBranch* tmp_mdnnSM1_branch_up_DM1    = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM1.c_str()   , &mdnnSM1_output_tauup  [1].at(i));
+  //  TBranch* tmp_mdnnSM1_branch_down_DM1  = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM1.c_str() , &mdnnSM1_output_taudown[1].at(i));
+  //  TBranch* tmp_mdnnSM1_branch_up_DM10   = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM10.c_str()  , &mdnnSM1_output_tauup  [2].at(i));
+  //  TBranch* tmp_mdnnSM1_branch_down_DM10 = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM10.c_str(), &mdnnSM1_output_taudown[2].at(i));
+  //  TBranch* tmp_mdnnSM1_branch_up_DM11   = outTree->Branch(tmp_mdnnSM1_branch_name_up_DM11.c_str()  , &mdnnSM1_output_tauup  [3].at(i));
+  //  TBranch* tmp_mdnnSM1_branch_down_DM11 = outTree->Branch(tmp_mdnnSM1_branch_name_down_DM11.c_str(), &mdnnSM1_output_taudown[3].at(i));
+  //  b_mdnnSM1_tauup_DM0   .push_back(tmp_mdnnSM1_branch_up_DM0);
+  //  b_mdnnSM1_taudown_DM0 .push_back(tmp_mdnnSM1_branch_down_DM0);
+  //  b_mdnnSM1_tauup_DM1   .push_back(tmp_mdnnSM1_branch_up_DM1);
+  //  b_mdnnSM1_taudown_DM1 .push_back(tmp_mdnnSM1_branch_down_DM1);
+  //  b_mdnnSM1_tauup_DM10  .push_back(tmp_mdnnSM1_branch_up_DM10);
+  //  b_mdnnSM1_taudown_DM10.push_back(tmp_mdnnSM1_branch_down_DM10);
+  //  b_mdnnSM1_tauup_DM11  .push_back(tmp_mdnnSM1_branch_up_DM11);
+  //  b_mdnnSM1_taudown_DM11.push_back(tmp_mdnnSM1_branch_down_DM11);
+  //}
   //for (int i=0; i<mdnnSM2_size; i++)
   //{
   //  std::string tmp_mdnnSM2_branch_name_up_DM0    = boost::str( mdnnSM2name_tauup_DM0    % (mci.getNodeNames(2)).at(i) );
@@ -1097,14 +1097,14 @@ int main (int argc, char** argv)
   std::vector<Float_t> tauH_SVFIT_mass_jetup(N_jecSources), DNNoutSM_kl_1_jetup(N_jecSources), BDToutSM_kl_1_jetup(N_jecSources), bH_mass_raw_jetup(N_jecSources);
   std::vector<Float_t> tauH_SVFIT_mass_jetdown(N_jecSources), DNNoutSM_kl_1_jetdown(N_jecSources), BDToutSM_kl_1_jetdown(N_jecSources), bH_mass_raw_jetdown(N_jecSources);
   std::vector<std::vector<Float_t>> mdnnSM0_output_jetup(N_jecSources, std::vector<Float_t>(mdnnSM0_size)), mdnnSM0_output_jetdown(N_jecSources, std::vector<Float_t>(mdnnSM0_size));
-  std::vector<std::vector<Float_t>> mdnnSM1_output_jetup(N_jecSources, std::vector<Float_t>(mdnnSM1_size)), mdnnSM1_output_jetdown(N_jecSources, std::vector<Float_t>(mdnnSM1_size));
+  //std::vector<std::vector<Float_t>> mdnnSM1_output_jetup(N_jecSources, std::vector<Float_t>(mdnnSM1_size)), mdnnSM1_output_jetdown(N_jecSources, std::vector<Float_t>(mdnnSM1_size));
   //std::vector<std::vector<Float_t>> mdnnSM2_output_jetup(N_jecSources, std::vector<Float_t>(mdnnSM2_size)), mdnnSM2_output_jetdown(N_jecSources, std::vector<Float_t>(mdnnSM2_size));
   std::vector<TBranch*> b_tauH_SVFIT_mass_jetup, b_tauH_SVFIT_mass_jetdown;
   std::vector<TBranch*> b_DNNoutSM_kl_1_jetup  , b_DNNoutSM_kl_1_jetdown  ;
   std::vector<TBranch*> b_BDToutSM_kl_1_jetup  , b_BDToutSM_kl_1_jetdown  ;
   std::vector<TBranch*> b_bH_mass_raw_jetup    , b_bH_mass_raw_jetdown    ;
   std::vector<std::vector<TBranch*>> b_mdnnSM0_jetup(N_jecSources, std::vector<TBranch*>(mdnnSM0_size)), b_mdnnSM0_jetdown(N_jecSources, std::vector<TBranch*>(mdnnSM0_size));
-  std::vector<std::vector<TBranch*>> b_mdnnSM1_jetup(N_jecSources, std::vector<TBranch*>(mdnnSM1_size)), b_mdnnSM1_jetdown(N_jecSources, std::vector<TBranch*>(mdnnSM1_size));
+  //std::vector<std::vector<TBranch*>> b_mdnnSM1_jetup(N_jecSources, std::vector<TBranch*>(mdnnSM1_size)), b_mdnnSM1_jetdown(N_jecSources, std::vector<TBranch*>(mdnnSM1_size));
   //std::vector<std::vector<TBranch*>> b_mdnnSM2_jetup(N_jecSources, std::vector<TBranch*>(mdnnSM2_size)), b_mdnnSM2_jetdown(N_jecSources, std::vector<TBranch*>(mdnnSM2_size));
   boost::format tauHName_up  ("tauH_SVFIT_mass_jetup%i");
   boost::format DNNName_up   ("DNNoutSM_kl_1_jetup%i");
@@ -1114,10 +1114,10 @@ int main (int argc, char** argv)
   boost::format DNNName_down ("DNNoutSM_kl_1_jetdown%i");
   boost::format BDTName_down ("BDToutSM_kl_1_jetdown%i");
   boost::format bHName_down  ("bH_mass_raw_jetdown%i");
-  boost::format mdnnSM0name_jetup  ("mdnn__v4__kl1_c2v1_c31_vbf__%1%_jetup%2%");
-  boost::format mdnnSM0name_jetdown("mdnn__v4__kl1_c2v1_c31_vbf__%1%_jetdown%2%");
-  boost::format mdnnSM1name_jetup  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_jetup%2%");
-  boost::format mdnnSM1name_jetdown("mdnn__v5__kl1_c2v1_c31_vbf__%1%_jetdown%2%");
+  boost::format mdnnSM0name_jetup  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_jetup%2%");
+  boost::format mdnnSM0name_jetdown("mdnn__v5__kl1_c2v1_c31_vbf__%1%_jetdown%2%");
+  //boost::format mdnnSM1name_jetup  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_jetup%2%");
+  //boost::format mdnnSM1name_jetdown("mdnn__v5__kl1_c2v1_c31_vbf__%1%_jetdown%2%");
   //boost::format mdnnSM2name_jetup  ("mdnn__v3__kl1_c2v1_c31_vr__%1%_jetup%2%");
   //boost::format mdnnSM2name_jetdown("mdnn__v3__kl1_c2v1_c31_vr__%1%_jetdown%2%");
   for (int i=0; i<N_jecSources; i++)
@@ -1158,15 +1158,15 @@ int main (int argc, char** argv)
       b_mdnnSM0_jetup  [i][k] = tmp_mdnnSM0_branch_up;
       b_mdnnSM0_jetdown[i][k] = tmp_mdnnSM0_branch_down;
     }
-    for (int k=0; k<mdnnSM1_size; k++)
-    {
-      std::string tmp_mdnnSM1_branch_name_up   = boost::str( mdnnSM1name_jetup   % (mci.getNodeNames(1)).at(k) % (i+1) );
-      std::string tmp_mdnnSM1_branch_name_down = boost::str( mdnnSM1name_jetdown % (mci.getNodeNames(1)).at(k) % (i+1) );
-      TBranch* tmp_mdnnSM1_branch_up   = outTree->Branch(tmp_mdnnSM1_branch_name_up.c_str()  , &mdnnSM1_output_jetup  [i].at(k));
-      TBranch* tmp_mdnnSM1_branch_down = outTree->Branch(tmp_mdnnSM1_branch_name_down.c_str(), &mdnnSM1_output_jetdown[i].at(k));
-      b_mdnnSM1_jetup  [i][k] = tmp_mdnnSM1_branch_up;
-      b_mdnnSM1_jetdown[i][k] = tmp_mdnnSM1_branch_down;
-    }
+    //for (int k=0; k<mdnnSM1_size; k++)
+    //{
+    //  std::string tmp_mdnnSM1_branch_name_up   = boost::str( mdnnSM1name_jetup   % (mci.getNodeNames(1)).at(k) % (i+1) );
+    //  std::string tmp_mdnnSM1_branch_name_down = boost::str( mdnnSM1name_jetdown % (mci.getNodeNames(1)).at(k) % (i+1) );
+    //  TBranch* tmp_mdnnSM1_branch_up   = outTree->Branch(tmp_mdnnSM1_branch_name_up.c_str()  , &mdnnSM1_output_jetup  [i].at(k));
+    //  TBranch* tmp_mdnnSM1_branch_down = outTree->Branch(tmp_mdnnSM1_branch_name_down.c_str(), &mdnnSM1_output_jetdown[i].at(k));
+    //  b_mdnnSM1_jetup  [i][k] = tmp_mdnnSM1_branch_up;
+    //  b_mdnnSM1_jetdown[i][k] = tmp_mdnnSM1_branch_down;
+    //}
     //for (int k=0; k<mdnnSM2_size; k++)
     //{
     //  std::string tmp_mdnnSM2_branch_name_up   = boost::str( mdnnSM2name_jetup   % (mci.getNodeNames(2)).at(k) % (i+1) );
@@ -1182,7 +1182,7 @@ int main (int argc, char** argv)
   Float_t tauH_SVFIT_mass_jetupTot, DNNoutSM_kl_1_jetupTot, BDToutSM_kl_1_jetupTot;
   Float_t tauH_SVFIT_mass_jetdownTot, DNNoutSM_kl_1_jetdownTot, BDToutSM_kl_1_jetdownTot;
   std::vector<Float_t> mdnnSM0_output_jetupTot(mdnnSM0_size), mdnnSM0_output_jetdownTot(mdnnSM0_size);
-  std::vector<Float_t> mdnnSM1_output_jetupTot(mdnnSM1_size), mdnnSM1_output_jetdownTot(mdnnSM1_size);
+  //std::vector<Float_t> mdnnSM1_output_jetupTot(mdnnSM1_size), mdnnSM1_output_jetdownTot(mdnnSM1_size);
   //std::vector<Float_t> mdnnSM2_output_jetupTot(mdnnSM2_size), mdnnSM2_output_jetdownTot(mdnnSM2_size);
   TBranch* b_tauH_SVFIT_mass_jetupTot   = outTree->Branch("tauH_SVFIT_mass_jetupTot"  , &tauH_SVFIT_mass_jetupTot);
   TBranch* b_DNNoutSM_kl_1_jetupTot     = outTree->Branch("DNNoutSM_kl_1_jetupTot"    , &DNNoutSM_kl_1_jetupTot);
@@ -1191,12 +1191,12 @@ int main (int argc, char** argv)
   TBranch* b_DNNoutSM_kl_1_jetdownTot   = outTree->Branch("DNNoutSM_kl_1_jetdownTot"  , &DNNoutSM_kl_1_jetdownTot);
   TBranch* b_BDToutSM_kl_1_jetdownTot   = outTree->Branch("BDToutSM_kl_1_jetdownTot"  , &BDToutSM_kl_1_jetdownTot);
   std::vector<TBranch*> b_mdnnSM0_jetupTot, b_mdnnSM0_jetdownTot;
-  std::vector<TBranch*> b_mdnnSM1_jetupTot, b_mdnnSM1_jetdownTot;
+  //std::vector<TBranch*> b_mdnnSM1_jetupTot, b_mdnnSM1_jetdownTot;
   //std::vector<TBranch*> b_mdnnSM2_jetupTot, b_mdnnSM2_jetdownTot;
-  boost::format mdnnSM0name_jetupTot  ("mdnn__v4__kl1_c2v1_c31_vbf__%1%_jetupTot");
-  boost::format mdnnSM0name_jetdownTot("mdnn__v4__kl1_c2v1_c31_vbf__%1%_jetdownTot");
-  boost::format mdnnSM1name_jetupTot  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_jetupTot");
-  boost::format mdnnSM1name_jetdownTot("mdnn__v5__kl1_c2v1_c31_vbf__%1%_jetdownTot");
+  boost::format mdnnSM0name_jetupTot  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_jetupTot");
+  boost::format mdnnSM0name_jetdownTot("mdnn__v5__kl1_c2v1_c31_vbf__%1%_jetdownTot");
+  //boost::format mdnnSM1name_jetupTot  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_jetupTot");
+  //boost::format mdnnSM1name_jetdownTot("mdnn__v5__kl1_c2v1_c31_vbf__%1%_jetdownTot");
   //boost::format mdnnSM2name_jetupTot  ("mdnn__v3__kl1_c2v1_c31_vr__%1%_jetupTot");
   //boost::format mdnnSM2name_jetdownTot("mdnn__v3__kl1_c2v1_c31_vr__%1%_jetdownTot");
   for (int i=0; i<mdnnSM0_size; i++)
@@ -1208,15 +1208,15 @@ int main (int argc, char** argv)
     b_mdnnSM0_jetupTot  .push_back(tmp_mdnnSM0_branch_up);
     b_mdnnSM0_jetdownTot.push_back(tmp_mdnnSM0_branch_down);
   }
-  for (int i=0; i<mdnnSM1_size; i++)
-  {
-    std::string tmp_mdnnSM1_branch_name_up   = boost::str( mdnnSM1name_jetupTot   % (mci.getNodeNames(1)).at(i) );
-    std::string tmp_mdnnSM1_branch_name_down = boost::str( mdnnSM1name_jetdownTot % (mci.getNodeNames(1)).at(i) );
-    TBranch* tmp_mdnnSM1_branch_up   = outTree->Branch(tmp_mdnnSM1_branch_name_up.c_str()  , &mdnnSM1_output_jetupTot.at(i));
-    TBranch* tmp_mdnnSM1_branch_down = outTree->Branch(tmp_mdnnSM1_branch_name_down.c_str(), &mdnnSM1_output_jetdownTot.at(i));
-    b_mdnnSM1_jetupTot  .push_back(tmp_mdnnSM1_branch_up);
-    b_mdnnSM1_jetdownTot.push_back(tmp_mdnnSM1_branch_down);
-  }
+  //for (int i=0; i<mdnnSM1_size; i++)
+  //{
+  //  std::string tmp_mdnnSM1_branch_name_up   = boost::str( mdnnSM1name_jetupTot   % (mci.getNodeNames(1)).at(i) );
+  //  std::string tmp_mdnnSM1_branch_name_down = boost::str( mdnnSM1name_jetdownTot % (mci.getNodeNames(1)).at(i) );
+  //  TBranch* tmp_mdnnSM1_branch_up   = outTree->Branch(tmp_mdnnSM1_branch_name_up.c_str()  , &mdnnSM1_output_jetupTot.at(i));
+  //  TBranch* tmp_mdnnSM1_branch_down = outTree->Branch(tmp_mdnnSM1_branch_name_down.c_str(), &mdnnSM1_output_jetdownTot.at(i));
+  //  b_mdnnSM1_jetupTot  .push_back(tmp_mdnnSM1_branch_up);
+  //  b_mdnnSM1_jetdownTot.push_back(tmp_mdnnSM1_branch_down);
+  //}
   //for (int i=0; i<mdnnSM2_size; i++)
   //{
   //  std::string tmp_mdnnSM2_branch_name_up   = boost::str( mdnnSM2name_jetupTot   % (mci.getNodeNames(2)).at(i) );
@@ -1483,13 +1483,13 @@ int main (int argc, char** argv)
           });
         }
         auto mdnnSM0_score_new = mci.predict(EventNumber, 0);
-        auto mdnnSM1_score_new = mci.predict(EventNumber, 1);
+        //auto mdnnSM1_score_new = mci.predict(EventNumber, 1);
         //auto mdnnSM2_score_new = mci.predict(EventNumber, 2);
         //auto mdnnSM3_score_new = mci.predict(EventNumber, 3);
         for (uint k=0; k<mdnnSM0_score_new.size(); k++)
           mdnnSM0_output_new.at(k) = mdnnSM0_score_new.at(k).second;
-        for (uint k=0; k<mdnnSM1_score_new.size(); k++)
-          mdnnSM1_output_new.at(k) = mdnnSM1_score_new.at(k).second;
+        //for (uint k=0; k<mdnnSM1_score_new.size(); k++)
+        //  mdnnSM1_output_new.at(k) = mdnnSM1_score_new.at(k).second;
         //for (uint k=0; k<mdnnSM2_score_new.size(); k++)
         //  mdnnSM2_output_new.at(k) = mdnnSM2_score_new.at(k).second;
         //for (uint k=0; k<mdnnSM3_score_new.size(); k++)
@@ -1597,13 +1597,13 @@ int main (int argc, char** argv)
             });
           }
           auto mdnnSM0_score_new = mci.predict(EventNumber, 0);
-          auto mdnnSM1_score_new = mci.predict(EventNumber, 1);
+          //auto mdnnSM1_score_new = mci.predict(EventNumber, 1);
           //auto mdnnSM2_score_new = mci.predict(EventNumber, 2);
           //auto mdnnSM3_score_new = mci.predict(EventNumber, 3);
           for (uint k=0; k<mdnnSM0_score_new.size(); k++)
             mdnnSM0_output_new.at(k) = mdnnSM0_score_new.at(k).second;
-          for (uint k=0; k<mdnnSM1_score_new.size(); k++)
-            mdnnSM1_output_new.at(k) = mdnnSM1_score_new.at(k).second;
+          //for (uint k=0; k<mdnnSM1_score_new.size(); k++)
+          //  mdnnSM1_output_new.at(k) = mdnnSM1_score_new.at(k).second;
           //for (uint k=0; k<mdnnSM2_score_new.size(); k++)
           //  mdnnSM2_output_new.at(k) = mdnnSM2_score_new.at(k).second;
           //for (uint k=0; k<mdnnSM3_score_new.size(); k++)
@@ -1678,18 +1678,18 @@ int main (int argc, char** argv)
           });
         }
         auto mdnnSM0_score_mes = mci.predict(EventNumber, 0);
-        auto mdnnSM1_score_mes = mci.predict(EventNumber, 1);
+        //auto mdnnSM1_score_mes = mci.predict(EventNumber, 1);
         //auto mdnnSM2_score_mes = mci.predict(EventNumber, 2);
         for (uint k=0; k<mdnnSM0_score_mes.size(); k++)
         {
           mdnnSM0_output_muup.at(k)   = mdnnSM0_score_mes.at(k).second;
           mdnnSM0_output_mudown.at(k) = mdnnSM0_score_mes.at(k).second;
         }
-        for (uint k=0; k<mdnnSM1_score_mes.size(); k++)
-        {
-          mdnnSM1_output_muup.at(k)   = mdnnSM1_score_mes.at(k).second;
-          mdnnSM1_output_mudown.at(k) = mdnnSM1_score_mes.at(k).second;
-        }
+        //for (uint k=0; k<mdnnSM1_score_mes.size(); k++)
+        //{
+        //  mdnnSM1_output_muup.at(k)   = mdnnSM1_score_mes.at(k).second;
+        //  mdnnSM1_output_mudown.at(k) = mdnnSM1_score_mes.at(k).second;
+        //}
         //for (uint k=0; k<mdnnSM2_score_mes.size(); k++)
         //{
         //  mdnnSM2_output_muup.at(k)   = mdnnSM2_score_mes.at(k).second;
@@ -1866,12 +1866,12 @@ int main (int argc, char** argv)
             });
           }
           auto mdnnSM0_score_muup = mci.predict(EventNumber, 0);
-          auto mdnnSM1_score_muup = mci.predict(EventNumber, 1);
+          //auto mdnnSM1_score_muup = mci.predict(EventNumber, 1);
           //auto mdnnSM2_score_muup = mci.predict(EventNumber, 2);
           for (uint k=0; k<mdnnSM0_score_muup.size(); k++)
             mdnnSM0_output_muup.at(k) = mdnnSM0_score_muup.at(k).second;
-          for (uint k=0; k<mdnnSM1_score_muup.size(); k++)
-            mdnnSM1_output_muup.at(k) = mdnnSM1_score_muup.at(k).second;
+          //for (uint k=0; k<mdnnSM1_score_muup.size(); k++)
+          //  mdnnSM1_output_muup.at(k) = mdnnSM1_score_muup.at(k).second;
           //for (uint k=0; k<mdnnSM2_score_muup.size(); k++)
           //  mdnnSM2_output_muup.at(k) = mdnnSM2_score_muup.at(k).second;
 
@@ -1902,12 +1902,12 @@ int main (int argc, char** argv)
             });
           }
           auto mdnnSM0_score_mudown = mci.predict(EventNumber, 0);
-          auto mdnnSM1_score_mudown = mci.predict(EventNumber, 1);
+          //auto mdnnSM1_score_mudown = mci.predict(EventNumber, 1);
           //auto mdnnSM2_score_mudown = mci.predict(EventNumber, 2);
           for (uint k=0; k<mdnnSM0_score_mudown.size(); k++)
             mdnnSM0_output_mudown.at(k) = mdnnSM0_score_mudown.at(k).second;
-          for (uint k=0; k<mdnnSM1_score_mudown.size(); k++)
-            mdnnSM1_output_mudown.at(k) = mdnnSM1_score_mudown.at(k).second;
+          //for (uint k=0; k<mdnnSM1_score_mudown.size(); k++)
+          //  mdnnSM1_output_mudown.at(k) = mdnnSM1_score_mudown.at(k).second;
           //for (uint k=0; k<mdnnSM2_score_mudown.size(); k++)
           //  mdnnSM2_output_mudown.at(k) = mdnnSM2_score_mudown.at(k).second;
         }
@@ -1984,18 +1984,18 @@ int main (int argc, char** argv)
             });
           }
           auto mdnnSM0_score_ees = mci.predict(EventNumber, 0);
-          auto mdnnSM1_score_ees = mci.predict(EventNumber, 1);
+          //auto mdnnSM1_score_ees = mci.predict(EventNumber, 1);
           //auto mdnnSM2_score_ees = mci.predict(EventNumber, 2);
           for (uint k=0; k<mdnnSM0_score_ees.size(); k++)
           {
             mdnnSM0_output_eleup  [i].at(k) = mdnnSM0_score_ees.at(k).second;
             mdnnSM0_output_eledown[i].at(k) = mdnnSM0_score_ees.at(k).second;
           }
-          for (uint k=0; k<mdnnSM1_score_ees.size(); k++)
-          {
-            mdnnSM1_output_eleup  [i].at(k) = mdnnSM1_score_ees.at(k).second;
-            mdnnSM1_output_eledown[i].at(k) = mdnnSM1_score_ees.at(k).second;
-          }
+          //for (uint k=0; k<mdnnSM1_score_ees.size(); k++)
+          //{
+          //  mdnnSM1_output_eleup  [i].at(k) = mdnnSM1_score_ees.at(k).second;
+          //  mdnnSM1_output_eledown[i].at(k) = mdnnSM1_score_ees.at(k).second;
+          //}
           //for (uint k=0; k<mdnnSM2_score_ees.size(); k++)
           //{
           //  mdnnSM2_output_eleup  [i].at(k) = mdnnSM2_score_ees.at(k).second;
@@ -2171,12 +2171,12 @@ int main (int argc, char** argv)
               });
             }
             auto mdnnSM0_score_eleup = mci.predict(EventNumber, 0);
-            auto mdnnSM1_score_eleup = mci.predict(EventNumber, 1);
+            //auto mdnnSM1_score_eleup = mci.predict(EventNumber, 1);
             //auto mdnnSM2_score_eleup = mci.predict(EventNumber, 2);
             for (uint k=0; k<mdnnSM0_score_eleup.size(); k++)
               mdnnSM0_output_eleup[i].at(k) = mdnnSM0_score_eleup.at(k).second;
-            for (uint k=0; k<mdnnSM1_score_eleup.size(); k++)
-              mdnnSM1_output_eleup[i].at(k) = mdnnSM1_score_eleup.at(k).second;
+            //for (uint k=0; k<mdnnSM1_score_eleup.size(); k++)
+            //  mdnnSM1_output_eleup[i].at(k) = mdnnSM1_score_eleup.at(k).second;
             //for (uint k=0; k<mdnnSM2_score_eleup.size(); k++)
             //  mdnnSM2_output_eleup[i].at(k) = mdnnSM2_score_eleup.at(k).second;
 
@@ -2207,12 +2207,12 @@ int main (int argc, char** argv)
               });
             }
             auto mdnnSM0_score_eledown = mci.predict(EventNumber, 0);
-            auto mdnnSM1_score_eledown = mci.predict(EventNumber, 1);
+            //auto mdnnSM1_score_eledown = mci.predict(EventNumber, 1);
             //auto mdnnSM2_score_eledown = mci.predict(EventNumber, 2);
             for (uint k=0; k<mdnnSM0_score_eledown.size(); k++)
               mdnnSM0_output_eledown[i].at(k) = mdnnSM0_score_eledown.at(k).second;
-            for (uint k=0; k<mdnnSM1_score_eledown.size(); k++)
-              mdnnSM1_output_eledown[i].at(k) = mdnnSM1_score_eledown.at(k).second;
+            //for (uint k=0; k<mdnnSM1_score_eledown.size(); k++)
+            //  mdnnSM1_output_eledown[i].at(k) = mdnnSM1_score_eledown.at(k).second;
             //for (uint k=0; k<mdnnSM2_score_eledown.size(); k++)
             //  mdnnSM2_output_eledown[i].at(k) = mdnnSM2_score_eledown.at(k).second;
           }
@@ -2290,18 +2290,18 @@ int main (int argc, char** argv)
             });
           }
           auto mdnnSM0_score_tes = mci.predict(EventNumber, 0);
-          auto mdnnSM1_score_tes = mci.predict(EventNumber, 1);
+          //auto mdnnSM1_score_tes = mci.predict(EventNumber, 1);
           //auto mdnnSM2_score_tes = mci.predict(EventNumber, 2);
           for (uint k=0; k<mdnnSM0_score_tes.size(); k++)
           {
             mdnnSM0_output_tauup  [i].at(k) = mdnnSM0_score_tes.at(k).second;
             mdnnSM0_output_taudown[i].at(k) = mdnnSM0_score_tes.at(k).second;
           }
-          for (uint k=0; k<mdnnSM1_score_tes.size(); k++)
-          {
-            mdnnSM1_output_tauup  [i].at(k) = mdnnSM1_score_tes.at(k).second;
-            mdnnSM1_output_taudown[i].at(k) = mdnnSM1_score_tes.at(k).second;
-          }
+          //for (uint k=0; k<mdnnSM1_score_tes.size(); k++)
+          //{
+          //  mdnnSM1_output_tauup  [i].at(k) = mdnnSM1_score_tes.at(k).second;
+          //  mdnnSM1_output_taudown[i].at(k) = mdnnSM1_score_tes.at(k).second;
+          //}
           //for (uint k=0; k<mdnnSM2_score_tes.size(); k++)
           //{
           //  mdnnSM2_output_tauup  [i].at(k) = mdnnSM2_score_tes.at(k).second;
@@ -2477,12 +2477,12 @@ int main (int argc, char** argv)
               });
             }
             auto mdnnSM0_score_tauup = mci.predict(EventNumber, 0);
-            auto mdnnSM1_score_tauup = mci.predict(EventNumber, 1);
+            //auto mdnnSM1_score_tauup = mci.predict(EventNumber, 1);
             //auto mdnnSM2_score_tauup = mci.predict(EventNumber, 2);
             for (uint k=0; k<mdnnSM0_score_tauup.size(); k++)
               mdnnSM0_output_tauup[i].at(k) = mdnnSM0_score_tauup.at(k).second;
-            for (uint k=0; k<mdnnSM1_score_tauup.size(); k++)
-              mdnnSM1_output_tauup[i].at(k) = mdnnSM1_score_tauup.at(k).second;
+            //for (uint k=0; k<mdnnSM1_score_tauup.size(); k++)
+            //  mdnnSM1_output_tauup[i].at(k) = mdnnSM1_score_tauup.at(k).second;
             //for (uint k=0; k<mdnnSM2_score_tauup.size(); k++)
             //  mdnnSM2_output_tauup[i].at(k) = mdnnSM2_score_tauup.at(k).second;
 
@@ -2513,12 +2513,12 @@ int main (int argc, char** argv)
               });
             }
             auto mdnnSM0_score_taudown = mci.predict(EventNumber, 0);
-            auto mdnnSM1_score_taudown = mci.predict(EventNumber, 1);
+            //auto mdnnSM1_score_taudown = mci.predict(EventNumber, 1);
             //auto mdnnSM2_score_taudown = mci.predict(EventNumber, 2);
             for (uint k=0; k<mdnnSM0_score_taudown.size(); k++)
               mdnnSM0_output_taudown[i].at(k) = mdnnSM0_score_taudown.at(k).second;
-            for (uint k=0; k<mdnnSM1_score_taudown.size(); k++)
-              mdnnSM1_output_taudown[i].at(k) = mdnnSM1_score_taudown.at(k).second;
+            //for (uint k=0; k<mdnnSM1_score_taudown.size(); k++)
+            //  mdnnSM1_output_taudown[i].at(k) = mdnnSM1_score_taudown.at(k).second;
             //for (uint k=0; k<mdnnSM2_score_taudown.size(); k++)
             //  mdnnSM2_output_taudown[i].at(k) = mdnnSM2_score_taudown.at(k).second;
           }
@@ -2598,18 +2598,18 @@ int main (int argc, char** argv)
             });
           }
           auto mdnnSM0_score_jes = mci.predict(EventNumber, 0);
-          auto mdnnSM1_score_jes = mci.predict(EventNumber, 1);
+          //auto mdnnSM1_score_jes = mci.predict(EventNumber, 1);
           //auto mdnnSM2_score_jes = mci.predict(EventNumber, 2);
           for (uint k=0; k<mdnnSM0_score_jes.size(); k++)
           {
             mdnnSM0_output_jetup  [i].at(k) = mdnnSM0_score_jes.at(k).second;
             mdnnSM0_output_jetdown[i].at(k) = mdnnSM0_score_jes.at(k).second;
           }
-          for (uint k=0; k<mdnnSM1_score_jes.size(); k++)
-          {
-            mdnnSM1_output_jetup  [i].at(k) = mdnnSM1_score_jes.at(k).second;
-            mdnnSM1_output_jetdown[i].at(k) = mdnnSM1_score_jes.at(k).second;
-          }
+          //for (uint k=0; k<mdnnSM1_score_jes.size(); k++)
+          //{
+          //  mdnnSM1_output_jetup  [i].at(k) = mdnnSM1_score_jes.at(k).second;
+          //  mdnnSM1_output_jetdown[i].at(k) = mdnnSM1_score_jes.at(k).second;
+          //}
           //for (uint k=0; k<mdnnSM2_score_jes.size(); k++)
           //{
           //  mdnnSM2_output_jetup  [i].at(k) = mdnnSM2_score_jes.at(k).second;
@@ -2884,12 +2884,12 @@ int main (int argc, char** argv)
               });
             }
             auto mdnnSM0_score_jetup = mci.predict(EventNumber, 0);
-            auto mdnnSM1_score_jetup = mci.predict(EventNumber, 1);
+            //auto mdnnSM1_score_jetup = mci.predict(EventNumber, 1);
             //auto mdnnSM2_score_jetup = mci.predict(EventNumber, 2);
             for (uint k=0; k<mdnnSM0_score_jetup.size(); k++)
               mdnnSM0_output_jetup[i].at(k) = mdnnSM0_score_jetup.at(k).second;
-            for (uint k=0; k<mdnnSM1_score_jetup.size(); k++)
-              mdnnSM1_output_jetup[i].at(k) = mdnnSM1_score_jetup.at(k).second;
+            //for (uint k=0; k<mdnnSM1_score_jetup.size(); k++)
+            //  mdnnSM1_output_jetup[i].at(k) = mdnnSM1_score_jetup.at(k).second;
             //for (uint k=0; k<mdnnSM2_score_jetup.size(); k++)
             //  mdnnSM2_output_jetup[i].at(k) = mdnnSM2_score_jetup.at(k).second;
 
@@ -2920,12 +2920,12 @@ int main (int argc, char** argv)
               });
             }
             auto mdnnSM0_score_jetdown = mci.predict(EventNumber, 0);
-            auto mdnnSM1_score_jetdown = mci.predict(EventNumber, 1);
+            //auto mdnnSM1_score_jetdown = mci.predict(EventNumber, 1);
             //auto mdnnSM2_score_jetdown = mci.predict(EventNumber, 2);
             for (uint k=0; k<mdnnSM0_score_jetdown.size(); k++)
               mdnnSM0_output_jetdown[i].at(k) = mdnnSM0_score_jetdown.at(k).second;
-            for (uint k=0; k<mdnnSM1_score_jetdown.size(); k++)
-              mdnnSM1_output_jetdown[i].at(k) = mdnnSM1_score_jetdown.at(k).second;
+            //for (uint k=0; k<mdnnSM1_score_jetdown.size(); k++)
+            //  mdnnSM1_output_jetdown[i].at(k) = mdnnSM1_score_jetdown.at(k).second;
             //for (uint k=0; k<mdnnSM2_score_jetdown.size(); k++)
             //  mdnnSM2_output_jetdown[i].at(k) = mdnnSM2_score_jetdown.at(k).second;
           }
@@ -3001,18 +3001,18 @@ int main (int argc, char** argv)
           });
         }
         auto mdnnSM0_score_jetTot = mci.predict(EventNumber, 0);
-        auto mdnnSM1_score_jetTot = mci.predict(EventNumber, 1);
+        //auto mdnnSM1_score_jetTot = mci.predict(EventNumber, 1);
         //auto mdnnSM2_score_jetTot = mci.predict(EventNumber, 2);
         for (uint k=0; k<mdnnSM0_score_jetTot.size(); k++)
         {
           mdnnSM0_output_jetupTot.at(k)   = mdnnSM0_score_jetTot.at(k).second;
           mdnnSM0_output_jetdownTot.at(k) = mdnnSM0_score_jetTot.at(k).second;
         }
-        for (uint k=0; k<mdnnSM1_score_jetTot.size(); k++)
-        {
-          mdnnSM1_output_jetupTot.at(k)   = mdnnSM1_score_jetTot.at(k).second;
-          mdnnSM1_output_jetdownTot.at(k) = mdnnSM1_score_jetTot.at(k).second;
-        }
+        //for (uint k=0; k<mdnnSM1_score_jetTot.size(); k++)
+        //{
+        //  mdnnSM1_output_jetupTot.at(k)   = mdnnSM1_score_jetTot.at(k).second;
+        //  mdnnSM1_output_jetdownTot.at(k) = mdnnSM1_score_jetTot.at(k).second;
+        //}
         //for (uint k=0; k<mdnnSM2_score_jetTot.size(); k++)
         //{
         //  mdnnSM2_output_jetupTot.at(k)   = mdnnSM2_score_jetTot.at(k).second;
@@ -3286,12 +3286,12 @@ int main (int argc, char** argv)
           }
 
           auto mdnnSM0_score_jetupTot = mci.predict(EventNumber, 0);
-          auto mdnnSM1_score_jetupTot = mci.predict(EventNumber, 1);
+          //auto mdnnSM1_score_jetupTot = mci.predict(EventNumber, 1);
           //auto mdnnSM2_score_jetupTot = mci.predict(EventNumber, 2);
           for (uint k=0; k<mdnnSM0_score_jetupTot.size(); k++)
             mdnnSM0_output_jetupTot.at(k) = mdnnSM0_score_jetupTot.at(k).second;
-          for (uint k=0; k<mdnnSM1_score_jetupTot.size(); k++)
-            mdnnSM1_output_jetupTot.at(k) = mdnnSM1_score_jetupTot.at(k).second;
+          //for (uint k=0; k<mdnnSM1_score_jetupTot.size(); k++)
+          //  mdnnSM1_output_jetupTot.at(k) = mdnnSM1_score_jetupTot.at(k).second;
           //for (uint k=0; k<mdnnSM2_score_jetupTot.size(); k++)
           //  mdnnSM2_output_jetupTot.at(k) = mdnnSM2_score_jetupTot.at(k).second;
 
@@ -3322,12 +3322,12 @@ int main (int argc, char** argv)
             });
           }
           auto mdnnSM0_score_jetdownTot = mci.predict(EventNumber, 0);
-          auto mdnnSM1_score_jetdownTot = mci.predict(EventNumber, 1);
+          //auto mdnnSM1_score_jetdownTot = mci.predict(EventNumber, 1);
           //auto mdnnSM2_score_jetdownTot = mci.predict(EventNumber, 2);
           for (uint k=0; k<mdnnSM0_score_jetdownTot.size(); k++)
             mdnnSM0_output_jetdownTot.at(k) = mdnnSM0_score_jetdownTot.at(k).second;
-          for (uint k=0; k<mdnnSM1_score_jetdownTot.size(); k++)
-            mdnnSM1_output_jetdownTot.at(k) = mdnnSM1_score_jetdownTot.at(k).second;
+          //for (uint k=0; k<mdnnSM1_score_jetdownTot.size(); k++)
+          //  mdnnSM1_output_jetdownTot.at(k) = mdnnSM1_score_jetdownTot.at(k).second;
           //for (uint k=0; k<mdnnSM2_score_jetdownTot.size(); k++)
           //  mdnnSM2_output_jetdownTot.at(k) = mdnnSM2_score_jetdownTot.at(k).second;
         }
@@ -3481,31 +3481,31 @@ int main (int argc, char** argv)
         b_mdnnSM0_jetdown[jec].at(i)->Fill();
       }
     }
-    for (int i=0; i<mdnnSM1_size; i++)
-    {
-      b_mdnnSM1_new.at(i)->Fill();
-      b_mdnnSM1_muup.at(i)->Fill();
-      b_mdnnSM1_mudown.at(i)->Fill();
-      b_mdnnSM1_eleup_DM0.at(i)->Fill();
-      b_mdnnSM1_eledown_DM0.at(i)->Fill();
-      b_mdnnSM1_eleup_DM1.at(i)->Fill();
-      b_mdnnSM1_eledown_DM1.at(i)->Fill();
-      b_mdnnSM1_tauup_DM0.at(i)->Fill();
-      b_mdnnSM1_taudown_DM0.at(i)->Fill();
-      b_mdnnSM1_tauup_DM1.at(i)->Fill();
-      b_mdnnSM1_taudown_DM1.at(i)->Fill();
-      b_mdnnSM1_tauup_DM10.at(i)->Fill();
-      b_mdnnSM1_taudown_DM10.at(i)->Fill();
-      b_mdnnSM1_tauup_DM11.at(i)->Fill();
-      b_mdnnSM1_taudown_DM11.at(i)->Fill();
-      b_mdnnSM1_jetupTot.at(i)->Fill();
-      b_mdnnSM1_jetdownTot.at(i)->Fill();
-      for (int jec=0; jec<N_jecSources; jec++)
-      {
-        b_mdnnSM1_jetup  [jec].at(i)->Fill();
-        b_mdnnSM1_jetdown[jec].at(i)->Fill();
-      }
-    }
+    //for (int i=0; i<mdnnSM1_size; i++)
+    //{
+    //  b_mdnnSM1_new.at(i)->Fill();
+    //  b_mdnnSM1_muup.at(i)->Fill();
+    //  b_mdnnSM1_mudown.at(i)->Fill();
+    //  b_mdnnSM1_eleup_DM0.at(i)->Fill();
+    //  b_mdnnSM1_eledown_DM0.at(i)->Fill();
+    //  b_mdnnSM1_eleup_DM1.at(i)->Fill();
+    //  b_mdnnSM1_eledown_DM1.at(i)->Fill();
+    //  b_mdnnSM1_tauup_DM0.at(i)->Fill();
+    //  b_mdnnSM1_taudown_DM0.at(i)->Fill();
+    //  b_mdnnSM1_tauup_DM1.at(i)->Fill();
+    //  b_mdnnSM1_taudown_DM1.at(i)->Fill();
+    //  b_mdnnSM1_tauup_DM10.at(i)->Fill();
+    //  b_mdnnSM1_taudown_DM10.at(i)->Fill();
+    //  b_mdnnSM1_tauup_DM11.at(i)->Fill();
+    //  b_mdnnSM1_taudown_DM11.at(i)->Fill();
+    //  b_mdnnSM1_jetupTot.at(i)->Fill();
+    //  b_mdnnSM1_jetdownTot.at(i)->Fill();
+    //  for (int jec=0; jec<N_jecSources; jec++)
+    //  {
+    //    b_mdnnSM1_jetup  [jec].at(i)->Fill();
+    //    b_mdnnSM1_jetdown[jec].at(i)->Fill();
+    //  }
+    //}
     //for (int i=0; i<mdnnSM2_size; i++)
     //{
     //  b_mdnnSM2_new.at(i)->Fill();

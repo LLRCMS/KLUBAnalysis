@@ -9,23 +9,25 @@ using namespace std;
 
 #define DEBUG false
 
-bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag, std::string WPset) :
+bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag, std::string year, std::string WPset) :
     
     m_calib("DeepCSV", SFfilename.c_str()) ,
-    m_readers {
-        BTagCalibrationReader(BTagEntry::OP_LOOSE,  "central", {"up", "down"}),
-        BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"}),
-        BTagCalibrationReader(BTagEntry::OP_TIGHT,  "central", {"up", "down"}),
-        BTagCalibrationReader(BTagEntry::OP_RESHAPING, "central", {
-            "up_jes", "up_lf", "up_hf", "up_hfstats1", "up_hfstats2", "up_lfstats1", "up_lfstats2", "up_cferr1", "up_cferr2",
-            "down_jes", "down_lf", "down_hf", "down_hfstats1", "down_hfstats2", "down_lfstats1", "down_lfstats2", "down_cferr1", "down_cferr2",
-            // Up/down JES variations: do not change order of these!!!
-            "up_jesFlavorQCD", "up_jesRelativeBal", "up_jesHF", "up_jesBBEC1", "up_jesEC2", "up_jesAbsolute", "up_jesBBEC1_2016", "up_jesEC2_2016",
-            "up_jesAbsolute_2016", "up_jesHF_2016", "up_jesRelativeSample_2016",
-            "down_jesFlavorQCD", "down_jesRelativeBal", "down_jesHF", "down_jesBBEC1", "down_jesEC2", "down_jesAbsolute", "down_jesBBEC1_2016",
-            "down_jesEC2_2016", "down_jesAbsolute_2016", "down_jesHF_2016", "down_jesRelativeSample_2016"
-        })}
+    m_year (year)
 {
+    // Fill m_readers varray with year dependent names for reshaping uncertainties
+    m_readers[0] = BTagCalibrationReader(BTagEntry::OP_LOOSE,  "central", {"up", "down"});
+    m_readers[1] = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"});
+    m_readers[2] = BTagCalibrationReader(BTagEntry::OP_TIGHT,  "central", {"up", "down"});
+    m_readers[3] = BTagCalibrationReader(BTagEntry::OP_RESHAPING, "central", {
+                    "up_jes", "up_lf", "up_hf", "up_hfstats1", "up_hfstats2", "up_lfstats1", "up_lfstats2", "up_cferr1", "up_cferr2",
+                    "down_jes", "down_lf", "down_hf", "down_hfstats1", "down_hfstats2", "down_lfstats1", "down_lfstats2", "down_cferr1", "down_cferr2",
+                    // Up/down JES variations: do not change order of these!!!
+                    "up_jesFlavorQCD", "up_jesRelativeBal", "up_jesHF", "up_jesBBEC1", "up_jesEC2", "up_jesAbsolute", "up_jesBBEC1_"+m_year, "up_jesEC2_"+m_year,
+                    "up_jesAbsolute_"+m_year, "up_jesHF_"+m_year, "up_jesRelativeSample_"+m_year,
+                    "down_jesFlavorQCD", "down_jesRelativeBal", "down_jesHF", "down_jesBBEC1", "down_jesEC2", "down_jesAbsolute", "down_jesBBEC1_"+m_year,
+                    "down_jesEC2_"+m_year, "down_jesAbsolute_"+m_year, "down_jesHF_"+m_year, "down_jesRelativeSample_"+m_year
+                   });
+
     // load readers [loose, medium, tight, reshaping]
     m_readers[0].load(m_calib, BTagEntry::FLAV_B, "comb");
     m_readers[0].load(m_calib, BTagEntry::FLAV_C, "comb");
@@ -329,10 +331,10 @@ std::vector<float> bTagSF::getEvtWeightShifted (std::vector <std::pair <int, flo
         "up_jes", "up_lf", "up_hf", "up_hfstats1", "up_hfstats2", "up_lfstats1", "up_lfstats2", "up_cferr1", "up_cferr2",
         "down_jes", "down_lf", "down_hf", "down_hfstats1", "down_hfstats2", "down_lfstats1", "down_lfstats2", "down_cferr1", "down_cferr2",
         // Up/down JES variations: do not change order of these!!!
-        "up_jesFlavorQCD", "up_jesRelativeBal", "up_jesHF", "up_jesBBEC1", "up_jesEC2", "up_jesAbsolute", "up_jesBBEC1_2016", "up_jesEC2_2016",
-        "up_jesAbsolute_2016", "up_jesHF_2016", "up_jesRelativeSample_2016",
-        "down_jesFlavorQCD", "down_jesRelativeBal", "down_jesHF", "down_jesBBEC1", "down_jesEC2", "down_jesAbsolute", "down_jesBBEC1_2016",
-        "down_jesEC2_2016", "down_jesAbsolute_2016", "down_jesHF_2016", "down_jesRelativeSample_2016"
+        "up_jesFlavorQCD", "up_jesRelativeBal", "up_jesHF", "up_jesBBEC1", "up_jesEC2", "up_jesAbsolute", "up_jesBBEC1_"+m_year, "up_jesEC2_"+m_year,
+        "up_jesAbsolute_"+m_year, "up_jesHF_"+m_year, "up_jesRelativeSample_"+m_year,
+        "down_jesFlavorQCD", "down_jesRelativeBal", "down_jesHF", "down_jesBBEC1", "down_jesEC2", "down_jesAbsolute", "down_jesBBEC1_"+m_year,
+        "down_jesEC2_"+m_year, "down_jesAbsolute_"+m_year, "down_jesHF_"+m_year, "down_jesRelativeSample_"+m_year
     };
 
     // Values of shifted SFs all initialized to 1

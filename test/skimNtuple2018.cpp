@@ -514,7 +514,7 @@ int main (int argc, char** argv)
   }
 
   cout << "B Tag SF file: " << bTag_SFFile << endl;
-  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "102X_DeepCSV_V1");
+  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "2018", "102X_DeepCSV_V1");
   if(useDeepFlavor)
     bTagSFHelper.SetWPset("102X_DeepFlavor_V1");
 
