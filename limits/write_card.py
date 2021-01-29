@@ -313,10 +313,32 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             #        shiftShapes_newName.append(proc+"_"+CMS_bTagWPname+"Up")
             #        shiftShapes_newName.append(proc+"_"+CMS_bTagWPname+"Down")
 
-            # Add bTagReshape uncertainties
-            bTagSysts = ["LF","HF","HFSTATS1","HFSTATS2","LFSTATS1","LFSTATS2","CFERR1","CFERR2"]
+            # Add bTagReshape uncertainties - systematic type (correlated across years 2016 and 2017-2018)
+            bTagSysts = ["LF","HF"]
             for bTagSyst in bTagSysts:
-                CMS_bTagSystName = "CMS_bbtautau_bTagweightReshape" + bTagSyst
+                CMS_bTagSystName = "CMS_bbtautau_bTagweightReshape" + bTagSyst + "_2017_2018"
+                if "2016" in opt.year:
+                    CMS_bTagSystName = "CMS_bbtautau_bTagweightReshape" + bTagSyst + "_2016"
+                bTagSystName = "bTagweightReshape" + bTagSyst
+                systsShape.append(CMS_bTagSystName)
+                for proc in backgrounds:
+                    if opt.dynamQCD and "QCD" in proc: continue
+                    proc_syst[proc][CMS_bTagSystName] = ["shape", 1.]   #applying trigger to all MC backgrounds
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Up")
+                    shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Down")
+                for proc in signals:
+                    proc_syst[proc][CMS_bTagSystName] = ["shape", 1.]   #applying trigger to all signals
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Up")
+                    shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Down")
+
+            # Add bTagReshape uncertainties - statistical type (uncorrelated across years)
+            bTagSysts = ["HFSTATS1","HFSTATS2","LFSTATS1","LFSTATS2","CFERR1","CFERR2"]
+            for bTagSyst in bTagSysts:
+                CMS_bTagSystName = "CMS_bbtautau_bTagweightReshape" + bTagSyst + "_" + opt.year
                 bTagSystName = "bTagweightReshape" + bTagSyst
                 systsShape.append(CMS_bTagSystName)
                 for proc in backgrounds:
