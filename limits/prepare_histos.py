@@ -107,8 +107,8 @@ for key in inFile.GetListOfKeys():
 				kname = kname + "_"+ systNamesOUT[isyst] + appString
 
 		# Fix the signal names after the systs have been read
-		if "GGHH_NLO" in kname: kname = kname.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_hbbhtautau").replace("cHHH", "kl_")
-		if "VBFHH"    in kname: kname = kname.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_hbbhtautau")
+		if "GGHH_NLO" in kname: kname = kname.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_hbbhtt").replace("cHHH", "kl_")
+		if "VBFHH"    in kname: kname = kname.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_hbbhtt")
 
 		template.SetName(kname)
 		template.SetTitle(kname)
