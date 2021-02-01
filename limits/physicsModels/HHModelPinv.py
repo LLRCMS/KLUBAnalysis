@@ -10,6 +10,7 @@
 
 
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
+from HBRscaler import *
 from sympy import *
 from numpy import matrix
 from numpy import linalg
@@ -176,11 +177,16 @@ class VBFHHFormula:
 
 
 class HHModel(PhysicsModel):
-    """ Models the HH production as linear sum of the input components for VBF (>= 6) and GGF (>= 3) """
+    """
+    Models the HH production as linear sum of the input components for VBF (>= 6) and GGF (>= 3).
+    """
 
     def __init__(self, ggf_sample_list, vbf_sample_list, name):
         PhysicsModel.__init__(self)
+
         self.doNNLOscaling    = True
+        self.doBRscaling      = True
+        self.doHscaling       = True
         self.doklDependentUnc = True
         self.klUncName        = "THU_HH"
         self.name             = name
@@ -193,49 +199,45 @@ class HHModel(PhysicsModel):
 
         self.scalingMap = defaultdict(list)
 
-        #self.dump_inputs()
+        # self.dump_inputs()
 
     def setPhysicsOptions(self, physOptions):
         opts = [opt.split("=", 1) for opt in physOptions if "=" in opt]
+        known_flags = ["doNNLOscaling", "doBRscaling", "doHscaling", "doklDependentUnc"]
         for key, value in opts:
-            if key == "doNNLOscaling":
-                self.doNNLOscaling = value.lower() in ["yes", "true", "1"]
-                print("[INFO] set doNNLOscaling of model {} to {}".format(
-                    self.name, self.doNNLOscaling))
-            if key == "doklDependentUnc":
-                self.doklDependentUnc = value.lower() in ["yes", "true", "1"]
-                print("[INFO] set doklDependentUnc of model {} to {}".format(
-                    self.name, self.doklDependentUnc))
+            if key in known_flags:
+                flag = value.lower() in ["yes", "true", "1"]
+                setattr(self, key, flag)
+                print("[INFO] set {} of model {} to {}".format(key, self.name, flag))
 
     def preProcessNuisances(self, nuisances):
         ''' this method is executed before nuisances are processed'''
-        if not self.doklDependentUnc: return
-        nuisances.append((self.klUncName, False, "param", [ "0", "1"], [] ) )
+        if not self.doklDependentUnc:
+            return
+        nuisances.append((self.klUncName, False, "param", ["0", "1"], []))
 
     def makeInterpolation(self, nameout, nameHi, nameLo, x):
         # as in https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/102x/interface/ProcessNormalization.h
         ## maybe we can try to reuse that should be fast
         d = {"name":nameout, "hi":nameHi, "lo":nameLo, 'x':x}
-        
-        d['logKhi']    = "log({hi})"  .format(**d)
-        d['logKlo']    = "-log({lo})" .format(**d)
-        d['avg']       = "0.5*({logKhi} + {logKlo})".format(**d)
-        d['halfdiff']  = "0.5*({logKhi} - {logKlo})".format(**d)
-        d["twox"]      = "2*{x}".format(**d)
-        d["twox2"]     = "({twox})*({twox})".format(**d)
-        d['alpha']     = '0.125 * {twox} * ({twox2} * ({twox2} - 10.) + 15.)'.format(**d)
-        
-        d['retCent']   = "{avg}+{alpha}*{halfdiff}".format(**d)
-        d['retLow']    = d['logKlo']
-        d['retHigh']   = d['logKhi']
-        d['retFull'] = "{x} <= -0.5 ? ({retLow}) : {x} >= 0.5 ? ({retHigh}) : ({retCent})".format(**d)
-        
+
+        d['logKhi']   = "log({hi})".format(**d)
+        d['logKlo']   = "-log({lo})".format(**d)
+        d['avg']      = "0.5*({logKhi} + {logKlo})".format(**d)
+        d['halfdiff'] = "0.5*({logKhi} - {logKlo})".format(**d)
+        d["twox"]     = "2*{x}".format(**d)
+        d["twox2"]    = "({twox})*({twox})".format(**d)
+        d['alpha']    = '0.125 * {twox} * ({twox2} * ({twox2} - 10.) + 15.)'.format(**d)
+
+        d['retCent']  = "{avg}+{alpha}*{halfdiff}".format(**d)
+        d['retLow']   = d['logKlo']
+        d['retHigh']  = d['logKhi']
+        d['retFull']  = "{x} <= -0.5 ? ({retLow}) : {x} >= 0.5 ? ({retHigh}) : ({retCent})".format(**d)
+
         d['ret'] = 'expr::{name}("exp({retFull})",{{{hi},{lo},{x}}})'.format(**d)
-        
+
         # print "[DEBUG]","[makeInterpolation]","going to build: ",d['ret']
         self.modelBuilder.factory_(d['ret'])
-        
-        return
 
     def makeklDepTheoUncertainties(self):
         ''' Construct and import uncertanties on the workspace'''
@@ -244,15 +246,14 @@ class HHModel(PhysicsModel):
         # if not self.doklDependentUnc: return
 
         self.modelBuilder.doVar("%s[-7,7]" % self.klUncName)
-        
+
         self.modelBuilder.factory_('expr::%s_kappaHi("max(72.0744-51.7362*@0+11.3712*@0*@0,70.9286-51.5708*@0+11.4497*@0*@0) / (70.3874 - 50.4111*@0 + 11.0595*@0*@0)",kl)' % self.klUncName)
         self.modelBuilder.factory_('expr::%s_kappaLo("min(66.0621-46.7458*@0+10.1673*@0*@0,66.7581-47.721*@0+10.4535*@0*@0)  / (70.3874 - 50.4111*@0 + 11.0595*@0*@0)",kl)'  % self.klUncName)
 
         self.makeInterpolation("%s_kappa" % self.klUncName, "%s_kappaHi" % self.klUncName, "%s_kappaLo" % self.klUncName , self.klUncName)
-        
+
         ## make scaling
-        self.modelBuilder.factory_("expr::scaling_{name}(\"pow(@0,@1)\",{name}_kappa,{name})".format(name=self.klUncName)) 
-        return
+        self.modelBuilder.factory_("expr::scaling_{name}(\"pow(@0,@1)\",{name}_kappa,{name})".format(name=self.klUncName))
 
     def check_validity_ggf(self, ggf_sample_list):
         if len(ggf_sample_list) < 3:
@@ -272,7 +273,6 @@ class HHModel(PhysicsModel):
             if not isinstance(s, VBFHHSample):
                 raise RuntimeError("%s : malformed VBF input sample list - each element must be a VBFHHSample" % self.name)
 
-
     def dump_inputs(self):
         print "[INFO]  HH model : " , self.name
         print "......  GGF configuration"
@@ -282,9 +282,7 @@ class HHModel(PhysicsModel):
         for i,s in enumerate(self.vbf_formula.sample_list):
             print "        {0:<3} ... CV : {1:<3}, C2V : {2:<3}, kl : {3:<3}, xs : {4:<3.8f} pb, label : {5}".format(i, s.val_CV, s.val_C2V, s.val_kl, s.val_xs, s.label)
 
-
     def doParametersOfInterest(self):
-
         ## the model is built with:
         ## r x [GGF + VBF]
         ## GGF = r_GGF x [sum samples(kl, kt)]
@@ -309,13 +307,25 @@ class HHModel(PhysicsModel):
         self.modelBuilder.out.var("kl")     .setConstant(True)
         self.modelBuilder.out.var("kt")     .setConstant(True)
 
+        #I need to build MH variables because the BR are tabulated as a function of MH
+        # the mass setting must be provided as input, i.e. '-m 125'
+        if self.modelBuilder.out.var("MH"):
+            self.modelBuilder.out.var("MH").setVal(self.options.mass)
+            self.modelBuilder.out.var("MH").setConstant(True)
+        else:
+            self.modelBuilder.doVar("MH[%g]" % self.options.mass)
+
         if self.doklDependentUnc:
             self.makeklDepTheoUncertainties()
+
         self.create_scalings()
 
     def create_scalings(self):
-        """ create the functions that scale the >= 6 components of vbf and the >= 3 components of ggf """
-
+        """
+        Create the functions that scale the >= 6 components of vbf and the >= 3 components of ggf,
+        as well as the single Higgs and BR scalings.
+        """
+        self.HBRscal = HBRscaler(self.modelBuilder, self.doBRscaling, self.doHscaling)
         self.f_r_vbf_names = [] # the RooFormulae that scale the components (VBF)
         self.f_r_ggf_names = [] # the RooFormulae that scale the components (GGF)
 
@@ -440,12 +450,8 @@ class HHModel(PhysicsModel):
             self.f_r_vbf_names.append(f_prod_name) #bookkeep the scaling that has been created
 
     def getYieldScale(self, bin, process):
-        # only deal with signal processes here
-        if not self.DC.isSignal[process]:
-            return 1.
-
-        def find_matches(samples, kind):
-            # get the matching ggf sample index
+        def find_hh_matches(samples, kind):
+            # get the matching hh sample index
             matching_indices = []
             for i, sample in enumerate(samples):
                 if process.startswith(sample.label):
@@ -464,20 +470,41 @@ class HHModel(PhysicsModel):
             return None
 
         # ggf match?
-        isample = find_matches(self.ggf_formula.sample_list, "GGF")
+        isample = find_hh_matches(self.ggf_formula.sample_list, "GGF")
         if isample is not None:
             self.scalingMap[process].append((isample, "GGF"))
-            return self.f_r_ggf_names[isample]
+            scaling = self.f_r_ggf_names[isample]
+            # when the BR scaling is enabled, try to extract the decays from the process name
+            if self.doBRscaling:
+                scaling = self.HBRscal.buildXSBRScalingHH(scaling, process) or scaling
+            return scaling
 
         # vbf match?
-        isample = find_matches(self.vbf_formula.sample_list, "VBF")
+        isample = find_hh_matches(self.vbf_formula.sample_list, "VBF")
         if isample is not None:
             self.scalingMap[process].append((isample, "VBF"))
-            return self.f_r_vbf_names[isample]
+            scaling = self.f_r_vbf_names[isample]
+            # when the BR scaling is enabled, try to extract the decays from the process name
+            if self.doBRscaling:
+                scaling = self.HBRscal.buildXSBRScalingHH(scaling, process) or scaling
+            return scaling
 
-        # complain when neither a ggf nor a vbf match was found
-        raise Exception("signal process {} did not match any GGF or VBF samples in bin {}".format(
-            process, bin))
+        # complain when the process is a signal but no sample matched
+        if self.DC.isSignal[process]:
+            raise Exception("HH process {} did not match any GGF or VBF samples in bin {}".format(
+                process, bin))
+
+        # single H match?
+        if self.doHscaling:
+            scaling = self.HBRscal.findSingleHMatch(process)
+            # when the BR scaling is enabled, try to extract the decay from the process name
+            if scaling and self.doBRscaling:
+                scaling = self.HBRscal.buildXSBRScalingH(scaling, process) or scaling
+            return scaling or 1.
+
+        # at this point we are dealing with a background process that is also not single-H-scaled,
+        # so it is safe to return 1 since any misconfiguration should have been raised already
+        return 1.
 
 
 # ggf samples with keys (kl, kt), ordered by kl
@@ -567,11 +594,12 @@ def create_model(name, skip_ggf=None, skip_vbf=None):
 
 # some named, default models
 model_all      = create_model("model_all")
-model_default  = create_model("model_default",  skip_ggf=[(0, 1)], skip_vbf=[(1, 0, 1)])
 model_bbgg     = create_model("model_bbgg",     skip_ggf=[(0, 1)], skip_vbf=[(0.5, 1, 1)])
 model_bbtautau = create_model("model_bbtautau", skip_ggf=[(0, 1)], skip_vbf=[(0.5, 1, 1)])
-# to be decided and then set as the new default
-# model_comb     = create_model("model_comb", skip_ggf=[(...)], skip_vbf=[(...)])
+# model used for the combination
+model_comb = create_model("model_comb", skip_ggf=[(0, 1)], skip_vbf=[(0.5, 1, 1)])
+# for legacy purpose, reference to the default model which is exactly model_comb
+model_default = create_model("model_default", skip_ggf=[(0, 1)], skip_vbf=[(0.5, 1, 1)])
 
 # ggf test models
 model_no_ggf_kl0    = create_model("model_no_ggf_kl0",    skip_ggf=[(0, 1)],    skip_vbf=[(1, 0, 1)])
@@ -703,7 +731,7 @@ def create_vbf_xsec_func(formula=None):
     """
     Creates and returns a function that can be used to calculate numeric VBF cross section values in
     pb given an appropriate *formula*, which defaults to *model_default.vbf_formula*. The returned
-    function has the signature ``(c2v=1.0, cv=1.0, kl=1.0)``.
+    function has the signature ``(C2V=1.0, CV=1.0, kl=1.0)``.
 
     Example:
 
@@ -711,7 +739,7 @@ def create_vbf_xsec_func(formula=None):
 
         get_vbf_xsec = create_vbf_xsec_func()
 
-        print(get_vbf_xsec(c2v=2.))
+        print(get_vbf_xsec(C2V=2.))
         # -> 0.013916... (or similar)
     """
     if formula is None:
@@ -723,15 +751,59 @@ def create_vbf_xsec_func(formula=None):
     func = lambdify(symbols(symbol_names), formula.sigma)
 
     # wrap into another function to apply defaults
-    def wrapper(c2v=1., cv=1., kl=1.):
-        xsec = func(c2v, cv, kl, *(sample.val_xs for sample in formula.sample_list))[0, 0]
+    def wrapper(C2V=1., CV=1., kl=1.):
+        xsec = func(C2V, CV, kl, *(sample.val_xs for sample in formula.sample_list))[0, 0]
         return xsec
 
     return wrapper
 
 
-#: Default function for getting ggF cross sections using the formula of the *model_default* model.
-get_ggf_xsec = create_ggf_xsec_func()
+def create_hh_xsec_func(ggf_formula=None, vbf_formula=None):
+    """
+    Creates and returns a function that can be used to calculate numeric HH cross section values in
+    pb given appropriate *ggf_formula* and *vbf_formula* objects, which default to
+    *model_default.ggf_formula* and *model_default.vbf_formula*, respectively. The returned
+    function has the signature ``(kl=1.0, kt=1.0, C2V=1.0, CV=1.0, nnlo=True, unc=None)``.
 
-#: Default function for getting VBF cross sections using the formula of the *model_default* model.
-get_vbf_xsec = create_vbf_xsec_func()
+    The *nnlo* and *unc* settings only affect the ggF component of the cross section. When *nnlo* is
+    *False*, the constant k-factor of the ggf calculation is still applied. Otherwise, the returned
+    value is in full next-to-next-to-leading order for ggf. In this case, *unc* can be set to eiher
+    "up" or "down" to return the up / down varied cross section instead where the uncertainty is
+    composed of a *kl* dependent scale uncertainty and an independent PDF uncertainty of 3%.
+
+    Example:
+
+    .. code-block:: python
+
+        get_hh_xec = create_hh_xsec_func()
+
+        print(get_ggf_xec(kl=2.))
+        # -> 0.013803...
+
+        print(get_ggf_xec(kl=2., nnlo=False))
+        # -> 0.013852...
+
+        print(get_ggf_xec(kl=2., unc="up"))
+        # -> 0.014305...
+    """
+    # get the particular wrappers of the components
+    get_ggf_xec = create_ggf_xsec_func(ggf_formula)
+    get_vbf_xec = create_vbf_xsec_func(vbf_formula)
+
+    # create a combined wrapper with the merged signature
+    def wrapper(kl=1., kt=1., C2V=1., CV=1., nnlo=True, unc=None):
+        ggf_xsec = get_ggf_xec(kl=kl, kt=kt, nnlo=nnlo, unc=unc)
+        vbf_xsec = get_vbf_xsec(C2V=C2V, CV=CV, kl=kl)
+        return ggf_xsec + vbf_xsec
+
+    return wrapper
+
+
+#: Default ggF cross section getter using the formula of the *model_default* model.
+get_ggf_xsec = create_ggf_xsec_func(model_default.ggf_formula)
+
+#: Default VBF cross section getter using the formula of the *model_default* model.
+get_vbf_xsec = create_vbf_xsec_func(model_default.vbf_formula)
+
+#: Default combined cross section getter using the formulas of the *model_default* model.
+get_hh_xsec = create_hh_xsec_func(model_default.ggf_formula, model_default.vbf_formula)
