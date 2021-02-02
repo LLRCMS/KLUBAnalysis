@@ -239,12 +239,12 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             #shiftShapes_newName.append("TT_topDown")
 
             # Add QCD Up/Down shape uncertainty (e.g. QCD_s1b1jresolvedMcut_SR_DNNoutSM_kl_1_Up)
-            proc_syst["QCD"]["CMS_bbtautau_"+opt.year+"_QCDshape"] = ["shape", 1.]
-            systsShape.append("CMS_bbtautau_"+opt.year+"_QCDshape")
+            proc_syst["QCD"]["CMS_bbtt_"+opt.year+"_QCDshape"] = ["shape", 1.]
+            systsShape.append("CMS_bbtt_"+opt.year+"_QCDshape")
             shiftShapes_toSave.append("{0}_{1}_{2}_{3}_Up"  .format("QCD", select, "SR", variable[theCat]))
             shiftShapes_toSave.append("{0}_{1}_{2}_{3}_Down".format("QCD", select, "SR", variable[theCat]))
-            shiftShapes_newName.append("QCD_CMS_bbtautau_"+opt.year+"_QCDshapeUp")
-            shiftShapes_newName.append("QCD_CMS_bbtautau_"+opt.year+"_QCDshapeDown")
+            shiftShapes_newName.append("QCD_CMS_bbtt_"+opt.year+"_QCDshapeUp")
+            shiftShapes_newName.append("QCD_CMS_bbtt_"+opt.year+"_QCDshapeDown")
 
             # Add customSF uncertainties (4 unc. depending on DM) for TauTau channel in 2017
             if "2" in thechannel and "2017" in opt.year:
@@ -252,7 +252,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             else:
                 customDMs = []
             for customDMname in customDMs:
-                CMS_customTauIdSFname = "CMS_bbtautau_customSF2017" + customDMname
+                CMS_customTauIdSFname = "CMS_bbtt_customSF2017" + customDMname
                 customTauIdSFname = "customTauIdSF" + customDMname
                 systsShape.append(CMS_customTauIdSFname)
                 for proc in backgrounds:
@@ -296,7 +296,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             #else:
             #    WPs = ["M"]
             #for WPname in WPs:
-            #    CMS_bTagWPname = "CMS_bbtautau_"+opt.year+"_bTagSF" + WPname
+            #    CMS_bTagWPname = "CMS_bbtt_"+opt.year+"_bTagSF" + WPname
             #    bTagWPname = "bTagSF" + WPname
             #    systsShape.append(CMS_bTagWPname)
             #    for proc in backgrounds:
@@ -316,9 +316,9 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             # Add bTagReshape uncertainties - systematic type (correlated across years 2016 and 2017-2018)
             bTagSysts = ["LF","HF"]
             for bTagSyst in bTagSysts:
-                CMS_bTagSystName = "CMS_bbtautau_bTagweightReshape" + bTagSyst + "_2017_2018"
+                CMS_bTagSystName = "CMS_bbtt_bTagweightReshape" + bTagSyst + "_2017_2018"
                 if "2016" in opt.year:
-                    CMS_bTagSystName = "CMS_bbtautau_bTagweightReshape" + bTagSyst + "_2016"
+                    CMS_bTagSystName = "CMS_bbtt_bTagweightReshape" + bTagSyst + "_2016"
                 bTagSystName = "bTagweightReshape" + bTagSyst
                 systsShape.append(CMS_bTagSystName)
                 for proc in backgrounds:
@@ -338,7 +338,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             # Add bTagReshape uncertainties - statistical type (uncorrelated across years)
             bTagSysts = ["HFSTATS1","HFSTATS2","LFSTATS1","LFSTATS2","CFERR1","CFERR2"]
             for bTagSyst in bTagSysts:
-                CMS_bTagSystName = "CMS_bbtautau_bTagweightReshape" + bTagSyst + "_" + opt.year
+                CMS_bTagSystName = "CMS_bbtt_bTagweightReshape" + bTagSyst + "_" + opt.year
                 bTagSystName = "bTagweightReshape" + bTagSyst
                 systsShape.append(CMS_bTagSystName)
                 for proc in backgrounds:
@@ -369,7 +369,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             if "2" in thechannel and opt.year in ("2017", "2018"):
                 DMs.append("Jet")
             for DMname in DMs:
-                CMS_trigDMname = "CMS_bbtautau_"+opt.year+"_trigSF" + DMname
+                CMS_trigDMname = "CMS_bbtt_"+opt.year+"_trigSF" + DMname
                 trigDMname = "trigSF" + DMname
                 systsShape.append(CMS_trigDMname)
                 for proc in backgrounds:
@@ -393,7 +393,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             else:
                 PTs = ["20to25", "25to30", "30to35", "35to40", "40toInf"]
             for PTname in PTs:
-                CMS_tauPTname = "CMS_bbtautau_"+opt.year+"_tauid_pt" + PTname
+                CMS_tauPTname = "CMS_bbtt_"+opt.year+"_tauid_pt" + PTname
                 tauPTname = "tauid_pt" + PTname
                 systsShape.append(CMS_tauPTname)
                 for proc in backgrounds:
@@ -414,7 +414,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             # Add deepTauVSmu uncertainties (5 different uncertainties binned in eta) --> NOT USED
             #ETAs = ["Lt0p4", "0p4to0p8", "0p8to1p2", "1p2to1p7", "Gt1p7"]
             #for ETAname in ETAs:
-            #    CMS_tauETAname = "CMS_bbtautau_mutauFR_eta" + ETAname
+            #    CMS_tauETAname = "CMS_bbtt_mutauFR_eta" + ETAname
             #    tauETAname = "mutauFR_eta" + ETAname
             #    systsShape.append(CMS_tauETAname)
             #    for proc in backgrounds:
@@ -434,7 +434,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             # Add deepTauVSele uncertainties (2 different uncertainties for barrel and endcap)
             ELEs = ["barrel", "endcap"]
             for ELEname in ELEs:
-                CMS_tauELEname = "CMS_bbtautau_"+opt.year+"_etauFR_" + ELEname
+                CMS_tauELEname = "CMS_bbtt_"+opt.year+"_etauFR_" + ELEname
                 tauELEname = "etauFR_" + ELEname
                 systsShape.append(CMS_tauELEname)
                 for proc in backgrounds:
@@ -524,8 +524,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             file.write(line)
         file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
 
-        #file.write    ('theory group = BR_hbb BR_htautau QCDscale_ggHH pdf_ggHH m_top_unc_HH QCDscale_qqHH pdf_qqHH\n')
-        file.write    ('theory group = BR_hbb BR_htautau pdf_ggHH m_top_unc_HH QCDscale_qqHH pdf_qqHH\n')
+        #file.write    ('theory group = BR_hbb BR_htt QCDscale_ggHH pdf_ggHH m_top_unc_HH QCDscale_qqHH pdf_qqHH\n')
+        file.write    ('theory group = BR_hbb BR_htt pdf_ggHH m_top_unc_HH QCDscale_qqHH pdf_qqHH\n')
         if opt.dynamQCD:
             file.write("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(selectName))
 
