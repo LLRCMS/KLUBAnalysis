@@ -615,6 +615,7 @@ if __name__ == "__main__" :
         for sh in addShapes: hShapesNameList.append(sh)
     # we keep the JES, TES, MES, and EES separate from the others so we can also plot all the syst but them
     if not args.removeESsystBand:
+        #addES = ['tauup_DM0', 'taudown_DM0', 'tauup_DM1', 'taudown_DM1', 'tauup_DM10', 'taudown_DM10', 'tauup_DM11', 'taudown_DM11', 'eleup_DM0', 'eledown_DM0', 'eleup_DM1', 'eledown_DM1', 'muup', 'mudown', 'jetup1', 'jetup2', 'jetup3', 'jetup4', 'jetup5', 'jetup6', 'jetup7', 'jetup8', 'jetup9', 'jetup10', 'jetup11', 'jetdown1', 'jetdown2', 'jetdown3', 'jetdown4', 'jetdown5', 'jetdown6', 'jetdown7', 'jetdown8', 'jetdown9', 'jetdown10', 'jetdown11']
         addES = ['tauup_DM0', 'taudown_DM0', 'tauup_DM1', 'taudown_DM1', 'tauup_DM10', 'taudown_DM10', 'tauup_DM11', 'taudown_DM11', 'eleup_DM0', 'eledown_DM0', 'eleup_DM1', 'eledown_DM1', 'muup', 'mudown', 'jetupTot', 'jetdownTot']
         for sh in addES: hShapesNameList.append(sh)
 
