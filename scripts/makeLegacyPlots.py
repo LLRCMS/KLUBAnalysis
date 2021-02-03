@@ -382,6 +382,35 @@ def retrieveShapes (rootFile, namelist, var, sel, reg, shapeNameList):
                         
     return res
 
+def scaleStatSystUncertaintyBandForStack (grUncert,bkgSum):
+    nPoints   = bkgSum.GetNbinsX()
+    fX        = []
+    fY        = []
+    feYUp     = []
+    feYDown   = []
+    feXRight  = []
+    feXLeft   = []
+
+    # in this loop remember that indexing of hists and graphs are hifted by 1
+    for ibin in range (1, nPoints+1):
+        central = bkgSum.GetBinContent(ibin)
+        fX.append      (bkgSum.GetBinCenter(ibin))
+        fY.append      (central)
+        feYUp.append   (grUncert.GetErrorYhigh(ibin-1) * central)
+        feYDown.append (grUncert.GetErrorYlow(ibin-1) * central)
+        feXRight.append(grUncert.GetErrorXhigh(ibin-1))
+        feXLeft.append (grUncert.GetErrorXlow(ibin-1))
+
+    afX       = array ("d", fX      )
+    afY       = array ("d", fY      )
+    afeYUp    = array ("d", feYUp   )
+    afeYDown  = array ("d", feYDown )
+    afeXRight = array ("d", feXRight)
+    afeXLeft  = array ("d", feXLeft )
+
+    gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
+    return gBand;
+
 #######################################################################
 ######################### SCRIPT BODY #################################
 #######################################################################
@@ -390,8 +419,8 @@ def retrieveShapes (rootFile, namelist, var, sel, reg, shapeNameList):
 if __name__ == "__main__" :
     TH1.AddDirectory(0)
 
-    titleSize = 24
-    labelSize = 22
+    titleSize = 22
+    labelSize = 20
 
     # parse user's options
     parser = argparse.ArgumentParser(description='Command line parser of plotting options')
@@ -419,6 +448,7 @@ if __name__ == "__main__" :
     parser.add_argument('--binNXaxis', dest='binNXaxis', help='plot using the bin number on the x-axis', action='store_true', default=False)
     parser.add_argument('--dynamicRatioY', dest='dynamicRatioY', help='ratio plot with ad hoc y-range?', default=False)
     parser.add_argument('--doStatSystBand', dest='doStatSystBand', help='create stat+syst uncertainty band?', action='store_true', default=False)
+    parser.add_argument('--removeESsystBand', dest='removeESsystBand', help='remove energy scales from stat+syst band?', action='store_true', default=False)
     # list options
     parser.add_argument('--blind-range',   dest='blindrange', nargs=2, help='start and end of blinding range', default=None)
     parser.add_argument('--sigscale', dest='sigscale', nargs=2, help='scale to apply to the signals (GGHH VBFHH)', default=None)
@@ -572,7 +602,22 @@ if __name__ == "__main__" :
     #       2. use the same names as those in the mainCfg (for hSystBkgNameList)
     hSystBkgList = [hDY_LM, hDY_0b_1Pt, hDY_0b_2Pt, hDY_0b_3Pt, hDY_0b_4Pt, hDY_0b_5Pt, hDY_0b_6Pt, hDY_1b_1Pt, hDY_1b_2Pt, hDY_1b_3Pt, hDY_1b_4Pt, hDY_1b_5Pt, hDY_1b_6Pt, hDY_2b_1Pt, hDY_2b_2Pt, hDY_2b_3Pt, hDY_2b_4Pt, hDY_2b_5Pt, hDY_2b_6Pt, hTT, hWJets, hEWK, hsingleT, hTW, hZH, hWH, hVV, httH, hTTX, hggH, hVBFH, hVVV, hQCD]
     hSystBkgNameList = ['DY_LM', 'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt', 'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt', 'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt', 'TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'VBFH', 'VVV', 'QCD']
-    hShapesNameList = ['tauup_DM0', 'taudown_DM0', 'tauup_DM1', 'taudown_DM1', 'tauup_DM10', 'taudown_DM10', 'tauup_DM11', 'taudown_DM11', 'eleup_DM0', 'eledown_DM0', 'eleup_DM1', 'eledown_DM1', 'muup', 'mudown', 'jetup1', 'jetup2', 'jetup3', 'jetup4', 'jetup5', 'jetup6', 'jetup7', 'jetup8', 'jetup9', 'jetup10', 'jetup11', 'jetdown1', 'jetdown2', 'jetdown3', 'jetdown4', 'jetdown5', 'jetdown6', 'jetdown7', 'jetdown8', 'jetdown9', 'jetdown10', 'jetdown11']
+    hShapesNameList = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'etauFR_barrelUp', 'etauFR_endcapUp', 'PUjetIDSFUp', 'etauFR_barrelDown', 'etauFR_endcapDown', 'PUjetIDSFDown']
+    # the ETau, MuTau, and TauTau channels have some different shapes -> we add them here separately
+    if args.channel == 'ETau':
+        addShapes = ['trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down' 'tauid_pt40toInfDown']
+        for sh in addShapes: hShapesNameList.append(sh)
+    elif args.channel == 'MuTau':
+        addShapes = ['trigSFmuUp', 'trigSFmuDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down' 'tauid_pt40toInfDown']
+        for sh in addShapes: hShapesNameList.append(sh)
+    else:
+        addShapes = ['trigSFJetUp', 'trigSFJetDown', 'tauid_pt40toInfUp', 'tauid_pt40toInfDown']
+        for sh in addShapes: hShapesNameList.append(sh)
+    # we keep the JES, TES, MES, and EES separate from the others so we can also plot all the syst but them
+    if not args.removeESsystBand:
+        addES = ['tauup_DM0', 'taudown_DM0', 'tauup_DM1', 'taudown_DM1', 'tauup_DM10', 'taudown_DM10', 'tauup_DM11', 'taudown_DM11', 'eleup_DM0', 'eledown_DM0', 'eleup_DM1', 'eledown_DM1', 'muup', 'mudown', 'jetupTot', 'jetdownTot']
+        for sh in addES: hShapesNameList.append(sh)
+
     hShapes = retrieveShapes(rootFile, bkgList, args.var, args.sel, args.reg, hShapesNameList)
     hShapesList = []
     for name in hShapes:
@@ -591,8 +636,8 @@ if __name__ == "__main__" :
 
     ######################### SET COLORS ####################
     sigColors = {}
-    sigColors["GGHH_NLO_cHHH1_xs"] = kRed
-    sigColors["VBFHH_CV_1_C2V_1_C3_1_xs"] = kBlue
+    sigColors["GGHH_NLO_cHHH1_xs"] = kBlack
+    sigColors["VBFHH_CV_1_C2V_1_C3_1_xs"] = kCyan
 
     col = TColor()
     bkgColors = {}
@@ -708,7 +753,7 @@ if __name__ == "__main__" :
     leg.SetFillStyle(0)
     leg.SetBorderSize(0)
     leg.SetTextFont(43)
-    leg.SetTextSize(20)
+    leg.SetTextSize(18)
 
     # add element in same order as stack --> top-bottom
     for i, name in reversed(list(enumerate(hBkgNameList))):
@@ -722,7 +767,6 @@ if __name__ == "__main__" :
 
     if args.dodata:
         leg.AddEntry(gData, "Data", "pe")
-
 
     ################## Y RANGE SETTINGS ############################
     ymin = 0
@@ -755,11 +799,46 @@ if __name__ == "__main__" :
     bkgStack.SetMinimum(ymin)
     bkgStack.SetMaximum(ymax)
 
+    # now we calculate the stat+syst uncertainty band
+    if args.doStatSystBand:    
+        # create list of files containing the systematic errors of the analysis 
+        systCfgs = ['systematics_'+args.year, 'systematics_DY'+args.year, 'systematics_QCD'+args.year]
+        if args.channel == 'MuTau': systCfgs.append('systematics_mutau.cfg')
+        if args.channel == 'ETau': systCfgs.append('systematics_etau.cfg')
+    
+        # initialize the selection names as contained in the systQCD files
+        if '1b1j' in args.sel:  
+                sel_qcd = 'res1b'
+        if '2b0j' in args.sel:  
+                sel_qcd = 'res2b'
+        if 'boosted' in args.sel:
+                sel_qcd = 'boosted'
+        if 'GGFclass' in args.sel:  
+                sel_qcd = 'classGGF'
+        if 'VBFclass' in args.sel:  
+                sel_qcd = 'classVBF'
+        if 'DYclass' in args.sel:  
+                sel_qcd = 'classDY'
+        if 'ttHclass' in args.sel:
+                sel_qcd = 'classttH'
+        if 'TTclass' in args.sel:
+                sel_qcd = 'classTT' 
+
+        grUncert = makeStatSystUncertaintyBand(bkgSum, hBkgs, hSystBkgNameList, systCfgs, args.channel, sel_qcd, hShapes, hShapesNameList) 
+    else: 
+        grUncert = makeStatUncertaintyBand(bkgSum)
+
     # interactive display
     bkgStack.Draw("HIST")
-    bkgSum.SetFillColor(kGray+2);
-    bkgSum.SetFillStyle(3002);
-    bkgSum.Draw("e2 same")
+    grUncertStack = scaleStatSystUncertaintyBandForStack(grUncert, bkgSum)
+    grUncertStack.SetFillColor(kGray+2)
+    grUncertStack.SetFillStyle(3002)
+    grUncertStack.Draw("e2")
+    if args.doStatSystBand: leg.AddEntry(grUncertStack, "Stat+Syst uncertainty", 'f')
+    else: leg.AddEntry(grUncertStack, "Statistical uncertainty", 'f')
+    #bkgSum.SetFillColor(kGray+2);
+    #bkgSum.SetFillStyle(3002);
+    #bkgSum.Draw("e2 same")
     if args.dosig:
         for key in hSigs: hSigs[key].Draw("hist same")
     if args.dodata:
@@ -838,21 +917,21 @@ if __name__ == "__main__" :
             if "baseline" in args.sel:  
                     selName = "baseline"
             if "1b1j" in args.sel:  
-                    selName = "1b1j"
+                    selName = "res1b"
             if "2b0j" in args.sel:  
-                    selName = "2b0j"
+                    selName = "res2b"
             if "boosted" in args.sel:
                     selName = "boosted"
             if "GGFclass" in args.sel:  
-                    selName = "GGF class"
+                    selName = "GGFclass"
             if "VBFclass" in args.sel:  
-                    selName = "VBF class"
+                    selName = "VBFclass"
             if "DYclass" in args.sel:  
-                    selName = "DY class"
+                    selName = "DYclass"
             if "ttHclass" in args.sel:
-                    selName = "ttH class"
+                    selName = "ttHclass"
             if "TTclass" in args.sel:
-                    selName = "TT class"
+                    selName = "TTclass"
     else: selName = args.name
 
     selBox = TLatex  (l + 0.04 , 1 - t - 0.02 - 0.06, selName)
@@ -871,7 +950,7 @@ if __name__ == "__main__" :
         c1.cd()
         pad2 = TPad ("pad2", "pad2", 0, 0.0, 1, 0.2496)
         pad2.SetLeftMargin(0.12);
-        pad2.SetTopMargin(0.02);
+        pad2.SetTopMargin(0.045);
         pad2.SetBottomMargin(0.4);
         pad2.SetGridy(True);
         pad2.SetFrameLineWidth(3)
@@ -881,33 +960,6 @@ if __name__ == "__main__" :
 
         grRatio = makeDataOverMCRatioPlot(hDataNonScaled, hBkgEnvelopeNS, "grRatio")
         hRatio = hDataNonScaled.Clone("hRatioAxis") # for ranges only
-        
-        # create list of files containing the systematic errors of the analysis
-        systCfgs = ['systematics_'+args.year, 'systematics_DY'+args.year, 'systematics_QCD'+args.year]
-        if args.channel == 'MuTau': systCfgs.append('systematics_mutau.cfg')
-        if args.channel == 'ETau': systCfgs.append('systematics_etau.cfg')
-        
-        if args.doStatSystBand:
-            if '1b1j' in args.sel:  
-                    sel_qcd = 'res1b'
-            if '2b0j' in args.sel:  
-                    sel_qcd = 'res2b'
-            if 'boosted' in args.sel:
-                    sel_qcd = 'boosted'
-            if 'GGFclass' in args.sel:  
-                    sel_qcd = 'classGGF'
-            if 'VBFclass' in args.sel:  
-                    sel_qcd = 'classVBF'
-            if 'DYclass' in args.sel:  
-                    sel_qcd = 'classDY'
-            if 'ttHclass' in args.sel:
-                    sel_qcd = 'classttH'
-            if 'TTclass' in args.sel:
-                    sel_qcd = 'classTT' 
-
-            grUncert = makeStatSystUncertaintyBand(bkgSum, hBkgs, hSystBkgNameList, systCfgs, args.channel, sel_qcd, hShapes, hShapesNameList) 
-        else: 
-            grUncert = makeStatUncertaintyBand(bkgSum)
 
         hRatio.GetXaxis().SetTitleFont(43) # so that size is in pixels
         hRatio.GetYaxis().SetTitleFont(43) # so that size is in pixels
@@ -950,8 +1002,8 @@ if __name__ == "__main__" :
             hRatio.SetMinimum(lim_yLow-0.05)
             hRatio.SetMaximum(lim_yUp+0.05)
         else:
-            hRatio.SetMinimum(0.5)
-            hRatio.SetMaximum(1.5)
+            hRatio.SetMinimum(0)
+            hRatio.SetMaximum(2)
 
         hRatio.Draw("axis")
         
@@ -985,6 +1037,7 @@ if __name__ == "__main__" :
         if args.binNXaxis: saveName = saveName+"_binNXaxis"
         if args.binwidth: saveName = saveName+"_binWidth"
         if args.doStatSystBand: saveName = saveName+'_StatSystBand'
+        if args.removeESsystBand: saveName = saveName+'_noES'
 
         c1.SaveAs (saveName+".pdf")
 
