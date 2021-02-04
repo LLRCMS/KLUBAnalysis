@@ -5,7 +5,7 @@ import optparse
 import fileinput
 import commands
 import time
-
+from os.path import basename
 
 if __name__ == "__main__":
 
