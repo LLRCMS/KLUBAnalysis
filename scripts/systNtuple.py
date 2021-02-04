@@ -5,11 +5,6 @@ import optparse
 import fileinput
 import commands
 import time
-import glob
-import subprocess
-from os.path import basename
-import ROOT
-
 
 
 if __name__ == "__main__":
@@ -101,7 +96,7 @@ if __name__ == "__main__":
 
     commandFile = open (jobsDir + '/submit.sh', 'w')
     for inputfile in inputfiles : 
-	n = int(inputfile.split('/')[-1][7:-5])
+        n = int(inputfile.split('/')[-1][7:-5])
         scriptFile = open ('%s/systJob_%d.sh'% (jobsDir,n), 'w')
         scriptFile.write ('#!/bin/bash\n')
         scriptFile.write ('export X509_USER_PROXY=~/.t3/proxy.cert\n')
