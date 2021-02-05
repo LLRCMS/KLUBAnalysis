@@ -876,7 +876,7 @@ if __name__ == "__main__" :
     y = 0
 
     if args.year == 2016: lumi = "35.9 fb^{-1} (13 TeV)"
-    elif args.year == 2016: lumi = "41.5 fb^{-1} (13 TeV)"
+    elif args.year == 2017: lumi = "41.5 fb^{-1} (13 TeV)"
     else: lumi = "59.7 fb^{-1} (13 TeV)"
     lumibox = TLatex  (1-r, 1 - t + 0.02 , lumi)       
     lumibox.SetNDC()
