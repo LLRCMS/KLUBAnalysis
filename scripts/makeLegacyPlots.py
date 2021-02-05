@@ -574,12 +574,14 @@ if __name__ == "__main__" :
     hVVV       = getHisto("VVV", hBkgs, doOverflow)
     
     hDYlist = [hDY_LM, hDY_0b_1Pt, hDY_0b_2Pt, hDY_0b_3Pt, hDY_0b_4Pt, hDY_0b_5Pt, hDY_0b_6Pt, hDY_1b_1Pt, hDY_1b_2Pt, hDY_1b_3Pt, hDY_1b_4Pt, hDY_1b_5Pt, hDY_1b_6Pt, hDY_2b_1Pt, hDY_2b_2Pt, hDY_2b_3Pt, hDY_2b_4Pt, hDY_2b_5Pt, hDY_2b_6Pt]
-    hothersList = [hEWK, hsingleT, hTW, hZH, hWH, hVV, httH, hTTX, hggH, hVBFH, hVVV]
+    hothersList = [hEWK, hsingleT, hTW, hVV, hTTX, hVVV, hWJets]
+    hSingleHlist = [hZH, hWH, httH, hggH, hVBFH]
     hDY = makeSum("DY",hDYlist)
+    hSingleH = makeSum("singleH",hSingleHlist)
     hothers = makeSum("other",hothersList)
 
-    hBkgList = [hothers, hWJets, hTT, hDY] # list for stack
-    hBkgNameList = ["Others", "W + jets", "t#bar{t}", "DY + jets"] # list for legend
+    hBkgList = [hothers, hSingleH, hTT, hDY] # list for stack
+    hBkgNameList = ["Others", "single H", "t#bar{t}", "DY + jets"] # list for legend
 
     if doQCD:
         hQCD = getHisto ("QCD", hBkgs,doOverflow)
@@ -597,21 +599,22 @@ if __name__ == "__main__" :
             if center > blow and center < bup:
                 hData.SetBinContent(ibin, 0)
 
-    # these tw lists are used for the calculation of the syst error band. They must:
+    # these two lists are used for the calculation of the syst error band. They must:
     #       1. be in the same order
     #       2. use the same names as those in the mainCfg (for hSystBkgNameList)
     hSystBkgList = [hDY_LM, hDY_0b_1Pt, hDY_0b_2Pt, hDY_0b_3Pt, hDY_0b_4Pt, hDY_0b_5Pt, hDY_0b_6Pt, hDY_1b_1Pt, hDY_1b_2Pt, hDY_1b_3Pt, hDY_1b_4Pt, hDY_1b_5Pt, hDY_1b_6Pt, hDY_2b_1Pt, hDY_2b_2Pt, hDY_2b_3Pt, hDY_2b_4Pt, hDY_2b_5Pt, hDY_2b_6Pt, hTT, hWJets, hEWK, hsingleT, hTW, hZH, hWH, hVV, httH, hTTX, hggH, hVBFH, hVVV, hQCD]
     hSystBkgNameList = ['DY_LM', 'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt', 'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt', 'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt', 'TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'VBFH', 'VVV', 'QCD']
-    hShapesNameList = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'etauFR_barrelUp', 'etauFR_endcapUp', 'PUjetIDSFUp', 'etauFR_barrelDown', 'etauFR_endcapDown', 'PUjetIDSFDown']
+    hShapesNameList = ['etauFR_barrelUp', 'etauFR_endcapUp', 'PUjetIDSFUp', 'etauFR_barrelDown', 'etauFR_endcapDown', 'PUjetIDSFDown']
     # the ETau, MuTau, and TauTau channels have some different shapes -> we add them here separately
     if args.channel == 'ETau':
-        addShapes = ['trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down' 'tauid_pt40toInfDown']
+        if args.year == 2016: addShapes = ['trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down' 'tauid_pt40toInfDown']
+        else: addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down' 'tauid_pt40toInfDown']
         for sh in addShapes: hShapesNameList.append(sh)
     elif args.channel == 'MuTau':
-        addShapes = ['trigSFmuUp', 'trigSFmuDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down' 'tauid_pt40toInfDown']
+        addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFmuUp', 'trigSFmuDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down' 'tauid_pt40toInfDown']
         for sh in addShapes: hShapesNameList.append(sh)
     else:
-        addShapes = ['trigSFJetUp', 'trigSFJetDown', 'tauid_pt40toInfUp', 'tauid_pt40toInfDown']
+        addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFJetUp', 'trigSFJetDown', 'tauid_pt40toInfUp', 'tauid_pt40toInfDown']
         for sh in addShapes: hShapesNameList.append(sh)
     # we keep the JES, TES, MES, and EES separate from the others so we can also plot all the syst but them
     if not args.removeESsystBand:
@@ -644,13 +647,13 @@ if __name__ == "__main__" :
     bkgColors = {}
     bkgColors["DY"]    = col.GetColor("#44BA68")
     bkgColors["TT"]    = col.GetColor("#F4B642")
-    bkgColors["W"]     = col.GetColor("#41B4DB")
+    bkgColors["singleH"]     = col.GetColor("#41B4DB")
     bkgColors["other"] = col.GetColor("#ED635E")
 
     bkgLineColors = {}
     bkgLineColors["DY"]    = col.GetColor("#389956")
     bkgLineColors["TT"]    = col.GetColor("#dea63c")
-    bkgLineColors["W"]     = col.GetColor("#3ca4c8")
+    bkgLineColors["singleH"]     = col.GetColor("#3ca4c8")
     bkgLineColors["other"] = col.GetColor("#d85a56")
     
     if doQCD:
@@ -728,10 +731,10 @@ if __name__ == "__main__" :
     if args.label: bkgStack.GetXaxis().SetTitle (args.label)
     else: bkgStack.GetXaxis().SetTitle(args.var)
 
-    width = ((bkgStack.GetXaxis().GetXmax() - bkgStack.GetXaxis().GetXmin())/bkgStack.GetStack().Last().GetNbinsX())
+    # width = ((bkgStack.GetXaxis().GetXmax() - bkgStack.GetXaxis().GetXmin())/bkgStack.GetStack().Last().GetNbinsX()) --> WE WRITE ONLY 'BINWIDTH' AT THE DENOMINATOR
     ylabel = "Events"    
     if args.binwidth:
-        ylabel = "Events/%.1f" % width
+        ylabel = "Events/Bin Width"
         if args.label and "GeV" in args.label: ylabel +=" GeV"
     bkgStack.GetYaxis().SetTitle(ylabel)
     
@@ -756,15 +759,15 @@ if __name__ == "__main__" :
     leg.SetTextFont(43)
     leg.SetTextSize(18)
 
-    # add element in same order as stack --> top-bottom
-    for i, name in reversed(list(enumerate(hBkgNameList))):
-        leg.AddEntry(hBkgList[i], name, "f")
-
     if args.dosig:
         #for i, name in enumerate (sigNameList):
         for i, name in reversed(list(enumerate (sigNameList))):
             histo = hSigs[sigList[i]]
             leg.AddEntry (histo, name, "l")
+
+    # add element in same order as stack --> top-bottom
+    for i, name in reversed(list(enumerate(hBkgNameList))):
+        leg.AddEntry(hBkgList[i], name, "f")
 
     if args.dodata:
         leg.AddEntry(gData, "Data", "pe")
@@ -837,9 +840,6 @@ if __name__ == "__main__" :
     grUncertStack.Draw("e2")
     if args.doStatSystBand: leg.AddEntry(grUncertStack, "Stat+Syst uncertainty", 'f')
     else: leg.AddEntry(grUncertStack, "Statistical uncertainty", 'f')
-    #bkgSum.SetFillColor(kGray+2);
-    #bkgSum.SetFillStyle(3002);
-    #bkgSum.Draw("e2 same")
     if args.dosig:
         for key in hSigs: hSigs[key].Draw("hist same")
     if args.dodata:
@@ -875,7 +875,9 @@ if __name__ == "__main__" :
     x = 0
     y = 0
 
-    lumi = cfg.readListOption("general::lumi_fb")[0] + " fb^{-1} (13 TeV)"
+    if args.year == 2016: lumi = "35.9 fb^{-1} (13 TeV)"
+    elif args.year == 2016: lumi = "41.5 fb^{-1} (13 TeV)"
+    else: lumi = "59.7 fb^{-1} (13 TeV)"
     lumibox = TLatex  (1-r, 1 - t + 0.02 , lumi)       
     lumibox.SetNDC()
     lumibox.SetTextAlign(31)
@@ -924,15 +926,15 @@ if __name__ == "__main__" :
             if "boosted" in args.sel:
                     selName = "boosted"
             if "GGFclass" in args.sel:  
-                    selName = "GGFclass"
+                    selName = "classGGF"
             if "VBFclass" in args.sel:  
-                    selName = "VBFclass"
+                    selName = "classVBF"
             if "DYclass" in args.sel:  
-                    selName = "DYclass"
+                    selName = "classDY"
             if "ttHclass" in args.sel:
-                    selName = "ttHclass"
+                    selName = "classttH"
             if "TTclass" in args.sel:
-                    selName = "TTclass"
+                    selName = "classTT"
     else: selName = args.name
 
     selBox = TLatex  (l + 0.04 , 1 - t - 0.02 - 0.06, selName)
@@ -1033,7 +1035,7 @@ if __name__ == "__main__" :
 
 
     if args.printplot:
-        saveName = './LegacyPlots/' + args.channel + '/' + args.sel + "/plot_" + args.var + "_" + args.sel +"_" + args.reg
+        saveName = './LegacyPlots/Legacy' + args.year + '/' + args.channel + '/' + args.sel + "/plot_" + args.var + "_" + args.sel +"_" + args.reg
         if args.log: saveName = saveName+"_log"
         if args.binNXaxis: saveName = saveName+"_binNXaxis"
         if args.binwidth: saveName = saveName+"_binWidth"
