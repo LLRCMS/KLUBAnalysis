@@ -5,12 +5,7 @@ import optparse
 import fileinput
 import commands
 import time
-import glob
-import subprocess
 from os.path import basename
-import ROOT
-
-
 
 if __name__ == "__main__":
 
@@ -54,19 +49,7 @@ if __name__ == "__main__":
     if opt.nI > opt.nF:
         print 'Initial file is n', opt.nI, 'while final file is n', opt.nF, ': can not create proper range, exiting'
         sys.exit (1)
-
-    # Input/output folder already contains systematics files
-    if opt.nI < 0:
-        if os.path.isfile(opt.workdir + "/syst_output_0.root"):
-            print 'A file named', opt.workdir+'/syst_output_0.root', 'is already present in the directory, exiting'
-            sys.exit(1)
-    else:
-        if os.path.isfile(opt.workdir + "/syst_output_"+str(opt.nI)+".root"):
-            print "A file named", opt.workdir+"/syst_output_"+str(opt.nI)+".root", "is already present in the directory, exiting"
-            sys.exit(1)
-
-
-
+    
     # Input/Output setup
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
     # List all files in the working dir
@@ -78,16 +61,25 @@ if __name__ == "__main__":
 
     # Create ordered list of output_*.root files
     inputfiles = []
-    for x in range(0,len(rootfiles)):
-        inputfiles.append('output_'+str(x)+'.root')
+    inputnumbers = [int(f[7:-5]) for f in rootfiles]
+   
+    # Input/output folder already contains systematics files
+    for inputnumber in inputnumbers:
+	if opt.nI >= 0 and (inputnumber < opt.nI or inputnumber > opt.nF):
+	    continue
+	filename = opt.workdir + "/syst_output_" + str(inputnumber) + ".root"
+	if os.path.isfile(filename):
+ 	    print 'A file named ' + filename + ' is already present in the directory, exiting'
+	    sys.exit(1) 
 
     # If running on a user-define range select only the requested input files
-    if opt.nI >= 0:
-        userfiles = []
-        for jobIdx in range(opt.nI,opt.nF+1):
-            userfiles.append('output_'+str(jobIdx)+'.root')
-
-        inputfiles = [f for f in inputfiles if f in userfiles]
+    for x in range(0, max(inputnumbers) + 1):
+	if opt.nI >= 0:
+	    if x < opt.nI or x > opt.nF:
+	        continue
+	filename = 'output_'+str(x)+'.root'
+	if filename in rootfiles:
+	    inputfiles.append(filename)
 
     # Append full path
     inputfiles = [os.path.join(opt.workdir, f) for f in inputfiles]
@@ -102,12 +94,9 @@ if __name__ == "__main__":
     if os.path.exists (jobsDir) : os.system ('rm -f ' + jobsDir + '/*')
     else                        : os.system ('mkdir -p ' + jobsDir)
 
-    n = int (0)
-    if opt.nI >=0:
-        n = int (opt.nI)
     commandFile = open (jobsDir + '/submit.sh', 'w')
     for inputfile in inputfiles : 
-
+        n = int(inputfile.split('/')[-1][7:-5])
         scriptFile = open ('%s/systJob_%d.sh'% (jobsDir,n), 'w')
         scriptFile.write ('#!/bin/bash\n')
         scriptFile.write ('export X509_USER_PROXY=~/.t3/proxy.cert\n')
@@ -131,7 +120,6 @@ if __name__ == "__main__":
         if opt.sleep : time.sleep (0.1)
         os.system (command)
         commandFile.write (command + '\n')
-        n = n + 1
     commandFile.close ()
 
 
