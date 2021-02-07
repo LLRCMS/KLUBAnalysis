@@ -570,12 +570,12 @@ if __name__ == "__main__" :
     httH       = getHisto("ttH", hBkgs, doOverflow)
     hTTX       = getHisto("TTX", hBkgs, doOverflow)
     hggH       = getHisto("ggH", hBkgs, doOverflow)
-    hVBFH      = getHisto("VBFH", hBkgs, doOverflow)
+    hqqH       = getHisto("qqH", hBkgs, doOverflow)
     hVVV       = getHisto("VVV", hBkgs, doOverflow)
     
     hDYlist = [hDY_LM, hDY_0b_1Pt, hDY_0b_2Pt, hDY_0b_3Pt, hDY_0b_4Pt, hDY_0b_5Pt, hDY_0b_6Pt, hDY_1b_1Pt, hDY_1b_2Pt, hDY_1b_3Pt, hDY_1b_4Pt, hDY_1b_5Pt, hDY_1b_6Pt, hDY_2b_1Pt, hDY_2b_2Pt, hDY_2b_3Pt, hDY_2b_4Pt, hDY_2b_5Pt, hDY_2b_6Pt]
     hothersList = [hEWK, hsingleT, hTW, hVV, hTTX, hVVV, hWJets]
-    hSingleHlist = [hZH, hWH, httH, hggH, hVBFH]
+    hSingleHlist = [hZH, hWH, httH, hggH, hqqH]
     hDY = makeSum("DY",hDYlist)
     hSingleH = makeSum("singleH",hSingleHlist)
     hothers = makeSum("other",hothersList)
@@ -602,8 +602,8 @@ if __name__ == "__main__" :
     # these two lists are used for the calculation of the syst error band. They must:
     #       1. be in the same order
     #       2. use the same names as those in the mainCfg (for hSystBkgNameList)
-    hSystBkgList = [hDY_LM, hDY_0b_1Pt, hDY_0b_2Pt, hDY_0b_3Pt, hDY_0b_4Pt, hDY_0b_5Pt, hDY_0b_6Pt, hDY_1b_1Pt, hDY_1b_2Pt, hDY_1b_3Pt, hDY_1b_4Pt, hDY_1b_5Pt, hDY_1b_6Pt, hDY_2b_1Pt, hDY_2b_2Pt, hDY_2b_3Pt, hDY_2b_4Pt, hDY_2b_5Pt, hDY_2b_6Pt, hTT, hWJets, hEWK, hsingleT, hTW, hZH, hWH, hVV, httH, hTTX, hggH, hVBFH, hVVV, hQCD]
-    hSystBkgNameList = ['DY_LM', 'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt', 'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt', 'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt', 'TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'VBFH', 'VVV', 'QCD']
+    hSystBkgList = [hDY_LM, hDY_0b_1Pt, hDY_0b_2Pt, hDY_0b_3Pt, hDY_0b_4Pt, hDY_0b_5Pt, hDY_0b_6Pt, hDY_1b_1Pt, hDY_1b_2Pt, hDY_1b_3Pt, hDY_1b_4Pt, hDY_1b_5Pt, hDY_1b_6Pt, hDY_2b_1Pt, hDY_2b_2Pt, hDY_2b_3Pt, hDY_2b_4Pt, hDY_2b_5Pt, hDY_2b_6Pt, hTT, hWJets, hEWK, hsingleT, hTW, hZH, hWH, hVV, httH, hTTX, hggH, hqqH, hVVV, hQCD]
+    hSystBkgNameList = ['DY_LM', 'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt', 'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt', 'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt', 'TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'qqH', 'VVV', 'QCD']
     hShapesNameList = ['etauFR_barrelUp', 'etauFR_endcapUp', 'PUjetIDSFUp', 'etauFR_barrelDown', 'etauFR_endcapDown', 'PUjetIDSFDown']
     # the ETau, MuTau, and TauTau channels have some different shapes -> we add them here separately
     if args.channel == 'ETau':
