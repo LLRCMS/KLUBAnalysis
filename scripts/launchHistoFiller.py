@@ -7,14 +7,15 @@ import datetime
 
 
 # Configurables
-year = '2016'    # allowed options: 2016 - 2017 - 2018
-channel = 'ETau' # allowed options: ETau - MuTau - TauTau
-tagDir = 'analysis_2021_02_08'
+isCondor = 'True'    # allowed options: 'True' - 'False'
+year     = '2016'    # allowed options: '2016' - '2017' - 2018'
+channel  = 'TauTau'  # allowed options: 'ETau' - 'MuTau' - TauTau'
+tagDir   = 'analysis_2021_02_07'
 
 # Variations to be run:
 # syntax --> [name of dir, name of var suffix, doSyst, njobs, bTagReshapeWeight suffix]
 uncertainties = [
- ['central'     ,''             , True , '10', ''],
+ ['central'     ,''             , True ,'10', ''],
  ['tauup_DM0'   ,'_tauup_DM0'   , False, '1', ''],
  ['taudown_DM0' ,'_taudown_DM0' , False, '1', ''],
  ['tauup_DM1'   ,'_tauup_DM1'   , False, '1', ''],
@@ -118,7 +119,7 @@ for uncertainty in uncertainties:
     newMainCfg.close()
 
     # --- Launch command ---
-    command = 'python scripts/submitHistoFiller_parallel.py --cfg '+outDir+'/mainCfg_'+channel+'_Legacy'+year+'_limits.cfg --tag '+outDir+' --n '+uncertainty[3]
+    command = 'python scripts/submitHistoFiller_parallel.py --cfg '+outDir+'/mainCfg_'+channel+'_Legacy'+year+'_limits.cfg --tag '+outDir+' --n '+uncertainty[3]+' --isCondor '+isCondor
     print command
     os.system(command)
 
