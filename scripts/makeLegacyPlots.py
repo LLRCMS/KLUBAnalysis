@@ -599,33 +599,34 @@ if __name__ == "__main__" :
             if center > blow and center < bup:
                 hData.SetBinContent(ibin, 0)
 
-    # these two lists are used for the calculation of the syst error band. They must:
-    #       1. be in the same order
-    #       2. use the same names as those in the mainCfg (for hSystBkgNameList)
-    hSystBkgList = [hDY_LM, hDY_0b_1Pt, hDY_0b_2Pt, hDY_0b_3Pt, hDY_0b_4Pt, hDY_0b_5Pt, hDY_0b_6Pt, hDY_1b_1Pt, hDY_1b_2Pt, hDY_1b_3Pt, hDY_1b_4Pt, hDY_1b_5Pt, hDY_1b_6Pt, hDY_2b_1Pt, hDY_2b_2Pt, hDY_2b_3Pt, hDY_2b_4Pt, hDY_2b_5Pt, hDY_2b_6Pt, hTT, hWJets, hEWK, hsingleT, hTW, hZH, hWH, hVV, httH, hTTX, hggH, hVBFH, hVVV, hQCD]
-    hSystBkgNameList = ['DY_LM', 'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt', 'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt', 'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt', 'TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'VBFH', 'VVV', 'QCD']
-    hShapesNameList = ['etauFR_barrelUp', 'etauFR_endcapUp', 'PUjetIDSFUp', 'etauFR_barrelDown', 'etauFR_endcapDown', 'PUjetIDSFDown']
-    # the ETau, MuTau, and TauTau channels have some different shapes -> we add them here separately
-    if args.channel == 'ETau':
-        if args.year == 2016: addShapes = ['trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down' 'tauid_pt40toInfDown']
-        else: addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down' 'tauid_pt40toInfDown']
-        for sh in addShapes: hShapesNameList.append(sh)
-    elif args.channel == 'MuTau':
-        addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFmuUp', 'trigSFmuDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down' 'tauid_pt40toInfDown']
-        for sh in addShapes: hShapesNameList.append(sh)
-    else:
-        addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFJetUp', 'trigSFJetDown', 'tauid_pt40toInfUp', 'tauid_pt40toInfDown']
-        for sh in addShapes: hShapesNameList.append(sh)
-    # we keep the JES, TES, MES, and EES separate from the others so we can also plot all the syst but them
-    if not args.removeESsystBand:
-        #addES = ['tauup_DM0', 'taudown_DM0', 'tauup_DM1', 'taudown_DM1', 'tauup_DM10', 'taudown_DM10', 'tauup_DM11', 'taudown_DM11', 'eleup_DM0', 'eledown_DM0', 'eleup_DM1', 'eledown_DM1', 'muup', 'mudown', 'jetup1', 'jetup2', 'jetup3', 'jetup4', 'jetup5', 'jetup6', 'jetup7', 'jetup8', 'jetup9', 'jetup10', 'jetup11', 'jetdown1', 'jetdown2', 'jetdown3', 'jetdown4', 'jetdown5', 'jetdown6', 'jetdown7', 'jetdown8', 'jetdown9', 'jetdown10', 'jetdown11']
-        addES = ['tauup_DM0', 'taudown_DM0', 'tauup_DM1', 'taudown_DM1', 'tauup_DM10', 'taudown_DM10', 'tauup_DM11', 'taudown_DM11', 'eleup_DM0', 'eledown_DM0', 'eleup_DM1', 'eledown_DM1', 'muup', 'mudown', 'jetupTot', 'jetdownTot']
-        for sh in addES: hShapesNameList.append(sh)
+    if args.doStatSystBand:
+        # these two lists are used for the calculation of the syst error band. They must:
+        #       1. be in the same order
+        #       2. use the same names as those in the mainCfg (for hSystBkgNameList)
+        hSystBkgList = [hDY_LM, hDY_0b_1Pt, hDY_0b_2Pt, hDY_0b_3Pt, hDY_0b_4Pt, hDY_0b_5Pt, hDY_0b_6Pt, hDY_1b_1Pt, hDY_1b_2Pt, hDY_1b_3Pt, hDY_1b_4Pt, hDY_1b_5Pt, hDY_1b_6Pt, hDY_2b_1Pt, hDY_2b_2Pt, hDY_2b_3Pt, hDY_2b_4Pt, hDY_2b_5Pt, hDY_2b_6Pt, hTT, hWJets, hEWK, hsingleT, hTW, hZH, hWH, hVV, httH, hTTX, hggH, hVBFH, hVVV, hQCD]
+        hSystBkgNameList = ['DY_LM', 'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt', 'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt', 'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt', 'TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'VBFH', 'VVV', 'QCD']
+        hShapesNameList = ['etauFR_barrelUp', 'etauFR_endcapUp', 'PUjetIDSFUp', 'etauFR_barrelDown', 'etauFR_endcapDown', 'PUjetIDSFDown']
+        # the ETau, MuTau, and TauTau channels have some different shapes -> we add them here separately
+        if args.channel == 'ETau':
+            if args.year == 2016: addShapes = ['trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down' 'tauid_pt40toInfDown']
+            else: addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up', 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down', 'tauid_pt40toInfDown']
+            for sh in addShapes: hShapesNameList.append(sh)
+        elif args.channel == 'MuTau':
+            addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFmuUp', 'trigSFmuDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up', 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down', 'tauid_pt40toInfDown']
+            for sh in addShapes: hShapesNameList.append(sh)
+        else:
+            addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFJetUp', 'trigSFJetDown', 'tauid_pt40toInfUp', 'tauid_pt40toInfDown']
+            for sh in addShapes: hShapesNameList.append(sh)
+        # we keep the JES, TES, MES, and EES separate from the others so we can also plot all the syst but them
+        if not args.removeESsystBand:
+            #addES = ['tauup_DM0', 'taudown_DM0', 'tauup_DM1', 'taudown_DM1', 'tauup_DM10', 'taudown_DM10', 'tauup_DM11', 'taudown_DM11', 'eleup_DM0', 'eledown_DM0', 'eleup_DM1', 'eledown_DM1', 'muup', 'mudown', 'jetup1', 'jetup2', 'jetup3', 'jetup4', 'jetup5', 'jetup6', 'jetup7', 'jetup8', 'jetup9', 'jetup10', 'jetup11', 'jetdown1', 'jetdown2', 'jetdown3', 'jetdown4', 'jetdown5', 'jetdown6', 'jetdown7', 'jetdown8', 'jetdown9', 'jetdown10', 'jetdown11']
+            addES = ['tauup_DM0', 'taudown_DM0', 'tauup_DM1', 'taudown_DM1', 'tauup_DM10', 'taudown_DM10', 'tauup_DM11', 'taudown_DM11', 'eleup_DM0', 'eledown_DM0', 'eleup_DM1', 'eledown_DM1', 'muup', 'mudown', 'jetupTot', 'jetdownTot']
+            for sh in addES: hShapesNameList.append(sh)
 
-    hShapes = retrieveShapes(rootFile, bkgList, args.var, args.sel, args.reg, hShapesNameList)
-    hShapesList = []
-    for name in hShapes:
-        hShapesList.append(getHisto(name, hShapes, doOverflow))
+        hShapes = retrieveShapes(rootFile, bkgList, args.var, args.sel, args.reg, hShapesNameList)
+        hShapesList = []
+        for name in hShapes:
+            hShapesList.append(getHisto(name, hShapes, doOverflow))
 
     #################### PERFORM BIN-NUMBER X-AXIS TRANSFORMATION #######################
     if args.binNXaxis:
@@ -691,8 +692,9 @@ if __name__ == "__main__" :
     #################### REMOVE NEGARIVE BINS #######################
     print "** INFO: removing all negative bins from bkg histos"
     makeNonNegativeHistos (hBkgList)
-    makeNonNegativeHistos (hSystBkgList)
-    makeNonNegativeHistos (hShapesList)
+    if args.doStatSystBand: 
+        makeNonNegativeHistos (hSystBkgList)
+        makeNonNegativeHistos (hShapesList)
 
     for h in hBkgList: print "Integral ", h.GetName(), " : ", h.Integral(), " - ", h.Integral(-1,-1)
     for n in hDatas: print "Integral ", hDatas[n].GetName(), " : ", hDatas[n].Integral(), " - ", hDatas[n].Integral(-1,-1)
@@ -807,8 +809,8 @@ if __name__ == "__main__" :
     if args.doStatSystBand:    
         # create list of files containing the systematic errors of the analysis 
         systCfgs = ['systematics_'+args.year, 'systematics_DY'+args.year, 'systematics_QCD'+args.year]
-        if args.channel == 'MuTau': systCfgs.append('systematics_mutau.cfg')
-        if args.channel == 'ETau': systCfgs.append('systematics_etau.cfg')
+        if args.channel == 'MuTau': systCfgs.append('systematics_mutau')
+        if args.channel == 'ETau': systCfgs.append('systematics_etau')
     
         # initialize the selection names as contained in the systQCD files
         if '1b1j' in args.sel:  
@@ -826,7 +828,9 @@ if __name__ == "__main__" :
         if 'ttHclass' in args.sel:
                 sel_qcd = 'classttH'
         if 'TTclass' in args.sel:
-                sel_qcd = 'classTT' 
+                sel_qcd = 'classTT'
+        if "VBFloose" in args.sel:
+                sel_qcd = "VBFloose" # this does not exist in the systematics_QCD.cfg file --> it is just a dummy to avoid the breaking of makeStatSystUncertaintyBand()
 
         grUncert = makeStatSystUncertaintyBand(bkgSum, hBkgs, hSystBkgNameList, systCfgs, args.channel, sel_qcd, hShapes, hShapesNameList) 
     else: 
@@ -892,14 +896,10 @@ if __name__ == "__main__" :
             chName = "bb e#tau_{h}"
         elif args.channel == "TauTau":
             chName = "bb #tau_{h}#tau_{h}"
-        elif args.channel == "MuMu":
-            chName = "bb #mu#mu"
-        elif args.channel == "EE":
-            chName = "bb ee"
         elif args.channel == "ttCR":
             chName = "bb e#tau_{h}/#mu#tau_{h}/#tau_{h}#tau_{h}"
         else:
-            print "*** Warning: channel name must be MuTau, ETau, TauTau, MuMu, EE, or ttCR. You wrote: " , args.channel
+            print "*** Warning: channel name must be ETau, MuTau, TauTau, or ttCR. You wrote: " , args.channel
 
         if chName:
             chBox = TLatex  (l + 0.04 , 1 - t - 0.02, chName)
@@ -935,6 +935,8 @@ if __name__ == "__main__" :
                     selName = "classttH"
             if "TTclass" in args.sel:
                     selName = "classTT"
+            if "VBFloose" in args.sel:
+                    selName = "VBF incl."
     else: selName = args.name
 
     selBox = TLatex  (l + 0.04 , 1 - t - 0.02 - 0.06, selName)
