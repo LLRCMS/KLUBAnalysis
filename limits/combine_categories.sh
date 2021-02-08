@@ -15,5 +15,5 @@ pwd
 mkdir comb_cat
 rm comb_cat/comb_cat.txt
 combineCards.py -S */hh_*.txt >> comb_cat/comb.txt
-text2workspace.py comb_cat/comb.txt -P HHModelPinv:model_bbtautau -o comb_cat/comb.root
+text2workspace.py comb_cat/comb.txt -P HHModelPinv:model_bbtautau -o comb_cat/comb.root -m 125 --PO doBRscaling=false --PO doHscaling=false
 cd -
