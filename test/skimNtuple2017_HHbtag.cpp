@@ -519,7 +519,7 @@ int main (int argc, char** argv)
   }	
   	
   cout << "B Tag SF file: " << bTag_SFFile << endl;
-  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "94X_DeepCSV_V1");
+  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "2017", "94X_DeepCSV_V1");
   if(useDeepFlavor)
     bTagSFHelper.SetWPset("94X_DeepFlavor_V1");
 
@@ -537,8 +537,11 @@ int main (int argc, char** argv)
   // ------------------------------
 
   // JER smearing provider: year - doSmearing - variation (0:nominal  +1:up  -1:down)
-  bool doSmearing = (isMC ? gConfigParser->readBoolOption("JetSmearing::doSmearing") : false);
-  SmearedJetProducer Smearer("2017", doSmearing, 0);
+  bool doSmearing    = (isMC ? gConfigParser->readBoolOption("JetSmearing::doSmearing") : false);
+  int smearVariation = (isMC ? gConfigParser->readIntOption("JetSmearing::smearVariation") : 0 );
+  cout << "** INFO: doSmearing? " << doSmearing << endl;
+  cout << "** INFO: smearVariation: " << smearVariation << " [0:nominal  +1:up  -1:down]" << endl;
+  SmearedJetProducer Smearer("2017", doSmearing, smearVariation);
 
   // ------------------------------
 
