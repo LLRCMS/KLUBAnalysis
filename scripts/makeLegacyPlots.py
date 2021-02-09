@@ -341,6 +341,8 @@ def makeStatSystUncertaintyBand (bkgSum,hBkgs,hBkgNameList,systCfgList,channel,s
                 lnNup += max(0,hSystBkgList[ibkg].GetBinContent(ibin)) * syst_df[bkg]['lnNup']
                 lnNdown += max(0,hSystBkgList[ibkg].GetBinContent(ibin)) * syst_df[bkg]['lnNdown']
 
+                # if we are looking at QCD we skip the shapes because the syst from QCD are only lnN in the systematic_QCD.cfg files
+                if 'QCD' in bkg: continue
                 # loop on all shape syst to get the absolute value of events associated to a shape source
                 for shape in hShapesNameList:
                     hShape = getHisto(bkg+'_'+shape, hShapes, doOverflow)    
@@ -385,6 +387,8 @@ def makeStatSystUncertaintyBand (bkgSum,hBkgs,hBkgNameList,systCfgList,channel,s
 def retrieveShapes (rootFile, namelist, var, sel, reg, shapeNameList):
     res = {}
     for name in namelist:
+        # because the QCD syst is only lnN and no shape variations are produced
+        if 'QCD' in name: continue
         for shapeName in shapeNameList:
             fullName = name + "_" + sel + "_" + reg + "_" + var + '_' + shapeName
 
