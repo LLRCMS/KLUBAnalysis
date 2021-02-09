@@ -174,6 +174,13 @@ def makeStatUncertaintyBand (bkgSum):
             feYDown.append (bkgSum.GetBinErrorLow(ibin) / central)
             feXRight.append(bkgSum.GetBinLowEdge(ibin+1) - bkgSum.GetBinCenter(ibin))
             feXLeft.append (bkgSum.GetBinCenter(ibin) - bkgSum.GetBinLowEdge(ibin))
+        else:
+            fX.append      (bkgSum.GetBinCenter(ibin))
+            fY.append      (0.)
+            feYUp.append   (0.)
+            feYDown.append (0.)
+            feXRight.append(0.)
+            feXLeft.append (0.)
 
     afX       = array ("d", fX      )
     afY       = array ("d", fY      )
@@ -328,34 +335,42 @@ def makeStatSystUncertaintyBand (bkgSum,hBkgs,hBkgNameList,systCfgList,channel,s
         lnNup = lnNdown = 0
         shapeUp = shapeDown = 0
         central = bkgSum.GetBinContent(ibin)
-        if central <= 0: continue
-        for bkg, ibkg in zip(hSystBkgNameList, range(len(hSystBkgList))):
-            # calculate the absolute number of events associated to a syst source
-            lnNup += max(0,hSystBkgList[ibkg].GetBinContent(ibin)) * syst_df[bkg]['lnNup']
-            lnNdown += max(0,hSystBkgList[ibkg].GetBinContent(ibin)) * syst_df[bkg]['lnNdown']
+        if central > 0:
+            for bkg, ibkg in zip(hSystBkgNameList, range(len(hSystBkgList))):
+                # calculate the absolute number of events associated to a syst source
+                lnNup += max(0,hSystBkgList[ibkg].GetBinContent(ibin)) * syst_df[bkg]['lnNup']
+                lnNdown += max(0,hSystBkgList[ibkg].GetBinContent(ibin)) * syst_df[bkg]['lnNdown']
 
-            # loop on all shape syst to get the absolute value of events associated to a shape source
-            for shape in hShapesNameList:
-                hShape = getHisto(bkg+'_'+shape, hShapes, doOverflow)    
-                hBkg   = getHisto(bkg, hBkgs, doOverflow)
-                # calculate the difference between the nominal and the variation
-                diff = hShape.GetBinContent(ibin) - hBkg.GetBinContent(ibin)
-                # categorize the effect as up or down just looking at the sign of the diference
-                # sum in quadrature all the effects coming from all the bkgs 
-                if diff > 0: shapeUp += diff**2
-                if diff <= 0: shapeDown += abs(diff)**2
+                # loop on all shape syst to get the absolute value of events associated to a shape source
+                for shape in hShapesNameList:
+                    hShape = getHisto(bkg+'_'+shape, hShapes, doOverflow)    
+                    hBkg   = getHisto(bkg, hBkgs, doOverflow)
+                    # calculate the difference between the nominal and the variation
+                    diff = hShape.GetBinContent(ibin) - hBkg.GetBinContent(ibin)
+                    # categorize the effect as up or down just looking at the sign of the diference
+                    # sum in quadrature all the effects coming from all the bkgs 
+                    if diff > 0: shapeUp += diff**2
+                    if diff <= 0: shapeDown += abs(diff)**2
 
-        shapeUp = shapeUp**0.5
-        shapeDown = shapeDown**0.5
-        #print(shapeUp, lnNup, '--', shapeDown, lnNdown)
+            shapeUp = shapeUp**0.5
+            shapeDown = shapeDown**0.5
+            #print(shapeUp, lnNup, '--', shapeDown, lnNdown)
 
-        # we sum in quadrature the lnN syst unc, the shape syst unc, and statistical unc
-        fX.append      (bkgSum.GetBinCenter(ibin))
-        fY.append      (1.0)
-        feYUp.append   ((lnNup**2 + shapeUp**2 + bkgSum.GetBinErrorUp(ibin)**2)**0.5 / central)
-        feYDown.append ((lnNdown**2 + shapeDown**2 + bkgSum.GetBinErrorLow(ibin)**2)**0.5 / central)
-        feXRight.append(bkgSum.GetBinLowEdge(ibin+1) - bkgSum.GetBinCenter(ibin))
-        feXLeft.append (bkgSum.GetBinCenter(ibin) - bkgSum.GetBinLowEdge(ibin))
+            # we sum in quadrature the lnN syst unc, the shape syst unc, and statistical unc
+            fX.append      (bkgSum.GetBinCenter(ibin))
+            fY.append      (1.0)
+            feYUp.append   ((lnNup**2 + shapeUp**2 + bkgSum.GetBinErrorUp(ibin)**2)**0.5 / central)
+            feYDown.append ((lnNdown**2 + shapeDown**2 + bkgSum.GetBinErrorLow(ibin)**2)**0.5 / central)
+            feXRight.append(bkgSum.GetBinLowEdge(ibin+1) - bkgSum.GetBinCenter(ibin))
+            feXLeft.append (bkgSum.GetBinCenter(ibin) - bkgSum.GetBinLowEdge(ibin))
+        else: 
+            fX.append      (bkgSum.GetBinCenter(ibin))
+            fY.append      (0.)
+            feYUp.append   (0.)
+            feYDown.append (0.)
+            feXRight.append(0.)
+            feXLeft.append (0.)
+
 
     afX       = array ("d", fX      )
     afY       = array ("d", fY      )
@@ -391,15 +406,15 @@ def scaleStatSystUncertaintyBandForStack (grUncert,bkgSum):
     feXRight  = []
     feXLeft   = []
 
-    # in this loop remember that indexing of hists and graphs are hifted by 1
+    # in this loop remember that indexing of hists and graphs are shifted by 1
     for ibin in range (1, nPoints+1):
         central = bkgSum.GetBinContent(ibin)
         fX.append      (bkgSum.GetBinCenter(ibin))
         fY.append      (central)
-        feYUp.append   (grUncert.GetErrorYhigh(ibin-1) * central)
-        feYDown.append (grUncert.GetErrorYlow(ibin-1) * central)
-        feXRight.append(grUncert.GetErrorXhigh(ibin-1))
-        feXLeft.append (grUncert.GetErrorXlow(ibin-1))
+        feYUp.append   (grUncert.GetErrorYhigh(ibin - 1) * central)
+        feYDown.append (grUncert.GetErrorYlow(ibin - 1) * central)
+        feXRight.append(grUncert.GetErrorXhigh(ibin - 1))
+        feXLeft.append (grUncert.GetErrorXlow(ibin - 1))
 
     afX       = array ("d", fX      )
     afY       = array ("d", fY      )
@@ -570,7 +585,7 @@ if __name__ == "__main__" :
     httH       = getHisto("ttH", hBkgs, doOverflow)
     hTTX       = getHisto("TTX", hBkgs, doOverflow)
     hggH       = getHisto("ggH", hBkgs, doOverflow)
-    hqqH       = getHisto("VBFH", hBkgs, doOverflow)
+    hqqH       = getHisto("qqH", hBkgs, doOverflow)
     hVVV       = getHisto("VVV", hBkgs, doOverflow)
     
     hDYlist = [hDY_LM, hDY_0b_1Pt, hDY_0b_2Pt, hDY_0b_3Pt, hDY_0b_4Pt, hDY_0b_5Pt, hDY_0b_6Pt, hDY_1b_1Pt, hDY_1b_2Pt, hDY_1b_3Pt, hDY_1b_4Pt, hDY_1b_5Pt, hDY_1b_6Pt, hDY_2b_1Pt, hDY_2b_2Pt, hDY_2b_3Pt, hDY_2b_4Pt, hDY_2b_5Pt, hDY_2b_6Pt]
@@ -604,7 +619,7 @@ if __name__ == "__main__" :
         #       1. be in the same order
         #       2. use the same names as those in the mainCfg (for hSystBkgNameList)
         hSystBkgList = [hDY_LM, hDY_0b_1Pt, hDY_0b_2Pt, hDY_0b_3Pt, hDY_0b_4Pt, hDY_0b_5Pt, hDY_0b_6Pt, hDY_1b_1Pt, hDY_1b_2Pt, hDY_1b_3Pt, hDY_1b_4Pt, hDY_1b_5Pt, hDY_1b_6Pt, hDY_2b_1Pt, hDY_2b_2Pt, hDY_2b_3Pt, hDY_2b_4Pt, hDY_2b_5Pt, hDY_2b_6Pt, hTT, hWJets, hEWK, hsingleT, hTW, hZH, hWH, hVV, httH, hTTX, hggH, hqqH, hVVV, hQCD]
-        hSystBkgNameList = ['DY_LM', 'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt', 'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt', 'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt', 'TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'VBFH', 'VVV', 'QCD']
+        hSystBkgNameList = ['DY_LM', 'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt', 'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt', 'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt', 'TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'qqH', 'VVV', 'QCD']
         hShapesNameList = ['etauFR_barrelUp', 'etauFR_endcapUp', 'PUjetIDSFUp', 'etauFR_barrelDown', 'etauFR_endcapDown', 'PUjetIDSFDown', 'bTagweightReshapeLFUp', 'bTagweightReshapeHFUp', 'bTagweightReshapeHFSTATS1Up', 'bTagweightReshapeHFSTATS2Up', 'bTagweightReshapeLFSTATS1Up', 'bTagweightReshapeLFSTATS2Up', 'bTagweightReshapeCFERR1Up', 'bTagweightReshapeCFERR2Up', 'bTagweightReshapeLFDown', 'bTagweightReshapeHFDown', 'bTagweightReshapeHFSTATS1Down', 'bTagweightReshapeHFSTATS2Down', 'bTagweightReshapeLFSTATS1Down', 'bTagweightReshapeLFSTATS2Down', 'bTagweightReshapeCFERR1Down', 'bTagweightReshapeCFERR2Down']
         # the ETau, MuTau, and TauTau channels have some different shapes -> we add them here separately
         if args.channel == 'ETau':
