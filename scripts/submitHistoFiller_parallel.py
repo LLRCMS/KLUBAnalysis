@@ -65,7 +65,7 @@ for nj in range(0, args.njobs):
         scriptFile.write(command)
         scriptFile.close()
         os.system ('chmod u+rwx ' + outDir + '/' + scriptName)
-        launchcommand = ('/opt/exp_soft/cms/t3/t3submit -short \'' + outDir + '/' + scriptName +"\'")
+        launchcommand = ('/home/llr/cms/motta/t3submit -long \'' + outDir + '/' + scriptName +"\'")
 
     print launchcommand
     os.system (launchcommand)
