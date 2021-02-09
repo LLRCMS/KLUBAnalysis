@@ -16,8 +16,16 @@ tagDir = tagDir+'/'+channel+'_'+year
 # Create list of all uncertainty subdirectories
 uncDirs = os.listdir(tagDir)
 
+# Input vars to be saved in the merged mainCfg
+allVars = ''
+
 # Check that all jobs have finished
 for uncDir in uncDirs:
+
+    # Skip 'total' subdirectory if already present:
+    if uncDir == 'total': continue
+
+    # Read unc subdirectories
     inDir = tagDir + '/' + uncDir
 
     # Get list of log files
@@ -31,16 +39,36 @@ for uncDir in uncDirs:
         else:
             sys.exit('ERROR: '+inDir+'/'+logFile+' did not finish properly, exiting!')
 
+    # Read the main config for each unc and store the variables names
+    for line in open(inDir+'/mainCfg_'+channel+'_Legacy'+year+'_limits.cfg'):
+        if line.startswith('variables'):
+            varNames = line.split('=')[1] # Get variables only
+            varNames = varNames.strip()   # Remove carriage return
+            if allVars == '':
+                allVars = varNames
+            else:
+                allVars = allVars + ', ' + varNames
+
 print 'All log files look ok!'
 
 # Create a new directory to store the merged file
 newDir = tagDir+'/total'
 os.system('mkdir '+ newDir)
 
-# Copy the config files
-copyCommand = 'cp '+tagDir+'/central/*cfg '+newDir+'/'
+# Copy the samples and selection config files from the central case
+copyCommand = 'cp '+tagDir+'/central/s*cfg '+newDir+'/'
 print copyCommand
 os.system(copyCommand)
+
+# Create a new main config starting from the central config,
+# but containing all the variables (central and shifted ones)
+newMainCfg = open(newDir+'/mainCfg_'+channel+'_Legacy'+year+'_limits.cfg','w')
+for line in open(inDir+'/mainCfg_'+channel+'_Legacy'+year+'_limits.cfg'):
+    # Edit line with variables
+    if line.startswith('variables'):
+        line = 'variables = ' + allVars + '\n'
+    newMainCfg.write(line)
+newMainCfg.close()
 
 # Launch the hadd command
 haddCommand = 'hadd '+newDir+'/outPlotter.root '+tagDir+'/*/outPlotter_*root '
