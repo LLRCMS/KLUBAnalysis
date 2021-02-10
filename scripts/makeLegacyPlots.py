@@ -309,9 +309,16 @@ def makeStatSystUncertaintyBand (bkgSum,hBkgs,hBkgNameList,systCfgList,channel,s
                     if ch != channel: gate = False; continue # skip when channel is not matching
                     if sel != selection: gate = False; continue # skip when selection is not matching
                 if f[0].startswith('unc') and gate:
+                    # if there is a / the up and down are different, else they are the same
+                    if '/' in f[2].split(':')[1]:
+                        up = abs(round(float((f[2].split(':')[1]).split('/')[1])-1,3))
+                        down = abs(round(float((f[2].split(':')[1]).split('/')[0])-1,3))
+                    else:
+                        up = abs(round(float(f[2].split(':')[1])-1,3))
+                        down = abs(round(float(f[2].split(':')[1])-1,3))
                     # append values to the QCD column
-                    syst_df['QCD']['lnNup'] += abs(round(float(f[2].split(':')[1])-1,3))**2
-                    syst_df['QCD']['lnNdown'] += abs(round(float(f[2].split(':')[1])-1,3))**2
+                    syst_df['QCD']['lnNup'] += up**2
+                    syst_df['QCD']['lnNdown'] += down**2
             else:
                 if f[0].startswith('['): continue # skip sections headers
                 # if there is a / the up and down are different, else they are the same
@@ -627,7 +634,7 @@ if __name__ == "__main__" :
         hShapesNameList = ['etauFR_barrelUp', 'etauFR_endcapUp', 'PUjetIDSFUp', 'etauFR_barrelDown', 'etauFR_endcapDown', 'PUjetIDSFDown', 'bTagweightReshapeLFUp', 'bTagweightReshapeHFUp', 'bTagweightReshapeHFSTATS1Up', 'bTagweightReshapeHFSTATS2Up', 'bTagweightReshapeLFSTATS1Up', 'bTagweightReshapeLFSTATS2Up', 'bTagweightReshapeCFERR1Up', 'bTagweightReshapeCFERR2Up', 'bTagweightReshapeLFDown', 'bTagweightReshapeHFDown', 'bTagweightReshapeHFSTATS1Down', 'bTagweightReshapeHFSTATS2Down', 'bTagweightReshapeLFSTATS1Down', 'bTagweightReshapeLFSTATS2Down', 'bTagweightReshapeCFERR1Down', 'bTagweightReshapeCFERR2Down']
         # the ETau, MuTau, and TauTau channels have some different shapes -> we add them here separately
         if args.channel == 'ETau':
-            if args.year == '2016': addShapes = ['trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down' 'tauid_pt40toInfDown']
+            if args.year == '2016': addShapes = ['trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down', 'tauid_pt40toInfDown']
             else: addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up', 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down', 'tauid_pt40toInfDown']
             for sh in addShapes: hShapesNameList.append(sh)
         elif args.channel == 'MuTau':
