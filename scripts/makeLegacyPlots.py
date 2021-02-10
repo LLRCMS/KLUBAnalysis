@@ -813,10 +813,10 @@ if __name__ == "__main__" :
     ymax = max(maxs)
 
     # scale max to leave some space (~10%)
-    extraspace = 0.3
+    extraspace = 0.5
 
     if not args.log:
-        ymax += extraspace* (ymax-ymin)
+        ymax += extraspace * (ymax-ymin)
     
     else:
         new = extraspace * (math.log(ymax, 10) - math.log(ymin, 10)) + math.log(ymax, 10)
@@ -862,8 +862,8 @@ if __name__ == "__main__" :
     grUncertStack.SetFillColor(kGray+2)
     grUncertStack.SetFillStyle(3002)
     grUncertStack.Draw("e2")
-    if args.doStatSystBand: leg.AddEntry(grUncertStack, "Stat+Syst uncertainty", 'f')
-    else: leg.AddEntry(grUncertStack, "Statistical uncertainty", 'f')
+    if args.doStatSystBand: leg.AddEntry(grUncertStack, "Stat+Syst unc.", 'f')
+    else: leg.AddEntry(grUncertStack, "Stat. unc.", 'f')
     if args.dosig:
         for key in hSigs: hSigs[key].Draw("hist same")
     if args.dodata:
