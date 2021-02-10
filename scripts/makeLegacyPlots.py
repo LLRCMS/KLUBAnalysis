@@ -627,7 +627,7 @@ if __name__ == "__main__" :
         hShapesNameList = ['etauFR_barrelUp', 'etauFR_endcapUp', 'PUjetIDSFUp', 'etauFR_barrelDown', 'etauFR_endcapDown', 'PUjetIDSFDown', 'bTagweightReshapeLFUp', 'bTagweightReshapeHFUp', 'bTagweightReshapeHFSTATS1Up', 'bTagweightReshapeHFSTATS2Up', 'bTagweightReshapeLFSTATS1Up', 'bTagweightReshapeLFSTATS2Up', 'bTagweightReshapeCFERR1Up', 'bTagweightReshapeCFERR2Up', 'bTagweightReshapeLFDown', 'bTagweightReshapeHFDown', 'bTagweightReshapeHFSTATS1Down', 'bTagweightReshapeHFSTATS2Down', 'bTagweightReshapeLFSTATS1Down', 'bTagweightReshapeLFSTATS2Down', 'bTagweightReshapeCFERR1Down', 'bTagweightReshapeCFERR2Down']
         # the ETau, MuTau, and TauTau channels have some different shapes -> we add them here separately
         if args.channel == 'ETau':
-            if args.year == 2016: addShapes = ['trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down' 'tauid_pt40toInfDown']
+            if args.year == '2016': addShapes = ['trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down' 'tauid_pt40toInfDown']
             else: addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up', 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down', 'tauid_pt40toInfDown']
             for sh in addShapes: hShapesNameList.append(sh)
         elif args.channel == 'MuTau':
@@ -898,8 +898,8 @@ if __name__ == "__main__" :
     x = 0
     y = 0
 
-    if args.year == 2016: lumi = "35.9 fb^{-1} (13 TeV)"
-    elif args.year == 2017: lumi = "41.5 fb^{-1} (13 TeV)"
+    if args.year == '2016': lumi = "35.9 fb^{-1} (13 TeV)"
+    elif args.year == '2017': lumi = "41.5 fb^{-1} (13 TeV)"
     else: lumi = "59.7 fb^{-1} (13 TeV)"
     lumibox = TLatex  (1-r, 1 - t + 0.02 , lumi)       
     lumibox.SetNDC()
