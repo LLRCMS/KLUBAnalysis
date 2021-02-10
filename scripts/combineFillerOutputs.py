@@ -163,129 +163,33 @@ if args.moreDYbin2:
     omngr.scaleHistos("DY", args.moreDYbin2, "pt150")
 
 
-# Apply the bTagIterative normalization factor to preserve the correct
+# Apply the bTagReshape normalization factor to preserve the correct
 # yield of the MC processes.
 if cfg.hasSection('bTagRfactor'):
+
     # Read central correction
     central = eval(cfg.readOption('bTagRfactor::central')) if cfg.hasOption('bTagRfactor::central') else 1.
 
-    # Read UP corrections
-    JESUp      = eval(cfg.readOption('bTagRfactor::bTagweightReshape_jes_up'))      if cfg.hasOption('bTagRfactor::bTagweightReshape_jes_up')      else 1.
-    LFUp       = eval(cfg.readOption('bTagRfactor::bTagweightReshape_lf_up'))       if cfg.hasOption('bTagRfactor::bTagweightReshape_lf_up')       else 1.
-    HFUp       = eval(cfg.readOption('bTagRfactor::bTagweightReshape_hf_up'))       if cfg.hasOption('bTagRfactor::bTagweightReshape_hf_up')       else 1.
-    HFSTATS1Up = eval(cfg.readOption('bTagRfactor::bTagweightReshape_hfstats1_up')) if cfg.hasOption('bTagRfactor::bTagweightReshape_hfstats1_up') else 1.
-    HFSTATS2Up = eval(cfg.readOption('bTagRfactor::bTagweightReshape_hfstats2_up')) if cfg.hasOption('bTagRfactor::bTagweightReshape_hfstats2_up') else 1.
-    LFSTATS1Up = eval(cfg.readOption('bTagRfactor::bTagweightReshape_lfstats1_up')) if cfg.hasOption('bTagRfactor::bTagweightReshape_lfstats1_up') else 1.
-    LFSTATS2Up = eval(cfg.readOption('bTagRfactor::bTagweightReshape_lfstats2_up')) if cfg.hasOption('bTagRfactor::bTagweightReshape_lfstats2_up') else 1.
-    CFERR1Up   = eval(cfg.readOption('bTagRfactor::bTagweightReshape_cferr1_up'))   if cfg.hasOption('bTagRfactor::bTagweightReshape_cferr1_up')   else 1.
-    CFERR2Up   = eval(cfg.readOption('bTagRfactor::bTagweightReshape_cferr2_up'))   if cfg.hasOption('bTagRfactor::bTagweightReshape_cferr2_up')   else 1.
-
-    # Read DOWN corrections
-    JESDown      = eval(cfg.readOption('bTagRfactor::bTagweightReshape_jes_down'))      if cfg.hasOption('bTagRfactor::bTagweightReshape_jes_down')      else 1.
-    LFDown       = eval(cfg.readOption('bTagRfactor::bTagweightReshape_lf_down'))       if cfg.hasOption('bTagRfactor::bTagweightReshape_lf_down')       else 1.
-    HFDown       = eval(cfg.readOption('bTagRfactor::bTagweightReshape_hf_down'))       if cfg.hasOption('bTagRfactor::bTagweightReshape_hf_down')       else 1.
-    HFSTATS1Down = eval(cfg.readOption('bTagRfactor::bTagweightReshape_hfstats1_down')) if cfg.hasOption('bTagRfactor::bTagweightReshape_hfstats1_down') else 1.
-    HFSTATS2Down = eval(cfg.readOption('bTagRfactor::bTagweightReshape_hfstats2_down')) if cfg.hasOption('bTagRfactor::bTagweightReshape_hfstats2_down') else 1.
-    LFSTATS1Down = eval(cfg.readOption('bTagRfactor::bTagweightReshape_lfstats1_down')) if cfg.hasOption('bTagRfactor::bTagweightReshape_lfstats1_down') else 1.
-    LFSTATS2Down = eval(cfg.readOption('bTagRfactor::bTagweightReshape_lfstats2_down')) if cfg.hasOption('bTagRfactor::bTagweightReshape_lfstats2_down') else 1.
-    CFERR1Down   = eval(cfg.readOption('bTagRfactor::bTagweightReshape_cferr1_down'))   if cfg.hasOption('bTagRfactor::bTagweightReshape_cferr1_down')   else 1.
-    CFERR2Down   = eval(cfg.readOption('bTagRfactor::bTagweightReshape_cferr2_down'))   if cfg.hasOption('bTagRfactor::bTagweightReshape_cferr2_down')   else 1.
-
-    print '--- Appliyng bTagIterative normalization factor ---'
-    print '    >> Values for bTagIterative normalization factor:'
-    print '    >> central          :', central
-    print '    >> JES Up/Down      :', JESUp     , '/', JESDown
-    print '    >> LF Up/Down       :', LFUp      , '/', LFDown
-    print '    >> HF Up/Down       :', HFUp      , '/', HFDown
-    print '    >> HFSTATS1 Up/Down :', HFSTATS1Up, '/', HFSTATS1Down
-    print '    >> HFSTATS2 Up/Down :', HFSTATS2Up, '/', HFSTATS2Down
-    print '    >> LFSTATS1 Up/Down :', LFSTATS1Up, '/', LFSTATS1Down
-    print '    >> LFSTATS2 Up/Down :', LFSTATS2Up, '/', LFSTATS2Down
-    print '    >> CFERR1 Up/Down   :', CFERR1Up  , '/', CFERR1Down
-    print '    >> CFERR2 Up/Down   :', CFERR2Up  , '/', CFERR2Down
+    print '--- Appliyng bTagReshape normalization factor ---'
+    print '    >> Values for bTagReshape normalization factor:'
+    print '    >> central :', central
 
     # Scale the histos
     for histoname in omngr.histos:
 
-        # don't apply to data
+        # Don't apply scaling to data
         if 'data_obs' in histoname: continue
 
-        # apply to sigs and bkgs
-        if 'bTagweightReshapeJESUp' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(JESUp)
-        elif 'bTagweightReshapeJESDown' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(JESDown)
-
-        elif 'bTagweightReshapeLFUp' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(LFUp)
-        elif 'bTagweightReshapeLFDown' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(LFDown)
-
-        elif 'bTagweightReshapeHFUp' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(HFUp)
-        elif 'bTagweightReshapeHFDown' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(HFDown)
-
-        elif 'bTagweightReshapeHFSTATS1Up' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(HFSTATS1Up)
-        elif 'bTagweightReshapeHFSTATS1Down' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(HFSTATS1Down)
-
-        elif 'bTagweightReshapeHFSTATS2Up' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(HFSTATS2Up)
-        elif 'bTagweightReshapeHFSTATS2Down' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(HFSTATS2Down)
-
-        elif 'bTagweightReshapeLFSTATS1Up' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(LFSTATS1Up)
-        elif 'bTagweightReshapeLFSTATS1Down' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(LFSTATS1Down)
-
-        elif 'bTagweightReshapeLFSTATS2Up' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(LFSTATS2Up)
-        elif 'bTagweightReshapeLFSTATS2Down' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(LFSTATS2Down)
-
-        elif 'bTagweightReshapeCFERR1Up' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(CFERR1Up)
-        elif 'bTagweightReshapeCFERR1Down' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(CFERR1Down)
-
-        elif 'bTagweightReshapeCFERR2Up' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(CFERR2Up)
-        elif 'bTagweightReshapeCFERR2Down' in histoname:
-            h = omngr.histos[histoname]
-            h.Scale(CFERR2Down)
-
-        # if no systematic shift: apply central correction
-        else:
-            h = omngr.histos[histoname]
-            h.Scale(central)
+        # Apply central correction to ALL other histos since we
+        # apply the bTagReshape at baseline level to all MC contributions
+        h = omngr.histos[histoname]
+        h.Scale(central)
 
 
 # C/D factor:
 # if not specified by --SBtoSRforQCD, 
 # the number inserted manually in config is used
 # if SBtoSRfactor == 1 in config and --SBtoSRforQCD is not specified, C/D computed dynamically
-# 
-    
 if cfg.hasSection('pp_QCD'):
     SBtoSRforQCD =float(cfg.readOption('pp_QCD::SBtoSRfactor'))
     SBtoSRforQCDboost = float(cfg.readOption('pp_QCD::boostSBtoSR')) if cfg.hasOption('pp_QCD::boostSBtoSR') else 1.
