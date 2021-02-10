@@ -598,7 +598,7 @@ if __name__ == "__main__" :
     hggH       = getHisto("ggH", hBkgs, doOverflow)
     hqqH       = getHisto("qqH", hBkgs, doOverflow)
     hVVV       = getHisto("VVV", hBkgs, doOverflow)
-    
+
     hDYlist = [hDY_LM, hDY_0b_1Pt, hDY_0b_2Pt, hDY_0b_3Pt, hDY_0b_4Pt, hDY_0b_5Pt, hDY_0b_6Pt, hDY_1b_1Pt, hDY_1b_2Pt, hDY_1b_3Pt, hDY_1b_4Pt, hDY_1b_5Pt, hDY_1b_6Pt, hDY_2b_1Pt, hDY_2b_2Pt, hDY_2b_3Pt, hDY_2b_4Pt, hDY_2b_5Pt, hDY_2b_6Pt]
     hothersList = [hEWK, hsingleT, hTW, hVV, hTTX, hVVV, hWJets]
     hSingleHlist = [hZH, hWH, httH, hggH, hqqH]
@@ -727,6 +727,13 @@ if __name__ == "__main__" :
     for n in hDatas: print "Integral ", hDatas[n].GetName(), " : ", hDatas[n].Integral(), " - ", hDatas[n].Integral(-1,-1)
     for i, name in enumerate (sigNameList): print "Integral ", hSigs[sigList[i]].GetName(), " : ", hSigs[sigList[i]].Integral(), " - ", hSigs[sigList[i]].Integral(-1,-1)
     
+    # Store yields in a txt file for reference
+    with open('./LegacyPlots/Legacy' + args.year + '/' + args.channel + '/' + args.sel+'/yields_'+args.var+'_'+args.sel+'_'+args.reg+'.txt','w') as yields_file:
+        yields_file.write('=== Legacy' + args.year + '/' + args.channel + '/' + args.sel+'/'+args.reg+'/'+args.var+' ===\n')
+        for h in hBkgList: yields_file.write("Integral: "+h.GetName()+" : "+str(h.Integral())+" - "+str(h.Integral(-1,-1))+"\n")
+        for n in hDatas  : yields_file.write("Integral: "+hDatas[n].GetName()+" : "+str(hDatas[n].Integral())+" - "+str(hDatas[n].Integral(-1,-1))+"\n")
+        for i, name in enumerate (sigNameList): yields_file.write("Integral: "+hSigs[sigList[i]].GetName()+" : "+str(hSigs[sigList[i]].Integral())+" - "+str(hSigs[sigList[i]].Integral(-1,-1))+"\n")
+    yields_file.close()
 
     #################### PERFORM DIVISION BY BIN WIDTH AND DO NECESSARY STACKS #######################
     bkgStackNS = makeStack ("bkgStackNS", hBkgList)
