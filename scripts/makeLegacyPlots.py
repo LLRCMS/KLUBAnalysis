@@ -634,7 +634,8 @@ if __name__ == "__main__" :
             addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFmuUp', 'trigSFmuDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up', 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down', 'tauid_pt40toInfDown']
             for sh in addShapes: hShapesNameList.append(sh)
         else:
-            addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFJetUp', 'trigSFJetDown', 'tauid_pt40toInfUp', 'tauid_pt40toInfDown']
+            if args.year == '2016': addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'tauid_pt40toInfUp', 'tauid_pt40toInfDown']
+            else: addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFJetUp', 'trigSFJetDown', 'tauid_pt40toInfUp', 'tauid_pt40toInfDown']
             for sh in addShapes: hShapesNameList.append(sh)
         # we keep the JES, TES, MES, and EES separate from the others so we can also plot all the syst but them
         if not args.removeESsystBand:
