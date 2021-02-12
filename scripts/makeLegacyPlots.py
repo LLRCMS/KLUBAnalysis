@@ -246,7 +246,7 @@ def findMaxOfGraph (graph):
         uppers.append (y + graph.GetErrorYhigh(i))
     return max(uppers)
 
-## remove negative bins and reset yield accordingly
+## remove negative bins and reset yield accordingly (WORKS ON A LIST)
 ## NB: must be done BEFORE bin width division
 def makeNonNegativeHistos (hList):
     for h in hList:
@@ -262,7 +262,24 @@ def makeNonNegativeHistos (hList):
         if integralNew == 0:
             h.Scale(0)
         else:
-            h.Scale(integral/integralNew) 
+            h.Scale(integral/integralNew)
+
+## remove negative bins and reset yield accordingly (WORKS ON A SINGLE HISTO)
+## NB: must be done BEFORE bin width division
+def makeNonNegativeHisto (h): 
+    integral = h.Integral()
+    for b in range (1, h.GetNbinsX()+1):
+        if (h.GetBinContent(b) < 0):
+           h.SetBinContent (b, 0)
+    integralNew = h.Integral()        
+    #if (integralNew != integral):
+    #    print "** INFO: removed neg bins from histo " , h.GetName() 
+    
+    # print h.GetName() , integral , integralNew
+    if integralNew == 0:
+        h.Scale(0)
+    else:
+        h.Scale(integral/integralNew)
 
 def Xaxis2binNumber (histo):
     Nbins = histo.GetNbinsX()
@@ -274,23 +291,23 @@ def Xaxis2binNumber (histo):
 
     return new_histo
     
-def makeStatSystUncertaintyBand (bkgSum,hBkgs,hBkgNameList,systCfgList,channel,selection,hShapes,hShapesNameList):
+def makeStatSystUncertaintyBand (sumOfBkg,listOfSplitBkgHists,namesOfSplitBkgHists,listOfSystCfg,channel,selection,listOfSplitShapes,listOfShapeNames,binwidth,doOverflow):
     # we read the systematic configs to calculate the lnN systematic uncertainty
     # we read all the shape variated historams to calculate the shape systematic uncertainty
     # as an approximation we jut sum in quadrature all the sources and do not consider any correlation
 
-    nPoints   = bkgSum.GetNbinsX()
+    nPoints   = sumOfBkg.GetNbinsX()
     fX        = []
     fY        = []
     feYUp     = []
     feYDown   = []
     feXRight  = []
     feXLeft   = []
-    syst_df   = pd.DataFrame(0.0,columns=hBkgNameList, index=['lnNup', 'lnNdown'])
+    syst_df   = pd.DataFrame(0.0,columns=namesOfSplitBkgHists, index=['lnNup', 'lnNdown'])
 
     # this for loop calculates the lnN uncertainty from the syst.cfg files
     # NB store the squared % value of the source!!
-    for cfg in systCfgList:
+    for cfg in listOfSystCfg:
         # read the file
         for line in open('config/'+cfg+'.cfg','r'):
             # split lines and skip not useful ones
@@ -322,57 +339,68 @@ def makeStatSystUncertaintyBand (bkgSum,hBkgs,hBkgNameList,systCfgList,channel,s
                     up = abs(round(float(f[2])-1,3))
                     down = abs(round(float(f[2])-1,3))
                 # append correct values to correct place in the dataframe
-                for bkg in hBkgNameList:
+                for bkg in namesOfSplitBkgHists:
                     if f[0] == bkg:
                         syst_df[bkg]['lnNup'] += up**2
                         syst_df[bkg]['lnNdown'] += down**2
 
     # sqrt of all the entries to get the % value
     syst_df = syst_df.transform(lambda x:x**0.5)
-    
+
     # loop on all the bins of the distribution, calculate shape uncertainties and sum all syst and stat
+    kappa = hacca = elle = ixs = 0
     for ibin in range (1, nPoints+1):
         lnNup = lnNdown = 0
         shapeUp = shapeDown = 0
-        central = bkgSum.GetBinContent(ibin)
+        central = sumOfBkg.GetBinContent(ibin)
         if central > 0:
-            for bkg, ibkg in zip(hSystBkgNameList, range(len(hSystBkgList))):
+            for bkg, ibkg in zip(namesOfSplitBkgHists, range(len(listOfSplitBkgHists))):
+                bkgYield = listOfSplitBkgHists[ibkg].GetBinContent(ibin)
                 # calculate the absolute number of events associated to a syst source
-                lnNup += max(0,hSystBkgList[ibkg].GetBinContent(ibin)) * syst_df[bkg]['lnNup']
-                lnNdown += max(0,hSystBkgList[ibkg].GetBinContent(ibin)) * syst_df[bkg]['lnNdown']
+                lnNup += bkgYield * syst_df[bkg]['lnNup']
+                lnNdown += bkgYield * syst_df[bkg]['lnNdown']
 
                 # if we are looking at QCD we skip the shapes because the syst from QCD are only lnN in the systematic_QCD.cfg files
                 if 'QCD' in bkg: continue
                 # loop on all shape syst to get the absolute value of events associated to a shape source
-                for shape in hShapesNameList:
-                    hShape = getHisto(bkg+'_'+shape, hShapes, doOverflow)    
-                    hBkg   = getHisto(bkg, hBkgs, doOverflow)
+                for shapeName in listOfShapeNames:
+                    # get the shape variation and scale it if we are doing binwidth scaling
+                    name = bkg + '_' + shapeName
+                    hShape = getHisto(name, listOfSplitShapes, doOverflow)
+                    makeNonNegativeHisto(hShape)
+                    if binwidth: hShape.Scale(1., "width"); ixs +=1
                     # calculate the difference between the nominal and the variation
-                    diff = hShape.GetBinContent(ibin) - hBkg.GetBinContent(ibin)
+                    diff = hShape.GetBinContent(ibin) - bkgYield
                     # categorize the effect as up or down just looking at the sign of the diference
                     # sum in quadrature all the effects coming from all the bkgs 
-                    if diff > 0: shapeUp += diff**2
-                    if diff <= 0: shapeDown += abs(diff)**2
+                    if diff > 0.: shapeUp += diff**2; kappa +=1
+                    if diff < 0.: shapeDown += diff**2; hacca += 1
+                    if diff == 0.: elle += 1
 
             shapeUp = shapeUp**0.5
             shapeDown = shapeDown**0.5
-            #print(shapeUp, lnNup, '--', shapeDown, lnNdown)
+            #print(shapeUp/central, lnNup/central, '--', shapeDown/central, lnNdown/central)
 
             # we sum in quadrature the lnN syst unc, the shape syst unc, and statistical unc
-            fX.append      (bkgSum.GetBinCenter(ibin))
+            fX.append      (sumOfBkg.GetBinCenter(ibin))
             fY.append      (1.0)
-            feYUp.append   ((lnNup**2 + shapeUp**2 + bkgSum.GetBinErrorUp(ibin)**2)**0.5 / central)
-            feYDown.append ((lnNdown**2 + shapeDown**2 + bkgSum.GetBinErrorLow(ibin)**2)**0.5 / central)
-            feXRight.append(bkgSum.GetBinLowEdge(ibin+1) - bkgSum.GetBinCenter(ibin))
-            feXLeft.append (bkgSum.GetBinCenter(ibin) - bkgSum.GetBinLowEdge(ibin))
+            feYUp.append   ((lnNup**2 + shapeUp**2 + sumOfBkg.GetBinErrorUp(ibin)**2)**0.5 / central)
+            feYDown.append ((lnNdown**2 + shapeDown**2 + sumOfBkg.GetBinErrorLow(ibin)**2)**0.5 / central)
+            feXRight.append(sumOfBkg.GetBinLowEdge(ibin+1) - sumOfBkg.GetBinCenter(ibin))
+            feXLeft.append (sumOfBkg.GetBinCenter(ibin) - sumOfBkg.GetBinLowEdge(ibin))
         else: 
-            fX.append      (bkgSum.GetBinCenter(ibin))
+            fX.append      (sumOfBkg.GetBinCenter(ibin))
             fY.append      (0.)
             feYUp.append   (0.)
             feYDown.append (0.)
             feXRight.append(0.)
             feXLeft.append (0.)
 
+    print('Total number of: shape variations * bins * bkg sources (no QCD)', kappa+hacca+elle)
+    if binwidth: print('Number scalings by binwidth (should coindide with the above)', ixs)
+    print('Number of variations classified as UP', kappa)
+    print('Number of variations classified as DOWN', hacca)
+    print('Number of variations  coinciding with nominal', elle)
 
     afX       = array ("d", fX      )
     afY       = array ("d", fY      )
@@ -589,7 +617,7 @@ if __name__ == "__main__" :
     httH       = getHisto("ttH", hBkgs, doOverflow)
     hTTX       = getHisto("TTX", hBkgs, doOverflow)
     hggH       = getHisto("ggH", hBkgs, doOverflow)
-    hqqH       = getHisto("qqH", hBkgs, doOverflow)
+    hqqH       = getHisto("VBFH", hBkgs, doOverflow)
     hVVV       = getHisto("VVV", hBkgs, doOverflow)
     
     hDYlist = [hDY_LM, hDY_0b_1Pt, hDY_0b_2Pt, hDY_0b_3Pt, hDY_0b_4Pt, hDY_0b_5Pt, hDY_0b_6Pt, hDY_1b_1Pt, hDY_1b_2Pt, hDY_1b_3Pt, hDY_1b_4Pt, hDY_1b_5Pt, hDY_1b_6Pt, hDY_2b_1Pt, hDY_2b_2Pt, hDY_2b_3Pt, hDY_2b_4Pt, hDY_2b_5Pt, hDY_2b_6Pt]
@@ -622,19 +650,20 @@ if __name__ == "__main__" :
         # these two lists are used for the calculation of the syst error band. They must:
         #       1. be in the same order
         #       2. use the same names as those in the mainCfg (for hSystBkgNameList)
-        hSystBkgList = [hDY_LM, hDY_0b_1Pt, hDY_0b_2Pt, hDY_0b_3Pt, hDY_0b_4Pt, hDY_0b_5Pt, hDY_0b_6Pt, hDY_1b_1Pt, hDY_1b_2Pt, hDY_1b_3Pt, hDY_1b_4Pt, hDY_1b_5Pt, hDY_1b_6Pt, hDY_2b_1Pt, hDY_2b_2Pt, hDY_2b_3Pt, hDY_2b_4Pt, hDY_2b_5Pt, hDY_2b_6Pt, hTT, hWJets, hEWK, hsingleT, hTW, hZH, hWH, hVV, httH, hTTX, hggH, hqqH, hVVV, hQCD]
-        hSystBkgNameList = ['DY_LM', 'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt', 'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt', 'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt', 'TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'qqH', 'VVV', 'QCD']
-        hShapesNameList = ['etauFR_barrelUp', 'etauFR_endcapUp', 'PUjetIDSFUp', 'etauFR_barrelDown', 'etauFR_endcapDown', 'PUjetIDSFDown', 'bTagweightReshapeLFUp', 'bTagweightReshapeHFUp', 'bTagweightReshapeHFSTATS1Up', 'bTagweightReshapeHFSTATS2Up', 'bTagweightReshapeLFSTATS1Up', 'bTagweightReshapeLFSTATS2Up', 'bTagweightReshapeCFERR1Up', 'bTagweightReshapeCFERR2Up', 'bTagweightReshapeLFDown', 'bTagweightReshapeHFDown', 'bTagweightReshapeHFSTATS1Down', 'bTagweightReshapeHFSTATS2Down', 'bTagweightReshapeLFSTATS1Down', 'bTagweightReshapeLFSTATS2Down', 'bTagweightReshapeCFERR1Down', 'bTagweightReshapeCFERR2Down']
+        hSystBkgList = [hDY_LM.Clone(), hDY_0b_1Pt.Clone(), hDY_0b_2Pt.Clone(), hDY_0b_3Pt.Clone(), hDY_0b_4Pt.Clone(), hDY_0b_5Pt.Clone(), hDY_0b_6Pt.Clone(), hDY_1b_1Pt.Clone(), hDY_1b_2Pt.Clone(), hDY_1b_3Pt.Clone(), hDY_1b_4Pt.Clone(), hDY_1b_5Pt.Clone(), hDY_1b_6Pt.Clone(), hDY_2b_1Pt.Clone(), hDY_2b_2Pt.Clone(), hDY_2b_3Pt.Clone(), hDY_2b_4Pt.Clone(), hDY_2b_5Pt.Clone(), hDY_2b_6Pt.Clone(), hTT.Clone(), hWJets.Clone(), hEWK.Clone(), hsingleT.Clone(), hTW.Clone(), hZH.Clone(), hWH.Clone(), hVV.Clone(), httH.Clone(), hTTX.Clone(), hggH.Clone(), hqqH.Clone(), hVVV.Clone(), hQCD.Clone()]
+        hSystBkgNameList = ['DY_LM', 'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt', 'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt', 'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt', 'TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'VBFH', 'VVV', 'QCD']
+        hShapesNameList = ['etauFR_barrelUp', 'etauFR_endcapUp', 'PUjetIDSFUp', 'etauFR_barrelDown', 'etauFR_endcapDown', 'PUjetIDSFDown']#, 'bTagweightReshapeLFUp', 'bTagweightReshapeHFUp', 'bTagweightReshapeHFSTATS1Up', 'bTagweightReshapeHFSTATS2Up', 'bTagweightReshapeLFSTATS1Up', 'bTagweightReshapeLFSTATS2Up', 'bTagweightReshapeCFERR1Up', 'bTagweightReshapeCFERR2Up', 'bTagweightReshapeLFDown', 'bTagweightReshapeHFDown', 'bTagweightReshapeHFSTATS1Down', 'bTagweightReshapeHFSTATS2Down', 'bTagweightReshapeLFSTATS1Down', 'bTagweightReshapeLFSTATS2Down', 'bTagweightReshapeCFERR1Down', 'bTagweightReshapeCFERR2Down']
         # the ETau, MuTau, and TauTau channels have some different shapes -> we add them here separately
         if args.channel == 'ETau':
-            if args.year == 2016: addShapes = ['trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down' 'tauid_pt40toInfDown']
+            if args.year == '2016': addShapes = ['trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up' 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down', 'tauid_pt40toInfDown']
             else: addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFeleUp', 'trigSFeleDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up', 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down', 'tauid_pt40toInfDown']
             for sh in addShapes: hShapesNameList.append(sh)
         elif args.channel == 'MuTau':
             addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFmuUp', 'trigSFmuDown', 'tauid_pt20to25Up', 'tauid_pt25to30Up', 'tauid_pt30to35Up', 'tauid_pt35to40Up', 'tauid_pt40toInfUp', 'tauid_pt20to25Down', 'tauid_pt25to30Down', 'tauid_pt30to35Down', 'tauid_pt35to40Down', 'tauid_pt40toInfDown']
             for sh in addShapes: hShapesNameList.append(sh)
         else:
-            addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFJetUp', 'trigSFJetDown', 'tauid_pt40toInfUp', 'tauid_pt40toInfDown']
+            if args.year == '2016': addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'tauid_pt40toInfUp', 'tauid_pt40toInfDown']
+            else: addShapes = ['trigSFDM0Up', 'trigSFDM1Up', 'trigSFDM10Up', 'trigSFDM11Up', 'trigSFDM0Down', 'trigSFDM1Down', 'trigSFDM10Down', 'trigSFDM11Down', 'trigSFJetUp', 'trigSFJetDown', 'tauid_pt40toInfUp', 'tauid_pt40toInfDown']
             for sh in addShapes: hShapesNameList.append(sh)
         # we keep the JES, TES, MES, and EES separate from the others so we can also plot all the syst but them
         if not args.removeESsystBand:
@@ -643,9 +672,7 @@ if __name__ == "__main__" :
             for sh in addES: hShapesNameList.append(sh)
 
         hShapes = retrieveShapes(rootFile, bkgList, args.var, args.sel, args.reg, hShapesNameList)
-        hShapesList = []
-        for name in hShapes:
-            hShapesList.append(getHisto(name, hShapes, doOverflow))
+
 
     #################### PERFORM BIN-NUMBER X-AXIS TRANSFORMATION #######################
     if args.binNXaxis:
@@ -711,18 +738,30 @@ if __name__ == "__main__" :
     #################### REMOVE NEGARIVE BINS #######################
     print "** INFO: removing all negative bins from bkg histos"
     makeNonNegativeHistos (hBkgList)
-    if args.doStatSystBand: 
-        makeNonNegativeHistos (hSystBkgList)
-        makeNonNegativeHistos (hShapesList)
+    if args.doStatSystBand: makeNonNegativeHistos (hSystBkgList)
 
     for h in hBkgList: print "Integral ", h.GetName(), " : ", h.Integral(), " - ", h.Integral(-1,-1)
     for n in hDatas: print "Integral ", hDatas[n].GetName(), " : ", hDatas[n].Integral(), " - ", hDatas[n].Integral(-1,-1)
     for i, name in enumerate (sigNameList): print "Integral ", hSigs[sigList[i]].GetName(), " : ", hSigs[sigList[i]].Integral(), " - ", hSigs[sigList[i]].Integral(-1,-1)
     
+    # Store yields in a txt file for reference
+    with open('./LegacyPlots/Legacy' + args.year + '/' + args.channel + '/' + args.sel+'/yields_'+args.var+'_'+args.sel+'_'+args.reg+'.txt','w') as yields_file:
+        yields_file.write('=== Legacy' + args.year + '/' + args.channel + '/' + args.sel+'/'+args.reg+'/'+args.var+' ===\n')
+        for h in hBkgList: yields_file.write("Integral: "+h.GetName()+" : "+str(h.Integral())+" - "+str(h.Integral(-1,-1))+"\n")
+        for n in hDatas  : yields_file.write("Integral: "+hDatas[n].GetName()+" : "+str(hDatas[n].Integral())+" - "+str(hDatas[n].Integral(-1,-1))+"\n")
+        for i, name in enumerate (sigNameList): yields_file.write("Integral: "+hSigs[sigList[i]].GetName()+" : "+str(hSigs[sigList[i]].Integral())+" - "+str(hSigs[sigList[i]].Integral(-1,-1))+"\n")
+    yields_file.close()
+
 
     #################### PERFORM DIVISION BY BIN WIDTH AND DO NECESSARY STACKS #######################
     bkgStackNS = makeStack ("bkgStackNS", hBkgList)
     hBkgEnvelopeNS = bkgStackNS.GetStack().Last().Clone("hBkgEnvelopeNS")
+    bkgSumNS = makeSum ("bkgSumNS", hBkgList)
+    if args.doStatSystBand:
+        # to create the non-scaled lists we need to clone the histos otherwise they will still point to the same objects and all get scaled
+        hSystBkgListNS = []
+        for h in hSystBkgList:
+            hSystBkgListNS.append(h.Clone())
 
     if args.binwidth:
         scaleGraphByBinWidth(gData)
@@ -731,6 +770,9 @@ if __name__ == "__main__" :
         for i, name in enumerate (sigNameList):
             histo = hSigs[sigList[i]]
             histo.Scale(1., "width")
+        if args.doStatSystBand:
+            for h in hSystBkgList:
+                h.Scale(1., "width")
 
     bkgStack = makeStack ("bkgStack", hBkgList)
     bkgSum = makeSum ("bkgSum", hBkgList)
@@ -738,7 +780,6 @@ if __name__ == "__main__" :
 
     ################## TITLE AND AESTETICS ############################
     bkgStack.Draw("HIST")
-
     bkgStack.GetXaxis().SetTitleFont(43)
     bkgStack.GetYaxis().SetTitleFont(43)
     bkgStack.GetXaxis().SetLabelFont(43)
@@ -812,7 +853,7 @@ if __name__ == "__main__" :
     ymax = max(maxs)
 
     # scale max to leave some space (~10%)
-    extraspace = 0.3
+    extraspace = 0.5
 
     if not args.log:
         ymax += extraspace* (ymax-ymin)
@@ -851,18 +892,25 @@ if __name__ == "__main__" :
         if "VBFloose" in args.sel:
                 sel_qcd = "VBFloose" # this does not exist in the systematics_QCD.cfg file --> it is just a dummy to avoid the breaking of makeStatSystUncertaintyBand()
 
-        grUncert = makeStatSystUncertaintyBand(bkgSum, hBkgs, hSystBkgNameList, systCfgs, args.channel, sel_qcd, hShapes, hShapesNameList) 
+        print("-----------------------------------------------------------------------")
+        print("Stack plot stat+syst band calculation info")
+        grUncertStack = makeStatSystUncertaintyBand(bkgSum, hSystBkgList, hSystBkgNameList, systCfgs, args.channel, sel_qcd, hShapes, hShapesNameList, args.binwidth, doOverflow)
+        print("-----------------------------------------------------------------------")
+        print("Ratio plot stat+syst band calculation info")
+        grUncertRatio = makeStatSystUncertaintyBand(bkgSumNS, hSystBkgListNS, hSystBkgNameList, systCfgs, args.channel, sel_qcd, hShapes, hShapesNameList, False, doOverflow)         
+        print("-----------------------------------------------------------------------")
     else: 
-        grUncert = makeStatUncertaintyBand(bkgSum)
+        grUncertStack = makeStatUncertaintyBand(bkgSum)
+        grUncertRatio = makeStatUncertaintyBand(bkgSumNS)
 
     # interactive display
     bkgStack.Draw("HIST")
-    grUncertStack = scaleStatSystUncertaintyBandForStack(grUncert, bkgSum)
+    grUncertStack = scaleStatSystUncertaintyBandForStack(grUncertStack, bkgSum)
     grUncertStack.SetFillColor(kGray+2)
     grUncertStack.SetFillStyle(3002)
     grUncertStack.Draw("e2")
-    if args.doStatSystBand: leg.AddEntry(grUncertStack, "Stat+Syst uncertainty", 'f')
-    else: leg.AddEntry(grUncertStack, "Statistical uncertainty", 'f')
+    if args.doStatSystBand: leg.AddEntry(grUncertStack, "Stat+Syst unc.", 'f')
+    else: leg.AddEntry(grUncertStack, "Statistical unc.", 'f')
     if args.dosig:
         for key in hSigs: hSigs[key].Draw("hist same")
     if args.dodata:
@@ -898,8 +946,8 @@ if __name__ == "__main__" :
     x = 0
     y = 0
 
-    if args.year == 2016: lumi = "35.9 fb^{-1} (13 TeV)"
-    elif args.year == 2017: lumi = "41.5 fb^{-1} (13 TeV)"
+    if args.year == '2016': lumi = "35.9 fb^{-1} (13 TeV)"
+    elif args.year == '2017': lumi = "41.5 fb^{-1} (13 TeV)"
     else: lumi = "59.7 fb^{-1} (13 TeV)"
     lumibox = TLatex  (1-r, 1 - t + 0.02 , lumi)       
     lumibox.SetNDC()
@@ -1040,9 +1088,9 @@ if __name__ == "__main__" :
         l1.SetLineWidth(1)
         l1.Draw("same")
 
-        grUncert.SetFillColor(kGray+2)
-        grUncert.SetFillStyle(3002)
-        grUncert.Draw("e2")
+        grUncertRatio.SetFillColor(kGray+2)
+        grUncertRatio.SetFillStyle(3002)
+        grUncertRatio.Draw("e2")
 
         pad2.RedrawAxis();
         pad2.RedrawAxis("g"); #otherwise no grid..
