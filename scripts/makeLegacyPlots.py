@@ -326,9 +326,16 @@ def makeStatSystUncertaintyBand (sumOfBkg,listOfSplitBkgHists,namesOfSplitBkgHis
                     if ch != channel: gate = False; continue # skip when channel is not matching
                     if sel != selection: gate = False; continue # skip when selection is not matching
                 if f[0].startswith('unc') and gate:
+                    # if there is a / the up and down are different, else they are the same
+                    if '/' in f[2].split(':')[1]:
+                        up = abs(round(float((f[2].split(':')[1]).split('/')[1])-1,3))
+                        down = abs(round(float((f[2].split(':')[1]).split('/')[0])-1,3))
+                    else:
+                        up = abs(round(float(f[2].split(':')[1])-1,3))
+                        down = abs(round(float(f[2].split(':')[1])-1,3))
                     # append values to the QCD column
-                    syst_df['QCD']['lnNup'] += abs(round(float(f[2].split(':')[1])-1,3))**2
-                    syst_df['QCD']['lnNdown'] += abs(round(float(f[2].split(':')[1])-1,3))**2
+                    syst_df['QCD']['lnNup'] += up**2
+                    syst_df['QCD']['lnNdown'] += down**2
             else:
                 if f[0].startswith('['): continue # skip sections headers
                 # if there is a / the up and down are different, else they are the same
