@@ -2060,6 +2060,34 @@ int main (int argc, char** argv)
       // ----------------------------------------------------------
       // pair selection is now complete, compute oher quantitites
 
+      // First create a map to associate <jetIdx, smearFactor> that will be
+      // used to smear the jets always in the same way in the event.
+      // Since the smearing is by definition a random process the smearing factors of
+      // the jets must be computed only one time per event.
+      std::map<int,double> jets_and_smearFactor;
+      for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
+      {
+        // Build jet tlv
+        TLorentzVector tlv_jet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet)) ;
+
+        // Get the smearFactor
+        double smearFactor = Smearer.getSmearFactor(tlv_jet, theBigTree);
+
+        // Store the smearFacotr in the map
+        if (doSmearing)
+          jets_and_smearFactor[iJet] = smearFactor;
+        else
+          jets_and_smearFactor[iJet] = 1.;
+      }
+
+      if (DEBUG)
+      {
+        std::cout << "---------- SmearMap DEBUG ----------" << std::endl;
+        for (auto el : jets_and_smearFactor) std::cout << "Element: " << el.first << "  " << el.second << std::endl;
+        std::cout << "------------------------------------" << std::endl;
+      }
+
+      // Compute quantities
       TLorentzVector tlv_tauH = tlv_firstLepton + tlv_secondLepton ;
       TLorentzVector tlv_tauH_SVFIT ;
 
@@ -2074,7 +2102,7 @@ int main (int argc, char** argv)
         // Smear MET
         float METx = theBigTree.METx->at(chosenTauPair);
         float METy = theBigTree.METy->at(chosenTauPair);
-        TVector2 metSmeared = getShiftedMET_smear(METx, METy, theBigTree, Smearer);
+        TVector2 metSmeared = getShiftedMET_smear(METx, METy, theBigTree, jets_and_smearFactor);
         vMET = metSmeared;
         tlv_MET.SetPxPyPzE(metSmeared.Px(), metSmeared.Py(), 0, std::hypot(metSmeared.Px(), metSmeared.Py()));
 
@@ -3565,7 +3593,7 @@ int main (int argc, char** argv)
         if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
         TLorentzVector tlv_jet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet)) ;
-        if (doSmearing) tlv_jet = Smearer.getSmearedJetFromIdx(iJet, theBigTree);
+        if (doSmearing) tlv_jet = tlv_jet * jets_and_smearFactor[iJet];
 
         if (DEBUG)
         {
@@ -3625,7 +3653,7 @@ int main (int argc, char** argv)
       {
         if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
         TLorentzVector tlv_jet(theBigTree.jets_px->at (iJet), theBigTree.jets_py->at (iJet), theBigTree.jets_pz->at (iJet), theBigTree.jets_e->at (iJet));
-        if (doSmearing) tlv_jet = Smearer.getSmearedJetFromIdx(iJet, theBigTree);
+        if (doSmearing) tlv_jet = tlv_jet * jets_and_smearFactor[iJet];
         if (tlv_jet.Pt() > 15.) theSmallTree.m_PUjetID.push_back(theBigTree.jets_PUJetIDupdated->at(iJet));
       }
 
@@ -3645,23 +3673,23 @@ int main (int argc, char** argv)
         for (auto pair : jets_and_sortPar) jets_and_BTag.push_back (make_pair(pair.second, pair.first)); // just for compatibility...
 
         // NB !!! the following function only works if jets_and_sortPar contains <CVSscore, idx>
-        vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree, Smearer, pType, bTagSF::central) ;
+        vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree, jets_and_smearFactor, pType, bTagSF::central) ;
         theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
         theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
         theSmallTree.m_bTagweightT = (isMC ? bTagWeight.at(2) : 1.0) ;
         theSmallTree.m_bTagweightReshape = (isMC ? bTagWeight.at(3) : 1.0) ;
 
-        vector<float> bTagWeight_up = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree, Smearer, pType, bTagSF::up) ;
+        vector<float> bTagWeight_up = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree, jets_and_smearFactor, pType, bTagSF::up) ;
         theSmallTree.m_bTagweightL_up = (isMC ? bTagWeight_up.at(0) : 1.0) ;
         theSmallTree.m_bTagweightM_up = (isMC ? bTagWeight_up.at(1) : 1.0) ;
         theSmallTree.m_bTagweightT_up = (isMC ? bTagWeight_up.at(2) : 1.0) ;
 
-        vector<float> bTagWeight_down = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree, Smearer, pType, bTagSF::down) ;
+        vector<float> bTagWeight_down = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree, jets_and_smearFactor, pType, bTagSF::down) ;
         theSmallTree.m_bTagweightL_down = (isMC ? bTagWeight_down.at(0) : 1.0) ;
         theSmallTree.m_bTagweightM_down = (isMC ? bTagWeight_down.at(1) : 1.0) ;
         theSmallTree.m_bTagweightT_down = (isMC ? bTagWeight_down.at(2) : 1.0) ;
 
-        vector<float> bTagWeightReshapeshifts = bTagSFHelper.getEvtWeightShifted (jets_and_BTag, theBigTree, Smearer) ;
+        vector<float> bTagWeightReshapeshifts = bTagSFHelper.getEvtWeightShifted (jets_and_BTag, theBigTree, jets_and_smearFactor) ;
         theSmallTree.m_bTagweightReshape_jes_up        = (isMC ? bTagWeightReshapeshifts.at(0) : 1.0) ;
         theSmallTree.m_bTagweightReshape_lf_up         = (isMC ? bTagWeightReshapeshifts.at(1) : 1.0) ;
         theSmallTree.m_bTagweightReshape_hf_up         = (isMC ? bTagWeightReshapeshifts.at(2) : 1.0) ;
@@ -3705,7 +3733,7 @@ int main (int argc, char** argv)
 
         // Set HHbtaginterface for ordering jets
         HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,
-          tlv_firstLepton, tlv_secondLepton, tlv_tauH, tlv_MET, theSmallTree.m_EventNumber, Smearer);
+          tlv_firstLepton, tlv_secondLepton, tlv_tauH, tlv_MET, theSmallTree.m_EventNumber, jets_and_smearFactor);
 
         // Get HHbtag scores in a map <jet_idx, HHbtag_score>
         std::map<int,float> jets_and_HHbtag = HHbtagTagger.GetScore();
@@ -3765,7 +3793,7 @@ int main (int argc, char** argv)
 
             TLorentzVector ijet;
             ijet.SetPxPyPzE(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e ->at(iJet));
-            if (doSmearing) ijet = Smearer.getSmearedJetFromIdx(iJet, theBigTree);
+            if (doSmearing) ijet = ijet * jets_and_smearFactor[iJet];
 
             if (ijet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
             if (ijet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
@@ -3794,7 +3822,7 @@ int main (int argc, char** argv)
 
               TLorentzVector kjet;
               kjet.SetPxPyPzE(theBigTree.jets_px->at(kJet), theBigTree.jets_py->at(kJet), theBigTree.jets_pz->at(kJet), theBigTree.jets_e ->at(kJet));
-              if (doSmearing) kjet = Smearer.getSmearedJetFromIdx(kJet, theBigTree);
+              if (doSmearing) kjet = kjet * jets_and_smearFactor[kJet];
 
               if (kjet.DeltaR (tlv_firstLepton) < lepCleaningCone) continue ;
               if (kjet.DeltaR (tlv_secondLepton) < lepCleaningCone) continue ;
@@ -3856,9 +3884,9 @@ int main (int argc, char** argv)
 
         // Now that I've selected the bjets build the TLorentzVectors
         TLorentzVector tlv_firstBjet (theBigTree.jets_px->at(bjet1idx), theBigTree.jets_py->at(bjet1idx), theBigTree.jets_pz->at(bjet1idx), theBigTree.jets_e->at(bjet1idx));
-        if (doSmearing) tlv_firstBjet = Smearer.getSmearedJet(tlv_firstBjet, theBigTree);
+        if (doSmearing) tlv_firstBjet = tlv_firstBjet * jets_and_smearFactor[bjet1idx];
         TLorentzVector tlv_secondBjet(theBigTree.jets_px->at(bjet2idx), theBigTree.jets_py->at(bjet2idx), theBigTree.jets_pz->at(bjet2idx), theBigTree.jets_e->at(bjet2idx));
-        if (doSmearing) tlv_secondBjet = Smearer.getSmearedJet(tlv_secondBjet, theBigTree);
+        if (doSmearing) tlv_secondBjet = tlv_secondBjet * jets_and_smearFactor[bjet2idx];
 
         if (DEBUG)
         {
@@ -4173,7 +4201,7 @@ int main (int argc, char** argv)
 
           // Build the jet TLorentzVector
           TLorentzVector tlv_jet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet)) ;
-          if (doSmearing) tlv_jet = Smearer.getSmearedJet(tlv_jet, theBigTree);
+          if (doSmearing) tlv_jet = tlv_jet * jets_and_smearFactor[iJet];
 
           // Pt cut for jets
           if (tlv_jet.Pt () < 20.) continue ;
@@ -4242,7 +4270,7 @@ int main (int argc, char** argv)
         float METy = theBigTree.METy->at (chosenTauPair) ;
         if (doSmearing)
         {
-          TVector2 metSmeared = getShiftedMET_smear(METx, METy, theBigTree, Smearer);
+          TVector2 metSmeared = getShiftedMET_smear(METx, METy, theBigTree, jets_and_smearFactor);
           METx = metSmeared.Px();
           METy = metSmeared.Py();
         }
@@ -4606,8 +4634,8 @@ int main (int argc, char** argv)
 
           if (doSmearing)
           {
-            VBFjet1 = Smearer.getSmearedJet(VBFjet1, theBigTree);
-            VBFjet2 = Smearer.getSmearedJet(VBFjet2, theBigTree);
+            VBFjet1 = VBFjet1 * jets_and_smearFactor[VBFidx1];
+            VBFjet2 = VBFjet2 * jets_and_smearFactor[VBFidx2];
           }
 
           // Total JES up/down variation
@@ -4907,7 +4935,7 @@ int main (int argc, char** argv)
             continue ;
           }
           TLorentzVector tlv_dummyJet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
-          if (doSmearing) tlv_dummyJet = Smearer.getSmearedJet(tlv_dummyJet, theBigTree);
+          if (doSmearing) tlv_dummyJet = tlv_dummyJet * jets_and_smearFactor[iJet];
 
           // Apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets )
           // PU jet ID WP = 2: loose
@@ -4998,7 +5026,7 @@ int main (int argc, char** argv)
       // PUjetIDSFprovider
       if (isMC)
       {
-        std::vector<float> PUjetID_SF_values = PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton, Smearer, true);
+        std::vector<float> PUjetID_SF_values = PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton, jets_and_smearFactor, true);
         theSmallTree.m_PUjetID_SF      = PUjetID_SF_values.at(0);
         theSmallTree.m_PUjetID_SF_up   = PUjetID_SF_values.at(1);
         theSmallTree.m_PUjetID_SF_down = PUjetID_SF_values.at(2);
@@ -5018,6 +5046,16 @@ int main (int argc, char** argv)
       //semiLep: 472545790
       //fullyLep: 71203848 
       
+      // --------------------------------------------
+      // Save smear factors in smallTree
+      if (doSmearing)
+      {
+        theSmallTree.m_bjet1_smearFactor   = jets_and_smearFactor[bjet1idx];
+        theSmallTree.m_bjet2_smearFactor   = jets_and_smearFactor[bjet2idx];
+        theSmallTree.m_VBFjet1_smearFactor = jets_and_smearFactor[VBFidx1];
+        theSmallTree.m_VBFjet2_smearFactor = jets_and_smearFactor[VBFidx2];
+      }
+
       // --------------------------------------------
       // Save HHbtag values in smallTree
       // b-jet 1
@@ -5125,7 +5163,7 @@ int main (int argc, char** argv)
 
         // build the tlv
         TLorentzVector tlv_additionalJet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
-        if (doSmearing) tlv_additionalJet = Smearer.getSmearedJet(tlv_additionalJet, theBigTree);
+        if (doSmearing) tlv_additionalJet = tlv_additionalJet * jets_and_smearFactor[iJet];
 
         // Kinematic selections + lepton cleaning
         if (tlv_additionalJet.Pt() < 20.) continue ;
@@ -5160,6 +5198,7 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetCentr1_CvsL            = getCvsL(theBigTree, iJet);
             theSmallTree.m_addJetCentr1_CvsB            = getCvsB(theBigTree, iJet);
             if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr1_HHbtag = jets_and_HHbtag[iJet];
+            theSmallTree.m_addJetCentr1_smearFactor = jets_and_smearFactor[iJet];
             for (int isource = 0; isource < N_jecSources; isource++)
             {
               theSmallTree.m_addJetCentr1_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5182,6 +5221,7 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetCentr2_CvsL            = getCvsL(theBigTree, iJet);
             theSmallTree.m_addJetCentr2_CvsB            = getCvsB(theBigTree, iJet);
             if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr2_HHbtag = jets_and_HHbtag[iJet];
+            theSmallTree.m_addJetCentr2_smearFactor = jets_and_smearFactor[iJet];
             for (int isource = 0; isource < N_jecSources; isource++)
             {
               theSmallTree.m_addJetCentr2_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5204,6 +5244,7 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetCentr3_CvsL            = getCvsL(theBigTree, iJet);
             theSmallTree.m_addJetCentr3_CvsB            = getCvsB(theBigTree, iJet);
             if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr3_HHbtag = jets_and_HHbtag[iJet];
+            theSmallTree.m_addJetCentr3_smearFactor = jets_and_smearFactor[iJet];
             for (int isource = 0; isource < N_jecSources; isource++)
             {
               theSmallTree.m_addJetCentr3_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5226,6 +5267,7 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetCentr4_CvsL            = getCvsL(theBigTree, iJet);
             theSmallTree.m_addJetCentr4_CvsB            = getCvsB(theBigTree, iJet);
             if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr4_HHbtag = jets_and_HHbtag[iJet];
+            theSmallTree.m_addJetCentr4_smearFactor = jets_and_smearFactor[iJet];
             for (int isource = 0; isource < N_jecSources; isource++)
             {
               theSmallTree.m_addJetCentr4_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5248,6 +5290,7 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetCentr5_CvsL            = getCvsL(theBigTree, iJet);
             theSmallTree.m_addJetCentr5_CvsB            = getCvsB(theBigTree, iJet);
             if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr5_HHbtag = jets_and_HHbtag[iJet];
+            theSmallTree.m_addJetCentr5_smearFactor = jets_and_smearFactor[iJet];
             for (int isource = 0; isource < N_jecSources; isource++)
             {
               theSmallTree.m_addJetCentr5_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5271,6 +5314,7 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetForw1_eta = tlv_additionalJet.Eta();
             theSmallTree.m_addJetForw1_phi = tlv_additionalJet.Phi();
             theSmallTree.m_addJetForw1_e   = tlv_additionalJet.E();
+            theSmallTree.m_addJetForw1_smearFactor = jets_and_smearFactor[iJet];
             for (int isource = 0; isource < N_jecSources; isource++)
             {
               theSmallTree.m_addJetForw1_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5289,6 +5333,7 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetForw2_eta = tlv_additionalJet.Eta();
             theSmallTree.m_addJetForw2_phi = tlv_additionalJet.Phi();
             theSmallTree.m_addJetForw2_e   = tlv_additionalJet.E();
+            theSmallTree.m_addJetForw2_smearFactor = jets_and_smearFactor[iJet];
             for (int isource = 0; isource < N_jecSources; isource++)
             {
               theSmallTree.m_addJetForw2_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5307,6 +5352,7 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetForw3_eta = tlv_additionalJet.Eta();
             theSmallTree.m_addJetForw3_phi = tlv_additionalJet.Phi();
             theSmallTree.m_addJetForw3_e   = tlv_additionalJet.E();
+            theSmallTree.m_addJetForw3_smearFactor = jets_and_smearFactor[iJet];
             for (int isource = 0; isource < N_jecSources; isource++)
             {
               theSmallTree.m_addJetForw3_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5325,6 +5371,7 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetForw4_eta = tlv_additionalJet.Eta();
             theSmallTree.m_addJetForw4_phi = tlv_additionalJet.Phi();
             theSmallTree.m_addJetForw4_e   = tlv_additionalJet.E();
+            theSmallTree.m_addJetForw4_smearFactor = jets_and_smearFactor[iJet];
             for (int isource = 0; isource < N_jecSources; isource++)
             {
               theSmallTree.m_addJetForw4_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5343,6 +5390,7 @@ int main (int argc, char** argv)
             theSmallTree.m_addJetForw5_eta = tlv_additionalJet.Eta();
             theSmallTree.m_addJetForw5_phi = tlv_additionalJet.Phi();
             theSmallTree.m_addJetForw5_e   = tlv_additionalJet.E();
+            theSmallTree.m_addJetForw5_smearFactor = jets_and_smearFactor[iJet];
             for (int isource = 0; isource < N_jecSources; isource++)
             {
               theSmallTree.m_addJetForw5_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5385,7 +5433,7 @@ int main (int argc, char** argv)
         if (int (iJet) == bjet2idx) continue ;
 
         TLorentzVector tlv_dummyJet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
-        if (doSmearing) tlv_dummyJet = Smearer.getSmearedJet(tlv_dummyJet, theBigTree);
+        if (doSmearing) tlv_dummyJet = tlv_dummyJet * jets_and_smearFactor[iJet];
 
         // Apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets )
         // PU jet ID WP = 2: loose
@@ -5412,9 +5460,10 @@ int main (int argc, char** argv)
           {
             std::cout << "**WARNING: HHbtag score not found for jet " << iJet << " , setting to -1 !!" << endl;
           }
-	    
           theSmallTree.m_jets_HHbtag.push_back(-1.);
         }
+
+        theSmallTree.m_jets_smearFactor.push_back(jets_and_smearFactor[iJet]);
       }	
 
       if (DEBUG)

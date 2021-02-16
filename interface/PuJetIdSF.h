@@ -25,7 +25,6 @@
 
 // KLUB libraries
 #include "bigTree.h"
-#include "SmearedJetProducer.h"
 
 // ROOT libraries
 #include "TLorentzVector.h"
@@ -45,7 +44,7 @@ class PuJetIdSF {
     float getSF     (bool isReal, float pt, float eta);
     float getSFError(bool isReal, float pt, float eta);
 
-    std::vector<float> getEvtWeight (bigTree &theBigTree, TLorentzVector tau1, TLorentzVector tau2, SmearedJetProducer &smearer, bool cleanJets=false);
+    std::vector<float> getEvtWeight (bigTree &theBigTree, TLorentzVector tau1, TLorentzVector tau2, std::map<int,double> jets_and_smearFactor, bool cleanJets=false);
 
   private:
     TH2F* h_eff_;

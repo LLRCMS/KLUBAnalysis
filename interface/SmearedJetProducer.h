@@ -69,7 +69,7 @@ class SmearedJetProducer {
     double dPt_max_factor_;
     bool enabled_;
     Variation systematic_variation_;
-    std::mt19937 random_generator_;
+    std::mt19937_64 random_generator_;
     static constexpr const double MIN_JET_ENERGY = 1e-2;
 };
 

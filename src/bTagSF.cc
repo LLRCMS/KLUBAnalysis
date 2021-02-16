@@ -230,7 +230,7 @@ float bTagSF::getEff (WP wpt, int jetFlavor, int channel, float pt, float eta)
 
 // the collection jets_and_btag in input contain all the final list of jets, already cleaned from PU and leptons
 // returns a collection of weights according to the tested WP
-vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_and_btag, bigTree &theBigTree, SmearedJetProducer &smearer, int channel, SFsyst systWP)
+vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_and_btag, bigTree &theBigTree, std::map<int,double> jets_and_smearFactor, int channel, SFsyst systWP)
 {
 
     vector<double> P_MC   (3, 1.0); // 0 = L, 1 = M, 2 = T
@@ -245,7 +245,8 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
 
         int idx = jets_and_btag.at(ijet).first;
         float discr = jets_and_btag.at(ijet).second;
-        vJet = smearer.getSmearedJetFromIdx(idx, theBigTree);
+        vJet.SetPxPyPzE (theBigTree.jets_px->at(idx), theBigTree.jets_py->at(idx), theBigTree.jets_pz->at(idx), theBigTree.jets_e->at(idx));
+        vJet = vJet * jets_and_smearFactor[idx];
         
         int flav = theBigTree.jets_HadronFlavour->at(idx);
         double SF[3];
@@ -324,7 +325,7 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
 //             "down_jes", "down_lf", "down_hf", "down_hfstats1", "down_hfstats2", "down_lfstats1",
 //             "down_lfstats2", "down_cferr1", "down_cferr2"
 //           }
-std::vector<float> bTagSF::getEvtWeightShifted (std::vector <std::pair <int, float> >& jets_and_btag, bigTree &theBigTree, SmearedJetProducer &smearer)
+std::vector<float> bTagSF::getEvtWeightShifted (std::vector <std::pair <int, float> >& jets_and_btag, bigTree &theBigTree, std::map<int,double> jets_and_smearFactor)
 {
     // Systematics names
     std::vector<std::string> systNames = {
@@ -349,7 +350,8 @@ std::vector<float> bTagSF::getEvtWeightShifted (std::vector <std::pair <int, flo
         // Build jet quantities
         int idx = jets_and_btag.at(ijet).first;
         float discr = jets_and_btag.at(ijet).second;
-        vJet = smearer.getSmearedJetFromIdx(idx, theBigTree);
+        vJet.SetPxPyPzE(theBigTree.jets_px->at(idx), theBigTree.jets_py->at(idx), theBigTree.jets_pz->at(idx), theBigTree.jets_e->at(idx));
+        vJet = vJet * jets_and_smearFactor[idx];
         int flav = theBigTree.jets_HadronFlavour->at(idx);
 
         // Loop on systematics
