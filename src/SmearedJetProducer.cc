@@ -43,9 +43,6 @@ SmearedJetProducer::SmearedJetProducer (std::string year, bool doSmearing, int v
   // Initialize genMatching thresholds
   dR_max_ = 0.2;
   dPt_max_factor_ = 3.;
-
-  // Initialize random generator with same seed as in the twiki
-  random_generator_ = std::mt19937(37428479);
 }
 
 // Destructor
@@ -143,6 +140,11 @@ double SmearedJetProducer::getSmearFactor(TLorentzVector jet, bigTree & theBigTr
       std::cout << " gaussian width: " << sigma << std::endl;
     }
     std::normal_distribution<> d(0, sigma);
+
+    // Initialize random generator with seed dependent on the jet for future reproducibility and sync
+    size_t seed = theBigTree.EventNumber + size_t(jet.Pt() * 100) + size_t(std::abs(jet.Eta()) * 100) * 100 + size_t(std::abs(jet.Phi()) * 100) * 10000;
+    random_generator_ = std::mt19937_64(seed);
+
     smearFactor = 1. + d(random_generator_);
   }
   else if (DEBUG)
