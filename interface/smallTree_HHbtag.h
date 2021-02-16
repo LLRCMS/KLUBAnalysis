@@ -267,8 +267,7 @@ struct smallTree
       m_dau1_dxy  = -1. ;
       m_dau1_dz  = -1. ;
       m_dau1_decayMode  = -1 ;
-      
-      
+
       m_genmatched1_pt  = -1.;
       m_genmatched1_eta = -1.;
       m_genmatched1_phi = -1.;
@@ -326,7 +325,6 @@ struct smallTree
       m_dau2_pt_eledown_DM0  = -1. ;
       m_dau2_pt_eledown_DM1  = -1. ;
 
-
       m_dau2_eta  = -1. ;
       m_dau2_phi  = -1. ;
       m_dau2_e  = -1. ;
@@ -346,6 +344,7 @@ struct smallTree
       m_bjet1_CvsL = -1.;
       m_bjet1_CvsB = -1.;
       m_bjet1_HHbtag = -1.;
+      m_bjet1_smearFactor = -1.;
       m_bjet1_bMVAID = -1. ;
       m_bjet1_PUjetIDupdated = -99. ;
       m_bjet1_flav = -1 ;
@@ -375,6 +374,7 @@ struct smallTree
       m_bjet2_CvsL = -1.;
       m_bjet2_CvsB = -1.;
       m_bjet2_HHbtag = -1.;
+      m_bjet2_smearFactor = -1.;
       m_bjet2_bMVAID = -1. ;
       m_bjet2_PUjetIDupdated = -99. ;
       m_bjet2_flav = -1 ;
@@ -431,7 +431,6 @@ struct smallTree
       m_subjetjet2_bID = -1. ;
       m_subjetjet2_bID_deepCSV = -1. ;
       m_subjetjet2_bID_deepFlavor = -1. ;
-
 
       m_genjet1_pt  = -1. ;
       m_genjet1_eta  = -1. ;
@@ -537,6 +536,7 @@ struct smallTree
       m_jets_CvsL.clear () ;
       m_jets_CvsB.clear () ;
       m_jets_HHbtag.clear () ;
+      m_jets_smearFactor.clear () ;
       m_jets_flav.clear () ;
       m_jets_isH.clear () ;
       m_jets_hasgenjet.clear () ;
@@ -710,6 +710,7 @@ struct smallTree
       m_VBFjet1_CvsL = -999. ;
       m_VBFjet1_CvsB = -999. ;
       m_VBFjet1_HHbtag = -999.;
+      m_VBFjet1_smearFactor = -999.;
       m_VBFjet1_PUjetIDupdated= -99. ;
       m_VBFjet1_flav= 0 ;
       m_VBFjet1_hasgenjet= false ;
@@ -758,6 +759,7 @@ struct smallTree
       m_VBFjet2_CvsL = -999.;
       m_VBFjet2_CvsB = -999.;
       m_VBFjet2_HHbtag = -999.;
+      m_VBFjet2_smearFactor = -999.;
       m_VBFjet2_PUjetIDupdated= -99. ;
       m_VBFjet2_flav= 0 ;
       m_VBFjet2_hasgenjet= false ;
@@ -852,6 +854,11 @@ struct smallTree
       m_addJetCentr3_HHbtag          = -999.;
       m_addJetCentr4_HHbtag          = -999.;
       m_addJetCentr5_HHbtag          = -999.;
+      m_addJetCentr1_smearFactor     = -999.;
+      m_addJetCentr2_smearFactor     = -999.;
+      m_addJetCentr3_smearFactor     = -999.;
+      m_addJetCentr4_smearFactor     = -999.;
+      m_addJetCentr5_smearFactor     = -999.;
 
       m_addJetCentr1_pt_jetup.clear();
       m_addJetCentr1_pt_jetdown.clear();
@@ -916,6 +923,11 @@ struct smallTree
       m_addJetForw3_e   = -999.;
       m_addJetForw4_e   = -999.;
       m_addJetForw5_e   = -999.;
+      m_addJetForw1_smearFactor = -999.;
+      m_addJetForw2_smearFactor = -999.;
+      m_addJetForw3_smearFactor = -999.;
+      m_addJetForw4_smearFactor = -999.;
+      m_addJetForw5_smearFactor = -999.;
 
       m_addJetForw1_pt_jetup.clear();
       m_addJetForw1_pt_jetdown.clear();
@@ -1348,6 +1360,7 @@ struct smallTree
       m_smallT->Branch ("bjet1_CvsL", &m_bjet1_CvsL, "bjet1_CvsL/F") ;
       m_smallT->Branch ("bjet1_CvsB", &m_bjet1_CvsB, "bjet1_CvsB/F") ;
       m_smallT->Branch ("bjet1_HHbtag", &m_bjet1_HHbtag, "bjet1_HHbtag/F") ;
+      m_smallT->Branch ("bjet1_smearFactor", &m_bjet1_smearFactor, "bjet1_smearFactor/F") ;
       m_smallT->Branch ("bjet1_bMVAID", &m_bjet1_bMVAID, "bjet1_bMVAID/F") ;
       m_smallT->Branch ("bjet1_PUjetIDupdated", &m_bjet1_PUjetIDupdated, "bjet1_PUjetIDupdated/F") ;
       m_smallT->Branch ("bjet1_flav", &m_bjet1_flav, "bjet1_flav/I") ;
@@ -1378,6 +1391,7 @@ struct smallTree
       m_smallT->Branch ("bjet2_CvsL", &m_bjet2_CvsL, "bjet2_CvsL/F") ;
       m_smallT->Branch ("bjet2_CvsB", &m_bjet2_CvsB, "bjet2_CvsB/F") ;
       m_smallT->Branch ("bjet2_HHbtag", &m_bjet2_HHbtag, "bjet2_HHbtag/F") ;
+      m_smallT->Branch ("bjet2_smearFactor", &m_bjet2_smearFactor, "bjet2_smearFactor/F") ;
       m_smallT->Branch ("bjet2_bMVAID", &m_bjet2_bMVAID, "bjet2_bMVAID/F") ;
       m_smallT->Branch ("bjet2_PUjetIDupdated", &m_bjet2_PUjetIDupdated, "bjet2_PUjetIDupdated/F") ;
       m_smallT->Branch ("bjet2_flav", &m_bjet2_flav, "bjet2_flav/I") ;
@@ -1522,6 +1536,7 @@ struct smallTree
       m_smallT->Branch ("jets_CvsL", &m_jets_CvsL) ;
       m_smallT->Branch ("jets_CvsB", &m_jets_CvsB) ;
       m_smallT->Branch ("jets_HHbtag", &m_jets_HHbtag) ;
+      m_smallT->Branch ("jets_smearFactor", &m_jets_smearFactor) ;
       m_smallT->Branch ("jets_flav", &m_jets_flav) ;
       m_smallT->Branch ("jets_isH", &m_jets_isH) ;
       m_smallT->Branch ("jets_hasgenjet", &m_jets_hasgenjet) ;
@@ -1710,6 +1725,7 @@ struct smallTree
       m_smallT->Branch ("VBFjet1_CvsL",&m_VBFjet1_CvsL,"VBFjet1_CvsL/F");
       m_smallT->Branch ("VBFjet1_CvsB",&m_VBFjet1_CvsB,"VBFjet1_CvsB/F");
       m_smallT->Branch ("VBFjet1_HHbtag",&m_VBFjet1_HHbtag,"VBFjet1_HHbtag/F");
+      m_smallT->Branch ("VBFjet1_smearFactor",&m_VBFjet1_smearFactor,"VBFjet1_smearFactor/F");
       m_smallT->Branch ("VBFjet1_PUjetIDupdated",&m_VBFjet1_PUjetIDupdated,"VBFjet1_PUjetIDupdated/F");
       m_smallT->Branch ("VBFjet1_flav",&m_VBFjet1_flav,"VBFjet1_flav/I");
       m_smallT->Branch ("VBFjet1_hasgenjet",&m_VBFjet1_hasgenjet,"VBFjet1_hasgenjet/O");
@@ -1761,6 +1777,7 @@ struct smallTree
       m_smallT->Branch ("VBFjet2_CvsL",&m_VBFjet2_CvsL,"VBFjet2_CvsL/F");
       m_smallT->Branch ("VBFjet2_CvsB",&m_VBFjet2_CvsB,"VBFjet2_CvsB/F");
       m_smallT->Branch ("VBFjet2_HHbtag",&m_VBFjet2_HHbtag,"VBFjet2_HHbtag/F");
+      m_smallT->Branch ("VBFjet2_smearFactor",&m_VBFjet2_smearFactor,"VBFjet2_smearFactor/F");
       m_smallT->Branch ("VBFjet2_PUjetIDupdated",&m_VBFjet2_PUjetIDupdated,"VBFjet2_PUjetIDupdated/F");
       m_smallT->Branch ("VBFjet2_flav",&m_VBFjet2_flav,"VBFjet2_flav/I");
       m_smallT->Branch ("VBFjet2_hasgenjet",&m_VBFjet2_hasgenjet,"VBFjet2_hasgenjet/O");
@@ -1854,6 +1871,11 @@ struct smallTree
       m_smallT->Branch ("addJetCentr3_HHbtag"          , &m_addJetCentr3_HHbtag          , "addJetCentr3_HHbtag/F");
       m_smallT->Branch ("addJetCentr4_HHbtag"          , &m_addJetCentr4_HHbtag          , "addJetCentr4_HHbtag/F");
       m_smallT->Branch ("addJetCentr5_HHbtag"          , &m_addJetCentr5_HHbtag          , "addJetCentr5_HHbtag/F");
+      m_smallT->Branch ("addJetCentr1_smearFactor"     , &m_addJetCentr1_smearFactor     , "addJetCentr1_smearFactor/F");
+      m_smallT->Branch ("addJetCentr2_smearFactor"     , &m_addJetCentr2_smearFactor     , "addJetCentr2_smearFactor/F");
+      m_smallT->Branch ("addJetCentr3_smearFactor"     , &m_addJetCentr3_smearFactor     , "addJetCentr3_smearFactor/F");
+      m_smallT->Branch ("addJetCentr4_smearFactor"     , &m_addJetCentr4_smearFactor     , "addJetCentr4_smearFactor/F");
+      m_smallT->Branch ("addJetCentr5_smearFactor"     , &m_addJetCentr5_smearFactor     , "addJetCentr5_smearFactor/F");
 
       m_smallT->Branch ("addJetCentr1_pt_jetup"    , &m_addJetCentr1_pt_jetup);
       m_smallT->Branch ("addJetCentr1_pt_jetdown"  , &m_addJetCentr1_pt_jetdown);
@@ -1918,6 +1940,11 @@ struct smallTree
       m_smallT->Branch ("addJetForw3_e"   , &m_addJetForw3_e   , "addJetForw3_e/F");
       m_smallT->Branch ("addJetForw4_e"   , &m_addJetForw4_e   , "addJetForw4_e/F");
       m_smallT->Branch ("addJetForw5_e"   , &m_addJetForw5_e   , "addJetForw5_e/F");
+      m_smallT->Branch ("addJetForw1_smearFactor" , &m_addJetForw1_smearFactor , "addJetForw1_smearFactor/F");
+      m_smallT->Branch ("addJetForw2_smearFactor" , &m_addJetForw2_smearFactor , "addJetForw2_smearFactor/F");
+      m_smallT->Branch ("addJetForw3_smearFactor" , &m_addJetForw3_smearFactor , "addJetForw3_smearFactor/F");
+      m_smallT->Branch ("addJetForw4_smearFactor" , &m_addJetForw4_smearFactor , "addJetForw4_smearFactor/F");
+      m_smallT->Branch ("addJetForw5_smearFactor" , &m_addJetForw5_smearFactor , "addJetForw5_smearFactor/F");
 
       m_smallT->Branch ("addJetForw1_pt_jetup"    , &m_addJetForw1_pt_jetup);
       m_smallT->Branch ("addJetForw1_pt_jetdown"  , &m_addJetForw1_pt_jetdown);
@@ -2352,6 +2379,7 @@ struct smallTree
   Float_t m_bjet1_CvsL;
   Float_t m_bjet1_CvsB;
   Float_t m_bjet1_HHbtag;
+  Float_t m_bjet1_smearFactor;
   Float_t m_bjet1_bMVAID ;
   Float_t m_bjet1_PUjetIDupdated;
   Int_t   m_bjet1_flav ;
@@ -2383,6 +2411,7 @@ struct smallTree
   Float_t m_bjet2_CvsL;
   Float_t m_bjet2_CvsB;
   Float_t m_bjet2_HHbtag;
+  Float_t m_bjet2_smearFactor;
   Float_t m_bjet2_bMVAID ;
   Float_t m_bjet2_PUjetIDupdated;
   Int_t   m_bjet2_flav ;
@@ -2538,6 +2567,7 @@ struct smallTree
   std::vector<Float_t> m_jets_CvsL ;
   std::vector<Float_t> m_jets_CvsB ;
   std::vector<Float_t> m_jets_HHbtag ;
+  std::vector<Float_t> m_jets_smearFactor ;
   std::vector<Int_t> m_jets_flav ;
   std::vector<Int_t> m_jets_isH ;
   std::vector<Bool_t> m_jets_hasgenjet ;
@@ -2729,6 +2759,7 @@ struct smallTree
   Float_t m_VBFjet1_CvsL;
   Float_t m_VBFjet1_CvsB;
   Float_t m_VBFjet1_HHbtag;
+  Float_t m_VBFjet1_smearFactor;
   Float_t m_VBFjet1_PUjetIDupdated;
   Int_t m_VBFjet1_flav;
   Bool_t m_VBFjet1_hasgenjet;
@@ -2777,6 +2808,7 @@ struct smallTree
   Float_t m_VBFjet2_CvsL;
   Float_t m_VBFjet2_CvsB;
   Float_t m_VBFjet2_HHbtag;
+  Float_t m_VBFjet2_smearFactor;
   Float_t m_VBFjet2_PUjetIDupdated;
   Int_t m_VBFjet2_flav;
   Bool_t m_VBFjet2_hasgenjet;
@@ -2871,6 +2903,11 @@ struct smallTree
   Float_t m_addJetCentr3_HHbtag;
   Float_t m_addJetCentr4_HHbtag;
   Float_t m_addJetCentr5_HHbtag;
+  Float_t m_addJetCentr1_smearFactor;
+  Float_t m_addJetCentr2_smearFactor;
+  Float_t m_addJetCentr3_smearFactor;
+  Float_t m_addJetCentr4_smearFactor;
+  Float_t m_addJetCentr5_smearFactor;
 
   std::vector<Float_t> m_addJetCentr1_pt_jetup;
   std::vector<Float_t> m_addJetCentr1_pt_jetdown;
@@ -2935,6 +2972,11 @@ struct smallTree
   Float_t m_addJetForw3_e;
   Float_t m_addJetForw4_e;
   Float_t m_addJetForw5_e;
+  Float_t m_addJetForw1_smearFactor;
+  Float_t m_addJetForw2_smearFactor;
+  Float_t m_addJetForw3_smearFactor;
+  Float_t m_addJetForw4_smearFactor;
+  Float_t m_addJetForw5_smearFactor;
 
   std::vector<Float_t> m_addJetForw1_pt_jetup;
   std::vector<Float_t> m_addJetForw1_pt_jetdown;

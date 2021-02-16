@@ -4920,6 +4920,16 @@ int main (int argc, char** argv)
           }
 
           // --------------------------------------------
+          // Save smear factors in smallTree
+          if (doSmearing)
+          {
+            theSmallTree.m_bjet1_smearFactor   = jets_and_smearFactor[bjet1idx];
+            theSmallTree.m_bjet2_smearFactor   = jets_and_smearFactor[bjet2idx];
+            theSmallTree.m_VBFjet1_smearFactor = jets_and_smearFactor[VBFidx1];
+            theSmallTree.m_VBFjet2_smearFactor = jets_and_smearFactor[VBFidx2];
+          }
+
+          // --------------------------------------------
           // Save HHbtag values in smallTree
           // b-jet 1
           if (jets_and_HHbtag.find(bjet1idx) != jets_and_HHbtag.end())
@@ -5056,6 +5066,7 @@ int main (int argc, char** argv)
                 theSmallTree.m_addJetCentr1_CvsL            = getCvsL(theBigTree, iJet);
                 theSmallTree.m_addJetCentr1_CvsB            = getCvsB(theBigTree, iJet);
                 if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr1_HHbtag = jets_and_HHbtag[iJet];
+                theSmallTree.m_addJetCentr1_smearFactor = jets_and_smearFactor[iJet];
                 for (int isource = 0; isource < N_jecSources; isource++)
                 {
                   theSmallTree.m_addJetCentr1_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5078,6 +5089,7 @@ int main (int argc, char** argv)
                 theSmallTree.m_addJetCentr2_CvsL            = getCvsL(theBigTree, iJet);
                 theSmallTree.m_addJetCentr2_CvsB            = getCvsB(theBigTree, iJet);
                 if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr2_HHbtag = jets_and_HHbtag[iJet];
+                theSmallTree.m_addJetCentr2_smearFactor = jets_and_smearFactor[iJet];
                 for (int isource = 0; isource < N_jecSources; isource++)
                 {
                   theSmallTree.m_addJetCentr2_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5100,6 +5112,7 @@ int main (int argc, char** argv)
                 theSmallTree.m_addJetCentr3_CvsL            = getCvsL(theBigTree, iJet);
                 theSmallTree.m_addJetCentr3_CvsB            = getCvsB(theBigTree, iJet);
                 if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr3_HHbtag = jets_and_HHbtag[iJet];
+                theSmallTree.m_addJetCentr3_smearFactor = jets_and_smearFactor[iJet];
                 for (int isource = 0; isource < N_jecSources; isource++)
                 {
                   theSmallTree.m_addJetCentr3_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5122,6 +5135,7 @@ int main (int argc, char** argv)
                 theSmallTree.m_addJetCentr4_CvsL            = getCvsL(theBigTree, iJet);
                 theSmallTree.m_addJetCentr4_CvsB            = getCvsB(theBigTree, iJet);
                 if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr4_HHbtag = jets_and_HHbtag[iJet];
+                theSmallTree.m_addJetCentr4_smearFactor = jets_and_smearFactor[iJet];
                 for (int isource = 0; isource < N_jecSources; isource++)
                 {
                   theSmallTree.m_addJetCentr4_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5144,6 +5158,7 @@ int main (int argc, char** argv)
                 theSmallTree.m_addJetCentr5_CvsL            = getCvsL(theBigTree, iJet);
                 theSmallTree.m_addJetCentr5_CvsB            = getCvsB(theBigTree, iJet);
                 if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr5_HHbtag = jets_and_HHbtag[iJet];
+                theSmallTree.m_addJetCentr5_smearFactor = jets_and_smearFactor[iJet];
                 for (int isource = 0; isource < N_jecSources; isource++)
                 {
                   theSmallTree.m_addJetCentr5_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5167,6 +5182,7 @@ int main (int argc, char** argv)
                 theSmallTree.m_addJetForw1_eta = tlv_additionalJet.Eta();
                 theSmallTree.m_addJetForw1_phi = tlv_additionalJet.Phi();
                 theSmallTree.m_addJetForw1_e   = tlv_additionalJet.E();
+                theSmallTree.m_addJetForw1_smearFactor = jets_and_smearFactor[iJet];
                 for (int isource = 0; isource < N_jecSources; isource++)
                 {
                   theSmallTree.m_addJetForw1_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5185,6 +5201,7 @@ int main (int argc, char** argv)
                 theSmallTree.m_addJetForw2_eta = tlv_additionalJet.Eta();
                 theSmallTree.m_addJetForw2_phi = tlv_additionalJet.Phi();
                 theSmallTree.m_addJetForw2_e   = tlv_additionalJet.E();
+                theSmallTree.m_addJetForw2_smearFactor = jets_and_smearFactor[iJet];
                 for (int isource = 0; isource < N_jecSources; isource++)
                 {
                   theSmallTree.m_addJetForw2_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5203,6 +5220,7 @@ int main (int argc, char** argv)
                 theSmallTree.m_addJetForw3_eta = tlv_additionalJet.Eta();
                 theSmallTree.m_addJetForw3_phi = tlv_additionalJet.Phi();
                 theSmallTree.m_addJetForw3_e   = tlv_additionalJet.E();
+                theSmallTree.m_addJetForw3_smearFactor = jets_and_smearFactor[iJet];
                 for (int isource = 0; isource < N_jecSources; isource++)
                 {
                   theSmallTree.m_addJetForw3_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5221,6 +5239,7 @@ int main (int argc, char** argv)
                 theSmallTree.m_addJetForw4_eta = tlv_additionalJet.Eta();
                 theSmallTree.m_addJetForw4_phi = tlv_additionalJet.Phi();
                 theSmallTree.m_addJetForw4_e   = tlv_additionalJet.E();
+                theSmallTree.m_addJetForw4_smearFactor = jets_and_smearFactor[iJet];
                 for (int isource = 0; isource < N_jecSources; isource++)
                 {
                   theSmallTree.m_addJetForw4_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5239,6 +5258,7 @@ int main (int argc, char** argv)
                 theSmallTree.m_addJetForw5_eta = tlv_additionalJet.Eta();
                 theSmallTree.m_addJetForw5_phi = tlv_additionalJet.Phi();
                 theSmallTree.m_addJetForw5_e   = tlv_additionalJet.E();
+                theSmallTree.m_addJetForw5_smearFactor = jets_and_smearFactor[iJet];
                 for (int isource = 0; isource < N_jecSources; isource++)
                 {
                   theSmallTree.m_addJetForw5_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
@@ -5304,9 +5324,10 @@ int main (int argc, char** argv)
       	       {
       	   	 std::cout << "**WARNING: HHbtag score not found for jet " << iJet << " , setting to -1 !!" << endl;
       	       }
-	   	 
       	       theSmallTree.m_jets_HHbtag.push_back(-1.);
       	     }
+
+      	     theSmallTree.m_jets_smearFactor.push_back(jets_and_smearFactor[iJet]);
       	   } 
 
           if (DEBUG)
