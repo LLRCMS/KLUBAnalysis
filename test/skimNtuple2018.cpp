@@ -2070,6 +2070,26 @@ int main (int argc, char** argv)
       // ----------------------------------------------------------
       // pair selection is now complete, compute oher quantitites
 
+      // First create a map to associate <jetIdx, smearFactor> that will be
+      // used to smear the jets always in the same way in the event.
+      // Since the smearing is by definition a random process the smearing factors of
+      // the jets must be computed only one time per event.
+      std::map<int,double> jets_and_smearFactor;
+      for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
+      {
+        // Build jet tlv
+        TLorentzVector tlv_jet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet)) ;
+
+        // Get the smearFactor
+        double smearFactor = Smearer.getSmearFactor(tlv_jet, theBigTree);
+
+        // Store the smearFacotr in the map
+        if (doSmearing)
+          jets_and_smearFactor[iJet] = smearFactor;
+        else
+          jets_and_smearFactor[iJet] = 1.;
+      }
+
       TLorentzVector tlv_tauH = tlv_firstLepton + tlv_secondLepton ;
       TLorentzVector tlv_tauH_SVFIT ;
 
@@ -3387,7 +3407,7 @@ int main (int argc, char** argv)
           for (auto pair : jets_and_sortPar) jets_and_BTag.push_back (make_pair(pair.second, pair.first)); // just for compatibility...
 
           // NB !!! the following function only works if jets_and_sortPar contains <CVSscore, idx>
-          vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree, Smearer, pType, bTagSF::central) ;
+          vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree, jets_and_smearFactor, pType, bTagSF::central) ;
           theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
           theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
           theSmallTree.m_bTagweightT = (isMC ? bTagWeight.at(2) : 1.0) ;
@@ -4728,7 +4748,7 @@ int main (int argc, char** argv)
           // PUjetIDSFprovider
           if (isMC)
           {
-            theSmallTree.m_PUjetID_SF = (PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton, Smearer)).at(0);
+            theSmallTree.m_PUjetID_SF = (PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton, jets_and_smearFactor)).at(0);
             if (DEBUG)
             {
               std::cout << "---- PUjetID_SF debug ----" << std::endl;
@@ -4740,7 +4760,7 @@ int main (int argc, char** argv)
           // --------------------------------------------
           // HHbtag: set input values
           HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,
-              tlv_firstLepton, tlv_secondLepton, tlv_tauH, tlv_MET, theSmallTree.m_EventNumber, Smearer);
+              tlv_firstLepton, tlv_secondLepton, tlv_tauH, tlv_MET, theSmallTree.m_EventNumber, jets_and_smearFactor);
 
           // HHbtag: get scores and save them in a map<jet_idx,HHbtag_score>
           std::map<int,float> jets_and_HHbtag = HHbtagTagger.GetScore();
