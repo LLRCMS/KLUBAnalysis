@@ -2011,6 +2011,9 @@ int main (int argc, char** argv)
       // ----------------------------------------------------------
       // pair selection is now complete, compute oher quantitites
 
+      // Temporary fix: only skim ETau events
+      if (pairType != 1) continue;
+
       // First create a map to associate <jetIdx, smearFactor> that will be
       // used to smear the jets always in the same way in the event.
       // Since the smearing is by definition a random process the smearing factors of
