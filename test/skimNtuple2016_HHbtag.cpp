@@ -334,6 +334,7 @@ int main (int argc, char** argv)
 
   bool   beInclusive         = gConfigParser->readBoolOption   ("selections::beInclusive") ;
   bool   useDeepFlavor       = gConfigParser->readBoolOption   ("selections::useDeepFlavor") ;
+  bool   onlyFinalChannels   = gConfigParser->readBoolOption   ("selections::onlyFinalChannels") ;
   float  PUjetID_WP          = gConfigParser->readFloatOption  ("parameters::PUjetIDWP") ;
   float  PFjetID_WP          = gConfigParser->readIntOption    ("parameters::PFjetIDWP") ;
   // int    saveOS              = gConfigParser->readIntOption    ("parameters::saveOS") ;
@@ -594,7 +595,6 @@ int main (int argc, char** argv)
   TauIDSFTool * Deep_antiJet_medium_pt  = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSjet","Medium");   // for DeepTauv2p1 vs jets Medium
   TauIDSFTool * Deep_antiEle_vvloose    = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSe"  ,"VVLoose");  // for DeepTauv2p1 vs ele VVLoose
   TauIDSFTool * Deep_antiEle_vloose     = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSe"  ,"VLoose");   // for DeepTauv2p1 vs ele VLoose
-  //TauIDSFTool * Deep_antiEle_tight      = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSe"  ,"Tight");    // for DeepTauv2p1 vs ele Tight
   TauIDSFTool * Deep_antiMu_vloose      = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSmu" ,"VLoose");   // for DeepTauv2p1 vs mu VLoose
   TauIDSFTool * Deep_antiMu_tight       = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
 
@@ -2011,8 +2011,8 @@ int main (int argc, char** argv)
       // ----------------------------------------------------------
       // pair selection is now complete, compute oher quantitites
 
-      // Temporary fix: only skim ETau events
-      if (pairType != 1) continue;
+      // If skimming the final ntuples skip not interesting channels
+      if (onlyFinalChannels && pairType>2) continue;
 
       // First create a map to associate <jetIdx, smearFactor> that will be
       // used to smear the jets always in the same way in the event.
@@ -2547,7 +2547,7 @@ int main (int argc, char** argv)
 
         idAndIsoSF_leg2_deep_vsJet    = Deep_antiJet_medium    ->getSFvsDM (tau2pt,  tau2DM, tau2Genmatch);
         idAndIsoSF_leg2_deep_vsJet_pt = Deep_antiJet_medium_pt ->getSFvsPT (tau2pt,  tau2Genmatch);
-        idAndIsoSF_leg2_deep_vsEle    = Deep_antiEle_vloose     ->getSFvsEta(tau2eta, tau2Genmatch);
+        idAndIsoSF_leg2_deep_vsEle    = Deep_antiEle_vloose    ->getSFvsEta(tau2eta, tau2Genmatch);
         idAndIsoSF_leg2_deep_vsMu     = Deep_antiMu_tight      ->getSFvsEta(tau2eta, tau2Genmatch);
 
         vector<float> idAndIsoSF_leg2_deep_vsJet_pt_up (5, idAndIsoSF_leg2_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
