@@ -91,8 +91,9 @@ if __name__ == "__main__":
 
     tagname = "/" + opt.tag if opt.tag else ''
     jobsDir = currFolder + tagname + '/SYST_' + basename(opt.workdir)
-    if os.path.exists (jobsDir) : os.system ('rm -f ' + jobsDir + '/*')
-    else                        : os.system ('mkdir -p ' + jobsDir)
+    #if os.path.exists (jobsDir) : os.system ('rm -f ' + jobsDir + '/*')
+    #else                        : os.system ('mkdir -p ' + jobsDir)
+    os.system ('mkdir -p ' + jobsDir)
 
     commandFile = open (jobsDir + '/submit.sh', 'w')
     for inputfile in inputfiles : 
