@@ -425,10 +425,26 @@ def retrieveShapes (rootFile, namelist, var, sel, reg, shapeNameList):
         # because the QCD syst is only lnN and no shape variations are produced
         if 'QCD' in name: continue
         for shapeName in shapeNameList:
-            fullName = name + "_" + sel + "_" + reg + "_" + var + '_' + shapeName
+
+            # Possible to make plots both for DNN output...
+            if 'DNN' in var:
+                fullName = name + "_" + sel + "_" + reg + "_" + var + '_' + shapeName
+            # ...and for other varaibles...
+            else:
+                # ...that do not have the ES shifted variations...
+                if 'tauup' in shapeName or 'taudown' in shapeName or \
+                   'eleup' in shapeName or 'eledown' in shapeName or \
+                   'muup'  in shapeName or 'mudown'  in shapeName or \
+                   'jetup' in shapeName or 'jetdown' in shapeName:
+
+                    fullName = name + "_" + sel + "_" + reg + "_" + var
+
+                # ...but still have the other shapes (PUjetID, tauID, trigSF...)
+                else:
+                    fullName = name + "_" + sel + "_" + reg + "_" + var + '_' + shapeName
 
             if not rootFile.GetListOfKeys().Contains(fullName):
-                print "*** WARNING: histo " , fullName , " not available"
+                print "*** WARNING: shape " , fullName , " not available"
                 continue
             h = rootFile.Get(fullName)
 
@@ -503,6 +519,7 @@ if __name__ == "__main__" :
     parser.add_argument('--dynamicRatioY', dest='dynamicRatioY', help='ratio plot with ad hoc y-range?', default=False)
     parser.add_argument('--doStatSystBand', dest='doStatSystBand', help='create stat+syst uncertainty band?', action='store_true', default=False)
     parser.add_argument('--removeESsystBand', dest='removeESsystBand', help='remove energy scales from stat+syst band?', action='store_true', default=False)
+    parser.add_argument('--addJERunc', dest='addJERunc', help='add JER shape uncertainty', action='store_true', default=False)
     # list options
     parser.add_argument('--blind-range',   dest='blindrange', nargs=2, help='start and end of blinding range', default=None)
     parser.add_argument('--sigscale', dest='sigscale', nargs=2, help='scale to apply to the signals (GGHH VBFHH)', default=None)
@@ -621,7 +638,7 @@ if __name__ == "__main__" :
     hZH        = getHisto("ZH", hBkgs, doOverflow)
     hWH        = getHisto("WH", hBkgs, doOverflow)
     hVV        = getHisto("VV", hBkgs, doOverflow)
-    httH       = getHisto("ttH", hBkgs, doOverflow)
+    hTTH       = getHisto("ttH", hBkgs, doOverflow)
     hTTX       = getHisto("TTX", hBkgs, doOverflow)
     hggH       = getHisto("ggH", hBkgs, doOverflow)
     hqqH       = getHisto("qqH", hBkgs, doOverflow)
@@ -629,7 +646,7 @@ if __name__ == "__main__" :
     
     hDYlist = [hDY_LM, hDY_0b_1Pt, hDY_0b_2Pt, hDY_0b_3Pt, hDY_0b_4Pt, hDY_0b_5Pt, hDY_0b_6Pt, hDY_1b_1Pt, hDY_1b_2Pt, hDY_1b_3Pt, hDY_1b_4Pt, hDY_1b_5Pt, hDY_1b_6Pt, hDY_2b_1Pt, hDY_2b_2Pt, hDY_2b_3Pt, hDY_2b_4Pt, hDY_2b_5Pt, hDY_2b_6Pt]
     hothersList = [hEWK, hsingleT, hTW, hVV, hTTX, hVVV, hWJets]
-    hSingleHlist = [hZH, hWH, httH, hggH, hqqH]
+    hSingleHlist = [hZH, hWH, hTTH, hggH, hqqH]
     hDY = makeSum("DY",hDYlist)
     hSingleH = makeSum("singleH",hSingleHlist)
     hothers = makeSum("other",hothersList)
@@ -657,7 +674,7 @@ if __name__ == "__main__" :
         # these two lists are used for the calculation of the syst error band. They must:
         #       1. be in the same order
         #       2. use the same names as those in the mainCfg (for hSystBkgNameList)
-        hSystBkgList = [hDY_LM.Clone(), hDY_0b_1Pt.Clone(), hDY_0b_2Pt.Clone(), hDY_0b_3Pt.Clone(), hDY_0b_4Pt.Clone(), hDY_0b_5Pt.Clone(), hDY_0b_6Pt.Clone(), hDY_1b_1Pt.Clone(), hDY_1b_2Pt.Clone(), hDY_1b_3Pt.Clone(), hDY_1b_4Pt.Clone(), hDY_1b_5Pt.Clone(), hDY_1b_6Pt.Clone(), hDY_2b_1Pt.Clone(), hDY_2b_2Pt.Clone(), hDY_2b_3Pt.Clone(), hDY_2b_4Pt.Clone(), hDY_2b_5Pt.Clone(), hDY_2b_6Pt.Clone(), hTT.Clone(), hWJets.Clone(), hEWK.Clone(), hsingleT.Clone(), hTW.Clone(), hZH.Clone(), hWH.Clone(), hVV.Clone(), httH.Clone(), hTTX.Clone(), hggH.Clone(), hqqH.Clone(), hVVV.Clone(), hQCD.Clone()]
+        hSystBkgList = [hDY_LM.Clone(), hDY_0b_1Pt.Clone(), hDY_0b_2Pt.Clone(), hDY_0b_3Pt.Clone(), hDY_0b_4Pt.Clone(), hDY_0b_5Pt.Clone(), hDY_0b_6Pt.Clone(), hDY_1b_1Pt.Clone(), hDY_1b_2Pt.Clone(), hDY_1b_3Pt.Clone(), hDY_1b_4Pt.Clone(), hDY_1b_5Pt.Clone(), hDY_1b_6Pt.Clone(), hDY_2b_1Pt.Clone(), hDY_2b_2Pt.Clone(), hDY_2b_3Pt.Clone(), hDY_2b_4Pt.Clone(), hDY_2b_5Pt.Clone(), hDY_2b_6Pt.Clone(), hTT.Clone(), hWJets.Clone(), hEWK.Clone(), hsingleT.Clone(), hTW.Clone(), hZH.Clone(), hWH.Clone(), hVV.Clone(), hTTH.Clone(), hTTX.Clone(), hggH.Clone(), hqqH.Clone(), hVVV.Clone(), hQCD.Clone()]
         hSystBkgNameList = ['DY_LM', 'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt', 'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt', 'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt', 'TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'qqH', 'VVV', 'QCD']
         hShapesNameList = ['etauFR_barrelUp', 'etauFR_endcapUp', 'PUjetIDSFUp', 'etauFR_barrelDown', 'etauFR_endcapDown', 'PUjetIDSFDown', 'bTagweightReshapeLFUp', 'bTagweightReshapeHFUp', 'bTagweightReshapeHFSTATS1Up', 'bTagweightReshapeHFSTATS2Up', 'bTagweightReshapeLFSTATS1Up', 'bTagweightReshapeLFSTATS2Up', 'bTagweightReshapeCFERR1Up', 'bTagweightReshapeCFERR2Up', 'bTagweightReshapeLFDown', 'bTagweightReshapeHFDown', 'bTagweightReshapeHFSTATS1Down', 'bTagweightReshapeHFSTATS2Down', 'bTagweightReshapeLFSTATS1Down', 'bTagweightReshapeLFSTATS2Down', 'bTagweightReshapeCFERR1Down', 'bTagweightReshapeCFERR2Down']
         # the ETau, MuTau, and TauTau channels have some different shapes -> we add them here separately
@@ -677,6 +694,10 @@ if __name__ == "__main__" :
             #addES = ['tauup_DM0', 'taudown_DM0', 'tauup_DM1', 'taudown_DM1', 'tauup_DM10', 'taudown_DM10', 'tauup_DM11', 'taudown_DM11', 'eleup_DM0', 'eledown_DM0', 'eleup_DM1', 'eledown_DM1', 'muup', 'mudown', 'jetup1', 'jetup2', 'jetup3', 'jetup4', 'jetup5', 'jetup6', 'jetup7', 'jetup8', 'jetup9', 'jetup10', 'jetup11', 'jetdown1', 'jetdown2', 'jetdown3', 'jetdown4', 'jetdown5', 'jetdown6', 'jetdown7', 'jetdown8', 'jetdown9', 'jetdown10', 'jetdown11']
             addES = ['tauup_DM0', 'taudown_DM0', 'tauup_DM1', 'taudown_DM1', 'tauup_DM10', 'taudown_DM10', 'tauup_DM11', 'taudown_DM11', 'eleup_DM0', 'eledown_DM0', 'eleup_DM1', 'eledown_DM1', 'muup', 'mudown', 'jetupTot', 'jetdownTot']
             for sh in addES: hShapesNameList.append(sh)
+
+        if args.addJERunc:
+            addShapes = ['JERup', 'JERdown']
+            for sh in addShapes: hShapesNameList.append(sh)
 
         hShapes = retrieveShapes(rootFile, bkgList, args.var, args.sel, args.reg, hShapesNameList)
 
@@ -898,6 +919,8 @@ if __name__ == "__main__" :
                 sel_qcd = 'classTT'
         if "VBFloose" in args.sel:
                 sel_qcd = "VBFloose" # this does not exist in the systematics_QCD.cfg file --> it is just a dummy to avoid the breaking of makeStatSystUncertaintyBand()
+        if "baseline" in args.sel:
+                sel_qcd = "baseline" # this does not exist in the systematics_QCD.cfg file --> it is just a dummy to avoid the breaking of makeStatSystUncertaintyBand()
 
         #print("-----------------------------------------------------------------------")
         #print("Stack plot stat+syst band calculation info")
@@ -1119,6 +1142,7 @@ if __name__ == "__main__" :
         if args.removeESsystBand: saveName = saveName+'_noES'
 
         c1.SaveAs (saveName+".pdf")
+        c1.SaveAs (saveName+".png")
 
 
 
