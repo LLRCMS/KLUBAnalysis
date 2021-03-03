@@ -4,11 +4,12 @@ import os
 import sys
 import argparse
 import datetime
+import ROOT
 
 # Configure these depending on what you want to harves
 year    = '2016'  # allowed options: 2016 - 2017 - 2018
 channel = 'ETau'  # allowed options: ETau - MuTau - TauTau
-tagDir  = 'analysis_2021_02_08'
+tagDir  = 'analysis_2021_03_01'
 
 # Create input dir path
 tagDir = tagDir+'/'+channel+'_'+year
@@ -22,11 +23,12 @@ allVars = ''
 # Check that all jobs have finished
 for uncDir in uncDirs:
 
-    # Skip 'total' subdirectory if already present:
+    # Skip 'total' subdirectory if already present
     if uncDir == 'total': continue
 
     # Read unc subdirectories
     inDir = tagDir + '/' + uncDir
+    print 'Checking subdir: ', inDir
 
     # Get list of log files
     allFiles = [f for f in os.listdir(inDir) if os.path.isfile(os.path.join(inDir, f))]
@@ -49,7 +51,7 @@ for uncDir in uncDirs:
             else:
                 allVars = allVars + ', ' + varNames
 
-print 'All log files look ok!'
+print '--> All log files look ok!'
 
 # Create a new directory to store the merged file
 newDir = tagDir+'/total'
@@ -70,8 +72,62 @@ for line in open(inDir+'/mainCfg_'+channel+'_Legacy'+year+'_limits.cfg'):
     newMainCfg.write(line)
 newMainCfg.close()
 
-# Launch the hadd command
-haddCommand = 'hadd '+newDir+'/outPlotter.root '+tagDir+'/*/outPlotter_*root '
+# Create "NEWoutput_*.root" file and add "JERup/JERdown" name to JER shifted histos
+for uncDir in uncDirs:
+
+    # Skip 'total' subdirectory if already present
+    if uncDir == 'total': continue
+
+    # Read unc subdirectories
+    inDir = tagDir + '/' + uncDir
+    print 'Changing names in: ', inDir
+
+    # Get list of root files
+    allFiles  = [f for f in os.listdir(inDir) if os.path.isfile(os.path.join(inDir, f))]
+    rootFiles = [f for f in allFiles if 'outPlotter_' in f and 'NEW' not in f]
+
+    for rootFile in rootFiles:
+
+        # Get original name and create a new one
+        originalName = inDir+'/'+rootFile
+        newName = originalName.replace('outPlotter_','NEWoutPlotter_')
+
+        # If not running on a JER subdirectory just copy/paste
+        # the root file wiht the updated name
+        if 'JER' not in uncDir:
+            os.system('cp %s %s' % (originalName, newName))
+
+        # Else if running on the JER subdirectories
+        # loop on all the histos and change names if needed
+        else:
+
+            # List to store the histos to be copied in the new file
+            listHistos = []
+
+            # Read the histos from the original file
+            fin = ROOT.TFile(originalName)
+            for key in fin.GetListOfKeys():
+                kname = key.GetName()
+                template = fin.Get(kname)
+
+                # Change name to histos in the JER subdirectories
+                # by adding '_JERup' or '_JERdown'
+                #if 'JER' in uncDir:
+                template.SetName(kname+'_'+uncDir)
+                template.SetTitle(kname+'_'+uncDir)
+
+                # Store histos to be save in the new file
+                listHistos.append(template.Clone())
+
+            # Create the new file to store the histos with the correct name
+            fout = ROOT.TFile(newName,'RECREATE')
+            fout.cd()
+            for h in listHistos:
+                h.Write()
+            fout.Close()
+
+# Finally Launch the hadd command
+haddCommand = 'hadd '+newDir+'/outPlotter.root '+tagDir+'/*/NEWoutPlotter_*root '
 print haddCommand
 os.system(haddCommand)
 
