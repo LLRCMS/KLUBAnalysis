@@ -277,7 +277,7 @@ if __name__ == "__main__":
 
         # hardcoded queue for now; access to other queues on request to CZAR
         # more info here: https://doc.cc.in2p3.fr/en/Computing/job-types/job-singlecore.html
-        command = 'qsub -P P_cmsf -V -l sps=1,hpss=1,xrootd=1 -q '+opt.queue+' '+jobsDir+'/skimJob_'+str(n)+'.sh -e '+opt.output+'/skimJob_'+str(n)+'.ER -o '+opt.output+'/skimJob_'+str(n)+'.OU'
+        command = 'qsub -P P_cmsf -V -l sps=1,xrootd=1 -q '+opt.queue+' '+jobsDir+'/skimJob_'+str(n)+'.sh -e '+opt.output+'/skimJob_'+str(n)+'.ER -o '+opt.output+'/skimJob_'+str(n)+'.OU'
 
         if opt.sleep : time.sleep (0.1)
         os.system (command)
