@@ -70,14 +70,13 @@ def makeTGraphFromHist (histo, newName):
     feXLeft  = []
 
     for ibin in range (1, nPoints+1):
-        x = hData.GetBinCenter(ibin);
-        y = hData.GetBinContent(ibin);
-        dxRight = hData.GetBinLowEdge(ibin+1) - hData.GetBinCenter(ibin);
-        dxLeft  = hData.GetBinCenter(ibin) - hData.GetBinLowEdge(ibin);
-        dyUp    = hData.GetBinErrorUp(ibin);
-        dyLow   = hData.GetBinErrorLow(ibin);
+        x = hData.GetBinCenter(ibin)
+        y = hData.GetBinContent(ibin)
+        dxRight = hData.GetBinLowEdge(ibin+1) - hData.GetBinCenter(ibin)
+        dxLeft  = hData.GetBinCenter(ibin) - hData.GetBinLowEdge(ibin)
+        dyUp    = hData.GetBinErrorUp(ibin)
+        dyLow   = hData.GetBinErrorLow(ibin)
 
-        #if (!drawGrass && (int) y == 0) continue;
         fY.append(y)
         fX.append(x)
         feYUp.append(dyUp)
@@ -92,13 +91,13 @@ def makeTGraphFromHist (histo, newName):
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
 
-    gData = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
-    gData.SetMarkerStyle(8);
-    gData.SetMarkerSize(1.);
-    gData.SetMarkerColor(kBlack);
-    gData.SetLineColor(kBlack);
+    gData = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp)
+    gData.SetMarkerStyle(8)
+    gData.SetMarkerSize(1.)
+    gData.SetMarkerColor(kBlack)
+    gData.SetLineColor(kBlack)
     gData.SetName(newName)
-    return gData;
+    return gData
 
 # set all horizontal bar errors to 0
 def removeHErrors (graph):
@@ -188,8 +187,8 @@ def makeStatUncertaintyBand (bkgSum):
     afeYDown  = array ("d", feYDown )
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
-    gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
-    return gBand;
+    gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp)
+    return gBand
 
 ## do ratio of Data/MC
 # horErrs : do horizontal errors
@@ -226,15 +225,15 @@ def makeDataOverMCRatioPlot (hData, hMC, newName, horErrs=False):
     afeYDown  = array ("d", feYDown )
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
-    gRatio = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
+    gRatio = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp)
     
-    gRatio.SetMarkerStyle(8);
-    gRatio.SetMarkerSize(1.);
-    gRatio.SetMarkerColor(kBlack);
-    gRatio.SetLineColor(kBlack);
+    gRatio.SetMarkerStyle(8)
+    gRatio.SetMarkerSize(1.)
+    gRatio.SetMarkerColor(kBlack)
+    gRatio.SetLineColor(kBlack)
     gRatio.SetName(newName)
 
-    return gRatio;
+    return gRatio
 
 ## find maximum of tgraph, including error
 def findMaxOfGraph (graph):
@@ -416,8 +415,8 @@ def makeStatSystUncertaintyBand (sumOfBkg,listOfSplitBkgHists,namesOfSplitBkgHis
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
 
-    gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
-    return gBand;
+    gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp)
+    return gBand
 
 def retrieveShapes (rootFile, namelist, var, sel, reg, shapeNameList):
     res = {}
@@ -426,23 +425,7 @@ def retrieveShapes (rootFile, namelist, var, sel, reg, shapeNameList):
         if 'QCD' in name: continue
         for shapeName in shapeNameList:
 
-            # Possible to make plots both for DNN output...
-            if 'DNN' in var:
-                fullName = name + "_" + sel + "_" + reg + "_" + var + '_' + shapeName
-            # ...and for other varaibles...
-            else:
-                # ...that do not have the ES shifted variations...
-                if 'tauup' in shapeName or 'taudown' in shapeName or \
-                   'eleup' in shapeName or 'eledown' in shapeName or \
-                   'muup'  in shapeName or 'mudown'  in shapeName or \
-                   'jetup' in shapeName or 'jetdown' in shapeName:
-
-                    fullName = name + "_" + sel + "_" + reg + "_" + var
-
-                # ...but still have the other shapes (PUjetID, tauID, trigSF...)
-                else:
-                    fullName = name + "_" + sel + "_" + reg + "_" + var + '_' + shapeName
-
+            fullName = name + "_" + sel + "_" + reg + "_" + var + '_' + shapeName
             if not rootFile.GetListOfKeys().Contains(fullName):
                 print "*** WARNING: shape " , fullName , " not available"
                 continue
@@ -478,8 +461,8 @@ def scaleStatSystUncertaintyBandForStack (grUncert,bkgSum):
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
 
-    gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
-    return gBand;
+    gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp)
+    return gBand
 
 #######################################################################
 ######################### SCRIPT BODY #################################
@@ -533,9 +516,6 @@ if __name__ == "__main__" :
     if args.quit : gROOT.SetBatch(True)
 
     c1 = TCanvas ("c1", "c1", 600, 600)
-    # c1.SetLeftMargin(0.15);
-    # c1.SetBottomMargin(0.12);
-    # c1.SetTopMargin(0.055);
 
     pad1 = None
     pad2 = None
@@ -543,16 +523,16 @@ if __name__ == "__main__" :
     if args.ratio:
         pad1 = TPad ("pad1", "pad1", 0, 0.25, 1, 1.0)
         pad1.SetFrameLineWidth(3)
-        pad1.SetLeftMargin(0.12);
-        pad1.SetBottomMargin(0.02);
-        pad1.SetTopMargin(0.055);
+        pad1.SetLeftMargin(0.12)
+        pad1.SetBottomMargin(0.02)
+        pad1.SetTopMargin(0.055)
         pad1.Draw()
     else:
         pad1 = TPad ("pad1", "pad1", 0, 0.0, 1.0, 1.0)
         pad1.SetFrameLineWidth(3)
-        pad1.SetLeftMargin(0.12);
-        pad1.SetBottomMargin(0.12);
-        pad1.SetTopMargin(0.055);
+        pad1.SetLeftMargin(0.12)
+        pad1.SetBottomMargin(0.12)
+        pad1.SetTopMargin(0.055)
         pad1.Draw()
 
     pad1.cd()
@@ -1046,17 +1026,16 @@ if __name__ == "__main__" :
 
     ###################### RATIO PLOT #################################
     if args.ratio:
-        bkgStack.GetXaxis().SetTitleSize(0.00);
-        bkgStack.GetXaxis().SetLabelSize(0.00);
+        bkgStack.GetXaxis().SetTitleSize(0.00)
+        bkgStack.GetXaxis().SetLabelSize(0.00)
 
         c1.cd()
         pad2 = TPad ("pad2", "pad2", 0, 0.0, 1, 0.2496)
-        pad2.SetLeftMargin(0.12);
-        pad2.SetTopMargin(0.045);
-        pad2.SetBottomMargin(0.4);
-        pad2.SetGridy(True);
+        pad2.SetLeftMargin(0.12)
+        pad2.SetTopMargin(0.045)
+        pad2.SetBottomMargin(0.4)
+        pad2.SetGridy(True)
         pad2.SetFrameLineWidth(3)
-        #pad2.SetGridx(True);
         pad2.Draw()
         pad2.cd()
 
@@ -1077,10 +1056,10 @@ if __name__ == "__main__" :
         hRatio.GetXaxis().SetTitleOffset(3.9)
         hRatio.GetYaxis().SetTitleOffset(1.2)
 
-        hRatio.GetXaxis().SetTitleSize(titleSize);
-        hRatio.GetXaxis().SetLabelSize(labelSize);
-        hRatio.GetYaxis().SetTitleSize(titleSize);
-        hRatio.GetYaxis().SetLabelSize(labelSize);
+        hRatio.GetXaxis().SetTitleSize(titleSize)
+        hRatio.GetXaxis().SetLabelSize(labelSize)
+        hRatio.GetYaxis().SetTitleSize(titleSize)
+        hRatio.GetYaxis().SetLabelSize(labelSize)
 
         hRatio.GetXaxis().SetTickSize(0.10)
         hRatio.GetYaxis().SetTickSize(0.05)
@@ -1122,8 +1101,8 @@ if __name__ == "__main__" :
         grUncertRatio.SetFillStyle(3002)
         grUncertRatio.Draw("e2")
 
-        pad2.RedrawAxis();
-        pad2.RedrawAxis("g"); #otherwise no grid..
+        pad2.RedrawAxis()
+        pad2.RedrawAxis("g") #otherwise no grid..
 
     ###################### DISPLAY ###################################
     if not args.quit:
@@ -1140,6 +1119,7 @@ if __name__ == "__main__" :
         if args.binwidth: saveName = saveName+"_binWidth"
         if args.doStatSystBand: saveName = saveName+'_StatSystBand'
         if args.removeESsystBand: saveName = saveName+'_noES'
+        if args.addJERunc: saveName = saveName+'_JER'
 
         c1.SaveAs (saveName+".pdf")
         c1.SaveAs (saveName+".png")
