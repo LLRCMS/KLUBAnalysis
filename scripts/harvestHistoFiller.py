@@ -92,12 +92,12 @@ for uncDir in uncDirs:
         originalName = inDir+'/'+rootFile
         newName = originalName.replace('outPlotter_','NEWoutPlotter_')
 
-        # If not running on a JER subdirectory just copy/paste
-        # the root file wiht the updated name
-        if 'JER' not in uncDir:
+        # For central subdirectory just copy/paste the
+        # the root file with the updated name
+        if 'central' in uncDir:
             os.system('cp %s %s' % (originalName, newName))
 
-        # Else if running on the JER subdirectories
+        # Else if running on the shifted subdirectories
         # loop on all the histos and change names if needed
         else:
 
@@ -110,11 +110,14 @@ for uncDir in uncDirs:
                 kname = key.GetName()
                 template = fin.Get(kname)
 
+                # Do not copy the data for shifted subdirectories
+                if 'data_obs' in kname: continue
+
                 # Change name to histos in the JER subdirectories
                 # by adding '_JERup' or '_JERdown'
-                #if 'JER' in uncDir:
-                template.SetName(kname+'_'+uncDir)
-                template.SetTitle(kname+'_'+uncDir)
+                if 'JER' in uncDir:
+                    template.SetName(kname+'_'+uncDir)
+                    template.SetTitle(kname+'_'+uncDir)
 
                 # Store histos to be save in the new file
                 listHistos.append(template.Clone())
@@ -130,6 +133,3 @@ for uncDir in uncDirs:
 haddCommand = 'hadd '+newDir+'/outPlotter.root '+tagDir+'/*/NEWoutPlotter_*root '
 print haddCommand
 os.system(haddCommand)
-
-
-
