@@ -283,6 +283,14 @@ class OutputManager:
                 for syst in allSysts:
 
                     # If var already contains one of the shape systs (tauup, taudown, jetup...)
+                    # do not create the shifted QCD template
+                    if 'tauup' in var or 'taudown' in var or \
+                       'eleup' in var or 'eledown' in var or \
+                       'muup'  in var or 'mudown'  in var or \
+                       'jetup' in var or 'jetdown' in var:
+                       continue
+
+                    # If var already contains one of the shape systs (tauup, taudown, jetup...)
                     # skip the syst from allSysts (otherwise it look for histograms with two systematics
                     # like 'var_sel_SR_tauup_PUjetIDUp' which do not make sense)
                     doubleSyst = False
