@@ -631,13 +631,14 @@ if __name__ == "__main__" :
     hSingleH = makeSum("singleH",hSingleHlist)
     hothers = makeSum("other",hothersList)
 
-    hBkgList = [hothers, hSingleH, hTT, hDY] # list for stack
-    hBkgNameList = ["Others", "single H", "t#bar{t}", "DY + jets"] # list for legend
-
+    hBkgList     = [hothers , hSingleH  ] # list for stack
+    hBkgNameList = ["Others", "Single H"] # list for legend
     if doQCD:
         hQCD = getHisto ("QCD", hBkgs,doOverflow)
         hBkgList.append(hQCD)
         hBkgNameList.append("QCD")
+    hBkgList     = [hTT       , hDY        ] # list for stack
+    hBkgNameList = ["t#bar{t}", "Drell-Yan"] # list for legend
 
     hData = getHisto("data_obs", hDatas , doOverflow)
 
