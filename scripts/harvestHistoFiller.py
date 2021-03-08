@@ -43,6 +43,7 @@ for uncDir in uncDirs:
 
     # Read the main config for each unc and store the variables names
     for line in open(inDir+'/mainCfg_'+channel+'_Legacy'+year+'_limits.cfg'):
+        if 'JER' in inDir: continue
         if line.startswith('variables'):
             varNames = line.split('=')[1] # Get variables only
             varNames = varNames.strip()   # Remove carriage return
@@ -65,7 +66,7 @@ os.system(copyCommand)
 # Create a new main config starting from the central config,
 # but containing all the variables (central and shifted ones)
 newMainCfg = open(newDir+'/mainCfg_'+channel+'_Legacy'+year+'_limits.cfg','w')
-for line in open(inDir+'/mainCfg_'+channel+'_Legacy'+year+'_limits.cfg'):
+for line in open(tagDir+'/central/mainCfg_'+channel+'_Legacy'+year+'_limits.cfg'):
     # Edit line with variables
     if line.startswith('variables'):
         line = 'variables = ' + allVars + '\n'
