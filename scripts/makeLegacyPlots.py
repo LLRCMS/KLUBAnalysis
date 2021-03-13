@@ -70,14 +70,13 @@ def makeTGraphFromHist (histo, newName):
     feXLeft  = []
 
     for ibin in range (1, nPoints+1):
-        x = hData.GetBinCenter(ibin);
-        y = hData.GetBinContent(ibin);
-        dxRight = hData.GetBinLowEdge(ibin+1) - hData.GetBinCenter(ibin);
-        dxLeft  = hData.GetBinCenter(ibin) - hData.GetBinLowEdge(ibin);
-        dyUp    = hData.GetBinErrorUp(ibin);
-        dyLow   = hData.GetBinErrorLow(ibin);
+        x = hData.GetBinCenter(ibin)
+        y = hData.GetBinContent(ibin)
+        dxRight = hData.GetBinLowEdge(ibin+1) - hData.GetBinCenter(ibin)
+        dxLeft  = hData.GetBinCenter(ibin) - hData.GetBinLowEdge(ibin)
+        dyUp    = hData.GetBinErrorUp(ibin)
+        dyLow   = hData.GetBinErrorLow(ibin)
 
-        #if (!drawGrass && (int) y == 0) continue;
         fY.append(y)
         fX.append(x)
         feYUp.append(dyUp)
@@ -92,13 +91,13 @@ def makeTGraphFromHist (histo, newName):
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
 
-    gData = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
-    gData.SetMarkerStyle(8);
-    gData.SetMarkerSize(1.);
-    gData.SetMarkerColor(kBlack);
-    gData.SetLineColor(kBlack);
+    gData = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp)
+    gData.SetMarkerStyle(8)
+    gData.SetMarkerSize(1.)
+    gData.SetMarkerColor(kBlack)
+    gData.SetLineColor(kBlack)
     gData.SetName(newName)
-    return gData;
+    return gData
 
 # set all horizontal bar errors to 0
 def removeHErrors (graph):
@@ -188,8 +187,8 @@ def makeStatUncertaintyBand (bkgSum):
     afeYDown  = array ("d", feYDown )
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
-    gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
-    return gBand;
+    gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp)
+    return gBand
 
 ## do ratio of Data/MC
 # horErrs : do horizontal errors
@@ -226,15 +225,15 @@ def makeDataOverMCRatioPlot (hData, hMC, newName, horErrs=False):
     afeYDown  = array ("d", feYDown )
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
-    gRatio = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
+    gRatio = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp)
     
-    gRatio.SetMarkerStyle(8);
-    gRatio.SetMarkerSize(1.);
-    gRatio.SetMarkerColor(kBlack);
-    gRatio.SetLineColor(kBlack);
+    gRatio.SetMarkerStyle(8)
+    gRatio.SetMarkerSize(1.)
+    gRatio.SetMarkerColor(kBlack)
+    gRatio.SetLineColor(kBlack)
     gRatio.SetName(newName)
 
-    return gRatio;
+    return gRatio
 
 ## find maximum of tgraph, including error
 def findMaxOfGraph (graph):
@@ -416,8 +415,8 @@ def makeStatSystUncertaintyBand (sumOfBkg,listOfSplitBkgHists,namesOfSplitBkgHis
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
 
-    gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
-    return gBand;
+    gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp)
+    return gBand
 
 def retrieveShapes (rootFile, namelist, var, sel, reg, shapeNameList):
     res = {}
@@ -425,10 +424,10 @@ def retrieveShapes (rootFile, namelist, var, sel, reg, shapeNameList):
         # because the QCD syst is only lnN and no shape variations are produced
         if 'QCD' in name: continue
         for shapeName in shapeNameList:
-            fullName = name + "_" + sel + "_" + reg + "_" + var + '_' + shapeName
 
+            fullName = name + "_" + sel + "_" + reg + "_" + var + '_' + shapeName
             if not rootFile.GetListOfKeys().Contains(fullName):
-                print "*** WARNING: histo " , fullName , " not available"
+                print "*** WARNING: shape " , fullName , " not available"
                 continue
             h = rootFile.Get(fullName)
 
@@ -462,8 +461,8 @@ def scaleStatSystUncertaintyBandForStack (grUncert,bkgSum):
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
 
-    gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
-    return gBand;
+    gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp)
+    return gBand
 
 #######################################################################
 ######################### SCRIPT BODY #################################
@@ -503,6 +502,7 @@ if __name__ == "__main__" :
     parser.add_argument('--dynamicRatioY', dest='dynamicRatioY', help='ratio plot with ad hoc y-range?', default=False)
     parser.add_argument('--doStatSystBand', dest='doStatSystBand', help='create stat+syst uncertainty band?', action='store_true', default=False)
     parser.add_argument('--removeESsystBand', dest='removeESsystBand', help='remove energy scales from stat+syst band?', action='store_true', default=False)
+    parser.add_argument('--addJERunc', dest='addJERunc', help='add JER shape uncertainty', action='store_true', default=False)
     # list options
     parser.add_argument('--blind-range',   dest='blindrange', nargs=2, help='start and end of blinding range', default=None)
     parser.add_argument('--sigscale', dest='sigscale', nargs=2, help='scale to apply to the signals (GGHH VBFHH)', default=None)
@@ -516,9 +516,6 @@ if __name__ == "__main__" :
     if args.quit : gROOT.SetBatch(True)
 
     c1 = TCanvas ("c1", "c1", 600, 600)
-    # c1.SetLeftMargin(0.15);
-    # c1.SetBottomMargin(0.12);
-    # c1.SetTopMargin(0.055);
 
     pad1 = None
     pad2 = None
@@ -526,16 +523,16 @@ if __name__ == "__main__" :
     if args.ratio:
         pad1 = TPad ("pad1", "pad1", 0, 0.25, 1, 1.0)
         pad1.SetFrameLineWidth(3)
-        pad1.SetLeftMargin(0.12);
-        pad1.SetBottomMargin(0.02);
-        pad1.SetTopMargin(0.055);
+        pad1.SetLeftMargin(0.12)
+        pad1.SetBottomMargin(0.02)
+        pad1.SetTopMargin(0.055)
         pad1.Draw()
     else:
         pad1 = TPad ("pad1", "pad1", 0, 0.0, 1.0, 1.0)
         pad1.SetFrameLineWidth(3)
-        pad1.SetLeftMargin(0.12);
-        pad1.SetBottomMargin(0.12);
-        pad1.SetTopMargin(0.055);
+        pad1.SetLeftMargin(0.12)
+        pad1.SetBottomMargin(0.12)
+        pad1.SetTopMargin(0.055)
         pad1.Draw()
 
     pad1.cd()
@@ -621,7 +618,7 @@ if __name__ == "__main__" :
     hZH        = getHisto("ZH", hBkgs, doOverflow)
     hWH        = getHisto("WH", hBkgs, doOverflow)
     hVV        = getHisto("VV", hBkgs, doOverflow)
-    httH       = getHisto("ttH", hBkgs, doOverflow)
+    hTTH       = getHisto("ttH", hBkgs, doOverflow)
     hTTX       = getHisto("TTX", hBkgs, doOverflow)
     hggH       = getHisto("ggH", hBkgs, doOverflow)
     hqqH       = getHisto("qqH", hBkgs, doOverflow)
@@ -629,18 +626,19 @@ if __name__ == "__main__" :
     
     hDYlist = [hDY_LM, hDY_0b_1Pt, hDY_0b_2Pt, hDY_0b_3Pt, hDY_0b_4Pt, hDY_0b_5Pt, hDY_0b_6Pt, hDY_1b_1Pt, hDY_1b_2Pt, hDY_1b_3Pt, hDY_1b_4Pt, hDY_1b_5Pt, hDY_1b_6Pt, hDY_2b_1Pt, hDY_2b_2Pt, hDY_2b_3Pt, hDY_2b_4Pt, hDY_2b_5Pt, hDY_2b_6Pt]
     hothersList = [hEWK, hsingleT, hTW, hVV, hTTX, hVVV, hWJets]
-    hSingleHlist = [hZH, hWH, httH, hggH, hqqH]
+    hSingleHlist = [hZH, hWH, hTTH, hggH, hqqH]
     hDY = makeSum("DY",hDYlist)
     hSingleH = makeSum("singleH",hSingleHlist)
     hothers = makeSum("other",hothersList)
 
-    hBkgList = [hothers, hSingleH, hTT, hDY] # list for stack
-    hBkgNameList = ["Others", "single H", "t#bar{t}", "DY + jets"] # list for legend
-
+    hBkgList     = [hothers , hSingleH  ] # list for stack
+    hBkgNameList = ["Others", "Single H"] # list for legend
     if doQCD:
         hQCD = getHisto ("QCD", hBkgs,doOverflow)
         hBkgList.append(hQCD)
         hBkgNameList.append("QCD")
+    hBkgList     = [hTT       , hDY        ] # list for stack
+    hBkgNameList = ["t#bar{t}", "Drell-Yan"] # list for legend
 
     hData = getHisto("data_obs", hDatas , doOverflow)
 
@@ -657,7 +655,7 @@ if __name__ == "__main__" :
         # these two lists are used for the calculation of the syst error band. They must:
         #       1. be in the same order
         #       2. use the same names as those in the mainCfg (for hSystBkgNameList)
-        hSystBkgList = [hDY_LM.Clone(), hDY_0b_1Pt.Clone(), hDY_0b_2Pt.Clone(), hDY_0b_3Pt.Clone(), hDY_0b_4Pt.Clone(), hDY_0b_5Pt.Clone(), hDY_0b_6Pt.Clone(), hDY_1b_1Pt.Clone(), hDY_1b_2Pt.Clone(), hDY_1b_3Pt.Clone(), hDY_1b_4Pt.Clone(), hDY_1b_5Pt.Clone(), hDY_1b_6Pt.Clone(), hDY_2b_1Pt.Clone(), hDY_2b_2Pt.Clone(), hDY_2b_3Pt.Clone(), hDY_2b_4Pt.Clone(), hDY_2b_5Pt.Clone(), hDY_2b_6Pt.Clone(), hTT.Clone(), hWJets.Clone(), hEWK.Clone(), hsingleT.Clone(), hTW.Clone(), hZH.Clone(), hWH.Clone(), hVV.Clone(), httH.Clone(), hTTX.Clone(), hggH.Clone(), hqqH.Clone(), hVVV.Clone(), hQCD.Clone()]
+        hSystBkgList = [hDY_LM.Clone(), hDY_0b_1Pt.Clone(), hDY_0b_2Pt.Clone(), hDY_0b_3Pt.Clone(), hDY_0b_4Pt.Clone(), hDY_0b_5Pt.Clone(), hDY_0b_6Pt.Clone(), hDY_1b_1Pt.Clone(), hDY_1b_2Pt.Clone(), hDY_1b_3Pt.Clone(), hDY_1b_4Pt.Clone(), hDY_1b_5Pt.Clone(), hDY_1b_6Pt.Clone(), hDY_2b_1Pt.Clone(), hDY_2b_2Pt.Clone(), hDY_2b_3Pt.Clone(), hDY_2b_4Pt.Clone(), hDY_2b_5Pt.Clone(), hDY_2b_6Pt.Clone(), hTT.Clone(), hWJets.Clone(), hEWK.Clone(), hsingleT.Clone(), hTW.Clone(), hZH.Clone(), hWH.Clone(), hVV.Clone(), hTTH.Clone(), hTTX.Clone(), hggH.Clone(), hqqH.Clone(), hVVV.Clone(), hQCD.Clone()]
         hSystBkgNameList = ['DY_LM', 'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt', 'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt', 'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt', 'TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'qqH', 'VVV', 'QCD']
         hShapesNameList = ['etauFR_barrelUp', 'etauFR_endcapUp', 'PUjetIDSFUp', 'etauFR_barrelDown', 'etauFR_endcapDown', 'PUjetIDSFDown', 'bTagweightReshapeLFUp', 'bTagweightReshapeHFUp', 'bTagweightReshapeHFSTATS1Up', 'bTagweightReshapeHFSTATS2Up', 'bTagweightReshapeLFSTATS1Up', 'bTagweightReshapeLFSTATS2Up', 'bTagweightReshapeCFERR1Up', 'bTagweightReshapeCFERR2Up', 'bTagweightReshapeLFDown', 'bTagweightReshapeHFDown', 'bTagweightReshapeHFSTATS1Down', 'bTagweightReshapeHFSTATS2Down', 'bTagweightReshapeLFSTATS1Down', 'bTagweightReshapeLFSTATS2Down', 'bTagweightReshapeCFERR1Down', 'bTagweightReshapeCFERR2Down']
         # the ETau, MuTau, and TauTau channels have some different shapes -> we add them here separately
@@ -677,6 +675,10 @@ if __name__ == "__main__" :
             #addES = ['tauup_DM0', 'taudown_DM0', 'tauup_DM1', 'taudown_DM1', 'tauup_DM10', 'taudown_DM10', 'tauup_DM11', 'taudown_DM11', 'eleup_DM0', 'eledown_DM0', 'eleup_DM1', 'eledown_DM1', 'muup', 'mudown', 'jetup1', 'jetup2', 'jetup3', 'jetup4', 'jetup5', 'jetup6', 'jetup7', 'jetup8', 'jetup9', 'jetup10', 'jetup11', 'jetdown1', 'jetdown2', 'jetdown3', 'jetdown4', 'jetdown5', 'jetdown6', 'jetdown7', 'jetdown8', 'jetdown9', 'jetdown10', 'jetdown11']
             addES = ['tauup_DM0', 'taudown_DM0', 'tauup_DM1', 'taudown_DM1', 'tauup_DM10', 'taudown_DM10', 'tauup_DM11', 'taudown_DM11', 'eleup_DM0', 'eledown_DM0', 'eleup_DM1', 'eledown_DM1', 'muup', 'mudown', 'jetupTot', 'jetdownTot']
             for sh in addES: hShapesNameList.append(sh)
+
+        if args.addJERunc:
+            addShapes = ['JERup', 'JERdown']
+            for sh in addShapes: hShapesNameList.append(sh)
 
         hShapes = retrieveShapes(rootFile, bkgList, args.var, args.sel, args.reg, hShapesNameList)
 
@@ -898,6 +900,8 @@ if __name__ == "__main__" :
                 sel_qcd = 'classTT'
         if "VBFloose" in args.sel:
                 sel_qcd = "VBFloose" # this does not exist in the systematics_QCD.cfg file --> it is just a dummy to avoid the breaking of makeStatSystUncertaintyBand()
+        if "baseline" in args.sel:
+                sel_qcd = "baseline" # this does not exist in the systematics_QCD.cfg file --> it is just a dummy to avoid the breaking of makeStatSystUncertaintyBand()
 
         #print("-----------------------------------------------------------------------")
         #print("Stack plot stat+syst band calculation info")
@@ -1023,17 +1027,16 @@ if __name__ == "__main__" :
 
     ###################### RATIO PLOT #################################
     if args.ratio:
-        bkgStack.GetXaxis().SetTitleSize(0.00);
-        bkgStack.GetXaxis().SetLabelSize(0.00);
+        bkgStack.GetXaxis().SetTitleSize(0.00)
+        bkgStack.GetXaxis().SetLabelSize(0.00)
 
         c1.cd()
         pad2 = TPad ("pad2", "pad2", 0, 0.0, 1, 0.2496)
-        pad2.SetLeftMargin(0.12);
-        pad2.SetTopMargin(0.045);
-        pad2.SetBottomMargin(0.4);
-        pad2.SetGridy(True);
+        pad2.SetLeftMargin(0.12)
+        pad2.SetTopMargin(0.045)
+        pad2.SetBottomMargin(0.4)
+        pad2.SetGridy(True)
         pad2.SetFrameLineWidth(3)
-        #pad2.SetGridx(True);
         pad2.Draw()
         pad2.cd()
 
@@ -1054,10 +1057,10 @@ if __name__ == "__main__" :
         hRatio.GetXaxis().SetTitleOffset(3.9)
         hRatio.GetYaxis().SetTitleOffset(1.2)
 
-        hRatio.GetXaxis().SetTitleSize(titleSize);
-        hRatio.GetXaxis().SetLabelSize(labelSize);
-        hRatio.GetYaxis().SetTitleSize(titleSize);
-        hRatio.GetYaxis().SetLabelSize(labelSize);
+        hRatio.GetXaxis().SetTitleSize(titleSize)
+        hRatio.GetXaxis().SetLabelSize(labelSize)
+        hRatio.GetYaxis().SetTitleSize(titleSize)
+        hRatio.GetYaxis().SetLabelSize(labelSize)
 
         hRatio.GetXaxis().SetTickSize(0.10)
         hRatio.GetYaxis().SetTickSize(0.05)
@@ -1099,8 +1102,8 @@ if __name__ == "__main__" :
         grUncertRatio.SetFillStyle(3002)
         grUncertRatio.Draw("e2")
 
-        pad2.RedrawAxis();
-        pad2.RedrawAxis("g"); #otherwise no grid..
+        pad2.RedrawAxis()
+        pad2.RedrawAxis("g") #otherwise no grid..
 
     ###################### DISPLAY ###################################
     if not args.quit:
@@ -1117,8 +1120,10 @@ if __name__ == "__main__" :
         if args.binwidth: saveName = saveName+"_binWidth"
         if args.doStatSystBand: saveName = saveName+'_StatSystBand'
         if args.removeESsystBand: saveName = saveName+'_noES'
+        if args.addJERunc: saveName = saveName+'_JER'
 
         c1.SaveAs (saveName+".pdf")
+        c1.SaveAs (saveName+".png")
 
 
 
