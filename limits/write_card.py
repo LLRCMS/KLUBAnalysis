@@ -171,6 +171,10 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         syst.addQCDSystFile("../config/systematics_QCD"+opt.year+".cfg")
         syst.writeQCDSystematics(opt.channel,theCatName)
 
+        # Add VBFdipole uncertainty
+        syst.addVBFdipoleSystFile("../config/systematics_VBFdipole.cfg")
+        syst.writeVBFdipoleSystematics(opt.channel,theCatName)
+
         # Declare dictionary to be filled with systs
         proc_syst = {} # key = proc name; value = {systName: [systType, systVal]] } # too nested? \_(``)_/
         for proc in backgrounds: proc_syst[proc] = {}
@@ -217,6 +221,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         if opt.shapeUnc > 0:
             for name in systsShape:
                 for proc in backgrounds:
+                    if "QCD" in proc: continue
                     proc_syst[proc][name] = ["shape", 1.]   #applying jes or tes to all MC backgrounds
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,  regionSuffix[region], variable[theCat], name))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable[theCat], name))
@@ -256,7 +261,6 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 customTauIdSFname = "customTauIdSF" + customDMname
                 systsShape.append(CMS_customTauIdSFname)
                 for proc in backgrounds:
-                    #if opt.dynamQCD and "QCD" in proc: continue
                     if "QCD" in proc: continue
                     proc_syst[proc][CMS_customTauIdSFname] = ["shape", 1.]   #applying trigger to all MC backgrounds
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], customTauIdSFname))
@@ -276,7 +280,6 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             PUjetIDname = "PUjetIDSF"
             systsShape.append(CMS_PUjetIDname)
             for proc in backgrounds:
-                #if opt.dynamQCD and "QCD" in proc: continue
                 if "QCD" in proc: continue
                 proc_syst[proc][CMS_PUjetIDname] = ["shape", 1.]   #applying trigger to all MC backgrounds
                 shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], PUjetIDname))
@@ -322,7 +325,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 bTagSystName = "bTagweightReshape" + bTagSyst
                 systsShape.append(CMS_bTagSystName)
                 for proc in backgrounds:
-                    if opt.dynamQCD and "QCD" in proc: continue
+                    if "QCD" in proc: continue
                     proc_syst[proc][CMS_bTagSystName] = ["shape", 1.]   #applying trigger to all MC backgrounds
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
@@ -342,7 +345,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 bTagSystName = "bTagweightReshape" + bTagSyst
                 systsShape.append(CMS_bTagSystName)
                 for proc in backgrounds:
-                    if opt.dynamQCD and "QCD" in proc: continue
+                    if "QCD" in proc: continue
                     proc_syst[proc][CMS_bTagSystName] = ["shape", 1.]   #applying trigger to all MC backgrounds
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
@@ -373,7 +376,6 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 trigDMname = "trigSF" + DMname
                 systsShape.append(CMS_trigDMname)
                 for proc in backgrounds:
-                    #if opt.dynamQCD and "QCD" in proc: continue
                     if "QCD" in proc: continue
                     proc_syst[proc][CMS_trigDMname] = ["shape", 1.]   #applying trigger to all MC backgrounds
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
@@ -397,7 +399,6 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 tauPTname = "tauid_pt" + PTname
                 systsShape.append(CMS_tauPTname)
                 for proc in backgrounds:
-                    #if opt.dynamQCD and "QCD" in proc: continue
                     if "QCD" in proc: continue
                     proc_syst[proc][CMS_tauPTname] = ["shape", 1.]   #applying trigger to all MC backgrounds
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
@@ -438,7 +439,6 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 tauELEname = "etauFR_" + ELEname
                 systsShape.append(CMS_tauELEname)
                 for proc in backgrounds:
-                    #if opt.dynamQCD and "QCD" in proc: continue
                     if "QCD" in proc: continue
                     proc_syst[proc][CMS_tauELEname] = ["shape", 1.]   #applying trigger to all MC backgrounds
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
