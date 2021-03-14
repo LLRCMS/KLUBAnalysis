@@ -293,6 +293,24 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 shiftShapes_newName.append(proc+"_"+CMS_PUjetIDname+"Up")
                 shiftShapes_newName.append(proc+"_"+CMS_PUjetIDname+"Down")
 
+            # Add JER uncertainty
+            CMS_JERname = "CMS_JER_"+opt.year
+            JERname = "JER"
+            systsShape.append(CMS_JERname)
+            for proc in backgrounds:
+                if "QCD" in proc: continue
+                proc_syst[proc][CMS_JERname] = ["shape", 1.]   #applying trigger to all MC backgrounds
+                shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}up"  .format(proc, select, regionSuffix[region], variable[theCat], JERname))
+                shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}down".format(proc, select, regionSuffix[region], variable[theCat], JERname))
+                shiftShapes_newName.append(proc+"_"+CMS_JERname+"Up")
+                shiftShapes_newName.append(proc+"_"+CMS_JERname+"Down")
+            for proc in signals:
+                proc_syst[proc][CMS_JERname] = ["shape", 1.]   #applying trigger to all signals
+                shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}up"  .format(proc, select, regionSuffix[region], variable[theCat], JERname))
+                shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}down".format(proc, select, regionSuffix[region], variable[theCat], JERname))
+                shiftShapes_newName.append(proc+"_"+CMS_JERname+"Up")
+                shiftShapes_newName.append(proc+"_"+CMS_JERname+"Down")
+
             # Add bTag SF uncertainty - for WP scle factors
             #if "boosted" in select:
             #    WPs = ["L"]
