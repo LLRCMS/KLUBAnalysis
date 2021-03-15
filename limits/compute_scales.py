@@ -47,13 +47,13 @@ toscan = ['tesXXX_DM0', 'tesXXX_DM1', 'tesXXX_DM10', 'tesXXX_DM11', 'eesXXX_DM0'
 
 for channel in channels:
 	print "doing channel: ", channel 
-	inputFile = '../analysis_24Dec2020_syst/%s_%s/outPlotter.root' % (channel, opt.year)
-	print inputFile	
+	inputFile = '../analysis_12Mar2021_syst/%s_%s/outPlotter.root' % (channel, opt.year)
+	print "inputfile:", inputFile
 	fIn = TFile.Open(inputFile)
 	
 	## retrieve histograms
 	for sel in selections:
-	    print "doing selection: ", sel
+	    print "  doing selection: ", sel
 	    for scale in toscan:
 	        histos_nominal = {}
 	        histos_up      = {}
@@ -75,10 +75,10 @@ for channel in channels:
 	
 	            shiftUp   = 1.0
 	            shiftDown = 1.0
-	            if ynom > 0 and histos_nominal[proc].GetEntries() > 10:
+	            if ynom > 0. and yup > 0. and ydown > 0. and histos_nominal[proc].GetEntries() > 10:
 	                shiftUp = 1.*yup/ynom
 	                shiftDown = 1.*ydown/ynom
-	
+
 	            fout.write('%30s     ' % proc)
 	            fout.write('%.3f     ' % shiftUp)
 	            fout.write('%.3f'      % shiftDown)
