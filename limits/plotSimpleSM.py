@@ -59,7 +59,7 @@ c1.SetGridy()
 mg = ROOT.TMultiGraph()
 
 var = 'DNNoutSM_kl_1'
-tag = '27Nov2020'
+tag = '13Mar2021'
 
 years = ['2016', '2017', '2018', '']
 
@@ -72,9 +72,9 @@ grobs = ROOT.TGraph()
 ptsList = [] # (x, obs, exp, p2s, p1s, m1s, m2s)
 for i, year in enumerate(years):
 
-    fName = 'cards_CombChan_'+year+'_'+tag+'/out_Asym_SM_noTH.log'
+    fName = 'cards_CombChan_'+year+'_'+tag+'/out_Asym_SM.log'
     if year == '':
-        fName = 'cards_CombAll_'+tag+'_autoMC1/out_Asym_SM_noTH.log'
+        fName = 'cards_CombAll_'+tag+'/out_Asym_SM.log'
 
     # Can get different results on r_gghh:
     #exp = parseFile(fName)                  # <- How many times the SM I'm excluding
