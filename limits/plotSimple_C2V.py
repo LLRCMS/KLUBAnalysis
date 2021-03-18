@@ -91,14 +91,14 @@ mg = ROOT.TMultiGraph()
 
 var = 'DNNoutSM_kl_1'
 
-year = '2017'
-tag = 'CombChan_'+year+'_27Nov2020'
 #year = '2018'
-#tag = 'CombAll_27Nov2020'
+#tag = 'CombChan_'+year+'_13Mar2021'
+year = '2018'
+tag = 'CombAll_13Mar2021'
 
 selections = ["comb_cat"]
 
-klval = [-5.5, -5  , -4.5, -4  , -3.5, -3  , -2.5, -2  , -1.5, -1  , -0.5, 0  ,0.5,1  ,1.5,2  ,2.5,3  ,3.5,4  ,4.5,5  ,5.5]
+klval = [-5.5, -5  , -4.5, -4  , -3.5, -3  , -2.5, -2  , -1.5, -1  , -0.8, -0.6, -0.4, -0.2, 0   , 0.2 , 0.4 , 0.6 , 0.8 , 1   , 1.2 , 1.4 , 1.6 , 1.8 , 2   , 2.2 , 2.4 , 2.6 , 2.8 , 3   , 3.5 , 4   , 4.5 , 5   , 5.5]
 print klval
 
 lambdas = [x for x in range(1, len(klval)+1)]
@@ -118,13 +118,15 @@ for sel in selections:
         if 'Chan' in tag:
             fName = 'cards_'+tag+'/out_Asym_VBF{0}_noTH.log'.format(lambdas[ipt])
         elif 'All' in tag:
-            fName = 'cards_CombAll_27Nov2020_autoMC1/out_Asym_VBF{0}_noTH.log'.format(lambdas[ipt])
+            fName = 'cards_'+tag+'/out_Asym_VBF{0}_noTH.log'.format(lambdas[ipt])
         else:
             #fName = 'cards_Combined_2019_10_11/ggHH_bbtt{0}BDToutSM_kl_{1}/out_Asym_ggHH_bbtt{0}_noTH.log'.format(lambdas[ipt], klval[ipt])
             #fName = 'cards_Combined_2017_03_10_lmr70/ggHH_bbtt{0}MT2/out_Asym_ggHH_bbtt{0}_noTH.log'.format(lambdas[ipt])
             fName = 'cards_TauTau1Sept_noShape_GGF/{0}'.format(sel)+var+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
 
         xval = klval[ipt]
+
+        if xval == 1: fName = fName.replace('_noTH','')
 
         corrFactor = 1.034772182
         if year == "2016":

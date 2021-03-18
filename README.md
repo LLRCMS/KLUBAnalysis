@@ -29,7 +29,7 @@ git clone git@github.com:hh-italian-group/HHbtag.git HHTools/HHbtag
 git clone git@github.com:LLRCMS/HHKinFit2.git -b bbtautau_LegacyRun2
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
-git checkout v8.0.1
+git checkout v8.2.0
 cd -
 
 # SVfit packages

@@ -91,19 +91,18 @@ mg = ROOT.TMultiGraph()
 
 var = 'DNNoutSM_kl_1'
 
-#year = '2016'
-#tag = 'CombChan_'+year+'_27Nov2020'
+#year = '2018'
+#tag = 'CombChan_'+year+'_13Mar2021'
 year = '2018'
-tag = 'CombAll_27Nov2020'
+tag = 'CombAll_13Mar2021'
 
 selections = ["comb_cat"]
 
-lambdas = [x for x in range(1, 42)]
+lambdas = [x for x in range(1, 82)]
 print lambdas
 
-klval = [-20, -19, -18, -17, -16, -15, -14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+klval = [-20  , -19.5, -19  , -18.5, -18  , -17.5, -17  , -16.5, -16  , -15.5, -15  , -14.5, -14  , -13.5, -13  , -12.5, -12  , -11.5, -11  , -10.5, -10  , -9.5 , -9   , -8.5 , -8   , -7.5 , -7   , -6.5 , -6   , -5.5 , -5   , -4.5 , -4   , -3.5 , -3   , -2.5 , -2   , -1.5 , -1   , -0.5 , 0    , 0.5  , 1    , 1.5  , 2    , 2.5  , 3    , 3.5  , 4    , 4.5  , 5    , 5.5  , 6    , 6.5  , 7    , 7.5  , 8    , 8.5  , 9    , 9.5  , 10   , 10.5 , 11   , 11.5 , 12   , 12.5 , 13   , 13.5 , 14   , 14.5 , 15   , 15.5 , 16   , 16.5 , 17   , 17.5 , 18   , 18.5 , 19   , 19.5 , 20]
 print klval
-
 
 ### read the scan with normal width
 for sel in selections:
@@ -119,13 +118,15 @@ for sel in selections:
         if 'Chan' in tag:
             fName = 'cards_'+tag+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
         elif 'All' in tag:
-            fName = 'cards_CombAll_27Nov2020_autoMC1/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
+            fName = 'cards_'+tag+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
         else:
             #fName = 'cards_Combined_2019_10_11/ggHH_bbtt{0}BDToutSM_kl_{1}/out_Asym_ggHH_bbtt{0}_noTH.log'.format(lambdas[ipt], klval[ipt])
             #fName = 'cards_Combined_2017_03_10_lmr70/ggHH_bbtt{0}MT2/out_Asym_ggHH_bbtt{0}_noTH.log'.format(lambdas[ipt])
             fName = 'cards_TauTau1Sept_noShape_GGF/{0}'.format(sel)+var+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
 
         xval = klval[ipt]
+
+        if xval == 1: fName = fName.replace('_noTH','')
 
         corrFactor = 1.034772182
         if year == "2016":

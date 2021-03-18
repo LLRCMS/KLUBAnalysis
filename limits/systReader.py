@@ -21,6 +21,7 @@ class systReader:
         self.writeOut = True
         self.printResult = True
         self.theQCDdict = {}
+        self.theVBFdipoledict = {}
 
         self.SystNames = []
         self.SystTypes = []
@@ -191,6 +192,67 @@ class systReader:
 
         if self.printResult:
             print " Parsed QCD systematics:"
+            for line in OutputLines:
+                print " ", line
+
+    def addVBFdipoleSystFile(self, theVBFFile):
+        if not os.path.exists(theVBFFile):
+            raise RuntimeError, "File {0} does not exist!!!".format(theVBFFile)
+
+        # Read from config and save in dictionary
+        config = ConfigParser.SafeConfigParser()
+        config.read(theVBFFile)
+
+        # Get sections and iterate over each
+        sections = config.sections()
+        for section in sections:
+            options = config.options(section)
+            temp_dict = {}
+            for option in options:
+                temp_dict[option] = config.get(section,option)
+            self.theVBFdipoledict[section] = temp_dict
+
+    def writeVBFdipoleSystematics(self,theChan,theCat):
+        print "- Reading VBFdipole systematics -"
+        outputLine = ""
+        OutputLines = []
+        activeProc = []
+        activeVal = []
+        systLine = {}
+
+        if len(self.theVBFdipoledict) == 1:
+            raise RuntimeError, "Dictionary for VBFdipole systematics is empty!!!"
+
+        sectionname = theChan+'_'+theCat
+        VBFuncs = self.theVBFdipoledict[sectionname].keys()
+
+        for unc in VBFuncs:
+            f = re.split(':',self.theVBFdipoledict[sectionname][unc])
+            systname = f[0]
+            systval = f[1]
+
+            outputLine = systname + " lnN "
+            for proc in self.processes:
+                if "qqHH" in proc:
+                    outputLine += " "+systval+" "
+                    activeProc.append(proc)
+                    activeVal.append(systval)
+                else:
+                    outputLine += "- "
+
+            OutputLines.append(outputLine)
+            self.SystNames.append(systname)
+            self.SystTypes.append("lnN")
+            self.SystProcesses.append(activeProc)
+            self.SystValues.append(activeVal)
+
+            # Restore outputLine and activeProcvesses before going to next section
+            outputLine = ""
+            activeProc = []
+            activeVal = []
+
+        if self.printResult:
+            print " Parsed VBFdipole systematics:"
             for line in OutputLines:
                 print " ", line
 
