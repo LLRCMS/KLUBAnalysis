@@ -24,7 +24,7 @@ def parseOptions():
     parser.add_option('-s', '--selection', dest='overSel'   , type='string', default=''      , help='overwrite selection string')
     parser.add_option('-y', '--year'     , dest='year'      , type='string', default='2016'  , help='year')
     parser.add_option('-u', '--shape'    , dest='shapeUnc'  , type='int'   , default=1       , help='1:add 0:disable shape uncertainties')
-    parser.add_option('-q', '--dynamQCD' , dest='dynamQCD'  , type='int'   , default=1       , help='1:do QCD as rateParam / 0:read QCD from file')
+    parser.add_option('-q', '--dynamQCD' , dest='dynamQCD'  , type='int'   , default=0       , help='1:do QCD as rateParam / 0:read QCD from file')
     parser.add_option('-r', '--resonant' , dest='isResonant', action="store_true"            , help='is Resonant analysis')
     parser.add_option('-b', '--binbybin' , dest='binbybin'  , action="store_true"            , help='add bin by bins systematics')
     parser.add_option('-t', '--theory'   , dest='theory'    , action="store_true"            , help='add theory systematics')
