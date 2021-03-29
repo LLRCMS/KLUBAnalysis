@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     #scriptFile.write('%s -n %s_forLim &> out_Asym_%s.log \n' % (command, opt.n,opt.n))
     #scriptFile.write('%s -n %s_forLim_noTH --freezeNuisanceGroups theory &> out_Asym_%s_noTH.log \n' % (command,opt.n,opt.n))
-    scriptFile.write('%s -n %s_forLim%s &> out_Asym_%s%s.log \n' % (command,opt.n,theoryName,opt.n,theoryName))
+    scriptFile.write('%s -m 125 -n %s_forLim%s &> out_Asym_%s%s.log \n' % (command,opt.n,theoryName,opt.n,theoryName))
     scriptFile.write('echo "All done for job %s" \n'%opt.n)
     scriptFile.close()
     os.system('chmod u+rwx %s/runJob_Asym_%s.sh'%(jobsDir,opt.n))

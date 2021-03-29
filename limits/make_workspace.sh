@@ -21,5 +21,5 @@ cd $tag/$sel$var
 rm comb.txt
 combineCards.py -S hh_*.txt >> comb.txt
 cd -
-text2workspace.py $tag/$sel$var/comb.txt -P HHModelPinv:model_bbtautau -o $tag/$sel$var/comb.root -m 125 --PO doBRscaling=false --PO doHscaling=false
+text2workspace.py $tag/$sel$var/comb.txt -P HHModelPinv:model_bbtautau -o $tag/$sel$var/comb.root -m 125
 done
