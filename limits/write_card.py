@@ -542,7 +542,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             file.write(line)
         file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
 
-        file.write    ('theory group = BR_hbb BR_htt QCDscale_ggHH pdf_ggHH m_top_unc_ggHH QCDscale_qqHH pdf_qqHH\n')
+        file.write    ('theory group = BR_hbb BR_htt pdf_ggHH m_top_unc_ggHH QCDscale_qqHH pdf_qqHH\n')
         if opt.dynamQCD:
             file.write("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(selectName))
 
