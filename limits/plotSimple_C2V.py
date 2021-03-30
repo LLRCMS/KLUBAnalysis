@@ -7,18 +7,18 @@ import ROOT
 
 def redrawBorder():
    # this little macro redraws the axis tick marks and the pad border lines.
-   ROOT.gPad.Update();
-   ROOT.gPad.RedrawAxis();
+   ROOT.gPad.Update()
+   ROOT.gPad.RedrawAxis()
    l = ROOT.TLine()
    l.SetLineWidth(3)
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin());
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin())
 
 def getExpValue( kl,  yt): 
     BR =1 
-    return (2.09*yt*yt*yt*yt +   0.28*yt*yt*kl*kl  -1.37*yt*yt*yt*kl)*2.44477/BR;
+    return (2.09*yt*yt*yt*yt +   0.28*yt*yt*kl*kl  -1.37*yt*yt*yt*kl)*2.44477/BR
 
 
 def parseFile(filename, CL='50.0', exp=True):
@@ -92,9 +92,9 @@ mg = ROOT.TMultiGraph()
 var = 'DNNoutSM_kl_1'
 
 #year = '2018'
-#tag = 'CombChan_'+year+'_13Mar2021'
+#tag = 'CombChan_'+year+'_24Mar2021'
 year = '2018'
-tag = 'CombAll_13Mar2021'
+tag = 'CombAll_24Mar2021'
 
 selections = ["comb_cat"]
 
@@ -326,7 +326,7 @@ for sel in selections:
     #grobs.Draw("Lsame")
 
     graph.Draw("l same")
-    #Graph_syst_Scale.Draw("e3 same");
+    #Graph_syst_Scale.Draw("e3 same")
 
     pt.Draw()
     pt2.Draw()
@@ -338,7 +338,7 @@ for sel in selections:
     pt4.Draw()
     c1.Update()
 
-    c1.Print("plots/C2Vscan_"+tag+"_theor.pdf", 'pdf')
+    c1.Print("plots/v3/C2Vscan_"+tag+"_theor.pdf", 'pdf')
 
 import pdb; pdb.set_trace()
 

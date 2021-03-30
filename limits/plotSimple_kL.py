@@ -7,18 +7,18 @@ import ROOT
 
 def redrawBorder():
    # this little macro redraws the axis tick marks and the pad border lines.
-   ROOT.gPad.Update();
-   ROOT.gPad.RedrawAxis();
+   ROOT.gPad.Update()
+   ROOT.gPad.RedrawAxis()
    l = ROOT.TLine()
    l.SetLineWidth(3)
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin());
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin())
 
 def getExpValue( kl,  yt): 
     BR =1 
-    return (2.09*yt*yt*yt*yt +   0.28*yt*yt*kl*kl  -1.37*yt*yt*yt*kl)*2.44477/BR;
+    return (2.09*yt*yt*yt*yt +   0.28*yt*yt*kl*kl  -1.37*yt*yt*yt*kl)*2.44477/BR
 
 
 def parseFile(filename, CL='50.0', exp=True):
@@ -92,9 +92,9 @@ mg = ROOT.TMultiGraph()
 var = 'DNNoutSM_kl_1'
 
 #year = '2018'
-#tag = 'CombChan_'+year+'_13Mar2021'
+#tag = 'CombChan_'+year+'_24Mar2021'
 year = '2018'
-tag = 'CombAll_13Mar2021'
+tag = 'CombAll_24Mar2021'
 
 selections = ["comb_cat"]
 
@@ -270,8 +270,8 @@ for sel in selections:
     BR = 1
     C2V = 1
     CV = 1
-    #myFunc =  ROOT.TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*[0]*x*[0] -1.37*[0]*[0]*[0]*x*[0])*2.44185/[1]",xmin,xmax); # 2016 data
-    #myFunc =  ROOT.TF1("myFunc","(62.5339 -44.323*x + 9.6340*x*x)*1.115",xmin,xmax); # GGF only
+    #myFunc =  ROOT.TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*[0]*x*[0] -1.37*[0]*[0]*[0]*x*[0])*2.44185/[1]",xmin,xmax) # 2016 data
+    #myFunc =  ROOT.TF1("myFunc","(62.5339 -44.323*x + 9.6340*x*x)*1.115",xmin,xmax) # GGF only
     myFunc =  ROOT.TF1("myFunc","( (62.5339 -44.323*x + 9.6340*x*x)*1.115) + ( ( 0.001668*(-3.3*[1]**2 + 1.3*[1]*[0]**2 + 7.6*[1]*[0]*x + 2.0*[0]**4 - 5.6*[0]**3*x - 1.0*[0]**2*x**2) + 0.01374*(1.5*[1]**2 + 0.5*[1]*[0]**2 - 4.0*[1]*[0]*x - 2.0*[0]**4 + 4.0*[0]**3*x) + 0.001375*(0.35*[1]**2 - 0.0166666666666667*[1]*[0]**2 - 1.03333333333333*[1]*[0]*x - 0.333333333333333*[0]**4 + 0.533333333333333*[0]**3*x + 0.5*[0]**2*x**2) + 0.004454*(-0.45*[1]**2 + 0.45*[1]*[0]**2 + 0.9*[1]*[0]*x + 1.0*[0]**4 - 2.4*[0]**3*x + 0.5*[0]**2*x**2) + 0.01046*(-2.0*[1]**2 - 3.33333333333333*[1]*[0]**2 + 9.33333333333333*[1]*[0]*x + 5.33333333333333*[0]**4 - 9.33333333333333*[0]**3*x) + 0.0638*(0.4*[1]**2 - 0.4*[1]*[0]**2 - 0.8*[1]*[0]*x + 0.8*[0]**3*x) ) * 1.034772182 * 1000.0 ) ",xmin,xmax)
     myFunc.SetParameter(0,CV)
     myFunc.SetParameter(1,C2V)
@@ -327,7 +327,7 @@ for sel in selections:
     #grobs.Draw("Lsame")
 
     graph.Draw("l same")
-    #Graph_syst_Scale.Draw("e3 same");
+    #Graph_syst_Scale.Draw("e3 same")
 
     pt.Draw()
     pt2.Draw()
@@ -338,7 +338,7 @@ for sel in selections:
     pt4.Draw()
     c1.Update()
 
-    c1.Print("plots/klscan_"+tag+"_theor.pdf", 'pdf')
+    c1.Print("plots/v3/klscan_"+tag+"_theor.pdf", 'pdf')
 
 import pdb; pdb.set_trace()
 
