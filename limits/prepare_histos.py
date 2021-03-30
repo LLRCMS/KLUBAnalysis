@@ -11,6 +11,7 @@ def parseOptions():
     parser.add_option('-o', '--outfile' , dest='outName' , type='string', default="w"     , help='output suffix')
     parser.add_option('-c', '--channel' , dest='channel' , type='string', default="TauTau", help='channel')
     parser.add_option('-y', '--year'    , dest='year'    , type='string', default="2016"  , help='year')
+    parser.add_option('-q', '--dynamQCD', dest='dynamQCD', type='int'   , default=0       , help='1:do QCD as rateParam / 0:read QCD from file')
 
     # store options and arguments as global variables
     global opt, args
@@ -48,6 +49,26 @@ for key in inFile.GetListOfKeys():
 	ih = ih + 1
 	if (ih%500 == 0): print key,ih,"/",toth
 	kname = key.GetName()
+
+	# If QCD is read from file and not computed as rate parameter in the datacards
+	# we can skip all the SStight/OSinviso/SSinviso shifted template and save
+	# a lot of time and space
+	if opt.dynamQCD == 0:
+		if 'SStight' in kname and 'Up'   in kname: continue
+		if 'SStight' in kname and 'Down' in kname: continue
+		if 'SStight' in kname and 'up'   in kname: continue
+		if 'SStight' in kname and 'down' in kname: continue
+
+		if 'OSinviso' in kname and 'Up'   in kname: continue
+		if 'OSinviso' in kname and 'Down' in kname: continue
+		if 'OSinviso' in kname and 'up'   in kname: continue
+		if 'OSinviso' in kname and 'down' in kname: continue
+
+		if 'SSinviso' in kname and 'Up'   in kname: continue
+		if 'SSinviso' in kname and 'Down' in kname: continue
+		if 'SSinviso' in kname and 'up'   in kname: continue
+		if 'SSinviso' in kname and 'down' in kname: continue
+
 	template = inFile.Get(kname)
 
 	#protection against empty bins
