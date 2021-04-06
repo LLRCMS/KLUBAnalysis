@@ -32,7 +32,7 @@ leg.SetFillColor(ROOT.kWhite)
 
 mg = ROOT.TMultiGraph()
 mg.GetYaxis().SetTitle("-2 #Delta ln(L)")
-mg.GetXaxis().SetTitle("C_{2V}")
+mg.GetXaxis().SetTitle("k_{VV}")
 
 
 for i,year in enumerate(years):
@@ -109,7 +109,7 @@ hframe.GetXaxis().SetLabelOffset(0.012)
 hframe.GetYaxis().SetTitleOffset(1.2)
 hframe.GetXaxis().SetTitleOffset(1.1)
 hframe.GetYaxis().SetTitle("-2 #Delta ln(L)")
-hframe.GetXaxis().SetTitle("C_{2V}")
+hframe.GetXaxis().SetTitle("k_{VV}")
 hframe.SetStats(0)
 ROOT.gPad.SetTicky()
 hframe.Draw()

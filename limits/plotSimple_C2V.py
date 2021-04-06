@@ -314,7 +314,7 @@ for sel in selections:
     hframe.GetXaxis().SetTitleOffset(1.1)
 
     hframe.GetYaxis().SetTitle("95% CL on #sigma_{VBF} (pp#rightarrow HHjj) [fb]")
-    hframe.GetXaxis().SetTitle("C_{2V}")
+    hframe.GetXaxis().SetTitle("k_{VV}")
 
     hframe.SetStats(0)
     ROOT.gPad.SetTicky()
