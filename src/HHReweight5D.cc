@@ -1,114 +1,153 @@
 #include "HHReweight5D.h"
-#include <vector>
-#include <iostream>
-#include <sstream>
-#include <cmath>
-#include <utility>
 
-#include "TH2D.h"
-#include "TMath.h"
+#define DEBUG true
 
-using namespace std;
+HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string EFTBMname, std::string year, bool cms_fake, bool useAbsEta)
+{
+    // clone the input histogram
+    TH2* cloneH = (TH2*) hInput->Clone("h_input");
 
-#define DEBUG false
+    h_input_.reset(cloneH);
+
+    A_13TeV_ = {62.5088, 345.604, 9.63451, 4.34841, 39.0143, -268.644, -44.2924, 96.5595, 53.515, -155.793, -23.678, 54.5601, 12.2273, -26.8654, -19.3723, -0.0904439, 0.321092, 0.452381, -0.0190758, -0.607163, 1.27408, 0.364487, -0.499263};
+      
+    useAbsEta_ = useAbsEta;
+
+    // Return EFT benchmarks definition as https://arxiv.org/pdf/1710.08261.pdf
+    if( EFTBMname == "SM" or EFTBMname == "sm" ) EFTBMcouplings_ = {1, 1, 0, 0, 0};
+    if( EFTBMname ==  "1" ) EFTBMcouplings_ = {7.5, 1, -1, 0, 0};
+    if( EFTBMname ==  "2" ) EFTBMcouplings_ = {1.0, 1.0, 0.5, -0.8, 0.6};
+    if( EFTBMname ==  "3" ) EFTBMcouplings_ = {1.0, 1.0, -1.5, 0.0, -0.8};
+    if( EFTBMname ==  "4" ) EFTBMcouplings_ = {-3.5, 1.5, -3.0, 0.0, 0.0};
+    if( EFTBMname ==  "5" ) EFTBMcouplings_ = {1.0, 1.0, 0.0, 0.8, -1.0};
+    if( EFTBMname ==  "6" ) EFTBMcouplings_ = {2.4, 1.0, 0.0, 0.2, -0.2};
+    if( EFTBMname ==  "7" ) EFTBMcouplings_ = {5.0, 1.0, 0.0, 0.2, -0.2};
+    if( EFTBMname ==  "8" ) EFTBMcouplings_ = {15.0, 1.0, 0.0, -1.0, 1.0};
+    if( EFTBMname ==  "9" ) EFTBMcouplings_ = {1.0, 1.0, 1.0, -0.6, 0.6};
+    if( EFTBMname ==  "10" ) EFTBMcouplings_ = {10.0, 1.5, -1.0, 0.0, 0.0};
+    if( EFTBMname ==  "11" ) EFTBMcouplings_ = {2.4, 1.0, 0.0, 1.0, -1.0};
+    if( EFTBMname ==  "12" ) EFTBMcouplings_ = {15.0, 1.0, 1.0, 0.0, 0.0};
+
+    //Jona: what are these things with cms_fake tag??
+    if( (year == "2017" or year == "2018") and EFTBMcouplings_.size() and cms_fake ){
+      EFTBMcouplings_[4] = 1.0;
+      double tr = EFTBMcouplings_[0];
+      EFTBMcouplings_[0] = EFTBMcouplings_[1];
+      EFTBMcouplings_[1] = tr;
+    }
+    if( (year == "2016") and EFTBMcouplings_.size() and cms_fake ){
+      double tr = EFTBMcouplings_[0];
+      EFTBMcouplings_[0] = EFTBMcouplings_[1];
+      EFTBMcouplings_[1] = tr;
+    }
+
+    // 8a from https://link.springer.com/article/10.1007/JHEP09(2018)057
+    if( EFTBMname ==  "8a" ) EFTBMcouplings_ = {1.0, 1.0, 0.5, 0.8/3, 0.0};
+
+    // New benchmarks from https://arxiv.org/pdf/1908.08923.pdf
+    if( EFTBMname == "JHEP03(2020)091_1" or EFTBMname == "1b") EFTBMcouplings_ = {  3.94, 0.94, -1./3.,  0.5 * 1.5,  1./3. * (-3.) };
+    if( EFTBMname == "JHEP03(2020)091_2" or EFTBMname == "2b") EFTBMcouplings_ = {  6.84, 0.61,  1./3.,  0.0 * 1.5, -1./3. * (-3.) };
+    if( EFTBMname == "JHEP03(2020)091_3" or EFTBMname == "3b") EFTBMcouplings_ = {  2.21, 1.05, -1./3.,  0.5 * 1.5,   0.5  * (-3.) };
+    if( EFTBMname == "JHEP03(2020)091_4" or EFTBMname == "4b") EFTBMcouplings_ = {  2.79, 0.61,  1./3., -0.5 * 1.5,  1./6. * (-3.) };
+    if( EFTBMname == "JHEP03(2020)091_5" or EFTBMname == "5b") EFTBMcouplings_ = {  3.95, 1.17, -1./3., 1./6.* 1.5,  -0.5  * (-3.) };
+    if( EFTBMname == "JHEP03(2020)091_6" or EFTBMname == "6b") EFTBMcouplings_ = {  5.68, 0.83,  1./3., -0.5 * 1.5,  1./3. * (-3.) };
+    if( EFTBMname == "JHEP03(2020)091_7" or EFTBMname == "7b") EFTBMcouplings_ = { -0.10, 0.94,     1., 1./6.* 1.5, -1./6. * (-3.) };
+}
 
 HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, bool useAbsEta)
 {
-    readInputFile(coeffFile); // initialize the reweight parameters from the txt input
-
     // clone the input histogram
     TH2* cloneH = (TH2*) hInput->Clone("h_input");
-    if (!CheckConsistency(cloneH, h_A_vec_.at(0).get()))
-    {
-        cerr << " ** Error : the input histogram to HHReweight is not compatible with the reweight file, did you use the correct binning?" << endl;
-        throw std::runtime_error("Histograms inconsistency");
-    }
+
     h_input_.reset(cloneH);
 
-    // set default values
-    // A1_13TeV_ = 2.09078;
-    // A3_13TeV_ = 0.282307;
-    // A7_13TeV_ = -1.37309;
-    A_13TeV_ = {2.09078, 10.1517, 0.282307, 0.101205, 1.33191, -8.51168, -1.37309, 2.82636, 1.45767, -4.91761, -0.675197, 1.86189, 0.321422, -0.836276, -0.568156};
-
+    A_13TeV_ = {62.5088, 345.604, 9.63451, 4.34841, 39.0143, -268.644, -44.2924, 96.5595, 53.515, -155.793, -23.678, 54.5601, 12.2273, -26.8654, -19.3723, -0.0904439, 0.321092, 0.452381, -0.0190758, -0.607163, 1.27408, 0.364487, -0.499263};
+      
     useAbsEta_ = useAbsEta;
+    
+    EFTBMcouplings_ = {1,1,0,0,0}; // Set to SM values, will be passed to the getWeight method that takes couolings as input
 }
 
 HHReweight5D::~HHReweight5D()
 {}
 
-// return the weight to be applied for the reweight
-// NOTE: normalization is arbitrary you'll have to scale by the sum of weights
+// return the weight to be applied for the reweight -> take only mhh and cth from input, retrieve couplings from constructor
+double HHReweight5D::getWeight(double mhh, double cth)
+{
+    if (useAbsEta_) cth = TMath::Abs(cth);
+
+    double kl  = EFTBMcouplings_[0];
+    double kt  = EFTBMcouplings_[1];
+    double c2  = EFTBMcouplings_[2];
+    double cg  = EFTBMcouplings_[3];
+    double c2g = EFTBMcouplings_[4];
+
+    double Nevtot = h_input_->Integral();
+    double XStot = getTotXS(kl,kt,c2,cg,c2g);
+    double Nev = h_input_->GetBinContent( h_input_->FindBin(mhh, cth) );
+    double XS = getDiffXS(kl,kt,c2,cg,c2g,mhh,cth,A_map_);
+    int ibinmhh = h_input_->GetXaxis()->FindBin(mhh);
+    int ibincosthetaHH = h_input_->GetYaxis()->FindBin(cth);
+    double Noutputev = XS * h_input_->GetXaxis()->GetBinWidth(ibinmhh) * h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH);
+    return Noutputev/Nev * Nevtot/XStot;
+}
+
+// return the weight to be applied for the reweight -> take mhh, cth, and couplings from input
 double HHReweight5D::getWeight(double kl, double kt, double c2, double cg, double c2g, double mhh, double cth)
 {
     if (useAbsEta_) cth = TMath::Abs(cth);
 
-    pair<int,int> bins = find2DBin(h_input_.get(), mhh, cth);
-    double denom = h_input_->GetBinContent(bins.first, bins.second);
-    if (denom == 0)
-        return 0;
-    // double A1 = h_A1_->GetBinContent(bins.first, bins.second);
-    // double A3 = h_A3_->GetBinContent(bins.first, bins.second);
-    // double A7 = h_A7_->GetBinContent(bins.first, bins.second);
-
-    double nEvSM = h_SM_->GetBinContent(bins.first, bins.second);
-    
-    std::array<double, NCOEFFSA> Acoeffs;
-    for (uint ic = 0; ic < NCOEFFSA; ++ic)
-    {
-      Acoeffs[ic] = (h_A_vec_.at(ic))->GetBinContent(bins.first, bins.second);
-    }
-    double effBSM = nEvSM * functionGF(kl,kt,c2,cg,c2g,Acoeffs)/functionGF(kl,kt,c2,cg,c2g,A_13TeV_);
-
-    if (DEBUG && effBSM/denom < 0){
-      std::cout << "** HHReweight5D : warning : I am getting a negative weight "
-        << "kl, kt, c2, cg, c2g, mhh, cth " << kl << " " << kt << " " << c2 << " " << cg << " " << c2g << " " << mhh << " " << cth << " | vals: "
-        << nEvSM << " " << functionGF(kl,kt,c2,cg,c2g,Acoeffs) << " " << functionGF(kl,kt,c2,cg,c2g,A_13TeV_) << " " << denom
-        << endl;
-    }
-
-    if (effBSM/denom < 0) return 0; // sometimes I get negative coeffs.. this should be a temporary fix!
-    return (effBSM/denom) ;
+    double Nevtot = h_input_->Integral();
+    double XStot = getTotXS(kl,kt,c2,cg,c2g);
+    double Nev = h_input_->GetBinContent( h_input_->FindBin(mhh, cth) );
+    double XS = getDiffXS(kl,kt,c2,cg,c2g,mhh,cth,A_map_);
+    int ibinmhh = h_input_->GetXaxis()->FindBin(mhh);
+    int ibincosthetaHH = h_input_->GetYaxis()->FindBin(cth);
+    double Noutputev = XS * h_input_->GetXaxis()->GetBinWidth(ibinmhh) * h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH);
+    return Noutputev/Nev * Nevtot/XStot;
 }
 
-double HHReweight5D::getWeight(double kl, double kt, double mhh, double cth)
+
+double HHReweight5D::getTotXS(double kl, double kt, double c2, double cg, double c2g)
 {
-  return getWeight(kl, kt, 0, 0, 0, mhh, cth);
+    return functionGF(kl, kt, c2, cg, c2g, A_13TeV_);
+}
+
+double HHReweight5D::getDiffXS(double kl, double kt, double c2, double cg, double c2g, double mhh, double cth, std::map< std::pair<double, double>, std::vector<double> > A_map)
+{
+   double dXsec = 0.;
+   
+   for(std::map< std::pair<double, double>, std::vector<double> >::iterator it = A_map.begin(); it != A_map.end(); it++)
+   {
+      std::vector<double> const & values = it->second;
+      double mass_bin_end = it->first.first;
+      double cos_bin_end  = it->first.second;
+      if(mhh > mass_bin_end || cth > cos_bin_end) continue;
+      dXsec += functionGF(kl, kt, c2, cg, c2g, values);
+   }   
+      
+   return dXsec;
 }
 
 void HHReweight5D::readInputFile(std::string coeffFile)
 {
-    if (DEBUG) cout << " -- Reading input file" << coeffFile << endl;
+    if (DEBUG) std::cout << " -- Reading input file" << coeffFile << std::endl;
 
     // create histograms to be filled from file
     // this is the binning of input file histogram
-    // NOTE: code can be made more flexible to have binning inferred directly from the input file
-    // double binning_mHH   [14] = {250.,270.,300.,330.,360.,390., 420.,450.,500.,550.,600.,700.,800.,1000.} ;
-    // double binning_cth    [4] = {-1., -0.55,0.55,1. } ;
-    double binning_mHH [56] = { 250,260,270,280,290,300,310,320,330,340,
-                                350,360,370,380,390,400,410,420,430,440, 
-                                450,460,470,480,490,
-                                500,510,520,530,540,550,600,610,620,630,
-                                640,650,660,670,680,690,700,750,800,850,
-                                900,950,1000,1100,1200,1300,1400,1500.,1750,2000,50000};
-    double binning_cth [5]  = {0.0, 0.4, 0.6, 0.8, 1.0} ;
 
-    // int nbins_mHH = 13; // size of arrays - 1
-    // int nbins_cth = 3;  // size of arrays - 1
-    int nbins_mHH = 55; // size of arrays - 1
-    int nbins_cth = 4;  // size of arrays - 1
-
-    for (uint ic = 0; ic < NCOEFFSA; ++ic)
-    {
-      string name = "h_A" + std::to_string(ic);
-      h_A_vec_.at(ic) = std::make_shared<TH2D> (name.c_str(), name.c_str(), nbins_mHH, binning_mHH, nbins_cth, binning_cth );
-    }
-
-    h_SM_    = std::make_shared<TH2D> ("h_SM", "h_SM",       nbins_mHH, binning_mHH, nbins_cth, binning_cth );
-    h_sumv1_ = std::make_shared<TH2D> ("h_sumv1", "h_sumv1", nbins_mHH, binning_mHH, nbins_cth, binning_cth );
-
-    if (DEBUG) cout << " -- Histograms done" << endl;
-
+//     double binning_mHH [37] = {250.,270.,290.,310.,330.,
+//                                350.,370.,390.,410.,430., 
+//                                450.,470.,490.,510.,530.,
+//                                550.,570.,590.,610.,630.,
+//                                650.,670.,700.,750.,800.,
+//                                850.,900.,950.,1000.,1100.,
+//                                1200.,1300.,1400.,1500.,1750.,2000.,5000.};
+//              
+//     double binning_cth [5]  = {0.0, 0.4, 0.6, 0.8, 1.0};
+// 
+//     int nbins_mHH = 36; // size of arrays - 1
+//     int nbins_cth = 4;  // size of arrays - 1
 
     // read and fill from the file
     std::ifstream infile;
@@ -119,177 +158,81 @@ void HHReweight5D::readInputFile(std::string coeffFile)
     std::string line;
     while (std::getline(infile, line))
     {
-        if (DEBUG) cout << " -- Reading line " << line << endl;
+        if (DEBUG) std::cout << " -- Reading line " << line << std::endl;
         line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
-        if (!line.empty())
-        {
-            vector<string> tokens = tokenize(line);
-            if (tokens.size() != 35)
+        if (!line.empty()) {
+            std::vector<std::string> tokens = tokenize(line);
+            if (tokens.size() != 28)
             {
-                cerr << " ** Error in reading input file: cannot interpret line: " << line << endl;
+                std::cerr << " ** Error in reading input file: cannot interpret line: " << line << std::endl;
                 throw std::runtime_error("Cannot parse input file");
             }
-            //The columns are respectively: nbins GenMhh GenCostStar NenventsSM NenventsSumV1 A1 A3 A7 errorA1 errorA3 errorA7
-            double mHH = std::stod(tokens.at(1));
-            double cth = std::stod(tokens.at(2));
-            int ibin = h_A_vec_.at(0)->FindBin(mHH, cth);
+            //The columns are respectively: uncertainty Mhh_ll Mhh_ul GenCostStar_ll GenCostStar_ul 23 A values
+            double mHH_ll = std::stod(tokens.at(1));
+            double cth_ll = std::stod(tokens.at(3));
+                        
+            auto bin = std::make_pair(mHH_ll, cth_ll);
 
-            h_SM_->SetBinContent(ibin, std::stod(tokens.at(3)));
-            h_sumv1_->SetBinContent(ibin, std::stod(tokens.at(4)));
-
-            for (uint ic = 0; ic < NCOEFFSA; ++ic)
-            {
-              (h_A_vec_.at(ic))->SetBinContent(ibin, std::stod(tokens.at(ic+5)) );
-              (h_A_vec_.at(ic))->SetBinError(ibin, std::stod(tokens.at(ic+5+15)) );
-            }            
-
-            if (DEBUG)
-            {
-                cout << " -- I'll store a file with the histograms" << endl;
-                TFile* fOut = TFile::Open("HHReweight_histograms.root", "recreate");
-                fOut->cd();
-                for (uint ic = 0; ic < NCOEFFSA; ++ic)
-                {
-                  (h_A_vec_.at(ic))->Write();
-                }
-                // h_A1_->Write();
-                // h_A3_->Write();
-                // h_A7_->Write();
-                h_SM_->Write();
-                h_sumv1_->Write();
-                fOut->Close();
+            std::vector<double> A_vec;
+            for (int i = 5; i<=28; i++) {
+                A_vec.push_back(std::stod(tokens.at(i)));
             }
+
+            // fill the correct maps with the correct stuff
+            if (tokens.at(0) == "") A_map_[bin] = A_vec ;
+            else if (tokens.at(0) == "fit_UP") A_map_UP_[bin] = A_vec ;
+            else A_map_DN_[bin] = A_vec ;
         }
     }
 }
 
-// split a string on whitespaces, return elements
-vector<std::string> HHReweight5D::tokenize(std::string input)
+// split a string on comma, return elements
+std::vector<std::string> HHReweight5D::tokenize(std::string input)
 {    
-    if (DEBUG) cout << " -- Tokenizing input " << input << endl;
+    if (DEBUG) std::cout << " -- Tokenizing input " << input << std::endl;
 
     std::istringstream buffer(input);
-    std::vector<std::string> ret((std::istream_iterator<std::string>(buffer)), std::istream_iterator<std::string>());
-
+    std::vector<std::string> ret;
+    for (std::string i; buffer >> i;) 
+    {
+        ret.push_back(i);    
+        if (buffer.peek() == ',')
+            buffer.ignore();
+    }
+    
     if (DEBUG){
-        cout << "I got " << ret.size() << " tokens" << endl;
-        cout << "     --> " ;
-        for (string x : ret) cout << ":" << x << ": ";
-        cout << endl;
+        std::cout << "I got " << ret.size() << " tokens" << std::endl;
+        std::cout << "     --> " ;
+        for (std::string x : ret) std::cout << ":" << x << ": ";
+        std::cout << std::endl;
     }
 
     return ret;
 }
 
-// return bin in 2D isto wihtout under/over flow (e.g. if ibin > ibinmax , ibin = ibinmax)
-pair<int,int> HHReweight5D::find2DBin(TH2* h, double x, double y)
+double HHReweight5D::functionGF(double kl, double kt, double c2, double cg, double c2g, std::vector<double> A)
 {
-    int ibinx = h->GetXaxis()->FindBin(x);
-    int ibiny = h->GetYaxis()->FindBin(y);
-
-    if (ibinx <= 0) ibinx = 1;
-    if (ibinx > h->GetNbinsX()) ibinx = h->GetNbinsX();
-
-    if (ibiny <= 0) ibiny = 1;
-    if (ibiny > h->GetNbinsY()) ibiny = h->GetNbinsY();
-
-    return make_pair(ibinx, ibiny);
-
-}
-
-// double HHReweight5D::functionGF(double kl, double kt, double c2, double cg, double c2g, double A1, double A3, double A7)
-// {
-//     // this can be extended to 5D coefficients; currently c2, cg, c2g are unused
-//     return ( A1*pow(kt,4) + A3*pow(kt,2)*pow(kl,2) + A7*kl*pow(kt,3) );
-// }
-
-double HHReweight5D::functionGF(double kl, double kt, double c2, double cg, double c2g, std::array<double, NCOEFFSA> const &A)
-{
-    // this can be extended to 5D coefficients; currently c2, cg, c2g are unused
-    // return ( A1*pow(kt,4) + A3*pow(kt,2)*pow(kl,2) + A7*kl*pow(kt,3) );
-    return ( A[0]*pow(kt,4) + A[1]*pow(c2,2) + (A[2]*pow(kt,2) + A[3]*pow(cg,2))*pow(kl,2) + A[4]*pow(c2g,2) + ( A[5]*c2 + A[6]*kt*kl )*pow(kt,2) + (A[7]*kt*kl + A[8]*cg*kl )*c2 + A[9]*c2*c2g + (A[10]*cg*kl + A[11]*c2g)*pow(kt,2)+ (A[12]*kl*cg + A[13]*c2g )*kt*kl + A[14]*cg*c2g*kl );
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-// the following is adapted from ROOT source - because yeah, they are protected TH1 members...
-
-
-bool HHReweight5D::CheckConsistency(const TH1* h1, const TH1* h2)
-{
-   if (h1 == h2) return true;
-
-   if (h1->GetDimension() != h2->GetDimension() ) {
-      // throw DifferentDimension();
-      return false;
-   }
-   Int_t dim = h1->GetDimension();
-
-   // returns kTRUE if number of bins and bin limits are identical
-   Int_t nbinsx = h1->GetNbinsX();
-   Int_t nbinsy = h1->GetNbinsY();
-   Int_t nbinsz = h1->GetNbinsZ();
-
-   // Check whether the histograms have the same number of bins.
-   if (nbinsx != h2->GetNbinsX() ||
-       (dim > 1 && nbinsy != h2->GetNbinsY())  ||
-       (dim > 2 && nbinsz != h2->GetNbinsZ()) ) {
-      // throw DifferentNumberOfBins();
-      return false;
-   }
-
-   bool ret = true;
-
-   // check axis limits
-   ret &= CheckAxisLimits(h1->GetXaxis(), h2->GetXaxis());
-   if (dim > 1) ret &= CheckAxisLimits(h1->GetYaxis(), h2->GetYaxis());
-   if (dim > 2) ret &= CheckAxisLimits(h1->GetZaxis(), h2->GetZaxis());
-
-   // check bin limits
-   ret &= CheckBinLimits(h1->GetXaxis(), h2->GetXaxis());
-   if (dim > 1) ret &= CheckBinLimits(h1->GetYaxis(), h2->GetYaxis());
-   if (dim > 2) ret &= CheckBinLimits(h1->GetZaxis(), h2->GetZaxis());
-
-   // check labels if histograms are both not empty
-   // if ( (h1->fTsumw != 0 || h1->GetEntries() != 0) &&
-   //      (h2->fTsumw != 0 || h2->GetEntries() != 0) ) {
-   //    ret &= CheckBinLabels(h1->GetXaxis(), h2->GetXaxis());
-   //    if (dim > 1) ret &= CheckBinLabels(h1->GetYaxis(), h2->GetYaxis());
-   //    if (dim > 2) ret &= CheckBinLabels(h1->GetZaxis(), h2->GetZaxis());
-   // }
-
-   return ret;
-}
-
-bool HHReweight5D::CheckAxisLimits(const TAxis *a1, const TAxis *a2 )
-{
-   if ( ! TMath::AreEqualRel(a1->GetXmin(), a2->GetXmin(),1.E-12) ||
-        ! TMath::AreEqualRel(a1->GetXmax(), a2->GetXmax(),1.E-12) ) {
-      // throw DifferentAxisLimits();
-      return false;
-   }
-   return true;
-}
-
-bool HHReweight5D::CheckBinLimits(const TAxis* a1, const TAxis * a2)
-{
-   const TArrayD * h1Array = a1->GetXbins();
-   const TArrayD * h2Array = a2->GetXbins();
-   Int_t fN = h1Array->fN;
-   if ( fN != 0 ) {
-      if ( h2Array->fN != fN ) {
-         // throw DifferentBinLimits();
-         return false;
-      }
-      else {
-         for ( int i = 0; i < fN; ++i ) {
-            if ( ! TMath::AreEqualRel( h1Array->GetAt(i), h2Array->GetAt(i), 1E-10 ) ) {
-               // throw DifferentBinLimits();
-               return false;
-            }
-         }
-      }
-   }
-
-   return true;
+    return ( A[0]*pow(kt,4) + \
+             A[1]*pow(c2,2) + \
+             A[2]*pow(kt,2)*pow(kl,2) + \
+             A[3]*pow(cg,2)*pow(kl,2) + \
+             A[4]*pow(c2g,2) + \
+             A[5]*c2*pow(kt,2) + \
+             A[6]*kl*pow(kt,3) + \
+             A[7]*kt*kl*c2 + \
+             A[8]*cg*kl*c2 + \
+             A[9]*c2*c2g + \
+             A[10]*cg*kl*pow(kt,2) + \
+             A[11]*c2g*pow(kt,2) +\
+             A[12]*pow(kl,2)*cg*kt + \
+             A[13]*c2g*kt*kl + \
+             A[14]*cg*c2g*kl + \
+             A[15] * pow(kt,3) * cg + \
+             A[16] * kt * c2 * cg + \
+             A[17] * kt * pow(cg,2) * kl + \
+             A[18] * cg * kt * c2g + \
+             A[19] * pow(kt,2) * pow(cg,2) + \
+             A[20] * c2 * pow(cg,2) + \
+             A[21] * pow(cg,3) * kl + \
+             A[22] * pow(cg,2) * c2g );
 }

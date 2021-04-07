@@ -184,13 +184,13 @@ int main (int argc, char** argv)
   // read input file and cfg
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  if (argc < 22)
+  if (argc < 20)
     { 
       cerr << "missing input parameters : argc is: " << argc << endl ;
       cerr << "usage: " << argv[0]
            << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
            << " xsecScale(stitch) HTMax(stitch) HTMin(stitch) isTTBar DY_Nbs HHreweightFile TT_stitchType"
-           << " runMT2 isHHsignal NjetRequired(stitch) kl_rew kt_rew c2_rew cg_rew c2g_rew susyModel" << endl ; 
+           << " runMT2 isHHsignal NjetRequired(stitch) EFTbm cms_fake susyModel" << endl ; 
       return 1;
     }
 
@@ -272,15 +272,12 @@ int main (int argc, char** argv)
   int NjetRequired = atoi(argv[16]);
   cout << "** INFO: requiring exactly " << NjetRequired << " outgoing partons [<0 for no cut on this]" << endl;
 
-  float kl_rew = atof(argv[17]);
-  float kt_rew = atof(argv[18]);
-  float c2_rew = atof(argv[19]);
-  float cg_rew = atof(argv[20]);
-  float c2g_rew = atof(argv[21]);
-  cout << "** INFO: kl, kt reweight " << kl_rew << " " << kt_rew << " [kt < -990 || kl < -990 : no HH reweight]" << endl;
-  cout << "**       c2, cg, c2g reweight " << c2_rew << " " << cg_rew << " " << c2g_rew << " [if any is < -990: will do only a klambda / kt reweight if requested]" << endl;
+  // reweight file according to NLO differential reweighting procedure https://gitlab.cern.ch/hh/eft-benchmarks
+  string EFTbm = argv[17];
+  bool cms_fake = argv[18];
+  cout << "** INFO: EFT reweighting asked for benchmark " << EFTbm << " at NLO" << endl;
 
-  string susyModel = argv[22];
+  string susyModel = argv[19];
   cout << "** INFO: requesting SUSY model to be: -" << susyModel << "- [NOTSUSY: no request on this parameter]" << endl;
 
   // external weight file for PUreweight - sample per sample
@@ -305,22 +302,15 @@ int main (int argc, char** argv)
 
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
-    kNone      = 0,
-    kFromHisto = 1,
-    kDynamic   = 2
+    kNone    = 0,
+    kDiffRew = 1
   };
+
   int HHrewType = kNone; // default is no reweight
-  if (HHreweightFile && kl_rew >= -990 && kt_rew >= -990) {
-    cout << "** WARNING: you required both histo based and dynamic reweight, cannot do both at the same time. Will set histo" << endl;
-    HHrewType = kFromHisto;
+  if (EFTbm != "none") {
+    int HHrewType = kDiffRew;
+    cout << "** INFO: HH reweight type requested is " << HHrewType << "[ 0: no reweight, 1: NLO differential reweight ]" << endl; 
   }
-  else if (HHreweightFile)
-    HHrewType = kFromHisto;
-  else if (kl_rew >= -990 && kt_rew >= -990)
-    HHrewType = kDynamic;
-  cout << "** INFO: HH reweight type is " << HHrewType << " [ 0: no reweight, 1: from histo, 2: dynamic ]" << endl;
-
-
 
   // prepare variables needed throughout the code
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----    
@@ -606,48 +596,21 @@ int main (int argc, char** argv)
   TauIDSFTool * Deep_antiMu_tight      = new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
 
   // ------------------------------
-
-  // reweighting file for HH non resonant
-  TH1F* hreweightHH   = 0;
-  TH2F* hreweightHH2D = 0;
-  // if (HHreweightFile)
-  if (HHrewType == kFromHisto)
-    {
-      cout << "** INFO: doing reweight for HH samples" << endl;
-      if (HHreweightFile->GetListOfKeys()->Contains("hratio") )
-	{  
-	  hreweightHH = (TH1F*) HHreweightFile->Get("hratio");
-	  cout << "** INFO: 1D reweight using hratio" << endl;
-	}
-      else if (HHreweightFile->GetListOfKeys()->Contains("hratio2D") )
-	{
-	  hreweightHH2D = (TH2F*) HHreweightFile->Get("hratio2D");            
-	  cout << "** INFO: 2D reweight using hratio2D" << endl;
-	}
-      else
-	{
-	  cout << "** ERROR: reweight histo not found in file provided, stopping execuction" << endl;
-	  return 1;
-	}
-    }
-
-  // ------------------------------
-  // reweight file in case of "dynamic" reweight
+  // reweight file according to NLO differential reweighting procedure
   // there is a unique input map, read it from the cfg file
   // HHReweight* hhreweighter = nullptr;
   HHReweight5D* hhreweighter = nullptr;
-  TH2* hhreweighterInputMap = nullptr;
-  if (HHrewType == kDynamic)
+  TH2* hhreweighterInputTH2 = nullptr;
+  if (HHrewType == kDiffRew)
     {
-      string inMapFile   = gConfigParser->readStringOption("HHReweight::inputFile");
+      string inTH2File   = gConfigParser->readStringOption("HHReweight::inputFile");
       string inHistoName = gConfigParser->readStringOption("HHReweight::histoName");
       string coeffFile    = gConfigParser->readStringOption("HHReweight::coeffFile");
-      cout << "** INFO: reading histo named: " << inHistoName << " from file: " << inMapFile << endl;
+      cout << "** INFO: reading histo named: " << inHistoName << " from file: " << inTH2File << endl;
       cout << "** INFO: HH reweight coefficient file is: " << coeffFile << endl;
-      TFile* fHHDynamicRew = new TFile(inMapFile.c_str());
-      hhreweighterInputMap = (TH2*) fHHDynamicRew->Get(inHistoName.c_str());
-      // hhreweighter = new HHReweight(coeffFile, hhreweighterInputMap);
-      hhreweighter = new HHReweight5D(coeffFile, hhreweighterInputMap);
+      TFile* fHHDiffRew = new TFile(inTH2File.c_str());
+      hhreweighterInputTH2 = (TH2*) fHHDiffRew->Get(inHistoName.c_str());
+      hhreweighter = new HHReweight5D(coeffFile, hhreweighterInputTH2, EFTbm, string("2017"), cms_fake);
     }
 
 
@@ -1256,8 +1219,7 @@ int main (int argc, char** argv)
       TLorentzVector vGenB1; // bjet-1 tlv                     
       TLorentzVector vGenB2; // bjet-2 tlv                     
 
-      // if (hreweightHH || hreweightHH2D || isHHsignal) // isHHsignal: only to do loop on genparts, but no rew
-      if (isHHsignal || HHrewType == kFromHisto || HHrewType == kDynamic) // isHHsignal: only to do loop on genparts, but no rew
+      if (isHHsignal || HHrewType == kDiffRew) // isHHsignal: only to do loop on genparts, but no rew
 	{
 	  // cout << "DEBUG: reweight!!!" << endl;
 	  TLorentzVector vH1, vH2, vBoost, vSum;
@@ -1427,26 +1389,7 @@ int main (int argc, char** argv)
 	    cout << "** ERROR: couldn't find 2 H->bb gen dec prod " << idx1hs_b << " " << idx2hs_b << endl;
 
 
-	  // assign a weight depending on the reweight type 
-
-	  if (hreweightHH && HHrewType == kFromHisto) // 1D
-	    {
-	      int ibin = hreweightHH->FindBin(mHH);
-	      HHweight = hreweightHH->GetBinContent(ibin);
-	    }
-	  else if (hreweightHH2D && HHrewType == kFromHisto) // 2D
-	    {
-	      int ibin = hreweightHH2D->FindBin(mHH, ct1);
-	      HHweight = hreweightHH2D->GetBinContent(ibin);        
-	    }
-	  else if (HHrewType == kDynamic)
-	    {
-	      // HHweight = hhreweighter->getWeight(kl_rew, kt_rew, mHH, ct1);
-	      if (c2_rew < -990 || cg_rew < -990 || c2g_rew < -990) // no valid BSM coefficients -- just kl/kt reweight (for backwards compatibility)
-		HHweight = hhreweighter->getWeight(kl_rew, kt_rew, mHH, ct1);
-	      else // full 5D reweight
-		HHweight = hhreweighter->getWeight(kl_rew, kt_rew, c2_rew, cg_rew, c2g_rew, mHH, ct1);
-	    }
+	  if (HHrewType == kDiffRew) HHweight = hhreweighter->getWeight(mHH, ct1);
 
 	  theSmallTree.m_genMHH = mHH;
 	  theSmallTree.m_genCosth = ct1;

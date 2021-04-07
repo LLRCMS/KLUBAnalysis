@@ -61,11 +61,8 @@ if __name__ == "__main__":
     parser.add_option ('-g', '--genjets'   , dest='genjets'   , help='loop on genjets to determine the number of b hadrons' , default=False)
     parser.add_option ('-w', '--weight'    , dest='weightHH'  , help='histo map for hh reweight'             , default='0')
     parser.add_option ('-a', '--ishhsignal', dest='ishhsignal', help='isHHsignal'                            , default=False)
-    parser.add_option ('--kl',               dest='klreweight', help='kl for dynamic reweight'              , default='-999.0')
-    parser.add_option ('--kt',               dest='ktreweight', help='kt for dynamic reweight'              , default='-999.0')
-    parser.add_option ('--c2',               dest='c2reweight', help='c2 for dynamic reweight'              , default='-999.0')
-    parser.add_option ('--cg',               dest='cgreweight', help='cg for dynamic reweight'              , default='-999.0')
-    parser.add_option ('--c2g',              dest='c2greweight', help='c2g for dynamic reweight'            , default='-999.0')
+    parser.add_option ('--EFTbm',            dest='EFTrew'    , help='EFT benchmarks [SM, 1..12, 1b..7b, 8a]', default='none')
+    parser.add_option ('--cms_fake',         dest='cms_fake'  , help='invert some couplings for 2017/2018'   , default=False)
     parser.add_option ('--susy',             dest='susyModel' , help='name of susy model to select'         , default='NOTSUSY')
     parser.add_option ('--pu',               dest='PUweights' , help='external PUweights file'              , default='none')
     parser.add_option ('--nj',               dest='DY_nJets'  , help='number of gen Jets for DY bins'       , default='-1')
@@ -164,11 +161,11 @@ if __name__ == "__main__":
     # submit the jobs
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-    skimmer = 'skimNtuple2018_VBFHLT.exe'
-    if (opt.year == 2017):
-        skimmer = 'skimNtuple2016.exe'
-    elif (opt.year == 2016):
-        skimmer = 'skimNtuple2016.exe'
+    skimmer = 'skimNtuple2018_HHbtag.exe'
+    if (opt.year == '2017'):
+        skimmer = 'skimNtuple2016_HHbtag.exe'
+    elif (opt.year == '2016'):
+        skimmer = 'skimNtuple2016_HHbtag.exe'
 
 
     if opt.config == 'none' :
@@ -244,7 +241,7 @@ if __name__ == "__main__":
         if opt.ishhsignal     : command += " 1 "
         else                  : command += " 0 "
         command += (" " + opt.njets)
-        command += (" " + opt.klreweight + " " + opt.ktreweight + " " + opt.c2reweight + " " + opt.cgreweight + " " + opt.c2greweight)
+        command += (" " + opt.EFTrew + " " + opt.cms_fake)
         command += (" " + opt.susyModel)
         command += (" " + opt.PUweights)
         command += (" " + opt.DY_nJets)
