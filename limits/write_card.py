@@ -112,20 +112,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
     # {category}_{channel}_{year}
     selectName = theCatName+"_"+thechannelName+"_"+opt.year
 
-    #read config
-    categories = []
-    categories.append((0,select))
-    MCbackgrounds=[]
-    processes=[]
+    # Input file
     inRoot = TFile.Open(opt.filename)
-    for bkg in backgrounds:
-        #Add protection against empty processes => If I remove this I could build all bins at once instead of looping on the selections
-        templateName = "{0}_{1}_SR_{2}".format(bkg,select,variable[theCat])
-        template = inRoot.Get(templateName)
-        if template.Integral()>0.000001 :
-            processes.append(bkg)
-            if bkg is not "QCD" :
-                MCbackgrounds.append(bkg)
 
     rates = []
     iQCD = -1
@@ -642,7 +630,6 @@ ROOT.gSystem.Load("libRooFit")
 ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
 
 parseOptions()
-datacards = []
 configname = opt.config
 print configname
 input = ConfigReader(configname)
@@ -696,8 +683,6 @@ if opt.renameH:
         if bkg == "ZH" : backgrounds[i] = "ZH_hbb"
         if bkg == "ttH": backgrounds[i] = "ttH_hbb"
 
-datacards = []
-
 
 for sel in allSel : 
 
@@ -706,10 +691,8 @@ for sel in allSel :
         print 'QCD from rateParam'
         for ireg in range(0,4) :
             card = writeCard(backgrounds,signals,sel,ireg)
-            if ireg == 0: datacards.append(card)
 
     # Take QCD from file
     else:
         print 'QCD from file'
         card = writeCard(backgrounds,signals,sel,0)
-        datacards.append(card)
