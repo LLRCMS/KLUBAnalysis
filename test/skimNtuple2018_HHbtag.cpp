@@ -176,7 +176,7 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   //JONA: modify the input arguments to have the new EFT benchmark procedure implemented
-  if (argc < 22)
+  if (argc < 21)
     {
       cerr << "missing input parameters : argc is: " << argc << endl ;
       cerr << "usage: " << argv[0]
