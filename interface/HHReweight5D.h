@@ -27,8 +27,8 @@
 class HHReweight5D{
     
     public:
-        HHReweight5D(std::string coeffFile, const TH2* hInput, std::string EFTBMname, std::string year, bool cms_fake = false, bool useAbsEta=true);
-        HHReweight5D(std::string coeffFile, const TH2* hInput, bool useAbsEta=true);
+        HHReweight5D(std::string coeffFile, const TH2* hInput, std::string EFTBMname, std::string year, std::string order = "nlo", std::string uncertantie = "", bool cms_fake = false, bool useAbsEta=true);
+        HHReweight5D(std::string coeffFile, const TH2* hInput, std::string order = "nlo", std::string uncertantie = "", bool useAbsEta=true);
         ~HHReweight5D();
         double getWeight(double mhh, double cth);
         double getWeight(double kl, double kt, double c2, double cg, double c2g, double mhh, double cth);        
@@ -46,17 +46,42 @@ class HHReweight5D{
         // the distribution of the input events
         // must the all the generated events before preselections
         std::shared_ptr<TH2> h_input_;
+        
+        // take costheta absolute value
         bool useAbsEta_;
+        
+        // order of the reweighting LO or NLO
+        std::string order_;
+
+        // uncertaintie that can be used:
+        // LO
+        //      "muR_UP"
+        //      "muR_DN"
+        //      "muF_UP"
+        //      "muF_DN"
+        //      "muRF_UP"
+        //      "muRF_DN"
+        //      "PDF4LHC15_nlo_30_pdfas_UP"
+        //      "PDF4LHC15_nlo_30_pdfas_DN"
+        //      "PDF4LHC15_nlo_30_pdfas_as_UP"
+        //      "PDF4LHC15_nlo_30_pdfas_as_DN"
+        // NLO
+        //      "fit_UP"
+        //      "fit_DN"
+        std:: string unc_;
     
         // coefficients XS SM
-        std::vector<double> A_13TeV_;
+        std::vector<double> A_13TeV_nlo_;
+        std::vector<double> A_13TeV_lo_;
 
-        // maps containing: binMhh, binCoshh, A_coefs(_UP/_DN)
+        // map containing: binMhh, binCoshh, A_coefs(_UP/_DN)
         std::map< std::pair<double, double>, std::vector<double> >A_map_;
-        std::map< std::pair<double, double>, std::vector<double> >A_map_UP_;
-        std::map< std::pair<double, double>, std::vector<double> >A_map_DN_;
 
         // EFT benchmark couplings values
+        //      sm, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+        //      1b, 2b, 3b, 4b, 5b, 6b, 7b
+        //      8a
+        //      box, cHHH0, cHHH1, cHHH2, cHHH5
         std::vector<double> EFTBMcouplings_;
 };
 

@@ -176,13 +176,13 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   //JONA: modify the input arguments to have the new EFT benchmark procedure implemented
-  if (argc < 20)
+  if (argc < 22)
     {
       cerr << "missing input parameters : argc is: " << argc << endl ;
       cerr << "usage: " << argv[0]
            << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
            << " xsecScale(stitch) HTMax(stitch) HTMin(stitch) isTTBar DY_Nbs HHreweightFile TT_stitchType"
-           << " runMT2 isHHsignal NjetRequired(stitch) EFTbm cms_fake susyModel" << endl ;
+           << " runMT2 isHHsignal NjetRequired(stitch) EFTbm order uncertantie cms_fake susyModel" << endl ;
       return 1;
     }
 
@@ -267,11 +267,13 @@ int main (int argc, char** argv)
   //JONA: modify reading of input arguments
   // reweight file according to NLO differential reweighting procedure https://gitlab.cern.ch/hh/eft-benchmarks
   string EFTbm = argv[17];
-  bool cms_fake = argv[18];
+  string order = argv[18];
+  string uncertantie = argv[19];
+  bool cms_fake = argv[20];
   cout << "** INFO: EFT reweighting asked for benchmark " << EFTbm << " at NLO" << endl;
 
   //JONA: modify reading of input arguments
-  string susyModel = argv[19];
+  string susyModel = argv[21];
   cout << "** INFO: requesting SUSY model to be: -" << susyModel << "- [NOTSUSY: no request on this parameter]" << endl;
 
   // external weight file for PUreweight - sample per sample
@@ -650,17 +652,17 @@ int main (int argc, char** argv)
   // there is a unique input map, read it from the cfg file
   // HHReweight* hhreweighter = nullptr;
   HHReweight5D* hhreweighter = nullptr;
-  TH2* hhreweighterInputTH2 = nullptr;
+  TH2* hhreweighterInputMap = nullptr;
   if (HHrewType == kDiffRew)
     {
-      string inTH2File   = gConfigParser->readStringOption("HHReweight::inputFile");
+      string inMapFile   = gConfigParser->readStringOption("HHReweight::inputFile");
       string inHistoName = gConfigParser->readStringOption("HHReweight::histoName");
       string coeffFile    = gConfigParser->readStringOption("HHReweight::coeffFile");
-      cout << "** INFO: reading histo named: " << inHistoName << " from file: " << inTH2File << endl;
+      cout << "** INFO: reading histo named: " << inHistoName << " from file: " << inMapFile << endl;
       cout << "** INFO: HH reweight coefficient file is: " << coeffFile << endl;
-      TFile* fHHDiffRew = new TFile(inTH2File.c_str());
-      hhreweighterInputTH2 = (TH2*) fHHDiffRew->Get(inHistoName.c_str());
-      hhreweighter = new HHReweight5D(coeffFile, hhreweighterInputTH2, EFTbm, string("2018"), cms_fake);
+      TFile* fHHDiffRew = new TFile(inMapFile.c_str());
+      hhreweighterInputMap = (TH2*) fHHDiffRew->Get(inHistoName.c_str());
+      hhreweighter = new HHReweight5D(coeffFile, hhreweighterInputMap, EFTbm, string("2018"), order, uncertantie, cms_fake);
     }
 
 

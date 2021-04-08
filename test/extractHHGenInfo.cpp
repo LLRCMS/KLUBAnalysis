@@ -348,15 +348,15 @@ int main()
     bigTree theBigTree (bigChain) ;
 
     HHReweight5D* hhreweighter = nullptr;
-    TH2* hhreweighterInputTH2 = nullptr;
-    string inTH2File   = gConfigParser->readStringOption("HHReweight::inputFile");
+    TH2* hhreweighterInputMap = nullptr;
+    string inMapFile   = gConfigParser->readStringOption("HHReweight::inputFile");
     string inHistoName = gConfigParser->readStringOption("HHReweight::histoName");
     string coeffFile    = gConfigParser->readStringOption("HHReweight::coeffFile");
-    cout << "** INFO: reading histo named: " << inHistoName << " from file: " << inTH2File << endl;
+    cout << "** INFO: reading histo named: " << inHistoName << " from file: " << inMapFile << endl;
     cout << "** INFO: HH reweight coefficient file is: " << coeffFile << endl;
-    TFile* fHHDiffRew = new TFile(inTH2File.c_str());
-    hhreweighterInputTH2 = (TH2*) fHHDiffRew->Get(inHistoName.c_str());
-    hhreweighter = new HHReweight5D(coeffFile, hhreweighterInputTH2);
+    TFile* fHHDiffRew = new TFile(inMapFile.c_str());
+    hhreweighterInputMap = (TH2*) fHHDiffRew->Get(inHistoName.c_str());
+    hhreweighter = new HHReweight5D(coeffFile, hhreweighterInputMap);
 
     // speed up - be careful to activate the branches that are needed!!
     theBigTree.fChain->SetBranchStatus("*", 0);

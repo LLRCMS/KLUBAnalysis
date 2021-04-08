@@ -62,6 +62,8 @@ if __name__ == "__main__":
     parser.add_option ('-w', '--weight'    , dest='weightHH'  , help='histo map for hh reweight'             , default='0')
     parser.add_option ('-a', '--ishhsignal', dest='ishhsignal', help='isHHsignal'                            , default=False)
     parser.add_option ('--EFTbm',            dest='EFTrew'    , help='EFT benchmarks [SM, 1..12, 1b..7b, 8a]', default='none')
+    parser.add_option ('--order',            dest='order'     , help='order of reweight: lo/nlo'             , default='nlo')
+    parser.add_option ('--uncert',           dest='uncert'    , help='uncertainty on the reweight coeffs'    , default='')
     parser.add_option ('--cms_fake',         dest='cms_fake'  , help='invert some couplings for 2017/2018'   , default=False)
     parser.add_option ('--susy',             dest='susyModel' , help='name of susy model to select'         , default='NOTSUSY')
     parser.add_option ('--pu',               dest='PUweights' , help='external PUweights file'              , default='none')
@@ -241,7 +243,7 @@ if __name__ == "__main__":
         if opt.ishhsignal     : command += " 1 "
         else                  : command += " 0 "
         command += (" " + opt.njets)
-        command += (" " + opt.EFTrew + " " + opt.cms_fake)
+        command += (" " + opt.EFTrew + " " + " " + opt.order + " " + opt.uncert + " " + opt.cms_fake)
         command += (" " + opt.susyModel)
         command += (" " + opt.PUweights)
         command += (" " + opt.DY_nJets)
