@@ -308,20 +308,6 @@ int main (int argc, char** argv)
     int HHrewType = kDiffRew;
     cout << "** INFO: HH reweight type requested is " << HHrewType << "[ 0: no reweight, 1: NLO differential reweight ]" << endl; 
   }
-  
-  //JONA: the following is not needed anymore
-  /*
-  if (HHreweightFile && kl_rew >= -990 && kt_rew >= -990) {
-    cout << "** WARNING: you required both histo based and dynamic reweight, cannot do both at the same time. Will set histo" << endl;
-    HHrewType = kFromHisto;
-  }
-  else if (HHreweightFile)
-    HHrewType = kFromHisto;
-  else if (kl_rew >= -990 && kt_rew >= -990)
-    HHrewType = kDynamic;
-  cout << "** INFO: HH reweight type is " << HHrewType << " [ 0: no reweight, 1: from histo, 2: dynamic ]" << endl;
-  */
-
 
   // prepare variables needed throughout the code
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -617,35 +603,6 @@ int main (int argc, char** argv)
   TauIDSFTool * Deep_antiMu_vloose     = new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSmu" ,"VLoose");   // for DeepTauv2p1 vs mu VLoose
   TauIDSFTool * Deep_antiMu_tight      = new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
 
-  // ------------------------------
-
-  //JONA: this should not be needed anymore
-  /*
-  // reweighting file for HH non resonant
-  TH1F* hreweightHH   = 0;
-  TH2F* hreweightHH2D = 0;
-  // if (HHreweightFile)
-  if (HHrewType == kFromHisto)
-    {
-      cout << "** INFO: doing reweight for HH samples" << endl;
-      if (HHreweightFile->GetListOfKeys()->Contains("hratio") )
-        {
-          hreweightHH = (TH1F*) HHreweightFile->Get("hratio");
-          cout << "** INFO: 1D reweight using hratio" << endl;
-        }
-      else if (HHreweightFile->GetListOfKeys()->Contains("hratio2D") )
-        {
-          hreweightHH2D = (TH2F*) HHreweightFile->Get("hratio2D");
-          cout << "** INFO: 2D reweight using hratio2D" << endl;
-        }
-      else
-        {
-          cout << "** ERROR: reweight histo not found in file provided, stopping execuction" << endl;
-          return 1;
-        }
-    }
-  */
-
   //JONA: new reweighting procedure implementation
   // ------------------------------
   // reweight file according to NLO differential reweighting procedure
@@ -657,7 +614,8 @@ int main (int argc, char** argv)
     {
       string inMapFile   = gConfigParser->readStringOption("HHReweight::inputFile");
       string inHistoName = gConfigParser->readStringOption("HHReweight::histoName");
-      string coeffFile    = gConfigParser->readStringOption("HHReweight::coeffFile");
+      if (order == "lo") string coeffFile    = gConfigParser->readStringOption("HHReweight::coeffFileLO");
+      if (order == "nlo") string coeffFile   = gConfigParser->readStringOption("HHReweight::coeffFileNLO");
       cout << "** INFO: reading histo named: " << inHistoName << " from file: " << inMapFile << endl;
       cout << "** INFO: HH reweight coefficient file is: " << coeffFile << endl;
       TFile* fHHDiffRew = new TFile(inMapFile.c_str());
@@ -1442,30 +1400,6 @@ int main (int argc, char** argv)
             }
           else
             cout << "** ERROR: couldn't find 2 H->bb gen dec prod " << idx1hs_b << " " << idx2hs_b << endl;
-
-
-          //JONA: this should not be needed anymore, only differential reweighting done
-          /*
-          // assign a weight depending on the reweight type
-          if (hreweightHH && HHrewType == kFromHisto) // 1D
-            {
-              int ibin = hreweightHH->FindBin(mHH);
-              HHweight = hreweightHH->GetBinContent(ibin);
-            }
-          else if (hreweightHH2D && HHrewType == kFromHisto) // 2D
-            {
-              int ibin = hreweightHH2D->FindBin(mHH, ct1);
-              HHweight = hreweightHH2D->GetBinContent(ibin);
-            }
-          else if (HHrewType == kDynamic)
-            {
-              // HHweight = hhreweighter->getWeight(kl_rew, kt_rew, mHH, ct1);
-              if (c2_rew < -990 || cg_rew < -990 || c2g_rew < -990) // no valid BSM coefficients -- just kl/kt reweight (for backwards compatibility)
-                HHweight = hhreweighter->getWeight(kl_rew, kt_rew, mHH, ct1);
-              else // full 5D reweight
-                HHweight = hhreweighter->getWeight(kl_rew, kt_rew, c2_rew, cg_rew, c2g_rew, mHH, ct1);
-            }
-            */
 
           //JONA: new reweighting procedure implementation
           if (HHrewType == kDiffRew) HHweight = hhreweighter->getWeight(mHH, ct1);

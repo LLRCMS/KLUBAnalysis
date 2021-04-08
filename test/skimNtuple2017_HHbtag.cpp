@@ -607,7 +607,8 @@ int main (int argc, char** argv)
     {
       string inMapFile   = gConfigParser->readStringOption("HHReweight::inputFile");
       string inHistoName = gConfigParser->readStringOption("HHReweight::histoName");
-      string coeffFile    = gConfigParser->readStringOption("HHReweight::coeffFile");
+      if (order == "lo") string coeffFile    = gConfigParser->readStringOption("HHReweight::coeffFileLO");
+      if (order == "nlo") string coeffFile   = gConfigParser->readStringOption("HHReweight::coeffFileNLO");
       cout << "** INFO: reading histo named: " << inHistoName << " from file: " << inMapFile << endl;
       cout << "** INFO: HH reweight coefficient file is: " << coeffFile << endl;
       TFile* fHHDiffRew = new TFile(inMapFile.c_str());
