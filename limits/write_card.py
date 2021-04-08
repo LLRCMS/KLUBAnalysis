@@ -25,6 +25,7 @@ def parseOptions():
     parser.add_option('-y', '--year'     , dest='year'      , type='string', default='2016'  , help='year')
     parser.add_option('-u', '--shape'    , dest='shapeUnc'  , type='int'   , default=1       , help='1:add 0:disable shape uncertainties')
     parser.add_option('-q', '--dynamQCD' , dest='dynamQCD'  , type='int'   , default=0       , help='1:do QCD as rateParam / 0:read QCD from file')
+    parser.add_option('-B', '--renameH'  , dest='renameH'   , type='int'   , default=1       , help='1:rename singleH bkgs / 0:do not rename singleH bkgs')
     parser.add_option('-r', '--resonant' , dest='isResonant', action="store_true"            , help='is Resonant analysis')
     parser.add_option('-b', '--binbybin' , dest='binbybin'  , action="store_true"            , help='add bin by bins systematics')
     parser.add_option('-t', '--theory'   , dest='theory'    , action="store_true"            , help='add theory systematics')
@@ -679,6 +680,21 @@ backgrounds.append("QCD")
 for i,sig in enumerate(signals):
     if "GGHH_NLO" in sig: signals[i] = sig.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_hbbhtt").replace("cHHH", "kl_")
     if "VBFHH"    in sig: signals[i] = sig.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_hbbhtt") #write 1_5 as 1p5 from the beginning
+
+# Rename singleH processes to use the HHModel BR scaling
+# ggH --> ggH_htt
+# qqH --> qqH_htt
+# WH  --> WH_htt
+# ZH  --> ZH_hbb
+# ttH --> ttH_hbb
+if opt.renameH:
+    print 'Renaming singleH processes to add BR suffix'
+    for i,bkg in enumerate(backgrounds):
+        if bkg == "ggH": backgrounds[i] = "ggH_htt"
+        if bkg == "qqH": backgrounds[i] = "qqH_htt"
+        if bkg == "WH" : backgrounds[i] = "WH_htt"
+        if bkg == "ZH" : backgrounds[i] = "ZH_hbb"
+        if bkg == "ttH": backgrounds[i] = "ttH_hbb"
 
 datacards = []
 

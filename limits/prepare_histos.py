@@ -12,6 +12,7 @@ def parseOptions():
     parser.add_option('-c', '--channel' , dest='channel' , type='string', default="TauTau", help='channel')
     parser.add_option('-y', '--year'    , dest='year'    , type='string', default="2016"  , help='year')
     parser.add_option('-q', '--dynamQCD', dest='dynamQCD', type='int'   , default=0       , help='1:do QCD as rateParam / 0:read QCD from file')
+    parser.add_option('-B', '--renameH' , dest='renameH' , type='int'   , default=1       , help='1:rename singleH bkgs / 0:do not rename singleH bkgs')
 
     # store options and arguments as global variables
     global opt, args
@@ -130,6 +131,19 @@ for key in inFile.GetListOfKeys():
 		# Fix the signal names after the systs have been read
 		if "GGHH_NLO" in kname: kname = kname.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_hbbhtt").replace("cHHH", "kl_")
 		if "VBFHH"    in kname: kname = kname.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_hbbhtt")
+
+		# Rename singleH processes to use the HHModel BR scaling
+		# ggH --> ggH_htt
+		# qqH --> qqH_htt
+		# WH  --> WH_htt
+		# ZH  --> ZH_hbb
+		# ttH --> ttH_hbb
+		if opt.renameH:
+			if kname[0:4] == "ggH_": kname = kname.replace("ggH_","ggH_htt_")
+			if kname[0:4] == "qqH_": kname = kname.replace("qqH_","qqH_htt_")
+			if kname[0:3] == "WH_" : kname = kname.replace("WH_" ,"WH_htt_" )
+			if kname[0:3] == "ZH_" : kname = kname.replace("ZH_" ,"ZH_hbb_" )
+			if kname[0:4] == "ttH_": kname = kname.replace("ttH_","ttH_hbb_")
 
 		template.SetName(kname)
 		template.SetTitle(kname)
