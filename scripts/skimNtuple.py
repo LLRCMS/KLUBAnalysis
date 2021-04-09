@@ -63,8 +63,8 @@ if __name__ == "__main__":
     parser.add_option ('-a', '--ishhsignal', dest='ishhsignal', help='isHHsignal'                            , default=False)
     parser.add_option ('--EFTbm',            dest='EFTrew'    , help='EFT benchmarks [SM, 1..12, 1b..7b, 8a]', default='none')
     parser.add_option ('--order',            dest='order'     , help='order of reweight: lo/nlo'             , default='nlo')
-    parser.add_option ('--uncert',           dest='uncert'    , help='uncertainty on the reweight coeffs'    , default='')
-    parser.add_option ('--cms_fake',         dest='cms_fake'  , help='invert some couplings for 2017/2018'   , default=False)
+    parser.add_option ('--uncert',           dest='uncert'    , help='uncertainty on the reweight coeffs'    , default='0')
+    parser.add_option ('--cms_fake',         dest='cms_fake'  , help='invert some couplings for 2017/2018'   , default='0')
     parser.add_option ('--susy',             dest='susyModel' , help='name of susy model to select'         , default='NOTSUSY')
     parser.add_option ('--pu',               dest='PUweights' , help='external PUweights file'              , default='none')
     parser.add_option ('--nj',               dest='DY_nJets'  , help='number of gen Jets for DY bins'       , default='-1')
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         scriptFile = open (opt.output + '/hadder.sh', 'w')
         scriptFile.write ('#!/bin/bash\n')
         scriptFile.write ('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
-        scriptFile.write ('cd /home/llr/cms/amendola/HHLegacy/CMSSW_11_1_0pre6/src\n')
+        scriptFile.write ('cd /home/llr/cms/motta/HHLegacy/CMSSW_11_1_0pre6/src\n')
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('cd %s\n'%currFolder)
         scriptFile.write ('source scripts/setup.sh\n')
@@ -218,7 +218,7 @@ if __name__ == "__main__":
         scriptFile.write ('#!/bin/bash\n')
         scriptFile.write ('export X509_USER_PROXY=~/.t3/proxy.cert\n')
         scriptFile.write ('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
-        scriptFile.write ('cd /home/llr/cms/amendola/HHLegacy/CMSSW_11_1_0pre6/src\n')
+        scriptFile.write ('cd /home/llr/cms/motta/HHLegacy/CMSSW_11_1_0pre6/src\n')
         #scriptFile.write ('export SCRAM_ARCH=slc6_amd64_gcc472\n')
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('cd %s\n'%currFolder)
@@ -243,7 +243,7 @@ if __name__ == "__main__":
         if opt.ishhsignal     : command += " 1 "
         else                  : command += " 0 "
         command += (" " + opt.njets)
-        command += (" " + opt.EFTrew + " " + " " + opt.order + " " + opt.uncert + " " + opt.cms_fake)
+        command += (" " + opt.EFTrew + " " + opt.order + " " + opt.uncert + " " + opt.cms_fake)
         command += (" " + opt.susyModel)
         command += (" " + opt.PUweights)
         command += (" " + opt.DY_nJets)
@@ -274,7 +274,7 @@ if __name__ == "__main__":
 
         
         #command = '/opt/exp_soft/cms/t3/t3submit_el7 -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
-        command = '/home/llr/cms/amendola/t3submit -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
+        command = '/home/llr/cms/motta/t3submit -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
         if opt.sleep : time.sleep (0.1)
         os.system (command)
         commandFile.write (command + '\n')
