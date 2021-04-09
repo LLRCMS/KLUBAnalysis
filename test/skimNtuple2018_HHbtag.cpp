@@ -268,7 +268,8 @@ int main (int argc, char** argv)
   // reweight file according to NLO differential reweighting procedure https://gitlab.cern.ch/hh/eft-benchmarks
   string EFTbm = argv[17];
   string order = argv[18];
-  string uncertantie = argv[19];
+  string uncertantie = "";
+  if (argv[19] != "0") uncertantie = argv[19];
   bool cms_fake = argv[20];
   cout << "** INFO: EFT reweighting asked for benchmark " << EFTbm << " at NLO" << endl;
 
@@ -277,22 +278,22 @@ int main (int argc, char** argv)
   cout << "** INFO: requesting SUSY model to be: -" << susyModel << "- [NOTSUSY: no request on this parameter]" << endl;
 
   // external weight file for PUreweight - sample per sample
-  TString PUreweightFile = argv[23];
+  TString PUreweightFile = argv[22];
   cout << "** INFO: PU reweight external file: " << PUreweightFile << endl;
 
-  int DY_nJets  = atoi(argv[24]);
-  int DY_nBJets = atoi(argv[25]);
+  int DY_nJets  = atoi(argv[23]);
+  int DY_nBJets = atoi(argv[24]);
   cout << "** INFO: nJets/nBjets for DY bin weights: " << DY_nJets << " / " << DY_nBJets << endl;
-  int isDYI = atoi(argv[26]);
+  int isDYI = atoi(argv[25]);
   bool isDY = (isDYI == 1) ? true : false;
 
   bool isttHToNonBB = false;
-  int isttHToNonBBI = atoi(argv[27]);
+  int isttHToNonBBI = atoi(argv[26]);
   if (isttHToNonBBI == 1) isttHToNonBB = true;
   cout << "** INFO: isttHToNonBB: " << isttHToNonBB << endl;
 
   bool isHHNLO = false;
-  int isHHNLOI = atoi(argv[28]);
+  int isHHNLOI = atoi(argv[27]);
   if (isHHNLOI == 1) isHHNLO = true;
   cout << "** INFO: isHHNLO: " << isHHNLO << endl;
 
@@ -614,8 +615,8 @@ int main (int argc, char** argv)
     {
       string inMapFile   = gConfigParser->readStringOption("HHReweight::inputFile");
       string inHistoName = gConfigParser->readStringOption("HHReweight::histoName");
+      string coeffFile   = gConfigParser->readStringOption("HHReweight::coeffFileNLO");
       if (order == "lo") string coeffFile    = gConfigParser->readStringOption("HHReweight::coeffFileLO");
-      if (order == "nlo") string coeffFile   = gConfigParser->readStringOption("HHReweight::coeffFileNLO");
       cout << "** INFO: reading histo named: " << inHistoName << " from file: " << inMapFile << endl;
       cout << "** INFO: HH reweight coefficient file is: " << coeffFile << endl;
       TFile* fHHDiffRew = new TFile(inMapFile.c_str());

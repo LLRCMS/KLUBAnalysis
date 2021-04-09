@@ -275,7 +275,8 @@ int main (int argc, char** argv)
   // reweight file according to NLO differential reweighting procedure https://gitlab.cern.ch/hh/eft-benchmarks
   string EFTbm = argv[17];
   string order = argv[18];
-  string uncertantie = argv[19];
+  string uncertantie = "";
+  if (argv[19] != "0") uncertantie = argv[19];
   bool cms_fake = argv[20];
   cout << "** INFO: EFT reweighting asked for benchmark " << EFTbm << " at NLO" << endl;
 
@@ -600,8 +601,8 @@ int main (int argc, char** argv)
     {
       string inMapFile   = gConfigParser->readStringOption("HHReweight::inputFile");
       string inHistoName = gConfigParser->readStringOption("HHReweight::histoName");
+      string coeffFile   = gConfigParser->readStringOption("HHReweight::coeffFileNLO");
       if (order == "lo") string coeffFile    = gConfigParser->readStringOption("HHReweight::coeffFileLO");
-      if (order == "nlo") string coeffFile   = gConfigParser->readStringOption("HHReweight::coeffFileNLO");
       cout << "** INFO: reading histo named: " << inHistoName << " from file: " << inMapFile << endl;
       cout << "** INFO: HH reweight coefficient file is: " << coeffFile << endl;
       TFile* fHHDiffRew = new TFile(inMapFile.c_str());
