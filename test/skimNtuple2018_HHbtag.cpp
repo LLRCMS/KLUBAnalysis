@@ -306,8 +306,8 @@ int main (int argc, char** argv)
 
   int HHrewType = kNone; // default is no reweight
   if (EFTbm != "none") {
-    int HHrewType = kDiffRew;
-    cout << "** INFO: HH reweight type requested is " << HHrewType << "[ 0: no reweight, 1: NLO differential reweight ]" << endl; 
+    HHrewType = kDiffRew;
+    cout << "** INFO: HH reweight type requested is " << HHrewType << "[ 0: no reweight, 1: LO/NLO differential reweight ]" << endl; 
   }
 
   // prepare variables needed throughout the code
@@ -1404,7 +1404,6 @@ int main (int argc, char** argv)
 
           //JONA: new reweighting procedure implementation
           if (HHrewType == kDiffRew) HHweight = hhreweighter->getWeight(mHH, ct1);
-
 
           theSmallTree.m_genMHH = mHH;
           theSmallTree.m_genCosth = ct1;
