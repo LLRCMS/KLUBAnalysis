@@ -165,7 +165,7 @@ if __name__ == "__main__":
 
     skimmer = 'skimNtuple2018_HHbtag.exe'
     if (opt.year == '2017'):
-        skimmer = 'skimNtuple2016_HHbtag.exe'
+        skimmer = 'skimNtuple2017_HHbtag.exe'
     elif (opt.year == '2016'):
         skimmer = 'skimNtuple2016_HHbtag.exe'
 
