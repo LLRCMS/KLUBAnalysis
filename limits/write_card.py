@@ -142,7 +142,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             srate = template.Integral()
             rates.append(srate)
 
-        syst = systReader("../config/systematics_"+opt.year+".cfg",signals,backgrounds,None)
+        syst = systReader("../config/systematics_"+opt.year+".cfg",signals,backgrounds,None,opt.renameH)
         syst.writeOutput(False)
         syst.verbose(False)
         syst.addSystFile("../config/systematics_DY"+opt.year+".cfg")
