@@ -1,6 +1,6 @@
 #include "HHReweight5D.h"
 
-#define DEBUG true
+#define DEBUG false
 
 HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string EFTBMname, std::string year, std::string order, std::string uncertantie, bool cms_fake, bool useAbsEta)
 {
@@ -13,8 +13,9 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
     order_ = order; // default is "nlo"
     unc_ = uncertantie; // default is ""
 
+    // --------------------------------------------------------
+    // return coeficients for the total cross section at 13TeV
     A_13TeV_nlo_ = {62.5088, 345.604, 9.63451, 4.34841, 39.0143, -268.644, -44.2924, 96.5595, 53.515, -155.793, -23.678, 54.5601, 12.2273, -26.8654, -19.3723, -0.0904439, 0.321092, 0.452381, -0.0190758, -0.607163, 1.27408, 0.364487, -0.499263};
-    
     A_13TeV_lo_ = {35.0111,169.908,4.72866,2.38523,22.3288,-142.521,-22.996,47.2901,28.0101,-82.3576,-13.1345,31.2217,6.37158,-13.9821,-10.8268};
     // the LO case has many different cases of uncertainty that can be considered
     if(uncertantie == "muR_UP")                            A_13TeV_lo_ = {29.339989,142.828652,3.944472,1.987152,18.841645,-119.547333,-19.223360,39.572711,23.399797,-69.040228,-10.957083,26.085625,5.308951,-11.681204,-9.055525,};
@@ -28,7 +29,9 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
     else if(uncertantie == "PDF4LHC15_nlo_30_pdfas_as_UP") A_13TeV_lo_ = {34.557787,167.736680,4.665718,2.353319,22.038584,-140.685346,-22.693751,46.672758,27.642437,-81.296870,-12.961223,30.811765,6.286366,-13.797880,-10.684346,};
     else if(uncertantie == "PDF4LHC15_nlo_30_pdfas_as_DN") A_13TeV_lo_ = {35.481751,172.242144,4.791610,2.416866,22.658916,-144.446484,-23.303070,47.923962,28.382176,-83.461994,-13.307699,31.634385,6.456062,-14.168891,-10.973232,};
 
+    // -------------------------------------------------------------------------
     // Return EFT benchmarks definition as https://arxiv.org/pdf/1710.08261.pdf
+    // kl - kt - c2 - cg - c2g
     if(EFTBMname == "sm")       EFTBMcouplings_ = {1, 1, 0, 0, 0};
     else if(EFTBMname ==  "1")  EFTBMcouplings_ = {7.5, 1, -1, 0, 0};
     else if(EFTBMname ==  "2")  EFTBMcouplings_ = {1.0, 1.0, 0.5, -0.8, 0.6};
@@ -72,6 +75,42 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
     else if(EFTBMname == "JHEP03(2020)091_5" or EFTBMname == "5b") EFTBMcouplings_ = {  3.95, 1.17, -1./3., 1./6.* 1.5,  -0.5  * (-3.) };
     else if(EFTBMname == "JHEP03(2020)091_6" or EFTBMname == "6b") EFTBMcouplings_ = {  5.68, 0.83,  1./3., -0.5 * 1.5,  1./3. * (-3.) };
     else if(EFTBMname == "JHEP03(2020)091_7" or EFTBMname == "7b") EFTBMcouplings_ = { -0.10, 0.94,     1., 1./6.* 1.5, -1./6. * (-3.) };
+
+    // --------------------------------------------------------------------
+    // read input file containing all the coefficients for the reweighting
+    if (DEBUG) std::cout << " -- Reading input file" << coeffFile << std::endl;
+
+    // read and fill from the file
+    std::ifstream infile;
+    infile.open(coeffFile);
+    if (!infile.is_open())
+        throw std::runtime_error("Could not open input file");
+
+    std::string line;
+    while (std::getline(infile, line))
+    {
+        if (DEBUG) std::cout << " -- Reading line " << line << std::endl;
+        line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
+        if (!line.empty()) {
+            std::vector<std::string> tokens = tokenize(line);
+            if ((tokens.size()) != 28 && (tokens.size() != 20))
+            {
+                std::cerr << " ** Error in reading input file: cannot interpret line: " << line << std::endl;
+                std::cerr << " ** Error in reading input file: expecting 28(NLO) or 20(LO) tokens, found " << tokens.size() << std::endl;
+                throw std::runtime_error("Cannot parse input file");
+            } 
+
+            //The columns of the file are respectively: uncertainty - Mhh_ll - Mhh_ul - GenCostStar_ll - GenCostStar_ul - 23(nlo)/15(lo) A values
+            if (DEBUG) std::cout << "uncertainty= :" << tokens.at(0) << ": ; requested uncertainty= :" << unc_ << ":" << std::endl;
+            if (tokens.at(0) != unc_) continue; // fill the map with the correct lines of the file corresponding to the correct uncertainty
+
+            std::vector<double> A_vec;
+            for (int i = 1; i<int(tokens.size()); i++) { // start loop from 1 to skip the uncertainty cause it is not nedeed in the following
+                A_vec.push_back(std::stod(tokens.at(i)));
+            }
+            A_map_.push_back(A_vec);
+        }
+    }
 }
 
 HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string order, std::string uncertantie, bool useAbsEta)
@@ -106,52 +145,6 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
 
 HHReweight5D::~HHReweight5D()
 {}
-
-// read input file containing all the coefficients for the reweighting
-void HHReweight5D::readInputFile(std::string coeffFile)
-{
-    if (DEBUG) std::cout << " -- Reading input file" << coeffFile << std::endl;
-
-    // read and fill from the file
-    std::ifstream infile;
-    infile.open(coeffFile);
-    if (!infile.is_open())
-        throw std::runtime_error("Could not open input file");
-
-    std::string line;
-    while (std::getline(infile, line))
-    {
-        if (DEBUG) std::cout << " -- Reading line " << line << std::endl;
-        line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
-        if (!line.empty()) {
-            std::vector<std::string> tokens = tokenize(line);
-            if (order_ == "lo" && tokens.size() != 20)
-            {
-                std::cerr << " ** Error in reading input file: cannot interpret line: " << line << std::endl;
-                throw std::runtime_error("Cannot parse input file");
-            }
-            else if (tokens.size() != 28)
-            {
-                std::cerr << " ** Error in reading input file: cannot interpret line: " << line << std::endl;
-                throw std::runtime_error("Cannot parse input file");
-            } 
-
-            //The columns are respectively: uncertainty Mhh_ll Mhh_ul GenCostStar_ll GenCostStar_ul 23(nlo)/15(lo) A values
-            double mHH_ll = std::stod(tokens.at(1));
-            double cth_ll = std::stod(tokens.at(3));
-                        
-            auto bin = std::make_pair(mHH_ll, cth_ll);
-
-            std::vector<double> A_vec;
-            for (int i = 5; i<=28; i++) {
-                A_vec.push_back(std::stod(tokens.at(i)));
-            }
-
-            // fill the map with the correct lines of the file corresponding to teh correct uncertainty  
-            if(tokens.at(0) == unc_) A_map_[bin] = A_vec;
-        }
-    }
-}
 
 double HHReweight5D::functionGF(double kl, double kt, double c2, double cg, double c2g, std::vector<double> A)
 {
@@ -217,6 +210,7 @@ double HHReweight5D::getWeight(double mhh, double cth)
     int ibinmhh = h_input_->GetXaxis()->FindBin(mhh);
     int ibincosthetaHH = h_input_->GetYaxis()->FindBin(cth);
     double Noutputev = XS * h_input_->GetXaxis()->GetBinWidth(ibinmhh) * h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH);
+    if (DEBUG) std::cout << "Noutputev=" << Noutputev << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
     return Noutputev/Nev * Nevtot/XStot;
 }
 
@@ -232,6 +226,7 @@ double HHReweight5D::getWeight(double kl, double kt, double c2, double cg, doubl
     int ibinmhh = h_input_->GetXaxis()->FindBin(mhh);
     int ibincosthetaHH = h_input_->GetYaxis()->FindBin(cth);
     double Noutputev = XS * h_input_->GetXaxis()->GetBinWidth(ibinmhh) * h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH);
+    if (DEBUG) std::cout << "Noutputev=" << Noutputev << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
     return Noutputev/Nev * Nevtot/XStot;
 }
 
@@ -241,20 +236,29 @@ double HHReweight5D::getTotXS(double kl, double kt, double c2, double cg, double
     else return functionGF(kl, kt, c2, cg, c2g, A_13TeV_nlo_);
 }
 
-double HHReweight5D::getDiffXS(double kl, double kt, double c2, double cg, double c2g, double mhh, double cth, std::map< std::pair<double, double>, std::vector<double> > A_map)
-{
-   double dXsec = 0.;
-   
-   for(std::map< std::pair<double, double>, std::vector<double> >::iterator it = A_map.begin(); it != A_map.end(); it++)
+double HHReweight5D::getDiffXS(double kl, double kt, double c2, double cg, double c2g, double mhh, double cth, std::vector< std::vector<double> > A_map)
+{  
+   if (DEBUG) std::cout << "AmapSize=" << A_map.size() << std::endl;
+   for(int i = 0; i < A_map.size(); i++)
    {
-      std::vector<double> const & values = it->second;
-      double mass_bin_end = it->first.first;
-      double cos_bin_end  = it->first.second;
-      if(mhh > mass_bin_end || cth > cos_bin_end) continue;
-      dXsec += functionGF(kl, kt, c2, cg, c2g, values);
-   }   
+      //The entries are respectively: Mhh_ll - Mhh_ul - GenCostStar_ll - GenCostStar_ul - 23(nlo)/15(lo) A values
+      const std::vector<double> & values = A_map.at(i);
+      double mass_bin_end = values.at(1);
+      double cos_bin_end  = values.at(3);
       
-   return dXsec;
+      if (DEBUG) std::cout << "mass_bin_end=" << mass_bin_end << " ; mhh=" << mhh << " ; cos_bin_end=" << cos_bin_end << " ; cth=" << cth << std::endl;
+      if(mhh > mass_bin_end || cth > cos_bin_end) continue;
+      
+      double dXsec = 0.;
+      
+      std::vector<double> As;
+      for (int j=4; j<values.size(); j++) As.push_back(values.at(j));
+      dXsec += functionGF(kl, kt, c2, cg, c2g, values);
+
+      return dXsec;
+    }
+ 
+   return 0;
 }
 
 
@@ -281,16 +285,14 @@ double HHReweight5D::getDiffXS(double kl, double kt, double c2, double cg, doubl
 std::vector<std::string> HHReweight5D::tokenize(std::string input)
 {    
     if (DEBUG) std::cout << " -- Tokenizing input " << input << std::endl;
-
-    std::istringstream buffer(input);
-    std::vector<std::string> ret;
-    for (std::string i; buffer >> i;) 
-    {
-        ret.push_back(i);    
-        if (buffer.peek() == ',')
-            buffer.ignore();
-    }
     
+    std::stringstream buffer(input);
+    std::string token;
+    std::vector<std::string> ret;
+    while (getline(buffer, token, ',')){
+        ret.push_back(token);
+    }
+
     if (DEBUG){
         std::cout << "I got " << ret.size() << " tokens" << std::endl;
         std::cout << "     --> " ;

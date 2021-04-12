@@ -39,7 +39,7 @@ class HHReweight5D{
 
         //Compute Total and Differential XS
         double getTotXS(double kl, double kt, double c2, double cg, double c2g);
-        double getDiffXS(double kl, double kt, double c2, double cg, double c2g, double mhh, double cth, std::map< std::pair<double, double>, std::vector<double> > A_map);
+        double getDiffXS(double kl, double kt, double c2, double cg, double c2g, double mhh, double cth, std::vector< std::vector<double> > A_map);
         
         std::vector<std::string> tokenize(std::string input);
         
@@ -75,7 +75,7 @@ class HHReweight5D{
         std::vector<double> A_13TeV_lo_;
 
         // map containing: binMhh, binCoshh, A_coefs(_UP/_DN)
-        std::map< std::pair<double, double>, std::vector<double> >A_map_;
+        std::vector< std::vector<double> > A_map_;
 
         // EFT benchmark couplings values
         //      sm, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
