@@ -281,13 +281,33 @@ for sel in selections:
     nP = int((xmax-xmin)*10.0)
     Graph_syst_Scale =  ROOT.TGraphAsymmErrors(nP)
     for i in range(nP) : 
-        Graph_syst_Scale_x=(xmin+(i*1.)/10.)
-        Graph_syst_Scale_y=(getExpValue(xmin+(i*1.)/10.,yt)) 
+
+        C2V_x = xmin+(i*1.)/10.
+        Graph_syst_Scale_x=(C2V_x)
         Graph_syst_Scale_x_err=(0)
-        Graph_syst_Scale_y_errup=(  (2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.)*(xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.44185*0.053/BR)
-        Graph_syst_Scale_y_errdown=((2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.)*(xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.44185*0.067/BR)
+
+        corrFactor = 1.034772182
+        if year == "2016":
+            corrFactor = 1.078076202
+        xstheoVBF = getXStheoVBF (C2V_x,1,year) * corrFactor * 1000.0  # C2V,kl,year (VBF needs conversion to [fb])
+        Graph_syst_Scale_y=(xstheoVBF)
+
+        # Run2 uncertainties HH VBF
+        # scale unc = {"up": 0.0003, "down": 0.0004}
+        # pdf unc   = 0.021
+        VBF_erry_up   = xstheoVBF * ((0.0003*0.0003 + 0.021*0.021)**0.5)
+        VBF_erry_down = xstheoVBF * ((0.0004*0.0004 + 0.021*0.021)**0.5)
+
+        Graph_syst_Scale_y_errup  = (VBF_erry_up)
+        Graph_syst_Scale_y_errdown= (VBF_erry_down)
+
+        #if i%10==0:
+        #    print C2V_x, 'VBF:', xstheoVBF, VBF_erry_up, VBF_erry_down
+        #    print '   TOT:', Graph_syst_Scale_y, Graph_syst_Scale_y_errup, Graph_syst_Scale_y_errdown
+
         Graph_syst_Scale.SetPoint(i,Graph_syst_Scale_x,Graph_syst_Scale_y)
-        Graph_syst_Scale.SetPointError(i,Graph_syst_Scale_x_err,Graph_syst_Scale_x_err,Graph_syst_Scale_y_errup,Graph_syst_Scale_y_errdown)
+        Graph_syst_Scale.SetPointError(i,Graph_syst_Scale_x_err,Graph_syst_Scale_x_err,Graph_syst_Scale_y_errdown,Graph_syst_Scale_y_errup)
+
     Graph_syst_Scale.SetLineColor(ROOT.kRed)
     Graph_syst_Scale.SetFillColor(ROOT.kRed)
     Graph_syst_Scale.SetFillStyle(3001)
@@ -326,7 +346,7 @@ for sel in selections:
     #grobs.Draw("Lsame")
 
     graph.Draw("l same")
-    #Graph_syst_Scale.Draw("e3 same")
+    Graph_syst_Scale.Draw("e3 same")
 
     pt.Draw()
     pt2.Draw()

@@ -41,9 +41,11 @@ def parseFile(filename, CL='50.0', exp=True):
         return matches[-1]
 
 def getXStheoGGF (kL):
-    A = 62.5339
-    B = -44.323
-    C = 9.6340
+    # Updated following: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWGHH?redirectedfrom=LHCPhysics.LHCHXSWGHH#Latest_recommendations_for_gluon
+    # (old recommendation was A = 62.5339 / B = -44.323 / C = 9.6340)
+    A = 70.3874
+    B = -50.4111
+    C = 11.0595
 
     val = A + B*kL + C*kL*kL
     return val
@@ -133,7 +135,7 @@ for sel in selections:
             corrFactor = 1.078076202
 
         xstheoVBF = getXStheoVBF (1,xval,year) * corrFactor * 1000.0  # C2V,kl,year (VBF needs conversion to [fb])
-        xstheoGGF = getXStheoGGF (xval) * 1.115                       # kl
+        xstheoGGF = getXStheoGGF (xval)                               # kl
         xstheoTOT = xstheoVBF + xstheoGGF
 
         # Can get different results on r_gghh:
@@ -270,9 +272,16 @@ for sel in selections:
     BR = 1
     C2V = 1
     CV = 1
-    #myFunc =  ROOT.TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*[0]*x*[0] -1.37*[0]*[0]*[0]*x*[0])*2.44185/[1]",xmin,xmax) # 2016 data
-    #myFunc =  ROOT.TF1("myFunc","(62.5339 -44.323*x + 9.6340*x*x)*1.115",xmin,xmax) # GGF only
-    myFunc =  ROOT.TF1("myFunc","( (62.5339 -44.323*x + 9.6340*x*x)*1.115) + ( ( 0.001668*(-3.3*[1]**2 + 1.3*[1]*[0]**2 + 7.6*[1]*[0]*x + 2.0*[0]**4 - 5.6*[0]**3*x - 1.0*[0]**2*x**2) + 0.01374*(1.5*[1]**2 + 0.5*[1]*[0]**2 - 4.0*[1]*[0]*x - 2.0*[0]**4 + 4.0*[0]**3*x) + 0.001375*(0.35*[1]**2 - 0.0166666666666667*[1]*[0]**2 - 1.03333333333333*[1]*[0]*x - 0.333333333333333*[0]**4 + 0.533333333333333*[0]**3*x + 0.5*[0]**2*x**2) + 0.004454*(-0.45*[1]**2 + 0.45*[1]*[0]**2 + 0.9*[1]*[0]*x + 1.0*[0]**4 - 2.4*[0]**3*x + 0.5*[0]**2*x**2) + 0.01046*(-2.0*[1]**2 - 3.33333333333333*[1]*[0]**2 + 9.33333333333333*[1]*[0]*x + 5.33333333333333*[0]**4 - 9.33333333333333*[0]**3*x) + 0.0638*(0.4*[1]**2 - 0.4*[1]*[0]**2 - 0.8*[1]*[0]*x + 0.8*[0]**3*x) ) * 1.034772182 * 1000.0 ) ",xmin,xmax)
+
+    # 2016 data
+    #myFunc =  ROOT.TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*[0]*x*[0] -1.37*[0]*[0]*[0]*x*[0])*2.44185/[1]",xmin,xmax)
+
+    # Old Run2 recommendation
+    #myFunc =  ROOT.TF1("myFunc","( (62.5339 -44.323*x + 9.6340*x*x)*1.115) + ( ( 0.001668*(-3.3*[1]**2 + 1.3*[1]*[0]**2 + 7.6*[1]*[0]*x + 2.0*[0]**4 - 5.6*[0]**3*x - 1.0*[0]**2*x**2) + 0.01374*(1.5*[1]**2 + 0.5*[1]*[0]**2 - 4.0*[1]*[0]*x - 2.0*[0]**4 + 4.0*[0]**3*x) + 0.001375*(0.35*[1]**2 - 0.0166666666666667*[1]*[0]**2 - 1.03333333333333*[1]*[0]*x - 0.333333333333333*[0]**4 + 0.533333333333333*[0]**3*x + 0.5*[0]**2*x**2) + 0.004454*(-0.45*[1]**2 + 0.45*[1]*[0]**2 + 0.9*[1]*[0]*x + 1.0*[0]**4 - 2.4*[0]**3*x + 0.5*[0]**2*x**2) + 0.01046*(-2.0*[1]**2 - 3.33333333333333*[1]*[0]**2 + 9.33333333333333*[1]*[0]*x + 5.33333333333333*[0]**4 - 9.33333333333333*[0]**3*x) + 0.0638*(0.4*[1]**2 - 0.4*[1]*[0]**2 - 0.8*[1]*[0]*x + 0.8*[0]**3*x) ) * 1.034772182 * 1000.0 ) ",xmin,xmax)
+
+    # Run2 - Updated following: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWGHH?redirectedfrom=LHCPhysics.LHCHXSWGHH#Latest_recommendations_for_gluon
+    myFunc =  ROOT.TF1("myFunc","( (70.3874 -50.4111*x + 11.0595*x*x)) + ( ( 0.001668*(-3.3*[1]**2 + 1.3*[1]*[0]**2 + 7.6*[1]*[0]*x + 2.0*[0]**4 - 5.6*[0]**3*x - 1.0*[0]**2*x**2) + 0.01374*(1.5*[1]**2 + 0.5*[1]*[0]**2 - 4.0*[1]*[0]*x - 2.0*[0]**4 + 4.0*[0]**3*x) + 0.001375*(0.35*[1]**2 - 0.0166666666666667*[1]*[0]**2 - 1.03333333333333*[1]*[0]*x - 0.333333333333333*[0]**4 + 0.533333333333333*[0]**3*x + 0.5*[0]**2*x**2) + 0.004454*(-0.45*[1]**2 + 0.45*[1]*[0]**2 + 0.9*[1]*[0]*x + 1.0*[0]**4 - 2.4*[0]**3*x + 0.5*[0]**2*x**2) + 0.01046*(-2.0*[1]**2 - 3.33333333333333*[1]*[0]**2 + 9.33333333333333*[1]*[0]*x + 5.33333333333333*[0]**4 - 9.33333333333333*[0]**3*x) + 0.0638*(0.4*[1]**2 - 0.4*[1]*[0]**2 - 0.8*[1]*[0]*x + 0.8*[0]**3*x) ) * 1.034772182 * 1000.0 ) ",xmin,xmax)
+
     myFunc.SetParameter(0,CV)
     myFunc.SetParameter(1,C2V)
     graph = ROOT.TGraph(myFunc)
@@ -282,17 +291,54 @@ for sel in selections:
     nP = int((xmax-xmin)*10.0)
     Graph_syst_Scale =  ROOT.TGraphAsymmErrors(nP)
     for i in range(nP) : 
-        Graph_syst_Scale_x=(xmin+(i*1.)/10.)
-        Graph_syst_Scale_y=(getExpValue(xmin+(i*1.)/10.,yt)) 
+
+        kl_x = xmin+(i*1.)/10.
+        Graph_syst_Scale_x=(kl_x)
         Graph_syst_Scale_x_err=(0)
-        Graph_syst_Scale_y_errup=(  (2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.)*(xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.44185*0.053/BR)
-        Graph_syst_Scale_y_errdown=((2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.)*(xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.44185*0.067/BR)
+
+        # Graph_syst_Scale_y=(getExpValue(kl_x,yt)) # 2016 data
+
+        corrFactor = 1.034772182
+        if year == "2016":
+            corrFactor = 1.078076202
+        xstheoVBF = getXStheoVBF (1,kl_x,year) * corrFactor * 1000.0  # C2V,kl,year (VBF needs conversion to [fb])
+        xstheoGGF = getXStheoGGF (kl_x)                               # kl
+        Graph_syst_Scale_y=(xstheoVBF+xstheoGGF)
+
+        # 2016 uncertainties
+        #Graph_syst_Scale_y_errup=(  (2.09*yt*yt*yt*yt+0.28*yt*yt*(kl_x)*(kl_x)-1.37*yt*yt*yt*(kl_x))*2.44185*0.053/BR)
+        #Graph_syst_Scale_y_errdown=((2.09*yt*yt*yt*yt+0.28*yt*yt*(kl_x)*(kl_x)-1.37*yt*yt*yt*(kl_x))*2.44185*0.067/BR)
+
+        # Run2 uncertainties HH GGF
+        # Updated following: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWGHH?redirectedfrom=LHCPhysics.LHCHXSWGHH#Latest_recommendations_for_gluon
+        # upper_unc[kl] = Max[72.0744-51.7362*kl+11.3712*kl2, 70.9286-51.5708*kl+11.4497*kl2] in fb.
+        # lower_unc[kl] = Min[66.0621-46.7458*kl+10.1673*kl2, 66.7581-47.721*kl+10.4535*kl2] in fb.
+        GGF_erry_up   = max(72.0744-51.7362*kl_x+11.3712*kl_x*kl_x,70.9286-51.5708*kl_x+11.4497*kl_x*kl_x) - xstheoGGF
+        GGF_erry_down = xstheoGGF - min(66.0621-46.7458*kl_x+10.1673*kl_x*kl_x,66.7581-47.721*kl_x+10.4535*kl_x*kl_x)
+
+        # Run2 uncertainties HH VBF
+        # scale unc = {"up": 0.0003, "down": 0.0004}
+        # pdf unc   = 0.021
+        VBF_erry_up   = xstheoVBF * ((0.0003*0.0003 + 0.021*0.021)**0.5)
+        VBF_erry_down = xstheoVBF * ((0.0004*0.0004 + 0.021*0.021)**0.5)
+
+        # Run2 total uncertainty (GGF+VBF)
+        Graph_syst_Scale_y_errup  = (GGF_erry_up+VBF_erry_up)
+        Graph_syst_Scale_y_errdown= (GGF_erry_down+VBF_erry_down)
+
+        #if i%10==0:
+        #    print kl_x, 'GGF:', xstheoGGF, GGF_erry_up, GGF_erry_down
+        #    print '   VBF:', xstheoVBF, VBF_erry_up, VBF_erry_down
+        #    print '   TOT:', Graph_syst_Scale_y, Graph_syst_Scale_y_errup, Graph_syst_Scale_y_errdown
+
         Graph_syst_Scale.SetPoint(i,Graph_syst_Scale_x,Graph_syst_Scale_y)
-        Graph_syst_Scale.SetPointError(i,Graph_syst_Scale_x_err,Graph_syst_Scale_x_err,Graph_syst_Scale_y_errup,Graph_syst_Scale_y_errdown)
+        Graph_syst_Scale.SetPointError(i,Graph_syst_Scale_x_err,Graph_syst_Scale_x_err,Graph_syst_Scale_y_errdown,Graph_syst_Scale_y_errup)
+
     Graph_syst_Scale.SetLineColor(ROOT.kRed)
     Graph_syst_Scale.SetFillColor(ROOT.kRed)
     Graph_syst_Scale.SetFillStyle(3001)
     #graph.Print()
+    #Graph_syst_Scale.Print()
 
     # hframe
     hframe = ROOT.TH1F('hframe', '', 100, -22, 22)
@@ -327,7 +373,7 @@ for sel in selections:
     #grobs.Draw("Lsame")
 
     graph.Draw("l same")
-    #Graph_syst_Scale.Draw("e3 same")
+    Graph_syst_Scale.Draw("e3 same")
 
     pt.Draw()
     pt2.Draw()
