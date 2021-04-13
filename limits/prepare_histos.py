@@ -81,7 +81,10 @@ for key in inFile.GetListOfKeys():
 			template.SetBinContent(ibin,0.000001)
 			template.SetBinError(ibin,0.000001)
 
-	if integral>0 and changedInt and template.Integral()>0: template.Scale(integral/template.Integral())
+	if integral>0:
+		if changedInt and template.Integral()>0: template.Scale(integral/template.Integral())
+	else:
+		template.Scale(-100.) # set to negative in order to identify the problematic templates to be excluded in write_card.py
 
 	if "TH1" in template.ClassName():
 		for isyst in range(len(systNames)):
