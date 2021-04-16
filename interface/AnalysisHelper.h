@@ -79,6 +79,7 @@ class AnalysisHelper
         void activateBranches(Sample& sample);
         void activateBranchesCustom(const std::string name, const std::string expression, TTree *tree);
 	double customValues(TTreeFormula *formula);
+	std::vector<std::pair<std::string, std::string>>::const_iterator findCustomDef (std::string name);
         std::pair<std::string, std::string> unpack2DName(std::string packedName);
         std::string pack2DName (std::string name1, std::string name2);
         void prepareSamplesHistos();

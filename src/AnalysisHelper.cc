@@ -1063,10 +1063,11 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
     TObjArray *branchList = tree->GetListOfBranches();
     for (auto it = valuesMap.begin(); it != valuesMap.end(); ++it)
     {
-      if (std::find_if(custom_variables_.begin(), custom_variables_.end(), 
-		       [&it](const std::pair<std::string, std::string>& var){ return var.first == it->first;} ) != custom_variables_.end()) 
-	continue; // don't try to make SetBranchAddress on user defined variable
-      TBranch* br = (TBranch*) branchList->FindObject(it->first.c_str());
+        // don't try to make SetBranchAddress on user defined variable
+        auto custom = findCustomDef(it->first);
+        if (custom != custom_variables_.end()) continue;
+
+        TBranch* br = (TBranch*) branchList->FindObject(it->first.c_str());
         if (!br)
             cerr << endl << "** ERROR: AnalysisHelper::fillHistosSample : sample : " << sample.getName() << " does not have branch " << it->first << ", expect a crash..." << endl;
 
@@ -1182,8 +1183,7 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
             for (unsigned int ivar = 0; ivar < variables_.size(); ++ivar)
 	      {
 		double varvalue;
-		auto custom = std::find_if(custom_variables_.begin(), custom_variables_.end(), 
-					   [thisvar = variables_.at(ivar)](const std::pair<std::string, std::string>& var){ return var.first == thisvar;} ) ;
+		auto custom = findCustomDef(variables_.at(ivar));
 		if (custom != custom_variables_.end()) {
 		  TTreeFormula* custFormula = new TTreeFormula((custom->first).c_str(), (custom->second).c_str(), tree);
 		  varvalue = customValues(custFormula); 
@@ -1352,7 +1352,13 @@ double AnalysisHelper::customValues(TTreeFormula *formula)
   return value;
 }
 
-
+vector < pair <string, string> >::const_iterator AnalysisHelper::findCustomDef (std::string var){  
+  auto custom = std::find_if(custom_variables_.begin(), custom_variables_.end(), 
+			     [var](const std::pair<std::string, std::string>& cvar){ 
+			       return cvar.first == var;
+			     });
+  return custom;
+}
 
 pair <string, string> AnalysisHelper::unpack2DName (string packedName)
 {
@@ -1476,9 +1482,7 @@ void AnalysisHelper::dump(int detail)
     cout << "@ variable list: " << endl;
     for (uint iv = 0; iv < variables_.size(); ++iv)
     {
-        auto custom = std::find_if(custom_variables_.begin(), custom_variables_.end(), 
-				   [thisvar = variables_.at(iv)](const std::pair<std::string, std::string>& var){ return var.first == thisvar;});
-	
+        auto custom = findCustomDef(variables_.at(iv));
         if (custom == custom_variables_.end()){
 	  cout << "  " << iv << " >> " << variables_.at(iv) << endl;
 	}else{
