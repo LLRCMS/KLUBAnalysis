@@ -77,6 +77,8 @@ class AnalysisHelper
         std::vector<std::pair<std::string, std::string> > readWeightSysts(std::string name, std::string section); // read w list of section::name
         void fillHistosSample(Sample& sample);
         void activateBranches(Sample& sample);
+        void activateBranchesCustom(const std::string name, const std::string expression, TTree *tree);
+	double customValues(TTreeFormula *formula);
         std::pair<std::string, std::string> unpack2DName(std::string packedName);
         std::string pack2DName (std::string name1, std::string name2);
         void prepareSamplesHistos();
@@ -98,6 +100,7 @@ class AnalysisHelper
         // ordered_map<std::string, TCut> selections_;
         std::vector<Selection> selections_;
         std::vector<std::string> variables_;
+        std::vector<std::pair<std::string, std::string>> custom_variables_;
         std::vector<std::pair<std::string, std::string>> variables2D_;
         
         ordered_map <std::string, std::shared_ptr<Sample>> data_samples_;
