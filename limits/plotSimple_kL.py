@@ -313,8 +313,12 @@ for sel in selections:
         # Updated following: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWGHH?redirectedfrom=LHCPhysics.LHCHXSWGHH#Latest_recommendations_for_gluon
         # upper_unc[kl] = Max[72.0744-51.7362*kl+11.3712*kl2, 70.9286-51.5708*kl+11.4497*kl2] in fb.
         # lower_unc[kl] = Min[66.0621-46.7458*kl+10.1673*kl2, 66.7581-47.721*kl+10.4535*kl2] in fb.
-        GGF_erry_up   = max(72.0744-51.7362*kl_x+11.3712*kl_x*kl_x,70.9286-51.5708*kl_x+11.4497*kl_x*kl_x) - xstheoGGF
-        GGF_erry_down = xstheoGGF - min(66.0621-46.7458*kl_x+10.1673*kl_x*kl_x,66.7581-47.721*kl_x+10.4535*kl_x*kl_x)
+        # pdf+alpha_s   = 0.03
+        # mtop          = 0.026
+        scale_up   = (max(72.0744-51.7362*kl_x+11.3712*kl_x*kl_x,70.9286-51.5708*kl_x+11.4497*kl_x*kl_x) - xstheoGGF) / xstheoGGF
+        scale_down = (min(66.0621-46.7458*kl_x+10.1673*kl_x*kl_x,66.7581-47.721*kl_x+10.4535*kl_x*kl_x)  - xstheoGGF) / xstheoGGF
+        GGF_erry_up   = xstheoGGF*((scale_up*scale_up + 0.03*0.03 + 0.026*0.026)**0.5)
+        GGF_erry_down = xstheoGGF*((scale_down*scale_down + 0.03*0.03 + 0.026*0.026)**0.5)
 
         # Run2 uncertainties HH VBF
         # scale unc = {"up": 0.0003, "down": 0.0004}
