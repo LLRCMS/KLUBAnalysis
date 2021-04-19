@@ -367,12 +367,14 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             #        shiftShapes_newName.append(proc+"_"+CMS_bTagWPname+"Up")
             #        shiftShapes_newName.append(proc+"_"+CMS_bTagWPname+"Down")
 
-            # Add bTagReshape uncertainties - systematic type (correlated across years 2016 and 2017-2018)
-            bTagSysts = ["LF","HF"]
+            # Add bTagReshape uncertainties - correlated across all years according to:
+            # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagShapeCalibration#Correlation_across_years_2016_20
+            bTagSysts = ["LF","HF","CFERR1","CFERR2"]
             for bTagSyst in bTagSysts:
-                CMS_bTagSystName = "CMS_btag_" + bTagSyst + "_2017_2018"
-                if "2016" in opt.year:
-                    CMS_bTagSystName = "CMS_btag_" + bTagSyst + "_2016"
+                if "CFERR" in bTagSyst:
+                    CMS_bTagSystName = "CMS_btag_" + bTagSyst.lower() + "_2016_2017_2018"
+                else:
+                    CMS_bTagSystName = "CMS_btag_" + bTagSyst + "_2016_2017_2018"
                 bTagSystName = "bTagweightReshape" + bTagSyst
                 systsShape.append(CMS_bTagSystName)
                 for proc in backgrounds:
@@ -395,8 +397,9 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Up")
                     shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Down")
 
-            # Add bTagReshape uncertainties - statistical type (uncorrelated across years)
-            bTagSysts = ["HFSTATS1","HFSTATS2","LFSTATS1","LFSTATS2","CFERR1","CFERR2"]
+            # Add bTagReshape uncertainties - uncorrelated across years according to:
+            # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagShapeCalibration#Correlation_across_years_2016_20
+            bTagSysts = ["HFSTATS1","HFSTATS2","LFSTATS1","LFSTATS2"]
             for bTagSyst in bTagSysts:
                 CMS_bTagSystName = "CMS_btag_" + bTagSyst.lower() + "_" + opt.year
                 bTagSystName = "bTagweightReshape" + bTagSyst
