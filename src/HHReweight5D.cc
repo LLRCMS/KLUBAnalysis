@@ -47,11 +47,14 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
     else if(EFTBMname ==  "12") EFTBMcouplings_ = {15.0, 1.0, 1.0, 0.0, 0.0};
 
     if( (year == "2017" or year == "2018") and EFTBMcouplings_.size() and cms_fake ){
+      if (DEBUG) std::cout << "-----------> before cms_fake: " << EFTBMcouplings_[0] << " " << EFTBMcouplings_[1] << " " << EFTBMcouplings_[2] << " "  << EFTBMcouplings_[3] << " "  << EFTBMcouplings_[4] << std::endl;
       EFTBMcouplings_[4] = 1.0;
       double tr = EFTBMcouplings_[0];
       EFTBMcouplings_[0] = EFTBMcouplings_[1];
       EFTBMcouplings_[1] = tr;
+      if (DEBUG) std::cout << "-----------> after cms_fake: " << EFTBMcouplings_[0] << " " << EFTBMcouplings_[1] << " " << EFTBMcouplings_[2] << " "  << EFTBMcouplings_[3] << " "  << EFTBMcouplings_[4] << std::endl;
     }
+
     if( (year == "2016") and EFTBMcouplings_.size() and cms_fake ){
       double tr = EFTBMcouplings_[0];
       EFTBMcouplings_[0] = EFTBMcouplings_[1];
@@ -109,8 +112,10 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
                 A_vec.push_back(std::stod(tokens.at(i)));
             }
             A_map_.push_back(A_vec);
+            if (DEBUG) std::cout << " ---------> A_vec size " << A_vec.size() << std::endl;
         }
     }
+    if (DEBUG) std::cout << " ---------> A_map size " << A_map_.size() << std::endl;
 }
 
 HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string order, std::string uncertantie, bool useAbsEta)
@@ -210,7 +215,7 @@ double HHReweight5D::getWeight(double mhh, double cth)
     int ibinmhh = h_input_->GetXaxis()->FindBin(mhh);
     int ibincosthetaHH = h_input_->GetYaxis()->FindBin(cth);
     double Noutputev = XS * h_input_->GetXaxis()->GetBinWidth(ibinmhh) * h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH);
-    if (DEBUG) std::cout << "Noutputev=" << Noutputev << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
+    if (DEBUG) std::cout << "Noutputev=" << Noutputev << " ; Nev=" << Nev << " ; Nevtot=" << Nevtot << " ; XStot=" << XStot << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
     return Noutputev/Nev * Nevtot/XStot;
 }
 
@@ -226,7 +231,7 @@ double HHReweight5D::getWeight(double kl, double kt, double c2, double cg, doubl
     int ibinmhh = h_input_->GetXaxis()->FindBin(mhh);
     int ibincosthetaHH = h_input_->GetYaxis()->FindBin(cth);
     double Noutputev = XS * h_input_->GetXaxis()->GetBinWidth(ibinmhh) * h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH);
-    if (DEBUG) std::cout << "Noutputev=" << Noutputev << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
+    if (DEBUG) std::cout << "Noutputev=" << Noutputev << " ; Nev=" << Nev << " ; Nevtot=" << Nevtot << " ; XStot=" << XStot << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
     return Noutputev/Nev * Nevtot/XStot;
 }
 
@@ -239,23 +244,27 @@ double HHReweight5D::getTotXS(double kl, double kt, double c2, double cg, double
 double HHReweight5D::getDiffXS(double kl, double kt, double c2, double cg, double c2g, double mhh, double cth, std::vector< std::vector<double> > A_map)
 {  
    if (DEBUG) std::cout << "AmapSize=" << A_map.size() << std::endl;
-   for(int i = 0; i < A_map.size(); i++)
+   for(int i = 0; i < int(A_map.size()); i++)
    {
       //The entries are respectively: Mhh_ll - Mhh_ul - GenCostStar_ll - GenCostStar_ul - 23(nlo)/15(lo) A values
       const std::vector<double> & values = A_map.at(i);
       double mass_bin_end = values.at(1);
       double cos_bin_end  = values.at(3);
       
-      if (DEBUG) std::cout << "mass_bin_end=" << mass_bin_end << " ; mhh=" << mhh << " ; cos_bin_end=" << cos_bin_end << " ; cth=" << cth << std::endl;
       if(mhh > mass_bin_end || cth > cos_bin_end) continue;
       
       double dXsec = 0.;
       
       std::vector<double> As;
-      for (int j=4; j<values.size(); j++) As.push_back(values.at(j));
-      dXsec += functionGF(kl, kt, c2, cg, c2g, values);
+      for (int j=4; j<int(values.size()); j++) As.push_back(values.at(j));
+      if (DEBUG) {
+        std::cout << "---> A coeffs: ";
+        for (int j=0; j<int(As.size()); j++) std::cout << As[j] << " ; ";
+        std::cout << std::endl;  
+      }
+      dXsec += functionGF(kl, kt, c2, cg, c2g, As);
 
-      return dXsec;
+      return dXsec / 1000; //diff XS in [fb] 
     }
  
    return 0;
