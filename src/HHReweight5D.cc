@@ -219,6 +219,29 @@ double HHReweight5D::getWeight(double mhh, double cth)
     return Noutputev/Nev * Nevtot/XStot;
 }
 
+// return the weight to be applied for the for c2 scan
+double HHReweight5D::getWeight(double mhh, double cth, double c2_value)
+{
+    if (useAbsEta_) cth = TMath::Abs(cth);
+
+    double kl  = 1;
+    double kt  = 1;
+    double c2  = c2_value;
+    double cg  = 0;
+    double c2g = 0;
+    if (DEBUG) std::cout << " ---------> c2 scan point requested: " << "kl=" << kl << " ; kt=" << kt << " ; c2=" << c2 << " ; cg=" << cg << " ; c2g="  << c2g << std::endl;
+
+    double Nevtot = h_input_->Integral();
+    double XStot = getTotXS(kl,kt,c2,cg,c2g);
+    double Nev = h_input_->GetBinContent( h_input_->FindBin(mhh, cth) );
+    double XS = getDiffXS(kl,kt,c2,cg,c2g,mhh,cth,A_map_);
+    int ibinmhh = h_input_->GetXaxis()->FindBin(mhh);
+    int ibincosthetaHH = h_input_->GetYaxis()->FindBin(cth);
+    double Noutputev = XS * h_input_->GetXaxis()->GetBinWidth(ibinmhh) * h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH);
+    if (DEBUG) std::cout << "Noutputev=" << Noutputev << " ; Nev=" << Nev << " ; Nevtot=" << Nevtot << " ; XStot=" << XStot << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
+    return Noutputev/Nev * Nevtot/XStot;
+}
+
 // return the weight to be applied for the reweight -> take mhh, cth, and couplings from input
 double HHReweight5D::getWeight(double kl, double kt, double c2, double cg, double c2g, double mhh, double cth)
 {

@@ -190,7 +190,7 @@ int main (int argc, char** argv)
       cerr << "usage: " << argv[0]
            << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
            << " xsecScale(stitch) HTMax(stitch) HTMin(stitch) isTTBar DY_Nbs HHreweightFile TT_stitchType"
-           << " runMT2 isHHsignal NjetRequired(stitch) EFTbm order uncertantie cms_fake susyModel" << endl ; 
+           << " runMT2 isHHsignal NjetRequired(stitch) EFTbm order uncertantie cms_fake c2 susyModel" << endl ; 
       return 1;
     }
 
@@ -280,30 +280,32 @@ int main (int argc, char** argv)
   bool cms_fake = false;
   string opt20 (argv[20]);
   if (opt20 == "1") cms_fake = true;
+  double c2_value = 0;
+  if (argv[21] != string("none")) c2_value = stod(argv[21]);
   cout << "** INFO: EFT reweighting asked for benchmark " << EFTbm << " at NLO" << endl;
 
-  string susyModel = argv[21];
+  string susyModel = argv[22];
   cout << "** INFO: requesting SUSY model to be: -" << susyModel << "- [NOTSUSY: no request on this parameter]" << endl;
 
   // external weight file for PUreweight - sample per sample
-  TString PUreweightFile = argv[22];
+  TString PUreweightFile = argv[23];
   cout << "** INFO: PU reweight external file: " << PUreweightFile << endl;
   
-  int DY_nJets  = atoi(argv[23]);
-  int DY_nBJets = atoi(argv[24]);
+  int DY_nJets  = atoi(argv[24]);
+  int DY_nBJets = atoi(argv[25]);
   cout << "** INFO: nJets/nBjets for DY bin weights: " << DY_nJets << " / " << DY_nBJets << endl;
-  int isDYI = atoi(argv[25]);
+  int isDYI = atoi(argv[26]);
   bool isDY = (isDYI == 1) ? true : false;
 
   // this value is read just for "consistency", but is never actually used,
   // since in 2016 there is no ttHToTauTau sample, hence this stitching is not needed
   bool isttHToNonBB = false;
-  int isttHToNonBBI = atoi(argv[26]);
+  int isttHToNonBBI = atoi(argv[27]);
   if (isttHToNonBBI == 1) isttHToNonBB = true;
   cout << "** INFO: isttHToNonBB: " << isttHToNonBB << endl;
 
   bool isHHNLO = false;
-  int isHHNLOI = atoi(argv[27]);
+  int isHHNLOI = atoi(argv[28]);
   if (isHHNLOI == 1) isHHNLO = true;
   cout << "** INFO: isHHNLO: " << isHHNLO << endl;
 
@@ -1345,7 +1347,8 @@ int main (int argc, char** argv)
 	    cout << "** ERROR: couldn't find 2 H->bb gen dec prod " << idx1hs_b << " " << idx2hs_b << endl;
 
 
-	  if (HHrewType == kDiffRew) HHweight = hhreweighter->getWeight(mHH, ct1);
+	  if (HHrewType == kDiffRew && !c2_value) HHweight = hhreweighter->getWeight(mHH, ct1);
+    else if (HHrewType == kDiffRew && c2_value) HHweight = hhreweighter->getWeight(mHH, ct1, c2_value);
 
 	  theSmallTree.m_genMHH = mHH;
 	  theSmallTree.m_genCosth = ct1;
