@@ -277,31 +277,33 @@ int main (int argc, char** argv)
   string order = argv[18];
   string uncertantie = "\"\"";
   if (argv[19] != string("0")) uncertantie = argv[19];
-  bool cms_fake = argv[20];
+  bool cms_fake = false;
+  string opt20 (argv[20]);
+  if (opt20 == "1") cms_fake = true;
   cout << "** INFO: EFT reweighting asked for benchmark " << EFTbm << " at NLO" << endl;
 
   string susyModel = argv[21];
   cout << "** INFO: requesting SUSY model to be: -" << susyModel << "- [NOTSUSY: no request on this parameter]" << endl;
 
   // external weight file for PUreweight - sample per sample
-  TString PUreweightFile = argv[23];
+  TString PUreweightFile = argv[22];
   cout << "** INFO: PU reweight external file: " << PUreweightFile << endl;
   
-  int DY_nJets  = atoi(argv[24]);
-  int DY_nBJets = atoi(argv[25]);
+  int DY_nJets  = atoi(argv[23]);
+  int DY_nBJets = atoi(argv[24]);
   cout << "** INFO: nJets/nBjets for DY bin weights: " << DY_nJets << " / " << DY_nBJets << endl;
-  int isDYI = atoi(argv[26]);
+  int isDYI = atoi(argv[25]);
   bool isDY = (isDYI == 1) ? true : false;
 
   // this value is read just for "consistency", but is never actually used,
   // since in 2016 there is no ttHToTauTau sample, hence this stitching is not needed
   bool isttHToNonBB = false;
-  int isttHToNonBBI = atoi(argv[27]);
+  int isttHToNonBBI = atoi(argv[26]);
   if (isttHToNonBBI == 1) isttHToNonBB = true;
   cout << "** INFO: isttHToNonBB: " << isttHToNonBB << endl;
 
   bool isHHNLO = false;
-  int isHHNLOI = atoi(argv[28]);
+  int isHHNLOI = atoi(argv[27]);
   if (isHHNLOI == 1) isHHNLO = true;
   cout << "** INFO: isHHNLO: " << isHHNLO << endl;
 

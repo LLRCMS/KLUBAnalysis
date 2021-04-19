@@ -270,7 +270,9 @@ int main (int argc, char** argv)
   string order = argv[18];
   string uncertantie = "\"\"";
   if (argv[19] != string("0")) uncertantie = argv[19];
-  bool cms_fake = argv[20];
+  bool cms_fake = false;
+  string opt20 (argv[20]);
+  if (opt20 == "1") cms_fake = true;
   cout << "** INFO: EFT reweighting asked for benchmark " << EFTbm << " at NLO" << endl;
 
   //JONA: modify reading of input arguments
