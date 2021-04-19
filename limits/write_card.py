@@ -467,7 +467,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             else:
                 PTs = ["20to25", "25to30", "30to35", "35to40", "40toInf"]
             for PTname in PTs:
-                CMS_tauPTname = "CMS_bbtt_"+opt.year+"_tauid_pt" + PTname
+                CMS_tauPTname = "CMS_tauid_pt"+PTname+"_"+opt.year
                 tauPTname = "tauid_pt" + PTname
                 systsShape.append(CMS_tauPTname)
                 for proc in backgrounds:
