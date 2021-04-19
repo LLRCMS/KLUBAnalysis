@@ -40,14 +40,6 @@ def parseFile(filename, CL='50.0', exp=True):
     else:
         return matches[-1]
 
-def getXStheoGGF (kL):
-    A = 62.5339
-    B = -44.323
-    C = 9.6340
-
-    val = A + B*kL + C*kL*kL
-    return val
-
 def getXStheoVBF (c2v,KL,year):
     C2V = c2v
     kl = KL

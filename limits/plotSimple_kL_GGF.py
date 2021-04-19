@@ -7,19 +7,18 @@ import ROOT
 
 def redrawBorder():
    # this little macro redraws the axis tick marks and the pad border lines.
-   ROOT.gPad.Update();
-   ROOT.gPad.RedrawAxis();
+   ROOT.gPad.Update()
+   ROOT.gPad.RedrawAxis()
    l = ROOT.TLine()
    l.SetLineWidth(3)
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin());
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin())
 
 def getExpValue( kl,  yt): 
     BR =1 
-    return (2.09*yt*yt*yt*yt +   0.28*yt*yt*kl*kl  -1.37*yt*yt*yt*kl)*2.44477/BR;
-
+    return (2.09*yt*yt*yt*yt +   0.28*yt*yt*kl*kl  -1.37*yt*yt*yt*kl)*2.44477/BR
 
 def parseFile(filename, CL='50.0', exp=True):
     f = open(filename)
@@ -41,43 +40,15 @@ def parseFile(filename, CL='50.0', exp=True):
         return matches[-1]
 
 def getXStheoGGF (kL):
-    A = 62.5339
-    B = -44.323
-    C = 9.6340
+    # Updated following: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWGHH?redirectedfrom=LHCPhysics.LHCHXSWGHH#Latest_recommendations_for_gluon
+    # (old recommendation was A = 62.5339 / B = -44.323 / C = 9.6340)
+    A = 70.3874
+    B = -50.4111
+    C = 11.0595
 
     val = A + B*kL + C*kL*kL
     return val
 
-def getXStheoVBF (c2v,KL,year):
-    C2V = c2v
-    kl = KL
-    CV = 1.0
-
-    #s1 = HHModel.VBF_sample_list[0].val_xs # VBFHHSample(1,1,1,   val_xs = 0.00054/(0.3364), label = 'qqHH_CV_1_C2V_1_kl_1'  ),
-    #s2 = HHModel.VBF_sample_list[1].val_xs # VBFHHSample(1,2,1,   val_xs = 0.00472/(0.3364), label = 'qqHH_CV_1_C2V_2_kl_1'  ),
-    #s3 = HHModel.VBF_sample_list[2].val_xs # VBFHHSample(1,1,2,   val_xs = 0.00044/(0.3364), label = 'qqHH_CV_1_C2V_1_kl_2'  ),
-    #s4 = HHModel.VBF_sample_list[3].val_xs # VBFHHSample(1,1,0,   val_xs = 0.00145/(0.3364), label = 'qqHH_CV_1_C2V_1_kl_0'  ),
-    #s5 = HHModel.VBF_sample_list[4].val_xs # VBFHHSample(0.5,1,1, val_xs = 0.00353/(0.3364), label = 'qqHH_CV_0p5_C2V_1_kl_1'),
-    #s6 = HHModel.VBF_sample_list[5].val_xs # VBFHHSample(1.5,1,1, val_xs = 0.02149/(0.3364), label = 'qqHH_CV_1p5_C2V_1_kl_1'),
-
-    if year == '2016':
-        s1 = 0.001601
-        s2 = 0.01335
-        s3 = 0.001327
-        s4 = 0.004259
-        s5 = 0.01009
-        s6 = 0.06153
-    else:
-        s1 = 0.001668
-        s2 = 0.01374
-        s3 = 0.001375
-        s4 = 0.004454
-        s5 = 0.01046
-        s6 = 0.0638
-
-    val = s1*(-3.3*C2V**2 + 1.3*C2V*CV**2 + 7.6*C2V*CV*kl + 2.0*CV**4 - 5.6*CV**3*kl - 1.0*CV**2*kl**2) + s2*(1.5*C2V**2 + 0.5*C2V*CV**2 - 4.0*C2V*CV*kl - 2.0*CV**4 + 4.0*CV**3*kl) + s3*(0.35*C2V**2 - 0.0166666666666667*C2V*CV**2 - 1.03333333333333*C2V*CV*kl - 0.333333333333333*CV**4 + 0.533333333333333*CV**3*kl + 0.5*CV**2*kl**2) + s4*(-0.45*C2V**2 + 0.45*C2V*CV**2 + 0.9*C2V*CV*kl + 1.0*CV**4 - 2.4*CV**3*kl + 0.5*CV**2*kl**2) + s5*(-2.0*C2V**2 - 3.33333333333333*C2V*CV**2 + 9.33333333333333*C2V*CV*kl + 5.33333333333333*CV**4 - 9.33333333333333*CV**3*kl) + s6*(0.4*C2V**2 - 0.4*C2V*CV**2 - 0.8*C2V*CV*kl + 0.8*CV**3*kl)
-
-    return val
 
 c1 = ROOT.TCanvas("c1", "c1", 650, 500)
 c1.SetFrameLineWidth(3)
@@ -131,7 +102,7 @@ for sel in selections:
         if year == "2016":
             corrFactor = 1.078076202
 
-        xstheoGGF = getXStheoGGF (xval) * 1.115  # kl
+        xstheoGGF = getXStheoGGF (xval)
 
         # Can get different results on r_gghh:
         #exp  = parseFile(fName)                                   # <- How many times the SM I'm excluding
@@ -265,22 +236,51 @@ for sel in selections:
 
     yt=1
     BR = 1
-    #myFunc =  ROOT.TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*[0]*x*[0] -1.37*[0]*[0]*[0]*x*[0])*2.44185/[1]",xmin,xmax);
-    myFunc =  ROOT.TF1("myFunc","(62.5339 -44.323*x + 9.6340*x*x)*1.115",xmin,xmax);
-    graph = ROOT.TGraph(myFunc);
-    ci = ROOT.TColor.GetColor("#ff0000");
-    graph.SetLineColor(ci);
-    graph.SetLineWidth(2);
+
+    # 2016 data
+    #myFunc =  ROOT.TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*[0]*x*[0] -1.37*[0]*[0]*[0]*x*[0])*2.44185/[1]",xmin,xmax)
+
+    # Run2 GGF - Updated following: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWGHH?redirectedfrom=LHCPhysics.LHCHXSWGHH#Latest_recommendations_for_gluon
+    myFunc =  ROOT.TF1("myFunc","(70.3874 -50.4111*x + 11.0595*x*x)",xmin,xmax)
+
+    graph = ROOT.TGraph(myFunc)
+    ci = ROOT.TColor.GetColor("#ff0000")
+    graph.SetLineColor(ci)
+    graph.SetLineWidth(2)
     nP = int((xmax-xmin)*10.0)
     Graph_syst_Scale =  ROOT.TGraphAsymmErrors(nP)
     for i in range(nP) : 
-        Graph_syst_Scale_x=(xmin+(i*1.)/10.)
-        Graph_syst_Scale_y=(getExpValue(xmin+(i*1.)/10.,yt)) 
+
+        kl_x = xmin+(i*1.)/10.
+        Graph_syst_Scale_x=(kl_x)
         Graph_syst_Scale_x_err=(0)
-        Graph_syst_Scale_y_errup=(  (2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.)*(xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.44185*0.053/BR)
-        Graph_syst_Scale_y_errdown=((2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.)*(xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.44185*0.067/BR)
+
+        # Graph_syst_Scale_y=(getExpValue(kl_x,yt)) # 2016 data
+        xstheoGGF = getXStheoGGF (kl_x)             # Run2
+        Graph_syst_Scale_y=(xstheoGGF)
+
+        # 2016 uncertainties
+        #Graph_syst_Scale_y_errup=(  (2.09*yt*yt*yt*yt+0.28*yt*yt*(kl_x)*(kl_x)-1.37*yt*yt*yt*(kl_x))*2.44185*0.053/BR)
+        #Graph_syst_Scale_y_errdown=((2.09*yt*yt*yt*yt+0.28*yt*yt*(kl_x)*(kl_x)-1.37*yt*yt*yt*(kl_x))*2.44185*0.067/BR)
+
+        # Run2 uncertainties HH GGF
+        # Updated following: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWGHH?redirectedfrom=LHCPhysics.LHCHXSWGHH#Latest_recommendations_for_gluon
+        # upper_unc[kl] = Max[72.0744-51.7362*kl+11.3712*kl2, 70.9286-51.5708*kl+11.4497*kl2] in fb.
+        # lower_unc[kl] = Min[66.0621-46.7458*kl+10.1673*kl2, 66.7581-47.721*kl+10.4535*kl2] in fb.
+        # pdf+alpha_s   = 0.03
+        # mtop          = 0.026
+        scale_up   = (max(72.0744-51.7362*kl_x+11.3712*kl_x*kl_x,70.9286-51.5708*kl_x+11.4497*kl_x*kl_x) - xstheoGGF) / xstheoGGF
+        scale_down = (min(66.0621-46.7458*kl_x+10.1673*kl_x*kl_x,66.7581-47.721*kl_x+10.4535*kl_x*kl_x)  - xstheoGGF) / xstheoGGF
+        GGF_erry_up   = xstheoGGF*((scale_up*scale_up + 0.03*0.03 + 0.026*0.026)**0.5)
+        GGF_erry_down = xstheoGGF*((scale_down*scale_down + 0.03*0.03 + 0.026*0.026)**0.5)
+
+        # Run2 total uncertainty (GGF+VBF)
+        Graph_syst_Scale_y_errup  = (GGF_erry_up)
+        Graph_syst_Scale_y_errdown= (GGF_erry_down)
+
         Graph_syst_Scale.SetPoint(i,Graph_syst_Scale_x,Graph_syst_Scale_y)
-        Graph_syst_Scale.SetPointError(i,Graph_syst_Scale_x_err,Graph_syst_Scale_x_err,Graph_syst_Scale_y_errup,Graph_syst_Scale_y_errdown)
+        Graph_syst_Scale.SetPointError(i,Graph_syst_Scale_x_err,Graph_syst_Scale_x_err,Graph_syst_Scale_y_errdown,Graph_syst_Scale_y_errup)
+
     Graph_syst_Scale.SetLineColor(ROOT.kRed)
     Graph_syst_Scale.SetFillColor(ROOT.kRed)
     Graph_syst_Scale.SetFillStyle(3001)
@@ -318,7 +318,7 @@ for sel in selections:
     #grobs.Draw("Lsame")
 
     graph.Draw("l same")
-    #Graph_syst_Scale.Draw("e3 same");
+    Graph_syst_Scale.Draw("e3 same")
 
     pt.Draw()
     pt2.Draw()
@@ -329,7 +329,7 @@ for sel in selections:
     pt4.Draw()
     c1.Update()
 
-    c1.Print("plots/klscanGGF_"+tag+"_theor.pdf", 'pdf')
+    c1.Print("plots/v3/klscanGGF_"+tag+"_theor.pdf", 'pdf')
 
 import pdb; pdb.set_trace()
 

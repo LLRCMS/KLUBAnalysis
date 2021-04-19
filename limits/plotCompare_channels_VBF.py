@@ -17,11 +17,6 @@ def redrawBorder():
    l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax())
    l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin())
 
-def getExpValue( kl,  yt): 
-    BR =1 
-    return (2.09*yt*yt*yt*yt +   0.28*yt*yt*kl*kl  -1.37*yt*yt*yt*kl)*2.44477/BR
-
-
 def parseFile(filename, CL='50.0', exp=True):
     f = open(filename)
     matches = []
@@ -138,7 +133,7 @@ for i,channel in enumerate(channels):
         #exp = parseFile(fName) * getXStheo(klval[ipt]) * 1000.0          # <- Excluded HH cross section [fb]
         #exp = parseFile(fName) * getXStheo(klval[ipt]) * 1000.0 * 0.073  # <- Excluded HH cross section times BR(bbtautau) [fb]
 
-        exp   = parseFile(fName) * getXStheo(klval[ipt],yearN) * corrFactor * 1000.0
+        exp  = parseFile(fName) * getXStheo(klval[ipt],yearN) * corrFactor * 1000.0
 
         ptsList.append((xval, exp))
 
