@@ -61,7 +61,7 @@ if __name__ == "__main__":
     parser.add_option ('-g', '--genjets'   , dest='genjets'   , help='loop on genjets to determine the number of b hadrons' , default=False)
     parser.add_option ('-w', '--weight'    , dest='weightHH'  , help='histo map for hh reweight'             , default='0')
     parser.add_option ('-a', '--ishhsignal', dest='ishhsignal', help='isHHsignal'                            , default=False)
-    parser.add_option ('--EFTbm',            dest='EFTrew'    , help='EFT benchmarks [SM, 1..12, 1b..7b, 8a]', default='none')
+    parser.add_option ('--EFTbm',            dest='EFTrew'    , help='EFT benchmarks [SM, 1..12, 1b..7b, 8a, c2scan, manual]', default='none')
     parser.add_option ('--order',            dest='order'     , help='order of reweight: lo/nlo'             , default='nlo')
     parser.add_option ('--uncert',           dest='uncert'    , help='uncertainty on the reweight coeffs'    , default='0')
     parser.add_option ('--cms_fake',         dest='cms_fake'  , help='invert some couplings for 2017/2018'   , default='0')

@@ -184,7 +184,7 @@ int main (int argc, char** argv)
   // read input file and cfg
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-  if (argc < 21)
+  if (argc < 26)
     { 
       cerr << "missing input parameters : argc is: " << argc << endl ;
       cerr << "usage: " << argv[0]
