@@ -356,7 +356,7 @@ int main()
     cout << "** INFO: HH reweight coefficient file is: " << coeffFile << endl;
     TFile* fHHDiffRew = new TFile(inMapFile.c_str());
     hhreweighterInputMap = (TH2*) fHHDiffRew->Get(inHistoName.c_str());
-    hhreweighter = new HHReweight5D(coeffFile, hhreweighterInputMap);
+    hhreweighter = new HHReweight5D(coeffFile, hhreweighterInputMap, string("nlo"));
 
     // speed up - be careful to activate the branches that are needed!!
     theBigTree.fChain->SetBranchStatus("*", 0);
