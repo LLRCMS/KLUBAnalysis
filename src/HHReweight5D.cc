@@ -47,12 +47,12 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
     else if(EFTBMname ==  "12") EFTBMcouplings_ = {15.0, 1.0, 1.0, 0.0, 0.0};
 
     if( (year == "2017" or year == "2018") and EFTBMcouplings_.size() and cms_fake ){
-      if (DEBUG) std::cout << "-----------> before cms_fake: " << EFTBMcouplings_[0] << " " << EFTBMcouplings_[1] << " " << EFTBMcouplings_[2] << " "  << EFTBMcouplings_[3] << " "  << EFTBMcouplings_[4] << std::endl;
+      if (DEBUG) std::cout << "** DEBUG: before cms_fake: " << EFTBMcouplings_[0] << " " << EFTBMcouplings_[1] << " " << EFTBMcouplings_[2] << " "  << EFTBMcouplings_[3] << " "  << EFTBMcouplings_[4] << std::endl;
       EFTBMcouplings_[4] = 1.0;
       double tr = EFTBMcouplings_[0];
       EFTBMcouplings_[0] = EFTBMcouplings_[1];
       EFTBMcouplings_[1] = tr;
-      if (DEBUG) std::cout << "-----------> after cms_fake: " << EFTBMcouplings_[0] << " " << EFTBMcouplings_[1] << " " << EFTBMcouplings_[2] << " "  << EFTBMcouplings_[3] << " "  << EFTBMcouplings_[4] << std::endl;
+      if (DEBUG) std::cout << "** DEBUG: after cms_fake: " << EFTBMcouplings_[0] << " " << EFTBMcouplings_[1] << " " << EFTBMcouplings_[2] << " "  << EFTBMcouplings_[3] << " "  << EFTBMcouplings_[4] << std::endl;
     }
 
     if( (year == "2016") and EFTBMcouplings_.size() and cms_fake ){
@@ -112,10 +112,10 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
                 A_vec.push_back(std::stod(tokens.at(i)));
             }
             A_map_.push_back(A_vec);
-            if (DEBUG) std::cout << " ---------> A_vec size " << A_vec.size() << std::endl;
+            if (DEBUG) std::cout << "** DEBUG: A_vec size " << A_vec.size() << std::endl;
         }
     }
-    if (DEBUG) std::cout << " ---------> A_map size " << A_map_.size() << std::endl;
+    if (DEBUG) std::cout << "** DEBUG: A_map size " << A_map_.size() << std::endl;
 }
 
 HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string order, std::string uncertantie, bool useAbsEta)
@@ -146,6 +146,44 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
     useAbsEta_ = useAbsEta;
     
     EFTBMcouplings_ = {1,1,0,0,0}; // Set to SM values, will be passed to the getWeight method that takes couolings as input
+
+    // --------------------------------------------------------------------
+    // read input file containing all the coefficients for the reweighting
+    if (DEBUG) std::cout << " -- Reading input file" << coeffFile << std::endl;
+
+    // read and fill from the file
+    std::ifstream infile;
+    infile.open(coeffFile);
+    if (!infile.is_open())
+        throw std::runtime_error("Could not open input file");
+
+    std::string line;
+    while (std::getline(infile, line))
+    {
+        if (DEBUG) std::cout << " -- Reading line " << line << std::endl;
+        line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
+        if (!line.empty()) {
+            std::vector<std::string> tokens = tokenize(line);
+            if ((tokens.size()) != 28 && (tokens.size() != 20))
+            {
+                std::cerr << " ** Error in reading input file: cannot interpret line: " << line << std::endl;
+                std::cerr << " ** Error in reading input file: expecting 28(NLO) or 20(LO) tokens, found " << tokens.size() << std::endl;
+                throw std::runtime_error("Cannot parse input file");
+            } 
+
+            //The columns of the file are respectively: uncertainty - Mhh_ll - Mhh_ul - GenCostStar_ll - GenCostStar_ul - 23(nlo)/15(lo) A values
+            if (DEBUG) std::cout << "** DEBUG: uncertainty= :" << tokens.at(0) << ": ; requested uncertainty= :" << unc_ << ":" << std::endl;
+            if (tokens.at(0) != unc_) continue; // fill the map with the correct lines of the file corresponding to the correct uncertainty
+
+            std::vector<double> A_vec;
+            for (int i = 1; i<int(tokens.size()); i++) { // start loop from 1 to skip the uncertainty cause it is not nedeed in the following
+                A_vec.push_back(std::stod(tokens.at(i)));
+            }
+            A_map_.push_back(A_vec);
+            if (DEBUG) std::cout << "** DEBUG: A_vec size " << A_vec.size() << std::endl;
+        }
+    }
+    if (DEBUG) std::cout << "** DEBUG: A_map size " << A_map_.size() << std::endl;
 }
 
 HHReweight5D::~HHReweight5D()
@@ -215,21 +253,20 @@ double HHReweight5D::getWeight(double mhh, double cth)
     int ibinmhh = h_input_->GetXaxis()->FindBin(mhh);
     int ibincosthetaHH = h_input_->GetYaxis()->FindBin(cth);
     double Noutputev = XS * h_input_->GetXaxis()->GetBinWidth(ibinmhh) * h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH);
-    if (DEBUG) std::cout << "Noutputev=" << Noutputev << " ; Nev=" << Nev << " ; Nevtot=" << Nevtot << " ; XStot=" << XStot << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
+    if (DEBUG) std::cout << "** DEBUG: Noutputev=" << Noutputev << " ; Nev=" << Nev << " ; Nevtot=" << Nevtot << " ; XStot=" << XStot << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
     return Noutputev/Nev * Nevtot/XStot;
 }
 
 // return the weight to be applied for the for c2 scan
-double HHReweight5D::getWeight(double mhh, double cth, double c2_value)
+double HHReweight5D::getWeight(double mhh, double cth, double c2)
 {
     if (useAbsEta_) cth = TMath::Abs(cth);
 
     double kl  = 1;
     double kt  = 1;
-    double c2  = c2_value;
     double cg  = 0;
     double c2g = 0;
-    if (DEBUG) std::cout << " ---------> c2 scan point requested: " << "kl=" << kl << " ; kt=" << kt << " ; c2=" << c2 << " ; cg=" << cg << " ; c2g="  << c2g << std::endl;
+    if (DEBUG) std::cout << "** DEBUG: c2 scan point requested: " << "kl=" << kl << " ; kt=" << kt << " ; c2=" << c2 << " ; cg=" << cg << " ; c2g="  << c2g << std::endl;
 
     double Nevtot = h_input_->Integral();
     double XStot = getTotXS(kl,kt,c2,cg,c2g);
@@ -238,14 +275,15 @@ double HHReweight5D::getWeight(double mhh, double cth, double c2_value)
     int ibinmhh = h_input_->GetXaxis()->FindBin(mhh);
     int ibincosthetaHH = h_input_->GetYaxis()->FindBin(cth);
     double Noutputev = XS * h_input_->GetXaxis()->GetBinWidth(ibinmhh) * h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH);
-    if (DEBUG) std::cout << "Noutputev=" << Noutputev << " ; Nev=" << Nev << " ; Nevtot=" << Nevtot << " ; XStot=" << XStot << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
+    if (DEBUG) std::cout << "** DEBUG: Noutputev=" << Noutputev << " ; Nev=" << Nev << " ; Nevtot=" << Nevtot << " ; XStot=" << XStot << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
     return Noutputev/Nev * Nevtot/XStot;
 }
 
 // return the weight to be applied for the reweight -> take mhh, cth, and couplings from input
-double HHReweight5D::getWeight(double kl, double kt, double c2, double cg, double c2g, double mhh, double cth)
+double HHReweight5D::getWeight(double mhh, double cth, double kl, double kt, double c2, double cg, double c2g)
 {
     if (useAbsEta_) cth = TMath::Abs(cth);
+    if (DEBUG) std::cout << "** DEBUG: reqested coplings set: kl=" << kl << " ; kt=" << kt << " ; c2=" << c2 << " ; cg=" << cg << " ; c2g=" << c2g << std::endl;
 
     double Nevtot = h_input_->Integral();
     double XStot = getTotXS(kl,kt,c2,cg,c2g);
@@ -254,7 +292,7 @@ double HHReweight5D::getWeight(double kl, double kt, double c2, double cg, doubl
     int ibinmhh = h_input_->GetXaxis()->FindBin(mhh);
     int ibincosthetaHH = h_input_->GetYaxis()->FindBin(cth);
     double Noutputev = XS * h_input_->GetXaxis()->GetBinWidth(ibinmhh) * h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH);
-    if (DEBUG) std::cout << "Noutputev=" << Noutputev << " ; Nev=" << Nev << " ; Nevtot=" << Nevtot << " ; XStot=" << XStot << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
+    if (DEBUG) std::cout << "** DEBUG: Noutputev=" << Noutputev << " ; Nev=" << Nev << " ; Nevtot=" << Nevtot << " ; XStot=" << XStot << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
     return Noutputev/Nev * Nevtot/XStot;
 }
 
@@ -266,7 +304,7 @@ double HHReweight5D::getTotXS(double kl, double kt, double c2, double cg, double
 
 double HHReweight5D::getDiffXS(double kl, double kt, double c2, double cg, double c2g, double mhh, double cth, std::vector< std::vector<double> > A_map)
 {  
-   if (DEBUG) std::cout << "AmapSize=" << A_map.size() << std::endl;
+   if (DEBUG) std::cout << "** DEBUG: AmapSize=" << A_map.size() << std::endl;
    for(int i = 0; i < int(A_map.size()); i++)
    {
       //The entries are respectively: Mhh_ll - Mhh_ul - GenCostStar_ll - GenCostStar_ul - 23(nlo)/15(lo) A values
@@ -281,7 +319,7 @@ double HHReweight5D::getDiffXS(double kl, double kt, double c2, double cg, doubl
       std::vector<double> As;
       for (int j=4; j<int(values.size()); j++) As.push_back(values.at(j));
       if (DEBUG) {
-        std::cout << "---> A coeffs: ";
+        std::cout << "** DEBUG: A coeffs: ";
         for (int j=0; j<int(As.size()); j++) std::cout << As[j] << " ; ";
         std::cout << std::endl;  
       }
