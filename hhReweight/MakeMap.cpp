@@ -103,7 +103,6 @@ int main ()
     // TH2F* hMapFolded = new TH2F ("allHHNodeMapFolded", "allHHNodeMapFolded", 90, 0, 1800, 5, 0, 1); // won't be used for reweight
     // TH1F* hMap1D = new TH1F ("allHHNodeMap1D", "allHHNodeMap1D", nbins_mHH, binning_mHH);
 
-    // new binning for differential reweight -- again these weird Xanda binnings
     TFile* fOut = new TFile ("allHHnodeMap_5DdiffRew_2018.root", "recreate");
     double binning_mHH [37] = {250.,270.,290.,310.,330.,
                                350.,370.,390.,410.,430., 

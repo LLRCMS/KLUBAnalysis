@@ -4,6 +4,9 @@
 ** date   : 17 Feb 2017
 ** brief  : Compute a reweight coefficient to transform an input distribution into a general point in kl, kt plane. 31/05/2017: Updated to 5D reweight
 ** Updated by D. Zuolo (MIB) and J. Motta (LLR) for Run 2 analisys - Apr 2021
+**      - the update is based on the approach explained given in https://gitlab.cern.ch/hh/eft-benchmarks
+**      - the current version of this class allows to get the HHweight for specific EFT benchmarks, c2scans, or manually set couplings
+**      - the current version of this class allows to do the reweight both at LO and NLO
 */ 
 
 #ifndef HHREWEIGHT_H
