@@ -7,18 +7,18 @@ import ROOT
 
 def redrawBorder():
    # this little macro redraws the axis tick marks and the pad border lines.
-   ROOT.gPad.Update();
-   ROOT.gPad.RedrawAxis();
+   ROOT.gPad.Update()
+   ROOT.gPad.RedrawAxis()
    l = ROOT.TLine()
    l.SetLineWidth(3)
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin());
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin())
 
 def getExpValue( kl,  yt): 
     BR =1 
-    return (2.09*yt*yt*yt*yt +   0.28*yt*yt*kl*kl  -1.37*yt*yt*yt*kl)*2.44477/BR;
+    return (2.09*yt*yt*yt*yt +   0.28*yt*yt*kl*kl  -1.37*yt*yt*yt*kl)*2.44477/BR
 
 
 def parseFile(filename, CL='50.0', exp=True):
@@ -39,14 +39,6 @@ def parseFile(filename, CL='50.0', exp=True):
         return -1.0
     else:
         return matches[-1]
-
-def getXStheoGGF (kL):
-    A = 62.5339
-    B = -44.323
-    C = 9.6340
-
-    val = A + B*kL + C*kL*kL
-    return val
 
 def getXStheoVBF (c2v,KL,year):
     C2V = c2v
@@ -92,9 +84,9 @@ mg = ROOT.TMultiGraph()
 var = 'DNNoutSM_kl_1'
 
 #year = '2018'
-#tag = 'CombChan_'+year+'_13Mar2021'
+#tag = 'CombChan_'+year+'_24Mar2021'
 year = '2018'
-tag = 'CombAll_13Mar2021'
+tag = 'CombAll_24Mar2021'
 
 selections = ["comb_cat"]
 
@@ -281,13 +273,33 @@ for sel in selections:
     nP = int((xmax-xmin)*10.0)
     Graph_syst_Scale =  ROOT.TGraphAsymmErrors(nP)
     for i in range(nP) : 
-        Graph_syst_Scale_x=(xmin+(i*1.)/10.)
-        Graph_syst_Scale_y=(getExpValue(xmin+(i*1.)/10.,yt)) 
+
+        C2V_x = xmin+(i*1.)/10.
+        Graph_syst_Scale_x=(C2V_x)
         Graph_syst_Scale_x_err=(0)
-        Graph_syst_Scale_y_errup=(  (2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.)*(xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.44185*0.053/BR)
-        Graph_syst_Scale_y_errdown=((2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.)*(xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.44185*0.067/BR)
+
+        corrFactor = 1.034772182
+        if year == "2016":
+            corrFactor = 1.078076202
+        xstheoVBF = getXStheoVBF (C2V_x,1,year) * corrFactor * 1000.0  # C2V,kl,year (VBF needs conversion to [fb])
+        Graph_syst_Scale_y=(xstheoVBF)
+
+        # Run2 uncertainties HH VBF
+        # scale unc = {"up": 0.0003, "down": 0.0004}
+        # pdf unc   = 0.021
+        VBF_erry_up   = xstheoVBF * ((0.0003*0.0003 + 0.021*0.021)**0.5)
+        VBF_erry_down = xstheoVBF * ((0.0004*0.0004 + 0.021*0.021)**0.5)
+
+        Graph_syst_Scale_y_errup  = (VBF_erry_up)
+        Graph_syst_Scale_y_errdown= (VBF_erry_down)
+
+        #if i%10==0:
+        #    print C2V_x, 'VBF:', xstheoVBF, VBF_erry_up, VBF_erry_down
+        #    print '   TOT:', Graph_syst_Scale_y, Graph_syst_Scale_y_errup, Graph_syst_Scale_y_errdown
+
         Graph_syst_Scale.SetPoint(i,Graph_syst_Scale_x,Graph_syst_Scale_y)
-        Graph_syst_Scale.SetPointError(i,Graph_syst_Scale_x_err,Graph_syst_Scale_x_err,Graph_syst_Scale_y_errup,Graph_syst_Scale_y_errdown)
+        Graph_syst_Scale.SetPointError(i,Graph_syst_Scale_x_err,Graph_syst_Scale_x_err,Graph_syst_Scale_y_errdown,Graph_syst_Scale_y_errup)
+
     Graph_syst_Scale.SetLineColor(ROOT.kRed)
     Graph_syst_Scale.SetFillColor(ROOT.kRed)
     Graph_syst_Scale.SetFillStyle(3001)
@@ -314,7 +326,7 @@ for sel in selections:
     hframe.GetXaxis().SetTitleOffset(1.1)
 
     hframe.GetYaxis().SetTitle("95% CL on #sigma_{VBF} (pp#rightarrow HHjj) [fb]")
-    hframe.GetXaxis().SetTitle("C_{2V}")
+    hframe.GetXaxis().SetTitle("k_{VV}")
 
     hframe.SetStats(0)
     ROOT.gPad.SetTicky()
@@ -326,7 +338,7 @@ for sel in selections:
     #grobs.Draw("Lsame")
 
     graph.Draw("l same")
-    #Graph_syst_Scale.Draw("e3 same");
+    Graph_syst_Scale.Draw("e3 same")
 
     pt.Draw()
     pt2.Draw()
@@ -338,7 +350,7 @@ for sel in selections:
     pt4.Draw()
     c1.Update()
 
-    c1.Print("plots/C2Vscan_"+tag+"_theor.pdf", 'pdf')
+    c1.Print("plots/v3/C2Vscan_"+tag+"_theor.pdf", 'pdf')
 
 import pdb; pdb.set_trace()
 

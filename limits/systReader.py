@@ -9,7 +9,7 @@ from array import array
 
 class systReader:
 
-    def __init__(self, inputTextFile,signalList,backgroundList,outputFile):
+    def __init__(self, inputTextFile,signalList,backgroundList,outputFile,renameH):
 
         if not os.path.exists(inputTextFile):
             raise RuntimeError, "File {0} does not exist!!!".format(inputTextFile)
@@ -18,6 +18,7 @@ class systReader:
         self.theInput = [inputTextFile]
         self.processes = signalList+backgroundList
         self.theOutputFile = outputFile
+        self.renameSingleH = renameH
         self.writeOut = True
         self.printResult = True
         self.theQCDdict = {}
@@ -109,6 +110,12 @@ class systReader:
                 # ... and parse the values of this syst for each process
                 #print " SYST: ", f
                 for proc in self.processes:
+                    if self.renameSingleH:
+                        if f[0] == 'ggH': f[0] = f[0]+'_htt'
+                        if f[0] == 'qqH': f[0] = f[0]+'_htt'
+                        if f[0] == 'WH' : f[0] = f[0]+'_htt'
+                        if f[0] == 'ZH' : f[0] = f[0]+'_hbb'
+                        if f[0] == 'ttH': f[0] = f[0]+'_hbb'
                     if proc == f[0]:
                         systLine[proc] = " "+f[2]+" "
                         activeProc.append(f[0])

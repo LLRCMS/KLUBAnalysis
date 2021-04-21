@@ -24,7 +24,8 @@ def parseOptions():
     parser.add_option('-s', '--selection', dest='overSel'   , type='string', default=''      , help='overwrite selection string')
     parser.add_option('-y', '--year'     , dest='year'      , type='string', default='2016'  , help='year')
     parser.add_option('-u', '--shape'    , dest='shapeUnc'  , type='int'   , default=1       , help='1:add 0:disable shape uncertainties')
-    parser.add_option('-q', '--dynamQCD' , dest='dynamQCD'  , type='int'   , default=1       , help='1:do QCD as rateParam / 0:read QCD from file')
+    parser.add_option('-q', '--dynamQCD' , dest='dynamQCD'  , type='int'   , default=0       , help='1:do QCD as rateParam / 0:read QCD from file')
+    parser.add_option('-B', '--renameH'  , dest='renameH'   , type='int'   , default=1       , help='1:rename singleH bkgs / 0:do not rename singleH bkgs')
     parser.add_option('-r', '--resonant' , dest='isResonant', action="store_true"            , help='is Resonant analysis')
     parser.add_option('-b', '--binbybin' , dest='binbybin'  , action="store_true"            , help='add bin by bins systematics')
     parser.add_option('-t', '--theory'   , dest='theory'    , action="store_true"            , help='add theory systematics')
@@ -111,20 +112,25 @@ def  writeCard(backgrounds,signals,select,region=-1) :
     # {category}_{channel}_{year}
     selectName = theCatName+"_"+thechannelName+"_"+opt.year
 
-    #read config
-    categories = []
-    categories.append((0,select))
-    MCbackgrounds=[]
-    processes=[]
+    # Input file
     inRoot = TFile.Open(opt.filename)
-    for bkg in backgrounds:
-        #Add protection against empty processes => If I remove this I could build all bins at once instead of looping on the selections
-        templateName = "{0}_{1}_SR_{2}".format(bkg,select,variable[theCat])
+
+    # Remove processes (bkgs and signals) with nominal integral <= 0
+    newbackgrounds = []
+    for proc in backgrounds:
+        templateName = "{0}_{1}_{3}_{2}".format(proc,select,variable[theCat],regionSuffix[region])
         template = inRoot.Get(templateName)
-        if template.Integral()>0.000001 :
-            processes.append(bkg)
-            if bkg is not "QCD" :
-                MCbackgrounds.append(bkg)
+        if template.Integral() > 0:
+            newbackgrounds.append(proc)
+    backgrounds = newbackgrounds
+
+    newsignals = []
+    for proc in signals:
+        templateName = "{0}_{1}_{3}_{2}".format(proc,select,variable[theCat],regionSuffix[region])
+        template = inRoot.Get(templateName)
+        if template.Integral() > 0:
+            newsignals.append(proc)
+    signals = newsignals
 
     rates = []
     iQCD = -1
@@ -153,7 +159,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             srate = template.Integral()
             rates.append(srate)
 
-        syst = systReader("../config/systematics_"+opt.year+".cfg",signals,backgrounds,None)
+        syst = systReader("../config/systematics_"+opt.year+".cfg",signals,backgrounds,None,opt.renameH)
         syst.writeOutput(False)
         syst.verbose(False)
         syst.addSystFile("../config/systematics_DY"+opt.year+".cfg")
@@ -222,6 +228,11 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             for name in systsShape:
                 for proc in backgrounds:
                     if "QCD" in proc: continue
+                    # If one of the up/down templates has integral <= 0 we don't apply the uncertainty to that background (signal)
+                    # for that particular category/channel/year (same for all other uncertainties below)
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,  regionSuffix[region], variable[theCat], name))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable[theCat], name))
+                    if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                     proc_syst[proc][name] = ["shape", 1.]   #applying jes or tes to all MC backgrounds
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,  regionSuffix[region], variable[theCat], name))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable[theCat], name))
@@ -229,6 +240,9 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_newName.append(proc+"_"+name+"Down")
 
                 for proc in signals:
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,  regionSuffix[region], variable[theCat], name))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable[theCat], name))
+                    if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                     proc_syst[proc][name] = ["shape", 1.]   #applying jes or tes to all signals
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,   regionSuffix[region],variable[theCat],  name))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable[theCat],  name))
@@ -244,12 +258,14 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             #shiftShapes_newName.append("TT_topDown")
 
             # Add QCD Up/Down shape uncertainty (e.g. QCD_s1b1jresolvedMcut_SR_DNNoutSM_kl_1_Up)
-            proc_syst["QCD"]["CMS_bbtt_"+opt.year+"_QCDshape"] = ["shape", 1.]
-            systsShape.append("CMS_bbtt_"+opt.year+"_QCDshape")
-            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_Up"  .format("QCD", select, "SR", variable[theCat]))
-            shiftShapes_toSave.append("{0}_{1}_{2}_{3}_Down".format("QCD", select, "SR", variable[theCat]))
-            shiftShapes_newName.append("QCD_CMS_bbtt_"+opt.year+"_QCDshapeUp")
-            shiftShapes_newName.append("QCD_CMS_bbtt_"+opt.year+"_QCDshapeDown")
+            templQCD_shape = inRoot.Get("{0}_{1}_{2}_{3}_Up"  .format("QCD", select, "SR", variable[theCat]))
+            if templQCD_shape.Integral() > 0:
+                proc_syst["QCD"]["CMS_bbtt_"+opt.year+"_QCDshape"] = ["shape", 1.]
+                systsShape.append("CMS_bbtt_"+opt.year+"_QCDshape")
+                shiftShapes_toSave.append("{0}_{1}_{2}_{3}_Up"  .format("QCD", select, "SR", variable[theCat]))
+                shiftShapes_toSave.append("{0}_{1}_{2}_{3}_Down".format("QCD", select, "SR", variable[theCat]))
+                shiftShapes_newName.append("QCD_CMS_bbtt_"+opt.year+"_QCDshapeUp")
+                shiftShapes_newName.append("QCD_CMS_bbtt_"+opt.year+"_QCDshapeDown")
 
             # Add customSF uncertainties (4 unc. depending on DM) for TauTau channel in 2017
             if "2" in thechannel and "2017" in opt.year:
@@ -262,12 +278,18 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 systsShape.append(CMS_customTauIdSFname)
                 for proc in backgrounds:
                     if "QCD" in proc: continue
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], customTauIdSFname))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], customTauIdSFname))
+                    if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                     proc_syst[proc][CMS_customTauIdSFname] = ["shape", 1.]   #applying trigger to all MC backgrounds
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], customTauIdSFname))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], customTauIdSFname))
                     shiftShapes_newName.append(proc+"_"+CMS_customTauIdSFname+"Up")
                     shiftShapes_newName.append(proc+"_"+CMS_customTauIdSFname+"Down")
                 for proc in signals:
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], customTauIdSFname))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], customTauIdSFname))
+                    if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                     proc_syst[proc][CMS_customTauIdSFname] = ["shape", 1.]   #applying trigger to all signals
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], customTauIdSFname))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], customTauIdSFname))
@@ -275,18 +297,23 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_newName.append(proc+"_"+CMS_customTauIdSFname+"Down")
 
             # Add PUjetID SF uncertainty
-            # TT_CMS_PUJET_ID_2018Up
             CMS_PUjetIDname = "CMS_PUJET_ID_"+opt.year
             PUjetIDname = "PUjetIDSF"
             systsShape.append(CMS_PUjetIDname)
             for proc in backgrounds:
                 if "QCD" in proc: continue
+                templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], PUjetIDname))
+                templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], PUjetIDname))
+                if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                 proc_syst[proc][CMS_PUjetIDname] = ["shape", 1.]   #applying trigger to all MC backgrounds
                 shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], PUjetIDname))
                 shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], PUjetIDname))
                 shiftShapes_newName.append(proc+"_"+CMS_PUjetIDname+"Up")
                 shiftShapes_newName.append(proc+"_"+CMS_PUjetIDname+"Down")
             for proc in signals:
+                templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], PUjetIDname))
+                templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], PUjetIDname))
+                if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                 proc_syst[proc][CMS_PUjetIDname] = ["shape", 1.]   #applying trigger to all signals
                 shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], PUjetIDname))
                 shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], PUjetIDname))
@@ -299,12 +326,18 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             systsShape.append(CMS_JERname)
             for proc in backgrounds:
                 if "QCD" in proc: continue
+                templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}up"  .format(proc, select, regionSuffix[region], variable[theCat], JERname))
+                templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}down".format(proc, select, regionSuffix[region], variable[theCat], JERname))
+                if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                 proc_syst[proc][CMS_JERname] = ["shape", 1.]   #applying trigger to all MC backgrounds
                 shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}up"  .format(proc, select, regionSuffix[region], variable[theCat], JERname))
                 shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}down".format(proc, select, regionSuffix[region], variable[theCat], JERname))
                 shiftShapes_newName.append(proc+"_"+CMS_JERname+"Up")
                 shiftShapes_newName.append(proc+"_"+CMS_JERname+"Down")
             for proc in signals:
+                templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}up"  .format(proc, select, regionSuffix[region], variable[theCat], JERname))
+                templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}down".format(proc, select, regionSuffix[region], variable[theCat], JERname))
+                if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                 proc_syst[proc][CMS_JERname] = ["shape", 1.]   #applying trigger to all signals
                 shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}up"  .format(proc, select, regionSuffix[region], variable[theCat], JERname))
                 shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}down".format(proc, select, regionSuffix[region], variable[theCat], JERname))
@@ -334,42 +367,57 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             #        shiftShapes_newName.append(proc+"_"+CMS_bTagWPname+"Up")
             #        shiftShapes_newName.append(proc+"_"+CMS_bTagWPname+"Down")
 
-            # Add bTagReshape uncertainties - systematic type (correlated across years 2016 and 2017-2018)
-            bTagSysts = ["LF","HF"]
+            # Add bTagReshape uncertainties - correlated across all years according to:
+            # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagShapeCalibration#Correlation_across_years_2016_20
+            bTagSysts = ["LF","HF","CFERR1","CFERR2"]
             for bTagSyst in bTagSysts:
-                CMS_bTagSystName = "CMS_btag_" + bTagSyst + "_2017_2018"
-                if "2016" in opt.year:
-                    CMS_bTagSystName = "CMS_btag_" + bTagSyst + "_2016"
+                if "CFERR" in bTagSyst:
+                    CMS_bTagSystName = "CMS_btag_" + bTagSyst.lower() + "_2016_2017_2018"
+                else:
+                    CMS_bTagSystName = "CMS_btag_" + bTagSyst + "_2016_2017_2018"
                 bTagSystName = "bTagweightReshape" + bTagSyst
                 systsShape.append(CMS_bTagSystName)
                 for proc in backgrounds:
                     if "QCD" in proc: continue
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                     proc_syst[proc][CMS_bTagSystName] = ["shape", 1.]   #applying trigger to all MC backgrounds
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
                     shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Up")
                     shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Down")
                 for proc in signals:
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                     proc_syst[proc][CMS_bTagSystName] = ["shape", 1.]   #applying trigger to all signals
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
                     shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Up")
                     shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Down")
 
-            # Add bTagReshape uncertainties - statistical type (uncorrelated across years)
-            bTagSysts = ["HFSTATS1","HFSTATS2","LFSTATS1","LFSTATS2","CFERR1","CFERR2"]
+            # Add bTagReshape uncertainties - uncorrelated across years according to:
+            # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagShapeCalibration#Correlation_across_years_2016_20
+            bTagSysts = ["HFSTATS1","HFSTATS2","LFSTATS1","LFSTATS2"]
             for bTagSyst in bTagSysts:
                 CMS_bTagSystName = "CMS_btag_" + bTagSyst.lower() + "_" + opt.year
                 bTagSystName = "bTagweightReshape" + bTagSyst
                 systsShape.append(CMS_bTagSystName)
                 for proc in backgrounds:
                     if "QCD" in proc: continue
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                     proc_syst[proc][CMS_bTagSystName] = ["shape", 1.]   #applying trigger to all MC backgrounds
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
                     shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Up")
                     shiftShapes_newName.append(proc+"_"+CMS_bTagSystName+"Down")
                 for proc in signals:
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
+                    if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                     proc_syst[proc][CMS_bTagSystName] = ["shape", 1.]   #applying trigger to all signals
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], bTagSystName))
@@ -395,12 +443,18 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 systsShape.append(CMS_trigDMname)
                 for proc in backgrounds:
                     if "QCD" in proc: continue
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
+                    if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                     proc_syst[proc][CMS_trigDMname] = ["shape", 1.]   #applying trigger to all MC backgrounds
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
                     shiftShapes_newName.append(proc+"_"+CMS_trigDMname+"Up")
                     shiftShapes_newName.append(proc+"_"+CMS_trigDMname+"Down")
                 for proc in signals:
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
+                    if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                     proc_syst[proc][CMS_trigDMname] = ["shape", 1.]   #applying trigger to all signals
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], trigDMname))
@@ -413,17 +467,23 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             else:
                 PTs = ["20to25", "25to30", "30to35", "35to40", "40toInf"]
             for PTname in PTs:
-                CMS_tauPTname = "CMS_bbtt_"+opt.year+"_tauid_pt" + PTname
+                CMS_tauPTname = "CMS_tauid_pt"+PTname+"_"+opt.year
                 tauPTname = "tauid_pt" + PTname
                 systsShape.append(CMS_tauPTname)
                 for proc in backgrounds:
                     if "QCD" in proc: continue
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
+                    if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                     proc_syst[proc][CMS_tauPTname] = ["shape", 1.]   #applying trigger to all MC backgrounds
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
                     shiftShapes_newName.append(proc+"_"+CMS_tauPTname+"Up")
                     shiftShapes_newName.append(proc+"_"+CMS_tauPTname+"Down")
                 for proc in signals:
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
+                    if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                     proc_syst[proc][CMS_tauPTname] = ["shape", 1.]   #applying trigger to all signals
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauPTname))
@@ -458,12 +518,18 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 systsShape.append(CMS_tauELEname)
                 for proc in backgrounds:
                     if "QCD" in proc: continue
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
+                    if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                     proc_syst[proc][CMS_tauELEname] = ["shape", 1.]   #applying trigger to all MC backgrounds
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
                     shiftShapes_newName.append(proc+"_"+CMS_tauELEname+"Up")
                     shiftShapes_newName.append(proc+"_"+CMS_tauELEname+"Down")
                 for proc in signals:
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
+                    if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                     proc_syst[proc][CMS_tauELEname] = ["shape", 1.]   #applying trigger to all signals
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
                     shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauELEname))
@@ -641,7 +707,6 @@ ROOT.gSystem.Load("libRooFit")
 ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
 
 parseOptions()
-datacards = []
 configname = opt.config
 print configname
 input = ConfigReader(configname)
@@ -680,7 +745,20 @@ for i,sig in enumerate(signals):
     if "GGHH_NLO" in sig: signals[i] = sig.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_hbbhtt").replace("cHHH", "kl_")
     if "VBFHH"    in sig: signals[i] = sig.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_hbbhtt") #write 1_5 as 1p5 from the beginning
 
-datacards = []
+# Rename singleH processes to use the HHModel BR scaling
+# ggH --> ggH_htt
+# qqH --> qqH_htt
+# WH  --> WH_htt
+# ZH  --> ZH_hbb
+# ttH --> ttH_hbb
+if opt.renameH:
+    print 'Renaming singleH processes to add BR suffix'
+    for i,bkg in enumerate(backgrounds):
+        if bkg == "ggH": backgrounds[i] = "ggH_htt"
+        if bkg == "qqH": backgrounds[i] = "qqH_htt"
+        if bkg == "WH" : backgrounds[i] = "WH_htt"
+        if bkg == "ZH" : backgrounds[i] = "ZH_hbb"
+        if bkg == "ttH": backgrounds[i] = "ttH_hbb"
 
 
 for sel in allSel : 
@@ -690,10 +768,8 @@ for sel in allSel :
         print 'QCD from rateParam'
         for ireg in range(0,4) :
             card = writeCard(backgrounds,signals,sel,ireg)
-            if ireg == 0: datacards.append(card)
 
     # Take QCD from file
     else:
         print 'QCD from file'
         card = writeCard(backgrounds,signals,sel,0)
-        datacards.append(card)

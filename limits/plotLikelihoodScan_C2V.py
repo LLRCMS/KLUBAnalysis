@@ -5,23 +5,23 @@ import array
 
 def redrawBorder():
    # this little macro redraws the axis tick marks and the pad border lines.
-   ROOT.gPad.Update();
-   ROOT.gPad.RedrawAxis();
+   ROOT.gPad.Update()
+   ROOT.gPad.RedrawAxis()
    l = ROOT.TLine()
    l.SetLineWidth(3)
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin());
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin())
 
 
 
 # User settables
-tag = "27Nov2020"
+tag = "24Mar2021"
 
 colors = [ROOT.kBlue, ROOT.kRed, ROOT.kCyan, ROOT.kBlack]
 years  = ["comb"]                 # use this for Run2 combination
-years  = ["2016", "2017", "2018"] # use this to comapre the 3 years
+#years  = ["2016", "2017", "2018"] # use this to comapre the 3 years
 
 leg = ROOT.TLegend(0,0,0,0)
 leg.SetX1(0.45)
@@ -32,18 +32,15 @@ leg.SetFillColor(ROOT.kWhite)
 
 mg = ROOT.TMultiGraph()
 mg.GetYaxis().SetTitle("-2 #Delta ln(L)")
-mg.GetXaxis().SetTitle("C_{2V}")
+mg.GetXaxis().SetTitle("k_{VV}")
 
 
 for i,year in enumerate(years):
 
     if "comb" in year:
-        file = "cards_CombAll_"+tag+"_autoMC1/higgsCombineC2V_scan.MultiDimFit.mH120.root"
+        file = "cards_CombAll_"+tag+"/higgsCombineC2V_scan.MultiDimFit.mH120.root"
     else:
-        if "2018" in year:
-            file = "cards_CombChan_"+year+"_"+tag+"/higgsCombineC2V_scan.MultiDimFit.mH120.root"
-        else:
-            file = "cards_CombChan_"+year+"_"+tag+"_autoMC1/higgsCombineC2V_scan.MultiDimFit.mH120.root"
+        file = "cards_CombChan_"+year+"_"+tag+"/higgsCombineC2V_scan.MultiDimFit.mH120.root"
 
     fIn = ROOT.TFile(file, "READ")
     tree = fIn.Get("limit")
@@ -112,7 +109,7 @@ hframe.GetXaxis().SetLabelOffset(0.012)
 hframe.GetYaxis().SetTitleOffset(1.2)
 hframe.GetXaxis().SetTitleOffset(1.1)
 hframe.GetYaxis().SetTitle("-2 #Delta ln(L)")
-hframe.GetXaxis().SetTitle("C_{2V}")
+hframe.GetXaxis().SetTitle("k_{VV}")
 hframe.SetStats(0)
 ROOT.gPad.SetTicky()
 hframe.Draw()
@@ -142,8 +139,8 @@ if 'comb' not in year:
     leg.Draw()
 c1.Update()
 if 'comb' in year:
-    c1.Print('plots/C2V_1Dlikelihood_Run2_'+tag+'.pdf','pdf')
+    c1.Print('plots/v3/C2V_1Dlikelihood_Run2_'+tag+'.pdf','pdf')
 else:
-    c1.Print('plots/C2V_1Dlikelihood_comparison_'+tag+'.pdf','pdf')
+    c1.Print('plots/v3/C2V_1Dlikelihood_comparison_'+tag+'.pdf','pdf')
 
-#import pdb; pdb.set_trace()
+import pdb; pdb.set_trace()

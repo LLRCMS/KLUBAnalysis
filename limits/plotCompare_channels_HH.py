@@ -8,19 +8,14 @@ import ROOT
 
 def redrawBorder():
    # this little macro redraws the axis tick marks and the pad border lines.
-   ROOT.gPad.Update();
-   ROOT.gPad.RedrawAxis();
+   ROOT.gPad.Update()
+   ROOT.gPad.RedrawAxis()
    l = ROOT.TLine()
    l.SetLineWidth(3)
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin());
-
-def getExpValue( kl,  yt): 
-    BR =1 
-    return (2.09*yt*yt*yt*yt +   0.28*yt*yt*kl*kl  -1.37*yt*yt*yt*kl)*2.44477/BR;
-
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin())
 
 def parseFile(filename, CL='50.0', exp=True):
     f = open(filename)
@@ -42,10 +37,12 @@ def parseFile(filename, CL='50.0', exp=True):
     else:
         return matches[-1]
 
-def getXStheoGGF (kL): 
-    A = 62.5339
-    B = -44.323
-    C = 9.6340
+def getXStheoGGF (kL):
+    # Updated following: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWGHH?redirectedfrom=LHCPhysics.LHCHXSWGHH#Latest_recommendations_for_gluon
+    # (old recommendation was A = 62.5339 / B = -44.323 / C = 9.6340)
+    A = 70.3874
+    B = -50.4111
+    C = 11.0595
 
     val = A + B*kL + C*kL*kL
     return val
@@ -93,7 +90,7 @@ mg = ROOT.TMultiGraph()
 
 category = "comb_cat" # sboostedLLMcut  s1b1jresolvedMcut  s2b0jresolvedMcut  VBFloose
 year = "2017" # 2016 2017 2018
-tagName = "13Mar2021"
+tagName = "24Mar2021"
 
 
 if   year == "2016":
@@ -139,7 +136,7 @@ for i,channel in enumerate(channels):
             corrFactor = 1.078076202
 
         xstheoVBF = getXStheoVBF (1,xval,year) * corrFactor   # C2V,kl,year
-        xstheoGGF = getXStheoGGF (xval) * 1.115               # kl
+        xstheoGGF = getXStheoGGF (xval)                       # kl
         xstheoTOT = xstheoVBF + xstheoGGF
 
         # Can get different results on r_gghh:
@@ -249,6 +246,6 @@ c1.RedrawAxis("g")
 leg.Draw()
 c1.Update()
 
-c1.Print('plots/comparison_channelsHH_'+category+'_'+tag[0]+'.pdf','pdf')
+c1.Print('plots/v3/comparison_channelsHH_'+category+'_'+tag[0]+'.pdf','pdf')
 
 import pdb; pdb.set_trace()

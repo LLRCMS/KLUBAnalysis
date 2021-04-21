@@ -1,7 +1,8 @@
 ###################################
-# Author : L. Cadamuro (UF)
-# Date   : 22/04/2020
-# Brief  : code that implements the HH model in combine
+# Author      : L. Cadamuro (UF)
+# Date        : 22/04/2020
+# Brief       : code that implements the HH model in combine
+# Additions by: Marcel Rieger, Fabio Monti
 # structure of the code :
 # xxHHSample  -> defines the interface to the user, that will pass the xs and the coupling setups
 # xxHHFormula -> implements the matrix component representation, that calculates the symbolic scalings
@@ -179,6 +180,20 @@ class VBFHHFormula:
 class HHModel(PhysicsModel):
     """
     Models the HH production as linear sum of the input components for VBF (>= 6) and GGF (>= 3).
+    The following physics options are supported:
+
+    - doNNLOscaling (bool)   : Convert ggF HH yields (that are given in NLO by convention) to NNLO.
+    - doBRscaling (bool)     : Enable scaling Higgs branching ratios with model parameters.
+    - doHscaling (bool)      : Enable scaling single Higgs cross sections with model parameters.
+    - doklDependentUnc (bool): Add a theory uncertainty on ggF HH production that depends on model
+                               parameters.
+    - doProfileX (string)    : Either "flat" to enable the profiling of kappa parameter X with a
+      X in {kl,kt,CV,C2V}      flat prior, or "gauss,FLOAT" (or "gauss,-FLOAT/+FLOAT") to use a
+                               gaussian (asymmetric) prior. In any case, X will be profiled and is
+                               hence removed from the list of POIs.
+
+    A string encoded boolean flag is interpreted as *True* when it is either ``"yes"``, ``"true"``
+    or ``1`` (case-insensitive).
     """
 
     def __init__(self, ggf_sample_list, vbf_sample_list, name):
@@ -188,6 +203,10 @@ class HHModel(PhysicsModel):
         self.doBRscaling      = True
         self.doHscaling       = True
         self.doklDependentUnc = True
+        self.doProfilekl      = None
+        self.doProfilekt      = None
+        self.doProfileCV      = None
+        self.doProfileC2V     = None
         self.klUncName        = "THU_HH"
         self.name             = name
 
@@ -204,17 +223,131 @@ class HHModel(PhysicsModel):
     def setPhysicsOptions(self, physOptions):
         opts = [opt.split("=", 1) for opt in physOptions if "=" in opt]
         known_flags = ["doNNLOscaling", "doBRscaling", "doHscaling", "doklDependentUnc"]
+        known_params = ["doProfilekl", "doProfilekt", "doProfileCV", "doProfileC2V"]
+
         for key, value in opts:
+            # identify boolean flags
             if key in known_flags:
                 flag = value.lower() in ["yes", "true", "1"]
                 setattr(self, key, flag)
                 print("[INFO] set {} of model {} to {}".format(key, self.name, flag))
+                continue
+
+            # identify remaining "key=value" parameter pairs
+            if key in known_params:
+                # special case: interpret empty string and "None" as actual None
+                if value.lower() in ("", "none"):
+                    value = None
+                setattr(self, key, value)
+                print("[INFO] set {} of model {} to {}".format(key, self.name, value))
+                continue
+
+    def check_validity_ggf(self, ggf_sample_list):
+        if len(ggf_sample_list) < 3:
+            raise RuntimeError("%s : malformed GGF input sample list - expect at least 3 samples" % self.name)
+        if not isinstance(ggf_sample_list, list) and not isinstance(ggf_sample_list, tuple):
+            raise RuntimeError("%s : malformed GGF input sample list - expect list or tuple" % self.name)
+        for s in ggf_sample_list:
+            if not isinstance(s, GGFHHSample):
+                raise RuntimeError("%s : malformed GGF input sample list - each element must be a GGFHHSample" % self.name)
+
+    def check_validity_vbf(self, vbf_sample_list):
+        if len(vbf_sample_list) < 6:
+            raise RuntimeError("%s : malformed VBF input sample list - expect at least 6 samples" % self.name)
+        if not isinstance(vbf_sample_list, list) and not isinstance(vbf_sample_list, tuple):
+            raise RuntimeError("%s : malformed VBF input sample list - expect list or tuple" % self.name)
+        for s in vbf_sample_list:
+            if not isinstance(s, VBFHHSample):
+                raise RuntimeError("%s : malformed VBF input sample list - each element must be a VBFHHSample" % self.name)
+
+    def dump_inputs(self):
+        print "[INFO]  HH model : " , self.name
+        print "......  GGF configuration"
+        for i,s in enumerate(self.ggf_formula.sample_list):
+            print "        {0:<3} ... kl : {1:<3}, kt : {2:<3}, xs : {3:<3.8f} pb, label : {4}".format(i, s.val_kl, s.val_kt, s.val_xs, s.label)
+        print "......  VBF configuration"
+        for i,s in enumerate(self.vbf_formula.sample_list):
+            print "        {0:<3} ... CV : {1:<3}, C2V : {2:<3}, kl : {3:<3}, xs : {4:<3.8f} pb, label : {5}".format(i, s.val_CV, s.val_C2V, s.val_kl, s.val_xs, s.label)
+
+    def doParametersOfInterest(self):
+        ## the model is built with:
+        ## r x [GGF + VBF]
+        ## GGF = r_GGF x [sum samples(kl, kt)]
+        ## VBF = r_VBF x [sum samples(kl, CV, C2V)]
+
+        # add rate POIs and freeze r_* by default
+        self.modelBuilder.doVar("r[1,-20,20]")
+        self.modelBuilder.doVar("r_gghh[1,-20,20]")
+        self.modelBuilder.doVar("r_qqhh[1,-20,20]")
+        self.modelBuilder.out.var("r_gghh").setConstant(True)
+        self.modelBuilder.out.var("r_qqhh").setConstant(True)
+        pois = ["r", "r_gghh", "r_qqhh"]
+
+        # define kappa parameters and their uniform ranges
+        kappas = OrderedDict([
+            ("kl", (-30, 30)),
+            ("kt", (-10, 10)),
+            ("CV", (-10, 10)),
+            ("C2V", (-10, 10)),
+        ])
+
+        # add them
+        for name, (start, stop) in kappas.items():
+            # define the variable
+            self.modelBuilder.doVar("{}[1,{},{}]".format(name, start, stop))
+
+            # only make it a POI when it is not profile
+            do_profile = name == "kl" and bool(self.doProfilekl)
+            do_profile |= name == "kt" and bool(self.doProfilekt)
+            do_profile |= name == "CV" and bool(self.doProfileCV)
+            do_profile |= name == "C2V" and bool(self.doProfileC2V)
+            if not do_profile:
+                self.modelBuilder.out.var(name).setConstant(True)
+                pois.append(name)
+
+        # define the POI group
+        self.modelBuilder.doSet("POI", ",".join(pois))
+        print("using POIs {}".format(",".join(pois)))
+
+        # set or redefine the MH variable on which some of the BRs depend
+        if not self.options.mass:
+            raise Exception("invalid mass value '{}', please provide a valid value using the "
+                "--mass option".format(self.options.mass))
+        if self.modelBuilder.out.var("MH"):
+            self.modelBuilder.out.var("MH").removeRange()
+            self.modelBuilder.out.var("MH").setVal(self.options.mass)
+        else:
+            self.modelBuilder.doVar("MH[%f]" % self.options.mass)
+        self.modelBuilder.out.var("MH").setConstant(True)
+
+        # add objects for kl dependent theory uncertainties
+        if self.doklDependentUnc:
+            self.makeklDepTheoUncertainties()
+
+        # create cross section scaling functions
+        self.create_scalings()
 
     def preProcessNuisances(self, nuisances):
         ''' this method is executed before nuisances are processed'''
-        if not self.doklDependentUnc:
-            return
-        nuisances.append((self.klUncName, False, "param", ["0", "1"], []))
+        if self.doklDependentUnc:
+            nuisances.append((self.klUncName, False, "param", ["0", "1"], []))
+
+        # enable profiling of kappas with a configurable prior
+        for name in ["kl", "kt", "CV", "C2V"]:
+            value = getattr(self, "doProfile" + name)
+            if not value:
+                continue
+
+            # get the prior and add it
+            prior, value = value.split(",", 1) if "," in value else (value, None)
+            if prior == "flat":
+                self.modelBuilder.DC.flatParamNuisances[name] = True
+                print("adding flat prior for parameter {}".format(name))
+            elif prior == "gauss":
+                nuisances.append((name, False, "param", ["1", value, "[-7,7]"], []))
+                print("adding gaussian prior for parameter {} with width {}".format(name, value))
+            else:
+                raise Exception("unknown prior '{}' for parameter {}".format(prior, name))
 
     def makeInterpolation(self, nameout, nameHi, nameLo, x):
         # as in https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/102x/interface/ProcessNormalization.h
@@ -254,71 +387,6 @@ class HHModel(PhysicsModel):
 
         ## make scaling
         self.modelBuilder.factory_("expr::scaling_{name}(\"pow(@0,@1)\",{name}_kappa,{name})".format(name=self.klUncName))
-
-    def check_validity_ggf(self, ggf_sample_list):
-        if len(ggf_sample_list) < 3:
-            raise RuntimeError("%s : malformed GGF input sample list - expect at least 3 samples" % self.name)
-        if not isinstance(ggf_sample_list, list) and not isinstance(ggf_sample_list, tuple):
-            raise RuntimeError("%s : malformed GGF input sample list - expect list or tuple" % self.name)
-        for s in ggf_sample_list:
-            if not isinstance(s, GGFHHSample):
-                raise RuntimeError("%s : malformed GGF input sample list - each element must be a GGFHHSample" % self.name)
-
-    def check_validity_vbf(self, vbf_sample_list):
-        if len(vbf_sample_list) < 6:
-            raise RuntimeError("%s : malformed VBF input sample list - expect at least 6 samples" % self.name)
-        if not isinstance(vbf_sample_list, list) and not isinstance(vbf_sample_list, tuple):
-            raise RuntimeError("%s : malformed VBF input sample list - expect list or tuple" % self.name)
-        for s in vbf_sample_list:
-            if not isinstance(s, VBFHHSample):
-                raise RuntimeError("%s : malformed VBF input sample list - each element must be a VBFHHSample" % self.name)
-
-    def dump_inputs(self):
-        print "[INFO]  HH model : " , self.name
-        print "......  GGF configuration"
-        for i,s in enumerate(self.ggf_formula.sample_list):
-            print "        {0:<3} ... kl : {1:<3}, kt : {2:<3}, xs : {3:<3.8f} pb, label : {4}".format(i, s.val_kl, s.val_kt, s.val_xs, s.label)
-        print "......  VBF configuration"
-        for i,s in enumerate(self.vbf_formula.sample_list):
-            print "        {0:<3} ... CV : {1:<3}, C2V : {2:<3}, kl : {3:<3}, xs : {4:<3.8f} pb, label : {5}".format(i, s.val_CV, s.val_C2V, s.val_kl, s.val_xs, s.label)
-
-    def doParametersOfInterest(self):
-        ## the model is built with:
-        ## r x [GGF + VBF]
-        ## GGF = r_GGF x [sum samples(kl, kt)]
-        ## VBF = r_VBF x [sum samples(kl, CV, C2V)]
-
-        POIs = "r,r_gghh,r_qqhh,CV,C2V,kl,kt"
-
-        self.modelBuilder.doVar("r[1,-20,20]")
-        self.modelBuilder.doVar("r_gghh[1,-20,20]")
-        self.modelBuilder.doVar("r_qqhh[1,-20,20]")
-        self.modelBuilder.doVar("CV[1,-10,10]")
-        self.modelBuilder.doVar("C2V[1,-10,10]")
-        self.modelBuilder.doVar("kl[1,-30,30]")
-        self.modelBuilder.doVar("kt[1,-10,10]")
-
-        self.modelBuilder.doSet("POI",POIs)
-
-        self.modelBuilder.out.var("r_gghh") .setConstant(True)
-        self.modelBuilder.out.var("r_qqhh") .setConstant(True)
-        self.modelBuilder.out.var("CV")     .setConstant(True)
-        self.modelBuilder.out.var("C2V")    .setConstant(True)
-        self.modelBuilder.out.var("kl")     .setConstant(True)
-        self.modelBuilder.out.var("kt")     .setConstant(True)
-
-        #I need to build MH variables because the BR are tabulated as a function of MH
-        # the mass setting must be provided as input, i.e. '-m 125'
-        if self.modelBuilder.out.var("MH"):
-            self.modelBuilder.out.var("MH").setVal(self.options.mass)
-            self.modelBuilder.out.var("MH").setConstant(True)
-        else:
-            self.modelBuilder.doVar("MH[%g]" % self.options.mass)
-
-        if self.doklDependentUnc:
-            self.makeklDepTheoUncertainties()
-
-        self.create_scalings()
 
     def create_scalings(self):
         """
@@ -506,6 +574,34 @@ class HHModel(PhysicsModel):
         # so it is safe to return 1 since any misconfiguration should have been raised already
         return 1.
 
+    def done(self):
+        super(HHModel, self).done()
+
+        # get the labels of ggF and VBF samples and store a flag to check if they were matched
+        matches = OrderedDict(
+            (s.label, [])
+            for s in self.ggf_formula.sample_list + self.vbf_formula.sample_list
+        )
+
+        # go through the scaling map and match to samples
+        for sample_name in self.scalingMap:
+            for sample_label in matches:
+                if sample_name.startswith(sample_label):
+                    matches[sample_label].append(sample_name)
+                    break
+
+        # print matches
+        max_len = max(len(label) for label in matches)
+        print("Matching signal samples:")
+        for label, names in matches.items():
+            print("  {}{} -> {}".format(label, " " * (max_len - len(label)), ", ".join(names)))
+
+        # complain about samples that were not matched by any process
+        unmatched_samples = [label for label, names in matches.items() if not names]
+        if unmatched_samples:
+            raise Exception("{} HH signal samples were not matched by any process: {}".format(
+                len(unmatched_samples), ", ".join(unmatched_samples)))
+
 
 # ggf samples with keys (kl, kt), ordered by kl
 # cross section values are NLO with k-factor applied and only used in create_ggf_xsec_func below
@@ -654,18 +750,18 @@ def create_ggf_xsec_func(formula=None):
 
     .. code-block:: python
 
-        get_ggf_xec = create_ggf_xsec_func()
+        get_ggf_xsec = create_ggf_xsec_func()
 
-        print(get_ggf_xec(kl=2.))
+        print(get_ggf_xsec(kl=2.))
         # -> 0.013803...
 
-        print(get_ggf_xec(kl=2., nnlo=False))
+        print(get_ggf_xsec(kl=2., nnlo=False))
         # -> 0.013852...
 
-        print(get_ggf_xec(kl=2., unc="up"))
+        print(get_ggf_xsec(kl=2., unc="up"))
         # -> 0.014305...
 
-    Formulas are taken from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGHH?rev=60.
+    Formulas are taken from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGHH?rev=65.
     """
     if formula is None:
         formula = model_default.ggf_formula
@@ -673,7 +769,7 @@ def create_ggf_xsec_func(formula=None):
     # create the lambdify'ed evaluation function
     n_samples = len(formula.sample_list)
     symbol_names = ["kl", "kt"] + list(map("s{}".format, range(n_samples)))
-    func = lambdify(symbols(symbol_names), formula.sigma)
+    xsec_func = lambdify(symbols(symbol_names), formula.sigma)
 
     # nlo-to-nnlo scaling functions in case nnlo is set
     xsec_nlo = lambda kl: 0.001 * 1.115 * (62.5339 - 44.3231 * kl + 9.6340 * kl**2.)
@@ -691,26 +787,33 @@ def create_ggf_xsec_func(formula=None):
     )
 
     def apply_uncertainty_nnlo(kl, xsec_nom, unc):
-        # compute absolute values of the scale uncertainties
-        if unc.lower() == "up":
-            xsec_unc = xsec_nnlo_scale_up(kl) - xsec_nom
-        elif unc.lower() == "down":
-            xsec_unc = xsec_nnlo_scale_down(kl) - xsec_nom
-        else:
+        # note on kt: in the twiki linked above, uncertainties on the ggF production cross section
+        # are quoted for different kl values but otherwise fully SM parameters, esp. kt=1;
+        # however, the nominal cross section *xsec_nom* might be subject to a different kt value
+        # and thus, the following implementation assumes that the relative uncertainties according
+        # to the SM recommendation are preserved; for instance, if the the scale uncertainty for
+        # kl=2,kt=1 would be 10%, then the code below will assume an uncertainty for kl=2,kt!=1 of
+        # 10% as well
+
+        # compute the relative, signed scale uncertainty
+        if unc.lower() not in ("up", "down"):
             raise ValueError("unc must be 'up' or 'down', got '{}'".format(unc))
+        scale_func = {"up": xsec_nnlo_scale_up, "down": xsec_nnlo_scale_down}[unc.lower()]
+        xsec_nom_kt1 = xsec_func(kl, 1., *(sample.val_xs for sample in formula.sample_list))[0, 0]
+        xsec_unc = (scale_func(kl) - xsec_nom_kt1) / xsec_nom_kt1
 
         # combine with flat 3% PDF uncertainty, preserving the sign
         unc_sign = 1 if xsec_unc > 0 else -1
-        xsec_unc = unc_sign * ((0.03 * xsec_nom)**2. + xsec_unc**2.)**0.5
+        xsec_unc = unc_sign * (xsec_unc**2. + 0.03**2.)**0.5
 
-        # add signed uncertainty back to nominal value
-        xsec = xsec_nom + xsec_unc
+        # compute the shifted absolute value
+        xsec = xsec_nom * (1. + xsec_unc)
 
         return xsec
 
     # wrap into another function to apply defaults and nlo-to-nnlo scaling
     def wrapper(kl=1., kt=1., nnlo=True, unc=None):
-        xsec = func(kl, kt, *(sample.val_xs for sample in formula.sample_list))[0, 0]
+        xsec = xsec_func(kl, kt, *(sample.val_xs for sample in formula.sample_list))[0, 0]
 
         # nnlo scaling?
         if nnlo:
@@ -731,7 +834,9 @@ def create_vbf_xsec_func(formula=None):
     """
     Creates and returns a function that can be used to calculate numeric VBF cross section values in
     pb given an appropriate *formula*, which defaults to *model_default.vbf_formula*. The returned
-    function has the signature ``(C2V=1.0, CV=1.0, kl=1.0)``.
+    function has the signature ``(C2V=1.0, CV=1.0, kl=1.0, unc=None)``. *unc* can be set to eiher
+    "up" or "down" to return the up / down varied cross section instead where the uncertainty is
+    composed of scale variations and pdf+alpha_s.
 
     Example:
 
@@ -741,6 +846,8 @@ def create_vbf_xsec_func(formula=None):
 
         print(get_vbf_xsec(C2V=2.))
         # -> 0.013916... (or similar)
+
+    Uncertainties taken from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGHH?rev=65.
     """
     if formula is None:
         formula = model_default.vbf_formula
@@ -748,11 +855,21 @@ def create_vbf_xsec_func(formula=None):
     # create the lambdify'ed evaluation function
     n_samples = len(formula.sample_list)
     symbol_names = ["C2V", "CV", "kl"] + list(map("s{}".format, range(n_samples)))
-    func = lambdify(symbols(symbol_names), formula.sigma)
+    xsec_func = lambdify(symbols(symbol_names), formula.sigma)
 
     # wrap into another function to apply defaults
-    def wrapper(C2V=1., CV=1., kl=1.):
-        xsec = func(C2V, CV, kl, *(sample.val_xs for sample in formula.sample_list))[0, 0]
+    def wrapper(C2V=1., CV=1., kl=1., unc=None):
+        xsec = xsec_func(C2V, CV, kl, *(sample.val_xs for sample in formula.sample_list))[0, 0]
+
+        # apply uncertainties?
+        if unc:
+            if unc.lower() not in ("up", "down"):
+                raise ValueError("unc must be 'up' or 'down', got '{}'".format(unc))
+            scale_rel = {"up": 0.0003, "down": 0.0004}[unc.lower()]
+            pdf_rel = 0.021
+            unc_rel = (1 if unc.lower() == "up" else -1) * (scale_rel**2. + pdf_rel**2.)**0.5
+            xsec *= 1 + unc_rel
+
         return xsec
 
     return wrapper
@@ -765,36 +882,49 @@ def create_hh_xsec_func(ggf_formula=None, vbf_formula=None):
     *model_default.ggf_formula* and *model_default.vbf_formula*, respectively. The returned
     function has the signature ``(kl=1.0, kt=1.0, C2V=1.0, CV=1.0, nnlo=True, unc=None)``.
 
-    The *nnlo* and *unc* settings only affect the ggF component of the cross section. When *nnlo* is
-    *False*, the constant k-factor of the ggf calculation is still applied. Otherwise, the returned
-    value is in full next-to-next-to-leading order for ggf. In this case, *unc* can be set to eiher
-    "up" or "down" to return the up / down varied cross section instead where the uncertainty is
-    composed of a *kl* dependent scale uncertainty and an independent PDF uncertainty of 3%.
+    The *nnlo* setting only affects the ggF component of the cross section. When *nnlo* is *False*,
+    the constant k-factor of the ggf calculation is still applied. Otherwise, the returned value is
+    in full next-to-next-to-leading order for ggf. *unc* can be set to eiher "up" or "down" to
+    return the up / down varied cross section instead where the uncertainty is composed of a *kl*
+    dependent scale uncertainty and an independent PDF uncertainty of 3% for ggF, and a scale and
+    pdf+alpha_s uncertainty for VBF. The uncertainties of the two processes are treated as
+    uncorrelated.
 
     Example:
 
     .. code-block:: python
 
-        get_hh_xec = create_hh_xsec_func()
+        get_hh_xsec = create_hh_xsec_func()
 
-        print(get_ggf_xec(kl=2.))
+        print(get_ggf_xsec(kl=2.))
         # -> 0.013803...
 
-        print(get_ggf_xec(kl=2., nnlo=False))
+        print(get_ggf_xsec(kl=2., nnlo=False))
         # -> 0.013852...
 
-        print(get_ggf_xec(kl=2., unc="up"))
-        # -> 0.014305...
+        print(get_ggf_xsec(kl=2., unc="up"))
+        # -> 0.014278...
     """
     # get the particular wrappers of the components
-    get_ggf_xec = create_ggf_xsec_func(ggf_formula)
-    get_vbf_xec = create_vbf_xsec_func(vbf_formula)
+    get_ggf_xsec = create_ggf_xsec_func(ggf_formula)
+    get_vbf_xsec = create_vbf_xsec_func(vbf_formula)
 
     # create a combined wrapper with the merged signature
     def wrapper(kl=1., kt=1., C2V=1., CV=1., nnlo=True, unc=None):
-        ggf_xsec = get_ggf_xec(kl=kl, kt=kt, nnlo=nnlo, unc=unc)
+        ggf_xsec = get_ggf_xsec(kl=kl, kt=kt, nnlo=nnlo)
         vbf_xsec = get_vbf_xsec(C2V=C2V, CV=CV, kl=kl)
-        return ggf_xsec + vbf_xsec
+        xsec = ggf_xsec + vbf_xsec
+
+        # apply uncertainties?
+        if unc:
+            if unc.lower() not in ("up", "down"):
+                raise ValueError("unc must be 'up' or 'down', got '{}'".format(unc))
+            ggf_unc = get_ggf_xsec(kl=kl, kt=kt, nnlo=nnlo, unc=unc) - ggf_xsec
+            vbf_unc = get_vbf_xsec(C2V=C2V, CV=CV, kl=kl, unc=unc) - vbf_xsec
+            unc = (1 if unc.lower() == "up" else -1) * (ggf_unc**2. + vbf_unc**2.)**0.5
+            xsec += unc
+
+        return xsec
 
     return wrapper
 

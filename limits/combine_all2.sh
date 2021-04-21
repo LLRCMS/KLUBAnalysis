@@ -3,7 +3,7 @@ selections="s1b1jresolvedMcut s2b0jresolvedMcut sboostedLLMcut GGFclass VBFclass
 channels="TauTau MuTau ETau" 
 years="2016 2017 2018"
 
-tag="_27Nov2020"
+tag="_24Mar2021"
 
 mkdir cards_CombAll$tag
 
@@ -22,5 +22,5 @@ cd cards_CombAll$tag
 rm comb.txt
 combineCards.py -S hh_*.txt >> comb.txt
 ulimit -s unlimited
-text2workspace.py comb.txt -P HHModelPinv:model_bbtautau -o comb.root -m 125 --PO doBRscaling=false --PO doHscaling=false
+text2workspace.py comb.txt -P HHModelPinv:model_bbtautau -o comb.root -m 125
 cd -

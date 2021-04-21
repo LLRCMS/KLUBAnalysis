@@ -17,11 +17,6 @@ def redrawBorder():
    l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax());
    l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin());
 
-def getExpValue( kl,  yt): 
-    BR =1 
-    return (2.09*yt*yt*yt*yt +   0.28*yt*yt*kl*kl  -1.37*yt*yt*yt*kl)*2.44477/BR;
-
-
 def parseFile(filename, CL='50.0', exp=True):
     f = open(filename)
     matches = []
@@ -53,10 +48,12 @@ def parseROOTFile(filename, CL=0.5):
 
     return res
 
-def getXStheoGGF (kL): 
-    A = 62.5339
-    B = -44.323
-    C = 9.6340
+def getXStheoGGF (kL):
+    # Updated following: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWGHH?redirectedfrom=LHCPhysics.LHCHXSWGHH#Latest_recommendations_for_gluon
+    # (old recommendation was A = 62.5339 / B = -44.323 / C = 9.6340)
+    A = 70.3874
+    B = -50.4111
+    C = 11.0595
 
     val = A + B*kL + C*kL*kL
     return val
@@ -144,7 +141,7 @@ for i,channel in enumerate(channels):
             corrFactor = 1.078076202
 
         xstheoVBF = getXStheoVBF (1,xval,year) * corrFactor   # C2V,kl,year
-        xstheoGGF = getXStheoGGF (xval) * 1.115               # kl
+        xstheoGGF = getXStheoGGF (xval)                       # kl
         xstheoTOT = xstheoVBF + xstheoGGF
 
         # Can get different results on r_gghh:
