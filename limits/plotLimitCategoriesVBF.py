@@ -8,14 +8,14 @@ import ROOT
 
 def redrawBorder():
    # this little macro redraws the axis tick marks and the pad border lines.
-   ROOT.gPad.Update()
-   ROOT.gPad.RedrawAxis()
+   ROOT.gPad.Update();
+   ROOT.gPad.RedrawAxis();
    l = ROOT.TLine()
    l.SetLineWidth(3)
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
-   l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax())
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin())
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax());
+   l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax());
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax());
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin());
 
 def parseFile(filename, CL='50.0', exp=True):
     f = open(filename)
@@ -37,9 +37,20 @@ def parseFile(filename, CL='50.0', exp=True):
     else:
         return matches[-1]
 
-def getXStheo (c2v,year): 
+def parseROOTFile(filename, CL=0.5):
+    f = ROOT.TFile(filename,"read")
+    ttree = f.Get("limit")
+
+    res = -1.0
+    for i,ev in enumerate(ttree):
+        if ev.quantileExpected != CL: continue
+        else: res = ev.limit
+
+    return res
+
+def getXStheoVBF (c2v,KL,year): 
     C2V = c2v
-    kl = 1.0
+    kl = KL
     CV = 1.0
 
     #s1 = HHModel.VBF_sample_list[0].val_xs # VBFHHSample(1,1,1,   val_xs = 0.00054/(0.3364), label = 'qqHH_CV_1_C2V_1_kl_1'  ),
@@ -49,7 +60,7 @@ def getXStheo (c2v,year):
     #s5 = HHModel.VBF_sample_list[4].val_xs # VBFHHSample(0.5,1,1, val_xs = 0.00353/(0.3364), label = 'qqHH_CV_0p5_C2V_1_kl_1'),
     #s6 = HHModel.VBF_sample_list[5].val_xs # VBFHHSample(1.5,1,1, val_xs = 0.02149/(0.3364), label = 'qqHH_CV_1p5_C2V_1_kl_1'),
 
-    if year == 2016:
+    if year == '2016':
         s1 = 0.001601
         s2 = 0.01335
         s3 = 0.001327
@@ -68,7 +79,6 @@ def getXStheo (c2v,year):
 
     return val
 
-
 c1 = ROOT.TCanvas("c1", "c1", 650, 500)
 c1.SetFrameLineWidth(3)
 c1.SetBottomMargin (0.15)
@@ -79,22 +89,20 @@ c1.SetGridy()
 
 mg = ROOT.TMultiGraph()
 
-category = "comb_cat" # sboostedLLMcut  s1b1jresolvedMcut  s2b0jresolvedMcut  VBFloose
 year = "2018" # 2016 2017 2018
-tagName = "23Apr2021"
 
 
 if   year == "2016":
-    tag = [year+"_"+tagName,"DNNoutSM_kl_1","2016 - 35.9"]
+    tag = [year,"DNNoutSM_kl_1","2016 - 35.9"]
 elif year == "2017":
-    tag = [year+"_"+tagName,"DNNoutSM_kl_1","2017 - 41.5"]
+    tag = [year,"DNNoutSM_kl_1","2017 - 41.5"]
 else:  #year == "2018"
-    tag = [year+"_"+tagName,"DNNoutSM_kl_1","2018 - 59.7"]
+    tag = [year,"DNNoutSM_kl_1","2018 - 59.7"]
 
 colors = [ROOT.kBlue, ROOT.kRed, ROOT.kCyan, ROOT.kBlack]
 
-channels = ['TauTau','MuTau','ETau'] # ,'CombChan_']
-names    = ['TauTau','MuTau','ETau','Combined']
+channels = ['res1b','res2b','boost','VBFcomb']
+names    = ['res1b','res2b','boosted','VBFcomb']
 
 klval = [-5.5, -5  , -4.5, -4  , -3.5, -3  , -2.5, -2  , -1.5, -1  , -0.8, -0.6, -0.4, -0.2, 0   , 0.2 , 0.4 , 0.6 , 0.8 , 1   , 1.2 , 1.4 , 1.6 , 1.8 , 2   , 2.2 , 2.4 , 2.6 , 2.8 , 3   , 3.5 , 4   , 4.5 , 5   , 5.5]
 print klval
@@ -105,33 +113,26 @@ print lambdas
 graphs = []
 
 for i,channel in enumerate(channels):
-    print '--- Doing channel {0} ---'.format(names[i])
+    print '--- Doing category {0} ---'.format(names[i])
 
     grexp = ROOT.TGraph()
     ptsList = [] # (x, exp)
 
-    for ipt in range(0, len(lambdas)):
-        if 'CombChan' in channel:
-            fName = 'cards_'+channel+tag[0]+'/out_Asym_VBF{0}_noTH.log'.format(lambdas[ipt])
-        elif 'comb' in category:
-            fName = 'cards_'+channel+tag[0]+'/out_Asym_VBF{0}_noTH.log'.format(lambdas[ipt])
-        else:
-            fName = 'cards_'+channel+tag[0]+'/'+category+tag[1]+'/out_Asym_VBF{0}_noTH.log'.format(lambdas[ipt])
+    for ipt,ikl in enumerate(klval):
+        fName = 'datacards_'+year+'_'+channel+'/out_Asym_VBF{0}_noTH.log'.format(lambdas[ipt])
 
-        xval = klval[ipt]
+        xval = ikl
 
         corrFactor = 1.034772182
-        yearN = 2018
-        if '2016' in tag[0]: 
+        if year == "2016":
             corrFactor = 1.078076202
-            yearN = 2016
 
-        # Can get different results on r_qqhh:
-        #exp = parseFile(fName)                                           # <- How many times the SM I'm excluding
-        #exp = parseFile(fName) * getXStheo(klval[ipt]) * 1000.0          # <- Excluded HH cross section [fb]
-        #exp = parseFile(fName) * getXStheo(klval[ipt]) * 1000.0 * 0.073  # <- Excluded HH cross section times BR(bbtautau) [fb]
+        xstheoVBF = getXStheoVBF (xval,1,year) * corrFactor * 1000.0  # C2V,kl,year (VBF needs correction to [fb])
 
-        exp  = parseFile(fName) * getXStheo(klval[ipt],yearN) * corrFactor * 1000.0 * 0.073
+        # Can get different results on r_gghh:
+        #exp  = parseFile(fName)                       # <- How many times the SM I'm excluding
+        #exp  = parseFile(fName)  * xstheoVBF          # <- Excluded HH cross section
+        exp  = parseFile(fName)  * xstheoVBF * 0.073   # <- Excluded HH cross section times BR(bbtautau)
 
         ptsList.append((xval, exp))
 
@@ -188,18 +189,13 @@ pt3.SetTextFont(42)
 pt3.SetTextSize(0.05)
 pt3.SetBorderSize(0)
 pt3.SetTextAlign(32)
-if   category == "comb_cat"          : pt3.AddText("combined categories")
-elif category == "sboostedLLMcut"    : pt3.AddText("boosted category")
-elif category == "s1b1jresolvedMcut" : pt3.AddText("1b category")
-elif category == "s2b0jresolvedMcut" : pt3.AddText("2b category")
-elif category == "VBFloose"          : pt3.AddText("VBF category")
-else                                 : pt3.AddText("?category not defined?")
+pt3.AddText("Combined channels")
 
 
-hframe = ROOT.TH1F('hframe', '', 100, -5, 6)
-hframe.SetMinimum(0)
-if   year == "2016"          : hframe.SetMaximum(200)
-else                         : hframe.SetMaximum(200)
+hframe = ROOT.TH1F('hframe', '', 100, -6, 6)
+hframe.SetMinimum(0.1)
+if year == "2016" or year=="2017" : hframe.SetMaximum(600)
+else                              : hframe.SetMaximum(600)
 hframe.GetYaxis().SetTitleSize(0.047)
 hframe.GetXaxis().SetTitleSize(0.055)
 hframe.GetYaxis().SetLabelSize(0.045)
@@ -228,6 +224,6 @@ c1.RedrawAxis("g")
 leg.Draw()
 c1.Update()
 
-c1.Print('../plots/v4/comparison_channelsVBF_'+category+'_'+tag[0]+'_NEW.pdf','pdf')
+c1.Print('../plots/v4/comparison_categoriesVBF_'+year+'_NEW.pdf','pdf')
 
 import pdb; pdb.set_trace()

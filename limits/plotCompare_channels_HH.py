@@ -89,8 +89,8 @@ c1.SetGridy()
 mg = ROOT.TMultiGraph()
 
 category = "comb_cat" # sboostedLLMcut  s1b1jresolvedMcut  s2b0jresolvedMcut  VBFloose
-year = "2017" # 2016 2017 2018
-tagName = "24Mar2021"
+year = "2018" # 2016 2017 2018
+tagName = "23Apr2021"
 
 
 if   year == "2016":
@@ -123,13 +123,11 @@ for i,channel in enumerate(channels):
         if 'CombChan' in channel:
             fName = 'cards_'+channel+tag[0]+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
         elif 'comb' in category:
-            fName = 'cards_'+channel+tag[0]+'/'+category+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
+            fName = 'cards_'+channel+tag[0]+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
         else:
             fName = 'cards_'+channel+tag[0]+'/'+category+tag[1]+'/out_Asym_{0}_noTH.log'.format(lambdas[ipt])
 
         xval = klval[ipt]
-
-        if xval == 1: fName = fName.replace('_noTH','')
 
         corrFactor = 1.034772182
         if year == "2016": 
@@ -246,6 +244,6 @@ c1.RedrawAxis("g")
 leg.Draw()
 c1.Update()
 
-c1.Print('plots/v3/comparison_channelsHH_'+category+'_'+tag[0]+'.pdf','pdf')
+c1.Print('../plots/v4/comparison_channelsHH_'+category+'_'+tag[0]+'_NEW.pdf','pdf')
 
 import pdb; pdb.set_trace()
