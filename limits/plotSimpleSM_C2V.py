@@ -46,7 +46,7 @@ c1.SetGridy()
 mg = ROOT.TMultiGraph()
 
 var = 'DNNoutSM_kl_1'
-tag = '24Mar2021'
+tag = '23Apr2021'
 
 years = ['2016', '2017', '2018', '']
 
@@ -159,7 +159,8 @@ pt.SetFillColor(0)
 pt.SetFillStyle(0)
 pt.AddText("CMS #font[52]{Internal}" )
 
-pt2 = ROOT.TPaveText(0.736111,0.9066667,0.847222,0.954641,"brNDC")
+#pt2 = ROOT.TPaveText(0.736111,0.9066667,0.847222,0.954641,"brNDC")
+pt2 = ROOT.TPaveText(0.676111,0.9066667,0.847222,0.954641,"brNDC")
 pt2.SetBorderSize(0)
 pt2.SetFillColor(0)
 pt2.SetTextSize(0.040)
@@ -204,7 +205,7 @@ legend.Draw()
 c1.Update()
 
 c1.Draw()
-c1.Print("plots/v3/plot_SMpointC2V_"+tag+".pdf", 'pdf')
+c1.Print("../plots/v4/plot_SMpointC2V_"+tag+"_NEW.pdf", 'pdf')
 
 import pdb; pdb.set_trace()
 

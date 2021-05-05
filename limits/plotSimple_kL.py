@@ -94,9 +94,9 @@ mg = ROOT.TMultiGraph()
 var = 'DNNoutSM_kl_1'
 
 #year = '2018'
-#tag = 'CombChan_'+year+'_24Mar2021'
+#tag = 'CombChan_'+year+'_23Apr2021'
 year = '2018'
-tag = 'CombAll_24Mar2021'
+tag = 'CombAll_23Apr2021'
 
 selections = ["comb_cat"]
 
@@ -128,8 +128,6 @@ for sel in selections:
 
         xval = klval[ipt]
 
-        if xval == 1: fName = fName.replace('_noTH','')
-
         corrFactor = 1.034772182
         if year == "2016":
             corrFactor = 1.078076202
@@ -141,12 +139,12 @@ for sel in selections:
         # Can get different results on r_gghh:
         #exp  = parseFile(fName)                                  # <- How many times the SM I'm excluding
         #exp  = parseFile(fName)            * xstheoTOT           # <- Excluded HH cross section
-        exp   = parseFile(fName)            * xstheoTOT #* 0.073  # <- Excluded HH cross section times BR(bbtautau)
-        obs   = parseFile(fName, exp=False) * xstheoTOT #* 0.073
-        m1s_t = parseFile(fName, CL='16.0') * xstheoTOT #* 0.073
-        p1s_t = parseFile(fName, CL='84.0') * xstheoTOT #* 0.073
-        m2s_t = parseFile(fName, CL=' 2.5') * xstheoTOT #* 0.073
-        p2s_t = parseFile(fName, CL='97.5') * xstheoTOT #* 0.073
+        exp   = parseFile(fName)            * xstheoTOT * 0.073   # <- Excluded HH cross section times BR(bbtautau)
+        obs   = parseFile(fName, exp=False) * xstheoTOT * 0.073
+        m1s_t = parseFile(fName, CL='16.0') * xstheoTOT * 0.073
+        p1s_t = parseFile(fName, CL='84.0') * xstheoTOT * 0.073
+        m2s_t = parseFile(fName, CL=' 2.5') * xstheoTOT * 0.073
+        p2s_t = parseFile(fName, CL='97.5') * xstheoTOT * 0.073
 
         ## because the other code wants +/ sigma vars as deviations, without sign, from the centeal exp value...
         p2s = p2s_t - exp
@@ -277,10 +275,10 @@ for sel in selections:
     #myFunc =  ROOT.TF1("myFunc","(2.09*[0]*[0]*[0]*[0] + 0.28*[0]*[0]*x*[0]*x*[0] -1.37*[0]*[0]*[0]*x*[0])*2.44185/[1]",xmin,xmax)
 
     # Old Run2 recommendation
-    #myFunc =  ROOT.TF1("myFunc","( (62.5339 -44.323*x + 9.6340*x*x)*1.115) + ( ( 0.001668*(-3.3*[1]**2 + 1.3*[1]*[0]**2 + 7.6*[1]*[0]*x + 2.0*[0]**4 - 5.6*[0]**3*x - 1.0*[0]**2*x**2) + 0.01374*(1.5*[1]**2 + 0.5*[1]*[0]**2 - 4.0*[1]*[0]*x - 2.0*[0]**4 + 4.0*[0]**3*x) + 0.001375*(0.35*[1]**2 - 0.0166666666666667*[1]*[0]**2 - 1.03333333333333*[1]*[0]*x - 0.333333333333333*[0]**4 + 0.533333333333333*[0]**3*x + 0.5*[0]**2*x**2) + 0.004454*(-0.45*[1]**2 + 0.45*[1]*[0]**2 + 0.9*[1]*[0]*x + 1.0*[0]**4 - 2.4*[0]**3*x + 0.5*[0]**2*x**2) + 0.01046*(-2.0*[1]**2 - 3.33333333333333*[1]*[0]**2 + 9.33333333333333*[1]*[0]*x + 5.33333333333333*[0]**4 - 9.33333333333333*[0]**3*x) + 0.0638*(0.4*[1]**2 - 0.4*[1]*[0]**2 - 0.8*[1]*[0]*x + 0.8*[0]**3*x) ) * 1.034772182 * 1000.0 ) ",xmin,xmax)
+    #myFunc =  ROOT.TF1("myFunc","( (62.5339 -44.323*x + 9.6340*x*x)*1.115) + ( ( 0.001668*(-3.3*[1]**2 + 1.3*[1]*[0]**2 + 7.6*[1]*[0]*x + 2.0*[0]**4 - 5.6*[0]**3*x - 1.0*[0]**2*x**2) + 0.01374*(1.5*[1]**2 + 0.5*[1]*[0]**2 - 4.0*[1]*[0]*x - 2.0*[0]**4 + 4.0*[0]**3*x) + 0.001375*(0.35*[1]**2 - 0.0166666666666667*[1]*[0]**2 - 1.03333333333333*[1]*[0]*x - 0.333333333333333*[0]**4 + 0.533333333333333*[0]**3*x + 0.5*[0]**2*x**2) + 0.004454*(-0.45*[1]**2 + 0.45*[1]*[0]**2 + 0.9*[1]*[0]*x + 1.0*[0]**4 - 2.4*[0]**3*x + 0.5*[0]**2*x**2) + 0.01046*(-2.0*[1]**2 - 3.33333333333333*[1]*[0]**2 + 9.33333333333333*[1]*[0]*x + 5.33333333333333*[0]**4 - 9.33333333333333*[0]**3*x) + 0.0638*(0.4*[1]**2 - 0.4*[1]*[0]**2 - 0.8*[1]*[0]*x + 0.8*[0]**3*x) ) * 1.034772182 * 1000.0 * 0.073) ",xmin,xmax)
 
     # Run2 - Updated following: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWGHH?redirectedfrom=LHCPhysics.LHCHXSWGHH#Latest_recommendations_for_gluon
-    myFunc =  ROOT.TF1("myFunc","( (70.3874 -50.4111*x + 11.0595*x*x)) + ( ( 0.001668*(-3.3*[1]**2 + 1.3*[1]*[0]**2 + 7.6*[1]*[0]*x + 2.0*[0]**4 - 5.6*[0]**3*x - 1.0*[0]**2*x**2) + 0.01374*(1.5*[1]**2 + 0.5*[1]*[0]**2 - 4.0*[1]*[0]*x - 2.0*[0]**4 + 4.0*[0]**3*x) + 0.001375*(0.35*[1]**2 - 0.0166666666666667*[1]*[0]**2 - 1.03333333333333*[1]*[0]*x - 0.333333333333333*[0]**4 + 0.533333333333333*[0]**3*x + 0.5*[0]**2*x**2) + 0.004454*(-0.45*[1]**2 + 0.45*[1]*[0]**2 + 0.9*[1]*[0]*x + 1.0*[0]**4 - 2.4*[0]**3*x + 0.5*[0]**2*x**2) + 0.01046*(-2.0*[1]**2 - 3.33333333333333*[1]*[0]**2 + 9.33333333333333*[1]*[0]*x + 5.33333333333333*[0]**4 - 9.33333333333333*[0]**3*x) + 0.0638*(0.4*[1]**2 - 0.4*[1]*[0]**2 - 0.8*[1]*[0]*x + 0.8*[0]**3*x) ) * 1.034772182 * 1000.0 ) ",xmin,xmax)
+    myFunc =  ROOT.TF1("myFunc","( (70.3874 -50.4111*x + 11.0595*x*x) * 0.073) + ( ( 0.001668*(-3.3*[1]**2 + 1.3*[1]*[0]**2 + 7.6*[1]*[0]*x + 2.0*[0]**4 - 5.6*[0]**3*x - 1.0*[0]**2*x**2) + 0.01374*(1.5*[1]**2 + 0.5*[1]*[0]**2 - 4.0*[1]*[0]*x - 2.0*[0]**4 + 4.0*[0]**3*x) + 0.001375*(0.35*[1]**2 - 0.0166666666666667*[1]*[0]**2 - 1.03333333333333*[1]*[0]*x - 0.333333333333333*[0]**4 + 0.533333333333333*[0]**3*x + 0.5*[0]**2*x**2) + 0.004454*(-0.45*[1]**2 + 0.45*[1]*[0]**2 + 0.9*[1]*[0]*x + 1.0*[0]**4 - 2.4*[0]**3*x + 0.5*[0]**2*x**2) + 0.01046*(-2.0*[1]**2 - 3.33333333333333*[1]*[0]**2 + 9.33333333333333*[1]*[0]*x + 5.33333333333333*[0]**4 - 9.33333333333333*[0]**3*x) + 0.0638*(0.4*[1]**2 - 0.4*[1]*[0]**2 - 0.8*[1]*[0]*x + 0.8*[0]**3*x) ) * 1.034772182 * 1000.0 * 0.073) ",xmin,xmax)
 
     myFunc.SetParameter(0,CV)
     myFunc.SetParameter(1,C2V)
@@ -301,8 +299,8 @@ for sel in selections:
         corrFactor = 1.034772182
         if year == "2016":
             corrFactor = 1.078076202
-        xstheoVBF = getXStheoVBF (1,kl_x,year) * corrFactor * 1000.0  # C2V,kl,year (VBF needs conversion to [fb])
-        xstheoGGF = getXStheoGGF (kl_x)                               # kl
+        xstheoVBF = getXStheoVBF (1,kl_x,year) * corrFactor * 1000.0 * 0.073 # C2V,kl,year (VBF needs conversion to [fb])
+        xstheoGGF = getXStheoGGF (kl_x) * 0.073                              # kl
         Graph_syst_Scale_y=(xstheoVBF+xstheoGGF)
 
         # 2016 uncertainties
@@ -315,8 +313,8 @@ for sel in selections:
         # lower_unc[kl] = Min[66.0621-46.7458*kl+10.1673*kl2, 66.7581-47.721*kl+10.4535*kl2] in fb.
         # pdf+alpha_s   = 0.03
         # mtop          = 0.026
-        scale_up   = (max(72.0744-51.7362*kl_x+11.3712*kl_x*kl_x,70.9286-51.5708*kl_x+11.4497*kl_x*kl_x) - xstheoGGF) / xstheoGGF
-        scale_down = (min(66.0621-46.7458*kl_x+10.1673*kl_x*kl_x,66.7581-47.721*kl_x+10.4535*kl_x*kl_x)  - xstheoGGF) / xstheoGGF
+        scale_up   = (max(72.0744-51.7362*kl_x+11.3712*kl_x*kl_x,70.9286-51.5708*kl_x+11.4497*kl_x*kl_x)*0.073 - xstheoGGF) / xstheoGGF
+        scale_down = (min(66.0621-46.7458*kl_x+10.1673*kl_x*kl_x,66.7581-47.721*kl_x+10.4535*kl_x*kl_x)*0.073  - xstheoGGF) / xstheoGGF
         GGF_erry_up   = xstheoGGF*((scale_up*scale_up + 0.03*0.03 + 0.026*0.026)**0.5)
         GGF_erry_down = xstheoGGF*((scale_down*scale_down + 0.03*0.03 + 0.026*0.026)**0.5)
 
@@ -348,13 +346,13 @@ for sel in selections:
     hframe = ROOT.TH1F('hframe', '', 100, -22, 22)
     hframe.SetMinimum(0.1)
     if '2016' in tag:
-        hframe.SetMaximum(3000)
+        hframe.SetMaximum(400)
     elif '2017' in tag:
-        hframe.SetMaximum(3000)
+        hframe.SetMaximum(400)
     elif '2018' in tag:
-        hframe.SetMaximum(3000)
+        hframe.SetMaximum(400)
     else:
-        hframe.SetMaximum(2500)
+        hframe.SetMaximum(200)
 
     hframe.GetYaxis().SetTitleSize(0.047)
     hframe.GetXaxis().SetTitleSize(0.055)
@@ -388,7 +386,7 @@ for sel in selections:
     pt4.Draw()
     c1.Update()
 
-    c1.Print("plots/v3/klscan_"+tag+"_theor.pdf", 'pdf')
+    c1.Print("../plots/v4/klscan_"+tag+"_theor_NEW.pdf", 'pdf')
 
 import pdb; pdb.set_trace()
 

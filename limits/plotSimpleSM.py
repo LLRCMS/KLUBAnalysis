@@ -46,7 +46,7 @@ c1.SetGridy()
 mg = ROOT.TMultiGraph()
 
 var = 'DNNoutSM_kl_1'
-tag = '24Mar2021'
+tag = '23Apr2021'
 
 years = ['2016', '2017', '2018', '']
 
@@ -204,7 +204,7 @@ legend.Draw()
 c1.Update()
 
 c1.Draw()
-c1.Print("plots/v3/plot_SMpoint_"+tag+".pdf", 'pdf')
+c1.Print("../plots/v4/plot_SMpoint_"+tag+"_NEW.pdf", 'pdf')
 
 import pdb; pdb.set_trace()
 
