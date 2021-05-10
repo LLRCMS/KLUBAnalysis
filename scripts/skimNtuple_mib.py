@@ -59,7 +59,6 @@ if __name__ == "__main__":
     parser.add_option ('-t', '--toprew'    , dest='toprew'    , help='is TT bar sample to compute reweight?' , default=False)
     parser.add_option ('-b', '--topstitch' , dest='topstitch' , help='type of TT gen level decay pruning for stitch'        , default='0')
     parser.add_option ('-g', '--genjets'   , dest='genjets'   , help='loop on genjets to determine the number of b hadrons' , default=False)
-    parser.add_option ('-w', '--weight'    , dest='weightHH'  , help='histo map for hh reweight'             , default='0')
     parser.add_option ('-a', '--ishhsignal', dest='ishhsignal', help='isHHsignal'                            , default=False)
     parser.add_option ('--EFTbm',            dest='EFTrew'    , help='EFT benchmarks [SM, 1..12, 1b..7b, 8a, c2scan, manual]', default='none')
     parser.add_option ('--order',            dest='order'     , help='order of reweight: lo/nlo'             , default='nlo')
@@ -169,8 +168,6 @@ if __name__ == "__main__":
     # submit the jobs
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-    #skimmer = 'skimNtuple2016.exe'
-    #skimmer = 'skimNtuple2017.exe'
     skimmer = 'skimNtuple2016_HHbtag.exe'
     #skimmer = 'skimNtuple2017_HHbtag.exe'
 
@@ -238,8 +235,7 @@ if __name__ == "__main__":
         if opt.toprew=="True" : command += " 1 "
         else                  : command += " 0 "   
         if opt.genjets=="True": command += " 1 "
-        else                  : command += " 0 "   
-        command += (" " + opt.weightHH)
+        else                  : command += " 0 "
         command += " " + opt.topstitch
         if opt.domt2          : command += " 1 " ## inspiegabilmente questo e' un bool
         else                  : command += " 0 "
