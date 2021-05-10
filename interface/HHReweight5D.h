@@ -31,7 +31,6 @@ class HHReweight5D{
     
     public:
         HHReweight5D(std::string coeffFile, const TH2* hInput, std::string EFTBMname, std::string year, std::string order, std::string uncertantie = "", bool cms_fake = false, bool useAbsEta=true);
-        HHReweight5D(std::string coeffFile, const TH2* hInput, std::string order, std::string uncertantie = "", bool useAbsEta=true);
         ~HHReweight5D();
         double getWeight(double mhh, double cth);
         double getWeight(double mhh, double cth, double c2);

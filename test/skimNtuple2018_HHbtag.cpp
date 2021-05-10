@@ -182,7 +182,7 @@ int main (int argc, char** argv)
       cerr << "usage: " << argv[0]
            << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
            << " xsecScale(stitch) HTMax(stitch) HTMin(stitch) isTTBar DY_Nbs HHreweightFile TT_stitchType"
-           << " runMT2 isHHsignal NjetRequired(stitch) EFTbm order uncertantie cms_fake kl_rew kt_rew c2_rew cg_rew c2g_rew susyModel" << endl ;
+           << " runMT2 isHHsignal NjetRequired(stitch) EFTbm order_rew uncertainty_rew cms_fake_rew kl_rew kt_rew c2_rew cg_rew c2g_rew susyModel" << endl ;
       return 1;
     }
 
@@ -267,19 +267,19 @@ int main (int argc, char** argv)
   //JONA: modify reading of input arguments
   // reweight file according to NLO differential reweighting procedure https://gitlab.cern.ch/hh/eft-benchmarks
   string EFTbm = argv[17];
-  string order = argv[18];
-  string uncertantie = "\"\"";
-  if (argv[19] != string("0")) uncertantie = argv[19];
-  bool cms_fake = false;
+  string order_rew = argv[18];
+  string uncertainty_rew = "\"\"";
+  if (argv[19] != string("0")) uncertainty_rew = argv[19];
+  bool cms_fake_rew = false;
   string opt20 (argv[20]);
-  if (opt20 == "1") cms_fake = true;
+  if (opt20 == "1") cms_fake_rew = true;
   float kl_rew = atof(argv[21]);
   float kt_rew = atof(argv[22]);
   float c2_rew = atof(argv[23]);
   float cg_rew = atof(argv[24]);
   float c2g_rew = atof(argv[25]);
-  cout << "** INFO: EFT reweighting asked for benchmark " << EFTbm << " at order " << order << endl;
-  if (c2_rew > -999.0) cout << "** INFO: EFT reweighting overridden with coplings kl=" << kl_rew << " ; kt=" << kt_rew << " ; c2=" << c2_rew << " ; cg=" << cg_rew << " ; c2g=" << c2g_rew << " at order " << order << "[all -999 means no override; only c2!=-999 means only c2 overridden]" << endl;
+  cout << "** INFO: EFT reweighting asked for benchmark " << EFTbm << " at order " << order_rew << endl;
+  if (c2_rew > -999.0) cout << "** INFO: EFT reweighting overridden with coplings kl=" << kl_rew << " ; kt=" << kt_rew << " ; c2=" << c2_rew << " ; cg=" << cg_rew << " ; c2g=" << c2g_rew << " at order " << order_rew << "[all -999 means no override; only c2!=-999 means only c2 overridden]" << endl;
 
   //JONA: modify reading of input arguments
   string susyModel = argv[26];
@@ -317,7 +317,13 @@ int main (int argc, char** argv)
   int HHrewType = kNone; // default is no reweight
   if (EFTbm != "none") HHrewType = kDiffRew;
   if (EFTbm == "c2scan") HHrewType = kC2scan;
-  if (EFTbm == "manual") HHrewType = kOverRew;
+  if (EFTbm == "manual") {
+    HHrewType = kOverRew;
+    if (kl_rew <= -99.0 or kt_rew <= -99.0 or c2_rew <= -99.0 or cg_rew <= -99.0 or c2g_rew) {
+      cout << "ERROR! You requested the manual override of the coupling, but probably you forgot to set the couplings!" << endl;
+      return 1;
+    }
+  }
   cout << "** INFO: HH reweight type requested is " << HHrewType << " [ 0: no reweight, 1: differential reweight for fixed benchmark, 2: differential reweight for c2 scan, 3: differential reweight with couplings manual override ]" << endl; 
 
 
@@ -627,13 +633,12 @@ int main (int argc, char** argv)
       string inMapFile   = gConfigParser->readStringOption("HHReweight::inputFile");
       string inHistoName = gConfigParser->readStringOption("HHReweight::histoName");
       string coeffFile   = gConfigParser->readStringOption("HHReweight::coeffFileNLO");
-      if (order == string("lo")) coeffFile = gConfigParser->readStringOption("HHReweight::coeffFileLO");
+      if (order_rew == string("lo")) coeffFile = gConfigParser->readStringOption("HHReweight::coeffFileLO");
       cout << "** INFO: reading histo named: " << inHistoName << " from file: " << inMapFile << endl;
       cout << "** INFO: HH reweight coefficient file is: " << coeffFile << endl;
       TFile* fHHDiffRew = new TFile(inMapFile.c_str());
       hhreweighterInputMap = (TH2*) fHHDiffRew->Get(inHistoName.c_str());
-      if (HHrewType == kDiffRew) hhreweighter = new HHReweight5D(coeffFile, hhreweighterInputMap, EFTbm, string("2018"), order, uncertantie, cms_fake);
-      else hhreweighter = new HHReweight5D(coeffFile, hhreweighterInputMap, order, uncertantie);
+      hhreweighter = new HHReweight5D(coeffFile, hhreweighterInputMap, EFTbm, string("2018"), order_rew, uncertainty_rew, cms_fake_rew);
     }
 
 

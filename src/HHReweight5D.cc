@@ -79,6 +79,8 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
     else if(EFTBMname == "JHEP03(2020)091_6" or EFTBMname == "6b") EFTBMcouplings_ = {  5.68, 0.83,  1./3., -0.5 * 1.5,  1./3. * (-3.) };
     else if(EFTBMname == "JHEP03(2020)091_7" or EFTBMname == "7b") EFTBMcouplings_ = { -0.10, 0.94,     1., 1./6.* 1.5, -1./6. * (-3.) };
 
+    if(EFTBMname == "c2scan" or EFTBMname == "manual") EFTBMcouplings_ = {1,1,0,0,0}; // Set to SM values
+
     // --------------------------------------------------------------------
     // read input file containing all the coefficients for the reweighting
     if (DEBUG) std::cout << " -- Reading input file" << coeffFile << std::endl;
@@ -105,74 +107,6 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
 
             //The columns of the file are respectively: uncertainty - Mhh_ll - Mhh_ul - GenCostStar_ll - GenCostStar_ul - 23(nlo)/15(lo) A values
             if (DEBUG) std::cout << "uncertainty= :" << tokens.at(0) << ": ; requested uncertainty= :" << unc_ << ":" << std::endl;
-            if (tokens.at(0) != unc_) continue; // fill the map with the correct lines of the file corresponding to the correct uncertainty
-
-            std::vector<double> A_vec;
-            for (int i = 1; i<int(tokens.size()); i++) { // start loop from 1 to skip the uncertainty cause it is not nedeed in the following
-                A_vec.push_back(std::stod(tokens.at(i)));
-            }
-            A_map_.push_back(A_vec);
-            if (DEBUG) std::cout << "** DEBUG: A_vec size " << A_vec.size() << std::endl;
-        }
-    }
-    if (DEBUG) std::cout << "** DEBUG: A_map size " << A_map_.size() << std::endl;
-}
-
-HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string order, std::string uncertantie, bool useAbsEta)
-{
-    // clone the input histogram
-    TH2* cloneH = (TH2*) hInput->Clone("h_input");
-
-    h_input_.reset(cloneH);
-
-    order_ = order;
-    unc_ = uncertantie;
-
-    A_13TeV_nlo_ = {62.5088, 345.604, 9.63451, 4.34841, 39.0143, -268.644, -44.2924, 96.5595, 53.515, -155.793, -23.678, 54.5601, 12.2273, -26.8654, -19.3723, -0.0904439, 0.321092, 0.452381, -0.0190758, -0.607163, 1.27408, 0.364487, -0.499263};
-
-    A_13TeV_lo_ = {35.0111,169.908,4.72866,2.38523,22.3288,-142.521,-22.996,47.2901,28.0101,-82.3576,-13.1345,31.2217,6.37158,-13.9821,-10.8268};
-    // the LO case has many different cases of uncertainty that can be considered
-    if(uncertantie == "muR_UP")                            A_13TeV_lo_ = {29.339989,142.828652,3.944472,1.987152,18.841645,-119.547333,-19.223360,39.572711,23.399797,-69.040228,-10.957083,26.085625,5.308951,-11.681204,-9.055525,};
-    else if(uncertantie == "muR_DN")                       A_13TeV_lo_ = {42.541636,205.687054,5.778218,2.919222,26.909724,-172.982077,-28.026622,57.564385,34.165875,-100.032567,-16.048800,38.075269,7.796551,-17.054354,-13.187661,};
-    else if(uncertantie == "muF_UP")                       A_13TeV_lo_ = {33.214886,159.640761,4.551589,2.305399,20.727429,-134.819116,-21.986524,45.071311,26.839155,-78.057553,-12.641570,29.899841,6.155038,-13.395502,-10.335953,};
-    else if(uncertantie == "muF_DN")                       A_13TeV_lo_ = {36.805367,180.705794,4.885372,2.452094,24.101164,-150.349033,-23.950697,49.443752,29.097654,-86.678003,-13.570472,32.448121,6.554115,-14.528044,-11.299634,};
-    else if(uncertantie == "muRF_UP")                      A_13TeV_lo_ = {27.832322,134.173116,3.796522,1.920497,17.483549,-113.072653,-18.378290,37.711670,22.418837,-65.428160,-10.544753,24.981035,5.128215,-11.189653,-8.643234,};
-    else if(uncertantie == "muRF_DN")                      A_13TeV_lo_ = {44.714854,218.701521,5.968957,3.000666,29.029593,-182.448410,-29.186181,60.175085,35.486974,-105.262740,-16.579853,39.569843,8.019070,-17.717366,-13.759752,};
-    else if(uncertantie == "PDF4LHC15_nlo_30_pdfas_UP")    A_13TeV_lo_ = {36.208893,176.168489,4.879759,2.459933,23.284642,-147.500053,-23.752158,48.877622,28.922822,-85.183450,-13.550707,32.220345,6.571496,-14.439991,-11.195454,};
-    else if(uncertantie == "PDF4LHC15_nlo_30_pdfas_DN")    A_13TeV_lo_ = {33.812066,163.645533,4.577366,2.310462,21.372602,-137.539060,-22.238752,45.701219,27.097318,-79.530065,-12.718469,30.222196,6.171466,-13.524284,-10.458108,};
-    else if(uncertantie == "PDF4LHC15_nlo_30_pdfas_as_UP") A_13TeV_lo_ = {34.557787,167.736680,4.665718,2.353319,22.038584,-140.685346,-22.693751,46.672758,27.642437,-81.296870,-12.961223,30.811765,6.286366,-13.797880,-10.684346,};
-    else if(uncertantie == "PDF4LHC15_nlo_30_pdfas_as_DN") A_13TeV_lo_ = {35.481751,172.242144,4.791610,2.416866,22.658916,-144.446484,-23.303070,47.923962,28.382176,-83.461994,-13.307699,31.634385,6.456062,-14.168891,-10.973232,};
-
-    useAbsEta_ = useAbsEta;
-    
-    EFTBMcouplings_ = {1,1,0,0,0}; // Set to SM values, will be passed to the getWeight method that takes couolings as input
-
-    // --------------------------------------------------------------------
-    // read input file containing all the coefficients for the reweighting
-    if (DEBUG) std::cout << " -- Reading input file" << coeffFile << std::endl;
-
-    // read and fill from the file
-    std::ifstream infile;
-    infile.open(coeffFile);
-    if (!infile.is_open())
-        throw std::runtime_error("Could not open input file");
-
-    std::string line;
-    while (std::getline(infile, line))
-    {
-        if (DEBUG) std::cout << " -- Reading line " << line << std::endl;
-        line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
-        if (!line.empty()) {
-            std::vector<std::string> tokens = tokenize(line);
-            if ((tokens.size()) != 28 && (tokens.size() != 20))
-            {
-                std::cerr << " ** Error in reading input file: cannot interpret line: " << line << std::endl;
-                std::cerr << " ** Error in reading input file: expecting 28(NLO) or 20(LO) tokens, found " << tokens.size() << std::endl;
-                throw std::runtime_error("Cannot parse input file");
-            } 
-
-            //The columns of the file are respectively: uncertainty - Mhh_ll - Mhh_ul - GenCostStar_ll - GenCostStar_ul - 23(nlo)/15(lo) A values
-            if (DEBUG) std::cout << "** DEBUG: uncertainty= :" << tokens.at(0) << ": ; requested uncertainty= :" << unc_ << ":" << std::endl;
             if (tokens.at(0) != unc_) continue; // fill the map with the correct lines of the file corresponding to the correct uncertainty
 
             std::vector<double> A_vec;
