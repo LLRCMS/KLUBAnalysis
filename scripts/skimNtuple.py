@@ -201,6 +201,10 @@ if __name__ == "__main__":
     tagname = "/" + opt.tag if opt.tag else ''
     jobsDir = currFolder + tagname + '/SKIM_' + basename (opt.input)
     jobsDir = jobsDir.rstrip (".txt")
+
+    if opt.EFTrew != 'none':
+        jobsDir = currFolder + tagname + '/SKIM_' + basename (opt.input) + '_EFT_'+ opt.EFTrew
+
     if os.path.exists (jobsDir) : os.system ('rm -f ' + jobsDir + '/*')
     else                        : os.system ('mkdir -p ' + jobsDir)
 
