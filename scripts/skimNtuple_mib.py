@@ -61,6 +61,10 @@ if __name__ == "__main__":
     parser.add_option ('-g', '--genjets'   , dest='genjets'   , help='loop on genjets to determine the number of b hadrons' , default=False)
     parser.add_option ('-w', '--weight'    , dest='weightHH'  , help='histo map for hh reweight'             , default='0')
     parser.add_option ('-a', '--ishhsignal', dest='ishhsignal', help='isHHsignal'                            , default=False)
+    parser.add_option ('--EFTbm',            dest='EFTrew'    , help='EFT benchmarks [SM, 1..12, 1b..7b, 8a, c2scan, manual]', default='none')
+    parser.add_option ('--order',            dest='order'     , help='order of reweight: lo/nlo'             , default='nlo')
+    parser.add_option ('--uncert',           dest='uncert'    , help='uncertainty on the reweight coeffs'    , default='0')
+    parser.add_option ('--cms_fake',         dest='cms_fake'  , help='invert some couplings for 2017/2018'   , default='0')
     parser.add_option ('--kl',               dest='klreweight', help='kl for dynamic reweight'              , default='-999.0')
     parser.add_option ('--kt',               dest='ktreweight', help='kt for dynamic reweight'              , default='-999.0')
     parser.add_option ('--c2',               dest='c2reweight', help='c2 for dynamic reweight'              , default='-999.0')
@@ -242,7 +246,7 @@ if __name__ == "__main__":
         if opt.ishhsignal     : command += " 1 "
         else                  : command += " 0 "
         command += (" " + opt.njets)
-        command += (" " + opt.klreweight + " " + opt.ktreweight + " " + opt.c2reweight + " " + opt.cgreweight + " " + opt.c2greweight)
+        command += (" " + opt.EFTrew + " " + opt.order + " " + opt.uncert + " " + opt.cms_fake + " " + opt.klreweight + " " + opt.ktreweight + " " + opt.c2reweight + " " + opt.cgreweight + " " + opt.c2greweight)
         command += (" " + opt.susyModel)
         command += (" " + opt.PUweights)
         command += (" " + opt.DY_nJets)

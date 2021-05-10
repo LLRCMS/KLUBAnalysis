@@ -41,7 +41,7 @@ bool CheckBit (int number, int bitpos)
 int main ()
 {
     // make tchain of all samples
-    TString filename = "/home/llr/cms/amendola/HHLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signals/GluGluToHHTo2B2Tau_LO_allNodes.txt"; 
+    TString filename = "/home/llr/cms/motta/HHLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signals/GluGluToHHTo2B2Tau_LO_allNodes.txt"; 
     TChain* ch = new TChain ("HTauTauTree/HTauTauTree");
     appendFromFileList (ch, filename);
 
@@ -103,21 +103,21 @@ int main ()
     // TH2F* hMapFolded = new TH2F ("allHHNodeMapFolded", "allHHNodeMapFolded", 90, 0, 1800, 5, 0, 1); // won't be used for reweight
     // TH1F* hMap1D = new TH1F ("allHHNodeMap1D", "allHHNodeMap1D", nbins_mHH, binning_mHH);
 
-    // new binning for dynamic reweight -- again these weird Xanda binnings
-    TFile* fOut = new TFile ("outMap_5Dbinning.root", "recreate");
-    double binning_mHH [56] = { 250,260,270,280,290,300,310,320,330,340,
-                                350,360,370,380,390,400,410,420,430,440, 
-                                450,460,470,480,490,
-                                500,510,520,530,540,550,600,610,620,630,
-                                640,650,660,670,680,690,700,750,800,850,
-                                900,950,1000,1100,1200,1300,1400,1500.,1750,2000,50000};
+    TFile* fOut = new TFile ("allHHnodeMap_5DdiffRew_2018.root", "recreate");
+    double binning_mHH [37] = {250.,270.,290.,310.,330.,
+                               350.,370.,390.,410.,430., 
+                               450.,470.,490.,510.,530.,
+                               550.,570.,590.,610.,630.,
+                               650.,670.,700.,750.,800.,
+                               850.,900.,950.,1000.,1100.,
+                               1200.,1300.,1400.,1500.,1750.,2000.,5000.};
     double binning_cth [5]  = {0.0, 0.4, 0.6, 0.8, 1.0} ;
 
-    int nbins_mHH = 55; // size of arrays - 1
+    int nbins_mHH = 36; // size of arrays - 1
     int nbins_cth = 4;  // size of arrays - 1
     TH2F* hMap = new TH2F ("allHHNodeMap", "allHHNodeMap", nbins_mHH, binning_mHH, nbins_cth, binning_cth );
-    TH2F* hMapFolded = new TH2F ("allHHNodeMapFolded", "allHHNodeMapFolded", 90, 0, 1800, 5, 0, 1); // won't be used for reweight
-    TH1F* hMap1D = new TH1F ("allHHNodeMap1D", "allHHNodeMap1D", nbins_mHH, binning_mHH);
+    // TH2F* hMapFolded = new TH2F ("allHHNodeMapFolded", "allHHNodeMapFolded", 90, 0, 1800, 5, 0, 1); // won't be used for reweight
+    // TH1F* hMap1D = new TH1F ("allHHNodeMap1D", "allHHNodeMap1D", nbins_mHH, binning_mHH);
 
 
 
@@ -185,10 +185,10 @@ int main ()
         float ct1 = vH1.Pz() / TMath::Sqrt(vH1.Pt()*vH1.Pt() + vH1.Pz()*vH1.Pz());
         float ct2 = vH2.Pz() / TMath::Sqrt(vH2.Pt()*vH2.Pt() + vH2.Pz()*vH2.Pz());
 */        
-        hMapFolded->Fill(mHH, TMath::Abs(ct1));
+        // hMapFolded->Fill(mHH, TMath::Abs(ct1));
         // hMap->Fill(mHH, ct1);
         hMap->Fill(mHH, TMath::Abs(ct1));
-        hMap1D->Fill(mHH);
+        // hMap1D->Fill(mHH);
 
         // cout <<  " --> " << ct1 << " " << ct2 << endl;
         // if (TMath::Abs(ct1 + ct2) > 0.0001)cout <<  " --> " << ct1 << " " << ct2 << endl;
@@ -199,7 +199,7 @@ int main ()
 
     fOut->cd();
     hMap->Write();
-    hMapFolded->Write();
-    hMap1D->Write();
+    // hMapFolded->Write();
+    // hMap1D->Write();
 
 }
