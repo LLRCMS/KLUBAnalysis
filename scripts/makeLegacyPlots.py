@@ -60,7 +60,7 @@ def makeSum (sumName, histoList):
     return hsum
 
 # tranform an histo into a TGraphAsymmErrors, with 
-def makeTGraphFromHist (histo, newName):
+def makeTGraphFromHist (histo, newName, isData=False):
     nPoints  = hData.GetNbinsX()
     fX       = []
     fY       = []
@@ -70,6 +70,11 @@ def makeTGraphFromHist (histo, newName):
     feXLeft  = []
 
     for ibin in range (1, nPoints+1):
+
+        if isData and args.blindrange:
+            if ibin >= args.blindrange[0] and ibin <= args.blindrange[1]:
+                continue
+
         x = hData.GetBinCenter(ibin)
         y = hData.GetBinContent(ibin)
         dxRight = hData.GetBinLowEdge(ibin+1) - hData.GetBinCenter(ibin)
@@ -202,6 +207,11 @@ def makeDataOverMCRatioPlot (hData, hMC, newName, horErrs=False):
     feXLeft  = []
 
     for ibin in range (1, nPoints+1):
+
+        if args.blindrange:
+            if ibin >= args.blindrange[0] and ibin <= args.blindrange[1]:
+                continue
+
         num = hData.GetBinContent(ibin)
         den = hMC.GetBinContent(ibin)
         if den > 0:
@@ -280,13 +290,18 @@ def makeNonNegativeHisto (h):
     else:
         h.Scale(integral/integralNew)
 
-def Xaxis2binNumber (histo):
+def Xaxis2binNumber (histo, binwidth):
     Nbins = histo.GetNbinsX()
 
     new_histo = TH1F(histo.GetName(), histo.GetName(), Nbins, 0.5, Nbins+0.5)    
     for j in range(1,Nbins+1):
-        new_histo.SetBinContent(j,histo.GetBinContent(j))
-        new_histo.SetBinError(j,histo.GetBinError(j))
+        if binwidth:
+            bw = histo.GetBinWidth(j)
+            new_histo.SetBinContent(j,histo.GetBinContent(j)/bw)
+            new_histo.SetBinError(j,histo.GetBinError(j)/bw)
+        else:
+            new_histo.SetBinContent(j,histo.GetBinContent(j))
+            new_histo.SetBinError(j,histo.GetBinError(j))
 
     return new_histo
     
@@ -488,6 +503,7 @@ if __name__ == "__main__" :
     parser.add_argument('--label', dest='label', help='x label', default=None)
     parser.add_argument('--channel', dest='channel', help='channel = (MuTau, ETau, TauTau)', default=None)
     parser.add_argument('--year', dest='year', help='year', default="2018")
+    parser.add_argument('--tag', dest='tag', help='additional tag for the output directory', default='')
     # bool options
     parser.add_argument('--log', dest='log', help='use log scale',  action='store_true', default=False)
     parser.add_argument('--no-data', dest='dodata', help='disable plotting data', action='store_false', default=True)
@@ -521,7 +537,8 @@ if __name__ == "__main__" :
     pad2 = None
 
     if args.ratio:
-        pad1 = TPad ("pad1", "pad1", 0, 0.25, 1, 1.0)
+        #pad1 = TPad ("pad1", "pad1", 0, 0.25, 1, 1.0)
+        pad1 = TPad ("pad1", "pad1", 0, 0.31, 1, 1.0)
         pad1.SetFrameLineWidth(3)
         pad1.SetLeftMargin(0.12)
         pad1.SetBottomMargin(0.02)
@@ -637,10 +654,13 @@ if __name__ == "__main__" :
         hQCD = getHisto ("QCD", hBkgs,doOverflow)
         hBkgList.append(hQCD)
         hBkgNameList.append("QCD")
-    hBkgList     = [hTT       , hDY        ] # list for stack
-    hBkgNameList = ["t#bar{t}", "Drell-Yan"] # list for legend
+    hBkgList     .append(hTT)
+    hBkgList     .append(hDY) # list for stack
+    hBkgNameList .append("t#bar{t}") # list for legend
+    hBkgNameList .append("Drell-Yan") # list for legend
 
     hData = getHisto("data_obs", hDatas , doOverflow)
+    hData.SetBinErrorOption(1)  # Set correct error for data: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PoissonErrorBars
 
     # remove all data from blinding region before doing anything else
     if args.blindrange:
@@ -650,6 +670,7 @@ if __name__ == "__main__" :
             center = hData.GetBinCenter(ibin)
             if center > blow and center < bup:
                 hData.SetBinContent(ibin, 0)
+                hData.SetBinError(ibin, 0)
 
     if args.doStatSystBand:
         # these two lists are used for the calculation of the syst error band. They must:
@@ -686,13 +707,31 @@ if __name__ == "__main__" :
     #################### PERFORM BIN-NUMBER X-AXIS TRANSFORMATION #######################
     if args.binNXaxis:
         for i in range(len(hBkgList)):
-            hBkgList[i] = Xaxis2binNumber(hBkgList[i])
+            hBkgList[i] = Xaxis2binNumber(hBkgList[i],args.binwidth)
         for key in hSigs: 
-            hSigs[key] = Xaxis2binNumber(hSigs[key])
-        hData = Xaxis2binNumber(hData)
+            hSigs[key] = Xaxis2binNumber(hSigs[key],args.binwidth)
+
+        # Save names
+        binNames = []
+        for ibin in range (1, hData.GetNbinsX()+1):
+            edgeDown = round(hData.GetBinLowEdge(ibin),3)
+            edgeUp   = round(hData.GetBinLowEdge(ibin+1),3)
+            binNames.append( "{}-{}".format(edgeDown,edgeUp) )
+
+        if args.blindrange:
+            print 'Original blinding:', args.blindrange
+            # Save binN for blinding ranges in case plotting vs binNumber
+            blowN = hData.FindBin(float(args.blindrange[0]))
+            if blowN == 1: blowN = 2 # have at least one bin unblinded
+            bupN  = hData.FindBin(float(args.blindrange[1]))
+            args.blindrange = [blowN, bupN]
+            print 'New blinding for binNXaxis plots:', args.blindrange
+
+        hData = Xaxis2binNumber(hData,args.binwidth)
+        hData.SetBinErrorOption(1) # Set correct error for data: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PoissonErrorBars
 
     hDataNonScaled = hData.Clone("hDataNonScaled")
-    gData = makeTGraphFromHist(hData, "grData")
+    gData = makeTGraphFromHist(hData, "grData", True)
 
     ######################### SET COLORS ####################
     sigColors = {}
@@ -754,7 +793,7 @@ if __name__ == "__main__" :
     for i, name in enumerate (sigNameList): print "Integral ", hSigs[sigList[i]].GetName(), " : ", hSigs[sigList[i]].Integral(), " - ", hSigs[sigList[i]].Integral(-1,-1)
     
     # Store yields in a txt file for reference
-    with open('./LegacyPlots/Legacy' + args.year + '/' + args.channel + '/' + args.sel+'/yields_'+args.var+'_'+args.sel+'_'+args.reg+'.txt','w') as yields_file:
+    with open('./LegacyPlots/Legacy' + args.year + '/' + args.channel + '_' + args.tag + '/' + args.sel+'/yields_'+args.var+'_'+args.sel+'_'+args.reg+'.txt','w') as yields_file:
         yields_file.write('=== Legacy' + args.year + '/' + args.channel + '/' + args.sel+'/'+args.reg+'/'+args.var+' ===\n')
         for h in hBkgList: yields_file.write("Integral: "+h.GetName()+" : "+str(h.Integral())+" - "+str(h.Integral(-1,-1))+"\n")
         for n in hDatas  : yields_file.write("Integral: "+hDatas[n].GetName()+" : "+str(hDatas[n].Integral())+" - "+str(hDatas[n].Integral(-1,-1))+"\n")
@@ -806,7 +845,7 @@ if __name__ == "__main__" :
     ylabel = "Events"    
     if args.binwidth:
         ylabel = "Events/Bin Width"
-        if args.label and "GeV" in args.label: ylabel +=" GeV"
+        #if args.label and "GeV" in args.label: ylabel +=" GeV"
     bkgStack.GetYaxis().SetTitle(ylabel)
     
     intBkg = bkgStack.GetStack().Last().Integral()
@@ -908,7 +947,8 @@ if __name__ == "__main__" :
         grUncertStack = makeStatSystUncertaintyBand(bkgSum, hSystBkgList, hSystBkgNameList, systCfgs, args.channel, sel_qcd, hShapes, hShapesNameList, args.binwidth, doOverflow)
         #print("-----------------------------------------------------------------------")
         #print("Ratio plot stat+syst band calculation info")
-        grUncertRatio = makeStatSystUncertaintyBand(bkgSumNS, hSystBkgListNS, hSystBkgNameList, systCfgs, args.channel, sel_qcd, hShapes, hShapesNameList, False, doOverflow)         
+        #grUncertRatio = makeStatSystUncertaintyBand(bkgSumNS, hSystBkgListNS, hSystBkgNameList, systCfgs, args.channel, sel_qcd, hShapes, hShapesNameList, False, doOverflow)
+        grUncertRatio = makeStatSystUncertaintyBand(bkgSum, hSystBkgList, hSystBkgNameList, systCfgs, args.channel, sel_qcd, hShapes, hShapesNameList, args.binwidth, doOverflow)
         #print("-----------------------------------------------------------------------")
     else: 
         grUncertStack = makeStatUncertaintyBand(bkgSum)
@@ -926,7 +966,7 @@ if __name__ == "__main__" :
         for key in hSigs: hSigs[key].Draw("hist same")
     if args.dodata:
         removeHErrors(gData)
-        removeEmptyPoints(gData)
+        #removeEmptyPoints(gData) # commented since the blinding has been moved to makeTGraphFromHist
         gData.Draw("P Z same") # Z: no small line at the end of error bar
 
 
@@ -1031,7 +1071,8 @@ if __name__ == "__main__" :
         bkgStack.GetXaxis().SetLabelSize(0.00)
 
         c1.cd()
-        pad2 = TPad ("pad2", "pad2", 0, 0.0, 1, 0.2496)
+        #pad2 = TPad ("pad2", "pad2", 0, 0.0, 1, 0.2496)
+        pad2 = TPad ("pad2", "pad2", 0, 0.0, 1, 0.3096)
         pad2.SetLeftMargin(0.12)
         pad2.SetTopMargin(0.045)
         pad2.SetBottomMargin(0.4)
@@ -1067,7 +1108,7 @@ if __name__ == "__main__" :
 
         hRatio.SetStats(0)
 
-        removeEmptyPoints (grRatio)
+        removeEmptyPoints(grRatio) # commented since the blinding has been moved to makeDataOverMCRatioPlot
         
         # SET THE Y-AXIS OF THE RATIO PLOT BASED ON THE VALUES OF THE RATIO ITSELF -> IN THIS WAY THE PLOTS WILL ALWAYS BE MEANINGFUL
         if args.dynamicRatioY:
@@ -1087,8 +1128,20 @@ if __name__ == "__main__" :
             hRatio.SetMinimum(0)
             hRatio.SetMaximum(2)
 
+        if args.binwidth:
+            for ibin in range (1, hRatio.GetNbinsX()+1):
+                hRatio.GetXaxis().SetBinLabel(ibin,binNames[ibin-1])
+
+            hRatio.LabelsDeflate("X")
+            hRatio.LabelsOption("v")
+            hRatio.GetXaxis().SetLabelFont(43)
+            hRatio.GetXaxis().SetLabelSize(10)
+            hRatio.GetXaxis().SetLabelOffset(0.01)
+
+            hRatio.GetXaxis().SetTitleOffset(5.4)
+
         hRatio.Draw("axis")
-        
+
         grRatio.Draw("0P Z same") # Z : no small limes at the end of points
         xmin =hRatio.GetXaxis().GetXmin()
         xmax = hRatio.GetXaxis().GetXmax()
@@ -1114,7 +1167,7 @@ if __name__ == "__main__" :
 
 
     if args.printplot:
-        saveName = './LegacyPlots/Legacy' + args.year + '/' + args.channel + '/' + args.sel + "/plot_" + args.var + "_" + args.sel +"_" + args.reg
+        saveName = './LegacyPlots/Legacy' + args.year + '/' + args.channel + '_' + args.tag + '/' + args.sel + "/plot_" + args.var + "_" + args.sel +"_" + args.reg
         if args.log: saveName = saveName+"_log"
         if args.binNXaxis: saveName = saveName+"_binNXaxis"
         if args.binwidth: saveName = saveName+"_binWidth"
