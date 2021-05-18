@@ -9,6 +9,7 @@ import datetime
 isCondor = 'True'    # allowed options: 'True' - 'False'
 year     = '2016'    # allowed options: '2016' - '2017' - 2018'
 channel  = 'TauTau'  # allowed options: 'ETau' - 'MuTau' - TauTau'
+additionalTag = ''
 tagDir   = 'analysis_2021_03_01'
 
 # Variations to be run:
@@ -66,7 +67,10 @@ uncertainties = [
 for uncertainty in uncertainties:
 
     # Create output dir
-    outDir = tagDir+'/'+channel+'_'+year+'/'+uncertainty[0]
+    if additionalTag == '':
+        outDir = tagDir+'/'+channel+'_'+year+'/'+uncertainty[0]
+    else:
+        outDir = tagDir+'/'+channel+'_'+year+'_'+additionalTag+'/'+uncertainty[0]
     os.system('mkdir -p ' + outDir)
 
     # --- Selection Config ---
