@@ -309,10 +309,15 @@ int main (int argc, char** argv)
   if (EFTbm == "c2scan") HHrewType = kC2scan;
   if (EFTbm == "manual") {
     HHrewType = kOverRew;
-    if (kl_rew <= -99.0 or kt_rew <= -99.0 or c2_rew <= -99.0 or cg_rew <= -99.0 or c2g_rew) {
-      cout << "ERROR! You requested the manual override of the coupling, but probably you forgot to set the couplings!" << endl;
+    if (kl_rew <= -990.0 or kt_rew <= -990.0 or c2_rew <= -990.0 or cg_rew <= -990.0 or c2g_rew <= -990.0) {
+      cout << "ERROR! You requested the manual override of the coupling, but probably you forgot to set the couplings! Exiting!" << endl;
       return 1;
     }
+  }
+  if ( (kl_rew > -990.0 or kt_rew > -990.0 or cg_rew > -990.0 or c2g_rew > -990.0) and (HHrewType != kOverRew) ) // c2_rew not in this check as HHrewTypeList::kC2scan allows for reweighting only c2
+  {
+    cout << "ERROR! You requested reweighting of type " << HHrewType << " which is not manual, but you also set the couplings manually! Exiting!" << endl;
+    return 1;
   }
   cout << "** INFO: HH reweight type requested is " << HHrewType << " [ 0: no reweight, 1: differential reweight for fixed benchmark, 2: differential reweight for c2 scan, 3: differential reweight with couplings manual override ]" << endl; 
 
