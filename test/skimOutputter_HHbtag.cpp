@@ -172,21 +172,18 @@ int main (int argc, char** argv)
   inputChain->SetBranchAddress("bjet1_bID_deepFlavor", &bjet1bIDdeepFlavor);
   inputChain->SetBranchAddress("bjet2_bID_deepFlavor", &bjet2bIDdeepFlavor);
 
-  float loosebTagWP, mediumbTagWP;
+  float loosebTagWP;
   if      (YEAR == 2016)
   {
     loosebTagWP  = 0.0614;
-    mediumbTagWP = 0.3093;
   }
   else if (YEAR == 2017)
   {
     loosebTagWP  = 0.0521;
-    mediumbTagWP = 0.3033;
   }
   else  /*YEAR == 2018*/
   {
     loosebTagWP  = 0.0494;
-    mediumbTagWP = 0.2770;
   }
 
   // De-activate all branches

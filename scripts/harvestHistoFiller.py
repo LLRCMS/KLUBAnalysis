@@ -9,10 +9,14 @@ import ROOT
 # Configure these depending on what you want to harves
 year    = '2016'  # allowed options: 2016 - 2017 - 2018
 channel = 'ETau'  # allowed options: ETau - MuTau - TauTau
+additionalTag = ''
 tagDir  = 'analysis_2021_03_01'
 
 # Create input dir path
-tagDir = tagDir+'/'+channel+'_'+year
+if additionalTag == '':
+    tagDir = tagDir+'/'+channel+'_'+year
+else:
+    tagDir = tagDir+'/'+channel+'_'+year+'_'+additionalTag
 
 # Create list of all uncertainty subdirectories
 uncDirs = os.listdir(tagDir)

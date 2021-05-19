@@ -189,7 +189,7 @@ int main (int argc, char** argv)
       cerr << "missing input parameters : argc is: " << argc << endl ;
       cerr << "usage: " << argv[0]
            << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
-           << " xsecScale(stitch) HTMax(stitch) HTMin(stitch) isTTBar DY_Nbs HHreweightFile TT_stitchType"
+           << " xsecScale(stitch) HTMax(stitch) HTMin(stitch) isTTBar DY_Nbs TT_stitchType"
            << " runMT2 isHHsignal NjetRequired(stitch) EFTbm order_rew uncertainty_rew cms_fake_rew kl_rew kt_rew c2_rew cg_rew c2g_rew susyModel" << endl ; 
       return 1;
     }
@@ -249,65 +249,59 @@ int main (int argc, char** argv)
     }
   cout << "** INFO: loop on gen jet to do a b-based DY split? " << DY_Nbs << " " << DY_tostitch << endl;
 
-  TFile* HHreweightFile = 0;
-  TString doreweight = argv[12];
-  cout << "** INFO: reweightin file for non-resonant hh is: " << doreweight << " [ 0 for no reweghting done ]" << endl;
-  if (doreweight != TString("0"))
-    HHreweightFile = new TFile (doreweight);
-
-  int TT_stitchType = atoi(argv[13]);
+  int TT_stitchType = atoi(argv[12]);
   if (!isTTBar) TT_stitchType = 0; // just force if not TT...
   cout << "** INFO: TT stitch type: " << TT_stitchType << " [0: no stitch , 1: fully had, 2: semilept t, 3: semilept tbar, 4: fully lept, 5: semilept all]" << endl;
 
   bool runMT2 = false;
-  string opt14 (argv[14]);
+  string opt14 (argv[13]);
   if (opt14 == "1") runMT2 = true;
   cout << "** INFO: running MT2: " << runMT2 << endl;
 
   bool isHHsignal = false;
-  string opt15 (argv[15]);
+  string opt15 (argv[14]);
   if (opt15 == "1") isHHsignal = true;
   cout << "** INFO: is HH signal: " << isHHsignal << endl;
 
-  int NjetRequired = atoi(argv[16]);
+  int NjetRequired = atoi(argv[15]);
   cout << "** INFO: requiring exactly " << NjetRequired << " outgoing partons [<0 for no cut on this]" << endl;
 
   // reweight file according to NLO differential reweighting procedure https://gitlab.cern.ch/hh/eft-benchmarks
-  string EFTbm = argv[17];
-  string order_rew = argv[18];
+  string EFTbm = argv[16];
+  string order_rew = argv[17];
   string uncertainty_rew = "\"\"";
-  if (argv[19] != string("0")) uncertainty_rew = argv[19];
+  if (argv[18] != string("0")) uncertainty_rew = argv[18];
   bool cms_fake_rew = false;
-  string opt20 (argv[20]);
+  string opt20 (argv[19]);
   if (opt20 == "1") cms_fake_rew = true;
-  float kl_rew = atof(argv[21]);
-  float kt_rew = atof(argv[22]);
-  float c2_rew = atof(argv[23]);
-  float cg_rew = atof(argv[24]);
-  float c2g_rew = atof(argv[25]);
+  float kl_rew = atof(argv[20]);
+  float kt_rew = atof(argv[21]);
+  float c2_rew = atof(argv[22]);
+  float cg_rew = atof(argv[23]);
+  float c2g_rew = atof(argv[24]);
   cout << "** INFO: EFT reweighting asked for benchmark " << EFTbm << " at order " << order_rew << endl;
   if (c2_rew > -999.0) cout << "** INFO: EFT reweighting overridden with coplings kl=" << kl_rew << " ; kt=" << kt_rew << " ; c2=" << c2_rew << " ; cg=" << cg_rew << " ; c2g=" << c2g_rew << " at order " << order_rew << "[all -999 means no override; only c2!=-999 means only c2 overridden]" << endl;
 
-  string susyModel = argv[26];
+  string susyModel = argv[25];
   cout << "** INFO: requesting SUSY model to be: -" << susyModel << "- [NOTSUSY: no request on this parameter]" << endl;
 
   // external weight file for PUreweight - sample per sample
-  TString PUreweightFile = argv[27];
+  TString PUreweightFile = argv[26];
   cout << "** INFO: PU reweight external file: " << PUreweightFile << endl;
   
-  int DY_nJets  = atoi(argv[28]);
-  int DY_nBJets = atoi(argv[29]);
+  int DY_nJets  = atoi(argv[27]);
+  int DY_nBJets = atoi(argv[28]);
   cout << "** INFO: nJets/nBjets for DY bin weights: " << DY_nJets << " / " << DY_nBJets << endl;
-  int isDYI = atoi(argv[30]);
+  int isDYI = atoi(argv[29]);
   bool isDY = (isDYI == 1) ? true : false;
 
   bool isttHToNonBB = false;
-  int isttHToNonBBI = atoi(argv[31]);
+  int isttHToNonBBI = atoi(argv[30]);
   if (isttHToNonBBI == 1) isttHToNonBB = true;
   cout << "** INFO: isttHToNonBB: " << isttHToNonBB << endl;
 
   bool isHHNLO = false;
-  int isHHNLOI = atoi(argv[32]);
+  int isHHNLOI = atoi(argv[31]);
   if (isHHNLOI == 1) isHHNLO = true;
   cout << "** INFO: isHHNLO: " << isHHNLO << endl;
 
@@ -324,10 +318,15 @@ int main (int argc, char** argv)
   if (EFTbm == "c2scan") HHrewType = kC2scan;
   if (EFTbm == "manual") {
     HHrewType = kOverRew;
-    if (kl_rew <= -99.0 or kt_rew <= -99.0 or c2_rew <= -99.0 or cg_rew <= -99.0 or c2g_rew) {
-      cout << "ERROR! You requested the manual override of the coupling, but probably you forgot to set the couplings!" << endl;
+    if (kl_rew <= -990.0 or kt_rew <= -990.0 or c2_rew <= -990.0 or cg_rew <= -990.0 or c2g_rew <= -990.0) {
+      cout << "ERROR! You requested the manual override of the coupling, but probably you forgot to set the couplings! Exiting!" << endl;
       return 1;
     }
+  }
+  if ( (kl_rew > -990.0 or kt_rew > -990.0 or cg_rew > -990.0 or c2g_rew > -990.0) and (HHrewType != kOverRew) ) // c2_rew not in this check as HHrewTypeList::kC2scan allows for reweighting only c2
+  {
+    cout << "ERROR! You requested reweighting of type " << HHrewType << " which is not manual, but you also set the couplings manually! Exiting!" << endl;
+    return 1;
   }
   cout << "** INFO: HH reweight type requested is " << HHrewType << " [ 0: no reweight, 1: differential reweight for fixed benchmark, 2: differential reweight for c2 scan, 3: differential reweight with couplings manual override ]" << endl; 
 
@@ -1410,8 +1409,8 @@ int main (int argc, char** argv)
 
 
 	  if (HHrewType == kDiffRew)      HHweight = hhreweighter->getWeight(mHH, ct1);
-    else if (HHrewType == kC2scan)  HHweight = hhreweighter->getWeight(mHH, ct1, c2_rew);
-    else if (HHrewType == kOverRew) HHweight = hhreweighter->getWeight(mHH, ct1, kl_rew, kt_rew, c2_rew, cg_rew, c2g_rew);
+	  else if (HHrewType == kC2scan)  HHweight = hhreweighter->getWeight(mHH, ct1, c2_rew);
+	  else if (HHrewType == kOverRew) HHweight = hhreweighter->getWeight(mHH, ct1, kl_rew, kt_rew, c2_rew, cg_rew, c2g_rew);
 
 
 	  theSmallTree.m_genMHH = mHH;
