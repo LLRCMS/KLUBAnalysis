@@ -188,8 +188,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
 
         systsShape = ["CMS_scale_t_13TeV_"+opt.year+"_DM0","CMS_scale_t_13TeV_"+opt.year+"_DM1","CMS_scale_t_13TeV_"+opt.year+"_DM10","CMS_scale_t_13TeV_"+opt.year+"_DM11",
                       "CMS_scale_es_13TeV_"+opt.year+"_DM0", "CMS_scale_es_13TeV_"+opt.year+"_DM1", "CMS_scale_mes_13TeV_"+opt.year,
-                      "CMS_JES_FlavQCD", "CMS_JES_RelBal", "CMS_JES_HF", "CMS_JES_BBEC1", "CMS_JES_EC2", "CMS_JES_Abs", "CMS_JES_BBEC1_"+opt.year, "CMS_JES_EC2_"+opt.year,
-                      "CMS_JES_Abs_"+opt.year, "CMS_JES_HF_"+opt.year, "CMS_JES_RelSample_"+opt.year]
+                      "CMS_scale_j_FlavQCD", "CMS_scale_j_RelBal", "CMS_scale_j_HF", "CMS_scale_j_BBEC1", "CMS_scale_j_EC2", "CMS_scale_j_Abs", "CMS_scale_j_BBEC1_"+opt.year,
+                      "CMS_scale_j_EC2_"+opt.year, "CMS_scale_j_Abs_"+opt.year, "CMS_scale_j_HF_"+opt.year, "CMS_scale_j_RelSample_"+opt.year]
                       #"CMS_scale_j_13TeV_"+opt.year+""]
 
         # If running without the TES/EES/JES... uncomment the following line:
@@ -226,26 +226,27 @@ def  writeCard(backgrounds,signals,select,region=-1) :
 
         if opt.shapeUnc > 0:
             for name in systsShape:
+                CMS_name = name.replace("scale_j","JES")
                 for proc in backgrounds:
                     if "QCD" in proc: continue
                     # If one of the up/down templates has integral <= 0 we don't apply the uncertainty to that background (signal)
                     # for that particular category/channel/year (same for all other uncertainties below)
-                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,  regionSuffix[region], variable[theCat], name))
-                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable[theCat], name))
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,  regionSuffix[region], variable[theCat], CMS_name))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable[theCat], CMS_name))
                     if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                     proc_syst[proc][name] = ["shape", 1.]   #applying jes or tes to all MC backgrounds
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,  regionSuffix[region], variable[theCat], name))
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable[theCat], name))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,  regionSuffix[region], variable[theCat], CMS_name))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable[theCat], CMS_name))
                     shiftShapes_newName.append(proc+"_"+name+"Up")
                     shiftShapes_newName.append(proc+"_"+name+"Down")
 
                 for proc in signals:
-                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,  regionSuffix[region], variable[theCat], name))
-                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable[theCat], name))
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,  regionSuffix[region], variable[theCat], CMS_name))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable[theCat], CMS_name))
                     if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
                     proc_syst[proc][name] = ["shape", 1.]   #applying jes or tes to all signals
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,   regionSuffix[region],variable[theCat],  name))
-                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable[theCat],  name))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up".format(proc, select,   regionSuffix[region],variable[theCat],  CMS_name))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region],variable[theCat],  CMS_name))
                     shiftShapes_newName.append(proc+"_"+name+"Up")
                     shiftShapes_newName.append(proc+"_"+name+"Down")
 
@@ -297,7 +298,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_newName.append(proc+"_"+CMS_customTauIdSFname+"Down")
 
             # Add PUjetID SF uncertainty
-            CMS_PUjetIDname = "CMS_PUJET_ID_"+opt.year
+            CMS_PUjetIDname = "CMS_eff_j_PUJET_id_"+opt.year
             PUjetIDname = "PUjetIDSF"
             systsShape.append(CMS_PUjetIDname)
             for proc in backgrounds:
@@ -321,7 +322,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 shiftShapes_newName.append(proc+"_"+CMS_PUjetIDname+"Down")
 
             # Add JER uncertainty
-            CMS_JERname = "CMS_JER_"+opt.year
+            CMS_JERname = "CMS_res_j_"+opt.year
             JERname = "JER"
             systsShape.append(CMS_JERname)
             for proc in backgrounds:
@@ -467,7 +468,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             else:
                 PTs = ["20to25", "25to30", "30to35", "35to40", "40toInf"]
             for PTname in PTs:
-                CMS_tauPTname = "CMS_tauid_pt"+PTname+"_"+opt.year
+                CMS_tauPTname = "CMS_eff_t_id_pt"+PTname+"_"+opt.year
                 tauPTname = "tauid_pt" + PTname
                 systsShape.append(CMS_tauPTname)
                 for proc in backgrounds:
@@ -608,8 +609,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             file.write(line)
         file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
 
-        file.write    ('theory group = BR_hbb BR_htt THU_HH pdf_ggHH alpha_s_ggHH m_top_unc_ggHH QCDscale_qqHH pdf_qqHH\n')
-        file.write    ('theory_xsonly group = THU_HH pdf_ggHH alpha_s_ggHH m_top_unc_ggHH QCDscale_qqHH pdf_qqHH\n')
+        file.write    ('theory group = BR_hbb BR_htt THU_HH pdf_Higgs_ggHH alpha_s_ggHH m_top_unc_ggHH QCDscale_qqHH pdf_Higgs_qqHH\n')
+        file.write    ('theory_xsonly group = THU_HH pdf_Higgs_ggHH alpha_s_ggHH m_top_unc_ggHH QCDscale_qqHH pdf_Higgs_qqHH\n')
         if opt.dynamQCD:
             file.write("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(selectName))
 
