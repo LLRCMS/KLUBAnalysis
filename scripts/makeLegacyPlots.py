@@ -1161,9 +1161,6 @@ if __name__ == "__main__" :
             x_min = axis.GetXmin()
             x_max = axis.GetXmax()
 
-            # some dummy edge values
-            
-
             # create edge labels, they don't even have to be aligned to ticks
             labels = []
             for i, val in enumerate(binNames):
