@@ -709,9 +709,14 @@ if __name__ == "__main__" :
         # Save names 
         binNames = []
         for ibin in range (1, hData.GetNbinsX()+1):
-            edgeDown = round(hData.GetBinLowEdge(ibin),3)
-            edgeUp   = round(hData.GetBinLowEdge(ibin+1),3)
-            binNames.append( "{}-{}".format(edgeDown,edgeUp) )
+	    if ibin == 1:
+	       binNames.append("0.000")
+	    	       
+	    else:
+               edgeUp   = round(hData.GetBinLowEdge(ibin),3)
+               binNames.append( "{}".format(edgeUp) )
+	
+	binNames.append("1.000")
 
         for i in range(len(hBkgList)):
             hBkgList[i] = Xaxis2binNumber(hBkgList[i],args.binwidth)
@@ -1141,16 +1146,46 @@ if __name__ == "__main__" :
             hRatio.SetMaximum(2)
 
         if args.binNXaxis:
-            for ibin in range (1, hRatio.GetNbinsX()+1):
-                hRatio.GetXaxis().SetBinLabel(ibin,binNames[ibin-1])
-                hRatio.GetXaxis().ChangeLabel(ibin,45,12,32,-1,-1,binNames[ibin-1])
-		
+
             hRatio.SetNdivisions(-414)	
 
-            hRatio.GetXaxis().SetLabelOffset(0.02)
-            hRatio.GetXaxis().SetTitleOffset(5.4)
+            axis = hRatio.GetXaxis()
+
+            # disable default axis labels
+            axis.SetBinLabel(1, "")
+
+            # get margins and ranges
+            l = pad2.GetLeftMargin()
+            r = pad2.GetRightMargin()
+            b = pad2.GetBottomMargin()
+            x_min = axis.GetXmin()
+            x_max = axis.GetXmax()
+
+            # some dummy edge values
+            
+
+            # create edge labels, they don't even have to be aligned to ticks
+            labels = []
+            for i, val in enumerate(binNames):
+	       
+               x = l + (1 - r - l) * i / axis.GetNbins()
+               y = b - 0.03
+	       
+               label = TLatex(x, y, val)
+               label.SetNDC(True)
+               label.SetTextFont(43)
+               label.SetTextSize(20)
+               label.SetTextAlign(32)
+               label.SetTextAngle(90)
+
+               labels.append(label)
+	       
+        hRatio.GetXaxis().SetTitleOffset(5.4)
 
         hRatio.Draw("axis")
+
+        for label in labels:
+            label.Draw()            
 
         grRatio.Draw("0P Z same") # Z : no small limes at the end of points
         xmin =hRatio.GetXaxis().GetXmin()
