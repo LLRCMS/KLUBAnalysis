@@ -1161,6 +1161,9 @@ if __name__ == "__main__" :
             x_min = axis.GetXmin()
             x_max = axis.GetXmax()
 
+            # some dummy edge values
+            
+
             # create edge labels, they don't even have to be aligned to ticks
             labels = []
             for i, val in enumerate(binNames):
@@ -1171,18 +1174,18 @@ if __name__ == "__main__" :
                label = TLatex(x, y, val)
                label.SetNDC(True)
                label.SetTextFont(43)
-               label.SetTextSize(20)
+               label.SetTextSize(15)
                label.SetTextAlign(32)
                label.SetTextAngle(90)
 
                labels.append(label)
 	       
-        hRatio.GetXaxis().SetTitleOffset(5.4)
+               hRatio.GetXaxis().SetTitleOffset(5.4)
 
         hRatio.Draw("axis")
 
-        for label in labels:
-            label.Draw()            
+        if args.binNXaxis:
+               for label in labels:label.Draw()            
 
         grRatio.Draw("0P Z same") # Z : no small limes at the end of points
         xmin =hRatio.GetXaxis().GetXmin()
