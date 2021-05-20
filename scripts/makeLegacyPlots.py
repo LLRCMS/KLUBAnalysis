@@ -1172,7 +1172,11 @@ if __name__ == "__main__" :
                label.SetNDC(True)
                label.SetTextFont(43)
                label.SetTextSize(15)
-               label.SetTextAlign(32)
+	       
+	       if i == 0: label.SetTextAlign(33)
+	       elif i == hRatio.GetNbinsX(): label.SetTextAlign(31)
+	       else:label.SetTextAlign(32)
+	       
                label.SetTextAngle(90)
 
                labels.append(label)
