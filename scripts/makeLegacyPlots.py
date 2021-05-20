@@ -497,7 +497,7 @@ if __name__ == "__main__" :
     parser.add_argument('--sel', dest='sel', help='selection name', default=None)
     parser.add_argument('--name', dest='name', help='selection name for plot', default=None)
     parser.add_argument('--dir', dest='dir', help='analysis output folder name', default="./")
-    parser.add_argument('--tag', dest='tag', help='plots output folder name', default="./")
+    #parser.add_argument('--tag', dest='tag', help='plots output folder name', default="./")
     parser.add_argument('--reg', dest='reg', help='region name', default=None)
     parser.add_argument('--title', dest='title', help='plot title', default=None)
     parser.add_argument('--label', dest='label', help='x label', default=None)
@@ -706,17 +706,18 @@ if __name__ == "__main__" :
 
     #################### PERFORM BIN-NUMBER X-AXIS TRANSFORMATION #######################
     if args.binNXaxis:
-        for i in range(len(hBkgList)):
-            hBkgList[i] = Xaxis2binNumber(hBkgList[i],args.binwidth)
-        for key in hSigs: 
-            hSigs[key] = Xaxis2binNumber(hSigs[key],args.binwidth)
-
-        # Save names
+        # Save names 
         binNames = []
         for ibin in range (1, hData.GetNbinsX()+1):
             edgeDown = round(hData.GetBinLowEdge(ibin),3)
             edgeUp   = round(hData.GetBinLowEdge(ibin+1),3)
             binNames.append( "{}-{}".format(edgeDown,edgeUp) )
+
+        for i in range(len(hBkgList)):
+            hBkgList[i] = Xaxis2binNumber(hBkgList[i],args.binwidth)
+ 
+        for key in hSigs: 
+            hSigs[key] = Xaxis2binNumber(hSigs[key],args.binwidth)
 
         if args.blindrange:
             print 'Original blinding:', args.blindrange
@@ -729,6 +730,7 @@ if __name__ == "__main__" :
 
         hData = Xaxis2binNumber(hData,args.binwidth)
         hData.SetBinErrorOption(1) # Set correct error for data: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PoissonErrorBars
+
 
     hDataNonScaled = hData.Clone("hDataNonScaled")
     gData = makeTGraphFromHist(hData, "grData", True)
@@ -841,6 +843,16 @@ if __name__ == "__main__" :
     if args.label: bkgStack.GetXaxis().SetTitle (args.label)
     else: bkgStack.GetXaxis().SetTitle(args.var)
 
+    # This is necessary to have the correct ticks on the horizontal axisS
+    if args.binNXaxis:
+        for ibin in range (1, bkgStack.GetHistogram().GetNbinsX()+1):
+            bkgStack.GetXaxis().SetBinLabel(ibin,"")
+        
+	bkgStack.GetXaxis().SetNdivisions(-510)	
+
+    else:
+        bkgStack.GetXaxis().SetNdivisions(510)	
+		
     # width = ((bkgStack.GetXaxis().GetXmax() - bkgStack.GetXaxis().GetXmin())/bkgStack.GetStack().Last().GetNbinsX()) --> WE WRITE ONLY 'BINWIDTH' AT THE DENOMINATOR
     ylabel = "Events"    
     if args.binwidth:
@@ -1128,16 +1140,14 @@ if __name__ == "__main__" :
             hRatio.SetMinimum(0)
             hRatio.SetMaximum(2)
 
-        if args.binwidth:
+        if args.binNXaxis:
             for ibin in range (1, hRatio.GetNbinsX()+1):
                 hRatio.GetXaxis().SetBinLabel(ibin,binNames[ibin-1])
+                hRatio.GetXaxis().ChangeLabel(ibin,45,12,32,-1,-1,binNames[ibin-1])
+		
+            hRatio.SetNdivisions(-414)	
 
-            hRatio.LabelsDeflate("X")
-            hRatio.LabelsOption("v")
-            hRatio.GetXaxis().SetLabelFont(43)
-            hRatio.GetXaxis().SetLabelSize(10)
-            hRatio.GetXaxis().SetLabelOffset(0.01)
-
+            hRatio.GetXaxis().SetLabelOffset(0.02)
             hRatio.GetXaxis().SetTitleOffset(5.4)
 
         hRatio.Draw("axis")
@@ -1153,7 +1163,7 @@ if __name__ == "__main__" :
 
         grUncertRatio.SetFillColor(kGray+2)
         grUncertRatio.SetFillStyle(3002)
-        grUncertRatio.Draw("e2")
+        grUncertRatio.Draw("e2")	
 
         pad2.RedrawAxis()
         pad2.RedrawAxis("g") #otherwise no grid..
@@ -1177,13 +1187,3 @@ if __name__ == "__main__" :
 
         c1.SaveAs (saveName+".pdf")
         c1.SaveAs (saveName+".png")
-
-
-
-
-
-
-
-
-
-
