@@ -1181,7 +1181,7 @@ if __name__ == "__main__" :
 
                labels.append(label)
 	       
-               hRatio.GetXaxis().SetTitleOffset(5.4)
+        hRatio.GetXaxis().SetTitleOffset(5.4)
 
         hRatio.Draw("axis")
 
