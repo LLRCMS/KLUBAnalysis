@@ -85,7 +85,7 @@ def makeTGraphFromHist (histo, newName, isData=False):
 	dyUp  = hData.GetBinError(ibin)
         dyLow = hData.GetBinError(ibin)
 		
-	if (y == 0.0 and ibin <= args.blindrange[0] and args.binNXaxis):
+	if (y == 0.0 and ibin <= args.blindrange[0] and args.binNXaxis and args.binwidth):
 	
 	    dyUp = 1.841/(float(binNames[ibin])-float(binNames[ibin-1]))
 	    dyDown = 1.841/(float(binNames[ibin])-float(binNames[ibin-1])) 
@@ -237,7 +237,7 @@ def makeDataOverMCRatioPlot (hData, hMC, newName, horErrs=False):
 	    
 	    # This way works also for the plot as a function of the DNN bin number
 
-	    if (num == 0.0 and ibin <= args.blindrange[0] and args.binNXaxis):
+	    if (num == 0.0 and ibin <= args.blindrange[0] and args.binNXaxis and args.binwidth):
 	
 	        feYUp.append(1.841/((float(binNames[ibin])-float(binNames[ibin-1]))*den))
 	        feYDown.append(1.841/((float(binNames[ibin])-float(binNames[ibin-1]))*den))
@@ -1198,7 +1198,7 @@ if __name__ == "__main__" :
                x = l + (1 - r - l) * i / axis.GetNbins()
                y = b - 0.03
 	       
-               label = TLatex(x, y, val)
+               label = TLatex(x, y, "{:.3f}".format(float(val)))
                label.SetNDC(True)
                label.SetTextFont(43)
                label.SetTextSize(15)
