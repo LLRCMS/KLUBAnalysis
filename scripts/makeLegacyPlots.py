@@ -74,20 +74,34 @@ def makeTGraphFromHist (histo, newName, isData=False):
         if isData and args.blindrange:
             if ibin >= args.blindrange[0] and ibin <= args.blindrange[1]:
                 continue
-
+		
         x = hData.GetBinCenter(ibin)
         y = hData.GetBinContent(ibin)
         dxRight = hData.GetBinLowEdge(ibin+1) - hData.GetBinCenter(ibin)
         dxLeft  = hData.GetBinCenter(ibin) - hData.GetBinLowEdge(ibin)
-        dyUp    = hData.GetBinErrorUp(ibin)
-        dyLow   = hData.GetBinErrorLow(ibin)
 
+        # This notations works also for the plots as a function of the DNN bin number
+
+	dyUp  = hData.GetBinError(ibin)
+        dyLow = hData.GetBinError(ibin)
+		
+	if (y == 0.0 and ibin <= args.blindrange[0] and args.binNXaxis):
+	
+	    dyUp = 1.841/(float(binNames[ibin])-float(binNames[ibin-1]))
+	    dyDown = 1.841/(float(binNames[ibin])-float(binNames[ibin-1])) 
+	
+	elif (y == 0.0 and float(x) < float(args.blindrange[0])):
+		
+	    dyUp = 1.841
+	    dyDown = 1.841
+			
         fY.append(y)
         fX.append(x)
         feYUp.append(dyUp)
         feYDown.append(dyLow)
         feXRight.append(dxRight)
         feXLeft.append(dxLeft)
+			
 
     afX       = array ("d", fX      )
     afY       = array ("d", fY      )
@@ -95,7 +109,7 @@ def makeTGraphFromHist (histo, newName, isData=False):
     afeYDown  = array ("d", feYDown )
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
-
+            
     gData = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp)
     gData.SetMarkerStyle(8)
     gData.SetMarkerSize(1.)
@@ -209,17 +223,35 @@ def makeDataOverMCRatioPlot (hData, hMC, newName, horErrs=False):
     for ibin in range (1, nPoints+1):
 
         if args.blindrange:
-            if ibin >= args.blindrange[0] and ibin <= args.blindrange[1]:
+            if ibin >= args.blindrange[0] and ibin <= args.blindrange[1] and args.binNXaxis:
+                continue
+            if float(hData.GetBinCenter(ibin)) >= float(args.blindrange[0]) :
                 continue
 
         num = hData.GetBinContent(ibin)
         den = hMC.GetBinContent(ibin)
+	
         if den > 0:
             # Y
             fY.append(num/den)
-            feYUp.append(hData.GetBinErrorUp(ibin) / den)
-            feYDown.append(hData.GetBinErrorLow(ibin) / den)
+	    
+	    # This way works also for the plot as a function of the DNN bin number
 
+	    if (num == 0.0 and ibin <= args.blindrange[0] and args.binNXaxis):
+	
+	        feYUp.append(1.841/((float(binNames[ibin])-float(binNames[ibin-1]))*den))
+	        feYDown.append(1.841/((float(binNames[ibin])-float(binNames[ibin-1]))*den))
+	
+	    elif (num == 0.0 and float(x) < float(args.blindrange[0])):
+		
+	        feYUp.append(1.841/den)
+	        feYDown.append(1.841/den)
+		
+	    else:
+
+                feYUp.append(hData.GetBinError(ibin) / den)
+                feYDown.append(hData.GetBinError(ibin) / den)
+		
             # X
             fX.append (hData.GetBinCenter(ibin))
             if horErrs:
@@ -295,11 +327,11 @@ def Xaxis2binNumber (histo, binwidth):
 
     new_histo = TH1F(histo.GetName(), histo.GetName(), Nbins, 0.5, Nbins+0.5)    
     for j in range(1,Nbins+1):
-        if binwidth:
-            bw = histo.GetBinWidth(j)
-            new_histo.SetBinContent(j,histo.GetBinContent(j)/bw)
-            new_histo.SetBinError(j,histo.GetBinError(j)/bw)
-        else:
+	if binwidth:
+	    bw = histo.GetBinWidth(j)
+	    new_histo.SetBinContent(j,histo.GetBinContent(j)/bw)
+	    new_histo.SetBinError(j,histo.GetBinError(j)/bw)
+	else:
             new_histo.SetBinContent(j,histo.GetBinContent(j))
             new_histo.SetBinError(j,histo.GetBinError(j))
 
@@ -660,7 +692,6 @@ if __name__ == "__main__" :
     hBkgNameList .append("Drell-Yan") # list for legend
 
     hData = getHisto("data_obs", hDatas , doOverflow)
-    hData.SetBinErrorOption(1)  # Set correct error for data: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PoissonErrorBars
 
     # remove all data from blinding region before doing anything else
     if args.blindrange:
@@ -709,6 +740,7 @@ if __name__ == "__main__" :
         # Save names 
         binNames = []
         for ibin in range (1, hData.GetNbinsX()+1):
+
 	    if ibin == 1:
 	       binNames.append("0.000")
 	    	       
@@ -734,8 +766,6 @@ if __name__ == "__main__" :
             print 'New blinding for binNXaxis plots:', args.blindrange
 
         hData = Xaxis2binNumber(hData,args.binwidth)
-        hData.SetBinErrorOption(1) # Set correct error for data: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PoissonErrorBars
-
 
     hDataNonScaled = hData.Clone("hDataNonScaled")
     gData = makeTGraphFromHist(hData, "grData", True)
@@ -1125,7 +1155,7 @@ if __name__ == "__main__" :
 
         hRatio.SetStats(0)
 
-        removeEmptyPoints(grRatio) # commented since the blinding has been moved to makeDataOverMCRatioPlot
+        #removeEmptyPoints(grRatio) # commented since the blinding has been moved to makeDataOverMCRatioPlot
         
         # SET THE Y-AXIS OF THE RATIO PLOT BASED ON THE VALUES OF THE RATIO ITSELF -> IN THIS WAY THE PLOTS WILL ALWAYS BE MEANINGFUL
         if args.dynamicRatioY:
