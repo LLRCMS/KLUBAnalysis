@@ -82,7 +82,12 @@ int main (int argc, char** argv)
   gConfigParser = new ConfigParser();
   TString config;
   config.Form ("%s",argv[3]) ;
-  cout << "** INFO: reading config : " << config << endl;
+  cout << "** INFO: reading config : " << config << endl;  
+  if (!(gConfigParser->init(config)))
+  {
+    cout << ">>> parseConfigFile::Could not open configuration file " << config << endl ;
+    return -1 ;
+  }
 
   // Optionally use a temporary output file which is moved back at the end
   TString outputFileNameTmp = outputFileName;
@@ -98,12 +103,6 @@ int main (int argc, char** argv)
   int isDataI = atoi (argv[4]);
   if (isDataI == 1) isData = true;
   cout << "** INFO: isData : " << isData << endl;
-
-  if (!(gConfigParser->init(config)))
-  {
-    cout << ">>> parseConfigFile::Could not open configuration file " << config << endl ;
-    return -1 ;
-  }
 
   // Max events to be analyzed, read from config
   int nMaxEvts = gConfigParser->readIntOption("outPutter::nMaxEvts");
