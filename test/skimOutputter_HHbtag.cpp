@@ -3266,19 +3266,37 @@ int main (int argc, char** argv)
 
         if (doSVfit)
         {
-          SVfitKLUBinterface algo_jetupTot(0, tau1, tau2, met_jetupTot, stableMetCov, pType, DM1, DM2);
-          std::vector<double> svfitRes_jetupTot = algo_jetupTot.FitAndGetResult();
-          tauH_SVFIT_pt_jetupTot   = svfitRes_jetupTot.at(0);
-          tauH_SVFIT_eta_jetupTot  = svfitRes_jetupTot.at(1);
-          tauH_SVFIT_phi_jetupTot  = svfitRes_jetupTot.at(2);
-          tauH_SVFIT_mass_jetupTot = svfitRes_jetupTot.at(3);
+          if (doPropSVfit) {
+            // propagate differences of input four vectors to the svfit vector
+            TLorentzVector svfit_jetupTot(svfit);
+            svfit_jetupTot += (met_jetupTot - met);
+            tauH_SVFIT_pt_jetupTot   = svfit_jetupTot.Pt();
+            tauH_SVFIT_eta_jetupTot  = svfit_jetupTot.Eta();
+            tauH_SVFIT_phi_jetupTot  = svfit_jetupTot.Phi();
+            tauH_SVFIT_mass_jetupTot = svfit_jetupTot.M();
 
-          SVfitKLUBinterface algo_jetdownTot(0, tau1, tau2, met_jetdownTot, stableMetCov, pType, DM1, DM2);
-          std::vector<double> svfitRes_jetdownTot = algo_jetdownTot.FitAndGetResult();
-          tauH_SVFIT_pt_jetdownTot   = svfitRes_jetdownTot.at(0);
-          tauH_SVFIT_eta_jetdownTot  = svfitRes_jetdownTot.at(1);
-          tauH_SVFIT_phi_jetdownTot  = svfitRes_jetdownTot.at(2);
-          tauH_SVFIT_mass_jetdownTot = svfitRes_jetdownTot.at(3);
+            TLorentzVector svfit_jetdownTot(svfit);
+            svfit_jetdownTot += (met_jetdownTot - met);
+            tauH_SVFIT_pt_jetdownTot   = svfit_jetdownTot.Pt();
+            tauH_SVFIT_eta_jetdownTot  = svfit_jetdownTot.Eta();
+            tauH_SVFIT_phi_jetdownTot  = svfit_jetdownTot.Phi();
+            tauH_SVFIT_mass_jetdownTot = svfit_jetdownTot.M();
+          } else {
+            // recompute svfit from scratch
+            SVfitKLUBinterface algo_jetupTot(0, tau1, tau2, met_jetupTot, stableMetCov, pType, DM1, DM2);
+            std::vector<double> svfitRes_jetupTot = algo_jetupTot.FitAndGetResult();
+            tauH_SVFIT_pt_jetupTot   = svfitRes_jetupTot.at(0);
+            tauH_SVFIT_eta_jetupTot  = svfitRes_jetupTot.at(1);
+            tauH_SVFIT_phi_jetupTot  = svfitRes_jetupTot.at(2);
+            tauH_SVFIT_mass_jetupTot = svfitRes_jetupTot.at(3);
+
+            SVfitKLUBinterface algo_jetdownTot(0, tau1, tau2, met_jetdownTot, stableMetCov, pType, DM1, DM2);
+            std::vector<double> svfitRes_jetdownTot = algo_jetdownTot.FitAndGetResult();
+            tauH_SVFIT_pt_jetdownTot   = svfitRes_jetdownTot.at(0);
+            tauH_SVFIT_eta_jetdownTot  = svfitRes_jetdownTot.at(1);
+            tauH_SVFIT_phi_jetdownTot  = svfitRes_jetdownTot.at(2);
+            tauH_SVFIT_mass_jetdownTot = svfitRes_jetdownTot.at(3);
+          }
         }
 
         // --- --- --- JES Total DNN/BDT quantities --- --- ---
