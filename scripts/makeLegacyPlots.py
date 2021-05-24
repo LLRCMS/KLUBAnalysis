@@ -529,7 +529,6 @@ if __name__ == "__main__" :
     parser.add_argument('--sel', dest='sel', help='selection name', default=None)
     parser.add_argument('--name', dest='name', help='selection name for plot', default=None)
     parser.add_argument('--dir', dest='dir', help='analysis output folder name', default="./")
-    #parser.add_argument('--tag', dest='tag', help='plots output folder name', default="./")
     parser.add_argument('--reg', dest='reg', help='region name', default=None)
     parser.add_argument('--title', dest='title', help='plot title', default=None)
     parser.add_argument('--label', dest='label', help='x label', default=None)
