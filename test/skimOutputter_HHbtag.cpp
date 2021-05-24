@@ -47,6 +47,7 @@
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/format.hpp>
+#include <boost/filesystem.hpp>
 #include <Math/VectorUtil.h>
 #include <Math/LorentzVector.h>
 #include <Math/PxPyPzM4D.h>
@@ -83,6 +84,15 @@ int main (int argc, char** argv)
   config.Form ("%s",argv[3]) ;
   cout << "** INFO: reading config : " << config << endl;
 
+  // Optionally use a temporary output file which is moved back at the end
+  TString outputFileNameTmp = outputFileName;
+  bool useTmpFile = gConfigParser->isDefined("outPutter::useTmpFile") ? gConfigParser->readBoolOption("outPutter::useTmpFile") : false;
+  if (useTmpFile) {
+    outputFileNameTmp = boost::filesystem::temp_directory_path().native() + "/" +
+      boost::filesystem::unique_path().native() + ".root";
+    cout << "** INFO: tmp outputFile : " << outputFileNameTmp  << endl;
+  }
+
   // Read isData
   bool isData = false;
   int isDataI = atoi (argv[4]);
@@ -100,18 +110,20 @@ int main (int argc, char** argv)
   cout << "** INFO: n evts to be analyzed : " << nMaxEvts << " [ -1 means all events ]" << endl;
 
   // Read bools from config
-  bool doMT2    = gConfigParser->readBoolOption("outPutter::doMT2"   );
-  bool doKinFit = gConfigParser->readBoolOption("outPutter::doKinFit");
-  bool doSVfit  = gConfigParser->readBoolOption("outPutter::doSVfit" );
-  bool doDNN    = gConfigParser->readBoolOption("outPutter::doDNN"   );
-  bool doBDT    = gConfigParser->readBoolOption("outPutter::doBDT"   );
-  bool doMult   = gConfigParser->readBoolOption("outPutter::doMult"   );
-  cout << "** INFO: doMT2    : " << doMT2    << endl;
-  cout << "** INFO: doKinFit : " << doKinFit << endl;
-  cout << "** INFO: doSVfit  : " << doSVfit  << endl;
-  cout << "** INFO: doDNN    : " << doDNN    << endl;
-  cout << "** INFO: doBDT    : " << doBDT    << endl;
-  cout << "** INFO: doMult   : " << doMult    << endl;
+  bool doMT2       = gConfigParser->readBoolOption("outPutter::doMT2"   );
+  bool doKinFit    = gConfigParser->readBoolOption("outPutter::doKinFit");
+  bool doSVfit     = gConfigParser->readBoolOption("outPutter::doSVfit" );
+  bool doPropSVfit = gConfigParser->isDefined("outPutter::doPropSVfit") ? gConfigParser->readBoolOption("outPutter::doPropSVfit") : false;
+  bool doDNN       = gConfigParser->readBoolOption("outPutter::doDNN"   );
+  bool doBDT       = gConfigParser->readBoolOption("outPutter::doBDT"   );
+  bool doMult      = gConfigParser->readBoolOption("outPutter::doMult"  );
+  cout << "** INFO: doMT2       : " << doMT2       << endl;
+  cout << "** INFO: doKinFit    : " << doKinFit    << endl;
+  cout << "** INFO: doSVfit     : " << doSVfit     << endl;
+  cout << "** INFO: doPropSVfit : " << doPropSVfit << endl;
+  cout << "** INFO: doDNN       : " << doDNN       << endl;
+  cout << "** INFO: doBDT       : " << doBDT       << endl;
+  cout << "** INFO: doMult      : " << doMult      << endl;
 
   bool doVBFtrig  = gConfigParser->isDefined("outPutter::doVBFtrig") ? gConfigParser->readBoolOption("outPutter::doVBFtrig") : false;
   bool doNominal  = gConfigParser->readBoolOption("outPutter::doNominal" );
@@ -307,7 +319,7 @@ int main (int argc, char** argv)
   }
 
   //Create a new file + a clone of old tree in new file
-  TFile *cloneFile = new TFile (outputFileName, "recreate") ;
+  TFile *cloneFile = new TFile (outputFileNameTmp,  "recreate") ;
   TTree *treenew = inputChain->CloneTree(0);
 
   // Loop on input events to apply minimal selection
@@ -342,7 +354,7 @@ int main (int argc, char** argv)
   // Now that we have cloned the TTree with a selection,
   // we re-open it to update it with new branches
   // Open file and get TTree that must be updated
-  TFile *outFile = TFile::Open(outputFileName,"UPDATE");
+  TFile *outFile = TFile::Open(outputFileNameTmp, "UPDATE");
   TTree *outTree = (TTree*)outFile->Get("HTauTauTree");
 
   // for HHKinFit
@@ -1773,19 +1785,37 @@ int main (int argc, char** argv)
 
         if (doSVfit)
         {
-          SVfitKLUBinterface algo_muup(0, tau1_muup, tau2_muup, met_muup, stableMetCov, pType, DM1, DM2);
-          std::vector<double> svfitRes_muup = algo_muup.FitAndGetResult();
-          tauH_SVFIT_pt_muup   = svfitRes_muup.at(0);
-          tauH_SVFIT_eta_muup  = svfitRes_muup.at(1);
-          tauH_SVFIT_phi_muup  = svfitRes_muup.at(2);
-          tauH_SVFIT_mass_muup = svfitRes_muup.at(3);
+          if (doPropSVfit) {
+            // propagate differences of input four vectors to the svfit vector
+            TLorentzVector svfit_muup(svfit);
+            svfit_muup += (tau1_muup - tau1) + (tau2_muup - tau2) + (met_muup - met);
+            tauH_SVFIT_pt_muup   = svfit_muup.Pt();
+            tauH_SVFIT_eta_muup  = svfit_muup.Eta();
+            tauH_SVFIT_phi_muup  = svfit_muup.Phi();
+            tauH_SVFIT_mass_muup = svfit_muup.M();
 
-          SVfitKLUBinterface algo_mudown(0, tau1_mudown, tau2_mudown, met_mudown, stableMetCov, pType, DM1, DM2);
-          std::vector<double> svfitRes_mudown = algo_mudown.FitAndGetResult();
-          tauH_SVFIT_pt_mudown   = svfitRes_mudown.at(0);
-          tauH_SVFIT_eta_mudown  = svfitRes_mudown.at(1);
-          tauH_SVFIT_phi_mudown  = svfitRes_mudown.at(2);
-          tauH_SVFIT_mass_mudown = svfitRes_mudown.at(3);
+            TLorentzVector svfit_mudown(svfit);
+            svfit_mudown += (tau1_mudown - tau1) + (tau2_mudown - tau2) + (met_mudown - met);
+            tauH_SVFIT_pt_mudown   = svfit_mudown.Pt();
+            tauH_SVFIT_eta_mudown  = svfit_mudown.Eta();
+            tauH_SVFIT_phi_mudown  = svfit_mudown.Phi();
+            tauH_SVFIT_mass_mudown = svfit_mudown.M();
+          } else {
+            // recompute svfit from scratch
+            SVfitKLUBinterface algo_muup(0, tau1_muup, tau2_muup, met_muup, stableMetCov, pType, DM1, DM2);
+            std::vector<double> svfitRes_muup = algo_muup.FitAndGetResult();
+            tauH_SVFIT_pt_muup   = svfitRes_muup.at(0);
+            tauH_SVFIT_eta_muup  = svfitRes_muup.at(1);
+            tauH_SVFIT_phi_muup  = svfitRes_muup.at(2);
+            tauH_SVFIT_mass_muup = svfitRes_muup.at(3);
+
+            SVfitKLUBinterface algo_mudown(0, tau1_mudown, tau2_mudown, met_mudown, stableMetCov, pType, DM1, DM2);
+            std::vector<double> svfitRes_mudown = algo_mudown.FitAndGetResult();
+            tauH_SVFIT_pt_mudown   = svfitRes_mudown.at(0);
+            tauH_SVFIT_eta_mudown  = svfitRes_mudown.at(1);
+            tauH_SVFIT_phi_mudown  = svfitRes_mudown.at(2);
+            tauH_SVFIT_mass_mudown = svfitRes_mudown.at(3);
+          }
         }
 
         // --- --- --- MES DNN/BDT quantities --- --- ---
@@ -2078,19 +2108,37 @@ int main (int argc, char** argv)
 
           if (doSVfit)
           {
-            SVfitKLUBinterface algo_eleup(0, tau1_eleup, tau2_eleup, met_eleup, stableMetCov, pType, DM1, DM2);
-            std::vector<double> svfitRes_eleup = algo_eleup.FitAndGetResult();
-            tauH_SVFIT_pt_eleup         = svfitRes_eleup.at(0);
-            tauH_SVFIT_eta_eleup        = svfitRes_eleup.at(1);
-            tauH_SVFIT_phi_eleup        = svfitRes_eleup.at(2);
-            tauH_SVFIT_mass_eleup.at(i) = svfitRes_eleup.at(3);
+            if (doPropSVfit) {
+              // propagate differences of input four vectors to the svfit vector
+              TLorentzVector svfit_eleup(svfit);
+              svfit_eleup += (tau1_eleup - tau1) + (tau2_eleup - tau2) + (met_eleup - met);
+              tauH_SVFIT_pt_eleup         = svfit_eleup.Pt();
+              tauH_SVFIT_eta_eleup        = svfit_eleup.Eta();
+              tauH_SVFIT_phi_eleup        = svfit_eleup.Phi();
+              tauH_SVFIT_mass_eleup.at(i) = svfit_eleup.M();
 
-            SVfitKLUBinterface algo_eledown(0, tau1_eledown, tau2_eledown, met_eledown, stableMetCov, pType, DM1, DM2);
-            std::vector<double> svfitRes_eledown = algo_eledown.FitAndGetResult();
-            tauH_SVFIT_pt_eledown         = svfitRes_eledown.at(0);
-            tauH_SVFIT_eta_eledown        = svfitRes_eledown.at(1);
-            tauH_SVFIT_phi_eledown        = svfitRes_eledown.at(2);
-            tauH_SVFIT_mass_eledown.at(i) = svfitRes_eledown.at(3);
+              TLorentzVector svfit_eledown(svfit);
+              svfit_eledown += (tau1_eledown - tau1) + (tau2_eledown - tau2) + (met_eledown - met);
+              tauH_SVFIT_pt_eledown         = svfit_eledown.Pt();
+              tauH_SVFIT_eta_eledown        = svfit_eledown.Eta();
+              tauH_SVFIT_phi_eledown        = svfit_eledown.Phi();
+              tauH_SVFIT_mass_eledown.at(i) = svfit_eledown.M();
+            } else {
+              // recompute svfit from scratch
+              SVfitKLUBinterface algo_eleup(0, tau1_eleup, tau2_eleup, met_eleup, stableMetCov, pType, DM1, DM2);
+              std::vector<double> svfitRes_eleup = algo_eleup.FitAndGetResult();
+              tauH_SVFIT_pt_eleup         = svfitRes_eleup.at(0);
+              tauH_SVFIT_eta_eleup        = svfitRes_eleup.at(1);
+              tauH_SVFIT_phi_eleup        = svfitRes_eleup.at(2);
+              tauH_SVFIT_mass_eleup.at(i) = svfitRes_eleup.at(3);
+
+              SVfitKLUBinterface algo_eledown(0, tau1_eledown, tau2_eledown, met_eledown, stableMetCov, pType, DM1, DM2);
+              std::vector<double> svfitRes_eledown = algo_eledown.FitAndGetResult();
+              tauH_SVFIT_pt_eledown         = svfitRes_eledown.at(0);
+              tauH_SVFIT_eta_eledown        = svfitRes_eledown.at(1);
+              tauH_SVFIT_phi_eledown        = svfitRes_eledown.at(2);
+              tauH_SVFIT_mass_eledown.at(i) = svfitRes_eledown.at(3);
+            }
           }
 
           // --- --- --- EES DNN/BDT quantities --- --- ---
@@ -2384,19 +2432,37 @@ int main (int argc, char** argv)
 
           if (doSVfit)
           {
-            SVfitKLUBinterface algo_tauup(0, tau1_tauup, tau2_tauup, met_tauup, stableMetCov, pType, DM1, DM2);
-            std::vector<double> svfitRes_tauup = algo_tauup.FitAndGetResult();
-            tauH_SVFIT_pt_tauup         = svfitRes_tauup.at(0);
-            tauH_SVFIT_eta_tauup        = svfitRes_tauup.at(1);
-            tauH_SVFIT_phi_tauup        = svfitRes_tauup.at(2);
-            tauH_SVFIT_mass_tauup.at(i) = svfitRes_tauup.at(3);
+            if (doPropSVfit) {
+              // propagate differences of input four vectors to the svfit vector
+              TLorentzVector svfit_tauup(svfit);
+              svfit_tauup += (tau1_tauup - tau1) + (tau2_tauup - tau2) + (met_tauup - met);
+              tauH_SVFIT_pt_tauup         = svfit_tauup.Pt();
+              tauH_SVFIT_eta_tauup        = svfit_tauup.Eta();
+              tauH_SVFIT_phi_tauup        = svfit_tauup.Phi();
+              tauH_SVFIT_mass_tauup.at(i) = svfit_tauup.M();
 
-            SVfitKLUBinterface algo_taudown(0, tau1_taudown, tau2_taudown, met_taudown, stableMetCov, pType, DM1, DM2);
-            std::vector<double> svfitRes_taudown = algo_taudown.FitAndGetResult();
-            tauH_SVFIT_pt_taudown         = svfitRes_taudown.at(0);
-            tauH_SVFIT_eta_taudown        = svfitRes_taudown.at(1);
-            tauH_SVFIT_phi_taudown        = svfitRes_taudown.at(2);
-            tauH_SVFIT_mass_taudown.at(i) = svfitRes_taudown.at(3);
+              TLorentzVector svfit_taudown(svfit);
+              svfit_taudown += (tau1_taudown - tau1) + (tau2_taudown - tau2) + (met_taudown - met);
+              tauH_SVFIT_pt_taudown         = svfit_taudown.Pt();
+              tauH_SVFIT_eta_taudown        = svfit_taudown.Eta();
+              tauH_SVFIT_phi_taudown        = svfit_taudown.Phi();
+              tauH_SVFIT_mass_taudown.at(i) = svfit_taudown.M();
+            } else {
+              // recompute svfit from scratch
+              SVfitKLUBinterface algo_tauup(0, tau1_tauup, tau2_tauup, met_tauup, stableMetCov, pType, DM1, DM2);
+              std::vector<double> svfitRes_tauup = algo_tauup.FitAndGetResult();
+              tauH_SVFIT_pt_tauup         = svfitRes_tauup.at(0);
+              tauH_SVFIT_eta_tauup        = svfitRes_tauup.at(1);
+              tauH_SVFIT_phi_tauup        = svfitRes_tauup.at(2);
+              tauH_SVFIT_mass_tauup.at(i) = svfitRes_tauup.at(3);
+
+              SVfitKLUBinterface algo_taudown(0, tau1_taudown, tau2_taudown, met_taudown, stableMetCov, pType, DM1, DM2);
+              std::vector<double> svfitRes_taudown = algo_taudown.FitAndGetResult();
+              tauH_SVFIT_pt_taudown         = svfitRes_taudown.at(0);
+              tauH_SVFIT_eta_taudown        = svfitRes_taudown.at(1);
+              tauH_SVFIT_phi_taudown        = svfitRes_taudown.at(2);
+              tauH_SVFIT_mass_taudown.at(i) = svfitRes_taudown.at(3);
+            }
           }
 
           // --- --- --- TES DNN/BDT quantities --- --- ---
@@ -2791,19 +2857,37 @@ int main (int argc, char** argv)
 
           if (doSVfit)
           {
-            SVfitKLUBinterface algo_jetup(0, tau1, tau2, met_jetup, stableMetCov, pType, DM1, DM2);
-            std::vector<double> svfitRes_jetup = algo_jetup.FitAndGetResult();
-            tauH_SVFIT_pt_jetup         = svfitRes_jetup.at(0);
-            tauH_SVFIT_eta_jetup        = svfitRes_jetup.at(1);
-            tauH_SVFIT_phi_jetup        = svfitRes_jetup.at(2);
-            tauH_SVFIT_mass_jetup.at(i) = svfitRes_jetup.at(3);
+            if (doPropSVfit) {
+              // propagate differences of input four vectors to the svfit vector
+              TLorentzVector svfit_jetup(svfit);
+              svfit_jetup += (met_jetup - met);
+              tauH_SVFIT_pt_jetup         = svfit_jetup.Pt();
+              tauH_SVFIT_eta_jetup        = svfit_jetup.Eta();
+              tauH_SVFIT_phi_jetup        = svfit_jetup.Phi();
+              tauH_SVFIT_mass_jetup.at(i) = svfit_jetup.M();
 
-            SVfitKLUBinterface algo_jetdown(0, tau1, tau2, met_jetdown, stableMetCov, pType, DM1, DM2);
-            std::vector<double> svfitRes_jetdown = algo_jetdown.FitAndGetResult();
-            tauH_SVFIT_pt_jetdown         = svfitRes_jetdown.at(0);
-            tauH_SVFIT_eta_jetdown        = svfitRes_jetdown.at(1);
-            tauH_SVFIT_phi_jetdown        = svfitRes_jetdown.at(2);
-            tauH_SVFIT_mass_jetdown.at(i) = svfitRes_jetdown.at(3);
+              TLorentzVector svfit_jetdown(svfit);
+              svfit_jetdown += (met_jetdown - met);
+              tauH_SVFIT_pt_jetdown         = svfit_jetdown.Pt();
+              tauH_SVFIT_eta_jetdown        = svfit_jetdown.Eta();
+              tauH_SVFIT_phi_jetdown        = svfit_jetdown.Phi();
+              tauH_SVFIT_mass_jetdown.at(i) = svfit_jetdown.M();
+            } else {
+              // recompute svfit from scratch
+              SVfitKLUBinterface algo_jetup(0, tau1, tau2, met_jetup, stableMetCov, pType, DM1, DM2);
+              std::vector<double> svfitRes_jetup = algo_jetup.FitAndGetResult();
+              tauH_SVFIT_pt_jetup         = svfitRes_jetup.at(0);
+              tauH_SVFIT_eta_jetup        = svfitRes_jetup.at(1);
+              tauH_SVFIT_phi_jetup        = svfitRes_jetup.at(2);
+              tauH_SVFIT_mass_jetup.at(i) = svfitRes_jetup.at(3);
+
+              SVfitKLUBinterface algo_jetdown(0, tau1, tau2, met_jetdown, stableMetCov, pType, DM1, DM2);
+              std::vector<double> svfitRes_jetdown = algo_jetdown.FitAndGetResult();
+              tauH_SVFIT_pt_jetdown         = svfitRes_jetdown.at(0);
+              tauH_SVFIT_eta_jetdown        = svfitRes_jetdown.at(1);
+              tauH_SVFIT_phi_jetdown        = svfitRes_jetdown.at(2);
+              tauH_SVFIT_mass_jetdown.at(i) = svfitRes_jetdown.at(3);
+            }
           }
 
           // --- --- --- JES DNN/BDT quantities --- --- ---
@@ -3192,19 +3276,37 @@ int main (int argc, char** argv)
 
         if (doSVfit)
         {
-          SVfitKLUBinterface algo_jetupTot(0, tau1, tau2, met_jetupTot, stableMetCov, pType, DM1, DM2);
-          std::vector<double> svfitRes_jetupTot = algo_jetupTot.FitAndGetResult();
-          tauH_SVFIT_pt_jetupTot   = svfitRes_jetupTot.at(0);
-          tauH_SVFIT_eta_jetupTot  = svfitRes_jetupTot.at(1);
-          tauH_SVFIT_phi_jetupTot  = svfitRes_jetupTot.at(2);
-          tauH_SVFIT_mass_jetupTot = svfitRes_jetupTot.at(3);
+          if (doPropSVfit) {
+            // propagate differences of input four vectors to the svfit vector
+            TLorentzVector svfit_jetupTot(svfit);
+            svfit_jetupTot += (met_jetupTot - met);
+            tauH_SVFIT_pt_jetupTot   = svfit_jetupTot.Pt();
+            tauH_SVFIT_eta_jetupTot  = svfit_jetupTot.Eta();
+            tauH_SVFIT_phi_jetupTot  = svfit_jetupTot.Phi();
+            tauH_SVFIT_mass_jetupTot = svfit_jetupTot.M();
 
-          SVfitKLUBinterface algo_jetdownTot(0, tau1, tau2, met_jetdownTot, stableMetCov, pType, DM1, DM2);
-          std::vector<double> svfitRes_jetdownTot = algo_jetdownTot.FitAndGetResult();
-          tauH_SVFIT_pt_jetdownTot   = svfitRes_jetdownTot.at(0);
-          tauH_SVFIT_eta_jetdownTot  = svfitRes_jetdownTot.at(1);
-          tauH_SVFIT_phi_jetdownTot  = svfitRes_jetdownTot.at(2);
-          tauH_SVFIT_mass_jetdownTot = svfitRes_jetdownTot.at(3);
+            TLorentzVector svfit_jetdownTot(svfit);
+            svfit_jetdownTot += (met_jetdownTot - met);
+            tauH_SVFIT_pt_jetdownTot   = svfit_jetdownTot.Pt();
+            tauH_SVFIT_eta_jetdownTot  = svfit_jetdownTot.Eta();
+            tauH_SVFIT_phi_jetdownTot  = svfit_jetdownTot.Phi();
+            tauH_SVFIT_mass_jetdownTot = svfit_jetdownTot.M();
+          } else {
+            // recompute svfit from scratch
+            SVfitKLUBinterface algo_jetupTot(0, tau1, tau2, met_jetupTot, stableMetCov, pType, DM1, DM2);
+            std::vector<double> svfitRes_jetupTot = algo_jetupTot.FitAndGetResult();
+            tauH_SVFIT_pt_jetupTot   = svfitRes_jetupTot.at(0);
+            tauH_SVFIT_eta_jetupTot  = svfitRes_jetupTot.at(1);
+            tauH_SVFIT_phi_jetupTot  = svfitRes_jetupTot.at(2);
+            tauH_SVFIT_mass_jetupTot = svfitRes_jetupTot.at(3);
+
+            SVfitKLUBinterface algo_jetdownTot(0, tau1, tau2, met_jetdownTot, stableMetCov, pType, DM1, DM2);
+            std::vector<double> svfitRes_jetdownTot = algo_jetdownTot.FitAndGetResult();
+            tauH_SVFIT_pt_jetdownTot   = svfitRes_jetdownTot.at(0);
+            tauH_SVFIT_eta_jetdownTot  = svfitRes_jetdownTot.at(1);
+            tauH_SVFIT_phi_jetdownTot  = svfitRes_jetdownTot.at(2);
+            tauH_SVFIT_mass_jetdownTot = svfitRes_jetdownTot.at(3);
+          }
         }
 
         // --- --- --- JES Total DNN/BDT quantities --- --- ---
@@ -3561,6 +3663,14 @@ int main (int argc, char** argv)
   outTree->Write ("", TObject::kOverwrite) ;
   outFile->Write();
   outFile->Close();
+
+  // optionally move the temporary output file back to the original location
+  if (useTmpFile) {
+    boost::filesystem::copy_file(std::string(outputFileNameTmp), std::string(outputFileName),
+      boost::filesystem::copy_option::overwrite_if_exists);
+    boost::filesystem::remove(std::string(outputFileNameTmp));
+    cout << "** Moved temporary output " << outputFileNameTmp  << " back to target location " << outputFileName << endl;
+  }
 
   cout << "... SYST finished, exiting." << endl;
 }
