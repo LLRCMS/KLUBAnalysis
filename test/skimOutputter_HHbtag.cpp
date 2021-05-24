@@ -47,6 +47,7 @@
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/format.hpp>
+#include <boost/filesystem.hpp>
 #include <Math/VectorUtil.h>
 #include <Math/LorentzVector.h>
 #include <Math/PxPyPzM4D.h>
@@ -82,6 +83,15 @@ int main (int argc, char** argv)
   TString config;
   config.Form ("%s",argv[3]) ;
   cout << "** INFO: reading config : " << config << endl;
+
+  // Optionally use a temporary output file which is moved back at the end
+  TString outputFileNameTmp = outputFileName;
+  bool useTmpFile = gConfigParser->isDefined("outPutter::useTmpFile") ? gConfigParser->readBoolOption("outPutter::useTmpFile") : false;
+  if (useTmpFile) {
+    outputFileNameTmp = boost::filesystem::temp_directory_path().native() + "/" +
+      boost::filesystem::unique_path().native() + ".root";
+    cout << "** INFO: tmp outputFile : " << outputFileNameTmp  << endl;
+  }
 
   // Read isData
   bool isData = false;
@@ -307,7 +317,7 @@ int main (int argc, char** argv)
   }
 
   //Create a new file + a clone of old tree in new file
-  TFile *cloneFile = new TFile (outputFileName, "recreate") ;
+  TFile *cloneFile = new TFile (outputFileNameTmp,  "recreate") ;
   TTree *treenew = inputChain->CloneTree(0);
 
   // Loop on input events to apply minimal selection
@@ -342,7 +352,7 @@ int main (int argc, char** argv)
   // Now that we have cloned the TTree with a selection,
   // we re-open it to update it with new branches
   // Open file and get TTree that must be updated
-  TFile *outFile = TFile::Open(outputFileName,"UPDATE");
+  TFile *outFile = TFile::Open(outputFileNameTmp, "UPDATE");
   TTree *outTree = (TTree*)outFile->Get("HTauTauTree");
 
   // for HHKinFit
@@ -3561,6 +3571,14 @@ int main (int argc, char** argv)
   outTree->Write ("", TObject::kOverwrite) ;
   outFile->Write();
   outFile->Close();
+
+  // optionally move the temporary output file back to the original location
+  if (useTmpFile) {
+    boost::filesystem::copy_file(std::string(outputFileNameTmp), std::string(outputFileName),
+      boost::filesystem::copy_option::overwrite_if_exists);
+    boost::filesystem::remove(std::string(outputFileNameTmp));
+    cout << "** Moved temporary output " << outputFileNameTmp  << " back to target location " << outputFileName << endl;
+  }
 
   cout << "... SYST finished, exiting." << endl;
 }
