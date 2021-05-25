@@ -534,7 +534,7 @@ if __name__ == "__main__" :
     parser.add_argument('--label', dest='label', help='x label', default=None)
     parser.add_argument('--channel', dest='channel', help='channel = (MuTau, ETau, TauTau)', default=None)
     parser.add_argument('--year', dest='year', help='year', default="2018")
-    parser.add_argument('--tag', dest='tag', help='additional tag for the output directory', default='')
+    parser.add_argument('--tag', dest='tag', help='string appended to output folder name', default='')
     # bool options
     parser.add_argument('--log', dest='log', help='use log scale',  action='store_true', default=False)
     parser.add_argument('--no-data', dest='dodata', help='disable plotting data', action='store_false', default=True)

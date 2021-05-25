@@ -1,5 +1,6 @@
 basedir=/gwpool/users/dzuolo/HHbbtautatuAnalysisLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis
-tag=2021_04_23
+input=2021_04_23
+tag=prova
 plotter=makeLegacyPlots.py
 
 year=2018
@@ -86,67 +87,93 @@ echo $obj1,$obj2
 ##EXAMPLES
 #
 #
-# PLOTS WITH BIN-WIDTH SCALING
-#python scripts/$plotter --dir $basedir/$tag/$channel --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand
+## PLOTS WITH BIN-WIDTH SCALING
+#python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand
 #
 #
-# PLOTS WITH BIN-WIDTH SCALING AND JER UNC
-#python scripts/$plotter --dir $basedir/$tag/$channel --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand --addJERunc 
+## PLOTS WITH BIN-WIDTH SCALING AND JER UNC
+#python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand --addJERunc 
 #
 #
-# PLOTS WITH BIN-WIDTH SCALING AND NO ES IN SYST BAND
-#python scripts/$plotter --dir $basedir/$tag/$channel --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand --removeESsystBand
+## PLOTS WITH BIN-WIDTH SCALING AND NO ES IN SYST BAND
+#python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand --removeESsystBand
 #
 #
 ## PLOTS WITH BIN-WIDTH SCALING AND NO SYST BAND
-#python scripts/$plotter --dir $basedir/$tag/$channel --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 
+#python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 
 #
 #
 ## PLOTS WITHOUT BIN-WIDTH SCALING
-#python scripts/$plotter --dir $basedir/$tag/$channel --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --doStatSystBand
+#python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --doStatSystBand
 #
 #
 ## PLOTS WITHOUT BIN-WIDTH SCALING AND JER UNC
-#python scripts/$plotter --dir $basedir/$tag/$channel --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --doStatSystBand --addJERunc 
+#python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --doStatSystBand --addJERunc 
 #
 #
-# PLOTS WITHOUT BIN-WIDTH SCALING AND NO ES IN SYST BAND
-#python scripts/$plotter --dir $basedir/$tag/$channel --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth  --doStatSystBand --removeESsystBand
+## PLOTS WITHOUT BIN-WIDTH SCALING AND NO ES IN SYST BAND
+#python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth  --doStatSystBand --removeESsystBand
 #
 #
 ## PLOTS WITHOUT BIN-WIDTH SCALING AND NO SYST BAND
-#python scripts/$plotter --dir $basedir/$tag/$channel --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1  --no-binwidth 
+#python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1  --no-binwidth 
 #
 #
 #
 #
 ## PLOTS WITH BIN-NUMBER AS X-AXIS WITH BIN-WIDTH SCALING
-#python scripts/$plotter --dir $basedir/$tag/$channel --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --binNXaxis --doStatSystBand
+#python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --binNXaxis --doStatSystBand
 #
 #
 ## PLOTS WITH BIN-NUMBER AS X-AXIS WITH BIN-WIDTH SCALING AND JER UNC
-#python scripts/$plotter --dir $basedir/$tag/$channel --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --binNXaxis --doStatSystBand --addJERunc 
+#python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --binNXaxis --doStatSystBand --addJERunc 
 #
 #
 ## PLOTS WITH BIN-NUMBER AS X-AXIS WITH BIN-WIDTH SCALING AND NO ES IN SYST BAND
-#python scripts/$plotter --dir $basedir/$tag/$channel --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --binNXaxis --doStatSystBand --removeESsystBand
+#python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --binNXaxis --doStatSystBand --removeESsystBand
 #
 #
 ## PLOTS WITH BIN-NUMBER AS X-AXIS WITH BIN-WIDTH SCALING AND NO SYST BAND
-#python scripts/$plotter --dir $basedir/$tag/$channel --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --binNXaxis
+#python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --binNXaxis
 #
 #
 ## PLOTS WITH BIN-NUMBER AS X-AXIS WITHOUT BIN-WIDTH SCALING  
-#python scripts/$plotter --dir $basedir/$tag/$channel --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis --doStatSystBand
+#python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis --doStatSystBand
 #
 #
 ## PLOTS WITH BIN-NUMBER AS X-AXIS WITHOUT BIN-WIDTH SCALING  AND JER UNC  
-#python scripts/$plotter --dir $basedir/$tag/$channel --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis --doStatSystBand --addJERunc
+#python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis --doStatSystBand --addJERunc
 #
 #
 ## PLOTS WITH BIN-NUMBER AS X-AXIS WITHOUT BIN-WIDTH SCALING AND NO ES IN SYST BAND
-#python scripts/$plotter --dir $basedir/$tag/$channel --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis --doStatSystBand --removeESsystBand
+#python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis --doStatSystBand --removeESsystBand
 #
 #
 ## PLOTS WITH BIN-NUMBER AS X-AXIS WITHOUT BIN-WIDTH SCALING AND NO SYST BAND
-#python scripts/$plotter --dir $basedir/$tag/$channel --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis
+#python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --no-binwidth --binNXaxis
+#
+#
+#
+#
+## AN PLOTS
+#
+## PLOTS WITH BIN-WIDTH SCALING AND JER UNC
+python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand --addJERunc 
+python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel2 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand --addJERunc 
+python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel3 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand --addJERunc 
+python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel4 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand --addJERunc 
+python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel5 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand --addJERunc 
+python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel6 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand --addJERunc 
+python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel7 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand --addJERunc 
+python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel8 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --doStatSystBand --addJERunc 
+#
+#
+## PLOTS WITH BIN-NUMBER AS X-AXIS WITH BIN-WIDTH SCALING AND JER UNC
+python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel1 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --binNXaxis --doStatSystBand --addJERunc 
+python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel2 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --binNXaxis --doStatSystBand --addJERunc 
+python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel3 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --binNXaxis --doStatSystBand --addJERunc 
+python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel4 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --binNXaxis --doStatSystBand --addJERunc 
+python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel5 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --binNXaxis --doStatSystBand --addJERunc 
+python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel6 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --binNXaxis --doStatSystBand --addJERunc 
+python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel7 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --binNXaxis --doStatSystBand --addJERunc 
+python scripts/$plotter --dir $basedir/"analysis_"$input/$channel\_$year/total --year $year --var DNNoutSM_kl_1 --reg $reg --sel $sel8 --channel $channel --tag $tag --label "DNN score" --quit --ratio --log --blind-range 0.5 1 --binNXaxis --doStatSystBand --addJERunc 
