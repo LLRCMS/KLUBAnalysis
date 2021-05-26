@@ -261,8 +261,10 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             # Add QCD Up/Down shape uncertainty (e.g. QCD_s1b1jresolvedMcut_SR_DNNoutSM_kl_1_Up)
             templQCD_shape = inRoot.Get("{0}_{1}_{2}_{3}_Up"  .format("QCD", select, "SR", variable[theCat]))
             if templQCD_shape.Integral() > 0:
-                proc_syst["QCD"]["CMS_bbtt_"+opt.year+"_QCDshape"] = ["shape", 1.]
-                systsShape.append("CMS_bbtt_"+opt.year+"_QCDshape")
+                #proc_syst["QCD"]["CMS_bbtt_"+opt.year+"_QCDshape"] = ["shape", 1.]
+                #systsShape.append("CMS_bbtt_"+opt.year+"_QCDshape")
+                proc_syst["QCD"]["CMS_bbtt_"+selectName+"_QCDshape"] = ["shape", 1.]
+                systsShape.append("CMS_bbtt_"+selectName+"_QCDshape")
                 shiftShapes_toSave.append("{0}_{1}_{2}_{3}_Up"  .format("QCD", select, "SR", variable[theCat]))
                 shiftShapes_toSave.append("{0}_{1}_{2}_{3}_Down".format("QCD", select, "SR", variable[theCat]))
                 shiftShapes_newName.append("QCD_CMS_bbtt_"+opt.year+"_QCDshapeUp")
@@ -537,8 +539,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_newName.append(proc+"_"+CMS_tauELEname+"Up")
                     shiftShapes_newName.append(proc+"_"+CMS_tauELEname+"Down")
 
-        col1       = '{: <41}'      # must be equal to colsysN + colsysType
-        colsysN    = '{: <35}'      # name of systematic
+        col1       = '{: <46}'      # must be equal to colsysN + colsysType
+        colsysN    = '{: <40}'      # name of systematic
         colsysType = '{: <6}'       # type of syst: "lnN" or "shape"
         cols       = '{: >35}'      # must be equal to ratecols
         ratecols   = '{0: > 35.4f}' # must be equal to cols
