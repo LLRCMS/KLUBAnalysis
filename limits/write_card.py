@@ -267,8 +267,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                 systsShape.append("CMS_bbtt_"+selectName+"_QCDshape")
                 shiftShapes_toSave.append("{0}_{1}_{2}_{3}_Up"  .format("QCD", select, "SR", variable[theCat]))
                 shiftShapes_toSave.append("{0}_{1}_{2}_{3}_Down".format("QCD", select, "SR", variable[theCat]))
-                shiftShapes_newName.append("QCD_CMS_bbtt_"+opt.year+"_QCDshapeUp")
-                shiftShapes_newName.append("QCD_CMS_bbtt_"+opt.year+"_QCDshapeDown")
+                shiftShapes_newName.append("QCD_CMS_bbtt_"+selectName+"_QCDshapeUp")
+                shiftShapes_newName.append("QCD_CMS_bbtt_"+selectName+"_QCDshapeDown")
 
             # Add customSF uncertainties (4 unc. depending on DM) for TauTau channel in 2017
             if "2" in thechannel and "2017" in opt.year:
