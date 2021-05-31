@@ -825,17 +825,21 @@ int main (int argc, char** argv)
   //}
 
   // MES variations
-  Float_t tauH_SVFIT_mass_muup, DNNoutSM_kl_1_muup, BDToutSM_kl_1_muup;
-  Float_t tauH_SVFIT_mass_mudown, DNNoutSM_kl_1_mudown, BDToutSM_kl_1_mudown;
+  Float_t tauH_SVFIT_mass_muup, DNNoutSM_kl_1_muup, BDToutSM_kl_1_muup, HHKin_mass_muup, MT2_muup;
+  Float_t tauH_SVFIT_mass_mudown, DNNoutSM_kl_1_mudown, BDToutSM_kl_1_mudown, HHKin_mass_mudown, MT2_mudown;
   std::vector<Float_t> mdnnSM0_output_muup(mdnnSM0_size), mdnnSM0_output_mudown(mdnnSM0_size);
   //std::vector<Float_t> mdnnSM1_output_muup(mdnnSM1_size), mdnnSM1_output_mudown(mdnnSM1_size);
   //std::vector<Float_t> mdnnSM2_output_muup(mdnnSM2_size), mdnnSM2_output_mudown(mdnnSM2_size);
   TBranch* b_tauH_SVFIT_mass_muup   = outTree->Branch("tauH_SVFIT_mass_muup"  , &tauH_SVFIT_mass_muup);
   TBranch* b_DNNoutSM_kl_1_muup     = outTree->Branch("DNNoutSM_kl_1_muup"    , &DNNoutSM_kl_1_muup);
   TBranch* b_BDToutSM_kl_1_muup     = outTree->Branch("BDToutSM_kl_1_muup"    , &BDToutSM_kl_1_muup);
+  TBranch* b_HHKin_mass_muup        = outTree->Branch("HHKin_mass_muup"       , &HHKin_mass_muup);
+  TBranch* b_MT2_muup               = outTree->Branch("MT2_muup"              , &MT2_muup);
   TBranch* b_tauH_SVFIT_mass_mudown = outTree->Branch("tauH_SVFIT_mass_mudown", &tauH_SVFIT_mass_mudown);
   TBranch* b_DNNoutSM_kl_1_mudown   = outTree->Branch("DNNoutSM_kl_1_mudown"  , &DNNoutSM_kl_1_mudown);
   TBranch* b_BDToutSM_kl_1_mudown   = outTree->Branch("BDToutSM_kl_1_mudown"  , &BDToutSM_kl_1_mudown);
+  TBranch* b_HHKin_mass_mudown      = outTree->Branch("HHKin_mass_mudown"     , &HHKin_mass_mudown);
+  TBranch* b_MT2_mudown             = outTree->Branch("MT2_mudown"            , &MT2_mudown);
   std::vector<TBranch*> b_mdnnSM0_muup, b_mdnnSM0_mudown;
   //std::vector<TBranch*> b_mdnnSM1_muup, b_mdnnSM1_mudown;
   //std::vector<TBranch*> b_mdnnSM2_muup, b_mdnnSM2_mudown;
@@ -874,23 +878,31 @@ int main (int argc, char** argv)
   //}
 
   // EES variations
-  std::vector<Float_t> tauH_SVFIT_mass_eleup(N_tauhDM_EES), DNNoutSM_kl_1_eleup(N_tauhDM_EES), BDToutSM_kl_1_eleup(N_tauhDM_EES);
-  std::vector<Float_t> tauH_SVFIT_mass_eledown(N_tauhDM_EES), DNNoutSM_kl_1_eledown(N_tauhDM_EES), BDToutSM_kl_1_eledown(N_tauhDM_EES);
+  std::vector<Float_t> tauH_SVFIT_mass_eleup(N_tauhDM_EES), DNNoutSM_kl_1_eleup(N_tauhDM_EES), BDToutSM_kl_1_eleup(N_tauhDM_EES), HHKin_mass_eleup(N_tauhDM_EES), MT2_eleup(N_tauhDM_EES);
+  std::vector<Float_t> tauH_SVFIT_mass_eledown(N_tauhDM_EES), DNNoutSM_kl_1_eledown(N_tauhDM_EES), BDToutSM_kl_1_eledown(N_tauhDM_EES), HHKin_mass_eledown(N_tauhDM_EES), MT2_eledown(N_tauhDM_EES);
   std::vector<std::vector<Float_t>> mdnnSM0_output_eleup(N_tauhDM_EES, std::vector<Float_t>(mdnnSM0_size)), mdnnSM0_output_eledown(N_tauhDM_EES, std::vector<Float_t>(mdnnSM0_size));
   //std::vector<std::vector<Float_t>> mdnnSM1_output_eleup(N_tauhDM_EES, std::vector<Float_t>(mdnnSM1_size)), mdnnSM1_output_eledown(N_tauhDM_EES, std::vector<Float_t>(mdnnSM1_size));
   //std::vector<std::vector<Float_t>> mdnnSM2_output_eleup(N_tauhDM_EES, std::vector<Float_t>(mdnnSM2_size)), mdnnSM2_output_eledown(N_tauhDM_EES, std::vector<Float_t>(mdnnSM2_size));
   TBranch* b_tauH_SVFIT_mass_eleup_DM0   = outTree->Branch("tauH_SVFIT_mass_eleup_DM0"  , &tauH_SVFIT_mass_eleup.at(0));    // DM 0
   TBranch* b_DNNoutSM_kl_1_eleup_DM0     = outTree->Branch("DNNoutSM_kl_1_eleup_DM0"    , &DNNoutSM_kl_1_eleup.at(0));
   TBranch* b_BDToutSM_kl_1_eleup_DM0     = outTree->Branch("BDToutSM_kl_1_eleup_DM0"    , &BDToutSM_kl_1_eleup.at(0));
+  TBranch* b_HHKin_mass_eleup_DM0        = outTree->Branch("HHKin_mass_eleup_DM0"       , &HHKin_mass_eleup.at(0));
+  TBranch* b_MT2_eleup_DM0               = outTree->Branch("MT2_eleup_DM0"              , &MT2_eleup.at(0));
   TBranch* b_tauH_SVFIT_mass_eledown_DM0 = outTree->Branch("tauH_SVFIT_mass_eledown_DM0", &tauH_SVFIT_mass_eledown.at(0));
   TBranch* b_DNNoutSM_kl_1_eledown_DM0   = outTree->Branch("DNNoutSM_kl_1_eledown_DM0"  , &DNNoutSM_kl_1_eledown.at(0));
   TBranch* b_BDToutSM_kl_1_eledown_DM0   = outTree->Branch("BDToutSM_kl_1_eledown_DM0"  , &BDToutSM_kl_1_eledown.at(0));
+  TBranch* b_HHKin_mass_eledown_DM0      = outTree->Branch("HHKin_mass_eledown_DM0"     , &HHKin_mass_eledown.at(0));
+  TBranch* b_MT2_eledown_DM0             = outTree->Branch("MT2_eledown_DM0"            , &MT2_eledown.at(0));
   TBranch* b_tauH_SVFIT_mass_eleup_DM1   = outTree->Branch("tauH_SVFIT_mass_eleup_DM1"  , &tauH_SVFIT_mass_eleup.at(1));    // DM 1
   TBranch* b_DNNoutSM_kl_1_eleup_DM1     = outTree->Branch("DNNoutSM_kl_1_eleup_DM1"    , &DNNoutSM_kl_1_eleup.at(1));
   TBranch* b_BDToutSM_kl_1_eleup_DM1     = outTree->Branch("BDToutSM_kl_1_eleup_DM1"    , &BDToutSM_kl_1_eleup.at(1));
+  TBranch* b_HHKin_mass_eleup_DM1        = outTree->Branch("HHKin_mass_eleup_DM1"       , &HHKin_mass_eleup.at(1));
+  TBranch* b_MT2_eleup_DM1               = outTree->Branch("MT2_eleup_DM1"              , &MT2_eleup.at(1));
   TBranch* b_tauH_SVFIT_mass_eledown_DM1 = outTree->Branch("tauH_SVFIT_mass_eledown_DM1", &tauH_SVFIT_mass_eledown.at(1));
   TBranch* b_DNNoutSM_kl_1_eledown_DM1   = outTree->Branch("DNNoutSM_kl_1_eledown_DM1"  , &DNNoutSM_kl_1_eledown.at(1));
   TBranch* b_BDToutSM_kl_1_eledown_DM1   = outTree->Branch("BDToutSM_kl_1_eledown_DM1"  , &BDToutSM_kl_1_eledown.at(1));
+  TBranch* b_HHKin_mass_eledown_DM1      = outTree->Branch("HHKin_mass_eledown_DM1"     , &HHKin_mass_eledown.at(1));
+  TBranch* b_MT2_eledown_DM1             = outTree->Branch("MT2_eledown_DM1"            , &MT2_eledown.at(1));
   std::vector<TBranch*> b_mdnnSM0_eleup_DM0, b_mdnnSM0_eledown_DM0;
   std::vector<TBranch*> b_mdnnSM0_eleup_DM1, b_mdnnSM0_eledown_DM1;
   //std::vector<TBranch*> b_mdnnSM1_eleup_DM0, b_mdnnSM1_eledown_DM0;
@@ -956,35 +968,51 @@ int main (int argc, char** argv)
   //}
 
   // TES variations
-  std::vector<Float_t> tauH_SVFIT_mass_tauup(N_tauhDM), DNNoutSM_kl_1_tauup(N_tauhDM), BDToutSM_kl_1_tauup(N_tauhDM);
-  std::vector<Float_t> tauH_SVFIT_mass_taudown(N_tauhDM), DNNoutSM_kl_1_taudown(N_tauhDM), BDToutSM_kl_1_taudown(N_tauhDM);
+  std::vector<Float_t> tauH_SVFIT_mass_tauup(N_tauhDM), DNNoutSM_kl_1_tauup(N_tauhDM), BDToutSM_kl_1_tauup(N_tauhDM), HHKin_mass_tauup(N_tauhDM), MT2_tauup(N_tauhDM);
+  std::vector<Float_t> tauH_SVFIT_mass_taudown(N_tauhDM), DNNoutSM_kl_1_taudown(N_tauhDM), BDToutSM_kl_1_taudown(N_tauhDM), HHKin_mass_taudown(N_tauhDM), MT2_taudown(N_tauhDM);
   std::vector<std::vector<Float_t>> mdnnSM0_output_tauup(N_tauhDM, std::vector<Float_t>(mdnnSM0_size)), mdnnSM0_output_taudown(N_tauhDM, std::vector<Float_t>(mdnnSM0_size));
   //std::vector<std::vector<Float_t>> mdnnSM1_output_tauup(N_tauhDM, std::vector<Float_t>(mdnnSM1_size)), mdnnSM1_output_taudown(N_tauhDM, std::vector<Float_t>(mdnnSM1_size));
   //std::vector<std::vector<Float_t>> mdnnSM2_output_tauup(N_tauhDM, std::vector<Float_t>(mdnnSM2_size)), mdnnSM2_output_taudown(N_tauhDM, std::vector<Float_t>(mdnnSM2_size));
   TBranch* b_tauH_SVFIT_mass_tauup_DM0    = outTree->Branch("tauH_SVFIT_mass_tauup_DM0"   , &tauH_SVFIT_mass_tauup.at(0));    // DM 0
   TBranch* b_DNNoutSM_kl_1_tauup_DM0      = outTree->Branch("DNNoutSM_kl_1_tauup_DM0"     , &DNNoutSM_kl_1_tauup.at(0));
   TBranch* b_BDToutSM_kl_1_tauup_DM0      = outTree->Branch("BDToutSM_kl_1_tauup_DM0"     , &BDToutSM_kl_1_tauup.at(0));
+  TBranch* b_HHKin_mass_tauup_DM0         = outTree->Branch("HHKin_mass_tauup_DM0"        , &HHKin_mass_tauup.at(0));
+  TBranch* b_MT2_tauup_DM0                = outTree->Branch("MT2_tauup_DM0"               , &MT2_tauup.at(0));
   TBranch* b_tauH_SVFIT_mass_taudown_DM0  = outTree->Branch("tauH_SVFIT_mass_taudown_DM0" , &tauH_SVFIT_mass_taudown.at(0));
   TBranch* b_DNNoutSM_kl_1_taudown_DM0    = outTree->Branch("DNNoutSM_kl_1_taudown_DM0"   , &DNNoutSM_kl_1_taudown.at(0));
   TBranch* b_BDToutSM_kl_1_taudown_DM0    = outTree->Branch("BDToutSM_kl_1_taudown_DM0"   , &BDToutSM_kl_1_taudown.at(0));
+  TBranch* b_HHKin_mass_taudown_DM0       = outTree->Branch("HHKin_mass_taudown_DM0"      , &HHKin_mass_taudown.at(0));
+  TBranch* b_MT2_taudown_DM0              = outTree->Branch("MT2_taudown_DM0"             , &MT2_taudown.at(0));
   TBranch* b_tauH_SVFIT_mass_tauup_DM1    = outTree->Branch("tauH_SVFIT_mass_tauup_DM1"   , &tauH_SVFIT_mass_tauup.at(1));    // DM 1
   TBranch* b_DNNoutSM_kl_1_tauup_DM1      = outTree->Branch("DNNoutSM_kl_1_tauup_DM1"     , &DNNoutSM_kl_1_tauup.at(1));
   TBranch* b_BDToutSM_kl_1_tauup_DM1      = outTree->Branch("BDToutSM_kl_1_tauup_DM1"     , &BDToutSM_kl_1_tauup.at(1));
+  TBranch* b_HHKin_mass_tauup_DM1         = outTree->Branch("HHKin_mass_tauup_DM1"        , &HHKin_mass_tauup.at(1));
+  TBranch* b_MT2_tauup_DM1                = outTree->Branch("MT2_tauup_DM1"               , &MT2_tauup.at(1));
   TBranch* b_tauH_SVFIT_mass_taudown_DM1  = outTree->Branch("tauH_SVFIT_mass_taudown_DM1" , &tauH_SVFIT_mass_taudown.at(1));
   TBranch* b_DNNoutSM_kl_1_taudown_DM1    = outTree->Branch("DNNoutSM_kl_1_taudown_DM1"   , &DNNoutSM_kl_1_taudown.at(1));
   TBranch* b_BDToutSM_kl_1_taudown_DM1    = outTree->Branch("BDToutSM_kl_1_taudown_DM1"   , &BDToutSM_kl_1_taudown.at(1));
+  TBranch* b_HHKin_mass_taudown_DM1       = outTree->Branch("HHKin_mass_taudown_DM1"      , &HHKin_mass_taudown.at(1));
+  TBranch* b_MT2_taudown_DM1              = outTree->Branch("MT2_taudown_DM1"             , &MT2_taudown.at(1));
   TBranch* b_tauH_SVFIT_mass_tauup_DM10   = outTree->Branch("tauH_SVFIT_mass_tauup_DM10"  , &tauH_SVFIT_mass_tauup.at(2));    // DM 10
   TBranch* b_DNNoutSM_kl_1_tauup_DM10     = outTree->Branch("DNNoutSM_kl_1_tauup_DM10"    , &DNNoutSM_kl_1_tauup.at(2));
   TBranch* b_BDToutSM_kl_1_tauup_DM10     = outTree->Branch("BDToutSM_kl_1_tauup_DM10"    , &BDToutSM_kl_1_tauup.at(2));
+  TBranch* b_HHKin_mass_tauup_DM10        = outTree->Branch("HHKin_mass_tauup_DM10"       , &HHKin_mass_tauup.at(2));
+  TBranch* b_MT2_tauup_DM10               = outTree->Branch("MT2_tauup_DM10"              , &MT2_tauup.at(2));
   TBranch* b_tauH_SVFIT_mass_taudown_DM10 = outTree->Branch("tauH_SVFIT_mass_taudown_DM10", &tauH_SVFIT_mass_taudown.at(2));
   TBranch* b_DNNoutSM_kl_1_taudown_DM10   = outTree->Branch("DNNoutSM_kl_1_taudown_DM10"  , &DNNoutSM_kl_1_taudown.at(2));
   TBranch* b_BDToutSM_kl_1_taudown_DM10   = outTree->Branch("BDToutSM_kl_1_taudown_DM10"  , &BDToutSM_kl_1_taudown.at(2));
+  TBranch* b_HHKin_mass_taudown_DM10      = outTree->Branch("HHKin_mass_taudown_DM10"     , &HHKin_mass_taudown.at(2));
+  TBranch* b_MT2_taudown_DM10             = outTree->Branch("MT2_taudown_DM10"            , &MT2_taudown.at(2));
   TBranch* b_tauH_SVFIT_mass_tauup_DM11   = outTree->Branch("tauH_SVFIT_mass_tauup_DM11"  , &tauH_SVFIT_mass_tauup.at(3));    // DM 11
   TBranch* b_DNNoutSM_kl_1_tauup_DM11     = outTree->Branch("DNNoutSM_kl_1_tauup_DM11"    , &DNNoutSM_kl_1_tauup.at(3));
   TBranch* b_BDToutSM_kl_1_tauup_DM11     = outTree->Branch("BDToutSM_kl_1_tauup_DM11"    , &BDToutSM_kl_1_tauup.at(3));
+  TBranch* b_HHKin_mass_tauup_DM11        = outTree->Branch("HHKin_mass_tauup_DM11"       , &HHKin_mass_tauup.at(3));
+  TBranch* b_MT2_tauup_DM11               = outTree->Branch("MT2_tauup_DM11"              , &MT2_tauup.at(3));
   TBranch* b_tauH_SVFIT_mass_taudown_DM11 = outTree->Branch("tauH_SVFIT_mass_taudown_DM11", &tauH_SVFIT_mass_taudown.at(3));
   TBranch* b_DNNoutSM_kl_1_taudown_DM11   = outTree->Branch("DNNoutSM_kl_1_taudown_DM11"  , &DNNoutSM_kl_1_taudown.at(3));
   TBranch* b_BDToutSM_kl_1_taudown_DM11   = outTree->Branch("BDToutSM_kl_1_taudown_DM11"  , &BDToutSM_kl_1_taudown.at(3));
+  TBranch* b_HHKin_mass_taudown_DM11      = outTree->Branch("HHKin_mass_taudown_DM11"     , &HHKin_mass_taudown.at(3));
+  TBranch* b_MT2_taudown_DM11             = outTree->Branch("MT2_taudown_DM11"            , &MT2_taudown.at(3));
   std::vector<TBranch*> b_mdnnSM0_tauup_DM0 , b_mdnnSM0_taudown_DM0;
   std::vector<TBranch*> b_mdnnSM0_tauup_DM1 , b_mdnnSM0_taudown_DM1;
   std::vector<TBranch*> b_mdnnSM0_tauup_DM10, b_mdnnSM0_taudown_DM10;
@@ -1104,8 +1132,8 @@ int main (int argc, char** argv)
   //}
 
   // JES variations
-  std::vector<Float_t> tauH_SVFIT_mass_jetup(N_jecSources), DNNoutSM_kl_1_jetup(N_jecSources), BDToutSM_kl_1_jetup(N_jecSources), bH_mass_raw_jetup(N_jecSources);
-  std::vector<Float_t> tauH_SVFIT_mass_jetdown(N_jecSources), DNNoutSM_kl_1_jetdown(N_jecSources), BDToutSM_kl_1_jetdown(N_jecSources), bH_mass_raw_jetdown(N_jecSources);
+  std::vector<Float_t> tauH_SVFIT_mass_jetup(N_jecSources), DNNoutSM_kl_1_jetup(N_jecSources), BDToutSM_kl_1_jetup(N_jecSources), bH_mass_raw_jetup(N_jecSources), HHKin_mass_jetup(N_jecSources), MT2_jetup(N_jecSources);
+  std::vector<Float_t> tauH_SVFIT_mass_jetdown(N_jecSources), DNNoutSM_kl_1_jetdown(N_jecSources), BDToutSM_kl_1_jetdown(N_jecSources), bH_mass_raw_jetdown(N_jecSources), HHKin_mass_jetdown(N_jecSources), MT2_jetdown(N_jecSources);
   std::vector<std::vector<Float_t>> mdnnSM0_output_jetup(N_jecSources, std::vector<Float_t>(mdnnSM0_size)), mdnnSM0_output_jetdown(N_jecSources, std::vector<Float_t>(mdnnSM0_size));
   //std::vector<std::vector<Float_t>> mdnnSM1_output_jetup(N_jecSources, std::vector<Float_t>(mdnnSM1_size)), mdnnSM1_output_jetdown(N_jecSources, std::vector<Float_t>(mdnnSM1_size));
   //std::vector<std::vector<Float_t>> mdnnSM2_output_jetup(N_jecSources, std::vector<Float_t>(mdnnSM2_size)), mdnnSM2_output_jetdown(N_jecSources, std::vector<Float_t>(mdnnSM2_size));
@@ -1113,6 +1141,8 @@ int main (int argc, char** argv)
   std::vector<TBranch*> b_DNNoutSM_kl_1_jetup  , b_DNNoutSM_kl_1_jetdown  ;
   std::vector<TBranch*> b_BDToutSM_kl_1_jetup  , b_BDToutSM_kl_1_jetdown  ;
   std::vector<TBranch*> b_bH_mass_raw_jetup    , b_bH_mass_raw_jetdown    ;
+  std::vector<TBranch*> b_HHKin_mass_jetup     , b_HHKin_mass_jetdown     ;
+  std::vector<TBranch*> b_MT2_jetup            , b_MT2_jetdown            ;
   std::vector<std::vector<TBranch*>> b_mdnnSM0_jetup(N_jecSources, std::vector<TBranch*>(mdnnSM0_size)), b_mdnnSM0_jetdown(N_jecSources, std::vector<TBranch*>(mdnnSM0_size));
   //std::vector<std::vector<TBranch*>> b_mdnnSM1_jetup(N_jecSources, std::vector<TBranch*>(mdnnSM1_size)), b_mdnnSM1_jetdown(N_jecSources, std::vector<TBranch*>(mdnnSM1_size));
   //std::vector<std::vector<TBranch*>> b_mdnnSM2_jetup(N_jecSources, std::vector<TBranch*>(mdnnSM2_size)), b_mdnnSM2_jetdown(N_jecSources, std::vector<TBranch*>(mdnnSM2_size));
@@ -1120,10 +1150,14 @@ int main (int argc, char** argv)
   boost::format DNNName_up   ("DNNoutSM_kl_1_jetup%i");
   boost::format BDTName_up   ("BDToutSM_kl_1_jetup%i");
   boost::format bHName_up    ("bH_mass_raw_jetup%i");
+  boost::format HHName_up    ("HHKin_mass_jetup%i");
+  boost::format MT2Name_up   ("MT2_jetup%i");
   boost::format tauHName_down("tauH_SVFIT_mass_jetdown%i");
   boost::format DNNName_down ("DNNoutSM_kl_1_jetdown%i");
   boost::format BDTName_down ("BDToutSM_kl_1_jetdown%i");
   boost::format bHName_down  ("bH_mass_raw_jetdown%i");
+  boost::format HHName_down  ("HHKin_mass_jetdown%i");
+  boost::format MT2Name_down ("MT2_jetdown%i");
   boost::format mdnnSM0name_jetup  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_jetup%2%");
   boost::format mdnnSM0name_jetdown("mdnn__v5__kl1_c2v1_c31_vbf__%1%_jetdown%2%");
   //boost::format mdnnSM1name_jetup  ("mdnn__v5__kl1_c2v1_c31_vbf__%1%_jetup%2%");
@@ -1136,28 +1170,40 @@ int main (int argc, char** argv)
     std::string tmp_DNN_up_branch_name    = boost::str(DNNName_up    % (i+1));
     std::string tmp_BDT_up_branch_name    = boost::str(BDTName_up    % (i+1));
     std::string tmp_bH_up_branch_name     = boost::str(bHName_up     % (i+1));
+    std::string tmp_HH_up_branch_name     = boost::str(HHName_up     % (i+1));
+    std::string tmp_MT2_up_branch_name    = boost::str(MT2Name_up    % (i+1));
     std::string tmp_tauH_down_branch_name = boost::str(tauHName_down % (i+1));
     std::string tmp_DNN_down_branch_name  = boost::str(DNNName_down  % (i+1));
     std::string tmp_BDT_down_branch_name  = boost::str(BDTName_down  % (i+1));
     std::string tmp_bH_down_branch_name   = boost::str(bHName_down   % (i+1));
+    std::string tmp_HH_down_branch_name   = boost::str(HHName_down   % (i+1));
+    std::string tmp_MT2_down_branch_name  = boost::str(MT2Name_down  % (i+1));
 
     TBranch* tmp_tauH_up_branch   = outTree->Branch(tmp_tauH_up_branch_name  .c_str(), &tauH_SVFIT_mass_jetup.at(i));
     TBranch* tmp_DNN_up_branch    = outTree->Branch(tmp_DNN_up_branch_name   .c_str(), &DNNoutSM_kl_1_jetup.at(i));
     TBranch* tmp_BDT_up_branch    = outTree->Branch(tmp_BDT_up_branch_name   .c_str(), &BDToutSM_kl_1_jetup.at(i));
     TBranch* tmp_bH_up_branch     = outTree->Branch(tmp_bH_up_branch_name    .c_str(), &bH_mass_raw_jetup.at(i));
+    TBranch* tmp_HH_up_branch     = outTree->Branch(tmp_HH_up_branch_name    .c_str(), &HHKin_mass_jetup.at(i));
+    TBranch* tmp_MT2_up_branch    = outTree->Branch(tmp_MT2_up_branch_name   .c_str(), &MT2_jetup.at(i));
     TBranch* tmp_tauH_down_branch = outTree->Branch(tmp_tauH_down_branch_name.c_str(), &tauH_SVFIT_mass_jetdown.at(i));
     TBranch* tmp_DNN_down_branch  = outTree->Branch(tmp_DNN_down_branch_name .c_str(), &DNNoutSM_kl_1_jetdown.at(i));
     TBranch* tmp_DBT_down_branch  = outTree->Branch(tmp_BDT_down_branch_name .c_str(), &BDToutSM_kl_1_jetdown.at(i));
     TBranch* tmp_bH_down_branch   = outTree->Branch(tmp_bH_down_branch_name  .c_str(), &bH_mass_raw_jetdown.at(i));
+    TBranch* tmp_HH_down_branch   = outTree->Branch(tmp_HH_down_branch_name  .c_str(), &HHKin_mass_jetdown.at(i));
+    TBranch* tmp_MT2_down_branch  = outTree->Branch(tmp_MT2_down_branch_name .c_str(), &MT2_jetdown.at(i));
 
     b_tauH_SVFIT_mass_jetup  .push_back(tmp_tauH_up_branch);
     b_DNNoutSM_kl_1_jetup    .push_back(tmp_DNN_up_branch);
     b_BDToutSM_kl_1_jetup    .push_back(tmp_BDT_up_branch);
     b_bH_mass_raw_jetup      .push_back(tmp_bH_up_branch);
+    b_HHKin_mass_jetup       .push_back(tmp_HH_up_branch);
+    b_MT2_jetup              .push_back(tmp_MT2_up_branch);
     b_tauH_SVFIT_mass_jetdown.push_back(tmp_tauH_down_branch);
     b_DNNoutSM_kl_1_jetdown  .push_back(tmp_DNN_down_branch);
     b_BDToutSM_kl_1_jetdown  .push_back(tmp_DBT_down_branch);
     b_bH_mass_raw_jetdown    .push_back(tmp_bH_down_branch);
+    b_HHKin_mass_jetdown     .push_back(tmp_HH_down_branch);
+    b_MT2_jetdown            .push_back(tmp_MT2_down_branch);
 
     for (int k=0; k<mdnnSM0_size; k++)
     {
@@ -1189,17 +1235,21 @@ int main (int argc, char** argv)
   }
 
   // JES variations Total
-  Float_t tauH_SVFIT_mass_jetupTot, DNNoutSM_kl_1_jetupTot, BDToutSM_kl_1_jetupTot;
-  Float_t tauH_SVFIT_mass_jetdownTot, DNNoutSM_kl_1_jetdownTot, BDToutSM_kl_1_jetdownTot;
+  Float_t tauH_SVFIT_mass_jetupTot, DNNoutSM_kl_1_jetupTot, BDToutSM_kl_1_jetupTot, HHKin_mass_jetupTot, MT2_jetupTot;
+  Float_t tauH_SVFIT_mass_jetdownTot, DNNoutSM_kl_1_jetdownTot, BDToutSM_kl_1_jetdownTot, HHKin_mass_jetdownTot, MT2_jetdownTot;
   std::vector<Float_t> mdnnSM0_output_jetupTot(mdnnSM0_size), mdnnSM0_output_jetdownTot(mdnnSM0_size);
   //std::vector<Float_t> mdnnSM1_output_jetupTot(mdnnSM1_size), mdnnSM1_output_jetdownTot(mdnnSM1_size);
   //std::vector<Float_t> mdnnSM2_output_jetupTot(mdnnSM2_size), mdnnSM2_output_jetdownTot(mdnnSM2_size);
   TBranch* b_tauH_SVFIT_mass_jetupTot   = outTree->Branch("tauH_SVFIT_mass_jetupTot"  , &tauH_SVFIT_mass_jetupTot);
   TBranch* b_DNNoutSM_kl_1_jetupTot     = outTree->Branch("DNNoutSM_kl_1_jetupTot"    , &DNNoutSM_kl_1_jetupTot);
   TBranch* b_BDToutSM_kl_1_jetupTot     = outTree->Branch("BDToutSM_kl_1_jetupTot"    , &BDToutSM_kl_1_jetupTot);
+  TBranch* b_HHKin_mass_jetupTot        = outTree->Branch("HHKin_mass_jetupTot"       , &HHKin_mass_jetupTot);
+  TBranch* b_MT2_jetupTot               = outTree->Branch("MT2_jetupTot"              , &MT2_jetupTot);
   TBranch* b_tauH_SVFIT_mass_jetdownTot = outTree->Branch("tauH_SVFIT_mass_jetdownTot", &tauH_SVFIT_mass_jetdownTot);
   TBranch* b_DNNoutSM_kl_1_jetdownTot   = outTree->Branch("DNNoutSM_kl_1_jetdownTot"  , &DNNoutSM_kl_1_jetdownTot);
   TBranch* b_BDToutSM_kl_1_jetdownTot   = outTree->Branch("BDToutSM_kl_1_jetdownTot"  , &BDToutSM_kl_1_jetdownTot);
+  TBranch* b_HHKin_mass_jetdownTot      = outTree->Branch("HHKin_mass_jetdownTot"     , &HHKin_mass_jetdownTot);
+  TBranch* b_MT2_jetdownTot             = outTree->Branch("MT2_jetdownTot"            , &MT2_jetdownTot);
   std::vector<TBranch*> b_mdnnSM0_jetupTot, b_mdnnSM0_jetdownTot;
   //std::vector<TBranch*> b_mdnnSM1_jetupTot, b_mdnnSM1_jetdownTot;
   //std::vector<TBranch*> b_mdnnSM2_jetupTot, b_mdnnSM2_jetdownTot;
@@ -1659,6 +1709,10 @@ int main (int argc, char** argv)
         DNNoutSM_kl_1_mudown   = DNNoutSM_kl_1;
         BDToutSM_kl_1_muup     = BDToutSM_kl_1;
         BDToutSM_kl_1_mudown   = BDToutSM_kl_1;
+        HHKin_mass_muup        = HHKin_mass;
+	HHKin_mass_mudown      = HHKin_mass;
+        MT2_muup               = MT2;
+	MT2_mudown             = MT2;
 
         // VBF multiclass
         float Elong = pow(pow(svfit.Pz(), 2) + pow(svfit.M(), 2), 0.5);
@@ -1722,8 +1776,7 @@ int main (int argc, char** argv)
         TVector2 ptmiss_mudown = TVector2(METx_mudown, METy_mudown);
 
         // Declare other useful shifted variables
-        float HHKin_mass_muup, HHKin_chi2_muup, HHKin_mass_mudown, HHKin_chi2_mudown;
-        float MT2_muup, MT2_mudown;
+        float HHKin_chi2_muup, HHKin_chi2_mudown;
         float tauH_SVFIT_pt_muup, tauH_SVFIT_eta_muup, tauH_SVFIT_phi_muup, tauH_SVFIT_e_muup;
         float tauH_SVFIT_pt_mudown, tauH_SVFIT_eta_mudown, tauH_SVFIT_phi_mudown, tauH_SVFIT_e_mudown;
 
@@ -1983,6 +2036,10 @@ int main (int argc, char** argv)
           DNNoutSM_kl_1_eledown.at(i)   = DNNoutSM_kl_1;
           BDToutSM_kl_1_eleup.at(i)     = BDToutSM_kl_1;
           BDToutSM_kl_1_eledown.at(i)   = BDToutSM_kl_1;
+          HHKin_mass_eleup.at(i)        = HHKin_mass;
+	  HHKin_mass_eledown.at(i)      = HHKin_mass;
+          MT2_eleup.at(i)               = MT2;
+	  MT2_eledown.at(i)             = MT2;
 
           // VBF multiclass
           float Elong = pow(pow(svfit.Pz(), 2) + pow(svfit.M(), 2), 0.5);
@@ -2046,8 +2103,7 @@ int main (int argc, char** argv)
           TVector2 ptmiss_eledown = TVector2(METx_eledown->at(i), METy_eledown->at(i));
 
           // Declare other useful shifted variables
-          float HHKin_mass_eleup, HHKin_chi2_eleup, HHKin_mass_eledown, HHKin_chi2_eledown;
-          float MT2_eleup, MT2_eledown;
+          float HHKin_chi2_eleup, HHKin_chi2_eledown;
           float tauH_SVFIT_pt_eleup, tauH_SVFIT_eta_eleup, tauH_SVFIT_phi_eleup, tauH_SVFIT_e_eleup;
           float tauH_SVFIT_pt_eledown, tauH_SVFIT_eta_eledown, tauH_SVFIT_phi_eledown, tauH_SVFIT_e_eledown;
 
@@ -2062,12 +2118,12 @@ int main (int argc, char** argv)
             catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK_eleup=true;}
             if(!wrongHHK_eleup)
             {
-              HHKin_mass_eleup = kinFits_eleup.getMH();
+              HHKin_mass_eleup.at(i) = kinFits_eleup.getMH();
               HHKin_chi2_eleup = kinFits_eleup.getChi2();
             }
             else
             {
-              HHKin_mass_eleup = -333.;
+              HHKin_mass_eleup.at(i) = -333.;
               HHKin_chi2_eleup = 0.;
             }
 
@@ -2080,25 +2136,25 @@ int main (int argc, char** argv)
             catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK_eledown=true;}
             if(!wrongHHK_eledown)
             {
-              HHKin_mass_eledown = kinFits_eledown.getMH();
+              HHKin_mass_eledown.at(i) = kinFits_eledown.getMH();
               HHKin_chi2_eledown = kinFits_eledown.getChi2();
             }
             else
             {
-              HHKin_mass_eledown = -333.;
+              HHKin_mass_eledown.at(i) = -333.;
               HHKin_chi2_eledown = 0.;
             }
           }
 
           if (doMT2)
           {
-            MT2_eleup = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
+            MT2_eleup.at(i) = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
                                                           bjet2.M(), bjet2.Px(), bjet2.Py(),
                                                           (tau1_eleup.Px() + tau2_eleup.Px() + met_eleup.Px()),
                                                           (tau1_eleup.Py() + tau2_eleup.Py() + met_eleup.Py()),
                                                           tau1_eleup.M(), tau2_eleup.M(), desiredPrecisionOnMt2);
 
-            MT2_eledown = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
+            MT2_eledown.at(i) = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
                                                             bjet2.M(), bjet2.Px(), bjet2.Py(),
                                                             (tau1_eledown.Px() + tau2_eledown.Px() + met_eledown.Px()),
                                                             (tau1_eledown.Py() + tau2_eledown.Py() + met_eledown.Py()),
@@ -2178,12 +2234,12 @@ int main (int argc, char** argv)
           if (doDNN)
           {
             DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_eleup, tau2_eleup, vbfjet1, vbfjet2, met_eleup, svfit_eleup,
-                HHKin_mass_eleup, HHKin_chi2_eleup, KinFitConv_eleup, SVfitConv_eleup, MT2_eleup);
+                HHKin_mass_eleup.at(i), HHKin_chi2_eleup, KinFitConv_eleup, SVfitConv_eleup, MT2_eleup.at(i));
             std::vector<float> outs_eleup = DNNreader.GetPredictions();
             DNNoutSM_kl_1_eleup.at(i) = outs_eleup.at(0);
 
             DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_eledown, tau2_eledown, vbfjet1, vbfjet2, met_eledown, svfit_eledown,
-                HHKin_mass_eledown, HHKin_chi2_eledown, KinFitConv_eledown, SVfitConv_eledown, MT2_eledown);
+                HHKin_mass_eledown.at(i), HHKin_chi2_eledown, KinFitConv_eledown, SVfitConv_eledown, MT2_eledown.at(i));
             std::vector<float> outs_eledown = DNNreader.GetPredictions();
             DNNoutSM_kl_1_eledown.at(i) = outs_eledown.at(0);
           }
@@ -2268,18 +2324,18 @@ int main (int argc, char** argv)
             BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_eleup.Pt(),
               tau2_eleup.Pt(), svfit_eleup.Pt(), BDT_channel,
               BDT_HT20, pzeta_eleup, pzeta_vis_eleup, BDT_ditau_deltaPhi_eleup,
-              BDT_tauHsvfitMet_deltaPhi_eleup, mT_tauH_MET_eleup, mTtot_eleup, MT2_eleup,
+              BDT_tauHsvfitMet_deltaPhi_eleup, mT_tauH_MET_eleup, mTtot_eleup, MT2_eleup.at(i),
               BDT_MX_eleup, BDT_bH_tauH_MET_InvMass_eleup, BDT_bH_tauH_SVFIT_InvMass_eleup,
-              BDT_bH_tauH_InvMass_eleup, HHKin_mass_eleup, HHKin_chi2_eleup, BDT_MET_bH_cosTheta_eleup);
+              BDT_bH_tauH_InvMass_eleup, HHKin_mass_eleup.at(i), HHKin_chi2_eleup, BDT_MET_bH_cosTheta_eleup);
             std::vector<float> BDTouts_eleup = BDTreader.GetPredictions();
             BDToutSM_kl_1_eleup.at(i) = BDTouts_eleup.at(0);
 
             BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_eledown.Pt(),
               tau2_eledown.Pt(), svfit_eledown.Pt(), BDT_channel,
               BDT_HT20, pzeta_eledown, pzeta_vis_eledown, BDT_ditau_deltaPhi_eledown,
-              BDT_tauHsvfitMet_deltaPhi_eledown, mT_tauH_MET_eledown, mTtot_eledown, MT2_eledown,
+              BDT_tauHsvfitMet_deltaPhi_eledown, mT_tauH_MET_eledown, mTtot_eledown, MT2_eledown.at(i),
               BDT_MX_eledown, BDT_bH_tauH_MET_InvMass_eledown, BDT_bH_tauH_SVFIT_InvMass_eledown,
-              BDT_bH_tauH_InvMass_eledown, HHKin_mass_eledown, HHKin_chi2_eledown, BDT_MET_bH_cosTheta_eledown);
+              BDT_bH_tauH_InvMass_eledown, HHKin_mass_eledown.at(i), HHKin_chi2_eledown, BDT_MET_bH_cosTheta_eledown);
             std::vector<float> BDTouts_eledown = BDTreader.GetPredictions();
             BDToutSM_kl_1_eledown.at(i) = BDTouts_eledown.at(0);
           }
@@ -2307,6 +2363,10 @@ int main (int argc, char** argv)
           DNNoutSM_kl_1_taudown.at(i)   = DNNoutSM_kl_1;
           BDToutSM_kl_1_tauup.at(i)     = BDToutSM_kl_1;
           BDToutSM_kl_1_taudown.at(i)   = BDToutSM_kl_1;
+          HHKin_mass_tauup.at(i)        = HHKin_mass;
+	  HHKin_mass_taudown.at(i)      = HHKin_mass;
+          MT2_tauup.at(i)               = MT2;
+	  MT2_taudown.at(i)             = MT2;
 
           // VBF multiclass
           float Elong = pow(pow(svfit.Pz(), 2) + pow(svfit.M(), 2), 0.5);
@@ -2370,8 +2430,7 @@ int main (int argc, char** argv)
           TVector2 ptmiss_taudown = TVector2(METx_taudown->at(i), METy_taudown->at(i));
 
           // Declare other useful shifted variables
-          float HHKin_mass_tauup, HHKin_chi2_tauup, HHKin_mass_taudown, HHKin_chi2_taudown;
-          float MT2_tauup, MT2_taudown;
+          float HHKin_chi2_tauup, HHKin_chi2_taudown;
           float tauH_SVFIT_pt_tauup, tauH_SVFIT_eta_tauup, tauH_SVFIT_phi_tauup, tauH_SVFIT_e_tauup;
           float tauH_SVFIT_pt_taudown, tauH_SVFIT_eta_taudown, tauH_SVFIT_phi_taudown, tauH_SVFIT_e_taudown;
 
@@ -2386,12 +2445,12 @@ int main (int argc, char** argv)
             catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK_tauup=true;}
             if(!wrongHHK_tauup)
             {
-              HHKin_mass_tauup = kinFits_tauup.getMH();
+              HHKin_mass_tauup.at(i) = kinFits_tauup.getMH();
               HHKin_chi2_tauup = kinFits_tauup.getChi2();
             }
             else
             {
-              HHKin_mass_tauup = -333.;
+              HHKin_mass_tauup.at(i) = -333.;
               HHKin_chi2_tauup = 0.;
             }
 
@@ -2404,25 +2463,25 @@ int main (int argc, char** argv)
             catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK_taudown=true;}
             if(!wrongHHK_taudown)
             {
-              HHKin_mass_taudown = kinFits_taudown.getMH();
+              HHKin_mass_taudown.at(i) = kinFits_taudown.getMH();
               HHKin_chi2_taudown = kinFits_taudown.getChi2();
             }
             else
             {
-              HHKin_mass_taudown = -333.;
+              HHKin_mass_taudown.at(i) = -333.;
               HHKin_chi2_taudown = 0.;
             }
           }
 
           if (doMT2)
           {
-            MT2_tauup = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
+            MT2_tauup.at(i) = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
                                                           bjet2.M(), bjet2.Px(), bjet2.Py(),
                                                           (tau1_tauup.Px() + tau2_tauup.Px() + met_tauup.Px()),
                                                           (tau1_tauup.Py() + tau2_tauup.Py() + met_tauup.Py()),
                                                           tau1_tauup.M(), tau2_tauup.M(), desiredPrecisionOnMt2);
 
-            MT2_taudown = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
+            MT2_taudown.at(i) = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
                                                             bjet2.M(), bjet2.Px(), bjet2.Py(),
                                                             (tau1_taudown.Px() + tau2_taudown.Px() + met_taudown.Px()),
                                                             (tau1_taudown.Py() + tau2_taudown.Py() + met_taudown.Py()),
@@ -2502,12 +2561,12 @@ int main (int argc, char** argv)
           if (doDNN)
           {
             DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_tauup, tau2_tauup, vbfjet1, vbfjet1, met_tauup, svfit_tauup,
-                HHKin_mass_tauup, HHKin_chi2_tauup, KinFitConv_tauup, SVfitConv_tauup, MT2_tauup);
+                HHKin_mass_tauup.at(i), HHKin_chi2_tauup, KinFitConv_tauup, SVfitConv_tauup, MT2_tauup.at(i));
             std::vector<float> outs_tauup = DNNreader.GetPredictions();
             DNNoutSM_kl_1_tauup.at(i) = outs_tauup.at(0);
 
             DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_taudown, tau2_taudown, vbfjet1, vbfjet1, met_taudown, svfit_taudown,
-                HHKin_mass_taudown, HHKin_chi2_taudown, KinFitConv_taudown, SVfitConv_taudown, MT2_taudown);
+                HHKin_mass_taudown.at(i), HHKin_chi2_taudown, KinFitConv_taudown, SVfitConv_taudown, MT2_taudown.at(i));
             std::vector<float> outs_taudown = DNNreader.GetPredictions();
             DNNoutSM_kl_1_taudown.at(i) = outs_taudown.at(0);
           }
@@ -2592,18 +2651,18 @@ int main (int argc, char** argv)
             BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_tauup.Pt(),
               tau2_tauup.Pt(), svfit_tauup.Pt(), BDT_channel,
               BDT_HT20, pzeta_tauup, pzeta_vis_tauup, BDT_ditau_deltaPhi_tauup,
-              BDT_tauHsvfitMet_deltaPhi_tauup, mT_tauH_MET_tauup, mTtot_tauup, MT2_tauup,
+              BDT_tauHsvfitMet_deltaPhi_tauup, mT_tauH_MET_tauup, mTtot_tauup, MT2_tauup.at(i),
               BDT_MX_tauup, BDT_bH_tauH_MET_InvMass_tauup, BDT_bH_tauH_SVFIT_InvMass_tauup,
-              BDT_bH_tauH_InvMass_tauup, HHKin_mass_tauup, HHKin_chi2_tauup, BDT_MET_bH_cosTheta_tauup);
+              BDT_bH_tauH_InvMass_tauup, HHKin_mass_tauup.at(i), HHKin_chi2_tauup, BDT_MET_bH_cosTheta_tauup);
             std::vector<float> BDTouts_tauup = BDTreader.GetPredictions();
             BDToutSM_kl_1_tauup.at(i) = BDTouts_tauup.at(0);
 
             BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_taudown.Pt(),
               tau2_taudown.Pt(), svfit_taudown.Pt(), BDT_channel,
               BDT_HT20, pzeta_taudown, pzeta_vis_taudown, BDT_ditau_deltaPhi_taudown,
-              BDT_tauHsvfitMet_deltaPhi_taudown, mT_tauH_MET_taudown, mTtot_taudown, MT2_taudown,
+              BDT_tauHsvfitMet_deltaPhi_taudown, mT_tauH_MET_taudown, mTtot_taudown, MT2_taudown.at(i),
               BDT_MX_taudown, BDT_bH_tauH_MET_InvMass_taudown, BDT_bH_tauH_SVFIT_InvMass_taudown,
-              BDT_bH_tauH_InvMass_taudown, HHKin_mass_taudown, HHKin_chi2_taudown, BDT_MET_bH_cosTheta_taudown);
+              BDT_bH_tauH_InvMass_taudown, HHKin_mass_taudown.at(i), HHKin_chi2_taudown, BDT_MET_bH_cosTheta_taudown);
             std::vector<float> BDTouts_taudown = BDTreader.GetPredictions();
             BDToutSM_kl_1_taudown.at(i) = BDTouts_taudown.at(0);
           }
@@ -2633,6 +2692,10 @@ int main (int argc, char** argv)
           BDToutSM_kl_1_jetdown.at(i)   = BDToutSM_kl_1;
           bH_mass_raw_jetup.at(i)       = bH_mass_raw;
           bH_mass_raw_jetdown.at(i)     = bH_mass_raw;
+          HHKin_mass_jetup.at(i)        = HHKin_mass;
+	  HHKin_mass_jetdown.at(i)      = HHKin_mass;
+          MT2_jetup.at(i)               = MT2;
+	  MT2_jetdown.at(i)             = MT2;
 
           // VBF multiclass
           float Elong = pow(pow(svfit.Pz(), 2) + pow(svfit.M(), 2), 0.5);
@@ -2795,8 +2858,7 @@ int main (int argc, char** argv)
           }
 
           // Declare other useful shifted variables
-          float HHKin_mass_jetup, HHKin_chi2_jetup, HHKin_mass_jetdown, HHKin_chi2_jetdown;
-          float MT2_jetup, MT2_jetdown;
+          float HHKin_chi2_jetup, HHKin_chi2_jetdown;
           float tauH_SVFIT_pt_jetup, tauH_SVFIT_eta_jetup, tauH_SVFIT_phi_jetup, tauH_SVFIT_e_jetup;
           float tauH_SVFIT_pt_jetdown, tauH_SVFIT_eta_jetdown, tauH_SVFIT_phi_jetdown, tauH_SVFIT_e_jetdown;
 
@@ -2811,12 +2873,12 @@ int main (int argc, char** argv)
             catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK_jetup=true;}
             if(!wrongHHK_jetup)
             {
-              HHKin_mass_jetup = kinFits_jetup.getMH();
+              HHKin_mass_jetup.at(i) = kinFits_jetup.getMH();
               HHKin_chi2_jetup = kinFits_jetup.getChi2();
             }
             else
             {
-              HHKin_mass_jetup = -333.;
+              HHKin_mass_jetup.at(i) = -333.;
               HHKin_chi2_jetup = 0.;
             }
 
@@ -2829,25 +2891,25 @@ int main (int argc, char** argv)
             catch(HHKinFit2::HHEnergyRangeException      &e) {wrongHHK_jetdown=true;}
             if(!wrongHHK_jetdown)
             {
-              HHKin_mass_jetdown = kinFits_jetdown.getMH();
+              HHKin_mass_jetdown.at(i) = kinFits_jetdown.getMH();
               HHKin_chi2_jetdown = kinFits_jetdown.getChi2();
             }
             else
             {
-              HHKin_mass_jetdown = -333.;
+              HHKin_mass_jetdown.at(i) = -333.;
               HHKin_chi2_jetdown = 0.;
             }
           }
 
           if (doMT2)
           {
-            MT2_jetup = asymm_mt2_lester_bisect::get_mT2( bjet1_jetup.M(), bjet1_jetup.Px(), bjet1_jetup.Py(),
+            MT2_jetup.at(i) = asymm_mt2_lester_bisect::get_mT2( bjet1_jetup.M(), bjet1_jetup.Px(), bjet1_jetup.Py(),
                                                           bjet2_jetup.M(), bjet2_jetup.Px(), bjet2_jetup.Py(),
                                                           (tau1.Px() + tau2.Px() + met_jetup.Px()),
                                                           (tau1.Py() + tau2.Py() + met_jetup.Py()),
                                                           tau1.M(), tau2.M(), desiredPrecisionOnMt2);
 
-            MT2_jetdown = asymm_mt2_lester_bisect::get_mT2( bjet1_jetdown.M(), bjet1_jetdown.Px(), bjet1_jetdown.Py(),
+            MT2_jetdown.at(i) = asymm_mt2_lester_bisect::get_mT2( bjet1_jetdown.M(), bjet1_jetdown.Px(), bjet1_jetdown.Py(),
                                                             bjet2_jetdown.M(), bjet2_jetdown.Px(), bjet2_jetdown.Py(),
                                                             (tau1.Px() + tau2.Px() + met_jetdown.Px()),
                                                             (tau1.Py() + tau2.Py() + met_jetdown.Py()),
@@ -2927,12 +2989,12 @@ int main (int argc, char** argv)
           if (doDNN)
           {
             DNNreader.SetShiftedInputs(bjet1_jetup, bjet2_jetup, tau1, tau2, vbfjet1_jetup, vbfjet2_jetup, met_jetup, svfit_jetup,
-                HHKin_mass_jetup, HHKin_chi2_jetup, KinFitConv_jetup, SVfitConv_jetup, MT2_jetup);
+                HHKin_mass_jetup.at(i), HHKin_chi2_jetup, KinFitConv_jetup, SVfitConv_jetup, MT2_jetup.at(i));
             std::vector<float> outs_jetup = DNNreader.GetPredictions();
             DNNoutSM_kl_1_jetup.at(i) = outs_jetup.at(0);
 
             DNNreader.SetShiftedInputs(bjet1_jetdown, bjet2_jetdown, tau1, tau2, vbfjet1_jetdown, vbfjet2_jetdown, met_jetdown, svfit_jetdown,
-                HHKin_mass_jetdown, HHKin_chi2_jetdown, KinFitConv_jetdown, SVfitConv_jetdown, MT2_jetdown);
+                HHKin_mass_jetdown.at(i), HHKin_chi2_jetdown, KinFitConv_jetdown, SVfitConv_jetdown, MT2_jetdown.at(i));
             std::vector<float> outs_jetdown = DNNreader.GetPredictions();
             DNNoutSM_kl_1_jetdown.at(i) = outs_jetdown.at(0);
           }
@@ -3017,18 +3079,18 @@ int main (int argc, char** argv)
             BDTreader.SetInputValues(bjet2_jetup.Pt(), (bjet1_jetup+bjet2_jetup).Pt(), tau1.Pt(),
               tau2.Pt(), svfit_jetup.Pt(), BDT_channel,
               BDT_HT20_jetup->at(i), pzeta_jetup, pzeta_vis_jetup, BDT_ditau_deltaPhi_jetup,
-              BDT_tauHsvfitMet_deltaPhi_jetup, mT_tauH_MET_jetup, mTtot_jetup, MT2_jetup,
+              BDT_tauHsvfitMet_deltaPhi_jetup, mT_tauH_MET_jetup, mTtot_jetup, MT2_jetup.at(i),
               BDT_MX_jetup, BDT_bH_tauH_MET_InvMass_jetup, BDT_bH_tauH_SVFIT_InvMass_jetup,
-              BDT_bH_tauH_InvMass_jetup, HHKin_mass_jetup, HHKin_chi2_jetup, BDT_MET_bH_cosTheta_jetup);
+              BDT_bH_tauH_InvMass_jetup, HHKin_mass_jetup.at(i), HHKin_chi2_jetup, BDT_MET_bH_cosTheta_jetup);
             std::vector<float> BDTouts_jetup = BDTreader.GetPredictions();
             BDToutSM_kl_1_jetup.at(i) = BDTouts_jetup.at(0);
 
             BDTreader.SetInputValues(bjet2_jetdown.Pt(), (bjet1_jetdown+bjet2_jetdown).Pt(), tau1.Pt(),
               tau2.Pt(), svfit_jetdown.Pt(), BDT_channel,
               BDT_HT20_jetdown->at(i), pzeta_jetdown, pzeta_vis_jetdown, BDT_ditau_deltaPhi_jetdown,
-              BDT_tauHsvfitMet_deltaPhi_jetdown, mT_tauH_MET_jetdown, mTtot_jetdown, MT2_jetdown,
+              BDT_tauHsvfitMet_deltaPhi_jetdown, mT_tauH_MET_jetdown, mTtot_jetdown, MT2_jetdown.at(i),
               BDT_MX_jetdown, BDT_bH_tauH_MET_InvMass_jetdown, BDT_bH_tauH_SVFIT_InvMass_jetdown,
-              BDT_bH_tauH_InvMass_jetdown, HHKin_mass_jetdown, HHKin_chi2_jetdown, BDT_MET_bH_cosTheta_jetdown);
+              BDT_bH_tauH_InvMass_jetdown, HHKin_mass_jetdown.at(i), HHKin_chi2_jetdown, BDT_MET_bH_cosTheta_jetdown);
             std::vector<float> BDTouts_jetdown = BDTreader.GetPredictions();
             BDToutSM_kl_1_jetdown.at(i) = BDTouts_jetdown.at(0);
           }
@@ -3054,6 +3116,10 @@ int main (int argc, char** argv)
         DNNoutSM_kl_1_jetdownTot   = DNNoutSM_kl_1;
         BDToutSM_kl_1_jetupTot     = BDToutSM_kl_1;
         BDToutSM_kl_1_jetdownTot   = BDToutSM_kl_1;
+        HHKin_mass_jetupTot        = HHKin_mass;
+	HHKin_mass_jetdownTot      = HHKin_mass;
+        MT2_jetupTot 	           = MT2;
+	MT2_jetdownTot	           = MT2;
 
         // VBF multiclass
         float Elong = pow(pow(svfit.Pz(), 2) + pow(svfit.M(), 2), 0.5);
@@ -3214,8 +3280,7 @@ int main (int argc, char** argv)
         }
 
         // Declare other useful shifted variables
-        float HHKin_mass_jetupTot, HHKin_chi2_jetupTot, HHKin_mass_jetdownTot, HHKin_chi2_jetdownTot;
-        float MT2_jetupTot, MT2_jetdownTot;
+        float HHKin_chi2_jetupTot, HHKin_chi2_jetdownTot;
         float tauH_SVFIT_pt_jetupTot, tauH_SVFIT_eta_jetupTot, tauH_SVFIT_phi_jetupTot, tauH_SVFIT_e_jetupTot;
         float tauH_SVFIT_pt_jetdownTot, tauH_SVFIT_eta_jetdownTot, tauH_SVFIT_phi_jetdownTot, tauH_SVFIT_e_jetdownTot;
 
@@ -3490,49 +3555,77 @@ int main (int argc, char** argv)
     b_tauH_SVFIT_mass_muup  ->Fill();
     b_DNNoutSM_kl_1_muup    ->Fill();
     b_BDToutSM_kl_1_muup    ->Fill();
+    b_HHKin_mass_muup       ->Fill();
+    b_MT2_muup              ->Fill();
     b_tauH_SVFIT_mass_mudown->Fill();
     b_DNNoutSM_kl_1_mudown  ->Fill();
     b_BDToutSM_kl_1_mudown  ->Fill();
+    b_HHKin_mass_mudown     ->Fill();
+    b_MT2_mudown            ->Fill();
 
     // EES variations
     b_tauH_SVFIT_mass_eleup_DM0  ->Fill();
     b_DNNoutSM_kl_1_eleup_DM0    ->Fill();
     b_BDToutSM_kl_1_eleup_DM0    ->Fill();
+    b_HHKin_mass_eleup_DM0       ->Fill();
+    b_MT2_eleup_DM0              ->Fill();
     b_tauH_SVFIT_mass_eledown_DM0->Fill();
     b_DNNoutSM_kl_1_eledown_DM0  ->Fill();
     b_BDToutSM_kl_1_eledown_DM0  ->Fill();
+    b_HHKin_mass_eledown_DM0     ->Fill();
+    b_MT2_eledown_DM0            ->Fill();
     b_tauH_SVFIT_mass_eleup_DM1  ->Fill();
     b_DNNoutSM_kl_1_eleup_DM1    ->Fill();
     b_BDToutSM_kl_1_eleup_DM1    ->Fill();
+    b_HHKin_mass_eleup_DM1       ->Fill();
+    b_MT2_eleup_DM1              ->Fill();
     b_tauH_SVFIT_mass_eledown_DM1->Fill();
     b_DNNoutSM_kl_1_eledown_DM1  ->Fill();
     b_BDToutSM_kl_1_eledown_DM1  ->Fill();
+    b_HHKin_mass_eledown_DM1     ->Fill();
+    b_MT2_eledown_DM1            ->Fill();
 
     // TES variations
     b_tauH_SVFIT_mass_tauup_DM0   ->Fill();
     b_DNNoutSM_kl_1_tauup_DM0     ->Fill();
     b_BDToutSM_kl_1_tauup_DM0     ->Fill();
+    b_HHKin_mass_tauup_DM0        ->Fill();
+    b_MT2_tauup_DM0               ->Fill();
     b_tauH_SVFIT_mass_taudown_DM0 ->Fill();
     b_DNNoutSM_kl_1_taudown_DM0   ->Fill();
     b_BDToutSM_kl_1_taudown_DM0   ->Fill();
+    b_HHKin_mass_taudown_DM0      ->Fill();
+    b_MT2_taudown_DM0             ->Fill();
     b_tauH_SVFIT_mass_tauup_DM1   ->Fill();
     b_DNNoutSM_kl_1_tauup_DM1     ->Fill();
     b_BDToutSM_kl_1_tauup_DM1     ->Fill();
+    b_HHKin_mass_tauup_DM1        ->Fill();
+    b_MT2_tauup_DM1               ->Fill();
     b_tauH_SVFIT_mass_taudown_DM1 ->Fill();
     b_DNNoutSM_kl_1_taudown_DM1   ->Fill();
     b_BDToutSM_kl_1_taudown_DM1   ->Fill();
+    b_HHKin_mass_taudown_DM1      ->Fill();
+    b_MT2_taudown_DM1             ->Fill();
     b_tauH_SVFIT_mass_tauup_DM10  ->Fill();
     b_DNNoutSM_kl_1_tauup_DM10    ->Fill();
     b_BDToutSM_kl_1_tauup_DM10    ->Fill();
+    b_HHKin_mass_tauup_DM10       ->Fill();
+    b_MT2_tauup_DM10              ->Fill();
     b_tauH_SVFIT_mass_taudown_DM10->Fill();
     b_DNNoutSM_kl_1_taudown_DM10  ->Fill();
     b_BDToutSM_kl_1_taudown_DM10  ->Fill();
+    b_HHKin_mass_taudown_DM10     ->Fill();
+    b_MT2_taudown_DM10            ->Fill();
     b_tauH_SVFIT_mass_tauup_DM11  ->Fill();
     b_DNNoutSM_kl_1_tauup_DM11    ->Fill();
     b_BDToutSM_kl_1_tauup_DM11    ->Fill();
+    b_HHKin_mass_tauup_DM11       ->Fill();
+    b_MT2_tauup_DM11              ->Fill();
     b_tauH_SVFIT_mass_taudown_DM11->Fill();
     b_DNNoutSM_kl_1_taudown_DM11  ->Fill();
     b_BDToutSM_kl_1_taudown_DM11  ->Fill();
+    b_HHKin_mass_taudown_DM11     ->Fill();
+    b_MT2_taudown_DM11            ->Fill();
 
     // JES variations
     for (int i=0; i<N_jecSources; i++)
@@ -3541,19 +3634,27 @@ int main (int argc, char** argv)
       b_DNNoutSM_kl_1_jetup    .at(i)->Fill();
       b_BDToutSM_kl_1_jetup    .at(i)->Fill();
       b_bH_mass_raw_jetup      .at(i)->Fill();
+      b_HHKin_mass_jetup       .at(i)->Fill();
+      b_MT2_jetup              .at(i)->Fill();
       b_tauH_SVFIT_mass_jetdown.at(i)->Fill();
       b_DNNoutSM_kl_1_jetdown  .at(i)->Fill();
       b_BDToutSM_kl_1_jetdown  .at(i)->Fill();
       b_bH_mass_raw_jetdown    .at(i)->Fill();
+      b_HHKin_mass_jetdown     .at(i)->Fill();
+      b_MT2_jetdown            .at(i)->Fill();
     }
 
     // JES Total variations
     b_tauH_SVFIT_mass_jetupTot  ->Fill();
     b_DNNoutSM_kl_1_jetupTot    ->Fill();
     b_BDToutSM_kl_1_jetupTot    ->Fill();
+    b_HHKin_mass_jetupTot       ->Fill();
+    b_MT2_jetupTot	        ->Fill();
     b_tauH_SVFIT_mass_jetdownTot->Fill();
     b_DNNoutSM_kl_1_jetdownTot  ->Fill();
     b_BDToutSM_kl_1_jetdownTot  ->Fill();
+    b_HHKin_mass_jetdownTot     ->Fill();
+    b_MT2_jetdownTot	        ->Fill();
 
     // Multiclass branches
     for (int i=0; i<mdnnSM0_size; i++)
