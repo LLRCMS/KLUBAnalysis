@@ -1710,9 +1710,9 @@ int main (int argc, char** argv)
         BDToutSM_kl_1_muup     = BDToutSM_kl_1;
         BDToutSM_kl_1_mudown   = BDToutSM_kl_1;
         HHKin_mass_muup        = HHKin_mass;
-	HHKin_mass_mudown      = HHKin_mass;
+        HHKin_mass_mudown      = HHKin_mass;
         MT2_muup               = MT2;
-	MT2_mudown             = MT2;
+        MT2_mudown             = MT2;
 
         // VBF multiclass
         float Elong = pow(pow(svfit.Pz(), 2) + pow(svfit.M(), 2), 0.5);
@@ -2037,9 +2037,9 @@ int main (int argc, char** argv)
           BDToutSM_kl_1_eleup.at(i)     = BDToutSM_kl_1;
           BDToutSM_kl_1_eledown.at(i)   = BDToutSM_kl_1;
           HHKin_mass_eleup.at(i)        = HHKin_mass;
-	  HHKin_mass_eledown.at(i)      = HHKin_mass;
+          HHKin_mass_eledown.at(i)      = HHKin_mass;
           MT2_eleup.at(i)               = MT2;
-	  MT2_eledown.at(i)             = MT2;
+          MT2_eledown.at(i)             = MT2;
 
           // VBF multiclass
           float Elong = pow(pow(svfit.Pz(), 2) + pow(svfit.M(), 2), 0.5);
@@ -2364,9 +2364,9 @@ int main (int argc, char** argv)
           BDToutSM_kl_1_tauup.at(i)     = BDToutSM_kl_1;
           BDToutSM_kl_1_taudown.at(i)   = BDToutSM_kl_1;
           HHKin_mass_tauup.at(i)        = HHKin_mass;
-	  HHKin_mass_taudown.at(i)      = HHKin_mass;
+          HHKin_mass_taudown.at(i)      = HHKin_mass;
           MT2_tauup.at(i)               = MT2;
-	  MT2_taudown.at(i)             = MT2;
+          MT2_taudown.at(i)             = MT2;
 
           // VBF multiclass
           float Elong = pow(pow(svfit.Pz(), 2) + pow(svfit.M(), 2), 0.5);
@@ -2693,9 +2693,9 @@ int main (int argc, char** argv)
           bH_mass_raw_jetup.at(i)       = bH_mass_raw;
           bH_mass_raw_jetdown.at(i)     = bH_mass_raw;
           HHKin_mass_jetup.at(i)        = HHKin_mass;
-	  HHKin_mass_jetdown.at(i)      = HHKin_mass;
+          HHKin_mass_jetdown.at(i)      = HHKin_mass;
           MT2_jetup.at(i)               = MT2;
-	  MT2_jetdown.at(i)             = MT2;
+          MT2_jetdown.at(i)             = MT2;
 
           // VBF multiclass
           float Elong = pow(pow(svfit.Pz(), 2) + pow(svfit.M(), 2), 0.5);
@@ -3117,9 +3117,9 @@ int main (int argc, char** argv)
         BDToutSM_kl_1_jetupTot     = BDToutSM_kl_1;
         BDToutSM_kl_1_jetdownTot   = BDToutSM_kl_1;
         HHKin_mass_jetupTot        = HHKin_mass;
-	HHKin_mass_jetdownTot      = HHKin_mass;
-        MT2_jetupTot 	           = MT2;
-	MT2_jetdownTot	           = MT2;
+        HHKin_mass_jetdownTot      = HHKin_mass;
+        MT2_jetupTot               = MT2;
+        MT2_jetdownTot             = MT2;
 
         // VBF multiclass
         float Elong = pow(pow(svfit.Pz(), 2) + pow(svfit.M(), 2), 0.5);
