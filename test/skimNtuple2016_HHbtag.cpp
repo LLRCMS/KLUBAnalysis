@@ -3691,7 +3691,7 @@ int main (int argc, char** argv)
               // variations propagated to bH 
               tlv_bH_raw_jetup[isource]   = (tlv_firstBjet_raw_jetup.at(isource) + tlv_secondBjet_raw_jetup.at(isource)) ;
               tlv_bH_raw_jetdown[isource] = (tlv_firstBjet_raw_jetdown.at(isource) + tlv_secondBjet_raw_jetdown.at(isource));
-	   }
+           }
         }
 	
         for (int isource = 0; isource < N_jecSources; isource++)
@@ -4372,7 +4372,7 @@ int main (int argc, char** argv)
                 VBFjet1_jetdown[isource] = getShiftedJet(VBFjet1, -1., unc_VBF1_updown.second[isource]);
                 VBFjet2_jetup  [isource] = getShiftedJet(VBFjet2, +1., unc_VBF2_updown.first [isource]);
                 VBFjet2_jetdown[isource] = getShiftedJet(VBFjet2, -1., unc_VBF2_updown.second[isource]);
-	     }
+             }
           }
 	  
           for (int isource = 0; isource < N_jecSources; isource++)
