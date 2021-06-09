@@ -122,6 +122,7 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         template = inRoot.Get(templateName)
         if template.Integral() > 0:
             newbackgrounds.append(proc)
+    newbackgrounds.reverse()
     backgrounds = newbackgrounds
 
     newsignals = []
@@ -186,8 +187,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         for proc in backgrounds: proc_syst[proc] = {}
         for proc in signals:     proc_syst[proc] = {}
 
-        systsShape = ["CMS_scale_t_13TeV_"+opt.year+"_DM0","CMS_scale_t_13TeV_"+opt.year+"_DM1","CMS_scale_t_13TeV_"+opt.year+"_DM10","CMS_scale_t_13TeV_"+opt.year+"_DM11",
-                      "CMS_scale_es_13TeV_"+opt.year+"_DM0", "CMS_scale_es_13TeV_"+opt.year+"_DM1", "CMS_scale_mes_13TeV_"+opt.year,
+        systsShape = ["CMS_scale_t_DM0_"+opt.year,"CMS_scale_t_DM1_"+opt.year,"CMS_scale_t_DM10_"+opt.year,"CMS_scale_t_DM11_"+opt.year,
+                      "CMS_scale_t_eFake_"+opt.year+"_DM0", "CMS_scale_t_eFake_"+opt.year+"_DM1", "CMS_scale_t_muFake_"+opt.year,
                       "CMS_scale_j_FlavQCD", "CMS_scale_j_RelBal", "CMS_scale_j_HF", "CMS_scale_j_BBEC1", "CMS_scale_j_EC2", "CMS_scale_j_Abs", "CMS_scale_j_BBEC1_"+opt.year,
                       "CMS_scale_j_EC2_"+opt.year, "CMS_scale_j_Abs_"+opt.year, "CMS_scale_j_HF_"+opt.year, "CMS_scale_j_RelSample_"+opt.year]
                       #"CMS_scale_j_13TeV_"+opt.year+""]
