@@ -540,8 +540,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_newName.append(proc+"_"+CMS_tauELEname+"Up")
                     shiftShapes_newName.append(proc+"_"+CMS_tauELEname+"Down")
 
-        col1       = '{: <46}'      # must be equal to colsysN + colsysType
-        colsysN    = '{: <40}'      # name of systematic
+        col1       = '{: <49}'      # must be equal to colsysN + colsysType
+        colsysN    = '{: <43}'      # name of systematic
         colsysType = '{: <6}'       # type of syst: "lnN" or "shape"
         cols       = '{: >35}'      # must be equal to ratecols
         ratecols   = '{0: > 35.4f}' # must be equal to cols
