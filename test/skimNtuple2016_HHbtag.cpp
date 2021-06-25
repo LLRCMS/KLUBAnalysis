@@ -4668,12 +4668,28 @@ int main (int argc, char** argv)
         theSmallTree.m_PUjetID_SF      = PUjetID_SF_values.at(0);
         theSmallTree.m_PUjetID_SF_up   = PUjetID_SF_values.at(1);
         theSmallTree.m_PUjetID_SF_down = PUjetID_SF_values.at(2);
+        theSmallTree.m_PUjetID_SF_eff_up      = PUjetID_SF_values.at(3);
+        theSmallTree.m_PUjetID_SF_eff_down    = PUjetID_SF_values.at(4);
+        theSmallTree.m_PUjetID_SF_mistag_up   = PUjetID_SF_values.at(5);
+        theSmallTree.m_PUjetID_SF_mistag_down = PUjetID_SF_values.at(6);
+        theSmallTree.m_PUjetID_SF_eff_eta_s2p5_up      = PUjetID_SF_values.at(7);
+        theSmallTree.m_PUjetID_SF_eff_eta_s2p5_down    = PUjetID_SF_values.at(8);
+        theSmallTree.m_PUjetID_SF_mistag_eta_s2p5_up   = PUjetID_SF_values.at(9);
+        theSmallTree.m_PUjetID_SF_mistag_eta_s2p5_down = PUjetID_SF_values.at(10);
+        theSmallTree.m_PUjetID_SF_eff_eta_l2p5_up      = PUjetID_SF_values.at(11);
+        theSmallTree.m_PUjetID_SF_eff_eta_l2p5_down    = PUjetID_SF_values.at(12);
+        theSmallTree.m_PUjetID_SF_mistag_eta_l2p5_up   = PUjetID_SF_values.at(13);
+        theSmallTree.m_PUjetID_SF_mistag_eta_l2p5_down = PUjetID_SF_values.at(14);
         if (DEBUG)
         {
           std::cout << "---- PUjetID_SF debug ----" << std::endl;
           std::cout << "PUjetID_SF     : " << theSmallTree.m_PUjetID_SF << std::endl;
           std::cout << "PUjetID_SF_up  : " << theSmallTree.m_PUjetID_SF_up << std::endl;
           std::cout << "PUjetID_SF_down: " << theSmallTree.m_PUjetID_SF_down << std::endl;
+          std::cout << "PUjetID_SF_eff_up     : " << theSmallTree.m_PUjetID_SF_eff_up << std::endl;
+          std::cout << "PUjetID_SF_eff_down   : " << theSmallTree.m_PUjetID_SF_eff_down << std::endl;
+          std::cout << "PUjetID_SF_mistag_up  : " << theSmallTree.m_PUjetID_SF_mistag_up << std::endl;
+          std::cout << "PUjetID_SF_mistag_down: " << theSmallTree.m_PUjetID_SF_mistag_down << std::endl;
           std::cout << "--------------------------" << std::endl;
         }
       }
