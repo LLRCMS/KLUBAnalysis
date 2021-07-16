@@ -303,6 +303,7 @@ if __name__ == "__main__" :
     parser.add_argument('--overflow', dest='overflow', help='add overflow bin', action='store_true', default=False)
     parser.add_argument('--binNXaxis', dest='binNXaxis', help='plot using the bin number on the x-axis', action='store_true', default=False)
     parser.add_argument('--dynamicRatioY', dest='dynamicRatioY', help='ratio plot with ad hoc y-range?', default=False)
+    parser.add_argument('--ratiosig', dest='ratiosig', help='draw signals in the ratio plot', action='store_true', default=False)
     # list options
     parser.add_argument('--blind-range',   dest='blindrange', nargs=2, help='start and end of blinding range', default=[1.0,2.0])
     parser.add_argument('--sigscale', dest='sigscale', nargs=2, help='scale to apply to the signals (GGHH VBFHH)', default=None)
@@ -476,7 +477,7 @@ if __name__ == "__main__" :
         plotTitle = args.title
 
     # read the bins edges that are used from the cfg file
-    cfg = cfgr.ConfigReader('scripts/MakeLegacyPlots_postFit.cfg')
+    cfg = cfgr.ConfigReader('scripts/makeLegacyPlots_postFit_tests.cfg')
     binNames = cfg.readListOption('{0}{1}::{2}'.format(args.year, args.channel, args.sel))
     binNumbs = len(binNames) - 1
 
@@ -624,7 +625,7 @@ if __name__ == "__main__" :
         histo = hSigs[sigList[i]]
         histo.Scale(scale)
 
-    if args.prepost != 'prefit':
+    if args.ratiosig == True:
         hggHHratio = makeSgnBkgOverBkgRatioPlot(hBkgEnvelopeNS, hSigs['ggHH_kl_1_kt_1_hbbhtt'], sgn='ggHH')
         hqqHHratio = makeSgnBkgOverBkgRatioPlot(hBkgEnvelopeNS, hSigs['qqHH_CV_1_C2V_1_kl_1_hbbhtt'], sgn='qqHH')
 
@@ -897,7 +898,7 @@ if __name__ == "__main__" :
         grUncertRatio.GetXaxis().SetLimits(0,binNumbs)
 
         # draw the postfit signal in the ratio plot
-        if args.prepost != 'prefit':
+        if args.ratiosig == True:
             hqqHHratio.Draw("HIST same")
             hggHHratio.Draw("HIST same")
 
