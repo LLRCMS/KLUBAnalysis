@@ -296,7 +296,7 @@ if __name__ == "__main__" :
     parser.add_argument('--no-data', dest='dodata', help='disable plotting data', action='store_false', default=True)
     parser.add_argument('--no-sig', dest='dosig',  help='disable plotting signal', action='store_false', default=True)
     parser.add_argument('--no-legend', dest='legend',   help='disable drawing legend', action='store_false', default=True)
-    parser.add_argument('--no-binwidth', dest='nobinwidth', help='disable scaling by bin width', action='store_false', default=False)
+    parser.add_argument('--no-binwidth', dest='nobinwidth', help='disable scaling by bin width', action='store_true', default=False)
     parser.add_argument('--ratio', dest='ratio', help='do ratio plot at the botton', action='store_true', default=False)
     parser.add_argument('--no-print', dest='printplot', help='no pdf output', action='store_false', default=True)
     parser.add_argument('--quit', dest='quit', help='quit at the end of the script, no interactive window', action='store_true', default=False)
