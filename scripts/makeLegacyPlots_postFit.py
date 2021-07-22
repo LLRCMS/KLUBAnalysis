@@ -290,7 +290,7 @@ if __name__ == "__main__" :
     parser.add_argument('--year', dest='year', help='year', default="2018")
     parser.add_argument('--tag', dest='tag', help='string appended to output folder name', default='')
     parser.add_argument('--postFitFile', dest='postFitFile', help='file containing postfit shapes and nuisances', default='')
-    parser.add_argument('--prepost', dest='prepost', help='do postfit plots or check prefit ones?', default='')
+    parser.add_argument('--prepost', dest='prepost', help='do postfit plots or check prefit ones?', default='postfit')
     # bool options
     parser.add_argument('--log', dest='log', help='use log scale',  action='store_true', default=False)
     parser.add_argument('--no-data', dest='dodata', help='disable plotting data', action='store_false', default=True)
@@ -301,7 +301,6 @@ if __name__ == "__main__" :
     parser.add_argument('--no-print', dest='printplot', help='no pdf output', action='store_false', default=True)
     parser.add_argument('--quit', dest='quit', help='quit at the end of the script, no interactive window', action='store_true', default=False)
     parser.add_argument('--overflow', dest='overflow', help='add overflow bin', action='store_true', default=False)
-    parser.add_argument('--binNXaxis', dest='binNXaxis', help='plot using the bin number on the x-axis', action='store_true', default=False)
     parser.add_argument('--dynamicRatioY', dest='dynamicRatioY', help='ratio plot with ad hoc y-range?', default=False)
     parser.add_argument('--ratiosig', dest='ratiosig', help='draw signals in the ratio plot', action='store_true', default=False)
     # list options
@@ -382,7 +381,7 @@ if __name__ == "__main__" :
         else: print('** ERROR: incorrect year'); print('** EXITING'); exit()
     elif args.channel == 'MuTau':
         if args.year == '2016':
-            if "1b1j" in args.sel:        combine_ch = 'ch1'#'ch58'
+            if "1b1j" in args.sel:        combine_ch = 'ch58'
             elif "2b0j" in args.sel:      combine_ch = 'ch67'
             elif "boosted" in args.sel:   combine_ch = 'ch4'
             elif "GGFclass" in args.sel:  combine_ch = 'ch22'
@@ -392,7 +391,7 @@ if __name__ == "__main__" :
             elif "TTclass" in args.sel:   combine_ch = 'ch31'
             else: print('** ERROR: incorrect region name'); print('** EXITING'); exit()
         elif args.year == '2017':
-            if "1b1j" in args.sel:        combine_ch = 'ch2'#'ch59'
+            if "1b1j" in args.sel:        combine_ch = 'ch59'
             elif "2b0j" in args.sel:      combine_ch = 'ch68'
             elif "boosted" in args.sel:   combine_ch = 'ch5'
             elif "GGFclass" in args.sel:  combine_ch = 'ch23'
@@ -402,7 +401,7 @@ if __name__ == "__main__" :
             elif "TTclass" in args.sel:   combine_ch = 'ch32'
             else: print('** ERROR: incorrect region name'); print('** EXITING'); exit()
         elif args.year == '2018':
-            if "1b1j" in args.sel:        combine_ch = 'ch3'#'ch60'
+            if "1b1j" in args.sel:        combine_ch = 'ch60'
             elif "2b0j" in args.sel:      combine_ch = 'ch69'
             elif "boosted" in args.sel:   combine_ch = 'ch6'
             elif "GGFclass" in args.sel:  combine_ch = 'ch24'
@@ -477,7 +476,7 @@ if __name__ == "__main__" :
         plotTitle = args.title
 
     # read the bins edges that are used from the cfg file
-    cfg = cfgr.ConfigReader('scripts/makeLegacyPlots_postFit_tests.cfg')
+    cfg = cfgr.ConfigReader('scripts/makeLegacyPlots_postFit.cfg')
     binNames = cfg.readListOption('{0}{1}::{2}'.format(args.year, args.channel, args.sel))
     binNumbs = len(binNames) - 1
 
@@ -491,7 +490,7 @@ if __name__ == "__main__" :
     hVVV     = getHisto("VVV", hBkgs, doOverflow)
     hTW      = getHisto("TW", hBkgs, doOverflow)
     hTT      = getHisto("TT", hBkgs, doOverflow)
-    hQCD     = getHisto ("QCD", hBkgs,doOverflow)
+    hQCD     = getHisto("QCD", hBkgs,doOverflow)
     hWH      = getHisto("WH_htt", hBkgs, doOverflow)
     hsingleT = getHisto("singleT", hBkgs, doOverflow)
     hWJets   = getHisto("W", hBkgs, doOverflow)
@@ -701,7 +700,7 @@ if __name__ == "__main__" :
         for key in hSigs: hSigs[key].Draw("hist same")
     if args.dodata:
         removeHErrors(gData)
-        #removeEmptyPoints(gData) # FIXME : do we want this or we keep the 0.0 points?
+        #removeEmptyPoints(gData) # commented as was decided to keep also the 0.0 points
         gData.SetMarkerStyle(8)
         gData.SetMarkerSize(1.)
         gData.SetMarkerColor(kBlack)
@@ -835,7 +834,7 @@ if __name__ == "__main__" :
 
         bkgSumNS.SetStats(0)
 
-        removeEmptyPoints(grRatio) # commented since the blinding has been moved to makeDataOverMCRatioPlot
+        #removeEmptyPoints(grRatio) # commented as was decided to keep also the 0.0 points
         
         # SET THE Y-AXIS OF THE RATIO PLOT BASED ON THE VALUES OF THE RATIO ITSELF -> IN THIS WAY THE PLOTS WILL ALWAYS BE MEANINGFUL
         if args.dynamicRatioY:
@@ -924,11 +923,9 @@ if __name__ == "__main__" :
 
 
     if args.printplot:
-        saveName = './LegacyPlots/Legacy' + args.year + '/' + args.channel + '_' + args.tag + '/' + args.sel + "/plot_" + args.var + "_" + args.sel +"_" + args.reg
+        saveName = './LegacyPlots/Legacy' + args.year + '/' + args.channel + '_' + args.tag + '_' + args.prepost + '/' + args.sel + "/plot_" + args.var + "_" + args.sel +"_" + args.reg
         if args.log: saveName = saveName+"_log"
         if args.binwidth: saveName = saveName+"_binWidth"
-        if args.prepost == 'prefit': saveName+'_preFit'
-        else: saveName = saveName+'_postFit'
 
         c1.SaveAs (saveName+".pdf")
         c1.SaveAs (saveName+".png")
