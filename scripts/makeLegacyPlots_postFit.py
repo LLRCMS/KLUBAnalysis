@@ -578,7 +578,7 @@ if __name__ == "__main__" :
     hBkgEnvelopeNS = bkgStackNS.GetStack().Last().Clone("hBkgEnvelopeNS")
     bkgSumNS = hTots['total_background']
 
-    if args.binwidth:
+    if args.nobinwidth:
         scaleGraphByBinWidth(gData)
         for h in hBkgList:
             h.Scale(1., "width")
