@@ -296,7 +296,7 @@ if __name__ == "__main__" :
     parser.add_argument('--no-data', dest='dodata', help='disable plotting data', action='store_false', default=True)
     parser.add_argument('--no-sig', dest='dosig',  help='disable plotting signal', action='store_false', default=True)
     parser.add_argument('--no-legend', dest='legend',   help='disable drawing legend', action='store_false', default=True)
-    parser.add_argument('--no-binwidth', dest='binwidth', help='disable scaling by bin width', action='store_false', default=True)
+    parser.add_argument('--no-binwidth', dest='nobinwidth', help='disable scaling by bin width', action='store_false', default=False)
     parser.add_argument('--ratio', dest='ratio', help='do ratio plot at the botton', action='store_true', default=False)
     parser.add_argument('--no-print', dest='printplot', help='no pdf output', action='store_false', default=True)
     parser.add_argument('--quit', dest='quit', help='quit at the end of the script, no interactive window', action='store_true', default=False)
@@ -565,8 +565,8 @@ if __name__ == "__main__" :
     for i, name in enumerate (sigNameList): print "Integral ", hSigs[sigList[i]].GetName(), " : ", hSigs[sigList[i]].Integral(), " - ", hSigs[sigList[i]].Integral(-1,-1)
     
     # Store yields in a txt file for reference
-    with open('./LegacyPlots/Legacy' + args.year + '/' + args.channel + '_' + args.tag + '/' + args.sel+'/yields_'+args.var+'_'+args.sel+'_'+args.reg+'.txt','w') as yields_file:
-        yields_file.write('=== Legacy' + args.year + '/' + args.channel + '/' + args.sel+'/'+args.reg+'/'+args.var+' ===\n')
+    with open('./LegacyPlots/Legacy' + args.year + '/' + args.channel + '_' + args.tag + '_' + args.prepost + '/' + args.sel+'/yields_'+args.var+'_'+args.sel+'_'+args.reg+'.txt','w') as yields_file:
+        yields_file.write('=== Legacy' + args.year + '/' + args.channel + '_' + args.prepost + '/' + args.sel+'/'+args.reg+'/'+args.var+' ===\n')
         for h in hBkgList: yields_file.write("Integral: "+h.GetName()+" : "+str(h.Integral())+" - "+str(h.Integral(-1,-1))+"\n")
         for n in hDatas  : yields_file.write("Integral: "+hDatas[n].GetName()+" : "+str(hDatas[n].Integral())+" - "+str(hDatas[n].Integral(-1,-1))+"\n")
         for i, name in enumerate (sigNameList): yields_file.write("Integral: "+hSigs[sigList[i]].GetName()+" : "+str(hSigs[sigList[i]].Integral())+" - "+str(hSigs[sigList[i]].Integral(-1,-1))+"\n")
@@ -610,9 +610,9 @@ if __name__ == "__main__" :
     for ibin in range (1, bkgStack.GetHistogram().GetNbinsX()+1):
         bkgStack.GetXaxis().SetBinLabel(ibin,"")
 
-    ylabel = "Events"    
-    if args.binwidth:
-        ylabel = "Events/Bin Width"
+    ylabel = "Events/Bin Width"    
+    if args.nobinwidth:
+        ylabel = "Events"
         #if args.label and "GeV" in args.label: ylabel +=" GeV"
     bkgStack.GetYaxis().SetTitle(ylabel)
     
@@ -925,7 +925,7 @@ if __name__ == "__main__" :
     if args.printplot:
         saveName = './LegacyPlots/Legacy' + args.year + '/' + args.channel + '_' + args.tag + '_' + args.prepost + '/' + args.sel + "/plot_" + args.var + "_" + args.sel +"_" + args.reg
         if args.log: saveName = saveName+"_log"
-        if args.binwidth: saveName = saveName+"_binWidth"
+        if args.nobinwidth: saveName = saveName+"_nobinWidth"
 
         c1.SaveAs (saveName+".pdf")
         c1.SaveAs (saveName+".png")
