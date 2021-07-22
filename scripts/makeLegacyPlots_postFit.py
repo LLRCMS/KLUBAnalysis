@@ -74,20 +74,30 @@ def addOverFlow (histo):
     return histo
     
 # NB!! need to be called BEFORE removeHErrors or cannot know bin width
-def scaleGraphByBinWidth (graph):
+def scaleGraphByBinWidth (graph, binNames):
     for ipt in range (0, graph.GetN()):
-        bwh = graph.GetErrorXhigh(ipt)
-        bwl = graph.GetErrorXlow(ipt)
-        bw = bwl + bwh
+        bwh = float(binNames[ipt+1])
+        bwl = float(binNames[ipt])
+        bw = bwh - bwl
 
         eyh = graph.GetErrorYhigh(ipt)
         eyl = graph.GetErrorYlow(ipt)
         x = Double(0.0)
         y = Double(0.0)
         graph.GetPoint (ipt, x, y)
-        graph.SetPoint (ipt, x, y/bw)
-        graph.SetPointEYlow(ipt, eyl/bw)
-        graph.SetPointEYhigh(ipt, eyh/bw)
+        graph.SetPoint (ipt, x, y*bw)
+        graph.SetPointEYlow(ipt, eyl*bw)
+        graph.SetPointEYhigh(ipt, eyh*bw)
+
+def scaleHistoByBinWidth (histo, binNames):
+    for ipt in range (1, histo.GetNbinsX()+1):
+        bwh = float(binNames[ipt])
+        bwl = float(binNames[ipt-1])
+        bw = bwh - bwl
+
+        #histo.AddBinContent(ipt,bw)
+        histo.SetBinContent(ipt, histo.GetBinContent(ipt)*bw)
+        histo.SetBinError(ipt, histo.GetBinError(ipt)*bw)
 
 # Get the STATISTICAL ONLY uncertainty band to be plotted in the ratio plot
 def makeUncertaintyBand (bkgSum):
@@ -579,14 +589,13 @@ if __name__ == "__main__" :
     bkgSumNS = hTots['total_background']
 
     if args.nobinwidth:
-        scaleGraphByBinWidth(gData)
+        scaleGraphByBinWidth(gData, binNames)
         for h in hBkgList:
-            h.Scale(1., "width")
+            scaleHistoByBinWidth(h, binNames)
         for i, name in enumerate (sigNameList):
-            histo = hSigs[sigList[i]]
-            histo.Scale(1., "width")
+            scaleHistoByBinWidth(hSigs[sigList[i]], binNames)
         for name in hTots:
-            hTots[name].Scale(1., "width")
+            scaleHistoByBinWidth(hTots[name], binNames)
 
     bkgStack = makeStack ("bkgStack", hBkgList)
     bkgSum = hTots['total_background']
