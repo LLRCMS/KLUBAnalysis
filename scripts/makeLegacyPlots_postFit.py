@@ -15,10 +15,9 @@ def getHisto (histoName,inputList,doOverflow):
     for idx, name in enumerate(inputList):
 
             if (name.startswith(histoName) and name.endswith(histoName)):
-                    h = inputList[name].Clone (histoName)
+                    h = inputList[name].Clone(histoName)
                     if doOverflow: h = addOverFlow(h)
                     break
-
     return h
 
 # makes an histogram by adding together all those in the input list ; inputList: names, histoList: histograms
@@ -75,7 +74,7 @@ def addOverFlow (histo):
     
 # NB!! need to be called BEFORE removeHErrors or cannot know bin width
 def scaleGraphByBinWidth (graph, binNames):
-    for ipt in range (0, graph.GetN()):
+    for ipt in range (0, len(binNames)-1):
         bwh = float(binNames[ipt+1])
         bwl = float(binNames[ipt])
         bw = bwh - bwl
@@ -85,19 +84,19 @@ def scaleGraphByBinWidth (graph, binNames):
         x = Double(0.0)
         y = Double(0.0)
         graph.GetPoint (ipt, x, y)
-        graph.SetPoint (ipt, x, y*bw)
-        graph.SetPointEYlow(ipt, eyl*bw)
-        graph.SetPointEYhigh(ipt, eyh*bw)
+        graph.SetPoint (ipt, x, y/bw)
+        graph.SetPointEYlow(ipt, eyl/bw)
+        graph.SetPointEYhigh(ipt, eyh/bw)
 
 def scaleHistoByBinWidth (histo, binNames):
-    for ipt in range (1, histo.GetNbinsX()+1):
+    for ipt in range (1, len(binNames)):
         bwh = float(binNames[ipt])
         bwl = float(binNames[ipt-1])
         bw = bwh - bwl
 
         #histo.AddBinContent(ipt,bw)
-        histo.SetBinContent(ipt, histo.GetBinContent(ipt)*bw)
-        histo.SetBinError(ipt, histo.GetBinError(ipt)*bw)
+        histo.SetBinContent(ipt, histo.GetBinContent(ipt)/bw)
+        histo.SetBinError(ipt, histo.GetBinError(ipt)/bw)
 
 # Get the STATISTICAL ONLY uncertainty band to be plotted in the ratio plot
 def makeUncertaintyBand (bkgSum):
@@ -306,7 +305,7 @@ if __name__ == "__main__" :
     parser.add_argument('--no-data', dest='dodata', help='disable plotting data', action='store_false', default=True)
     parser.add_argument('--no-sig', dest='dosig',  help='disable plotting signal', action='store_false', default=True)
     parser.add_argument('--no-legend', dest='legend',   help='disable drawing legend', action='store_false', default=True)
-    parser.add_argument('--no-binwidth', dest='nobinwidth', help='disable scaling by bin width', action='store_true', default=False)
+    parser.add_argument('--binwidth', dest='binwidth', help='activate scaling by bin width', action='store_true', default=False)
     parser.add_argument('--ratio', dest='ratio', help='do ratio plot at the botton', action='store_true', default=False)
     parser.add_argument('--no-print', dest='printplot', help='no pdf output', action='store_false', default=True)
     parser.add_argument('--quit', dest='quit', help='quit at the end of the script, no interactive window', action='store_true', default=False)
@@ -464,6 +463,9 @@ if __name__ == "__main__" :
     hSigs = {}
     hDatas = {}
     hTots = {}
+    hSigs = { 'ggHH_kl_1_kt_1_hbbhtt'       : TH1F("dummy", "dummy", 1, 0, 1),
+              'qqHH_CV_1_C2V_1_kl_1_hbbhtt' : TH1F("dummy", "dummy", 1, 0, 1)
+            }
     for hist in list_of_shapes:
         name = hist.GetName()
         if ('background' in name) or ('signal' in name): hTots[name] = rootFile.Get(fit_folder+'/'+combine_ch+'/'+name)
@@ -478,7 +480,7 @@ if __name__ == "__main__" :
         sigScale = [5,150]
 
     sigList = ["ggHH_kl_1_kt_1_hbbhtt", "qqHH_CV_1_C2V_1_kl_1_hbbhtt"]
-    sigNameList = ["ggHH SM x {0}".format(str(sigScale[0])), "qqHH SM x {0}".format(str(sigScale[1]))]
+    sigNameList = ["Postfit ggHH", "Postfit qqHH"]
 
     plotTitle = ""
 
@@ -493,21 +495,28 @@ if __name__ == "__main__" :
     ######################### START DOING ACTUAL  PLOTTING STUFF ####################
     doOverflow = args.overflow
 
-    hEWK     = getHisto("EWK", hBkgs, doOverflow)
-    hggH     = getHisto("ggH_htt", hBkgs, doOverflow)
-    hTTH     = getHisto("ttH_hbb", hBkgs, doOverflow)
-    hTTX     = getHisto("TTX", hBkgs, doOverflow)
-    hVVV     = getHisto("VVV", hBkgs, doOverflow)
-    hTW      = getHisto("TW", hBkgs, doOverflow)
-    hTT      = getHisto("TT", hBkgs, doOverflow)
-    hQCD     = getHisto("QCD", hBkgs,doOverflow)
-    hWH      = getHisto("WH_htt", hBkgs, doOverflow)
-    hsingleT = getHisto("singleT", hBkgs, doOverflow)
-    hWJets   = getHisto("W", hBkgs, doOverflow)
-    hqqH     = getHisto("qqH_htt", hBkgs, doOverflow)
-    hVV      = getHisto("VV", hBkgs, doOverflow)
-    hDY      = getHisto("DY", hBkgs, doOverflow)
-    hZH      = getHisto("ZH_hbb", hBkgs, doOverflow)
+    gData = getHisto("data", hDatas , doOverflow) # NB - data is stored as a TGRaphAsymErrors inside a ROOFit object
+    gDataNonScaled = gData.Clone("gDataNonScaled")
+
+    # dummy empty TH1F to avoid problems when histos are not present in the fitdiagnostic.root file (we argued that if they are not there it is because they are empty)
+    Npts = gData.GetN()
+    hEWK = hggH = hTTH = hTTX = hVVV = hTW = hTT = hQCD = hWH = hsingleT = hWJets = hqqH = hVV = hDY = hZH = TH1F("dummy", "dummy", Npts, 0, Npts)
+
+    if 'EWK'     in hBkgs: hEWK     = getHisto("EWK", hBkgs, doOverflow)
+    if 'ggH_htt' in hBkgs: hggH     = getHisto("ggH_htt", hBkgs, doOverflow)
+    if 'ttH_hbb' in hBkgs: hTTH     = getHisto("ttH_hbb", hBkgs, doOverflow)
+    if 'TTX'     in hBkgs: hTTX     = getHisto("TTX", hBkgs, doOverflow)
+    if 'VVV'     in hBkgs: hVVV     = getHisto("VVV", hBkgs, doOverflow)
+    if 'TW'      in hBkgs: hTW      = getHisto("TW", hBkgs, doOverflow)
+    if 'TT'      in hBkgs: hTT      = getHisto("TT", hBkgs, doOverflow)
+    if 'QCD'     in hBkgs: hQCD     = getHisto("QCD", hBkgs,doOverflow)
+    if 'WH_htt'  in hBkgs: hWH      = getHisto("WH_htt", hBkgs, doOverflow)
+    if 'singleT' in hBkgs: hsingleT = getHisto("singleT", hBkgs, doOverflow)
+    if 'W'       in hBkgs: hWJets   = getHisto("W", hBkgs, doOverflow)
+    if 'qqH_htt' in hBkgs: hqqH     = getHisto("qqH_htt", hBkgs, doOverflow)
+    if 'VV'      in hBkgs: hVV      = getHisto("VV", hBkgs, doOverflow)
+    if 'DY'      in hBkgs: hDY      = getHisto("DY", hBkgs, doOverflow)
+    if 'ZH_hbb'  in hBkgs: hZH      = getHisto("ZH_hbb", hBkgs, doOverflow)
 
     hothersList = [hEWK, hsingleT, hTW, hVV, hTTX, hVVV, hWJets]
     hSingleHlist = [hZH, hWH, hTTH, hggH, hqqH]
@@ -516,9 +525,6 @@ if __name__ == "__main__" :
 
     hBkgList     = [hothers , hSingleH, hQCD, hTT, hDY]                   # list for stack
     hBkgNameList = ["Others", "Single H", "QCD", "t#bar{t}", "Drell-Yan"] # list for legend
-
-    gData = getHisto("data", hDatas , doOverflow) # NB - data is stored as a TGRaphAsymErrors inside a ROOFit object
-    gDataNonScaled = gData.Clone("gDataNonScaled")
 
 
     ######################### SET COLORS ####################
@@ -588,7 +594,7 @@ if __name__ == "__main__" :
     hBkgEnvelopeNS = bkgStackNS.GetStack().Last().Clone("hBkgEnvelopeNS")
     bkgSumNS = hTots['total_background']
 
-    if args.nobinwidth:
+    if args.binwidth:
         scaleGraphByBinWidth(gData, binNames)
         for h in hBkgList:
             scaleHistoByBinWidth(h, binNames)
@@ -619,9 +625,9 @@ if __name__ == "__main__" :
     for ibin in range (1, bkgStack.GetHistogram().GetNbinsX()+1):
         bkgStack.GetXaxis().SetBinLabel(ibin,"")
 
-    ylabel = "Events/Bin Width"    
-    if args.nobinwidth:
-        ylabel = "Events"
+    ylabel = "Events"    
+    if args.binwidth:
+        ylabel = "Events/Bin Width"
         #if args.label and "GeV" in args.label: ylabel +=" GeV"
     bkgStack.GetYaxis().SetTitle(ylabel)
     
@@ -934,7 +940,8 @@ if __name__ == "__main__" :
     if args.printplot:
         saveName = './LegacyPlots/Legacy' + args.year + '/' + args.channel + '_' + args.tag + '_' + args.prepost + '/' + args.sel + "/plot_" + args.var + "_" + args.sel +"_" + args.reg
         if args.log: saveName = saveName+"_log"
-        if args.nobinwidth: saveName = saveName+"_nobinWidth"
+        if args.ratiosig: saveName = saveName+"_ratiosig"
+        if args.binwidth: saveName = saveName+"_binWidth"
 
         c1.SaveAs (saveName+".pdf")
         c1.SaveAs (saveName+".png")
