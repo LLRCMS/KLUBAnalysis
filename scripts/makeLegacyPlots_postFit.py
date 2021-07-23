@@ -478,7 +478,8 @@ if __name__ == "__main__" :
          for i in range(0,len(sigScale)): sigScale[i] = float(args.sigscale[i])
 
     sigList = ["ggHH_kl_1_kt_1_hbbhtt", "qqHH_CV_1_C2V_1_kl_1_hbbhtt"]
-    sigNameList = ["Postfit ggHH", "Postfit qqHH"]
+    if args.prepost == 'prefit': sigNameList = ["Prefit ggHH", "Prefit qqHH"]
+    else: sigNameList = ["Postfit ggHH", "Postfit qqHH"]
 
     plotTitle = ""
 
@@ -486,7 +487,7 @@ if __name__ == "__main__" :
         plotTitle = args.title
 
     # read the bins edges that are used from the cfg file
-    cfg = cfgr.ConfigReader('scripts/makeLegacyPlots_postFit.cfg')
+    cfg = cfgr.ConfigReader('config/makeLegacyPlots_postFit.cfg')
     binNames = cfg.readListOption('{0}{1}::{2}'.format(args.year, args.channel, args.sel))
     binNumbs = len(binNames) - 1
 
