@@ -476,8 +476,6 @@ if __name__ == "__main__" :
     sigScale = [1,1]
     if args.sigscale:
          for i in range(0,len(sigScale)): sigScale[i] = float(args.sigscale[i])
-    else:
-        sigScale = [5,150]
 
     sigList = ["ggHH_kl_1_kt_1_hbbhtt", "qqHH_CV_1_C2V_1_kl_1_hbbhtt"]
     sigNameList = ["Postfit ggHH", "Postfit qqHH"]
