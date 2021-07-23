@@ -192,7 +192,7 @@ class HBRscaler(object):
 
         return proc_f_BR_scalings, BRstr
 
-    def findSingleHMatch(self, process):
+    def findSingleHMatch(self, bin, process):
         # single H process names must have the format "PROD_*" where PROD must be in
         # SM_SCALED_SINGLE_HIGG_PROD; None is returned when this is not the case
         production = process.split("_")[0]
@@ -202,23 +202,24 @@ class HBRscaler(object):
         proc_f_H_scaling = "CVktkl_pos_XSscal_%s_%s" % (production, energy)
 
         if proc_f_H_scaling not in self.f_H_scalings:
-            raise Exception("scaling is not supported for single H process {}, this is likely a misconfiguration".format(
-                process))
+            raise Exception("scaling is not supported for single H process {} (bin {}), "
+                "this is likely a misconfiguration".format(process, bin))
 
         return proc_f_H_scaling
 
-    def buildXSBRScalingHH(self, f_XS_scaling, process):
+    def buildXSBRScalingHH(self, f_XS_scaling, bin, process):
         BRscalings, BRstr = self.findBRScalings(process)
 
         # when no scalings were found, print a warning since this might be intentional and return,
         # when != 2 scalings were found, this is most likely an error
         if not BRscalings:
-            print("WARNING: the HH process {} does not contain valid decay strings to extract "
-                "branching ratios to apply the scaling with model parameters".format(process))
+            print("WARNING: the HH process {} (bin {}) does not contain valid decay strings to "
+                "extract branching ratios to apply the scaling with model parameters".format(
+                    process, bin))
             return None
         elif len(BRscalings) != 2:
-            raise Exception("the HH process {} contains {} valid decay string(s) while two were "
-                "expected".format(process, len(BRscalings)))
+            raise Exception("the HH process {} (bin {}) contains {} valid decay string(s) while "
+                "two were expected".format(process, bin, len(BRscalings)))
 
         f_XSBR_scaling = "%s_BRscal_%s" % (f_XS_scaling, BRstr)
 
@@ -227,18 +228,19 @@ class HBRscaler(object):
 
         return f_XSBR_scaling
 
-    def buildXSBRScalingH(self, f_XS_scaling, process):
+    def buildXSBRScalingH(self, f_XS_scaling, bin, process):
         BRscalings, BRstr = self.findBRScalings(process)
 
         # when no scalings were found, print a warning since this might be intentional and return,
         # when != 1 scalings were found, this is most likely an error
         if not BRscalings:
-            print("WARNING: the H process {} does not contain valid decay strings to extract "
-                "branching ratios to apply the scaling with model parameters".format(process))
+            print("WARNING: the H process {} (bin {}) does not contain valid decay strings to "
+                "extract branching ratios to apply the scaling with model parameters".format(
+                    process, bin))
             return None
         elif len(BRscalings) != 1:
-            raise Exception("the H process {} contains {} valid decay string(s) while one was "
-                "expected".format(process, len(BRscalings)))
+            raise Exception("the H process {} (bin {}) contains {} valid decay string(s) while one "
+                "was expected".format(process, bin, len(BRscalings)))
 
         f_XSBR_scaling = "%s_BRscal_%s" % (f_XS_scaling, BRstr)
 

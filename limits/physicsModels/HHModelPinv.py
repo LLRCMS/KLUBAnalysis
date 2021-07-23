@@ -225,12 +225,13 @@ class HHModel(PhysicsModel):
         known_flags = ["doNNLOscaling", "doBRscaling", "doHscaling", "doklDependentUnc"]
         known_params = ["doProfilekl", "doProfilekt", "doProfileCV", "doProfileC2V"]
 
+        set_params = set()
         for key, value in opts:
             # identify boolean flags
             if key in known_flags:
                 flag = value.lower() in ["yes", "true", "1"]
                 setattr(self, key, flag)
-                print("[INFO] set {} of model {} to {}".format(key, self.name, flag))
+                set_params.add(key)
                 continue
 
             # identify remaining "key=value" parameter pairs
@@ -239,8 +240,15 @@ class HHModel(PhysicsModel):
                 if value.lower() in ("", "none"):
                     value = None
                 setattr(self, key, value)
-                print("[INFO] set {} of model {} to {}".format(key, self.name, value))
+                set_params.add(key)
                 continue
+
+        # print all current options
+        for param in known_flags + known_params:
+            msg = "[INFO] using model option {} = {}".format(param, getattr(self, param))
+            if param in set_params:
+                msg += " (set via option)"
+            print(msg)
 
     def check_validity_ggf(self, ggf_sample_list):
         if len(ggf_sample_list) < 3:
@@ -380,8 +388,8 @@ class HHModel(PhysicsModel):
 
         self.modelBuilder.doVar("%s[-7,7]" % self.klUncName)
 
-        self.modelBuilder.factory_('expr::%s_kappaHi("max(72.0744-51.7362*@0+11.3712*@0*@0,70.9286-51.5708*@0+11.4497*@0*@0) / (70.3874 - 50.4111*@0 + 11.0595*@0*@0)",kl)' % self.klUncName)
-        self.modelBuilder.factory_('expr::%s_kappaLo("min(66.0621-46.7458*@0+10.1673*@0*@0,66.7581-47.721*@0+10.4535*@0*@0)  / (70.3874 - 50.4111*@0 + 11.0595*@0*@0)",kl)'  % self.klUncName)
+        self.modelBuilder.factory_('expr::%s_kappaHi("max(76.6075 - 56.4818 * @0 + 12.6350 *@0 * @0,75.4617 - 56.3164 * @0 + 12.7135 * @0 * @0) / (70.3874 - 50.4111 * @0 + 11.0595 * @0 * @0)", kl)' % self.klUncName)
+        self.modelBuilder.factory_('expr::%s_kappaLo("min(57.6809 - 42.9905 * @0 + 9.58474 * @0 * @0,58.3769 - 43.9657 * @0 + 9.87094 * @0 * @0)  / (70.3874-50.4111 * @0 + 11.0595 * @0 * @0)", kl)' % self.klUncName)
 
         self.makeInterpolation("%s_kappa" % self.klUncName, "%s_kappaHi" % self.klUncName, "%s_kappaLo" % self.klUncName , self.klUncName)
 
@@ -544,7 +552,7 @@ class HHModel(PhysicsModel):
             scaling = self.f_r_ggf_names[isample]
             # when the BR scaling is enabled, try to extract the decays from the process name
             if self.doBRscaling:
-                scaling = self.HBRscal.buildXSBRScalingHH(scaling, process) or scaling
+                scaling = self.HBRscal.buildXSBRScalingHH(scaling, bin, process) or scaling
             return scaling
 
         # vbf match?
@@ -554,7 +562,7 @@ class HHModel(PhysicsModel):
             scaling = self.f_r_vbf_names[isample]
             # when the BR scaling is enabled, try to extract the decays from the process name
             if self.doBRscaling:
-                scaling = self.HBRscal.buildXSBRScalingHH(scaling, process) or scaling
+                scaling = self.HBRscal.buildXSBRScalingHH(scaling, bin, process) or scaling
             return scaling
 
         # complain when the process is a signal but no sample matched
@@ -564,10 +572,10 @@ class HHModel(PhysicsModel):
 
         # single H match?
         if self.doHscaling:
-            scaling = self.HBRscal.findSingleHMatch(process)
+            scaling = self.HBRscal.findSingleHMatch(bin, process)
             # when the BR scaling is enabled, try to extract the decay from the process name
             if scaling and self.doBRscaling:
-                scaling = self.HBRscal.buildXSBRScalingH(scaling, process) or scaling
+                scaling = self.HBRscal.buildXSBRScalingH(scaling, bin, process) or scaling
             return scaling or 1.
 
         # at this point we are dealing with a background process that is also not single-H-scaled,
@@ -578,29 +586,38 @@ class HHModel(PhysicsModel):
         super(HHModel, self).done()
 
         # get the labels of ggF and VBF samples and store a flag to check if they were matched
-        matches = OrderedDict(
-            (s.label, [])
-            for s in self.ggf_formula.sample_list + self.vbf_formula.sample_list
-        )
+        matches_ggf = OrderedDict((s.label, []) for s in self.ggf_formula.sample_list)
+        matches_vbf = OrderedDict((s.label, []) for s in self.vbf_formula.sample_list)
 
         # go through the scaling map and match to samples
-        for sample_name in self.scalingMap:
-            for sample_label in matches:
-                if sample_name.startswith(sample_label):
-                    matches[sample_label].append(sample_name)
-                    break
+        for prefix, matches in [("ggHH", matches_ggf), ("qqHH", matches_vbf)]:
+            for sample_name in self.scalingMap:
+                if not sample_name.startswith(prefix + "_"):
+                    continue
+                for sample_label in matches:
+                    if sample_name.startswith(sample_label):
+                        matches[sample_label].append(sample_name)
+                        break
 
         # print matches
-        max_len = max(len(label) for label in matches)
+        matches = list(matches_ggf.items()) + list(matches_vbf.items())
+        max_len = max(len(label) for label, _ in matches)
         print("Matching signal samples:")
-        for label, names in matches.items():
+        for label, names in matches:
             print("  {}{} -> {}".format(label, " " * (max_len - len(label)), ", ".join(names)))
 
         # complain about samples that were not matched by any process
-        unmatched_samples = [label for label, names in matches.items() if not names]
-        if unmatched_samples:
-            raise Exception("{} HH signal samples were not matched by any process: {}".format(
-                len(unmatched_samples), ", ".join(unmatched_samples)))
+        unmatched_ggf_samples = [label for label, names in matches_ggf.items() if not names]
+        unmatched_vbf_samples = [label for label, names in matches_vbf.items() if not names]
+        msg = []
+        if len(unmatched_ggf_samples) not in [0, len(self.ggf_formula.sample_list)]:
+            msg.append("{} ggF signal samples were not matched by any process: {}".format(
+                len(unmatched_ggf_samples), ", ".join(unmatched_ggf_samples)))
+        if len(unmatched_vbf_samples) not in [0, len(self.vbf_formula.sample_list)]:
+            msg.append("{} VBF signal samples were not matched by any process: {}".format(
+                len(unmatched_vbf_samples), ", ".join(unmatched_vbf_samples)))
+        if msg:
+            raise Exception("\n".join(msg))
 
 
 # ggf samples with keys (kl, kt), ordered by kl
@@ -613,7 +630,8 @@ ggf_samples = OrderedDict([
 ])
 
 # vbf samples with keys (CV, C2V, kl), SM point first, then ordered by kl, then C2V, then CV
-# cross section values are LO (from 2017/2018 gridpacks) x SM k-factor for N3LO (1.03477) and only used in create_vbf_xsec_func below
+# cross section values are LO (from 2017/2018 gridpacks) x SM k-factor for N3LO (1.03477) and are
+# only used in create_vbf_xsec_func below
 vbf_samples = OrderedDict([
     ((1,   1, 1), VBFHHSample(1,   1, 1, val_xs=0.0017260, label="qqHH_CV_1_C2V_1_kl_1")),
     ((1,   1, 0), VBFHHSample(1,   1, 0, val_xs=0.0046089, label="qqHH_CV_1_C2V_1_kl_0")),
@@ -623,6 +641,14 @@ vbf_samples = OrderedDict([
     ((0.5, 1, 1), VBFHHSample(0.5, 1, 1, val_xs=0.0108237, label="qqHH_CV_0p5_C2V_1_kl_1")),
     ((1.5, 1, 1), VBFHHSample(1.5, 1, 1, val_xs=0.0660185, label="qqHH_CV_1p5_C2V_1_kl_1")),
 ])
+
+
+def _get_hh_samples(samples, keys):
+    all_keys = list(samples.keys())
+    return [
+        samples[key if isinstance(key, tuple) else all_keys[key]]
+        for key in keys
+    ]
 
 
 def get_ggf_samples(keys):
@@ -636,11 +662,7 @@ def get_ggf_samples(keys):
         get_ggf_samples([(2.45, 1), 3])
         # -> [GGFHHSample:ggHH_kl_2p45_kt_1, GGFHHSample:ggHH_kl_5_kt_1]
     """
-    all_keys = list(ggf_samples.keys())
-    return [
-        ggf_samples[key if isinstance(key, tuple) else all_keys[key]]
-        for key in keys
-    ]
+    return _get_hh_samples(ggf_samples, keys)
 
 
 def get_vbf_samples(keys):
@@ -654,11 +676,7 @@ def get_vbf_samples(keys):
         get_vbf_samples([2, (1, 2, 1)])
         # -> [VBFHHSample:qqHH_CV_1_C2V_1_kl_2, VBFHHSample:qqHH_CV_1_C2V_2_kl_1]
     """
-    all_keys = list(ggf_samples.keys())
-    return [
-        vbf_samples[key if isinstance(key, tuple) else all_keys[key]]
-        for key in keys
-    ]
+    return _get_hh_samples(vbf_samples, keys)
 
 
 def create_model(name, skip_ggf=None, skip_vbf=None):
@@ -744,7 +762,7 @@ def create_ggf_xsec_func(formula=None):
     the constant k-factor is still applied. Otherwise, the returned value is in full
     next-to-next-to-leading order. In this case, *unc* can be set to eiher "up" or "down" to return
     the up / down varied cross section instead where the uncertainty is composed of a *kl* dependent
-    scale uncertainty and an independent PDF uncertainty of 3%.
+    scale + mtop uncertainty and an independent PDF uncertainty of 3%.
 
     Example:
 
@@ -761,7 +779,7 @@ def create_ggf_xsec_func(formula=None):
         print(get_ggf_xsec(kl=2., unc="up"))
         # -> 0.014305...
 
-    Formulas are taken from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGHH?rev=65.
+    Formulas are taken from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHWGHH?rev=70.
     """
     if formula is None:
         formula = model_default.ggf_formula
@@ -776,14 +794,14 @@ def create_ggf_xsec_func(formula=None):
     xsec_nnlo = lambda kl: 0.001 * (70.3874 - 50.4111 * kl + 11.0595 * kl**2.)
     nlo2nnlo = lambda xsec, kl: xsec * xsec_nnlo(kl) / xsec_nlo(kl)
 
-    # uncertainty application in case unc is set
+    # scale+mtop uncertainty in case unc is set
     xsec_nnlo_scale_up = lambda kl: 0.001 * max(
-        72.0744 - 51.7362 * kl + 11.3712 * kl**2.,
-        70.9286 - 51.5708 * kl + 11.4497 * kl**2.,
+        76.6075 - 56.4818 * kl + 12.635 * kl**2,
+        75.4617 - 56.3164 * kl + 12.7135 * kl**2,
     )
     xsec_nnlo_scale_down = lambda kl: 0.001 * min(
-        66.0621 - 46.7458 * kl + 10.1673 * kl**2.,
-        66.7581 - 47.7210 * kl + 10.4535 * kl**2.,
+        57.6809 - 42.9905 * kl + 9.58474 * kl**2,
+        58.3769 - 43.9657 * kl + 9.87094 * kl**2,
     )
 
     def apply_uncertainty_nnlo(kl, xsec_nom, unc):
@@ -791,11 +809,11 @@ def create_ggf_xsec_func(formula=None):
         # are quoted for different kl values but otherwise fully SM parameters, esp. kt=1;
         # however, the nominal cross section *xsec_nom* might be subject to a different kt value
         # and thus, the following implementation assumes that the relative uncertainties according
-        # to the SM recommendation are preserved; for instance, if the the scale uncertainty for
-        # kl=2,kt=1 would be 10%, then the code below will assume an uncertainty for kl=2,kt!=1 of
-        # 10% as well
+        # to the SM recommendation are preserved; for instance, if the the scale+mtop uncertainty
+        # for kl=2,kt=1 would be 10%, then the code below will assume an uncertainty for kl=2,kt!=1
+        # of 10% as well
 
-        # compute the relative, signed scale uncertainty
+        # compute the relative, signed scale+mtop uncertainty
         if unc.lower() not in ("up", "down"):
             raise ValueError("unc must be 'up' or 'down', got '{}'".format(unc))
         scale_func = {"up": xsec_nnlo_scale_up, "down": xsec_nnlo_scale_down}[unc.lower()]
@@ -845,9 +863,9 @@ def create_vbf_xsec_func(formula=None):
         get_vbf_xsec = create_vbf_xsec_func()
 
         print(get_vbf_xsec(C2V=2.))
-        # -> 0.013916... (or similar)
+        # -> 0.014218... (or similar)
 
-    Uncertainties taken from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGHH?rev=65.
+    Uncertainties taken from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGHH?rev=70.
     """
     if formula is None:
         formula = model_default.vbf_formula
@@ -879,15 +897,17 @@ def create_hh_xsec_func(ggf_formula=None, vbf_formula=None):
     """
     Creates and returns a function that can be used to calculate numeric HH cross section values in
     pb given appropriate *ggf_formula* and *vbf_formula* objects, which default to
-    *model_default.ggf_formula* and *model_default.vbf_formula*, respectively. The returned
-    function has the signature ``(kl=1.0, kt=1.0, C2V=1.0, CV=1.0, nnlo=True, unc=None)``.
+    *model_default.ggf_formula* and *model_default.vbf_formula*, respectively. When a forumla is set
+    explicitely to *False*, the corresponding process is not considered in the inclusive calculation.
+    The returned function has the signature
+    ``(kl=1.0, kt=1.0, C2V=1.0, CV=1.0, nnlo=True, unc=None)``.
 
     The *nnlo* setting only affects the ggF component of the cross section. When *nnlo* is *False*,
     the constant k-factor of the ggf calculation is still applied. Otherwise, the returned value is
-    in full next-to-next-to-leading order for ggf. *unc* can be set to eiher "up" or "down" to
+    in full next-to-next-to-leading order for ggF. *unc* can be set to eiher "up" or "down" to
     return the up / down varied cross section instead where the uncertainty is composed of a *kl*
-    dependent scale uncertainty and an independent PDF uncertainty of 3% for ggF, and a scale and
-    pdf+alpha_s uncertainty for VBF. The uncertainties of the two processes are treated as
+    dependent scale + mtop uncertainty and an independent PDF uncertainty of 3% for ggF, and a scale
+    and pdf+alpha_s uncertainty for VBF. The uncertainties of the ggF and VBF processes are treated as
     uncorrelated.
 
     Example:
@@ -896,18 +916,21 @@ def create_hh_xsec_func(ggf_formula=None, vbf_formula=None):
 
         get_hh_xsec = create_hh_xsec_func()
 
-        print(get_ggf_xsec(kl=2.))
-        # -> 0.013803...
+        print(get_hh_xsec(kl=2.))
+        # -> 0.015226...
 
-        print(get_ggf_xsec(kl=2., nnlo=False))
-        # -> 0.013852...
+        print(get_hh_xsec(kl=2., nnlo=False))
+        # -> 0.015275...
 
-        print(get_ggf_xsec(kl=2., unc="up"))
-        # -> 0.014278...
+        print(get_hh_xsec(kl=2., unc="up"))
+        # -> 0.015702...
     """
+    # default function for a disabled process
+    no_xsec = lambda *args, **kwargs: 0.
+
     # get the particular wrappers of the components
-    get_ggf_xsec = create_ggf_xsec_func(ggf_formula)
-    get_vbf_xsec = create_vbf_xsec_func(vbf_formula)
+    get_ggf_xsec = no_xsec if ggf_formula is False else create_ggf_xsec_func(ggf_formula)
+    get_vbf_xsec = no_xsec if vbf_formula is False else create_vbf_xsec_func(vbf_formula)
 
     # create a combined wrapper with the merged signature
     def wrapper(kl=1., kt=1., C2V=1., CV=1., nnlo=True, unc=None):
@@ -919,7 +942,9 @@ def create_hh_xsec_func(ggf_formula=None, vbf_formula=None):
         if unc:
             if unc.lower() not in ("up", "down"):
                 raise ValueError("unc must be 'up' or 'down', got '{}'".format(unc))
+            # ggf uncertainty
             ggf_unc = get_ggf_xsec(kl=kl, kt=kt, nnlo=nnlo, unc=unc) - ggf_xsec
+            # vbf uncertainty
             vbf_unc = get_vbf_xsec(C2V=C2V, CV=CV, kl=kl, unc=unc) - vbf_xsec
             unc = (1 if unc.lower() == "up" else -1) * (ggf_unc**2. + vbf_unc**2.)**0.5
             xsec += unc
@@ -937,3 +962,4 @@ get_vbf_xsec = create_vbf_xsec_func(model_default.vbf_formula)
 
 #: Default combined cross section getter using the formulas of the *model_default* model.
 get_hh_xsec = create_hh_xsec_func(model_default.ggf_formula, model_default.vbf_formula)
+

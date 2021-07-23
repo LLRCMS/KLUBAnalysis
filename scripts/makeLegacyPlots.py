@@ -61,7 +61,7 @@ def makeSum (sumName, histoList):
 
 # tranform an histo into a TGraphAsymmErrors, with 
 def makeTGraphFromHist (histo, newName, isData=False):
-    nPoints  = hData.GetNbinsX()
+    nPoints  = histo.GetNbinsX()
     fX       = []
     fY       = []
     feYUp    = []
@@ -74,34 +74,30 @@ def makeTGraphFromHist (histo, newName, isData=False):
         if isData and args.blindrange:
             if ibin >= args.blindrange[0] and ibin <= args.blindrange[1]:
                 continue
-		
-        x = hData.GetBinCenter(ibin)
-        y = hData.GetBinContent(ibin)
-        dxRight = hData.GetBinLowEdge(ibin+1) - hData.GetBinCenter(ibin)
-        dxLeft  = hData.GetBinCenter(ibin) - hData.GetBinLowEdge(ibin)
+
+        x = histo.GetBinCenter(ibin)
+        y = histo.GetBinContent(ibin)
+        dxRight = histo.GetBinLowEdge(ibin+1) - histo.GetBinCenter(ibin)
+        dxLeft  = histo.GetBinCenter(ibin) - histo.GetBinLowEdge(ibin)
 
         # This notations works also for the plots as a function of the DNN bin number
+        dyUp  = histo.GetBinErrorUp(ibin)
+        dyLow = histo.GetBinErrorLow(ibin)
 
-	dyUp  = hData.GetBinError(ibin)
-        dyLow = hData.GetBinError(ibin)
-		
-	if (y == 0.0 and ibin <= args.blindrange[0] and args.binNXaxis and args.binwidth):
-	
-	    dyUp = 1.841/(float(binNames[ibin])-float(binNames[ibin-1]))
-	    dyDown = 1.841/(float(binNames[ibin])-float(binNames[ibin-1])) 
-	
-	elif (y == 0.0 and float(x) < float(args.blindrange[0])):
-		
-	    dyUp = 1.841
-	    dyDown = 1.841
-			
+        if (y == 0.0 and ibin <= args.blindrange[0] and args.binNXaxis and args.binwidth):
+            dyUp = 1.841/(float(binNames[ibin])-float(binNames[ibin-1]))
+            dyDown = 1.841/(float(binNames[ibin])-float(binNames[ibin-1]))
+
+        elif (y == 0.0 and float(x) < float(args.blindrange[0])):
+            dyUp = 1.841
+            dyDown = 1.841
+
         fY.append(y)
         fX.append(x)
         feYUp.append(dyUp)
         feYDown.append(dyLow)
         feXRight.append(dxRight)
         feXLeft.append(dxLeft)
-			
 
     afX       = array ("d", fX      )
     afY       = array ("d", fY      )
@@ -109,7 +105,7 @@ def makeTGraphFromHist (histo, newName, isData=False):
     afeYDown  = array ("d", feYDown )
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
-            
+
     gData = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp)
     gData.SetMarkerStyle(8)
     gData.SetMarkerSize(1.)
@@ -230,28 +226,24 @@ def makeDataOverMCRatioPlot (hData, hMC, newName, horErrs=False):
 
         num = hData.GetBinContent(ibin)
         den = hMC.GetBinContent(ibin)
-	
+
         if den > 0:
             # Y
             fY.append(num/den)
-	    
-	    # This way works also for the plot as a function of the DNN bin number
 
-	    if (num == 0.0 and ibin <= args.blindrange[0] and args.binNXaxis and args.binwidth):
-	
-	        feYUp.append(1.841/((float(binNames[ibin])-float(binNames[ibin-1]))*den))
-	        feYDown.append(1.841/((float(binNames[ibin])-float(binNames[ibin-1]))*den))
-	
-	    elif (num == 0.0 and float(x) < float(args.blindrange[0])):
-		
-	        feYUp.append(1.841/den)
-	        feYDown.append(1.841/den)
-		
-	    else:
+            # This way works also for the plot as a function of the DNN bin number
+            if (num == 0.0 and ibin <= args.blindrange[0] and args.binNXaxis and args.binwidth):
+                feYUp.append(1.841/((float(binNames[ibin])-float(binNames[ibin-1]))*den))
+                feYDown.append(1.841/((float(binNames[ibin])-float(binNames[ibin-1]))*den))
 
-                feYUp.append(hData.GetBinError(ibin) / den)
-                feYDown.append(hData.GetBinError(ibin) / den)
-		
+            elif (num == 0.0 and float(x) < float(args.blindrange[0])):
+                feYUp.append(1.841/den)
+                feYDown.append(1.841/den)
+
+            else:
+                feYUp.append(hData.GetBinErrorUp(ibin) / den)
+                feYDown.append(hData.GetBinErrorLow(ibin) / den)
+
             # X
             fX.append (hData.GetBinCenter(ibin))
             if horErrs:
@@ -325,13 +317,13 @@ def makeNonNegativeHisto (h):
 def Xaxis2binNumber (histo, binwidth):
     Nbins = histo.GetNbinsX()
 
-    new_histo = TH1F(histo.GetName(), histo.GetName(), Nbins, 0.5, Nbins+0.5)    
+    new_histo = TH1F(histo.GetName(), histo.GetName(), Nbins, 0.5, Nbins+0.5)
     for j in range(1,Nbins+1):
-	if binwidth:
-	    bw = histo.GetBinWidth(j)
-	    new_histo.SetBinContent(j,histo.GetBinContent(j)/bw)
-	    new_histo.SetBinError(j,histo.GetBinError(j)/bw)
-	else:
+        if binwidth:
+            bw = histo.GetBinWidth(j)
+            new_histo.SetBinContent(j,histo.GetBinContent(j)/bw)
+            new_histo.SetBinError(j,histo.GetBinError(j)/bw)
+        else:
             new_histo.SetBinContent(j,histo.GetBinContent(j))
             new_histo.SetBinError(j,histo.GetBinError(j))
 
@@ -551,13 +543,12 @@ if __name__ == "__main__" :
     parser.add_argument('--removeESsystBand', dest='removeESsystBand', help='remove energy scales from stat+syst band?', action='store_true', default=False)
     parser.add_argument('--addJERunc', dest='addJERunc', help='add JER shape uncertainty', action='store_true', default=False)
     # list options
-    parser.add_argument('--blind-range',   dest='blindrange', nargs=2, help='start and end of blinding range', default=None)
+    parser.add_argument('--blind-range',   dest='blindrange', nargs=2, help='start and end of blinding range', default=[1.0,2.0])
     parser.add_argument('--sigscale', dest='sigscale', nargs=2, help='scale to apply to the signals (GGHH VBFHH)', default=None)
     # float options
     parser.add_argument('--lymin', dest='lymin', type=float, help='legend min y position in pad fraction', default=None)
     # store parsed options
     args = parser.parse_args()
-
 
     ######################### INITIZLIZATIONS ####################
     if args.quit : gROOT.SetBatch(True)
@@ -608,8 +599,7 @@ if __name__ == "__main__" :
     if args.sigscale:
          for i in range(0,len(sigScale)): sigScale[i] = args.sigscale
     else:
-        sigScale = [20,100]
-        sigScaleValue = 1000
+        sigScale = [5,150]
 
     sigNameList = []
     sigNameList = ["ggHH SM x {0}".format(str(sigScale[0])), "qqHH SM x {0}".format(str(sigScale[1]))]
@@ -691,6 +681,7 @@ if __name__ == "__main__" :
     hBkgNameList .append("Drell-Yan") # list for legend
 
     hData = getHisto("data_obs", hDatas , doOverflow)
+    hData.SetBinErrorOption(1) # Set correct error for data: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PoissonErrorBars
 
     # remove all data from blinding region before doing anything else
     if args.blindrange:
@@ -738,16 +729,15 @@ if __name__ == "__main__" :
     if args.binNXaxis:
         # Save names 
         binNames = []
-        for ibin in range (1, hData.GetNbinsX()+1):
 
-	    if ibin == 1:
-	       binNames.append("0.000")
-	    	       
-	    else:
+        for ibin in range (1, hData.GetNbinsX()+1):
+            if ibin == 1:
+               binNames.append("0.000")
+            else:
                edgeUp   = round(hData.GetBinLowEdge(ibin),3)
                binNames.append( "{}".format(edgeUp) )
-	
-	binNames.append("1.000")
+
+        binNames.append("1.000")
 
         for i in range(len(hBkgList)):
             hBkgList[i] = Xaxis2binNumber(hBkgList[i],args.binwidth)
@@ -765,8 +755,10 @@ if __name__ == "__main__" :
             print 'New blinding for binNXaxis plots:', args.blindrange
 
         hData = Xaxis2binNumber(hData,args.binwidth)
+        hData.SetBinErrorOption(1) # Set correct error for data: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PoissonErrorBars
 
     hDataNonScaled = hData.Clone("hDataNonScaled")
+    hDataNonScaled.SetBinErrorOption(1) # Set correct error for data: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PoissonErrorBars
     gData = makeTGraphFromHist(hData, "grData", True)
 
     ######################### SET COLORS ####################
@@ -881,12 +873,10 @@ if __name__ == "__main__" :
     if args.binNXaxis:
         for ibin in range (1, bkgStack.GetHistogram().GetNbinsX()+1):
             bkgStack.GetXaxis().SetBinLabel(ibin,"")
-        
-	bkgStack.GetXaxis().SetNdivisions(-510)	
-
+        bkgStack.GetXaxis().SetNdivisions(-510)
     else:
-        bkgStack.GetXaxis().SetNdivisions(510)	
-		
+        bkgStack.GetXaxis().SetNdivisions(510)
+
     # width = ((bkgStack.GetXaxis().GetXmax() - bkgStack.GetXaxis().GetXmin())/bkgStack.GetStack().Last().GetNbinsX()) --> WE WRITE ONLY 'BINWIDTH' AT THE DENOMINATOR
     ylabel = "Events"    
     if args.binwidth:
@@ -930,7 +920,7 @@ if __name__ == "__main__" :
 
     ################## Y RANGE SETTINGS ############################
     ymin = 0
-    if args.log: ymin = 0.1
+    if args.log: ymin = 0.01
 
     maxs = []
     
@@ -1176,7 +1166,7 @@ if __name__ == "__main__" :
 
         if args.binNXaxis:
 
-            hRatio.SetNdivisions(-414)	
+            hRatio.SetNdivisions(-414)
 
             axis = hRatio.GetXaxis()
 
@@ -1193,25 +1183,23 @@ if __name__ == "__main__" :
             # create edge labels, they don't even have to be aligned to ticks
             labels = []
             for i, val in enumerate(binNames):
-	       
-               x = l + (1 - r - l) * i / axis.GetNbins()
-               y = b - 0.03
-	       
-               label = TLatex(x, y, "{:.3f}".format(float(val)))
-               label.SetNDC(True)
-               label.SetTextFont(43)
-               label.SetTextSize(15)
-	       
-	       if i == 0: label.SetTextAlign(33)
-	       elif i == hRatio.GetNbinsX(): label.SetTextAlign(31)
-	       else:label.SetTextAlign(32)
-	       
+
+                x = l + (1 - r - l) * i / axis.GetNbins()
+                y = b - 0.03
+
+                label = TLatex(x, y, "{:.3f}".format(float(val)))
+                label.SetNDC(True)
+                label.SetTextFont(43)
+                label.SetTextSize(15)
+
+                if i == 0: label.SetTextAlign(33)
+                elif i == hRatio.GetNbinsX(): label.SetTextAlign(31)
+                else:label.SetTextAlign(32)
+
                label.SetTextAngle(90)
-
                labels.append(label)
-	       
-        hRatio.GetXaxis().SetTitleOffset(5.4)
 
+        hRatio.GetXaxis().SetTitleOffset(5.4)
         hRatio.Draw("axis")
 
         if args.binNXaxis:
@@ -1228,7 +1216,7 @@ if __name__ == "__main__" :
 
         grUncertRatio.SetFillColor(kGray+2)
         grUncertRatio.SetFillStyle(3002)
-        grUncertRatio.Draw("e2")	
+        grUncertRatio.Draw("e2")
 
         pad2.RedrawAxis()
         pad2.RedrawAxis("g") #otherwise no grid..
