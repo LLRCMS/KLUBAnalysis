@@ -287,7 +287,7 @@ def setPoissonDataIntervals (graph, binNames, p=0.683):
         graph.GetPoint (ipt, x, N)
 
         # calculate the absolute value of the edges of the intervals
-        eyl, eyh = pois_conf_int(N, 1-p)
+        eyl, eyh = pois_conf_int(N, alpha=1-p)
 
         # set the error as the value of the edges of the intervals relative to the observed value N
         graph.SetPointEYlow(ipt, N-eyl)
