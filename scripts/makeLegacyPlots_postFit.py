@@ -312,7 +312,7 @@ def computePoissonCentralIntervals (N, p=0.683):
 
     return (aL, aU)
 
-def computePoissonDataIntervals (graph, binNames, p=0.683):
+def setPoissonDataIntervals (graph, binNames, p=0.683):
     for ipt in range (0, len(binNames)-1):
         x = Double(0.0)
         N = Double(0.0)
@@ -734,7 +734,7 @@ if __name__ == "__main__" :
         #    maxs.append(hData.GetMaximum() + math.sqrt(hData.GetMaximum()))
         
     if args.manualDataUnc:
-        computePoissonDataIntervals(gData, binNames, p=0.683)
+        setPoissonDataIntervals(gData, binNames, p=0.683)
 
     if args.dosig :
         for key in hSigs: maxs.append(hSigs[key].GetMaximum())
