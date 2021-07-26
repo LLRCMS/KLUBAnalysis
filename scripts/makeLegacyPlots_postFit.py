@@ -703,6 +703,7 @@ if __name__ == "__main__" :
         
     if args.manualDataUnc:
         setPoissonDataIntervals(gData, binNames, p=0.683)
+        setPoissonDataIntervals(gDataNonScaled, binNames, p=0.683)
 
     if args.dosig :
         for key in hSigs: maxs.append(hSigs[key].GetMaximum())
