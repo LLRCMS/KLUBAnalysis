@@ -274,6 +274,57 @@ def scaleStatSystUncertaintyBandForStack (grUncert,bkgSum):
     gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp)
     return gBand
 
+def computePoissonCentralIntervals (N, p=0.683):
+    from math import sqrt
+    def fR(x):
+        # right cumulative distribution function
+        DR = TMath.Gamma(N, x[0])
+        return DR - (1 - p)/2
+    
+    def fL(x):
+        # left cumulative distribution function
+        DL = 1 - TMath.Gamma(N + 1, x[0])
+        return DL - (1 - p)/2
+
+    def findLimit(name, func, smin, smax):
+        f  = TF1(name, func, smin, smax)
+        wf = Math.WrappedTF1(f)
+        rf = Math.BrentRootFinder()
+        rf.SetFunction(wf, smin, smax)
+        ItWorked = rf.Solve()
+        if ItWorked:
+            return rf.Root()
+        else:
+            sys.exit("*** rootfinder failed")
+        
+    # find aL
+    if N <= 0.001:
+        aL = 0.0
+    else:
+        smin = max(0.01, N - 2*sqrt(N))
+        smax = N
+        aL = findLimit('aL', fR, smin, smax)
+        
+    # find aU
+    smin = N 
+    smax = N + 2*sqrt(N) + 5
+    aU = findLimit('aU', fL, smin, smax)
+
+    return (aL, aU)
+
+def computePoissonDataIntervals (graph, binNames, p=0.683):
+    for ipt in range (0, len(binNames)-1):
+        x = Double(0.0)
+        N = Double(0.0)
+        graph.GetPoint (ipt, x, N)
+
+        # calculate the absolute value of the edges of the intervals
+        eyl, eyh = computePoissonCentralIntervals(N, p)
+
+        # set the error as the value of the edges of the intervals relative to the observed value N
+        graph.SetPointEYlow(ipt, N-eyl)
+        graph.SetPointEYhigh(ipt, eyh-N) 
+
 #######################################################################
 ######################### SCRIPT BODY #################################
 #######################################################################
@@ -312,6 +363,7 @@ if __name__ == "__main__" :
     parser.add_argument('--overflow', dest='overflow', help='add overflow bin', action='store_true', default=False)
     parser.add_argument('--dynamicRatioY', dest='dynamicRatioY', help='ratio plot with ad hoc y-range?', default=False)
     parser.add_argument('--ratiosig', dest='ratiosig', help='draw signals in the ratio plot', action='store_true', default=False)
+    parser.add_argument('--manualDataUnc', dest='manualDataUnc', help='calculate manually the 68 interval on data points instead of reading it from file?', action='store_true', default=False)
     # list options
     parser.add_argument('--blind-range',   dest='blindrange', nargs=2, help='start and end of blinding range', default=[1.0,2.0])
     parser.add_argument('--sigscale', dest='sigscale', nargs=2, help='scale to apply to the signals (GGHH VBFHH)', default=None)
@@ -681,6 +733,9 @@ if __name__ == "__main__" :
         #if not args.binwidth:
         #    maxs.append(hData.GetMaximum() + math.sqrt(hData.GetMaximum()))
         
+    if args.manualDataUnc:
+        computePoissonDataIntervals(gData, binNames, p=0.683)
+
     if args.dosig :
         for key in hSigs: maxs.append(hSigs[key].GetMaximum())
 
