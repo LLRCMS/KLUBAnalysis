@@ -9,6 +9,7 @@ from array import array
 import modules.ConfigReader as cfgr
 import modules.OutputManager as omng
 import pandas as pd
+from scipy.stats import poisson, chi2
 
                         
 def getHisto (histoName,inputList,doOverflow):
@@ -274,43 +275,10 @@ def scaleStatSystUncertaintyBandForStack (grUncert,bkgSum):
     gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp)
     return gBand
 
-def computePoissonCentralIntervals (N, p=0.683):
-    from math import sqrt
-    def fR(x):
-        # right cumulative distribution function
-        DR = TMath.Gamma(N, x[0])
-        return DR - (1 - p)/2
-    
-    def fL(x):
-        # left cumulative distribution function
-        DL = 1 - TMath.Gamma(N + 1, x[0])
-        return DL - (1 - p)/2
-
-    def findLimit(name, func, smin, smax):
-        f  = TF1(name, func, smin, smax)
-        wf = Math.WrappedTF1(f)
-        rf = Math.BrentRootFinder()
-        rf.SetFunction(wf, smin, smax)
-        ItWorked = rf.Solve()
-        if ItWorked:
-            return rf.Root()
-        else:
-            sys.exit("*** rootfinder failed")
-        
-    # find aL
-    if N <= 0.001:
-        aL = 0.0
-    else:
-        smin = max(0.01, N - 2*sqrt(N))
-        smax = N
-        aL = findLimit('aL', fR, smin, smax)
-        
-    # find aU
-    smin = N 
-    smax = N + 2*sqrt(N) + 5
-    aU = findLimit('aU', fL, smin, smax)
-
-    return (aL, aU)
+def pois_conf_int(n, alpha=1-0.683):
+    l = chi2.ppf(alpha / 2, 2 * n) / 2 if n > 0 else 0
+    u = chi2.ppf(1 - alpha / 2, 2 * (n + 1)) / 2
+    return l, u
 
 def setPoissonDataIntervals (graph, binNames, p=0.683):
     for ipt in range (0, len(binNames)-1):
@@ -319,7 +287,7 @@ def setPoissonDataIntervals (graph, binNames, p=0.683):
         graph.GetPoint (ipt, x, N)
 
         # calculate the absolute value of the edges of the intervals
-        eyl, eyh = computePoissonCentralIntervals(N, p)
+        eyl, eyh = pois_conf_int(N, 1-p)
 
         # set the error as the value of the edges of the intervals relative to the observed value N
         graph.SetPointEYlow(ipt, N-eyl)
