@@ -78,10 +78,15 @@ for key in inFile.GetListOfKeys():
 	changedInt = False
 	integral = template.Integral()
 	for ibin in range(1,template.GetNbinsX()+1):
+
+		#continue # uncomment this line ONLY when producing datacards with 1000 bins histograms for bin optimization
+
+		if "data" in kname: continue
+
 		if template.GetBinContent(ibin) <= 0:
 			changedInt = True
-			template.SetBinContent(ibin,0.000001)
-			template.SetBinError(ibin,0.000001)
+			template.SetBinContent(ibin,0.000000001)
+			template.SetBinError(ibin,0.000000001)
 
 	if integral>0:
 		if changedInt and template.Integral()>0: template.Scale(integral/template.Integral())
