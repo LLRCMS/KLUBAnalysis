@@ -10,13 +10,12 @@
 ###################################
 
 
-from HiggsAnalysis.CombinedLimit.PhysicsModel import *
-from HBRscaler import *
-from sympy import *
-from numpy import matrix
-from numpy import linalg
-from sympy import Matrix
 from collections import OrderedDict, defaultdict
+
+import sympy
+
+from HiggsAnalysis.CombinedLimit.PhysicsModel import PhysicsModel
+from HBRscaler import HBRscaler
 
 
 class VBFHHSample:
@@ -41,6 +40,7 @@ class GGFHHSample:
 class GGFHHFormula:
     def __init__(self, sample_list):
         self.sample_list = sample_list
+        self.samples = self.sample_list
         self.build_matrix()
         self.calculatecoeffients()
 
@@ -61,7 +61,7 @@ class GGFHHFormula:
             M_tofill[isample][2] = sample.val_kt**3 * sample.val_kl
 
         # print M_tofill
-        self.M = Matrix(M_tofill)
+        self.M = sympy.Matrix(M_tofill)
 
     def calculatecoeffients(self):
         """ create the function sigma and the six coefficients in this object """
@@ -70,22 +70,22 @@ class GGFHHFormula:
         except AttributeError: self.build_matrix()
 
         # ##############################################
-        kl, kt, box, tri, interf = symbols('kl kt box tri interf')
+        kl, kt, box, tri, interf = sympy.symbols('kl kt box tri interf')
         samples_symb = OrderedDict() # order is essential -> OrderedDict
         Nsamples     = self.M.shape[0] #num rows
         for i in range(Nsamples):
             sname = 's%i' % i
-            samples_symb[sname] = Symbol(sname)
+            samples_symb[sname] = sympy.Symbol(sname)
 
         ### the vector of couplings
-        c = Matrix([
+        c = sympy.Matrix([
             [kt**4]         ,
             [kt**2 * kl**2] ,
             [kt**3 * kl]    ,
         ])
 
         ### the vector of components
-        v = Matrix([
+        v = sympy.Matrix([
             [box]   ,
             [tri]   ,
             [interf],
@@ -93,7 +93,7 @@ class GGFHHFormula:
 
         ### the vector of samples (i.e. cross sections)
         symb_list = [[sam] for sam in samples_symb.values()]
-        s = Matrix(symb_list)
+        s = sympy.Matrix(symb_list)
 
         ####
         Minv   = self.M.pinv()
@@ -105,6 +105,7 @@ class GGFHHFormula:
 class VBFHHFormula:
     def __init__(self, sample_list):
         self.sample_list = sample_list
+        self.samples = self.sample_list
         self.build_matrix()
         self.calculatecoeffients()
 
@@ -128,7 +129,7 @@ class VBFHHFormula:
             M_tofill[isample][5] = sample.val_CV**2 * sample.val_C2V
 
         # print M_tofill
-        self.M = Matrix(M_tofill)
+        self.M = sympy.Matrix(M_tofill)
 
 
     def calculatecoeffients(self):
@@ -138,15 +139,15 @@ class VBFHHFormula:
         except AttributeError: self.build_matrix()
 
         ##############################################
-        CV, C2V, kl, a, b, c, iab, iac, ibc = symbols('CV C2V kl a b c iab iac ibc')
+        CV, C2V, kl, a, b, c, iab, iac, ibc = sympy.symbols('CV C2V kl a b c iab iac ibc')
         samples_symb = OrderedDict() # order is essential -> OrderedDict
         Nsamples     = self.M.shape[0] #num rows
         for i in range(Nsamples):
             sname = 's%i' % i
-            samples_symb[sname] = Symbol(sname)
+            samples_symb[sname] = sympy.Symbol(sname)
 
         ### the vector of couplings
-        c = Matrix([
+        c = sympy.Matrix([
             [CV**2 * kl**2] ,
             [CV**4]         ,
             [C2V**2]        ,
@@ -156,7 +157,7 @@ class VBFHHFormula:
         ])
 
         ### the vector of components
-        v = Matrix([
+        v = sympy.Matrix([
             [a]   ,
             [b]   ,
             [c]   ,
@@ -167,7 +168,7 @@ class VBFHHFormula:
 
         ### the vector of samples (i.e. cross sections)
         symb_list = [[sam] for sam in samples_symb.values()]
-        s = Matrix(symb_list)
+        s = sympy.Matrix(symb_list)
 
         ####
         Minv   = self.M.pinv()
@@ -175,6 +176,9 @@ class VBFHHFormula:
         self.sigma  = self.coeffs*s
 
 #########################################
+
+
+no_value = object()
 
 
 class HHModel(PhysicsModel):
@@ -196,19 +200,29 @@ class HHModel(PhysicsModel):
     or ``1`` (case-insensitive).
     """
 
+    R_POIS = ["r", "r_gghh", "r_qqhh"]
+    K_POIS = ["kl", "kt", "CV", "C2V"]
+
     def __init__(self, ggf_sample_list, vbf_sample_list, name):
         PhysicsModel.__init__(self)
 
-        self.doNNLOscaling    = True
-        self.doBRscaling      = True
-        self.doHscaling       = True
-        self.doklDependentUnc = True
-        self.doProfilekl      = None
-        self.doProfilekt      = None
-        self.doProfileCV      = None
-        self.doProfileC2V     = None
-        self.klUncName        = "THU_HH"
-        self.name             = name
+        self.name = name
+        self.klUncName = "THU_HH"
+
+        # names and values of physics options
+        self.hh_options = {
+            "doNNLOscaling": {"value": True, "is_flag": True},
+            "doBRscaling": {"value": True, "is_flag": True},
+            "doHscaling": {"value": True, "is_flag": True},
+            "doklDependentUnc": {"value": True, "is_flag": True},
+            "doProfilekl": {"value": None, "is_flag": False},
+            "doProfilekt": {"value": None, "is_flag": False},
+            "doProfileCV": {"value": None, "is_flag": False},
+            "doProfileC2V": {"value": None, "is_flag": False},
+        }
+        # add as attributes for forward compatibility
+        for name, opt in self.hh_options.items():
+            setattr(self, name, opt["value"])
 
         self.check_validity_ggf(ggf_sample_list)
         self.check_validity_vbf(vbf_sample_list)
@@ -216,39 +230,53 @@ class HHModel(PhysicsModel):
         self.ggf_formula = GGFHHFormula(ggf_sample_list)
         self.vbf_formula = VBFHHFormula(vbf_sample_list)
 
+        self.r_pois = None
+        self.k_pois = None
+        self.reset_pois()
+
         self.scalingMap = defaultdict(list)
 
-        # self.dump_inputs()
+    def set_opt(self, name, value):
+        """
+        Sets the value of a physics option named *name*, previoulsy registered with
+        :py:meth:`register_opt`, to *value*.
+        """
+        self.hh_options[name]["value"] = value
 
-    def setPhysicsOptions(self, physOptions):
-        opts = [opt.split("=", 1) for opt in physOptions if "=" in opt]
-        known_flags = ["doNNLOscaling", "doBRscaling", "doHscaling", "doklDependentUnc"]
-        known_params = ["doProfilekl", "doProfilekt", "doProfileCV", "doProfileC2V"]
+        # set also as attributes for forward compatibility
+        setattr(self, name, value)
 
-        set_params = set()
-        for key, value in opts:
-            # identify boolean flags
-            if key in known_flags:
-                flag = value.lower() in ["yes", "true", "1"]
-                setattr(self, key, flag)
-                set_params.add(key)
+    def opt(self, name, default=no_value):
+        """
+        Helper to get the value of a physics option defined by *name* with an optional *default*
+        value that is returned when no option with that *name* is registered.
+        """
+        if name in self.hh_options or default == no_value:
+            return self.hh_options[name]["value"]
+        else:
+            return default
+
+    def setPhysicsOptions(self, options):
+        """
+        Hook called by the super class to parse physics options received externally, e.g. via
+        ``--physics-option`` or ``--PO``.
+        """
+        # split by "=" and check one by one
+        pairs = [opt.split("=", 1) for opt in options if "=" in opt]
+        for name, value in pairs:
+            if name not in self.hh_options:
+                print("[WARNING] unknown physics option '{}'".format(name))
                 continue
 
-            # identify remaining "key=value" parameter pairs
-            if key in known_params:
-                # special case: interpret empty string and "None" as actual None
-                if value.lower() in ("", "none"):
-                    value = None
-                setattr(self, key, value)
-                set_params.add(key)
-                continue
+            if self.hh_options[name]["is_flag"]:
+                # boolean flag
+                value = value.lower() in ["yes", "true", "1"]
+            else:
+                # string value, catch special cases
+                value = None if value.lower() in ["", "none"] else value
 
-        # print all current options
-        for param in known_flags + known_params:
-            msg = "[INFO] using model option {} = {}".format(param, getattr(self, param))
-            if param in set_params:
-                msg += " (set via option)"
-            print(msg)
+            self.set_opt(name, value)
+            print("[INFO] using model option {} = {}".format(name, value))
 
     def check_validity_ggf(self, ggf_sample_list):
         if len(ggf_sample_list) < 3:
@@ -277,6 +305,13 @@ class HHModel(PhysicsModel):
         for i,s in enumerate(self.vbf_formula.sample_list):
             print "        {0:<3} ... CV : {1:<3}, C2V : {2:<3}, kl : {3:<3}, xs : {4:<3.8f} pb, label : {5}".format(i, s.val_CV, s.val_C2V, s.val_kl, s.val_xs, s.label)
 
+    def reset_pois(self):
+        self.r_pois = ["r", "r_gghh", "r_qqhh"]
+        self.k_pois = [
+            p for p in self.K_POIS
+            if not self.opt("doProfile" + p)
+        ]
+
     def doParametersOfInterest(self):
         ## the model is built with:
         ## r x [GGF + VBF]
@@ -291,18 +326,18 @@ class HHModel(PhysicsModel):
         self.modelBuilder.out.var("r_qqhh").setConstant(True)
         pois = ["r", "r_gghh", "r_qqhh"]
 
-        # define kappa parameters and their uniform ranges
+        # define kappa parameters, SM vlaues and their uniform ranges
         kappas = OrderedDict([
-            ("kl", (-30, 30)),
-            ("kt", (-10, 10)),
-            ("CV", (-10, 10)),
-            ("C2V", (-10, 10)),
+            ("kl", (1, -30, 30)),
+            ("kt", (1, -10, 10)),
+            ("CV", (1, -10, 10)),
+            ("C2V", (1, -10, 10)),
         ])
 
         # add them
-        for name, (start, stop) in kappas.items():
+        for name, (sm_value, start, stop) in kappas.items():
             # define the variable
-            self.modelBuilder.doVar("{}[1,{},{}]".format(name, start, stop))
+            self.modelBuilder.doVar("{}[{},{},{}]".format(name, sm_value, start, stop))
 
             # only make it a POI when it is not profile
             do_profile = name == "kl" and bool(self.doProfilekl)
@@ -382,8 +417,6 @@ class HHModel(PhysicsModel):
 
     def makeklDepTheoUncertainties(self):
         ''' Construct and import uncertanties on the workspace'''
-        #upper_unc[kl] = Max[72.0744-51.7362*kl+11.3712*kl2, 70.9286-51.5708*kl+11.4497*kl2] in fb.
-        #lower_unc[kl] = Min[66.0621-46.7458*kl+10.1673*kl2, 66.7581-47.721*kl+10.4535*kl2] in fb.
         # if not self.doklDependentUnc: return
 
         self.modelBuilder.doVar("%s[-7,7]" % self.klUncName)
@@ -407,11 +440,11 @@ class HHModel(PhysicsModel):
 
         def pow_to_mul_string(expr):
             """ Convert integer powers in an expression to Muls, like a**2 => a*a. Returns a string """
-            pows = list(expr.atoms(Pow))
+            pows = list(expr.atoms(sympy.Pow))
             if any(not e.is_Integer for b, e in (i.as_base_exp() for i in pows)):
                 raise ValueError("A power contains a non-integer exponent")
             s = str(expr)
-            repl = zip(pows, (Mul(*[b]*e,evaluate=False) for b,e in (i.as_base_exp() for i in pows)))
+            repl = zip(pows, (sympy.Mul(*[b]*e,evaluate=False) for b,e in (i.as_base_exp() for i in pows)))
             for fr, to in repl:
                 s = s.replace(str(fr), str(to))
             return s
@@ -422,7 +455,7 @@ class HHModel(PhysicsModel):
             f_name = 'f_ggfhhscale_sample_{0}'.format(s.label)
             f_expr = self.ggf_formula.coeffs[i] # the function that multiplies each sample
 
-            kl = symbols('kl')
+            kl = sympy.symbols('kl')
             #NLO xsec formula
             f_NLO_xsec = '62.5339 - 44.3231*kl + 9.6340*kl*kl'
             #NNLO xsec formula https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGHH#Latest_recommendations_for_gluon
@@ -581,6 +614,17 @@ class HHModel(PhysicsModel):
         # at this point we are dealing with a background process that is also not single-H-scaled,
         # so it is safe to return 1 since any misconfiguration should have been raised already
         return 1.
+
+    def get_formulae(self):
+        return {
+            "ggf_formula": self.ggf_formula,
+            "vbf_formula": self.vbf_formula,
+        }
+
+    def create_hh_xsec_func(self, **kwargs):
+        _kwargs = self.get_formulae()
+        _kwargs.update(kwargs)
+        return create_hh_xsec_func(**_kwargs)
 
     def done(self):
         super(HHModel, self).done()
@@ -787,7 +831,7 @@ def create_ggf_xsec_func(formula=None):
     # create the lambdify'ed evaluation function
     n_samples = len(formula.sample_list)
     symbol_names = ["kl", "kt"] + list(map("s{}".format, range(n_samples)))
-    xsec_func = lambdify(symbols(symbol_names), formula.sigma)
+    xsec_func = sympy.lambdify(sympy.symbols(symbol_names), formula.sigma)
 
     # nlo-to-nnlo scaling functions in case nnlo is set
     xsec_nlo = lambda kl: 0.001 * 1.115 * (62.5339 - 44.3231 * kl + 9.6340 * kl**2.)
@@ -873,7 +917,7 @@ def create_vbf_xsec_func(formula=None):
     # create the lambdify'ed evaluation function
     n_samples = len(formula.sample_list)
     symbol_names = ["C2V", "CV", "kl"] + list(map("s{}".format, range(n_samples)))
-    xsec_func = lambdify(symbols(symbol_names), formula.sigma)
+    xsec_func = sympy.lambdify(sympy.symbols(symbol_names), formula.sigma)
 
     # wrap into another function to apply defaults
     def wrapper(C2V=1., CV=1., kl=1., unc=None):
@@ -962,4 +1006,3 @@ get_vbf_xsec = create_vbf_xsec_func(model_default.vbf_formula)
 
 #: Default combined cross section getter using the formulas of the *model_default* model.
 get_hh_xsec = create_hh_xsec_func(model_default.ggf_formula, model_default.vbf_formula)
-
