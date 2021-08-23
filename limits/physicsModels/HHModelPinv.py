@@ -208,6 +208,7 @@ class HHModel(PhysicsModel):
 
         self.name = name
         self.klUncName = "THU_HH"
+        self.ggf_kl_dep_unc = self.klUncName  # forward compatibility
 
         # names and values of physics options
         self.hh_options = {

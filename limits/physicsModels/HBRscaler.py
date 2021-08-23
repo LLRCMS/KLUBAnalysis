@@ -67,7 +67,9 @@ class HBRscaler(object):
         self.modelBuilder = modelBuilder
         # use SMHiggsBuilder to build single H XS and BR scalings
         datadir = None
-        if "DHI_SOFTWARE" in os.environ:
+        if "CMSSW_BASE" in os.environ:
+            datadir = os.path.expandvars("$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg")
+        elif "DHI_SOFTWARE" in os.environ:
             datadir = os.path.expandvars("$DHI_SOFTWARE/HiggsAnalysis/CombinedLimit/data/lhc-hxswg")
         self.SMH = SMHiggsBuilder(self.modelBuilder, datadir=datadir)
 
