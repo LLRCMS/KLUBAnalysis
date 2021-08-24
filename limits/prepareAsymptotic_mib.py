@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
     # add options to make combine faster
     if opt.fast:
-        command = command + " --cminDefaultMinimizerType Minuit2 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,0:1.0 "
+        command = command + " --cminDefaultMinimizerType Minuit2 --cminDefaultMinimizerStrategy 0 --cminDefaultMinimizerTolerance 0.1 --cminFallbackAlgo Minuit2,0:0.2  --cminFallbackAlgo Minuit2,0:0.4 "
 
     # Freeze theory uncretainties group
     theoryName = ""
