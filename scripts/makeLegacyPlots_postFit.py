@@ -477,6 +477,13 @@ if __name__ == "__main__" :
     if args.prepost == 'prefit': fit_folder = 'shapes_prefit'
     else: fit_folder = 'shapes_fit_s'
 
+    sigScale = [1,1]
+    if args.sigscale:
+         for i in range(0,len(sigScale)): sigScale[i] = float(args.sigscale[i])
+
+    if sigScale[0] == 1 and sigScale[1] == 1: sig_fit_folder = fit_folder
+    else: sig_fit_folder = 'shapes_prefit'
+
     rootFile = TFile.Open(args.dir+'/'+args.postFitFile)
     list_of_shapes = rootFile.Get(fit_folder+'/'+combine_ch).GetListOfKeys()
     hBkgs = {}
@@ -489,16 +496,13 @@ if __name__ == "__main__" :
     for hist in list_of_shapes:
         name = hist.GetName()
         if ('background' in name) or ('signal' in name): hTots[name] = rootFile.Get(fit_folder+'/'+combine_ch+'/'+name)
-        elif ('ggHH_kl_1_kt_1_hbbhtt' == name) or ('qqHH_CV_1_C2V_1_kl_1_hbbhtt' in name): hSigs[name] = rootFile.Get(fit_folder+'/'+combine_ch+'/'+name)
+        elif ('ggHH_kl_1_kt_1_hbbhtt' == name) or ('qqHH_CV_1_C2V_1_kl_1_hbbhtt' in name): hSigs[name] = rootFile.Get(sig_fit_folder+'/'+combine_ch+'/'+name)
         elif 'data' in name: hDatas[name] = rootFile.Get(fit_folder+'/'+combine_ch+'/'+name) # NB - data is stored as a TGRaphAsymErrors inside a ROOFit object
         elif (not 'ggHH' in name) and (not 'qqHH' in name): hBkgs[name] = rootFile.Get(fit_folder+'/'+combine_ch+'/'+name)
 
-    sigScale = [1,1]
-    if args.sigscale:
-         for i in range(0,len(sigScale)): sigScale[i] = float(args.sigscale[i])
-
     sigList = ["ggHH_kl_1_kt_1_hbbhtt", "qqHH_CV_1_C2V_1_kl_1_hbbhtt"]
-    if args.prepost == 'prefit': sigNameList = ["Prefit ggHH", "Prefit qqHH"]
+    if sigScale[0] != 1 and sigScale[1] != 1: sigNameList = ["Prefit ggHH SM x {0}".format(str(sigScale[0])), "Prefit qqHH SM x {0}".format(str(sigScale[1]))]
+    elif args.prepost == 'prefit': sigNameList = ["Prefit ggHH", "Prefit qqHH"]
     else: sigNameList = ["Postfit ggHH", "Postfit qqHH"]
 
     plotTitle = ""
@@ -507,7 +511,7 @@ if __name__ == "__main__" :
         plotTitle = args.title
 
     # read the bins edges that are used from the cfg file
-    cfg = cfgr.ConfigReader('config/makeLegacyPlots_postFit.cfg')
+    cfg = cfgr.ConfigReader('config/makeLegacyPlots_binning.cfg')
     binNames = cfg.readListOption('{0}{1}::{2}'.format(args.year, args.channel, args.sel))
     binNumbs = len(binNames) - 1
 
@@ -542,9 +546,13 @@ if __name__ == "__main__" :
     hSingleH = makeSum("singleH",hSingleHlist)
     hothers = makeSum("other",hothersList)
 
-    hBkgList     = [hothers , hSingleH, hQCD, hTT, hDY]                   # list for stack
-    hBkgNameList = ["Others", "Single H", "QCD", "t#bar{t}", "Drell-Yan"] # list for legend
-
+    # Protection in case QCD is not computed in this channel/category
+    if hQCD.GetName() == 'dummy':
+        hBkgList     = [hothers , hSingleH, hTT, hDY]                  # list for stack
+        hBkgNameList = ["Others", "Single H", "t#bar{t}", "Drell-Yan"] # list for legend
+    else:
+        hBkgList     = [hothers , hSingleH, hQCD, hTT, hDY]                   # list for stack
+        hBkgNameList = ["Others", "Single H", "QCD", "t#bar{t}", "Drell-Yan"] # list for legend
 
     ######################### SET COLORS ####################
     sigColors = {}
@@ -553,18 +561,18 @@ if __name__ == "__main__" :
 
     col = TColor()
     bkgColors = {}
-    bkgColors["DY"]    = col.GetColor("#44BA68")
-    bkgColors["TT"]    = col.GetColor("#F4B642")
-    bkgColors["singleH"]     = col.GetColor("#41B4DB")
-    bkgColors["other"] = col.GetColor("#ED635E")
+    bkgColors["DY"]      = col.GetColor("#44BA68")
+    bkgColors["TT"]      = col.GetColor("#F4B642")
+    bkgColors["singleH"] = col.GetColor("#41B4DB")
+    bkgColors["other"]   = col.GetColor("#ED635E")
     bkgColors["QCD"]     = col.GetColor("#F29563")
 
     bkgLineColors = {}
-    bkgLineColors["DY"]    = col.GetColor("#389956")
-    bkgLineColors["TT"]    = col.GetColor("#dea63c")
-    bkgLineColors["singleH"]     = col.GetColor("#3ca4c8")
-    bkgLineColors["other"] = col.GetColor("#d85a56")
-    bkgLineColors["QCD"] = col.GetColor("#DC885A")
+    bkgLineColors["DY"]      = col.GetColor("#389956")
+    bkgLineColors["TT"]      = col.GetColor("#dea63c")
+    bkgLineColors["singleH"] = col.GetColor("#3ca4c8")
+    bkgLineColors["other"]   = col.GetColor("#d85a56")
+    bkgLineColors["QCD"]     = col.GetColor("#DC885A")
 
     # apply sig color if available
     for key in hSigs:
@@ -667,16 +675,15 @@ if __name__ == "__main__" :
     legminx = 0.5
     legmin = 0.7
     if args.lymin: legmin = args.lymin
-    if (len(hBkgNameList) +len(hSigs)>6): legminx = 0.325
+    if (len(hBkgNameList) +len(hSigs)>5): legminx = 0.325
     leg = TLegend (legminx, legmin, 0.85, 0.93)
-    if (len(hBkgNameList) +len(hSigs)> 6): leg.SetNColumns(2)
+    if (len(hBkgNameList) +len(hSigs)>5): leg.SetNColumns(2)
     leg.SetFillStyle(0)
     leg.SetBorderSize(0)
     leg.SetTextFont(43)
-    leg.SetTextSize(18)
+    #leg.SetTextSize(18)
 
     if args.dosig:
-        #for i, name in enumerate (sigNameList):
         for i, name in reversed(list(enumerate (sigNameList))):
             histo = hSigs[sigList[i]]
             leg.AddEntry (histo, name, "l")
