@@ -51,6 +51,8 @@ class OutputManager:
         self.bkgs        = []
         self.sigs        = []
 
+        self.centralQCDnormalization = collections.OrderedDict()
+
     def readAll (self, rootfile):
         """ read all histograms from rootfile """
 
@@ -369,6 +371,14 @@ class OutputManager:
                         sc = SBtoSRfactor*qcdYield/hQCD.Integral() if hQCD.Integral() > 0 else 0.0
 
                     hQCD.Scale(sc)
+
+                    # If central --> store final yield
+                    if not doUpDown:
+                        self.centralQCDnormalization[sel] = hQCD.Integral()
+                    # If not central --> use the stored final yield to normalize up/down templates
+                    else:
+                        hQCD.Scale(self.centralQCDnormalization[sel]/hQCD.Integral())
+
 
                     if eval(doFitIf):
                         try:
