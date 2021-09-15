@@ -61,6 +61,8 @@ parser.add_argument('--moreDYbin2', type=float, dest='moreDYbin2', help='increas
 parser.add_argument('--SBtoSR', type=float, dest='SBtoSR', help='specity manually the SBtoSR factor', default=None)
 parser.add_argument('--extBkg',  dest='extBkg', help='add a bkg from external file', default=None)
 parser.add_argument('--extFile', dest='extFile', help='add a bkg from external file', default=None)
+parser.add_argument('--doSymmetricQCD', type=bool, dest='doSymmetricQCD', help='symmetrize QCD templates', default=True)
+
 args = parser.parse_args()
 
 cfgName        = findInFolder  (args.dir+"/", 'mainCfg_*.cfg')
@@ -228,7 +230,9 @@ if cfg.hasSection('pp_QCD'):
             computeSBtoSR = computeSBtoSRdyn,
             doUpDown      = doUpDownQCD
             )
-
+    if doUpDownQCD and args.doSymmetricQCD:
+        print "--- Syimmetrizing templates of QCD ---"
+        omngr.symmetrizeQCD()
 
 # VBF HH Reweighting
 # reads from the config the 6 input samples and the target couplings

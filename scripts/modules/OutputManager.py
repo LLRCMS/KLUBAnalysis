@@ -377,7 +377,7 @@ class OutputManager:
                         self.centralQCDnormalization[sel] = hQCD.Integral()
                     # If not central --> use the stored final yield to normalize up/down templates
                     else:
-                        hQCD.Scale(self.centralQCDnormalization[sel]/hQCD.Integral())
+                        if hQCD.Integral() != 0: hQCD.Scale(self.centralQCDnormalization[sel]/hQCD.Integral())
 
 
                     if eval(doFitIf):
@@ -425,7 +425,74 @@ class OutputManager:
                         self.histos[hQCD.GetName()] = hQCD
             
 
-        ### FIXME: now do 2D histos
+    def symmetrizeQCD(self):
+
+        print "... symmetrizing QCD templates"
+
+        # Since we always use the nominal QCD histogram we do not need to
+        # loop on all the systematics to compute the shifted QCD histograms.
+        # Can easily be changed by setting: allSysts = self.systList
+        allSysts = [""]
+
+        # Loop on all QCD histograms: loop on vars --> selections --> systs
+        for var in self.variables:
+            for sel in self.sel_def:
+                for syst in allSysts:
+
+                    # If var already contains one of the shape systs (tauup, taudown, jetup...)
+                    # do not create the shifted QCD template
+                    if 'tauup' in var or 'taudown' in var or \
+                       'eleup' in var or 'eledown' in var or \
+                       'muup'  in var or 'mudown'  in var or \
+                       'jetup' in var or 'jetdown' in var:
+                       continue
+
+                    # If var already contains one of the shape systs (tauup, taudown, jetup...)
+                    # skip the syst from allSysts (otherwise it look for histograms with two systematics
+                    # like 'var_sel_SR_tauup_PUjetIDUp' which do not make sense)
+                    doubleSyst = False
+                    namesToBeRemoved = ["tauup", "taudown", "eleup", "eledown", "muup", "mudown", "jetup", "jetdown"]
+                    for doubleName in namesToBeRemoved:
+                        if doubleName in var:
+                            doubleSyst = True
+                            break
+                    if syst != '' and doubleSyst: continue
+
+                    # for boosted category we use 'L' bTag WP
+                    if 'boost' in sel:
+                        if 'bTagSF' in syst:
+                            syst = syst.replace('M','L')
+
+                    ## Get the QCD templates and check if they exist - QCD_s1b1jresolvedMcut_SR_DNNoutSM_kl_1
+                    name_nominal = makeHistoName('QCD', sel+'_SR', var, syst)
+                    name_up      = name_nominal + '_Up'
+                    name_down    = name_nominal + '_Down'
+
+                    if name_nominal not in self.histos.keys():
+                        print '--> No nominal template for:', name_nominal
+                        continue
+                    if name_up not in self.histos.keys():
+                        print '--> No up template for:', name_up
+                        continue
+                    if name_down not in self.histos.keys():
+                        print '--> No down template for:', name_down
+                        continue
+
+                    # New QCD templates:
+                    #  - keep the up variation
+                    #  - consider the current nominal shape to be the new down variation
+                    #  - the new nominal shape is right betwen down and up (symmetric)
+                    h_up      = self.histos[name_up].Clone(name_up)
+                    h_down    = self.histos[name_nominal].Clone(name_down)
+                    h_nominal = self.histos[name_nominal].Clone(name_nominal)
+                    h_nominal.Add(h_up)
+                    h_nominal.Scale(0.5)
+
+                    # Store the new QCD templates by overwriting the old ones
+                    self.histos[h_up.GetName()]      = h_up
+                    self.histos[h_down.GetName()]    = h_down
+                    self.histos[h_nominal.GetName()] = h_nominal
+
 
     def rebin(self, var, sel, newbinning):        
         print '... rebinning histos for var:' , var, 'sel:', sel
