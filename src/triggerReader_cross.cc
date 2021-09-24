@@ -184,26 +184,247 @@ void triggerReader_cross::addVBFTrigs (vector<string> list)
     return;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////
+////LP: MET/AK8 triggers test
+void triggerReader_cross::addMETTrigs (vector<string> list)
+{
+  for (unsigned int i = 0; i < list.size(); i++)
+    {
+      auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
+      if (it != _allTriggers.end()){
+	_metTriggers.push_back (it - _allTriggers.begin());
+	auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
+	if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
+      }
+      else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+    }
+    return;
+}
+void triggerReader_cross::addTauMETTrigs (vector<string> list)
+{
+  for (unsigned int i = 0; i < list.size(); i++)
+    {
+      auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
+      if (it != _allTriggers.end()){
+	_taumetTriggers.push_back (it - _allTriggers.begin());
+	auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
+	if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
+      }
+      else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+    }
+    return;
+}
+
+
+// Should already be added in addTauTauTrigs, but adding them elsewhere to check impact in all channels
+// that impact should mostly be important in tautau channel, in which case they'll be added there only
+void triggerReader_cross::addSingleTauTrigs (vector<string> list)
+{
+  for (unsigned int i = 0; i < list.size(); i++)
+    {
+      auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
+      if (it != _allTriggers.end()){
+	_singleTauTriggers.push_back (it - _allTriggers.begin());
+	auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
+	if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
+      }
+      else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+    }
+    return;
+}
+
+
+void triggerReader_cross::addAK8Trigs (vector<string> list)
+{
+  for (unsigned int i = 0; i < list.size(); i++)
+    {
+      auto it = find (_allTriggers.begin(), _allTriggers.end(), list.at(i));
+      if (it != _allTriggers.end()){
+	_ak8Triggers.push_back (it - _allTriggers.begin());
+	auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
+	if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
+      }
+      else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+    }
+    return;
+}
+//////////////////////////////////////////////////////////////////////////////////////
+
 std::pair <int, int> triggerReader_cross::printTriggerList()
 {
   int isHPS = 0;
   int isTau = 0;
   cout<<endl;
   cout<<"@ bit position - path"<<endl;
-  for (unsigned int i = 0; i < _thisSkimTriggers.size(); i++) 
+  for (unsigned int i = 0; i < _thisSkimTriggers.size(); i++)
     {
       cout<< i <<" - "<<_thisSkimTriggers.at(i)<<endl;
+
+      // LP: TEST exclude single tau/ tau+met triggers from isHPS/isTau definition:
+      //if (_thisSkimTriggers.at(i).find("HLT_MediumChargedIsoPFTau")) continue;
+
       if (_thisSkimTriggers.at(i).find("HPS") != std::string::npos)  isHPS |=  1 << i;
       if (_thisSkimTriggers.at(i).find("Tau") != std::string::npos)  isTau |=  1 << i;
     }
   cout<<endl;
-  return std::make_pair(isHPS, isTau);  
+  return std::make_pair(isHPS, isTau);
 }
-
 
 // ------------------------------
 // Check trigger filters matching
 // ------------------------------
+bool triggerReader_cross::checkMET(Long64_t triggerbit_1, int *pass_triggerbit)
+{
+
+  bool OR       = false;
+  bool thisPath = false;
+
+  for(unsigned int i = 0; i < _metTriggers.size(); i++)
+    {
+      thisPath = false;
+      thisPath = CheckBit(triggerbit_1, _metTriggers.at(i));
+      /*
+	no trigger matching for now, would it make sense?
+	Dphi(tautau,MET) or something? (cos(Dphi(tauH(vis), MET))~+/-1 for "large" mX)
+      */
+      //if(thisPath)
+      //{
+      //  firedPath = _allTriggers.at(_metTriggers.at(i));
+      //  boost::regex re_met{"MET(\\d+)"}; //wtf is that?? is that used outside matching?
+      //}
+      if(thisPath)
+	{
+	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_metTriggers.at(i)));
+	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
+	  *pass_triggerbit |=  1 << thisPathIdx; // if checkMET is called, pass_triggerbit will contain MET triggerbit too
+	  OR = true;
+	}
+    }
+  return OR;
+}
+
+bool triggerReader_cross::checkSingleTau  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double eta_tau1, double pt_tau2, double eta_tau2, int *pass_triggerbit)
+{
+  bool OR     = false;
+  bool thisPath = false;
+  bool match1 = false;
+  bool match2 = false;
+  bool _trgNoOverlap = false;
+  bool match = false;
+  bool goodType = false;
+  std::string firedPath;
+  bool ptCut = false;
+  bool etaCut = false;
+  for (unsigned int i = 0; i < _singleTauTriggers.size(); i++)
+    {
+      thisPath = false;
+      thisPath = CheckBit (triggerbit_1, _singleTauTriggers.at(i));
+      if (thisPath)
+	{
+	  // should it always be match1?
+	  match1 = CheckBit (matchFlag1, _singleTauTriggers.at(i));
+	  match2 = CheckBit (matchFlag2, _singleTauTriggers.at(i));
+	  match = (match1!=match2); // here only one of the leptons can be matched (can't trigger on 2 taus in same event)
+	  cout << "match1(2) = " <<match1<<"("<<match2<<")"<<endl;
+	  //Only check type for matched lepton
+	  goodType = match1?CheckBit (goodTriggerType1, _singleTauTriggers.at(i)):CheckBit (goodTriggerType2, _singleTauTriggers.at(i));
+
+	  _trgNoOverlap = CheckBit (trgNoOverlap, _singleTauTriggers.at(i)); // is this needed here?
+
+	  if (match && goodType && _trgNoOverlap)
+	    {
+	      firedPath = _allTriggers.at(_singleTauTriggers.at(i));
+	      boost::regex re_tau{"Tau(\\d+)"}; // no HPS trigger for single tau
+
+	      double pt_tau = match1?pt_tau1:pt_tau2;
+	      ptCut = checkPtCutSingle(thisPath, firedPath, re_tau, pt_tau, 10.0);  // tautauTrigger twiki suggests 190 GeV (lowest + 10 GeV)  "flat" cut, so this should do fine
+	      // should apply some trigger-matching pT cut here, but not including it yet to check turn-ons
+
+	      double eta_tau = match1?eta_tau1:eta_tau2;
+	      etaCut = (fabs(eta_tau) < 2.1); //muon threshold
+	    }
+	  else
+	    {
+	      ptCut = false;
+	      etaCut = false;
+	    }
+	}
+      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut)) thisPath = false;
+      if (thisPath)
+	{
+	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_singleTauTriggers.at(i)));
+	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
+	  *pass_triggerbit |=  1 << thisPathIdx;
+	  OR = true;
+	}
+    }
+
+  return OR;
+}
+
+
+bool triggerReader_cross::checkTauMET  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double eta_tau1, double pt_tau2, double eta_tau2, int *pass_triggerbit)
+{
+  bool OR     = false;
+  bool thisPath = false;
+  bool match1 = false;
+  bool match2 = false;
+  bool _trgNoOverlap = false;
+  bool match = false;
+  bool goodType = false;
+  std::string firedPath;
+  bool ptCut = false;
+  bool etaCut = false;
+
+  for (unsigned int i = 0; i < _taumetTriggers.size(); i++)
+    {
+      thisPath = false;
+      thisPath = CheckBit (triggerbit_1, _taumetTriggers.at(i));
+      if (thisPath)
+	{
+	  // should it always be match1?
+	  match1 = CheckBit (matchFlag1, _taumetTriggers.at(i));
+	  match2 = CheckBit (matchFlag2, _taumetTriggers.at(i));
+
+	  cout << "match1(2) = " <<match1<<"("<<match2<<")"<<endl;
+	  match = (match1!=match2); // here only one of the leptons can be matched (can't trigger on 2 taus in same event)
+
+	  //Only check type for matched lepton
+	  goodType = match1?CheckBit (goodTriggerType1, _taumetTriggers.at(i)):CheckBit (goodTriggerType2, _taumetTriggers.at(i));
+
+	  _trgNoOverlap = CheckBit (trgNoOverlap, _taumetTriggers.at(i)); // is this needed here?
+
+	  if (match && goodType && _trgNoOverlap)
+	    {
+	      firedPath = _allTriggers.at(_taumetTriggers.at(i));
+	      boost::regex re_tau{"Tau(\\d+)"}; // no HPS trigger for single tau
+
+	      double pt_tau = match1?pt_tau1:pt_tau2;
+	      ptCut = checkPtCutSingle(thisPath, firedPath, re_tau, pt_tau, 10.0);  // tautauTrigger twiki suggests 190 GeV (lowest + 10 GeV) cut for singleTau triggers, so this should do fine here too
+	      // should also check MET threshold
+	     
+
+	      double eta_tau = match1?eta_tau1:eta_tau2;
+	      etaCut = (fabs(eta_tau) < 2.1); //muon threshold
+	    }
+	  else
+	    {
+	      ptCut = false;
+	      etaCut = false;
+	    }
+	}
+      if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut)) thisPath = false;
+      if (thisPath)
+	{
+	  std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_taumetTriggers.at(i)));
+	  int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
+	  *pass_triggerbit |=  1 << thisPathIdx;
+	  OR = true;
+	}
+    }
+  return OR;
+}
+
 
 bool triggerReader_cross::checkOREleEleNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t trgNoOverlap, Long64_t goodTriggerType1, double pt_tau1, double eta_tau1, double eta_tau2, int *pass_triggerbit)
 {
@@ -216,7 +437,7 @@ bool triggerReader_cross::checkOREleEleNew  (Long64_t triggerbit_1, Long64_t mat
     bool ptCut = false;
     bool etaCut1 = false;
     bool etaCut2 = false;
-    
+
     for (unsigned int i = 0; i < _eeTriggers.size(); i++)
     {
       thisPath = false;
@@ -265,7 +486,7 @@ bool triggerReader_cross::checkORMuEleNew  (Long64_t triggerbit_1, Long64_t matc
     bool ptCut = false;
     bool etaCut1 = false;
     bool etaCut2 = false;
-    
+
     for (unsigned int i = 0; i < _emTriggers.size(); i++)
     {
       thisPath = false;
@@ -315,7 +536,7 @@ bool triggerReader_cross::checkORMuMuNew  (Long64_t triggerbit_1, Long64_t match
     bool ptCut = false;
     bool etaCut1 = false;
     bool etaCut2 = false;
-  
+
     for (unsigned int i = 0; i < _mmTriggers.size(); i++)
     {
       thisPath = false;
@@ -381,7 +602,7 @@ bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t mat
         goodType2 = CheckBit (goodTriggerType2, _ttCrossTriggers.at(i));
         goodType = goodType1 && goodType2;
         _trgNoOverlap = CheckBit (trgNoOverlap, _ttCrossTriggers.at(i));
-        
+
         if (match && _trgNoOverlap && goodType)
         {
           firedPath = _allTriggers.at(_ttCrossTriggers.at(i));
@@ -409,7 +630,7 @@ bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t mat
       }
       //if (OR) break; // I want to store the information about all triggers that have fired, without breaking the loop when I find one
     }
-
+    
     //if (!OR)
     //{
     for (unsigned int i = 0; i < _ttTriggers.size(); i++)
@@ -425,7 +646,7 @@ bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t mat
           goodType2 = true;
           goodType = goodType1 && goodType2;
           _trgNoOverlap = CheckBit (trgNoOverlap, _ttTriggers.at(i));
-	    
+
           if (match && _trgNoOverlap && goodType)
           {
             firedPath = _allTriggers.at(_ttTriggers.at(i));
@@ -453,6 +674,7 @@ bool triggerReader_cross::checkORTauTauNew  (Long64_t triggerbit_1, Long64_t mat
     }
     //}
 
+
     return OR;
 }
 
@@ -473,7 +695,7 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
     bool etaCut2 = false;
     for (unsigned int i = 0; i < _mtCrossTriggers.size(); i++)
     {
-      thisPath = false; 
+      thisPath = false;
       thisPath = CheckBit (triggerbit_1, _mtCrossTriggers.at(i));
       if (thisPath)
       {
@@ -513,7 +735,7 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
 
       //      if (OR) break;
     }
-    
+
     // if (!OR)
     // {
     for (unsigned int i = 0; i < _mtTriggers.size(); i++)
@@ -556,7 +778,7 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
         //        if (OR) break;
     }
     //}
-    
+
     return OR;
 }
 
@@ -708,11 +930,11 @@ bool triggerReader_cross::checkPtCutCross (bool OR, std::string firedPath, boost
 
     if ( boost::regex_search(firedPath, what1, re_tau1) && boost::regex_search(firedPath, what2, re_tau2) )
     {
-        double ptcut_tau1; 
+        double ptcut_tau1;
         if(what1.length(1) != 0) ptcut_tau1 = boost::lexical_cast<double>(what1[1]) + thr1; // this check is necessary to deal with TauHPSNN triggers
         else                     ptcut_tau1 = boost::lexical_cast<double>(what1[2]) + thr1;
-	 
-        double ptcut_tau2; 
+
+        double ptcut_tau2;
         if(what2.length(1) != 0) ptcut_tau2 = boost::lexical_cast<double>(what2[1]) + thr2; // this check is necessary to deal with TauHPSNN triggers
         else                     ptcut_tau2 = boost::lexical_cast<double>(what2[2]) + thr2;
 
@@ -743,7 +965,7 @@ bool triggerReader_cross::checkPtCutSingle (bool OR, std::string firedPath, boos
 
     if ( boost::regex_search(firedPath, what1, re_tau1) )
     {
-        double ptcut_tau1;	 
+        double ptcut_tau1;
 	if(what1.length(1) != 0) ptcut_tau1 = boost::lexical_cast<double>(what1[1]) + thr1; // this check is necessary to deal with TauHPSNN triggers
 	else                     ptcut_tau1 = boost::lexical_cast<double>(what1[2]) + thr1;
 
@@ -786,7 +1008,7 @@ void triggerReader_cross::listTauTau  (Long64_t triggerbit_1, Long64_t matchFlag
     bool goodType = false;
     for (unsigned int i = 0; i < _ttCrossTriggers.size(); i++)
       {
-	
+
 	OR = CheckBit (triggerbit_1, _ttCrossTriggers.at(i));
 	if (OR){
 	  cout <<"** trg: cross TauTau fired: "<<_allTriggers.at(_ttCrossTriggers.at(i))<<endl;
@@ -799,13 +1021,13 @@ void triggerReader_cross::listTauTau  (Long64_t triggerbit_1, Long64_t matchFlag
 	    goodType1 = CheckBit (goodTriggerType1, _ttCrossTriggers.at(i));
 	    goodType2 = CheckBit (goodTriggerType2, _ttCrossTriggers.at(i));
 	    goodType = goodType1 && goodType2;
-	    
+
 	    _trgNoOverlap = CheckBit (trgNoOverlap, _ttCrossTriggers.at(i));
 	    cout <<"   matchFlag   "<< match<<endl;
 	    cout <<"   trgNoOverlap "<<_trgNoOverlap<<endl;
 	    cout <<"   goodType "<<goodType <<endl;
 
-    
+
       }
 
     for (unsigned int i = 0; i < _ttTriggers.size(); i++)
@@ -829,7 +1051,7 @@ void triggerReader_cross::listTauTau  (Long64_t triggerbit_1, Long64_t matchFlag
 	  cout <<"   goodType "<<goodType<<endl;
       }
 
-	  
+
 }
 
 
@@ -851,7 +1073,7 @@ void triggerReader_cross::listETau  (Long64_t triggerbit_1, Long64_t matchFlag1,
 	  cout <<"** trg: cross ETau fired: "<<_allTriggers.at(_etCrossTriggers.at(i))<<endl;
 	}else{
 	  cout <<"** trg: cross ETau NOT fired: "<<_allTriggers.at(_etCrossTriggers.at(i))<<endl;
-	} 
+	}
 	match1 = CheckBit (matchFlag1, _etCrossTriggers.at(i));
 	match2 = CheckBit (matchFlag2, _etCrossTriggers.at(i));
 	match = match1 && match2;
@@ -862,9 +1084,9 @@ void triggerReader_cross::listETau  (Long64_t triggerbit_1, Long64_t matchFlag1,
 	cout <<"   matchFlag   "<< match<<endl;
 	cout <<"   trgNoOverlap "<<_trgNoOverlap<<endl;
 	cout <<"   goodType "<<goodType<<endl;
-	
+
       }
-    
+
     for (unsigned int i = 0; i < _etTriggers.size(); i++)
       {
 	OR = CheckBit (triggerbit_1, _etTriggers.at(i));
@@ -884,9 +1106,9 @@ void triggerReader_cross::listETau  (Long64_t triggerbit_1, Long64_t matchFlag1,
 	cout <<"   matchFlag   "<< match<<endl;
 	cout <<"   trgNoOverlap "<<_trgNoOverlap<<endl;
 	cout <<"   goodType "<<goodType<<endl;
-	
+
       }
-    
+
 }
 
 
@@ -902,7 +1124,7 @@ void triggerReader_cross::listMuTau  (Long64_t triggerbit_1, Long64_t matchFlag1
     bool goodType = false;
     for (unsigned int i = 0; i < _mtCrossTriggers.size(); i++)
       {
-	
+
 	OR = CheckBit (triggerbit_1, _mtCrossTriggers.at(i));
 	if (OR)
 	  {
@@ -920,14 +1142,14 @@ void triggerReader_cross::listMuTau  (Long64_t triggerbit_1, Long64_t matchFlag1
 	    cout <<"   matchFlag   "<< match<<endl;
 	    cout <<"   trgNoOverlap "<<_trgNoOverlap<<endl;
 	    cout <<"   goodType "<<goodType<<endl;
-	
+
 
       }
-    
+
     for (unsigned int i = 0; i < _mtTriggers.size(); i++)
       {
 	OR = CheckBit (triggerbit_1, _mtTriggers.at(i));
-	
+
 	if (OR) {
 	  cout <<"** trg: single MuTau fired: "<<_allTriggers.at(_mtTriggers.at(i))<<endl;
 	}else{
@@ -943,7 +1165,7 @@ void triggerReader_cross::listMuTau  (Long64_t triggerbit_1, Long64_t matchFlag1
 	cout <<"   matchFlag   "<< match<<endl;
 	cout <<"   trgNoOverlap "<<_trgNoOverlap<<endl;
 	cout <<"   goodType "<<goodType<<endl;
-	  
+
       }
 }
 
@@ -956,7 +1178,7 @@ void triggerReader_cross::listMuTau  (Long64_t triggerbit_1, Long64_t matchFlag1
 
 bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double eta_tau1, double pt_tau2, double eta_tau2, int *pass_triggerbit)
 {
-  bool thisPath = false; 
+  bool thisPath = false;
   bool OR = false;
   bool match1 = false;
   bool match2 = false;
@@ -1009,7 +1231,7 @@ bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag
         int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
         *pass_triggerbit |=  1 << thisPathIdx;
         OR = true;
-      }    
+      }
     //if (OR) break; // I want to store the information about all triggers that have fired, without breaking the loop when I find one
   }
   return OR;

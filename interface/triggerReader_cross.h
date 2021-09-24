@@ -23,6 +23,11 @@ class triggerReader_cross
         void addEleTauCrossTrigs (std::vector<std::string> list);
         void addTauTauCrossTrigs (std::vector<std::string> list);
         void addVBFTrigs         (std::vector<std::string> list);
+	////LP: MET/AK8 triggers test
+        void addMETTrigs         (std::vector<std::string> list);
+        void addTauMETTrigs         (std::vector<std::string> list);
+        void addSingleTauTrigs         (std::vector<std::string> list);
+        void addAK8Trigs         (std::vector<std::string> list);
 
         bool checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double eta_tau1, double pt_tau2, double eta_tau2, int *pass_triggerbit);
         bool checkOREleTauNew (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double eta_tau1, double pt_tau2, double eta_tau2, int *pass_triggerbit);
@@ -33,6 +38,11 @@ class triggerReader_cross
 
         bool CheckBit (Long64_t number, int bitpos);
         bool checkOR (int pairType, Long64_t triggerbit_1, int *pass_triggerbit, Long64_t matchFlag1=1, Long64_t matchFlag2=1, Long64_t trgNoOverlap=1, Long64_t goodTriggerType1=1, Long64_t goodTriggerType2=1, double pt_tau1=999, double eta_tau1=999, double pt_tau2=999, double eta_tau2=999);
+	bool checkMET (Long64_t triggerbit_1, int *pass_triggerbit);
+	bool checkSingleTau  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double eta_tau1, double pt_tau2, double eta_tau2, int *pass_triggerbit);
+	bool checkTauMET  (Long64_t triggerbit_1, Long64_t matchFlag1, Long64_t matchFlag2, Long64_t trgNoOverlap, Long64_t goodTriggerType1, Long64_t goodTriggerType2, double pt_tau1, double eta_tau1, double pt_tau2, double eta_tau2, int *pass_triggerbit);
+
+
         bool checkPtCutCross (bool OR, std::string firedPath, boost::regex re_tau1, boost::regex re_tau2, double pt_tau1, double pt_tau2, double thr1, double thr2);
         bool checkPtCutSingle (bool OR, std::string firedPath, boost::regex re_tau1, double pt_tau1, double thr1);
 
@@ -59,7 +69,10 @@ class triggerReader_cross
         std::vector<Long64_t> _etCrossTriggers; // e tau  cross triggers
         std::vector<Long64_t> _ttCrossTriggers; // tau tau  cross triggers
         std::vector<Long64_t> _vbfTriggers; // VBF triggers
-
-
+	////LP: MET/AK8 triggers test
+	std::vector<Long64_t> _metTriggers; // MET triggers
+	std::vector<Long64_t> _taumetTriggers; // tauh+MET triggers
+	std::vector<Long64_t> _singleTauTriggers; // single tauh triggers
+	std::vector<Long64_t> _ak8Triggers; // AK8 jet triggers
 	
 };
