@@ -16,7 +16,7 @@ def isGoodFile (fileName) :
     if ff.IsZombie() : return False
     if ff.TestBit(ROOT.TFile.kRecovered) : return False
     return True
-    
+
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -37,7 +37,8 @@ if __name__ == "__main__":
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
     parser.add_option ('-i', '--input'     , dest='input'     , help='input folder'                          , default='none')
-    parser.add_option ('-Y', '--year'     , dest='year'     , help='year'     , default='2018')
+    parser.add_option ('-Y', '--year'      , dest='year'      , help='year'                                  , default='2018')
+    parser.add_option ('-A', '--APV'       , dest='isAPV'     , heps='isAPV'                                 , default=False )
     parser.add_option ('-x', '--xs'        , dest='xs'        , help='sample xs'                             , default='1.')
     parser.add_option ('-f', '--force'     , dest='force'     , help='replace existing reduced ntuples'      , default=False)
     parser.add_option ('-o', '--output'    , dest='output'    , help='output folder'                         , default='none')
@@ -120,7 +121,7 @@ if __name__ == "__main__":
         opt.input = tagname + 'SKIM_' + basename (opt.input)
         jobs = [word.replace ('_', '.').split ('.')[1] for word in os.listdir (opt.input) if 'skim' in word]
         missing = []
-        
+
         # check the existence of the done file
         for num in jobs :
             if not os.path.exists (opt.input + '/done_' + num) :
@@ -131,7 +132,7 @@ if __name__ == "__main__":
         for num in jobs :
             # get the log file name
             filename = opt.input + '/skimJob_' + num + '.sh'
-#            print os.path.exists (filename) 
+#            print os.path.exists (filename)
             with open (filename, 'r') as myfile :
                 data = [word for word in myfile.readlines () if 'log' in word]
             rootfile = data[0].split ()[2]
@@ -154,7 +155,7 @@ if __name__ == "__main__":
                     if opt.verb : print num, 'found error ', problems[0]
                     missing.append (num)
         print 'the following jobs did not end successfully:'
-        print missing   
+        print missing
         for num in missing :
             command = '`cat ' + opt.input + '/submit.sh | grep skimJob_' + num + '.sh | tr "\'" " "`'
             if opt.verb : print command
@@ -181,7 +182,7 @@ if __name__ == "__main__":
 
     if opt.input[-1] == '/' : opt.input = opt.input[:-1]
     if opt.output == 'none' : opt.output = opt.input + '_SKIM'
-   
+
     if not os.path.exists (opt.input) :
         print 'input folder', opt.input, 'not existing, exiting'
         sys.exit (1)
@@ -192,8 +193,8 @@ if __name__ == "__main__":
         os.system ('rm -rf ' + opt.output + '/*')
     os.system ('mkdir ' + opt.output)
     os.system ('cp ' + opt.config + " " + opt.output)
-    
-    #inputfiles = glob.glob (opt.input + '/*.root')    
+
+    #inputfiles = glob.glob (opt.input + '/*.root')
     inputfiles = parseInputFileList (opt.input)
     if opt.njobs > len (inputfiles) : opt.njobs = len (inputfiles)
     nfiles = (len (inputfiles) + len (inputfiles) % opt.njobs) / opt.njobs
@@ -220,7 +221,7 @@ if __name__ == "__main__":
 
     n = int (0)
     commandFile = open (jobsDir + '/submit.sh', 'w')
-    for listname in inputlists : 
+    for listname in inputlists :
         #create a wrapper for standalone cmssw job
         listFileName = "filelist_%i.txt" % n
         thisinputlistFile = open(jobsDir + "/" + listFileName, 'w')
@@ -238,7 +239,7 @@ if __name__ == "__main__":
         scriptFile.write ('source scripts/setup.sh\n')
         command = skimmer + ' ' + jobsDir+"/"+listFileName + ' ' + opt.output + '/' + "output_"+str(n)+".root" + ' ' + opt.xs
         if opt.isdata :  command += ' 1 '
-        else          :  command += ' 0 '    
+        else          :  command += ' 0 '
         command += ' ' + opt.config + ' '
         if opt.dokinfit=="True" : command += " 1 "
         else                    : command += " 0 "
@@ -246,7 +247,7 @@ if __name__ == "__main__":
         command += " " + opt.htcut
         command += " " + opt.htcutlow
         if opt.toprew=="True" : command += " 1 "
-        else                  : command += " 0 "   
+        else                  : command += " 0 "
         if opt.genjets=="True": command += " 1 "
         else                  : command += " 0 "
         command += " " + opt.topstitch
@@ -266,6 +267,9 @@ if __name__ == "__main__":
         else                  : command += " 0 "
         if opt.hhNLO          : command += " 1 "
         else                  : command += " 0 "
+        if opt.year=='2016':
+            if opt.isAPV      : command += " 1 "
+            else              : command += " 0 "
         command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
         scriptFile.write (command)
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
@@ -284,7 +288,7 @@ if __name__ == "__main__":
         scriptFile.close ()
         os.system ('chmod u+rwx %s/skimJob_%d.sh'% (jobsDir,n))
 
-        
+
         #command = '/opt/exp_soft/cms/t3/t3submit_el7 -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
         command = '/home/llr/cms/motta/t3submit -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
         if opt.sleep : time.sleep (0.1)
@@ -292,6 +296,3 @@ if __name__ == "__main__":
         commandFile.write (command + '\n')
         n = n + 1
     commandFile.close ()
-    
-
-

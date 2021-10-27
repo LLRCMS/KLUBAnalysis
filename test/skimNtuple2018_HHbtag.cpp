@@ -304,7 +304,7 @@ int main (int argc, char** argv)
     kC2scan  = 2, //differential reweight for c2 scan
     kOverRew = 3  //differential reweight with manual override of the coupling's values
   };
-  int HHrewType = kNone; // default is no reweight 
+  int HHrewType = kNone; // default is no reweight
   if (EFTbm != "none") HHrewType = kDiffRew;
   if (EFTbm == "c2scan") HHrewType = kC2scan;
   if (EFTbm == "manual") {
@@ -319,7 +319,7 @@ int main (int argc, char** argv)
       cout << "ERROR! You requested reweighting of type " << HHrewType << " which is not manual, but you also set the couplings manually! Exiting!" << endl;
       return 1;
     }
-  cout << "** INFO: HH reweight type requested is " << HHrewType << " [ 0: no reweight, 1: differential reweight for fixed benchmark, 2: differential reweight for c2 scan, 3: differential reweight with couplings manual override ]" << endl; 
+  cout << "** INFO: HH reweight type requested is " << HHrewType << " [ 0: no reweight, 1: differential reweight for fixed benchmark, 2: differential reweight for c2 scan, 3: differential reweight with couplings manual override ]" << endl;
 
 
 
@@ -610,9 +610,8 @@ int main (int argc, char** argv)
   tau_trigger::SFProvider * tauTrgSF_ditau = new tau_trigger::SFProvider("weights/trigger_SF_UL/2018/2018UL_tauTriggerEff_DeepTau2017v2p1.root", "ditau", "Medium");
   tau_trigger::SFProvider * tauTrgSF_mutau = new tau_trigger::SFProvider("weights/trigger_SF_UL/2018/2018UL_tauTriggerEff_DeepTau2017v2p1.root", "mutau", "Medium");
   tau_trigger::SFProvider * tauTrgSF_etau  = new tau_trigger::SFProvider("weights/trigger_SF_UL/2018/2018UL_tauTriggerEff_DeepTau2017v2p1.root", "etau" , "Medium");
-  tau_trigger::SFProvider * tauTrgSF_vbf   = new tau_trigger::SFProvider("weights/trigger_SF_UL/2018/2018UL_tauTriggerEff_DeepTau2017v2p1.root", "ditauvbf", "Medium");
-
-
+//  tau_trigger::SFProvider * tauTrgSF_vbf   = new tau_trigger::SFProvider("weights/trigger_SF_UL/2018/2018UL_tauTriggerEff_DeepTau2017v2p1.root", "ditauvbf", "Medium"); // NOT IN FILE !
+  tau_trigger::SFProvider * tauTrgSF_vbf   = new tau_trigger::SFProvider("weights/trigger_SF_UL/2018/2018UL_tauTriggerEff_DeepTau2017v2p1.root", "ditau", "Medium"); // using ditau as placeholder, while waiting for SF computation
 
   /********************************************************************************************************************
    * Single-tau triggers SF (from: https://twiki.cern.ch/twiki/bin/view/CMS/TauTrigger#Run_II_Trigger_Scale_Factors): *
@@ -672,16 +671,18 @@ int main (int argc, char** argv)
   myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_IdAndIso_SF_Legacy/2018/Electron_Run2018_IdIso.root");
 
   // tau IdAndIso SF
+  //MVA2017 for UL not foreseen
   TauIDSFTool * MVA_antiJet_medium = new TauIDSFTool("2018ReReco","MVAoldDM2017v2","Medium",1);         // for MVA2017v2 vs jets Medium
   TauIDSFTool * MVA_antiEle_vloose = new TauIDSFTool("2018ReReco","antiEleMVA6"   ,"VLoose");           // for MVA2017v2 vs ele VLoose
   TauIDSFTool * MVA_antiEle_tight  = new TauIDSFTool("2018ReReco","antiEleMVA6"   ,"Tight");            // for MVA2017v2 vs ele Tight
   TauIDSFTool * MVA_antiMu_loose   = new TauIDSFTool("2018ReReco","antiMu3"       ,"Loose");            // for MVA2017v2 vs mu Loose
   TauIDSFTool * MVA_antiMu_tight   = new TauIDSFTool("2018ReReco","antiMu3"       ,"Tight");            // for MVA2017v2 vs mu Tight
 
-  TauIDSFTool * Deep_antiJet_medium    = new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets Medium
-  TauIDSFTool * Deep_antiJet_medium_pt = new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSjet","Medium");   // for DeepTauv2p1 vs jets Medium
-  TauIDSFTool * Deep_antiEle_vvloose   = new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSe"  ,"VVLoose");  // for DeepTauv2p1 vs ele VVLoose
-  TauIDSFTool * Deep_antiEle_vloose    = new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSe"  ,"VLoose");   // for DeepTauv2p1 vs ele VLoose
+  //DeepTau used anyway; vsMU not (yet?) available
+  TauIDSFTool * Deep_antiJet_medium    = new TauIDSFTool("UL2018","DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets Medium
+  TauIDSFTool * Deep_antiJet_medium_pt = new TauIDSFTool("UL2018","DeepTau2017v2p1VSjet","Medium");   // for DeepTauv2p1 vs jets Medium
+  TauIDSFTool * Deep_antiEle_vvloose   = new TauIDSFTool("UL2018","DeepTau2017v2p1VSe"  ,"VVLoose");  // for DeepTauv2p1 vs ele VVLoose
+  TauIDSFTool * Deep_antiEle_vloose    = new TauIDSFTool("UL2018","DeepTau2017v2p1VSe"  ,"VLoose");   // for DeepTauv2p1 vs ele VLoose
   TauIDSFTool * Deep_antiMu_vloose     = new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSmu" ,"VLoose");   // for DeepTauv2p1 vs mu VLoose
   TauIDSFTool * Deep_antiMu_tight      = new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
 
@@ -698,7 +699,7 @@ int main (int argc, char** argv)
       string coeffFile   = gConfigParser->readStringOption("HHReweight::coeffFileNLO");
       if (order_rew == string("lo")) coeffFile = gConfigParser->readStringOption("HHReweight::coeffFileLO");
       cout << "** INFO: reading histo named: " << inHistoName << " from file: " << inMapFile << endl;
-      cout << "** INFO: HH reweight coefficient file is: " << coeffFile << endl; 
+      cout << "** INFO: HH reweight coefficient file is: " << coeffFile << endl;
       TFile* fHHDiffRew = new TFile(inMapFile.c_str());
       hhreweighterInputMap = (TH2*) fHHDiffRew->Get(inHistoName.c_str());
       hhreweighter = new HHReweight5D(coeffFile, hhreweighterInputMap, EFTbm, string("2018"), order_rew, uncertainty_rew, cms_fake_rew);
@@ -1341,7 +1342,7 @@ int main (int argc, char** argv)
                   // NB: I need t ask that the mother is last idx, otherwise I get a nonphysics "tauh" by the tauh builder function from the tau->tau "decay" in pythia
                   mothIsHardScatt = (mothIsLast && CheckBit (theBigTree.genpart_flags->at(mothIdx), 8)); // 0 = isPrompt(), 7: hardProcess , 8: fromHardProcess
                 }
-	      
+
 
               if (abs(pdg) == 25)
                 {
@@ -1473,7 +1474,7 @@ int main (int argc, char** argv)
             }
           else
             cout << "** ERROR: couldn't find 2 H->bb gen dec prod " << idx1hs_b << " " << idx2hs_b << endl;
-	 
+
           if (HHrewType == kDiffRew)      HHweight = hhreweighter->getWeight(mHH, ct1);
           else if (HHrewType == kC2scan)  HHweight = hhreweighter->getWeight(mHH, ct1, c2_rew);
           else if (HHrewType == kOverRew) HHweight = hhreweighter->getWeight(mHH, ct1, kl_rew, kt_rew, c2_rew, cg_rew, c2g_rew);
@@ -1844,7 +1845,7 @@ int main (int argc, char** argv)
       int gentau1_idx = -1;
       int gentau2_idx = -1;
       for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++) {
-	
+
 	// only looking at gen e/mu/tau and neutrinos
 	int pdg = fabs(theBigTree.genpart_pdg->at(igen));
 	bool isLepton = (pdg==11||pdg==13||pdg==15);
@@ -1864,7 +1865,7 @@ int main (int argc, char** argv)
 	    mothIsHardScatt = (mothIsLast && CheckBit (theBigTree.genpart_flags->at(mothIdx), 8)); // 0 = isPrompt(), 7: hardProcess , 8: fromHardProcess
 	  }
 	if(pdg==15 && !mothIsHardScatt) continue;
-	      
+
 
 	// check if gen tau matched reco tau
 	TLorentzVector vGenTauVis;
@@ -1875,11 +1876,11 @@ int main (int argc, char** argv)
 	  // which one it is should not make much difference with DR<0.3
 	  vGenTauVis.SetPxPyPzE (theBigTree.genpart_px->at(igen),
 				 theBigTree.genpart_py->at(igen),
-				 theBigTree.genpart_pz->at(igen), 
+				 theBigTree.genpart_pz->at(igen),
 				 theBigTree.genpart_e->at(igen));
 	  match1 = (vGenTauVis.DeltaR(tlv_firstLepton)<0.3);
 	  match2 = (vGenTauVis.DeltaR(tlv_secondLepton)<0.3);
-	    
+
 	  if(match1||match2){
 	    cout << "Found gen tau matching reco : gentauid=" << igen << " match1=" <<match1 << " | match2="<<match2 << endl;
 	  }
@@ -1898,26 +1899,26 @@ int main (int argc, char** argv)
 	      gentau1_idx = mothIdx;
 	    } else {
 	      vGenTau2 = vGenTauVis;
-	      gentau2_idx = mothIdx;	  
+	      gentau2_idx = mothIdx;
 	    }
 	  }
 	}
-	  
+
 	TLorentzVector vGenNuVis;
-	if(isNeutrino){	 
+	if(isNeutrino){
 	  vGenNuVis.SetPxPyPzE (theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen));
-	    
+
 	  cout << "Found gen neutrino : id=" << igen << " | tauMothID=" <<theBigTree.genpart_TauMothInd->at(igen) << endl;
 
 	  if(theBigTree.genpart_TauMothInd->at(igen)==gentau1_idx) // neutrino comes from tau1
 	    vGenNu1+=vGenNuVis;
 	  else if(theBigTree.genpart_TauMothInd->at(igen)==gentau2_idx) // neutrino comes from tau2
-	    vGenNu2+=vGenNuVis;  
+	    vGenNu2+=vGenNuVis;
 	  else // neutrino is unmatched
-	    vGenNuNoMatch+=vGenNuVis;  
+	    vGenNuNoMatch+=vGenNuVis;
 	}
       }
-      
+
       cout << "vGenNu1.Pt() = "<<vGenNu1.Pt()<<endl;
       cout << "vGenNu2.Pt() = "<<vGenNu2.Pt()<<endl;
       cout << "vGenNuNoMatch.Pt() = "<<vGenNuNoMatch.Pt()<<endl;
@@ -2542,7 +2543,7 @@ int main (int argc, char** argv)
       theSmallTree.m_genNuNoMatch_eta = vGenNuNoMatch.Eta();
       theSmallTree.m_genNuNoMatch_phi = vGenNuNoMatch.Phi();
       theSmallTree.m_genNuNoMatch_e = vGenNuNoMatch.E();
-      
+
       TLorentzVector vGenNuTot = vGenNu1+vGenNu2;
       TLorentzVector vGenNuTotWithNoMatch = vGenNu1+vGenNu2+vGenNuNoMatch;
 
@@ -4063,12 +4064,12 @@ int main (int argc, char** argv)
           TLorentzVector tlv_secondBjet_raw = tlv_secondBjet;
 
           // Total JES up/down variation
-          TLorentzVector tlv_firstBjet_raw_jetupTot    = tlv_firstBjet_raw ;    
+          TLorentzVector tlv_firstBjet_raw_jetupTot    = tlv_firstBjet_raw ;
           TLorentzVector tlv_firstBjet_raw_jetdownTot  = tlv_firstBjet_raw ;
-          TLorentzVector tlv_secondBjet_raw_jetupTot   = tlv_secondBjet_raw; 
-          TLorentzVector tlv_secondBjet_raw_jetdownTot = tlv_secondBjet_raw; 
+          TLorentzVector tlv_secondBjet_raw_jetupTot   = tlv_secondBjet_raw;
+          TLorentzVector tlv_secondBjet_raw_jetdownTot = tlv_secondBjet_raw;
           TLorentzVector tlv_bH_raw_jetupTot           = tlv_firstBjet_raw + tlv_secondBjet;
-          TLorentzVector tlv_bH_raw_jetdownTot         = tlv_firstBjet_raw + tlv_secondBjet; 
+          TLorentzVector tlv_bH_raw_jetdownTot         = tlv_firstBjet_raw + tlv_secondBjet;
 
           if (isMC)
           {
@@ -4133,9 +4134,9 @@ int main (int argc, char** argv)
           theSmallTree.m_bjet2_JER = bjet2_JER;
 
           // Total JES up/down variation of JER
-          double bjet1_JER_jetupTot   = bjet1_JER ; 
-          double bjet2_JER_jetupTot   = bjet2_JER ; 
-          double bjet1_JER_jetdownTot = bjet1_JER ; 
+          double bjet1_JER_jetupTot   = bjet1_JER ;
+          double bjet2_JER_jetupTot   = bjet2_JER ;
+          double bjet1_JER_jetdownTot = bjet1_JER ;
           double bjet2_JER_jetdownTot = bjet2_JER ;
 
           if (isMC)
@@ -4176,7 +4177,7 @@ int main (int argc, char** argv)
                 tlv_secondBjet_raw_jetup[isource]  = getShiftedJet(tlv_secondBjet_raw, +1., unc_second_updown.first[isource]);
                 tlv_secondBjet_raw_jetdown[isource]= getShiftedJet(tlv_secondBjet_raw, -1., unc_second_updown.second[isource]);
 
-                // variations propagated to bH 
+                // variations propagated to bH
                 tlv_bH_raw_jetup[isource]   = (tlv_firstBjet_raw_jetup.at(isource) + tlv_secondBjet_raw_jetup.at(isource)) ;
                 tlv_bH_raw_jetdown[isource] = (tlv_firstBjet_raw_jetdown.at(isource) + tlv_secondBjet_raw_jetdown.at(isource));
              }
@@ -5449,7 +5450,7 @@ int main (int argc, char** argv)
                    theSmallTree.m_addJetCentr2_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).Pt();
                    theSmallTree.m_addJetCentr2_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., theBigTree.jets_jetUncRegrouped_Total_up->at(iJet))).M();
                    theSmallTree.m_addJetCentr2_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).M();
- 
+
                 }
               }
               else if (theSmallTree.m_addJetCentr3_pt < 0.)
@@ -5489,7 +5490,7 @@ int main (int argc, char** argv)
                    theSmallTree.m_addJetCentr3_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).Pt();
                    theSmallTree.m_addJetCentr3_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., theBigTree.jets_jetUncRegrouped_Total_up->at(iJet))).M();
                    theSmallTree.m_addJetCentr3_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).M();
- 
+
                 }
               }
               else if (theSmallTree.m_addJetCentr4_pt < 0.)
@@ -5529,7 +5530,7 @@ int main (int argc, char** argv)
                    theSmallTree.m_addJetCentr4_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).Pt();
                    theSmallTree.m_addJetCentr4_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., theBigTree.jets_jetUncRegrouped_Total_up->at(iJet))).M();
                    theSmallTree.m_addJetCentr4_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).M();
- 
+
                 }
               }
               else if (theSmallTree.m_addJetCentr5_pt < 0.)
@@ -5569,7 +5570,7 @@ int main (int argc, char** argv)
                    theSmallTree.m_addJetCentr5_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).Pt();
                    theSmallTree.m_addJetCentr5_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., theBigTree.jets_jetUncRegrouped_Total_up->at(iJet))).M();
                    theSmallTree.m_addJetCentr5_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).M();
-  
+
                 }
               }
             }
@@ -5610,7 +5611,7 @@ int main (int argc, char** argv)
                    theSmallTree.m_addJetForw1_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).Pt();
                    theSmallTree.m_addJetForw1_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., theBigTree.jets_jetUncRegrouped_Total_up->at(iJet))).M();
                    theSmallTree.m_addJetForw1_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).M();
-  
+
                 }
               }
               else if (theSmallTree.m_addJetForw2_pt < 0.)
@@ -5646,7 +5647,7 @@ int main (int argc, char** argv)
                    theSmallTree.m_addJetForw2_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).Pt();
                    theSmallTree.m_addJetForw2_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., theBigTree.jets_jetUncRegrouped_Total_up->at(iJet))).M();
                    theSmallTree.m_addJetForw2_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).M();
-  
+
                 }
               }
               else if (theSmallTree.m_addJetForw3_pt < 0.)
@@ -5682,7 +5683,7 @@ int main (int argc, char** argv)
                    theSmallTree.m_addJetForw3_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).Pt();
                    theSmallTree.m_addJetForw3_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., theBigTree.jets_jetUncRegrouped_Total_up->at(iJet))).M();
                    theSmallTree.m_addJetForw3_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).M();
-     
+
                 }
               }
               else if (theSmallTree.m_addJetForw4_pt < 0.)
@@ -5718,7 +5719,7 @@ int main (int argc, char** argv)
                    theSmallTree.m_addJetForw4_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).Pt();
                    theSmallTree.m_addJetForw4_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., theBigTree.jets_jetUncRegrouped_Total_up->at(iJet))).M();
                    theSmallTree.m_addJetForw4_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).M();
-  
+
                 }
               }
               else if (theSmallTree.m_addJetForw5_pt < 0.)
@@ -5754,7 +5755,7 @@ int main (int argc, char** argv)
                    theSmallTree.m_addJetForw5_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).Pt();
                    theSmallTree.m_addJetForw5_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., theBigTree.jets_jetUncRegrouped_Total_up->at(iJet))).M();
                    theSmallTree.m_addJetForw5_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet))).M();
- 
+
                 }
               }
             }
