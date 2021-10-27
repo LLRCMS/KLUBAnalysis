@@ -1,4 +1,4 @@
-#include "TauPOG/TauIDSFs/interface/TauIDSFTool.h"
+#include "TauIDSFTool.h"
 #include <iostream> // std::cerr, std::endl
 #include <iomanip>
 #include <assert.h> // assert
