@@ -3,6 +3,30 @@
 * For 2017 data, golden json is /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt
 * For 2018 data, golden json is /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt
 
+
+###############
+### UL analysis
+
+PU distributions are provided centrally here:
+    2018: /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/PileUp/UltraLegacy/
+    2017: /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/PileUp/UltraLegacy/
+    2016: /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/PileUp/UltraLegacy/
+
+These are copied in `weights/PUreweight/UL_PU_distributions/` and can be used directly for the final steps of the SF evaluation:
+
+3) * make the MC PU distribution - use a large MC sample for good stat
+Update the input file and run : root -l -b -q ratioPU.C
+NOTE: to be faster, you can run multiple jobs by splitting, just give  root -l -b -q ratioPU.C'(idxbegin, nevts)' and then hadd all of them
+root -l -b -q ratioPU.C'(0, 15000000)'
+root -l -b -q ratioPU.C'(15000000, 15000000)'
+root -l -b -q ratioPU.C'(300000000, 15000000)'
+
+4) * compute the SFs as the ratio data/MC
+root -l makeRatio.C
+
+###################
+### Legacy analysis
+
 1) * get the PU certification
 # wget https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/PileUp/pileup_latest.txt   
 # wget https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions17/13TeV/PileUp/pileup_latest.txt   
