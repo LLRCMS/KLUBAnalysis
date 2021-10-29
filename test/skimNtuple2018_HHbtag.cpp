@@ -663,12 +663,17 @@ int main (int argc, char** argv)
   // ------------------------------
 
   // electron/muon IdAndIso SF
-  ScaleFactor * myIDandISOScaleFactor[2]; // [0: mu, 1: ele]
+  ScaleFactor * myIDandISOScaleFactor[3]; // [0: muID, 1: eleID, 2:muISO,]
   for (int i = 0 ; i < 2; i++)
         myIDandISOScaleFactor[i] = new ScaleFactor();
 
-  myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/HTT_IdAndIso_SF_Legacy/2018/Muon_Run2018_IdIso.root");
-  myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_IdAndIso_SF_Legacy/2018/Electron_Run2018_IdIso.root");
+  myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",
+                                               "NUM_LooseID_DEN_TrackerMuons_abseta_pt",
+                                               true);
+  myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_IdAndIso_SF_Legacy/2018/Electron_Run2018_IdIso.root"); //TODO
+  myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
+                                               "NUM_LooseRelIso_DEN_LooseID_abseta_pt",
+                                               true);
 
   // tau IdAndIso SF
   //MVA2017 for UL not foreseen
@@ -967,9 +972,9 @@ int main (int argc, char** argv)
           stitchWeight = stitchWeights[njets][nb][nht];
         }
 
-    // Should never enter here (DY_tostitch should be always true)
-    if (!DY_tostitch && DY_nJets >= 0)
-      {
+      // Should never enter here (DY_tostitch should be always true)
+      if (!DY_tostitch && DY_nJets >= 0)
+        {
         int njets = theBigTree.lheNOutPartons;
         int nb    = theBigTree.lheNOutB;
         //cout << "- njets: " << njets << " - nb: " << nb << endl; //FRA debug
@@ -1313,7 +1318,7 @@ int main (int argc, char** argv)
       TLorentzVector vGenB1; // bjet-1 tlv
       TLorentzVector vGenB2; // bjet-2 tlv
 
-       if (isHHsignal || HHrewType != kNone) // isHHsignal: only to do loop on genparts, but no rew
+      if (isHHsignal || HHrewType != kNone) // isHHsignal: only to do loop on genparts, but no rew
         {
           // cout << "DEBUG: reweight!!!" << endl;
           TLorentzVector vH1, vH2, vBoost, vSum;
@@ -1846,78 +1851,77 @@ int main (int argc, char** argv)
       int gentau2_idx = -1;
       for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++) {
 
-	// only looking at gen e/mu/tau and neutrinos
-	int pdg = fabs(theBigTree.genpart_pdg->at(igen));
-	bool isLepton = (pdg==11||pdg==13||pdg==15);
-	bool isNeutrino =  (pdg==12||pdg==14||pdg==16);
-	if(!isLepton && !isNeutrino) continue;
+	      // only looking at gen e/mu/tau and neutrinos
+	      int pdg = fabs(theBigTree.genpart_pdg->at(igen));
+	      bool isLepton = (pdg==11||pdg==13||pdg==15);
+	      bool isNeutrino =  (pdg==12||pdg==14||pdg==16);
+	      if(!isLepton && !isNeutrino) continue;
 
-	int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
-	// check particle is from tau decay
-	if(mothIdx<0) continue;
-
-
-	bool mothIsHardScatt = false;
-	if (mothIdx > -1)
-	  {
-	    bool mothIsLast =  CheckBit(theBigTree.genpart_flags->at(mothIdx), 13); // tru
-	    // NB: I need t ask that the mother is last idx, otherwise I get a nonphysics "tauh" by the tauh builder function from the tau->tau "decay" in pythia
-	    mothIsHardScatt = (mothIsLast && CheckBit (theBigTree.genpart_flags->at(mothIdx), 8)); // 0 = isPrompt(), 7: hardProcess , 8: fromHardProcess
-	  }
-	if(pdg==15 && !mothIsHardScatt) continue;
+	      int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
+	      // check particle is from tau decay
+	      if(mothIdx<0) continue;
 
 
-	// check if gen tau matched reco tau
-	TLorentzVector vGenTauVis;
-	bool match1 = false;
-	bool match2 = false;
-	if(isLepton){
-	  // looking at all leptons in decay chain, but end up comparing the last one (e/mu/tau) or the mother for nu count
-	  // which one it is should not make much difference with DR<0.3
-	  vGenTauVis.SetPxPyPzE (theBigTree.genpart_px->at(igen),
-				 theBigTree.genpart_py->at(igen),
-				 theBigTree.genpart_pz->at(igen),
-				 theBigTree.genpart_e->at(igen));
-	  match1 = (vGenTauVis.DeltaR(tlv_firstLepton)<0.3);
-	  match2 = (vGenTauVis.DeltaR(tlv_secondLepton)<0.3);
+	      bool mothIsHardScatt = false;
+	      if (mothIdx > -1)
+	      {
+	        bool mothIsLast =  CheckBit(theBigTree.genpart_flags->at(mothIdx), 13); // tru
+	        // NB: I need t ask that the mother is last idx, otherwise I get a nonphysics "tauh" by the tauh builder function from the tau->tau "decay" in pythia
+	        mothIsHardScatt = (mothIsLast && CheckBit (theBigTree.genpart_flags->at(mothIdx), 8)); // 0 = isPrompt(), 7: hardProcess , 8: fromHardProcess
+	      }
+	      if(pdg==15 && !mothIsHardScatt) continue;
 
-	  if(match1||match2){
-	    cout << "Found gen tau matching reco : gentauid=" << igen << " match1=" <<match1 << " | match2="<<match2 << endl;
-	  }
+	      // check if gen tau matched reco tau
+	      TLorentzVector vGenTauVis;
+	      bool match1 = false;
+	      bool match2 = false;
+	      if(isLepton){
+	        // looking at all leptons in decay chain, but end up comparing the last one (e/mu/tau) or the mother for nu count
+	        // which one it is should not make much difference with DR<0.3
+	        vGenTauVis.SetPxPyPzE (theBigTree.genpart_px->at(igen),
+				  theBigTree.genpart_py->at(igen),
+				  theBigTree.genpart_pz->at(igen),
+				  theBigTree.genpart_e->at(igen));
+	        match1 = (vGenTauVis.DeltaR(tlv_firstLepton)<0.3);
+	        match2 = (vGenTauVis.DeltaR(tlv_secondLepton)<0.3);
 
-	  if( match1 && !match2 ) {
-	    vGenTau1 = vGenTauVis;
-	    gentau1_idx = mothIdx;
-	  }
-	  if( !match1 &&  match2 ) {
-	    vGenTau2 = vGenTauVis;
-	    gentau2_idx = mothIdx;
-	  }
-	  if(  match1 &&  match2 ) { // unlikely I guess
-	    if (vGenTauVis.DeltaR(tlv_firstLepton)<vGenTauVis.DeltaR(tlv_secondLepton)){
-	      vGenTau1 = vGenTauVis;
-	      gentau1_idx = mothIdx;
-	    } else {
-	      vGenTau2 = vGenTauVis;
-	      gentau2_idx = mothIdx;
-	    }
-	  }
-	}
+	        if(match1||match2){
+	          cout << "Found gen tau matching reco : gentauid=" << igen << " match1=" <<match1 << " | match2="<<match2 << endl;
+	        }
 
-	TLorentzVector vGenNuVis;
-	if(isNeutrino){
-	  vGenNuVis.SetPxPyPzE (theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen));
+	        if( match1 && !match2 ) {
+	          vGenTau1 = vGenTauVis;
+	          gentau1_idx = mothIdx;
+	        }
+	        if( !match1 &&  match2 ) {
+	          vGenTau2 = vGenTauVis;
+	          gentau2_idx = mothIdx;
+	        }
+	        if(  match1 &&  match2 ) { // unlikely I guess
+	          if (vGenTauVis.DeltaR(tlv_firstLepton)<vGenTauVis.DeltaR(tlv_secondLepton)){
+	            vGenTau1 = vGenTauVis;
+	            gentau1_idx = mothIdx;
+	          } else {
+	            vGenTau2 = vGenTauVis;
+	            gentau2_idx = mothIdx;
+	          }
+	        }
+	      }
 
-	  cout << "Found gen neutrino : id=" << igen << " | tauMothID=" <<theBigTree.genpart_TauMothInd->at(igen) << endl;
+	      TLorentzVector vGenNuVis;
+	      if(isNeutrino){
+	        vGenNuVis.SetPxPyPzE (theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen));
 
-	  if(theBigTree.genpart_TauMothInd->at(igen)==gentau1_idx) // neutrino comes from tau1
-	    vGenNu1+=vGenNuVis;
-	  else if(theBigTree.genpart_TauMothInd->at(igen)==gentau2_idx) // neutrino comes from tau2
-	    vGenNu2+=vGenNuVis;
-	  else // neutrino is unmatched
-	    vGenNuNoMatch+=vGenNuVis;
-	}
-      }
+	        cout << "Found gen neutrino : id=" << igen << " | tauMothID=" <<theBigTree.genpart_TauMothInd->at(igen) << endl;
+
+	        if(theBigTree.genpart_TauMothInd->at(igen)==gentau1_idx) // neutrino comes from tau1
+	          vGenNu1+=vGenNuVis;
+	        else if(theBigTree.genpart_TauMothInd->at(igen)==gentau2_idx) // neutrino comes from tau2
+	          vGenNu2+=vGenNuVis;
+	        else // neutrino is unmatched
+	          vGenNuNoMatch+=vGenNuVis;
+	        }
+      } //end loop on gen part
 
       cout << "vGenNu1.Pt() = "<<vGenNu1.Pt()<<endl;
       cout << "vGenNu2.Pt() = "<<vGenNu2.Pt()<<endl;
@@ -2032,7 +2036,7 @@ int main (int argc, char** argv)
               theSmallTree.m_dau2_mass_eleup.push_back(tlv_secondLepton_eleup[idm].M());
               theSmallTree.m_dau2_mass_eledown.push_back(tlv_secondLepton_eledown[idm].M());
             }
-        }
+        } // end loop over DMs
 
       //MES:
       double unc_MESup_first;
@@ -2091,7 +2095,7 @@ int main (int argc, char** argv)
       bool passTauMET = false;
 
       if (applyTriggers)
-        {
+      {
           Long64_t triggerbit = theBigTree.triggerbit;
 
           Long64_t matchFlag1 = (Long64_t) theBigTree.daughters_trgMatched->at(firstDaughterIndex);
@@ -2101,14 +2105,14 @@ int main (int argc, char** argv)
 
           Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
           passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
-	  if(pairType == ((int) OfflineProducerHelper::HadHad) ) cout << "tautau evnt => passTrg = " << passTrg << endl;
+	        if(pairType == ((int) OfflineProducerHelper::HadHad) ) cout << "tautau evnt => passTrg = " << passTrg << endl;
 
-	  // check MET trigger separately
-	  passMETTrg = trigReader.checkMET(triggerbit, &pass_triggerbit);
+	        // check MET trigger separately
+	        passMETTrg = trigReader.checkMET(triggerbit, &pass_triggerbit);
 
-	  // check singleTau trigger + tauh+met
-	  passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
-	  passTauMET = trigReader.checkTauMET(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
+	        // check singleTau trigger + tauh+met
+	        passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
+	        passTauMET = trigReader.checkTauMET(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
 
           if (!isMC && passTrg)
           {
@@ -2230,7 +2234,7 @@ int main (int argc, char** argv)
 	  theSmallTree.m_isMETtrigger = passMETTrg;
 	  theSmallTree.m_isSingleTautrigger = passSingleTau;
 	  theSmallTree.m_isTauMETtrigger = passTauMET;
-        }
+      } // end if applyTriggers
 
       // ----------------------------------------------------------
       // pair selection is now complete, compute oher quantitites
@@ -2273,9 +2277,9 @@ int main (int argc, char** argv)
 
       // METnoMu,MHT,MHTnoMu for trigger study
       /*
-	Most basic implementation accounting only for muons passing selection cuts.
-	Would we need to include soft muons somehow as well?
-	(3rd lepton veto already looks for soft leptons (>10 GeV))
+	       Most basic implementation accounting only for muons passing selection cuts.
+	       Would we need to include soft muons somehow as well?
+	       (3rd lepton veto already looks for soft leptons (>10 GeV))
        */
       // metnomu
       TVector2 vMUON;
@@ -2284,7 +2288,7 @@ int main (int argc, char** argv)
       TVector2 vMETnoMu = vMET + vMUON;
 
       /*
-	  MHT(noMu) variables. This might be a quick&dirty definition though, as not removing soft contributions
+	      MHT(noMu) variables. This might be a quick&dirty definition though, as not removing soft contributions
       */
       // mht: transverse component of jet momentum sum (here MET(tot)-MET(leptons))
       TVector2 vLEP(tlv_firstLepton.Px()+tlv_secondLepton.Px(),tlv_firstLepton.Py()+tlv_secondLepton.Py()); // no matter what lepton type
@@ -2297,18 +2301,18 @@ int main (int argc, char** argv)
 
       // TEST FOR MET TRIGGERS (/!\ 2018 triggers listed only):
       if(vMET.Mod()<30 && passMETTrg){
-	cout << "WARNING: Low MET event passing MET Trigger !" << endl;
-	cout << "|| Event MET  = " << vMET.Mod() << " GeV" << endl;
-	cout << "|| pair type  = " << pType << endl;
-	cout << "|| (pTlep1, pTlep2) = (" << tlv_firstLepton.Pt() << "," << tlv_secondLepton.Pt() << ")" << endl;
-	cout << "|| LEP/VBF triggers fired  = " << (passTrg || isVBFfired) << endl;
-	cout << "|| triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
-	cout << "|| > HLT_PFHT500_PFMET100_PFMHT100_IDTight_v : " << CheckBit(pass_triggerbit,9) << endl;
-	cout << "|| > HLT_PFMET120_PFMHT120_IDTight_v         : " << CheckBit(pass_triggerbit,10) << endl;
-	cout << "|| > HLT_PFMET120_PFMHT120_IDTight_PFHT60_v  : " << CheckBit(pass_triggerbit,11) << endl;
-	//cout << "|| > HLT_PFMET200_HBHECleaned_v                     : " << CheckBit(pass_triggerbit,12) << endl;
-	//cout << "|| > HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60_v : " << CheckBit(pass_triggerbit,13) << endl;
-	//cout << "|| > HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v        : " << CheckBit(pass_triggerbit,12/*14*/) << endl;
+	      cout << "WARNING: Low MET event passing MET Trigger !" << endl;
+	      cout << "|| Event MET  = " << vMET.Mod() << " GeV" << endl;
+	      cout << "|| pair type  = " << pType << endl;
+	      cout << "|| (pTlep1, pTlep2) = (" << tlv_firstLepton.Pt() << "," << tlv_secondLepton.Pt() << ")" << endl;
+	      cout << "|| LEP/VBF triggers fired  = " << (passTrg || isVBFfired) << endl;
+	      cout << "|| triggerbit = " << std::bitset<16>(pass_triggerbit) << endl;
+	      cout << "|| > HLT_PFHT500_PFMET100_PFMHT100_IDTight_v : " << CheckBit(pass_triggerbit,9) << endl;
+	      cout << "|| > HLT_PFMET120_PFMHT120_IDTight_v         : " << CheckBit(pass_triggerbit,10) << endl;
+	      cout << "|| > HLT_PFMET120_PFMHT120_IDTight_PFHT60_v  : " << CheckBit(pass_triggerbit,11) << endl;
+	      //cout << "|| > HLT_PFMET200_HBHECleaned_v                     : " << CheckBit(pass_triggerbit,12) << endl;
+	      //cout << "|| > HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60_v : " << CheckBit(pass_triggerbit,13) << endl;
+	      //cout << "|| > HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v        : " << CheckBit(pass_triggerbit,12/*14*/) << endl;
       }
 
       TLorentzVector tlv_MET;
@@ -2741,7 +2745,7 @@ int main (int argc, char** argv)
 
           if (mu1eta < 2.4)
             {
-              idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
+              idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(mu1pt, mu1eta);
             }
 
           idAndIsoSF_leg2_MVA_vsJet = MVA_antiJet_medium ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
@@ -3198,11 +3202,11 @@ int main (int argc, char** argv)
 
           if (mu1eta < 2.4)
             {
-              idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
+              idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(mu1pt, mu1eta);
             }
           if (mu2eta < 2.4)
             {
-              idAndIsoSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu2pt, mu2eta);
+              idAndIsoSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu2pt, mu2eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(mu2pt, mu2eta);
             }
 
           idAndIsoSF_MVA = idAndIsoSF_deep = idAndIsoAndFakeSF_MVA = idAndIsoAndFakeSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2;
@@ -3741,7 +3745,7 @@ int main (int argc, char** argv)
               cout << "dR(tau1)   : " << tlv_jet.DeltaR (tlv_firstLepton) << " - lepCleaningCone: " << lepCleaningCone << endl;
               cout << "dR(tau2)   : " << tlv_jet.DeltaR (tlv_secondLepton) << " - lepCleaningCone: " << lepCleaningCone << endl;
               cout << "pT < 20    : " << (tlv_jet.Pt () < 20.) << endl;
-              cout << "eta > 2.4  : " << (TMath::Abs(tlv_jet.Eta()) > 2.4) << endl;
+              cout << "eta > 2.5  : " << (TMath::Abs(tlv_jet.Eta()) > 2.5) << endl;
               cout << "deepFlavour: " << theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet) << endl;
               cout << "Only PF Jet ID Cut applied before this printout" << endl;
               cout << "---------------------------------" << endl;
@@ -3763,8 +3767,8 @@ int main (int argc, char** argv)
           if (ajetHadFlav == 5) ++theSmallTree.m_njetsBHadFlav;
           if (ajetHadFlav == 4) ++theSmallTree.m_njetsCHadFlav;
 
-          // 2.4 for b-tag
-          if (TMath::Abs(tlv_jet.Eta()) > 2.4) continue;
+          // 2.5 for b-tag in 2017/18
+          if (TMath::Abs(tlv_jet.Eta()) > 2.5) continue;
 
           // n bjets candidates
           if (tlv_jet.Pt () > 20)  ++theSmallTree.m_nbjets20 ;
@@ -4870,7 +4874,7 @@ int main (int argc, char** argv)
 
                  theSmallTree.m_VBFjj_mass_jetup  [isource] = VBFjj_jetup  [isource].M();
                  theSmallTree.m_VBFjj_mass_jetdown[isource] = VBFjj_jetdown[isource].M();
-
+              }
               bool hasgj1_VBF = false;
               bool hasgj2_VBF = false;
 
@@ -5777,9 +5781,9 @@ int main (int argc, char** argv)
             std::cout << "-----------------------------------------------" << std::endl;
           }
 
-      	   //Other jets
-      	   for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
-      	   {
+      	  //Other jets
+      	  for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
+      	  {
       	     // PG filter jets at will
       	     if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
@@ -5955,6 +5959,8 @@ int main (int argc, char** argv)
             }
         }// if there's two jets in the event, at least
 
+//// PROBABLY LOST } BEFORE THAT POINT
+
       if (isMC) selectedEvents += theBigTree.aMCatNLOweight ;  //FIXME: probably wrong, but unused up to now
       else selectedEvents += 1 ;
       ++selectedNoWeightsEventsNum ;
@@ -5997,7 +6003,6 @@ int main (int argc, char** argv)
 
       theSmallTree.Fill () ;
     }
-
   cout << "1: " << totalEvents << endl ;
   cout << "2: " << selectedEvents << endl ;
   cout << "3: " << totalNoWeightsEventsNum << endl ;
@@ -6979,6 +6984,7 @@ int main (int argc, char** argv)
         DNN_svfit.SetCoordinates(pep_svfit.Px(), pep_svfit.Py(), pep_svfit.Pz(), pep_svfit.M());
         DNN_b_1.SetCoordinates  (pep_b_1.Px()  , pep_b_1.Py()  , pep_b_1.Pz()  , pep_b_1.M());
         DNN_b_2.SetCoordinates  (pep_b_2.Px()  , pep_b_2.Py()  , pep_b_2.Pz()  , pep_b_2.M());
+        DNN_e_channel = tauTau;
         DNN_vbf_1.SetCoordinates(pep_vbf_1.Px(), pep_vbf_1.Py(), pep_vbf_1.Pz(), pep_vbf_1.M());
         DNN_vbf_2.SetCoordinates(pep_vbf_2.Px(), pep_vbf_2.Py(), pep_vbf_2.Pz(), pep_vbf_2.M());
 

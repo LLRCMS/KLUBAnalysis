@@ -573,9 +573,9 @@ int main (int argc, char** argv)
   // ------------------------------
   //tau legs trigger SF for data and mc
   //from: https://github.com/cms-tau-pog/TauTriggerSFs/tree/run2_SFs
-  TString VFP = isPostVFP?"postVFP":"preVFP";
-  tau_trigger::SFProvider * tauTrgSF_ditau = new tau_trigger::SFProvider("weights/trigger_SF_UL/2016"+VFP+"/2016UL"+VFP+"_tauTriggerEff_DeepTau2017v2p1.root", "ditau", "Medium");
-  tau_trigger::SFProvider * tauTrgSF_mutau = new tau_trigger::SFProvider("weights/trigger_SF_UL/2016"+VFP+"/2016UL"+VFP+"_tauTriggerEff_DeepTau2017v2p1.root", "mutau", "Medium");
+  TString vfp = isPostVFP?"postVFP":"preVFP";
+  tau_trigger::SFProvider * tauTrgSF_ditau = new tau_trigger::SFProvider("weights/trigger_SF_UL/2016"+vfp+"/2016UL"+vfp+"_tauTriggerEff_DeepTau2017v2p1.root", "ditau", "Medium");
+  tau_trigger::SFProvider * tauTrgSF_mutau = new tau_trigger::SFProvider("weights/trigger_SF_UL/2016"+vfp+"/2016UL"+vfp+"_tauTriggerEff_DeepTau2017v2p1.root", "mutau", "Medium");
   //tau_trigger::SFProvider * tauTrgSF_etau  = new tau_trigger::SFProvider("weights/trigger_SF_Legacy/2016/2016_tauTriggerEff_DeepTau2017v2p1.root", "etau" , "Medium");
 
 
@@ -627,15 +627,19 @@ int main (int argc, char** argv)
   // ------------------------------
 
   // electron/muon IdAndIso SF
-  ScaleFactor * myIDandISOScaleFactor[2]; // [0: mu, 1: ele]
-  for (int i = 0 ; i < 2; i++)
+  ScaleFactor * myIDandISOScaleFactor[3]; // [0: mu, 1: ele]
+  for (int i = 0 ; i < 3; i++)
         myIDandISOScaleFactor[i] = new ScaleFactor();
 
-  myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/HTT_IdAndIso_SF_Legacy/2016/Muon_Run2016_legacy_IdIso.root");
+  myIDandISOScaleFactor[0] -> init_ScaleFactor(isPostVFP?"weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root":"weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root",
+                                               "NUM_LooseID_DEN_TrackerMuons_abseta_pt",
+                                               true);
   myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_IdAndIso_SF_Legacy/2016/Electron_Run2016_legacy_IdIso.root");
-
+  myIDandISOScaleFactor[2] -> init_ScaleFactor(isPostVFP?"weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root":"weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ISO.root",
+                                               "NUM_LooseRelIso_DEN_LooseID_abseta_pt",
+                                               true);
   // tau IdAndIso SF
-  TString VFP = isPostVFP?"UL2016_postVFP":"UL2016_preVFP";
+  std::string VFP = isPostVFP?"UL2016_postVFP":"UL2016_preVFP";
   //MVA2017 for UL not foreseen
   TauIDSFTool * MVA_antiJet_medium = new TauIDSFTool("2016Legacy","MVAoldDM2017v2","Medium",1);         // for MVA2017v2 vs jets Medium
   TauIDSFTool * MVA_antiEle_vloose = new TauIDSFTool("2016Legacy","antiEleMVA6"   ,"VLoose");           // for MVA2017v2 vs ele VLoose
@@ -644,10 +648,10 @@ int main (int argc, char** argv)
   TauIDSFTool * MVA_antiMu_tight   = new TauIDSFTool("2016Legacy","antiMu3"       ,"Tight");            // for MVA2017v2 vs mu Tight
 
   //DeepTau used anyway; vsMU not (yet?) available
-  TauIDSFTool * Deep_antiJet_medium     = new TauIDSFTool(ULperiod,"DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets Medium
-  TauIDSFTool * Deep_antiJet_medium_pt  = new TauIDSFTool(ULperiod,"DeepTau2017v2p1VSjet","Medium");   // for DeepTauv2p1 vs jets Medium
-  TauIDSFTool * Deep_antiEle_vvloose    = new TauIDSFTool(ULperiod,"DeepTau2017v2p1VSe"  ,"VVLoose");  // for DeepTauv2p1 vs ele VVLoose
-  TauIDSFTool * Deep_antiEle_vloose     = new TauIDSFTool(ULperiod,"DeepTau2017v2p1VSe"  ,"VLoose");   // for DeepTauv2p1 vs ele VLoose
+  TauIDSFTool * Deep_antiJet_medium     = new TauIDSFTool(VFP,"DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets Medium
+  TauIDSFTool * Deep_antiJet_medium_pt  = new TauIDSFTool(VFP,"DeepTau2017v2p1VSjet","Medium");   // for DeepTauv2p1 vs jets Medium
+  TauIDSFTool * Deep_antiEle_vvloose    = new TauIDSFTool(VFP,"DeepTau2017v2p1VSe"  ,"VVLoose");  // for DeepTauv2p1 vs ele VVLoose
+  TauIDSFTool * Deep_antiEle_vloose     = new TauIDSFTool(VFP,"DeepTau2017v2p1VSe"  ,"VLoose");   // for DeepTauv2p1 vs ele VLoose
   TauIDSFTool * Deep_antiMu_vloose      = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSmu" ,"VLoose");   // for DeepTauv2p1 vs mu VLoose
   TauIDSFTool * Deep_antiMu_tight       = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
 

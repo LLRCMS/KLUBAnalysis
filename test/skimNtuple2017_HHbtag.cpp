@@ -534,8 +534,8 @@ int main (int argc, char** argv)
 
   // ------------------------------
 
-  std::string PUjetID_SF_directory = gConfigParser->readStringOption ("PUjetIDScaleFactors::fUL;
-  cout <<UL "** INFO: PU jet ID SF directory: " << PUjetID_SF_directory << std::endl;
+  std::string PUjetID_SF_directory = gConfigParser->readStringOption ("PUjetIDScaleFactors::files");
+  cout << "** INFO: PU jet ID SF directory: " << PUjetID_SF_directory << std::endl;
   PuJetIdSF PUjetIDSFprovider(PUjetID_SF_directory, "2017");
 
   // ------------------------------
@@ -593,13 +593,18 @@ int main (int argc, char** argv)
   // ------------------------------
 
   // electron/muon IdAndIso SF
-  ScaleFactor * myIDandISOScaleFactor[2]; // [0: mu, 1: ele]
-  for (int i = 0 ; i < 2; i++)
+  ScaleFactor * myIDandISOScaleFactor[3]; // [0: mu, 1: ele]
+  for (int i = 0 ; i < 3; i++)
         myIDandISOScaleFactor[i] = new ScaleFactor();
 
-  myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/HTT_IdAndIso_SF_Legacy/2017/Muon_IdIso_IsoLt0.15_eff_RerecoFall17.root"); //FRA: is this ok?
+  myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root",
+                                               "NUM_LooseID_DEN_TrackerMuons_abseta_pt",
+                                               true);
   myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_IdAndIso_SF_Legacy/2017/Electron_Run2017_IdIso.root");
 
+  myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root",
+                                               "NUM_LooseRelIso_DEN_LooseID_abseta_pt",
+                                               true);
   // tau IdAndIso SF
   //MVA2017 for UL not foreseen
   TauIDSFTool * MVA_antiJet_medium = new TauIDSFTool("2017ReReco","MVAoldDM2017v2","Medium",1);         // for MVA2017v2 vs jets Medium
@@ -3578,7 +3583,7 @@ int main (int argc, char** argv)
           cout << "dR(tau1)   : " << tlv_jet.DeltaR (tlv_firstLepton) << " - lepCleaningCone: " << lepCleaningCone << endl;
           cout << "dR(tau2)   : " << tlv_jet.DeltaR (tlv_secondLepton) << " - lepCleaningCone: " << lepCleaningCone << endl;
           cout << "pT < 20    : " << (tlv_jet.Pt () < 20.) << endl;
-          cout << "eta > 2.4  : " << (TMath::Abs(tlv_jet.Eta()) > 2.4) << endl;
+          cout << "eta > 2.5  : " << (TMath::Abs(tlv_jet.Eta()) > 2.5) << endl;
           cout << "deepFlavour: " << theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet) << endl;
           cout << "Only PF Jet ID Cut applied before this printout" << endl;
           cout << "---------------------------------" << endl;
@@ -3601,7 +3606,7 @@ int main (int argc, char** argv)
         if (ajetHadFlav == 4) ++theSmallTree.m_njetsCHadFlav;
 
         // 2.4 for b-tag
-        if (TMath::Abs(tlv_jet.Eta()) > 2.4) continue;
+        if (TMath::Abs(tlv_jet.Eta()) > 2.5) continue;
 
         // n bjets candidates
         if (tlv_jet.Pt () > 20)  ++theSmallTree.m_nbjets20 ;
