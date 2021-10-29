@@ -664,7 +664,7 @@ int main (int argc, char** argv)
 
   // electron/muon IdAndIso SF
   ScaleFactor * myIDandISOScaleFactor[3]; // [0: muID, 1: eleID, 2:muISO,]
-  for (int i = 0 ; i < 2; i++)
+  for (int i = 0 ; i < 3; i++)
         myIDandISOScaleFactor[i] = new ScaleFactor();
 
   myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",
