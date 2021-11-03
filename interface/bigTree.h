@@ -26,7 +26,7 @@ public :
    Int_t           RunNumber;
    Int_t           lumi;
    Int_t           year;
-   Bool_t          passecalBadCalibFilterUpdate;
+   Bool_t          passbadMuonPFDz;
    Float_t         prefiringweight;
    Float_t         prefiringweightup;
    Float_t         prefiringweightdown;
@@ -121,7 +121,7 @@ public :
    std::vector<int>     *genjet_partonFlavour;
    std::vector<int>     *genjet_hadronFlavour;
    Int_t           NUP;
-   
+
    std::vector<float>   *SVfitMass;
    std::vector<float>   *SVfitMassUnc;
    std::vector<float>   *SVfitTransverseMass;
@@ -450,7 +450,7 @@ public :
    TBranch        *b_RunNumber;   //!
    TBranch        *b_lumi;   //!
    TBranch        *b_year;   //!
-   TBranch        *b_passecalBadCalibFilterUpdate;   //!
+   TBranch        *b_passbadMuonPFDz;   //!
    TBranch        *b_prefiringweight;
    TBranch        *b_prefiringweightup;
    TBranch        *b_prefiringweightdown;
@@ -893,10 +893,10 @@ public :
        daughters_pz = 0;
        daughters_e = 0;
        daughters_hasTES = 0;
-       daughters_TESshiftDM0 = 0; 
-       daughters_TESshiftDM1 = 0; 
-       daughters_TESshiftDM10 = 0; 
-       daughters_TESshiftDM11 = 0; 
+       daughters_TESshiftDM0 = 0;
+       daughters_TESshiftDM1 = 0;
+       daughters_TESshiftDM10 = 0;
+       daughters_TESshiftDM11 = 0;
        daughters_px_TauUp = 0;
        daughters_py_TauUp = 0;
        daughters_pz_TauUp = 0;
@@ -1273,7 +1273,7 @@ public :
        fChain->SetBranchAddress("RunNumber", &RunNumber, &b_RunNumber);
        fChain->SetBranchAddress("lumi", &lumi, &b_lumi);
        fChain->SetBranchAddress("year", &year, &b_year);
-       fChain->SetBranchAddress("passecalBadCalibFilterUpdate", &passecalBadCalibFilterUpdate, &b_passecalBadCalibFilterUpdate);
+       fChain->SetBranchAddress("passbadMuonPFDz", &passbadMuonPFDz, &b_passbadMuonPFDz);
        fChain->SetBranchAddress("prefiringweight", &prefiringweight, &b_prefiringweight);
        fChain->SetBranchAddress("prefiringweightup", &prefiringweightup, &b_prefiringweightup);
        fChain->SetBranchAddress("prefiringweightdown", &prefiringweightdown, &b_prefiringweightdown);
@@ -1431,7 +1431,7 @@ public :
        fChain->SetBranchAddress("bDeepFlavor_probb", &bDeepFlavor_probb, &b_bDeepFlavor_probb);
        fChain->SetBranchAddress("bDeepFlavor_probbb", &bDeepFlavor_probbb, &b_bDeepFlavor_probbb);
        fChain->SetBranchAddress("bDeepFlavor_probc", &bDeepFlavor_probc, &b_bDeepFlavor_probc);
-       fChain->SetBranchAddress("bDeepFlavor_problepb", &bDeepFlavor_problepb, &b_bDeepFlavor_problepb);       
+       fChain->SetBranchAddress("bDeepFlavor_problepb", &bDeepFlavor_problepb, &b_bDeepFlavor_problepb);
        fChain->SetBranchAddress("bDeepFlavor_probuds", &bDeepFlavor_probuds, &b_bDeepFlavor_probuds);
        fChain->SetBranchAddress("bDeepFlavor_probg", &bDeepFlavor_probg, &b_bDeepFlavor_probg);
        fChain->SetBranchAddress("pfCombinedMVAV2BJetTags", &pfCombinedMVAV2BJetTags, &b_pfCombinedMVAV2BJetTags);
@@ -1497,31 +1497,31 @@ public :
        fChain->SetBranchAddress("jets_jetUnc_SinglePionECAL_dw",    &jets_jetUnc_SinglePionECAL_dw,     &b_jets_jetUnc_SinglePionECAL_dw);
        fChain->SetBranchAddress("jets_jetUnc_SinglePionHCAL_dw",    &jets_jetUnc_SinglePionHCAL_dw,     &b_jets_jetUnc_SinglePionHCAL_dw);
        fChain->SetBranchAddress("jets_jetUnc_TimePtEta_dw",         &jets_jetUnc_TimePtEta_dw,          &b_jets_jetUnc_TimePtEta_dw);
-       fChain->SetBranchAddress("jets_jetUncRegrouped_FlavorQCD_up",          &jets_jetUncRegrouped_FlavorQCD_up,           &b_jets_jetUncRegrouped_FlavorQCD_up);                 
-       fChain->SetBranchAddress("jets_jetUncRegrouped_RelativeBal_up",        &jets_jetUncRegrouped_RelativeBal_up,         &b_jets_jetUncRegrouped_RelativeBal_up);             
-       fChain->SetBranchAddress("jets_jetUncRegrouped_HF_up",                 &jets_jetUncRegrouped_HF_up,                  &b_jets_jetUncRegrouped_HF_up);                               
-       fChain->SetBranchAddress("jets_jetUncRegrouped_BBEC1_up",              &jets_jetUncRegrouped_BBEC1_up,               &b_jets_jetUncRegrouped_BBEC1_up);                         
-       fChain->SetBranchAddress("jets_jetUncRegrouped_EC2_up",                &jets_jetUncRegrouped_EC2_up,                 &b_jets_jetUncRegrouped_EC2_up);                             
-       fChain->SetBranchAddress("jets_jetUncRegrouped_Absolute_up",           &jets_jetUncRegrouped_Absolute_up,            &b_jets_jetUncRegrouped_Absolute_up);                   
-       fChain->SetBranchAddress("jets_jetUncRegrouped_Total_up",              &jets_jetUncRegrouped_Total_up,               &b_jets_jetUncRegrouped_Total_up);                         
-       fChain->SetBranchAddress("jets_jetUncRegrouped_FlavorQCD_dw",          &jets_jetUncRegrouped_FlavorQCD_dw,           &b_jets_jetUncRegrouped_FlavorQCD_dw);                 
-       fChain->SetBranchAddress("jets_jetUncRegrouped_RelativeBal_dw",        &jets_jetUncRegrouped_RelativeBal_dw,         &b_jets_jetUncRegrouped_RelativeBal_dw);             
-       fChain->SetBranchAddress("jets_jetUncRegrouped_HF_dw",                 &jets_jetUncRegrouped_HF_dw,                  &b_jets_jetUncRegrouped_HF_dw);                               
-       fChain->SetBranchAddress("jets_jetUncRegrouped_BBEC1_dw",              &jets_jetUncRegrouped_BBEC1_dw,               &b_jets_jetUncRegrouped_BBEC1_dw);                         
-       fChain->SetBranchAddress("jets_jetUncRegrouped_EC2_dw",                &jets_jetUncRegrouped_EC2_dw,                 &b_jets_jetUncRegrouped_EC2_dw);                             
-       fChain->SetBranchAddress("jets_jetUncRegrouped_Absolute_dw",           &jets_jetUncRegrouped_Absolute_dw,            &b_jets_jetUncRegrouped_Absolute_dw);                   
-       fChain->SetBranchAddress("jets_jetUncRegrouped_Total_dw",              &jets_jetUncRegrouped_Total_dw,               &b_jets_jetUncRegrouped_Total_dw);                         
-       fChain->SetBranchAddress("jets_jetUncRegrouped_BBEC1_YEAR_up",         &jets_jetUncRegrouped_BBEC1_YEAR_up,          &b_jets_jetUncRegrouped_BBEC1_YEAR_up);               
-       fChain->SetBranchAddress("jets_jetUncRegrouped_EC2_YEAR_up",           &jets_jetUncRegrouped_EC2_YEAR_up,            &b_jets_jetUncRegrouped_EC2_YEAR_up);                   
-       fChain->SetBranchAddress("jets_jetUncRegrouped_Absolute_YEAR_up",      &jets_jetUncRegrouped_Absolute_YEAR_up,       &b_jets_jetUncRegrouped_Absolute_YEAR_up);         
-       fChain->SetBranchAddress("jets_jetUncRegrouped_HF_YEAR_up",            &jets_jetUncRegrouped_HF_YEAR_up,             &b_jets_jetUncRegrouped_HF_YEAR_up);                     
+       fChain->SetBranchAddress("jets_jetUncRegrouped_FlavorQCD_up",          &jets_jetUncRegrouped_FlavorQCD_up,           &b_jets_jetUncRegrouped_FlavorQCD_up);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_RelativeBal_up",        &jets_jetUncRegrouped_RelativeBal_up,         &b_jets_jetUncRegrouped_RelativeBal_up);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_HF_up",                 &jets_jetUncRegrouped_HF_up,                  &b_jets_jetUncRegrouped_HF_up);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_BBEC1_up",              &jets_jetUncRegrouped_BBEC1_up,               &b_jets_jetUncRegrouped_BBEC1_up);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_EC2_up",                &jets_jetUncRegrouped_EC2_up,                 &b_jets_jetUncRegrouped_EC2_up);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_Absolute_up",           &jets_jetUncRegrouped_Absolute_up,            &b_jets_jetUncRegrouped_Absolute_up);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_Total_up",              &jets_jetUncRegrouped_Total_up,               &b_jets_jetUncRegrouped_Total_up);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_FlavorQCD_dw",          &jets_jetUncRegrouped_FlavorQCD_dw,           &b_jets_jetUncRegrouped_FlavorQCD_dw);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_RelativeBal_dw",        &jets_jetUncRegrouped_RelativeBal_dw,         &b_jets_jetUncRegrouped_RelativeBal_dw);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_HF_dw",                 &jets_jetUncRegrouped_HF_dw,                  &b_jets_jetUncRegrouped_HF_dw);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_BBEC1_dw",              &jets_jetUncRegrouped_BBEC1_dw,               &b_jets_jetUncRegrouped_BBEC1_dw);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_EC2_dw",                &jets_jetUncRegrouped_EC2_dw,                 &b_jets_jetUncRegrouped_EC2_dw);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_Absolute_dw",           &jets_jetUncRegrouped_Absolute_dw,            &b_jets_jetUncRegrouped_Absolute_dw);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_Total_dw",              &jets_jetUncRegrouped_Total_dw,               &b_jets_jetUncRegrouped_Total_dw);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_BBEC1_YEAR_up",         &jets_jetUncRegrouped_BBEC1_YEAR_up,          &b_jets_jetUncRegrouped_BBEC1_YEAR_up);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_EC2_YEAR_up",           &jets_jetUncRegrouped_EC2_YEAR_up,            &b_jets_jetUncRegrouped_EC2_YEAR_up);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_Absolute_YEAR_up",      &jets_jetUncRegrouped_Absolute_YEAR_up,       &b_jets_jetUncRegrouped_Absolute_YEAR_up);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_HF_YEAR_up",            &jets_jetUncRegrouped_HF_YEAR_up,             &b_jets_jetUncRegrouped_HF_YEAR_up);
        fChain->SetBranchAddress("jets_jetUncRegrouped_RelativeSample_YEAR_up",&jets_jetUncRegrouped_RelativeSample_YEAR_up, &b_jets_jetUncRegrouped_RelativeSample_YEAR_up);
-       fChain->SetBranchAddress("jets_jetUncRegrouped_BBEC1_YEAR_dw",         &jets_jetUncRegrouped_BBEC1_YEAR_dw,          &b_jets_jetUncRegrouped_BBEC1_YEAR_dw);               
-       fChain->SetBranchAddress("jets_jetUncRegrouped_EC2_YEAR_dw",           &jets_jetUncRegrouped_EC2_YEAR_dw,            &b_jets_jetUncRegrouped_EC2_YEAR_dw);                   
-       fChain->SetBranchAddress("jets_jetUncRegrouped_Absolute_YEAR_dw",      &jets_jetUncRegrouped_Absolute_YEAR_dw,       &b_jets_jetUncRegrouped_Absolute_YEAR_dw);         
-       fChain->SetBranchAddress("jets_jetUncRegrouped_HF_YEAR_dw",            &jets_jetUncRegrouped_HF_YEAR_dw,             &b_jets_jetUncRegrouped_HF_YEAR_dw);                     
+       fChain->SetBranchAddress("jets_jetUncRegrouped_BBEC1_YEAR_dw",         &jets_jetUncRegrouped_BBEC1_YEAR_dw,          &b_jets_jetUncRegrouped_BBEC1_YEAR_dw);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_EC2_YEAR_dw",           &jets_jetUncRegrouped_EC2_YEAR_dw,            &b_jets_jetUncRegrouped_EC2_YEAR_dw);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_Absolute_YEAR_dw",      &jets_jetUncRegrouped_Absolute_YEAR_dw,       &b_jets_jetUncRegrouped_Absolute_YEAR_dw);
+       fChain->SetBranchAddress("jets_jetUncRegrouped_HF_YEAR_dw",            &jets_jetUncRegrouped_HF_YEAR_dw,             &b_jets_jetUncRegrouped_HF_YEAR_dw);
        fChain->SetBranchAddress("jets_jetUncRegrouped_RelativeSample_YEAR_dw",&jets_jetUncRegrouped_RelativeSample_YEAR_dw, &b_jets_jetUncRegrouped_RelativeSample_YEAR_dw);
-       fChain->SetBranchAddress("ak8jets_px",                                 &ak8jets_px, &b_ak8jets_px);                                                               
+       fChain->SetBranchAddress("ak8jets_px",                                 &ak8jets_px, &b_ak8jets_px);
        fChain->SetBranchAddress("ak8jets_py", &ak8jets_py, &b_ak8jets_py);
        fChain->SetBranchAddress("ak8jets_pz", &ak8jets_pz, &b_ak8jets_pz);
        fChain->SetBranchAddress("ak8jets_e", &ak8jets_e, &b_ak8jets_e);
@@ -1685,7 +1685,7 @@ public :
             //fChain->SetBranchAddress("SVfit_fitMETRhoEleDown", &SVfit_fitMETRhoEleDown, &b_SVfit_fitMETRhoEleDown);
             //fChain->SetBranchAddress("SVfit_fitMETPhiEleDown", &SVfit_fitMETPhiEleDown, &b_SVfit_fitMETPhiEleDown);
        }
-       
+
     }
 };
 
