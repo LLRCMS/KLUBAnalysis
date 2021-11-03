@@ -38,6 +38,7 @@ class ScaleFactor {
 		double get_EfficiencyData(double, double); //pt, eta
 		double get_EfficiencyMC(double, double);
 		double get_ScaleFactor(double, double);
+		double get_direct_ScaleFactor(double, double);
 		double get_EfficiencyDataError(double, double);
 		double get_EfficiencyMCError(double, double);
 		double get_ScaleFactorError(double, double);

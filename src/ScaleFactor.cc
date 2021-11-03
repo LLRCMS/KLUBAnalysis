@@ -49,18 +49,27 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
   etaBinsH = (TH1D*)fileIn->Get("etaBinsH");
   std::string etaLabel, GraphName;
   int nEtaBins = etaBinsH->GetNbinsX();
-  for (int iBin=0; iBin<nEtaBins; iBin++){
-    etaLabel = etaBinsH->GetXaxis()->GetBinLabel(iBin+1);
-    GraphName = HistoBaseName+etaLabel+"_Data";
-    eff_data[etaLabel] = (TGraphAsymmErrors*)fileIn->Get(TString(GraphName));
-    SetAxisBins(eff_data[etaLabel]);
-    GraphName = HistoBaseName+etaLabel+"_MC";
-    eff_mc[etaLabel] = (TGraphAsymmErrors*)fileIn->Get(TString(GraphName));
-    SetAxisBins(eff_mc[etaLabel]);
-    bool sameBinning = check_SameBinning(eff_data[etaLabel], eff_mc[etaLabel]);
-    if (!sameBinning) {std::cout<< "ERROR in ScaleFactor::init_ScaleFactor(TString inputRootFile) from LepEffInterface/src/ScaleFactor.cc . Can not proceed because ScaleFactor::check_SameBinning returned different pT binning for data and MC for eta label " << etaLabel << std::endl; exit(1); };
-  }
 
+	if(HistoBaseName.find("SF") != std::string::npos){
+  	for (int iBin=0; iBin<nEtaBins; iBin++){
+    	etaLabel = etaBinsH->GetXaxis()->GetBinLabel(iBin+1);
+    	GraphName = "Zmass"+etaLabel+"_SF";
+    	eff_data[etaLabel] = (TGraphAsymmErrors*)fileIn->Get(TString(GraphName)); //storing in eff_data but really it is SF already
+			SetAxisBins(eff_data[etaLabel]);
+		}
+	} else {
+  	for (int iBin=0; iBin<nEtaBins; iBin++){
+    	etaLabel = etaBinsH->GetXaxis()->GetBinLabel(iBin+1);
+    	GraphName = HistoBaseName+etaLabel+"_Data";
+    	eff_data[etaLabel] = (TGraphAsymmErrors*)fileIn->Get(TString(GraphName));
+    	SetAxisBins(eff_data[etaLabel]);
+    	GraphName = HistoBaseName+etaLabel+"_MC";
+    	eff_mc[etaLabel] = (TGraphAsymmErrors*)fileIn->Get(TString(GraphName));
+    	SetAxisBins(eff_mc[etaLabel]);
+    	bool sameBinning = check_SameBinning(eff_data[etaLabel], eff_mc[etaLabel]);
+    	if (!sameBinning) {std::cout<< "ERROR in ScaleFactor::init_ScaleFactor(TString inputRootFile) from LepEffInterface/src/ScaleFactor.cc . Can not proceed because ScaleFactor::check_SameBinning returned different pT binning for data and MC for eta label " << etaLabel << std::endl; exit(1); };
+  	}
+	}
   return;
 }
 
@@ -69,8 +78,9 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
   TFile * fileIn = new TFile(inputRootFile, "read");
   // if root file not found
   if (fileIn->IsZombie() ) { std::cout << "ERROR in ScaleFactor::init_ScaleFactor(TString inputRootFile) from LepEffInterface/src/ScaleFactor.cc : File " <<inputRootFile << " does not exist. Please check. " <<std::endl; exit(1); };
-
+	std::cout << "isHistoFile="<<isHistoFile<<std::endl;
 	if(!isHistoFile){ // efficiency file contains TGraphAsymmErrors + eta map (HTT group format for legacy)
+
   	etaBinsH = (TH1D*)fileIn->Get("etaBinsH");
   	std::string etaLabel, GraphName;
   	int nEtaBins = etaBinsH->GetNbinsX();
@@ -86,17 +96,29 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
     	bool sameBinning = check_SameBinning(eff_data[etaLabel], eff_mc[etaLabel]);
     	if (!sameBinning) {std::cout<< "ERROR in ScaleFactor::init_ScaleFactor(TString inputRootFile) from LepEffInterface/src/ScaleFactor.cc . Can not proceed because ScaleFactor::check_SameBinning returned different pT binning for data and MC for eta label " << etaLabel << std::endl; exit(1); };
   	}
+
 	} else { //efficiency maps in TH2F -> create eta map & TGraphAsymmErrors so that rest of the pipeline isn't disturbed
-		TH2F *heff_data = (TH2F*)fileIn->Get((TString)HistoBaseName+"_efficiencyData");
-		TH2F *heff_mc   = (TH2F*)fileIn->Get((TString)HistoBaseName+"_efficiencyMC");
+		std::cout << "fetching 2D efficiency histograms" << std::endl;
+
+		// somewhat ugly as applying only to muon SFs
+		TString effname_data = "_efficiencyData";
+		TString effname_MC = "_efficiencyMC";
+
+		TH2F *heff_data = (TH2F*)fileIn->Get((TString)HistoBaseName+effname_data);
+		TH2F *heff_mc   = (TH2F*)fileIn->Get((TString)HistoBaseName+effname_MC);
+
+		std::cout << "getting number of eta bins" << std::endl;
 
 		// retrieve eta binning (ugly hack, but should work fine)
 		const int nbin_eta = heff_data->GetNbinsX();
-
+		TString eta_bins[nbin_eta] = {""};
 		TString firstbinlabel = Form("EtaLt%.1f",heff_data->GetXaxis()->GetBinLowEdge(2));
 		TString lastbinlabel  = Form("EtaGt%.1f",heff_data->GetXaxis()->GetBinLowEdge(nbin_eta));
 		firstbinlabel.ReplaceAll(".","p");
 		lastbinlabel.ReplaceAll(".","p");
+
+		//create etabinning Histo
+		etaBinsH = new TH1D("etaBinsH","",nbin_eta, heff_data->GetXaxis()->GetXbins()->GetArray());
 
   	TString TetaLabel;
 		TString GraphName;
@@ -111,6 +133,9 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
 				TetaLabel = Form("Eta%.1fto%.1f",heff_data->GetXaxis()->GetBinLowEdge(iBin+2),heff_data->GetXaxis()->GetBinLowEdge(iBin+3));
 				TetaLabel.ReplaceAll(".","p");
 			}
+			etaBinsH->GetXaxis()->SetBinLabel(iBin+1,TetaLabel);
+			std::cout << "Creating 1D histograms" << std::endl;
+
 			std::string etaLabel = (std::string)TetaLabel;
 			GraphName = TString(HistoBaseName)+"_"+etaLabel+"_Data";
 			TH1F *hslice_data = (TH1F*)heff_data->ProjectionY("slicedata",iBin+1,iBin+1);
@@ -132,6 +157,7 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
 			double mc_pt_errhigh[nbin_pt] = {0};
 			double mc_eff_errhigh[nbin_pt] = {0};
 
+			std::cout << "Filling 1D histograms" << std::endl;
 			for(int iptbin=0; iptbin<nbin_pt; iptbin++){
 				data_pt_nom[iptbin]      = hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
 				data_eff_nom[iptbin]     = hslice_data->GetBinContent(iptbin+1);
@@ -150,15 +176,6 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
 			eff_data[etaLabel] = new TGraphAsymmErrors(nbin_pt,data_pt_nom, data_eff_nom, data_pt_errlow, data_pt_errhigh, data_eff_errlow, data_eff_errhigh);
 			eff_mc[etaLabel]   = new TGraphAsymmErrors(nbin_pt,mc_pt_nom,   mc_eff_nom,   mc_pt_errlow,   mc_pt_errhigh,   mc_eff_errlow,   mc_eff_errhigh  );
 
-			//std::map<std::string,TGraphAsymmErrors*>::iterator it1 = eff_data.begin();
-			//eff_data.insert(it1,std::pair<std::string,TGraphAsymmErrors*>(
-			//	(std::string)etaLabel,
-			//	new TGraphAsymmErrors(nbin_pt,data_pt_nom, data_eff_nom, data_pt_errlow, data_pt_errhigh, data_eff_errlow, data_eff_errhigh)));
-  		//std::map<std::string,TGraphAsymmErrors*>::iterator it2 = eff_mc.begin();
-			//eff_mc.insert(it2,std::pair<std::string,TGraphAsymmErrors*>(
-			//	(std::string)etaLabel,
-			//	new TGraphAsymmErrors(nbin_pt,mc_pt_nom, mc_eff_nom, mc_pt_errlow, mc_pt_errhigh, mc_eff_errlow, mc_eff_errhigh)));
-
     	SetAxisBins(eff_data[etaLabel]);
     	SetAxisBins(eff_mc[etaLabel]);
 
@@ -166,14 +183,10 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
 			bool sameBinning = check_SameBinning(eff_data[etaLabel], eff_mc[etaLabel]);
     	if (!sameBinning) {std::cout<< "ERROR in ScaleFactor::init_ScaleFactor(TString inputRootFile) from LepEffInterface/src/ScaleFactor.cc . Can not proceed because ScaleFactor::check_SameBinning returned different pT binning for data and MC for eta label " << etaLabel << std::endl; exit(1); };
 
-
 		}
 
-
-
-
-
-		}
+	}
+	std::cout << "Exiting" << std::endl;
 
   return;
 }
@@ -210,10 +223,15 @@ bool ScaleFactor::check_SameBinning(TGraphAsymmErrors* graph1, TGraphAsymmErrors
 
 
 std::string ScaleFactor::FindEtaLabel(double Eta, std::string Which){
-
+	std::cout << "in FindEtaLabel" << std::endl;
 	Eta = fabs(Eta);
+	std::cout << "Eta=" << Eta << std::endl;
+
 	int binNumber = etaBinsH->GetXaxis()->FindFixBin(Eta);
+	std::cout << "binNumber=" << binNumber << std::endl;
+
 	std::string EtaLabel = etaBinsH->GetXaxis()->GetBinLabel(binNumber);
+	std::cout << "EtaLabel=" << EtaLabel << std::endl;
 	std::map<std::string, TGraphAsymmErrors*>::iterator it;
 	if (Which == "data"){
 		it =  eff_data.find(EtaLabel);
@@ -293,6 +311,18 @@ double ScaleFactor::get_ScaleFactor(double pt, double eta){
 	else {
 	SF=1.; std::cout << "WARNING in ScaleFactor::get_ScaleFactor(double pt, double eta) from LepEffInterface/src/ScaleFactor.cc : MC efficiency = 0. Scale Factor set to 1. ";
 	}
+
+	return SF;
+
+}
+double ScaleFactor::get_direct_ScaleFactor(double pt, double eta){
+
+	std::string label = FindEtaLabel(eta,"data");
+	int ptbin = FindPtBin(eff_data, label, pt); // when available, SF stored in eff_data (lazy implementation that should be improved)
+	double SF;
+
+	if (ptbin == -99){SF =1;} // if pt is underflow
+	else SF= eff_data[label]->GetY()[ptbin-1];
 
 	return SF;
 
