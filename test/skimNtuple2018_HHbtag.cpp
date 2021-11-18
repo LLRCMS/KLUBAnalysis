@@ -1532,9 +1532,8 @@ int main (int argc, char** argv)
       metpass    += (metbit & (1 << 3)) ? 1 : 0; //"Flag_EcalDeadCellTriggerPrimitiveFilter"
       metpass    += (metbit & (1 << 4)) ? 1 : 0; //"Flag_globalSuperTightHalo2016Filter"
       metpass    += (metbit & (1 << 5)) ? 1 : 0; //"Flag_BadPFMuonFilter"
-      if(!isMC) metpass += (metbit & (1 << 7)) ? 1 : 0; // "Flag_eeBadScFilter" not suggested on twiki; EDIT: now suggested for data (Moriond2018)
+      metpass    += (metbit & (1 << 6)) ? 1 : 0; // "Flag_eeBadScFilter" now suggested for data AND MC (https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFiltersRun2#Analysis_Recommendations_for_ana)
       if (theBigTree.passbadMuonPFDz) metpass += 1; //passbadMuonPFDz for 2017 and 2018
-
       if(DEBUG)
       {
         cout << "metpass: " << metpass << endl;
@@ -1547,11 +1546,10 @@ int main (int argc, char** argv)
         cout << "Flag_HBHENoiseFilter   : " << (metbit & (1 << 1)) << endl;
         cout << "Flag_EcalDeadCellTriggerPrimitiveFilter: " << (metbit & (1 << 3)) << endl;
         cout << "Flag_globalSuperTightHalo2016Filter    : " << (metbit & (1 << 4)) << endl;
-        if(!isMC) cout << "Flag_eeBadScFilter: " << (metbit & (1 << 7)) << endl;
+        cout << "Flag_eeBadScFilter: " << (metbit & (1 << 6)) << endl;
         cout << "passbadMuonPFDz:" << (theBigTree.passbadMuonPFDz) << endl;
       }
-
-      if(isMC && metpass < 7) continue ;
+      if(isMC && metpass < 8) continue ;
       if(!isMC && metpass < 8) continue ;
 
       ec.Increment ("METfilter", EvtW);
@@ -1748,6 +1746,7 @@ int main (int argc, char** argv)
       // ----------------------------------------------------------
       // pair has been assessed , check trigger information
 
+
       // in TauTau channel make sure the first tau is the most isolated one
       int tmp_firstDaughterIndex  = theBigTree.indexDau1->at (chosenTauPair) ;
       int tmp_secondDaughterIndex = theBigTree.indexDau2->at (chosenTauPair) ;
@@ -1840,7 +1839,6 @@ int main (int argc, char** argv)
 
       //////////
       // -- Adding gen-matched info for the 2 taus neutrinos:
-
       TLorentzVector vGenNu1; // neutrino associated to tau1
       TLorentzVector vGenNu2; // neutrino associated to tau2
       TLorentzVector vGenNuNoMatch; // neutrino associated to tau2
@@ -1849,84 +1847,85 @@ int main (int argc, char** argv)
       TLorentzVector vGenTau2;
       int gentau1_idx = -1;
       int gentau2_idx = -1;
-      for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++) {
+      if(isMC) {
+          for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++) {
 
-	      // only looking at gen e/mu/tau and neutrinos
-	      int pdg = fabs(theBigTree.genpart_pdg->at(igen));
-	      bool isLepton = (pdg==11||pdg==13||pdg==15);
-	      bool isNeutrino =  (pdg==12||pdg==14||pdg==16);
-	      if(!isLepton && !isNeutrino) continue;
+	          // only looking at gen e/mu/tau and neutrinos
+	          int pdg = fabs(theBigTree.genpart_pdg->at(igen));
+	          bool isLepton = (pdg==11||pdg==13||pdg==15);
+	          bool isNeutrino =  (pdg==12||pdg==14||pdg==16);
+	          if(!isLepton && !isNeutrino) continue;
 
-	      int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
-	      // check particle is from tau decay
-	      if(mothIdx<0) continue;
+	          int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
+	          // check particle is from tau decay
+	          if(mothIdx<0) continue;
 
 
-	      bool mothIsHardScatt = false;
-	      if (mothIdx > -1)
-	      {
-	        bool mothIsLast =  CheckBit(theBigTree.genpart_flags->at(mothIdx), 13); // tru
-	        // NB: I need t ask that the mother is last idx, otherwise I get a nonphysics "tauh" by the tauh builder function from the tau->tau "decay" in pythia
-	        mothIsHardScatt = (mothIsLast && CheckBit (theBigTree.genpart_flags->at(mothIdx), 8)); // 0 = isPrompt(), 7: hardProcess , 8: fromHardProcess
-	      }
-	      if(pdg==15 && !mothIsHardScatt) continue;
-
-	      // check if gen tau matched reco tau
-	      TLorentzVector vGenTauVis;
-	      bool match1 = false;
-	      bool match2 = false;
-	      if(isLepton){
-	        // looking at all leptons in decay chain, but end up comparing the last one (e/mu/tau) or the mother for nu count
-	        // which one it is should not make much difference with DR<0.3
-	        vGenTauVis.SetPxPyPzE (theBigTree.genpart_px->at(igen),
-				  theBigTree.genpart_py->at(igen),
-				  theBigTree.genpart_pz->at(igen),
-				  theBigTree.genpart_e->at(igen));
-	        match1 = (vGenTauVis.DeltaR(tlv_firstLepton)<0.3);
-	        match2 = (vGenTauVis.DeltaR(tlv_secondLepton)<0.3);
-
-	        if(match1||match2){
-	          cout << "Found gen tau matching reco : gentauid=" << igen << " match1=" <<match1 << " | match2="<<match2 << endl;
-	        }
-
-	        if( match1 && !match2 ) {
-	          vGenTau1 = vGenTauVis;
-	          gentau1_idx = mothIdx;
-	        }
-	        if( !match1 &&  match2 ) {
-	          vGenTau2 = vGenTauVis;
-	          gentau2_idx = mothIdx;
-	        }
-	        if(  match1 &&  match2 ) { // unlikely I guess
-	          if (vGenTauVis.DeltaR(tlv_firstLepton)<vGenTauVis.DeltaR(tlv_secondLepton)){
-	            vGenTau1 = vGenTauVis;
-	            gentau1_idx = mothIdx;
-	          } else {
-	            vGenTau2 = vGenTauVis;
-	            gentau2_idx = mothIdx;
+	          bool mothIsHardScatt = false;
+	          if (mothIdx > -1)
+	          {
+	            bool mothIsLast =  CheckBit(theBigTree.genpart_flags->at(mothIdx), 13); // tru
+	            // NB: I need t ask that the mother is last idx, otherwise I get a nonphysics "tauh" by the tauh builder function from the tau->tau "decay" in pythia
+	            mothIsHardScatt = (mothIsLast && CheckBit (theBigTree.genpart_flags->at(mothIdx), 8)); // 0 = isPrompt(), 7: hardProcess , 8: fromHardProcess
 	          }
-	        }
-	      }
+	          if(pdg==15 && !mothIsHardScatt) continue;
 
-	      TLorentzVector vGenNuVis;
-	      if(isNeutrino){
-	        vGenNuVis.SetPxPyPzE (theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen));
+	          // check if gen tau matched reco tau
+	          TLorentzVector vGenTauVis;
+	          bool match1 = false;
+	          bool match2 = false;
+	          if(isLepton){
+	            // looking at all leptons in decay chain, but end up comparing the last one (e/mu/tau) or the mother for nu count
+	            // which one it is should not make much difference with DR<0.3
+	            vGenTauVis.SetPxPyPzE (theBigTree.genpart_px->at(igen),
+				                             theBigTree.genpart_py->at(igen),
+				                             theBigTree.genpart_pz->at(igen),
+				                             theBigTree.genpart_e->at(igen));
+	            match1 = (vGenTauVis.DeltaR(tlv_firstLepton)<0.3);
+	            match2 = (vGenTauVis.DeltaR(tlv_secondLepton)<0.3);
 
-	        cout << "Found gen neutrino : id=" << igen << " | tauMothID=" <<theBigTree.genpart_TauMothInd->at(igen) << endl;
+	            if(match1||match2){
+	              cout << "Found gen tau matching reco : gentauid=" << igen << " match1=" <<match1 << " | match2="<<match2 << endl;
+	            }
 
-	        if(theBigTree.genpart_TauMothInd->at(igen)==gentau1_idx) // neutrino comes from tau1
-	          vGenNu1+=vGenNuVis;
-	        else if(theBigTree.genpart_TauMothInd->at(igen)==gentau2_idx) // neutrino comes from tau2
-	          vGenNu2+=vGenNuVis;
-	        else // neutrino is unmatched
-	          vGenNuNoMatch+=vGenNuVis;
-	        }
-      } //end loop on gen part
+	            if( match1 && !match2 ) {
+	              vGenTau1 = vGenTauVis;
+	              gentau1_idx = mothIdx;
+	            }
+	            if( !match1 &&  match2 ) {
+	              vGenTau2 = vGenTauVis;
+	              gentau2_idx = mothIdx;
+	            }
+	            if(  match1 &&  match2 ) { // unlikely I guess
+	              if (vGenTauVis.DeltaR(tlv_firstLepton)<vGenTauVis.DeltaR(tlv_secondLepton)){
+	                vGenTau1 = vGenTauVis;
+	                gentau1_idx = mothIdx;
+	              } else {
+	                vGenTau2 = vGenTauVis;
+	                gentau2_idx = mothIdx;
+	              }
+	            }
+	          } // endif(isLepton)
 
-      cout << "vGenNu1.Pt() = "<<vGenNu1.Pt()<<endl;
-      cout << "vGenNu2.Pt() = "<<vGenNu2.Pt()<<endl;
-      cout << "vGenNuNoMatch.Pt() = "<<vGenNuNoMatch.Pt()<<endl;
+	          TLorentzVector vGenNuVis;
+	          if(isNeutrino){
+	            vGenNuVis.SetPxPyPzE (theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen));
 
+	            //cout << "Found gen neutrino : id=" << igen << " | tauMothID=" <<theBigTree.genpart_TauMothInd->at(igen) << endl;
+
+	            if(theBigTree.genpart_TauMothInd->at(igen)==gentau1_idx) // neutrino comes from tau1
+	              vGenNu1+=vGenNuVis;
+	            else if(theBigTree.genpart_TauMothInd->at(igen)==gentau2_idx) // neutrino comes from tau2
+	              vGenNu2+=vGenNuVis;
+	            else // neutrino is unmatched
+	            vGenNuNoMatch+=vGenNuVis;
+	          }
+          } //end loop on gen part
+
+        cout << "vGenNu1.Pt() = "<<vGenNu1.Pt()<<endl;
+        cout << "vGenNu2.Pt() = "<<vGenNu2.Pt()<<endl;
+        cout << "vGenNuNoMatch.Pt() = "<<vGenNuNoMatch.Pt()<<endl;
+      } // endif(isMC) (though could go further)
       // scale up: only applies to tau
       // TES up/down
       vector <double> unc_TES_first;
@@ -5958,8 +5957,6 @@ int main (int argc, char** argv)
                 }
             }
         }// if there's two jets in the event, at least
-
-//// PROBABLY LOST } BEFORE THAT POINT
 
       if (isMC) selectedEvents += theBigTree.aMCatNLOweight ;  //FIXME: probably wrong, but unused up to now
       else selectedEvents += 1 ;

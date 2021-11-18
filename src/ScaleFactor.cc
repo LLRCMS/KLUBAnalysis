@@ -78,7 +78,7 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
   TFile * fileIn = new TFile(inputRootFile, "read");
   // if root file not found
   if (fileIn->IsZombie() ) { std::cout << "ERROR in ScaleFactor::init_ScaleFactor(TString inputRootFile) from LepEffInterface/src/ScaleFactor.cc : File " <<inputRootFile << " does not exist. Please check. " <<std::endl; exit(1); };
-	std::cout << "isHistoFile="<<isHistoFile<<std::endl;
+
 	if(!isHistoFile){ // efficiency file contains TGraphAsymmErrors + eta map (HTT group format for legacy)
 
   	etaBinsH = (TH1D*)fileIn->Get("etaBinsH");
@@ -98,7 +98,6 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
   	}
 
 	} else { //efficiency maps in TH2F -> create eta map & TGraphAsymmErrors so that rest of the pipeline isn't disturbed
-		std::cout << "fetching 2D efficiency histograms" << std::endl;
 
 		// somewhat ugly as applying only to muon SFs
 		TString effname_data = "_efficiencyData";
@@ -106,8 +105,6 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
 
 		TH2F *heff_data = (TH2F*)fileIn->Get((TString)HistoBaseName+effname_data);
 		TH2F *heff_mc   = (TH2F*)fileIn->Get((TString)HistoBaseName+effname_MC);
-
-		std::cout << "getting number of eta bins" << std::endl;
 
 		// retrieve eta binning (ugly hack, but should work fine)
 		const int nbin_eta = heff_data->GetNbinsX();
@@ -134,7 +131,6 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
 				TetaLabel.ReplaceAll(".","p");
 			}
 			etaBinsH->GetXaxis()->SetBinLabel(iBin+1,TetaLabel);
-			std::cout << "Creating 1D histograms" << std::endl;
 
 			std::string etaLabel = (std::string)TetaLabel;
 			GraphName = TString(HistoBaseName)+"_"+etaLabel+"_Data";
@@ -157,7 +153,6 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
 			double mc_pt_errhigh[nbin_pt] = {0};
 			double mc_eff_errhigh[nbin_pt] = {0};
 
-			std::cout << "Filling 1D histograms" << std::endl;
 			for(int iptbin=0; iptbin<nbin_pt; iptbin++){
 				data_pt_nom[iptbin]      = hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
 				data_eff_nom[iptbin]     = hslice_data->GetBinContent(iptbin+1);
@@ -186,7 +181,6 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
 		}
 
 	}
-	std::cout << "Exiting" << std::endl;
 
   return;
 }
@@ -223,15 +217,11 @@ bool ScaleFactor::check_SameBinning(TGraphAsymmErrors* graph1, TGraphAsymmErrors
 
 
 std::string ScaleFactor::FindEtaLabel(double Eta, std::string Which){
-	std::cout << "in FindEtaLabel" << std::endl;
+
 	Eta = fabs(Eta);
-	std::cout << "Eta=" << Eta << std::endl;
-
 	int binNumber = etaBinsH->GetXaxis()->FindFixBin(Eta);
-	std::cout << "binNumber=" << binNumber << std::endl;
-
 	std::string EtaLabel = etaBinsH->GetXaxis()->GetBinLabel(binNumber);
-	std::cout << "EtaLabel=" << EtaLabel << std::endl;
+
 	std::map<std::string, TGraphAsymmErrors*>::iterator it;
 	if (Which == "data"){
 		it =  eff_data.find(EtaLabel);

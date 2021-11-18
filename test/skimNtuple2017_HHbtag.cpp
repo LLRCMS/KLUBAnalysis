@@ -1468,7 +1468,7 @@ int main (int argc, char** argv)
       metpass    += (metbit & (1 << 3)) ? 1 : 0; //"Flag_EcalDeadCellTriggerPrimitiveFilter"
       metpass    += (metbit & (1 << 4)) ? 1 : 0; //"Flag_globalSuperTightHalo2016Filter"
       metpass    += (metbit & (1 << 5)) ? 1 : 0; //"Flag_BadPFMuonFilter"
-      if(!isMC) metpass += (metbit & (1 << 7)) ? 1 : 0; // "Flag_eeBadScFilter" not suggested on twiki; EDIT: now suggested for data (Moriond2018)
+      metpass    += (metbit & (1 << 6)) ? 1 : 0; // "Flag_eeBadScFilter" now suggested for data AND MC (https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFiltersRun2#Analysis_Recommendations_for_ana)
       if (theBigTree.passbadMuonPFDz) metpass += 1; //passbadMuonPFDz for 2017 and 2018
       if(DEBUG)
       {
@@ -1486,7 +1486,7 @@ int main (int argc, char** argv)
         cout << "passbadMuonPFDz:" << (theBigTree.passbadMuonPFDz) << endl;
       }
 
-      if(isMC && metpass < 7) continue ;
+      if(isMC && metpass < 8) continue ;
       if(!isMC && metpass < 8) continue ;
 
       ec.Increment ("METfilter", EvtW);
