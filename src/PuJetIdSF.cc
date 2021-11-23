@@ -38,7 +38,7 @@ PuJetIdSF::PuJetIdSF (std::string directory, std::string year)
 
 
 // Destructor
-PuJetIdSF::~PuJetIdSF() 
+PuJetIdSF::~PuJetIdSF()
 {
   if (h_eff_) delete h_eff_;
   if (h_eff_SF_) delete h_eff_SF_;
@@ -70,7 +70,7 @@ float PuJetIdSF::getEff(bool isReal, float pt, float eta)
     h_eff_->GetBinXYZ (binglobal, binx, biny, binz); // converts to x, y bins
     int nx = h_eff_->GetNbinsX();
     int ny = h_eff_->GetNbinsY();
-    
+
     // under-overflows
     if (binx < 1) binx = 1;
     if (biny < 1) biny = 1;
@@ -86,7 +86,7 @@ float PuJetIdSF::getEff(bool isReal, float pt, float eta)
     h_mistag_->GetBinXYZ (binglobal, binx, biny, binz); // converts to x, y bins
     int nx = h_mistag_->GetNbinsX();
     int ny = h_mistag_->GetNbinsY();
-    
+
     // under-overflows
     if (binx < 1) binx = 1;
     if (biny < 1) biny = 1;
@@ -115,7 +115,7 @@ float PuJetIdSF::getSF(bool isReal, float pt, float eta)
     h_eff_SF_->GetBinXYZ (binglobal, binx, biny, binz); // converts to x, y bins
     int nx = h_eff_SF_->GetNbinsX();
     int ny = h_eff_SF_->GetNbinsY();
-    
+
     // under-overflows
     if (binx < 1) binx = 1;
     if (biny < 1) biny = 1;
@@ -131,7 +131,7 @@ float PuJetIdSF::getSF(bool isReal, float pt, float eta)
     h_mistag_SF_->GetBinXYZ (binglobal, binx, biny, binz); // converts to x, y bins
     int nx = h_mistag_SF_->GetNbinsX();
     int ny = h_mistag_SF_->GetNbinsY();
-    
+
     // under-overflows
     if (binx < 1) binx = 1;
     if (biny < 1) biny = 1;
@@ -258,7 +258,7 @@ std::vector<float> PuJetIdSF::getEvtWeight(bigTree &theBigTree, TLorentzVector t
     }
 
     // Pass PU jet ID Loose WP
-    bool passPUjetIDLoose = CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 2);
+    bool passPUjetIDLoose = CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), 2);
 
     if (DEBUG) std::cout << "   isRealJet: " << isRealJet << " passPUjetIDLoose: " << passPUjetIDLoose << std::endl;
 

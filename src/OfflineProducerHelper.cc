@@ -166,7 +166,7 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
     if (debug) cout << ".. checking baseline of pair " << iPair << " idx=(" << dau1index << "," << dau2index << ")" << endl;
         
     float dR = DeltaRDau(tree, dau1index, dau2index);
-    bool drMin = (dR > 0.5);
+    bool drMin = (dR > 0.4);
     if (!drMin && debug)
       cout << "failed dR min as dR=" << dR << endl;
 
@@ -834,7 +834,7 @@ int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply,
 
     float dR = DeltaRDau(tree, dau1index, dau2index);
     //bool drMin = (dR > 0.1);
-    bool drMin = (dR > 0.5);
+    bool drMin = (dR > 0.4);
 
     if (leg1 && leg2 && drMin)
     {
@@ -944,7 +944,7 @@ int OfflineProducerHelper::getBestPairPtAndRawIsoOrd (bigTree* tree, TString wha
 
     float dR = DeltaRDau(tree, dau1index, dau2index);
     //bool drMin = (dR > 0.1);
-    bool drMin = (dR > 0.5);
+    bool drMin = (dR > 0.4);
     
     if (leg1 && leg2 && drMin)
     {

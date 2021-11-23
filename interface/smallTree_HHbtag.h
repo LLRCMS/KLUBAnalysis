@@ -172,6 +172,11 @@ struct smallTree
       m_isVBF = 0 ;
       m_isVBFtrigger = 0;
       
+      m_isLeptrigger = 0;
+      m_isMETtrigger = 0;
+      m_isSingleTautrigger = 0;
+      m_isTauMETtrigger = 0;
+      
       m_genDecMode1 = -1;
       m_genDecMode2 = -1;
 
@@ -192,9 +197,22 @@ struct smallTree
       
       m_met_phi = -1. ;
       m_met_et = -1. ;
-
       m_METx = 0.  ;
       m_METy = 0.  ;
+
+      m_metnomu_phi   = -1.;
+      m_metnomu_et    = -1.;
+      m_METnoMux      = 0.;
+      m_METnoMuy      = 0.;
+      m_mht_phi   = -1.;
+      m_mht_et    = -1.;
+      m_MHTx      = 0.;
+      m_MHTy      = 0.;
+      m_mhtnomu_phi   = -1.;
+      m_mhtnomu_et    = -1.;
+      m_MHTnoMux      = 0.;
+      m_MHTnoMuy      = 0.;
+
       m_METx_jetup.clear()  ;
       m_METx_tauup.clear()  ;
       m_METx_eleup.clear()  ;
@@ -306,7 +324,40 @@ struct smallTree
       m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits= false;
       m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits= false;
       m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits= false;
+      
+      m_genNu1_pt = -1;
+      m_genNu1_eta = -1;
+      m_genNu1_phi = -1;
+      m_genNu1_e = -1;
+      m_genNu2_pt = -1;
+      m_genNu2_eta = -1;
+      m_genNu2_phi = -1;
+      m_genNu2_e = -1;
+      m_genNuNoMatch_pt = -1;
+      m_genNuNoMatch_eta = -1;
+      m_genNuNoMatch_phi = -1;
+      m_genNuNoMatch_e = -1;
+      m_genNuTot_pt = -1;
+      m_genNuTot_eta = -1;
+      m_genNuTot_phi = -1;
+      m_genNuTot_e = -1;
+      m_genNuTotWithNoMatch_pt = -1;
+      m_genNuTotWithNoMatch_eta = -1;
+      m_genNuTotWithNoMatch_phi = -1;
+      m_genNuTotWithNoMatch_e = -1;
+      m_recoGenTauH_pt   = -1;
+      m_recoGenTauH_eta  = -1;
+      m_recoGenTauH_phi  = -1;
+      m_recoGenTauH_e    = -1;
+      m_recoGenTauH_mass = -1;
+      m_recoGenWithNoMatchTauH_pt   = -1;
+      m_recoGenWithNoMatchTauH_eta  = -1;
+      m_recoGenWithNoMatchTauH_phi  = -1;
+      m_recoGenWithNoMatchTauH_e    = -1;
+      m_recoGenWithNoMatchTauH_mass = -1;
+
       m_dau2_pt  = -1. ;
+
       m_dau2_pt_tauup.clear() ;
       m_dau2_pt_taudown.clear() ;
       m_dau2_mass_tauup.clear() ;
@@ -1201,6 +1252,12 @@ struct smallTree
       m_smallT->Branch ("isVBF", &m_isVBF, "isVBF/I") ;
       m_smallT->Branch ("isVBFtrigger", &m_isVBFtrigger, "isVBFtrigger/I") ;
 
+      m_smallT->Branch ("isLeptrigger", &m_isLeptrigger, "isLeptrigger/I") ;
+      m_smallT->Branch ("isMETtrigger", &m_isMETtrigger, "isMETtrigger/I") ;
+      m_smallT->Branch ("isSingleTautrigger", &m_isSingleTautrigger, "isSingleTautrigger/I") ;
+      m_smallT->Branch ("isTauMETtrigger", &m_isTauMETtrigger, "isTauMETtrigger/I") ;
+
+
       m_smallT->Branch("genDecMode1", &m_genDecMode1, "genDecMode1/I");
       m_smallT->Branch("genDecMode2", &m_genDecMode2, "genDecMode2/I");
 
@@ -1224,6 +1281,20 @@ struct smallTree
       m_smallT->Branch ("met_et", &m_met_et, "met_et/F") ;
       m_smallT->Branch ("METx", &m_METx, "METx/F") ;
       m_smallT->Branch ("METy", &m_METy, "METy/F") ;
+
+      m_smallT->Branch ("metnomu_phi", &m_metnomu_phi,  "metnomu_phi/F");
+      m_smallT->Branch ("metnomu_et",  &m_metnomu_et,   "metnomu_et/F" );
+      m_smallT->Branch ("METnoMux",    &m_METnoMux,     "METnoMux/F"   );
+      m_smallT->Branch ("METnoMuy",    &m_METnoMuy,     "METnoMuy/F"   );
+      m_smallT->Branch ("mht_phi",     &m_mht_phi,      "mht_phi/F"    );
+      m_smallT->Branch ("mht_et",      &m_mht_et,       "mht_et/F"     );
+      m_smallT->Branch ("MHTx",        &m_MHTx,         "MHTx/F"       );
+      m_smallT->Branch ("MHTy",        &m_MHTy,         "MHTy/F"       );
+      m_smallT->Branch ("mhtnomu_phi", &m_mhtnomu_phi,  "mhtnomu_phi/F");
+      m_smallT->Branch ("mhtnomu_et",  &m_mhtnomu_et,   "mhtnomu_et/F" );
+      m_smallT->Branch ("MHTnoMux",    &m_MHTnoMux,     "MHTnoMux/F"   );
+      m_smallT->Branch ("MHTnoMuy",    &m_MHTnoMuy,     "MHTnoMuy/F"   );
+
 
       m_smallT->Branch ("METx_jetup",  &m_METx_jetup) ;
       m_smallT->Branch ("METx_tauup",  &m_METx_tauup) ; 
@@ -1335,6 +1406,38 @@ struct smallTree
       m_smallT->Branch ("dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits", &m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits, "dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits/O") ;
       m_smallT->Branch ("dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits", &m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits, "dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits/O") ;
       m_smallT->Branch ("dau2_byTightCombinedIsolationDeltaBetaCorr3Hits", &m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits, "dau2_byTightCombinedIsolationDeltaBetaCorr3Hits/O") ;
+
+      m_smallT->Branch("genNu1_pt", &m_genNu1_pt  , "genNu1_pt/F");
+      m_smallT->Branch("genNu1_eta", &m_genNu1_eta , "genNu1_eta/F");
+      m_smallT->Branch("genNu1_phi", &m_genNu1_phi , "genNu1_phi/F");
+      m_smallT->Branch("genNu1_e", &m_genNu1_e , "genNu1_e/F");
+      m_smallT->Branch("genNu2_pt", &m_genNu2_pt  , "genNu2_pt/F");
+      m_smallT->Branch("genNu2_eta", &m_genNu2_eta , "genNu2_eta/F");
+      m_smallT->Branch("genNu2_phi", &m_genNu2_phi , "genNu2_phi/F");
+      m_smallT->Branch("genNu2_e", &m_genNu2_e , "genNu2_e/F");
+      m_smallT->Branch("genNuNoMatch_pt", &m_genNuNoMatch_pt  , "genNuNoMatch_pt/F");
+      m_smallT->Branch("genNuNoMatch_eta", &m_genNuNoMatch_eta , "genNuNoMatch_eta/F");
+      m_smallT->Branch("genNuNoMatch_phi", &m_genNuNoMatch_phi , "genNuNoMatch_phi/F");
+      m_smallT->Branch("genNuNoMatch_e", &m_genNuNoMatch_e , "genNuNoMatch_e/F");
+      m_smallT->Branch("genNuTot_pt", &m_genNuTot_pt  , "genNuTot_pt/F");
+      m_smallT->Branch("genNuTot_eta", &m_genNuTot_eta , "genNuTot_eta/F");
+      m_smallT->Branch("genNuTot_phi", &m_genNuTot_phi , "genNuTot_phi/F");
+      m_smallT->Branch("genNuTot_e", &m_genNuTot_e , "genNuTot_e/F");
+      m_smallT->Branch("genNuTotWithNoMatch_pt", &m_genNuTotWithNoMatch_pt  , "genNuTotWithNoMatch_pt/F");
+      m_smallT->Branch("genNuTotWithNoMatch_eta", &m_genNuTotWithNoMatch_eta , "genNuTotWithNoMatch_eta/F");
+      m_smallT->Branch("genNuTotWithNoMatch_phi", &m_genNuTotWithNoMatch_phi , "genNuTotWithNoMatch_phi/F");
+      m_smallT->Branch("genNuTotWithNoMatch_e", &m_genNuTotWithNoMatch_e , "genNuTotWithNoMatch_e/F");
+      m_smallT->Branch("recoGenTauH_pt", &m_recoGenTauH_pt , "recoGenTauH_pt/F");
+      m_smallT->Branch("recoGenTauH_eta", &m_recoGenTauH_eta , "recoGenTauH_eta/F");
+      m_smallT->Branch("recoGenTauH_phi",&m_recoGenTauH_phi , "recoGenTauH_phi/F");
+      m_smallT->Branch("recoGenTauH_e", &m_recoGenTauH_e , "recoGenTauH_e/F");
+      m_smallT->Branch("recoGenTauH_mass", &m_recoGenTauH_mass , "recoGenTauH_mass/F");
+      m_smallT->Branch("recoGenWithNoMatchTauH_pt", &m_recoGenWithNoMatchTauH_pt , "recoGenWithNoMatchTauH_pt/F");
+      m_smallT->Branch("recoGenWithNoMatchTauH_eta", &m_recoGenWithNoMatchTauH_eta , "recoGenWithNoMatchTauH_eta/F");
+      m_smallT->Branch("recoGenWithNoMatchTauH_phi",&m_recoGenWithNoMatchTauH_phi , "recoGenWithNoMatchTauH_phi/F");
+      m_smallT->Branch("recoGenWithNoMatchTauH_e", &m_recoGenWithNoMatchTauH_e , "recoGenWithNoMatchTauH_e/F");
+      m_smallT->Branch("recoGenWithNoMatchTauH_mass", &m_recoGenWithNoMatchTauH_mass , "recoGenWithNoMatchTauH_mass/F");
+
       m_smallT->Branch ("dau2_pt", &m_dau2_pt, "dau2_pt/F") ;
       m_smallT->Branch ("dau2_pt_tauup",    &m_dau2_pt_tauup);
       m_smallT->Branch ("dau2_pt_taudown",  &m_dau2_pt_taudown);
@@ -2231,6 +2334,11 @@ struct smallTree
   Int_t m_isVBF;
   Int_t m_isVBFtrigger;
 
+  Int_t m_isLeptrigger;
+  Int_t m_isMETtrigger;
+  Int_t m_isSingleTautrigger;
+  Int_t m_isTauMETtrigger;
+
   Int_t m_genDecMode1 ;
   Int_t m_genDecMode2 ;
   Float_t m_genMHH ;
@@ -2258,6 +2366,20 @@ struct smallTree
   Float_t m_met_et ;
   Float_t m_METx ;
   Float_t m_METy ;
+
+  Float_t m_metnomu_phi;
+  Float_t m_metnomu_et;
+  Float_t m_METnoMux;
+  Float_t m_METnoMuy;
+  Float_t m_mht_phi;
+  Float_t m_mht_et;
+  Float_t m_MHTx;
+  Float_t m_MHTy;
+  Float_t m_mhtnomu_phi;
+  Float_t m_mhtnomu_et;
+  Float_t m_MHTnoMux;
+  Float_t m_MHTnoMuy;
+
   std::vector<Float_t> m_METx_jetup ; 
   std::vector<Float_t> m_METx_tauup ; 
   std::vector<Float_t> m_METx_eleup ; 
@@ -2368,6 +2490,39 @@ struct smallTree
   Bool_t m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits;
   Bool_t m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits;
   Bool_t m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits;  
+  
+  Float_t m_genNu1_pt;
+  Float_t m_genNu1_eta;
+  Float_t m_genNu1_phi;
+  Float_t m_genNu1_e;
+  Float_t m_genNu2_pt;
+  Float_t m_genNu2_eta;
+  Float_t m_genNu2_phi;
+  Float_t m_genNu2_e;
+  Float_t m_genNuNoMatch_pt;
+  Float_t m_genNuNoMatch_eta;
+  Float_t m_genNuNoMatch_phi;
+  Float_t m_genNuNoMatch_e;
+  Float_t m_genNuTot_pt;
+  Float_t m_genNuTot_eta;
+  Float_t m_genNuTot_phi;
+  Float_t m_genNuTot_e;
+  Float_t m_genNuTotWithNoMatch_pt;
+  Float_t m_genNuTotWithNoMatch_eta;
+  Float_t m_genNuTotWithNoMatch_phi;
+  Float_t m_genNuTotWithNoMatch_e;
+  Float_t m_recoGenTauH_pt;
+  Float_t m_recoGenTauH_eta;
+  Float_t m_recoGenTauH_phi;
+  Float_t m_recoGenTauH_e;
+  Float_t m_recoGenTauH_mass;
+  Float_t m_recoGenWithNoMatchTauH_pt;
+  Float_t m_recoGenWithNoMatchTauH_eta;
+  Float_t m_recoGenWithNoMatchTauH_phi;
+  Float_t m_recoGenWithNoMatchTauH_e;
+  Float_t m_recoGenWithNoMatchTauH_mass;
+
+
   Float_t m_dau2_pt ;
   std::vector <Float_t> m_dau2_pt_tauup ;
   std::vector <Float_t> m_dau2_pt_taudown ;
