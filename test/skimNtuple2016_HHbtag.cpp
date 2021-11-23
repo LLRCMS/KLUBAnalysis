@@ -1464,7 +1464,8 @@ int main (int argc, char** argv)
       metpass    += (metbit & (1 << 3)) ? 1 : 0; //"Flag_EcalDeadCellTriggerPrimitiveFilter"
       metpass    += (metbit & (1 << 4)) ? 1 : 0; //"Flag_globalSuperTightHalo2016Filter"
       metpass    += (metbit & (1 << 5)) ? 1 : 0; //"Flag_BadPFMuonFilter"
-      if(!isMC) metpass += (metbit & (1 << 7)) ? 1 : 0; // "Flag_eeBadScFilter" not suggested on twiki; EDIT: now suggested for data (Moriond2018)
+      if(!isMC) metpass += (metbit & (1 << 7)) ? 1 : 0; // "Flag_eeBadScFilter" not suggested on twiki; EDIT: now suggested for data, but still not for MC
+      if (theBigTree.passbadMuonPFDz) metpass += 1; //passbadMuonPFDz
 
       if(DEBUG)
       {
@@ -1479,10 +1480,11 @@ int main (int argc, char** argv)
         cout << "Flag_EcalDeadCellTriggerPrimitiveFilter: " << (metbit & (1 << 3)) << endl;
         cout << "Flag_globalSuperTightHalo2016Filter    : " << (metbit & (1 << 4)) << endl;
         if(!isMC) cout << "Flag_eeBadScFilter: " << (metbit & (1 << 7)) << endl;
+        cout << "passbadMuonPFDz:" << (theBigTree.passbadMuonPFDz) << endl;
       }
 
-      if(isMC && metpass < 6) continue ;
-      if(!isMC && metpass < 7) continue ;
+      if(isMC && metpass < 7) continue ;
+      if(!isMC && metpass < 8) continue ;
 
       ec.Increment ("METfilter", EvtW);
       if (isHHsignal) ecHHsig[genHHDecMode].Increment ("METfilter", EvtW);
@@ -2430,7 +2432,7 @@ int main (int argc, char** argv)
 
         if (mu1eta < 2.4)
         {
-          idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
+          idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(mu1pt, mu1eta);
         }
 
         idAndIsoSF_leg2_MVA_vsJet = MVA_antiJet_medium ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
@@ -2888,11 +2890,11 @@ int main (int argc, char** argv)
 
         if (mu1eta < 2.4)
         {
-          idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta);
+          idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(mu1pt, mu1eta);
         }
         if (mu2eta < 2.4)
         {
-          idAndIsoSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu2pt, mu2eta);
+          idAndIsoSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu2pt, mu2eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(mu2pt, mu2eta);
         }
 
         idAndIsoSF_MVA = idAndIsoSF_deep = idAndIsoAndFakeSF_MVA = idAndIsoAndFakeSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2;
