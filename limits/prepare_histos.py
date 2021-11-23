@@ -26,7 +26,7 @@ systNamesOUT = ["CMS_scale_t_DM0_"+opt.year,"CMS_scale_t_DM1_"+opt.year,"CMS_sca
                 "CMS_scale_t_eFake_"+opt.year+"_DM0", "CMS_scale_t_eFake_"+opt.year+"_DM1", "CMS_scale_t_muFake_"+opt.year,
                 "CMS_JES_FlavQCD", "CMS_JES_RelBal", "CMS_JES_HF", "CMS_JES_BBEC1", "CMS_JES_EC2", "CMS_JES_Abs", "CMS_JES_BBEC1_"+opt.year, "CMS_JES_EC2_"+opt.year,
                 "CMS_JES_Abs_"+opt.year, "CMS_JES_HF_"+opt.year, "CMS_JES_RelSample_"+opt.year,
-                "CMS_scale_j_13TeV_"+opt.year]
+                "CMS_JES_13TeV_"+opt.year]
 
 systNames = ['tesXXX_DM0', 'tesXXX_DM1', 'tesXXX_DM10', 'tesXXX_DM11', 'eesXXX_DM0', 'eesXXX_DM1', 'mesXXX',
              'jesXXX1', 'jesXXX2', 'jesXXX3', 'jesXXX4', 'jesXXX5', 'jesXXX6', 'jesXXX7', 'jesXXX8', 'jesXXX9', 'jesXXX10', 'jesXXX11',
@@ -78,10 +78,15 @@ for key in inFile.GetListOfKeys():
 	changedInt = False
 	integral = template.Integral()
 	for ibin in range(1,template.GetNbinsX()+1):
+
+		#continue # uncomment this line ONLY when producing datacards with 1000 bins histograms for bin optimization
+
+		if "data" in kname: continue
+
 		if template.GetBinContent(ibin) <= 0:
 			changedInt = True
-			template.SetBinContent(ibin,0.000001)
-			template.SetBinError(ibin,0.000001)
+			template.SetBinContent(ibin,0.000000001)
+			template.SetBinError(ibin,0.000000001)
 
 	if integral>0:
 		if changedInt and template.Integral()>0: template.Scale(integral/template.Integral())

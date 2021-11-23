@@ -61,6 +61,8 @@ parser.add_argument('--moreDYbin2', type=float, dest='moreDYbin2', help='increas
 parser.add_argument('--SBtoSR', type=float, dest='SBtoSR', help='specity manually the SBtoSR factor', default=None)
 parser.add_argument('--extBkg',  dest='extBkg', help='add a bkg from external file', default=None)
 parser.add_argument('--extFile', dest='extFile', help='add a bkg from external file', default=None)
+parser.add_argument('--doSymmetricQCD', type=bool, dest='doSymmetricQCD', help='symmetrize QCD templates', default=True)
+
 args = parser.parse_args()
 
 cfgName        = findInFolder  (args.dir+"/", 'mainCfg_*.cfg')
@@ -201,11 +203,11 @@ if cfg.hasSection('pp_QCD'):
     if args.SBtoSR: SBtoSRforQCD = args.SBtoSR
     omngr.makeQCD(
         SR            = cfg.readOption('pp_QCD::SR'),
-        yieldSB       = cfg.readOption('pp_QCD::yieldSB'),
-        shapeSB       = cfg.readOption('pp_QCD::shapeSB'),
+        yieldSB       = cfg.readOption('pp_QCD::yieldSB'), # C : OSinviso
+        shapeSB       = cfg.readOption('pp_QCD::shapeSB'), # C : OSinviso
         SBtoSRfactor  = SBtoSRforQCD,
-        regionC       = cfg.readOption('pp_QCD::regionC'),
-        regionD       = cfg.readOption('pp_QCD::regionD'),
+        regionC       = cfg.readOption('pp_QCD::regionC'), # B : SStight
+        regionD       = cfg.readOption('pp_QCD::regionD'), # D : SSinviso
         doFitIf       = cfg.readOption('pp_QCD::doFitIf'),
         fitFunc       = cfg.readOption('pp_QCD::fitFunc'),
         computeSBtoSR = computeSBtoSRdyn,
@@ -218,17 +220,19 @@ if cfg.hasSection('pp_QCD'):
         print "--- Computing Up/Down variation of QCD ---"
         omngr.makeQCD(
             SR            = cfg.readOption('pp_QCD::SR'),
-            yieldSB       = cfg.readOption('pp_QCD::regionC'), # SStight
-            shapeSB       = cfg.readOption('pp_QCD::regionC'), # SStight
+            yieldSB       = cfg.readOption('pp_QCD::regionC'), # B : SStight
+            shapeSB       = cfg.readOption('pp_QCD::regionC'), # B : SStight
             SBtoSRfactor  = SBtoSRforQCD,
-            regionC       = cfg.readOption('pp_QCD::yieldSB'), # OSinviso
-            regionD       = cfg.readOption('pp_QCD::regionD'), # SSinviso
+            regionC       = cfg.readOption('pp_QCD::yieldSB'), # C : OSinviso
+            regionD       = cfg.readOption('pp_QCD::regionD'), # D : SSinviso
             doFitIf       = cfg.readOption('pp_QCD::doFitIf'),
             fitFunc       = cfg.readOption('pp_QCD::fitFunc'),
             computeSBtoSR = computeSBtoSRdyn,
             doUpDown      = doUpDownQCD
             )
-
+    if doUpDownQCD and args.doSymmetricQCD:
+        print "--- Syimmetrizing templates of QCD ---"
+        omngr.symmetrizeQCD()
 
 # VBF HH Reweighting
 # reads from the config the 6 input samples and the target couplings
