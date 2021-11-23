@@ -387,10 +387,8 @@ int main (int argc, char** argv)
   vector<string> crossTrigEleTau = (isMC ? gConfigParser->readStringListOption ("triggersMC::crossEleTau") : gConfigParser->readStringListOption ("triggersData::crossEleTau")) ;
   vector<string> vbfTriggers     = (isMC ? gConfigParser->readStringListOption ("triggersMC::vbfTriggers") : gConfigParser->readStringListOption ("triggersData::vbfTriggers")) ;
 
-  ////LP: MET triggers test
+  //// NEW TRIGGERS
   vector<string> trigMET  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::METtriggers") : gConfigParser->readStringListOption ("triggersData::METtriggers")) ;
-
-  // LP: TO DO
   vector<string> trigTauMET  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::TauMETtriggers") : gConfigParser->readStringListOption ("triggersData::TauMETtriggers")); // TODO
   vector<string> trigSingleTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::SingleTau") : gConfigParser->readStringListOption ("triggersData::SingleTau")); // TODO
   //  vector<string> trigAK8  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::AK8triggers") : gConfigParser->readStringListOption ("triggersData::AK8triggers")) ;
@@ -435,7 +433,7 @@ int main (int argc, char** argv)
       for (unsigned int i = 0 ; i < vbfTriggers.size(); i++) cout << "  " << vbfTriggers.at(i);
       cout << endl;
 
-      ////LP: MET/AK8 triggers test
+      ////NEW TRIGGERS
       cout << "  @ METtriggers" << endl; cout << "   --> ";
       for (unsigned int i = 0 ; i < trigMET.size(); i++) cout << "  " << trigMET.at(i);
       cout << endl;
@@ -510,10 +508,8 @@ int main (int argc, char** argv)
   // add VBF triggers for jet matching
   trigReader.addVBFTrigs (vbfTriggers);
 
-  ////LP: MET/AK8 triggers test
+  ////NEW TRIGGERS
   trigReader.addMETTrigs (trigMET);
-
-  ////LP: TO DO
   trigReader.addTauMETTrigs (trigTauMET);
   trigReader.addSingleTauTrigs (trigSingleTau);
   //trigReader.addAK8Trigs (trigAK8);
@@ -1838,7 +1834,8 @@ int main (int argc, char** argv)
 
 
       //////////
-      // -- Adding gen-matched info for the 2 taus neutrinos:
+      // -- GEN NEUTRINO DEFINITION:
+      // -> Adding gen-matched info for the 2 taus neutrinos for tauTau ID training tests
       TLorentzVector vGenNu1; // neutrino associated to tau1
       TLorentzVector vGenNu2; // neutrino associated to tau2
       TLorentzVector vGenNuNoMatch; // neutrino associated to tau2
@@ -1921,11 +1918,10 @@ int main (int argc, char** argv)
 	            vGenNuNoMatch+=vGenNuVis;
 	          }
           } //end loop on gen part
+      } // endif(isMC)
+      // -- END GEN NEUTRINO DEFINITION
+      /////////////////////////////////
 
-        cout << "vGenNu1.Pt() = "<<vGenNu1.Pt()<<endl;
-        cout << "vGenNu2.Pt() = "<<vGenNu2.Pt()<<endl;
-        cout << "vGenNuNoMatch.Pt() = "<<vGenNuNoMatch.Pt()<<endl;
-      } // endif(isMC) (though could go further)
       // scale up: only applies to tau
       // TES up/down
       vector <double> unc_TES_first;
@@ -2087,9 +2083,9 @@ int main (int argc, char** argv)
       // DATA strategy
       int pass_triggerbit = 0;
       bool passTrg = false;
-      bool passMETTrg = false;
 
-      //
+      // NEW TRIGGERS
+      bool passMETTrg = false;
       bool passSingleTau = false;
       bool passTauMET = false;
 
@@ -2106,10 +2102,8 @@ int main (int argc, char** argv)
           passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
 	        if(pairType == ((int) OfflineProducerHelper::HadHad) ) cout << "tautau evnt => passTrg = " << passTrg << endl;
 
-	        // check MET trigger separately
+	        // check NEW TRIGGERS separately
 	        passMETTrg = trigReader.checkMET(triggerbit, &pass_triggerbit);
-
-	        // check singleTau trigger + tauh+met
 	        passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
 	        passTauMET = trigReader.checkTauMET(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
 
@@ -2230,6 +2224,8 @@ int main (int argc, char** argv)
           if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
 
 	  theSmallTree.m_isLeptrigger = passTrg;
+
+    // NEW TRIGGERS: fill trig info in output tree
 	  theSmallTree.m_isMETtrigger = passMETTrg;
 	  theSmallTree.m_isSingleTautrigger = passSingleTau;
 	  theSmallTree.m_isTauMETtrigger = passTauMET;
@@ -2531,7 +2527,8 @@ int main (int argc, char** argv)
       theSmallTree.m_dau1_byTightCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (firstDaughterIndex)  & (1 << ibit) ) ? true : false ;
       theSmallTree.m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (secondDaughterIndex) & (1 << ibit) ) ? true : false ;
 
-      // -- adding gen nu info
+      ///////////////////////////////////
+      // -- FILLING GEN NEUTRINO BRANCHES
       theSmallTree.m_genNu1_pt = vGenNu1.Pt();
       theSmallTree.m_genNu1_eta = vGenNu1.Eta();
       theSmallTree.m_genNu1_phi = vGenNu1.Phi();
@@ -2573,6 +2570,8 @@ int main (int argc, char** argv)
       theSmallTree.m_recoGenWithNoMatchTauH_phi  = vRecoGenWithNoMatchTauH.Phi();
       theSmallTree.m_recoGenWithNoMatchTauH_e    = vRecoGenWithNoMatchTauH.E();
       theSmallTree.m_recoGenWithNoMatchTauH_mass = vRecoGenWithNoMatchTauH.M();
+      // -- END FILLING GEN NEUTRINO BRANCHES
+      ///////////////////////////////////////
 
       theSmallTree.m_dau1_pt = tlv_firstLepton.Pt () ;
 
