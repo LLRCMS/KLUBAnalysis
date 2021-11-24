@@ -51,7 +51,7 @@ struct mysample
 
 void addTo (std::vector<float> & total, std::vector<float> & addition) ;
 
-struct counters 
+struct counters
 {
   std::vector<std::vector<float> > counters ; // [sample][selection]
   std::vector<float> initEfficiencies ; // [sample]
@@ -60,7 +60,7 @@ struct counters
     {
       std::vector<float> total (counters.at(0).size (), 0.) ;
       // loop on the samples
-      for (unsigned int i = 0 ; i < counters.size () ; ++i) 
+      for (unsigned int i = 0 ; i < counters.size () ; ++i)
         addTo (total, counters.at (i)) ;
       return total ;
     }
@@ -81,7 +81,7 @@ std::vector<std::pair <std::string, std::string> > readVarNamesFile (std::vector
 
 struct isNOTalnum : std::unary_function<int, int>
 {
-    int operator()(int i) const { return !std::isalnum (i) ; }
+  int operator()(int i) const { return !std::isalnum (i) ; }
 } ;
 
 

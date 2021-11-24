@@ -1,9 +1,9 @@
 #include "BDTKLUBinterface.h"
 
-// bjet2_pt:pt_b2, bH_pt:pt_hbb, dau1_pt:pt_l1, dau2_pt:pt_l2, tauH_SVFIT_pt:pt_htautau_sv, 
-// BDT_HT20:HT_otherjets, p_zeta:p_zeta, p_zeta_visible:p_zetavisible, BDT_ditau_deltaPhi:dphi_l1l2, 
-// BDT_tauHsvfitMet_deltaPhi:dphi_METhtautau_sv, mT_tauH_MET:MT_htautau, mT_total:MT_tot, MT2:MT2, 
-// BDT_MX:mass_X, BDT_bH_tauH_MET_InvMass:mass_H, BDT_bH_tauH_SVFIT_InvMass:mass_H_sv, BDT_bH_tauH_InvMass:mass_H_vis, 
+// bjet2_pt:pt_b2, bH_pt:pt_hbb, dau1_pt:pt_l1, dau2_pt:pt_l2, tauH_SVFIT_pt:pt_htautau_sv,
+// BDT_HT20:HT_otherjets, p_zeta:p_zeta, p_zeta_visible:p_zetavisible, BDT_ditau_deltaPhi:dphi_l1l2,
+// BDT_tauHsvfitMet_deltaPhi:dphi_METhtautau_sv, mT_tauH_MET:MT_htautau, mT_total:MT_tot, MT2:MT2,
+// BDT_MX:mass_X, BDT_bH_tauH_MET_InvMass:mass_H, BDT_bH_tauH_SVFIT_InvMass:mass_H_sv, BDT_bH_tauH_InvMass:mass_H_vis,
 // HHKin_mass_raw:mass_H_kinfit, HHKin_mass_raw_chi2:mass_H_kinfit_chi2, BDT_MET_bH_cosTheta:costheta_METhbb
 // channel, kl
 
@@ -57,10 +57,10 @@ BDTKLUBinterface::~BDTKLUBinterface() {}
 
 // SetInputValues: set all input values
 void BDTKLUBinterface::SetInputValues(float bjet2_pt, float bH_pt, float dau1_pt, float dau2_pt, float tauH_SVFIT_pt, float BDT_channel,
-    float BDT_HT20, float p_zeta, float p_zeta_visible, float BDT_ditau_deltaPhi,
-    float BDT_tauHsvfitMet_deltaPhi, float mT_tauH_MET, float mT_total, float MT2,
-    float BDT_MX, float BDT_bH_tauH_MET_InvMass, float BDT_bH_tauH_SVFIT_InvMass,
-    float BDT_bH_tauH_InvMass, float HHKin_mass_raw, float HHKin_mass_raw_chi2, float BDT_MET_bH_cosTheta)
+				      float BDT_HT20, float p_zeta, float p_zeta_visible, float BDT_ditau_deltaPhi,
+				      float BDT_tauHsvfitMet_deltaPhi, float mT_tauH_MET, float mT_total, float MT2,
+				      float BDT_MX, float BDT_bH_tauH_MET_InvMass, float BDT_bH_tauH_SVFIT_InvMass,
+				      float BDT_bH_tauH_InvMass, float HHKin_mass_raw, float HHKin_mass_raw_chi2, float BDT_MET_bH_cosTheta)
 {
   bjet2_pt_ = bjet2_pt;
   bH_pt_ = bH_pt;

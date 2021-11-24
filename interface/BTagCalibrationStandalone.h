@@ -58,7 +58,7 @@ public:
       float pt_max=99999.,
       float discr_min=0.,
       float discr_max=99999.
-    );
+      );
 
   };
 
@@ -185,5 +185,3 @@ protected:
 
 
 #endif  // BTagCalibrationReader_H
-
-

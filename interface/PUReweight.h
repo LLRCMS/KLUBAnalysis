@@ -13,7 +13,7 @@ public:
 
   ~PUReweight();
 
-  /// Get weights for a sample of MC 
+  /// Get weights for a sample of MC
   /// to reproduce conditions of target
   float weight(int MC, int target, int input, TString filename);
 
@@ -51,9 +51,9 @@ public:
 
   // 2011 Samples
   std::vector<float> hT2011 ;
-  
+
   // 2012 Samples
   std::vector<float> hT2012 ;
-  
+
 };
 #endif

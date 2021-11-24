@@ -46,23 +46,23 @@ struct QCDevalTools
 void getQCD (QCDevalTools & QCDET, vector<string> variablesList)
 {
   for (unsigned int ivar = 0 ; ivar < variablesList.size () ; ++ivar)
+  {
+    for (unsigned int icut = 0 ; icut < QCDET.m_selections.size () ; ++icut)
     {
-      for (unsigned int icut = 0 ; icut < QCDET.m_selections.size () ; ++icut)
-        {
-          THStack * D_stack = QCDET.m_DATA_plots.makeStack (variablesList.at (ivar),
-                                  QCDET.m_selections.at (icut).first.Data ()) ;
-          TH1F * tempo = (TH1F *) D_stack->GetStack ()->Last () ;
-          TString name = tempo->GetName () ;
-          name = TString ("DDQCD_") + name ;
-          TH1F * dummy = (TH1F *) tempo->Clone (name) ;
+      THStack * D_stack = QCDET.m_DATA_plots.makeStack (variablesList.at (ivar),
+							QCDET.m_selections.at (icut).first.Data ()) ;
+      TH1F * tempo = (TH1F *) D_stack->GetStack ()->Last () ;
+      TString name = tempo->GetName () ;
+      name = TString ("DDQCD_") + name ;
+      TH1F * dummy = (TH1F *) tempo->Clone (name) ;
 
-          THStack * b_stack = QCDET.m_bkg_plots.makeStack (variablesList.at (ivar),
-                                  QCDET.m_selections.at (icut).first.Data ()) ;
-          TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
-          dummy->Add (h_bkg, -1) ;
-          QCDET.m_QCD_plots.m_histos[variablesList.at (ivar)][QCDET.m_selections.at (icut).first.Data ()]["QCD"] = dummy ;
-        }
+      THStack * b_stack = QCDET.m_bkg_plots.makeStack (variablesList.at (ivar),
+						       QCDET.m_selections.at (icut).first.Data ()) ;
+      TH1F * h_bkg = (TH1F *) b_stack->GetStack ()->Last () ;
+      dummy->Add (h_bkg, -1) ;
+      QCDET.m_QCD_plots.m_histos[variablesList.at (ivar)][QCDET.m_selections.at (icut).first.Data ()]["QCD"] = dummy ;
     }
+  }
   return ;
 }
 
@@ -74,10 +74,10 @@ int main (int argc, char** argv)
 {
   // check number of inpt parameters
   if (argc < 2)
-    {
-      cerr << "Forgot to put the cfg file --> exit " << endl ;
-      return 1 ;
-    }
+  {
+    cerr << "Forgot to put the cfg file --> exit " << endl ;
+    return 1 ;
+  }
 
 
   unique_ptr<CfgParser> lConfigParser (new CfgParser(argv[1]));
@@ -91,19 +91,19 @@ int main (int argc, char** argv)
   cout<<sampleCfgFileName<<endl;
 
   if (! (lConfigParser->init (sampleCfgFileName.c_str())))
-    {
-      cout << ">>> parseConfigFile::Could not open configuration file " << sampleCfgFileName << endl ;
-      return -1 ;
-    }
+  {
+    cout << ">>> parseConfigFile::Could not open configuration file " << sampleCfgFileName << endl ;
+    return -1 ;
+  }
   bool split = false;
   int idx = 0;
   int njobs = 1;
   if (argc >= 4)
-    {
-      split = true;
-      idx = atoi(argv[2]);
-      njobs = atoi(argv[3]);
-    }
+  {
+    split = true;
+    idx = atoi(argv[2]);
+    njobs = atoi(argv[3]);
+  }
 
   AnalysisHelper ah(argv[1]);
 
@@ -112,20 +112,20 @@ int main (int argc, char** argv)
   ah.readVariables();
   try {ah.readSamples();}
   catch (std::exception &ex)
-    {
-      cerr << "*** Error in reading samples because: " << ex.what() << endl;
-      return 1;
-    }
-  
-    
+  {
+    cerr << "*** Error in reading samples because: " << ex.what() << endl;
+    return 1;
+  }
 
-    
-      ah.prepareHistos();
-      ah.dump(2); // can set a level of detail
-      ah.fillHistos();
-      ah.mergeSamples(); // do it just at the end
-      ah.saveOutputsToFile();
-  
 
-  
-}  
+
+
+  ah.prepareHistos();
+  ah.dump(2); // can set a level of detail
+  ah.fillHistos();
+  ah.mergeSamples(); // do it just at the end
+  ah.saveOutputsToFile();
+
+
+
+}

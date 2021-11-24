@@ -109,7 +109,7 @@ double SmearedJetProducer::getSmearFactor(TLorentzVector jet, bigTree & theBigTr
   double jet_resolution = resolution_from_file_->getResolution({{JME::Binning::JetPt, jet.Pt()}, {JME::Binning::JetEta, jet.Eta()}, {JME::Binning::Rho, theBigTree.rho}});
   double jer_sf = scale_factor_from_file_->getScaleFactor({{JME::Binning::JetPt, jet.Pt()}, {JME::Binning::JetEta, jet.Eta()}}, systematic_variation_);
 
-  if (DEBUG) 
+  if (DEBUG)
   {
     std::cout << "- SmearedJetProducer - " << std::endl;
     std::cout << " jet: "; jet.Print();
@@ -124,13 +124,13 @@ double SmearedJetProducer::getSmearFactor(TLorentzVector jet, bigTree & theBigTr
   if (genJet.E() > 0)
   {
     // Case 1: we have a "good" gen jet matched to the reco jet
-    if (DEBUG) 
+    if (DEBUG)
     {
       std::cout << " gen jet:  pt: " << genJet.Pt() << "  eta: " << genJet.Eta() << "  phi: " << genJet.Phi() << "  e: " << genJet.E() << std::endl;
     }
     double dPt = jet.Pt() - genJet.Pt();
     smearFactor = 1 + (jer_sf - 1.) * dPt / jet.Pt();
-  } 
+  }
   else if (jer_sf > 1)
   {
     // Case 2: we don't have a gen jet. Smear jet pt using a random gaussian variation

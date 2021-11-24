@@ -2,7 +2,7 @@
 
 // Constructor
 HHbtagKLUBinterface::HHbtagKLUBinterface (std::array<std::string, 2> models, int year)
- : HHbtagger_(models)
+  : HHbtagger_(models)
 {
   // Set the year just once
   HHbtag_year_ = year;
@@ -15,7 +15,7 @@ HHbtagKLUBinterface::~HHbtagKLUBinterface() {}
 
 // SetEventInputs: set inputs that change for every event
 void HHbtagKLUBinterface::SetInputValues(bigTree &theBigTree, std::vector<std::pair<float,int>> jets_and_sortPar, int channel,
-  TLorentzVector tlv_tau1, TLorentzVector tlv_tau2, TLorentzVector tlv_tauH, TLorentzVector tlv_MET, unsigned long long event, std::map<int,double> jets_and_smearFactor)
+					 TLorentzVector tlv_tau1, TLorentzVector tlv_tau2, TLorentzVector tlv_tauH, TLorentzVector tlv_MET, unsigned long long event, std::map<int,double> jets_and_smearFactor)
 {
   // Clear the vectors
   HHbtag_jet_pt_.clear();
@@ -73,9 +73,9 @@ std::map<int,float> HHbtagKLUBinterface::GetScore()
 {
   // Get HHbtag score
   auto HHbtag_scores = HHbtagger_.HH_BTag::GetScore(HHbtag_jet_pt_, HHbtag_jet_eta_, HHbtag_rel_jet_M_pt_,
-      HHbtag_rel_jet_E_pt_, HHbtag_jet_htt_deta_, HHbtag_jet_deepFlavour_, HHbtag_jet_htt_dphi_,
-      HHbtag_year_, HHbtag_channel_, HHbtag_tauH_pt_, HHbtag_tauH_eta_, HHbtag_htt_met_dphi_,
-      HHbtag_rel_met_pt_htt_pt_, HHbtag_htt_scalar_pt_, HHbtag_evt_);
+						    HHbtag_rel_jet_E_pt_, HHbtag_jet_htt_deta_, HHbtag_jet_deepFlavour_, HHbtag_jet_htt_dphi_,
+						    HHbtag_year_, HHbtag_channel_, HHbtag_tauH_pt_, HHbtag_tauH_eta_, HHbtag_htt_met_dphi_,
+						    HHbtag_rel_met_pt_htt_pt_, HHbtag_htt_scalar_pt_, HHbtag_evt_);
 
   // Store HHbtag scores in a map<jet_idx,HHbtag_score>
   std::map<int,float> jets_and_HHbtag;

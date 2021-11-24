@@ -1,7 +1,7 @@
 // H4configfileline-.h
 //
 // A class representing a (continued) line in the configuration
-// file, that is a pair of an option name and a (list of) value(s) 
+// file, that is a pair of an option name and a (list of) value(s)
 //
 // last change : $Date: 2013/02/05 11:22:36 $
 // by          : $Author: rgerosa $
@@ -16,7 +16,7 @@
 //using namespace std;
 
 class ConfigFileLine {
- public:
+public:
 
   //! Constructor with name of the option and a single option value (no list!)
   ConfigFileLine(const std::string &option, const std::string &value="");
@@ -58,14 +58,14 @@ class ConfigFileLine {
 
   //! Sets the scope by prepending "scope":: to the option name
   void setScope(const std::string &scope);
-  
+
   //! Print the contents of the rule to stdout
   void print() const;
 
   //! stream operator
   friend std::ostream & operator<< (std::ostream & out, const ConfigFileLine & line) ;
 
- private:
+private:
 
   std::string option;                //!< The name of the option
   std::list<std::string> values;     //!< The list of option values

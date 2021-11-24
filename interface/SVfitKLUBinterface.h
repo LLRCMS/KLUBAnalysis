@@ -36,19 +36,19 @@ using namespace classic_svFit;
 // SVfitKLUBinterface class
 class SVfitKLUBinterface {
 
-  public:
-    SVfitKLUBinterface (int verbosity, TLorentzVector tau1, TLorentzVector tau2, TLorentzVector met, TMatrixD met_cov, int pairType, int DM1, int DM2);
-    ~SVfitKLUBinterface ();
+public:
+  SVfitKLUBinterface (int verbosity, TLorentzVector tau1, TLorentzVector tau2, TLorentzVector met, TMatrixD met_cov, int pairType, int DM1, int DM2);
+  ~SVfitKLUBinterface ();
 
-    std::vector<double> FitAndGetResult();
+  std::vector<double> FitAndGetResult();
 
-  private:
-    int verbosity_;
-    std::vector<classic_svFit::MeasuredTauLepton> measuredTauLeptons_;
-    double METx_;
-    double METy_;
-    TMatrixD covMET_;
-    double kappa_;
+private:
+  int verbosity_;
+  std::vector<classic_svFit::MeasuredTauLepton> measuredTauLeptons_;
+  double METx_;
+  double METy_;
+  TMatrixD covMET_;
+  double kappa_;
 
 };
 

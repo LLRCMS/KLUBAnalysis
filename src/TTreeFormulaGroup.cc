@@ -9,42 +9,41 @@
 #include <TIterator.h>
 
 TTreeFormulaGroup::TTreeFormulaGroup(bool setOwner) {
-   tlist = new TList();
-   tlist->SetOwner(setOwner);
+  tlist = new TList();
+  tlist->SetOwner(setOwner);
 }
 
 bool TTreeFormulaGroup::Notify(void) {
 
-   bool success=true;
+  bool success=true;
 
-   TIter ti =TIter(tlist);
-   TObject * temp;
+  TIter ti =TIter(tlist);
+  TObject * temp;
 
-   while((temp=ti.Next())) {
-      ((TTreeFormula *)temp)->UpdateFormulaLeaves();
-      success=temp->Notify()&&success;
-   }
+  while((temp=ti.Next())) {
+    ((TTreeFormula *)temp)->UpdateFormulaLeaves();
+    success=temp->Notify()&&success;
+  }
 
-   return success;
+  return success;
 }
 
 bool TTreeFormulaGroup::SetNotify(TTreeFormula * ttf) {
 
-   Int_t n = tlist->GetEntries();
-   tlist->Add(ttf);
+  Int_t n = tlist->GetEntries();
+  tlist->Add(ttf);
 
-   return (tlist->GetEntries()==n+1);
+  return (tlist->GetEntries()==n+1);
 }
 
 bool TTreeFormulaGroup::UnsetNotify(TTreeFormula *ttf) {
 
-   Int_t n = tlist->GetEntries();
-   while(tlist->Remove(ttf));//Removes all copies of ttf
+  Int_t n = tlist->GetEntries();
+  while(tlist->Remove(ttf));//Removes all copies of ttf
 
-   return (tlist->GetEntries()<n);
+  return (tlist->GetEntries()<n);
 }
 
 TTreeFormulaGroup::~TTreeFormulaGroup() {
-   delete tlist;
+  delete tlist;
 }
-

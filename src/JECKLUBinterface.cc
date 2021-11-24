@@ -10,11 +10,11 @@ JECKLUBinterface::JECKLUBinterface (std::string year, std::string version)
   if (year == "2016")
   {
     TXTfile = "weights/JECregrouped/Regrouped_Summer16_07Aug2017_V11_MC_UncertaintySources_AK4PFchs.txt";
-    m_jec_sources_regrouped_ = 
-    {
-      "FlavorQCD", "RelativeBal", "HF", "BBEC1", "EC2", "Absolute", "BBEC1_2016", 
-      "EC2_2016", "Absolute_2016", "HF_2016", "RelativeSample_2016" //, "Total"
-    };
+    m_jec_sources_regrouped_ =
+      {
+	"FlavorQCD", "RelativeBal", "HF", "BBEC1", "EC2", "Absolute", "BBEC1_2016",
+	"EC2_2016", "Absolute_2016", "HF_2016", "RelativeSample_2016" //, "Total"
+      };
   }
   else if (year == "2017")
   {
@@ -49,7 +49,7 @@ JECKLUBinterface::JECKLUBinterface (std::string year, std::string version)
     jecSourceUncRegroupedProviders_.emplace(sourceName, std::move(source_uncertainty_reduced));
   }
 
-  if (DEBUG) 
+  if (DEBUG)
   {
     std::cout << "   JEC SourceNames:";
     for (auto sourceName : m_jec_sources_regrouped_) std::cout << " " << sourceName;
@@ -71,7 +71,7 @@ std::pair<std::vector<double>,std::vector<double>> JECKLUBinterface::getJECUncVe
     theBigTree.jets_py->at(idx),
     theBigTree.jets_pz->at(idx),
     theBigTree.jets_e->at(idx)
-  );
+    );
 
   // Loop on names (preserves the order) and compute value of uncertainty for each source
   for (auto sourceName : m_jec_sources_regrouped_)
@@ -124,7 +124,7 @@ TLorentzVector JECKLUBinterface::getJECUncJet(int idx, TLorentzVector nominalJet
     nominalJet.Eta(),
     nominalJet.Phi(),
     (1.+(shift*unc)) * nominalJet.E()
-  );
+    );
 
   if (DEBUG)
   {
@@ -136,5 +136,3 @@ TLorentzVector JECKLUBinterface::getJECUncJet(int idx, TLorentzVector nominalJet
   // Return the shifted jet
   return shiftedJet;
 }
-
-

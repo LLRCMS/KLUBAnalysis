@@ -28,31 +28,31 @@
 
 class TauIDSFTool {
 
-  protected:
+protected:
 
-    std::map<const std::string,const TF1*> func;
-    TH1* hist;
-    [[noreturn]] void disabled() const;
+  std::map<const std::string,const TF1*> func;
+  TH1* hist;
+  [[noreturn]] void disabled() const;
 
-  public:
+public:
 
-    std::string ID;
-    std::string WP;
-    std::vector<int> DMs;
-    std::vector<int> genmatches;
-    bool isVsPT  = false;
-    bool isVsDM  = false;
-    bool isVsEta = false;
+  std::string ID;
+  std::string WP;
+  std::vector<int> DMs;
+  std::vector<int> genmatches;
+  bool isVsPT  = false;
+  bool isVsDM  = false;
+  bool isVsEta = false;
 
-    TauIDSFTool(const std::string& year, const std::string& id="MVAoldDM2017v2", const std::string& wp="Tight",
-                const bool dm=false, const bool embedding=false);
-    ~TauIDSFTool() { }
+  TauIDSFTool(const std::string& year, const std::string& id="MVAoldDM2017v2", const std::string& wp="Tight",
+	      const bool dm=false, const bool embedding=false);
+  ~TauIDSFTool() { }
 
-    float getSFvsPT( double pt,          int genmatch, const std::string& unc="");
-    float getSFvsPT( double pt,                        const std::string& unc="");
-    float getSFvsDM( double pt,  int dm, int genmatch, const std::string& unc="") const;
-    float getSFvsDM( double pt,  int dm,               const std::string& unc="") const;
-    float getSFvsEta(double eta,         int genmatch, const std::string& unc="") const;
+  float getSFvsPT( double pt,          int genmatch, const std::string& unc="");
+  float getSFvsPT( double pt,                        const std::string& unc="");
+  float getSFvsDM( double pt,  int dm, int genmatch, const std::string& unc="") const;
+  float getSFvsDM( double pt,  int dm,               const std::string& unc="") const;
+  float getSFvsEta(double eta,         int genmatch, const std::string& unc="") const;
 
 };
 

@@ -20,11 +20,11 @@ using namespace std ;
 // ------------------------------------------------
 // Returns pair<key,value> for highest value in map
 template<typename KeyType, typename ValueType>
-std::pair<KeyType,ValueType> get_max_map( const std::map<KeyType,ValueType>& x ) {
+  std::pair<KeyType,ValueType> get_max_map( const std::map<KeyType,ValueType>& x ) {
   using pairtype=std::pair<KeyType,ValueType>;
   return *std::max_element(x.begin(), x.end(), [] (const pairtype & p1, const pairtype & p2) {
-        return p1.second < p2.second;
-  });
+      return p1.second < p2.second;
+    });
 }
 
 
@@ -45,14 +45,14 @@ void appendFromFileList (TChain* chain, TString filename)
   std::ifstream infile(filename.Data());
   std::string line;
   while (std::getline(infile, line))
-    {
-      line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
-      while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
-      while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
-      while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
-      if (!line.empty()) // skip empty lines
-	chain->Add(line.c_str());
-    }
+  {
+    line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
+    while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
+    while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
+    while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
+    if (!line.empty()) // skip empty lines
+      chain->Add(line.c_str());
+  }
   return;
 }
 
@@ -65,14 +65,14 @@ TH1F* getFirstFileHisto (TString filename, bool isForTriggers=true)
   std::ifstream infile(filename.Data());
   std::string line;
   while (std::getline(infile, line))
-    {
-      line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
-      while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
-      while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
-      while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
-      if (!line.empty()) // skip empty lines
-        break;
-    }
+  {
+    line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
+    while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
+    while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
+    while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
+    if (!line.empty()) // skip empty lines
+      break;
+  }
 
   TFile* fIn = TFile::Open (line.c_str());
   TH1F* dummy = (TH1F*) fIn->Get ("HTauTauTree/Counters");
@@ -128,12 +128,12 @@ int makeIsoDiscr (unsigned int iDau, vector<int>& nameToIdxMap, bigTree & theBig
   int isoInt = 0;
   Long64_t tauID = theBigTree.tauID->at(iDau);
   while (isoInt < (int) nameToIdxMap.size())
-    {
-      int bit = nameToIdxMap.at(isoInt) ;
-      bool pass = (((tauID >> bit) & 1 ) > 0);
-      if (!pass) break; // will freeze isoInt to the previous value
-      isoInt += 1;
-    }
+  {
+    int bit = nameToIdxMap.at(isoInt) ;
+    bool pass = (((tauID >> bit) & 1 ) > 0);
+    if (!pass) break; // will freeze isoInt to the previous value
+    isoInt += 1;
+  }
   return isoInt;
 }
 
@@ -142,14 +142,14 @@ int getTauIDIdx (TH1F* h_tauID, string tauIDName)
 {
   int ibin = -1;
   for (int i = 1; i <= h_tauID->GetNbinsX(); ++i)
+  {
+    string binlabel = h_tauID->GetXaxis()->GetBinLabel(i);
+    if (tauIDName == binlabel)
     {
-      string binlabel = h_tauID->GetXaxis()->GetBinLabel(i);
-      if (tauIDName == binlabel)
-      {
-        ibin = i;
-        break;
-      }
+      ibin = i;
+      break;
     }
+  }
   return ibin-1;
 }
 
@@ -213,21 +213,21 @@ bool checkVBFjetMatch(bool DEBUG, int iJet, int kJet, bigTree & theBigTree)
 
 float getCvsL (bigTree &theBigTree, int idx)
 {
-    float prob_c   = theBigTree.bDeepFlavor_probc->at(idx);
-    float prob_uds = theBigTree.bDeepFlavor_probuds->at(idx);
-    float prob_g   = theBigTree.bDeepFlavor_probg->at(idx);
+  float prob_c   = theBigTree.bDeepFlavor_probc->at(idx);
+  float prob_uds = theBigTree.bDeepFlavor_probuds->at(idx);
+  float prob_g   = theBigTree.bDeepFlavor_probg->at(idx);
 
-    return prob_c / (prob_c + prob_uds + prob_g);
+  return prob_c / (prob_c + prob_uds + prob_g);
 }
 
 float getCvsB (bigTree &theBigTree, int idx)
 {
-    float prob_c    = theBigTree.bDeepFlavor_probc   ->at(idx);
-    float prob_b    = theBigTree.bDeepFlavor_probb   ->at(idx);
-    float prob_bb   = theBigTree.bDeepFlavor_probbb  ->at(idx);
-    float prob_lepb = theBigTree.bDeepFlavor_problepb->at(idx);
+  float prob_c    = theBigTree.bDeepFlavor_probc   ->at(idx);
+  float prob_b    = theBigTree.bDeepFlavor_probb   ->at(idx);
+  float prob_bb   = theBigTree.bDeepFlavor_probbb  ->at(idx);
+  float prob_lepb = theBigTree.bDeepFlavor_problepb->at(idx);
 
-    return prob_c / (prob_c + prob_b + prob_bb + prob_lepb);
+  return prob_c / (prob_c + prob_b + prob_bb + prob_lepb);
 }
 
 
@@ -288,10 +288,10 @@ vector<int> findSubjetIdxs (unsigned int iFatJet, bigTree & theBigTree)
   vector<int> indexes;
   int idxFatJet = (int) iFatJet;
   for (unsigned int isj = 0; isj < theBigTree.subjets_ak8MotherIdx->size(); isj++)
-    {
-      if (theBigTree.subjets_ak8MotherIdx->at(isj) == idxFatJet)
-	indexes.push_back(isj);
-    }
+  {
+    if (theBigTree.subjets_ak8MotherIdx->at(isj) == idxFatJet)
+      indexes.push_back(isj);
+  }
   return indexes;
 }
 
@@ -362,7 +362,7 @@ TLorentzVector getShiftedDau(TLorentzVector tlv_nominal, double shift, double un
 
 // -----------------------------------------
 // get shifted jet (I could just use the function above, I separe the jet case just to make the functions easier to read)
- TLorentzVector getShiftedJet(TLorentzVector tlv_nominal, double shift, double unc)
+TLorentzVector getShiftedJet(TLorentzVector tlv_nominal, double shift, double unc)
 {
   TLorentzVector tlv_shifted;
   tlv_shifted.SetPtEtaPhiE(
@@ -370,7 +370,7 @@ TLorentzVector getShiftedDau(TLorentzVector tlv_nominal, double shift, double un
     tlv_nominal.Eta(),
     tlv_nominal.Phi(),
     (1.+(shift*unc)) * tlv_nominal.E()
-  );
+    );
   return tlv_shifted;
 }
 
@@ -406,28 +406,28 @@ pair <vector <TVector2>, vector <TVector2> > getShiftedMET_jet (int N_jecSources
     // build shifted jet
     for (int isource = 0; isource < N_jecSources; isource++)
     {
-       TLorentzVector tlv_jetup   = getShiftedJet(tlv_jet, +1., unc_updown.first[isource]);
-       TLorentzVector tlv_jetdown = getShiftedJet(tlv_jet, -1., unc_updown.second[isource]);
+      TLorentzVector tlv_jetup   = getShiftedJet(tlv_jet, +1., unc_updown.first[isource]);
+      TLorentzVector tlv_jetdown = getShiftedJet(tlv_jet, -1., unc_updown.second[isource]);
 
-       // shift MET - first the original jet
-       corrMETx_up[isource] += tlv_jet.Px();
-       corrMETy_up[isource] += tlv_jet.Py();
-       corrMETx_down[isource] += tlv_jet.Px();
-       corrMETy_down[isource] += tlv_jet.Py();
+      // shift MET - first the original jet
+      corrMETx_up[isource] += tlv_jet.Px();
+      corrMETy_up[isource] += tlv_jet.Py();
+      corrMETx_down[isource] += tlv_jet.Px();
+      corrMETy_down[isource] += tlv_jet.Py();
 
-       // shift MET - then the shifted jet
-       corrMETx_up[isource] -= tlv_jetup.Px();
-       corrMETy_up[isource] -= tlv_jetup.Py();
-       corrMETx_down[isource] -= tlv_jetdown.Px();
-       corrMETy_down[isource] -= tlv_jetdown.Py();
+      // shift MET - then the shifted jet
+      corrMETx_up[isource] -= tlv_jetup.Px();
+      corrMETy_up[isource] -= tlv_jetup.Py();
+      corrMETx_down[isource] -= tlv_jetdown.Px();
+      corrMETy_down[isource] -= tlv_jetdown.Py();
 
     }
   }
 
   for (int isource = 0; isource < N_jecSources; isource++)
   {
-     shiftedMET_up[isource].Set(corrMETx_up[isource], corrMETy_up[isource]);
-     shiftedMET_down[isource].Set(corrMETx_down[isource], corrMETy_down[isource]);
+    shiftedMET_up[isource].Set(corrMETx_up[isource], corrMETy_up[isource]);
+    shiftedMET_down[isource].Set(corrMETx_down[isource], corrMETy_down[isource]);
   }
 
   return make_pair(shiftedMET_up, shiftedMET_down);
@@ -564,12 +564,12 @@ auto getShiftedMET_tes_ees (int N_tauhDM, int N_tauhDM_EES, TVector2 MET, bigTre
     // for each decay mode, bool indicating if this lepton matches the dacay mode in the loop
     // just for protection, probably it's not needed
     vector<bool> isthisDM =
-    {
-     (theBigTree.decayMode->at (idau) == 0 ? true : false),
-     (theBigTree.decayMode->at (idau) == 1 ? true : false),
-     (theBigTree.decayMode->at (idau) == 10? true : false),
-     (theBigTree.decayMode->at (idau) == 11? true : false)
-    };
+      {
+	(theBigTree.decayMode->at (idau) == 0 ? true : false),
+	(theBigTree.decayMode->at (idau) == 1 ? true : false),
+	(theBigTree.decayMode->at (idau) == 10? true : false),
+	(theBigTree.decayMode->at (idau) == 11? true : false)
+      };
 
     bool dauHasTES = (theBigTree.genmatch->at(idau)  == 5 ? true : false);
     bool dauHasEES = ((theBigTree.genmatch->at(idau)==1 || theBigTree.genmatch->at(idau)==3) ? true : false);

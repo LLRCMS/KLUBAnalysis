@@ -11,7 +11,7 @@
 #include "TString.h"
 #include "TLorentzVector.h"
 
-#include "bigTree.h" 
+#include "bigTree.h"
 
 using namespace std;
 
@@ -19,27 +19,27 @@ using namespace std;
 
 void appendFromFileList (TChain* chain, TString filename)
 {
-    //cout << "=== inizio parser ===" << endl;
-    std::ifstream infile(filename.Data());
-    std::string line;
-    while (std::getline(infile, line))
-    {
-        line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
-        while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
-        while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
-        while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
-        if (!line.empty()){ // skip empty lines
-            chain->Add(line.c_str());
-            // cout << ".. added file:" << line.c_str() << endl;
-        }
+  //cout << "=== inizio parser ===" << endl;
+  std::ifstream infile(filename.Data());
+  std::string line;
+  while (std::getline(infile, line))
+  {
+    line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
+    while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
+    while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
+    while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
+    if (!line.empty()){ // skip empty lines
+      chain->Add(line.c_str());
+      // cout << ".. added file:" << line.c_str() << endl;
     }
-    return;
+  }
+  return;
 }
 
 bool CheckBit (int number, int bitpos)
 {
-    bool res = number & (1 << bitpos);
-    return res;
+  bool res = number & (1 << bitpos);
+  return res;
 }
 
 // bool minGenCuts(TLorentzVector& vgen)
@@ -64,7 +64,7 @@ int main (int argc, char** argv)
   appendFromFileList (bigChain, inputFile);
   cout << ".. going to make the bigTree" << endl;
   bigTree theBigTree (bigChain) ;
-  
+
   theBigTree.fChain->SetBranchStatus("*", 0);
   theBigTree.fChain->SetBranchStatus("genpart_*", 1);
   theBigTree.fChain->SetBranchStatus("METx", 1);
@@ -74,7 +74,7 @@ int main (int argc, char** argv)
   // theBigTree.fChain->SetBranchStatus("jets_*", 1);
   // theBigTree.fChain->SetBranchStatus("bCSVscore", 1);
   // theBigTree.fChain->SetBranchStatus("PFjetID", 1);
-  
+
   cout << ".. going in the loop" << endl;
 
   TFile* fOut = new TFile(fOutName, "recreate");
@@ -154,7 +154,7 @@ int main (int argc, char** argv)
 
   }
 
-fOut->Write();
+  fOut->Write();
 
 
 
