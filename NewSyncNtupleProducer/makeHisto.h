@@ -8,9 +8,6 @@
 #ifndef MAKEHISTO_H
 #define	MAKEHISTO_H
 
-
-
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -35,30 +32,30 @@ map<string, TH2F*>* myMap2;
 //**********************************************
 
 TH1F* nplot1(string name) {
-    if (myMap1->find(name) != myMap1->end())
-        return (*myMap1)[name];
-    else
-        return 0;
+  if (myMap1->find(name) != myMap1->end())
+    return (*myMap1)[name];
+  else
+    return 0;
 }
 
 TH2F* nplot2(string name) {
-    if (myMap2->find(name) != myMap2->end())
-        return (*myMap2)[name];
-    else
-        return 0;
+  if (myMap2->find(name) != myMap2->end())
+    return (*myMap2)[name];
+  else
+    return 0;
 }
 //****************************************************
 
 void plotFill(string name, float x, int nx, float nxmin, float nxmax, double weight=1) {
-    if (myMap1->find(name) == myMap1->end())
-        (*myMap1)[name] = new TH1F(name.c_str(), name.c_str(), nx, nxmin, nxmax);
-    (*myMap1)[name]->Fill(x,weight);
+  if (myMap1->find(name) == myMap1->end())
+    (*myMap1)[name] = new TH1F(name.c_str(), name.c_str(), nx, nxmin, nxmax);
+  (*myMap1)[name]->Fill(x,weight);
 }
 
 void plotFill(string name, float x, float y, int nx, float nxmin, float nxmax, int ny, float nymin, float nymax, double weight=1) {
-    if (myMap2->find(name) == myMap2->end())
-        (*myMap2)[name] = new TH2F(name.c_str(), name.c_str(), nx, nxmin, nxmax, ny, nymin, nymax);
-    (*myMap2)[name]->Fill(x, y,weight);
+  if (myMap2->find(name) == myMap2->end())
+    (*myMap2)[name] = new TH2F(name.c_str(), name.c_str(), nx, nxmin, nxmax, ny, nymin, nymax);
+  (*myMap2)[name]->Fill(x, y,weight);
 }
 //****************************************************
 //Transverse Mass
@@ -70,4 +67,3 @@ void plotFill(string name, float x, float y, int nx, float nxmin, float nxmax, i
 //        (ittau->py + Met.front().py)*(ittau->py + Met.front().py));
 
 #endif	/* _JETVETO_H */
-

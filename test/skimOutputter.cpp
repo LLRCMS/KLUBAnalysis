@@ -18,7 +18,7 @@
 #include <TTreeReader.h>
 #include <TTreeReaderValue.h>
 
-// bigTree is produced on an existing ntuple as follows (see at the end of the file) 
+// bigTree is produced on an existing ntuple as follows (see at the end of the file)
 #include "smallTree.h"
 #include "OfflineProducerHelper.h"
 #include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
@@ -153,7 +153,7 @@ int main (int argc, char** argv)
   Long64_t nentries = inputChain->GetEntries();
   cout << "** ANALYSIS: Initial entries: " << nentries << endl;
 
-  // Declare the only two branches needed for skimming the initial entries 
+  // Declare the only two branches needed for skimming the initial entries
   int nleps, pairType, nbjetscand, dau1_deepTauVsJet, dau1_eleMVAiso;
   float dau1_iso;
   inputChain->SetBranchAddress("nleps", &nleps);
@@ -168,110 +168,110 @@ int main (int argc, char** argv)
 
   // Define branches to be activated
   std::vector<std::string> toBeActivated {
-  "EventNumber", "RunNumber","nleps","pairType","nbjetscand",          // General
-  "isOS","isBoosted","isTau1real","isTau2real",
+    "EventNumber", "RunNumber","nleps","pairType","nbjetscand",          // General
+      "isOS","isBoosted","isTau1real","isTau2real",
 
-  "MC_weight","PUReweight","PUjetID_SF","L1pref_weight*",               // Weights and SFs
-  "prescaleWeight","trigSF","trigSF_DM*","VBFtrigSF",
-  "DYscale_MTT","DYscale_MH","bTagweightM","bTagweightL",
-  "IdAndIsoAndFakeSF_deep","IdAndIsoAndFakeSF_deep_pt",
-  "TTtopPtreweight*","idAndIsoAndFakeSF_tauid*",
-  "idAndIsoAndFakeSF_mutauFR*","idAndIsoAndFakeSF_etauFR*",
+      "MC_weight","PUReweight","PUjetID_SF","L1pref_weight*",               // Weights and SFs
+      "prescaleWeight","trigSF","trigSF_DM*","VBFtrigSF",
+      "DYscale_MTT","DYscale_MH","bTagweightM","bTagweightL",
+      "IdAndIsoAndFakeSF_deep","IdAndIsoAndFakeSF_deep_pt",
+      "TTtopPtreweight*","idAndIsoAndFakeSF_tauid*",
+      "idAndIsoAndFakeSF_mutauFR*","idAndIsoAndFakeSF_etauFR*",
 
-  "isVBFtrigger", "isVBF",                                             // Trigger vbf selection
+      "isVBFtrigger", "isVBF",                                             // Trigger vbf selection
 
-  "dau1_deepTauVsJet","dau2_deepTauVsJet",                             // Isolation
-  "dau1_iso", "dau2_iso", "dau1_eleMVAiso",
+      "dau1_deepTauVsJet","dau2_deepTauVsJet",                             // Isolation
+      "dau1_iso", "dau2_iso", "dau1_eleMVAiso",
 
-  "dau1_decayMode", "dau2_decayMode",                                  // Tau decay mode
+      "dau1_decayMode", "dau2_decayMode",                                  // Tau decay mode
 
-  "bjet1_bID_deepFlavor", "bjet2_bID_deepFlavor",                      // b-tagging          
-  "bjet1_bID_deepCSV", "bjet2_bID_deepCSV",
-  "bjet1_Cvs*","bjet2_Cvs*","VBFjet1_Cvs*","VBFjet2_Cvs*",
-  "VBFjet1_btag_deepFlavor","VBFjet2_btag_deepFlavor",
+      "bjet1_bID_deepFlavor", "bjet2_bID_deepFlavor",                      // b-tagging
+      "bjet1_bID_deepCSV", "bjet2_bID_deepCSV",
+      "bjet1_Cvs*","bjet2_Cvs*","VBFjet1_Cvs*","VBFjet2_Cvs*",
+      "VBFjet1_btag_deepFlavor","VBFjet2_btag_deepFlavor",
 
-  "bjet1_HHbtag","bjet2_HHbtag","VBFjet1_HHbtag","VBFjet2_HHbtag",     // HHbtag
+      "bjet1_HHbtag","bjet2_HHbtag","VBFjet1_HHbtag","VBFjet2_HHbtag",     // HHbtag
 
-  "dau1_pt","dau1_eta","dau1_phi","dau1_e",                            // Tau central
-  "dau2_pt","dau2_eta","dau2_phi","dau2_e",
-  "ditau_deltaR",
+      "dau1_pt","dau1_eta","dau1_phi","dau1_e",                            // Tau central
+      "dau2_pt","dau2_eta","dau2_phi","dau2_e",
+      "ditau_deltaR",
 
-  "dau1_pt_muup","dau1_pt_mudown",                                     // Tau MES
-  "dau1_mass_muup", "dau1_mass_mudown",
-  "dau2_pt_muup","dau2_pt_mudown",
-  "dau2_mass_muup", "dau2_mass_mudown",
+      "dau1_pt_muup","dau1_pt_mudown",                                     // Tau MES
+      "dau1_mass_muup", "dau1_mass_mudown",
+      "dau2_pt_muup","dau2_pt_mudown",
+      "dau2_mass_muup", "dau2_mass_mudown",
 
-  "dau1_pt_eleup*","dau1_mass_eleup",                                  // Tau EES
-  "dau1_pt_eledown*","dau1_mass_eledown",
-  "dau2_pt_eleup*","dau2_mass_eleup",
-  "dau2_pt_eledown*","dau2_mass_eledown",
+      "dau1_pt_eleup*","dau1_mass_eleup",                                  // Tau EES
+      "dau1_pt_eledown*","dau1_mass_eledown",
+      "dau2_pt_eleup*","dau2_mass_eleup",
+      "dau2_pt_eledown*","dau2_mass_eledown",
 
-  "dau1_pt_tauup*","dau1_pt_taudown*",                                 // Tau TES
-  "dau1_mass_tauup","dau1_mass_taudown",
-  "dau2_pt_tauup*","dau2_pt_taudown*",
-  "dau2_mass_tauup","dau2_mass_taudown",
+      "dau1_pt_tauup*","dau1_pt_taudown*",                                 // Tau TES
+      "dau1_mass_tauup","dau1_mass_taudown",
+      "dau2_pt_tauup*","dau2_pt_taudown*",
+      "dau2_mass_tauup","dau2_mass_taudown",
 
-  "bjet1_pt","bjet1_eta","bjet1_phi","bjet1_e","bjet1_JER",            // b-jets
-  "bjet2_pt","bjet2_eta","bjet2_phi","bjet2_e","bjet2_JER",
-  "bH_mass_raw","fatjet_softdropMass",
+      "bjet1_pt","bjet1_eta","bjet1_phi","bjet1_e","bjet1_JER",            // b-jets
+      "bjet2_pt","bjet2_eta","bjet2_phi","bjet2_e","bjet2_JER",
+      "bH_mass_raw","fatjet_softdropMass",
 
-  "bjet1_pt_raw_jetup*","bjet1_pt_raw_jetdown*",                       // b-jets JES
-  "bjet1_mass_raw_jetup","bjet1_mass_raw_jetdown",
-  "bjet1_JER_jetup","bjet1_JER_jetdown",
-  "bjet2_pt_raw_jetup*","bjet2_pt_raw_jetdown*",
-  "bjet2_mass_raw_jetup","bjet2_mass_raw_jetdown",
-  "bjet2_JER_jetup","bjet2_JER_jetdown",
+      "bjet1_pt_raw_jetup*","bjet1_pt_raw_jetdown*",                       // b-jets JES
+      "bjet1_mass_raw_jetup","bjet1_mass_raw_jetdown",
+      "bjet1_JER_jetup","bjet1_JER_jetdown",
+      "bjet2_pt_raw_jetup*","bjet2_pt_raw_jetdown*",
+      "bjet2_mass_raw_jetup","bjet2_mass_raw_jetdown",
+      "bjet2_JER_jetup","bjet2_JER_jetdown",
 
-  "bjet1_pt_raw_jetupTot","bjet1_pt_raw_jetdownTot",                   // b-jets JES Total
-  "bjet1_mass_raw_jetupTot","bjet1_mass_raw_jetdownTot",
-  "bjet1_JER_jetupTot","bjet1_JER_jetdownTot",
-  "bjet2_pt_raw_jetupTot","bjet2_pt_raw_jetdownTot",
-  "bjet2_mass_raw_jetupTot","bjet2_mass_raw_jetdownTot",
-  "bjet2_JER_jetupTot","bjet2_JER_jetdownTot",
+      "bjet1_pt_raw_jetupTot","bjet1_pt_raw_jetdownTot",                   // b-jets JES Total
+      "bjet1_mass_raw_jetupTot","bjet1_mass_raw_jetdownTot",
+      "bjet1_JER_jetupTot","bjet1_JER_jetdownTot",
+      "bjet2_pt_raw_jetupTot","bjet2_pt_raw_jetdownTot",
+      "bjet2_mass_raw_jetupTot","bjet2_mass_raw_jetdownTot",
+      "bjet2_JER_jetupTot","bjet2_JER_jetdownTot",
 
-  "bH_mass_raw_jetup*","bH_mass_raw_jetdown*",                         // bH masses JES
+      "bH_mass_raw_jetup*","bH_mass_raw_jetdown*",                         // bH masses JES
 
-  "bH_mass_raw_jetupTot","bH_mass_raw_jetdownTot",                     // bH masses JES Total
+      "bH_mass_raw_jetupTot","bH_mass_raw_jetdownTot",                     // bH masses JES Total
 
-  "VBFjet1_pt","VBFjet1_eta","VBFjet1_phi","VBFjet1_e",                // VBF-jets
-  "VBFjet2_pt","VBFjet2_eta","VBFjet2_phi","VBFjet2_e",
+      "VBFjet1_pt","VBFjet1_eta","VBFjet1_phi","VBFjet1_e",                // VBF-jets
+      "VBFjet2_pt","VBFjet2_eta","VBFjet2_phi","VBFjet2_e",
 
-  "VBFjet1_pt_jetup*","VBFjet1_pt_jetdown*",                           // VBF-jets JES
-  "VBFjet1_mass_jetup","VBFjet1_mass_jetdown",
-  "VBFjet2_pt_jetup*","VBFjet2_pt_jetdown*",
-  "VBFjet2_mass_jetup","VBFjet2_mass_jetdown",
+      "VBFjet1_pt_jetup*","VBFjet1_pt_jetdown*",                           // VBF-jets JES
+      "VBFjet1_mass_jetup","VBFjet1_mass_jetdown",
+      "VBFjet2_pt_jetup*","VBFjet2_pt_jetdown*",
+      "VBFjet2_mass_jetup","VBFjet2_mass_jetdown",
 
-  "VBFjet1_pt_jetupTot","VBFjet1_pt_jetdownTot",                       // VBF-jets JES Total
-  "VBFjet1_mass_jetupTot","VBFjet1_mass_jetdownTot",
-  "VBFjet2_pt_jetupTot","VBFjet2_pt_jetdownTot",
-  "VBFjet2_mass_jetupTot","VBFjet2_mass_jetdownTot",
+      "VBFjet1_pt_jetupTot","VBFjet1_pt_jetdownTot",                       // VBF-jets JES Total
+      "VBFjet1_mass_jetupTot","VBFjet1_mass_jetdownTot",
+      "VBFjet2_pt_jetupTot","VBFjet2_pt_jetdownTot",
+      "VBFjet2_mass_jetupTot","VBFjet2_mass_jetdownTot",
 
-  "VBFjj_mass_jetup*","VBFjj_mass_jetdown*",                           // VBFjj mass JES
+      "VBFjj_mass_jetup*","VBFjj_mass_jetdown*",                           // VBFjj mass JES
 
-  "VBFjj_mass_jetupTot","VBFjj_mass_jetdownTot",                       // VBFjj mass JES Total
+      "VBFjj_mass_jetupTot","VBFjj_mass_jetdownTot",                       // VBFjj mass JES Total
 
-  "met_phi","met_et","METx","METy",                                    // MET
-  "met_cov00","met_cov01","met_cov10","met_cov11",
+      "met_phi","met_et","METx","METy",                                    // MET
+      "met_cov00","met_cov01","met_cov10","met_cov11",
 
-  "MET*_muup"    ,"MET*_mudown",                                       // MET MES
-  "MET*_eleup"   ,"MET*_eledown",                                      // MET EES
-  "MET*_tauup"   ,"MET*_taudown",                                      // MET TES
-  "MET*_jetup"   ,"MET*_jetdown",                                      // MET JES
-  "MET*_jetupTot","MET*_jetdownTot",                                   // MET JES Total
+      "MET*_muup"    ,"MET*_mudown",                                       // MET MES
+      "MET*_eleup"   ,"MET*_eledown",                                      // MET EES
+      "MET*_tauup"   ,"MET*_taudown",                                      // MET TES
+      "MET*_jetup"   ,"MET*_jetdown",                                      // MET JES
+      "MET*_jetupTot","MET*_jetdownTot",                                   // MET JES Total
 
-  "VBFjj_mass", "VBFjj_deltaEta",                                      // VBF selection
+      "VBFjj_mass", "VBFjj_deltaEta",                                      // VBF selection
 
-  "BDT_HT20",                                                          // BDT_HT20
-  "BDT_HT20_jetup","BDT_HT20_jetdown",                                 // BDT_HT20 JES
-  "BDT_HT20_jetupTot","BDT_HT20_jetdownTot",                           // BDT_HT20 JES Total
+      "BDT_HT20",                                                          // BDT_HT20
+      "BDT_HT20_jetup","BDT_HT20_jetdown",                                 // BDT_HT20 JES
+      "BDT_HT20_jetupTot","BDT_HT20_jetdownTot",                           // BDT_HT20 JES Total
 
-  "HHKin_mass","HHKin_chi2", "MT2",                                    // Old values KinFit, MT2, SVfit, DNN, BDT
-  "tauH_SVFIT_pt","tauH_SVFIT_eta","tauH_SVFIT_phi","tauH_SVFIT_mass",
-  "DNNoutSM_kl_1","BDToutSM_kl_1","mdnn*"
-  };
+      "HHKin_mass","HHKin_chi2", "MT2",                                    // Old values KinFit, MT2, SVfit, DNN, BDT
+      "tauH_SVFIT_pt","tauH_SVFIT_eta","tauH_SVFIT_phi","tauH_SVFIT_mass",
+      "DNNoutSM_kl_1","BDToutSM_kl_1","mdnn*"
+      };
 
   // Activate only branches I need/want to store
-  for (auto activeBranchName : toBeActivated) 
+  for (auto activeBranchName : toBeActivated)
   {
     inputChain->SetBranchStatus(activeBranchName.c_str(), 1);
   }
@@ -282,7 +282,7 @@ int main (int argc, char** argv)
 
   // Loop on input events to apply minimal selection
   cout << "** ANALYSIS: Cloning with minimal selection..." << endl;
-  for (Long64_t iEvent = 0 ; iEvent<nentries ; ++iEvent) 
+  for (Long64_t iEvent = 0 ; iEvent<nentries ; ++iEvent)
   {
     if (iEvent % 500 == 0)  cout << "  - reading event " << iEvent << endl ;
     if (iEvent == nMaxEvts ) break;
@@ -1125,8 +1125,8 @@ int main (int argc, char** argv)
       if (vbfjet2_e != -999.) nvbf++;
     }
     DNNreader.SetEventInputs(channel, isBoosted, nvbf, EventNumber,
-        bjet1_bID_deepFlavor, bjet2_bID_deepFlavor, CvsL_b1, CvsL_b2, CvsL_vbf1, CvsL_vbf2,
-        CvsB_b1, CvsB_b2, CvsB_vbf1, CvsB_vbf2, HHbtag_b1, HHbtag_b2, HHbtag_vbf1, HHbtag_vbf2);
+			     bjet1_bID_deepFlavor, bjet2_bID_deepFlavor, CvsL_b1, CvsL_b2, CvsL_vbf1, CvsL_vbf2,
+			     CvsB_b1, CvsB_b2, CvsB_vbf1, CvsB_vbf2, HHbtag_b1, HHbtag_b2, HHbtag_vbf1, HHbtag_vbf2);
 
     // Timing info
     auto end_prep = high_resolution_clock::now();
@@ -1153,22 +1153,22 @@ int main (int argc, char** argv)
         for (uint j=0; j<mci.getNumberOfModels(); j++)
         {
           mci.setInputs(j,
-          {
-            {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-            {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
-            {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-            {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
-            {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-            {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
-            {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-            {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
-            {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-            {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
-            {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
-            {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
-            {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-            {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}
-          });
+			{
+			  {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										{"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+																			    {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																		  {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+																																											      {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																										    {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+																																																																					    {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																					       {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+																																																																																																       {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																	  {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
+																																																																																																																										{"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
+																																																																																																																																		      {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
+																																																																																																																																					    {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+																																																																																																																																																	     {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}
+			});
         }
         auto mdnnSM0_score_new  = mci.predict(EventNumber, 0);
         auto mdnnSM1_score_new  = mci.predict(EventNumber, 1);
@@ -1245,7 +1245,7 @@ int main (int argc, char** argv)
           // Set quantities that change for each event (shifted for TES, JES...)
           // Central value
           DNNreader.SetShiftedInputs(bjet1, bjet2, tau1, tau2, vbfjet1, vbfjet2, met, svfit,
-              HHKin_mass, HHKin_chi2, KinFitConv, SVfitConv, MT2);
+				     HHKin_mass, HHKin_chi2, KinFitConv, SVfitConv, MT2);
           std::vector<float> outs = DNNreader.GetPredictions();
           //std::cout << "----- ...gotten predictions: " << outs.at(0) << std::endl;
           DNNoutSM_kl_1_new = outs.at(0);
@@ -1259,22 +1259,22 @@ int main (int argc, char** argv)
           for (uint j=0; j<mci.getNumberOfModels(); j++)
           {
             mci.setInputs(j,
-            {
-              {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-              {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
-              {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-              {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
-              {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-              {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
-              {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-              {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
-              {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-              {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
-              {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
-              {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
-              {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-              {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}
-            });
+			  {
+			    {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										  {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+																			      {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																		    {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+																																												{"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																										      {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+																																																																					      {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																						 {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+																																																																																																	 {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																	    {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
+																																																																																																																										  {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
+																																																																																																																																			{"met_pt", met.Pt()}, {"met_phi", met.Phi()},
+																																																																																																																																					      {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+																																																																																																																																																	       {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}
+			  });
           }
           auto mdnnSM0_score_new  = mci.predict(EventNumber, 0);
           auto mdnnSM1_score_new  = mci.predict(EventNumber, 1);
@@ -1293,11 +1293,11 @@ int main (int argc, char** argv)
         {
           // Set inputs to BDT
           BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1.Pt(),
-            tau2.Pt(), svfit.Pt(), BDT_channel,
-            BDT_HT20, pzeta, pzeta_vis, BDT_ditau_deltaPhi,
-            BDT_tauHsvfitMet_deltaPhi, mT_tauH_MET, mTtot, MT2,
-            BDT_MX, BDT_bH_tauH_MET_InvMass, BDT_bH_tauH_SVFIT_InvMass,
-            BDT_bH_tauH_InvMass, HHKin_mass, HHKin_chi2, BDT_MET_bH_cosTheta);
+				   tau2.Pt(), svfit.Pt(), BDT_channel,
+				   BDT_HT20, pzeta, pzeta_vis, BDT_ditau_deltaPhi,
+				   BDT_tauHsvfitMet_deltaPhi, mT_tauH_MET, mTtot, MT2,
+				   BDT_MX, BDT_bH_tauH_MET_InvMass, BDT_bH_tauH_SVFIT_InvMass,
+				   BDT_bH_tauH_InvMass, HHKin_mass, HHKin_chi2, BDT_MET_bH_cosTheta);
 
           // Get BDT outputs
           std::vector<float> BDTouts = BDTreader.GetPredictions();
@@ -1332,22 +1332,22 @@ int main (int argc, char** argv)
         for (uint j=0; j<mci.getNumberOfModels(); j++)
         {
           mci.setInputs(j,
-          {
-            {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-            {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
-            {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-            {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
-            {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-            {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
-            {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-            {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
-            {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-            {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
-            {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
-            {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
-            {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-            {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}
-          });
+			{
+			  {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										{"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+																			    {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																		  {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+																																											      {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																										    {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+																																																																					    {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																					       {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+																																																																																																       {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																	  {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
+																																																																																																																										{"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
+																																																																																																																																		      {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
+																																																																																																																																					    {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+																																																																																																																																																	     {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}
+			});
         }
         auto mdnnSM0_score_mes  = mci.predict(EventNumber, 0);
         auto mdnnSM1_score_mes  = mci.predict(EventNumber, 1);
@@ -1432,16 +1432,16 @@ int main (int argc, char** argv)
         if (doMT2)
         {
           MT2_muup = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
-                                                        bjet2.M(), bjet2.Px(), bjet2.Py(),
-                                                        (tau1_muup.Px() + tau2_muup.Px() + met_muup.Px()),
-                                                        (tau1_muup.Py() + tau2_muup.Py() + met_muup.Py()),
-                                                        tau1_muup.M(), tau2_muup.M(), desiredPrecisionOnMt2);
+						       bjet2.M(), bjet2.Px(), bjet2.Py(),
+						       (tau1_muup.Px() + tau2_muup.Px() + met_muup.Px()),
+						       (tau1_muup.Py() + tau2_muup.Py() + met_muup.Py()),
+						       tau1_muup.M(), tau2_muup.M(), desiredPrecisionOnMt2);
 
           MT2_mudown = asymm_mt2_lester_bisect::get_mT2( bjet1.M(), bjet1.Px(), bjet1.Py(),
-                                                          bjet2.M(), bjet2.Px(), bjet2.Py(),
-                                                          (tau1_mudown.Px() + tau2_mudown.Px() + met_mudown.Px()),
-                                                          (tau1_mudown.Py() + tau2_mudown.Py() + met_mudown.Py()),
-                                                          tau1_mudown.M(), tau2_mudown.M(), desiredPrecisionOnMt2);
+							 bjet2.M(), bjet2.Px(), bjet2.Py(),
+							 (tau1_mudown.Px() + tau2_mudown.Px() + met_mudown.Px()),
+							 (tau1_mudown.Py() + tau2_mudown.Py() + met_mudown.Py()),
+							 tau1_mudown.M(), tau2_mudown.M(), desiredPrecisionOnMt2);
         }
 
         if (doSVfit)
@@ -1497,12 +1497,12 @@ int main (int argc, char** argv)
         if (doDNN)
         {
           DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_muup, tau2_muup, vbfjet1, vbfjet2, met_muup, svfit_muup,
-              HHKin_mass_muup, HHKin_chi2_muup, KinFitConv_muup, SVfitConv_muup, MT2_muup);
+				     HHKin_mass_muup, HHKin_chi2_muup, KinFitConv_muup, SVfitConv_muup, MT2_muup);
           std::vector<float> outs_muup = DNNreader.GetPredictions();
           DNNoutSM_kl_1_muup = outs_muup.at(0);
 
           DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_mudown, tau2_mudown, vbfjet1, vbfjet2, met_mudown, svfit_mudown,
-              HHKin_mass_mudown, HHKin_chi2_mudown, KinFitConv_mudown, SVfitConv_mudown, MT2_mudown);
+				     HHKin_mass_mudown, HHKin_chi2_mudown, KinFitConv_mudown, SVfitConv_mudown, MT2_mudown);
           std::vector<float> outs_mudown = DNNreader.GetPredictions();
           DNNoutSM_kl_1_mudown = outs_mudown.at(0);
         }
@@ -1513,22 +1513,22 @@ int main (int argc, char** argv)
           for (uint j=0; j<mci.getNumberOfModels(); j++)
           {
             mci.setInputs(j,
-            {
-              {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-              {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
-              {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-              {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
-              {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-              {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
-              {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-              {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
-              {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-              {"lep1_pt", tau1_muup.Pt()}, {"lep1_eta", tau1_muup.Eta()}, {"lep1_phi", tau1_muup.Phi()}, {"lep1_e", tau1_muup.E()},
-              {"lep2_pt", tau2_muup.Pt()}, {"lep2_eta", tau2_muup.Eta()}, {"lep2_phi", tau2_muup.Phi()}, {"lep2_e", tau2_muup.E()},
-              {"met_pt", met_muup.Pt()}, {"met_phi", met_muup.Phi()},
-              {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-              {"tauh_sv_pt", svfit_muup.Pt()}, {"tauh_sv_eta", svfit_muup.Eta()}, {"tauh_sv_phi", svfit_muup.Phi()}, {"tauh_sv_e", svfit_muup.E()}
-            });
+			  {
+			    {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										  {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+																			      {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																		    {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+																																												{"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																										      {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+																																																																					      {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																						 {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+																																																																																																	 {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																	    {"lep1_pt", tau1_muup.Pt()}, {"lep1_eta", tau1_muup.Eta()}, {"lep1_phi", tau1_muup.Phi()}, {"lep1_e", tau1_muup.E()},
+																																																																																																																												       {"lep2_pt", tau2_muup.Pt()}, {"lep2_eta", tau2_muup.Eta()}, {"lep2_phi", tau2_muup.Phi()}, {"lep2_e", tau2_muup.E()},
+																																																																																																																																								  {"met_pt", met_muup.Pt()}, {"met_phi", met_muup.Phi()},
+																																																																																																																																											     {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+																																																																																																																																																							      {"tauh_sv_pt", svfit_muup.Pt()}, {"tauh_sv_eta", svfit_muup.Eta()}, {"tauh_sv_phi", svfit_muup.Phi()}, {"tauh_sv_e", svfit_muup.E()}
+			  });
           }
           auto mdnnSM0_score_muup  = mci.predict(EventNumber, 0);
           auto mdnnSM1_score_muup  = mci.predict(EventNumber, 1);
@@ -1544,22 +1544,22 @@ int main (int argc, char** argv)
           for (uint j=0; j<mci.getNumberOfModels(); j++)
           {
             mci.setInputs(j,
-            {
-              {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-              {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
-              {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-              {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
-              {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-              {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
-              {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-              {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
-              {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-              {"lep1_pt", tau1_mudown.Pt()}, {"lep1_eta", tau1_mudown.Eta()}, {"lep1_phi", tau1_mudown.Phi()}, {"lep1_e", tau1_mudown.E()},
-              {"lep2_pt", tau2_mudown.Pt()}, {"lep2_eta", tau2_mudown.Eta()}, {"lep2_phi", tau2_mudown.Phi()}, {"lep2_e", tau2_mudown.E()},
-              {"met_pt", met_mudown.Pt()}, {"met_phi", met_mudown.Phi()},
-              {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-              {"tauh_sv_pt", svfit_mudown.Pt()}, {"tauh_sv_eta", svfit_mudown.Eta()}, {"tauh_sv_phi", svfit_mudown.Phi()}, {"tauh_sv_e", svfit_mudown.E()}
-            });
+			  {
+			    {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										  {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+																			      {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																		    {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+																																												{"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																										      {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+																																																																					      {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																						 {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+																																																																																																	 {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																	    {"lep1_pt", tau1_mudown.Pt()}, {"lep1_eta", tau1_mudown.Eta()}, {"lep1_phi", tau1_mudown.Phi()}, {"lep1_e", tau1_mudown.E()},
+																																																																																																																													     {"lep2_pt", tau2_mudown.Pt()}, {"lep2_eta", tau2_mudown.Eta()}, {"lep2_phi", tau2_mudown.Phi()}, {"lep2_e", tau2_mudown.E()},
+																																																																																																																																									      {"met_pt", met_mudown.Pt()}, {"met_phi", met_mudown.Phi()},
+																																																																																																																																													   {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+																																																																																																																																																									    {"tauh_sv_pt", svfit_mudown.Pt()}, {"tauh_sv_eta", svfit_mudown.Eta()}, {"tauh_sv_phi", svfit_mudown.Phi()}, {"tauh_sv_e", svfit_mudown.E()}
+			  });
           }
           auto mdnnSM0_score_mudown  = mci.predict(EventNumber, 0);
           auto mdnnSM1_score_mudown  = mci.predict(EventNumber, 1);
@@ -1575,20 +1575,20 @@ int main (int argc, char** argv)
         if (doBDT)
         {
           BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_muup.Pt(),
-            tau2_muup.Pt(), svfit_muup.Pt(), BDT_channel,
-            BDT_HT20, pzeta_muup, pzeta_vis_muup, BDT_ditau_deltaPhi_muup,
-            BDT_tauHsvfitMet_deltaPhi_muup, mT_tauH_MET_muup, mTtot_muup, MT2_muup,
-            BDT_MX_muup, BDT_bH_tauH_MET_InvMass_muup, BDT_bH_tauH_SVFIT_InvMass_muup,
-            BDT_bH_tauH_InvMass_muup, HHKin_mass_muup, HHKin_chi2_muup, BDT_MET_bH_cosTheta_muup);
+				   tau2_muup.Pt(), svfit_muup.Pt(), BDT_channel,
+				   BDT_HT20, pzeta_muup, pzeta_vis_muup, BDT_ditau_deltaPhi_muup,
+				   BDT_tauHsvfitMet_deltaPhi_muup, mT_tauH_MET_muup, mTtot_muup, MT2_muup,
+				   BDT_MX_muup, BDT_bH_tauH_MET_InvMass_muup, BDT_bH_tauH_SVFIT_InvMass_muup,
+				   BDT_bH_tauH_InvMass_muup, HHKin_mass_muup, HHKin_chi2_muup, BDT_MET_bH_cosTheta_muup);
           std::vector<float> BDTouts_muup = BDTreader.GetPredictions();
           BDToutSM_kl_1_muup = BDTouts_muup.at(0);
 
           BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_mudown.Pt(),
-            tau2_mudown.Pt(), svfit_mudown.Pt(), BDT_channel,
-            BDT_HT20, pzeta_mudown, pzeta_vis_mudown, BDT_ditau_deltaPhi_mudown,
-            BDT_tauHsvfitMet_deltaPhi_mudown, mT_tauH_MET_mudown, mTtot_mudown, MT2_mudown,
-            BDT_MX_mudown, BDT_bH_tauH_MET_InvMass_mudown, BDT_bH_tauH_SVFIT_InvMass_mudown,
-            BDT_bH_tauH_InvMass_mudown, HHKin_mass_mudown, HHKin_chi2_mudown, BDT_MET_bH_cosTheta_mudown);
+				   tau2_mudown.Pt(), svfit_mudown.Pt(), BDT_channel,
+				   BDT_HT20, pzeta_mudown, pzeta_vis_mudown, BDT_ditau_deltaPhi_mudown,
+				   BDT_tauHsvfitMet_deltaPhi_mudown, mT_tauH_MET_mudown, mTtot_mudown, MT2_mudown,
+				   BDT_MX_mudown, BDT_bH_tauH_MET_InvMass_mudown, BDT_bH_tauH_SVFIT_InvMass_mudown,
+				   BDT_bH_tauH_InvMass_mudown, HHKin_mass_mudown, HHKin_chi2_mudown, BDT_MET_bH_cosTheta_mudown);
           std::vector<float> BDTouts_mudown = BDTreader.GetPredictions();
           BDToutSM_kl_1_mudown = BDTouts_mudown.at(0);
         }
@@ -1621,22 +1621,22 @@ int main (int argc, char** argv)
           for (uint j=0; j<mci.getNumberOfModels(); j++)
           {
             mci.setInputs(j,
-            {
-              {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-              {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
-              {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-              {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
-              {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-              {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
-              {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-              {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
-              {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-              {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
-              {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
-              {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
-              {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-              {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}
-            });
+			  {
+			    {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										  {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+																			      {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																		    {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+																																												{"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																										      {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+																																																																					      {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																						 {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+																																																																																																	 {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																	    {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
+																																																																																																																										  {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
+																																																																																																																																			{"met_pt", met.Pt()}, {"met_phi", met.Phi()},
+																																																																																																																																					      {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+																																																																																																																																																	       {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}
+			  });
           }
           auto mdnnSM0_score_ees  = mci.predict(EventNumber, 0);
           auto mdnnSM1_score_ees  = mci.predict(EventNumber, 1);
@@ -1785,12 +1785,12 @@ int main (int argc, char** argv)
           if (doDNN)
           {
             DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_eleup, tau2_eleup, vbfjet1, vbfjet2, met_eleup, svfit_eleup,
-                HHKin_mass_eleup, HHKin_chi2_eleup, KinFitConv_eleup, SVfitConv_eleup, MT2_eleup);
+				       HHKin_mass_eleup, HHKin_chi2_eleup, KinFitConv_eleup, SVfitConv_eleup, MT2_eleup);
             std::vector<float> outs_eleup = DNNreader.GetPredictions();
             DNNoutSM_kl_1_eleup.at(i) = outs_eleup.at(0);
 
             DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_eledown, tau2_eledown, vbfjet1, vbfjet2, met_eledown, svfit_eledown,
-                HHKin_mass_eledown, HHKin_chi2_eledown, KinFitConv_eledown, SVfitConv_eledown, MT2_eledown);
+				       HHKin_mass_eledown, HHKin_chi2_eledown, KinFitConv_eledown, SVfitConv_eledown, MT2_eledown);
             std::vector<float> outs_eledown = DNNreader.GetPredictions();
             DNNoutSM_kl_1_eledown.at(i) = outs_eledown.at(0);
           }
@@ -1801,22 +1801,22 @@ int main (int argc, char** argv)
             for (uint j=0; j<mci.getNumberOfModels(); j++)
             {
               mci.setInputs(j,
-              {
-                {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-                {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
-                {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-                {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
-                {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-                {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
-                {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-                {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
-                {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-                {"lep1_pt", tau1_eleup.Pt()}, {"lep1_eta", tau1_eleup.Eta()}, {"lep1_phi", tau1_eleup.Phi()}, {"lep1_e", tau1_eleup.E()},
-                {"lep2_pt", tau2_eleup.Pt()}, {"lep2_eta", tau2_eleup.Eta()}, {"lep2_phi", tau2_eleup.Phi()}, {"lep2_e", tau2_eleup.E()},
-                {"met_pt", met_eleup.Pt()}, {"met_phi", met_eleup.Phi()},
-                {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-                {"tauh_sv_pt", svfit_eleup.Pt()}, {"tauh_sv_eta", svfit_eleup.Eta()}, {"tauh_sv_phi", svfit_eleup.Phi()}, {"tauh_sv_e", svfit_eleup.E()}
-              });
+			    {
+			      {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										    {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+																				{"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																		      {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+																																												  {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																											{"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+																																																																						{"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																						   {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+																																																																																																	   {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																	      {"lep1_pt", tau1_eleup.Pt()}, {"lep1_eta", tau1_eleup.Eta()}, {"lep1_phi", tau1_eleup.Phi()}, {"lep1_e", tau1_eleup.E()},
+																																																																																																																													    {"lep2_pt", tau2_eleup.Pt()}, {"lep2_eta", tau2_eleup.Eta()}, {"lep2_phi", tau2_eleup.Phi()}, {"lep2_e", tau2_eleup.E()},
+																																																																																																																																									  {"met_pt", met_eleup.Pt()}, {"met_phi", met_eleup.Phi()},
+																																																																																																																																												      {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+																																																																																																																																																								       {"tauh_sv_pt", svfit_eleup.Pt()}, {"tauh_sv_eta", svfit_eleup.Eta()}, {"tauh_sv_phi", svfit_eleup.Phi()}, {"tauh_sv_e", svfit_eleup.E()}
+			    });
             }
             auto mdnnSM0_score_eleup  = mci.predict(EventNumber, 0);
             auto mdnnSM1_score_eleup  = mci.predict(EventNumber, 1);
@@ -1832,22 +1832,22 @@ int main (int argc, char** argv)
             for (uint j=0; j<mci.getNumberOfModels(); j++)
             {
               mci.setInputs(j,
-              {
-                {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-                {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
-                {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-                {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
-                {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-                {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
-                {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-                {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
-                {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-                {"lep1_pt", tau1_eledown.Pt()}, {"lep1_eta", tau1_eledown.Eta()}, {"lep1_phi", tau1_eledown.Phi()}, {"lep1_e", tau1_eledown.E()},
-                {"lep2_pt", tau2_eledown.Pt()}, {"lep2_eta", tau2_eledown.Eta()}, {"lep2_phi", tau2_eledown.Phi()}, {"lep2_e", tau2_eledown.E()},
-                {"met_pt", met_eledown.Pt()}, {"met_phi", met_eledown.Phi()},
-                {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-                {"tauh_sv_pt", svfit_eledown.Pt()}, {"tauh_sv_eta", svfit_eledown.Eta()}, {"tauh_sv_phi", svfit_eledown.Phi()}, {"tauh_sv_e", svfit_eledown.E()}
-              });
+			    {
+			      {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										    {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+																				{"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																		      {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+																																												  {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																											{"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+																																																																						{"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																						   {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+																																																																																																	   {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																	      {"lep1_pt", tau1_eledown.Pt()}, {"lep1_eta", tau1_eledown.Eta()}, {"lep1_phi", tau1_eledown.Phi()}, {"lep1_e", tau1_eledown.E()},
+																																																																																																																														  {"lep2_pt", tau2_eledown.Pt()}, {"lep2_eta", tau2_eledown.Eta()}, {"lep2_phi", tau2_eledown.Phi()}, {"lep2_e", tau2_eledown.E()},
+																																																																																																																																										      {"met_pt", met_eledown.Pt()}, {"met_phi", met_eledown.Phi()},
+																																																																																																																																														    {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+																																																																																																																																																										     {"tauh_sv_pt", svfit_eledown.Pt()}, {"tauh_sv_eta", svfit_eledown.Eta()}, {"tauh_sv_phi", svfit_eledown.Phi()}, {"tauh_sv_e", svfit_eledown.E()}
+			    });
             }
             auto mdnnSM0_score_eledown  = mci.predict(EventNumber, 0);
             auto mdnnSM1_score_eledown  = mci.predict(EventNumber, 1);
@@ -1863,20 +1863,20 @@ int main (int argc, char** argv)
           if (doBDT)
           {
             BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_eleup.Pt(),
-              tau2_eleup.Pt(), svfit_eleup.Pt(), BDT_channel,
-              BDT_HT20, pzeta_eleup, pzeta_vis_eleup, BDT_ditau_deltaPhi_eleup,
-              BDT_tauHsvfitMet_deltaPhi_eleup, mT_tauH_MET_eleup, mTtot_eleup, MT2_eleup,
-              BDT_MX_eleup, BDT_bH_tauH_MET_InvMass_eleup, BDT_bH_tauH_SVFIT_InvMass_eleup,
-              BDT_bH_tauH_InvMass_eleup, HHKin_mass_eleup, HHKin_chi2_eleup, BDT_MET_bH_cosTheta_eleup);
+				     tau2_eleup.Pt(), svfit_eleup.Pt(), BDT_channel,
+				     BDT_HT20, pzeta_eleup, pzeta_vis_eleup, BDT_ditau_deltaPhi_eleup,
+				     BDT_tauHsvfitMet_deltaPhi_eleup, mT_tauH_MET_eleup, mTtot_eleup, MT2_eleup,
+				     BDT_MX_eleup, BDT_bH_tauH_MET_InvMass_eleup, BDT_bH_tauH_SVFIT_InvMass_eleup,
+				     BDT_bH_tauH_InvMass_eleup, HHKin_mass_eleup, HHKin_chi2_eleup, BDT_MET_bH_cosTheta_eleup);
             std::vector<float> BDTouts_eleup = BDTreader.GetPredictions();
             BDToutSM_kl_1_eleup.at(i) = BDTouts_eleup.at(0);
 
             BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_eledown.Pt(),
-              tau2_eledown.Pt(), svfit_eledown.Pt(), BDT_channel,
-              BDT_HT20, pzeta_eledown, pzeta_vis_eledown, BDT_ditau_deltaPhi_eledown,
-              BDT_tauHsvfitMet_deltaPhi_eledown, mT_tauH_MET_eledown, mTtot_eledown, MT2_eledown,
-              BDT_MX_eledown, BDT_bH_tauH_MET_InvMass_eledown, BDT_bH_tauH_SVFIT_InvMass_eledown,
-              BDT_bH_tauH_InvMass_eledown, HHKin_mass_eledown, HHKin_chi2_eledown, BDT_MET_bH_cosTheta_eledown);
+				     tau2_eledown.Pt(), svfit_eledown.Pt(), BDT_channel,
+				     BDT_HT20, pzeta_eledown, pzeta_vis_eledown, BDT_ditau_deltaPhi_eledown,
+				     BDT_tauHsvfitMet_deltaPhi_eledown, mT_tauH_MET_eledown, mTtot_eledown, MT2_eledown,
+				     BDT_MX_eledown, BDT_bH_tauH_MET_InvMass_eledown, BDT_bH_tauH_SVFIT_InvMass_eledown,
+				     BDT_bH_tauH_InvMass_eledown, HHKin_mass_eledown, HHKin_chi2_eledown, BDT_MET_bH_cosTheta_eledown);
             std::vector<float> BDTouts_eledown = BDTreader.GetPredictions();
             BDToutSM_kl_1_eledown.at(i) = BDTouts_eledown.at(0);
           }
@@ -1910,22 +1910,22 @@ int main (int argc, char** argv)
           for (uint j=0; j<mci.getNumberOfModels(); j++)
           {
             mci.setInputs(j,
-            {
-              {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-              {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
-              {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-              {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
-              {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-              {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
-              {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-              {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
-              {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-              {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
-              {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
-              {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
-              {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-              {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}
-            });
+			  {
+			    {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										  {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+																			      {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																		    {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+																																												{"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																										      {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+																																																																					      {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																						 {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+																																																																																																	 {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																	    {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
+																																																																																																																										  {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
+																																																																																																																																			{"met_pt", met.Pt()}, {"met_phi", met.Phi()},
+																																																																																																																																					      {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+																																																																																																																																																	       {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}
+			  });
           }
           auto mdnnSM0_score_tes  = mci.predict(EventNumber, 0);
           auto mdnnSM1_score_tes  = mci.predict(EventNumber, 1);
@@ -2074,12 +2074,12 @@ int main (int argc, char** argv)
           if (doDNN)
           {
             DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_tauup, tau2_tauup, vbfjet1, vbfjet1, met_tauup, svfit_tauup,
-                HHKin_mass_tauup, HHKin_chi2_tauup, KinFitConv_tauup, SVfitConv_tauup, MT2_tauup);
+				       HHKin_mass_tauup, HHKin_chi2_tauup, KinFitConv_tauup, SVfitConv_tauup, MT2_tauup);
             std::vector<float> outs_tauup = DNNreader.GetPredictions();
             DNNoutSM_kl_1_tauup.at(i) = outs_tauup.at(0);
 
             DNNreader.SetShiftedInputs(bjet1, bjet2, tau1_taudown, tau2_taudown, vbfjet1, vbfjet1, met_taudown, svfit_taudown,
-                HHKin_mass_taudown, HHKin_chi2_taudown, KinFitConv_taudown, SVfitConv_taudown, MT2_taudown);
+				       HHKin_mass_taudown, HHKin_chi2_taudown, KinFitConv_taudown, SVfitConv_taudown, MT2_taudown);
             std::vector<float> outs_taudown = DNNreader.GetPredictions();
             DNNoutSM_kl_1_taudown.at(i) = outs_taudown.at(0);
           }
@@ -2090,22 +2090,22 @@ int main (int argc, char** argv)
             for (uint j=0; j<mci.getNumberOfModels(); j++)
             {
               mci.setInputs(j,
-              {
-                {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-                {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
-                {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-                {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
-                {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-                {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
-                {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-                {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
-                {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-                {"lep1_pt", tau1_tauup.Pt()}, {"lep1_eta", tau1_tauup.Eta()}, {"lep1_phi", tau1_tauup.Phi()}, {"lep1_e", tau1_tauup.E()},
-                {"lep2_pt", tau2_tauup.Pt()}, {"lep2_eta", tau2_tauup.Eta()}, {"lep2_phi", tau2_tauup.Phi()}, {"lep2_e", tau2_tauup.E()},
-                {"met_pt", met_tauup.Pt()}, {"met_phi", met_tauup.Phi()},
-                {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-                {"tauh_sv_pt", svfit_tauup.Pt()}, {"tauh_sv_eta", svfit_tauup.Eta()}, {"tauh_sv_phi", svfit_tauup.Phi()}, {"tauh_sv_e", svfit_tauup.E()}
-              });
+			    {
+			      {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										    {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+																				{"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																		      {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+																																												  {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																											{"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+																																																																						{"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																						   {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+																																																																																																	   {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																	      {"lep1_pt", tau1_tauup.Pt()}, {"lep1_eta", tau1_tauup.Eta()}, {"lep1_phi", tau1_tauup.Phi()}, {"lep1_e", tau1_tauup.E()},
+																																																																																																																													    {"lep2_pt", tau2_tauup.Pt()}, {"lep2_eta", tau2_tauup.Eta()}, {"lep2_phi", tau2_tauup.Phi()}, {"lep2_e", tau2_tauup.E()},
+																																																																																																																																									  {"met_pt", met_tauup.Pt()}, {"met_phi", met_tauup.Phi()},
+																																																																																																																																												      {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+																																																																																																																																																								       {"tauh_sv_pt", svfit_tauup.Pt()}, {"tauh_sv_eta", svfit_tauup.Eta()}, {"tauh_sv_phi", svfit_tauup.Phi()}, {"tauh_sv_e", svfit_tauup.E()}
+			    });
             }
             auto mdnnSM0_score_tauup  = mci.predict(EventNumber, 0);
             auto mdnnSM1_score_tauup  = mci.predict(EventNumber, 1);
@@ -2121,22 +2121,22 @@ int main (int argc, char** argv)
             for (uint j=0; j<mci.getNumberOfModels(); j++)
             {
               mci.setInputs(j,
-              {
-                {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-                {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
-                {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-                {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
-                {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-                {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
-                {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-                {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
-                {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-                {"lep1_pt", tau1_taudown.Pt()}, {"lep1_eta", tau1_taudown.Eta()}, {"lep1_phi", tau1_taudown.Phi()}, {"lep1_e", tau1_taudown.E()},
-                {"lep2_pt", tau2_taudown.Pt()}, {"lep2_eta", tau2_taudown.Eta()}, {"lep2_phi", tau2_taudown.Phi()}, {"lep2_e", tau2_taudown.E()},
-                {"met_pt", met_taudown.Pt()}, {"met_phi", met_taudown.Phi()},
-                {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-                {"tauh_sv_pt", svfit_taudown.Pt()}, {"tauh_sv_eta", svfit_taudown.Eta()}, {"tauh_sv_phi", svfit_taudown.Phi()}, {"tauh_sv_e", svfit_taudown.E()}
-              });
+			    {
+			      {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										    {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+																				{"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																		      {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+																																												  {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																											{"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+																																																																						{"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																						   {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+																																																																																																	   {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																	      {"lep1_pt", tau1_taudown.Pt()}, {"lep1_eta", tau1_taudown.Eta()}, {"lep1_phi", tau1_taudown.Phi()}, {"lep1_e", tau1_taudown.E()},
+																																																																																																																														  {"lep2_pt", tau2_taudown.Pt()}, {"lep2_eta", tau2_taudown.Eta()}, {"lep2_phi", tau2_taudown.Phi()}, {"lep2_e", tau2_taudown.E()},
+																																																																																																																																										      {"met_pt", met_taudown.Pt()}, {"met_phi", met_taudown.Phi()},
+																																																																																																																																														    {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+																																																																																																																																																										     {"tauh_sv_pt", svfit_taudown.Pt()}, {"tauh_sv_eta", svfit_taudown.Eta()}, {"tauh_sv_phi", svfit_taudown.Phi()}, {"tauh_sv_e", svfit_taudown.E()}
+			    });
             }
             auto mdnnSM0_score_taudown  = mci.predict(EventNumber, 0);
             auto mdnnSM1_score_taudown  = mci.predict(EventNumber, 1);
@@ -2152,20 +2152,20 @@ int main (int argc, char** argv)
           if (doBDT)
           {
             BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_tauup.Pt(),
-              tau2_tauup.Pt(), svfit_tauup.Pt(), BDT_channel,
-              BDT_HT20, pzeta_tauup, pzeta_vis_tauup, BDT_ditau_deltaPhi_tauup,
-              BDT_tauHsvfitMet_deltaPhi_tauup, mT_tauH_MET_tauup, mTtot_tauup, MT2_tauup,
-              BDT_MX_tauup, BDT_bH_tauH_MET_InvMass_tauup, BDT_bH_tauH_SVFIT_InvMass_tauup,
-              BDT_bH_tauH_InvMass_tauup, HHKin_mass_tauup, HHKin_chi2_tauup, BDT_MET_bH_cosTheta_tauup);
+				     tau2_tauup.Pt(), svfit_tauup.Pt(), BDT_channel,
+				     BDT_HT20, pzeta_tauup, pzeta_vis_tauup, BDT_ditau_deltaPhi_tauup,
+				     BDT_tauHsvfitMet_deltaPhi_tauup, mT_tauH_MET_tauup, mTtot_tauup, MT2_tauup,
+				     BDT_MX_tauup, BDT_bH_tauH_MET_InvMass_tauup, BDT_bH_tauH_SVFIT_InvMass_tauup,
+				     BDT_bH_tauH_InvMass_tauup, HHKin_mass_tauup, HHKin_chi2_tauup, BDT_MET_bH_cosTheta_tauup);
             std::vector<float> BDTouts_tauup = BDTreader.GetPredictions();
             BDToutSM_kl_1_tauup.at(i) = BDTouts_tauup.at(0);
 
             BDTreader.SetInputValues(bjet2.Pt(), (bjet1+bjet2).Pt(), tau1_taudown.Pt(),
-              tau2_taudown.Pt(), svfit_taudown.Pt(), BDT_channel,
-              BDT_HT20, pzeta_taudown, pzeta_vis_taudown, BDT_ditau_deltaPhi_taudown,
-              BDT_tauHsvfitMet_deltaPhi_taudown, mT_tauH_MET_taudown, mTtot_taudown, MT2_taudown,
-              BDT_MX_taudown, BDT_bH_tauH_MET_InvMass_taudown, BDT_bH_tauH_SVFIT_InvMass_taudown,
-              BDT_bH_tauH_InvMass_taudown, HHKin_mass_taudown, HHKin_chi2_taudown, BDT_MET_bH_cosTheta_taudown);
+				     tau2_taudown.Pt(), svfit_taudown.Pt(), BDT_channel,
+				     BDT_HT20, pzeta_taudown, pzeta_vis_taudown, BDT_ditau_deltaPhi_taudown,
+				     BDT_tauHsvfitMet_deltaPhi_taudown, mT_tauH_MET_taudown, mTtot_taudown, MT2_taudown,
+				     BDT_MX_taudown, BDT_bH_tauH_MET_InvMass_taudown, BDT_bH_tauH_SVFIT_InvMass_taudown,
+				     BDT_bH_tauH_InvMass_taudown, HHKin_mass_taudown, HHKin_chi2_taudown, BDT_MET_bH_cosTheta_taudown);
             std::vector<float> BDTouts_taudown = BDTreader.GetPredictions();
             BDToutSM_kl_1_taudown.at(i) = BDTouts_taudown.at(0);
           }
@@ -2199,22 +2199,22 @@ int main (int argc, char** argv)
           for (uint j=0; j<mci.getNumberOfModels(); j++)
           {
             mci.setInputs(j,
-            {
-              {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-              {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
-              {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-              {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
-              {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-              {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
-              {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-              {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
-              {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-              {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
-              {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
-              {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
-              {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-              {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}
-            });
+			  {
+			    {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										  {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+																			      {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																		    {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+																																												{"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																										      {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+																																																																					      {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																						 {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+																																																																																																	 {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																	    {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
+																																																																																																																										  {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
+																																																																																																																																			{"met_pt", met.Pt()}, {"met_phi", met.Phi()},
+																																																																																																																																					      {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+																																																																																																																																																	       {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}
+			  });
           }
           auto mdnnSM0_score_jes  = mci.predict(EventNumber, 0);
           auto mdnnSM1_score_jes  = mci.predict(EventNumber, 1);
@@ -2371,12 +2371,12 @@ int main (int argc, char** argv)
           if (doDNN)
           {
             DNNreader.SetShiftedInputs(bjet1_jetup, bjet2_jetup, tau1, tau2, vbfjet1_jetup, vbfjet2_jetup, met_jetup, svfit_jetup,
-                HHKin_mass_jetup, HHKin_chi2_jetup, KinFitConv_jetup, SVfitConv_jetup, MT2_jetup);
+				       HHKin_mass_jetup, HHKin_chi2_jetup, KinFitConv_jetup, SVfitConv_jetup, MT2_jetup);
             std::vector<float> outs_jetup = DNNreader.GetPredictions();
             DNNoutSM_kl_1_jetup.at(i) = outs_jetup.at(0);
 
             DNNreader.SetShiftedInputs(bjet1_jetdown, bjet2_jetdown, tau1, tau2, vbfjet1_jetdown, vbfjet2_jetdown, met_jetdown, svfit_jetdown,
-                HHKin_mass_jetdown, HHKin_chi2_jetdown, KinFitConv_jetdown, SVfitConv_jetdown, MT2_jetdown);
+				       HHKin_mass_jetdown, HHKin_chi2_jetdown, KinFitConv_jetdown, SVfitConv_jetdown, MT2_jetdown);
             std::vector<float> outs_jetdown = DNNreader.GetPredictions();
             DNNoutSM_kl_1_jetdown.at(i) = outs_jetdown.at(0);
           }
@@ -2387,22 +2387,22 @@ int main (int argc, char** argv)
             for (uint j=0; j<mci.getNumberOfModels(); j++)
             {
               mci.setInputs(j,
-              {
-                {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-                {"bjet1_pt", bjet1_jetup.Pt()}, {"bjet1_eta", bjet1_jetup.Eta()}, {"bjet1_phi", bjet1_jetup.Phi()}, {"bjet1_e", bjet1_jetup.E()},
-                {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-                {"bjet2_pt", bjet2_jetup.Pt()}, {"bjet2_eta", bjet2_jetup.Eta()}, {"bjet2_phi", bjet2_jetup.Phi()}, {"bjet2_e", bjet2_jetup.E()},
-                {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-                {"vbfjet1_pt", vbfjet1_jetup.Pt()}, {"vbfjet1_eta", vbfjet1_jetup.Eta()}, {"vbfjet1_phi", vbfjet1_jetup.Phi()}, {"vbfjet1_e", vbfjet1_jetup.E()},
-                {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-                {"vbfjet2_pt", vbfjet2_jetup.Pt()}, {"vbfjet2_eta", vbfjet2_jetup.Eta()}, {"vbfjet2_phi", vbfjet2_jetup.Phi()}, {"vbfjet2_e", vbfjet2_jetup.E()},
-                {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-                {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
-                {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
-                {"met_pt", met_jetup.Pt()}, {"met_phi", met_jetup.Phi()},
-                {"bh_pt", (bjet1_jetup+bjet2_jetup).Pt()}, {"bh_eta", (bjet1_jetup+bjet2_jetup).Eta()}, {"bh_phi", (bjet1_jetup+bjet2_jetup).Phi()}, {"bh_e", (bjet1_jetup+bjet2_jetup).E()},
-                {"tauh_sv_pt", svfit_jetup.Pt()}, {"tauh_sv_eta", svfit_jetup.Eta()}, {"tauh_sv_phi", svfit_jetup.Phi()}, {"tauh_sv_e", svfit_jetup.E()}
-              });
+			    {
+			      {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										    {"bjet1_pt", bjet1_jetup.Pt()}, {"bjet1_eta", bjet1_jetup.Eta()}, {"bjet1_phi", bjet1_jetup.Phi()}, {"bjet1_e", bjet1_jetup.E()},
+																							{"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																					      {"bjet2_pt", bjet2_jetup.Pt()}, {"bjet2_eta", bjet2_jetup.Eta()}, {"bjet2_phi", bjet2_jetup.Phi()}, {"bjet2_e", bjet2_jetup.E()},
+																																																		  {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																																	{"vbfjet1_pt", vbfjet1_jetup.Pt()}, {"vbfjet1_eta", vbfjet1_jetup.Eta()}, {"vbfjet1_phi", vbfjet1_jetup.Phi()}, {"vbfjet1_e", vbfjet1_jetup.E()},
+																																																																															{"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																															   {"vbfjet2_pt", vbfjet2_jetup.Pt()}, {"vbfjet2_eta", vbfjet2_jetup.Eta()}, {"vbfjet2_phi", vbfjet2_jetup.Phi()}, {"vbfjet2_e", vbfjet2_jetup.E()},
+																																																																																																													   {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																													      {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
+																																																																																																																																						    {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
+																																																																																																																																															  {"met_pt", met_jetup.Pt()}, {"met_phi", met_jetup.Phi()},
+																																																																																																																																																		      {"bh_pt", (bjet1_jetup+bjet2_jetup).Pt()}, {"bh_eta", (bjet1_jetup+bjet2_jetup).Eta()}, {"bh_phi", (bjet1_jetup+bjet2_jetup).Phi()}, {"bh_e", (bjet1_jetup+bjet2_jetup).E()},
+																																																																																																																																																																			   {"tauh_sv_pt", svfit_jetup.Pt()}, {"tauh_sv_eta", svfit_jetup.Eta()}, {"tauh_sv_phi", svfit_jetup.Phi()}, {"tauh_sv_e", svfit_jetup.E()}
+			    });
             }
             auto mdnnSM0_score_jetup  = mci.predict(EventNumber, 0);
             auto mdnnSM1_score_jetup  = mci.predict(EventNumber, 1);
@@ -2418,22 +2418,22 @@ int main (int argc, char** argv)
             for (uint j=0; j<mci.getNumberOfModels(); j++)
             {
               mci.setInputs(j,
-              {
-                {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-                {"bjet1_pt", bjet1_jetdown.Pt()}, {"bjet1_eta", bjet1_jetdown.Eta()}, {"bjet1_phi", bjet1_jetdown.Phi()}, {"bjet1_e", bjet1_jetdown.E()},
-                {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-                {"bjet2_pt", bjet2_jetdown.Pt()}, {"bjet2_eta", bjet2_jetdown.Eta()}, {"bjet2_phi", bjet2_jetdown.Phi()}, {"bjet2_e", bjet2_jetdown.E()},
-                {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-                {"vbfjet1_pt", vbfjet1_jetdown.Pt()}, {"vbfjet1_eta", vbfjet1_jetdown.Eta()}, {"vbfjet1_phi", vbfjet1_jetdown.Phi()}, {"vbfjet1_e", vbfjet1_jetdown.E()},
-                {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-                {"vbfjet2_pt", vbfjet2_jetdown.Pt()}, {"vbfjet2_eta", vbfjet2_jetdown.Eta()}, {"vbfjet2_phi", vbfjet2_jetdown.Phi()}, {"vbfjet2_e", vbfjet2_jetdown.E()},
-                {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-                {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
-                {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
-                {"met_pt", met_jetdown.Pt()}, {"met_phi", met_jetdown.Phi()},
-                {"bh_pt", (bjet1_jetdown+bjet2_jetdown).Pt()}, {"bh_eta", (bjet1_jetdown+bjet2_jetdown).Eta()}, {"bh_phi", (bjet1_jetdown+bjet2_jetdown).Phi()}, {"bh_e", (bjet1_jetdown+bjet2_jetdown).E()},
-                {"tauh_sv_pt", svfit_jetdown.Pt()}, {"tauh_sv_eta", svfit_jetdown.Eta()}, {"tauh_sv_phi", svfit_jetdown.Phi()}, {"tauh_sv_e", svfit_jetdown.E()}
-              });
+			    {
+			      {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										    {"bjet1_pt", bjet1_jetdown.Pt()}, {"bjet1_eta", bjet1_jetdown.Eta()}, {"bjet1_phi", bjet1_jetdown.Phi()}, {"bjet1_e", bjet1_jetdown.E()},
+																							      {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																						    {"bjet2_pt", bjet2_jetdown.Pt()}, {"bjet2_eta", bjet2_jetdown.Eta()}, {"bjet2_phi", bjet2_jetdown.Phi()}, {"bjet2_e", bjet2_jetdown.E()},
+																																																			      {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																																		    {"vbfjet1_pt", vbfjet1_jetdown.Pt()}, {"vbfjet1_eta", vbfjet1_jetdown.Eta()}, {"vbfjet1_phi", vbfjet1_jetdown.Phi()}, {"vbfjet1_e", vbfjet1_jetdown.E()},
+																																																																																	  {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																																	     {"vbfjet2_pt", vbfjet2_jetdown.Pt()}, {"vbfjet2_eta", vbfjet2_jetdown.Eta()}, {"vbfjet2_phi", vbfjet2_jetdown.Phi()}, {"vbfjet2_e", vbfjet2_jetdown.E()},
+																																																																																																																   {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																																      {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
+																																																																																																																																									    {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
+																																																																																																																																																		  {"met_pt", met_jetdown.Pt()}, {"met_phi", met_jetdown.Phi()},
+																																																																																																																																																						{"bh_pt", (bjet1_jetdown+bjet2_jetdown).Pt()}, {"bh_eta", (bjet1_jetdown+bjet2_jetdown).Eta()}, {"bh_phi", (bjet1_jetdown+bjet2_jetdown).Phi()}, {"bh_e", (bjet1_jetdown+bjet2_jetdown).E()},
+																																																																																																																																																																								 {"tauh_sv_pt", svfit_jetdown.Pt()}, {"tauh_sv_eta", svfit_jetdown.Eta()}, {"tauh_sv_phi", svfit_jetdown.Phi()}, {"tauh_sv_e", svfit_jetdown.E()}
+			    });
             }
             auto mdnnSM0_score_jetdown  = mci.predict(EventNumber, 0);
             auto mdnnSM1_score_jetdown  = mci.predict(EventNumber, 1);
@@ -2449,20 +2449,20 @@ int main (int argc, char** argv)
           if (doBDT)
           {
             BDTreader.SetInputValues(bjet2_jetup.Pt(), (bjet1_jetup+bjet2_jetup).Pt(), tau1.Pt(),
-              tau2.Pt(), svfit_jetup.Pt(), BDT_channel,
-              BDT_HT20_jetup->at(i), pzeta_jetup, pzeta_vis_jetup, BDT_ditau_deltaPhi_jetup,
-              BDT_tauHsvfitMet_deltaPhi_jetup, mT_tauH_MET_jetup, mTtot_jetup, MT2_jetup,
-              BDT_MX_jetup, BDT_bH_tauH_MET_InvMass_jetup, BDT_bH_tauH_SVFIT_InvMass_jetup,
-              BDT_bH_tauH_InvMass_jetup, HHKin_mass_jetup, HHKin_chi2_jetup, BDT_MET_bH_cosTheta_jetup);
+				     tau2.Pt(), svfit_jetup.Pt(), BDT_channel,
+				     BDT_HT20_jetup->at(i), pzeta_jetup, pzeta_vis_jetup, BDT_ditau_deltaPhi_jetup,
+				     BDT_tauHsvfitMet_deltaPhi_jetup, mT_tauH_MET_jetup, mTtot_jetup, MT2_jetup,
+				     BDT_MX_jetup, BDT_bH_tauH_MET_InvMass_jetup, BDT_bH_tauH_SVFIT_InvMass_jetup,
+				     BDT_bH_tauH_InvMass_jetup, HHKin_mass_jetup, HHKin_chi2_jetup, BDT_MET_bH_cosTheta_jetup);
             std::vector<float> BDTouts_jetup = BDTreader.GetPredictions();
             BDToutSM_kl_1_jetup.at(i) = BDTouts_jetup.at(0);
 
             BDTreader.SetInputValues(bjet2_jetdown.Pt(), (bjet1_jetdown+bjet2_jetdown).Pt(), tau1.Pt(),
-              tau2.Pt(), svfit_jetdown.Pt(), BDT_channel,
-              BDT_HT20_jetdown->at(i), pzeta_jetdown, pzeta_vis_jetdown, BDT_ditau_deltaPhi_jetdown,
-              BDT_tauHsvfitMet_deltaPhi_jetdown, mT_tauH_MET_jetdown, mTtot_jetdown, MT2_jetdown,
-              BDT_MX_jetdown, BDT_bH_tauH_MET_InvMass_jetdown, BDT_bH_tauH_SVFIT_InvMass_jetdown,
-              BDT_bH_tauH_InvMass_jetdown, HHKin_mass_jetdown, HHKin_chi2_jetdown, BDT_MET_bH_cosTheta_jetdown);
+				     tau2.Pt(), svfit_jetdown.Pt(), BDT_channel,
+				     BDT_HT20_jetdown->at(i), pzeta_jetdown, pzeta_vis_jetdown, BDT_ditau_deltaPhi_jetdown,
+				     BDT_tauHsvfitMet_deltaPhi_jetdown, mT_tauH_MET_jetdown, mTtot_jetdown, MT2_jetdown,
+				     BDT_MX_jetdown, BDT_bH_tauH_MET_InvMass_jetdown, BDT_bH_tauH_SVFIT_InvMass_jetdown,
+				     BDT_bH_tauH_InvMass_jetdown, HHKin_mass_jetdown, HHKin_chi2_jetdown, BDT_MET_bH_cosTheta_jetdown);
             std::vector<float> BDTouts_jetdown = BDTreader.GetPredictions();
             BDToutSM_kl_1_jetdown.at(i) = BDTouts_jetdown.at(0);
           }
@@ -2494,22 +2494,22 @@ int main (int argc, char** argv)
         for (uint j=0; j<mci.getNumberOfModels(); j++)
         {
           mci.setInputs(j,
-          {
-            {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-            {"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
-            {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-            {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
-            {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-            {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
-            {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-            {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
-            {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-            {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
-            {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
-            {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
-            {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
-            {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}
-          });
+			{
+			  {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										{"bjet1_pt", bjet1_pt}, {"bjet1_eta", bjet1_eta}, {"bjet1_phi", bjet1_phi}, {"bjet1_e", bjet1_e},
+																			    {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																		  {"bjet2_pt", bjet2_pt}, {"bjet2_eta", bjet2_eta}, {"bjet2_phi", bjet2_phi}, {"bjet2_e", bjet2_e},
+																																											      {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																										    {"vbfjet1_pt", vbfjet1_pt}, {"vbfjet1_eta", vbfjet1_eta}, {"vbfjet1_phi", vbfjet1_phi}, {"vbfjet1_e", vbfjet1_e},
+																																																																					    {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																					       {"vbfjet2_pt", vbfjet2_pt}, {"vbfjet2_eta", vbfjet2_eta}, {"vbfjet2_phi", vbfjet2_phi}, {"vbfjet2_e", vbfjet2_e},
+																																																																																																       {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																	  {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
+																																																																																																																										{"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
+																																																																																																																																		      {"met_pt", met.Pt()}, {"met_phi", met.Phi()},
+																																																																																																																																					    {"bh_pt", (bjet1+bjet2).Pt()}, {"bh_eta", (bjet1+bjet2).Eta()}, {"bh_phi", (bjet1+bjet2).Phi()}, {"bh_e", (bjet1+bjet2).E()},
+																																																																																																																																																	     {"tauh_sv_pt", tauH_SVFIT_pt}, {"tauh_sv_eta", tauH_SVFIT_eta}, {"tauh_sv_phi", tauH_SVFIT_phi}, {"tauh_sv_e", svfit.E()}
+			});
         }
         auto mdnnSM0_score_jetTot  = mci.predict(EventNumber, 0);
         auto mdnnSM1_score_jetTot  = mci.predict(EventNumber, 1);
@@ -2601,16 +2601,16 @@ int main (int argc, char** argv)
         if (doMT2)
         {
           MT2_jetupTot = asymm_mt2_lester_bisect::get_mT2( bjet1_jetupTot.M(), bjet1_jetupTot.Px(), bjet1_jetupTot.Py(),
-                                                          bjet2_jetupTot.M(), bjet2_jetupTot.Px(), bjet2_jetupTot.Py(),
-                                                          (tau1.Px() + tau2.Px() + met_jetupTot.Px()),
-                                                          (tau1.Py() + tau2.Py() + met_jetupTot.Py()),
-                                                          tau1.M(), tau2.M(), desiredPrecisionOnMt2);
+							   bjet2_jetupTot.M(), bjet2_jetupTot.Px(), bjet2_jetupTot.Py(),
+							   (tau1.Px() + tau2.Px() + met_jetupTot.Px()),
+							   (tau1.Py() + tau2.Py() + met_jetupTot.Py()),
+							   tau1.M(), tau2.M(), desiredPrecisionOnMt2);
 
           MT2_jetdownTot = asymm_mt2_lester_bisect::get_mT2( bjet1_jetdownTot.M(), bjet1_jetdownTot.Px(), bjet1_jetdownTot.Py(),
-                                                            bjet2_jetdownTot.M(), bjet2_jetdownTot.Px(), bjet2_jetdownTot.Py(),
-                                                            (tau1.Px() + tau2.Px() + met_jetdownTot.Px()),
-                                                            (tau1.Py() + tau2.Py() + met_jetdownTot.Py()),
-                                                            tau1.M(), tau2.M(), desiredPrecisionOnMt2);
+							     bjet2_jetdownTot.M(), bjet2_jetdownTot.Px(), bjet2_jetdownTot.Py(),
+							     (tau1.Px() + tau2.Px() + met_jetdownTot.Px()),
+							     (tau1.Py() + tau2.Py() + met_jetdownTot.Py()),
+							     tau1.M(), tau2.M(), desiredPrecisionOnMt2);
         }
 
         if (doSVfit)
@@ -2666,12 +2666,12 @@ int main (int argc, char** argv)
         if (doDNN)
         {
           DNNreader.SetShiftedInputs(bjet1_jetupTot, bjet2_jetupTot, tau1, tau2, vbfjet1_jetupTot, vbfjet2_jetupTot, met_jetupTot, svfit_jetupTot,
-              HHKin_mass_jetupTot, HHKin_chi2_jetupTot, KinFitConv_jetupTot, SVfitConv_jetupTot, MT2_jetupTot);
+				     HHKin_mass_jetupTot, HHKin_chi2_jetupTot, KinFitConv_jetupTot, SVfitConv_jetupTot, MT2_jetupTot);
           std::vector<float> outs_jetupTot = DNNreader.GetPredictions();
           DNNoutSM_kl_1_jetupTot = outs_jetupTot.at(0);
 
           DNNreader.SetShiftedInputs(bjet1_jetdownTot, bjet2_jetdownTot, tau1, tau2, vbfjet1_jetdownTot, vbfjet2_jetdownTot, met_jetdownTot, svfit_jetdownTot,
-              HHKin_mass_jetdownTot, HHKin_chi2_jetdownTot, KinFitConv_jetdownTot, SVfitConv_jetdownTot, MT2_jetdownTot);
+				     HHKin_mass_jetdownTot, HHKin_chi2_jetdownTot, KinFitConv_jetdownTot, SVfitConv_jetdownTot, MT2_jetdownTot);
           std::vector<float> outs_jetdownTot = DNNreader.GetPredictions();
           DNNoutSM_kl_1_jetdownTot = outs_jetdownTot.at(0);
         }
@@ -2682,22 +2682,22 @@ int main (int argc, char** argv)
           for (uint j=0; j<mci.getNumberOfModels(); j++)
           {
             mci.setInputs(j,
-            {
-              {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-              {"bjet1_pt", bjet1_jetupTot.Pt()}, {"bjet1_eta", bjet1_jetupTot.Eta()}, {"bjet1_phi", bjet1_jetupTot.Phi()}, {"bjet1_e", bjet1_jetupTot.E()},
-              {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-              {"bjet2_pt", bjet2_jetupTot.Pt()}, {"bjet2_eta", bjet2_jetupTot.Eta()}, {"bjet2_phi", bjet2_jetupTot.Phi()}, {"bjet2_e", bjet2_jetupTot.E()},
-              {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-              {"vbfjet1_pt", vbfjet1_jetupTot.Pt()}, {"vbfjet1_eta", vbfjet1_jetupTot.Eta()}, {"vbfjet1_phi", vbfjet1_jetupTot.Phi()}, {"vbfjet1_e", vbfjet1_jetupTot.E()},
-              {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-              {"vbfjet2_pt", vbfjet2_jetupTot.Pt()}, {"vbfjet2_eta", vbfjet2_jetupTot.Eta()}, {"vbfjet2_phi", vbfjet2_jetupTot.Phi()}, {"vbfjet2_e", vbfjet2_jetupTot.E()},
-              {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-              {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
-              {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
-              {"met_pt", met_jetupTot.Pt()}, {"met_phi", met_jetupTot.Phi()},
-              {"bh_pt", (bjet1_jetupTot+bjet2_jetupTot).Pt()}, {"bh_eta", (bjet1_jetupTot+bjet2_jetupTot).Eta()}, {"bh_phi", (bjet1_jetupTot+bjet2_jetupTot).Phi()}, {"bh_e", (bjet1_jetupTot+bjet2_jetupTot).E()},
-              {"tauh_sv_pt", svfit_jetupTot.Pt()}, {"tauh_sv_eta", svfit_jetupTot.Eta()}, {"tauh_sv_phi", svfit_jetupTot.Phi()}, {"tauh_sv_e", svfit_jetupTot.E()}
-            });
+			  {
+			    {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										  {"bjet1_pt", bjet1_jetupTot.Pt()}, {"bjet1_eta", bjet1_jetupTot.Eta()}, {"bjet1_phi", bjet1_jetupTot.Phi()}, {"bjet1_e", bjet1_jetupTot.E()},
+																							       {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																						     {"bjet2_pt", bjet2_jetupTot.Pt()}, {"bjet2_eta", bjet2_jetupTot.Eta()}, {"bjet2_phi", bjet2_jetupTot.Phi()}, {"bjet2_e", bjet2_jetupTot.E()},
+																																																				  {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																																			{"vbfjet1_pt", vbfjet1_jetupTot.Pt()}, {"vbfjet1_eta", vbfjet1_jetupTot.Eta()}, {"vbfjet1_phi", vbfjet1_jetupTot.Phi()}, {"vbfjet1_e", vbfjet1_jetupTot.E()},
+																																																																																		 {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																																		    {"vbfjet2_pt", vbfjet2_jetupTot.Pt()}, {"vbfjet2_eta", vbfjet2_jetupTot.Eta()}, {"vbfjet2_phi", vbfjet2_jetupTot.Phi()}, {"vbfjet2_e", vbfjet2_jetupTot.E()},
+																																																																																																																	     {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																																		{"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
+																																																																																																																																										      {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
+																																																																																																																																																			    {"met_pt", met_jetupTot.Pt()}, {"met_phi", met_jetupTot.Phi()},
+																																																																																																																																																							   {"bh_pt", (bjet1_jetupTot+bjet2_jetupTot).Pt()}, {"bh_eta", (bjet1_jetupTot+bjet2_jetupTot).Eta()}, {"bh_phi", (bjet1_jetupTot+bjet2_jetupTot).Phi()}, {"bh_e", (bjet1_jetupTot+bjet2_jetupTot).E()},
+																																																																																																																																																																										  {"tauh_sv_pt", svfit_jetupTot.Pt()}, {"tauh_sv_eta", svfit_jetupTot.Eta()}, {"tauh_sv_phi", svfit_jetupTot.Phi()}, {"tauh_sv_e", svfit_jetupTot.E()}
+			  });
           }
           auto mdnnSM0_score_jetupTot  = mci.predict(EventNumber, 0);
           auto mdnnSM1_score_jetupTot  = mci.predict(EventNumber, 1);
@@ -2713,22 +2713,22 @@ int main (int argc, char** argv)
           for (uint j=0; j<mci.getNumberOfModels(); j++)
           {
             mci.setInputs(j,
-            {
-              {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
-              {"bjet1_pt", bjet1_jetdownTot.Pt()}, {"bjet1_eta", bjet1_jetdownTot.Eta()}, {"bjet1_phi", bjet1_jetdownTot.Phi()}, {"bjet1_e", bjet1_jetdownTot.E()},
-              {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
-              {"bjet2_pt", bjet2_jetdownTot.Pt()}, {"bjet2_eta", bjet2_jetdownTot.Eta()}, {"bjet2_phi", bjet2_jetdownTot.Phi()}, {"bjet2_e", bjet2_jetdownTot.E()},
-              {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
-              {"vbfjet1_pt", vbfjet1_jetdownTot.Pt()}, {"vbfjet1_eta", vbfjet1_jetdownTot.Eta()}, {"vbfjet1_phi", vbfjet1_jetdownTot.Phi()}, {"vbfjet1_e", vbfjet1_jetdownTot.E()},
-              {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
-              {"vbfjet2_pt", vbfjet2_jetdownTot.Pt()}, {"vbfjet2_eta", vbfjet2_jetdownTot.Eta()}, {"vbfjet2_phi", vbfjet2_jetdownTot.Phi()}, {"vbfjet2_e", vbfjet2_jetdownTot.E()},
-              {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
-              {"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
-              {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
-              {"met_pt", met_jetdownTot.Pt()}, {"met_phi", met_jetdownTot.Phi()},
-              {"bh_pt", (bjet1_jetdownTot+bjet2_jetdownTot).Pt()}, {"bh_eta", (bjet1_jetdownTot+bjet2_jetdownTot).Eta()}, {"bh_phi", (bjet1_jetdownTot+bjet2_jetdownTot).Phi()}, {"bh_e", (bjet1_jetdownTot+bjet2_jetdownTot).E()},
-              {"tauh_sv_pt", svfit_jetdownTot.Pt()}, {"tauh_sv_eta", svfit_jetdownTot.Eta()}, {"tauh_sv_phi", svfit_jetdownTot.Phi()}, {"tauh_sv_e", svfit_jetdownTot.E()}
-            });
+			  {
+			    {"is_mutau", mdnn_isMuTau}, {"is_etau", mdnn_isETau}, {"is_tautau", mdnn_isTauTau},
+										  {"bjet1_pt", bjet1_jetdownTot.Pt()}, {"bjet1_eta", bjet1_jetdownTot.Eta()}, {"bjet1_phi", bjet1_jetdownTot.Phi()}, {"bjet1_e", bjet1_jetdownTot.E()},
+																								     {"bjet1_deepflavor_b", bjet1_bID_deepFlavor}, {"bjet1_deepflavor_cvsb", CvsB_b1}, {"bjet1_deepflavor_cvsl", CvsL_b1}, {"bjet1_hhbtag", HHbtag_b1},
+																																							   {"bjet2_pt", bjet2_jetdownTot.Pt()}, {"bjet2_eta", bjet2_jetdownTot.Eta()}, {"bjet2_phi", bjet2_jetdownTot.Phi()}, {"bjet2_e", bjet2_jetdownTot.E()},
+																																																					      {"bjet2_deepflavor_b", bjet2_bID_deepFlavor}, {"bjet2_deepflavor_cvsb", CvsB_b2}, {"bjet2_deepflavor_cvsl", CvsL_b2}, {"bjet2_hhbtag", HHbtag_b2},
+																																																																				    {"vbfjet1_pt", vbfjet1_jetdownTot.Pt()}, {"vbfjet1_eta", vbfjet1_jetdownTot.Eta()}, {"vbfjet1_phi", vbfjet1_jetdownTot.Phi()}, {"vbfjet1_e", vbfjet1_jetdownTot.E()},
+																																																																																				   {"vbfjet1_deepflavor_b", VBFjet1_btag_deepFlavor}, {"vbfjet1_deepflavor_cvsb", CvsB_vbf1}, {"vbfjet1_deepflavor_cvsl", CvsL_vbf1}, {"vbfjet1_hhbtag", HHbtag_vbf1},
+																																																																																																				      {"vbfjet2_pt", vbfjet2_jetdownTot.Pt()}, {"vbfjet2_eta", vbfjet2_jetdownTot.Eta()}, {"vbfjet2_phi", vbfjet2_jetdownTot.Phi()}, {"vbfjet2_e", vbfjet2_jetdownTot.E()},
+																																																																																																																				     {"vbfjet2_deepflavor_b", VBFjet2_btag_deepFlavor}, {"vbfjet2_deepflavor_cvsb", CvsB_vbf2}, {"vbfjet2_deepflavor_cvsl", CvsL_vbf2}, {"vbfjet2_hhbtag", HHbtag_vbf2},
+																																																																																																																																					{"lep1_pt", dau1_pt}, {"lep1_eta", dau1_eta}, {"lep1_phi", dau1_phi}, {"lep1_e", dau1_e},
+																																																																																																																																													      {"lep2_pt", dau2_pt}, {"lep2_eta", dau2_eta}, {"lep2_phi", dau2_phi}, {"lep2_e", dau2_e},
+																																																																																																																																																						    {"met_pt", met_jetdownTot.Pt()}, {"met_phi", met_jetdownTot.Phi()},
+																																																																																																																																																										     {"bh_pt", (bjet1_jetdownTot+bjet2_jetdownTot).Pt()}, {"bh_eta", (bjet1_jetdownTot+bjet2_jetdownTot).Eta()}, {"bh_phi", (bjet1_jetdownTot+bjet2_jetdownTot).Phi()}, {"bh_e", (bjet1_jetdownTot+bjet2_jetdownTot).E()},
+																																																																																																																																																																															{"tauh_sv_pt", svfit_jetdownTot.Pt()}, {"tauh_sv_eta", svfit_jetdownTot.Eta()}, {"tauh_sv_phi", svfit_jetdownTot.Phi()}, {"tauh_sv_e", svfit_jetdownTot.E()}
+			  });
           }
           auto mdnnSM0_score_jetdownTot  = mci.predict(EventNumber, 0);
           auto mdnnSM1_score_jetdownTot  = mci.predict(EventNumber, 1);
@@ -2744,20 +2744,20 @@ int main (int argc, char** argv)
         if (doBDT)
         {
           BDTreader.SetInputValues(bjet2_jetupTot.Pt(), (bjet1_jetupTot+bjet2_jetupTot).Pt(), tau1.Pt(),
-            tau2.Pt(), svfit_jetupTot.Pt(), BDT_channel,
-            BDT_HT20_jetupTot, pzeta_jetupTot, pzeta_vis_jetupTot, BDT_ditau_deltaPhi_jetupTot,
-            BDT_tauHsvfitMet_deltaPhi_jetupTot, mT_tauH_MET_jetupTot, mTtot_jetupTot, MT2_jetupTot,
-            BDT_MX_jetupTot, BDT_bH_tauH_MET_InvMass_jetupTot, BDT_bH_tauH_SVFIT_InvMass_jetupTot,
-            BDT_bH_tauH_InvMass_jetupTot, HHKin_mass_jetupTot, HHKin_chi2_jetupTot, BDT_MET_bH_cosTheta_jetupTot);
+				   tau2.Pt(), svfit_jetupTot.Pt(), BDT_channel,
+				   BDT_HT20_jetupTot, pzeta_jetupTot, pzeta_vis_jetupTot, BDT_ditau_deltaPhi_jetupTot,
+				   BDT_tauHsvfitMet_deltaPhi_jetupTot, mT_tauH_MET_jetupTot, mTtot_jetupTot, MT2_jetupTot,
+				   BDT_MX_jetupTot, BDT_bH_tauH_MET_InvMass_jetupTot, BDT_bH_tauH_SVFIT_InvMass_jetupTot,
+				   BDT_bH_tauH_InvMass_jetupTot, HHKin_mass_jetupTot, HHKin_chi2_jetupTot, BDT_MET_bH_cosTheta_jetupTot);
           std::vector<float> BDTouts_jetupTot = BDTreader.GetPredictions();
           BDToutSM_kl_1_jetupTot = BDTouts_jetupTot.at(0);
 
           BDTreader.SetInputValues(bjet2_jetdownTot.Pt(), (bjet1_jetdownTot+bjet2_jetdownTot).Pt(), tau1.Pt(),
-            tau2.Pt(), svfit_jetdownTot.Pt(), BDT_channel,
-            BDT_HT20_jetdownTot, pzeta_jetdownTot, pzeta_vis_jetdownTot, BDT_ditau_deltaPhi_jetdownTot,
-            BDT_tauHsvfitMet_deltaPhi_jetdownTot, mT_tauH_MET_jetdownTot, mTtot_jetdownTot, MT2_jetdownTot,
-            BDT_MX_jetdownTot, BDT_bH_tauH_MET_InvMass_jetdownTot, BDT_bH_tauH_SVFIT_InvMass_jetdownTot,
-            BDT_bH_tauH_InvMass_jetdownTot, HHKin_mass_jetdownTot, HHKin_chi2_jetdownTot, BDT_MET_bH_cosTheta_jetdownTot);
+				   tau2.Pt(), svfit_jetdownTot.Pt(), BDT_channel,
+				   BDT_HT20_jetdownTot, pzeta_jetdownTot, pzeta_vis_jetdownTot, BDT_ditau_deltaPhi_jetdownTot,
+				   BDT_tauHsvfitMet_deltaPhi_jetdownTot, mT_tauH_MET_jetdownTot, mTtot_jetdownTot, MT2_jetdownTot,
+				   BDT_MX_jetdownTot, BDT_bH_tauH_MET_InvMass_jetdownTot, BDT_bH_tauH_SVFIT_InvMass_jetdownTot,
+				   BDT_bH_tauH_InvMass_jetdownTot, HHKin_mass_jetdownTot, HHKin_chi2_jetdownTot, BDT_MET_bH_cosTheta_jetdownTot);
           std::vector<float> BDTouts_jetdownTot = BDTreader.GetPredictions();
           BDToutSM_kl_1_jetdownTot = BDTouts_jetdownTot.at(0);
         }

@@ -57,7 +57,7 @@ SVfitKLUBinterface::SVfitKLUBinterface (int verbosity, TLorentzVector tau1, TLor
     decay1 = DM1;
     l2Type = classic_svFit::MeasuredTauLepton::kTauToHadDecay;
     mass2  = tau2.M();
-    decay2 = DM2; 
+    decay2 = DM2;
     kappa_ = 5.;
   }
 
@@ -92,7 +92,7 @@ std::vector<double> SVfitKLUBinterface::FitAndGetResult()
   // Actually integrate
   algo.integrate(measuredTauLeptons_, METx_, METy_, covMET_);
 
-  // Return SVfit quantities if the integration succeeded 
+  // Return SVfit quantities if the integration succeeded
   // otherwise vector of -999 if the integration failed
   if (algo.isValidSolution())
   {

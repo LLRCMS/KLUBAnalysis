@@ -1,8 +1,8 @@
-  #include "../interface/PUReweight.h"
+#include "../interface/PUReweight.h"
 
-  #include <iostream>
-  #include <cstdlib>
-  #include <fstream>
+#include <iostream>
+#include <cstdlib>
+#include <fstream>
 
 // ---------------------------------------------
 // open input txt file and return a vector with PU weights
@@ -14,14 +14,14 @@ std::vector<float> PUReweight::LoadExternalWeights (TString filename)
   std::ifstream infile(filename.Data());
   std::string line;
   while (std::getline(infile, line))
-    {
-      line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
-      while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
-      while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
-      while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
-      if (!line.empty()) // skip empty lines
+  {
+    line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
+    while (line.find(" ") != std::string::npos) line = line.erase(line.find(" "), 1); // remove white spaces
+    while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
+    while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
+    if (!line.empty()) // skip empty lines
       externalPUweights.push_back(atof(line.c_str()));
-    }
+  }
 
   return externalPUweights;
 }
@@ -34,30 +34,30 @@ float PUReweight::weight(int MC, int target, int input, TString filename) {
   else if (theType == RUN2ANALYSIS) {
 
     if        (MC==25 && target==25) {
-      if (input < 52) 
+      if (input < 52)
         return hT2015_MC25ns_Data25ns.at(input) ;
-      else 
+      else
         // In case nPU is out-of data-profile binning,
         // use weight from last bin
         return hT2015_MC25ns_Data25ns.at(51) ;
     } else if (MC==25 && target==50) {
       return hT2015_MC25ns_Data50ns.at(input) ;
     } else if (MC==50 && target==25) {
-      return hT2015_MC50ns_Data25ns.at(input) ; 
+      return hT2015_MC50ns_Data25ns.at(input) ;
     } else if (MC==50 && target==50) {
-      return hT2015_MC50ns_Data50ns.at(input) ; 
+      return hT2015_MC50ns_Data50ns.at(input) ;
     } else if (MC==2016 && target==26) {
-      return hT2016_MCSpring16_Data2c6fb.at(input) ; 
+      return hT2016_MCSpring16_Data2c6fb.at(input) ;
     } else if (MC==2016 && target==40) {
-      return hT2016_MCSpring16_Data4c0fb.at(input) ; 
+      return hT2016_MCSpring16_Data4c0fb.at(input) ;
     } else if (MC==2016 && target==92) {
-      return hT2016_MCSpring16_Data9c2fb.at(input) ; 
+      return hT2016_MCSpring16_Data9c2fb.at(input) ;
     } else if (MC==2016 && target==129) {
-      return hT2016_MCSpring16_Data12c9fb.at(input) ; 
+      return hT2016_MCSpring16_Data12c9fb.at(input) ;
     } else if (MC==2016 && target==364) {
-      return hT2016_MCSpring16_Data36c4fb.at(input) ; 
+      return hT2016_MCSpring16_Data36c4fb.at(input) ;
     } else if (MC==20161 && target==364) {
-      return hT2016_MCSummer16_Data36c4fb.at(input) ; 
+      return hT2016_MCSummer16_Data36c4fb.at(input) ;
     } else if (MC==2017 && target==47) {                    // 2017 B
       return hT2017_MCFall17_Data4c7fb.at(input) ;
     } else if (MC==2017 && target==134) {                   // 2017 F
@@ -101,7 +101,7 @@ float PUReweight::weight(int MC, int target, int input, TString filename) {
       std::cout << "ERROR: PUReweight: " << MC << " " << target << std::endl;
       abort();
     }
-  
+
   }
 
   else if (theType == RUN1ANALYSIS) {
@@ -115,19 +115,19 @@ float PUReweight::weight(int MC, int target, int input, TString filename) {
       abort();
     }
 
-  } 
+  }
 
   else return 0 ;
 
 }
 
 PUReweight::PUReweight(Type type, TString filename) :
-theType(type),
-theFilename(filename) {
+  theType(type),
+  theFilename(filename) {
   // RUN2ANALYSIS MC Autumn2018 target Data 59.7/fb - Full Run 2018
-  
+
   double npuAutumn18_59c7fb[100];
-  npuAutumn18_59c7fb[0] =  0;	   
+  npuAutumn18_59c7fb[0] =  0;
   npuAutumn18_59c7fb[1] =  0.087799;
   npuAutumn18_59c7fb[2] =  0.279066;
   npuAutumn18_59c7fb[3] =  0.130626;
@@ -143,7 +143,7 @@ theFilename(filename) {
   npuAutumn18_59c7fb[13] = 0.00860153;
   npuAutumn18_59c7fb[14] = 0.00825717;
   npuAutumn18_59c7fb[15] = 0.00800769;
-  npuAutumn18_59c7fb[16] = 0.00796;  
+  npuAutumn18_59c7fb[16] = 0.00796;
   npuAutumn18_59c7fb[17] = 0.00800505;
   npuAutumn18_59c7fb[18] = 0.00805122;
   npuAutumn18_59c7fb[19] = 0.00807362;
@@ -165,9 +165,9 @@ theFilename(filename) {
   npuAutumn18_59c7fb[35] = 0.00587624;
   npuAutumn18_59c7fb[36] = 0.00583334;
   npuAutumn18_59c7fb[37] = 0.005793;
-  npuAutumn18_59c7fb[38] = 0.00566443; 
+  npuAutumn18_59c7fb[38] = 0.00566443;
   npuAutumn18_59c7fb[39] = 0.00552869;
-  npuAutumn18_59c7fb[40] = 0.00535985;   
+  npuAutumn18_59c7fb[40] = 0.00535985;
   npuAutumn18_59c7fb[41] = 0.00514221;
   npuAutumn18_59c7fb[42] = 0.00485622;
   npuAutumn18_59c7fb[43] = 0.00456103;
@@ -227,16 +227,16 @@ theFilename(filename) {
   npuAutumn18_59c7fb[97] = 0;
   npuAutumn18_59c7fb[98] = 0;
   npuAutumn18_59c7fb[99] = 2.41889e-10;
-  
+
   for(int k = 0 ; k < 100 ; ++k)
-  	hT2018_MCAutumn18_Data59c7fb.push_back(npuAutumn18_59c7fb[k]) ;
+    hT2018_MCAutumn18_Data59c7fb.push_back(npuAutumn18_59c7fb[k]) ;
 
   // RUN2ANALYSIS MC Autumn2018 target Data 59.7/fb - Full Run 2018
   // Special weights for each sample read from external txt file
   if (filename == TString(""))
   {
     for(int k = 0 ; k < 100 ; ++k)
-        hT2018_MCAutumn18_Data59c7fb_special.push_back(0.0) ; // if no filename passe, initialize a vector of 0s
+      hT2018_MCAutumn18_Data59c7fb_special.push_back(0.0) ; // if no filename passe, initialize a vector of 0s
   }
   else
     hT2018_MCAutumn18_Data59c7fb_special = LoadExternalWeights(theFilename);
@@ -565,14 +565,14 @@ theFilename(filename) {
   if (filename == TString(""))
   {
     for(int k = 0 ; k < 100 ; ++k)
-        hT2017_MCFall17_Data41c3fb_special.push_back(0.0) ; // if no filename passe, initialize a vector of 0s
+      hT2017_MCFall17_Data41c3fb_special.push_back(0.0) ; // if no filename passe, initialize a vector of 0s
   }
   else
     hT2017_MCFall17_Data41c3fb_special = LoadExternalWeights(theFilename);
 
 
   // RUN2ANALYSIS MC Spring2016 target Data 2.6/fb
-  double npuSpring16_2c6fb[100] ; 
+  double npuSpring16_2c6fb[100] ;
   npuSpring16_2c6fb[0] = 1.10942e-05;
   npuSpring16_2c6fb[1] = 8.7385e-05;
   npuSpring16_2c6fb[2] = 0.000235451;
@@ -681,14 +681,14 @@ theFilename(filename) {
   if (filename == TString(""))
   {
     for(int k = 0 ; k < 100 ; ++k)
-        hT2016_MCSummer16_Data36c4fb_special.push_back(0.0) ; // if no filename passe, initialize a vector of 0s
+      hT2016_MCSummer16_Data36c4fb_special.push_back(0.0) ; // if no filename passe, initialize a vector of 0s
   }
   else
     hT2016_MCSummer16_Data36c4fb_special = LoadExternalWeights(theFilename);
 
-  
+
   // RUN2ANALYSIS MC Spring2016 target Data 4.0/fb
-  double npuSpring16_4c0fb[100] ; 
+  double npuSpring16_4c0fb[100] ;
   npuSpring16_4c0fb[0] = 8.7422e-06;
   npuSpring16_4c0fb[1] = 7.63583e-05;
   npuSpring16_4c0fb[2] = 0.00033404;
@@ -901,106 +901,106 @@ theFilename(filename) {
 
   // Old version not synced with other groups (bad MinBias XS?)
   /*double npuSpring16_12c9fb[100];
-  npuSpring16_12c9fb[0] = 9.23591e-06;
-  npuSpring16_12c9fb[1] = 0.000255013;
-  npuSpring16_12c9fb[2] = 0.000547704;
-  npuSpring16_12c9fb[3] = 0.000874676;
-  npuSpring16_12c9fb[4] = 0.000896299;
-  npuSpring16_12c9fb[5] = 0.000985639;
-  npuSpring16_12c9fb[6] = 0.00138007;
-  npuSpring16_12c9fb[7] = 0.00434416;
-  npuSpring16_12c9fb[8] = 0.00979431;
-  npuSpring16_12c9fb[9] = 0.0171594;
-  npuSpring16_12c9fb[10] = 0.0256192;
-  npuSpring16_12c9fb[11] = 0.034788;
-  npuSpring16_12c9fb[12] = 0.042003;
-  npuSpring16_12c9fb[13] = 0.0466772;
-  npuSpring16_12c9fb[14] = 0.0501062;
-  npuSpring16_12c9fb[15] = 0.052079;
-  npuSpring16_12c9fb[16] = 0.0527129;
-  npuSpring16_12c9fb[17] = 0.0519845;
-  npuSpring16_12c9fb[18] = 0.0501612;
-  npuSpring16_12c9fb[19] = 0.0477159;
-  npuSpring16_12c9fb[20] = 0.0444941;
-  npuSpring16_12c9fb[21] = 0.0409428;
-  npuSpring16_12c9fb[22] = 0.0371571;
-  npuSpring16_12c9fb[23] = 0.0327908;
-  npuSpring16_12c9fb[24] = 0.0279854;
-  npuSpring16_12c9fb[25] = 0.0229831;
-  npuSpring16_12c9fb[26] = 0.0182312;
-  npuSpring16_12c9fb[27] = 0.013901;
-  npuSpring16_12c9fb[28] = 0.0101914;
-  npuSpring16_12c9fb[29] = 0.00718466;
-  npuSpring16_12c9fb[30] = 0.00481241;
-  npuSpring16_12c9fb[31] = 0.00308214;
-  npuSpring16_12c9fb[32] = 0.0018929;
-  npuSpring16_12c9fb[33] = 0.00111257;
-  npuSpring16_12c9fb[34] = 0.000627268;
-  npuSpring16_12c9fb[35] = 0.000344694;
-  npuSpring16_12c9fb[36] = 0.000182029;
-  npuSpring16_12c9fb[37] = 9.49072e-05;
-  npuSpring16_12c9fb[38] = 5.03845e-05;
-  npuSpring16_12c9fb[39] = 2.83432e-05;
-  npuSpring16_12c9fb[40] = 1.83473e-05;
-  npuSpring16_12c9fb[41] = 1.53675e-05;
-  npuSpring16_12c9fb[42] = 1.64617e-05;
-  npuSpring16_12c9fb[43] = 2.09364e-05;
-  npuSpring16_12c9fb[44] = 2.85643e-05;
-  npuSpring16_12c9fb[45] = 4.1185e-05;
-  npuSpring16_12c9fb[46] = 5.9207e-05;
-  npuSpring16_12c9fb[47] = 8.64583e-05;
-  npuSpring16_12c9fb[48] = 0.000128047;
-  npuSpring16_12c9fb[49] = 0.000190806;
-  npuSpring16_12c9fb[50] = 0.000305784;
-  npuSpring16_12c9fb[51] = 0.000430388;
-  npuSpring16_12c9fb[52] = 0.000648305;
-  npuSpring16_12c9fb[53] = 0.00109594;
-  npuSpring16_12c9fb[54] = 0.00157946;
-  npuSpring16_12c9fb[55] = 0.00299806;
-  npuSpring16_12c9fb[56] = 0.00370231;
-  npuSpring16_12c9fb[57] = 0.00717608;
-  npuSpring16_12c9fb[58] = 0;
-  npuSpring16_12c9fb[59] = 0;
-  npuSpring16_12c9fb[60] = 0;
-  npuSpring16_12c9fb[61] = 0;
-  npuSpring16_12c9fb[62] = 0;
-  npuSpring16_12c9fb[63] = 0;
-  npuSpring16_12c9fb[64] = 0;
-  npuSpring16_12c9fb[65] = 0;
-  npuSpring16_12c9fb[66] = 0;
-  npuSpring16_12c9fb[67] = 0;
-  npuSpring16_12c9fb[68] = 0;
-  npuSpring16_12c9fb[69] = 0;
-  npuSpring16_12c9fb[70] = 0;
-  npuSpring16_12c9fb[71] = 0;
-  npuSpring16_12c9fb[72] = 0;
-  npuSpring16_12c9fb[73] = 0;
-  npuSpring16_12c9fb[74] = 0;
-  npuSpring16_12c9fb[75] = 0;
-  npuSpring16_12c9fb[76] = 0;
-  npuSpring16_12c9fb[77] = 0;
-  npuSpring16_12c9fb[78] = 0;
-  npuSpring16_12c9fb[79] = 0;
-  npuSpring16_12c9fb[80] = 0;
-  npuSpring16_12c9fb[81] = 0;
-  npuSpring16_12c9fb[82] = 0;
-  npuSpring16_12c9fb[83] = 0;
-  npuSpring16_12c9fb[84] = 0;
-  npuSpring16_12c9fb[85] = 0;
-  npuSpring16_12c9fb[86] = 0;
-  npuSpring16_12c9fb[87] = 0;
-  npuSpring16_12c9fb[88] = 0;
-  npuSpring16_12c9fb[89] = 0;
-  npuSpring16_12c9fb[90] = 0;
-  npuSpring16_12c9fb[91] = 0;
-  npuSpring16_12c9fb[92] = 0;
-  npuSpring16_12c9fb[93] = 0;
-  npuSpring16_12c9fb[94] = 0;
-  npuSpring16_12c9fb[95] = 0;
-  npuSpring16_12c9fb[96] = 0;
-  npuSpring16_12c9fb[97] = 0;
-  npuSpring16_12c9fb[98] = 0;
-  npuSpring16_12c9fb[99] = 0;*/
+    npuSpring16_12c9fb[0] = 9.23591e-06;
+    npuSpring16_12c9fb[1] = 0.000255013;
+    npuSpring16_12c9fb[2] = 0.000547704;
+    npuSpring16_12c9fb[3] = 0.000874676;
+    npuSpring16_12c9fb[4] = 0.000896299;
+    npuSpring16_12c9fb[5] = 0.000985639;
+    npuSpring16_12c9fb[6] = 0.00138007;
+    npuSpring16_12c9fb[7] = 0.00434416;
+    npuSpring16_12c9fb[8] = 0.00979431;
+    npuSpring16_12c9fb[9] = 0.0171594;
+    npuSpring16_12c9fb[10] = 0.0256192;
+    npuSpring16_12c9fb[11] = 0.034788;
+    npuSpring16_12c9fb[12] = 0.042003;
+    npuSpring16_12c9fb[13] = 0.0466772;
+    npuSpring16_12c9fb[14] = 0.0501062;
+    npuSpring16_12c9fb[15] = 0.052079;
+    npuSpring16_12c9fb[16] = 0.0527129;
+    npuSpring16_12c9fb[17] = 0.0519845;
+    npuSpring16_12c9fb[18] = 0.0501612;
+    npuSpring16_12c9fb[19] = 0.0477159;
+    npuSpring16_12c9fb[20] = 0.0444941;
+    npuSpring16_12c9fb[21] = 0.0409428;
+    npuSpring16_12c9fb[22] = 0.0371571;
+    npuSpring16_12c9fb[23] = 0.0327908;
+    npuSpring16_12c9fb[24] = 0.0279854;
+    npuSpring16_12c9fb[25] = 0.0229831;
+    npuSpring16_12c9fb[26] = 0.0182312;
+    npuSpring16_12c9fb[27] = 0.013901;
+    npuSpring16_12c9fb[28] = 0.0101914;
+    npuSpring16_12c9fb[29] = 0.00718466;
+    npuSpring16_12c9fb[30] = 0.00481241;
+    npuSpring16_12c9fb[31] = 0.00308214;
+    npuSpring16_12c9fb[32] = 0.0018929;
+    npuSpring16_12c9fb[33] = 0.00111257;
+    npuSpring16_12c9fb[34] = 0.000627268;
+    npuSpring16_12c9fb[35] = 0.000344694;
+    npuSpring16_12c9fb[36] = 0.000182029;
+    npuSpring16_12c9fb[37] = 9.49072e-05;
+    npuSpring16_12c9fb[38] = 5.03845e-05;
+    npuSpring16_12c9fb[39] = 2.83432e-05;
+    npuSpring16_12c9fb[40] = 1.83473e-05;
+    npuSpring16_12c9fb[41] = 1.53675e-05;
+    npuSpring16_12c9fb[42] = 1.64617e-05;
+    npuSpring16_12c9fb[43] = 2.09364e-05;
+    npuSpring16_12c9fb[44] = 2.85643e-05;
+    npuSpring16_12c9fb[45] = 4.1185e-05;
+    npuSpring16_12c9fb[46] = 5.9207e-05;
+    npuSpring16_12c9fb[47] = 8.64583e-05;
+    npuSpring16_12c9fb[48] = 0.000128047;
+    npuSpring16_12c9fb[49] = 0.000190806;
+    npuSpring16_12c9fb[50] = 0.000305784;
+    npuSpring16_12c9fb[51] = 0.000430388;
+    npuSpring16_12c9fb[52] = 0.000648305;
+    npuSpring16_12c9fb[53] = 0.00109594;
+    npuSpring16_12c9fb[54] = 0.00157946;
+    npuSpring16_12c9fb[55] = 0.00299806;
+    npuSpring16_12c9fb[56] = 0.00370231;
+    npuSpring16_12c9fb[57] = 0.00717608;
+    npuSpring16_12c9fb[58] = 0;
+    npuSpring16_12c9fb[59] = 0;
+    npuSpring16_12c9fb[60] = 0;
+    npuSpring16_12c9fb[61] = 0;
+    npuSpring16_12c9fb[62] = 0;
+    npuSpring16_12c9fb[63] = 0;
+    npuSpring16_12c9fb[64] = 0;
+    npuSpring16_12c9fb[65] = 0;
+    npuSpring16_12c9fb[66] = 0;
+    npuSpring16_12c9fb[67] = 0;
+    npuSpring16_12c9fb[68] = 0;
+    npuSpring16_12c9fb[69] = 0;
+    npuSpring16_12c9fb[70] = 0;
+    npuSpring16_12c9fb[71] = 0;
+    npuSpring16_12c9fb[72] = 0;
+    npuSpring16_12c9fb[73] = 0;
+    npuSpring16_12c9fb[74] = 0;
+    npuSpring16_12c9fb[75] = 0;
+    npuSpring16_12c9fb[76] = 0;
+    npuSpring16_12c9fb[77] = 0;
+    npuSpring16_12c9fb[78] = 0;
+    npuSpring16_12c9fb[79] = 0;
+    npuSpring16_12c9fb[80] = 0;
+    npuSpring16_12c9fb[81] = 0;
+    npuSpring16_12c9fb[82] = 0;
+    npuSpring16_12c9fb[83] = 0;
+    npuSpring16_12c9fb[84] = 0;
+    npuSpring16_12c9fb[85] = 0;
+    npuSpring16_12c9fb[86] = 0;
+    npuSpring16_12c9fb[87] = 0;
+    npuSpring16_12c9fb[88] = 0;
+    npuSpring16_12c9fb[89] = 0;
+    npuSpring16_12c9fb[90] = 0;
+    npuSpring16_12c9fb[91] = 0;
+    npuSpring16_12c9fb[92] = 0;
+    npuSpring16_12c9fb[93] = 0;
+    npuSpring16_12c9fb[94] = 0;
+    npuSpring16_12c9fb[95] = 0;
+    npuSpring16_12c9fb[96] = 0;
+    npuSpring16_12c9fb[97] = 0;
+    npuSpring16_12c9fb[98] = 0;
+    npuSpring16_12c9fb[99] = 0;*/
 
   double npuSpring16_12c9fb[100];
   npuSpring16_12c9fb[0] = 0.000195304;
@@ -1320,7 +1320,7 @@ theFilename(filename) {
 
   // RUN2ANALYSIS MC 25ns target Data25ns
   // from https://twiki.cern.ch/twiki/bin/view/CMS/PileupJSONFileforData#2015_Pileup_JSON_Files 13-10-2015 done with mb=69mb Lumi=1260
-  double npuWinter15_25ns[52] ; 
+  double npuWinter15_25ns[52] ;
   npuWinter15_25ns[0] = 0.09672924 ;
   npuWinter15_25ns[1] = 0.6018639 ;
   npuWinter15_25ns[2] = 0.1982618 ;
@@ -1372,63 +1372,63 @@ theFilename(filename) {
   npuWinter15_25ns[48] = 0 ;
   npuWinter15_25ns[49] = 0 ;
   npuWinter15_25ns[50] = 0 ;
-  npuWinter15_25ns[51] = 0 ; 
-   
+  npuWinter15_25ns[51] = 0 ;
+
   // from https://twiki.cern.ch/twiki/bin/view/CMS/ExoDiBosonResonancesRun2#PU_weights old recipe 27-10-2015 done with mb=80mb
   /*
-  double npuWinter15_25ns[52] ; 
-  npuWinter15_25ns[0] = 4.8551E-07; 
-  npuWinter15_25ns[1] = 1.74806E-06;
-  npuWinter15_25ns[2] = 3.30868E-06;
-  npuWinter15_25ns[3] = 1.62972E-05;
-  npuWinter15_25ns[4] = 4.95667E-05;
-  npuWinter15_25ns[5] = 0.000606966;
-  npuWinter15_25ns[6] = 0.003307249;
-  npuWinter15_25ns[7] = 0.010340741;
-  npuWinter15_25ns[8] = 0.022852296;
-  npuWinter15_25ns[9] = 0.041948781;
-  npuWinter15_25ns[10] = 0.058609363;
-  npuWinter15_25ns[11] = 0.067475755;
-  npuWinter15_25ns[12] = 0.072817826;
-  npuWinter15_25ns[13] = 0.075931405;
-  npuWinter15_25ns[14] = 0.076782504;
-  npuWinter15_25ns[15] = 0.076202319;
-  npuWinter15_25ns[16] = 0.074502547;
-  npuWinter15_25ns[17] = 0.072355135;
-  npuWinter15_25ns[18] = 0.069642102;
-  npuWinter15_25ns[19] = 0.064920999;
-  npuWinter15_25ns[20] = 0.05725576;
-  npuWinter15_25ns[21] = 0.047289348;
-  npuWinter15_25ns[22] = 0.036528446;
-  npuWinter15_25ns[23] = 0.026376131;
-  npuWinter15_25ns[24] = 0.017806872;
-  npuWinter15_25ns[25] = 0.011249422;
-  npuWinter15_25ns[26] = 0.006643385;
-  npuWinter15_25ns[27] = 0.003662904;
-  npuWinter15_25ns[28] = 0.001899681;
-  npuWinter15_25ns[29] = 0.00095614;
-  npuWinter15_25ns[30] = 0.00050028;
-  npuWinter15_25ns[31] = 0.000297353;
-  npuWinter15_25ns[32] = 0.000208717;
-  npuWinter15_25ns[33] = 0.000165856;
-  npuWinter15_25ns[34] = 0.000139974;
-  npuWinter15_25ns[35] = 0.000120481;
-  npuWinter15_25ns[36] = 0.000103826;
-  npuWinter15_25ns[37] = 8.88868E-05;
-  npuWinter15_25ns[38] = 7.53323E-05;
-  npuWinter15_25ns[39] = 6.30863E-05;
-  npuWinter15_25ns[40] = 5.21356E-05;
-  npuWinter15_25ns[41] = 4.24754E-05;
-  npuWinter15_25ns[42] = 3.40876E-05;
-  npuWinter15_25ns[43] = 2.69282E-05;
-  npuWinter15_25ns[44] = 2.09267E-05;
-  npuWinter15_25ns[45] = 1.5989E-05;
-  npuWinter15_25ns[46] = 4.8551E-06;
-  npuWinter15_25ns[47] = 2.42755E-06;
-  npuWinter15_25ns[48] = 4.8551E-07;
-  npuWinter15_25ns[49] = 2.42755E-07;
-  npuWinter15_25ns[50] = 1.21378E-07;
-  npuWinter15_25ns[51] = 4.8551E-08;
+    double npuWinter15_25ns[52] ;
+    npuWinter15_25ns[0] = 4.8551E-07;
+    npuWinter15_25ns[1] = 1.74806E-06;
+    npuWinter15_25ns[2] = 3.30868E-06;
+    npuWinter15_25ns[3] = 1.62972E-05;
+    npuWinter15_25ns[4] = 4.95667E-05;
+    npuWinter15_25ns[5] = 0.000606966;
+    npuWinter15_25ns[6] = 0.003307249;
+    npuWinter15_25ns[7] = 0.010340741;
+    npuWinter15_25ns[8] = 0.022852296;
+    npuWinter15_25ns[9] = 0.041948781;
+    npuWinter15_25ns[10] = 0.058609363;
+    npuWinter15_25ns[11] = 0.067475755;
+    npuWinter15_25ns[12] = 0.072817826;
+    npuWinter15_25ns[13] = 0.075931405;
+    npuWinter15_25ns[14] = 0.076782504;
+    npuWinter15_25ns[15] = 0.076202319;
+    npuWinter15_25ns[16] = 0.074502547;
+    npuWinter15_25ns[17] = 0.072355135;
+    npuWinter15_25ns[18] = 0.069642102;
+    npuWinter15_25ns[19] = 0.064920999;
+    npuWinter15_25ns[20] = 0.05725576;
+    npuWinter15_25ns[21] = 0.047289348;
+    npuWinter15_25ns[22] = 0.036528446;
+    npuWinter15_25ns[23] = 0.026376131;
+    npuWinter15_25ns[24] = 0.017806872;
+    npuWinter15_25ns[25] = 0.011249422;
+    npuWinter15_25ns[26] = 0.006643385;
+    npuWinter15_25ns[27] = 0.003662904;
+    npuWinter15_25ns[28] = 0.001899681;
+    npuWinter15_25ns[29] = 0.00095614;
+    npuWinter15_25ns[30] = 0.00050028;
+    npuWinter15_25ns[31] = 0.000297353;
+    npuWinter15_25ns[32] = 0.000208717;
+    npuWinter15_25ns[33] = 0.000165856;
+    npuWinter15_25ns[34] = 0.000139974;
+    npuWinter15_25ns[35] = 0.000120481;
+    npuWinter15_25ns[36] = 0.000103826;
+    npuWinter15_25ns[37] = 8.88868E-05;
+    npuWinter15_25ns[38] = 7.53323E-05;
+    npuWinter15_25ns[39] = 6.30863E-05;
+    npuWinter15_25ns[40] = 5.21356E-05;
+    npuWinter15_25ns[41] = 4.24754E-05;
+    npuWinter15_25ns[42] = 3.40876E-05;
+    npuWinter15_25ns[43] = 2.69282E-05;
+    npuWinter15_25ns[44] = 2.09267E-05;
+    npuWinter15_25ns[45] = 1.5989E-05;
+    npuWinter15_25ns[46] = 4.8551E-06;
+    npuWinter15_25ns[47] = 2.42755E-06;
+    npuWinter15_25ns[48] = 4.8551E-07;
+    npuWinter15_25ns[49] = 2.42755E-07;
+    npuWinter15_25ns[50] = 1.21378E-07;
+    npuWinter15_25ns[51] = 4.8551E-08;
   */
   for(int k = 0 ; k < 52 ; ++k)
     hT2015_MC25ns_Data25ns.push_back(npuWinter15_25ns[k]) ;
@@ -1744,6 +1744,6 @@ theFilename(filename) {
   w2012[239]= 1;
   for(int k=0 ;k<240 ;k++)
     hT2012.push_back(w2012[k]) ;
-}
+  }
 
 PUReweight::~PUReweight() {}

@@ -128,7 +128,7 @@ int ConfigParser::readIntOption(const char *name)
     I++;
   }
   cerr << "ConfigParser::readIntOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readIntOption: No such option provided!";
 }
 //! Read double option
@@ -147,7 +147,7 @@ double ConfigParser::readDoubleOption(const char *name)
     I++;
   }
   cerr << "ConfigParser::readDoubleOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readDoubleOption: No such option provided!";
 }
 //! Read float option
@@ -166,7 +166,7 @@ float ConfigParser::readFloatOption(const char *name)
     I++;
   }
   cerr << "ConfigParser::readFloatOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readFloatOption: No such option provided!";
 }
 //! Read double list option
@@ -185,7 +185,7 @@ const char *ConfigParser::readStringOption(const char *name)
     I++;
   }
   cerr << "ConfigParser::readStringOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readStringOption: No such option provided!";
 }
 //! Read bool option
@@ -193,7 +193,7 @@ const bool ConfigParser::readBoolOption(const char *name)
 {
   return (string(readStringOption(name))=="true") ? true : false;
   cerr << "ConfigParser::readBoolOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readBoolOption: No such option provided!";
 }
 //! Read integer list option
@@ -216,7 +216,7 @@ vector<int> ConfigParser::readIntListOption(const char *name)
     I++;
   }
   cerr << "ConfigParser::readIntListOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readIntListOption: No such option provided!";
 }
 //! Read double list option
@@ -239,7 +239,7 @@ vector<double> ConfigParser::readDoubleListOption(const char *name)
     I++;
   }
   cerr << "ConfigParser::readDoubleListOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readDoubleListOption: No such option provided!";
 }
 
@@ -263,7 +263,7 @@ vector<float> ConfigParser::readFloatListOption(const char *name)
     I++;
   }
   cerr << "ConfigParser::readFloatListOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readFloatListOption: No such option provided!";
 }
 //! Read string list option
@@ -286,7 +286,7 @@ vector<string> ConfigParser::readStringListOption(const char *name)
     I++;
   }
   cerr << "ConfigParser::readStringListOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readStringListOption: No such option provided!";
 }
 //! Print all options to cout

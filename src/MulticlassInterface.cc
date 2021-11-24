@@ -70,7 +70,7 @@ private:
 class MulticlassInterface {
 public:
   MulticlassInterface(int year, const std::vector<std::pair<std::string, std::string>> &modelSpecs)
-      : year_(year), modelSpecs_(modelSpecs) {
+    : year_(year), modelSpecs_(modelSpecs) {
     // load models
     for (const auto &modelSpec : modelSpecs_) {
       const std::string &version = modelSpec.first;
@@ -124,8 +124,8 @@ public:
     auto& inputSpec = models_[modelIndex]->input;
     if (!inputSpec.complete()) {
       throw std::runtime_error("model input spec is incomplete, only "
-          + std::to_string(inputSpec.getNumberOfSetFeatures()) + " out of "
-          + std::to_string(inputSpec.getNumberOfFeatures()) + " features set");
+			       + std::to_string(inputSpec.getNumberOfSetFeatures()) + " out of "
+			       + std::to_string(inputSpec.getNumberOfFeatures()) + " features set");
     }
 
     // run the prediction with input values
@@ -133,7 +133,7 @@ public:
   }
 
   std::vector<std::pair<std::string, float>> predict(hmc::EventId eventId, size_t modelIndex,
-      const std::vector<float>& inputs) {
+						     const std::vector<float>& inputs) {
     checkModelIndex_(modelIndex);
 
     // run the model
@@ -154,7 +154,7 @@ public:
     const std::vector<std::string>& nodeNames = nodeNames_[modelIndex];
     if (outputs.size() != nodeNames.size()) {
       throw std::runtime_error("number of outputs " + std::to_string(outputs.size())
-          + " does not match number of all output node names " + std::to_string(nodeNames.size()));
+			       + " does not match number of all output node names " + std::to_string(nodeNames.size()));
     }
 
     // create the output structure
@@ -187,7 +187,7 @@ public:
       for (const auto &nodeName : model->getAllNodeNames()) {
         auto branchName = "mdnn__" + version + "__" + tag + "__" + nodeName + branchPostfix;
         TBranch* b = tree->Branch(branchName.c_str(), model->output.getOutputAddress(nodeName),
-            (branchName + "/F").c_str());
+				  (branchName + "/F").c_str());
         modelBranches.push_back(b);
       }
       branches.push_back(modelBranches);
@@ -227,7 +227,7 @@ private:
   inline void checkModelIndex_(size_t modelIndex) const {
     if (modelIndex >= models_.size()) {
       throw std::runtime_error("modelIndex " + std::to_string(modelIndex)
-          + "too large for number of models " + std::to_string(models_.size()));
+			       + "too large for number of models " + std::to_string(models_.size()));
     }
   }
 };
@@ -246,7 +246,7 @@ FeatureProvider::FeatureProvider(int year, TTree *tree) : year_(year) {
     "addJetCentr2_pt", "addJetCentr2_eta", "addJetCentr2_phi", "addJetCentr2_e", "addJetCentr2_btag_deepFlavor", "addJetCentr2_HHbtag",
     "addJetCentr3_pt", "addJetCentr3_eta", "addJetCentr3_phi", "addJetCentr3_e", "addJetCentr3_btag_deepFlavor", "addJetCentr3_HHbtag",
     "addJetForw1_pt", "addJetForw1_eta", "addJetForw1_phi", "addJetForw1_e",
-    "addJetForw2_pt", "addJetForw2_eta", "addJetForw2_phi", "addJetForw2_e", 
+    "addJetForw2_pt", "addJetForw2_eta", "addJetForw2_phi", "addJetForw2_e",
     "VBFjet1_pt", "VBFjet1_eta", "VBFjet1_phi", "VBFjet1_e", "VBFjet1_btag_deepFlavor",
     "VBFjet1_CvsB", "VBFjet1_CvsL", "VBFjet1_HHbtag",
     "VBFjet2_pt", "VBFjet2_eta", "VBFjet2_phi", "VBFjet2_e", "VBFjet2_btag_deepFlavor",
@@ -295,7 +295,7 @@ void FeatureProvider::calculate() {
   // define vectors for objects
   TLorentzVector tauH;
   tauH.SetPtEtaPhiM(floatInputs_.at("tauH_SVFIT_pt"), floatInputs_.at("tauH_SVFIT_eta"),
-    floatInputs_.at("tauH_SVFIT_phi"), floatInputs_.at("tauH_SVFIT_mass"));
+		    floatInputs_.at("tauH_SVFIT_phi"), floatInputs_.at("tauH_SVFIT_mass"));
 
   // loop through features and set values
   for (auto &it : features_) {

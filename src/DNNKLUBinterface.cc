@@ -2,8 +2,8 @@
 
 // Constructor
 DNNKLUBinterface::DNNKLUBinterface (std::string model_dir, std::vector<std::string> requested, std::vector<float> target_kls)
- : wrapper_(model_dir, 1, false),
-   evt_proc_(false, requested, true)
+  : wrapper_(model_dir, 1, false),
+    evt_proc_(false, requested, true)
 {
   // Store target lambdas
   target_kls_ = target_kls;
@@ -25,9 +25,9 @@ void DNNKLUBinterface::SetGlobalInputs(Year year, Spin spin)
 
 // SetEventInputs: set inputs that change every event
 void DNNKLUBinterface::SetEventInputs(Channel channel, int is_boosted, int nvbf, unsigned long long int eventn,
-  float deepFlav1, float deepFlav2, float CvsL_b1, float CvsL_b2, float CvsL_vbf1, float CvsL_vbf2,
-  float CvsB_b1, float CvsB_b2, float CvsB_vbf1, float CvsB_vbf2,
-  float HHbtag_b1, float HHbtag_b2, float HHbtag_vbf1, float HHbtag_vbf2)
+				      float deepFlav1, float deepFlav2, float CvsL_b1, float CvsL_b2, float CvsL_vbf1, float CvsL_vbf2,
+				      float CvsB_b1, float CvsB_b2, float CvsB_vbf1, float CvsB_vbf2,
+				      float HHbtag_b1, float HHbtag_b2, float HHbtag_vbf1, float HHbtag_vbf2)
 {
   DNN_e_channel_    = channel;
   DNN_is_boosted_   = is_boosted;
@@ -56,14 +56,14 @@ void DNNKLUBinterface::SetEventInputs(Channel channel, int is_boosted, int nvbf,
 
 // SetShiftedInputs: set inputs that change for the different shifts
 // due to TES, EES, MES, JES
-void DNNKLUBinterface::SetShiftedInputs(TLorentzVector b1, TLorentzVector b2, TLorentzVector l1, TLorentzVector l2, 
-    TLorentzVector vbf1, TLorentzVector vbf2, TLorentzVector met, TLorentzVector svfit, 
-    float KinFitMass, float KinFitChi2, bool KinFitConv, bool SVfitConv, float MT2)
+void DNNKLUBinterface::SetShiftedInputs(TLorentzVector b1, TLorentzVector b2, TLorentzVector l1, TLorentzVector l2,
+					TLorentzVector vbf1, TLorentzVector vbf2, TLorentzVector met, TLorentzVector svfit,
+					float KinFitMass, float KinFitChi2, bool KinFitConv, bool SVfitConv, float MT2)
 {
   // Taus
   DNN_l_1_.SetCoordinates(l1.Px(), l1.Py(), l1.Pz(), l1.M());
   if      (DNN_e_channel_ == muTau)
-  { 
+  {
     DNN_l_1_.SetM(MU_MASS);
   }
   else if (DNN_e_channel_ == eTau)
@@ -112,15 +112,15 @@ std::vector<float> DNNKLUBinterface::GetPredictions()
 
     // Compute fatures
     std::vector<float> feat_vals = evt_proc_.process_as_vec(
-        DNN_b_1_, DNN_b_2_, DNN_l_1_, DNN_l_2_, DNN_met_, DNN_svfit_, DNN_vbf_1_, DNN_vbf_2_,
-        DNN_kinfit_mass_, DNN_kinfit_chi2_, DNN_mt2_, DNN_is_boosted_, DNN_b_1_deepflav_, DNN_b_2_deepflav_,
-        DNN_e_channel_, DNN_e_year_, DNN_res_mass_, DNN_spin_, DNN_klambda_,
-        DNN_n_vbf_, DNN_svfit_conv_, DNN_hh_kinfit_conv_,
-        DNN_b_1_hhbtag_, DNN_b_2_hhbtag_, DNN_vbf_1_hhbtag_, DNN_vbf_2_hhbtag_,
-        DNN_b_1_cvsl_, DNN_b_2_cvsl_, DNN_vbf_1_cvsl_, DNN_vbf_2_cvsl_,
-        DNN_b_1_cvsb_, DNN_b_2_cvsb_, DNN_vbf_1_cvsb_, DNN_vbf_2_cvsb_,
-        0, 0, 0, // cv, c2v, c3
-        DNN_pass_massCut_);
+      DNN_b_1_, DNN_b_2_, DNN_l_1_, DNN_l_2_, DNN_met_, DNN_svfit_, DNN_vbf_1_, DNN_vbf_2_,
+      DNN_kinfit_mass_, DNN_kinfit_chi2_, DNN_mt2_, DNN_is_boosted_, DNN_b_1_deepflav_, DNN_b_2_deepflav_,
+      DNN_e_channel_, DNN_e_year_, DNN_res_mass_, DNN_spin_, DNN_klambda_,
+      DNN_n_vbf_, DNN_svfit_conv_, DNN_hh_kinfit_conv_,
+      DNN_b_1_hhbtag_, DNN_b_2_hhbtag_, DNN_vbf_1_hhbtag_, DNN_vbf_2_hhbtag_,
+      DNN_b_1_cvsl_, DNN_b_2_cvsl_, DNN_vbf_1_cvsl_, DNN_vbf_2_cvsl_,
+      DNN_b_1_cvsb_, DNN_b_2_cvsb_, DNN_vbf_1_cvsb_, DNN_vbf_2_cvsb_,
+      0, 0, 0, // cv, c2v, c3
+      DNN_pass_massCut_);
 
     std::vector<std::string> feats_names = evt_proc_.get_feats();
 

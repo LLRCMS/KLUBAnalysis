@@ -1,4 +1,3 @@
-
 // File ConfigFileLine.C
 //
 /*! \class ConfigFileLine

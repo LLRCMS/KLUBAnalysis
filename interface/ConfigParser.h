@@ -21,7 +21,7 @@
 //using namespace std;
 
 class ConfigParser {
- public:
+public:
 
 
   FILE *config_file;
@@ -39,7 +39,7 @@ class ConfigParser {
 
   // Append the option name of another ConfigFileLine as value
   void appendLine(ConfigFileLine *line);
-  
+
   // Deletes a line from the already parsed configuration file lines
   bool deleteLine(const char *name, const char *scope=0);
 
@@ -61,10 +61,10 @@ class ConfigParser {
 
   // Read bool Option
   const bool readBoolOption(const char *name);
-  
+
   // Read Integer Option
   const char *readStringOption(const char *name);
-  
+
   // Read Integer List Option
   std::vector<int> readIntListOption(const char *name);
 
@@ -73,7 +73,7 @@ class ConfigParser {
 
   // Read Double List Option
   std::vector<float> readFloatListOption(const char *name);
-  
+
   // Read String List Option
   std::vector<std::string> readStringListOption(const char *name);
 
@@ -83,10 +83,10 @@ class ConfigParser {
   //! stream operator
   friend std::ostream & operator<< (std::ostream & out, const ConfigParser & conf) ;
 
- private:
+private:
 
   std::list<ConfigFileLine *> configLines; //!< A list of configuration file lines
-  
+
   //! For convinience a ValueIterator type is defined which walks along
   //! the list of option strings
   typedef std::list<ConfigFileLine *>::const_iterator LineIterator;

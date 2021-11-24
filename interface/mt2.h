@@ -37,7 +37,7 @@ class smT2
 public:
   smT2() { name="thing"; }
   double operator()(const double *thing);
- 
+
   void SetB1(TVector2 b1) { B1=b1; }
   void SetB2(TVector2 b2) { B2=b2; }
   void SetT1(TVector2 t1) { T1=t1; }

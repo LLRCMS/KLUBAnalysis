@@ -33,7 +33,7 @@ typedef std::map<std::string, TH2F *> samples_2D_coll ;
 typedef std::map<std::string, samples_2D_coll > cuts_2D_coll ;
 typedef std::map<std::string, cuts_2D_coll > vars_2D_coll ;
 
-struct plotContainer 
+struct plotContainer
 {
   plotContainer (std::string name) ;
   plotContainer (std::string name, std::vector<std::string> varList,
@@ -46,7 +46,7 @@ struct plotContainer
   void MergeHistograms(std::vector<std::string> mergesampleList, TString mergedName);
   void createHistos (std::vector<std::string> varList, std::vector<std::pair<std::string,std::string>> varList2D,
                      std::vector<std::pair <TString, TCut> > cutList, std::vector<std::string> sampleList) ;
-  
+
   //int addHisto (string varName, string cutName, string sampleName) ; // not implemented yet
   int addSample (std::string sampleName, const plotContainer & original) ;
   TH1F * getHisto (std::string varName, std::string cutName, std::string sampleName) ;
@@ -64,10 +64,10 @@ struct plotContainer
                          int color, int histoType,
                          TString titleX, TString titleY) ;
   TH2F * createNew2DHisto (std::string name, std::string title,
-                         int nbinsx, double xlow, double xup,
-                         int nbinsy, double ylow, double yup,
-                         int color, int histoType,
-                         TString titleX, TString titleY) ;
+			   int nbinsx, double xlow, double xup,
+			   int nbinsy, double ylow, double yup,
+			   int color, int histoType,
+			   TString titleX, TString titleY) ;
   void scale (float scaleFactor) ;
   void scale (std::vector<std::string> & variablesList, std::vector<std::pair <TString, TCut> > & selections, std::vector<std::vector<float>> scaleFactorVector) ;
   void scale2D (std::vector<std::pair<std::string,std::string>> & variables2DList, std::vector<std::pair <TString, TCut> > & selections, std::vector<std::vector<float>> scaleFactorVector) ;
@@ -93,4 +93,3 @@ struct plotContainer
 } ;
 
 #endif
-

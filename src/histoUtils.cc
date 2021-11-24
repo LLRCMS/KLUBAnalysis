@@ -5,8 +5,8 @@ void avoidEmptyBins(TH1F* input){
   for (int iBin = 1 ; iBin < input->GetNbinsX () + 1 ; ++iBin){
     if(input->GetBinContent(iBin) <= 0){
       input->SetBinContent(iBin,1e-5);
-      input->SetBinError(iBin,0);      
-    }      
+      input->SetBinError(iBin,0);
+    }
     if(input->GetBinContent(iBin)-input->GetBinError(iBin) < 0)
       input->SetBinError(iBin,input->GetBinContent(iBin)-1e-5);
   }
@@ -17,17 +17,17 @@ void avoidEmptyBins(TH1F* input){
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-// add the overflow bin to a histogram  
-// FIXME: to be modified for poissonian errors (for now - 28/10/15 - not used in the code)                                                                                                                                        
+// add the overflow bin to a histogram
+// FIXME: to be modified for poissonian errors (for now - 28/10/15 - not used in the code)
 void addOverFlow (TH1F * input) {
 
   TH1F * dummy = new TH1F (
-			   "tempo",
-			   input->GetTitle (),
-			   input->GetNbinsX () + 1,
-			   input->GetXaxis ()->GetXmin (),
-			   input->GetXaxis ()->GetXmax () + input->GetBinWidth (1)
-			   ) ;
+    "tempo",
+    input->GetTitle (),
+    input->GetNbinsX () + 1,
+    input->GetXaxis ()->GetXmin (),
+    input->GetXaxis ()->GetXmax () + input->GetBinWidth (1)
+    ) ;
 
   for (int iBin = 0 ; iBin <= input->GetNbinsX () + 1 ; ++iBin) {
     dummy->SetBinContent (iBin, input->GetBinContent (iBin)) ;
@@ -53,18 +53,18 @@ void addOverFlow (TH1F * input) {
 void addOverAndUnderFlow (TH1F* histo)
 {
   // content
-  histo->SetBinContent(histo->GetNbinsX(),histo->GetBinContent(histo->GetNbinsX())+histo->GetBinContent(histo->GetNbinsX()+1));  
+  histo->SetBinContent(histo->GetNbinsX(),histo->GetBinContent(histo->GetNbinsX())+histo->GetBinContent(histo->GetNbinsX()+1));
   histo->SetBinContent(1,histo->GetBinContent(1)+histo->GetBinContent(0));
   // errors -- if poisson, they are updated automatically
-  if (histo->GetBinErrorOption() != TH1::kPoisson)   // fixing by hand the error disables the posson ones 
+  if (histo->GetBinErrorOption() != TH1::kPoisson)   // fixing by hand the error disables the posson ones
   {
-    histo->SetBinError(histo->GetNbinsX(),sqrt(pow(histo->GetBinError(histo->GetNbinsX()),2)+pow(histo->GetBinError(histo->GetNbinsX()+1),2)));    
-    histo->SetBinError(1,sqrt(pow(histo->GetBinError(1),2)+pow(histo->GetBinError(0),2)));    
+    histo->SetBinError(histo->GetNbinsX(),sqrt(pow(histo->GetBinError(histo->GetNbinsX()),2)+pow(histo->GetBinError(histo->GetNbinsX()+1),2)));
+    histo->SetBinError(1,sqrt(pow(histo->GetBinError(1),2)+pow(histo->GetBinError(0),2)));
   }
   // unset
   histo->SetBinContent(0,0);
   histo->SetBinContent(histo->GetNbinsX()+1,0);
-  if (histo->GetBinErrorOption() != TH1::kPoisson)   // fixing by hand the error disables the posson ones 
+  if (histo->GetBinErrorOption() != TH1::kPoisson)   // fixing by hand the error disables the posson ones
   {
     histo->SetBinError(0,0);
     histo->SetBinError(histo->GetNbinsX()+1,0);
@@ -72,10 +72,10 @@ void addOverAndUnderFlow (TH1F* histo)
 }
 
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----        
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-                                                                                         
-void setPoissonErrorsToHisto (TH1F * input) { // set the error in each bin as sqrt(binContent)                                                                                  
+
+void setPoissonErrorsToHisto (TH1F * input) { // set the error in each bin as sqrt(binContent)
   for (int iBin = 0 ; iBin <= input->GetNbinsX () + 1 ; ++iBin) {
     input->SetBinError (iBin, sqrt (input->GetBinContent (iBin))) ;
   }
@@ -83,10 +83,10 @@ void setPoissonErrorsToHisto (TH1F * input) { // set the error in each bin as sq
   return ;
 }
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----         
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-                                                                                         
-void setPoissonErrorsTo2DHisto (TH2F * input) { // set the error in each bin as sqrt(binContent)                                                                                
+
+void setPoissonErrorsTo2DHisto (TH2F * input) { // set the error in each bin as sqrt(binContent)
   for (int iBinX = 0 ; iBinX <= input->GetNbinsX () + 1 ; ++iBinX) {
     for (int iBinY = 0 ; iBinY <= input->GetNbinsY () + 1 ; ++iBinY) {
       input->SetBinError (iBinX,iBinY,sqrt (input->GetBinContent (iBinX,iBinY))) ;
@@ -96,27 +96,27 @@ void setPoissonErrorsTo2DHisto (TH2F * input) { // set the error in each bin as 
   return ;
 }
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----     
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-                                                                                           
-void setAsymmetricErrorsToHisto (TH1F * input) { // set the error in each bin as sqrt(binContent)                                                                              
+
+void setAsymmetricErrorsToHisto (TH1F * input) { // set the error in each bin as sqrt(binContent)
   input->SetBinErrorOption(TH1::kPoisson);
   return ;
 }
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----   
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-                                                                                              
-void setAsymmetricErrorsTo2DHisto (TH2F * input) { // set the error in each bin as sqrt(binContent)                                                                            
+
+void setAsymmetricErrorsTo2DHisto (TH2F * input) { // set the error in each bin as sqrt(binContent)
   input->SetBinErrorOption(TH1::kPoisson);
 
   return ;
 }
 
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----    
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-                                                                                              
+
 TH1F *  getHistoOfErrors (TH1F * input, int isLog) {
 
   std::string name = "err_" ;
@@ -125,12 +125,12 @@ TH1F *  getHistoOfErrors (TH1F * input, int isLog) {
   std::string title = "errors of " ;
   title += input->GetTitle () ;
   TH1F * dummy = new TH1F (
-			   name.c_str (),
-			   title.c_str (),
-			   input->GetNbinsX (),
-			   input->GetXaxis ()->GetXmin (),
-			   input->GetXaxis ()->GetXmax ()
-			   ) ;
+    name.c_str (),
+    title.c_str (),
+    input->GetNbinsX (),
+    input->GetXaxis ()->GetXmin (),
+    input->GetXaxis ()->GetXmax ()
+    ) ;
 
   for (int iBin = 0 ; iBin <= input->GetNbinsX () + 1 ; ++iBin) {
     dummy->SetBinContent (iBin, input->GetBinError (iBin)) ;
@@ -141,16 +141,16 @@ TH1F *  getHistoOfErrors (TH1F * input, int isLog) {
 }
 
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-                                                                                                 
+
 TH1F* unRollingHistogram (TH2F* histo, int errorType){
 
   TH1F* dummy = new TH1F("dummy","",(histo->GetNbinsX())*(histo->GetNbinsY()),0,histo->GetNbinsX()*histo->GetNbinsY());
   dummy->SetName((std::string(histo->GetName())+"_dummy").c_str());
   dummy->Sumw2();
 
-  // copy all the entries (basic structure inside the matrix)                                                                                                                  
+  // copy all the entries (basic structure inside the matrix)
   for(int iBinX = 1; iBinX <= histo->GetNbinsX() ; iBinX++){
     for(int iBinY = 1; iBinY <= histo->GetNbinsY() ; iBinY++){
       dummy->SetBinContent((iBinX-1)*histo->GetNbinsY()+iBinY,histo->GetBinContent(iBinX,iBinY));
@@ -158,23 +158,23 @@ TH1F* unRollingHistogram (TH2F* histo, int errorType){
     }
   }
 
-  // now add underflow alogn Y axis                                                                                                                                            
+  // now add underflow alogn Y axis
   for(int iBinY = 1; iBinY <= histo->GetNbinsY() ; iBinY++){
     dummy->SetBinContent(iBinY,histo->GetBinContent(1,iBinY)+histo->GetBinContent(0,iBinY));
   }
 
-  // now add overflow alogn Y axis                                                                                                                                             
+  // now add overflow alogn Y axis
   for(int iBinY = 1; iBinY <= histo->GetNbinsY() ; iBinY++){
     dummy->SetBinContent(histo->GetNbinsY()*(histo->GetNbinsX()-1)+iBinY,histo->GetBinContent(histo->GetNbinsX(),iBinY)+histo->GetBinContent(histo->GetNbinsX()+1,iBinY));
   }
 
 
-  // now add underflow alogn X axis                                                                                                                                            
+  // now add underflow alogn X axis
   for(int iBinX = 1; iBinX <= histo->GetNbinsX() ; iBinX++){
     dummy->SetBinContent((histo->GetNbinsY()*(iBinX-1)+1),histo->GetBinContent(iBinX,1)+histo->GetBinContent(iBinX,0));
   }
 
-  // now add overflow alogn X axis                                                                                                                                             
+  // now add overflow alogn X axis
   for(int iBinX = 0; iBinX <= histo->GetNbinsX()+1 ; iBinX++){
 
     dummy->SetBinContent((histo->GetNbinsY()*(iBinX)),histo->GetBinContent(iBinX,histo->GetNbinsY())+histo->GetBinContent(iBinX,histo->GetNbinsY()+1));
@@ -197,9 +197,9 @@ TH1F* unRollingHistogram (TH2F* histo, int errorType){
 }
 
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----     
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-                                                                                             
+
 THStack * stackMe (TH1F * histo)
 {
   std::string name = histo->GetName () ;
@@ -210,9 +210,9 @@ THStack * stackMe (TH1F * histo)
 }
 
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----  
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-                                                                                                 
+
 TH1F* mirrorHistogram(std::string name, TH1F* h1, TH1F*h2)
 {
   TH1F* dummy = (TH1F*) h1->Clone(name.c_str());
@@ -228,7 +228,7 @@ TH1F* mirrorHistogram(std::string name, TH1F* h1, TH1F*h2)
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-                                                                                                  
+
 void makePositiveDefine(TH2F* histo)
 {
   for(int iBinX = 0; iBinX <= histo->GetNbinsX()+1; iBinX++){
@@ -244,9 +244,9 @@ void makePositiveDefine(TH2F* histo)
 }
 
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-                                                                                                 
+
 void makePositiveDefine(TH1F* histo)
 {
   for(int iBinX = 0; iBinX <= histo->GetNbinsX()+1; iBinX++){
@@ -259,9 +259,9 @@ void makePositiveDefine(TH1F* histo)
 }
 
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-                                                                                                 
+
 THStack * normaliseStack (THStack * original, bool nostack )
 {
   TString name = original->GetName () ;
@@ -269,18 +269,18 @@ THStack * normaliseStack (THStack * original, bool nostack )
   THStack * dummy_stack = new THStack (name, name) ;
   TH1F * dummy_h = (TH1F *) original->GetStack ()->Last () ;
   float norm = dummy_h->Integral () ;
-  
+
   TIter next (original->GetHists ()) ;
   TH1F * histo ;
 
-  while ((histo = (TH1F *) (next ()))) 
-    { 
-      dummy_h = (TH1F *) histo->Clone (histo->GetName () + TString ("_norm")) ;
-      if (nostack) dummy_h->Scale (1. / dummy_h->Integral()) ;
-      else dummy_h->Scale (1. / norm) ;
-      dummy_stack->Add (dummy_h) ;
-    }
-    
+  while ((histo = (TH1F *) (next ())))
+  {
+    dummy_h = (TH1F *) histo->Clone (histo->GetName () + TString ("_norm")) ;
+    if (nostack) dummy_h->Scale (1. / dummy_h->Integral()) ;
+    else dummy_h->Scale (1. / norm) ;
+    dummy_stack->Add (dummy_h) ;
+  }
+
   return dummy_stack ;
 }
 
@@ -293,14 +293,14 @@ void copyTitles (TH1F * histogram, THStack * hstack)
   TIter next (hstack->GetHists ()) ;
   TH1F * histo ;
 
-  while ((histo = (TH1F *) (next ()))) 
-    {
-      histogram->GetXaxis ()->SetTitle (
-        histo->GetXaxis ()->GetTitle ()) ;
-      histogram->GetYaxis ()->SetTitle (
-        histo->GetYaxis ()->GetTitle ()) ;
-      break ;  
-    }
+  while ((histo = (TH1F *) (next ())))
+  {
+    histogram->GetXaxis ()->SetTitle (
+      histo->GetXaxis ()->GetTitle ()) ;
+    histogram->GetYaxis ()->SetTitle (
+      histo->GetYaxis ()->GetTitle ()) ;
+    break ;
+  }
   return ;
 }
 
@@ -309,16 +309,16 @@ void copyTitles (TH1F * histogram, THStack * hstack)
 
 
 float findNonNullMinimum (TH1F * histo)
+{
+  float min = 10000000000. ;
+  for (int i = 1 ; i <= histo->GetNbinsX () ; ++i)
   {
-    float min = 10000000000. ;
-    for (int i = 1 ; i <= histo->GetNbinsX () ; ++i)
-      { 
-        float tmpmin = histo->GetBinContent (i) ;
-        if (tmpmin == 0.) continue ;
-        if (tmpmin < min) min = tmpmin ;
-      }
-    return min ;
+    float tmpmin = histo->GetBinContent (i) ;
+    if (tmpmin == 0.) continue ;
+    if (tmpmin < min) min = tmpmin ;
   }
+  return min ;
+}
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -330,7 +330,7 @@ float findNonNullMinimum (TH1F * histo)
 std::vector<float> getExtremes (THStack * hstack, bool islog, bool nostack)
 {
   float ymax = hstack->GetMaximum () ;
-  float xmin = ((TH1F*)(hstack->GetStack()->Last()))->GetXaxis()->GetXmin() ; 
+  float xmin = ((TH1F*)(hstack->GetStack()->Last()))->GetXaxis()->GetXmin() ;
   float xmax = ((TH1F*)(hstack->GetStack()->Last()))->GetXaxis()->GetXmax() ;
   float ymin = -1;
 
@@ -340,10 +340,10 @@ std::vector<float> getExtremes (THStack * hstack, bool islog, bool nostack)
   int counter = 0;
   std::vector<float> ymins;
   std::vector<float> ymaxs; // used only if nostack = true
-  while ((histo = (TH1F *) (next ()))) 
+  while ((histo = (TH1F *) (next ())))
   {
     counter++;
-    if (islog) 
+    if (islog)
     {
       //cout << "histo: " << counter << endl;
       if (histo->GetMaximum() > 0)
@@ -486,12 +486,12 @@ TGraphAsymmErrors* makeDataGraphPlot (TH1F* hData, bool horErrs, bool drawGrass)
 
   for (int i = 0; i < nPoints; i++)
   {
-      fX       [i] = 0.;
-      fY       [i] = 0.;
-      feYUp    [i] = 0.;
-      feYDown  [i] = 0.;
-      feXRight [i] = 0.;
-      feXLeft  [i] = 0.;
+    fX       [i] = 0.;
+    fY       [i] = 0.;
+    feYUp    [i] = 0.;
+    feYDown  [i] = 0.;
+    feXRight [i] = 0.;
+    feXLeft  [i] = 0.;
   }
 
   int ipt = 0; // non - null points to be drawn
@@ -512,20 +512,20 @@ TGraphAsymmErrors* makeDataGraphPlot (TH1F* hData, bool horErrs, bool drawGrass)
     feYDown[ipt] = dyLow;
     if (horErrs)
     {
-     feXRight[ipt] = dxRight;
-     feXLeft[ipt] = dxLeft;
+      feXRight[ipt] = dxRight;
+      feXLeft[ipt] = dxLeft;
     }
     else
     {
-     feXRight[ipt] = 0;
-     feXLeft[ipt] = 0;
+      feXRight[ipt] = 0;
+      feXLeft[ipt] = 0;
     }
     ++ipt;
   }
-   
+
   TGraphAsymmErrors* gData = new TGraphAsymmErrors (ipt, fX, fY, feXLeft, feXRight, feYDown, feYUp);
-  delete[] fX;       
-  delete[] fY ;      
+  delete[] fX;
+  delete[] fY ;
   delete[] feYUp    ;
   delete[] feYDown  ;
   delete[] feXRight ;
@@ -543,78 +543,78 @@ TGraphAsymmErrors* makeDataGraphPlot (TH1F* hData, bool horErrs, bool drawGrass)
 
 TGraphAsymmErrors* makeDataOverMCRatioPlot (TH1F* hData, TH1F* hMC, bool horErrs)
 {
-    const int nPoints = hData->GetNbinsX();
-    float * fX       = new float [nPoints];
-    float * fY       = new float [nPoints];
-    float * feYUp    = new float [nPoints];
-    float * feYDown  = new float [nPoints];
-    float * feXRight = new float [nPoints];
-    float * feXLeft  = new float [nPoints];
+  const int nPoints = hData->GetNbinsX();
+  float * fX       = new float [nPoints];
+  float * fY       = new float [nPoints];
+  float * feYUp    = new float [nPoints];
+  float * feYDown  = new float [nPoints];
+  float * feXRight = new float [nPoints];
+  float * feXLeft  = new float [nPoints];
 
-    for (int i = 0; i < nPoints; i++)
+  for (int i = 0; i < nPoints; i++)
+  {
+    fX       [i] = 0.;
+    fY       [i] = 0.;
+    feYUp    [i] = 0.;
+    feYDown  [i] = 0.;
+    feXRight [i] = 0.;
+    feXLeft  [i] = 0.;
+  }
+
+  int ipt = 0; // non - null points to be drawn
+
+  for (int ibin = 1; ibin <= nPoints; ibin++)
+  {
+    // Y
+    float num = hData->GetBinContent(ibin);
+    float den = hMC->GetBinContent(ibin);
+    if (den > 0)
     {
-        fX       [i] = 0.;
-        fY       [i] = 0.;
-        feYUp    [i] = 0.;
-        feYDown  [i] = 0.;
-        feXRight [i] = 0.;
-        feXLeft  [i] = 0.;
+      fY[ipt] = num/den;
+      feYUp[ipt] = hData->GetBinErrorUp(ibin) / den;
+      feYDown[ipt] = hData->GetBinErrorLow(ibin) / den;
+
+      // X
+      fX[ipt] = hData->GetBinCenter(ibin);
+      if (horErrs)
+      {
+	feXRight[ipt] = hData->GetBinLowEdge(ibin+1) - hData->GetBinCenter(ibin);
+	feXLeft[ipt] = hData->GetBinCenter(ibin) - hData->GetBinLowEdge(ibin);
+      }
+      else
+      {
+	feXLeft[ipt] = 0.;
+	feXRight[ipt] = 0.;
+      }
+
+      ++ipt;
     }
+  }
 
-    int ipt = 0; // non - null points to be drawn
+  TGraphAsymmErrors* gRatio = new TGraphAsymmErrors (ipt, fX, fY, feXLeft, feXRight, feYDown, feYUp);
+  delete[] fX;
+  delete[] fY ;
+  delete[] feYUp    ;
+  delete[] feYDown  ;
+  delete[] feXRight ;
+  delete[] feXLeft  ;
 
-    for (int ibin = 1; ibin <= nPoints; ibin++)
-    {
-        // Y
-        float num = hData->GetBinContent(ibin);
-        float den = hMC->GetBinContent(ibin);
-        if (den > 0)
-        {
-            fY[ipt] = num/den;
-            feYUp[ipt] = hData->GetBinErrorUp(ibin) / den;
-            feYDown[ipt] = hData->GetBinErrorLow(ibin) / den;
+  gRatio->SetMarkerStyle(8);
+  gRatio->SetMarkerSize(1.);
+  gRatio->SetMarkerColor(kBlack);
+  gRatio->SetLineColor(kBlack);
 
-            // X
-            fX[ipt] = hData->GetBinCenter(ibin);
-            if (horErrs)
-            {
-                feXRight[ipt] = hData->GetBinLowEdge(ibin+1) - hData->GetBinCenter(ibin);
-                feXLeft[ipt] = hData->GetBinCenter(ibin) - hData->GetBinLowEdge(ibin);
-            }
-            else
-            {
-                feXLeft[ipt] = 0.;
-                feXRight[ipt] = 0.;
-            }
-
-            ++ipt;
-        }
-    }
-
-    TGraphAsymmErrors* gRatio = new TGraphAsymmErrors (ipt, fX, fY, feXLeft, feXRight, feYDown, feYUp);
-    delete[] fX;       
-    delete[] fY ;      
-    delete[] feYUp    ;
-    delete[] feYDown  ;
-    delete[] feXRight ;
-    delete[] feXLeft  ;
-    
-    gRatio->SetMarkerStyle(8);
-    gRatio->SetMarkerSize(1.);
-    gRatio->SetMarkerColor(kBlack);
-    gRatio->SetLineColor(kBlack);
-
-    return gRatio;
+  return gRatio;
 }
 
 
 void noGrass (TH1F* isto)
 {
-    Double_t maxxx = 99999999.;
-    //int maxy = 999999999;
-    for (int i = 1; i <= isto->GetNbinsX(); i++)
-        if (isto->GetBinContent(i) == 0)
-            isto->SetBinContent(i, maxxx);
+  Double_t maxxx = 99999999.;
+  //int maxy = 999999999;
+  for (int i = 1; i <= isto->GetNbinsX(); i++)
+    if (isto->GetBinContent(i) == 0)
+      isto->SetBinContent(i, maxxx);
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -631,4 +631,3 @@ void scaleDataGraph (TGraphAsymmErrors* gData, float scale)
   }
   return;
 }
-

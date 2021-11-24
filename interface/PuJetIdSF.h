@@ -34,25 +34,25 @@
 // PuJetIdSF class
 class PuJetIdSF {
 
-  public:
-    PuJetIdSF (std::string directory, std::string year);
-    ~PuJetIdSF ();
+public:
+  PuJetIdSF (std::string directory, std::string year);
+  ~PuJetIdSF ();
 
-    bool CheckBit(int number, int bitpos);
+  bool CheckBit(int number, int bitpos);
 
-    float getEff    (bool isReal, float pt, float eta);
-    float getSF     (bool isReal, float pt, float eta);
-    float getSFError(bool isReal, float pt, float eta);
+  float getEff    (bool isReal, float pt, float eta);
+  float getSF     (bool isReal, float pt, float eta);
+  float getSFError(bool isReal, float pt, float eta);
 
-    std::vector<float> getEvtWeight (bigTree &theBigTree, TLorentzVector tau1, TLorentzVector tau2, std::map<int,double> jets_and_smearFactor, bool cleanJets=false);
+  std::vector<float> getEvtWeight (bigTree &theBigTree, TLorentzVector tau1, TLorentzVector tau2, std::map<int,double> jets_and_smearFactor, bool cleanJets=false);
 
-  private:
-    TH2F* h_eff_;
-    TH2F* h_eff_SF_;
-    TH2F* h_eff_SF_err_;
-    TH2F* h_mistag_;
-    TH2F* h_mistag_SF_;
-    TH2F* h_mistag_SF_err_;
+private:
+  TH2F* h_eff_;
+  TH2F* h_eff_SF_;
+  TH2F* h_eff_SF_err_;
+  TH2F* h_mistag_;
+  TH2F* h_mistag_SF_;
+  TH2F* h_mistag_SF_err_;
 };
 
 #endif // PuJetIdSF

@@ -40,23 +40,23 @@ typedef std::map<std::string, std::unique_ptr<JetCorrectionUncertainty>> myJECMa
 // JECKLUBinterface class
 class JECKLUBinterface {
 
-  public:
-    JECKLUBinterface (std::string year, std::string version);
-    ~JECKLUBinterface () {};
+public:
+  JECKLUBinterface (std::string year, std::string version);
+  ~JECKLUBinterface () {};
 
-    // Returns a pair of vectors (up_variations vector, down_variations vector)
-    // To be used in skimNtuple201*.cpp
-    std::pair<std::vector<double>,std::vector<double>> getJECUncVectors(int idx, bigTree & theBigTree);
+  // Returns a pair of vectors (up_variations vector, down_variations vector)
+  // To be used in skimNtuple201*.cpp
+  std::pair<std::vector<double>,std::vector<double>> getJECUncVectors(int idx, bigTree & theBigTree);
 
-    // Returns the shifted TLorentzVector starting from "index of JEC source" and the original TLorentzVector
-    // To be used (mainly) in skimOutputter*.cpp
-    // unc = +1 --> up variation
-    // unc = -1 --> down variation
-    TLorentzVector getJECUncJet(int idx, TLorentzVector nominalJet, float unc);
+  // Returns the shifted TLorentzVector starting from "index of JEC source" and the original TLorentzVector
+  // To be used (mainly) in skimOutputter*.cpp
+  // unc = +1 --> up variation
+  // unc = -1 --> down variation
+  TLorentzVector getJECUncJet(int idx, TLorentzVector nominalJet, float unc);
 
-  private:
-    std::vector<std::string> m_jec_sources_regrouped_;
-    myJECMap jecSourceUncRegroupedProviders_;
+private:
+  std::vector<std::string> m_jec_sources_regrouped_;
+  myJECMap jecSourceUncRegroupedProviders_;
 };
 
 #endif // JECKLUBinterface

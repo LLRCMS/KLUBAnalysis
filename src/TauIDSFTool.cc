@@ -54,7 +54,7 @@ TauIDSFTool::TauIDSFTool(const std::string& year, const std::string& id, const s
 
   if(std::find(years.begin(),years.end(),year)==years.end()){
     std::cerr << std::endl << "ERROR! '"<<year<<"' is not a valid year! Please choose from ";
-     std::vector<std::string>::iterator it = years.begin();
+    std::vector<std::string>::iterator it = years.begin();
     for(it=years.begin(); it!=years.end(); it++){
       if(it!=years.begin()) std::cerr << ", ";
       std::cerr << *it;
@@ -67,15 +67,15 @@ TauIDSFTool::TauIDSFTool(const std::string& year, const std::string& id, const s
     if(dm){
       TString filename;
       if (embedding) {
-          if (ID.find("oldDM") != std::string::npos)
-          {
-             std::cerr << "Scale factors for embedded samples are not provided for the MVA IDs." << std::endl;
-             assert(0);
-          }
-          filename = Form("%s/TauID_SF_dm_%s_%s_EMB.root",datapath.data(),ID.data(),year.data());
+	if (ID.find("oldDM") != std::string::npos)
+	{
+	  std::cerr << "Scale factors for embedded samples are not provided for the MVA IDs." << std::endl;
+	  assert(0);
+	}
+	filename = Form("%s/TauID_SF_dm_%s_%s_EMB.root",datapath.data(),ID.data(),year.data());
       }
       else {
-          filename = Form("%s/TauID_SF_dm_%s_%s.root",datapath.data(),ID.data(),year.data());
+	filename = Form("%s/TauID_SF_dm_%s_%s.root",datapath.data(),ID.data(),year.data());
       }
       TFile* file = ensureTFile(filename,verbose);
       hist = extractTH1(file,WP);
@@ -85,21 +85,21 @@ TauIDSFTool::TauIDSFTool(const std::string& year, const std::string& id, const s
       DMs    = {0,1,10};
       if (ID.find("oldDM") == std::string::npos)
       {
-          DMs.push_back(11);
+	DMs.push_back(11);
       }
       isVsDM = true;
     }else{
       TString filename;
       if (embedding) {
-          if (ID.find("oldDM") != std::string::npos)
-          {
-             std::cerr << "Scale factors for embedded samples are not provided for the MVA IDs." << std::endl;
-             assert(0);
-          }
-          filename = Form("%s/TauID_SF_pt_%s_%s_EMB.root",datapath.data(),ID.data(),year.data());
+	if (ID.find("oldDM") != std::string::npos)
+	{
+	  std::cerr << "Scale factors for embedded samples are not provided for the MVA IDs." << std::endl;
+	  assert(0);
+	}
+	filename = Form("%s/TauID_SF_pt_%s_%s_EMB.root",datapath.data(),ID.data(),year.data());
       }
       else {
-          filename = Form("%s/TauID_SF_pt_%s_%s.root",datapath.data(),ID.data(),year.data());
+	filename = Form("%s/TauID_SF_pt_%s_%s.root",datapath.data(),ID.data(),year.data());
       }
       TFile* file = ensureTFile(filename,verbose);
       func[""]     = extractTF1(file,Form("%s_cent",WP.data()));
@@ -110,34 +110,34 @@ TauIDSFTool::TauIDSFTool(const std::string& year, const std::string& id, const s
       isVsPT = true;
     }
   }else if(std::find(antiEleIDs.begin(),antiEleIDs.end(),ID)!=antiEleIDs.end()){
-      if (embedding){
-          std::cerr << "SF for ID " << ID << " not available for the embedded samples!" << std::endl;
-          assert(0);
-      }
-      TString filename = Form("%s/TauID_SF_eta_%s_%s.root",datapath.data(),ID.data(),year.data());
-      TFile* file = ensureTFile(filename,verbose);
-      hist = extractTH1(file,WP);
-      hist->SetDirectory(nullptr);
-      file->Close();
-      delete file;
-      genmatches = {1,3};
-      isVsEta    = true;
-  }else if(std::find(antiMuIDs.begin(),antiMuIDs.end(),ID)!=antiMuIDs.end()){
-      if (embedding){
-          std::cerr << "SF for ID " << ID << " not available for the embedded samples!" << std::endl;
-          assert(0);
-      }
-      TString filename = Form("%s/TauID_SF_eta_%s_%s.root",datapath.data(),ID.data(),year.data());
-      TFile* file = ensureTFile(filename,verbose);
-      hist = extractTH1(file,WP);
-      hist->SetDirectory(nullptr);
-      file->Close();
-      delete file;
-      genmatches = {2,4};
-      isVsEta    = true;
-  }else{
-      std::cerr << "Did not recognize tau ID '" << ID << "'!" << std::endl;
+    if (embedding){
+      std::cerr << "SF for ID " << ID << " not available for the embedded samples!" << std::endl;
       assert(0);
+    }
+    TString filename = Form("%s/TauID_SF_eta_%s_%s.root",datapath.data(),ID.data(),year.data());
+    TFile* file = ensureTFile(filename,verbose);
+    hist = extractTH1(file,WP);
+    hist->SetDirectory(nullptr);
+    file->Close();
+    delete file;
+    genmatches = {1,3};
+    isVsEta    = true;
+  }else if(std::find(antiMuIDs.begin(),antiMuIDs.end(),ID)!=antiMuIDs.end()){
+    if (embedding){
+      std::cerr << "SF for ID " << ID << " not available for the embedded samples!" << std::endl;
+      assert(0);
+    }
+    TString filename = Form("%s/TauID_SF_eta_%s_%s.root",datapath.data(),ID.data(),year.data());
+    TFile* file = ensureTFile(filename,verbose);
+    hist = extractTH1(file,WP);
+    hist->SetDirectory(nullptr);
+    file->Close();
+    delete file;
+    genmatches = {2,4};
+    isVsEta    = true;
+  }else{
+    std::cerr << "Did not recognize tau ID '" << ID << "'!" << std::endl;
+    assert(0);
   }
 }
 
