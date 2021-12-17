@@ -790,9 +790,17 @@ int main (int argc, char** argv)
   // Declare new branches
   // Jet->tau_h fakes
   Float_t jetToTauhFakeSF, jetToTauhFakeSF_up, jetToTauhFakeSF_down;
-  TBranch* b_jetToTauhFakeSF      = outTree->Branch("jetToTauhFakeSF"      , &jetToTauhFakeSF);
-  TBranch* b_jetToTauhFakeSF_up   = outTree->Branch("jetToTauhFakeSF_up"   , &jetToTauhFakeSF_up);
-  TBranch* b_jetToTauhFakeSF_down = outTree->Branch("jetToTauhFakeSF_down" , &jetToTauhFakeSF_down);
+  Float_t jetToTauhFakeSF_bar, jetToTauhFakeSF_bar_up, jetToTauhFakeSF_bar_down;
+  Float_t jetToTauhFakeSF_end, jetToTauhFakeSF_end_up, jetToTauhFakeSF_end_down;
+  TBranch* b_jetToTauhFakeSF          = outTree->Branch("jetToTauhFakeSF"          , &jetToTauhFakeSF);
+  TBranch* b_jetToTauhFakeSF_up       = outTree->Branch("jetToTauhFakeSF_up"       , &jetToTauhFakeSF_up);
+  TBranch* b_jetToTauhFakeSF_down     = outTree->Branch("jetToTauhFakeSF_down"     , &jetToTauhFakeSF_down);
+  TBranch* b_jetToTauhFakeSF_bar      = outTree->Branch("jetToTauhFakeSF_bar"      , &jetToTauhFakeSF_bar);
+  TBranch* b_jetToTauhFakeSF_bar_up   = outTree->Branch("jetToTauhFakeSF_bar_up"   , &jetToTauhFakeSF_bar_up);
+  TBranch* b_jetToTauhFakeSF_bar_down = outTree->Branch("jetToTauhFakeSF_bar_down" , &jetToTauhFakeSF_bar_down);
+  TBranch* b_jetToTauhFakeSF_end      = outTree->Branch("jetToTauhFakeSF_end"      , &jetToTauhFakeSF_end);
+  TBranch* b_jetToTauhFakeSF_end_up   = outTree->Branch("jetToTauhFakeSF_end_up"   , &jetToTauhFakeSF_end_up);
+  TBranch* b_jetToTauhFakeSF_end_down = outTree->Branch("jetToTauhFakeSF_end_down" , &jetToTauhFakeSF_end_down);
 
   // VBF trig SF fix
   Float_t VBFtrigSF_new, trigSF_new;
@@ -1433,9 +1441,15 @@ int main (int argc, char** argv)
       if (isData)
       {
           // No SF for data
-          jetToTauhFakeSF      = 1.0;
-          jetToTauhFakeSF_up   = 1.0;
-          jetToTauhFakeSF_down = 1.0;
+          jetToTauhFakeSF          = 1.0;
+          jetToTauhFakeSF_up       = 1.0;
+          jetToTauhFakeSF_down     = 1.0;
+          jetToTauhFakeSF_bar      = 1.0;
+          jetToTauhFakeSF_bar_up   = 1.0;
+          jetToTauhFakeSF_bar_down = 1.0;
+          jetToTauhFakeSF_end      = 1.0;
+          jetToTauhFakeSF_end_up   = 1.0;
+          jetToTauhFakeSF_end_down = 1.0;
       }
       else /*isMC*/
       {
@@ -1445,7 +1459,9 @@ int main (int argc, char** argv)
         //   on the position of the taus (barrel or endcap) and on the jetFakeSF branch of the skims
 
         // Central SF always 1
-        jetToTauhFakeSF = 1.0;
+        jetToTauhFakeSF     = 1.0;
+        jetToTauhFakeSF_bar = 1.0;
+        jetToTauhFakeSF_end = 1.0;
 
         // Up/Down variations
         if (pType == 2) /*tauTau channel*/
@@ -1463,34 +1479,58 @@ int main (int argc, char** argv)
           {
             if (fabs(dau1_eta) < 1.46 && fabs(dau2_eta) < 1.46)  /* both in barrel */
             {
-              jetToTauhFakeSF_up   = (1+jetFakeRateUnc_barrel)*(1+jetFakeRateUnc_barrel);
-              jetToTauhFakeSF_down = (1-jetFakeRateUnc_barrel)*(1-jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_up       = (1+jetFakeRateUnc_barrel)*(1+jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_down     = (1-jetFakeRateUnc_barrel)*(1-jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_bar_up   = (1+jetFakeRateUnc_barrel)*(1+jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_bar_down = (1-jetFakeRateUnc_barrel)*(1-jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_end_up   = 1.0;
+              jetToTauhFakeSF_end_down = 1.0;
             }
             else if (fabs(dau1_eta) < 1.46 || fabs(dau2_eta) < 1.46)  /* only one in barrel */
             {
-              jetToTauhFakeSF_up   = (1+jetFakeRateUnc_barrel)*(1+jetFakeRateUnc_endcap);
-              jetToTauhFakeSF_down = (1-jetFakeRateUnc_barrel)*(1-jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_up       = (1+jetFakeRateUnc_barrel)*(1+jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_down     = (1-jetFakeRateUnc_barrel)*(1-jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_bar_up   = (1+jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_bar_down = (1-jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_end_up   = (1+jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_end_down = (1-jetFakeRateUnc_endcap);
             }
             else  /* both in endcap */
             {
-              jetToTauhFakeSF_up   = (1+jetFakeRateUnc_endcap)*(1+jetFakeRateUnc_endcap);
-              jetToTauhFakeSF_down = (1-jetFakeRateUnc_endcap)*(1-jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_up       = (1+jetFakeRateUnc_endcap)*(1+jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_down     = (1-jetFakeRateUnc_endcap)*(1-jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_bar_up   = 1.0;
+              jetToTauhFakeSF_bar_down = 1.0;
+              jetToTauhFakeSF_end_up   = (1+jetFakeRateUnc_endcap)*(1+jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_end_down = (1-jetFakeRateUnc_endcap)*(1-jetFakeRateUnc_endcap);
             }
           }
           else if (jetFakeSF > 1.5)  /* only 1 fake in endcap */
           {
-            jetToTauhFakeSF_up   = (1+jetFakeRateUnc_barrel);
-            jetToTauhFakeSF_down = (1-jetFakeRateUnc_barrel);
+            jetToTauhFakeSF_up       = (1+jetFakeRateUnc_endcap);
+            jetToTauhFakeSF_down     = (1-jetFakeRateUnc_endcap);
+            jetToTauhFakeSF_bar_up   = 1.0;
+            jetToTauhFakeSF_bar_down = 1.0;
+            jetToTauhFakeSF_end_up   = (1+jetFakeRateUnc_endcap);
+            jetToTauhFakeSF_end_down = (1-jetFakeRateUnc_endcap);
           }
           else if (jetFakeSF > 1.3)  /* only 1 fake in barrel */
           {
-            jetToTauhFakeSF_up   = (1+jetFakeRateUnc_endcap);
-            jetToTauhFakeSF_down = (1-jetFakeRateUnc_endcap);
+            jetToTauhFakeSF_up       = (1+jetFakeRateUnc_barrel);
+            jetToTauhFakeSF_down     = (1-jetFakeRateUnc_barrel);
+            jetToTauhFakeSF_bar_up   = (1+jetFakeRateUnc_barrel);
+            jetToTauhFakeSF_bar_down = (1-jetFakeRateUnc_barrel);
+            jetToTauhFakeSF_end_up   = 1.0;
+            jetToTauhFakeSF_end_down = 1.0;
           }
           else  /* both true tau_h */
           {
-            jetToTauhFakeSF_up   = 1.0;
-            jetToTauhFakeSF_down = 1.0;
+            jetToTauhFakeSF_up       = 1.0;
+            jetToTauhFakeSF_down     = 1.0;
+            jetToTauhFakeSF_bar_up   = 1.0;
+            jetToTauhFakeSF_bar_down = 1.0;
+            jetToTauhFakeSF_end_up   = 1.0;
+            jetToTauhFakeSF_end_down = 1.0;
           }
         }
         else /*muTau or eTau channel*/
@@ -1499,19 +1539,31 @@ int main (int argc, char** argv)
           {
             if (abs(dau2_eta) < 1.46) /* dau2 (tau_h) in barrel */
             {
-              jetToTauhFakeSF_up   = (1+jetFakeRateUnc_barrel);
-              jetToTauhFakeSF_down = (1-jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_up       = (1+jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_down     = (1-jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_bar_up   = (1+jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_bar_down = (1-jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_end_up   = 1.0;
+              jetToTauhFakeSF_end_down = 1.0;
             }
             else
             {
-              jetToTauhFakeSF_up   = (1+jetFakeRateUnc_endcap);
-              jetToTauhFakeSF_down = (1-jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_up       = (1+jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_down     = (1-jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_bar_up   = 1.0;
+              jetToTauhFakeSF_bar_down = 1.0;
+              jetToTauhFakeSF_end_up   = (1+jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_end_down = (1-jetFakeRateUnc_endcap);
             }
           }
           else /* true tau_h */
           {
-            jetToTauhFakeSF_up   = 1.0;
-            jetToTauhFakeSF_down = 1.0;
+            jetToTauhFakeSF_up       = 1.0;
+            jetToTauhFakeSF_down     = 1.0;
+            jetToTauhFakeSF_bar_up   = 1.0;
+            jetToTauhFakeSF_bar_down = 1.0;
+            jetToTauhFakeSF_end_up   = 1.0;
+            jetToTauhFakeSF_end_down = 1.0;
           }
         }
         //std::cout << "------------> jet->tau_h fake SF/unc for Event: " << EventNumber << std::endl;
@@ -3664,9 +3716,15 @@ int main (int argc, char** argv)
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
     // Fill new branches
     // Add jet->tau_h fakes uncertainty
-    b_jetToTauhFakeSF     ->Fill();
-    b_jetToTauhFakeSF_up  ->Fill();
-    b_jetToTauhFakeSF_down->Fill();
+    b_jetToTauhFakeSF         ->Fill();
+    b_jetToTauhFakeSF_up      ->Fill();
+    b_jetToTauhFakeSF_down    ->Fill();
+    b_jetToTauhFakeSF_bar     ->Fill();
+    b_jetToTauhFakeSF_bar_up  ->Fill();
+    b_jetToTauhFakeSF_bar_down->Fill();
+    b_jetToTauhFakeSF_end     ->Fill();
+    b_jetToTauhFakeSF_end_up  ->Fill();
+    b_jetToTauhFakeSF_end_down->Fill();
 
     // VBF trig SF fix
     b_trigSF_new            ->Fill();
