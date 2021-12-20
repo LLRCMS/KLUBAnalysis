@@ -1466,6 +1466,9 @@ int main (int argc, char** argv)
         // Up/Down variations
         if (pType == 2) /*tauTau channel*/
         {
+          // This is a patch to infer if the taus are true or jet->tau_h fakes
+          // and it is based on the jetFakeSF branch stored in the skims.
+          // --> can be improved for the future by adding proper branches to the skims!!
           // Possible values of "jetFakeSF":
           // - only 1 fake
           //     1.38469 : 1 fake in barrel
