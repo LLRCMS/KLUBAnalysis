@@ -10,7 +10,7 @@ import ROOT
 year    = '2016'  # allowed options: 2016 - 2017 - 2018
 channel = 'ETau'  # allowed options: ETau - MuTau - TauTau
 additionalTag = ''
-tagDir  = 'analysis_2021_03_01'
+tagDir  = 'analysis_2021_12_20'
 
 # Create input dir path
 if additionalTag == '':
@@ -48,6 +48,7 @@ for uncDir in uncDirs:
     # Read the main config for each unc and store the variables names
     for line in open(inDir+'/mainCfg_'+channel+'_Legacy'+year+'_limits.cfg'):
         if 'JER' in inDir: continue
+        if 'tauFakes' in inDir: continue
         if line.startswith('variables'):
             varNames = line.split('=')[1] # Get variables only
             varNames = varNames.strip()   # Remove carriage return
@@ -123,6 +124,11 @@ for uncDir in uncDirs:
                 if 'JER' in uncDir:
                     template.SetName(kname+'_'+uncDir)
                     template.SetTitle(kname+'_'+uncDir)
+
+                # Copy only the jetToTauFake up/down uncertainty templates and
+                # do not re-add the "central values" templates
+                if 'tauFakes' in uncDir:
+                    if not 'jetToTauFake' in kname: continue
 
                 # Store histos to be save in the new file
                 listHistos.append(template.Clone())
