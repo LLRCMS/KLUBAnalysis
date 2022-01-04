@@ -232,7 +232,7 @@ int main (int argc, char** argv)
 
   "dau1_pt","dau1_eta","dau1_phi","dau1_e",                            // Tau central
   "dau2_pt","dau2_eta","dau2_phi","dau2_e",
-  "ditau_deltaR",
+  "ditau_deltaR","mT1","mT2",
 
   "dau1_pt_muup","dau1_pt_mudown",                                     // Tau MES
   "dau1_mass_muup", "dau1_mass_mudown",
@@ -437,28 +437,29 @@ int main (int argc, char** argv)
   //int mdnnSM2_size = (mci.getNodeNames(2)).size();
   //int mdnnSM3_size = (mci.getNodeNames(3)).size();
 
-  // jet->tau_h uncertainties:
-  // - 2016 barrel :  5 %  // random number for now
-  // -      endcap : 10 %  // random number for now
-  // - 2017 barrel :  5 %  // random number for now
-  // -      endcap : 10 %  // random number for now
-  // - 2018 barrel :  5 %  // random number for now
-  // -      endcap : 10 %  // random number for now
+  // jet->tau_h uncertainties from W+Jet CR enriched in fakes (~95%) [muTau, SStight, antiB, mT1>40]
+  // barrel/endcap division at |tau2_eta| = 1.46
+  // - 2016 barrel : 24 %
+  // -      endcap : 28 %
+  // - 2017 barrel : 13 %
+  // -      endcap : 18 %
+  // - 2018 barrel : 11 %
+  // -      endcap : 25 %
   float jetFakeRateUnc_barrel, jetFakeRateUnc_endcap;
   if (YEAR == 2016)
   {
-    jetFakeRateUnc_barrel = 0.05;
-    jetFakeRateUnc_endcap = 0.10;
+    jetFakeRateUnc_barrel = 0.24;
+    jetFakeRateUnc_endcap = 0.28;
   }
   else if (YEAR == 2017)
   {
-    jetFakeRateUnc_barrel = 0.05;
-    jetFakeRateUnc_endcap = 0.10;
+    jetFakeRateUnc_barrel = 0.13;
+    jetFakeRateUnc_endcap = 0.18;
   }
   else /*YEAR == 2018*/
   {
-    jetFakeRateUnc_barrel = 0.05;
-    jetFakeRateUnc_endcap = 0.10;
+    jetFakeRateUnc_barrel = 0.11;
+    jetFakeRateUnc_endcap = 0.25;
   }
 
   // Fix VBF trig SF
