@@ -125,6 +125,7 @@ int main (int argc, char** argv)
   cout << "** INFO: doMult      : " << doMult      << endl;
 
   bool doVBFtrig  = gConfigParser->isDefined("outPutter::doVBFtrig") ? gConfigParser->readBoolOption("outPutter::doVBFtrig") : false;
+  bool doTauhFake = gConfigParser->readBoolOption("outPutter::doTauhFake");
   bool doNominal  = gConfigParser->readBoolOption("outPutter::doNominal" );
   bool doMES      = gConfigParser->readBoolOption("outPutter::doMES"     );
   bool doEES      = gConfigParser->readBoolOption("outPutter::doEES"     );
@@ -132,6 +133,7 @@ int main (int argc, char** argv)
   bool doSplitJES = gConfigParser->readBoolOption("outPutter::doSplitJES");
   bool doTotalJES = gConfigParser->readBoolOption("outPutter::doTotalJES");
   cout << "** INFO: doVBFtrig  : " << doVBFtrig  << endl;
+  cout << "** INFO: doTauhFake : " << doTauhFake << endl;
   cout << "** INFO: doNominal  : " << doNominal  << endl;
   cout << "** INFO: doMES      : " << doMES      << endl;
   cout << "** INFO: doEES      : " << doEES      << endl;
@@ -212,6 +214,7 @@ int main (int argc, char** argv)
   "IdAndIsoAndFakeSF_deep","IdAndIsoAndFakeSF_deep_pt",
   "TTtopPtreweight*","idAndIsoAndFakeSF_tauid*",
   "idAndIsoAndFakeSF_mutauFR*","idAndIsoAndFakeSF_etauFR*",
+  "jetFakeSF",
 
   "isVBFtrigger", "isVBF",                                             // Trigger vbf selection
 
@@ -229,7 +232,7 @@ int main (int argc, char** argv)
 
   "dau1_pt","dau1_eta","dau1_phi","dau1_e",                            // Tau central
   "dau2_pt","dau2_eta","dau2_phi","dau2_e",
-  "ditau_deltaR",
+  "ditau_deltaR","mT1","mT2",
 
   "dau1_pt_muup","dau1_pt_mudown",                                     // Tau MES
   "dau1_mass_muup", "dau1_mass_mudown",
@@ -434,6 +437,31 @@ int main (int argc, char** argv)
   //int mdnnSM2_size = (mci.getNodeNames(2)).size();
   //int mdnnSM3_size = (mci.getNodeNames(3)).size();
 
+  // jet->tau_h uncertainties from W+Jet CR enriched in fakes (~95%) [muTau, SStight, antiB, mT1>40]
+  // barrel/endcap division at |tau2_eta| = 1.46
+  // - 2016 barrel : 24 %
+  // -      endcap : 28 %
+  // - 2017 barrel : 13 %
+  // -      endcap : 18 %
+  // - 2018 barrel : 11 %
+  // -      endcap : 25 %
+  float jetFakeRateUnc_barrel, jetFakeRateUnc_endcap;
+  if (YEAR == 2016)
+  {
+    jetFakeRateUnc_barrel = 0.24;
+    jetFakeRateUnc_endcap = 0.28;
+  }
+  else if (YEAR == 2017)
+  {
+    jetFakeRateUnc_barrel = 0.13;
+    jetFakeRateUnc_endcap = 0.18;
+  }
+  else /*YEAR == 2018*/
+  {
+    jetFakeRateUnc_barrel = 0.11;
+    jetFakeRateUnc_endcap = 0.25;
+  }
+
   // Fix VBF trig SF
   // Load VBF trigger SF (both jet and tau legs)
   std::string YEARstring = std::to_string(YEAR);
@@ -464,6 +492,7 @@ int main (int argc, char** argv)
   float CvsB_b1, CvsB_b2, CvsB_vbf1, CvsB_vbf2;
   float HHbtag_b1, HHbtag_b2, HHbtag_vbf1, HHbtag_vbf2;
   float BDT_HT20;
+  float jetFakeSF;
   float VBFtrigSF, trigSF;
   float trigSF_vbfjet_up, trigSF_DM0_up, trigSF_DM1_up, trigSF_DM10_up, trigSF_DM11_up;
   float trigSF_vbfjet_down, trigSF_DM0_down, trigSF_DM1_down, trigSF_DM10_down, trigSF_DM11_down;
@@ -507,6 +536,7 @@ int main (int argc, char** argv)
   outTree->SetBranchAddress("isBoosted"   , &isBoosted);
   outTree->SetBranchAddress("isVBF"       , &isVBF);
 
+  outTree->SetBranchAddress("jetFakeSF"          , &jetFakeSF);
   outTree->SetBranchAddress("trigSF"             , &trigSF);
   outTree->SetBranchAddress("trigSF_DM0_up"      , &trigSF_DM0_up);
   outTree->SetBranchAddress("trigSF_DM0_down"    , &trigSF_DM0_down);
@@ -759,6 +789,20 @@ int main (int argc, char** argv)
   outTree->SetBranchAddress("BDToutSM_kl_1"  , &BDToutSM_kl_1);
 
   // Declare new branches
+  // Jet->tau_h fakes
+  Float_t jetToTauhFakeSF, jetToTauhFakeSF_up, jetToTauhFakeSF_down;
+  Float_t jetToTauhFakeSF_bar, jetToTauhFakeSF_bar_up, jetToTauhFakeSF_bar_down;
+  Float_t jetToTauhFakeSF_end, jetToTauhFakeSF_end_up, jetToTauhFakeSF_end_down;
+  TBranch* b_jetToTauhFakeSF          = outTree->Branch("jetToTauhFakeSF"          , &jetToTauhFakeSF);
+  TBranch* b_jetToTauhFakeSF_up       = outTree->Branch("jetToTauhFakeSF_up"       , &jetToTauhFakeSF_up);
+  TBranch* b_jetToTauhFakeSF_down     = outTree->Branch("jetToTauhFakeSF_down"     , &jetToTauhFakeSF_down);
+  TBranch* b_jetToTauhFakeSF_bar      = outTree->Branch("jetToTauhFakeSF_bar"      , &jetToTauhFakeSF_bar);
+  TBranch* b_jetToTauhFakeSF_bar_up   = outTree->Branch("jetToTauhFakeSF_bar_up"   , &jetToTauhFakeSF_bar_up);
+  TBranch* b_jetToTauhFakeSF_bar_down = outTree->Branch("jetToTauhFakeSF_bar_down" , &jetToTauhFakeSF_bar_down);
+  TBranch* b_jetToTauhFakeSF_end      = outTree->Branch("jetToTauhFakeSF_end"      , &jetToTauhFakeSF_end);
+  TBranch* b_jetToTauhFakeSF_end_up   = outTree->Branch("jetToTauhFakeSF_end_up"   , &jetToTauhFakeSF_end_up);
+  TBranch* b_jetToTauhFakeSF_end_down = outTree->Branch("jetToTauhFakeSF_end_down" , &jetToTauhFakeSF_end_down);
+
   // VBF trig SF fix
   Float_t VBFtrigSF_new, trigSF_new;
   Float_t trigSF_vbfjet_up_new, trigSF_DM0_up_new, trigSF_DM1_up_new, trigSF_DM10_up_new, trigSF_DM11_up_new;
@@ -1388,6 +1432,155 @@ int main (int argc, char** argv)
 
     // Timing info
     auto end_prep = high_resolution_clock::now();
+
+    // ---- ---- ---- ---- ---- ---- ---- ----
+    // ---- ----  Do doTauhFake now  ---- ----
+    // ---- ---- ---- ---- ---- ---- ---- ----
+    // Add jet->tau_h SF (always 1) and uncertainty
+    if (doTauhFake)
+    {
+      if (isData)
+      {
+          // No SF for data
+          jetToTauhFakeSF          = 1.0;
+          jetToTauhFakeSF_up       = 1.0;
+          jetToTauhFakeSF_down     = 1.0;
+          jetToTauhFakeSF_bar      = 1.0;
+          jetToTauhFakeSF_bar_up   = 1.0;
+          jetToTauhFakeSF_bar_down = 1.0;
+          jetToTauhFakeSF_end      = 1.0;
+          jetToTauhFakeSF_end_up   = 1.0;
+          jetToTauhFakeSF_end_down = 1.0;
+      }
+      else /*isMC*/
+      {
+        // Logic of jet->tau_h uncertainty:
+        // - the "central" SF is always 1 (i.e. no SF is needed)
+        // - up and down variations are computed depending on the channel (tauTau or muTau/eTau),
+        //   on the position of the taus (barrel or endcap) and on the jetFakeSF branch of the skims
+
+        // Central SF always 1
+        jetToTauhFakeSF     = 1.0;
+        jetToTauhFakeSF_bar = 1.0;
+        jetToTauhFakeSF_end = 1.0;
+
+        // Up/Down variations
+        if (pType == 2) /*tauTau channel*/
+        {
+          // This is a patch to infer if the taus are true or jet->tau_h fakes
+          // and it is based on the jetFakeSF branch stored in the skims.
+          // --> can be improved for the future by adding proper branches to the skims!!
+          // Possible values of "jetFakeSF":
+          // - only 1 fake
+          //     1.38469 : 1 fake in barrel
+          //     1.69035 : 1 fake in endcap
+          // - both fakes:
+          //     1.38469*1.38469 = 1.9173664 : both in barrel
+          //     1.38469*1.69035 = 2.3406107 : 1 in barrel and 1 in endcap
+          //     1.69035*1.69035 = 2.8572831 : both in endcap
+
+          if (jetFakeSF > 1.9)  /* both fakes */
+          {
+            if (fabs(dau1_eta) < 1.46 && fabs(dau2_eta) < 1.46)  /* both in barrel */
+            {
+              jetToTauhFakeSF_up       = (1+jetFakeRateUnc_barrel)*(1+jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_down     = (1-jetFakeRateUnc_barrel)*(1-jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_bar_up   = (1+jetFakeRateUnc_barrel)*(1+jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_bar_down = (1-jetFakeRateUnc_barrel)*(1-jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_end_up   = 1.0;
+              jetToTauhFakeSF_end_down = 1.0;
+            }
+            else if (fabs(dau1_eta) < 1.46 || fabs(dau2_eta) < 1.46)  /* only one in barrel */
+            {
+              jetToTauhFakeSF_up       = (1+jetFakeRateUnc_barrel)*(1+jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_down     = (1-jetFakeRateUnc_barrel)*(1-jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_bar_up   = (1+jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_bar_down = (1-jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_end_up   = (1+jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_end_down = (1-jetFakeRateUnc_endcap);
+            }
+            else  /* both in endcap */
+            {
+              jetToTauhFakeSF_up       = (1+jetFakeRateUnc_endcap)*(1+jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_down     = (1-jetFakeRateUnc_endcap)*(1-jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_bar_up   = 1.0;
+              jetToTauhFakeSF_bar_down = 1.0;
+              jetToTauhFakeSF_end_up   = (1+jetFakeRateUnc_endcap)*(1+jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_end_down = (1-jetFakeRateUnc_endcap)*(1-jetFakeRateUnc_endcap);
+            }
+          }
+          else if (jetFakeSF > 1.5)  /* only 1 fake in endcap */
+          {
+            jetToTauhFakeSF_up       = (1+jetFakeRateUnc_endcap);
+            jetToTauhFakeSF_down     = (1-jetFakeRateUnc_endcap);
+            jetToTauhFakeSF_bar_up   = 1.0;
+            jetToTauhFakeSF_bar_down = 1.0;
+            jetToTauhFakeSF_end_up   = (1+jetFakeRateUnc_endcap);
+            jetToTauhFakeSF_end_down = (1-jetFakeRateUnc_endcap);
+          }
+          else if (jetFakeSF > 1.3)  /* only 1 fake in barrel */
+          {
+            jetToTauhFakeSF_up       = (1+jetFakeRateUnc_barrel);
+            jetToTauhFakeSF_down     = (1-jetFakeRateUnc_barrel);
+            jetToTauhFakeSF_bar_up   = (1+jetFakeRateUnc_barrel);
+            jetToTauhFakeSF_bar_down = (1-jetFakeRateUnc_barrel);
+            jetToTauhFakeSF_end_up   = 1.0;
+            jetToTauhFakeSF_end_down = 1.0;
+          }
+          else  /* both true tau_h */
+          {
+            jetToTauhFakeSF_up       = 1.0;
+            jetToTauhFakeSF_down     = 1.0;
+            jetToTauhFakeSF_bar_up   = 1.0;
+            jetToTauhFakeSF_bar_down = 1.0;
+            jetToTauhFakeSF_end_up   = 1.0;
+            jetToTauhFakeSF_end_down = 1.0;
+          }
+        }
+        else /*muTau or eTau channel*/
+        {
+          if (jetFakeSF > 1) /* fake tau_h */
+          {
+            if (abs(dau2_eta) < 1.46) /* dau2 (tau_h) in barrel */
+            {
+              jetToTauhFakeSF_up       = (1+jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_down     = (1-jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_bar_up   = (1+jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_bar_down = (1-jetFakeRateUnc_barrel);
+              jetToTauhFakeSF_end_up   = 1.0;
+              jetToTauhFakeSF_end_down = 1.0;
+            }
+            else
+            {
+              jetToTauhFakeSF_up       = (1+jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_down     = (1-jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_bar_up   = 1.0;
+              jetToTauhFakeSF_bar_down = 1.0;
+              jetToTauhFakeSF_end_up   = (1+jetFakeRateUnc_endcap);
+              jetToTauhFakeSF_end_down = (1-jetFakeRateUnc_endcap);
+            }
+          }
+          else /* true tau_h */
+          {
+            jetToTauhFakeSF_up       = 1.0;
+            jetToTauhFakeSF_down     = 1.0;
+            jetToTauhFakeSF_bar_up   = 1.0;
+            jetToTauhFakeSF_bar_down = 1.0;
+            jetToTauhFakeSF_end_up   = 1.0;
+            jetToTauhFakeSF_end_down = 1.0;
+          }
+        }
+        //std::cout << "------------> jet->tau_h fake SF/unc for Event: " << EventNumber << std::endl;
+        //std::cout << "  pType     : " << pType << std::endl;
+        //std::cout << "  dau1_eta  : " << dau1_eta << std::endl;
+        //std::cout << "  dau2_eta  : " << dau2_eta << std::endl;
+        //std::cout << "  jetFakeSF : " << jetFakeSFval << std::endl;
+        //std::cout << "  Central SF: " << jetToTauhFakeSF << std::endl;
+        //std::cout << "  Up SF     : " << jetToTauhFakeSF_up << std::endl;
+        //std::cout << "  Down SF   : " << jetToTauhFakeSF_down << std::endl;
+      } // End isMC
+    } // End doTauhFake
+
 
     // ---- ---- ---- ---- ---- ---- ---- ----
     // ---- ---- Do VBFtriggerSF now ---- ----
@@ -3526,6 +3719,17 @@ int main (int argc, char** argv)
 
     // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
     // Fill new branches
+    // Add jet->tau_h fakes uncertainty
+    b_jetToTauhFakeSF         ->Fill();
+    b_jetToTauhFakeSF_up      ->Fill();
+    b_jetToTauhFakeSF_down    ->Fill();
+    b_jetToTauhFakeSF_bar     ->Fill();
+    b_jetToTauhFakeSF_bar_up  ->Fill();
+    b_jetToTauhFakeSF_bar_down->Fill();
+    b_jetToTauhFakeSF_end     ->Fill();
+    b_jetToTauhFakeSF_end_up  ->Fill();
+    b_jetToTauhFakeSF_end_down->Fill();
+
     // VBF trig SF fix
     b_trigSF_new            ->Fill();
     b_trigSF_DM0_up_new     ->Fill();

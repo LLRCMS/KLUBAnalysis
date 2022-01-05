@@ -540,6 +540,32 @@ def  writeCard(backgrounds,signals,select,region=-1) :
                     shiftShapes_newName.append(proc+"_"+CMS_tauELEname+"Up")
                     shiftShapes_newName.append(proc+"_"+CMS_tauELEname+"Down")
 
+            # Add jet->tau_h uncertainties (2 different uncertainties for barrel and endcap)
+            FAKEs = ["Barrel", "Endcap"]
+            for FAKEname in FAKEs:
+                CMS_tauFAKEname = "CMS_bbtt_"+opt.year+"_jetTauFakes_" + FAKEname
+                tauFAKEname = "jetToTauFake" + FAKEname
+                systsShape.append(CMS_tauFAKEname)
+                for proc in backgrounds:
+                    if "QCD" in proc: continue
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauFAKEname))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauFAKEname))
+                    if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
+                    proc_syst[proc][CMS_tauFAKEname] = ["shape", 1.]   #applying trigger to all MC backgrounds
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauFAKEname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauFAKEname))
+                    shiftShapes_newName.append(proc+"_"+CMS_tauFAKEname+"Up")
+                    shiftShapes_newName.append(proc+"_"+CMS_tauFAKEname+"Down")
+                for proc in signals:
+                    templ_u = inRoot.Get("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauFAKEname))
+                    templ_d = inRoot.Get("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauFAKEname))
+                    if templ_u.Integral() <= 0 or templ_d.Integral() <= 0: continue
+                    proc_syst[proc][CMS_tauFAKEname] = ["shape", 1.]   #applying trigger to all signals
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Up"  .format(proc, select, regionSuffix[region], variable[theCat], tauFAKEname))
+                    shiftShapes_toSave.append("{0}_{1}_{2}_{3}_{4}Down".format(proc, select, regionSuffix[region], variable[theCat], tauFAKEname))
+                    shiftShapes_newName.append(proc+"_"+CMS_tauFAKEname+"Up")
+                    shiftShapes_newName.append(proc+"_"+CMS_tauFAKEname+"Down")
+
         col1       = '{: <49}'      # must be equal to colsysN + colsysType
         colsysN    = '{: <43}'      # name of systematic
         colsysType = '{: <6}'       # type of syst: "lnN" or "shape"

@@ -68,6 +68,7 @@ if __name__ == "__main__":
 	if opt.nI >= 0 and (inputnumber < opt.nI or inputnumber > opt.nF):
 	    continue
 	filename = opt.workdir + "/syst_output_" + str(inputnumber) + ".root"
+	#filename = opt.workdir + "/taufakes_output_" + str(inputnumber) + ".root"
 	if os.path.isfile(filename):
  	    print 'A file named ' + filename + ' is already present in the directory, exiting'
 	    sys.exit(1) 
@@ -108,10 +109,12 @@ if __name__ == "__main__":
         scriptFile.write ('source scripts/setup.sh\n')
         command  = skimmer + ' ' + inputfile
         command += (" " + opt.workdir + "/syst_output_"+str(n)+".root")
+        #command += (" " + opt.workdir + "/taufakes_output_"+str(n)+".root")
         command += (" " + opt.config)
         if opt.isData : command += " 1 "
         else          : command += " 0 "
         command += (" " + ">& " + opt.workdir + "/syst_output_"+str(n)+".log\n")
+        #command += (" " + ">& " + opt.workdir + "/taufakes_output_"+str(n)+".log\n")
         scriptFile.write(command)
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
         scriptFile.write ('echo "All done for job %d" \n'%n)
@@ -124,6 +127,7 @@ if __name__ == "__main__":
         condorFile.write ('Log         = condor_job_$(ProcId).log\n')
         condorFile.write ('Output      = condor_job_$(ProcId).out\n')
         condorFile.write ('Error       = condor_job_$(ProcId).error\n')
+        condorFile.write ('Requirements = (machine != "pccms11.hcms.it")\n')
         condorFile.write ('queue 1\n')
         condorFile.close ()
 
