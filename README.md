@@ -41,11 +41,11 @@ git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
 
 scram b -j 12
 
-cd HHKinFit2/
+cd HHKinFit2/HHKinFit2/
 ln -ns interface include
 source setup.sh
 ./compile.sh
-cd ..
+cd ../..
 
 git clone git@github.com:LLRCMS/KLUBAnalysis.git
 cd KLUBAnalysis
