@@ -25,7 +25,7 @@
 #include "bJetRegrVars.h"
 #include "bTagSF.h"
 #include "HHReweight5D.h"
-#include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
+#include "../../HHKinFit2/HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 #include "SFProvider.h"
 #include "BDTfunctionsUtils.h"
 #include "TauIDSFTool.h"

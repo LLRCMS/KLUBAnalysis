@@ -21,7 +21,7 @@
 // bigTree is produced on an existing ntuple as follows (see at the end of the file) 
 #include "smallTree.h"
 #include "OfflineProducerHelper.h"
-#include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
+#include "../../HHKinFit2/HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 #include "BDTfunctionsUtils.h"
 #include "skimUtils.h"
 

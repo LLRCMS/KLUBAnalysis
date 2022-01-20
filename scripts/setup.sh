@@ -25,11 +25,11 @@ done
 if [ "$pathunset" = true ] ; then
     export THISDIR=`pwd`
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${THISDIR}/lib
-    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${THISDIR}/../HHKinFit2
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${THISDIR}/../HHKinFit2/HHKinFit2
 
     if [ -n "${DYLD_LIBRARY_PATH}" ] ; then
     export DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH}:${THISDIR}/lib
-    export DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH}:${THISDIR}/../HHKinFit2
+    export DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH}:${THISDIR}/../HHKinFit2/HHKinFit2
     fi
 
     export PATH=${PATH}:${THISDIR}/bin
