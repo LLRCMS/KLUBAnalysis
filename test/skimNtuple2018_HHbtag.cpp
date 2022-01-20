@@ -26,7 +26,8 @@
 #include "bJetRegrVars.h"
 #include "bTagSF.h"
 #include "HHReweight5D.h"
-#include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
+#include "../../HHKinFit2/HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
+#include "kinfitter.h"
 #include "SFProvider.h"
 #include "BDTfunctionsUtils.h"
 #include "TauIDSFTool.h"
@@ -296,6 +297,12 @@ int main (int argc, char** argv)
   if (isHHNLOI == 1) isHHNLO = true;
   cout << "** INFO: isHHNLO: " << isHHNLO << endl;
 
+  string whichSgnHp = "HH";
+  string opt32 (argv[32]);
+  if (opt32 != "HH") whichSgnHp = opt32;
+  cout << "** INFO: signal hypothesis being used is " << whichSgnHp << endl;
+
+
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
     kNone    = 0, //no reweighting
@@ -443,10 +450,6 @@ int main (int argc, char** argv)
   TFile * smallFile = new TFile (outputFile, "recreate") ;
   smallFile->cd () ;
   smallTree theSmallTree ("HTauTauTree") ;
-
-  // for HHKinFit
-  int hypo_mh1 = 125;
-  int hypo_mh2 = 125;
 
   // for efficiencies
   float totalEvents = 0. ;
@@ -4273,168 +4276,71 @@ int main (int argc, char** argv)
           // if (runHHKinFit && tlv_HH_raw.M() > 20 && tlv_HH_raw.M() < 200)
           //if (runHHKinFit && pairType <= 2 && tlv_bH_raw.M() > 50 && tlv_bH_raw.M() < 200 && theBigTree.SVfitMass->at (chosenTauPair) > 50 && theBigTree.SVfitMass->at (chosenTauPair) < 200) // no kinfit for ee / mumu + very loose mass window
           if (runHHKinFit && pairType <= 3) // FIXME: temporary
-            {
-              HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton, ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
-              HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
-
-              //           kinFits.setAdvancedBalance (&ptmiss, metcov) ;
-              //           kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
-              //
-              //           kinFits.addMh1Hypothesis (hypo_mh1) ;
-              //           kinFits.addMh2Hypothesis (hypo_mh2) ;
-              kinFits.   addHypo(hypo_mh1,hypo_mh2);
-              kinFitsraw.addHypo(hypo_mh1,hypo_mh2);
-
-              if(DEBUG)
-                {
-                   cout<<"---Kinfit Input debug---"<<endl;
-                   cout<<"L1"<<endl;
-                   cout<<"(pt,eta,phi,e) "<<tlv_firstLepton.Pt()<<","<<tlv_firstLepton.Eta()<<","<<tlv_firstLepton.Phi()<<","<<tlv_firstLepton.E()<<endl;
-                   cout<<"L2"<<endl;
-                   cout<<"(pt,eta,phi,e) "<<tlv_secondLepton.Pt()<<","<<tlv_secondLepton.Eta()<<","<<tlv_secondLepton.Phi()<<","<<tlv_secondLepton.E()<<endl;
-                   cout<<"B1"<<endl;
-                   cout<<"(pt,eta,phi,e,res) "<<tlv_firstBjet.Pt()<<","<<tlv_firstBjet.Eta()<<","<<tlv_firstBjet.Phi()<<","<<tlv_firstBjet.E()<<","<<bjet1_JER<<endl;
-                   cout<<"B2"<<endl;
-                   cout<<"(pt,eta,phi,e,res) "<<tlv_secondBjet.Pt()<<","<<tlv_secondBjet.Eta()<<","<<tlv_secondBjet.Phi()<<","<<tlv_secondBjet.E()<<","<<bjet2_JER<<endl;
-                   cout<<"MET"<<endl;
-                   cout<<"(Px,Py) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
-                   cout<<"METCOV "<<endl;
-                   cout<<metcov(0,0)<<"  "<<metcov(0,1)<<endl;
-                   cout<<metcov(1,0)<<"  "<<metcov(1,1)<<endl;
-                 }
-
-              try{ kinFits.fit();}
-              catch(HHKinFit2::HHInvMConstraintException &e)
-                {
-                  cout<<"INVME THIS EVENT WAS WRONG, INV MASS CONSTRAIN EXCEPTION"<<endl;
-                  cout<<"INVME masshypo1 = 125,    masshypo2 = 125"<<endl;
-                  cout<<"INVME Tau1"<<endl;
-                  cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_firstLepton.E()<<","<<tlv_firstLepton.Px()<<","<<tlv_firstLepton.Py()<<","<<tlv_firstLepton.Pz()<<","<<tlv_firstLepton.M()<<endl;
-                  cout<<"INVME Tau2"<<endl;
-                  cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_secondLepton.E()<<","<<tlv_secondLepton.Px()<<","<<tlv_secondLepton.Py()<<","<<tlv_secondLepton.Pz()<<","<<tlv_secondLepton.M()<<endl;
-                  cout<<"INVME B1"<<endl;
-                  cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_firstBjet.E()<<","<<tlv_firstBjet.Px()<<","<<tlv_firstBjet.Py()<<","<<tlv_firstBjet.Pz()<<","<<tlv_firstBjet.M()<<endl;
-                  cout<<"INVME B2"<<endl;
-                  cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
-                  cout<<"INVME MET"<<endl;
-                  cout<<"INVME (E,Px,Py,Pz,M) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
-                  cout<<"INVME METCOV "<<endl;
-                  cout<<"INVME "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
-                  cout<<"INVME "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
-                  cout<<"INVME tau1, tau2, b1, b2"<<endl;
-                  cout<<"INVME ";
-                  tlv_firstLepton.Print();
-                  cout<<"INVME ";
-                  tlv_secondLepton.Print();
-                  cout<<"INVME ";
-                  tlv_firstBjet.Print();
-                  cout<<"INVME ";
-                  tlv_secondBjet.Print();
-                  wrongHHK=true;
-                }
-              catch (HHKinFit2::HHEnergyRangeException &e)
-                {
-                  cout<<"ERANGE THIS EVENT WAS WRONG, ENERGY RANGE EXCEPTION"<<endl;
-                  cout<<"ERANGE masshypo1 = 125,    masshypo2 = 125"<<endl;
-                  cout<<"ERANGE Tau1"<<endl;
-                  cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_firstLepton.E()<<","<<tlv_firstLepton.Px()<<","<<tlv_firstLepton.Py()<<","<<tlv_firstLepton.Pz()<<","<<tlv_firstLepton.M()<<endl;
-                  cout<<"ERANGE Tau2"<<endl;
-                  cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_secondLepton.E()<<","<<tlv_secondLepton.Px()<<","<<tlv_secondLepton.Py()<<","<<tlv_secondLepton.Pz()<<","<<tlv_secondLepton.M()<<endl;
-                  cout<<"ERANGE B1"<<endl;
-                  cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_firstBjet.E()<<","<<tlv_firstBjet.Px()<<","<<tlv_firstBjet.Py()<<","<<tlv_firstBjet.Pz()<<","<<tlv_firstBjet.M()<<endl;
-                  cout<<"ERANGE B2"<<endl;
-                  cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
-                  cout<<"ERANGE MET"<<endl;
-                  cout<<"ERANGE (E,Px,Py,Pz,M) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
-                  cout<<"ERANGE METCOV "<<endl;
-                  cout<<"ERANGE "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
-                  cout<<"ERANGE "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
-                  cout<<"ERANGE tau1, tau2, b1, b2"<<endl;
-                  cout<<"ERANGE ";
-                  tlv_firstLepton.Print();
-                  cout<<"ERANGE ";
-                  tlv_secondLepton.Print();
-                  cout<<"ERANGE ";
-                  tlv_firstBjet.Print();
-                  cout<<"ERANGE ";
-                  tlv_secondBjet.Print();
-                  wrongHHK=true;
-                }
-              catch(HHKinFit2::HHEnergyConstraintException &e)
-                {
-                  cout<<"ECON THIS EVENT WAS WRONG, ENERGY CONSTRAIN EXCEPTION"<<endl;
-                  cout<<"ECON masshypo1 = 125,    masshypo2 = 125"<<endl;
-                  cout<<"ECON Tau1"<<endl;
-                  cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_firstLepton.E()<<","<<tlv_firstLepton.Px()<<","<<tlv_firstLepton.Py()<<","<<tlv_firstLepton.Pz()<<","<<tlv_firstLepton.M()<<endl;
-                  cout<<"ECON Tau2"<<endl;
-                  cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_secondLepton.E()<<","<<tlv_secondLepton.Px()<<","<<tlv_secondLepton.Py()<<","<<tlv_secondLepton.Pz()<<","<<tlv_secondLepton.M()<<endl;
-                  cout<<"ECON B1"<<endl;
-                  cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_firstBjet.E()<<","<<tlv_firstBjet.Px()<<","<<tlv_firstBjet.Py()<<","<<tlv_firstBjet.Pz()<<","<<tlv_firstBjet.M()<<endl;
-                  cout<<"ECON B2"<<endl;
-                  cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
-                  cout<<"ECON MET"<<endl;
-                  cout<<"ECON (E,Px,Py,Pz,M) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
-                  cout<<"ECON METCOV "<<endl;
-                  cout<<"ECON "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
-                  cout<<"ECON "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
-                  cout<<"ECON tau1, tau2, b1, b2"<<endl;
-                  cout<<"ECON ";
-                  tlv_firstLepton.Print();
-                  cout<<"ECON ";
-                  tlv_secondLepton.Print();
-                  cout<<"ECON ";
-                  tlv_firstBjet.Print();
-                  cout<<"ECON ";
-                  tlv_secondBjet.Print();
-                  wrongHHK=true;
-                }
-              if(!wrongHHK)
-                {
-                  HHKmass = kinFits.getMH () ;
-                  HHKChi2 = kinFits.getChi2 () ;
-                }
-              else
-                {
-                  if(isOS)HHKmass = -333;
-                }
-
-              // nominal kinfit raw
-              bool wrongHHKraw =false;
-              try {kinFitsraw.fit();}
-              catch(HHKinFit2::HHInvMConstraintException   &e){wrongHHKraw=true;}
-              catch(HHKinFit2::HHEnergyConstraintException &e){wrongHHKraw=true;}
-              catch(HHKinFit2::HHEnergyRangeException      &e){wrongHHKraw=true;}
-              if(!wrongHHKraw)
-                {
-                  theSmallTree.m_HHKin_mass_raw             = kinFitsraw.getMH();
-                  theSmallTree.m_HHKin_mass_raw_chi2        = kinFitsraw.getChi2();
-                  theSmallTree.m_HHKin_mass_raw_convergence = kinFitsraw.getConvergence();
-                  theSmallTree.m_HHKin_mass_raw_prob        = kinFitsraw.getFitProb();
-                  if(DEBUG)
-                    {
-                       cout<<"---Kinfit Output debug---"<<endl;
-                       cout<<"KinFit mass = " << kinFitsraw.getMH() << endl;
-                       cout<<"KinFit chi2 = " << kinFitsraw.getChi2()<< endl;
-                       cout<<"KinFit conv = " << kinFitsraw.getConvergence()<< endl;
-                    }
-                }
-              else theSmallTree.m_HHKin_mass_raw = -100 ;
-              if ( (theBigTree.SVfitMass->at(chosenTauPair) > -900. || (doSmearing && theSmallTree.m_tauH_SVFIT_mass > 0)) && !wrongHHK)
+          {
+            if(DEBUG)
               {
-                TLorentzVector b1 = kinFits.getFittedBJet1();
-                TLorentzVector b2 = kinFits.getFittedBJet2();
-                TLorentzVector bH_HKin = b1 + b2;
-                TLorentzVector tlv_HHsvfit = bH_HKin + tlv_tauH_SVFIT ;
+                 cout<<"---Kinfit Input debug---"<<endl;
+                 cout<<"L1"<<endl;
+                 cout<<"(pt,eta,phi,e) "<<tlv_firstLepton.Pt()<<","<<tlv_firstLepton.Eta()<<","<<tlv_firstLepton.Phi()<<","<<tlv_firstLepton.E()<<endl;
+                 cout<<"L2"<<endl;
+                 cout<<"(pt,eta,phi,e) "<<tlv_secondLepton.Pt()<<","<<tlv_secondLepton.Eta()<<","<<tlv_secondLepton.Phi()<<","<<tlv_secondLepton.E()<<endl;
+                 cout<<"B1"<<endl;
+                 cout<<"(pt,eta,phi,e,res) "<<tlv_firstBjet.Pt()<<","<<tlv_firstBjet.Eta()<<","<<tlv_firstBjet.Phi()<<","<<tlv_firstBjet.E()<<","<<bjet1_JER<<endl;
+                 cout<<"B2"<<endl;
+                 cout<<"(pt,eta,phi,e,res) "<<tlv_secondBjet.Pt()<<","<<tlv_secondBjet.Eta()<<","<<tlv_secondBjet.Phi()<<","<<tlv_secondBjet.E()<<","<<bjet2_JER<<endl;
+                 cout<<"MET"<<endl;
+                 cout<<"(Px,Py) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
+                 cout<<"METCOV "<<endl;
+                 cout<<metcov(0,0)<<"  "<<metcov(0,1)<<endl;
+                 cout<<metcov(1,0)<<"  "<<metcov(1,1)<<endl;
+               }
 
-                theSmallTree.m_HHkinsvfit_bHmass = bH_HKin.M();
-                theSmallTree.m_HHkinsvfit_pt  = tlv_HHsvfit.Pt () ;
-                theSmallTree.m_HHkinsvfit_eta = tlv_HHsvfit.Eta () ;
-                theSmallTree.m_HHkinsvfit_phi = tlv_HHsvfit.Phi () ;
-                theSmallTree.m_HHkinsvfit_e   = tlv_HHsvfit.E () ;
-                theSmallTree.m_HHkinsvfit_m   = tlv_HHsvfit.M () ;
-              } // in case the SVFIT mass is calculated
+            KinFitter fitter(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton, ptmiss, stableMetCov, bjet1_JER, bjet2_JER);
+            KinFitter fitterRaw(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton, ptmiss, stableMetCov, bjet1_JER, bjet2_JER);
 
-            } // end if doing HHKinFit
+            wrongHHK = fitter.fit(whichSgnHp);
+            if(!wrongHHK) {
+              HHKmass = fitter.getMH();
+              HHKChi2 = fitter.getChi2();
+            }
+            else {
+              if(isOS)HHKmass = -333;
+            }
+
+            // nominal kinfit raw
+            bool wrongHHKraw =false;
+            wrongHHKraw = fitterRaw.fit(whichSgnHp);
+            if(!wrongHHKraw)
+              {
+                theSmallTree.m_HHKin_mass_raw             = fitterRaw.getMH();
+                theSmallTree.m_HHKin_mass_raw_chi2        = fitterRaw.getChi2();
+                theSmallTree.m_HHKin_mass_raw_convergence = fitterRaw.getConvergence();
+                theSmallTree.m_HHKin_mass_raw_prob        = fitterRaw.getFitProb();
+                if(DEBUG)
+                  {
+                     cout<<"---Kinfit Output debug---"<<endl;
+                     cout<<"KinFit mass = " << fitterRaw.getMH() << endl;
+                     cout<<"KinFit chi2 = " << fitterRaw.getChi2()<< endl;
+                     cout<<"KinFit conv = " << fitterRaw.getConvergence()<< endl;
+                  }
+              }
+            else theSmallTree.m_HHKin_mass_raw = -100 ;
+
+            if ( (theBigTree.SVfitMass->at(chosenTauPair) > -900. || (doSmearing && theSmallTree.m_tauH_SVFIT_mass > 0)) && !wrongHHK)
+            {
+              TLorentzVector b1 = fitter.getFittedBJet1();
+              TLorentzVector b2 = fitter.getFittedBJet2();
+              TLorentzVector bH_HKin = b1 + b2;
+              TLorentzVector tlv_HHsvfit = bH_HKin + tlv_tauH_SVFIT ;
+
+              theSmallTree.m_HHkinsvfit_bHmass = bH_HKin.M();
+              theSmallTree.m_HHkinsvfit_pt  = tlv_HHsvfit.Pt () ;
+              theSmallTree.m_HHkinsvfit_eta = tlv_HHsvfit.Eta () ;
+              theSmallTree.m_HHkinsvfit_phi = tlv_HHsvfit.Phi () ;
+              theSmallTree.m_HHkinsvfit_e   = tlv_HHsvfit.E () ;
+              theSmallTree.m_HHkinsvfit_m   = tlv_HHsvfit.M () ;
+            } // in case the SVFIT mass is calculated
+          } // end of HH KinFit
 
           theSmallTree.m_HHKin_mass_raw_copy = theSmallTree.m_HHKin_mass_raw ; // store twice if different binning needed
 
