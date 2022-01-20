@@ -169,9 +169,9 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         #if(opt.channel == "TauTau"):
         #    syst.addSystFile("../config/systematics_tautau.cfg")
         if(opt.channel == "MuTau"):
-            syst.addSystFile("../config/systematics_mutau.cfg")
+            syst.addSystFile("../config/systematics_muTau_"+opt.year+".cfg")
         elif(opt.channel == "ETau"):
-            syst.addSystFile("../config/systematics_etau.cfg")
+            syst.addSystFile("../config/systematics_eTau_"+opt.year+".cfg")
         syst.writeSystematics()
 
         # Add QCD uncertainties
