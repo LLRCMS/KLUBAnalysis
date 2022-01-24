@@ -28,7 +28,7 @@ git clone git@github.com:hh-italian-group/HHbtag.git HHTools/HHbtag
 # KinFit and Combine packages
 mkdir HHKinFit2
 cd HHKinFit2
-git clone git@github.com:jonamotta/HHKinFit2.git -b bbtautau_Run2DNNtraining
+git clone git@github.com:LLRCMS/HHKinFit2.git -b bbtautau_Run2DNNtraining
 cd ..
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
