@@ -134,7 +134,7 @@ std::pair<HHKinFit2::HHKinFitMasterHeavyHiggs,float> KinFitter::_fit(int mh1_hp,
     return std::pair(localFit, localChi2);
 }
 
-bool KinFitter::fit(std::string sgnHp) {
+bool KinFitter::fit(TString sgnHp) {
     int mh1_hp = 0;
     int mh2_hp = 0;
 

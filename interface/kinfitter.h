@@ -21,6 +21,7 @@
 #include <TTreeReaderValue.h>
 #include <TLorentzVector.h>
 #include <TMatrixD.h>
+#include <TString.h>
 
 // HHKinFit2
 #include "../../HHKinFit2/HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
@@ -58,7 +59,7 @@ public:
               double bjet1_JER = -1.0,
               double bjet2_JER = -1.0);
     ~KinFitter();
-    bool fit(std::string sgnHp = "HH");
+    bool fit(TString sgnHp = "HH");
     double getMH();
     double getChi2();
     int getConvergence();

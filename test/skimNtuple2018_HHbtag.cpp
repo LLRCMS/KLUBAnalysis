@@ -297,7 +297,7 @@ int main (int argc, char** argv)
   if (isHHNLOI == 1) isHHNLO = true;
   cout << "** INFO: isHHNLO: " << isHHNLO << endl;
 
-  string whichSgnHp = "HH";
+  TString whichSgnHp = "HH";
   string opt32 (argv[32]);
   if (opt32 != "HH") whichSgnHp = opt32;
   cout << "** INFO: signal hypothesis being used is " << whichSgnHp << endl;
