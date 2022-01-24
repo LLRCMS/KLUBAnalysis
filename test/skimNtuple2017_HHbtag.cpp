@@ -6509,13 +6509,13 @@ int main (int argc, char** argv)
     const double MU_MASS = 0.1056583715; //GeV
 
     // Reaf from configs
-    std::string model_dir = gConfigParser->readStringOption ("DNN::weights");
+    std::string model_dir = gConfigParser->readStringOption ("DNN::"+whichSgnHp+"weights");
     std::cout << "DNN::weights   : " << model_dir << std::endl;
 
     vector<float> DNN_kl;
     DNN_kl = gConfigParser->readFloatListOption("DNN::kl");
 
-    std::string features_file = gConfigParser->readStringOption ("DNN::features");
+    std::string features_file = gConfigParser->readStringOption ("DNN::"+whichSgnHp+"features");
     std::cout << "DNN::features  : " << features_file << std::endl;
 
     // Read from file the requested features to be computed
