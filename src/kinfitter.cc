@@ -160,7 +160,7 @@ bool KinFitter::fit(std::string sgnHp) {
 
     if (mh1_hp == mh2_hp) {
         std::pair<HHKinFit2::HHKinFitMasterHeavyHiggs,float> res = _fit(mh1_hp, mh2_hp);
-        if (std::isnan(res.second)) fitsNotConverging = true;;
+        if (std::isnan(res.second)) fitsNotConverging = true;
         KinFit = res.first;
         mh1_hpFit = mh1_hp;
         mh2_hpFit = mh2_hp;

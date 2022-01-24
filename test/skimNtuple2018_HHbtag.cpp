@@ -4296,7 +4296,6 @@ int main (int argc, char** argv)
                }
 
             KinFitter fitter(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton, ptmiss, stableMetCov, bjet1_JER, bjet2_JER);
-            KinFitter fitterRaw(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton, ptmiss, stableMetCov, bjet1_JER, bjet2_JER);
 
             wrongHHK = fitter.fit(whichSgnHp);
             if(!wrongHHK) {
@@ -4304,27 +4303,9 @@ int main (int argc, char** argv)
               HHKChi2 = fitter.getChi2();
             }
             else {
-              if(isOS)HHKmass = -333;
+              HHKmass = 0;
+              HHKChi2 = std::nanf("1");
             }
-
-            // nominal kinfit raw
-            bool wrongHHKraw =false;
-            wrongHHKraw = fitterRaw.fit(whichSgnHp);
-            if(!wrongHHKraw)
-              {
-                theSmallTree.m_HHKin_mass_raw             = fitterRaw.getMH();
-                theSmallTree.m_HHKin_mass_raw_chi2        = fitterRaw.getChi2();
-                theSmallTree.m_HHKin_mass_raw_convergence = fitterRaw.getConvergence();
-                theSmallTree.m_HHKin_mass_raw_prob        = fitterRaw.getFitProb();
-                if(DEBUG)
-                  {
-                     cout<<"---Kinfit Output debug---"<<endl;
-                     cout<<"KinFit mass = " << fitterRaw.getMH() << endl;
-                     cout<<"KinFit chi2 = " << fitterRaw.getChi2()<< endl;
-                     cout<<"KinFit conv = " << fitterRaw.getConvergence()<< endl;
-                  }
-              }
-            else theSmallTree.m_HHKin_mass_raw = -100 ;
 
             if ( (theBigTree.SVfitMass->at(chosenTauPair) > -900. || (doSmearing && theSmallTree.m_tauH_SVFIT_mass > 0)) && !wrongHHK)
             {
@@ -4341,8 +4322,6 @@ int main (int argc, char** argv)
               theSmallTree.m_HHkinsvfit_m   = tlv_HHsvfit.M () ;
             } // in case the SVFIT mass is calculated
           } // end of HH KinFit
-
-          theSmallTree.m_HHKin_mass_raw_copy = theSmallTree.m_HHKin_mass_raw ; // store twice if different binning needed
 
           theSmallTree.m_HHKin_mass = HHKmass;//kinFits.getMH () ;
           theSmallTree.m_HHKin_chi2 = HHKChi2;//kinFits.getChi2 () ;
