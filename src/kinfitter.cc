@@ -191,7 +191,7 @@ bool KinFitter::fit(TString sgnHp) {
             mh1_hpFit = mh1_hp;
             mh2_hpFit = mh2_hp;
         }
-        else fitsNotConverging = true;;
+        else fitsNotConverging = true;
     }
 
     return fitsNotConverging;
