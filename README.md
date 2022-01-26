@@ -26,7 +26,10 @@ git clone https://gitlab.cern.ch/hh/bbtautau/MulticlassInference.git
 git clone git@github.com:hh-italian-group/HHbtag.git HHTools/HHbtag
 
 # KinFit and Combine packages
-git clone git@github.com:LLRCMS/HHKinFit2.git -b bbtautau_LegacyRun2
+mkdir HHKinFit2
+cd HHKinFit2
+git clone git@github.com:LLRCMS/HHKinFit2.git -b bbtautau_Run2DNNtraining
+cd ..
 git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 git checkout v8.2.0
@@ -36,27 +39,27 @@ cd -
 git clone https://github.com/LLRCMS/ClassicSVfit.git TauAnalysis/ClassicSVfit -b bbtautau_LegacyRun2
 git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
 
-scram b -j8
+scram b -j 12
 
-cd HHKinFit2/
+cd HHKinFit2/HHKinFit2/
 ln -ns interface include
 source setup.sh
 ./compile.sh
-cd ..
+cd ../..
 
 git clone git@github.com:LLRCMS/KLUBAnalysis.git
 cd KLUBAnalysis
 git checkout VBF_legacy
 
 cd interface/exceptions
-ln -ns ../../../HHKinFit2/interface/exceptions/HHInvMConstraintException.h
-ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyRangeException.h
-ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyConstraintException.h
+ln -ns ../../../HHKinFit2/HHKinFit2/interface/exceptions/HHInvMConstraintException.h
+ln -ns ../../../HHKinFit2/HHKinFit2/interface/exceptions/HHEnergyRangeException.h
+ln -ns ../../../HHKinFit2/HHKinFit2/interface/exceptions/HHEnergyConstraintException.h
 cd -
 
 source scripts/setup.sh
-make
-make exe
+make -j 10
+make exe -j 10
 ```
 
 

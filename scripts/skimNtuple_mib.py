@@ -78,6 +78,7 @@ if __name__ == "__main__":
     parser.add_option ('--ttHToNonBB',       dest='ttHToNonBB', help='if it is a ttHToNonBB sample'         , default=False)
     parser.add_option ('--hhNLO',            dest='hhNLO'     , help='if it is an HH NLO sample'            , default=False)
     parser.add_option ('--doSyst',           dest='doSyst'    , help='compute up/down values of outputs'    , default=False)
+    parser.add_option ('--whichSgnHp',       dest='whichSgnHp', help='HH/ZH/ZZ are supported'               , default='HH')
 
     (opt, args) = parser.parse_args()
 
@@ -263,6 +264,7 @@ if __name__ == "__main__":
         else                  : command += " 0 "
         if opt.hhNLO          : command += " 1 "
         else                  : command += " 0 "
+        command += (" " + opt.whichSgnHp)
         command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
         scriptFile.write (command)
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
