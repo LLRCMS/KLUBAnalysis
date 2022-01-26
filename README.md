@@ -49,7 +49,7 @@ cd ../..
 
 git clone git@github.com:LLRCMS/KLUBAnalysis.git
 cd KLUBAnalysis
-git checkout VBF_legacy
+git checkout VBF_legacy_ZZ_ZH_dev
 
 cd interface/exceptions
 ln -ns ../../../HHKinFit2/HHKinFit2/interface/exceptions/HHInvMConstraintException.h
