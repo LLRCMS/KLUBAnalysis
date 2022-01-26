@@ -4444,10 +4444,8 @@ int main (int argc, char** argv)
           } // in case the SVFIT mass is calculated
         } // end of HH KinFit
 
-        theSmallTree.m_HHKin_mass_raw_copy = theSmallTree.m_HHKin_mass_raw ; // store twice if different binning needed
-
-        theSmallTree.m_HHKin_mass = HHKmass;//kinFits.getMH () ;
-        theSmallTree.m_HHKin_chi2 = HHKChi2;//kinFits.getChi2 () ;
+        theSmallTree.m_HHKin_mass = HHKmass;
+        theSmallTree.m_HHKin_chi2 = HHKChi2;
 
         // Stransverse mass
         if (runMT2)
