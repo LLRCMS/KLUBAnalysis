@@ -32,10 +32,10 @@ const int H_MASS  = 125; //GeV
 class KinFitter {
     // class to calculate KinFit mass of a particle given a mass hypothesis and its decay products
 private:
-    TLorentzVector tlv_l1 = TLorentzVector();
-    TLorentzVector tlv_l2 = TLorentzVector();
-    TLorentzVector tlv_b1 = TLorentzVector();
-    TLorentzVector tlv_b2 = TLorentzVector();
+    TLorentzVector tlv_l1 = TLorentzVector(0,0,0,1.78); // innitialize as particles at rest at interaction point to avoid unwanted errors at initialization of KinFit
+    TLorentzVector tlv_l2 = TLorentzVector(0,0,0,1.78); // "
+    TLorentzVector tlv_b1 = TLorentzVector(0,0,0,4.18); // "
+    TLorentzVector tlv_b2 = TLorentzVector(0,0,0,4.18); // "
     TVector2 ptmiss = TVector2();
     TMatrixD metcov = TMatrixD(2,2);
     double b1_JER = -1.0;
