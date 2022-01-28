@@ -9,16 +9,16 @@ KinFitter::KinFitter(TLorentzVector tlv_firstBjet,
                      TLorentzVector tlv_secondBjet,
                      TLorentzVector tlv_firstLepton,
                      TLorentzVector tlv_secondLepton,
-                     TVector2 ptmiss,
+                     TVector2 ptmiss_in,
                      TMatrixD stableMetCov,
                      double bjet1_JER,
                      double bjet2_JER) {
     
-    tlv_l1 = tlv_firstBjet;
-    tlv_l2 = tlv_secondBjet;
-    tlv_b1 = tlv_firstLepton;
-    tlv_b2 = tlv_secondLepton;
-    ptmiss = ptmiss;
+    tlv_b1 = tlv_firstBjet;
+    tlv_b2 = tlv_secondBjet;
+    tlv_l1 = tlv_firstLepton;
+    tlv_l2 = tlv_secondLepton;
+    ptmiss = ptmiss_in;
     metcov = stableMetCov;
     b1_JER = bjet1_JER;
     b2_JER = bjet2_JER;
@@ -29,7 +29,7 @@ KinFitter::KinFitter(TLorentzVector tlv_firstBjet,
 KinFitter::~KinFitter() {}
 
 std::pair<HHKinFit2::HHKinFitMasterHeavyHiggs,float> KinFitter::_fit(int mh1_hp, int mh2_hp) {
-    HHKinFit2::HHKinFitMasterHeavyHiggs localFit = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_b1, tlv_b2, tlv_l1, tlv_l2, ptmiss, metcov);
+    HHKinFit2::HHKinFitMasterHeavyHiggs localFit = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_b1, tlv_b2, tlv_l1, tlv_l2, ptmiss, metcov, b1_JER, b2_JER);
     localFit.addHypo(mh1_hp, mh2_hp);
 
     float localChi2 = -999;
