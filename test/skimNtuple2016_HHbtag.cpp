@@ -1464,7 +1464,7 @@ int main (int argc, char** argv)
     metpass    += (metbit & (1 << 3)) ? 1 : 0; //"Flag_EcalDeadCellTriggerPrimitiveFilter"
     metpass    += (metbit & (1 << 4)) ? 1 : 0; //"Flag_globalSuperTightHalo2016Filter"
     metpass    += (metbit & (1 << 5)) ? 1 : 0; //"Flag_BadPFMuonFilter"
-    if(!isMC) metpass += (metbit & (1 << 7)) ? 1 : 0; // "Flag_eeBadScFilter" not suggested on twiki; EDIT: now suggested for data, but still not for MC
+    metpass    += (metbit & (1 << 6)) ? 1 : 0; // "Flag_eeBadScFilter"
     if (theBigTree.passbadMuonPFDz) metpass += 1; //passbadMuonPFDz
 
     if(DEBUG)
@@ -1473,18 +1473,17 @@ int main (int argc, char** argv)
       cout << "metfilterbit (int): " << metbit << endl;
       cout << "metfilterbit (binary):         " << std::bitset<10>(theBigTree.metfilterbit) << endl;
       cout << "metfilterbit (metbit binary) : " << std::bitset<10>(metbit) << endl;
-      cout << "Flag_goodVertices      : " << (metbit & (1 << 0)) << endl;
-      cout << "Flag_HBHENoiseIsoFilter: " << (metbit & (1 << 2)) << endl;
-      cout << "Flag_BadPFMuonFilter   : " << (metbit & (1 << 5)) << endl;
-      cout << "Flag_HBHENoiseFilter   : " << (metbit & (1 << 1)) << endl;
+      cout << "Flag_goodVertices      : "                 << (metbit & (1 << 0)) << endl;
+      cout << "Flag_HBHENoiseFilter   : "                 << (metbit & (1 << 1)) << endl;
+      cout << "Flag_HBHENoiseIsoFilter: "                 << (metbit & (1 << 2)) << endl;
       cout << "Flag_EcalDeadCellTriggerPrimitiveFilter: " << (metbit & (1 << 3)) << endl;
       cout << "Flag_globalSuperTightHalo2016Filter    : " << (metbit & (1 << 4)) << endl;
-      if(!isMC) cout << "Flag_eeBadScFilter: " << (metbit & (1 << 7)) << endl;
+      cout << "Flag_BadPFMuonFilter   : "                 << (metbit & (1 << 5)) << endl;
+      cout << "Flag_eeBadScFilter: "                      << (metbit & (1 << 6)) << endl;
       cout << "passbadMuonPFDz:" << (theBigTree.passbadMuonPFDz) << endl;
     }
 
-    if(isMC && metpass < 7) continue ;
-    if(!isMC && metpass < 8) continue ;
+    if(metpass < 8) continue ;
 
     ec.Increment ("METfilter", EvtW);
     if (isHHsignal) ecHHsig[genHHDecMode].Increment ("METfilter", EvtW);

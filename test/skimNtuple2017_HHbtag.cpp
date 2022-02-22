@@ -1468,26 +1468,28 @@ int main (int argc, char** argv)
     metpass    += (metbit & (1 << 3)) ? 1 : 0; //"Flag_EcalDeadCellTriggerPrimitiveFilter"
     metpass    += (metbit & (1 << 4)) ? 1 : 0; //"Flag_globalSuperTightHalo2016Filter"
     metpass    += (metbit & (1 << 5)) ? 1 : 0; //"Flag_BadPFMuonFilter"
-    metpass    += (metbit & (1 << 6)) ? 1 : 0; // "Flag_eeBadScFilter" now suggested for data AND MC (https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFiltersRun2#Analysis_Recommendations_for_ana)
+    metpass    += (metbit & (1 << 6)) ? 1 : 0; // "Flag_eeBadScFilter"
+    metpass    += (metbit & (1 << 7)) ? 1 : 0; // "Flag_ecalBadCalibFilter"
     if (theBigTree.passbadMuonPFDz) metpass += 1; //passbadMuonPFDz for 2017 and 2018
+
     if(DEBUG)
     {
       cout << "metpass: " << metpass << endl;
       cout << "metfilterbit (int): " << metbit << endl;
       cout << "metfilterbit (binary):         " << std::bitset<10>(theBigTree.metfilterbit) << endl;
       cout << "metfilterbit (metbit binary) : " << std::bitset<10>(metbit) << endl;
-      cout << "Flag_goodVertices      : " << (metbit & (1 << 0)) << endl;
-      cout << "Flag_HBHENoiseIsoFilter: " << (metbit & (1 << 2)) << endl;
-      cout << "Flag_BadPFMuonFilter   : " << (metbit & (1 << 5)) << endl;
-      cout << "Flag_HBHENoiseFilter   : " << (metbit & (1 << 1)) << endl;
+      cout << "Flag_goodVertices      : "                 << (metbit & (1 << 0)) << endl;
+      cout << "Flag_HBHENoiseFilter   : "                 << (metbit & (1 << 1)) << endl;
+      cout << "Flag_HBHENoiseIsoFilter: "                 << (metbit & (1 << 2)) << endl;
       cout << "Flag_EcalDeadCellTriggerPrimitiveFilter: " << (metbit & (1 << 3)) << endl;
       cout << "Flag_globalSuperTightHalo2016Filter    : " << (metbit & (1 << 4)) << endl;
-      if(!isMC) cout << "Flag_eeBadScFilter: " << (metbit & (1 << 7)) << endl;
+      cout << "Flag_BadPFMuonFilter   : "                 << (metbit & (1 << 5)) << endl;
+      cout << "Flag_eeBadScFilter: "                      << (metbit & (1 << 6)) << endl;
+      cout << "Flag_ecalBadCalibFilter: "                 << (metbit & (1 << 7)) << endl;
       cout << "passbadMuonPFDz:" << (theBigTree.passbadMuonPFDz) << endl;
     }
 
-    if(isMC && metpass < 8) continue ;
-    if(!isMC && metpass < 8) continue ;
+    if(metpass < 9) continue ;
 
     ec.Increment ("METfilter", EvtW);
     if (isHHsignal) ecHHsig[genHHDecMode].Increment ("METfilter", EvtW);
