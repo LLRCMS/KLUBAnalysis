@@ -3,13 +3,22 @@
 #define DEBUG false
 
 // Constructor
-JECKLUBinterface::JECKLUBinterface (std::string year, std::string version)
+JECKLUBinterface::JECKLUBinterface (std::string year, bool isPostVFP)
 {
   // Get the correct txt file and set the uncertainty names
   std::string TXTfile;
-  if (year == "2016")
+  if (year == "2016" && !isPostVFP)
   {
-    TXTfile = "weights/JECregrouped/Regrouped_Summer16_07Aug2017_V11_MC_UncertaintySources_AK4PFchs.txt";
+    TXTfile = "weights/JECregrouped/RegroupedV2_Summer19UL16APV_V7_MC_UncertaintySources_AK4PFchs.txt";
+    m_jec_sources_regrouped_ =
+      {
+	"FlavorQCD", "RelativeBal", "HF", "BBEC1", "EC2", "Absolute", "BBEC1_2016",
+	"EC2_2016", "Absolute_2016", "HF_2016", "RelativeSample_2016" //, "Total"
+      };
+  }
+  else if (year == "2016" && isPostVFP)
+  {
+    TXTfile = "weights/JECregrouped/RegroupedV2_Summer19UL16_V7_MC_UncertaintySources_AK4PFchs.txt";
     m_jec_sources_regrouped_ =
       {
 	"FlavorQCD", "RelativeBal", "HF", "BBEC1", "EC2", "Absolute", "BBEC1_2016",
@@ -18,7 +27,7 @@ JECKLUBinterface::JECKLUBinterface (std::string year, std::string version)
   }
   else if (year == "2017")
   {
-    TXTfile = "weights/JECregrouped/Regrouped_Fall17_17Nov2017_V32_MC_UncertaintySources_AK4PFchs.txt";
+    TXTfile = "weights/JECregrouped/RegroupedV2_Summer19UL17_V5_MC_UncertaintySources_AK4PFchs.txt";
     m_jec_sources_regrouped_ = {
       "FlavorQCD", "RelativeBal", "HF", "BBEC1", "EC2", "Absolute", "BBEC1_2017",
       "EC2_2017", "Absolute_2017", "HF_2017", "RelativeSample_2017" //, "Total"
@@ -26,17 +35,11 @@ JECKLUBinterface::JECKLUBinterface (std::string year, std::string version)
   }
   else /* year == "2018" */
   {
-    TXTfile = "weights/JECregrouped/Regrouped_Autumn18_V19_MC_UncertaintySources_AK4PFchs.txt";
+    TXTfile = "weights/JECregrouped/RegroupedV2_Summer19UL18_V5_MC_UncertaintySources_AK4PFchs.txt";
     m_jec_sources_regrouped_ = {
       "FlavorQCD", "RelativeBal", "HF", "BBEC1", "EC2", "Absolute", "BBEC1_2018",
       "EC2_2018", "Absolute_2018", "HF_2018", "RelativeSample_2018" //, "Total"
     };
-  }
-
-  // Change input file if using V2
-  if (version == "V2")
-  {
-    TXTfile = std::regex_replace(TXTfile, std::regex("Regrouped_"), "RegroupedV2_");
   }
 
   std::cout << "** INFO - JECKLUBinterface: " << TXTfile << std::endl;

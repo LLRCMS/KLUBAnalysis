@@ -540,8 +540,7 @@ int main (int argc, char** argv)
 
   // ------------------------------
 
-  // V2 is the correct version to be used
-  JECKLUBinterface JECprovider("2017", "V2");
+  JECKLUBinterface JECprovider("2017");
 
   // ------------------------------
 
