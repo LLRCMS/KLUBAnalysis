@@ -13,7 +13,7 @@ JECKLUBinterface::JECKLUBinterface (std::string year, bool isPostVFP)
     m_jec_sources_regrouped_ =
       {
 	"FlavorQCD", "RelativeBal", "HF", "BBEC1", "EC2", "Absolute", "BBEC1_2016",
-	"EC2_2016", "Absolute_2016", "HF_2016", "RelativeSample_2016" //, "Total"
+	"EC2_2016", "Absolute_2016", "HF_2016", "RelativeSample_2016", "Total"
       };
   }
   else if (year == "2016" && isPostVFP)
@@ -22,7 +22,7 @@ JECKLUBinterface::JECKLUBinterface (std::string year, bool isPostVFP)
     m_jec_sources_regrouped_ =
       {
 	"FlavorQCD", "RelativeBal", "HF", "BBEC1", "EC2", "Absolute", "BBEC1_2016",
-	"EC2_2016", "Absolute_2016", "HF_2016", "RelativeSample_2016" //, "Total"
+	"EC2_2016", "Absolute_2016", "HF_2016", "RelativeSample_2016", "Total"
       };
   }
   else if (year == "2017")
@@ -30,7 +30,7 @@ JECKLUBinterface::JECKLUBinterface (std::string year, bool isPostVFP)
     TXTfile = "weights/JECregrouped/RegroupedV2_Summer19UL17_V5_MC_UncertaintySources_AK4PFchs.txt";
     m_jec_sources_regrouped_ = {
       "FlavorQCD", "RelativeBal", "HF", "BBEC1", "EC2", "Absolute", "BBEC1_2017",
-      "EC2_2017", "Absolute_2017", "HF_2017", "RelativeSample_2017" //, "Total"
+      "EC2_2017", "Absolute_2017", "HF_2017", "RelativeSample_2017", "Total"
     };
   }
   else /* year == "2018" */
@@ -38,7 +38,7 @@ JECKLUBinterface::JECKLUBinterface (std::string year, bool isPostVFP)
     TXTfile = "weights/JECregrouped/RegroupedV2_Summer19UL18_V5_MC_UncertaintySources_AK4PFchs.txt";
     m_jec_sources_regrouped_ = {
       "FlavorQCD", "RelativeBal", "HF", "BBEC1", "EC2", "Absolute", "BBEC1_2018",
-      "EC2_2018", "Absolute_2018", "HF_2018", "RelativeSample_2018" //, "Total"
+      "EC2_2018", "Absolute_2018", "HF_2018", "RelativeSample_2018", "Total"
     };
   }
 
