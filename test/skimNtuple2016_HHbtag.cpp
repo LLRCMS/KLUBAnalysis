@@ -3639,8 +3639,6 @@ int main (int argc, char** argv)
       // store the up down variations in vectors:
       // last position is total uncertainty
 
-      //pair <vector <double>, vector<double>> unc_first_updown = getJetUpDown(bjet1idx, theBigTree);
-      //pair <vector <double>, vector<double>> unc_second_updown = getJetUpDown(bjet2idx, theBigTree);
       pair <vector <double>, vector<double>> unc_first_updown  = JECprovider.getJECUncVectors(bjet1idx, theBigTree);
       pair <vector <double>, vector<double>> unc_second_updown = JECprovider.getJECUncVectors(bjet2idx, theBigTree);
 
@@ -3960,7 +3958,6 @@ int main (int argc, char** argv)
 	  if (tlv_jet.Pt () > 20) theSmallTree.m_BDT_HT20 += tlv_jet.Pt() ;
 	  if (DEBUG) cout << " ---> Jet " << iJet << " - pt: " << tlv_jet.Pt() << " - HT: " << theSmallTree.m_BDT_HT20 << endl;
 
-	  //pair <vector <double>, vector<double>> unc_updown = getJetUpDown(iJet, theBigTree);
 	  pair <vector <double>, vector<double>> unc_updown = JECprovider.getJECUncVectors(iJet, theBigTree);
 
 	  // JES total shift
@@ -4057,7 +4054,7 @@ int main (int argc, char** argv)
 	theSmallTree.m_METy_mudown = vMET_shift_mes.second.Y();
 
 	// Shifted MET for JES total
-	auto vMET_shift_jetTot = getShiftedMET_jetTot(vMET, theBigTree, DEBUG);
+	auto vMET_shift_jetTot = getShiftedMET_jetTot(N_jecSources, vMET, theBigTree, JECprovider, DEBUG);
 	theSmallTree.m_METx_jetupTot   = vMET_shift_jetTot.first.X();
 	theSmallTree.m_METy_jetupTot   = vMET_shift_jetTot.first.Y();
 	theSmallTree.m_METx_jetdownTot = vMET_shift_jetTot.second.X();
@@ -4369,8 +4366,6 @@ int main (int argc, char** argv)
 	  VBFjet2 = VBFjet2 * jets_and_smearFactor[VBFidx2];
 	}
 
-	//pair <vector <double>, vector<double>> unc_VBF1_updown = getJetUpDown(VBFidx1, theBigTree);
-	//pair <vector <double>, vector<double>> unc_VBF2_updown = getJetUpDown(VBFidx2, theBigTree);
 	pair <vector <double>, vector<double>> unc_VBF1_updown = JECprovider.getJECUncVectors(VBFidx1, theBigTree);
 	pair <vector <double>, vector<double>> unc_VBF2_updown = JECprovider.getJECUncVectors(VBFidx2, theBigTree);
 
@@ -4623,10 +4618,8 @@ int main (int argc, char** argv)
 
 	// skip the H decay candiates
 	if (int (iJet) == bjet1idx ){
-	  theSmallTree.m_bjet1_jecUnc = theBigTree.jets_jecUnc->at(iJet);
 	  continue;
 	}else if(int (iJet) == bjet2idx){
-	  theSmallTree.m_bjet2_jecUnc = theBigTree.jets_jecUnc->at(iJet);
 	  continue ;
 	}
 	TLorentzVector tlv_dummyJet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
@@ -4641,11 +4634,9 @@ int main (int argc, char** argv)
 
 	// remove jets that overlap with the tau selected in the leg 1 and 2
 	if (tlv_firstLepton.DeltaR(tlv_dummyJet) < lepCleaningCone){
-	  theSmallTree.m_dau1_jecUnc = theBigTree.jets_jecUnc->at(iJet);
 	  continue;
 	}
 	if (tlv_secondLepton.DeltaR(tlv_dummyJet) < lepCleaningCone){
-	  theSmallTree.m_dau2_jecUnc = theBigTree.jets_jecUnc->at(iJet);
 	  continue;
 	}
 
@@ -4686,7 +4677,6 @@ int main (int argc, char** argv)
 	theSmallTree.m_jets_CvsL.push_back( getCvsL(theBigTree, iJet) );
 	theSmallTree.m_jets_CvsB.push_back( getCvsB(theBigTree, iJet) );
 	theSmallTree.m_jets_flav.push_back (theBigTree.jets_HadronFlavour->at (iJet)) ;
-	theSmallTree.m_jets_jecUnc.push_back (theBigTree.jets_jecUnc->at (iJet)) ;
 	theSmallTree.m_jets_hasgenjet.push_back (hasgj) ;
 	++theSmallTree.m_njets ;
       } // loop over jets
@@ -4880,7 +4870,6 @@ int main (int argc, char** argv)
         //std::cout << "  -IDX: " << iJet << " --> pt/eta/phi: " << tlv_additionalJet.Pt() <<" "<< tlv_additionalJet.Eta() <<" "<< tlv_additionalJet.Phi() << std::endl;
 
         // get up/down uncertainty for this additional jet
-        //pair <vector <double>, vector<double>> unc_additionalJet_updown = getJetUpDown(iJet, theBigTree);
         pair <vector <double>, vector<double>> unc_additionalJet_updown = JECprovider.getJECUncVectors(iJet, theBigTree);
 
         // Central jets ( |eta| <= 2.4 ) that pass b-jet selection
