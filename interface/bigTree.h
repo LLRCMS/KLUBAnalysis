@@ -26,7 +26,6 @@ public :
   Int_t           RunNumber;
   Int_t           lumi;
   Int_t           year;
-  Bool_t          passbadMuonPFDz;
   Float_t         prefiringweight;
   Float_t         prefiringweightup;
   Float_t         prefiringweightdown;
@@ -450,7 +449,6 @@ public :
   TBranch        *b_RunNumber;   //!
   TBranch        *b_lumi;   //!
   TBranch        *b_year;   //!
-  TBranch        *b_passbadMuonPFDz;   //!
   TBranch        *b_prefiringweight;
   TBranch        *b_prefiringweightup;
   TBranch        *b_prefiringweightdown;
@@ -1273,7 +1271,6 @@ public :
     fChain->SetBranchAddress("RunNumber", &RunNumber, &b_RunNumber);
     fChain->SetBranchAddress("lumi", &lumi, &b_lumi);
     fChain->SetBranchAddress("year", &year, &b_year);
-    fChain->SetBranchAddress("passbadMuonPFDz", &passbadMuonPFDz, &b_passbadMuonPFDz);
     fChain->SetBranchAddress("prefiringweight", &prefiringweight, &b_prefiringweight);
     fChain->SetBranchAddress("prefiringweightup", &prefiringweightup, &b_prefiringweightup);
     fChain->SetBranchAddress("prefiringweightdown", &prefiringweightdown, &b_prefiringweightdown);

@@ -1464,8 +1464,8 @@ int main (int argc, char** argv)
     metpass    += (metbit & (1 << 3)) ? 1 : 0; //"Flag_EcalDeadCellTriggerPrimitiveFilter"
     metpass    += (metbit & (1 << 4)) ? 1 : 0; //"Flag_globalSuperTightHalo2016Filter"
     metpass    += (metbit & (1 << 5)) ? 1 : 0; //"Flag_BadPFMuonFilter"
-    metpass    += (metbit & (1 << 6)) ? 1 : 0; // "Flag_eeBadScFilter"
-    if (theBigTree.passbadMuonPFDz) metpass += 1; //passbadMuonPFDz
+    metpass    += (metbit & (1 << 6)) ? 1 : 0; //"Flag_eeBadScFilter"
+    metpass    += (metbit & (1 << 8)) ? 1 : 0; //"Flag_BadPFMuonDzFilter"
 
     if(DEBUG)
     {
@@ -1473,14 +1473,14 @@ int main (int argc, char** argv)
       cout << "metfilterbit (int): " << metbit << endl;
       cout << "metfilterbit (binary):         " << std::bitset<10>(theBigTree.metfilterbit) << endl;
       cout << "metfilterbit (metbit binary) : " << std::bitset<10>(metbit) << endl;
-      cout << "Flag_goodVertices      : "                 << (metbit & (1 << 0)) << endl;
-      cout << "Flag_HBHENoiseFilter   : "                 << (metbit & (1 << 1)) << endl;
-      cout << "Flag_HBHENoiseIsoFilter: "                 << (metbit & (1 << 2)) << endl;
+      cout << "Flag_goodVertices                      : " << (metbit & (1 << 0)) << endl;
+      cout << "Flag_HBHENoiseFilter                   : " << (metbit & (1 << 1)) << endl;
+      cout << "Flag_HBHENoiseIsoFilter                : " << (metbit & (1 << 2)) << endl;
       cout << "Flag_EcalDeadCellTriggerPrimitiveFilter: " << (metbit & (1 << 3)) << endl;
       cout << "Flag_globalSuperTightHalo2016Filter    : " << (metbit & (1 << 4)) << endl;
-      cout << "Flag_BadPFMuonFilter   : "                 << (metbit & (1 << 5)) << endl;
-      cout << "Flag_eeBadScFilter: "                      << (metbit & (1 << 6)) << endl;
-      cout << "passbadMuonPFDz:" << (theBigTree.passbadMuonPFDz) << endl;
+      cout << "Flag_BadPFMuonFilter                   : " << (metbit & (1 << 5)) << endl;
+      cout << "Flag_eeBadScFilter                     : " << (metbit & (1 << 6)) << endl;
+      cout << "Flag_BadPFMuonDzFilter                 : " << (metbit & (1 << 8)) << endl;
     }
 
     if(metpass < 8) continue ;
