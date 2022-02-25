@@ -4067,9 +4067,8 @@ int main (int argc, char** argv)
       TLorentzVector tlv_firstBjet_raw = tlv_firstBjet;
       TLorentzVector tlv_secondBjet_raw = tlv_secondBjet;
 
-      // ----- up/down variation using 11 JEC sources
-      // https://github.com/LLRCMS/LLRHiggsTauTau/blob/102X_HH/NtupleProducer/plugins/HTauTauNtuplizer.cc#L2182-L2238
-      // store the up down variations in vectors:
+      // ----- up/down variation using 11 JEC sources + total uncertainty
+      // store the up down variations in vectors
       // last position is total uncertainty
 
       pair <vector <double>, vector<double>> unc_first_updown  = JECprovider.getJECUncVectors(bjet1idx, theBigTree);
@@ -4395,7 +4394,7 @@ int main (int argc, char** argv)
 
 	if (TMath::Abs(tlv_jet.Eta()) < 4.7)
 	{
-	  if (tlv_jet.Pt () > 20) theSmallTree.m_BDT_HT20 += tlv_jet.Pt() ;
+	  if (tlv_jet.Pt () > 20) theSmallTree.m_BDT_HT20 += tlv_jet.Pt();
 	  if (DEBUG) cout << " ---> Jet " << iJet << " - pt: " << tlv_jet.Pt() << " - HT: " << theSmallTree.m_BDT_HT20 << endl;
 
 	  pair <vector <double>, vector<double>> unc_updown = JECprovider.getJECUncVectors(iJet, theBigTree);
