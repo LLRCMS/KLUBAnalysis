@@ -482,11 +482,6 @@ struct smallTree
       m_nbjets50 = 0 ;
       m_njetsBHadFlav = 0 ;
       m_njetsCHadFlav = 0 ;
-      m_dau1_jecUnc= -1;
-      m_dau2_jecUnc= -1;
-      m_bjet1_jecUnc = -1;
-      m_bjet2_jecUnc = -1;
-      m_jets_jecUnc.clear() ;
       m_PUjetID.clear() ;
 
       m_leps_pt.clear () ;
@@ -1328,11 +1323,6 @@ struct smallTree
       m_smallT->Branch ("nbjetscand", &m_nbjetscand, "nbjetscand/I") ;
       m_smallT->Branch ("njetsBHadFlav", &m_njetsBHadFlav, "njetsBHadFlav/I") ;
       m_smallT->Branch ("njetsCHadFlav", &m_njetsCHadFlav, "njetsCHadFlav/I") ;
-      m_smallT->Branch ("jets_jecUnc", &m_jets_jecUnc);
-      m_smallT->Branch ("dau1_jecUnc", &m_dau1_jecUnc,"dau1_jecUnc/F");
-      m_smallT->Branch ("dau2_jecUnc", &m_dau2_jecUnc,"dau2_jecUnc/F");
-      m_smallT->Branch ("bjet1_jecUnc", &m_bjet1_jecUnc,"bjet1_jecUnc/F");
-      m_smallT->Branch ("bjet2_jecUnc", &m_bjet2_jecUnc,"bjet2_jecUnc/F");
 
       m_smallT->Branch ("PUjetIDupdated", &m_PUjetID);
 
@@ -2193,12 +2183,6 @@ struct smallTree
   Int_t m_nbjets50 ;
   Int_t m_njetsBHadFlav ;
   Int_t m_njetsCHadFlav ;
-
-  std::vector<Float_t> m_jets_jecUnc ;
-  Float_t m_dau1_jecUnc;
-  Float_t m_dau2_jecUnc;
-  Float_t m_bjet1_jecUnc;
-  Float_t m_bjet2_jecUnc;
 
   std::vector<Float_t> m_PUjetID;
 

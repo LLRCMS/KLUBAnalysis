@@ -309,43 +309,6 @@ bool bJetSort (const pair<float, int>& i, const pair<float, int>& j) {
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 // -----------------------------------------
-//returns a pair of vectors
-//first: up variations
-//second: down variations
-pair <vector <double>, vector <double> > getJetUpDown(int idx, bigTree & theBigTree)
-{
-  vector <double> unc_up;
-  vector <double> unc_down;
-
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_FlavorQCD_up ->at (idx));             //  uncertainty source 1 , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_RelativeBal_up ->at (idx));           //  ...                  , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_HF_up ->at (idx));                    //  ...	              , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_up ->at (idx));                 //  ...	              , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_EC2_up ->at (idx));                   //  ...	              , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_Absolute_up ->at (idx));              //  ...	              , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_YEAR_up ->at (idx));            //  ...	              , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_EC2_YEAR_up ->at (idx));	             //  ...	              , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_Absolute_YEAR_up ->at (idx));         //  ...	              , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_HF_YEAR_up ->at (idx));               //  ...	              , up
-  unc_up.push_back(theBigTree.jets_jetUncRegrouped_RelativeSample_YEAR_up ->at (idx));   //  uncertainty source 11, up
-
-  unc_down.push_back(theBigTree.jets_jetUncRegrouped_FlavorQCD_dw ->at (idx));           //  uncertainty source 1 , down
-  unc_down.push_back(theBigTree.jets_jetUncRegrouped_RelativeBal_dw ->at (idx));         //  ...                  , down
-  unc_down.push_back(theBigTree.jets_jetUncRegrouped_HF_dw ->at (idx));                  //  ...                  , down
-  unc_down.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_dw ->at (idx));               //  ...                  , down
-  unc_down.push_back(theBigTree.jets_jetUncRegrouped_EC2_dw ->at (idx));                 //  ...                  , down
-  unc_down.push_back(theBigTree.jets_jetUncRegrouped_Absolute_dw ->at (idx));            //  ...                  , down
-  unc_down.push_back(theBigTree.jets_jetUncRegrouped_BBEC1_YEAR_dw ->at (idx));          //  ...                  , down
-  unc_down.push_back(theBigTree.jets_jetUncRegrouped_EC2_YEAR_dw ->at (idx));            //  ...                  , down
-  unc_down.push_back(theBigTree.jets_jetUncRegrouped_Absolute_YEAR_dw ->at (idx));       //  ...                  , down
-  unc_down.push_back(theBigTree.jets_jetUncRegrouped_HF_YEAR_dw ->at (idx));             //  ...                  , down
-  unc_down.push_back(theBigTree.jets_jetUncRegrouped_RelativeSample_YEAR_dw ->at (idx)); //  uncertainty source 11, down
-
-  return make_pair(unc_up, unc_down);
-}
-
-
-// -----------------------------------------
 // get shifted dau (tes; ees)
 TLorentzVector getShiftedDau(TLorentzVector tlv_nominal, double shift, double unc, bool isthisDM, bool shiftMass = true)
 {
@@ -400,7 +363,6 @@ pair <vector <TVector2>, vector <TVector2> > getShiftedMET_jet (int N_jecSources
     TLorentzVector tlv_jet (theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
 
     // get uncertainty
-    //pair <vector <double>, vector<double>> unc_updown = getJetUpDown(iJet, theBigTree);
     pair <vector <double>, vector<double>> unc_updown = JECprovider.getJECUncVectors(iJet, theBigTree);
 
     // build shifted jet
@@ -439,7 +401,7 @@ pair <vector <TVector2>, vector <TVector2> > getShiftedMET_jet (int N_jecSources
 // returns a pair of TVector2 objects
 // first: up variations
 // second: down variations
-pair <TVector2, TVector2> getShiftedMET_jetTot (TVector2 MET, bigTree & theBigTree, bool DEBUG=false)
+pair <TVector2, TVector2> getShiftedMET_jetTot (int N_jecSources, TVector2 MET, bigTree & theBigTree, JECKLUBinterface & JECprovider, bool DEBUG=false)
 {
   double corrMETx_up   = MET.Px();
   double corrMETy_up   = MET.Py();
@@ -455,11 +417,11 @@ pair <TVector2, TVector2> getShiftedMET_jetTot (TVector2 MET, bigTree & theBigTr
     TLorentzVector tlv_jet (theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
 
     // get uncertainty
-    pair <double, double> unc_updown = make_pair(theBigTree.jets_jetUncRegrouped_Total_up->at(iJet), theBigTree.jets_jetUncRegrouped_Total_dw->at(iJet));
+    pair <vector <double>, vector<double>> unc_updown = JECprovider.getJECUncVectors(iJet, theBigTree);
 
     // build shifted jet
-    TLorentzVector tlv_jetup   = getShiftedJet(tlv_jet, +1., unc_updown.first);
-    TLorentzVector tlv_jetdown = getShiftedJet(tlv_jet, -1., unc_updown.second);
+    TLorentzVector tlv_jetup   = getShiftedJet(tlv_jet, +1., unc_updown.first[N_jecSources]);
+    TLorentzVector tlv_jetdown = getShiftedJet(tlv_jet, -1., unc_updown.second[N_jecSources]);
 
     // shift MET - first the original jet
     corrMETx_up   += tlv_jet.Px();

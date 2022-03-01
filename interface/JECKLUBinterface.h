@@ -41,7 +41,7 @@ typedef std::map<std::string, std::unique_ptr<JetCorrectionUncertainty>> myJECMa
 class JECKLUBinterface {
 
 public:
-  JECKLUBinterface (std::string year, std::string version);
+  JECKLUBinterface (std::string year, bool isPostVFP = false);
   ~JECKLUBinterface () {};
 
   // Returns a pair of vectors (up_variations vector, down_variations vector)
