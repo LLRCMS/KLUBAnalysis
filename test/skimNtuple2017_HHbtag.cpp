@@ -3784,10 +3784,6 @@ int main (int argc, char** argv)
 	    if ( !(CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), PUjetID_WP)) && ijet.Pt()<50.) continue;
 	  }
 
-	  // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
-	  // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
-	  if ( ijet.Pt()<50. && fabs(ijet.Eta())>2.65 && fabs(ijet.Eta())<3.139 ) continue;
-
 	  for (unsigned int kJet = iJet+1 ;   (kJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++kJet)
 	  {
 	    // JET PF ID cut
@@ -3812,10 +3808,6 @@ int main (int argc, char** argv)
 	    {
 	      if ( !(CheckBit(theBigTree.jets_PUJetID_WP->at(kJet), PUjetID_WP)) && kjet.Pt()<50.) continue;
 	    }
-
-	    // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
-	    // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
-	    if ( kjet.Pt()<50. && fabs(kjet.Eta())>2.65 && fabs(kjet.Eta())<3.139 ) continue;
 
 	    TLorentzVector jetPair = ijet+kjet;
 	    VBFcand_Mjj.push_back(make_tuple(jetPair.M(),iJet,kJet));
@@ -4232,10 +4224,6 @@ int main (int argc, char** argv)
 	{
 	  if ( !(CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), PUjetID_WP)) && tlv_jet.Pt()<50.) continue;
 	}
-
-	// Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
-	// The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
-	if ( tlv_jet.Pt()<50. && fabs(tlv_jet.Eta())>2.65 && fabs(tlv_jet.Eta())<3.139 ) continue;
 
 	// use these jets for HT
 	if (tlv_jet.Pt () > 20)
@@ -4979,10 +4967,6 @@ int main (int argc, char** argv)
 	  if ( !(CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), PUjetID_WP)) && tlv_dummyJet.Pt()<50.) continue;
 	}
 
-	// Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
-	// The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
-	if ( tlv_dummyJet.Pt()>20. && tlv_dummyJet.Pt()<50. && fabs(tlv_dummyJet.Eta())>2.65 && fabs(tlv_dummyJet.Eta())<3.139 ) continue;
-
 	// remove jets that overlap with the tau selected in the leg 1 and 2
 	if (tlv_firstLepton.DeltaR(tlv_dummyJet) < lepCleaningCone){
 	  continue;
@@ -5224,10 +5208,6 @@ int main (int argc, char** argv)
         {
           if ( !(CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), PUjetID_WP)) && tlv_additionalJet.Pt()<50.) continue;
         }
-
-        // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
-        // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
-        if ( tlv_additionalJet.Pt()<50. && fabs(tlv_additionalJet.Eta())>2.65 && fabs(tlv_additionalJet.Eta())<3.139 ) continue;
 
         // get up/down uncertainty for this additional jet
         pair <vector <double>, vector<double>> unc_additionalJet_updown = JECprovider.getJECUncVectors(iJet, theBigTree);
@@ -5652,10 +5632,6 @@ int main (int argc, char** argv)
         // remove jets that overlap with the tau selected in the leg 1 and 2
         if (tlv_firstLepton.DeltaR(tlv_dummyJet)  < lepCleaningCone) continue;
         if (tlv_secondLepton.DeltaR(tlv_dummyJet) < lepCleaningCone) continue;
-
-        // Apply further cleaning for 2017 noisy jets, as suggested by HTT group: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets
-        // The noisy jets to be removed are defined as: 20 < pt < 50 && abs(eta) > 2.65 && abs(eta) < 3.139
-        if ( tlv_dummyJet.Pt()>20. && tlv_dummyJet.Pt()<50. && fabs(tlv_dummyJet.Eta())>2.65 && fabs(tlv_dummyJet.Eta())<3.139 ) continue;
 
         if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end())
         {
