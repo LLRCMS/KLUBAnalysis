@@ -27,7 +27,7 @@
 #include <Math/VectorUtil.h>
 
 // HHbtag libraries
-#include "../../HHTools/HHbtag/interface/HH_BTag.h"
+#include "HHTools/HHbtag/interface/HH_BTag.h"
 
 
 // HHbtagKLUBinterface class

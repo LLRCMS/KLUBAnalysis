@@ -25,26 +25,29 @@ BINS	 =  $(addprefix $(BIN),${___BINS})
 LINKDEF   =  $(wildcard ${HDR}*LinkDef.h)
 DICTHDRS  =  $(patsubst $(LINKDEF),,$(HDRS)) $(LINKDEF)
 
+PROJDIR = $(shell ( cd $$CMSSW_BASE/src && /bin/pwd ))
+
 ROOTCFLAGS    = $(shell root-config --cflags)
 ROOTGLIBS     = $(shell root-config --glibs)
 
-BOOSTFLAGS      = $(shell scram tool info boost | grep -e '^LIBDIR' | sed -e 's/LIBDIR=/-L/')
-BOOSTLIB    = $(shell scram tool info boost | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
+BOOSTFLAGS      = $(shell ( cd $(PROJDIR) && scram tool info boost ) | grep -e '^LIBDIR' | sed -e 's/LIBDIR=/-L/')
+BOOSTLIB    = $(shell ( cd $(PROJDIR) && scram tool info boost ) | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
 
-TensFLowFLAGS = $(shell scram tool info tensorflow | grep -e '^LIBDIR' | sed -e 's/LIBDIR=/-L/')
-TensFLowLIB   = $(shell scram tool info tensorflow | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
+TensFLowFLAGS = $(shell ( cd $(PROJDIR) && scram tool info tensorflow ) | grep -e '^LIBDIR' | sed -e 's/LIBDIR=/-L/')
+TensFLowLIB   = $(shell ( cd $(PROJDIR) && scram tool info tensorflow ) | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
 
-PROTOBUFLIB   = $(shell scram tool info protobuf | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
-EIGENLIB   = $(shell scram tool info eigen | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
-TBBLIB = $(shell scram tool info tbb | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
+PROTOBUFLIB   = $(shell ( cd $(PROJDIR) && scram tool info protobuf ) | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
+EIGENLIB   = $(shell ( cd $(PROJDIR) && scram tool info eigen ) | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
+TBBLIB = $(shell ( cd $(PROJDIR) && scram tool info tbb ) | grep -e '^INCLUDE' | sed -e 's/INCLUDE=/-I/')
 BASELIBS = -I$(shell echo $$CMSSW_RELEASE_BASE | sed -e 's/$$/\/src/')
 CMSSWLIBS = -I$(shell echo $$CMSSW_BASE | sed -e 's/$$/\/src/')
+HHKINFITLIB  = -I$(PROJDIR)/HHKinFit2/interface
 
 ARCHL = -m64
 CXX  =  g++
-CXXFLAGS  =  -Wall -O -fPIC -I$(HDR) $(ROOTCFLAGS) $(BOOSTFLAGS) $(BOOSTLIB) $(BASELIBS) $(CMSSWLIBS) $(TensFLowLIB) $(PROTOBUFLIB) $(EIGENLIB) $(TBBLIB)
+CXXFLAGS  =  -Wall -O -fPIC -I$(HDR) $(ROOTCFLAGS) $(BOOSTFLAGS) $(BOOSTLIB) $(BASELIBS) $(CMSSWLIBS) $(TensFLowLIB) $(PROTOBUFLIB) $(EIGENLIB) $(TBBLIB) $(HHKINFITLIB)
 CPP  =  g++
-CPPFLAGS  = -Wall  $(ARCHL) -I$(HDR) $(ROOTCFLAGS) $(BOOSTFLAGS) $(BOOSTLIB) $(BASELIBS) $(CMSSWLIBS) $(TensFLowLIB) $(PROTOBUFLIB) $(EIGENLIB) $(TBBLIB)
+CPPFLAGS  = -Wall  $(ARCHL) -I$(HDR) $(ROOTCFLAGS) $(BOOSTFLAGS) $(BOOSTLIB) $(BASELIBS) $(CMSSWLIBS) $(TensFLowLIB) $(PROTOBUFLIB) $(EIGENLIB) $(TBBLIB) $(HHKINFITLIB)
 
 F    = gfortran
 FFLAGS = -c
@@ -55,7 +58,7 @@ SONAME	 =  libDoubleHiggs.so
 SONAME2  =  DoubleHiggs
 SOFLAGS  =  -Wl,-soname,$(SONAME)
 
-GLIBS   =  -lm -ldl -rdynamic $(ROOTGLIBS) -lGenVector -lFoam -lMinuit -lTMVA -lMLP -lXMLIO -lGpad  -lTreePlayer -lRooFit -lRooFitCore -lRooStats -lHHKinFit2 -L../../HHKinFit2 -lboost_regex -lboost_system -lboost_filesystem -ltensorflow_cc -ltensorflow_framework $(TensFLowFLAGS)
+GLIBS   =  -lm -ldl -rdynamic $(ROOTGLIBS) -lGenVector -lFoam -lMinuit -lTMVA -lMLP -lXMLIO -lGpad  -lTreePlayer -lRooFit -lRooFitCore -lRooStats -L$(PROJDIR)/HHKinFit2 -lHHKinFit2 -lboost_regex -lboost_system -lboost_filesystem -ltensorflow_cc -ltensorflow_framework $(TensFLowFLAGS)
 
 DNNARCH = $(shell scram arch)
 DNNPATH = $(shell echo $$CMSSW_BASE | grep "CMSSW" | sed -e 's/$$/\/lib/')/$(DNNARCH)/

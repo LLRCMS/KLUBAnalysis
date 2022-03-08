@@ -25,7 +25,7 @@
 #include "bTagSF.h"
 // #include "HHReweight.h"
 #include "HHReweight5D.h"
-#include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
+#include "HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 
 // for minuit-based minimization
 // #include "mt2.h"
@@ -34,7 +34,7 @@
 // #include "Math/Functor.h"
 #include "lester_mt2_bisect.h"
 
-//#include "../../HTT-utilities/LepEffInterface/interface/ScaleFactor.h"
+//#include "HTT-utilities/LepEffInterface/interface/ScaleFactor.h"
 #include "ScaleFactor.h"
 #include "ConfigParser.h"
 #include "EffCounter.h"

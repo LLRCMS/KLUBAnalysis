@@ -32,9 +32,9 @@
 #include "TLorentzVector.h"
 
 // DNN
-#include "../../cms_hh_tf_inference/inference/interface/inf_wrapper.hh"
-#include "../../cms_hh_proc_interface/processing/interface/feat_comp.hh"
-#include "../../cms_hh_proc_interface/processing/interface/evt_proc.hh"
+#include "cms_hh_tf_inference/inference/interface/inf_wrapper.hh"
+#include "cms_hh_proc_interface/processing/interface/feat_comp.hh"
+#include "cms_hh_proc_interface/processing/interface/evt_proc.hh"
 
 // Using names
 using DNNVector = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<float>>;
