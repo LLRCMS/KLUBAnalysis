@@ -634,12 +634,12 @@ int main (int argc, char** argv)
   std::string VFP = isPostVFP?"postVFP":"preVFP";
 
   myIDandISOScaleFactor[0] -> init_ScaleFactor(isPostVFP?"weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root":"weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root",
-                                               "NUM_LooseID_DEN_TrackerMuons_abseta_pt",
+                                               "NUM_TightID_DEN_TrackerMuons_abseta_pt",
                                                true);
   myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/EgammaPOGSF_UL/2016/2016"+(TString)VFP+"_Tight_eleSFs.root",
                                                "SF");
   myIDandISOScaleFactor[2] -> init_ScaleFactor(isPostVFP?"weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root":"weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ISO.root",
-                                               "NUM_LooseRelIso_DEN_TightIDandIPCut_abseta_pt",
+                                               "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
                                                true);
   // tau IdAndIso SF
   VFP = isPostVFP?"UL2016_postVFP":"UL2016_preVFP";
