@@ -4,7 +4,7 @@
 #define DEBUG false
 
 // Constructor
-SmearedJetProducer::SmearedJetProducer (std::string year, bool doSmearing, int variation)
+SmearedJetProducer::SmearedJetProducer (std::string year, bool doSmearing, int variation, bool isPostVFP)
 {
   // Enable the smearing procedure
   enabled_ = doSmearing;
@@ -19,18 +19,23 @@ SmearedJetProducer::SmearedJetProducer (std::string year, bool doSmearing, int v
   std::string resolutionFile, scaleFactorFile;
   if (year == "2016")
   {
-    resolutionFile  = "weights/JERfiles/Summer16_25nsV1b_MC_PtResolution_AK4PFchs.txt";
-    scaleFactorFile = "weights/JERfiles/Summer16_25nsV1b_MC_SF_AK4PFchs.txt";
+    if(isPostVFP){
+      resolutionFile  = "weights/JERfiles_UL/Summer20UL16_JRV3_MC_PtResolution_AK4PFchs.txt";
+      scaleFactorFile = "weights/JERfiles_UL/Summer20UL16_JRV3_MC_SF_AK4PFchs.txt";
+    } else {
+      resolutionFile  = "weights/JERfiles_UL/Summer20UL16APV_JRV3_MC_PtResolution_AK4PFchs.txt";
+      scaleFactorFile = "weights/JERfiles_UL/Summer20UL16APV_JRV3_MC_SF_AK4PFchs.txt";
+    }
   }
   else if (year == "2017")
   {
-    resolutionFile  = "weights/JERfiles/Fall17_V3b_MC_PtResolution_AK4PFchs.txt";
-    scaleFactorFile = "weights/JERfiles/Fall17_V3b_MC_SF_AK4PFchs.txt";
+    resolutionFile  = "weights/JERfiles_UL/Summer19UL17_JRV2_MC_PtResolution_AK4PFchs.txt";
+    scaleFactorFile = "weights/JERfiles_UL/Summer19UL17_JRV2_MC_SF_AK4PFchs.txt";
   }
   else /* year == "2018" */
   {
-    resolutionFile  = "weights/JERfiles/Autumn18_V7b_MC_PtResolution_AK4PFchs.txt";
-    scaleFactorFile = "weights/JERfiles/Autumn18_V7b_MC_SF_AK4PFchs.txt";
+    resolutionFile  = "weights/JERfiles_UL/Summer19UL18_JRV2_MC_PtResolution_AK4PFchs.txt";
+    scaleFactorFile = "weights/JERfiles_UL/Summer19UL18_JRV2_MC_SF_AK4PFchs.txt";
   }
 
   std::cout << "** INFO - SmearedJetProducer - resolutionFile : " << resolutionFile << std::endl;

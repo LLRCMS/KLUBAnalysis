@@ -44,7 +44,7 @@ public:
   //  0: nominal
   // +1: up
   // -1: down
-  SmearedJetProducer (std::string year, bool doSmearing, int variation);
+  SmearedJetProducer (std::string year, bool doSmearing, int variation, bool isPostVFP = false);
   ~SmearedJetProducer ();
 
   // Returns the matched genJet
