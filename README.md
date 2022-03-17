@@ -5,8 +5,11 @@ Repo for the hh->bbtautau analysis within the LLR framework
 ## Instructions for Run2 Ultra Legacy Analysis
 
 ```
-cmsrel CMSSW_11_1_9
-cd CMSSW_11_1_9/src
+export SCRAM_ARCH="slc7_amd64_gcc820"
+export CMSSW_VERSION="CMSSW_11_1_9"
+
+cmsrel $CMSSW_VERSION
+cd $CMSSW_VERSION/src
 cmsenv
 
 # DNN packages

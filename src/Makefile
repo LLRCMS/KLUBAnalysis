@@ -87,7 +87,8 @@ endif
 
 all: $(LIB)$(SONAME)
 
-exe: $(BINS) 
+exe: $(BINS)
+	( cd "$(PROJDIR)/KLUBAnalysis/lib" && rm -f "mydict_rdict.pcm" && ln -s "../obj/mydict_rdict.pcm" . )
 
 test:
 	@echo "HDRS = $(HDRS)"
@@ -108,7 +109,7 @@ $(OBJ)mydict.cc: $(DICTHDRS)
 
 $(LIB)$(SONAME): $(OBJS) $(OBJ)mydict.o
 	$(LD) $(LDFLAGS) $(OBJS) $(OBJ)mydict.o $(SOFLAGS) $(ROOTGLIBS) -o $(LIB)$(SONAME)
-        @echo "Linking $(SONAME):"
+	@echo "Linking $(SONAME):"
 
 $(BIN)%$(BinSuf): $(PRG)%$(PrgSuf) $(HDRS) $(LIB)$(SONAME)
 	$(CPP) $<  -l$(SONAME2) $(CPPFLAGS) -L$(LIB) $(GLIBS) $(DNNLIBS) $(SVfitLIBS) $(HHbtagLIBS) $(FWCORELIBS) -o $@
