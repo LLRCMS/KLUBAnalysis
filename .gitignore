@@ -5,6 +5,7 @@
 *.eps
 !*/*.root
 obj/
+lib/*.pcm
 combiner/*.pdf
 combiner/*.png
 combiner/*.root
