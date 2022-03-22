@@ -25,7 +25,7 @@
 #include "bJetRegrVars.h"
 #include "bTagSF.h"
 #include "HHReweight5D.h"
-#include "../../HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
+#include "HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 #include "SFProvider.h"
 #include "BDTfunctionsUtils.h"
 #include "TauIDSFTool.h"
@@ -57,9 +57,9 @@
 #include <Math/PxPyPzM4D.h>
 
 // DNN
-#include "../../cms_hh_tf_inference/inference/interface/inf_wrapper.hh"
-#include "../../cms_hh_proc_interface/processing/interface/feat_comp.hh"
-#include "../../cms_hh_proc_interface/processing/interface/evt_proc.hh"
+#include "cms_hh_tf_inference/inference/interface/inf_wrapper.hh"
+#include "cms_hh_proc_interface/processing/interface/feat_comp.hh"
+#include "cms_hh_proc_interface/processing/interface/evt_proc.hh"
 
 // HHbtag
 #include "HHbtagKLUBinterface.h"

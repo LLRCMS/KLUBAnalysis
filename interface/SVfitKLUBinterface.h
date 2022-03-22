@@ -26,10 +26,10 @@
 #include "TMatrixD.h"
 
 // ClassicSVfit libraries
-#include "../../TauAnalysis/ClassicSVfit/interface/ClassicSVfit.h"
-#include "../../TauAnalysis/ClassicSVfit/interface/ClassicSVfitIntegrand.h"
-#include "../../TauAnalysis/ClassicSVfit/interface/MeasuredTauLepton.h"
-#include "../../TauAnalysis/ClassicSVfit/interface/svFitHistogramAdapter.h"
+#include "TauAnalysis/ClassicSVfit/interface/ClassicSVfit.h"
+#include "TauAnalysis/ClassicSVfit/interface/ClassicSVfitIntegrand.h"
+#include "TauAnalysis/ClassicSVfit/interface/MeasuredTauLepton.h"
+#include "TauAnalysis/ClassicSVfit/interface/svFitHistogramAdapter.h"
 
 using namespace classic_svFit;
 
