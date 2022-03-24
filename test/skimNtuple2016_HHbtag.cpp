@@ -400,6 +400,10 @@ int main (int argc, char** argv)
   vector<string> crossTrigEleTau = (isMC ? gConfigParser->readStringListOption ("triggersMC::crossEleTau") : gConfigParser->readStringListOption ("triggersData::crossEleTau")) ;
   vector<string> vbfTriggers     = (isMC ? gConfigParser->readStringListOption ("triggersMC::vbfTriggers") : gConfigParser->readStringListOption ("triggersData::vbfTriggers")) ;
 
+  //// NEW TRIGGERS
+  vector<string> trigMET  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::METtriggers") : gConfigParser->readStringListOption ("triggersData::METtriggers")) ;
+  vector<string> trigSingleTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::SingleTau") : gConfigParser->readStringListOption ("triggersData::SingleTau")); // TODO
+
   // bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
   //bool applyTriggers = isMC ? gConfigParser->readBoolOption ("parameters::applyTriggersMC") : true; // true if ask triggerbit + matching, false if doing reweight
 
@@ -437,6 +441,15 @@ int main (int argc, char** argv)
 
     cout << "  @ vbfTriggers" << endl; cout << "   --> ";
     for (unsigned int i = 0 ; i < vbfTriggers.size(); i++) cout << "  " << vbfTriggers.at(i);
+    cout << endl;
+
+    ////NEW TRIGGERS
+    cout << "  @ METtriggers" << endl; cout << "   --> ";
+    for (unsigned int i = 0 ; i < trigMET.size(); i++) cout << "  " << trigMET.at(i);
+    cout << endl;
+
+    cout << "  @ SingleTau" << endl; cout << "   --> ";
+    for (unsigned int i = 0 ; i < trigSingleTau.size(); i++) cout << "  " << trigSingleTau.at(i);
     cout << endl;
   }
 
@@ -491,6 +504,10 @@ int main (int argc, char** argv)
 
   // add VBF triggers for jet matching
   trigReader.addVBFTrigs (vbfTriggers);
+
+  ////NEW TRIGGERS
+  trigReader.addMETTrigs (trigMET);
+  trigReader.addSingleTauTrigs (trigSingleTau);
 
   // print full list (this is needed to identify the the triggers that fired in the bitwise variable)
   trigReader.printTriggerList();
@@ -1928,6 +1945,12 @@ int main (int argc, char** argv)
 
     // DATA strategy
     int pass_triggerbit = 0;
+    bool passTrg = false;
+
+    // NEW TRIGGERS
+    bool passMETTrg = false;
+    bool passSingleTau = false;
+
     if (applyTriggers)
     {
       Long64_t triggerbit = theBigTree.triggerbit;
@@ -1938,7 +1961,11 @@ int main (int argc, char** argv)
       Long64_t goodTriggerType2 = (Long64_t) theBigTree.daughters_isGoodTriggerType->at(secondDaughterIndex);
 
       Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
-      bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
+      passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
+
+      // check NEW TRIGGERS separately
+      passMETTrg = trigReader.checkMET(triggerbit, &pass_triggerbit);
+      passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
 
       // !! WARNING !! --> update the trigger bits to the right paths
       // Weight to be applied in 2016 from https://twiki.cern.ch/twiki/bin/viewauth/CMS/DoubleHiggsToBBTauTauWorkingLegacyRun2#Triggers
@@ -1998,7 +2025,7 @@ int main (int argc, char** argv)
       }
 
       bool triggerAccept = false;
-      triggerAccept = passTrg;
+      triggerAccept = passTrg || passMETTrg || passSingleTau;
 
       if(DEBUG)
       {
@@ -2022,6 +2049,12 @@ int main (int argc, char** argv)
       theSmallTree.m_pass_triggerbit = pass_triggerbit;
       ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
       if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
+
+      theSmallTree.m_isLeptrigger = passTrg;
+
+      // NEW TRIGGERS: fill trig info in output tree
+      theSmallTree.m_isMETtrigger = passMETTrg;
+      theSmallTree.m_isSingleTautrigger = passSingleTau;
     }
 
 
