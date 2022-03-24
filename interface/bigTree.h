@@ -179,9 +179,6 @@ public :
   std::vector<float>   *daughters_depositR03_ecal;
   std::vector<float>   *daughters_depositR03_hcal;
   std::vector<int>     *daughters_decayModeFindingOldDMs;
-  std::vector<float>   *footprintCorrection;
-  std::vector<float>   *neutralIsoPtSumWeight;
-  std::vector<float>   *photonPtSumOutsideSignalCone;
   std::vector<int>     *daughters_decayModeFindingNewDMs;
   std::vector<float>   *daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;
   std::vector<float>   *daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017;
@@ -440,9 +437,6 @@ public :
   TBranch        *b_daughters_depositR03_ecal;   //!
   TBranch        *b_daughters_depositR03_hcal;   //!
   TBranch        *b_daughters_decayModeFindingOldDMs;   //!
-  TBranch        *b_footprintCorrection;   //!
-  TBranch        *b_neutralIsoPtSumWeight;   //!
-  TBranch        *b_photonPtSumOutsideSignalCone;   //!
   TBranch        *b_daughters_decayModeFindingNewDMs;   //!
   TBranch        *b_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;   //!
   //TBranch        *b_daughters_byIsolationMVArun2v1DBoldDMwLTraw; //!
@@ -692,9 +686,6 @@ public :
     daughters_depositR03_ecal = 0;
     daughters_depositR03_hcal = 0;
     daughters_decayModeFindingOldDMs = 0;
-    footprintCorrection = 0;
-    neutralIsoPtSumWeight = 0;
-    photonPtSumOutsideSignalCone = 0;
     daughters_decayModeFindingNewDMs = 0;
     daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits = 0;
     daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017 = 0;
@@ -889,9 +880,6 @@ public :
     fChain->SetBranchAddress("daughters_depositR03_ecal", &daughters_depositR03_ecal, &b_daughters_depositR03_ecal);
     fChain->SetBranchAddress("daughters_depositR03_hcal", &daughters_depositR03_hcal, &b_daughters_depositR03_hcal);
     fChain->SetBranchAddress("daughters_decayModeFindingOldDMs", &daughters_decayModeFindingOldDMs, &b_daughters_decayModeFindingOldDMs);
-    fChain->SetBranchAddress("footprintCorrection", &footprintCorrection, &b_footprintCorrection);
-    fChain->SetBranchAddress("neutralIsoPtSumWeight", &neutralIsoPtSumWeight, &b_neutralIsoPtSumWeight);
-    fChain->SetBranchAddress("photonPtSumOutsideSignalCone", &photonPtSumOutsideSignalCone, &b_photonPtSumOutsideSignalCone);
     fChain->SetBranchAddress("daughters_decayModeFindingNewDMs", &daughters_decayModeFindingNewDMs, &b_daughters_decayModeFindingNewDMs);
     fChain->SetBranchAddress("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits, &b_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
     //fChain->SetBranchAddress("daughters_byIsolationMVArun2v1DBoldDMwLTraw", &daughters_byIsolationMVArun2v1DBoldDMwLTraw, &b_daughters_byIsolationMVArun2v1DBoldDMwLTraw);
