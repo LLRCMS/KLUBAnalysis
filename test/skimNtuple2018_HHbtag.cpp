@@ -389,9 +389,7 @@ int main (int argc, char** argv)
 
   //// NEW TRIGGERS
   vector<string> trigMET  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::METtriggers") : gConfigParser->readStringListOption ("triggersData::METtriggers")) ;
-  vector<string> trigTauMET  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::TauMETtriggers") : gConfigParser->readStringListOption ("triggersData::TauMETtriggers")); // TODO
-  vector<string> trigSingleTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::SingleTau") : gConfigParser->readStringListOption ("triggersData::SingleTau")); // TODO
-  //  vector<string> trigAK8  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::AK8triggers") : gConfigParser->readStringListOption ("triggersData::AK8triggers")) ;
+  vector<string> trigSingleTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::SingleTau") : gConfigParser->readStringListOption ("triggersData::SingleTau")); 
 
 
   // bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
@@ -437,16 +435,9 @@ int main (int argc, char** argv)
     cout << "  @ METtriggers" << endl; cout << "   --> ";
     for (unsigned int i = 0 ; i < trigMET.size(); i++) cout << "  " << trigMET.at(i);
     cout << endl;
-    cout << "  @ TauMETtriggers" << endl; cout << "   --> ";
-    for (unsigned int i = 0 ; i < trigTauMET.size(); i++) cout << "  " << trigTauMET.at(i);
-    cout << endl;
     cout << "  @ SingleTau" << endl; cout << "   --> ";
     for (unsigned int i = 0 ; i < trigSingleTau.size(); i++) cout << "  " << trigSingleTau.at(i);
     cout << endl;
-
-    //cout << "  @ AK8triggers" << endl; cout << "   --> ";
-    //for (unsigned int i = 0 ; i < trigAK8.size(); i++) cout << "  " << trigAK8.at(i);
-    //cout << endl;
 
   }
 
@@ -510,9 +501,7 @@ int main (int argc, char** argv)
 
   ////NEW TRIGGERS
   trigReader.addMETTrigs (trigMET);
-  trigReader.addTauMETTrigs (trigTauMET);
   trigReader.addSingleTauTrigs (trigSingleTau);
-  //trigReader.addAK8Trigs (trigAK8);
 
 
   // print full list (this is needed to identify the the triggers that fired in the bitwise variable)
@@ -2085,7 +2074,6 @@ int main (int argc, char** argv)
     // NEW TRIGGERS
     bool passMETTrg = false;
     bool passSingleTau = false;
-    bool passTauMET = false;
 
     if (applyTriggers)
     {
@@ -2102,8 +2090,6 @@ int main (int argc, char** argv)
       // check NEW TRIGGERS separately
       passMETTrg = trigReader.checkMET(triggerbit, &pass_triggerbit);
       passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
-      passTauMET = trigReader.checkTauMET(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
-
       if (!isMC && passTrg)
       {
 	if(theBigTree.RunNumber < 317509)
@@ -2194,7 +2180,7 @@ int main (int argc, char** argv)
       }
 
       bool triggerAccept = false;
-      triggerAccept = passTrg || isVBFfired || passMETTrg || passSingleTau || passTauMET; //
+      triggerAccept = passTrg || isVBFfired || passMETTrg || passSingleTau;
 
       if(DEBUG)
       {
@@ -2225,7 +2211,6 @@ int main (int argc, char** argv)
       // NEW TRIGGERS: fill trig info in output tree
       theSmallTree.m_isMETtrigger = passMETTrg;
       theSmallTree.m_isSingleTautrigger = passSingleTau;
-      theSmallTree.m_isTauMETtrigger = passTauMET;
     } // end if applyTriggers
 
       // ----------------------------------------------------------
