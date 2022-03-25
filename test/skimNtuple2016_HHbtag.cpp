@@ -549,9 +549,12 @@ int main (int argc, char** argv)
   }
 
   cout << "B Tag SF file: " << bTag_SFFile << endl;
-  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "2016", "80X_DeepCSV_V1");
-  if(useDeepFlavor)
-    bTagSFHelper.SetWPset("80X_DeepFlavor_V1");
+  string wpset = isPostVFP? "106X16post_DeepCSV_V1":"106X16pre_DeepCSV_V1";
+  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "2016", wpset);
+  if(useDeepFlavor) {
+    wpset = isPostVFP? "106X16post_DeepFlavor_V1":"106X16pre_DeepFlavor_V1";
+    bTagSFHelper.SetWPset(wpset);
+  }
 
   // ------------------------------
 

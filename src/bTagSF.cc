@@ -75,6 +75,7 @@ bTagSF::~bTagSF()
 
 void bTagSF::SetWPset(std::string WPset)
 {
+  // Legacy WP
   if      (WPset == "80X_DeepCSV_V1")
     SetWPset(0.2217, 0.6321, 0.8953);
 
@@ -92,12 +93,27 @@ void bTagSF::SetWPset(std::string WPset)
 
   else if (WPset =="102X_DeepFlavor_V1")
     SetWPset(0.0494, 0.2770, 0.7264);
-
-  else if (WPset == "106X_DeepCSV_V1")
+  
+  // UL WP
+  else if (WPset == "106X18_DeepCSV_V1")
     SetWPset(0.1208, 0.4168, 0.7665);
-
-  else if (WPset =="106X_DeepFlavor_V1")
+  else if (WPset =="106X18_DeepFlavor_V1")
     SetWPset(0.0490, 0.2783, 0.7100);
+
+  else if (WPset == "106X17_DeepCSV_V1")
+    SetWPset(0.1355, 0.4506, 0.7738);
+  else if (WPset =="106X17_DeepFlavor_V1")
+    SetWPset(0.0532, 0.3040, 0.7476);
+
+  else if (WPset == "106X16postVFP_DeepCSV_V1")
+    SetWPset(0.1918, 0.5847, 0.8767);
+  else if (WPset =="106X16postVFP_DeepFlavor_V1")
+    SetWPset(0.0480, 0.2489, 0.6377);
+
+  else if (WPset == "106X16preVFP_DeepCSV_V1")
+    SetWPset(0.2027, 0.6001, 0.8819);
+  else if (WPset =="106X16preVFP_DeepFlavor_V1")
+    SetWPset(0.0508, 0.2598, 0.6502);
 
   else
   {
