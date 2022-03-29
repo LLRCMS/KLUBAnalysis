@@ -2104,8 +2104,30 @@ int main (int argc, char** argv)
     TVector2 vMET(theBigTree.METx->at(chosenTauPair) , theBigTree.METy->at(chosenTauPair));
     TLorentzVector tlv_MET;
     tlv_MET.SetPxPyPzE(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair), 0, std::hypot(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair)));
+    
+    // Temporary SVFit recomputation for data.
+    if(!isMC){
+      TMatrixD metcov_tmp (2, 2) ;
+      metcov_tmp (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
+      metcov_tmp (1,0) = theBigTree.MET_cov10->at (chosenTauPair) ;
+      metcov_tmp (0,1) = theBigTree.MET_cov01->at (chosenTauPair) ;
+      metcov_tmp (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
 
-    theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
+      SVfitKLUBinterface algo_tmp(0, tlv_firstLepton, tlv_secondLepton, tlv_MET, metcov_tmp, pType, theSmallTree.m_dau1_decayMode, theSmallTree.m_dau2_decayMode);
+      std::vector<double> svfitResTmp = algo_tmp.FitAndGetResult();
+      theSmallTree.m_tauH_SVFIT_mass = svfitResTmp.at(3);
+      if (theSmallTree.m_tauH_SVFIT_mass > 0)
+      {
+	theSmallTree.m_tauH_SVFIT_pt   = svfitResTmp.at(0);
+	theSmallTree.m_tauH_SVFIT_eta  = svfitResTmp.at(1);
+	theSmallTree.m_tauH_SVFIT_phi  = svfitResTmp.at(2);
+	tlv_tauH_SVFIT.SetPtEtaPhiM(svfitResTmp.at(0), svfitResTmp.at(1), svfitResTmp.at(2), svfitResTmp.at(3));
+
+	theSmallTree.m_tauHsvfitMet_deltaPhi = deltaPhi (vMET.Phi(), tlv_tauH_SVFIT.Phi ()) ;
+	theSmallTree.m_ditau_deltaR_per_tauHsvfitpt = tlv_firstLepton.DeltaR(tlv_secondLepton) * tlv_tauH_SVFIT.Pt();
+      }
+    }
+    //theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
 
     if (doSmearing)
     {
