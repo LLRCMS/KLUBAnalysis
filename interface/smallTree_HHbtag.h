@@ -175,7 +175,6 @@ struct smallTree
       m_isLeptrigger = 0;
       m_isMETtrigger = 0;
       m_isSingleTautrigger = 0;
-      m_isTauMETtrigger = 0;
 
       m_genDecMode1 = -1;
       m_genDecMode2 = -1;
@@ -255,7 +254,6 @@ struct smallTree
       m_dau1_deepTauVsEle = -1;
       m_dau1_deepTauVsMu = -1;
 
-      m_dau1_photonPtSumOutsideSignalCone = -1;
       m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits= false;
       m_dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits= false;
       m_dau1_byTightCombinedIsolationDeltaBetaCorr3Hits= false;
@@ -320,7 +318,6 @@ struct smallTree
       m_dau2_deepTauVsJet = -1;
       m_dau2_deepTauVsEle = -1;
       m_dau2_deepTauVsMu = -1;
-      m_dau2_photonPtSumOutsideSignalCone = -1;
       m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits= false;
       m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits= false;
       m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits= false;
@@ -1255,7 +1252,6 @@ struct smallTree
       m_smallT->Branch ("isLeptrigger", &m_isLeptrigger, "isLeptrigger/I") ;
       m_smallT->Branch ("isMETtrigger", &m_isMETtrigger, "isMETtrigger/I") ;
       m_smallT->Branch ("isSingleTautrigger", &m_isSingleTautrigger, "isSingleTautrigger/I") ;
-      m_smallT->Branch ("isTauMETtrigger", &m_isTauMETtrigger, "isTauMETtrigger/I") ;
 
 
       m_smallT->Branch("genDecMode1", &m_genDecMode1, "genDecMode1/I");
@@ -1338,7 +1334,6 @@ struct smallTree
       m_smallT->Branch ("dau1_deepTauVsEle",&m_dau1_deepTauVsEle,"dau1_deepTauVsEle/I");
       m_smallT->Branch ("dau1_deepTauVsMu",&m_dau1_deepTauVsMu,"dau1_deepTauVsMu/I");
 
-      m_smallT->Branch ("dau1_photonPtSumOutsideSignalCone", &m_dau1_photonPtSumOutsideSignalCone,"dau1_photonPtSumOutsideSignalCone/F");
       m_smallT->Branch ("dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits", &m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits, "dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits/O") ;
       m_smallT->Branch ("dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits", &m_dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits, "dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits/O") ;
       m_smallT->Branch ("dau1_byTightCombinedIsolationDeltaBetaCorr3Hits", &m_dau1_byTightCombinedIsolationDeltaBetaCorr3Hits, "dau1_byTightCombinedIsolationDeltaBetaCorr3Hits/O") ;
@@ -1402,7 +1397,6 @@ struct smallTree
       m_smallT->Branch ("dau2_deepTauVsJet",&m_dau2_deepTauVsJet,"dau2_deepTauVsJet/I");
       m_smallT->Branch ("dau2_deepTauVsEle",&m_dau2_deepTauVsEle,"dau2_deepTauVsEle/I");
       m_smallT->Branch ("dau2_deepTauVsMu",&m_dau2_deepTauVsMu,"dau2_deepTauVsMu/I");
-      m_smallT->Branch ("dau2_photonPtSumOutsideSignalCone", &m_dau2_photonPtSumOutsideSignalCone, "dau2_photonPtSumOutsideSignalCone/F");
       m_smallT->Branch ("dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits", &m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits, "dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits/O") ;
       m_smallT->Branch ("dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits", &m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits, "dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits/O") ;
       m_smallT->Branch ("dau2_byTightCombinedIsolationDeltaBetaCorr3Hits", &m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits, "dau2_byTightCombinedIsolationDeltaBetaCorr3Hits/O") ;
@@ -2337,7 +2331,6 @@ struct smallTree
   Int_t m_isLeptrigger;
   Int_t m_isMETtrigger;
   Int_t m_isSingleTautrigger;
-  Int_t m_isTauMETtrigger;
 
   Int_t m_genDecMode1 ;
   Int_t m_genDecMode2 ;
@@ -2423,7 +2416,6 @@ struct smallTree
   Int_t   m_dau1_deepTauVsEle;
   Int_t   m_dau1_deepTauVsMu;
 
-  Float_t m_dau1_photonPtSumOutsideSignalCone;
   Bool_t m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits;
   Bool_t m_dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits;
   Bool_t m_dau1_byTightCombinedIsolationDeltaBetaCorr3Hits;
@@ -2486,7 +2478,6 @@ struct smallTree
   Int_t   m_dau2_deepTauVsJet;
   Int_t   m_dau2_deepTauVsEle;
   Int_t   m_dau2_deepTauVsMu;
-  Float_t m_dau2_photonPtSumOutsideSignalCone;
   Bool_t m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits;
   Bool_t m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits;
   Bool_t m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits;

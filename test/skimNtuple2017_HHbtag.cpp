@@ -391,6 +391,10 @@ int main (int argc, char** argv)
   vector<string> crossTrigEleTau = (isMC ? gConfigParser->readStringListOption ("triggersMC::crossEleTau") : gConfigParser->readStringListOption ("triggersData::crossEleTau")) ;
   vector<string> vbfTriggers     = (isMC ? gConfigParser->readStringListOption ("triggersMC::vbfTriggers") : gConfigParser->readStringListOption ("triggersData::vbfTriggers")) ;
 
+  //// NEW TRIGGERS
+  vector<string> trigMET  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::METtriggers") : gConfigParser->readStringListOption ("triggersData::METtriggers")) ;
+  vector<string> trigSingleTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::SingleTau") : gConfigParser->readStringListOption ("triggersData::SingleTau")); // TODO
+
   // bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
   //bool applyTriggers = isMC ? gConfigParser->readBoolOption ("parameters::applyTriggersMC") : true; // true if ask triggerbit + matching, false if doing reweight
 
@@ -428,6 +432,15 @@ int main (int argc, char** argv)
 
     cout << "  @ vbfTriggers" << endl; cout << "   --> ";
     for (unsigned int i = 0 ; i < vbfTriggers.size(); i++) cout << "  " << vbfTriggers.at(i);
+    cout << endl;
+
+    ////NEW TRIGGERS
+    cout << "  @ METtriggers" << endl; cout << "   --> ";
+    for (unsigned int i = 0 ; i < trigMET.size(); i++) cout << "  " << trigMET.at(i);
+    cout << endl;
+
+    cout << "  @ SingleTau" << endl; cout << "   --> ";
+    for (unsigned int i = 0 ; i < trigSingleTau.size(); i++) cout << "  " << trigSingleTau.at(i);
     cout << endl;
   }
 
@@ -488,6 +501,10 @@ int main (int argc, char** argv)
   // add VBF triggers for jet matching
   trigReader.addVBFTrigs (vbfTriggers);
 
+  ////NEW TRIGGERS
+  trigReader.addMETTrigs (trigMET);
+  trigReader.addSingleTauTrigs (trigSingleTau);
+
   // print full list (this is needed to identify the the triggers that fired in the bitwise variable)
   trigReader.printTriggerList();
 
@@ -528,9 +545,9 @@ int main (int argc, char** argv)
   }
 
   cout << "B Tag SF file: " << bTag_SFFile << endl;
-  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "2017", "94X_DeepCSV_V1");
+  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "2017", "106X17_DeepCSV_V1");
   if(useDeepFlavor)
-    bTagSFHelper.SetWPset("94X_DeepFlavor_V1");
+    bTagSFHelper.SetWPset("106X17_DeepFlavor_V1");
 
   // ------------------------------
 
@@ -1919,8 +1936,16 @@ int main (int argc, char** argv)
       cout << "---------------------"<< endl;
     }
 
-    // DATA strategy
+
+
+    // DATA strategy  
     int pass_triggerbit = 0;
+    bool passTrg = false;
+
+    // NEW TRIGGERS
+    bool passMETTrg = false;
+    bool passSingleTau = false;
+
     if (applyTriggers)
     {
       Long64_t triggerbit = theBigTree.triggerbit;
@@ -1931,7 +1956,10 @@ int main (int argc, char** argv)
       Long64_t goodTriggerType2 = (Long64_t) theBigTree.daughters_isGoodTriggerType->at(secondDaughterIndex);
 
       Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
-      bool passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
+      passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ;
+      // check NEW TRIGGERS separately
+      passMETTrg = trigReader.checkMET(triggerbit, &pass_triggerbit);
+      passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
 
       if(DEBUG)
       {
@@ -2002,7 +2030,7 @@ int main (int argc, char** argv)
       if (isVBFfired && isMC) theSmallTree.m_prescaleWeight =  0.65308574;
 
       bool triggerAccept = false;
-      triggerAccept = passTrg || isVBFfired;
+      triggerAccept = passTrg || isVBFfired || passMETTrg || passSingleTau;
 
       if(DEBUG)
       {
@@ -2028,6 +2056,11 @@ int main (int argc, char** argv)
       theSmallTree.m_pass_triggerbit = pass_triggerbit;
       ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
       if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
+
+      theSmallTree.m_isLeptrigger = passTrg;
+      // NEW TRIGGERS: fill trig info in output tree
+      theSmallTree.m_isMETtrigger = passMETTrg;
+      theSmallTree.m_isSingleTautrigger = passSingleTau;
     }
 
 
@@ -2071,8 +2104,30 @@ int main (int argc, char** argv)
     TVector2 vMET(theBigTree.METx->at(chosenTauPair) , theBigTree.METy->at(chosenTauPair));
     TLorentzVector tlv_MET;
     tlv_MET.SetPxPyPzE(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair), 0, std::hypot(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair)));
+    
+    // Temporary SVFit recomputation for data.
+    if(!isMC){
+      TMatrixD metcov_tmp (2, 2) ;
+      metcov_tmp (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
+      metcov_tmp (1,0) = theBigTree.MET_cov10->at (chosenTauPair) ;
+      metcov_tmp (0,1) = theBigTree.MET_cov01->at (chosenTauPair) ;
+      metcov_tmp (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
 
-    theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
+      SVfitKLUBinterface algo_tmp(0, tlv_firstLepton, tlv_secondLepton, tlv_MET, metcov_tmp, pType, theSmallTree.m_dau1_decayMode, theSmallTree.m_dau2_decayMode);
+      std::vector<double> svfitResTmp = algo_tmp.FitAndGetResult();
+      theSmallTree.m_tauH_SVFIT_mass = svfitResTmp.at(3);
+      if (theSmallTree.m_tauH_SVFIT_mass > 0)
+      {
+	theSmallTree.m_tauH_SVFIT_pt   = svfitResTmp.at(0);
+	theSmallTree.m_tauH_SVFIT_eta  = svfitResTmp.at(1);
+	theSmallTree.m_tauH_SVFIT_phi  = svfitResTmp.at(2);
+	tlv_tauH_SVFIT.SetPtEtaPhiM(svfitResTmp.at(0), svfitResTmp.at(1), svfitResTmp.at(2), svfitResTmp.at(3));
+
+	theSmallTree.m_tauHsvfitMet_deltaPhi = deltaPhi (vMET.Phi(), tlv_tauH_SVFIT.Phi ()) ;
+	theSmallTree.m_ditau_deltaR_per_tauHsvfitpt = tlv_firstLepton.DeltaR(tlv_secondLepton) * tlv_tauH_SVFIT.Pt();
+      }
+    }
+    //theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
 
     if (doSmearing)
     {
@@ -2256,8 +2311,6 @@ int main (int argc, char** argv)
     theSmallTree.m_dau1_deepTauVsEle = makeIsoDiscr (firstDaughterIndex, deepTauVsEleIdx , theBigTree) ;
     theSmallTree.m_dau1_deepTauVsMu = makeIsoDiscr (firstDaughterIndex, deepTauVsMuIdx , theBigTree) ;
 
-    theSmallTree.m_dau1_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (firstDaughterIndex) ;
-
     int ibit = tauIDsMap["byLooseCombinedIsolationDeltaBetaCorr3Hits"] ;
     theSmallTree.m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (firstDaughterIndex)  & (1 << ibit) ) ? true : false ;
     theSmallTree.m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (secondDaughterIndex) & (1 << ibit) ) ? true : false ;
@@ -2306,7 +2359,6 @@ int main (int argc, char** argv)
     theSmallTree.m_dau2_deepTauVsJet = makeIsoDiscr (secondDaughterIndex, deepTauVsJetIdx , theBigTree) ;
     theSmallTree.m_dau2_deepTauVsEle = makeIsoDiscr (secondDaughterIndex, deepTauVsEleIdx , theBigTree) ;
     theSmallTree.m_dau2_deepTauVsMu = makeIsoDiscr (secondDaughterIndex, deepTauVsMuIdx , theBigTree) ;
-    theSmallTree.m_dau2_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (secondDaughterIndex) ;
     theSmallTree.m_dau2_pt = tlv_secondLepton.Pt () ;
 
     theSmallTree.m_dau2_pt_tauup_DM0    = (tlv_secondLepton_tauup[0]).Pt () ;
