@@ -634,8 +634,8 @@ int main (int argc, char** argv)
   TauIDSFTool * Deep_antiJet_medium_pt = new TauIDSFTool("UL2017","DeepTau2017v2p1VSjet","Medium");   // for DeepTauv2p1 vs jets Medium
   TauIDSFTool * Deep_antiEle_vvloose   = new TauIDSFTool("UL2017","DeepTau2017v2p1VSe"  ,"VVLoose");  // for DeepTauv2p1 vs ele VVLoose
   TauIDSFTool * Deep_antiEle_vloose    = new TauIDSFTool("UL2017","DeepTau2017v2p1VSe"  ,"VLoose");   // for DeepTauv2p1 vs ele VLoose
-  TauIDSFTool * Deep_antiMu_vloose     = new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSmu" ,"VLoose");   // for DeepTauv2p1 vs mu VLoose
-  TauIDSFTool * Deep_antiMu_tight      = new TauIDSFTool("2017ReReco","DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
+  TauIDSFTool * Deep_antiMu_vloose     = new TauIDSFTool("UL2017","DeepTau2017v2p1VSmu" ,"VLoose");   // for DeepTauv2p1 vs mu VLoose
+  TauIDSFTool * Deep_antiMu_tight      = new TauIDSFTool("UL2017","DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
 
   // ------------------------------
   // reweight file according to NLO differential reweighting procedure
