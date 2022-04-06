@@ -308,9 +308,9 @@ int main (int argc, char** argv)
   cout << "** INFO: isHHNLO: " << isHHNLO << endl;
 
 
-  bool isPostVFP = false;
+  bool isPostVFP = true;
   int isAPV = atoi(argv[32]);
-  if(isAPV==1) isPostVFP = true;
+  if(isAPV==1) isPostVFP = false;
 
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
@@ -560,7 +560,8 @@ int main (int argc, char** argv)
 
   std::string PUjetID_SF_directory = gConfigParser->readStringOption ("PUjetIDScaleFactors::files");
   cout << "** INFO: PU jet ID SF directory: " << PUjetID_SF_directory << std::endl;
-  PuJetIdSF PUjetIDSFprovider(PUjetID_SF_directory, "2016");
+  string puYear = isAPV ? "2016APV" : "2016";
+  PuJetIdSF PUjetIDSFprovider(PUjetID_SF_directory, puYear);
 
   // ------------------------------
 
