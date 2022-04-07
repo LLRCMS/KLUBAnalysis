@@ -308,9 +308,9 @@ int main (int argc, char** argv)
   cout << "** INFO: isHHNLO: " << isHHNLO << endl;
 
 
-  bool isPostVFP = false;
+  bool isPostVFP = true;
   int isAPV = atoi(argv[32]);
-  if(isAPV==1) isPostVFP = true;
+  if(isAPV==1) isPostVFP = false;
 
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
@@ -560,7 +560,8 @@ int main (int argc, char** argv)
 
   std::string PUjetID_SF_directory = gConfigParser->readStringOption ("PUjetIDScaleFactors::files");
   cout << "** INFO: PU jet ID SF directory: " << PUjetID_SF_directory << std::endl;
-  PuJetIdSF PUjetIDSFprovider(PUjetID_SF_directory, "2016");
+  string puYear = isAPV ? "2016APV" : "2016";
+  PuJetIdSF PUjetIDSFprovider(PUjetID_SF_directory, puYear);
 
   // ------------------------------
 
@@ -675,8 +676,8 @@ int main (int argc, char** argv)
   TauIDSFTool * Deep_antiJet_medium_pt  = new TauIDSFTool(VFP,"DeepTau2017v2p1VSjet","Medium");   // for DeepTauv2p1 vs jets Medium
   TauIDSFTool * Deep_antiEle_vvloose    = new TauIDSFTool(VFP,"DeepTau2017v2p1VSe"  ,"VVLoose");  // for DeepTauv2p1 vs ele VVLoose
   TauIDSFTool * Deep_antiEle_vloose     = new TauIDSFTool(VFP,"DeepTau2017v2p1VSe"  ,"VLoose");   // for DeepTauv2p1 vs ele VLoose
-  TauIDSFTool * Deep_antiMu_vloose      = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSmu" ,"VLoose");   // for DeepTauv2p1 vs mu VLoose
-  TauIDSFTool * Deep_antiMu_tight       = new TauIDSFTool("2016Legacy","DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
+  TauIDSFTool * Deep_antiMu_vloose      = new TauIDSFTool(VFP,"DeepTau2017v2p1VSmu" ,"VLoose");   // for DeepTauv2p1 vs mu VLoose
+  TauIDSFTool * Deep_antiMu_tight       = new TauIDSFTool(VFP,"DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
 
   // ------------------------------
   // reweight file according to NLO differential reweighting procedure

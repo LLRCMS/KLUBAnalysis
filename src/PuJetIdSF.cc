@@ -6,34 +6,48 @@
 PuJetIdSF::PuJetIdSF (std::string directory, std::string year)
 {
   // Build file names
-  std::string nf_eff       = directory + "/h2_eff_mc_" + year + "_L.root";
-  std::string nf_eff_sf    = directory + "/h2_eff_sf_" + year + "_L.root";
-  std::string nf_mistag    = directory + "/h2_mistag_mc_" + year + "_L.root";
-  std::string nf_mistag_sf = directory + "/h2_mistag_sf_" + year + "_L.root";
-  std::string nf_sf_err    = directory + "/scalefactorsPUID_81Xtraining.root";
+//  std::string nf_eff       = directory + "/h2_eff_mc_" + year + "_L.root";
+//  std::string nf_eff_sf    = directory + "/h2_eff_sf_" + year + "_L.root";
+//  std::string nf_mistag    = directory + "/h2_mistag_mc_" + year + "_L.root";
+//  std::string nf_mistag_sf = directory + "/h2_mistag_sf_" + year + "_L.root";
+//  std::string nf_sf_err    = directory + "/scalefactorsPUID_81Xtraining.root";
 
   // Open files
-  TFile* f_eff       = new TFile(nf_eff.c_str(),"READ");
-  TFile* f_eff_sf    = new TFile(nf_eff_sf.c_str(),"READ");
-  TFile* f_mistag    = new TFile(nf_mistag.c_str(),"READ");
-  TFile* f_mistag_sf = new TFile(nf_mistag_sf.c_str(),"READ");
-  TFile* f_sf_err    = new TFile(nf_sf_err.c_str(),"READ");
+//  TFile* f_eff       = new TFile(nf_eff.c_str(),"READ");
+//  TFile* f_eff_sf    = new TFile(nf_eff_sf.c_str(),"READ");
+//  TFile* f_mistag    = new TFile(nf_mistag.c_str(),"READ");
+//  TFile* f_mistag_sf = new TFile(nf_mistag_sf.c_str(),"READ");
+//  TFile* f_sf_err    = new TFile(nf_sf_err.c_str(),"READ");
+
+  // UL: single file for all periods, and for efficiencies, SFs, and unc. 
+  std::string nf = directory + "/PUID_106XTraining_ULRun2_EffSFandUncties_v1.root";
+  TFile *f = new TFile(nf.c_str(),"READ");
 
   // Build TH2F names
-  std::string nh_eff           = "h2_eff_mc"+year+"_L";
-  std::string nh_eff_sf        = "h2_eff_sf"+year+"_L";
-  std::string nh_eff_sf_err    = "h2_eff_sf"+year+"_L_Systuncty";
-  std::string nh_mistag        = "h2_mistag_mc"+year+"_L";
-  std::string nh_mistag_sf     = "h2_mistag_sf"+year+"_L";
-  std::string nh_mistag_sf_err = "h2_mistag_sf"+year+"_L_Systuncty";
+//  std::string nh_eff           = "h2_eff_mc"+year+"_L";
+//  std::string nh_eff_sf        = "h2_eff_sf"+year+"_L";
+//  std::string nh_eff_sf_err    = "h2_eff_sf"+year+"_L_Systuncty";
+//  std::string nh_mistag        = "h2_mistag_mc"+year+"_L";
+//  std::string nh_mistag_sf     = "h2_mistag_sf"+year+"_L";
+//  std::string nh_mistag_sf_err = "h2_mistag_sf"+year+"_L_Systuncty";
 
   // Get the TH2F histograms
-  h_eff_           = (TH2F*) f_eff->Get(nh_eff.c_str());
-  h_eff_SF_        = (TH2F*) f_eff_sf->Get(nh_eff_sf.c_str());
-  h_eff_SF_err_    = (TH2F*) f_sf_err->Get(nh_eff_sf_err.c_str());
-  h_mistag_        = (TH2F*) f_mistag->Get(nh_mistag.c_str());
-  h_mistag_SF_     = (TH2F*) f_mistag_sf->Get(nh_mistag_sf.c_str());
-  h_mistag_SF_err_ = (TH2F*) f_sf_err->Get(nh_mistag_sf_err.c_str());
+//  h_eff_           = (TH2F*) f_eff->Get(nh_eff.c_str());
+//  h_eff_SF_        = (TH2F*) f_eff_sf->Get(nh_eff_sf.c_str());
+//  h_eff_SF_err_    = (TH2F*) f_sf_err->Get(nh_eff_sf_err.c_str());
+//  h_mistag_        = (TH2F*) f_mistag->Get(nh_mistag.c_str());
+//  h_mistag_SF_     = (TH2F*) f_mistag_sf->Get(nh_mistag_sf.c_str());
+//  h_mistag_SF_err_ = (TH2F*) f_sf_err->Get(nh_mistag_sf_err.c_str());
+
+  // UL: no mistag eff/sf
+  std::string nh_eff           = "h2_eff_mcUL"+year+"_L";
+  std::string nh_eff_sf        = "h2_eff_sfUL"+year+"_L";
+  std::string nh_eff_sf_err    = "h2_eff_sfUL"+year+"_L_Systuncty";
+
+  // Get the TH2F histograms
+  h_eff_           = (TH2F*) f->Get(nh_eff.c_str());
+  h_eff_SF_        = (TH2F*) f->Get(nh_eff_sf.c_str());
+  h_eff_SF_err_    = (TH2F*) f->Get(nh_eff_sf_err.c_str());
 }
 
 
@@ -43,9 +57,10 @@ PuJetIdSF::~PuJetIdSF()
   if (h_eff_) delete h_eff_;
   if (h_eff_SF_) delete h_eff_SF_;
   if (h_eff_SF_err_) delete h_eff_SF_err_;
-  if (h_mistag_) delete h_mistag_;
-  if (h_mistag_SF_) delete h_mistag_SF_;
-  if (h_mistag_SF_err_) delete h_mistag_SF_err_;
+  // not in UL
+//  if (h_mistag_) delete h_mistag_;
+//  if (h_mistag_SF_) delete h_mistag_SF_;
+//  if (h_mistag_SF_err_) delete h_mistag_SF_err_;
 }
 
 // check bit
@@ -58,7 +73,7 @@ bool PuJetIdSF::CheckBit (int number, int bitpos)
 // getEff
 float PuJetIdSF::getEff(bool isReal, float pt, float eta)
 {
-  float eff;
+  float eff = 1.;
 
   if (pt<20.) pt=20.;
   if (pt>50.) pt=50.;
@@ -79,22 +94,23 @@ float PuJetIdSF::getEff(bool isReal, float pt, float eta)
 
     eff = h_eff_->GetBinContent (binx, biny);
   }
-  else
-  {
-    int binglobal = h_mistag_->FindBin (pt, eta);
-    int binx, biny, binz;
-    h_mistag_->GetBinXYZ (binglobal, binx, biny, binz); // converts to x, y bins
-    int nx = h_mistag_->GetNbinsX();
-    int ny = h_mistag_->GetNbinsY();
-
-    // under-overflows
-    if (binx < 1) binx = 1;
-    if (biny < 1) biny = 1;
-    if (binx > nx) binx = nx;
-    if (biny > ny) biny = ny;
-
-    eff = h_mistag_->GetBinContent (binx, biny);
-  }
+  // not in UL
+//  else
+//  {
+//    int binglobal = h_mistag_->FindBin (pt, eta);
+//    int binx, biny, binz;
+//    h_mistag_->GetBinXYZ (binglobal, binx, biny, binz); // converts to x, y bins
+//    int nx = h_mistag_->GetNbinsX();
+//    int ny = h_mistag_->GetNbinsY();
+//
+//    // under-overflows
+//    if (binx < 1) binx = 1;
+//    if (biny < 1) biny = 1;
+//    if (binx > nx) binx = nx;
+//    if (biny > ny) biny = ny;
+//
+//    eff = h_mistag_->GetBinContent (binx, biny);
+//  }
 
   return eff;
 }
@@ -103,7 +119,7 @@ float PuJetIdSF::getEff(bool isReal, float pt, float eta)
 // getSF
 float PuJetIdSF::getSF(bool isReal, float pt, float eta)
 {
-  float sf;
+  float sf = 1.;
 
   if (pt<20.) pt=20.;
   if (pt>50.) pt=50.;
@@ -124,22 +140,23 @@ float PuJetIdSF::getSF(bool isReal, float pt, float eta)
 
     sf = h_eff_SF_->GetBinContent (binx, biny);
   }
-  else
-  {
-    int binglobal = h_mistag_SF_->FindBin (pt, eta);
-    int binx, biny, binz;
-    h_mistag_SF_->GetBinXYZ (binglobal, binx, biny, binz); // converts to x, y bins
-    int nx = h_mistag_SF_->GetNbinsX();
-    int ny = h_mistag_SF_->GetNbinsY();
-
-    // under-overflows
-    if (binx < 1) binx = 1;
-    if (biny < 1) biny = 1;
-    if (binx > nx) binx = nx;
-    if (biny > ny) biny = ny;
-
-    sf = h_mistag_SF_->GetBinContent (binx, biny);
-  }
+  // no mistag in UL
+//  else
+//  {
+//    int binglobal = h_mistag_SF_->FindBin (pt, eta);
+//    int binx, biny, binz;
+//    h_mistag_SF_->GetBinXYZ (binglobal, binx, biny, binz); // converts to x, y bins
+//    int nx = h_mistag_SF_->GetNbinsX();
+//    int ny = h_mistag_SF_->GetNbinsY();
+//
+//    // under-overflows
+//    if (binx < 1) binx = 1;
+//    if (biny < 1) biny = 1;
+//    if (binx > nx) binx = nx;
+//    if (biny > ny) biny = ny;
+//
+//    sf = h_mistag_SF_->GetBinContent (binx, biny);
+//  }
 
   return sf;
 }
@@ -147,7 +164,7 @@ float PuJetIdSF::getSF(bool isReal, float pt, float eta)
 // getSFError
 float PuJetIdSF::getSFError(bool isReal, float pt, float eta)
 {
-  float sferr;
+  float sferr = 0.;
 
   if (pt<20.) pt=20.;
   if (pt>50.) pt=50.;
@@ -168,30 +185,31 @@ float PuJetIdSF::getSFError(bool isReal, float pt, float eta)
 
     sferr = h_eff_SF_err_->GetBinContent (binx, biny);
   }
-  else
-  {
-    if (fabs(eta) > 2.5)
-    {
-      int binglobal = h_mistag_SF_err_->FindBin (pt, eta);
-      int binx, biny, binz;
-      h_mistag_SF_err_->GetBinXYZ (binglobal, binx, biny, binz); // converts to x, y bins
-      int nx = h_mistag_SF_err_->GetNbinsX();
-      int ny = h_mistag_SF_err_->GetNbinsY();
-
-      // under-overflows
-      if (binx < 1) binx = 1;
-      if (biny < 1) biny = 1;
-      if (binx > nx) binx = nx;
-      if (biny > ny) biny = ny;
-
-      sferr = h_mistag_SF_err_->GetBinContent (binx, biny);
-    }
-    else /* fabs(eta) < 2.5 */
-    {
-      // inside tracker acceptance use the SF itself as error on the mistag
-      sferr = getSF(isReal, pt, eta);
-    }
-  }
+  // no mistag in UL
+//  else
+//  {
+//    if (fabs(eta) > 2.5)
+//    {
+//      int binglobal = h_mistag_SF_err_->FindBin (pt, eta);
+//      int binx, biny, binz;
+//      h_mistag_SF_err_->GetBinXYZ (binglobal, binx, biny, binz); // converts to x, y bins
+//      int nx = h_mistag_SF_err_->GetNbinsX();
+//      int ny = h_mistag_SF_err_->GetNbinsY();
+//
+//      // under-overflows
+//      if (binx < 1) binx = 1;
+//      if (biny < 1) biny = 1;
+//      if (binx > nx) binx = nx;
+//      if (biny > ny) biny = ny;
+//
+//      sferr = h_mistag_SF_err_->GetBinContent (binx, biny);
+//    }
+//    else /* fabs(eta) < 2.5 */
+//    {
+//      // inside tracker acceptance use the SF itself as error on the mistag
+//      sferr = getSF(isReal, pt, eta);
+//    }
+//  }
 
   return sferr;
 }
