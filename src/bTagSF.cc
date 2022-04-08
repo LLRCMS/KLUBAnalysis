@@ -22,10 +22,10 @@ bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effH
       "up_jes", "up_lf", "up_hf", "up_hfstats1", "up_hfstats2", "up_lfstats1", "up_lfstats2", "up_cferr1", "up_cferr2",
 	"down_jes", "down_lf", "down_hf", "down_hfstats1", "down_hfstats2", "down_lfstats1", "down_lfstats2", "down_cferr1", "down_cferr2",
 	// Up/down JES variations: do not change order of these!!!
-	"up_jesFlavorQCD", "up_jesRelativeBal", "up_jesHF", "up_jesBBEC1", "up_jesEC2", "up_jesAbsolute", "up_jesBBEC1_"+m_year, "up_jesEC2_"+m_year,
-	"up_jesAbsolute_"+m_year, "up_jesHF_"+m_year, "up_jesRelativeSample_"+m_year,
-	"down_jesFlavorQCD", "down_jesRelativeBal", "down_jesHF", "down_jesBBEC1", "down_jesEC2", "down_jesAbsolute", "down_jesBBEC1_"+m_year,
-	"down_jesEC2_"+m_year, "down_jesAbsolute_"+m_year, "down_jesHF_"+m_year, "down_jesRelativeSample_"+m_year
+//	"up_jesFlavorQCD", "up_jesRelativeBal", "up_jesHF", "up_jesBBEC1", "up_jesEC2", "up_jesAbsolute", "up_jesBBEC1_"+m_year, "up_jesEC2_"+m_year,
+//	"up_jesAbsolute_"+m_year, "up_jesHF_"+m_year, "up_jesRelativeSample_"+m_year,
+//	"down_jesFlavorQCD", "down_jesRelativeBal", "down_jesHF", "down_jesBBEC1", "down_jesEC2", "down_jesAbsolute", "down_jesBBEC1_"+m_year,
+//	"down_jesEC2_"+m_year, "down_jesAbsolute_"+m_year, "down_jesHF_"+m_year, "down_jesRelativeSample_"+m_year
 	});
 
   // load readers [loose, medium, tight, reshaping]
@@ -75,6 +75,7 @@ bTagSF::~bTagSF()
 
 void bTagSF::SetWPset(std::string WPset)
 {
+  // Legacy WP
   if      (WPset == "80X_DeepCSV_V1")
     SetWPset(0.2217, 0.6321, 0.8953);
 
@@ -92,6 +93,27 @@ void bTagSF::SetWPset(std::string WPset)
 
   else if (WPset =="102X_DeepFlavor_V1")
     SetWPset(0.0494, 0.2770, 0.7264);
+  
+  // UL WP
+  else if (WPset == "106X18_DeepCSV_V1")
+    SetWPset(0.1208, 0.4168, 0.7665);
+  else if (WPset =="106X18_DeepFlavor_V1")
+    SetWPset(0.0490, 0.2783, 0.7100);
+
+  else if (WPset == "106X17_DeepCSV_V1")
+    SetWPset(0.1355, 0.4506, 0.7738);
+  else if (WPset =="106X17_DeepFlavor_V1")
+    SetWPset(0.0532, 0.3040, 0.7476);
+
+  else if (WPset == "106X16postVFP_DeepCSV_V1")
+    SetWPset(0.1918, 0.5847, 0.8767);
+  else if (WPset =="106X16postVFP_DeepFlavor_V1")
+    SetWPset(0.0480, 0.2489, 0.6377);
+
+  else if (WPset == "106X16preVFP_DeepCSV_V1")
+    SetWPset(0.2027, 0.6001, 0.8819);
+  else if (WPset =="106X16preVFP_DeepFlavor_V1")
+    SetWPset(0.0508, 0.2598, 0.6502);
 
   else
   {
@@ -332,10 +354,10 @@ std::vector<float> bTagSF::getEvtWeightShifted (std::vector <std::pair <int, flo
     "up_jes", "up_lf", "up_hf", "up_hfstats1", "up_hfstats2", "up_lfstats1", "up_lfstats2", "up_cferr1", "up_cferr2",
     "down_jes", "down_lf", "down_hf", "down_hfstats1", "down_hfstats2", "down_lfstats1", "down_lfstats2", "down_cferr1", "down_cferr2",
     // Up/down JES variations: do not change order of these!!!
-    "up_jesFlavorQCD", "up_jesRelativeBal", "up_jesHF", "up_jesBBEC1", "up_jesEC2", "up_jesAbsolute", "up_jesBBEC1_"+m_year, "up_jesEC2_"+m_year,
-    "up_jesAbsolute_"+m_year, "up_jesHF_"+m_year, "up_jesRelativeSample_"+m_year,
-    "down_jesFlavorQCD", "down_jesRelativeBal", "down_jesHF", "down_jesBBEC1", "down_jesEC2", "down_jesAbsolute", "down_jesBBEC1_"+m_year,
-    "down_jesEC2_"+m_year, "down_jesAbsolute_"+m_year, "down_jesHF_"+m_year, "down_jesRelativeSample_"+m_year
+//    "up_jesFlavorQCD", "up_jesRelativeBal", "up_jesHF", "up_jesBBEC1", "up_jesEC2", "up_jesAbsolute", "up_jesBBEC1_"+m_year, "up_jesEC2_"+m_year,
+//    "up_jesAbsolute_"+m_year, "up_jesHF_"+m_year, "up_jesRelativeSample_"+m_year,
+//    "down_jesFlavorQCD", "down_jesRelativeBal", "down_jesHF", "down_jesBBEC1", "down_jesEC2", "down_jesAbsolute", "down_jesBBEC1_"+m_year,
+//    "down_jesEC2_"+m_year, "down_jesAbsolute_"+m_year, "down_jesHF_"+m_year, "down_jesRelativeSample_"+m_year
   };
 
   // Values of shifted SFs all initialized to 1

@@ -125,44 +125,45 @@ const float DYscale_MTT_vHighPt_err[3] = {0.0046517215, 0.11443309   , 0.0645193
 ** - stitchWeight (0jet) = f_0 / (f_0 * N_inclusive)
 ** - stitchWeight (njet) = f_n / (f_n * N_inclusive + N_njets)
 */
-// Legacy2018 (07 May 2020) - to be updated before the next round of skimming
+// UL2018 (04 Apr 2022) - /!\ DY3Jet sample missing
 const float stitchWeights [5][5][9] = {
   {
-    {2.67333612809 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
+    {2.90732304488 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
   },
   {
-    {0.51898547586 , 0.307918393636 , 0.299712383744 , 0.152457027204 , 0.017727351316 , 0.00960959105875 , 0.0118479734376 , 0.0153247097079 , 0.0},
-    {0.521376206466 , 0.308647458404 , 0.305485779629 , 0.152859451028 , 0.0176935784475 , 0.0096261248727 , 0.0121070399122 , 0.0 , 0.0},
+    {0.661713657124 , 0.26243493199 , 0.198163975706 , 0.0916283420008 , 0.0351465223751 , 0.00911500115122 , 0.00416132811439 , 0.000936737452394 , 0.0},
+    {0.668346540329 , 0.261732816396 , 0.197497854085 , 0.0885734561017 , 0.0411219666886 , 0.00920504582394 , 0.00418420652186 , 0.000938040286125 , 0.0},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
   },
   {
-    {0.580157109833 , 0.323048584481 , 0.316235063773 , 0.155031902758 , 0.0166252750008 , 0.00929109993408 , 0.0119071053391 , 0.0155571504236 , 0.000294085695839},
-    {0.576159635871 , 0.32225013185 , 0.317509585462 , 0.156832157172 , 0.0176872450509 , 0.00959797340356 , 0.0119359304201 , 0.0116739568912 , 0.000294219655312},
-    {0.114285902101 , 0.0983303196122 , 0.0960268363933 , 0.0716322046668 , 0.0160449241071 , 0.00911109415307 , 0.0113069937242 , 0.0141381182245 , 0.000294219655312},
+    {0.538419462951 , 0.238551569309 , 0.182617431561 , 0.0887633713842 , 0.0380851630896 , 0.00861460228774 , 0.0034763580742 , 0.00093649304071 , 4.5558708978e-05},
+    {0.543364625407 , 0.239497565938 , 0.185414970409 , 0.0916754209195 , 0.0397221792446 , 0.0090682313946 , 0.00416056693699 , 0.000935556069265 , 4.55600433279e-05},
+    {0.544414477224 , 0.240860536713 , 0.183153728781 , 0.0893258021275 , 0.0393245639366 , 0.00903754894581 , 0.00416735510614 , 0.000935996625371 , 4.55600433279e-05},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
   },
   {
-    {0.682278722716 , 0.362765385278 , 0.352621143228 , 0.165382670894 , 0.0174462106614 , 0.00958560178972 , 0.0113611990133 , 0.0155822731809 , 0.00029419199659},
-    {0.658904274958 , 0.355925643213 , 0.346908775498 , 0.160894989801 , 0.0172806075072 , 0.00961908326477 , 0.0118871488334 , 0.015698805782 , 0.000294219655312},
-    {0.116329810304 , 0.103266407792 , 0.101348794702 , 0.0755949912983 , 0.0146934201983 , 0.00901755115964 , 0.0110541461103 , 0.0145892891019 , 0.000294219655312},
-    {0.11037555227 , 0.0943817218953 , 0.0935595693025 , 0.0707927004997 , 0.0158861665046 , 0.00910876641137 , 0.0109700992432 , 0.0 , 0.0},
+    {2.90732304488 , 0.380710347472 , 0.258349388757 , 0.105264839118 , 0.0414475737267 , 0.00888246109324 , 0.00428097941008 , 0.000829691970354 , 4.55596260999e-05},
+    {2.90732304488 , 0.382514374571 , 0.25566379225 , 0.104069449314 , 0.039544326655 , 0.0104613619203 , 0.00417876415726 , 0.000937512258944 , 4.55600433279e-05},
+    {2.90732304488 , 0.379261342201 , 0.257502148794 , 0.10579529803 , 0.0452388596563 , 0.00917793916991 , 0.00417797465512 , 0.00093746249722 , 4.55600433279e-05},
+    {2.90732304488 , 0.387445899166 , 0.265902194159 , 0.104486477816 , 0.0418654170312 , 0.00920504582394 , 0.00418420652186 , 0.000938040286125 , 4.55600433279e-05},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
   },
   {
-    {0.39949438878 , 0.374723947015 , 0.376569839917 , 0.172402895473 , 0.0180531001354 , 0.00967811533818 , 0.0120470434947 , 0.0155848428971 , 0.000294072214121},
-    {0.414012232227 , 0.373314693384 , 0.376696425396 , 0.171730043145 , 0.0186814560654 , 0.0095357673104 , 0.0119075584174 , 0.015490698255 , 0.000293965944772},
-    {0.116854871611 , 0.0868542494347 , 0.0907644237315 , 0.0698678272198 , 0.0146930461579 , 0.00814494915235 , 0.011051375833 , 0.014209820022 , 0.000293717221136},
-    {0.116039136671 , 0.0967397955117 , 0.0961209059992 , 0.0706452766584 , 0.0156626168091 , 0.00902743165164 , 0.0108147123949 , 0.014651354602 , 0.000294219655312},
-    {0.0 , 0.0928514258164 , 0.0892665638494 , 0.0675120069126 , 0.0156701331724 , 0.00894531805894 , 0.0111842302729 , 0.01400886702 , 0.0}
+    {0.219577214135 , 0.149411527013 , 0.127027511319 , 0.0743215801746 , 0.0361783870661 , 0.00894135138403 , 0.00411612933651 , 0.000937283894974 , 4.55509358372e-05},
+    {0.231166688193 , 0.144724682036 , 0.127203554048 , 0.0736280579092 , 0.0370270542869 , 0.00957687951309 , 0.00428669551867 , 0.000934390500557 , 4.5549973141e-05},
+    {0.193563451723 , 0.149313644818 , 0.125193956974 , 0.0750702060191 , 0.0361835689611 , 0.00862236321021 , 0.00461355918844 , 0.000934191626201 , 4.55492221075e-05},
+    {0.229744206541 , 0.153331603275 , 0.133989670764 , 0.0772822826753 , 0.0360214186421 , 0.00886675044004 , 0.00410928930032 , 0.000935213160488 , 4.55600433279e-05},
+    {0.216615966167 , 0.127732784397 , 0.120238101174 , 0.0741879482429 , 0.0362116747473 , 0.00868726199634 , 0.00412811796258 , 0.000930654142139 , 4.55600433279e-05}
   }
 };
+
 
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
@@ -389,9 +390,7 @@ int main (int argc, char** argv)
 
   //// NEW TRIGGERS
   vector<string> trigMET  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::METtriggers") : gConfigParser->readStringListOption ("triggersData::METtriggers")) ;
-  vector<string> trigTauMET  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::TauMETtriggers") : gConfigParser->readStringListOption ("triggersData::TauMETtriggers")); // TODO
-  vector<string> trigSingleTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::SingleTau") : gConfigParser->readStringListOption ("triggersData::SingleTau")); // TODO
-  //  vector<string> trigAK8  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::AK8triggers") : gConfigParser->readStringListOption ("triggersData::AK8triggers")) ;
+  vector<string> trigSingleTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::SingleTau") : gConfigParser->readStringListOption ("triggersData::SingleTau")); 
 
 
   // bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
@@ -437,16 +436,9 @@ int main (int argc, char** argv)
     cout << "  @ METtriggers" << endl; cout << "   --> ";
     for (unsigned int i = 0 ; i < trigMET.size(); i++) cout << "  " << trigMET.at(i);
     cout << endl;
-    cout << "  @ TauMETtriggers" << endl; cout << "   --> ";
-    for (unsigned int i = 0 ; i < trigTauMET.size(); i++) cout << "  " << trigTauMET.at(i);
-    cout << endl;
     cout << "  @ SingleTau" << endl; cout << "   --> ";
     for (unsigned int i = 0 ; i < trigSingleTau.size(); i++) cout << "  " << trigSingleTau.at(i);
     cout << endl;
-
-    //cout << "  @ AK8triggers" << endl; cout << "   --> ";
-    //for (unsigned int i = 0 ; i < trigAK8.size(); i++) cout << "  " << trigAK8.at(i);
-    //cout << endl;
 
   }
 
@@ -510,9 +502,7 @@ int main (int argc, char** argv)
 
   ////NEW TRIGGERS
   trigReader.addMETTrigs (trigMET);
-  trigReader.addTauMETTrigs (trigTauMET);
   trigReader.addSingleTauTrigs (trigSingleTau);
-  //trigReader.addAK8Trigs (trigAK8);
 
 
   // print full list (this is needed to identify the the triggers that fired in the bitwise variable)
@@ -562,9 +552,9 @@ int main (int argc, char** argv)
   }
 
   cout << "B Tag SF file: " << bTag_SFFile << endl;
-  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "2018", "102X_DeepCSV_V1");
+  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", "2018", "106X18_DeepCSV_V1");
   if(useDeepFlavor)
-    bTagSFHelper.SetWPset("102X_DeepFlavor_V1");
+    bTagSFHelper.SetWPset("106X18_DeepFlavor_V1");
 
   // ------------------------------
 
@@ -683,8 +673,8 @@ int main (int argc, char** argv)
   TauIDSFTool * Deep_antiJet_medium_pt = new TauIDSFTool("UL2018","DeepTau2017v2p1VSjet","Medium");   // for DeepTauv2p1 vs jets Medium
   TauIDSFTool * Deep_antiEle_vvloose   = new TauIDSFTool("UL2018","DeepTau2017v2p1VSe"  ,"VVLoose");  // for DeepTauv2p1 vs ele VVLoose
   TauIDSFTool * Deep_antiEle_vloose    = new TauIDSFTool("UL2018","DeepTau2017v2p1VSe"  ,"VLoose");   // for DeepTauv2p1 vs ele VLoose
-  TauIDSFTool * Deep_antiMu_vloose     = new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSmu" ,"VLoose");   // for DeepTauv2p1 vs mu VLoose
-  TauIDSFTool * Deep_antiMu_tight      = new TauIDSFTool("2018ReReco","DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
+  TauIDSFTool * Deep_antiMu_vloose     = new TauIDSFTool("UL2018","DeepTau2017v2p1VSmu" ,"VLoose");   // for DeepTauv2p1 vs mu VLoose
+  TauIDSFTool * Deep_antiMu_tight      = new TauIDSFTool("UL2018","DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
 
   // ------------------------------
   // reweight file according to NLO differential reweighting procedure
@@ -1883,10 +1873,6 @@ int main (int argc, char** argv)
 	  match1 = (vGenTauVis.DeltaR(tlv_firstLepton)<0.3);
 	  match2 = (vGenTauVis.DeltaR(tlv_secondLepton)<0.3);
 
-	  if(match1||match2){
-	    cout << "Found gen tau matching reco : gentauid=" << igen << " match1=" <<match1 << " | match2="<<match2 << endl;
-	  }
-
 	  if( match1 && !match2 ) {
 	    vGenTau1 = vGenTauVis;
 	    gentau1_idx = mothIdx;
@@ -1895,7 +1881,7 @@ int main (int argc, char** argv)
 	    vGenTau2 = vGenTauVis;
 	    gentau2_idx = mothIdx;
 	  }
-	  if(  match1 &&  match2 ) { // unlikely I guess
+	  if( match1 &&  match2 ) { // unlikely I guess
 	    if (vGenTauVis.DeltaR(tlv_firstLepton)<vGenTauVis.DeltaR(tlv_secondLepton)){
 	      vGenTau1 = vGenTauVis;
 	      gentau1_idx = mothIdx;
@@ -2089,7 +2075,6 @@ int main (int argc, char** argv)
     // NEW TRIGGERS
     bool passMETTrg = false;
     bool passSingleTau = false;
-    bool passTauMET = false;
 
     if (applyTriggers)
     {
@@ -2102,13 +2087,10 @@ int main (int argc, char** argv)
 
       Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
       passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
-      if(pairType == ((int) OfflineProducerHelper::HadHad) ) cout << "tautau evnt => passTrg = " << passTrg << endl;
 
       // check NEW TRIGGERS separately
       passMETTrg = trigReader.checkMET(triggerbit, &pass_triggerbit);
       passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
-      passTauMET = trigReader.checkTauMET(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
-
       if (!isMC && passTrg)
       {
 	if(theBigTree.RunNumber < 317509)
@@ -2199,7 +2181,7 @@ int main (int argc, char** argv)
       }
 
       bool triggerAccept = false;
-      triggerAccept = passTrg || isVBFfired || passMETTrg || passSingleTau || passTauMET; //
+      triggerAccept = passTrg || isVBFfired || passMETTrg || passSingleTau;
 
       if(DEBUG)
       {
@@ -2230,7 +2212,6 @@ int main (int argc, char** argv)
       // NEW TRIGGERS: fill trig info in output tree
       theSmallTree.m_isMETtrigger = passMETTrg;
       theSmallTree.m_isSingleTautrigger = passSingleTau;
-      theSmallTree.m_isTauMETtrigger = passTauMET;
     } // end if applyTriggers
 
       // ----------------------------------------------------------
@@ -2315,7 +2296,30 @@ int main (int argc, char** argv)
     TLorentzVector tlv_MET;
     tlv_MET.SetPxPyPzE(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair), 0, std::hypot(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair)));
 
-    theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
+    // Temporary SVFit recomputation for data.
+    if(!isMC){
+      TMatrixD metcov_tmp (2, 2) ;
+      metcov_tmp (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
+      metcov_tmp (1,0) = theBigTree.MET_cov10->at (chosenTauPair) ;
+      metcov_tmp (0,1) = theBigTree.MET_cov01->at (chosenTauPair) ;
+      metcov_tmp (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
+
+      SVfitKLUBinterface algo_tmp(0, tlv_firstLepton, tlv_secondLepton, tlv_MET, metcov_tmp, pType, theSmallTree.m_dau1_decayMode, theSmallTree.m_dau2_decayMode);
+      std::vector<double> svfitResTmp = algo_tmp.FitAndGetResult();
+      theSmallTree.m_tauH_SVFIT_mass = svfitResTmp.at(3);
+      if (theSmallTree.m_tauH_SVFIT_mass > 0)
+      {
+	theSmallTree.m_tauH_SVFIT_pt   = svfitResTmp.at(0);
+	theSmallTree.m_tauH_SVFIT_eta  = svfitResTmp.at(1);
+	theSmallTree.m_tauH_SVFIT_phi  = svfitResTmp.at(2);
+	tlv_tauH_SVFIT.SetPtEtaPhiM(svfitResTmp.at(0), svfitResTmp.at(1), svfitResTmp.at(2), svfitResTmp.at(3));
+
+	theSmallTree.m_tauHsvfitMet_deltaPhi = deltaPhi (vMET.Phi(), tlv_tauH_SVFIT.Phi ()) ;
+	theSmallTree.m_ditau_deltaR_per_tauHsvfitpt = tlv_firstLepton.DeltaR(tlv_secondLepton) * tlv_tauH_SVFIT.Pt();
+      }
+    }
+    //theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
+
 
     if (doSmearing)
     {
@@ -2515,8 +2519,6 @@ int main (int argc, char** argv)
     theSmallTree.m_dau1_deepTauVsEle = makeIsoDiscr (firstDaughterIndex, deepTauVsEleIdx , theBigTree) ;
     theSmallTree.m_dau1_deepTauVsMu = makeIsoDiscr (firstDaughterIndex, deepTauVsMuIdx , theBigTree) ;
 
-    theSmallTree.m_dau1_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (firstDaughterIndex) ;
-
     int ibit = tauIDsMap["byLooseCombinedIsolationDeltaBetaCorr3Hits"] ;
     theSmallTree.m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (firstDaughterIndex)  & (1 << ibit) ) ? true : false ;
     theSmallTree.m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (secondDaughterIndex) & (1 << ibit) ) ? true : false ;
@@ -2611,7 +2613,6 @@ int main (int argc, char** argv)
     theSmallTree.m_dau2_deepTauVsJet = makeIsoDiscr (secondDaughterIndex, deepTauVsJetIdx , theBigTree) ;
     theSmallTree.m_dau2_deepTauVsEle = makeIsoDiscr (secondDaughterIndex, deepTauVsEleIdx , theBigTree) ;
     theSmallTree.m_dau2_deepTauVsMu = makeIsoDiscr (secondDaughterIndex, deepTauVsMuIdx , theBigTree) ;
-    theSmallTree.m_dau2_photonPtSumOutsideSignalCone = theBigTree.photonPtSumOutsideSignalCone->at (secondDaughterIndex) ;
     theSmallTree.m_dau2_pt = tlv_secondLepton.Pt () ;
 
     theSmallTree.m_dau2_pt_tauup_DM0    = (tlv_secondLepton_tauup[0]).Pt () ;
@@ -3846,28 +3847,28 @@ int main (int argc, char** argv)
       theSmallTree.m_bTagweightReshape_lfstats2_down = (isMC ? bTagWeightReshapeshifts.at(15) : 1.0) ;
       theSmallTree.m_bTagweightReshape_cferr1_down   = (isMC ? bTagWeightReshapeshifts.at(16) : 1.0) ;
       theSmallTree.m_bTagweightReshape_cferr2_down   = (isMC ? bTagWeightReshapeshifts.at(17) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup1        = (isMC ? bTagWeightReshapeshifts.at(18) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup2        = (isMC ? bTagWeightReshapeshifts.at(19) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup3        = (isMC ? bTagWeightReshapeshifts.at(20) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup4        = (isMC ? bTagWeightReshapeshifts.at(21) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup5        = (isMC ? bTagWeightReshapeshifts.at(22) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup6        = (isMC ? bTagWeightReshapeshifts.at(23) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup7        = (isMC ? bTagWeightReshapeshifts.at(24) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup8        = (isMC ? bTagWeightReshapeshifts.at(25) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup9        = (isMC ? bTagWeightReshapeshifts.at(26) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup10       = (isMC ? bTagWeightReshapeshifts.at(27) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup11       = (isMC ? bTagWeightReshapeshifts.at(28) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown1      = (isMC ? bTagWeightReshapeshifts.at(29) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown2      = (isMC ? bTagWeightReshapeshifts.at(30) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown3      = (isMC ? bTagWeightReshapeshifts.at(31) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown4      = (isMC ? bTagWeightReshapeshifts.at(32) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown5      = (isMC ? bTagWeightReshapeshifts.at(33) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown6      = (isMC ? bTagWeightReshapeshifts.at(34) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown7      = (isMC ? bTagWeightReshapeshifts.at(35) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown8      = (isMC ? bTagWeightReshapeshifts.at(36) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown9      = (isMC ? bTagWeightReshapeshifts.at(37) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown10     = (isMC ? bTagWeightReshapeshifts.at(38) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown11     = (isMC ? bTagWeightReshapeshifts.at(39) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetup1        = (isMC ? bTagWeightReshapeshifts.at(18) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetup2        = (isMC ? bTagWeightReshapeshifts.at(19) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetup3        = (isMC ? bTagWeightReshapeshifts.at(20) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetup4        = (isMC ? bTagWeightReshapeshifts.at(21) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetup5        = (isMC ? bTagWeightReshapeshifts.at(22) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetup6        = (isMC ? bTagWeightReshapeshifts.at(23) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetup7        = (isMC ? bTagWeightReshapeshifts.at(24) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetup8        = (isMC ? bTagWeightReshapeshifts.at(25) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetup9        = (isMC ? bTagWeightReshapeshifts.at(26) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetup10       = (isMC ? bTagWeightReshapeshifts.at(27) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetup11       = (isMC ? bTagWeightReshapeshifts.at(28) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetdown1      = (isMC ? bTagWeightReshapeshifts.at(29) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetdown2      = (isMC ? bTagWeightReshapeshifts.at(30) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetdown3      = (isMC ? bTagWeightReshapeshifts.at(31) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetdown4      = (isMC ? bTagWeightReshapeshifts.at(32) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetdown5      = (isMC ? bTagWeightReshapeshifts.at(33) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetdown6      = (isMC ? bTagWeightReshapeshifts.at(34) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetdown7      = (isMC ? bTagWeightReshapeshifts.at(35) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetdown8      = (isMC ? bTagWeightReshapeshifts.at(36) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetdown9      = (isMC ? bTagWeightReshapeshifts.at(37) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetdown10     = (isMC ? bTagWeightReshapeshifts.at(38) : 1.0) ;
+//     theSmallTree.m_bTagweightReshape_jetdown11     = (isMC ? bTagWeightReshapeshifts.at(39) : 1.0) ;
 
       // Set HHbtaginterface for ordering jets
       HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,
