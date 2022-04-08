@@ -1,141 +1,67 @@
-import os, sys
+# coding: utf-8
+
+import os
+import re
+import glob
 from subprocess import Popen, PIPE
 
-#tag="Legacy2016_Signals_Dec2019"
-#tag="Legacy2016_Backgrounds_Dec2019"
-#tag="Legacy2016_Backgrounds2_Dec2019"
-#tag="Legacy2016_Backgrounds5_Dec2019"
-#tag="Legacy2016_Backgrounds6_Dec2019"
-#tag="Legacy2016_Backgrounds7_Dec2019"
-#tag="Legacy2016_Data_Muon_Dec2019"
-#tag="Legacy2016_Data_Electron_Dec2019"
-#tag="Legacy2016_Data_Tau_Dec2019"
-#tag="Legacy2016_Data_Tau2_Dec2019"
-#tag="Legacy2016_Data_Muon3_Dec2019"
-#tag="Legacy2016_Data_Electron3_Dec2019"
-#tag="Legacy2016_Data_Tau3_Dec2019"
-#tag="Legacy2016_Data_Muon4_Dec2019"
-#tag="Legacy2016_Data_Electron4_Dec2019"
-#tag="Legacy2016_Data_Tau4_Dec2019"
-#tag="Signals_Legacy2018"
-#tag="Signals_Legacy2016_v2"
-#tag="Signals_Legacy2017"
-#tag="Signals_Legacy2016_v3"
-tag="Signals_Legacy2017_v4"
+thisdir = os.path.dirname(os.path.abspath(__file__))
 
-#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Signals/'
-#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds/'
-#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds2/'
-#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds5/'
-#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds6/'
-#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Backgrounds7/'
-#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Muon/'
-#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Electron/'
-#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Tau/'
-#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Tau2/'
-#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Muon3/'
-#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Electron3/'
-#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Tau3/'
-#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Muon4/'
-#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Electron4/'
-#outFolder = '../inputFiles/Files_Legacy_Run2/2016/Data/Tau4/'
-#outFolder = '../inputFiles/Legacy2018_signalsMIB/'
-#outFolder = '../inputFiles/Legacy2016_signals/'
-outFolder = '../inputFiles/Legacy2017_signals/'
 
-areEnrichedMiniAOD = False; # if true:  add a header and the /store.. etc to run ntuplizer on Tier3 on CMSSW
-                                 # if false: only add the polgrid server to run the skim and submit on root
-# ====================================================================
+tag = "uhh_2017_v2"
+kind = "backgrounds"
+output_dir = os.path.normpath(os.path.join(thisdir, "..", "inputFiles", "UL17_" + kind))
+xrd_door = "root://dcache-cms-xrootd.desy.de:1094/"
 
-def formatName (name, pathToRem):
-    name.strip(pathToRem)
-    return name
+store_path = "/pnfs/desy.de/cms/tier2/store/user/{}/hbt_resonant_run2/HHNtuples".format({
+    "backgrounds": "tokramer",
+    "signals": "mrieger",
+    "data": "mrieger",
+}[kind])
 
-def saveToFile (lista, filename, areEnrichedMiniAOD):
-    f = open (filename, "w")
+sample_dir_filter = {
+    "backgrounds": r"^.+\/RunII[^\/]+$",
+    "signals": r"^.+\/RunII[^\/]+$",
+    "data": r"^.+\/Run201[^\/]+$",
+}[kind]
 
-    if not areEnrichedMiniAOD:
-        for elem in lista:
-            f.write("%s\n" % elem) #vintage
-    
+# find produced samples and store a map "output file name" -> ["absolute samples dirs"]
+for sample_dir in glob.glob(os.path.join(store_path, tag, "*", "*")):
+    if not os.path.isdir(sample_dir) or not re.match(sample_dir_filter, sample_dir):
+        continue
+    sample_name = os.path.basename(os.path.dirname(sample_dir))
+    campaign_name = os.path.basename(sample_dir)
+
+    # get all timestamps
+    timestamps = [
+        os.path.basename(ts_dir)
+        for ts_dir in glob.glob(os.path.join(sample_dir, "*"))
+        if os.path.isdir(ts_dir)
+    ]
+    assert timestamps
+    if len(timestamps) > 1:
+        print("found more than one timestamp in {}, choose the latest one".format(sample_dir))
+        timestamp = sorted(timestamps)[-1]
     else:
-        f.write("FILELIST = cms.untracked.vstring()\n")
-        f.write("FILELIST.extend ([\n")
-        for elem in lista:
-            elem = elem.replace ("/gwteras/cms", "")
-            f.write ("    '")
-            f.write("%s',\n" % elem) #vintage  
-        f.write("])\n")
- 
-    f.close()
+        timestamp = timestamps[0]
 
-
-# ====================================================================
-
-useOnly = [] #empty list to do list fot all the folders
-
-print useOnly
-
-#dpmhome = "/dpm/in2p3.fr/home/cms/trivcat"
-dpmhome = "/gwteras/cms"
-
-#partialPath = "/store/user/lcadamur/HHNtuples/" #folder contenente la produzione
-partialPath = "/store/user/fbrivio/HH_LegacyRun2/"
-#partialPath = "/store/user/dzuolo/HHbbtautauNtuples/"
-
-
-path = dpmhome + partialPath + tag
-if outFolder[-1] != "/": outFolder += '/'
-
-command = "/usr/bin/rfdir %s | awk '{print $9}'" % path
-#print command
-pipe = Popen(command, shell=True, stdout=PIPE)
-
-allLists = {} #dictionary
-
-for line in pipe.stdout:
+    # get all sample dirs
+    abs_sample_dirs = [
+        abs_sample_dir
+        for abs_sample_dir in glob.glob(os.path.join(sample_dir, timestamp, "*"))
+        if os.path.isdir(abs_sample_dir)
+    ]
     
-    #print line
-    if useOnly:
-        if not (line.strip()) in useOnly:
-            continue
-    samplesPath = (path + "/" + line).strip()    
-    sampleName = line
-    allLists[sampleName] = []
-    print sampleName.strip()
-    for level in range(0, 3): #sampleName, tag, hash subfolders
-        comm = "/usr/bin/rfdir %s | awk '{print $9}'" % samplesPath.strip()
-        #print "comm: ==> " , comm
-        pipeNested = Popen (comm, shell=True, stdout=PIPE)
-        out = pipeNested.stdout.readlines()
-        numLines = len (out)
-        if numLines > 0 :
-            if numLines > 1 : print "  *** WARNING: In %s too many subfolders, using last one (most recent submission)" % samplesPath        
-            samplesPath = samplesPath + "/" + out[-1].strip()
-    #print samplesPath
-    # now I have to loop over the folders 0000, 1000, etc...
-    comm = "/usr/bin/rfdir %s | awk '{print $9}'" % samplesPath.strip()
-    pipeNested = Popen (comm, shell=True, stdout=PIPE)
-    out = pipeNested.stdout.readlines()
-    for subfol in out:
-        finalDir = samplesPath + "/" + subfol.strip()
-        getFilesComm = ""
-        if areEnrichedMiniAOD :
-            getFilesComm = "/usr/bin/rfdir %s | grep Enriched_miniAOD | awk '{print $9}'" % finalDir.strip()
-        else :
-            getFilesComm = "/usr/bin/rfdir %s | grep HTauTauAnalysis | awk '{print $9}'" % finalDir.strip()
-            #print getFilesComm
-        pipeGetFiles = Popen (getFilesComm, shell=True, stdout=PIPE)
-        outGetFiles = pipeGetFiles.stdout.readlines()
-        for filename in outGetFiles:
-            name = formatName (finalDir + "/" + filename.strip(), dpmhome)
-            allLists[sampleName].append (name)
+    # create a list of file names
+    file_names = []
+    for abs_sample_dir in abs_sample_dirs:
+        for file_name in glob.glob(os.path.join(abs_sample_dir, "*.root")):
+            file_names.append((xrd_door or "") + file_name)
 
-# now I have all file lists, save them
-for sample, lista in allLists.iteritems():
-   if lista: 
-      outName = outFolder + sample.strip()+".txt"
-      if areEnrichedMiniAOD : outName = outFolder + sample.strip()+".py"
-      saveToFile (lista, outName, areEnrichedMiniAOD)
-   else:
-      print "  *** WARNING: Folder for dataset %s is empty" % sample
+    # write them
+    output_file = os.path.join(output_dir, "{}__{}.txt".format(sample_name, campaign_name))
+    if not os.path.exists(os.path.dirname(output_file)):
+        os.makedirs(os.path.dirname(output_file))
+    with open(output_file, "w") as f:
+        f.write("\n".join(file_names) + "\n")
+    print("found {} files for sample {}".format(sample_name, len(file_names)))
