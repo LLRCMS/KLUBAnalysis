@@ -49,7 +49,7 @@ if __name__ == "__main__":
     parser.add_option ('-T', '--tag'       , dest='tag'       , help='folder tag name'                       , default='')
     parser.add_option ('-H', '--hadd'      , dest='hadd'      , help='hadd the resulting ntuples'            , default='none')
     parser.add_option ('-c', '--config'    , dest='config'    , help='skim config file'                      , default='none')
-    parser.add_option ('-n', '--njobs'     , dest='njobs'     , help='number of skim jobs'                   , default=100, type = int)
+    parser.add_option ('-n', '--njobs'     , dest='njobs'     , help='number of skim jobs'                   , default=-1, type = int)
     parser.add_option ('-k', '--kinfit'    , dest='dokinfit'  , help='run HH kin fitter'                     , default=True)
     parser.add_option ('-m', '--mt2'       , dest='domt2'     , help='run stransverse mass calculation'      , default=True)
     parser.add_option ('-y', '--xsscale'   , dest='xsscale'   , help='scale to apply on XS for stitching'    , default='1.0')
@@ -78,6 +78,7 @@ if __name__ == "__main__":
     parser.add_option ('--ttHToNonBB',       dest='ttHToNonBB', help='if it is a ttHToNonBB sample'         , default=False)
     parser.add_option ('--hhNLO',            dest='hhNLO'     , help='if it is an HH NLO sample'            , default=False)
     parser.add_option ('--doSyst',           dest='doSyst'    , help='compute up/down values of outputs'    , default=False)
+    parser.add_option ('--dry',              dest='dry'       , help='dry run'                              , action="store_true")
 
     (opt, args) = parser.parse_args()
 
@@ -169,7 +170,7 @@ if __name__ == "__main__":
     # submit the jobs
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-    skimmer = 'skimNtuple2018_HHbtag.exe'
+    skimmer = 'skimNtuple2017_HHbtag.exe'
 
     if opt.config == 'none' :
         print 'config file missing, exiting'
@@ -186,18 +187,16 @@ if __name__ == "__main__":
         sys.exit (1)
     elif os.path.exists (opt.output) :
         os.system ('rm -rf ' + opt.output + '/*')
-    os.system ('mkdir ' + opt.output)
+    os.system ('mkdir -p ' + opt.output)
     os.system ('cp ' + opt.config + " " + opt.output)
     
     #inputfiles = glob.glob (opt.input + '/*.root')    
     inputfiles = parseInputFileList (opt.input)
-    if opt.njobs > len (inputfiles) : opt.njobs = len (inputfiles)
+    if opt.njobs > len (inputfiles) or opt.njobs < 1: opt.njobs = len (inputfiles)
     nfiles = (len (inputfiles) + len (inputfiles) % opt.njobs) / opt.njobs
     inputlists = [inputfiles[x:x+nfiles] for x in xrange (0, len (inputfiles), nfiles)]
 
-    tagname = "/" + opt.tag if opt.tag else ''
-    jobsDir = currFolder + tagname + '/SKIM_' + basename (opt.input)
-    jobsDir = jobsDir.rstrip (".txt")
+    jobsDir = os.path.join(currFolder, "jobs", opt.tag or "", 'SKIM_' + os.path.splitext(basename(opt.input))[0])
     if float(opt.klreweight) > -990 and opt.BSMname == 'none':
         print '!WARNING! You requested manual HH reweighting, but did not set a proper BSMname! Exiting!'
         sys.exit (0)
@@ -207,7 +206,7 @@ if __name__ == "__main__":
         jobsDir = jobsDir + '_' + opt.BSMname
 
     if os.path.exists (jobsDir) : os.system ('rm -f ' + jobsDir + '/*')
-    else                        : os.system ('mkdir ' + jobsDir)
+    else                        : os.system ('mkdir -p ' + jobsDir)
 
     # proc = subprocess.Popen ('voms-proxy-info', stdout=subprocess.PIPE)
     # tmp = [word for word in proc.stdout.read ().split ('\n') if 'timeleft' in word]
@@ -226,7 +225,7 @@ if __name__ == "__main__":
         scriptFile = open ('%s/skimJob_%d.sh'% (jobsDir,n), 'w')
         scriptFile.write ('#!/bin/bash\n')
         scriptFile.write ('echo $HOSTNAME\n')
-        scriptFile.write ('export X509_USER_PROXY=/gwpool/users/brivio/Hhh_1718/LegacyRun2/May2020/CMSSW_11_1_0_pre6/src/KLUBAnalysis/x509up_u30016\n')
+        scriptFile.write ('export X509_USER_PROXY="$PWD/{}"\n'.format(os.path.basename(os.environ["X509_USER_PROXY"])))
         scriptFile.write ('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('cd %s\n'%currFolder)
@@ -286,15 +285,18 @@ if __name__ == "__main__":
         condorFile.write ('Log         = condor_job_$(ProcId).log\n')
         condorFile.write ('Output      = condor_job_$(ProcId).out\n')
         condorFile.write ('Error       = condor_job_$(ProcId).error\n')
+        condorFile.write ('should_transfer_files = YES\n')
+        condorFile.write ('transfer_input_files = {}\n'.format(os.environ["X509_USER_PROXY"]))
         condorFile.write ('queue 1\n')
         condorFile.close ()
 
         #command = '/usr/bin/qsub -q '+opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
         command = 'condor_submit '+ jobsDir + '/condorLauncher_' + str (n) + '.sh'
         if opt.sleep : time.sleep (0.1)
-        os.system (command)
+        if opt.dry:
+            print(command)
+        else:
+            os.system (command)
         commandFile.write (command + '\n')
         n = n + 1
     commandFile.close ()
-
-

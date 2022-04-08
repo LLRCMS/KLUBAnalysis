@@ -1,33 +1,27 @@
-AMESSAGE="KLUB UL test"
+#!/usr/bin/env bash
 
-OUTDIRR="SKIMS_2018_ULtest2_03Nov21"
-#OUTDIRR="SKIMS_Radion_2018_metTrg_tauTrg_taumetsplit_dr04_05Jul2021"
+THIS_FILE="$( [ ! -z "$ZSH_VERSION" ] && echo "${(%):-%x}" || echo "${BASH_SOURCE[0]}" )"
+THIS_DIR="$( cd "$( dirname "$THIS_FILE" )" && pwd )"
+KLUB_DIR="$( cd "$( dirname "$THIS_DIR" )" && pwd )"
 
-#INPUTDIR_SIG="inputFiles/bbWW_sgn2016"
-#INPUTDIR_SIG="/data_CMS/cms/motta/PhDwork/HHoverlapSKIMS/bbbb_sgn2018/"
+OUTDIR="SKIMS_uhh_2017_v2_08Apr22"
+INDIR="${KLUB_DIR}/inputFiles"
+PUDIR="/nfs/dust/cms/user/kramerto/hbt_static_files/KLUBAnalysis/weights/PUreweight/UL_Run2_PU_SF/2018"
+SKIMDIR="/nfs/dust/cms/user/$( whoami )/hbt_resonant_run2/HHSkims"
 
-#INDIR="/home/llr/cms/portales/hhbbtautau/KLUB_MET/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signals_metfixed/"
-#INDIR="/home/llr/cms/portales/hhbbtautau/KLUB_MET/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signals_tautrgfix/"
+# setup
+source "$THIS_DIR/setup.sh"
+mkdir -p "$SKIMDIR/$OUTDIR"
+touch $SKIMDIR/$OUTDIR/README.txt
+cp "$THIS_DIR/listAll.sh" "$SKIMDIR/$OUTDIR"
 
-INDIR="/home/llr/cms/portales/hhbbtautau/KLUB_UL/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signals/"
-#INDIR="/home/llr/cms/portales/test_fw/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Radion_2018/"
+run_skim() {
+    python scripts/skimNtuple_uhh.py -T $OUTDIR -s True -c "${KLUB_DIR}/config/skim_UL17_uhh.cfg" -q "short" -k "True" --pu "$PUDIR/PU_UL2018_SF.txt" "$@"
+}
 
-BKGDIR="/home/llr/cms/portales/hhbbtautau/KLUB_UL/CMSSW_11_1_0_pre6/src/KLUBAnalysis/filelists_UL/"
-#BKGDIR="/home/llr/cms/portales/hhbbtautau/KLUB_MET/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_backgrounds_tautrgfix/"
-INPUTDIR_DATA="/home/llr/cms/portales/hhbbtautau/KLUB_UL/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_data_metfixed/"
+run_skim -o "$SKIMDIR/$OUTDIR/SKIM_GluGluTest" -x 88.29 -t False -b 0 -n 1 -i "$INDIR/UL17_signals/GluGluToBulkGravitonToHHTo2B2Tau_M-1000_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
 
-#BKGDIR="/home/llr/cms/portales/test_fw/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_backgrounds/"
-#INPUTDIR_DATA="/home/llr/cms/portales/test_fw/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_data/"
 
-PUDIR="weights/PUreweight/UL_Run2_PU_SF/2018"
-SKIMDIR="/data_CMS/cms/portales/HHresonant_SKIMS"
-
-source scripts/setup.sh
-source /opt/exp_soft/cms/t3/t3setup
-mkdir -p $SKIMDIR/$OUTDIRR/
-touch $SKIMDIR/$OUTDIRR/README.txt
-echo $AMESSAGE > $SKIMDIR/$OUTDIRR/README.txt
-cp scripts/listAll.sh $SKIMDIR/$OUTDIRR/
 
 #########################
 ### SKIMS UL 2018 ###
@@ -36,7 +30,7 @@ cp scripts/listAll.sh $SKIMDIR/$OUTDIRR/
 
 ######################
 #### Radion - all masspoints
-#python scripts/skimNtuple.lp.py -T $OUTDIRR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q short -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_Radion_m1000  -i $INDIR/Radion_m1000.txt  -x 1.
+#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q short -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_Radion_m1000  -i $INDIR/Radion_m1000.txt  -x 1.
 
 ######################
 #### DATA - filelists up to date
@@ -57,7 +51,7 @@ cp scripts/listAll.sh $SKIMDIR/$OUTDIRR/
 ### hl = 21.9% (x2 for permutation t-tbar)
 #sleep 1h#
 #python scripts/skimNtuple.lp.py -T $OUTDIRR -s True -c config/skim_Legacy2018.lp.cfg -n 100 -q long -Y 2018 -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_TT_fullyHad -x 377.96 -t True -b 1 -i $BKGDIR/3_TTToHadronic_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
-python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_UL18.cfg -n 45 -q short -Y 2018 -k True --pu $PUDIR/PU_UL2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_TT_fullyLep -x 88.29  -t True -b 4 -i $BKGDIR/reducedList.txt
+# python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_UL18.cfg -n 45 -q short -Y 2018 -k True --pu $PUDIR/PU_UL2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_TT_fullyLep -x 88.29  -t True -b 4 -i $BKGDIR/reducedList.txt
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_UL18.cfg -n 100 -q long -Y 2018 -k True --pu $PUDIR/PU_UL2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_TT_fullyLep -x 88.29  -t True -b 4 -i $BKGDIR/1_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAOD-106X_upgrade2018_realistic_v11_L1v1-v2.txt
 #python scripts/skimNtuple.lp.py -T $OUTDIRR -s True -c config/skim_Legacy2018.lp.cfg -n 100 -q long -Y 2018 -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_TT_semiLep  -x 365.34 -t True -b 5 -i $BKGDIR/2_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt
 
