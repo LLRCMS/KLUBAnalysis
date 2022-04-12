@@ -6,7 +6,7 @@ KLUB_DIR="$( cd "$( dirname "$THIS_DIR" )" && pwd )"
 
 OUTDIR="SKIMS_uhh_2017_v2_08Apr22"
 INDIR="${KLUB_DIR}/inputFiles"
-PUDIR="/nfs/dust/cms/user/kramerto/hbt_static_files/KLUBAnalysis/weights/PUreweight/UL_Run2_PU_SF/2018"
+PUDIR="/nfs/dust/cms/user/kramerto/hbt_static_files/KLUBAnalysis/weights/PUreweight/UL_Run2_PU_SF/2017"
 SKIMDIR="/nfs/dust/cms/user/$( whoami )/hbt_resonant_run2/HHSkims"
 
 # setup
@@ -16,7 +16,7 @@ touch $SKIMDIR/$OUTDIR/README.txt
 cp "$THIS_DIR/listAll.sh" "$SKIMDIR/$OUTDIR"
 
 run_skim() {
-    python scripts/skimNtuple_uhh.py -T $OUTDIR -s True -c "${KLUB_DIR}/config/skim_UL17_uhh.cfg" -q "short" -k "True" --pu "$PUDIR/PU_UL2018_SF.txt" "$@"
+    python scripts/skimNtuple_uhh.py -T $OUTDIR -s True -c "${KLUB_DIR}/config/skim_UL17_uhh.cfg" -q "short" -k "True" --pu "$PUDIR/PU_UL2017_SF.txt" "$@"
 }
 
 run_skim -o "$SKIMDIR/$OUTDIR/SKIM_GluGluTest" -x 88.29 -t False -b 0 -n 1 -i "$INDIR/UL17_signals/GluGluToBulkGravitonToHHTo2B2Tau_M-1000_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
