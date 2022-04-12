@@ -193,14 +193,14 @@ run_skim -o "$SKIMDIR/$OUTDIR/SKIM_WWZ"                   -x 0.1651             
 run_skim -o "$SKIMDIR/$OUTDIR/SKIM_WZZ"                   -x 0.05565                           -n 20  -rt 4 -i "WZZ_TuneCP5_13TeV-amcatnlo-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9_ext1-v2.txt"
 run_skim -o "$SKIMDIR/$OUTDIR/SKIM_ZZZ"                   -x 0.01398                           -n 20  -rt 4 -i "ZZZ_TuneCP5_13TeV-amcatnlo-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9_ext1-v2.txt"
 
-run_skim -o "$SKIMDIR/$OUTDIR/SKIM_GluGluHToTauTau"       -x 48.61  -y 0.0632                  -n 30  -rt 4 -i "GluGluHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v3.txt"
-run_skim -o "$SKIMDIR/$OUTDIR/SKIM_VBFHToTauTau"          -x 3.766  -y 0.0632                  -n 30  -rt 4 -i "VBFHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
-run_skim -o "$SKIMDIR/$OUTDIR/SKIM_ZHToTauTau"            -x 0.880  -y 0.0632                  -n 30  -rt 4 -i "ZHToTauTau_M125_CP5_13TeV-powheg-pythia8_ext1__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
-run_skim -o "$SKIMDIR/$OUTDIR/SKIM_WplusHToTauTau"        -x 0.831  -y 0.0632                  -n 30  -rt 4 -i "WplusHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
-run_skim -o "$SKIMDIR/$OUTDIR/SKIM_WminusHToTauTau"       -x 0.527  -y 0.0632                  -n 30  -rt 4 -i "WminusHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
-run_skim -o "$SKIMDIR/$OUTDIR/SKIM_ttHToNonbb"            -x 0.5071 -y 0.3598                  -n 30  -rt 4 -i "ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
-run_skim -o "$SKIMDIR/$OUTDIR/SKIM_ttHTobb"               -x 0.5071 -y 0.577                   -n 30  -rt 4 -i "ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
-run_skim -o "$SKIMDIR/$OUTDIR/SKIM_ttHToTauTau"           -x 0.5071 -y 0.0632                  -n 30  -rt 4 -i "ttHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v3.txt"
+run_skim -o "$SKIMDIR/$OUTDIR/SKIM_GluGluHToTauTau"       -x 48.58  -y 0.0627                  -n 30  -rt 4 -i "GluGluHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v3.txt"
+run_skim -o "$SKIMDIR/$OUTDIR/SKIM_VBFHToTauTau"          -x 3.782  -y 0.0627                  -n 30  -rt 4 -i "VBFHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
+run_skim -o "$SKIMDIR/$OUTDIR/SKIM_ZHToTauTau"            -x 0.884  -y 0.0627                  -n 30  -rt 4 -i "ZHToTauTau_M125_CP5_13TeV-powheg-pythia8_ext1__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
+run_skim -o "$SKIMDIR/$OUTDIR/SKIM_WplusHToTauTau"        -x 0.831  -y 0.0627                  -n 30  -rt 4 -i "WplusHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
+run_skim -o "$SKIMDIR/$OUTDIR/SKIM_WminusHToTauTau"       -x 0.527  -y 0.0627                  -n 30  -rt 4 -i "WminusHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
+run_skim -o "$SKIMDIR/$OUTDIR/SKIM_ttHToNonbb"            -x 0.5071 -y 0.4176 --ttHToNonBB     -n 30  -rt 4 -i "ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
+run_skim -o "$SKIMDIR/$OUTDIR/SKIM_ttHTobb"               -x 0.5071 -y 0.5824                  -n 30  -rt 4 -i "ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
+run_skim -o "$SKIMDIR/$OUTDIR/SKIM_ttHToTauTau"           -x 0.5071 -y 0.0627                  -n 30  -rt 4 -i "ttHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v3.txt"
 
 
 ###########################
