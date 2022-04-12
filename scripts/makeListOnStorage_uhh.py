@@ -58,8 +58,15 @@ for sample_dir in glob.glob(os.path.join(store_path, tag, "*", "*")):
         for file_name in glob.glob(os.path.join(abs_sample_dir, "*.root")):
             file_names.append((xrd_door or "") + file_name)
 
-    # write them
+    # define the output file
     output_file = os.path.join(output_dir, "{}__{}.txt".format(sample_name, campaign_name))
+    # extended datasets should be added to the original one when existing
+    is_ext = re.match(r"_ext\d+-v.+$", campaign_name)
+    if is_ext:
+        print("\nfound dataset extension being saved in output file {}".format(output_file))
+        print("please merge it with the original file when existting!\n")
+
+    # write them
     if not os.path.exists(os.path.dirname(output_file)):
         os.makedirs(os.path.dirname(output_file))
     with open(output_file, "w") as f:
