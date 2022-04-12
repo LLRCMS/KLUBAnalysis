@@ -41,7 +41,8 @@ if __name__ == "__main__":
     parser.add_option ('-f', '--force'     , dest='force'     , help='replace existing reduced ntuples'      , default=False)
     parser.add_option ('-o', '--output'    , dest='output'    , help='output folder'                         , default='none')
     # parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='cms')
-    parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='shortcms') #longcms
+    # parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='shortcms') #longcms
+    parser.add_option ('-rt', '--runtime',   dest='runtime',    help='max runtime in hours',                   default=3, type=float)
     parser.add_option ('-r', '--resub'     , dest='resub'     , help='resubmit failed jobs'                  , default='none')
     parser.add_option ('-v', '--verb'      , dest='verb'      , help='verbose'                               , default=False)
     parser.add_option ('-s', '--sleep'     , dest='sleep'     , help='sleep in submission'                   , default=False)
@@ -78,7 +79,7 @@ if __name__ == "__main__":
     parser.add_option ('--ttHToNonBB',       dest='ttHToNonBB', help='if it is a ttHToNonBB sample'         , default=False)
     parser.add_option ('--hhNLO',            dest='hhNLO'     , help='if it is an HH NLO sample'            , default=False)
     parser.add_option ('--doSyst',           dest='doSyst'    , help='compute up/down values of outputs'    , default=False)
-    parser.add_option ('--dry',              dest='dry'       , help='dry run'                              , action="store_true")
+    parser.add_option ('--dry',              dest='dry'       , help='dry run'                              , default=False)
 
     (opt, args) = parser.parse_args()
 
@@ -281,10 +282,12 @@ if __name__ == "__main__":
 
         condorFile = open ('%s/condorLauncher_%d.sh'% (jobsDir,n), 'w')
         condorFile.write ('Universe = vanilla\n')
-        condorFile.write ('Executable  = '+jobsDir + '/skimJob_' + str (n) + '.sh\n')
-        condorFile.write ('Log         = condor_job_$(ProcId).log\n')
-        condorFile.write ('Output      = condor_job_$(ProcId).out\n')
-        condorFile.write ('Error       = condor_job_$(ProcId).error\n')
+        condorFile.write ('Requirements = ( OpSysAndVer == "CentOS7" )\n')
+        condorFile.write ('+RequestRuntime = {}\n'.format(int(opt.runtime * 3600) - 1))
+        condorFile.write ('Executable = '+jobsDir + '/skimJob_' + str (n) + '.sh\n')
+        condorFile.write ('Log = condor_job_$(ProcId).log\n')
+        condorFile.write ('Output = condor_job_$(ProcId).out\n')
+        condorFile.write ('Error = condor_job_$(ProcId).error\n')
         condorFile.write ('should_transfer_files = YES\n')
         condorFile.write ('transfer_input_files = {}\n'.format(os.environ["X509_USER_PROXY"]))
         condorFile.write ('queue 1\n')
