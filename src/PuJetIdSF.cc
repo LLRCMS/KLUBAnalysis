@@ -218,23 +218,10 @@ float PuJetIdSF::getSFError(bool isReal, float pt, float eta)
 std::vector<float> PuJetIdSF::getEvtWeight(bigTree &theBigTree, TLorentzVector tau1, TLorentzVector tau2, std::map<int,double> jets_and_smearFactor, bool cleanJets)
 {
   // Weight for each event
-  std::vector<float> eventWeight(15);
-  float P_MC   = 1.;
-  float P_DATA = 1.;
-  float P_DATA_up   = 1.;
-  float P_DATA_down = 1.;
-  float P_DATA_effic_up    = 1.;
-  float P_DATA_effic_down  = 1.;
-  float P_DATA_mistag_up   = 1.;
-  float P_DATA_mistag_down = 1.;
-  float P_DATA_effic_eta_s2p5_up    = 1.;
-  float P_DATA_effic_eta_s2p5_down  = 1.;
-  float P_DATA_effic_eta_l2p5_up    = 1.;
-  float P_DATA_effic_eta_l2p5_down  = 1.;
-  float P_DATA_mistag_eta_s2p5_up   = 1.;
-  float P_DATA_mistag_eta_s2p5_down = 1.;
-  float P_DATA_mistag_eta_l2p5_up   = 1.;
-  float P_DATA_mistag_eta_l2p5_down = 1.;
+  std::vector<float> eventWeight(15); // keeping 15 values so that not to change too much skimmers; can be updated
+  float SF = 1.;
+  float SF_up   = 1.;
+  float SF_down = 1.;
 
   if (DEBUG) std::cout << "----- PuJetIdSF -----" << std::endl;
 
@@ -280,8 +267,7 @@ std::vector<float> PuJetIdSF::getEvtWeight(bigTree &theBigTree, TLorentzVector t
 
     if (DEBUG) std::cout << "   isRealJet: " << isRealJet << " passPUjetIDLoose: " << passPUjetIDLoose << std::endl;
 
-    // Get Efficiency and SF
-    float eff = getEff(isRealJet, tlv_jet.Pt(), tlv_jet.Eta());
+    // Get SF
     float sf  = getSF (isRealJet, tlv_jet.Pt(), tlv_jet.Eta());
 
     float sfErr   = getSFError(isRealJet, tlv_jet.Pt(), tlv_jet.Eta());
@@ -293,91 +279,17 @@ std::vector<float> PuJetIdSF::getEvtWeight(bigTree &theBigTree, TLorentzVector t
     // compute eventWeight
     if (passPUjetIDLoose)
     {
-      P_MC *= eff;
-      P_DATA *= sf*eff;
-      P_DATA_up *= sf_up*eff;
-      P_DATA_down *= sf_down*eff;
-      P_DATA_effic_up *= sf_up*eff;
-      P_DATA_effic_down *= sf_down*eff;
-      P_DATA_mistag_up *= sf*eff;    // true jet --> use nominal SF for mistag
-      P_DATA_mistag_down *= sf*eff;  // true jet --> use nominal SF for mistag
-
-      if (fabs(tlv_jet.Eta()) <= 2.5)
-      {
-        P_DATA_effic_eta_s2p5_up    *= sf_up*eff;
-        P_DATA_effic_eta_s2p5_down  *= sf_down*eff;
-        P_DATA_effic_eta_l2p5_up    *= sf*eff;
-        P_DATA_effic_eta_l2p5_down  *= sf*eff;
-        P_DATA_mistag_eta_s2p5_up   *= sf*eff;
-        P_DATA_mistag_eta_s2p5_down *= sf*eff;
-        P_DATA_mistag_eta_l2p5_up   *= sf*eff;
-        P_DATA_mistag_eta_l2p5_down *= sf*eff;
-      }
-      else /*fabs(tlv_jet.Eta()) > 2.5*/
-      {
-        P_DATA_effic_eta_s2p5_up    *= sf*eff;
-        P_DATA_effic_eta_s2p5_down  *= sf*eff;
-        P_DATA_effic_eta_l2p5_up    *= sf_up*eff;
-        P_DATA_effic_eta_l2p5_down  *= sf_down*eff;
-        P_DATA_mistag_eta_s2p5_up   *= sf*eff;
-        P_DATA_mistag_eta_s2p5_down *= sf*eff;
-        P_DATA_mistag_eta_l2p5_up   *= sf*eff;
-        P_DATA_mistag_eta_l2p5_down *= sf*eff;
-      }
-    }
-    else /*don't pass PUjetIDLoose*/
-    {
-      P_MC *= (1. - eff);
-      P_DATA *= (1. - sf*eff);
-      P_DATA_up *= (1. - sf_up*eff);
-      P_DATA_down *= (1. - sf_down*eff);
-      P_DATA_effic_up *= (1. - sf*eff);    // fake jet --> use nominal SF for effic
-      P_DATA_effic_down *= (1. - sf*eff);  // fake jet --> use nominal SF for effic
-      P_DATA_mistag_up *= (1. - sf_up*eff);
-      P_DATA_mistag_down *= (1. - sf_down*eff);
-
-      if (fabs(tlv_jet.Eta()) <= 2.5)
-      {
-        P_DATA_effic_eta_s2p5_up    *= (1. - sf*eff);
-        P_DATA_effic_eta_s2p5_down  *= (1. - sf*eff);
-        P_DATA_effic_eta_l2p5_up    *= (1. - sf*eff);
-        P_DATA_effic_eta_l2p5_down  *= (1. - sf*eff);
-        P_DATA_mistag_eta_s2p5_up   *= (1. - sf_up*eff);
-        P_DATA_mistag_eta_s2p5_down *= (1. - sf_down*eff);
-        P_DATA_mistag_eta_l2p5_up   *= (1. - sf*eff);
-        P_DATA_mistag_eta_l2p5_down *= (1. - sf*eff);
-      }
-      else /*fabs(tlv_jet.Eta()) > 2.5*/
-      {
-        P_DATA_effic_eta_s2p5_up    *= (1. - sf*eff);
-        P_DATA_effic_eta_s2p5_down  *= (1. - sf*eff);
-        P_DATA_effic_eta_l2p5_up    *= (1. - sf*eff);
-        P_DATA_effic_eta_l2p5_down  *= (1. - sf*eff);
-        P_DATA_mistag_eta_s2p5_up   *= (1. - sf*eff);
-        P_DATA_mistag_eta_s2p5_down *= (1. - sf*eff);
-        P_DATA_mistag_eta_l2p5_up   *= (1. - sf_up*eff);
-        P_DATA_mistag_eta_l2p5_down *= (1. - sf_down*eff);
-      }
+      SF      *= eff;
+      SF_up   *= sf_up;
+      SF_down *= sf_down;
     }
     if (DEBUG) std::cout << "   P_MC: " << P_MC << " P_DATA: " << P_DATA << " weight: " << (P_DATA/P_MC) << " weight_up: " << (P_DATA_up/P_MC) << " weight_down: " << (P_DATA_down/P_MC) << std::endl;
 
   } // end loop on jets
 
-  eventWeight.at(0) = P_DATA      / P_MC;
-  eventWeight.at(1) = P_DATA_up   / P_MC;
-  eventWeight.at(2) = P_DATA_down / P_MC;
-  eventWeight.at(3) = P_DATA_effic_up    / P_MC;
-  eventWeight.at(4) = P_DATA_effic_down  / P_MC;
-  eventWeight.at(5) = P_DATA_mistag_up   / P_MC;
-  eventWeight.at(6) = P_DATA_mistag_down / P_MC;
-  eventWeight.at(7)  = P_DATA_effic_eta_s2p5_up    / P_MC;
-  eventWeight.at(8)  = P_DATA_effic_eta_s2p5_down  / P_MC;
-  eventWeight.at(9)  = P_DATA_effic_eta_l2p5_up    / P_MC;
-  eventWeight.at(10) = P_DATA_effic_eta_l2p5_down  / P_MC;
-  eventWeight.at(11) = P_DATA_mistag_eta_s2p5_up   / P_MC;
-  eventWeight.at(12) = P_DATA_mistag_eta_s2p5_down / P_MC;
-  eventWeight.at(13) = P_DATA_mistag_eta_l2p5_up   / P_MC;
-  eventWeight.at(14) = P_DATA_mistag_eta_l2p5_down / P_MC;
+  eventWeight.at(0) = SF     ;
+  eventWeight.at(1) = SF_up  ;
+  eventWeight.at(2) = SF_down;
 
   return eventWeight;
 }
