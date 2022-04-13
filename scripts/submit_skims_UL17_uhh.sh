@@ -4,7 +4,7 @@ THIS_FILE="$( [ ! -z "$ZSH_VERSION" ] && echo "${(%):-%x}" || echo "${BASH_SOURC
 THIS_DIR="$( cd "$( dirname "$THIS_FILE" )" && pwd )"
 KLUB_DIR="$( cd "$( dirname "$THIS_DIR" )" && pwd )"
 
-OUTDIR="SKIMS_uhh_2017_v2_08Apr22"
+OUTDIR="SKIMS_uhh_2017_v2_13Apr22"
 INDIR="${KLUB_DIR}/inputFiles"
 PUDIR="/nfs/dust/cms/user/kramerto/hbt_static_files/KLUBAnalysis/weights/PUreweight/UL_Run2_PU_SF/2017"
 SKIMDIR="/nfs/dust/cms/user/$( whoami )/hbt_resonant_run2/HHSkims"
