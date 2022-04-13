@@ -42,7 +42,7 @@ if __name__ == "__main__":
     parser.add_option ('-o', '--output'    , dest='output'    , help='output folder'                         , default='none')
     # parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='cms')
     # parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='shortcms') #longcms
-    parser.add_option ('-rt', '--runtime',   dest='runtime',    help='max runtime in hours',                   default=3, type=float)
+    parser.add_option ('--rt', '--runtime',  dest='runtime',    help='max runtime in hours',                   default=3, type=float)
     parser.add_option ('-r', '--resub'     , dest='resub'     , help='resubmit failed jobs'                  , default='none')
     parser.add_option ('-v', '--verb'      , dest='verb'      , help='verbose'                               , default=False)
     parser.add_option ('-s', '--sleep'     , dest='sleep'     , help='sleep in submission'                   , default=False)
