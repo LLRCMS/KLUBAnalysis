@@ -10,7 +10,7 @@ PUDIR="/nfs/dust/cms/user/kramerto/hbt_static_files/KLUBAnalysis/weights/PUrewei
 SKIMDIR="/nfs/dust/cms/user/$( whoami )/hbt_resonant_run2/HHSkims"
 
 # setup
-source "$THIS_DIR/setup.sh"
+source "$THIS_DIR/setup.sh" ""
 mkdir -p "$SKIMDIR/$OUTDIR"
 touch $SKIMDIR/$OUTDIR/README.txt
 cp "$THIS_DIR/listAll.sh" "$SKIMDIR/$OUTDIR"
@@ -198,7 +198,7 @@ run_skim -o "$SKIMDIR/$OUTDIR/SKIM_VBFHToTauTau"          -x 3.782  -y 0.0627   
 run_skim -o "$SKIMDIR/$OUTDIR/SKIM_ZHToTauTau"            -x 0.884  -y 0.0627                  -n 30  -rt 4 -i "ZHToTauTau_M125_CP5_13TeV-powheg-pythia8_ext1__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
 run_skim -o "$SKIMDIR/$OUTDIR/SKIM_WplusHToTauTau"        -x 0.831  -y 0.0627                  -n 30  -rt 4 -i "WplusHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
 run_skim -o "$SKIMDIR/$OUTDIR/SKIM_WminusHToTauTau"       -x 0.527  -y 0.0627                  -n 30  -rt 4 -i "WminusHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
-run_skim -o "$SKIMDIR/$OUTDIR/SKIM_ttHToNonbb"            -x 0.5071 -y 0.4176 --ttHToNonBB     -n 30  -rt 4 -i "ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
+run_skim -o "$SKIMDIR/$OUTDIR/SKIM_ttHToNonbb"            -x 0.5071 -y 0.3549 --ttHToNonBB     -n 30  -rt 4 -i "ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
 run_skim -o "$SKIMDIR/$OUTDIR/SKIM_ttHTobb"               -x 0.5071 -y 0.5824                  -n 30  -rt 4 -i "ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v2.txt"
 run_skim -o "$SKIMDIR/$OUTDIR/SKIM_ttHToTauTau"           -x 0.5071 -y 0.0627                  -n 30  -rt 4 -i "ttHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v3.txt"
 
