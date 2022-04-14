@@ -1,16 +1,16 @@
 #tag=UL2016_5Apr2022
-tag=UL2016_13Apr2022_newPostVFP
+tag=UL2016APV_8Apr2022_correctPreVFP_PUJetID_leptTrig
 
 log=(--log)
 
 plotter=makeFinalPlots_UL2016.py
 
-channel=TauTau
+#channel=TauTau
 #channel=MuTau
-#channel=ETau
+channel=ETau
 #channel=MuMu
 
-lumi=16.8
+lumi=19.5
 
 reg=SR  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
 
@@ -78,7 +78,7 @@ do
   #
   ## HH
   #
-    #python scripts/$plotter --dir analysis_$channel\_$tag --var HHKin_mass --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio --tag $tag --label "m_{HH}[GeV]" $sigDrawer $others --quit
+    python scripts/$plotter --dir analysis_$channel\_$tag --var HHKin_mass --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio --tag $tag --label "m_{HH}[GeV]" $sigDrawer $others --quit
     python scripts/$plotter --dir analysis_$channel\_$tag --var HH_mass --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio --tag $tag --label "m_{HH}[GeV]" $sigDrawer $others --quit
     python scripts/$plotter --dir analysis_$channel\_$tag --var HH_pt   --reg $reg --sel $baseline --channel $channel --lymin 0.7 --lumi $lumi ${log[i]} --ratio --tag $tag --label "p_{T,HH}[GeV]" $sigDrawer $others --quit
 
