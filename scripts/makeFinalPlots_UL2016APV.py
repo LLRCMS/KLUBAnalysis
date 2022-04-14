@@ -470,7 +470,7 @@ if __name__ == "__main__" :
 
 
     ######################### PUT USER CONFIGURATION HERE ####################
-    cfgName  =  args.dir + "/mainCfg_"+args.channel+"_UL2016.cfg"
+    cfgName  =  args.dir + "/mainCfg_"+args.channel+"_UL2016APV.cfg"
     cfg        = cfgr.ConfigReader (cfgName)
     bkgList    = cfg.readListOption("general::backgrounds")
 
