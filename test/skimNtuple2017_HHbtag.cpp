@@ -5094,7 +5094,7 @@ int main (int argc, char** argv)
       // PUjetIDSFprovider
       if (isMC)
       {
-        std::vector<float> PUjetID_SF_values = PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton, jets_and_smearFactor, true);
+        std::vector<float> PUjetID_SF_values = PUjetIDSFprovider.getEvtWeight(theBigTree, tlv_firstLepton, tlv_secondLepton, jets_and_smearFactor);
         theSmallTree.m_PUjetID_SF      = PUjetID_SF_values.at(0);
         theSmallTree.m_PUjetID_SF_up   = PUjetID_SF_values.at(1);
         theSmallTree.m_PUjetID_SF_down = PUjetID_SF_values.at(2);
