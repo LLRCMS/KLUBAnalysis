@@ -146,7 +146,7 @@ std::vector<float> PuJetIdSF::getEvtWeight(bigTree &theBigTree, TLorentzVector t
       if (DEBUG) std::cout << " sf: " << sf << " sfErr: " << sfErr << " sf_up: " << sf_up << " sf_down: " <<sf_down << std::endl;
 
       // compute eventWeight
-      SF      *= eff;
+      SF      *= sf;
       SF_up   *= sf_up;
       SF_down *= sf_down;
     }

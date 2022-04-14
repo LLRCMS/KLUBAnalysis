@@ -46,7 +46,6 @@ public:
   std::vector<float> getEvtWeight (bigTree &theBigTree, TLorentzVector tau1, TLorentzVector tau2, std::map<int,double> jets_and_smearFactor);
 
 private:
-  TH2F* h_eff_;
   TH2F* h_eff_SF_;
   TH2F* h_eff_SF_err_;
 };
