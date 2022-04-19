@@ -12,7 +12,7 @@ import ROOT
 
 
 def isGoodFile (fileName) :
-    ff = ROOT.TFile (fname)
+    ff = ROOT.TFile (fileName)
     if ff.IsZombie() : return False
     if ff.TestBit(ROOT.TFile.kRecovered) : return False
     return True
@@ -118,22 +118,21 @@ if __name__ == "__main__":
             print '(this is the folder that contains the jobs to be submitted)'
             sys.exit (1)
 
-        if opt.input[-1] == '/' : opt.input = opt.input[:-1]
-        tagname = opt.tag + "/" if opt.tag else ''
-        opt.input = tagname + 'SKIM_' + basename (opt.input)
-        jobs = [word.replace ('_', '.').split ('.')[1] for word in os.listdir (opt.input) if 'skim' in word]
+        tagname = (opt.tag + "/") if opt.tag else ''
+        jobsDir = os.path.join(currFolder, "jobs", opt.tag or "", 'SKIM_' + os.path.splitext(basename(opt.input))[0])
+        jobs = [word.replace ('_', '.').split ('.')[1] for word in os.listdir (jobsDir) if 'skim' in word]
         missing = []
         
         # check the existence of the done file
         for num in jobs :
-            if not os.path.exists (opt.input + '/done_' + num) :
+            if not os.path.exists (jobsDir + '/done_' + num) :
                 if opt.verb : print num, ' : missing done file'
                 missing.append (num)
 
         # check the log file
         for num in jobs :
             # get the log file name
-            filename = opt.input + '/skimJob_' + num + '.sh'
+            filename = jobsDir + '/skimJob_' + num + '.sh'
 #            print os.path.exists (filename) 
             with open (filename, 'r') as myfile :
                 data = [word for word in myfile.readlines () if 'log' in word]
@@ -152,20 +151,35 @@ if __name__ == "__main__":
                 missing.append (num)
                 continue
             with open (logfile, 'r') as logfile :
-                problems = [word for word in logfile.readlines () if 'Error' in word and 'TCling' not in word]
-                if len (problems) != 0 :
-                    if opt.verb : print num, 'found error ', problems[0]
-                    missing.append (num)
+                log_lines = logfile.read()
+            if "R__unzip: error" in log_lines or "... SKIM finished, exiting." not in log_lines:
+                if opt.verb : print num, 'log file contains errors'
+                missing.append (num)
+
+        missing = sorted(list(set(missing)))
+        if not missing:
+            print("no failed jobs found")
+            sys.exit(0)
+
         print 'the following jobs did not end successfully:'
-        print missing   
-        for num in missing :
-            command = '`cat ' + opt.input + '/submit.sh | grep skimJob_' + num + '.sh | tr "\'" " "`'
-            if opt.verb : print command
-        if (opt.resub == 'run') :
-            for num in missing :
-                command = '`cat ' + opt.input + '/submit.sh | grep skimJob_' + num + '.sh | tr "\'" " "`'
-                time.sleep (int (num) % 5)
-                os.system (command)
+        print missing
+
+        # get commands
+        with open(jobsDir + '/submit.sh', "r") as f:
+            commands = f.readlines()
+        for num in missing:
+            for cmd in commands:
+                if "condorLauncher_{}.sh".format(num) in cmd:
+                    cmd = cmd.strip()
+                    break
+            else:
+                print("resubmission command for job {} not found".format(num))
+                continue
+
+            print(cmd)
+            if opt.resub == 'run':
+                time.sleep(int(num) % 5)
+                os.system(cmd)
         sys.exit (0)
 
     # submit the jobs
