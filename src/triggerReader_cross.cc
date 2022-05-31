@@ -46,7 +46,7 @@ void triggerReader_cross::addTauTauTrigs (vector<string> list)
       auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
       if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
     }
-    else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+    else cout << " ** WARNING [triggerReader_cross::addTauTauTrigs] trigger name " << list.at(i) << " not in input histogram" << endl;
   }
   return;
 }
@@ -61,7 +61,7 @@ void triggerReader_cross::addMuTauTrigs (vector<string> list)
       auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
       if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
     }
-    else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+    else cout << " ** WARNING [triggerReader_cross::addMuTauTrigs] trigger name " << list.at(i) << " not in input histogram" << endl;
   }
   return;
 }
@@ -76,7 +76,7 @@ void triggerReader_cross::addEleTauTrigs (vector<string> list)
       auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
       if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
     }
-    else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+    else cout << " ** WARNING [triggerReader_cross::addEleTauTrigs] trigger name " << list.at(i) << " not in input histogram" << endl;
   }
   return;
 }
@@ -91,7 +91,7 @@ void triggerReader_cross::addMuEleTrigs (vector<string> list)
       auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
       if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
     }
-    else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+    else cout << " ** WARNING [triggerReader_cross::addMuEleTrigs] trigger name " << list.at(i) << " not in input histogram" << endl;
   }
   return;
 }
@@ -105,7 +105,7 @@ void triggerReader_cross::addEleEleTrigs (vector<string> list)
       auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
       if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
     }
-    else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+    else cout << " ** WARNING [triggerReader_cross::addEleEleTrigs] trigger name " << list.at(i) << " not in input histogram" << endl;
   }
   return;
 }
@@ -119,7 +119,7 @@ void triggerReader_cross::addMuMuTrigs (vector<string> list)
       auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
       if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
     }
-    else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+    else cout << " ** WARNING [triggerReader_cross::addMuMuTrigs] trigger name " << list.at(i) << " not in input histogram" << endl;
   }
   return;
 }
@@ -134,7 +134,7 @@ void triggerReader_cross::addMuTauCrossTrigs (vector<string> list)
       auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
       if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
     }
-    else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+    else cout << " ** WARNING [triggerReader_cross::addMuTauCrossTrigs] trigger name " << list.at(i) << " not in input histogram" << endl;
   }
   return;
 }
@@ -149,7 +149,7 @@ void triggerReader_cross::addEleTauCrossTrigs (vector<string> list)
       auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
       if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
     }
-    else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+    else cout << " ** WARNING [triggerReader_cross::addEleTauCrossTrigs] trigger name " << list.at(i) << " not in input histogram" << endl;
   }
   return;
 }
@@ -164,7 +164,7 @@ void triggerReader_cross::addTauTauCrossTrigs (vector<string> list)
       auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
       if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
     }
-    else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+    else cout << " ** WARNING [triggerReader_cross::addTauTauCrossTrigs] trigger name " << list.at(i) << " not in input histogram" << endl;
   }
   return;
 }
@@ -179,7 +179,7 @@ void triggerReader_cross::addVBFTrigs (vector<string> list)
       auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
       if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
     }
-    else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+    else cout << " ** WARNING [triggerReader_cross::addVBFTrigs] trigger name " << list.at(i) << " not in input histogram" << endl;
   }
   return;
 }
@@ -194,7 +194,7 @@ void triggerReader_cross::addMETTrigs (vector<string> list)
       auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
       if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
     }
-    else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+    else cout << " ** WARNING [triggerReader_cross::addMETTrigs] trigger name " << list.at(i) << " not in input histogram" << endl;
   }
   return;
 }
@@ -211,7 +211,7 @@ void triggerReader_cross::addSingleTauTrigs (vector<string> list)
       auto itlist = find(_thisSkimTriggers.begin(),_thisSkimTriggers.end(),list.at(i));
       if (itlist == _thisSkimTriggers.end()) _thisSkimTriggers.push_back(list.at(i));
     }
-    else cout << " ** WARNING triggerReader_cross : trigger name " << list.at(i) << " not in input histogram" << endl;
+    else cout << " ** WARNING [triggerReader_cross::addSingleTauTrigs] : trigger name " << list.at(i) << " not in input histogram" << endl;
   }
   return;
 }

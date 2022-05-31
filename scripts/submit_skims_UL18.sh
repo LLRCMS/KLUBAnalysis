@@ -13,8 +13,8 @@ SUBMITSCRIPT="python scripts/skimNtuple.py"
 PUSF="weights/PUreweight/UL_Run2_PU_SF/2018/PU_UL2018_SF.txt"
 THECFG="config/skim_UL18.cfg"
 
-SKIMDIR="/data_CMS/cms/portales/HHresonant_SKIMS"
-OUTDIR="SKIMS_UL18_220323_MiniAODv2"
+SKIMDIR="/data_CMS/cms/alves/HHresonant_SKIMS"
+OUTDIR="SKIMS_UL18_JuneTests"
 
 source scripts/setup.sh
 source /opt/exp_soft/cms/t3/t3setup
@@ -181,6 +181,16 @@ InputList["DY_HT800To1200"]="22_DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_1
 InputList["DY_HT1200To2500"]="23_DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
 InputList["DY_HT2500ToInf"]="24_DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
 
+InputList["DY_NLO"]="1_DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
+InputList["DY_NLO_0j"]="2_DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
+InputList["DY_NLO_1j"]="3_DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
+InputList["DY_NLO_2j"]="4_DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
+InputList["DY_NLO_PT50To100"]="1_DYJetsToLL_Pt-50To100_MatchEWPDG20_TuneCP5_13TeV-amcatnloFXFX-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
+InputList["DY_NLO_PT100To250"]="2_DYJetsToLL_Pt-100To250_MatchEWPDG20_TuneCP5_13TeV-amcatnloFXFX-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
+InputList["DY_NLO_PT250To400"]="3_DYJetsToLL_Pt-250To400_MatchEWPDG20_TuneCP5_13TeV-amcatnloFXFX-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
+InputList["DY_NLO_PT400To650"]="4_DYJetsToLL_Pt-400To650_MatchEWPDG20_TuneCP5_13TeV-amcatnloFXFX-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
+InputList["DY_NLO_PT650ToInf"]="5_DYJetsToLL_Pt-650ToInf_MatchEWPDG20_TuneCP5_13TeV-amcatnloFXFX-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
+
 InputList["WW"]="25_WW_TuneCP5_13TeV-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
 InputList["WZ"]="26_WZ_TuneCP5_13TeV-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
 
@@ -193,14 +203,14 @@ InputList["EWKWMinus2Jets_WToLNu"]="31_EWKWMinus2Jets_WToLNu_M-50_TuneCP5_withDi
 InputList["EWKWPlus2Jets_WToLNu"]="32_EWKWPlus2Jets_WToLNu_M-50_TuneCP5_withDipoleRecoil_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
 InputList["EWKZ2Jets_ZToLL"]="33_EWKZ2Jets_ZToLL_M-50_TuneCP5_withDipoleRecoil_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
 
-InputList["ZHToTauTau"]="34_ZHToTauTau_M125_CP5_13TeV-powheg-pythia8_ext1__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["WplusHToTauTau"]="35_WplusHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["WminusHToTauTau"]="36_WminusHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBFHToTauTau"]="37_VBFHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["GluGluHToTauTau"]="38_GluGluHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v3.txt"
+InputList["ZH_HTauTau"]="34_ZHToTauTau_M125_CP5_13TeV-powheg-pythia8_ext1__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
+InputList["WplusHTauTau"]="35_WplusHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
+InputList["WminusHTauTau"]="36_WminusHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
+InputList["VBFHTauTau"]="37_VBFHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
+InputList["ggHTauTau"]="38_GluGluHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v3.txt"
 
-InputList["ttHToNonbb"]="39_ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ttHTobb"]="40_ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
+InputList["ttHToNonBB"]="39_ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
+InputList["ttHToBB"]="40_ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
 InputList["ttHToTauTau"]="41_ttHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v3.txt"
 InputList["TTWJetsToLNu"]="42_TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
 InputList["TTWJetsToQQ"]="43_TTWJetsToQQ_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
@@ -214,219 +224,231 @@ InputList["TTWZ"]="47_TTWZ_TuneCP5_13TeV-madgraph-pythia8__RunIISummer20UL18Mini
 ### Submission commands ###
 ###########################
 
-## ######################
-## #### DATA - filelists up to date
-#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_EGamma_Run2018A -k True -i $DATADIR/${InputList["EGamma_Run2018A"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_EGamma_Run2018B -k True -i $DATADIR/${InputList["EGamma_Run2018B"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_EGamma_Run2018C -k True -i $DATADIR/${InputList["EGamma_Run2018C"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_EGamma_Run2018D -k True -i $DATADIR/${InputList["EGamma_Run2018D"]}
+######################
+#### DATA - filelists up to date
+#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 50 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_EGamma_Run2018A -k True -i $DATADIR/${InputList["EGamma_Run2018A"]}
+#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 50 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_EGamma_Run2018B -k True -i $DATADIR/${InputList["EGamma_Run2018B"]}
+#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 50 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_EGamma_Run2018C -k True -i $DATADIR/${InputList["EGamma_Run2018C"]}
+#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 50 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_EGamma_Run2018D -k True -i $DATADIR/${InputList["EGamma_Run2018D"]}
+#
+#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 50 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_Tau_Run2018A -k True -i $DATADIR/${InputList["Tau_Run2018A"]}
+#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 50 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_Tau_Run2018B -k True -i $DATADIR/${InputList["Tau_Run2018B"]}
+#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 50 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_Tau_Run2018C -k True -i $DATADIR/${InputList["Tau_Run2018C"]}
+#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 50 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_Tau_Run2018D -k True -i $DATADIR/${InputList["Tau_Run2018D"]}
+#
+#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 50 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_SingleMuon_Run2018A -k True -i $DATADIR/${InputList["SingleMuon_Run2018A"]}
+#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 50 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_SingleMuon_Run2018B -k True -i $DATADIR/${InputList["SingleMuon_Run2018B"]}
+#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 50 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_SingleMuon_Run2018C -k True -i $DATADIR/${InputList["SingleMuon_Run2018C"]}
+#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 50 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_SingleMuon_Run2018D -k True -i $DATADIR/${InputList["SingleMuon_Run2018D"]}
+#
+#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 50 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_MET_Run2018A -k True -i $DATADIR/${InputList["MET_Run2018A"]}
+#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 50 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_MET_Run2018B -k True -i $DATADIR/${InputList["MET_Run2018B"]}
+#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 50 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_MET_Run2018C -k True -i $DATADIR/${InputList["MET_Run2018C"]}
+#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 50 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_MET_Run2018D -k True -i $DATADIR/${InputList["MET_Run2018D"]}
 
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_Tau_Run2018A -k True -i $DATADIR/${InputList["Tau_Run2018A"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_Tau_Run2018B -k True -i $DATADIR/${InputList["Tau_Run2018B"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_Tau_Run2018C -k True -i $DATADIR/${InputList["Tau_Run2018C"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_Tau_Run2018D -k True -i $DATADIR/${InputList["Tau_Run2018D"]}
-
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_SingleMuon_Run2018A -k True -i $DATADIR/${InputList["SingleMuon_Run2018A"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_SingleMuon_Run2018B -k True -i $DATADIR/${InputList["SingleMuon_Run2018B"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_SingleMuon_Run2018C -k True -i $DATADIR/${InputList["SingleMuon_Run2018C"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_SingleMuon_Run2018D -k True -i $DATADIR/${InputList["SingleMuon_Run2018D"]}
-
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_MET_Run2018A -k True -i $DATADIR/${InputList["MET_Run2018A"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_MET_Run2018B -k True -i $DATADIR/${InputList["MET_Run2018B"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_MET_Run2018C -k True -i $DATADIR/${InputList["MET_Run2018C"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_MET_Run2018D -k True -i $DATADIR/${InputList["MET_Run2018D"]}
  
  
  ######################
  #### HH resonant signal - all masspoints
  # spin-0 ggF
-#SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m250  -i $SIGDIR/${InputList["ggF_Radion_m250"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m260  -i $SIGDIR/${InputList["ggF_Radion_m260"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m270  -i $SIGDIR/${InputList["ggF_Radion_m270"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m280  -i $SIGDIR/${InputList["ggF_Radion_m280"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m300  -i $SIGDIR/${InputList["ggF_Radion_m300"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m320  -i $SIGDIR/${InputList["ggF_Radion_m320"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m350  -i $SIGDIR/${InputList["ggF_Radion_m350"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m400  -i $SIGDIR/${InputList["ggF_Radion_m400"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m450  -i $SIGDIR/${InputList["ggF_Radion_m450"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m500  -i $SIGDIR/${InputList["ggF_Radion_m500"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m550  -i $SIGDIR/${InputList["ggF_Radion_m550"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m600  -i $SIGDIR/${InputList["ggF_Radion_m600"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m650  -i $SIGDIR/${InputList["ggF_Radion_m650"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m700  -i $SIGDIR/${InputList["ggF_Radion_m700"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m750  -i $SIGDIR/${InputList["ggF_Radion_m750"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m800  -i $SIGDIR/${InputList["ggF_Radion_m800"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m850  -i $SIGDIR/${InputList["ggF_Radion_m850"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m900  -i $SIGDIR/${InputList["ggF_Radion_m900"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m1000 -i $SIGDIR/${InputList["ggF_Radion_m1000"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m1250 -i $SIGDIR/${InputList["ggF_Radion_m1250"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m1500 -i $SIGDIR/${InputList["ggF_Radion_m1500"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m1750 -i $SIGDIR/${InputList["ggF_Radion_m1750"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m2000 -i $SIGDIR/${InputList["ggF_Radion_m2000"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m2500 -i $SIGDIR/${InputList["ggF_Radion_m2500"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m3000 -i $SIGDIR/${InputList["ggF_Radion_m3000"]} -x 1.
-# spin-2 ggF
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m250  -i $SIGDIR/${InputList["ggF_BulkGraviton_m250"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m260  -i $SIGDIR/${InputList["ggF_BulkGraviton_m260"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m270  -i $SIGDIR/${InputList["ggF_BulkGraviton_m270"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m280  -i $SIGDIR/${InputList["ggF_BulkGraviton_m280"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m300  -i $SIGDIR/${InputList["ggF_BulkGraviton_m300"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m320  -i $SIGDIR/${InputList["ggF_BulkGraviton_m320"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m350  -i $SIGDIR/${InputList["ggF_BulkGraviton_m350"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m400  -i $SIGDIR/${InputList["ggF_BulkGraviton_m400"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m450  -i $SIGDIR/${InputList["ggF_BulkGraviton_m450"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m500  -i $SIGDIR/${InputList["ggF_BulkGraviton_m500"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m550  -i $SIGDIR/${InputList["ggF_BulkGraviton_m550"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m600  -i $SIGDIR/${InputList["ggF_BulkGraviton_m600"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m650  -i $SIGDIR/${InputList["ggF_BulkGraviton_m650"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m700  -i $SIGDIR/${InputList["ggF_BulkGraviton_m700"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m750  -i $SIGDIR/${InputList["ggF_BulkGraviton_m750"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m800  -i $SIGDIR/${InputList["ggF_BulkGraviton_m800"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m850  -i $SIGDIR/${InputList["ggF_BulkGraviton_m850"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m900  -i $SIGDIR/${InputList["ggF_BulkGraviton_m900"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m1000 -i $SIGDIR/${InputList["ggF_BulkGraviton_m1000"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m1250 -i $SIGDIR/${InputList["ggF_BulkGraviton_m1250"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m1500 -i $SIGDIR/${InputList["ggF_BulkGraviton_m1500"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m1750 -i $SIGDIR/${InputList["ggF_BulkGraviton_m1750"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m2000 -i $SIGDIR/${InputList["ggF_BulkGraviton_m2000"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m2500 -i $SIGDIR/${InputList["ggF_BulkGraviton_m2500"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m3000 -i $SIGDIR/${InputList["ggF_BulkGraviton_m3000"]} -x 1.
-# spin-0 VBF
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m250  -i $SIGDIR/${InputList["VBF_Radion_m250"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m260  -i $SIGDIR/${InputList["VBF_Radion_m260"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m270  -i $SIGDIR/${InputList["VBF_Radion_m270"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m280  -i $SIGDIR/${InputList["VBF_Radion_m280"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m300  -i $SIGDIR/${InputList["VBF_Radion_m300"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m320  -i $SIGDIR/${InputList["VBF_Radion_m320"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m350  -i $SIGDIR/${InputList["VBF_Radion_m350"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m400  -i $SIGDIR/${InputList["VBF_Radion_m400"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m450  -i $SIGDIR/${InputList["VBF_Radion_m450"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m500  -i $SIGDIR/${InputList["VBF_Radion_m500"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m550  -i $SIGDIR/${InputList["VBF_Radion_m550"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m600  -i $SIGDIR/${InputList["VBF_Radion_m600"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m650  -i $SIGDIR/${InputList["VBF_Radion_m650"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m700  -i $SIGDIR/${InputList["VBF_Radion_m700"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m750  -i $SIGDIR/${InputList["VBF_Radion_m750"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m800  -i $SIGDIR/${InputList["VBF_Radion_m800"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m850  -i $SIGDIR/${InputList["VBF_Radion_m850"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m900  -i $SIGDIR/${InputList["VBF_Radion_m900"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m1000 -i $SIGDIR/${InputList["VBF_Radion_m1000"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m1250 -i $SIGDIR/${InputList["VBF_Radion_m1250"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m1500 -i $SIGDIR/${InputList["VBF_Radion_m1500"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m1750 -i $SIGDIR/${InputList["VBF_Radion_m1750"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m2000 -i $SIGDIR/${InputList["VBF_Radion_m2000"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m2500 -i $SIGDIR/${InputList["VBF_Radion_m2500"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m3000 -i $SIGDIR/${InputList["VBF_Radion_m3000"]} -x 1.
-# spin-2 VBF
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m250  -i $SIGDIR/${InputList["VBF_BulkGraviton_m250"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m260  -i $SIGDIR/${InputList["VBF_BulkGraviton_m260"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m270  -i $SIGDIR/${InputList["VBF_BulkGraviton_m270"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m280  -i $SIGDIR/${InputList["VBF_BulkGraviton_m280"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m300  -i $SIGDIR/${InputList["VBF_BulkGraviton_m300"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m320  -i $SIGDIR/${InputList["VBF_BulkGraviton_m320"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m350  -i $SIGDIR/${InputList["VBF_BulkGraviton_m350"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m400  -i $SIGDIR/${InputList["VBF_BulkGraviton_m400"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m450  -i $SIGDIR/${InputList["VBF_BulkGraviton_m450"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m500  -i $SIGDIR/${InputList["VBF_BulkGraviton_m500"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m550  -i $SIGDIR/${InputList["VBF_BulkGraviton_m550"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m600  -i $SIGDIR/${InputList["VBF_BulkGraviton_m600"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m650  -i $SIGDIR/${InputList["VBF_BulkGraviton_m650"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m700  -i $SIGDIR/${InputList["VBF_BulkGraviton_m700"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m750  -i $SIGDIR/${InputList["VBF_BulkGraviton_m750"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m800  -i $SIGDIR/${InputList["VBF_BulkGraviton_m800"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m850  -i $SIGDIR/${InputList["VBF_BulkGraviton_m850"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m900  -i $SIGDIR/${InputList["VBF_BulkGraviton_m900"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m1000 -i $SIGDIR/${InputList["VBF_BulkGraviton_m1000"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m1250 -i $SIGDIR/${InputList["VBF_BulkGraviton_m1250"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m1500 -i $SIGDIR/${InputList["VBF_BulkGraviton_m1500"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m1750 -i $SIGDIR/${InputList["VBF_BulkGraviton_m1750"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m2000 -i $SIGDIR/${InputList["VBF_BulkGraviton_m2000"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m2500 -i $SIGDIR/${InputList["VBF_BulkGraviton_m2500"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m3000 -i $SIGDIR/${InputList["VBF_BulkGraviton_m3000"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m250  -i $SIGDIR/${InputList["ggF_Radion_m250"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m260  -i $SIGDIR/${InputList["ggF_Radion_m260"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m270  -i $SIGDIR/${InputList["ggF_Radion_m270"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m280  -i $SIGDIR/${InputList["ggF_Radion_m280"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m300  -i $SIGDIR/${InputList["ggF_Radion_m300"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m320  -i $SIGDIR/${InputList["ggF_Radion_m320"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m350  -i $SIGDIR/${InputList["ggF_Radion_m350"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m400  -i $SIGDIR/${InputList["ggF_Radion_m400"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m450  -i $SIGDIR/${InputList["ggF_Radion_m450"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m500  -i $SIGDIR/${InputList["ggF_Radion_m500"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m550  -i $SIGDIR/${InputList["ggF_Radion_m550"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m600  -i $SIGDIR/${InputList["ggF_Radion_m600"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m650  -i $SIGDIR/${InputList["ggF_Radion_m650"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m700  -i $SIGDIR/${InputList["ggF_Radion_m700"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m750  -i $SIGDIR/${InputList["ggF_Radion_m750"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m800  -i $SIGDIR/${InputList["ggF_Radion_m800"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m850  -i $SIGDIR/${InputList["ggF_Radion_m850"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m900  -i $SIGDIR/${InputList["ggF_Radion_m900"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m1000 -i $SIGDIR/${InputList["ggF_Radion_m1000"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m1250 -i $SIGDIR/${InputList["ggF_Radion_m1250"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m1500 -i $SIGDIR/${InputList["ggF_Radion_m1500"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m1750 -i $SIGDIR/${InputList["ggF_Radion_m1750"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m2000 -i $SIGDIR/${InputList["ggF_Radion_m2000"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m2500 -i $SIGDIR/${InputList["ggF_Radion_m2500"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m3000 -i $SIGDIR/${InputList["ggF_Radion_m3000"]} -x 1.
+## spin-2 ggF
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m250  -i $SIGDIR/${InputList["ggF_BulkGraviton_m250"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m260  -i $SIGDIR/${InputList["ggF_BulkGraviton_m260"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m270  -i $SIGDIR/${InputList["ggF_BulkGraviton_m270"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m280  -i $SIGDIR/${InputList["ggF_BulkGraviton_m280"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m300  -i $SIGDIR/${InputList["ggF_BulkGraviton_m300"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m320  -i $SIGDIR/${InputList["ggF_BulkGraviton_m320"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m350  -i $SIGDIR/${InputList["ggF_BulkGraviton_m350"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m400  -i $SIGDIR/${InputList["ggF_BulkGraviton_m400"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m450  -i $SIGDIR/${InputList["ggF_BulkGraviton_m450"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m500  -i $SIGDIR/${InputList["ggF_BulkGraviton_m500"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m550  -i $SIGDIR/${InputList["ggF_BulkGraviton_m550"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m600  -i $SIGDIR/${InputList["ggF_BulkGraviton_m600"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m650  -i $SIGDIR/${InputList["ggF_BulkGraviton_m650"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m700  -i $SIGDIR/${InputList["ggF_BulkGraviton_m700"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m750  -i $SIGDIR/${InputList["ggF_BulkGraviton_m750"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m800  -i $SIGDIR/${InputList["ggF_BulkGraviton_m800"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m850  -i $SIGDIR/${InputList["ggF_BulkGraviton_m850"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m900  -i $SIGDIR/${InputList["ggF_BulkGraviton_m900"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m1000 -i $SIGDIR/${InputList["ggF_BulkGraviton_m1000"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m1250 -i $SIGDIR/${InputList["ggF_BulkGraviton_m1250"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m1500 -i $SIGDIR/${InputList["ggF_BulkGraviton_m1500"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m1750 -i $SIGDIR/${InputList["ggF_BulkGraviton_m1750"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m2000 -i $SIGDIR/${InputList["ggF_BulkGraviton_m2000"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m2500 -i $SIGDIR/${InputList["ggF_BulkGraviton_m2500"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m3000 -i $SIGDIR/${InputList["ggF_BulkGraviton_m3000"]} -x 1.
+## spin-0 VBF
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m250  -i $SIGDIR/${InputList["VBF_Radion_m250"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m260  -i $SIGDIR/${InputList["VBF_Radion_m260"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m270  -i $SIGDIR/${InputList["VBF_Radion_m270"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m280  -i $SIGDIR/${InputList["VBF_Radion_m280"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m300  -i $SIGDIR/${InputList["VBF_Radion_m300"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m320  -i $SIGDIR/${InputList["VBF_Radion_m320"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m350  -i $SIGDIR/${InputList["VBF_Radion_m350"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m400  -i $SIGDIR/${InputList["VBF_Radion_m400"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m450  -i $SIGDIR/${InputList["VBF_Radion_m450"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m500  -i $SIGDIR/${InputList["VBF_Radion_m500"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m550  -i $SIGDIR/${InputList["VBF_Radion_m550"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m600  -i $SIGDIR/${InputList["VBF_Radion_m600"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m650  -i $SIGDIR/${InputList["VBF_Radion_m650"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m700  -i $SIGDIR/${InputList["VBF_Radion_m700"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m750  -i $SIGDIR/${InputList["VBF_Radion_m750"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m800  -i $SIGDIR/${InputList["VBF_Radion_m800"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m850  -i $SIGDIR/${InputList["VBF_Radion_m850"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m900  -i $SIGDIR/${InputList["VBF_Radion_m900"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m1000 -i $SIGDIR/${InputList["VBF_Radion_m1000"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m1250 -i $SIGDIR/${InputList["VBF_Radion_m1250"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m1500 -i $SIGDIR/${InputList["VBF_Radion_m1500"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m1750 -i $SIGDIR/${InputList["VBF_Radion_m1750"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m2000 -i $SIGDIR/${InputList["VBF_Radion_m2000"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m2500 -i $SIGDIR/${InputList["VBF_Radion_m2500"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m3000 -i $SIGDIR/${InputList["VBF_Radion_m3000"]} -x 1.
+## spin-2 VBF
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m250  -i $SIGDIR/${InputList["VBF_BulkGraviton_m250"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m260  -i $SIGDIR/${InputList["VBF_BulkGraviton_m260"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m270  -i $SIGDIR/${InputList["VBF_BulkGraviton_m270"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m280  -i $SIGDIR/${InputList["VBF_BulkGraviton_m280"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m300  -i $SIGDIR/${InputList["VBF_BulkGraviton_m300"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m320  -i $SIGDIR/${InputList["VBF_BulkGraviton_m320"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m350  -i $SIGDIR/${InputList["VBF_BulkGraviton_m350"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m400  -i $SIGDIR/${InputList["VBF_BulkGraviton_m400"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m450  -i $SIGDIR/${InputList["VBF_BulkGraviton_m450"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m500  -i $SIGDIR/${InputList["VBF_BulkGraviton_m500"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m550  -i $SIGDIR/${InputList["VBF_BulkGraviton_m550"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m600  -i $SIGDIR/${InputList["VBF_BulkGraviton_m600"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m650  -i $SIGDIR/${InputList["VBF_BulkGraviton_m650"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m700  -i $SIGDIR/${InputList["VBF_BulkGraviton_m700"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m750  -i $SIGDIR/${InputList["VBF_BulkGraviton_m750"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m800  -i $SIGDIR/${InputList["VBF_BulkGraviton_m800"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m850  -i $SIGDIR/${InputList["VBF_BulkGraviton_m850"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m900  -i $SIGDIR/${InputList["VBF_BulkGraviton_m900"]}  -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m1000 -i $SIGDIR/${InputList["VBF_BulkGraviton_m1000"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m1250 -i $SIGDIR/${InputList["VBF_BulkGraviton_m1250"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m1500 -i $SIGDIR/${InputList["VBF_BulkGraviton_m1500"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m1750 -i $SIGDIR/${InputList["VBF_BulkGraviton_m1750"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m2000 -i $SIGDIR/${InputList["VBF_BulkGraviton_m2000"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m2500 -i $SIGDIR/${InputList["VBF_BulkGraviton_m2500"]} -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m3000 -i $SIGDIR/${InputList["VBF_BulkGraviton_m3000"]} -x 1.
 
 
-## #######################
-## ##### TT - XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
-## ### TT x section: 831.76 for inclusive sample, W->had 67,60% , W->l nu 3*10,8% = 32,4% (sum over all leptons)
-## ### hh = 45.7%, ll = 10.5%, hl = 21.9% (x2 for permutation t-tbar)
-## #sleep 1h#
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 100 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TT_fullyHad -t True -b 1 -i $BKGDIR/${InputList["TT_fullyHad"]} -x 377.96
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 100 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TT_fullyLep -t True -b 1 -i $BKGDIR/${InputList["TT_fullyLep"]} -x 88.29
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 100 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TT_semiLep  -t True -b 1 -i $BKGDIR/${InputList["TT_semiLep"]}  -x 365.34
-## 
-## ######################
-## #### DY - xsec from https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#DY_Z
-## #sleep 1h
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_merged"]}       -g True --DY True -x 6077.22 
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_incl"]}         -g True --DY True -x 6077.22 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_1j"]}           -g True --DY True -x 1. 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_2j"]}           -g True --DY True -x 1. 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_4j"]}           -g True --DY True -x 1. 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT70To100"]}    -g True --DY True -x 1. 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT100To200"]}   -g True --DY True -x 1. 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT200To400"]}   -g True --DY True -x 1. 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT400To600"]}   -g True --DY True -x 1. 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT600To800"]}   -g True --DY True -x 1. 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT800To1200"]}  -g True --DY True -x 1.
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT1200To2500"]} -g True --DY True -x 1.
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT2500ToInf"]}  -g True --DY True -x 1.
-## 
-## #######################
-## #### Wjets - filelists up to date
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_0_70      -i $BKGDIR/${InputList["WJets_HT_0_70"]}      -y 1.213784 -x 48917.48 -z 70
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_70_100    -i $BKGDIR/${InputList["WJets_HT_70_100"]}    -y 1.213784 -x 1362
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_100_200   -i $BKGDIR/${InputList["WJets_HT_100_200"]}   -y 1.213784 -x 1345	 
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_200_400   -i $BKGDIR/${InputList["WJets_HT_200_400"]}   -y 1.213784 -x 359.7	 
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_400_600   -i $BKGDIR/${InputList["WJets_HT_400_600"]}   -y 1.213784 -x 48.91	 
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_600_800   -i $BKGDIR/${InputList["WJets_HT_600_800"]}   -y 1.213784 -x 12.05	 
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_800_1200  -i $BKGDIR/${InputList["WJets_HT_800_1200"]}  -y 1.213784 -x 5.501	 
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_1200_2500 -i $BKGDIR/${InputList["WJets_HT_1200_2500"]} -y 1.213784 -x 1.329	 
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_2500_Inf  -i $BKGDIR/${InputList["WJets_HT_2500_Inf"]}  -y 1.213784 -x 0.03216
-## 
-## ######################
-## ##### ELECTROWEAK - XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 100 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_EWKWPlus2Jets_WToLNu -i $BKGDIR/${InputList["EWKWPlus2Jets_WToLNu"]} -x 25.62
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 100 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_EWKWMinus2Jets_WToLNu -i $BKGDIR/${InputList["EWKWMinus2Jets_WToLNu"]} -x 20.25
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 100 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_EWKZ2Jets_ZToLL -i $BKGDIR/${InputList["EWKZ2Jets_ZToLL"]} -x 3.987
-## 
-## ######################
-## ##### single top - XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 80 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ST_tW_antitop       -i $BKGDIR/${InputList["ST_tW_antitop"]}       -x 35.85
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 80 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ST_tW_top           -i $BKGDIR/${InputList["ST_tW_top"]}           -x 35.85
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 80 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ST_tchannel_antitop -i $BKGDIR/${InputList["ST_tchannel_antitop"]} -x 80.95
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 80 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ST_tchannel_top     -i $BKGDIR/${InputList["ST_tchannel_top"]}     -x 136.02
-## 
-## ######################
-## ##### SM Higgs - from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNHLHE2019
-## ### HXSWG: xs(ZH) = 0.880 pb, xs(W+H) = 0.831 pb, xs(W-H) = 0.527 pb, xs(ggH) = 48.61 pb, xs(VBFH) = 3.766 pb, xs(ttH) = 0.5071 pb
-## ### Z->qq : 69.91% , Z->ll : 3,3658% (x3 for all the leptons), H->bb : 57.7%  , H->tautau : 6.32%
-## ### ZH (Zll, Hbb) : XSBD (xs ZH * BR Z) * H->bb, ZH (Zqq, Hbb) : XSBD (xs ZH * BR Z) * H->bb
-## ### ZH (Zall, Htautau) : XS teor ZH * BR H->tautau
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggHTauTau     -i $BKGDIR/${InputList["ggHTauTau"]}     -x 48.61  -y 0.0632
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBFHTauTau    -i $BKGDIR/${InputList["VBFHTauTau"]}    -x 3.766  -y 0.0632
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ZH_HTauTau    -i $BKGDIR/${InputList["ZH_HTauTau"]}    -x 0.880  -y 0.0632
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WplusHTauTau  -i $BKGDIR/${InputList["WplusHTauTau"]}  -x 0.831  -y 0.0632
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WminusHTauTau -i $BKGDIR/${InputList["WminusHTauTau"]} -x 0.527  -y 0.0632
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ttHToNonBB    -i $BKGDIR/${InputList["ttHToNonBB"]}    -x 0.5071 -y 0.3598
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ttHToBB       -i $BKGDIR/${InputList["ttHToBB"]}       -x 0.5071 -y 0.577
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ttHToTauTau   -i $BKGDIR/${InputList["ttHToTauTau"]}   -x 0.5071 -y 0.0632
-## 
-## ######################
-## #### Multiboson: -  https://arxiv.org/abs/1408.5243 (WW), https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Diboson (WZ,ZZ
-## ### Some XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
-## ### Some other XS taken from http://cms.cern.ch/iCMS/jsp/db_notes/noteInfo.jsp?cmsnoteid=CMS%20AN-2019/111
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WW -i $BKGDIR/${InputList["WW"]} -x 118.7
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WZ -i $BKGDIR/${InputList["WZ"]} -x 47.13
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ZZ -i $BKGDIR/${InputList["ZZ"]} -x 16.523
-## 
-## ######################
-## #### Others : - filelists up to date
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTWJetsToLNu -i $BKGDIR/${InputList["TTWJetsToLNu"]} -x 0.2043
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTWJetsToQQ  -i $BKGDIR/${InputList["TTWJetsToQQ"]}  -x 0.4062
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTZToLLNuNu  -i $BKGDIR/${InputList["TTWZToLLNuNu"]} -x 0.2529
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTWW         -i $BKGDIR/${InputList["TTWW"]}         -x 0.006979
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTZZ         -i $BKGDIR/${InputList["TTZZ"]}         -x 0.001386
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTWZ         -i $BKGDIR/${InputList["TTWZ"]}         -x 0.00158
+#######################
+##### TT - XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
+### TT x section: 831.76 for inclusive sample, W->had 67,60% , W->l nu 3*10,8% = 32,4% (sum over all leptons)
+### hh = 45.7%, ll = 10.5%, hl = 21.9% (x2 for permutation t-tbar)
+#sleep 1h#
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TT_fullyHad -t True -b 1 -i $BKGDIR/${InputList["TT_fullyHad"]} -x 377.96
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TT_fullyLep -t True -b 4 -i $BKGDIR/${InputList["TT_fullyLep"]} -x 88.29
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TT_semiLep  -t True -b 5 -i $BKGDIR/${InputList["TT_semiLep"]}  -x 365.34
+
+######################
+#### DY - xsec from https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#DY_Z
+#sleep 1h
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 700 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_merged"]}       -g True --DY True -x 6077.22 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 500 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYincl -i $BKGDIR/${InputList["DY_incl"]}          -x 6077.22 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_1j"]}           -g True --DY True -x 1. 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_2j"]}           -g True --DY True -x 1. 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_4j"]}           -g True --DY True -x 1. 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT70To100"]}    -g True --DY True -x 1. 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT100To200"]}   -g True --DY True -x 1. 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT200To400"]}   -g True --DY True -x 1. 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT400To600"]}   -g True --DY True -x 1. 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT600To800"]}   -g True --DY True -x 1. 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT800To1200"]}  -g True --DY True -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT1200To2500"]} -g True --DY True -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT2500ToInf"]}  -g True --DY True -x 1.
+
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 1000 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO -i $BKGDIR/${InputList["DY_NLO"]}          -x 6077.22 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 333 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_0j -i $BKGDIR/${InputList["DY_NLO_0j"]}          -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 333 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_1j -i $BKGDIR/${InputList["DY_NLO_1j"]}          -x 1.
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 333 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_2j -i $BKGDIR/${InputList["DY_NLO_2j"]}          -x 1.
+
+$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 200 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_PT50To100  -i $BKGDIR/${InputList["DY_NLO_PT50To100"]}  -x 1.
+$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 200 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_PT100To250 -i $BKGDIR/${InputList["DY_NLO_PT100To250"]} -x 1.
+$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 200 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_PT250To400 -i $BKGDIR/${InputList["DY_NLO_PT250To400"]} -x 1.
+$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 200 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_PT400To650 -i $BKGDIR/${InputList["DY_NLO_PT400To650"]} -x 1.
+$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 200 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_PT650ToInf -i $BKGDIR/${InputList["DY_NLO_PT650ToInf"]} -x 1.
+
+#######################
+#### Wjets - filelists up to date
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_0_70      -i $BKGDIR/${InputList["WJets_HT_0_70"]}      -y 1.213784 -x 48917.48 -z 70
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_70_100    -i $BKGDIR/${InputList["WJets_HT_70_100"]}    -y 1.213784 -x 1362
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_100_200   -i $BKGDIR/${InputList["WJets_HT_100_200"]}   -y 1.213784 -x 1345	 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_200_400   -i $BKGDIR/${InputList["WJets_HT_200_400"]}   -y 1.213784 -x 359.7	 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_400_600   -i $BKGDIR/${InputList["WJets_HT_400_600"]}   -y 1.213784 -x 48.91	 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_600_800   -i $BKGDIR/${InputList["WJets_HT_600_800"]}   -y 1.213784 -x 12.05	 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_800_1200  -i $BKGDIR/${InputList["WJets_HT_800_1200"]}  -y 1.213784 -x 5.501	 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_1200_2500 -i $BKGDIR/${InputList["WJets_HT_1200_2500"]} -y 1.213784 -x 1.329	 
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_2500_Inf  -i $BKGDIR/${InputList["WJets_HT_2500_Inf"]}  -y 1.213784 -x 0.03216
+
+######################
+##### ELECTROWEAK - XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 50 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_EWKWPlus2Jets_WToLNu -i $BKGDIR/${InputList["EWKWPlus2Jets_WToLNu"]} -x 25.62
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 50 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_EWKWMinus2Jets_WToLNu -i $BKGDIR/${InputList["EWKWMinus2Jets_WToLNu"]} -x 20.25
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 50 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_EWKZ2Jets_ZToLL -i $BKGDIR/${InputList["EWKZ2Jets_ZToLL"]} -x 3.987
+
+######################
+##### single top - XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 50 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ST_tW_antitop       -i $BKGDIR/${InputList["ST_tW_antitop"]}       -x 35.85
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 50 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ST_tW_top           -i $BKGDIR/${InputList["ST_tW_top"]}           -x 35.85
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 50 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ST_tchannel_antitop -i $BKGDIR/${InputList["ST_tchannel_antitop"]} -x 80.95
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 50 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ST_tchannel_top     -i $BKGDIR/${InputList["ST_tchannel_top"]}     -x 136.02
+
+####################
+### SM Higgs - from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNHLHE2019
+# HXSWG: xs(ZH) = 0.880 pb, xs(W+H) = 0.831 pb, xs(W-H) = 0.527 pb, xs(ggH) = 48.61 pb, xs(VBFH) = 3.766 pb, xs(ttH) = 0.5071 pb
+# Z->qq : 69.91% , Z->ll : 3,3658% (x3 for all the leptons), H->bb : 57.7%  , H->tautau : 6.32%
+# ZH (Zll, Hbb) : XSBD (xs ZH * BR Z) * H->bb, ZH (Zqq, Hbb) : XSBD (xs ZH * BR Z) * H->bb
+# ZH (Zall, Htautau) : XS teor ZH * BR H->tautau
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggHTauTau     -i $BKGDIR/${InputList["ggHTauTau"]}     -x 48.61  -y 0.0632
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBFHTauTau    -i $BKGDIR/${InputList["VBFHTauTau"]}    -x 3.766  -y 0.0632
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ZH_HTauTau    -i $BKGDIR/${InputList["ZH_HTauTau"]}    -x 0.880  -y 0.0632
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WplusHTauTau  -i $BKGDIR/${InputList["WplusHTauTau"]}  -x 0.831  -y 0.0632
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WminusHTauTau -i $BKGDIR/${InputList["WminusHTauTau"]} -x 0.527  -y 0.0632
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ttHToNonBB    -i $BKGDIR/${InputList["ttHToNonBB"]}    -x 0.5071 -y 0.3598
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ttHToBB       -i $BKGDIR/${InputList["ttHToBB"]}       -x 0.5071 -y 0.577
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ttHToTauTau   -i $BKGDIR/${InputList["ttHToTauTau"]}   -x 0.5071 -y 0.0632
+
+#######################
+##### Multiboson: -  https://arxiv.org/abs/1408.5243 (WW), https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Diboson (WZ,ZZ
+#### Some XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
+#### Some other XS taken from http://cms.cern.ch/iCMS/jsp/db_notes/noteInfo.jsp?cmsnoteid=CMS%20AN-2019/111
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WW -i $BKGDIR/${InputList["WW"]} -x 118.7
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WZ -i $BKGDIR/${InputList["WZ"]} -x 47.13
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ZZ -i $BKGDIR/${InputList["ZZ"]} -x 16.523
+#
+#######################
+##### Others : - filelists up to date
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTWJetsToLNu -i $BKGDIR/${InputList["TTWJetsToLNu"]} -x 0.2043
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTWJetsToQQ  -i $BKGDIR/${InputList["TTWJetsToQQ"]}  -x 0.4062
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTZToLLNuNu  -i $BKGDIR/${InputList["TTZToLLNuNu"]} -x 0.2529
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTWW         -i $BKGDIR/${InputList["TTWW"]}         -x 0.006979
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTZZ         -i $BKGDIR/${InputList["TTZZ"]}         -x 0.001386
+#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTWZ         -i $BKGDIR/${InputList["TTWZ"]}         -x 0.00158
 
 
 #######################################################################################################################################################################################

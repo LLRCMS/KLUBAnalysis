@@ -193,11 +193,14 @@ private:
   umap<std::string, json> mVarFiles;
 
   const std::set<std::string> mChannelsAllowed = {"EleTau", "MuTau", "TauTau"};
+  const std::string mTriggerStrConnector = "_PLUS_";
 
   auto mCheckChannel(std::string channel) const -> void;
 
   auto mCheckExtension(std::string str, std::string ext) -> void;
 
+  auto mCountNumberTriggerItems(std::string str) -> int;
+  
   auto mGetTriggerIntersections( const TriggerChannelLists& list,
 								 std::string channel,
 								 const bool isData ) -> const std::vector<std::string>;
