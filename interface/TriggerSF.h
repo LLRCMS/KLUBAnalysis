@@ -11,7 +11,9 @@
 //              Nucl Instruments Methods Phys Res Sect A Accel Spectrometers, Detect Assoc Equip. 2009;           // 
 //              604(3):707-718.                                                                                   //
 //              doi:10.1016/j.nima.2009.03.173                                                                    //
+//                                                                                                                // 
 //   Standalone Python framework: https://github.com/b-fontana/METTriggerStudies                                  //
+//   - Triggers are named differently and already include effects from different runs, HPS, Data/MC diffs, ...    //
 //                                                                                                                //
 //   Author: Bruno Alves (LLR, Ecole Polytechnique, Paris)                                                        //
 //   Date  : April 2022                                                                                           //
@@ -217,6 +219,10 @@ private:
 									 const bool isData ) -> const EffValue;
 
   auto mEffVariablesToHistoName( const vec2<std::string>& effVars ) -> std::string;
+
+  auto mKlubStandaloneNameMatching(vec<std::string> old_strs,
+								   std::string channel,
+								   const bool isData ) -> const vec<std::string>;
 
   auto mMCOrDataIntersections( std::string channel, const bool isData ) -> std::vector<std::string>;
 

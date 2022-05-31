@@ -43,6 +43,7 @@ class TriggerChannelLists {
   TriggerChannelLists() {}
   ~TriggerChannelLists() {}
 
+  //channel-specific triggers
   auto mInternalAdd(std::string channel, bool isData, const vecstr& trigs) -> void
   {
 	for (const auto &t : trigs) {
@@ -62,6 +63,27 @@ class TriggerChannelLists {
   {
 	mCheckChannel(channel);
 	mInternalAdd(channel, isData, trigs...);
+  }
+
+  //channel-generic triggers
+  auto mInternalAddGeneric(bool isData, const vecstr& trigs) -> void
+  {
+	for (const auto &t : trigs) {
+	  if (isData)
+		mTriggers["generic"].first.push_back(t);
+	  else
+		mTriggers["generic"].second.push_back(t);
+	}
+  }
+  template <class... RestKeys>
+  auto mInternalAddGeneric(bool isData, const vecstr& trigs, RestKeys... args) -> void
+  {
+	return mInternalAddGeneric(isData, args...);
+  }
+  template <class ... Ts>
+  auto add_generic(bool isData, Ts... trigs) -> auto
+  {
+	mInternalAddGeneric(isData, trigs...);
   }
 
   auto channels() -> const std::set<std::string>

@@ -186,7 +186,86 @@ auto TriggerSF::mGetTriggerIntersections( const TriggerChannelLists& list,
 {
   VectorCombinations comb;
   vec<std::string> strs = list.get(channel, isData);
-  vec<std::string> res = comb.combine_all_k<std::string>(strs).flatten(mTriggerStrConnector);
+  vec<std::string> new_strs = mKlubStandaloneNameMatching(strs, channel, isData); //KLUB - Python standalone matching
+  vec<std::string> res = comb.combine_all_k<std::string>(new_strs).flatten(mTriggerStrConnector);
   // comb.combine_all_k<std::string>(strs).print();
   return res;                                                                     
+}
+
+//The following matching must follow the trigger naming scheme adopted in the Python standalone framework
+auto TriggerSF::mKlubStandaloneNameMatching(vec<std::string> old_strs,
+											std::string channel,
+											const bool isData ) -> const vec<std::string>
+{
+  std::set<std::string> new_set; //automatically removes duplicates
+  for (const auto &s : old_strs)
+	{
+	  // === channel-generic triggers ===
+	  // MET
+	  if (s=="HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v") {
+		new_set.insert("METNoMu120");
+		continue;
+	  }
+	  //VBF
+	  else if (s=="HLT_VBF_DoubleLooseChargedIsoPFTau20_Trk1_eta2p1_v" or
+			   s=="HLT_VBF_DoubleLooseChargedIsoPFTauHPS20_Trk1_eta2p1_v") {
+		new_set.insert("VBFTauCustom");
+		continue;
+	  }
+	  //Single Tau
+	  else if (s=="HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET100_v")
+		new_set.insert("IsoTau50");
+	  else if (s=="HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v")
+		new_set.insert("IsoTau180");
+	  
+	  // === channel-specific triggers ===
+	  if(channel=="EleTau")
+		{
+		  if (s=="HLT_Ele32_WPTight_Gsf_v")
+			new_set.insert("Ele32");
+		  else if (s=="HLT_Ele35_WPTight_Gsf_v")
+			new_set.insert("Ele35");
+		  else if (s=="HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v" or
+				   s=="HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v")
+			new_set.insert("EleIsoTauCustom");
+		  else {
+			std::string mess = "Trigger " + s + " not supported for channel " + channel + ".";
+			throw std::invalid_argument(mess);
+		  }
+		}
+	  else if(channel=="MuTau")
+		{
+		  if (s=="HLT_IsoMu24_v")
+			new_set.insert("IsoMu24");
+		  else if (s=="HLT_IsoMu27_v")
+			new_set.insert("IsoMu27");
+		  else if (s=="HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v" or
+				   s=="HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v")
+			new_set.insert("IsoMuIsoTauCustom");
+		  else {
+			std::string mess = "Trigger " + s + " not supported for channel " + channel + ".";
+			throw std::invalid_argument("Trigger " + s + " not supported.");
+		  }
+		}
+	  else if(channel=="TauTau")
+		{
+		  if (s=="HLT_DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v"  or
+			  s=="HLT_DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v" or
+			  s=="HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v"          or
+			  s=="HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v")
+			new_set.insert("IsoDoubleTauCustom");
+		  else {
+			std::string mess = "Trigger " + s + " not supported for channel " + channel + ".";
+			throw std::invalid_argument("Trigger " + s + " not supported.");
+		  }
+		}
+	  else
+		throw std::invalid_argument("Channel " + channel + " not supported.");
+	}
+
+  vec<std::string> new_strs; 
+  for (const auto &x : new_set)
+	new_strs.push_back(x);
+
+  return new_strs;
 }

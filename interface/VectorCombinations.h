@@ -140,8 +140,12 @@ public:
   private:
 	vec3<T> mTransform;
 
-	std::string join_str(const vec<std::string>& v, std::string str) const
+	//`v` is pass-by-value for sorting
+	std::string join_str(vec<std::string> v, std::string str) const
 	{
+	  //make sure the joining is done always in the same order
+	  std::sort(v.begin(), v.end());
+	  
 	  std::string join = "";
 	  for(auto &elem : v)
 		join += join=="" ? elem : str + elem;
