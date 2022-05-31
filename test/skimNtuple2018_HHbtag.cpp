@@ -481,7 +481,6 @@ int main (int argc, char** argv)
   int N_tauhDM_EES = 2;  //tauh DMs with EES
 
   // ------------------------------
-
   TH1F* hTriggers = getFirstFileHisto (inputFile);
   TH1F* hTauIDS = getFirstFileHisto (inputFile,false);
 
@@ -611,7 +610,8 @@ int main (int argc, char** argv)
 					 gConfigParser->readStringListOption("triggersData::MuTau"),
 					 gConfigParser->readStringListOption("triggersData::crossMuTau") );
 
-  std::string trigger_base_name = "weights/TriggerSF/";
+  
+  std::string trigger_base_name = gConfigParser->readStringOption("triggerSF::baseDir");
   std::unordered_map<std::string,std::string> eff_names = {
 	{"EleTau", trigger_base_name + "trigSF_etau.root"},
 	{"MuTau",  trigger_base_name + "trigSF_mutau.root"},
@@ -624,12 +624,17 @@ int main (int argc, char** argv)
 
 
   // electron/muon IdAndIso SF
-  ScaleFactor * myIDandISOScaleFactor[2]; // [0: mu, 1: ele]
-  for (int i = 0 ; i < 2; i++)
-        myIDandISOScaleFactor[i] = new ScaleFactor();
+  ScaleFactor * myIDandISOScaleFactor[3]; // [0: muID, 1: eleID, 2:muISO,]
+  for (int i = 0 ; i < 3; i++)
+    myIDandISOScaleFactor[i] = new ScaleFactor();
 
-  myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/HTT_IdAndIso_SF_Legacy/2018/Muon_Run2018_IdIso.root");
-  myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/HTT_IdAndIso_SF_Legacy/2018/Electron_Run2018_IdIso.root");
+  myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",
+                                               "NUM_TightID_DEN_TrackerMuons_abseta_pt",
+                                               true);
+  myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/EgammaPOGSF_UL/2018/2018_Tight_eleSFs.root","SF");
+  myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
+                                               "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
+                                               true);
   
   // tau IdAndIso SF
   //MVA2017 for UL not foreseen
@@ -3312,11 +3317,11 @@ int main (int argc, char** argv)
 		v.dau1_pt() = theBigTree.daughters_px->at(firstDaughterIndex);
 		std::cout << "Dau1 Pt " << v.dau1_pt() << std::endl;
 		const float w = tsf_obj.getEvtWeight(v, "EleTau");
-		std::cout << "Weight " << std::endl;
+		std::cout << "Weight " << w << std::endl;
 		std::exit(0);
-		
 	  } // end if(applytriggers)
-
+	std::exit(0);
+	
     theSmallTree.m_trigSF           = (isMC ? trigSF : 1.0);
     theSmallTree.m_trigSF_ele_up    = (isMC ? trigSF_ele_up : 1.0);
     theSmallTree.m_trigSF_mu_up     = (isMC ? trigSF_mu_up : 1.0);

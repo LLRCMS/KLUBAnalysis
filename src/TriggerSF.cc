@@ -8,6 +8,7 @@ TriggerSF::TriggerSF( TriggerChannelLists triggers,
 					  umap<std::string,std::string> var_files,
 					  unsigned year)
 {
+  std::cout << "====== Enter Constructor" << std::endl;
   // inputs consistency checks
   assert( eff_files.size() == var_files.size() );
   assert(  triggers.channels().size() == var_files.size() );
@@ -22,14 +23,13 @@ TriggerSF::TriggerSF( TriggerChannelLists triggers,
 
 	// load files with variables
 	std::ifstream i(var_files[x]);
-	std::cout << var_files[x] << std::endl;
-	std::exit(0);
 	i >> mVarFiles[x];
 
 	//load intersection efficiency strings [first: MC; second: Data]
 	mInters[x] = std::make_pair( mGetTriggerIntersections( triggers, x, false ),
 								 mGetTriggerIntersections( triggers, x, true ) );
   }
+  std::cout << "====== Exit Constructor" << std::endl;
 }
 
 // Destructor
@@ -56,6 +56,18 @@ auto TriggerSF::mCheckExtension( std::string str,
 	throw std::invalid_argument("The extension is wrong.");
 }
 
+auto TriggerSF::mCountNumberTriggerItems(std::string str) -> int
+{
+   int occurrences = 0;
+   std::string::size_type pos = 0;
+   while ((pos = str.find(mTriggerStrConnector, pos)) != std::string::npos)
+	 {
+	   ++occurrences;
+	   pos += mTriggerStrConnector.length();
+	 }
+   return occurrences + 1; //number of items is one plus number of connector strings
+}
+
 auto TriggerSF::mEffVariablesToHistoName( const vec2<std::string>& effVars ) -> std::string
 {
   assert( effVars[0].size() == 1);
@@ -65,11 +77,13 @@ auto TriggerSF::mEffVariablesToHistoName( const vec2<std::string>& effVars ) -> 
 auto TriggerSF::getEvtWeight(const EventVariables& vars,
 							 std::string channel) -> const float
 {
+  std::cout << "====== Enter getEvtWeight" << std::endl;
   //TriggerChannelLists::mCheckChannel(channel);
   const float probability_data = mGetUnionEfficiency( vars, channel, true );
   const float probability_mc = mGetUnionEfficiency( vars, channel, false );
   const float eventWeight = probability_data / probability_mc;
   return eventWeight;
+  std::cout << "====== Exit getEvtWeight" << std::endl;
 }
 
 auto TriggerSF::getEvtWeightErrors( const EventVariables& vars,
@@ -95,13 +109,25 @@ auto TriggerSF::mGetUnionEfficiency( const EventVariables& vars,
 									 std::string channel,
 									 const bool isData ) -> const float
 {
+  std::cout << "====== Enter getUnionEfficiency" << std::endl;
   float un_eff = 0.f;
 
   for (auto &inters : mMCOrDataIntersections(channel, isData))
 	{
-	  const TriggerSF::EffValue eff = mGetIntersectionEfficiencies( channel, inters, isData );
-	  un_eff += eff.getVal( vars.dau1_pt() );
+	  if (mVarFiles[channel].contains(inters))
+		{
+		  const TriggerSF::EffValue eff = mGetIntersectionEfficiencies( channel, inters, isData );
+		  if(mCountNumberTriggerItems(inters)%2==0)
+			un_eff -= eff.getVal( vars.dau1_pt() );
+		  else
+			un_eff += eff.getVal( vars.dau1_pt() );
+		}
+	  else
+		{
+		  std::cout << "JSON key does not exist. Channel: " << channel << "; Inters: " << inters << std::endl;
+		}
 	}
+  std::cout << "====== Exit getUnionEfficiency" << std::endl;
   return un_eff;
 }
 
@@ -128,8 +154,11 @@ auto TriggerSF::mReadIntersectionEfficiencies( std::string channel,
 											   std::string hname,
 											   const bool isData ) -> EffValue
 {
+  std::cout << "====== Enter mReadIntersectionEfficiencies" << std::endl;
+  std::cout << channel << ", " << hname << std::endl;
   TH1 *h = (TH1*)mEffFiles[channel]->Get(hname.c_str());
   TriggerSF::EffValue val(h);
+  std::cout << "====== Exit mReadIntersectionEfficiencies" << std::endl;
   return val;
 }
 
@@ -137,7 +166,9 @@ auto TriggerSF::mGetIntersectionEfficiencies( std::string channel,
 											  std::string trigInters,
 											  const bool isData ) -> const EffValue
 {
+  std::cout << "====== Enter mGetIntersectionEfficiencies" << std::endl;
   vec2<std::string> var = mVarFiles[channel][trigInters].get<vec2<std::string>>();
+  std::cout << "Exists " << var[0][0] << ", " << var[0][1] << std::endl;
   std::string hname = mEffVariablesToHistoName(var);
   
   if ( ! mValues.exists(channel, trigInters, hname) )
@@ -145,7 +176,7 @@ auto TriggerSF::mGetIntersectionEfficiencies( std::string channel,
 	  EffValue eff_val = mReadIntersectionEfficiencies(channel, trigInters, hname, isData);
 	  mValues.set(eff_val, channel, trigInters, hname);
 	}
-
+  std::cout << "====== Exit mGetIntersectionEfficiencies" << std::endl;
   return mValues(channel, trigInters, hname);
 }
 
@@ -155,7 +186,7 @@ auto TriggerSF::mGetTriggerIntersections( const TriggerChannelLists& list,
 {
   VectorCombinations comb;
   vec<std::string> strs = list.get(channel, isData);
-  vec<std::string> res = comb.combine_all_k<std::string>(strs).flatten();
+  vec<std::string> res = comb.combine_all_k<std::string>(strs).flatten(mTriggerStrConnector);
   // comb.combine_all_k<std::string>(strs).print();
   return res;                                                                     
 }
