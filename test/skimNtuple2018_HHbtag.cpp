@@ -612,11 +612,11 @@ int main (int argc, char** argv)
 					 gConfigParser->readStringListOption("triggersData::MuTau"),
 					 gConfigParser->readStringListOption("triggersData::crossMuTau") );
   triggers_list.add( "TauTau", 0,
-					 gConfigParser->readStringListOption("triggersMC::MuTau"),
-					 gConfigParser->readStringListOption("triggersMC::crossMuTau") );
+					 gConfigParser->readStringListOption("triggersMC::TauTau"),
+					 gConfigParser->readStringListOption("triggersMC::crossTauTau") );
   triggers_list.add( "TauTau", 1,
-					 gConfigParser->readStringListOption("triggersData::MuTau"),
-					 gConfigParser->readStringListOption("triggersData::crossMuTau") );
+					 gConfigParser->readStringListOption("triggersData::TauTau"),
+					 gConfigParser->readStringListOption("triggersData::crossTauTau") );
 
   
   std::string trigger_base_name = gConfigParser->readStringOption("triggerSF::baseDir");
@@ -3322,8 +3322,10 @@ int main (int argc, char** argv)
     if(applyTriggers)
 	  {
 		EventVariables v;
-		v.dau1_pt() = theBigTree.daughters_px->at(firstDaughterIndex);
+		v.dau1_pt() = theSmallTree.m_dau1_pt;
+		v.dau2_pt() = theSmallTree.m_dau2_pt;
 		std::cout << "Dau1 Pt " << v.dau1_pt() << std::endl;
+		std::cout << "Dau2 Pt " << v.dau2_pt() << std::endl;
 		const float w = tsf_obj.getEvtWeight(v, "EleTau");
 		std::cout << "Weight " << w << std::endl;
 		std::exit(0);

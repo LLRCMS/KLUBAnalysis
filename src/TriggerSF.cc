@@ -20,7 +20,11 @@ TriggerSF::TriggerSF( TriggerChannelLists triggers,
 
 	// load efficiency and scale factor files
 	mEffFiles[x] = TFile::Open(eff_files[x].c_str(), "READ");
-
+	if (mEffFiles[x]->IsZombie()) {
+	  std::string mess = "File " + eff_files[x] + " not found.";
+	  throw std::invalid_argument(mess);
+	}
+	
 	// load files with variables
 	std::ifstream i(var_files[x]);
 	i >> mVarFiles[x];
@@ -35,6 +39,21 @@ TriggerSF::TriggerSF( TriggerChannelLists triggers,
 // Destructor
 TriggerSF::~TriggerSF()
 {
+}
+
+auto TriggerSF::mBuildHistogramName(std::string varname,
+									std::string trigInters,
+									bool isData) const -> std::string
+{
+  std::string res = isData ? "Data_" : "MC_";
+  res += "_VAR_" + varname;
+  res += "_TRG_" + trigInters;
+  res += "_CUT_";
+  int nitems = mCountNumberTriggerItems(trigInters);
+  for(int i=0; i<nitems-1; ++i)
+	res += "NoCut_PLUS_";
+  res += "NoCut";
+  return res;
 }
 
 auto TriggerSF::mCheckChannel(std::string channel) const -> void
@@ -56,7 +75,7 @@ auto TriggerSF::mCheckExtension( std::string str,
 	throw std::invalid_argument("The extension is wrong.");
 }
 
-auto TriggerSF::mCountNumberTriggerItems(std::string str) -> int
+auto TriggerSF::mCountNumberTriggerItems(std::string str) const -> const int
 {
    int occurrences = 0;
    std::string::size_type pos = 0;
@@ -68,9 +87,9 @@ auto TriggerSF::mCountNumberTriggerItems(std::string str) -> int
    return occurrences + 1; //number of items is one plus number of connector strings
 }
 
-auto TriggerSF::mEffVariablesToHistoName( const vec2<std::string>& effVars ) -> std::string
+auto TriggerSF::mEffVariablesToVarName( const vec2<std::string>& effVars ) -> std::string
 {
-  assert( effVars[0].size() == 1);
+  //assert( effVars[0].size() == 1);
   return effVars[0][0]; /// CHANGE according to #dimensions and histogram naming scheme
 }
 
@@ -151,12 +170,19 @@ auto TriggerSF::mGetUnionEfficiencyErrors( const EventVariables& vars,
 /// CHANGE to consider more dimensions
 auto TriggerSF::mReadIntersectionEfficiencies( std::string channel,
 											   std::string trigInters,
-											   std::string hname,
+											   std::string varname,
 											   const bool isData ) -> EffValue
 {
   std::cout << "====== Enter mReadIntersectionEfficiencies" << std::endl;
-  std::cout << channel << ", " << hname << std::endl;
+  std::string hname = mBuildHistogramName(varname, trigInters, isData);
   TH1 *h = (TH1*)mEffFiles[channel]->Get(hname.c_str());
+  if (h==nullptr) {
+	std::string mess = "Histogram " + hname + " was not found ";
+	mess += "(channel " + channel + ", ";
+	mess += "trigger intersection " + trigInters + ").";
+	throw std::invalid_argument(mess);
+  }
+  std::cout << "before effval" << std::endl;
   TriggerSF::EffValue val(h);
   std::cout << "====== Exit mReadIntersectionEfficiencies" << std::endl;
   return val;
@@ -169,15 +195,17 @@ auto TriggerSF::mGetIntersectionEfficiencies( std::string channel,
   std::cout << "====== Enter mGetIntersectionEfficiencies" << std::endl;
   vec2<std::string> var = mVarFiles[channel][trigInters].get<vec2<std::string>>();
   std::cout << "Exists " << var[0][0] << ", " << var[0][1] << std::endl;
-  std::string hname = mEffVariablesToHistoName(var);
+  std::string varname = mEffVariablesToVarName(var);
   
-  if ( ! mValues.exists(channel, trigInters, hname) )
+  if ( ! mValues.contains(channel, trigInters, varname) )
 	{
-	  EffValue eff_val = mReadIntersectionEfficiencies(channel, trigInters, hname, isData);
-	  mValues.set(eff_val, channel, trigInters, hname);
+	  std::cout << "before reading" << std::endl;
+	  EffValue eff_val = mReadIntersectionEfficiencies(channel, trigInters, varname, isData);
+	  std::cout << "after reading" << std::endl;
+	  mValues.set(eff_val, channel, trigInters, varname);
 	}
   std::cout << "====== Exit mGetIntersectionEfficiencies" << std::endl;
-  return mValues(channel, trigInters, hname);
+  return mValues(channel, trigInters, varname);
 }
 
 auto TriggerSF::mGetTriggerIntersections( const TriggerChannelLists& list,
@@ -186,14 +214,14 @@ auto TriggerSF::mGetTriggerIntersections( const TriggerChannelLists& list,
 {
   VectorCombinations comb;
   vec<std::string> strs = list.get(channel, isData);
-  vec<std::string> new_strs = mKlubStandaloneNameMatching(strs, channel, isData); //KLUB - Python standalone matching
+  vec<std::string> new_strs = mKLUBStandaloneNameMatching(strs, channel, isData); //KLUB - Python standalone matching
   vec<std::string> res = comb.combine_all_k<std::string>(new_strs).flatten(mTriggerStrConnector);
   // comb.combine_all_k<std::string>(strs).print();
   return res;                                                                     
 }
 
 //The following matching must follow the trigger naming scheme adopted in the Python standalone framework
-auto TriggerSF::mKlubStandaloneNameMatching(vec<std::string> old_strs,
+auto TriggerSF::mKLUBStandaloneNameMatching(vec<std::string> old_strs,
 											std::string channel,
 											const bool isData ) -> const vec<std::string>
 {
@@ -244,7 +272,7 @@ auto TriggerSF::mKlubStandaloneNameMatching(vec<std::string> old_strs,
 			new_set.insert("IsoMuIsoTauCustom");
 		  else {
 			std::string mess = "Trigger " + s + " not supported for channel " + channel + ".";
-			throw std::invalid_argument("Trigger " + s + " not supported.");
+			throw std::invalid_argument(mess);
 		  }
 		}
 	  else if(channel=="TauTau")
@@ -256,7 +284,7 @@ auto TriggerSF::mKlubStandaloneNameMatching(vec<std::string> old_strs,
 			new_set.insert("IsoDoubleTauCustom");
 		  else {
 			std::string mess = "Trigger " + s + " not supported for channel " + channel + ".";
-			throw std::invalid_argument("Trigger " + s + " not supported.");
+			throw std::invalid_argument(mess);
 		  }
 		}
 	  else
