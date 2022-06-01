@@ -197,11 +197,15 @@ private:
   const std::set<std::string> mChannelsAllowed = {"EleTau", "MuTau", "TauTau"};
   const std::string mTriggerStrConnector = "_PLUS_";
 
+  auto mBuildHistogramName(std::string varname,
+						   std::string trigInters,
+						   bool isData) const -> std::string;
+
   auto mCheckChannel(std::string channel) const -> void;
 
   auto mCheckExtension(std::string str, std::string ext) -> void;
 
-  auto mCountNumberTriggerItems(std::string str) -> int;
+  auto mCountNumberTriggerItems(std::string str) const -> const int;
   
   auto mGetTriggerIntersections( const TriggerChannelLists& list,
 								 std::string channel,
@@ -218,9 +222,9 @@ private:
 									 std::string trigInters,
 									 const bool isData ) -> const EffValue;
 
-  auto mEffVariablesToHistoName( const vec2<std::string>& effVars ) -> std::string;
+  auto mEffVariablesToVarName( const vec2<std::string>& effVars ) -> std::string;
 
-  auto mKlubStandaloneNameMatching(vec<std::string> old_strs,
+  auto mKLUBStandaloneNameMatching(vec<std::string> old_strs,
 								   std::string channel,
 								   const bool isData ) -> const vec<std::string>;
 
@@ -228,7 +232,7 @@ private:
 
   auto mReadIntersectionEfficiencies( std::string channel,
 									  std::string trigInters,
-									  std::string hname,
+									  std::string varname,
 									  const bool isData ) -> EffValue;
   
 public:

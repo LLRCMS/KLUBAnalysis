@@ -52,7 +52,7 @@ template <typename KEY_T, typename VAL_T, unsigned int DEPTH>
   template <class ... Ts>
 	auto operator()(KEY_T key, Ts... args) const -> const VAL_T&
 	{
-	  if(sizeof...(args)-1 != DEPTH) {
+	  if(sizeof...(args)+1 != DEPTH) {
 		std::cout << "Number of arguments does not match depth of nested map."
 				  << std::endl;
 		std::exit(0);
@@ -64,7 +64,7 @@ template <typename KEY_T, typename VAL_T, unsigned int DEPTH>
   template <class ... Ts>
 	auto set(VAL_T val, KEY_T key, Ts... args) -> void
   {
-	if(sizeof...(args)-1 != DEPTH) {
+	if(sizeof...(args)+1 != DEPTH) {
 	  std::cout << "Number of arguments does not match depth of nested map."
 				<< std::endl;
 	  std::exit(0);
@@ -72,14 +72,13 @@ template <typename KEY_T, typename VAL_T, unsigned int DEPTH>
 	internal_modifier_call(m[key], val, args...);
   }
 
-  //Check whether an elements exists
   template <class ... Ts>
-	auto exists(KEY_T key, Ts... args) -> bool
+	auto contains(KEY_T key, Ts... args) -> bool
   {
 	try {
 	  (*this)(key, args...);
 	}
-	catch (std::out_of_range e) {
+	catch (std::out_of_range const&) {
 	  return false;
 	}
 	return true;
@@ -96,16 +95,18 @@ template <typename KEY_T, typename VAL_T, unsigned int DEPTH>
 	  return map.at(key);
 	}
 	catch (std::out_of_range e) {
-	  std::cout << "The entry was not set (key = " << key << ")." << std::endl;
+	  std::string mess;
+	  mess = "The entry was not set (key = " + key + ").\n";
 	  if(map.size() != 0) {
-		  std::cout << "The following keys were already set:" << std::endl;
+		  mess += "The following keys were already set";
+		  mess += " in the same level:\n";
 		  for (auto const &pair: map) {
-			std::cout << "- " << pair.first << "\n";
+			mess += "- " + pair.first + "\n";
 		  }
 	  }
 	  else
-		std::cout << "Currently no keys are defined for the offending map nesting level." << std::endl;
-	  std::exit(0);
+		mess += "Currently no keys are defined for the offending map nesting level.\n";
+	  throw std::out_of_range(mess);
 	}
   }
 
