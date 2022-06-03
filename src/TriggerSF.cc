@@ -1,6 +1,6 @@
 #include "TriggerSF.h"
 
-#define DEBUG false
+// #define DEBUG
 
 // Constructor
 TriggerSF::TriggerSF( TriggerChannelLists triggers,
@@ -8,7 +8,12 @@ TriggerSF::TriggerSF( TriggerChannelLists triggers,
 					  umap<std::string,std::string> var_files,
 					  unsigned year)
 {
+  if (!this->mTest())
+	throw std::invalid_argument("Test failed.");
+
+#ifdef DEBUG
   std::cout << "====== Enter Constructor" << std::endl;
+#endif
   // inputs consistency checks
   assert( eff_files.size() == var_files.size() );
   assert(  triggers.channels().size() == var_files.size() );
@@ -33,7 +38,9 @@ TriggerSF::TriggerSF( TriggerChannelLists triggers,
 	mInters[x] = std::make_pair( mGetTriggerIntersections( triggers, x, false ),
 								 mGetTriggerIntersections( triggers, x, true ) );
   }
+#ifdef DEBUG
   std::cout << "====== Exit Constructor" << std::endl;
+#endif
 }
 
 // Destructor
@@ -41,11 +48,11 @@ TriggerSF::~TriggerSF()
 {
 }
 
-auto TriggerSF::mBuildHistogramName(std::string varname,
-									std::string trigInters,
-									bool isData) const -> std::string
+auto TriggerSF::mBuildObjectName(std::string varname,
+								 std::string trigInters,
+								 bool isData) const -> std::string
 {
-  std::string res = isData ? "Data_" : "MC_";
+  std::string res = isData ? "Data" : "MC";
   res += "_VAR_" + varname;
   res += "_TRG_" + trigInters;
   res += "_CUT_";
@@ -89,20 +96,23 @@ auto TriggerSF::mCountNumberTriggerItems(std::string str) const -> const int
 
 auto TriggerSF::mEffVariablesToVarName( const vec2<std::string>& effVars ) -> std::string
 {
-  //assert( effVars[0].size() == 1);
   return effVars[0][0]; /// CHANGE according to #dimensions and histogram naming scheme
 }
 
 auto TriggerSF::getEvtWeight(const EventVariables& vars,
 							 std::string channel) -> const float
 {
+#ifdef DEBUG
   std::cout << "====== Enter getEvtWeight" << std::endl;
+#endif
   //TriggerChannelLists::mCheckChannel(channel);
   const float probability_data = mGetUnionEfficiency( vars, channel, true );
   const float probability_mc = mGetUnionEfficiency( vars, channel, false );
   const float eventWeight = probability_data / probability_mc;
-  return eventWeight;
+#ifdef DEBUG
   std::cout << "====== Exit getEvtWeight" << std::endl;
+#endif
+  return eventWeight;
 }
 
 auto TriggerSF::getEvtWeightErrors( const EventVariables& vars,
@@ -128,7 +138,9 @@ auto TriggerSF::mGetUnionEfficiency( const EventVariables& vars,
 									 std::string channel,
 									 const bool isData ) -> const float
 {
+#ifdef DEBUG  
   std::cout << "====== Enter getUnionEfficiency" << std::endl;
+#endif
   float un_eff = 0.f;
 
   for (auto &inters : mMCOrDataIntersections(channel, isData))
@@ -137,16 +149,18 @@ auto TriggerSF::mGetUnionEfficiency( const EventVariables& vars,
 		{
 		  const TriggerSF::EffValue eff = mGetIntersectionEfficiencies( channel, inters, isData );
 		  if(mCountNumberTriggerItems(inters)%2==0)
-			un_eff -= eff.getVal( vars.dau1_pt() );
+			un_eff -= eff.getVal( vars.get("dau1_pt") );
 		  else
-			un_eff += eff.getVal( vars.dau1_pt() );
+			un_eff += eff.getVal( vars.get("dau1_pt") );
 		}
-	  else
-		{
-		  std::cout << "JSON key does not exist. Channel: " << channel << "; Inters: " << inters << std::endl;
-		}
+	  else {
+		std::string mess = "JSON key does not exist. Channel: " + channel + "; Inters: " + inters + ".";
+		throw std::invalid_argument(mess);
+	  }
 	}
+#ifdef DEBUG  
   std::cout << "====== Exit getUnionEfficiency" << std::endl;
+#endif
   return un_eff;
 }
 
@@ -173,18 +187,21 @@ auto TriggerSF::mReadIntersectionEfficiencies( std::string channel,
 											   std::string varname,
 											   const bool isData ) -> EffValue
 {
+#ifdef DEBUG  
   std::cout << "====== Enter mReadIntersectionEfficiencies" << std::endl;
-  std::string hname = mBuildHistogramName(varname, trigInters, isData);
-  TH1 *h = (TH1*)mEffFiles[channel]->Get(hname.c_str());
-  if (h==nullptr) {
-	std::string mess = "Histogram " + hname + " was not found ";
+#endif
+  std::string hname = mBuildObjectName(varname, trigInters, isData);
+  TH1F *histo = (TH1F*)mEffFiles[channel]->Get(hname.c_str());
+  if (histo==nullptr) {
+	std::string mess = "Graph " + hname + " was not found ";
 	mess += "(channel " + channel + ", ";
 	mess += "trigger intersection " + trigInters + ").";
 	throw std::invalid_argument(mess);
   }
-  std::cout << "before effval" << std::endl;
-  TriggerSF::EffValue val(h);
+  TriggerSF::EffValue val(histo);
+#ifdef DEBUG  
   std::cout << "====== Exit mReadIntersectionEfficiencies" << std::endl;
+#endif
   return val;
 }
 
@@ -192,19 +209,20 @@ auto TriggerSF::mGetIntersectionEfficiencies( std::string channel,
 											  std::string trigInters,
 											  const bool isData ) -> const EffValue
 {
+#ifdef DEBUG  
   std::cout << "====== Enter mGetIntersectionEfficiencies" << std::endl;
+#endif
   vec2<std::string> var = mVarFiles[channel][trigInters].get<vec2<std::string>>();
-  std::cout << "Exists " << var[0][0] << ", " << var[0][1] << std::endl;
   std::string varname = mEffVariablesToVarName(var);
   
   if ( ! mValues.contains(channel, trigInters, varname) )
 	{
-	  std::cout << "before reading" << std::endl;
 	  EffValue eff_val = mReadIntersectionEfficiencies(channel, trigInters, varname, isData);
-	  std::cout << "after reading" << std::endl;
 	  mValues.set(eff_val, channel, trigInters, varname);
 	}
+#ifdef DEBUG
   std::cout << "====== Exit mGetIntersectionEfficiencies" << std::endl;
+#endif
   return mValues(channel, trigInters, varname);
 }
 
@@ -296,4 +314,54 @@ auto TriggerSF::mKLUBStandaloneNameMatching(vec<std::string> old_strs,
 	new_strs.push_back(x);
 
   return new_strs;
+}
+
+//TODO: should be incuded in a proper unit test
+auto TriggerSF::mTest() const -> bool
+{
+  std::string fname = "weights/TriggerSF/trigSF_etau.root";
+  std::string hname = "MC_VAR_dau2_eta_TRG_EleIsoTauCustom_CUT_NoCut";
+  
+  TFile* fin = TFile::Open(fname.c_str(), "READ");
+  TH1F *h = (TH1F*)fin->Get(hname.c_str());
+  
+  if (h==nullptr) {
+	std::string mess = "[EffValues::mTest()] Graph " + hname + " was not found.";
+	throw std::invalid_argument(mess);
+  }
+
+  TriggerSF::EffValue val(h);
+  float minDist = 1e-8;
+  
+  float v1 = val.getVal(-2.);
+  if( fabs(v1-h->GetBinContent(1))<minDist )
+	return true;
+  float v2 = val.getVal(0.);
+  if( fabs(v2-h->GetBinContent(4))<minDist )
+	return true;
+  float v3 = val.getVal(1.5);
+  if( fabs(v3-h->GetBinContent(6))<minDist )
+	return true;
+
+  v1 = val.getErrLow(-2.);
+  if( fabs(v1-h->GetBinErrorLow(1))<minDist )
+	return true;
+  v2 = val.getErrLow(0.);
+  if( fabs(v2-h->GetBinErrorLow(4))<minDist )
+	return true;
+  v3 = val.getErrLow(1.5);
+  if( fabs(v3-h->GetBinErrorLow(6))<minDist )
+	return true;
+
+  v1 = val.getErrUp(-2.);
+  if( fabs(v1-h->GetBinErrorUp(1))<minDist )
+	return true;
+  v2 = val.getErrUp(0.);
+  if( fabs(v2-h->GetBinErrorUp(4))<minDist )
+	return true;
+  v3 = val.getErrUp(1.5);
+  if( fabs(v3-h->GetBinErrorUp(6))<minDist )
+	return true;
+
+  return false;
 }
