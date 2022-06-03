@@ -3324,13 +3324,9 @@ int main (int argc, char** argv)
 		EventVariables v;
 		v.dau1_pt() = theSmallTree.m_dau1_pt;
 		v.dau2_pt() = theSmallTree.m_dau2_pt;
-		std::cout << "Dau1 Pt " << v.dau1_pt() << std::endl;
-		std::cout << "Dau2 Pt " << v.dau2_pt() << std::endl;
 		const float w = tsf_obj.getEvtWeight(v, "EleTau");
-		std::cout << "Weight " << w << std::endl;
-		std::exit(0);
+		std::cout << "Weight " << w << "Dau1 Pt " << v.dau1_pt() << "Dau2 Pt " << v.dau2_pt() << std::endl;
 	  } // end if(applytriggers)
-	std::exit(0);
 	
     theSmallTree.m_trigSF           = (isMC ? trigSF : 1.0);
     theSmallTree.m_trigSF_ele_up    = (isMC ? trigSF_ele_up : 1.0);

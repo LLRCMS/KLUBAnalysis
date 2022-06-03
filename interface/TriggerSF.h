@@ -26,8 +26,11 @@
 #include <vector>
 #include <utility>
 #include <unordered_map>
+#include <map>
 #include <stdexcept>
 #include <limits>
+#include <functional>
+#include <string>
 #include <boost/algorithm/string.hpp>
 
 // KLUB libraries
@@ -67,6 +70,22 @@ public:
   auto dau2_eta() const& -> const float& { return dau2_eta_; }
   auto dau2_eta() &      -> float&       { return dau2_eta_; }
   auto dau2_eta() &&     -> float&&      { return std::move(dau2_eta_); }
+
+  auto test(int x) -> int { return x+1; }
+  
+private:
+  //std::map<std::string, std::function<const float&()>> func_map_;
+  std::map<std::string, std::function<int(int)>> func_map_;
+  func_map_["dau1_pt"]  = this->test;
+  // func_map_["dau1_pt"]  = this->dau1_pt;
+  // func_map_["dau2_pt"]  = this->dau2_pt;
+  // func_map_["dau1_eta"] = this->dau1_eta;
+  // func_map_["dau2_eta"] = this->dau2_eta;
+
+public:
+  auto get(std::string s) const& -> const float& {
+	return this->func_map_[s]();
+  }
 };
 
 // TriggerSF class
@@ -77,11 +96,15 @@ private:
   template<typename T> using vec = std::vector<T>;
   template<typename T> using vec2 = vec<vec<T>>;
   template<typename K, typename V> using umap = std::unordered_map<K,V>;
-	
+
+  // Contains histogram values. Skips under and overflows.
+  // The first (last) bin in each axis is zero (nbins-1).
+  // (x,y,z) values are stored in a 1D vector.
+  // Consecutive x bins are stored in adjacent memory locations.
   class EffValue
   {
   public:
-	EffValue(TH1* h)
+	EffValue(TH1F* h)
 	{
 	  mNBinsX = h->GetNbinsX();
 	  mNBinsY = h->GetNbinsY();
@@ -136,12 +159,12 @@ private:
 	  return xbin + mNBinsX*ybin + mNBinsX*mNBinsY*zbin;
 	}
 	
-	void fill(TH1* h)
+	void fill(TH1F* h)
 	{
 	  for(unsigned i=0; i<=mNBinsZ; ++i) {
 		for(unsigned j=0; j<=mNBinsY; ++j) {
 		  for(unsigned k=0; k<=mNBinsX; ++k) {
-			unsigned bin = h->GetBin(i,j,k);
+			unsigned bin = h->GetBin(k,j,i);
 			if (h->IsBinUnderflow(bin) or h->IsBinOverflow(bin))
 			  continue;
 
@@ -155,13 +178,20 @@ private:
 
 	auto mGetBinNumber(unsigned nbins, TAxis *ax, float var) const -> unsigned
 	{
-	  if (var < ax->GetBinLowEdge(1))
-		std::cout << "[TriggerSF.h] " << std::endl;
+	  if (var < ax->GetBinLowEdge(1)) {
+		std::cout << var << ", " << ax->GetBinLowEdge(1) << std::endl;
+	    throw std::invalid_argument("[TriggerSF.h] Underflow.");
+	  }
+	  if (var > ax->GetBinUpEdge(nbins)) {
+		std::cout << var << ", " << ax->GetBinUpEdge(nbins) << std::endl;
+	    throw std::invalid_argument("[TriggerSF.h] Overflow.");
+	  }
+
 	  for(unsigned i=1; i<=nbins; ++i) {
 		if(ax->GetBinLowEdge(i)<var and ax->GetBinUpEdge(i)>=var)
-		  return i;
+		  return i-1;
 	  }
-	  std::string m = ( "Should not get to this point - development error message. Var " +
+	  std::string m = ( "Should not get to this point. Var " +
 						std::to_string(var) );
 	  throw std::invalid_argument(m);
 	}
@@ -183,7 +213,7 @@ private:
 	}
 
   }; // class EffValue
-
+  
   //first: MC; second: Data (per channel)
   umap< std::string, std::pair< std::vector<std::string>,
 								std::vector<std::string> > > mInters;
@@ -197,9 +227,9 @@ private:
   const std::set<std::string> mChannelsAllowed = {"EleTau", "MuTau", "TauTau"};
   const std::string mTriggerStrConnector = "_PLUS_";
 
-  auto mBuildHistogramName(std::string varname,
-						   std::string trigInters,
-						   bool isData) const -> std::string;
+  auto mBuildObjectName(std::string varname,
+						std::string trigInters,
+						bool isData) const -> std::string;
 
   auto mCheckChannel(std::string channel) const -> void;
 
@@ -234,6 +264,7 @@ private:
 									  std::string trigInters,
 									  std::string varname,
 									  const bool isData ) -> EffValue;
+  auto mTest() const -> bool;
   
 public:
   TriggerSF(TriggerChannelLists triggers,
