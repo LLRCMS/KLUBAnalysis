@@ -149,9 +149,9 @@ auto TriggerSF::mGetUnionEfficiency( const EventVariables& vars,
 		{
 		  const TriggerSF::EffValue eff = mGetIntersectionEfficiencies( channel, inters, isData );
 		  if(mCountNumberTriggerItems(inters)%2==0)
-			un_eff -= eff.getVal( vars.get("dau1_pt") );
+			un_eff -= eff.getVal( vars("dau1_pt") );
 		  else
-			un_eff += eff.getVal( vars.get("dau1_pt") );
+			un_eff += eff.getVal( vars("dau1_pt") );
 		}
 	  else {
 		std::string mess = "JSON key does not exist. Channel: " + channel + "; Inters: " + inters + ".";
@@ -175,8 +175,8 @@ auto TriggerSF::mGetUnionEfficiencyErrors( const EventVariables& vars,
 	{
 	  TriggerSF::EffValue eff = mGetIntersectionEfficiencies( channel, inters, isData );
 
-	  un_eup += eff.getErrUp( vars.dau1_pt() ); /// CHANGE how should the error be calculated
-	  un_elow += eff.getErrLow( vars.dau1_pt() ); /// CHANGE how should the error be calculated
+	  un_eup += eff.getErrUp( vars("dau1_pt") ); /// CHANGE how should the error be calculated
+	  un_elow += eff.getErrLow( vars("dau1_pt") ); /// CHANGE how should the error be calculated
 	}
   return std::make_pair(un_eup, un_elow);
 }

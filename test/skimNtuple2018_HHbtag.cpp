@@ -33,6 +33,7 @@
 #include "skimUtils.h"
 #include "PuJetIdSF.h"
 #include "TriggerSF.h"
+#include "EventVariables.h"
 #include "TriggerChannelLists.h"
 #include "JECKLUBinterface.h"
 #include "SVfitKLUBinterface.h"
@@ -3325,7 +3326,7 @@ int main (int argc, char** argv)
 		v.dau1_pt() = theSmallTree.m_dau1_pt;
 		v.dau2_pt() = theSmallTree.m_dau2_pt;
 		const float w = tsf_obj.getEvtWeight(v, "EleTau");
-		std::cout << "Weight " << w << "Dau1 Pt " << v.dau1_pt() << "Dau2 Pt " << v.dau2_pt() << std::endl;
+		std::cout << "Weight " << w << ", Dau1 Pt " << v.dau1_pt() << ", Dau2 Pt " << v.dau2_pt() << std::endl;
 	  } // end if(applytriggers)
 	
     theSmallTree.m_trigSF           = (isMC ? trigSF : 1.0);
