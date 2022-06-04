@@ -66,7 +66,7 @@ auto TriggerSF::mBuildObjectName(std::string varname,
 auto TriggerSF::mCheckChannel(std::string channel) const -> void
 {
   if (mChannelsAllowed.find(channel) == mChannelsAllowed.end()) {
-	std::string message = "[TriggerChannelLists::add()] Channel " + channel + " is not supported!";
+	std::string message = "[TriggerSF::add()] Channel " + channel + " is not supported!";
 	throw std::invalid_argument(message);
   }
 }
@@ -105,9 +105,11 @@ auto TriggerSF::getEvtWeight(const EventVariables& vars,
 #ifdef DEBUG
   std::cout << "====== Enter getEvtWeight" << std::endl;
 #endif
-  //TriggerChannelLists::mCheckChannel(channel);
+  mCheckChannel(channel);
   const float probability_data = mGetUnionEfficiency( vars, channel, true );
+  std::cout << "Weight Data " << probability_data << std::endl;
   const float probability_mc = mGetUnionEfficiency( vars, channel, false );
+  std::cout << "Weight MC " << probability_mc << std::endl;
   const float eventWeight = probability_data / probability_mc;
 #ifdef DEBUG
   std::cout << "====== Exit getEvtWeight" << std::endl;
@@ -118,7 +120,7 @@ auto TriggerSF::getEvtWeight(const EventVariables& vars,
 auto TriggerSF::getEvtWeightErrors( const EventVariables& vars,
 									std::string channel ) -> const mPair
 {
-  //TriggerChannelLists::mCheckChannel(channel);
+  mCheckChannel(channel);
   const TriggerSF::mPair errors_data = mGetUnionEfficiencyErrors( vars, channel, true );
   const TriggerSF::mPair errors_mc = mGetUnionEfficiencyErrors( vars, channel, false );
 
@@ -231,7 +233,7 @@ auto TriggerSF::mGetTriggerIntersections( const TriggerChannelLists& list,
 										  const bool isData ) -> const vec<std::string>
 {
   VectorCombinations comb;
-  vec<std::string> strs = list.get(channel, isData);
+  vec<std::string> strs = list.get_full(channel, isData);
   vec<std::string> new_strs = mKLUBStandaloneNameMatching(strs, channel, isData); //KLUB - Python standalone matching
   vec<std::string> res = comb.combine_all_k<std::string>(new_strs).flatten(mTriggerStrConnector);
   // comb.combine_all_k<std::string>(strs).print();

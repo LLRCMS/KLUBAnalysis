@@ -90,7 +90,8 @@ class TriggerChannelLists {
 	{
 	  return mChannelsAllowed;
 	}
-  
+
+  // only returns channel specific trigger list
   auto get(std::string channel, bool isData) const -> vecstr
   {
 	mCheckChannel(channel);
@@ -101,6 +102,23 @@ class TriggerChannelLists {
 	  res = mTriggers.at(channel).second;
 	return res;
   }
+
+  // returns channel specific list plus generic one
+  auto get_full(std::string channel, bool isData) const -> vecstr
+  {
+	mCheckChannel(channel);
+	vecstr res = this->get(channel, isData);
+	if (isData)
+	  res.insert(res.end(),
+				 mTriggers.at("generic").first.begin(),
+				 mTriggers.at("generic").first.begin());
+	else
+	  res.insert(res.end(),
+				 mTriggers.at("generic").second.begin(),
+				 mTriggers.at("generic").second.begin());
+	return res;
+  }
+
 };
 
 #endif // TriggerChannelLists
