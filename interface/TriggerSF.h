@@ -26,10 +26,8 @@
 #include <vector>
 #include <utility>
 #include <unordered_map>
-#include <map>
 #include <stdexcept>
 #include <limits>
-#include <functional>
 #include <string>
 #include <boost/algorithm/string.hpp>
 
@@ -37,6 +35,7 @@
 #include "nested_map.h"
 #include "VectorCombinations.h"
 #include "TriggerChannelLists.h"
+#include "EventVariables.h"
 
 // ROOT libraries
 #include "TFile.h"
@@ -46,47 +45,6 @@
 #include<fstream>
 #include<json.h> //https://github.com/nlohmann/json
 
-//this struct could be general to the entire framework
-struct EventVariables {
-private:
-  float dau1_pt_;
-  float dau2_pt_;
-  float dau1_eta_;
-  float dau2_eta_;
-
-public:
-  auto dau1_pt() const& -> const float& { return dau1_pt_; }
-  auto dau1_pt() &      -> float&       { return dau1_pt_; }
-  auto dau1_pt() &&     -> float&&      { return std::move(dau1_pt_); }
-
-  auto dau2_pt() const& -> const float& { return dau2_pt_; }
-  auto dau2_pt() &      -> float&       { return dau2_pt_; }
-  auto dau2_pt() &&     -> float&&      { return std::move(dau2_pt_); }
-
-  auto dau1_eta() const& -> const float& { return dau1_eta_; }
-  auto dau1_eta() &      -> float&       { return dau1_eta_; }
-  auto dau1_eta() &&     -> float&&      { return std::move(dau1_eta_); }
-
-  auto dau2_eta() const& -> const float& { return dau2_eta_; }
-  auto dau2_eta() &      -> float&       { return dau2_eta_; }
-  auto dau2_eta() &&     -> float&&      { return std::move(dau2_eta_); }
-
-  auto test(int x) -> int { return x+1; }
-  
-private:
-  //std::map<std::string, std::function<const float&()>> func_map_;
-  std::map<std::string, std::function<int(int)>> func_map_;
-  func_map_["dau1_pt"]  = this->test;
-  // func_map_["dau1_pt"]  = this->dau1_pt;
-  // func_map_["dau2_pt"]  = this->dau2_pt;
-  // func_map_["dau1_eta"] = this->dau1_eta;
-  // func_map_["dau2_eta"] = this->dau2_eta;
-
-public:
-  auto get(std::string s) const& -> const float& {
-	return this->func_map_[s]();
-  }
-};
 
 // TriggerSF class
 class TriggerSF {
@@ -121,11 +79,18 @@ private:
 				float yvar=-std::numeric_limits<float>::max(),
 				float zvar=-std::numeric_limits<float>::max()) const -> float
 	{
-	  unsigned xbin = mGetBinNumber(mNBinsX, mXAxis, xvar);
-	  unsigned ybin = yvar==-std::numeric_limits<float>::max() ? 0 : mGetBinNumber(mNBinsY, mYAxis, yvar);
-	  unsigned zbin = zvar==-std::numeric_limits<float>::max() ? 0 : mGetBinNumber(mNBinsZ, mZAxis, zvar);
+	  unsigned xbin = 0, ybin = 0, zbin = 0;
+	  try {
+		xbin = mGetBinNumber(mNBinsX, mXAxis, xvar);
+		ybin = yvar==-std::numeric_limits<float>::max() ? 0 : mGetBinNumber(mNBinsY, mYAxis, yvar);
+		zbin = zvar==-std::numeric_limits<float>::max() ? 0 : mGetBinNumber(mNBinsZ, mZAxis, zvar);
+	  }
+	  catch (std::invalid_argument const& e) {
+		std::cout << "[WARNING] " << e.what() << std::endl;
+	  }
 	  return mGetValByBin(xbin, ybin, zbin);
 	}
+	
 	auto getErrUp(float xvar,
 				  float yvar=-std::numeric_limits<float>::max(),
 				  float zvar=-std::numeric_limits<float>::max()) const -> float
@@ -179,12 +144,14 @@ private:
 	auto mGetBinNumber(unsigned nbins, TAxis *ax, float var) const -> unsigned
 	{
 	  if (var < ax->GetBinLowEdge(1)) {
-		std::cout << var << ", " << ax->GetBinLowEdge(1) << std::endl;
-	    throw std::invalid_argument("[TriggerSF.h] Underflow.");
+		std::string mess = "Underflow: " + std::to_string(var) + " < ";
+		mess += std::to_string(ax->GetBinLowEdge(1)) + ".";
+	    throw std::invalid_argument("[TriggerSF.h] " + mess);
 	  }
 	  if (var > ax->GetBinUpEdge(nbins)) {
-		std::cout << var << ", " << ax->GetBinUpEdge(nbins) << std::endl;
-	    throw std::invalid_argument("[TriggerSF.h] Overflow.");
+		std::string mess = "Overflow: " + std::to_string(var) + " > ";
+		mess += std::to_string(ax->GetBinUpEdge(nbins)) + ".";
+	    throw std::invalid_argument("[TriggerSF.h] " + mess);
 	  }
 
 	  for(unsigned i=1; i<=nbins; ++i) {
