@@ -398,6 +398,14 @@ int main (int argc, char** argv)
   // bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
   //bool applyTriggers = isMC ? gConfigParser->readBoolOption ("parameters::applyTriggersMC") : true; // true if ask triggerbit + matching, false if doing reweight
 
+  std::unordered_map<int, std::string> chn_m = {
+	{0, "MuTau"},
+	{1, "EleTau"},
+	{2, "TauTau"},
+	{3, "MuMu"},
+	{4, "EleEle"},
+	{5, "EleMu"},
+  };
   bool applyTriggers = gConfigParser->readBoolOption ("parameters::applyTriggersMC") ;
 
   // applyTriggers = true;
@@ -591,35 +599,34 @@ int main (int argc, char** argv)
   HHbtagKLUBinterface HHbtagTagger(models, 2018);
 
   // Trigger Scale Factors
-  TriggerChannelLists triggers_list;
-  triggers_list.add_generic(0,
-							gConfigParser->readStringListOption("triggersMC::METtriggers"),
-							gConfigParser->readStringListOption("triggersMC::vbfTriggers"),
-							gConfigParser->readStringListOption("triggersMC::SingleTau"));
-  triggers_list.add_generic(1,
-							gConfigParser->readStringListOption("triggersMC::METtriggers"),
-							gConfigParser->readStringListOption("triggersMC::vbfTriggers"),
-							gConfigParser->readStringListOption("triggersMC::SingleTau"));
-  triggers_list.add( "EleTau", 0,
-					 gConfigParser->readStringListOption("triggersMC::EleTau"),
-					 gConfigParser->readStringListOption("triggersMC::crossEleTau") );
-  triggers_list.add( "EleTau", 1,
-					 gConfigParser->readStringListOption("triggersData::EleTau"),
-					 gConfigParser->readStringListOption("triggersData::crossEleTau") );
-  triggers_list.add( "MuTau", 0,
-					 gConfigParser->readStringListOption("triggersMC::MuTau"),
-					 gConfigParser->readStringListOption("triggersMC::crossMuTau") );
-  triggers_list.add( "MuTau", 1,
-					 gConfigParser->readStringListOption("triggersData::MuTau"),
-					 gConfigParser->readStringListOption("triggersData::crossMuTau") );
-  triggers_list.add( "TauTau", 0,
-					 gConfigParser->readStringListOption("triggersMC::TauTau"),
-					 gConfigParser->readStringListOption("triggersMC::crossTauTau") );
-  triggers_list.add( "TauTau", 1,
-					 gConfigParser->readStringListOption("triggersData::TauTau"),
-					 gConfigParser->readStringListOption("triggersData::crossTauTau") );
+  TriggerChannelLists trg_l;
+  trg_l.add_generic(0,
+					gConfigParser->readStringListOption("triggersMC::METtriggers"),
+					gConfigParser->readStringListOption("triggersMC::vbfTriggers"),
+					gConfigParser->readStringListOption("triggersMC::SingleTau"));
+  trg_l.add_generic(1,
+					gConfigParser->readStringListOption("triggersMC::METtriggers"),
+					gConfigParser->readStringListOption("triggersMC::vbfTriggers"),
+					gConfigParser->readStringListOption("triggersMC::SingleTau"));
+  trg_l.add("EleTau", 0,
+			gConfigParser->readStringListOption("triggersMC::EleTau"),
+			gConfigParser->readStringListOption("triggersMC::crossEleTau") );
+  trg_l.add("EleTau", 1,
+			gConfigParser->readStringListOption("triggersData::EleTau"),
+			gConfigParser->readStringListOption("triggersData::crossEleTau") );
+  trg_l.add("MuTau", 0,
+			gConfigParser->readStringListOption("triggersMC::MuTau"),
+			gConfigParser->readStringListOption("triggersMC::crossMuTau") );
+  trg_l.add("MuTau", 1,
+			gConfigParser->readStringListOption("triggersData::MuTau"),
+			gConfigParser->readStringListOption("triggersData::crossMuTau") );
+  trg_l.add("TauTau", 0,
+			gConfigParser->readStringListOption("triggersMC::TauTau"),
+			gConfigParser->readStringListOption("triggersMC::crossTauTau") );
+  trg_l.add("TauTau", 1,
+			gConfigParser->readStringListOption("triggersData::TauTau"),
+			gConfigParser->readStringListOption("triggersData::crossTauTau") );
 
-  
   std::string trigger_base_name = gConfigParser->readStringOption("triggerSF::baseDir");
   std::unordered_map<std::string,std::string> eff_names = {
 	{"EleTau", trigger_base_name + "trigSF_etau.root"},
@@ -629,7 +636,7 @@ int main (int argc, char** argv)
 	{"EleTau", trigger_base_name + "runVariableImportanceDiscriminator_etau.json"},
 	{"MuTau",  trigger_base_name + "runVariableImportanceDiscriminator_mutau.json"},
 	{"TauTau", trigger_base_name + "runVariableImportanceDiscriminator_tautau.json"} };
-  TriggerSF tsf_obj( triggers_list, eff_names, var_names, 2018 );
+  TriggerSF tsf(trg_l, eff_names, var_names, 2018);
 
 
   // electron/muon IdAndIso SF
@@ -3320,13 +3327,14 @@ int main (int argc, char** argv)
     float trigSF_single = 1.0;
     float trigSF_cross = 1.0;
 
-    if(applyTriggers)
+	std::cout << "Channel: " + chn_m.at(pType) << std::endl;
+    if(applyTriggers and (pType==0 or pType==1 or pType==2))
 	  {
 		EventVariables v;
 		v.dau1_pt() = theSmallTree.m_dau1_pt;
 		v.dau2_pt() = theSmallTree.m_dau2_pt;
-		const float w = tsf_obj.getEvtWeight(v, "EleTau");
-		std::cout << "Weight " << w << ", Dau1 Pt " << v.dau1_pt() << ", Dau2 Pt " << v.dau2_pt() << std::endl;
+		const float w = tsf.getEvtWeight(v, chn_m.at(pType));
+		//std::cout << "Weight " << w << ", Dau1 Pt " << v.dau1_pt() << ", Dau2 Pt " << v.dau2_pt() << std::endl;
 	  } // end if(applytriggers)
 	
     theSmallTree.m_trigSF           = (isMC ? trigSF : 1.0);
@@ -5673,18 +5681,9 @@ int main (int argc, char** argv)
   TH1F* hEffHHSigsSummary [6];
   if (isHHsignal)
   {
-    std::vector<string> vNames = {
-      "MuTau",
-      "ETau",
-      "TauTau",
-      "MuMu",
-      "EE",
-      "EMu"
-    };
-
     for (uint ich = 0; ich < 6; ++ich)
     {
-      string hname = string("h_effSummary_") + vNames.at(ich);
+      string hname = string("h_effSummary_") + chn_m.at(ich);
       vector<pair<string, double> > vEffSummHH = ecHHsig[ich].GetSummary();
       hEffHHSigsSummary[ich] = new TH1F (hname.c_str(), hname.c_str(), vEffSummHH.size(), 0, vEffSummHH.size());
       for (uint isumm = 0; isumm < vEffSummHH.size(); ++isumm)
@@ -5932,6 +5931,7 @@ int main (int argc, char** argv)
     if (doResonantLM)  readerResonantLM->BookMVA ("500t_PU_mass_newvars_LOW",  TMVAweightsResonantLM.c_str ()) ;
     if (doNonResonant)  readerNonResonant->BookMVA ("BDT_nonres_SM",  TMVAweightsNonResonant.c_str ()) ;
 
+	
     int nentries = treenew->GetEntries();
     for(int i=0;i<nentries;i++)
     {
