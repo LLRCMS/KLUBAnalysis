@@ -47,7 +47,7 @@ class TriggerChannelLists {
   auto mInternalAdd(std::string channel, bool isData, const vecstr& trigs) -> void
   {
 	for (const auto &t : trigs) {
-	  if (isData)
+	  if (!isData)
 		mTriggers[channel].first.push_back(t);
 	  else
 		mTriggers[channel].second.push_back(t);
@@ -69,7 +69,7 @@ class TriggerChannelLists {
   auto mInternalAddGeneric(bool isData, const vecstr& trigs) -> void
   {
 	for (const auto &t : trigs) {
-	  if (isData)
+	  if (!isData)
 		mTriggers["generic"].first.push_back(t);
 	  else
 		mTriggers["generic"].second.push_back(t);
@@ -96,7 +96,7 @@ class TriggerChannelLists {
   {
 	mCheckChannel(channel);
 	vecstr res;
-	if (isData)
+	if (!isData)
 	  res = mTriggers.at(channel).first;
 	else
 	  res = mTriggers.at(channel).second;
@@ -108,7 +108,7 @@ class TriggerChannelLists {
   {
 	mCheckChannel(channel);
 	vecstr res = this->get(channel, isData);
-	if (isData)
+	if (!isData)
 	  res.insert(res.end(),
 				 mTriggers.at("generic").first.begin(),
 				 mTriggers.at("generic").first.begin());
