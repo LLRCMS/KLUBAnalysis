@@ -3,7 +3,7 @@
 // #define DEBUG
 
 // Constructor
-TriggerSF::TriggerSF( TriggerChannelLists triggers,
+TriggerSF::TriggerSF( TriggerChannelLists trgs,
 					  umap<std::string,std::string> eff_files,
 					  umap<std::string,std::string> var_files,
 					  unsigned year)
@@ -16,9 +16,9 @@ TriggerSF::TriggerSF( TriggerChannelLists triggers,
 #endif
   // inputs consistency checks
   assert( eff_files.size() == var_files.size() );
-  assert(  triggers.channels().size() == var_files.size() );
+  assert(  trgs.channels().size() == var_files.size() );
   
-  for (auto &x: triggers.channels()) {
+  for (auto &x: trgs.channels()) {
 	// sanity check
 	mCheckExtension(eff_files[x], "root");
 	mCheckExtension(var_files[x], "json");
@@ -35,8 +35,9 @@ TriggerSF::TriggerSF( TriggerChannelLists triggers,
 	i >> mVarFiles[x];
 
 	//load intersection efficiency strings [first: MC; second: Data]
-	mInters[x] = std::make_pair( mGetTriggerIntersections( triggers, x, false ),
-								 mGetTriggerIntersections( triggers, x, true ) );
+	bool is_data = true;
+	mInters[x] = std::make_pair(mGetTriggerIntersections(trgs, x, !is_data),
+								mGetTriggerIntersections(trgs, x, is_data));
   }
 #ifdef DEBUG
   std::cout << "====== Exit Constructor" << std::endl;
@@ -108,9 +109,7 @@ auto TriggerSF::getEvtWeight(const EventVariables& vars,
 #endif
   mCheckChannel(channel);
   const float probability_data = mGetUnionEfficiency(vars, channel, true);
-  std::cout << "Weight Data " << probability_data << std::endl;
   const float probability_mc = mGetUnionEfficiency(vars, channel, false);
-  std::cout << "Weight MC " << probability_mc << std::endl;
   const float eventWeight = probability_data / probability_mc;
 #ifdef DEBUG
   std::cout << "====== Exit getEvtWeight" << std::endl;
@@ -137,10 +136,6 @@ auto TriggerSF::mMCOrDataIntersections( std::string channel,
   vec<std::string> tmp = ( isData==1 ?
 						   std::get<1>(mInters[channel]) :
 						   std::get<0>(mInters[channel]) );
-  std::cout << "Intersections: " << std::endl;
-  for (auto &t : tmp)
-	std::cout << t << std::endl;
-  std::cout << std::endl;
   return tmp;
 }
 
@@ -253,7 +248,9 @@ auto TriggerSF::mGetTriggerIntersections( const TriggerChannelLists& list,
   return res;                                                                     
 }
 
-//The following matching must follow the trigger naming scheme adopted in the Python standalone framework
+// The following matching must follow the trigger naming scheme adopted in the
+// Python standalone framework
+// TODO: Use a class member multi_map to link the names for better code
 auto TriggerSF::mKLUBStandaloneNameMatching(vec<std::string> old_strs,
 											std::string channel,
 											const bool isData ) -> const vec<std::string>
@@ -274,10 +271,18 @@ auto TriggerSF::mKLUBStandaloneNameMatching(vec<std::string> old_strs,
 		continue;
 	  }
 	  //Single Tau
-	  else if (s=="HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET100_v")
+	  else if (s=="HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET100_v") {
 		new_set.insert("IsoTau50");
-	  else if (s=="HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v")
+		continue;
+	  }
+	  else if (s=="HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v" or
+			   s=="HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_1pr_v") { //CHANGE!!!!!!!!!!
 		new_set.insert("IsoTau180");
+		continue;
+	  }
+	  else if (s=="NONE") { 
+		continue;
+	  }
 	  
 	  // === channel-specific triggers ===
 	  if(channel=="EleTau")
