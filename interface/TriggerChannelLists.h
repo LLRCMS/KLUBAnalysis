@@ -34,17 +34,23 @@ class TriggerChannelLists {
   auto mCheckChannel(std::string channel) const -> void
   {
 	if (mChannelsAllowed.find(channel) == mChannelsAllowed.end()) {
-	  std::string message = "[TriggerChannelLists::add()] Channel " + channel + " is not supported!";
-	  throw std::invalid_argument(message);
+	  std::string mess = "[TriggerChannelLists::add()] Channel ";
+	  mess += channel + " is not supported!";
+	  throw std::invalid_argument(mess);
 	}
   }
-
- public:
-  TriggerChannelLists() {}
-  ~TriggerChannelLists() {}
-
+  
   //channel-specific triggers
-  auto mInternalAdd(std::string channel, bool isData, const vecstr& trigs) -> void
+  auto mInternalAdd(std::string channel, bool isData) -> void
+  {
+	std::string mess = "[mInternalAdd] ";
+	mess += "The code should never get here.";
+	throw std::runtime_error(mess);
+
+  }
+  template <class... RestKeys>
+  auto mInternalAdd(std::string channel, bool isData,
+					const vecstr& trigs, RestKeys... args) -> void
   {
 	for (const auto &t : trigs) {
 	  if (!isData)
@@ -52,12 +58,34 @@ class TriggerChannelLists {
 	  else
 		mTriggers[channel].second.push_back(t);
 	}
+	if(sizeof...(args) != 0)
+	  return mInternalAdd(channel, isData, args...);
+  }
+
+  //channel-generic triggers
+  auto mInternalAddGeneric(bool isData) -> void
+  {
+	std::string mess = "[mInternalAddGeneric] ";
+	mess += "The code should never get here.";
+	throw std::runtime_error(mess);
   }
   template <class... RestKeys>
-  auto mInternalAdd(std::string channel, bool isData, const vecstr& trigs, RestKeys... args) -> void
+  auto mInternalAddGeneric(bool isData, const vecstr& trigs, RestKeys... args) -> void
   {
-	return mInternalAdd(channel, isData, args...);
+	for (const auto &t : trigs) {
+	  if (!isData)
+		mTriggers["generic"].first.push_back(t);
+	  else
+		mTriggers["generic"].second.push_back(t);
+	}	
+	if(sizeof...(args) != 0)
+	  return mInternalAddGeneric(isData, args...);
   }
+
+ public:
+  TriggerChannelLists() {}
+  ~TriggerChannelLists() {}
+
   template <class ... Ts>
   auto add(std::string channel, bool isData, Ts... trigs) -> auto
   {
@@ -65,21 +93,6 @@ class TriggerChannelLists {
 	mInternalAdd(channel, isData, trigs...);
   }
 
-  //channel-generic triggers
-  auto mInternalAddGeneric(bool isData, const vecstr& trigs) -> void
-  {
-	for (const auto &t : trigs) {
-	  if (!isData)
-		mTriggers["generic"].first.push_back(t);
-	  else
-		mTriggers["generic"].second.push_back(t);
-	}
-  }
-  template <class... RestKeys>
-  auto mInternalAddGeneric(bool isData, const vecstr& trigs, RestKeys... args) -> void
-  {
-	return mInternalAddGeneric(isData, args...);
-  }
   template <class ... Ts>
   auto add_generic(bool isData, Ts... trigs) -> auto
   {
@@ -108,14 +121,15 @@ class TriggerChannelLists {
   {
 	mCheckChannel(channel);
 	vecstr res = this->get(channel, isData);
+	vecstr res2;
 	if (!isData)
-	  res.insert(res.end(),
-				 mTriggers.at("generic").first.begin(),
-				 mTriggers.at("generic").first.begin());
+	  res2 = mTriggers.at("generic").first;
 	else
-	  res.insert(res.end(),
-				 mTriggers.at("generic").second.begin(),
-				 mTriggers.at("generic").second.begin());
+	  res2 = mTriggers.at("generic").second;
+	res.reserve( res.size() + res2.size() );
+	res.insert(res.end(),
+			   res2.begin(),
+			   res2.end());
 	return res;
   }
 

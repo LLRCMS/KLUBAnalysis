@@ -3327,14 +3327,15 @@ int main (int argc, char** argv)
     float trigSF_single = 1.0;
     float trigSF_cross = 1.0;
 
-	std::cout << "Channel: " + chn_m.at(pType) + " " + pType << std::endl;
     if(applyTriggers and (pType==0 or pType==1 or pType==2))
 	  {
 		EventVariables v;
 		v.dau1_pt() = theSmallTree.m_dau1_pt;
 		v.dau2_pt() = theSmallTree.m_dau2_pt;
 		const float w = tsf.getEvtWeight(v, chn_m.at(pType));
-		//std::cout << "Weight " << w << ", Dau1 Pt " << v.dau1_pt() << ", Dau2 Pt " << v.dau2_pt() << std::endl;
+		std::cout << "Channel: " + chn_m.at(pType) + " " + pType << std::endl;
+		std::cout << "Weight " << w << ", Dau1 Pt " << v.dau1_pt() << ", Dau2 Pt " << v.dau2_pt() << std::endl;
+		std::cout << std::endl;
 	  } // end if(applytriggers)
 	
     theSmallTree.m_trigSF           = (isMC ? trigSF : 1.0);
