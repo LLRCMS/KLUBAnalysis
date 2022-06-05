@@ -1609,19 +1609,19 @@ int main (int argc, char** argv)
 
     int pairType = 2; // tau tau
     if (nmu > 0)
-    {
-      if (nmu == 1 && nmu10 == 0)
-	pairType = 0 ; // mu tau
-      else
-	pairType = 3 ; // mu mu
-    }
+	  {
+		if (nmu == 1 && nmu10 == 0)
+		  pairType = 0 ; // mu tau
+		else
+		  pairType = 3 ; // mu mu
+	  }
     else if (nele > 0)
-    {
-      if (nele == 1 && nele10 == 0)
-	pairType = 1;  // ele tau
-      else
-	pairType = 4 ; // ele ele
-    }
+	  {
+		if (nele == 1 && nele10 == 0)
+		  pairType = 1;  // ele tau
+		else
+		  pairType = 4 ; // ele ele
+	  }
 
     // ----------------------------------------------------------
     // choose the first pair passing baseline and being of the right pair type
@@ -3327,7 +3327,7 @@ int main (int argc, char** argv)
     float trigSF_single = 1.0;
     float trigSF_cross = 1.0;
 
-	std::cout << "Channel: " + chn_m.at(pType) << std::endl;
+	std::cout << "Channel: " + chn_m.at(pType) + " " + pType << std::endl;
     if(applyTriggers and (pType==0 or pType==1 or pType==2))
 	  {
 		EventVariables v;

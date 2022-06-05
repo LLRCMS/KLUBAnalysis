@@ -66,8 +66,9 @@ auto TriggerSF::mBuildObjectName(std::string varname,
 auto TriggerSF::mCheckChannel(std::string channel) const -> void
 {
   if (mChannelsAllowed.find(channel) == mChannelsAllowed.end()) {
-	std::string message = "[TriggerSF::add()] Channel " + channel + " is not supported!";
-	throw std::invalid_argument(message);
+	std::string mess = "[TriggerSF::add()] Channel " + channel;
+	mess += " is not supported!";
+	throw std::invalid_argument(mess);
   }
 }
 
@@ -106,9 +107,9 @@ auto TriggerSF::getEvtWeight(const EventVariables& vars,
   std::cout << "====== Enter getEvtWeight" << std::endl;
 #endif
   mCheckChannel(channel);
-  const float probability_data = mGetUnionEfficiency( vars, channel, true );
+  const float probability_data = mGetUnionEfficiency(vars, channel, true);
   std::cout << "Weight Data " << probability_data << std::endl;
-  const float probability_mc = mGetUnionEfficiency( vars, channel, false );
+  const float probability_mc = mGetUnionEfficiency(vars, channel, false);
   std::cout << "Weight MC " << probability_mc << std::endl;
   const float eventWeight = probability_data / probability_mc;
 #ifdef DEBUG
@@ -121,8 +122,8 @@ auto TriggerSF::getEvtWeightErrors( const EventVariables& vars,
 									std::string channel ) -> const mPair
 {
   mCheckChannel(channel);
-  const TriggerSF::mPair errors_data = mGetUnionEfficiencyErrors( vars, channel, true );
-  const TriggerSF::mPair errors_mc = mGetUnionEfficiencyErrors( vars, channel, false );
+  const TriggerSF::mPair errors_data = mGetUnionEfficiencyErrors(vars, channel, true);
+  const TriggerSF::mPair errors_mc = mGetUnionEfficiencyErrors(vars, channel, false);
 
   const float error_up = errors_data.first / errors_mc.first; /// CHANGE
   const float error_down = errors_data.second / errors_mc.second; /// CHANGE
@@ -133,11 +134,18 @@ auto TriggerSF::getEvtWeightErrors( const EventVariables& vars,
 auto TriggerSF::mMCOrDataIntersections( std::string channel,
 										const bool isData ) -> vec<std::string>
 {
-  return isData==1 ? std::get<1>(mInters[channel]) : std::get<0>(mInters[channel]);
+  vec<std::string> tmp = ( isData==1 ?
+						   std::get<1>(mInters[channel]) :
+						   std::get<0>(mInters[channel]) );
+  std::cout << "Intersections: " << std::endl;
+  for (auto &t : tmp)
+	std::cout << t << std::endl;
+  std::cout << std::endl;
+  return tmp;
 }
 
 auto TriggerSF::mGetUnionEfficiency( const EventVariables& vars,
-									 std::string channel,
+									 std::string chn,
 									 const bool isData ) -> const float
 {
 #ifdef DEBUG  
@@ -145,18 +153,18 @@ auto TriggerSF::mGetUnionEfficiency( const EventVariables& vars,
 #endif
   float un_eff = 0.f;
 
-  for (auto &inters : mMCOrDataIntersections(channel, isData))
+  for (auto &inters : mMCOrDataIntersections(chn, isData))
 	{
-	  if (mVarFiles[channel].contains(inters))
+	  if (mVarFiles[chn].contains(inters))
 		{
-		  const TriggerSF::EffValue eff = mGetIntersectionEfficiencies( channel, inters, isData );
+		  const TriggerSF::EffValue& eff = mGetIntersectionEfficiencies(chn, inters, isData);
 		  if(mCountNumberTriggerItems(inters)%2==0)
 			un_eff -= eff.getVal( vars("dau1_pt") );
 		  else
 			un_eff += eff.getVal( vars("dau1_pt") );
 		}
 	  else {
-		std::string mess = "JSON key does not exist. Channel: " + channel + "; Inters: " + inters + ".";
+		std::string mess = "JSON key does not exist. Chn: " + chn + "; Inters: " + inters + ".";
 		throw std::invalid_argument(mess);
 	  }
 	}
@@ -167,15 +175,15 @@ auto TriggerSF::mGetUnionEfficiency( const EventVariables& vars,
 }
 
 auto TriggerSF::mGetUnionEfficiencyErrors( const EventVariables& vars,
-										   std::string channel,
+										   std::string chn,
 										   const bool isData ) -> const mPair
 {
   float un_eup = 0.f;
   float un_elow = 0.f;
 
-  for (const auto &inters : mMCOrDataIntersections(channel, isData))
+  for (const auto &inters : mMCOrDataIntersections(chn, isData))
 	{
-	  TriggerSF::EffValue eff = mGetIntersectionEfficiencies( channel, inters, isData );
+	  const TriggerSF::EffValue& eff = mGetIntersectionEfficiencies(chn, inters, isData);
 
 	  un_eup += eff.getErrUp( vars("dau1_pt") ); /// CHANGE how should the error be calculated
 	  un_elow += eff.getErrLow( vars("dau1_pt") ); /// CHANGE how should the error be calculated
@@ -184,20 +192,20 @@ auto TriggerSF::mGetUnionEfficiencyErrors( const EventVariables& vars,
 }
 
 /// CHANGE to consider more dimensions
-auto TriggerSF::mReadIntersectionEfficiencies( std::string channel,
-											   std::string trigInters,
+auto TriggerSF::mReadIntersectionEfficiencies( std::string chn,
+											   std::string inters,
 											   std::string varname,
 											   const bool isData ) -> EffValue
 {
 #ifdef DEBUG  
   std::cout << "====== Enter mReadIntersectionEfficiencies" << std::endl;
 #endif
-  std::string hname = mBuildObjectName(varname, trigInters, isData);
-  TH1F *histo = (TH1F*)mEffFiles[channel]->Get(hname.c_str());
+  std::string hname = mBuildObjectName(varname, inters, isData);
+  TH1F *histo = (TH1F*)mEffFiles[chn]->Get(hname.c_str());
   if (histo==nullptr) {
 	std::string mess = "Graph " + hname + " was not found ";
-	mess += "(channel " + channel + ", ";
-	mess += "trigger intersection " + trigInters + ").";
+	mess += "(chn " + chn + ", ";
+	mess += "trigger intersection " + inters + ").";
 	throw std::invalid_argument(mess);
   }
   TriggerSF::EffValue val(histo);
@@ -207,34 +215,39 @@ auto TriggerSF::mReadIntersectionEfficiencies( std::string channel,
   return val;
 }
 
-auto TriggerSF::mGetIntersectionEfficiencies( std::string channel,
-											  std::string trigInters,
-											  const bool isData ) -> const EffValue
+auto TriggerSF::toStr(bool b) const -> std::string
+{
+  return std::to_string(b);
+}
+					  
+auto TriggerSF::mGetIntersectionEfficiencies( std::string chn,
+											  std::string inters,
+											  const bool isData ) -> const EffValue&
 {
 #ifdef DEBUG  
   std::cout << "====== Enter mGetIntersectionEfficiencies" << std::endl;
 #endif
-  vec2<std::string> var = mVarFiles[channel][trigInters].get<vec2<std::string>>();
+  vec2<std::string> var = mVarFiles[chn][inters].get<vec2<std::string>>();
   std::string varname = mEffVariablesToVarName(var);
   
-  if ( ! mValues.contains(channel, trigInters, varname) )
+  if ( ! mValues.contains(chn, inters, varname, toStr(isData)) )
 	{
-	  EffValue eff_val = mReadIntersectionEfficiencies(channel, trigInters, varname, isData);
-	  mValues.set(eff_val, channel, trigInters, varname);
+	  EffValue eff_val = mReadIntersectionEfficiencies(chn, inters, varname, isData);
+	  mValues.set(eff_val, chn, inters, varname, toStr(isData));
 	}
 #ifdef DEBUG
   std::cout << "====== Exit mGetIntersectionEfficiencies" << std::endl;
 #endif
-  return mValues(channel, trigInters, varname);
+  return mValues(chn, inters, varname, toStr(isData));
 }
 
 auto TriggerSF::mGetTriggerIntersections( const TriggerChannelLists& list,
-										  std::string channel,
+										  std::string chn,
 										  const bool isData ) -> const vec<std::string>
 {
   VectorCombinations comb;
-  vec<std::string> strs = list.get_full(channel, isData);
-  vec<std::string> new_strs = mKLUBStandaloneNameMatching(strs, channel, isData); //KLUB - Python standalone matching
+  vec<std::string> strs = list.get_full(chn, isData);
+  vec<std::string> new_strs = mKLUBStandaloneNameMatching(strs, chn, isData); //KLUB - Python standalone matching
   vec<std::string> res = comb.combine_all_k<std::string>(new_strs).flatten(mTriggerStrConnector);
   // comb.combine_all_k<std::string>(strs).print();
   return res;                                                                     

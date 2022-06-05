@@ -182,10 +182,10 @@ private:
   }; // class EffValue
   
   //first: MC; second: Data (per channel)
-  umap< std::string, std::pair< std::vector<std::string>,
-								std::vector<std::string> > > mInters;
+  umap< std::string, std::pair< vec<std::string>,
+								vec<std::string> > > mInters;
   
-  nested_map<std::string, EffValue, 3> mValues;
+  nested_map<std::string, EffValue, 4> mValues;
 
   // one file per channel
   umap<std::string, TFile*> mEffFiles;
@@ -206,7 +206,7 @@ private:
   
   auto mGetTriggerIntersections( const TriggerChannelLists& list,
 								 std::string channel,
-								 const bool isData ) -> const std::vector<std::string>;
+								 const bool isData ) -> const vec<std::string>;
 
   auto mGetUnionEfficiency( const EventVariables& vars,
 							std::string channel,
@@ -217,7 +217,7 @@ private:
 
   auto mGetIntersectionEfficiencies( std::string channel,
 									 std::string trigInters,
-									 const bool isData ) -> const EffValue;
+									 const bool isData ) -> const EffValue&;
 
   auto mEffVariablesToVarName( const vec2<std::string>& effVars ) -> std::string;
 
@@ -225,13 +225,15 @@ private:
 								   std::string channel,
 								   const bool isData ) -> const vec<std::string>;
 
-  auto mMCOrDataIntersections( std::string channel, const bool isData ) -> std::vector<std::string>;
+  auto mMCOrDataIntersections( std::string channel, const bool isData ) -> vec<std::string>;
 
   auto mReadIntersectionEfficiencies( std::string channel,
 									  std::string trigInters,
 									  std::string varname,
 									  const bool isData ) -> EffValue;
   auto mTest() const -> bool;
+
+  auto toStr(bool b) const -> std::string;
   
 public:
   TriggerSF(TriggerChannelLists triggers,
