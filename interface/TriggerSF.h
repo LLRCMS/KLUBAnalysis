@@ -82,12 +82,43 @@ private:
 	  unsigned xbin = 0, ybin = 0, zbin = 0;
 	  try {
 		xbin = mGetBinNumber(mNBinsX, mXAxis, xvar);
-		ybin = yvar==-std::numeric_limits<float>::max() ? 0 : mGetBinNumber(mNBinsY, mYAxis, yvar);
-		zbin = zvar==-std::numeric_limits<float>::max() ? 0 : mGetBinNumber(mNBinsZ, mZAxis, zvar);
+	  }
+	  catch (std::underflow_error const& e) {
+		throw std::underflow_error(std::string(e.what()) + " (X axis)");
+	  }
+	  catch (std::overflow_error const& e) {
+		throw std::underflow_error(std::string(e.what()) + " (X axis)");
 	  }
 	  catch (std::invalid_argument const& e) {
-		std::cout << "[WARNING] " << e.what() << std::endl;
+		std::cerr << std::string(e.what()) + " (X axis)" << std::endl;
 	  }
+
+	  try {
+		ybin = yvar==-std::numeric_limits<float>::max() ? 0 : mGetBinNumber(mNBinsY, mYAxis, yvar);
+	  }
+	  catch (std::underflow_error const& e) {
+		throw std::underflow_error(std::string(e.what()) + " (Y axis)");
+	  }
+	  catch (std::overflow_error const& e) {
+		throw std::underflow_error(std::string(e.what()) + " (Y axis)");
+	  }
+	  catch (std::invalid_argument const& e) {
+		std::cerr << std::string(e.what()) + " (Y axis)" << std::endl;
+	  }
+
+	  try {
+		zbin = zvar==-std::numeric_limits<float>::max() ? 0 : mGetBinNumber(mNBinsZ, mZAxis, zvar);
+	  }
+	  catch (std::underflow_error const& e) {
+		throw std::underflow_error(std::string(e.what()) + " (Z axis)");
+	  }
+	  catch (std::overflow_error const& e) {
+		throw std::underflow_error(std::string(e.what()) + " (Z axis)");
+	  }
+	  catch (std::invalid_argument const& e) {
+		std::cerr << std::string(e.what()) + " (Z axis)" << std::endl;
+	  }
+
 	  return mGetValByBin(xbin, ybin, zbin);
 	}
 	
@@ -144,14 +175,16 @@ private:
 	auto mGetBinNumber(unsigned nbins, TAxis *ax, float var) const -> unsigned
 	{
 	  if (var < ax->GetBinLowEdge(1)) {
-		std::string mess = "Underflow: " + std::to_string(var) + " < ";
+		std::string mess = "[WARNING TriggerSF.h] Underflow ";
+		mess += std::to_string(var) + " < ";
 		mess += std::to_string(ax->GetBinLowEdge(1)) + ".";
-	    throw std::invalid_argument("[TriggerSF.h] " + mess);
+	    throw std::underflow_error(mess);
 	  }
 	  if (var > ax->GetBinUpEdge(nbins)) {
-		std::string mess = "Overflow: " + std::to_string(var) + " > ";
+		std::string mess = "[WARNING TriggerSF.h] Overflow ";
+		mess += std::to_string(var) + " > ";
 		mess += std::to_string(ax->GetBinUpEdge(nbins)) + ".";
-	    throw std::invalid_argument("[TriggerSF.h] " + mess);
+	    throw std::overflow_error(mess);
 	  }
 
 	  for(unsigned i=1; i<=nbins; ++i) {
@@ -207,6 +240,10 @@ private:
   auto mGetTriggerIntersections( const TriggerChannelLists& list,
 								 std::string channel,
 								 const bool isData ) -> const vec<std::string>;
+
+  auto mExceptionPrint(const std::runtime_error& e,
+					   std::string var, std::string chn,
+					   std::string inters, bool isData) const -> void;
 
   auto mGetUnionEfficiency( const EventVariables& vars,
 							std::string channel,
