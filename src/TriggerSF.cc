@@ -12,7 +12,7 @@ TriggerSF::TriggerSF( TriggerChannelLists trgs,
 	throw std::invalid_argument("Test failed.");
 
 #ifdef DEBUG
-  std::cout << "====== Enter Constructor" << std::endl;
+  std::cerr << "====== Enter Constructor" << std::endl;
 #endif
   // inputs consistency checks
   assert( eff_files.size() == var_files.size() );
@@ -40,7 +40,7 @@ TriggerSF::TriggerSF( TriggerChannelLists trgs,
 								mGetTriggerIntersections(trgs, x, is_data));
   }
 #ifdef DEBUG
-  std::cout << "====== Exit Constructor" << std::endl;
+  std::cerr << "====== Exit Constructor" << std::endl;
 #endif
 }
 
@@ -105,14 +105,14 @@ auto TriggerSF::getEvtWeight(const EventVariables& vars,
 							 std::string channel) -> const float
 {
 #ifdef DEBUG
-  std::cout << "====== Enter getEvtWeight" << std::endl;
+  std::cerr << "====== Enter getEvtWeight" << std::endl;
 #endif
   mCheckChannel(channel);
   const float probability_data = mGetUnionEfficiency(vars, channel, true);
   const float probability_mc = mGetUnionEfficiency(vars, channel, false);
   const float eventWeight = probability_data / probability_mc;
 #ifdef DEBUG
-  std::cout << "====== Exit getEvtWeight" << std::endl;
+  std::cerr << "====== Exit getEvtWeight" << std::endl;
 #endif
   return eventWeight;
 }
@@ -139,12 +139,22 @@ auto TriggerSF::mMCOrDataIntersections( std::string channel,
   return tmp;
 }
 
+auto TriggerSF::mExceptionPrint(const std::runtime_error& e,
+								std::string var, std::string chn,
+								std::string inters, bool isData) const -> void {
+  std::cerr	<< "Variable:			  " << var    << std::endl;
+  std::cerr	<< "Channel:			  " << chn    << std::endl;
+  std::cerr	<< "Trigger intersection: " << inters << std::endl;
+  std::cerr	<< "isData:				  " << isData << std::endl;
+  std::cerr	<< e.what() << std::endl;
+}
+
 auto TriggerSF::mGetUnionEfficiency( const EventVariables& vars,
 									 std::string chn,
 									 const bool isData ) -> const float
 {
 #ifdef DEBUG  
-  std::cout << "====== Enter getUnionEfficiency" << std::endl;
+  std::cerr << "====== Enter getUnionEfficiency" << std::endl;
 #endif
   float un_eff = 0.f;
 
@@ -153,18 +163,30 @@ auto TriggerSF::mGetUnionEfficiency( const EventVariables& vars,
 	  if (mVarFiles[chn].contains(inters))
 		{
 		  const TriggerSF::EffValue& eff = mGetIntersectionEfficiencies(chn, inters, isData);
-		  if(mCountNumberTriggerItems(inters)%2==0)
-			un_eff -= eff.getVal( vars("dau1_pt") );
-		  else
-			un_eff += eff.getVal( vars("dau1_pt") );
+		  const std::string var = "dau1_pt";
+		  try {
+			const float val = eff.getVal( vars(var) );
+			if(mCountNumberTriggerItems(inters)%2==0)
+			  un_eff -= val;
+			else
+			  un_eff += val;
+		  }
+		  catch (std::underflow_error const& e) {
+			mExceptionPrint(e, var, chn, inters, isData);
+		  }
+		  catch (std::overflow_error const& e) {
+			std::string mess = "[WARNING] Underflow";
+			mExceptionPrint(e, var, chn, inters, isData);
+		  }
 		}
 	  else {
-		std::string mess = "JSON key does not exist. Chn: " + chn + "; Inters: " + inters + ".";
+		std::string mess = "JSON key does not exist. Chn: ";
+		mess += chn + "; Inters: " + inters + ".";
 		throw std::invalid_argument(mess);
 	  }
 	}
 #ifdef DEBUG  
-  std::cout << "====== Exit getUnionEfficiency" << std::endl;
+  std::cerr << "====== Exit getUnionEfficiency" << std::endl;
 #endif
   return un_eff;
 }
@@ -193,7 +215,7 @@ auto TriggerSF::mReadIntersectionEfficiencies( std::string chn,
 											   const bool isData ) -> EffValue
 {
 #ifdef DEBUG  
-  std::cout << "====== Enter mReadIntersectionEfficiencies" << std::endl;
+  std::cerr << "====== Enter mReadIntersectionEfficiencies" << std::endl;
 #endif
   std::string hname = mBuildObjectName(varname, inters, isData);
   TH1F *histo = (TH1F*)mEffFiles[chn]->Get(hname.c_str());
@@ -205,7 +227,7 @@ auto TriggerSF::mReadIntersectionEfficiencies( std::string chn,
   }
   TriggerSF::EffValue val(histo);
 #ifdef DEBUG  
-  std::cout << "====== Exit mReadIntersectionEfficiencies" << std::endl;
+  std::cerr << "====== Exit mReadIntersectionEfficiencies" << std::endl;
 #endif
   return val;
 }
@@ -220,7 +242,7 @@ auto TriggerSF::mGetIntersectionEfficiencies( std::string chn,
 											  const bool isData ) -> const EffValue&
 {
 #ifdef DEBUG  
-  std::cout << "====== Enter mGetIntersectionEfficiencies" << std::endl;
+  std::cerr << "====== Enter mGetIntersectionEfficiencies" << std::endl;
 #endif
   vec2<std::string> var = mVarFiles[chn][inters].get<vec2<std::string>>();
   std::string varname = mEffVariablesToVarName(var);
@@ -231,7 +253,7 @@ auto TriggerSF::mGetIntersectionEfficiencies( std::string chn,
 	  mValues.set(eff_val, chn, inters, varname, toStr(isData));
 	}
 #ifdef DEBUG
-  std::cout << "====== Exit mGetIntersectionEfficiencies" << std::endl;
+  std::cerr << "====== Exit mGetIntersectionEfficiencies" << std::endl;
 #endif
   return mValues(chn, inters, varname, toStr(isData));
 }
