@@ -174,19 +174,33 @@ private:
 
 	auto mGetBinNumber(unsigned nbins, TAxis *ax, float var) const -> unsigned
 	{
-	  if (var < ax->GetBinLowEdge(1)) {
+	  float safety1 = 0.33 * fabs(ax->GetBinWidth(1));
+	  float safety2 = 0.33 * fabs(ax->GetBinWidth(nbins));
+
+	  // lower outliers should be understood
+	  if (var < ax->GetBinLowEdge(1) - safety1) {
 		std::string mess = "[WARNING TriggerSF.h] Underflow ";
 		mess += std::to_string(var) + " < ";
-		mess += std::to_string(ax->GetBinLowEdge(1)) + ".";
+		mess += std::to_string(ax->GetBinLowEdge(1));
 	    throw std::underflow_error(mess);
 	  }
-	  if (var > ax->GetBinUpEdge(nbins)) {
+	  // upper outliers should be understood
+	  if (var > ax->GetBinUpEdge(nbins) + safety2) {
 		std::string mess = "[WARNING TriggerSF.h] Overflow ";
 		mess += std::to_string(var) + " > ";
-		mess += std::to_string(ax->GetBinUpEdge(nbins)) + ".";
+		mess += std::to_string(ax->GetBinUpEdge(nbins));
 	    throw std::overflow_error(mess);
 	  }
 
+	  // lower bin merge
+	  if (var < ax->GetBinLowEdge(1)) {
+		return 0;
+	  }
+	  // upper bin merge
+	  if (var > ax->GetBinUpEdge(nbins)) {
+		return nbins-1;
+	  }
+	  
 	  for(unsigned i=1; i<=nbins; ++i) {
 		if(ax->GetBinLowEdge(i)<var and ax->GetBinUpEdge(i)>=var)
 		  return i-1;

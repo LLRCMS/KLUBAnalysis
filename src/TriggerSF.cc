@@ -108,9 +108,9 @@ auto TriggerSF::getEvtWeight(const EventVariables& vars,
   std::cerr << "====== Enter getEvtWeight" << std::endl;
 #endif
   mCheckChannel(channel);
-  const float probability_data = mGetUnionEfficiency(vars, channel, true);
-  const float probability_mc = mGetUnionEfficiency(vars, channel, false);
-  const float eventWeight = probability_data / probability_mc;
+  const float prob_data = mGetUnionEfficiency(vars, channel, true);
+  const float prob_mc   = mGetUnionEfficiency(vars, channel, false);
+  const float eventWeight = prob_data / probability_mc;
 #ifdef DEBUG
   std::cerr << "====== Exit getEvtWeight" << std::endl;
 #endif
@@ -175,7 +175,6 @@ auto TriggerSF::mGetUnionEfficiency( const EventVariables& vars,
 			mExceptionPrint(e, var, chn, inters, isData);
 		  }
 		  catch (std::overflow_error const& e) {
-			std::string mess = "[WARNING] Underflow";
 			mExceptionPrint(e, var, chn, inters, isData);
 		  }
 		}
