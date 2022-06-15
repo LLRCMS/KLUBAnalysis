@@ -394,7 +394,6 @@ int main (int argc, char** argv)
   vector<string> trigMET  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::METtriggers") : gConfigParser->readStringListOption ("triggersData::METtriggers")) ;
   vector<string> trigSingleTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::SingleTau") : gConfigParser->readStringListOption ("triggersData::SingleTau")); 
 
-
   // bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
   //bool applyTriggers = isMC ? gConfigParser->readBoolOption ("parameters::applyTriggersMC") : true; // true if ask triggerbit + matching, false if doing reweight
 
@@ -512,7 +511,6 @@ int main (int argc, char** argv)
   ////NEW TRIGGERS
   trigReader.addMETTrigs (trigMET);
   trigReader.addSingleTauTrigs (trigSingleTau);
-
 
   // print full list (this is needed to identify the the triggers that fired in the bitwise variable)
   pair <int, int> triggerFlags = trigReader.printTriggerList(); //bitwise variable for the position of HPS triggers and tau triggers
@@ -3365,6 +3363,7 @@ int main (int argc, char** argv)
     // recommendations for cross triggers:  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information
 
     float trigSF = 1.0;
+	float trigSF_inclMeth  = 1.0;
     float trigSF_ele_up    = 1.0;
     float trigSF_mu_up     = 1.0;
     float trigSF_DM0_up    = 1.0;
@@ -3635,19 +3634,19 @@ int main (int argc, char** argv)
 		  }
 	  } // end if(applytriggers)
 
-	theSmallTree.m_trigSF_inclMethod = (isMC ? trigSF : 1.0);	
 	if(applyTriggers and (pType==0 or pType==1 or pType==2))
 	  {
 		EventVariables v;
 		v.dau1_pt() = theSmallTree.m_dau1_pt;
 		v.dau2_pt() = theSmallTree.m_dau2_pt;
-		const float w = tsf.getEvtWeight(v, chn_m.at(pType));
+		trigSF_inclMeth = tsf.getEvtWeight(v, chn_m.at(pType));
 		std::cout << "Channel: " + chn_m.at(pType) + " " + pType << std::endl;
-		std::cout << "Weight " << w << ", Dau1 Pt " << v.dau1_pt() << ", Dau2 Pt " << v.dau2_pt() << std::endl;
+		std::cout << "Weight " << trigSF_inclMeth << ", Dau1 Pt " << v.dau1_pt() << ", Dau2 Pt " << v.dau2_pt() << std::endl;
 		std::cout << std::endl;
 	  } // end if(applytriggers)
-	
+
     theSmallTree.m_trigSF           = (isMC ? trigSF : 1.0);
+	theSmallTree.m_trigSF_inclMeth  = (isMC ? trigSF_inclMeth : 1.0);	
     theSmallTree.m_trigSF_ele_up    = (isMC ? trigSF_ele_up : 1.0);
     theSmallTree.m_trigSF_mu_up     = (isMC ? trigSF_mu_up : 1.0);
     theSmallTree.m_trigSF_DM0_up    = (isMC ? trigSF_DM0_up : 1.0);
@@ -5987,6 +5986,7 @@ int main (int argc, char** argv)
       cout << "  IDandISO deep: " << theSmallTree.m_IdAndIsoSF_deep << endl;
       cout << "    w/ FakeRate: " << theSmallTree.m_IdAndIsoAndFakeSF_deep << endl;
       cout << "  trig         : " << theSmallTree.m_trigSF << endl;
+	  cout << "  trig inclMeth: " << theSmallTree.m_trigSF_inclMeth << endl;
       cout << "  bTag         : " << theSmallTree.m_bTagweightM << endl;
       cout << "  prescale     : " << theSmallTree.m_prescaleWeight<< endl;
       cout << "  prefiring    : " << theSmallTree.m_L1pref_weight<< endl;
