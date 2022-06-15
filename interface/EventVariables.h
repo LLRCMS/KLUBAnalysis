@@ -5,18 +5,18 @@
 #include <unordered_map>
 #include <string>
 
-// -------------------------------------------------------------------------------------------------------------- //
-//                                                                                                                //
-//   class EventVariables                                                                                         //
-//                                                                                                                //
-//   Convenience class to store and retrieve the variables of a single event.                                     //
-//   Could be used for the entire framework. Currently used for computing trigger scale factors.                  //
-//                                                                                                                //
-//   Author: Bruno Alves (LLR, Ecole Polytechnique, Paris)                                                        //
-//   Date  : June 2022                                                                                            //
-//   Contact: bruno.alves@cern.ch                                                                                 //
-//                                                                                                                //
-// -------------------------------------------------------------------------------------------------------------- //
+// ----------------------------------------------------------------------------------------------- //
+//																								   //
+//	 class EventVariables																		   //
+//																								   //
+//	 Convenience class to store and retrieve the variables of a single event.					   //
+//	 Could be used for the entire framework. Currently used for computing trigger scale factors.   //
+//																								   //
+//	 Author: Bruno Alves (LLR, Ecole Polytechnique, Paris)										   //
+//	 Date  : June 2022																			   //
+//	 Contact: bruno.alves@cern.ch																   //
+//																								   //
+// ----------------------------------------------------------------------------------------------- //
 
 class EventVariables {
 private:

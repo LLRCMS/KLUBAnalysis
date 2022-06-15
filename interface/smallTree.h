@@ -9,18 +9,18 @@
 // create the small tree with the branches I am interested in
 struct smallTree
 {
-  smallTree (TString treeName) :
-  m_smallT (new TTree (treeName, "small tree for HH analysis"))
+  smallTree (TString treeName)
+	: m_smallT (new TTree (treeName, "small tree for HH analysis"))
+  {
+	init() ;
+  }
+
+  int Fill()
     {
-      init () ;
+      return m_smallT->Fill() ;
     }
 
-  int Fill ()
-    {
-      return m_smallT->Fill () ;
-    }
-
-  int clearVars ()
+  int clearVars()
     {
       m_MC_weight = -1. ;
       m_totalWeight = -1. ;
@@ -40,6 +40,7 @@ struct smallTree
       m_DYscale_MH = -1. ;
       m_DYscale_MTT = -1. ;
       m_trigSF = -1.;
+	  m_trigSF_inclMethod = -1.;
       m_trigSF_DM0_up = -1.;
       m_trigSF_DM1_up = -1.;
       m_trigSF_DM10_up = -1.;
@@ -896,6 +897,7 @@ struct smallTree
       m_smallT->Branch ("TTtopPtreweight_up", &m_TTtopPtreweight_up, "TTtopPtreweight_up/F") ;
       m_smallT->Branch ("TTtopPtreweight_down", &m_TTtopPtreweight_down, "TTtopPtreweight_down/F") ;
       m_smallT->Branch ("trigSF", &m_trigSF, "trigSF/F") ;
+	  m_smallT->Branch ("trigSF_inclMethod", &m_trigSF_inclMethod, "trigSF_inclMethod/F") ;
       m_smallT->Branch ("trigSF_DM0_up",  &m_trigSF_DM0_up,  "trigSF_DM0_up/F") ;
       m_smallT->Branch ("trigSF_DM1_up",  &m_trigSF_DM1_up,  "trigSF_DM1_up/F") ;
       m_smallT->Branch ("trigSF_DM10_up", &m_trigSF_DM10_up, "trigSF_DM10_up/F") ;
@@ -1743,6 +1745,7 @@ struct smallTree
   Float_t m_TTtopPtreweight_up ;
   Float_t m_TTtopPtreweight_down ;
   Float_t m_trigSF ;
+  Float_t m_trigSF_inclMethod ;
   Float_t m_trigSF_DM0_up ;
   Float_t m_trigSF_DM1_up ;
   Float_t m_trigSF_DM10_up ;
