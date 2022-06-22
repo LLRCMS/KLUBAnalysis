@@ -1,25 +1,34 @@
 #ifndef TriggerSF_h
 #define TriggerSF_h
 
-// -------------------------------------------------------------------------------------------------------------- //
-//                                                                                                                //
-//   class TriggerSF                                                                                              //
-//                                                                                                                //
-//   Class to compute SF for the union of all triggers in the analysis, using the general inclusion method.       //
-//   Reference: Lendermann V, Haller J, Herbst M, Krüger K, Schultz-Coulon HC, Stamen R.                          //
-//              Combining Triggers in HEP data analysis.                                                          // 
-//              Nucl Instruments Methods Phys Res Sect A Accel Spectrometers, Detect Assoc Equip. 2009;           // 
-//              604(3):707-718.                                                                                   //
-//              doi:10.1016/j.nima.2009.03.173                                                                    //
-//                                                                                                                // 
-//   Standalone Python framework: https://github.com/b-fontana/METTriggerStudies                                  //
-//   - Triggers are named differently and already include effects from different runs, HPS, Data/MC diffs, ...    //
-//                                                                                                                //
-//   Author: Bruno Alves (LLR, Ecole Polytechnique, Paris)                                                        //
-//   Date  : April 2022                                                                                           //
-//   Contact: bruno.alves@cern.ch                                                                                 //
-//                                                                                                                //
-// -------------------------------------------------------------------------------------------------------------- //
+// --------------------------------------------------------------------------------------------------------------
+//
+//   class TriggerSF
+//                                                                                                                
+//   Class to compute SF for the union of all triggers in the analysis, using
+//   the general inclusion method.
+//   Reference: Lendermann V, Haller J,
+//   Herbst M, Krüger K, Schultz-Coulon HC, Stamen R. 
+//              Combining Triggers in HEP data analysis. // Nucl Instruments
+//              Methods Phys Res Sect A Accel Spectrometers, Detect Assoc Equip.
+//              2009;
+//              604(3):707-718.
+//              doi:10.1016/j.nima.2009.03.173
+//                                                                                                                
+//	 Standalone Python framework: https://github.com/b-fontana/METTriggerStudies								  
+//																												  
+//	 - Triggers are named differently and already include effects from different								  
+//	 runs, HPS, Data/MC diffs, ...																				  
+//																												  
+//	 The objects created by this class contain histogram values, where under- and overflows are skipped.		  
+//	 The first (last) bin in each axis is zero (nbins-1), and (x,y,z) values are stored in a 1D vector.																	  
+//	 Consecutive x bins are stored in adjacent memory locations.													  
+//																												  
+//	 Author: Bruno Alves (LLR, Ecole Polytechnique, Paris)														  
+//	 Date  : April 2022																							  
+//	 Contact: bruno.alves@cern.ch																				  
+//																												  
+// -------------------------------------------------------------------------------------------------------------- 
 
 // Standard libraries
 #include <iostream>
@@ -55,10 +64,6 @@ private:
   template<typename T> using vec2 = vec<vec<T>>;
   template<typename K, typename V> using umap = std::unordered_map<K,V>;
 
-  // Contains histogram values. Skips under and overflows.
-  // The first (last) bin in each axis is zero (nbins-1).
-  // (x,y,z) values are stored in a 1D vector.
-  // Consecutive x bins are stored in adjacent memory locations.
   class EffValue
   {
   public:
@@ -83,12 +88,6 @@ private:
 	  try {
 		xbin = mGetBinNumber(mNBinsX, mXAxis, xvar);
 	  }
-	  catch (std::underflow_error const& e) {
-		throw std::underflow_error(std::string(e.what()) + " (X axis)");
-	  }
-	  catch (std::overflow_error const& e) {
-		throw std::underflow_error(std::string(e.what()) + " (X axis)");
-	  }
 	  catch (std::invalid_argument const& e) {
 		std::cerr << std::string(e.what()) + " (X axis)" << std::endl;
 	  }
@@ -96,24 +95,12 @@ private:
 	  try {
 		ybin = yvar==-std::numeric_limits<float>::max() ? 0 : mGetBinNumber(mNBinsY, mYAxis, yvar);
 	  }
-	  catch (std::underflow_error const& e) {
-		throw std::underflow_error(std::string(e.what()) + " (Y axis)");
-	  }
-	  catch (std::overflow_error const& e) {
-		throw std::underflow_error(std::string(e.what()) + " (Y axis)");
-	  }
 	  catch (std::invalid_argument const& e) {
 		std::cerr << std::string(e.what()) + " (Y axis)" << std::endl;
 	  }
 
 	  try {
 		zbin = zvar==-std::numeric_limits<float>::max() ? 0 : mGetBinNumber(mNBinsZ, mZAxis, zvar);
-	  }
-	  catch (std::underflow_error const& e) {
-		throw std::underflow_error(std::string(e.what()) + " (Z axis)");
-	  }
-	  catch (std::overflow_error const& e) {
-		throw std::underflow_error(std::string(e.what()) + " (Z axis)");
 	  }
 	  catch (std::invalid_argument const& e) {
 		std::cerr << std::string(e.what()) + " (Z axis)" << std::endl;
@@ -182,14 +169,12 @@ private:
 		std::string mess = "[WARNING TriggerSF.h] Underflow ";
 		mess += std::to_string(var) + " < ";
 		mess += std::to_string(ax->GetBinLowEdge(1));
-	    throw std::underflow_error(mess);
 	  }
 	  // upper outliers should be understood
 	  if (var > ax->GetBinUpEdge(nbins) + safety2) {
 		std::string mess = "[WARNING TriggerSF.h] Overflow ";
 		mess += std::to_string(var) + " > ";
 		mess += std::to_string(ax->GetBinUpEdge(nbins));
-	    throw std::overflow_error(mess);
 	  }
 
 	  // lower bin merge
@@ -200,7 +185,7 @@ private:
 	  if (var > ax->GetBinUpEdge(nbins)) {
 		return nbins-1;
 	  }
-	  
+	  //all other bins
 	  for(unsigned i=1; i<=nbins; ++i) {
 		if(ax->GetBinLowEdge(i)<var and ax->GetBinUpEdge(i)>=var)
 		  return i-1;

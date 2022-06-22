@@ -16,7 +16,7 @@ TriggerSF::TriggerSF( TriggerChannelLists trgs,
 #endif
   // inputs consistency checks
   assert( eff_files.size() == var_files.size() );
-  assert(  trgs.channels().size() == var_files.size() );
+  assert( trgs.channels().size() == var_files.size() );
   
   for (auto &x: trgs.channels()) {
 	// sanity check
