@@ -1,18 +1,18 @@
 #ifndef TriggerChannelLists_h
 #define TriggerChannelLists_h
 
-// -------------------------------------------------------------------------------------------------------------- //
-//                                                                                                                //
-//   class TriggerChannelLists                                                                                    //
-//                                                                                                                //
-//   Helper class to save all triggers per channel as a single type.                                              //
-//   Originally created as part of the computing trigger scale factors computation.                               //
-//                                                                                                                //
-//   Author: Bruno Alves (LLR, Ecole Polytechnique, Paris)                                                        //
-//   Date  : April 2022                                                                                           //
-//   Contact: bruno.alves@cern.ch                                                                                 //
-//                                                                                                                //
-// -------------------------------------------------------------------------------------------------------------- //
+// ---------------------------------------------------------------------------------
+//																					
+//	 class TriggerChannelLists														
+//																					
+//	 Helper class to save all triggers per channel as a single type.				
+//	 Originally created as part of the computing trigger scale factors computation. 
+//																					
+//	 Author: Bruno Alves (LLR, Ecole Polytechnique, Paris)							
+//	 Date  : April 2022																
+//	 Contact: bruno.alves@cern.ch													
+//																					
+// ---------------------------------------------------------------------------------
 
 // Standard libraries
 #include <string>
@@ -30,6 +30,7 @@ class TriggerChannelLists {
   umap mTriggers;
 
   const std::set<std::string> mChannelsAllowed = {"EleTau", "MuTau", "TauTau"};
+  const std::string mGeneric = "generic"; //key to store channel-generic triggers
 
   auto mCheckChannel(std::string channel) const -> void
   {
@@ -74,9 +75,9 @@ class TriggerChannelLists {
   {
 	for (const auto &t : trigs) {
 	  if (!isData)
-		mTriggers["generic"].first.push_back(t);
+		mTriggers[mGeneric].first.push_back(t);
 	  else
-		mTriggers["generic"].second.push_back(t);
+		mTriggers[mGeneric].second.push_back(t);
 	}	
 	if(sizeof...(args) != 0)
 	  return mInternalAddGeneric(isData, args...);
@@ -122,11 +123,14 @@ class TriggerChannelLists {
 	mCheckChannel(channel);
 	vecstr res = this->get(channel, isData);
 	vecstr res2;
-	if (!isData)
-	  res2 = mTriggers.at("generic").first;
-	else
-	  res2 = mTriggers.at("generic").second;
-	res.reserve( res.size() + res2.size() );
+	if (mTriggers.count(mGeneric)) // or mTriggers.contains(mGeneric) with C++>=20
+	  {
+		if (!isData)
+		  res2 = mTriggers.at(mGeneric).first;
+		else
+		  res2 = mTriggers.at(mGeneric).second;
+	  }
+	res.reserve(res.size() + res2.size());
 	res.insert(res.end(),
 			   res2.begin(),
 			   res2.end());
