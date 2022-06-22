@@ -40,7 +40,6 @@ struct smallTree
       m_DYscale_MH = -1. ;
       m_DYscale_MTT = -1. ;
       m_trigSF = -1.;
-	  m_trigSF_inclMeth = -1.;
       m_trigSF_DM0_up = -1.;
       m_trigSF_DM1_up = -1.;
       m_trigSF_DM10_up = -1.;
@@ -897,7 +896,6 @@ struct smallTree
       m_smallT->Branch ("TTtopPtreweight_up", &m_TTtopPtreweight_up, "TTtopPtreweight_up/F") ;
       m_smallT->Branch ("TTtopPtreweight_down", &m_TTtopPtreweight_down, "TTtopPtreweight_down/F") ;
       m_smallT->Branch ("trigSF", &m_trigSF, "trigSF/F") ;
-	  m_smallT->Branch ("trigSF_inclMeth", &m_trigSF_inclMeth, "trigSF_inclMeth/F") ;
       m_smallT->Branch ("trigSF_DM0_up",  &m_trigSF_DM0_up,  "trigSF_DM0_up/F") ;
       m_smallT->Branch ("trigSF_DM1_up",  &m_trigSF_DM1_up,  "trigSF_DM1_up/F") ;
       m_smallT->Branch ("trigSF_DM10_up", &m_trigSF_DM10_up, "trigSF_DM10_up/F") ;
@@ -1745,7 +1743,6 @@ struct smallTree
   Float_t m_TTtopPtreweight_up ;
   Float_t m_TTtopPtreweight_down ;
   Float_t m_trigSF ;
-  Float_t m_trigSF_inclMeth ;
   Float_t m_trigSF_DM0_up ;
   Float_t m_trigSF_DM1_up ;
   Float_t m_trigSF_DM10_up ;

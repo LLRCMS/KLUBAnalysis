@@ -264,7 +264,7 @@ InputList["TTWZ"]="47_TTWZ_TuneCP5_13TeV-madgraph-pythia8__RunIISummer20UL18Mini
 #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m550  -i $SIGDIR/${InputList["ggF_Radion_m550"]}  -x 1.
 #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m600  -i $SIGDIR/${InputList["ggF_Radion_m600"]}  -x 1.
 #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m650  -i $SIGDIR/${InputList["ggF_Radion_m650"]}  -x 1.
-#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m700  -i $SIGDIR/${InputList["ggF_Radion_m700"]}  -x 1.
+$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m700  -i $SIGDIR/${InputList["ggF_Radion_m700"]}  -x 1.
 #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m750  -i $SIGDIR/${InputList["ggF_Radion_m750"]}  -x 1.
 #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m800  -i $SIGDIR/${InputList["ggF_Radion_m800"]}  -x 1.
 #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 10 -q long -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m850  -i $SIGDIR/${InputList["ggF_Radion_m850"]}  -x 1.
@@ -387,11 +387,11 @@ InputList["TTWZ"]="47_TTWZ_TuneCP5_13TeV-madgraph-pythia8__RunIISummer20UL18Mini
 #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 333 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_1j -i $BKGDIR/${InputList["DY_NLO_1j"]}          -x 1.
 #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 333 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_2j -i $BKGDIR/${InputList["DY_NLO_2j"]}          -x 1.
 
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 200 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_PT50To100  -i $BKGDIR/${InputList["DY_NLO_PT50To100"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 200 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_PT100To250 -i $BKGDIR/${InputList["DY_NLO_PT100To250"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 200 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_PT250To400 -i $BKGDIR/${InputList["DY_NLO_PT250To400"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 200 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_PT400To650 -i $BKGDIR/${InputList["DY_NLO_PT400To650"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 200 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_PT650ToInf -i $BKGDIR/${InputList["DY_NLO_PT650ToInf"]} -x 1.
+# $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 200 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_PT50To100  -i $BKGDIR/${InputList["DY_NLO_PT50To100"]}  -x 1.
+# $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 200 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_PT100To250 -i $BKGDIR/${InputList["DY_NLO_PT100To250"]} -x 1.
+# $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 200 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_PT250To400 -i $BKGDIR/${InputList["DY_NLO_PT250To400"]} -x 1.
+# $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 200 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_PT400To650 -i $BKGDIR/${InputList["DY_NLO_PT400To650"]} -x 1.
+# $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 200 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DY_NLO_PT650ToInf -i $BKGDIR/${InputList["DY_NLO_PT650ToInf"]} -x 1.
 
 #######################
 #### Wjets - filelists up to date

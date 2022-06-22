@@ -53,7 +53,7 @@ auto TriggerSF::mBuildObjectName(std::string varname,
 								 std::string trigInters,
 								 bool isData) const -> std::string
 {
-  std::string res = isData ? "Data" : "MC";
+  std::string res = isData ? "Data1D" : "MC1D";
   res += "_VAR_" + varname;
   res += "_TRG_" + trigInters;
   res += "_CUT_";
@@ -98,7 +98,7 @@ auto TriggerSF::mCountNumberTriggerItems(std::string str) const -> const int
 
 auto TriggerSF::mEffVariablesToVarName( const vec2<std::string>& effVars ) -> std::string
 {
-  return effVars[0][0]; /// CHANGE according to #dimensions and histogram naming scheme
+  return effVars[0][0]; // CHANGE according to #dimensions and histogram naming scheme
 }
 
 auto TriggerSF::getEvtWeight(const EventVariables& vars,
@@ -110,7 +110,8 @@ auto TriggerSF::getEvtWeight(const EventVariables& vars,
   mCheckChannel(channel);
   const float prob_data = mGetUnionEfficiency(vars, channel, true);
   const float prob_mc   = mGetUnionEfficiency(vars, channel, false);
-  const float eventWeight = prob_data / probability_mc;
+  std::cout << "PROBS: " << prob_data << " " << prob_mc << std::endl;
+  const float eventWeight = prob_data / prob_mc;
 #ifdef DEBUG
   std::cerr << "====== Exit getEvtWeight" << std::endl;
 #endif
@@ -157,19 +158,26 @@ auto TriggerSF::mGetUnionEfficiency( const EventVariables& vars,
   std::cerr << "====== Enter getUnionEfficiency" << std::endl;
 #endif
   float un_eff = 0.f;
-
+  std::cout << "Inters " << isData << " " << chn << std::endl;
   for (auto &inters : mMCOrDataIntersections(chn, isData))
 	{
+	  std::cout << inters << std::endl;
 	  if (mVarFiles[chn].contains(inters))
 		{
 		  const TriggerSF::EffValue& eff = mGetIntersectionEfficiencies(chn, inters, isData);
+		  std::cout << "entered" << std::endl;
 		  const std::string var = "dau1_pt";
 		  try {
 			const float val = eff.getVal( vars(var) );
-			if(mCountNumberTriggerItems(inters)%2==0)
+			std::cout << "val=" << val << std::endl;
+			if(mCountNumberTriggerItems(inters)%2==0) {
 			  un_eff -= val;
-			else
+			  std::cout << "== minus ==" << std::endl;
+			}
+			else {
 			  un_eff += val;
+			  std::cout << "== plus ==" << std::endl;
+			}
 		  }
 		  catch (std::underflow_error const& e) {
 			mExceptionPrint(e, var, chn, inters, isData);
@@ -184,6 +192,7 @@ auto TriggerSF::mGetUnionEfficiency( const EventVariables& vars,
 		throw std::invalid_argument(mess);
 	  }
 	}
+  std::cout << "Final " << un_eff << std::endl;
 #ifdef DEBUG  
   std::cerr << "====== Exit getUnionEfficiency" << std::endl;
 #endif
@@ -361,7 +370,7 @@ auto TriggerSF::mKLUBStandaloneNameMatching(vec<std::string> old_strs,
 auto TriggerSF::mTest() const -> bool
 {
   std::string fname = "weights/TriggerSF/trigSF_etau.root";
-  std::string hname = "MC_VAR_dau2_eta_TRG_EleIsoTauCustom_CUT_NoCut";
+  std::string hname = "MC1D_VAR_dau2_eta_TRG_EleIsoTauCustom_CUT_NoCut";
   
   TFile* fin = TFile::Open(fname.c_str(), "READ");
   TH1F *h = (TH1F*)fin->Get(hname.c_str());
