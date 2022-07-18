@@ -1,26 +1,24 @@
 #!/usr/bin/env python
 
-import os,sys
-import optparse
-import fileinput
-import commands
+import os
+import sys
+import argparse
 import time
-import glob
 import subprocess
-from os.path import basename
 import ROOT
 
+def create_dir(d):
+    if not os.path.exists(d):
+        os.makedirs(d)
+create_dir(outdir)
 
-def isGoodFile (fileName) :
+def is_good_file (fileName) :
     ff = ROOT.TFile (fname)
     if ff.IsZombie() : return False
     if ff.TestBit(ROOT.TFile.kRecovered) : return False
     return True
 
-
-# ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-def parseInputFileList (fileName) :
+def parse_input_file_list(fileName) :
     filelist = []
     with open (fileName) as fIn:
         for line in fIn:
@@ -29,268 +27,320 @@ def parseInputFileList (fileName) :
                 filelist.append(line)
     return filelist
 
-# ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+write = lambda stream, text: stream.write(text + '\n')
 
+def skim_ntuple(FLAGS, curr_folder):
+    # verify the result of the process
+    if (FLAGS.hadd != 'none') :    
+        with open (FLAGS.output + '/hadder.sh', 'w') as s:
+            write(s, '#!/bin/bash')
+            write(s, 'source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
+            write(s, 'cd /home/llr/cms/motta/HHLegacy/CMSSW_11_1_0pre6/src')
+            write(s, 'eval `scram r -sh`')
+            write(s, 'cd {}\n'.format(curr_folder))
+            write(s, 'source scripts/setup.sh')
+            write(s, 'mkdir ' + os.path.join(FLAGS.output, 'singleFiles'))
+            write(s, 'mv ' + os.path.join(FLAGS.output, + '*') +
+                  ' ' + os.path.join(FLAGS.output, 'singleFiles'))
+            write(s, 'hadd ' + os.path.join(FLAGS.output, 'total.root') +
+                  ' ' + os.path.join(FLAGS.output, '/singleFiles/*.root'))
+            write(s, 'touch ' + os.path.join(FLAGS.output, 'done'))
+            write(s, 'echo "Hadding finished"')
 
-if __name__ == "__main__":
-
-    usage = 'usage: %prog [options]'
-    parser = optparse.OptionParser(usage)
-    parser.add_option ('-i', '--input'     , dest='input'     , help='input folder'                          , default='none')
-    parser.add_option ('-Y', '--year'      , dest='year'      , help='year'                                  , default='2018')
-    parser.add_option ('-A', '--APV'       , dest='isAPV'     , help='isAPV'                                 , default=False )
-    parser.add_option ('-x', '--xs'        , dest='xs'        , help='sample xs'                             , default='1.')
-    parser.add_option ('-f', '--force'     , dest='force'     , help='replace existing reduced ntuples'      , default=False)
-    parser.add_option ('-o', '--output'    , dest='output'    , help='output folder'                         , default='none')
-    parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='short')
-    parser.add_option ('-r', '--resub'     , dest='resub'     , help='resubmit failed jobs'                  , default='none')
-    parser.add_option ('-v', '--verb'      , dest='verb'      , help='verbose'                               , default=False)
-    parser.add_option ('-s', '--sleep'     , dest='sleep'     , help='sleep in submission'                   , default=False)
-    parser.add_option ('-d', '--isdata'    , dest='isdata'    , help='data flag'                             , default=False)
-    parser.add_option ('-T', '--tag'       , dest='tag'       , help='folder tag name'                       , default='')
-    parser.add_option ('-H', '--hadd'      , dest='hadd'      , help='hadd the resulting ntuples'            , default='none')
-    parser.add_option ('-c', '--config'    , dest='config'    , help='skim config file'                      , default='none')
-    parser.add_option ('-n', '--njobs'     , dest='njobs'     , help='number of skim jobs'                   , default=100, type = int)
-    parser.add_option ('-k', '--kinfit'    , dest='dokinfit'  , help='run HH kin fitter'                     , default="True")
-    parser.add_option ('-m', '--mt2'       , dest='domt2'     , help='run stransverse mass calculation'      , default=True)
-    parser.add_option ('-y', '--xsscale'   , dest='xsscale'   , help='scale to apply on XS for stitching'    , default='1.0')
-    parser.add_option ('-Z', '--htcutlow'  , dest='htcutlow'  , help='HT low cut for stitching on inclusive' , default='-999.0')
-    parser.add_option ('-z', '--htcut'     , dest='htcut'     , help='HT cut for stitching on inclusive'     , default='-999.0')
-    parser.add_option ('-e', '--njets'     , dest='njets'     , help='njets required for stitching on inclusive'     , default='-999')
-    parser.add_option ('-t', '--toprew'    , dest='toprew'    , help='is TT bar sample to compute reweight?' , default=False)
-    parser.add_option ('-b', '--topstitch' , dest='topstitch' , help='type of TT gen level decay pruning for stitch'        , default='0')
-    parser.add_option ('-g', '--genjets'   , dest='genjets'   , help='loop on genjets to determine the number of b hadrons' , default=False)
-    parser.add_option ('-a', '--ishhsignal', dest='ishhsignal', help='isHHsignal'                            , default=False)
-    parser.add_option ('--BSMname',          dest='BSMname'   , help='additional name for EFT benchmarks'    , default='none')
-    parser.add_option ('--EFTbm',            dest='EFTrew'    , help='EFT benchmarks [SM, 1..12, 1b..7b, 8a, c2scan, manual]', default='none')
-    parser.add_option ('--order',            dest='order'     , help='order of reweight: lo/nlo'             , default='nlo')
-    parser.add_option ('--uncert',           dest='uncert'    , help='uncertainty on the reweight coeffs'    , default='0')
-    parser.add_option ('--cms_fake',         dest='cms_fake'  , help='invert some couplings for 2017/2018'   , default='0')
-    parser.add_option ('--kl',               dest='klreweight', help='kl for dynamic reweight'              , default='-999.0')
-    parser.add_option ('--kt',               dest='ktreweight', help='kt for dynamic reweight'              , default='-999.0')
-    parser.add_option ('--c2',               dest='c2reweight', help='c2 for dynamic reweight'              , default='-999.0')
-    parser.add_option ('--cg',               dest='cgreweight', help='cg for dynamic reweight'              , default='-999.0')
-    parser.add_option ('--c2g',              dest='c2greweight', help='c2g for dynamic reweight'            , default='-999.0')
-    parser.add_option ('--susy',             dest='susyModel' , help='name of susy model to select'         , default='NOTSUSY')
-    parser.add_option ('--pu',               dest='PUweights' , help='external PUweights file'              , default='none')
-    parser.add_option ('--nj',               dest='DY_nJets'  , help='number of gen Jets for DY bins'       , default='-1')
-    parser.add_option ('--nb',               dest='DY_nBJets' , help='number of gen BJets for DY bins'      , default='-1')
-    parser.add_option ('--DY',               dest='DY'        , help='if it is a DY sample'                 , default=False)
-    parser.add_option ('--ttHToNonBB',       dest='ttHToNonBB', help='if it is a ttHToNonBB sample'         , default=False)
-    parser.add_option ('--hhNLO',            dest='hhNLO'     , help='if it is an HH NLO sample'            , default=False,  action = 'store_true')
-    parser.add_option ('--doSyst',           dest='doSyst'    , help='compute up/down values of outputs'    , default=False,  action = 'store_true')
-
-    (opt, args) = parser.parse_args()
-
-    currFolder = os.getcwd ()
+        os.system('chmod u+rwx ' + FLAGS.output + '/hadder.sh')
+        command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' + os.path.join(FLAGS.output, '/hadder.sh\''))
+        os.system(command)
+        sys.exit(0)
 
     # verify the result of the process
-    # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+    if (FLAGS.resub != 'none'):
+        if (FLAGS.input == 'none'):
+            print('Input folder to be checked missing')
+            print('(this is the folder that contains the jobs to be submitted)')
+            sys.exit(1)
 
-    if (opt.hadd != 'none') :
-
-        scriptFile = open (opt.output + '/hadder.sh', 'w')
-        scriptFile.write ('#!/bin/bash\n')
-        scriptFile.write ('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
-        scriptFile.write ('cd /home/llr/cms/motta/HHLegacy/CMSSW_11_1_0pre6/src\n')
-        scriptFile.write ('eval `scram r -sh`\n')
-        scriptFile.write ('cd %s\n'%currFolder)
-        scriptFile.write ('source scripts/setup.sh\n')
-        scriptFile.write ('mkdir ' + opt.output + '/singleFiles\n')
-        scriptFile.write ('mv ' + opt.output + '/* ' + opt.output + '/singleFiles\n')
-        scriptFile.write ('hadd ' + opt.output + '/total.root ' + opt.output + '/singleFiles/*.root\n')
-        scriptFile.write ('touch ' + opt.output + '/done\n')
-        scriptFile.write ('echo "Hadding finished" \n')
-        scriptFile.close ()
-        os.system ('chmod u+rwx ' + opt.output + '/hadder.sh')
-        command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' +  opt.output + '/hadder.sh\'')
-        os.system (command)
-        sys.exit (0)
-
-    # verify the result of the process
-    # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-    if (opt.resub != 'none') :
-        if (opt.input == 'none') :
-            print 'input folder to be checked missing\n'
-            print '(this is the folder that contains the jobs to be submitted)'
-            sys.exit (1)
-
-        if opt.input[-1] == '/' : opt.input = opt.input[:-1]
-        tagname = opt.tag + "/" if opt.tag else ''
-        opt.input = tagname + 'SKIM_' + basename (opt.input)
-        jobs = [word.replace ('_', '.').split ('.')[1] for word in os.listdir (opt.input) if 'skim' in word]
+        if FLAGS.input[-1] == '/' : FLAGS.input = FLAGS.input[:-1]
+        tagname = FLAGS.tag + "/" if FLAGS.tag else ''
+        FLAGS.input = tagname + 'SKIM_' + os.path.basename (FLAGS.input)
+        jobs = [word.replace ('_', '.').split ('.')[1] for word in os.listdir (FLAGS.input) if 'skim' in word]
         missing = []
 
         # check the existence of the done file
         for num in jobs :
-            if not os.path.exists (opt.input + '/done_' + num) :
-                if opt.verb : print num, ' : missing done file'
-                missing.append (num)
+            if not os.path.exists(FLAGS.input + '/done_' + num) :
+                if FLAGS.verb:
+                    print(num, ' : missing done file')
+                missing.append(num)
 
         # check the log file
         for num in jobs :
             # get the log file name
-            filename = opt.input + '/skimJob_' + num + '.sh'
+            filename = FLAGS.input + '/skimJob_' + num + '.sh'
 #            print os.path.exists (filename)
-            with open (filename, 'r') as myfile :
+            with open (filename, 'r') as myfile:
                 data = [word for word in myfile.readlines () if 'log' in word]
             rootfile = data[0].split ()[2]
-            if not os.path.exists (rootfile) :
-                if opt.verb : print num, 'missing root file', rootfile
+            if not os.path.exists(rootfile):
+                if FLAGS.verb:
+                    print(num, 'missing root file', rootfile)
                 missing.append (num)
                 continue
-            if not isGoodFile (rootfile) :
-                if opt.verb : print num, 'root file corrupted', rootfile
-                missing.append (num)
+            if not is_goodF_file(rootfile):
+                if FLAGS.verb:
+                    print(num, 'root file corrupted', rootfile)
+                missing.append(num)
                 continue
-            logfile = data[0].split ()[-1]
-            if not os.path.exists (logfile) :
-                if opt.verb : print num, 'missing log file'
+            logfile = data[0].split()[-1]
+            if not os.path.exists(logfile) :
+                if FLAGS.verb:
+                    print(num, 'missing log file')
                 missing.append (num)
                 continue
             with open (logfile, 'r') as logfile :
                 problems = [word for word in logfile.readlines () if 'Error' in word and 'TCling' not in word]
-                if len (problems) != 0 :
-                    if opt.verb : print num, 'found error ', problems[0]
+                if len(problems) != 0:
+                    if FLAGS.verb:
+                        print(num, 'found error ', problems[0])
                     missing.append (num)
-        print 'the following jobs did not end successfully:'
-        print missing
+        print('The following jobs did not end successfully:')
+        print(missing)
         for num in missing :
-            command = '`cat ' + opt.input + '/submit.sh | grep skimJob_' + num + '.sh | tr "\'" " "`'
-            if opt.verb : print command
-        if (opt.resub == 'run') :
-            for num in missing :
-                command = '`cat ' + opt.input + '/submit.sh | grep skimJob_' + num + '.sh | tr "\'" " "`'
-                time.sleep (int (num) % 5)
-                os.system (command)
-        sys.exit (0)
+            command = '`cat ' + FLAGS.input + '/submit.sh | grep skimJob_' + num + '.sh | tr "\'" " "`'
+            if FLAGS.verb:
+                print(command)
+        if FLAGS.resub == 'run':
+            for num in missing:
+                command = '`cat ' + FLAGS.input + '/submit.sh | grep skimJob_' + num + '.sh | tr "\'" " "`'
+                time.sleep(int (num) % 5)
+                os.system(command)
+        sys.exit(0)
 
     # submit the jobs
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
     skimmer = 'skimNtuple2018_HHbtag.exe'
-    if (opt.year == '2017'):
+    if FLAGS.year == '2017':
         skimmer = 'skimNtuple2017_HHbtag.exe'
-    elif (opt.year == '2016'):
+    elif FLAGS.year == '2016':
         skimmer = 'skimNtuple2016_HHbtag.exe'
 
 
-    if opt.config == 'none' :
-        print 'config file missing, exiting'
-        sys.exit (1)
+    if FLAGS.config == 'none':
+        print('Config file missing, exiting')
+        sys.exit(1)
 
-    if opt.input[-1] == '/' : opt.input = opt.input[:-1]
-    if opt.output == 'none' : opt.output = opt.input + '_SKIM'
+    if FLAGS.input[-1] == '/':
+        FLAGS.input = FLAGS.input[:-1]
+    if FLAGS.output == 'none':
+        FLAGS.output = FLAGS.input + '_SKIM'
 
-    if not os.path.exists (opt.input) :
-        print 'input folder', opt.input, 'not existing, exiting'
-        sys.exit (1)
-    if not opt.force and os.path.exists (opt.output) :
-        print 'output folder', opt.output, 'existing, exiting'
-        sys.exit (1)
-    elif os.path.exists (opt.output) :
-        os.system ('rm -rf ' + opt.output + '/*')
-    os.system ('mkdir ' + opt.output)
-    os.system ('cp ' + opt.config + " " + opt.output)
+    if not os.path.exists(FLAGS.input) :
+        print('Input folder', FLAGS.input, 'not existing, exiting')
+        sys.exit(1)
+    if not FLAGS.force and os.path.exists(FLAGS.output):
+        print('Output folder', FLAGS.output, 'existing, exiting')
+        sys.exit(1)
+    elif os.path.exists(FLAGS.output):
+        os.system('rm -rf ' + FLAGS.output + '/*')
+    os.system('mkdir ' + FLAGS.output)
+    os.system('cp ' + FLAGS.config + ' ' + FLAGS.output)
 
-    #inputfiles = glob.glob (opt.input + '/*.root')
-    inputfiles = parseInputFileList (opt.input)
-    if opt.njobs > len (inputfiles) : opt.njobs = len (inputfiles)
-    nfiles = (len (inputfiles) + len (inputfiles) % opt.njobs) / opt.njobs
+    inputfiles = parse_input_file_list(FLAGS.input)
+    njobs = len(inputfiles) if njobs > len(inputfiles) else FLAGS.njobs
+    nfiles = (len (inputfiles) + len (inputfiles) % njobs) / njobs
     inputlists = [inputfiles[x:x+nfiles] for x in xrange (0, len (inputfiles), nfiles)]
 
-    tagname = "/" + opt.tag if opt.tag else ''
-    jobsDir = currFolder + tagname + '/SKIM_' + basename (opt.input)
-    jobsDir = jobsDir.rstrip (".txt")
-    if float(opt.klreweight) > -990 and opt.BSMname == 'none':
+    tagname = "/" + FLAGS.tag if FLAGS.tag else ''
+    jobsDir = curr_folder + tagname + '/SKIM_' + os.path.basename (FLAGS.input)
+    jobsDir = jobsDir.rstrip ('.txt')
+    if float(FLAGS.klreweight) > -990 and FLAGS.BSMname == 'none':
         print '!WARNING! You requested manual HH reweighting, but did not set a proper BSMname! Exiting!'
         sys.exit (0)
-    elif opt.EFTrew != 'none':
-        jobsDir = jobsDir + '_' + opt.EFTrew
-    elif opt.BSMname != 'none':
-        jobsDir = jobsDir + '_' + opt.BSMname
+    elif FLAGS.EFTrew != 'none':
+        jobsDir = jobsDir + '_' + FLAGS.EFTrew
+    elif FLAGS.BSMname != 'none':
+        jobsDir = jobsDir + '_' + FLAGS.BSMname
 
-    if os.path.exists (jobsDir) : os.system ('rm -f ' + jobsDir + '/*')
-    else                        : os.system ('mkdir -p ' + jobsDir)
-
-    # proc = subprocess.Popen ('voms-proxy-info', stdout=subprocess.PIPE)
-    # tmp = [word for word in proc.stdout.read ().split ('\n') if 'timeleft' in word]
-    # if len (tmp) == 0 or int (tmp[0].split (':')[1]) < 10 : # hours
-    #     os.system ('source /opt/exp_soft/cms/t3/t3setup')
-
-    n = int (0)
-    commandFile = open (jobsDir + '/submit.sh', 'w')
-    for listname in inputlists :
-        #create a wrapper for standalone cmssw job
-        listFileName = "filelist_%i.txt" % n
-        thisinputlistFile = open(jobsDir + "/" + listFileName, 'w')
+    if os.path.exists (jobsDir):
+        os.system ('rm -f ' + jobsDir + '/*')
+    else:
+        os.system ('mkdir -p ' + jobsDir)
+ 
+    with open(jobsDir + "/" + listFileName, 'w') as thisf:
         for line in listname:
-            thisinputlistFile.write(line+"\n")
-        thisinputlistFile.close()
-        scriptFile = open ('%s/skimJob_%d.sh'% (jobsDir,n), 'w')
-        scriptFile.write ('#!/bin/bash\n')
-        scriptFile.write ('export X509_USER_PROXY=~/.t3/proxy.cert\n')
-        scriptFile.write ('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
-        scriptFile.write ('eval `scram r -sh`\n')
-        scriptFile.write ('cd %s\n'%currFolder)
-        scriptFile.write ('source scripts/setup.sh\n')
-        command = skimmer + ' ' + jobsDir+"/"+listFileName + ' ' + opt.output + '/' + "output_"+str(n)+".root" + ' ' + opt.xs
-        if opt.isdata :  command += ' 1 '
-        else          :  command += ' 0 '
-        command += ' ' + opt.config + ' '
-        if opt.dokinfit=="True" : command += " 1 "
-        else                    : command += " 0 "
-        command += " " + opt.xsscale
-        command += " " + opt.htcut
-        command += " " + opt.htcutlow
-        if opt.toprew=="True" : command += " 1 "
-        else                  : command += " 0 "
-        if opt.genjets=="True": command += " 1 "
-        else                  : command += " 0 "
-        command += " " + opt.topstitch
-        if opt.domt2          : command += " 1 " ## inspiegabilmente questo e' un bool
-        else                  : command += " 0 "
-        if opt.ishhsignal     : command += " 1 "
-        else                  : command += " 0 "
-        command += (" " + opt.njets)
-        command += (" " + opt.EFTrew + " " + opt.order + " " + opt.uncert + " " + opt.cms_fake + " " + opt.klreweight + " " + opt.ktreweight + " " + opt.c2reweight + " " + opt.cgreweight + " " + opt.c2greweight)
-        command += (" " + opt.susyModel)
-        command += (" " + opt.PUweights)
-        command += (" " + opt.DY_nJets)
-        command += (" " + opt.DY_nBJets)
-        if opt.DY             : command += " 1 "
-        else                  : command += " 0 "
-        if opt.ttHToNonBB     : command += " 1 "
-        else                  : command += " 0 "
-        if opt.hhNLO          : command += " 1 "
-        else                  : command += " 0 "
-        if opt.year=='2016':
-            if opt.isAPV      : command += " 1 "
-            else              : command += " 0 "
-        command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
-        scriptFile.write (command)
-        scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
+            write(thisf, line)
 
-        if opt.doSyst:
+    job_name = os.path.join(jobsDir, 'skimJob.sh')
+    with open(job_name, 'w') as s:
+        write(s, '#!/bin/bash\n')
+        write(s, 'export X509_USER_PROXY=~/.t3/proxy.cert\n')
+        write(s, 'source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
+        write(s, 'eval `scram r -sh`\n')
+        write(s, 'cd {}\n'.format(curr_folder))
+        write(s, 'source scripts/setup.sh\n')
+        command = skimmer + ' ${1} ${2}' + ' ' + FLAGS.xs
+        if FLAGS.isdata:
+            command += ' 1 '
+        else:
+            command += ' 0 '
+        command += ' ' + FLAGS.config + ' '
+        if FLAGS.dokinfit == "True":
+            command += " 1 "
+        else:
+            command += " 0 "
+        command += " " + FLAGS.xsscale
+        command += " " + FLAGS.htcut
+        command += " " + FLAGS.htcutlow
+        if FLAGS.toprew=="True":
+            command += " 1 "
+        else:
+            command += " 0 "
+        if FLAGS.genjets=="True":
+            command += " 1 "
+        else:
+            command += " 0 "
+        command += " " + FLAGS.topstitch
+        if FLAGS.domt2:
+            command += " 1 " ## inspiegabilmente questo e' un bool
+        else:
+            command += " 0 "
+        if FLAGS.ishhsignal:
+            command += " 1 "
+        else:
+            command += " 0 "
+        command += (" " + FLAGS.njets)
+        command += (" " + FLAGS.EFTrew + " " + FLAGS.order + " " + FLAGS.uncert + " " + FLAGS.cms_fake + " " + FLAGS.klreweight + " " + FLAGS.ktreweight + " " + FLAGS.c2reweight + " " + FLAGS.cgreweight + " " + FLAGS.c2greweight)
+        command += (" " + FLAGS.susyModel)
+        command += (" " + FLAGS.PUweights)
+        command += (" " + FLAGS.DY_nJets)
+        command += (" " + FLAGS.DY_nBJets)
+        if FLAGS.DY:
+            command += " 1 "
+        else:
+            command += " 0 "
+        if FLAGS.ttHToNonBB:
+            command += " 1 "
+        else:
+            command += " 0 "
+        if FLAGS.hhNLO:
+            command += " 1 "
+        else:
+            command += " 0 "
+        if FLAGS.year=='2016':
+            if FLAGS.isAPV:
+                command += " 1 "
+            else:
+                command += " 0 "
+        command += ' >& ' + FLAGS.output + '/' + "output_" + str(n) + '.log\n'
+        write(s, command)
+        write('touch ' + jobsDir + '/done_%{}\n'%.format(n))
+      
+        if FLAGS.doSyst:
             sys_command = "skimOutputter.exe"
-            sys_command += (" " + opt.output + "/output_"+str(n)+".root")
-            sys_command += (" " + opt.output + "/syst_output_"+str(n)+".root")
-            sys_command += (" " + opt.config)
-            if opt.isdata : sys_command += ' 1 '
-            else          : sys_command += ' 0 '
-            sys_command += (" " + ">& " + opt.output + "/syst_output_"+str(n)+".log\n")
-            scriptFile.write(sys_command)
+            sys_command += (" " + FLAGS.output + "/output_"+str(n)+".root")
+            sys_command += (" " + FLAGS.output + "/syst_output_"+str(n)+".root")
+            sys_command += (" " + FLAGS.config)
+            if FLAGS.isdata:
+                sys_command += ' 1 '
+            else:
+                sys_command += ' 0 '
+            sys_command += (" " + ">& " + FLAGS.output + "/syst_output_"+str(n)+".log\n")
+            write(s, sys_command)
+        
+        write(s, 'echo "All done for job %d" \n'%n)
+        os.system('chmod u+rwx {}'.format(job_name))
 
-        scriptFile.write ('echo "All done for job %d" \n'%n)
-        scriptFile.close ()
-        os.system ('chmod u+rwx %s/skimJob_%d.sh'% (jobsDir,n))
+    condor_name = job_name.replace('.sh','.condor')
+    condor_var = 'infile'
+    condlog = os.path.join(jobsDir, 'outputs')
+    create_dir(condlog)
+    with open(scriptpath_condor, 'w') as s:
+        write(s,'Universe = vanilla')
+        write(s,'Executable = {}'.format(job_name))
+        write(s,'input = /dev/null')
+        write(s,'output = {}/condor_log_$(Process).o'.format(condlog))
+        write(s,'error  = {}/condor_log_$(Process).e'.format(condlog))
+        write(s,'getenv = true')
+        write(s,'T3Queue = short')
+        write(s,'WNTag=el7')
+        write(s,'+SingularityCmd = ""')
+        write(s,'include : /opt/exp_soft/cms/t3_tst/t3queue |')
+        write(s,'Arguments = $({}) '.format(condor_var))
+        write(s,'queue {} from ('.format(condor_var))
+        for n in range(njobs): 
+            line = os.path.join(jobsDir, 'filelist_{}.txt'.format(str(n)))
+            line += ', '
+            line += os.path.join(FLAGS.output, 'output_{}.root'.format(str(n)))
+        write(s, line)
+        write(s, ')')
 
+    launch_command = 'condor_submit {}'.format(condor_name)
+    with open (jobsDir + '/submit.sh', 'w') as comf:
+        comf.write(command + '\n')
 
-        #command = '/opt/exp_soft/cms/t3/t3submit_el7 -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
-        command = '/home/llr/cms/motta/t3submit -' + opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
-        if opt.sleep : time.sleep (0.1)
-        os.system (command)
-        commandFile.write (command + '\n')
-        n = n + 1
-    commandFile.close ()
+    if FLAGS.sleep:
+        time.sleep (0.1)
+    os.system(launch_command)
+
+if __name__ == "__main__":
+
+    usage = 'Command line parser of skimming a bit Ntuple.'
+    parser = argparse.ArgumentParser(description=usage)
+    parser.add_argument('-i', '--input', dest='input', default='none', help='input folder')
+    parser.add_argument('-Y', '--year', dest='year', default='2018', help='year')
+    parser.add_argument('-A', '--APV', dest='isAPV', default=False, help='isAPV')
+    parser.add_argument('-x', '--xs', dest='xs', help='sample xs', default='1.')
+    parser.add_argument('-f', '--force', dest='force', default=False, help='replace existing reduced ntuples')
+    parser.add_argument('-o', '--output', dest='output', default='none', help='output folder')
+    parser.add_argument('-q', '--queue', dest='queue', default='short', help='batch queue')
+    parser.add_argument('-r', '--resub', dest='resub', default='none', help='resubmit failed jobs')
+    parser.add_argument('-v', '--verb', dest='verb', default=False, help='verbose')
+    parser.add_argument('-s', '--sleep', dest='sleep', default=False, help='sleep in submission')
+    parser.add_argument('-d', '--isdata', dest='isdata', default=False, help='data flag')
+    parser.add_argument('-T', '--tag', dest='tag', default='', help='folder tag name')
+    parser.add_argument('-H', '--hadd', dest='hadd', default='none', help='hadd the resulting ntuples')
+    parser.add_argument('-c', '--config', dest='config', default='none', help='skim config file')
+    parser.add_argument('-n', '--njobs', dest='njobs', default=100, type=int, help='number of skim jobs')
+    parser.add_argument('-k', '--kinfit', dest='dokinfit', default='True', help='run HH kin fitter')
+    parser.add_argument('-m', '--mt2', dest='domt2', default=True, help='run stransverse mass calculation')
+    parser.add_argument('-y', '--xsscale', dest='xsscale', default='1.0',
+                        help='scale to apply on XS for stitching')
+    parser.add_argument('-Z', '--htcutlow', dest='htcutlow', default='-999.0',
+                        help='HT low cut for stitching on inclusive')
+    parser.add_argument('-z', '--htcut', dest='htcut', default='-999.0',
+                        help='HT cut for stitching on inclusive')
+    parser.add_argument('-e', '--njets', dest='njets', default='-999',
+                        help='njets required for stitching on inclusive')
+    parser.add_argument('-t', '--toprew', dest='toprew', default=False,
+                        help='is TT bar sample to compute reweight?')
+    parser.add_argument('-b', '--topstitch' , dest='topstitch' , default='0',
+                        help='type of TT gen level decay pruning for stitch')
+    parser.add_argument('-g', '--genjets', dest='genjets', default=False,
+                        help='loop on genjets to determine the number of b hadrons')
+    parser.add_argument('-a', '--ishhsignal', dest='ishhsignal', default=False, help='isHHsignal')
+    parser.add_argument('--BSMname', dest='BSMname', default='none', help='additional name for EFT benchmarks')
+    parser.add_argument('--EFTbm', dest='EFTrew', default='none',
+                        help='EFT benchmarks [SM, 1..12, 1b..7b, 8a, c2scan, manual]')
+    parser.add_argument('--order', dest='order', default='nlo', help='order of reweight: lo/nlo')
+    parser.add_argument('--uncert', dest='uncert', default='0', help='uncertainty on the reweight coeffs')
+    parser.add_argument('--cms_fake', dest='cms_fake', default='0', help='invert some couplings for 2017/2018')
+    parser.add_argument('--kl', dest='klreweight', default='-999.0', help='invert some couplings for 2017/2018')
+    parser.add_argument('--kt', dest='ktreweight', default='-999.0', help='kt for dynamic reweight')
+    parser.add_argument('--c2', dest='c2reweight', default='-999.0', help='c2 for dynamic reweight')
+    parser.add_argument('--cg', dest='cgreweight', default='-999.0', help='cg for dynamic reweight')
+    parser.add_argument('--c2g', dest='c2greweight', default='-999.0', help='c2g for dynamic reweight')
+    parser.add_argument('--susy', dest='susyModel', default='NOTSUSY', help='name of susy model to select')
+    parser.add_argument('--pu', dest='PUweights', default='none', help='name of susy model to select')
+    parser.add_argument('--nj', dest='DY_nJets', default='-1', help='number of gen Jets for DY bins')
+    parser.add_argument('--nb', dest='DY_nBJets', default='-1', help='number of gen BJets for DY bins')
+    parser.add_argument('--DY', dest='DY', default=False, help='if it is a DY sample')
+    parser.add_argument('--ttHToNonBB', dest='ttHToNonBB', default=False,
+                        help='if it is a ttHToNonBB sample')
+    parser.add_argument('--hhNLO', dest='hhNLO', default=False, action='store_true',
+                        help='if it is an HH NLO sample')
+    parser.add_argument('--doSyst', dest='doSyst', default=False, action='store_true',
+                        help='compute up/down values of outputs')
+
+    FLAGS = parser.parse_args()
+    curr_folder = os.getcwd()
+    skim_ntuple(FLAGS, curr_folder)
