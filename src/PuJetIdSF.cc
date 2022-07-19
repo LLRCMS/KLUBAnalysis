@@ -131,7 +131,7 @@ std::vector<float> PuJetIdSF::getEvtWeight(bigTree &theBigTree, TLorentzVector t
     }
 
     // Pass PU jet ID Loose WP
-    bool passPUjetIDLoose = CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), 2);
+    bool passPUjetIDLoose = CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 2);
 
     if (DEBUG) std::cout << "   isRealJet: " << isRealJet << " passPUjetIDLoose: " << passPUjetIDLoose << std::endl;
 
