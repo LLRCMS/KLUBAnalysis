@@ -10,7 +10,6 @@ import ROOT
 def create_dir(d):
     if not os.path.exists(d):
         os.makedirs(d)
-create_dir(outdir)
 
 def is_good_file (fileName) :
     ff = ROOT.TFile (fname)
@@ -30,14 +29,16 @@ def parse_input_file_list(fileName) :
 write = lambda stream, text: stream.write(text + '\n')
 
 def skim_ntuple(FLAGS, curr_folder):
+    io_names = ('filelist_${1}.txt', 'output_${1}.root', 'output_${1}.log')
+    
     # verify the result of the process
     if (FLAGS.hadd != 'none') :    
-        with open (FLAGS.output + '/hadder.sh', 'w') as s:
+        with open( os.path.join(FLAGS.output, 'hadder.sh'), 'w') as s:
             write(s, '#!/bin/bash')
-            write(s, 'source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
+            write(s, 'source /cvmfs/cms.cern.ch/cmsset_default.sh')
             write(s, 'cd /home/llr/cms/motta/HHLegacy/CMSSW_11_1_0pre6/src')
             write(s, 'eval `scram r -sh`')
-            write(s, 'cd {}\n'.format(curr_folder))
+            write(s, 'cd {}'.format(curr_folder))
             write(s, 'source scripts/setup.sh')
             write(s, 'mkdir ' + os.path.join(FLAGS.output, 'singleFiles'))
             write(s, 'mv ' + os.path.join(FLAGS.output, + '*') +
@@ -48,7 +49,7 @@ def skim_ntuple(FLAGS, curr_folder):
             write(s, 'echo "Hadding finished"')
 
         os.system('chmod u+rwx ' + FLAGS.output + '/hadder.sh')
-        command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' + os.path.join(FLAGS.output, '/hadder.sh\''))
+        command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' + os.path.join(FLAGS.output, 'hadder.sh\''))
         os.system(command)
         sys.exit(0)
 
@@ -62,41 +63,28 @@ def skim_ntuple(FLAGS, curr_folder):
         if FLAGS.input[-1] == '/' : FLAGS.input = FLAGS.input[:-1]
         tagname = FLAGS.tag + "/" if FLAGS.tag else ''
         FLAGS.input = tagname + 'SKIM_' + os.path.basename (FLAGS.input)
-        jobs = [word.replace ('_', '.').split ('.')[1] for word in os.listdir (FLAGS.input) if 'skim' in word]
-        missing = []
-
-        # check the existence of the done file
-        for num in jobs :
-            if not os.path.exists(FLAGS.input + '/done_' + num) :
-                if FLAGS.verb:
-                    print(num, ' : missing done file')
-                missing.append(num)
 
         # check the log file
-        for num in jobs :
-            # get the log file name
-            filename = FLAGS.input + '/skimJob_' + num + '.sh'
-#            print os.path.exists (filename)
-            with open (filename, 'r') as myfile:
-                data = [word for word in myfile.readlines () if 'log' in word]
-            rootfile = data[0].split ()[2]
+        missing = []
+        for num in jobs:
+            rootfile = io_names[1].replace('${1}', num)
             if not os.path.exists(rootfile):
                 if FLAGS.verb:
-                    print(num, 'missing root file', rootfile)
-                missing.append (num)
-                continue
-            if not is_goodF_file(rootfile):
-                if FLAGS.verb:
-                    print(num, 'root file corrupted', rootfile)
+                    print('ROOT file {} missing at iteration {}.'.format(rootfile, num))
                 missing.append(num)
                 continue
-            logfile = data[0].split()[-1]
+            if not is_good_file(rootfile):
+                if FLAGS.verb:
+                    print('ROOT file {} corrupted at iteration {}.'.format(rootfile, num))
+                missing.append(num)
+                continue
+            logfile = io_names[2].replace('${1}', num)
             if not os.path.exists(logfile) :
                 if FLAGS.verb:
                     print(num, 'missing log file')
-                missing.append (num)
+                missing.append(num)
                 continue
-            with open (logfile, 'r') as logfile :
+            with open(logfile, 'r') as logfile:
                 problems = [word for word in logfile.readlines () if 'Error' in word and 'TCling' not in word]
                 if len(problems) != 0:
                     if FLAGS.verb:
@@ -105,21 +93,21 @@ def skim_ntuple(FLAGS, curr_folder):
         print('The following jobs did not end successfully:')
         print(missing)
         for num in missing :
-            command = '`cat ' + FLAGS.input + '/submit.sh | grep skimJob_' + num + '.sh | tr "\'" " "`'
+            command = '`cat ' + os.path.join(FLAGS.input, 'submit.sh') + ' | grep skimJob_' + num + '.sh | tr "\'" " "`'
             if FLAGS.verb:
                 print(command)
         if FLAGS.resub == 'run':
             for num in missing:
-                command = '`cat ' + FLAGS.input + '/submit.sh | grep skimJob_' + num + '.sh | tr "\'" " "`'
+                command = '`cat ' + os.path.join(FLAGS.input + 'submit.sh') + ' | grep skimJob_' + num + '.sh | tr "\'" " "`'
                 time.sleep(int (num) % 5)
                 os.system(command)
         sys.exit(0)
 
     # submit the jobs
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-    skimmer = 'skimNtuple2018_HHbtag.exe'
-    if FLAGS.year == '2017':
+    if FLAGS.year == '2018':
+        skimmer = 'skimNtuple2018_HHbtag.exe'
+    elif FLAGS.year == '2017':
         skimmer = 'skimNtuple2017_HHbtag.exe'
     elif FLAGS.year == '2016':
         skimmer = 'skimNtuple2016_HHbtag.exe'
@@ -135,10 +123,10 @@ def skim_ntuple(FLAGS, curr_folder):
         FLAGS.output = FLAGS.input + '_SKIM'
 
     if not os.path.exists(FLAGS.input) :
-        print('Input folder', FLAGS.input, 'not existing, exiting')
+        print('The input folder {} does not exists. Exiting.'.format(FLAGS.input))
         sys.exit(1)
     if not FLAGS.force and os.path.exists(FLAGS.output):
-        print('Output folder', FLAGS.output, 'existing, exiting')
+        print('The output folder {} already exists. Exiting.'.format(FLAGS.output))
         sys.exit(1)
     elif os.path.exists(FLAGS.output):
         os.system('rm -rf ' + FLAGS.output + '/*')
@@ -146,115 +134,128 @@ def skim_ntuple(FLAGS, curr_folder):
     os.system('cp ' + FLAGS.config + ' ' + FLAGS.output)
 
     inputfiles = parse_input_file_list(FLAGS.input)
-    njobs = len(inputfiles) if njobs > len(inputfiles) else FLAGS.njobs
-    nfiles = (len (inputfiles) + len (inputfiles) % njobs) / njobs
-    inputlists = [inputfiles[x:x+nfiles] for x in xrange (0, len (inputfiles), nfiles)]
+    njobs = len(inputfiles) if FLAGS.njobs > len(inputfiles) else FLAGS.njobs
+    nfiles_per_job = (len(inputfiles) + len(inputfiles) % njobs) / njobs
+    inputlists = [inputfiles[x:x+nfiles_per_job]
+                  
+                  for x in range(0, len(inputfiles), nfiles_per_job)]
+    mes = ( '{} jobs will be scheduled for {} files ({} files per job).'
+            .format(njobs,len(inputfiles),nfiles_per_job) )
+    print(mes)
 
-    tagname = "/" + FLAGS.tag if FLAGS.tag else ''
+    tagname = '/' + FLAGS.tag if FLAGS.tag else ''
     jobsDir = curr_folder + tagname + '/SKIM_' + os.path.basename (FLAGS.input)
     jobsDir = jobsDir.rstrip ('.txt')
     if float(FLAGS.klreweight) > -990 and FLAGS.BSMname == 'none':
-        print '!WARNING! You requested manual HH reweighting, but did not set a proper BSMname! Exiting!'
-        sys.exit (0)
+        print('[WARNING] You requested manual HH reweighting, but did not set a proper BSMname! Exiting!')
+        sys.exit(0)
     elif FLAGS.EFTrew != 'none':
         jobsDir = jobsDir + '_' + FLAGS.EFTrew
     elif FLAGS.BSMname != 'none':
         jobsDir = jobsDir + '_' + FLAGS.BSMname
 
-    if os.path.exists (jobsDir):
-        os.system ('rm -f ' + jobsDir + '/*')
+    if os.path.exists(jobsDir):
+        os.system('rm -f ' + jobsDir + '/*.sh')
+        os.system('rm -f ' + jobsDir + '/*.condor')
     else:
-        os.system ('mkdir -p ' + jobsDir)
- 
-    with open(jobsDir + "/" + listFileName, 'w') as thisf:
-        for line in listname:
-            write(thisf, line)
+        os.system('mkdir -p ' + jobsDir)
+
+    for ij,listname in enumerate(inputlists):
+        #create a wrapper for standalone cmssw job
+        list_file_name = io_names[0].replace('${1}', str(ij))
+        with open(os.path.join(jobsDir, list_file_name), 'w') as input_list_file:
+            for line in listname:
+                write(input_list_file, line)
 
     job_name = os.path.join(jobsDir, 'skimJob.sh')
     with open(job_name, 'w') as s:
-        write(s, '#!/bin/bash\n')
-        write(s, 'export X509_USER_PROXY=~/.t3/proxy.cert\n')
-        write(s, 'source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
-        write(s, 'eval `scram r -sh`\n')
-        write(s, 'cd {}\n'.format(curr_folder))
-        write(s, 'source scripts/setup.sh\n')
-        command = skimmer + ' ${1} ${2}' + ' ' + FLAGS.xs
+        write(s, '#!/bin/bash')
+        write(s, 'export X509_USER_PROXY=~/.t3/proxy.cert')
+        write(s, 'source /cvmfs/cms.cern.ch/cmsset_default.sh')
+        write(s, 'eval `scram r -sh`')
+        write(s, 'cd {}'.format(curr_folder))
+        write(s, 'source scripts/setup.sh')
+        command = skimmer + ' ' + os.path.join(jobsDir, io_names[0])
+        command += ' ' + os.path.join(FLAGS.output, io_names[1]) + ' ' + FLAGS.xs
+
         if FLAGS.isdata:
             command += ' 1 '
         else:
             command += ' 0 '
         command += ' ' + FLAGS.config + ' '
-        if FLAGS.dokinfit == "True":
-            command += " 1 "
+        if FLAGS.dokinfit == 'True':
+            command += ' 1 '
         else:
-            command += " 0 "
-        command += " " + FLAGS.xsscale
-        command += " " + FLAGS.htcut
-        command += " " + FLAGS.htcutlow
-        if FLAGS.toprew=="True":
-            command += " 1 "
+            command += ' 0 '
+        command += ' ' + FLAGS.xsscale
+        command += ' ' + FLAGS.htcut
+        command += ' ' + FLAGS.htcutlow
+        if FLAGS.toprew=='True':
+            command += ' 1 '
         else:
-            command += " 0 "
-        if FLAGS.genjets=="True":
-            command += " 1 "
+            command += ' 0 '
+        if FLAGS.genjets=='True':
+            command += ' 1 '
         else:
-            command += " 0 "
-        command += " " + FLAGS.topstitch
+            command += ' 0 '
+        command += ' ' + FLAGS.topstitch
         if FLAGS.domt2:
-            command += " 1 " ## inspiegabilmente questo e' un bool
+            command += ' 1 ' ## inspiegabilmente questo e' un bool
         else:
-            command += " 0 "
+            command += ' 0 '
         if FLAGS.ishhsignal:
-            command += " 1 "
+            command += ' 1 '
         else:
-            command += " 0 "
-        command += (" " + FLAGS.njets)
-        command += (" " + FLAGS.EFTrew + " " + FLAGS.order + " " + FLAGS.uncert + " " + FLAGS.cms_fake + " " + FLAGS.klreweight + " " + FLAGS.ktreweight + " " + FLAGS.c2reweight + " " + FLAGS.cgreweight + " " + FLAGS.c2greweight)
-        command += (" " + FLAGS.susyModel)
-        command += (" " + FLAGS.PUweights)
-        command += (" " + FLAGS.DY_nJets)
-        command += (" " + FLAGS.DY_nBJets)
+            command += ' 0 '
+        command += (' ' + FLAGS.njets)
+        command += (' ' + FLAGS.EFTrew + ' ' + FLAGS.order + ' ' + FLAGS.uncert +
+                    ' ' + FLAGS.cms_fake + ' ' + FLAGS.klreweight + ' ' + FLAGS.ktreweight +
+                    ' ' + FLAGS.c2reweight + ' ' + FLAGS.cgreweight + ' ' + FLAGS.c2greweight)
+        command += (' ' + FLAGS.susyModel)
+        command += (' ' + FLAGS.PUweights)
+        command += (' ' + FLAGS.DY_nJets)
+        command += (' ' + FLAGS.DY_nBJets)
         if FLAGS.DY:
-            command += " 1 "
+            command += ' 1 '
         else:
-            command += " 0 "
+            command += ' 0 '
         if FLAGS.ttHToNonBB:
-            command += " 1 "
+            command += ' 1 '
         else:
-            command += " 0 "
+            command += ' 0 '
         if FLAGS.hhNLO:
-            command += " 1 "
+            command += ' 1 '
         else:
-            command += " 0 "
-        if FLAGS.year=='2016':
+            command += ' 0 '
+        if FLAGS.year == '2016':
             if FLAGS.isAPV:
-                command += " 1 "
+                command += ' 1 '
             else:
-                command += " 0 "
-        command += ' >& ' + FLAGS.output + '/' + "output_" + str(n) + '.log\n'
+                command += ' 0 '
+        command += ' >& ' + os.path.join(FLAGS.output, io_names[2])
         write(s, command)
-        write('touch ' + jobsDir + '/done_%{}\n'%.format(n))
+        write(s, 'touch ' + os.path.join(jobsDir, 'done') )
       
         if FLAGS.doSyst:
-            sys_command = "skimOutputter.exe"
-            sys_command += (" " + FLAGS.output + "/output_"+str(n)+".root")
-            sys_command += (" " + FLAGS.output + "/syst_output_"+str(n)+".root")
-            sys_command += (" " + FLAGS.config)
+            sys_command = 'skimOutputter.exe'
+            sys_command += (' ' + os.path.join(FLAGS.output, io_names[1]) )
+            sys_command += (' ' + os.path.join(FLAGS.output, 'syst_'+io_names[1]) )
+            sys_command += (' ' + FLAGS.config)
             if FLAGS.isdata:
                 sys_command += ' 1 '
             else:
                 sys_command += ' 0 '
-            sys_command += (" " + ">& " + FLAGS.output + "/syst_output_"+str(n)+".log\n")
+            sys_command += (' ' + '>& ' + os.path.join(FLAGS.output, 'syst_' + io_names[2]) )
             write(s, sys_command)
         
-        write(s, 'echo "All done for job %d" \n'%n)
+        write(s, 'echo "All done."')
         os.system('chmod u+rwx {}'.format(job_name))
 
     condor_name = job_name.replace('.sh','.condor')
-    condor_var = 'infile'
+    condor_vars = ('infile', 'outfile')
     condlog = os.path.join(jobsDir, 'outputs')
     create_dir(condlog)
-    with open(scriptpath_condor, 'w') as s:
+    with open(condor_name, 'w') as s:
         write(s,'Universe = vanilla')
         write(s,'Executable = {}'.format(job_name))
         write(s,'input = /dev/null')
@@ -265,29 +266,23 @@ def skim_ntuple(FLAGS, curr_folder):
         write(s,'WNTag=el7')
         write(s,'+SingularityCmd = ""')
         write(s,'include : /opt/exp_soft/cms/t3_tst/t3queue |')
-        write(s,'Arguments = $({}) '.format(condor_var))
-        write(s,'queue {} from ('.format(condor_var))
-        for n in range(njobs): 
-            line = os.path.join(jobsDir, 'filelist_{}.txt'.format(str(n)))
-            line += ', '
-            line += os.path.join(FLAGS.output, 'output_{}.root'.format(str(n)))
-        write(s, line)
-        write(s, ')')
+        write(s,'Arguments = $(Process)')
+        write(s,'queue {}'.format(njobs))
 
     launch_command = 'condor_submit {}'.format(condor_name)
-    with open (jobsDir + '/submit.sh', 'w') as comf:
-        comf.write(command + '\n')
+    with open(os.path.join(jobsDir, 'submit.sh'), 'w') as comf:
+        write(comf, command)
 
     if FLAGS.sleep:
-        time.sleep (0.1)
+        time.sleep(0.1)
+    print('The following command was run: {}.'.format(launch_command))
     os.system(launch_command)
 
 if __name__ == "__main__":
-
     usage = 'Command line parser of skimming a bit Ntuple.'
     parser = argparse.ArgumentParser(description=usage)
     parser.add_argument('-i', '--input', dest='input', default='none', help='input folder')
-    parser.add_argument('-Y', '--year', dest='year', default='2018', help='year')
+    parser.add_argument('-Y', '--year', dest='year', default='2018', help='year', choices=['2016', '2017', '2018'])
     parser.add_argument('-A', '--APV', dest='isAPV', default=False, help='isAPV')
     parser.add_argument('-x', '--xs', dest='xs', help='sample xs', default='1.')
     parser.add_argument('-f', '--force', dest='force', default=False, help='replace existing reduced ntuples')

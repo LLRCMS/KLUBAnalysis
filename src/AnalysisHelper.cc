@@ -200,6 +200,7 @@ void AnalysisHelper::readSamples()
 
 shared_ptr<Sample> AnalysisHelper::openSample(string sampleName)
 {
+  std::cout << "OPEN SAMPLE" << std::endl;
   if (DEBUG) cout << " ..........DEBUG: entering AnalysisHelper::openSample for sample " << sampleName << endl;
 
   string filename = sampleCfg_->readStringOpt(Form("samples::%s",sampleName.c_str()));
@@ -241,7 +242,7 @@ shared_ptr<Sample> AnalysisHelper::openSample(string sampleName)
     w.addSysts(wsyst); // can be empty as well
     sample->addWeight(w);
   }
-
+  std::cout << "CLOSE SAMPLE" << std::endl;
   return sample;
 }
 
