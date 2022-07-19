@@ -173,6 +173,45 @@ const float stitchWeights [5][5][9] = {
  }
 };
 
+// computed for UL2016APV, Mar 2022, including DY HT-binned samples
+// const float stitchWeights [5][5][9] = {
+//  {
+//   {1.96964450407 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
+//   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
+//   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
+//   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
+//   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
+//  },
+//  {
+//   {0.698884148715 , 0.359394904371 , 0.302349257219 , 0.168118882738 , 0.0535758373312 , 0.0158323682703 , 0.00761591365565 , 0.00181163138783 , 7.91785055505e-05},
+//   {0.705551791136 , 0.35969803412 , 0.302270452843 , 0.174315881566 , 0.0618469897371 , 0.0158954947333 , 0.00769284207641 , 0.00181163138783 , 0.0},
+//   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
+//   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
+//   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
+//  },
+//  {
+//   {0.588538913453 , 0.326031339189 , 0.276363927184 , 0.163191519425 , 0.0582976864494 , 0.0148673885903 , 0.00650237428752 , 0.00180714806383 , 7.9165742029e-05},
+//   {0.59257848069 , 0.327797736135 , 0.277655029598 , 0.16557464 , 0.0582220867259 , 0.0157235842923 , 0.00758675092526 , 0.00180357372413 , 7.91785055505e-05},
+//   {0.598838778971 , 0.328797757375 , 0.278566656599 , 0.164934930405 , 0.0600678291938 , 0.0156866293636 , 0.00754490280571 , 0.00180816082962 , 7.91785055505e-05},
+//   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
+//   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
+//  },
+//  {
+//   {0.266291653746 , 0.196396804339 , 0.178573450644 , 0.124437658485 , 0.0535126516514 , 0.0148190072598 , 0.00748204388767 , 0.00181450950719 , 7.91506285995e-05},
+//   {0.268626163659 , 0.197002982114 , 0.175883543809 , 0.123393672063 , 0.0541302325331 , 0.0167891889099 , 0.00750356986806 , 0.00179910081691 , 7.91785055505e-05},
+//   {0.26385628303 , 0.190827239883 , 0.175859082536 , 0.124506094963 , 0.0518959436524 , 0.0152659434376 , 0.00748176789534 , 0.00179961791709 , 7.89119112557e-05},
+//   {0.291484747011 , 0.18825196287 , 0.167762934303 , 0.122216664943 , 0.0547949048697 , 0.0141240975046 , 0.00769284207641 , 0.00181163138783 , 0.0},
+//   {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
+//  },
+//  {
+//   {0.276615216263 , 0.199589432825 , 0.182394390534 , 0.126285082144 , 0.0541696396413 , 0.0153459021394 , 0.00753551564983 , 0.00181082146725 , 7.91565570778e-05},
+//   {0.275885843941 , 0.205697908325 , 0.183483659648 , 0.128064614712 , 0.0532172422876 , 0.0157393449075 , 0.00710369886448 , 0.00179959071776 , 7.91785055505e-05},
+//   {0.296531547125 , 0.201036683028 , 0.181238607333 , 0.123813512055 , 0.0558326318848 , 0.0157874591065 , 0.00865559979985 , 0.00180042611359 , 7.91592998974e-05},
+//   {0.324533927792 , 0.187084264256 , 0.183028286463 , 0.111992422163 , 0.0532729358488 , 0.0152479469601 , 0.0075293302509 , 0.00180246630492 , 7.91785055505e-05},
+//   {0.0 , 0.179862176848 , 0.171616532878 , 0.132899416859 , 0.0516980072247 , 0.0153566005307 , 0.00742757165998 , 0.00181163138783 , 7.91785055505e-05}
+//  }
+// };
+
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
@@ -310,6 +349,7 @@ int main (int argc, char** argv)
   bool isPostVFP = true;
   int isAPV = atoi(argv[32]);
   if(isAPV==1) isPostVFP = false;
+  cout << "** INFO: isAPV: " << isAPV << endl;
 
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
@@ -3382,11 +3422,11 @@ int main (int argc, char** argv)
       {
 	cout << "------- Jets DEBUG---------" << endl;
 	cout << "iJet: " << iJet << "  -- pT/Eta/Phi: " << tlv_jet.Pt() << "/" << tlv_jet.Eta() << "/" << tlv_jet.Phi() << endl;
-	cout << "discr: " << theBigTree.jets_PUJetID->at(iJet) << endl;
-	cout << "discrWP: " << theBigTree.jets_PUJetID_WP->at(iJet) << " -- bitwise: " << std::bitset<5>(theBigTree.jets_PUJetID_WP->at(iJet)) << endl;
-	cout << "Pass Loose : " << CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), 2) << endl;
-	cout << "Pass Medium: " << CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), 1) << endl;
-	cout << "Pass Tight : " << CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), 0) << endl;
+	cout << "discr: " << theBigTree.jets_PUJetIDupdated->at(iJet) << endl;
+	cout << "discrWP: " << theBigTree.jets_PUJetIDupdated_WP->at(iJet) << " -- bitwise: " << std::bitset<5>(theBigTree.jets_PUJetIDupdated_WP->at(iJet)) << endl;
+	cout << "Pass Loose : " << CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 2) << endl;
+	cout << "Pass Medium: " << CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 1) << endl;
+	cout << "Pass Tight : " << CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 0) << endl;
 	cout << "dR(tau1)   : " << tlv_jet.DeltaR (tlv_firstLepton) << " - lepCleaningCone: " << lepCleaningCone << endl;
 	cout << "dR(tau2)   : " << tlv_jet.DeltaR (tlv_secondLepton) << " - lepCleaningCone: " << lepCleaningCone << endl;
 	cout << "pT < 20    : " << (tlv_jet.Pt () < 20.) << endl;
@@ -3404,7 +3444,7 @@ int main (int argc, char** argv)
       // PU jet ID WP = 2: loose
       if (PUjetID_WP > -1)
       {
-	if ( !(CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), PUjetID_WP)) && tlv_jet.Pt()<50.) continue;
+	if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_jet.Pt()<50.) continue;
       }
 
       // all jets selected as btag cands apart from eta cut
@@ -3437,7 +3477,7 @@ int main (int argc, char** argv)
       if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
       TLorentzVector tlv_jet(theBigTree.jets_px->at (iJet), theBigTree.jets_py->at (iJet), theBigTree.jets_pz->at (iJet), theBigTree.jets_e->at (iJet));
       if (doSmearing) tlv_jet = tlv_jet * jets_and_smearFactor[iJet];
-      if (tlv_jet.Pt() > 15.) theSmallTree.m_PUjetID.push_back(theBigTree.jets_PUJetID->at(iJet));
+      if (tlv_jet.Pt() > 15.) theSmallTree.m_PUjetID.push_back(theBigTree.jets_PUJetIDupdated->at(iJet));
     }
 
     theSmallTree.m_nbjetscand = jets_and_sortPar.size();
@@ -3587,7 +3627,7 @@ int main (int argc, char** argv)
 	  // PU jet ID WP = 2: loose
 	  if (PUjetID_WP > -1)
 	  {
-	    if ( !(CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), PUjetID_WP)) && ijet.Pt()<50.) continue;
+	    if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && ijet.Pt()<50.) continue;
 	  }
 
 	  for (unsigned int kJet = iJet+1 ;   (kJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved) ;  ++kJet)
@@ -3612,7 +3652,7 @@ int main (int argc, char** argv)
 	    // PU jet ID WP = 2: loose
 	    if (PUjetID_WP > -1)
 	    {
-	      if ( !(CheckBit(theBigTree.jets_PUJetID_WP->at(kJet), PUjetID_WP)) && kjet.Pt()<50.) continue;
+	      if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(kJet), PUjetID_WP)) && kjet.Pt()<50.) continue;
 	    }
 
 	    TLorentzVector jetPair = ijet+kjet;
@@ -3917,7 +3957,7 @@ int main (int argc, char** argv)
       theSmallTree.m_bjet1_CvsL = getCvsL(theBigTree, bjet1idx);
       theSmallTree.m_bjet1_CvsB = getCvsB(theBigTree, bjet1idx);
       theSmallTree.m_bjet1_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet1idx) ;
-      theSmallTree.m_bjet1_PUjetIDupdated = theBigTree.jets_PUJetID->at(bjet1idx);
+      theSmallTree.m_bjet1_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at(bjet1idx);
       theSmallTree.m_bjet1_flav = theBigTree.jets_HadronFlavour->at (bjet1idx) ;
 
       theSmallTree.m_bjet2_pt   = tlv_secondBjet.Pt () ;
@@ -3931,7 +3971,7 @@ int main (int argc, char** argv)
       theSmallTree.m_bjet2_CvsL = getCvsL(theBigTree, bjet2idx);
       theSmallTree.m_bjet2_CvsB = getCvsB(theBigTree, bjet2idx);
       theSmallTree.m_bjet2_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet2idx) ;
-      theSmallTree.m_bjet2_PUjetIDupdated = theBigTree.jets_PUJetID->at(bjet2idx);
+      theSmallTree.m_bjet2_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at(bjet2idx);
       theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
 
       theSmallTree.m_bjets_bID  = theBigTree.bCSVscore->at (bjet1idx) +theBigTree.bCSVscore->at (bjet2idx) ;
@@ -3997,7 +4037,7 @@ int main (int argc, char** argv)
 	// PU jet ID WP = 2: loose
 	if (PUjetID_WP > -1)
 	{
-	  if ( !(CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), PUjetID_WP)) && tlv_jet.Pt()<50.) continue;
+	  if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_jet.Pt()<50.) continue;
 	}
 
 	// use these jets for HT
@@ -4597,7 +4637,7 @@ int main (int argc, char** argv)
 	theSmallTree.m_VBFjet1_ctag_deepFlavor = theBigTree.bDeepFlavor_probc->at(VBFidx1) ;
 	theSmallTree.m_VBFjet1_CvsL = getCvsL(theBigTree, VBFidx1);
 	theSmallTree.m_VBFjet1_CvsB = getCvsB(theBigTree, VBFidx1);
-	theSmallTree.m_VBFjet1_PUjetIDupdated  = theBigTree.jets_PUJetID->at (VBFidx1) ;
+	theSmallTree.m_VBFjet1_PUjetIDupdated  = theBigTree.jets_PUJetIDupdated->at (VBFidx1) ;
 	theSmallTree.m_VBFjet1_flav            = (theBigTree.jets_HadronFlavour->at (VBFidx1)) ;
 	theSmallTree.m_VBFjet1_hasgenjet       = hasgj1_VBF ;
 
@@ -4636,10 +4676,10 @@ int main (int argc, char** argv)
 	theSmallTree.m_VBFjet2_ctag_deepFlavor = theBigTree.bDeepFlavor_probc->at(VBFidx2) ;
 	theSmallTree.m_VBFjet2_CvsL = getCvsL(theBigTree, VBFidx2);
 	theSmallTree.m_VBFjet2_CvsB = getCvsB(theBigTree, VBFidx2);
-	theSmallTree.m_VBFjet2_PUjetIDupdated  = theBigTree.jets_PUJetID->at (VBFidx2) ;
+	theSmallTree.m_VBFjet2_PUjetIDupdated  = theBigTree.jets_PUJetIDupdated->at (VBFidx2) ;
 	theSmallTree.m_VBFjet2_flav            = (theBigTree.jets_HadronFlavour->at (VBFidx2)) ;
 	theSmallTree.m_VBFjet2_hasgenjet  	 = hasgj2_VBF ;
-	theSmallTree.m_VBFjet2_PUjetID    	 = (theBigTree.jets_PUJetID->at (VBFidx2)); // VBF BDT
+	theSmallTree.m_VBFjet2_PUjetID    	 = (theBigTree.jets_PUJetIDupdated->at (VBFidx2)); // VBF BDT
 	theSmallTree.m_bH_VBF1_deltaEta   	 = fabs(tlv_bH.Eta() - VBFjet1.Eta()); // VBF BDT
 
 	theSmallTree.m_dau1_z = getZ(tlv_firstLepton.Eta(),VBFjet1.Eta(),VBFjet2.Eta());
@@ -4684,7 +4724,7 @@ int main (int argc, char** argv)
 	// PU jet ID WP = 2: loose
 	if (PUjetID_WP > -1)
 	{
-	  if ( !(CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), PUjetID_WP)) && tlv_dummyJet.Pt()<50.) continue;
+	  if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_dummyJet.Pt()<50.) continue;
 	}
 
 	// remove jets that overlap with the tau selected in the leg 1 and 2
@@ -4919,7 +4959,7 @@ int main (int argc, char** argv)
         // Apply PUjetID only to jets with pt < 50 GeV (https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets)
         if (PUjetID_WP > -1) //PU jet ID WP = 2: loose
         {
-          if ( !(CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), PUjetID_WP)) && tlv_additionalJet.Pt()<50.) continue;
+          if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_additionalJet.Pt()<50.) continue;
         }
 
         //std::cout << "  -IDX: " << iJet << " --> pt/eta/phi: " << tlv_additionalJet.Pt() <<" "<< tlv_additionalJet.Eta() <<" "<< tlv_additionalJet.Phi() << std::endl;
@@ -5341,7 +5381,7 @@ int main (int argc, char** argv)
         // PU jet ID WP = 2: loose
         if (PUjetID_WP > -1)
         {
-          if ( !(CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), PUjetID_WP)) && tlv_dummyJet.Pt()<50.) continue;
+          if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_dummyJet.Pt()<50.) continue;
         }
 
         // remove jets that overlap with the tau selected in the leg 1 and 2
