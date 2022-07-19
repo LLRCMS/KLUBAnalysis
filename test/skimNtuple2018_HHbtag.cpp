@@ -459,14 +459,15 @@ int main (int argc, char** argv)
 
   // input and output setup
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-  TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
+  TChain *bigChain = new TChain("HTauTauTree/HTauTauTree") ;
 
-  appendFromFileList (bigChain, inputFile);
+  appendFromFileList(bigChain, inputFile);
   bigChain->SetCacheSize(0);
-  bigTree theBigTree (bigChain) ;
+  std::cout << inputFile << std::endl;
+  bigTree theBigTree(bigChain) ;
   //Create a new file + a clone of old tree header. Do not copy events
-  TFile * smallFile = new TFile (outputFile, "recreate") ;
-  smallFile->cd () ;
+  TFile * smallFile = new TFile (outputFile, "RECREATE") ;
+  smallFile->cd() ;
   smallTree theSmallTree ("HTauTauTree") ;
 
   // for HHKinFit
@@ -595,7 +596,7 @@ int main (int argc, char** argv)
     models.at(n) = ss_model.str();
   }
   HHbtagKLUBinterface HHbtagTagger(models, 2018);
-
+  
   //tau legs trigger SF for data and mc
   //from: https://github.com/cms-tau-pog/TauTriggerSFs/tree/run2_SFs
   tau_trigger::SFProvider * tauTrgSF_ditau = new tau_trigger::SFProvider("weights/trigger_SF_UL/2018/2018UL_tauTriggerEff_DeepTau2017v2p1.root", "ditau", "Medium");
@@ -692,7 +693,6 @@ int main (int argc, char** argv)
 	{"MuTau",  trigger_base_name + "runVariableImportanceDiscriminator_mutau.json"},
 	{"TauTau", trigger_base_name + "runVariableImportanceDiscriminator_tautau.json"} };
   TriggerSF tsf(trg_l, eff_names, var_names, 2018);
-
 
   // electron/muon IdAndIso SF
   ScaleFactor * myIDandISOScaleFactor[3]; // [0: muID, 1: eleID, 2:muISO,]
