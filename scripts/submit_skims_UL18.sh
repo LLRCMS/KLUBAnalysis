@@ -1,24 +1,21 @@
-AMESSAGE="KLUB UL skimming"
-
-### SETUP
-SIGDIR="/home/llr/cms/portales/hhbbtautau/KLUB_UL_20220321/CMSSW_11_1_9/src/KLUBAnalysis/inputFiles/UL18_signals/"
-BKGDIR="/home/llr/cms/portales/hhbbtautau/KLUB_UL_20220321/CMSSW_11_1_9/src/KLUBAnalysis/inputFiles/UL18_backgrounds"
-DATADIR="/home/llr/cms/portales/hhbbtautau/KLUB_UL_20220321/CMSSW_11_1_9/src/KLUBAnalysis/inputFiles/UL18_data/"
-
 SUBMITSCRIPT="python scripts/skimNtuple.py"
-PUSF="weights/PUreweight/UL_Run2_PU_SF/2018/PU_UL2018_SF.txt"
-THECFG="config/skim_UL18.cfg"
+SKIMDIR="/data_CMS/cms/${USER}/HHresonant_SKIMS"
+mkdir -p "${SKIMDIR}"
 
-SKIMDIR="/data_CMS/cms/alves/HHresonant_SKIMS"
-OUTDIR="SKIMS_UL18_July"
-
-help_description="prints this help message"
-force_description="select tag"
+######################
+### Argument parsing
+######################
+help_str="prints this help message"
+tag_str="select tag"
+force_str="whether to override a folder with the same tag"
+dataperiod_str=""
 function print_usage_workflowClean {
-    usage=" $(basename "$0") [-h] [-f]
+    usage=" $(basename "$0") [-h] [-t -f -d]
 where:
-    -h / --help  [ ${help_description} ]
-    -f / --force   [ ${tag_description} ]
+    -h / --help        [ ${help_str} ]
+    -f / --force       [ ${force_str} ]
+    -t / --tag         [ ${tag_str} ]
+    -d / --data_period [ ${dataperiod_str} ]
 
     Run example: $(basename "$0") -f
 "
@@ -26,6 +23,8 @@ where:
 }
 
 FORCE="0"
+TAG=""
+DATAPERIOD="UL18"
 while [[ $# -gt 0 ]]; do
     key="$1"
 
@@ -33,9 +32,19 @@ while [[ $# -gt 0 ]]; do
 	-h|--help)
 	    print_usage_workflowClean
 	    exit 1
-	    ;;	
+	    ;;
+	-t|--tag)
+	    TAG="$2"
+	    shift # past argument
+	    shift # past value
+	    ;;
 	-f|--force)
 	    FORCE="$2"
+	    shift # past argument
+	    shift # past value
+	    ;;
+	-d|--data_period)
+	    DATAPERIOD="$2"
 	    shift # past argument
 	    shift # past value
 	    ;;
@@ -46,14 +55,44 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Verify if a tag was assigned by the user
+# If not, print already existing tags (if any) and exits
+if [[ -z "${TAG}" ]]; then
+    echo "Select the tag via the '--tag' option."
+    declare -a tags=( $(/bin/ls -1 "${SKIMDIR}") )
+    if [ ${#tags[@]} -ne 0 ]; then
+		echo "The following tags are currently available:"
+		for tag in "${tags[@]}"; do
+			echo "- ${tag}"
+		done
+    else
+		echo "No tags are currently available. Everything looks clean!"
+    fi
+    exit 1;
+fi
+
+#####################
+### Setup variables
+#####################
+DATA_INPUT="/home/llr/cms/portales/hhbbtautau/KLUB_UL_20220321/CMSSW_11_1_9/src/KLUBAnalysis/inputFiles/"
+SIGDIR="${DATA_INPUT}${DATA_PERIOD}_signals/"
+BKGDIR="${DATA_INPUT}${DATA_PERIOD}_backgrounds"
+DATADIR="${DATA_INPUT}${DATA_PERIOD}_data/"
+
+PUSF="weights/PUreweight/UL_Run2_PU_SF/2018/PU_UL2018_SF.txt"
+THECFG="config/skim_${DATA_PERIOD}.cfg"
+OUTDIR="SKIMS_${DATA_PERIOD}_${TAG}"
+
 source scripts/setup.sh
 source /opt/exp_soft/cms/t3/t3setup
 mkdir -p $SKIMDIR/$OUTDIR/
 touch $SKIMDIR/$OUTDIR/README.txt
-echo $AMESSAGE > $SKIMDIR/$OUTDIR/README.txt
+echo "KLUB UL skimming" > $SKIMDIR/$OUTDIR/README.txt
 cp scripts/listAll.sh $SKIMDIR/$OUTDIR/
 
-### INPUT FILE LISTS
+######################
+### Input files list
+######################
 declare -A InputList
 
 # Data
@@ -253,7 +292,7 @@ InputList["TTWZ"]="47_TTWZ_TuneCP5_13TeV-madgraph-pythia8__RunIISummer20UL18Mini
 ###########################
 ### Submission commands ###
 ###########################
-BASE_COMMAND = ${SUBMITSCRIPT} -T ${OUTDIR} -d True -s True -c ${THECFG} -q long -Y 2018 -k True -f ${FORCE}
+BASE_COMMAND="${SUBMITSCRIPT} -T ${OUTDIR} -d True -s True -c ${THECFG} -q long -Y 2018 -k True -f ${FORCE}"
 
 #### DATA - filelists up to date
 declare -a datasets=("EGamma" "Tau" "SingleMuon" "MET");
@@ -261,7 +300,7 @@ declare -a runs=("Run2018A" "Run2018B" "Run2018C" "Run2018D");
 for ds in "${datasets[@]}"; do
 	for run in "${runs[@]}"; do
 		file="${ds}_${run}";
-		${BASE_COMMAND} -n 10 -o $SKIMDIR/$OUTDIR/SKIM_${file} -i $DATADIR/${InputList[${file}]};
+		"${BASE_COMMAND} -n 10 -o $SKIMDIR/$OUTDIR/SKIM_${file} -i $DATADIR/${InputList[${file}]}";
 	done
 done
  
@@ -275,24 +314,22 @@ declare -a masses=("650");
 for ds in "${datasets[@]}"; do
 	for mass in "${runs[@]}"; do
 		file="${ds}_m${mass}";
-		${BASE_COMMAND} -n 20 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_"${file}" -i $SIGDIR/${InputList["${file}"]} -x 1.;
+		"${BASE_COMMAND} -n 20 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_"${file}" -i $SIGDIR/${InputList["${file}"]} -x 1.";
 	done
 done
 
 ##### TT - XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
 ### TT x section: 831.76 for inclusive sample, W->had 67,60% , W->l nu 3*10,8% = 32,4% (sum over all leptons)
 ### hh = 45.7%, ll = 10.5%, hl = 21.9% (x2 for permutation t-tbar)
-#sleep 1h#
-declare -A datasetsAssoc;
-datasetsAssoc["TT_fullyHad"] = "377.96";
-datasetsAssoc["TT_fullyLep"] = "88.29";
-datasetsAssoc["TT_semiLep"]  = "365.34";
-for ds in "${!datasetsAssoc[@]}"; do
-	${BASE_COMMAND} -n 100 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_"${ds}" -i $SIGDIR/${InputList["${ds}"]} -x "${datasetsAssoc[${ds}]}";
-done
+# declare -A datasetsAssoc;
+# datasetsAssoc["TT_fullyHad"] = "377.96";
+# datasetsAssoc["TT_fullyLep"] = "88.29";
+# datasetsAssoc["TT_semiLep"]  = "365.34";
+# for ds in "${!datasetsAssoc[@]}"; do
+# 	${BASE_COMMAND} -n 100 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_"${ds}" -i $SIGDIR/${InputList["${ds}"]} -x "${datasetsAssoc[${ds}]}";
+# done
 
 #### DY - xsec from https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#DY_Z
-#sleep 1h
 # $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 500 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYincl -i $BKGDIR/${InputList["DY_incl"]}          -x 6077.22
 # $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 700 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_merged"]}       -g True --DY True -x 6077.22
 # unset datasets;
@@ -308,158 +345,75 @@ done
 # 	${BASE_COMMAND} -n 333 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_"${ds}" -i $BKGDIR/${InputList["${ds}"]} -x 1.;
 # done
 
-unset datasets;
-datasets=("DY_NLO_PT50To100" "DY_NLO_PT100To250" "DY_NLO_PT250To400" "DY_NLO_PT400To650" "DY_NLO_PT650ToInf");
-for ds in "${datasets[@]}"; do
-	${BASE_COMMAND} -n 200 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_"${ds}" -i $BKGDIR/${InputList["${ds}"]} -x 1.;
-done
+# unset datasets;
+# datasets=("DY_NLO_PT50To100" "DY_NLO_PT100To250" "DY_NLO_PT250To400" "DY_NLO_PT400To650" "DY_NLO_PT650ToInf");
+# for ds in "${datasets[@]}"; do
+# 	${BASE_COMMAND} -n 200 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_"${ds}" -i $BKGDIR/${InputList["${ds}"]} -x 1.;
+# done
 
 #### Wjets - filelists up to date
-unset datasets;
-datasets["WJets_HT_0_70"]      = "-x 48917.48 -z 70";
-datasets["WJets_HT_70_100"]    = "-x 1362";
-datasets["WJets_HT_100_200"]   = "-x 1345";
-datasets["WJets_HT_200_400"]   = "-x 359.7";
-datasets["WJets_HT_400_600"]   = "-x 48.91";
-datasets["WJets_HT_600_800"]   = "-x 12.05";
-datasets["WJets_HT_800_1200"]  = "-x 5.501";
-datasets["WJets_HT_1200_2500"] = "-x 1.329";
-datasets["WJets_HT_2500_Inf"]  = "-x 0.03216";
-for ds in "${!datasets[@]}"; do
-	${BASE_COMMAND} -n 20 --pu ${PUSF} -o $SKIMDIR/$OUTDIR/SKIM_"${ds}" -i $BKGDIR/${InputList["${ds}"]} -y 1.213784 "${datasets[${ds}]}";
-done
+# unset datasetsAssoc;
+# datasetsAssoc["WJets_HT_0_70"]      = "-x 48917.48 -z 70";
+# datasetsAssoc["WJets_HT_70_100"]    = "-x 1362";
+# datasetsAssoc["WJets_HT_100_200"]   = "-x 1345";
+# datasetsAssoc["WJets_HT_200_400"]   = "-x 359.7";
+# datasetsAssoc["WJets_HT_400_600"]   = "-x 48.91";
+# datasetsAssoc["WJets_HT_600_800"]   = "-x 12.05";
+# datasetsAssoc["WJets_HT_800_1200"]  = "-x 5.501";
+# datasetsAssoc["WJets_HT_1200_2500"] = "-x 1.329";
+# datasetsAssoc["WJets_HT_2500_Inf"]  = "-x 0.03216";
+# for ds in "${!datasetsAssoc[@]}"; do
+# 	"${BASE_COMMAND} -n 20 --pu ${PUSF} -o $SKIMDIR/$OUTDIR/SKIM_"${ds}" -i $BKGDIR/${InputList["${ds}"]} -y 1.213784 "${datasetsAssoc[${ds}]}";"
+# done
 
 ##### ELECTROWEAK - XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
 ##### AND
 ##### single top - XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
-unset datasets;
-datasets["EWKWPlus2Jets_WToLNu"]       = "25.62"
-datasets["SKIM_EWKWMinus2Jets_WToLNu"] = "20.25"
-datasets["EWKZ2Jets_ZToLL"]            = "3.987"
+# unset datasetsAssoc;
+# datasetsAssoc["EWKWPlus2Jets_WToLNu"]       = "25.62"
+# datasetsAssoc["SKIM_EWKWMinus2Jets_WToLNu"] = "20.25"
+# datasetsAssoc["EWKZ2Jets_ZToLL"]            = "3.987"
 
-datasets["ST_tW_antitop"]       = "35.85"
-datasets["ST_tW_top"]           = "35.85"
-datasets["ST_tchannel_antitop"] = "80.95"
-datasets["ST_tchannel_top"]     = "136.02"
+# datasetsAssoc["ST_tW_antitop"]       = "35.85"
+# datasetsAssoc["ST_tW_top"]           = "35.85"
+# datasetsAssoc["ST_tchannel_antitop"] = "80.95"
+# datasetsAssoc["ST_tchannel_top"]     = "136.02"
 
-for ds in "${!datasets[@]}"; do
-	${BASE_COMMAND} -n 50 --pu ${PUSF} -o $SKIMDIR/$OUTDIR/SKIM_"${ds}" -i $BKGDIR/${InputList["${ds}"]} -x "${datasets[${ds}]}";
-done
+# for ds in "${!datasetsAssoc[@]}"; do
+# 	"${BASE_COMMAND} -n 50 --pu ${PUSF} -o $SKIMDIR/$OUTDIR/SKIM_"${ds}" -i $BKGDIR/${InputList["${ds}"]} -x "${datasetsAssoc[${ds}]}";"
+# done
 
+# unset datasetsAssoc;
 ### SM Higgs - from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNHLHE2019
 # HXSWG: xs(ZH) = 0.880 pb, xs(W+H) = 0.831 pb, xs(W-H) = 0.527 pb, xs(ggH) = 48.61 pb, xs(VBFH) = 3.766 pb, xs(ttH) = 0.5071 pb
 # Z->qq : 69.91% , Z->ll : 3,3658% (x3 for all the leptons), H->bb : 57.7%  , H->tautau : 6.32%
 # ZH (Zll, Hbb) : XSBD (xs ZH * BR Z) * H->bb, ZH (Zqq, Hbb) : XSBD (xs ZH * BR Z) * H->bb
 # ZH (Zall, Htautau) : XS teor ZH * BR H->tautau
-unset datasets;
-datasets["ggHTauTau"]     = "-x 48.61  -y 0.0632"
-datasets["VBFHTauTau"]	  = "-x 3.766  -y 0.0632"
-datasets["ZH_HTauTau"]	  = "-x 0.880  -y 0.0632"
-datasets["WplusHTauTau"]  = "-x 0.831  -y 0.0632"
-datasets["WminusHTauTau"] = "-x 0.527  -y 0.0632"
-datasets["ttHToNonBB"]	  = "-x 0.5071 -y 0.3598"
-datasets["ttHToBB"]		  = "-x 0.5071 -y 0.577"
-datasets["ttHToTauTau"]	  = "-x 0.5071 -y 0.0632"
-for ds in "${!datasets[@]}"; do
-	${BASE_COMMAND} -n 30 --pu ${PUSF} -o $SKIMDIR/$OUTDIR/SKIM_"${ds}" -i $BKGDIR/${InputList["${ds}"]} -x "${datasets[${ds}]}";
-done
+# datasetsAssoc["ggHTauTau"]     = "-n 30 61  -y 0.0632"
+# datasetsAssoc["VBFHTauTau"]	  = "-n 30 -x 3.766  -y 0.0632"
+# datasetsAssoc["ZH_HTauTau"]	  = "-n 30 -x 0.880  -y 0.0632"
+# datasetsAssoc["WplusHTauTau"]  = "-n 30 -x 0.831  -y 0.0632"
+# datasetsAssoc["WminusHTauTau"] = "-n 30 -x 0.527  -y 0.0632"
 
-#######################
+# datasetsAssoc["ttHToNonBB"]	  = "-n 30 -x 0.5071 -y 0.3598"
+# datasetsAssoc["ttHToBB"]		  = "-n 30 -x 0.5071 -y 0.577"
+# datasetsAssoc["ttHToTauTau"]	  = "-n 30 -x 0.5071 -y 0.0632"
+
 ##### Multiboson: -  https://arxiv.org/abs/1408.5243 (WW), https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Diboson (WZ,ZZ
 #### Some XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
 #### Some other XS taken from http://cms.cern.ch/iCMS/jsp/db_notes/noteInfo.jsp?cmsnoteid=CMS%20AN-2019/111
-#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WW -i $BKGDIR/${InputList["WW"]} -x 118.7
-#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WZ -i $BKGDIR/${InputList["WZ"]} -x 47.13
-#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ZZ -i $BKGDIR/${InputList["ZZ"]} -x 16.523
-#
-#######################
-##### Others : - filelists up to date
-#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTWJetsToLNu -i $BKGDIR/${InputList["TTWJetsToLNu"]} -x 0.2043
-#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTWJetsToQQ  -i $BKGDIR/${InputList["TTWJetsToQQ"]}  -x 0.4062
-#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTZToLLNuNu  -i $BKGDIR/${InputList["TTZToLLNuNu"]} -x 0.2529
-#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTWW         -i $BKGDIR/${InputList["TTWW"]}         -x 0.006979
-#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTZZ         -i $BKGDIR/${InputList["TTZZ"]}         -x 0.001386
-#$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTWZ         -i $BKGDIR/${InputList["TTWZ"]}         -x 0.00158
+# datasetsAssoc["WW"] = "-n 20 -x 118.7"
+# datasetsAssoc["WZ"] = "-n 20 -x 47.13"
+# datasetsAssoc["ZZ"] = "-n 20 -x 16.523"
 
+# ##### Others : - filelists up to date
+# datasetsAssoc["TTWJetsToLNu"] = "-n 20 -x 0.2043"
+# datasetsAssoc["TTWJetsToQQ"]  = "-n 20 -x 0.4062"
+# datasetsAssoc["TTZToLLNuNu"]  = "-n 20 -x 0.2529"
+# datasetsAssoc["TTWW"]         = "-n 20 -x 0.006979"
+# datasetsAssoc["TTZZ"]         = "-n 20 -x 0.001386"
+# datasetsAssoc["TTWZ"]         = "-n 20 -x 0.00158"
 
-#######################################################################################################################################################################################
-##LEGACY
-
-######################
-# Signals ggF non res - filelists up to date
-# norm xs = 1 p
-#sleep 1h
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_SM      -i $INPUTDIR_SIG/12_GluGluToHHTo2B2Tau_node_SM_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_2  -i $INPUTDIR_SIG/4_GluGluToHHTo2B2Tau_node_2_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_3  -i $INPUTDIR_SIG/5_GluGluToHHTo2B2Tau_node_3_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_4  -i $INPUTDIR_SIG/2_GluGluToHHTo2B2Tau_node_4_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_5  -i $INPUTDIR_SIG/3_GluGluToHHTo2B2Tau_node_5_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_6  -i $INPUTDIR_SIG/4_GluGluToHHTo2B2Tau_node_6_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_7  -i $INPUTDIR_SIG/9_GluGluToHHTo2B2Tau_node_7_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_8  -i $INPUTDIR_SIG/10_GluGluToHHTo2B2Tau_node_8_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt  -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_9  -i $INPUTDIR_SIG/1_GluGluToHHTo2B2Tau_node_9_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_10 -i $INPUTDIR_SIG/1_GluGluToHHTo2B2Tau_node_10_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt  -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_11 -i $INPUTDIR_SIG/1_GluGluToHHTo2B2Tau_node_11_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt  -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_12 -i $INPUTDIR_SIG/3_GluGluToHHTo2B2Tau_node_12_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt  -x 1. -a True
-
-
-######################
-#### Signals ggF non res  - filelists up to date
-### norm xs = 1 p
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_NLO_cHHH1    -i $INPUTDIR_SIG/2_GluGluToHHTo2B2Tau_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt    -x 0.045 -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_NLO_cHHH0    -i $INPUTDIR_SIG/1_GluGluToHHTo2B2Tau_node_cHHH0_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt    -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_NLO_cHHH2p45 -i $INPUTDIR_SIG/3_GluGluToHHTo2B2Tau_node_cHHH2p45_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_NLO_cHHH5    -i $INPUTDIR_SIG/4_GluGluToHHTo2B2Tau_node_cHHH5_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt    -x 1. -a True
-
-### norm to theoretical xs
-# sigma_NNLO+FTapprox for SM: 31.05 fb
-# sigma_NNLO+FTapprox / sigma_NLO  = 1.115 for SM # TEMPORARY: need to fix with factor kL dependent (pag. 129: https://arxiv.org/pdf/2003.01700.pdf)
-# f(kL) = A + B*kL + C*kL**2
-# A = 62.5339
-# B = -44.323
-# C = 9.6340
-# (slide 10: https://indico.cern.ch/event/885273/contributions/3812533/attachments/2016615/3370728/HH_combine_model_7Apr2018.pdf)
-# xs (kL = 1)                      = 0.03105 pb
-# xs (kL = 0)    = f(0)    * 1.115 = 0.06972 pb
-# xs (kL = 2.45) = f(2.45) * 1.115 = 0.01312 pb
-# xs (kL = 5)    = f(5)    * 1.115 = 0.09117 pb
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q short  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_NLO_SM_xs       -i $SIGDIR/2_GluGluToHHTo2B2Tau_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt    -x 0.03105 -a True --hhNLO
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_NLO_cHHH0_xs    -i $INPUTDIR_SIG/1_GluGluToHHTo2B2Tau_node_cHHH0_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt    -x 0.06972 -a True --hhNLO
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_NLO_cHHH2p45_xs -i $INPUTDIR_SIG/3_GluGluToHHTo2B2Tau_node_cHHH2p45_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 0.01312 -a True --hhNLO
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_NLO_cHHH5_xs    -i $INPUTDIR_SIG/4_GluGluToHHTo2B2Tau_node_cHHH5_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt    -x 0.09117 -a True --hhNLO
-
-######################
-#### Signals VBF non res - filelists up to date
-### norm xs = 1 pb
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_C2V_1_C3_1 -i $INPUTDIR_SIG/1_VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_0_5_C2V_1_C3_1 -i $INPUTDIR_SIG/2_VBFHHTo2B2Tau_CV_0_5_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_5_C2V_1_C3_1 -i $INPUTDIR_SIG/3_VBFHHTo2B2Tau_CV_1_5_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_C2V_1_C3_0 -i $INPUTDIR_SIG/4_VBFHHTo2B2Tau_CV_1_C2V_1_C3_0_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_C2V_1_C3_2 -i $INPUTDIR_SIG/5_VBFHHTo2B2Tau_CV_1_C2V_1_C3_2_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_C2V_2_C3_1 -i $INPUTDIR_SIG/6_VBFHHTo2B2Tau_CV_1_C2V_2_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-
-### norm to theoretical xs
-# xs_theo(SM) = 0.001726
-#  CV C2V C3 |  xs_MG5      * xs_theo(SM)/xs_MG5(SM)
-#   1   1  1 |  0.001668 pb * 1.034772182             =   0.001726 pb
-# 0.5   1  1 |  0.01046  pb * 1.034772182             =   0.010824 pb
-# 1.5   1  1 |  0.0638   pb * 1.034772182             =   0.066018 pb
-#   1   1  0 |  0.004454 pb * 1.034772182             =   0.004609 pb
-#   1   1  2 |  0.001375 pb * 1.034772182             =   0.001423 pb
-#   1   2  1 |  0.01374  pb * 1.034772182             =   0.014218 pb
-
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 20 -q short -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_C2V_1_C3_1_xs   -i $SIGDIR/1_VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 0.001726  -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_0_5_C2V_1_C3_1_xs -i $INPUTDIR_SIG/2_VBFHHTo2B2Tau_CV_0_5_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 0.010824  -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_5_C2V_1_C3_1_xs -i $INPUTDIR_SIG/3_VBFHHTo2B2Tau_CV_1_5_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 0.066018  -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_C2V_1_C3_0_xs   -i $INPUTDIR_SIG/4_VBFHHTo2B2Tau_CV_1_C2V_1_C3_0_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 0.004609  -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_C2V_1_C3_2_xs   -i $INPUTDIR_SIG/5_VBFHHTo2B2Tau_CV_1_C2V_1_C3_2_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 0.001423  -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_C2V_2_C3_1_xs   -i $INPUTDIR_SIG/6_VBFHHTo2B2Tau_CV_1_C2V_2_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 0.014218  -a True
-
-
-######################
-#### Reweighting ggF non res - filelists up to date
-### norm xs = 1 pb
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c  config/skim_Legacy2018.lp.cfg  -n 20 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_HHRew_SM  -x 1.0 --kl 1.0  --kt 1.0 -x 1. -a True -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_LO_allNodes.txt
-
-#this is just for cross check with LO node SM, which wrongly has c2g set to 1
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c  config/skim_Legacy2018.lp.cfg  -n 20 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_HHRew_SM_wrong  -x 1.0 --kl 1.0  --kt 1.0 --c2 0.0 --cg 0.0 --c2g 1. -a True -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_LO_allNodes.txt
+# for ds in "${!datasetsAssoc[@]}"; do
+# 	"${BASE_COMMAND} --pu ${PUSF} -o $SKIMDIR/$OUTDIR/SKIM_"${ds}" -i $BKGDIR/${InputList["${ds}"]} "${datasetsAssoc[${ds}]}";"
+# done
