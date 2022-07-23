@@ -158,25 +158,22 @@ auto TriggerSF::mGetUnionEfficiency( const EventVariables& vars,
   std::cerr << "====== Enter getUnionEfficiency" << std::endl;
 #endif
   float un_eff = 0.f;
-  std::cout << "Inters " << isData << " " << chn << std::endl;
+
   for (auto &inters : mMCOrDataIntersections(chn, isData))
 	{
 	  std::cout << inters << std::endl;
 	  if (mVarFiles[chn].contains(inters))
 		{
 		  const TriggerSF::EffValue& eff = mGetIntersectionEfficiencies(chn, inters, isData);
-		  std::cout << "entered" << std::endl;
 		  const std::string var = "dau1_pt";
 		  try {
 			const float val = eff.getVal( vars(var) );
 			std::cout << "val=" << val << std::endl;
 			if(mCountNumberTriggerItems(inters)%2==0) {
 			  un_eff -= val;
-			  std::cout << "== minus ==" << std::endl;
 			}
 			else {
 			  un_eff += val;
-			  std::cout << "== plus ==" << std::endl;
 			}
 		  }
 		  catch (std::underflow_error const& e) {

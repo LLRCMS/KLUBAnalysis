@@ -448,7 +448,6 @@ int main (int argc, char** argv)
     cout << "  @ SingleTau" << endl; cout << "   --> ";
     for (unsigned int i = 0 ; i < trigSingleTau.size(); i++) cout << "  " << trigSingleTau.at(i);
     cout << endl;
-
   }
 
   //string bRegrWeights("");
@@ -3639,7 +3638,6 @@ int main (int argc, char** argv)
 	if(applyTriggers and (pType==0 or pType==1 or pType==2))
 	  {
 		EventVariables v;
-		std::cout << "Prima" << std::endl;
 		v.dau1_pt() = theSmallTree.m_dau1_pt;
 		v.dau2_pt() = theSmallTree.m_dau2_pt;
 		trigSF_inclMeth = tsf.getEvtWeight(v, chn_m.at(pType));
