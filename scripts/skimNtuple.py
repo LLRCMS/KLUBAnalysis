@@ -29,16 +29,16 @@ def parse_input_file_list(fileName) :
 write = lambda stream, text: stream.write(text + '\n')
 
 def skim_ntuple(FLAGS, curr_folder):
-    io_names = ('filelist_${1}.txt', 'output_${1}.root', 'output_${1}.log')
+    arg1 = '${1}'
+    io_names = ('filelist_'+arg1+'.txt', 'output_'+arg1+'.root', 'output_'+arg1+'.log')
     
     # verify the result of the process
     if (FLAGS.hadd != 'none') :    
         with open( os.path.join(FLAGS.output, 'hadder.sh'), 'w') as s:
             write(s, '#!/bin/bash')
             write(s, 'source /cvmfs/cms.cern.ch/cmsset_default.sh')
-            write(s, 'cd /home/llr/cms/motta/HHLegacy/CMSSW_11_1_0pre6/src')
-            write(s, 'eval `scram r -sh`')
             write(s, 'cd {}'.format(curr_folder))
+            write(s, 'eval `scram r -sh`')
             write(s, 'source scripts/setup.sh')
             write(s, 'mkdir ' + os.path.join(FLAGS.output, 'singleFiles'))
             write(s, 'mv ' + os.path.join(FLAGS.output, + '*') +
@@ -49,8 +49,12 @@ def skim_ntuple(FLAGS, curr_folder):
             write(s, 'echo "Hadding finished"')
 
         os.system('chmod u+rwx ' + FLAGS.output + '/hadder.sh')
-        command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' + os.path.join(FLAGS.output, 'hadder.sh\''))
-        os.system(command)
+
+        launch_command = 'condor_submit {}'.format(os.path.join(FLAGS.output, 'hadder.sh\''))
+        if FLAGS.sleep:
+            time.sleep(0.1)
+        print('The following command was run: \n  {}'.format(launch_command))
+        os.system(launch_command)
         sys.exit(0)
 
     # verify the result of the process
@@ -67,7 +71,7 @@ def skim_ntuple(FLAGS, curr_folder):
         # check the log file
         missing = []
         for num in jobs:
-            rootfile = io_names[1].replace('${1}', num)
+            rootfile = io_names[1].replace(arg, num)
             if not os.path.exists(rootfile):
                 if FLAGS.verb:
                     print('ROOT file {} missing at iteration {}.'.format(rootfile, num))
@@ -78,7 +82,7 @@ def skim_ntuple(FLAGS, curr_folder):
                     print('ROOT file {} corrupted at iteration {}.'.format(rootfile, num))
                 missing.append(num)
                 continue
-            logfile = io_names[2].replace('${1}', num)
+            logfile = io_names[2].replace(arg1, num)
             if not os.path.exists(logfile) :
                 if FLAGS.verb:
                     print(num, 'missing log file')
@@ -162,17 +166,18 @@ def skim_ntuple(FLAGS, curr_folder):
 
     for ij,listname in enumerate(inputlists):
         #create a wrapper for standalone cmssw job
-        list_file_name = io_names[0].replace('${1}', str(ij))
+        list_file_name = io_names[0].replace(arg1, str(ij))
         with open(os.path.join(jobsDir, list_file_name), 'w') as input_list_file:
             for line in listname:
                 write(input_list_file, line)
 
     job_name = os.path.join(jobsDir, 'skimJob.sh')
     with open(job_name, 'w') as s:
-        write(s, '#!/bin/bash')
+        write(s, '#!/usr/bin/env bash')
         write(s, 'export X509_USER_PROXY=~/.t3/proxy.cert')
         write(s, 'source /cvmfs/cms.cern.ch/cmsset_default.sh')
         write(s, 'eval `scram r -sh`')
+        write(s, 'scram b')
         write(s, 'cd {}'.format(curr_folder))
         write(s, 'source scripts/setup.sh')
         command = skimmer + ' ' + os.path.join(jobsDir, io_names[0])
@@ -232,9 +237,7 @@ def skim_ntuple(FLAGS, curr_folder):
                 command += ' 1 '
             else:
                 command += ' 0 '
-        command += ' >& ' + os.path.join(FLAGS.output, io_names[2])
         write(s, command)
-        write(s, 'touch ' + os.path.join(jobsDir, 'done') )
       
         if FLAGS.doSyst:
             sys_command = 'skimOutputter.exe'
@@ -248,7 +251,7 @@ def skim_ntuple(FLAGS, curr_folder):
             sys_command += (' ' + '>& ' + os.path.join(FLAGS.output, 'syst_' + io_names[2]) )
             write(s, sys_command)
         
-        write(s, 'echo "All done."')
+        write(s, 'echo "Job with id '+arg1+' completed."')
         os.system('chmod u+rwx {}'.format(job_name))
 
     condor_name = job_name.replace('.sh','.condor')
@@ -275,7 +278,7 @@ def skim_ntuple(FLAGS, curr_folder):
 
     if FLAGS.sleep:
         time.sleep(0.1)
-    print('The following command was run: {}.'.format(launch_command))
+    print('The following command was run: \n  {}'.format(launch_command))
     os.system(launch_command)
 
 if __name__ == "__main__":
@@ -285,7 +288,8 @@ if __name__ == "__main__":
     parser.add_argument('-Y', '--year', dest='year', default='2018', help='year', choices=['2016', '2017', '2018'])
     parser.add_argument('-A', '--APV', dest='isAPV', default=False, help='isAPV')
     parser.add_argument('-x', '--xs', dest='xs', help='sample xs', default='1.')
-    parser.add_argument('-f', '--force', dest='force', default=False, help='replace existing reduced ntuples')
+    parser.add_argument('-f', '--force', dest='force', default=0, type=int,
+                        help='replace existing reduced ntuples')
     parser.add_argument('-o', '--output', dest='output', default='none', help='output folder')
     parser.add_argument('-q', '--queue', dest='queue', default='short', help='batch queue')
     parser.add_argument('-r', '--resub', dest='resub', default='none', help='resubmit failed jobs')
