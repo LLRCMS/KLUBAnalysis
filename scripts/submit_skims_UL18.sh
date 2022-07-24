@@ -91,6 +91,9 @@ OUTDIR="SKIMS_"${DATA_PERIOD}"_"${TAG}
 OUTSKIMDIR="${SKIMDIR}/${OUTDIR}/"
 PREF="SKIM_"
 
+declare -A InputList datasetsAssoc;
+declare -a datasets runs masses;
+
 # source scripts/setup.sh
 # source /opt/exp_soft/cms/t3/t3setup
 mkdir -p ${OUTSKIMDIR}
@@ -101,7 +104,7 @@ cp scripts/listAll.sh ${OUTSKIMDIR}
 ######################
 ### Input files list
 ######################
-declare -A InputList=(
+InputList=(
 	# Data
 	["EGamma_Run2018A"]="1_EGamma__Run2018A-UL2018_MiniAODv2-v1.txt"
 	["EGamma_Run2018B"]="2_EGamma__Run2018B-UL2018_MiniAODv2-v1.txt"
@@ -308,22 +311,20 @@ function BASE_COMMAND() {
 	echo ${retval}
 }
 
-#### DATA - filelists up to date
-declare -a datasets=("EGamma" "Tau" "SingleMuon" "MET");
-declare -a runs=("Run2018A" "Run2018B" "Run2018C" "Run2018D");
-for ds in "${datasets[@]}"; do
-	for run in "${runs[@]}"; do
-		file="${ds}_${run}";
-		$(BASE_COMMAND_SIGNAL) -n 10 -o ${OUTSKIMDIR}${PREF}${file} -i ${DATADIR}${InputList[${file}]}
-	done
-done
+# #### DATA - filelists up to date
+# datasets=("EGamma" "Tau" "SingleMuon" "MET");
+# runs=("Run2018A" "Run2018B" "Run2018C" "Run2018D");
+# for ds in "${datasets[@]}"; do
+# 	for run in "${runs[@]}"; do
+# 		file="${ds}_${run}";
+# 		$(BASE_COMMAND_SIGNAL) -n 10 -o ${OUTSKIMDIR}${PREF}${file} -i ${DATADIR}${InputList[${file}]}
+# 	done
+# done
  
 # #### HH resonant signal - all masspoints
 # # spin-0 ggF
-# unset datasets;
 # datasets=("ggF_Radion" "ggF_BulkGraviton" "VBF_Radion" "VBF_BulkGraviton");
-# declare -a masses=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000");
-# declare -a masses=("650");
+# masses=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000");
 # for ds in "${datasets[@]}"; do
 # 	for mass in "${masses[@]}"; do
 # 		file="${ds}_m${mass}";
@@ -334,10 +335,10 @@ done
 # ##### TT - XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
 # ### TT x section: 831.76 for inclusive sample, W->had 67,60% , W->l nu 3*10,8% = 32,4% (sum over all leptons)
 # ### hh = 45.7%, ll = 10.5%, hl = 21.9% (x2 for permutation t-tbar)
-# declare -A datasetsAssoc=(	["TT_fullyHad"]="377.96"
-# 							["TT_fullyLep"]="88.29"
-# 							["TT_semiLep"]="365.34"
-# 						 )
+# datasetsAssoc=( ["TT_fullyHad"]="377.96"
+# 				["TT_fullyLep"]="88.29"
+# 				["TT_semiLep"]="365.34"
+# 			  )
 # for ds in "${!datasetsAssoc[@]}"; do
 # 	$(BASE_COMMAND) -n 100 -o ${OUTSKIMDIR}${PREF}${ds} -i $SIGDIR${InputList[${ds}]} -x ${datasetsAssoc[${ds}]};
 # done
@@ -345,28 +346,24 @@ done
 # #### DY - xsec from https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#DY_Z
 # $(BASE_COMMAND) -n 500 -o ${OUTSKIMDIR}${PREF}DYincl -i ${BKGDIR}${InputList["DY_incl"]} -x 6077.22
 # $(BASE_COMMAND) -n 700 -o ${OUTSKIMDIR}${PREF}DYmerged -i ${BKGDIR}${InputList["DY_merged"]} -g True --DY True -x 6077.22
-# unset datasets;
 # datasets=("DY_1j" "DY_2j" "DY_4j" "DY_HT70To100" "DY_HT100To200" "DY_HT200To400" "DY_HT400To600" "DY_HT600To800" "DY_HT800To1200" "DY_HT1200To2500" "DY_HT2500ToInf");
 # for ds in "${datasets[@]}"; do
 # 	$(BASE_COMMAND) -n 300 -o ${OUTSKIMDIR}${PREF}"DYmerged" -i ${BKGDIR}${InputList[${ds}]} -g True --DY True -x 1.;
 # done
 
 # $(BASE_COMMAND) -n 1000 -o ${OUTSKIMDIR}${PREF}DY_NLO -i ${BKGDIR}${InputList["DY_NLO"]} -x 6077.22
-# unset datasets;
-# datasets=("DY_NLO_1j" "DY_NLO_2j" "DY_NLO_4j");
+# datasets=("DY_NLO_0j" "DY_NLO_1j" "DY_NLO_2j");
 # for ds in "${datasets[@]}"; do
 # 	$(BASE_COMMAND) -n 333 -o ${OUTSKIMDIR}${PREF}${ds} -i ${BKGDIR}${InputList[${ds}]} -x 1.;
 # done
 
-# unset datasets;
 # datasets=("DY_NLO_PT50To100" "DY_NLO_PT100To250" "DY_NLO_PT250To400" "DY_NLO_PT400To650" "DY_NLO_PT650ToInf");
 # for ds in ${datasets[@]}; do
 # 	$(BASE_COMMAND) -n 200 -o ${OUTSKIMDIR}${PREF}${ds} -i ${BKGDIR}${InputList[${ds}]} -x 1.;
 # done
 
 # #### Wjets - filelists up to date
-# unset datasetsAssoc;
-# datasetsAssoc=(	["WJets_HT_0_70"]="-x 48917.48 -z 70"
+# datasetsAssoc=( ["WJets_HT_0_70"]="-x 48917.48 -z 70"
 # 				["WJets_HT_70_100"]="-x 1362"
 # 				["WJets_HT_100_200"]="-x 1345"
 # 				["WJets_HT_200_400"]="-x 359.7"
@@ -376,16 +373,15 @@ done
 # 				["WJets_HT_1200_2500"]="-x 1.329"
 # 				["WJets_HT_2500_Inf"]="-x 0.03216"
 # 			  )
-# for ds in "${!datasetsAssoc[@]}"; do
-# 	$(BASE_COMMAND) -n 20 -o ${OUTSKIMDIR}${PREF}${ds} -i $BKGDIR${InputList[${ds}]} -y 1.213784 ${datasetsAssoc[${ds}]};
+# for ds in ${!datasetsAssoc[@]}; do
+# 	$(BASE_COMMAND) -n 20 -o ${OUTSKIMDIR}${PREF}${ds} -i ${BKGDIR}${InputList[${ds}]} -y 1.213784 ${datasetsAssoc[${ds}]};
 # done
 
 # ##### ELECTROWEAK - XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
 # ##### AND
 # ##### single top - XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
-# unset datasetsAssoc;
 # datasetsAssoc=( ["EWKWPlus2Jets_WToLNu"]="25.62"
-# 				["SKIM_EWKWMinus2Jets_WToLNu"]="20.25"
+# 				["EWKWMinus2Jets_WToLNu"]="20.25"
 # 				["EWKZ2Jets_ZToLL"]="3.987"
 
 # 				["ST_tW_antitop"]="35.85"
@@ -397,37 +393,36 @@ done
 # 	$(BASE_COMMAND) -n 50 -o ${OUTSKIMDIR}${PREF}${ds} -i ${BKGDIR}${InputList[${ds}]} -x ${datasetsAssoc[${ds}]};
 # done
 
-# ### SM Higgs - from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNHLHE2019
-# # HXSWG: xs(ZH) = 0.880 pb, xs(W+H) = 0.831 pb, xs(W-H) = 0.527 pb, xs(ggH) = 48.61 pb, xs(VBFH) = 3.766 pb, xs(ttH) = 0.5071 pb
-# # Z->qq : 69.91% , Z->ll : 3,3658% (x3 for all the leptons), H->bb : 57.7%  , H->tautau : 6.32%
-# # ZH (Zll, Hbb) : XSBD (xs ZH * BR Z) * H->bb, ZH (Zqq, Hbb) : XSBD (xs ZH * BR Z) * H->bb
-# # ZH (Zall, Htautau) : XS teor ZH * BR H->tautau
-# unset datasetsAssoc;
-# datasetsAssoc=( ["ggHTauTau"]="-n 30 61 -y 0.0632"
-# 				["VBFHTauTau"]="-n 30 -x 3.766 -y 0.0632"
-# 				["ZH_HTauTau"]="-n 30 -x 0.880 -y 0.0632"
-# 				["WplusHTauTau"]="-n 30 -x 0.831 -y 0.0632"
-# 				["WminusHTauTau"]="-n 30 -x 0.527 -y 0.0632"
+### SM Higgs - from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNHLHE2019
+# HXSWG: xs(ZH) = 0.880 pb, xs(W+H) = 0.831 pb, xs(W-H) = 0.527 pb, xs(ggH) = 48.61 pb, xs(VBFH) = 3.766 pb, xs(ttH) = 0.5071 pb
+# Z->qq : 69.91% , Z->ll : 3,3658% (x3 for all the leptons), H->bb : 57.7%  , H->tautau : 6.32%
+# ZH (Zll, Hbb) : XSBD (xs ZH * BR Z) * H->bb, ZH (Zqq, Hbb) : XSBD (xs ZH * BR Z) * H->bb
+# ZH (Zall, Htautau) : XS teor ZH * BR H->tautau
+datasetsAssoc=( ["ggHTauTau"]="-n 30 -x 48.61 -y 0.0632"
+				["VBFHTauTau"]="-n 30 -x 3.766 -y 0.0632"
+				["ZH_HTauTau"]="-n 30 -x 0.880 -y 0.0632"
+				["WplusHTauTau"]="-n 30 -x 0.831 -y 0.0632"
+				["WminusHTauTau"]="-n 30 -x 0.527 -y 0.0632"
 
-# 				["ttHToNonBB"]="-n 30 -x 0.5071 -y 0.3598"
-# 				["ttHToBB"]="-n 30 -x 0.5071 -y 0.577"
-# 				["ttHToTauTau"]="-n 30 -x 0.5071 -y 0.0632"
+				["ttHToNonBB"]="-n 30 -x 0.5071 -y 0.3598"
+				["ttHToBB"]="-n 30 -x 0.5071 -y 0.577"
+				["ttHToTauTau"]="-n 30 -x 0.5071 -y 0.0632"
 				
-# 				##### Multiboson: -  https://arxiv.org/abs/1408.5243 (WW), https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Diboson (WZ,ZZ
-# 				#### Some XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
-# 				#### Some other XS taken from http://cms.cern.ch/iCMS/jsp/db_notes/noteInfo.jsp?cmsnoteid=CMS%20AN-2019/111
-# 				["WW"]="-n 20 -x 118.7"
-# 				["WZ"]="-n 20 -x 47.13"
-# 				["ZZ"]="-n 20 -x 16.523"
+				##### Multiboson: -  https://arxiv.org/abs/1408.5243 (WW), https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Diboson (WZ,ZZ
+				#### Some XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
+				#### Some other XS taken from http://cms.cern.ch/iCMS/jsp/db_notes/noteInfo.jsp?cmsnoteid=CMS%20AN-2019/111
+				["WW"]="-n 20 -x 118.7"
+				["WZ"]="-n 20 -x 47.13"
+				# ["ZZ"]="-n 20 -x 16.523"
 
-# 				##### Others : - filelists up to date
-# 				["TTWJetsToLNu"]="-n 20 -x 0.2043"
-# 				["TTWJetsToQQ"]="-n 20 -x 0.4062"
-# 				["TTZToLLNuNu"]="-n 20 -x 0.2529"
-# 				["TTWW"]="-n 20 -x 0.006979"
-# 				["TTZZ"]="-n 20 -x 0.001386"
-# 				["TTWZ"]="-n 20 -x 0.00158"
-# 			  )
-# for ds in "${!datasetsAssoc[@]}"; do
-# 	$(BASE_COMMAND) -o ${OUTSKIMDIR}${PREF}${ds} -i ${BKGDIR}${InputList[${ds}]} ${datasetsAssoc[${ds}]};
-# done
+				##### Others : - filelists up to date
+				["TTWJetsToLNu"]="-n 20 -x 0.2043"
+				["TTWJetsToQQ"]="-n 20 -x 0.4062"
+				["TTZToLLNuNu"]="-n 20 -x 0.2529"
+				["TTWW"]="-n 20 -x 0.006979"
+				["TTZZ"]="-n 20 -x 0.001386"
+				["TTWZ"]="-n 20 -x 0.00158"
+			  )
+for ds in "${!datasetsAssoc[@]}"; do
+	$(BASE_COMMAND) -o ${OUTSKIMDIR}${PREF}${ds} -i ${BKGDIR}${InputList[${ds}]} ${datasetsAssoc[${ds}]};
+done

@@ -19,7 +19,7 @@ def is_good_file (fileName) :
 
 def parse_input_file_list(fileName) :
     filelist = []
-    with open (fileName) as fIn:
+    with open(fileName) as fIn:
         for line in fIn:
             line = (line.split("#")[0]).strip()
             if line:
@@ -134,7 +134,7 @@ def skim_ntuple(FLAGS, curr_folder):
         sys.exit(1)
     elif os.path.exists(FLAGS.output):
         os.system('rm -rf ' + FLAGS.output + '/*')
-    os.system('mkdir ' + FLAGS.output)
+    os.system('mkdir -p ' + FLAGS.output)
     os.system('cp ' + FLAGS.config + ' ' + FLAGS.output)
 
     inputfiles = parse_input_file_list(FLAGS.input)
