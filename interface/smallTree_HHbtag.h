@@ -23,6 +23,8 @@ struct smallTree
   int clearVars ()
     {
       m_MC_weight = -1. ;
+      m_aMCatNLOweight = -1. ;
+      m_HHweight = -1. ;
       m_totalWeight = -1. ;
       m_prescaleWeight = 1. ;
       m_L1pref_weight = 1.;
@@ -177,6 +179,13 @@ struct smallTree
 
       m_genMHH   = -1;
       m_genCosth = -999;
+      m_genHHpt = -1;
+      m_genHHeta = -1;
+      m_genHHphi = -1;
+      m_genH1pt = -1;
+      m_genH2pt = -1;
+      m_leadHpt = -1;
+      m_sublHpt = -1;
 
       m_npv = -1. ;
       m_npu = -1. ;
@@ -1052,6 +1061,8 @@ struct smallTree
   int init () 
     {      
       m_smallT->Branch ("MC_weight", &m_MC_weight, "MC_weight/F") ;
+      m_smallT->Branch ("aMCatNLOweight", &m_aMCatNLOweight, "aMCatNLOweight/F") ;
+      m_smallT->Branch ("HHweight", &m_HHweight, "HHweight/F") ;
       m_smallT->Branch ("totalWeight", &m_totalWeight, "totalWeight/F") ;
       m_smallT->Branch ("prescaleWeight", &m_prescaleWeight, "prescaleWeight/F") ;
       m_smallT->Branch ("L1pref_weight", &m_L1pref_weight, "L1pref_weight/F") ;
@@ -1206,6 +1217,13 @@ struct smallTree
 
       m_smallT->Branch("genMHH", &m_genMHH, "m_genMHH/F");
       m_smallT->Branch("genCosth", &m_genCosth, "m_genCosth/F");
+       m_smallT->Branch("genHHpt", &m_genHHpt, "m_genHHpt/F");
+      m_smallT->Branch("genHHeta", &m_genHHeta, "m_genHHeta/F");
+      m_smallT->Branch("genHHphi", &m_genHHphi, "m_genHHphi/F");
+      m_smallT->Branch("genH1pt", &m_genH1pt, "m_genH1pt/F");
+      m_smallT->Branch("genH2pt", &m_genH2pt, "m_genH2pt/F");
+      m_smallT->Branch("leadHpt", &m_genH1pt, "m_leadHpt/F");
+      m_smallT->Branch("sublHpt", &m_genH2pt, "m_sublHpt/F");
 
       m_smallT->Branch ("npv", &m_npv, "npv/I") ;
       m_smallT->Branch ("npu", &m_npu, "npu/F") ;
@@ -2082,6 +2100,8 @@ struct smallTree
   
   // general variables
   Float_t m_MC_weight ;
+  Float_t m_aMCatNLOweight;
+  Float_t m_HHweight;
   Float_t m_totalWeight ;
   Float_t m_prescaleWeight ;
   Float_t m_L1pref_weight ;
@@ -2235,6 +2255,13 @@ struct smallTree
   Int_t m_genDecMode2 ;
   Float_t m_genMHH ;
   Float_t m_genCosth ;
+  Float_t m_genHHpt;
+  Float_t m_genHHeta;
+  Float_t m_genHHphi;
+  Float_t m_genH1pt;
+  Float_t m_genH2pt;
+  Float_t m_leadHpt;
+  Float_t m_sublHpt;
 
   Int_t   m_npv ;
   Float_t m_npu ;
