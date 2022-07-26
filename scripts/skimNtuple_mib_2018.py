@@ -62,7 +62,8 @@ if __name__ == "__main__":
     parser.add_option ('-a', '--ishhsignal', dest='ishhsignal', help='isHHsignal'                            , default=False)
     parser.add_option ('--BSMname',          dest='BSMname'   , help='additional name for EFT benchmarks'    , default='none')
     parser.add_option ('--EFTbm',            dest='EFTrew'    , help='EFT benchmarks [SM, 1..12, 1b..7b, 8a, c2scan, manual]', default='none')
-    parser.add_option ('--order',            dest='order'     , help='order of reweight: lo/nlo'             , default='nlo')
+    parser.add_option ('--order_input',      dest='order_input', help='order of input map: lo/nlo'             , default='nlo')
+    parser.add_option ('--order_rew',        dest='order_rew' , help='order of reweight: lo/nlo'             , default='nlo')
     parser.add_option ('--uncert',           dest='uncert'    , help='uncertainty on the reweight coeffs'    , default='0')
     parser.add_option ('--cms_fake',         dest='cms_fake'  , help='invert some couplings for 2017/2018'   , default='0')
     parser.add_option ('--kl',               dest='klreweight', help='kl for dynamic reweight'              , default='-999.0')
@@ -251,7 +252,7 @@ if __name__ == "__main__":
         if opt.ishhsignal     : command += " 1 "
         else                  : command += " 0 "
         command += (" " + opt.njets)
-        command += (" " + opt.EFTrew + " " + opt.order + " " + opt.uncert + " " + opt.cms_fake + " " + opt.klreweight + " " + opt.ktreweight + " " + opt.c2reweight + " " + opt.cgreweight + " " + opt.c2greweight)
+        command += (" " + opt.EFTrew + " " + opt.order_input + " " + opt.order_rew + " " + opt.uncert + " " + opt.cms_fake + " " + opt.klreweight + " " + opt.ktreweight + " " + opt.c2reweight + " " + opt.cgreweight + " " + opt.c2greweight)
         command += (" " + opt.susyModel)
         command += (" " + opt.PUweights)
         command += (" " + opt.DY_nJets)

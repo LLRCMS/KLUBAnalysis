@@ -231,4 +231,28 @@ python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_Legacy2018.cfg 
 #python scripts/skimNtuple.py -T $OUTDIRR -s True -c  config/skim_Legacy2018.cfg  -n 20 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_HHRew_SM_wrong  -x 1.0 --kl 1.0  --kt 1.0 --c2 0.0 --cg 0.0 --c2g 1. -a True -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_LO_allNodes.txt
 
 
+######################
+#### EFT benchmarks HH differential reweighting
+### normalize to 1pb as an input
+
+# NLO samples for closure checks
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg  -n 15 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_GGHH_cHHH0_NLO --tag $OUTDIRR/SKIM_GGHH_cHHH0_NLO -i $INPUTDIR_SIG/1_GluGluToHHTo2B2Tau_node_cHHH0_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 1.0 -a True --hhNLO
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg  -n 15 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_GGHH_cHHH1_NLO --tag $OUTDIRR/SKIM_GGHH_cHHH1_NLO -i $INPUTDIR_SIG/2_GluGluToHHTo2B2Tau_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 1.0 -a True --hhNLO
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg  -n 15 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_GGHH_cHHH5_NLO --tag $OUTDIRR/SKIM_GGHH_cHHH5_NLO -i $INPUTDIR_SIG/4_GluGluToHHTo2B2Tau_node_cHHH5_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 1.0 -a True --hhNLO
+
+
+# LO->NLO reweighting for closure checks
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 60 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_GGHH_cHHH0_LO2NLOrew --tag $OUTDIRR/SKIM_GGHH_cHHH0_LO2NLOrew -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_LO_allNodes.txt -x 1.0 -a True --EFTbm cHHH0 --order_rew nlo --order_input lo
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 60 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_GGHH_cHHH1_LO2NLOrew --tag $OUTDIRR/SKIM_GGHH_cHHH1_LO2NLOrew -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_LO_allNodes.txt -x 1.0 -a True --EFTbm cHHH1 --order_rew nlo --order_input lo
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 60 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_GGHH_cHHH5_LO2NLOrew --tag $OUTDIRR/SKIM_GGHH_cHHH5_LO2NLOrew -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_LO_allNodes.txt -x 1.0 -a True --EFTbm cHHH5 --order_rew nlo --order_input lo
+
+# NLO->NLO reweighting for closure checks
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 60 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_GGHH_cHHH0_NLO2NLOrew --tag $OUTDIRR/SKIM_GGHH_cHHH0_NLO2NLOrew -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt -x 1.0 -a True --EFTbm cHHH0 --order_rew nlo --order_input nlo --hhNLO
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 60 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_GGHH_cHHH1_NLO2NLOrew --tag $OUTDIRR/SKIM_GGHH_cHHH1_NLO2NLOrew -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt -x 1.0 -a True --EFTbm cHHH1 --order_rew nlo --order_input nlo --hhNLO
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 60 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_GGHH_cHHH5_NLO2NLOrew --tag $OUTDIRR/SKIM_GGHH_cHHH5_NLO2NLOrew -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt -x 1.0 -a True --EFTbm cHHH5 --order_rew nlo --order_input nlo --hhNLO
+
+
+# NLO->NLO reweighting of one node to itself for closure checks
+python scripts/skimNtuple.py -T $OUTDIRR -s True -c config/skim_Legacy2018.cfg -n 60 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIRR/SKIM_GGHH_cHHH1_NLO2NLOrew_oneNode --tag $OUTDIRR/SKIM_GGHH_cHHH1_NLO2NLOrew_oneNode -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_oneNode.txt -x 1.0 -a True --EFTbm cHHH1 --order_rew nlo --order_input nlo --hhNLO
+
 
