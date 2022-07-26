@@ -1,13 +1,14 @@
 AMESSAGE="V2 2018 Legacy ntuples"
 
-OUTDIRR="SKIMS_1June2020"
+OUTDIRR="SKIMMED_Legacy2018_2022_07_26_EFTrew_closureTests"
 
 INPUTDIR_BKG="inputFiles/Legacy2018_backgrounds"
 INPUTDIR_DATA="inputFiles/Legacy2018_data"
 INPUTDIR_SIG="inputFiles/Legacy2018_signals"
 
-PUDIR="weights/PUreweight/Legacy_Run2_PU_SF/2018"
-SKIMDIR="/data_CMS/cms/amendola/HHLegacy_2018_v2"
+REWDIR="/home/llr/cms/motta/HHLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/weights"
+PUDIR="/home/llr/cms/motta/HHLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/weights/PUreweight/Legacy_Run2_PU_SF/2018"
+SKIMDIR="/data_CMS/cms/motta/HHLegacy_SKIMS/SKIMS2018"
 
 source scripts/setup.sh
 source /opt/exp_soft/cms/t3/t3setup

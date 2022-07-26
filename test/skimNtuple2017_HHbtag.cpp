@@ -1433,10 +1433,10 @@ int main (int argc, char** argv)
     theSmallTree.m_HHweight = HHweight;
 	}
 
-  //JONA: uncomment thhe follwing three lines to have only GEN done
-  // theSmallTree.Fill() ;
-  // cout << " ........... GEN FINISHED ........... " << " evt=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << endl;
-  // continue ;
+  //JONA: uncomment the follwing three lines to have only GEN done
+  theSmallTree.Fill() ;
+  cout << " ........... GEN FINISHED ........... " << " evt=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << endl;
+  continue ;
 
       ///////////////////////////////////////////////////////////
       // END of gen related stuff -- compute tot number of events
