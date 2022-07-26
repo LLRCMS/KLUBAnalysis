@@ -1,15 +1,14 @@
 #include "HHReweight5D.h"
 
-#define DEBUG false
+#define DEBUG true
 
-HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string EFTBMname, std::string year, std::string order, std::string uncertantie, bool cms_fake, bool useAbsEta)
+HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string EFTBMname, std::string year, std::string order, std::string uncertantie, bool cms_fake)
 {
     // clone the input histogram
     TH2* cloneH = (TH2*) hInput->Clone("h_input");
 
     h_input_.reset(cloneH);
 
-    useAbsEta_ = useAbsEta;
     order_ = order; // default is "nlo"
     unc_ = uncertantie; // default is ""
 
@@ -126,43 +125,43 @@ HHReweight5D::~HHReweight5D()
 double HHReweight5D::functionGF(double kl, double kt, double c2, double cg, double c2g, std::vector<double> A)
 {
     if (order_ == "lo") {
-        return ( A[0]*pow(kt,4) + \
-                 A[1]*pow(c2,2) + \
-                 A[2]*pow(kt,2)*pow(kl,2) + \
-                 A[3]*pow(cg,2)*pow(kl,2) + \
-                 A[4]*pow(c2g,2) + \
-                 A[5]*c2*pow(kt,2) + \
-                 A[6]*kl*pow(kt,3) + \
-                 A[7]*kt*kl*c2 + \
-                 A[8]*cg*kl*c2 + \
-                 A[9]*c2*c2g + \
-                 A[10]*cg*kl*pow(kt,2) + \
-                 A[11]*c2g*pow(kt,2) +\
-                 A[12]*pow(kl,2)*cg*kt + \
-                 A[13]*c2g*kt*kl + \
-                 A[14]*cg*c2g*kl );
+        return ( A[0] * pow(kt,4) + \
+                 A[1] * pow(c2,2) + \
+                 A[2] * pow(kt,2)*pow(kl,2) + \
+                 A[3] * pow(cg,2)*pow(kl,2) + \
+                 A[4] * pow(c2g,2) + \
+                 A[5] * c2*pow(kt,2) + \
+                 A[6] * kl*pow(kt,3) + \
+                 A[7] * kt*kl*c2 + \
+                 A[8] * cg*kl*c2 + \
+                 A[9] * c2*c2g + \
+                 A[10] * cg * kl * pow(kt,2) + \
+                 A[11] * c2g * pow(kt,2) +\
+                 A[12] * pow(kl,2) * cg * kt + \
+                 A[13] * c2g * kt * kl + \
+                 A[14] * cg * c2g * kl );
     }
     else {
-        return ( A[0]*pow(kt,4) + \
-                 A[1]*pow(c2,2) + \
-                 A[2]*pow(kt,2)*pow(kl,2) + \
-                 A[3]*pow(cg,2)*pow(kl,2) + \
-                 A[4]*pow(c2g,2) + \
-                 A[5]*c2*pow(kt,2) + \
-                 A[6]*kl*pow(kt,3) + \
-                 A[7]*kt*kl*c2 + \
-                 A[8]*cg*kl*c2 + \
-                 A[9]*c2*c2g + \
-                 A[10]*cg*kl*pow(kt,2) + \
-                 A[11]*c2g*pow(kt,2) +\
-                 A[12]*pow(kl,2)*cg*kt + \
-                 A[13]*c2g*kt*kl + \
-                 A[14]*cg*c2g*kl + \
+        return ( A[0] * pow(kt,4) + \
+                 A[1] * pow(c2,2) + \
+                 A[2] * pow(kt,2) * pow(kl,2) + \
+                 A[3] * pow(cg,2) * pow(kl,2) + \
+                 A[4] * pow(c2g,2) + \
+                 A[5] * c2 * pow(kt,2) + \
+                 A[6] * kl * pow(kt,3) + \
+                 A[7] * kt * kl * c2 + \
+                 A[8] * cg * kl * c2 + \
+                 A[9] * c2 * c2g + \
+                 A[10] * cg * kl * pow(kt,2) + \
+                 A[11] * c2g * pow(kt,2) +\
+                 A[12] * pow(kl,2) * cg * kt + \
+                 A[13] * c2g * kt * kl + \
+                 A[14] * cg * c2g * kl + \
                  A[15] * pow(kt,3) * cg + \
                  A[16] * kt * c2 * cg + \
                  A[17] * kt * pow(cg,2) * kl + \
                  A[18] * cg * kt * c2g + \
-                 A[19] * pow(kt,2) * pow(cg,2) + \
+                 A[19] * pow(kt*cg,2) + \ // I wrote it originally as pow(kt,2) * pow(cg,2) but just in case rolled back to how Mandrik wrote it
                  A[20] * c2 * pow(cg,2) + \
                  A[21] * pow(cg,3) * kl + \
                  A[22] * pow(cg,2) * c2g );
@@ -172,7 +171,7 @@ double HHReweight5D::functionGF(double kl, double kt, double c2, double cg, doub
 // return the weight to be applied for the reweight -> take only mhh and cth from input, retrieve couplings from constructor
 double HHReweight5D::getWeight(double mhh, double cth)
 {
-    if (useAbsEta_) cth = TMath::Abs(cth);
+    cth = TMath::Abs(cth);
 
     double kl  = EFTBMcouplings_[0];
     double kt  = EFTBMcouplings_[1];
@@ -194,7 +193,7 @@ double HHReweight5D::getWeight(double mhh, double cth)
 // return the weight to be applied for the for c2 scan
 double HHReweight5D::getWeight(double mhh, double cth, double c2)
 {
-    if (useAbsEta_) cth = TMath::Abs(cth);
+    cth = TMath::Abs(cth);
 
     double kl  = 1;
     double kt  = 1;
@@ -216,8 +215,9 @@ double HHReweight5D::getWeight(double mhh, double cth, double c2)
 // return the weight to be applied for the reweight -> take mhh, cth, and couplings from input
 double HHReweight5D::getWeight(double mhh, double cth, double kl, double kt, double c2, double cg, double c2g)
 {
-    if (useAbsEta_) cth = TMath::Abs(cth);
     if (DEBUG) std::cout << "** DEBUG: reqested coplings set: kl=" << kl << " ; kt=" << kt << " ; c2=" << c2 << " ; cg=" << cg << " ; c2g=" << c2g << std::endl;
+
+    cth = TMath::Abs(cth);
 
     double Nevtot = h_input_->Integral();
     double XStot = getTotXS(kl,kt,c2,cg,c2g);
@@ -239,6 +239,10 @@ double HHReweight5D::getTotXS(double kl, double kt, double c2, double cg, double
 double HHReweight5D::getDiffXS(double kl, double kt, double c2, double cg, double c2g, double mhh, double cth, std::vector< std::vector<double> > A_map)
 {  
    if (DEBUG) std::cout << "** DEBUG: AmapSize=" << A_map.size() << std::endl;
+   
+   cth = TMath::Abs(cth);
+   double dXsec = 0.;
+
    for(int i = 0; i < int(A_map.size()); i++)
    {
       //The entries are respectively: Mhh_ll - Mhh_ul - GenCostStar_ll - GenCostStar_ul - 23(nlo)/15(lo) A values
@@ -247,9 +251,7 @@ double HHReweight5D::getDiffXS(double kl, double kt, double c2, double cg, doubl
       double cos_bin_end  = values.at(3);
       
       if(mhh > mass_bin_end || cth > cos_bin_end) continue;
-      
-      double dXsec = 0.;
-      
+
       std::vector<double> As;
       for (int j=4; j<int(values.size()); j++) As.push_back(values.at(j));
       if (DEBUG) {
@@ -257,12 +259,11 @@ double HHReweight5D::getDiffXS(double kl, double kt, double c2, double cg, doubl
         for (int j=0; j<int(As.size()); j++) std::cout << As[j] << " ; ";
         std::cout << std::endl;  
       }
-      dXsec += functionGF(kl, kt, c2, cg, c2g, As);
-
-      return dXsec / 1000; //diff XS in [fb] 
+      dXsec = functionGF(kl, kt, c2, cg, c2g, As);
+      break; //we have the XS we can get ouit and return
     }
  
-   return 0;
+   return dXsec / 1000; //diff XS in [fb] 
 }
 
 
