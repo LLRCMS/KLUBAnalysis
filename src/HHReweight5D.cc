@@ -116,7 +116,11 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
             if (DEBUG) std::cout << "** DEBUG: A_vec size " << A_vec.size() << std::endl;
         }
     }
-    if (DEBUG) std::cout << "** DEBUG: A_map size " << A_map_.size() << std::endl;
+    if (DEBUG)
+    {
+        std::cout << "** DEBUG: A_map size " << A_map_.size() << std::endl;
+        std::cout << "\n\n ################################################# \n\n" << std::endl;
+    }
 }
 
 HHReweight5D::~HHReweight5D()
@@ -186,7 +190,7 @@ double HHReweight5D::getWeight(double mhh, double cth)
     int ibinmhh = h_input_->GetXaxis()->FindBin(mhh);
     int ibincosthetaHH = h_input_->GetYaxis()->FindBin(cth);
     double Noutputev = XS * h_input_->GetXaxis()->GetBinWidth(ibinmhh) * h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH);
-    if (DEBUG) std::cout << "** DEBUG: Noutputev=" << Noutputev << " ; Nev=" << Nev << " ; Nevtot=" << Nevtot << " ; XStot=" << XStot << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
+    if (DEBUG) std::cout << "** DEBUG: mHH=" << mhh << " cth=" << cth << " --> Noutputev=" << Noutputev << " ; Nev=" << Nev << " ; Nevtot=" << Nevtot << " ; XStot=" << XStot << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
     return Noutputev/Nev * Nevtot/XStot;
 }
 
@@ -226,7 +230,7 @@ double HHReweight5D::getWeight(double mhh, double cth, double kl, double kt, dou
     int ibinmhh = h_input_->GetXaxis()->FindBin(mhh);
     int ibincosthetaHH = h_input_->GetYaxis()->FindBin(cth);
     double Noutputev = XS * h_input_->GetXaxis()->GetBinWidth(ibinmhh) * h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH);
-    if (DEBUG) std::cout << "** DEBUG: Noutputev=" << Noutputev << " ; Nev=" << Nev << " ; Nevtot=" << Nevtot << " ; XStot=" << XStot << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
+    if (DEBUG) std::cout << "** DEBUG: mHH=" << mhh << " cth=" << cth << " --> Noutputev=" << Noutputev << " ; Nev=" << Nev << " ; Nevtot=" << Nevtot << " ; XStot=" << XStot << " ; XS=" << XS << " ; mhhBinW=" << h_input_->GetXaxis()->GetBinWidth(ibinmhh) << " ; cthBinW=" << h_input_->GetYaxis()->GetBinWidth(ibincosthetaHH) << " --> HHweight=" << Noutputev/Nev * Nevtot/XStot << std::endl;
     return Noutputev/Nev * Nevtot/XStot;
 }
 
