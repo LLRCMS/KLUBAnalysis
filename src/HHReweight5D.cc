@@ -161,7 +161,7 @@ double HHReweight5D::functionGF(double kl, double kt, double c2, double cg, doub
                  A[16] * kt * c2 * cg + \
                  A[17] * kt * pow(cg,2) * kl + \
                  A[18] * cg * kt * c2g + \
-                 A[19] * pow(kt*cg,2) + \ // I wrote it originally as pow(kt,2) * pow(cg,2) but just in case rolled back to how Mandrik wrote it
+                 A[19] * pow(kt*cg,2) + \
                  A[20] * c2 * pow(cg,2) + \
                  A[21] * pow(cg,3) * kl + \
                  A[22] * pow(cg,2) * c2g );
