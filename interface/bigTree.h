@@ -217,9 +217,9 @@ public :
   std::vector<int>     *jets_HadronFlavour;
   std::vector<int>     *jets_genjetIndex;
   std::vector<float>   *jets_PUJetID;
-  std::vector<int>    *jets_PUJetID_WP;
-  //std::vector<float>   *jets_PUJetIDupdated;
-  //std::vector<int>     *jets_PUJetIDupdated_WP;
+  std::vector<int>     *jets_PUJetID_WP;
+  std::vector<float>   *jets_PUJetIDupdated;
+  std::vector<int>     *jets_PUJetIDupdated_WP;
   std::vector<float>   *jets_vtxPt;
   std::vector<float>   *jets_vtxMass;
   std::vector<float>   *jets_vtx3dL;
@@ -479,8 +479,8 @@ public :
   TBranch        *b_jets_genjetIndex;   //!
   TBranch        *b_jets_PUJetID;   //!
   TBranch        *b_jets_PUJetID_WP;   //!
-  //TBranch        *b_jets_PUJetIDupdated;   //!
-  //TBranch        *b_jets_PUJetIDupdated_WP;   //!
+  TBranch        *b_jets_PUJetIDupdated;   //!
+  TBranch        *b_jets_PUJetIDupdated_WP;   //!
   TBranch        *b_jets_vtxPt;   //!
   TBranch        *b_jets_vtxMass;   //!
   TBranch        *b_jets_vtx3dL;   //!
@@ -724,8 +724,8 @@ public :
     jets_genjetIndex = 0;
     jets_PUJetID = 0;
     jets_PUJetID_WP = 0;
-    //jets_PUJetIDupdated = 0;
-    //jets_PUJetIDupdated_WP = 0;
+    jets_PUJetIDupdated = 0;
+    jets_PUJetIDupdated_WP = 0;
     jets_vtxPt = 0;
     jets_vtxMass = 0;
     jets_vtx3dL = 0;
@@ -921,8 +921,8 @@ public :
     fChain->SetBranchAddress("jets_HadronFlavour", &jets_HadronFlavour, &b_jets_HadronFlavour);
     fChain->SetBranchAddress("jets_PUJetID", &jets_PUJetID, &b_jets_PUJetID);
     fChain->SetBranchAddress("jets_PUJetID_WP", &jets_PUJetID_WP, &b_jets_PUJetID_WP);
-    //fChain->SetBranchAddress("jets_PUJetIDupdated", &jets_PUJetIDupdated, &b_jets_PUJetIDupdated);
-    //fChain->SetBranchAddress("jets_PUJetIDupdated_WP", &jets_PUJetIDupdated_WP, &b_jets_PUJetIDupdated_WP);
+    fChain->SetBranchAddress("jets_PUJetIDupdated", &jets_PUJetIDupdated, &b_jets_PUJetIDupdated);
+    fChain->SetBranchAddress("jets_PUJetIDupdated_WP", &jets_PUJetIDupdated_WP, &b_jets_PUJetIDupdated_WP);
     fChain->SetBranchAddress("jets_vtxPt", &jets_vtxPt, &b_jets_vtxPt);
     fChain->SetBranchAddress("jets_vtxMass", &jets_vtxMass, &b_jets_vtxMass);
     fChain->SetBranchAddress("jets_vtx3dL", &jets_vtx3dL, &b_jets_vtx3dL);

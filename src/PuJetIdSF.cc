@@ -18,6 +18,8 @@ PuJetIdSF::PuJetIdSF (std::string directory, std::string year)
   // Get the TH2F histograms
   h_eff_SF_        = (TH2F*) f->Get(nh_eff_sf.c_str());
   h_eff_SF_err_    = (TH2F*) f->Get(nh_eff_sf_err.c_str());
+  
+  year_ = year;
 }
 
 
@@ -131,7 +133,9 @@ std::vector<float> PuJetIdSF::getEvtWeight(bigTree &theBigTree, TLorentzVector t
     }
 
     // Pass PU jet ID Loose WP
-    bool passPUjetIDLoose = CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), 2);
+    bool passPUjetIDLoose;
+    if (year_ == "2017") passPUjetIDLoose = CheckBit(theBigTree.jets_PUJetID_WP->at(iJet), 2);
+    else passPUjetIDLoose = CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), 2);
 
     if (DEBUG) std::cout << "   isRealJet: " << isRealJet << " passPUjetIDLoose: " << passPUjetIDLoose << std::endl;
 
