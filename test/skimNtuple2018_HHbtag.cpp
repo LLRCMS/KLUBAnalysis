@@ -181,7 +181,7 @@ int main (int argc, char** argv)
       cerr << "usage: " << argv[0]
            << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
            << " xsecScale(stitch) HTMax(stitch) HTMin(stitch) isTTBar DY_Nbs TT_stitchType"
-           << " runMT2 isHHsignal NjetRequired(stitch) EFTbm order_rew uncertainty_rew cms_fake_rew kl_rew kt_rew c2_rew cg_rew c2g_rew susyModel" << endl ;
+           << " runMT2 isHHsignal NjetRequired(stitch) EFTbm order_input order_rew uncertainty_rew cms_fake_rew kl_rew kt_rew c2_rew cg_rew c2g_rew susyModel" << endl ;
       return 1;
     }
 
@@ -259,40 +259,41 @@ int main (int argc, char** argv)
 
   // reweight file according to NLO differential reweighting procedure https://gitlab.cern.ch/hh/eft-benchmarks
   string EFTbm = argv[16];
-  string order_rew = argv[17];
+  string order_input = argv[17];
+  string order_rew = argv[18];
   string uncertainty_rew = "\"\"";
-  if (argv[18] != string("0")) uncertainty_rew = argv[18];
+  if (argv[19] != string("0")) uncertainty_rew = argv[19];
   bool cms_fake_rew = false;
-  string opt20 (argv[19]);
+  string opt20 (argv[20]);
   if (opt20 == "1") cms_fake_rew = true;
-  float kl_rew = atof(argv[20]);
-  float kt_rew = atof(argv[21]);
-  float c2_rew = atof(argv[22]);
-  float cg_rew = atof(argv[23]);
-  float c2g_rew = atof(argv[24]);
+  float kl_rew = atof(argv[21]);
+  float kt_rew = atof(argv[22]);
+  float c2_rew = atof(argv[23]);
+  float cg_rew = atof(argv[24]);
+  float c2g_rew = atof(argv[25]);
   cout << "** INFO: EFT reweighting asked for benchmark " << EFTbm << " at order " << order_rew << endl;
   if (c2_rew > -999.0) cout << "** INFO: EFT reweighting overridden with coplings kl=" << kl_rew << " ; kt=" << kt_rew << " ; c2=" << c2_rew << " ; cg=" << cg_rew << " ; c2g=" << c2g_rew << " at order " << order_rew << "[all -999 means no override; only c2!=-999 means only c2 overridden]" << endl;
 
-  string susyModel = argv[25];
+  string susyModel = argv[26];
   cout << "** INFO: requesting SUSY model to be: -" << susyModel << "- [NOTSUSY: no request on this parameter]" << endl;
 
   // external weight file for PUreweight - sample per sample
-  TString PUreweightFile = argv[26];
+  TString PUreweightFile = argv[27];
   cout << "** INFO: PU reweight external file: " << PUreweightFile << endl;
 
-  int DY_nJets  = atoi(argv[27]);
-  int DY_nBJets = atoi(argv[28]);
+  int DY_nJets  = atoi(argv[28]);
+  int DY_nBJets = atoi(argv[29]);
   cout << "** INFO: nJets/nBjets for DY bin weights: " << DY_nJets << " / " << DY_nBJets << endl;
-  int isDYI = atoi(argv[29]);
+  int isDYI = atoi(argv[30]);
   bool isDY = (isDYI == 1) ? true : false;
 
   bool isttHToNonBB = false;
-  int isttHToNonBBI = atoi(argv[30]);
+  int isttHToNonBBI = atoi(argv[31]);
   if (isttHToNonBBI == 1) isttHToNonBB = true;
   cout << "** INFO: isttHToNonBB: " << isttHToNonBB << endl;
 
   bool isHHNLO = false;
-  int isHHNLOI = atoi(argv[31]);
+  int isHHNLOI = atoi(argv[32]);
   if (isHHNLOI == 1) isHHNLO = true;
   cout << "** INFO: isHHNLO: " << isHHNLO << endl;
 
@@ -624,7 +625,8 @@ int main (int argc, char** argv)
   TH2* hhreweighterInputMap = nullptr;
   if (HHrewType != kNone)
     {
-      string inMapFile   = gConfigParser->readStringOption("HHReweight::inputFile");
+      string inMapFile   = gConfigParser->readStringOption("HHReweight::inputFileNLO");
+      if (order_input == string("lo")) inMapFile = gConfigParser->readStringOption("HHReweight::inputFileLO");
       string inHistoName = gConfigParser->readStringOption("HHReweight::histoName");
       string coeffFile   = gConfigParser->readStringOption("HHReweight::coeffFileNLO");
       if (order_rew == string("lo")) coeffFile = gConfigParser->readStringOption("HHReweight::coeffFileLO");
@@ -1249,6 +1251,9 @@ int main (int argc, char** argv)
           TLorentzVector vH1, vH2, vBoost, vSum;
           float mHH = -1;
           float ct1 = -999;
+          float genHHpt = -1;
+          float genH1pt = -1;
+          float genH2pt = -1;
           // loop on gen to find Higgs
           int idx1 = -1;
           int idx2 = -1;
@@ -1399,6 +1404,9 @@ int main (int argc, char** argv)
           vH2.SetPxPyPzE (theBigTree.genpart_px->at(idx2), theBigTree.genpart_py->at(idx2), theBigTree.genpart_pz->at(idx2), theBigTree.genpart_e->at(idx2) );
           vSum = vH1+vH2;
           mHH = vSum.M();
+          genHHpt = vSum.Pt();
+          genH1pt = vH1.Pt();
+          genH2pt = vH2.Pt();
           vH1.Boost(-vSum.BoostVector());
           ct1 = vH1.CosTheta();
 
@@ -1418,9 +1426,20 @@ int main (int argc, char** argv)
 
           theSmallTree.m_genMHH = mHH;
           theSmallTree.m_genCosth = ct1;
+          theSmallTree.m_genHHpt = genHHpt;
+          theSmallTree.m_genH1pt = genH1pt;
+          theSmallTree.m_genH2pt = genH2pt;
+          if (genH1pt >= genH2pt) { theSmallTree.m_leadHpt = genH1pt; theSmallTree.m_sublHpt = genH2pt; }
+          else { theSmallTree.m_leadHpt = genH2pt; theSmallTree.m_sublHpt = genH1pt; }
 
-          // cout << " ........... GEN FINISHED ........... " << " evt=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << endl;
+          theSmallTree.m_aMCatNLOweight = theBigTree.aMCatNLOweight;
+          theSmallTree.m_HHweight = HHweight;
         }
+
+      //JONA: uncomment the follwing three lines to have only GEN done
+      theSmallTree.Fill() ;
+      cout << " ........... GEN FINISHED ........... " << " evt=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << endl;
+      continue ;
 
       ///////////////////////////////////////////////////////////
       // END of gen related stuff -- compute tot number of events

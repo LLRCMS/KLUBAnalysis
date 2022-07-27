@@ -30,7 +30,7 @@
 class HHReweight5D{
     
     public:
-        HHReweight5D(std::string coeffFile, const TH2* hInput, std::string EFTBMname, std::string year, std::string order, std::string uncertantie = "", bool cms_fake = false, bool useAbsEta=true);
+        HHReweight5D(std::string coeffFile, const TH2* hInput, std::string EFTBMname, std::string year, std::string order, std::string uncertantie = "", bool cms_fake = false);
         ~HHReweight5D();
         double getWeight(double mhh, double cth);
         double getWeight(double mhh, double cth, double c2);
@@ -49,9 +49,6 @@ class HHReweight5D{
         // the distribution of the input events
         // must the all the generated events before preselections
         std::shared_ptr<TH2> h_input_;
-        
-        // take costheta absolute value
-        bool useAbsEta_;
         
         // order of the reweighting LO or NLO
         std::string order_;
