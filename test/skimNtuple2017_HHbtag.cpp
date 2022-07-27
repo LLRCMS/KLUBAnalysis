@@ -1246,9 +1246,9 @@ int main (int argc, char** argv)
 	  TLorentzVector vH1, vH2, vBoost, vSum;
 	  float mHH = -1;
 	  float ct1 = -999;
-    float genHHpt = -1;
-    float genH1pt = -1;
-    float genH2pt = -1;
+	  float genHHpt = -1;
+	  float genH1pt = -1;
+	  float genH2pt = -1;
 	  // loop on gen to find Higgs
 	  int idx1 = -1;
 	  int idx2 = -1;
@@ -1399,9 +1399,9 @@ int main (int argc, char** argv)
 	  vH2.SetPxPyPzE (theBigTree.genpart_px->at(idx2), theBigTree.genpart_py->at(idx2), theBigTree.genpart_pz->at(idx2), theBigTree.genpart_e->at(idx2) );
 	  vSum = vH1+vH2;
 	  mHH = vSum.M();
-    genHHpt = vSum.Pt();
-    genH1pt = vH1.Pt();
-    genH2pt = vH2.Pt();
+	  genHHpt = vSum.Pt();
+	  genH1pt = vH1.Pt();
+	  genH2pt = vH2.Pt();
 	  vH1.Boost(-vSum.BoostVector());                     
 	  ct1 = vH1.CosTheta();
 	  
@@ -1423,20 +1423,20 @@ int main (int argc, char** argv)
 
 	  theSmallTree.m_genMHH = mHH;
 	  theSmallTree.m_genCosth = ct1;
-    theSmallTree.m_genHHpt = genHHpt;
-    theSmallTree.m_genH1pt = genH1pt;
-    theSmallTree.m_genH2pt = genH2pt;
-    if (genH1pt >= genH2pt) { theSmallTree.m_leadHpt = genH1pt; theSmallTree.m_sublHpt = genH2pt; }
-    else { theSmallTree.m_leadHpt = genH2pt; theSmallTree.m_sublHpt = genH1pt; }
+	  theSmallTree.m_genHHpt = genHHpt;
+	  theSmallTree.m_genH1pt = genH1pt;
+	  theSmallTree.m_genH2pt = genH2pt;
+	  if (genH1pt >= genH2pt) { theSmallTree.m_leadHpt = genH1pt; theSmallTree.m_sublHpt = genH2pt; }
+	  else { theSmallTree.m_leadHpt = genH2pt; theSmallTree.m_sublHpt = genH1pt; }
 
-    theSmallTree.m_aMCatNLOweight = theBigTree.aMCatNLOweight;
-    theSmallTree.m_HHweight = HHweight;
+	  theSmallTree.m_aMCatNLOweight = theBigTree.aMCatNLOweight;
+	  theSmallTree.m_HHweight = HHweight;
 	}
 
   //JONA: uncomment the follwing three lines to have only GEN done
-  theSmallTree.Fill() ;
-  cout << " ........... GEN FINISHED ........... " << " evt=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << endl;
-  continue ;
+  //theSmallTree.Fill() ;
+  //cout << " ........... GEN FINISHED ........... " << " evt=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << endl;
+  //continue ;
 
       ///////////////////////////////////////////////////////////
       // END of gen related stuff -- compute tot number of events

@@ -41,7 +41,8 @@ bool CheckBit (int number, int bitpos)
 int main ()
 {
     // make tchain of all samples
-    TString filename = "/home/llr/cms/motta/HHLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signals/GluGluToHHTo2B2Tau_NLO_oneNode.txt"; 
+    TString filename = "/home/llr/cms/motta/HHLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signals/GluGluToHHTo2B2Tau_LO_allNodes.txt";
+    //TString filename = "/home/llr/cms/motta/HHLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signals/GluGluToHHTo2B2Tau_NLO_oneNode.txt"; 
     TChain* ch = new TChain ("HTauTauTree/HTauTauTree");
     appendFromFileList (ch, filename);
 
@@ -103,7 +104,8 @@ int main ()
     // TH2F* hMapFolded = new TH2F ("allHHNodeMapFolded", "allHHNodeMapFolded", 90, 0, 1800, 5, 0, 1); // won't be used for reweight
     // TH1F* hMap1D = new TH1F ("allHHNodeMap1D", "allHHNodeMap1D", nbins_mHH, binning_mHH);
 
-    TFile* fOut = new TFile ("allHHnodeMap_NLO_5DdiffRew_2018_test.root", "recreate");
+    TFile* fOut = new TFile ("allHHnodeMap_5DdiffRew_2018.root", "recreate");
+    //TFile* fOut = new TFile ("allHHnodeMap_NLO_5DdiffRew_2018_test.root", "recreate");
     double binning_mHH [37] = {250.,270.,290.,310.,330.,
                                350.,370.,390.,410.,430., 
                                450.,470.,490.,510.,530.,

@@ -1,6 +1,6 @@
 #include "HHReweight5D.h"
 
-#define DEBUG true
+#define DEBUG false
 
 HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string EFTBMname, std::string year, std::string order, std::string uncertantie, bool cms_fake)
 {
@@ -46,12 +46,12 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
     else if(EFTBMname ==  "12") EFTBMcouplings_ = {15.0, 1.0, 1.0, 0.0, 0.0};
 
     if( (year == "2017" or year == "2018") and EFTBMcouplings_.size() and cms_fake ){
-    if (DEBUG) std::cout << "** DEBUG: before cms_fake: " << EFTBMcouplings_[0] << " " << EFTBMcouplings_[1] << " " << EFTBMcouplings_[2] << " "  << EFTBMcouplings_[3] << " "  << EFTBMcouplings_[4] << std::endl;
-    EFTBMcouplings_[4] = 1.0;
-    double tr = EFTBMcouplings_[0];
-    EFTBMcouplings_[0] = EFTBMcouplings_[1];
-    EFTBMcouplings_[1] = tr;
-    if (DEBUG) std::cout << "** DEBUG: after cms_fake: " << EFTBMcouplings_[0] << " " << EFTBMcouplings_[1] << " " << EFTBMcouplings_[2] << " "  << EFTBMcouplings_[3] << " "  << EFTBMcouplings_[4] << std::endl;
+      if (DEBUG) std::cout << "** DEBUG: before cms_fake: " << EFTBMcouplings_[0] << " " << EFTBMcouplings_[1] << " " << EFTBMcouplings_[2] << " "  << EFTBMcouplings_[3] << " "  << EFTBMcouplings_[4] << std::endl;
+      EFTBMcouplings_[4] = 1.0;
+      double tr = EFTBMcouplings_[0];
+      EFTBMcouplings_[0] = EFTBMcouplings_[1];
+      EFTBMcouplings_[1] = tr;
+      if (DEBUG) std::cout << "** DEBUG: after cms_fake: " << EFTBMcouplings_[0] << " " << EFTBMcouplings_[1] << " " << EFTBMcouplings_[2] << " "  << EFTBMcouplings_[3] << " "  << EFTBMcouplings_[4] << std::endl;
     }
 
     if( (year == "2016") and EFTBMcouplings_.size() and cms_fake ){
