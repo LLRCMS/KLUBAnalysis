@@ -34,7 +34,7 @@ while [[ $# -gt 0 ]]; do
 	    ;;
 	-f|--force)
 	    FORCE="1"
-	    shift; shift;
+	    shift;
 	    ;;
 	-d|--data_period)
 	    DATA_PERIOD=${2}
@@ -48,18 +48,19 @@ while [[ $# -gt 0 ]]; do
 done
 
 ### Setup variables
-THIS_FILE="$( [ ! -z "$ZSH_VERSION" ] && echo "${(%):-%x}" || echo "${BASH_SOURCE[0]}" )"
+THIS_FILE="${BASH_SOURCE[0]}"
 THIS_DIR="$( cd "$( dirname ${THIS_FILE} )" && pwd )"
 KLUB_DIR="$( cd "$( dirname ${THIS_DIR} )" && pwd )"
 
 SUBMIT_SCRIPT="scripts/skimNtuple.py"
+LIST_SCRIPT="scripts/makeListOnStorage.py"
 SKIM_DIR="/data_CMS/cms/${USER}/HHresonant_SKIMS"
 mkdir -p ${SKIM_DIR}
 
-IN_DIR="/home/llr/cms/portales/hhbbtautau/KLUB_UL_20220321/CMSSW_11_1_9/src/KLUBAnalysis/inputFiles/"
+IN_DIR=${KLUB_DIR}"/inputFiles/"
 SIG_DIR=${IN_DIR}${DATA_PERIOD}"_signals/"
 BKG_DIR=${IN_DIR}${DATA_PERIOD}"_backgrounds/"
-DATA_DIR=${IN_DIR}${DATA_PERIOD}"_data/"
+DATA_DIR=${IN_DIR}${DATA_PERIOD}"_Data/"
 
 PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2018/PU_UL2018_SF.txt"
 CFG="config/skim_${DATA_PERIOD}.cfg"
@@ -296,13 +297,27 @@ function run_skim() {
 	python ${KLUB_DIR}/${SUBMIT_SCRIPT} -T ${OUT_DIR} -s True -c ${KLUB_DIR}/${CFG} -q long -Y 2018 -k True --pu ${PU_DIR} -f ${FORCE} "$@"
 }
 
+### Input file list production command
+function produce_list() {
+	python ${KLUB_DIR}/${LIST_SCRIPT} -t Jul2022 --data_period ${DATA_PERIOD} "$@"
+}
+
+### Extract sample full name
+function extract_substr() {
+	[[ ${1} =~ [0-9]+_(.*)\.txt ]] && echo ${BASH_REMATCH[1]}
+}
+
 ### Data
 DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
 RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
 for ds in ${DATA_LIST[@]}; do
 	for run in ${RUNS[@]}; do
 		file="${ds}_${run}"
-		run_skim -n 10 -d True -o ${OUTSKIM_DIR}${PREF}${file} -i ${DATA_DIR}${IN_LIST[${file}]}
+		IN=${IN_LIST[${file}]}
+		sample=$(extract_substr ${IN})
+		produce_list --kind Data --sample ${sample}
+		run_skim -n 10 --isdata True -o ${OUTSKIM_DIR}${PREF}${file} --input_folder ${DATA_DIR} --sample ${sample}
+		exit 1
 	done
 done
  
@@ -321,11 +336,11 @@ done
 ### TT x section: 831.76 for inclusive sample, W->had 67,60% , W->l nu 3*10,8% = 32,4% (sum over all leptons)
 ### hh = 45.7%, ll = 10.5%, hl = 21.9% (x2 for permutation t-tbar)
 DATA_MAP=( ["TT_fullyHad"]="377.96"
-				["TT_fullyLep"]="88.29"
-				["TT_semiLep"]="365.34"
-			  )
+		   ["TT_fullyLep"]="88.29"
+		   ["TT_semiLep"]="365.34"
+		 )
 for ds in ${!DATA_MAP[@]}; do
-	run_skim -n 100 -o ${OUTSKIM_DIR}${PREF}${ds} -i $SIG_DIR${IN_LIST[${ds}]} -x ${DATA_MAP[${ds}]}
+	run_skim -n 100 -o ${OUTSKIM_DIR}${PREF}${ds} -i ${SIG_DIR}${IN_LIST[${ds}]} -x ${DATA_MAP[${ds}]}
 done
 
 ### DY
@@ -350,15 +365,15 @@ done
 
 #### Wjets - filelists up to date
 DATA_MAP=( ["WJets_HT_0_70"]="-x 48917.48 -z 70"
-				["WJets_HT_70_100"]="-x 1362"
-				["WJets_HT_100_200"]="-x 1345"
-				["WJets_HT_200_400"]="-x 359.7"
-				["WJets_HT_400_600"]="-x 48.91"
-				["WJets_HT_600_800"]="-x 12.05"
-				["WJets_HT_800_1200"]="-x 5.501"
-				["WJets_HT_1200_2500"]="-x 1.329"
-				["WJets_HT_2500_Inf"]="-x 0.03216"
-			  )
+		   ["WJets_HT_70_100"]="-x 1362"
+		   ["WJets_HT_100_200"]="-x 1345"
+		   ["WJets_HT_200_400"]="-x 359.7"
+		   ["WJets_HT_400_600"]="-x 48.91"
+		   ["WJets_HT_600_800"]="-x 12.05"
+		   ["WJets_HT_800_1200"]="-x 5.501"
+		   ["WJets_HT_1200_2500"]="-x 1.329"
+		   ["WJets_HT_2500_Inf"]="-x 0.03216"
+		 )
 for ds in ${!DATA_MAP[@]}; do
 	run_skim -n 20 -o ${OUTSKIM_DIR}${PREF}${ds} -i ${BKG_DIR}${IN_LIST[${ds}]} -y 1.213784 ${DATA_MAP[${ds}]}
 done
@@ -368,14 +383,14 @@ done
 ### Single Top
 ### Note: xsec from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
 DATA_MAP=( ["EWKWPlus2Jets_WToLNu"]="25.62"
-				["EWKWMinus2Jets_WToLNu"]="20.25"
-				["EWKZ2Jets_ZToLL"]="3.987"
+		   ["EWKWMinus2Jets_WToLNu"]="20.25"
+		   ["EWKZ2Jets_ZToLL"]="3.987"
 
-				["ST_tW_antitop"]="35.85"
-				["ST_tW_top"]="35.85"
-				["ST_tchannel_antitop"]="80.95"
-				["ST_tchannel_top"]="136.02"
-			  )
+		   ["ST_tW_antitop"]="35.85"
+		   ["ST_tW_top"]="35.85"
+		   ["ST_tchannel_antitop"]="80.95"
+		   ["ST_tchannel_top"]="136.02"
+		 )
 for ds in ${!DATA_MAP[@]}; do
 	run_skim -n 50 -o ${OUTSKIM_DIR}${PREF}${ds} -i ${BKG_DIR}${IN_LIST[${ds}]} -x ${DATA_MAP[${ds}]}
 done
@@ -387,30 +402,30 @@ done
 ### ZH (Zll, Hbb) : XSBD (xs ZH * BR Z) * H->bb, ZH (Zqq, Hbb) : XSBD (xs ZH * BR Z) * H->bb
 ### ZH (Zall, Htautau) : XS teor ZH * BR H->tautau
 DATA_MAP=( ["ggHTauTau"]="-n 30 -x 48.61 -y 0.0632"
-				["VBFHTauTau"]="-n 30 -x 3.766 -y 0.0632"
-				["ZH_HTauTau"]="-n 30 -x 0.880 -y 0.0632"
-				["WplusHTauTau"]="-n 30 -x 0.831 -y 0.0632"
-				["WminusHTauTau"]="-n 30 -x 0.527 -y 0.0632"
+		   ["VBFHTauTau"]="-n 30 -x 3.766 -y 0.0632"
+		   ["ZH_HTauTau"]="-n 30 -x 0.880 -y 0.0632"
+		   ["WplusHTauTau"]="-n 30 -x 0.831 -y 0.0632"
+		   ["WminusHTauTau"]="-n 30 -x 0.527 -y 0.0632"
 
-				["ttHToNonBB"]="-n 30 -x 0.5071 -y 0.3598"
-				["ttHToBB"]="-n 30 -x 0.5071 -y 0.577"
-				["ttHToTauTau"]="-n 30 -x 0.5071 -y 0.0632"
-				
-				##### Multiboson: -  https://arxiv.org/abs/1408.5243 (WW), https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Diboson (WZ,ZZ
-				#### Some XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
-				#### Some other XS taken from http://cms.cern.ch/iCMS/jsp/db_notes/noteInfo.jsp?cmsnoteid=CMS%20AN-2019/111
-				["WW"]="-n 20 -x 118.7"
-				["WZ"]="-n 20 -x 47.13"
-				# ["ZZ"]="-n 20 -x 16.523"
+		   ["ttHToNonBB"]="-n 30 -x 0.5071 -y 0.3598"
+		   ["ttHToBB"]="-n 30 -x 0.5071 -y 0.577"
+		   ["ttHToTauTau"]="-n 30 -x 0.5071 -y 0.0632"
+		   
+		   ##### Multiboson: -  https://arxiv.org/abs/1408.5243 (WW), https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Diboson (WZ,ZZ
+		   #### Some XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
+		   #### Some other XS taken from http://cms.cern.ch/iCMS/jsp/db_notes/noteInfo.jsp?cmsnoteid=CMS%20AN-2019/111
+		   ["WW"]="-n 20 -x 118.7"
+		   ["WZ"]="-n 20 -x 47.13"
+		   # ["ZZ"]="-n 20 -x 16.523"
 
-				##### Others : - filelists up to date
-				["TTWJetsToLNu"]="-n 20 -x 0.2043"
-				["TTWJetsToQQ"]="-n 20 -x 0.4062"
-				["TTZToLLNuNu"]="-n 20 -x 0.2529"
-				["TTWW"]="-n 20 -x 0.006979"
-				["TTZZ"]="-n 20 -x 0.001386"
-				["TTWZ"]="-n 20 -x 0.00158"
-			  )
+		   ##### Others : - filelists up to date
+		   ["TTWJetsToLNu"]="-n 20 -x 0.2043"
+		   ["TTWJetsToQQ"]="-n 20 -x 0.4062"
+		   ["TTZToLLNuNu"]="-n 20 -x 0.2529"
+		   ["TTWW"]="-n 20 -x 0.006979"
+		   ["TTZZ"]="-n 20 -x 0.001386"
+		   ["TTWZ"]="-n 20 -x 0.00158"
+		 )
 for ds in ${!DATA_MAP[@]}; do
 	run_skim -o ${OUTSKIM_DIR}${PREF}${ds} -i ${BKG_DIR}${IN_LIST[${ds}]} ${DATA_MAP[${ds}]}
 done
