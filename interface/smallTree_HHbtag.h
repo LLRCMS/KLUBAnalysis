@@ -1217,7 +1217,7 @@ struct smallTree
 
       m_smallT->Branch("genMHH", &m_genMHH, "m_genMHH/F");
       m_smallT->Branch("genCosth", &m_genCosth, "m_genCosth/F");
-       m_smallT->Branch("genHHpt", &m_genHHpt, "m_genHHpt/F");
+      m_smallT->Branch("genHHpt", &m_genHHpt, "m_genHHpt/F");
       m_smallT->Branch("genHHeta", &m_genHHeta, "m_genHHeta/F");
       m_smallT->Branch("genHHphi", &m_genHHphi, "m_genHHphi/F");
       m_smallT->Branch("genH1pt", &m_genH1pt, "m_genH1pt/F");

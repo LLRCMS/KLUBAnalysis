@@ -1437,9 +1437,9 @@ int main (int argc, char** argv)
         }
 
       //JONA: uncomment the follwing three lines to have only GEN done
-      theSmallTree.Fill() ;
-      cout << " ........... GEN FINISHED ........... " << " evt=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << endl;
-      continue ;
+      //theSmallTree.Fill() ;
+      //cout << " ........... GEN FINISHED ........... " << " evt=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << endl;
+      //continue ;
 
       ///////////////////////////////////////////////////////////
       // END of gen related stuff -- compute tot number of events
