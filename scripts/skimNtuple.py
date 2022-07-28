@@ -2,6 +2,7 @@
 
 import os
 import sys
+import glob
 import argparse
 import time
 import subprocess
@@ -11,16 +12,26 @@ def create_dir(d):
     if not os.path.exists(d):
         os.makedirs(d)
 
-def is_good_file (fileName) :
-    ff = ROOT.TFile (fname)
-    if ff.IsZombie() : return False
-    if ff.TestBit(ROOT.TFile.kRecovered) : return False
+def is_good_file(fname):
+    f = ROOT.TFile(fname)
+    if f.IsZombie():
+        return False
+    if f.TestBit(ROOT.TFile.kRecovered):
+        return False
     return True
 
-def parse_input_file_list(fileName) :
+def parse_input_file_list(indir, insample):
     filelist = []
-    with open(fileName) as fIn:
-        for line in fIn:
+    glob_pattern = '*' + insample + '*'
+    sample = glob.glob( os.path.join(indir, glob_pattern) )
+    if len(sample) != 1:
+        mes = 'Exactly one file must be found. but {} were found.\n'.format(len(sample))
+        mes += '  Input folder: {}.\n'.format()
+        mes += '  Pattern being searched: {}.\n'.format(glob_pattern)
+        raise ValueError(mes)
+
+    with open(sample[0], 'r') as f:
+        for line in f:
             line = (line.split("#")[0]).strip()
             if line:
                 filelist.append(line)
@@ -59,14 +70,15 @@ def skim_ntuple(FLAGS, curr_folder):
 
     # verify the result of the process
     if (FLAGS.resub != 'none'):
-        if (FLAGS.input == 'none'):
+        if (FLAGS.input_folder == 'none'):
             print('Input folder to be checked missing')
             print('(this is the folder that contains the jobs to be submitted)')
             sys.exit(1)
 
-        if FLAGS.input[-1] == '/' : FLAGS.input = FLAGS.input[:-1]
+        if FLAGS.input_folder[-1] == '/' :
+            FLAGS.input_folder = FLAGS.input_folder[:-1]
         tagname = FLAGS.tag + "/" if FLAGS.tag else ''
-        FLAGS.input = tagname + 'SKIM_' + os.path.basename (FLAGS.input)
+        FLAGS.input_folder = tagname + 'SKIM_' + os.path.basename(FLAGS.input_folder)
 
         # check the log file
         missing = []
@@ -97,12 +109,12 @@ def skim_ntuple(FLAGS, curr_folder):
         print('The following jobs did not end successfully:')
         print(missing)
         for num in missing :
-            command = '`cat ' + os.path.join(FLAGS.input, 'submit.sh') + ' | grep skimJob_' + num + '.sh | tr "\'" " "`'
+            command = '`cat ' + os.path.join(FLAGS.input_folder, 'submit.sh') + ' | grep skimJob_' + num + '.sh | tr "\'" " "`'
             if FLAGS.verb:
                 print(command)
         if FLAGS.resub == 'run':
             for num in missing:
-                command = '`cat ' + os.path.join(FLAGS.input + 'submit.sh') + ' | grep skimJob_' + num + '.sh | tr "\'" " "`'
+                command = '`cat ' + os.path.join(FLAGS.input_folder + 'submit.sh') + ' | grep skimJob_' + num + '.sh | tr "\'" " "`'
                 time.sleep(int (num) % 5)
                 os.system(command)
         sys.exit(0)
@@ -121,13 +133,13 @@ def skim_ntuple(FLAGS, curr_folder):
         print('Config file missing, exiting')
         sys.exit(1)
 
-    if FLAGS.input[-1] == '/':
-        FLAGS.input = FLAGS.input[:-1]
+    if FLAGS.input_folder[-1] == '/':
+        FLAGS.input_folder = FLAGS.input_folder[:-1]
     if FLAGS.output == 'none':
-        FLAGS.output = FLAGS.input + '_SKIM'
+        FLAGS.output = FLAGS.input_folder + '_SKIM'
 
-    if not os.path.exists(FLAGS.input) :
-        print('The input folder {} does not exists. Exiting.'.format(FLAGS.input))
+    if not os.path.exists(FLAGS.input_folder) :
+        print('The input folder {} does not exists. Exiting.'.format(FLAGS.input_folder))
         sys.exit(1)
     if not FLAGS.force and os.path.exists(FLAGS.output):
         print('The output folder {} already exists. Exiting.'.format(FLAGS.output))
@@ -137,7 +149,7 @@ def skim_ntuple(FLAGS, curr_folder):
     os.system('mkdir -p ' + FLAGS.output)
     os.system('cp ' + FLAGS.config + ' ' + FLAGS.output)
 
-    inputfiles = parse_input_file_list(FLAGS.input)
+    inputfiles = parse_input_file_list(FLAGS.input_folder, FLAGS.sample)
     njobs = len(inputfiles) if FLAGS.njobs > len(inputfiles) else FLAGS.njobs
     nfiles_per_job = (len(inputfiles) + len(inputfiles) % njobs) / njobs
     inputlists = [inputfiles[x:x+nfiles_per_job]
@@ -148,7 +160,7 @@ def skim_ntuple(FLAGS, curr_folder):
     print(mes)
 
     tagname = '/' + FLAGS.tag if FLAGS.tag else ''
-    jobsDir = curr_folder + tagname + '/SKIM_' + os.path.basename (FLAGS.input)
+    jobsDir = curr_folder + tagname + '/SKIM_' + os.path.basename(FLAGS.input_folder)
     jobsDir = jobsDir.rstrip ('.txt')
     if float(FLAGS.klreweight) > -990 and FLAGS.BSMname == 'none':
         print('[WARNING] You requested manual HH reweighting, but did not set a proper BSMname! Exiting!')
@@ -284,7 +296,8 @@ def skim_ntuple(FLAGS, curr_folder):
 if __name__ == "__main__":
     usage = 'Command line parser of skimming a bit Ntuple.'
     parser = argparse.ArgumentParser(description=usage)
-    parser.add_argument('-i', '--input', dest='input', default='none', help='input folder')
+    parser.add_argument('-i', '--input_folder', dest='input_folder', default='none', help='input folder')
+    parser.add_argument('--sample', dest='sample', default='none', help='input sample')
     parser.add_argument('-Y', '--year', dest='year', default='2018', help='year', choices=['2016', '2017', '2018'])
     parser.add_argument('-A', '--APV', dest='isAPV', default=False, help='isAPV')
     parser.add_argument('-x', '--xs', dest='xs', help='sample xs', default='1.')
