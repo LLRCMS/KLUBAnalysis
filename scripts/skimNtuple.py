@@ -26,7 +26,7 @@ def parse_input_file_list(indir, insample):
     sample = glob.glob( os.path.join(indir, glob_pattern) )
     if len(sample) != 1:
         mes = 'Exactly one file must be found. but {} were found.\n'.format(len(sample))
-        mes += '  Input folder: {}.\n'.format()
+        mes += '  Input folder: {}.\n'.format(indir)
         mes += '  Pattern being searched: {}.\n'.format(glob_pattern)
         raise ValueError(mes)
 
@@ -41,7 +41,9 @@ write = lambda stream, text: stream.write(text + '\n')
 
 def skim_ntuple(FLAGS, curr_folder):
     arg1 = '${1}'
-    io_names = ('filelist_'+arg1+'.txt', 'output_'+arg1+'.root', 'output_'+arg1+'.log')
+    io_names = ( 'filelist_{}_{}.txt'.format(FLAGS.sample,arg1),
+                 'output_{}_{}.root'.format(FLAGS.sample,arg1),
+                 'output_{}_{}.log'.format(FLAGS.sample,arg1) )
     
     # verify the result of the process
     if (FLAGS.hadd != 'none') :    
@@ -105,18 +107,19 @@ def skim_ntuple(FLAGS, curr_folder):
                 if len(problems) != 0:
                     if FLAGS.verb:
                         print(num, 'found error ', problems[0])
-                    missing.append (num)
+                    missing.append(num)
         print('The following jobs did not end successfully:')
         print(missing)
-        for num in missing :
-            command = '`cat ' + os.path.join(FLAGS.input_folder, 'submit.sh') + ' | grep skimJob_' + num + '.sh | tr "\'" " "`'
-            if FLAGS.verb:
-                print(command)
-        if FLAGS.resub == 'run':
-            for num in missing:
-                command = '`cat ' + os.path.join(FLAGS.input_folder + 'submit.sh') + ' | grep skimJob_' + num + '.sh | tr "\'" " "`'
-                time.sleep(int (num) % 5)
-                os.system(command)
+        # The resubmission has to be rewritten
+        # for num in missing :
+        #     command = '`cat ' + os.path.join(FLAGS.input_folder, 'submit.sh') + ' | grep skimJob_' + num + '.sh | tr "\'" " "`'
+        #     if FLAGS.verb:
+        #         print(command)
+        # if FLAGS.resub == 'run':
+        #     for num in missing:
+        #         command = '`cat ' + os.path.join(FLAGS.input_folder + 'submit.sh') + ' | grep skimJob_' + num + '.sh | tr "\'" " "`'
+        #         time.sleep(int (num) % 5)
+        #         os.system(command)
         sys.exit(0)
 
     # submit the jobs
@@ -127,7 +130,6 @@ def skim_ntuple(FLAGS, curr_folder):
         skimmer = 'skimNtuple2017_HHbtag.exe'
     elif FLAGS.year == '2016':
         skimmer = 'skimNtuple2016_HHbtag.exe'
-
 
     if FLAGS.config == 'none':
         print('Config file missing, exiting')
@@ -160,39 +162,42 @@ def skim_ntuple(FLAGS, curr_folder):
     print(mes)
 
     tagname = '/' + FLAGS.tag if FLAGS.tag else ''
-    jobsDir = curr_folder + tagname + '/SKIM_' + os.path.basename(FLAGS.input_folder)
-    jobsDir = jobsDir.rstrip ('.txt')
+    jobs_dir = curr_folder + tagname + '/SKIM_' + os.path.basename(FLAGS.input_folder)
+    jobs_dir = jobs_dir.rstrip('.txt')
     if float(FLAGS.klreweight) > -990 and FLAGS.BSMname == 'none':
         print('[WARNING] You requested manual HH reweighting, but did not set a proper BSMname! Exiting!')
         sys.exit(0)
     elif FLAGS.EFTrew != 'none':
-        jobsDir = jobsDir + '_' + FLAGS.EFTrew
+        jobs_dir = jobs_dir + '_' + FLAGS.EFTrew
     elif FLAGS.BSMname != 'none':
-        jobsDir = jobsDir + '_' + FLAGS.BSMname
+        jobs_dir = jobs_dir + '_' + FLAGS.BSMname
 
-    if os.path.exists(jobsDir):
-        os.system('rm -f ' + jobsDir + '/*.sh')
-        os.system('rm -f ' + jobsDir + '/*.condor')
+    if os.path.exists(jobs_dir):
+        os.system('rm -f ' + jobs_dir + '/*.sh')
+        os.system('rm -f ' + jobs_dir + '/*.condor')
     else:
-        os.system('mkdir -p ' + jobsDir)
+        os.system('mkdir -p ' + jobs_dir)
 
+    lists_dir = os.path.join(jobs_dir, 'filelists')
+    create_dir(lists_dir)
     for ij,listname in enumerate(inputlists):
         #create a wrapper for standalone cmssw job
         list_file_name = io_names[0].replace(arg1, str(ij))
-        with open(os.path.join(jobsDir, list_file_name), 'w') as input_list_file:
+        with open(os.path.join(lists_dir, list_file_name), 'w') as input_list_file:
             for line in listname:
                 write(input_list_file, line)
 
-    job_name = os.path.join(jobsDir, 'skimJob.sh')
+    job_name = os.path.join(jobs_dir, 'skimJob_{}.sh'.format(FLAGS.sample))
     with open(job_name, 'w') as s:
-        write(s, '#!/usr/bin/env bash')
+        #write(s, '#!/usr/bin/env bash')
+        write(s, '#!/bin/sh')
+        write(s, '')
         write(s, 'export X509_USER_PROXY=~/.t3/proxy.cert')
         write(s, 'source /cvmfs/cms.cern.ch/cmsset_default.sh')
         write(s, 'eval `scram r -sh`')
-        write(s, 'scram b')
         write(s, 'cd {}'.format(curr_folder))
         write(s, 'source scripts/setup.sh')
-        command = skimmer + ' ' + os.path.join(jobsDir, io_names[0])
+        command = skimmer + ' ' + os.path.join(lists_dir, io_names[0])
         command += ' ' + os.path.join(FLAGS.output, io_names[1]) + ' ' + FLAGS.xs
 
         if FLAGS.isdata:
@@ -268,25 +273,29 @@ def skim_ntuple(FLAGS, curr_folder):
 
     condor_name = job_name.replace('.sh','.condor')
     condor_vars = ('infile', 'outfile')
-    condlog = os.path.join(jobsDir, 'outputs')
-    create_dir(condlog)
+    condouts = os.path.join(jobs_dir, 'outputs')
+    create_dir(condouts)
+    condlogs = os.path.join(jobs_dir, 'logs')
+    create_dir(condlogs)
     with open(condor_name, 'w') as s:
         write(s,'Universe = vanilla')
         write(s,'Executable = {}'.format(job_name))
         write(s,'input = /dev/null')
-        write(s,'output = {}/condor_log_$(Process).o'.format(condlog))
-        write(s,'error  = {}/condor_log_$(Process).e'.format(condlog))
+        write(s,'output = {}/{}_$(Process).o'.format(condouts,FLAGS.sample))
+        write(s,'error  = {}/{}_$(Process).e'.format(condouts,FLAGS.sample))
+        write(s,'log  = {}/{}_$(Process).log'.format(condlogs,FLAGS.sample))
         write(s,'getenv = true')
+        write(s,'')
         write(s,'T3Queue = short')
         write(s,'WNTag=el7')
         write(s,'+SingularityCmd = ""')
-        write(s,'include : /opt/exp_soft/cms/t3_tst/t3queue |')
+        write(s,'')
+        write(s,'include : /opt/exp_soft/cms/t3/t3queue |')
+        write(s,'')
         write(s,'Arguments = $(Process)')
         write(s,'queue {}'.format(njobs))
 
     launch_command = 'condor_submit {}'.format(condor_name)
-    with open(os.path.join(jobsDir, 'submit.sh'), 'w') as comf:
-        write(comf, command)
 
     if FLAGS.sleep:
         time.sleep(0.1)
