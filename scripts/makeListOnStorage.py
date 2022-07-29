@@ -5,7 +5,6 @@ import warnings
 import argparse
 from argparse import ArgumentParser, RawTextHelpFormatter
 from subprocess import Popen, PIPE
-from tqdm import tqdm
 
 def create_dir(d):
     if not os.path.exists(d):
@@ -24,7 +23,7 @@ def save_to_file(alist, filename, path_to_remove, mini_aod):
                 elem = elem.replace(path_to_remove, '')
                 f.write("     '{}',\n".format(elem))
             f.write("])\n")
-    print('Output stored in {}.'.format(filename))
+    print('{} output stored in {}.'.format(os.path.basename(__file__), filename))
 
 def make_input_lists(args):
     xrd_door = {'llr': 'root://polgrid4.in2p3.fr/',
@@ -36,7 +35,7 @@ def make_input_lists(args):
     create_dir(out_dir)
 
     dpm_home = '/dpm/in2p3.fr/home/cms/trivcat'
-    store    = 'store/user/lportale/HHNtuples_res/UL18/'
+    store    = os.path.join('store/user/lportale/HHNtuples_res', args.data_period)
     prefix   = 'Data' if args.kind == 'Data' else 'MC'
     path     = join(dpm_home, store, prefix + '_' + args.tag)
     
@@ -44,10 +43,10 @@ def make_input_lists(args):
     awk    = "| awk '{{print $9}}'"
     rfcomm = lambda s : rfdir + ' {} '.format(s) + awk
     pipe   = Popen(rfcomm(path), shell=True, stdout=PIPE)
-    print(rfcomm(path))
+
     all_lists = {}
      
-    for smpl_name in tqdm(pipe.stdout):
+    for smpl_name in pipe.stdout:
         smpl_path = join(path, smpl_name).strip()    
         if args.sample not in smpl_name and args.sample != 'all':
             continue
@@ -109,8 +108,9 @@ if __name__ == "__main__":
                         help=help_mini_aod)
     parser.add_argument('-d', '--data_period', dest='data_period', required=True, type=str,
                         help='Which data period to choose: Legacy2018, UL18, ...')
-    parser.add_argument('-x', '--xrd_door', dest='xrd_door', default='llr', 
-                        required=False, type=str, help='Data or MC')
+    parser.add_argument('-x', '--xrd_door', dest='xrd_door', default='llr',
+                        choices=('llr', 'uhh', 'mib'),
+                        required=False, type=str, help='Which set of machines to use: LLR, Hamburg or Milano.')
     help_sample = ( 'For which sample to create the input list.\n' +
                     'Passing "all" runs the macro over everything.' )
     parser.add_argument('-s', '--sample', dest='sample',
