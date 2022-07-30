@@ -11,10 +11,16 @@ def create_dir(d):
     if not os.path.exists(d):
         os.makedirs(d)
 
-def is_good_file (fileName) :
-    ff = ROOT.TFile (fname)
-    if ff.IsZombie() : return False
-    if ff.TestBit(ROOT.TFile.kRecovered) : return False
+def remove_file(f):
+    if os.path.exists(f):
+        os.remove(f)
+
+def is_good_file(fname):
+    f = ROOT.TFile(fname)
+    if f.IsZombie():
+        return False
+    if f.TestBit(ROOT.TFile.kRecovered):
+        return False
     return True
 
 def parse_input_file_list(fileName) :
@@ -26,28 +32,24 @@ def parse_input_file_list(fileName) :
                 filelist.append(line)
     return filelist
 
-write = lambda stream, text: stream.write(text + '\n')
-
 def skim_ntuple(FLAGS, curr_folder):
     io_names = ('filelist_${1}.txt', 'output_${1}.root', 'output_${1}.log')
     
     # verify the result of the process
     if (FLAGS.hadd != 'none') :    
         with open( os.path.join(FLAGS.output, 'hadder.sh'), 'w') as s:
-            write(s, '#!/bin/bash')
-            write(s, 'source /cvmfs/cms.cern.ch/cmsset_default.sh')
-            write(s, 'cd /home/llr/cms/motta/HHLegacy/CMSSW_11_1_0pre6/src')
-            write(s, 'eval `scram r -sh`')
-            write(s, 'cd {}'.format(curr_folder))
-            write(s, 'source scripts/setup.sh')
-            write(s, 'mkdir ' + os.path.join(FLAGS.output, 'singleFiles'))
-            write(s, 'mv ' + os.path.join(FLAGS.output, + '*') +
-                  ' ' + os.path.join(FLAGS.output, 'singleFiles'))
-            write(s, 'hadd ' + os.path.join(FLAGS.output, 'total.root') +
-                  ' ' + os.path.join(FLAGS.output, '/singleFiles/*.root'))
-            write(s, 'touch ' + os.path.join(FLAGS.output, 'done'))
-            write(s, 'echo "Hadding finished"')
-
+            s.write('\n'.join(('#!/bin/bash',
+                               'source /cvmfs/cms.cern.ch/cmsset_default.sh',
+                               'cd {}'.format(curr_folder),
+                               'eval `scram r -sh`',
+                               'source scripts/setup.sh',
+                               'mkdir ' + os.path.join(FLAGS.output, 'singleFiles'),
+                               ('mv ' + os.path.join(FLAGS.output, + '*') +
+                                ' ' + os.path.join(FLAGS.output, 'singleFiles')),
+                               ('hadd ' + os.path.join(FLAGS.output, 'total.root') +
+                                ' ' + os.path.join(FLAGS.output, '/singleFiles/*.root')),
+                               'touch ' + os.path.join(FLAGS.output, 'done'),
+                               'echo "Hadding finished"')) + '\n')
         os.system('chmod u+rwx ' + FLAGS.output + '/hadder.sh')
         command = ('/opt/exp_soft/cms/t3/t3submit -q cms \'' + os.path.join(FLAGS.output, 'hadder.sh\''))
         os.system(command)
@@ -125,12 +127,13 @@ def skim_ntuple(FLAGS, curr_folder):
     if not os.path.exists(FLAGS.input) :
         print('The input folder {} does not exists. Exiting.'.format(FLAGS.input))
         sys.exit(1)
+
     if not FLAGS.force and os.path.exists(FLAGS.output):
         print('The output folder {} already exists. Exiting.'.format(FLAGS.output))
         sys.exit(1)
     elif os.path.exists(FLAGS.output):
         os.system('rm -rf ' + FLAGS.output + '/*')
-    os.system('mkdir -p ' + FLAGS.output)
+    create_dir(FLAGS.output)
     os.system('cp ' + FLAGS.config + ' ' + FLAGS.output)
 
     inputfiles = parse_input_file_list(FLAGS.input)
@@ -154,124 +157,110 @@ def skim_ntuple(FLAGS, curr_folder):
     elif FLAGS.BSMname != 'none':
         jobsDir = jobsDir + '_' + FLAGS.BSMname
 
-    if os.path.exists(jobsDir):
-        os.system('rm -f ' + jobsDir + '/*.sh')
-        os.system('rm -f ' + jobsDir + '/*.condor')
-    else:
-        os.system('mkdir -p ' + jobsDir)
+    create_dir(jobs_dir)
+    job_name_shell = os.path.join(jobs_dir,
+                                  ('skimJob_{}'.format(FLAGS.sample)
+                                   .replace('.', 'DOT')) + '.sh')
+    remove_file(job_name_shell)
+    job_name_condor = job_name_shell.replace('.sh', '.condor')
 
     for ij,listname in enumerate(inputlists):
         #create a wrapper for standalone cmssw job
         list_file_name = io_names[0].replace('${1}', str(ij))
         with open(os.path.join(jobsDir, list_file_name), 'w') as input_list_file:
             for line in listname:
-                write(input_list_file, line)
+                input_list_file.write(line)
 
-    job_name = os.path.join(jobsDir, 'skimJob.sh')
-    with open(job_name, 'w') as s:
-        write(s, '#!/bin/bash')
-        write(s, 'export X509_USER_PROXY=~/.t3/proxy.cert')
-        write(s, 'source /cvmfs/cms.cern.ch/cmsset_default.sh')
-        write(s, 'eval `scram r -sh`')
-        write(s, 'cd {}'.format(curr_folder))
-        write(s, 'source scripts/setup.sh')
-        command = skimmer + ' ' + os.path.join(jobsDir, io_names[0])
-        command += ' ' + os.path.join(FLAGS.output, io_names[1]) + ' ' + FLAGS.xs
+    with open(job_name_shell, 'w') as s:
+        s.write( '\n'.join(('#!/usr/bin/env bash',
+                            '',
+                            'export X509_USER_PROXY=~/.t3/proxy.cert',
+                            'source /cvmfs/cms.cern.ch/cmsset_default.sh',
+                            'eval `scram r -sh`',
+                            'cd {}'.format(curr_folder),
+                            'source scripts/setup.sh')) + '\n' )
+                
+        yes_or_no = lambda s, cond=1 : '1' if s==cond else '0'
 
-        if FLAGS.isdata:
-            command += ' 1 '
-        else:
-            command += ' 0 '
-        command += ' ' + FLAGS.config + ' '
-        if FLAGS.dokinfit == 'True':
-            command += ' 1 '
-        else:
-            command += ' 0 '
-        command += ' ' + FLAGS.xsscale
-        command += ' ' + FLAGS.htcut
-        command += ' ' + FLAGS.htcutlow
-        if FLAGS.toprew=='True':
-            command += ' 1 '
-        else:
-            command += ' 0 '
-        if FLAGS.genjets=='True':
-            command += ' 1 '
-        else:
-            command += ' 0 '
-        command += ' ' + FLAGS.topstitch
-        if FLAGS.domt2:
-            command += ' 1 ' ## inspiegabilmente questo e' un bool
-        else:
-            command += ' 0 '
-        if FLAGS.ishhsignal:
-            command += ' 1 '
-        else:
-            command += ' 0 '
-        command += (' ' + FLAGS.njets)
-        command += (' ' + FLAGS.EFTrew + ' ' + FLAGS.order + ' ' + FLAGS.uncert +
-                    ' ' + FLAGS.cms_fake + ' ' + FLAGS.klreweight + ' ' + FLAGS.ktreweight +
-                    ' ' + FLAGS.c2reweight + ' ' + FLAGS.cgreweight + ' ' + FLAGS.c2greweight)
-        command += (' ' + FLAGS.susyModel)
-        command += (' ' + FLAGS.PUweights)
-        command += (' ' + FLAGS.DY_nJets)
-        command += (' ' + FLAGS.DY_nBJets)
-        if FLAGS.DY:
-            command += ' 1 '
-        else:
-            command += ' 0 '
-        if FLAGS.ttHToNonBB:
-            command += ' 1 '
-        else:
-            command += ' 0 '
-        if FLAGS.hhNLO:
-            command += ' 1 '
-        else:
-            command += ' 0 '
+        command = ' '.join( (skimmer,
+                             os.path.join(lists_dir, io_names[0]),
+                             os.path.join(FLAGS.output, io_names[1]),
+                             FLAGS.xs,
+                             yes_or_no(FLAGS.isdata),
+                             FLAGS.config,
+                             yes_or_no(FLAGS.dokinfit, 'True'),
+                             FLAGS.xsscale,
+                             FLAGS.htcut,
+                             FLAGS.htcutlow,
+                             yes_or_no(FLAGS.toprew, 'True'),
+                             yes_or_no(FLAGS.genjets, 'True'),
+                             FLAGS.topstitch,
+                             yes_or_no(FLAGS.domt2),
+                             yes_or_no(FLAGS.ishhsignal),
+                             FLAGS.njets,
+                             FLAGS.EFTrew,
+                             FLAGS.order,
+                             FLAGS.uncert,
+                             FLAGS.cms_fake,
+                             FLAGS.klreweight,
+                             FLAGS.ktreweight,
+                             FLAGS.c2reweight,
+                             FLAGS.cgreweight,
+                             FLAGS.c2greweight,
+                             FLAGS.susyModel,
+                             FLAGS.PUweights,
+                             FLAGS.DY_nJets,
+                             FLAGS.DY_nBJets,
+                             yes_or_no(FLAGS.DY),
+                             yes_or_no(FLAGS.ttHToNonBB),
+                             yes_or_no(FLAGS.hhNLO)) )
+
         if FLAGS.year == '2016':
             if FLAGS.isAPV:
                 command += ' 1 '
             else:
                 command += ' 0 '
-        command += ' >& ' + os.path.join(FLAGS.output, io_names[2])
-        write(s, command)
-        write(s, 'touch ' + os.path.join(jobsDir, 'done') )
+        s.write(command + '\n')
       
         if FLAGS.doSyst:
-            sys_command = 'skimOutputter.exe'
-            sys_command += (' ' + os.path.join(FLAGS.output, io_names[1]) )
-            sys_command += (' ' + os.path.join(FLAGS.output, 'syst_'+io_names[1]) )
-            sys_command += (' ' + FLAGS.config)
-            if FLAGS.isdata:
-                sys_command += ' 1 '
-            else:
-                sys_command += ' 0 '
+            sys_command = ' '.join( ( 'skimOutputter.exe',
+                                      os.path.join(FLAGS.output,
+                                                   io_names[1]),
+                                      os.path.join(FLAGS.output,
+                                                   'syst_'+io_names[1]),
+                                      FLAGS.config,
+                                      yes_or_no(FLAGS.isdata)) )
+
             sys_command += (' ' + '>& ' + os.path.join(FLAGS.output, 'syst_' + io_names[2]) )
-            write(s, sys_command)
+            s.write(sys_command)
         
-        write(s, 'echo "All done."')
-        os.system('chmod u+rwx {}'.format(job_name))
+        s.write('echo "Job with id '+arg1+' completed.\n"')
+        os.system('chmod u+rwx {}'.format(job_name_shell))
 
-    condor_name = job_name.replace('.sh','.condor')
     condor_vars = ('infile', 'outfile')
-    condlog = os.path.join(jobsDir, 'outputs')
-    create_dir(condlog)
-    with open(condor_name, 'w') as s:
-        write(s,'Universe = vanilla')
-        write(s,'Executable = {}'.format(job_name))
-        write(s,'input = /dev/null')
-        write(s,'output = {}/condor_log_$(Process).o'.format(condlog))
-        write(s,'error  = {}/condor_log_$(Process).e'.format(condlog))
-        write(s,'getenv = true')
-        write(s,'T3Queue = short')
-        write(s,'WNTag=el7')
-        write(s,'+SingularityCmd = ""')
-        write(s,'include : /opt/exp_soft/cms/t3_tst/t3queue |')
-        write(s,'Arguments = $(Process)')
-        write(s,'queue {}'.format(njobs))
+    condouts = os.path.join(jobs_dir, 'outputs')
+    create_dir(condouts)
+    condlogs = os.path.join(jobs_dir, 'logs')
+    create_dir(condlogs)
+    with open(job_name_condor, 'w') as s:
+        s.write( '\n'.join(('Universe = vanilla',
+                            'Executable = {}'.format(job_name_shell),
+                            'input = /dev/null',
+                            'output = {}/{}_$(Process).o'.format(condouts,FLAGS.sample),
+                            'error  = {}/{}_$(Process).e'.format(condouts,FLAGS.sample),
+                            'log  = {}/{}_$(Process).log'.format(condlogs,FLAGS.sample),
+                            'getenv = true',
+                            '',
+                            'T3Queue = short',
+                            'WNTag=el7',
+                            '+SingularityCmd = ""',
+                            '',
+                            'include : /opt/exp_soft/cms/t3/t3queue |',
+                            '',
+                            'Arguments = $(Process)',
+                            'queue {}'.format(njobs))) + '\n' )
 
-    launch_command = 'condor_submit {}'.format(condor_name)
-    with open(os.path.join(jobsDir, 'submit.sh'), 'w') as comf:
-        write(comf, command)
+    launch_command = 'condor_submit {}'.format(job_name_condor)
 
     if FLAGS.sleep:
         time.sleep(0.1)

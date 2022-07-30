@@ -84,7 +84,13 @@ PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2018/PU_UL2018_SF.txt"
 CFG="config/skim_${DATA_PERIOD}.cfg"
 PREF="SKIMS_"
 OUT_DIR=${PREF}${DATA_PERIOD}"_"${OUT_TAG}
-mkdir -p ${OUT_DIR}
+if [ -d ${OUT_DIR} ]; then
+	echo "Directory ${OUT_DIR} already exists."
+	echo "You might want to remove it with: `rm -r ${OUT_DIR}`."
+	echo "Exiting."
+	exit 1
+fi
+mkdir ${OUT_DIR}
 ERR_FILE=${OUT_DIR}"/bad_patterns.o"
 declare -a ERRORS=()
 SEARCH_SPACE=".+\s.+" # trick to capture return values with error messages
