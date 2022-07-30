@@ -87,8 +87,9 @@ CFG="config/skim_${DATA_PERIOD}.cfg"
 PREF="SKIMS_"
 OUT_DIR=${PREF}${DATA_PERIOD}"_"${OUT_TAG}
 mkdir -p ${OUT_DIR}
-ERRORS=${OUT_DIR}"/bad_patterns.o"
-ERR_STR="NONE"
+ERR_FILE=${OUT_DIR}"/bad_patterns.o"
+declare -a ERRORS=()
+SEARCH_SPACE=".+\s.+" # trick to capture return values with error messages
 OUTSKIM_DIR=${SKIM_DIR}/${OUT_DIR}/
 
 declare -A IN_LIST DATA_MAP
@@ -127,7 +128,7 @@ source scripts/setup.sh
 source /opt/exp_soft/cms/t3/t3setup
 mkdir -p ${OUTSKIM_DIR}
 cp scripts/listAll.sh ${OUTSKIM_DIR}
-echo "--------Run: $(date) ---------------" >> ${ERRORS}
+echo "--------Run: $(date) ---------------" >> ${ERR_FILE}
 
 ### Submission command
 function run_skim() {
@@ -153,49 +154,51 @@ function find_sample() {
 	sample=""
 	nmatches=0
 	for ldata in ${lists[@]}; do
-		[[ ${ldata} =~ .+(_|-)${pattern}(_|-).+ ]] && { sample=${BASH_REMATCH[0]}; nmatches=$(( ${nmatches} + 1 )); }
+		[[ ${ldata} =~ ${pattern} ]] && { sample=${BASH_REMATCH[0]}; nmatches=$(( ${nmatches} + 1 )); }
 	done
 	if [ ${nmatches} -eq 0 ]; then
-		echo "The ${pattern} pattern was not found in ${list_dir} ." >> ${ERRORS}
-		echo ${ERR_STR}
+		mes="The ${pattern} pattern was not found in ${list_dir} ."
+		echo ${mes} >> ${ERR_FILE}
+		echo ${mes}
 		return 1
 	elif [ ${nmatches} -gt 1 ]; then
-		echo "The ${pattern} pattern had ${nmatches} matches in ${list_dir} ." >> ${ERRORS}
-		echo ${ERR_STR}
+		mes="The ${pattern} pattern had ${nmatches} matches in ${list_dir} ."
+		echo ${mes} >> ${ERR_FILE}
+		echo ${mes}
 		return 1
 	fi
 	echo ${sample}
 }
 
 ### Run on data samples
-#DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
-DATA_LIST=("MET")
+DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
 RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
 for ds in ${DATA_LIST[@]}; do
-	echo ${ds}
 	for run in ${RUNS[@]}; do
 		pattern="${ds}__${run}"
 		sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
-		# if [ ${sample} != ${ERR_STR} ]; then
-		# 	[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
-		# 	run_skim -n 10 --isdata True -o ${OUTSKIM_DIR}${PREF}${pattern} -i ${DATA_DIR} --sample ${sample}			
-		# fi
+		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+			ERRORS+=( ${sample} )
+		else
+			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
+		 	run_skim -n 10 --isdata True -o ${OUTSKIM_DIR}${PREF}${pattern} -i ${DATA_DIR} --sample ${sample}			
+		fi
 	done
 done
-echo "-----------"
+
 ### Run on HH resonant signal samples
-DATA_LIST=( "GluGluToRadionToHHTo2B2Tau"
-			"GluGluToBulkGravitonToHHTo2B2Tau"
-			"VBFToRadionToHHTo2B2Tau"
-			"VBFToBulkGravitonToHHTo2B2Tau" )
+DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
 MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
 for ds in ${DATA_LIST[@]}; do
-	echo ${ds}
 	for mass in ${MASSES[@]}; do
-		pattern="${ds}_M-${mass}";
+		pattern="${ds}.+_M-${mass}_";
 		sample=$(find_sample ${pattern} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
-		# [[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
-		# run_skim -n 20 -o ${OUTSKIM_DIR}${PREF}${pattern} -i ${SIG_DIR} --sample ${sample} -x 1.
+		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+			ERRORS+=( ${sample} )
+		else
+			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
+			run_skim -n 20 -o ${OUTSKIM_DIR}${PREF}${pattern} -i ${SIG_DIR} --sample ${sample} -x 1.
+		fi
 	done
 done
 
@@ -205,27 +208,27 @@ DATA_MAP=(
 	["TTTo2L2Nu"]="-n 100 -x 88.29"
 	["TTToSemiLeptonic"]="-n 100 -x 365.34"
 
-	["DYJetsToLL_M-50_TuneCP5"]="-n 1000 -x 6077.22 -g True --DY True" # inclusive NLO
-	# ["DY_merged"]="-n 300 -x 6077.22 -g True --DY True"
-	["DY1JetsToLL"]="-n 333 -x 1. -g True --DY True"
-	["DY2JetsToLL"]="-n 333 -x 1. -g True --DY True"		   
-	["DY3JetsToLL"]="-n 333 -x 1. -g True --DY True"
-	["DY4JetsToLL"]="-n 333 -x 1. -g True --DY True"
-	["DYJetsToLL_M-50_HT-70to100"]="-n 300 -x 1. -g True --DY True"
-	["DYJetsToLL_M-50_HT-100to200"]="-n 300 -x 1. -g True --DY True"
-	["DYJetsToLL_M-50_HT-200to400"]="-n 300 -x 1. -g True --DY True"
-	["DYJetsToLL_M-50_HT-400to600"]="-n 300 -x 1. -g True --DY True"
-	["DYJetsToLL_M-50_HT-600to800"]="-n 300 -x 1. -g True --DY True"
-	["DYJetsToLL_M-50_HT-800to1200"]="-n 300 -x 1. -g True --DY True"
-	["DYJetsToLL_M-50_HT-1200to2500"]="-n 300 -x 1. -g True --DY True"
-	["DYJetsToLL_M-50_HT-2500toInf"]="-n 300 -x 1. -g True --DY True"
-	["DYJetsToLL_Pt-50To100"]="-n 200 -x 1. -g True --DY True"
-	["DYJetsToLL_Pt-100To250"]="-n 200 -x 1. -g True --DY True"
-	["DYJetsToLL_Pt-250To400"]="-n 200 -x 1. -g True --DY True"
-	["DYJetsToLL_Pt-400To650"]="-n 200 -x 1. -g True --DY True"
-	["DYJetsToLL_Pt-650ToInf"]="-n 200 -x 1. -g True --DY True"
+	["DYJets.+_M-50_T.+amc"]="-n 1000 -x 6077.22 -g True --DY True" # inclusive NLO
+	## ["DY_merged"]="-n 300 -x 6077.22 -g True --DY True"
+	# ["DY1J"]="-n 333 -x 1. -g True --DY True"
+	# ["DY2J"]="-n 333 -x 1. -g True --DY True"		   
+	# ["DY3J"]="-n 333 -x 1. -g True --DY True"
+	# ["DY4J"]="-n 333 -x 1. -g True --DY True"
+	# ["DYJetsToLL_M-50_HT-70to100"]="-n 300 -x 1. -g True --DY True"
+	# ["DYJetsToLL_M-50_HT-100to200"]="-n 300 -x 1. -g True --DY True"
+	# ["DYJetsToLL_M-50_HT-200to400"]="-n 300 -x 1. -g True --DY True"
+	# ["DYJetsToLL_M-50_HT-400to600"]="-n 300 -x 1. -g True --DY True"
+	# ["DYJetsToLL_M-50_HT-600to800"]="-n 300 -x 1. -g True --DY True"
+	# ["DYJetsToLL_M-50_HT-800to1200"]="-n 300 -x 1. -g True --DY True"
+	# ["DYJetsToLL_M-50_HT-1200to2500"]="-n 300 -x 1. -g True --DY True"
+	# ["DYJetsToLL_M-50_HT-2500toInf"]="-n 300 -x 1. -g True --DY True"
+	# ["DYJetsToLL_Pt-50To100"]="-n 200 -x 1. -g True --DY True"
+	# ["DYJetsToLL_Pt-100To250"]="-n 200 -x 1. -g True --DY True"
+	# ["DYJetsToLL_Pt-250To400"]="-n 200 -x 1. -g True --DY True"
+	# ["DYJetsToLL_Pt-400To650"]="-n 200 -x 1. -g True --DY True"
+	# ["DYJetsToLL_Pt-650ToInf"]="-n 200 -x 1. -g True --DY True"
 
-	["WJetsToLNu_HT-0To70"]="-n 20 -x 48917.48 -y 1.213784 -z 70"
+	["WJetsToLNu_T.+madgraph"]="-n 20 -x 48917.48 -y 1.213784 -z 70" # for 0 < HT < 70
 	["WJetsToLNu_HT-70To100"]="-n 20 -x 1362 -y 1.213784"
 	["WJetsToLNu_HT-100To200"]="-n 20 -x 1345 -y 1.213784"
 	["WJetsToLNu_HT-200To400"]="-n 20 -x 359.7 -y 1.213784"
@@ -254,9 +257,9 @@ DATA_MAP=(
 	["ttHTobb"]="-n 30 -x 0.5071 -y 0.577"
 	["ttHToTauTau"]="-n 30 -x 0.5071 -y 0.0632"
 	
-	["WW"]="-n 20 -x 118.7"
-	["WZ"]="-n 20 -x 47.13"
-	# ["ZZ"]="-n 20 -x 16.523"
+	["_WW"]="-n 20 -x 118.7"
+	["_WZ"]="-n 20 -x 47.13"
+	# ["_ZZ"]="-n 20 -x 16.523"
 
 	["TTWJetsToLNu"]="-n 20 -x 0.2043"
 	["TTWJetsToQQ"]="-n 20 -x 0.4062"
@@ -265,12 +268,23 @@ DATA_MAP=(
 	["TTZZ"]="-n 20 -x 0.001386"
 	["TTWZ"]="-n 20 -x 0.00158"
 )
-echo "-----"
 for ds in ${!DATA_MAP[@]}; do
-	echo ${ds}
 	sample=$(find_sample ${ds} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
-	# [[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Backgrounds --sample ${sample}
-	# run_skim -o ${OUTSKIM_DIR}${PREF}${ds} -i ${BKG_DIR} --sample ${sample} ${DATA_MAP[${ds}]}
+	if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+		ERRORS+=( ${sample} )
+	else
+		[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Backgrounds --sample ${sample}
+		run_skim -o ${OUTSKIM_DIR}${PREF}${ds} -i ${BKG_DIR} --sample ${sample} ${DATA_MAP[${ds}]}
+	fi
+done
+
+### Print pattern matching issues
+nerr=${#ERRORS[@]}
+if [ ${nerr} -ne 0 ]; then
+	echo "ATTENTION: The following pattern matching errors were observed:"
+fi
+for ((i = 0; i < ${nerr}; i++)); do
+    echo "  - ${ERRORS[$i]}"
 done
 
 ###### Cross-section information ######
