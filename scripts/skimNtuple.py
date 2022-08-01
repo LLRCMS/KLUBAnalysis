@@ -203,7 +203,7 @@ def skim_ntuple(FLAGS, curr_folder):
 
         def double_join(*args):
             str1 = ' '.join(args)
-            str2 = '#### Line-by-line command: ####\n'
+            str2 = '\n#### Line-by-line command: ####\n'
             str2 += '# Exec: {}\n'.format(args[0])
             str2 += ''.join( ['# {}:\t{}\n'.format(i+1,arg) for i,arg in enumerate(args[1:])] )
             return str1, str2
