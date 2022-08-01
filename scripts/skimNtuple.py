@@ -239,13 +239,9 @@ def skim_ntuple(FLAGS, curr_folder):
                                        FLAGS.DY_nBJets,
                                        yes_or_no(FLAGS.DY),
                                        yes_or_no(FLAGS.ttHToNonBB),
-                                       yes_or_no(FLAGS.hhNLO))
+                                       yes_or_no(FLAGS.hhNLO),
+                                       yes_or_no(FLAGS.isAPV))
 
-        if FLAGS.year == '2016':
-            if FLAGS.isAPV:
-                command += ' 1 '
-            else:
-                command += ' 0 '
         s.write(command + '\n')
       
         if FLAGS.doSyst:
