@@ -201,38 +201,45 @@ def skim_ntuple(FLAGS, curr_folder):
                 
         yes_or_no = lambda s : '1' if bool(s) else '0'
 
-        command = ' '.join( (skimmer,
-                             os.path.join(lists_dir, io_names[0]),
-                             os.path.join(FLAGS.output, io_names[1]),
-                             FLAGS.xs,
-                             yes_or_no(FLAGS.isdata),
-                             FLAGS.config,
-                             yes_or_no(FLAGS.dokinfit),
-                             FLAGS.xsscale,
-                             FLAGS.htcut,
-                             FLAGS.htcutlow,
-                             yes_or_no(FLAGS.toprew),
-                             yes_or_no(FLAGS.genjets),
-                             FLAGS.topstitch,
-                             yes_or_no(FLAGS.domt2),
-                             yes_or_no(FLAGS.ishhsignal),
-                             FLAGS.njets,
-                             FLAGS.EFTrew,
-                             FLAGS.order,
-                             FLAGS.uncert,
-                             FLAGS.cms_fake,
-                             FLAGS.klreweight,
-                             FLAGS.ktreweight,
-                             FLAGS.c2reweight,
-                             FLAGS.cgreweight,
-                             FLAGS.c2greweight,
-                             FLAGS.susyModel,
-                             FLAGS.PUweights,
-                             FLAGS.DY_nJets,
-                             FLAGS.DY_nBJets,
-                             yes_or_no(FLAGS.DY),
-                             yes_or_no(FLAGS.ttHToNonBB),
-                             yes_or_no(FLAGS.hhNLO)) )
+        def double_join(*args):
+            str1 = ' '.join(args)
+            str2 = '#### Line-by-line command: ####\n'
+            str2 += '# Exec: {}\n'.format(args[0])
+            str2 += ''.join( ['# {}:\t{}\n'.format(i+1,arg) for i,arg in enumerate(args[1:])] )
+            return str1, str2
+        
+        command, comment = double_join(skimmer,
+                                       os.path.join(lists_dir, io_names[0]),
+                                       os.path.join(FLAGS.output, io_names[1]),
+                                       FLAGS.xs,
+                                       yes_or_no(FLAGS.isdata),
+                                       FLAGS.config,
+                                       yes_or_no(FLAGS.dokinfit),
+                                       FLAGS.xsscale,
+                                       FLAGS.htcut,
+                                       FLAGS.htcutlow,
+                                       yes_or_no(FLAGS.toprew),
+                                       yes_or_no(FLAGS.genjets),
+                                       FLAGS.topstitch,
+                                       yes_or_no(FLAGS.domt2),
+                                       yes_or_no(FLAGS.ishhsignal),
+                                       FLAGS.njets,
+                                       FLAGS.EFTrew,
+                                       FLAGS.order,
+                                       FLAGS.uncert,
+                                       FLAGS.cms_fake,
+                                       FLAGS.klreweight,
+                                       FLAGS.ktreweight,
+                                       FLAGS.c2reweight,
+                                       FLAGS.cgreweight,
+                                       FLAGS.c2greweight,
+                                       FLAGS.susyModel,
+                                       FLAGS.PUweights,
+                                       FLAGS.DY_nJets,
+                                       FLAGS.DY_nBJets,
+                                       yes_or_no(FLAGS.DY),
+                                       yes_or_no(FLAGS.ttHToNonBB),
+                                       yes_or_no(FLAGS.hhNLO))
 
         if FLAGS.year == '2016':
             if FLAGS.isAPV:
