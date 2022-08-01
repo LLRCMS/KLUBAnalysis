@@ -88,7 +88,7 @@ PREF="SKIMS_"
 OUT_DIR=${PREF}${DATA_PERIOD}"_"${OUT_TAG}
 if [ -d ${OUT_DIR} ]; then
 	echo "Directory ${OUT_DIR} already exists."
-	echo "You might want to remove it with: `rm -r ${OUT_DIR}`."
+	echo "You might want to remove it with: 'rm -r ${OUT_DIR}'."
 	echo "Exiting."
 	exit 1
 fi
