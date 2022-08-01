@@ -246,16 +246,16 @@ def skim_ntuple(FLAGS, curr_folder):
         s.write(comment + '\n')
       
         if FLAGS.doSyst:
-            sys_command = ' '.join( ( 'skimOutputter.exe',
-                                      os.path.join(FLAGS.output,
-                                                   io_names[1]),
-                                      os.path.join(FLAGS.output,
-                                                   'syst_'+io_names[1]),
-                                      FLAGS.config,
-                                      yes_or_no(FLAGS.isdata)) )
+            sys_command, sys_comment = double_join('skimOutputter.exe',
+                                                   os.path.join(FLAGS.output, io_names[1]),
+                                                   os.path.join(FLAGS.output, 'syst_'+io_names[1]),
+                                                   FLAGS.config,
+                                                   yes_or_no(FLAGS.isdata))
 
             sys_command += (' ' + '>& ' + os.path.join(FLAGS.output, 'syst_' + io_names[2]) )
+            sys_comment += ('# extra:\t' + '>& ' + os.path.join(FLAGS.output, 'syst_' + io_names[2]) )
             s.write(sys_command + '\n')
+            s.write(sys_comment + '\n')
         
         s.write('echo "Job with id '+arg1+' completed.\n"')
         os.system('chmod u+rwx {}'.format(job_name_shell))
