@@ -188,7 +188,7 @@ def skim_ntuple(FLAGS, curr_folder):
         list_file_name = io_names[0].replace(arg1, str(ij))
         with open(os.path.join(lists_dir, list_file_name), 'w') as input_list_file:
             for line in listname:
-                input_list_file.write(line)
+                input_list_file.write(line + '\n')
 
     with open(job_name_shell, 'w') as s:
         s.write( '\n'.join(('#!/usr/bin/env bash',
@@ -199,7 +199,7 @@ def skim_ntuple(FLAGS, curr_folder):
                             'cd {}'.format(curr_folder),
                             'source scripts/setup.sh')) + '\n' )
                 
-        yes_or_no = lambda s, cond=1 : '1' if s==cond else '0'
+        yes_or_no = lambda s : '1' if bool(s) else '0'
 
         command = ' '.join( (skimmer,
                              os.path.join(lists_dir, io_names[0]),
@@ -207,12 +207,12 @@ def skim_ntuple(FLAGS, curr_folder):
                              FLAGS.xs,
                              yes_or_no(FLAGS.isdata),
                              FLAGS.config,
-                             yes_or_no(FLAGS.dokinfit, 'True'),
+                             yes_or_no(FLAGS.dokinfit),
                              FLAGS.xsscale,
                              FLAGS.htcut,
                              FLAGS.htcutlow,
-                             yes_or_no(FLAGS.toprew, 'True'),
-                             yes_or_no(FLAGS.genjets, 'True'),
+                             yes_or_no(FLAGS.toprew),
+                             yes_or_no(FLAGS.genjets),
                              FLAGS.topstitch,
                              yes_or_no(FLAGS.domt2),
                              yes_or_no(FLAGS.ishhsignal),
@@ -251,7 +251,7 @@ def skim_ntuple(FLAGS, curr_folder):
                                       yes_or_no(FLAGS.isdata)) )
 
             sys_command += (' ' + '>& ' + os.path.join(FLAGS.output, 'syst_' + io_names[2]) )
-            s.write(sys_command)
+            s.write(sys_command + '\n')
         
         s.write('echo "Job with id '+arg1+' completed.\n"')
         os.system('chmod u+rwx {}'.format(job_name_shell))
