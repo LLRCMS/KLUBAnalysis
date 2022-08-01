@@ -243,6 +243,7 @@ def skim_ntuple(FLAGS, curr_folder):
                                        yes_or_no(FLAGS.isAPV))
 
         s.write(command + '\n')
+        s.write(comment + '\n')
       
         if FLAGS.doSyst:
             sys_command = ' '.join( ( 'skimOutputter.exe',
