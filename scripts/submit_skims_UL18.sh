@@ -124,11 +124,14 @@ fi
 
 ### Argument parsing: information for the user
 echo "------ Arguments --------------"
+echo " Passed by the user:"
 echo "FORCE       = ${FORCE}"
 echo "NO_LISTS    = ${NO_LISTS}"
 echo "OUT_TAG     = ${OUT_TAG}"
 echo "KLUB_TAG    = ${KLUB_TAG}"
 echo "DATA_PERIOD = ${DATA_PERIOD}"
+echo " Others:"
+echo "OUTSKIM_DIR = ${OUTSKIM_DIR}"
 echo "-------------------------------"
 
 #### Source additional setup
