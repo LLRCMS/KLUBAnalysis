@@ -127,10 +127,10 @@ def skim_ntuple(FLAGS, curr_folder):
     if not FLAGS.force and os.path.exists(jobs_dir):
         print('The output folder {} already exists. Exiting.'.format(jobs_dir))
         sys.exit(1)
-    elif os.path.exists(FLAGS.output):
-        os.system('rm -rf ' + FLAGS.output + '/*')
+    elif os.path.exists(jobs_dir):
+        os.system('rm -r ' + jobs_dir)
     create_dir(jobs_dir)
-    os.system(' '.join(('cp', FLAGS.config, jobs_dir)))
+    os.system('cp ' + FLAGS.config + ' ' + jobs_dir)
 
     inputfiles = parse_input_file_list(FLAGS.input_folder, FLAGS.sample)
     nfiles = len(inputfiles)
@@ -230,8 +230,8 @@ def skim_ntuple(FLAGS, curr_folder):
                                        yes_or_no(FLAGS.hhNLO),
                                        yes_or_no(FLAGS.isAPV))
 
-        s.write(command + '\n')
         s.write(comment + '\n')
+        s.write(command + '\n')
       
         if FLAGS.doSyst:
             sys_command, sys_comment = double_join('skimOutputter.exe',
@@ -245,7 +245,7 @@ def skim_ntuple(FLAGS, curr_folder):
             s.write(sys_command + '\n')
             s.write(sys_comment + '\n')
         
-        s.write('echo "Job with id '+arg1+' completed.\n"')
+        s.write('echo "Job with id '+arg1+' completed."\n')
         os.system('chmod u+rwx {}'.format(job_name_shell))
 
     condor_vars = ('infile', 'outfile')
@@ -255,20 +255,17 @@ def skim_ntuple(FLAGS, curr_folder):
     create_dir(condouts)
     create_dir(conderrs)
     create_dir(condlogs)
-    out_name = 'C$(Cluster)_P$(Process)'
+    out_name = '$(Process)'
     with open(job_name_condor, 'w') as s:
         s.write( '\n'.join(('Universe = vanilla',
                             'Executable = {}'.format(job_name_shell),
                             'input = /dev/null',
-                            'output = {}/{}.o'.format(condouts, out_name),
-                            'error  = {}/{}.e'.format(conderrs, outname),
-                            'log  = {}/{}.log'.format(condlogs, outname),
+                            'output = {}/{}.out'.format(condouts, out_name),
+                            'error = {}/{}.err'.format(conderrs, out_name),
+                            'log = {}/{}.log'.format(condlogs, out_name),
                             'getenv = true',
                             '',
-                            #'T3Queue = short',
-                            '# Define custom policy with ClassAd attributes',
-                            'periodic_remove = (JobStatus == 2) && (time() - EnteredCurrentStatus) > (24 * 3600)',
-                            '',
+                            'T3Queue = long',
                             'WNTag=el7',
                             '+SingularityCmd = ""',
                             '',
