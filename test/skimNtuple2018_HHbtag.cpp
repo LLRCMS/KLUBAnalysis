@@ -195,9 +195,9 @@ int main (int argc, char** argv)
   cout << "** INFO: inputFile  : " << inputFile << endl;
   cout << "** INFO: outputFile : " << outputFile << endl;
 
-  float XS = atof (argv[3]) ;
+  float XS = atof(argv[3]) ;
   bool isMC = true;
-  int isDatabuf = atoi (argv[4]);
+  int isDatabuf = atoi(argv[4]);
   if (isDatabuf == 1)
 	{
 	  isMC = false;
@@ -929,7 +929,8 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   for (Long64_t iEvent = 0 ; true ; ++iEvent)
 	{
-	  cout << "Reading event " << iEvent << endl;
+	  if (iEvent%10000==0)
+	    cout << "Reading event " << iEvent << endl;
 	  theSmallTree.clearVars () ;
 
 	  if (! theBigTree.fChain->GetEntry(iEvent))
@@ -998,7 +999,7 @@ int main (int argc, char** argv)
 		  //cout << "- njets: " << njets << " - nb: " << nb << endl; //FRA debug
 		  if (njets != DY_nJets || nb != DY_nBJets) continue;
 		}
-	  cout << "check 0 [" << iEvent << "]" <<  endl ;
+
 	  if (DEBUG && isMC)
 		{
 		  cout << "** DEBUG : gen particle list" << endl;
@@ -1017,7 +1018,7 @@ int main (int argc, char** argv)
 				}
 			}
 		}
-	  cout << "check 1 [" << iEvent << "]" <<  endl ;
+
 	  // gen info -- fetch tt pair and compute top PT reweight
 	  float topPtReweight = 1.0; // 1 for all the other samples
 	  theSmallTree.m_TTtopPtreweight =  1.0 ;
@@ -1031,7 +1032,7 @@ int main (int argc, char** argv)
 		  int decayTop2 = -999;
 		  int pdgIdTop1 = -999;
 		  int pdgIdTop2 = -999;
-		  cout << "check 2 [" << iEvent << "]" <<  endl ;
+
 		  for (unsigned int igen = 0; igen < theBigTree.genpart_pdg->size(); igen++)
 			{
 			  int pdg = theBigTree.genpart_pdg->at(igen);
@@ -1061,7 +1062,7 @@ int main (int argc, char** argv)
 				  // else cout << " !! skim warning: sample is declared as as ttbar, but I have > 2 gen top in the event! " << endl;
 				}
 			}
-		  cout << "check 3 [" << iEvent << "]" <<  endl ;
+
 		  if (ptTop1 < 0 || ptTop2 < 0)
 			{
 			  cout << "** WARNING: sample is declared as TTbar but in the event I didn't find 2 tops (1,2) :" << ptTop1 << " " << ptTop2 << endl;
@@ -1147,7 +1148,7 @@ int main (int argc, char** argv)
 			  theSmallTree.m_genDecMode2 = decayTop2;
 			}
 		}
-	  cout << "check 4 [" << iEvent << "]" <<  endl ;
+
 	  // For ttHToNonBB only: loop on gen particles to find the Higgs
 	  // if the Higgs decays to TauTau --> throw away the event!
 	  if (isttHToNonBB)
@@ -1192,7 +1193,7 @@ int main (int argc, char** argv)
 				}
 			}
 		} // end ttHToNonBB only
-	  cout << "check 5 [" << iEvent << "]" <<  endl ;
+
       // For Drell-Yan only: loop on genjets and count how many are there with 0,1,2 b
       // 0: 0bjet, 1: 1 b jet, 2: >= 2 b jet
 	  theSmallTree.m_DYscale_LL  = 1.0; // all the other MC samples + data have no weight
@@ -1319,7 +1320,7 @@ int main (int argc, char** argv)
 			  cout << "--------------------------" << endl;
 			}
 		}
-	  cout << "check 6 [" << iEvent << "]" <<  endl ;
+
 	  // HH reweight for non resonant
 	  float HHweight = 1.0;
 	  TLorentzVector vHardScatter1;
@@ -1597,7 +1598,7 @@ int main (int argc, char** argv)
 	  int nmu10 = 0; // low pt muons for DY sideband, not entering in nmu
 	  int nele = 0;
 	  int nele10 = 0;
-	  cout << "check 7 [" << iEvent << "]" <<  endl ;
+
 	  if(DEBUG)
 		{
 		  cout << "***** DEBUG: reco particles (remember: check if baseline sels are aligned to OfflineProducerHelper)" << endl;
@@ -1647,7 +1648,7 @@ int main (int argc, char** argv)
 				   << endl;
 			}
 		} // end loop on daughters
-	  cout << "check 8 [" << iEvent << "]" <<  endl ;
+
 	  int pairType = 2; // tau tau
 	  if (nmu > 0)
 		{
@@ -1731,7 +1732,7 @@ int main (int argc, char** argv)
 				}
 			}
 		} // end else (mu tauh), (e tauh), (tauhtauh && kLLRFramDefault)
-	  cout << "check 9 [" << iEvent << "]" <<  endl ;
+
 	  if(DEBUG)
 		{
 		  cout << "**** DEBUG : chosen pair : " << chosenTauPair << " str=" << leptonSelectionFlag << " pairType==" << pairType << endl;
@@ -1799,7 +1800,7 @@ int main (int argc, char** argv)
 
 	  /*if (DM1 == 11) DM1 = 10; //Davide: DM 11 should be used in combination with deepTau: temporarily forced to 10 because SF ar not available
 		if (DM2 == 11) DM2 = 10;*/
-	  cout << "check 10 [" << iEvent << "]" <<  endl ;
+
 	  //save decaymode
 	  if(pairType == 0) //mutauh
 		{
@@ -1842,7 +1843,6 @@ int main (int argc, char** argv)
 		  theSmallTree.m_nRealTaus = nRealTaus;                     // -1: data; > 0: # real taus in MC
 		}
 
-	  cout << "check 11 [" << iEvent << "]" <<  endl ;
 	  const TLorentzVector tlv_firstLepton (
 											theBigTree.daughters_px->at (firstDaughterIndex),
 											theBigTree.daughters_py->at (firstDaughterIndex),
@@ -1857,7 +1857,6 @@ int main (int argc, char** argv)
 											 theBigTree.daughters_e->at (secondDaughterIndex)
 											 );
 
-	  cout << "check 11.1 [" << iEvent << "]" <<  endl ;
 	  //////////
 	  // -- GEN NEUTRINO DEFINITION:
 	  // -> Adding gen-matched info for the 2 taus neutrinos for tauTau ID training tests
@@ -1869,28 +1868,18 @@ int main (int argc, char** argv)
 	  TLorentzVector vGenTau2;
 	  int gentau1_idx = -1;
 	  int gentau2_idx = -1;
-	  cout << "check 11.1a [" << iEvent << "]" <<  endl ;
-	  cout << theBigTree.genpart_px->size() << endl;
-	  cout << "after error" << endl;
 	  if(isMC) {
 		for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++) {
 
 		  // only looking at gen e/mu/tau and neutrinos
-		  cout << "check 11.1b - 0 [" << iEvent << "]" <<  endl ;
 		  int pdg = fabs(theBigTree.genpart_pdg->at(igen));
-		  cout << "check 11.1b - 1 [" << iEvent << "]" <<  endl ;
 		  bool isLepton = (pdg==11||pdg==13||pdg==15);
-		  cout << "check 11.1b - 2 [" << iEvent << "]" <<  endl ;
 		  bool isNeutrino =  (pdg==12||pdg==14||pdg==16);
-		  cout << "check 11.1b - 3 [" << iEvent << "]" <<  endl ;
 		  if(!isLepton && !isNeutrino) continue;
-		  cout << "check 11.1b - 4 [" << iEvent << "]" <<  endl ;
 		  int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
-		  cout << "check 11.1b - 5 [" << iEvent << "]" <<  endl ;
 		  // check particle is from tau decay
 		  if(mothIdx<0) continue;
 
-		  cout << "check 11.1b [" << iEvent << "]" <<  endl ;
 		  bool mothIsHardScatt = false;
 		  if (mothIdx > -1)
 			{
@@ -1899,7 +1888,7 @@ int main (int argc, char** argv)
 			  mothIsHardScatt = (mothIsLast && CheckBit (theBigTree.genpart_flags->at(mothIdx), 8)); // 0 = isPrompt(), 7: hardProcess , 8: fromHardProcess
 			}
 		  if(pdg==15 && !mothIsHardScatt) continue;
-		  cout << "check 11.1c [" << iEvent << "]" <<  endl ;
+
 		  // check if gen tau matched reco tau
 		  TLorentzVector vGenTauVis;
 		  bool match1 = false;
@@ -1913,7 +1902,7 @@ int main (int argc, char** argv)
 								   theBigTree.genpart_e->at(igen));
 			match1 = (vGenTauVis.DeltaR(tlv_firstLepton)<0.3);
 			match2 = (vGenTauVis.DeltaR(tlv_secondLepton)<0.3);
-			cout << "check 11.1d [" << iEvent << "]" <<  endl ;
+
 			if( match1 && !match2 ) {
 			  vGenTau1 = vGenTauVis;
 			  gentau1_idx = mothIdx;
@@ -1922,7 +1911,6 @@ int main (int argc, char** argv)
 			  vGenTau2 = vGenTauVis;
 			  gentau2_idx = mothIdx;
 			}
-			cout << "check 11.1e [" << iEvent << "]" <<  endl ;
 			if( match1 &&  match2 ) { // unlikely I guess
 			  if (vGenTauVis.DeltaR(tlv_firstLepton)<vGenTauVis.DeltaR(tlv_secondLepton)){
 				vGenTau1 = vGenTauVis;
@@ -1933,7 +1921,7 @@ int main (int argc, char** argv)
 			  }
 			}
 		  } // endif(isLepton)
-		  cout << "check 11.2 [" << iEvent << "]" <<  endl ;
+
 		  TLorentzVector vGenNuVis;
 		  if(isNeutrino){
 			vGenNuVis.SetPxPyPzE (theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen));
@@ -1951,7 +1939,7 @@ int main (int argc, char** argv)
 	  } // endif(isMC)
       // -- END GEN NEUTRINO DEFINITION
       /////////////////////////////////
-	  cout << "check 11.3 [" << iEvent << "]" <<  endl ;
+
       // scale up: only applies to tau
       // TES up/down
 	  vector <double> unc_TES_first;
@@ -2015,7 +2003,7 @@ int main (int argc, char** argv)
 		(theSmallTree.m_dau2_decayMode == 10? true :  false),
 		(theSmallTree.m_dau2_decayMode == 11? true :  false)
 	  };
-	  cout << "check 11.4 [" << iEvent << "]" <<  endl ;
+
 	  // loop over DMs to fill the shifted TLVs
 	  for (int idm  = 0; idm < N_tauhDM; idm ++)
 		{
@@ -2068,7 +2056,7 @@ int main (int argc, char** argv)
 	  double unc_MESdw_first;
 	  double unc_MESup_second;
 	  double unc_MESdw_second;
-	  cout << "check 11.5 [" << iEvent << "]" <<  endl ;
+
 	  if (isMC)
 		{
 		  unc_MESup_first = theBigTree.daughters_MESshiftup->at (firstDaughterIndex); // first daughter, up
@@ -2165,7 +2153,7 @@ int main (int argc, char** argv)
 					}
 				}
 			}
-		  cout << "check 11.6 [" << iEvent << "]" <<  endl ;
+
 		  // Remember: isVBFfired means it passed ONLY a VBF trigger
 		  if (pairType == 2 && !passTrg)
 			{
@@ -2203,7 +2191,7 @@ int main (int argc, char** argv)
 			}
 		  else
 			isVBFfired = false;
-		  cout << "check 11.7 [" << iEvent << "]" <<  endl ;
+
 		  // !! WARNING !! --> update the trigger bits to the right paths
 		  // Weight to be applied for HLT_VBF_DoubleLooseChargedIsoPFTauHPS20_Trk1_eta2p1, prescaled in 2018
 		  // weight to be applied: 0.990342 from https://twiki.cern.ch/twiki/bin/viewauth/CMS/DoubleHiggsToBBTauTauWorkingLegacyRun2#2018
@@ -2266,7 +2254,7 @@ int main (int argc, char** argv)
 	  // used to smear the jets always in the same way in the event.
 	  // Since the smearing is by definition a random process the smearing factors of
 	  // the jets must be computed only one time per event.
-	  cout << "check 11.8 [" << iEvent << "]" <<  endl ;
+
 	  std::map<int,double> jets_and_smearFactor;
 	  for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
 		{
@@ -2282,7 +2270,7 @@ int main (int argc, char** argv)
 		  else
 			jets_and_smearFactor[iJet] = 1.;
 		}
-	  cout << "check 11.9 [" << iEvent << "]" <<  endl ;
+
 	  if (DEBUG)
 		{
 		  std::cout << "---------- SmearMap DEBUG ----------" << std::endl;
@@ -2307,7 +2295,7 @@ int main (int argc, char** argv)
 	  if(pairType==0) vMUON.Set(tlv_firstLepton.Px(),tlv_firstLepton.Py()); // single muon in evt, vetoing events with 3rd lepton
 	  if(pairType==3) vMUON.Set(tlv_firstLepton.Px()+tlv_secondLepton.Px(),tlv_firstLepton.Py()+tlv_secondLepton.Py()); // two muons in evt (looser cuts), vetoing events with 3rd lepton
 	  TVector2 vMETnoMu = vMET + vMUON;
-	  cout << "check 11.10 [" << iEvent << "]" <<  endl ;
+
 	  /*
 		MHT(noMu) variables. This might be a quick&dirty definition though, as not removing soft contributions
 	  */
@@ -2335,7 +2323,7 @@ int main (int argc, char** argv)
 		//cout << "|| > HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60_v : " << CheckBit(pass_triggerbit,13) << endl;
 		//cout << "|| > HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v        : " << CheckBit(pass_triggerbit,12/*14*/) << endl;
 	  }
-	  cout << "check 11.11 [" << iEvent << "]" <<  endl ;
+
 	  TLorentzVector tlv_MET;
 	  tlv_MET.SetPxPyPzE(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair), 0, std::hypot(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair)));
 
@@ -2363,7 +2351,7 @@ int main (int argc, char** argv)
 	  }
 	  //theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
 
-	  cout << "check 11.12 [" << iEvent << "]" <<  endl ;
+
 	  if (doSmearing)
 		{
 		  // Smear MET
@@ -2394,7 +2382,7 @@ int main (int argc, char** argv)
 			  theSmallTree.m_ditau_deltaR_per_tauHsvfitpt = tlv_firstLepton.DeltaR(tlv_secondLepton) * tlv_tauH_SVFIT.Pt();
 			}
 		}
-	  cout << "check 11.13 [" << iEvent << "]" <<  endl ;
+
 	  if (!doSmearing && theBigTree.SVfitMass->at (chosenTauPair) > -900.)
 		{
 		  theSmallTree.m_tauH_SVFIT_pt     = theBigTree.SVfit_pt->at  (chosenTauPair) ;
@@ -2423,7 +2411,7 @@ int main (int argc, char** argv)
 		  cout << " is calculated DOWN ? " << theSmallTree.m_tauH_SVFIT_mass_down << endl;
 		  cout << "--------------------" << endl;
 		}
-	  cout << "check 11.14 [" << iEvent << "]" <<  endl ;
+
 	  // check if the selected leptons A,B match the gen hard scatter products 1,2
 	  if (isHHsignal)
 		{
@@ -2680,8 +2668,6 @@ int main (int argc, char** argv)
 	  theSmallTree.m_dau2_dz  = theBigTree.dz->at(secondDaughterIndex) ;
 	  theSmallTree.m_dau2_flav = theBigTree.daughters_charge->at (secondDaughterIndex) * (theBigTree.particleType->at (secondDaughterIndex) + 1) ;
 
-
-	  cout << "check 11.15 [" << iEvent << "]" <<  endl ;
 	  // DATA/MC ID and ISO ScaleFactors
 	  // Mu and Ele ID and ISO: https://github.com/CMS-HTT/LeptonEfficiencies
 	  // Tau ID and ISO (MVA and DeepTau): https://twiki.cern.ch/twiki/bin/view/CMS/TauIDRecommendationForRun2
@@ -3359,7 +3345,6 @@ int main (int argc, char** argv)
 	  // https://github.com/truggles/TauTriggerSFs2017
 
 	  // recommendations for cross triggers:  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information
-	  cout << "check 11.16 [" << iEvent << "]" <<  endl ;
 	  float trigSF = 1.0;
 	  float trigSF_inclMeth  = 1.0;
 	  float trigSF_ele_up    = 1.0;
@@ -3632,7 +3617,6 @@ int main (int argc, char** argv)
 			}
 		} // end if(applytriggers)
 
-	  cout << "check 12 [" << iEvent << "]" <<  endl ;
 	  if(applyTriggers and (pType==0 or pType==1 or pType==2))
 		{
 		  EventVariables v;
@@ -3643,7 +3627,6 @@ int main (int argc, char** argv)
 		  std::cout << "Weight " << trigSF_inclMeth << ", Dau1 Pt " << v.dau1_pt() << ", Dau2 Pt " << v.dau2_pt() << std::endl;
 		  std::cout << std::endl;
 		} // end if(applytriggers)
-	  cout << "check 13 [" << iEvent << "]" <<  endl ;
 	  
 	  theSmallTree.m_trigSF           = (isMC ? trigSF : 1.0);
 	  theSmallTree.m_trigSF_inclMeth  = (isMC ? trigSF_inclMeth : 1.0);	
@@ -3663,7 +3646,6 @@ int main (int argc, char** argv)
 	  theSmallTree.m_trigSF_vbfjet_down = (isMC ? trigSF_vbfjet_down : 1.0);
 	  theSmallTree.m_trigSF_single = (isMC ? trigSF_single : 1.0);
 	  theSmallTree.m_trigSF_cross  = (isMC ? trigSF_cross : 1.0);
-	  cout << "check 14 [" << iEvent << "]" <<  endl ;
 	  theSmallTree.m_totalWeight = (isMC? (59970./7.20811e+10) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_DYscale_MTT * trigSF * theSmallTree.m_IdAndIsoAndFakeSF_deep_pt: 1.0);
 	  //total weight used for sync: the denominator must be changed for each sample as h_eff->GetBinContent(1), the numerator is the luminosity
 
@@ -3715,7 +3697,6 @@ int main (int argc, char** argv)
 				   << endl;
 			}
 		} // loop over leptons
-	  cout << "check 15 [" << iEvent << "]" <<  endl ;
 	  sort (thirdLeptons.begin(), thirdLeptons.end()) ;
 	  // reverse loop to start from last one == highest pT
 	  for (int iLep = thirdLeptons.size() -1; (iLep >=0) && (theSmallTree.m_nleps < 2) ; iLep--)
@@ -3743,7 +3724,6 @@ int main (int argc, char** argv)
 	  // ----------------------------------------------------------
 	  // select jets
 	  // ----------------------------------------------------------
-	  cout << "check 16 [" << iEvent << "]" <<  endl ;
 	  vector <pair <float, int> > jets_and_sortPar ;
 	  // loop over jets
 	  TLorentzVector jetVecSum (0,0,0,0);
@@ -3816,7 +3796,6 @@ int main (int argc, char** argv)
 		  if (doSmearing) tlv_jet = tlv_jet * jets_and_smearFactor[iJet];
 		  if (tlv_jet.Pt() > 15.) theSmallTree.m_PUjetID.push_back(theBigTree.jets_PUJetID->at(iJet));
 		}
-	  cout << "check 17 [" << iEvent << "]" <<  endl ;
 	  theSmallTree.m_nbjetscand = jets_and_sortPar.size();
 	  theSmallTree.m_nfatjets = theBigTree.ak8jets_px->size();
 
