@@ -123,13 +123,14 @@ def skim_ntuple(FLAGS, curr_folder):
         print('The input folder {} does not exists. Exiting.'.format(FLAGS.input_folder))
         sys.exit(1)
 
-    if not FLAGS.force and os.path.exists(FLAGS.output):
-        print('The output folder {} already exists. Exiting.'.format(FLAGS.output))
+    jobs_dir = os.path.join(FLAGS.output, FLAGS.sample)
+    if not FLAGS.force and os.path.exists(jobs_dir):
+        print('The output folder {} already exists. Exiting.'.format(jobs_dir))
         sys.exit(1)
     elif os.path.exists(FLAGS.output):
         os.system('rm -rf ' + FLAGS.output + '/*')
-    create_dir(FLAGS.output)
-    os.system('cp ' + FLAGS.config + ' ' + FLAGS.output)
+    create_dir(jobs_dir)
+    os.system(' '.join(('cp', FLAGS.config, jobs_dir)))
 
     inputfiles = parse_input_file_list(FLAGS.input_folder, FLAGS.sample)
     nfiles = len(inputfiles)
@@ -152,8 +153,7 @@ def skim_ntuple(FLAGS, curr_folder):
             .format(njobs,len(inputfiles),nfiles_per_job) )
     print(mes)
 
-    tagname = '/' + FLAGS.tag if FLAGS.tag else ''
-    jobs_dir = os.path.join(, tagname, os.path.basename(FLAGS.input_folder))
+    jobs_dir = os.path.join(jobs_dir)
     jobs_dir = jobs_dir.rstrip('.txt')
     if float(FLAGS.klreweight) > -990 and FLAGS.BSMname == 'none':
         print('[WARNING] You requested manual HH reweighting, but did not set a proper BSMname! Exiting!')
@@ -198,7 +198,7 @@ def skim_ntuple(FLAGS, curr_folder):
         
         command, comment = double_join(skimmer,
                                        os.path.join(lists_dir, io_names[0]),
-                                       os.path.join(FLAGS.output, io_names[1]),
+                                       os.path.join(jobs_dir, io_names[1]),
                                        FLAGS.xs,
                                        yes_or_no(FLAGS.isdata),
                                        FLAGS.config,
@@ -235,13 +235,13 @@ def skim_ntuple(FLAGS, curr_folder):
       
         if FLAGS.doSyst:
             sys_command, sys_comment = double_join('skimOutputter.exe',
-                                                   os.path.join(FLAGS.output, io_names[1]),
-                                                   os.path.join(FLAGS.output, 'syst_'+io_names[1]),
+                                                   os.path.join(jobs_dir, io_names[1]),
+                                                   os.path.join(jobs_dir, 'syst_'+io_names[1]),
                                                    FLAGS.config,
                                                    yes_or_no(FLAGS.isdata))
 
-            sys_command += (' ' + '>& ' + os.path.join(FLAGS.output, 'syst_' + io_names[2]) )
-            sys_comment += ('# extra:\t' + '>& ' + os.path.join(FLAGS.output, 'syst_' + io_names[2]) )
+            sys_command += (' ' + '>& ' + os.path.join(jobs_dir, 'syst_' + io_names[2]) )
+            sys_comment += ('# extra:\t' + '>& ' + os.path.join(jobs_dir, 'syst_' + io_names[2]) )
             s.write(sys_command + '\n')
             s.write(sys_comment + '\n')
         
@@ -250,16 +250,19 @@ def skim_ntuple(FLAGS, curr_folder):
 
     condor_vars = ('infile', 'outfile')
     condouts = os.path.join(jobs_dir, 'outputs')
-    create_dir(condouts)
+    conderrs = os.path.join(jobs_dir, 'errors')
     condlogs = os.path.join(jobs_dir, 'logs')
+    create_dir(condouts)
+    create_dir(conderrs)
     create_dir(condlogs)
+    out_name = 'C$(Cluster)_P$(Process)'
     with open(job_name_condor, 'w') as s:
         s.write( '\n'.join(('Universe = vanilla',
                             'Executable = {}'.format(job_name_shell),
                             'input = /dev/null',
-                            'output = {}/{}_C${Cluster}P$(Process).o'.format(condouts,FLAGS.sample),
-                            'error  = {}/{}_C${Cluster}P$(Process).e'.format(condouts,FLAGS.sample),
-                            'log  = {}/{}_C${Cluster}P$(Process).log'.format(condlogs,FLAGS.sample),
+                            'output = {}/{}.o'.format(condouts, out_name),
+                            'error  = {}/{}.e'.format(conderrs, outname),
+                            'log  = {}/{}.log'.format(condlogs, outname),
                             'getenv = true',
                             '',
                             #'T3Queue = short',
