@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+_all_ = [ "skim_ntuple" ]
 
 import os
 import sys
@@ -43,9 +45,9 @@ def parse_input_file_list(indir, insample):
 
 def skim_ntuple(FLAGS, curr_folder):
     arg1 = '${1}'
-    io_names = ( 'filelist_{}_{}.txt'.format(FLAGS.sample,arg1),
-                 'output_{}_{}.root'.format(FLAGS.sample,arg1),
-                 'output_{}_{}.log'.format(FLAGS.sample,arg1) )
+    io_names = ( 'list_{}_{}.txt'.format(FLAGS.sample,arg1),
+                 'out_{}_{}.root'.format(FLAGS.sample,arg1),
+                 'out_{}_{}.log'.format(FLAGS.sample,arg1) )
     
     # verify the result of the process
     if (FLAGS.hadd != 'none') :    
@@ -62,7 +64,7 @@ def skim_ntuple(FLAGS, curr_folder):
                                 ' ' + os.path.join(FLAGS.output, '/singleFiles/*.root')),
                                'touch ' + os.path.join(FLAGS.output, 'done'),
                                'echo "Hadding finished"')) + '\n')
-        os.system('chmod u+rwx ' + FLAGS.output + '/hadder.sh')
+        os.system('chmod u+rwx ' + os.path.join(FLAGS.output, 'hadder.sh'))
 
         launch_command = 'condor_submit {}'.format(os.path.join(FLAGS.output, 'hadder.sh\''))
         if FLAGS.sleep:
@@ -113,12 +115,12 @@ def skim_ntuple(FLAGS, curr_folder):
         print(missing)
         # The resubmission has to be rewritten
         # for num in missing :
-        #     command = '`cat ' + os.path.join(FLAGS.input_folder, 'submit.sh') + ' | grep skimJob_' + num + '.sh | tr "\'" " "`'
+        #     command = '`cat ' + os.path.join(FLAGS.input_folder, 'submit.sh') + ' | grep job_' + num + '.sh | tr "\'" " "`'
         #     if FLAGS.verb:
         #         print(command)
         # if FLAGS.resub == 'run':
         #     for num in missing:
-        #         command = '`cat ' + os.path.join(FLAGS.input_folder + 'submit.sh') + ' | grep skimJob_' + num + '.sh | tr "\'" " "`'
+        #         command = '`cat ' + os.path.join(FLAGS.input_folder + 'submit.sh') + ' | grep job_' + num + '.sh | tr "\'" " "`'
         #         time.sleep(int (num) % 5)
         #         os.system(command)
         sys.exit(0)
@@ -175,7 +177,7 @@ def skim_ntuple(FLAGS, curr_folder):
     print(mes)
 
     tagname = '/' + FLAGS.tag if FLAGS.tag else ''
-    jobs_dir = curr_folder + tagname + '/SKIM_' + os.path.basename(FLAGS.input_folder)
+    jobs_dir = os.path.join(curr_folder, tagname, os.path.basename(FLAGS.input_folder))
     jobs_dir = jobs_dir.rstrip('.txt')
     if float(FLAGS.klreweight) > -990 and FLAGS.BSMname == 'none':
         print('[WARNING] You requested manual HH reweighting, but did not set a proper BSMname! Exiting!')
@@ -187,7 +189,7 @@ def skim_ntuple(FLAGS, curr_folder):
 
     create_dir(jobs_dir)
     job_name_shell = os.path.join(jobs_dir,
-                                  ('skimJob_{}'.format(FLAGS.sample)
+                                  ('job_{}'.format(FLAGS.sample)
                                    .replace('.', 'DOT')) + '.sh')
     remove_file(job_name_shell)
     job_name_condor = job_name_shell.replace('.sh', '.condor')
@@ -195,7 +197,6 @@ def skim_ntuple(FLAGS, curr_folder):
     lists_dir = os.path.join(jobs_dir, 'filelists')
     create_dir(lists_dir)
     for ij,listname in enumerate(inputlists):
-        #create a wrapper for standalone cmssw job
         list_file_name = io_names[0].replace(arg1, str(ij))
         with open(os.path.join(lists_dir, list_file_name), 'w') as input_list_file:
             for line in listname:
@@ -280,9 +281,9 @@ def skim_ntuple(FLAGS, curr_folder):
         s.write( '\n'.join(('Universe = vanilla',
                             'Executable = {}'.format(job_name_shell),
                             'input = /dev/null',
-                            'output = {}/{}_$(Process).o'.format(condouts,FLAGS.sample),
-                            'error  = {}/{}_$(Process).e'.format(condouts,FLAGS.sample),
-                            #'log  = {}/{}_$(Process).log'.format(condlogs,FLAGS.sample),
+                            'output = {}/{}_C${Cluster}P$(Process).o'.format(condouts,FLAGS.sample),
+                            'error  = {}/{}_C${Cluster}P$(Process).e'.format(condouts,FLAGS.sample),
+                            'log  = {}/{}_C${Cluster}P$(Process).log'.format(condlogs,FLAGS.sample),
                             'getenv = true',
                             '',
                             #'T3Queue = short',
