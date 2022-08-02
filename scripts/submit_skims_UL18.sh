@@ -75,7 +75,6 @@ declare -a LISTS_DATA=( $(/usr/bin/rfdir ${LIST_DATA_DIR} | awk '{{printf $9" "}
 declare -a LISTS_MC=(   $(/usr/bin/rfdir ${LIST_MC_DIR}   | awk '{{printf $9" "}}') )
 
 SKIM_DIR="/data_CMS/cms/${USER}/HHresonant_SKIMS"
-mkdir -p ${SKIM_DIR}
 
 IN_DIR=${KLUB_DIR}"/inputFiles/"
 SIG_DIR=${IN_DIR}${DATA_PERIOD}"_Signals/"
@@ -88,17 +87,6 @@ PREF="SKIMS_"
 TAG_DIR=${PREF}${DATA_PERIOD}"_"${OUT_TAG}
 declare -a ERRORS=()
 SEARCH_SPACE=".+\s.+" # trick to capture return values with error messages
-OUTSKIM_DIR=${SKIM_DIR}/${TAG_DIR}/
-if [ -d ${OUTSKIM_DIR} ]; then
-	echo "Directory ${OUTSKIM_DIR} already exists."
-	echo "You might want to remove it with: 'rm -r ${OUTSKIM_DIR}'."
-	echo "Exiting."
-	exit 1
-else
-	mkdir -p ${OUTSKIM_DIR}
-fi
-ERR_FILE=${OUTSKIM_DIR}"/bad_patterns.o"
-
 
 declare -A IN_LIST DATA_MAP
 declare -a DATA_LIST RUNS MASSES
@@ -122,6 +110,19 @@ if [[ -z ${DATA_PERIOD} ]]; then
 	exit 1;
 fi
 
+mkdir -p ${SKIM_DIR}
+OUTSKIM_DIR=${SKIM_DIR}/${TAG_DIR}/
+if [ -d ${OUTSKIM_DIR} ]; then
+	echo "Directory ${OUTSKIM_DIR} already exists."
+	echo "You might want to remove it with: 'rm -r ${OUTSKIM_DIR}'."
+	echo "Exiting."
+	exit 1
+else
+	mkdir -p ${OUTSKIM_DIR}
+fi
+ERR_FILE=${OUTSKIM_DIR}"/bad_patterns.o"
+
+
 ### Argument parsing: information for the user
 echo "------ Arguments --------------"
 echo " Passed by the user:"
@@ -137,7 +138,6 @@ echo "-------------------------------"
 #### Source additional setup
 source scripts/setup.sh
 source /opt/exp_soft/cms/t3/t3setup
-mkdir -p ${OUTSKIM_DIR}
 cp scripts/listAll.sh ${OUTSKIM_DIR}
 echo "--------Run: $(date) ---------------" >> ${ERR_FILE}
 
@@ -182,10 +182,8 @@ function find_sample() {
 }
 
 ### Run on data samples
-DATA_LIST=("EGamma" "Tau")
-RUNS=("Run2018A" "Run2018B")
-#DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
-#RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
+DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
+RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
 for ds in ${DATA_LIST[@]}; do
 	for run in ${RUNS[@]}; do
 		pattern="${ds}__${run}"
@@ -198,7 +196,7 @@ for ds in ${DATA_LIST[@]}; do
 		fi
 	done
 done
-exit 1
+
 ### Run on HH resonant signal samples
 DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
 MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
