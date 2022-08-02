@@ -50,30 +50,6 @@ def skim_ntuple(FLAGS, curr_folder):
                  'out_{}_{}.log'.format(FLAGS.sample,arg1) )
     
     # verify the result of the process
-    if (FLAGS.hadd != 'none') :    
-        with open( os.path.join(FLAGS.output, 'hadder.sh'), 'w') as s:
-            s.write('\n'.join(('#!/bin/bash',
-                               'source /cvmfs/cms.cern.ch/cmsset_default.sh',
-                               'cd {}'.format(curr_folder),
-                               'eval `scram r -sh`',
-                               'source scripts/setup.sh',
-                               'mkdir ' + os.path.join(FLAGS.output, 'singleFiles'),
-                               ('mv ' + os.path.join(FLAGS.output, + '*') +
-                                ' ' + os.path.join(FLAGS.output, 'singleFiles')),
-                               ('hadd ' + os.path.join(FLAGS.output, 'total.root') +
-                                ' ' + os.path.join(FLAGS.output, '/singleFiles/*.root')),
-                               'touch ' + os.path.join(FLAGS.output, 'done'),
-                               'echo "Hadding finished"')) + '\n')
-        os.system('chmod u+rwx ' + os.path.join(FLAGS.output, 'hadder.sh'))
-
-        launch_command = 'condor_submit {}'.format(os.path.join(FLAGS.output, 'hadder.sh\''))
-        if FLAGS.sleep:
-            time.sleep(0.1)
-        print('The following command was run: \n  {}'.format(launch_command))
-        os.system(launch_command)
-        sys.exit(0)
-
-    # verify the result of the process
     if (FLAGS.resub != 'none'):
         if (FLAGS.input_folder == 'none'):
             print('Input folder to be checked missing')
@@ -177,7 +153,7 @@ def skim_ntuple(FLAGS, curr_folder):
     print(mes)
 
     tagname = '/' + FLAGS.tag if FLAGS.tag else ''
-    jobs_dir = os.path.join(curr_folder, tagname, os.path.basename(FLAGS.input_folder))
+    jobs_dir = os.path.join(, tagname, os.path.basename(FLAGS.input_folder))
     jobs_dir = jobs_dir.rstrip('.txt')
     if float(FLAGS.klreweight) > -990 and FLAGS.BSMname == 'none':
         print('[WARNING] You requested manual HH reweighting, but did not set a proper BSMname! Exiting!')
