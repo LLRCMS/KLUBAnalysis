@@ -9,12 +9,14 @@ RUN_LISTS_STR="Whether to not run the list production script before each submiss
 DATAPERIOD_STR="Which data period to consider: Legacy18, UL18, ..."
 function print_usage_submit_skims {
     USAGE=" $(basename "$0") [-H] [-t -f -d -n --klub_tag]
+
     -h / --help        [ ${HELP_STR} ]
     -t / --tag         [ ${OUT_TAG_STR} ]
     --klub_tag         [ ${KLUB_TAG_STR} ]
     -f / --force       [ ${FORCE_STR} ]
     -n / --no_lists    [ ${NO_LISTS_STR} ]
     -d / --data_period [ ${DATAPERIOD_STR} ]
+
     Run example: $(basename "$0") -t <some_tag> -f
 "
     printf "${USAGE}"
@@ -73,7 +75,6 @@ declare -a LISTS_DATA=( $(/usr/bin/rfdir ${LIST_DATA_DIR} | awk '{{printf $9" "}
 declare -a LISTS_MC=(   $(/usr/bin/rfdir ${LIST_MC_DIR}   | awk '{{printf $9" "}}') )
 
 SKIM_DIR="/data_CMS/cms/${USER}/HHresonant_SKIMS"
-mkdir -p ${SKIM_DIR}
 
 IN_DIR=${KLUB_DIR}"/inputFiles/"
 SIG_DIR=${IN_DIR}${DATA_PERIOD}"_Signals/"
@@ -83,18 +84,9 @@ DATA_DIR=${IN_DIR}${DATA_PERIOD}"_Data/"
 PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2018/PU_UL2018_SF.txt"
 CFG="config/skim_${DATA_PERIOD}.cfg"
 PREF="SKIMS_"
-OUT_DIR=${PREF}${DATA_PERIOD}"_"${OUT_TAG}
-if [ -d ${OUT_DIR} ]; then
-	echo "Directory ${OUT_DIR} already exists."
-	echo "You might want to remove it with: `rm -r ${OUT_DIR}`."
-	echo "Exiting."
-	exit 1
-fi
-mkdir ${OUT_DIR}
-ERR_FILE=${OUT_DIR}"/bad_patterns.o"
+TAG_DIR=${PREF}${DATA_PERIOD}"_"${OUT_TAG}
 declare -a ERRORS=()
 SEARCH_SPACE=".+\s.+" # trick to capture return values with error messages
-OUTSKIM_DIR=${SKIM_DIR}/${OUT_DIR}/
 
 declare -A IN_LIST DATA_MAP
 declare -a DATA_LIST RUNS MASSES
@@ -118,25 +110,40 @@ if [[ -z ${DATA_PERIOD} ]]; then
     exit 1;
 fi
 
+mkdir -p ${SKIM_DIR}
+OUTSKIM_DIR=${SKIM_DIR}/${TAG_DIR}/
+if [ -d ${OUTSKIM_DIR} ]; then
+    echo "Directory ${OUTSKIM_DIR} already exists."
+    echo "You might want to remove it with: 'rm -r ${OUTSKIM_DIR}'."
+    echo "Exiting."
+    exit 1
+else
+    mkdir -p ${OUTSKIM_DIR}
+fi
+ERR_FILE=${OUTSKIM_DIR}"/bad_patterns.o"
+
+
 ### Argument parsing: information for the user
 echo "------ Arguments --------------"
+echo " Passed by the user:"
 echo "FORCE       = ${FORCE}"
 echo "NO_LISTS    = ${NO_LISTS}"
 echo "OUT_TAG     = ${OUT_TAG}"
 echo "KLUB_TAG    = ${KLUB_TAG}"
 echo "DATA_PERIOD = ${DATA_PERIOD}"
+echo " Others:"
+echo "OUTSKIM_DIR = ${OUTSKIM_DIR}"
 echo "-------------------------------"
 
 #### Source additional setup
 source scripts/setup.sh
 source /opt/exp_soft/cms/t3/t3setup
-mkdir -p ${OUTSKIM_DIR}
 cp scripts/listAll.sh ${OUTSKIM_DIR}
 echo "--------Run: $(date) ---------------" >> ${ERR_FILE}
 
 ### Submission command
 function run_skim() {
-    python ${KLUB_DIR}/${SUBMIT_SCRIPT} -T ${OUT_DIR} -s True -c ${KLUB_DIR}/${CFG} -q long -Y 2018 -k True --pu ${PU_DIR} -f ${FORCE} "$@"
+    python ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -s True -c ${KLUB_DIR}/${CFG} -q long -Y 2018 -k True --pu ${PU_DIR} -f ${FORCE} "$@"
 }
 
 ### Input file list production command
@@ -185,7 +192,7 @@ for ds in ${DATA_LIST[@]}; do
 	    ERRORS+=( ${sample} )
 	    else
 	    [[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
-	    run_skim -n 10 --isdata True -o ${OUTSKIM_DIR}${PREF}${pattern} -i ${DATA_DIR} --sample ${sample}
+	    run_skim -n 10 --isdata True -o ${OUTSKIM_DIR} -i ${DATA_DIR} --sample ${sample}
 	    fi
 	done
 done
@@ -201,7 +208,7 @@ for ds in ${DATA_LIST[@]}; do
 	    ERRORS+=( ${sample} )
 	    else
 	    [[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
-	    run_skim -n 20 -o ${OUTSKIM_DIR}${PREF}${pattern} -i ${SIG_DIR} --sample ${sample} -x 1.
+	    run_skim -n 20 -o ${OUTSKIM_DIR} -i ${SIG_DIR} --sample ${sample} -x 1.
 	    fi
 	done
 done
@@ -212,25 +219,25 @@ DATA_MAP=(
     ["TTTo2L2Nu"]="-n 100 -x 88.29"
     ["TTToSemiLeptonic"]="-n 100 -x 365.34"
 
-    ["DYJets.+_M-50_T.+amc"]="-n 1000 -x 6077.22 -g True --DY True" # inclusive NLO
-    ## ["DY_merged"]="-n 300 -x 6077.22 -g True --DY True"
-    # ["DY1J"]="-n 333 -x 1. -g True --DY True"
-    # ["DY2J"]="-n 333 -x 1. -g True --DY True"   
-    # ["DY3J"]="-n 333 -x 1. -g True --DY True"
-    # ["DY4J"]="-n 333 -x 1. -g True --DY True"
-    # ["DYJetsToLL_M-50_HT-70to100"]="-n 300 -x 1. -g True --DY True"
-    # ["DYJetsToLL_M-50_HT-100to200"]="-n 300 -x 1. -g True --DY True"
-    # ["DYJetsToLL_M-50_HT-200to400"]="-n 300 -x 1. -g True --DY True"
-    # ["DYJetsToLL_M-50_HT-400to600"]="-n 300 -x 1. -g True --DY True"
-    # ["DYJetsToLL_M-50_HT-600to800"]="-n 300 -x 1. -g True --DY True"
-    # ["DYJetsToLL_M-50_HT-800to1200"]="-n 300 -x 1. -g True --DY True"
-    # ["DYJetsToLL_M-50_HT-1200to2500"]="-n 300 -x 1. -g True --DY True"
-    # ["DYJetsToLL_M-50_HT-2500toInf"]="-n 300 -x 1. -g True --DY True"
-    # ["DYJetsToLL_Pt-50To100"]="-n 200 -x 1. -g True --DY True"
-    # ["DYJetsToLL_Pt-100To250"]="-n 200 -x 1. -g True --DY True"
-    # ["DYJetsToLL_Pt-250To400"]="-n 200 -x 1. -g True --DY True"
-    # ["DYJetsToLL_Pt-400To650"]="-n 200 -x 1. -g True --DY True"
-    # ["DYJetsToLL_Pt-650ToInf"]="-n 200 -x 1. -g True --DY True"
+    ["DYJets.+_M-50_T.+amc"]="-n 400 -x 6077.22 -g True --DY True" # inclusive NLO
+    # ["DY_merged"]="-n 300 -x 6077.22 -g True --DY True"
+    # ["DY1J"]="-n 200 -x 1. -g True --DY True"
+    # ["DY2J"]="-n 200 -x 1. -g True --DY True"   
+    # ["DY3J"]="-n 200 -x 1. -g True --DY True"
+    # ["DY4J"]="-n 200 -x 1. -g True --DY True"
+    # ["DYJetsToLL_M-50_HT-70to100"]="-n 200 -x 1. -g True --DY True"
+    # ["DYJetsToLL_M-50_HT-100to200"]="-n 200 -x 1. -g True --DY True"
+    # ["DYJetsToLL_M-50_HT-200to400"]="-n 200 -x 1. -g True --DY True"
+    # ["DYJetsToLL_M-50_HT-400to600"]="-n 200 -x 1. -g True --DY True"
+    # ["DYJetsToLL_M-50_HT-600to800"]="-n 200 -x 1. -g True --DY True"
+    # ["DYJetsToLL_M-50_HT-800to1200"]="-n 200 -x 1. -g True --DY True"
+    # ["DYJetsToLL_M-50_HT-1200to2500"]="-n 200 -x 1. -g True --DY True"
+    # ["DYJetsToLL_M-50_HT-2500toInf"]="-n 200 -x 1. -g True --DY True"
+    # ["DYJetsToLL_Pt-50To100"]="-n 150 -x 1. -g True --DY True"
+    # ["DYJetsToLL_Pt-100To250"]="-n 150 -x 1. -g True --DY True"
+    # ["DYJetsToLL_Pt-250To400"]="-n 150 -x 1. -g True --DY True"
+    # ["DYJetsToLL_Pt-400To650"]="-n 150 -x 1. -g True --DY True"
+    # ["DYJetsToLL_Pt-650ToInf"]="-n 150 -x 1. -g True --DY True"
 
     ["WJetsToLNu_T.+madgraph"]="-n 20 -x 48917.48 -y 1.213784 -z 70" # for 0 < HT < 70
     ["WJetsToLNu_HT-70To100"]="-n 20 -x 1362 -y 1.213784"
@@ -278,7 +285,7 @@ for ds in ${!DATA_MAP[@]}; do
 	ERRORS+=( ${sample} )
 	else
 	[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Backgrounds --sample ${sample}
-	run_skim -o ${OUTSKIM_DIR}${PREF}${ds} -i ${BKG_DIR} --sample ${sample} ${DATA_MAP[${ds}]}
+	run_skim -o ${OUTSKIM_DIR} -i ${BKG_DIR} --sample ${sample} ${DATA_MAP[${ds}]}
 	fi
 done
 
