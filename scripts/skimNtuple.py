@@ -154,12 +154,23 @@ def skim_ntuple(FLAGS, curr_folder):
     os.system('cp ' + FLAGS.config + ' ' + FLAGS.output)
 
     inputfiles = parse_input_file_list(FLAGS.input_folder, FLAGS.sample)
-    njobs = len(inputfiles) if FLAGS.njobs > len(inputfiles) else FLAGS.njobs
-    nfiles_per_job = (len(inputfiles) + len(inputfiles) % njobs) / njobs
-    inputlists = [inputfiles[x:x+nfiles_per_job]
-                  
-                  for x in range(0, len(inputfiles), nfiles_per_job)]
-    mes = ( '{} jobs will be scheduled for {} files ({} files per job).'
+    nfiles = len(inputfiles)
+    njobs = nfiles if FLAGS.njobs > nfiles else FLAGS.njobs
+    div, mod = divmod(nfiles, njobs)
+    if mod >= njobs:
+        mes = ' '.join( ('The method being used to assign files to jobs does not work.',
+                         'with {} files and {} jobs.'.format(nfiles,njobs),
+                         'Please increase the number of jobs.') )
+        raise ValueError(mes)
+    nfiles_per_job = [ div if i >= mod else div+1 for i in range(njobs)]
+    assert sum(nfiles_per_job) == nfiles
+
+    accumulate = lambda l : [sum(l[:y]) for y in range(1, len(l)+1)]
+    inputlists = [ inputfiles[x-y:x] for x,y in zip(accumulate(nfiles_per_job), nfiles_per_job) ]
+    assert len(inputlists) == njobs
+    assert len([item for sublist in inputlists for item in sublist]) == nfiles
+    
+    mes = ( '{} jobs will be scheduled for {} files.'
             .format(njobs,len(inputfiles),nfiles_per_job) )
     print(mes)
 
