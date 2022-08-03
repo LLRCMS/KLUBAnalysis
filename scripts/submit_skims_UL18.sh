@@ -2,6 +2,7 @@
 
 ### Argument parsing
 HELP_STR="Prints this help message."
+DRYRUN_STR="Prints all the commands to be launched but does not launch them."
 OUT_TAG_STR="String. Define tag for the output."
 KLUB_TAG_STR="String. Choose tag for the klub input."
 STITCHING_ON_STR="Flag. Drell-Yan stitching weights will be used. Defaults to false."
@@ -9,9 +10,10 @@ FORCE_STR="Flag. Whether to override a folder with the same tag. Defaults to fal
 RUN_LISTS_STR="Flag. Whether to run the list production script before each submission. Defaults to false."
 DATAPERIOD_STR="String. Which data period to consider: Legacy18, UL18, ..."
 function print_usage_submit_skims {
-    USAGE=" $(basename "$0") [-H] [-t -f -d -n --klub_tag]
+    USAGE=" $(basename "$0") [-H] [--dry-run -t -f -d -n --klub_tag --stitching_on]
 
     -h / --help        [ ${HELP_STR} ]
+    --dry-run          [ ${DRYRUN_STR} ]
     -t / --tag         [ ${OUT_TAG_STR} ]
     --klub_tag         [ ${KLUB_TAG_STR} ]
     --stitching_on     [ ${STITCHING_ON_STR} ]
@@ -36,6 +38,10 @@ while [[ $# -gt 0 ]]; do
 	-h|--help)
 	    print_usage_submit_skims
 	    exit 1
+	    ;;
+	--dry-run)
+	    DRYRUN="1"
+	    shift;
 	    ;;
 	-t|--tag)
 	    OUT_TAG=${2}
@@ -133,14 +139,15 @@ ERR_FILE=${OUTSKIM_DIR}"/bad_patterns.o"
 ### Argument parsing: information for the user
 echo "------ Arguments --------------"
 echo " Passed by the user:"
-echo "FORCE			= ${FORCE}"
-echo "NO_LISTS		= ${NO_LISTS}"
-echo "OUT_TAG		= ${OUT_TAG}"
-echo "KLUB_TAG		= ${KLUB_TAG}"
-echo "STITCHING_ON  = ${STITCHING_ON}"
-echo "DATA_PERIOD	= ${DATA_PERIOD}"
+printf "DRYRUN\t\t\t= ${DRYRUN}\n"
+printf "FORCE\t\t\t= ${FORCE}\n"
+printf "NO_LISTS\t\t= ${NO_LISTS}\n"
+printf "OUT_TAG\t\t\t= ${OUT_TAG}\n"
+printf "KLUB_TAG\t\t= ${KLUB_TAG}\n"
+printf "STITCHING_ON\t= ${STITCHING_ON}\n"
+printf "DATA_PERIOD\t\t= ${DATA_PERIOD}\n"
 echo " Others:"
-echo "OUTSKIM_DIR	= ${OUTSKIM_DIR}"
+printf "OUTSKIM_DIR\t\t= ${OUTSKIM_DIR}\n"
 echo "-------------------------------"
 
 #### Source additional setup
@@ -151,12 +158,14 @@ echo "--------Run: $(date) ---------------" >> ${ERR_FILE}
 
 ### Submission command
 function run_skim() {
-	python ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -s True -c ${KLUB_DIR}/${CFG} -q long -Y 2018 -k True --pu ${PU_DIR} -f ${FORCE} "$@"
+	comm="python ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -s True -c ${KLUB_DIR}/${CFG} -q long -Y 2018 -k True --pu ${PU_DIR} -f ${FORCE} $@"
+	[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
 }
 
 ### Input file list production command
 function produce_list() {
-	python ${KLUB_DIR}/${LIST_SCRIPT} -t ${KLUB_TAG} --data_period ${DATA_PERIOD} "$@"
+	comm="python ${KLUB_DIR}/${LIST_SCRIPT} -t ${KLUB_TAG} --data_period ${DATA_PERIOD} $@"
+	[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
 }
 
 ### Extract sample full name
@@ -293,6 +302,26 @@ DATA_MAP=(
 	["TTZZ"]="-n 20 -x 0.001386"
 	["TTWZ"]="-n 20 -x 0.00158"
 )
+
+# Sanity checks for Drell-Yan stitching
+dy_counter=0
+for ds in ${!DATA_MAP[@]}; do
+	sample=$(find_sample ${ds} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
+	# if [ ${sample} =~ ".*DY.*" ]; then
+	# 	dy_counter=$((dy_counter+1))
+	# fi
+done
+if [ ${STITCHING_ON} -eq 1 ]; then
+	if [ ${dy_counter} -eq 1 ]; then
+		echo "You set the DY stitching on while considering no DY samples. Did you forget to include the latter?"
+		exit 1
+	elif [ ${dy_counter} -eq 1 ]; then
+		echo "You set the DY stitching on while considering a single DY sample. This is incorrect."
+		exit 1
+	fi
+fi
+
+# Skimming submission
 for ds in ${!DATA_MAP[@]}; do
 	sample=$(find_sample ${ds} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
 	if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
@@ -312,6 +341,9 @@ for ((i = 0; i < ${nerr}; i++)); do
     echo "  - ${ERRORS[$i]}"
 done
 
+if [ ${DRYRUN} -eq 1 ]; then
+	echo "Dry-run. The commands above were not run."
+fi
 ###### Cross-section information ######
 
 ### TT
