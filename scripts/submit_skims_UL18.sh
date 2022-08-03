@@ -1,14 +1,23 @@
 #!/usr/bin/env bash
 
+### Defaults
+FORCE="0"
+NO_LISTS="0"
+STITCHING_ON="0"
+DRYRUN="0"
+OUT_TAG=""
+KLUB_TAG="Jul2022"
+DATA_PERIOD="UL18"
+
 ### Argument parsing
 HELP_STR="Prints this help message."
-DRYRUN_STR="Prints all the commands to be launched but does not launch them."
-OUT_TAG_STR="String. Define tag for the output."
-KLUB_TAG_STR="String. Choose tag for the klub input."
-STITCHING_ON_STR="Flag. Drell-Yan stitching weights will be used. Defaults to false."
-FORCE_STR="Flag. Whether to override a folder with the same tag. Defaults to false."
-RUN_LISTS_STR="Flag. Whether to run the list production script before each submission. Defaults to false."
-DATAPERIOD_STR="String. Which data period to consider: Legacy18, UL18, ..."
+DRYRUN_STR="(Boolean) Prints all the commands to be launched but does not launch them. Defaults to ${DRYRUN}."
+OUT_TAG_STR="(String) Defines tag for the output. Defaults to '${OUT_TAG}'."
+KLUB_TAG_STR="(String) Chooses tag for the klub input. Defaults to '${KLUB_TAG}'."
+STITCHING_ON_STR="(Boolean) Drell-Yan stitching weights will be used. Defaults to ${STITCHING_ON}."
+FORCE_STR="(Boolean) Whether to override a folder with the same tag. Defaults to ${FORCE}."
+NO_LISTS_STR="(Boolean) Whether to run the list production script before each submission. Defaults to ${NO_LISTS}."
+DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${DATA_PERIOD}'."
 function print_usage_submit_skims {
     USAGE=" $(basename "$0") [-H] [--dry-run -t -f -d -n --klub_tag --stitching_on]
 
@@ -21,17 +30,11 @@ function print_usage_submit_skims {
     -n / --no_lists     [ ${NO_LISTS_STR} ]
     -d / --data_period  [ ${DATAPERIOD_STR} ]
 
-    Run example: $(basename "$0") -t <some_tag> -f
+    Run example: bash $(basename "$0") -t <some_tag> -f
 "
     printf "${USAGE}"
 }
 
-FORCE="0"
-NO_LISTS="0"
-STITCHING_ON="0"
-OUT_TAG=""
-KLUB_TAG="Jul2022"
-DATA_PERIOD="UL18"
 while [[ $# -gt 0 ]]; do
     key=${1}
     case $key in
@@ -209,34 +212,34 @@ function find_sample() {
 ### Run on data samples
 DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
 RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
-# for ds in ${DATA_LIST[@]}; do
-# 	for run in ${RUNS[@]}; do
-# 		pattern="${ds}__${run}"
-# 		sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
-# 		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-# 			ERRORS+=( ${sample} )
-# 		else
-# 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
-# 		 	run_skim -n 10 --isdata True -o ${OUTSKIM_DIR} -i ${DATA_DIR} --sample ${sample}			
-# 		fi
-# 	done
-# done
+for ds in ${DATA_LIST[@]}; do
+	for run in ${RUNS[@]}; do
+		pattern="${ds}__${run}"
+		sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
+		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+			ERRORS+=( ${sample} )
+		else
+			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
+		 	run_skim -n 10 --isdata True -o ${OUTSKIM_DIR} -i ${DATA_DIR} --sample ${sample}			
+		fi
+	done
+done
 
 ### Run on HH resonant signal samples
 DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
 MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
-# for ds in ${DATA_LIST[@]}; do
-# 	for mass in ${MASSES[@]}; do
-# 		pattern="${ds}.+_M-${mass}_";
-# 		sample=$(find_sample ${pattern} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
-# 		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-# 			ERRORS+=( ${sample} )
-# 		else
-# 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
-# 			run_skim -n 20 -o ${OUTSKIM_DIR} -i ${SIG_DIR} --sample ${sample} -x 1.
-# 		fi
-# 	done
-# done
+for ds in ${DATA_LIST[@]}; do
+	for mass in ${MASSES[@]}; do
+		pattern="${ds}.+_M-${mass}_";
+		sample=$(find_sample ${pattern} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
+		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+			ERRORS+=( ${sample} )
+		else
+			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
+			run_skim -n 20 -o ${OUTSKIM_DIR} -i ${SIG_DIR} --sample ${sample} -x 1.
+		fi
+	done
+done
 
 ### Run on backgrounds samples
 stitch_opt="False"
