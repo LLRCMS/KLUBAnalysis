@@ -81,7 +81,15 @@ KLUB_DIR="$( cd "$( dirname ${THIS_DIR} )" && pwd )"
 
 SUBMIT_SCRIPT="scripts/skimNtuple.py"
 LIST_SCRIPT="scripts/makeListOnStorage.py"
-LIST_DIR="/dpm/in2p3.fr/home/cms/trivcat/store/user/lportale/HHNtuples_res/"${DATA_PERIOD}"/"
+LIST_DIR="/dpm/in2p3.fr/home/cms/trivcat/store/user/lportale/"
+
+### Check if the voms command was run
+declare -a VOMS_CHECK=( $(/usr/bin/rfdir ${LIST_DIR} | awk '{{printf $9" "}}') )
+if [ ${#VOMS_CHECK[@]} -eq 0 ]; then
+	echo "Folder ${LIST_DIR} seems empty. Are you sure you run 'voms-proxy-init -voms cms'?"
+fi
+
+LIST_DIR=${LIST_DIR}"HHNtuples_res/"${DATA_PERIOD}"/"
 LIST_DATA_DIR=${LIST_DIR}"Data_"${KLUB_TAG}
 LIST_MC_DIR=${LIST_DIR}"MC_"${KLUB_TAG}
 declare -a LISTS_DATA=( $(/usr/bin/rfdir ${LIST_DATA_DIR} | awk '{{printf $9" "}}') )
@@ -336,7 +344,7 @@ done
 ### Print pattern matching issues
 nerr=${#ERRORS[@]}
 if [ ${nerr} -ne 0 ]; then
-	echo "ATTENTION: The following pattern matching errors were observed:"
+	echo "WARNING: The following pattern matching errors were observed:"
 fi
 for ((i = 0; i < ${nerr}; i++)); do
     echo "  - ${ERRORS[$i]}"
