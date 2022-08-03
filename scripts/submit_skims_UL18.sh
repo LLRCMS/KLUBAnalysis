@@ -2,17 +2,19 @@
 
 ### Argument parsing
 HELP_STR="Prints this help message."
-OUT_TAG_STR="Define tag for the output."
-KLUB_TAG_STR="Choose tag for the klub input."
-FORCE_STR="Whether to override a folder with the same tag. Defaults to false."
-RUN_LISTS_STR="Whether to not run the list production script before each submission. Defaults to false."
-DATAPERIOD_STR="Which data period to consider: Legacy18, UL18, ..."
+OUT_TAG_STR="String. Define tag for the output."
+KLUB_TAG_STR="String. Choose tag for the klub input."
+STITCHING_ON_STR="Flag. Drell-Yan stitching weights will be used. Defaults to false."
+FORCE_STR="Flag. Whether to override a folder with the same tag. Defaults to false."
+RUN_LISTS_STR="Flag. Whether to run the list production script before each submission. Defaults to false."
+DATAPERIOD_STR="String. Which data period to consider: Legacy18, UL18, ..."
 function print_usage_submit_skims {
     USAGE=" $(basename "$0") [-H] [-t -f -d -n --klub_tag]
 
     -h / --help        [ ${HELP_STR} ]
     -t / --tag         [ ${OUT_TAG_STR} ]
     --klub_tag         [ ${KLUB_TAG_STR} ]
+    --stitching_on     [ ${STITCHING_ON_STR} ]
     -f / --force       [ ${FORCE_STR} ]
     -n / --no_lists    [ ${NO_LISTS_STR} ]
     -d / --data_period [ ${DATAPERIOD_STR} ]
@@ -24,6 +26,7 @@ function print_usage_submit_skims {
 
 FORCE="0"
 NO_LISTS="0"
+STITCHING_ON="0"
 OUT_TAG=""
 KLUB_TAG="Jul2022"
 DATA_PERIOD="UL18"
@@ -41,6 +44,10 @@ while [[ $# -gt 0 ]]; do
 	--klub_tag)
 	    KLUB_TAG=${2}
 	    shift; shift;
+	    ;;
+	--stitching)
+	    STITCHING_ON="1"
+	    shift;
 	    ;;
 	-f|--force)
 	    FORCE="1"
@@ -126,13 +133,14 @@ ERR_FILE=${OUTSKIM_DIR}"/bad_patterns.o"
 ### Argument parsing: information for the user
 echo "------ Arguments --------------"
 echo " Passed by the user:"
-echo "FORCE       = ${FORCE}"
-echo "NO_LISTS    = ${NO_LISTS}"
-echo "OUT_TAG     = ${OUT_TAG}"
-echo "KLUB_TAG    = ${KLUB_TAG}"
-echo "DATA_PERIOD = ${DATA_PERIOD}"
+echo "FORCE			= ${FORCE}"
+echo "NO_LISTS		= ${NO_LISTS}"
+echo "OUT_TAG		= ${OUT_TAG}"
+echo "KLUB_TAG		= ${KLUB_TAG}"
+echo "STITCHING_ON  = ${STITCHING_ON}"
+echo "DATA_PERIOD	= ${DATA_PERIOD}"
 echo " Others:"
-echo "OUTSKIM_DIR = ${OUTSKIM_DIR}"
+echo "OUTSKIM_DIR	= ${OUTSKIM_DIR}"
 echo "-------------------------------"
 
 #### Source additional setup
@@ -214,30 +222,36 @@ for ds in ${DATA_LIST[@]}; do
 done
 
 ### Run on backgrounds samples
+stitch_opt="False"
+[[ ${STITCHING_ON} -eq 1 ]] && stitch_opt="True"
+
 DATA_MAP=(
 	["TTToHadronic"]="-n 100 -x 377.96"
 	["TTTo2L2Nu"]="-n 100 -x 88.29"
 	["TTToSemiLeptonic"]="-n 100 -x 365.34"
 
-	["DYJets.+_M-50_T.+amc"]="-n 400 -x 6077.22 -g True --DY True" # inclusive NLO
-	# ["DY_merged"]="-n 300 -x 6077.22 -g True --DY True"
-	# ["DY1J"]="-n 200 -x 1. -g True --DY True"
-	# ["DY2J"]="-n 200 -x 1. -g True --DY True"		   
-	# ["DY3J"]="-n 200 -x 1. -g True --DY True"
-	# ["DY4J"]="-n 200 -x 1. -g True --DY True"
-	# ["DYJetsToLL_M-50_HT-70to100"]="-n 200 -x 1. -g True --DY True"
-	# ["DYJetsToLL_M-50_HT-100to200"]="-n 200 -x 1. -g True --DY True"
-	# ["DYJetsToLL_M-50_HT-200to400"]="-n 200 -x 1. -g True --DY True"
-	# ["DYJetsToLL_M-50_HT-400to600"]="-n 200 -x 1. -g True --DY True"
-	# ["DYJetsToLL_M-50_HT-600to800"]="-n 200 -x 1. -g True --DY True"
-	# ["DYJetsToLL_M-50_HT-800to1200"]="-n 200 -x 1. -g True --DY True"
-	# ["DYJetsToLL_M-50_HT-1200to2500"]="-n 200 -x 1. -g True --DY True"
-	# ["DYJetsToLL_M-50_HT-2500toInf"]="-n 200 -x 1. -g True --DY True"
-	# ["DYJetsToLL_Pt-50To100"]="-n 150 -x 1. -g True --DY True"
-	# ["DYJetsToLL_Pt-100To250"]="-n 150 -x 1. -g True --DY True"
-	# ["DYJetsToLL_Pt-250To400"]="-n 150 -x 1. -g True --DY True"
-	# ["DYJetsToLL_Pt-400To650"]="-n 150 -x 1. -g True --DY True"
-	# ["DYJetsToLL_Pt-650ToInf"]="-n 150 -x 1. -g True --DY True"
+	["DYJets.+_M-50_T.+amc"]=" -n 400 -x 6077.22 -g ${stitch_opt} --DY False" # inclusive NLO
+	["DYJetsToLL_Pt-50To100"]="-n 150 -x 1.      -g ${stitch_opt} --DY False"
+	["DYJetsToLL_Pt-100To250"]="-n 150 -x 1.     -g ${stitch_opt} --DY False"
+	["DYJetsToLL_Pt-250To400"]="-n 150 -x 1.	 -g ${stitch_opt} --DY False"
+	["DYJetsToLL_Pt-400To650"]="-n 150 -x 1.	 -g ${stitch_opt} --DY False"
+	["DYJetsToLL_Pt-650ToInf"]="-n 150 -x 1.	 -g ${stitch_opt} --DY False"
+
+	### LO samples, DY weights exist (--DY True)
+	# ["DYJets.+_M-50_T.+madgraph"]="		-n 400 -x 6077.22 -g ${stitch_opt} --DY True" # inclusive LO
+	# ["DY_merged"]="						-n 300 -x 6077.22 -g ${stitch_opt} --DY True"
+	# ["DY1J"]="							-n 200 -x 1. -g ${stitch_opt} --DY True"
+	# ["DY2J"]="							-n 200 -x 1. -g ${stitch_opt} --DY True"		   
+	# ["DY3J"]="							-n 200 -x 1. -g ${stitch_opt} --DY True"
+	# ["DY4J"]="							-n 200 -x 1. -g ${stitch_opt} --DY True"
+	# ["DYJetsToLL_M-50_HT-70to100"]="		-n 200 -x 1. -g ${stitch_opt} --DY True"
+	# ["DYJetsToLL_M-50_HT-100to200"]="		-n 200 -x 1. -g ${stitch_opt} --DY True"
+	# ["DYJetsToLL_M-50_HT-200to400"]="		-n 200 -x 1. -g ${stitch_opt} --DY True"
+	# ["DYJetsToLL_M-50_HT-400to600"]="		-n 200 -x 1. -g ${stitch_opt} --DY True"
+	# ["DYJetsToLL_M-50_HT-600to800"]="		-n 200 -x 1. -g ${stitch_opt} --DY True"
+	# ["DYJetsToLL_M-50_HT-800to1200"]="	-n 200 -x 1. -g ${stitch_opt} --DY True"
+	# ["DYJetsToLL_M-50_HT-1200to2500"]="	-n 200 -x 1. -g ${stitch_opt} --DY True"
+	# ["DYJetsToLL_M-50_HT-2500toInf"]="	-n 200 -x 1. -g ${stitch_opt} --DY True"
 
 	["WJetsToLNu_T.+madgraph"]="-n 20 -x 48917.48 -y 1.213784 -z 70" # for 0 < HT < 70
 	["WJetsToLNu_HT-70To100"]="-n 20 -x 1362 -y 1.213784"
