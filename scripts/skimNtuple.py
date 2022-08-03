@@ -264,6 +264,7 @@ def skim_ntuple(FLAGS, curr_folder):
                             'error = {}/{}.err'.format(conderrs, out_name),
                             'log = {}/{}.log'.format(condlogs, out_name),
                             'getenv = true',
+                            '+JobBatchName="{}"'.format(FLAGS.sample),
                             '',
                             'T3Queue = long',
                             'WNTag=el7',
