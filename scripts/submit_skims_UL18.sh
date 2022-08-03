@@ -1,14 +1,23 @@
 #!/usr/bin/env bash
 
+### Defaults
+FORCE="0"
+NO_LISTS="0"
+STITCHING_ON="0"
+DRYRUN="0"
+OUT_TAG=""
+KLUB_TAG="Jul2022"
+DATA_PERIOD="UL18"
+
 ### Argument parsing
 HELP_STR="Prints this help message."
-DRYRUN_STR="Prints all the commands to be launched but does not launch them."
-OUT_TAG_STR="String. Define tag for the output."
-KLUB_TAG_STR="String. Choose tag for the klub input."
-STITCHING_ON_STR="Flag. Drell-Yan stitching weights will be used. Defaults to false."
-FORCE_STR="Flag. Whether to override a folder with the same tag. Defaults to false."
-RUN_LISTS_STR="Flag. Whether to run the list production script before each submission. Defaults to false."
-DATAPERIOD_STR="String. Which data period to consider: Legacy18, UL18, ..."
+DRYRUN_STR="(Boolean) Prints all the commands to be launched but does not launch them. Defaults to ${DRYRUN}."
+OUT_TAG_STR="(String) Defines tag for the output. Defaults to '${OUT_TAG}'."
+KLUB_TAG_STR="(String) Chooses tag for the klub input. Defaults to '${KLUB_TAG}'."
+STITCHING_ON_STR="(Boolean) Drell-Yan stitching weights will be used. Defaults to ${STITCHING_ON}."
+FORCE_STR="(Boolean) Whether to override a folder with the same tag. Defaults to ${FORCE}."
+NO_LISTS_STR="(Boolean) Whether to run the list production script before each submission. Defaults to ${NO_LISTS}."
+DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${DATA_PERIOD}'."
 function print_usage_submit_skims {
     USAGE=" $(basename "$0") [-H] [--dry-run -t -f -d -n --klub_tag --stitching_on]
 
@@ -21,17 +30,11 @@ function print_usage_submit_skims {
     -n / --no_lists     [ ${NO_LISTS_STR} ]
     -d / --data_period  [ ${DATAPERIOD_STR} ]
 
-    Run example: $(basename "$0") -t <some_tag> -f
+    Run example: bash $(basename "$0") -t <some_tag> -f
 "
     printf "${USAGE}"
 }
 
-FORCE="0"
-NO_LISTS="0"
-STITCHING_ON="0"
-OUT_TAG=""
-KLUB_TAG="Jul2022"
-DATA_PERIOD="UL18"
 while [[ $# -gt 0 ]]; do
     key=${1}
     case $key in
