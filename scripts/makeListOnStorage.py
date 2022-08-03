@@ -1,3 +1,7 @@
+# coding: utf-8
+
+_all_ = [ "make_input_lists" ]
+
 import os
 from os.path import join
 import sys
