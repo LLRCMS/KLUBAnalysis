@@ -12,14 +12,14 @@ DATAPERIOD_STR="String. Which data period to consider: Legacy18, UL18, ..."
 function print_usage_submit_skims {
     USAGE=" $(basename "$0") [-H] [--dry-run -t -f -d -n --klub_tag --stitching_on]
 
-    -h / --help        [ ${HELP_STR} ]
-    --dry-run          [ ${DRYRUN_STR} ]
-    -t / --tag         [ ${OUT_TAG_STR} ]
-    --klub_tag         [ ${KLUB_TAG_STR} ]
-    --stitching_on     [ ${STITCHING_ON_STR} ]
-    -f / --force       [ ${FORCE_STR} ]
-    -n / --no_lists    [ ${NO_LISTS_STR} ]
-    -d / --data_period [ ${DATAPERIOD_STR} ]
+	-h / --help			[ ${HELP_STR} ]
+	--dry-run			[ ${DRYRUN_STR} ]
+	-t / --tag			[ ${OUT_TAG_STR} ]
+	--klub_tag			[ ${KLUB_TAG_STR} ]
+    -s / --stitching_on [ ${STITCHING_ON_STR} ]
+    -f / --force        [ ${FORCE_STR} ]
+    -n / --no_lists     [ ${NO_LISTS_STR} ]
+    -d / --data_period  [ ${DATAPERIOD_STR} ]
 
     Run example: $(basename "$0") -t <some_tag> -f
 "
@@ -51,7 +51,7 @@ while [[ $# -gt 0 ]]; do
 	    KLUB_TAG=${2}
 	    shift; shift;
 	    ;;
-	--stitching)
+	-s|--stitching)
 	    STITCHING_ON="1"
 	    shift;
 	    ;;
@@ -201,34 +201,34 @@ function find_sample() {
 ### Run on data samples
 DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
 RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
-for ds in ${DATA_LIST[@]}; do
-	for run in ${RUNS[@]}; do
-		pattern="${ds}__${run}"
-		sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
-		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-			ERRORS+=( ${sample} )
-		else
-			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
-		 	run_skim -n 10 --isdata True -o ${OUTSKIM_DIR} -i ${DATA_DIR} --sample ${sample}			
-		fi
-	done
-done
+# for ds in ${DATA_LIST[@]}; do
+# 	for run in ${RUNS[@]}; do
+# 		pattern="${ds}__${run}"
+# 		sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
+# 		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+# 			ERRORS+=( ${sample} )
+# 		else
+# 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
+# 		 	run_skim -n 10 --isdata True -o ${OUTSKIM_DIR} -i ${DATA_DIR} --sample ${sample}			
+# 		fi
+# 	done
+# done
 
 ### Run on HH resonant signal samples
 DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
 MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
-for ds in ${DATA_LIST[@]}; do
-	for mass in ${MASSES[@]}; do
-		pattern="${ds}.+_M-${mass}_";
-		sample=$(find_sample ${pattern} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
-		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-			ERRORS+=( ${sample} )
-		else
-			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
-			run_skim -n 20 -o ${OUTSKIM_DIR} -i ${SIG_DIR} --sample ${sample} -x 1.
-		fi
-	done
-done
+# for ds in ${DATA_LIST[@]}; do
+# 	for mass in ${MASSES[@]}; do
+# 		pattern="${ds}.+_M-${mass}_";
+# 		sample=$(find_sample ${pattern} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
+# 		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+# 			ERRORS+=( ${sample} )
+# 		else
+# 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
+# 			run_skim -n 20 -o ${OUTSKIM_DIR} -i ${SIG_DIR} --sample ${sample} -x 1.
+# 		fi
+# 	done
+# done
 
 ### Run on backgrounds samples
 stitch_opt="False"
@@ -240,11 +240,11 @@ DATA_MAP=(
 	["TTToSemiLeptonic"]="-n 100 -x 365.34"
 
 	["DYJets.+_M-50_T.+amc"]=" -n 400 -x 6077.22 -g ${stitch_opt} --DY False" # inclusive NLO
-	["DYJetsToLL_Pt-50To100"]="-n 150 -x 1.      -g ${stitch_opt} --DY False"
-	["DYJetsToLL_Pt-100To250"]="-n 150 -x 1.     -g ${stitch_opt} --DY False"
-	["DYJetsToLL_Pt-250To400"]="-n 150 -x 1.	 -g ${stitch_opt} --DY False"
-	["DYJetsToLL_Pt-400To650"]="-n 150 -x 1.	 -g ${stitch_opt} --DY False"
-	["DYJetsToLL_Pt-650ToInf"]="-n 150 -x 1.	 -g ${stitch_opt} --DY False"
+	# ["DYJetsToLL_Pt-50To100"]="-n 150 -x 1.      -g ${stitch_opt} --DY False"
+	# ["DYJetsToLL_Pt-100To250"]="-n 150 -x 1.     -g ${stitch_opt} --DY False"
+	# ["DYJetsToLL_Pt-250To400"]="-n 150 -x 1.	 -g ${stitch_opt} --DY False"
+	# ["DYJetsToLL_Pt-400To650"]="-n 150 -x 1.	 -g ${stitch_opt} --DY False"
+	# ["DYJetsToLL_Pt-650ToInf"]="-n 150 -x 1.	 -g ${stitch_opt} --DY False"
 
 	### LO samples, DY weights exist (--DY True)
 	# ["DYJets.+_M-50_T.+madgraph"]="		-n 400 -x 6077.22 -g ${stitch_opt} --DY True" # inclusive LO
@@ -304,15 +304,16 @@ DATA_MAP=(
 )
 
 # Sanity checks for Drell-Yan stitching
+DY_PATTERN=".*DY.*"
 dy_counter=0
 for ds in ${!DATA_MAP[@]}; do
 	sample=$(find_sample ${ds} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
-	# if [ ${sample} =~ ".*DY.*" ]; then
-	# 	dy_counter=$((dy_counter+1))
-	# fi
+	if [[ ${sample} =~ ${DY_PATTERN} ]]; then
+		dy_counter=$(( dy_counter+1 ))
+	fi
 done
 if [ ${STITCHING_ON} -eq 1 ]; then
-	if [ ${dy_counter} -eq 1 ]; then
+	if [ ${dy_counter} -eq 0 ]; then
 		echo "You set the DY stitching on while considering no DY samples. Did you forget to include the latter?"
 		exit 1
 	elif [ ${dy_counter} -eq 1 ]; then
@@ -320,7 +321,7 @@ if [ ${STITCHING_ON} -eq 1 ]; then
 		exit 1
 	fi
 fi
-
+exit 1
 # Skimming submission
 for ds in ${!DATA_MAP[@]}; do
 	sample=$(find_sample ${ds} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
