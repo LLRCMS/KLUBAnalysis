@@ -45,9 +45,9 @@ def parse_input_file_list(indir, insample):
 
 def skim_ntuple(FLAGS, curr_folder):
     arg1 = '${1}'
-    io_names = ( 'list_{}_{}.txt'.format(FLAGS.sample,arg1),
-                 'out_{}_{}.root'.format(FLAGS.sample,arg1),
-                 'out_{}_{}.log'.format(FLAGS.sample,arg1) )
+    io_names = ( 'list_{}.txt'.format(arg1),
+                 'output_{}.root'.format(arg1),
+                 'out_{}_{}.log'.format(FLAGS.sample,arg1) ) 
     
     # verify the result of the process
     if (FLAGS.resub != 'none'):
@@ -250,10 +250,8 @@ def skim_ntuple(FLAGS, curr_folder):
 
     condor_vars = ('infile', 'outfile')
     condouts = os.path.join(jobs_dir, 'outputs')
-    conderrs = os.path.join(jobs_dir, 'errors')
     condlogs = os.path.join(jobs_dir, 'logs')
     create_dir(condouts)
-    create_dir(conderrs)
     create_dir(condlogs)
     out_name = '$(Process)'
     with open(job_name_condor, 'w') as s:
@@ -261,7 +259,7 @@ def skim_ntuple(FLAGS, curr_folder):
                             'Executable = {}'.format(job_name_shell),
                             'input = /dev/null',
                             'output = {}/{}.out'.format(condouts, out_name),
-                            'error = {}/{}.err'.format(conderrs, out_name),
+                            'error = {}/{}.err'.format(condouts, out_name),
                             'log = {}/{}.log'.format(condlogs, out_name),
                             'getenv = true',
                             '+JobBatchName="{}"'.format(FLAGS.sample),
