@@ -45,9 +45,10 @@ def parse_input_file_list(indir, insample):
 
 def skim_ntuple(FLAGS, curr_folder):
     arg1 = '${1}'
-    io_names = ( 'list_{}.txt'.format(arg1),
+    io_names = ( '{}.txt'.format(arg1),
                  'output_{}.root'.format(arg1),
-                 'out_{}_{}.log'.format(FLAGS.sample,arg1) ) 
+                 '{}.log'.format(arg1) )
+    jobs_dir = os.path.join(FLAGS.output, FLAGS.sample)
     
     # verify the result of the process
     if (FLAGS.resub != 'none'):
@@ -64,7 +65,7 @@ def skim_ntuple(FLAGS, curr_folder):
         # check the log file
         missing = []
         for num in jobs:
-            rootfile = io_names[1].replace(arg, num)
+            rootfile = os.path.join(jobs_dir, io_names[1].replace(arg, num))
             if not os.path.exists(rootfile):
                 if FLAGS.verb:
                     print('ROOT file {} missing at iteration {}.'.format(rootfile, num))
@@ -75,7 +76,7 @@ def skim_ntuple(FLAGS, curr_folder):
                     print('ROOT file {} corrupted at iteration {}.'.format(rootfile, num))
                 missing.append(num)
                 continue
-            logfile = io_names[2].replace(arg1, num)
+            logfile = os.path.join(jobs_dir, io_names[2].replace(arg1, num))
             if not os.path.exists(logfile) :
                 if FLAGS.verb:
                     print(num, 'missing log file')
@@ -89,6 +90,7 @@ def skim_ntuple(FLAGS, curr_folder):
                     missing.append(num)
         print('The following jobs did not end successfully:')
         print(missing)
+        
         # The resubmission has to be rewritten
         # for num in missing :
         #     command = '`cat ' + os.path.join(FLAGS.input_folder, 'submit.sh') + ' | grep job_' + num + '.sh | tr "\'" " "`'
@@ -123,7 +125,6 @@ def skim_ntuple(FLAGS, curr_folder):
         print('The input folder {} does not exists. Exiting.'.format(FLAGS.input_folder))
         sys.exit(1)
 
-    jobs_dir = os.path.join(FLAGS.output, FLAGS.sample)
     if not FLAGS.force and os.path.exists(jobs_dir):
         print('The output folder {} already exists. Exiting.'.format(jobs_dir))
         sys.exit(1)
@@ -253,14 +254,14 @@ def skim_ntuple(FLAGS, curr_folder):
     condlogs = os.path.join(jobs_dir, 'logs')
     create_dir(condouts)
     create_dir(condlogs)
-    out_name = '$(Process)'
+    proc = '$(Process)'
     with open(job_name_condor, 'w') as s:
         s.write( '\n'.join(('Universe = vanilla',
                             'Executable = {}'.format(job_name_shell),
                             'input = /dev/null',
-                            'output = {}/{}.out'.format(condouts, out_name),
-                            'error = {}/{}.err'.format(condouts, out_name),
-                            'log = {}/{}.log'.format(condlogs, out_name),
+                            'output = {}/{}.out'.format(condouts, proc),
+                            'error = {}/{}.err'.format(condouts, proc),
+                            'log = {}'.format(os.path.join(condlogs, io_names[2].replace(arg1, proc)))
                             'getenv = true',
                             '+JobBatchName="{}"'.format(FLAGS.sample),
                             '',
