@@ -1,6 +1,6 @@
 # coding: utf-8
 
-_all_ = [ "skim_ntuple" ]
+_all_ = [ 'skim_ntuple' ]
 
 import os
 import sys
