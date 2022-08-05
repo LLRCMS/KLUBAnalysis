@@ -4,6 +4,9 @@ _all_ = []
 
 import os
 import unittest
+
+import sys
+sys.path.append('../scripts/')
 from check_outputs import is_job_sucessful
 
 class TestCheckOutputs(unittest.TestCase):
