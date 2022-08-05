@@ -16,7 +16,7 @@ def is_good_file(fname):
 def file_exists(afile, verb):
     if not os.path.exists(afile):
         if verb:
-            print('File {} missing.'.format(rootfile))
+            print('File {} missing.'.format(afile))
         return False
 
 def find_error_messages(afile, verb):
@@ -38,7 +38,7 @@ def is_job_sucessful(rootfile, outfile, errfile, logfile, verb=False):
             return False
     
     if not is_good_file(rootfile):
-        if FLAGS.verb:
+        if verb:
             print('ROOT file {} is bad.'.format(rootfile))
         return False
 
