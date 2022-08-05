@@ -144,7 +144,7 @@ def skim_ntuple(FLAGS, curr_folder):
         if FLAGS.verb:
             print('Resubmission with: {}'.format(launch_command))
         time.sleep(0.5)
-        #os.system(launch_command)
+        os.system(launch_command)
         sys.exit(0)
 
     # submit the jobs
