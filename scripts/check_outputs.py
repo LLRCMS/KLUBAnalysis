@@ -4,6 +4,7 @@ _all_ = [ 'is_job_sucessful' ]
 
 import os
 import argparse
+import ROOT
 
 def is_good_file(fname):
     f = ROOT.TFile(fname)
@@ -18,6 +19,7 @@ def file_exists(afile, verb):
         if verb:
             print('File {} missing.'.format(afile))
         return False
+    return True
 
 def find_error_messages(afile, verb):
     with open(afile, 'r') as f:
