@@ -16,17 +16,17 @@ def is_good_file(fname):
 def is_job_sucessful(rootfile, logfile, verb=False):
     if not os.path.exists(rootfile):
         if FLAGS.verb:
-            print('ROOT file {} missing at iteration {}.'.format(rootfile, num))
+            print('ROOT file {} missing.'.format(rootfile))
         return False
 
     if not is_good_file(rootfile):
         if FLAGS.verb:
-            print('ROOT file {} corrupted at iteration {}.'.format(rootfile, num))
+            print('ROOT file {} is bad.'.format(rootfile))
         return False
 
     if not os.path.exists(logfile) :
         if FLAGS.verb:
-            print(num, 'missing log file')
+            print('Log file {} missing.'.format(logfile))
         return False
     
     with open(logfile, 'r') as logfile:
@@ -34,8 +34,12 @@ def is_job_sucessful(rootfile, logfile, verb=False):
                     if 'Error' in word and 'TCling' not in word]
         if len(problems) != 0:
             if FLAGS.verb:
-                print(num, 'found error ', problems[0])
-            missing.append(num)
+                mes = ''.join("Found error '{}' ".format(problems[0]),
+                              'in log file {}.'.format(logfile))
+                print(mes)
+            return False
+
+    return True
 
 if __name__ == "__main__":
     usage = 'Checks the correctness of a ROOT file.'
