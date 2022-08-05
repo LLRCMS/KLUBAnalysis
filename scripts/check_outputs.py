@@ -13,35 +13,43 @@ def is_good_file(fname):
         return False
     return True
 
-def is_job_sucessful(rootfile, logfile, verb=False):
-    if not os.path.exists(rootfile):
-        if FLAGS.verb:
-            print('ROOT file {} missing.'.format(rootfile))
+def file_exists(afile, verb):
+    if not os.path.exists(afile):
+        if verb:
+            print('File {} missing.'.format(rootfile))
         return False
 
+def find_error_messages(afile, verb):
+    with open(afile, 'r') as f:
+        problems = [word for word in f.readlines()
+                    if 'Error' in word and 'TCling' not in word]
+        if len(problems) != 0:
+            if verb:
+                mes = ''.join("Found error '{}' ".format(problems[0]),
+                              'in log file {}.'.format(afile))
+                print(mes)
+            return True
+    return False
+
+def is_job_sucessful(rootfile, outfile, errfile, logfile, verb=False):
+    files = {rootfile, outfile, errfile, logfile}
+    for afile in files:
+        if not file_exists(afile, verb):
+            return False
+    
     if not is_good_file(rootfile):
         if FLAGS.verb:
             print('ROOT file {} is bad.'.format(rootfile))
         return False
 
-    if not os.path.exists(logfile) :
-        if FLAGS.verb:
-            print('Log file {} missing.'.format(logfile))
-        return False
-    
-    with open(logfile, 'r') as logfile:
-        problems = [word for word in logfile.readlines()
-                    if 'Error' in word and 'TCling' not in word]
-        if len(problems) != 0:
-            if FLAGS.verb:
-                mes = ''.join("Found error '{}' ".format(problems[0]),
-                              'in log file {}.'.format(logfile))
-                print(mes)
+    files.remove(rootfile)
+    for afile in files:
+        if find_error_messages(afile, verb):
             return False
 
     return True
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     usage = 'Checks the correctness of a ROOT file.'
     parser = argparse.ArgumentParser(description=usage)
     parser.add_argument('-i', '--input_folder', dest='input_folder',
