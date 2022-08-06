@@ -4,6 +4,7 @@ _all_ = [ 'skim_ntuple' ]
 
 import os
 import sys
+import re
 import glob
 import argparse
 import time
@@ -18,8 +19,15 @@ def double_join(*args):
     str1 = ' '.join(args)
     str2 = '\n#### Line-by-line command: ####\n'
     str2 += '# Exec: {}\n'.format(args[0])
-    str2 += ''.join( ['# {}:\t{}\n'.format(i+1,arg)
-                      for i,arg in enumerate(args[1:])] )
+    _, ext = args[0].split('.')
+    if ext == 'py':
+        regex = re.compile('(-|--)(.+)\s(.*)')
+        for i,arg in enumerate(args[1:]):
+            matches = regex.search(arg)
+            str2 += '# {}:\t{}\n'.format(matches[0],matches[1])
+    else:
+        str2 += ''.join( ['# {}:\t{}\n'.format(i+1,arg)
+                          for i,arg in enumerate(args[1:])] )
     return str1, str2
 
 def remove_file(f):
