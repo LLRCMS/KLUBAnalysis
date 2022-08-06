@@ -58,10 +58,16 @@ if __name__ == '__main__':
                         required=True, help='input folder')
     parser.add_argument('-f', '--rootfile', dest='rootfile',
                         required=True, help='ROOT file')
+    parser.add_argument('-o', '--outfile', dest='outfile',
+                        required=True, help='log file')
+    parser.add_argument('-e', '--errfile', dest='errfile',
+                        required=True, help='log file')
     parser.add_argument('-l', '--logfile', dest='logfile',
                         required=True, help='log file')
     FLAGS = parser.parse_args()
 
     rootfile = os.path.join(FLAGS.input_folder, FLAGS.rootfile)
     logfile = os.path.join(FLAGS.input_folder, FLAGS.logfile)
-    is_job_successful(rootfile, logfile)
+    outfile = os.path.join(FLAGS.input_folder, FLAGS.outfile)
+    errfile = os.path.join(FLAGS.input_folder, FLAGS.errfile)
+    is_job_successful(rootfile, outfile, errfile, logfile)
