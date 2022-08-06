@@ -21,10 +21,11 @@ def double_join(*args):
     str2 += '# Exec: {}\n'.format(args[0])
     _, ext = args[0].split('.')
     if ext == 'py':
-        regex = re.compile('(-|--)(.+)\s(.*)')
+        regex = re.compile('(?:-|--)(.+)\s(.*)')
         for i,arg in enumerate(args[1:]):
-            matches = regex.search(arg)
-            str2 += '# {}:\t{}\n'.format(matches[0],matches[1])
+            matches = regex.findall(arg)
+            assert len(matches) == 1
+            str2 += '# {}:\t{}\n'.format(matches[0][0],matches[0][1])
     else:
         str2 += ''.join( ['# {}:\t{}\n'.format(i+1,arg)
                           for i,arg in enumerate(args[1:])] )
@@ -164,7 +165,7 @@ def skim_ntuple(FLAGS, curr_folder):
         if FLAGS.verb:
             print('Resubmission with: {}'.format(launch_command))
         time.sleep(0.5)
-        os.system(launch_command)
+        #os.system(launch_command)
         sys.exit(0)
 
     # submit the jobs
