@@ -52,7 +52,7 @@ def parse_input_file_list(indir, insample):
                 filelist.append(line)
     return filelist
 
-def write_condor_file(d, name, queue, var='Process'):
+def write_condor_file(d, shell_name, queue, var='Process'):
         condouts = os.path.join(d, 'outputs')
         condlogs = os.path.join(d, 'logs')
         create_dir(condouts)
@@ -61,9 +61,10 @@ def write_condor_file(d, name, queue, var='Process'):
                  'err': '{}/{{}}.err'.format(condouts),
                  'log': '{}/{{}}.log'.format(condlogs)}
         proc = '$(Process)'
-        with open(name, 'w') as s:
+        condor_name = shell_name.replace('.sh','.condor')
+        with open(condor_name, 'w') as s:
             s.write( '\n'.join(('Universe = vanilla',
-                                'Executable = {}'.format(name),
+                                'Executable = {}'.format(shell_name),
                                 'input = /dev/null',
                                 'output = ' + paths['out'].format(proc),
                                 'error = ' + paths['err'].format(proc),
@@ -79,7 +80,7 @@ def write_condor_file(d, name, queue, var='Process'):
                                 '',
                                 'Arguments = $({})'.format(var),
                                 'queue {}'.format(queue))) + '\n' )
-        return paths
+        return paths, condor_name
 
 def skim_ntuple(FLAGS, curr_folder):
     arg1 = '${1}'
@@ -158,10 +159,10 @@ def skim_ntuple(FLAGS, curr_folder):
         for mis in missing:
             str_queue += '  {}\n'.format(str(mis))
         str_queue += '\n'
-        write_condor_file(d=jobs_dir, name=job_name_shell.replace('.sh', '.condor'),
-                          queue=str_queue, var='afile')
+        _, condor_name = write_condor_file(d=jobs_dir, name=job_name_shell,
+                                           queue=str_queue, var='afile')
             
-        launch_command = 'condor_submit {}'.format(job_name_condor)
+        launch_command = 'condor_submit {}'.format(condor_name)
         if FLAGS.verb:
             print('Resubmission with: {}'.format(launch_command))
         time.sleep(0.5)
@@ -199,9 +200,9 @@ def skim_ntuple(FLAGS, curr_folder):
             for line in listname:
                 input_list_file.write(line + '\n')
 
-    cpaths = write_condor_file(d=jobs_dir,
-                               name=job_name_shell.replace('.sh','.condor'),
-                               queue=str(njobs))
+    cpaths, cname = write_condor_file(d=jobs_dir,
+                                      shell_name=job_name_shell,
+                                      queue=str(njobs))
 
     with open(job_name_shell, 'w') as s:
         s.write( '\n'.join(('#!/usr/bin/env bash',
@@ -274,7 +275,7 @@ def skim_ntuple(FLAGS, curr_folder):
         s.write('echo "Job with id '+arg1+' completed."\n')
         os.system('chmod u+rwx {}'.format(job_name_shell))
  
-    launch_command = 'condor_submit {}'.format(job_name_condor)
+    launch_command = 'condor_submit {}'.format(cname)
 
     if FLAGS.sleep:
         time.sleep(0.1)
