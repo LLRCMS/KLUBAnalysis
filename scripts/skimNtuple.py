@@ -14,6 +14,14 @@ def create_dir(d):
     if not os.path.exists(d):
         os.makedirs(d)
 
+def double_join(*args):
+    str1 = ' '.join(args)
+    str2 = '\n#### Line-by-line command: ####\n'
+    str2 += '# Exec: {}\n'.format(args[0])
+    str2 += ''.join( ['# {}:\t{}\n'.format(i+1,arg)
+                      for i,arg in enumerate(args[1:])] )
+    return str1, str2
+
 def remove_file(f):
     if os.path.exists(f):
         os.remove(f)
@@ -40,14 +48,17 @@ def write_condor_file(d, name, queue, var='Process'):
         condlogs = os.path.join(d, 'logs')
         create_dir(condouts)
         create_dir(condlogs)
+        paths = {'out': '{}/{{}}.out'.format(condouts),
+                 'err': '{}/{{}}.err'.format(condouts),
+                 'log': '{}/{{}}.log'.format(condlogs)}
         proc = '$(Process)'
         with open(name, 'w') as s:
             s.write( '\n'.join(('Universe = vanilla',
                                 'Executable = {}'.format(name),
                                 'input = /dev/null',
-                                'output = {}/{}.out'.format(condouts, proc),
-                                'error = {}/{}.err'.format(condouts, proc),
-                                'log = {}/{}.log'.format(condlogs, proc),
+                                'output = ' + paths['out'].format(proc),
+                                'error = ' + paths['err'].format(proc),
+                                'log = ' + paths['log'].format(proc),
                                 'getenv = true',
                                 '+JobBatchName="{}"'.format(FLAGS.sample),
                                 '',
@@ -59,6 +70,7 @@ def write_condor_file(d, name, queue, var='Process'):
                                 '',
                                 'Arguments = $({})'.format(var),
                                 'queue {}'.format(queue))) + '\n' )
+        return paths
 
 def skim_ntuple(FLAGS, curr_folder):
     arg1 = '${1}'
@@ -178,6 +190,10 @@ def skim_ntuple(FLAGS, curr_folder):
             for line in listname:
                 input_list_file.write(line + '\n')
 
+    cpaths = write_condor_file(d=jobs_dir,
+                               name=job_name_shell.replace('.sh','.condor'),
+                               queue=str(njobs))
+
     with open(job_name_shell, 'w') as s:
         s.write( '\n'.join(('#!/usr/bin/env bash',
                             '',
@@ -188,13 +204,6 @@ def skim_ntuple(FLAGS, curr_folder):
                             'source scripts/setup.sh')) + '\n' )
                 
         yes_or_no = lambda s : '1' if bool(s) else '0'
-
-        def double_join(*args):
-            str1 = ' '.join(args)
-            str2 = '\n#### Line-by-line command: ####\n'
-            str2 += '# Exec: {}\n'.format(args[0])
-            str2 += ''.join( ['# {}:\t{}\n'.format(i+1,arg) for i,arg in enumerate(args[1:])] )
-            return str1, str2
         
         command, comment = double_join(skimmer,
                                        os.path.join(lists_dir, io_names[0]),
@@ -231,8 +240,16 @@ def skim_ntuple(FLAGS, curr_folder):
                                        yes_or_no(FLAGS.isAPV))
 
         s.write(comment + '\n')
-        s.write(command + '\n')
-      
+        s.write(command + '\n\n')
+
+        command, comment = double_join('scripts/check_outputs.py',
+                                       '-r ' + os.path.join(jobs_dir, io_names[1]),
+                                       '-o ' + cpaths['out'].format(arg1),
+                                       '-e ' + cpaths['err'].format(arg1),
+                                       '-l ' + cpaths['log'].format(arg1))
+        s.write(comment + '\n')
+        s.write(command + '\n\n')
+
         if FLAGS.doSyst:
             sys_command, sys_comment = double_join('skimOutputter.exe',
                                                    os.path.join(jobs_dir, io_names[1]),
@@ -248,9 +265,6 @@ def skim_ntuple(FLAGS, curr_folder):
         s.write('echo "Job with id '+arg1+' completed."\n')
         os.system('chmod u+rwx {}'.format(job_name_shell))
  
-    write_condor_file(d=jobs_dir, name=job_name_shell.replace('.sh', '.condor'),
-                      queue=str(njobs))
-
     launch_command = 'condor_submit {}'.format(job_name_condor)
 
     if FLAGS.sleep:
