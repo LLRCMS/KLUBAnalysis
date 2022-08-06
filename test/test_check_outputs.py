@@ -7,7 +7,7 @@ import unittest
 
 import sys
 sys.path.append('../scripts/')
-from check_outputs import is_job_sucessful
+from check_outputs import is_job_successful
 
 class TestCheckOutputs(unittest.TestCase):
 
@@ -20,9 +20,9 @@ class TestCheckOutputs(unittest.TestCase):
         self.logf  = os.path.join(base, '{}.log'.format(infile))
 
     def test_files(self):
-        success = is_job_sucessful(self.rootf, self.outf,
-                                   self.errf, self.logf,
-                                   verb=True)
+        success = is_job_successful(self.rootf, self.outf,
+                                    self.errf, self.logf,
+                                    verb=True)
         self.assertTrue(success)
         
 
