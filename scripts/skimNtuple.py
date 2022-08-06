@@ -250,9 +250,9 @@ def skim_ntuple(FLAGS, curr_folder):
                                        yes_or_no(FLAGS.isAPV))
 
         s.write(comment + '\n')
-        s.write(command + '\n\n')
+        s.write(command + '\n')
 
-        command, comment = double_join('scripts/check_outputs.py',
+        command, comment = double_join('python scripts/check_outputs.py',
                                        '-r ' + os.path.join(jobs_dir, io_names[1]),
                                        '-o ' + cpaths['out'].format(arg1),
                                        '-e ' + cpaths['err'].format(arg1),
