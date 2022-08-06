@@ -33,7 +33,7 @@ def find_error_messages(afile, verb):
             return True
     return False
 
-def is_job_sucessful(rootfile, outfile, errfile, logfile, verb=False):
+def is_job_successful(rootfile, outfile, errfile, logfile, verb=False):
     files = {rootfile, outfile, errfile, logfile}
     for afile in files:
         if not file_exists(afile, verb):
