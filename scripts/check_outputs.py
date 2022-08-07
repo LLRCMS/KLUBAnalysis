@@ -23,12 +23,15 @@ def file_exists(afile, verb):
 
 def find_error_messages(afile, verb):
     with open(afile, 'r') as f:
-        problems = [word for word in f.readlines()
-                    if 'Error' in word and 'TCling' not in word]
+        problems = [w for w in f.readlines()
+                    if (('Error' in word and 'TCling' not in word) or
+                        ('R__unzip: error' in word ) or
+                        ('... SKIM finished, exiting.' not in word)) ]
         if len(problems) != 0:
             if verb:
-                mes = ''.join("Found error '{}' ".format(problems[0]),
-                              'in log file {}.'.format(afile))
+                mes = 'Found errors in file {}:\n'.format(afile)
+                for problem in problems:
+                    mes += '  {}'.format(problem)
                 print(mes)
             return True
     return False
