@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
     success = is_job_successful(FLAGS.rootfile, FLAGS.outfile,
                                 FLAGS.errfile, FLAGS.logfile)
-    base = os.path.basename(FLAGS.rootfile)
+    dir = os.path.dirname(FLAGS.rootfile)
     out = 'good' if success else 'bad'
-    with open( os.path.join(base, '{}files.txt'.format(out)) ) as f:
-        f.write(FLAGS.rootfile)
+    with open( os.path.join(dir, '{}files.txt'.format(out)), 'a' ) as f:
+        f.write(FLAGS.rootfile + '\n')
