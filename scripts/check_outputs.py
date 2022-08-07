@@ -67,5 +67,9 @@ if __name__ == '__main__':
                         required=True, help='log file')
     FLAGS = parser.parse_args()
 
-    is_job_successful(FLAGS.rootfile, FLAGS.outfile,
-                      FLAGS.errfile, FLAGS.logfile)
+    success = is_job_successful(FLAGS.rootfile, FLAGS.outfile,
+                                FLAGS.errfile, FLAGS.logfile)
+    base = os.path.basename(FLAGS.rootfile)
+    out = 'good' if success else 'bad'
+    with open( os.path.join(base, '{}files.txt'.format(out)) ) as f:
+        f.write(FLAGS.rootfile)
