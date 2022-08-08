@@ -65,10 +65,13 @@ if __name__ == '__main__':
                         required=True, help='error file')
     parser.add_argument('-l', '--logfile', dest='logfile',
                         required=True, help='log file')
+    parser.add_argument('-v', '--verbose', dest='verbose', default=False,
+                        action='store_true', help='whether to have verbosity')
+
     FLAGS = parser.parse_args()
 
     success = is_job_successful(FLAGS.rootfile, FLAGS.outfile,
-                                FLAGS.errfile, FLAGS.logfile)
+                                FLAGS.errfile, FLAGS.logfile, FLAGS.verbose)
     dir = os.path.dirname(FLAGS.rootfile)
     out = 'good' if success else 'bad'
     with open( os.path.join(dir, '{}files.txt'.format(out)), 'a' ) as f:

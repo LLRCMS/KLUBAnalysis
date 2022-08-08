@@ -254,14 +254,15 @@ def skim_ntuple(FLAGS, curr_folder):
                                        '-r ' + os.path.join(jobs_dir, io_names[1]),
                                        '-o ' + cpaths['out'].format(arg1),
                                        '-e ' + cpaths['err'].format(arg1),
-                                       '-l ' + cpaths['log'].format(arg1))
+                                       '-l ' + cpaths['log'].format(arg1),
+                                       '-v ')
 
         s.write(comment + '\n')
         fd = 9 # any above 3 should work
         s.write('\n'.join(('(',
-                           '  flock -x -w 5 {} || exit 1'.format(fd),
+                           '  flock -x -w 5.0 {} || exit 1'.format(fd),
                            '  ' + command,
-                           ') {}>/tmp/mylockfile\n\n'.format(fd))))
+                           ') {}>mylockfile\n\n'.format(fd))))
 
         if FLAGS.doSyst:
             sys_command, sys_comment = double_join('skimOutputter.exe',
