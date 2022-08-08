@@ -120,9 +120,7 @@ def skim_ntuple(FLAGS, curr_folder):
         jobs_dir += '_' + FLAGS.BSMname
 
     create_dir(jobs_dir)
-    job_name_shell = os.path.join(jobs_dir,
-                                  ('job_{}'.format(FLAGS.sample)
-                                   .replace('.', 'DOT')) + '.sh')
+    job_name_shell = os.path.join(jobs_dir, 'job.sh')
     remove_file(job_name_shell)
 
     if FLAGS.year == '2018':
