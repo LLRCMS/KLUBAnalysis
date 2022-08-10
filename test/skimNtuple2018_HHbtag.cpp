@@ -929,6 +929,9 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   for (Long64_t iEvent = 0 ; true ; ++iEvent)
 	{
+	  if (iEvent>5)
+		break;
+	  
 	  if (iEvent%10000==0)
 	    cout << "Reading event " << iEvent << endl;
 	  theSmallTree.clearVars () ;
