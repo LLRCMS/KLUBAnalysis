@@ -248,21 +248,12 @@ def skim_ntuple(FLAGS, curr_folder):
                                        yes_or_no(FLAGS.isAPV))
 
         s.write(comment + '\n')
-
-        # out and err files are written by htcondor once the job completes
-        # we need to check them 'live', i.e., while the job is running
-        livedir = os.path.join(jobs_dir, 'live_logs')
-        create_dir(livedir)
-        local_out = os.path.join(livedir, 'output_{}.out'.format(arg1))
-        local_err = os.path.join(livedir, 'error_{}.err'.format(arg1))
-        s.write(command + ' 1>{} 2>{}\n'.format(local_out, local_err))
+        s.write(command + '\n')
         
         command, comment = double_join('python scripts/check_outputs.py',
                                        '-r ' + os.path.join(jobs_dir, io_names[1]),
-                                       # '-o ' + cpaths['out'].format(arg1),
-                                       # '-e ' + cpaths['err'].format(arg1),
-                                       '-o ' + local_out,
-                                       '-e ' + local_err,
+                                       '-o ' + cpaths['out'].format(arg1),
+                                       '-e ' + cpaths['err'].format(arg1),
                                        '-l ' + cpaths['log'].format(arg1),
                                        '-v ')
 
@@ -271,8 +262,7 @@ def skim_ntuple(FLAGS, curr_folder):
         s.write('\n'.join(('(',
                            '  flock -x -w 5.0 {} || exit 1'.format(fd),
                            '  ' + command,
-                           '  echo "Job {} is exiting the lock."'.format(arg1),
-                           ') {}>{}/mylockfile\n\n'.format(fd, livedir))))
+                           ') {}>mylockfile\n\n'.format(fd))))
 
         if FLAGS.doSyst:
             sys_command, sys_comment = double_join('skimOutputter.exe',
@@ -291,7 +281,8 @@ def skim_ntuple(FLAGS, curr_folder):
  
     launch_command = 'condor_submit {}'.format(cname)
 
-    time.sleep(0.1)
+    if FLAGS.sleep:
+        time.sleep(0.1)
     print('The following command was run: \n  {}'.format(launch_command))
     os.system(launch_command)
 
@@ -309,6 +300,7 @@ if __name__ == "__main__":
     parser.add_argument('-q', '--queue', dest='queue', default='short', help='batch queue')
     parser.add_argument('-r', '--resub', dest='resub', default='none', help='resubmit failed jobs')
     parser.add_argument('-v', '--verb', dest='verb', default=False, help='verbose')
+    parser.add_argument('-s', '--sleep', dest='sleep', default=False, help='sleep in submission')
     parser.add_argument('-d', '--isdata', dest='isdata', default=False, help='data flag')
     parser.add_argument('-T', '--tag', dest='tag', default='', help='folder tag name')
     parser.add_argument('-H', '--hadd', dest='hadd', default='none', help='hadd the resulting ntuples')
