@@ -24,9 +24,8 @@ def file_exists(afile, verb):
 def find_error_messages(afile, verb):
     with open(afile, 'r') as f:
         problems = [w for w in f.readlines()
-                    if (('Error' in word and 'TCling' not in word) or
-                        ('R__unzip: error' in word ) or
-                        ('... SKIM finished, exiting.' not in word)) ]
+                    if (('Error' in w and 'TCling' not in w) or
+                        ('R__unzip: error' in w )) ]
         if len(problems) != 0:
             if verb:
                 mes = 'Found errors in file {}:\n'.format(afile)
@@ -35,6 +34,16 @@ def find_error_messages(afile, verb):
                 print(mes)
             return True
     return False
+
+def did_job_complete(afile, verb):
+    with open(afile, 'r') as f:
+        if '... SKIM finished, exiting.' not in f.readlines()[-1]:
+            if verb:
+                mes = 'The last line of file {} shows: '.format(afile)
+                mes += f.readlines()[-1]
+                print(mes)
+            return False
+    return True
 
 def is_job_successful(rootfile, outfile, errfile, logfile, verb=False):
     files = {rootfile, outfile, errfile, logfile}
@@ -51,6 +60,9 @@ def is_job_successful(rootfile, outfile, errfile, logfile, verb=False):
     for afile in files:
         if find_error_messages(afile, verb):
             return False
+
+    if not did_job_complete(outfile, verb):
+        return True
 
     return True
 
