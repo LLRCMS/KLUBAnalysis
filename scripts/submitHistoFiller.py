@@ -13,10 +13,10 @@ parser.add_argument('--njobs', dest='njobs', required=False, type=int,
 FLAGS = parser.parse_args()
 
 #hourdate = datetime.datetime.now().strftime('%Y.%m.%d_%H.%M.%S').replace('.','-')
-outdir = "filljobs_" + FLAGS.tag
-exe = 'testAnalysisHelper.exe'
+outdir     = 'filljobs_' + FLAGS.tag
+exe        = 'testAnalysisHelper.exe'
 scriptname = 'filler.sh'
-logname = 'log_${1}.txt'
+logname    = 'log_${1}.txt'
 
 write = lambda stream, text: stream.write(text + '\n')
 
@@ -51,6 +51,7 @@ with open(scriptpath_condor, 'w') as s:
     write(s,'input = /dev/null')
     write(s,'output = {}/condor_log_$(Process).o'.format(condlog))
     write(s,'error  = {}/condor_log_$(Process).e'.format(condlog))
+    write(s,'log  = {}/condor_log_$(Process).l'.format(condlog))
     write(s,'getenv = true')
     write(s,'T3Queue = short')
     write(s,'WNTag=el7')

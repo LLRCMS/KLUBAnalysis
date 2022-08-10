@@ -24,7 +24,6 @@ int main(int argc, char** argv)
   }
 
   AnalysisHelper ah(argv[1]);
-  // if ()
   if (split) ah.setSplitting(idx, njobs);
   ah.readSelections();
   ah.readVariables();
