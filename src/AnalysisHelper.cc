@@ -78,15 +78,16 @@ bool AnalysisHelper::readMainInfo()
     return true;
 }
 
-void AnalysisHelper::saveOutputsToFile()
+void AnalysisHelper::saveOutputsToFile(std::string tag)
 {
-    string outFile = outputFolder_ + "/" + outputFileName_ ;
+    string outFolder = outputFolder_ + "/" tag;
+    string outFile = outFolder + "/" + outputFileName_ ;
     cout << "@@ Saving all plots to file : " << outFile << endl;
     system (Form("mkdir %s", outputFolder_.c_str())); // not checking if already exists, but return message is harmless
 
-    system (Form("cp %s %s", (mainCfg_  ->getCfgName()).c_str() , outputFolder_.c_str()));
-    system (Form("cp %s %s", (cutCfg_   ->getCfgName()).c_str() , outputFolder_.c_str()));
-    system (Form("cp %s %s", (sampleCfg_->getCfgName()).c_str() , outputFolder_.c_str()));
+    system (Form("cp %s %s", (mainCfg_  ->getCfgName()).c_str() , outFolder.c_str()));
+    system (Form("cp %s %s", (cutCfg_   ->getCfgName()).c_str() , outFolder.c_str()));
+    system (Form("cp %s %s", (sampleCfg_->getCfgName()).c_str() , outFolder.c_str()));
 
     TFile* fOut = TFile::Open(outFile.c_str(), "recreate");
     vector <ordered_map <std::string, std::shared_ptr<Sample>> *> allToSave;
