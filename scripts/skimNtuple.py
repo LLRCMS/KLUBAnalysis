@@ -52,7 +52,7 @@ def parse_input_file_list(indir, insample):
                 filelist.append(line)
     return filelist
 
-def write_condor_file(d, shell_name, queue, var='Process'):
+def write_condor_file(d, shell_exec, c_exec, py_exec, queue, var='Process'):
         condouts = os.path.join(d, 'outputs')
         condlogs = os.path.join(d, 'logs')
         create_dir(condouts)
@@ -61,16 +61,18 @@ def write_condor_file(d, shell_name, queue, var='Process'):
                  'err': '{}/{{}}.err'.format(condouts),
                  'log': '{}/{{}}.log'.format(condlogs)}
         proc = '$(Process)'
-        condor_name = shell_name.replace('.sh','.condor')
+        condor_name = shell_exec.replace('.sh','.condor')
         with open(condor_name, 'w') as s:
             s.write( '\n'.join(('Universe = vanilla',
-                                'Executable = {}'.format(shell_name),
-                                'input = /dev/null',
+                                'Executable = {}'.format(shell_exec),
+                                'input = {}'.format(c_exec),
                                 'output = ' + paths['out'].format(proc),
                                 'error = ' + paths['err'].format(proc),
                                 'log = ' + paths['log'].format(proc),
                                 'getenv = true',
                                 '+JobBatchName="{}"'.format(FLAGS.sample),
+                                'should_transfer_files = YES',
+                                'transfer_input_files = {}'.format(py_exec),
                                 '',
                                 'T3Queue = long',
                                 'WNTag=el7',
@@ -198,8 +200,11 @@ def skim_ntuple(FLAGS, curr_folder):
             for line in listname:
                 input_list_file.write(line + '\n')
 
+    py_exec = scripts/check_outputs.py
     cpaths, cname = write_condor_file(d=jobs_dir,
-                                      shell_name=job_name_shell,
+                                      shell_exec=job_name_shell,
+                                      c_exec=skimmer,
+                                      py_exec=py_exec,
                                       queue=str(njobs))
 
     with open(job_name_shell, 'w') as s:
@@ -257,7 +262,7 @@ def skim_ntuple(FLAGS, curr_folder):
         local_err = os.path.join(livedir, 'error_{}.err'.format(arg1))
         s.write(command + ' 1>{} 2>{}\n'.format(local_out, local_err))
         
-        command, comment = double_join('python scripts/check_outputs.py',
+        command, comment = double_join('python {}'.format(py_exec),
                                        '-r ' + os.path.join(jobs_dir, io_names[1]),
                                        # '-o ' + cpaths['out'].format(arg1),
                                        # '-e ' + cpaths['err'].format(arg1),
