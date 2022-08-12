@@ -77,11 +77,26 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+EXEC_FILE="${KLUB_DIR}/bin"
+if [[ ! " ${DATA_PERIOD_CHOICES[*]} " =~ " ${DATA_PERIOD} " ]]; then
+	echo "Currently the following data periods are supported:"
+	for dp in ${DATA_PERIOD_CHOICES[@]}; do
+		echo "- ${dp}" # bash string substitution
+	done
+elif
+	if [ ${DATA_PERIOD} == "UL16" ]; then
+		EXEC_FILE="${EXEC_FILE}/skimNtuple2016_HHbtag.exe"
+	elif [ ${DATA_PERIOD} == "UL17" ]; then
+		EXEC_FILE="${EXEC_FILE}/skimNtuple2017_HHbtag.exe"
+	elif [ ${DATA_PERIOD} == "UL18" ]; then
+		EXEC_FILE="${EXEC_FILE}/skimNtuple2018_HHbtag.exe"
+	fi
+fi
+
 ### Setup variables
 THIS_FILE="${BASH_SOURCE[0]}"
 THIS_DIR="$( cd "$( dirname ${THIS_FILE} )" && pwd )"
 KLUB_DIR="$( cd "$( dirname ${THIS_DIR} )" && pwd )"
-EXEC_DIR="${KLUB_DIR}/bin/"
 
 SUBMIT_SCRIPT="scripts/skimNtuple.py"
 LIST_SCRIPT="scripts/makeListOnStorage.py"
@@ -171,7 +186,7 @@ echo "--------Run: $(date) ---------------" >> ${ERR_FILE}
 ### Submission command
 function run_skim() {
 	comm="python ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -o ${OUTSKIM_DIR} -c ${KLUB_DIR}/${CFG} "
-	comm+="--exec_folder ${EXEC_DIR} -q long -Y 2018 -k True --pu ${PU_DIR} -f ${FORCE} $@"
+	comm+="--exec_file ${EXEC_FILE} -q long -Y 2018 -k True --pu ${PU_DIR} -f ${FORCE} $@"
 	[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
 }
 
@@ -212,8 +227,10 @@ function find_sample() {
 }
 
 ### Run on data samples
-DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
-RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
+# DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
+# RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
+DATA_LIST=("EGamma")
+RUNS=("Run2018A")
 for ds in ${DATA_LIST[@]}; do
 	for run in ${RUNS[@]}; do
 		pattern="${ds}__${run}"
@@ -226,7 +243,7 @@ for ds in ${DATA_LIST[@]}; do
 		fi
 	done
 done
-
+exit 1
 ### Run on HH resonant signal samples
 DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
 MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
