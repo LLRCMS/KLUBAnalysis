@@ -159,7 +159,7 @@ def skim_ntuple(FLAGS, curr_folder):
         for mis in missing:
             str_queue += '  {}\n'.format(str(mis))
         str_queue += '\n'
-        _, condor_name = write_condor_file(d=jobs_dir, name=job_name_shell,
+        _, condor_name = write_condor_file(d=jobs_dir, shell_exec=job_name_shell,
                                            queue=str_queue, var='afile')
             
         launch_command = 'condor_submit {}'.format(condor_name)
