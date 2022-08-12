@@ -53,13 +53,11 @@ def parse_input_file_list(indir, insample):
     return filelist
 
 def write_condor_file(d, shell_exec, c_exec, py_exec, queue, var='Process'):
-        condouts = os.path.join(d, 'outputs')
-        condlogs = os.path.join(d, 'logs')
+        condouts = os.path.join(d, 'logs')
         create_dir(condouts)
-        create_dir(condlogs)
         paths = {'out': '{}/{{}}.out'.format(condouts),
                  'err': '{}/{{}}.err'.format(condouts),
-                 'log': '{}/{{}}.log'.format(condlogs)}
+                 'log': '{}/{{}}.log'.format(condouts)}
         proc = '$(Process)'
         condor_name = shell_exec.replace('.sh','.condor')
         with open(condor_name, 'w') as s:
