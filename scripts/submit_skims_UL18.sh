@@ -81,6 +81,7 @@ done
 THIS_FILE="${BASH_SOURCE[0]}"
 THIS_DIR="$( cd "$( dirname ${THIS_FILE} )" && pwd )"
 KLUB_DIR="$( cd "$( dirname ${THIS_DIR} )" && pwd )"
+EXEC_DIR="${KLUB_DIR}/bin/"
 
 SUBMIT_SCRIPT="scripts/skimNtuple.py"
 LIST_SCRIPT="scripts/makeListOnStorage.py"
@@ -169,7 +170,8 @@ echo "--------Run: $(date) ---------------" >> ${ERR_FILE}
 
 ### Submission command
 function run_skim() {
-	comm="python ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -c ${KLUB_DIR}/${CFG} -q long -Y 2018 -k True --pu ${PU_DIR} -f ${FORCE} $@"
+	comm="python ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -o ${OUTSKIM_DIR} -c ${KLUB_DIR}/${CFG} "
+	comm+="--exec_folder ${EXEC_DIR} -q long -Y 2018 -k True --pu ${PU_DIR} -f ${FORCE} $@"
 	[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
 }
 
@@ -220,7 +222,7 @@ for ds in ${DATA_LIST[@]}; do
 			ERRORS+=( ${sample} )
 		else
 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
-		 	run_skim -n 200 --isdata True -o ${OUTSKIM_DIR} -i ${DATA_DIR} --sample ${sample}			
+		 	run_skim -n 200 --isdata True -i ${DATA_DIR} --sample ${sample}			
 		fi
 	done
 done
@@ -236,7 +238,7 @@ for ds in ${DATA_LIST[@]}; do
 			ERRORS+=( ${sample} )
 		else
 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
-			run_skim -n 20 -o ${OUTSKIM_DIR} -i ${SIG_DIR} --sample ${sample} -x 1.
+			run_skim -n 20 -i ${SIG_DIR} --sample ${sample} -x 1.
 		fi
 	done
 done
@@ -340,7 +342,7 @@ for ds in ${!DATA_MAP[@]}; do
 		ERRORS+=( ${sample} )
 	else
 		[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Backgrounds --sample ${sample}
-		run_skim -o ${OUTSKIM_DIR} -i ${BKG_DIR} --sample ${sample} ${DATA_MAP[${ds}]}
+		run_skim -i ${BKG_DIR} --sample ${sample} ${DATA_MAP[${ds}]}
 	fi
 done
 
