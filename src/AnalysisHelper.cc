@@ -76,9 +76,7 @@ bool AnalysisHelper::readMainInfo()
 
 void AnalysisHelper::saveOutputsToFile(std::string outFolder)
 {
-    string outFile = outFolder + "/" + outputFileName_ ;
-
-    system (Form("mkdir %s", outFolder.c_str())); // not checking if already exists, but return message is harmless
+    string outFile = outFolder + "/" + outputFileName_;
 
     system (Form("cp %s %s", (mainCfg_  ->getCfgName()).c_str() , outFolder.c_str()));
     system (Form("cp %s %s", (cutCfg_   ->getCfgName()).c_str() , outFolder.c_str()));
