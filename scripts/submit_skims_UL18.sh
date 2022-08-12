@@ -83,7 +83,7 @@ if [[ ! " ${DATA_PERIOD_CHOICES[*]} " =~ " ${DATA_PERIOD} " ]]; then
 	for dp in ${DATA_PERIOD_CHOICES[@]}; do
 		echo "- ${dp}" # bash string substitution
 	done
-elif
+else
 	if [ ${DATA_PERIOD} == "UL16" ]; then
 		EXEC_FILE="${EXEC_FILE}/skimNtuple2016_HHbtag.exe"
 	elif [ ${DATA_PERIOD} == "UL17" ]; then
@@ -235,6 +235,8 @@ for ds in ${DATA_LIST[@]}; do
 	for run in ${RUNS[@]}; do
 		pattern="${ds}__${run}"
 		sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
+		echo $sample
+		exit 1
 		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
 			ERRORS+=( ${sample} )
 		else
