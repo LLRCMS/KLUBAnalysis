@@ -200,10 +200,10 @@ def skim_ntuple(FLAGS, curr_folder):
             for line in listname:
                 input_list_file.write(line + '\n')
 
-    py_exec = scripts/check_outputs.py
+    py_exec = 'scripts/check_outputs.py'
     cpaths, cname = write_condor_file(d=jobs_dir,
                                       shell_exec=job_name_shell,
-                                      c_exec=skimmer,
+                                      c_exec=os.path.join(FLAGS.exec_folder, skimmer),
                                       py_exec=py_exec,
                                       queue=str(njobs))
 
@@ -264,8 +264,6 @@ def skim_ntuple(FLAGS, curr_folder):
         
         command, comment = double_join('python {}'.format(py_exec),
                                        '-r ' + os.path.join(jobs_dir, io_names[1]),
-                                       # '-o ' + cpaths['out'].format(arg1),
-                                       # '-e ' + cpaths['err'].format(arg1),
                                        '-o ' + local_out,
                                        '-e ' + local_err,
                                        '-l ' + cpaths['log'].format(arg1),
@@ -304,6 +302,7 @@ if __name__ == "__main__":
     usage = 'Command line parser of skimming a bit Ntuple.'
     parser = argparse.ArgumentParser(description=usage)
     parser.add_argument('-i', '--input_folder', dest='input_folder', default='none', help='input folder')
+    parser.add_argument('--exec_folder', dest='exec_folder', required=True, help='folder where the C++ skimmer executable is stored')
     parser.add_argument('--sample', dest='sample', default='none', help='input sample')
     parser.add_argument('-Y', '--year', dest='year', default='2018', help='year', choices=['2016', '2017', '2018'])
     parser.add_argument('-A', '--APV', dest='isAPV', default=False, help='isAPV')
