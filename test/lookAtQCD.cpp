@@ -98,7 +98,7 @@ int main (int argc, char** argv)
   bool split = false;
   int idx = 0;
   int njobs = 1;
-  string tag = "LookQCD_DummyTag";
+  string outFolder = "/data_CMS/cms/alves/HHresonant_hist/LOOKUP_DUMMY_TAG";
   if (argc==4 or argc ==5)
   {
     split = true;
@@ -107,7 +107,7 @@ int main (int argc, char** argv)
   }
 
   if (argc==5)
-  	tag = atoi(argv[4]);
+  	outFolder = atoi(argv[4]);
 
   AnalysisHelper ah(argv[1]);
 
@@ -128,7 +128,7 @@ int main (int argc, char** argv)
   ah.dump(2); // can set a level of detail
   ah.fillHistos();
   ah.mergeSamples(); // do it just at the end
-  ah.saveOutputsToFile(tag);
+  ah.saveOutputsToFile(outFolder);
 
 
 
