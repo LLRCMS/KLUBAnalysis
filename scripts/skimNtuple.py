@@ -104,11 +104,6 @@ def skim_ntuple(FLAGS, curr_folder):
         print('The input folder {} does not exists. Exiting.'.format(FLAGS.input_folder))
         sys.exit(1)
 
-    if not FLAGS.force and os.path.exists(jobs_dir):
-        print('The output folder {} already exists. Exiting.'.format(jobs_dir))
-        sys.exit(1)
-    elif os.path.exists(jobs_dir):
-        os.system('rm -r ' + jobs_dir)
     create_dir(jobs_dir)
     os.system('cp ' + FLAGS.config + ' ' + jobs_dir)
 
@@ -300,8 +295,6 @@ if __name__ == "__main__":
     parser.add_argument('-Y', '--year', dest='year', default='2018', help='year', choices=['2016', '2017', '2018'])
     parser.add_argument('-A', '--APV', dest='isAPV', default=False, help='isAPV')
     parser.add_argument('-x', '--xs', dest='xs', help='sample xs', default='1.')
-    parser.add_argument('-f', '--force', dest='force', default=0, type=int,
-                        help='replace existing reduced ntuples')
     parser.add_argument('-o', '--output', dest='output', default='none', help='output folder')
     parser.add_argument('-q', '--queue', dest='queue', default='short', help='batch queue')
     parser.add_argument('-r', '--resub', dest='resub', default='none', help='resubmit failed jobs')

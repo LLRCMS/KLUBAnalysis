@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 ### Defaults
-FORCE="0"
 NO_LISTS="0"
 STITCHING_ON="0"
 DRYRUN="0"
@@ -15,7 +14,6 @@ DRYRUN_STR="(Boolean) Prints all the commands to be launched but does not launch
 OUT_TAG_STR="(String) Defines tag for the output. Defaults to '${OUT_TAG}'."
 KLUB_TAG_STR="(String) Chooses tag for the klub input. Defaults to '${KLUB_TAG}'."
 STITCHING_ON_STR="(Boolean) Drell-Yan stitching weights will be used. Defaults to ${STITCHING_ON}."
-FORCE_STR="(Boolean) Whether to override a folder with the same tag. Defaults to ${FORCE}."
 NO_LISTS_STR="(Boolean) Whether to run the list production script before each submission. Defaults to ${NO_LISTS}."
 DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${DATA_PERIOD}'."
 function print_usage_submit_skims {
@@ -26,7 +24,6 @@ function print_usage_submit_skims {
 	-t / --tag			[ ${OUT_TAG_STR} ]
 	--klub_tag			[ ${KLUB_TAG_STR} ]
     -s / --stitching_on [ ${STITCHING_ON_STR} ]
-    -f / --force        [ ${FORCE_STR} ]
     -n / --no_lists     [ ${NO_LISTS_STR} ]
     -d / --data_period  [ ${DATAPERIOD_STR} ]
 
@@ -56,10 +53,6 @@ while [[ $# -gt 0 ]]; do
 	    ;;
 	-s|--stitching)
 	    STITCHING_ON="1"
-	    shift;
-	    ;;
-	-f|--force)
-	    FORCE="1"
 	    shift;
 	    ;;
 	-n|--no_lists)
@@ -167,7 +160,6 @@ ERR_FILE=${OUTSKIM_DIR}"/bad_patterns.o"
 echo "------ Arguments --------------"
 echo " Passed by the user:"
 printf "DRYRUN\t\t\t= ${DRYRUN}\n"
-printf "FORCE\t\t\t= ${FORCE}\n"
 printf "NO_LISTS\t\t= ${NO_LISTS}\n"
 printf "OUT_TAG\t\t\t= ${OUT_TAG}\n"
 printf "KLUB_TAG\t\t= ${KLUB_TAG}\n"
@@ -186,7 +178,7 @@ echo "--------Run: $(date) ---------------" >> ${ERR_FILE}
 ### Submission command
 function run_skim() {
 	comm="python ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -o ${OUTSKIM_DIR} -c ${KLUB_DIR}/${CFG} "
-	comm+="--exec_file ${EXEC_FILE} -q long -Y 2018 -k True --pu ${PU_DIR} -f ${FORCE} $@"
+	comm+="--exec_file ${EXEC_FILE} -q long -Y 2018 -k True --pu ${PU_DIR} $@"
 	[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
 }
 
@@ -235,8 +227,6 @@ for ds in ${DATA_LIST[@]}; do
 	for run in ${RUNS[@]}; do
 		pattern="${ds}__${run}"
 		sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
-		echo $sample
-		exit 1
 		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
 			ERRORS+=( ${sample} )
 		else
