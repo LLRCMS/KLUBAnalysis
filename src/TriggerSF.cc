@@ -110,7 +110,9 @@ auto TriggerSF::getEvtWeight(const EventVariables& vars,
   mCheckChannel(channel);
   const float prob_data = mGetUnionEfficiency(vars, channel, true);
   const float prob_mc   = mGetUnionEfficiency(vars, channel, false);
+#ifdef DEBUG  
   std::cout << "PROBS: " << prob_data << " " << prob_mc << std::endl;
+#endif
   const float eventWeight = prob_data / prob_mc;
 #ifdef DEBUG
   std::cerr << "====== Exit getEvtWeight" << std::endl;
@@ -161,14 +163,18 @@ auto TriggerSF::mGetUnionEfficiency( const EventVariables& vars,
 
   for (auto &inters : mMCOrDataIntersections(chn, isData))
 	{
+#ifdef DEBUG  
 	  std::cout << inters << std::endl;
+#endif
 	  if (mVarFiles[chn].contains(inters))
 		{
 		  const TriggerSF::EffValue& eff = mGetIntersectionEfficiencies(chn, inters, isData);
 		  const std::string var = "dau1_pt";
 		  try {
 			const float val = eff.getVal( vars(var) );
+#ifdef DEBUG  
 			std::cout << "val=" << val << std::endl;
+#endif
 			if(mCountNumberTriggerItems(inters)%2==0) {
 			  un_eff -= val;
 			}
@@ -189,8 +195,8 @@ auto TriggerSF::mGetUnionEfficiency( const EventVariables& vars,
 		throw std::invalid_argument(mess);
 	  }
 	}
+#ifdef DEBUG
   std::cout << "Final " << un_eff << std::endl;
-#ifdef DEBUG  
   std::cerr << "====== Exit getUnionEfficiency" << std::endl;
 #endif
   return un_eff;

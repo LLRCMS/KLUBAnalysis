@@ -929,9 +929,6 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   for (Long64_t iEvent = 0 ; true ; ++iEvent)
 	{
-	  if (iEvent>5)
-		break;
-	  
 	  if (iEvent%10000==0)
 	    cout << "Reading event " << iEvent << endl;
 	  theSmallTree.clearVars () ;
@@ -3626,9 +3623,9 @@ int main (int argc, char** argv)
 		  v.dau1_pt() = theSmallTree.m_dau1_pt;
 		  v.dau2_pt() = theSmallTree.m_dau2_pt;
 		  trigSF_inclMeth = tsf.getEvtWeight(v, chn_m.at(pType));
-		  std::cout << "Channel: " + chn_m.at(pType) + " " + pType << std::endl;
-		  std::cout << "Weight " << trigSF_inclMeth << ", Dau1 Pt " << v.dau1_pt() << ", Dau2 Pt " << v.dau2_pt() << std::endl;
-		  std::cout << std::endl;
+		  // std::cout << "Channel: " + chn_m.at(pType) + " " + pType << std::endl;
+		  // std::cout << "Weight " << trigSF_inclMeth << ", Dau1 Pt " << v.dau1_pt() << ", Dau2 Pt " << v.dau2_pt() << std::endl;
+		  // std::cout << std::endl;
 		} // end if(applytriggers)
 	  
 	  theSmallTree.m_trigSF           = (isMC ? trigSF : 1.0);

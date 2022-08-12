@@ -16,7 +16,7 @@ int main(int argc, char** argv)
   bool split = false;
   int idx = 0;
   int njobs = 1;
-  string tag = "HistoFiller_CHANNEL_UL18_DATE";
+  string outFolder = "/data_CMS/cms/alves/HHresonant_hist/HistoFiller_CHANNEL_UL18_DATE";
   if (argc==4 or argc==5)
   {
     split = true;
@@ -25,7 +25,7 @@ int main(int argc, char** argv)
   }
 
   if (argc==5)
-  	tag = atoi(argv[4]);
+  	outFolder = argv[4];
 
   AnalysisHelper ah(argv[1]);
   if (split) ah.setSplitting(idx, njobs);
@@ -44,6 +44,6 @@ int main(int argc, char** argv)
   ah.dump(2); // can set a level of detail
   ah.fillHistos();
   ah.mergeSamples(); // do it just at the end
-  ah.saveOutputsToFile(tag);
+  ah.saveOutputsToFile(outFolder);
   cout << "... exiting" << endl;
 }

@@ -49,10 +49,6 @@ bool AnalysisHelper::readMainInfo()
     lumi_ = mainCfg_->readFloatOpt("general::lumi");
     cout << "@@ lumi                : " << lumi_ << endl;   
     
-    if (!(mainCfg_->hasOpt("general::outputFolder"))) return false;
-    outputFolder_ = mainCfg_->readStringOpt("general::outputFolder");   
-    cout << "@@ output folder       : " << outputFolder_<< endl;   
-
     outputFileName_ = "outPlotter.root"; // override default only if specified
     if (mainCfg_->hasOpt("general::outputFileName"))
         outputFileName_ = mainCfg_->readStringOpt("general::outputFileName");
@@ -78,12 +74,11 @@ bool AnalysisHelper::readMainInfo()
     return true;
 }
 
-void AnalysisHelper::saveOutputsToFile(std::string tag)
+void AnalysisHelper::saveOutputsToFile(std::string outFolder)
 {
-    string outFolder = outputFolder_ + "/" tag;
     string outFile = outFolder + "/" + outputFileName_ ;
-    cout << "@@ Saving all plots to file : " << outFile << endl;
-    system (Form("mkdir %s", outputFolder_.c_str())); // not checking if already exists, but return message is harmless
+
+    system (Form("mkdir %s", outFolder.c_str())); // not checking if already exists, but return message is harmless
 
     system (Form("cp %s %s", (mainCfg_  ->getCfgName()).c_str() , outFolder.c_str()));
     system (Form("cp %s %s", (cutCfg_   ->getCfgName()).c_str() , outFolder.c_str()));
