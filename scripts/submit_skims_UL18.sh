@@ -7,6 +7,7 @@ DRYRUN="0"
 OUT_TAG=""
 KLUB_TAG="Jul2022"
 DATA_PERIOD="UL18"
+DATA_PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
 
 ### Argument parsing
 HELP_STR="Prints this help message."
@@ -61,6 +62,13 @@ while [[ $# -gt 0 ]]; do
 	    ;;
 	-d|--data_period)
 	    DATA_PERIOD=${2}
+		if [[ ! " ${DATA_PERIOD_CHOICES[*]} " =~ " ${DATA_PERIOD} " ]]; then
+			echo "Currently the following data periods are supported:"
+			for dp in ${DATA_PERIOD_CHOICES[@]}; do
+				echo "- ${dp}" # bash string substitution
+			done
+			exit 1;
+		fi
 	    shift; shift;
 	    ;;
 	*)  # unknown option
@@ -70,30 +78,23 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-EXEC_FILE="${KLUB_DIR}/bin"
-if [[ ! " ${DATA_PERIOD_CHOICES[*]} " =~ " ${DATA_PERIOD} " ]]; then
-	echo "Currently the following data periods are supported:"
-	for dp in ${DATA_PERIOD_CHOICES[@]}; do
-		echo "- ${dp}" # bash string substitution
-	done
-else
-	if [ ${DATA_PERIOD} == "UL16" ]; then
-		EXEC_FILE="${EXEC_FILE}/skimNtuple2016_HHbtag.exe"
-	elif [ ${DATA_PERIOD} == "UL17" ]; then
-		EXEC_FILE="${EXEC_FILE}/skimNtuple2017_HHbtag.exe"
-	elif [ ${DATA_PERIOD} == "UL18" ]; then
-		EXEC_FILE="${EXEC_FILE}/skimNtuple2018_HHbtag.exe"
-	fi
-fi
-
 ### Setup variables
 THIS_FILE="${BASH_SOURCE[0]}"
 THIS_DIR="$( cd "$( dirname ${THIS_FILE} )" && pwd )"
 KLUB_DIR="$( cd "$( dirname ${THIS_DIR} )" && pwd )"
 
+EXEC_FILE="${KLUB_DIR}/bin"
 SUBMIT_SCRIPT="scripts/skimNtuple.py"
 LIST_SCRIPT="scripts/makeListOnStorage.py"
 LIST_DIR="/dpm/in2p3.fr/home/cms/trivcat/store/user/lportale/"
+
+if [ ${DATA_PERIOD} == "UL16" ]; then
+	EXEC_FILE="${EXEC_FILE}/skimNtuple2016_HHbtag.exe"
+elif [ ${DATA_PERIOD} == "UL17" ]; then
+	EXEC_FILE="${EXEC_FILE}/skimNtuple2017_HHbtag.exe"
+elif [ ${DATA_PERIOD} == "UL18" ]; then
+	EXEC_FILE="${EXEC_FILE}/skimNtuple2018_HHbtag.exe"
+fi
 
 ### Check if the voms command was run
 declare -a VOMS_CHECK=( $(/usr/bin/rfdir ${LIST_DIR} | awk '{{printf $9" "}}') )

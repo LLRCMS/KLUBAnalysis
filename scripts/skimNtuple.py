@@ -89,7 +89,6 @@ def skim_ntuple(FLAGS, curr_folder):
     io_names = ( '{}.txt'.format(arg1),
                  'output_{}.root'.format(arg1),
                  '{}.log'.format(arg1) )
-    jobs_dir = os.path.join(FLAGS.output, FLAGS.sample)
 
     if FLAGS.config == 'none':
         print('Config file missing, exiting')
@@ -104,6 +103,7 @@ def skim_ntuple(FLAGS, curr_folder):
         print('The input folder {} does not exists. Exiting.'.format(FLAGS.input_folder))
         sys.exit(1)
 
+    jobs_dir = os.path.join(FLAGS.output, FLAGS.sample)
     create_dir(jobs_dir)
     os.system('cp ' + FLAGS.config + ' ' + jobs_dir)
 
