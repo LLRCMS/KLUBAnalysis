@@ -125,13 +125,6 @@ def skim_ntuple(FLAGS, curr_folder):
     job_name_shell = os.path.join(jobs_dir, 'job.sh')
     remove_file(job_name_shell)
 
-    if FLAGS.year == '2018':
-        skimmer = 'skimNtuple2018_HHbtag.exe'
-    elif FLAGS.year == '2017':
-        skimmer = 'skimNtuple2017_HHbtag.exe'
-    elif FLAGS.year == '2016':
-        skimmer = 'skimNtuple2016_HHbtag.exe'
-
     # verify the result of the process
     if (FLAGS.resub != 'none'):
         if (FLAGS.input_folder == 'none'):
@@ -203,7 +196,7 @@ def skim_ntuple(FLAGS, curr_folder):
     py_exec = 'scripts/check_outputs.py'
     cpaths, cname = write_condor_file(d=jobs_dir,
                                       shell_exec=job_name_shell,
-                                      c_exec=os.path.join(FLAGS.exec_folder, skimmer),
+                                      c_exec=FLAGS.exec_file,
                                       py_exec=py_exec,
                                       queue=str(njobs))
 
@@ -218,7 +211,7 @@ def skim_ntuple(FLAGS, curr_folder):
                 
         yes_or_no = lambda s : '1' if bool(s) else '0'
         
-        command, comment = double_join(skimmer,
+        command, comment = double_join(FLAGS.exec_file,
                                        os.path.join(lists_dir, io_names[0]),
                                        os.path.join(jobs_dir, io_names[1]),
                                        FLAGS.xs,
@@ -302,7 +295,7 @@ if __name__ == "__main__":
     usage = 'Command line parser of skimming a bit Ntuple.'
     parser = argparse.ArgumentParser(description=usage)
     parser.add_argument('-i', '--input_folder', dest='input_folder', default='none', help='input folder')
-    parser.add_argument('--exec_folder', dest='exec_folder', required=True, help='folder where the C++ skimmer executable is stored')
+    parser.add_argument('--exec_file', dest='exec_file', required=True, help='folder where the C++ skimmer executable is stored')
     parser.add_argument('--sample', dest='sample', default='none', help='input sample')
     parser.add_argument('-Y', '--year', dest='year', default='2018', help='year', choices=['2016', '2017', '2018'])
     parser.add_argument('-A', '--APV', dest='isAPV', default=False, help='isAPV')
