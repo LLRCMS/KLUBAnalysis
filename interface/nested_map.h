@@ -94,7 +94,7 @@ template <typename KEY_T, typename VAL_T, unsigned int DEPTH>
 	try {
 	  return map.at(key);
 	}
-	catch (std::out_of_range e) {
+	catch (std::out_of_range const&) {
 	  std::string mess;
 	  mess = "The entry was not set (key = " + key + ").\n";
 	  if(map.size() != 0) {
