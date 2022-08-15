@@ -18,7 +18,7 @@ STITCHING_ON_STR="(Boolean) Drell-Yan stitching weights will be used. Defaults t
 NO_LISTS_STR="(Boolean) Whether to run the list production script before each submission. Defaults to ${NO_LISTS}."
 DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${DATA_PERIOD}'."
 function print_usage_submit_skims {
-    USAGE=" $(basename "$0") [-H] [--dry-run -t -f -d -n --klub_tag --stitching_on]
+    USAGE=" $(basename "$0") [-H] [--dry-run -t -d -n --klub_tag --stitching_on]
 
 	-h / --help			[ ${HELP_STR} ]
 	--dry-run			[ ${DRYRUN_STR} ]
@@ -28,7 +28,7 @@ function print_usage_submit_skims {
     -n / --no_lists     [ ${NO_LISTS_STR} ]
     -d / --data_period  [ ${DATAPERIOD_STR} ]
 
-    Run example: bash $(basename "$0") -t <some_tag> -f
+    Run example: bash $(basename "$0") -t <some_tag>
 "
     printf "${USAGE}"
 }
