@@ -244,8 +244,8 @@ def skim_ntuple(FLAGS, curr_folder):
         # we need to check them 'live', i.e., while the job is running
         livedir = os.path.join(jobs_dir, 'live_logs')
         create_dir(livedir)
-        local_out = os.path.join(livedir, 'output_{}.out'.format(arg1))
-        local_err = os.path.join(livedir, 'error_{}.err'.format(arg1))
+        local_out = os.path.join(livedir, '{}.out'.format(arg1))
+        local_err = os.path.join(livedir, '{}.err'.format(arg1))
         s.write(command + ' 1>{} 2>{}\n'.format(local_out, local_err))
         
         command, comment = double_join('python {}'.format(py_exec),
