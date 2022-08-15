@@ -15,7 +15,7 @@
 //              604(3):707-718.
 //              doi:10.1016/j.nima.2009.03.173
 //                                                                                                                
-//	 Standalone Python framework: https://github.com/b-fontana/METTriggerStudies								  
+//	 Standalone Python framework: https://github.com/bfonta/inclusion								  
 //																												  
 //	 - Triggers are named differently and already include effects from different								  
 //	 runs, HPS, Data/MC diffs, ...																				  
@@ -25,7 +25,7 @@
 //	 Consecutive x bins are stored in adjacent memory locations.													  
 //																												  
 //	 Author: Bruno Alves (LLR, Ecole Polytechnique, Paris)														  
-//	 Date  : April 2022																							  
+//	 Date  : April - August 2022																							  
 //	 Contact: bruno.alves@cern.ch																				  
 //																												  
 // -------------------------------------------------------------------------------------------------------------- 
