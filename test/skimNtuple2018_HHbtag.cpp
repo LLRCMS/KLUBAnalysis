@@ -688,9 +688,9 @@ int main (int argc, char** argv)
 	{"MuTau",  trigger_base_name + "trigSF_mutau.root"},
 	{"TauTau", trigger_base_name + "trigSF_tautau.root"} };
   std::unordered_map<std::string,std::string> var_names = {
-	{"EleTau", trigger_base_name + "runVariableImportanceDiscriminator_etau.json"},
-	{"MuTau",  trigger_base_name + "runVariableImportanceDiscriminator_mutau.json"},
-	{"TauTau", trigger_base_name + "runVariableImportanceDiscriminator_tautau.json"} };
+	{"EleTau", trigger_base_name + "run_var_discriminator_etau.json"},
+	{"MuTau",  trigger_base_name + "run_var_discriminator_mutau.json"},
+	{"TauTau", trigger_base_name + "run_var_discriminator_tautau.json"} };
   TriggerSF tsf(trg_l, eff_names, var_names, 2018);
 
   // electron/muon IdAndIso SF
