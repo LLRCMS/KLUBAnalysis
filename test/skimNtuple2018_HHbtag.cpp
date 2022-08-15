@@ -6,6 +6,7 @@
 #include <sstream>
 #include <bitset>
 #include <map>
+#include <filesystem>
 #include "TTree.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -190,7 +191,13 @@ int main (int argc, char** argv)
 	  return 1;
 	}
 
-  TString inputFile = argv[1] ;
+  std::ifstream inf(argv[1]);
+  if(!inf.good()) {
+	std::cout << "Input file " << argv[1] << " not found" << std::endl;
+	return -1;
+  }
+
+  TString inputFile = argv[1];  
   TString outputFile = argv[2] ;
   cout << "** INFO: inputFile  : " << inputFile << endl;
   cout << "** INFO: outputFile : " << outputFile << endl;
