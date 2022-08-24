@@ -230,7 +230,7 @@ for ds in ${DATA_LIST[@]}; do
 			ERRORS+=( ${sample} )
 		else
 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
-		 	run_skim -n 200 --isdata True -i ${DATA_DIR} --sample ${sample}			
+		 	run_skim -n 100 --isdata True -i ${DATA_DIR} --sample ${sample}			
 		fi
 	done
 done

@@ -662,13 +662,13 @@ int main (int argc, char** argv)
   TriggerChannelLists trg_l;
   trg_l.add_generic(0,
 					gConfigParser->readStringListOption("triggersMC::METtriggers")
-					//gConfigParser->readStringListOption("triggersMC::vbfTriggers"),
-					//gConfigParser->readStringListOption("triggersMC::SingleTau")
+					gConfigParser->readStringListOption("triggersMC::vbfTriggers"),
+					gConfigParser->readStringListOption("triggersMC::SingleTau")
 					);
   trg_l.add_generic(1,
 					gConfigParser->readStringListOption("triggersMC::METtriggers")
-					//gConfigParser->readStringListOption("triggersMC::vbfTriggers"),
-					//gConfigParser->readStringListOption("triggersMC::SingleTau")
+					gConfigParser->readStringListOption("triggersMC::vbfTriggers"),
+					gConfigParser->readStringListOption("triggersMC::SingleTau")
 					);
   trg_l.add("EleTau", 0,
 			gConfigParser->readStringListOption("triggersMC::EleTau"),
