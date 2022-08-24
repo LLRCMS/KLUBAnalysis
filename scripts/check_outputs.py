@@ -24,8 +24,8 @@ def file_exists(afile, verb):
 def find_error_messages(afile, verb):
     with open(afile, 'r') as f:
         problems = [w for w in f.readlines()
-                    if (('Error' in w and 'TCling' not in w) or
-                        ('R__unzip: error' in w )) ]
+                    if (('Error' in w and 'WARNING' not in w and 'Warning' not in w and 'TCling' not in w) or
+                        ('R__unzip: error' in w))]
         if len(problems) != 0:
             if verb:
                 mes = 'Found errors in file {}:\n'.format(afile)
@@ -84,6 +84,7 @@ if __name__ == '__main__':
 
     success = is_job_successful(FLAGS.rootfile, FLAGS.outfile,
                                 FLAGS.errfile, FLAGS.logfile, FLAGS.verbose)
+
     dir = os.path.dirname(FLAGS.rootfile)
     out = 'good' if success else 'bad'
     with open( os.path.join(dir, '{}files.txt'.format(out)), 'a' ) as f:
