@@ -437,7 +437,6 @@ if __name__ == "__main__" :
     parser.add_argument('--sigscale', dest='sigscale', type=float, help='scale to apply to all signals', default=None)
     parser.add_argument('--lumi', dest='lumi_num', type=float, help='lumi in fb-1', default=None)
 
-    
     args = parser.parse_args()
 
     if args.quit : gROOT.SetBatch(True)
