@@ -655,7 +655,8 @@ int main (int argc, char** argv)
   myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",
                                                "NUM_TightID_DEN_TrackerMuons_abseta_pt",
                                                true);
-  myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/EgammaPOGSF_UL/2018/2018_Tight_eleSFs.root","SF");
+  myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi.txt_Ele_wp80iso_EGM2D.root");
+
   myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
                                                "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
                                                true);
