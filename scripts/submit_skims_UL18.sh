@@ -171,6 +171,7 @@ printf "OUTSKIM_DIR\t\t= ${OUTSKIM_DIR}\n"
 echo "-------------------------------"
 
 #### Source additional setup
+make -j10 && make exe -j10
 source scripts/setup.sh
 source /opt/exp_soft/cms/t3/t3setup
 echo "-------- Run: $(date) ---------------" >> ${ERR_FILE}
