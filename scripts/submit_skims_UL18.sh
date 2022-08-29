@@ -1,512 +1,397 @@
-#########################
-### SKIMS UL 2018 ###
-#########################
-AMESSAGE="KLUB UL skimming"
+#!/usr/bin/env bash
 
-### SETUP
+### Defaults
+NO_LISTS="0"
+STITCHING_ON="0"
+DRYRUN="0"
+OUT_TAG=""
+KLUB_TAG="Jul2022"
+DATA_PERIOD="UL18"
+DATA_PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
 
-SIGDIR="/home/llr/cms/portales/hhbbtautau/KLUB_UL_20220321/CMSSW_11_1_9/src/KLUBAnalysis/inputFiles/UL18_signals/"
-BKGDIR="/home/llr/cms/portales/hhbbtautau/KLUB_UL_20220321/CMSSW_11_1_9/src/KLUBAnalysis/inputFiles/UL18_backgrounds"
-DATADIR="/home/llr/cms/portales/hhbbtautau/KLUB_UL_20220321/CMSSW_11_1_9/src/KLUBAnalysis/inputFiles/UL18_data/"
+### Argument parsing
+HELP_STR="Prints this help message."
+DRYRUN_STR="(Boolean) Prints all the commands to be launched but does not launch them. Defaults to ${DRYRUN}."
+OUT_TAG_STR="(String) Defines tag for the output. Defaults to '${OUT_TAG}'."
+KLUB_TAG_STR="(String) Chooses tag for the klub input. Defaults to '${KLUB_TAG}'."
+STITCHING_ON_STR="(Boolean) Drell-Yan stitching weights will be used. Defaults to ${STITCHING_ON}."
+NO_LISTS_STR="(Boolean) Whether to run the list production script before each submission. Defaults to ${NO_LISTS}."
+DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${DATA_PERIOD}'."
+function print_usage_submit_skims {
+    USAGE=" $(basename "$0") [-H] [--dry-run -t -d -n --klub_tag --stitching_on]
 
-SUBMITSCRIPT="python scripts/skimNtuple.py"
-PUSF="weights/PUreweight/UL_Run2_PU_SF/2018/PU_UL2018_SF.txt"
-THECFG="config/skim_UL18.cfg"
+	-h / --help			[ ${HELP_STR} ]
+	--dry-run			[ ${DRYRUN_STR} ]
+	-t / --tag			[ ${OUT_TAG_STR} ]
+	--klub_tag			[ ${KLUB_TAG_STR} ]
+    -s / --stitching_on [ ${STITCHING_ON_STR} ]
+    -n / --no_lists     [ ${NO_LISTS_STR} ]
+    -d / --data_period  [ ${DATAPERIOD_STR} ]
 
-SKIMDIR="/data_CMS/cms/portales/HHresonant_SKIMS"
-OUTDIR="SKIMS_UL18_220323_MiniAODv2"
+    Run example: bash $(basename "$0") -t <some_tag>
+"
+    printf "${USAGE}"
+}
 
+while [[ $# -gt 0 ]]; do
+    key=${1}
+    case $key in
+	-h|--help)
+	    print_usage_submit_skims
+	    exit 1
+	    ;;
+	--dry-run)
+	    DRYRUN="1"
+	    shift;
+	    ;;
+	-t|--tag)
+	    OUT_TAG=${2}
+	    shift; shift;
+	    ;;
+	--klub_tag)
+	    KLUB_TAG=${2}
+	    shift; shift;
+	    ;;
+	-s|--stitching)
+	    STITCHING_ON="1"
+	    shift;
+	    ;;
+	-n|--no_lists)
+	    NO_LISTS="1"
+	    shift;
+	    ;;
+	-d|--data_period)
+	    DATA_PERIOD=${2}
+		if [[ ! " ${DATA_PERIOD_CHOICES[*]} " =~ " ${DATA_PERIOD} " ]]; then
+			echo "Currently the following data periods are supported:"
+			for dp in ${DATA_PERIOD_CHOICES[@]}; do
+				echo "- ${dp}" # bash string substitution
+			done
+			exit 1;
+		fi
+	    shift; shift;
+	    ;;
+	*)  # unknown option
+	    echo "Wrong parameter ${1}."
+	    exit 1
+	    ;;
+    esac
+done
+
+### Setup variables
+THIS_FILE="${BASH_SOURCE[0]}"
+THIS_DIR="$( cd "$( dirname ${THIS_FILE} )" && pwd )"
+KLUB_DIR="$( cd "$( dirname ${THIS_DIR} )" && pwd )"
+
+EXEC_FILE="${KLUB_DIR}/bin"
+SUBMIT_SCRIPT="scripts/skimNtuple.py"
+LIST_SCRIPT="scripts/makeListOnStorage.py"
+LIST_DIR="/dpm/in2p3.fr/home/cms/trivcat/store/user/lportale/"
+
+if [ ${DATA_PERIOD} == "UL16" ]; then
+	EXEC_FILE="${EXEC_FILE}/skimNtuple2016_HHbtag.exe"
+elif [ ${DATA_PERIOD} == "UL17" ]; then
+	EXEC_FILE="${EXEC_FILE}/skimNtuple2017_HHbtag.exe"
+elif [ ${DATA_PERIOD} == "UL18" ]; then
+	EXEC_FILE="${EXEC_FILE}/skimNtuple2018_HHbtag.exe"
+fi
+
+### Check if the voms command was run
+declare -a VOMS_CHECK=( $(/usr/bin/rfdir ${LIST_DIR} | awk '{{printf $9" "}}') )
+if [ ${#VOMS_CHECK[@]} -eq 0 ]; then
+	echo "Folder ${LIST_DIR} seems empty. Are you sure you run 'voms-proxy-init -voms cms'?"
+fi
+
+LIST_DIR=${LIST_DIR}"HHNtuples_res/"${DATA_PERIOD}"/"
+LIST_DATA_DIR=${LIST_DIR}"Data_"${KLUB_TAG}
+LIST_MC_DIR=${LIST_DIR}"MC_"${KLUB_TAG}
+declare -a LISTS_DATA=( $(/usr/bin/rfdir ${LIST_DATA_DIR} | awk '{{printf $9" "}}') )
+declare -a LISTS_MC=(   $(/usr/bin/rfdir ${LIST_MC_DIR}   | awk '{{printf $9" "}}') )
+
+SKIM_DIR="/data_CMS/cms/${USER}/HHresonant_SKIMS"
+
+IN_DIR=${KLUB_DIR}"/inputFiles/"
+SIG_DIR=${IN_DIR}${DATA_PERIOD}"_Signals/"
+BKG_DIR=${IN_DIR}${DATA_PERIOD}"_Backgrounds/"
+DATA_DIR=${IN_DIR}${DATA_PERIOD}"_Data/"
+
+PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2018/PU_UL2018_SF.txt"
+CFG="config/skim_${DATA_PERIOD}.cfg"
+PREF="SKIMS_"
+TAG_DIR=${PREF}${DATA_PERIOD}"_"${OUT_TAG}
+declare -a ERRORS=()
+SEARCH_SPACE=".+\s.+" # trick to capture return values with error messages
+
+declare -A IN_LIST DATA_MAP
+declare -a DATA_LIST RUNS MASSES
+
+### Argument parsing sanity checks
+if [[ -z ${OUT_TAG} ]]; then
+    printf "Select the tag via the '--tag' option. "
+    declare -a tags=( $(/bin/ls -1 ${SKIM_DIR}) )
+    if [ ${#tags[@]} -ne 0 ]; then
+		echo "The following tags are currently available:"
+		for tag in ${tags[@]}; do
+			echo "- ${tag/${PREF}${DATA_PERIOD}_/}" # bash string substitution
+		done
+    else
+		echo "No tags are currently available. Everything looks clean!"
+    fi
+    exit 1;
+fi
+if [[ -z ${DATA_PERIOD} ]]; then
+	echo "Select the data period via the '--d / --data_period' option."
+	exit 1;
+fi
+
+mkdir -p ${SKIM_DIR}
+OUTSKIM_DIR=${SKIM_DIR}/${TAG_DIR}/
+if [ -d ${OUTSKIM_DIR} ]; then
+	echo "Directory ${OUTSKIM_DIR} already exists."
+	echo "You might want to remove it with: 'rm -r ${OUTSKIM_DIR}'."
+	echo "Exiting."
+	exit 1
+else
+	mkdir -p ${OUTSKIM_DIR}
+fi
+ERR_FILE=${OUTSKIM_DIR}"/bad_patterns.o"
+
+
+### Argument parsing: information for the user
+echo "------ Arguments --------------"
+echo " Passed by the user:"
+printf "DRYRUN\t\t\t= ${DRYRUN}\n"
+printf "NO_LISTS\t\t= ${NO_LISTS}\n"
+printf "OUT_TAG\t\t\t= ${OUT_TAG}\n"
+printf "KLUB_TAG\t\t= ${KLUB_TAG}\n"
+printf "STITCHING_ON\t= ${STITCHING_ON}\n"
+printf "DATA_PERIOD\t\t= ${DATA_PERIOD}\n"
+echo " Others:"
+printf "OUTSKIM_DIR\t\t= ${OUTSKIM_DIR}\n"
+echo "-------------------------------"
+
+#### Source additional setup
+make -j10 && make exe -j10
 source scripts/setup.sh
 source /opt/exp_soft/cms/t3/t3setup
-mkdir -p $SKIMDIR/$OUTDIR/
-touch $SKIMDIR/$OUTDIR/README.txt
-echo $AMESSAGE > $SKIMDIR/$OUTDIR/README.txt
-cp scripts/listAll.sh $SKIMDIR/$OUTDIR/
+echo "-------- Run: $(date) ---------------" >> ${ERR_FILE}
 
-### INPUT FILE LISTS
-declare -A InputList
+### Submission command
+function run_skim() {
+	comm="python ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -o ${OUTSKIM_DIR} -c ${KLUB_DIR}/${CFG} "
+	comm+="--exec_file ${EXEC_FILE} -q long -Y 2018 -k True --pu ${PU_DIR} $@"
+	[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
+}
 
-# Data
-InputList["EGamma_Run2018A"]="1_EGamma__Run2018A-UL2018_MiniAODv2-v1.txt"
-InputList["EGamma_Run2018B"]="2_EGamma__Run2018B-UL2018_MiniAODv2-v1.txt"
-InputList["EGamma_Run2018C"]="3_EGamma__Run2018C-UL2018_MiniAODv2-v1.txt"
-InputList["EGamma_Run2018D"]="4_EGamma__Run2018D-UL2018_MiniAODv2-v2.txt"
+### Input file list production command
+function produce_list() {
+	comm="python ${KLUB_DIR}/${LIST_SCRIPT} -t ${KLUB_TAG} --data_period ${DATA_PERIOD} $@"
+	[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
+}
 
-InputList["Tau_Run2018A"]="1_Tau__Run2018A-UL2018_MiniAODv2-v1.txt"
-InputList["Tau_Run2018B"]="2_Tau__Run2018B-UL2018_MiniAODv2-v2.txt"
-InputList["Tau_Run2018C"]="3_Tau__Run2018C-UL2018_MiniAODv2-v1.txt"
-InputList["Tau_Run2018D"]="4_Tau__Run2018D-UL2018_MiniAODv2-v1.txt"
+### Extract sample full name
+function find_sample() {
+	nargs=$(( ${3}+3 ))
+	if [ $# -ne ${nargs} ]; then
+		echo "Wrong number of arguments - ${nargs} expected, $# provided"
+        exit 1
+    fi
+	pattern=${1}
+	list_dir=${2}
+	lists=${@:4}
 
-InputList["SingleMuon_Run2018A"]="5_SingleMuon__Run2018A-UL2018_MiniAODv2-v3.txt"
-InputList["SingleMuon_Run2018B"]="6_SingleMuon__Run2018B-UL2018_MiniAODv2-v2.txt"
-InputList["SingleMuon_Run2018C"]="7_SingleMuon__Run2018C-UL2018_MiniAODv2-v2.txt"
-InputList["SingleMuon_Run2018D"]="8_SingleMuon__Run2018D-UL2018_MiniAODv2-v3.txt"
+	sample=""
+	nmatches=0
+	for ldata in ${lists[@]}; do
+		[[ ${ldata} =~ ${pattern} ]] && { sample=${BASH_REMATCH[0]}; nmatches=$(( ${nmatches} + 1 )); }
+	done
+	if [ ${nmatches} -eq 0 ]; then
+		mes="The ${pattern} pattern was not found in ${list_dir} ."
+		echo ${mes} >> ${ERR_FILE}
+		echo ${mes}
+		return 1
+	elif [ ${nmatches} -gt 1 ]; then
+		mes="The ${pattern} pattern had ${nmatches} matches in ${list_dir} ."
+		echo ${mes} >> ${ERR_FILE}
+		echo ${mes}
+		return 1
+	fi
+	echo ${sample}
+}
 
-InputList["MET_Run2018A"]="9_MET__Run2018A-UL2018_MiniAODv2-v2.txt"
-InputList["MET_Run2018B"]="10_MET__Run2018B-UL2018_MiniAODv2-v2.txt"
-InputList["MET_Run2018C"]="11_MET__Run2018C-UL2018_MiniAODv2-v1.txt"
-InputList["MET_Run2018D"]="12_MET__Run2018D-UL2018_MiniAODv2-v1.txt"
+### Run on data samples
+DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
+RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
+for ds in ${DATA_LIST[@]}; do
+	for run in ${RUNS[@]}; do
+		pattern="${ds}__${run}"
+		sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
+		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+			ERRORS+=( ${sample} )
+		else
+			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
+		 	run_skim -n 90 --isdata True -i ${DATA_DIR} --sample ${sample}			
+		fi
+	done
+done
 
-#Signal
-InputList["ggF_Radion_m250"]="48_GluGluToRadionToHHTo2B2Tau_M-250_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m260"]="49_GluGluToRadionToHHTo2B2Tau_M-260_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["ggF_Radion_m270"]="50_GluGluToRadionToHHTo2B2Tau_M-270_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m280"]="51_GluGluToRadionToHHTo2B2Tau_M-280_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m300"]="52_GluGluToRadionToHHTo2B2Tau_M-300_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m320"]="53_GluGluToRadionToHHTo2B2Tau_M-320_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m350"]="54_GluGluToRadionToHHTo2B2Tau_M-350_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m400"]="55_GluGluToRadionToHHTo2B2Tau_M-400_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m450"]="56_GluGluToRadionToHHTo2B2Tau_M-450_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m500"]="57_GluGluToRadionToHHTo2B2Tau_M-500_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m550"]="58_GluGluToRadionToHHTo2B2Tau_M-550_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m600"]="59_GluGluToRadionToHHTo2B2Tau_M-600_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m650"]="60_GluGluToRadionToHHTo2B2Tau_M-650_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m700"]="61_GluGluToRadionToHHTo2B2Tau_M-700_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m750"]="62_GluGluToRadionToHHTo2B2Tau_M-750_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m800"]="63_GluGluToRadionToHHTo2B2Tau_M-800_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m850"]="64_GluGluToRadionToHHTo2B2Tau_M-850_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m900"]="65_GluGluToRadionToHHTo2B2Tau_M-900_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m1000"]="66_GluGluToRadionToHHTo2B2Tau_M-1000_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m1250"]="67_GluGluToRadionToHHTo2B2Tau_M-1250_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m1500"]="68_GluGluToRadionToHHTo2B2Tau_M-1500_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m1750"]="69_GluGluToRadionToHHTo2B2Tau_M-1750_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m2000"]="70_GluGluToRadionToHHTo2B2Tau_M-2000_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m2500"]="71_GluGluToRadionToHHTo2B2Tau_M-2500_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_Radion_m3000"]="72_GluGluToRadionToHHTo2B2Tau_M-3000_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
+### Run on HH resonant signal samples
+# DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
+# MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
+# for ds in ${DATA_LIST[@]}; do
+# 	for mass in ${MASSES[@]}; do
+# 		pattern="${ds}.+_M-${mass}_";
+# 		sample=$(find_sample ${pattern} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
+# 		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+# 			ERRORS+=( ${sample} )
+# 		else
+# 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
+# 			run_skim -n 20 -i ${SIG_DIR} --sample ${sample} -x 1.
+# 		fi
+# 	done
+# done
 
-InputList["ggF_BulkGraviton_m250"]="73_GluGluToBulkGravitonToHHTo2B2Tau_M-250_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m260"]="74_GluGluToBulkGravitonToHHTo2B2Tau_M-260_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m270"]="75_GluGluToBulkGravitonToHHTo2B2Tau_M-270_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m280"]="76_GluGluToBulkGravitonToHHTo2B2Tau_M-280_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m300"]="77_GluGluToBulkGravitonToHHTo2B2Tau_M-300_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m320"]="78_GluGluToBulkGravitonToHHTo2B2Tau_M-320_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m350"]="79_GluGluToBulkGravitonToHHTo2B2Tau_M-350_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m400"]="80_GluGluToBulkGravitonToHHTo2B2Tau_M-400_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m450"]="81_GluGluToBulkGravitonToHHTo2B2Tau_M-450_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m500"]="82_GluGluToBulkGravitonToHHTo2B2Tau_M-500_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m550"]="83_GluGluToBulkGravitonToHHTo2B2Tau_M-550_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m600"]="84_GluGluToBulkGravitonToHHTo2B2Tau_M-600_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m650"]="85_GluGluToBulkGravitonToHHTo2B2Tau_M-650_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m700"]="86_GluGluToBulkGravitonToHHTo2B2Tau_M-700_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m750"]="87_GluGluToBulkGravitonToHHTo2B2Tau_M-750_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m800"]="88_GluGluToBulkGravitonToHHTo2B2Tau_M-800_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m850"]="89_GluGluToBulkGravitonToHHTo2B2Tau_M-850_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m900"]="90_GluGluToBulkGravitonToHHTo2B2Tau_M-900_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m1000"]="91_GluGluToBulkGravitonToHHTo2B2Tau_M-1000_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m1250"]="92_GluGluToBulkGravitonToHHTo2B2Tau_M-1250_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m1500"]="93_GluGluToBulkGravitonToHHTo2B2Tau_M-1500_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m1750"]="94_GluGluToBulkGravitonToHHTo2B2Tau_M-1750_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m2000"]="95_GluGluToBulkGravitonToHHTo2B2Tau_M-2000_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m2500"]="96_GluGluToBulkGravitonToHHTo2B2Tau_M-2500_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ggF_BulkGraviton_m3000"]="97_GluGluToBulkGravitonToHHTo2B2Tau_M-3000_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
+### Run on backgrounds samples
+stitch_opt="False"
+[[ ${STITCHING_ON} -eq 1 ]] && stitch_opt="True"
 
-InputList["VBF_Radion_m250"]="98_VBFToRadionToHHTo2B2Tau_M-250_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m260"]="99_VBFToRadionToHHTo2B2Tau_M-260_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m270"]="100_VBFToRadionToHHTo2B2Tau_M-270_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m280"]="101_VBFToRadionToHHTo2B2Tau_M-280_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m300"]="102_VBFToRadionToHHTo2B2Tau_M-300_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m320"]="103_VBFToRadionToHHTo2B2Tau_M-320_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m350"]="104_VBFToRadionToHHTo2B2Tau_M-350_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m400"]="105_VBFToRadionToHHTo2B2Tau_M-400_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m450"]="106_VBFToRadionToHHTo2B2Tau_M-450_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m500"]="107_VBFToRadionToHHTo2B2Tau_M-500_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m550"]="108_VBFToRadionToHHTo2B2Tau_M-550_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m600"]="109_VBFToRadionToHHTo2B2Tau_M-600_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m650"]="110_VBFToRadionToHHTo2B2Tau_M-650_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m700"]="111_VBFToRadionToHHTo2B2Tau_M-700_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m750"]="112_VBFToRadionToHHTo2B2Tau_M-750_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m800"]="113_VBFToRadionToHHTo2B2Tau_M-800_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m850"]="114_VBFToRadionToHHTo2B2Tau_M-850_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m900"]="115_VBFToRadionToHHTo2B2Tau_M-900_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m1000"]="116_VBFToRadionToHHTo2B2Tau_M-1000_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m1250"]="117_VBFToRadionToHHTo2B2Tau_M-1250_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m1500"]="118_VBFToRadionToHHTo2B2Tau_M-1500_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m1750"]="119_VBFToRadionToHHTo2B2Tau_M-1750_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m2000"]="120_VBFToRadionToHHTo2B2Tau_M-2000_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m2500"]="121_VBFToRadionToHHTo2B2Tau_M-2500_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_Radion_m3000"]="122_VBFToRadionToHHTo2B2Tau_M-3000_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
+DATA_MAP=(
+	["TTToHadronic"]="-n 100 -x 377.96"
+	["TTTo2L2Nu"]="-n 100 -x 88.29"
+	["TTToSemiLeptonic"]="-n 100 -x 365.34"
 
-InputList["VBF_BulkGraviton_m250"]="123_VBFToBulkGravitonToHHTo2B2Tau_M-250_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m260"]="124_VBFToBulkGravitonToHHTo2B2Tau_M-260_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m270"]="125_VBFToBulkGravitonToHHTo2B2Tau_M-270_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m280"]="126_VBFToBulkGravitonToHHTo2B2Tau_M-280_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m300"]="127_VBFToBulkGravitonToHHTo2B2Tau_M-300_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m320"]="128_VBFToBulkGravitonToHHTo2B2Tau_M-320_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m350"]="129_VBFToBulkGravitonToHHTo2B2Tau_M-350_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m400"]="130_VBFToBulkGravitonToHHTo2B2Tau_M-400_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m450"]="131_VBFToBulkGravitonToHHTo2B2Tau_M-450_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m500"]="132_VBFToBulkGravitonToHHTo2B2Tau_M-500_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m550"]="133_VBFToBulkGravitonToHHTo2B2Tau_M-550_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m600"]="134_VBFToBulkGravitonToHHTo2B2Tau_M-600_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m650"]="135_VBFToBulkGravitonToHHTo2B2Tau_M-650_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m700"]="136_VBFToBulkGravitonToHHTo2B2Tau_M-700_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m750"]="137_VBFToBulkGravitonToHHTo2B2Tau_M-750_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m800"]="138_VBFToBulkGravitonToHHTo2B2Tau_M-800_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m850"]="139_VBFToBulkGravitonToHHTo2B2Tau_M-850_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m900"]="140_VBFToBulkGravitonToHHTo2B2Tau_M-900_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m1000"]="141_VBFToBulkGravitonToHHTo2B2Tau_M-1000_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m1250"]="142_VBFToBulkGravitonToHHTo2B2Tau_M-1250_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m1500"]="143_VBFToBulkGravitonToHHTo2B2Tau_M-1500_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m1750"]="144_VBFToBulkGravitonToHHTo2B2Tau_M-1750_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m2000"]="145_VBFToBulkGravitonToHHTo2B2Tau_M-2000_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m2500"]="146_VBFToBulkGravitonToHHTo2B2Tau_M-2500_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBF_BulkGraviton_m3000"]="147_VBFToBulkGravitonToHHTo2B2Tau_M-3000_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
+	# ["DYJets.+_M-50_T.+amc"]=" -n 400 -x 6077.22 -g ${stitch_opt} --DY False" # inclusive NLO
+	#### ["DYJetsToLL_Pt-50To100"]="-n 150 -x 1.      -g ${stitch_opt} --DY False"
+	#### ["DYJetsToLL_Pt-100To250"]="-n 150 -x 1.     -g ${stitch_opt} --DY False"
+	#### ["DYJetsToLL_Pt-250To400"]="-n 150 -x 1.	 -g ${stitch_opt} --DY False"
+	#### ["DYJetsToLL_Pt-400To650"]="-n 150 -x 1.	 -g ${stitch_opt} --DY False"
+	#### ["DYJetsToLL_Pt-650ToInf"]="-n 150 -x 1.	 -g ${stitch_opt} --DY False"
+	### 
+	###### LO samples, DY weights exist (--DY True)
+	#### ["DYJets.+_M-50_T.+madgraph"]="		-n 400 -x 6077.22 -g ${stitch_opt} --DY True" # inclusive LO
+	#### ["DY_merged"]="						-n 300 -x 6077.22 -g ${stitch_opt} --DY True"
+	#### ["DY1J"]="							-n 200 -x 1. -g ${stitch_opt} --DY True"
+	#### ["DY2J"]="							-n 200 -x 1. -g ${stitch_opt} --DY True"		   
+	#### ["DY3J"]="							-n 200 -x 1. -g ${stitch_opt} --DY True"
+	#### ["DY4J"]="							-n 200 -x 1. -g ${stitch_opt} --DY True"
+	#### ["DYJetsToLL_M-50_HT-70to100"]="		-n 200 -x 1. -g ${stitch_opt} --DY True"
+	#### ["DYJetsToLL_M-50_HT-100to200"]="		-n 200 -x 1. -g ${stitch_opt} --DY True"
+	#### ["DYJetsToLL_M-50_HT-200to400"]="		-n 200 -x 1. -g ${stitch_opt} --DY True"
+	#### ["DYJetsToLL_M-50_HT-400to600"]="		-n 200 -x 1. -g ${stitch_opt} --DY True"
+	#### ["DYJetsToLL_M-50_HT-600to800"]="		-n 200 -x 1. -g ${stitch_opt} --DY True"
+	#### ["DYJetsToLL_M-50_HT-800to1200"]="	-n 200 -x 1. -g ${stitch_opt} --DY True"
+	#### ["DYJetsToLL_M-50_HT-1200to2500"]="	-n 200 -x 1. -g ${stitch_opt} --DY True"
+	#### ["DYJetsToLL_M-50_HT-2500toInf"]="	-n 200 -x 1. -g ${stitch_opt} --DY True"
 
-# Background
-InputList["TT_fullyLep"]="1_TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["TT_semiLep"]="2_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["TT_fullyHad"]="3_TTToHadronic_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
+	# ["WJetsToLNu_T.+madgraph"]="-n 20 -x 48917.48 -y 1.213784 -z 70" # for 0 < HT < 70
+	# ["WJetsToLNu_HT-70To100"]="-n 20 -x 1362 -y 1.213784"
+	# ["WJetsToLNu_HT-100To200"]="-n 20 -x 1345 -y 1.213784"
+	# ["WJetsToLNu_HT-200To400"]="-n 20 -x 359.7 -y 1.213784"
+	# ["WJetsToLNu_HT-400To600"]="-n 20 -x 48.91 -y 1.213784"
+	# ["WJetsToLNu_HT-600To800"]="-n 20 -x 12.05 -y 1.213784"
+	# ["WJetsToLNu_HT-800To1200"]="-n 20 -x 5.501 -y 1.213784"
+	# ["WJetsToLNu_HT-1200To2500"]="-n 20 -x 1.329 -y 1.213784"
+	# ["WJetsToLNu_HT-2500ToInf"]="-n 20 -x 0.03216 -y 1.213784"
 
-InputList["WJets_HT_0_70"]="4_WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["WJets_HT_70_100"]="5_WJetsToLNu_HT-70To100_TuneCP5_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["WJets_HT_100_200"]="6_WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["WJets_HT_200_400"]="7_WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["WJets_HT_400_600"]="8_WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["WJets_HT_600_800"]="9_WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["WJets_HT_800_1200"]="10_WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["WJets_HT_1200_2500"]="11_WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["WJets_HT_2500_Inf"]="12_WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
+	# ["EWKWPlus2Jets_WToLNu"]="-n 50 -x 25.62"
+	# ["EWKWMinus2Jets_WToLNu"]="-n 50 -x 20.25"
+	# ["EWKZ2Jets_ZToLL"]="-n 50 -x 3.987"
 
-InputList["DY_merged"]="DYmerged.txt"
-InputList["DY_incl"]="13_DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["DY_1j"]="14_DY1JetsToLL_M-50_MatchEWPDG20_TuneCP5_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["DY_2j"]="15_DY2JetsToLL_M-50_MatchEWPDG20_TuneCP5_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["DY_4j"]="16_DY4JetsToLL_M-50_MatchEWPDG20_TuneCP5_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["DY_HT70To100"]="17_DYJetsToLL_M-50_HT-70to100_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["DY_HT100To200"]="18_DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["DY_HT200To400"]="19_DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["DY_HT400To600"]="20_DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["DY_HT600To800"]="21_DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["DY_HT800To1200"]="22_DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["DY_HT1200To2500"]="23_DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["DY_HT2500ToInf"]="24_DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
+	# ["ST_tW_antitop"]="-n 50 -x 35.85"
+	# ["ST_tW_top"]="-n 50 -x 35.85"
+	# ["ST_t-channel_antitop"]="-n 50 -x 80.95"
+	# ["ST_t-channel_top"]="-n 50 -x 136.02"
 
-InputList["WW"]="25_WW_TuneCP5_13TeV-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["WZ"]="26_WZ_TuneCP5_13TeV-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
+	# ["GluGluHToTauTau"]="-n 30 -x 48.61 -y 0.0632"
+	# ["VBFHToTauTau"]="-n 30 -x 3.766 -y 0.0632"
+	# ["ZHToTauTau"]="-n 30 -x 0.880 -y 0.0632"
+	# ["WplusHToTauTau"]="-n 30 -x 0.831 -y 0.0632"
+	# ["WminusHToTauTau"]="-n 30 -x 0.527 -y 0.0632"
 
-InputList["ST_tW_antitop"]="27_ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ST_tW_top"]="28_ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ST_tchannel_antitop"]="29_ST_t-channel_antitop_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["ST_tchannel_top"]="30_ST_t-channel_top_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
+	# ["ttHToNonbb"]="-n 30 -x 0.5071 -y 0.3598"
+	# ["ttHTobb"]="-n 30 -x 0.5071 -y 0.577"
+	# ["ttHToTauTau"]="-n 30 -x 0.5071 -y 0.0632"
+	
+	# ["_WW"]="-n 20 -x 118.7"
+	# ["_WZ"]="-n 20 -x 47.13"
+	# # ["_ZZ"]="-n 20 -x 16.523"
 
-InputList["EWKWMinus2Jets_WToLNu"]="31_EWKWMinus2Jets_WToLNu_M-50_TuneCP5_withDipoleRecoil_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["EWKWPlus2Jets_WToLNu"]="32_EWKWPlus2Jets_WToLNu_M-50_TuneCP5_withDipoleRecoil_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["EWKZ2Jets_ZToLL"]="33_EWKZ2Jets_ZToLL_M-50_TuneCP5_withDipoleRecoil_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
+	# ["TTWJetsToLNu"]="-n 20 -x 0.2043"
+	# ["TTWJetsToQQ"]="-n 20 -x 0.4062"
+	# ["TTZToLLNuNu"]="-n 20 -x 0.2529"
+	# ["TTWW"]="-n 20 -x 0.006979"
+	# ["TTZZ"]="-n 20 -x 0.001386"
+	# ["TTWZ"]="-n 20 -x 0.00158"
+)
 
-InputList["ZHToTauTau"]="34_ZHToTauTau_M125_CP5_13TeV-powheg-pythia8_ext1__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["WplusHToTauTau"]="35_WplusHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["WminusHToTauTau"]="36_WminusHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["VBFHToTauTau"]="37_VBFHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["GluGluHToTauTau"]="38_GluGluHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v3.txt"
+# Sanity checks for Drell-Yan stitching
+DY_PATTERN=".*DY.*"
+dy_counter=0
+for ds in ${!DATA_MAP[@]}; do
+	sample=$(find_sample ${ds} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
+	if [[ ${sample} =~ ${DY_PATTERN} ]]; then
+		dy_counter=$(( dy_counter+1 ))
+	fi
+done
+if [ ${STITCHING_ON} -eq 1 ]; then
+	if [ ${dy_counter} -eq 0 ]; then
+		echo "You set the DY stitching on while considering no DY samples. Did you forget to include the latter?"
+		exit 1
+	elif [ ${dy_counter} -eq 1 ]; then
+		echo "You set the DY stitching on while considering a single DY sample. This is incorrect."
+		exit 1
+	fi
+fi
 
-InputList["ttHToNonbb"]="39_ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ttHTobb"]="40_ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["ttHToTauTau"]="41_ttHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v3.txt"
-InputList["TTWJetsToLNu"]="42_TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["TTWJetsToQQ"]="43_TTWJetsToQQ_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["TTZToLLNuNu"]="44_TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v2.txt"
-InputList["TTWW"]="45_TTWW_TuneCP5_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["TTZZ"]="46_TTZZ_TuneCP5_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
-InputList["TTWZ"]="47_TTWZ_TuneCP5_13TeV-madgraph-pythia8__RunIISummer20UL18MiniAODv2-106X_upgrade2018_realistic_v16_L1v1-v1.txt"
+# Skimming submission
+for ds in ${!DATA_MAP[@]}; do
+	sample=$(find_sample ${ds} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
+	if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+		ERRORS+=( ${sample} )
+	else
+		[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Backgrounds --sample ${sample}
+		run_skim -i ${BKG_DIR} --sample ${sample} ${DATA_MAP[${ds}]}
+	fi
+done
 
+### Print pattern matching issues
+nerr=${#ERRORS[@]}
+if [ ${nerr} -ne 0 ]; then
+	echo "WARNING: The following pattern matching errors were observed:"
+fi
+for ((i = 0; i < ${nerr}; i++)); do
+    echo "  - ${ERRORS[$i]}"
+done
 
-###########################
-### Submission commands ###
-###########################
+if [ ${DRYRUN} -eq 1 ]; then
+	echo "Dry-run. The commands above were not run."
+fi
 
-## ######################
-## #### DATA - filelists up to date
-#$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_EGamma_Run2018A -k True -i $DATADIR/${InputList["EGamma_Run2018A"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_EGamma_Run2018B -k True -i $DATADIR/${InputList["EGamma_Run2018B"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_EGamma_Run2018C -k True -i $DATADIR/${InputList["EGamma_Run2018C"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_EGamma_Run2018D -k True -i $DATADIR/${InputList["EGamma_Run2018D"]}
+###### Cross-section information ######
 
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_Tau_Run2018A -k True -i $DATADIR/${InputList["Tau_Run2018A"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_Tau_Run2018B -k True -i $DATADIR/${InputList["Tau_Run2018B"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_Tau_Run2018C -k True -i $DATADIR/${InputList["Tau_Run2018C"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_Tau_Run2018D -k True -i $DATADIR/${InputList["Tau_Run2018D"]}
+### TT
+# xsec from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
+# TT x section: 831.76 for inclusive sample, W->had 67,60% , W->l nu 3*10,8% = 32,4% (sum over all leptons)
+# hh = 45.7%, ll = 10.5%, hl = 21.9% (x2 for permutation t-tbar)
 
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_SingleMuon_Run2018A -k True -i $DATADIR/${InputList["SingleMuon_Run2018A"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_SingleMuon_Run2018B -k True -i $DATADIR/${InputList["SingleMuon_Run2018B"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_SingleMuon_Run2018C -k True -i $DATADIR/${InputList["SingleMuon_Run2018C"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_SingleMuon_Run2018D -k True -i $DATADIR/${InputList["SingleMuon_Run2018D"]}
+### DY
+# xsec from https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#DY_Z
 
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_MET_Run2018A -k True -i $DATADIR/${InputList["MET_Run2018A"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_MET_Run2018B -k True -i $DATADIR/${InputList["MET_Run2018B"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_MET_Run2018C -k True -i $DATADIR/${InputList["MET_Run2018C"]}
-$SUBMITSCRIPT -T $OUTDIR -d True -s True -c $THECFG -n 10 -q long -Y 2018 -o $SKIMDIR/$OUTDIR/SKIM_MET_Run2018D -k True -i $DATADIR/${InputList["MET_Run2018D"]}
- 
- 
- ######################
- #### HH resonant signal - all masspoints
- # spin-0 ggF
-#SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m250  -i $SIGDIR/${InputList["ggF_Radion_m250"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m260  -i $SIGDIR/${InputList["ggF_Radion_m260"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m270  -i $SIGDIR/${InputList["ggF_Radion_m270"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m280  -i $SIGDIR/${InputList["ggF_Radion_m280"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m300  -i $SIGDIR/${InputList["ggF_Radion_m300"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m320  -i $SIGDIR/${InputList["ggF_Radion_m320"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m350  -i $SIGDIR/${InputList["ggF_Radion_m350"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m400  -i $SIGDIR/${InputList["ggF_Radion_m400"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m450  -i $SIGDIR/${InputList["ggF_Radion_m450"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m500  -i $SIGDIR/${InputList["ggF_Radion_m500"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m550  -i $SIGDIR/${InputList["ggF_Radion_m550"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m600  -i $SIGDIR/${InputList["ggF_Radion_m600"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m650  -i $SIGDIR/${InputList["ggF_Radion_m650"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m700  -i $SIGDIR/${InputList["ggF_Radion_m700"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m750  -i $SIGDIR/${InputList["ggF_Radion_m750"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m800  -i $SIGDIR/${InputList["ggF_Radion_m800"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m850  -i $SIGDIR/${InputList["ggF_Radion_m850"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m900  -i $SIGDIR/${InputList["ggF_Radion_m900"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m1000 -i $SIGDIR/${InputList["ggF_Radion_m1000"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m1250 -i $SIGDIR/${InputList["ggF_Radion_m1250"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m1500 -i $SIGDIR/${InputList["ggF_Radion_m1500"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m1750 -i $SIGDIR/${InputList["ggF_Radion_m1750"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m2000 -i $SIGDIR/${InputList["ggF_Radion_m2000"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m2500 -i $SIGDIR/${InputList["ggF_Radion_m2500"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_Radion_m3000 -i $SIGDIR/${InputList["ggF_Radion_m3000"]} -x 1.
-# spin-2 ggF
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m250  -i $SIGDIR/${InputList["ggF_BulkGraviton_m250"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m260  -i $SIGDIR/${InputList["ggF_BulkGraviton_m260"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m270  -i $SIGDIR/${InputList["ggF_BulkGraviton_m270"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m280  -i $SIGDIR/${InputList["ggF_BulkGraviton_m280"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m300  -i $SIGDIR/${InputList["ggF_BulkGraviton_m300"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m320  -i $SIGDIR/${InputList["ggF_BulkGraviton_m320"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m350  -i $SIGDIR/${InputList["ggF_BulkGraviton_m350"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m400  -i $SIGDIR/${InputList["ggF_BulkGraviton_m400"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m450  -i $SIGDIR/${InputList["ggF_BulkGraviton_m450"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m500  -i $SIGDIR/${InputList["ggF_BulkGraviton_m500"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m550  -i $SIGDIR/${InputList["ggF_BulkGraviton_m550"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m600  -i $SIGDIR/${InputList["ggF_BulkGraviton_m600"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m650  -i $SIGDIR/${InputList["ggF_BulkGraviton_m650"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m700  -i $SIGDIR/${InputList["ggF_BulkGraviton_m700"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m750  -i $SIGDIR/${InputList["ggF_BulkGraviton_m750"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m800  -i $SIGDIR/${InputList["ggF_BulkGraviton_m800"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m850  -i $SIGDIR/${InputList["ggF_BulkGraviton_m850"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m900  -i $SIGDIR/${InputList["ggF_BulkGraviton_m900"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m1000 -i $SIGDIR/${InputList["ggF_BulkGraviton_m1000"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m1250 -i $SIGDIR/${InputList["ggF_BulkGraviton_m1250"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m1500 -i $SIGDIR/${InputList["ggF_BulkGraviton_m1500"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m1750 -i $SIGDIR/${InputList["ggF_BulkGraviton_m1750"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m2000 -i $SIGDIR/${InputList["ggF_BulkGraviton_m2000"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m2500 -i $SIGDIR/${InputList["ggF_BulkGraviton_m2500"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggF_BulkGraviton_m3000 -i $SIGDIR/${InputList["ggF_BulkGraviton_m3000"]} -x 1.
-# spin-0 VBF
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m250  -i $SIGDIR/${InputList["VBF_Radion_m250"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m260  -i $SIGDIR/${InputList["VBF_Radion_m260"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m270  -i $SIGDIR/${InputList["VBF_Radion_m270"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m280  -i $SIGDIR/${InputList["VBF_Radion_m280"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m300  -i $SIGDIR/${InputList["VBF_Radion_m300"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m320  -i $SIGDIR/${InputList["VBF_Radion_m320"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m350  -i $SIGDIR/${InputList["VBF_Radion_m350"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m400  -i $SIGDIR/${InputList["VBF_Radion_m400"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m450  -i $SIGDIR/${InputList["VBF_Radion_m450"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m500  -i $SIGDIR/${InputList["VBF_Radion_m500"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m550  -i $SIGDIR/${InputList["VBF_Radion_m550"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m600  -i $SIGDIR/${InputList["VBF_Radion_m600"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m650  -i $SIGDIR/${InputList["VBF_Radion_m650"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m700  -i $SIGDIR/${InputList["VBF_Radion_m700"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m750  -i $SIGDIR/${InputList["VBF_Radion_m750"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m800  -i $SIGDIR/${InputList["VBF_Radion_m800"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m850  -i $SIGDIR/${InputList["VBF_Radion_m850"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m900  -i $SIGDIR/${InputList["VBF_Radion_m900"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m1000 -i $SIGDIR/${InputList["VBF_Radion_m1000"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m1250 -i $SIGDIR/${InputList["VBF_Radion_m1250"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m1500 -i $SIGDIR/${InputList["VBF_Radion_m1500"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m1750 -i $SIGDIR/${InputList["VBF_Radion_m1750"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m2000 -i $SIGDIR/${InputList["VBF_Radion_m2000"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m2500 -i $SIGDIR/${InputList["VBF_Radion_m2500"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_Radion_m3000 -i $SIGDIR/${InputList["VBF_Radion_m3000"]} -x 1.
-# spin-2 VBF
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m250  -i $SIGDIR/${InputList["VBF_BulkGraviton_m250"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m260  -i $SIGDIR/${InputList["VBF_BulkGraviton_m260"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m270  -i $SIGDIR/${InputList["VBF_BulkGraviton_m270"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m280  -i $SIGDIR/${InputList["VBF_BulkGraviton_m280"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m300  -i $SIGDIR/${InputList["VBF_BulkGraviton_m300"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m320  -i $SIGDIR/${InputList["VBF_BulkGraviton_m320"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m350  -i $SIGDIR/${InputList["VBF_BulkGraviton_m350"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m400  -i $SIGDIR/${InputList["VBF_BulkGraviton_m400"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m450  -i $SIGDIR/${InputList["VBF_BulkGraviton_m450"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m500  -i $SIGDIR/${InputList["VBF_BulkGraviton_m500"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m550  -i $SIGDIR/${InputList["VBF_BulkGraviton_m550"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m600  -i $SIGDIR/${InputList["VBF_BulkGraviton_m600"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m650  -i $SIGDIR/${InputList["VBF_BulkGraviton_m650"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m700  -i $SIGDIR/${InputList["VBF_BulkGraviton_m700"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m750  -i $SIGDIR/${InputList["VBF_BulkGraviton_m750"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m800  -i $SIGDIR/${InputList["VBF_BulkGraviton_m800"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m850  -i $SIGDIR/${InputList["VBF_BulkGraviton_m850"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m900  -i $SIGDIR/${InputList["VBF_BulkGraviton_m900"]}  -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m1000 -i $SIGDIR/${InputList["VBF_BulkGraviton_m1000"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m1250 -i $SIGDIR/${InputList["VBF_BulkGraviton_m1250"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m1500 -i $SIGDIR/${InputList["VBF_BulkGraviton_m1500"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m1750 -i $SIGDIR/${InputList["VBF_BulkGraviton_m1750"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m2000 -i $SIGDIR/${InputList["VBF_BulkGraviton_m2000"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m2500 -i $SIGDIR/${InputList["VBF_BulkGraviton_m2500"]} -x 1.
-$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q short -k True -Y 2018 --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBF_BulkGraviton_m3000 -i $SIGDIR/${InputList["VBF_BulkGraviton_m3000"]} -x 1.
+### Electroweak
+# xsec from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
 
+### Single Top
+# xsec from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
 
-## #######################
-## ##### TT - XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
-## ### TT x section: 831.76 for inclusive sample, W->had 67,60% , W->l nu 3*10,8% = 32,4% (sum over all leptons)
-## ### hh = 45.7%, ll = 10.5%, hl = 21.9% (x2 for permutation t-tbar)
-## #sleep 1h#
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 100 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TT_fullyHad -t True -b 1 -i $BKGDIR/${InputList["TT_fullyHad"]} -x 377.96
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 100 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TT_fullyLep -t True -b 1 -i $BKGDIR/${InputList["TT_fullyLep"]} -x 88.29
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 100 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TT_semiLep  -t True -b 1 -i $BKGDIR/${InputList["TT_semiLep"]}  -x 365.34
-## 
-## ######################
-## #### DY - xsec from https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#DY_Z
-## #sleep 1h
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_merged"]}       -g True --DY True -x 6077.22 
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_incl"]}         -g True --DY True -x 6077.22 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_1j"]}           -g True --DY True -x 1. 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_2j"]}           -g True --DY True -x 1. 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_4j"]}           -g True --DY True -x 1. 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT70To100"]}    -g True --DY True -x 1. 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT100To200"]}   -g True --DY True -x 1. 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT200To400"]}   -g True --DY True -x 1. 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT400To600"]}   -g True --DY True -x 1. 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT600To800"]}   -g True --DY True -x 1. 
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT800To1200"]}  -g True --DY True -x 1.
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT1200To2500"]} -g True --DY True -x 1.
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 300 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_DYmerged -i $BKGDIR/${InputList["DY_HT2500ToInf"]}  -g True --DY True -x 1.
-## 
-## #######################
-## #### Wjets - filelists up to date
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_0_70      -i $BKGDIR/${InputList["WJets_HT_0_70"]}      -y 1.213784 -x 48917.48 -z 70
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_70_100    -i $BKGDIR/${InputList["WJets_HT_70_100"]}    -y 1.213784 -x 1362
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_100_200   -i $BKGDIR/${InputList["WJets_HT_100_200"]}   -y 1.213784 -x 1345	 
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_200_400   -i $BKGDIR/${InputList["WJets_HT_200_400"]}   -y 1.213784 -x 359.7	 
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_400_600   -i $BKGDIR/${InputList["WJets_HT_400_600"]}   -y 1.213784 -x 48.91	 
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_600_800   -i $BKGDIR/${InputList["WJets_HT_600_800"]}   -y 1.213784 -x 12.05	 
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_800_1200  -i $BKGDIR/${InputList["WJets_HT_800_1200"]}  -y 1.213784 -x 5.501	 
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_1200_2500 -i $BKGDIR/${InputList["WJets_HT_1200_2500"]} -y 1.213784 -x 1.329	 
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -n 20 -q long -Y 2018 -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WJets_HT_2500_Inf  -i $BKGDIR/${InputList["WJets_HT_2500_Inf"]}  -y 1.213784 -x 0.03216
-## 
-## ######################
-## ##### ELECTROWEAK - XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 100 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_EWKWPlus2Jets_WToLNu -i $BKGDIR/${InputList["EWKWPlus2Jets_WToLNu"]} -x 25.62
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 100 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_EWKWMinus2Jets_WToLNu -i $BKGDIR/${InputList["EWKWMinus2Jets_WToLNu"]} -x 20.25
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 100 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_EWKZ2Jets_ZToLL -i $BKGDIR/${InputList["EWKZ2Jets_ZToLL"]} -x 3.987
-## 
-## ######################
-## ##### single top - XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 80 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ST_tW_antitop       -i $BKGDIR/${InputList["ST_tW_antitop"]}       -x 35.85
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 80 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ST_tW_top           -i $BKGDIR/${InputList["ST_tW_top"]}           -x 35.85
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 80 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ST_tchannel_antitop -i $BKGDIR/${InputList["ST_tchannel_antitop"]} -x 80.95
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 80 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ST_tchannel_top     -i $BKGDIR/${InputList["ST_tchannel_top"]}     -x 136.02
-## 
-## ######################
-## ##### SM Higgs - from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNHLHE2019
-## ### HXSWG: xs(ZH) = 0.880 pb, xs(W+H) = 0.831 pb, xs(W-H) = 0.527 pb, xs(ggH) = 48.61 pb, xs(VBFH) = 3.766 pb, xs(ttH) = 0.5071 pb
-## ### Z->qq : 69.91% , Z->ll : 3,3658% (x3 for all the leptons), H->bb : 57.7%  , H->tautau : 6.32%
-## ### ZH (Zll, Hbb) : XSBD (xs ZH * BR Z) * H->bb, ZH (Zqq, Hbb) : XSBD (xs ZH * BR Z) * H->bb
-## ### ZH (Zall, Htautau) : XS teor ZH * BR H->tautau
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ggHTauTau     -i $BKGDIR/${InputList["ggHTauTau"]}     -x 48.61  -y 0.0632
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_VBFHTauTau    -i $BKGDIR/${InputList["VBFHTauTau"]}    -x 3.766  -y 0.0632
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ZH_HTauTau    -i $BKGDIR/${InputList["ZH_HTauTau"]}    -x 0.880  -y 0.0632
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WplusHTauTau  -i $BKGDIR/${InputList["WplusHTauTau"]}  -x 0.831  -y 0.0632
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WminusHTauTau -i $BKGDIR/${InputList["WminusHTauTau"]} -x 0.527  -y 0.0632
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ttHToNonBB    -i $BKGDIR/${InputList["ttHToNonBB"]}    -x 0.5071 -y 0.3598
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ttHToBB       -i $BKGDIR/${InputList["ttHToBB"]}       -x 0.5071 -y 0.577
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 30 -q long -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ttHToTauTau   -i $BKGDIR/${InputList["ttHToTauTau"]}   -x 0.5071 -y 0.0632
-## 
-## ######################
-## #### Multiboson: -  https://arxiv.org/abs/1408.5243 (WW), https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Diboson (WZ,ZZ
-## ### Some XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
-## ### Some other XS taken from http://cms.cern.ch/iCMS/jsp/db_notes/noteInfo.jsp?cmsnoteid=CMS%20AN-2019/111
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WW -i $BKGDIR/${InputList["WW"]} -x 118.7
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_WZ -i $BKGDIR/${InputList["WZ"]} -x 47.13
-## #$SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_ZZ -i $BKGDIR/${InputList["ZZ"]} -x 16.523
-## 
-## ######################
-## #### Others : - filelists up to date
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTWJetsToLNu -i $BKGDIR/${InputList["TTWJetsToLNu"]} -x 0.2043
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTWJetsToQQ  -i $BKGDIR/${InputList["TTWJetsToQQ"]}  -x 0.4062
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTZToLLNuNu  -i $BKGDIR/${InputList["TTWZToLLNuNu"]} -x 0.2529
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTWW         -i $BKGDIR/${InputList["TTWW"]}         -x 0.006979
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTZZ         -i $BKGDIR/${InputList["TTZZ"]}         -x 0.001386
-## $SUBMITSCRIPT -T $OUTDIR -s True -c $THECFG -Y 2018 -n 20 -q short -k True --pu $PUSF -o $SKIMDIR/$OUTDIR/SKIM_TTWZ         -i $BKGDIR/${InputList["TTWZ"]}         -x 0.00158
+### SM Higgs
+# from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNHLHE2019
 
+### HXSWG: xs(ZH) = 0.880 pb, xs(W+H) = 0.831 pb, xs(W-H) = 0.527 pb, xs(ggH) = 48.61 pb, xs(VBFH) = 3.766 pb, xs(ttH) = 0.5071 pb
+# Z->qq : 69.91% , Z->ll : 3,3658% (x3 for all the leptons), H->bb : 57.7%  , H->tautau : 6.32%
+# ZH (Zll, Hbb) : XSBD (xs ZH * BR Z) * H->bb, ZH (Zqq, Hbb) : XSBD (xs ZH * BR Z) * H->bb
+# ZH (Zall, Htautau) : XS teor ZH * BR H->tautau
 
-#######################################################################################################################################################################################
-##LEGACY
-
-######################
-# Signals ggF non res - filelists up to date
-# norm xs = 1 p
-#sleep 1h
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_SM      -i $INPUTDIR_SIG/12_GluGluToHHTo2B2Tau_node_SM_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_2  -i $INPUTDIR_SIG/4_GluGluToHHTo2B2Tau_node_2_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_3  -i $INPUTDIR_SIG/5_GluGluToHHTo2B2Tau_node_3_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_4  -i $INPUTDIR_SIG/2_GluGluToHHTo2B2Tau_node_4_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_5  -i $INPUTDIR_SIG/3_GluGluToHHTo2B2Tau_node_5_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_6  -i $INPUTDIR_SIG/4_GluGluToHHTo2B2Tau_node_6_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_7  -i $INPUTDIR_SIG/9_GluGluToHHTo2B2Tau_node_7_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_8  -i $INPUTDIR_SIG/10_GluGluToHHTo2B2Tau_node_8_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt  -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_9  -i $INPUTDIR_SIG/1_GluGluToHHTo2B2Tau_node_9_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_10 -i $INPUTDIR_SIG/1_GluGluToHHTo2B2Tau_node_10_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt  -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_11 -i $INPUTDIR_SIG/1_GluGluToHHTo2B2Tau_node_11_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt  -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_node_12 -i $INPUTDIR_SIG/3_GluGluToHHTo2B2Tau_node_12_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt  -x 1. -a True
-
-
-######################
-#### Signals ggF non res  - filelists up to date
-### norm xs = 1 p
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_NLO_cHHH1    -i $INPUTDIR_SIG/2_GluGluToHHTo2B2Tau_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt    -x 0.045 -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_NLO_cHHH0    -i $INPUTDIR_SIG/1_GluGluToHHTo2B2Tau_node_cHHH0_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt    -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_NLO_cHHH2p45 -i $INPUTDIR_SIG/3_GluGluToHHTo2B2Tau_node_cHHH2p45_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_NLO_cHHH5    -i $INPUTDIR_SIG/4_GluGluToHHTo2B2Tau_node_cHHH5_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt    -x 1. -a True
-
-### norm to theoretical xs
-# sigma_NNLO+FTapprox for SM: 31.05 fb
-# sigma_NNLO+FTapprox / sigma_NLO  = 1.115 for SM # TEMPORARY: need to fix with factor kL dependent (pag. 129: https://arxiv.org/pdf/2003.01700.pdf)
-# f(kL) = A + B*kL + C*kL**2
-# A = 62.5339
-# B = -44.323
-# C = 9.6340
-# (slide 10: https://indico.cern.ch/event/885273/contributions/3812533/attachments/2016615/3370728/HH_combine_model_7Apr2018.pdf)
-# xs (kL = 1)                      = 0.03105 pb
-# xs (kL = 0)    = f(0)    * 1.115 = 0.06972 pb
-# xs (kL = 2.45) = f(2.45) * 1.115 = 0.01312 pb
-# xs (kL = 5)    = f(5)    * 1.115 = 0.09117 pb
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 20 -q short  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_NLO_SM_xs       -i $SIGDIR/2_GluGluToHHTo2B2Tau_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt    -x 0.03105 -a True --hhNLO
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_NLO_cHHH0_xs    -i $INPUTDIR_SIG/1_GluGluToHHTo2B2Tau_node_cHHH0_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt    -x 0.06972 -a True --hhNLO
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_NLO_cHHH2p45_xs -i $INPUTDIR_SIG/3_GluGluToHHTo2B2Tau_node_cHHH2p45_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 0.01312 -a True --hhNLO
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long  -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_GGHH_NLO_cHHH5_xs    -i $INPUTDIR_SIG/4_GluGluToHHTo2B2Tau_node_cHHH5_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt    -x 0.09117 -a True --hhNLO
-
-######################
-#### Signals VBF non res - filelists up to date
-### norm xs = 1 pb
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_C2V_1_C3_1 -i $INPUTDIR_SIG/1_VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_0_5_C2V_1_C3_1 -i $INPUTDIR_SIG/2_VBFHHTo2B2Tau_CV_0_5_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_5_C2V_1_C3_1 -i $INPUTDIR_SIG/3_VBFHHTo2B2Tau_CV_1_5_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_C2V_1_C3_0 -i $INPUTDIR_SIG/4_VBFHHTo2B2Tau_CV_1_C2V_1_C3_0_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_C2V_1_C3_2 -i $INPUTDIR_SIG/5_VBFHHTo2B2Tau_CV_1_C2V_1_C3_2_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg  -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_C2V_2_C3_1 -i $INPUTDIR_SIG/6_VBFHHTo2B2Tau_CV_1_C2V_2_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 1. -a True
-
-### norm to theoretical xs
-# xs_theo(SM) = 0.001726
-#  CV C2V C3 |  xs_MG5      * xs_theo(SM)/xs_MG5(SM)
-#   1   1  1 |  0.001668 pb * 1.034772182             =   0.001726 pb
-# 0.5   1  1 |  0.01046  pb * 1.034772182             =   0.010824 pb
-# 1.5   1  1 |  0.0638   pb * 1.034772182             =   0.066018 pb
-#   1   1  0 |  0.004454 pb * 1.034772182             =   0.004609 pb
-#   1   1  2 |  0.001375 pb * 1.034772182             =   0.001423 pb
-#   1   2  1 |  0.01374  pb * 1.034772182             =   0.014218 pb
-
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 20 -q short -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_C2V_1_C3_1_xs   -i $SIGDIR/1_VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 0.001726  -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_0_5_C2V_1_C3_1_xs -i $INPUTDIR_SIG/2_VBFHHTo2B2Tau_CV_0_5_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 0.010824  -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_5_C2V_1_C3_1_xs -i $INPUTDIR_SIG/3_VBFHHTo2B2Tau_CV_1_5_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt -x 0.066018  -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_C2V_1_C3_0_xs   -i $INPUTDIR_SIG/4_VBFHHTo2B2Tau_CV_1_C2V_1_C3_0_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 0.004609  -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_C2V_1_C3_2_xs   -i $INPUTDIR_SIG/5_VBFHHTo2B2Tau_CV_1_C2V_1_C3_2_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 0.001423  -a True
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c config/skim_Legacy2018.lp.cfg -Y 2018 -n 10 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_VBFHH_CV_1_C2V_2_C3_1_xs   -i $INPUTDIR_SIG/6_VBFHHTo2B2Tau_CV_1_C2V_2_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt   -x 0.014218  -a True
-
-
-######################
-#### Reweighting ggF non res - filelists up to date
-### norm xs = 1 pb
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c  config/skim_Legacy2018.lp.cfg  -n 20 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_HHRew_SM  -x 1.0 --kl 1.0  --kt 1.0 -x 1. -a True -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_LO_allNodes.txt
-
-#this is just for cross check with LO node SM, which wrongly has c2g set to 1
-#python scripts/skimNtuple.lp.py -T $OUTDIR -s True -c  config/skim_Legacy2018.lp.cfg  -n 20 -q long -k True --pu $PUDIR/PU_Legacy2018_SF.txt -o $SKIMDIR/$OUTDIR/SKIM_HHRew_SM_wrong  -x 1.0 --kl 1.0  --kt 1.0 --c2 0.0 --cg 0.0 --c2g 1. -a True -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_LO_allNodes.txt
+### Multiboson
+# xsec from https://arxiv.org/abs/1408.5243 (WW), https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Diboson (WZ,ZZ)
+# Some XS Taken from HTT http://cms.cern.ch/iCMS/user/noteinfo?cmsnoteid=CMS%20AN-2019/109
+# Some other XS taken from http://cms.cern.ch/iCMS/jsp/db_notes/noteInfo.jsp?cmsnoteid=CMS%20AN-2019/111
