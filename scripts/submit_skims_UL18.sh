@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 ### Defaults
-FORCE="0"
 NO_LISTS="0"
 STITCHING_ON="0"
 DRYRUN="0"
 OUT_TAG=""
 KLUB_TAG="Jul2022"
 DATA_PERIOD="UL18"
+DATA_PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
 
 ### Argument parsing
 HELP_STR="Prints this help message."
@@ -15,22 +15,20 @@ DRYRUN_STR="(Boolean) Prints all the commands to be launched but does not launch
 OUT_TAG_STR="(String) Defines tag for the output. Defaults to '${OUT_TAG}'."
 KLUB_TAG_STR="(String) Chooses tag for the klub input. Defaults to '${KLUB_TAG}'."
 STITCHING_ON_STR="(Boolean) Drell-Yan stitching weights will be used. Defaults to ${STITCHING_ON}."
-FORCE_STR="(Boolean) Whether to override a folder with the same tag. Defaults to ${FORCE}."
 NO_LISTS_STR="(Boolean) Whether to run the list production script before each submission. Defaults to ${NO_LISTS}."
 DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${DATA_PERIOD}'."
 function print_usage_submit_skims {
-    USAGE=" $(basename "$0") [-H] [--dry-run -t -f -d -n --klub_tag --stitching_on]
+    USAGE=" $(basename "$0") [-H] [--dry-run -t -d -n --klub_tag --stitching_on]
 
 	-h / --help			[ ${HELP_STR} ]
 	--dry-run			[ ${DRYRUN_STR} ]
 	-t / --tag			[ ${OUT_TAG_STR} ]
 	--klub_tag			[ ${KLUB_TAG_STR} ]
     -s / --stitching_on [ ${STITCHING_ON_STR} ]
-    -f / --force        [ ${FORCE_STR} ]
     -n / --no_lists     [ ${NO_LISTS_STR} ]
     -d / --data_period  [ ${DATAPERIOD_STR} ]
 
-    Run example: bash $(basename "$0") -t <some_tag> -f
+    Run example: bash $(basename "$0") -t <some_tag>
 "
     printf "${USAGE}"
 }
@@ -58,16 +56,19 @@ while [[ $# -gt 0 ]]; do
 	    STITCHING_ON="1"
 	    shift;
 	    ;;
-	-f|--force)
-	    FORCE="1"
-	    shift;
-	    ;;
 	-n|--no_lists)
 	    NO_LISTS="1"
 	    shift;
 	    ;;
 	-d|--data_period)
 	    DATA_PERIOD=${2}
+		if [[ ! " ${DATA_PERIOD_CHOICES[*]} " =~ " ${DATA_PERIOD} " ]]; then
+			echo "Currently the following data periods are supported:"
+			for dp in ${DATA_PERIOD_CHOICES[@]}; do
+				echo "- ${dp}" # bash string substitution
+			done
+			exit 1;
+		fi
 	    shift; shift;
 	    ;;
 	*)  # unknown option
@@ -82,9 +83,18 @@ THIS_FILE="${BASH_SOURCE[0]}"
 THIS_DIR="$( cd "$( dirname ${THIS_FILE} )" && pwd )"
 KLUB_DIR="$( cd "$( dirname ${THIS_DIR} )" && pwd )"
 
+EXEC_FILE="${KLUB_DIR}/bin"
 SUBMIT_SCRIPT="scripts/skimNtuple.py"
 LIST_SCRIPT="scripts/makeListOnStorage.py"
 LIST_DIR="/dpm/in2p3.fr/home/cms/trivcat/store/user/lportale/"
+
+if [ ${DATA_PERIOD} == "UL16" ]; then
+	EXEC_FILE="${EXEC_FILE}/skimNtuple2016_HHbtag.exe"
+elif [ ${DATA_PERIOD} == "UL17" ]; then
+	EXEC_FILE="${EXEC_FILE}/skimNtuple2017_HHbtag.exe"
+elif [ ${DATA_PERIOD} == "UL18" ]; then
+	EXEC_FILE="${EXEC_FILE}/skimNtuple2018_HHbtag.exe"
+fi
 
 ### Check if the voms command was run
 declare -a VOMS_CHECK=( $(/usr/bin/rfdir ${LIST_DIR} | awk '{{printf $9" "}}') )
@@ -151,7 +161,6 @@ ERR_FILE=${OUTSKIM_DIR}"/bad_patterns.o"
 echo "------ Arguments --------------"
 echo " Passed by the user:"
 printf "DRYRUN\t\t\t= ${DRYRUN}\n"
-printf "FORCE\t\t\t= ${FORCE}\n"
 printf "NO_LISTS\t\t= ${NO_LISTS}\n"
 printf "OUT_TAG\t\t\t= ${OUT_TAG}\n"
 printf "KLUB_TAG\t\t= ${KLUB_TAG}\n"
@@ -164,12 +173,12 @@ echo "-------------------------------"
 #### Source additional setup
 source scripts/setup.sh
 source /opt/exp_soft/cms/t3/t3setup
-cp scripts/listAll.sh ${OUTSKIM_DIR}
-echo "--------Run: $(date) ---------------" >> ${ERR_FILE}
+echo "-------- Run: $(date) ---------------" >> ${ERR_FILE}
 
 ### Submission command
 function run_skim() {
-	comm="python ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -c ${KLUB_DIR}/${CFG} -q long -Y 2018 -k True --pu ${PU_DIR} -f ${FORCE} $@"
+	comm="python ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -o ${OUTSKIM_DIR} -c ${KLUB_DIR}/${CFG} "
+	comm+="--exec_file ${EXEC_FILE} -q long -Y 2018 -k True --pu ${PU_DIR} $@"
 	[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
 }
 
@@ -220,26 +229,26 @@ for ds in ${DATA_LIST[@]}; do
 			ERRORS+=( ${sample} )
 		else
 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
-		 	run_skim -n 200 --isdata True -o ${OUTSKIM_DIR} -i ${DATA_DIR} --sample ${sample}			
+		 	run_skim -n 90 --isdata True -i ${DATA_DIR} --sample ${sample}			
 		fi
 	done
 done
-exit 1
+
 ### Run on HH resonant signal samples
-DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
-MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
-for ds in ${DATA_LIST[@]}; do
-	for mass in ${MASSES[@]}; do
-		pattern="${ds}.+_M-${mass}_";
-		sample=$(find_sample ${pattern} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
-		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-			ERRORS+=( ${sample} )
-		else
-			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
-			run_skim -n 20 -o ${OUTSKIM_DIR} -i ${SIG_DIR} --sample ${sample} -x 1.
-		fi
-	done
-done
+# DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
+# MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
+# for ds in ${DATA_LIST[@]}; do
+# 	for mass in ${MASSES[@]}; do
+# 		pattern="${ds}.+_M-${mass}_";
+# 		sample=$(find_sample ${pattern} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
+# 		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+# 			ERRORS+=( ${sample} )
+# 		else
+# 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
+# 			run_skim -n 20 -i ${SIG_DIR} --sample ${sample} -x 1.
+# 		fi
+# 	done
+# done
 
 ### Run on backgrounds samples
 stitch_opt="False"
@@ -250,7 +259,7 @@ DATA_MAP=(
 	["TTTo2L2Nu"]="-n 100 -x 88.29"
 	["TTToSemiLeptonic"]="-n 100 -x 365.34"
 
-	["DYJets.+_M-50_T.+amc"]=" -n 400 -x 6077.22 -g ${stitch_opt} --DY False" # inclusive NLO
+	# ["DYJets.+_M-50_T.+amc"]=" -n 400 -x 6077.22 -g ${stitch_opt} --DY False" # inclusive NLO
 	#### ["DYJetsToLL_Pt-50To100"]="-n 150 -x 1.      -g ${stitch_opt} --DY False"
 	#### ["DYJetsToLL_Pt-100To250"]="-n 150 -x 1.     -g ${stitch_opt} --DY False"
 	#### ["DYJetsToLL_Pt-250To400"]="-n 150 -x 1.	 -g ${stitch_opt} --DY False"
@@ -273,45 +282,45 @@ DATA_MAP=(
 	#### ["DYJetsToLL_M-50_HT-1200to2500"]="	-n 200 -x 1. -g ${stitch_opt} --DY True"
 	#### ["DYJetsToLL_M-50_HT-2500toInf"]="	-n 200 -x 1. -g ${stitch_opt} --DY True"
 
-	["WJetsToLNu_T.+madgraph"]="-n 20 -x 48917.48 -y 1.213784 -z 70" # for 0 < HT < 70
-	["WJetsToLNu_HT-70To100"]="-n 20 -x 1362 -y 1.213784"
-	["WJetsToLNu_HT-100To200"]="-n 20 -x 1345 -y 1.213784"
-	["WJetsToLNu_HT-200To400"]="-n 20 -x 359.7 -y 1.213784"
-	["WJetsToLNu_HT-400To600"]="-n 20 -x 48.91 -y 1.213784"
-	["WJetsToLNu_HT-600To800"]="-n 20 -x 12.05 -y 1.213784"
-	["WJetsToLNu_HT-800To1200"]="-n 20 -x 5.501 -y 1.213784"
-	["WJetsToLNu_HT-1200To2500"]="-n 20 -x 1.329 -y 1.213784"
-	["WJetsToLNu_HT-2500ToInf"]="-n 20 -x 0.03216 -y 1.213784"
+	# ["WJetsToLNu_T.+madgraph"]="-n 20 -x 48917.48 -y 1.213784 -z 70" # for 0 < HT < 70
+	# ["WJetsToLNu_HT-70To100"]="-n 20 -x 1362 -y 1.213784"
+	# ["WJetsToLNu_HT-100To200"]="-n 20 -x 1345 -y 1.213784"
+	# ["WJetsToLNu_HT-200To400"]="-n 20 -x 359.7 -y 1.213784"
+	# ["WJetsToLNu_HT-400To600"]="-n 20 -x 48.91 -y 1.213784"
+	# ["WJetsToLNu_HT-600To800"]="-n 20 -x 12.05 -y 1.213784"
+	# ["WJetsToLNu_HT-800To1200"]="-n 20 -x 5.501 -y 1.213784"
+	# ["WJetsToLNu_HT-1200To2500"]="-n 20 -x 1.329 -y 1.213784"
+	# ["WJetsToLNu_HT-2500ToInf"]="-n 20 -x 0.03216 -y 1.213784"
 
-	["EWKWPlus2Jets_WToLNu"]="-n 50 -x 25.62"
-	["EWKWMinus2Jets_WToLNu"]="-n 50 -x 20.25"
-	["EWKZ2Jets_ZToLL"]="-n 50 -x 3.987"
+	# ["EWKWPlus2Jets_WToLNu"]="-n 50 -x 25.62"
+	# ["EWKWMinus2Jets_WToLNu"]="-n 50 -x 20.25"
+	# ["EWKZ2Jets_ZToLL"]="-n 50 -x 3.987"
 
-	["ST_tW_antitop"]="-n 50 -x 35.85"
-	["ST_tW_top"]="-n 50 -x 35.85"
-	["ST_t-channel_antitop"]="-n 50 -x 80.95"
-	["ST_t-channel_top"]="-n 50 -x 136.02"
+	# ["ST_tW_antitop"]="-n 50 -x 35.85"
+	# ["ST_tW_top"]="-n 50 -x 35.85"
+	# ["ST_t-channel_antitop"]="-n 50 -x 80.95"
+	# ["ST_t-channel_top"]="-n 50 -x 136.02"
 
-	["GluGluHToTauTau"]="-n 30 -x 48.61 -y 0.0632"
-	["VBFHToTauTau"]="-n 30 -x 3.766 -y 0.0632"
-	["ZHToTauTau"]="-n 30 -x 0.880 -y 0.0632"
-	["WplusHToTauTau"]="-n 30 -x 0.831 -y 0.0632"
-	["WminusHToTauTau"]="-n 30 -x 0.527 -y 0.0632"
+	# ["GluGluHToTauTau"]="-n 30 -x 48.61 -y 0.0632"
+	# ["VBFHToTauTau"]="-n 30 -x 3.766 -y 0.0632"
+	# ["ZHToTauTau"]="-n 30 -x 0.880 -y 0.0632"
+	# ["WplusHToTauTau"]="-n 30 -x 0.831 -y 0.0632"
+	# ["WminusHToTauTau"]="-n 30 -x 0.527 -y 0.0632"
 
-	["ttHToNonbb"]="-n 30 -x 0.5071 -y 0.3598"
-	["ttHTobb"]="-n 30 -x 0.5071 -y 0.577"
-	["ttHToTauTau"]="-n 30 -x 0.5071 -y 0.0632"
+	# ["ttHToNonbb"]="-n 30 -x 0.5071 -y 0.3598"
+	# ["ttHTobb"]="-n 30 -x 0.5071 -y 0.577"
+	# ["ttHToTauTau"]="-n 30 -x 0.5071 -y 0.0632"
 	
-	["_WW"]="-n 20 -x 118.7"
-	["_WZ"]="-n 20 -x 47.13"
-	# ["_ZZ"]="-n 20 -x 16.523"
+	# ["_WW"]="-n 20 -x 118.7"
+	# ["_WZ"]="-n 20 -x 47.13"
+	# # ["_ZZ"]="-n 20 -x 16.523"
 
-	["TTWJetsToLNu"]="-n 20 -x 0.2043"
-	["TTWJetsToQQ"]="-n 20 -x 0.4062"
-	["TTZToLLNuNu"]="-n 20 -x 0.2529"
-	["TTWW"]="-n 20 -x 0.006979"
-	["TTZZ"]="-n 20 -x 0.001386"
-	["TTWZ"]="-n 20 -x 0.00158"
+	# ["TTWJetsToLNu"]="-n 20 -x 0.2043"
+	# ["TTWJetsToQQ"]="-n 20 -x 0.4062"
+	# ["TTZToLLNuNu"]="-n 20 -x 0.2529"
+	# ["TTWW"]="-n 20 -x 0.006979"
+	# ["TTZZ"]="-n 20 -x 0.001386"
+	# ["TTWZ"]="-n 20 -x 0.00158"
 )
 
 # Sanity checks for Drell-Yan stitching
@@ -340,7 +349,7 @@ for ds in ${!DATA_MAP[@]}; do
 		ERRORS+=( ${sample} )
 	else
 		[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Backgrounds --sample ${sample}
-		run_skim -o ${OUTSKIM_DIR} -i ${BKG_DIR} --sample ${sample} ${DATA_MAP[${ds}]}
+		run_skim -i ${BKG_DIR} --sample ${sample} ${DATA_MAP[${ds}]}
 	fi
 done
 
