@@ -173,7 +173,6 @@ echo "-------------------------------"
 #### Source additional setup
 source scripts/setup.sh
 source /opt/exp_soft/cms/t3/t3setup
-cp scripts/listAll.sh ${OUTSKIM_DIR}
 echo "-------- Run: $(date) ---------------" >> ${ERR_FILE}
 
 ### Submission command
