@@ -53,13 +53,11 @@ def parse_input_file_list(indir, insample):
     return filelist
 
 def write_condor_file(d, shell_exec, c_exec, py_exec, queue, var='Process'):
-        condouts = os.path.join(d, 'outputs')
-        condlogs = os.path.join(d, 'logs')
+        condouts = os.path.join(d, 'logs')
         create_dir(condouts)
-        create_dir(condlogs)
         paths = {'out': '{}/{{}}.out'.format(condouts),
                  'err': '{}/{{}}.err'.format(condouts),
-                 'log': '{}/{{}}.log'.format(condlogs)}
+                 'log': '{}/{{}}.log'.format(condouts)}
         proc = '$(Process)'
         condor_name = shell_exec.replace('.sh','.condor')
         with open(condor_name, 'w') as s:
@@ -89,7 +87,6 @@ def skim_ntuple(FLAGS, curr_folder):
     io_names = ( '{}.txt'.format(arg1),
                  'output_{}.root'.format(arg1),
                  '{}.log'.format(arg1) )
-    jobs_dir = os.path.join(FLAGS.output, FLAGS.sample)
 
     if FLAGS.config == 'none':
         print('Config file missing, exiting')
@@ -104,11 +101,7 @@ def skim_ntuple(FLAGS, curr_folder):
         print('The input folder {} does not exists. Exiting.'.format(FLAGS.input_folder))
         sys.exit(1)
 
-    if not FLAGS.force and os.path.exists(jobs_dir):
-        print('The output folder {} already exists. Exiting.'.format(jobs_dir))
-        sys.exit(1)
-    elif os.path.exists(jobs_dir):
-        os.system('rm -r ' + jobs_dir)
+    jobs_dir = os.path.join(FLAGS.output, FLAGS.sample)
     create_dir(jobs_dir)
     os.system('cp ' + FLAGS.config + ' ' + jobs_dir)
 
@@ -124,13 +117,6 @@ def skim_ntuple(FLAGS, curr_folder):
     create_dir(jobs_dir)
     job_name_shell = os.path.join(jobs_dir, 'job.sh')
     remove_file(job_name_shell)
-
-    if FLAGS.year == '2018':
-        skimmer = 'skimNtuple2018_HHbtag.exe'
-    elif FLAGS.year == '2017':
-        skimmer = 'skimNtuple2017_HHbtag.exe'
-    elif FLAGS.year == '2016':
-        skimmer = 'skimNtuple2016_HHbtag.exe'
 
     # verify the result of the process
     if (FLAGS.resub != 'none'):
@@ -159,7 +145,7 @@ def skim_ntuple(FLAGS, curr_folder):
         for mis in missing:
             str_queue += '  {}\n'.format(str(mis))
         str_queue += '\n'
-        _, condor_name = write_condor_file(d=jobs_dir, name=job_name_shell,
+        _, condor_name = write_condor_file(d=jobs_dir, shell_exec=job_name_shell,
                                            queue=str_queue, var='afile')
             
         launch_command = 'condor_submit {}'.format(condor_name)
@@ -200,10 +186,10 @@ def skim_ntuple(FLAGS, curr_folder):
             for line in listname:
                 input_list_file.write(line + '\n')
 
-    py_exec = scripts/check_outputs.py
+    py_exec = 'scripts/check_outputs.py'
     cpaths, cname = write_condor_file(d=jobs_dir,
                                       shell_exec=job_name_shell,
-                                      c_exec=skimmer,
+                                      c_exec=FLAGS.exec_file,
                                       py_exec=py_exec,
                                       queue=str(njobs))
 
@@ -218,7 +204,7 @@ def skim_ntuple(FLAGS, curr_folder):
                 
         yes_or_no = lambda s : '1' if bool(s) else '0'
         
-        command, comment = double_join(skimmer,
+        command, comment = double_join(FLAGS.exec_file,
                                        os.path.join(lists_dir, io_names[0]),
                                        os.path.join(jobs_dir, io_names[1]),
                                        FLAGS.xs,
@@ -258,14 +244,12 @@ def skim_ntuple(FLAGS, curr_folder):
         # we need to check them 'live', i.e., while the job is running
         livedir = os.path.join(jobs_dir, 'live_logs')
         create_dir(livedir)
-        local_out = os.path.join(livedir, 'output_{}.out'.format(arg1))
-        local_err = os.path.join(livedir, 'error_{}.err'.format(arg1))
+        local_out = os.path.join(livedir, '{}.out'.format(arg1))
+        local_err = os.path.join(livedir, '{}.err'.format(arg1))
         s.write(command + ' 1>{} 2>{}\n'.format(local_out, local_err))
         
         command, comment = double_join('python {}'.format(py_exec),
                                        '-r ' + os.path.join(jobs_dir, io_names[1]),
-                                       # '-o ' + cpaths['out'].format(arg1),
-                                       # '-e ' + cpaths['err'].format(arg1),
                                        '-o ' + local_out,
                                        '-e ' + local_err,
                                        '-l ' + cpaths['log'].format(arg1),
@@ -304,12 +288,11 @@ if __name__ == "__main__":
     usage = 'Command line parser of skimming a bit Ntuple.'
     parser = argparse.ArgumentParser(description=usage)
     parser.add_argument('-i', '--input_folder', dest='input_folder', default='none', help='input folder')
+    parser.add_argument('--exec_file', dest='exec_file', required=True, help='folder where the C++ skimmer executable is stored')
     parser.add_argument('--sample', dest='sample', default='none', help='input sample')
     parser.add_argument('-Y', '--year', dest='year', default='2018', help='year', choices=['2016', '2017', '2018'])
     parser.add_argument('-A', '--APV', dest='isAPV', default=False, help='isAPV')
     parser.add_argument('-x', '--xs', dest='xs', help='sample xs', default='1.')
-    parser.add_argument('-f', '--force', dest='force', default=0, type=int,
-                        help='replace existing reduced ntuples')
     parser.add_argument('-o', '--output', dest='output', default='none', help='output folder')
     parser.add_argument('-q', '--queue', dest='queue', default='short', help='batch queue')
     parser.add_argument('-r', '--resub', dest='resub', default='none', help='resubmit failed jobs')
