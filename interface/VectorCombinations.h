@@ -12,7 +12,7 @@
 //   `combine_all_k`: calculates combinations from 1 <= k <= n.                                                   //
 //                                                                                                                //
 //   Developed for the implementation of the inclusion method for trigger scale factors.                          //
-//   Standalone Python framework: https://github.com/b-fontana/METTriggerStudies                                  //
+//   Standalone Python framework: https://github.com/bfonta/inclusion                                             //
 //                                                                                                                //
 //   Author: Bruno Alves (LLR, Ecole Polytechnique, Paris)                                                        //
 //   Date  : April 2022                                                                                           //
@@ -155,11 +155,13 @@ public:
   };
 
   // n C k (C = combinations)
+  // pass 'k_limit' to truncate the list of combinations to a max number of elements
   template<typename T>
-  VectorCombinationsTransform<T> combine_all_k(vec<T> v) {
+  VectorCombinationsTransform<T> combine_all_k(vec<T> v, unsigned k_limit=0) {
 	const unsigned n = v.size();
 	vec3<T> v3;
-	for(unsigned k=1; k<=n; ++k)
+	unsigned limit = k_limit==0 ? n : k_limit;
+	for(unsigned k=1; k<=limit; ++k)
 	  v3.push_back( combine_single_k(v, n, k) );
 	VectorCombinationsTransform<T> c(v3);
 	return c;
