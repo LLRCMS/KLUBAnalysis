@@ -1,7 +1,6 @@
 #include "TriggerSF.h"
 
 // #define DEBUG
-
 // Constructor
 TriggerSF::TriggerSF( TriggerChannelLists trgs,
 					  umap<std::string,std::string> eff_files,
@@ -276,7 +275,7 @@ auto TriggerSF::mGetTriggerIntersections( const TriggerChannelLists& list,
   VectorCombinations comb;
   vec<std::string> strs = list.get_full(chn, isData);
   vec<std::string> new_strs = mKLUBStandaloneNameMatching(strs, chn, isData); //KLUB - Python standalone matching
-  vec<std::string> res = comb.combine_all_k<std::string>(new_strs, 3).flatten(mTriggerStrConnector);
+  vec<std::string> res = comb.combine_all_k<std::string>(new_strs, 4).flatten(mTriggerStrConnector);
   // comb.combine_all_k<std::string>(strs).print();
   return res;                                                                     
 }

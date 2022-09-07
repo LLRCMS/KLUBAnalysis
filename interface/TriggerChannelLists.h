@@ -51,7 +51,7 @@ class TriggerChannelLists {
   }
   template <class... RestKeys>
   auto mInternalAdd(std::string channel, bool isData,
-					const vecstr& trigs, RestKeys... args) -> void
+		    const vecstr& trigs, RestKeys... args) -> void
   {
 	for (const auto &t : trigs) {
 	  if (!isData)

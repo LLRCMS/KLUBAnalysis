@@ -661,33 +661,33 @@ int main (int argc, char** argv)
   // Trigger Scale Factors
   TriggerChannelLists trg_l;
   trg_l.add_generic(0,
-					gConfigParser->readStringListOption("triggersMC::METtriggers"),
-					gConfigParser->readStringListOption("triggersMC::vbfTriggers"),
-					gConfigParser->readStringListOption("triggersMC::SingleTau")
-					);
+		    gConfigParser->readStringListOption("triggersMC::METtriggers"),
+		    gConfigParser->readStringListOption("triggersMC::SingleTau")
+		    );
   trg_l.add_generic(1,
-					gConfigParser->readStringListOption("triggersMC::METtriggers"),
-					gConfigParser->readStringListOption("triggersMC::vbfTriggers"),
-					gConfigParser->readStringListOption("triggersMC::SingleTau")
-					);
+		    gConfigParser->readStringListOption("triggersData::METtriggers"),
+		    gConfigParser->readStringListOption("triggersData::SingleTau")
+		    );
   trg_l.add("EleTau", 0,
-			gConfigParser->readStringListOption("triggersMC::EleTau"),
-			gConfigParser->readStringListOption("triggersMC::crossEleTau") );
+	    gConfigParser->readStringListOption("triggersMC::EleTau"),
+	    gConfigParser->readStringListOption("triggersMC::crossEleTau") );
   trg_l.add("EleTau", 1,
-			gConfigParser->readStringListOption("triggersData::EleTau"),
-			gConfigParser->readStringListOption("triggersData::crossEleTau") );
+	    gConfigParser->readStringListOption("triggersData::EleTau"),
+	    gConfigParser->readStringListOption("triggersData::crossEleTau") );
   trg_l.add("MuTau", 0,
-			gConfigParser->readStringListOption("triggersMC::MuTau"),
-			gConfigParser->readStringListOption("triggersMC::crossMuTau") );
+	    gConfigParser->readStringListOption("triggersMC::MuTau"),
+	    gConfigParser->readStringListOption("triggersMC::crossMuTau") );
   trg_l.add("MuTau", 1,
-			gConfigParser->readStringListOption("triggersData::MuTau"),
-			gConfigParser->readStringListOption("triggersData::crossMuTau") );
+	    gConfigParser->readStringListOption("triggersData::MuTau"),
+	    gConfigParser->readStringListOption("triggersData::crossMuTau") );
   trg_l.add("TauTau", 0,
-			gConfigParser->readStringListOption("triggersMC::TauTau"),
-			gConfigParser->readStringListOption("triggersMC::crossTauTau") );
+	    gConfigParser->readStringListOption("triggersMC::vbfTriggers"),
+	    gConfigParser->readStringListOption("triggersMC::TauTau"),
+	    gConfigParser->readStringListOption("triggersMC::crossTauTau") );
   trg_l.add("TauTau", 1,
-			gConfigParser->readStringListOption("triggersData::TauTau"),
-			gConfigParser->readStringListOption("triggersData::crossTauTau") );
+	    gConfigParser->readStringListOption("triggersData::vbfTriggers"),
+	    gConfigParser->readStringListOption("triggersData::TauTau"),
+	    gConfigParser->readStringListOption("triggersData::crossTauTau") );
 
   std::string trigger_base_name = gConfigParser->readStringOption("triggerSF::baseDir");
   std::unordered_map<std::string,std::string> eff_names = {
