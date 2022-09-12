@@ -156,7 +156,8 @@ mkdir -p ${SKIM_DIR}
 OUTSKIM_DIR=${SKIM_DIR}/${TAG_DIR}/
 if [ -d ${OUTSKIM_DIR} ] && [[ ${RESUBMIT} -eq 0 ]]; then
 	echo "Directory ${OUTSKIM_DIR} already exists."
-	echo "You might want to remove it with: 'rm -r ${OUTSKIM_DIR}'."
+	echo "If you want to resubmit some jobs, add the '--resubmit' flag."
+	echo "If not, you might want to remove the directory with: 'rm -r ${OUTSKIM_DIR}'."
 	echo "Exiting."
 	exit 1
 else
@@ -195,7 +196,9 @@ function run_skim() {
 ### Input file list production command
 function produce_list() {
 	comm="python ${KLUB_DIR}/${LIST_SCRIPT} -t ${KLUB_TAG} --data_period ${DATA_PERIOD} $@"
-	[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
+	if [[ ${RESUBMIT} -eq 0 ]]; then
+		[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
+	fi
 }
 
 ### Extract sample full name
