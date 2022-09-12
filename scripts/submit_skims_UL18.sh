@@ -220,20 +220,20 @@ function find_sample() {
 }
 
 ### Run on data samples
-DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
-RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
-for ds in ${DATA_LIST[@]}; do
-	for run in ${RUNS[@]}; do
-		pattern="${ds}__${run}"
-		sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
-		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-			ERRORS+=( ${sample} )
-		else
-			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
-		 	run_skim -n 90 --isdata True -i ${DATA_DIR} --sample ${sample}			
-		fi
-	done
-done
+# DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
+# RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
+# for ds in ${DATA_LIST[@]}; do
+# 	for run in ${RUNS[@]}; do
+# 		pattern="${ds}__${run}"
+# 		sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
+# 		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+# 			ERRORS+=( ${sample} )
+# 		else
+# 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
+# 		 	run_skim -n 90 --isdata True -i ${DATA_DIR} --sample ${sample}			
+# 		fi
+# 	done
+# done
 
 ### Run on HH resonant signal samples
 # DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
@@ -246,7 +246,7 @@ done
 # 			ERRORS+=( ${sample} )
 # 		else
 # 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
-# 			run_skim -n 20 -i ${SIG_DIR} --sample ${sample} -x 1.
+# 			run_skim -n 5 -i ${SIG_DIR} --sample ${sample} -x 1.
 # 		fi
 # 	done
 # done
@@ -256,9 +256,9 @@ stitch_opt="False"
 [[ ${STITCHING_ON} -eq 1 ]] && stitch_opt="True"
 
 DATA_MAP=(
-	["TTToHadronic"]="-n 100 -x 377.96"
-	["TTTo2L2Nu"]="-n 100 -x 88.29"
-	["TTToSemiLeptonic"]="-n 100 -x 365.34"
+	["TTToHadronic"]="-n 1000 -x 377.96"
+	["TTTo2L2Nu"]="-n 1000 -x 88.29"
+	["TTToSemiLeptonic"]="-n 1000 -x 365.34"
 
 	# ["DYJets.+_M-50_T.+amc"]=" -n 400 -x 6077.22 -g ${stitch_opt} --DY False" # inclusive NLO
 	#### ["DYJetsToLL_Pt-50To100"]="-n 150 -x 1.      -g ${stitch_opt} --DY False"
