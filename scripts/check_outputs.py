@@ -87,6 +87,6 @@ if __name__ == '__main__':
 
     outdir = os.path.dirname(FLAGS.rootfile)
     out = 'goodfiles' if success else 'badfiles'
-    out += os.path.basename(FLAGS.errfile).split('.')[0] + '.txt'
+    out += os.path.basename(FLAGS.errfile).split('.')[0].split('_')[1] + '.txt'
     with open( os.path.join(outdir, out), 'a' ) as f:
         f.write(FLAGS.rootfile + '\n')

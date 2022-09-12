@@ -268,8 +268,8 @@ stitch_opt="False"
 [[ ${STITCHING_ON} -eq 1 ]] && stitch_opt="True"
 
 DATA_MAP=(
-	# ["TTToHadronic"]="-n 1000 -x 377.96"
-	# ["TTTo2L2Nu"]="-n 1000 -x 88.29"
+	["TTToHadronic"]="-n 1000 -x 377.96"
+	["TTTo2L2Nu"]="-n 1000 -x 88.29"
 	["TTToSemiLeptonic"]="-n 1000 -x 365.34"
 
 	# ["DYJets.+_M-50_T.+amc"]=" -n 400 -x 6077.22 -g ${stitch_opt} --DY False" # inclusive NLO
