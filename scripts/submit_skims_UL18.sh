@@ -4,6 +4,7 @@
 NO_LISTS="0"
 STITCHING_ON="0"
 DRYRUN="0"
+RESUBMIT="0"
 OUT_TAG=""
 KLUB_TAG="Jul2022"
 DATA_PERIOD="UL18"
@@ -12,16 +13,18 @@ DATA_PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
 ### Argument parsing
 HELP_STR="Prints this help message."
 DRYRUN_STR="(Boolean) Prints all the commands to be launched but does not launch them. Defaults to ${DRYRUN}."
+RESUBMIT_STR="(Boolean) Resubmits failed jobs listed in 'badfiles.txt'"
 OUT_TAG_STR="(String) Defines tag for the output. Defaults to '${OUT_TAG}'."
 KLUB_TAG_STR="(String) Chooses tag for the klub input. Defaults to '${KLUB_TAG}'."
 STITCHING_ON_STR="(Boolean) Drell-Yan stitching weights will be used. Defaults to ${STITCHING_ON}."
 NO_LISTS_STR="(Boolean) Whether to run the list production script before each submission. Defaults to ${NO_LISTS}."
 DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${DATA_PERIOD}'."
 function print_usage_submit_skims {
-    USAGE=" $(basename "$0") [-H] [--dry-run -t -d -n --klub_tag --stitching_on]
+    USAGE=" $(basename "$0") [-H] [--dry-run --resubmit -t -d -n --klub_tag --stitching_on]
 
 	-h / --help			[ ${HELP_STR} ]
 	--dry-run			[ ${DRYRUN_STR} ]
+	--resubm			[ ${RESUBMIT_STR} ]
 	-t / --tag			[ ${OUT_TAG_STR} ]
 	--klub_tag			[ ${KLUB_TAG_STR} ]
     -s / --stitching_on [ ${STITCHING_ON_STR} ]
@@ -42,6 +45,10 @@ while [[ $# -gt 0 ]]; do
 	    ;;
 	--dry-run)
 	    DRYRUN="1"
+	    shift;
+	    ;;
+	--resubmit)
+	    RESUBMIT="1"
 	    shift;
 	    ;;
 	-t|--tag)
@@ -97,9 +104,10 @@ elif [ ${DATA_PERIOD} == "UL18" ]; then
 fi
 
 ### Check if the voms command was run
-declare -a VOMS_CHECK=( $(/usr/bin/rfdir ${LIST_DIR} | awk '{{printf $9" "}}') )
+declare -a VOMS_CHECK=( $(/usr/bin/rfdir ${LIST_DIR} 2>/dev/null | awk '{{printf $9" "}}') )
 if [ ${#VOMS_CHECK[@]} -eq 0 ]; then
 	echo "Folder ${LIST_DIR} seems empty. Are you sure you run 'voms-proxy-init -voms cms'?"
+	exit 1
 fi
 
 LIST_DIR=${LIST_DIR}"HHNtuples_res/"${DATA_PERIOD}"/"
@@ -146,7 +154,7 @@ fi
 
 mkdir -p ${SKIM_DIR}
 OUTSKIM_DIR=${SKIM_DIR}/${TAG_DIR}/
-if [ -d ${OUTSKIM_DIR} ]; then
+if [ -d ${OUTSKIM_DIR} ] && [[ ${RESUBMIT} -eq 0 ]]; then
 	echo "Directory ${OUTSKIM_DIR} already exists."
 	echo "You might want to remove it with: 'rm -r ${OUTSKIM_DIR}'."
 	echo "Exiting."
@@ -179,6 +187,7 @@ echo "-------- Run: $(date) ---------------" >> ${ERR_FILE}
 ### Submission command
 function run_skim() {
 	comm="python ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -o ${OUTSKIM_DIR} -c ${KLUB_DIR}/${CFG} "
+	[[ ${RESUBMIT} -eq 1 ]] && comm+="--resub "
 	comm+="--exec_file ${EXEC_FILE} -q long -Y 2018 -k True --pu ${PU_DIR} $@"
 	[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
 }
@@ -256,8 +265,8 @@ stitch_opt="False"
 [[ ${STITCHING_ON} -eq 1 ]] && stitch_opt="True"
 
 DATA_MAP=(
-	["TTToHadronic"]="-n 1000 -x 377.96"
-	["TTTo2L2Nu"]="-n 1000 -x 88.29"
+	# ["TTToHadronic"]="-n 1000 -x 377.96"
+	# ["TTTo2L2Nu"]="-n 1000 -x 88.29"
 	["TTToSemiLeptonic"]="-n 1000 -x 365.34"
 
 	# ["DYJets.+_M-50_T.+amc"]=" -n 400 -x 6077.22 -g ${stitch_opt} --DY False" # inclusive NLO
