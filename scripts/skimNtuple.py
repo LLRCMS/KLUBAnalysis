@@ -254,7 +254,7 @@ def skim_ntuple(FLAGS, curr_folder):
                                        '-r ' + os.path.join(jobs_dir, io_names[1]),
                                        '-o ' + local_out,
                                        '-e ' + local_err,
-                                       '-l ' + cpaths['log'].format(arg1),
+                                       '-l ' + cpaths['log'].format(arg1,arg2),
                                        '-v ')
 
         s.write(comment + '\n')
@@ -284,7 +284,7 @@ def skim_ntuple(FLAGS, curr_folder):
 
     time.sleep(0.1)
     print('The following command was run: \n  {}'.format(launch_command))
-    #os.system(launch_command)
+    os.system(launch_command)
 
 if __name__ == "__main__":
     usage = 'Command line parser of skimming a bit Ntuple.'
