@@ -79,7 +79,8 @@ def write_condor_file(d, condor_name, shell_exec, c_exec, py_exec, queue, qvars)
                                 '',
                                 'Arguments = $({}) {}'.format(qvars[0], qvars[1]))) + '\n' )
             s.write(queue + '\n')
-        return paths
+
+        return condouts
 
 def skim_ntuple(FLAGS, curr_folder):
     arg1, arg2 = '${1}', '${2}'
@@ -129,7 +130,12 @@ def skim_ntuple(FLAGS, curr_folder):
 
         regex = re.compile('.*output_(.+)\.root')
         failed = []
-        badfiles = os.path.join(FLAGS.output, FLAGS.sample, 'badfiles.txt')
+
+        badfiles_folder = os.path.join(FLAGS.output, FLAGS.sample)
+        glob_badfiles = glob.glob(os.path.join(badfiles_folder, 'bad*.txt'))
+        badfiles_recent = max(glob_badfiles, key=os.path.getctime)
+        badfiles = os.path.join(FLAGS.output, FLAGS.sample, badfiles_recent)
+
         with open(badfiles, 'r') as badf:
             for line in badf.readlines():
                 fail = line
@@ -187,13 +193,10 @@ def skim_ntuple(FLAGS, curr_folder):
             for line in listname:
                 input_list_file.write(line + '\n')
  
-    cpaths = write_condor_file(d=jobs_dir,
-                               condor_name=condor_name,
-                               shell_exec=job_name_shell,
-                               c_exec=FLAGS.exec_file,
-                               py_exec=py_exec,
-                               queue='queue ' + str(njobs),
-                               qvars=('Process',''))
+    clog = write_condor_file(d=jobs_dir, condor_name=condor_name,
+                             shell_exec=job_name_shell, c_exec=FLAGS.exec_file,
+                             py_exec=py_exec,
+                             queue='queue ' + str(njobs), qvars=('Process',''))
 
     with open(job_name_shell, 'w') as s:
         s.write( '\n'.join(('#!/usr/bin/env bash',
@@ -254,7 +257,7 @@ def skim_ntuple(FLAGS, curr_folder):
                                        '-r ' + os.path.join(jobs_dir, io_names[1]),
                                        '-o ' + local_out,
                                        '-e ' + local_err,
-                                       '-l ' + cpaths['log'].format(arg1,arg2),
+                                       '-l ' + os.path.join(clog, '{}{}.log'.format(arg1,arg2)),
                                        '-v ')
 
         s.write(comment + '\n')
