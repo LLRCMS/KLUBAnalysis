@@ -215,7 +215,7 @@ fi
 
 run mkdir ${WWW_SUBDIR}
 
-run cp "${FULL_OUTDIR}/*png" ${WWW_SUBDIR}
-run cp "${FULL_OUTDIR}/*pdf" ${WWW_SUBDIR}
+run cp ${FULL_OUTDIR}/*png ${WWW_SUBDIR}
+run cp ${FULL_OUTDIR}/*pdf ${WWW_SUBDIR}
 
-run printf '\e]8;;https://${EOS_USER}.web.cern.ch/${EOS_USER}/${PLOTS_DIR}/\e\\Results\e]8;;\e\\\n'
+echo "Results: https://${EOS_USER}.web.cern.ch/${EOS_USER}/${PLOTS_DIR}/${TAG}/${CHANNEL}/${SELECTION}_${REG}/"
