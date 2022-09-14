@@ -56,7 +56,6 @@ class OutputManager:
 
         for key in rootfile.GetListOfKeys():
             kname = key.GetName()
-            # print key, kname
             obj = rootfile.Get(kname)
 
             ## 1D plots
@@ -77,10 +76,10 @@ class OutputManager:
     def groupTogether (self, newName, partsList):
         """ regroup the samples in partsList into a new sample that replaces old ones"""
         
-        print "... replacing" , newName , " <== " , partsList
+        print('... replacing {} <== {}'.format(newName, partsList))
 
         if len(partsList) == 0:
-            print "** ERROR: while grouping together histos, input list has size 0"
+            print('** ERROR: while grouping together histos, input list has size 0')
             raise ValueError
 
         ## 1D
@@ -89,7 +88,7 @@ class OutputManager:
                 newHistoName = makeHistoName(newName, sel, var)
                 
                 if newHistoName in self.histos:
-                    print "** ERROR: while grouping together histos, name", newName, "already exists in input as", newHistoName, "cannot continue..."
+                    print('** ERROR: while grouping together histos, name {} already exists in input as {} cannot continue...'.format(newName, newHistoName))
                     raise ValueError
 
                 for idx, oldName in enumerate(partsList):
@@ -106,7 +105,7 @@ class OutputManager:
                 protoName = makeHistoName(partsList[0], sel, var)
                 allSysts = matchInDictionary(self.histos, protoName+'_*')
                 allSysts = [x.replace(protoName+'_', '') for x in allSysts]
-                # if 'TT' in partsList[0] and var == 'MT2' and 'defaultBtagLLNoIsoBBTTCut_SR' in sel: print protoName, allSysts
+
                 for syst in allSysts:
                     newHistoName = makeHistoName(newName, sel, var, syst)
                     for idx, oldName in enumerate(partsList):
@@ -126,7 +125,7 @@ class OutputManager:
                 newHistoName = makeHisto2DName(newName, sel, var1, var2)
                 
                 if newHistoName in self.histos2D:
-                    print "** ERROR: while grouping together histos, name", newName, "already exists in input as", newHistoName, "cannot continue..."
+                    print('** ERROR: while grouping together histos, name {} already exists in input as {} cannot continue...'.format(newName, newHistoName))
                     raise ValueError
 
                 for idx, oldName in enumerate(partsList):
@@ -199,22 +198,21 @@ class OutputManager:
         delta = origIntegral - value
         isCompatible = abs(delta) < sq_unc
 
-        if (debug):
-            print '---> Original Integral:', origIntegral
-            print '---> Unc:', unc, '  - sq_unc:', sq_unc
-            print '---> delta:', delta
-            print '---> isCompatible:', isCompatible
-
+        if debug:
+            print('---> Original Integral: {}'.format(origIntegral))
+            print('---> Unc: {} - {}:'.format(unc, sq_unc))
+            print('---> delta: {}'.format(delta))
+            print('---> isCompatible: {}'.format(isCompatible))
         return isCompatible
 
 
     def makeQCD_SBtoSR (self, regionC, regionD, sel, var, syst = "", removeNegBins = True):
-        print "... computing C/D factor for QCD from: C =", regionC, ", D =", regionD, "in region ",sel
+        print('... computing C/D factor for QCD from: C = {}, D = {} in region {}'.format(regionC, regionD, sel))
         for idx, data in enumerate (self.data):
             hnameC = makeHistoName (data, sel+"_"+regionC, var)
             hnameD = makeHistoName (data, sel+"_"+regionD, var)
-            print hnameC
-            print hnameD
+            print(hnameC)
+            print(hnameD)
             if idx == 0: 
                 hregC = self.histos[hnameC].Clone(makeHistoName('regC',sel+'_'+regionC, var, syst))
                 hregC.SetTitle(hregC.GetName())
@@ -246,31 +244,28 @@ class OutputManager:
         intD = hregD.Integral()
         #if intC <= 0.0 or self.isIntegralCompatible(hregC,0):
         if intC <= 0.0:
-            #print '*** WARNING: integral of numerator is negative or compatible with Zero! Returning SBtoSRdyn = 0 !'
-            print '*** WARNING: integral of numerator is negative! Returning SBtoSRdyn = 0 !'
+            print('*** WARNING: integral of numerator is negative! Returning SBtoSRdyn = 0 !')
             return 0.0
         #if intD <= 0.0 or self.isIntegralCompatible(hregD,0):
         if intD <= 0.0:
-            #print '*** WARNING: integral of denominator is negative or compatible with Zero! Returning SBtoSRdyn = 0 !'
-            print '*** WARNING: integral of denominator is negative! Returning SBtoSRdyn = 0 !'
+            print('*** WARNING: integral of denominator is negative! Returning SBtoSRdyn = 0 !')
             return 0.0
 
         SBtoSRdyn = hregC.Integral()/hregD.Integral()
-        print "... C/D = ", SBtoSRdyn                  
+        print("... C/D = {}".format(SBtoSRdyn))
         return SBtoSRdyn
 
-                    # if var == 'MT2' and sel == 'defaultBtagLLNoIsoBBTTCut' : print ">> -- bkg - SHAPE: " , hname, hQCD.Integral()
     ## FIXME: how to treat systematics properly ? Do we need to do ann alternative QCD histo for every syst?
     def makeQCD (self, SR, yieldSB, shapeSB, SBtoSRfactor, regionC, regionD, doFitIf='False', fitFunc='[0] + [1]*x', computeSBtoSR = True, QCDname = 'QCD',
                  removeNegBins = True, doUpDown = False, boostSBtoSR = 1., classSBtoSR = 1.):
         
-        print "... building QCD w/ name:", QCDname, ". SR:" , SR, " yieldSB:", yieldSB, " shapeSB:", shapeSB, " SBtoSRfactor:", SBtoSRfactor, " doUpDown:", doUpDown
-        print "    >> recompute SBtoSR dynamically? "
+        print("... building QCD w/ name:", QCDname, ". SR:" , SR, " yieldSB:", yieldSB, " shapeSB:", shapeSB, " SBtoSRfactor:", SBtoSRfactor, " doUpDown:", doUpDown)
+        print("    >> recompute SBtoSR dynamically? ")
         if computeSBtoSR: 
-            print "    >>  yes"
+            print("    >>  yes")
         else:
-            print "    >>  no"
-        print "    >> doFitIf:", doFitIf , "fitFunction:", fitFunc
+            print("    >>  no")
+        print("    >> doFitIf:", doFitIf , "fitFunction:", fitFunc)
 
         # Since we always use the nominal QCD histogram we do not need to
         # loop on all the systematics to compute the shifted QCD histograms.
@@ -348,11 +343,11 @@ class OutputManager:
                         # If category is boosted use boost B/D (no-bTag)
                         if 'boost' in sel and boostSBtoSR != 1.:
                             SBtoSRfactor = boostSBtoSR
-                            print "... static boosted C/D = ", boostSBtoSR
+                            print("... static boosted C/D = ", boostSBtoSR)
                         # Else is one of the VBF multiclasses use B/D from VBf inclusive
                         elif 'class' in sel and classSBtoSR != 1.:
                             SBtoSRfactor = classSBtoSR
-                            print "... static VBF multiclass C/D = ", classSBtoSR
+                            print("... static VBF multiclass C/D = ", classSBtoSR)
                         # else (res1b/res2b) compute dynamically the QCD
                         else:
                             SBtoSRfactor = self.makeQCD_SBtoSR(regionC, regionD, sel, var, syst, removeNegBins)
@@ -362,8 +357,7 @@ class OutputManager:
                     # (if is compatible with 0 (but >0) we keep it, the uncertainty will be large anyway)
                     # ( if qcdYield <= 0.0 or self.isIntegralCompatible(hyieldQCD,0): )
                     if qcdYield <= 0.0:
-                        #print '*** WARNING: integral of shapeQCD is negative or compatible with Zero! Setting QCD = 0 !'
-                        print '*** WARNING: integral of shapeQCD is negative! Setting QCD = 0 !'
+                        print('*** WARNING: integral of shapeQCD is negative! Setting QCD = 0 !')
                         sc = 0.0
                     else:
                         sc = SBtoSRfactor*qcdYield/hQCD.Integral() if hQCD.Integral() > 0 else 0.0
@@ -418,7 +412,7 @@ class OutputManager:
         ### FIXME: now do 2D histos
 
     def rebin(self, var, sel, newbinning):        
-        print '... rebinning histos for var:' , var, 'sel:', sel
+        print('... rebinning histos for var:' , var, 'sel:', sel)
         newbinning_a = array.array('d', newbinning)
         for idx, s in enumerate(self.data + self.bkgs + self.sigs):
             htorebin_name = makeHistoName(s, sel, var)
@@ -427,12 +421,11 @@ class OutputManager:
                 # for i in range(1, h.GetNbinsX()+2): print var, i, h.GetBinLowEdge(i)
                 oldbinning = [h.GetBinLowEdge(i) for i in range(1, h.GetNbinsX()+2)]
             if not checkBinningCompatibility (newbinning, oldbinning):
-                print "** OutputManager : rebin : warning: binnings are not compatible, won't rebin", var, sel
-                print "old:", oldbinning, "new:", newbinning
+                print("** OutputManager : rebin : warning: binnings are not compatible, won't rebin", var, sel)
+                print("old:", oldbinning, "new:", newbinning)
                 continue
             h.SetName('prerebin_'+htorebin_name)
             hnew = h.Rebin(len(newbinning)-1, htorebin_name, newbinning_a)
-            # print sel, var, hnew.GetNbinsX(), hnew.GetName()
             self.histos[hnew.GetName()] = hnew
 
             ## the following is the correct one, but slow
@@ -463,7 +456,6 @@ class OutputManager:
     def saveToFile(self, fOut, saveQCDFit=True):
         fOut.cd()
         for elem in self.histos:
-            #print elem, self.histos[elem]
             self.histos[elem].Write()
         for elem in self.histos2D:
             self.histos2D[elem].Write()
@@ -479,7 +471,7 @@ class OutputManager:
             which are already included in the variable names  """
 
         # Build systematics list:
-        print '... creating systematics list'
+        print('... creating systematics list')
 
         # Use first element of self values just to build the protoName
         protoProcess = self.bkgs[0]
@@ -487,7 +479,7 @@ class OutputManager:
         protoRegion  = self.sel_regions[0]
         protoVar     = self.variables[0]
         protoName    = makeHistoName(protoProcess, protoSel+'_'+protoRegion, protoVar)
-        print "    >> Using as protoname: ", protoName
+        print("    >> Using as protoname: ", protoName)
 
         # Get the actual syst names
         allSysts = matchInDictionary(self.histos, protoName+'_*')
@@ -500,11 +492,11 @@ class OutputManager:
         # Add empty string to get the nominal histo
         allSysts.insert(0, "")
 
-        print "    >> systematics list: ", allSysts
+        print("    >> systematics list: ", allSysts)
         self.systList = allSysts
 
     def scaleHistos(self,strBkg, factor, strSel = None):
-        print '... scaling histos for bkg: ' , strBkg, " ",strSel, ' by factor : ', factor
+        print('... scaling histos for bkg: ' , strBkg, " ",strSel, ' by factor : ', factor)
         for sel in self.selections:
             if strSel:
                 if not strSel in sel: continue 
@@ -525,17 +517,16 @@ class OutputManager:
                         #if (strBkg in s):
                         if (strBkg == s):
                             htoscale_name = makeHistoName(s, sel, var, syst)
-                            print htoscale_name
+                            print(htoscale_name)
                             h = self.histos[htoscale_name]
                             h.Scale(factor)
 
     def addHistos(self, strBkg, fExt):
-        print '... taking histos for bkg: ' , strBkg, 'from file : ', fExt
+        print('... taking histos for bkg: ' , strBkg, 'from file : ', fExt)
         inFile = ROOT.TFile.Open(fExt)
         for sel in self.selections:
             for var in self.variables:
                 htoadd_name = makeHistoName(strBkg, sel, var)
-                #print htoadd_name
                 htoadd = inFile.Get(htoadd_name)
                 self.histos[htoadd_name] = htoadd.Clone(htoadd_name)
                 return self.histos[htoadd_name]
@@ -554,12 +545,12 @@ class OutputManager:
     # - one histogram for each target couplings combination and for each variable/selection (SignalRegion only)
     def makeVBFrew(self, inputSigs, target_kl, target_cv, target_c2v, target_xs):
 
-        print "-- VBF reweighting --"
-        print "Input samples:", inputSigs
-        print "Target kl    :", target_kl
-        print "Target cv    :", target_cv
-        print "Target c2v   :", target_c2v
-        print "Target Cross Section:", target_xs, "[pb]"
+        print("-- VBF reweighting --")
+        print("Input samples:", inputSigs)
+        print("Target kl    :", target_kl)
+        print("Target cv    :", target_cv)
+        print("Target c2v   :", target_c2v)
+        print("Target Cross Section:", target_xs, "[pb]")
 
         totIterations = len(target_kl) * len(target_cv) * len(target_c2v) * len(self.variables) * len(self.sel_def)
         nIteration = 0

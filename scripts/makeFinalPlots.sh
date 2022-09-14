@@ -116,7 +116,7 @@ if [[ -z ${DATA_PERIOD} ]]; then
 	exit 1;
 fi
 if [[ -z ${CHANNEL} ]]; then
-	echo "Select the channel via the '-c / --channeld' option."
+	echo "Select the channel via the '-c / --channel' option."
 	exit 1;
 fi
 if [[ -z ${REG} ]]; then
@@ -124,10 +124,16 @@ if [[ -z ${REG} ]]; then
 	exit 1;
 fi
 
+LUMI="41.6"
+SELECTION="baseline"
 MAIN_DIR="${MAIN_DIR}/${TAG}"
 EOS_DIR="/eos/user/${EOS_USER:0:1}/${EOS_USER}"
-WWW_DIR="${EOS_DIR}/www/${PLOTS_DIR}/${TAG}/${CHANNEL}/"
+WWW_DIR="${EOS_DIR}/www/${PLOTS_DIR}/${TAG}/${CHANNEL}"
 WWW_SUBDIR="${WWW_DIR}/${SELECTION}_${REG}"
+echo ${WWW_SUBDIR}
+exit 1
+
+[[ ! -d ${EOS_DIR} ]] && /opt/exp_soft/cms/t3/eos-login -username ${EOS_USER} -init
 
 if [ ${DATA_PERIOD} == "UL16" ]; then
 	PLOTTER="scripts/makeFinalPlots_UL2016.py"
@@ -137,17 +143,15 @@ elif [ ${DATA_PERIOD} == "UL18" ]; then
 	PLOTTER="scripts/makeFinalPlots_UL2018.py"
 fi
 
-SELECTION="baseline55"
-LUMI="41.6"
 
 ### Argument parsing: information for the user
 echo "------ Arguments --------------"
-echo " Passed by the user:"
-printf "DRYRUN\t\t\t= ${DRYRUN}\n"
+printf "DRYRUN\t\t= ${DRYRUN}\n"
 printf "TAG\t\t\t= ${TAG}\n"
-printf "DATA_PERIOD\t\t= ${DATA_PERIOD}\n"
+printf "DATA_PERIOD\t= ${DATA_PERIOD}\n"
 printf "CHANNEL\t\t= ${CHANNEL}\n"
 printf "REGION\t\t= ${REG}\n"
+printf "EOS_USER\t= ${EOS_USER}\n"
 echo "-------------------------------"
 
 ### Ensure connection to /eos/ folder
@@ -156,54 +160,44 @@ echo "-------------------------------"
 OPTIONS="--quit --ratio --no-sig" # --sigscale 10 10"
 #others="--no-binwidth"
 
-mkdir ${MAIN_DIR}
-mkdir "${MAIN_DIR}/${SELECTION}_${REG}"
+OUTDIR="${MAIN_DIR}/${PLOTS_DIR}"
+FULL_OUTDIR="${MAIN_DIR}/${PLOTS_DIR}/${CHANNEL}/${SELECTION}_${REG}"
+mkdir -p "${FULL_OUTDIR}"
 
-if [[ ${CHANNEL} = "ETau" ]]; then
-    OBJ1="e"
-    OBJ2="#tau_{h}"
-elif [[ ${CHANNEL} == "MuTau" ]]; then
-    OBJ1="#mu"
-    OBJ2="#tau_{h}"
-elif [[ ${CHANNEL} == "TauTau" ]]; then
-    OBJ1="#tau_{h1}"
-    OBJ2="#tau_{h2}"
-fi
-echo ${OBJ1}
-echo ${OBJ2}
+function run() {
+	[[ ${DRYRUN} -eq 1 ]] && echo "[DRYRUN] $@" || "$@"
+}
 
 function run_plot() {
-	comm="python ${PLOTTER} --dir ${MAIN_DIR} --reg ${REG} "
+	comm="python ${PLOTTER} --indir ${MAIN_DIR} --outdir ${OUTDIR} "
+	comm+="--reg ${REG} "
 	comm+="--sel ${SELECTION} --channel ${CHANNEL} "
-	comm+="--lumi ${LUMI} --tag ${TAG} ${OPTIONS} --quit $@"
-	[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
+	comm+="--lumi ${LUMI} ${OPTIONS} --quit $@"
+	[[ ${DRYRUN} -eq 1 ]] && echo "[DRYRUN] ${comm}" || ${comm}
 }
 
 declare -A VAR_MAP
 VAR_MAP=(
-	["VBFjj_mass"]="m_{jj} [GeV]"
-	["VBFjet1_pt"]="p_{TVBFjet1} [GeV]"
-	["VBFjet2_pt"]="p_{TVBFjet2} [GeV]"
-	["VBFjj_mass"]="m_{jj} [GeV]"
-	["VBFjet1_pt"]="p_{TVBFjet1} [GeV]"
-	["VBFjet2_pt"]="p_{TVBFjet2} [GeV]"
+	["dau1_pt"]="pT_{1}-[GeV]"
+	["bjet1_pt"]="pT_{j1}-[GeV]"
+	["bjet2_pt"]="pT_{j2}-[GeV]"
+	["dau1_eta"]="eta_{1}-[GeV]"
+	["bjet1_eta"]="eta_{j1}-[GeV]"
+	["bjet2_eta"]="eta_{j2}-[GeV]"
 	)
 for avar in ${!VAR_MAP[@]}; do
 	run_plot --var ${avar} --lymin 0.7 --label ${VAR_MAP[$avar]}
 done
 
-if [[ ${DRYRUN} -eq 0 ]]; then
-	cd ${MAIN_DIR}
-
-	mkdir ${WWW_DIR}
-	if [ -d ${WWW_SUBDIR} ]; then
-		echo "removing"
-		rm -rf ${WWW_SUBDIR}
-	fi
-
-	mkdir ${WWW_SUBDIR}
-
-	cp "${MAIN_DIR}/${SELECTION}_${REG}/*" ${WWW_SUBDIR}
-
-	printf '\e]8;;https://${EOS_USER}.web.cern.ch/${EOS_USER}/${PLOTS_DIR}/\e\\Results\e]8;;\e\\\n'
+run mkdir -p ${WWW_DIR}
+if [ -d ${WWW_SUBDIR} ]; then
+	echo "removing"
+	run rm -rf ${WWW_SUBDIR}
 fi
+
+run mkdir ${WWW_SUBDIR}
+
+run cp "${FULL_OUTDIR}/*png" ${WWW_SUBDIR}
+run cp "${FULL_OUTDIR}/*pdf" ${WWW_SUBDIR}
+
+run printf '\e]8;;https://${EOS_USER}.web.cern.ch/${EOS_USER}/${PLOTS_DIR}/\e\\Results\e]8;;\e\\\n'

@@ -1,32 +1,32 @@
-from ROOT import *
-import re
 import os
-import sys
+import os.path as op
+import re
 import argparse
 import fnmatch
 import math
 from array import array
+from ctypes import c_double, c_float
+
 import modules.ConfigReader as cfgr
 import modules.OutputManager as omng
+import ROOT
 
 def findInFolder (folder, pattern):
         ll = []
         for ff in os.listdir(folder):
             if fnmatch.fnmatch(ff, pattern): ll.append(ff)
         if len (ll) == 0:
-            print "*** WARNING: No valid" , pattern , "found in " , folder
+            print('*** WARNING: No valid {} found in {}.'.format(pattern, folder))
             return None
         if len (ll) > 1:
-            print "*** WARNING: Too many files found in " , folder , ", using first one : " , ll
+            print('*** WARNING: Too many files in {}, using the first: {}.'.format(folder, ll))
         return ll[0]
-
-
 
 def flatBinning(rootFile,namelist, var,sel,reg):
     for name in namelist:
-        fullName = name + "_" + sel + "_" + reg + "_" + var
+        fullName = name + '_' + sel + '_' + reg + '_' + var
         if not rootFile.GetListOfKeys().Contains(fullName):
-            print "*** WARNING: histo " , fullName , " not available"
+            print('*** WARNING: histo {} not available.'.format(fullName))
             continue
         
         if 'VBFC2V1' in name:
@@ -40,41 +40,40 @@ def flatBinning(rootFile,namelist, var,sel,reg):
                         xq[i] = float(i + 1) / nq
                         
             h.GetQuantiles(nq, yq, xq)
-            print yq
+            print(yq)
             return yq
 
 def retrieveHistos (rootFile, namelist, var, sel, reg,flat,binning):
     res = {}
     for name in namelist:
-        fullName = name + "_" + sel + "_" + reg + "_" + var
+        fullName = name + '_' + sel + '_' + reg + '_' + var
 
         if not rootFile.GetListOfKeys().Contains(fullName):
-            print "*** WARNING: histo " , fullName , " not available"
+            print('*** WARNING: histo {} not available.'.format(fullName))
             continue
         h = rootFile.Get(fullName)
     
         if not args.flat:
                 res[name] = h
         else:
-                hreb = h.Rebin(len(binning)-1,"hreb",binning) 
+                hreb = h.Rebin(len(binning)-1,'hreb',binning) 
                 res[name] = hreb
                         
     return res
                         
-def getHisto (histoName,inputList,doOverflow):
-
-        for idx, name in enumerate(inputList):
-
-                if (name.startswith(histoName) and name.endswith(histoName)):
-                        h = inputList[name].Clone (histoName)
-                        if doOverflow: h = addOverFlow(h)
-                        break
-
-        return h
+def getHisto(histoName, inputList, doOverflow):
+    assert len(inputList) != 0
+    for idx, name in enumerate(inputList):
+        if (name.startswith(histoName) and name.endswith(histoName)):
+            h = inputList[name].Clone(histoName)
+            if doOverflow:
+                h = addOverFlow(h)
+                break
+    return h
 
 # makes an histogram by adding together all those in the input list ; inputList: names, histoList: histograms
 def makeStack (stackName, histoList):
-    s = THStack (stackName, stackName)
+    s = ROOT.THStack (stackName, stackName)
     for h in histoList:
         s.Add(h)
     return s
@@ -91,7 +90,7 @@ def setPlotStyle ():
     #ss = gROOT.GetListOfStyles()
     #for s in ss: sys.stdout.write(s.GetName() + " ")
     
-    gROOT.SetStyle("Modern")
+    ROOT.gROOT.SetStyle("Modern")
     #LucaStyle = TStyle ("LucaStyle", "LucaStyle")
     #LucaStyle
 
@@ -128,11 +127,11 @@ def makeTGraphFromHist (histo, newName):
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
 
-    gData = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
+    gData = ROOT.TGraphAsymmErrors(len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
     gData.SetMarkerStyle(8);
     gData.SetMarkerSize(1.);
-    gData.SetMarkerColor(kBlack);
-    gData.SetLineColor(kBlack);
+    gData.SetMarkerColor(ROOT.kBlack);
+    gData.SetLineColor(ROOT.kBlack);
     gData.SetName(newName)
     return gData;
 
@@ -146,8 +145,8 @@ def removeHErrors (graph):
 def removeEmptyPoints (graph):
     zeroes = []
     for ipt in range (0, graph.GetN()):
-        x = Double(0.0)
-        y = Double(0.0)
+        x = c_double(0.0)
+        y = c_double(0.0)
         graph.GetPoint(ipt,x,y)
         if y == 0:
             zeroes.append(ipt)
@@ -157,7 +156,7 @@ def removeEmptyPoints (graph):
 
         
 def addOverFlow (histo):
-    dummy = TH1F ("tempo",histo.GetTitle (),histo.GetNbinsX () + 1, histo.GetXaxis ().GetXmin (),histo.GetXaxis ().GetXmax () + histo.GetBinWidth (1)) 
+    dummy = ROOT.TH1F("tempo",histo.GetTitle (),histo.GetNbinsX () + 1, histo.GetXaxis ().GetXmin (),histo.GetXaxis ().GetXmax () + histo.GetBinWidth (1)) 
 
     for iBin in range(1,histo.GetNbinsX () + 2):
             dummy.SetBinContent (iBin, histo.GetBinContent (iBin)) 
@@ -177,19 +176,17 @@ def addOverFlow (histo):
     histo, dummy = dummy, histo
     return histo
 
-
-
 def addOverAndUnderFlow ( histo):
   histo.SetBinContent(histo.GetNbinsX(),histo.GetBinContent(histo.GetNbinsX())+histo.GetBinContent(histo.GetNbinsX()+1)); 
   histo.SetBinContent(1,histo.GetBinContent(1)+histo.GetBinContent(0))
   
-  if (histo.GetBinErrorOption() != TH1.kPoisson):
+  if (histo.GetBinErrorOption() != ROOT.TH1.kPoisson):
     histo.SetBinError(histo.GetNbinsX(),sqrt(pow(histo.GetBinError(histo.GetNbinsX()),2)+pow(histo.GetBinError(histo.GetNbinsX()+1),2)))
     histo.SetBinError(1,sqrt(pow(histo.GetBinError(1),2)+pow(histo.GetBinError(0),2)))
 
   histo.SetBinContent(0,0)
   histo.SetBinContent(histo.GetNbinsX()+1,0)
-  if (histo.GetBinErrorOption() != TH1.kPoisson):
+  if (histo.GetBinErrorOption() != ROOT.TH1.kPoisson):
       histo.SetBinError(0,0)
       histo.SetBinError(histo.GetNbinsX()+1,0)
 
@@ -203,10 +200,10 @@ def scaleGraphByBinWidth (graph):
 
         eyh = graph.GetErrorYhigh(ipt)
         eyl = graph.GetErrorYlow(ipt)
-        x = Double(0.0)
-        y = Double(0.0)
-        graph.GetPoint (ipt, x, y)
-        graph.SetPoint (ipt, x, y/bw)
+        x = c_double(0.0)
+        y = c_double(0.0)
+        graph.GetPoint(ipt, x, y)
+        graph.SetPoint(ipt, x.value, y.value/bw)
         graph.SetPointEYlow(ipt, eyl/bw)
         graph.SetPointEYhigh(ipt, eyh/bw)
 
@@ -237,7 +234,7 @@ def makeMCUncertaintyBand (bkgSum):
     afeYDown  = array ("d", feYDown )
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
-    gBand = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
+    gBand = ROOT.TGraphAsymmErrors(len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
     return gBand;
 
 # get median significance (better than s/sqrt(b))
@@ -289,7 +286,7 @@ def makeSBSPlot (hData, hMC, newName, color, horErrs=False):
     afeYDown  = array ("d", feYDown )
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
-    gSBS = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
+    gSBS = ROOT.TGraphAsymmErrors(len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
 
     gSBS.SetMarkerStyle(1);
     gSBS.SetMarkerSize(1.);
@@ -335,12 +332,12 @@ def makeDataOverMCRatioPlot (hData, hMC, newName, horErrs=False):
     afeYDown  = array ("d", feYDown )
     afeXRight = array ("d", feXRight)
     afeXLeft  = array ("d", feXLeft )
-    gRatio = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
+    gRatio = ROOT.TGraphAsymmErrors(len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
     
     gRatio.SetMarkerStyle(8);
     gRatio.SetMarkerSize(1.);
-    gRatio.SetMarkerColor(kBlack);
-    gRatio.SetLineColor(kBlack);
+    gRatio.SetMarkerColor(ROOT.kBlack);
+    gRatio.SetLineColor(ROOT.kBlack);
     gRatio.SetName(newName)
 
     return gRatio;
@@ -349,10 +346,10 @@ def makeDataOverMCRatioPlot (hData, hMC, newName, horErrs=False):
 def findMaxOfGraph (graph):
     uppers = []
     for i in range (0, graph.GetN()):
-        x = Double(0.0)
-        y = Double(0.0)
+        x = c_double(0.0)
+        y = c_double(0.0)
         graph.GetPoint(i, x, y)
-        uppers.append (y + graph.GetErrorYhigh(i))
+        uppers.append(y.value + graph.GetErrorYhigh(i))
     return max(uppers)
 
 # def makeSystUpDownStack (bkgList, systList, newNamePart):
@@ -381,9 +378,8 @@ def makeNonNegativeHistos (hList):
                h.SetBinContent (b, 0)
         integralNew = h.Integral()        
         if (integralNew != integral):
-            print "** INFO: removed neg bins from histo " , h.GetName() 
+            print("** INFO: removed neg bins from histo " , h.GetName())
         
-        # print h.GetName() , integral , integralNew
         if integralNew == 0:
             h.Scale(0)
         else:
@@ -393,7 +389,7 @@ def makeNonNegativeHistos (hList):
 ### script body ###
 
 if __name__ == "__main__" :
-    TH1.AddDirectory(0)
+    ROOT.TH1.AddDirectory(0)
 
     titleSize = 24
     labelSize = 22
@@ -406,14 +402,19 @@ if __name__ == "__main__" :
     parser.add_argument('--var', dest='var', help='variable name', default=None)
     parser.add_argument('--sel', dest='sel', help='selection name', default=None)
     parser.add_argument('--name', dest='name', help='selection name for plot', default=None)
-    parser.add_argument('--dir', dest='dir', help='analysis output folder name', default="./")
-    parser.add_argument('--tag', dest='tag', help='plots output folder name', default="./")
+    parser.add_argument('--indir', dest='indir',
+                        help='analysis input folder name', default='.')
+    parser.add_argument('--outdir', dest='outdir',
+                        help='analysis output folder name', default='.')
     parser.add_argument('--reg', dest='reg', help='region name', default=None)
     parser.add_argument('--title', dest='title', help='plot title', default=None)
     parser.add_argument('--label', dest='label', help='x label', default=None)
-    parser.add_argument('--channel', dest='channel', help='channel = (MuTau, ETau, TauTau)', default=None)
-    parser.add_argument('--siglegextratext', dest='siglegextratext', help='additional optional text to be plotted in legend after signal block', default=None)
-    
+    parser.add_argument('--channel', dest='channel',
+                        choices=('ETau', 'MuTau', 'TauTau'),
+                        help='channel', required=True)
+    parser.add_argument('--siglegextratext', dest='siglegextratext',
+                        help='extra opt text for legend after signal block',
+                        default=None)
     #bool opts
     parser.add_argument('--log',     dest='log', help='use log scale',  action='store_true', default=False)
     parser.add_argument('--no-data', dest='dodata', help='disable plotting data',  action='store_false', default=True)
@@ -439,69 +440,62 @@ if __name__ == "__main__" :
 
     args = parser.parse_args()
 
-    if args.quit : gROOT.SetBatch(True)
+    if args.quit:
+        ROOT.gROOT.SetBatch(True)
     
     ######################### CANVASES #################################
 
-    c1 = TCanvas ("c1", "c1", 600, 600)
+    c1 = ROOT.TCanvas('c1', 'c1', 600, 600)
 
     pad1 = None
     pad2 = None
 
     if args.ratio or args.sbs:
-        pad1 = TPad ("pad1", "pad1", 0, 0.25, 1, 1.0)
+        pad1 = ROOT.TPad('pad1', 'pad1', 0, 0.25, 1, 1.0)
         pad1.SetFrameLineWidth(3)
         pad1.SetLeftMargin(0.12);
         pad1.SetBottomMargin(0.02);
         pad1.SetTopMargin(0.055);
         pad1.Draw()
     else:
-        pad1 = TPad ("pad1", "pad1", 0, 0.0, 1.0, 1.0)
+        pad1 = ROOT.TPad('pad1', 'pad1', 0, 0.0, 1.0, 1.0)
         pad1.SetFrameLineWidth(3)
         pad1.SetLeftMargin(0.12);
         pad1.SetBottomMargin(0.12);
         pad1.SetTopMargin(0.055);
         pad1.Draw()
 
-
     pad1.cd()
 
-
-
     ######################### PUT USER CONFIGURATION HERE ####################
-    cfgName  =  args.dir + "/mainCfg_"+args.channel+"_UL2016.cfg"
-    cfg        = cfgr.ConfigReader (cfgName)
-    bkgList    = cfg.readListOption("general::backgrounds")
+    cfgName = op.join(args.indir, 'mainCfg_' + args.channel + '_UL18.cfg')
+    cfg = cfgr.ConfigReader (cfgName)
+    bkgList = cfg.readListOption('general::backgrounds')
 
     doQCD = True
-    if not "SR" in args.reg: doQCD = False
-    if not "Tau" in args.channel: doQCD = False
+    if not 'SR' in args.reg: doQCD = False
+    if not 'Tau' in args.channel: doQCD = False
     
     if doQCD:
         bkgList.append('QCD')
     
-    
     sigList = cfg.readListOption("general::signals")
-    #sigList = ["GGHH_NLO_cHHH1_xs", "VBFHH_CV_1_C2V_1_C3_1_xs"]
-    sigList = ["ggHTauTau"]
 
     sigNameList = []
-    if args.log:
-            sigNameList = ["VBF HH SM (x10)"]
-    else:
-           sigNameList = ["VBF HH SM (x10)"]
-    #sigNameList = ["ggHH SM x 20", "qqHH SM x 100"]
-    sigNameList = ["ggHTauTau SM x 20"]
-
-
+    listColors = (ROOT.kBlack, ROOT.kCyan,)
     sigColors = {}
-    #sigColors["GGHH_NLO_cHHH1_xs"] = kBlack
-    #sigColors["VBFHH_CV_1_C2V_1_C3_1_xs"] = kCyan
-    sigColors["ggHTauTau"] = kBlack
-
+    for isl,sl in enumerate(sigList):
+        if 'VBF' in sl:
+            name_list = 'VBF HH SM (x10)'                
+        elif 'ggFRadion':
+            name_list = 'ggFRadion SM x 20'
+        else:
+            name_list = 'ggHTauTau SM x 20'
+        sigNameList.append(name_list)
+        sigColors[sl] = listColors[isl]
 
     # RGB/HEX colors
-    col = TColor()
+    col = ROOT.TColor()
 
     bkgColors = {}
     bkgColors["DY"]      = col.GetColor("#44BA68") #(TColor(68 ,186,104)).GetNumber() #gROOT.GetColor("#44BA68")
@@ -538,26 +532,23 @@ if __name__ == "__main__" :
                 bkgList.remove(x)
             bkgList.append(groupname)
 
-
     ###########################################################################
     #setPlotStyle()
-
-
-    outplotterName = findInFolder  (args.dir+"/", 'analyzedOutPlotter.root')
+    outplotterName = findInFolder(args.indir+'/', 'analyzedOutPlotter.root')
     
-    if not "Tau" in args.channel:
-            outplotterName = findInFolder  (args.dir+"/", 'outPlotter.root')            
+    if not 'Tau' in args.channel:
+        outplotterName = findInFolder(args.indir+'/', 'outPlotter.root')            
 
-    rootFile = TFile.Open (args.dir+"/"+outplotterName)
+    rootFile = ROOT.TFile.Open(op.join(args.indir,outplotterName))
 
     binning = None
-    if (args.flat): binning = flatBinning(rootFile, sigList, args.var, args.sel,args.reg)
+    if (args.flat):
+        binning = flatBinning(rootFile, sigList, args.var, args.sel, args.reg)
 
-    hSigs = retrieveHistos (rootFile, sigList, args.var, args.sel,args.reg,args.flat,binning)
-    hBkgs = retrieveHistos  (rootFile, bkgList, args.var, args.sel,args.reg,args.flat,binning)
-
-    hDatas = retrieveHistos  (rootFile, dataList, args.var, args.sel,args.reg,args.flat,binning)
-
+    opts = args.var, args.sel, args.reg, args.flat, binning
+    hSigs  = retrieveHistos(rootFile, sigList, *opts)
+    hBkgs  = retrieveHistos(rootFile, bkgList, *opts)
+    hDatas = retrieveHistos(rootFile, dataList, *opts)
 
     xsecRatio = 19.56
     if not args.log: xsecRatio = xsecRatio/float(10)
@@ -565,33 +556,32 @@ if __name__ == "__main__" :
 
     doOverflow = args.overflow
     
+    #hDY = getHisto('DY', hBkgs, doOverflow)
+    hTT = getHisto('TT', hBkgs, doOverflow)
+    #hWJets = getHisto('WJets', hBkgs,doOverflow)
+    #hWJets = getHisto('singleH', hBkgs,doOverflow)
+    #hothers = getHisto('other', hBkgs,doOverflow)
 
-    hDY = getHisto("DY", hBkgs,doOverflow)
-    hTT = getHisto("TT", hBkgs,doOverflow)
-    hWJets = getHisto("WJets", hBkgs,doOverflow)
-    #hWJets = getHisto("singleH", hBkgs,doOverflow)
-    hothers = getHisto("other", hBkgs,doOverflow)
+    #hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
+    hBkgList = [hTT] ## full list for stack
 
-    hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
-
-    hBkgNameList = ["Others", "W + jets", "t#bar{t}" , "DY"] # list for legend
-    #hBkgNameList = ["Others", "single H", "t#bar{t}" , "DY"] # list for legend
+    #hBkgNameList = ['Others', 'W + jets', 't#bar{t}' , 'DY'] # list for legend
+    hBkgNameList = ['t#bar{t}'] # list for legend
 
     if doQCD:
-        col2 = TColor()
-        hQCD    = getHisto ("QCD", hBkgs,doOverflow)
-        hQCD.SetName("QCD")
-        hBkgList = [hothers, hWJets, hQCD, hDY, hTT]
-        hBkgNameList = ["others", "W + Jets", "QCD", "DY", "t#bar{t}"]
-        #hBkgNameList = ["others", "single H", "QCD", "DY", "t#bar{t}"]
-        bkgColors["QCD"] = col2.GetColor("#F29563") #(TColor(242,149,99)).GetNumber() #gROOT.GetColor("#F29563")
-        bkgLineColors["QCD"] = col2.GetColor("#DC885A")
+        col2 = ROOT.TColor()
+        hQCD = getHisto('QCD', hBkgs, doOverflow)
+        hQCD.SetName('QCD')
+        hBkgList.append(hQCD)
+        hBkgNameList.append('QCD')
+        bkgColors['QCD'] = col2.GetColor('#F29563') #(TColor(242,149,99)).GetNumber() #gROOT.GetColor('#F29563')
+        bkgLineColors['QCD'] = col2.GetColor('#DC885A')
 
     #PisaOrder = [0, 1, 4, 3, 2]
     #hBkgList = [hBkgList[i] for i in PisaOrder]
     #hBkgNameList = [hBkgNameList[i] for i in PisaOrder]
 
-    hData = getHisto("data_obs", hDatas , doOverflow).Clone("hData")
+    hData = getHisto('data_obs', hDatas , doOverflow).Clone('hData')
 
     # remove all data from blinding region before creating tgraph etc...
     if args.blindrange:
@@ -603,12 +593,11 @@ if __name__ == "__main__" :
                 hData.SetBinContent(ibin, 0)
 
     hDataNonScaled = hData.Clone("hDataNonScaled")
-    gData = makeTGraphFromHist (hData, "grData")
-
+    gData = makeTGraphFromHist(hData, "grData")
 
     # apply sig color if available
     for key in hSigs:
-        print key
+        print(key)
         hSigs[key].SetLineWidth(2)
         if doOverflow: hSigs[key] = addOverFlow(hSigs[key])
         if key in sigColors:
@@ -619,12 +608,12 @@ if __name__ == "__main__" :
 
     # apply bkg color if available
     for h in hBkgList:
-            histoname =h.GetName()
-            for key,value in bkgColors.items():
-                if key in histoname:    
-                        thecolor = int(bkgColors[key])
-                        h.SetFillColor(thecolor)
-                        h.SetFillStyle(1001)
+        histoname = h.GetName()
+        for key,value in bkgColors.items():
+            if key in histoname:    
+                thecolor = int(bkgColors[key])
+                h.SetFillColor(thecolor)
+                h.SetFillStyle(1001)
 
     # apply bkg lines colors if available
     for h in hBkgList:
@@ -636,51 +625,70 @@ if __name__ == "__main__" :
                 h.SetLineWidth(1)
 
             
-    #################### REMOVE NEGARIVE BINS #######################
-    print "** INFO: removing all negative bins from bkg histos"
+    #################### REMOVE NEGATIVE BINS #######################
+    print("** INFO: removing all negative bins from bkg histos")
     makeNonNegativeHistos (hBkgList)
 
-    if "class" in args.sel:
-        with open("./plots_"+args.channel+"/"+args.tag+"/scores_"+args.reg+"/yields.txt","a+") as yields_file:
-            yields_file.write("=== "+args.channel+"/"+args.tag+"/scores_"+args.reg+"/"+args.var+" ===\n")
-            for h in hBkgList: yields_file.write("Integral: "+h.GetName()+" : "+str(h.Integral())+" - "+str(h.Integral(-1,-1))+"\n")
-            for n in hDatas  : yields_file.write("Integral "+hDatas[n].GetName()+" : "+str(hDatas[n].Integral())+" - "+str(hDatas[n].Integral(-1,-1))+"\n")
-            for i, name in enumerate (sigNameList): yields_file.write("Integral "+hSigs[sigList[i]].GetName()+" : "+str(hSigs[sigList[i]].Integral())+" - "+str(hSigs[sigList[i]].Integral(-1,-1))+"\n")
-    else:
-        with open("./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/yields.txt","a+") as yields_file:
-            yields_file.write("=== "+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/"+args.var+" ===\n")
-            for h in hBkgList: yields_file.write("Integral: "+h.GetName()+" : "+str(h.Integral())+" - "+str(h.Integral(-1,-1))+"\n")
-            for n in hDatas  : yields_file.write("Integral "+hDatas[n].GetName()+" : "+str(hDatas[n].Integral())+" - "+str(hDatas[n].Integral(-1,-1))+"\n")
-            for i, name in enumerate (sigNameList): yields_file.write("Integral "+hSigs[sigList[i]].GetName()+" : "+str(hSigs[sigList[i]].Integral())+" - "+str(hSigs[sigList[i]].Integral(-1,-1))+"\n")
+    def print_integral(h, p=False):
+        s = 'Integral: ' + h.GetName() + ' : '
+        s += str(h.Integral()) + ' - '
+        s += str(h.Integral(-1,-1)) + '\n'
+        if p:
+            print(s)
+        return s
 
-    for h in hBkgList: print "Integral ", h.GetName(), " : ", h.Integral(), " - ", h.Integral(-1,-1)
-    for n in hDatas: print "Integral ", hDatas[n].GetName(), " : ", hDatas[n].Integral(), " - ", hDatas[n].Integral(-1,-1)
-    for i, name in enumerate (sigNameList): print "Integral ", hSigs[sigList[i]].GetName(), " : ", hSigs[sigList[i]].Integral(), " - ", hSigs[sigList[i]].Integral(-1,-1)
+    import os.path as op
+    interm_path = lambda s: op.join(args.channel, s + '_' + args.reg)
+    if "class" in args.sel:
+        yields_name = op.join(args.outdir, interm_path('scores_'), 'yields.txt')
+        with open(yields_name, 'a+') as yields_file:
+            yields_file.write('=== '+ op.join(interm_path('scores_'), args.var) + ' ===\n')
+            for h in hBkgList:
+                yields_file.write(print_integral(h))
+            for h in hDatas.values:
+                yields_file.write(print_integral(h))
+            for i, name in enumerate(sigNameList):
+                yields_file.write(print_integral)
+    else:
+        yields_name = op.join(args.outdir, interm_path(args.sel), 'yields.txt')
+        with open(yields_name, 'a+') as yields_file:
+            yields_file.write('=== ' + op.join(interm_path(args.sel), args.var) + ' ===\n')
+            for h in hBkgList:
+                yields_file.write(print_integral(h))
+            for n in hDatas:
+                yields_file.write(print_integral(h))
+            for i, name in enumerate(sigNameList):
+                yields_file.write(print_integral(hSigs[sigList[i]]))
+
+    for h in hBkgList:
+        print_integral(h, True)
+    for h in hDatas.values():
+        print_integral(h, True)
+    for i, name in enumerate (sigNameList):
+        print_integral(hSigs[sigList[i]], True)
+        
     #################### PERFORM DIVISION BY BIN WIDTH #######################
     #clones non scaled (else problems with graph ratio because I pass data evt hist)
-    bkgStackNS = makeStack ("bkgStackNS", hBkgList)
-    hBkgEnvelopeNS = bkgStackNS.GetStack().Last().Clone("hBkgEnvelopeNS")
+    bkgStackNS = makeStack ('bkgStackNS', hBkgList)
+    hBkgEnvelopeNS = bkgStackNS.GetStack().Last().Clone('hBkgEnvelopeNS')
 
     if args.binwidth:
-        scaleGraphByBinWidth (gData)
+        scaleGraphByBinWidth(gData)
         for h in hBkgList:
-            h.Scale(1., "width")
+            h.Scale(1., 'width')
         for i, name in enumerate (sigNameList):
             histo = hSigs[sigList[i]]
-            histo.Scale(1., "width")
-
+            histo.Scale(1., 'width')
 
     #################### DO STACK AND PLOT #######################
-
-    bkgStack = makeStack ("bkgStack", hBkgList)
-    bkgSum = makeSum ("bkgSum", hBkgList)
+    bkgStack = makeStack ('bkgStack', hBkgList)
+    bkgSum = makeSum ('bkgSum', hBkgList)
     
-    
-    if args.log: pad1.SetLogy()
-
+    if args.log:
+        pad1.SetLogy()
 
     ################## TITLE AND AESTETICS ############################
-    bkgStack.Draw("HIST")
+    bkgStack.Draw('HIST')
 
     bkgStack.GetXaxis().SetTitleFont(43)
     bkgStack.GetYaxis().SetTitleFont(43)
@@ -699,7 +707,8 @@ if __name__ == "__main__" :
     if args.label: bkgStack.GetXaxis().SetTitle (args.label)
     else: bkgStack.GetXaxis().SetTitle (args.var)
 
-    width = ((bkgStack.GetXaxis().GetXmax() - bkgStack.GetXaxis().GetXmin())/bkgStack.GetStack().Last().GetNbinsX())
+    width = ( (bkgStack.GetXaxis().GetXmax() - bkgStack.GetXaxis().GetXmin()) /
+              bkgStack.GetStack().Last().GetNbinsX() )
     ylabel = "Events/%.1f" % width
     if not args.binwidth:
         ylabel = "Events"
@@ -710,7 +719,6 @@ if __name__ == "__main__" :
     #intBkg = bkgStack.GetHistogram().Integral()
     intBkg = bkgStack.GetStack().Last().Integral()
     bkgStack.SetTitle(plotTitle)
-
 
     #for key in hSigs:
     #    intSig = hSigs[key].Integral()
@@ -731,8 +739,7 @@ if __name__ == "__main__" :
     if args.lymin: legmin = args.lymin
     legminx = 0.50
     if (len(hBkgNameList) +len(hSigs)>6): legminx = 0.35
-    #leg = TLegend (legminx, legmin, 0.85, 0.93)
-    leg = TLegend (legminx, legmin, 0.90, 0.93)
+    leg = ROOT.TLegend (legminx, legmin, 0.90, 0.93)
     if (len(hBkgNameList) +len(hSigs)> 6): leg.SetNColumns(2)
     leg.SetFillStyle(0)
     leg.SetBorderSize(0)
@@ -787,9 +794,6 @@ if __name__ == "__main__" :
         new = extraspace * (math.log(ymax, 10) - math.log(ymin, 10)) + math.log(ymax, 10)
         ymax = math.pow(10, new)
 
-
-    #print "limits: " , ymin, ymax
-
     ## override form args
     if args.ymin: ymin = args.ymin
     if args.ymax: ymax = args.ymax
@@ -799,7 +803,7 @@ if __name__ == "__main__" :
 
     # interactive display
     bkgStack.Draw("HIST")
-    bkgSum.SetFillColor(kGray+2);
+    bkgSum.SetFillColor(ROOT.kGray+2);
     bkgSum.SetFillStyle(3002);
     bkgSum.Draw("e2 same")
     if args.dosig:
@@ -821,23 +825,23 @@ if __name__ == "__main__" :
 
 
     
-    t = gPad.GetTopMargin()
-    b = gPad.GetBottomMargin()
-    l = gPad.GetLeftMargin()
-    r = gPad.GetRightMargin()       
+    t = ROOT.gPad.GetTopMargin()
+    b = ROOT.gPad.GetBottomMargin()
+    l = ROOT.gPad.GetLeftMargin()
+    r = ROOT.gPad.GetRightMargin()       
     #yoffset = 0.05 # fractional shift   
 
-    CMSbox       = TLatex  (l , 1 - t + 0.02, "CMS")       
-    extraTextBox = TLatex  (l + 0.1 , 1 - t + 0.02,"Preliminary")
+    CMSbox       = ROOT.TLatex(l , 1 - t + 0.02, 'CMS')       
+    extraTextBox = ROOT.TLatex(l + 0.1 , 1 - t + 0.02, 'Preliminary')
     CMSbox.SetNDC()
     extraTextBox.SetNDC()
     CMSbox.SetTextSize(cmsTextSize)
     CMSbox.SetTextFont(cmsTextFont)
-    CMSbox.SetTextColor(kBlack)
+    CMSbox.SetTextColor(ROOT.kBlack)
     CMSbox.SetTextAlign(11)
     extraTextBox.SetTextSize(extraTextSize)
     extraTextBox.SetTextFont(extraTextFont)
-    extraTextBox.SetTextColor(kBlack)
+    extraTextBox.SetTextColor(ROOT.kBlack)
     extraTextBox.SetTextAlign(11)
 
     x = 0
@@ -846,32 +850,28 @@ if __name__ == "__main__" :
     #    histoHeight = histo.GetMaximum()-histo.GetMinimum()
  
 
-    lumi = "%.1f fb^{-1} (13 TeV)" % args.lumi_num
-    lumibox = TLatex  (1-r, 1 - t + 0.02 , lumi)       
+    lumi = '%.1f fb^{-1} (13 TeV)' % args.lumi_num
+    lumibox = ROOT.TLatex(1-r, 1 - t + 0.02 , lumi)       
     lumibox.SetNDC()
     lumibox.SetTextAlign(31)
     lumibox.SetTextSize(extraTextSize)
     lumibox.SetTextFont(42)
-    lumibox.SetTextColor(kBlack)
+    lumibox.SetTextColor(ROOT.kBlack)
 
     if args.channel:
-        if args.channel == "MuTau":
-            chName = "bb #mu#tau_{h}"
-        elif args.channel == "ETau":
-            chName = "bb e#tau_{h}"
-        elif args.channel == "TauTau":
-            chName = "bb #tau_{h}#tau_{h}"
-        elif args.channel == "MuMu":
-            chName = "bb #mu#mu"
-        else:
-            print "*** Warning: channel name must be MuTau, ETau, TauTau, you wrote: " , args.channel
+        if args.channel == 'MuTau':
+            chName = 'bb #mu#tau_{h}'
+        elif args.channel == 'ETau':
+            chName = 'bb e#tau_{h}'
+        elif args.channel == 'TauTau':
+            chName = 'bb #tau_{h}#tau_{h}'
 
         if chName:
-            chBox = TLatex  (l + 0.04 , 1 - t - 0.02, chName)
+            chBox = ROOT.TLatex(l + 0.04 , 1 - t - 0.02, chName)
             chBox.SetNDC()
             chBox.SetTextSize(cmsTextSize+20)
             chBox.SetTextFont(43)
-            chBox.SetTextColor(kBlack)
+            chBox.SetTextColor(ROOT.kBlack)
             chBox.SetTextAlign(13)
             
     CMSbox.Draw()
@@ -912,11 +912,11 @@ if __name__ == "__main__" :
     else:
         selName = args.name
 
-    selBox = TLatex  (l + 0.04 , 1 - t - 0.02 - 0.06, selName)
+    selBox = ROOT.TLatex(l + 0.04 , 1 - t - 0.02 - 0.06, selName)
     selBox.SetNDC()
     selBox.SetTextSize(cmsTextSize+20)
     selBox.SetTextFont(43)
-    selBox.SetTextColor(kBlack)
+    selBox.SetTextColor(ROOT.kBlack)
     selBox.SetTextAlign(13)
     selBox.Draw()
     
@@ -926,7 +926,7 @@ if __name__ == "__main__" :
     #    bup = float(args.blindrange[1])
     #    bBox = TBox (blow, ymin, bup, 0.7*ymax)
     #    bBox.SetFillStyle(3002) # NB: does not appear the same in displayed box and printed pdf!!
-    #    bBox.SetFillColor(kGray+2) # NB: does not appear the same in displayed box and printed pdf!!
+    #    bBox.SetFillColor(ROOT.kGray+2) # NB: does not appear the same in displayed box and printed pdf!!
     #    bBox.Draw()
 
     ###################### S/(S+B) PLOT #################################
@@ -935,7 +935,7 @@ if __name__ == "__main__" :
         bkgStack.GetXaxis().SetLabelSize(0.00);
 
         c1.cd()
-        pad2 = TPad ("pad2", "pad2", 0, 0.0, 1, 0.2496)
+        pad2 = ROOT.TPad("pad2", "pad2", 0, 0.0, 1, 0.2496)
         pad2.SetLeftMargin(0.12);
         pad2.SetTopMargin(0.02);
         pad2.SetBottomMargin(0.4);
@@ -1008,7 +1008,7 @@ if __name__ == "__main__" :
         bkgStack.GetXaxis().SetLabelSize(0.00);
 
         c1.cd()
-        pad2 = TPad ("pad2", "pad2", 0, 0.0, 1, 0.2496)
+        pad2 = ROOT.TPad('pad2', 'pad2', 0, 0.0, 1, 0.2496)
         pad2.SetLeftMargin(0.12);
         pad2.SetTopMargin(0.02);
         pad2.SetBottomMargin(0.4);
@@ -1058,13 +1058,13 @@ if __name__ == "__main__" :
         grRatio.Draw("P Z same") # Z : no small limes at the end of points
         xmin =hRatio.GetXaxis().GetXmin()
         xmax = hRatio.GetXaxis().GetXmax()
-        l1 = TLine(xmin, 1, xmax, 1)
-        l1.SetLineColor(kRed)
+        l1 = ROOT.TLine(xmin, 1, xmax, 1)
+        l1.SetLineColor(ROOT.kRed)
         l1.SetLineStyle(4)
         l1.SetLineWidth(1)
         l1.Draw("same")
 
-        grUncert.SetFillColor(kGray+2)
+        grUncert.SetFillColor(ROOT.kGray+2)
         grUncert.SetFillStyle(3002)
         grUncert.Draw("e2")
 
@@ -1080,18 +1080,18 @@ if __name__ == "__main__" :
         raw_input() # to prevent script from closing
 
     if args.printplot:
-        tagch = ""
+        tagch = ''
         if args.channel:
-            tagch = "_" + args.channel
+            tagch = '_' + args.channel
         if not args.binwidth:
-            tagch += "_noBinWidt"
-        if "class" in args.sel:
-            saveName = "./plots_"+args.channel+"/"+args.tag+"/scores_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
+            tagch += '_noBinWidt'
+        if 'class' in args.sel:
+            saveBase = 'plot_' + args.var + '_' + args.sel +'_' + args.reg + tagch
+            saveName = op.join(args.outdir, interm_path('scores_'), saveBase)
         else:
-            saveName = "./plots_"+args.channel+"/"+args.tag+"/"+args.sel+"_"+args.reg+"/plot_" + args.var + "_" + args.sel +"_" + args.reg+ tagch
-        if args.log:
-            saveName = saveName+"_log"
-        if args.flat:
-            saveName = saveName+"_flat"    
-        c1.SaveAs (saveName+".pdf")
-        c1.SaveAs (saveName+".png")
+            saveBase = 'plot_' + args.var + '_' + args.sel +'_' + args.reg + tagch
+            saveName = op.join(args.outdir, interm_path(args.sel), saveBase)
+        
+        saveName = saveName + ('_log' if args.log else '_flat')
+        for ext in ('pdf', 'png'):
+            c1.SaveAs(saveName + '.' + ext)
