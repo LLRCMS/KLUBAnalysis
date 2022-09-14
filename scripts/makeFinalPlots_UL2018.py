@@ -418,9 +418,9 @@ if __name__ == "__main__" :
     #bool opts
     parser.add_argument('--log',     dest='log', help='use log scale',  action='store_true', default=False)
     parser.add_argument('--no-data', dest='dodata', help='disable plotting data',  action='store_false', default=True)
-    parser.add_argument('--no-sig',  dest='dosig',  help='disable plotting signal',  action='store_false', default=True)
-    parser.add_argument('--no-legend',   dest='legend',   help = 'disable drawing legend',       action='store_false', default=True)
-    parser.add_argument('--no-binwidth', dest='binwidth', help = 'disable scaling by bin width', action='store_false', default=True)
+    parser.add_argument('--no-sig',  dest='dosig',  help='disable plotting signal',  action='store_false')
+    parser.add_argument('--no-legend',   dest='legend',   help = 'disable drawing legend',       action='store_false')
+    parser.add_argument('--no-binwidth', dest='binwidth', help = 'disable scaling by bin width', action='store_false')
     parser.add_argument('--ratio',    dest='ratio', help = 'do ratio plot at the botton', action='store_true', default=False)
     parser.add_argument('--sbs',    dest='sbs', help = 'do S/(S+B) plot at the botton', action='store_true', default=False)
     parser.add_argument('--no-print', dest='printplot', help = 'no pdf output', action='store_false', default=True)
@@ -488,7 +488,7 @@ if __name__ == "__main__" :
         if 'VBF' in sl:
             name_list = 'VBF HH SM (x10)'                
         elif 'ggFRadion':
-            name_list = 'ggFRadion SM x 20'
+            name_list = 'ggFRadion'
         else:
             name_list = 'ggHTauTau SM x 20'
         sigNameList.append(name_list)

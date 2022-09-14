@@ -2,6 +2,8 @@
 
 ### Defaults
 DRYRUN="0"
+NOSIG="0"
+NODATA="0"
 TAG=""
 CHANNEL=""
 CHANNEL_CHOICES=( "ETau" "MuTau" "TauTau" )
@@ -18,15 +20,18 @@ DRYRUN_STR="(Boolean) Prints all the commands to be launched but does not launch
 TAG_STR="(String) Defines tag for the output. Defaults to '${TAG}'."
 DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${DATA_PERIOD}'."
 REG_STR="(String) Which region to consider: A: SR, B: SStight, C: OSinviso, D: SSinviso, B': SSrlx. Defaults to '${REG}'."
+NOSIG_STR="(Boolean) Do not include signal samples. Defaults to '${NOSIG}'."
+NODATA_STR="(Boolean) Do not include data samples. Defaults to '${NODATA}'."
 function print_usage_submit_skims {
-    USAGE=" $(basename "$0") [-H] [--dry-run -t -r -c -d -n --klub_tag --stitching_on]
-
+    USAGE=" $(basename "$0")
 	-h / --help			[ ${HELP_STR} ]
-	-c / --channel      [ ${CHANNEL_STR} ]
 	--dry-run			[ ${DRYRUN_STR} ]
+	-c / --channel      [ ${CHANNEL_STR} ]
 	-t / --tag			[ ${TAG_STR} ]
 	-r / --region		[ ${REG_STR} ]
     -d / --data_period  [ ${DATAPERIOD_STR} ]
+	--nosig             [ ${NOSIG} ]
+	--nodata            [ ${NODATA} ]
 
     Run example: bash $(basename "$0") -t <some_tag>
 "
@@ -53,6 +58,14 @@ while [[ $# -gt 0 ]]; do
 		;;
 	--dry-run)
 	    DRYRUN="1"
+	    shift;
+	    ;;
+	--no-sig)
+	    NOSIG="1"
+	    shift;
+	    ;;
+	--no-data)
+	    NODATA="1"
 	    shift;
 	    ;;
 	-t|--tag)
@@ -130,8 +143,6 @@ MAIN_DIR="${MAIN_DIR}/${TAG}"
 EOS_DIR="/eos/user/${EOS_USER:0:1}/${EOS_USER}"
 WWW_DIR="${EOS_DIR}/www/${PLOTS_DIR}/${TAG}/${CHANNEL}"
 WWW_SUBDIR="${WWW_DIR}/${SELECTION}_${REG}"
-echo ${WWW_SUBDIR}
-exit 1
 
 [[ ! -d ${EOS_DIR} ]] && /opt/exp_soft/cms/t3/eos-login -username ${EOS_USER} -init
 
@@ -152,13 +163,20 @@ printf "DATA_PERIOD\t= ${DATA_PERIOD}\n"
 printf "CHANNEL\t\t= ${CHANNEL}\n"
 printf "REGION\t\t= ${REG}\n"
 printf "EOS_USER\t= ${EOS_USER}\n"
+printf "NOSIG\t\t= ${NOSIG}\n"
+printf "NODATA\t\t= ${NODATA}\n"
 echo "-------------------------------"
 
 ### Ensure connection to /eos/ folder
 [[ ! -d ${EOS_DIR} ]] && /opt/exp_soft/cms/t3/eos-login -username ${EOS_USER} -init
 
-OPTIONS="--quit --ratio --no-sig" # --sigscale 10 10"
-#others="--no-binwidth"
+OPTIONS="--quit --ratio " # --sigscale 10 10" "--no-binwidth"
+if [[ ${NOSIG} -eq 1 ]]; then
+	OPTIONS+="--no-sig "
+fi
+if [[ ${NODATA} -eq 1 ]]; then
+	OPTIONS+="--no-data "
+fi
 
 OUTDIR="${MAIN_DIR}/${PLOTS_DIR}"
 FULL_OUTDIR="${MAIN_DIR}/${PLOTS_DIR}/${CHANNEL}/${SELECTION}_${REG}"
