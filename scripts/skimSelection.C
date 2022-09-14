@@ -13,7 +13,6 @@ void skimSelection()
     TFile* inFile = new TFile (Form("%s.root", fileName.Data()));
     TH1F* h_eff = (TH1F*) inFile->Get("h_eff");
 
-
     TTree* tIn = (TTree*) inFile->Get("HTauTauTree");
     Float_t dau1_pt;
     tIn-> SetBranchAddress("dau1_pt",&dau1_pt);

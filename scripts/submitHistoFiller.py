@@ -44,7 +44,7 @@ with open(scriptpath, 'w') as s:
                         'eval `scram r -sh`',
                         'source scripts/setup.sh',
                         command + '\n')))
-    os.system('chmod u+rwx ' + os.path.join(tagdir, scriptname))
+    os.system('chmod u+rwx ' + scriptpath)
 
 condlog = os.path.join(tagdir, 'logs')
 create_dir(condlog)
@@ -57,6 +57,7 @@ with open(scriptpath_condor, 'w') as s:
                        'log  = {}/$(Process).log'.format(condlog),
                        'getenv = true',
                        'should_transfer_files = YES',
+                       '+JobBatchName="{}"'.format('Histos_'+FLAGS.tag),
                        '',
                        'T3Queue = short',
                        'WNTag=el7',
@@ -64,7 +65,7 @@ with open(scriptpath_condor, 'w') as s:
                        'include : /opt/exp_soft/cms/t3_tst/t3queue |',
                        '',
                        'Arguments = $(Process) ',
-                       'queue {}'.format(FLAGS.njobs))))
+                       'queue {}\n'.format(FLAGS.njobs))))
     
 launch_command = 'condor_submit {}'.format(scriptpath_condor)
 print('The following command was run: {}'.format(launch_command))
