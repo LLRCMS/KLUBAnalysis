@@ -2,7 +2,9 @@
 
 ### Defaults
 DRYRUN="0"
-OUT_TAG=""
+NOSIG="0"
+NODATA="0"
+TAG=""
 CHANNEL=""
 CHANNEL_CHOICES=( "ETau" "MuTau" "TauTau" )
 DATA_PERIOD="UL18"
@@ -15,17 +17,21 @@ EOS_USER="bfontana"
 HELP_STR="Prints this help message."
 CHANNEL_STR="(String) Which channel to consider: ETau, MuTau, TauTau. Defaults to '${CHANNEL}'."
 DRYRUN_STR="(Boolean) Prints all the commands to be launched but does not launch them. Defaults to ${DRYRUN}."
-OUT_TAG_STR="(String) Defines tag for the output. Defaults to '${OUT_TAG}'."
+TAG_STR="(String) Defines tag for the output. Defaults to '${TAG}'."
 DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${DATA_PERIOD}'."
 REG_STR="(String) Which region to consider: A: SR, B: SStight, C: OSinviso, D: SSinviso, B': SSrlx. Defaults to '${REG}'."
+NOSIG_STR="(Boolean) Do not include signal samples. Defaults to '${NOSIG}'."
+NODATA_STR="(Boolean) Do not include data samples. Defaults to '${NODATA}'."
 function print_usage_submit_skims {
-    USAGE=" $(basename "$0") [-H] [--dry-run -t -c -d -n --klub_tag --stitching_on]
-
+    USAGE=" $(basename "$0")
 	-h / --help			[ ${HELP_STR} ]
-	-c / --channel      [ ${CHANNEL_STR} ]
 	--dry-run			[ ${DRYRUN_STR} ]
-	-t / --tag			[ ${OUT_TAG_STR} ]
+	-c / --channel      [ ${CHANNEL_STR} ]
+	-t / --tag			[ ${TAG_STR} ]
+	-r / --region		[ ${REG_STR} ]
     -d / --data_period  [ ${DATAPERIOD_STR} ]
+	--nosig             [ ${NOSIG} ]
+	--nodata            [ ${NODATA} ]
 
     Run example: bash $(basename "$0") -t <some_tag>
 "
@@ -54,8 +60,16 @@ while [[ $# -gt 0 ]]; do
 	    DRYRUN="1"
 	    shift;
 	    ;;
+	--no-sig)
+	    NOSIG="1"
+	    shift;
+	    ;;
+	--no-data)
+	    NODATA="1"
+	    shift;
+	    ;;
 	-t|--tag)
-	    OUT_TAG=${2}
+	    TAG=${2}
 	    shift; shift;
 	    ;;
 	-d|--data_period)
@@ -93,31 +107,13 @@ while [[ $# -gt 0 ]]; do
 done
 
 ### Setup variables
-THIS_FILE="${BASH_SOURCE[0]}"
-THIS_DIR="$( cd "$( dirname ${THIS_FILE} )" && pwd )"
-KLUB_DIR="$( cd "$( dirname ${THIS_DIR} )" && pwd )"
-
-IN_DIR="/data_CMS/cms/${USER}/analysis_${DATA_PERIOD}"
-OUT_DIR="plotsHH_${DATA_PERIOD}_${CHANNEL}"
-EOS_DIR="/eos/home-${EOS_USER:0:1}/${EOS_USER}"
-WWW_DIR="${EOS_DIR}/www/${OUT_DIR}/${CHANNEL}/${OUT_TAG}"
-WWW_SUBDIR="${WWW_DIR}/${SELECTION}_${REG}"
-
-if [ ${DATA_PERIOD} == "UL16" ]; then
-	PLOTTER="scripts/makeFinalPlots_UL2016.py"
-elif [ ${DATA_PERIOD} == "UL17" ]; then
-	PLOTTER="scripts/makeFinalPlots_UL2017.py"
-elif [ ${DATA_PERIOD} == "UL18" ]; then
-	PLOTTER="scripts/makeFinalPlots_UL2018.py"
-fi
-
-SELECTION="baseline55"
-LUMI="41.6"
+PLOTS_DIR="HH_Plots"
+MAIN_DIR="/data_CMS/cms/${USER}/HHresonant_hist"
 
 ### Argument parsing sanity checks
-if [[ -z ${OUT_TAG} ]]; then
+if [[ -z ${TAG} ]]; then
     printf "Select the tag via the '--tag' option. "
-    declare -a tags=( $(/bin/ls -1 ${THIS_DIR}) )
+    declare -a tags=( $(/bin/ls -d ${MAIN_DIR}/*/ | tr '\n' '\0' | xargs -0 -n 1 basename) )
     if [ ${#tags[@]} -ne 0 ]; then
 		echo "The following tags are currently available:"
 		for tag in ${tags[@]}; do
@@ -133,80 +129,93 @@ if [[ -z ${DATA_PERIOD} ]]; then
 	exit 1;
 fi
 if [[ -z ${CHANNEL} ]]; then
-	echo "Select the channel via the '-c / --channeld' option."
+	echo "Select the channel via the '-c / --channel' option."
 	exit 1;
 fi
-if [[ -z ${REGION} ]]; then
+if [[ -z ${REG} ]]; then
 	echo "Select the region via the '-r / --region' option."
 	exit 1;
 fi
 
+LUMI="41.6"
+SELECTION="baseline"
+MAIN_DIR="${MAIN_DIR}/${TAG}"
+EOS_DIR="/eos/user/${EOS_USER:0:1}/${EOS_USER}"
+WWW_DIR="${EOS_DIR}/www/${PLOTS_DIR}/${TAG}/${CHANNEL}"
+WWW_SUBDIR="${WWW_DIR}/${SELECTION}_${REG}"
+
+[[ ! -d ${EOS_DIR} ]] && /opt/exp_soft/cms/t3/eos-login -username ${EOS_USER} -init
+
+if [ ${DATA_PERIOD} == "UL16" ]; then
+	PLOTTER="scripts/makeFinalPlots_UL2016.py"
+elif [ ${DATA_PERIOD} == "UL17" ]; then
+	PLOTTER="scripts/makeFinalPlots_UL2017.py"
+elif [ ${DATA_PERIOD} == "UL18" ]; then
+	PLOTTER="scripts/makeFinalPlots_UL2018.py"
+fi
+
+
 ### Argument parsing: information for the user
 echo "------ Arguments --------------"
-echo " Passed by the user:"
-printf "DRYRUN\t\t\t= ${DRYRUN}\n"
-printf "OUT_TAG\t\t\t= ${OUT_TAG}\n"
-printf "DATA_PERIOD\t\t= ${DATA_PERIOD}\n"
+printf "DRYRUN\t\t= ${DRYRUN}\n"
+printf "TAG\t\t\t= ${TAG}\n"
+printf "DATA_PERIOD\t= ${DATA_PERIOD}\n"
 printf "CHANNEL\t\t= ${CHANNEL}\n"
-printf "REGION\t\t= ${REGF}\n"
-echo " Others:"
-printf "OUTSKIM_DIR\t\t= ${OUTSKIM_DIR}\n"
+printf "REGION\t\t= ${REG}\n"
+printf "EOS_USER\t= ${EOS_USER}\n"
+printf "NOSIG\t\t= ${NOSIG}\n"
+printf "NODATA\t\t= ${NODATA}\n"
 echo "-------------------------------"
 
 ### Ensure connection to /eos/ folder
 [[ ! -d ${EOS_DIR} ]] && /opt/exp_soft/cms/t3/eos-login -username ${EOS_USER} -init
 
-OPTIONS="--quit --ratio --no-sig" # --sigscale 10 10"
-#others="--no-binwidth"
-
-mkdir ${OUT_DIR}
-mkdir "${OUT_DIR}/${OUT_TAG}"
-mkdir "${OUT_DIR}/${OUT_TAG}/${SELECTION}_${REG}"
-
-if [[ ${CHANNEL} = "ETau" ]]; then
-    OBJ1="e"
-    OBJ2="#tau_{h}"
-elif [[ ${CHANNEL} == "MuTau" ]]; then
-    OBJ1="#mu"
-    OBJ2="#tau_{h}"
-elif [[ ${CHANNEL} == "TauTau" ]]; then
-    OBJ1="#tau_{h1}"
-    OBJ2="#tau_{h2}"
+OPTIONS="--quit --ratio " # --sigscale 10 10" "--no-binwidth"
+if [[ ${NOSIG} -eq 1 ]]; then
+	OPTIONS+="--no-sig "
 fi
-echo ${OBJ1}
-echo ${OBJ2}
+if [[ ${NODATA} -eq 1 ]]; then
+	OPTIONS+="--no-data "
+fi
 
-function run_plot() {
-	comm="python ${PLOTTER} --dir ${BASE_DIR}/analysis_${CHANNEL}_${OUT_TAG} --reg ${REG} "
-	comm+="--sel ${SELECTION} --channel ${CHANNEL} "
-	comm+="--lumi ${LUMI} --tag ${OUT_TAG}  ${OPTIONS} --quit $@"
-	[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
+OUTDIR="${MAIN_DIR}/${PLOTS_DIR}"
+FULL_OUTDIR="${MAIN_DIR}/${PLOTS_DIR}/${CHANNEL}/${SELECTION}_${REG}"
+mkdir -p "${FULL_OUTDIR}"
+
+function run() {
+	[[ ${DRYRUN} -eq 1 ]] && echo "[DRYRUN] $@" || "$@"
 }
 
+function run_plot() {
+	comm="python ${PLOTTER} --indir ${MAIN_DIR} --outdir ${OUTDIR} "
+	comm+="--reg ${REG} "
+	comm+="--sel ${SELECTION} --channel ${CHANNEL} "
+	comm+="--lumi ${LUMI} ${OPTIONS} --quit $@"
+	[[ ${DRYRUN} -eq 1 ]] && echo "[DRYRUN] ${comm}" || ${comm}
+}
 
 declare -A VAR_MAP
 VAR_MAP=(
-	["VBFjj_mass"]="m_{jj} [GeV]"
-	["VBFjet1_pt"]="p_{TVBFjet1} [GeV]"
-	["VBFjet2_pt"]="p_{TVBFjet2} [GeV]"
-	["VBFjj_mass"]="m_{jj} [GeV]"
-	["VBFjet1_pt"]="p_{TVBFjet1} [GeV]"
-	["VBFjet2_pt"]="p_{TVBFjet2} [GeV]"
+	["dau1_pt"]="pT_{1}-[GeV]"
+	["bjet1_pt"]="pT_{j1}-[GeV]"
+	["bjet2_pt"]="pT_{j2}-[GeV]"
+	["dau1_eta"]="eta_{1}-[GeV]"
+	["bjet1_eta"]="eta_{j1}-[GeV]"
+	["bjet2_eta"]="eta_{j2}-[GeV]"
 	)
 for avar in ${!VAR_MAP[@]}; do
 	run_plot --var ${avar} --lymin 0.7 --label ${VAR_MAP[$avar]}
 done
 
-cd ${OUT_DIR}
-
-mkdir ${WWW_DIR}
+run mkdir -p ${WWW_DIR}
 if [ -d ${WWW_SUBDIR} ]; then
-    echo "removing"
-    rm -rf ${WWW_SUBDIR}
+	echo "removing"
+	run rm -rf ${WWW_SUBDIR}
 fi
 
-mkdir ${WWW_SUBDIR}
+run mkdir ${WWW_SUBDIR}
 
-cp "${OUT_TAG}/${SELECTION}_${REG}/*" ${WWW_SUBDIR}
+run cp "${FULL_OUTDIR}/*png" ${WWW_SUBDIR}
+run cp "${FULL_OUTDIR}/*pdf" ${WWW_SUBDIR}
 
-printf '\e]8;;https://${EOS_USER}.web.cern.ch/${EOS_USER}/${OUT_DIR}/\e\\Results\e]8;;\e\\\n'
+run printf '\e]8;;https://${EOS_USER}.web.cern.ch/${EOS_USER}/${PLOTS_DIR}/\e\\Results\e]8;;\e\\\n'
