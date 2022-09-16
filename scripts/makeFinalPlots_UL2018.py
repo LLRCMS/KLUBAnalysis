@@ -10,6 +10,7 @@ from ctypes import c_double, c_float
 import modules.ConfigReader as cfgr
 import modules.OutputManager as omng
 import ROOT
+#ROOT.EnableThreadSafety() 
 
 def findInFolder (folder, pattern):
         ll = []
@@ -169,9 +170,9 @@ def addOverFlow (histo):
     name = histo.GetName () 
     histo.SetName ("trash") 
     if args.label:
-            dummy.GetXaxis().SetTitle(args.label)
+        dummy.GetXaxis().SetTitle(args.label)
     else:
-            dummy.GetXaxis().SetTitle(args.var)
+        dummy.GetXaxis().SetTitle(args.var)
     dummy.SetName (name) 
     histo, dummy = dummy, histo
     return histo
@@ -498,16 +499,16 @@ if __name__ == "__main__" :
     col = ROOT.TColor()
 
     bkgColors = {}
-    bkgColors["DY"]      = col.GetColor("#44BA68") #(TColor(68 ,186,104)).GetNumber() #gROOT.GetColor("#44BA68")
+    bkgColors["DY_HM"]      = col.GetColor("#44BA68") #(TColor(68 ,186,104)).GetNumber() #gROOT.GetColor("#44BA68")
     bkgColors["TT"]      = col.GetColor("#F4B642") #(TColor(244,182,66 )).GetNumber() #gROOT.GetColor("#F4B642")
-    bkgColors["WJets"]  = col.GetColor("#41B4DB") #(TColor(65 ,180,219)).GetNumber() #gROOT.GetColor("#41B4DB")
+    bkgColors["W"]  = col.GetColor("#41B4DB") #(TColor(65 ,180,219)).GetNumber() #gROOT.GetColor("#41B4DB")
     #bkgColors["singleH"] = col.GetColor("#41B4DB") #(TColor(65 ,180,219)).GetNumber() #gROOT.GetColor("#41B4DB")
     bkgColors["other"]    = col.GetColor("#ED635E") #(TColor(237,99 ,94 )).GetNumber() #gROOT.GetColor("#ED635E")
 
     bkgLineColors = {}
-    bkgLineColors["DY"]      = col.GetColor("#389956")
+    bkgLineColors["DY_HM"]      = col.GetColor("#389956")
     bkgLineColors["TT"]      = col.GetColor("#dea63c")
-    bkgLineColors["WJets"]  = col.GetColor("#3ca4c8")
+    bkgLineColors["W"]  = col.GetColor("#3ca4c8")
     #bkgLineColors["singleH"] = col.GetColor("#3ca4c8")
     bkgLineColors["other"]   = col.GetColor("#d85a56")
 
@@ -556,17 +557,13 @@ if __name__ == "__main__" :
 
     doOverflow = args.overflow
     
-    #hDY = getHisto('DY', hBkgs, doOverflow)
+    hDY = getHisto('DY_HM', hBkgs, doOverflow)
     hTT = getHisto('TT', hBkgs, doOverflow)
-    #hWJets = getHisto('WJets', hBkgs,doOverflow)
-    #hWJets = getHisto('singleH', hBkgs,doOverflow)
-    #hothers = getHisto('other', hBkgs,doOverflow)
+    hWJets = getHisto('W', hBkgs, doOverflow)
+    hothers = getHisto('other', hBkgs, doOverflow)
 
-    #hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
-    hBkgList = [hTT] ## full list for stack
-
-    #hBkgNameList = ['Others', 'W + jets', 't#bar{t}' , 'DY'] # list for legend
-    hBkgNameList = ['t#bar{t}'] # list for legend
+    hBkgList = [hothers, hWJets, hTT, hDY] ## full list for stack
+    hBkgNameList = ['Others', 'W + jets', 't#bar{t}' , 'DY_HM'] # list for legend
 
     if doQCD:
         col2 = ROOT.TColor()
@@ -632,7 +629,7 @@ if __name__ == "__main__" :
     def print_integral(h, p=False):
         s = 'Integral: ' + h.GetName() + ' : '
         s += str(h.Integral()) + ' - '
-        s += str(h.Integral(-1,-1)) + '\n'
+        s += str(h.Integral(-1,-1))
         if p:
             print(s)
         return s
@@ -883,8 +880,10 @@ if __name__ == "__main__" :
 
 
     if not args.name:
-        if "baseline" in args.sel:
+        if "baseline" in args.sel and "InclMeth" not in args.sel:
             selName = "baseline"
+        if "baseline" in args.sel and "InclMeth" in args.sel:
+            selName = "baselineInclMeth"
         if "1b1j" in args.sel:
             selName = "1b1j"
         if "2b0j" in args.sel:

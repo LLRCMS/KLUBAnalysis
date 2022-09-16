@@ -660,14 +660,14 @@ int main (int argc, char** argv)
 
   // Trigger Scale Factors
   TriggerChannelLists trg_l;
-  trg_l.add_generic(0,
-		    gConfigParser->readStringListOption("triggersMC::METtriggers"),
-		    gConfigParser->readStringListOption("triggersMC::SingleTau")
-		    );
-  trg_l.add_generic(1,
-		    gConfigParser->readStringListOption("triggersData::METtriggers"),
-		    gConfigParser->readStringListOption("triggersData::SingleTau")
-		    );
+  // trg_l.add_generic(0,
+  // 		    gConfigParser->readStringListOption("triggersMC::METtriggers"),
+  // 		    gConfigParser->readStringListOption("triggersMC::SingleTau")
+  // 		    );
+  // trg_l.add_generic(1,
+  // 		    gConfigParser->readStringListOption("triggersData::METtriggers"),
+  // 		    gConfigParser->readStringListOption("triggersData::SingleTau")
+  // 		    );
   trg_l.add("EleTau", 0,
 	    gConfigParser->readStringListOption("triggersMC::EleTau"),
 	    gConfigParser->readStringListOption("triggersMC::crossEleTau") );

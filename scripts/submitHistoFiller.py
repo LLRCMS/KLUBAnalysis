@@ -37,13 +37,13 @@ with open(scriptpath, 'w') as s:
     command = (exe + ' ' + FLAGS.cfg + ' ${1}' + ' ' +
                str(FLAGS.njobs) + ' ' + tagdir)
     s.write('\n'.join(('#!/bin/bash',
-                        'export X509_USER_PROXY=~/.t3/proxy.cert',
-                        'source /cvmfs/cms.cern.ch/cmsset_default.sh',
-                        'cd {}'.format(os.getcwd()),
-                        'export SCRAM_ARCH=slc6_amd64_gcc491',
-                        'eval `scram r -sh`',
-                        'source scripts/setup.sh',
-                        command + '\n')))
+                       'export X509_USER_PROXY=~/.t3/proxy.cert',
+                       'source /cvmfs/cms.cern.ch/cmsset_default.sh',
+                       'cd {}'.format(os.getcwd()),
+                       'export SCRAM_ARCH=slc6_amd64_gcc491',
+                       'eval `scram r -sh`',
+                       'source scripts/setup.sh',
+                       command + '\n')))
     os.system('chmod u+rwx ' + scriptpath)
 
 condlog = os.path.join(tagdir, 'logs')

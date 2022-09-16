@@ -7,16 +7,16 @@ import math
 from VBFReweightModules import inputSample, VBFReweight, printProgressBar
 
 def makeHistoName(sample, sel, var, syst=""):
-    name = sample +  "_" + sel + "_" + var
+    name = sample + '_' + sel + '_' + var
     if syst:
-        name += "_"
+        name += '_'
         name += syst
     return name;
 
-def makeHisto2DName(sample, sel, var1, var2, syst=""):
-    name = sample +  "_" + sel + "_" + var1 + "_" + var2
+def makeHisto2DName(sample, sel, var1, var2, syst=''):
+    name = sample +  '_' + sel + '_' + var1 + '_' + var2
     if syst:
-        name += "_"
+        name += '_'
         name += syst
     return name;
 
@@ -305,6 +305,7 @@ class OutputManager:
                     for idx, data in enumerate(self.data):
                         hname = makeHistoName(data, sel+'_'+shapeSB, var)
                         if idx == 0:
+                            print('VAR: ', var)
                             hQCD = self.histos[hname].Clone(makeHistoName(QCDname, sel+'_'+SR, var, syst)) ## use SR name as this is where QCD refers to
                             hQCD.SetTitle(hQCD.GetName())
                         else:

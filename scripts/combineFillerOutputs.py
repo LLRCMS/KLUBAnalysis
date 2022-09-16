@@ -59,7 +59,7 @@ if __name__ == "__main__" :
     cfgName        = findInFolder(args.dir + '/', 'mainCfg_*.cfg')
     outplotterName, outplotterExt = 'outPlotter', '.root'
 
-    comm = 'hadd ' + op.join(args.dir, outplotterName + outplotterExt) + ' ' + op.join(args.dir, outplotterName + '_*' + outplotterExt)
+    comm = 'hadd -f ' + op.join(args.dir, outplotterName + outplotterExt) + ' ' + op.join(args.dir, outplotterName + '_*' + outplotterExt)
 
     p = subprocess.Popen(comm, shell=True, bufsize=2048, stdin=subprocess.PIPE)
     p.wait()

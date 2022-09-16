@@ -99,7 +99,16 @@ bool Sample::openFileAndTree()
       tree_->Add(line.c_str());
 
       TFile* f = new TFile (line.c_str());
+	  if(f->IsZombie())
+		{
+		  throw std::runtime_error("File " + line + " has issues!");
+		}
+
       TH1F* h = (TH1F*) f->Get(histoname_.c_str());
+	  if(!h)
+		{
+		  throw std::runtime_error("Histogram " + histoname_ + " not found!");
+		}
 
       evt_num_  += h->GetBinContent (2) ;
       evt_den_  += h->GetBinContent (bin_eff_den_) ;

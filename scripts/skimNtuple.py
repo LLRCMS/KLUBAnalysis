@@ -133,6 +133,9 @@ def skim_ntuple(FLAGS, curr_folder):
 
         badfiles_folder = os.path.join(FLAGS.output, FLAGS.sample)
         glob_badfiles = glob.glob(os.path.join(badfiles_folder, 'bad*.txt'))
+        if len(glob_badfiles)==0:
+            sys.exit(0)
+
         badfiles_recent = max(glob_badfiles, key=os.path.getctime)
         badfiles = os.path.join(FLAGS.output, FLAGS.sample, badfiles_recent)
 
