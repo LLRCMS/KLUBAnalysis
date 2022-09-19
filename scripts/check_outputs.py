@@ -25,7 +25,8 @@ def find_error_messages(afile, verb):
     with open(afile, 'r') as f:
         problems = [w for w in f.readlines()
                     if (('Error' in w and 'WARNING' not in w and 'Warning' not in w and 'TCling' not in w) or
-                        ('R__unzip: error' in w))]
+                        ('R__unzip: error' in w) or
+                        ('SysError in <TFile::WriteBuffer>: error writing to file' in w))]
         if len(problems) != 0:
             if verb:
                 mes = 'Found errors in file {}:\n'.format(afile)
@@ -37,10 +38,11 @@ def find_error_messages(afile, verb):
 
 def did_job_complete(afile, verb):
     with open(afile, 'r') as f:
-        if '... SKIM finished, exiting.' not in f.readlines()[-1]:
+        lines = f.readlines()
+        if '... SKIM finished, exiting.' not in lines[-1]:
             if verb:
                 mes = 'The last line of file {} shows: '.format(afile)
-                mes += f.readlines()[-1]
+                mes += lines[-1]
                 print(mes)
             return False
     return True
