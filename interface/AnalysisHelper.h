@@ -10,7 +10,7 @@
 ** Only main cfg is passed to the program, and it must contain the names of the other secondary cfgs
 ** Configs handled:
 ** - main cfg: specific to the analysis, contains selection set etc..
-** - sample cfg: list of samples and their pahts (supposed to be common)
+** - sample cfg: list of samples and their paths (supposed to be common)
 ** - cut cfg: contains the definition of the selections
 */
 
@@ -46,6 +46,8 @@ public:
   CfgParser& mainCfg() {return *mainCfg_;}
   bool readMainInfo(); // all analysis info read here
 
+  bool sanityChecks();
+	
   std::shared_ptr<Sample> openSample(std::string sampleName);
   void prepareHistos();
 

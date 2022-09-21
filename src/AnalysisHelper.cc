@@ -24,11 +24,35 @@ AnalysisHelper::AnalysisHelper(string cfgname)
     mainCfg_ = unique_ptr<CfgParser>(new CfgParser(cfgname));
     bool success = readMainInfo();
     if (!success)
-        cerr << "** AnalysisHelper : error : some information could not be retrieved from config" << endl;
+	  cerr << "** AnalysisHelper : error : some information could not be retrieved from config" << endl;
+
+	if(!sanityChecks()) {
+	  cerr << "** AnalysisHelper : error : sanity checks did not pass" << endl;
+	  exit(1);
+	}
 }
 
 AnalysisHelper::~AnalysisHelper()
 {}
+
+bool AnalysisHelper::sanityChecks()
+{
+  vector<string> data = mainCfg_->readStringListOpt("general::data");
+  vector<string> bkgs = mainCfg_->readStringListOpt("general::backgrounds");
+  vector<string> samps_to_merge = mainCfg_->readListOfOpts("merge");
+  for (string s : samps_to_merge)
+	{
+	  vector<string> tmp = mainCfg_->readStringListOpt( string("merge::")+s );
+	  for (auto& x : tmp) {
+		if( std::find(bkgs.begin(), bkgs.end(), x) == bkgs.end() and
+			std::find(data.begin(), data.end(), x) == data.end() ) {
+		  cout << "Item " << x << " was not found in the backgrounds list." << endl;
+		  return false;
+		}
+	  }
+	}
+  return true;
+}
 
 bool AnalysisHelper::readMainInfo()
 {
@@ -149,6 +173,13 @@ void AnalysisHelper::readSamples()
     vector<string> sigSampleNameList  = mainCfg_->readStringListOpt("general::signals");
     vector<string> bkgSampleNameList  = mainCfg_->readStringListOpt("general::backgrounds");
 
+	vector<string> samps_to_merge = mainCfg_->readListOfOpts("merge");
+	for (string s : samps_to_merge)
+	  {
+		sample_merge_list_.append(s, mainCfg_->readStringListOpt( string("merge::")+s));
+	  }
+
+
     cout << "@@ Samples : reading samples DATA : " << endl;       
     for (string name : dataSampleNameList)
     {
@@ -195,7 +226,12 @@ shared_ptr<Sample> AnalysisHelper::openSample(string sampleName)
     if (DEBUG) cout << " ..........DEBUG: entering AnalysisHelper::openSample for sample " << sampleName << endl;
 
     string filename = sampleCfg_->readStringOpt(Form("samples::%s",sampleName.c_str()));
-    shared_ptr<Sample> sample (new Sample(sampleName, filename + string("/goodfiles.txt")));
+	std::vector<std::string> filenames = {{
+		filename + std::string("/goodfiles.txt"),
+		filename + std::string("/goodfiles_resub1.txt"),
+		filename + std::string("/goodfiles_resub2.txt"),
+		filename + std::string("/goodfiles_resub3.txt")}};
+    shared_ptr<Sample> sample (new Sample(sampleName, filenames));
     if (sampleCfg_->hasOpt(Form("userEffBin::%s",sampleName.c_str())))
     {
         int ubin = sampleCfg_->readIntOpt(Form("userEffBin::%s",sampleName.c_str()));
