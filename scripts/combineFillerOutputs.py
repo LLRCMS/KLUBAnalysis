@@ -42,7 +42,9 @@ def retrieveHistos (rootFile, namelist, var, sel):
 
 if __name__ == "__main__" :
     parser = argparse.ArgumentParser(description='Command line parser of plotting options')
-    parser.add_argument('--dir', dest='dir', help='analysis output folder name', default="./")
+    parser.add_argument('--dir', dest='dir', help='analysis output folder name',
+                        default='/data_CMS/cms/' + os.environ['USER'] + '/HHresonant_hist/')
+    parser.add_argument('--tag', dest='tag', help='tag name used after skimming', required=True)
     parser.add_argument('--moreDY', type=float, dest='moreDY', help='increase DY by factor moreDY', default=None)
     parser.add_argument('--moreDY0', type=float, dest='moreDY0', help='increase DY by factor moreDY0', default=None)
     parser.add_argument('--moreDY1', type=float, dest='moreDY1', help='increase DY by factor moreDY1', default=None)
@@ -56,10 +58,10 @@ if __name__ == "__main__" :
     parser.add_argument('--extFile', dest='extFile', help='add a bkg from external file', default=None)
     args = parser.parse_args()
      
-    cfgName        = findInFolder(args.dir + '/', 'mainCfg_*.cfg')
+    cfgName = findInFolder(os.path.join(args.dir, args.tag + '/'), 'mainCfg_*.cfg')
     outplotterName, outplotterExt = 'outPlotter', '.root'
 
-    comm = 'hadd -f ' + op.join(args.dir, outplotterName + outplotterExt) + ' ' + op.join(args.dir, outplotterName + '_*' + outplotterExt)
+    comm = 'hadd -f ' + op.join(args.dir, args.tag, outplotterName + outplotterExt) + ' ' + op.join(args.dir, args.tag, outplotterName + '_*' + outplotterExt)
 
     p = subprocess.Popen(comm, shell=True, bufsize=2048, stdin=subprocess.PIPE)
     p.wait()
@@ -67,8 +69,8 @@ if __name__ == "__main__" :
         m = "The hadd'ing step did not work!"
         raise RuntimeError()
 
-    outplotterName = findInFolder(args.dir + '/', outplotterName+outplotterExt)
-    cfg        = cfgr.ConfigReader(op.join(args.dir, cfgName))
+    outplotterName = findInFolder( os.path.join(args.dir, args.tag + '/'), outplotterName+outplotterExt )
+    cfg        = cfgr.ConfigReader(op.join(args.dir, args.tag, cfgName))
     varList    = cfg.readListOption('general::variables')
     var2DList  = cfg.readListOption('general::variables2D')
     selDefList = cfg.readListOption('general::selections') ## the selection definition
@@ -84,14 +86,23 @@ if __name__ == "__main__" :
             mergelist = cfg.readListOption('merge::'+groupname)
             mergelistA = cfg.readOption('merge::'+groupname)
             theList = None
-            if   mergelist[0] in dataList: theList = dataList
-            elif mergelist[0] in sigList:  theList = sigList
-            elif mergelist[0] in bkgList:  theList = bkgList
-            for x in mergelist: theList.remove(x)
+            if   mergelist[0] in dataList:
+                theList = dataList
+            elif mergelist[0] in sigList:
+                theList = sigList
+            elif mergelist[0] in bkgList:
+                theList = bkgList
+
+            for x in mergelist:
+                try:
+                    theList.remove(x)
+                except ValueError:
+                    print("'{}' not in list!".format(x))
+                    raise
             theList.append(groupname)
      
-    rootfile = ROOT.TFile.Open(op.join(args.dir, outplotterName))
-    print('... opening {}'.format(op.join(args.dir, outplotterName)))
+    rootfile = ROOT.TFile.Open(op.join(args.dir, args.tag, outplotterName))
+    print('... opening {}'.format(op.join(args.dir, args.tag, outplotterName)))
      
     ROOT.gROOT.SetBatch(True)
     omngr = omng.OutputManager()
@@ -260,5 +271,5 @@ if __name__ == "__main__" :
                     omngr.makeVBFrew(inputSigList, target_kl, target_cv, target_c2v, target_xs)
      
      
-    fOut = ROOT.TFile(op.join(args.dir, 'analyzedOutPlotter.root'), 'recreate')
+    fOut = ROOT.TFile(op.join(args.dir, args.tag, 'analyzedOutPlotter.root'), 'recreate')
     omngr.saveToFile(fOut)
