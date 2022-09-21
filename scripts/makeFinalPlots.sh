@@ -6,18 +6,19 @@ NOSIG="0"
 NODATA="0"
 TAG=""
 CHANNEL=""
-SELECTION="baseline"
 CHANNEL_CHOICES=( "ETau" "MuTau" "TauTau" )
 DATA_PERIOD="UL18"
 DATA_PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
 REG="SR"  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
 REG_CHOICES=( "SR" "SStight" "OSinviso" "SSinviso" "SSrlx" )
 EOS_USER="bfontana"
+SELECTION="baseline"
+declare -a SELECTIONS;
 
 ### Argument parsing
 HELP_STR="Prints this help message."
 CHANNEL_STR="(String) Which channel to consider: ETau, MuTau, TauTau. Defaults to '${CHANNEL}'."
-SELECTION_STR="(String) Which selection to consider. Defaults to '${SELECTION}'."
+SELECTION_STR="(List of Strings) Which selection to consider. Defaults to '${SELECTION}'."
 DRYRUN_STR="(Boolean) Prints all the commands to be launched but does not launch them. Defaults to ${DRYRUN}."
 TAG_STR="(String) Defines tag for the output. Defaults to '${TAG}'."
 DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${DATA_PERIOD}'."
@@ -29,12 +30,12 @@ function print_usage_submit_skims {
 	-h / --help			[ ${HELP_STR} ]
 	--dry-run			[ ${DRYRUN_STR} ]
 	-c / --channel      [ ${CHANNEL_STR} ]
-	-s / --selection    [ ${CHANNEL_STR} ]
+	-s / --selection    [ ${SELECTION_STR} ]
 	-t / --tag			[ ${TAG_STR} ]
 	-r / --region		[ ${REG_STR} ]
     -d / --data_period  [ ${DATAPERIOD_STR} ]
-	--nosig             [ ${NOSIG} ]
-	--nodata            [ ${NODATA} ]
+	--no-sig             [ ${NOSIG} ]
+	--no-data            [ ${NODATA} ]
 
     Run example: bash $(basename "$0") -t <some_tag>
 "
@@ -60,7 +61,7 @@ while [[ $# -gt 0 ]]; do
 		shift; shift;
 		;;
 	-s|--selection)
-	    SELECTION=${2}
+	    SELECTIONS+=("${2}")
 	    shift; shift;
 	    ;;
 	--dry-run)
@@ -166,7 +167,6 @@ LUMI="41.6"
 MAIN_DIR="${MAIN_DIR}/${TAG}"
 EOS_DIR="/eos/user/${EOS_USER:0:1}/${EOS_USER}"
 WWW_DIR="${EOS_DIR}/www/${PLOTS_DIR}/${TAG}/${CHANNEL}"
-WWW_SUBDIR="${WWW_DIR}/${SELECTION}_${REG}"
 
 [[ ! -d ${EOS_DIR} ]] && /opt/exp_soft/cms/t3/eos-login -username ${EOS_USER} -init
 
@@ -186,7 +186,7 @@ printf "TAG\t\t\t= ${TAG}\n"
 printf "DATA_PERIOD\t= ${DATA_PERIOD}\n"
 printf "CHANNEL\t\t= ${CHANNEL}\n"
 printf "REGION\t\t= ${REG}\n"
-printf "SELECTION\t= ${SELECTION}\n"
+printf "SELECTIONS\t= ${SELECTIONS[*]}\n"
 printf "EOS_USER\t= ${EOS_USER}\n"
 printf "NOSIG\t\t= ${NOSIG}\n"
 printf "NODATA\t\t= ${NODATA}\n"
@@ -204,8 +204,7 @@ if [[ ${NODATA} -eq 1 ]]; then
 fi
 
 OUTDIR="${MAIN_DIR}/${PLOTS_DIR}"
-FULL_OUTDIR="${MAIN_DIR}/${PLOTS_DIR}/${CHANNEL}/${SELECTION}_${REG}"
-mkdir -p "${FULL_OUTDIR}"
+COMPDIR="${OUTDIR}/${CHANNEL}"
 
 function run() {
 	[[ ${DRYRUN} -eq 1 ]] && echo "[DRYRUN] $@" || "$@"
@@ -219,6 +218,14 @@ function run_plot() {
 	[[ ${DRYRUN} -eq 1 ]] && echo "[DRYRUN] ${comm}" || ${comm}
 }
 
+function compare_ratios() {
+	comm="python compareRatios.py --indir ${MAIN_DIR} --outdir ${OUTDIR} "
+	comm+="--reg ${REG} "
+	comm+="--sel ${SELECTION} --channel ${CHANNEL} "
+	comm+="$@"
+	[[ ${DRYRUN} -eq 1 ]] && echo "[DRYRUN] ${comm}" || ${comm}
+}
+
 declare -A VAR_MAP
 VAR_MAP=(
 	["dau1_pt"]="p_{T}(1)\s[GeV]"
@@ -228,38 +235,51 @@ VAR_MAP=(
 	["dau1_phi"]="#phi(1)"
 	["dau2_phi"]="#phi(2)"
 
-	["ditau_deltaR"]="#Delta(R)(tau,\stau)"
+	["ditau_deltaR"]="#Delta(R)(#tau,#tau)"
 
-	["bjet1_bID_deepFlavor"]="ID(bjet1)"
-	["bjet2_bID_deepFlavor"]="ID(bjet2)"
+	["bjet1_bID_deepFlavor"]="ID(b_{1})"
+	["bjet2_bID_deepFlavor"]="ID(b_{2})"
 
-	["tauH_pt"]="p_{T}(H[#tau\s#tau])\s[GeV]"
-	["bH_mass"]="m(H\[bb])\s[GeV]"
+	["tauH_pt"]="p_{T}(H(#tau,#tau))\s[GeV]"
+	["bH_mass"]="m(H[bb])\s[GeV]"
 	["bH_pt"]="p_{T}(H[bb])\s[GeV]"
 	["HH_mass"]="m(HH)\s[GeV]"
 	["HH_pt"]="p_{T}(HH)\s[GeV]"
 	["HHKin_mass"]="m(HH)_{KinFit}\s[GeV]"
 
-	["bjet1_pt"]="p_{T}(j1)\s[GeV]"
-	["bjet2_pt"]="#eta(j2)\s[GeV]"
-	["bjet1_eta"]="#eta(j1)"
-	["bjet2_eta"]="#eta(j2)"
+	["bjet1_pt"]="p_{T}(b_{1})\s[GeV]"
+	["bjet2_pt"]="p_{T}(b_{2})\s[GeV]"
+	["bjet1_eta"]="#eta(b_{1})"
+	["bjet2_eta"]="#eta(b_{2})"
 )
 
-# parallel python ${PLOTTER} --indir ${MAIN_DIR} --outdir ${OUTDIR} --reg ${REG} --sel ${SELECTION} --channel ${CHANNEL} --lumi ${LUMI} ${OPTIONS} --quit --var {1} --lymin 0.7 --label {2} ::: ${!VAR_MAP[@]} ::: ${VAR_MAP[@]}
-for avar in ${!VAR_MAP[@]}; do
- 	run_plot --var ${avar} --lymin 0.7 --label ${VAR_MAP[$avar]}
+
+for sel in ${SELECTIONS[@]}; do
+	FULL_OUTDIR="${COMPDIR}/${sel}_${REG}"
+	mkdir -p "${FULL_OUTDIR}"
+
+	# parallel python ${PLOTTER} --indir ${MAIN_DIR} --outdir ${OUTDIR} --reg ${REG} --sel ${sel} --channel ${CHANNEL} --lumi ${LUMI} ${OPTIONS} --quit --var {1} --lymin 0.7 --label {2} ::: ${!VAR_MAP[@]} ::: ${VAR_MAP[@]}
+	for avar in ${!VAR_MAP[@]}; do
+ 		run_plot --var ${avar} --lymin 0.7 --label ${VAR_MAP[$avar]}
+	done
+
+	run mkdir -p ${WWW_DIR}
+	WWW_SUBDIR="${WWW_DIR}/${sel}_${REG}"
+	if [ -d ${WWW_SUBDIR} ]; then
+		echo "removing"
+		run rm -rf ${WWW_SUBDIR}
+	fi
+
+	run mkdir ${WWW_SUBDIR}
+
+	run cp ${FULL_OUTDIR}/*png ${WWW_SUBDIR}
+	run cp ${FULL_OUTDIR}/*pdf ${WWW_SUBDIR}
 done
 
-run mkdir -p ${WWW_DIR}
-if [ -d ${WWW_SUBDIR} ]; then
-	echo "removing"
-	run rm -rf ${WWW_SUBDIR}
-fi
+for sel in ${SELECTIONS[@]}; do
+	echo "Results: https://${EOS_USER}.web.cern.ch/${EOS_USER}/${PLOTS_DIR}/${TAG}/${CHANNEL}/${sel}_${REG}/"
+done
 
-run mkdir ${WWW_SUBDIR}
-
-run cp ${FULL_OUTDIR}/*png ${WWW_SUBDIR}
-run cp ${FULL_OUTDIR}/*pdf ${WWW_SUBDIR}
-
-echo "Results: https://${EOS_USER}.web.cern.ch/${EOS_USER}/${PLOTS_DIR}/${TAG}/${CHANNEL}/${SELECTION}_${REG}/"
+# if [ ${#SELECTIONS[@]} -eq 2 ]; then
+# 	compare_ratios
+# fi

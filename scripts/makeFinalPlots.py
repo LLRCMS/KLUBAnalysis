@@ -20,8 +20,6 @@ def findInFolder (folder, pattern):
             print "*** WARNING: Too many files found in " , folder , ", using first one : " , ll
         return ll[0]
 
-
-
 def flatBinning(rootFile,namelist, var,sel,reg):
     for name in namelist:
         fullName = name + "_" + sel + "_" + reg + "_" + var
@@ -37,39 +35,37 @@ def flatBinning(rootFile,namelist, var,sel,reg):
             yq = array('d', [0.] * nq)  
 
             for i in xrange(nq):
-                        xq[i] = float(i + 1) / nq
+                xq[i] = float(i + 1) / nq
                         
             h.GetQuantiles(nq, yq, xq)
             print yq
             return yq
 
-def retrieveHistos (rootFile, namelist, var, sel, reg,flat,binning):
-    res = {}
-    for name in namelist:
-        fullName = name + "_" + sel + "_" + reg + "_" + var
+def retrieveHistos(rootFile, namelist, var, sel, reg,flat,binning):
+        res = {}
+        for name in namelist:
+                fullName = name + "_" + sel + "_" + reg + "_" + var
 
         if not rootFile.GetListOfKeys().Contains(fullName):
-            print "*** WARNING: histo " , fullName , " not available"
+                print "*** WARNING: histo " , fullName , " not available"
             continue
+
         h = rootFile.Get(fullName)
-    
+        
         if not args.flat:
                 res[name] = h
         else:
                 hreb = h.Rebin(len(binning)-1,"hreb",binning) 
                 res[name] = hreb
-                        
+                
     return res
                         
 def getHisto (histoName,inputList,doOverflow):
-
         for idx, name in enumerate(inputList):
-
                 if (name.startswith(histoName) and name.endswith(histoName)):
                         h = inputList[name].Clone (histoName)
                         if doOverflow: h = addOverFlow(h)
                         break
-
         return h
 
 ### QCD is special and has a strange name, need data to recontruct it
@@ -106,7 +102,7 @@ def setPlotStyle ():
     #LucaStyle
 
 # tranform an histo into a TGraphAsymmErrors, with 
-def makeTGraphFromHist (histo, newName):
+def makeTGraphFromHist(histo, newName):
     nPoints  = hData.GetNbinsX()
     fX       = []
     fY       = []
@@ -131,12 +127,12 @@ def makeTGraphFromHist (histo, newName):
         feXRight.append(dxRight)
         feXLeft.append(dxLeft)
 
-    afX       = array ("d", fX      )
-    afY       = array ("d", fY      )
-    afeYUp    = array ("d", feYUp   )
-    afeYDown  = array ("d", feYDown )
-    afeXRight = array ("d", feXRight)
-    afeXLeft  = array ("d", feXLeft )
+    afX       = array ('d', fX      )
+    afY       = array ('d', fY      )
+    afeYUp    = array ('d', feYUp   )
+    afeYDown  = array ('d', feYDown )
+    afeXRight = array ('d', feXRight)
+    afeXLeft  = array ('d', feXLeft )
 
     gData = TGraphAsymmErrors (len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
     gData.SetMarkerStyle(8);
@@ -147,13 +143,13 @@ def makeTGraphFromHist (histo, newName):
     return gData;
 
 # set all horizontal bar errors to 0
-def removeHErrors (graph):
+def removeHErrors(graph):
     for ipt in range (0, graph.GetN()):
         graph.SetPointEXlow(ipt, 0)
         graph.SetPointEXhigh(ipt, 0)
 
 # remove all points with content = 0
-def removeEmptyPoints (graph):
+def removeEmptyPoints(graph):
     zeroes = []
     for ipt in range (0, graph.GetN()):
         x = Double(0.0)
@@ -164,21 +160,19 @@ def removeEmptyPoints (graph):
     for i in reversed (zeroes):
         graph.RemovePoint(i)
 
-
-        
-def addOverFlow (histo):
-    dummy = TH1F ("tempo",histo.GetTitle (),histo.GetNbinsX () + 1, histo.GetXaxis ().GetXmin (),histo.GetXaxis ().GetXmax () + histo.GetBinWidth (1)) 
+def addOverFlow(histo):
+    dummy = TH1F('tempo',histo.GetTitle(),histo.GetNbinsX() + 1,
+                 histo.GetXaxis().GetXmin(),histo.GetXaxis().GetXmax() + histo.GetBinWidth(1)) 
 
     for iBin in range(1,histo.GetNbinsX () + 2):
             dummy.SetBinContent (iBin, histo.GetBinContent (iBin)) 
             dummy.SetBinError (iBin, histo.GetBinError (iBin)) 
   
-
     if(histo.GetDefaultSumw2()):
-           dummy.Sumw2 () 
+           dummy.Sumw2() 
 
     name = histo.GetName () 
-    histo.SetName ("trash") 
+    histo.SetName ('trash') 
     if args.label:
             dummy.GetXaxis().SetTitle(args.label)
     else:
@@ -187,14 +181,7 @@ def addOverFlow (histo):
     histo, dummy = dummy, histo
     return histo
 
-
-
-
-
-
 def addOverAndUnderFlow ( histo):
-
-
   histo.SetBinContent(histo.GetNbinsX(),histo.GetBinContent(histo.GetNbinsX())+histo.GetBinContent(histo.GetNbinsX()+1)); 
   histo.SetBinContent(1,histo.GetBinContent(1)+histo.GetBinContent(0))
   
@@ -208,9 +195,7 @@ def addOverAndUnderFlow ( histo):
   if (histo.GetBinErrorOption() != TH1.kPoisson):
       histo.SetBinError(0,0)
       histo.SetBinError(histo.GetNbinsX()+1,0)
-  
-
-        
+          
 # NB!! need to be called BEFORE removeHErrors or cannot know bin width
 def scaleGraphByBinWidth (graph):
     for ipt in range (0, graph.GetN()):
@@ -313,22 +298,6 @@ def findMaxOfGraph (graph):
         uppers.append (y + graph.GetErrorYhigh(i))
     return max(uppers)
 
-# def makeSystUpDownStack (bkgList, systList, newNamePart):
-#     for i, name in bkgList:
-#         scale = systList[i] # error on nominal histo
-#         hUp = None   # the histograms with up/down syst
-#         hDown = None #
-#         if i == 0:
-#             hUp = bkgList[i].Clone (newNamePart + "_up")
-#             hDown = bkgList[i].Clone (newNamePart + "_up")
-#             hUp.Scale (1.0 + scale)
-#             hDown.Scale (1.0 - scale)
-#         else:
-#             hTempUp   = bkgList[i].Clone (newNamePart + "_tmp_up" + i)
-#             hTempDown = bkgList[i].Clone (newNamePart + "_tmp_up" + i)
-#             hTempUp.Scale (1.0 + scale)
-#             hTempDown.Scale (1.0 - scale)
-
 ## remove negative bins and reset yield accordingly
 ## NB: must be done BEFORE bin width division
 def makeNonNegativeHistos (hList):
@@ -349,7 +318,6 @@ def makeNonNegativeHistos (hList):
 
 
 ### script body ###
-
 if __name__ == "__main__" :
     TH1.AddDirectory(0)
 
@@ -427,8 +395,6 @@ if __name__ == "__main__" :
 
 
     pad1.cd()
-
-
 
     ######################### PUT USER CONFIGURATION HERE ####################
     cfgName  =  args.dir + "/mainCfg_"+args.channel+".cfg"
