@@ -10,9 +10,8 @@ from ctypes import c_double, c_float
 import modules.ConfigReader as cfgr
 import modules.OutputManager as omng
 import ROOT
-#ROOT.EnableThreadSafety() 
 
-def findInFolder (folder, pattern):
+def findInFolder(folder, pattern):
         ll = []
         for ff in os.listdir(folder):
             if fnmatch.fnmatch(ff, pattern): ll.append(ff)
@@ -44,7 +43,7 @@ def flatBinning(rootFile,namelist, var,sel,reg):
             print(yq)
             return yq
 
-def retrieveHistos (rootFile, namelist, var, sel, reg,flat,binning):
+def retrieveHistos(rootFile, namelist, var, sel, reg, flat, binning):
     res = {}
     for name in namelist:
         fullName = name + '_' + sel + '_' + reg + '_' + var
@@ -96,7 +95,7 @@ def setPlotStyle ():
     #LucaStyle
 
 # tranform an histo into a TGraphAsymmErrors, with 
-def makeTGraphFromHist (histo, newName):
+def makeTGraphFromHist(histo, newName):
     nPoints  = hData.GetNbinsX()
     fX       = []
     fY       = []
@@ -121,12 +120,12 @@ def makeTGraphFromHist (histo, newName):
         feXRight.append(dxRight)
         feXLeft.append(dxLeft)
 
-    afX       = array ("d", fX      )
-    afY       = array ("d", fY      )
-    afeYUp    = array ("d", feYUp   )
-    afeYDown  = array ("d", feYDown )
-    afeXRight = array ("d", feXRight)
-    afeXLeft  = array ("d", feXLeft )
+    afX       = array ('d', fX      )
+    afY       = array ('d', fY      )
+    afeYUp    = array ('d', feYUp   )
+    afeYDown  = array ('d', feYDown )
+    afeXRight = array ('d', feXRight)
+    afeXLeft  = array ('d', feXLeft )
 
     gData = ROOT.TGraphAsymmErrors(len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
     gData.SetMarkerStyle(8);
@@ -157,7 +156,7 @@ def removeEmptyPoints (graph):
 
         
 def addOverFlow (histo):
-    dummy = ROOT.TH1F("tempo",histo.GetTitle (),histo.GetNbinsX () + 1, histo.GetXaxis ().GetXmin (),histo.GetXaxis ().GetXmax () + histo.GetBinWidth (1)) 
+    dummy = ROOT.TH1F('tempo',histo.GetTitle (),histo.GetNbinsX () + 1, histo.GetXaxis ().GetXmin (),histo.GetXaxis ().GetXmax () + histo.GetBinWidth (1)) 
 
     for iBin in range(1,histo.GetNbinsX () + 2):
             dummy.SetBinContent (iBin, histo.GetBinContent (iBin)) 
@@ -168,7 +167,7 @@ def addOverFlow (histo):
            dummy.Sumw2 () 
 
     name = histo.GetName () 
-    histo.SetName ("trash") 
+    histo.SetName ('trash') 
     if args.label:
         dummy.GetXaxis().SetTitle(args.label)
     else:
@@ -208,7 +207,6 @@ def scaleGraphByBinWidth (graph):
         graph.SetPointEYlow(ipt, eyl/bw)
         graph.SetPointEYhigh(ipt, eyh/bw)
 
-
 # Get the uncertainty band from BKG to be plotted in the ratio plot
 def makeMCUncertaintyBand (bkgSum):
     nPoints = bkgSum.GetNbinsX()
@@ -246,7 +244,6 @@ def getZa(s, b, sigma_b):
         Za = math.sqrt( 2*(x1-x2) )
     else:
         Za =0
-
     return Za
 
 ## do ratio of S/(S+B)
@@ -281,12 +278,12 @@ def makeSBSPlot (hData, hMC, newName, color, horErrs=False):
                 feXLeft.append(0.0)
                 feXRight.append(0.0)
 
-    afX       = array ("d", fX      )
-    afY       = array ("d", fY      )
-    afeYUp    = array ("d", feYUp   )
-    afeYDown  = array ("d", feYDown )
-    afeXRight = array ("d", feXRight)
-    afeXLeft  = array ("d", feXLeft )
+    afX       = array ('d', fX      )
+    afY       = array ('d', fY      )
+    afeYUp    = array ('d', feYUp   )
+    afeYDown  = array ('d', feYDown )
+    afeXRight = array ('d', feXRight)
+    afeXLeft  = array ('d', feXLeft )
     gSBS = ROOT.TGraphAsymmErrors(len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
 
     gSBS.SetMarkerStyle(1);
@@ -300,7 +297,7 @@ def makeSBSPlot (hData, hMC, newName, color, horErrs=False):
 
 ## do ratio of Data/MC
 # horErrs : do horizontal errors
-def makeDataOverMCRatioPlot (hData, hMC, newName, horErrs=False):
+def makeDataOverMCRatioPlot(hData, hMC, newName, horErrs=False):
     nPoints = hData.GetNbinsX()
     fX       = []
     fY       = []
@@ -327,12 +324,12 @@ def makeDataOverMCRatioPlot (hData, hMC, newName, horErrs=False):
                 feXLeft.append(0.0)
                 feXRight.append(0.0)
 
-    afX       = array ("d", fX      )
-    afY       = array ("d", fY      )
-    afeYUp    = array ("d", feYUp   )
-    afeYDown  = array ("d", feYDown )
-    afeXRight = array ("d", feXRight)
-    afeXLeft  = array ("d", feXLeft )
+    afX       = array ('d', fX      )
+    afY       = array ('d', fY      )
+    afeYUp    = array ('d', feYUp   )
+    afeYDown  = array ('d', feYDown )
+    afeXRight = array ('d', feXRight)
+    afeXLeft  = array ('d', feXLeft )
     gRatio = ROOT.TGraphAsymmErrors(len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
     
     gRatio.SetMarkerStyle(8);
@@ -418,7 +415,7 @@ if __name__ == "__main__" :
                         default=None)
     #bool opts
     parser.add_argument('--log',     dest='log', help='use log scale',  action='store_true', default=False)
-    parser.add_argument('--no-data', dest='dodata', help='disable plotting data',  action='store_false', default=True)
+    parser.add_argument('--no-data', dest='dodata', help='disable plotting data', action='store_false', default=True)
     parser.add_argument('--no-sig',  dest='dosig',  help='disable plotting signal',  action='store_false')
     parser.add_argument('--no-legend',   dest='legend',   help = 'disable drawing legend',       action='store_false')
     parser.add_argument('--no-binwidth', dest='binwidth', help = 'disable scaling by bin width', action='store_false')
@@ -552,7 +549,8 @@ if __name__ == "__main__" :
     hDatas = retrieveHistos(rootFile, dataList, *opts)
 
     xsecRatio = 19.56
-    if not args.log: xsecRatio = xsecRatio/float(10)
+    if not args.log:
+        xsecRatio = xsecRatio/float(10)
     #sigScale = [1. , xsecRatio*hSigs["ggHH"].GetEntries()/float(hSigs["VBFC2V1"].GetEntries())]
 
     doOverflow = args.overflow
@@ -731,38 +729,34 @@ if __name__ == "__main__" :
     #    histo.Scale(sigScaleValue)
 
     ################## LEGEND ######################################
-
-    legmin = 0.45
-    if args.lymin: legmin = args.lymin
-    legminx = 0.50
-    if (len(hBkgNameList) +len(hSigs)>6): legminx = 0.35
-    leg = ROOT.TLegend (legminx, legmin, 0.90, 0.93)
-    if (len(hBkgNameList) +len(hSigs)> 6): leg.SetNColumns(2)
+    legminy = args.lymin if args.lymin else 0.45
+    legminx = 0.35 if len(hBkgNameList)+len(hSigs)>6 else 0.50
+    leg = ROOT.TLegend(legminx, legminy, 0.90, 0.93)
+    if (len(hBkgNameList) +len(hSigs)> 6):
+        leg.SetNColumns(2)
     leg.SetFillStyle(0)
     leg.SetBorderSize(0)
     leg.SetTextFont(43)
-    #leg.SetTextSize(20)
 
     # add element in same order as stack --> top-bottom
     if args.dosig:
         #for i, name in enumerate (sigNameList):
         for i, name in reversed(list(enumerate (sigNameList))):
             histo = hSigs[sigList[i]]
-            leg.AddEntry (histo, name, "l")
+            leg.AddEntry (histo, name, 'l')
         # null entry to complete signal Xsection
         if args.siglegextratext:
-            leg.AddEntry(None, args.siglegextratext, "")
+            leg.AddEntry(None, args.siglegextratext, '')
 
     for i, name in reversed(list(enumerate(hBkgNameList))):
-        leg.AddEntry(hBkgList[i], name, "f")
+        leg.AddEntry(hBkgList[i], name, 'f')
 
     if args.dodata:
-        leg.AddEntry(gData, "Data", "pe")
+        leg.AddEntry(gData, 'Data', 'pe')
 
 
     ################## Y RANGE SETTINGS ############################
-    ymin = 0
-    if args.log: ymin = 0.1
+    ymin = 0.1 if args.log else 0.
 
     maxs = []
     
@@ -786,42 +780,40 @@ if __name__ == "__main__" :
 
     if not args.log:
         ymax += extraspace* (ymax-ymin)
-    
     else:
         new = extraspace * (math.log(ymax, 10) - math.log(ymin, 10)) + math.log(ymax, 10)
         ymax = math.pow(10, new)
 
     ## override form args
-    if args.ymin: ymin = args.ymin
-    if args.ymax: ymax = args.ymax
+    if args.ymin:
+        ymin = args.ymin
+    if args.ymax:
+        ymax = args.ymax
 
     bkgStack.SetMinimum(ymin)
     bkgStack.SetMaximum(ymax)
 
     # interactive display
-    bkgStack.Draw("HIST")
+    bkgStack.Draw('HIST')
     bkgSum.SetFillColor(ROOT.kGray+2);
     bkgSum.SetFillStyle(3002);
-    bkgSum.Draw("e2 same")
+    bkgSum.Draw('e2 same')
     if args.dosig:
-        for key in hSigs: hSigs[key].Draw("hist same")
+        for key in hSigs: hSigs[key].Draw('hist same')
     if args.dodata:
         removeHErrors(gData)
         removeEmptyPoints(gData)
-        gData.Draw("P Z same") # Z: no small line at the end of error bar
+        gData.Draw('P Z same') # Z: no small line at the end of error bar
 
     ###################### OTHER TEXT ON PLOT #########################
 
     # extraText = "preliminary"
     # CMStext = "CMS"
+    cmsTextFont = 61  # font of the "CMS" label
+    cmsTextSize = 0.05  # font size of the "CMS" label
+    extraTextFont = 52     # for the "preliminary"
+    extraTextSize = 0.76 * cmsTextSize # for the "preliminary"
 
-    cmsTextFont     = 61  # font of the "CMS" label
-    cmsTextSize   = 0.05  # font size of the "CMS" label
-    extraTextFont   = 52     # for the "preliminary"
-    extraTextSize   = 0.76 * cmsTextSize # for the "preliminary"
-
-
-    
     t = ROOT.gPad.GetTopMargin()
     b = ROOT.gPad.GetBottomMargin()
     l = ROOT.gPad.GetLeftMargin()
@@ -842,10 +834,7 @@ if __name__ == "__main__" :
     extraTextBox.SetTextAlign(11)
 
     x = 0
-    y = 0
-    #    histoWidth = histo.GetXaxis().GetBinWidth(1)*histo.GetXaxis().GetNbins()
-    #    histoHeight = histo.GetMaximum()-histo.GetMinimum()
- 
+    y = 0 
 
     lumi = '%.1f fb^{-1} (13 TeV)' % args.lumi_num
     lumibox = ROOT.TLatex(1-r, 1 - t + 0.02 , lumi)       
@@ -855,21 +844,20 @@ if __name__ == "__main__" :
     lumibox.SetTextFont(42)
     lumibox.SetTextColor(ROOT.kBlack)
 
-    if args.channel:
-        if args.channel == 'MuTau':
-            chName = 'bb #mu#tau_{h}'
-        elif args.channel == 'ETau':
-            chName = 'bb e#tau_{h}'
-        elif args.channel == 'TauTau':
-            chName = 'bb #tau_{h}#tau_{h}'
+    if args.channel == 'MuTau':
+        chName = 'bb #mu#tau_{h}'
+    elif args.channel == 'ETau':
+        chName = 'bb e#tau_{h}'
+    elif args.channel == 'TauTau':
+        chName = 'bb #tau_{h}#tau_{h}'
 
-        if chName:
-            chBox = ROOT.TLatex(l + 0.04 , 1 - t - 0.02, chName)
-            chBox.SetNDC()
-            chBox.SetTextSize(cmsTextSize+20)
-            chBox.SetTextFont(43)
-            chBox.SetTextColor(ROOT.kBlack)
-            chBox.SetTextAlign(13)
+    if chName:
+        chBox = ROOT.TLatex(l + 0.04 , 1 - t - 0.02, chName)
+        chBox.SetNDC()
+        chBox.SetTextSize(cmsTextSize+20)
+        chBox.SetTextFont(43)
+        chBox.SetTextColor(ROOT.kBlack)
+        chBox.SetTextAlign(13)
             
     CMSbox.Draw()
     extraTextBox.Draw()
@@ -943,7 +931,6 @@ if __name__ == "__main__" :
         pad2.Draw()
         pad2.cd()
 
-
         # create list of signal histograms clones
         hSigsNonScaled = []
         for nameSig in sigList:
@@ -956,7 +943,7 @@ if __name__ == "__main__" :
             grSBS = makeSBSPlot (sigNS, hBkgEnvelopeNS, "Z_{A}", sigNS.GetLineColor())
             grSBSs.append(grSBS)
 
-        hRatio = hDataNonScaled.Clone("hRatioAxis") # for ranges only
+        hRatio = hDataNonScaled.Clone('hRatioAxis') # for ranges only
         hRatio.GetXaxis().SetTitleFont(43) # so that size is in pixels
         hRatio.GetYaxis().SetTitleFont(43) # so that size is in pixels
         hRatio.GetXaxis().SetLabelFont(43) # so that size is in pixels
@@ -965,7 +952,7 @@ if __name__ == "__main__" :
 
         #hRatio.GetXaxis().SetTitle(bkgStack.GetXaxis().GetName())
         hRatio.SetTitle(plotTitle)
-        hRatio.GetYaxis().SetTitle ("Z_{A}") #("S/#sqrt{S+B}") #("Data/MC")
+        hRatio.GetYaxis().SetTitle ('Z_{A}') #('S/#sqrt{S+B}') #('Data/MC')
         if args.label: hRatio.GetXaxis().SetTitle (args.label)
         else: hRatio.GetXaxis().SetTitle (args.var)
         hRatio.GetXaxis().SetTitleOffset(3.9)
@@ -1002,6 +989,11 @@ if __name__ == "__main__" :
 
 
     ###################### RATIO PLOT #################################
+    tagch = args.channel
+    if not args.binwidth:
+        tagch += '_noBinWidth'
+    id_name = '_'.join((args.var, args.sel, args.reg, tagch))
+
     if args.ratio:
         bkgStack.GetXaxis().SetTitleSize(0.00);
         bkgStack.GetXaxis().SetLabelSize(0.00);
@@ -1017,9 +1009,9 @@ if __name__ == "__main__" :
         pad2.Draw()
         pad2.cd()
 
-        grRatio = makeDataOverMCRatioPlot (hDataNonScaled, hBkgEnvelopeNS, "grRatio")
-        hRatio = hDataNonScaled.Clone("hRatioAxis") # for ranges only
-        grUncert = makeMCUncertaintyBand (bkgSum) # uncertainty band from MC, always centered at 1.0
+        grRatio = makeDataOverMCRatioPlot(hDataNonScaled, hBkgEnvelopeNS, 'grRatio')
+        hRatio = hDataNonScaled.Clone('hRatioAxis') # for ranges only
+        grUncert = makeMCUncertaintyBand(bkgSum) # uncertainty band from MC, always centered at 1.0
 
         hRatio.GetXaxis().SetTitleFont(43) # so that size is in pixels
         hRatio.GetYaxis().SetTitleFont(43) # so that size is in pixels
@@ -1029,8 +1021,9 @@ if __name__ == "__main__" :
 
         #hRatio.GetXaxis().SetTitle(bkgStack.GetXaxis().GetName())
         hRatio.SetTitle(plotTitle)
-        hRatio.GetYaxis().SetTitle ("Data/Bkg.") #("Data/MC")
-        if args.label: hRatio.GetXaxis().SetTitle (args.label)
+        hRatio.GetYaxis().SetTitle ('Data/Bkg.')
+        if args.label:
+            hRatio.GetXaxis().SetTitle(args.label)
         else: hRatio.GetXaxis().SetTitle (args.var)
         hRatio.GetXaxis().SetTitleOffset(3.9)
         hRatio.GetYaxis().SetTitleOffset(1.2)
@@ -1044,53 +1037,51 @@ if __name__ == "__main__" :
         hRatio.GetYaxis().SetTickSize(0.05)
 
         hRatio.SetStats(0)
-        #hRatio.SetMinimum(0.85)
-        #hRatio.SetMaximum(1.15)
         hRatio.SetMinimum(0.6) #default value
         hRatio.SetMaximum(1.4) #default value
-        #hRatio.SetMinimum(0.0) #TESI
-        #hRatio.SetMaximum(2.0) #TESI
 
-        removeEmptyPoints (grRatio)
-        hRatio.Draw("axis")
+        removeEmptyPoints(grRatio)
+        hRatio.Draw('axis')
         
-        grRatio.Draw("P Z same") # Z : no small limes at the end of points
-        xmin =hRatio.GetXaxis().GetXmin()
+        grRatio.Draw('P Z same') # Z : no small limes at the end of points
+        xmin = hRatio.GetXaxis().GetXmin()
         xmax = hRatio.GetXaxis().GetXmax()
         l1 = ROOT.TLine(xmin, 1, xmax, 1)
         l1.SetLineColor(ROOT.kRed)
         l1.SetLineStyle(4)
         l1.SetLineWidth(1)
-        l1.Draw("same")
+        l1.Draw('same')
 
         grUncert.SetFillColor(ROOT.kGray+2)
         grUncert.SetFillStyle(3002)
-        grUncert.Draw("e2")
+        grUncert.Draw('e2')
 
         pad2.RedrawAxis();
-        pad2.RedrawAxis("g"); #otherwise no grid..
+        pad2.RedrawAxis('g'); #otherwise no grid..
+
+        # save the ratio for later comparisons
+        ratioDir = op.join(args.outdir, interm_path(args.sel))
+        ratioName = op.join(ratioDir, 'ratios.root')
+        ratioFile = ROOT.TFile.Open(ratioName, 'UPDATE')
+        grRatio.SetName(id_name)
+        grRatio.Write()
+        ratioFile.Close()
+        print('Ratio file saved: {}.'.format(ratioName))
+        
     ###################### DISPLAY ###################################
     if not args.quit:
-        # pad1.Update() # necessary to show plot
-        # pad2.Update() # necessary to show plot
+        c1.cd()
         c1.Update()
         pad1.Update()
-        if pad2: pad2.Update()
+        if pad2:
+            pad2.Update()
         raw_input() # to prevent script from closing
 
     if args.printplot:
-        tagch = ''
-        if args.channel:
-            tagch = '_' + args.channel
-        if not args.binwidth:
-            tagch += '_noBinWidt'
         if 'class' in args.sel:
-            saveBase = 'plot_' + args.var + '_' + args.sel +'_' + args.reg + tagch
-            saveName = op.join(args.outdir, interm_path('scores_'), saveBase)
+            saveName = op.join(args.outdir, interm_path('scores_'), id_name)
         else:
-            saveBase = 'plot_' + args.var + '_' + args.sel +'_' + args.reg + tagch
-            saveName = op.join(args.outdir, interm_path(args.sel), saveBase)
-        
+            saveName = op.join(args.outdir, interm_path(args.sel), id_name)
         saveName = saveName + ('_log' if args.log else '_flat')
-        for ext in ('pdf', 'png'):
+        for ext in ('png',):
             c1.SaveAs(saveName + '.' + ext)
