@@ -4,6 +4,7 @@
 DRYRUN="0"
 NOSIG="0"
 NODATA="0"
+COMPARE="0"
 TAG=""
 CHANNEL=""
 CHANNEL_CHOICES=( "ETau" "MuTau" "TauTau" )
@@ -25,6 +26,7 @@ DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defa
 REG_STR="(String) Which region to consider: A: SR, B: SStight, C: OSinviso, D: SSinviso, B': SSrlx. Defaults to '${REG}'."
 NOSIG_STR="(Boolean) Do not include signal samples. Defaults to '${NOSIG}'."
 NODATA_STR="(Boolean) Do not include data samples. Defaults to '${NODATA}'."
+COMPARE_STR="(Boolean) Skips the single baseline plots, doing only the comparison. Defaults to '${COMPARE}'."
 function print_usage_submit_skims {
     USAGE=" $(basename "$0")
 	-h / --help			[ ${HELP_STR} ]
@@ -34,8 +36,9 @@ function print_usage_submit_skims {
 	-t / --tag			[ ${TAG_STR} ]
 	-r / --region		[ ${REG_STR} ]
     -d / --data_period  [ ${DATAPERIOD_STR} ]
-	--no-sig             [ ${NOSIG} ]
-	--no-data            [ ${NODATA} ]
+	--no-sig             [ ${NOSIG_STR} ]
+	--no-data            [ ${NODATA_STR} ]
+	--compare            [ ${COMPARE_STR} ]
 
     Run example: bash $(basename "$0") -t <some_tag>
 "
@@ -74,6 +77,10 @@ while [[ $# -gt 0 ]]; do
 	    ;;
 	--no-data)
 	    NODATA="1"
+	    shift;
+	    ;;
+	--compare)
+	    COMPARE="1"
 	    shift;
 	    ;;
 	-t|--tag)
@@ -178,7 +185,6 @@ elif [ ${DATA_PERIOD} == "UL18" ]; then
 	PLOTTER="scripts/makeFinalPlots_UL2018.py"
 fi
 
-
 ### Argument parsing: information for the user
 echo "------ Arguments --------------"
 printf "DRYRUN\t\t= ${DRYRUN}\n"
@@ -204,7 +210,7 @@ if [[ ${NODATA} -eq 1 ]]; then
 fi
 
 OUTDIR="${MAIN_DIR}/${PLOTS_DIR}"
-COMPDIR="${OUTDIR}/${CHANNEL}"
+CHN_DIR="${OUTDIR}/${CHANNEL}"
 
 function run() {
 	[[ ${DRYRUN} -eq 1 ]] && echo "[DRYRUN] $@" || "$@"
@@ -213,15 +219,15 @@ function run() {
 function run_plot() {
 	comm="python ${PLOTTER} --indir ${MAIN_DIR} --outdir ${OUTDIR} "
 	comm+="--reg ${REG} "
-	comm+="--sel ${SELECTION} --channel ${CHANNEL} "
+	comm+="--channel ${CHANNEL}  --lymin 0.7 "
 	comm+="--lumi ${LUMI} ${OPTIONS} --quit $@"
 	[[ ${DRYRUN} -eq 1 ]] && echo "[DRYRUN] ${comm}" || ${comm}
 }
 
 function compare_ratios() {
-	comm="python compareRatios.py --indir ${MAIN_DIR} --outdir ${OUTDIR} "
+	comm="python scripts/compareRatios.py --indir ${OUTDIR} "
 	comm+="--reg ${REG} "
-	comm+="--sel ${SELECTION} --channel ${CHANNEL} "
+	comm+="--channel ${CHANNEL} --lumi ${LUMI} "
 	comm+="$@"
 	[[ ${DRYRUN} -eq 1 ]] && echo "[DRYRUN] ${comm}" || ${comm}
 }
@@ -253,33 +259,45 @@ VAR_MAP=(
 	["bjet2_eta"]="#eta(b_{2})"
 )
 
+if [[ ${COMPARE} -eq 0 ]]; then
+	for sel in ${SELECTIONS[@]}; do
+		FULL_OUTDIR="${CHN_DIR}/${sel}_${REG}"
+		mkdir -p "${FULL_OUTDIR}"
 
-for sel in ${SELECTIONS[@]}; do
-	FULL_OUTDIR="${COMPDIR}/${sel}_${REG}"
-	mkdir -p "${FULL_OUTDIR}"
+		# parallel python ${PLOTTER} --indir ${MAIN_DIR} --outdir ${OUTDIR} --reg ${REG} --sel ${sel} --channel ${CHANNEL} --lumi ${LUMI} ${OPTIONS} --quit --var {1} --lymin 0.7 --label {2} ::: ${!VAR_MAP[@]} ::: ${VAR_MAP[@]}
+		for avar in ${!VAR_MAP[@]}; do
+ 			run_plot --sel ${sel} --var ${avar} --label ${VAR_MAP[$avar]}
+		done
 
-	# parallel python ${PLOTTER} --indir ${MAIN_DIR} --outdir ${OUTDIR} --reg ${REG} --sel ${sel} --channel ${CHANNEL} --lumi ${LUMI} ${OPTIONS} --quit --var {1} --lymin 0.7 --label {2} ::: ${!VAR_MAP[@]} ::: ${VAR_MAP[@]}
-	for avar in ${!VAR_MAP[@]}; do
- 		run_plot --var ${avar} --lymin 0.7 --label ${VAR_MAP[$avar]}
+		run mkdir -p ${WWW_DIR}
+		WWW_SUBDIR="${WWW_DIR}/${sel}_${REG}"
+		if [ -d ${WWW_SUBDIR} ]; then
+			echo "removing"
+			run rm -rf ${WWW_SUBDIR}
+		fi
+
+		run mkdir ${WWW_SUBDIR}
+
+		run mv ${FULL_OUTDIR}/*png ${WWW_SUBDIR}
+		run mv ${FULL_OUTDIR}/*pdf ${WWW_SUBDIR}
 	done
 
-	run mkdir -p ${WWW_DIR}
-	WWW_SUBDIR="${WWW_DIR}/${sel}_${REG}"
-	if [ -d ${WWW_SUBDIR} ]; then
-		echo "removing"
-		run rm -rf ${WWW_SUBDIR}
-	fi
+	for sel in ${SELECTIONS[@]}; do
+		echo "Results: https://${EOS_USER}.web.cern.ch/${EOS_USER}/${PLOTS_DIR}/${TAG}/${CHANNEL}/${sel}_${REG}/"
+	done
+fi
 
-	run mkdir ${WWW_SUBDIR}
+if [ ${#SELECTIONS[@]} -eq 2 ]; then
+	COMPARE_OUTDIR="${CHN_DIR}/${SELECTIONS[0]}_OVER_${SELECTIONS[1]}"
+	COMPARE_WWW_SUBDIR="${WWW_DIR}/${SELECTIONS[0]}_OVER_${SELECTIONS[1]}"
+	mkdir -p ${COMPARE_OUTDIR}
+	for avar in ${!VAR_MAP[@]}; do
+		compare_ratios --var ${avar} --sel "${SELECTIONS[0]} ${SELECTIONS[1]}" \
+					   --label ${VAR_MAP[$avar]} \
+					   --outdir ${COMPARE_OUTDIR}
+	done
 
-	run cp ${FULL_OUTDIR}/*png ${WWW_SUBDIR}
-	run cp ${FULL_OUTDIR}/*pdf ${WWW_SUBDIR}
-done
-
-for sel in ${SELECTIONS[@]}; do
-	echo "Results: https://${EOS_USER}.web.cern.ch/${EOS_USER}/${PLOTS_DIR}/${TAG}/${CHANNEL}/${sel}_${REG}/"
-done
-
-# if [ ${#SELECTIONS[@]} -eq 2 ]; then
-# 	compare_ratios
-# fi
+	run mkdir ${COMPARE_WWW_SUBDIR}
+	run mv ${COMPARE_OUTDIR}/*png ${COMPARE_WWW_SUBDIR}
+	run mv ${COMPARE_OUTDIR}/*pdf ${COMPARE_WWW_SUBDIR}
+fi
