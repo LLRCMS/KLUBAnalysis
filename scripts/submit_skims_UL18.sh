@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+(return 0 2>/dev/null) && echo "This script must be run, not sourced. Try './' or 'bash'" && return 1
 
 ### Defaults
 NO_LISTS="0"
@@ -6,7 +7,7 @@ STITCHING_ON="0"
 DRYRUN="0"
 RESUBMIT="0"
 OUT_TAG=""
-KLUB_TAG="Jul2022"
+KLUB_TAG="Jul2022" #10Mar2022
 DATA_PERIOD="UL18"
 DATA_PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
 
@@ -24,7 +25,7 @@ function print_usage_submit_skims {
 
 	-h / --help			[ ${HELP_STR} ]
 	--dry-run			[ ${DRYRUN_STR} ]
-	--resubm			[ ${RESUBMIT_STR} ]
+	--resubmit			[ ${RESUBMIT_STR} ]
 	-t / --tag			[ ${OUT_TAG_STR} ]
 	--klub_tag			[ ${KLUB_TAG_STR} ]
     -s / --stitching_on [ ${STITCHING_ON_STR} ]
@@ -145,7 +146,7 @@ if [[ -z ${OUT_TAG} ]]; then
     else
 		echo "No tags are currently available. Everything looks clean!"
     fi
-    exit 1;
+    return 1;
 fi
 if [[ -z ${DATA_PERIOD} ]]; then
 	echo "Select the data period via the '--d / --data_period' option."
@@ -190,7 +191,7 @@ echo "-------- Run: $(date) ---------------" >> ${ERR_FILE}
 function run_skim() {
 	comm="python ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -o ${OUTSKIM_DIR} -c ${KLUB_DIR}/${CFG} "
 	[[ ${RESUBMIT} -eq 1 ]] && comm+="--resub "
-	comm+="--exec_file ${EXEC_FILE} -q long -Y 2018 -k True --pu ${PU_DIR} $@"
+	comm+="--exec_file ${EXEC_FILE} -q long -Y 2018 -k 1 --pu ${PU_DIR} $@"
 	[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
 }
 
@@ -233,20 +234,20 @@ function find_sample() {
 }
 
 ### Run on data samples
-# DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
-# RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
-# for ds in ${DATA_LIST[@]}; do
-# 	for run in ${RUNS[@]}; do
-# 		pattern="${ds}__${run}"
-# 		sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
-# 		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-# 			ERRORS+=( ${sample} )
-# 		else
-# 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
-# 		 	run_skim -n 1000 --isdata True -i ${DATA_DIR} --sample ${sample}			
-# 		fi
-# 	done
-# done
+DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
+RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
+for ds in ${DATA_LIST[@]}; do
+	for run in ${RUNS[@]}; do
+		pattern="${ds}__${run}"
+		sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
+		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+			ERRORS+=( ${sample} )
+		else
+			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
+		 	run_skim -n 1000 --isdata 1 -i ${DATA_DIR} --sample ${sample}			
+		fi
+	done
+done
 
 ### Run on HH resonant signal samples
 DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
@@ -265,36 +266,33 @@ for ds in ${DATA_LIST[@]}; do
 done
 
 ### Run on backgrounds samples
-stitch_opt="False"
-[[ ${STITCHING_ON} -eq 1 ]] && stitch_opt="True"
-
 DATA_MAP=(
 	["TTToHadronic"]="-n 1000 -x 377.96"
 	["TTTo2L2Nu"]="-n 1000 -x 88.29"
 	["TTToSemiLeptonic"]="-n 1000 -x 365.34"
 
-    ["DYJets.+_M-50_T.+amc"]=" -n 400 -x 6077.22 -g ${stitch_opt} --DY False" # inclusive NLO
-	#### ["DYJetsToLL_Pt-50To100"]="-n 150 -x 1.      -g ${stitch_opt} --DY False"
-	#### ["DYJetsToLL_Pt-100To250"]="-n 150 -x 1.     -g ${stitch_opt} --DY False"
-	#### ["DYJetsToLL_Pt-250To400"]="-n 150 -x 1.	 -g ${stitch_opt} --DY False"
-	#### ["DYJetsToLL_Pt-400To650"]="-n 150 -x 1.	 -g ${stitch_opt} --DY False"
-	#### ["DYJetsToLL_Pt-650ToInf"]="-n 150 -x 1.	 -g ${stitch_opt} --DY False"
+    ["DYJets.+_M-50_T.+amc"]=" -n 400 -x 6077.22 -g ${STITCHING_ON} --DY 0" # inclusive NLO
+	#### ["DYJetsToLL_Pt-50To100"]="-n 150 -x 1.      -g ${STITCHING_ON} --DY 0"
+	#### ["DYJetsToLL_Pt-100To250"]="-n 150 -x 1.     -g ${STITCHING_ON} --DY 0"
+	#### ["DYJetsToLL_Pt-250To400"]="-n 150 -x 1.	 -g ${STITCHING_ON} --DY 0"
+	#### ["DYJetsToLL_Pt-400To650"]="-n 150 -x 1.	 -g ${STITCHING_ON} --DY 0"
+	#### ["DYJetsToLL_Pt-650ToInf"]="-n 150 -x 1.	 -g ${STITCHING_ON} --DY 0"
 	### 
-	###### LO samples, DY weights exist (--DY True)
-	#### ["DYJets.+_M-50_T.+madgraph"]="		-n 400 -x 6077.22 -g ${stitch_opt} --DY True" # inclusive LO
-	#### ["DY_merged"]="						-n 300 -x 6077.22 -g ${stitch_opt} --DY True"
-	#### ["DY1J"]="							-n 200 -x 1. -g ${stitch_opt} --DY True"
-	#### ["DY2J"]="							-n 200 -x 1. -g ${stitch_opt} --DY True"		   
-	#### ["DY3J"]="							-n 200 -x 1. -g ${stitch_opt} --DY True"
-	#### ["DY4J"]="							-n 200 -x 1. -g ${stitch_opt} --DY True"
-	#### ["DYJetsToLL_M-50_HT-70to100"]="		-n 200 -x 1. -g ${stitch_opt} --DY True"
-	#### ["DYJetsToLL_M-50_HT-100to200"]="		-n 200 -x 1. -g ${stitch_opt} --DY True"
-	#### ["DYJetsToLL_M-50_HT-200to400"]="		-n 200 -x 1. -g ${stitch_opt} --DY True"
-	#### ["DYJetsToLL_M-50_HT-400to600"]="		-n 200 -x 1. -g ${stitch_opt} --DY True"
-	#### ["DYJetsToLL_M-50_HT-600to800"]="		-n 200 -x 1. -g ${stitch_opt} --DY True"
-	#### ["DYJetsToLL_M-50_HT-800to1200"]="	-n 200 -x 1. -g ${stitch_opt} --DY True"
-	#### ["DYJetsToLL_M-50_HT-1200to2500"]="	-n 200 -x 1. -g ${stitch_opt} --DY True"
-	#### ["DYJetsToLL_M-50_HT-2500toInf"]="	-n 200 -x 1. -g ${stitch_opt} --DY True"
+	###### LO samples, DY weights exist (--DY 1)
+	#### ["DYJets.+_M-50_T.+madgraph"]="		-n 400 -x 6077.22 -g ${STITCHING_ON} --DY 1" # inclusive LO
+	#### ["DY_merged"]="						-n 300 -x 6077.22 -g ${STITCHING_ON} --DY 1"
+	#### ["DY1J"]="							-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
+	#### ["DY2J"]="							-n 200 -x 1. -g ${STITCHING_ON} --DY 1"		   
+	#### ["DY3J"]="							-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
+	#### ["DY4J"]="							-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
+	#### ["DYJetsToLL_M-50_HT-70to100"]="		-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
+	#### ["DYJetsToLL_M-50_HT-100to200"]="		-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
+	#### ["DYJetsToLL_M-50_HT-200to400"]="		-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
+	#### ["DYJetsToLL_M-50_HT-400to600"]="		-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
+	#### ["DYJetsToLL_M-50_HT-600to800"]="		-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
+	#### ["DYJetsToLL_M-50_HT-800to1200"]="	-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
+	#### ["DYJetsToLL_M-50_HT-1200to2500"]="	-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
+	#### ["DYJetsToLL_M-50_HT-2500toInf"]="	-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
 
 	["WJetsToLNu_T.+madgraph"]="-n 50 -x 48917.48 -y 1.213784 -z 70" # for 0 < HT < 70
 	["WJetsToLNu_HT-70To100"]="-n 50 -x 1362 -y 1.213784"
@@ -323,7 +321,7 @@ DATA_MAP=(
 
 	["ttHToNonbb"]="-n 30 -x 0.5071 -y 0.3598"
 	["ttHTobb"]="-n 30 -x 0.5071 -y 0.577"
-	#["ttHToTauTau"]="-n 30 -x 0.5071 -y 0.0632"
+	["ttHToTauTau"]="-n 30 -x 0.5071 -y 0.0632"
 	
 	["_WW"]="-n 20 -x 118.7"
 	["_WZ"]="-n 20 -x 47.13"
