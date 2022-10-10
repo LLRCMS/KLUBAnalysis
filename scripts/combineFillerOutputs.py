@@ -72,7 +72,7 @@ if __name__ == "__main__" :
     outplotterName = findInFolder( os.path.join(args.dir, args.tag + '/'), outplotterName+outplotterExt )
     cfg        = cfgr.ConfigReader(op.join(args.dir, args.tag, cfgName))
     varList    = cfg.readListOption('general::variables')
-    var2DList  = cfg.readListOption('general::variables2D')
+    #var2DList  = cfg.readListOption('general::variables2D')
     selDefList = cfg.readListOption('general::selections') ## the selection definition
     regDefList = cfg.readListOption('general::regions') ## the regions that are combined with the previous
     bkgList    = cfg.readListOption('general::backgrounds')
@@ -110,7 +110,7 @@ if __name__ == "__main__" :
     omngr.sel_def     = selDefList
     omngr.sel_regions = regDefList    
     omngr.variables   = varList  
-    omngr.variables2D = var2DList if var2DList else list([])
+    #omngr.variables2D = var2DList if var2DList else list([])
     # omngr.samples     = sigList + bkgList + dataList
     omngr.data        = dataList
     omngr.sigs        = sigList

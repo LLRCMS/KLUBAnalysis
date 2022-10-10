@@ -208,7 +208,7 @@ string CfgParser::readStringOpt(string section, string option)
 {
   if (!hasOpt (section, option))
   {
-    cerr << "** CfgParser: option " << section << "::" << option << " not defined" << endl;
+    cerr << "** CfgParser: section " << section << " with option " << option << " is not defined" << endl;
     return string("");
   }
   return config_[section][option];

@@ -211,7 +211,7 @@ def skim_ntuple(FLAGS, curr_folder):
                             'source scripts/setup.sh')) + '\n' )
                 
         yes_or_no = lambda s : '1' if bool(s) else '0'
-        
+
         command, comment = double_join(FLAGS.exec_file,
                                        os.path.join(lists_dir, io_names[0]),
                                        os.path.join(jobs_dir, io_names[1]),
@@ -299,19 +299,19 @@ if __name__ == "__main__":
     parser.add_argument('--exec_file', dest='exec_file', required=True, help='folder where the C++ skimmer executable is stored')
     parser.add_argument('--sample', dest='sample', default='none', help='input sample')
     parser.add_argument('-Y', '--year', dest='year', default='2018', help='year', choices=['2016', '2017', '2018'])
-    parser.add_argument('-A', '--APV', dest='isAPV', default=False, help='isAPV')
+    parser.add_argument('-A', '--APV', dest='isAPV', default=0, type=int, help='isAPV')
     parser.add_argument('-x', '--xs', dest='xs', help='sample xs', default='1.')
     parser.add_argument('-o', '--output', dest='output', default='none', help='output folder')
     parser.add_argument('-q', '--queue', dest='queue', default='short', help='batch queue')
     parser.add_argument('-r', '--resub', dest='resub', action='store_true', help='resubmit failed jobs')
-    parser.add_argument('-v', '--verb', dest='verb', default=False, help='verbose')
-    parser.add_argument('-d', '--isdata', dest='isdata', default=False, help='data flag')
+    parser.add_argument('-v', '--verb', dest='verb', default=0, type=int, help='verbose')
+    parser.add_argument('-d', '--isdata', dest='isdata', default=0, type=int, help='data flag')
     parser.add_argument('-T', '--tag', dest='tag', default='', help='folder tag name')
     parser.add_argument('-H', '--hadd', dest='hadd', default='none', help='hadd the resulting ntuples')
     parser.add_argument('-c', '--config', dest='config', default='none', help='skim config file')
     parser.add_argument('-n', '--njobs', dest='njobs', default=100, type=int, help='number of skim jobs')
-    parser.add_argument('-k', '--kinfit', dest='dokinfit', default='True', help='run HH kin fitter')
-    parser.add_argument('-m', '--mt2', dest='domt2', default=True, help='run stransverse mass calculation')
+    parser.add_argument('-k', '--kinfit', dest='dokinfit', default=1, type=int, help='run HH kin fitter')
+    parser.add_argument('-m', '--mt2', dest='domt2', default=1, type=int, help='run stransverse mass calculation')
     parser.add_argument('-y', '--xsscale', dest='xsscale', default='1.0',
                         help='scale to apply on XS for stitching')
     parser.add_argument('-Z', '--htcutlow', dest='htcutlow', default='-999.0',
@@ -320,13 +320,13 @@ if __name__ == "__main__":
                         help='HT cut for stitching on inclusive')
     parser.add_argument('-e', '--njets', dest='njets', default='-999',
                         help='njets required for stitching on inclusive')
-    parser.add_argument('-t', '--toprew', dest='toprew', default=False,
+    parser.add_argument('-t', '--toprew', dest='toprew', default=0, type=int,
                         help='is TT bar sample to compute reweight?')
     parser.add_argument('-b', '--topstitch' , dest='topstitch' , default='0',
                         help='type of TT gen level decay pruning for stitch')
-    parser.add_argument('-g', '--genjets', dest='genjets', default=False,
+    parser.add_argument('-g', '--genjets', dest='genjets', default=0, type=int,
                         help='loop on genjets to determine the number of b hadrons')
-    parser.add_argument('-a', '--ishhsignal', dest='ishhsignal', default=False, help='isHHsignal')
+    parser.add_argument('-a', '--ishhsignal', dest='ishhsignal', default=0, type=int, help='isHHsignal')
     parser.add_argument('--BSMname', dest='BSMname', default='none', help='additional name for EFT benchmarks')
     parser.add_argument('--EFTbm', dest='EFTrew', default='none',
                         help='EFT benchmarks [SM, 1..12, 1b..7b, 8a, c2scan, manual]')
@@ -342,8 +342,8 @@ if __name__ == "__main__":
     parser.add_argument('--pu', dest='PUweights', default='none', help='name of susy model to select')
     parser.add_argument('--nj', dest='DY_nJets', default='-1', help='number of gen Jets for DY bins')
     parser.add_argument('--nb', dest='DY_nBJets', default='-1', help='number of gen BJets for DY bins')
-    parser.add_argument('--DY', dest='DY', default=False, help='if it is a DY sample')
-    parser.add_argument('--ttHToNonBB', dest='ttHToNonBB', default=False,
+    parser.add_argument('--DY', dest='DY', default=0, type=int, help='if it is a DY sample')
+    parser.add_argument('--ttHToNonBB', dest='ttHToNonBB', default=0, type=int,
                         help='if it is a ttHToNonBB sample')
     parser.add_argument('--hhNLO', dest='hhNLO', default=False, action='store_true',
                         help='if it is an HH NLO sample')

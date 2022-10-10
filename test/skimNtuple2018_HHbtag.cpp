@@ -681,11 +681,11 @@ int main (int argc, char** argv)
 	    gConfigParser->readStringListOption("triggersData::MuTau"),
 	    gConfigParser->readStringListOption("triggersData::crossMuTau") );
   trg_l.add("TauTau", 0,
-	    gConfigParser->readStringListOption("triggersMC::vbfTriggers"),
+			//gConfigParser->readStringListOption("triggersMC::vbfTriggers"),
 	    gConfigParser->readStringListOption("triggersMC::TauTau"),
 	    gConfigParser->readStringListOption("triggersMC::crossTauTau") );
   trg_l.add("TauTau", 1,
-	    gConfigParser->readStringListOption("triggersData::vbfTriggers"),
+			//gConfigParser->readStringListOption("triggersData::vbfTriggers"),
 	    gConfigParser->readStringListOption("triggersData::TauTau"),
 	    gConfigParser->readStringListOption("triggersData::crossTauTau") );
 
@@ -3630,9 +3630,6 @@ int main (int argc, char** argv)
 		  v.dau1_pt() = theSmallTree.m_dau1_pt;
 		  v.dau2_pt() = theSmallTree.m_dau2_pt;
 		  trigSF_inclMeth = tsf.getEvtWeight(v, chn_m.at(pType));
-		  // std::cout << "Channel: " + chn_m.at(pType) + " " + pType << std::endl;
-		  // std::cout << "Weight " << trigSF_inclMeth << ", Dau1 Pt " << v.dau1_pt() << ", Dau2 Pt " << v.dau2_pt() << std::endl;
-		  // std::cout << std::endl;
 		} // end if(applytriggers)
 	  
 	  theSmallTree.m_trigSF           = (isMC ? trigSF : 1.0);

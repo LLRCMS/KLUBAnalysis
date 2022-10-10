@@ -40,7 +40,6 @@ def flatBinning(rootFile,namelist, var,sel,reg):
                         xq[i] = float(i + 1) / nq
                         
             h.GetQuantiles(nq, yq, xq)
-            print(yq)
             return yq
 
 def retrieveHistos(rootFile, namelist, var, sel, reg, flat, binning):
@@ -227,12 +226,12 @@ def makeMCUncertaintyBand (bkgSum):
             feXRight.append(bkgSum.GetBinLowEdge(ibin+1) - bkgSum.GetBinCenter(ibin))
             feXLeft.append (bkgSum.GetBinCenter(ibin) - bkgSum.GetBinLowEdge(ibin))
 
-    afX       = array ("d", fX      )
-    afY       = array ("d", fY      )
-    afeYUp    = array ("d", feYUp   )
-    afeYDown  = array ("d", feYDown )
-    afeXRight = array ("d", feXRight)
-    afeXLeft  = array ("d", feXLeft )
+    afX       = array ('d', fX      )
+    afY       = array ('d', fY      )
+    afeYUp    = array ('d', feYUp   )
+    afeYDown  = array ('d', feYDown )
+    afeXRight = array ('d', feXRight)
+    afeXLeft  = array ('d', feXLeft )
     gBand = ROOT.TGraphAsymmErrors(len(afX), afX, afY, afeXLeft, afeXRight, afeYDown, afeYUp);
     return gBand;
 
@@ -397,19 +396,21 @@ if __name__ == "__main__" :
     parser = argparse.ArgumentParser(description='Command line parser of plotting options')
     
     #string opts
-    parser.add_argument('--var', dest='var', help='variable name', default=None)
-    parser.add_argument('--sel', dest='sel', help='selection name', default=None)
-    parser.add_argument('--name', dest='name', help='selection name for plot', default=None)
-    parser.add_argument('--indir', dest='indir',
+    parser.add_argument('--var', help='variable name', default=None)
+    parser.add_argument('--sel', help='selection name', default=None)
+    parser.add_argument('--name', help='selection name for plot', default=None)
+    parser.add_argument('--indir', 
                         help='analysis input folder name', default='.')
     parser.add_argument('--outdir', dest='outdir',
                         help='analysis output folder name', default='.')
-    parser.add_argument('--reg', dest='reg', help='region name', default=None)
-    parser.add_argument('--title', dest='title', help='plot title', default=None)
-    parser.add_argument('--label', dest='label', help='x label', default=None)
-    parser.add_argument('--channel', dest='channel',
-                        choices=('ETau', 'MuTau', 'TauTau'),
+    parser.add_argument('--reg', help='region name', default=None)
+    parser.add_argument('--title', help='plot title', default=None)
+    parser.add_argument('--label', help='x label', default=None)
+    parser.add_argument('--channel', choices=('ETau', 'MuTau', 'TauTau'),
                         help='channel', required=True)
+    parser.add_argument('--main_cfg',
+                        help='Main configuration file (used in previous steps as well)',
+                        default=None)
     parser.add_argument('--siglegextratext', dest='siglegextratext',
                         help='extra opt text for legend after signal block',
                         default=None)
@@ -466,7 +467,7 @@ if __name__ == "__main__" :
     pad1.cd()
 
     ######################### PUT USER CONFIGURATION HERE ####################
-    cfgName = op.join(args.indir, 'mainCfg_' + args.channel + '_UL18.cfg')
+    cfgName = op.join(args.indir, args.main_cfg)
     cfg = cfgr.ConfigReader (cfgName)
     bkgList = cfg.readListOption('general::backgrounds')
 
@@ -592,7 +593,6 @@ if __name__ == "__main__" :
 
     # apply sig color if available
     for key in hSigs:
-        print(key)
         hSigs[key].SetLineWidth(2)
         if doOverflow: hSigs[key] = addOverFlow(hSigs[key])
         if key in sigColors:
@@ -866,12 +866,15 @@ if __name__ == "__main__" :
     if args.legend: leg.Draw()
     if chBox: chBox.Draw()
 
-
     if not args.name:
-        if "baseline" in args.sel and "InclMeth" not in args.sel:
+        if "baseline" == args.sel:
             selName = "baseline"
-        if "baseline" in args.sel and "InclMeth" in args.sel:
+        if "baselineInclMeth" == args.sel:
             selName = "baselineInclMeth"
+        if "baselineComparison" == args.sel:
+            selName = "baselineComparison"
+        if "baselineComparisonSF" == args.sel:
+            selName = "baselineComparisonSF"
         if "1b1j" in args.sel:
             selName = "1b1j"
         if "2b0j" in args.sel:
@@ -1040,7 +1043,7 @@ if __name__ == "__main__" :
         hRatio.SetMinimum(0.6) #default value
         hRatio.SetMaximum(1.4) #default value
 
-        removeEmptyPoints(grRatio)
+        #removeEmptyPoints(grRatio)
         hRatio.Draw('axis')
         
         grRatio.Draw('P Z same') # Z : no small limes at the end of points

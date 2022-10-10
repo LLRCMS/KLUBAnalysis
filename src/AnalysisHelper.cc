@@ -680,17 +680,21 @@ Selection AnalysisHelper::readSingleSelection (std::string name)
     vector<string> selDef = cutCfg_->readStringListOpt(Form("selections::%s", name.c_str())) ;
     for (string part : selDef)
     {
-        if (cutCfg_->hasOpt(Form("selections::%s", part.c_str())))
-            s.extend(readSingleSelection(part));
-        else
-            s.extend(part.c_str()); // was a block of selection in TCut form
+	  // std::cout << name << " --- " << part << std::endl;
+	  if (cutCfg_->hasOpt(Form("selections::%s", part.c_str())))
+		s.extend(readSingleSelection(part));
+	  else
+		s.extend(part.c_str()); // was a block of selection in TCut form
     }
     
     // now fetch weights if any and update
     if (!cutCfg_->hasOpt(Form("selectionWeights::%s", name.c_str())))
         return s;
-    
+
     vector<string> weights = cutCfg_->readStringListOpt(Form("selectionWeights::%s", name.c_str()));
+	// for (string test: weights)
+	//   std::cout << test << std::endl;
+	// std::cout << " --- " << std::endl;
     for (string wname : weights)
     {
         // cout << " +++ adding " << wname << endl;

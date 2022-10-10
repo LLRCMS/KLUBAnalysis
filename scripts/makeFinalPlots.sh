@@ -8,6 +8,7 @@ COMPARE="0"
 TAG=""
 CHANNEL=""
 CHANNEL_CHOICES=( "ETau" "MuTau" "TauTau" )
+MAIN_CFG="mainCfg_TauTau_UL18.cfg"
 DATA_PERIOD="UL18"
 DATA_PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
 REG="SR"  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
@@ -19,7 +20,8 @@ declare -a SELECTIONS;
 ### Argument parsing
 HELP_STR="Prints this help message."
 CHANNEL_STR="(String) Which channel to consider: ETau, MuTau, TauTau. Defaults to '${CHANNEL}'."
-SELECTION_STR="(List of Strings) Which selection to consider. Defaults to '${SELECTION}'."
+MAIN_CFG_STR="(String) Which main configuration file to consider. '."
+SELECTION_STR="(List of Strings) Which selection to consider. Defaults to '${MAIN_CFG}'."
 DRYRUN_STR="(Boolean) Prints all the commands to be launched but does not launch them. Defaults to ${DRYRUN}."
 TAG_STR="(String) Defines tag for the output. Defaults to '${TAG}'."
 DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${DATA_PERIOD}'."
@@ -32,6 +34,7 @@ function print_usage_submit_skims {
 	-h / --help			[ ${HELP_STR} ]
 	--dry-run			[ ${DRYRUN_STR} ]
 	-c / --channel      [ ${CHANNEL_STR} ]
+	--cfg               [ ${MAIN_CFG_STR} ]
 	-s / --selection    [ ${SELECTION_STR} ]
 	-t / --tag			[ ${TAG_STR} ]
 	-r / --region		[ ${REG_STR} ]
@@ -63,6 +66,10 @@ while [[ $# -gt 0 ]]; do
 		fi
 		shift; shift;
 		;;
+	--cfg)
+	    MAIN_CFG="${2}"
+	    shift; shift;
+	    ;;
 	-s|--selection)
 	    SELECTIONS+=("${2}")
 	    shift; shift;
@@ -157,12 +164,21 @@ if ! array_contains ALL_TAGS ${TAG}; then
 	exit 1
 fi
 
+# use default selection if the user does not specify a list of them
+if [[ ${#SELECTIONS[@]} -eq 0 ]]; then
+	SELECTIONS+=("${SELECTION}")
+fi
+
 if [[ -z ${DATA_PERIOD} ]]; then
 	echo "Select the data period via the '-d / --data_period' option."
 	exit 1;
 fi
 if [[ -z ${CHANNEL} ]]; then
 	echo "Select the channel via the '-c / --channel' option."
+	exit 1;
+fi
+if [[ ! "${MAIN_CFG}" =~ .*"${CHANNEL}".* ]]; then	
+	echo "The channel is not included in the name of the configuration file. This is likely a mistake."
 	exit 1;
 fi
 if [[ -z ${REG} ]]; then
@@ -191,11 +207,13 @@ printf "DRYRUN\t\t= ${DRYRUN}\n"
 printf "TAG\t\t\t= ${TAG}\n"
 printf "DATA_PERIOD\t= ${DATA_PERIOD}\n"
 printf "CHANNEL\t\t= ${CHANNEL}\n"
+printf "MAIN_CFG\t= ${MAIN_CFG}\n"
 printf "REGION\t\t= ${REG}\n"
 printf "SELECTIONS\t= ${SELECTIONS[*]}\n"
 printf "EOS_USER\t= ${EOS_USER}\n"
 printf "NOSIG\t\t= ${NOSIG}\n"
 printf "NODATA\t\t= ${NODATA}\n"
+printf "COMPARE\t\t= ${COMPARE}\n"
 echo "-------------------------------"
 
 ### Ensure connection to /eos/ folder
@@ -220,6 +238,7 @@ function run_plot() {
 	comm="python ${PLOTTER} --indir ${MAIN_DIR} --outdir ${OUTDIR} "
 	comm+="--reg ${REG} "
 	comm+="--channel ${CHANNEL}  --lymin 0.7 "
+	comm+="--main_cfg ${MAIN_CFG} "
 	comm+="--lumi ${LUMI} ${OPTIONS} --quit $@"
 	[[ ${DRYRUN} -eq 1 ]] && echo "[DRYRUN] ${comm}" || ${comm}
 }
@@ -228,6 +247,7 @@ function compare_ratios() {
 	comm="python scripts/compareRatios.py --indir ${OUTDIR} "
 	comm+="--reg ${REG} "
 	comm+="--channel ${CHANNEL} --lumi ${LUMI} "
+	comm+="--main_cfg ${MAIN_CFG} "
 	comm+="$@"
 	[[ ${DRYRUN} -eq 1 ]] && echo "[DRYRUN] ${comm}" || ${comm}
 }
@@ -297,7 +317,7 @@ if [ ${#SELECTIONS[@]} -eq 2 ]; then
 					   --outdir ${COMPARE_OUTDIR}
 	done
 
-	run mkdir ${COMPARE_WWW_SUBDIR}
+	run mkdir -p ${COMPARE_WWW_SUBDIR}
 	run mv ${COMPARE_OUTDIR}/*png ${COMPARE_WWW_SUBDIR}
 	run mv ${COMPARE_OUTDIR}/*pdf ${COMPARE_WWW_SUBDIR}
 fi

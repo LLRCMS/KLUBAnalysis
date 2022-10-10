@@ -16,15 +16,18 @@ def findMaxOfGraph(graph):
     return max(uppers)
 
 def compareRatios(args):
-    files, hnames = ([] for _ in range(2))
+    files, gnames = ([] for _ in range(2))
     for sel in args.sel:
         fname = op.join(args.indir, args.channel, sel + '_' + args.reg, 'ratios.root')
         files.append(ROOT.TFile.Open(fname))
-        hnames.append('_'.join((args.var, sel, args.reg, args.channel)))
+        gnames.append('_'.join((args.var, sel, args.reg, args.channel)))
 
-    h1 = files[0].Get(hnames[0])
-    h2 = files[1].Get(hnames[1])
-    assert h1.GetN() == h2.GetN()
+    g1 = files[0].Get(gnames[0])
+    g2 = files[1].Get(gnames[1])
+    if g1.GetN() != g2.GetN():
+        mes = 'Ratio graph {} has {} bins, but '.format(gnames[0], g1.GetN())
+        mes += '{} has {} bins.'.format(gnames[1], g2.GetN())
+        raise ValueError(mes)
 
     if args.channel == 'MuTau':
         chName = 'bb #mu#tau_{h}'
@@ -49,8 +52,10 @@ def compareRatios(args):
     feYDown  = []
     feXRight = []
     feXLeft  = []
-    for n in range(h1.GetN()):
-        if not h2.GetPointY(n) > 0.:
+    for n in range(g1.GetN()):
+        num = g1.GetPointY(n)
+        den = g2.GetPointY(n)
+        if not den > 0. or not num > 0.:
             fX.append(0.)
             fY.append(0.)
             feYUp.append(0.)
@@ -58,10 +63,10 @@ def compareRatios(args):
             feXRight.append(0.)
             feXLeft.append(0.)
         else:
-            fX.append(h1.GetPointX(n))
-            fY.append(h1.GetPointY(n)/h2.GetPointY(n))
-            feYUp.append(0.)
-            feYDown.append(0.)
+            fX.append(g1.GetPointX(n))
+            fY.append(num/den)
+            feYUp.append( ((g1.GetErrorYhigh(n)/num)**2 + (g2.GetErrorYhigh(n)/den)**2)**0.5 )
+            feYDown.append( ((g1.GetErrorYlow(n)/num)**2 + (g2.GetErrorYlow(n)/den)**2)**0.5 )
             feXRight.append(0.)
             feXLeft.append(0.)
 
@@ -78,9 +83,9 @@ def compareRatios(args):
     amax = ROOT.TMath.MaxElement(hRatio.GetN(),hRatio.GetY())
     scale_up = (amax-amin)/4
     scale_down = (amax-amin)/10
-    hRatio.SetMinimum(amin - scale_down)
-    hRatio.SetMaximum(amax + scale_up)
-    
+    # hRatio.SetMinimum(amin - scale_down)
+    # hRatio.SetMaximum(amax + scale_up)
+    hRatio.GetYaxis().SetRangeUser(0.699,+1.301);
     hRatio.SetMarkerStyle(8);
     hRatio.SetMarkerSize(1.);
     hRatio.SetMarkerColor(ROOT.kBlack);
@@ -97,6 +102,16 @@ def compareRatios(args):
     l1.SetLineStyle(4)
     l1.SetLineWidth(1)
     l1.Draw('same')
+    l2 = ROOT.TLine(xmin, 0.95, xmax, 0.95)
+    l2.SetLineColor(ROOT.kRed)
+    l2.SetLineStyle(4)
+    l2.SetLineWidth(1)
+    l2.Draw('same')
+    l3 = ROOT.TLine(xmin, 1.05, xmax, 1.05)
+    l3.SetLineColor(ROOT.kRed)
+    l3.SetLineStyle(4)
+    l3.SetLineWidth(1)
+    l3.Draw('same')
 
     cmsTextFont = 61  # font of the "CMS" label
     cmsTextSize = 0.05  # font size of the "CMS" label
@@ -106,7 +121,6 @@ def compareRatios(args):
     b = ROOT.gPad.GetBottomMargin()
     l = ROOT.gPad.GetLeftMargin()
     r = ROOT.gPad.GetRightMargin()
-    print(t, b, l, r)
 
     CMSbox       = ROOT.TLatex(l , 1 - t + 0.02, 'CMS')       
     extraTextBox = ROOT.TLatex(l + 0.1 , 1 - t + 0.02, 'Preliminary')
@@ -172,6 +186,9 @@ if __name__ == '__main__' :
     parser.add_argument('--channel', dest='channel',
                         choices=('ETau', 'MuTau', 'TauTau'),
                         help='channel', required=True)
+    parser.add_argument('--main_cfg',
+                        help='Main configuration file (used in previous steps as well)',
+                        default=None)
     parser.add_argument('--lumi', dest='lumi', type=float, help='lumi in fb-1', default=None)
 
     FLAGS = parser.parse_args()
