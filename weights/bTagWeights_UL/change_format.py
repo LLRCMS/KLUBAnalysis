@@ -19,6 +19,9 @@ for alg in algo:
                     if "OperatingPoint" in line:
                         csv_out.write(line)
                     else:
+                        if "pow(x,1.5)" in line:
+                            line=line.replace("pow(x,1.5)","x**1.5")
+                            print(line)
                         args = line.split(',')
                         args[0] = wp_dict[args[0]]
                         args[3] = jf_dict[args[3]]
