@@ -117,7 +117,7 @@ if __name__ == "__main__":
         scriptFile.close ()
         os.system ('chmod u+rwx %s/systJob_%d.sh'% (jobsDir,n))
 
-        command = '/home/llr/cms/amendola/t3submit -' + opt.queue + ' ' + jobsDir + '/systJob_' + str (n) + '.sh'
+        command = '/home/llr/cms/motta/t3submit -' + opt.queue + ' ' + jobsDir + '/systJob_' + str (n) + '.sh'
         if opt.sleep : time.sleep (0.1)
         os.system (command)
         commandFile.write (command + '\n')
