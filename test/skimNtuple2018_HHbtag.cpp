@@ -694,6 +694,7 @@ int main (int argc, char** argv)
                                                "NUM_TightID_DEN_TrackerMuons_abseta_pt",
                                                true);
   myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/EgammaPOGSF_UL/2018/2018_Tight_eleSFs.root","SF");
+  myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi.txt_Ele_wp80iso_EGM2D.root");
   myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
                                                "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
                                                true);
@@ -1010,16 +1011,19 @@ int main (int argc, char** argv)
 	// build the genZ TLorentzVector
 	TLorentzVector tlvgenZ;
 	tlvgenZ.SetPxPyPzE(theBigTree.genpart_px->at(Zidx), theBigTree.genpart_py->at(Zidx), theBigTree.genpart_pz->at(Zidx), theBigTree.genpart_e->at(Zidx));
-	npt = tlvgenZ.Pt();
-      }
-      if (Zpt >= 50   && Zpt < 100 ) npt = 0;
-      if (Zpt >= 100  && Zpt < 250 ) npt = 1;
-      if (Zpt >= 250  && Zpt < 400 ) npt = 2;
-      if (Zpt >= 400  && Zpt < 650 ) npt = 3;
-      if (Zpt >= 650               ) npt = 4;
-      
+	Zpt = tlvgenZ.Pt();
 
-      stitchWeight = stitchWeights[njets][nb][npt];
+	if (Zpt <  50                ) npt = 0;
+	if (Zpt >= 50   && Zpt < 100 ) npt = 1;
+	if (Zpt >= 100  && Zpt < 250 ) npt = 2;
+	if (Zpt >= 250  && Zpt < 400 ) npt = 3;
+	if (Zpt >= 400  && Zpt < 650 ) npt = 4;
+	if (Zpt >= 650               ) npt = 5;
+      
+	stitchWeight = stitchWeights[njets][nb][npt];
+      } else {
+	stitchWeight = 0; // no gen Z found
+      }
     }
 
     // Should never enter here (DY_tostitch should be always true)
