@@ -17,7 +17,7 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
     A_13TeV_nlo_ = {62.5088, 345.604, 9.63451, 4.34841, 39.0143, -268.644, -44.2924, 96.5595, 53.515, -155.793, -23.678, 54.5601, 12.2273, -26.8654, -19.3723, -0.0904439, 0.321092, 0.452381, -0.0190758, -0.607163, 1.27408, 0.364487, -0.499263};
     A_13TeV_lo_ = {35.0111,169.908,4.72866,2.38523,22.3288,-142.521,-22.996,47.2901,28.0101,-82.3576,-13.1345,31.2217,6.37158,-13.9821,-10.8268};
     // the LO case has many different cases of uncertainty that can be considered
-    if(uncertantie == "muR_UP")                            A_13TeV_lo_ = {29.339989,142.828652,3.944472,1.987152,18.841645,-119.547333,-19.223360,39.572711,23.399797,-69.040228,-10.957083,26.085625,5.308951,-11.681204,-9.055525,};
+    if     (uncertantie == "muR_UP")                       A_13TeV_lo_ = {29.339989,142.828652,3.944472,1.987152,18.841645,-119.547333,-19.223360,39.572711,23.399797,-69.040228,-10.957083,26.085625,5.308951,-11.681204,-9.055525,};
     else if(uncertantie == "muR_DN")                       A_13TeV_lo_ = {42.541636,205.687054,5.778218,2.919222,26.909724,-172.982077,-28.026622,57.564385,34.165875,-100.032567,-16.048800,38.075269,7.796551,-17.054354,-13.187661,};
     else if(uncertantie == "muF_UP")                       A_13TeV_lo_ = {33.214886,159.640761,4.551589,2.305399,20.727429,-134.819116,-21.986524,45.071311,26.839155,-78.057553,-12.641570,29.899841,6.155038,-13.395502,-10.335953,};
     else if(uncertantie == "muF_DN")                       A_13TeV_lo_ = {36.805367,180.705794,4.885372,2.452094,24.101164,-150.349033,-23.950697,49.443752,29.097654,-86.678003,-13.570472,32.448121,6.554115,-14.528044,-11.299634,};
@@ -31,19 +31,19 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
     // -------------------------------------------------------------------------
     // Return EFT benchmarks definition as https://arxiv.org/pdf/1710.08261.pdf
     // kl - kt - c2 - cg - c2g
-    if(EFTBMname == "sm")       EFTBMcouplings_ = {1, 1, 0, 0, 0};
-    else if(EFTBMname ==  "1")  EFTBMcouplings_ = {7.5, 1, -1, 0, 0};
-    else if(EFTBMname ==  "2")  EFTBMcouplings_ = {1.0, 1.0, 0.5, -0.8, 0.6};
-    else if(EFTBMname ==  "3")  EFTBMcouplings_ = {1.0, 1.0, -1.5, 0.0, -0.8};
-    else if(EFTBMname ==  "4")  EFTBMcouplings_ = {-3.5, 1.5, -3.0, 0.0, 0.0};
-    else if(EFTBMname ==  "5")  EFTBMcouplings_ = {1.0, 1.0, 0.0, 0.8, -1.0};
-    else if(EFTBMname ==  "6")  EFTBMcouplings_ = {2.4, 1.0, 0.0, 0.2, -0.2};
-    else if(EFTBMname ==  "7")  EFTBMcouplings_ = {5.0, 1.0, 0.0, 0.2, -0.2};
-    else if(EFTBMname ==  "8")  EFTBMcouplings_ = {15.0, 1.0, 0.0, -1.0, 1.0};
-    else if(EFTBMname ==  "9")  EFTBMcouplings_ = {1.0, 1.0, 1.0, -0.6, 0.6};
-    else if(EFTBMname ==  "10") EFTBMcouplings_ = {10.0, 1.5, -1.0, 0.0, 0.0};
-    else if(EFTBMname ==  "11") EFTBMcouplings_ = {2.4, 1.0, 0.0, 1.0, -1.0};
-    else if(EFTBMname ==  "12") EFTBMcouplings_ = {15.0, 1.0, 1.0, 0.0, 0.0};
+    if     (EFTBMname == "sm")  EFTBMcouplings_ = { 1.0, 1.0,  0.0,  0.0,  0.0};
+    else if(EFTBMname ==  "1")  EFTBMcouplings_ = { 7.5, 1.0, -1.0,  0.0,  0.0};
+    else if(EFTBMname ==  "2")  EFTBMcouplings_ = { 1.0, 1.0,  0.5, -0.8,  0.6};
+    else if(EFTBMname ==  "3")  EFTBMcouplings_ = { 1.0, 1.0, -1.5,  0.0, -0.8};
+    else if(EFTBMname ==  "4")  EFTBMcouplings_ = {-3.5, 1.5, -3.0,  0.0,  0.0};
+    else if(EFTBMname ==  "5")  EFTBMcouplings_ = { 1.0, 1.0,  0.0,  0.8, -1.0};
+    else if(EFTBMname ==  "6")  EFTBMcouplings_ = { 2.4, 1.0,  0.0,  0.2, -0.2};
+    else if(EFTBMname ==  "7")  EFTBMcouplings_ = { 5.0, 1.0,  0.0,  0.2, -0.2};
+    else if(EFTBMname ==  "8")  EFTBMcouplings_ = {15.0, 1.0,  0.0, -1.0,  1.0};
+    else if(EFTBMname ==  "9")  EFTBMcouplings_ = { 1.0, 1.0,  1.0, -0.6,  0.6};
+    else if(EFTBMname ==  "10") EFTBMcouplings_ = {10.0, 1.5, -1.0,  0.0,  0.0};
+    else if(EFTBMname ==  "11") EFTBMcouplings_ = { 2.4, 1.0,  0.0,  1.0, -1.0};
+    else if(EFTBMname ==  "12") EFTBMcouplings_ = {15.0, 1.0,  1.0,  0.0,  0.0};
 
     if( (year == "2017" or year == "2018") and EFTBMcouplings_.size() and cms_fake ){
       if (DEBUG) std::cout << "** DEBUG: before cms_fake: " << EFTBMcouplings_[0] << " " << EFTBMcouplings_[1] << " " << EFTBMcouplings_[2] << " "  << EFTBMcouplings_[3] << " "  << EFTBMcouplings_[4] << std::endl;
@@ -60,7 +60,7 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
       EFTBMcouplings_[1] = tr;
     }
 
-    if(EFTBMname == "box")        EFTBMcouplings_ = {0, 1, 0, 0, 0};
+    if     (EFTBMname == "box")   EFTBMcouplings_ = {0.0,  1.0, 0.0, 0.0, 0.0};
     else if(EFTBMname == "cHHH0") EFTBMcouplings_ = {0.0,  1.0, 0.0, 0.0, 0.0};
     else if(EFTBMname == "cHHH1") EFTBMcouplings_ = {1.0,  1.0, 0.0, 0.0, 0.0};
     else if(EFTBMname == "cHHH2") EFTBMcouplings_ = {2.45, 1.0, 0.0, 0.0, 0.0};
@@ -70,7 +70,7 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
     if(EFTBMname ==  "8a") EFTBMcouplings_ = {1.0, 1.0, 0.5, 0.8/3, 0.0};
 
     // New benchmarks from https://arxiv.org/pdf/1908.08923.pdf
-    if(EFTBMname == "JHEP03(2020)091_1" or EFTBMname == "1b") EFTBMcouplings_ = {  3.94, 0.94, -1./3.,  0.5 * 1.5,  1./3. * (-3.) };
+    if     (EFTBMname == "JHEP03(2020)091_1" or EFTBMname == "1b") EFTBMcouplings_ = {  3.94, 0.94, -1./3.,  0.5 * 1.5,  1./3. * (-3.) };
     else if(EFTBMname == "JHEP03(2020)091_2" or EFTBMname == "2b") EFTBMcouplings_ = {  6.84, 0.61,  1./3.,  0.0 * 1.5, -1./3. * (-3.) };
     else if(EFTBMname == "JHEP03(2020)091_3" or EFTBMname == "3b") EFTBMcouplings_ = {  2.21, 1.05, -1./3.,  0.5 * 1.5,   0.5  * (-3.) };
     else if(EFTBMname == "JHEP03(2020)091_4" or EFTBMname == "4b") EFTBMcouplings_ = {  2.79, 0.61,  1./3., -0.5 * 1.5,  1./6. * (-3.) };
@@ -78,7 +78,7 @@ HHReweight5D::HHReweight5D(std::string coeffFile, const TH2* hInput, std::string
     else if(EFTBMname == "JHEP03(2020)091_6" or EFTBMname == "6b") EFTBMcouplings_ = {  5.68, 0.83,  1./3., -0.5 * 1.5,  1./3. * (-3.) };
     else if(EFTBMname == "JHEP03(2020)091_7" or EFTBMname == "7b") EFTBMcouplings_ = { -0.10, 0.94,     1., 1./6.* 1.5, -1./6. * (-3.) };
 
-    if(EFTBMname == "c2scan" or EFTBMname == "manual") EFTBMcouplings_ = {1,1,0,0,0}; // Set to SM values
+    if(EFTBMname == "c2scan" or EFTBMname == "manual") EFTBMcouplings_ = { 1.0, 1.0, 0.0, 0.0, 0.0}; // Set to SM values
 
     // --------------------------------------------------------------------
     // read input file containing all the coefficients for the reweighting
@@ -177,6 +177,12 @@ double HHReweight5D::getWeight(double mhh, double cth)
 {
     cth = TMath::Abs(cth);
 
+    // Avoid picking up overflow values from the 2D map - limits are:
+    // - abs(cth) : [  0.0,    1.0)
+    // - mass     : [250.0, 5000.0)
+    if (cth >= 1)    cth = 0.9999;
+    if (mhh >= 5000) mhh = 4999.0;
+
     double kl  = EFTBMcouplings_[0];
     double kt  = EFTBMcouplings_[1];
     double c2  = EFTBMcouplings_[2];
@@ -198,6 +204,12 @@ double HHReweight5D::getWeight(double mhh, double cth)
 double HHReweight5D::getWeight(double mhh, double cth, double c2)
 {
     cth = TMath::Abs(cth);
+
+    // Avoid picking up overflow values from the 2D map - limits are:
+    // - abs(cth) : [  0.0,    1.0)
+    // - mass     : [250.0, 5000.0)
+    if (cth >= 1)    cth = 0.9999;
+    if (mhh >= 5000) mhh = 4999.0;
 
     double kl  = 1;
     double kt  = 1;
@@ -222,6 +234,12 @@ double HHReweight5D::getWeight(double mhh, double cth, double kl, double kt, dou
     if (DEBUG) std::cout << "** DEBUG: reqested coplings set: kl=" << kl << " ; kt=" << kt << " ; c2=" << c2 << " ; cg=" << cg << " ; c2g=" << c2g << std::endl;
 
     cth = TMath::Abs(cth);
+
+    // Avoid picking up overflow values from the 2D map - limits are:
+    // - abs(cth) : [  0.0,    1.0)
+    // - mass     : [250.0, 5000.0)
+    if (cth >= 1)    cth = 0.9999;
+    if (mhh >= 5000) mhh = 4999.0;
 
     double Nevtot = h_input_->Integral();
     double XStot = getTotXS(kl,kt,c2,cg,c2g);
