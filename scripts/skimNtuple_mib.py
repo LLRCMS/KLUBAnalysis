@@ -61,7 +61,7 @@ if __name__ == "__main__":
     parser.add_option ('-g', '--genjets'   , dest='genjets'   , help='loop on genjets to determine the number of b hadrons' , default=False)
     parser.add_option ('-a', '--ishhsignal', dest='ishhsignal', help='isHHsignal'                            , default=False)
     parser.add_option ('--BSMname',          dest='BSMname'   , help='additional name for EFT benchmarks'    , default='none')
-    parser.add_option ('--EFTbm',            dest='EFTrew'    , help='EFT benchmarks [SM, 1..12, 1b..7b, 8a, c2scan, manual]', default='none')
+    parser.add_option ('--EFTbm',            dest='EFTrew'    , help='EFT benchmarks [sm, 1..12, 1b..7b, 8a, c2scan, manual]', default='none')
     parser.add_option ('--order_input',      dest='order_input', help='order of input map: lo/nlo'           , default='nlo')
     parser.add_option ('--order_rew',        dest='order_rew' , help='order of reweight: lo/nlo'             , default='nlo')
     parser.add_option ('--uncert',           dest='uncert'    , help='uncertainty on the reweight coeffs'    , default='0')
@@ -204,8 +204,8 @@ if __name__ == "__main__":
     if float(opt.klreweight) > -990 and opt.BSMname == 'none':
         print '!WARNING! You requested manual HH reweighting, but did not set a proper BSMname! Exiting!'
         sys.exit (0)
-    elif opt.EFTrew != 'none':
-        jobsDir = jobsDir + '_' + opt.EFTrew
+#    elif opt.EFTrew != 'none':
+#        jobsDir = jobsDir + '_' + opt.EFTrew
     elif opt.BSMname != 'none':
         jobsDir = jobsDir + '_' + opt.BSMname
 

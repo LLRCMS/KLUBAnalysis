@@ -12,7 +12,7 @@
 
 using namespace std;
 
-//c++ -lm -o MakeMap MakeMap.cpp `root-config --glibs --cflags`
+//c++ -lm -o MakeMap_LO MakeMap_LO.cpp `root-config --glibs --cflags`
 
 // open input txt file and append all the files it contains to TChain
 void appendFromFileList (TChain* chain, TString filename)
@@ -41,10 +41,8 @@ bool CheckBit (int number, int bitpos)
 int main ()
 {
     // make tchain of all samples
-    //TString filename = "/home/llr/cms/motta/HHLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signals/GluGluToHHTo2B2Tau_LO_allNodes.txt";
-    //TString filename = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/May2020/LIMdev/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2016_signals/GluGluToHHTo2B2Tau_NLO_allNodes.txt";
-    TString filename = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/May2020/LIMdev/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2017_signals/GluGluToHHTo2B2Tau_NLO_allNodes.txt";
-    //TString filename = "/home/llr/cms/motta/HHLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signals/GluGluToHHTo2B2Tau_NLO_oneNode.txt"; 
+    TString filename = "/home/llr/cms/motta/HHLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signals/GluGluToHHTo2B2Tau_LO_allNodes.txt";
+
     TChain* ch = new TChain ("HTauTauTree/HTauTauTree");
     appendFromFileList (ch, filename);
 
@@ -69,7 +67,6 @@ int main ()
     vector<int>     *genpart_WDecayMode = 0;
     vector<int>     *genpart_TauGenDecayMode = 0;
     vector<int>     *genpart_flags = 0;
-
     
     ch->SetBranchAddress("genpart_px", &genpart_px);
     ch->SetBranchAddress("genpart_py", &genpart_py);
@@ -106,10 +103,7 @@ int main ()
     // TH2F* hMapFolded = new TH2F ("allHHNodeMapFolded", "allHHNodeMapFolded", 90, 0, 1800, 5, 0, 1); // won't be used for reweight
     // TH1F* hMap1D = new TH1F ("allHHNodeMap1D", "allHHNodeMap1D", nbins_mHH, binning_mHH);
 
-    //TFile* fOut = new TFile ("allHHnodeMap_LO_5DdiffRew_2018.root", "recreate");
-    //TFile* fOut = new TFile ("allHHnodeMap_NLO_5DdiffRew_2016.root", "recreate");
-    TFile* fOut = new TFile ("allHHnodeMap_NLO_5DdiffRew_2017.root", "recreate");
-    //TFile* fOut = new TFile ("allHHnodeMap_NLO_5DdiffRew_2018_test.root", "recreate");
+    TFile* fOut = new TFile ("allHHnodeMap_LO_5DdiffRew_2018.root", "recreate");
     double binning_mHH [37] = {250.,270.,290.,310.,330.,
                                350.,370.,390.,410.,430., 
                                450.,470.,490.,510.,530.,
@@ -125,8 +119,7 @@ int main ()
     // TH2F* hMapFolded = new TH2F ("allHHNodeMapFolded", "allHHNodeMapFolded", 90, 0, 1800, 5, 0, 1); // won't be used for reweight
     // TH1F* hMap1D = new TH1F ("allHHNodeMap1D", "allHHNodeMap1D", nbins_mHH, binning_mHH);
 
-
-
+    cout << "---Filling 2D map ---" << endl;
     TLorentzVector vH1, vH2, vBoost, vSum;
     for (int iEv = 0; true; ++iEv)
     {

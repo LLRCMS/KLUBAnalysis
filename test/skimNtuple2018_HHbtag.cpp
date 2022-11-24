@@ -842,6 +842,34 @@ int main (int argc, char** argv)
         }
       if (debugEvents.size() > 0 && DEBUG == false) continue;
 
+      // Additional weight to be applied to aMCatNLOweight for HH NLO signals when doing the HHReweight5D
+      // The weight is computed as: 1. / [total aMCatNLOweight per sample] / [# samples used as input in the HHReweight5D]
+      double addWeight = 1.;
+      if (isHHsignal && isHHNLO && HHrewType != kNone)
+      {
+        const auto fileName = std::string(theBigTree.fChain->GetFile()->GetName());
+        if (fileName.find("node_cHHH0")    != std::string::npos) addWeight = 1. / 60219.4 / 4.; // computed with hhReweight/MakeMap_getNLOweights.cpp
+        if (fileName.find("node_cHHH1")    != std::string::npos) addWeight = 1. / 26753.1 / 4.; // computed with hhReweight/MakeMap_getNLOweights.cpp
+        if (fileName.find("node_cHHH2p45") != std::string::npos) addWeight = 1. / 11309.5 / 4.; // computed with hhReweight/MakeMap_getNLOweights.cpp
+        if (fileName.find("node_cHHH5")    != std::string::npos) addWeight = 1. / 78947.3 / 4.; // computed with hhReweight/MakeMap_getNLOweights.cpp
+        if (DEBUG)
+        {
+          bool has_cHHH1 = false;
+          bool has_cHHH0 = false;
+          bool has_cHHH2p45 = false;
+          bool has_cHHH5 = false;
+          if (fileName.find("node_cHHH1") != std::string::npos) has_cHHH1 = true;
+          if (fileName.find("node_cHHH0") != std::string::npos) has_cHHH0 = true;
+          if (fileName.find("node_cHHH2p45") != std::string::npos) has_cHHH2p45 = true;
+          if (fileName.find("node_cHHH5") != std::string::npos) has_cHHH5 = true;
+          if (iEvent % 10000 == 0)
+          {
+            std::cout << "-> FileName: " << fileName << " addWeight: " << addWeight << std::endl;
+            std::cout << "-> has 1: " << has_cHHH1 << " / 0: " << has_cHHH0 << " / 2p45: " << has_cHHH2p45 << " / 5: " << has_cHHH5 << std::endl;
+          }
+        }
+      }
+
       // directly reject events outside HT range in case of stitching of inclusive sample-- they should not count in weights
       //cout << " ********** HTMAX - MIN - LHE: " << HTMax << " - " << HTMin << " - " << theBigTree.lheHt << endl;
       if (HTMax > 0)
@@ -1432,7 +1460,7 @@ int main (int argc, char** argv)
           if (genH1pt >= genH2pt) { theSmallTree.m_leadHpt = genH1pt; theSmallTree.m_sublHpt = genH2pt; }
           else { theSmallTree.m_leadHpt = genH2pt; theSmallTree.m_sublHpt = genH1pt; }
 
-          theSmallTree.m_aMCatNLOweight = theBigTree.aMCatNLOweight;
+          theSmallTree.m_aMCatNLOweight = theBigTree.aMCatNLOweight * addWeight;
           theSmallTree.m_HHweight = HHweight;
         }
 
@@ -1452,9 +1480,9 @@ int main (int argc, char** argv)
         }
       double EvtW;
       if (theBigTree.npu >= 0 && theBigTree.npu <= 99) // good PU weights
-        EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) * topPtReweight * HHweight * stitchWeight) : 1.0;
+        EvtW = isMC ? (theBigTree.aMCatNLOweight * addWeight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) * topPtReweight * HHweight * stitchWeight) : 1.0;
       else if (theBigTree.npu >= 100)                  // use the last available bin for the PU weight
-        EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,99, PUreweightFile) * topPtReweight * HHweight * stitchWeight) : 1.0;
+        EvtW = isMC ? (theBigTree.aMCatNLOweight * addWeight * reweight.weight(PUReweight_MC,PUReweight_target,99, PUreweightFile) * topPtReweight * HHweight * stitchWeight) : 1.0;
       else                                             // if npu<0 --> bug in MC --> weight=0
         EvtW = isMC ? 0.0 : 1.0;
 
@@ -2216,7 +2244,7 @@ int main (int argc, char** argv)
       else                                             // if npu<0 --> bug in MC --> weight=0
         theSmallTree.m_PUReweight  = (isMC ? 0 : 1) ;
 
-      theSmallTree.m_MC_weight   = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight * HHweight : 1) ;
+      theSmallTree.m_MC_weight   = (isMC ? theBigTree.aMCatNLOweight * addWeight * XS * stitchWeight * HHweight : 1) ;
       theSmallTree.m_lheht       = (isMC ? theBigTree.lheHt : 0) ;
       theSmallTree.m_EventNumber = theBigTree.EventNumber ;
       theSmallTree.m_RunNumber   = theBigTree.RunNumber ;
@@ -5693,7 +5721,7 @@ int main (int argc, char** argv)
             }
         }// if there's two jets in the event, at least
 
-      if (isMC) selectedEvents += theBigTree.aMCatNLOweight ;  //FIXME: probably wrong, but unused up to now
+      if (isMC) selectedEvents += theBigTree.aMCatNLOweight * addWeight;  //FIXME: probably wrong, but unused up to now
       else selectedEvents += 1 ;
       ++selectedNoWeightsEventsNum ;
 
@@ -5716,13 +5744,14 @@ int main (int argc, char** argv)
       if (DEBUG) //FRA DEBUG
         {
             cout << "--- DEBUG MC weights ---" << endl;
-            cout << "aMCatNLOweight: " << theBigTree.aMCatNLOweight << endl;
-            cout << "XS            : " << XS << endl;
-            cout << "stitchWeight  : " << stitchWeight << endl;
-            cout << "HHweight      : " << HHweight << endl;
-            cout << "MC_weight     : " << theSmallTree.m_MC_weight << endl;
-            cout << "Yield weight MVA : " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_MVA * theSmallTree.m_trigSF << endl;
-            cout << "Yield weight deep: " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_deep * theSmallTree.m_trigSF << endl;
+            cout << "aMCatNLOweight          : " << theBigTree.aMCatNLOweight << endl;
+            cout << "aMCatNLOweight*addWeight: " << theBigTree.aMCatNLOweight * addWeight << endl;
+            cout << "XS                      : " << XS << endl;
+            cout << "stitchWeight            : " << stitchWeight << endl;
+            cout << "HHweight                : " << HHweight << endl;
+            cout << "MC_weight               : " << theSmallTree.m_MC_weight << endl;
+            cout << "Yield weight MVA        : " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_MVA * theSmallTree.m_trigSF << endl;
+            cout << "Yield weight deep       : " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_deep * theSmallTree.m_trigSF << endl;
             cout << "------------------------" << endl;
         }
 
