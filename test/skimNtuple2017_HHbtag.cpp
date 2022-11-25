@@ -134,42 +134,42 @@ const float DYscale_MTT_vHighPt_err[3] = {0.0061768066, 0.15213682  , 0.09158206
 //    {0.435985200574 , 0.439933495111 , 0.101379942882 , 0.0836752003648 , 0.0954161456739}
 //};
 
-// computed for Legacy2017, 7 July 2020, including DY HT-binned samples
+// computed for UL2017, 12 April 2022, including DY HT-binned samples
 const float stitchWeights [5][5][9] = {
   {
-    {2.67924942929 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
+    {1.92541282955 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
   },
   {
-    {0.461117683668 , 0.288238720368 , 0.244019240573 , 0.135712598664 , 0.0269283578771 , 0.00941836691982 , 0.0114129617531 , 0.011988459216 , 0.0},
-    {0.461212654939 , 0.290136436976 , 0.244986053293 , 0.136124152655 , 0.0279796670743 , 0.00930161903327 , 0.0110697147831 , 0.0 , 0.0},
+    {0.70097467831 , 0.385819078528 , 0.308746472463 , 0.166975265538 , 0.058136367335 , 0.0170492828066 , 0.00849328703712 , 0.0016976649972 , 8.45593646152e-05},
+    {0.707137505872 , 0.385463407396 , 0.309736687742 , 0.168986463508 , 0.0626710399446 , 0.0167036708606 , 0.00857849101105 , 0.00170703573316 , 0.0},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
   },
   {
-    {0.949886615633 , 0.427077416714 , 0.337222105969 , 0.163365897405 , 0.0274860094365 , 0.0085763948538 , 0.00984568261813 , 0.0127266252667 , 0.000332160869},
-    {0.951726921973 , 0.426627652639 , 0.337677509383 , 0.165532173003 , 0.0276083457065 , 0.00946915409563 , 0.0115775376776 , 0.0128101172201 , 0.00033226404057},
-    {0.121324851414 , 0.106045639829 , 0.100815528572 , 0.0780316234378 , 0.0247725227854 , 0.00901472262325 , 0.0110643844762 , 0.0124032384969 , 0.00033226404057},
+    {0.579173122523 , 0.344038232423 , 0.279983703569 , 0.161400248793 , 0.0596936312715 , 0.0154668553527 , 0.00732684920509 , 0.00170223641805 , 8.45460858205e-05},
+    {0.582674841051 , 0.344818711512 , 0.280906397449 , 0.161718299311 , 0.0605793234257 , 0.0168977197135 , 0.00846815672152 , 0.00170248969925 , 8.45593646152e-05},
+    {0.587942342043 , 0.348805148569 , 0.28344732409 , 0.163896056933 , 0.0626926525652 , 0.0168338178347 , 0.00848874679739 , 0.00169892244545 , 8.3988017557e-05},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
   },
   {
-    {0.577067228092 , 0.339488860229 , 0.281949193594 , 0.150675590712 , 0.0284045541296 , 0.00901824980452 , 0.0109304611343 , 0.0123845395413 , 0.000332089281822},
-    {0.556659233845 , 0.340642946262 , 0.280794949338 , 0.151779081379 , 0.0299185936652 , 0.00939894134359 , 0.0115118981289 , 0.0125472761053 , 0.00033226404057},
-    {0.110789928447 , 0.0988388485028 , 0.0928127275372 , 0.0725867160614 , 0.0232600189656 , 0.00885064768037 , 0.0106222671228 , 0.0115267375239 , 0.00033226404057},
-    {0.112408736859 , 0.0931192442339 , 0.0896787822135 , 0.0622383718531 , 0.0222605939937 , 0.00885290573742 , 0.0107109740262 , 0.0 , 0.0},
+    {0.281976926094 , 0.212373273637 , 0.187803778688 , 0.126959994834 , 0.0561285697243 , 0.0162339776426 , 0.00803335196495 , 0.00172447661603 , 7.07456213091e-05},
+    {0.283963762631 , 0.21238603343 , 0.186433115652 , 0.125736486052 , 0.0563032895107 , 0.0167204469511 , 0.00830982784415 , 0.00169623170953 , 8.45593646152e-05},
+    {0.271263972341 , 0.208443063564 , 0.183775606513 , 0.12383922065 , 0.0592464214629 , 0.0163549589173 , 0.00830775954907 , 0.00169571984021 , 8.45593646152e-05},
+    {0.296748213873 , 0.213759474317 , 0.191149934051 , 0.132581618437 , 0.0536422384885 , 0.0153512461291 , 0.00857849101105 , 0.00170703573316 , 8.45593646152e-05},
     {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
   },
   {
-    {0.265905408184 , 0.318351907391 , 0.277460603301 , 0.14951447431 , 0.0286698923867 , 0.00952507054503 , 0.0115701542716 , 0.0125887043617 , 0.000332055200272},
-    {0.676589412083 , 0.319984941653 , 0.27316522003 , 0.146338413189 , 0.0288698984769 , 0.00939038668954 , 0.0109420127173 , 0.0125827030236 , 0.000332070131004},
-    {0.139908908454 , 0.0900754237066 , 0.0886977006279 , 0.0706148949084 , 0.0237342746423 , 0.00840780447228 , 0.0108117809972 , 0.0115681226813 , 0.000331184452335},
-    {0.109026527077 , 0.0983207166623 , 0.0923879113549 , 0.0763313187779 , 0.0238773034326 , 0.0088172397373 , 0.0103986787623 , 0.0114508669773 , 0.00033226404057},
-    {0.081627606458 , 0.103082430047 , 0.0890246573134 , 0.0766960714492 , 0.0240498812676 , 0.00865341559255 , 0.0103416300943 , 0.0104291494869 , 0.00033226404057}
+    {0.253733035533 , 0.187204294552 , 0.168738096066 , 0.11847807172 , 0.0543684474194 , 0.0163670993389 , 0.00837784889654 , 0.0016797136733 , 8.45289089831e-05},
+    {0.244385125491 , 0.181359939801 , 0.168805677138 , 0.118825132726 , 0.0556555225024 , 0.0164036994117 , 0.00886469995188 , 0.0016951641068 , 8.45409914643e-05},
+    {0.269659940053 , 0.188401500479 , 0.167396781226 , 0.117714284164 , 0.0537709866622 , 0.0172583419101 , 0.00857089738971 , 0.00169508073759 , 8.45390963111e-05},
+    {0.256200781214 , 0.188536384858 , 0.171292357584 , 0.114796883966 , 0.0546103793688 , 0.0161830267958 , 0.00824162718974 , 0.0016925021472 , 8.45593646152e-05},
+    {0.280994405202 , 0.192331122007 , 0.165072620878 , 0.126596181261 , 0.0560765240989 , 0.0162114452656 , 0.00831511628703 , 0.00169902148089 , 8.45593646152e-05}
   }
 };
 
@@ -616,8 +616,8 @@ int main (int argc, char** argv)
   myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root",
                                                "NUM_TightID_DEN_TrackerMuons_abseta_pt",
                                                true);
-  myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/EgammaPOGSF_UL/2017/2017_Tight_eleSFs.root","SF");
-
+  //myIDandISOScaleFactor[1] -> init_ScaleFactor("weights/EgammaPOGSF_UL/2017/2017_Tight_eleSFs.root","SF");
+  myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi.txt_EGM2D_MVA80iso_UL17.root");
   myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root",
                                                "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
                                                true);
@@ -3737,28 +3737,28 @@ int main (int argc, char** argv)
       theSmallTree.m_bTagweightReshape_lfstats2_down = (isMC ? bTagWeightReshapeshifts.at(15) : 1.0) ;
       theSmallTree.m_bTagweightReshape_cferr1_down   = (isMC ? bTagWeightReshapeshifts.at(16) : 1.0) ;
       theSmallTree.m_bTagweightReshape_cferr2_down   = (isMC ? bTagWeightReshapeshifts.at(17) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup1        = (isMC ? bTagWeightReshapeshifts.at(18) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup2        = (isMC ? bTagWeightReshapeshifts.at(19) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup3        = (isMC ? bTagWeightReshapeshifts.at(20) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup4        = (isMC ? bTagWeightReshapeshifts.at(21) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup5        = (isMC ? bTagWeightReshapeshifts.at(22) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup6        = (isMC ? bTagWeightReshapeshifts.at(23) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup7        = (isMC ? bTagWeightReshapeshifts.at(24) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup8        = (isMC ? bTagWeightReshapeshifts.at(25) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup9        = (isMC ? bTagWeightReshapeshifts.at(26) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup10       = (isMC ? bTagWeightReshapeshifts.at(27) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetup11       = (isMC ? bTagWeightReshapeshifts.at(28) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown1      = (isMC ? bTagWeightReshapeshifts.at(29) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown2      = (isMC ? bTagWeightReshapeshifts.at(30) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown3      = (isMC ? bTagWeightReshapeshifts.at(31) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown4      = (isMC ? bTagWeightReshapeshifts.at(32) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown5      = (isMC ? bTagWeightReshapeshifts.at(33) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown6      = (isMC ? bTagWeightReshapeshifts.at(34) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown7      = (isMC ? bTagWeightReshapeshifts.at(35) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown8      = (isMC ? bTagWeightReshapeshifts.at(36) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown9      = (isMC ? bTagWeightReshapeshifts.at(37) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown10     = (isMC ? bTagWeightReshapeshifts.at(38) : 1.0) ;
-      theSmallTree.m_bTagweightReshape_jetdown11     = (isMC ? bTagWeightReshapeshifts.at(39) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetup1        = (isMC ? bTagWeightReshapeshifts.at(18) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetup2        = (isMC ? bTagWeightReshapeshifts.at(19) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetup3        = (isMC ? bTagWeightReshapeshifts.at(20) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetup4        = (isMC ? bTagWeightReshapeshifts.at(21) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetup5        = (isMC ? bTagWeightReshapeshifts.at(22) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetup6        = (isMC ? bTagWeightReshapeshifts.at(23) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetup7        = (isMC ? bTagWeightReshapeshifts.at(24) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetup8        = (isMC ? bTagWeightReshapeshifts.at(25) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetup9        = (isMC ? bTagWeightReshapeshifts.at(26) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetup10       = (isMC ? bTagWeightReshapeshifts.at(27) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetup11       = (isMC ? bTagWeightReshapeshifts.at(28) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetdown1      = (isMC ? bTagWeightReshapeshifts.at(29) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetdown2      = (isMC ? bTagWeightReshapeshifts.at(30) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetdown3      = (isMC ? bTagWeightReshapeshifts.at(31) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetdown4      = (isMC ? bTagWeightReshapeshifts.at(32) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetdown5      = (isMC ? bTagWeightReshapeshifts.at(33) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetdown6      = (isMC ? bTagWeightReshapeshifts.at(34) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetdown7      = (isMC ? bTagWeightReshapeshifts.at(35) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetdown8      = (isMC ? bTagWeightReshapeshifts.at(36) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetdown9      = (isMC ? bTagWeightReshapeshifts.at(37) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetdown10     = (isMC ? bTagWeightReshapeshifts.at(38) : 1.0) ;
+      // theSmallTree.m_bTagweightReshape_jetdown11     = (isMC ? bTagWeightReshapeshifts.at(39) : 1.0) ;
 
       // Set HHbtaginterface for ordering jets
       HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,

@@ -48,6 +48,8 @@ public:
 private:
   TH2F* h_eff_SF_;
   TH2F* h_eff_SF_err_;
+  
+  std::string year_;
 };
 
 #endif // PuJetIdSF

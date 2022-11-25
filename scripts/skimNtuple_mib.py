@@ -37,11 +37,12 @@ if __name__ == "__main__":
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
     parser.add_option ('-i', '--input'     , dest='input'     , help='input folder'                          , default='none')
+    parser.add_option ('-Y', '--year'      , dest='year'      , help='year'                                  , default='2018')
+    parser.add_option ('-A', '--APV'       , dest='isAPV'     , help='isAPV'                                 , default=False )
     parser.add_option ('-x', '--xs'        , dest='xs'        , help='sample xs'                             , default='1.')
     parser.add_option ('-f', '--force'     , dest='force'     , help='replace existing reduced ntuples'      , default=False)
     parser.add_option ('-o', '--output'    , dest='output'    , help='output folder'                         , default='none')
-    # parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='cms')
-    parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='shortcms') #longcms
+    parser.add_option ('-q', '--queue'     , dest='queue'     , help='batch queue'                           , default='short')
     parser.add_option ('-r', '--resub'     , dest='resub'     , help='resubmit failed jobs'                  , default='none')
     parser.add_option ('-v', '--verb'      , dest='verb'      , help='verbose'                               , default=False)
     parser.add_option ('-s', '--sleep'     , dest='sleep'     , help='sleep in submission'                   , default=False)
@@ -50,11 +51,11 @@ if __name__ == "__main__":
     parser.add_option ('-H', '--hadd'      , dest='hadd'      , help='hadd the resulting ntuples'            , default='none')
     parser.add_option ('-c', '--config'    , dest='config'    , help='skim config file'                      , default='none')
     parser.add_option ('-n', '--njobs'     , dest='njobs'     , help='number of skim jobs'                   , default=100, type = int)
-    parser.add_option ('-k', '--kinfit'    , dest='dokinfit'  , help='run HH kin fitter'                     , default=True)
+    parser.add_option ('-k', '--kinfit'    , dest='dokinfit'  , help='run HH kin fitter'                     , default="True")
     parser.add_option ('-m', '--mt2'       , dest='domt2'     , help='run stransverse mass calculation'      , default=True)
     parser.add_option ('-y', '--xsscale'   , dest='xsscale'   , help='scale to apply on XS for stitching'    , default='1.0')
-    parser.add_option ('-z', '--htcut'     , dest='htcut'     , help='HT cut for stitching on inclusive'     , default='-999.0')
     parser.add_option ('-Z', '--htcutlow'  , dest='htcutlow'  , help='HT low cut for stitching on inclusive' , default='-999.0')
+    parser.add_option ('-z', '--htcut'     , dest='htcut'     , help='HT cut for stitching on inclusive'     , default='-999.0')
     parser.add_option ('-e', '--njets'     , dest='njets'     , help='njets required for stitching on inclusive'     , default='-999')
     parser.add_option ('-t', '--toprew'    , dest='toprew'    , help='is TT bar sample to compute reweight?' , default=False)
     parser.add_option ('-b', '--topstitch' , dest='topstitch' , help='type of TT gen level decay pruning for stitch'        , default='0')
@@ -76,8 +77,8 @@ if __name__ == "__main__":
     parser.add_option ('--nb',               dest='DY_nBJets' , help='number of gen BJets for DY bins'      , default='-1')
     parser.add_option ('--DY',               dest='DY'        , help='if it is a DY sample'                 , default=False)
     parser.add_option ('--ttHToNonBB',       dest='ttHToNonBB', help='if it is a ttHToNonBB sample'         , default=False)
-    parser.add_option ('--hhNLO',            dest='hhNLO'     , help='if it is an HH NLO sample'            , default=False)
-    parser.add_option ('--doSyst',           dest='doSyst'    , help='compute up/down values of outputs'    , default=False)
+    parser.add_option ('--hhNLO',            dest='hhNLO'     , help='if it is an HH NLO sample'            , default=False,  action = 'store_true')
+    parser.add_option ('--doSyst',           dest='doSyst'    , help='compute up/down values of outputs'    , default=False,  action = 'store_true')
 
     (opt, args) = parser.parse_args()
 
@@ -169,8 +170,11 @@ if __name__ == "__main__":
     # submit the jobs
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-    skimmer = 'skimNtuple2016_HHbtag.exe'
-    #skimmer = 'skimNtuple2017_HHbtag.exe'
+    skimmer = 'skimNtuple2018_HHbtag.exe'
+    if (opt.year == '2017'):
+        skimmer = 'skimNtuple2017_HHbtag.exe'
+    elif (opt.year == '2016'):
+        skimmer = 'skimNtuple2016_HHbtag.exe'
 
     if opt.config == 'none' :
         print 'config file missing, exiting'
@@ -235,7 +239,7 @@ if __name__ == "__main__":
         scriptFile.write ('source scripts/setup.sh\n')
         command = skimmer + ' ' + jobsDir+"/"+listFileName + ' ' + opt.output + '/' + "output_"+str(n)+".root" + ' ' + opt.xs
         if opt.isdata :  command += ' 1 '
-        else          :  command += ' 0 '    
+        else          :  command += ' 0 '
         command += ' ' + opt.config + ' '
         if opt.dokinfit=="True" : command += " 1 "
         else                    : command += " 0 "
@@ -243,7 +247,7 @@ if __name__ == "__main__":
         command += " " + opt.htcut
         command += " " + opt.htcutlow
         if opt.toprew=="True" : command += " 1 "
-        else                  : command += " 0 "   
+        else                  : command += " 0 "
         if opt.genjets=="True": command += " 1 "
         else                  : command += " 0 "
         command += " " + opt.topstitch
@@ -263,6 +267,9 @@ if __name__ == "__main__":
         else                  : command += " 0 "
         if opt.hhNLO          : command += " 1 "
         else                  : command += " 0 "
+        if opt.year=='2016':
+            if opt.isAPV      : command += " 1 "
+            else              : command += " 0 "
         command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
         scriptFile.write (command)
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
@@ -287,6 +294,7 @@ if __name__ == "__main__":
         condorFile.write ('Log         = condor_job_$(ProcId).log\n')
         condorFile.write ('Output      = condor_job_$(ProcId).out\n')
         condorFile.write ('Error       = condor_job_$(ProcId).error\n')
+        condorFile.write ('Requirements = ((machine != "hercules.hcms.it")&&(machine != "pcmaster01.hcms.it")&&(machine != "catalina.hcms.it"))\n')
         condorFile.write ('queue 1\n')
         condorFile.close ()
 

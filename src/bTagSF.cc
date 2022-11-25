@@ -22,10 +22,10 @@ bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effH
       "up_jes", "up_lf", "up_hf", "up_hfstats1", "up_hfstats2", "up_lfstats1", "up_lfstats2", "up_cferr1", "up_cferr2",
 	"down_jes", "down_lf", "down_hf", "down_hfstats1", "down_hfstats2", "down_lfstats1", "down_lfstats2", "down_cferr1", "down_cferr2",
 	// Up/down JES variations: do not change order of these!!!
-//	"up_jesFlavorQCD", "up_jesRelativeBal", "up_jesHF", "up_jesBBEC1", "up_jesEC2", "up_jesAbsolute", "up_jesBBEC1_"+m_year, "up_jesEC2_"+m_year,
-//	"up_jesAbsolute_"+m_year, "up_jesHF_"+m_year, "up_jesRelativeSample_"+m_year,
-//	"down_jesFlavorQCD", "down_jesRelativeBal", "down_jesHF", "down_jesBBEC1", "down_jesEC2", "down_jesAbsolute", "down_jesBBEC1_"+m_year,
-//	"down_jesEC2_"+m_year, "down_jesAbsolute_"+m_year, "down_jesHF_"+m_year, "down_jesRelativeSample_"+m_year
+	"up_jesFlavorQCD", "up_jesRelativeBal", "up_jesHF", "up_jesBBEC1", "up_jesEC2", "up_jesAbsolute", "up_jesBBEC1_"+m_year, "up_jesEC2_"+m_year,
+	"up_jesAbsolute_"+m_year, "up_jesHF_"+m_year, "up_jesRelativeSample_"+m_year,
+	"down_jesFlavorQCD", "down_jesRelativeBal", "down_jesHF", "down_jesBBEC1", "down_jesEC2", "down_jesAbsolute", "down_jesBBEC1_"+m_year,
+	"down_jesEC2_"+m_year, "down_jesAbsolute_"+m_year, "down_jesHF_"+m_year, "down_jesRelativeSample_"+m_year
 	});
 
   // load readers [loose, medium, tight, reshaping]
@@ -157,7 +157,7 @@ float bTagSF::getSF (WP wpt, SFsyst syst, int jetFlavor, float pt, float eta, fl
     flav = BTagEntry::FLAV_UDSG;
   }
 
-  if (DEBUG) cout << "   ~~ requesting SF for WP=" << wpt << "," << myWPIndex << " SFsyst=" << syst << "," << mySystIndex << " jetFlavor=" << jetFlavor << " pt=" << pt << " eta=" << eta << endl;
+  if (DEBUG) cout << "   ~~ getSF(): requesting SF for WP=" << wpt << "," << myWPIndex << " SFsyst=" << syst << "," << mySystIndex << " jetFlavor=" << jetFlavor <<"("<<flav<<")"<< " pt=" << pt << " eta=" << eta << endl;
 
   string systName[3] = {"central", "up", "down"}; // like SFsyst enum;
   SF = m_readers[myWPIndex].eval_auto_bounds(systName[mySystIndex], flav, eta, pt, discr);
@@ -354,10 +354,10 @@ std::vector<float> bTagSF::getEvtWeightShifted (std::vector <std::pair <int, flo
     "up_jes", "up_lf", "up_hf", "up_hfstats1", "up_hfstats2", "up_lfstats1", "up_lfstats2", "up_cferr1", "up_cferr2",
     "down_jes", "down_lf", "down_hf", "down_hfstats1", "down_hfstats2", "down_lfstats1", "down_lfstats2", "down_cferr1", "down_cferr2",
     // Up/down JES variations: do not change order of these!!!
-//    "up_jesFlavorQCD", "up_jesRelativeBal", "up_jesHF", "up_jesBBEC1", "up_jesEC2", "up_jesAbsolute", "up_jesBBEC1_"+m_year, "up_jesEC2_"+m_year,
-//    "up_jesAbsolute_"+m_year, "up_jesHF_"+m_year, "up_jesRelativeSample_"+m_year,
-//    "down_jesFlavorQCD", "down_jesRelativeBal", "down_jesHF", "down_jesBBEC1", "down_jesEC2", "down_jesAbsolute", "down_jesBBEC1_"+m_year,
-//    "down_jesEC2_"+m_year, "down_jesAbsolute_"+m_year, "down_jesHF_"+m_year, "down_jesRelativeSample_"+m_year
+    "up_jesFlavorQCD", "up_jesRelativeBal", "up_jesHF", "up_jesBBEC1", "up_jesEC2", "up_jesAbsolute", "up_jesBBEC1_"+m_year, "up_jesEC2_"+m_year,
+    "up_jesAbsolute_"+m_year, "up_jesHF_"+m_year, "up_jesRelativeSample_"+m_year,
+    "down_jesFlavorQCD", "down_jesRelativeBal", "down_jesHF", "down_jesBBEC1", "down_jesEC2", "down_jesAbsolute", "down_jesBBEC1_"+m_year,
+    "down_jesEC2_"+m_year, "down_jesAbsolute_"+m_year, "down_jesHF_"+m_year, "down_jesRelativeSample_"+m_year
   };
 
   // Values of shifted SFs all initialized to 1
