@@ -119,60 +119,20 @@ const float DYscale_MTT_HighPt_err [3] = {0.0030012172, 0.046576904 , 0.03594971
 const float DYscale_MTT_vHighPt_err[3] = {0.0061768066, 0.15213682  , 0.091582069 };
 
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS:
+** 'Old' approach:
 ** - to be updated at each production, using the number of processed events N_inclusive and N_njets for each sample
 ** - say f_i is the fraction of inclusive events in the i bin on njets (can be 2D nb-njet as well)
 ** = then sigma_i = f_i * sigmal_LO
 ** - stitchWeight (0jet) = f_0 / (f_0 * N_inclusive)
 ** - stitchWeight (njet) = f_n / (f_n * N_inclusive + N_njets)
+**==============================================================
+** new approach for NLO:
+** 3 samples merged: Inclusive, Njet-sliced, pT-sliced.
+** merging done according to cross-section from xsdb
+** [0,50] GeV pT slice is buggy and not included in the stitching
+** -> 2 dedicated scale factors are needed (for pT>50 and pT<50) to restore the total cross-section
 */
-// Legacy2017 - These are not used in the skimming since the DY sample is already split in jet bins and the weight is included in the XS
-//const float stitchWeights [][5] = {
-//    {2.05922869514 , 0.0 , 0.0 , 0.0 , 0.0},
-//    {0.354413742418 , 0.354372859483 , 0.0 , 0.0 , 0.0},
-//    {0.732341782185 , 0.732016042903 , 0.0941467220108 , 0.0 , 0.0},
-//    {0.468037026578 , 0.468570046894 , 0.0865340678286 , 0.0868910608756 , 0.0},
-//    {0.435985200574 , 0.439933495111 , 0.101379942882 , 0.0836752003648 , 0.0954161456739}
-//};
-
-// computed for UL2017, 12 April 2022, including DY HT-binned samples
-const float stitchWeights [5][5][9] = {
-  {
-    {1.92541282955 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
-    {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
-    {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
-    {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
-    {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
-  },
-  {
-    {0.70097467831 , 0.385819078528 , 0.308746472463 , 0.166975265538 , 0.058136367335 , 0.0170492828066 , 0.00849328703712 , 0.0016976649972 , 8.45593646152e-05},
-    {0.707137505872 , 0.385463407396 , 0.309736687742 , 0.168986463508 , 0.0626710399446 , 0.0167036708606 , 0.00857849101105 , 0.00170703573316 , 0.0},
-    {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
-    {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
-    {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
-  },
-  {
-    {0.579173122523 , 0.344038232423 , 0.279983703569 , 0.161400248793 , 0.0596936312715 , 0.0154668553527 , 0.00732684920509 , 0.00170223641805 , 8.45460858205e-05},
-    {0.582674841051 , 0.344818711512 , 0.280906397449 , 0.161718299311 , 0.0605793234257 , 0.0168977197135 , 0.00846815672152 , 0.00170248969925 , 8.45593646152e-05},
-    {0.587942342043 , 0.348805148569 , 0.28344732409 , 0.163896056933 , 0.0626926525652 , 0.0168338178347 , 0.00848874679739 , 0.00169892244545 , 8.3988017557e-05},
-    {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0},
-    {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
-  },
-  {
-    {0.281976926094 , 0.212373273637 , 0.187803778688 , 0.126959994834 , 0.0561285697243 , 0.0162339776426 , 0.00803335196495 , 0.00172447661603 , 7.07456213091e-05},
-    {0.283963762631 , 0.21238603343 , 0.186433115652 , 0.125736486052 , 0.0563032895107 , 0.0167204469511 , 0.00830982784415 , 0.00169623170953 , 8.45593646152e-05},
-    {0.271263972341 , 0.208443063564 , 0.183775606513 , 0.12383922065 , 0.0592464214629 , 0.0163549589173 , 0.00830775954907 , 0.00169571984021 , 8.45593646152e-05},
-    {0.296748213873 , 0.213759474317 , 0.191149934051 , 0.132581618437 , 0.0536422384885 , 0.0153512461291 , 0.00857849101105 , 0.00170703573316 , 8.45593646152e-05},
-    {0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0}
-  },
-  {
-    {0.253733035533 , 0.187204294552 , 0.168738096066 , 0.11847807172 , 0.0543684474194 , 0.0163670993389 , 0.00837784889654 , 0.0016797136733 , 8.45289089831e-05},
-    {0.244385125491 , 0.181359939801 , 0.168805677138 , 0.118825132726 , 0.0556555225024 , 0.0164036994117 , 0.00886469995188 , 0.0016951641068 , 8.45409914643e-05},
-    {0.269659940053 , 0.188401500479 , 0.167396781226 , 0.117714284164 , 0.0537709866622 , 0.0172583419101 , 0.00857089738971 , 0.00169508073759 , 8.45390963111e-05},
-    {0.256200781214 , 0.188536384858 , 0.171292357584 , 0.114796883966 , 0.0546103793688 , 0.0161830267958 , 0.00824162718974 , 0.0016925021472 , 8.45593646152e-05},
-    {0.280994405202 , 0.192331122007 , 0.165072620878 , 0.126596181261 , 0.0560765240989 , 0.0162114452656 , 0.00831511628703 , 0.00169902148089 , 8.45593646152e-05}
-  }
-};
-
+const float stitchWeights [2] = {0.5, 0.3333333};
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- -
@@ -894,28 +854,82 @@ int main (int argc, char** argv)
     float stitchWeight = 1.0;
     if (DY_tostitch)
     {
-      int njets = theBigTree.lheNOutPartons;
-      int nb    = theBigTree.lheNOutB;
-      // these protections should be useless
-      if (njets < 0) njets = 0;
-      if (njets > 4) njets = 4;
-      if (nb < 0)    nb = 0;
-      if (nb > 4)    nb = 4;
+      float Zpt = -999;
+      // loop through gen parts to identify Z boson
+      int Zidx = -1;
+      int idx_tau1 = -1;
+      int idx_tau2 = -1;
+      int pdg_tau1 = -1;
+      for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
+      {
+	bool isZLast   = CheckBit(theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
+	bool isZPrompt = CheckBit(theBigTree.genpart_flags->at(igen),  0) ; //  0 = isPrompt
+	bool isHardProcess = CheckBit(theBigTree.genpart_flags->at(igen),  8) ; //  8 = FromHardProcess
 
-      float ht = theBigTree.lheHt;
-      int nht = 0;
-      if      (ht  < 0                ) nht = 0;
-      else if (ht >= 0    && ht < 70  ) nht = 0;
-      else if (ht >= 70   && ht < 100 ) nht = 1;
-      else if (ht >= 100  && ht < 200 ) nht = 2;
-      else if (ht >= 200  && ht < 400 ) nht = 3;
-      else if (ht >= 400  && ht < 600 ) nht = 4;
-      else if (ht >= 600  && ht < 800 ) nht = 5;
-      else if (ht >= 800  && ht < 1200) nht = 6;
-      else if (ht >= 1200 && ht < 2500) nht = 7;
-      else  /* ht >= 2500 */            nht = 8;
+	if (theBigTree.genpart_pdg->at(igen) == 23 && isZLast && isZPrompt) // Z0 + isLast + isPrompt
+	{
+	  Zidx = igen;
+	}
 
-      stitchWeight = stitchWeights[njets][nb][nht];
+	// For events with no gen Z; use the two final state leptons
+	if (isZPrompt && isHardProcess && isZLast &&
+	    (fabs(theBigTree.genpart_pdg->at(igen)) == 15 ||
+	     fabs(theBigTree.genpart_pdg->at(igen)) == 13 ||
+	     fabs(theBigTree.genpart_pdg->at(igen)) == 11 )
+	  ) // tau + prompt + from hard process
+	{
+	  if (idx_tau1==-1)
+	  {
+	    idx_tau1=igen;
+	    pdg_tau1=theBigTree.genpart_pdg->at(igen);
+	  }
+	  else if (idx_tau2==-1 && theBigTree.genpart_pdg->at(igen)==-pdg_tau1)
+	  {
+	    idx_tau2=igen;
+	  }
+
+	}
+      }
+      // if found, Build the genZ TLorentzVector
+      if (Zidx >= 0)
+      {
+	// build the genZ TLorentzVector
+	TLorentzVector tlvgenZ;
+	tlvgenZ.SetPxPyPzE(
+	  theBigTree.genpart_px->at(Zidx),
+	  theBigTree.genpart_py->at(Zidx),
+	  theBigTree.genpart_pz->at(Zidx),
+	  theBigTree.genpart_e->at(Zidx)
+	  );
+
+	Zpt = tlvgenZ.Pt();
+      }
+      //to be replaced by lhe ptZ once available
+      else if (idx_tau1>=0 && idx_tau2>=0)
+      {
+	// build the genZ from the two leptons
+	TLorentzVector genTau1,genTau2;
+	genTau1.SetPxPyPzE(
+	  theBigTree.genpart_px->at(idx_tau1),
+	  theBigTree.genpart_py->at(idx_tau1),
+	  theBigTree.genpart_pz->at(idx_tau1),
+	  theBigTree.genpart_e->at(idx_tau1)
+	  );
+	genTau2.SetPxPyPzE(
+	  theBigTree.genpart_px->at(idx_tau2),
+	  theBigTree.genpart_py->at(idx_tau2),
+	  theBigTree.genpart_pz->at(idx_tau2),
+	  theBigTree.genpart_e->at(idx_tau2)
+	  );
+
+	TLorentzVector tlvgenZ = genTau1+genTau2;
+	Zpt = tlvgenZ.Pt();
+      }
+
+      if (Zpt<50)
+	stitchWeight = stitchWeights[0];
+      else
+	stitchWeight = stitchWeights[1];
     }
 
     // Should never enter here (DY_tostitch should be always true)
@@ -1454,9 +1468,9 @@ int main (int argc, char** argv)
     }
     double EvtW;
     if (theBigTree.npu >= 0 && theBigTree.npu <= 99) // good PU weights
-      EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) * topPtReweight * HHweight * stitchWeight) : 1.0;
+      EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) * topPtReweight * HHweight) : 1.0;
     else if (theBigTree.npu >= 100)                  // use the last available bin for the PU weight
-      EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,99, PUreweightFile) * topPtReweight * HHweight * stitchWeight) : 1.0;
+      EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,99, PUreweightFile) * topPtReweight * HHweight) : 1.0;
     else                                             // if npu<0 --> bug in MC --> weight=0
       EvtW = isMC ? 0.0 : 1.0;
 
