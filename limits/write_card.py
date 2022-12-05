@@ -29,6 +29,7 @@ def parseOptions():
     parser.add_option('-r', '--resonant' , dest='isResonant', action="store_true"            , help='is Resonant analysis')
     parser.add_option('-b', '--binbybin' , dest='binbybin'  , action="store_true"            , help='add bin by bins systematics')
     parser.add_option('-t', '--theory'   , dest='theory'    , action="store_true"            , help='add theory systematics')
+    parser.add_option('--eftBenchmark'   , dest='eftBenchmark', type='string', default='', help='EFT benchmarks: bm1,bm2,...,bm1b,bm2b,...,c2scan')
     parser.add_option('--ws', dest='makeworkspace', action="store_true", default=False)
 
     # store options and arguments as global variables
@@ -92,7 +93,10 @@ def  writeCard(backgrounds,signals,select,region=-1) :
 
     theOutputDir = "{0}{1}".format(select,variable[theCat])
     dname = "_"+opt.channel+opt.outDir
-    out_dir = "cards{1}/{0}/".format(theOutputDir,dname)
+    if opt.eftBenchmark == '':
+        out_dir = "cards{1}/{0}/".format(theOutputDir,dname)
+    else:
+        out_dir = "EFT_cards/cards_{2}/cards{1}/{0}/".format(theOutputDir,dname,opt.eftBenchmark)
 
     cmd = "mkdir -p {0}".format(out_dir)
         
@@ -569,8 +573,8 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         col1       = '{: <49}'      # must be equal to colsysN + colsysType
         colsysN    = '{: <43}'      # name of systematic
         colsysType = '{: <6}'       # type of syst: "lnN" or "shape"
-        cols       = '{: >35}'      # must be equal to ratecols
-        ratecols   = '{0: > 35.4f}' # must be equal to cols
+        cols       = '{: >37}'      # must be equal to ratecols
+        ratecols   = '{0: > 37.4f}' # must be equal to cols
 
         shapes_lines_toWrite = []
         lnN_lines_toWrite     = []
@@ -591,8 +595,10 @@ def  writeCard(backgrounds,signals,select,region=-1) :
 
         ########################
 
-        #outFile = "hh_{0}_{1}_C{2}_13TeV.txt".format(opt.year,thechannel,theCat)
-        outFile = "hh_{0}_13TeV.txt".format(selectName)
+        if opt.eftBenchmark == '' or opt.eftBenchmark == 'c2scan':
+            outFile = "hh_{0}_13TeV.txt".format(selectName)
+        else:
+            outFile = "datacard_bm{1}_{0}_13TeV.txt".format(selectName,opt.eftBenchmark)
 
         file = open(out_dir+outFile, "wb")
 
@@ -601,8 +607,10 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         file.write    ('kmax *  number of nuisance parameters\n')
         file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
         ## shapes
-        #file.write    ('shapes * %s %s $PROCESS $PROCESS_$SYSTEMATIC\n'%(select, "hh_{0}_{1}_C{2}_13TeV.input.root".format(opt.year,thechannel,theCat)))
-        file.write    ('shapes * %s %s $PROCESS $PROCESS_$SYSTEMATIC\n'%(selectName, "hh_{0}_13TeV.input.root".format(selectName)))
+        if opt.eftBenchmark == '' or opt.eftBenchmark == 'c2scan':
+            file.write    ('shapes * %s %s $PROCESS $PROCESS_$SYSTEMATIC\n'%(selectName, "hh_{0}_13TeV.input.root".format(selectName)))
+        else:
+            file.write    ('shapes * %s %s $PROCESS $PROCESS_$SYSTEMATIC\n'%(selectName, "datacard_bm{1}_{0}_13TeV.input.root".format(selectName,opt.eftBenchmark)))
         file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
         file.write    ((col1+cols+'\n').format('bin', selectName)) ### blind for now
         ## observation
@@ -638,8 +646,16 @@ def  writeCard(backgrounds,signals,select,region=-1) :
             file.write(line)
         file.write    ('----------------------------------------------------------------------------------------------------------------------------------\n')
 
-        file.write    ('theory group = BR_hbb BR_htt THU_HH pdf_Higgs_ggHH alpha_s_ggHH QCDscale_qqHH pdf_Higgs_qqHH\n')
-        file.write    ('theory_xsonly group = THU_HH pdf_Higgs_ggHH alpha_s_ggHH QCDscale_qqHH pdf_Higgs_qqHH\n')
+        if opt.eftBenchmark == '':
+            file.write    ('theory group = BR_hbb BR_htt THU_HH pdf_Higgs_ggHH alpha_s_ggHH QCDscale_qqHH pdf_Higgs_qqHH\n')
+            file.write    ('theory_xsonly group = THU_HH pdf_Higgs_ggHH alpha_s_ggHH QCDscale_qqHH pdf_Higgs_qqHH\n')
+        elif opt.eftBenchmark == 'c2scan':
+            file.write    ('theory group = BR_hbb BR_htt THU_HH pdf_Higgs_ggHH QCDscale_qqHH pdf_Higgs_qqHH\n')
+            file.write    ('theory_xsonly group = THU_HH pdf_Higgs_ggHH QCDscale_qqHH pdf_Higgs_qqHH\n')
+        else:
+            file.write    ('theory group = BR_hbb BR_htt pdf_Higgs_ggHH QCDscale_qqHH pdf_Higgs_qqHH\n')
+            file.write    ('theory_xsonly group = pdf_Higgs_ggHH QCDscale_qqHH pdf_Higgs_qqHH\n')
+
         if opt.dynamQCD:
             file.write("alpha rateParam {0} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n".format(selectName))
 
@@ -647,8 +663,11 @@ def  writeCard(backgrounds,signals,select,region=-1) :
         #if (opt.binbybin): file.write('\n* autoMCStats 1')
 
         file.close()
-        #outroot = TFile.Open(out_dir+"hh_{0}_{1}_C{2}_13TeV.input.root".format(opt.year,thechannel,theCat),"RECREATE")
-        outroot = TFile.Open(out_dir+"hh_{0}_13TeV.input.root".format(selectName),"RECREATE")
+
+        if opt.eftBenchmark == '' or opt.eftBenchmark == 'c2scan':
+            outroot = TFile.Open(out_dir+"hh_{0}_13TeV.input.root".format(selectName),"RECREATE")
+        else:
+            outroot = TFile.Open(out_dir+"datacard_bm{1}_{0}_13TeV.input.root".format(selectName,opt.eftBenchmark),"RECREATE")
 
         for i, name in enumerate(nominalShapes_toSave):
             #print name
@@ -752,10 +771,19 @@ signals     = input.readListOption("general::signals")
 backgrounds = input.readListOption("general::backgrounds")
 
 # protection against using too many signal samples (HHmodel will complain otherwise)
-if "GGHH_NLO_cHHH0_xs" in signals:
-    signals.remove("GGHH_NLO_cHHH0_xs")
-if "VBFHH_CV_0p5_C2V_1_C3_1_xs" in signals:
-    signals.remove("VBFHH_CV_0p5_C2V_1_C3_1_xs")
+if opt.eftBenchmark == '':
+    if "GGHH_NLO_cHHH0_xs" in signals:
+        signals.remove("GGHH_NLO_cHHH0_xs")
+    if "VBFHH_CV_0p5_C2V_1_C3_1_xs" in signals:
+        signals.remove("VBFHH_CV_0p5_C2V_1_C3_1_xs")
+else:
+    if "GGHH_NLO_cHHH5_xs" in signals:
+        signals.remove("GGHH_NLO_cHHH5_xs")
+    if opt.eftBenchmark == 'c2scan':
+        for sig in signals:
+            signals = [sig for sig in signals if "benchmark" not in sig]
+    else:
+        signals = ["benchmark"+opt.eftBenchmark]
 
 ## replace what was merged
 if input.hasSection("merge"):
@@ -773,8 +801,20 @@ backgrounds.append("QCD")
 
 # rename signals following model convention
 for i,sig in enumerate(signals):
-    if "GGHH_NLO" in sig: signals[i] = sig.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_hbbhtt").replace("cHHH", "kl_")
-    if "VBFHH"    in sig: signals[i] = sig.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_hbbhtt") #write 1_5 as 1p5 from the beginning
+    if opt.eftBenchmark == '':
+        if "GGHH_NLO" in sig: signals[i] = sig.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_hbbhtt").replace("cHHH", "kl_")
+        if "VBFHH"    in sig: signals[i] = sig.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_hbbhtt") #write 1_5 as 1p5 from the beginning
+    else:
+        # For EFT
+        if "benchmark"     in sig: signals[i] = sig.replace("benchmark", "ggHH_benchmark")
+        if "GGHH_NLO" in sig:
+            if   "cHHH1"    in sig: signals[i] = sig.replace("GGHH_NLO_cHHH1_xs"   , "ggHH_kl_1p00_kt_1p00_c2_0p00_hbbhtt")
+            elif "cHHH0"    in sig: signals[i] = sig.replace("GGHH_NLO_cHHH0_xs"   , "ggHH_kl_0p00_kt_1p00_c2_0p00_hbbhtt")
+            elif "cHHH2p45" in sig: signals[i] = sig.replace("GGHH_NLO_cHHH2p45_xs", "ggHH_kl_2p45_kt_1p00_c2_0p00_hbbhtt")
+            elif "c2_0p35"  in sig: signals[i] = sig.replace("GGHH_NLO_c2_0p35"    , "ggHH_kl_1p00_kt_1p00_c2_0p35_hbbhtt")
+            elif "c2_1p0"   in sig: signals[i] = sig.replace("GGHH_NLO_c2_1p0"     , "ggHH_kl_1p00_kt_1p00_c2_1p00_hbbhtt")
+            elif "c2_3p0"   in sig: signals[i] = sig.replace("GGHH_NLO_c2_3p0"     , "ggHH_kl_1p00_kt_1p00_c2_3p00_hbbhtt")
+            else: signals[i] = sig.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_hbbhtt").replace("cHHH", "kl_")
 
 # Rename singleH processes to use the HHModel BR scaling
 # ggH --> ggH_htt
