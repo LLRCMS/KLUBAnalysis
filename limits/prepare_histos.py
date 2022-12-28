@@ -45,6 +45,8 @@ histos_syst_up = []
 histos_syst_down = []
 
 yieldFolder = "scales"+opt.year+"/"
+# For EFT
+#yieldFolder = "scales"+opt.year+"_EFT/"
 
 ih = 0
 
@@ -131,7 +133,7 @@ for key in inFile.GetListOfKeys():
 						#print "found ",words, proc,float(words[1+found])
 						scale = float(words[1+found])
 						break
-				#template.Scale(scale)
+				template.Scale(scale)
 				#print proc,scale,yieldName
 
 				kname = kname.replace("_"+systNames[isyst].replace('XXX',remString).replace("tes","tau").replace("ees","ele").replace("mes","mu").replace("jes","jet"),"")
