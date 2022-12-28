@@ -6,8 +6,8 @@ def parseOptions():
     usage = ('usage: %prog [options] datasetList\n'
              + '%prog -h for help')
     parser = optparse.OptionParser(usage)
-
-    parser.add_option('-y', '--year'    , dest='year'    , type='string', default="2016"  , help='year')
+    parser.add_option('-y', '--year', dest='year' , type='string', default="2016", help='year')
+    parser.add_option('-e', '--EFT' , dest='isEFT', type=int , default=0 , help='isEFT')
 
     # store options and arguments as global variables
     global opt, args
@@ -18,13 +18,26 @@ parseOptions()
 
 channels = ['TauTau', 'MuTau', 'ETau']
 
-MClist = ['TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'qqH', 'VVV', 'DY_LM',
-          'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt',
-          'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt',
-          'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt',
-          'GGHH_NLO_cHHH0_xs', 'GGHH_NLO_cHHH1_xs', 'GGHH_NLO_cHHH2p45_xs', 'GGHH_NLO_cHHH5_xs',
-          'VBFHH_CV_1_C2V_1_C3_1_xs' , 'VBFHH_CV_0p5_C2V_1_C3_1_xs', 'VBFHH_CV_1p5_C2V_1_C3_1_xs', 'VBFHH_CV_1_C2V_1_C3_0_xs',
-          'VBFHH_CV_1_C2V_1_C3_2_xs', 'VBFHH_CV_1_C2V_2_C3_1_xs', 'VBFHH_CV_1_C2V_0_C3_1_xs']
+if opt.isEFT:
+	# MC list for EFT
+	MClist = ['TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'qqH', 'VVV', 'DY_LM',
+			  'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt',
+			  'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt',
+			  'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt',
+			  'GGHH_NLO_cHHH0_xs', 'GGHH_NLO_cHHH1_xs', 'GGHH_NLO_cHHH2p45_xs',
+			  'qqHH',
+			  'benchmark1', 'benchmark2', 'benchmark3', 'benchmark4', 'benchmark5', 'benchmark6', 'benchmark7',
+			  'benchmark8', 'benchmark9', 'benchmark10', 'benchmark11', 'benchmark12', 'benchmark8a',
+			  'benchmark1b', 'benchmark2b', 'benchmark3b', 'benchmark4b', 'benchmark5b', 'benchmark6b', 'benchmark7b',
+			  'GGHH_NLO_c2_0p35', 'GGHH_NLO_c2_1p0', 'GGHH_NLO_c2_3p0']
+else:
+	MClist = ['TT', 'W', 'EWK', 'singleT', 'TW', 'ZH', 'WH', 'VV', 'ttH', 'TTX', 'ggH', 'qqH', 'VVV', 'DY_LM',
+			  'DY_0b_1Pt', 'DY_0b_2Pt', 'DY_0b_3Pt', 'DY_0b_4Pt', 'DY_0b_5Pt', 'DY_0b_6Pt',
+			  'DY_1b_1Pt', 'DY_1b_2Pt', 'DY_1b_3Pt', 'DY_1b_4Pt', 'DY_1b_5Pt', 'DY_1b_6Pt',
+			  'DY_2b_1Pt', 'DY_2b_2Pt', 'DY_2b_3Pt', 'DY_2b_4Pt', 'DY_2b_5Pt', 'DY_2b_6Pt',
+			  'GGHH_NLO_cHHH0_xs', 'GGHH_NLO_cHHH1_xs', 'GGHH_NLO_cHHH2p45_xs', 'GGHH_NLO_cHHH5_xs',
+			  'VBFHH_CV_1_C2V_1_C3_1_xs' , 'VBFHH_CV_0p5_C2V_1_C3_1_xs', 'VBFHH_CV_1p5_C2V_1_C3_1_xs', 'VBFHH_CV_1_C2V_1_C3_0_xs',
+			  'VBFHH_CV_1_C2V_1_C3_2_xs', 'VBFHH_CV_1_C2V_2_C3_1_xs', 'VBFHH_CV_1_C2V_0_C3_1_xs']
 
 selections = ['s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut', 'VBFloose', 'GGFclass', 'VBFclass', 'ttHclass', 'TTclass', 'DYclass']
 
@@ -47,7 +60,7 @@ toscan = ['tesXXX_DM0', 'tesXXX_DM1', 'tesXXX_DM10', 'tesXXX_DM11', 'eesXXX_DM0'
 
 for channel in channels:
 	print "doing channel: ", channel 
-	inputFile = '../analysis_12Mar2021_syst/%s_%s/outPlotter.root' % (channel, opt.year)
+	inputFile = '../analysis_28Dec2022_syst_EFT/%s_%s/outPlotter.root' % (channel, opt.year)
 	print "inputfile:", inputFile
 	fIn = TFile.Open(inputFile)
 	
@@ -58,7 +71,10 @@ for channel in channels:
 	        histos_nominal = {}
 	        histos_up      = {}
 	        histos_down    = {}
-	        fout = open ("scales"+opt.year+"/"+channel + '_' + sel + '_' + scale.replace('XXX','') + '.txt', 'w')
+	        if opt.isEFT:
+	            fout = open ("scales"+opt.year+"_EFT/"+channel + '_' + sel + '_' + scale.replace('XXX','') + '.txt', 'w')
+	        else:
+	            fout = open ("scales"+opt.year+"/"+channel + '_' + sel + '_' + scale.replace('XXX','') + '.txt', 'w')
 	        for proc in MClist:
 	            hname_nominal = proc + '_' + sel + '_nominal_SR_' + var[sel]
 	            hname_up      = proc + '_' + sel + '_' + scale.replace('XXX','Up') + '_SR_'   + var[sel]
@@ -83,4 +99,5 @@ for channel in channels:
 	            fout.write('%.3f     ' % shiftUp)
 	            fout.write('%.3f'      % shiftDown)
 	            fout.write('\n')
+
 	        fout.close()
