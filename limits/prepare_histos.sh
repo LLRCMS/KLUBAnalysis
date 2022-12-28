@@ -112,7 +112,10 @@
 #python prepare_histos.py -f ../analysis_2022_01_03/TauTau_2018/total/analyzedOutPlotter.root -o 3Feb2022_TTrename -c TauTau -y 2018 -q 0 -B 1
 
 # 24 Nove 2022 - EFT
-python prepare_histos.py -f ../analysis_2022_11_24_EFT/ETau_2016/total/analyzedOutPlotter.root   -o 24Nov2022_EFT -c ETau   -y 2016 -q 0 -B 1
-python prepare_histos.py -f ../analysis_2022_11_24_EFT/MuTau_2016/total/analyzedOutPlotter.root  -o 24Nov2022_EFT -c MuTau  -y 2016 -q 0 -B 1
-python prepare_histos.py -f ../analysis_2022_11_24_EFT/TauTau_2016/total/analyzedOutPlotter.root -o 24Nov2022_EFT -c TauTau -y 2016 -q 0 -B 1
+#python prepare_histos.py -f ../analysis_2022_11_24_EFT/ETau_2016/total/analyzedOutPlotter.root   -o 24Nov2022_EFT -c ETau   -y 2016 -q 0 -B 1
+#python prepare_histos.py -f ../analysis_2022_11_24_EFT/MuTau_2016/total/analyzedOutPlotter.root  -o 24Nov2022_EFT -c MuTau  -y 2016 -q 0 -B 1
+#python prepare_histos.py -f ../analysis_2022_11_24_EFT/TauTau_2016/total/analyzedOutPlotter.root -o 24Nov2022_EFT -c TauTau -y 2016 -q 0 -B 1
 
+python prepare_histos.py -f ../analysis_2022_11_24_EFT/ETau_2017/total/analyzedOutPlotter.root   -o 24Nov2022_EFT -c ETau   -y 2017 -q 0 -B 1
+python prepare_histos.py -f ../analysis_2022_11_24_EFT/MuTau_2017/total/analyzedOutPlotter.root  -o 24Nov2022_EFT -c MuTau  -y 2017 -q 0 -B 1
+python prepare_histos.py -f ../analysis_2022_11_24_EFT/TauTau_2017/total/analyzedOutPlotter.root -o 24Nov2022_EFT -c TauTau -y 2017 -q 0 -B 1

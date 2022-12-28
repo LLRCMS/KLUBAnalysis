@@ -116,21 +116,179 @@ export PYTHONPATH=$PWD/physicsModels:$PYTHONPATH
 #python write_card.py -f preparedHistos/analyzedOutPlotter_2018_TauTau_14Jan2022.root -o 2018_3Feb2022_TToriginal -c TauTau -y 2018 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_01_03/TauTau_2018/total/mainCfg_TauTau_Legacy2018_limits.cfg
 
 # 24 Nove 2022 - EFT
+
+# ------- 2016 -------
+## c2scan
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark c2scan -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark c2scan -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark c2scan -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+
+## benchmark 1b
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 1b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 1b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 1b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 2b
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 2b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 2b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 2b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 3b
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 3b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 3b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 3b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 4b
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 4b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 4b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 4b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 5b
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 5b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 5b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 5b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 6b
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 6b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 6b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 6b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 7b
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 7b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 7b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 7b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+
+## benchmark 1
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 1 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 1 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 1 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 2
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 2 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 2 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 2 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 3
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 3 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 3 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 3 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 4
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 4 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 4 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 4 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 5
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 5 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 5 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 5 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 6
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 6 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 6 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 6 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 7
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 7 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 7 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 7 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 8
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 8 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 8 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 8 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 9
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 9 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 9 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 9 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 10
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 10 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 10 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 10 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 11
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 11 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 11 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 11 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 12
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 12 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 12 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 12 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+## benchmark 8a
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 8a -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 8a -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
+#python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 8a -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+
+# ------- 2017 -------
+# c2scan
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark c2scan -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark c2scan -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark c2scan -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+
 # benchmark 1b
-python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 1b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
-python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 1b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
-python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 1b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 1b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 1b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 1b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 2b
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 2b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 2b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 2b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 3b
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 3b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 3b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 3b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 4b
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 4b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 4b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 4b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 5b
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 5b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 5b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 5b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 6b
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 6b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 6b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 6b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 7b
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 7b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 7b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 7b -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
 
 # benchmark 1
-python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark 1 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
-python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark 1 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
-python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark 1 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
-
-# c2scan
-python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_ETau_24Nov2022_EFT.root   -o 2016_26Nov2022 -c ETau   -y 2016 --eftBenchmark c2scan -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2016/total/mainCfg_ETau_Legacy2016_limits.cfg
-python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_MuTau_24Nov2022_EFT.root  -o 2016_26Nov2022 -c MuTau  -y 2016 --eftBenchmark c2scan -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2016/total/mainCfg_MuTau_Legacy2016_limits.cfg
-python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2016_TauTau_24Nov2022_EFT.root -o 2016_26Nov2022 -c TauTau -y 2016 --eftBenchmark c2scan -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2016/total/mainCfg_TauTau_Legacy2016_limits.cfg
-
-
-
-
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 1 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 1 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 1 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 2
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 2 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 2 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 2 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 3
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 3 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 3 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 3 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 4
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 4 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 4 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 4 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 5
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 5 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 5 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 5 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 6
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 6 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 6 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 6 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 7
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 7 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 7 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 7 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 8
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 8 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 8 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 8 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 9
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 9 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 9 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 9 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 10
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 10 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 10 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 10 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 11
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 11 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 11 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 11 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 12
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 12 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 12 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 12 -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
+# benchmark 8a
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_ETau_24Nov2022_EFT.root   -o 2017_26Nov2022 -c ETau   -y 2017 --eftBenchmark 8a -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/ETau_2017/total/mainCfg_ETau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_MuTau_24Nov2022_EFT.root  -o 2017_26Nov2022 -c MuTau  -y 2017 --eftBenchmark 8a -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/MuTau_2017/total/mainCfg_MuTau_Legacy2017_limits.cfg
+python write_card.py -f preparedHistos_EFT/analyzedOutPlotter_2017_TauTau_24Nov2022_EFT.root -o 2017_26Nov2022 -c TauTau -y 2017 --eftBenchmark 8a -b 1 -u 1 -t -q 0 -B 1 -i ../analysis_2022_11_24_EFT/TauTau_2017/total/mainCfg_TauTau_Legacy2017_limits.cfg
