@@ -45,6 +45,8 @@ histos_syst_up = []
 histos_syst_down = []
 
 yieldFolder = "scales"+opt.year+"/"
+# For EFT
+#yieldFolder = "scales"+opt.year+"_EFT/"
 
 ih = 0
 
@@ -139,8 +141,19 @@ for key in inFile.GetListOfKeys():
 				kname = kname + "_"+ systNamesOUT[isyst] + appString
 
 		# Fix the signal names after the systs have been read
-		if "GGHH_NLO" in kname: kname = kname.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_hbbhtt").replace("cHHH", "kl_")
-		if "VBFHH"    in kname: kname = kname.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_hbbhtt")
+		#if "GGHH_NLO" in kname: kname = kname.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_hbbhtt").replace("cHHH", "kl_")
+		#if "VBFHH"    in kname: kname = kname.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_hbbhtt")
+
+		# For EFT
+		if "benchmark"     in kname: kname = kname.replace("benchmark", "ggHH_benchmark")
+		if "GGHH_NLO" in kname:
+			if   "cHHH1"    in kname: kname = kname.replace("GGHH_NLO_cHHH1_xs"   , "ggHH_kl_1p00_kt_1p00_c2_0p00_hbbhtt")
+			elif "cHHH0"    in kname: kname = kname.replace("GGHH_NLO_cHHH0_xs"   , "ggHH_kl_0p00_kt_1p00_c2_0p00_hbbhtt")
+			elif "cHHH2p45" in kname: kname = kname.replace("GGHH_NLO_cHHH2p45_xs", "ggHH_kl_2p45_kt_1p00_c2_0p00_hbbhtt")
+			elif "c2_0p35"  in kname: kname = kname.replace("GGHH_NLO_c2_0p35"    , "ggHH_kl_1p00_kt_1p00_c2_0p35_hbbhtt")
+			elif "c2_1p0"   in kname: kname = kname.replace("GGHH_NLO_c2_1p0"     , "ggHH_kl_1p00_kt_1p00_c2_1p00_hbbhtt")
+			elif "c2_3p0"   in kname: kname = kname.replace("GGHH_NLO_c2_3p0"     , "ggHH_kl_1p00_kt_1p00_c2_3p00_hbbhtt")
+			else: kname.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_hbbhtt").replace("cHHH", "kl_")
 
 		# Rename singleH processes to use the HHModel BR scaling
 		# ggH --> ggH_htt

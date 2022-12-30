@@ -1,10 +1,12 @@
 # LOG
-OUTDIRR="TAUFAKES_Legacy2016_16Feb2021_varSyst"
+#OUTDIRR="TAUFAKES_Legacy2016_16Feb2021_varSyst"
 #OUTDIRR="TAUFAKES_Legacy2016_16Feb2021_varSyst_ETau"
+OUTDIRR="SYST_Legacy2016_24Nov2022_EFT"
 
 # WORKDIR
-WORKDIR="/gwteraz/users/brivio/SKIMS_Legacy2016_16Feb2021"
+#WORKDIR="/gwteraz/users/brivio/SKIMS_Legacy2016_16Feb2021"
 #WORKDIR="/gwteraz/users/brivio/SKIMS_Legacy2016_16Feb2021_ETau"
+WORKDIR="/gwteraz/users/brivio/SKIMS_Legacy2016_24Nov2022_EFT"
 
 # ENVIRONMENT
 source /cvmfs/cms.cern.ch/cmsset_default.sh
@@ -146,12 +148,42 @@ python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_DY_1b_50JPt  -c co
 python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_DY_1b_80JPt  -c config/skim_Legacy2016_mib.cfg
 python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_DY_2b_0JPt   -c config/skim_Legacy2016_mib.cfg
 python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_DY_2b_10JPt  -c config/skim_Legacy2016_mib.cfg
-COMMENT1
 python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_DY_2b_110JPt -c config/skim_Legacy2016_mib.cfg
 python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_DY_2b_190JPt -c config/skim_Legacy2016_mib.cfg
 python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_DY_2b_50JPt  -c config/skim_Legacy2016_mib.cfg
 python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_DY_2b_80JPt  -c config/skim_Legacy2016_mib.cfg
-<<COMMENT2
 
+COMMENT1
+
+# EFT BENCHMARKS JHEP04
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM1  -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM2  -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM3  -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM4  -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM5  -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM6  -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM7  -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM8  -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM9  -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM10 -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM11 -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM12 -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM8a -c config/skim_Legacy2016_mib.cfg
+#
+## EFT BENCHMARKS JHEP03
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM1b -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM2b -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM3b -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM4b -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM5b -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM6b -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_allNLO_to_BM7b -c config/skim_Legacy2016_mib.cfg
+#
+## c2 SCAN
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_GGHH_NLO_c2_3p0  -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_GGHH_NLO_c2_0p35 -c config/skim_Legacy2016_mib.cfg
+python scripts/systNtuple_mib.py -T $OUTDIRR -w $WORKDIR/SKIM_GGHH_NLO_c2_1p0  -c config/skim_Legacy2016_mib.cfg
+
+<<COMMENT2
 
 COMMENT2
