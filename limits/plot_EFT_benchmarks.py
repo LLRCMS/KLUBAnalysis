@@ -74,7 +74,7 @@ ptsList = [] # (x, obs, exp, p2s, p1s, m1s, m2s)
 
 for i, bm in enumerate(benchmarks):
 
-    fName = 'EFT_cards/cards_'+bm+'/cards_'+tag+'_'+year+'/out_Asym_bm'+bm+'_blind.log'
+    fName = 'EFT_cards_stackedAndCleaned/cards_'+bm+'/cards_'+tag+'_'+year+'/out_Asym_bm'+bm+'_blind.log'
 
     # Can get different results on r_gghh:
     #exp = parseFile(fName)                  # <- How many times the SM I'm excluding
@@ -221,7 +221,7 @@ elif BM_set == 'JHEP03': pt3.AddText("JHEP03(2020)091")
 hframe = ROOT.TH1F('hframe', '', len(benchmarks), 0, len(benchmarks))
 if limit_type == 'xsBR':
     hframe.SetMinimum(1)
-    hframe.SetMaximum(1000)
+    hframe.SetMaximum(10000)
 elif limit_type == 'xs':
     hframe.SetMinimum(10)
     hframe.SetMaximum(100000)
