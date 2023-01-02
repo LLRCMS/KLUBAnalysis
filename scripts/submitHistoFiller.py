@@ -7,6 +7,7 @@ parser = argparse.ArgumentParser(description='Command line parser of plotting op
 parser.add_argument('--cfg',    dest='cfg',   help='name of the main cfg to run', default=None)
 parser.add_argument('--tag',    dest='tag',   help='name of working space (defaults to timestamp)', default=None)
 parser.add_argument('--njobs',  dest='njobs', type=int, help='number of jobs for parallelization',  default=10)
+parser.add_argument('--dest',  dest='dest',  help='path in which we want the jobs folder to be saved')
 args = parser.parse_args()
 
 if not args.cfg:
@@ -18,6 +19,9 @@ outDir = datetime.datetime.now().strftime('%Y.%m.%d_%H.%M.%S')
 if args.tag:
     outDir = args.tag
 outDir = "jobs_"+outDir
+if args.dest:
+    destination = args.dest
+    outDir = destination+"/jobs_"+outDir
 
 # pathname = os.path.dirname(sys.argv[0])        
 # here     = os.path.abspath(pathname)
@@ -45,7 +49,7 @@ for nj in range(0, args.njobs):
     scriptFile.close()
     
     os.system ('chmod u+rwx ' + outDir + '/' + scriptName)
-    launchcommand = ('/opt/exp_soft/cms/t3/t3submit -short \'' + outDir + '/' + scriptName +"\'")
+    launchcommand = ('/home/llr/cms/motta/t3submit -short \'' + outDir + '/' + scriptName +"\'")
     print launchcommand
     os.system (launchcommand)
     # command = '/opt/exp_soft/cms/t3/t3submit -short ' + outDir + '/' + proto + str (nj) + '.sh'
