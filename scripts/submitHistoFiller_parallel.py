@@ -6,10 +6,11 @@ import argparse
 import datetime
 
 parser = argparse.ArgumentParser(description='Command line parser of plotting options')
-parser.add_argument('--cfg'     , dest='cfg'     ,            default=None, help='name of the main cfg to run')
-parser.add_argument('--tag'     , dest='tag'     ,            default=None, help='name of working space (defaults to timestamp)')
-parser.add_argument('--njobs'   , dest='njobs'   , type=int , default=10  , help='number of jobs for parallelization')
-parser.add_argument('--isCondor', dest='isCondor', type=bool, default=True, help='run on condor or not')
+parser.add_argument('--cfg'     , dest='cfg'     ,            default=None,   help='name of the main cfg to run')
+parser.add_argument('--tag'     , dest='tag'     ,            default=None,   help='name of working space (defaults to timestamp)')
+parser.add_argument('--queue',    dest='queue'   ,            default='long', help='which queue to use')
+parser.add_argument('--njobs'   , dest='njobs'   , type=int , default=10  ,   help='number of jobs for parallelization')
+parser.add_argument('--isCondor', dest='isCondor', action='store_true',       help='run on condor or not')
 args = parser.parse_args()
 
 
@@ -65,7 +66,7 @@ for nj in range(0, args.njobs):
         scriptFile.write(command)
         scriptFile.close()
         os.system ('chmod u+rwx ' + outDir + '/' + scriptName)
-        launchcommand = ('/home/llr/cms/motta/t3submit -long \'' + outDir + '/' + scriptName +"\'")
+        launchcommand = ('/home/llr/cms/motta/t3submit -'+args.queue+' \'' + outDir + '/' + scriptName +"\'")
 
     print launchcommand
-    os.system (launchcommand)
+    # os.system (launchcommand)
