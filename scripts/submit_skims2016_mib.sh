@@ -1,5 +1,7 @@
 # LOG
-OUTDIRR="SKIMS_Legacy2016_22Nov2022_EFT"
+OUTDIRR="SKIMS_Legacy2016_24Nov2022_EFT"
+#OUTDIRR="SKIMS_Legacy2016_24Nov2022_EFT_JERup"
+#OUTDIRR="SKIMS_Legacy2016_24Nov2022_EFT_JERdown"
 
 # INPUT
 INPUTDIR="inputFiles/Legacy2016_backgrounds"
@@ -7,7 +9,9 @@ INPUTDIR_DATA="inputFiles/Legacy2016_data"
 INPUTDIR_SIG="inputFiles/Legacy2016_signals"
 
 # OUTPUT
-SKIMDIR="/gwteraz/users/brivio/SKIMS_Legacy2016_22Nov2022_EFT"
+SKIMDIR="/gwteraz/users/brivio/SKIMS_Legacy2016_24Nov2022_EFT"
+#SKIMDIR="/gwteraz/users/brivio/SKIMS_Legacy2016_24Nov2022_EFT_JERup"
+#SKIMDIR="/gwteraz/users/brivio/SKIMS_Legacy2016_24Nov2022_EFT_JERdown"
 
 # PU weights
 PUDIR="/gwpool/users/brivio/Hhh_1718/LegacyRun2/May2020/LIMdev/CMSSW_11_1_0_pre6/src/KLUBAnalysis/weights/PUreweight/Legacy_Run2_PU_SF/2016"
@@ -379,43 +383,64 @@ COMMENT1
 # ----------------------
 # Doing Reco part now SKIMS_Legacy2016_22Nov2022_EFT
 # Standard points:
-# xs (kL = 1)                      = 1 fb = 0.03105 pb --> * BR(hh->bbtautau) = 0.03105 * (0.073056256) = 0.0022683967    pb
-# xs (kL = 0)    = f(0)    * 1.115 = 1 fb = 0.06972 pb --> * BR(hh->bbtautau) = 0.06972 * (0.073056256) = 0.005093482168  pb
-# xs (kL = 2.45) = f(2.45) * 1.115 = 1 fb = 0.01312 pb --> * BR(hh->bbtautau) = 0.01312 * (0.073056256) = 0.0009584980787 pb
-# xs (kL = 5)    = f(5)    * 1.115 = 1 fb = 0.09117 pb --> * BR(hh->bbtautau) = 0.09117 * (0.073056256) = 0.00666053886   pb
+# xs (kL = 1)                      = 0.03105 pb --> * BR(hh->bbtautau) = 0.03105 * (0.073056256) = 0.0022683967    pb
+# xs (kL = 0)    = f(0)    * 1.115 = 0.06972 pb --> * BR(hh->bbtautau) = 0.06972 * (0.073056256) = 0.005093482168  pb
+# xs (kL = 2.45) = f(2.45) * 1.115 = 0.01312 pb --> * BR(hh->bbtautau) = 0.01312 * (0.073056256) = 0.0009584980787 pb
+# xs (kL = 5)    = f(5)    * 1.115 = 0.09117 pb --> * BR(hh->bbtautau) = 0.09117 * (0.073056256) = 0.00666053886   pb
 
 # No rew - just "skim" for comparison plots
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k False -o $SKIMDIR/SKIM_plain_kl1    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_kl1.txt    --pu $PUDIR/PU_Legacy2016_SF.txt  -x 0.0022683967    -a True --hhNLO True --BSMname plain_kl1
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k False -o $SKIMDIR/SKIM_plain_kl0    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_kl0.txt    --pu $PUDIR/PU_Legacy2016_SF.txt  -x 0.005093482168  -a True --hhNLO True --BSMname plain_kl0
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k False -o $SKIMDIR/SKIM_plain_kl2p45 -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_kl2p45.txt --pu $PUDIR/PU_Legacy2016_SF.txt  -x 0.0009584980787 -a True --hhNLO True --BSMname plain_kl2p45
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k False -o $SKIMDIR/SKIM_plain_kl5    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_kl5.txt    --pu $PUDIR/PU_Legacy2016_SF.txt  -x 0.00666053886   -a True --hhNLO True --BSMname plain_kl5
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k False -o $SKIMDIR/SKIM_plain_kl1    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_kl1.txt    --pu $PUDIR/PU_Legacy2016_SF.txt  -x 0.0022683967    -a True --hhNLO True --BSMname plain_kl1
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k False -o $SKIMDIR/SKIM_plain_kl0    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_kl0.txt    --pu $PUDIR/PU_Legacy2016_SF.txt  -x 0.005093482168  -a True --hhNLO True --BSMname plain_kl0
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k False -o $SKIMDIR/SKIM_plain_kl2p45 -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_kl2p45.txt --pu $PUDIR/PU_Legacy2016_SF.txt  -x 0.0009584980787 -a True --hhNLO True --BSMname plain_kl2p45
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k False -o $SKIMDIR/SKIM_plain_kl5    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_kl5.txt    --pu $PUDIR/PU_Legacy2016_SF.txt  -x 0.00666053886   -a True --hhNLO True --BSMname plain_kl5
 
 # Rew allNLO to kl 1 / 0 / 2.45 / 5 - Opt1 - reco1
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 30 -k False -o $SKIMDIR/SKIM_allNLO_to_kl1_Opt1_reco1    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.0022683967    -a True --hhNLO True --BSMname allNLO_to_kl1_Opt1_reco1    --EFTbm manual --order_input nlo --order_rew nlo --kl 1.0  --kt 1.0 --c2 0.0 --cg 0.0 --c2g 0.0
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k False -o $SKIMDIR/SKIM_allNLO_to_kl0_Opt1_reco1    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.005093482168  -a True --hhNLO True --BSMname allNLO_to_kl0_Opt1_reco1    --EFTbm manual --order_input nlo --order_rew nlo --kl 0.0  --kt 1.0 --c2 0.0 --cg 0.0 --c2g 0.0
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k False -o $SKIMDIR/SKIM_allNLO_to_kl2p45_Opt1_reco1 -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.0009584980787 -a True --hhNLO True --BSMname allNLO_to_kl2p45_Opt1_reco1 --EFTbm manual --order_input nlo --order_rew nlo --kl 2.45 --kt 1.0 --c2 0.0 --cg 0.0 --c2g 0.0
-python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k False -o $SKIMDIR/SKIM_allNLO_to_kl5_Opt1_reco1    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00666053886   -a True --hhNLO True --BSMname allNLO_to_kl5_Opt1_reco1    --EFTbm manual --order_input nlo --order_rew nlo --kl 5.0  --kt 1.0 --c2 0.0 --cg 0.0 --c2g 0.0
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 30 -k False -o $SKIMDIR/SKIM_allNLO_to_kl1_Opt1_reco1    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.0022683967    -a True --hhNLO True --BSMname allNLO_to_kl1_Opt1_reco1    --EFTbm manual --order_input nlo --order_rew nlo --kl 1.0  --kt 1.0 --c2 0.0 --cg 0.0 --c2g 0.0
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k False -o $SKIMDIR/SKIM_allNLO_to_kl0_Opt1_reco1    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.005093482168  -a True --hhNLO True --BSMname allNLO_to_kl0_Opt1_reco1    --EFTbm manual --order_input nlo --order_rew nlo --kl 0.0  --kt 1.0 --c2 0.0 --cg 0.0 --c2g 0.0
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k False -o $SKIMDIR/SKIM_allNLO_to_kl2p45_Opt1_reco1 -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.0009584980787 -a True --hhNLO True --BSMname allNLO_to_kl2p45_Opt1_reco1 --EFTbm manual --order_input nlo --order_rew nlo --kl 2.45 --kt 1.0 --c2 0.0 --cg 0.0 --c2g 0.0
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k False -o $SKIMDIR/SKIM_allNLO_to_kl5_Opt1_reco1    -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00666053886   -a True --hhNLO True --BSMname allNLO_to_kl5_Opt1_reco1    --EFTbm manual --order_input nlo --order_rew nlo --kl 5.0  --kt 1.0 --c2 0.0 --cg 0.0 --c2g 0.0
 
 
 # ----------------------
+# Doing EFT skimming now SKIMS_Legacy2016_24Nov2022_EFT
 # Benchmarks JHEP04(2016)126 [1-12] (https://arxiv.org/pdf/1710.08261.pdf) + [8a] (https://link.springer.com/article/10.1007/JHEP09(2018)057)
 # Benchmarks (use 1 fb * BR(bbtt)):
 # xs = 1 fb = 0.001 pb --> * BR(hh->bbtautau) = 0.001 * (0.073056256) = 0.00007305625 pb
-#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 10 -k True -o $SKIMDIR/SKIM_allNLO_to_BM1 -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM1 --EFTbm 1 --order_input nlo --order_rew nlo
-#...
-#...
-#...
-#...
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_allNLO_to_BM1  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM1  --EFTbm 1  --order_input nlo --order_rew nlo
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_allNLO_to_BM2  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM2  --EFTbm 2  --order_input nlo --order_rew nlo
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_allNLO_to_BM3  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM3  --EFTbm 3  --order_input nlo --order_rew nlo
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_allNLO_to_BM4  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM4  --EFTbm 4  --order_input nlo --order_rew nlo
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_allNLO_to_BM5  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM5  --EFTbm 5  --order_input nlo --order_rew nlo
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_allNLO_to_BM6  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM6  --EFTbm 6  --order_input nlo --order_rew nlo
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_allNLO_to_BM7  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM7  --EFTbm 7  --order_input nlo --order_rew nlo
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_allNLO_to_BM8  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM8  --EFTbm 8  --order_input nlo --order_rew nlo
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_allNLO_to_BM9  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM9  --EFTbm 9  --order_input nlo --order_rew nlo
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_allNLO_to_BM10 -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM10 --EFTbm 10 --order_input nlo --order_rew nlo
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_allNLO_to_BM11 -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM11 --EFTbm 11 --order_input nlo --order_rew nlo
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_allNLO_to_BM12 -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM12 --EFTbm 12 --order_input nlo --order_rew nlo
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 20 -k True -o $SKIMDIR/SKIM_allNLO_to_BM8a -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM8a --EFTbm 8a --order_input nlo --order_rew nlo
 
 # Benchmarks JHEP03(2020)091 [1b-7b] (https://arxiv.org/pdf/1908.08923.pdf)
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 60 -k True -o $SKIMDIR/SKIM_allNLO_to_BM1b  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM1b  --EFTbm 1b  --order_input nlo --order_rew nlo
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 60 -k True -o $SKIMDIR/SKIM_allNLO_to_BM2b  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM2b  --EFTbm 2b  --order_input nlo --order_rew nlo
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 60 -k True -o $SKIMDIR/SKIM_allNLO_to_BM3b  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM3b  --EFTbm 3b  --order_input nlo --order_rew nlo
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 60 -k True -o $SKIMDIR/SKIM_allNLO_to_BM4b  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM4b  --EFTbm 4b  --order_input nlo --order_rew nlo
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 60 -k True -o $SKIMDIR/SKIM_allNLO_to_BM5b  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM5b  --EFTbm 5b  --order_input nlo --order_rew nlo
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 60 -k True -o $SKIMDIR/SKIM_allNLO_to_BM6b  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM6b  --EFTbm 6b  --order_input nlo --order_rew nlo
+python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 60 -k True -o $SKIMDIR/SKIM_allNLO_to_BM7b  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt  --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00007305625 -a True --hhNLO True --BSMname allNLO_to_BM7b  --EFTbm 7b  --order_input nlo --order_rew nlo
 
-# c2 scan
-# ggHH_kl_1p00_kt_1p00_c2_0p00	31.054
-# ggHH_kl_1p00_kt_1p00_c2_3p00	2923.567
-# ggHH_kl_1p00_kt_1p00_c2_0p35	11.103
-# ggHH_kl_0p00_kt_1p00_c2_0p00	69.697
-# ggHH_kl_2p45_kt_1p00_c2_0p00	13.183
-# ggHH_kl_0p00_kt_1p00_c2_1p00	155.508
+# c2 scan - Need 6 samples in input to the hhModel
+# Samples needed:
+# 1. ggHH_kl_1p00_kt_1p00_c2_0p00   31.054    --> NLO kl=1 already produced
+# 2. ggHH_kl_1p00_kt_1p00_c2_3p00   2923.567  --> reweight (c2 = 3.0)         --> 2.923567 pb --> * BR(hh->bbtautau) = 2.923567 * (0.073056256) = 0.21358485918 pb
+# 3. ggHH_kl_1p00_kt_1p00_c2_0p35   11.103    --> reweight (c2 = 0.35)        --> 0.011103 pb --> * BR(hh->bbtautau) = 0.011103 * (0.073056256) = 0.00081114361 pb
+# 4. ggHH_kl_0p00_kt_1p00_c2_0p00   69.697    --> NLO kl=0 already produced
+# 5. ggHH_kl_2p45_kt_1p00_c2_0p00   13.183    --> NLO kl=2.45 already produced
+# 6. ggHH_kl_0p00_kt_1p00_c2_1p00   155.508   --> reweight (c2 = 1.0)         --> 0.155508 pb --> * BR(hh->bbtautau) = 0.155508 * (0.073056256) = 0.01136083225 pb
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 60 -k True -o $SKIMDIR/SKIM_GGHH_NLO_c2_3p0  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.21358485918 -a True --hhNLO True --BSMname GGHH_NLO_c2_3p0  --EFTbm manual --order_input nlo --order_rew nlo --kl 1.0  --kt 1.0 --c2 3.0  --cg 0.0 --c2g 0.0
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 60 -k True -o $SKIMDIR/SKIM_GGHH_NLO_c2_0p35 -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.00081114361 -a True --hhNLO True --BSMname GGHH_NLO_c2_0p35 --EFTbm manual --order_input nlo --order_rew nlo --kl 1.0  --kt 1.0 --c2 0.35 --cg 0.0 --c2g 0.0
+#python scripts/skimNtuple_mib.py -T $OUTDIRR -s True -c config/skim_Legacy2016_mib.cfg -n 60 -k True -o $SKIMDIR/SKIM_GGHH_NLO_c2_1p0  -i $INPUTDIR_SIG/GluGluToHHTo2B2Tau_NLO_allNodes.txt --pu $PUDIR/PU_Legacy2016_SF.txt -x 0.01136083225 -a True --hhNLO True --BSMname GGHH_NLO_c2_1p0  --EFTbm manual --order_input nlo --order_rew nlo --kl 1.0  --kt 1.0 --c2 1.0  --cg 0.0 --c2g 0.0
+
 
 <<COMMENT2
 
