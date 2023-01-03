@@ -17,6 +17,7 @@ def parseOptions():
     parser.add_option('-t', '--tag'       , dest='tag'       , type='string', default="26Nov2022", help='tag')
     parser.add_option('-b', '--BM_set'    , dest='BM_set'    , type='string', default="JHEP04"   , help='JHEP04 or JHEP03')
     parser.add_option('-l', '--limit_type', dest='limit_type', type='string', default="xsBR"     , help='xsBR or xs')
+    parser.add_option(      '--blind',      dest='blind',      action="store_true",                help='plot blind limits')
 
     # store options and arguments as global variables
     global opt, args
@@ -74,7 +75,8 @@ ptsList = [] # (x, obs, exp, p2s, p1s, m1s, m2s)
 
 for i, bm in enumerate(benchmarks):
 
-    fName = 'EFT_cards_stackedAndCleaned/cards_'+bm+'/cards_'+tag+'_'+year+'/out_Asym_bm'+bm+'_blind.log'
+    if opt.blind: fName = 'EFT_cards_stackedAndCleaned/cards_'+bm+'/cards_'+tag+'_'+year+'/out_Asym_bm'+bm+'_blind.log'
+    else:         fName = 'EFT_cards_stackedAndCleaned/cards_'+bm+'/cards_'+tag+'_'+year+'/out_Asym_bm'+bm+'.log'
 
     # Can get different results on r_gghh:
     #exp = parseFile(fName)                  # <- How many times the SM I'm excluding
@@ -109,7 +111,7 @@ for i, bm in enumerate(benchmarks):
 #print ptsList
 
 c1 = ROOT.TCanvas("c1", "c1", 500, 500)
-c1.SetFrameLineWidth(3)
+c1.SetFrameLineWidth(2)
 c1.SetBottomMargin (0.15)
 c1.SetRightMargin (0.05)
 c1.SetLeftMargin (0.15)
@@ -120,8 +122,8 @@ mg = ROOT.TMultiGraph()
 
 gr2sigma = ROOT.TGraphAsymmErrors()
 gr1sigma = ROOT.TGraphAsymmErrors()
-grexp = ROOT.TGraph()
-grobs = ROOT.TGraph()
+grexp = ROOT.TH1F('exp', 'exp', len(ptsList)/2, 0, len(ptsList)/2)
+grobs = ROOT.TH1F('obs', 'obs', len(ptsList)/2, 0, len(ptsList)/2)
 
 for ipt, pt in enumerate(ptsList):
     xval = pt[0]
@@ -132,9 +134,11 @@ for ipt, pt in enumerate(ptsList):
     m1s  = pt[5]
     m2s  = pt[6]
     print xval, exp
-    
-    grexp.SetPoint(ipt, xval, exp)
-    grobs.SetPoint(ipt, xval, obs)
+
+    grexp.SetBinContent(pt[0]+1, exp)
+    grexp.SetBinError(pt[0]+1, 0.0001)
+    grobs.SetBinContent(pt[0]+1, obs)
+    grobs.SetBinError(pt[0]+1, 0.0001)
     gr1sigma.SetPoint(ipt, xval, exp)
     gr2sigma.SetPoint(ipt, xval, exp)
     gr1sigma.SetPointError(ipt, 0, 0, m1s, p1s)
@@ -142,71 +146,83 @@ for ipt, pt in enumerate(ptsList):
 
 
 ######## set styles
-grexp.SetMarkerStyle(24)
-grexp.SetMarkerColor(4)
-grexp.SetMarkerSize(0.8)
-grexp.SetLineColor(ROOT.kBlue+2)
-grexp.SetLineWidth(3)
+grexp.SetLineColor(1)
+grexp.SetLineWidth(2)
 grexp.SetLineStyle(2)
 grexp.SetFillColor(0)
 
 grobs.SetLineColor(1)
-grobs.SetLineWidth(3)
+grobs.SetLineWidth(2)
 grobs.SetMarkerColor(1)
 grobs.SetMarkerStyle(20)
+grobs.SetMarkerSize(0.65)
 grobs.SetFillStyle(0)
 
 gr1sigma.SetMarkerStyle(0)
 gr1sigma.SetMarkerColor(3)
 gr1sigma.SetFillColor(ROOT.kGreen+1)
-gr1sigma.SetLineColor(ROOT.kGreen+1)
+gr1sigma.SetLineColor(1)
+gr1sigma.SetLineWidth(2)
+gr1sigma.SetLineStyle(2)
 gr1sigma.SetFillStyle(1001)
 
 gr2sigma.SetMarkerStyle(0)
 gr2sigma.SetMarkerColor(5)
 gr2sigma.SetFillColor(ROOT.kOrange)
-gr2sigma.SetLineColor(ROOT.kOrange)
+gr2sigma.SetLineColor(1)
+gr2sigma.SetLineWidth(2)
+gr2sigma.SetLineStyle(2)
 gr2sigma.SetFillStyle(1001)
 
 mg.Add(gr2sigma, "3")
 mg.Add(gr1sigma, "3")
-mg.Add(grexp, "L")
-mg.Add(grobs, "L")
 
 ###########
 
 legend = ROOT.TLegend(0,0,0,0)
-legend.SetX1(0.574297)
-legend.SetY1(0.70526)
-legend.SetX2(0.925703)
+legend.SetNColumns(2)
+legend.SetX1(0.184297)
+legend.SetY1(0.75526)
+legend.SetX2(0.785703)
 legend.SetY2(0.88)
 legend.SetFillColor(ROOT.kWhite)
 legend.SetBorderSize(0)
-legend.SetHeader('95% CL upper limits')
-legend.AddEntry(grexp, "Median expected", "l")
-legend.AddEntry(gr1sigma, "68% expected", "f")
-legend.AddEntry(gr2sigma, "95% expected", "f")
+legend.SetTextSize(0.025)
+# legend.SetHeader('95% CL upper limits', 'c')
+if   BM_set == 'JHEP04': legend.SetHeader("95% CL upper limits on JHEP04(2016)126 shape benchmarks")
+elif BM_set == 'JHEP03': legend.SetHeader("95% CL upper limits on JHEP03(2020)091 shape benchmarks")
+if opt.blind:
+    legend.AddEntry(grexp, "Median expected", "l")
+    legend.AddEntry(gr1sigma, "68% expected", "lf")
+    dummy = ROOT.TH1F("","",1,0,1)
+    legend.AddEntry(dummy, "", "")
+    legend.AddEntry(gr2sigma, "95% expected", "lf")
+else:
+    legend.AddEntry(grobs, "Observed", "LP")
+    legend.AddEntry(gr1sigma, "68% expected", "lf")
+    legend.AddEntry(grexp, "Median expected", "l")
+    legend.AddEntry(gr2sigma, "95% expected", "lf")
 
 ##### text
-pt = ROOT.TPaveText(0.1463218,0.886316,0.2845977,0.978947,"brNDC")
+pt = ROOT.TPaveText(0.1463218,0.8966667,0.2845977,0.954641,"brNDC")
 pt.SetBorderSize(0)
 pt.SetTextAlign(12)
 pt.SetTextFont(62)
-pt.SetTextSize(0.05)
+pt.SetTextSize(0.04)
 pt.SetFillColor(0)
 pt.SetFillStyle(0)
 pt.AddText("CMS #font[52]{Preliminary}" )
 
-pt2 = ROOT.TPaveText(0.636111,0.9066667,0.847222,0.954641,"brNDC")
+pt2 = ROOT.TPaveText(0.696111,0.8966667,0.907222,0.954641,"brNDC")
 pt2.SetBorderSize(0)
 pt2.SetFillColor(0)
-pt2.SetTextSize(0.04)
+pt2.SetTextSize(0.035)
 pt2.SetTextFont(42)
 pt2.SetFillStyle(0)
-if   year == '2016': pt2.AddText("bb#tau#tau 36.3 fb^{-1} (13.6 TeV)")
-elif year == '2017': pt2.AddText("bb#tau#tau 41.5 fb^{-1} (13.6 TeV)")
-elif year == '2018': pt2.AddText("bb#tau#tau 59.7 fb^{-1} (13.6 TeV)")
-else               : pt2.AddText("bb#tau#tau  138 fb^{-1} (13.6 TeV)")
+if   year == '2016': pt2.AddText("bb#tau#tau 36.3 fb^{-1} (13 TeV)")
+elif year == '2017': pt2.AddText("bb#tau#tau 41.5 fb^{-1} (13 TeV)")
+elif year == '2018': pt2.AddText("bb#tau#tau 59.7 fb^{-1} (13 TeV)")
+else               : pt2.AddText("bb#tau#tau  138 fb^{-1} (13 TeV)")
 
 pt3 = ROOT.TPaveText(0.1963218,0.70526,0.2845977,0.88,"brNDC")
 pt3.SetBorderSize(0)
@@ -215,8 +231,8 @@ pt3.SetTextFont(42)
 pt3.SetTextSize(0.04)
 pt3.SetFillColor(0)
 pt3.SetFillStyle(0)
-if   BM_set == 'JHEP04': pt3.AddText("JHEP04(2016)126")
-elif BM_set == 'JHEP03': pt3.AddText("JHEP03(2020)091")
+# if   BM_set == 'JHEP04': pt3.AddText("JHEP04(2016)126")
+# elif BM_set == 'JHEP03': pt3.AddText("JHEP03(2020)091")
 
 hframe = ROOT.TH1F('hframe', '', len(benchmarks), 0, len(benchmarks))
 if limit_type == 'xsBR':
@@ -227,14 +243,13 @@ elif limit_type == 'xs':
     hframe.SetMaximum(100000)
 c1.SetLogy()
 
-
-hframe.GetYaxis().SetTitleSize(0.047)
-hframe.GetXaxis().SetTitleSize(0.055)
-hframe.GetYaxis().SetLabelSize(0.045)
+hframe.GetYaxis().SetTitleSize(0.04)
+hframe.GetXaxis().SetTitleSize(0.04)
+hframe.GetYaxis().SetLabelSize(0.03)
 hframe.GetXaxis().SetLabelSize(0.045)
 hframe.GetXaxis().SetLabelOffset(0.012)
 hframe.GetYaxis().SetTitleOffset(1.2)
-hframe.GetXaxis().SetTitleOffset(1.1)
+hframe.GetXaxis().SetTitleOffset(1.2)
 
 hframe.GetXaxis().SetTitle("Shape Benchmark")
 if limit_type == 'xsBR':
@@ -250,8 +265,8 @@ for ibin,bench in enumerate(benchmarks):
     #print "Filling bin:" + str(ibin) + " with bm:" + bench
 gr2sigma.Draw("3same")
 gr1sigma.Draw("3same")
-grexp.Draw("Lsame")
-#grobs.Draw("Lsame")
+grexp.Draw("PEsame")
+grobs.Draw("PEsame")
 
 pt.Draw()
 pt2.Draw()
@@ -264,6 +279,8 @@ legend.Draw()
 c1.Update()
 
 c1.Draw()
-c1.Print("plots/EFT/plot_"+tag+"_"+year+"_"+BM_set+"_"+limit_type+".pdf", 'pdf')
+if opt.blind: plotname = "plots/EFT/plot_"+tag+"_"+year+"_"+BM_set+"_"+limit_type+"_blind.pdf"
+else:         plotname = "plots/EFT/plot_"+tag+"_"+year+"_"+BM_set+"_"+limit_type+".pdf"
+c1.Print(plotname, 'pdf')
 
 
