@@ -854,78 +854,7 @@ int main (int argc, char** argv)
     float stitchWeight = 1.0;
     if (DY_tostitch)
     {
-      float Zpt = -999;
-      // loop through gen parts to identify Z boson
-      int Zidx = -1;
-      int idx_tau1 = -1;
-      int idx_tau2 = -1;
-      int pdg_tau1 = -1;
-      for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
-      {
-	bool isZLast   = CheckBit(theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
-	bool isZPrompt = CheckBit(theBigTree.genpart_flags->at(igen),  0) ; //  0 = isPrompt
-	bool isHardProcess = CheckBit(theBigTree.genpart_flags->at(igen),  8) ; //  8 = FromHardProcess
-
-	if (theBigTree.genpart_pdg->at(igen) == 23 && isZLast && isZPrompt) // Z0 + isLast + isPrompt
-	{
-	  Zidx = igen;
-	}
-
-	// For events with no gen Z; use the two final state leptons
-	if (isZPrompt && isHardProcess && isZLast &&
-	    (fabs(theBigTree.genpart_pdg->at(igen)) == 15 ||
-	     fabs(theBigTree.genpart_pdg->at(igen)) == 13 ||
-	     fabs(theBigTree.genpart_pdg->at(igen)) == 11 )
-	  ) // tau + prompt + from hard process
-	{
-	  if (idx_tau1==-1)
-	  {
-	    idx_tau1=igen;
-	    pdg_tau1=theBigTree.genpart_pdg->at(igen);
-	  }
-	  else if (idx_tau2==-1 && theBigTree.genpart_pdg->at(igen)==-pdg_tau1)
-	  {
-	    idx_tau2=igen;
-	  }
-
-	}
-      }
-      // if found, Build the genZ TLorentzVector
-      if (Zidx >= 0)
-      {
-	// build the genZ TLorentzVector
-	TLorentzVector tlvgenZ;
-	tlvgenZ.SetPxPyPzE(
-	  theBigTree.genpart_px->at(Zidx),
-	  theBigTree.genpart_py->at(Zidx),
-	  theBigTree.genpart_pz->at(Zidx),
-	  theBigTree.genpart_e->at(Zidx)
-	  );
-
-	Zpt = tlvgenZ.Pt();
-      }
-      //to be replaced by lhe ptZ once available
-      else if (idx_tau1>=0 && idx_tau2>=0)
-      {
-	// build the genZ from the two leptons
-	TLorentzVector genTau1,genTau2;
-	genTau1.SetPxPyPzE(
-	  theBigTree.genpart_px->at(idx_tau1),
-	  theBigTree.genpart_py->at(idx_tau1),
-	  theBigTree.genpart_pz->at(idx_tau1),
-	  theBigTree.genpart_e->at(idx_tau1)
-	  );
-	genTau2.SetPxPyPzE(
-	  theBigTree.genpart_px->at(idx_tau2),
-	  theBigTree.genpart_py->at(idx_tau2),
-	  theBigTree.genpart_pz->at(idx_tau2),
-	  theBigTree.genpart_e->at(idx_tau2)
-	  );
-
-	TLorentzVector tlvgenZ = genTau1+genTau2;
-	Zpt = tlvgenZ.Pt();
-      }
-
+      float Zpt = theBigTree.lheVPt;
       if (Zpt<50)
 	stitchWeight = stitchWeights[0];
       else
