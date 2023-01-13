@@ -52,21 +52,20 @@ def parse_input_file_list(indir, insample):
                 filelist.append(line)
     return filelist
 
-def write_condor_file(d, shell_exec, c_exec, py_exec, queue, var='Process'):
+def write_condor_file(d, condor_name, shell_exec, c_exec, py_exec, queue, qvars):
         condouts = os.path.join(d, 'logs')
         create_dir(condouts)
-        paths = {'out': '{}/{{}}.out'.format(condouts),
-                 'err': '{}/{{}}.err'.format(condouts),
-                 'log': '{}/{{}}.log'.format(condouts)}
-        proc = '$(Process)'
-        condor_name = shell_exec.replace('.sh','.condor')
+        paths = {'out': '{}/$({{}}){{}}.out'.format(condouts),
+                 'err': '{}/$({{}}){{}}.err'.format(condouts),
+                 'log': '{}/$({{}}){{}}.log'.format(condouts)}
+
         with open(condor_name, 'w') as s:
             s.write( '\n'.join(('Universe = vanilla',
                                 'Executable = {}'.format(shell_exec),
                                 'input = {}'.format(c_exec),
-                                'output = ' + paths['out'].format(proc),
-                                'error = ' + paths['err'].format(proc),
-                                'log = ' + paths['log'].format(proc),
+                                'output = ' + paths['out'].format(qvars[0],qvars[1]),
+                                'error = ' + paths['err'].format(qvars[0],qvars[1]),
+                                'log = ' + paths['log'].format(qvars[0],qvars[1]),
                                 'getenv = true',
                                 '+JobBatchName="{}"'.format(FLAGS.sample),
                                 'should_transfer_files = YES',
@@ -78,15 +77,17 @@ def write_condor_file(d, shell_exec, c_exec, py_exec, queue, var='Process'):
                                 '',
                                 'include : /opt/exp_soft/cms/t3/t3queue |',
                                 '',
-                                'Arguments = $({})'.format(var),
-                                'queue {}'.format(queue))) + '\n' )
-        return paths, condor_name
+                                'Arguments = $({}) {}'.format(qvars[0], qvars[1]))) + '\n' )
+            s.write(queue + '\n')
+
+        return condouts
 
 def skim_ntuple(FLAGS, curr_folder):
-    arg1 = '${1}'
+    arg1, arg2 = '${1}', '${2}'
     io_names = ( '{}.txt'.format(arg1),
                  'output_{}.root'.format(arg1),
-                 '{}.log'.format(arg1) )
+                 '{}{}.log'.format(arg1,arg2) )
+    py_exec = 'scripts/check_outputs.py'
 
     if FLAGS.config == 'none':
         print('Config file missing, exiting')
@@ -116,43 +117,52 @@ def skim_ntuple(FLAGS, curr_folder):
 
     create_dir(jobs_dir)
     job_name_shell = os.path.join(jobs_dir, 'job.sh')
-    remove_file(job_name_shell)
+    if not FLAGS.resub:
+        remove_file(job_name_shell)
+    condor_name = job_name_shell.replace('.sh', '.condor')
 
-    # verify the result of the process
-    if (FLAGS.resub != 'none'):
-        if (FLAGS.input_folder == 'none'):
-            print('Input folder to be checked missing')
-            print('(this is the folder that contains the jobs to be submitted)')
-            sys.exit(1)
+    if FLAGS.resub:
+        rcount = 0
+        nsplit = condor_name.split('.')
+        while os.path.exists(condor_name):
+            rcount += 1
+            condor_name = nsplit[0] + '_resub' + str(rcount) + '.' + nsplit[1]
 
-        if FLAGS.input_folder[-1] == '/' :
-            FLAGS.input_folder = FLAGS.input_folder[:-1]
-        tagname = FLAGS.tag + "/" if FLAGS.tag else ''
-        FLAGS.input_folder = tagname + 'SKIM_' + os.path.basename(FLAGS.input_folder)
+        regex = re.compile('.*output_(.+)\.root')
+        failed = []
 
-        # check the log file
-        missing = []
-        for num in jobs:
-            rootfile = os.path.join(jobs_dir, io_names[1].replace(arg1, num))
-            logfile = os.path.join(jobs_dir, io_names[2].replace(arg1, num))
-            if not is_job_sucessful(rootfile, logfile):
-                missing.append(num)
+        badfiles_folder = os.path.join(FLAGS.output, FLAGS.sample)
+        glob_badfiles = glob.glob(os.path.join(badfiles_folder, 'bad*.txt'))
+        if len(glob_badfiles)==0:
+            sys.exit(0)
 
-        print('The following jobs did not end successfully:')
-        print(missing)
+        badfiles_recent = max(glob_badfiles, key=os.path.getctime)
+        badfiles = os.path.join(FLAGS.output, FLAGS.sample, badfiles_recent)
 
-        str_queue = 'afile from (\n'
-        for mis in missing:
-            str_queue += '  {}\n'.format(str(mis))
-        str_queue += '\n'
-        _, condor_name = write_condor_file(d=jobs_dir, shell_exec=job_name_shell,
-                                           queue=str_queue, var='afile')
+        with open(badfiles, 'r') as badf:
+            for line in badf.readlines():
+                fail = line
+                finded = regex.findall(line)
+                assert len(finded)==1
+                failed.append(finded[0])
+
+        queue_vars = 'Item', '_resub' + str(rcount)
+        queue = 'queue {} from (\n'.format(queue_vars[0])
+        queue += '\n'.join(failed)
+        queue += '\n)'
+        
+        write_condor_file(d=jobs_dir, condor_name=condor_name,
+                          shell_exec=job_name_shell,
+                          c_exec=FLAGS.exec_file,
+                          py_exec=py_exec,
+                          queue=queue, qvars=queue_vars)
             
         launch_command = 'condor_submit {}'.format(condor_name)
         if FLAGS.verb:
             print('Resubmission with: {}'.format(launch_command))
+        print('Resubmission with: {}'.format(launch_command))
+        os.system(launch_command)
         time.sleep(0.5)
-        #os.system(launch_command)
         sys.exit(0)
 
     # submit the jobs
@@ -168,7 +178,7 @@ def skim_ntuple(FLAGS, curr_folder):
         raise ValueError(mes)
     nfiles_per_job = [ div if i >= mod else div+1 for i in range(njobs)]
     assert sum(nfiles_per_job) == nfiles
-
+ 
     accumulate = lambda l : [sum(l[:y]) for y in range(1, len(l)+1)]
     inputlists = [ inputfiles[x-y:x] for x,y in zip(accumulate(nfiles_per_job), nfiles_per_job) ]
     assert len(inputlists) == njobs
@@ -177,7 +187,7 @@ def skim_ntuple(FLAGS, curr_folder):
     mes = ( '{} jobs will be scheduled for {} files.'
             .format(njobs,len(inputfiles),nfiles_per_job) )
     print(mes)
-
+ 
     lists_dir = os.path.join(jobs_dir, 'filelists')
     create_dir(lists_dir)
     for ij,listname in enumerate(inputlists):
@@ -185,13 +195,11 @@ def skim_ntuple(FLAGS, curr_folder):
         with open(os.path.join(lists_dir, list_file_name), 'w') as input_list_file:
             for line in listname:
                 input_list_file.write(line + '\n')
-
-    py_exec = 'scripts/check_outputs.py'
-    cpaths, cname = write_condor_file(d=jobs_dir,
-                                      shell_exec=job_name_shell,
-                                      c_exec=FLAGS.exec_file,
-                                      py_exec=py_exec,
-                                      queue=str(njobs))
+ 
+    clog = write_condor_file(d=jobs_dir, condor_name=condor_name,
+                             shell_exec=job_name_shell, c_exec=FLAGS.exec_file,
+                             py_exec=py_exec,
+                             queue='queue ' + str(njobs), qvars=('Process',''))
 
     with open(job_name_shell, 'w') as s:
         s.write( '\n'.join(('#!/usr/bin/env bash',
@@ -203,7 +211,7 @@ def skim_ntuple(FLAGS, curr_folder):
                             'source scripts/setup.sh')) + '\n' )
                 
         yes_or_no = lambda s : '1' if bool(s) else '0'
-        
+
         command, comment = double_join(FLAGS.exec_file,
                                        os.path.join(lists_dir, io_names[0]),
                                        os.path.join(jobs_dir, io_names[1]),
@@ -244,15 +252,15 @@ def skim_ntuple(FLAGS, curr_folder):
         # we need to check them 'live', i.e., while the job is running
         livedir = os.path.join(jobs_dir, 'live_logs')
         create_dir(livedir)
-        local_out = os.path.join(livedir, '{}.out'.format(arg1))
-        local_err = os.path.join(livedir, '{}.err'.format(arg1))
+        local_out = os.path.join(livedir, '{}{}.out'.format(arg1,arg2))
+        local_err = os.path.join(livedir, '{}{}.err'.format(arg1,arg2))
         s.write(command + ' 1>{} 2>{}\n'.format(local_out, local_err))
         
         command, comment = double_join('python {}'.format(py_exec),
                                        '-r ' + os.path.join(jobs_dir, io_names[1]),
                                        '-o ' + local_out,
                                        '-e ' + local_err,
-                                       '-l ' + cpaths['log'].format(arg1),
+                                       '-l ' + os.path.join(clog, '{}{}.log'.format(arg1,arg2)),
                                        '-v ')
 
         s.write(comment + '\n')
@@ -278,7 +286,7 @@ def skim_ntuple(FLAGS, curr_folder):
         s.write('echo "Job with id '+arg1+' completed."\n')
         os.system('chmod u+rwx {}'.format(job_name_shell))
  
-    launch_command = 'condor_submit {}'.format(cname)
+    launch_command = 'condor_submit {}'.format(condor_name)
 
     time.sleep(0.1)
     print('The following command was run: \n  {}'.format(launch_command))
@@ -291,19 +299,19 @@ if __name__ == "__main__":
     parser.add_argument('--exec_file', dest='exec_file', required=True, help='folder where the C++ skimmer executable is stored')
     parser.add_argument('--sample', dest='sample', default='none', help='input sample')
     parser.add_argument('-Y', '--year', dest='year', default='2018', help='year', choices=['2016', '2017', '2018'])
-    parser.add_argument('-A', '--APV', dest='isAPV', default=False, help='isAPV')
+    parser.add_argument('-A', '--APV', dest='isAPV', default=0, type=int, help='isAPV')
     parser.add_argument('-x', '--xs', dest='xs', help='sample xs', default='1.')
     parser.add_argument('-o', '--output', dest='output', default='none', help='output folder')
     parser.add_argument('-q', '--queue', dest='queue', default='short', help='batch queue')
-    parser.add_argument('-r', '--resub', dest='resub', default='none', help='resubmit failed jobs')
-    parser.add_argument('-v', '--verb', dest='verb', default=False, help='verbose')
-    parser.add_argument('-d', '--isdata', dest='isdata', default=False, help='data flag')
+    parser.add_argument('-r', '--resub', dest='resub', action='store_true', help='resubmit failed jobs')
+    parser.add_argument('-v', '--verb', dest='verb', default=0, type=int, help='verbose')
+    parser.add_argument('-d', '--isdata', dest='isdata', default=0, type=int, help='data flag')
     parser.add_argument('-T', '--tag', dest='tag', default='', help='folder tag name')
     parser.add_argument('-H', '--hadd', dest='hadd', default='none', help='hadd the resulting ntuples')
     parser.add_argument('-c', '--config', dest='config', default='none', help='skim config file')
     parser.add_argument('-n', '--njobs', dest='njobs', default=100, type=int, help='number of skim jobs')
-    parser.add_argument('-k', '--kinfit', dest='dokinfit', default='True', help='run HH kin fitter')
-    parser.add_argument('-m', '--mt2', dest='domt2', default=True, help='run stransverse mass calculation')
+    parser.add_argument('-k', '--kinfit', dest='dokinfit', default=1, type=int, help='run HH kin fitter')
+    parser.add_argument('-m', '--mt2', dest='domt2', default=1, type=int, help='run stransverse mass calculation')
     parser.add_argument('-y', '--xsscale', dest='xsscale', default='1.0',
                         help='scale to apply on XS for stitching')
     parser.add_argument('-Z', '--htcutlow', dest='htcutlow', default='-999.0',
@@ -312,13 +320,13 @@ if __name__ == "__main__":
                         help='HT cut for stitching on inclusive')
     parser.add_argument('-e', '--njets', dest='njets', default='-999',
                         help='njets required for stitching on inclusive')
-    parser.add_argument('-t', '--toprew', dest='toprew', default=False,
+    parser.add_argument('-t', '--toprew', dest='toprew', default=0, type=int,
                         help='is TT bar sample to compute reweight?')
     parser.add_argument('-b', '--topstitch' , dest='topstitch' , default='0',
                         help='type of TT gen level decay pruning for stitch')
-    parser.add_argument('-g', '--genjets', dest='genjets', default=False,
+    parser.add_argument('-g', '--genjets', dest='genjets', default=0, type=int,
                         help='loop on genjets to determine the number of b hadrons')
-    parser.add_argument('-a', '--ishhsignal', dest='ishhsignal', default=False, help='isHHsignal')
+    parser.add_argument('-a', '--ishhsignal', dest='ishhsignal', default=0, type=int, help='isHHsignal')
     parser.add_argument('--BSMname', dest='BSMname', default='none', help='additional name for EFT benchmarks')
     parser.add_argument('--EFTbm', dest='EFTrew', default='none',
                         help='EFT benchmarks [SM, 1..12, 1b..7b, 8a, c2scan, manual]')
@@ -334,14 +342,19 @@ if __name__ == "__main__":
     parser.add_argument('--pu', dest='PUweights', default='none', help='name of susy model to select')
     parser.add_argument('--nj', dest='DY_nJets', default='-1', help='number of gen Jets for DY bins')
     parser.add_argument('--nb', dest='DY_nBJets', default='-1', help='number of gen BJets for DY bins')
-    parser.add_argument('--DY', dest='DY', default=False, help='if it is a DY sample')
-    parser.add_argument('--ttHToNonBB', dest='ttHToNonBB', default=False,
+    parser.add_argument('--DY', dest='DY', default=0, type=int, help='if it is a DY sample')
+    parser.add_argument('--ttHToNonBB', dest='ttHToNonBB', default=0, type=int,
                         help='if it is a ttHToNonBB sample')
     parser.add_argument('--hhNLO', dest='hhNLO', default=False, action='store_true',
                         help='if it is an HH NLO sample')
     parser.add_argument('--doSyst', dest='doSyst', default=False, action='store_true',
                         help='compute up/down values of outputs')
 
+
     FLAGS = parser.parse_args()
+    print("-----------  Configuration Arguments -----------")
+    for arg, value in sorted(vars(FLAGS).iteritems()):
+        print("%s: %s" % (arg, value))
+    print("------------------------------------------------") 
     curr_folder = os.getcwd()
     skim_ntuple(FLAGS, curr_folder)
