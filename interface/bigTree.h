@@ -89,6 +89,7 @@ public :
   std::vector<float>   *daughters_highestEt_L1IsoTauMatched;
   std::vector<int>     *daughters_genindex;
   Float_t         MC_weight;
+  Float_t         lheVPt;
   Float_t         lheHt;
   Int_t           lheNOutPartons;
   Int_t           lheNOutB;
@@ -348,6 +349,7 @@ public :
   TBranch        *b_daughters_highestEt_L1IsoTauMatched;   //!
   TBranch        *b_daughters_genindex;   //!
   TBranch        *b_MC_weight;   //!
+  TBranch        *b_lheVPt;   //!
   TBranch        *b_lheHt;   //!
   TBranch        *b_lheNOutPartons; //!
   TBranch        *b_lheNOutB; //!
@@ -1011,6 +1013,7 @@ public :
       fChain->SetBranchAddress("genjet_hadronFlavour", &genjet_hadronFlavour, &b_genjet_hadronFlavour);
       fChain->SetBranchAddress("jets_genjetIndex", &jets_genjetIndex, &b_jets_genjetIndex);
       fChain->SetBranchAddress("NUP", &NUP, &b_NUP);
+      fChain->SetBranchAddress("lheVPt", &lheVPt, &b_lheVPt);
       fChain->SetBranchAddress("lheHt", &lheHt, &b_lheHt);
       fChain->SetBranchAddress("lheNOutPartons", &lheNOutPartons, &b_lheNOutPartons);
       fChain->SetBranchAddress("lheNOutB", &lheNOutB, &b_lheNOutB);
