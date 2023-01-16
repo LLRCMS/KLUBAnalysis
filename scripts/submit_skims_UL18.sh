@@ -162,15 +162,15 @@ fi
 
 mkdir -p ${SKIM_DIR}
 OUTSKIM_DIR=${SKIM_DIR}/${TAG_DIR}/
-# if [ -d ${OUTSKIM_DIR} ] && [[ ${RESUBMIT} -eq 0 ]]; then
-# 	echo "Directory ${OUTSKIM_DIR} already exists."
-# 	echo "If you want to resubmit some jobs, add the '--resubmit' flag."
-# 	echo "If not, you might want to remove the directory with: 'rm -r ${OUTSKIM_DIR}'."
-# 	echo "Exiting."
-# 	exit 1
-# else
-# 	mkdir -p ${OUTSKIM_DIR}
-# fi
+if [ -d ${OUTSKIM_DIR} ] && [[ ${RESUBMIT} -eq 0 ]]; then
+	echo "Directory ${OUTSKIM_DIR} already exists."
+	echo "If you want to resubmit some jobs, add the '--resubmit' flag."
+	echo "If not, you might want to remove the directory with: 'rm -r ${OUTSKIM_DIR}'."
+	echo "Exiting."
+	exit 1
+else
+	mkdir -p ${OUTSKIM_DIR}
+fi
 ERR_FILE=${OUTSKIM_DIR}"/bad_patterns.o"
 
 
@@ -238,6 +238,7 @@ function find_sample() {
 		echo ${mes}
 		return 1
 	fi
+	echo ${sample}
 }
 
 ### Run on data samples
