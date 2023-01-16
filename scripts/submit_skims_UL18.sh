@@ -7,7 +7,7 @@ STITCHING_ON="0"
 DRYRUN="0"
 RESUBMIT="0"
 OUT_TAG=""
-KLUB_TAG="Jan2023"
+IN_TAG="Jan2023"
 DATA_PERIOD="UL18"
 DATA_USER="${USER}"
 DATA_PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
@@ -17,25 +17,25 @@ HELP_STR="Prints this help message."
 DRYRUN_STR="(Boolean) Prints all the commands to be launched but does not launch them. Defaults to ${DRYRUN}."
 RESUBMIT_STR="(Boolean) Resubmits failed jobs listed in 'badfiles.txt'"
 OUT_TAG_STR="(String) Defines tag for the output. Defaults to '${OUT_TAG}'."
-KLUB_TAG_STR="(String) Chooses tag for the klub input. Defaults to '${KLUB_TAG}'."
+IN_TAG_STR="(String) Chooses tag for the input (big ntuples). Defaults to '${IN_TAG}'."
 STITCHING_ON_STR="(Boolean) Drell-Yan stitching weights will be used. Defaults to ${STITCHING_ON}."
 NO_LISTS_STR="(Boolean) Whether to run the list production script before each submission. Defaults to ${NO_LISTS}."
 DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${DATA_PERIOD}'."
 DATAUSER_STR="(String) Which user produced the data. Defaults to '${DATA_USER}'."
 function print_usage_submit_skims {
-    USAGE=" $(basename "$0") [-H] [--dry-run --resubmit -t -d -n -u --klub_tag --stitching_on]
+    USAGE=" $(basename "$0") [-H] [--dry-run --resubmit -t -d -n -u --in_tag --stitching_on]
 
 	-h / --help			[ ${HELP_STR} ]
 	--dry-run			[ ${DRYRUN_STR} ]
 	--resubmit			[ ${RESUBMIT_STR} ]
 	-t / --tag			[ ${OUT_TAG_STR} ]
-	--klub_tag			[ ${KLUB_TAG_STR} ]
+	--in_tag			[ ${IN_TAG_STR} ]
 	-s / --stitching_on [ ${STITCHING_ON_STR} ]
 	-n / --no_lists     [ ${NO_LISTS_STR} ]
 	-d / --data_period  [ ${DATAPERIOD_STR} ]
 	-u / --user         [ ${DATAUSER_STR} ]
 
-    Run example: bash $(basename "$0") -t <some_tag> --klub_tag <input_tag>
+    Run example: bash $(basename "$0") -t <some_tag> --in_tag <input_tag>
 "
     printf "${USAGE}"
 }
@@ -59,8 +59,8 @@ while [[ $# -gt 0 ]]; do
 	    OUT_TAG=${2}
 	    shift; shift;
 	    ;;
-	--klub_tag)
-	    KLUB_TAG=${2}
+	--in_tag)
+	    IN_TAG=${2}
 	    shift; shift;
 	    ;;
 	-s|--stitching)
@@ -119,8 +119,8 @@ if [ ${#VOMS_CHECK[@]} -eq 0 ]; then
 fi
 
 LIST_DIR=${LIST_DIR}"HHNtuples_res/"${DATA_PERIOD}"/"
-LIST_DATA_DIR=${LIST_DIR}"Data_"${KLUB_TAG}
-LIST_MC_DIR=${LIST_DIR}"MC_"${KLUB_TAG}
+LIST_DATA_DIR=${LIST_DIR}"Data_"${IN_TAG}
+LIST_MC_DIR=${LIST_DIR}"MC_"${IN_TAG}
 #declare -a LISTS_DATA=( $(/usr/bin/rfdir ${LIST_DATA_DIR} | awk '{{printf $9" "}}') )
 declare -a LISTS_MC=(   $(/usr/bin/rfdir ${LIST_MC_DIR}   | awk '{{printf $9" "}}') )
 
@@ -181,7 +181,7 @@ printf "DRYRUN\t\t\t= ${DRYRUN}\n"
 printf "RESUBMIT\t\t= ${RESUBMIT}\n"
 printf "NO_LISTS\t\t= ${NO_LISTS}\n"
 printf "OUT_TAG\t\t\t= ${OUT_TAG}\n"
-printf "KLUB_TAG\t\t= ${KLUB_TAG}\n"
+printf "IN_TAG\t\t= ${IN_TAG}\n"
 printf "STITCHING_ON\t\t= ${STITCHING_ON}\n"
 printf "DATA_PERIOD\t\t= ${DATA_PERIOD}\n"
 printf "DATA_USER\t\t= ${DATA_USER}\n"
@@ -205,7 +205,7 @@ function run_skim() {
 
 ### Input file list production command
 function produce_list() {
-	comm="python ${KLUB_DIR}/${LIST_SCRIPT} -t ${KLUB_TAG} --data_period ${DATA_PERIOD} --user ${DATA_USER} $@"
+	comm="python ${KLUB_DIR}/${LIST_SCRIPT} -t ${IN_TAG} --data_period ${DATA_PERIOD} --user ${DATA_USER} $@"
 	if [[ ${RESUBMIT} -eq 0 ]]; then
 		[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
 	fi
