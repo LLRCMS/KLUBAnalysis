@@ -19,7 +19,7 @@ def make_input_lists(args):
                 'uhh': 'root://dcache-cms-xrootd.desy.de:1094/',
                 'mib': '???'}[args.institute]
 
-    store = {'llr': 'store/user/lportale/HHNtuples_res',
+    store = {'llr': 'store/user/' + args.user + '/HHNtuples_res',
              'uhh': '???',
              'mib': '???'}[args.institute]
     store    = op.join(store, args.data_period)
@@ -37,9 +37,8 @@ def make_input_lists(args):
     awk    = "| awk '{{print $9}}'"
     rfcomm = lambda s : rfdir + ' {} '.format(s) + awk
     pipe   = Popen(rfcomm(path), shell=True, stdout=PIPE)
-
     all_lists = {}
-     
+
     for smpl_name in pipe.stdout:
         smpl_path = op.join(path, smpl_name).strip()    
         if args.sample not in smpl_name and args.sample != 'all':
@@ -66,7 +65,6 @@ def make_input_lists(args):
             final_dir = op.join(smpl_path, subfold.strip())
             str_comm = '{} | grep HTauTauAnalysis'
             file_comm = rfcomm( str_comm.format(final_dir.strip()) )
-
             out = Popen(file_comm, shell=True, stdout=PIPE).stdout.readlines()
             for filename in out:
                 name = xrd_door + op.join(final_dir, filename.strip())
@@ -94,6 +92,8 @@ if __name__ == "__main__":
                         help='Tag used for the input big ntuples')
     parser.add_argument('-d', '--data_period', dest='data_period', required=True, type=str,
                         help='Which data period to choose: Legacy2018, UL18, ...')
+    parser.add_argument('-u', '--user', dest='user', required=True, type=str,
+                        help='User who produced the input data')
     parser.add_argument('-x', '--institute', dest='institute', default='llr',
                         choices=('llr', 'uhh', 'mib'),
                         required=False, type=str, help='Which set of machines to use: LLR, Hamburg or Milano.')
