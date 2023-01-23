@@ -19,7 +19,7 @@ def make_input_lists(args):
                 'uhh': 'root://dcache-cms-xrootd.desy.de:1094/',
                 'mib': '???'}[args.institute]
 
-    store = {'llr': 'store/user/lportale/HHNtuples_res',
+    store = {'llr': 'store/user/' + args.user + '/HHNtuples_res',
              'uhh': '???',
              'mib': '???'}[args.institute]
     store    = op.join(store, args.data_period)
@@ -36,11 +36,16 @@ def make_input_lists(args):
     rfdir  = '/usr/bin/rfdir'
     awk    = "| awk '{{print $9}}'"
     rfcomm = lambda s : rfdir + ' {} '.format(s) + awk
+    print('check1 ', rfcomm(path))
     pipe   = Popen(rfcomm(path), shell=True, stdout=PIPE)
-
     all_lists = {}
-     
+    print(pipe.stdout)
+    print('check3', rfcomm(path))
     for smpl_name in pipe.stdout:
+        print('- ', smpl_name)
+    print('check4')
+    for smpl_name in pipe.stdout:
+        print('- ', smpl_name)
         smpl_path = op.join(path, smpl_name).strip()    
         if args.sample not in smpl_name and args.sample != 'all':
             continue
@@ -72,6 +77,7 @@ def make_input_lists(args):
                 name = xrd_door + op.join(final_dir, filename.strip())
                 all_lists[smpl_name].append(name)
 
+    print('================  ', all_lists)
     assert len(all_lists.keys()) == 1 # currently calling this script once per sample
     
     if not all_lists:
@@ -94,6 +100,8 @@ if __name__ == "__main__":
                         help='Tag used for the input big ntuples')
     parser.add_argument('-d', '--data_period', dest='data_period', required=True, type=str,
                         help='Which data period to choose: Legacy2018, UL18, ...')
+    parser.add_argument('-u', '--user', dest='user', required=True, type=str,
+                        help='User who produced the input data')
     parser.add_argument('-x', '--institute', dest='institute', default='llr',
                         choices=('llr', 'uhh', 'mib'),
                         required=False, type=str, help='Which set of machines to use: LLR, Hamburg or Milano.')
