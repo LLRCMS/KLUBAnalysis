@@ -36,10 +36,14 @@ def make_input_lists(args):
     rfdir  = '/usr/bin/rfdir'
     awk    = "| awk '{{print $9}}'"
     rfcomm = lambda s : rfdir + ' {} '.format(s) + awk
+    print('check1 ', rfcomm(path))
     pipe   = Popen(rfcomm(path), shell=True, stdout=PIPE)
     all_lists = {}
-
     for smpl_name in pipe.stdout:
+        print('- ', smpl_name)
+    print('check4')
+    for smpl_name in pipe.stdout:
+        print('- ', smpl_name)
         smpl_path = op.join(path, smpl_name).strip()    
         if args.sample not in smpl_name and args.sample != 'all':
             continue
@@ -70,6 +74,7 @@ def make_input_lists(args):
                 name = xrd_door + op.join(final_dir, filename.strip())
                 all_lists[smpl_name].append(name)
 
+    print('================  ', all_lists)
     assert len(all_lists.keys()) == 1 # currently calling this script once per sample
     
     if not all_lists:

@@ -256,7 +256,7 @@ def skim_ntuple(FLAGS, curr_folder):
         local_err = os.path.join(livedir, '{}{}.err'.format(arg1,arg2))
         s.write(command + ' 1>{} 2>{}\n'.format(local_out, local_err))
         
-        command, comment = double_join('python {}'.format(py_exec),
+        command, comment = double_join('python3 {}'.format(py_exec),
                                        '-r ' + os.path.join(jobs_dir, io_names[1]),
                                        '-o ' + local_out,
                                        '-e ' + local_err,
@@ -352,5 +352,9 @@ if __name__ == "__main__":
 
 
     FLAGS = parser.parse_args()
+    print("-----------  Configuration Arguments -----------")
+    for arg, value in sorted(vars(FLAGS).items()):
+        print("%s: %s" % (arg, value))
+    print("------------------------------------------------") 
     curr_folder = os.getcwd()
     skim_ntuple(FLAGS, curr_folder)
