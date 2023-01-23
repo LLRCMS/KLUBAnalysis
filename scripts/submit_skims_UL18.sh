@@ -7,7 +7,7 @@ STITCHING_ON="0"
 DRYRUN="0"
 RESUBMIT="0"
 OUT_TAG=""
-KLUB_TAG="Jan2023" #10Mar2022
+IN_TAG="Jan2023"
 DATA_PERIOD="UL18"
 DATA_USER="${USER}"
 DATA_PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
@@ -17,25 +17,25 @@ HELP_STR="Prints this help message."
 DRYRUN_STR="(Boolean) Prints all the commands to be launched but does not launch them. Defaults to ${DRYRUN}."
 RESUBMIT_STR="(Boolean) Resubmits failed jobs listed in 'badfiles.txt'"
 OUT_TAG_STR="(String) Defines tag for the output. Defaults to '${OUT_TAG}'."
-KLUB_TAG_STR="(String) Chooses tag for the klub input. Defaults to '${KLUB_TAG}'."
+IN_TAG_STR="(String) Chooses tag for the input (big ntuples). Defaults to '${IN_TAG}'."
 STITCHING_ON_STR="(Boolean) Drell-Yan stitching weights will be used. Defaults to ${STITCHING_ON}."
 NO_LISTS_STR="(Boolean) Whether to run the list production script before each submission. Defaults to ${NO_LISTS}."
 DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${DATA_PERIOD}'."
 DATAUSER_STR="(String) Which user produced the data. Defaults to '${DATA_USER}'."
 function print_usage_submit_skims {
-    USAGE=" $(basename "$0") [-H] [--dry-run --resubmit -t -d -n -u --klub_tag --stitching_on]
+    USAGE=" $(basename "$0") [-H] [--dry-run --resubmit -t -d -n -u --in_tag --stitching_on]
 
 	-h / --help			[ ${HELP_STR} ]
 	--dry-run			[ ${DRYRUN_STR} ]
 	--resubmit			[ ${RESUBMIT_STR} ]
 	-t / --tag			[ ${OUT_TAG_STR} ]
-	--klub_tag			[ ${KLUB_TAG_STR} ]
-        -s / --stitching_on             [ ${STITCHING_ON_STR} ]
-        -n / --no_lists                 [ ${NO_LISTS_STR} ]
-        -d / --data_period              [ ${DATAPERIOD_STR} ]
-        -u / --user                     [ ${DATAUSER_STR} ]
+	--in_tag			[ ${IN_TAG_STR} ]
+	-s / --stitching_on [ ${STITCHING_ON_STR} ]
+	-n / --no_lists     [ ${NO_LISTS_STR} ]
+	-d / --data_period  [ ${DATAPERIOD_STR} ]
+	-u / --user         [ ${DATAUSER_STR} ]
 
-    Run example: bash $(basename "$0") -t <some_tag>
+    Run example: bash $(basename "$0") -t <some_tag> --in_tag <input_tag>
 "
     printf "${USAGE}"
 }
@@ -59,8 +59,8 @@ while [[ $# -gt 0 ]]; do
 	    OUT_TAG=${2}
 	    shift; shift;
 	    ;;
-	--klub_tag)
-	    KLUB_TAG=${2}
+	--in_tag)
+	    IN_TAG=${2}
 	    shift; shift;
 	    ;;
 	-s|--stitching)
@@ -119,9 +119,9 @@ if [ ${#VOMS_CHECK[@]} -eq 0 ]; then
 fi
 
 LIST_DIR=${LIST_DIR}"HHNtuples_res/"${DATA_PERIOD}"/"
-LIST_DATA_DIR=${LIST_DIR}"Data_"${KLUB_TAG}
-LIST_MC_DIR=${LIST_DIR}"MC_"${KLUB_TAG}
-declare -a LISTS_DATA=( $(/usr/bin/rfdir ${LIST_DATA_DIR} | awk '{{printf $9" "}}') )
+LIST_DATA_DIR=${LIST_DIR}"Data_"${IN_TAG}
+LIST_MC_DIR=${LIST_DIR}"MC_"${IN_TAG}
+#declare -a LISTS_DATA=( $(/usr/bin/rfdir ${LIST_DATA_DIR} | awk '{{printf $9" "}}') )
 declare -a LISTS_MC=(   $(/usr/bin/rfdir ${LIST_MC_DIR}   | awk '{{printf $9" "}}') )
 
 SKIM_DIR="/data_CMS/cms/${USER}/HHresonant_SKIMS"
@@ -181,7 +181,7 @@ printf "DRYRUN\t\t\t= ${DRYRUN}\n"
 printf "RESUBMIT\t\t= ${RESUBMIT}\n"
 printf "NO_LISTS\t\t= ${NO_LISTS}\n"
 printf "OUT_TAG\t\t\t= ${OUT_TAG}\n"
-printf "KLUB_TAG\t\t= ${KLUB_TAG}\n"
+printf "IN_TAG\t\t= ${IN_TAG}\n"
 printf "STITCHING_ON\t\t= ${STITCHING_ON}\n"
 printf "DATA_PERIOD\t\t= ${DATA_PERIOD}\n"
 printf "DATA_USER\t\t= ${DATA_USER}\n"
@@ -192,12 +192,12 @@ echo "-------------------------------"
 #### Source additional setup
 make -j10 && make exe -j10
 source scripts/setup.sh
-source /opt/exp_soft/cms/t3/t3setup
+#source /opt/exp_soft/cms/t3/t3setup
 echo "-------- Run: $(date) ---------------" >> ${ERR_FILE}
 
 ### Submission command
 function run_skim() {
-	comm="python3 ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -o ${OUTSKIM_DIR} -c ${KLUB_DIR}/${CFG} "
+	comm="python ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -o ${OUTSKIM_DIR} -c ${KLUB_DIR}/${CFG} "
 	[[ ${RESUBMIT} -eq 1 ]] && comm+="--resub "
 	comm+="--exec_file ${EXEC_FILE} -q long -Y 2018 -k 1 --pu ${PU_DIR} $@"
 	[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
@@ -205,7 +205,7 @@ function run_skim() {
 
 ### Input file list production command
 function produce_list() {
-	comm="python3 ${KLUB_DIR}/${LIST_SCRIPT} -t ${KLUB_TAG} --data_period ${DATA_PERIOD} --user ${DATA_USER} $@"
+	comm="python ${KLUB_DIR}/${LIST_SCRIPT} -t ${IN_TAG} --data_period ${DATA_PERIOD} --user ${DATA_USER} $@"
 	if [[ ${RESUBMIT} -eq 0 ]]; then
 		[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
 	fi
@@ -242,20 +242,36 @@ function find_sample() {
 }
 
 ### Run on data samples
-# DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
-# RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
-# for ds in ${DATA_LIST[@]}; do
-# 	for run in ${RUNS[@]}; do
-# 		pattern="${ds}__${run}"
-# 		sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
-# 		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-# 			ERRORS+=( ${sample} )
-# 		else
-# 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
-# 		 	run_skim -n 1000 --isdata 1 -i ${DATA_DIR} --sample ${sample}			
-# 		fi
-# 	done
-# done
+DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
+RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
+for ds in ${DATA_LIST[@]}; do
+	for run in ${RUNS[@]}; do
+		pattern="${ds}__${run}"
+		sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
+		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+			ERRORS+=( ${sample} )
+		else
+			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
+		 	run_skim -n 1000 --isdata 1 -i ${DATA_DIR} --sample ${sample}			
+		fi
+	done
+done
+
+### Run on HH resonant signal samples
+DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
+MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
+for ds in ${DATA_LIST[@]}; do
+	for mass in ${MASSES[@]}; do
+		pattern="${ds}.+_M-${mass}_";
+		sample=$(find_sample ${pattern} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
+		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+			ERRORS+=( ${sample} )
+		else
+			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
+			run_skim -n 5 -i ${SIG_DIR} --sample ${sample} -x 1.
+		fi
+	done
+done
 
 ### Run on HH resonant signal samples
 DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
@@ -280,20 +296,20 @@ DATA_MAP=(
     ["TTToHadronic"]="-n 1000 -x 377.96"
     ["TTTo2L2Nu"]="-n 1000 -x 88.29"
     ["TTToSemiLeptonic"]="-n 1000 -x 365.34"
-#
-#    ["DYJets.+_M-50_T.+amc"]="-n 600            -x 6077.22 -g ${STITCHING_ON} --DY 0" # inclusive NLO
-##    ["DYJets.+_M-50_T.+amc"]="-n 600            -x 6077.22 -g 0 --DY 0" # inclusive NLO
-###    ["DYJetToLL_merged_noPtZ0-50"]="-n 450            -x 6077.22 -g ${STITCHING_ON} --DY 0" # merged
-###    ["DYJetsToLL_LHEFilterPtZ-0To50"]="-n 100   -x ${DYXSEC} -g ${STITCHING_ON} --DY 0"
-#    ["DYJetsToLL_LHEFilterPtZ-50To100"]="-n 600 -x 397.4     -g ${STITCHING_ON} --DY 0"
-#    ["DYJetsToLL_LHEFilterPtZ-100To250"]="-n 600 -x  97.2     -g ${STITCHING_ON} --DY 0"
-#    ["DYJetsToLL_LHEFilterPtZ-250To400"]="-n 600 -x   3.701   -g ${STITCHING_ON} --DY 0"
-#    ["DYJetsToLL_LHEFilterPtZ-400To650"]="-n 600 -x   0.5086  -g ${STITCHING_ON} --DY 0"
-#    ["DYJetsToLL_LHEFilterPtZ-650ToInf"]="-n 600 -x   0.04728 -g ${STITCHING_ON} --DY 0"
-######
-#    ["DYJetsToLL_0J"]="-n 600 -x 5129.  -g ${STITCHING_ON} --DY 0"
-#    ["DYJetsToLL_1J"]="-n 600  -x  951.5 -g ${STITCHING_ON} --DY 0"
-#    ["DYJetsToLL_2J"]="-n 600  -x  361.4 -g ${STITCHING_ON} --DY 0"
+	#
+	#    ["DYJets.+_M-50_T.+amc"]="-n 600            -x 6077.22 -g ${STITCHING_ON} --DY 0" # inclusive NLO
+	##    ["DYJets.+_M-50_T.+amc"]="-n 600            -x 6077.22 -g 0 --DY 0" # inclusive NLO
+	###    ["DYJetToLL_merged_noPtZ0-50"]="-n 450            -x 6077.22 -g ${STITCHING_ON} --DY 0" # merged
+	###    ["DYJetsToLL_LHEFilterPtZ-0To50"]="-n 100   -x ${DYXSEC} -g ${STITCHING_ON} --DY 0"
+	#    ["DYJetsToLL_LHEFilterPtZ-50To100"]="-n 600 -x 397.4     -g ${STITCHING_ON} --DY 0"
+	#    ["DYJetsToLL_LHEFilterPtZ-100To250"]="-n 600 -x  97.2     -g ${STITCHING_ON} --DY 0"
+	#    ["DYJetsToLL_LHEFilterPtZ-250To400"]="-n 600 -x   3.701   -g ${STITCHING_ON} --DY 0"
+	#    ["DYJetsToLL_LHEFilterPtZ-400To650"]="-n 600 -x   0.5086  -g ${STITCHING_ON} --DY 0"
+	#    ["DYJetsToLL_LHEFilterPtZ-650ToInf"]="-n 600 -x   0.04728 -g ${STITCHING_ON} --DY 0"
+	######
+	#    ["DYJetsToLL_0J"]="-n 600 -x 5129.  -g ${STITCHING_ON} --DY 0"
+	#    ["DYJetsToLL_1J"]="-n 600  -x  951.5 -g ${STITCHING_ON} --DY 0"
+	#    ["DYJetsToLL_2J"]="-n 600  -x  361.4 -g ${STITCHING_ON} --DY 0"
 	### 
 	###### LO samples, DY weights exist (--DY 1)
 	#### ["DYJets.+_M-50_T.+madgraph"]="		-n 400 -x 6077.22 -g ${STITCHING_ON} --DY 1" # inclusive LO

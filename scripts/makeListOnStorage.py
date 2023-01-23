@@ -39,8 +39,6 @@ def make_input_lists(args):
     print('check1 ', rfcomm(path))
     pipe   = Popen(rfcomm(path), shell=True, stdout=PIPE)
     all_lists = {}
-    print(pipe.stdout)
-    print('check3', rfcomm(path))
     for smpl_name in pipe.stdout:
         print('- ', smpl_name)
     print('check4')
@@ -71,7 +69,6 @@ def make_input_lists(args):
             final_dir = op.join(smpl_path, subfold.strip())
             str_comm = '{} | grep HTauTauAnalysis'
             file_comm = rfcomm( str_comm.format(final_dir.strip()) )
-
             out = Popen(file_comm, shell=True, stdout=PIPE).stdout.readlines()
             for filename in out:
                 name = xrd_door + op.join(final_dir, filename.strip())
