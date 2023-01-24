@@ -23,19 +23,18 @@ NO_LISTS_STR="(Boolean) Whether to run the list production script before each su
 DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${DATA_PERIOD}'."
 DATAUSER_STR="(String) Which user produced the data. Defaults to '${DATA_USER}'."
 function print_usage_submit_skims {
-    USAGE=" $(basename "$0") [-H] [--dry-run --resubmit -t -d -n -u --in_tag --stitching_on]
+    USAGE="
+        Run example: bash $(basename "$0") -t out_test --in_tag Jan2023 --user bfontana --dry-run
 
 	-h / --help			[ ${HELP_STR} ]
 	--dry-run			[ ${DRYRUN_STR} ]
 	--resubmit			[ ${RESUBMIT_STR} ]
 	-t / --tag			[ ${OUT_TAG_STR} ]
-	--in_tag			[ ${IN_TAG_STR} ]
-	-s / --stitching_on [ ${STITCHING_ON_STR} ]
-	-n / --no_lists     [ ${NO_LISTS_STR} ]
-	-d / --data_period  [ ${DATAPERIOD_STR} ]
-	-u / --user         [ ${DATAUSER_STR} ]
-
-    Run example: bash $(basename "$0") -t <some_tag> --in_tag <input_tag>
+	--in_tag		        [ ${IN_TAG_STR} ]
+	-s / --stitching_on             [ ${STITCHING_ON_STR} ]
+	-n / --no_lists                 [ ${NO_LISTS_STR} ]
+	-d / --data_period              [ ${DATAPERIOD_STR} ]
+	-u / --user                     [ ${DATAUSER_STR} ]
 "
     printf "${USAGE}"
 }
@@ -101,7 +100,7 @@ KLUB_DIR="$( cd "$( dirname ${THIS_DIR} )" && pwd )"
 EXEC_FILE="${KLUB_DIR}/bin"
 SUBMIT_SCRIPT="scripts/skimNtuple.py"
 LIST_SCRIPT="scripts/makeListOnStorage.py"
-LIST_DIR="/dpm/in2p3.fr/home/cms/trivcat/store/user/bfontana/"
+LIST_DIR="/dpm/in2p3.fr/home/cms/trivcat/store/user/${DATA_USER}/"
 
 if [ ${DATA_PERIOD} == "UL16" ]; then
 	EXEC_FILE="${EXEC_FILE}/skimNtuple2016_HHbtag.exe"
@@ -111,17 +110,18 @@ elif [ ${DATA_PERIOD} == "UL18" ]; then
 	EXEC_FILE="${EXEC_FILE}/skimNtuple2018_HHbtag.exe"
 fi
 
-### Check if the voms command was runs
-declare -a VOMS_CHECK=( $(/usr/bin/rfdir ${LIST_DIR} 2>/dev/null | awk '{{printf $9" "}}') )
-if [ ${#VOMS_CHECK[@]} -eq 0 ]; then
-	echo "Folder ${LIST_DIR} seems empty. Are you sure you run 'voms-proxy-init -voms cms'?"
-	exit 1
-fi
+### Check if the voms command was run
+# declare -a VOMS_CHECK=( $(/usr/bin/rfdir ${LIST_DIR} 2>/dev/null | awk '{{printf $9" "}}') )
+# if [ ${#VOMS_CHECK[@]} -eq 0 ]; then
+# 	echo "Folder ${LIST_DIR} seems empty. Are you sure you run 'voms-proxy-init -voms cms'?"
+# 	exit 1
+# fi
+voms-proxy-init -voms cms
 
 LIST_DIR=${LIST_DIR}"HHNtuples_res/"${DATA_PERIOD}"/"
 LIST_DATA_DIR=${LIST_DIR}"Data_"${IN_TAG}
 LIST_MC_DIR=${LIST_DIR}"MC_"${IN_TAG}
-#declare -a LISTS_DATA=( $(/usr/bin/rfdir ${LIST_DATA_DIR} | awk '{{printf $9" "}}') )
+declare -a LISTS_DATA=( $(/usr/bin/rfdir ${LIST_DATA_DIR} | awk '{{printf $9" "}}') )
 declare -a LISTS_MC=(   $(/usr/bin/rfdir ${LIST_MC_DIR}   | awk '{{printf $9" "}}') )
 
 SKIM_DIR="/data_CMS/cms/${USER}/HHresonant_SKIMS"
@@ -176,16 +176,16 @@ ERR_FILE=${OUTSKIM_DIR}"/bad_patterns.o"
 
 ### Argument parsing: information for the user
 echo "------ Arguments --------------"
-echo " Passed by the user:"
+echo "=== Passed by the user:"
 printf "DRYRUN\t\t\t= ${DRYRUN}\n"
 printf "RESUBMIT\t\t= ${RESUBMIT}\n"
 printf "NO_LISTS\t\t= ${NO_LISTS}\n"
 printf "OUT_TAG\t\t\t= ${OUT_TAG}\n"
-printf "IN_TAG\t\t= ${IN_TAG}\n"
+printf "IN_TAG\t\t\t= ${IN_TAG}\n"
 printf "STITCHING_ON\t\t= ${STITCHING_ON}\n"
 printf "DATA_PERIOD\t\t= ${DATA_PERIOD}\n"
 printf "DATA_USER\t\t= ${DATA_USER}\n"
-echo " Others:"
+echo "=== Others:"
 printf "OUTSKIM_DIR\t\t= ${OUTSKIM_DIR}\n"
 echo "-------------------------------"
 
@@ -215,13 +215,12 @@ function produce_list() {
 function find_sample() {
 	nargs=$(( ${3}+3 ))
 	if [ $# -ne ${nargs} ]; then
-		echo "Wrong number of arguments - ${nargs} expected, $# provided"
+	    echo "Wrong number of arguments - ${nargs} expected, $# provided"
         exit 1
-    fi
+	fi
 	pattern=${1}
 	list_dir=${2}
 	lists=${@:4}
-
 	sample=""
 	nmatches=0
 	for ldata in ${lists[@]}; do
@@ -242,38 +241,26 @@ function find_sample() {
 }
 
 ### Run on data samples
+exit
 DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
 RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
 for ds in ${DATA_LIST[@]}; do
-	for run in ${RUNS[@]}; do
-		pattern="${ds}__${run}"
-		sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
-		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-			ERRORS+=( ${sample} )
-		else
-			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
-		 	run_skim -n 1000 --isdata 1 -i ${DATA_DIR} --sample ${sample}			
-		fi
-	done
+    for run in ${RUNS[@]}; do
+	pattern="${ds}__${run}"
+	if [ ${#LISTS_DATA[@]} -eq 0 ]; then
+	    echo "WARNING: No files found in "${LIST_DATA_DIR}"."
+	fi   
+	sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
+	if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+	    ERRORS+=( ${sample} )
+	else
+	    [[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
+	    run_skim -n 1000 --isdata 1 -i ${DATA_DIR} --sample ${sample}			
+	fi
+    done
 done
 
-### Run on HH resonant signal samples
-DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
-MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
-for ds in ${DATA_LIST[@]}; do
-	for mass in ${MASSES[@]}; do
-		pattern="${ds}.+_M-${mass}_";
-		sample=$(find_sample ${pattern} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
-		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-			ERRORS+=( ${sample} )
-		else
-			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
-			run_skim -n 5 -i ${SIG_DIR} --sample ${sample} -x 1.
-		fi
-	done
-done
-
-### Run on HH resonant signal samples
+## Run on HH resonant signal samples
 DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
 MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
 for ds in ${DATA_LIST[@]}; do
