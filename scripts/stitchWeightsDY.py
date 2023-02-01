@@ -5,49 +5,30 @@
 from __future__ import print_function # print(text,end="")
 from ROOT import *
 \
+
 ## update these numbers for each production!!
-# Nevents = {
-#     'inclusive' : 49877138,
-#     '1jet'      : 65431748,
-#     '2jet'      : 19695514,
-#     '3jet'      : 5753813,
-#     '4jet'      : 4101383,
-#     '1b'        : 1464655,
-#     '2b'        : 2348505
-# }
 
-# Nevents = {
-#     'inclusive' : 49717683,
-#     '1jet'      : 65024881,
-#     '2jet'      : 19675588,
-#     '3jet'      : 5753813,
-#     '4jet'      : 4101383,
-#     '1b'        : 1464655,
-#     '2b'        : 2384424
-# }
-
+#Prod datasets Legacy2017 January2020production
 Nevents = {
-    'inclusive' : 48644406,
-    '1jet'      : 62168246,
-    '2jet'      : 19910647,
-    '3jet'      : 5856110,
-    '4jet'      : 4178216,
-    '1b'        : 1187653,
-    '2b'        : 2514302
+    'inclusive' : 97800939,
+    '1jet'	: 77190729,
+    '2jet'	: 10126746,
+    '3jet'	: 6897933,
+    '4jet'	: 4276951,
+    '1b'	: 0,
+    '2b'	: 5101202,
 }
-
-
-########################################
 
 fractionHistosFilesNames = {
-    'inclusive' : '../weights/DYstitchMap/DYmap_inclusive.root',
-    '1jet'      : '../weights/DYstitchMap/DYmap_1jet.root',
-    '2jet'      : '../weights/DYstitchMap/DYmap_2jet.root',
-    '3jet'      : '../weights/DYstitchMap/DYmap_3jet.root',
-    '4jet'      : '../weights/DYstitchMap/DYmap_4jet.root',
-    '1b'        : '../weights/DYstitchMap/DYmap_Bjet.root',
-    '2b'        : '../weights/DYstitchMap/DYmap_BBjet.root'
+    'inclusive' : '../weights/DYstitchMap/DYmap_inclusive_Legacy2017_30Apr2020_No_HT.root',
+    '1jet'      : '../weights/DYstitchMap/DYmap_1jet_Legacy2017_30Apr2020_No_HT.root',
+    '2jet'      : '../weights/DYstitchMap/DYmap_2jet_Legacy2017_30Apr2020_No_HT.root',
+    '3jet'      : '../weights/DYstitchMap/DYmap_3jet_Legacy2017_30Apr2020_No_HT.root',
+    '4jet'      : '../weights/DYstitchMap/DYmap_4jet_Legacy2017_30Apr2020_No_HT.root',
+    '1b'        : '../weights/DYstitchMap/DYmap_Bjet.root',                       # <- dummy
+    '2b'        : '../weights/DYstitchMap/DYmap_BBjet_Legacy2017_30Apr2020_No_HT.root'
 }
+
 
 fractionHistosFiles = {}
 fractionHistos = {}
@@ -98,7 +79,11 @@ for njet in range (0, 5):
 #         print (njet, nb, fractionXS[njet][nb])
 
 
-fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined.root", "recreate")
+
+#fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined_Legacy2018_22Jan2020.root", "recreate")
+#fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined_2017_January2019.root", "recreate")
+#fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined_Legacy2016_27Jan2020.root", "recreate")
+fOut = TFile ("../weights/DYstitchMap/outXSsplitCombined_Legacy2017_30Apr2020_No_HT.root", "recreate")
 h2DfractionXS = TH2F ("h2DfractionXS", "h2DfractionXS;njet;nb", 5, 0, 5, 5, 0, 5)
 for njet in range (0, 5):
     for nb in range (0, 5):

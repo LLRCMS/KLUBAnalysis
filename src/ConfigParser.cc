@@ -113,8 +113,8 @@ bool ConfigParser::isDefined(const char *name) const
   return false;
 }
 //! Read integer option
-int ConfigParser::readIntOption(const char *name) const
-  throw(const char *){
+int ConfigParser::readIntOption(const char *name)
+{
   string s(name);
   LineIterator I=configLines.begin();
   while (I != configLines.end()) {
@@ -128,12 +128,12 @@ int ConfigParser::readIntOption(const char *name) const
     I++;
   }
   cerr << "ConfigParser::readIntOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readIntOption: No such option provided!";
 }
 //! Read double option
-double ConfigParser::readDoubleOption(const char *name) const
-  throw(const char *){
+double ConfigParser::readDoubleOption(const char *name)
+{
   string s(name);
   LineIterator I=configLines.begin();
   while (I != configLines.end()) {
@@ -147,12 +147,12 @@ double ConfigParser::readDoubleOption(const char *name) const
     I++;
   }
   cerr << "ConfigParser::readDoubleOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readDoubleOption: No such option provided!";
 }
 //! Read float option
-float ConfigParser::readFloatOption(const char *name) const
-  throw(const char *){
+float ConfigParser::readFloatOption(const char *name)
+{
   string s(name);
   LineIterator I=configLines.begin();
   while (I != configLines.end()) {
@@ -166,12 +166,12 @@ float ConfigParser::readFloatOption(const char *name) const
     I++;
   }
   cerr << "ConfigParser::readFloatOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readFloatOption: No such option provided!";
 }
 //! Read double list option
-const char *ConfigParser::readStringOption(const char *name) const
-  throw(const char *){
+const char *ConfigParser::readStringOption(const char *name)
+{
   string s(name);
   LineIterator I=configLines.begin();
   while (I != configLines.end()) {
@@ -180,25 +180,25 @@ const char *ConfigParser::readStringOption(const char *name) const
       if(!values.size())
 	throw "ConfigParser::readStringOption: No string option!";
       list<string>::const_iterator I2=values.begin();
-      return (*I2).c_str();
+      return strdup( (*I2).c_str());
     }
     I++;
   }
   cerr << "ConfigParser::readStringOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readStringOption: No such option provided!";
 }
 //! Read bool option
-const bool ConfigParser::readBoolOption(const char *name) const
-  throw(const char *){
+const bool ConfigParser::readBoolOption(const char *name)
+{
   return (string(readStringOption(name))=="true") ? true : false;
   cerr << "ConfigParser::readBoolOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readBoolOption: No such option provided!";
 }
 //! Read integer list option
-vector<int> ConfigParser::readIntListOption(const char *name) const
-  throw(const char *){
+vector<int> ConfigParser::readIntListOption(const char *name)
+{
   string s(name);
   LineIterator I=configLines.begin();
   while (I != configLines.end()) {
@@ -216,12 +216,12 @@ vector<int> ConfigParser::readIntListOption(const char *name) const
     I++;
   }
   cerr << "ConfigParser::readIntListOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readIntListOption: No such option provided!";
 }
 //! Read double list option
-vector<double> ConfigParser::readDoubleListOption(const char *name) const
-  throw(const char *){
+vector<double> ConfigParser::readDoubleListOption(const char *name)
+{
   string s(name);
   LineIterator I=configLines.begin();
   while (I != configLines.end()) {
@@ -239,13 +239,13 @@ vector<double> ConfigParser::readDoubleListOption(const char *name) const
     I++;
   }
   cerr << "ConfigParser::readDoubleListOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readDoubleListOption: No such option provided!";
 }
 
 //! Read float list option
-vector<float> ConfigParser::readFloatListOption(const char *name) const
-  throw(const char *){
+vector<float> ConfigParser::readFloatListOption(const char *name)
+{
   string s(name);
   LineIterator I=configLines.begin();
   while (I != configLines.end()) {
@@ -263,12 +263,12 @@ vector<float> ConfigParser::readFloatListOption(const char *name) const
     I++;
   }
   cerr << "ConfigParser::readFloatListOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readFloatListOption: No such option provided!";
 }
 //! Read string list option
-vector<string> ConfigParser::readStringListOption(const char *name) const
-  throw(const char *){
+vector<string> ConfigParser::readStringListOption(const char *name)
+{
   string s(name);
   LineIterator I=configLines.begin();
   while (I != configLines.end()) {
@@ -286,7 +286,7 @@ vector<string> ConfigParser::readStringListOption(const char *name) const
     I++;
   }
   cerr << "ConfigParser::readStringListOption: No \""
-	    << name << "\" option provided!\n" ;
+       << name << "\" option provided!\n" ;
   throw "ConfigParser::readStringListOption: No such option provided!";
 }
 //! Print all options to cout

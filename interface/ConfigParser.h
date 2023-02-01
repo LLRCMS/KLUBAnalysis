@@ -18,10 +18,10 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace std;
+//using namespace std;
 
 class ConfigParser {
- public:
+public:
 
 
   FILE *config_file;
@@ -39,60 +39,57 @@ class ConfigParser {
 
   // Append the option name of another ConfigFileLine as value
   void appendLine(ConfigFileLine *line);
-  
+
   // Deletes a line from the already parsed configuration file lines
   bool deleteLine(const char *name, const char *scope=0);
 
   // Override an option
-  bool overrideOption(const char *name, list<string> &values,
+  bool overrideOption(const char *name, std::list<std::string> &values,
 		      const char *scope = 0);
 
   // Is this option defined?
   bool isDefined(const char *name) const;
 
   // Read Integer Option
-  int readIntOption(const char *name) const throw(const char *);
+  int readIntOption(const char *name);
 
   // Read Double Option
-  double readDoubleOption(const char *name) const throw(const char *);
+  double readDoubleOption(const char *name);
 
   // Read Float Option
-  float readFloatOption(const char *name) const throw(const char *);
+  float readFloatOption(const char *name);
 
   // Read bool Option
-  const bool readBoolOption(const char *name) const throw(const char *);
-  
+  const bool readBoolOption(const char *name);
+
   // Read Integer Option
-  const char *readStringOption(const char *name) const throw(const char *);
-  
+  const char *readStringOption(const char *name);
+
   // Read Integer List Option
-  vector<int> readIntListOption(const char *name) const throw(const char *);
+  std::vector<int> readIntListOption(const char *name);
 
   // Read Double List Option
-  vector<double> readDoubleListOption(const char *name) 
-    const throw(const char *);
+  std::vector<double> readDoubleListOption(const char *name);
 
   // Read Double List Option
-  vector<float> readFloatListOption(const char *name) 
-    const throw(const char *);
-  
+  std::vector<float> readFloatListOption(const char *name);
+
   // Read String List Option
-  vector<string> readStringListOption(const char *name)
-    const throw(const char *);
+  std::vector<std::string> readStringListOption(const char *name);
 
   // Print all options
   void print() const;
 
   //! stream operator
-  friend ostream & operator<< (ostream & out, const ConfigParser & conf) ;
+  friend std::ostream & operator<< (std::ostream & out, const ConfigParser & conf) ;
 
- private:
+private:
 
-  list<ConfigFileLine *> configLines; //!< A list of configuration file lines
-  
+  std::list<ConfigFileLine *> configLines; //!< A list of configuration file lines
+
   //! For convinience a ValueIterator type is defined which walks along
   //! the list of option strings
-  typedef list<ConfigFileLine *>::const_iterator LineIterator;
+  typedef std::list<ConfigFileLine *>::const_iterator LineIterator;
 
 };
 

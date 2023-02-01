@@ -19,16 +19,16 @@
 
 class EffCounter {
 
-    public:
-        EffCounter  ();
-        ~EffCounter ();
-        bool AddMarker (std::string mname); // true if insertion succeed
-        bool Increment (std::string mname, double val); // true if increment succeed
-        void PrintSummary (std::ostream& os = std::cout); //  = std::cout
-        std::vector <std::pair<std::string, double> > GetSummary();
-    private:
-        std::vector<std::string> insertedMarkers_; // to keep insertion order
-        std::unordered_map<std::string, double> counter_; // to keep insertion order
+public:
+  EffCounter  ();
+  ~EffCounter ();
+  bool AddMarker (std::string mname); // true if insertion succeed
+  bool Increment (std::string mname, double val); // true if increment succeed
+  void PrintSummary (std::ostream& os = std::cout); //  = std::cout
+  std::vector <std::pair<std::string, double> > GetSummary();
+private:
+  std::vector<std::string> insertedMarkers_; // to keep insertion order
+  std::unordered_map<std::string, double> counter_; // to keep insertion order
 };
 
 #endif

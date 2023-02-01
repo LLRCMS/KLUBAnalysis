@@ -1,0 +1,19 @@
+# Simple counting experiment
+
+imax 1  number of channels
+jmax 4  number of backgrounds
+kmax 1  number of nuisance parameters (sources of systematical uncertainties)
+------------
+bin  	       _DM_     
+observation    _NDATA_regB_	  
+------------
+bin             _DM_	_DM_	_DM_	_DM_	_DM_
+process         0taus  1taus   2taus 	QCD	sig
+process         1      2       3	4	0	
+rate            _N0TAUS_regB_  _N1TAUS_regB_	_N2TAUS_regB_	1	0
+------------
+lumi    lnN     1.025	       1.025		1.025		-	-
+------------
+QCD_regB rateParam  _DM_ QCD _QCD_regB_
+_SF__square rateParam _DM_ 2taus (@0*@0) _SF_
+_SF_ 	    rateParam _DM_ 1taus 1

@@ -3,9 +3,9 @@
 *.o
 *.so
 *.eps
-*.root
 !*/*.root
 obj/
+lib/*.pcm
 combiner/*.pdf
 combiner/*.png
 combiner/*.root
@@ -18,3 +18,8 @@ analysis_ETau*/
 analysis_MuTau*/
 analysis_TauTau*/
 analysis_MuMu*/
+*._*
+limits/VBFlimits/cards_*/
+limits/cards_*/
+limits/VBFlimits/analyzedOutPlotter*
+limits/analyzedOutPlotter*

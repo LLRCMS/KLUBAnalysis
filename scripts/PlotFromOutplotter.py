@@ -133,11 +133,12 @@ def findInFolder (folder, pattern):
     return ll[0]
 
 # prototype: OS_sig_HHKin_mass_OS_defaultBtagMMNoIsoBBTTCut_Radion300
+# prototype: TT_s2b0jresolvedMcut_SR_VBFjj_mass
 # tag = "sig", "bkg", "DATA"
-def retrieveHistos (rootFile, namelist, var, sel, tag):
+def retrieveHistos (rootFile, namelist, var, sel, reg):
     res = {}
     for name in namelist:
-        fullName = "OS_" + tag + "_" + var + "_OS_" + sel + "_" + name
+        fullName = name + "_" + sel + "_" + reg + "_" + var
         if not rootFile.GetListOfKeys().Contains(fullName):
             print "*** WARNING: histo " , fullName , " not available"
             continue
@@ -364,6 +365,7 @@ if __name__ == "__main__" :
     parser.add_argument('--var', dest='var', help='variable name', default=None)
     parser.add_argument('--sel', dest='sel', help='selection name', default=None)
     parser.add_argument('--dir', dest='dir', help='analysis output folder name', default="./")
+    parser.add_argument('--reg', dest='reg', help='region name', default=None)
     parser.add_argument('--title', dest='title', help='plot title', default=None)
     parser.add_argument('--channel', dest='channel', help='channel = (MuTau, ETau, TauTau)', default=None)
     parser.add_argument('--siglegextratext', dest='siglegextratext', help='additional optional text to be plotted in legend after signal block', default=None)
@@ -432,14 +434,18 @@ if __name__ == "__main__" :
     # signals to plot
     #signalList = ["Radion300", "Radion450", "Radion800"]
     
-    sigList = ["Lambda1", "Lambda20"]
-    sigNameList = ["100 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 1", "10 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 20"]
-    sigNameList = ["100 x #lambda/#lambda^{SM} = 1", "10 x #lambda/#lambda^{SM} = 20"]
+    #sigList = ["Lambda1", "Lambda20"]
+    #sigNameList = ["100 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 1", "10 x #lambda_{hhh}/#lambda_{hhh}^{SM} = 20"]
+    #sigNameList = ["100 x #lambda/#lambda^{SM} = 1", "10 x #lambda/#lambda^{SM} = 20"]
+
+    sigList = ["VBFC2V1", "VBFC2V2"]
+    sigNameList = ["VBFC2V1", "VBFC2V2"]
+
 
     sigScale = [100., 10.]
     sigColors = {}
-    sigColors["Lambda1"] = 1
-    sigColors["Lambda20"] = 2
+    sigColors["VBFC2V1"] = 1
+    sigColors["VBFC2V2"] = 2
 
     # sigList = ["Radion300", "Radion450", "Radion800"]
     # sigNameList = [
@@ -458,11 +464,11 @@ if __name__ == "__main__" :
     if args.title:
         plotTitle = args.title
 
-    DYlist   = ["DYIncl", "DY100200", "DY200400", "DY400600", "DY600Inf"]
-    Wjetlist = ["WJetsIncl", "WJets100200", "WJets200400", "WJets400600", "WJets600Inf"]
+    #DYlist   = ["DYIncl", "DY100200", "DY200400", "DY400600", "DY600Inf"]
+    #Wjetlist = ["WJetsIncl", "WJets100200", "WJets200400", "WJets400600", "WJets600Inf"]
     TTlist   = ["TT"]
-    tWlist   = ["TWtop", "TWantitop"]
-    VVlist   = ["WWTo2L2Nu", "WWToLNuQQ", "WZTo1L1Nu2Q", "WZTo1L3Nu", "WZTo2L2Q", "WZTo3LNu", "ZZTo2L2Nu", "ZZTo2L2Q", "ZZTo4L"]
+    #tWlist   = ["TWtop", "TWantitop"]
+    #VVlist   = ["WWTo2L2Nu", "WWToLNuQQ", "WZTo1L1Nu2Q", "WZTo1L3Nu", "WZTo2L2Q", "WZTo3LNu", "ZZTo2L2Nu", "ZZTo2L2Q", "ZZTo4L"]
 
     ###########################################################################
     #setPlotStyle()
@@ -477,20 +483,21 @@ if __name__ == "__main__" :
     #sigList     = cfg.readListOption("general::signals") # set by hand
 
     rootFile = TFile.Open (args.dir+"/"+outplotterName)
-    hSigs = retrieveHistos (rootFile, sigList, args.var, args.sel, "sig")
-    hBkgs = retrieveHistos  (rootFile, bkgList, args.var, args.sel, "bkg")
-    hDatas = retrieveHistos  (rootFile, dataList, args.var, args.sel, "DATA")
+    hSigs = retrieveHistos (rootFile, sigList, args.var, args.sel,args.reg)
+    hBkgs = retrieveHistos  (rootFile, bkgList, args.var, args.sel,args.reg)
+    hDatas = retrieveHistos  (rootFile, dataList, args.var, args.sel,args.reg)
 
-    hDY    = groupTogether ("DY", DYlist, hBkgs)
-    hWJets = groupTogether ("WJets", Wjetlist, hBkgs)
+    #hDY    = groupTogether ("DY", DYlist, hBkgs)
+    #hWJets = groupTogether ("WJets", Wjetlist, hBkgs)
     hTT    = groupTogether ("TT", TTlist, hBkgs)
-    htW    = groupTogether ("tW", tWlist, hBkgs)
-    hVV    = groupTogether ("VV", VVlist, hBkgs)
-    hQCD   = retrieveQCD (rootFile, args.var, args.sel, dataList)
+    #htW    = groupTogether ("tW", tWlist, hBkgs)
+    #hVV    = groupTogether ("VV", VVlist, hBkgs)
+    #hQCD   = retrieveQCD (rootFile, args.var, args.sel, dataList)
     
-    hBkgList = [hTT, hDY, hWJets, hQCD, hVV, htW] ## full list for stack
-    hBkgNameList = ["t#bar{t}", "Drell-Yann", "W+jets", "QCD", "di-boson", "single top"] # list for legend
-
+    #hBkgList = [hTT, hDY, hWJets, hQCD, hVV, htW] ## full list for stack
+    #hBkgNameList = ["t#bar{t}", "Drell-Yann", "W+jets", "QCD", "di-boson", "single top"] # list for legend
+    hBkgList = [hTT] ## full list for stack
+    hBkgNameList = ["t#bar{t}"] # list for legend
     hData = groupTogether  ("data", dataList, hDatas)
 
     # remove all data from blinding region before creating tgraph etc...

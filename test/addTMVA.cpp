@@ -24,13 +24,13 @@
 #include "TMVA/Factory.h"
 #include "TMVA/Reader.h"
 
-using namespace std ; 
+using namespace std ;
 
 
 void
-calcTMVA (sample & thisSample, 
-          vector<string> & trainingVariables, 
-          vector<string> & spectatorVariables, 
+calcTMVA (mysample & thisSample,
+          vector<string> & trainingVariables,
+          vector<string> & spectatorVariables,
           string mvaName, string weightsFile)
 {
 
@@ -46,39 +46,39 @@ calcTMVA (sample & thisSample,
   TTree * tree = thisSample.sampleTree ;
   TFile * currentFile = thisSample.sampleFile ;
 
-  vector<float> address (trainingVariables.size () + spectatorVariables.size (), 0.) ; 
+  vector<float> address (trainingVariables.size () + spectatorVariables.size (), 0.) ;
   for (unsigned int iv = 0 ; iv < trainingVariables.size () ; ++iv)
-    {
-      tree->SetBranchAddress (trainingVariables.at (iv).c_str (), &(address.at (iv))) ;
-      reader->AddVariable (trainingVariables.at (iv), &(address.at (iv))) ;
-    }  
+  {
+    tree->SetBranchAddress (trainingVariables.at (iv).c_str (), &(address.at (iv))) ;
+    reader->AddVariable (trainingVariables.at (iv), &(address.at (iv))) ;
+  }
 
   for (unsigned int iv = 0 ; iv < spectatorVariables.size () ; ++iv)
-    {
-      int addressIndex = iv + trainingVariables.size () ;
-      tree->SetBranchAddress (spectatorVariables.at (iv).c_str (), &(address.at (addressIndex))) ;
-      reader->AddSpectator (spectatorVariables.at (iv), &(address.at (addressIndex))) ;
-    }  
+  {
+    int addressIndex = iv + trainingVariables.size () ;
+    tree->SetBranchAddress (spectatorVariables.at (iv).c_str (), &(address.at (addressIndex))) ;
+    reader->AddSpectator (spectatorVariables.at (iv), &(address.at (addressIndex))) ;
+  }
 
   // add a new branch to store the tmva output
   float mvaValue ;
   TBranch * mvaBranch ;
-  
-  if (tree->GetListOfBranches ()->FindObject (mvaName.c_str ())) 
+
+  if (tree->GetListOfBranches ()->FindObject (mvaName.c_str ()))
     tree->SetBranchAddress (mvaName.c_str (), &mvaValue, &mvaBranch) ;
-  else   
+  else
     mvaBranch = tree->Branch (mvaName.c_str (), &mvaValue, (mvaName + "/F").c_str ()) ;
 
   reader->BookMVA (mvaName.c_str (),  weightsFile.c_str ()) ;
 
   for (int iEvent = 0 ; iEvent < tree->GetEntries () ; ++iEvent)
-    {
-      tree->GetEntry (iEvent) ;
-      //cout<<"BEFORE "<<trainingVariables.at (1).c_str ()<<":  "<<address.at (1)<<endl;
-      mvaValue = reader->EvaluateMVA (mvaName.c_str ()) ;  
-      //cout<<"AFTER "<<trainingVariables.at (1).c_str ()<<":  "<<address.at (1)<<endl;      
-      mvaBranch->Fill () ;    
-    } //loop on tree entries
+  {
+    tree->GetEntry (iEvent) ;
+    //cout<<"BEFORE "<<trainingVariables.at (1).c_str ()<<":  "<<address.at (1)<<endl;
+    mvaValue = reader->EvaluateMVA (mvaName.c_str ()) ;
+    //cout<<"AFTER "<<trainingVariables.at (1).c_str ()<<":  "<<address.at (1)<<endl;
+    mvaBranch->Fill () ;
+  } //loop on tree entries
 
   // overwrite the tree including the new branch
   currentFile->cd () ;
@@ -93,9 +93,9 @@ calcTMVA (sample & thisSample,
 
 
 void
-calcTMVA (vector<sample> & samples,
+calcTMVA (vector<mysample> & samples,
           vector<string> & trainingVariables,
-          vector<string> & spectatorVariables,            
+          vector<string> & spectatorVariables,
           string mvaName, string weightsFile)
 {
   // loop on sim samples
@@ -118,27 +118,27 @@ int main (int argc, char** argv)
 {
   // check number of inpt parameters
   if (argc < 4)
-    {
-      cerr << ">>> Usage: " << argv[0] << " cfg_file TMVA_name weights_file" <<  endl ;
-      exit (1) ;
-    }
+  {
+    cerr << ">>> Usage: " << argv[0] << " cfg_file TMVA_name weights_file" <<  endl ;
+    exit (1) ;
+  }
   if (gConfigParser) return 1 ;
   gConfigParser = new ConfigParser () ;
-  
-  TString config ; 
+
+  TString config ;
   config.Form ("%s",argv[1]) ;
   if (! (gConfigParser->init (config)))
-    {
-      cout << ">>> parseConfigFile::Could not open configuration file " << config << endl ;
-      return -1 ;
-    }
+  {
+    cout << ">>> parseConfigFile::Could not open configuration file " << config << endl ;
+    return -1 ;
+  }
 
   string MVAname = argv[2] ;
 
   // get the samples to be analised
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-  
-  vector<sample> samples ;
+
+  vector<mysample> samples ;
   vector<string> samplesList = gConfigParser->readStringListOption ("general::signals") ;
   readSamples (samples, samplesList, "UPDATE") ;
   samplesList.clear () ;
@@ -152,12 +152,12 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
   vector<string> trainingVariables  = gConfigParser->readStringListOption (
-       (MVAname + "::variables").c_str ()) ;
+    (MVAname + "::variables").c_str ()) ;
   vector<string> spectatorVariables ;
   if (gConfigParser->readBoolOption (
-    (MVAname + "::spectatorsPresent").c_str ())) 
+	(MVAname + "::spectatorsPresent").c_str ()))
     spectatorVariables = gConfigParser->readStringListOption (
-        (MVAname + "::spectators").c_str ()) ;
+      (MVAname + "::spectators").c_str ()) ;
 
   cout << "\n-====-====-====-====-====-====-====-====-====-====-====-====-====-\n\n" ;
   cout << "---> variables list: \n" ;
@@ -182,4 +182,3 @@ int main (int argc, char** argv)
   return 0 ;
 
 }
-

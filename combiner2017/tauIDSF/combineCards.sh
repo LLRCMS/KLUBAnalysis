@@ -1,0 +1,50 @@
+#tag=7Feb2019_decaymodes_noSF
+#tag=28Jan2019_decaymodes_bins_DYenriched
+#tag=8Mar2019_decaymodes_DYbins_DYenriched_noIDSF
+#tag=11Mar2019_decaymodes_DYbins_oldDYWeight_m55_noIDSF
+tag=TauTau_30Apr2019_loose_mtt_DYenr_noPUID
+#taking the QCD already computed, without making the fit
+
+cd $tag/TauTau
+mkdir combined_DM0_DM1
+combineCards.py cross_DM0_DM1=baselineHTauTau_tau1_DM0_tau2_DM1_DY/datacard_QCD.txt cross_DM1_DM0=baselineHTauTau_tau1_DM1_tau2_DM0_DY/datacard_QCD.txt bothDM1=baselineHTauTau_bothDM1_DY/datacard_QCD.txt  bothDM0=baselineHTauTau_bothDM0_DY/datacard_QCD.txt > combined_DM0_DM1/datacard_QCD_DM0_DM1.txt
+
+mkdir combined_DM1_DM10
+combineCards.py cross_DM1_DM10=baselineHTauTau_tau1_DM1_tau2_DM10_DY/datacard_QCD.txt cross_DM10_DM1=baselineHTauTau_tau1_DM10_tau2_DM1_DY/datacard_QCD.txt bothDM10=baselineHTauTau_bothDM10_DY/datacard_QCD.txt  bothDM1=baselineHTauTau_bothDM1_DY/datacard_QCD.txt > combined_DM1_DM10/datacard_QCD_DM1_DM10.txt
+
+mkdir combined_DM0_DM10
+combineCards.py cross_DM0_DM10=baselineHTauTau_tau1_DM0_tau2_DM10_DY/datacard_QCD.txt cross_DM10_DM0=baselineHTauTau_tau1_DM10_tau2_DM0_DY/datacard_QCD.txt bothDM10=baselineHTauTau_bothDM10_DY/datacard_QCD.txt  bothDM0=baselineHTauTau_bothDM0_DY/datacard_QCD.txt > combined_DM0_DM10/datacard_QCD_DM0_DM10.txt
+
+cd -
+### output is dataset_QCD_*.txt
+
+##computing also the QCD
+#cd $tag/TauTau
+#mkdir combined_DM0_DM1
+#combineCards.py cross_DM0_DM1=baselineHTauTau_tau1_DM0_tau2_DM1_DY/combined.txt cross_DM1_DM0=baselineHTauTau_tau1_DM1_tau2_DM0_DY/combined.txt bothDM1=baselineHTauTau_bothDM1_DY/combined.txt  bothDM0=baselineHTauTau_bothDM0_DY/combined.txt > combined_DM0_DM1/combined_DM0_DM1.txt
+#
+#mkdir combined_DM1_DM10
+#combineCards.py cross_DM1_DM10=baselineHTauTau_tau1_DM1_tau2_DM10_DY/combined.txt cross_DM10_DM1=baselineHTauTau_tau1_DM10_tau2_DM1_DY/combined.txt bothDM10=baselineHTauTau_bothDM10_DY/combined.txt  bothDM1=baselineHTauTau_bothDM1_DY/combined.txt > combined_DM1_DM10/combined_DM1_DM10.txt
+#
+#mkdir combined_DM0_DM10
+#combineCards.py cross_DM0_DM10=baselineHTauTau_tau1_DM0_tau2_DM10_DY/combined.txt cross_DM10_DM0=baselineHTauTau_tau1_DM10_tau2_DM0_DY/combined.txt bothDM10=baselineHTauTau_bothDM10_DY/combined.txt  bothDM0=baselineHTauTau_bothDM0_DY/combined.txt > combined_DM0_DM10/combined_DM0_DM10.txt
+#cd -
+#### output is combined.txt
+
+
+
+
+### all bins
+cd $tag/TauTau
+mkdir combined_all
+combineCards.py cross_DM0_DM1=baselineHTauTau_tau1_DM0_tau2_DM1_DY/datacard_QCD.txt cross_DM1_DM0=baselineHTauTau_tau1_DM1_tau2_DM0_DY/datacard_QCD.txt  cross_DM1_DM10=baselineHTauTau_tau1_DM1_tau2_DM10_DY/datacard_QCD.txt cross_DM10_DM1=baselineHTauTau_tau1_DM10_tau2_DM1_DY/datacard_QCD.txt  bothDM1=baselineHTauTau_bothDM1_DY/datacard_QCD.txt cross_DM0_DM10=baselineHTauTau_tau1_DM0_tau2_DM10_DY/datacard_QCD.txt cross_DM10_DM0=baselineHTauTau_tau1_DM10_tau2_DM0_DY/datacard_QCD.txt bothDM10=baselineHTauTau_bothDM10_DY/datacard_QCD.txt  bothDM0=baselineHTauTau_bothDM0_DY/datacard_QCD.txt > combined_all/datacard_QCD_all.txt
+
+#combineCards.py cross_DM0_DM1=baselineHTauTau_tau1_DM0_tau2_DM1_DY/combined.txt cross_DM1_DM0=baselineHTauTau_tau1_DM1_tau2_DM0_DY/combined.txt   bothDM0=baselineHTauTau_bothDM0_DY/combined.txt cross_DM1_DM10=baselineHTauTau_tau1_DM1_tau2_DM10_DY/combined.txt cross_DM10_DM1=baselineHTauTau_tau1_DM10_tau2_DM1_DY/combined.txt bothDM10=baselineHTauTau_bothDM10_DY/combined.txt  bothDM1=baselineHTauTau_bothDM1_DY/combined.txt cross_DM0_DM10=baselineHTauTau_tau1_DM0_tau2_DM10_DY/combined.txt cross_DM10_DM0=baselineHTauTau_tau1_DM10_tau2_DM0_DY/combined.txt > combined_all/combined_all.txt
+
+cd -
+
+
+cp get_plots.C $tag/combined_DM0_DM1
+cp get_plots.C $tag/combined_DM0_DM10
+cp get_plots.C $tag/combined_DM1_DM10
+cp get_plots.C $tag/combined_all

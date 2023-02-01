@@ -1,9 +1,12 @@
-void ratioPU (uint begin = 0, uint max=50000000) 
+//void ratioPU (uint begin = 0, uint max=266483000, string const &infileName = "../../inputFiles/Resonant2016APV_backgrounds/TT.txt", string const &myFileName = "MyMCPileupHistogram_TTUL16APV_23Mar2022")
+//void ratioPU (uint begin = 0, uint max=297984000, string const &infileName = "../../inputFiles/Resonant2016_backgrounds/TT.txt", string const &myFileName = "MyMCPileupHistogram_TTUL16_23Mar2022")
+void ratioPU (uint begin = 0, uint max=300000000,string const &infileName = "../../filelists_UL/ttbar.txt", string const &myFileName = "MyMCPileupHistogram_TTUL18_28Oct2021")
 {
 
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
 
-    std::ifstream infile("/home/llr/cms/cadamuro/HH2016/CMSSW_7_4_7/src/KLUBAnalysis/inputFiles/Files_7Feb2016/TT_powheg_semiLep_7Feb2017.txt");
+  std::ifstream infile(infileName);
+
     std::string line;
     while (std::getline(infile, line))
     {
@@ -12,46 +15,27 @@ void ratioPU (uint begin = 0, uint max=50000000)
         while (line.find("\n") != std::string::npos) line = line.erase(line.find("\n"), 1); // remove new line characters
         while (line.find("\r") != std::string::npos) line = line.erase(line.find("\r"), 1); // remove carriage return characters
         if (!line.empty()) // skip empty lines
-            bigChain->Add(line.c_str());
+	  bigChain->Add(line.c_str());
     }
 
-  cout << "...begin " << begin << " max " << max << endl;
+    cout << "...begin " << begin << " max " << max << endl;
 
-  // bigChain->GetEntries();
-  TH1D * myPUHisto = new TH1D("myPUHisto","myPUHisto",100,0,100);
-  // for (int i = 0 ; i < bigChain->GetEntriesFast() ; ++i) {
-  //   if (i%10000 == 0) cout << "Done " << i << " of " << bigChain->GetEntriesFast() << " entries" << endl;
-    // bigChain->Draw("PUNumInteractions >> myPUHisto");
-  
-  // int PUNumInteractions;
-  // bigChain->SetBranchAddress("PUNumInteractions", &PUNumInteractions);
-  // bigChain->SetBranchStatus("*", 0);
-  // bigChain->SetBranchStatus("PUNumInteractions", 1);
+    TH1D * myPUHisto = new TH1D("myPUHisto","myPUHisto",100,0,100);
 
-  // cout << "...start big loop" << endl;
-  // uint stop = begin + max;
-  // for (uint i = begin; i < stop; ++i) {
-  //   int got = bigChain->GetEntry(i);
-  //   if (got == 0) break;
-  //   if (i % 1000000 == 0) cout << i << endl;
-  //   myPUHisto->Fill(PUNumInteractions);
-  // }
+    float npu;
+    bigChain->SetBranchAddress("npu", &npu);
+    bigChain->SetBranchStatus("*", 0);
+    bigChain->SetBranchStatus("npu", 1);
 
-  float npu;
-  bigChain->SetBranchAddress("npu", &npu);
-  bigChain->SetBranchStatus("*", 0);
-  bigChain->SetBranchStatus("npu", 1);
+    cout << "...start big loop" << endl;
+    uint stop = begin + max;
+    for (uint i = begin; i < stop; ++i) {
+      int got = bigChain->GetEntry(i);
+      if (got == 0) break;
+      if (i % 100000 == 0) cout << i << endl;
+      myPUHisto->Fill(npu);
+    }
 
-  cout << "...start big loop" << endl;
-  uint stop = begin + max;
-  for (uint i = begin; i < stop; ++i) {
-    int got = bigChain->GetEntry(i);
-    if (got == 0) break;
-    if (i % 1000000 == 0) cout << i << endl;
-    myPUHisto->Fill(npu);
-  }
-
-  // }
-  TFile *myFile = new TFile(Form("MyMCPileupHistogram%i.root" , begin),"RECREATE");
-  myPUHisto->Write();
+    TFile *myFile = new TFile(Form("%s.root",myFileName.c_str()),"RECREATE");
+    myPUHisto->Write();
 }

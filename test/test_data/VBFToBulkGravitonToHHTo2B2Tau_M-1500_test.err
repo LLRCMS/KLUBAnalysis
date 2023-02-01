@@ -1,0 +1,188 @@
+SCRAM fatal: Unable to locate the top of local release. Please run this command from a SCRAM-based area.
+2022-08-04 23:11:33.047980: I tensorflow/cc/saved_model/reader.cc:31] Reading SavedModel from: /grid_mnt/vol_home/llr/cms/portales/hhbbtautau/KLUB_UL_20220321/CMSSW_11_1_9/src/HHTools/HHbtag/models/HHbtag_v1_par_0
+2022-08-04 23:11:33.989864: I tensorflow/cc/saved_model/reader.cc:54] Reading meta graph with tags { serve }
+2022-08-04 23:11:33.989997: I tensorflow/cc/saved_model/loader.cc:264] Reading SavedModel debug info (if present) from: /grid_mnt/vol_home/llr/cms/portales/hhbbtautau/KLUB_UL_20220321/CMSSW_11_1_9/src/HHTools/HHbtag/models/HHbtag_v1_par_0
+2022-08-04 23:11:33.990364: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2
+2022-08-04 23:11:36.372757: I tensorflow/cc/saved_model/loader.cc:203] Restoring SavedModel bundle.
+2022-08-04 23:11:39.688395: I tensorflow/cc/saved_model/loader.cc:152] Running initialization op on SavedModel bundle at path: /grid_mnt/vol_home/llr/cms/portales/hhbbtautau/KLUB_UL_20220321/CMSSW_11_1_9/src/HHTools/HHbtag/models/HHbtag_v1_par_0
+2022-08-04 23:11:42.245485: I tensorflow/cc/saved_model/loader.cc:333] SavedModel load for tags { serve }; Status: success: OK. Took 9197749 microseconds.
+2022-08-04 23:11:48.945899: I tensorflow/cc/saved_model/reader.cc:31] Reading SavedModel from: /grid_mnt/vol_home/llr/cms/portales/hhbbtautau/KLUB_UL_20220321/CMSSW_11_1_9/src/HHTools/HHbtag/models/HHbtag_v1_par_1
+2022-08-04 23:11:49.823921: I tensorflow/cc/saved_model/reader.cc:54] Reading meta graph with tags { serve }
+2022-08-04 23:11:49.824003: I tensorflow/cc/saved_model/loader.cc:264] Reading SavedModel debug info (if present) from: /grid_mnt/vol_home/llr/cms/portales/hhbbtautau/KLUB_UL_20220321/CMSSW_11_1_9/src/HHTools/HHbtag/models/HHbtag_v1_par_1
+2022-08-04 23:11:52.017377: I tensorflow/cc/saved_model/loader.cc:203] Restoring SavedModel bundle.
+2022-08-04 23:11:55.297979: I tensorflow/cc/saved_model/loader.cc:152] Running initialization op on SavedModel bundle at path: /grid_mnt/vol_home/llr/cms/portales/hhbbtautau/KLUB_UL_20220321/CMSSW_11_1_9/src/HHTools/HHbtag/models/HHbtag_v1_par_1
+2022-08-04 23:11:58.073475: I tensorflow/cc/saved_model/loader.cc:333] SavedModel load for tags { serve }; Status: success: OK. Took 9127579 microseconds.
+Warning: tau -> had decay declared for leg: Pt = 347.415, eta = 0.710052, phi = 0.90722, mass = 0.0788443 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 120.101, eta = 1.95085, phi = -2.61503, mass = 0.0659692 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 686.58, eta = 0.867063, phi = -1.24158, mass = 0.318477 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 68.7133, eta = 0.844099, phi = 1.15443, mass = 1.97018 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 128.903, eta = 1.62581, phi = 2.13637, mass = 0.0899865 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 133.838, eta = 0.235784, phi = 2.77902, mass = 2.11456 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 167.052, eta = -1.73338, phi = -1.15655, mass = 0.19993 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 142.933, eta = -2.06351, phi = 2.06921, mass = 2.09575 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 325.269, eta = -0.449167, phi = -2.50687, mass = 0.080667 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 122.081, eta = -1.66704, phi = 2.92068, mass = 0.118435 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 223.956, eta = 1.41497, phi = 0.133917, mass = 0.179393 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 232.737, eta = -0.694497, phi = -0.199144, mass = 0.117843 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 542.016, eta = 0.323371, phi = -0.267499, mass = 0.0225094 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 197.154, eta = 2.09815, phi = -0.166962, mass = -0.137192 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 265.235, eta = 0.165113, phi = 0.974852, mass = 2.50575 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 64.2314, eta = 0.242873, phi = 0.283153, mass = 3.28155 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 190.986, eta = 1.40551, phi = 3.0886, mass = 2.00006 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 389.118, eta = -0.0901697, phi = -1.46307, mass = 0.120557 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 120.341, eta = -1.56954, phi = 0.884481, mass = 1.72755 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 257.659, eta = 0.429012, phi = -2.7273, mass = 2.32743 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 220.668, eta = 0.897519, phi = 2.77617, mass = 0.118116 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 198.752, eta = 0.465038, phi = 1.72236, mass = 0.154631 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 21.3502, eta = 1.54458, phi = -2.13413, mass = 1.8518 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 172.02, eta = 1.86924, phi = 1.85085, mass = 0.117563 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 301.15, eta = 0.36929, phi = 2.80759, mass = 0.103012 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 27.1377, eta = 1.08079, phi = 0.54391, mass = 2.24578 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 169.635, eta = -0.724934, phi = -2.54143, mass = 1.84344 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 95.9143, eta = 1.83145, phi = -2.09691, mass = 0.105139 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 483.008, eta = 0.736346, phi = -3.02937, mass = 2.86168 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 147.105, eta = 1.21272, phi = 3.00747, mass = 0.119944 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 74.8125, eta = -2.0374, phi = 1.93121, mass = 0.107059 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 252.907, eta = 0.896437, phi = -1.79589, mass = 0.184707 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 453.765, eta = 0.438846, phi = 1.30158, mass = 0.117558 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 405.675, eta = 0.36506, phi = 2.25351, mass = 0.159474 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 334.906, eta = -1.3385, phi = -1.46551, mass = -0.145524 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 114.18, eta = 0.557947, phi = -1.02604, mass = 2.36333 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 162.987, eta = 1.02431, phi = 0.00363053, mass = 0.122243 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 150.926, eta = 1.44149, phi = -2.55329, mass = 0.161573 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 99.8482, eta = -1.41494, phi = -2.07305, mass = 2.9782 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 275.485, eta = -0.0651016, phi = -0.967443, mass = 1.96866 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 61.8194, eta = -2.15723, phi = 0.497521, mass = 0.0698889 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 168.987, eta = 2.00526, phi = 0.421521, mass = 0.198361 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 472.347, eta = -0.737204, phi = 2.74222, mass = 0.0960504 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 392.052, eta = -1.40787, phi = -2.09124, mass = 5.80833 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 251.052, eta = -1.02867, phi = -2.31411, mass = 0.154259 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 153.633, eta = 1.14498, phi = -0.140027, mass = 1.65175 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 299.889, eta = 0.122272, phi = 2.28411, mass = 0.112931 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 252.412, eta = -1.38732, phi = 2.92594, mass = 2.58284 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 203.676, eta = 0.762929, phi = -1.91429, mass = 0.115939 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 194.807, eta = -0.784876, phi = -0.391774, mass = 0.163351 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 188.354, eta = 1.20264, phi = -0.905305, mass = 0.0916251 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 163.148, eta = -1.0149, phi = -1.23316, mass = 0.107579 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 689.464, eta = 1.24872, phi = 2.76648, mass = 0.475111 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 202.861, eta = 1.03198, phi = -0.474611, mass = 0.168649 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 366.923, eta = 1.10689, phi = 1.24886, mass = 0.201784 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 265.902, eta = 1.08412, phi = -1.09691, mass = 2.97938 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 200.919, eta = -0.869769, phi = -1.04737, mass = 0.10903 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 277.615, eta = 0.203069, phi = 2.73022, mass = 0.116328 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 458.168, eta = -0.648011, phi = -1.0062, mass = 2.44946 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 437.552, eta = 0.202155, phi = 0.371608, mass = 0.164634 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 228.587, eta = -1.43231, phi = 1.42126, mass = 0.108406 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 39.1209, eta = 0.772859, phi = 2.92617, mass = 1.85464 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 56.7909, eta = -1.98364, phi = 0.302217, mass = 0.124114 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 64.4158, eta = -1.42437, phi = 1.66048, mass = 1.68912 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 280.013, eta = 1.2703, phi = -0.117314, mass = 0.177631 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 337.042, eta = -0.381099, phi = -0.825758, mass = 0.163977 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 104.705, eta = 1.83932, phi = -2.03614, mass = 0.18953 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 143.966, eta = 1.48624, phi = 2.68031, mass = 0.0791908 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 362.572, eta = -0.0683452, phi = 2.33586, mass = 0.153875 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 383.723, eta = -1.0326, phi = -3.03831, mass = -0.0628338 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 254.954, eta = -1.42942, phi = -2.72514, mass = 0.17436 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 70.2905, eta = -1.78141, phi = -2.19347, mass = 1.79333 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 185.735, eta = 1.39586, phi = -1.03641, mass = 0.178434 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 464.699, eta = 1.46872, phi = 0.605188, mass = -0.262408 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 466.673, eta = 0.201291, phi = -1.90835, mass = 0.186361 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 646.259, eta = -0.604569, phi = 2.76734, mass = 1.87334 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 181.573, eta = 1.99744, phi = 0.478879, mass = 0.159152 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 268.013, eta = 0.651513, phi = -2.95269, mass = 0.125209 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 129.922, eta = -1.37001, phi = -2.7478, mass = 2.69739 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 108.282, eta = 1.9444, phi = -2.76796, mass = 0.18724 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 176.333, eta = 1.1561, phi = -1.48197, mass = 0.162899 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 237.339, eta = 0.844366, phi = -0.0971228, mass = 0.112157 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 486.075, eta = -0.613466, phi = -2.25308, mass = 0.160807 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 283.836, eta = -1.16252, phi = -3.13851, mass = 1.73527 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 195.582, eta = -0.821269, phi = -0.888426, mass = 0.0956225 !!
+ (mass expected in the range = 0.13957..0.13957)
+Warning: tau -> had decay declared for leg: Pt = 1038.09, eta = 0.0865427, phi = 1.31537, mass = 2.06745 !!
+ (mass expected in the range = 0.3..1.5)
+Warning: tau -> had decay declared for leg: Pt = 193.503, eta = 1.50227, phi = 1.58381, mass = 1.75328 !!
+ (mass expected in the range = 0.3..1.5)

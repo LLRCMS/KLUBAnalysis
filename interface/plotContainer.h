@@ -25,59 +25,59 @@
 #include "histoUtils.h"
 #include "ConfigParser.h"
 
-typedef map<string, TH1F *> samples_coll ;
-typedef map<string, samples_coll > cuts_coll ;
-typedef map<string, cuts_coll > vars_coll ;
+typedef std::map<std::string, TH1F *> samples_coll ;
+typedef std::map<std::string, samples_coll > cuts_coll ;
+typedef std::map<std::string, cuts_coll > vars_coll ;
 
-typedef map<string, TH2F *> samples_2D_coll ;
-typedef map<string, samples_2D_coll > cuts_2D_coll ;
-typedef map<string, cuts_2D_coll > vars_2D_coll ;
+typedef std::map<std::string, TH2F *> samples_2D_coll ;
+typedef std::map<std::string, samples_2D_coll > cuts_2D_coll ;
+typedef std::map<std::string, cuts_2D_coll > vars_2D_coll ;
 
-struct plotContainer 
+struct plotContainer
 {
-  plotContainer (string name) ;
-  plotContainer (string name, vector<string> varList,
-                 vector<pair <TString, TCut> > cutList, vector<string> sampleList, int histosType) ;  
-  plotContainer (string name, vector<string> varList, vector<pair<string,string>> varList2D,
-                 vector<pair <TString, TCut> > cutList, vector<string> sampleList, int histosType) ;
+  plotContainer (std::string name) ;
+  plotContainer (std::string name, std::vector<std::string> varList,
+                 std::vector<std::pair <TString, TCut> > cutList, std::vector<std::string> sampleList, int histosType) ;
+  plotContainer (std::string name, std::vector<std::string> varList, std::vector<std::pair<std::string,std::string>> varList2D,
+                 std::vector<std::pair <TString, TCut> > cutList, std::vector<std::string> sampleList, int histosType) ;
 
-  void init (vector<string> varList, vector<pair <TString, TCut> > cutList, 
-             vector<string> sampleList, int histosType) ;
-  void MergeHistograms(vector<string> mergesampleList, TString mergedName);
-  void createHistos (vector<string> varList, vector<pair<string,string>> varList2D,
-                     vector<pair <TString, TCut> > cutList, vector<string> sampleList) ;      
-  
+  void init (std::vector<std::string> varList, std::vector<std::pair <TString, TCut> > cutList,
+             std::vector<std::string> sampleList, int histosType) ;
+  void MergeHistograms(std::vector<std::string> mergesampleList, TString mergedName);
+  void createHistos (std::vector<std::string> varList, std::vector<std::pair<std::string,std::string>> varList2D,
+                     std::vector<std::pair <TString, TCut> > cutList, std::vector<std::string> sampleList) ;
+
   //int addHisto (string varName, string cutName, string sampleName) ; // not implemented yet
-  int addSample (string sampleName, const plotContainer & original) ;
-  TH1F * getHisto (string varName, string cutName, string sampleName) ;
-  TH2F * get2DHisto (string var1Name, string var2Name, string cutName, string sampleName) ;
-  map<string, TH1F *> & getStackSet (string varName, string cutName) ;
-  THStack * makeStack (string varName, string cutName) ;
-  THStack * make2DStack (pair <string,string> var2DName, string cutName) ;
+  int addSample (std::string sampleName, const plotContainer & original) ;
+  TH1F * getHisto (std::string varName, std::string cutName, std::string sampleName) ;
+  TH2F * get2DHisto (std::string var1Name, std::string var2Name, std::string cutName, std::string sampleName) ;
+  std::map<std::string, TH1F *> & getStackSet (std::string varName, std::string cutName) ;
+  THStack * makeStack (std::string varName, std::string cutName) ;
+  THStack * make2DStack (std::pair <std::string,std::string> var2DName, std::string cutName) ;
   void AddOverAndUnderFlow () ;
-  TH1F * createNewHisto (string name, string title, 
+  TH1F * createNewHisto (std::string name, std::string title,
                          int nbinsx, double xlow, double xup,
                          int color, int histoType,
                          TString titleX, TString titleY) ;
-  TH1F * createNewHisto (string name, string title, 
+  TH1F * createNewHisto (std::string name, std::string title,
                          int nbinsx, float binning [],
                          int color, int histoType,
                          TString titleX, TString titleY) ;
-  TH2F * createNew2DHisto (string name, string title, 
-                         int nbinsx, double xlow, double xup,
-                         int nbinsy, double ylow, double yup,
-                         int color, int histoType,
-                         TString titleX, TString titleY) ;
+  TH2F * createNew2DHisto (std::string name, std::string title,
+			   int nbinsx, double xlow, double xup,
+			   int nbinsy, double ylow, double yup,
+			   int color, int histoType,
+			   TString titleX, TString titleY) ;
   void scale (float scaleFactor) ;
-  void scale (vector<string> & variablesList, vector<pair <TString, TCut> > & selections, vector<vector<float>> scaleFactorVector) ;
-  void scale2D (vector<pair<string,string>> & variables2DList, vector<pair <TString, TCut> > & selections, vector<vector<float>> scaleFactorVector) ;
+  void scale (std::vector<std::string> & variablesList, std::vector<std::pair <TString, TCut> > & selections, std::vector<std::vector<float>> scaleFactorVector) ;
+  void scale2D (std::vector<std::pair<std::string,std::string>> & variables2DList, std::vector<std::pair <TString, TCut> > & selections, std::vector<std::vector<float>> scaleFactorVector) ;
 
   void setFillColor (int color) ;
   void save (TFile * fOut) ;
   void setHistosProperties (TH1 * h, int histoType, int color) ;
   void setHistosProperties (int histoType, int color) ;
 
-  string m_name ;
+  std::string m_name ;
   unsigned int m_Nvar ;    // 1D plots
   unsigned int m_N2Dvar ;  // 2D plots ("2D variable")
   unsigned int m_Ncut ;    // same for 1D and 2D
@@ -93,4 +93,3 @@ struct plotContainer
 } ;
 
 #endif
-

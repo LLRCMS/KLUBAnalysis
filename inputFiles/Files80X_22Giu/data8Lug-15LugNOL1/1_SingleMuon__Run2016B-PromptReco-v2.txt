@@ -1,1 +1,0 @@
-root://polgrid4.in2p3.fr//dpm/in2p3.fr/home/cms/trivcat/store/user/lcadamur/HHNtuples/data_2016_15lug_NoL1TJSON_diff_8lugJSON_runBrunCrunD/1_SingleMuon__Run2016B-PromptReco-v2/SingleMuon/SingleMuon_data_2016_15lug_NoL1TJSON_diff_8lugJSON_runBrunCrunD_1/160719_135250/0000/HTauTauAnalysis_1.root

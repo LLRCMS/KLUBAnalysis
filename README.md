@@ -1,6 +1,144 @@
 # KLUBAnalysis
 
-repo for the h->tautau/h->hh analysis within the LLR framework
+Repo for the hh->bbtautau analysis within the LLR framework
+
+## Instructions for Run2 Ultra Legacy Analysis
+
+```
+export SCRAM_ARCH="slc7_amd64_gcc820"
+export CMSSW_VERSION="CMSSW_11_1_9"
+
+cmsrel $CMSSW_VERSION
+cd $CMSSW_VERSION/src
+cmsenv
+
+# DNN packages
+git clone git@github.com:GilesStrong/cms_hh_proc_interface.git
+cd cms_hh_proc_interface
+git checkout tags/V4.0
+cd -
+git clone git@github.com:GilesStrong/cms_hh_tf_inference.git
+git clone git@github.com:GilesStrong/cms_runII_dnn_models.git
+cd cms_runII_dnn_models/models/test/
+mv test.cc test.cc_x
+cd -
+
+# Multiclassifier
+git clone https://gitlab.cern.ch/hh/bbtautau/MulticlassInference.git
+
+# HHbtag package
+git clone git@github.com:hh-italian-group/HHbtag.git HHTools/HHbtag
+
+# KinFit package
+git clone git@github.com:LLRCMS/HHKinFit2.git -b bbtautau_LegacyRun2
+
+# Combine package (disabled since only recommended for 10_2_X releases)
+# git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+# cd HiggsAnalysis/CombinedLimit
+# git checkout v8.2.0
+# cd -
+
+# SVfit packages
+git clone https://github.com/LLRCMS/ClassicSVfit.git TauAnalysis/ClassicSVfit -b bbtautau_LegacyRun2
+git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
+
+scram b -j8
+
+cd HHKinFit2/
+ln -ns interface include
+source setup.sh
+./compile.sh
+cd ..
+
+git clone git@github.com:LLRCMS/KLUBAnalysis.git
+cd KLUBAnalysis
+git checkout VBF_UL
+
+source scripts/setup.sh
+make
+make exe
+```
+
+
+### Instructions for older releases/2016/2017 analysis:
+<details>
+
+
+## Instructions for 2017 Analysis 
+```
+cmsrel CMSSW_9_0_0
+cd CMSSW_9_0_0/src
+cmsenv
+
+git clone https://github.com/bvormwald/HHKinFit2
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+git checkout 94x
+cd -
+
+scram b -j8
+
+cd HHKinFit2/
+git checkout tags/v1.1.0
+ln -ns interface include
+source setup.sh
+./compile.sh
+cd ..
+
+git clone https://github.com/camendola/KLUBAnalysis.git
+cd KLUBAnalysis
+git checkout VBF2017
+
+mkdir interface/exceptions
+cd interface/exceptions
+ln -ns ../../../HHKinFit2/interface/exceptions/HHInvMConstraintException.h
+ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyRangeException.h
+ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyConstraintException.h
+cd -
+
+
+source scripts/setup.sh
+make
+make exe
+```
+
+
+## New Installing CMSSW_7_4_7
+```
+cmsrel CMSSW_7_4_7
+cd CMSSW_7_4_7/src
+cmsenv
+
+git clone https://github.com/bvormwald/HHKinFit2
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+cd HiggsAnalysis/CombinedLimit
+git checkout 74x-root6
+cd -
+scram b -j8
+
+cd HHKinFit2/
+git checkout tags/v1.1.0
+ln -ns interface include
+source setup.sh
+./compile.sh
+cd ..
+
+git clone https://github.com/camendola/KLUBAnalysis.git
+cd KLUBAnalysis
+mkdir interface/exceptions
+cd interface/exceptions
+ln -ns ../../../HHKinFit2/interface/exceptions/HHInvMConstraintException.h 
+ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyRangeException.h
+ln -ns ../../../HHKinFit2/interface/exceptions/HHEnergyConstraintException.h
+cd -
+cd weights
+git clone https://github.com/CMS-HTT/LeptonEfficiencies HTT_SF_2016
+git clone -b moriond17 https://github.com/rmanzoni/triggerSF.git tau_trigger_SF_2016
+cd -
+source scripts/setup.sh
+make
+make exe
+```
 
 ## Installing
 ``` 
@@ -38,6 +176,16 @@ source scripts/setup.sh
 make
 make exe
 ```
+</details>
+
+## How To
+Please refer to:
+```
+https://codimd.web.cern.ch/s/HJM-lQ2AX#
+```
+
+### (Old) How To:
+<details>
 
 ## SyncNtupleProducer
 Specify the options (channels, samples, etc.), in:
@@ -142,3 +290,4 @@ The MVA info is then added to the SKIM tree with:
 ```
 ./bin/addTMVA.exe config/addTMVA.cfg 
 ```
+</details>

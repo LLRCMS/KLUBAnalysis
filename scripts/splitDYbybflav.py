@@ -10,9 +10,31 @@ import sys
 #inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_9Feb/SKIM_DY/'
 #inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_11Feb/SKIM_DY/'
 #inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_26Feb/SKIM_DY/'
-# inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_28Feb/SKIM_DY/'
+#inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_28Feb/SKIM_DY/'
 #inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_13Giu_All/SKIM_DY/'
-inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_11Lug_textdxyz/SKIM_DY/'
+#inputDir = '/data_CMS/cms/cadamuro/test_submit_to_tier3/Skims2017_11Lug_textdxyz/SKIM_DY/'
+
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_0j0b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_1j0b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_1j1b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_2j0b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_2j1b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_2j2b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_3j0b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_3j1b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_3j2b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_3j3b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_4j0b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_4j1b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_4j2b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_28Aug2018_Run2017/SKIM_DYJets_newXS/SKIM_DYJets_4j3b'
+#inputDir = '/data_CMS/cms/amendola/HH2017Skims/SKIMS_19Nov2018_Run2017_0jets/SKIM_DY_NLO'
+#inputDir = '/gwteraz/users/brivio/SKIMMED_7Feb2019/SKIM_DY_NLO'
+#inputDir = '/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_secondLookSkims_deepFlavor/SKIM_DY_NLO'
+#inputDir = '/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_secondLookSkims_deepCSV/SKIM_DY_NLO'
+#inputDir = '/gwteraz/users/dzuolo/HHbbtautauAnalysis/SKIMMED_secondLookSkims_deepFlavor/SKIM_DY_NLO'
+#inputDir = '/gwteraz/users/brivio/SKIMMED_Legacy2016_1September2020/SKIM_DY_updown'
+inputDir = '/gwteraz/users/brivio/SKIMMED_Legacy2018_1Sep2020/SKIM_DY_updown'
 
 ############################################################################################################
 ## NOTE: this script takes about 11 mins for a full DY sample (inclusive + NJet + NBJet)
@@ -28,7 +50,8 @@ if not os.path.isfile(inputList):
     print "Could not find file:", inputList
     sys.exit()
 
-suffix = ['_allgenjets_0b', '_allgenjets_1b', '_allgenjets_2b']
+#suffix = ['_allgenjets_0b', '_allgenjets_1b', '_allgenjets_2b']
+suffix = ['_allLHEjets_0b', '_allLHEjets_1b', '_allLHEjets_2b']
 
 outDirs = [inputDir+x for x in suffix]
 # outDirProto = '/'.join(inputDir.split('/')[:-1])
@@ -59,30 +82,41 @@ for idx, line in enumerate(inputListFile):
 
     fIn = ROOT.TFile(line)
     tIn = fIn.Get('HTauTauTree')
-    h_eff = fIn.Get('h_eff')
+    h_eff        = fIn.Get('h_eff')
+    h_effSummary = fIn.Get('h_effSummary')
+    h_syst       = fIn.Get('h_syst')
 
     ## 0 jet
     fOut = ROOT.TFile(outDirs[0]+'/'+fileName, 'recreate')
     fOut.cd()
-    tOut = tIn.CopyTree('nBhadrons==0')
+    #tOut = tIn.CopyTree('nBhadrons==0')
+    tOut = tIn.CopyTree('lheNOutB==0')
     tOut.Write()
     h_eff.Write()
+    h_effSummary.Write()
+    h_syst.Write()
     fOut.Close()
 
     ## 1 jet
     fOut = ROOT.TFile(outDirs[1]+'/'+fileName, 'recreate')
     fOut.cd()
-    tOut = tIn.CopyTree('nBhadrons==1')
+    #tOut = tIn.CopyTree('nBhadrons==1')
+    tOut = tIn.CopyTree('lheNOutB==1')
     tOut.Write()
     h_eff.Write()
+    h_effSummary.Write()
+    h_syst.Write()
     fOut.Close()
 
     ## >=2 jet
     fOut = ROOT.TFile(outDirs[2]+'/'+fileName, 'recreate')
     fOut.cd()
-    tOut = tIn.CopyTree('nBhadrons>=2')
+    #tOut = tIn.CopyTree('nBhadrons>=2')
+    tOut = tIn.CopyTree('lheNOutB>=2')
     tOut.Write()
     h_eff.Write()
+    h_effSummary.Write()
+    h_syst.Write()
     fOut.Close()
 
     fIn.Close()

@@ -1,40 +1,25 @@
-void makeRatio () 
+void makeRatio (string const &myFileName = "MyMCPileupHistogram_TTUL18_28Oct2021")
+//void makeRatio (string const &myFileName = "MyMCPileupHistogram_TTUL16APV_23Mar2022")
+//void makeRatio (string const &myFileName = "MyMCPileupHistogram_TTUL16_23Mar2022")
 {
     //histo MC
-    TFile * fileMC = TFile::Open("MyMCPileupHistogram.root");
+    TFile * fileMC = TFile::Open(Form("%s.root",myFileName.c_str()));
     TH1D * hPUMC   = (TH1D*)fileMC->Get("myPUHisto");
 
-    cout << "MC: " << hPUMC->GetName() << endl;
-
-    TFile * fileData = TFile::Open("MyDataPileupHistogram_2016data.root");
+    //histo DATA
+    TFile * fileData = TFile::Open("UL_PU_distributions/2018/PileupHistogram-goldenJSON-13tev-2018-69200ub-99bins.root");
+    //TFile * fileData = TFile::Open("UL_PU_distributions/2016/PileupHistogram-goldenJSON-13tev-2016-postVFP-69200ub-99bins.root");
+    //TFile * fileData = TFile::Open("UL_PU_distributions/2016/PileupHistogram-goldenJSON-13tev-2016-preVFP-69200ub-99bins.root");
     TH1D * hPUData = (TH1D*)fileData->Get("pileup");
-
-    cout << "DATA: " << hPUData->GetName() << endl;
-    // //histo Data26
-    // TFile * file26 = TFile::Open("MyDataPileupHistogram_92fb.root");
-    // TH1F * hPU26 = (TH1F*)file26->Get("pileup");
-    // //histo Data40
-    // TFile * file40 = TFile::Open("MyDataPileupHistogram_129fb.root");
-    // TH1F * hPU40 = (TH1F*)file40->Get("pileup");
 
     //histo ratio
     TH1D * hRatio = new TH1D("hRatio","hRatio",100,0,100);
-    // TH1F * hRatio40 = new TH1F("hRatio40","hRatio40",100,0,100);
-
-    // TH1F * hRatioScale = new TH1F("hRatioScale","hRatioScale",100,0,100);
 
     hRatio->Add(hPUData);
     hRatio->Divide(hPUMC);
-    // hRatio40->Add(hPU40);
-    // hRatio40->Divide(hPUMC);
-
-    // hRatioScale->Add(hRatio26);
-    // hRatioScale->Divide(hRatio40);
-
-    // hRatioScale->Draw();
 
     for (int i = 0 ; i < 100 ; ++i)
-        cout << "npuSummer16_36fb[" << i << "] = " <<hRatio->GetBinContent(i+1)/hRatio->Integral() <<  ";" << endl;
+        cout << hRatio->GetBinContent(i+1)/hRatio->Integral() << endl;
 
     hPUMC->SetLineColor(kBlack);
     hPUData->SetLineColor(kRed);

@@ -30,20 +30,18 @@ int main (int argc, char** argv)
 {
   // check number of inpt parameters
   if (argc < 3)
-    {
-      cerr << argv[0] << " filename branchname" << endl ;
-      return 1 ;
-    }
+  {
+    cerr << argv[0] << " filename branchname" << endl ;
+    return 1 ;
+  }
 
 
-   TFile f (argv[1], "update") ;
-   TTree *T = (TTree*) f.Get ("HTauTauTree") ;
-   TBranch *b = T->GetBranch (argv[2]) ;
-   T->GetListOfBranches ()->Remove (b) ;
-   T->Write () ;
-   f.Close () ;
-   
-   return 0 ;
-}   
-   
-   
+  TFile f (argv[1], "update") ;
+  TTree *T = (TTree*) f.Get ("HTauTauTree") ;
+  TBranch *b = T->GetBranch (argv[2]) ;
+  T->GetListOfBranches ()->Remove (b) ;
+  T->Write () ;
+  f.Close () ;
+
+  return 0 ;
+}
