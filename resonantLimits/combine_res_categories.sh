@@ -7,7 +7,9 @@ declare -a MASSES;
 TAG=""
 VAR="DNNoutSM_kl_1"
 SIGNAL="ggFRadion"
-LIMIT_DIR="/home/llr/cms/${USER}/CMSSW_11_1_9/src/KLUBAnalysis/resonantLimits"
+BASEDIR="/home/llr/cms/${USER}/CMSSW_11_1_9/src/KLUBAnalysis"
+PERIOD=""
+PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
 
 HELP_STR="Prints this help message."
 TAG_STR="(String) Defines tag for the output. Defaults to '${TAG}'."
@@ -16,17 +18,21 @@ SIGNAL_STR="(String) Signal sample type."
 DRYRUN_STR="(Boolean) Whether to run in dry-run mode. Defaults to '${DRYRUN}'."
 MASSES_STR="(Array of ints) Resonant masses."
 CHANNELS_STR="(Array of strings) Channels."
+BASEDIR_STR="(String) Base directory."
+DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${PERIOD}'."
 function print_usage_submit_skims {
     USAGE="
 
     Run example: bash $(basename "$0") -t <some_tag>
 
-	-h / --help       [${HELP_STR}]
-    -t / --tag        [${TAG_STR}]
-    -v / --var        [${VAR_STR}]
-    -c / --channels   [${CHANNELS_STR}] 
-    -m / --masses     [${MASSES_STR}] 
-    --dry-run         [${DRYRUN_STR}]      
+    -h / --help     [${HELP_STR}]
+    -t / --tag      [${TAG_STR}]
+    -b / --base     [${BASEDIR_STR}]
+    -v / --var      [${VAR_STR}]
+    -c / --channels [${CHANNELS_STR}] 
+    -m / --masses   [${MASSES_STR}]
+    -d / --period   [${DATAPERIOD_STR}] 
+    --dry-run       [${DRYRUN_STR}]      
 
 "
     printf "${USAGE}"
@@ -43,6 +49,10 @@ while [[ $# -gt 0 ]]; do
             TAG=${2}
             shift; shift;
             ;;
+	-b|--base)
+	    BASEDIR=${2}
+	    shift; shift;
+	    ;;
         -s|--signal)
             SIGNAL=${2}
             shift; shift;
@@ -75,6 +85,17 @@ while [[ $# -gt 0 ]]; do
             done
             shift;
             ;;
+        -d|--period)
+            PERIOD=${2}
+            if [[ ! " ${PERIOD_CHOICES[*]} " =~ " ${PERIOD} " ]]; then
+                echo "Currently the following data periods are supported:"
+                for dp in ${PERIOD_CHOICES[@]}; do
+                    echo "- ${dp}" # bash string substitution                                                                                                 
+                done
+                exit 1;
+            fi
+            shift; shift;
+            ;;
         *) # unknown option
 			echo "Wrong parameter ${1}."
             exit 1
@@ -88,6 +109,20 @@ fi
 if [ ${#CHANNELS[@]} -eq 0 ]; then
     CHANNELS=("ETau" "MuTau" "TauTau")
 fi
+if [[ -z ${PERIOD} ]]; then
+    echo "Select the data period via the '-d / --data_period' option."
+    exit 1;
+fi
+if [ ${PERIOD} == "UL18" ]; then
+    YEAR="2018"
+elif [ ${PERIOD} == "UL17" ]; then
+    YEAR="2017"
+elif [ ${PERIOD} == "UL16" ]; then
+    YEAR="2016"
+else
+  echo "ERROR: Data period ${PERIOD} is not supported! Pick one of the following: ${PERIOD_CHOICES[@]}"
+  exit
+fi
 
 declare -a MHIGH;
 declare -a MLOW;
@@ -99,25 +134,27 @@ for mass in ${MASSES[@]}; do
 	fi
 done
 
-for i in "${!CHANNELS[@]}"; do
-    card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[$i]}"
+LIMIT_DIR="${BASEDIR}/resonantLimits"
+
+for ichn in "${!CHANNELS[@]}"; do
+    card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[${ichn}]}"
     cd ${card_dir}
 
-	comb_dir="${card_dir}/comb_cat"
+    comb_dir="${card_dir}/comb_cat"
     mkdir -p ${comb_dir}
     rm -f -- ${comb_dir}/comb*.txt
 
-	proc="${SIGNAL}{}"
-	comb_="${comb_dir}/comb.${proc}"
-	comb_txt="${comb_}.txt"
-	comb_root="${comb_}.root"
+    proc="${SIGNAL}_${VAR}_{}"
+    comb_="${comb_dir}/comb.${proc}"
+    comb_txt="${comb_}.txt"
+    comb_root="${comb_}.root"
 
-	# aggregate all files within a selection folder
+    # aggregate all files within a selection folder
     parallel combineCards.py \
-			 -S ${card_dir}/*${VAR}/hhres*.${proc}.txt ">" ${comb_txt} ::: ${MHIGH[@]}
-	parallel combineCards.py \
-			 -S ${card_dir}/*resolved*${VAR}/hhres*.${proc}.txt ">>" ${comb_txt} ::: ${MLOW[@]}
-    parallel echo "SignalScale rateParam \* ${proc} 0.01" ">>" ${comb_txt} ::: ${MASSES[@]}
+	-S ${card_dir}/*${VAR}/hhres_${YEAR}_${CHANNELS[${ichn}]}*.${SIGNAL}{}.txt ">" ${comb_txt} ::: ${MHIGH[@]}
+    parallel combineCards.py \
+	-S ${card_dir}/*resolved*${VAR}/hhres_${YEAR}_${CHANNELS[${ichn}]}*.${SIGNAL}{}.txt ">>" ${comb_txt} ::: ${MLOW[@]}
+    parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${comb_txt} ::: ${MASSES[@]}
     parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES[@]}
     cd -
 done

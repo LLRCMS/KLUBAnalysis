@@ -44,7 +44,8 @@ if __name__ == "__main__" :
     parser = argparse.ArgumentParser(description='Command line parser of plotting options')
     parser.add_argument('--dir', dest='dir', help='analysis output folder name',
                         default='/data_CMS/cms/' + os.environ['USER'] + '/HHresonant_hist/')
-    parser.add_argument('--tag', dest='tag', help='tag name used after skimming', required=True)
+    parser.add_argument('--tag', help='tag name used after skimming', required=True)
+    parser.add_argument('--cfg', default='mainCfg_*.cfg', help='configuration file', required=True)
     parser.add_argument('--moreDY', type=float, dest='moreDY', help='increase DY by factor moreDY', default=None)
     parser.add_argument('--moreDY0', type=float, dest='moreDY0', help='increase DY by factor moreDY0', default=None)
     parser.add_argument('--moreDY1', type=float, dest='moreDY1', help='increase DY by factor moreDY1', default=None)
@@ -58,7 +59,7 @@ if __name__ == "__main__" :
     parser.add_argument('--extFile', dest='extFile', help='add a bkg from external file', default=None)
     args = parser.parse_args()
      
-    cfgName = findInFolder(os.path.join(args.dir, args.tag + '/'), 'mainCfg_*.cfg')
+    cfgName = findInFolder(os.path.join(args.dir, args.tag + '/'), args.cfg)
     outplotterName, outplotterExt = 'outPlotter', '.root'
 
     comm = 'hadd -f ' + op.join(args.dir, args.tag, outplotterName + outplotterExt) + ' ' + op.join(args.dir, args.tag, outplotterName + '_*' + outplotterExt)

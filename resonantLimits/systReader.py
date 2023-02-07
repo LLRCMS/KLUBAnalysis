@@ -19,7 +19,7 @@ class systReader:
         self.theOutputFile = outputFile
         #self.OutputLines = []
         self.writeOut = True
-        self.printResult = True
+        self.printResult = False
 
         self.SystNames = []
         self.SystTypes = []
@@ -30,7 +30,7 @@ class systReader:
         self.theInput.append(theOtherFile)
 
     def writeSystematics(self):
-        print('reading systematics')
+        # print('reading systematics')
         section = ""
         outputLine = ""
         OutputLines = []
@@ -43,7 +43,7 @@ class systReader:
         #varYname = ""
         #varnames = []
         for ifile in range(len(self.theInput)):
-            print('reading systematics')
+            # print('reading systematics')
             section = ""
             outputLine = ""
             activeProc = []
@@ -74,7 +74,8 @@ class systReader:
                         activeProc = []
                         activeVal = []
 
-                    if self.printResult : print('writing syst for ', section)
+                    if self.printResult: 
+                        print('writing syst for ', section)
                     self.SystNames.append(section)
                     continue
                 

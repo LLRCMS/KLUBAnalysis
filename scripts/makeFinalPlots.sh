@@ -8,11 +8,11 @@ TAG=""
 CHANNEL=""
 CHANNEL_CHOICES=( "ETau" "MuTau" "TauTau" )
 SELECTION="baseline"
-SELECTION_CHOICES=( "baseline" "s1b1jresolved" )
+SELECTION_CHOICES=( "baseline" "s1b1jresolvedMcut" "s2b0jresolvedMcut" "sboostedLLMcut" )
 DATA_PERIOD="UL18"
 DATA_PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
 REG="SR"  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
-REG_CHOICES=( "SR" "SStight" "OSinviso" "SSinviso" "SSrlx" )
+REG_CHOICES=( "SR" "SStight" "OSinviso" "SSinviso" )
 EOS_USER="bfontana"
 
 ### Argument parsing
@@ -30,7 +30,7 @@ function print_usage_submit_skims {
     Run example: bash $(basename "$0") -t <some_tag>
 
     -h / --help		[${HELP_STR}]
-    --dry-run		[${DRYRUN_STR}]
+    --dryrun		[${DRYRUN_STR}]
     -c / --channel      [${CHANNEL_STR}]
     -s / --selection    [${SELECTION_STR}]
     -t / --tag		[${TAG_STR}]
@@ -72,15 +72,15 @@ while [[ $# -gt 0 ]]; do
 		fi
 		shift; shift;
 		;;
-	--dry-run)
+	--dryrun)
 	    DRYRUN="1"
 	    shift;
 	    ;;
-	--no-sig)
+	--nosig)
 	    NOSIG="1"
 	    shift;
 	    ;;
-	--no-data)
+	--nodata)
 	    NODATA="1"
 	    shift;
 	    ;;
@@ -169,7 +169,6 @@ elif [ ${DATA_PERIOD} == "UL18" ]; then
 	PLOTTER="scripts/makeFinalPlots_UL2018.py"
 fi
 
-
 ### Argument parsing: information for the user
 echo "------ Arguments --------------"
 printf "DRYRUN\t\t= ${DRYRUN}\n"
@@ -186,12 +185,15 @@ echo "-------------------------------"
 ### Ensure connection to /eos/ folder
 [[ ! -d ${EOS_DIR} ]] && /opt/exp_soft/cms/t3/eos-login -username ${EOS_USER} -init
 
-OPTIONS="--quit --ratio " # --sigscale 10 10" "--no-binwidth"
+OPTIONS="--quit --ratio" # --sigscale 10 10" "--no-binwidth"
 if [[ ${NOSIG} -eq 0 ]]; then
-	OPTIONS+="--nosig "
+    OPTIONS+=" --signals ggFRadion280 ggFRadion400 ggFRadion550 ggFRadion800 ggFRadion1500 "
+else
+    OPTIONS+=" --nosig "
 fi
+
 if [[ ${NODATA} -eq 0 ]]; then
-	OPTIONS+="--nodata "
+    OPTIONS+=" --nodata "
 fi
 
 OUTDIR="${MAIN_DIR}/${PLOTS_DIR}"
@@ -206,7 +208,7 @@ function run_plot() {
 	comm="python ${PLOTTER} --indir ${MAIN_DIR} --outdir ${OUTDIR} "
 	comm+="--reg ${REG} "
 	comm+="--sel ${SELECTION} --channel ${CHANNEL} "
-	comm+="--lumi ${LUMI} ${OPTIONS} --quit $@"
+	comm+="--lumi ${LUMI} ${OPTIONS} $@"
 	[[ ${DRYRUN} -eq 1 ]] && echo "[DRYRUN] ${comm}" || ${comm}
 }
 
@@ -218,9 +220,11 @@ VAR_MAP=(
 	["dau1_eta"]="eta_{1}[GeV]"
 	["bjet1_eta"]="eta_{j1}[GeV]"
 	["bjet2_eta"]="eta_{j2}[GeV]"
-	["HH_mass"]="m_{HH}[GeV]"
-	["HHKin_mass"]="m_{HHKin}[GeV]"
-	["DNNoutSM_kl_1"]="DNN"
+	["bH_mass"]="m_{Hb}[Gev]"
+	["bH_pt"]="pT_{Hb}[Gev]"
+	["HH_mass"]="m_{HH}[GeV] --logy"
+	["HHKin_mass"]="m_{HHKin}[GeV] --logy"
+	["DNNoutSM_kl_1"]="DNN --logy"
 	)
 for avar in ${!VAR_MAP[@]}; do
     run_plot --var ${avar} --lymin 0.7 --label ${VAR_MAP[$avar]}
