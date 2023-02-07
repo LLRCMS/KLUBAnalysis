@@ -64,7 +64,7 @@ public:
   void printSelections(bool printWeights=false, bool printSysts=false);
   void printSamples(bool printWeights=false, bool printSysts=false);
 
-  void saveOutputsToFile();
+  void saveOutputsToFile(std::string);
 
   void setVerbosity (int v) {verbosity_ = v;}
   void setSplitting (int idxsplit, int nsplit);
