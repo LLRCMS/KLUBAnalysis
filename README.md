@@ -50,9 +50,9 @@ source setup.sh
 ./compile.sh
 cd ..
 
-git clone git@github.com:LLRCMS/KLUBAnalysis.git
+git clone git@github.com:`git config user.name`/KLUBAnalysis.git
 cd KLUBAnalysis
-git checkout VBF_UL
+git checkout master
 
 source scripts/setup.sh
 make
