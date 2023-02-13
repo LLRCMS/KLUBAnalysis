@@ -18,12 +18,16 @@ def run_limits(in_tags, channels, selections, masses, period, tag, var, signal, 
     comm = 'bash make_res_cards.sh -d {dp} --channels {chn} --tag {tag} --in_tags {it}'.format(dp=period, chn=' '.join(channels), tag=tag, it=' '.join(in_tags))
     #run(comm, dry_run)
 
+    ws_opt = dict(dp=period, tag=tag, v=var, s=signal)
     # Generate workspaces
-    comm = 'bash make_workspace_res.sh --tag {t} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn}'.format(t=tag, m=' '.join(masses), v=var, s=signal, sel=' '.join(selections), chn=' '.join(channels))
+    comm = 'bash make_workspace_res.sh --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn}'.format(m=' '.join(masses), sel=' '.join(selections), chn=' '.join(channels), **ws_opt)
     #run(comm, dry_run)
 
-    comm = 'bash combine_res_categories.sh --tag {t} --masses {m} --var {v} --signal {s}  --channels {chn}'.format(t=tag, m=' '.join(masses), v=var, s=signal, chn=' '.join(channels))
+    comm = 'bash combine_res_categories.sh --tag {tag} --masses {m} --var {v} --signal {s}  --channels {chn}'.format(t=tag, m=' '.join(masses), chn=' '.join(channels), **ws_opt)
     run(comm, dry_run)
+
+    comm = 'bash combine_res_channels.sh --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel}'.format(m=' '.join(masses), sel=' '.join(selections), **ws_opt)
+    #run(comm, dry_run)
 
 if __name__ == "__main__":
     usage = ('usage: %prog [options] datasetList\n %prog -h for help')
@@ -42,6 +46,6 @@ if __name__ == "__main__":
     in_tags = ('10Feb_ETau_UL18', '10Feb_MuTau_UL18', '10Feb_TauTau_UL18')
     selections = ('s1b1jresolvedInvMcut', 's2b0jresolvedInvMcut', 'sboostedLLInvMcut')
     #masses = ('250', '260', '280', '300', '320', '350', '400', '450', '500', '550', '600', '650', '700', '750', '800', '850', '900', '1000', '1250', '1500', '1750', '2000', '2500', '3000')
-    masses = ('1000',)
+    masses = ('250', '260', '300', '320', '350', '400', '450', '500', '550', '600', '650', '700', '750', '800', '850', '900', '1000', '1250', '1500', '1750', '2000', '2500', '3000')
 
     run_limits(in_tags, channels, selections, masses, period, tag, var, signal, limit_dir, FLAGS.dry_run)

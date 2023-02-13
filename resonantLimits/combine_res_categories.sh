@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
+declare -a CHANNELS;
+declare -a MASSES;
+
+# Defaults
 TAG=""
 VAR="DNNoutSM_kl_1"
 SIGNAL="ggFRadion"
 LIMIT_DIR="/home/llr/cms/${USER}/CMSSW_11_1_9/src/KLUBAnalysis/resonantLimits"
-
-declare -a CHANNELS;
-declare -a MASSES;
 
 HELP_STR="Prints this help message."
 TAG_STR="(String) Defines tag for the output. Defaults to '${TAG}'."
@@ -73,8 +74,8 @@ while [[ $# -gt 0 ]]; do
             done
             shift;
             ;;
-        *)  # unknown option                                                                                                               
-            echo "Wrong parameter ${1}."
+        *) # unknown option
+			echo "Wrong parameter ${1}."
             exit 1
             ;;
     esac
@@ -87,21 +88,38 @@ if [ ${#CHANNELS[@]} -eq 0 ]; then
     CHANNELS=("ETau" "MuTau" "TauTau")
 fi
 
+declare -a MHIGH;
+declare -a MLOW;
+for mass in ${MASSES[@]}; do
+	if [ ${mass} -gt "319" ]; then
+		MHIGH+=(${mass})
+	else
+		MLOW+=(${mass})
+	fi
+done
+
 for i in "${!CHANNELS[@]}"; do
     card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[$i]}"
     cd ${card_dir}
 
-    comb_dir="comb_cat"
+	comb_dir="comb_cat"
+	tmp_="tmp_${CHANNELS[$i]}"
+	tmp_file="${comb_dir}/${tmp_}_{}.txt"
     mkdir -p ${comb_dir}
     rm -f -- ${comb_dir}/comb*.txt
-    rm -f -- ${comb_dir}/add_${CHANNELS[$i]}_*.txt
+    rm -f -- ${comb_dir}/${tmp_}_*.txt
 
-    addp="add_${CHANNELS[$i]}"
-    #for mass in ${MASSES[@]}; do
-    parallel combineCards.py -S *kl_1/hhres*.${SIGNAL}{}.txt ">" ${comb_dir}/comb.${SIGNAL}{}.txt ::: ${MASSES[@]}
-    parallel echo "SignalScale rateParam * ${SIGNAL}{} 0.01" ">" ${comb_dir}/${addp}_{}.txt ::: ${MASSES[@]}
-    parallel cat ${comb_dir}/${addp}_{}.txt ">" ${comb_dir}/comb.${SIGNAL}{}.txt ::: ${MASSES[@]}
-    parallel text2workspace.py ${comb_dir}/comb.${SIGNAL}{}.txt -o ${comb_dir}/comb.${SIGNAL}{}.root ::: ${MASSES[@]}
-    #done
+	proc="${SIGNAL}{}"
+	comb_="${comb_dir}/comb.${proc}"
+	comb_txt="${comb_}.txt"
+	comb_root="${comb_}.root"
+
+	# aggregate all files within a selection folder
+    parallel combineCards.py -S *${VAR}/hhres*.${proc}.txt ">" ${comb_txt} ::: ${MHIGH[@]}
+	parallel combineCards.py -S *resolved*${VAR}/hhres*.${proc}.txt ">" ${comb_txt} ::: ${MLOW[@]}
+
+    parallel echo "SignalScale rateParam \* ${proc} 0.01" ">" ${tmp_file} ::: ${MASSES[@]}
+    parallel cat ${tmp_file} ">>" ${comb_txt} ::: ${MASSES[@]}
+    parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES[@]}
     cd -
 done

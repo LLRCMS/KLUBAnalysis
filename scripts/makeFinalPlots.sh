@@ -176,7 +176,7 @@ printf "DRYRUN\t\t= ${DRYRUN}\n"
 printf "TAG\t\t= ${TAG}\n"
 printf "DATA_PERIOD\t= ${DATA_PERIOD}\n"
 printf "CHANNEL\t\t= ${CHANNEL}\n"
-printf "SELECTION\t\t= ${SELECTION}\n"
+printf "SELECTION\t= ${SELECTION}\n"
 printf "REGION\t\t= ${REG}\n"
 printf "EOS_USER\t= ${EOS_USER}\n"
 printf "NOSIG\t\t= ${NOSIG}\n"
@@ -212,22 +212,24 @@ function run_plot() {
 
 declare -A VAR_MAP
 VAR_MAP=(
-	["HH_mass"]="m_{HH}[GeV]"
 	["dau1_pt"]="pT_{1}[GeV]"
 	["bjet1_pt"]="pT_{j1}[GeV]"
 	["bjet2_pt"]="pT_{j2}[GeV]"
 	["dau1_eta"]="eta_{1}[GeV]"
 	["bjet1_eta"]="eta_{j1}[GeV]"
 	["bjet2_eta"]="eta_{j2}[GeV]"
+	["HH_mass"]="m_{HH}[GeV]"
+	["HHKin_mass"]="m_{HHKin}[GeV]"
+	["DNNoutSM_kl_1"]="DNN"
 	)
 for avar in ${!VAR_MAP[@]}; do
-	run_plot --var ${avar} --lymin 0.7 --label ${VAR_MAP[$avar]}
+    run_plot --var ${avar} --lymin 0.7 --label ${VAR_MAP[$avar]}
 done
 
 run mkdir -p ${WWW_DIR}
 if [ -d ${WWW_SUBDIR} ]; then
-	echo "removing"
-	run rm -rf ${WWW_SUBDIR}
+    echo "removing"
+    run rm -rf ${WWW_SUBDIR}
 fi
 
 run mkdir ${WWW_SUBDIR}

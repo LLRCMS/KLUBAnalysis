@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
+declare -a CHANNELS;
+declare -a SELECTIONS;
+declare -a MASSES;
+
+# Defaults
 TAG="10Feb_UL18"
 VAR="DNNoutSM_kl_1"
 SIGNAL="ggFRadion"
 LIMIT_DIR="/home/llr/cms/${USER}/CMSSW_11_1_9/src/KLUBAnalysis/resonantLimits/"
-
-declare -a CHANNELS;
-declare -a SELECTIONS;
-declare -a MASSES;
 
 HELP_STR="Prints this help message."
 TAG_STR="(String) Defines tag for the output. Defaults to '${TAG}'."
