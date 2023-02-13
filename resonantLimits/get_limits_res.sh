@@ -1,9 +1,10 @@
-#!/usr/bin/env bash
-
+#!/usr/bin/env bash                                                                                                                        
 declare -a CHANNELS;
+declare -a SELECTIONS;
 declare -a MASSES;
 
 # Defaults
+IDENTIFIER=".test"
 TAG=""
 VAR="DNNoutSM_kl_1"
 SIGNAL="ggFRadion"
@@ -16,16 +17,19 @@ SIGNAL_STR="(String) Signal sample type."
 DRYRUN_STR="(Boolean) Whether to run in dry-run mode. Defaults to '${DRYRUN}'."
 MASSES_STR="(Array of ints) Resonant masses."
 CHANNELS_STR="(Array of strings) Channels."
+SELECTIONS_STR="(Array of strings) Selection categories."
 function print_usage_submit_skims {
     USAGE="
 
     Run example: bash $(basename "$0") -t <some_tag>
-
-	-h / --help       [${HELP_STR}]
+                                      
+    -h / --help       [${HELP_STR}]
     -t / --tag        [${TAG_STR}]
     -v / --var        [${VAR_STR}]
+    -s / --signal     [${SIGNAL_STR}]
     -c / --channels   [${CHANNELS_STR}] 
-    -m / --masses     [${MASSES_STR}] 
+    -m / --masses     [${MASSES_STR}]
+    -l / --selections [${SELECTIONS_STR}] 
     --dry-run         [${DRYRUN_STR}]      
 
 "
@@ -75,6 +79,30 @@ while [[ $# -gt 0 ]]; do
             done
             shift;
             ;;
+        -l|--selections)
+            sel_flag=0
+            while [ ${sel_flag} -eq 0 ]; do
+                if [[ "${2}" =~ ^[-].*$ ]] || [[ "${2}" =~ ^$ ]]; then
+                    sel_flag=1
+                else
+                    SELECTIONS+=(${2});
+                    shift;
+                fi
+            done
+            shift;
+            ;;
+        -c|--channels)
+            chn_flag=0
+            while [ ${chn_flag} -eq 0 ]; do
+                if [[ "${2}" =~ ^[-].*$ ]] || [[ "${2}" =~ ^$ ]]; then
+                    chn_flag=1
+                else
+                    CHANNELS+=(${2});
+                    shift;
+                fi
+            done
+            shift;
+            ;;
         *) # unknown option
 			echo "Wrong parameter ${1}."
             exit 1
@@ -88,39 +116,29 @@ fi
 if [ ${#CHANNELS[@]} -eq 0 ]; then
     CHANNELS=("ETau" "MuTau" "TauTau")
 fi
-
-declare -a MHIGH;
-declare -a MLOW;
-for mass in ${MASSES[@]}; do
-	if [ ${mass} -gt "319" ]; then
-		MHIGH+=(${mass})
-	else
-		MLOW+=(${mass})
-	fi
-done
+if [ ${#SELECTIONS[@]} -eq 0 ]; then
+    SELECTIONS=("s1b1jresolvedInvMcut" "s2b0jresolvedInvMcut" "sboostedLLInvMcut")
+fi
 
 for i in "${!CHANNELS[@]}"; do
-    card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[$i]}"
-    cd ${card_dir}
+	card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[$i]}"
+	cd ${card_dir}
 
-	comb_dir="comb_cat"
-	tmp_="tmp_${CHANNELS[$i]}"
-	tmp_file="${comb_dir}/${tmp_}_{}.txt"
-    mkdir -p ${comb_dir}
-    rm -f -- ${comb_dir}/comb*.txt
-    rm -f -- ${comb_dir}/${tmp_}_*.txt
+	for sel in ${SELECTIONS[@]}; do
+		out_dir="${sel}${VAR}/combined_out"
+		mkdir -p ${out_dir}
 
-	proc="${SIGNAL}{}"
-	comb_="${comb_dir}/comb.${proc}"
-	comb_txt="${comb_}.txt"
-	comb_root="${comb_}.root"
+		# parallellize across the mass
+		txt="${card_dir}/${sel}${VAR}/comb.${SIGNAL}{}.txt"
+		log="${card_dir}/${out_dir}/comb.${SIGNAL}{}.log"
+		parallel rm -f -- ${log} ::: ${MASSES[@]}		
+		parallel combine -M AsymptoticLimits ${txt} \
+				 -n ${IDENTIFIER}${sel} \
+				 --run blind \
+				 --noFitAsimov \
+				 --freezeParameters SignalScale \
+				 -m {} ">" ${log} ::: ${MASSES[@]}
+	done
 
-	# aggregate all files within a selection folder
-    parallel combineCards.py -S *${VAR}/hhres*.${proc}.txt ">" ${comb_txt} ::: ${MHIGH[@]}
-	parallel combineCards.py -S *resolved*${VAR}/hhres*.${proc}.txt ">" ${comb_txt} ::: ${MLOW[@]}
-
-    parallel echo "SignalScale rateParam \* ${proc} 0.01" ">" ${tmp_file} ::: ${MASSES[@]}
-    parallel cat ${tmp_file} ">>" ${comb_txt} ::: ${MASSES[@]}
-    parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES[@]}
-    cd -
+	cd -
 done

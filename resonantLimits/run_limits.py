@@ -24,10 +24,23 @@ def run_limits(in_tags, channels, selections, masses, period, tag, var, signal, 
     #run(comm, dry_run)
 
     comm = 'bash combine_res_categories.sh --tag {tag} --masses {m} --var {v} --signal {s}  --channels {chn}'.format(t=tag, m=' '.join(masses), chn=' '.join(channels), **ws_opt)
-    run(comm, dry_run)
+    #run(comm, dry_run)
 
     comm = 'bash combine_res_channels.sh --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel}'.format(m=' '.join(masses), sel=' '.join(selections), **ws_opt)
     #run(comm, dry_run)
+
+    comm = 'bash combine_res_all.sh --tag {tag} --masses {m} --var {v} --signal {s}'.format(m=' '.join(masses), **ws_opt)
+    #run(comm, dry_run)
+
+    comm = 'bash combine_res_all.sh --tag {tag} --masses {m} --var {v} --signal {s}'.format(m=' '.join(masses), **ws_opt)
+    #run(comm, dry_run)
+
+    comm = 'bash get_limits_res.sh --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn}'.format(m=' '.join(masses), sel=' '.join(selections), chn=' '.join(channels), **ws_opt)
+    #run(comm, dry_run)
+
+    comm = 'python plotSimple_resMass.py  --period {dp} --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn}'.format(m=' '.join(masses), sel=' '.join(selections), chn=' '.join(channels), **ws_opt)
+    comm += ' --user bfontana'
+    run(comm, dry_run)
 
 if __name__ == "__main__":
     usage = ('usage: %prog [options] datasetList\n %prog -h for help')
