@@ -14,14 +14,12 @@ def run(comm, dry_run):
     else:
         command = comm.split(' ')
         command = [x for x in command if x != '']
-        #subprocess.run(command, shell=False)
-        import os
-        os.system(comm)
+        subprocess.run(command, shell=False)
 
 def run_limits(in_tags, channels, selections, masses, period, tag, var, signal, limit_dir, dry_run):
     # Generate datacards
     comm = 'bash make_res_cards.sh -d {dp} --channels {chn} --tag {tag} --in_tags {it}'.format(dp=period, chn=' '.join(channels), tag=tag, it=' '.join(in_tags))
-    #run(comm, dry_run)
+    run(comm, dry_run)
 
     ws_opt = dict(dp=period, tag=tag, v=var, s=signal)
     # Generate workspaces
@@ -41,7 +39,7 @@ def run_limits(in_tags, channels, selections, masses, period, tag, var, signal, 
     #run(comm, dry_run)
 
     comm = 'bash get_limits_res.sh --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn}'.format(m=' '.join(masses), sel=' '.join(selections), chn=' '.join(channels), **ws_opt)
-    run(comm, dry_run)
+    #run(comm, dry_run)
 
     comm = 'python plotSimple_resMass.py --period {dp} --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn}'.format(m=' '.join(masses), sel=' '.join(selections), chn=' '.join(channels), **ws_opt)
     comm += ' --user bfontana'
@@ -59,9 +57,9 @@ if __name__ == "__main__":
     signal = 'ggFRadion'
     limit_dir = '/home/llr/cms/${USER}/CMSSW_11_1_9/src/KLUBAnalysis/resonantLimits/'
     
-    #channels = ('ETau', 'MuTau', 'TauTau')
-    channels = ('ETau',)
-    in_tags = ('10Feb_ETau_UL18', '10Feb_MuTau_UL18', '10Feb_TauTau_UL18')
+    channels = ('ETau', 'MuTau', 'TauTau')
+    #channels = ('ETau',)
+    in_tags = ['10Feb_' + x + '_UL18' for x in channels]
     selections = ('s1b1jresolvedInvMcut', 's2b0jresolvedInvMcut', 'sboostedLLInvMcut')
     #masses = ('250', '260', '280', '300', '320', '350', '400', '450', '500', '550', '600', '650', '700', '750', '800', '850', '900', '1000', '1250', '1500', '1750', '2000', '2500', '3000')
     masses = ('250', '260', '300', '320', '350', '400', '450', '500', '550', '600', '650', '700', '750', '800', '850', '900', '1000', '1250', '1500', '1750', '2000', '2500', '3000')

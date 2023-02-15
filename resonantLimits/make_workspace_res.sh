@@ -90,10 +90,10 @@ while [[ $# -gt 0 ]]; do
 	    done
             shift;
             ;;
-        *)  # unknown option                                                                                                               
-            echo "Wrong parameter ${1}."
-            exit 1
-            ;;
+    *)  # unknown option
+		echo "Wrong parameter ${1}."
+        exit 1
+        ;;
     esac
 done
 
@@ -107,18 +107,39 @@ if [ ${#SELECTIONS[@]} -eq 0 ]; then
     SELECTIONS=("s1b1jresolvedInvMcut" "s2b0jresolvedInvMcut" "sboostedLLInvMcut")
 fi
 
-for i in "${!CHANNELS[@]}"; do 
+declare -a MASSES_IF;
+declare -a MHIGH;
+for mass in ${MASSES[@]}; do
+	if [ ${mass} -gt "319" ]; then
+		MHIGH+=(${mass})
+	fi
+done
+
+for i in "${!CHANNELS[@]}"; do
+	echo "Processing ${sel} ..."
+	
     card_dir="cards_${TAG}_${CHANNELS[$i]}"
+	comb_="comb.${SIGNAL}{}"
+	comb_txt="${comb_}.txt"
+	comb_root="${comb_}.root"
+	
     for sel in ${SELECTIONS[@]}; do
-	for mass in ${MASSES[@]}; do
-	    if [ ${sel} != "sboostedLLInvMcut" ] || [ ${mass} -gt "319" ]; then
-		cd ${card_dir}/${sel}${VAR}
-		rm -f -- comb.txt
-		combineCards.py -S hhres_*.${SIGNAL}${mass}.txt >> comb.${SIGNAL}${mass}.txt
+		cat_dir="${comb_dir}/${sel}${VAR}"
+		cd ${cat_dir}
+
+		# remove low masses for boosted categories
+		if [[ ${sel} =~ .*boosted.* ]]; then
+			MASSES_IF=${MHIGH[@]};
+		else
+			MASSES_IF=${MASSES[@]};
+		fi
+
+		# parallelize over the mass
+		parallel rm -f -- ${comb_txt} ::: ${MASSES_IF[@]}
+		parallel combineCards.py -S hhres_*.${SIGNAL}{}.txt >> ${comb_txt} ::: ${MASSES_IF[@]}
 		cd -
-		text2workspace.py ${card_dir}/${sel}${VAR}/comb.${SIGNAL}${mass}.txt -o ${card_dir}/${sel}${VAR}/comb.${SIGNAL}${mass}.root
-	    fi
-	done
+		parallel text2workspace.py ${cat_dir}/${comb_txt} -o ${cat_dir}/${comb_root} ::: ${MASSES_IF[@]}
+
     done
     cd ${LIMIT_DIR}
 done

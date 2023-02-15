@@ -12,10 +12,14 @@ def redrawBorder():
    ROOT.gPad.RedrawAxis();
    l = ROOT.TLine()
    l.SetLineWidth(3)
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax());
-   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(), ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin());
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(),
+              ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(),
+              ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(),
+              ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax())
+   l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(),
+              ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin())
 
 def getExpValue(kl,  yt): 
     BR = 1
@@ -23,19 +27,22 @@ def getExpValue(kl,  yt):
 
 def parseFile(filename, CL='50.0', exp=True):
     f = open(filename)
+    print('=== ', filename)
     matches = []
     for line in f:
-        search = ('Expected %s%%: r <'%CL)
-        if not exp: search = 'Observed Limit: r <'
+        search = 'Expected %s%%: r <'%CL
+        if not exp:
+            search = 'Observed Limit: r <'
 
         if not search in line:
             continue
         val = line.replace(search, '')
         val = float(val)
         matches.append(val)
-
+        print(matches)
     if len(matches) == 0:
-        print('did not find any expected in file: ' , filename, 'CL=', CL, 'exp?=', exp)
+        mes = 'Did not find any expected in file: {}, CL={}, exp?={}'
+        print(mes.format(filename, CL, exp))
         return -1.0
     else:
         return matches[-1]
@@ -45,14 +52,15 @@ def plot(args, outdir):
     mg = ROOT.TMultiGraph()
     ext = ('png', 'pdf')
 
-    c1 = ROOT.TCanvas("c1", "c1", 650, 500)
+    ROOT.gROOT.SetBatch(ROOT.kTRUE)
+    c1 = ROOT.TCanvas('c1', 'c1', 650, 500)
     c1.SetFrameLineWidth(3)
     c1.SetBottomMargin(0.15)
     c1.SetRightMargin(0.05)
     c1.SetLeftMargin(0.15)
     c1.SetGridx()
     c1.SetGridy()
-    
+
     ### read the scan with normal width
     for chn in args.channels:
         for sel in args.selections:
@@ -238,7 +246,6 @@ def plot(args, outdir):
             Graph_syst_Scale.SetLineColor(ROOT.kRed)
             Graph_syst_Scale.SetFillColor(ROOT.kRed)
             Graph_syst_Scale.SetFillStyle(3001)
-            #graph.Print()
        
             hframe = ROOT.TH1F('hframe_'+sel, '', 100, 250, 3100)
             hframe.SetMinimum(0.1)

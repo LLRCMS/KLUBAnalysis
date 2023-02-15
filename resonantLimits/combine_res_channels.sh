@@ -121,7 +121,7 @@ for sel in ${SELECTIONS[@]}; do
 		MASSES_IF=${MASSES[@]};
 	fi
 
-    #parallelize over the mass
+    # parallelize over the mass
     parallel rm -f -- ${path_in}.txt ::: ${MASSES_IF[@]}
     parallel rm -f -- ${tmp} ::: ${MASSES_IF[@]}
     parallel rm -f -- ${path_out}.txt ::: ${MASSES_IF[@]}

@@ -31,7 +31,7 @@ function print_usage_submit_skims {
     -t / --tag           [${TAG_STR}]
     -d / --data_period   [${DATAPERIOD_STR}]
     -r / --nonresonant   [${NORES_STR}]
-    --dry-run            [${DRYRUN_STR}]
+    --dry_run            [${DRYRUN_STR}]
 
 "
     printf "${USAGE}"
@@ -144,14 +144,19 @@ LIMIT_DIR="${CFG_DIR}/resonantLimits"
 CFG_DIR="${CFG_DIR}/config"
 mkdir -p ${LIMIT_DIR}
 
+declare -a COMMS;
 for i in "${!CHANNELS[@]}"; do
-    HISTDIR="${MAIN_DIR}/${IN_TAGS[$i]}/"
-    comm="python ${LIMIT_DIR}/write_res_card.py -f ${HISTDIR}/analyzedOutPlotter.root -o ${TAG} -c ${CHANNELS[$i]} -y ${YEAR} -u 0 -i ${CFG_DIR}/mainCfg_${CHANNELS[$i]}_${PERIOD}.cfg"
+    HISTDIR="${MAIN_DIR}/${IN_TAGS[$i]}"
+    comm_tmp="python ${LIMIT_DIR}/write_res_card.py -f ${HISTDIR}/analyzedOutPlotter.root -o ${TAG} -c ${CHANNELS[$i]} -y ${YEAR} -u 0 -i ${CFG_DIR}/mainCfg_${CHANNELS[$i]}_${PERIOD}.cfg"
     if [ ${ISRESONANT} -eq 1 ]; then
-	comm+=" -r"
+		COMMS+=("${comm_tmp} -r")
+	else
+		COMMS+=("${comm_tmp}")
     fi
-    [[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}   
 done
+
+# parallelize over the channels
+[[ ${DRYRUN} -eq 1 ]] && parallel echo {} ::: "${COMMS[@]}" || parallel {} ::: "${COMMS[@]}"
 
 if [ ${DRYRUN} -eq 1 ]; then
     echo "Dry-run. The command above were not run."

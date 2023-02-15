@@ -135,7 +135,7 @@ for i in "${!CHANNELS[@]}"; do
 	for sel in ${SELECTIONS[@]}; do
 		echo "Processing ${sel} ..."
 		
-		sv_dir="${sel}${VAR}"
+		cat_dir="${sel}${VAR}"
 		out_dir="combined_out"
 		mkdir -p "${card_dir}/${out_dir}"
 
@@ -147,7 +147,7 @@ for i in "${!CHANNELS[@]}"; do
 		fi
 		
 		# parallellize across the mass
-		in_txt="${card_dir}/${sv_dir}/comb.${SIGNAL}{}.txt"
+		in_txt="${card_dir}/${cat_dir}/comb.${SIGNAL}{}.txt"
 		out_log="${card_dir}/${out_dir}/comb.${SIGNAL}{}.log"
 		parallel rm -f -- ${out_log} ::: ${MASSES_IF[@]}
 		parallel combine -M AsymptoticLimits ${in_txt} \
