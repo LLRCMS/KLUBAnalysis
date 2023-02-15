@@ -1,17 +1,22 @@
 # coding: utf-8                                                                                                                             
 _all_ = [ ]
 
-import sys
-import os
 import argparse
 import ROOT
 import ConfigReader
+
+import subprocess
+from subprocess import Popen, PIPE
 
 def run(comm, dry_run):
     if dry_run:
         print(comm)
     else:
-        os.system(comm)    
+        command = comm.split(' ')
+        command = [x for x in command if x != '']
+        #subprocess.run(command, shell=False)
+        import os
+        os.system(comm)
 
 def run_limits(in_tags, channels, selections, masses, period, tag, var, signal, limit_dir, dry_run):
     # Generate datacards
@@ -36,11 +41,11 @@ def run_limits(in_tags, channels, selections, masses, period, tag, var, signal, 
     #run(comm, dry_run)
 
     comm = 'bash get_limits_res.sh --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn}'.format(m=' '.join(masses), sel=' '.join(selections), chn=' '.join(channels), **ws_opt)
-    #run(comm, dry_run)
-
-    comm = 'python plotSimple_resMass.py  --period {dp} --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn}'.format(m=' '.join(masses), sel=' '.join(selections), chn=' '.join(channels), **ws_opt)
-    comm += ' --user bfontana'
     run(comm, dry_run)
+
+    comm = 'python plotSimple_resMass.py --period {dp} --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn}'.format(m=' '.join(masses), sel=' '.join(selections), chn=' '.join(channels), **ws_opt)
+    comm += ' --user bfontana'
+    #run(comm, dry_run)
 
 if __name__ == "__main__":
     usage = ('usage: %prog [options] datasetList\n %prog -h for help')

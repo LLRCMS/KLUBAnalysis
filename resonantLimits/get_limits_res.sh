@@ -120,24 +120,42 @@ if [ ${#SELECTIONS[@]} -eq 0 ]; then
     SELECTIONS=("s1b1jresolvedInvMcut" "s2b0jresolvedInvMcut" "sboostedLLInvMcut")
 fi
 
+declare -a MASSES_IF;
+declare -a MHIGH;
+for mass in ${MASSES[@]}; do
+	if [ ${mass} -gt "319" ]; then
+		MHIGH+=(${mass})
+	fi
+done
+
 for i in "${!CHANNELS[@]}"; do
 	card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[$i]}"
 	cd ${card_dir}
 
 	for sel in ${SELECTIONS[@]}; do
-		out_dir="${sel}${VAR}/combined_out"
-		mkdir -p ${out_dir}
+		echo "Processing ${sel} ..."
+		
+		sv_dir="${sel}${VAR}"
+		out_dir="combined_out"
+		mkdir -p "${card_dir}/${out_dir}"
 
+		# remove low masses for boosted categories
+		if [[ ${sel} =~ .*boosted.* ]]; then
+			MASSES_IF=${MHIGH[@]};
+		else
+			MASSES_IF=${MASSES[@]};
+		fi
+		
 		# parallellize across the mass
-		txt="${card_dir}/${sel}${VAR}/comb.${SIGNAL}{}.txt"
-		log="${card_dir}/${out_dir}/comb.${SIGNAL}{}.log"
-		parallel rm -f -- ${log} ::: ${MASSES[@]}		
-		parallel combine -M AsymptoticLimits ${txt} \
+		in_txt="${card_dir}/${sv_dir}/comb.${SIGNAL}{}.txt"
+		out_log="${card_dir}/${out_dir}/comb.${SIGNAL}{}.log"
+		parallel rm -f -- ${out_log} ::: ${MASSES_IF[@]}
+		parallel combine -M AsymptoticLimits ${in_txt} \
 				 -n ${IDENTIFIER}${sel} \
 				 --run blind \
 				 --noFitAsimov \
 				 --freezeParameters SignalScale \
-				 -m {} ">" ${log} ::: ${MASSES[@]}
+				 -m {} ">" ${out_log} ::: ${MASSES_IF[@]}
 	done
 
 	cd -
