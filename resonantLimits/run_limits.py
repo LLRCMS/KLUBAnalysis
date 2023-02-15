@@ -19,7 +19,7 @@ def run(comm, dry_run):
 def run_limits(in_tags, channels, selections, masses, period, tag, var, signal, limit_dir, dry_run):
     # Generate datacards
     comm = 'bash make_res_cards.sh -d {dp} --channels {chn} --tag {tag} --in_tags {it}'.format(dp=period, chn=' '.join(channels), tag=tag, it=' '.join(in_tags))
-    run(comm, dry_run)
+    #run(comm, dry_run)
 
     ws_opt = dict(dp=period, tag=tag, v=var, s=signal)
     # Generate workspaces
