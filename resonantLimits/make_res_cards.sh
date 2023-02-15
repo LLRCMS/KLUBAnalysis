@@ -142,7 +142,6 @@ fi
 CFG_DIR="/home/llr/cms/${USER}/CMSSW_11_1_9/src/KLUBAnalysis"
 LIMIT_DIR="${CFG_DIR}/resonantLimits"
 CFG_DIR="${CFG_DIR}/config"
-mkdir -p ${LIMIT_DIR}
 
 declare -a COMMS;
 for i in "${!CHANNELS[@]}"; do

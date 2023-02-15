@@ -55,9 +55,9 @@ def writeCard(backgrounds, signals, select, region=-1):
         "10" : "mdnn__v2__kl1_c2v1_c31__dy",
     }
 
-    theOutputDir = '{0}{1}'.format(select,variable[theCat])
-    dname = '_' + opt.outDir + '_' + opt.channel
-    out_dir = 'cards{1}/{0}/'.format(theOutputDir, dname)
+    theOutputDir = select + '_' +  variable[theCat]
+    dname = opt.outDir + '_' + opt.channel
+    out_dir = 'cards_{}/{}/'.format(dname, theOutputDir)
     cmd = 'mkdir -p {}'.format(out_dir)
     os.system(cmd)
         

@@ -76,11 +76,9 @@ proc="${SIGNAL}{}"
 comb_="${comb_dir}/comb.${proc}"
 comb_txt="${comb_}.txt"
 comb_root="${comb_}.root"
-tmp_txt="${comb_dir}/tmp_{}.txt"
 
 #parallelize over the mass
-parallel combineCards.py -S cards_${TAG}_*Tau/*${VAR}/hhres*.${proc}.txt ">>" ${comb_txt} ::: ${MASSES[@]}
-parallel echo "SignalScale rateParam \* ${proc} 0.01" ">" ${tmp_txt} ::: ${MASSES[@]}
-parallel cat ${tmp_txt} ">>" ${comb_txt} ::: ${MASSES[@]}
+parallel combineCards.py -S cards_${TAG}_*Tau/*${VAR}/hhres*.${proc}.txt ">" ${comb_txt} ::: ${MASSES[@]}
+parallel echo "SignalScale rateParam \* ${proc} 0.01" ">>" ${comb_txt} ::: ${MASSES[@]}
 parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES[@]}
 

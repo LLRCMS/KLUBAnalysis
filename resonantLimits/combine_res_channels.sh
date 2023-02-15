@@ -110,9 +110,9 @@ for sel in ${SELECTIONS[@]}; do
 	echo "Processing ${sel} ..."
 	
     proc="${SIGNAL}{}"
-    path_in="${NEWDIR}/${sel}/comb.${proc}"
-    path_out="${NEWDIR}/${sel}_${VAR}/comb.${proc}"
-    tmp="${NEWDIR}/${sel}_${VAR}/tmp_{}.txt"
+    path_out_="${NEWDIR}/${sel}_${VAR}/comb.${proc}"
+	path_txt="${path_out_}.txt"
+	path_root="${path_out_}.root"
 
 	# remove low masses for boosted categories
 	if [[ ${sel} =~ .*boosted.* ]]; then
@@ -122,14 +122,11 @@ for sel in ${SELECTIONS[@]}; do
 	fi
 
     # parallelize over the mass
-    parallel rm -f -- ${path_in}.txt ::: ${MASSES_IF[@]}
-    parallel rm -f -- ${tmp} ::: ${MASSES_IF[@]}
-    parallel rm -f -- ${path_out}.txt ::: ${MASSES_IF[@]}
-    parallel rm -f -- ${path_out}.root ::: ${MASSES_IF[@]}
+    parallel rm -f -- ${path_txt} ::: ${MASSES_IF[@]}
+    parallel rm -f -- ${path_root} ::: ${MASSES_IF[@]}
 
-    parallel combineCards.py -S ../cards_${TAG}*Tau/${sel}*/hhres*${proc}.txt ">>" ${path_out}.txt ::: ${MASSES_IF[@]}
-    parallel echo "SignalScale rateParam \* ${proc} 0.01" ">>" ${tmp} ::: ${MASSES_IF[@]}
-    parallel cat ${tmp} ">>" ${path_out}.txt ::: ${MASSES_IF[@]}
-    parallel text2workspace.py ${path_out}.txt -o ${path_out}.root ::: ${MASSES_IF[@]}
+    parallel combineCards.py -S ${LIMIT_DIR}/cards_${TAG}*Tau/${sel}_${VAR}/hhres*${proc}.txt ">" ${path_txt} ::: ${MASSES_IF[@]}
+    parallel echo "SignalScale rateParam \* ${proc} 0.01" ">>" ${path_txt} ::: ${MASSES_IF[@]}
+    parallel text2workspace.py ${path_txt} -o ${path_root} ::: ${MASSES_IF[@]}
 done
 cd -

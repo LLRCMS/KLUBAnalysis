@@ -104,7 +104,7 @@ if [ ${#CHANNELS[@]} -eq 0 ]; then
     CHANNELS=("ETau" "MuTau" "TauTau")
 fi
 if [ ${#SELECTIONS[@]} -eq 0 ]; then
-    SELECTIONS=("s1b1jresolvedInvMcut" "s2b0jresolvedInvMcut" "sboostedLLInvMcut")
+    SELECTIONS=("s1b1jresolvedMcut" "s2b0jresolvedMcut" "sboostedLLMcut")
 fi
 
 declare -a MASSES_IF;
@@ -116,16 +116,16 @@ for mass in ${MASSES[@]}; do
 done
 
 for i in "${!CHANNELS[@]}"; do
-	echo "Processing ${sel} ..."
-	
-    card_dir="cards_${TAG}_${CHANNELS[$i]}"
+    card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[$i]}"
 	comb_="comb.${SIGNAL}{}"
-	comb_txt="${comb_}.txt"
-	comb_root="${comb_}.root"
 	
     for sel in ${SELECTIONS[@]}; do
-		cat_dir="${comb_dir}/${sel}${VAR}"
+		echo "Processing ${sel} for channel ${CHANNELS[$i]} ..."
+		cat_dir="${card_dir}/${sel}_${VAR}"
 		cd ${cat_dir}
+
+		comb_txt="${cat_dir}/${comb_}.txt"
+		comb_root="${cat_dir}/${comb_}.root"
 
 		# remove low masses for boosted categories
 		if [[ ${sel} =~ .*boosted.* ]]; then
@@ -134,11 +134,14 @@ for i in "${!CHANNELS[@]}"; do
 			MASSES_IF=${MASSES[@]};
 		fi
 
+		proc="${SIGNAL}{}"
+		
 		# parallelize over the mass
 		parallel rm -f -- ${comb_txt} ::: ${MASSES_IF[@]}
-		parallel combineCards.py -S hhres_*.${SIGNAL}{}.txt >> ${comb_txt} ::: ${MASSES_IF[@]}
+		parallel combineCards.py -S hhres_*.${proc}.txt ">" ${comb_txt} ::: ${MASSES_IF[@]}
+		parallel echo "SignalScale rateParam \* ${proc} 0.01" ">>" ${comb_txt} ::: ${MASSES_IF[@]}
 		cd -
-		parallel text2workspace.py ${cat_dir}/${comb_txt} -o ${cat_dir}/${comb_root} ::: ${MASSES_IF[@]}
+		parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES_IF[@]}
 
     done
     cd ${LIMIT_DIR}

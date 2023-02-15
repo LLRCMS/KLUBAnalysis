@@ -103,12 +103,9 @@ for i in "${!CHANNELS[@]}"; do
     card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[$i]}"
     cd ${card_dir}
 
-	comb_dir="comb_cat"
-	tmp_="tmp_${CHANNELS[$i]}"
-	tmp_file="${comb_dir}/${tmp_}_{}.txt"
+	comb_dir="${card_dir}/comb_cat"
     mkdir -p ${comb_dir}
     rm -f -- ${comb_dir}/comb*.txt
-    rm -f -- ${comb_dir}/${tmp_}_*.txt
 
 	proc="${SIGNAL}{}"
 	comb_="${comb_dir}/comb.${proc}"
@@ -116,11 +113,11 @@ for i in "${!CHANNELS[@]}"; do
 	comb_root="${comb_}.root"
 
 	# aggregate all files within a selection folder
-    parallel combineCards.py -S *${VAR}/hhres*.${proc}.txt ">" ${comb_txt} ::: ${MHIGH[@]}
-	parallel combineCards.py -S *resolved*${VAR}/hhres*.${proc}.txt ">" ${comb_txt} ::: ${MLOW[@]}
-
-    parallel echo "SignalScale rateParam \* ${proc} 0.01" ">" ${tmp_file} ::: ${MASSES[@]}
-    parallel cat ${tmp_file} ">>" ${comb_txt} ::: ${MASSES[@]}
+    parallel combineCards.py \
+			 -S ${card_dir}/*${VAR}/hhres*.${proc}.txt ">" ${comb_txt} ::: ${MHIGH[@]}
+	parallel combineCards.py \
+			 -S ${card_dir}/*resolved*${VAR}/hhres*.${proc}.txt ">>" ${comb_txt} ::: ${MLOW[@]}
+    parallel echo "SignalScale rateParam \* ${proc} 0.01" ">>" ${comb_txt} ::: ${MASSES[@]}
     parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES[@]}
     cd -
 done
