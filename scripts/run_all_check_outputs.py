@@ -1,7 +1,12 @@
+#!/usr/bin/env python3
+
+import sys
 import os
 import glob
 import argparse
 import re
+from multiprocessing import Pool
+import itertools
 
 def get_jobs_list(condor_file, itresub):
     """Parses condor files outputting the number of jobs that were launched."""
@@ -25,6 +30,14 @@ def get_jobs_list(condor_file, itresub):
             jobs.append(n)
     raise RuntimeError('the provided condor file {} does not match the expected format.'.format(condor_file))
 
+
+def delete_last_line():
+    "Use this function to delete the last line in the STDOUT"
+    #cursor up one line
+    sys.stdout.write('\x1b[1A')
+    #delete last line
+    sys.stdout.write('\x1b[2K')
+
 def run_all_check_outputs(args):
     base_dir = os.path.join('/data_CMS/cms/', args.user, 'HHresonant_SKIMS/')
     base_dir = os.path.join(base_dir, 'SKIMS_' + args.data_period + '_' + args.in_tag)
@@ -33,29 +46,42 @@ def run_all_check_outputs(args):
     if len(sample_dirs) == 0:
         print('No folders were found under {}/.'.format(base_dir))
 
-    for sd in sample_dirs:
-        if args.itresub:
-            condor_file = os.path.join(sd, 'job_resub' + str(args.itresub) + '.condor')
+    rem = []
+    for sss in sample_dirs:
+        if "EGamma" in sss:
+            rem.append(sss)
+    for x in rem:
+        sample_dirs.remove(x)
+
+    with Pool(len(sample_dirs)) as pool:
+        pool.starmap(run, zip(sample_dirs, itertools.repeat(args.itresub), itertools.repeat(args.dry_run)))
+
+def run(sd, itresub, dry_run):
+    if itresub:
+        condor_file = os.path.join(sd, 'job_resub' + str(itresub) + '.condor')
+    else:
+        condor_file = os.path.join(sd, 'job.condor')
+
+    if not os.path.exists(condor_file):
+        print('[WARNING] File {} was not found.'.format(condor_file))
+        return
+
+    joblist = get_jobs_list(condor_file, itresub)
+    print('Processing folder {} with {} jobs for resubmission iteration {}...'.format(sd, len(joblist), itresub))
+    print()
+    for ijob,job in enumerate(joblist):
+        if itresub:
+            comm = 'python scripts/check_outputs.py -r {sd}/output_{n}.root -o {sd}/live_logs/{n}_resub' + str(itresub) + '.out -e {sd}/live_logs/{n}_resub' + str(itresub) + '.err -l {sd}/logs/{n}_resub' + str(itresub) + '.log -v'
         else:
-            condor_file = os.path.join(sd, 'job.condor')
-
-        if not os.path.exists(condor_file):
-            print('[WARNING] File {} was not found.'.format(condor_file))
-            continue
-
-        joblist = get_jobs_list(condor_file, args.itresub)
-        print('Processing folder {} with {} jobs for resubmission iteration {}...'.format(sd, len(joblist), args.itresub))
-        for job in joblist:
-            if args.itresub:
-                comm = 'python scripts/check_outputs.py -r {sd}/output_{n}.root -o {sd}/live_logs/{n}_resub' + str(args.itresub) + '.out -e {sd}/live_logs/{n}_resub' + str(args.itresub) + '.err -l {sd}/logs/{n}_resub' + str(args.itresub) + '.log -v'
-            else:
-                comm = 'python scripts/check_outputs.py -r {sd}/output_{n}.root -o {sd}/live_logs/{n}.out -e {sd}/live_logs/{n}.err -l {sd}/logs/{n}.log -v'
-            comm = comm.format(sd=sd, n=job)
-            if args.dry_run:
-                print(comm)
-            else:
-               os.system(comm)
-
+            if ijob%1==0 and not dry_run:
+                delete_last_line()
+                print('---> Job {}'.format(ijob))
+            comm = 'python scripts/check_outputs.py -r {sd}/output_{n}.root -o {sd}/live_logs/{n}.out -e {sd}/live_logs/{n}.err -l {sd}/logs/{n}.log -v'
+        comm = comm.format(sd=sd, n=job)
+        if dry_run:
+            print(comm)
+        else:
+            os.system(comm)
 
 if __name__ == "__main__":
     usage = 'Produces all `goodfiles.txt` and `badfiles.txt` files when scripts/check_outputs.py fails but the skimmed files were nevertheless produced.'
@@ -64,7 +90,7 @@ if __name__ == "__main__":
     parser.add_argument('--in_tag', required=True, help='tag used to generate skimmed files')
     parser.add_argument('--user', required=True, help='user that submitted the skimming step')
     parser.add_argument('--dry_run', action='store_true', help='prints debug info and does not launch any command')
-    parser.add_argument('--resub_iteration', dest='itresub', default=0, required=True, type=int, 
+    parser.add_argument('--resub_iteration', dest='itresub', default=0, required=False, type=int, 
                         help='resubmission iteration (the first submission corresponds to zero)')
     FLAGS = parser.parse_args()
     run_all_check_outputs(FLAGS)
