@@ -178,7 +178,6 @@ def skim_ntuple(FLAGS, curr_folder):
         raise ValueError(mes)
     nfiles_per_job = [ div if i >= mod else div+1 for i in range(njobs)]
     assert sum(nfiles_per_job) == nfiles
- 
     accumulate = lambda l : [sum(l[:y]) for y in range(1, len(l)+1)]
     inputlists = [ inputfiles[x-y:x] for x,y in zip(accumulate(nfiles_per_job), nfiles_per_job) ]
     assert len(inputlists) == njobs
@@ -187,7 +186,6 @@ def skim_ntuple(FLAGS, curr_folder):
     mes = ( '{} jobs will be scheduled for {} files.'
             .format(njobs,len(inputfiles),nfiles_per_job) )
     print(mes)
- 
     lists_dir = os.path.join(jobs_dir, 'filelists')
     create_dir(lists_dir)
     for ij,listname in enumerate(inputlists):
@@ -349,7 +347,6 @@ if __name__ == "__main__":
                         help='if it is an HH NLO sample')
     parser.add_argument('--doSyst', dest='doSyst', default=False, action='store_true',
                         help='compute up/down values of outputs')
-
 
     FLAGS = parser.parse_args()
     print("-----------  Configuration Arguments -----------")
