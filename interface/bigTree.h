@@ -245,6 +245,14 @@ public :
   std::vector<float>   *bDeepFlavor_probc;
   std::vector<float>   *bDeepFlavor_probuds;
   std::vector<float>   *bDeepFlavor_probg;
+  std::vector<float>   *bParticleNetAK4JetTags_probbb;
+  std::vector<float>   *bParticleNetAK4JetTags_probpu;
+  std::vector<float>   *bParticleNetAK4JetTags_probcc;
+  std::vector<float>   *bParticleNetAK4JetTags_probundef;
+  std::vector<float>   *bParticleNetAK4JetTags_probc;
+  std::vector<float>   *bParticleNetAK4JetTags_probb;
+  std::vector<float>   *bParticleNetAK4JetTags_probuds;
+  std::vector<float>   *bParticleNetAK4JetTags_probg;
   std::vector<float>   *pfCombinedMVAV2BJetTags;
   std::vector<int>     *PFjetID;
   std::vector<float>   *jetRawf;
@@ -267,6 +275,11 @@ public :
   std::vector<float>   *ak8jets_deepFlavor_probb;
   std::vector<float>   *ak8jets_deepFlavor_probbb;
   std::vector<float>   *ak8jets_deepFlavor_problepb;
+  std::vector<float>   *ak8jets_massIndependentDeepDoubleBvLJetTags_probHbb;
+  std::vector<float>   *ak8jets_deepDoubleBvLJetTags_probHbb;
+  std::vector<float>   *ak8jets_deepBoostedJetTags_probHbb;
+  std::vector<float>   *ak8jets_particleNetJetTags_probHbb;
+  std::vector<float>   *ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD;
   std::vector<int>     *ak8jets_nsubjets;
   std::vector<float>   *subjets_px;
   std::vector<float>   *subjets_py;
@@ -507,6 +520,14 @@ public :
   TBranch        *b_bDeepFlavor_problepb;
   TBranch        *b_bDeepFlavor_probuds;
   TBranch        *b_bDeepFlavor_probg;
+  TBranch        *b_bParticleNetAK4JetTags_probbb;
+  TBranch        *b_bParticleNetAK4JetTags_probpu;
+  TBranch        *b_bParticleNetAK4JetTags_probcc;
+  TBranch        *b_bParticleNetAK4JetTags_probundef;
+  TBranch        *b_bParticleNetAK4JetTags_probc;
+  TBranch        *b_bParticleNetAK4JetTags_probb;
+  TBranch        *b_bParticleNetAK4JetTags_probuds;
+  TBranch        *b_bParticleNetAK4JetTags_probg;
   TBranch        *b_pfCombinedMVAV2BJetTags; //!
   TBranch        *b_PFjetID;   //!
   TBranch        *b_jetRawf;   //!
@@ -528,6 +549,11 @@ public :
   TBranch        *b_ak8jets_deepFlavor_probb;
   TBranch        *b_ak8jets_deepFlavor_probbb;
   TBranch        *b_ak8jets_deepFlavor_problepb;
+  TBranch        *b_ak8jets_massIndependentDeepDoubleBvLJetTags_probHbb;
+  TBranch        *b_ak8jets_deepDoubleBvLJetTags_probHbb;
+  TBranch        *b_ak8jets_deepBoostedJetTags_probHbb;
+  TBranch        *b_ak8jets_particleNetJetTags_probHbb;
+  TBranch        *b_ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD;
   TBranch        *b_ak8jets_nsubjets;
   TBranch        *b_subjets_px;
   TBranch        *b_subjets_py;
@@ -752,6 +778,14 @@ public :
     bDeepFlavor_probc = 0;
     bDeepFlavor_probuds = 0;
     bDeepFlavor_probg = 0;
+    bParticleNetAK4JetTags_probbb = 0;
+    bParticleNetAK4JetTags_probpu = 0;
+    bParticleNetAK4JetTags_probcc = 0;
+    bParticleNetAK4JetTags_probundef = 0;
+    bParticleNetAK4JetTags_probc = 0;
+    bParticleNetAK4JetTags_probb = 0;
+    bParticleNetAK4JetTags_probuds = 0;
+    bParticleNetAK4JetTags_probg = 0;
     pfCombinedMVAV2BJetTags = 0;
     PFjetID = 0;
     jetRawf = 0;
@@ -773,6 +807,11 @@ public :
     ak8jets_deepFlavor_probb = 0;
     ak8jets_deepFlavor_probbb = 0;
     ak8jets_deepFlavor_problepb = 0;
+    ak8jets_massIndependentDeepDoubleBvLJetTags_probHbb = 0;
+    ak8jets_deepDoubleBvLJetTags_probHbb = 0;
+    ak8jets_deepBoostedJetTags_probHbb = 0;
+    ak8jets_particleNetJetTags_probHbb = 0;
+    ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD = 0;
     ak8jets_nsubjets = 0;
     subjets_px = 0;
     subjets_py = 0;
@@ -949,6 +988,14 @@ public :
     fChain->SetBranchAddress("bDeepFlavor_problepb", &bDeepFlavor_problepb, &b_bDeepFlavor_problepb);
     fChain->SetBranchAddress("bDeepFlavor_probuds", &bDeepFlavor_probuds, &b_bDeepFlavor_probuds);
     fChain->SetBranchAddress("bDeepFlavor_probg", &bDeepFlavor_probg, &b_bDeepFlavor_probg);
+    fChain->SetBranchAddress("bParticleNetAK4JetTags_probbb", &bParticleNetAK4JetTags_probbb, &b_bParticleNetAK4JetTags_probbb);
+    fChain->SetBranchAddress("bParticleNetAK4JetTags_probpu", &bParticleNetAK4JetTags_probpu, &b_bParticleNetAK4JetTags_probpu);
+    fChain->SetBranchAddress("bParticleNetAK4JetTags_probcc", &bParticleNetAK4JetTags_probcc, &b_bParticleNetAK4JetTags_probcc);
+    fChain->SetBranchAddress("bParticleNetAK4JetTags_probundef", &bParticleNetAK4JetTags_probundef, &b_bParticleNetAK4JetTags_probundef);
+    fChain->SetBranchAddress("bParticleNetAK4JetTags_probc", &bParticleNetAK4JetTags_probc, &b_bParticleNetAK4JetTags_probc);
+    fChain->SetBranchAddress("bParticleNetAK4JetTags_probb", &bParticleNetAK4JetTags_probb, &b_bParticleNetAK4JetTags_probb);
+    fChain->SetBranchAddress("bParticleNetAK4JetTags_probuds", &bParticleNetAK4JetTags_probuds, &b_bParticleNetAK4JetTags_probuds);
+    fChain->SetBranchAddress("bParticleNetAK4JetTags_probg", &bParticleNetAK4JetTags_probg, &b_bParticleNetAK4JetTags_probg);
     fChain->SetBranchAddress("pfCombinedMVAV2BJetTags", &pfCombinedMVAV2BJetTags, &b_pfCombinedMVAV2BJetTags);
     fChain->SetBranchAddress("PFjetID", &PFjetID, &b_PFjetID);
     fChain->SetBranchAddress("jetRawf", &jetRawf, &b_jetRawf);
@@ -970,6 +1017,11 @@ public :
     fChain->SetBranchAddress("ak8jets_deepFlavor_probb", &ak8jets_deepFlavor_probb, &b_ak8jets_deepFlavor_probb);
     fChain->SetBranchAddress("ak8jets_deepFlavor_probbb", &ak8jets_deepFlavor_probbb, &b_ak8jets_deepFlavor_probbb);
     fChain->SetBranchAddress("ak8jets_deepFlavor_problepb", &ak8jets_deepFlavor_problepb, &b_ak8jets_deepFlavor_problepb);
+    fChain->SetBranchAddress("ak8jets_massIndependentDeepDoubleBvLJetTags_probHbb", &ak8jets_massIndependentDeepDoubleBvLJetTags_probHbb, &b_ak8jets_massIndependentDeepDoubleBvLJetTags_probHbb);
+    fChain->SetBranchAddress("ak8jets_deepDoubleBvLJetTags_probHbb", &ak8jets_deepDoubleBvLJetTags_probHbb, &b_ak8jets_deepDoubleBvLJetTags_probHbb);
+    fChain->SetBranchAddress("ak8jets_deepBoostedJetTags_probHbb", &ak8jets_deepBoostedJetTags_probHbb, &b_ak8jets_deepBoostedJetTags_probHbb);
+    fChain->SetBranchAddress("ak8jets_particleNetJetTags_probHbb", &ak8jets_particleNetJetTags_probHbb, &b_ak8jets_particleNetJetTags_probHbb);
+    fChain->SetBranchAddress("ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD", &ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD, &b_ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD);
     fChain->SetBranchAddress("ak8jets_nsubjets", &ak8jets_nsubjets, &b_ak8jets_nsubjets);
     fChain->SetBranchAddress("subjets_px", &subjets_px, &b_subjets_px);
     fChain->SetBranchAddress("subjets_py", &subjets_py, &b_subjets_py);
@@ -1002,6 +1054,7 @@ public :
       fChain->SetBranchAddress("genpart_TopMothInd", &genpart_TopMothInd, &b_genpart_TopMothInd);
       fChain->SetBranchAddress("genpart_TauMothInd", &genpart_TauMothInd, &b_genpart_TauMothInd);
       fChain->SetBranchAddress("genpart_ZMothInd", &genpart_ZMothInd, &b_genpart_ZMothInd);
+      fChain->SetBranchAddress("genpart_WMothInd", &genpart_WMothInd, &b_genpart_WMothInd);
       fChain->SetBranchAddress("genpart_HZDecayMode", &genpart_HZDecayMode, &b_genpart_HZDecayMode);
       fChain->SetBranchAddress("genpart_TauGenDecayMode", &genpart_TauGenDecayMode, &b_genpart_TauGenDecayMode);
       fChain->SetBranchAddress("genpart_TopDecayMode", &genpart_TopDecayMode, &b_genpart_TopDecayMode);

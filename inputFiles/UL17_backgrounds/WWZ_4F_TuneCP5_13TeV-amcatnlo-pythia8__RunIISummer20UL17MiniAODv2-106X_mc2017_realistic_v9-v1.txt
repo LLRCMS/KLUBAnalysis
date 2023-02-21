@@ -1,7 +1,0 @@
-/pnfs/desy.de/cms/tier2/store/user/tokramer/hbt_resonant_run2/HHNtuples/uhh_2017_v2/WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8/RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v1/220312_185318/0000/HTauTauAnalysis_1.root
-/pnfs/desy.de/cms/tier2/store/user/tokramer/hbt_resonant_run2/HHNtuples/uhh_2017_v2/WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8/RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v1/220312_185318/0000/HTauTauAnalysis_2.root
-/pnfs/desy.de/cms/tier2/store/user/tokramer/hbt_resonant_run2/HHNtuples/uhh_2017_v2/WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8/RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v1/220312_185318/0000/HTauTauAnalysis_3.root
-/pnfs/desy.de/cms/tier2/store/user/tokramer/hbt_resonant_run2/HHNtuples/uhh_2017_v2/WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8/RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v1/220312_185318/0000/HTauTauAnalysis_4.root
-/pnfs/desy.de/cms/tier2/store/user/tokramer/hbt_resonant_run2/HHNtuples/uhh_2017_v2/WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8/RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v1/220312_185318/0000/HTauTauAnalysis_5.root
-/pnfs/desy.de/cms/tier2/store/user/tokramer/hbt_resonant_run2/HHNtuples/uhh_2017_v2/WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8/RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v1/220312_185318/0000/HTauTauAnalysis_6.root
-/pnfs/desy.de/cms/tier2/store/user/tokramer/hbt_resonant_run2/HHNtuples/uhh_2017_v2/WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8/RunIISummer20UL17MiniAODv2-106X_mc2017_realistic_v9-v1/220312_185318/0000/HTauTauAnalysis_7.root
