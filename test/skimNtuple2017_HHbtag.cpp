@@ -1728,7 +1728,7 @@ int main (int argc, char** argv)
       );
 
     //////////
-    // -- GEN NEUTRINO DEFINITION:
+    // -- GEN NEUTRINO, LEPTON, B-QUARK DEFINITION:
     // -> Adding gen-matched info for the 2 taus neutrinos for tauTau ID training tests
     TLorentzVector vGenNu1; // neutrino associated to tau1
     TLorentzVector vGenNu2; // neutrino associated to tau2
@@ -1861,7 +1861,7 @@ int main (int argc, char** argv)
         }
       } //end loop on gen part
     } // endif(isMC)
-      // -- END GEN NEUTRINO DEFINITION
+      // -- END GEN NEUTRINO, LEPTON, B-QUARK DEFINITION
       /////////////////////////////////
 
     // scale up: only applies to tau
@@ -2457,7 +2457,6 @@ int main (int argc, char** argv)
 			std::cout<<"mother pdgId: "<<vGenBQuarkMotherPdgIds.at(tmpindex)<<", status: "<<vGenBQuarkStatus.at(tmpindex)<<std::endl;
 		}
 	}
-
 
     int nGenLeptons = vGenLeptons.size();
     if(nGenLeptons>=1){
