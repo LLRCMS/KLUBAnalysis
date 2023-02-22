@@ -4279,6 +4279,14 @@ int main (int argc, char** argv)
       theSmallTree.m_bjet2_bMVAID  = theBigTree.pfCombinedMVAV2BJetTags->at (bjet2idx) ;
       theSmallTree.m_bjet2_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at(bjet2idx);
       theSmallTree.m_bjet2_flav = theBigTree.jets_HadronFlavour->at (bjet2idx) ;
+      theSmallTree.m_bjet2_pnet_bb = theBigTree.bParticleNetAK4JetTags_probbb->at(bjet2idx);
+      theSmallTree.m_bjet2_pnet_cc = theBigTree.bParticleNetAK4JetTags_probcc->at(bjet2idx);
+      theSmallTree.m_bjet2_pnet_b = theBigTree.bParticleNetAK4JetTags_probb->at(bjet2idx);
+      theSmallTree.m_bjet2_pnet_c = theBigTree.bParticleNetAK4JetTags_probc->at(bjet2idx);
+      theSmallTree.m_bjet2_pnet_g = theBigTree.bParticleNetAK4JetTags_probg->at(bjet2idx);
+      theSmallTree.m_bjet2_pnet_uds = theBigTree.bParticleNetAK4JetTags_probuds->at(bjet2idx);
+      theSmallTree.m_bjet2_pnet_pu = theBigTree.bParticleNetAK4JetTags_probpu->at(bjet2idx);
+      theSmallTree.m_bjet2_pnet_undef = theBigTree.bParticleNetAK4JetTags_probundef->at(bjet2idx);
 
       theSmallTree.m_bjets_bID  = theBigTree.bCSVscore->at (bjet1idx) +theBigTree.bCSVscore->at (bjet2idx) ;
       theSmallTree.m_bjets_bID_deepCSV  = theBigTree.bDeepCSV_probb->at(bjet1idx) + theBigTree.bDeepCSV_probbb->at(bjet1idx) + theBigTree.bDeepCSV_probb->at(bjet2idx) + theBigTree.bDeepCSV_probbb->at(bjet2idx);
