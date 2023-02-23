@@ -1753,6 +1753,8 @@ int main (int argc, char** argv)
         int pdg = fabs(theBigTree.genpart_pdg->at(igen));
 
         if(pdg == 5 && CheckBit(theBigTree.genpart_flags->at(igen), 8) && CheckBit(theBigTree.genpart_flags->at(igen), 12) && theBigTree.genpart_status->at(igen) != 21){
+            // statusFlags 8: fromHardProcess, 12: isFirstCopy
+            // status 21: incoming particles
 			TLorentzVector genBQuarkTLV;
 			genBQuarkTLV.SetPxPyPzE(theBigTree.genpart_px->at(igen),
 									theBigTree.genpart_py->at(igen),
@@ -1774,7 +1776,7 @@ int main (int argc, char** argv)
         bool isNeutrino =  (pdg==12||pdg==14||pdg==16);
         if(!isLepton && !isNeutrino) continue;
 
-        if(isLepton && CheckBit(theBigTree.genpart_flags->at(igen), 8) && CheckBit(theBigTree.genpart_flags->at(igen), 13)){
+        if(isLepton && CheckBit(theBigTree.genpart_flags->at(igen), 8) && CheckBit(theBigTree.genpart_flags->at(igen), 13)){ // 8: fromHardProcess, 13 isLastCopy
 			TLorentzVector genLeptonTLV;
 			genLeptonTLV.SetPxPyPzE(theBigTree.genpart_px->at(igen),
 									theBigTree.genpart_py->at(igen),
