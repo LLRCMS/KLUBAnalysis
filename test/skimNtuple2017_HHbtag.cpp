@@ -1204,11 +1204,10 @@ int main (int argc, char** argv)
     int idx2hs_b = -1;     // bjet-2 index
     TLorentzVector vGenB1; // bjet-1 tlv
     TLorentzVector vGenB2;   // bjet-2 tlv
-    TLorentzVector vH1, vH2;
     if (isHHsignal || HHrewType != kNone) // isHHsignal: only to do loop on genparts, but no rew
     {
       // cout << "DEBUG: reweight!!!" << endl;
-      TLorentzVector vBoost, vSum;
+      TLorentzVector vH1, vH2, vBoost, vSum;
       float mHH = -1;
       float ct1 = -999;
       // loop on gen to find Higgs
@@ -1361,9 +1360,18 @@ int main (int argc, char** argv)
       vH2.SetPxPyPzE (theBigTree.genpart_px->at(idx2), theBigTree.genpart_py->at(idx2), theBigTree.genpart_pz->at(idx2), theBigTree.genpart_e->at(idx2) );
       vSum = vH1+vH2;
       mHH = vSum.M();
-      TLorentzVector vH1_boosted(vH1);
-      vH1_boosted.Boost(-vSum.BoostVector());
-      ct1 = vH1_boosted.CosTheta();
+      theSmallTree.m_genH1_pt = vH1.Pt();
+      theSmallTree.m_genH1_eta = vH1.Eta();
+      theSmallTree.m_genH1_phi = vH1.Phi();
+      theSmallTree.m_genH1_e = vH1.E();
+      theSmallTree.m_genH2_pt = vH2.Pt();
+      theSmallTree.m_genH2_eta = vH2.Eta();
+      theSmallTree.m_genH2_phi = vH2.Phi();
+      theSmallTree.m_genH2_e = vH2.E();
+      vSum = vH1+vH2;
+      mHH = vSum.M();
+      vH1.Boost(-vSum.BoostVector());
+      ct1 = vH1.CosTheta();
 
       // FRA DEBUG - build gen b jets
       if (idx1hs_b != -1 && idx2hs_b != -1)
@@ -1728,7 +1736,7 @@ int main (int argc, char** argv)
       );
 
     //////////
-    // -- GEN NEUTRINO DEFINITION:
+    // -- GEN NEUTRINO, LEPTON, B-QUARK DEFINITION:
     // -> Adding gen-matched info for the 2 taus neutrinos for tauTau ID training tests
     TLorentzVector vGenNu1; // neutrino associated to tau1
     TLorentzVector vGenNu2; // neutrino associated to tau2
@@ -1753,6 +1761,8 @@ int main (int argc, char** argv)
         int pdg = fabs(theBigTree.genpart_pdg->at(igen));
 
         if(pdg == 5 && CheckBit(theBigTree.genpart_flags->at(igen), 8) && CheckBit(theBigTree.genpart_flags->at(igen), 12) && theBigTree.genpart_status->at(igen) != 21){
+            // statusFlags 8: fromHardProcess, 12: isFirstCopy
+            // status 21: incoming particles
 			TLorentzVector genBQuarkTLV;
 			genBQuarkTLV.SetPxPyPzE(theBigTree.genpart_px->at(igen),
 									theBigTree.genpart_py->at(igen),
@@ -1774,7 +1784,7 @@ int main (int argc, char** argv)
         bool isNeutrino =  (pdg==12||pdg==14||pdg==16);
         if(!isLepton && !isNeutrino) continue;
 
-        if(isLepton && CheckBit(theBigTree.genpart_flags->at(igen), 8) && CheckBit(theBigTree.genpart_flags->at(igen), 13)){
+        if(isLepton && CheckBit(theBigTree.genpart_flags->at(igen), 8) && CheckBit(theBigTree.genpart_flags->at(igen), 13)){ // 8: fromHardProcess, 13 isLastCopy
 			TLorentzVector genLeptonTLV;
 			genLeptonTLV.SetPxPyPzE(theBigTree.genpart_px->at(igen),
 									theBigTree.genpart_py->at(igen),
@@ -1861,7 +1871,7 @@ int main (int argc, char** argv)
         }
       } //end loop on gen part
     } // endif(isMC)
-      // -- END GEN NEUTRINO DEFINITION
+      // -- END GEN NEUTRINO, LEPTON, B-QUARK DEFINITION
       /////////////////////////////////
 
     // scale up: only applies to tau
@@ -2403,15 +2413,6 @@ int main (int argc, char** argv)
     theSmallTree.m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (secondDaughterIndex) & (1 << ibit) ) ? true : false ;
 
     if(isHHsignal){
-      theSmallTree.m_genH1_pt = vH1.Pt();
-      theSmallTree.m_genH1_eta = vH1.Eta();
-      theSmallTree.m_genH1_phi = vH1.Phi();
-      theSmallTree.m_genH1_e = vH1.E();
-      theSmallTree.m_genH2_pt = vH2.Pt();
-      theSmallTree.m_genH2_eta = vH2.Eta();
-      theSmallTree.m_genH2_phi = vH2.Phi();
-      theSmallTree.m_genH2_e = vH2.E();
-
       theSmallTree.m_genB1_pt = vGenB1.Pt();
       theSmallTree.m_genB1_eta = vGenB1.Eta();
       theSmallTree.m_genB1_phi = vGenB1.Phi();
@@ -2457,7 +2458,6 @@ int main (int argc, char** argv)
 			std::cout<<"mother pdgId: "<<vGenBQuarkMotherPdgIds.at(tmpindex)<<", status: "<<vGenBQuarkStatus.at(tmpindex)<<std::endl;
 		}
 	}
-
 
     int nGenLeptons = vGenLeptons.size();
     if(nGenLeptons>=1){

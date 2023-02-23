@@ -1175,7 +1175,6 @@ int main (int argc, char** argv)
     int idx2hs_b = -1;     // bjet-2 index
     TLorentzVector vGenB1; // bjet-1 tlv
     TLorentzVector vGenB2; // bjet-2 tlv
-
     if (isHHsignal || HHrewType != kNone) // isHHsignal: only to do loop on genparts, but no rew
     {
       // cout << "DEBUG: reweight!!!" << endl;
@@ -1330,6 +1329,16 @@ int main (int argc, char** argv)
 
       vH1.SetPxPyPzE (theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1) );
       vH2.SetPxPyPzE (theBigTree.genpart_px->at(idx2), theBigTree.genpart_py->at(idx2), theBigTree.genpart_pz->at(idx2), theBigTree.genpart_e->at(idx2) );
+      vSum = vH1+vH2;
+      mHH = vSum.M();
+      theSmallTree.m_genH1_pt = vH1.Pt();
+      theSmallTree.m_genH1_eta = vH1.Eta();
+      theSmallTree.m_genH1_phi = vH1.Phi();
+      theSmallTree.m_genH1_e = vH1.E();
+      theSmallTree.m_genH2_pt = vH2.Pt();
+      theSmallTree.m_genH2_eta = vH2.Eta();
+      theSmallTree.m_genH2_phi = vH2.Phi();
+      theSmallTree.m_genH2_e = vH2.E();
       vSum = vH1+vH2;
       mHH = vSum.M();
       vH1.Boost(-vSum.BoostVector());
@@ -1698,6 +1707,145 @@ int main (int argc, char** argv)
       theBigTree.daughters_pz->at (secondDaughterIndex),
       theBigTree.daughters_e->at (secondDaughterIndex)
       );
+
+    //////////
+    // -- GEN NEUTRINO, LEPTON, B-QUARK DEFINITION:
+    // -> Adding gen-matched info for the 2 taus neutrinos for tauTau ID training tests
+    TLorentzVector vGenNu1; // neutrino associated to tau1
+    TLorentzVector vGenNu2; // neutrino associated to tau2
+    TLorentzVector vGenNuNoMatch; // neutrino associated to tau2
+    // also getting gen vis tau 4vec for reco matching
+    TLorentzVector vGenTau1Vis;
+    TLorentzVector vGenTau2Vis;
+    int gentau1_idx = -1;
+    int gentau2_idx = -1;
+
+    std::vector<TLorentzVector> vGenLeptons;
+    std::vector<Int_t> vGenLeptonPdgIds;
+    std::vector<Int_t> vGenLeptonMotherPdgIds;
+
+    std::vector<TLorentzVector> vGenBQuarks;
+    std::vector<Int_t> vGenBQuarkMotherPdgIds;
+    std::vector<Int_t> vGenBQuarkStatus;
+
+    if(isMC) {
+      for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++) {
+        // only looking at gen e/mu/tau and neutrinos
+        int pdg = fabs(theBigTree.genpart_pdg->at(igen));
+
+        if(pdg == 5 && CheckBit(theBigTree.genpart_flags->at(igen), 8) && CheckBit(theBigTree.genpart_flags->at(igen), 12) && theBigTree.genpart_status->at(igen) != 21){
+            // statusFlags 8: fromHardProcess, 12: isFirstCopy
+            // status 21: incoming particles
+            TLorentzVector genBQuarkTLV;
+            genBQuarkTLV.SetPxPyPzE(theBigTree.genpart_px->at(igen),
+                                    theBigTree.genpart_py->at(igen),
+                                    theBigTree.genpart_pz->at(igen),
+                                    theBigTree.genpart_e->at(igen));
+            vGenBQuarks.push_back(genBQuarkTLV);
+            int motherPdgId = -1;
+            if(theBigTree.genpart_HMothInd->at(igen) > -1)
+                motherPdgId = theBigTree.genpart_pdg->at(theBigTree.genpart_HMothInd->at(igen));
+            if(theBigTree.genpart_TopMothInd->at(igen) > -1)
+                motherPdgId = theBigTree.genpart_pdg->at(theBigTree.genpart_TopMothInd->at(igen));
+            if(theBigTree.genpart_ZMothInd->at(igen) > -1)
+                motherPdgId = theBigTree.genpart_pdg->at(theBigTree.genpart_ZMothInd->at(igen));
+            vGenBQuarkMotherPdgIds.push_back(motherPdgId);
+            vGenBQuarkStatus.push_back(theBigTree.genpart_status->at(igen));
+        }
+
+        bool isLepton = (pdg==11||pdg==13||pdg==15);
+        bool isNeutrino =  (pdg==12||pdg==14||pdg==16);
+        if(!isLepton && !isNeutrino) continue;
+
+        if(isLepton && CheckBit(theBigTree.genpart_flags->at(igen), 8) && CheckBit(theBigTree.genpart_flags->at(igen), 13)){ // 8: fromHardProcess, 13 isLastCopy
+            TLorentzVector genLeptonTLV;
+            genLeptonTLV.SetPxPyPzE(theBigTree.genpart_px->at(igen),
+                                    theBigTree.genpart_py->at(igen),
+                                    theBigTree.genpart_pz->at(igen),
+                                    theBigTree.genpart_e->at(igen));
+            vGenLeptons.push_back(genLeptonTLV);
+            vGenLeptonPdgIds.push_back(theBigTree.genpart_pdg->at(igen));
+
+            int motherPdgId = -1;
+            int tmpIdx = igen;
+            if(theBigTree.genpart_TauMothInd->at(tmpIdx) > -1)
+                tmpIdx = theBigTree.genpart_TauMothInd->at(tmpIdx);
+            if(theBigTree.genpart_HMothInd->at(tmpIdx) > -1)
+                motherPdgId = theBigTree.genpart_pdg->at(theBigTree.genpart_HMothInd->at(tmpIdx));
+            if(theBigTree.genpart_ZMothInd->at(tmpIdx) > -1)
+                motherPdgId = theBigTree.genpart_pdg->at(theBigTree.genpart_ZMothInd->at(tmpIdx));
+            if(theBigTree.genpart_WMothInd->at(tmpIdx) > -1)
+                motherPdgId = theBigTree.genpart_pdg->at(theBigTree.genpart_WMothInd->at(tmpIdx));
+            if(theBigTree.genpart_TopMothInd->at(tmpIdx) > -1)
+                motherPdgId = theBigTree.genpart_pdg->at(theBigTree.genpart_TopMothInd->at(tmpIdx));
+
+            vGenLeptonMotherPdgIds.push_back(motherPdgId);
+        }
+
+        int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
+        // check particle is from tau decay
+        if(mothIdx<0) continue;
+
+
+        bool mothIsHardScatt = false;
+        if (mothIdx > -1)
+        {
+          bool mothIsLast =  CheckBit(theBigTree.genpart_flags->at(mothIdx), 13); // tru
+          // NB: I need t ask that the mother is last idx, otherwise I get a nonphysics "tauh" by the tauh builder function from the tau->tau "decay" in pythia
+          mothIsHardScatt = (mothIsLast && CheckBit (theBigTree.genpart_flags->at(mothIdx), 8)); // 0 = isPrompt(), 7: hardProcess , 8: fromHardProcess
+        }
+        if(pdg==15 && !mothIsHardScatt) continue;
+
+        // check if gen tau matched reco tau
+        TLorentzVector vGenTauVis;
+        bool match1 = false;
+        bool match2 = false;
+        if(isLepton){
+          // looking at all leptons in decay chain, but end up comparing the last one (e/mu/tau) or the mother for nu count
+          // which one it is should not make much difference with DR<0.3
+          vGenTauVis.SetPxPyPzE (theBigTree.genpart_px->at(igen),
+               theBigTree.genpart_py->at(igen),
+               theBigTree.genpart_pz->at(igen),
+               theBigTree.genpart_e->at(igen));
+          match1 = (vGenTauVis.DeltaR(tlv_firstLepton)<0.3);
+          match2 = (vGenTauVis.DeltaR(tlv_secondLepton)<0.3);
+
+          if( match1 && !match2 ) {
+            vGenTau1Vis = vGenTauVis;
+            gentau1_idx = mothIdx;
+          }
+          if( !match1 &&  match2 ) {
+            vGenTau2Vis = vGenTauVis;
+            gentau2_idx = mothIdx;
+          }
+          if( match1 &&  match2 ) { // unlikely I guess
+            if (vGenTauVis.DeltaR(tlv_firstLepton)<vGenTauVis.DeltaR(tlv_secondLepton)){
+              vGenTau1Vis = vGenTauVis;
+              gentau1_idx = mothIdx;
+            } else {
+              vGenTau2Vis = vGenTauVis;
+              gentau2_idx = mothIdx;
+            }
+          }
+        } // endif(isLepton)
+
+        TLorentzVector vGenNuVis;
+        if(isNeutrino){
+          vGenNuVis.SetPxPyPzE (theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen));
+
+          //cout << "Found gen neutrino : id=" << igen << " | tauMothID=" <<theBigTree.genpart_TauMothInd->at(igen) << endl;
+
+          if(theBigTree.genpart_TauMothInd->at(igen)==gentau1_idx) // neutrino comes from tau1
+            vGenNu1+=vGenNuVis;
+          else if(theBigTree.genpart_TauMothInd->at(igen)==gentau2_idx) // neutrino comes from tau2
+            vGenNu2+=vGenNuVis;
+          else // neutrino is unmatched
+            vGenNuNoMatch+=vGenNuVis;
+        }
+      } //end loop on gen part
+    } // endif(isMC)
+      // -- END GEN NEUTRINO, LEPTON, B-QUARK DEFINITION
+      /////////////////////////////////
 
     // scale up: only applies to tau
     // TES up/down
@@ -2237,6 +2385,133 @@ int main (int argc, char** argv)
     ibit = tauIDsMap["byTightCombinedIsolationDeltaBetaCorr3Hits"] ;
     theSmallTree.m_dau1_byTightCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (firstDaughterIndex)  & (1 << ibit) ) ? true : false ;
     theSmallTree.m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (secondDaughterIndex) & (1 << ibit) ) ? true : false ;
+
+    if(isHHsignal){
+      theSmallTree.m_genB1_pt = vGenB1.Pt();
+      theSmallTree.m_genB1_eta = vGenB1.Eta();
+      theSmallTree.m_genB1_phi = vGenB1.Phi();
+      theSmallTree.m_genB1_e = vGenB1.E();
+      theSmallTree.m_genB2_pt = vGenB2.Pt();
+      theSmallTree.m_genB2_eta = vGenB2.Eta();
+      theSmallTree.m_genB2_phi = vGenB2.Phi();
+      theSmallTree.m_genB2_e = vGenB2.E();
+    }
+
+    int nGenBQuarks = vGenBQuarks.size();
+    if(nGenBQuarks>=1){
+        theSmallTree.m_genBQuark1_pt = vGenBQuarks.at(0).Pt();
+        theSmallTree.m_genBQuark1_eta = vGenBQuarks.at(0).Eta();
+        theSmallTree.m_genBQuark1_phi = vGenBQuarks.at(0).Phi();
+        theSmallTree.m_genBQuark1_e = vGenBQuarks.at(0).E();
+        theSmallTree.m_genBQuark1_motherPdgId = vGenBQuarkMotherPdgIds.at(0);
+    }
+    if(nGenBQuarks>=2){
+        theSmallTree.m_genBQuark2_pt = vGenBQuarks.at(1).Pt();
+        theSmallTree.m_genBQuark2_eta = vGenBQuarks.at(1).Eta();
+        theSmallTree.m_genBQuark2_phi = vGenBQuarks.at(1).Phi();
+        theSmallTree.m_genBQuark2_e = vGenBQuarks.at(1).E();
+        theSmallTree.m_genBQuark2_motherPdgId = vGenBQuarkMotherPdgIds.at(1);
+    }
+    if(nGenBQuarks>=3){
+        theSmallTree.m_genBQuark3_pt = vGenBQuarks.at(2).Pt();
+        theSmallTree.m_genBQuark3_eta = vGenBQuarks.at(2).Eta();
+        theSmallTree.m_genBQuark3_phi = vGenBQuarks.at(2).Phi();
+        theSmallTree.m_genBQuark3_e = vGenBQuarks.at(2).E();
+        theSmallTree.m_genBQuark3_motherPdgId = vGenBQuarkMotherPdgIds.at(2);
+    }
+    if(nGenBQuarks>=4){
+        theSmallTree.m_genBQuark4_pt = vGenBQuarks.at(3).Pt();
+        theSmallTree.m_genBQuark4_eta = vGenBQuarks.at(3).Eta();
+        theSmallTree.m_genBQuark4_phi = vGenBQuarks.at(3).Phi();
+        theSmallTree.m_genBQuark4_e = vGenBQuarks.at(3).E();
+        theSmallTree.m_genBQuark4_motherPdgId = vGenBQuarkMotherPdgIds.at(3);
+    }
+    if(nGenBQuarks>=5){
+        std::cout<<">= 5 GenBQuarks"<<std::endl;
+        for(unsigned int tmpindex = 0; tmpindex < vGenBQuarkMotherPdgIds.size(); tmpindex++){
+            std::cout<<"mother pdgId: "<<vGenBQuarkMotherPdgIds.at(tmpindex)<<", status: "<<vGenBQuarkStatus.at(tmpindex)<<std::endl;
+        }
+    }
+
+    int nGenLeptons = vGenLeptons.size();
+    if(nGenLeptons>=1){
+        theSmallTree.m_genLepton1_pt = vGenLeptons.at(0).Pt();
+        theSmallTree.m_genLepton1_eta = vGenLeptons.at(0).Eta();
+        theSmallTree.m_genLepton1_phi = vGenLeptons.at(0).Phi();
+        theSmallTree.m_genLepton1_e = vGenLeptons.at(0).E();
+        theSmallTree.m_genLepton1_pdgId = vGenLeptonPdgIds.at(0);
+        theSmallTree.m_genLepton1_motherPdgId = vGenLeptonMotherPdgIds.at(0);
+    }
+     if(nGenLeptons>=2){
+        theSmallTree.m_genLepton2_pt = vGenLeptons.at(1).Pt();
+        theSmallTree.m_genLepton2_eta = vGenLeptons.at(1).Eta();
+        theSmallTree.m_genLepton2_phi = vGenLeptons.at(1).Phi();
+        theSmallTree.m_genLepton2_e = vGenLeptons.at(1).E();
+        theSmallTree.m_genLepton2_pdgId = vGenLeptonPdgIds.at(1);
+        theSmallTree.m_genLepton2_motherPdgId = vGenLeptonMotherPdgIds.at(1);
+    }
+     if(nGenLeptons>=3){
+        theSmallTree.m_genLepton3_pt = vGenLeptons.at(2).Pt();
+        theSmallTree.m_genLepton3_eta = vGenLeptons.at(2).Eta();
+        theSmallTree.m_genLepton3_phi = vGenLeptons.at(2).Phi();
+        theSmallTree.m_genLepton3_e = vGenLeptons.at(2).E();
+        theSmallTree.m_genLepton3_pdgId = vGenLeptonPdgIds.at(2);
+        theSmallTree.m_genLepton3_motherPdgId = vGenLeptonMotherPdgIds.at(2);
+    }
+     if(nGenLeptons>=4){
+        theSmallTree.m_genLepton4_pt = vGenLeptons.at(3).Pt();
+        theSmallTree.m_genLepton4_eta = vGenLeptons.at(3).Eta();
+        theSmallTree.m_genLepton4_phi = vGenLeptons.at(3).Phi();
+        theSmallTree.m_genLepton4_e = vGenLeptons.at(3).E();
+        theSmallTree.m_genLepton4_pdgId = vGenLeptonPdgIds.at(3);
+        theSmallTree.m_genLepton4_motherPdgId = vGenLeptonMotherPdgIds.at(3);
+    }
+
+    ///////////////////////////////////
+    // -- FILLING GEN NEUTRINO BRANCHES
+    theSmallTree.m_genNu1_pt = vGenNu1.Pt();
+    theSmallTree.m_genNu1_eta = vGenNu1.Eta();
+    theSmallTree.m_genNu1_phi = vGenNu1.Phi();
+    theSmallTree.m_genNu1_e = vGenNu1.E();
+
+    theSmallTree.m_genNu2_pt = vGenNu2.Pt();
+    theSmallTree.m_genNu2_eta = vGenNu2.Eta();
+    theSmallTree.m_genNu2_phi = vGenNu2.Phi();
+    theSmallTree.m_genNu2_e = vGenNu2.E();
+
+    theSmallTree.m_genNuNoMatch_pt = vGenNuNoMatch.Pt();
+    theSmallTree.m_genNuNoMatch_eta = vGenNuNoMatch.Eta();
+    theSmallTree.m_genNuNoMatch_phi = vGenNuNoMatch.Phi();
+    theSmallTree.m_genNuNoMatch_e = vGenNuNoMatch.E();
+
+    TLorentzVector vGenNuTot = vGenNu1+vGenNu2;
+    TLorentzVector vGenNuTotWithNoMatch = vGenNu1+vGenNu2+vGenNuNoMatch;
+
+    theSmallTree.m_genNuTot_pt = vGenNuTot.Pt();
+    theSmallTree.m_genNuTot_eta = vGenNuTot.Eta();
+    theSmallTree.m_genNuTot_phi = vGenNuTot.Phi();
+    theSmallTree.m_genNuTot_e = vGenNuTot.E();
+
+    theSmallTree.m_genNuTotWithNoMatch_pt = vGenNuTotWithNoMatch.Pt();
+    theSmallTree.m_genNuTotWithNoMatch_eta = vGenNuTotWithNoMatch.Eta();
+    theSmallTree.m_genNuTotWithNoMatch_phi = vGenNuTotWithNoMatch.Phi();
+    theSmallTree.m_genNuTotWithNoMatch_e = vGenNuTotWithNoMatch.E();
+
+    TLorentzVector vRecoGenTauH = vGenNu1+vGenNu2+tlv_firstLepton+tlv_secondLepton;
+    theSmallTree.m_recoGenTauH_pt   = vRecoGenTauH.Pt();
+    theSmallTree.m_recoGenTauH_eta  = vRecoGenTauH.Eta();
+    theSmallTree.m_recoGenTauH_phi  = vRecoGenTauH.Phi();
+    theSmallTree.m_recoGenTauH_e    = vRecoGenTauH.E();
+    theSmallTree.m_recoGenTauH_mass = vRecoGenTauH.M();
+
+    TLorentzVector vRecoGenWithNoMatchTauH = vGenNu1+vGenNu2+vGenNuNoMatch+tlv_firstLepton+tlv_secondLepton;
+    theSmallTree.m_recoGenWithNoMatchTauH_pt   = vRecoGenWithNoMatchTauH.Pt();
+    theSmallTree.m_recoGenWithNoMatchTauH_eta  = vRecoGenWithNoMatchTauH.Eta();
+    theSmallTree.m_recoGenWithNoMatchTauH_phi  = vRecoGenWithNoMatchTauH.Phi();
+    theSmallTree.m_recoGenWithNoMatchTauH_e    = vRecoGenWithNoMatchTauH.E();
+    theSmallTree.m_recoGenWithNoMatchTauH_mass = vRecoGenWithNoMatchTauH.M();
+    // -- END FILLING GEN NEUTRINO BRANCHES
+    ///////////////////////////////////////
 
     theSmallTree.m_dau1_pt = tlv_firstLepton.Pt () ;
 
