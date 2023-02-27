@@ -6,6 +6,17 @@ jf_dict = { "5" : "0", "4" : "1", "0" : "2" }
 periods = ['16preVFP','16postVFP','17','18']
 algo = ['deepJet','deepCSV']
 
+def translate(key, dictionary):
+    """
+    Translate from *key* to a value in a *dictionary*, allowing cases where *key* already refers to
+    a valid value.
+    """
+    if key in dictionary:
+        return dictionary[key]
+    if key in dictionary.values():
+        return key
+    raise Exception("no entry {} in dictionary {}".format(key, dictionary))
+
 for alg in algo:
     for period in periods:
         input_file = 'weights/bTagWeights_UL/UL{period}/merged_{alg}.csv'.format(period=period,alg=alg)
@@ -23,7 +34,6 @@ for alg in algo:
                             line=line.replace("pow(x,1.5)","x**1.5")
                             print(line)
                         args = line.split(',')
-                        args[0] = wp_dict[args[0]]
-                        args[3] = jf_dict[args[3]]
+                        args[0] = translate(args[0], wp_dict)
+                        args[3] = translate(args[3], jf_dict)
                         csv_out.write(','.join(args))
-
