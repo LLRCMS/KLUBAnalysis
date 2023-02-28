@@ -2325,7 +2325,7 @@ int main (int argc, char** argv)
     theSmallTree.m_isOS = theBigTree.isOSCand->at (chosenTauPair) ;
     theSmallTree.m_lheNOutPartons = theBigTree.lheNOutPartons ;
     theSmallTree.m_lheNOutB = theBigTree.lheNOutB ;
-    theSmallTree.m_met_phi   = vMET.Phi();  // TODO(marcel,tobias): TVector2::Phi_mpi_pi(vMET.Phi());
+    theSmallTree.m_met_phi   = TVector2::Phi_mpi_pi(vMET.Phi());
     theSmallTree.m_met_et    = vMET.Mod();
     theSmallTree.m_METx      = vMET.X();
     theSmallTree.m_METy      = vMET.Y();
