@@ -35,6 +35,10 @@ public :
   Float_t         metphi;
   Float_t         met_er;
   Float_t         met_er_phi;
+  Float_t         ShiftedDeepMETresponseTune_pt;
+  Float_t         ShiftedDeepMETresponseTune_phi;
+  Float_t         ShiftedDeepMETresolutionTune_pt;
+  Float_t         ShiftedDeepMETresolutionTune_phi;
   Int_t           npv;
   Float_t         npu;
   Float_t         PUNumInteractions;
@@ -308,6 +312,10 @@ public :
   TBranch        *b_metphi;   //!
   TBranch        *b_met_er;   //!
   TBranch        *b_met_er_phi;   //!
+  TBranch        *b_ShiftedDeepMETresponseTune_pt;
+  TBranch        *b_ShiftedDeepMETresponseTune_phi;
+  TBranch        *b_ShiftedDeepMETresolutionTune_pt;
+  TBranch        *b_ShiftedDeepMETresolutionTune_phi;
   TBranch        *b_npv;   //!
   TBranch        *b_npu;   //!
   TBranch        *b_PUNumInteractions;   //!
@@ -840,6 +848,10 @@ public :
     fChain->SetBranchAddress("metphi", &metphi, &b_metphi);
     fChain->SetBranchAddress("met_er", &met_er, &b_met_er);
     fChain->SetBranchAddress("met_er_phi", &met_er_phi, &b_met_er_phi);
+    fChain->SetBranchAddress("ShiftedDeepMETresponseTune_pt", &ShiftedDeepMETresponseTune_pt, &b_ShiftedDeepMETresponseTune_pt);
+    fChain->SetBranchAddress("ShiftedDeepMETresponseTune_phi", &ShiftedDeepMETresponseTune_phi, &b_ShiftedDeepMETresponseTune_phi);
+    fChain->SetBranchAddress("ShiftedDeepMETresolutionTune_pt", &ShiftedDeepMETresolutionTune_pt, &b_ShiftedDeepMETresolutionTune_pt);
+    fChain->SetBranchAddress("ShiftedDeepMETresolutionTune_phi", &ShiftedDeepMETresolutionTune_phi, &b_ShiftedDeepMETresolutionTune_phi);
     fChain->SetBranchAddress("npv", &npv, &b_npv);
     fChain->SetBranchAddress("npu", &npu, &b_npu);
     fChain->SetBranchAddress("rho", &rho, &b_rho);
