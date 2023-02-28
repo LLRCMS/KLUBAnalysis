@@ -2166,6 +2166,14 @@ int main (int argc, char** argv)
     TLorentzVector tlv_MET;
     tlv_MET.SetPxPyPzE(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair), 0, std::hypot(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair)));
 
+    TLorentzVector tlv_DeepMET_ResponseTune;
+    tlv_DeepMET_ResponseTune.SetPtEtaPhiM(theBigTree.ShiftedDeepMETresponseTune_pt, 0, theBigTree.ShiftedDeepMETresponseTune_phi, 0);
+    TVector2 vDeepMET_ResponseTune(tlv_DeepMET_ResponseTune.Px(), tlv_DeepMET_ResponseTune.Py());
+
+    TLorentzVector tlv_DeepMET_ResolutionTune;
+    tlv_DeepMET_ResolutionTune.SetPtEtaPhiM(theBigTree.ShiftedDeepMETresolutionTune_pt, 0, theBigTree.ShiftedDeepMETresolutionTune_phi, 0);
+    TVector2 vDeepMET_ResolutionTune(tlv_DeepMET_ResolutionTune.Px(), tlv_DeepMET_ResolutionTune.Py());
+
     // Temporary SVFit recomputation for data.
     if(!isMC){
       TMatrixD metcov_tmp (2, 2) ;
@@ -2306,6 +2314,10 @@ int main (int argc, char** argv)
     theSmallTree.m_met_cov01 = theBigTree.MET_cov01->at (chosenTauPair);
     theSmallTree.m_met_cov10 = theBigTree.MET_cov10->at (chosenTauPair);
     theSmallTree.m_met_cov11 = theBigTree.MET_cov11->at (chosenTauPair);
+    theSmallTree.m_DeepMET_ResponseTune_px = vDeepMET_ResponseTune.X();
+    theSmallTree.m_DeepMET_ResponseTune_py = vDeepMET_ResponseTune.Y();
+    theSmallTree.m_DeepMET_ResolutionTune_px = vDeepMET_ResolutionTune.X();
+    theSmallTree.m_DeepMET_ResolutionTune_py = vDeepMET_ResolutionTune.Y();
 
     // L1ECALPrefiringWeight - https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
     theSmallTree.m_L1pref_weight = theBigTree.prefiringweight;
@@ -4289,9 +4301,20 @@ int main (int argc, char** argv)
       {
 	// Shifted MET for TES/EES
 	auto vMET_shifts_tes_ees = getShiftedMET_tes_ees(N_tauhDM, N_tauhDM_EES, vMET, theBigTree, DEBUG);
+
+	// Shifted DeepMET for TES/EES
+	auto vDeepMET_ResponseTune_shifts_tes_ees = getShiftedMET_tes_ees(N_tauhDM, N_tauhDM_EES, vDeepMET_ResponseTune, theBigTree, DEBUG);
+	auto vDeepMET_ResolutionTune_shifts_tes_ees = getShiftedMET_tes_ees(N_tauhDM, N_tauhDM_EES, vDeepMET_ResolutionTune, theBigTree, DEBUG);
+
 	//unpack: first is tes, second is ees
 	auto vMET_shift_tes = vMET_shifts_tes_ees.first;
 	auto vMET_shift_ees = vMET_shifts_tes_ees.second;
+
+	auto vDeepMET_ResponseTune_shifts_tes = vDeepMET_ResponseTune_shifts_tes_ees.first;
+	auto vDeepMET_ResponseTune_shifts_ees = vDeepMET_ResponseTune_shifts_tes_ees.second;
+
+	auto vDeepMET_ResolutionTune_shifts_tes = vDeepMET_ResolutionTune_shifts_tes_ees.first;
+	auto vDeepMET_ResolutionTune_shifts_ees = vDeepMET_ResolutionTune_shifts_tes_ees.second;
 	for (int idm = 0; idm < N_tauhDM; idm++)
 	{
 	  theSmallTree.m_METx_tauup.push_back(vMET_shift_tes.first.at(idm).X());
@@ -4299,12 +4322,32 @@ int main (int argc, char** argv)
 	  theSmallTree.m_METx_taudown.push_back(vMET_shift_tes.second.at(idm).X());
 	  theSmallTree.m_METy_taudown.push_back(vMET_shift_tes.second.at(idm).Y());
 
+	  theSmallTree.m_DeepMET_ResponseTune_px_tauup.push_back(vDeepMET_ResponseTune_shifts_tes.first.at(idm).X());
+	  theSmallTree.m_DeepMET_ResponseTune_py_tauup.push_back(vDeepMET_ResponseTune_shifts_tes.first.at(idm).Y());
+	  theSmallTree.m_DeepMET_ResponseTune_px_taudown.push_back(vDeepMET_ResponseTune_shifts_tes.second.at(idm).X());
+	  theSmallTree.m_DeepMET_ResponseTune_py_taudown.push_back(vDeepMET_ResponseTune_shifts_tes.second.at(idm).Y());
+
+	  theSmallTree.m_DeepMET_ResolutionTune_px_tauup.push_back(vDeepMET_ResolutionTune_shifts_tes.first.at(idm).X());
+	  theSmallTree.m_DeepMET_ResolutionTune_py_tauup.push_back(vDeepMET_ResolutionTune_shifts_tes.first.at(idm).Y());
+	  theSmallTree.m_DeepMET_ResolutionTune_px_taudown.push_back(vDeepMET_ResolutionTune_shifts_tes.second.at(idm).X());
+	  theSmallTree.m_DeepMET_ResolutionTune_py_taudown.push_back(vDeepMET_ResolutionTune_shifts_tes.second.at(idm).Y());
+
 	  if (idm <N_tauhDM_EES)
 	  {
 	    theSmallTree.m_METx_eleup.push_back(vMET_shift_ees.first.at(idm).X());
 	    theSmallTree.m_METy_eleup.push_back(vMET_shift_ees.first.at(idm).Y());
 	    theSmallTree.m_METx_eledown.push_back(vMET_shift_ees.second.at(idm).X());
 	    theSmallTree.m_METy_eledown.push_back(vMET_shift_ees.second.at(idm).Y());
+
+	    theSmallTree.m_DeepMET_ResponseTune_px_eleup.push_back(vDeepMET_ResponseTune_shifts_ees.first.at(idm).X());
+	    theSmallTree.m_DeepMET_ResponseTune_py_eleup.push_back(vDeepMET_ResponseTune_shifts_ees.first.at(idm).Y());
+	    theSmallTree.m_DeepMET_ResponseTune_px_eledown.push_back(vDeepMET_ResponseTune_shifts_ees.second.at(idm).X());
+	    theSmallTree.m_DeepMET_ResponseTune_py_eledown.push_back(vDeepMET_ResponseTune_shifts_ees.second.at(idm).Y());
+
+	    theSmallTree.m_DeepMET_ResolutionTune_px_eleup.push_back(vDeepMET_ResolutionTune_shifts_ees.first.at(idm).X());
+	    theSmallTree.m_DeepMET_ResolutionTune_py_eleup.push_back(vDeepMET_ResolutionTune_shifts_ees.first.at(idm).Y());
+	    theSmallTree.m_DeepMET_ResolutionTune_px_eledown.push_back(vDeepMET_ResolutionTune_shifts_ees.second.at(idm).X());
+	    theSmallTree.m_DeepMET_ResolutionTune_py_eledown.push_back(vDeepMET_ResolutionTune_shifts_ees.second.at(idm).Y());
 	  }
 	}
 
@@ -4314,6 +4357,19 @@ int main (int argc, char** argv)
 	theSmallTree.m_METy_muup = vMET_shift_mes.first.Y();
 	theSmallTree.m_METx_mudown = vMET_shift_mes.second.X();
 	theSmallTree.m_METy_mudown = vMET_shift_mes.second.Y();
+
+	// Shifted DeepMET for MES
+	auto vDeepMET_ResponseTune_shift_mes = getShiftedMET_mes(vDeepMET_ResponseTune, theBigTree, DEBUG);
+	theSmallTree.m_DeepMET_ResponseTune_px_muup = vDeepMET_ResponseTune_shift_mes.first.X();
+	theSmallTree.m_DeepMET_ResponseTune_py_muup = vDeepMET_ResponseTune_shift_mes.first.Y();
+	theSmallTree.m_DeepMET_ResponseTune_px_mudown = vDeepMET_ResponseTune_shift_mes.second.X();
+	theSmallTree.m_DeepMET_ResponseTune_py_mudown = vDeepMET_ResponseTune_shift_mes.second.Y();
+
+	auto vDeepMET_ResolutionTune_shift_mes = getShiftedMET_mes(vDeepMET_ResolutionTune, theBigTree, DEBUG);
+	theSmallTree.m_DeepMET_ResolutionTune_px_muup = vDeepMET_ResolutionTune_shift_mes.first.X();
+	theSmallTree.m_DeepMET_ResolutionTune_py_muup = vDeepMET_ResolutionTune_shift_mes.first.Y();
+	theSmallTree.m_DeepMET_ResolutionTune_px_mudown = vDeepMET_ResolutionTune_shift_mes.second.X();
+	theSmallTree.m_DeepMET_ResolutionTune_py_mudown = vDeepMET_ResolutionTune_shift_mes.second.Y();
 
 	// Shifted MET for JES total
 	auto vMET_shift_jetTot = getShiftedMET_jetTot(N_jecSources, vMET, theBigTree, JECprovider, DEBUG);
