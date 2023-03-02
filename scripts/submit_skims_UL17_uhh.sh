@@ -8,13 +8,13 @@ THIS_FILE="$( [ ! -z "$ZSH_VERSION" ] && echo "${(%):-%x}" || echo "${BASH_SOURC
 THIS_DIR="$( cd "$( dirname "$THIS_FILE" )" && pwd )"
 KLUB_DIR="$( cd "$( dirname "$THIS_DIR" )" && pwd )"
 
-OUTDIR="SKIMS_uhh_2017_v4_21Feb23"
+OUTDIR="SKIMS_uhh_2017_v4_02Mar23"
 INDIR="${KLUB_DIR}/inputFiles"
 PUDIR="/nfs/dust/cms/user/kramerto/hbt_static_files/KLUBAnalysis/weights/PUreweight/UL_Run2_PU_SF/2017"
 SKIMDIR="/nfs/dust/cms/user/$( whoami )/hbt_resonant_run2/HHSkims"
 
-STITCHING_ON="0"
-DRYRUN="1"
+STITCHING_ON="1"
+DRYRUN="0"
 RESUBMIT="0"
 LIST_SCRIPT="scripts/makeListOnStorage_uhh.py"
 IN_TAG="uhh_2017_v4"
@@ -188,19 +188,34 @@ run_skim "signal" "SKIM_VBF_Radion_m3000" "VBFToRadionToHHTo2B2Tau_M-3000_TuneCP
 ### SKIMS UL 2017, BACKGROUNDS ###
 ##################################
 
-run_skim "background" "SKIM_DY_incl"               "DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8"                         -x 6077.22 --DY True -g ${STITCHING_ON} -n 300 --rt 4
-run_skim "background" "SKIM_DY_HT70to100"          "DYJetsToLL_M-50_HT-70to100_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8"               --DY True -g ${STITCHING_ON} -n 300 --rt 4
-run_skim "background" "SKIM_DY_HT100to200"         "DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8"              --DY True -g ${STITCHING_ON} -n 300 --rt 4
-run_skim "background" "SKIM_DY_HT200to400"         "DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8"              --DY True -g ${STITCHING_ON} -n 300 --rt 4
-run_skim "background" "SKIM_DY_HT400to600"         "DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8"              --DY True -g ${STITCHING_ON} -n 300 --rt 4
-run_skim "background" "SKIM_DY_HT600to800"         "DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8"              --DY True -g ${STITCHING_ON} -n 300 --rt 4
-run_skim "background" "SKIM_DY_HT800to1200"        "DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8"             --DY True -g ${STITCHING_ON} -n 300 --rt 4
-run_skim "background" "SKIM_DY_HT1200to2500"       "DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8"            --DY True -g ${STITCHING_ON} -n 300 --rt 4
-run_skim "background" "SKIM_DY_HT2500toInf"        "DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8"             --DY True -g ${STITCHING_ON} -n 300 --rt 4
-run_skim "background" "SKIM_DY_1j"                 "DY1JetsToLL_M-50_MatchEWPDG20_TuneCP5_13TeV-madgraphMLM-pythia8"               --nj 1 --DY True -g ${STITCHING_ON} -n 300 --rt 4
-run_skim "background" "SKIM_DY_2j"                 "DY2JetsToLL_M-50_MatchEWPDG20_TuneCP5_13TeV-madgraphMLM-pythia8"               --nj 2 --DY True -g ${STITCHING_ON} -n 300 --rt 4
-run_skim "background" "SKIM_DY_3j"                 "DY3JetsToLL_M-50_MatchEWPDG20_TuneCP5_13TeV-madgraphMLM-pythia8"               --nj 3 --DY True -g ${STITCHING_ON} -n 300 --rt 4
-run_skim "background" "SKIM_DY_4j"                 "DY4JetsToLL_M-50_MatchEWPDG20_TuneCP5_13TeV-madgraphMLM-pythia8"               --nj 4 --DY True -g ${STITCHING_ON} -n 300 --rt 4
+#run_skim "background" "SKIM_DY_incl"               "DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8"                         -x 6077.22 --DY True -g ${STITCHING_ON} -n 300 --rt 4
+#run_skim "background" "SKIM_DY_HT70to100"          "DYJetsToLL_M-50_HT-70to100_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8"               --DY True -g ${STITCHING_ON} -n 300 --rt 4
+#run_skim "background" "SKIM_DY_HT100to200"         "DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8"              --DY True -g ${STITCHING_ON} -n 300 --rt 4
+#run_skim "background" "SKIM_DY_HT200to400"         "DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8"              --DY True -g ${STITCHING_ON} -n 300 --rt 4
+#run_skim "background" "SKIM_DY_HT400to600"         "DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8"              --DY True -g ${STITCHING_ON} -n 300 --rt 4
+#run_skim "background" "SKIM_DY_HT600to800"         "DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8"              --DY True -g ${STITCHING_ON} -n 300 --rt 4
+#run_skim "background" "SKIM_DY_HT800to1200"        "DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8"             --DY True -g ${STITCHING_ON} -n 300 --rt 4
+#run_skim "background" "SKIM_DY_HT1200to2500"       "DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8"            --DY True -g ${STITCHING_ON} -n 300 --rt 4
+#run_skim "background" "SKIM_DY_HT2500toInf"        "DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8"             --DY True -g ${STITCHING_ON} -n 300 --rt 4
+#run_skim "background" "SKIM_DY_1j"                 "DY1JetsToLL_M-50_MatchEWPDG20_TuneCP5_13TeV-madgraphMLM-pythia8"               --nj 1 --DY True -g ${STITCHING_ON} -n 300 --rt 4
+#run_skim "background" "SKIM_DY_2j"                 "DY2JetsToLL_M-50_MatchEWPDG20_TuneCP5_13TeV-madgraphMLM-pythia8"               --nj 2 --DY True -g ${STITCHING_ON} -n 300 --rt 4
+#run_skim "background" "SKIM_DY_3j"                 "DY3JetsToLL_M-50_MatchEWPDG20_TuneCP5_13TeV-madgraphMLM-pythia8"               --nj 3 --DY True -g ${STITCHING_ON} -n 300 --rt 4
+#run_skim "background" "SKIM_DY_4j"                 "DY4JetsToLL_M-50_MatchEWPDG20_TuneCP5_13TeV-madgraphMLM-pythia8"               --nj 4 --DY True -g ${STITCHING_ON} -n 300 --rt 4
+
+
+# NLO DY x-secs taken from XSDB and multiplied by k-factor from NLO to NNLO: 6077.22 [1] / 6404.0 [2]
+# [1] NNLO x-sec for inclusive DYJetsToLL_M-50 sample taken from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeV
+# [2] https://cms-gen-dev.cern.ch/xsdb/?searchQuery=DAS%3DDYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8
+run_skim "background" "SKIM_DY_amc_incl"           "DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8"                               -x 6077.22  --DY 0 -g ${STITCHING_ON} -n 300 --rt 4
+run_skim "background" "SKIM_DY_amc_PtZ_0To50"      "DYJetsToLL_LHEFilterPtZ-0To50_MatchEWPDG20_TuneCP5_13TeV-amcatnloFXFX-pythia8"    -x 1409.22  --DY 0 -g ${STITCHING_ON} -n 300 --rt 4
+run_skim "background" "SKIM_DY_amc_PtZ_50To100"    "DYJetsToLL_LHEFilterPtZ-50To100_MatchEWPDG20_TuneCP5_13TeV-amcatnloFXFX-pythia8"  -x 377.12   --DY 0 -g ${STITCHING_ON} -n 300 --rt 4
+run_skim "background" "SKIM_DY_amc_PtZ_100To250"   "DYJetsToLL_LHEFilterPtZ-100To250_MatchEWPDG20_TuneCP5_13TeV-amcatnloFXFX-pythia8" -x 92.24    --DY 0 -g ${STITCHING_ON} -n 300 --rt 4
+run_skim "background" "SKIM_DY_amc_PtZ_250to400"   "DYJetsToLL_LHEFilterPtZ-250To400_MatchEWPDG20_TuneCP5_13TeV-amcatnloFXFX-pythia8" -x 3.512    --DY 0 -g ${STITCHING_ON} -n 300 --rt 4
+run_skim "background" "SKIM_DY_amc_PtZ_400to650"   "DYJetsToLL_LHEFilterPtZ-400To650_MatchEWPDG20_TuneCP5_13TeV-amcatnloFXFX-pythia8" -x 0.4826   --DY 0 -g ${STITCHING_ON} -n 300 --rt 4
+run_skim "background" "SKIM_DY_amc_PtZ_650toInf"   "DYJetsToLL_LHEFilterPtZ-650ToInf_MatchEWPDG20_TuneCP5_13TeV-amcatnloFXFX-pythia8" -x 0.04487  --DY 0 -g ${STITCHING_ON} -n 300 --rt 4
+run_skim "background" "SKIM_DY_amc_0j"             "DYJetsToLL_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8"                                 -x 4867.28  --DY 0 -g ${STITCHING_ON} -n 300 --rt 4
+run_skim "background" "SKIM_DY_amc_1j"             "DYJetsToLL_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8"                                 -x 902.95   --DY 0 -g ${STITCHING_ON} -n 300 --rt 4
+run_skim "background" "SKIM_DY_amc_2j"             "DYJetsToLL_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8"                                 -x 342.96   --DY 0 -g ${STITCHING_ON} -n 300 --rt 4
 
 run_skim "background" "SKIM_WJets_HT0To70"         "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8"                                 -x 48917.48 -y 1.213784 -z 70 -n 20 --rt 4
 run_skim "background" "SKIM_WJets_HT70To100"       "WJetsToLNu_HT-70To100_TuneCP5_13TeV-madgraphMLM-pythia8"                      -x 1362     -y 1.213784       -n 20 --rt 4
