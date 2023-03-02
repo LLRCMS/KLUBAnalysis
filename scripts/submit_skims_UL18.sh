@@ -283,17 +283,21 @@ DATA_MAP=(
     #["TTTo2L2Nu"]="-n 500 -x 88.29"
     #["TTToSemiLeptonic"]="-n 500 -x 365.34"
 
-    ["DYJets.+_M-50_T.+amc"]="-n 600 -x 6077.22 -g ${STITCHING_ON} --DY 0" # inclusive NLO
-    # ["DYJetsToLL_LHEFilterPtZ-0To50"]="-n 100   -x ${DYXSEC} -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_LHEFilterPtZ-50To100"]="-n 600 -x 397.4     -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_LHEFilterPtZ-100To250"]="-n 600 -x  97.2     -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_LHEFilterPtZ-250To400"]="-n 600 -x   3.701   -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_LHEFilterPtZ-400To650"]="-n 600 -x   0.5086  -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_LHEFilterPtZ-650ToInf"]="-n 600 -x   0.04728 -g ${STITCHING_ON} --DY 0"
+    # NLO DY x-secs taken from XSDB and multiplied by k-factor from NLO to NNLO: 6077.22 [1] / 6404.0 [2]
+    # [1] NNLO x-sec for inclusive DYJetsToLL_M-50 sample taken from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeV
+    # [2] https://cms-gen-dev.cern.ch/xsdb/?searchQuery=DAS%3DDYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8
 
-    # ["DYJetsToLL_0J"]="-n 600 -x 5129.  -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_1J"]="-n 600  -x  951.5 -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_2J"]="-n 600  -x  361.4 -g ${STITCHING_ON} --DY 0"
+    ["DYJets.+_M-50_T.+amc"]="-n 600 -x 6077.22 -g ${STITCHING_ON} --DY 0" # inclusive NLO
+    # ["DYJetsToLL_LHEFilterPtZ-0To50"]="-n 100   -x 1409.22 -g ${STITCHING_ON} --DY 0"
+    # ["DYJetsToLL_LHEFilterPtZ-50To100"]="-n 600 -x 377.12     -g ${STITCHING_ON} --DY 0"
+    # ["DYJetsToLL_LHEFilterPtZ-100To250"]="-n 600 -x  92.24     -g ${STITCHING_ON} --DY 0"
+    # ["DYJetsToLL_LHEFilterPtZ-250To400"]="-n 600 -x   3.512   -g ${STITCHING_ON} --DY 0"
+    # ["DYJetsToLL_LHEFilterPtZ-400To650"]="-n 600 -x   0.4826  -g ${STITCHING_ON} --DY 0"
+    # ["DYJetsToLL_LHEFilterPtZ-650ToInf"]="-n 600 -x   0.04487 -g ${STITCHING_ON} --DY 0"
+
+    # ["DYJetsToLL_0J"]="-n 600 -x 4867.28.  -g ${STITCHING_ON} --DY 0"
+    # ["DYJetsToLL_1J"]="-n 600  -x  902.95 -g ${STITCHING_ON} --DY 0"
+    # ["DYJetsToLL_2J"]="-n 600  -x  342.96 -g ${STITCHING_ON} --DY 0"
 
     ### 
     ###### LO samples, DY weights exist (--DY 1)
