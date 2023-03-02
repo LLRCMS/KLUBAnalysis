@@ -8,13 +8,13 @@ THIS_FILE="$( [ ! -z "$ZSH_VERSION" ] && echo "${(%):-%x}" || echo "${BASH_SOURC
 THIS_DIR="$( cd "$( dirname "$THIS_FILE" )" && pwd )"
 KLUB_DIR="$( cd "$( dirname "$THIS_DIR" )" && pwd )"
 
-OUTDIR="SKIMS_uhh_2017_v4_21Feb23"
+OUTDIR="SKIMS_uhh_2017_v4_02Mar23"
 INDIR="${KLUB_DIR}/inputFiles"
 PUDIR="/nfs/dust/cms/user/kramerto/hbt_static_files/KLUBAnalysis/weights/PUreweight/UL_Run2_PU_SF/2017"
 SKIMDIR="/nfs/dust/cms/user/$( whoami )/hbt_resonant_run2/HHSkims"
 
-STITCHING_ON="0"
-DRYRUN="1"
+STITCHING_ON="1"
+DRYRUN="0"
 RESUBMIT="0"
 LIST_SCRIPT="scripts/makeListOnStorage_uhh.py"
 IN_TAG="uhh_2017_v4"
