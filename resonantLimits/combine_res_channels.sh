@@ -9,7 +9,7 @@ VAR="DNNoutSM_kl_1"
 SIGNAL="ggFRadion"
 PERIOD=""
 PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
-BASEDIR="/home/llr/cms/${USER}/CMSSW_11_1_9/src/KLUBAnalysis"
+BASEDIR="${HOME}/CMSSW_11_1_9/src/KLUBAnalysis"
 
 HELP_STR="Prints this help message."
 TAG_STR="(String) Defines tag for the output. Defaults to '${TAG}'."

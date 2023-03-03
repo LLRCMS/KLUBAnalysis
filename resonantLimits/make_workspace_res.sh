@@ -8,7 +8,7 @@ declare -a MASSES;
 TAG="10Feb_UL18"
 VAR="DNNoutSM_kl_1"
 SIGNAL="ggFRadion"
-BASEDIR="/home/llr/cms/${USER}/CMSSW_11_1_9/src/KLUBAnalysis"
+BASEDIR="${HOME}/CMSSW_11_1_9/src/KLUBAnalysis"
 
 HELP_STR="Prints this help message."
 TAG_STR="(String) Defines tag for the output. Defaults to '${TAG}'."

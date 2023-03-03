@@ -11,7 +11,7 @@ DRYRUN="0"
 PERIOD=""
 PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
 EOS_USER="bfontana"
-BASEDIR="/home/llr/cms/${USER}/CMSSW_11_1_9/src/KLUBAnalysis"
+BASEDIR="${HOME}/CMSSW_11_1_9/src/KLUBAnalysis"
 
 declare -a MASSES;
 declare -a CHANNELS;

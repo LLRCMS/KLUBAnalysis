@@ -6,7 +6,7 @@ declare -a MASSES;
 TAG=""
 VAR="DNNoutSM_kl_1"
 SIGNAL="ggFRadion"
-BASEDIR="/home/llr/cms/${USER}/CMSSW_11_1_9/src/KLUBAnalysis"
+BASEDIR="${HOME}/CMSSW_11_1_9/src/KLUBAnalysis"
 
 ### Argument parsing
 HELP_STR="Prints this help message."
