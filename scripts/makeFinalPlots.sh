@@ -5,8 +5,8 @@ DRYRUN="0"
 NOSIG="0"
 NODATA="0"
 TAG=""
-CHANNEL=""
-CHANNEL_CHOICES=( "ETau" "MuTau" "TauTau" )
+CHANNEL="ETau"
+CHANNEL_CHOICES=("ETau" "MuTau" "TauTau")
 SELECTION="baseline"
 SELECTION_CHOICES=( "baseline" "s1b1jresolvedMcut" "s2b0jresolvedMcut" "sboostedLLMcut" )
 DATA_PERIOD="UL18"
@@ -14,6 +14,7 @@ DATA_PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
 REG="SR"  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
 REG_CHOICES=( "SR" "SStight" "OSinviso" "SSinviso" )
 EOS_USER="bfontana"
+CFGFILE="mainCfg_${CHANNEL}_${DATA_PERIOD}.cfg"
 
 ### Argument parsing
 HELP_STR="Prints this help message."
@@ -25,19 +26,21 @@ DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defa
 REG_STR="(String) Which region to consider: A: SR, B: SStight, C: OSinviso, D: SSinviso, B': SSrlx. Defaults to '${REG}'."
 NOSIG_STR="(Boolean) Do not include signal samples. Defaults to '${NOSIG}'."
 NODATA_STR="(Boolean) Do not include data samples. Defaults to '${NODATA}'."
+CFGFILE_STR="(String) Configuration file used to retrieve some information. Defaults to '${CFG_FILE}'."
 function print_usage_submit_skims {
     USAGE=" 
     Run example: bash $(basename "$0") -t <some_tag>
 
-    -h / --help		[${HELP_STR}]
-    --dryrun		[${DRYRUN_STR}]
+    -h / --help		    [${HELP_STR}]
+    --dryrun		    [${DRYRUN_STR}]
     -c / --channel      [${CHANNEL_STR}]
     -s / --selection    [${SELECTION_STR}]
-    -t / --tag		[${TAG_STR}]
-    -r / --region	[${REG_STR}]
+    -t / --tag		    [${TAG_STR}]
+    -r / --region    	[${REG_STR}]
     -d / --data_period  [${DATAPERIOD_STR}]
     --nosig             [${NOSIG_STR}]
     --nodata            [${NODATA_STR}]
+    --cfg               [${CFGFILE_STR}]
 
 "
     printf "${USAGE}"
@@ -101,6 +104,11 @@ while [[ $# -gt 0 ]]; do
 	    ;;
 	--eos)
 	    EOS_USER="$2"
+	    shift # past argument
+	    shift # past value
+	    ;;
+	--cfg)
+	    CFGFILE="$2"
 	    shift # past argument
 	    shift # past value
 	    ;;
@@ -172,7 +180,7 @@ fi
 ### Argument parsing: information for the user
 echo "------ Arguments --------------"
 printf "DRYRUN\t\t= ${DRYRUN}\n"
-printf "TAG\t\t= ${TAG}\n"
+printf "TAG\t\t\t= ${TAG}\n"
 printf "DATA_PERIOD\t= ${DATA_PERIOD}\n"
 printf "CHANNEL\t\t= ${CHANNEL}\n"
 printf "SELECTION\t= ${SELECTION}\n"
@@ -180,12 +188,13 @@ printf "REGION\t\t= ${REG}\n"
 printf "EOS_USER\t= ${EOS_USER}\n"
 printf "NOSIG\t\t= ${NOSIG}\n"
 printf "NODATA\t\t= ${NODATA}\n"
+printf "CFGFILE\t\t= ${CFGFILE}\n"
 echo "-------------------------------"
 
 ### Ensure connection to /eos/ folder
 [[ ! -d ${EOS_DIR} ]] && /opt/exp_soft/cms/t3/eos-login -username ${EOS_USER} -init
 
-OPTIONS="--quit --ratio" # --sigscale 10 10" "--no-binwidth"
+OPTIONS="--quit --ratio " #"--no-binwidth"
 if [[ ${NOSIG} -eq 0 ]]; then
     OPTIONS+=" --signals ggFRadion280 ggFRadion400 ggFRadion550 ggFRadion800 ggFRadion1500 "
 else
@@ -208,31 +217,36 @@ function run_plot() {
 	comm="python ${PLOTTER} --indir ${MAIN_DIR} --outdir ${OUTDIR} "
 	comm+="--reg ${REG} "
 	comm+="--sel ${SELECTION} --channel ${CHANNEL} "
+	comm+="--cfg ${CFGFILE} "
 	comm+="--lumi ${LUMI} ${OPTIONS} $@"
 	[[ ${DRYRUN} -eq 1 ]] && echo "[DRYRUN] ${comm}" || ${comm}
 }
 
 declare -A VAR_MAP
 VAR_MAP=(
-	["dau1_pt"]="pT_{1}[GeV]"
-	["bjet1_pt"]="pT_{j1}[GeV]"
-	["bjet2_pt"]="pT_{j2}[GeV]"
-	["dau1_eta"]="eta_{1}[GeV]"
-	["bjet1_eta"]="eta_{j1}[GeV]"
-	["bjet2_eta"]="eta_{j2}[GeV]"
-	["bH_mass"]="m_{Hb}[Gev]"
-	["bH_pt"]="pT_{Hb}[Gev]"
-	["HH_mass"]="m_{HH}[GeV] --logy"
-	["HHKin_mass"]="m_{HHKin}[GeV] --logy"
-	["DNNoutSM_kl_1"]="DNN --logy"
-	)
+	["dau1_pt"]="pT_{1}[GeV]					--sigscale 100 "
+	["bjet1_pt"]="pT_{j1}[GeV]					--sigscale 200 "
+	["bjet2_pt"]="pT_{j2}[GeV]					--sigscale 250 "
+	["dau1_eta"]="eta_{1}[GeV]					--sigscale 70 "
+	["bjet1_eta"]="eta_{j1}[GeV]				--sigscale 80 "
+	["bjet2_eta"]="eta_{j2}[GeV]				--sigscale 70 "
+	["tauH_mass"]="m_{H#tau}[Gev]				--sigscale 50 "
+	["tauH_pt"]="pT_{H#tau}[Gev]				--sigscale 50 "
+	["tauH_SVFIT_mass"]="m_{H#tau_{SVFit}}[Gev] --sigscale 20 "
+	["bH_mass"]="m_{Hb}[Gev]					--sigscale 50 "
+	["bH_pt"]="pT_{Hb}[Gev]						--sigscale 150 "
+	["HH_mass"]="m_{HH}[GeV]					--sigscale 10 --logy "
+	["HHKin_mass"]="m_{HHKin}[GeV]				--sigscale 10 --logy "
+	["HH_mass"]="m_{HH}[GeV]					--sigscale 10 --logy --logx "
+	["HHKin_mass"]="m_{HHKin}[GeV]				--sigscale 10 --logy --logx "
+	["DNNoutSM_kl_1"]="DNN						--sigscale 10 --logy --equalwidth "
+)
 for avar in ${!VAR_MAP[@]}; do
     run_plot --var ${avar} --lymin 0.7 --label ${VAR_MAP[$avar]}
 done
 
 run mkdir -p ${WWW_DIR}
 if [ -d ${WWW_SUBDIR} ]; then
-    echo "removing"
     run rm -rf ${WWW_SUBDIR}
 fi
 
