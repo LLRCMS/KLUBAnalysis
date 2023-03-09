@@ -57,13 +57,13 @@ bool AnalysisHelper::readMainInfo()
     outputFileName_ = mainCfg_->readStringOpt("general::outputFileName");
   cout << "@@ output file  name   : " << outputFileName_<< endl;
 
-  if (mainCfg_->hasSect("merge"))
+  if (mainCfg_->hasSect("merge_plots"))
   {
     cout << "@@ will merge these samples: " << endl;
-    vector<string> samps_to_merge = mainCfg_->readListOfOpts("merge");
+    vector<string> samps_to_merge = mainCfg_->readListOfOpts("merge_plots");
     for (string s : samps_to_merge)
     {
-      sample_merge_list_.append(s, mainCfg_->readStringListOpt( string("merge::")+s));
+      sample_merge_list_.append(s, mainCfg_->readStringListOpt( string("merge_plots::")+s));
       cout << "   -- " << s << "   <==   ";
       for (unsigned int idx = 0; idx < sample_merge_list_.at(s).size(); ++idx)
       {

@@ -205,17 +205,6 @@ if [[ ${#CFG_FILES[@]} -eq 0 ]]; then
     exit 1;
 fi
 
-if [ ${PERIOD} == "UL18" ]; then
-    YEAR="2018"
-elif [ ${PERIOD} == "UL17" ]; then
-    YEAR="2017"
-elif [ ${PERIOD} == "UL16" ]; then
-    YEAR="2016"
-else
-  echo "ERROR: Data period ${PERIOD} is not supported! Pick one of the following: ${PERIOD_CHOICES[@]}"
-  exit
-fi
-
 LIMIT_DIR="${BASEDIR}/resonantLimits"
 CFG_DIR="${BASEDIR}/config"
 
@@ -223,7 +212,7 @@ declare -a COMMS;
 for ichn in "${!CHANNELS[@]}"; do
 	for jsel in "${!SELECTIONS[@]}"; do
 		HISTDIR="${MAIN_DIR}/${IN_TAGS[${ichn}]}"
-		comm_tmp="python ${LIMIT_DIR}/write_res_card.py -f ${HISTDIR}/analyzedOutPlotter.root --indir ${LIMIT_DIR} -o ${TAG} -c ${CHANNELS[${ichn}]} -y ${YEAR} -v ${VAR} -i ${CFG_DIR}/${CFG_FILES[${ichn}]} --selections ${SELECTIONS[${jsel}]} --masses ${MASSES[@]} --signal ${SIGNAL}"
+		comm_tmp="python ${LIMIT_DIR}/write_res_card.py -f ${HISTDIR}/analyzedOutPlotter.root --indir ${LIMIT_DIR} -o ${TAG} -c ${CHANNELS[${ichn}]} -y ${PERIOD} -v ${VAR} -i ${CFG_DIR}/${CFG_FILES[${ichn}]} --selections ${SELECTIONS[${jsel}]} --masses ${MASSES[@]} --signal ${SIGNAL}"
 		if [ ${ISRESONANT} -eq 1 ]; then
 			COMMS+=("${comm_tmp} -r")
 		else
@@ -238,14 +227,3 @@ done
 if [ ${DRYRUN} -eq 1 ]; then
     echo "Dry-run. The command above were not run."
 fi
-
-### Most useful options:
-# -f : input root file
-# -i : input cfg
-# -o : output name
-# -c : channel
-# -y : year
-# -b : bin-by-bin unc
-# -u : do not include the shape uncertainty
-# -t : theory unc
-# -r : 1 for resonant analysis setup

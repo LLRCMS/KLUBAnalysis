@@ -19,7 +19,7 @@ def parseOptions():
     parser.add_argument('-c', '--channel', default='TauTau', help='final state')
     parser.add_argument('-i', '--config', default='', help='config file')
     parser.add_argument('-s', '--overSel', default='', help='overwrite selection string')
-    parser.add_argument('-y', '--year', default='2018', help='year')
+    parser.add_argument('-y', '--period', default='UL18', help='data period')
     parser.add_argument('--signal', default='ggFRadion', help='signal')
     parser.add_argument('-v', '--var', default='DNNoutSM_kl_1',
                         help='variable to fit')
@@ -59,17 +59,17 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
     MCbackgrounds=[]
     processes=[]
     inRoot = ROOT.TFile.Open(opt.filename)
+    print('!!!!!!!!!!! ', backgrounds)
     for bkg in backgrounds:
-        #Add protection against empty processes => If I remove this I could build all bins at once instead of looping on the selections
         templateName = '{}_{}_SR_{}'.format(bkg, select, variable)
         try:
             template = inRoot.Get(templateName)
-            # template.Print()
-
-        except ReferenceError:
+        except (ReferenceError, AttributeError):
             print('File: {}'.format(opt.filename))
             print('Template: {}'.format(templateName))
             raise
+
+        print('yes!')
         if template.Integral()>0.000001:
             processes.append(bkg)
             if bkg != 'QCD':
@@ -103,7 +103,7 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
     #         print('[WARNING] Zero integral for signal {} in category {}.'.format(signals[proc], select))
     #         return -1
 
-    outstr = '_{}_{}_{}_13TeV'.format(opt.year, opt.channel, select)
+    outstr = '_{}_{}_{}_13TeV'.format(opt.period, opt.channel, select)
     hh_prefix = 'hhres' if opt.isResonant else 'hh'
     hh_ext = lambda ext : ('.{}.'.format(signals[0]) if opt.isResonant else '.') + ext
 
@@ -114,31 +114,31 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
             srate = template.Integral()
             rates.append(srate)
 
-        syst = systReader('../config/systematics_'+opt.year+'.cfg', signals, backgrounds, None)
+        syst = systReader('../config/systematics_'+opt.period+'.cfg', signals, backgrounds, None)
         syst.writeOutput(False)
         syst.verbose(True)
-        syst.addSystFile('../config/systematics_DY'+opt.year+'.cfg')
+        syst.addSystFile('../config/systematics_DY_'+opt.period+'.cfg')
         if opt.theory:
             syst.addSystFile('../config/syst_th.cfg')
-        if(opt.channel == 'TauTau'):
-            syst.addSystFile('../config/systematics_tautau.cfg')
-        elif(opt.channel == 'MuTau'):
-            syst.addSystFile('../config/systematics_mutau.cfg')
-        elif(opt.channel == 'ETau'):
-            syst.addSystFile('../config/systematics_etau.cfg')
 
+        if(opt.channel == 'ETau'):
+            syst.addSystFile('../config/systematics_etau_' + opt.period + '.cfg')
+        elif(opt.channel == 'MuTau'):
+            syst.addSystFile('../config/systematics_mutau_' + opt.period + '.cfg')
+        elif(opt.channel == 'TauTau'):
+            syst.addSystFile('../config/systematics_tautau_' + opt.period + '.cfg')
         syst.writeSystematics()
         proc_syst = {} # key = proc name; value = {systName: [systType, systVal]] } # too nested? \_(``)_/
         for proc in backgrounds: proc_syst[proc] = {}
         for proc in signals:     proc_syst[proc] = {}
 
-        systsShape = ['CMS_scale_t_DM0_'    + opt.year,
-                      'CMS_scale_t_DM1_'    + opt.year,
-                      'CMS_scale_t_DM10_'   + opt.year,
-                      'CMS_scale_t_DM11_'   + opt.year,
-                      'CMS_scale_t_eFake_'  + opt.year + '_DM0',
-                      'CMS_scale_t_eFake_'  + opt.year + '_DM1',
-                      'CMS_scale_t_muFake_' + opt.year,
+        systsShape = ['CMS_scale_t_DM0_'    + opt.period,
+                      'CMS_scale_t_DM1_'    + opt.period,
+                      'CMS_scale_t_DM10_'   + opt.period,
+                      'CMS_scale_t_DM11_'   + opt.period,
+                      'CMS_scale_t_eFake_'  + opt.period + '_DM0',
+                      'CMS_scale_t_eFake_'  + opt.period + '_DM1',
+                      'CMS_scale_t_muFake_' + opt.period,
 
                       'CMS_scale_j_FlavQCD', 
                       'CMS_scale_j_RelBal', 
@@ -146,23 +146,23 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
                       'CMS_scale_j_BBEC1', 
                       'CMS_scale_j_EC2', 
                       'CMS_scale_j_Abs', 
-                      'CMS_scale_j_BBEC1_'     + opt.year,
-                      'CMS_scale_j_EC2_'       + opt.year, 
-                      'CMS_scale_j_Abs_'       + opt.year, 
-                      'CMS_scale_j_HF_'        + opt.year, 
-                      'CMS_scale_j_RelSample_' + opt.year,
+                      'CMS_scale_j_BBEC1_'     + opt.period,
+                      'CMS_scale_j_EC2_'       + opt.period, 
+                      'CMS_scale_j_Abs_'       + opt.period, 
+                      'CMS_scale_j_HF_'        + opt.period, 
+                      'CMS_scale_j_RelSample_' + opt.period,
 
-                      'CMS_eff_j_PUJET_id_' + opt.year,
-                      'CMS_bbtt_' + opt.year + '_bTagSF' + ('L' if 'boosted' in select else 'M'),
-                      'CMS_bbtt_' + opt.year + 'etauFR_barrel',
-                      'CMS_bbtt_' + opt.year + 'etauFR_endcap',]
+                      'CMS_eff_j_PUJET_id_' + opt.period,
+                      'CMS_bbtt_' + opt.period + '_bTagSF' + ('L' if 'boosted' in select else 'M'),
+                      'CMS_bbtt_' + opt.period + 'etauFR_barrel',
+                      'CMS_bbtt_' + opt.period + 'etauFR_endcap',]
 
         if opt.channel == 'TauTau':
             PTnames = ('40toInf',)
         else:
             PTnames = ('20to25', '25to30', '30to35', '35to40', '40toInf')
         for n in PTnames:
-            systsShape.append('CMS_eff_t_id_pt' + n + '_' + opt.year)
+            systsShape.append('CMS_eff_t_id_pt' + n + '_' + opt.period)
 
         # Add tau trigger uncertainties (4 unc. depending on DM for tau legs + 2 unc. for ele and mu legs)
         # For TauTau channel in 2017 and 2018 add also the the VBF trigger of jet legs
@@ -171,26 +171,32 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
         if opt.channel == 'MuTau':
             DMs.append('mu')
         if opt.channel == 'ETau':
-            if '2016' in opt.year:
+            if '16' in opt.period:
                 DMs = ['ele']
             else:
                 DMs.append('ele')
-        if opt.channel == 'TauTau' and opt.year in ('2017', '2018'):
+        if opt.channel == 'TauTau' and any(x in opt.period for x in ('17', '18')):
             DMs.append('Jet')
         for n in DMs:
-            systsShape.append('CMS_bbtt_' + opt.year + '_trigSF' + n)
+            systsShape.append('CMS_bbtt_' + opt.period + '_trigSF' + n)
 
         systsNorm  = []  # <-- THIS WILL BE FILLED FROM CONFIGS
-
+        # print(syst.SystNames)
+        # print()
+        # print(syst.SystValues)
+        # print()
+        # print(syst.SystProcesses)
         for isy in range(len(syst.SystNames)) :
-            if "CMS_scale_t" in syst.SystNames[isy] or "CMS_scale_j" in syst.SystNames[isy]: continue
-            for iproc in range(len(syst.SystProcesses[isy])) :
+            if any(x in syst.SystNames[isy] for x in ('CMS_scale_t', 'CMS_scale_j')):
+                continue
+            for iproc in range(len(syst.SystProcesses[isy])):
                 systVal = syst.SystValues[isy][iproc]
                 proc_syst[syst.SystProcesses[isy][iproc]][syst.SystNames[isy]] = [syst.SystTypes[isy], systVal]
                 systsNorm.append(syst.SystNames[isy])
 
         if len(systsNorm) > 0:
             systsNorm = list(dict.fromkeys(systsNorm))
+        #print(systsNorm)
 
         nominalShapes_toSave, nominalShapes_newName = ([] for _ in range(2))
         for proc in backgrounds:
@@ -385,9 +391,10 @@ backgrounds = incfg.readListOption('general::backgrounds')
 selections  = opt.selections
 
 ## replace what was merged
-if incfg.hasSection('merge'):
-    for groupname in incfg.config['merge']:
-        mergelist = incfg.readListOption('merge::'+groupname)
+mergesec = 'merge_limits'
+if incfg.hasSection(mergesec):
+    for groupname in incfg.config[mergesec]:
+        mergelist = incfg.readListOption(mergesec+'::'+groupname)
         theList = None
         if mergelist[0] in data:
             theList = data
@@ -395,11 +402,15 @@ if incfg.hasSection('merge'):
             theList = signals
         elif mergelist[0] in backgrounds:
             theList = backgrounds
+        else:
+            raise ValueError('Unknown sample {}.'.format(mergelist[0]))
+
         for x in mergelist:
             theList.remove(x)
         theList.append(groupname)
 
 backgrounds.append('QCD')
+
 # rename signals following model convention
 for i,sig in enumerate(signals):
     if 'GGHH_NLO' in sig:

@@ -9,7 +9,6 @@ from array import array
 from ctypes import c_double, c_float
 
 import modules.ConfigReader as cfgr
-import modules.OutputManager as omng
 import ROOT
 
 def findInFolder(folder, pattern):

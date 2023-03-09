@@ -7,7 +7,6 @@ import fnmatch
 import math
 from array import array
 import modules.ConfigReader as cfgr
-import modules.OutputManager as omng
 
 def findInFolder (folder, pattern):
         ll = []
