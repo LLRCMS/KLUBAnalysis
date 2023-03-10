@@ -1402,13 +1402,13 @@ int main (int argc, char** argv)
       genHHDecMode = 0; // dummy protection if couldn't find initial H
       cout << "** ERROR: negative dec mode, for safety set it ot 0" << endl;
     }
-    double EvtW;
-    if (theBigTree.npu >= 0 && theBigTree.npu <= 99) // good PU weights
-      EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) * topPtReweight * HHweight) : 1.0;
-    else if (theBigTree.npu >= 100)                  // use the last available bin for the PU weight
-      EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,99, PUreweightFile) * topPtReweight * HHweight) : 1.0;
-    else                                             // if npu<0 --> bug in MC --> weight=0
-      EvtW = isMC ? 0.0 : 1.0;
+
+    double EvtW = isMC ? 0.0 : 1.0;
+    // use the last available bin for the PU weight
+    float npu = std::min(theBigTree.npu, 99.0f);
+    if (npu >= 0) {
+      EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,npu,PUreweightFile) * topPtReweight * HHweight * stitchWeight) : 1.0;
+    }
 
     if (isMC)
     {
