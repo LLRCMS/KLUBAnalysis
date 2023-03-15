@@ -39,8 +39,6 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  // ah.prepareSamplesHistos();
-  // ah.prepareSamples2DHistos();
   ah.prepareHistos();
   ah.dump(2); // can set a level of detail
   ah.fillHistos();

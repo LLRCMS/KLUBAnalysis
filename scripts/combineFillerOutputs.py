@@ -74,8 +74,8 @@ if __name__ == '__main__':
         raise RuntimeError()
 
     outName = findInFolder(op.join(args.dir, args.tag + '/'), outName+outExt)
-    print('====== ', args.dir, args.tag, cfgName)
-    cfg        = cfgr.ConfigReader(op.join(args.dir, args.tag, cfgName))
+    cfgName = op.join(args.dir, args.tag, cfgName)
+    cfg        = cfgr.ConfigReader(cfgName)
     varList    = cfg.readListOption('general::variables')
     selDefList = cfg.readListOption('general::selections') ## the selection definition
     regDefList = cfg.readListOption('general::regions') ## the regions that are combined with the previous
@@ -85,10 +85,11 @@ if __name__ == '__main__':
     selList    = [x[0] + '_' + x[1] for x in list(itertools.product(selDefList, regDefList))]
      
     ## replace what was merged
-    if cfg.hasSection('merge'):
-        for groupname in cfg.config['merge']: 
-            mergelist = cfg.readListOption('merge::'+groupname)
-            mergelistA = cfg.readOption('merge::'+groupname)
+    sec = 'merge_plots'
+    if cfg.hasSection(sec):
+        for groupname in cfg.config[sec]:
+            mergelist = cfg.readListOption(sec + '::' + groupname)
+            mergelistA = cfg.readOption(sec + '::' + groupname)
             theList = None
             if   mergelist[0] in dataList:
                 theList = dataList
@@ -104,6 +105,8 @@ if __name__ == '__main__':
                     print("'{}' not in list!".format(x))
                     raise
             theList.append(groupname)
+    else:
+        raise ValueError('Section [{}] missing from {}.'.format(sec, cfgName))
      
     rootfile = ROOT.TFile.Open(op.join(args.dir, args.tag, outName))
     print('... opening {}'.format(op.join(args.dir, args.tag, outName)))

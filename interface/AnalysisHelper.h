@@ -103,7 +103,6 @@ private:
   ordered_map <std::string, std::shared_ptr<Sample>> data_samples_;
   ordered_map <std::string, std::shared_ptr<Sample>> sig_samples_;
   ordered_map <std::string, std::shared_ptr<Sample>> bkg_samples_;
-
   ordered_map <std::string, std::vector<std::string>> sample_merge_list_;
 
   std::string nominal_name_;

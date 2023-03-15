@@ -521,8 +521,8 @@ if __name__ == "__main__" :
         cfgName = 'mainCfg_' + args.channel + '_UL18.cfg'
     else:
         cfgName = args.cfg
-    cfgPath = op.join(args.indir, cfgName)
-    cfg = cfgr.ConfigReader(cfgPath)
+    cfgName = op.join(args.indir, cfgName)
+    cfg = cfgr.ConfigReader(cfgName)
     bkgList = cfg.readListOption('general::backgrounds')
 
     doQCD = True
@@ -540,14 +540,18 @@ if __name__ == "__main__" :
                  'other': (col.GetColor("#ED635E"), col.GetColor("#d85a56"))}
 
     plotTitle = args.title if args.title else ""        
-    dataList = ["data_obs"]
-    if cfg.hasSection("merge"): 
-        for groupname in cfg.config['merge']:
+    dataList = ['data_obs']
+    sec = 'merge_plots'
+    if cfg.hasSection(sec):
+        for groupname in cfg.config[sec]:
             if "data" in groupname: continue
-            mergelist = cfg.readListOption('merge::'+groupname)
+            mergelist = cfg.readListOption(sec+'::'+groupname)
             for x in mergelist:
                 bkgList.remove(x)
             bkgList.append(groupname)
+    else:
+        raise ValueError('Section [{}] missing from {}.'.format(sec, cfgName))
+
 
     outplot = findInFolder(args.indir+'/', 'analyzedOutPlotter.root')
     if not 'Tau' in args.channel:

@@ -1,9 +1,12 @@
 ### parser of the config used for the analysis ###
-import re
+import os
 import sys
+import re
 
 class ConfigReader:
     def __init__  (self, cfgInputFile) :
+        if not os.path.isfile(cfgInputFile):
+            raise ValueError('Input file {} does not exist!'.format(cfgInputFile))
         self.cfgName = cfgInputFile
         self.lines = []
         self.config = {}
@@ -14,13 +17,13 @@ class ConfigReader:
         """ removes all comments and return cleaned list of lines"""
         filelist = []
         try :
-            with open (self.cfgName) as fIn:
+            with open(self.cfgName) as fIn:
                 for line in fIn:
                     line = (line.split("#")[0]).strip()
                     if line:
                         self.lines.append(line)
         except IOError:
-            print "*** WARNING: cfg file " , self.cfgName , " not found"
+            print('*** WARNING: cfg file {} not found'.format(self.cfgName))
             return
 
         #return filelist
@@ -28,7 +31,7 @@ class ConfigReader:
         """ processes an option line and returns a pair (name, value) """
         ll = line.split ('=', 1)
         if len (ll) < 2:
-            print "Cannot parse option " , line
+            print('Cannot parse option {}'.format(line))
             sys.exit()
         result = (ll[0].strip() , ll[1].strip())
         return result
@@ -40,29 +43,28 @@ class ConfigReader:
             m = re.search ('\[(.*)\]', line)
             if m and not '=' in line: # declaration of a new section. If a '=' is also found, it is considered as an assignment
                 section = m.group(1)
-                #print "new section: " , section
                 self.config[section] = {}
             else: # is an option
                 if not section: # protection
-                    print "Cannot parse config: there are entries outside a [section]"
+                    print('Cannot parse config: there are entries outside a [section]')
                     sys.exit()
                 pair = self.processOption (line)
                 self.config[section][pair[0]] = pair[1]
 
-    def readOption (self, optName) :
+    def readOption(self, optName) :
         """ read the config with the c++ style section::option ; also removes any non-alphanumeric symbol in optName """
         name = optName.split ('::')
         if len (name) < 2:
-            print "readOption(): pleae pass option as section::option"
+            print('readOption(): pleae pass option as section::option')
             return None
         # name[1] = re.sub('[\W_]+', '', name[1]) # removes all non-alphanumeric characters, not needed for latest parser
         sec = name[0]
         opt = name[1]
         if not sec in self.config:
-            print "NO SEC" , sec , "in CONFIG"
+            print('NO SEC {} in CONFIG'.format(sec))
             return None
         if not opt in self.config[sec]:
-            print "NO OPT" , opt , "in CONFIG at" , sec
+            print('NO OPT {} in CONFIG at {}'.format(opt,sec))
             return None
         return self.config[sec][opt]
 

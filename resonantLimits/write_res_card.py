@@ -36,8 +36,7 @@ def parseOptions():
     return parser.parse_args()
 
 def writeCard(backgrounds, signals, select, varfit, regions=()):
-    if ('0b0j' in select or '1b1j' in select or '2b0j' in select or
-        'boosted' in select or 'VBFloose' in select):
+    if any(x in select for x in ('0b0j', '1b1j', '2b0j', 'boosted', 'VBFloose')):
         variable = varfit
     elif 'GGFclass'   in select : variable = 'mdnn__v2__kl1_c2v1_c31__hh_ggf',
     elif 'VBFclass'   in select : variable = 'mdnn__v2__kl1_c2v1_c31__hh_vbf',
@@ -59,7 +58,7 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
     MCbackgrounds=[]
     processes=[]
     inRoot = ROOT.TFile.Open(opt.filename)
-    print('!!!!!!!!!!! ', backgrounds)
+
     for bkg in backgrounds:
         templateName = '{}_{}_SR_{}'.format(bkg, select, variable)
         try:
@@ -69,7 +68,6 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
             print('Template: {}'.format(templateName))
             raise
 
-        print('yes!')
         if template.Integral()>0.000001:
             processes.append(bkg)
             if bkg != 'QCD':
@@ -181,11 +179,6 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
             systsShape.append('CMS_bbtt_' + opt.period + '_trigSF' + n)
 
         systsNorm  = []  # <-- THIS WILL BE FILLED FROM CONFIGS
-        # print(syst.SystNames)
-        # print()
-        # print(syst.SystValues)
-        # print()
-        # print(syst.SystProcesses)
         for isy in range(len(syst.SystNames)) :
             if any(x in syst.SystNames[isy] for x in ('CMS_scale_t', 'CMS_scale_j')):
                 continue
@@ -196,7 +189,6 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
 
         if len(systsNorm) > 0:
             systsNorm = list(dict.fromkeys(systsNorm))
-        #print(systsNorm)
 
         nominalShapes_toSave, nominalShapes_newName = ([] for _ in range(2))
         for proc in backgrounds:
@@ -408,8 +400,6 @@ if incfg.hasSection(mergesec):
         for x in mergelist:
             theList.remove(x)
         theList.append(groupname)
-
-backgrounds.append('QCD')
 
 # rename signals following model convention
 for i,sig in enumerate(signals):
