@@ -31,6 +31,7 @@ def parseOptions():
     parser.add_argument('-r', '--isResonant', action='store_true', help='is Resonant analysis')
     parser.add_argument('-b', '--binbybin', action='store_true', help='add bin by bins systematics')
     parser.add_argument('-t', '--theory', action='store_true', help='add theory systematics')
+    parser.add_argument('--dy_syst', action='store_true', help='add DY systematics')
     parser.add_argument('--ws', dest='makeworkspace', action='store_true', default=False)
 
     return parser.parse_args()
@@ -63,15 +64,15 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
         templateName = '{}_{}_SR_{}'.format(bkg, select, variable)
         try:
             template = inRoot.Get(templateName)
+            if template.Integral() > 1E-6:
+                processes.append(bkg)
+                if bkg != 'QCD':
+                    MCbackgrounds.append(bkg)
+                    
         except (ReferenceError, AttributeError):
-            print('File: {}'.format(opt.filename))
+            print('\nFile: {}'.format(opt.filename))
             print('Template: {}'.format(templateName))
             raise
-
-        if template.Integral()>0.000001:
-            processes.append(bkg)
-            if bkg != 'QCD':
-                MCbackgrounds.append(bkg)
 
     rates = []
     iQCD = -1
@@ -115,46 +116,79 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
         syst = systReader('../config/systematics_'+opt.period+'.cfg', signals, backgrounds, None)
         syst.writeOutput(False)
         syst.verbose(True)
-        syst.addSystFile('../config/systematics_DY_'+opt.period+'.cfg')
+        if opt.dy_syst:
+            syst.addSystFile('../config/systematics_DY_'+opt.period+'.cfg')
         if opt.theory:
             syst.addSystFile('../config/syst_th.cfg')
 
-        if(opt.channel == 'ETau'):
+        if opt.channel == 'ETau':
             syst.addSystFile('../config/systematics_etau_' + opt.period + '.cfg')
-        elif(opt.channel == 'MuTau'):
+        elif opt.channel == 'MuTau':
             syst.addSystFile('../config/systematics_mutau_' + opt.period + '.cfg')
-        elif(opt.channel == 'TauTau'):
+        elif opt.channel == 'TauTau':
             syst.addSystFile('../config/systematics_tautau_' + opt.period + '.cfg')
         syst.writeSystematics()
+
         proc_syst = {} # key = proc name; value = {systName: [systType, systVal]] } # too nested? \_(``)_/
         for proc in backgrounds: proc_syst[proc] = {}
         for proc in signals:     proc_syst[proc] = {}
 
-        systsShape = ['CMS_scale_t_DM0_'    + opt.period,
-                      'CMS_scale_t_DM1_'    + opt.period,
-                      'CMS_scale_t_DM10_'   + opt.period,
-                      'CMS_scale_t_DM11_'   + opt.period,
-                      'CMS_scale_t_eFake_'  + opt.period + '_DM0',
-                      'CMS_scale_t_eFake_'  + opt.period + '_DM1',
-                      'CMS_scale_t_muFake_' + opt.period,
+        systsShape = [
+            # hadronic tau energy scale for decay mode 0
+            'CMS_scale_t_DM0_'    + opt.period,
+            # hadronic tau energy scale for decay mode 1
+            'CMS_scale_t_DM1_'    + opt.period,
+            # hadronic tau energy scale for decay mode 10
+            'CMS_scale_t_DM10_'   + opt.period,
+             # hadronic tau energy scale for decay mode 11
+            'CMS_scale_t_DM11_'   + opt.period,
 
-                      'CMS_scale_j_FlavQCD', 
-                      'CMS_scale_j_RelBal', 
-                      'CMS_scale_j_HF', 
-                      'CMS_scale_j_BBEC1', 
-                      'CMS_scale_j_EC2', 
-                      'CMS_scale_j_Abs', 
-                      'CMS_scale_j_BBEC1_'     + opt.period,
-                      'CMS_scale_j_EC2_'       + opt.period, 
-                      'CMS_scale_j_Abs_'       + opt.period, 
-                      'CMS_scale_j_HF_'        + opt.period, 
-                      'CMS_scale_j_RelSample_' + opt.period,
+            # energy scale of electrons reconstructed as hadronic taus for decay mode 0
+            'CMS_scale_t_eFake_'  + opt.period + '_DM0',
+            # energy scale of electrons reconstructed as hadronic taus for decay mode 1
+            'CMS_scale_t_eFake_'  + opt.period + '_DM1',
+            # energy scale of muons reconstructed as hadronic taus
+            'CMS_scale_t_muFake_' + opt.period,
 
-                      'CMS_eff_j_PUJET_id_' + opt.period,
-                      'CMS_bbtt_' + opt.period + '_bTagSF' + ('L' if 'boosted' in select else 'M'),
-                      'CMS_bbtt_' + opt.period + 'etauFR_barrel',
-                      'CMS_bbtt_' + opt.period + 'etauFR_endcap',]
+            # jet energy scale
+            'CMS_JES_Abs',
+            'CMS_JES_Abs_'       + opt.period,
+            'CMS_JES_BBEC1',
+            'CMS_JES_BBEC1_'     + opt.period,
+            'CMS_JES_EC2',
+            'CMS_JES_EC2_'       + opt.period,
+            'CMS_JES_FlavQCD', 
+            'CMS_JES_HF',
+            'CMS_JES_HF_'        + opt.period,             
+            'CMS_JES_RelBal', 
+            'CMS_JES_RelSample_' + opt.period,
 
+            # jets faking taus
+            'CMS_bbtt_' + opt.period + 'jetTauFakes_Barrel',
+            'CMS_bbtt_' + opt.period + 'jetTauFakes_Endcap',
+
+            # jet energy resolution
+            'CMS_res_j_' + opt.period,
+
+            # b tagging scale factors
+            'CMS_btag_LF_2016_2017_2018',
+            'CMS_btag_HF_2016_2017_2018',
+            'CMS_btag_cferr1_2016_2017_2018',
+            'CMS_btag_cferr2_2016_2017_2018',
+            'CMS_btag_hfstats1_2016_2017_2018',
+            'CMS_btag_hfstats2_2016_2017_2018',
+            'CMS_btag_lfstats1_2016_2017_2018',
+            'CMS_btag_lfstats2_2016_2017_2018',
+
+            # pile-up jet id scale factors
+            'CMS_eff_j_PUJET_id_' + opt.period,
+
+            # deep tau scale factors versus electrons
+            'CMS_bbtt_' + opt.period + '_etauFR_barrel',
+            'CMS_bbtt_' + opt.period + '_etauFR_endcap',
+            ]
+
+        # deep tau scale factors versus jets
         if opt.channel == 'TauTau':
             PTnames = ('40toInf',)
         else:
@@ -177,6 +211,12 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
             DMs.append('Jet')
         for n in DMs:
             systsShape.append('CMS_bbtt_' + opt.period + '_trigSF' + n)
+
+        # not considered until new POG SFs are available
+        # # custom tau ID scale factors
+        # if opt.channel=='TauTau' and '17' in opt.year:
+        #     for dm in DMs:
+        #         systsShape.append('CMS_bbtt_customSF2017' + dm)
 
         systsNorm  = []  # <-- THIS WILL BE FILLED FROM CONFIGS
         for isy in range(len(syst.SystNames)) :

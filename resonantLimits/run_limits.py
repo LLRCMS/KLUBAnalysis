@@ -85,7 +85,7 @@ if __name__ == "__main__":
     
     channels = ('ETau', 'MuTau', 'TauTau')
     tag_ = '22Feb'
-    suffix = '_mHH'
+    suffix = ''#'_mHH'
     in_tags = ['{}_{}_{}{}'.format(tag_, x, period, suffix) for x in channels]
     cfg_files = ['mainCfg_{}_{}{}.cfg'.format(x, period, suffix)
                  for x in channels]

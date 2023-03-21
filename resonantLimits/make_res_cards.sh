@@ -11,6 +11,7 @@ DRYRUN="0"
 PERIOD=""
 PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
 EOS_USER="bfontana"
+PREPOUT="prepared_outLimits.root"
 BASEDIR="${HOME}/CMSSW_11_1_9/src/KLUBAnalysis"
 
 declare -a MASSES;
@@ -32,6 +33,7 @@ CHANNELS_STR="(Array of strings) Channels."
 SELECTIONS_STR="(Array of strings) Selections."
 INTAGS_STR="(Array of strings) Tags used to produce the histograms. Go one-on-one with the channels used."
 BASEDIR_STR="(String) Base directory."
+PREP_STR="(String) Preparing histogram output filename."
 CFGFILE_STR="(Array of strings) Main configuration files, one per channel."
 
 function print_usage_submit_skims {
@@ -49,6 +51,7 @@ function print_usage_submit_skims {
     -b / --base         [${BASEDIR_STR}]
     -v / --var          [${VAR_STR}]
     -d / --data_period  [${DATAPERIOD_STR}]
+	-p / --prepout      [${PREP_STR}]
     -r / --nonresonant  [${NORES_STR}]
     --dryrun            [${DRYRUN_STR}]
 
@@ -113,6 +116,10 @@ while [[ $# -gt 0 ]]; do
             ;;
 	-t|--tag)
 	    TAG=${2}
+	    shift; shift;
+	    ;;
+	-p|--prepout)
+	    PREPOUT=${2}
 	    shift; shift;
 	    ;;
 	-b|--base)
@@ -211,29 +218,30 @@ CFG_DIR="${BASEDIR}/config"
 # prepare histograms (remove negative bins and/or scale systematics)
 declare -a COMMS_PREP;
 for ichn in "${!CHANNELS[@]}"; do
-	comm_tmp="python prepare_histos.py -f ${HISTDIR}/analyzedOutPlotter.root -o 28Dec2022_EFT -c ${CHANNELS[${ichn}]} -y ${PERIOD} -q 0 -B 1"
+	HISTDIR="${MAIN_DIR}/${IN_TAGS[${ichn}]}"
+	comm_tmp="python prepare_histos.py -f ${HISTDIR}/combined_outPlots.root -o ${PREPOUT} -c ${CHANNELS[${ichn}]} -y ${PERIOD} -q 0 -B 1"
 	COMMS_PREP+=("${comm_tmp}")
 done
 
 # parallelize over the channels
 [[ ${DRYRUN} -eq 1 ]] && parallel echo {} ::: "${COMMS_PREP[@]}" || parallel -j "${#CHANNELS[@]}" {} ::: "${COMMS_PREP[@]}"
 
-# write datacards
-declare -a COMMS_WRITE;
-for ichn in "${!CHANNELS[@]}"; do
-	for jsel in "${!SELECTIONS[@]}"; do
-		HISTDIR="${MAIN_DIR}/${IN_TAGS[${ichn}]}"
-		comm_tmp="python ${LIMIT_DIR}/write_res_card.py -f ${HISTDIR}/analyzedOutPlotter.root --indir ${LIMIT_DIR} -o ${TAG} -c ${CHANNELS[${ichn}]} -y ${PERIOD} -v ${VAR} -i ${CFG_DIR}/${CFG_FILES[${ichn}]} --selections ${SELECTIONS[${jsel}]} --masses ${MASSES[@]} --signal ${SIGNAL}"
-		if [ ${ISRESONANT} -eq 1 ]; then
-			COMMS_WRITE+=("${comm_tmp} -r")
-		else
-			COMMS_WRITE+=("${comm_tmp}")
-		fi
-	done
-done
+# # write datacards
+# declare -a COMMS_WRITE;
+# for ichn in "${!CHANNELS[@]}"; do
+# 	for jsel in "${!SELECTIONS[@]}"; do
+# 		HISTDIR="${MAIN_DIR}/${IN_TAGS[${ichn}]}"
+# 		comm_tmp="python ${LIMIT_DIR}/write_res_card.py -f ${HISTDIR}/prepared_outLimits.root --indir ${LIMIT_DIR} -o ${TAG} -c ${CHANNELS[${ichn}]} -y ${PERIOD} -v ${VAR} -i ${CFG_DIR}/${CFG_FILES[${ichn}]} --selections ${SELECTIONS[${jsel}]} --masses ${MASSES[@]} --signal ${SIGNAL}"
+# 		if [ ${ISRESONANT} -eq 1 ]; then
+# 			COMMS_WRITE+=("${comm_tmp} -r")
+# 		else
+# 			COMMS_WRITE+=("${comm_tmp}")
+# 		fi
+# 	done
+# done
 
-# parallelize over the channels
-[[ ${DRYRUN} -eq 1 ]] && parallel echo {} ::: "${COMMS_WRITE[@]}" || parallel -j 300% {} ::: "${COMMS_WRITE[@]}"
+# # parallelize over the channels
+# [[ ${DRYRUN} -eq 1 ]] && parallel echo {} ::: "${COMMS_WRITE[@]}" || parallel -j 300% {} ::: "${COMMS_WRITE[@]}"
 
 if [ ${DRYRUN} -eq 1 ]; then
     echo "Dry-run. The command above were not run."
