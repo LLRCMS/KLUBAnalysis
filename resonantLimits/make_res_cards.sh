@@ -208,21 +208,32 @@ fi
 LIMIT_DIR="${BASEDIR}/resonantLimits"
 CFG_DIR="${BASEDIR}/config"
 
-declare -a COMMS;
+# prepare histograms (remove negative bins and/or scale systematics)
+declare -a COMMS_PREP;
+for ichn in "${!CHANNELS[@]}"; do
+	comm_tmp="python prepare_histos.py -f ${HISTDIR}/analyzedOutPlotter.root -o 28Dec2022_EFT -c ${CHANNELS[${ichn}]} -y ${PERIOD} -q 0 -B 1"
+	COMMS_PREP+=("${comm_tmp}")
+done
+
+# parallelize over the channels
+[[ ${DRYRUN} -eq 1 ]] && parallel echo {} ::: "${COMMS_PREP[@]}" || parallel -j "${#CHANNELS[@]}" {} ::: "${COMMS_PREP[@]}"
+
+# write datacards
+declare -a COMMS_WRITE;
 for ichn in "${!CHANNELS[@]}"; do
 	for jsel in "${!SELECTIONS[@]}"; do
 		HISTDIR="${MAIN_DIR}/${IN_TAGS[${ichn}]}"
 		comm_tmp="python ${LIMIT_DIR}/write_res_card.py -f ${HISTDIR}/analyzedOutPlotter.root --indir ${LIMIT_DIR} -o ${TAG} -c ${CHANNELS[${ichn}]} -y ${PERIOD} -v ${VAR} -i ${CFG_DIR}/${CFG_FILES[${ichn}]} --selections ${SELECTIONS[${jsel}]} --masses ${MASSES[@]} --signal ${SIGNAL}"
 		if [ ${ISRESONANT} -eq 1 ]; then
-			COMMS+=("${comm_tmp} -r")
+			COMMS_WRITE+=("${comm_tmp} -r")
 		else
-			COMMS+=("${comm_tmp}")
+			COMMS_WRITE+=("${comm_tmp}")
 		fi
 	done
 done
 
 # parallelize over the channels
-[[ ${DRYRUN} -eq 1 ]] && parallel echo {} ::: "${COMMS[@]}" || parallel -j 300% {} ::: "${COMMS[@]}"
+[[ ${DRYRUN} -eq 1 ]] && parallel echo {} ::: "${COMMS_WRITE[@]}" || parallel -j 300% {} ::: "${COMMS_WRITE[@]}"
 
 if [ ${DRYRUN} -eq 1 ]; then
     echo "Dry-run. The command above were not run."
