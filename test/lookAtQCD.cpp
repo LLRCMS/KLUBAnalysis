@@ -109,7 +109,7 @@ int main (int argc, char** argv)
   if (argc==5)
     outFolder = atoi(argv[4]);
 
-  AnalysisHelper ah(argv[1]);
+  AnalysisHelper ah(argv[1], "merge_plots");
 
   if (split) ah.setSplitting(idx, njobs);
   ah.readSelections();

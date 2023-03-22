@@ -6,16 +6,19 @@ import datetime
 hourdate = datetime.datetime.now().strftime('%Y.%m.%d_%H.%M.%S').replace('.','-')
 
 parser = argparse.ArgumentParser(description='Command line parser of plotting options')
-parser.add_argument('--cfg', dest='cfg', required=True,
+parser.add_argument('--cfg', required=True,
                     help='name of the main cfg to run', default=None)
 parser.add_argument('-o', '--outdir', dest='outdir', required=False,
                     default=os.path.join('/data_CMS/cms/', os.environ['USER'], 'HHresonant_hist'),
                     help='name of working space (defaults to timestamp)', )
-parser.add_argument('-t', '--tag', dest='tag', required=False,
+parser.add_argument('-t', '--tag', required=False,
                     default='HistoFiller_'+hourdate,
                     help='name of working space (defaults to timestamp)', )
-parser.add_argument('--njobs', dest='njobs', required=False, type=int,
+parser.add_argument('--njobs', required=False, type=int,
                     help='number of jobs for parallelization', default=10)
+qhelp = ('size of the HTCondor queue; use `short` for nominals ' +
+         ' and `long` when running on systematic uncertainties')
+parser.add_argument('--queue', required=False, type=str, default='long', help=qhelp)
 FLAGS = parser.parse_args()
 
 exe        = 'testAnalysisHelper.exe'
@@ -25,7 +28,7 @@ def create_dir(d):
     if not os.path.exists(d):
         os.makedirs(d)
     else:
-        mes = 'Folder {d} already exists. You may want to remove it ith `rm -r {d}`'.format(d=d)
+        mes = 'Folder {d} already exists. You may want to remove it with `rm -r {d}`'.format(d=d)
         raise ValueError(mes)
 
 tagdir = os.path.join(FLAGS.outdir, FLAGS.tag)
@@ -60,7 +63,7 @@ with open(scriptpath_condor, 'w') as s:
                        '',
                        '+JobFlavour = "microcentury"',
                        '+JobBatchName = "{}"'.format(FLAGS.tag),
-                       'T3Queue = short',
+                       'T3Queue = {}'.format(FLAGS.queue),
                        'WNTag=el7',
                        '+SingularityCmd = ""',
                        'include : /opt/exp_soft/cms/t3_tst/t3queue |',

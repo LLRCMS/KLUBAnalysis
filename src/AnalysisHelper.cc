@@ -12,11 +12,12 @@ using namespace std;
 
 #define DEBUG true
 
-AnalysisHelper::AnalysisHelper(string cfgname)
+AnalysisHelper::AnalysisHelper(string cfgname, string merge_section)
 {
   TH1::SetDefaultSumw2(true);
 
   nominal_name_ = "NOMINAL"; // used for nominal systematics
+  merge_section_ = merge_section;
 
   nsplit_   = 1; // default: only 1 job
   idxsplit_ = 0;
@@ -52,19 +53,26 @@ bool AnalysisHelper::readMainInfo()
   lumi_ = mainCfg_->readFloatOpt("general::lumi");
   cout << "@@ lumi                : " << lumi_ << endl;
 
-  outputFileName_ = "outPlotter.root"; // override default only if specified
-  if (mainCfg_->hasOpt("general::outputFileName"))
-    outputFileName_ = mainCfg_->readStringOpt("general::outputFileName");
+  if(merge_section_ == "merge_plots") {
+    outputFileName_ = "outPlots.root";
+  }
+  else if(merge_section_ == "merge_limits") {
+    outputFileName_ = "outLimits.root";
+  }
+  else {
+	cout << "wrong option: " << merge_section_ <<  endl;
+	exit(1);
+  }
   cout << "@@ output file  name   : " << outputFileName_<< endl;
 
-  if (mainCfg_->hasSect("merge_plots"))
+  if (mainCfg_->hasSect(merge_section_))
 	{
-	  cout << "@@ will merge these samples: " << endl;
-	  vector<string> samps_to_merge = mainCfg_->readListOfOpts("merge_plots");
+	  cout << "@@ will merge these samples [" << merge_section_ << "]" << " : " << endl;
+	  vector<string> samps_to_merge = mainCfg_->readListOfOpts(merge_section_);
 	  for (string s : samps_to_merge)
 		{
 		  std::cout << "==== " << s << std::endl;
-		  sample_merge_list_.append(s, mainCfg_->readStringListOpt(string("merge_plots::")+s));
+		  sample_merge_list_.append(s, mainCfg_->readStringListOpt(merge_section_+string("::")+s));
 		  cout << "   -- " << s << "   <==   ";
 		  for (unsigned int idx = 0; idx < sample_merge_list_.at(s).size(); ++idx)
 			{
@@ -1534,9 +1542,7 @@ void AnalysisHelper::mergeSamples()
 		{
 		  string sname = sample_merge_list_.at(isnew).at(idx);
 
-		  std::cout << "CHECK A " << sname << " " << isnew << " " << idx << std::endl;
 		  Sample::selColl& pltoadd = chosenMap->at(sname)->plots();
-		  std::cout << "after map" << std::endl;
 		  for (unsigned int isel = 0; isel < plnew.size(); ++isel){
 			for (unsigned int ivar = 0; ivar < plnew.at(isel).size(); ++ivar ){
 			  for (unsigned int isyst = 0; isyst < plnew.at(isel).at(ivar).size(); ++isyst ){

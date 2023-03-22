@@ -45,6 +45,9 @@ class OutputManager:
         self.bkgs        = bkgs
         self.sigs        = sigs
 
+        self.shapeSysts = ('tauup', 'taudown', 'eleup', 'eledown',
+                           'muup', 'mudown', 'jetup', 'jetdown')
+        
         self.systList = self.buildSystList()
 
     def readAll(self, rootfile):
@@ -239,8 +242,6 @@ class OutputManager:
         # loop on all the systematics to compute the shifted QCD histograms.
         # Can easily be changed by setting: allSysts = self.systList
         allSysts = ['']
-        shapeSysts = ('tauup', 'taudown', 'eleup', 'eledown',
-                      'muup', 'mudown', 'jetup', 'jetdown')
         
         # Do actual QCD computation: loop on vars --> selections --> systs
         for var in self.variables:
@@ -249,7 +250,7 @@ class OutputManager:
 
                     # If var already contains one of the shape systs (tauup, taudown, jetup...)
                     # do not create the shifted QCD template
-                    if any(t in var for t in shapeSysts):
+                    if any(t in var for t in self.shapeSysts):
                        continue
 
                     # for boosted category we use 'L' bTag WP
@@ -368,8 +369,6 @@ class OutputManager:
         # loop on all the systematics to compute the shifted QCD histograms.
         # Can easily be changed by setting: allSysts = self.systList
         allSysts = ['']
-        shapeSysts = ('tauup', 'taudown', 'eleup', 'eledown',
-                      'muup', 'mudown', 'jetup', 'jetdown')
         
         # Loop on all QCD histograms: loop on vars --> selections --> systs
         for var in self.variables:
@@ -378,7 +377,7 @@ class OutputManager:
 
                     # If var already contains one of the shape systs (tauup, taudown, jetup...)
                     # do not create the shifted QCD template
-                    if any(t in var for t in shapeSysts):
+                    if any(t in var for t in self.shapeSysts):
                        continue
 
                     # for boosted category we use 'L' bTag WP
@@ -490,8 +489,7 @@ class OutputManager:
         allSysts = [x.replace(protoName+'_', '') for x in allSysts]
 
         # Exclude TES/EES/MES/JES from the list of systematics
-        namesToBeRemoved = ["tauup", "taudown", "eleup", "eledown", "muup", "mudown", "jetup", "jetdown"]
-        allSysts = [ x for x in allSysts if not any(b in x for b in namesToBeRemoved) ]
+        allSysts = [ x for x in allSysts if not any(b in x for b in self.shapeSysts) ]
 
         # Add empty string to get the nominal histo
         allSysts.insert(0, "")
@@ -510,8 +508,7 @@ class OutputManager:
                     # skip the syst from allSysts (otherwise it look for histograms with two systematics
                     # like 'var_sel_SR_tauup_PUjetIDUp' which do not make sense)
                     doubleSyst = False
-                    namesToBeRemoved = ["tauup", "taudown", "eleup", "eledown", "muup", "mudown", "jetup", "jetdown"]
-                    for doubleName in namesToBeRemoved:
+                    for doubleName in self.shapeSysts:
                         if doubleName in var:
                             doubleSyst = True
                             break

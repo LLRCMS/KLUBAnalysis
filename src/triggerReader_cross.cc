@@ -1086,7 +1086,6 @@ bool triggerReader_cross::isVBFfired  (Long64_t triggerbit_1, Long64_t matchFlag
   if (!pass_triggerbit) pass_triggerbit = &(temp);
   for (unsigned int i = 0; i < _vbfTriggers.size(); i++)
   {
-    thisPath = false;
     thisPath = CheckBit (triggerbit_1, _vbfTriggers.at(i));
     if (thisPath)
     {

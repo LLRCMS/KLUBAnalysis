@@ -180,7 +180,7 @@ fi
 ### Argument parsing: information for the user
 echo "------ Arguments --------------"
 printf "DRYRUN\t\t= ${DRYRUN}\n"
-printf "TAG\t\t\t= ${TAG}\n"
+printf "TAG\t\t= ${TAG}\n"
 printf "DATA_PERIOD\t= ${DATA_PERIOD}\n"
 printf "CHANNEL\t\t= ${CHANNEL}\n"
 printf "SELECTION\t= ${SELECTION}\n"
@@ -194,7 +194,7 @@ echo "-------------------------------"
 ### Ensure connection to /eos/ folder
 [[ ! -d ${EOS_DIR} ]] && /opt/exp_soft/cms/t3/eos-login -username ${EOS_USER} -init
 
-OPTIONS="--quit --ratio " #"--no-binwidth"
+OPTIONS="--quit --ratio " #"--binwidth"
 if [[ ${NOSIG} -eq 0 ]]; then
     OPTIONS+=" --signals ggFRadion280 ggFRadion400 ggFRadion550 ggFRadion800 ggFRadion1500 "
 else
@@ -224,25 +224,62 @@ function run_plot() {
 
 declare -A VAR_MAP
 VAR_MAP=(
-	["dau1_pt"]="pT_{1}[GeV]					--sigscale 100 "
-	["bjet1_pt"]="pT_{j1}[GeV]					--sigscale 200 "
-	["bjet2_pt"]="pT_{j2}[GeV]					--sigscale 250 "
-	["dau1_eta"]="eta_{1}[GeV]					--sigscale 70 "
-	["bjet1_eta"]="eta_{j1}[GeV]				--sigscale 80 "
-	["bjet2_eta"]="eta_{j2}[GeV]				--sigscale 70 "
-	["tauH_mass"]="m_{H#tau}[Gev]				--sigscale 50 "
-	["tauH_pt"]="pT_{H#tau}[Gev]				--sigscale 50 "
-	["tauH_SVFIT_mass"]="m_{H#tau_{SVFit}}[Gev] --sigscale 20 "
-	["bH_mass"]="m_{Hb}[Gev]					--sigscale 50 "
-	["bH_pt"]="pT_{Hb}[Gev]						--sigscale 150 "
-	["HH_mass"]="m_{HH}[GeV]					--sigscale 10 --logy "
-	["HHKin_mass"]="m_{HHKin}[GeV]				--sigscale 10 --logy "
-	["HH_mass"]="m_{HH}[GeV]					--sigscale 10 --logy --logx "
-	["HHKin_mass"]="m_{HHKin}[GeV]				--sigscale 10 --logy --logx "
-	["DNNoutSM_kl_1"]="DNN						--sigscale 10 --logy --equalwidth "
+	["dau1_pt"]="pT_{1}[GeV] "
+	["bjet1_pt"]="pT_{j1}[GeV] "
+	["bjet2_pt"]="pT_{j2}[GeV] "
+	["dau1_eta"]="eta_{1}[GeV] "
+	["bjet1_eta"]="eta_{j1}[GeV] "
+	["bjet2_eta"]="eta_{j2}[GeV] "
+	["tauH_mass"]="m_{H#tau}[Gev] "
+	["tauH_mass"]="m_{H#tau}[Gev] --equalwidth "
+	["tauH_pt"]="pT_{H#tau}[Gev] "
+	["tauH_SVFIT_mass"]="m_{H#tau_{SVFit}}[Gev] "
+	["bH_mass"]="m_{Hb}[Gev] "
+	["bH_pt"]="pT_{Hb}[Gev]	"
+	["ditau_deltaR"]="#DeltaR(#tau#tau)	"
+	["dib_deltaR"]="#DeltaR(bb)	"
+	["HH_deltaR"]="#DeltaR(HH) "
+	["HH_mass"]="m_{HH}[GeV] --logy "
+	["HHKin_mass"]="m_{HHKin}[GeV] --logy "
+	["HH_mass"]="m_{HH}[GeV] --logy --logx "
+	["HHKin_mass"]="m_{HHKin}[GeV] --logy --logx "
+	["DNNoutSM_kl_1"]="DNN --logy --equalwidth "
 )
+declare -A SIGSCALE_CHANNEL_MAP
+SIGSCALE_CHANNEL_MAP=(
+	["dau1_pt"]="100 100 40"
+	["bjet1_pt"]="200 200 40 "
+	["bjet2_pt"]="250 250 40 "
+	["dau1_eta"]="70 70 10 "
+	["bjet1_eta"]="80 80 8 "
+	["bjet2_eta"]="70 70 8 "
+	["tauH_mass"]="50 50 5 "
+	["tauH_pt"]="50 50 20 "
+	["tauH_SVFIT_mass"]="20 20 4 "
+	["bH_mass"]="50 50 5 "
+	["bH_pt"]="150 150 10"
+	["ditau_deltaR"]="15 15 2 "
+	["dib_deltaR"]="20 20 2 "
+	["HH_deltaR"]="35 35 5 "
+	["HH_mass"]="10 10 1 "
+	["HHKin_mass"]="10 10 1 "
+	["HH_mass"]="10 10 1 "
+	["HHKin_mass"]="10 10 1 "
+	["DNNoutSM_kl_1"]="10 10 1 "
+)
+
 for avar in ${!VAR_MAP[@]}; do
-    run_plot --var ${avar} --lymin 0.7 --label ${VAR_MAP[$avar]}
+	ssarr=(${SIGSCALE_CHANNEL_MAP[${avar}]})
+	if [ ${CHANNEL} == "ETau" ]; then
+		ss=${ssarr[0]}
+	elif [ ${CHANNEL} == "MuTau" ]; then
+		ss=${ssarr[1]}
+	elif [ ${CHANNEL} == "TauTau" ]; then
+		ss=${ssarr[2]}
+	else
+		echo "Channel ${CHANNEL} is not supported." 
+	fi
+    run_plot --var ${avar} --lymin 0.7 --sigscale ${ss} --label ${VAR_MAP[$avar]}
 done
 
 run mkdir -p ${WWW_DIR}

@@ -28,7 +28,6 @@ class systReader:
         self.theInput.append(theOtherFile)
 
     def writeSystematics(self):
-        # print('reading systematics')
         section = ""
         outputLine = ""
         OutputLines = []

@@ -438,8 +438,7 @@ def makeNonNegativeHistos(hList):
 if __name__ == "__main__" :
     ROOT.TH1.AddDirectory(0)
 
-    titleSize = 24
-    labelSize = 22
+    titleSize, labelSize = 24, 22
     parser = argparse.ArgumentParser(description='Command line parser of plotting options')
     
     #string opts
@@ -485,8 +484,8 @@ if __name__ == "__main__" :
                         help='legend min y position in pad fraction')
     parser.add_argument('--ymin', type=float, help='min y range of plots', default=None)
     parser.add_argument('--ymax', type=float, help='max y range of plots', default=None)
-    parser.add_argument('--sigscale', type=float,
-                        default=None, help='scale to apply to all signals')
+    parser.add_argument('--sigscale', type=int, default=1,
+                        help='scale to apply to all signals')
     parser.add_argument('--signals', nargs='+', help='resonant signals to overlay', 
                         default=['ggFRadion280', 'ggFRadion400', 'ggFRadion550', 'ggFRadion800', 'ggFRadion1500'])
     parser.add_argument('--lumi', type=float, help='lumi in fb-1', default=None)
@@ -553,10 +552,7 @@ if __name__ == "__main__" :
         raise ValueError('Section [{}] missing from {}.'.format(sec, cfgName))
 
 
-    outplot = findInFolder(args.indir+'/', 'analyzedOutPlotter.root')
-    if not 'Tau' in args.channel:
-        outplot = findInFolder(args.indir+'/', 'outPlotter.root')
-        
+    outplot = findInFolder(args.indir+'/', 'combined_outPlots.root')        
     rootFile = ROOT.TFile.Open(op.join(args.indir, outplot))
 
     binning = None
@@ -728,7 +724,7 @@ if __name__ == "__main__" :
     intBkg = bkgStack.GetStack().Last().Integral()
     bkgStack.SetTitle(plotTitle)
 
-    if not args.nosig and args.sigscale is not None:
+    if not args.nosig:
         for sig in args.signals:
             histo = hSigs[sig]
             histo.Scale(args.sigscale)
@@ -750,7 +746,10 @@ if __name__ == "__main__" :
         for sig in args.signals:
             histo = hSigs[sig]
             mass = re.findall('[0-9]+', sig)[0]
-            leg.AddEntry(histo, mass, 'l')
+            if args.sigscale == 1:
+                leg.AddEntry(histo, 'ggF ' + mass + 'GeV', 'l')
+            else:
+                leg.AddEntry(histo, 'ggF ' + mass + 'GeV #times' + str(args.sigscale), 'l')
         # null entry to complete signal xsection
         if args.siglegextratext:
             leg.AddEntry(None, args.siglegextratext, '')
@@ -1067,8 +1066,10 @@ if __name__ == "__main__" :
         tagch = ''
         if args.channel:
             tagch = '_' + args.channel
-        if not args.binwidth:
-            tagch += '_noBinWidth'
+        if args.binwidth:
+            tagch += '_binWidth'
+        if args.equalwidth:
+            tagch += '_equalWidth'
         if 'class' in args.sel:
             saveBase = 'plot_' + args.var + '_' + args.sel +'_' + args.reg + tagch
             saveName = op.join(args.outdir, interm_path('scores_'), saveBase)
