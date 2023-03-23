@@ -86,7 +86,7 @@ comb_txt="${comb_}.txt"
 comb_root="${comb_}.root"
 
 #parallelize over the mass
-parallel combineCards.py -S ${LIMIT_DIR}/cards_${TAG}_*Tau/*${VAR}/hhres*.${SIGNAL}{}.txt ">" ${comb_txt} ::: ${MASSES[@]}
+parallel combineCards.py -S ${LIMIT_DIR}/cards_${TAG}_*Tau/*${VAR}/hhres*.${SIGNAL}{}.txt ">" ${comb_txt} ::: ${MASSES[@]}s
 parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${comb_txt} ::: ${MASSES[@]}
 parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES[@]}
 

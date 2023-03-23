@@ -14,7 +14,7 @@ def parseOptions():
     parser.add_argument('-o', '--outname', default='prepared_outLimits.root',
                         help='output plots')
     parser.add_argument('-c', '--channel', default='TauTau', help='channel')
-    parser.add_argument('-y', '--period', default='UL18', choices=('UL16', 'UL17', 'UL18'),
+    parser.add_argument('-y', '--period', default='UL18', choices=('UL16', 'UL16APV', 'UL17', 'UL18'),
                         help='data period')
     parser.add_argument('-q', '--dynamQCD', default=0, type=int,
                       help='1:do QCD as rateParam / 0:read QCD from file')

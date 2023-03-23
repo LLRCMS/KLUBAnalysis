@@ -8,7 +8,7 @@ TAG="10Feb_UL18"
 VAR="DNNoutSM_kl_1"
 SIGNAL="ggFRadion"
 PERIOD=""
-PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
+PERIOD_CHOICES=( "UL16" "UL16APV" "UL17" "UL18" )
 BASEDIR="${HOME}/CMSSW_11_1_9/src/KLUBAnalysis"
 
 HELP_STR="Prints this help message."
