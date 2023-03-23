@@ -74,21 +74,22 @@ def run_limits(in_tags, channels, selections, selection_prefixes, masses,
     for comm in commands:
         run(comm.format(**ws_opt), dryrun)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     usage = 'Run the resonant limits'
     parser = argparse.ArgumentParser(description=usage)
     parser.add_argument('-u', '--user', default='bfontana', help='lxplus username')
     parser.add_argument('-n', '--dryrun', action='store_true', help='dry run mode')
     parser.add_argument('-p', '--noprep', action='store_true',
-                        help='do not run the histograms prepare step')
+                        help='do not run the histograms preparing step')
     FLAGS = parser.parse_args()
 
     period = 'UL18'
     signal = 'ggFRadion'
     varsfit = ('DNNoutSM_kl_1',)
     
-    channels = ('ETau', 'MuTau', 'TauTau')
-    tag_ = 'Test'
+    #channels = ('ETau', 'MuTau', 'TauTau')
+    channels = ('ETau',)
+    tag_ = '23Mar'
     suffix = ''#'_mHH'
     #in_tags = ['{}_{}_{}{}'.format(tag_, x, period, suffix) for x in channels]
     in_tags = ['{}_{}'.format(tag_, x) for x in channels]

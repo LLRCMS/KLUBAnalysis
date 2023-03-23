@@ -27,6 +27,8 @@ def parseOptions():
                         help='categories to write cards for')
     parser.add_argument('-m', '--masses', required=True, nargs='+',
                         help='resonant masses to consider')
+    parser.add_argument('-q', '--dynamQCD' , action='store_true',
+                        help='1:do QCD as rateParam / 0:read QCD from file')
     parser.add_argument('-u', '--noShapeUnc', action='store_false', help='disable shape uncertainties')
     parser.add_argument('-r', '--isResonant', action='store_true', help='is Resonant analysis')
     parser.add_argument('-b', '--binbybin', action='store_true', help='add bin by bins systematics')
@@ -108,10 +110,9 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
 
     if regions[0] == 'SR':
         for proc in range(len(signals)):
-            templateName = "{}_".format(signals[proc]) + suffix_str
+            templateName = '{}_'.format(signals[proc]) + suffix_str
             template = inRoot.Get(templateName)
-            srate = template.Integral()
-            rates.append(srate)
+            rates.append(template.Integral())
 
         syst = systReader('../config/systematics_'+opt.period+'.cfg', signals, backgrounds, None)
         syst.writeOutput(False)
@@ -133,7 +134,8 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
         for proc in backgrounds: proc_syst[proc] = {}
         for proc in signals:     proc_syst[proc] = {}
 
-        systsShape = [
+        systsAll = {'shape': None, 'lnN': []}
+        systsAll['shape'] = [
             # hadronic tau energy scale for decay mode 0
             'CMS_scale_t_DM0_'    + opt.period,
             # hadronic tau energy scale for decay mode 1
@@ -194,7 +196,7 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
         else:
             PTnames = ('20to25', '25to30', '30to35', '35to40', '40toInf')
         for n in PTnames:
-            systsShape.append('CMS_eff_t_id_pt' + n + '_' + opt.period)
+            systsAll['shape'].append('CMS_eff_t_id_pt' + n + '_' + opt.period)
 
         # Add tau trigger uncertainties (4 unc. depending on DM for tau legs + 2 unc. for ele and mu legs)
         # For TauTau channel in 2017 and 2018 add also the the VBF trigger of jet legs
@@ -210,26 +212,25 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
         if opt.channel == 'TauTau' and any(x in opt.period for x in ('17', '18')):
             DMs.append('Jet')
         for n in DMs:
-            systsShape.append('CMS_bbtt_' + opt.period + '_trigSF' + n)
+            systsAll['shape'].append('CMS_bbtt_' + opt.period + '_trigSF' + n)
 
         # not considered until new POG SFs are available
         # # custom tau ID scale factors
         # if opt.channel=='TauTau' and '17' in opt.year:
         #     for dm in DMs:
-        #         systsShape.append('CMS_bbtt_customSF2017' + dm)
+        #         systsAll['shape'].append('CMS_bbtt_customSF2017' + dm)
 
-        systsNorm  = []  # <-- THIS WILL BE FILLED FROM CONFIGS
         for isy in range(len(syst.SystNames)) :
             if any(x in syst.SystNames[isy] for x in ('CMS_scale_t', 'CMS_scale_j')):
                 continue
             for iproc in range(len(syst.SystProcesses[isy])):
                 systVal = syst.SystValues[isy][iproc]
                 proc_syst[syst.SystProcesses[isy][iproc]][syst.SystNames[isy]] = [syst.SystTypes[isy], systVal]
-                systsNorm.append(syst.SystNames[isy])
+                systsAll['lnN'].append(syst.SystNames[isy])
 
-        if len(systsNorm) > 0:
-            systsNorm = list(dict.fromkeys(systsNorm))
-
+        if len(systsAll['lnN']) > 0:
+            systsAll['lnN'] = sorted(list(dict.fromkeys(systsAll['lnN'])))
+        
         nominalShapes_toSave, nominalShapes_newName = ([] for _ in range(2))
         for proc in backgrounds:
             nominalShapes_toSave.append('{}_'.format(proc) + suffix_str)
@@ -244,7 +245,7 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
 
         shiftShapes_toSave, shiftShapes_newName = ([] for _ in range(2))
         if not opt.noShapeUnc:
-            for name in systsShape:
+            for name in systsAll['shape']:
                 for proc in backgrounds:
                     if 'QCD' in proc and 'CMS_scale' not in name: 
                         continue
@@ -259,79 +260,75 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
                         shiftShapes_toSave.append(proc + '_' + suffix_str + '_' + name + t)
                         shiftShapes_newName.append(proc + '_' + name + t)
 
-        col1       = '{: <40}'
-        colsysN    = '{: <30}'
-        colsysType = '{: <10}'
-        cols       = '{: >40}'
-        ratecols   = '{0: > 30.4f}'
+        width_def, width_type = 45, 10
+        colwidths = {'col'   : '{: <' + str(width_def) + '}',
+                     'sysName' : '{: <' + str(width_def-width_type) + '}',
+                     'sysType' : '{: <' + str(width_type) + '}'}
 
-        shapes_lines, lnN_lines = ([] for _ in range(2))
-        for name in systsShape:
-            shapes_lines.append(colsysN.format(name))
-            shapes_lines.append(colsysType.format('shape'))
-            for lineproc in backgrounds:
-                shapes_lines.append(cols.format('1' if name in proc_syst[lineproc].keys() else '-'))
-            for lineproc in signals:
-                shapes_lines.append(cols.format('1' if name in proc_syst[lineproc].keys() else '-'))
-            shapes_lines.append('\n')
+        lines = {'shape': [], 'lnN': []}
+        for lkey in lines.keys():
+            for name in systsAll[lkey]:
+                lines[lkey].append(colwidths['sysName'].format(name))
+                lines[lkey].append(colwidths['sysType'].format(lkey))
 
-        for name in systsNorm:
-            lnN_lines.append(colsysN.format(name))
-            lnN_lines.append(colsysType.format('lnN'))
-            for lineproc in backgrounds:
-                lnN_lines.append(cols.format(proc_syst[lineproc][name][1] if name in proc_syst[lineproc].keys() else '-'))
-            for lineproc in signals:
-                lnN_lines.append(cols.format(proc_syst[lineproc][name][1] if name in proc_syst[lineproc].keys() else '-'))
-            lnN_lines.append('\n')
+                for lineproc in backgrounds+signals:
+                    if name in proc_syst[lineproc].keys():
+                        astr = '1' if lkey=='shape' else proc_syst[lineproc][name][1]
+                    else:
+                        astr = '-'
+                    lines[lkey].append(colwidths['col'].format(astr))
+                lines[lkey].append('\n')
 
         ########################
         infile = os.path.join(out_dir, hh_prefix + outstr + hh_ext('input.root'))
         outfile = hh_prefix + outstr + hh_ext('txt')
-        with open(out_dir+outfile, 'wb') as file:
-            file.write('imax *  number of channels\n')
-            file.write('jmax *  number of processes minus 1\n')
-            file.write('kmax *  number of nuisance parameters\n')
-            file.write('--------------------------------------\n')
+        with open(out_dir+outfile, 'wb') as afile:
+            wf = lambda s : afile.write(s)
+            wf('imax *  number of channels\n')
+            wf('jmax *  number of processes minus 1\n')
+            wf('kmax *  number of nuisance parameters\n')
+            wf('--------------------------------------\n')
             ## shapes
-            file.write('shapes * {} {} $PROCESS $PROCESS_$SYSTEMATIC\n'.format(select, infile))
-            file.write('--------------------------------------\n')
-            file.write((col1+cols+'\n').format('bin', select)) ### blind for now
+            wf('shapes * {} {} $PROCESS $PROCESS_$SYSTEMATIC\n'.format(select, infile))
+            wf('--------------------------------------\n')
+            wf((colwidths['col']+colwidths['col']+'\n').format('bin', select)) ### blind for now
             ## observation
-            file.write((col1+cols+'\n').format('observation', '-1')) ### blind for now
-            file.write('--------------------------------------\n')            ## processes
-            file.write('# list the expected events for signal and all backgrounds in that bin\n')
-            file.write('# the second process line must have a positive number for backgrounds, and 0 or neg for signal\n')
-            file.write(col1.format('bin'))
+            wf((colwidths['col']+colwidths['col']+'\n').format('observation', '-1')) ### blind for now
+            wf('--------------------------------------\n')            ## processes
+            wf('# list the expected events for signal and all backgrounds in that bin\n')
+            wf('# the second process line must have a positive number for backgrounds, and 0 or neg for signal\n')
+            wf(colwidths['col'].format('bin'))
             for i in range(0,len(backgrounds)+len(signals)):
-                file.write(cols.format(select))
-            file.write('\n')
-            file.write(col1.format('process'))
+                wf(colwidths['col'].format(select))
+            wf('\n')
+            wf(colwidths['col'].format('process'))
             for proc in backgrounds:
-                file.write(cols.format(proc))
+                wf(colwidths['col'].format(proc))
             for proc in signals:
-                file.write(cols.format(proc))
-            file.write('\n')
-            file.write(col1.format('process'))
+                wf(colwidths['col'].format(proc))
+            wf('\n')
+            wf(colwidths['col'].format('process'))
             for i in range(1,len(backgrounds)+1):
-                file.write(cols.format(i))
+                wf(colwidths['col'].format(i))
             for i in range(0,len(signals)):
-                file.write(cols.format(str(-int(i))))
-            file.write('\n')
-            file.write(col1.format('rate'))
+                wf(colwidths['col'].format(str(-int(i))))
+            wf('\n')
+            wf(colwidths['col'].format('rate'))
             for proc in range(len(backgrounds)+len(signals)):
-                file.write(ratecols.format(rates[proc]))
-            file.write('\n')
-            file.write('--------------------------------------\n')
-            for line in shapes_lines:
-                file.write(line)
-            for line in lnN_lines:
-                file.write(line)
-            file.write('--------------------------------------\n')
+                wf(colwidths['col'].format(rates[proc]))
+            wf('\n')
+            wf('--------------------------------------\n')
+            for line in lines['shape']+lines['lnN']:
+                wf(line)
+            wf('--------------------------------------\n')
             if not opt.isResonant: ### L.P.: This might require some toughts (?)
                 file.write('theory group = HH_BR_Hbb HH_BR_Htt QCDscale_ggHH pdf_ggHH mtop_ggHH QCDscale_qqHH pdf_qqHH\n')
-            file.write('alpha rateParam {} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n'.format(select))
+
+            if opt.dynamQCD:
+                wf('alpha rateParam {} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n'.format(select))
+                
             if (opt.binbybin):
-                file.write('\n* autoMCStats 10')
+                wf('\n* autoMCStats 10')
 
         outf = ROOT.TFile.Open(infile, 'RECREATE')
         for i, name in enumerate(nominalShapes_toSave):
@@ -350,45 +347,45 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
 
     else: # if region == 0:
         outfile = hh_prefix + outstr + '_' + regions[1] + hh_ext('txt')
+        colwidth = '{: <20}'
         with open(out_dir+outfile, 'wb') as afile:
-            afile.write('imax 1\n')
-            afile.write('jmax {}\n'.format(len(backgrounds)-1))
-            afile.write('kmax *\n')
+            wf = lambda s : afile.write(s)
+            wf('imax 1\n')
+            wf('jmax {}\n'.format(len(backgrounds)-1))
+            wf('kmax *\n')
 
-            afile.write('------------\n')
-            afile.write('shapes * * FAKE\n'.format(opt.channel, regions[1]))
-            afile.write('------------\n')
+            wf('------------\n')
+            wf('# convert a counting datacard into a shape one; needed to combine it with other shape datacards\n')
+            wf('shapes * * FAKE\n'.format(opt.channel, regions[1]))
+            wf('------------\n')
 
             templateName = 'data_obs_' + suffix_str
             template = inRoot.Get(templateName)
-            afile.write('bin {} \n'.format(select))
+            wf('bin {} \n'.format(select))
             obs = template.GetEntries()
-            afile.write('observation {} \n'.format(obs))
+            wf('observation {} \n'.format(obs))
 
-            afile.write('------------\n')
+            wf('------------\n')
 
-            afile.write('bin ')
-            for chan in backgrounds:
-                afile.write('{}\t '.format(select))
-            afile.write('\n')
+            wf(colwidth.format('bin'))
+            for _ in backgrounds:
+                wf(colwidth.format(select))
+            wf('\n')
 
-            afile.write('process ')
-            for chan in backgrounds:
-                afile.write('{}\t '.format(chan))
+            wf(colwidth.format('process'))
+            for bkg in backgrounds:
+                wf(colwidth.format(bkg))
+            wf('\n')
 
-            afile.write('\n')
-
-            afile.write('process ')
+            wf(colwidth.format('process'))
             for chan in range(len(backgrounds)): #+1 for the QCD
-                afile.write('{}\t '.format(chan+1))
-            afile.write('\n')
-
-            afile.write('rate ')
+                wf(colwidth.format(chan+1))
+            wf('\n')
 
             rates = []
             iQCD = -1
             totRate = 0
-
+            wf(colwidth.format('rate'))
             for ichan in range(len(backgrounds)):
                 if 'QCD' in backgrounds[ichan]:
                     rates.append(-1)
@@ -399,12 +396,13 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
                     brate = template.Integral()
                     rates.append(brate)
                     totRate = totRate + brate
-            if iQCD >= 0 : rates[iQCD] = ROOT.TMath.Max(0.0000001,obs-totRate)
+            if iQCD >= 0:
+                rates[iQCD] = ROOT.TMath.Max(0.0000001,obs-totRate)
             for ichan in range(len(backgrounds)):
-                afile.write('{0:.4f}\t'.format(rates[ichan]))
-            afile.write('\n')
-            afile.write('------------\n')
-            afile.write('QCD_{} rateParam  {} QCD 1 \n'.format(regions[1], select))
+                wf(colwidth.format(rates[ichan]))
+            wf('\n')
+            wf('------------\n')
+            wf('QCD_{} rateParam {} QCD 1 \n'.format(regions[1], select))
 
     return out_dir+outfile
 
@@ -448,7 +446,11 @@ for i,sig in enumerate(signals):
     if 'VBFHH'in sig:
         signals[i] = sig.replace('VBFHH','qqHH').replace('C3','kl').replace('_xs','_hbbhtautau') #write 1_5 as 1p5 from the beginning
 
-regions = (('SR', ''), ('SStight', 'regB'), ('OSinviso', 'regC'), ('SSinviso', 'regD'))
+if opt.dynamQCD:
+    regions = (('SR', ''), ('SStight', 'regB'), ('OSinviso', 'regC'), ('SSinviso', 'regD'))
+else:
+    regions = (('SR', ''),)
+    
 if not opt.isResonant:
     for sel in selections:
         for ireg in range(len(regions)):
