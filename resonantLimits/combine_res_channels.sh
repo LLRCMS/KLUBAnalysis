@@ -111,16 +111,6 @@ if [[ -z ${PERIOD} ]]; then
     echo "Select the data period via the '-d / --data_period' option."
     exit 1;
 fi
-if [ ${PERIOD} == "UL18" ]; then
-    YEAR="2018"
-elif [ ${PERIOD} == "UL17" ]; then
-    YEAR="2017"
-elif [ ${PERIOD} == "UL16" ]; then
-    YEAR="2016"
-else
-  echo "ERROR: Data period ${PERIOD} is not supported! Pick one of the following: ${PERIOD_CHOICES[@]}"
-  exit
-fi
 
 LIMIT_DIR="${BASEDIR}/resonantLimits"
 NEWDIR="${LIMIT_DIR}/cards_${TAG}_CombChn"
@@ -164,7 +154,7 @@ for selprefix in ${SELECTION_PREFIXES[@]}; do
     parallel rm -f -- ${path_root} ::: ${MASSES_IF[@]}
 
     parallel combineCards.py \
-	-S ${LIMIT_DIR}/cards_${TAG}*Tau/${selprefix}*_${VAR}/hhres_${YEAR}_*Tau_${selprefix}*${SIGNAL}{}.txt \
+	-S ${LIMIT_DIR}/cards_${TAG}*Tau/${selprefix}*_${VAR}/hhres_${PERIOD}_*Tau_${selprefix}*${SIGNAL}{}.txt \
 	">" ${path_txt} ::: ${MASSES_IF[@]}
     parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${path_txt} ::: ${MASSES_IF[@]}
     parallel text2workspace.py ${path_txt} -o ${path_root} ::: ${MASSES_IF[@]}

@@ -36,27 +36,27 @@ def run_limits(in_tags, channels, selections, selection_prefixes, masses,
     if noprep:
         commands[-1] += '--noprep '
 
-    # # Generate workspaces
-    # commands.append('bash make_workspace_res.sh --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn} -b {b}')
+    # Generate workspaces
+    commands.append('bash make_workspace_res.sh --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn} -b {b}')
 
-    # # Combine all categories
-    # commands.append('bash combine_res_categories.sh --tag {tag} --masses {m} --var {v} --signal {s} --channels {chn} -b {b} --period {dp}')
+    # Combine all categories
+    commands.append('bash combine_res_categories.sh --tag {tag} --masses {m} --var {v} --signal {s} --channels {chn} -b {b} --period {dp}')
 
-    # # Combine all channels
-    # commands.append('bash combine_res_channels.sh --tag {tag} --masses {m} --var {v} --signal {s} --selprefixes {selpref} -b {b} --period {dp}')
+    # Combine all channels
+    commands.append('bash combine_res_channels.sh --tag {tag} --masses {m} --var {v} --signal {s} --selprefixes {selpref} -b {b} --period {dp}')
 
-    # # Combine categories and channels
-    # commands.append('bash combine_res_all.sh --tag {tag} --masses {m} --var {v} --signal {s} -b {b}')
+    # Combine categories and channels
+    commands.append('bash combine_res_all.sh --tag {tag} --masses {m} --var {v} --signal {s} -b {b}')
 
-    # # Obtain limits on signal strength
-    # limit_modes = ('separate', 'sel_group', 'chn_group', 'all_group')
-    # for mode in limit_modes:
-    #     commands.append('bash get_limits_res.sh --mode ' + mode + ' --tag {tag} --masses {m} --var {v} --signal {s} --selections {selpref} --channels {chn} -b {b}')
+    # Obtain limits on signal strength
+    limit_modes = ('separate', 'sel_group', 'chn_group', 'all_group')
+    for mode in limit_modes:
+        commands.append('bash get_limits_res.sh --mode ' + mode + ' --tag {tag} --masses {m} --var {v} --signal {s} --selections {selpref} --channels {chn} -b {b}')
 
-    # # Plot limits
-    # plot_modes = limit_modes + ('overlay_channels', 'overlay_selections')
-    # for mode in plot_modes:
-    #     commands.append('python plot.py --mode ' + mode + ' --period {dp} --tag {tag} --masses {m} --var {v} --signal {s} --selections {selpref} --channels {chn} --user {user} --basedir {b}')
+    # Plot limits
+    plot_modes = limit_modes + ('overlay_channels', 'overlay_selections')
+    for mode in plot_modes:
+        commands.append('python plot.py --mode ' + mode + ' --period {dp} --tag {tag} --masses {m} --var {v} --signal {s} --selections {selpref} --channels {chn} --user {user} --basedir {b}')
 
     # Run all commands
     ws_opt = dict(it=' '.join(in_tags), 
@@ -87,8 +87,7 @@ if __name__ == '__main__':
     signal = 'ggFRadion'
     varsfit = ('DNNoutSM_kl_1',)
     
-    #channels = ('ETau', 'MuTau', 'TauTau')
-    channels = ('ETau',)
+    channels = ('ETau', 'MuTau', 'TauTau')
     tag_ = '23Mar'
     suffix = ''#'_mHH'
     #in_tags = ['{}_{}_{}{}'.format(tag_, x, period, suffix) for x in channels]

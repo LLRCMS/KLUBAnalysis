@@ -113,16 +113,6 @@ if [[ -z ${PERIOD} ]]; then
     echo "Select the data period via the '-d / --data_period' option."
     exit 1;
 fi
-if [ ${PERIOD} == "UL18" ]; then
-    YEAR="2018"
-elif [ ${PERIOD} == "UL17" ]; then
-    YEAR="2017"
-elif [ ${PERIOD} == "UL16" ]; then
-    YEAR="2016"
-else
-  echo "ERROR: Data period ${PERIOD} is not supported! Pick one of the following: ${PERIOD_CHOICES[@]}"
-  exit
-fi
 
 declare -a MHIGH;
 declare -a MLOW;
@@ -151,9 +141,9 @@ for ichn in "${!CHANNELS[@]}"; do
 
     # aggregate all files within a selection folder
     parallel combineCards.py \
-	-S ${card_dir}/*${VAR}/hhres_${YEAR}_${CHANNELS[${ichn}]}*.${SIGNAL}{}.txt ">" ${comb_txt} ::: ${MHIGH[@]}
+	-S ${card_dir}/*${VAR}/hhres_${PERIOD}_${CHANNELS[${ichn}]}*.${SIGNAL}{}.txt ">" ${comb_txt} ::: ${MHIGH[@]}
     parallel combineCards.py \
-	-S ${card_dir}/*resolved*${VAR}/hhres_${YEAR}_${CHANNELS[${ichn}]}*.${SIGNAL}{}.txt ">>" ${comb_txt} ::: ${MLOW[@]}
+	-S ${card_dir}/*resolved*${VAR}/hhres_${PERIOD}_${CHANNELS[${ichn}]}*.${SIGNAL}{}.txt ">>" ${comb_txt} ::: ${MLOW[@]}
     parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${comb_txt} ::: ${MASSES[@]}
     parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES[@]}
     cd -
