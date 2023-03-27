@@ -318,9 +318,16 @@ def plot(args, outdir):
         for chn in args.channels:
             label = channel_label(chn)
             indir = os.path.join(base, 'cards_' + args.tag + '_' + chn,
-                                 'comb_cat', 'combined_out')
-            outfile = '_'.join(('limit', args.tag, args.mode, args.var, chn))
+                                 'comb_cat', 'AllCategories/', 'combined_out')
+            outfile = '_'.join(('limit', args.tag, args.mode, args.var, chn, 'AllCategories'))
             create_limits_plot(indir, outfile, masses=args.masses, labels=(label, comb_cat), **opt)
+
+            for sel in args.selections:
+                masses_sel = sel_masses(sel, args.masses)
+                indir = os.path.join(base, 'cards_' + args.tag + '_' + chn,
+                                    'comb_cat', '{}_{}'.format(sel, args.var), 'combined_out')
+                outfile = '_'.join(('limit', args.tag, args.mode, args.var, chn, sel))
+                create_limits_plot(indir, outfile, masses=masses_sel, labels=(label, sel), **opt)
 
     elif args.mode == 'chn_group':
 
@@ -342,7 +349,7 @@ def plot(args, outdir):
         indirs = []
         for chn in args.channels:
             indirs.append(os.path.join(base, 'cards_' + args.tag + '_' + chn,
-                                       'comb_cat', 'combined_out'))
+                                       'comb_cat', 'AllCategories', 'combined_out'))
         label = channel_label(chn)
         outfile = '_'.join(('limit', args.tag, args.mode, args.var))
         chn_labels = tuple([channel_label(x) for x in args.channels])

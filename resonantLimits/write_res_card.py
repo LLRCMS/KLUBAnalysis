@@ -6,8 +6,8 @@ import sys
 import os
 import argparse
 import ROOT
-from ConfigReader import *
-from systReader import *
+from ConfigReader import ConfigReader
+from systReader import systReader
 
 def parseOptions():
     usage = ('usage: %prog [options] datasetList\n %prog -h for help')
@@ -116,7 +116,7 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
 
         syst = systReader('../config/systematics_'+opt.period+'.cfg', signals, backgrounds, None)
         syst.writeOutput(False)
-        syst.verbose(True)
+        #syst.verbose(True)
         if opt.dy_syst:
             syst.addSystFile('../config/systematics_DY_'+opt.period+'.cfg')
         if opt.theory:
@@ -260,7 +260,7 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
                         shiftShapes_toSave.append(proc + '_' + suffix_str + '_' + name + t)
                         shiftShapes_newName.append(proc + '_' + name + t)
 
-        width_def, width_type = 45, 10
+        width_def, width_type = 48, 10
         colwidths = {'col'   : '{: <' + str(width_def) + '}',
                      'sysName' : '{: <' + str(width_def-width_type) + '}',
                      'sysType' : '{: <' + str(width_type) + '}'}

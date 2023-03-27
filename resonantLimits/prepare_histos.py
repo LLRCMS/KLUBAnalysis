@@ -102,15 +102,23 @@ systNames = ['tesXXX_DM0',
 # systNamesOUT = []
 # systNames = []
 
-listHistos = []
-inFile = ROOT.TFile.Open(args.filename)
-toth = len(inFile.GetListOfKeys())
+ROOT.TH1.AddDirectory(ROOT.kFALSE)
+inFile = ROOT.TFile.Open(args.filename, 'READ')
+
+histolist = inFile.GetListOfKeys()
+toth = histolist.GetSize()
+outFile = ROOT.TFile.Open(os.path.join(os.path.dirname(args.filename), args.outname),
+                          'RECREATE')
+
 
 # histos_syst_up, histos_syst_down = ([] for _ in range(2))
 systReplace = lambda s1, s2 : s1.replace('XXX', s2).replace('tes','tau').replace('ees','ele').replace('mes','mu').replace('jes','jet')
 yieldFolder = 'scales' + args.period + '/'
 
-for ih, key in enumerate(inFile.GetListOfKeys()):
+itkeys = ROOT.TIter(histolist)
+for ih in range(toth):
+    inFile.cd()
+    key = itkeys.Next()
     kname = key.GetName()
     template = inFile.Get(kname)
     if ih%500==0:
@@ -139,7 +147,8 @@ for ih, key in enumerate(inFile.GetListOfKeys()):
                 template.SetBinError(ibin,1E-9)
 
         if integral>0:
-            if changedInt and template.Integral()>0: template.Scale(integral/template.Integral())
+            if changedInt and template.Integral()>0:
+                template.Scale(integral/template.Integral())
         else:
             template.Scale(-100.) # set to negative in order to identify the problematic templates to be excluded in write_card.py
 
@@ -199,17 +208,11 @@ for ih, key in enumerate(inFile.GetListOfKeys()):
             if kname[0:3] == 'ZH_' : kname = kname.replace('ZH_' , 'ZH_hbb_')
             if kname[0:4] == 'ttH_': kname = kname.replace('ttH_', 'ttH_hbb_')
 
+    outFile.cd()
     template.SetName(kname)
     template.SetTitle(kname)
-    listHistos.append(template.Clone())
-
-outfile = ROOT.TFile.Open(os.path.join(os.path.dirname(args.filename), args.outname),
-                          'RECREATE')
-outfile.cd()
-for h in listHistos:
-    h.Write()
-# for h in histos_syst_up:
-#     h.Write()
-# for h in histos_syst_down:
-#     h.Write()
-outfile.Close()
+    template.Write()
+    del template
+    
+inFile.Close()
+outFile.Close()

@@ -195,8 +195,7 @@ int main (int argc, char** argv)
   HTMin = atof(argv[9]);
   cout << "** INFO: removing HT > " << HTMin << " [-999 means no removal]" << endl;
 
-  int isTTBarI = atoi(argv[10]);
-  bool isTTBar = (isTTBarI == 1) ? true : false;
+  bool isTTBar = (atoi(argv[10]) == 1) ? true : false;
   if (!isMC) isTTBar = false; // force it, you never know...
   cout << "** INFO: is this a TTbar sample? : " << isTTBar << endl;
 

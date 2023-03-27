@@ -215,30 +215,69 @@ if [ ${MODE} == "separate" ]; then
     done
 
 elif [ ${MODE} == "sel_group" ]; then
-		 
+	
     for chn in "${CHANNELS[@]}"; do
-	echo "Processing channel ${chn} with mode ${MODE} (var ${VAR})..."
-	card_dir="${LIMIT_DIR}/cards_${TAG}_${chn}"
-	comb_dir="${card_dir}/comb_cat"
-	cd ${comb_dir}
-	out_dir="${comb_dir}/combined_out"
-	mkdir -p "${out_dir}"
-	
-	# parallellize across the mass
-	proc="${SIGNAL}_${VAR}_{1}"
-	in_txt="${comb_dir}/comb.${proc}.txt"
-	out_log="${out_dir}/comb.${proc}.log"
-	
-	parallel -j 0 rm -f -- ${out_log} ::: ${MASSES[@]}
-	parallel -j $((`nproc` - 1)) \
-	    combine -M AsymptoticLimits ${in_txt} \
-	    -n ${IDENTIFIER}_${chn} \
-	    --run blind \
-	    --noFitAsimov \
-	    --freezeParameters SignalScale \
-	    -m {1} ">" ${out_log} ::: ${MASSES[@]}
-	cd -
+		echo "Processing channel ${chn} with mode ${MODE} (var ${VAR})..."
+		card_dir="${LIMIT_DIR}/cards_${TAG}_${chn}"
+
+		comb_dir="${card_dir}/comb_cat/AllCategories/"
+		cd ${comb_dir}
+		
+		out_dir="${comb_dir}/combined_out"
+		mkdir -p "${out_dir}"
+		
+		# parallellize across the mass
+		proc="${SIGNAL}_${VAR}_{1}"
+		in_txt="${comb_dir}/comb.${proc}.txt"
+		out_log="${out_dir}/comb.${proc}.log"
+		
+		parallel -j 0 rm -f -- ${out_log} ::: ${MASSES[@]}
+		parallel -j $((`nproc` - 1)) \
+				 combine -M AsymptoticLimits ${in_txt} \
+				 -n ${IDENTIFIER}_${chn} \
+				 --run blind \
+				 --noFitAsimov \
+				 --freezeParameters SignalScale \
+				 -m {1} ">" ${out_log} ::: ${MASSES[@]}
+		cd -
+
+		# group categories according to selections passed by the user
+		for selp in ${SELECTIONS[@]}; do
+			comb_dir="${card_dir}/comb_cat/${selp}_${VAR}/"
+			cd ${comb_dir}
+			
+			out_dir="${comb_dir}/combined_out"
+			mkdir -p "${out_dir}"
+			
+			# parallellize across the mass
+			proc="${SIGNAL}_${VAR}_{1}"
+			in_txt="${comb_dir}/comb.${proc}.txt"
+			out_log="${out_dir}/comb.${proc}.log"
+			
+			parallel -j 0 rm -f -- ${out_log} ::: ${MASSES[@]}
+			if [[ ${selp} =~ .*resolved.* ]]; then
+				parallel -j $((`nproc` - 1)) \
+						 combine -M AsymptoticLimits ${in_txt} \
+						 -n ${IDENTIFIER}_${chn} \
+						 --run blind \
+						 --noFitAsimov \
+						 --freezeParameters SignalScale \
+						 -m {1} ">" ${out_log} ::: ${MASSES[@]}
+			else
+				parallel -j $((`nproc` - 1)) \
+						 combine -M AsymptoticLimits ${in_txt} \
+						 -n ${IDENTIFIER}_${chn} \
+						 --run blind \
+						 --noFitAsimov \
+						 --freezeParameters SignalScale \
+						 -m {1} ">" ${out_log} ::: ${MHIGH[@]}
+			fi
+
+			cd -
+
+		done
     done
+
 
 elif [ ${MODE} == "chn_group" ]; then
 		 

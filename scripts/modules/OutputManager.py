@@ -497,7 +497,7 @@ class OutputManager:
         print('    >> systematics list: {}'.format(allSysts))
         return allSysts
 
-    def scaleHistos(self,strBkg, factor, strSel = None):
+    def scaleHistos(self, strBkg, factor, strSel=None):
         print('... scaling histos for bkg: {}, {} by factor: {}'.format(strBkg, strSel, factor))
         for sel in self.selections:
             if strSel:

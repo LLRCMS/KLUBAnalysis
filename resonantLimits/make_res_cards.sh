@@ -223,6 +223,7 @@ CFG_DIR="${BASEDIR}/config"
 
 # prepare histograms (remove negative bins and/or scale systematics)
 if [[ ${NOPREP} -eq 0 ]]; then
+	echo "Preparing the histograms..."
 	declare -a COMMS_PREP;
 	for ichn in "${!CHANNELS[@]}"; do
 		HISTDIR="${MAIN_DIR}/${IN_TAGS[${ichn}]}"
@@ -234,6 +235,7 @@ if [[ ${NOPREP} -eq 0 ]]; then
 	[[ ${DRYRUN} -eq 1 ]] && parallel echo {} ::: "${COMMS_PREP[@]}" || parallel -j "${#CHANNELS[@]}" {} ::: "${COMMS_PREP[@]}"
 fi
 
+echo "Writing the datacards..."
 # write datacards
 declare -a COMMS_WRITE;
 for ichn in "${!CHANNELS[@]}"; do

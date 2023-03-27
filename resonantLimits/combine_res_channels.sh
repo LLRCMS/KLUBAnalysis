@@ -134,19 +134,20 @@ for selprefix in ${SELECTION_PREFIXES[@]}; do
     declare -a allpref=($(cd ${LIMIT_DIR}/cards_${TAG}_*Tau/ && ls -d -1 ${selprefix}*/))
     echo "Processing all selections starting with '${selprefix}' (${#allpref[@]} in total): "
     for selp in ${allpref[@]}; do
-	echo "- ${selp}"
+		echo "- ${selp}"
     done
 
     proc="${SIGNAL}_${VAR}_{}"
     path_out_="${NEWDIR}/${selprefix}_${VAR}/comb.${proc}"
     path_txt="${path_out_}.txt"
     path_root="${path_out_}.root"
-
+	echo "Output folder: ${NEWDIR}/${selprefix}_${VAR}/"
+	
     # remove low masses for boosted categories
     if [[ ${selprefix} =~ .*boosted.* ]]; then
-	MASSES_IF=${MHIGH[@]};
+		MASSES_IF=${MHIGH[@]};
     else
-	MASSES_IF=${MASSES[@]};
+		MASSES_IF=${MASSES[@]};
     fi
 
     # parallelize over the mass
@@ -154,8 +155,8 @@ for selprefix in ${SELECTION_PREFIXES[@]}; do
     parallel rm -f -- ${path_root} ::: ${MASSES_IF[@]}
 
     parallel combineCards.py \
-	-S ${LIMIT_DIR}/cards_${TAG}*Tau/${selprefix}*_${VAR}/hhres_${PERIOD}_*Tau_${selprefix}*${SIGNAL}{}.txt \
-	">" ${path_txt} ::: ${MASSES_IF[@]}
+			 -S ${LIMIT_DIR}/cards_${TAG}*Tau/${selprefix}*_${VAR}/hhres_${PERIOD}_*Tau_${selprefix}*${SIGNAL}{}.txt \
+			 ">" ${path_txt} ::: ${MASSES_IF[@]}
     parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${path_txt} ::: ${MASSES_IF[@]}
     parallel text2workspace.py ${path_txt} -o ${path_root} ::: ${MASSES_IF[@]}
 
