@@ -11,9 +11,11 @@
  * Source: https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendation13TeV
  * Inspiration from TauTriggerSFs/src/TauTriggerSFs2017.cc
  *
- * @author Izaak Neutelings
- * @date July 2019
+ * @author Izaak Neutelings (July 2019)
  *
+ * updated by Bruno Alves (April 2023)
+ * to reflect Run2 UL new corrections for the DeepTauv2p1 algorithm
+ * source: https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_for_the_DeepTauv2p1
  */
 
 #include <TFile.h>   // TFile
@@ -21,38 +23,65 @@
 #include <TF1.h>     // TF1
 #include <TString.h> // Form
 #include <string>    // std::string
-#include <vector>    // std::vector
+#include <array>     // std::array
 #include <map>       // std::map
 #include <stdlib.h>  // getenv
 #include <functional>
 
 class TauIDSFTool {
 
+private:
+  void embeddedDMcheck(const std::string& ID);
+  TFile* ensureTFile(const TString filename);
+  TH1* extractTH1(const TFile* file, const std::string& histname);
+  const TF1* extractTF1(const TFile* file, const std::string& funcname);
+  void uncertaintyCheck(const std::string& unc) const;
+  void yearCheck(const std::string& year) const;
+	
 protected:
 
-  std::map<const std::string,const TF1*> func;
+  std::map<const std::string, const TF1*> func;
   TH1* hist;
   [[noreturn]] void disabled() const;
 
 public:
-
-  std::string ID;
-  std::string WP;
-  std::vector<int> DMs;
-  std::vector<int> genmatches;
+  bool mVerbose = false;
+  std::string mDatapath = Form("%s/src/KLUBAnalysis/weights/tau_ID_ScaleFactors_UL",
+							  getenv("CMSSW_BASE"));
+  std::array<std::string, 7> mYears = {"2016Legacy", "2017ReReco", "2018ReReco",
+									   "UL2016_preVFP", "UL2016_postVFP", "UL2017", "UL2018"};
+  std::array<std::string, 2> mAntiJetIDs = {"MVAoldDM2017v2", "DeepTau2017v2p1VSjet"};
+  std::array<std::string, 2> mAntiEleIDs = {"antiEleMVA6",    "DeepTau2017v2p1VSe"};
+  std::array<std::string, 2> mAntiMuIDs  = {"antiMu3",        "DeepTau2017v2p1VSmu"};
+  std::array<std::string, 13> mUncertainties = {"", //nominal
+												"Stat0Up", "Stat0Down", "Stat1Up", "Stat1Down",
+												"SystCorrDMErasUp", "SystCorrDMErasDown",
+												"SystCorrDMUncorrErasUp", "SystCorrDMUncorrErasDown",
+												"SystUncorrDMErasUp", "SystUncorrDMErasDown",
+												"SystGt40Up", "SystGt40Down",};
+  std::unordered_set<int> mDMs = {0, 1, 10};
+  std::vector<int> mGenmatches;
   bool isVsPT  = false;
   bool isVsDM  = false;
   bool isVsEta = false;
+  bool isVsDMandPt = false;
 
-  TauIDSFTool(const std::string& year, const std::string& id="MVAoldDM2017v2", const std::string& wp="Tight",
-	      const bool dm=false, const bool embedding=false);
+  TauIDSFTool(const std::string& year,
+			  const std::string& id="MVAoldDM2017v2",
+			  const std::string& wp="Tight",
+			  const bool dm=0,
+			  const bool embedding=false);
+  TauIDSFTool(std::string& year,
+			  const std::string& wp1,
+			  const std::string& wp2);
   ~TauIDSFTool() { }
 
-  float getSFvsPT( double pt,          int genmatch, const std::string& unc="");
-  float getSFvsPT( double pt,                        const std::string& unc="");
-  float getSFvsDM( double pt,  int dm, int genmatch, const std::string& unc="") const;
-  float getSFvsDM( double pt,  int dm,               const std::string& unc="") const;
-  float getSFvsEta(double eta,         int genmatch, const std::string& unc="") const;
+  float getSFvsPT(     double pt,          int genmatch, const std::string& unc="");
+  float getSFvsPT(     double pt,                        const std::string& unc="");
+  float getSFvsDM(     double pt,  int dm, int genmatch, const std::string& unc="") const;
+  float getSFvsDM(     double pt,  int dm,               const std::string& unc="") const;
+  float getSFvsEta(    double eta,         int genmatch, const std::string& unc="") const;
+  float getSFvsDMandPT(double pt,  int dm, int genmatch, const std::string& unc="");
 
 };
 
