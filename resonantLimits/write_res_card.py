@@ -123,11 +123,11 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
             syst.addSystFile('../config/syst_th.cfg')
 
         if opt.channel == 'ETau':
-            syst.addSystFile('../config/systematics_etau_' + opt.period + '.cfg')
+            syst.addSystFile('../config/systematics_etau.cfg')
         elif opt.channel == 'MuTau':
-            syst.addSystFile('../config/systematics_mutau_' + opt.period + '.cfg')
+            syst.addSystFile('../config/systematics_mutau.cfg')
         elif opt.channel == 'TauTau':
-            syst.addSystFile('../config/systematics_tautau_' + opt.period + '.cfg')
+            syst.addSystFile('../config/systematics_tautau.cfg')
         syst.writeSystematics()
 
         proc_syst = {} # key = proc name; value = {systName: [systType, systVal]] } # too nested? \_(``)_/
