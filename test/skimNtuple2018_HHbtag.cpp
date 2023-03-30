@@ -6,6 +6,7 @@
 #include <sstream>
 #include <bitset>
 #include <map>
+#include <cassert>
 #include "TTree.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -195,7 +196,8 @@ int main (int argc, char** argv)
   HTMin = atof(argv[9]);
   cout << "** INFO: removing HT > " << HTMin << " [-999 means no removal]" << endl;
 
-  bool isTTBar = (atoi(argv[10]) == 1) ? true : false;
+  assert(atoi(argv[10]) == 0 or atoi(argv[10]) == 1);
+  bool isTTBar = atoi(argv[10]);
   if (!isMC) isTTBar = false; // force it, you never know...
   cout << "** INFO: is this a TTbar sample? : " << isTTBar << endl;
 

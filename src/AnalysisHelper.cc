@@ -10,7 +10,7 @@
 
 using namespace std;
 
-#define DEBUG true
+#define DEBUG false
 
 AnalysisHelper::AnalysisHelper(string cfgname, string merge_section)
 {
