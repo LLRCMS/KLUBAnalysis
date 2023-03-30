@@ -40,7 +40,7 @@ public:
 
   typedef ordered_map <std::string, std::shared_ptr<Sample>> sampleColl; // the type of a collection of samples
 
-  AnalysisHelper(std::string cfgname);
+  AnalysisHelper(std::string cfgname, std::string merge_section);
   ~AnalysisHelper();
 
   CfgParser& mainCfg() {return *mainCfg_;}
@@ -103,10 +103,10 @@ private:
   ordered_map <std::string, std::shared_ptr<Sample>> data_samples_;
   ordered_map <std::string, std::shared_ptr<Sample>> sig_samples_;
   ordered_map <std::string, std::shared_ptr<Sample>> bkg_samples_;
-
   ordered_map <std::string, std::vector<std::string>> sample_merge_list_;
 
   std::string nominal_name_;
+  std::string merge_section_;
   int verbosity_;
 };
 

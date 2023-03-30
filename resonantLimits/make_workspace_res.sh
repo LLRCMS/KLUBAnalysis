@@ -8,7 +8,7 @@ declare -a MASSES;
 TAG="10Feb_UL18"
 VAR="DNNoutSM_kl_1"
 SIGNAL="ggFRadion"
-LIMIT_DIR="/home/llr/cms/${USER}/CMSSW_11_1_9/src/KLUBAnalysis/resonantLimits/"
+BASEDIR="${HOME}/CMSSW_11_1_9/src/KLUBAnalysis"
 
 HELP_STR="Prints this help message."
 TAG_STR="(String) Defines tag for the output. Defaults to '${TAG}'."
@@ -18,12 +18,14 @@ DRYRUN_STR="(Boolean) Whether to run in dry-run mode. Defaults to '${DRYRUN}'."
 MASSES_STR="(Array of ints) Resonant masses."
 SELECTIONS_STR="(Array of strings) Selections."
 CHANNELS_STR="(Array of strings) Channels."
+BASEDIR_STR="(String) Base directory."
 function print_usage_submit_skims {
     USAGE="
                                                               
     Run example: bash $(basename "$0") -t <some_tag>
     -h / --help       [${HELP_STR}]
     -t / --tag        [${TAG_STR}]
+    -b / --base       [${BASEDIR_STR}]
     -v / --var        [${VAR_STR}]
     -s / --signal     [${SIGNAL_STR}]
     -m / --masses     [${MASSES_STR}]
@@ -46,11 +48,15 @@ while [[ $# -gt 0 ]]; do
             TAG=${2}
             shift; shift;
             ;;
-       -v|--var)
+	-b|--base)
+	    BASEDIR=${2}
+	    shift; shift;
+	    ;;
+	-v|--var)
             VAR=${2}
             shift; shift;
             ;;
-       -s|--signal)
+	-s|--signal)
             SIGNAL=${2}
             shift; shift;
             ;;
@@ -75,9 +81,9 @@ while [[ $# -gt 0 ]]; do
 		    SELECTIONS+=(${2});
 		    shift;
 		fi
-	    done
+	       done
             shift;
-            ;;
+           ;;
 	-c|--channels)
 	    chn_flag=0
 	    while [ ${chn_flag} -eq 0 ]; do
@@ -90,10 +96,14 @@ while [[ $# -gt 0 ]]; do
 	    done
             shift;
             ;;
-    *)  # unknown option
-		echo "Wrong parameter ${1}."
-        exit 1
-        ;;
+	-s|--signal)
+	    SIGNAL=${2}
+            shift; shift;
+            ;;
+	*)  # unknown option
+	    echo "Wrong parameter ${1}."
+            exit 1
+            ;;
     esac
 done
 
@@ -115,12 +125,15 @@ for mass in ${MASSES[@]}; do
 	fi
 done
 
-for i in "${!CHANNELS[@]}"; do
-    card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[$i]}"
-	comb_="comb.${SIGNAL}{}"
+LIMIT_DIR="${BASEDIR}/resonantLimits"
+
+for ichn in "${!CHANNELS[@]}"; do
+    card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[${ichn}]}"
+	proc="${SIGNAL}_${VAR}_{}"
+	comb_="comb.${proc}"
 	
     for sel in ${SELECTIONS[@]}; do
-		echo "Processing ${sel} for channel ${CHANNELS[$i]} ..."
+		echo "Processing ${sel} for channel ${CHANNELS[${ichn}]} ..."
 		cat_dir="${card_dir}/${sel}_${VAR}"
 		cd ${cat_dir}
 
@@ -134,12 +147,11 @@ for i in "${!CHANNELS[@]}"; do
 			MASSES_IF=${MASSES[@]};
 		fi
 
-		proc="${SIGNAL}{}"
-		
 		# parallelize over the mass
 		parallel rm -f -- ${comb_txt} ::: ${MASSES_IF[@]}
-		parallel combineCards.py -S hhres_*.${proc}.txt ">" ${comb_txt} ::: ${MASSES_IF[@]}
-		parallel echo "SignalScale rateParam \* ${proc} 0.01" ">>" ${comb_txt} ::: ${MASSES_IF[@]}
+		parallel combineCards.py -S ${cat_dir}/hhres_*.${SIGNAL}{}.txt ">" ${comb_txt} ::: ${MASSES_IF[@]}
+		parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${comb_txt} ::: ${MASSES_IF[@]}
+
 		cd -
 		parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES_IF[@]}
 

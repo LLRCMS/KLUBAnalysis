@@ -27,24 +27,29 @@ int main(int argc, char** argv)
   if (argc==5)
     outFolder = argv[4];
 
-  AnalysisHelper ah(argv[1]);
+  std::array<std::string, 2> merge_sections = {{"merge_plots", "merge_limits"}};
 
-  if (split) ah.setSplitting(idx, njobs);
-  ah.readSelections();
-  ah.readVariables();
-  try {ah.readSamples();}
-  catch (std::exception &ex)
-  {
-    cerr << "*** Error in reading samples because: " << ex.what() << endl;
-    return 1;
-  }
+  for (auto ms: merge_sections)
+	{
+	  AnalysisHelper ah(argv[1], ms);
 
-  // ah.prepareSamplesHistos();
-  // ah.prepareSamples2DHistos();
-  ah.prepareHistos();
-  ah.dump(2); // can set a level of detail
-  ah.fillHistos();
-  ah.mergeSamples(); // do it just at the end
-  ah.saveOutputsToFile(outFolder);
+	  if (split) ah.setSplitting(idx, njobs);
+	  ah.readSelections();
+	  ah.readVariables();
+	  try {ah.readSamples();}
+	  catch (std::exception &ex)
+		{
+		  cerr << "*** Error in reading samples because: " << ex.what() << endl;
+		  return 1;
+		}
+	  
+	  ah.prepareHistos();
+	  ah.dump(2); // can set a level of detail
+	  ah.fillHistos();
+	  ah.mergeSamples(); // do it just at the end
+
+	  cout << "... saving outputs under " << outFolder << endl;
+	  ah.saveOutputsToFile(outFolder);
+	}
   cout << "... exiting" << endl;
 }

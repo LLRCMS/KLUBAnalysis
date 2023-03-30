@@ -5,15 +5,16 @@ DRYRUN="0"
 NOSIG="0"
 NODATA="0"
 TAG=""
-CHANNEL=""
-CHANNEL_CHOICES=( "ETau" "MuTau" "TauTau" )
+CHANNEL="ETau"
+CHANNEL_CHOICES=("ETau" "MuTau" "TauTau")
 SELECTION="baseline"
-SELECTION_CHOICES=( "baseline" "s1b1jresolved" )
+SELECTION_CHOICES=( "baseline" "s1b1jresolvedMcut" "s2b0jresolvedMcut" "sboostedLLMcut" )
 DATA_PERIOD="UL18"
 DATA_PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
 REG="SR"  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
-REG_CHOICES=( "SR" "SStight" "OSinviso" "SSinviso" "SSrlx" )
+REG_CHOICES=( "SR" "SStight" "OSinviso" "SSinviso" )
 EOS_USER="bfontana"
+CFGFILE="mainCfg_${CHANNEL}_${DATA_PERIOD}.cfg"
 
 ### Argument parsing
 HELP_STR="Prints this help message."
@@ -25,19 +26,21 @@ DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defa
 REG_STR="(String) Which region to consider: A: SR, B: SStight, C: OSinviso, D: SSinviso, B': SSrlx. Defaults to '${REG}'."
 NOSIG_STR="(Boolean) Do not include signal samples. Defaults to '${NOSIG}'."
 NODATA_STR="(Boolean) Do not include data samples. Defaults to '${NODATA}'."
+CFGFILE_STR="(String) Configuration file used to retrieve some information. Defaults to '${CFG_FILE}'."
 function print_usage_submit_skims {
     USAGE=" 
     Run example: bash $(basename "$0") -t <some_tag>
 
-    -h / --help		[${HELP_STR}]
-    --dry-run		[${DRYRUN_STR}]
+    -h / --help		    [${HELP_STR}]
+    --dryrun		    [${DRYRUN_STR}]
     -c / --channel      [${CHANNEL_STR}]
     -s / --selection    [${SELECTION_STR}]
-    -t / --tag		[${TAG_STR}]
-    -r / --region	[${REG_STR}]
+    -t / --tag		    [${TAG_STR}]
+    -r / --region    	[${REG_STR}]
     -d / --data_period  [${DATAPERIOD_STR}]
     --nosig             [${NOSIG_STR}]
     --nodata            [${NODATA_STR}]
+    --cfg               [${CFGFILE_STR}]
 
 "
     printf "${USAGE}"
@@ -72,15 +75,15 @@ while [[ $# -gt 0 ]]; do
 		fi
 		shift; shift;
 		;;
-	--dry-run)
+	--dryrun)
 	    DRYRUN="1"
 	    shift;
 	    ;;
-	--no-sig)
+	--nosig)
 	    NOSIG="1"
 	    shift;
 	    ;;
-	--no-data)
+	--nodata)
 	    NODATA="1"
 	    shift;
 	    ;;
@@ -101,6 +104,11 @@ while [[ $# -gt 0 ]]; do
 	    ;;
 	--eos)
 	    EOS_USER="$2"
+	    shift # past argument
+	    shift # past value
+	    ;;
+	--cfg)
+	    CFGFILE="$2"
 	    shift # past argument
 	    shift # past value
 	    ;;
@@ -169,7 +177,6 @@ elif [ ${DATA_PERIOD} == "UL18" ]; then
 	PLOTTER="scripts/makeFinalPlots_UL2018.py"
 fi
 
-
 ### Argument parsing: information for the user
 echo "------ Arguments --------------"
 printf "DRYRUN\t\t= ${DRYRUN}\n"
@@ -181,17 +188,21 @@ printf "REGION\t\t= ${REG}\n"
 printf "EOS_USER\t= ${EOS_USER}\n"
 printf "NOSIG\t\t= ${NOSIG}\n"
 printf "NODATA\t\t= ${NODATA}\n"
+printf "CFGFILE\t\t= ${CFGFILE}\n"
 echo "-------------------------------"
 
 ### Ensure connection to /eos/ folder
 [[ ! -d ${EOS_DIR} ]] && /opt/exp_soft/cms/t3/eos-login -username ${EOS_USER} -init
 
-OPTIONS="--quit --ratio " # --sigscale 10 10" "--no-binwidth"
+OPTIONS="--quit --ratio " #"--binwidth"
 if [[ ${NOSIG} -eq 0 ]]; then
-	OPTIONS+="--nosig "
+    OPTIONS+=" --signals ggFRadion280 ggFRadion400 ggFRadion550 ggFRadion800 ggFRadion1500 "
+else
+    OPTIONS+=" --nosig "
 fi
+
 if [[ ${NODATA} -eq 0 ]]; then
-	OPTIONS+="--nodata "
+    OPTIONS+=" --nodata "
 fi
 
 OUTDIR="${MAIN_DIR}/${PLOTS_DIR}"
@@ -206,29 +217,73 @@ function run_plot() {
 	comm="python ${PLOTTER} --indir ${MAIN_DIR} --outdir ${OUTDIR} "
 	comm+="--reg ${REG} "
 	comm+="--sel ${SELECTION} --channel ${CHANNEL} "
-	comm+="--lumi ${LUMI} ${OPTIONS} --quit $@"
+	comm+="--cfg ${CFGFILE} "
+	comm+="--lumi ${LUMI} ${OPTIONS} $@"
 	[[ ${DRYRUN} -eq 1 ]] && echo "[DRYRUN] ${comm}" || ${comm}
 }
 
 declare -A VAR_MAP
 VAR_MAP=(
-	["dau1_pt"]="pT_{1}[GeV]"
-	["bjet1_pt"]="pT_{j1}[GeV]"
-	["bjet2_pt"]="pT_{j2}[GeV]"
-	["dau1_eta"]="eta_{1}[GeV]"
-	["bjet1_eta"]="eta_{j1}[GeV]"
-	["bjet2_eta"]="eta_{j2}[GeV]"
-	["HH_mass"]="m_{HH}[GeV]"
-	["HHKin_mass"]="m_{HHKin}[GeV]"
-	["DNNoutSM_kl_1"]="DNN"
-	)
+	["dau1_pt"]="pT_{1}[GeV] "
+	["bjet1_pt"]="pT_{j1}[GeV] "
+	["bjet2_pt"]="pT_{j2}[GeV] "
+	["dau1_eta"]="eta_{1}[GeV] "
+	["bjet1_eta"]="eta_{j1}[GeV] "
+	["bjet2_eta"]="eta_{j2}[GeV] "
+	["tauH_mass"]="m_{H#tau}[Gev] "
+	["tauH_mass"]="m_{H#tau}[Gev] --equalwidth "
+	["tauH_pt"]="pT_{H#tau}[Gev] "
+	["tauH_SVFIT_mass"]="m_{H#tau_{SVFit}}[Gev] "
+	["bH_mass"]="m_{Hb}[Gev] "
+	["bH_pt"]="pT_{Hb}[Gev]	"
+	["ditau_deltaR"]="#DeltaR(#tau#tau)	"
+	["dib_deltaR"]="#DeltaR(bb)	"
+	["HH_deltaR"]="#DeltaR(HH) "
+	["HH_mass"]="m_{HH}[GeV] --logy "
+	["HHKin_mass"]="m_{HHKin}[GeV] --logy "
+	["HH_mass"]="m_{HH}[GeV] --logy --logx "
+	["HHKin_mass"]="m_{HHKin}[GeV] --logy --logx "
+	["DNNoutSM_kl_1"]="DNN --logy --equalwidth "
+)
+declare -A SIGSCALE_CHANNEL_MAP
+SIGSCALE_CHANNEL_MAP=(
+	["dau1_pt"]="100 100 40"
+	["bjet1_pt"]="200 200 40 "
+	["bjet2_pt"]="250 250 40 "
+	["dau1_eta"]="70 70 10 "
+	["bjet1_eta"]="80 80 8 "
+	["bjet2_eta"]="70 70 8 "
+	["tauH_mass"]="50 50 5 "
+	["tauH_pt"]="50 50 20 "
+	["tauH_SVFIT_mass"]="20 20 4 "
+	["bH_mass"]="50 50 5 "
+	["bH_pt"]="150 150 10"
+	["ditau_deltaR"]="15 15 2 "
+	["dib_deltaR"]="20 20 2 "
+	["HH_deltaR"]="35 35 5 "
+	["HH_mass"]="10 10 1 "
+	["HHKin_mass"]="10 10 1 "
+	["HH_mass"]="10 10 1 "
+	["HHKin_mass"]="10 10 1 "
+	["DNNoutSM_kl_1"]="10 10 1 "
+)
+
 for avar in ${!VAR_MAP[@]}; do
-    run_plot --var ${avar} --lymin 0.7 --label ${VAR_MAP[$avar]}
+	ssarr=(${SIGSCALE_CHANNEL_MAP[${avar}]})
+	if [ ${CHANNEL} == "ETau" ]; then
+		ss=${ssarr[0]}
+	elif [ ${CHANNEL} == "MuTau" ]; then
+		ss=${ssarr[1]}
+	elif [ ${CHANNEL} == "TauTau" ]; then
+		ss=${ssarr[2]}
+	else
+		echo "Channel ${CHANNEL} is not supported." 
+	fi
+    run_plot --var ${avar} --lymin 0.7 --sigscale ${ss} --label ${VAR_MAP[$avar]}
 done
 
 run mkdir -p ${WWW_DIR}
 if [ -d ${WWW_SUBDIR} ]; then
-    echo "removing"
     run rm -rf ${WWW_SUBDIR}
 fi
 

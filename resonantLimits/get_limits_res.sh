@@ -4,14 +4,12 @@ declare -a SELECTIONS;
 declare -a MASSES;
 
 # Defaults
-IDENTIFIER=".test"
 TAG=""
 VAR="DNNoutSM_kl_1"
 SIGNAL="ggFRadion"
-LIMIT_DIR="/home/llr/cms/${USER}/CMSSW_11_1_9/src/KLUBAnalysis/resonantLimits"
-
 MODE=""
 MODE_CHOICES=( "separate" "sel_group" "chn_group" "all_group" )
+BASEDIR="${HOME}/CMSSW_11_1_9/src/KLUBAnalysis"
 
 HELP_STR="Prints this help message."
 TAG_STR="(String) Defines tag for the output. Defaults to '${TAG}'."
@@ -22,14 +20,16 @@ DRYRUN_STR="(Boolean) Whether to run in dry-run mode. Defaults to '${DRYRUN}'."
 MASSES_STR="(Array of ints) Resonant masses."
 CHANNELS_STR="(Array of strings) Channels."
 SELECTIONS_STR="(Array of strings) Selection categories."
+BASEDIR_STR="(String) Base directory."
 function print_usage_submit_skims {
     USAGE="
 
     Run example: bash $(basename "$0") -t <some_tag>
                                       
     -h / --help       [${HELP_STR}]
-    -m / --mode       [${TAG_STR}]
+    -m / --mode       [${MODE_STR}]
     -t / --tag        [${TAG_STR}]
+    -b / --base       [${BASEDIR_STR}]
     -v / --var        [${VAR_STR}]
     -s / --signal     [${SIGNAL_STR}]
     -c / --channels   [${CHANNELS_STR}] 
@@ -52,23 +52,27 @@ while [[ $# -gt 0 ]]; do
             TAG=${2}
             shift; shift;
             ;;
-		--mode)
-			MODE=${2}
-			if [[ ! " ${MODE_CHOICES[*]} " =~ " ${MODE} " ]]; then
-				echo "You provided mode=${MODE}."
-				echo "Currently the following modes are supported:"
-				for md in ${MODE_CHOICES[@]}; do
-					echo "- ${md}" # bash string substitution
-				done
-				exit 1;
-			fi
-			shift; shift;
-			;;
-		-s|--signal)
+	-b|--base)
+	    BASEDIR=${2}
+	    shift; shift;
+	    ;;
+	--mode)
+	    MODE=${2}
+	    if [[ ! " ${MODE_CHOICES[*]} " =~ " ${MODE} " ]]; then
+		echo "You provided mode=${MODE}."
+		echo "Currently the following modes are supported:"
+		for md in ${MODE_CHOICES[@]}; do
+		    echo "- ${md}" # bash string substitution
+		done
+		exit 1;
+	    fi
+	    shift; shift;
+	    ;;
+	-s|--signal)
             SIGNAL=${2}
             shift; shift;
             ;;
-       -v|--var)
+	-v|--var)
             VAR=${2}
             shift; shift;
             ;;
@@ -141,120 +145,205 @@ if [ ${#SELECTIONS[@]} -eq 0 ]; then
     SELECTIONS=("s1b1jresolvedMcut" "s2b0jresolvedMcut" "sboostedLLMcut")
 fi
 
-declare -a MASSES_IF;
 declare -a MHIGH;
 for mass in ${MASSES[@]}; do
-	if [ ${mass} -gt "319" ]; then
-		MHIGH+=(${mass})
-	fi
+    if [ ${mass} -gt "319" ]; then
+	MHIGH+=(${mass})
+    fi
 done
+
+declare -a CATEGORIES_BOOST;
+declare -a CATEGORIES_NOBOOST;
+for sel in ${SELECTIONS[@]}; do
+    if [[ ${sel} =~ .*boosted.* ]]; then
+		CATEGORIES_BOOST+=(${sel})
+    else
+		CATEGORIES_NOBOOST+=(${sel})
+    fi
+done
+
+LIMIT_DIR="${BASEDIR}/resonantLimits"
+IDENTIFIER=".test_${SIGNAL}_${VAR}"
 
 if [ ${MODE} == "separate" ]; then
 	
-	for i in "${!CHANNELS[@]}"; do
-		card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[$i]}"
-		cd ${card_dir}
+    for i in "${!CHANNELS[@]}"; do
+	card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[$i]}"
+	cd ${card_dir}
 
-		for sel in ${SELECTIONS[@]}; do
-			echo "Processing category ${sel} for channel ${CHANNELS[$i]} (mode ${MODE})..."
-		
-			cat_dir="${card_dir}/${sel}_${VAR}"
-			out_dir="${cat_dir}/combined_out"
-			mkdir -p "${out_dir}"
-			
-			# remove low masses for boosted categories
-			if [[ ${sel} =~ .*boosted.* ]]; then
-				MASSES_IF=${MHIGH[@]}
-			else
-				MASSES_IF=${MASSES[@]}
-			fi
-		
-			# parallellize across the mass
-			in_txt="${cat_dir}/comb.${SIGNAL}{}.txt"
-			out_log="${out_dir}/comb.${SIGNAL}{}.log"
-			parallel rm -f -- ${out_log} ::: ${MASSES_IF[@]}
-			parallel combine -M AsymptoticLimits ${in_txt} \
-					 -n ${IDENTIFIER}_${sel} \
-					 --run blind \
-					 --noFitAsimov \
-					 --freezeParameters SignalScale \
-					 -m {} ">" ${out_log} ::: ${MASSES_IF[@]}
-		done		
-		cd -
+	printf "Processing categories in parallel for channel ${CHANNELS[$i]} "
+	printf "(mode ${MODE}, var ${VAR})...\n"
+
+	out_="combined_out"
+	for sel in ${SELECTIONS[@]}; do
+	    cat_dir="${card_dir}/${sel}_${VAR}"
+	    out_dir="${cat_dir}/${out_}"
+	    mkdir -p "${out_dir}"
 	done
 
-elif [ ${MODE} == "sel_group" ]; then
-		 
-	for chn in "${CHANNELS[@]}"; do
-		echo "Processing channel ${chn} with mode ${MODE}..."
-		card_dir="${LIMIT_DIR}/cards_${TAG}_${chn}"
-		cd ${card_dir}
+	cat_dir_parallel="${card_dir}/{2}_${VAR}"
+	out_dir_parallel="${cat_dir_parallel}/${out_}"
+	
+	# parallellize across the mass and category
+	proc="${SIGNAL}_${VAR}_{1}"
+	in_txt="${cat_dir_parallel}/comb.${proc}.txt"
+	out_log="${out_dir_parallel}/comb.${proc}.log"
 
-		comb_dir="${card_dir}/comb_cat"
+	parallel rm -f -- ${out_log} ::: ${MASSES[@]} ::: ${SELECTIONS[@]}
+
+	if [ ${#CATEGORIES_BOOST[@]} -ne 0 ]; then
+		parallel -j $((`nproc` - 1)) \
+				 combine -M AsymptoticLimits ${in_txt} \
+				 -n ${IDENTIFIER}_{2} \
+				 --run blind \
+				 --noFitAsimov \
+				 --freezeParameters SignalScale \
+				 -m {1} ">" ${out_log} ::: ${MHIGH[@]} ::: ${CATEGORIES_BOOST[@]}
+	fi
+
+	if [ ${#CATEGORIES_NOBOOST[@]} -ne 0 ]; then
+		parallel -j $((`nproc` - 1)) \
+				 combine -M AsymptoticLimits ${in_txt} \
+				 -n ${IDENTIFIER}_{2} \
+				 --run blind \
+				 --noFitAsimov \
+				 --freezeParameters SignalScale \
+				 -m {1} ">" ${out_log} ::: ${MASSES[@]} ::: ${CATEGORIES_NOBOOST[@]}
+	fi
+
+	cd -
+    done
+
+elif [ ${MODE} == "sel_group" ]; then
+	
+    for chn in "${CHANNELS[@]}"; do
+		echo "Processing channel ${chn} with mode ${MODE} (var ${VAR})..."
+		card_dir="${LIMIT_DIR}/cards_${TAG}_${chn}"
+
+		comb_dir="${card_dir}/comb_cat/AllCategories/"
+		cd ${comb_dir}
+		
 		out_dir="${comb_dir}/combined_out"
 		mkdir -p "${out_dir}"
-
+		
 		# parallellize across the mass
-		in_txt="${comb_dir}/comb.${SIGNAL}{}.txt"
-		out_log="${out_dir}/comb.${SIGNAL}{}.log"
-
-		parallel rm -f -- ${out_log} ::: ${MASSES[@]}
-		parallel combine -M AsymptoticLimits ${in_txt} \
+		proc="${SIGNAL}_${VAR}_{1}"
+		in_txt="${comb_dir}/comb.${proc}.txt"
+		out_log="${out_dir}/comb.${proc}.log"
+		
+		parallel -j 0 rm -f -- ${out_log} ::: ${MASSES[@]}
+		parallel -j $((`nproc` - 1)) \
+				 combine -M AsymptoticLimits ${in_txt} \
 				 -n ${IDENTIFIER}_${chn} \
 				 --run blind \
 				 --noFitAsimov \
 				 --freezeParameters SignalScale \
-				 -m {} ">" ${out_log} ::: ${MASSES[@]}
+				 -m {1} ">" ${out_log} ::: ${MASSES[@]}
 		cd -
-	done
+
+		# group categories according to selections passed by the user
+		for selp in ${SELECTIONS[@]}; do
+			comb_dir="${card_dir}/comb_cat/${selp}_${VAR}/"
+			cd ${comb_dir}
+			
+			out_dir="${comb_dir}/combined_out"
+			mkdir -p "${out_dir}"
+			
+			# parallellize across the mass
+			proc="${SIGNAL}_${VAR}_{1}"
+			in_txt="${comb_dir}/comb.${proc}.txt"
+			out_log="${out_dir}/comb.${proc}.log"
+			
+			parallel -j 0 rm -f -- ${out_log} ::: ${MASSES[@]}
+			if [[ ${selp} =~ .*resolved.* ]]; then
+				parallel -j $((`nproc` - 1)) \
+						 combine -M AsymptoticLimits ${in_txt} \
+						 -n ${IDENTIFIER}_${chn} \
+						 --run blind \
+						 --noFitAsimov \
+						 --freezeParameters SignalScale \
+						 -m {1} ">" ${out_log} ::: ${MASSES[@]}
+			else
+				parallel -j $((`nproc` - 1)) \
+						 combine -M AsymptoticLimits ${in_txt} \
+						 -n ${IDENTIFIER}_${chn} \
+						 --run blind \
+						 --noFitAsimov \
+						 --freezeParameters SignalScale \
+						 -m {1} ">" ${out_log} ::: ${MHIGH[@]}
+			fi
+
+			cd -
+
+		done
+    done
+
 
 elif [ ${MODE} == "chn_group" ]; then
 		 
-	for sel in "${SELECTIONS[@]}"; do
-		echo "Processing category ${sel} with mode ${MODE}..."
-		card_dir="${LIMIT_DIR}/cards_${TAG}_CombChn"
-		cd ${card_dir}
+    echo "Processing category ${sel} with mode ${MODE} (var ${VAR})..."
+    card_dir="${LIMIT_DIR}/cards_${TAG}_CombChn"
+    cd ${card_dir}
+    out_="combined_out"
 
+    for sel in ${SELECTIONS[@]}; do
 		comb_dir="${card_dir}/${sel}_${VAR}"
-		out_dir="${comb_dir}/combined_out"
+		out_dir="${comb_dir}/${out_}"
 		mkdir -p "${out_dir}"
-		
-		# remove low masses for boosted categories
-		if [[ ${sel} =~ .*boosted.* ]]; then
-			MASSES_IF=${MHIGH[@]}
-		else
-			MASSES_IF=${MASSES[@]}
-		fi
+    done
 
-		# parallellize across the mass
-		in_txt="${comb_dir}/comb.${SIGNAL}{}.txt"
-		out_log="${out_dir}/comb.${SIGNAL}{}.log"
-		parallel rm -f -- ${out_log} ::: ${MASSES_IF[@]}
-		parallel combine -M AsymptoticLimits ${in_txt} \
-				 -n ${IDENTIFIER}_${sel} \
-				 --run blind \
-				 --noFitAsimov \
-				 --freezeParameters SignalScale \
-				 -m {} ">" ${out_log} ::: ${MASSES_IF[@]}
-		cd -
-	done
+    comb_dir_parallel="${card_dir}/{2}_${VAR}"
+	out_dir_parallel="${comb_dir_parallel}/${out_}"
+	
+    # parallellize across the mass and categories
+    proc="${SIGNAL}_${VAR}_{1}"
+    in_txt="${comb_dir_parallel}/comb.${proc}.txt"
+    out_log="${out_dir_parallel}/comb.${proc}.log"
+    parallel -j 0 rm -f -- ${out_log} ::: ${MASSES[@]} ::: ${SELECTIONS[@]}
+
+    if [ ${#CATEGORIES_BOOST[@]} -ne 0 ]; then
+	parallel -j $((`nproc` - 1)) \
+	    combine -M AsymptoticLimits ${in_txt} \
+	    -n ${IDENTIFIER}_{2} \
+	    --run blind \
+	    --noFitAsimov \
+	    --freezeParameters SignalScale \
+	    -m {1} ">" ${out_log} ::: ${MHIGH[@]} ::: ${CATEGORIES_BOOST[@]}
+    fi
+    
+    if [ ${#CATEGORIES_NOBOOST[@]} -ne 0 ]; then
+	parallel -j $((`nproc` - 1)) \
+	    combine -M AsymptoticLimits ${in_txt} \
+	    -n ${IDENTIFIER}_{2} \
+	    --run blind \
+	    --noFitAsimov \
+	    --freezeParameters SignalScale \
+	    -m {1} ">" ${out_log} ::: ${MASSES[@]} ::: ${CATEGORIES_NOBOOST[@]}
+    fi
+    
+    cd -
 
 elif [ ${MODE} == "all_group" ]; then
 
-	echo "Processing all categories and channels (mode ${MODE})..."
+	echo "Processing all categories and channels (mode ${MODE}, var ${VAR})..."
 	card_dir="${LIMIT_DIR}/cards_${TAG}_All"
+	cd ${card_dir}
+
 	out_dir="${card_dir}/combined_out"
 	mkdir -p "${out_dir}"
-					
+
 	# parallellize across the mass
-	in_txt="${card_dir}/comb.${SIGNAL}{}.txt"
-	out_log="${out_dir}/comb.${SIGNAL}{}.log"
-	parallel rm -f -- ${out_log} ::: ${MASSES[@]}
-	parallel combine -M AsymptoticLimits ${in_txt} \
-			 -n ${IDENTIFIER}_all \
-			 --run blind \
-			 --noFitAsimov \
-			 --freezeParameters SignalScale \
-			 -m {} ">" ${out_log} ::: ${MASSES[@]}
+	proc="${SIGNAL}_${VAR}_{1}"
+	in_txt="${card_dir}/comb.${proc}.txt"
+	out_log="${out_dir}/comb.${proc}.log"
+
+	parallel -j 0 rm -f -- ${out_log} ::: ${MASSES[@]}
+	parallel -j $((`nproc` - 1)) \
+	    combine -M AsymptoticLimits ${in_txt} \
+	    -n ${IDENTIFIER}_all \
+	    --run blind \
+	    --noFitAsimov \
+	    --freezeParameters SignalScale \
+	    -m {1} ">" ${out_log} ::: ${MASSES[@]}
 
 fi
