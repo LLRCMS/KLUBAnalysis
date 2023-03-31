@@ -1491,7 +1491,7 @@ int main (int argc, char** argv)
       int dauType = theBigTree.particleType->at(idau);
       if (oph.isMuon(dauType))
       {
-	bool passMu   = oph.muBaseline (&theBigTree, idau, 20., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
+	bool passMu   = oph.muBaseline (&theBigTree, idau, 20., 2.3, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
 	bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.30, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
 
 	if (passMu) ++nmu;
@@ -1499,7 +1499,7 @@ int main (int argc, char** argv)
       }
       else if (oph.isElectron(dauType))
       {
-	bool passEle   = oph.eleBaseline (&theBigTree, idau, 24., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
+	bool passEle   = oph.eleBaseline (&theBigTree, idau, 24., 2.3, 0.1, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
 	bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.3, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
 
 	if (passEle) ++nele;
@@ -1525,8 +1525,8 @@ int main (int argc, char** argv)
 	     << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
 	     << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
 	     << " mutightID=" << setw(3)  << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
-	     << " mubase="    << setw(3)  << left << oph.muBaseline (&theBigTree, idau, 10., 2.1, 0.15, OfflineProducerHelper::MuTight, string("All"))
-	     << " ebase="     << setw(3)  << left << oph.eleBaseline(&theBigTree, idau, 10., 2.1, 0.1, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"))
+	     << " mubase="    << setw(3)  << left << oph.muBaseline (&theBigTree, idau, 10., 2.3, 0.15, OfflineProducerHelper::MuTight, string("All"))
+	     << " ebase="     << setw(3)  << left << oph.eleBaseline(&theBigTree, idau, 10., 2.3, 0.1, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"))
 	     << endl;
       }
     } // end loop on daughters
@@ -3766,50 +3766,51 @@ int main (int argc, char** argv)
     for (unsigned int iLep = 0 ; (iLep < theBigTree.daughters_px->size ()) ; ++iLep)
     {
       // skip the H decay candiates
-      if (int (iLep) == firstDaughterIndex || int (iLep) == secondDaughterIndex) continue;
+      if (int (iLep) == firstDaughterIndex || int (iLep) == secondDaughterIndex)
+		continue;
 
       // remove taus
       if (theBigTree.particleType->at (iLep) == 2)
-      {
-	continue ;
-      }
+		{
+		  continue ;
+		}
       else if (theBigTree.particleType->at (iLep) == 0) // muons
-      {
-	// Fra Mar2020: for muon, Tight does not imply Medium so we check both
-	bool passMed = oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuMedium);
-	bool passTig = oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuTight);
-	if (!passMed && !passTig) continue; // if it passes one of the two --> the "if" is false and the lepton is saved as an extra lepton
-      }
+		{
+		  // Fra Mar2020: for muon, Tight does not imply Medium so we check both
+		  bool passMed = oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuMedium);
+		  bool passTig = oph.muBaseline (&theBigTree, iLep, 10., 2.4, 0.3, OfflineProducerHelper::MuTight);
+		  if (!passMed && !passTig) continue; // if it passes one of the two --> the "if" is false and the lepton is saved as an extra lepton
+		}
       else if (theBigTree.particleType->at (iLep) == 1) // electrons
-      {
-	// Fra Mar2020: for electron, we check (mvaEleID-Fall17-iso-V2-wp90 OR (mvaEleID-Fall17-noIso-V2-wp90 AND pfRelIso < 0.3))
-	if (DEBUG) std::cout << "--- Debug for extra electrons:" << std::endl;
-	bool passIso    = oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
-	bool passNonISo = oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium, string("Vertex-pTMin-etaMax-thirdLep"), (DEBUG ? true : false));
-	if (!passIso && !passNonISo) continue; // if it passes one of the two --> the "if" is false and the lepton is saved as an extra lepton
-      }
+		{
+		  // Fra Mar2020: for electron, we check (mvaEleID-Fall17-iso-V2-wp90 OR (mvaEleID-Fall17-noIso-V2-wp90 AND pfRelIso < 0.3))
+		  if (DEBUG) std::cout << "--- Debug for extra electrons:" << std::endl;
+		  bool passIsoMVA = oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
+		  //bool passNonIsoMVA = oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium, string("Vertex-pTMin-etaMax-thirdLep"), (DEBUG ? true : false));
+		  if (!passIso) continue; // if it passes --> the "if" is false and the lepton is saved as an extra lepton
+		}
 
       TLorentzVector tlv_dummyLepton
         (
-          theBigTree.daughters_px->at (iLep),
-          theBigTree.daughters_py->at (iLep),
-          theBigTree.daughters_pz->at (iLep),
-          theBigTree.daughters_e->at (iLep)
-	  );
+		 theBigTree.daughters_px->at (iLep),
+		 theBigTree.daughters_py->at (iLep),
+		 theBigTree.daughters_pz->at (iLep),
+		 theBigTree.daughters_e->at (iLep)
+		 );
       thirdLeptons.push_back (make_pair(tlv_dummyLepton.Pt(), iLep)) ;
 
       if(DEBUG)
       {
-	cout << "** 3rd lep veto passed"
-	     << " idx="  << iLep
-	     << " type=" << theBigTree.particleType->at(iLep)
-	     << " pt="   << tlv_dummyLepton.Pt()
-	     << " eta="  << tlv_dummyLepton.Eta()
-	     << " phi="  << tlv_dummyLepton.Phi()
-	     << " iso="  << getIso (iLep, tlv_dummyLepton.Pt (), theBigTree)
-	     << " dxy="  << theBigTree.dxy->at(iLep)
-	     << " dz="   << theBigTree.dz->at(iLep)
-	     << endl;
+		cout << "** 3rd lep veto passed"
+			 << " idx="  << iLep
+			 << " type=" << theBigTree.particleType->at(iLep)
+			 << " pt="   << tlv_dummyLepton.Pt()
+			 << " eta="  << tlv_dummyLepton.Eta()
+			 << " phi="  << tlv_dummyLepton.Phi()
+			 << " iso="  << getIso (iLep, tlv_dummyLepton.Pt (), theBigTree)
+			 << " dxy="  << theBigTree.dxy->at(iLep)
+			 << " dz="   << theBigTree.dz->at(iLep)
+			 << endl;
       }
     } // loop over leptons
 

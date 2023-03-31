@@ -342,9 +342,9 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
 	  if (whatApply.Contains("etaMax")) byp_etaS = false;
 	  if (whatApply.Contains("thirdLep"))                                           // For third lepton veto use noISO-MVA and relIso
 		{                                                                             // instead of ISO-MVA
-		  byp_isoS     = true;  // bypass pfRelIso < 0.3
-		  byp_noISOidS = true;  // bypass nonIsoMVA (mvaEleID-Fall17-noIso-V2-wp90)
-		  byp_idS      = false; // use IsoMVA (mvaEleID-Fall17-Iso-V2-wp90)
+		  byp_isoS     = false; // use pfRelIso < 0.3
+		  byp_noISOidS = false; // use nonIsoMVA (mvaEleID-Fall17-noIso-V2-wp90)
+		  byp_idS      = true;  // bypass IsoMVA (mvaEleID-Fall17-Iso-V2-wp90)
 		}
 	}
 

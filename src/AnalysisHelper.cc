@@ -1198,10 +1198,11 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
   }
 
   cout << "  fillHistos();" << endl;
-  for (uint is = 0; is < bkg_samples_.size(); ++is)
-	{
+  if (DEBUG) {
+	for (uint is = 0; is < bkg_samples_.size(); ++is) {
 	  cout << "  " << is << " >> " << setw(25) << left << bkg_samples_.at(is)->getName() << setw(13) << " nweights: " << bkg_samples_.at(is)->getWeights().size() << endl;
 	}
+  }
 
 }
 
