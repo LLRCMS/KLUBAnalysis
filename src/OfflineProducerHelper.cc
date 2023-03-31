@@ -332,23 +332,21 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
   bool byp_noISOidS = false;
 
   // whatApply: use "All", "Iso", "LepID", pTMin", "etaMax", "againstEle", "againstMu", "Vertex", "SScharge"; separate various arguments with a semicolon
-  if (!whatApply.Contains("All") &&
-      !whatApply.Contains("SScharge") &&
-      !whatApply.Contains("OScharge"))
-  {
-    byp_vertexS = byp_idS = byp_isoS = byp_ptS = byp_etaS = byp_noISOidS = true;  // For signal elect and first lepton veto: first bypass all...
-    // set selections
-    if (whatApply.Contains("Vertex")) byp_vertexS = false;                        // ...then use only these four selections
-    if (whatApply.Contains("LepID"))  byp_idS = false;
-    if (whatApply.Contains("pTMin"))  byp_ptS = false;
-    if (whatApply.Contains("etaMax")) byp_etaS = false;
-    if (whatApply.Contains("thirdLep"))                                           // For second lepton veto use noISO-MVA and relIso
-    {                                                                             // instead of ISO-MVA
-      byp_isoS     = false; // use pfRelIso < 0.3
-      byp_noISOidS = false; // use    nonIsoMVA (mvaEleID-Fall17-noIso-V2-wp90)
-      byp_idS      = true;  // bypass IsoMVA    (mvaEleID-Fall17-Iso-V2-wp90)
-    }
-  }
+  if (!whatApply.Contains("All") and !whatApply.Contains("SScharge") and !whatApply.Contains("OScharge"))
+	{
+	  byp_vertexS = byp_idS = byp_isoS = byp_ptS = byp_etaS = byp_noISOidS = true;  // For signal elect and first lepton veto: first bypass all...
+	  // set selections
+	  if (whatApply.Contains("Vertex")) byp_vertexS = false;                        // ...then use only these four selections
+	  if (whatApply.Contains("LepID"))  byp_idS = false;
+	  if (whatApply.Contains("pTMin"))  byp_ptS = false;
+	  if (whatApply.Contains("etaMax")) byp_etaS = false;
+	  if (whatApply.Contains("thirdLep"))                                           // For third lepton veto use noISO-MVA and relIso
+		{                                                                             // instead of ISO-MVA
+		  byp_isoS     = true;  // bypass pfRelIso < 0.3
+		  byp_noISOidS = true;  // bypass nonIsoMVA (mvaEleID-Fall17-noIso-V2-wp90)
+		  byp_idS      = false; // use IsoMVA (mvaEleID-Fall17-Iso-V2-wp90)
+		}
+	}
 
   bool vertexS = (fabs(tree->dxy->at(iDau)) < 0.045 && fabs(tree->dz->at(iDau)) < 0.2) || byp_vertexS;
   bool ptS = (p4.Pt() > ptMin) || byp_ptS;
