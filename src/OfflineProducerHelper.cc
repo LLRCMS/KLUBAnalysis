@@ -427,21 +427,25 @@ bool OfflineProducerHelper::muBaseline (
   }
 
   bool vertexS = (fabs(tree->dxy->at(iDau)) < 0.045 && fabs(tree->dz->at(iDau)) < 0.2) || byp_vertexS;
-  bool idS = checkBit (discr, muIDWP) || byp_idS; // bit 0 is LOOSE id, bit 2 is MEDIUM mu id, bit 3 is TIGHT mu id
-  bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
+  bool id1S = checkBit (discr, muIDWP) || byp_idS; // bit 0 is LOOSE id, bit 2 is MEDIUM mu id, bit 3 is TIGHT mu id
+  bool id2S = checkBit (discr, 4) || byp_idS; // bit 4 is highPt
+  bool iso1S = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
+  bool iso2S = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
   if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
   bool ptS = (p4.Pt() > ptMin) || byp_ptS;
   bool etaS = (fabs(p4.Eta()) < etaMax) || byp_etaS;
 
-  bool totalS = (vertexS && idS && isoS && ptS && etaS);
+  bool totalS = (vertexS && ((id1S && iso1S) || (id2S && iso2S)) && ptS && etaS);
   if (debug)
   {
     cout << "@ mu baseline" << endl;
-    cout << " idS     "  << idS     << " skypped? " << byp_idS << endl;
-    cout << " vertexS "  << vertexS << " skypped? " << byp_vertexS << endl;
-    cout << " isoS    "  << isoS    << " skypped? " << byp_isoS << endl;
-    cout << " ptS     "  << ptS     << " skypped? " << byp_ptS << endl;
-    cout << " etaS    "  << etaS    << " skypped? " << byp_etaS << endl;
+	cout << " id1S	   " << id1S	<< " skypped? " << byp_idS << endl;
+	cout << " id2S	   " << id2S	<< " skypped? " << byp_idS << endl;
+	cout << " vertexS "	 << vertexS	<< " skypped? " << byp_vertexS << endl;
+	cout << " iso1S	   " << iso1S	<< " skypped? " << byp_isoS << endl;
+	cout << " iso2S	   " << iso2S	<< " skypped? " << byp_isoS << endl;
+	cout << " ptS	  "	 << ptS		<< " skypped? " << byp_ptS << endl;
+	cout << " etaS	  "	 << etaS	<< " skypped? " << byp_etaS << endl;
   }
 
   return totalS;
