@@ -126,7 +126,8 @@ double SmearedJetProducer::getSmearFactor(TLorentzVector jet, bigTree & theBigTr
   TLorentzVector genJet = SmearedJetProducer::matchedGenJet(jet, jet.Pt() * jet_resolution, theBigTree);
 
   // Set the smearing factor according to "hybrid" method described in the twiki
-  if (genJet.E() > 0)
+  // https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
+  if (genJet.Pt() > 10) // nanoAOD applies this cut
   {
     // Case 1: we have a "good" gen jet matched to the reco jet
     if (DEBUG)
