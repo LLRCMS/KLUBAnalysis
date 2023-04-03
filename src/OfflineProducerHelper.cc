@@ -187,14 +187,14 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
   if (pairType == MuHad)
   {
     float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
-    leg1 = muBaseline  (tree, dau1index, 20., 2.1, 0.15, MuTight, whatApply, debug);
+    leg1 = muBaseline  (tree, dau1index, 20., 2.3, 0.15, MuTight, whatApply, debug);
     leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVLoose, amuTight, tauIso, whatApply, debug);
   }
 
   if (pairType == EHad)
   {
     float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
-    leg1 = eleBaseline (tree, dau1index, 20., 2.1, 0.1, EMVATight, whatApply, debug);
+    leg1 = eleBaseline (tree, dau1index, 20., 2.3, 0.1, EMVATight, whatApply, debug);
     //leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleTight, amuTight, tauIso, whatApply, debug); // Switched from 'aeleTight' to 'aeleVLoose' in January 2021
     leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVLoose, amuTight, tauIso, whatApply, debug);  // following HTT conveners suggestion
   }
@@ -203,29 +203,29 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
   if (pairType == HadHad)
   {
     float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 2.0 ;
-    leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVVLoose, amuVLoose, tauIso, whatApply, debug);
-    leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVVLoose, amuVLoose, tauIso, whatApply, debug);
+    leg1 = tauBaseline (tree, dau1index, 20., 2.3, aeleVVLoose, amuVLoose, tauIso, whatApply, debug);
+    leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVVLoose, amuVLoose, tauIso, whatApply, debug);
   }
 
   if (pairType == EMu)
   {
-    leg1 = eleBaseline (tree, dau1index, 13., 2.1, 0.15, EMVAMedium, whatApply, debug);
-    leg2 = muBaseline  (tree, dau2index, 13., 2.1, 0.15, MuTight, whatApply, debug);
+    leg1 = eleBaseline (tree, dau1index, 13., 2.3, 0.15, EMVAMedium, whatApply, debug);
+    leg2 = muBaseline  (tree, dau2index, 13., 2.3, 0.15, MuTight, whatApply, debug);
   }
 
   // e e, mu mu are still preliminary (not from baseline)
   if (pairType == EE)
   {
-    leg1 = eleBaseline (tree, dau1index, 25., 2.1, 0.15, EMVAMedium, whatApply, debug);
-    leg2 = eleBaseline (tree, dau2index, 25., 2.1, 0.15, EMVAMedium, whatApply, debug);
+    leg1 = eleBaseline (tree, dau1index, 25., 2.3, 0.15, EMVAMedium, whatApply, debug);
+    leg2 = eleBaseline (tree, dau2index, 25., 2.3, 0.15, EMVAMedium, whatApply, debug);
   }
 
   if (pairType == MuMu)
   {
-    leg1 = muBaseline (tree, dau1index, 10., 2.1, 0.15, MuTight, whatApply, debug);
-    leg2 = muBaseline (tree, dau2index, 10., 2.1, 0.15, MuTight, whatApply, debug);
-    bool leg1ER = muBaseline (tree, dau1index, 10., 2.1, 0.15, MuTight, whatApply, debug);
-    bool leg2ER = muBaseline (tree, dau2index, 10., 2.1, 0.15, MuTight, whatApply, debug);
+    leg1 = muBaseline (tree, dau1index, 10., 2.3, 0.15, MuTight, whatApply, debug);
+    leg2 = muBaseline (tree, dau2index, 10., 2.3, 0.15, MuTight, whatApply, debug);
+    bool leg1ER = muBaseline (tree, dau1index, 10., 2.3, 0.15, MuTight, whatApply, debug);
+    bool leg2ER = muBaseline (tree, dau2index, 10., 2.3, 0.15, MuTight, whatApply, debug);
 
     return ( ((leg1ER && leg2) || (leg2ER && leg1)) && drMin );
   }
@@ -427,23 +427,19 @@ bool OfflineProducerHelper::muBaseline (
   }
 
   bool vertexS = (fabs(tree->dxy->at(iDau)) < 0.045 && fabs(tree->dz->at(iDau)) < 0.2) || byp_vertexS;
-  bool id1S = checkBit (discr, muIDWP) || byp_idS; // bit 0 is LOOSE id, bit 2 is MEDIUM mu id, bit 3 is TIGHT mu id
-  bool id2S = checkBit (discr, 4) || byp_idS; // bit 4 is highPt
-  bool iso1S = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
-  bool iso2S = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
+  bool idS = checkBit (discr, muIDWP) || byp_idS; // bit 0 is LOOSE id, bit 2 is MEDIUM mu id, bit 3 is TIGHT mu id
+  bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
   if (whatApply.Contains ("InvertIzo")) isoS = !isoS ;
   bool ptS = (p4.Pt() > ptMin) || byp_ptS;
   bool etaS = (fabs(p4.Eta()) < etaMax) || byp_etaS;
 
-  bool totalS = (vertexS && ((id1S && iso1S) || (id2S && iso2S)) && ptS && etaS);
+  bool totalS = (vertexS && idS && isoS && ptS && etaS);
   if (debug)
   {
     cout << "@ mu baseline" << endl;
-	cout << " id1S	   " << id1S	<< " skipped? " << byp_idS << endl;
-	cout << " id2S	   " << id2S	<< " skipped? " << byp_idS << endl;
+	cout << " idS	   " << idS	<< " skipped? " << byp_idS << endl;
 	cout << " vertexS "	 << vertexS	<< " skipped? " << byp_vertexS << endl;
-	cout << " iso1S	   " << iso1S	<< " skipped? " << byp_isoS << endl;
-	cout << " iso2S	   " << iso2S	<< " skipped? " << byp_isoS << endl;
+	cout << " isoS	   " << isoS	<< " skipped? " << byp_isoS << endl;
 	cout << " ptS	  "	 << ptS		<< " skipped? " << byp_ptS << endl;
 	cout << " etaS	  "	 << etaS	<< " skipped? " << byp_etaS << endl;
   }
@@ -804,10 +800,10 @@ int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply,
       int dau1index = get<2> (vPairs.at(ipair));
       int dau2index = get<5> (vPairs.at(ipair));
       int ipair_orig = get<6> (vPairs.at(ipair));
-      //bool leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply);  // MVA2017v2
-      //bool leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply);  // MVA2017v2
-      bool leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVVLoose, amuVLoose, 99999., whatApply); // DeepTauV2p1
-      bool leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVVLoose, amuVLoose, 99999., whatApply); // DeepTauV2p1
+      //bool leg1 = tauBaseline (tree, dau1index, 20., 2.3, aeleVLoose, amuLoose, 99999., whatApply);  // MVA2017v2
+      //bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVLoose, amuLoose, 99999., whatApply);  // MVA2017v2
+      bool leg1 = tauBaseline (tree, dau1index, 20., 2.3, aeleVVLoose, amuVLoose, 99999., whatApply); // DeepTauV2p1
+      bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVVLoose, amuVLoose, 99999., whatApply); // DeepTauV2p1
       cout << "  > " << ipair << " tau_idx1=" << dau1index << " tau_idx2=" << dau2index << " orig_pair_idx=" << ipair_orig
            << " | iso1=" << get<1> (pp) << " pt1=" << get<0> (pp) << " iso2=" << get<4> (pp) << " pt2=" << get<3> (pp)
            << " base1=" << leg1 << " base2=" << leg2 << " dR="<< DeltaRDau(tree, dau1index, dau2index) <<endl;
@@ -819,10 +815,10 @@ int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply,
     int dau1index = get<2> (vPairs.at(ipair));
     int dau2index = get<5> (vPairs.at(ipair));
     int ipair_orig = get<6> (vPairs.at(ipair));
-    //bool leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);  // MVA2017v2
-    //bool leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);  // MVA2017v2
-    bool leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVVLoose, amuVLoose, 99999., whatApply, debug); // DeepTauV2p1
-    bool leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVVLoose, amuVLoose, 99999., whatApply, debug); // DeepTauV2p1
+    //bool leg1 = tauBaseline (tree, dau1index, 20., 2.3, aeleVLoose, amuLoose, 99999., whatApply, debug);  // MVA2017v2
+    //bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVLoose, amuLoose, 99999., whatApply, debug);  // MVA2017v2
+    bool leg1 = tauBaseline (tree, dau1index, 20., 2.3, aeleVVLoose, amuVLoose, 99999., whatApply, debug); // DeepTauV2p1
+    bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVVLoose, amuVLoose, 99999., whatApply, debug); // DeepTauV2p1
 
     bool isOS = tree->isOSCand->at(ipair_orig);
     if (whatApply.Contains("OScharge") && !isOS) {
@@ -913,10 +909,10 @@ int OfflineProducerHelper::getBestPairPtAndRawIsoOrd (bigTree* tree, TString wha
       int dau1index = get<2> (vPairs.at(ipair));
       int dau2index = get<5> (vPairs.at(ipair));
       int ipair_orig = get<6> (vPairs.at(ipair));
-      //bool leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply);  // MVA2017v2
-      //bool leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply);  // MVA2017v2
-      bool leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVVLoose, amuVLoose, 99999., whatApply); // DeepTauV2p1
-      bool leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVVLoose, amuVLoose, 99999., whatApply); // DeepTauV2p1
+      //bool leg1 = tauBaseline (tree, dau1index, 20., 2.3, aeleVLoose, amuLoose, 99999., whatApply);  // MVA2017v2
+      //bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVLoose, amuLoose, 99999., whatApply);  // MVA2017v2
+      bool leg1 = tauBaseline (tree, dau1index, 20., 2.3, aeleVVLoose, amuVLoose, 99999., whatApply); // DeepTauV2p1
+      bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVVLoose, amuVLoose, 99999., whatApply); // DeepTauV2p1
 
       cout << "  > " << ipair << " idx1=" << dau1index << " idx2=" << dau2index << " ipair=" << ipair_orig
            << " | iso1=" << get<1> (pp) << " pt1=" << get<0> (pp) << " iso2=" << get<4> (pp) << " pt2=" << get<3> (pp)
@@ -929,10 +925,10 @@ int OfflineProducerHelper::getBestPairPtAndRawIsoOrd (bigTree* tree, TString wha
     int dau1index = get<2> (vPairs.at(ipair));
     int dau2index = get<5> (vPairs.at(ipair));
     int ipair_orig = get<6> (vPairs.at(ipair));
-    //bool leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);  // MVA2017v2
-    //bool leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVLoose, amuLoose, 99999., whatApply, debug);  // MVA2017v2
-    bool leg1 = tauBaseline (tree, dau1index, 20., 2.1, aeleVVLoose, amuVLoose, 99999., whatApply, debug); // DeepTauV2p1
-    bool leg2 = tauBaseline (tree, dau2index, 20., 2.1, aeleVVLoose, amuVLoose, 99999., whatApply, debug); // DeepTauV2p1
+    //bool leg1 = tauBaseline (tree, dau1index, 20., 2.3, aeleVLoose, amuLoose, 99999., whatApply, debug);  // MVA2017v2
+    //bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVLoose, amuLoose, 99999., whatApply, debug);  // MVA2017v2
+    bool leg1 = tauBaseline (tree, dau1index, 20., 2.3, aeleVVLoose, amuVLoose, 99999., whatApply, debug); // DeepTauV2p1
+    bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVVLoose, amuVLoose, 99999., whatApply, debug); // DeepTauV2p1
 
     bool isOS = tree->isOSCand->at(ipair_orig);
     if (whatApply.Contains("OScharge") && !isOS) {
