@@ -99,7 +99,7 @@ TLorentzVector SmearedJetProducer::matchedGenJet(TLorentzVector jet,  double res
 }
 
 // Returns the smear factor to be applied to the jet TLorentzVector
-double SmearedJetProducer::getSmearFactor(TLorentzVector jet, bigTree & theBigTree)
+double SmearedJetProducer::getSmearFactor(TLorentzVector jet, bigTree& theBigTree, bool ptJetCut)
 {
   // Declare smear factor
   double smearFactor = 1.;
@@ -127,7 +127,8 @@ double SmearedJetProducer::getSmearFactor(TLorentzVector jet, bigTree & theBigTr
 
   // Set the smearing factor according to "hybrid" method described in the twiki
   // https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
-  if (genJet.Pt() > 10) // nanoAOD applies this cut
+  bool hybridCut = ptJetCut ? genJet.Pt() > 10 : genJet.E() > 0;
+  if (hybridCut) // nanoAOD applies this cut
   {
     // Case 1: we have a "good" gen jet matched to the reco jet
     if (DEBUG)
