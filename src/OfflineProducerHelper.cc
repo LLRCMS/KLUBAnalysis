@@ -302,10 +302,10 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
   if (debug)
   {
     cout << "@ ele baseline" << endl;
-    cout << " idS     "  << idS     << " skypped? " << byp_idS << endl;
-    cout << " vertexS "  << vertexS << " skypped? " << byp_vertexS << endl;
-    cout << " ptS     "  << ptS     << " skypped? " << byp_ptS << endl;
-    cout << " etaS    "  << etaS    << " skypped? " << byp_etaS << endl;
+    cout << " idS     "  << idS     << " skipped? " << byp_idS << endl;
+    cout << " vertexS "  << vertexS << " skipped? " << byp_vertexS << endl;
+    cout << " ptS     "  << ptS     << " skipped? " << byp_ptS << endl;
+    cout << " etaS    "  << etaS    << " skipped? " << byp_etaS << endl;
   }
 
   return totalS;
@@ -375,12 +375,12 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
   if (debug)
   {
     cout << "@ ele baseline" << endl;
-    cout << " idS     "  << idS     << " skypped? " << byp_idS << endl;
-    cout << " nISOidS "  << nISOidS << " skypped? " << byp_noISOidS << endl;
-    cout << " isoS    "  << isoS    << " skypped? " << byp_isoS << endl;
-    cout << " vertexS "  << vertexS << " skypped? " << byp_vertexS << endl;
-    cout << " ptS     "  << ptS     << " skypped? " << byp_ptS << endl;
-    cout << " etaS    "  << etaS    << " skypped? " << byp_etaS << endl;
+    cout << " idS     "  << idS     << " skipped? " << byp_idS << endl;
+    cout << " nISOidS "  << nISOidS << " skipped? " << byp_noISOidS << endl;
+    cout << " isoS    "  << isoS    << " skipped? " << byp_isoS << endl;
+    cout << " vertexS "  << vertexS << " skipped? " << byp_vertexS << endl;
+    cout << " ptS     "  << ptS     << " skipped? " << byp_ptS << endl;
+    cout << " etaS    "  << etaS    << " skipped? " << byp_etaS << endl;
   }
 
   return totalS;
@@ -439,13 +439,13 @@ bool OfflineProducerHelper::muBaseline (
   if (debug)
   {
     cout << "@ mu baseline" << endl;
-	cout << " id1S	   " << id1S	<< " skypped? " << byp_idS << endl;
-	cout << " id2S	   " << id2S	<< " skypped? " << byp_idS << endl;
-	cout << " vertexS "	 << vertexS	<< " skypped? " << byp_vertexS << endl;
-	cout << " iso1S	   " << iso1S	<< " skypped? " << byp_isoS << endl;
-	cout << " iso2S	   " << iso2S	<< " skypped? " << byp_isoS << endl;
-	cout << " ptS	  "	 << ptS		<< " skypped? " << byp_ptS << endl;
-	cout << " etaS	  "	 << etaS	<< " skypped? " << byp_etaS << endl;
+	cout << " id1S	   " << id1S	<< " skipped? " << byp_idS << endl;
+	cout << " id2S	   " << id2S	<< " skipped? " << byp_idS << endl;
+	cout << " vertexS "	 << vertexS	<< " skipped? " << byp_vertexS << endl;
+	cout << " iso1S	   " << iso1S	<< " skipped? " << byp_isoS << endl;
+	cout << " iso2S	   " << iso2S	<< " skipped? " << byp_isoS << endl;
+	cout << " ptS	  "	 << ptS		<< " skipped? " << byp_ptS << endl;
+	cout << " etaS	  "	 << etaS	<< " skipped? " << byp_etaS << endl;
   }
 
   return totalS;
@@ -570,13 +570,13 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
   if (debug)
   {
     cout << "@ tau baseline" << endl;
-    cout << " dmfS    "  << dmfS    << " skypped? " << byp_dmfS << endl;
-    cout << " vertexS "  << vertexS << " skypped? " << byp_vertexS << endl;
-    cout << " agEleS  "  << agEleS  << " skypped? " << byp_agEleS << endl;
-    cout << " agMuS   "  << agMuS   << " skypped? " << byp_agMuS << endl;
-    cout << " isoS    "  << isoS    << " skypped? " << byp_isoS << endl;
-    cout << " ptS     "  << ptS     << " skypped? " << byp_ptS << endl;
-    cout << " etaS    "  << etaS    << " skypped? " << byp_etaS << endl;
+    cout << " dmfS    "  << dmfS    << " skipped? " << byp_dmfS << endl;
+    cout << " vertexS "  << vertexS << " skipped? " << byp_vertexS << endl;
+    cout << " agEleS  "  << agEleS  << " skipped? " << byp_agEleS << endl;
+    cout << " agMuS   "  << agMuS   << " skipped? " << byp_agMuS << endl;
+    cout << " isoS    "  << isoS    << " skipped? " << byp_isoS << endl;
+    cout << " ptS     "  << ptS     << " skipped? " << byp_ptS << endl;
+    cout << " etaS    "  << etaS    << " skipped? " << byp_etaS << endl;
   }
   return totalS;
 }
