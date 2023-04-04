@@ -51,7 +51,8 @@ public:
   TLorentzVector matchedGenJet(TLorentzVector jet, double resolution, bigTree & theBigTree);
 
   // Returns the smear factor to be applied to the jet TLorentzVector
-  double getSmearFactor(TLorentzVector jet, bigTree & theBigTree);
+  double getSmearFactor(TLorentzVector jet, bigTree & theBigTree,
+						bool ptJetCut = true);
 
   // Returns the smeared jet starting from the original TLorentzVector
   TLorentzVector getSmearedJet(TLorentzVector jet, bigTree & theBigTree);
