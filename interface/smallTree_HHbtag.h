@@ -122,15 +122,12 @@ struct smallTree
       m_trigSF_vbfjet_up = 1.;
       m_trigSF_vbfjet_down = 1.;
       m_FakeRateSF = -1.;
-      m_IdSF_MVA = -1.;
       m_IdSF_deep_dm = -1.;
       m_IdSF_deep_pt = -1.;
 	  m_IdSF_deep_2d = -1.;
-      m_IdFakeSF_MVA = -1.;
       m_IdFakeSF_deep_dm = -1.;
       m_IdFakeSF_deep_pt = -1.;
 	  m_IdFakeSF_deep_2d = -1.;
-      m_FakeRateSF_MVA = -1.;
       m_FakeRateSF_deep = -1.;
       m_customTauIdSF = 1.;
       m_customTauIdSF_DM0_up    = 1.;
@@ -292,12 +289,7 @@ struct smallTree
 
       m_dau1_iso  = -1. ;
       m_dau1_eleMVAiso = -1;
-      m_dau1_MVAiso = -1 ;
-      m_dau1_MVAisoNew = -1 ; //FRA syncFeb2018
-      m_dau1_MVAisoNewdR0p3 = -1; //FRA syncApr2018
       m_dau1_CUTiso = -1 ;
-      m_dau1_antiele = -1 ;
-      m_dau1_antimu = -1 ;
       m_dau1_deepTauVsJet = -1;
       m_dau1_deepTauVsEle = -1;
       m_dau1_deepTauVsMu = -1;
@@ -357,12 +349,7 @@ struct smallTree
       m_hasgenmatch2 = false;
 
       m_dau2_iso  = -1. ;
-      m_dau2_MVAiso = -1 ;
-      m_dau2_MVAisoNew = -1 ; //FRA syncFeb2018
-      m_dau2_MVAisoNewdR0p3 = -1; //FRA syncApr2018
       m_dau2_CUTiso = -1 ;
-      m_dau2_antiele = -1 ;
-      m_dau2_antimu = -1 ;
       m_dau2_deepTauVsJet = -1;
       m_dau2_deepTauVsEle = -1;
       m_dau2_deepTauVsMu = -1;
@@ -1389,15 +1376,12 @@ struct smallTree
       m_smallT->Branch ("trigSF_vbfjet_down", &m_trigSF_vbfjet_down, "trigSF_vbfjet_down/F") ;
       m_smallT->Branch ("FakeRateSF", &m_FakeRateSF, "FakeRateSF/F") ;
       m_smallT->Branch ("jetFakeSF", &m_jetFakeSF, "jetFakeSF/F") ;
-      m_smallT->Branch ("IdSF_MVA", &m_IdSF_MVA, "IdSF_MVA/F") ;
       m_smallT->Branch ("IdSF_deep_dm", &m_IdSF_deep_dm, "IdSF_deep_dm/F") ;
       m_smallT->Branch ("IdSF_deep_pt", &m_IdSF_deep_pt, "IdSF_deep_pt/F") ;
 	  m_smallT->Branch ("IdSF_deep_2d", &m_IdSF_deep_2d, "IdSF_deep_2d/F") ;
-      m_smallT->Branch ("IdFakeSF_MVA", &m_IdFakeSF_MVA, "IdFakeSF_MVA/F") ;
       m_smallT->Branch ("IdFakeSF_deep_dm", &m_IdFakeSF_deep_dm, "IdFakeSF_deep_dm/F") ;
       m_smallT->Branch ("IdFakeSF_deep_pt", &m_IdFakeSF_deep_pt, "IdFakeSF_deep_pt/F") ;
 	  m_smallT->Branch ("IdFakeSF_deep_2d", &m_IdFakeSF_deep_2d, "IdFakeSF_deep_2d/F") ;
-      m_smallT->Branch ("FakeRateSF_MVA", &m_FakeRateSF_MVA, "FakeRateSF_MVA/F") ;
       m_smallT->Branch ("FakeRateSF_deep", &m_FakeRateSF_deep, "FakeRateSF_deep/F") ;
       m_smallT->Branch ("customTauIdSF", &m_customTauIdSF, "customTauIdSF/F") ;
       m_smallT->Branch ("customTauIdSF_DM0_up"   , &m_customTauIdSF_DM0_up   , "customTauIdSF_DM0_up/F") ;
@@ -1555,12 +1539,7 @@ struct smallTree
 
       m_smallT->Branch ("dau1_iso", &m_dau1_iso, "dau1_iso/F") ;
       m_smallT->Branch ("dau1_eleMVAiso", &m_dau1_eleMVAiso, "dau1_eleMVAiso/I") ;
-      m_smallT->Branch ("dau1_MVAiso", &m_dau1_MVAiso, "dau1_MVAiso/I") ;
-      m_smallT->Branch ("dau1_MVAisoNew", &m_dau1_MVAisoNew, "dau1_MVAisoNew/I") ; //FRA syncFeb2018
-      m_smallT->Branch ("dau1_MVAisoNewdR0p3", &m_dau1_MVAisoNewdR0p3, "dau1_MVAisoNewdR0p3/I") ; //FRA syncApr2018
       m_smallT->Branch ("dau1_CUTiso", &m_dau1_CUTiso, "dau1_CUTiso/I") ;
-      m_smallT->Branch ("dau1_antiele", &m_dau1_antiele, "dau1_antiele/I") ;
-      m_smallT->Branch ("dau1_antimu", &m_dau1_antimu, "dau1_antimu/I") ;
       m_smallT->Branch ("dau1_deepTauVsJet",&m_dau1_deepTauVsJet,"dau1_deepTauVsJet/I");
       m_smallT->Branch ("dau1_deepTauVsEle",&m_dau1_deepTauVsEle,"dau1_deepTauVsEle/I");
       m_smallT->Branch ("dau1_deepTauVsMu",&m_dau1_deepTauVsMu,"dau1_deepTauVsMu/I");
@@ -1619,12 +1598,7 @@ struct smallTree
       m_smallT->Branch("hasgenmatch2", &m_hasgenmatch2, "hasgenmatch2/O");
 
       m_smallT->Branch ("dau2_iso", &m_dau2_iso, "dau2_iso/F") ;
-      m_smallT->Branch ("dau2_MVAiso", &m_dau2_MVAiso, "dau2_MVAiso/I") ;
-      m_smallT->Branch ("dau2_MVAisoNew", &m_dau2_MVAisoNew, "dau2_MVAisoNew/I") ; //FRA syncFeb2018
-      m_smallT->Branch ("dau2_MVAisoNewdR0p3", &m_dau2_MVAisoNewdR0p3, "dau2_MVAisoNewdR0p3/I") ; //FRA syncApr2018
       m_smallT->Branch ("dau2_CUTiso", &m_dau2_CUTiso, "dau2_CUTiso/I") ;
-      m_smallT->Branch ("dau2_antiele", &m_dau2_antiele, "dau2_antiele/I") ;
-      m_smallT->Branch ("dau2_antimu", &m_dau2_antimu, "dau2_antimu/I") ;
       m_smallT->Branch ("dau2_deepTauVsJet",&m_dau2_deepTauVsJet,"dau2_deepTauVsJet/I");
       m_smallT->Branch ("dau2_deepTauVsEle",&m_dau2_deepTauVsEle,"dau2_deepTauVsEle/I");
       m_smallT->Branch ("dau2_deepTauVsMu",&m_dau2_deepTauVsMu,"dau2_deepTauVsMu/I");
@@ -2651,15 +2625,12 @@ struct smallTree
   Float_t m_trigSF_vbfjet_down;
   Float_t m_FakeRateSF ;
   Float_t m_jetFakeSF ;
-  Float_t m_IdSF_MVA ;
   Float_t m_IdSF_deep_dm ;
   Float_t m_IdSF_deep_pt ;
   Float_t m_IdSF_deep_2d ;
-  Float_t m_IdFakeSF_MVA ;
   Float_t m_IdFakeSF_deep_dm ;
   Float_t m_IdFakeSF_deep_pt ;
   Float_t m_IdFakeSF_deep_2d ;
-  Float_t m_FakeRateSF_MVA;
   Float_t m_FakeRateSF_deep;
   Float_t m_customTauIdSF;
   Float_t m_customTauIdSF_DM0_up;
@@ -2834,12 +2805,7 @@ struct smallTree
   // the largest pT daughter visible candidate
   Float_t m_dau1_iso ;
   Int_t   m_dau1_eleMVAiso;
-  Int_t   m_dau1_MVAiso; // for taus only
-  Int_t   m_dau1_MVAisoNew; // for taus only //FRA syncFeb2018
-  Int_t   m_dau1_MVAisoNewdR0p3; // for taus only //FRA syncApr2018
   Int_t   m_dau1_CUTiso; // for taus only
-  Int_t   m_dau1_antiele; // for taus only
-  Int_t   m_dau1_antimu; // for taus only
   Int_t   m_dau1_deepTauVsJet;
   Int_t   m_dau1_deepTauVsEle;
   Int_t   m_dau1_deepTauVsMu;
@@ -2897,12 +2863,7 @@ struct smallTree
 
   // the smallest pT daughter visible candidate
   Float_t m_dau2_iso ;
-  Int_t   m_dau2_MVAiso; // for taus only
-  Int_t   m_dau2_MVAisoNew; // for taus only //FRA syncFeb2018
-  Int_t   m_dau2_MVAisoNewdR0p3; // for taus only //FRA syncApr2018
   Int_t   m_dau2_CUTiso; // for taus only
-  Int_t   m_dau2_antiele; // for taus only
-  Int_t   m_dau2_antimu; // for taus only
   Int_t   m_dau2_deepTauVsJet;
   Int_t   m_dau2_deepTauVsEle;
   Int_t   m_dau2_deepTauVsMu;
