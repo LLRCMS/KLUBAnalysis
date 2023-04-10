@@ -2917,6 +2917,7 @@ int main (int argc, char** argv)
 	  {
 		idSF_deep_dm = idSF_leg1_deep_vsJet_dm * idSF_leg2_deep_vsJet_dm;
 		idSF_deep_pt = idSF_leg1_deep_vsJet_pt * idSF_leg2_deep_vsJet_pt;
+		idSF_deep_2d = idSF_leg1_deep_vsJet_2d * idSF_leg2_deep_vsJet_2d;
 
 		except_VsJet = idSF_leg1_deep_vsEle * idSF_leg1_deep_vsMu * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
 		except_vsMu	 = idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsEle * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
@@ -2924,6 +2925,7 @@ int main (int argc, char** argv)
 
 		idFakeSF_deep_dm = except_VsJet * idSF_leg1_deep_vsJet_dm * idSF_leg2_deep_vsJet_dm;
 		idFakeSF_deep_pt = except_VsJet * idSF_leg1_deep_vsJet_pt * idSF_leg2_deep_vsJet_pt;
+		idFakeSF_deep_2d = except_VsJet * idSF_leg1_deep_vsJet_2d * idSF_leg2_deep_vsJet_2d;
 		fakeRateSF_deep	 = except_VsJet;
 
 		idFakeSF_tauid_2d_stat0_up					= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_up				   * idSF_leg2_deep_vsJet_2d_stat0_up;
@@ -2974,8 +2976,9 @@ int main (int argc, char** argv)
 	if (DEBUG) {
 	  cout << "--- DEBUG idSF ---" << endl;
 	  cout << "pairType  : "              << pType                   << endl;
-	  cout << "totSF deep: "              << idFakeSF_deep_dm        << endl;
+	  cout << "totSF deep_dm: "           << idFakeSF_deep_dm        << endl;
 	  cout << "totSF deep_pt: "           << idFakeSF_deep_pt        << endl;
+	  cout << "totSF deep_2d: "           << idFakeSF_deep_2d        << endl;
 	  cout << "idSF_leg1: "               << idSF_leg1               << endl;
 	  cout << "idSF_leg1_deep_vsJet_dm: " << idSF_leg1_deep_vsJet_dm << endl;
 	  cout << "idSF_leg1_deep_vsJet_pt: " << idSF_leg1_deep_vsJet_pt << endl;
@@ -5837,35 +5840,33 @@ int main (int argc, char** argv)
 
     if (DEBUG) //FRA DEBUG
     {
-      cout << "--------------" << endl;
-      cout << " - Debug SFs -" << endl;
-      cout << "  PU           : " << theSmallTree.m_PUReweight << endl;
-      cout << "  IDandISO deep: " << theSmallTree.m_IdSF_deep_pt << endl;
-      cout << "    w/ FakeRate: " << theSmallTree.m_IdFakeSF_deep_pt << endl;
-      cout << "  trig         : " << theSmallTree.m_trigSF << endl;
-      cout << "  bTag         : " << theSmallTree.m_bTagweightM << endl;
-      cout << "  prescale     : " << theSmallTree.m_prescaleWeight<< endl;
-      cout << "  prefiring    : " << theSmallTree.m_L1pref_weight<< endl;
-      cout << "--------------" << endl;
-    }
-
-    if (DEBUG) //FRA DEBUG
-    {
-      cout << "--- DEBUG MC weights ---" << endl;
-      cout << "aMCatNLOweight: " << theBigTree.aMCatNLOweight << endl;
-      cout << "XS            : " << XS << endl;
-      cout << "stitchWeight  : " << stitchWeight << endl;
-      cout << "HHweight      : " << HHweight << endl;
-      cout << "MC_weight     : " << theSmallTree.m_MC_weight << endl;
-      //cout << "Yield weight deep: " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdFakeSF_deep * theSmallTree.m_trigSF << endl;
-      cout << "------------------------" << endl;
-    }
-
-    if (DEBUG) //FRA DEBUG
-    {
-      cout << "--- FINAL DEBUG ---" << endl;
-      cout << "nbjetscand: " << theSmallTree.m_nbjetscand << endl;
-      cout << "-------------------" << endl;
+      cout << "--------------			" << endl;
+      cout << " - Debug SFs -			" << endl;
+      cout << "  PU           :			" << theSmallTree.m_PUReweight << endl;
+      cout << "  IDandISO deep (DM):	" << theSmallTree.m_IdSF_deep_dm << endl;
+      cout << "    w/ FakeRate:			" << theSmallTree.m_IdFakeSF_deep_dm << endl;
+      cout << "  IDandISO deep (pT):	" << theSmallTree.m_IdSF_deep_pt << endl;
+      cout << "    w/ FakeRate:			" << theSmallTree.m_IdFakeSF_deep_pt << endl;
+      cout << "  IDandISO deep (2D):	" << theSmallTree.m_IdSF_deep_2d << endl;
+      cout << "    w/ FakeRate:			" << theSmallTree.m_IdFakeSF_deep_2d << endl;
+      cout << "  trig         :			" << theSmallTree.m_trigSF << endl;
+      cout << "  bTag         :			" << theSmallTree.m_bTagweightM << endl;
+      cout << "  prescale     :			" << theSmallTree.m_prescaleWeight<< endl;
+      cout << "  prefiring    :			" << theSmallTree.m_L1pref_weight<< endl;
+      cout << "--------------			" << endl;
+      cout << "--- DEBUG MC weights ---	" << endl;
+      cout << "aMCatNLOweight:			" << theBigTree.aMCatNLOweight << endl;
+      cout << "XS            :			" << XS << endl;
+      cout << "stitchWeight  :			" << stitchWeight << endl;
+      cout << "HHweight      :			" << HHweight << endl;
+      cout << "MC_weight     :			" << theSmallTree.m_MC_weight << endl;
+      cout << "Yield weight deep (DM):	" << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdFakeSF_deep_dm * theSmallTree.m_trigSF << endl;
+	  cout << "Yield weight deep (pT):	" << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdFakeSF_deep_pt * theSmallTree.m_trigSF << endl;
+	  cout << "Yield weight deep (2D):	" << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdFakeSF_deep_2d * theSmallTree.m_trigSF << endl;
+      cout << "------------------------	" << endl;
+      cout << "--- FINAL DEBUG ---		" << endl;
+      cout << "nbjetscand:				" << theSmallTree.m_nbjetscand << endl;
+      cout << "-------------------		" << endl;
     }
 
     theSmallTree.Fill () ;
