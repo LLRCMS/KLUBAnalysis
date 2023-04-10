@@ -590,12 +590,10 @@ int main (int argc, char** argv)
   TauIDSFTool *MVA_antiMu_tight   = new TauIDSFTool("2017ReReco","antiMu3"       ,"Tight");            // for MVA2017v2 vs mu Tight
 
   //DeepTau used anyway; vsMU not (yet?) available
-  TauIDSFTool *Deep_antiJet_medium_dm  = new TauIDSFTool("UL2017","DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets Medium
+  TauIDSFTool *Deep_antiJet_medium_dm = new TauIDSFTool("UL2017","DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets Medium
   TauIDSFTool *Deep_antiJet_medium_pt = new TauIDSFTool("UL2017","DeepTau2017v2p1VSjet","Medium");   // for DeepTauv2p1 vs jets Medium
-  TauIDSFTool *Deep_antiJet_medium_2d = new TauIDSFTool("UL2017", "Medium", "VVLoose"); // for DeepTauv2p1 vs jets Medium in DM/pT bins
+  TauIDSFTool *Deep_antiJet_2d        = new TauIDSFTool("UL2017", "Medium", "VVLoose"); // for DeepTauv2p1 vs jets Medium in DM/pT bins
   TauIDSFTool *Deep_antiEle_vvloose   = new TauIDSFTool("UL2017","DeepTau2017v2p1VSe"  ,"VVLoose");  // for DeepTauv2p1 vs ele VVLoose
-  TauIDSFTool *Deep_antiEle_vloose    = new TauIDSFTool("UL2017","DeepTau2017v2p1VSe"  ,"VLoose");   // for DeepTauv2p1 vs ele VLoose
-  TauIDSFTool *Deep_antiMu_vloose     = new TauIDSFTool("UL2017","DeepTau2017v2p1VSmu" ,"VLoose");   // for DeepTauv2p1 vs mu VLoose
   TauIDSFTool *Deep_antiMu_tight      = new TauIDSFTool("UL2017","DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
 
   // ------------------------------
@@ -2673,10 +2671,10 @@ int main (int argc, char** argv)
     // bool helpers for tauID syst bins
     vector<bool> isthisPt_IDbin_first = { // 20, 25, 30, 35, 40, infty
       ((theSmallTree.m_dau1_pt >= 20 && theSmallTree.m_dau1_pt < 25) ? true : false),
-      ((theSmallTree.m_dau1_pt >= 25 && theSmallTree.m_dau1_pt < 30) ? true : false),
-      ((theSmallTree.m_dau1_pt >= 30 && theSmallTree.m_dau1_pt < 35) ? true : false),
-      ((theSmallTree.m_dau1_pt >= 35 && theSmallTree.m_dau1_pt < 40) ? true : false),
-      ((theSmallTree.m_dau1_pt >= 40) ? true : false)
+		((theSmallTree.m_dau1_pt >= 25 && theSmallTree.m_dau1_pt < 30) ? true : false),
+		((theSmallTree.m_dau1_pt >= 30 && theSmallTree.m_dau1_pt < 35) ? true : false),
+		((theSmallTree.m_dau1_pt >= 35 && theSmallTree.m_dau1_pt < 40) ? true : false),
+		((theSmallTree.m_dau1_pt >= 40) ? true : false)
     };
     vector<bool> isthisPt_IDbin_second = { // 20, 25, 30, 35, 40, infty
       ((theSmallTree.m_dau2_pt >= 20 && theSmallTree.m_dau2_pt < 25) ? true : false),
@@ -2759,9 +2757,9 @@ int main (int argc, char** argv)
 		
 		idSF_leg1_deep_vsJet_dm = Deep_antiJet_medium_dm->getSFvsDM(leg1pt, tau1DM, tau1Genmatch);
 		idSF_leg1_deep_vsJet_pt = Deep_antiJet_medium_pt->getSFvsPT(leg1pt, tau1Genmatch);
-		idSF_leg2_deep_vsJet_2d = Deep_antiJet_medium_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch);
-		idSF_leg1_deep_vsEle    = Deep_antiEle_vvloose  ->getSFvsEta(leg1eta, tau1Genmatch);
-		idSF_leg1_deep_vsMu     = Deep_antiMu_vloose    ->getSFvsEta(leg1eta, tau1Genmatch);
+		idSF_leg2_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch);
+		idSF_leg1_deep_vsEle    = Deep_antiEle_vvloose->getSFvsEta(leg1eta, tau1Genmatch);
+		idSF_leg1_deep_vsMu     = Deep_antiMu_tight->getSFvsEta(leg1eta, tau1Genmatch);
 	  }
 
 	// all channels with one tau in the second leg
@@ -2770,25 +2768,25 @@ int main (int argc, char** argv)
 		idSF_leg2_MVA_vsJet = MVA_antiJet_medium ->getSFvsDM (leg2pt , tau2DM, tau2Genmatch);
 		idSF_leg2_deep_vsJet_dm = Deep_antiJet_medium_dm->getSFvsDM(leg2pt, tau2DM, tau2Genmatch);
 		idSF_leg2_deep_vsJet_pt = Deep_antiJet_medium_pt->getSFvsPT(leg2pt, tau2Genmatch);
-		idSF_leg2_deep_vsJet_2d = Deep_antiJet_medium_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch);
+		idSF_leg2_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch);
 
 		if(pType == 0) {
 		  idSF_leg2_MVA_vsEle  = MVA_antiEle_vloose ->getSFvsEta(leg2eta, tau2Genmatch);
 		  idSF_leg2_MVA_vsMu   = MVA_antiMu_tight   ->getSFvsEta(leg2eta, tau2Genmatch);
-		  idSF_leg2_deep_vsEle = Deep_antiEle_vloose->getSFvsEta(leg2eta, tau2Genmatch);
+		  idSF_leg2_deep_vsEle = Deep_antiEle_vvloose->getSFvsEta(leg2eta, tau2Genmatch);
 		  idSF_leg2_deep_vsMu  = Deep_antiMu_tight  ->getSFvsEta(leg2eta, tau2Genmatch);
 		}
 		else if(pType == 1) {
 		  idSF_leg2_MVA_vsEle  = MVA_antiEle_tight  ->getSFvsEta(leg2eta, tau2Genmatch);
 		  idSF_leg2_MVA_vsMu   = MVA_antiMu_loose   ->getSFvsEta(leg2eta, tau2Genmatch);
-		  idSF_leg2_deep_vsEle = Deep_antiEle_vloose->getSFvsEta(leg2eta, tau2Genmatch);
+		  idSF_leg2_deep_vsEle = Deep_antiEle_vvloose->getSFvsEta(leg2eta, tau2Genmatch);
 		  idSF_leg2_deep_vsMu  = Deep_antiMu_tight  ->getSFvsEta(leg2eta, tau2Genmatch);
 		}
 		else if(pType == 2) {
-		  idSF_leg2_MVA_vsEle  = MVA_antiEle_vloose  ->getSFvsEta(leg2eta, tau2Genmatch);
-		  idSF_leg2_MVA_vsMu   = MVA_antiMu_loose    ->getSFvsEta(leg2eta, tau2Genmatch);
+		  idSF_leg2_MVA_vsEle  = MVA_antiEle_vloose->getSFvsEta(leg2eta, tau2Genmatch);
+		  idSF_leg2_MVA_vsMu   = MVA_antiMu_loose->getSFvsEta(leg2eta, tau2Genmatch);
 		  idSF_leg2_deep_vsEle = Deep_antiEle_vvloose->getSFvsEta(leg2eta, tau2Genmatch);
-		  idSF_leg2_deep_vsMu  = Deep_antiMu_vloose  ->getSFvsEta(leg2eta, tau2Genmatch);
+		  idSF_leg2_deep_vsMu  = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch);
 		}
 	  }
 
@@ -2838,8 +2836,8 @@ int main (int argc, char** argv)
 			double error_down = fabs(idSF_leg1_deep_vsJet_pt - idSF_leg1_deep_vsJet_pt_down[bin]);
 			
 			if (leg1pt < 100) {
-				idSF_leg1_deep_vsJet_pt_up[bin]   = idSF_leg1_deep_vsJet_pt*1.03 + error_up;
-				idSF_leg1_deep_vsJet_pt_down[bin] = idSF_leg1_deep_vsJet_pt*0.97 - error_down;
+			  idSF_leg1_deep_vsJet_pt_up[bin]   = idSF_leg1_deep_vsJet_pt*1.03 + error_up;
+			  idSF_leg1_deep_vsJet_pt_down[bin] = idSF_leg1_deep_vsJet_pt*0.97 - error_down;
 			}
 			else {
 			  idSF_leg1_deep_vsJet_pt_up[bin]   = idSF_leg1_deep_vsJet_pt*1.15 + error_up;
@@ -2851,8 +2849,8 @@ int main (int argc, char** argv)
 	  for (int bin = 0; bin < (int) isthisEta_IDbin_first.size(); bin++) {
 		if (isthisEta_IDbin_first[bin])
 		  {
-			idSF_leg1_deep_vsMu_up[bin]   = Deep_antiMu_vloose ->getSFvsEta(leg1eta, tau1Genmatch,   "Up");
-			idSF_leg1_deep_vsMu_down[bin] = Deep_antiMu_vloose ->getSFvsEta(leg1eta, tau1Genmatch, "Down");
+			idSF_leg1_deep_vsMu_up[bin]   = Deep_antiMu_tight->getSFvsEta(leg1eta, tau1Genmatch,   "Up");
+			idSF_leg1_deep_vsMu_down[bin] = Deep_antiMu_tight->getSFvsEta(leg1eta, tau1Genmatch, "Down");
 		  }
 	  }
 
@@ -2864,18 +2862,18 @@ int main (int argc, char** argv)
 		  }
 	  }
 
-	  idSF_leg1_deep_vsJet_2d_stat0_up					= Deep_antiJet_medium_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Stat0Up");
-	  idSF_leg1_deep_vsJet_2d_stat0_down				= Deep_antiJet_medium_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Stat0Down");
-	  idSF_leg1_deep_vsJet_2d_stat1_up					= Deep_antiJet_medium_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Stat1Up");
-	  idSF_leg1_deep_vsJet_2d_stat1_down				= Deep_antiJet_medium_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Stat1Down");
-	  idSF_leg1_deep_vsJet_2d_systcorrdmeras_up			= Deep_antiJet_medium_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystCorrDMErasUp");
-	  idSF_leg1_deep_vsJet_2d_systcorrdmeras_down		= Deep_antiJet_medium_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystCorrDMErasDown");
-	  idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_up	= Deep_antiJet_medium_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystCorrDMUncorrErasUp");
-	  idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down	= Deep_antiJet_medium_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystCorrDMUncorrErasDown");
-	  idSF_leg1_deep_vsJet_2d_systuncorrdmeras_up		= Deep_antiJet_medium_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystUncorrDMErasUp");
-	  idSF_leg1_deep_vsJet_2d_systuncorrdmeras_down		= Deep_antiJet_medium_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystUncorrDMErasDown");
-	  idSF_leg1_deep_vsJet_2d_systgt40_up				= Deep_antiJet_medium_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystGt40Up");
-	  idSF_leg1_deep_vsJet_2d_systgt40_down				= Deep_antiJet_medium_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystGt40Down");
+	  idSF_leg1_deep_vsJet_2d_stat0_up					= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Stat0Up");
+	  idSF_leg1_deep_vsJet_2d_stat0_down				= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Stat0Down");
+	  idSF_leg1_deep_vsJet_2d_stat1_up					= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Stat1Up");
+	  idSF_leg1_deep_vsJet_2d_stat1_down				= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Stat1Down");
+	  idSF_leg1_deep_vsJet_2d_systcorrdmeras_up			= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystCorrDMErasUp");
+	  idSF_leg1_deep_vsJet_2d_systcorrdmeras_down		= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystCorrDMErasDown");
+	  idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_up	= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystCorrDMUncorrErasUp");
+	  idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down	= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystCorrDMUncorrErasDown");
+	  idSF_leg1_deep_vsJet_2d_systuncorrdmeras_up		= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystUncorrDMErasUp");
+	  idSF_leg1_deep_vsJet_2d_systuncorrdmeras_down		= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystUncorrDMErasDown");
+	  idSF_leg1_deep_vsJet_2d_systgt40_up				= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystGt40Up");
+	  idSF_leg1_deep_vsJet_2d_systgt40_down				= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystGt40Down");
 	}
 
 	// up and down variations of the ID and isolation of the second leg (only relevant when it is a tau)
@@ -2915,8 +2913,8 @@ int main (int argc, char** argv)
 		  if (isthisEta_IDbin_second[bin])
 			{
 			  if (pType==2) { //loose working point only for TauTau
-				idSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_vloose->getSFvsEta(leg2eta, tau2Genmatch,	"Up");
-				idSF_leg2_deep_vsMu_down[bin] = Deep_antiMu_vloose->getSFvsEta(leg2eta, tau2Genmatch, "Down");
+				idSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch,	"Up");
+				idSF_leg2_deep_vsMu_down[bin] = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch, "Down");
 			  }
 			  else {
 				idSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch,	"Up");
@@ -2933,26 +2931,26 @@ int main (int argc, char** argv)
 				idSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch, "Down");
 			  }
 			  else {
-				idSF_leg2_deep_vsEle_up[bin]   = Deep_antiEle_vloose ->getSFvsEta(leg2eta, tau2Genmatch,   "Up");
-				idSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vloose ->getSFvsEta(leg2eta, tau2Genmatch, "Down");
+				idSF_leg2_deep_vsEle_up[bin]   = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch,   "Up");
+				idSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch, "Down");
 			  }
 			}
 		}
 		
 	  }
 
-	 idSF_leg2_deep_vsJet_2d_stat0_up					= Deep_antiJet_medium_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Stat0Up");
-	 idSF_leg2_deep_vsJet_2d_stat0_down					= Deep_antiJet_medium_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Stat0Down");
-	 idSF_leg2_deep_vsJet_2d_stat1_up					= Deep_antiJet_medium_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Stat1Up");
-	 idSF_leg2_deep_vsJet_2d_stat1_down					= Deep_antiJet_medium_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Stat1Down");
-	 idSF_leg2_deep_vsJet_2d_systcorrdmeras_up			= Deep_antiJet_medium_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMErasUp");
-	 idSF_leg2_deep_vsJet_2d_systcorrdmeras_down		= Deep_antiJet_medium_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMErasDown");
-	 idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up	= Deep_antiJet_medium_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMUncorrErasUp");
-	 idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down	= Deep_antiJet_medium_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMUncorrErasDown");
-	 idSF_leg2_deep_vsJet_2d_systuncorrdmeras_up		= Deep_antiJet_medium_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystUncorrDMErasUp");
-	 idSF_leg2_deep_vsJet_2d_systuncorrdmeras_down		= Deep_antiJet_medium_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystUncorrDMErasDown");
-	 idSF_leg2_deep_vsJet_2d_systgt40_up				= Deep_antiJet_medium_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystGt40Up");
-	 idSF_leg2_deep_vsJet_2d_systgt40_down				= Deep_antiJet_medium_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystGt40Down");
+	  idSF_leg2_deep_vsJet_2d_stat0_up					= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Stat0Up");
+	  idSF_leg2_deep_vsJet_2d_stat0_down				= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Stat0Down");
+	  idSF_leg2_deep_vsJet_2d_stat1_up					= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Stat1Up");
+	  idSF_leg2_deep_vsJet_2d_stat1_down				= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Stat1Down");
+	  idSF_leg2_deep_vsJet_2d_systcorrdmeras_up			= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMErasUp");
+	  idSF_leg2_deep_vsJet_2d_systcorrdmeras_down		= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMErasDown");
+	  idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up	= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMUncorrErasUp");
+	  idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down	= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMUncorrErasDown");
+	  idSF_leg2_deep_vsJet_2d_systuncorrdmeras_up		= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystUncorrDMErasUp");
+	  idSF_leg2_deep_vsJet_2d_systuncorrdmeras_down		= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystUncorrDMErasDown");
+	  idSF_leg2_deep_vsJet_2d_systgt40_up				= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystGt40Up");
+	  idSF_leg2_deep_vsJet_2d_systgt40_down				= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystGt40Down");
 	}
 	
     if (isMC and leg1eta < 2.4) {

@@ -240,10 +240,10 @@ VAR_MAP=(
 	["dib_deltaR"]="#DeltaR(bb)	"
 	["HH_deltaR"]="#DeltaR(HH) "
 	["HH_mass"]="m_{HH}[GeV] --logy "
-	["HHKin_mass"]="m_{HHKin}[GeV] --logy "
-	["HH_mass"]="m_{HH}[GeV] --logy --logx "
-	["HHKin_mass"]="m_{HHKin}[GeV] --logy --logx "
-	["DNNoutSM_kl_1"]="DNN --logy --equalwidth "
+ 	["HHKin_mass"]="m_{HHKin}[GeV] --logy "
+ 	["HH_mass"]="m_{HH}[GeV] --logy --logx "
+ 	["HHKin_mass"]="m_{HHKin}[GeV] --logy --logx "
+ 	["DNNoutSM_kl_1"]="DNN --logy --equalwidth "
 )
 declare -A SIGSCALE_CHANNEL_MAP
 SIGSCALE_CHANNEL_MAP=(
