@@ -129,7 +129,7 @@ TauIDSFTool::TauIDSFTool(const std::string& year, const std::string& id, const s
 }
 
 // used for updated vsJet UL SFs
-TauIDSFTool::TauIDSFTool(std::string& year, const std::string& wp1, const std::string& wp2)
+TauIDSFTool::TauIDSFTool(std::string year, const std::string& wp1, const std::string& wp2)
 {
   yearCheck(year);
   if (year.find("UL") == std::string::npos) {
@@ -145,14 +145,16 @@ TauIDSFTool::TauIDSFTool(std::string& year, const std::string& wp1, const std::s
   }
   isVsDMandPt = true;
   
-  TString filename = Form("%s/TauID_SF_dm_%s_VSjet%s_VSele%s_Mar07.root",
-						  mDatapath.data(), mAntiJetIDs[1].data(), wp1.data(), wp2.data());
+  TString filename = Form("%s/TauID_SF_dm_DeepTau2017v2p1VSjet_VSjet%s_VSele%s_Mar07.root",
+						  mDatapath.data(), wp1.data(), wp2.data());
   TFile* file = ensureTFile(filename);
 
   mDMs.insert(11);
+  std::string key, dm;
   for(auto x : mDMs) {
-	std::string key = "DM" + std::to_string(x);
-	func[key]          = extractTF1(file, Form("%s_%s_fit", key.data(), year.data()));
+	key = "DM" + std::to_string(x);
+	dm  = "dm" + std::to_string(x);
+	func[key] = extractTF1(file, Form("%s_%s_fit", key.data(), year.data()));
 
 	// statistical ucnertainties of linear fit
 	func[key + "Stat0Up"]   = extractTF1(file, Form("%s_%s_fit_uncert0_up", key.data(), year.data()));
@@ -169,8 +171,8 @@ TauIDSFTool::TauIDSFTool(std::string& year, const std::string& wp1, const std::s
 	func[key + "SystCorrDMUncorrErasDown"] = extractTF1(file, Form("%s_%s_syst_%s_down_fit", key.data(), year.data(), year.data()));
 
 	// systematic uncertainties uncorrelated across DMs and eras
-	func[key + "SystUncorrDMErasUp"]   = extractTF1(file, Form("%s_%s_syst_dm%s_%s_up_fit", key.data(), year.data(), key.data(), year.data()));
-	func[key + "SystUncorrDMErasDown"] = extractTF1(file, Form("%s_%s_syst_dm%s_%s_down_fit", key.data(), year.data(), key.data(), year.data()));
+	func[key + "SystUncorrDMErasUp"]   = extractTF1(file, Form("%s_%s_syst_%s_%s_up_fit", key.data(), year.data(), dm.data(), year.data()));
+	func[key + "SystUncorrDMErasDown"] = extractTF1(file, Form("%s_%s_syst_%s_%s_down_fit", key.data(), year.data(), dm.data(), year.data()));
   }
   file->Close();
   delete file;
@@ -203,6 +205,7 @@ float TauIDSFTool::getSFvsDMandPT(double pt, int dm, int genmatch, const std::st
   else {
 	std::string key = "DM" + std::to_string(dm);
 	SF = static_cast<float>(func[key + unc]->Eval(pt));
+	//std::cout << key << " - " << dm << " - " << pt << " - " << unc << " - " << SF << std::endl;
   }
   return SF;
 }

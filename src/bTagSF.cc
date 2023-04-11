@@ -310,13 +310,15 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
 	tmpData *= (1. - (effBTag[iWP]*SF[iWP]) );
       }
 
-      //cout << "       effBTag: " << effBTag[iWP] << endl;
-      //cout << "       SF: " << SF[iWP] << endl;
-      //cout << "       tmpMC: " << tmpMC << endl;
-      //cout << "       tmpData: " << tmpData << endl;
-
       P_MC.at(iWP)  = tmpMC;
       P_Data.at(iWP) = tmpData;
+
+	  if (P_Data.at(iWP) / P_MC.at(iWP) < 0.05) {
+		cout << "effBTag: " << effBTag[iWP] << endl;
+		cout << "SF: " << SF[iWP] << endl;
+		cout << "tmpMC: " << tmpMC << endl;
+		cout << "tmpData: " << tmpData << endl;
+	  }
     }
   }
   // return ratio
@@ -329,10 +331,11 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
   if (weight.at(0) < 0.05)
   {
     cout << "------ ERROR Null B-TAG weight!!" << endl;
-    cout << "    >>> " << P_Data.at(0) << " / " << P_MC.at(0) << " , "
-	 << P_Data.at(1) << " / " << P_MC.at(1) << " , "
-	 << P_Data.at(2) << " / " << P_MC.at(2) << " , "
-	 << SFreshaping << endl;
+	for(int wp=0; wp<3; ++wp) {
+	  cout << "WP: " << wp << endl;
+	  cout << "Probabilities: " << P_Data.at(wp) << " / " << P_MC.at(wp) << endl;
+	}
+	cout << "SF reshaping: " << SFreshaping << endl;
   }
   //cout << "weights: " << weight.at(0) << " " << weight.at(1) << " " << weight.at(2) << endl;
   return weight;

@@ -125,6 +125,8 @@ struct smallTree
       m_IdSF_deep_dm = -1.;
       m_IdSF_deep_pt = -1.;
 	  m_IdSF_deep_2d = -1.;
+	  m_IdSF_leg1_deep_vsJet_2d = -1;
+	  m_IdSF_leg2_deep_vsJet_2d = -1;
       m_IdFakeSF_deep_dm = -1.;
       m_IdFakeSF_deep_pt = -1.;
 	  m_IdFakeSF_deep_2d = -1.;
@@ -1379,6 +1381,10 @@ struct smallTree
       m_smallT->Branch ("IdSF_deep_dm", &m_IdSF_deep_dm, "IdSF_deep_dm/F") ;
       m_smallT->Branch ("IdSF_deep_pt", &m_IdSF_deep_pt, "IdSF_deep_pt/F") ;
 	  m_smallT->Branch ("IdSF_deep_2d", &m_IdSF_deep_2d, "IdSF_deep_2d/F") ;
+	  m_smallT->Branch("IdSF_leg1_deep_vsJet_2d", &m_IdSF_leg1_deep_vsJet_2d,
+					   "IdSF_leg1_deep_vsJet_2d/F") ;
+	  m_smallT->Branch("IdSF_leg2_deep_vsJet_2d", &m_IdSF_leg2_deep_vsJet_2d,
+					   "IdSF_leg2_deep_vsJet_2d/F") ;
       m_smallT->Branch ("IdFakeSF_deep_dm", &m_IdFakeSF_deep_dm, "IdFakeSF_deep_dm/F") ;
       m_smallT->Branch ("IdFakeSF_deep_pt", &m_IdFakeSF_deep_pt, "IdFakeSF_deep_pt/F") ;
 	  m_smallT->Branch ("IdFakeSF_deep_2d", &m_IdFakeSF_deep_2d, "IdFakeSF_deep_2d/F") ;
@@ -1392,6 +1398,32 @@ struct smallTree
       m_smallT->Branch ("customTauIdSF_DM10_down", &m_customTauIdSF_DM10_down, "customTauIdSF_DM10_down/F") ;
       m_smallT->Branch ("customTauIdSF_DM11_up"  , &m_customTauIdSF_DM11_up  , "customTauIdSF_DM11_up/F") ;
       m_smallT->Branch ("customTauIdSF_DM11_down", &m_customTauIdSF_DM11_down, "customTauIdSF_DM11_down/F") ;
+
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat0_up", &m_idFakeSF_tauid_2d_stat0_up,
+					   "idFakeSF_tauid_2d_stat0_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat0_down", &m_idFakeSF_tauid_2d_stat0_down,
+					   "idFakeSF_tauid_2d_stat0_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat1_up", &m_idFakeSF_tauid_2d_stat1_up,
+					   "idFakeSF_tauid_2d_stat1_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat1_down", &m_idFakeSF_tauid_2d_stat1_down,
+					   "idFakeSF_tauid_2d_stat1_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmeras_up", &m_idFakeSF_tauid_2d_systcorrdmeras_up,
+					   "idFakeSF_tauid_2d_systcorrdmeras_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmeras_down", &m_idFakeSF_tauid_2d_systcorrdmeras_down,
+					   "idFakeSF_tauid_2d_systcorrdmeras_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmuncorreras_up", &m_idFakeSF_tauid_2d_systcorrdmuncorreras_up,
+					   "idFakeSF_tauid_2d_systcorrdmuncorreras_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmuncorreras_down", &m_idFakeSF_tauid_2d_systcorrdmuncorreras_down,
+					   "idFakeSF_tauid_2d_systcorrdmuncorreras_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_up", &m_idFakeSF_tauid_2d_systuncorrdmeras_up,
+					   "idFakeSF_tauid_2d_systuncorrdmeras_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_down", &m_idFakeSF_tauid_2d_systuncorrdmeras_down,
+					   "idFakeSF_tauid_2d_systuncorrdmeras_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systgt40_up", &m_idFakeSF_tauid_2d_systgt40_up,
+					   "idFakeSF_tauid_2d_systgt40_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systgt40_down", &m_idFakeSF_tauid_2d_systgt40_down,
+					   "idFakeSF_tauid_2d_systgt40_down/F");
+		  
       m_smallT->Branch ("idFakeSF_tauid_pt20to25_up"       , &m_idFakeSF_tauid_pt20to25_up       , "idFakeSF_tauid_pt20to25_up/F");
       m_smallT->Branch ("idFakeSF_tauid_pt25to30_up"       , &m_idFakeSF_tauid_pt25to30_up       , "idFakeSF_tauid_pt25to30_up/F");
       m_smallT->Branch ("idFakeSF_tauid_pt30to35_up"       , &m_idFakeSF_tauid_pt30to35_up       , "idFakeSF_tauid_pt30to35_up/F");
@@ -2628,6 +2660,8 @@ struct smallTree
   Float_t m_IdSF_deep_dm ;
   Float_t m_IdSF_deep_pt ;
   Float_t m_IdSF_deep_2d ;
+  Float_t m_IdSF_leg1_deep_vsJet_2d;
+  Float_t m_IdSF_leg2_deep_vsJet_2d;
   Float_t m_IdFakeSF_deep_dm ;
   Float_t m_IdFakeSF_deep_pt ;
   Float_t m_IdFakeSF_deep_2d ;

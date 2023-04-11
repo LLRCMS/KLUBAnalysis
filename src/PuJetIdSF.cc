@@ -99,6 +99,14 @@ std::vector<float> PuJetIdSF::getEvtWeight(bigTree &theBigTree, TLorentzVector t
 
   if (DEBUG) std::cout << "----- PuJetIdSF -----" << std::endl;
 
+  if (theBigTree.jets_px->size() != jets_and_smearFactor.size()) {
+	std::cout << "[DEBUG] " << theBigTree.jets_px->size() << " " << jets_and_smearFactor.size() << std::endl;
+	for (unsigned i=0; i<theBigTree.jets_px->size(); ++i) {
+	  std::cout << i << " val: " << theBigTree.jets_px->at(i) << " " << jets_and_smearFactor.at(i) << std::endl;
+	}
+	throw std::runtime_error("Different length jet quantities!");
+  }
+	
   // Loop on jets
   for (unsigned int iJet = 0; iJet < theBigTree.jets_px->size(); ++iJet)
   {

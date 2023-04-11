@@ -50,9 +50,9 @@ public:
 							  getenv("CMSSW_BASE"));
   std::array<std::string, 7> mYears = {"2016Legacy", "2017ReReco", "2018ReReco",
 									   "UL2016_preVFP", "UL2016_postVFP", "UL2017", "UL2018"};
-  std::array<std::string, 2> mAntiJetIDs = {"MVAoldDM2017v2", "DeepTau2017v2p1VSjet"};
-  std::array<std::string, 2> mAntiEleIDs = {"antiEleMVA6",    "DeepTau2017v2p1VSe"};
-  std::array<std::string, 2> mAntiMuIDs  = {"antiMu3",        "DeepTau2017v2p1VSmu"};
+  std::array<std::string, 1> mAntiJetIDs = {"DeepTau2017v2p1VSjet"};
+  std::array<std::string, 1> mAntiEleIDs = {"DeepTau2017v2p1VSe"};
+  std::array<std::string, 1> mAntiMuIDs  = {"DeepTau2017v2p1VSmu"};
   std::array<std::string, 13> mUncertainties = {"", //nominal
 												"Stat0Up", "Stat0Down", "Stat1Up", "Stat1Down",
 												"SystCorrDMErasUp", "SystCorrDMErasDown",
@@ -67,11 +67,11 @@ public:
   bool isVsDMandPt = false;
 
   TauIDSFTool(const std::string& year,
-			  const std::string& id="MVAoldDM2017v2",
-			  const std::string& wp="Tight",
-			  const bool dm=0,
+			  const std::string& id,
+			  const std::string& wp,
+			  const bool dm,
 			  const bool embedding=false);
-  TauIDSFTool(std::string& year,
+  TauIDSFTool(std::string year,
 			  const std::string& wp1,
 			  const std::string& wp2);
   ~TauIDSFTool() { }

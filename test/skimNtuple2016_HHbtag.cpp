@@ -624,11 +624,11 @@ int main (int argc, char** argv)
                                                true);
   // tau IdAndIso SF
   VFP = isPostVFP ? "UL2016_postVFP" : "UL2016_preVFP";
-  TauIDSFTool *Deep_antiJet_medium_dm = new TauIDSFTool(VFP, "DeepTau2017v2p1VSjet", "Medium",1); // for DeepTauv2p1 vs jets Medium
-  TauIDSFTool *Deep_antiJet_medium_pt = new TauIDSFTool(VFP, "DeepTau2017v2p1VSjet", "Medium");   // for DeepTauv2p1 vs jets Medium
-  TauIDSFTool *Deep_antiJet_2d        = new TauIDSFTool(VFP, "Medium", "VVLoose"); // for DeepTauv2p1 vs jets Medium in DM/pT bins
-  TauIDSFTool *Deep_antiEle_vvloose   = new TauIDSFTool(VFP, "DeepTau2017v2p1VSe"  , "VVLoose");  // for DeepTauv2p1 vs ele VVLoose
-  TauIDSFTool *Deep_antiMu_tight      = new TauIDSFTool(VFP, "DeepTau2017v2p1VSmu" , "Tight");    // for DeepTauv2p1 vs mu Tight
+  TauIDSFTool *Deep_antiJet_medium_dm = new TauIDSFTool(VFP,"DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets Medium
+  TauIDSFTool *Deep_antiJet_medium_pt = new TauIDSFTool(VFP,"DeepTau2017v2p1VSjet","Medium",0); // for DeepTauv2p1 vs jets Medium
+  TauIDSFTool *Deep_antiJet_2d        = new TauIDSFTool(VFP,"Medium","VVLoose"); // for DeepTauv2p1 vs jets Medium in DM/pT bins
+  TauIDSFTool *Deep_antiEle_vvloose   = new TauIDSFTool(VFP,"DeepTau2017v2p1VSe","VVLoose",0);  // for DeepTauv2p1 vs ele VVLoose
+  TauIDSFTool *Deep_antiMu_tight      = new TauIDSFTool(VFP, "DeepTau2017v2p1VSmu","Tight",0);  // for DeepTauv2p1 vs mu Tight
 
   // ------------------------------
   // reweight file according to NLO differential reweighting procedure
@@ -2631,19 +2631,8 @@ int main (int argc, char** argv)
 		idSF_leg2_deep_vsJet_dm = Deep_antiJet_medium_dm->getSFvsDM(leg2pt, tau2DM, tau2Genmatch);
 		idSF_leg2_deep_vsJet_pt = Deep_antiJet_medium_pt->getSFvsPT(leg2pt, tau2Genmatch);
 		idSF_leg2_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch);
-
-		if(pType == 0) {
-		  idSF_leg2_deep_vsEle = Deep_antiEle_vvloose->getSFvsEta(leg2eta, tau2Genmatch);
-		  idSF_leg2_deep_vsMu  = Deep_antiMu_tight  ->getSFvsEta(leg2eta, tau2Genmatch);
-		}
-		else if(pType == 1) {
-		  idSF_leg2_deep_vsEle = Deep_antiEle_vvloose->getSFvsEta(leg2eta, tau2Genmatch);
-		  idSF_leg2_deep_vsMu  = Deep_antiMu_tight  ->getSFvsEta(leg2eta, tau2Genmatch);
-		}
-		else if(pType == 2) {
-		  idSF_leg2_deep_vsEle = Deep_antiEle_vvloose->getSFvsEta(leg2eta, tau2Genmatch);
-		  idSF_leg2_deep_vsMu  = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch);
-		}
+		idSF_leg2_deep_vsEle = Deep_antiEle_vvloose->getSFvsEta(leg2eta, tau2Genmatch);
+		idSF_leg2_deep_vsMu  = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch);
 	  }
 
 	Float_t idSF_leg1_deep_vsJet_2d_stat0_up				  = 1.f;
@@ -2766,31 +2755,17 @@ int main (int argc, char** argv)
 
 
 		for (int bin = 0; bin < (int) isthisEta_IDbin_second.size(); bin++) {
-		  if (isthisEta_IDbin_second[bin])
-			{
-			  if (pType==2) { //loose working point only for TauTau
-				idSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch,	"Up");
-				idSF_leg2_deep_vsMu_down[bin] = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch, "Down");
-			  }
-			  else {
-				idSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch,	"Up");
-				idSF_leg2_deep_vsMu_down[bin] = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch, "Down");
-			  }
-			}
+		  if (isthisEta_IDbin_second[bin]) {
+			idSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch,	"Up");
+			idSF_leg2_deep_vsMu_down[bin] = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch, "Down");
+		  }
 		}
 
 		for (int bin = 0; bin < (int) isthisSDet_IDbin_second.size(); bin++) {
-		  if (isthisSDet_IDbin_second[bin])
-			{
-			  if (pType==2) { //very very loose working point only for TauTau
-				idSF_leg2_deep_vsEle_up[bin]   = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch,   "Up");
-				idSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch, "Down");
-			  }
-			  else {
-				idSF_leg2_deep_vsEle_up[bin]   = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch,   "Up");
-				idSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch, "Down");
-			  }
-			}
+		  if (isthisSDet_IDbin_second[bin])	{
+			idSF_leg2_deep_vsEle_up[bin]   = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch,   "Up");
+			idSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch, "Down");
+		  }
 		}
 		
 	  }
@@ -5604,7 +5579,7 @@ int main (int argc, char** argv)
     else selectedEvents += 1 ;
     ++selectedNoWeightsEventsNum ;
 
-    if (DEBUG) //FRA DEBUG
+    if (DEBUG)
     {
       cout << "--------------			" << endl;
 	  cout << " - Debug SFs -			" << endl;
