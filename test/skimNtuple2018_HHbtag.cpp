@@ -2678,16 +2678,16 @@ int main (int argc, char** argv)
 	  float idFakeSF_tauid_2d_systgt40_up				= 1.f;				 
 	  float idFakeSF_tauid_2d_systgt40_down				= 1.f;			   
 
-	  // float idFakeSF_tauid_pt20to25_up    = 1.0;
-	  // float idFakeSF_tauid_pt25to30_up    = 1.0;
-	  // float idFakeSF_tauid_pt30to35_up    = 1.0;
-	  // float idFakeSF_tauid_pt35to40_up    = 1.0;
-	  // float idFakeSF_tauid_pt40toInf_up   = 1.0;
-	  // float idFakeSF_tauid_pt20to25_down  = 1.0;
-	  // float idFakeSF_tauid_pt25to30_down  = 1.0;
-	  // float idFakeSF_tauid_pt30to35_down  = 1.0;
-	  // float idFakeSF_tauid_pt35to40_down  = 1.0;
-	  // float idFakeSF_tauid_pt40toInf_down = 1.0;
+	  float idFakeSF_tauid_pt20to25_up    = 1.0;
+	  float idFakeSF_tauid_pt25to30_up    = 1.0;
+	  float idFakeSF_tauid_pt30to35_up    = 1.0;
+	  float idFakeSF_tauid_pt35to40_up    = 1.0;
+	  float idFakeSF_tauid_pt40toInf_up   = 1.0;
+	  float idFakeSF_tauid_pt20to25_down  = 1.0;
+	  float idFakeSF_tauid_pt25to30_down  = 1.0;
+	  float idFakeSF_tauid_pt30to35_down  = 1.0;
+	  float idFakeSF_tauid_pt35to40_down  = 1.0;
+	  float idFakeSF_tauid_pt40toInf_down = 1.0;
 
 	  float idFakeSF_mutauFR_etaLt0p4_up      = 1.0;
 	  float idFakeSF_mutauFR_eta0p4to0p8_up   = 1.0;
@@ -2972,7 +2972,7 @@ int main (int argc, char** argv)
 		  idSF_deep_2d = idSF_leg1 * idSF_leg2_deep_vsJet_2d;
 		  fakeRateSF_deep = idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
 
-		  except_VsJet = idSF_leg1 * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
+		  except_VsJet = idSF_leg1 * idSF_leg2_deep_vsEle    * idSF_leg2_deep_vsMu;
 		  except_vsMu  = idSF_leg1 * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
 		  except_vsEle = idSF_leg1 * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
 		
@@ -2993,27 +2993,27 @@ int main (int argc, char** argv)
 		  idFakeSF_tauid_2d_systgt40_up					= except_VsJet * idSF_leg2_deep_vsJet_2d_systgt40_up;
 		  idFakeSF_tauid_2d_systgt40_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_systgt40_down;
 		
-		  // idFakeSF_tauid_pt20to25_up	 = except_VsJet * idSF_leg2_deep_vsJet_pt_up[0];
-		  // idFakeSF_tauid_pt25to30_up	 = except_VsJet * idSF_leg2_deep_vsJet_pt_up[1];
-		  // idFakeSF_tauid_pt30to35_up	 = except_VsJet * idSF_leg2_deep_vsJet_pt_up[2];
-		  // idFakeSF_tauid_pt35to40_up	 = except_VsJet * idSF_leg2_deep_vsJet_pt_up[3];
-		  // idFakeSF_tauid_pt40toInf_up	 = except_VsJet * idSF_leg2_deep_vsJet_pt_up[4];
-		  // idFakeSF_tauid_pt20to25_down	 = except_VsJet * idSF_leg2_deep_vsJet_pt_down[0];
-		  // idFakeSF_tauid_pt25to30_down	 = except_VsJet * idSF_leg2_deep_vsJet_pt_down[1];
-		  // idFakeSF_tauid_pt30to35_down	 = except_VsJet * idSF_leg2_deep_vsJet_pt_down[2];
-		  // idFakeSF_tauid_pt35to40_down	 = except_VsJet * idSF_leg2_deep_vsJet_pt_down[3];
-		  // idFakeSF_tauid_pt40toInf_down = except_VsJet * idSF_leg2_deep_vsJet_pt_down[4];
+		  idFakeSF_tauid_pt20to25_up	= except_VsJet * idSF_leg2_deep_vsJet_pt_up[0];
+		  idFakeSF_tauid_pt25to30_up	= except_VsJet * idSF_leg2_deep_vsJet_pt_up[1];
+		  idFakeSF_tauid_pt30to35_up	= except_VsJet * idSF_leg2_deep_vsJet_pt_up[2];
+		  idFakeSF_tauid_pt35to40_up	= except_VsJet * idSF_leg2_deep_vsJet_pt_up[3];
+		  idFakeSF_tauid_pt40toInf_up	= except_VsJet * idSF_leg2_deep_vsJet_pt_up[4];
+		  idFakeSF_tauid_pt20to25_down	= except_VsJet * idSF_leg2_deep_vsJet_pt_down[0];
+		  idFakeSF_tauid_pt25to30_down	= except_VsJet * idSF_leg2_deep_vsJet_pt_down[1];
+		  idFakeSF_tauid_pt30to35_down	= except_VsJet * idSF_leg2_deep_vsJet_pt_down[2];
+		  idFakeSF_tauid_pt35to40_down	= except_VsJet * idSF_leg2_deep_vsJet_pt_down[3];
+		  idFakeSF_tauid_pt40toInf_down = except_VsJet * idSF_leg2_deep_vsJet_pt_down[4];
 
-		  idFakeSF_mutauFR_etaLt0p4_up      = except_vsMu * idSF_leg2_deep_vsMu_up[1];
+		  idFakeSF_mutauFR_etaLt0p4_up      = except_vsMu * idSF_leg2_deep_vsMu_up[0];
 		  idFakeSF_mutauFR_eta0p4to0p8_up   = except_vsMu * idSF_leg2_deep_vsMu_up[1];
-		  idFakeSF_mutauFR_eta0p8to1p2_up	= except_vsMu * idSF_leg2_deep_vsMu_up[2];
-		  idFakeSF_mutauFR_eta1p2to1p7_up	= except_vsMu * idSF_leg2_deep_vsMu_up[3];
-		  idFakeSF_mutauFR_etaGt1p7_up		= except_vsMu * idSF_leg2_deep_vsMu_up[4];
-		  idFakeSF_mutauFR_etaLt0p4_down	= except_vsMu * idSF_leg2_deep_vsMu_down[0];
+		  idFakeSF_mutauFR_eta0p8to1p2_up   = except_vsMu * idSF_leg2_deep_vsMu_up[2];
+		  idFakeSF_mutauFR_eta1p2to1p7_up   = except_vsMu * idSF_leg2_deep_vsMu_up[3];
+		  idFakeSF_mutauFR_etaGt1p7_up	    = except_vsMu * idSF_leg2_deep_vsMu_up[4];
+		  idFakeSF_mutauFR_etaLt0p4_down    = except_vsMu * idSF_leg2_deep_vsMu_down[0];
 		  idFakeSF_mutauFR_eta0p4to0p8_down = except_vsMu * idSF_leg2_deep_vsMu_down[1];
 		  idFakeSF_mutauFR_eta0p8to1p2_down = except_vsMu * idSF_leg2_deep_vsMu_down[2];
 		  idFakeSF_mutauFR_eta1p2to1p7_down = except_vsMu * idSF_leg2_deep_vsMu_down[3];
-		  idFakeSF_mutauFR_etaGt1p7_down	= except_vsMu * idSF_leg2_deep_vsMu_down[4];
+		  idFakeSF_mutauFR_etaGt1p7_down    = except_vsMu * idSF_leg2_deep_vsMu_down[4];
 	
 		  idFakeSF_etauFR_barrel_up		= except_vsEle * idSF_leg2_deep_vsEle_up[0];
 		  idFakeSF_etauFR_endcap_up		= except_vsEle * idSF_leg2_deep_vsEle_up[1];  
@@ -3048,16 +3048,16 @@ int main (int argc, char** argv)
 		  idFakeSF_tauid_2d_systgt40_up					= except_VsJet * idSF_leg1_deep_vsJet_2d_systgt40_up			   * idSF_leg2_deep_vsJet_2d_systgt40_up;
 		  idFakeSF_tauid_2d_systgt40_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_systgt40_down			   * idSF_leg2_deep_vsJet_2d_systgt40_down;
 
-		  // idFakeSF_tauid_pt20to25_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[0]   * idSF_leg2_deep_vsJet_pt_up[0];
-		  // idFakeSF_tauid_pt25to30_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[1]   * idSF_leg2_deep_vsJet_pt_up[1];
-		  // idFakeSF_tauid_pt30to35_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[2]   * idSF_leg2_deep_vsJet_pt_up[2];
-		  // idFakeSF_tauid_pt35to40_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[3]   * idSF_leg2_deep_vsJet_pt_up[3];
-		  // idFakeSF_tauid_pt40toInf_up   = except_VsJet * idSF_leg1_deep_vsJet_pt_up[4]   * idSF_leg2_deep_vsJet_pt_up[4];
-		  // idFakeSF_tauid_pt20to25_down  = except_VsJet * idSF_leg1_deep_vsJet_pt_down[0] * idSF_leg2_deep_vsJet_pt_down[0];
-		  // idFakeSF_tauid_pt25to30_down  = except_VsJet * idSF_leg1_deep_vsJet_pt_down[1] * idSF_leg2_deep_vsJet_pt_down[1];
-		  // idFakeSF_tauid_pt30to35_down  = except_VsJet * idSF_leg1_deep_vsJet_pt_down[2] * idSF_leg2_deep_vsJet_pt_down[2];
-		  // idFakeSF_tauid_pt35to40_down  = except_VsJet * idSF_leg1_deep_vsJet_pt_down[3] * idSF_leg2_deep_vsJet_pt_down[3];
-		  // idFakeSF_tauid_pt40toInf_down = except_VsJet * idSF_leg1_deep_vsJet_pt_down[4] * idSF_leg2_deep_vsJet_pt_down[4];
+		  idFakeSF_tauid_pt20to25_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[0]   * idSF_leg2_deep_vsJet_pt_up[0];
+		  idFakeSF_tauid_pt25to30_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[1]   * idSF_leg2_deep_vsJet_pt_up[1];
+		  idFakeSF_tauid_pt30to35_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[2]   * idSF_leg2_deep_vsJet_pt_up[2];
+		  idFakeSF_tauid_pt35to40_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[3]   * idSF_leg2_deep_vsJet_pt_up[3];
+		  idFakeSF_tauid_pt40toInf_up   = except_VsJet * idSF_leg1_deep_vsJet_pt_up[4]   * idSF_leg2_deep_vsJet_pt_up[4];
+		  idFakeSF_tauid_pt20to25_down  = except_VsJet * idSF_leg1_deep_vsJet_pt_down[0] * idSF_leg2_deep_vsJet_pt_down[0];
+		  idFakeSF_tauid_pt25to30_down  = except_VsJet * idSF_leg1_deep_vsJet_pt_down[1] * idSF_leg2_deep_vsJet_pt_down[1];
+		  idFakeSF_tauid_pt30to35_down  = except_VsJet * idSF_leg1_deep_vsJet_pt_down[2] * idSF_leg2_deep_vsJet_pt_down[2];
+		  idFakeSF_tauid_pt35to40_down  = except_VsJet * idSF_leg1_deep_vsJet_pt_down[3] * idSF_leg2_deep_vsJet_pt_down[3];
+		  idFakeSF_tauid_pt40toInf_down = except_VsJet * idSF_leg1_deep_vsJet_pt_down[4] * idSF_leg2_deep_vsJet_pt_down[4];
 
 		  idFakeSF_mutauFR_etaLt0p4_up      = except_vsMu * idSF_leg1_deep_vsMu_up[0]   * idSF_leg2_deep_vsMu_up[0];
 		  idFakeSF_mutauFR_eta0p4to0p8_up   = except_vsMu * idSF_leg1_deep_vsMu_up[1]   * idSF_leg2_deep_vsMu_up[1];
@@ -3100,11 +3100,11 @@ int main (int argc, char** argv)
 	  }
 
 	  // Save the IDandISO SF (event per event)
-	  theSmallTree.m_IdSF_deep_dm	  = idSF_deep_dm;
-	  theSmallTree.m_IdSF_deep_pt	  = idSF_deep_pt;
-	  theSmallTree.m_IdSF_deep_2d	  = idSF_deep_2d;
-	  theSmallTree.m_IdSF_leg1_deep_vsJet_2d = idSF_leg1_deep_vsJet_2d;
-	  theSmallTree.m_IdSF_leg2_deep_vsJet_2d = idSF_leg2_deep_vsJet_2d;
+	  theSmallTree.m_IdSF_deep_dm				= idSF_deep_dm;
+	  theSmallTree.m_IdSF_deep_pt				= idSF_deep_pt;
+	  theSmallTree.m_IdSF_deep_2d				= idSF_deep_2d;
+	  theSmallTree.m_IdSF_leg1_deep_vsJet_2d	= idSF_leg1_deep_vsJet_2d;
+	  theSmallTree.m_IdSF_leg2_deep_vsJet_2d	= idSF_leg2_deep_vsJet_2d;
 	  
 	  theSmallTree.m_IdFakeSF_deep_dm = idFakeSF_deep_dm;
 	  theSmallTree.m_IdFakeSF_deep_pt = idFakeSF_deep_pt;
@@ -3124,16 +3124,16 @@ int main (int argc, char** argv)
 	  theSmallTree.m_idFakeSF_tauid_2d_systgt40_up				 = idFakeSF_tauid_2d_systgt40_up;
 	  theSmallTree.m_idFakeSF_tauid_2d_systgt40_down			 = idFakeSF_tauid_2d_systgt40_down;
 
-	  // theSmallTree.m_idFakeSF_tauid_pt20to25_up    = idFakeSF_tauid_pt20to25_up;	
-	  // theSmallTree.m_idFakeSF_tauid_pt25to30_up	= idFakeSF_tauid_pt25to30_up;		
-	  // theSmallTree.m_idFakeSF_tauid_pt30to35_up	= idFakeSF_tauid_pt30to35_up;		
-	  // theSmallTree.m_idFakeSF_tauid_pt35to40_up	= idFakeSF_tauid_pt35to40_up;		
-	  // theSmallTree.m_idFakeSF_tauid_pt40toInf_up	= idFakeSF_tauid_pt40toInf_up;		
-	  // theSmallTree.m_idFakeSF_tauid_pt20to25_down	= idFakeSF_tauid_pt20to25_down;		
-	  // theSmallTree.m_idFakeSF_tauid_pt25to30_down	= idFakeSF_tauid_pt25to30_down;	
-	  // theSmallTree.m_idFakeSF_tauid_pt30to35_down	= idFakeSF_tauid_pt30to35_down;	
-	  // theSmallTree.m_idFakeSF_tauid_pt35to40_down	= idFakeSF_tauid_pt35to40_down;		
-	  // theSmallTree.m_idFakeSF_tauid_pt40toInf_down	= idFakeSF_tauid_pt40toInf_down;	
+	  theSmallTree.m_idFakeSF_tauid_pt20to25_up		= idFakeSF_tauid_pt20to25_up;	
+	  theSmallTree.m_idFakeSF_tauid_pt25to30_up		= idFakeSF_tauid_pt25to30_up;		
+	  theSmallTree.m_idFakeSF_tauid_pt30to35_up		= idFakeSF_tauid_pt30to35_up;		
+	  theSmallTree.m_idFakeSF_tauid_pt35to40_up		= idFakeSF_tauid_pt35to40_up;		
+	  theSmallTree.m_idFakeSF_tauid_pt40toInf_up	= idFakeSF_tauid_pt40toInf_up;		
+	  theSmallTree.m_idFakeSF_tauid_pt20to25_down	= idFakeSF_tauid_pt20to25_down;		
+	  theSmallTree.m_idFakeSF_tauid_pt25to30_down	= idFakeSF_tauid_pt25to30_down;	
+	  theSmallTree.m_idFakeSF_tauid_pt30to35_down	= idFakeSF_tauid_pt30to35_down;	
+	  theSmallTree.m_idFakeSF_tauid_pt35to40_down	= idFakeSF_tauid_pt35to40_down;		
+	  theSmallTree.m_idFakeSF_tauid_pt40toInf_down	= idFakeSF_tauid_pt40toInf_down;	
 
 	  theSmallTree.m_idFakeSF_mutauFR_etaLt0p4_up		= idFakeSF_mutauFR_etaLt0p4_up;		
 	  theSmallTree.m_idFakeSF_mutauFR_eta0p4to0p8_up	= idFakeSF_mutauFR_eta0p4to0p8_up;	
@@ -3484,23 +3484,23 @@ int main (int argc, char** argv)
 			}
 		} // end if(applytriggers)
 
-	  theSmallTree.m_trigSF           = (isMC ? trigSF : 1.0);
-	  theSmallTree.m_trigSF_ele_up    = (isMC ? trigSF_ele_up : 1.0);
-	  theSmallTree.m_trigSF_mu_up     = (isMC ? trigSF_mu_up : 1.0);
-	  theSmallTree.m_trigSF_DM0_up    = (isMC ? trigSF_DM0_up : 1.0);
-	  theSmallTree.m_trigSF_DM1_up    = (isMC ? trigSF_DM1_up : 1.0);
-	  theSmallTree.m_trigSF_DM10_up   = (isMC ? trigSF_DM10_up : 1.0);
-	  theSmallTree.m_trigSF_DM11_up   = (isMC ? trigSF_DM11_up : 1.0);
-	  theSmallTree.m_trigSF_ele_down  = (isMC ? trigSF_ele_down : 1.0);
-	  theSmallTree.m_trigSF_mu_down   = (isMC ? trigSF_mu_down : 1.0);
-	  theSmallTree.m_trigSF_DM0_down  = (isMC ? trigSF_DM0_down : 1.0);
-	  theSmallTree.m_trigSF_DM1_down  = (isMC ? trigSF_DM1_down : 1.0);
-	  theSmallTree.m_trigSF_DM10_down = (isMC ? trigSF_DM10_down : 1.0);
-	  theSmallTree.m_trigSF_DM11_down = (isMC ? trigSF_DM11_down : 1.0);
+	  theSmallTree.m_trigSF				= (isMC ? trigSF : 1.0);
+	  theSmallTree.m_trigSF_ele_up		= (isMC ? trigSF_ele_up : 1.0);
+	  theSmallTree.m_trigSF_mu_up		= (isMC ? trigSF_mu_up : 1.0);
+	  theSmallTree.m_trigSF_DM0_up		= (isMC ? trigSF_DM0_up : 1.0);
+	  theSmallTree.m_trigSF_DM1_up		= (isMC ? trigSF_DM1_up : 1.0);
+	  theSmallTree.m_trigSF_DM10_up		= (isMC ? trigSF_DM10_up : 1.0);
+	  theSmallTree.m_trigSF_DM11_up		= (isMC ? trigSF_DM11_up : 1.0);
+	  theSmallTree.m_trigSF_ele_down	= (isMC ? trigSF_ele_down : 1.0);
+	  theSmallTree.m_trigSF_mu_down		= (isMC ? trigSF_mu_down : 1.0);
+	  theSmallTree.m_trigSF_DM0_down	= (isMC ? trigSF_DM0_down : 1.0);
+	  theSmallTree.m_trigSF_DM1_down	= (isMC ? trigSF_DM1_down : 1.0);
+	  theSmallTree.m_trigSF_DM10_down	= (isMC ? trigSF_DM10_down : 1.0);
+	  theSmallTree.m_trigSF_DM11_down	= (isMC ? trigSF_DM11_down : 1.0);
 	  theSmallTree.m_trigSF_vbfjet_up   = (isMC ? trigSF_vbfjet_up : 1.0);
 	  theSmallTree.m_trigSF_vbfjet_down = (isMC ? trigSF_vbfjet_down : 1.0);
-	  theSmallTree.m_trigSF_single = (isMC ? trigSF_single : 1.0);
-	  theSmallTree.m_trigSF_cross  = (isMC ? trigSF_cross : 1.0);
+	  theSmallTree.m_trigSF_single		= (isMC ? trigSF_single : 1.0);
+	  theSmallTree.m_trigSF_cross		= (isMC ? trigSF_cross : 1.0);
 
 	  theSmallTree.m_totalWeight = (isMC? (59970./7.20811e+10) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_DYscale_MTT * trigSF * theSmallTree.m_IdFakeSF_deep_pt: 1.0);
 	  //total weight used for sync: the denominator must be changed for each sample as h_eff->GetBinContent(1), the numerator is the luminosity

@@ -162,15 +162,15 @@ fi
 
 mkdir -p ${SKIM_DIR}
 OUTSKIM_DIR=${SKIM_DIR}/${TAG_DIR}/
-# if [ -d ${OUTSKIM_DIR} ] && [[ ${RESUBMIT} -eq 0 ]]; then
-# 	echo "Directory ${OUTSKIM_DIR} already exists."
-# 	echo "If you want to resubmit some jobs, add the '--resubmit' flag."
-# 	echo "If not, you might want to remove the directory with: 'rm -r ${OUTSKIM_DIR}'."
-# 	echo "Exiting."
-# 	exit 1
-# else
-# 	mkdir -p ${OUTSKIM_DIR}
-# fi
+if [ -d ${OUTSKIM_DIR} ] && [[ ${RESUBMIT} -eq 0 ]]; then
+	echo "Directory ${OUTSKIM_DIR} already exists."
+	echo "If you want to resubmit some jobs, add the '--resubmit' flag."
+	echo "If not, you might want to remove the directory with: 'rm -r ${OUTSKIM_DIR}'."
+	echo "Exiting."
+	exit 1
+else
+	mkdir -p ${OUTSKIM_DIR}
+fi
 ERR_FILE=${OUTSKIM_DIR}"/bad_patterns.o"
 
 
@@ -279,25 +279,26 @@ function find_sample() {
 DYXSEC="1.0"
 #DYXSEC="6077.22"
 DATA_MAP=(
-    #["TTToHadronic"]="-n 500 -x 377.96"
-    #["TTTo2L2Nu"]="-n 500 -x 88.29"
-    #["TTToSemiLeptonic"]="-n 500 -x 365.34"
+    ["TTToHadronic"]="-n 200 -x 377.96"
+    ["TTTo2L2Nu"]="-n 200 -x 88.29"
+    ["TTToSemiLeptonic"]="-n 200 -x 365.34"
 
     # NLO DY x-secs taken from XSDB and multiplied by k-factor from NLO to NNLO: 6077.22 [1] / 6404.0 [2]
     # [1] NNLO x-sec for inclusive DYJetsToLL_M-50 sample taken from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeV
     # [2] https://cms-gen-dev.cern.ch/xsdb/?searchQuery=DAS%3DDYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8
 
     ["DYJets.+_M-50_T.+amc"]="-n 600 -x 6077.22 -g ${STITCHING_ON} --DY 0" # inclusive NLO
-    # ["DYJetsToLL_LHEFilterPtZ-0To50"]="-n 100   -x 1409.22 -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_LHEFilterPtZ-50To100"]="-n 600 -x 377.12     -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_LHEFilterPtZ-100To250"]="-n 600 -x  92.24     -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_LHEFilterPtZ-250To400"]="-n 600 -x   3.512   -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_LHEFilterPtZ-400To650"]="-n 600 -x   0.4826  -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_LHEFilterPtZ-650ToInf"]="-n 600 -x   0.04487 -g ${STITCHING_ON} --DY 0"
 
-    # ["DYJetsToLL_0J"]="-n 600 -x 4867.28.  -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_1J"]="-n 600  -x  902.95 -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_2J"]="-n 600  -x  342.96 -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_LHEFilterPtZ-0To50"]="-n 100   -x 1409.22 -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_LHEFilterPtZ-50To100"]="-n 600 -x 377.12     -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_LHEFilterPtZ-100To250"]="-n 600 -x  92.24     -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_LHEFilterPtZ-250To400"]="-n 600 -x   3.512   -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_LHEFilterPtZ-400To650"]="-n 600 -x   0.4826  -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_LHEFilterPtZ-650ToInf"]="-n 600 -x   0.04487 -g ${STITCHING_ON} --DY 0"
+
+    ["DYJetsToLL_0J"]="-n 600 -x 4867.28.  -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_1J"]="-n 600  -x  902.95 -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_2J"]="-n 600  -x  342.96 -g ${STITCHING_ON} --DY 0"
 
     ### 
     ###### LO samples, DY weights exist (--DY 1)
@@ -316,45 +317,45 @@ DATA_MAP=(
     #### ["DYJetsToLL_M-50_HT-1200to2500"]="	-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
     #### ["DYJetsToLL_M-50_HT-2500toInf"]="	-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
     #
-    # ["WJetsToLNu_T.+madgraph"]="-n 50 -x 48917.48 -y 1.213784 -z 70" # for 0 < HT < 70
-    # ["WJetsToLNu_HT-70To100"]="-n 50 -x 1362 -y 1.213784"
-    # ["WJetsToLNu_HT-100To200"]="-n 50 -x 1345 -y 1.213784"
-    # ["WJetsToLNu_HT-200To400"]="-n 50 -x 359.7 -y 1.213784"
-    # ["WJetsToLNu_HT-400To600"]="-n 50 -x 48.91 -y 1.213784"
-    # ["WJetsToLNu_HT-600To800"]="-n 50 -x 12.05 -y 1.213784"
-    # ["WJetsToLNu_HT-800To1200"]="-n 50 -x 5.501 -y 1.213784"
-    # ["WJetsToLNu_HT-1200To2500"]="-n 50 -x 1.329 -y 1.213784"
-    # ["WJetsToLNu_HT-2500ToInf"]="-n 50 -x 0.03216 -y 1.213784"
+    ["WJetsToLNu_T.+madgraph"]="-n 50 -x 48917.48 -y 1.213784 -z 70" # for 0 < HT < 70
+    ["WJetsToLNu_HT-70To100"]="-n 50 -x 1362 -y 1.213784"
+    ["WJetsToLNu_HT-100To200"]="-n 50 -x 1345 -y 1.213784"
+    ["WJetsToLNu_HT-200To400"]="-n 50 -x 359.7 -y 1.213784"
+    ["WJetsToLNu_HT-400To600"]="-n 50 -x 48.91 -y 1.213784"
+    ["WJetsToLNu_HT-600To800"]="-n 50 -x 12.05 -y 1.213784"
+    ["WJetsToLNu_HT-800To1200"]="-n 50 -x 5.501 -y 1.213784"
+    ["WJetsToLNu_HT-1200To2500"]="-n 50 -x 1.329 -y 1.213784"
+    ["WJetsToLNu_HT-2500ToInf"]="-n 50 -x 0.03216 -y 1.213784"
 
-    # ["EWKWPlus2Jets_WToLNu"]="-n 50 -x 25.62"
-    # ["EWKWMinus2Jets_WToLNu"]="-n 50 -x 20.25"
-    # ["EWKZ2Jets_ZToLL"]="-n 50 -x 3.987"
+    ["EWKWPlus2Jets_WToLNu"]="-n 50 -x 25.62"
+    ["EWKWMinus2Jets_WToLNu"]="-n 50 -x 20.25"
+    ["EWKZ2Jets_ZToLL"]="-n 50 -x 3.987"
 
-    # ["ST_tW_antitop_5f_inclusive"]="-n 50 -x 35.85"
-    # ["ST_tW_top_5f_inclusive"]="-n 50 -x 35.85"
-    # ["ST_t-channel_antitop"]="-n 50 -x 80.95"
-    # ["ST_t-channel_top"]="-n 50 -x 136.02"
+    ["ST_tW_antitop_5f_inclusive"]="-n 50 -x 35.85"
+    ["ST_tW_top_5f_inclusive"]="-n 50 -x 35.85"
+    ["ST_t-channel_antitop"]="-n 50 -x 80.95"
+    ["ST_t-channel_top"]="-n 50 -x 136.02"
 
-    # ["GluGluHToTauTau"]="-n 30 -x 48.61 -y 0.0632"
-    # ["VBFHToTauTau"]="-n 30 -x 3.766 -y 0.0632"
-    # ["ZHToTauTau"]="-n 30 -x 0.880 -y 0.0632"
-    # ["WplusHToTauTau"]="-n 30 -x 0.831 -y 0.0632"
-    # ["WminusHToTauTau"]="-n 30 -x 0.527 -y 0.0632"
+    ["GluGluHToTauTau"]="-n 30 -x 48.61 -y 0.0632"
+    ["VBFHToTauTau"]="-n 30 -x 3.766 -y 0.0632"
+    ["ZHToTauTau"]="-n 30 -x 0.880 -y 0.0632"
+    ["WplusHToTauTau"]="-n 30 -x 0.831 -y 0.0632"
+    ["WminusHToTauTau"]="-n 30 -x 0.527 -y 0.0632"
 
-    # ["ttHToNonbb"]="-n 30 -x 0.5071 -y 0.3598"
-    # ["ttHTobb"]="-n 30 -x 0.5071 -y 0.577"
-    # ["ttHToTauTau"]="-n 30 -x 0.5071 -y 0.0632"
+    ["ttHToNonbb"]="-n 30 -x 0.5071 -y 0.3598"
+    ["ttHTobb"]="-n 30 -x 0.5071 -y 0.577"
+    ["ttHToTauTau"]="-n 30 -x 0.5071 -y 0.0632"
     
-    # ["_WW_TuneCP5"]="-n 20 -x 118.7"
-    # ["_WZ_TuneCP5"]="-n 20 -x 47.13"
-    # ["_ZZ_TuneCP5"]="-n 20 -x 16.523"
+    ["_WW_TuneCP5"]="-n 20 -x 118.7"
+    ["_WZ_TuneCP5"]="-n 20 -x 47.13"
+    ["_ZZ_TuneCP5"]="-n 20 -x 16.523"
 
-    # ["TTWJetsToLNu"]="-n 50 -x 0.2043"
-    # ["TTWJetsToQQ"]="-n 50 -x 0.4062"
-    # ["TTZToLLNuNu"]="-n 50 -x 0.2529"
-    # ["TTWW"]="-n 50 -x 0.006979"
-    # ["TTZZ"]="-n 50 -x 0.001386"
-    # ["TTWZ"]="-n 50 -x 0.00158"
+    ["TTWJetsToLNu"]="-n 50 -x 0.2043"
+    ["TTWJetsToQQ"]="-n 50 -x 0.4062"
+    ["TTZToLLNuNu"]="-n 50 -x 0.2529"
+    ["TTWW"]="-n 50 -x 0.006979"
+    ["TTZZ"]="-n 50 -x 0.001386"
+    ["TTWZ"]="-n 50 -x 0.00158"
 )
 
 # Sanity checks for Drell-Yan stitching

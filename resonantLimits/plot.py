@@ -132,7 +132,7 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period, varfit, 
     hframe.GetXaxis().SetTitleOffset(1.1)
 
     hframe.GetYaxis().SetTitle("95% CL on #sigma #times #bf{#it{#Beta}}(S#rightarrowHH#rightarrow bb#tau#tau) [fb]")
-    hframe.GetXaxis().SetTitle("m_{S} [GeV]")
+    hframe.GetXaxis().SetTitle("m_{X} [GeV]")
 
     hframe.SetStats(0)
     ROOT.gPad.SetTicky()
