@@ -453,8 +453,6 @@ if __name__ == "__main__" :
     parser.add_argument('--label', help='x label', default=None)
     parser.add_argument('--channel', choices=('ETau', 'MuTau', 'TauTau'),
                         help='channel', required=True)
-    parser.add_argument('--siglegextratext',
-                        help='extra opt text for legend after signal block', default=None)
     parser.add_argument('--logy', help='use Y log scale',  action='store_true', default=False)
     parser.add_argument('--logx', help='use X log scale',  action='store_true', default=False)
     parser.add_argument('--nodata', help='disable plotting data', action='store_true', default=True)
@@ -485,7 +483,7 @@ if __name__ == "__main__" :
     parser.add_argument('--ymin', type=float, help='min y range of plots', default=None)
     parser.add_argument('--ymax', type=float, help='max y range of plots', default=None)
     parser.add_argument('--sigscale', type=int, default=1,
-                        help='scale to apply to all signals')
+                        help='scale to apply to all signals [pb]')
     parser.add_argument('--signals', nargs='+', help='resonant signals to overlay', 
                         default=['ggFRadion280', 'ggFRadion400', 'ggFRadion550', 'ggFRadion800', 'ggFRadion1500'])
     parser.add_argument('--lumi', type=float, help='lumi in fb-1', default=None)
@@ -503,15 +501,13 @@ if __name__ == "__main__" :
         pad1.SetFrameLineWidth(3)
         pad1.SetLeftMargin(0.12);
         pad1.SetBottomMargin(0.02);
-        pad1.SetTopMargin(0.055);
-        pad1.Draw()
     else:
         pad1 = ROOT.TPad('pad1', 'pad1', 0, 0.0, 1.0, 1.0)
         pad1.SetFrameLineWidth(3)
-        pad1.SetLeftMargin(0.12);
-        pad1.SetBottomMargin(0.12);
-        pad1.SetTopMargin(0.055);
-        pad1.Draw()
+        pad1.SetLeftMargin(0.12)
+        pad1.SetBottomMargin(0.12)
+    pad1.SetTopMargin(0.08)
+    pad1.Draw()
 
     pad1.cd()
 
@@ -535,7 +531,7 @@ if __name__ == "__main__" :
     bkgColors = {'DYmerged': (col.GetColor("#44BA68"), col.GetColor("#389956")),
                  'TT': (col.GetColor("#F4B642"), col.GetColor("#dea63c")),
                  'W': (col.GetColor("#41B4DB"), col.GetColor("#3ca4c8")),
-                 'singleH': (col.GetColor("#41B4DB"), col.GetColor("#3ca4c8")),
+                 'singleH': (col.GetColor("#400080"), col.GetColor("#400080")),
                  'other': (col.GetColor("#ED635E"), col.GetColor("#d85a56"))}
 
     plotTitle = args.title if args.title else ""        
@@ -573,7 +569,17 @@ if __name__ == "__main__" :
     hWJets  = getHisto('W', *hopt)
     hothers = getHisto('other', *hopt)
 
-    hBkgList = [(hothers, 'Others'), (hWJets, 'W+jets'), (hTT, 't#bar{t}'), (hDY, 'DY')] 
+    hZH      = getHisto('ZH', *hopt)
+    hWH      = getHisto('WH', *hopt)
+    httH     = getHisto('ttH', *hopt)
+    hggH     = getHisto('ggH', *hopt)
+    hsingleH = makeSum('singleH', [hZH, hWH, httH, hggH])
+
+    hBkgList = [(hothers, 'Others'),
+                (hsingleH, 'single H'),
+                (hWJets, 'W+jets'),
+                (hTT, 't#bar{t}'),
+                (hDY, 'DY')] 
 
     if doQCD:
         col2 = ROOT.TColor()
@@ -731,34 +737,30 @@ if __name__ == "__main__" :
 
     ################## LEGEND ######################################
     legmin = 0.45 if not args.lymin else args.lymin
-    alen = len(hBkgList) if args.nosig else len(hBkgList)+len(hSigs)
-    legminx = 0.50 if alen<=6 else 0.35
-    leg = ROOT.TLegend(legminx, legmin, 0.90, 0.93)
-    if alen>6: 
-        leg.SetNColumns(2)
-    leg.SetFillStyle(0)
-    leg.SetBorderSize(0)
-    leg.SetTextFont(43)
-    #leg.SetTextSize(20)
-
+    legBkg = ROOT.TLegend(0.73, legmin, 0.93, 0.91)
+    legBkg.SetFillStyle(0)
+    legBkg.SetBorderSize(0)
+    legBkg.SetTextFont(43)
+    legBkg.SetTextSize(20)
+    if not args.nosig:
+        legSig = ROOT.TLegend(0.55, legmin, 0.73, 0.91)
+        legSig.SetFillStyle(0)
+        legSig.SetBorderSize(0)
+        legSig.SetTextFont(43)
+        legSig.SetTextSize(20)
+    
     # add element in same order as stack --> top-bottom
     if not args.nosig:
         for sig in args.signals:
             histo = hSigs[sig]
             mass = re.findall('[0-9]+', sig)[0]
-            if args.sigscale == 1:
-                leg.AddEntry(histo, 'ggF ' + mass + 'GeV', 'l')
-            else:
-                leg.AddEntry(histo, 'ggF ' + mass + 'GeV #times' + str(args.sigscale), 'l')
-        # null entry to complete signal xsection
-        if args.siglegextratext:
-            leg.AddEntry(None, args.siglegextratext, '')
+            legSig.AddEntry(histo, mass + 'GeV', 'l')
 
     for h in reversed(hBkgList):
-        leg.AddEntry(h[0], h[1], 'f')
+        legBkg.AddEntry(h[0], h[1], 'f')
 
     if not args.nodata:
-        leg.AddEntry(gData, 'Data', 'pe')
+        legBkg.AddEntry(gData, 'Data', 'pe')
 
     ################## Y RANGE SETTINGS ############################
     ymin = 0.1 if args.logy else 0.
@@ -836,10 +838,9 @@ if __name__ == "__main__" :
     b = ROOT.gPad.GetBottomMargin()
     l = ROOT.gPad.GetLeftMargin()
     r = ROOT.gPad.GetRightMargin()       
-    #yoffset = 0.05 # fractional shift   
 
-    CMSbox       = ROOT.TLatex(l , 1 - t + 0.02, 'CMS')       
-    extraTextBox = ROOT.TLatex(l + 0.1 , 1 - t + 0.02, 'Preliminary')
+    CMSbox       = ROOT.TLatex(l, 1 - t + 0.01, 'CMS')       
+    extraTextBox = ROOT.TLatex(l + 0.11, 1 - t + 0.01, 'Preliminary')
     CMSbox.SetNDC()
     extraTextBox.SetNDC()
     CMSbox.SetTextSize(cmsTextSize)
@@ -858,7 +859,7 @@ if __name__ == "__main__" :
  
 
     lumi = '%.1f fb^{-1} (13 TeV)' % args.lumi
-    lumibox = ROOT.TLatex(1-r, 1 - t + 0.02 , lumi)       
+    lumibox = ROOT.TLatex(1-r, 1 - t + 0.01 , lumi)
     lumibox.SetNDC()
     lumibox.SetTextAlign(31)
     lumibox.SetTextSize(extraTextSize)
@@ -874,26 +875,45 @@ if __name__ == "__main__" :
             chName = 'bb #tau_{h}#tau_{h}'
 
         if chName:
-            chBox = ROOT.TLatex(l + 0.04 , 1 - t - 0.02 - 0.04, chName)
+            chBox = ROOT.TLatex(l + 0.04 , 1 - t - 0.01 - 0.04, chName)
             chBox.SetNDC()
             chBox.SetTextSize(cmsTextSize+20)
             chBox.SetTextFont(43)
             chBox.SetTextColor(ROOT.kBlack)
             chBox.SetTextAlign(13)
+
+    sigxsecName = '#sigma_{{ggF - S#rightarrowHH}} #it{{B}}_{{HH#rightarrowbb#tau#tau}} = {}pb'.format(args.sigscale)
+    sigxsecBox = ROOT.TLatex(l + 0.04 , 1 - t - 0.02 - 0.1, sigxsecName)
+    sigxsecBox.SetNDC()
+    sigxsecBox.SetTextSize(cmsTextSize+20)
+    sigxsecBox.SetTextFont(43)
+    sigxsecBox.SetTextColor(ROOT.kBlack)
+    sigxsecBox.SetTextAlign(13)
             
     CMSbox.Draw()
     extraTextBox.Draw()
     lumibox.Draw()
+    sigxsecBox.Draw()
     
-    if args.legend: leg.Draw()
-    if chBox: chBox.Draw()
+    if args.legend:
+        legSig.Draw()
+        legBkg.Draw()
+    if chBox:
+        chBox.Draw()
 
     if not args.name:
-        selName = args.sel
+        if args.sel == 's1b1jresolvedMcut':
+            selName = 'resolved 1b'
+        elif args.sel == 's2b0jresolvedMcut':
+            selName = 'resolved 2b'
+        elif args.sel == 'sboostedMcut':
+            selName = 'boosted'
+        else:
+            selName = args.sel
     else:
         selName = args.name
 
-    selBox = ROOT.TLatex(l + 0.04 , 1 - t - 0.02, selName)
+    selBox = ROOT.TLatex(l + 0.04 , 1 - t - 0.01, selName)
     selBox.SetNDC()
     selBox.SetTextSize(cmsTextSize+20)
     selBox.SetTextFont(43)

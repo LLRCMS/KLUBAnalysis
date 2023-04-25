@@ -71,7 +71,7 @@ def run_combination(outnames, workdir, cfgname, prefix, args):
             for x in mergelist:
                 try:
                     theList.remove(x)
-                except ValueError:
+                except (ValueError,AttributeError):
                     print("'{}' not in list!".format(x))
                     raise
             theList.append(groupname)
