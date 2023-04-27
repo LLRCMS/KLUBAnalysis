@@ -1407,7 +1407,7 @@ int main (int argc, char** argv)
       int dauType = theBigTree.particleType->at(idau);
       if (oph.isMuon(dauType))
       {
-	bool passMu   = oph.muBaseline (&theBigTree, idau, 20., 2.3, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
+	bool passMu   = oph.muBaseline (&theBigTree, idau, 20., 2.4, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
 	bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.30, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
 
 	if (passMu) ++nmu;
@@ -1415,7 +1415,7 @@ int main (int argc, char** argv)
       }
       else if (oph.isElectron(dauType))
       {
-	bool passEle   = oph.eleBaseline (&theBigTree, idau, 24., 2.3, 0.1, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
+	bool passEle   = oph.eleBaseline (&theBigTree, idau, 20., 2.5, 0.1, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
 	bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.3, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
 
 	if (passEle) ++nele;
@@ -1441,8 +1441,6 @@ int main (int argc, char** argv)
 	     << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
 	     << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
 	     << " mutightID=" << setw(3)  << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
-	     << " mubase="    << setw(3)  << left << oph.muBaseline (&theBigTree, idau, 10., 2.3, 0.15, OfflineProducerHelper::MuTight, string("All"))
-	     << " ebase="     << setw(3)  << left << oph.eleBaseline(&theBigTree, idau, 10., 2.3, 0.1, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"))
 	     << endl;
       }
     } // end loop on daughters
