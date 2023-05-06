@@ -455,11 +455,12 @@ if __name__ == "__main__" :
                         help='channel', required=True)
     parser.add_argument('--logy', help='use Y log scale',  action='store_true', default=False)
     parser.add_argument('--logx', help='use X log scale',  action='store_true', default=False)
-    parser.add_argument('--nodata', help='disable plotting data', action='store_true', default=True)
+    parser.add_argument('--nodata', help='disable plotting data', action='store_true')
     parser.add_argument('--nosig', help='disable plotting signal', action='store_true')
     parser.add_argument('--legend',  help='disable drawing legend', action='store_false')
     parser.add_argument('--binwidth', action='store_true', help='disable bin width scaling')
-    parser.add_argument('--ratio', help = 'do ratio plot at the bottom', action='store_true', default=False)
+    parser.add_argument('--ratio', help='do ratio plot at the bottom', action='store_true', default=False)
+    parser.add_argument('--saveratio', help='save ratio in ROOT file', action='store_true', default=False)
     parser.add_argument('--sbs', action='store_true', default=False,
                         help='do S/(S+B) plot at the bottom')
     parser.add_argument('--noprint', action='store_false',
@@ -489,7 +490,7 @@ if __name__ == "__main__" :
     parser.add_argument('--lumi', type=float, help='lumi in fb-1', default=None)
 
     args = parser.parse_args()
-
+    print(args)
     if args.quit:
         ROOT.gROOT.SetBatch(True)
     
@@ -737,17 +738,18 @@ if __name__ == "__main__" :
 
     ################## LEGEND ######################################
     legmin = 0.45 if not args.lymin else args.lymin
+    legsize, legfont = 20, 43
     legBkg = ROOT.TLegend(0.73, legmin, 0.93, 0.91)
     legBkg.SetFillStyle(0)
     legBkg.SetBorderSize(0)
-    legBkg.SetTextFont(43)
-    legBkg.SetTextSize(20)
-    if not args.nosig:
+    legBkg.SetTextFont(legfont)
+    legBkg.SetTextSize(legsize)
+    if not args.nosig or not args.nodata:
         legSig = ROOT.TLegend(0.55, legmin, 0.73, 0.91)
         legSig.SetFillStyle(0)
         legSig.SetBorderSize(0)
-        legSig.SetTextFont(43)
-        legSig.SetTextSize(20)
+        legSig.SetTextFont(legfont)
+        legSig.SetTextSize(legsize)
     
     # add element in same order as stack --> top-bottom
     if not args.nosig:
@@ -760,7 +762,7 @@ if __name__ == "__main__" :
         legBkg.AddEntry(h[0], h[1], 'f')
 
     if not args.nodata:
-        legBkg.AddEntry(gData, 'Data', 'pe')
+        legSig.AddEntry(gData, 'Data', 'pe')
 
     ################## Y RANGE SETTINGS ############################
     ymin = 0.1 if args.logy else 0.
@@ -814,7 +816,7 @@ if __name__ == "__main__" :
         removeEmptyPoints(gData)
         gData.Draw('P Z same') # Z: no small line at the end of error bar
 
-    if args.equalwidth:
+    if args.equalwidth and not args.ratio:
         ahisto = retrieveHistos(rootFile, bkgList, *opts).items()[0][1]
         ndiv = ahisto.GetNbinsX()
         finalaxis = ROOT.TGaxis(0., 0., ndiv, 0., 0, ndiv, ndiv, '+')
@@ -883,7 +885,7 @@ if __name__ == "__main__" :
             chBox.SetTextAlign(13)
 
     sigxsecName = '#sigma_{{ggF - S#rightarrowHH}} #it{{B}}_{{HH#rightarrowbb#tau#tau}} = {}pb'.format(args.sigscale)
-    sigxsecBox = ROOT.TLatex(l + 0.04 , 1 - t - 0.02 - 0.1, sigxsecName)
+    sigxsecBox = ROOT.TLatex(l+0.04 , 1-t-0.02-0.1, sigxsecName)
     sigxsecBox.SetNDC()
     sigxsecBox.SetTextSize(cmsTextSize+20)
     sigxsecBox.SetTextFont(43)
@@ -896,7 +898,8 @@ if __name__ == "__main__" :
     sigxsecBox.Draw()
     
     if args.legend:
-        legSig.Draw()
+        if not args.nosig or not args.nodata:
+            legSig.Draw()
         legBkg.Draw()
     if chBox:
         chBox.Draw()
@@ -913,7 +916,7 @@ if __name__ == "__main__" :
     else:
         selName = args.name
 
-    selBox = ROOT.TLatex(l + 0.04 , 1 - t - 0.01, selName)
+    selBox = ROOT.TLatex(l+0.04, 1-t-0.01, selName)
     selBox.SetNDC()
     selBox.SetTextSize(cmsTextSize+20)
     selBox.SetTextFont(43)
@@ -943,6 +946,7 @@ if __name__ == "__main__" :
         pad2.SetGridy(True);
         pad2.SetFrameLineWidth(3)
         pad2.Draw()
+
         pad2.cd()
 
         # create list of signal histograms clones
@@ -1007,7 +1011,8 @@ if __name__ == "__main__" :
     if args.ratio and not args.nodata:
         bkgStack.GetXaxis().SetTitleSize(0.00);
         bkgStack.GetXaxis().SetLabelSize(0.00);
-
+        
+    if args.ratio and not args.nodata:
         c1.cd()
         pad2 = ROOT.TPad('pad2', 'pad2', 0, 0.0, 1, 0.2496)
         pad2.SetLeftMargin(0.12);
@@ -1049,16 +1054,34 @@ if __name__ == "__main__" :
         hRatio.SetStats(0)
         #hRatio.SetMinimum(0.85)
         #hRatio.SetMaximum(1.15)
-        hRatio.SetMinimum(0.6) #default value
+        ratmin = 0.6
+        hRatio.SetMinimum(ratmin) #default value
         hRatio.SetMaximum(1.4) #default value
         #hRatio.SetMinimum(0.0) #TESI
         #hRatio.SetMaximum(2.0) #TESI
 
         removeEmptyPoints(grRatio)
         hRatio.Draw("axis")
-        
+
         grRatio.Draw("P Z same") # Z : no small limes at the end of points
-        xmin =hRatio.GetXaxis().GetXmin()
+
+        if args.equalwidth and args.ratio:
+            ahisto = retrieveHistos(rootFile, bkgList, *opts).items()[0][1]
+            ndiv = ahisto.GetNbinsX()
+            finalaxis2 = ROOT.TGaxis(0., ratmin-0.2, ndiv, ratmin-0.2, 0., ndiv, ndiv, 'BS')
+            step = 1 if 'DNN' in args.var else 6
+            for ip in range(0,ndiv+1,step):
+                size = 0.14
+                if ip==0:
+                    ledge = ahisto.GetXaxis().GetBinLowEdge(ip)
+                    finalaxis2.ChangeLabel(ip,-1,size,-1,-1,-1,str(round(ledge, 4)));
+                redge = ahisto.GetXaxis().GetBinUpEdge(ip)
+                finalaxis2.ChangeLabel(ip+1,-1,size,-1,-1,-1,str(round(redge, 4)));
+            finalaxis2.SetTextFont(52);
+            finalaxis2.SetTickSize(0.);
+            finalaxis2.Draw("same")
+
+        xmin = hRatio.GetXaxis().GetXmin()
         xmax = hRatio.GetXaxis().GetXmax()
         l1 = ROOT.TLine(xmin, 1, xmax, 1)
         l1.SetLineColor(ROOT.kRed)
@@ -1073,6 +1096,15 @@ if __name__ == "__main__" :
         pad2.RedrawAxis();
         pad2.RedrawAxis("g"); #otherwise no grid..
 
+        if args.saveratio:
+            ratioDir = op.join(args.outdir, interm_path(args.sel))
+            ratioName = op.join(ratioDir, 'ratios.root')
+            ratioFile = ROOT.TFile.Open(ratioName, 'UPDATE')
+            grRatio.SetName('_'.join((args.var, args.sel, args.reg, args.channel)))
+            grRatio.Write()
+            ratioFile.Close()
+            print('Ratio file saved: {}.'.format(ratioName))
+        
     ###################### DISPLAY ###################################
     if not args.quit:
         # pad1.Update() # necessary to show plot
@@ -1085,16 +1117,16 @@ if __name__ == "__main__" :
     if args.noprint:
         tagch = ''
         if args.channel:
-            tagch = '_' + args.channel
+            tagch = args.channel
         if args.binwidth:
             tagch += '_binWidth'
         if args.equalwidth:
             tagch += '_equalWidth'
         if 'class' in args.sel:
-            saveBase = 'plot_' + args.var + '_' + args.sel +'_' + args.reg + tagch
+            saveBase = 'plot_' + '_'.join((args.var, args.sel, args.reg, tagch))
             saveName = op.join(args.outdir, interm_path('scores_'), saveBase)
         else:
-            saveBase = 'plot_' + args.var + '_' + args.sel +'_' + args.reg + tagch
+            saveBase = 'plot_' + '_'.join((args.var, args.sel, args.reg, tagch))
             saveName = op.join(args.outdir, interm_path(args.sel), saveBase)
         
         if args.logx:

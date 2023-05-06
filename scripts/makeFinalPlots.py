@@ -378,7 +378,8 @@ if __name__ == "__main__" :
     parser.add_argument('--no-sig',  dest='dosig',  help='disable plotting signal',  action='store_false', default=True)
     parser.add_argument('--no-legend',   dest='legend',   help = 'disable drawing legend',       action='store_false', default=True)
     parser.add_argument('--no-binwidth', dest='binwidth', help = 'disable scaling by bin width', action='store_false', default=True)
-    parser.add_argument('--ratio',    dest='ratio', help = 'do ratio plot at the botton', action='store_true', default=False)
+    parser.add_argument('--ratio',    dest='ratio', help = 'do ratio plot at the bottom', action='store_true', default=False)
+    parser.add_argument('--saveratio',  dest='saveratio', help = 'save ratios in ROOT file', action='store_true')
     parser.add_argument('--no-print', dest='printplot', help = 'no pdf output', action='store_false', default=True)
     parser.add_argument('--quit',    dest='quit', help = 'quit at the end of the script, no interactive window', action='store_true', default=False)
     parser.add_argument('--overflow',    dest='overflow', help = 'add overflow bin', action='store_true', default=False)
@@ -425,10 +426,7 @@ if __name__ == "__main__" :
         pad1.SetTopMargin(0.055);
         pad1.Draw()
 
-
     pad1.cd()
-
-
 
     ######################### PUT USER CONFIGURATION HERE ####################
     cfgName  =  args.dir + "/mainCfg_"+args.channel+".cfg"
@@ -891,6 +889,9 @@ if __name__ == "__main__" :
 
 
     ###################### RATIO PLOT #################################
+    if args.saveratio:
+        ratioFile = TFile.Open(args.dir+""+outplotterName, "UPDATE")
+        
     if args.ratio:
         bkgStack.GetXaxis().SetTitleSize(0.00);
         bkgStack.GetXaxis().SetLabelSize(0.00);
@@ -904,9 +905,13 @@ if __name__ == "__main__" :
         pad2.SetFrameLineWidth(3)
         #pad2.SetGridx(True);
         pad2.Draw()
-        pad2.cd()
 
         grRatio = makeDataOverMCRatioPlot (hDataNonScaled, hBkgEnvelopeNS, "grRatio")
+        if args.saveratio:
+            ratioFile.cd()
+            grRatio.Write()
+
+        pad2.cd()
         hRatio = hDataNonScaled.Clone("hRatioAxis") # for ranges only
         grUncert = makeMCUncertaintyBand (bkgSum) # uncertainty band from MC, always centered at 1.0
 

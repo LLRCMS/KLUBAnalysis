@@ -352,9 +352,9 @@ if __name__ == "__main__":
 
 
     FLAGS = parser.parse_args()
-    print("-----------  Configuration Arguments -----------")
-    for arg, value in sorted(vars(FLAGS).items()):
-        print("%s: %s" % (arg, value))
-    print("------------------------------------------------") 
+    # print("-----------  Configuration Arguments -----------")
+    # for arg, value in sorted(vars(FLAGS).items()):
+    #     print("%s: %s" % (arg, value))
+    # print("------------------------------------------------") 
     curr_folder = os.getcwd()
     skim_ntuple(FLAGS, curr_folder)

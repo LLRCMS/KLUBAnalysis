@@ -820,7 +820,7 @@ int main (int argc, char** argv)
 	  if (DY_tostitch)
 		{
 		  float Zpt = theBigTree.lheVPt;
-		  if (Zpt<50)
+		  if (Zpt==0.0)
 			stitchWeight = stitchWeights[0];
 		  else
 			stitchWeight = stitchWeights[1];
