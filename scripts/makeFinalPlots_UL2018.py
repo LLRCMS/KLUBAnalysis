@@ -538,18 +538,26 @@ if __name__ == "__main__" :
     plotTitle = args.title if args.title else ""        
     dataList = ['data_obs']
     sec = 'merge_plots'
+
     if cfg.hasSection(sec):
         for groupname in cfg.config[sec]:
             if "data" in groupname: continue
             mergelist = cfg.readListOption(sec+'::'+groupname)
             for x in mergelist:
-                bkgList.remove(x)
+                try:
+                    bkgList.remove(x)
+                except ValueError:
+                    print('The culprit is {}, in group {}, in config {}.'.format(x,groupname,cfgName))
+                    print('Backgrounds in the list: {}.'.format(bkgList))
+                    print('Merged backgrounds in the list: {}.'.format(mergelist))
+                    raise
             bkgList.append(groupname)
     else:
         raise ValueError('Section [{}] missing from {}.'.format(sec, cfgName))
 
 
-    outplot = findInFolder(args.indir+'/', 'combined_outPlots.root')        
+    outplot = findInFolder(args.indir+'/', 'combined_outPlots.root')
+
     rootFile = ROOT.TFile.Open(op.join(args.indir, outplot))
 
     binning = None
