@@ -809,15 +809,15 @@ int main (int argc, char** argv)
       //  if (string(theBigTree.susyModel.Data()) != susyModel) continue;
       //}
 
-    float stitchWeight = 1.0;
-    if (DY_tostitch)
-    {
-      float Zpt = theBigTree.lheVPt;
-      if (Zpt<50)
-	stitchWeight = stitchWeights[0];
-      else
-	stitchWeight = stitchWeights[1];
-    }
+	float stitchWeight = 1.;
+	if (DY_tostitch)
+	  {
+		float Zpt = theBigTree.lheVPt;
+		if (Zpt==0.0)
+		  stitchWeight = stitchWeights[0];
+		else
+		  stitchWeight = stitchWeights[1];
+	  }
 
     // gen info -- fetch tt pair and compute top PT reweight
     float topPtReweight = 1.0; // 1 for all the other samples

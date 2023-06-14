@@ -767,15 +767,15 @@ int main (int argc, char** argv)
       //{
       //  if (string(theBigTree.susyModel.Data()) != susyModel) continue;
       //}
-    float stitchWeight = 1.0;
-    if (DY_tostitch)
-    {
-      float Zpt = theBigTree.lheVPt;
-      if (Zpt<50)
-	stitchWeight = stitchWeights[0];
-      else
-	stitchWeight = stitchWeights[1];
-    }
+	float stitchWeight = 1.;
+	if (DY_tostitch)
+	  {
+		float Zpt = theBigTree.lheVPt;
+		if (Zpt==0.0)
+		  stitchWeight = stitchWeights[0];
+		else
+		  stitchWeight = stitchWeights[1];
+	  }
 
     // Should never enter here (DY_tostitch should be always true)
     if (!DY_tostitch && DY_nJets >= 0)
