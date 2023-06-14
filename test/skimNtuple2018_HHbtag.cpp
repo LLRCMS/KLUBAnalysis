@@ -3028,9 +3028,9 @@ int main (int argc, char** argv)
 		  except_vsMu	= idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsEle * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
 		  except_vsEle	= idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsMu  * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
 
-		  idFakeSF_deep_dm	= except_VsJet * idSF_leg1_deep_vsJet_dm * idSF_leg2_deep_vsJet_dm;
-		  idFakeSF_deep_pt	= except_VsJet * idSF_leg1_deep_vsJet_pt * idSF_leg2_deep_vsJet_pt;
-		  idFakeSF_deep_2d	= except_VsJet * idSF_leg1_deep_vsJet_2d * idSF_leg2_deep_vsJet_2d;
+		  idFakeSF_deep_dm	= except_VsJet * idSF_deep_dm;
+		  idFakeSF_deep_pt	= except_VsJet * idSF_deep_pt;
+		  idFakeSF_deep_2d	= except_VsJet * idSF_deep_2d;
 		  fakeRateSF_deep	= except_VsJet;
 
 		  idFakeSF_tauid_2d_stat0_up					= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_up				   * idSF_leg2_deep_vsJet_2d_stat0_up;
