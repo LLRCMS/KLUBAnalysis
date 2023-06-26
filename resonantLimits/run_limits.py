@@ -31,28 +31,28 @@ def run_limits(in_tags, channels, selections, selection_prefixes, masses,
     
     commands = []
     
-    # # Generate datacards
-    # commands.append('bash make_res_cards.sh -d {dp} --channels {chn} --tag {tag} --in_tags {it} --var {v} -b {b} --cfg {cfg} --selections {sel} --masses {m} --signal {s} ')
-    # if noprep:
-    #     commands[-1] += '--noprep '
+    # Generate datacards
+    commands.append('bash make_res_cards.sh -d {dp} --channels {chn} --tag {tag} --in_tags {it} --var {v} -b {b} --cfg {cfg} --selections {sel} --masses {m} --signal {s} ')
+    if noprep:
+        commands[-1] += '--noprep '
 
-    # # Generate workspaces
-    # commands.append('bash make_workspace_res.sh --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn} -b {b}')
+    # Generate workspaces
+    commands.append('bash make_workspace_res.sh --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn} -b {b}')
 
-    # # Combine all categories
-    # commands.append('bash combine_res_categories.sh --tag {tag} --masses {m} --var {v} --signal {s} --channels {chn} -b {b} --period {dp}')
-    # if set(selections) != set(selection_prefixes):
-    #     commands[-1] += ' --selprefixes {selpref}'
+    # Combine all categories
+    commands.append('bash combine_res_categories.sh --tag {tag} --masses {m} --var {v} --signal {s} --channels {chn} -b {b} --period {dp}')
+    if set(selections) != set(selection_prefixes):
+        commands[-1] += ' --selprefixes {selpref}'
         
-    # # Combine all channels
-    # commands.append('bash combine_res_channels.sh --tag {tag} --masses {m} --var {v} --signal {s} --selprefixes {selpref} -b {b} --period {dp}')
+    # Combine all channels
+    commands.append('bash combine_res_channels.sh --tag {tag} --masses {m} --var {v} --signal {s} --selprefixes {selpref} -b {b} --period {dp}')
 
-    # # combine categories and channels
-    # commands.append('bash combine_res_all.sh --tag {tag} --masses {m} --var {v} --signal {s} -b {b}')
+    # combine categories and channels
+    commands.append('bash combine_res_all.sh --tag {tag} --masses {m} --var {v} --signal {s} -b {b}')
 
     # Obtain limits on signal strength
-    #limit_modes = ('separate', 'sel_group', 'chn_group', 'all_group')
-    limit_modes = ('all_group',)
+    limit_modes = ('separate', 'sel_group', 'chn_group', 'all_group')
+
     for mode in limit_modes:
         commands.append('bash get_limits_res.sh --mode ' + mode + ' --tag {tag} --masses {m} --var {v} --signal {s} --channels {chn} -b {b}')
         if mode == 'sel_group' and set(selections) != set(selection_prefixes):
