@@ -151,9 +151,10 @@ struct smallTree
 	  m_idFakeSF_tauid_2d_systcorrdmuncorreras_down = 1.;
 	  m_idFakeSF_tauid_2d_systuncorrdmeras_up       = 1.;
 	  m_idFakeSF_tauid_2d_systuncorrdmeras_down     = 1.;
-	  m_idFakeSF_tauid_2d_systgt40_up               = 1.;
-	  m_idFakeSF_tauid_2d_systgt40_down             = 1.;
- 
+	  m_idFakeSF_tauid_2d_systcorrerasgt140			= 1.;
+	  m_idFakeSF_tauid_2d_systuncorrerasgt140		= 1.;
+	  m_idFakeSF_tauid_2d_statsystscaledgt140		= 1.;
+	  
       m_idFakeSF_tauid_pt20to25_up        = -1.;
       m_idFakeSF_tauid_pt25to30_up        = -1.;
       m_idFakeSF_tauid_pt30to35_up        = -1.;
@@ -1419,10 +1420,12 @@ struct smallTree
 					   "idFakeSF_tauid_2d_systuncorrdmeras_up/F");
 	  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_down", &m_idFakeSF_tauid_2d_systuncorrdmeras_down,
 					   "idFakeSF_tauid_2d_systuncorrdmeras_down/F");
-	  m_smallT->Branch("idFakeSF_tauid_2d_systgt40_up", &m_idFakeSF_tauid_2d_systgt40_up,
-					   "idFakeSF_tauid_2d_systgt40_up/F");
-	  m_smallT->Branch("idFakeSF_tauid_2d_systgt40_down", &m_idFakeSF_tauid_2d_systgt40_down,
-					   "idFakeSF_tauid_2d_systgt40_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrerasgt140", &m_idFakeSF_tauid_2d_systcorrerasgt140,
+					   "idFakeSF_tauid_2d_systcorrerasgt140/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrerasgt140", &m_idFakeSF_tauid_2d_systuncorrerasgt140,
+					   "idFakeSF_tauid_2d_systuncorrerasgt140/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_statsystscaledgt140", &m_idFakeSF_tauid_2d_statsystscaledgt140,
+					   "idFakeSF_tauid_2d_statssystscaledgt140/F");
 		  
       m_smallT->Branch ("idFakeSF_tauid_pt20to25_up"       , &m_idFakeSF_tauid_pt20to25_up       , "idFakeSF_tauid_pt20to25_up/F");
       m_smallT->Branch ("idFakeSF_tauid_pt25to30_up"       , &m_idFakeSF_tauid_pt25to30_up       , "idFakeSF_tauid_pt25to30_up/F");
@@ -2686,8 +2689,9 @@ struct smallTree
   Float_t m_idFakeSF_tauid_2d_systcorrdmuncorreras_down;
   Float_t m_idFakeSF_tauid_2d_systuncorrdmeras_up;
   Float_t m_idFakeSF_tauid_2d_systuncorrdmeras_down;
-  Float_t m_idFakeSF_tauid_2d_systgt40_up;
-  Float_t m_idFakeSF_tauid_2d_systgt40_down;
+  Float_t m_idFakeSF_tauid_2d_systcorrerasgt140;
+  Float_t m_idFakeSF_tauid_2d_systuncorrerasgt140;
+  Float_t m_idFakeSF_tauid_2d_statsystscaledgt140;
 
   Float_t m_idFakeSF_tauid_pt20to25_up       ;
   Float_t m_idFakeSF_tauid_pt25to30_up       ;

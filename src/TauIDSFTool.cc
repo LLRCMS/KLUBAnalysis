@@ -32,6 +32,15 @@ const TF1* TauIDSFTool::extractTF1(const TFile* file, const std::string& funcnam
   return function;
 }
 
+const TGraphAsymmErrors* TauIDSFTool::extractTGAE(const TFile* file, const std::string& gname){
+  const TGraphAsymmErrors* graph = dynamic_cast<TGraphAsymmErrors*>((const_cast<TFile*>(file))->Get(gname.data()));
+  if(!graph){
+    std::cerr << std::endl << "ERROR! Failed to load graph = '" << gname << "' from input file!" << std::endl;
+    assert(0);
+  }
+  return graph;
+}
+
 void TauIDSFTool::disabled() const {
   std::cerr << std::endl << "ERROR! Method has been disabled! isVsPT = "<<isVsPT<<", isVsDM = "
             << isVsDM<<", isVsEta = "<<isVsEta<< std::endl;
@@ -144,10 +153,14 @@ TauIDSFTool::TauIDSFTool(std::string year, const std::string& wp1, const std::st
     assert(0);	
   }
   isVsDMandPt = true;
-  
+
   TString filename = Form("%s/TauID_SF_dm_DeepTau2017v2p1VSjet_VSjet%s_VSele%s_Mar07.root",
 						  mDatapath.data(), wp1.data(), wp2.data());
   TFile* file = ensureTFile(filename);
+
+  TString filename_highpt = Form("%s/TauID_SF_Highpt_DeepTau2017v2p1VSjet_VSjet%s_VSele%s_Mar07.root",
+								 mDatapath.data(), wp1.data(), wp2.data());
+  TFile* file_highpt = ensureTFile(filename);
 
   mDMs.insert(11);
   std::string key, dm;
@@ -174,8 +187,18 @@ TauIDSFTool::TauIDSFTool(std::string year, const std::string& wp1, const std::st
 	func[key + "SystUncorrDMErasUp"]   = extractTF1(file, Form("%s_%s_syst_%s_%s_up_fit", key.data(), year.data(), dm.data(), year.data()));
 	func[key + "SystUncorrDMErasDown"] = extractTF1(file, Form("%s_%s_syst_%s_%s_down_fit", key.data(), year.data(), dm.data(), year.data()));
   }
+
   file->Close();
   delete file;
+
+  // for pTs higher than 140GeV
+  graph_highpt["Gt140"] = extractTGAE(file_highpt, Form("DMinclusive_%s", year.data()));
+  graph_highpt["Gt140SystCorrEras"] = extractTGAE(file_highpt, Form("DMinclusive_%s_syst_alleras", year.data()));
+  graph_highpt["Gt140SystUncorrEras"] = extractTGAE(file_highpt, Form("DMinclusive_%s_syst_%s", year.data(), year.data()));
+  graph_highpt["Gt140StatSystScaled"] = extractTGAE(file_highpt, Form("DMinclusive_%s_statandsyst_%s", year.data()));
+  
+  file_highpt->Close();
+  delete file_highpt;
 }
 
 void TauIDSFTool::embeddedDMcheck(const std::string& ID)
@@ -196,17 +219,33 @@ float TauIDSFTool::getSFvsDMandPT(double pt, int dm, int genmatch, const std::st
   uncertaintyCheck(unc);
   
   float SF = 1.f;
-  if (unc=="SystGt40Up") {
-	SF = 1.+(std::min(pt,500.)-40.) * (pt>40.)*0.00018;
-  }
-  else if (unc=="SystGt40Down") {
-	SF = 1.-(std::min(pt,500.)-40.) * (pt>40.)*0.00037;
+  if (unc.find("Gt140") != std::string::npos) { // it must be a high pT uncertainty
+	if(pt > 200.) {
+	  SF = static_cast<float>(graph_highpt["Gt140" + unc]->GetPointY(1));
+	}
+	else if(pt > 140. and pt < 200.) {
+	  SF = static_cast<float>(graph_highpt["Gt140" + unc]->GetPointY(0));
+	}
+	else {
+	  SF = 0.;
+	}
   }
   else {
-	std::string key = "DM" + std::to_string(dm);
-	SF = static_cast<float>(func[key + unc]->Eval(pt));
-	//std::cout << key << " - " << dm << " - " << pt << " - " << unc << " - " << SF << std::endl;
+	if(pt > 140. and unc != "") { // non-highPt uncertainties are zero for pT > 140
+	  SF = 0.;
+	}
+	else if(pt > 200.) {
+	  SF = static_cast<float>(graph_highpt["Gt140"]->GetPointY(1));
+	}
+	else if(pt > 140. and pt < 200.) {
+	  SF = static_cast<float>(graph_highpt["Gt140"]->GetPointY(0));
+	}
+	else {
+	  std::string key = "DM" + std::to_string(dm);
+	  SF = static_cast<float>(func[key + unc]->Eval(pt));
+	}
   }
+
   return SF;
 }
 

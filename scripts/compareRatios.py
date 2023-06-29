@@ -137,7 +137,7 @@ def compareRatios(args):
     scale_down = (amax-amin)/10
     # hRatio.SetMinimum(amin - scale_down)
     # hRatio.SetMaximum(amax + scale_up)
-    hRatio.GetYaxis().SetRangeUser(0.701,1.299);
+    hRatio.GetYaxis().SetRangeUser(0.801,1.19);
     hRatio.SetMarkerStyle(8);
     hRatio.SetMarkerSize(1.);
     hRatio.SetMarkerColor(ROOT.kBlack);
@@ -146,8 +146,8 @@ def compareRatios(args):
     hRatio.SetTitle('')
     hRatio.GetXaxis().SetLabelSize(0.12);
     hRatio.GetXaxis().SetTitleSize(0.12);
-    hRatio.GetYaxis().SetLabelSize(0.1);
-    hRatio.GetYaxis().SetTitleSize(0.1);
+    hRatio.GetYaxis().SetLabelSize(0.12);
+    hRatio.GetYaxis().SetTitleSize(0.12);
     hRatio.GetXaxis().SetTitle(args.label)
     hRatio.Draw('ALP') #'P Z'
 

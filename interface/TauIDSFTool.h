@@ -18,14 +18,15 @@
  * source: https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_for_the_DeepTauv2p1
  */
 
-#include <TFile.h>   // TFile
-#include <TH1.h>     // TH1
-#include <TF1.h>     // TF1
-#include <TString.h> // Form
-#include <string>    // std::string
-#include <array>     // std::array
-#include <map>       // std::map
-#include <stdlib.h>  // getenv
+#include <TFile.h>				// TFile
+#include <TH1.h>				// TH1
+#include <TF1.h>				// TF1
+#include <TGraphAsymmErrors.h>  // TGraphAsymmErrors
+#include <TString.h>			// Form
+#include <string>				// std::string
+#include <array>				// std::array
+#include <map>					// std::map
+#include <stdlib.h>				// getenv
 #include <functional>
 
 class TauIDSFTool {
@@ -35,12 +36,14 @@ private:
   TFile* ensureTFile(const TString filename);
   TH1* extractTH1(const TFile* file, const std::string& histname);
   const TF1* extractTF1(const TFile* file, const std::string& funcname);
+  const TGraphAsymmErrors* extractTGAE(const TFile* file, const std::string& gname);
   void uncertaintyCheck(const std::string& unc) const;
   void yearCheck(const std::string& year) const;
 	
 protected:
 
   std::map<const std::string, const TF1*> func;
+  std::map<const std::string, const TGraphAsymmErrors*> graph_highpt;
   TH1* hist;
   [[noreturn]] void disabled() const;
 
@@ -58,7 +61,7 @@ public:
 												"SystCorrDMErasUp", "SystCorrDMErasDown",
 												"SystCorrDMUncorrErasUp", "SystCorrDMUncorrErasDown",
 												"SystUncorrDMErasUp", "SystUncorrDMErasDown",
-												"SystGt40Up", "SystGt40Down",};
+												"SystGt140", };
   std::unordered_set<int> mDMs = {0, 1, 10};
   std::vector<int> mGenmatches;
   bool isVsPT  = false;
