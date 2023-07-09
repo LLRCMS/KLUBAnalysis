@@ -228,8 +228,8 @@ float TauIDSFTool::getSFvsDMandPT(double pt, int dm, int genmatch, const std::st
   
   float SF = 1.f;
   if(unc=="") { //nominal value
-	int ipt = pt > 200. ? 1 : 0;
 	if(pt>140.) {
+	  int ipt = pt > 200. ? 1 : 0;
 	  SF = static_cast<float>(graph_highpt["Gt140"]->GetPointY(ipt));
 	}
 	else {
