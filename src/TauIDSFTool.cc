@@ -160,7 +160,11 @@ TauIDSFTool::TauIDSFTool(std::string year, const std::string& wp1, const std::st
 
   TString filename_highpt = Form("%s/TauID_SF_Highpt_DeepTau2017v2p1VSjet_VSjet%s_VSele%s_Mar07.root",
 								 mDatapath.data(), wp1.data(), wp2.data());
-  TFile* file_highpt = ensureTFile(filename);
+  TFile* file_highpt = ensureTFile(filename_highpt);
+
+  TString filename_extrap = Form("%s/TauID_SF_HighptExtrap_DeepTau2017v2p1VSjet_Mar07.root",
+								 mDatapath.data());
+  TFile* file_extrap = ensureTFile(filename_extrap);
 
   mDMs.insert(11);
   std::string key, dm;
@@ -192,13 +196,17 @@ TauIDSFTool::TauIDSFTool(std::string year, const std::string& wp1, const std::st
   delete file;
 
   // for pTs higher than 140GeV
-  graph_highpt["Gt140"] = extractTGAE(file_highpt, Form("DMinclusive_%s", year.data()));
-  graph_highpt["Gt140SystCorrEras"] = extractTGAE(file_highpt, Form("DMinclusive_%s_syst_alleras", year.data()));
-  graph_highpt["Gt140SystUncorrEras"] = extractTGAE(file_highpt, Form("DMinclusive_%s_syst_%s", year.data(), year.data()));
-  graph_highpt["Gt140StatSystScaled"] = extractTGAE(file_highpt, Form("DMinclusive_%s_statandsyst_%s", year.data()));
+  graph_highpt["Gt140"]					= extractTGAE(file_highpt, Form("DMinclusive_%s", year.data()));
+  graph_highpt["Gt140SystCorrEras"]		= extractTGAE(file_highpt, Form("DMinclusive_%s_syst_alleras", year.data()));
+  graph_highpt["Gt140SystUncorrEras"]	= extractTGAE(file_highpt, Form("DMinclusive_%s_syst_%s", year.data(), year.data()));
+  graph_highpt["Gt140Stat"]				= extractTGAE(file_highpt, Form("DMinclusive_%s_statandsyst_%s", year.data()));
   
   file_highpt->Close();
   delete file_highpt;
+
+  func_extrap = extractTF1(file_extrap, Form("uncert_func_%sVSjet_%sVSe", wp1.data(), wp2.data()));
+  file_extrap->Close();
+  delete file_extrap;
 }
 
 void TauIDSFTool::embeddedDMcheck(const std::string& ID)
@@ -219,33 +227,48 @@ float TauIDSFTool::getSFvsDMandPT(double pt, int dm, int genmatch, const std::st
   uncertaintyCheck(unc);
   
   float SF = 1.f;
-  if (unc.find("Gt140") != std::string::npos) { // it must be a high pT uncertainty
-	if(pt > 200.) {
-	  SF = static_cast<float>(graph_highpt["Gt140" + unc]->GetPointY(1));
-	}
-	else if(pt > 140. and pt < 200.) {
-	  SF = static_cast<float>(graph_highpt["Gt140" + unc]->GetPointY(0));
+  if(unc=="") { //nominal value
+	int ipt = pt > 200. ? 1 : 0;
+	if(pt>140.) {
+	  SF = static_cast<float>(graph_highpt["Gt140"]->GetPointY(ipt));
 	}
 	else {
-	  SF = 0.;
+	  std::string key = "DM" + std::to_string(dm);
+	  SF = static_cast<float>(func[key]->Eval(pt));
 	}
   }
-  else {
-	if(pt > 140. and unc != "") { // non-highPt uncertainties are zero for pT > 140
-	  SF = 0.;
+  else if (unc.find("Gt140") != std::string::npos) { // high pT uncertainty
+	if(pt > 140.) {
+	  int ipt = pt > 200. ? 1 : 0;
+	  if(unc=="Gt140StatUp") {
+		SF = static_cast<float>(graph_highpt["Gt140Stat"]->GetErrorYhigh(ipt));
+	  }
+	  else if(unc=="Gt140StatDown") {
+		SF = static_cast<float>(graph_highpt["Gt140Stat"]->GetErrorYlow(ipt));
+	  }
+	  else if(unc=="Gt140SystCorrErasUp") {
+		SF = static_cast<float>(graph_highpt["Gt140SystCorrEras"]->GetErrorYhigh(ipt));
+	  }
+	  else if(unc=="Gt140SystCorrErasDown") {
+		SF = static_cast<float>(graph_highpt["Gt140SystCorrEras"]->GetErrorYlow(ipt));
+	  }
+	  else if(unc=="Gt140SystUncorrErasUp") {
+		SF = static_cast<float>(graph_highpt["Gt140SystUncorrEras"]->GetErrorYhigh(ipt));
+	  }
+	  else if(unc=="Gt140SystUncorrErasDown") {
+		SF = static_cast<float>(graph_highpt["Gt140SystUncorrEras"]->GetErrorYlow(ipt));
+	  }
+	  else if(unc=="Gt140Extrap" and pt>300.) {
+		SF = static_cast<float>(func_extrap->Eval(pt));
+	  }
 	}
-	else if(pt > 200.) {
-	  SF = static_cast<float>(graph_highpt["Gt140"]->GetPointY(1));
-	}
-	else if(pt > 140. and pt < 200.) {
-	  SF = static_cast<float>(graph_highpt["Gt140"]->GetPointY(0));
-	}
-	else {
+  }
+  else { // low pT uncertainty
+	if(pt < 140.) {
 	  std::string key = "DM" + std::to_string(dm);
 	  SF = static_cast<float>(func[key + unc]->Eval(pt));
 	}
   }
-
   return SF;
 }
 
@@ -286,8 +309,6 @@ float TauIDSFTool::getSFvsDM(double pt, int dm, int genmatch, const std::string&
 float TauIDSFTool::getSFvsDM(double pt, int dm, const std::string& unc) const{
   return getSFvsDM(pt,dm,5,unc);
 }
-
-
 
 float TauIDSFTool::getSFvsEta(double eta, int genmatch, const std::string& unc) const{
   if(!isVsEta) disabled();

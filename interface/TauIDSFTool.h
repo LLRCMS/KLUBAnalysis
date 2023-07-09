@@ -44,6 +44,7 @@ protected:
 
   std::map<const std::string, const TF1*> func;
   std::map<const std::string, const TGraphAsymmErrors*> graph_highpt;
+  const TF1* func_extrap;
   TH1* hist;
   [[noreturn]] void disabled() const;
 
