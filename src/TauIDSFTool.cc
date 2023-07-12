@@ -154,59 +154,58 @@ TauIDSFTool::TauIDSFTool(std::string year, const std::string& wp1, const std::st
   }
   isVsDMandPt = true;
 
-  TString filename = Form("%s/TauID_SF_dm_DeepTau2017v2p1VSjet_VSjet%s_VSele%s_Mar07.root",
-						  mDatapath.data(), wp1.data(), wp2.data());
-  TFile* file = ensureTFile(filename);
+  TString fname = Form("%s/TauID_SF_dm_DeepTau2017v2p1VSjet_VSjet%s_VSele%s_Mar07.root",
+					   mDatapath.data(), wp1.data(), wp2.data());
+  TFile* fl = ensureTFile(fname);
 
-  TString filename_highpt = Form("%s/TauID_SF_Highpt_DeepTau2017v2p1VSjet_VSjet%s_VSele%s_Mar07.root",
+  TString fname_highpt = Form("%s/TauID_SF_Highpt_DeepTau2017v2p1VSjet_VSjet%s_VSele%s_Mar07.root",
 								 mDatapath.data(), wp1.data(), wp2.data());
-  TFile* file_highpt = ensureTFile(filename_highpt);
+  TFile* fl_highpt = ensureTFile(fname_highpt);
 
-  TString filename_extrap = Form("%s/TauID_SF_HighptExtrap_DeepTau2017v2p1VSjet_Mar07.root",
+  TString fname_extrap = Form("%s/TauID_SF_HighptExtrap_DeepTau2017v2p1VSjet_Mar07.root",
 								 mDatapath.data());
-  TFile* file_extrap = ensureTFile(filename_extrap);
+  TFile* fl_extrap = ensureTFile(fname_extrap);
 
   mDMs.insert(11);
   std::string key, dm;
   for(auto x : mDMs) {
 	key = "DM" + std::to_string(x);
 	dm  = "dm" + std::to_string(x);
-	func[key] = extractTF1(file, Form("%s_%s_fit", key.data(), year.data()));
+	func[key] = extractTF1(fl, Form("%s_%s_fit", key.data(), year.data()));
 
 	// statistical ucnertainties of linear fit
-	func[key + "Stat0Up"]   = extractTF1(file, Form("%s_%s_fit_uncert0_up", key.data(), year.data()));
-	func[key + "Stat0Down"] = extractTF1(file, Form("%s_%s_fit_uncert0_down", key.data(), year.data()));
-	func[key + "Stat1Up"]	= extractTF1(file, Form("%s_%s_fit_uncert1_up", key.data(), year.data()));
-	func[key + "Stat1Down"] = extractTF1(file, Form("%s_%s_fit_uncert1_down", key.data(), year.data()));
+	func[key + "Stat0Up"]   = extractTF1(fl, Form("%s_%s_fit_uncert0_up", key.data(), year.data()));
+	func[key + "Stat0Down"] = extractTF1(fl, Form("%s_%s_fit_uncert0_down", key.data(), year.data()));
+	func[key + "Stat1Up"]	= extractTF1(fl, Form("%s_%s_fit_uncert1_up", key.data(), year.data()));
+	func[key + "Stat1Down"] = extractTF1(fl, Form("%s_%s_fit_uncert1_down", key.data(), year.data()));
 
 	// systematic uncertainties correlated across DMs and eras
-	func[key + "SystCorrDMErasUp"]   = extractTF1(file, Form("%s_%s_syst_alleras_up_fit", key.data(), year.data()));
-	func[key + "SystCorrDMErasDown"] = extractTF1(file, Form("%s_%s_syst_alleras_down_fit", key.data(), year.data()));
+	func[key + "SystCorrDMErasUp"]   = extractTF1(fl, Form("%s_%s_syst_alleras_up_fit", key.data(), year.data()));
+	func[key + "SystCorrDMErasDown"] = extractTF1(fl, Form("%s_%s_syst_alleras_down_fit", key.data(), year.data()));
 
 	// systematic uncertainties correlated across DMs but uncorrelated by eras
-	func[key + "SystCorrDMUncorrErasUp"]   = extractTF1(file, Form("%s_%s_syst_%s_up_fit", key.data(), year.data(), year.data()));
-	func[key + "SystCorrDMUncorrErasDown"] = extractTF1(file, Form("%s_%s_syst_%s_down_fit", key.data(), year.data(), year.data()));
+	func[key + "SystCorrDMUncorrErasUp"]   = extractTF1(fl, Form("%s_%s_syst_%s_up_fit", key.data(), year.data(), year.data()));
+	func[key + "SystCorrDMUncorrErasDown"] = extractTF1(fl, Form("%s_%s_syst_%s_down_fit", key.data(), year.data(), year.data()));
 
 	// systematic uncertainties uncorrelated across DMs and eras
-	func[key + "SystUncorrDMErasUp"]   = extractTF1(file, Form("%s_%s_syst_%s_%s_up_fit", key.data(), year.data(), dm.data(), year.data()));
-	func[key + "SystUncorrDMErasDown"] = extractTF1(file, Form("%s_%s_syst_%s_%s_down_fit", key.data(), year.data(), dm.data(), year.data()));
+	func[key + "SystUncorrDMErasUp"]   = extractTF1(fl, Form("%s_%s_syst_%s_%s_up_fit", key.data(), year.data(), dm.data(), year.data()));
+	func[key + "SystUncorrDMErasDown"] = extractTF1(fl, Form("%s_%s_syst_%s_%s_down_fit", key.data(), year.data(), dm.data(), year.data()));
   }
 
-  file->Close();
-  delete file;
+  fl->Close();
+  delete fl;
 
   // for pTs higher than 140GeV
-  graph_highpt["Gt140"]					= extractTGAE(file_highpt, Form("DMinclusive_%s", year.data()));
-  graph_highpt["Gt140SystCorrEras"]		= extractTGAE(file_highpt, Form("DMinclusive_%s_syst_alleras", year.data()));
-  graph_highpt["Gt140SystUncorrEras"]	= extractTGAE(file_highpt, Form("DMinclusive_%s_syst_%s", year.data(), year.data()));
-  graph_highpt["Gt140Stat"]				= extractTGAE(file_highpt, Form("DMinclusive_%s_statandsyst_%s", year.data()));
+  graph_highpt["Gt140"]				= extractTGAE(fl_highpt, Form("DMinclusive_%s", year.data()));
+  graph_highpt["Gt140SystCorrEras"]	= extractTGAE(fl_highpt, Form("DMinclusive_%s_syst_alleras", year.data()));
+  graph_highpt["Gt140Stat"]			= extractTGAE(fl_highpt, Form("DMinclusive_%s_statandsyst_%s", year.data(), year.data()));
   
-  file_highpt->Close();
-  delete file_highpt;
+  fl_highpt->Close();
+  delete fl_highpt;
 
-  func_extrap = extractTF1(file_extrap, Form("uncert_func_%sVSjet_%sVSe", wp1.data(), wp2.data()));
-  file_extrap->Close();
-  delete file_extrap;
+  func_extrap = extractTF1(fl_extrap, Form("uncert_func_%sVSjet_%sVSe", wp1.data(), wp2.data()));
+  fl_extrap->Close();
+  delete fl_extrap;
 }
 
 void TauIDSFTool::embeddedDMcheck(const std::string& ID)
@@ -251,12 +250,6 @@ float TauIDSFTool::getSFvsDMandPT(double pt, int dm, int genmatch, const std::st
 	  }
 	  else if(unc=="Gt140SystCorrErasDown") {
 		SF = static_cast<float>(graph_highpt["Gt140SystCorrEras"]->GetErrorYlow(ipt));
-	  }
-	  else if(unc=="Gt140SystUncorrErasUp") {
-		SF = static_cast<float>(graph_highpt["Gt140SystUncorrEras"]->GetErrorYhigh(ipt));
-	  }
-	  else if(unc=="Gt140SystUncorrErasDown") {
-		SF = static_cast<float>(graph_highpt["Gt140SystUncorrEras"]->GetErrorYlow(ipt));
 	  }
 	  else if(unc=="Gt140Extrap" and pt>300.) {
 		SF = static_cast<float>(func_extrap->Eval(pt));

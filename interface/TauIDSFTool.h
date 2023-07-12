@@ -52,17 +52,19 @@ public:
   bool mVerbose = false;
   std::string mDatapath = Form("%s/src/KLUBAnalysis/weights/tau_ID_ScaleFactors_UL",
 							  getenv("CMSSW_BASE"));
-  std::array<std::string, 7> mYears = {"2016Legacy", "2017ReReco", "2018ReReco",
-									   "UL2016_preVFP", "UL2016_postVFP", "UL2017", "UL2018"};
-  std::array<std::string, 1> mAntiJetIDs = {"DeepTau2017v2p1VSjet"};
-  std::array<std::string, 1> mAntiEleIDs = {"DeepTau2017v2p1VSe"};
-  std::array<std::string, 1> mAntiMuIDs  = {"DeepTau2017v2p1VSmu"};
-  std::array<std::string, 13> mUncertainties = {"", //nominal
-												"Stat0Up", "Stat0Down", "Stat1Up", "Stat1Down",
-												"SystCorrDMErasUp", "SystCorrDMErasDown",
-												"SystCorrDMUncorrErasUp", "SystCorrDMUncorrErasDown",
-												"SystUncorrDMErasUp", "SystUncorrDMErasDown",
-												"SystGt140", };
+  std::array<std::string, 7> mYears = {{
+	  "2016Legacy", "2017ReReco", "2018ReReco",
+	  "UL2016_preVFP", "UL2016_postVFP", "UL2017", "UL2018"}};
+  std::array<std::string, 1> mAntiJetIDs = {{"DeepTau2017v2p1VSjet"}};
+  std::array<std::string, 1> mAntiEleIDs = {{"DeepTau2017v2p1VSe"}};
+  std::array<std::string, 1> mAntiMuIDs  = {{"DeepTau2017v2p1VSmu"}};
+  std::array<std::string, 16> mUncertainties = {{"", //nominal
+	  "Stat0Up", "Stat0Down", "Stat1Up", "Stat1Down",
+	  "SystCorrDMErasUp", "SystCorrDMErasDown",
+	  "SystCorrDMUncorrErasUp", "SystCorrDMUncorrErasDown",
+	  "SystUncorrDMErasUp", "SystUncorrDMErasDown",
+	  "Gt140StatDown", "Gt140StatUp", "Gt140SystCorrErasUp", "Gt140SystCorrErasDown",
+	  "Gt140Extrap"}};
   std::unordered_set<int> mDMs = {0, 1, 10};
   std::vector<int> mGenmatches;
   bool isVsPT  = false;

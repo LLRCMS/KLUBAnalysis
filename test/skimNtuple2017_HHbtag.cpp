@@ -2542,8 +2542,6 @@ int main (int argc, char** argv)
 	float idFakeSF_tauid_2d_systuncorrdmeras_down		= 1.f;	   
 	float idFakeSF_tauid_2d_systcorrerasgt140_up		= 1.f;
 	float idFakeSF_tauid_2d_systcorrerasgt140_down		= 1.f;
-	float idFakeSF_tauid_2d_systuncorrerasgt140_up		= 1.f;
-	float idFakeSF_tauid_2d_systuncorrerasgt140_down	= 1.f;
 	float idFakeSF_tauid_2d_statgt140_up				= 1.f;
 	float idFakeSF_tauid_2d_statgt140_down				= 1.f;
 	float idFakeSF_tauid_2d_extrapgt140					= 1.f;
@@ -2681,8 +2679,6 @@ int main (int argc, char** argv)
 	Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_down		= 1.f;
 	Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up	    = 1.f;
 	Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down		= 1.f;
-	Float_t idSF_leg1_deep_vsJet_2d_systuncorrerasgt140_up		= 1.f;
-	Float_t idSF_leg1_deep_vsJet_2d_systuncorrerasgt140_down	= 1.f;
 	Float_t idSF_leg1_deep_vsJet_2d_statgt140_up				= 1.f;
 	Float_t idSF_leg1_deep_vsJet_2d_statgt140_down				= 1.f;
 	Float_t idSF_leg1_deep_vsJet_2d_extrapgt140					= 1.f;
@@ -2699,8 +2695,6 @@ int main (int argc, char** argv)
 	Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_down		= 1.f;
 	Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up	    = 1.f;
 	Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down		= 1.f;
-	Float_t idSF_leg2_deep_vsJet_2d_systuncorrerasgt140_up		= 1.f;
-	Float_t idSF_leg2_deep_vsJet_2d_systuncorrerasgt140_down	= 1.f;
 	Float_t idSF_leg2_deep_vsJet_2d_statgt140_up				= 1.f;
 	Float_t idSF_leg2_deep_vsJet_2d_statgt140_down				= 1.f;
 	Float_t idSF_leg2_deep_vsJet_2d_extrapgt140					= 1.f;
@@ -2767,8 +2761,6 @@ int main (int argc, char** argv)
 	  idSF_leg1_deep_vsJet_2d_statgt140_down			= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140StatDown");
 	  idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up		= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140SystCorrErasUp");
 	  idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down	= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140SystCorrErasDown");
-	  idSF_leg1_deep_vsJet_2d_systuncorrerasgt140_up	= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140SystUncorrErasUp");
-	  idSF_leg1_deep_vsJet_2d_systuncorrerasgt140_down	= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140SystUncorrErasDown");
 	  idSF_leg1_deep_vsJet_2d_extrapgt140				= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140Extrap");
 	}
 
@@ -2836,8 +2828,6 @@ int main (int argc, char** argv)
 	  idSF_leg2_deep_vsJet_2d_statgt140_down			= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140StatDown");
 	  idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up		= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140SystCorrErasUp");
 	  idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down	= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140SystCorrErasDown");
-	  idSF_leg2_deep_vsJet_2d_systuncorrerasgt140_up	= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140SystUncorrErasUp");
-	  idSF_leg2_deep_vsJet_2d_systuncorrerasgt140_down	= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140SystUncorrErasDown");
 	  idSF_leg2_deep_vsJet_2d_extrapgt140             	= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140Extrap");
 	}
 	
@@ -2886,8 +2876,6 @@ int main (int argc, char** argv)
 		idFakeSF_tauid_2d_systuncorrdmeras_down		= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_down;
 		idFakeSF_tauid_2d_systcorrerasgt140_up   	= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
 		idFakeSF_tauid_2d_systcorrerasgt140_down   	= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
-		idFakeSF_tauid_2d_systuncorrerasgt140_up	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrerasgt140_up;
-		idFakeSF_tauid_2d_systuncorrerasgt140_down  = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrerasgt140_down;
 		idFakeSF_tauid_2d_statgt140_up		        = except_VsJet * idSF_leg2_deep_vsJet_2d_statgt140_up;
 		idFakeSF_tauid_2d_statgt140_down		    = except_VsJet * idSF_leg2_deep_vsJet_2d_statgt140_down;
 		idFakeSF_tauid_2d_extrapgt140 		        = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140;
@@ -2947,8 +2935,6 @@ int main (int argc, char** argv)
 
 		idFakeSF_tauid_2d_systcorrerasgt140_up   	= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up      * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
 		idFakeSF_tauid_2d_systcorrerasgt140_down   	= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down    * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
-		idFakeSF_tauid_2d_systuncorrerasgt140_up   	= except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrerasgt140_up    * idSF_leg2_deep_vsJet_2d_systuncorrerasgt140_up;
-		idFakeSF_tauid_2d_systuncorrerasgt140_down  = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrerasgt140_down  * idSF_leg2_deep_vsJet_2d_systuncorrerasgt140_down;
 		idFakeSF_tauid_2d_statgt140_up        		= except_VsJet * idSF_leg1_deep_vsJet_2d_statgt140_up              * idSF_leg2_deep_vsJet_2d_statgt140_up;
 		idFakeSF_tauid_2d_statgt140_down          	= except_VsJet * idSF_leg1_deep_vsJet_2d_statgt140_down            * idSF_leg2_deep_vsJet_2d_statgt140_down;
 		idFakeSF_tauid_2d_extrapgt140              	= except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140               * idSF_leg2_deep_vsJet_2d_extrapgt140;
@@ -3026,8 +3012,6 @@ int main (int argc, char** argv)
 
 	theSmallTree.m_idFakeSF_tauid_2d_systcorrerasgt140_up		= idFakeSF_tauid_2d_systcorrerasgt140_up;
 	theSmallTree.m_idFakeSF_tauid_2d_systcorrerasgt140_down		= idFakeSF_tauid_2d_systcorrerasgt140_down;
-	theSmallTree.m_idFakeSF_tauid_2d_systuncorrerasgt140_up		= idFakeSF_tauid_2d_systuncorrerasgt140_up;
-	theSmallTree.m_idFakeSF_tauid_2d_systuncorrerasgt140_down	= idFakeSF_tauid_2d_systuncorrerasgt140_down;
 	theSmallTree.m_idFakeSF_tauid_2d_statgt140_up				= idFakeSF_tauid_2d_statgt140_up;
 	theSmallTree.m_idFakeSF_tauid_2d_statgt140_down				= idFakeSF_tauid_2d_statgt140_down;
 	theSmallTree.m_idFakeSF_tauid_2d_extrapgt140				= idFakeSF_tauid_2d_extrapgt140;
