@@ -75,11 +75,6 @@ using DNNVector = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<float>>;
 const double aTopRW = 0.0615;
 const double bTopRW = -0.0005;
 
-// Computed in 2019 for 2018 data with deepFlavor - NOT USED for Legacy
-const std::array<float, 3> DYscale_LL = {0.748154,2.15445,1.63619} ; // for now we use the same numbers computed with DY NLO sample
-const std::array<float, 3> DYscale_MM = {0.862686,1.08509,1.10947} ; // for now we use the same numbers computed with DY NLO sample
-
-
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS FOR NLO:
 ** 3 samples merged: Inclusive, Njet-sliced, pT-sliced.
 ** merging done according to cross-section from xsdb
@@ -98,7 +93,7 @@ int main (int argc, char** argv)
 	  cerr << "missing input parameters : argc is: " << argc << endl ;
 	  cerr << "usage: " << argv[0]
 		   << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
-		   << " xsecScale(stitch) HTMax(stitch) HTMin(stitch) isTTBar DY_Nbs TT_stitchType"
+		   << " xsecScale(stitch) HTMax(stitch) HTMin(stitch) isTTBar DY_tostitch TT_stitchType"
 		   << " runMT2 isHHsignal NjetRequired(stitch) EFTbm order_rew uncertainty_rew cms_fake_rew kl_rew kt_rew c2_rew cg_rew c2g_rew susyModel" << endl ;
 
 	  return 1;
@@ -149,15 +144,12 @@ int main (int argc, char** argv)
   if (!isMC) isTTBar = false; // force it, you never know...
   cout << "** INFO: is this a TTbar sample? : " << isTTBar << endl;
 
-  bool DY_Nbs = false; // run on genjets to count in DY samples the number of b jets
   bool DY_tostitch = false;
-  int I_DY_Nbs = atoi(argv[11]);
-  if (I_DY_Nbs == 1)
+  int I_DY_tostitch = atoi(argv[11]);
+  if (I_DY_tostitch == 1)
 	{
-	  DY_Nbs = true;
 	  DY_tostitch = true; // FIXME!! this is ok only if we use jet binned samples
 	}
-  cout << "** INFO: loop on gen jet to do a b-based DY split? " << DY_Nbs << " " << DY_tostitch << endl;
 
   int TT_stitchType = atoi(argv[12]);
   if (!isTTBar) TT_stitchType = 0; // just force if not TT...
@@ -220,114 +212,6 @@ int main (int argc, char** argv)
   bool isPostVFP = PERIOD=="2016postVFP" ? true : false;
   cout << "** INFO: PERIOD: " << PERIOD << ", isPostVFP: " << isPostVFP << endl;
   
-  // Computed from PI group for DY LO binned for Legacy2018
-  // - number of b-jets [0b, 1b, 2b]
-  // - pT(MuMu)
-  //   - vLowPt  : <= 10 GeV
-  //   - LowPt   : >10 and <=30
-  //   - Med1Pt  : >30 and <=50
-  //   - Med2Pt  : >50 and <=100
-  //   - HighPt  : >100 and <=200
-  //   - vHighPt : >200
-  // Requiring an elliptical mass cut (relaxed by +5 GeV)
-  std::array<float, 3> DYscale_MH_vLowPt;
-  std::array<float, 3> DYscale_MH_LowPt  ; 
-  std::array<float, 3> DYscale_MH_Med1Pt ; 
-  std::array<float, 3> DYscale_MH_Med2Pt ; 
-  std::array<float, 3> DYscale_MH_HighPt ; 
-  std::array<float, 3> DYscale_MH_vHighPt;
-  std::array<float, 5> DYscale_edges;
-  if (PERIOD == "2018") {
-	DYscale_MH_vLowPt  = {1.002, 0.01 , 0.01 }; 
-	DYscale_MH_LowPt   = {1.209, 1.180, 1.162}; 
-	DYscale_MH_Med1Pt  = {1.17 , 1.260, 1.288}; 
-	DYscale_MH_Med2Pt  = {1.140, 1.357, 1.574}; 
-	DYscale_MH_HighPt  = {1.037, 1.440, 1.603}; 
-	DYscale_MH_vHighPt = {0.835, 1.994, 1.037}; 
-	DYscale_edges      = {10., 30., 50., 100., 200.};
-  }
-  else if (PERIOD == "2017") {
-	DYscale_MH_vLowPt  = {1.125, 0.01 , 0.01 };
-	DYscale_MH_LowPt   = {1.326, 1.208, 1.016};
-	DYscale_MH_Med1Pt  = {1.255, 1.317, 1.279};
-	DYscale_MH_Med2Pt  = {1.198, 1.409, 1.374};
-	DYscale_MH_HighPt  = {1.081, 1.687, 1.269};
-	DYscale_MH_vHighPt = {0.859, 1.595, 1.270};
-	DYscale_edges      = {10., 30., 50., 100., 200.};
-  }
-  else if (PERIOD == "2016preVFP" or PERIOD == "2016postVFP") {
-	DYscale_MH_vLowPt  = {1.161, 0.515, 0.1  };
-	DYscale_MH_LowPt   = {1.151, 1.042, 1.150};
-	DYscale_MH_Med1Pt  = {1.144, 1.152, 1.149};
-	DYscale_MH_Med2Pt  = {1.151, 1.333, 1.218};
-	DYscale_MH_HighPt  = {1.169, 1.458, 0.997};
-	DYscale_MH_vHighPt = {1.061, 1.963, 1.185};
-	DYscale_edges      = {10., 50., 80., 110., 190.};
-  }
-
-  // Computed August 2020 - Requiring M(mumu) > 50 GeV
-  std::array<float, 3> DYscale_MTT_vLowPt ; 
-  std::array<float, 3> DYscale_MTT_LowPt  ; 
-  std::array<float, 3> DYscale_MTT_Med1Pt ; 
-  std::array<float, 3> DYscale_MTT_Med2Pt ; 
-  std::array<float, 3> DYscale_MTT_HighPt ; 
-  std::array<float, 3> DYscale_MTT_vHighPt; 
-  if (PERIOD == "2018") {
-	DYscale_MTT_vLowPt	= {0.87720949, 0.010000006, 0.010000025}; 
-	DYscale_MTT_LowPt  	= {1.2191486 , 0.010001064, 0.29051790 }; 
-	DYscale_MTT_Med1Pt	= {1.1816037 , 0.82760074 , 0.84809836 }; 
-	DYscale_MTT_Med2Pt	= {1.1579303 , 1.1240148  , 0.92974364 }; 
-	DYscale_MTT_HighPt	= {1.0469869 , 1.3690206  , 1.0024774  }; 
-	DYscale_MTT_vHighPt	= {0.80838089, 1.7465338  , 0.73211715 };
-  }
-  else if (PERIOD == "2017") {
-	DYscale_MTT_vLowPt  = {1.1092067 , 0.010000025, 0.010000002};
-	DYscale_MTT_LowPt   = {1.4229782 , 0.025083862, 0.64151569 };
-	DYscale_MTT_Med1Pt  = {1.3143450 , 1.0076030  , 0.96584965 };
-	DYscale_MTT_Med2Pt  = {1.2485879 , 1.2376612  , 1.0745893  };
-	DYscale_MTT_HighPt  = {1.1273438 , 1.5564765  , 1.0578688  };
-	DYscale_MTT_vHighPt = {0.87293424, 1.4469675  , 1.1665250  };
-  }
-  else if (PERIOD == "2016preVFP" or PERIOD == "2016postVFP") {
-	DYscale_MTT_vLowPt  = {1.1630144, 0.010000393, 0.010000000};
-	DYscale_MTT_LowPt   = {1.2194740, 1.1250249  , 1.0609708	};
-	DYscale_MTT_Med1Pt  = {1.2536864, 1.2376837  , 1.1901911	};
-	DYscale_MTT_Med2Pt  = {1.2763251, 1.2972053  , 1.2731480	};
-	DYscale_MTT_HighPt  = {1.2785250, 1.4578434  , 1.2241989	};
-	DYscale_MTT_vHighPt = {1.1649714, 1.6778047  , 1.1510545	};
-  }
-
-  std::array<float, 3> DYscale_MTT_vLowPt_err ;
-  std::array<float, 3> DYscale_MTT_LowPt_err  ;
-  std::array<float, 3> DYscale_MTT_Med1Pt_err ;
-  std::array<float, 3> DYscale_MTT_Med2Pt_err ;
-  std::array<float, 3> DYscale_MTT_HighPt_err ;
-  std::array<float, 3> DYscale_MTT_vHighPt_err;
-  if (PERIOD == "2018") {
-	DYscale_MTT_vLowPt_err  = {0.0014349486, 0.00085205781, 0.00094359815};
-	DYscale_MTT_LowPt_err	= {0.0013417125, 0.0044914533 , 0.025179988  };
-	DYscale_MTT_Med1Pt_err  = {0.0016262942, 0.021066553  , 0.025609469  };
-	DYscale_MTT_Med2Pt_err  = {0.0014769770, 0.018984114  , 0.019089746  };
-	DYscale_MTT_HighPt_err  = {0.0022691835, 0.035830965  , 0.027803721  };
-	DYscale_MTT_vHighPt_err = {0.0046517215, 0.11443309   , 0.064519398  };
-  }
-  else if (PERIOD == "2017") {
-	DYscale_MTT_vLowPt_err  = {0.0020977215, 0.0014144677, 0.0015785401};
-	DYscale_MTT_LowPt_err   = {0.0018789754, 0.028074073 , 0.033416855 };
-	DYscale_MTT_Med1Pt_err  = {0.0022982702, 0.028221735 , 0.032660541 };
-	DYscale_MTT_Med2Pt_err  = {0.0019811270, 0.024603319 , 0.024254387 };
-	DYscale_MTT_HighPt_err  = {0.0030012172, 0.046576904 , 0.035949714 };
-	DYscale_MTT_vHighPt_err = {0.0061768066, 0.15213682	, 0.091582069 };
-  }
-  else if (PERIOD == "2016preVFP" or PERIOD == "2016postVFP") {
-	DYscale_MTT_vLowPt_err  = {0.0037446320, 0.011371985, 0.0071346649};
-	DYscale_MTT_LowPt_err   = {0.0017404799, 0.023737485, 0.035623816 };
-	DYscale_MTT_Med1Pt_err  = {0.0027420531, 0.034357252, 0.043622931 };
-	DYscale_MTT_Med2Pt_err  = {0.0042018892, 0.055512921, 0.061654929 };
-	DYscale_MTT_HighPt_err  = {0.0045670912, 0.065499641, 0.064115483 };
-	DYscale_MTT_vHighPt_err = {0.0084286985, 0.17367880 , 0.13585326	};
-  }
-
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
     kNone    = 0, //no reweighting
@@ -1162,133 +1046,6 @@ int main (int argc, char** argv)
 				}
 			}
 		} // end ttHToNonBB only
-
-      // For Drell-Yan only: loop on genjets and count how many are there with 0,1,2 b
-      // 0: 0bjet, 1: 1 b jet, 2: >= 2 b jet
-	  theSmallTree.m_DYscale_LL  = 1.0; // all the other MC samples + data have no weight
-	  theSmallTree.m_DYscale_MM  = 1.0;
-	  theSmallTree.m_DYscale_MH  = 1.0; // to be used with elliptical mass cut
-	  theSmallTree.m_DYscale_MTT = 1.0; // to be used with M(tautau) > 50 GeV
-	  theSmallTree.m_DYscale_MTT_up   = 1.0; // up variation of DYscale_MTT (val+variation)
-	  theSmallTree.m_DYscale_MTT_down = 1.0; // down variation of DYscale_MTT (val-variation)
-
-	  if (isMC && isDY) //to be done both for DY NLO and DY in jet bins
-		{
-		  TLorentzVector vgj;
-		  int nbs = 0;
-		  for (unsigned int igj = 0; igj < theBigTree.genjet_px->size(); igj++)
-			{
-			  vgj.SetPxPyPzE(theBigTree.genjet_px->at(igj), theBigTree.genjet_py->at(igj), theBigTree.genjet_pz->at(igj), theBigTree.genjet_e->at(igj));
-			  if (vgj.Pt() > 20 && TMath::Abs(vgj.Eta()) < 2.5)
-				{
-				  int theFlav = theBigTree.genjet_hadronFlavour->at(igj);
-				  if (abs(theFlav) == 5) nbs++;
-				}
-
-			  if(DEBUG)
-				{
-				  cout << " -- gen jet : " << igj << " pt=" << vgj.Pt() << " eta=" << vgj.Eta() <<  " hadFlav=" << theBigTree.genjet_hadronFlavour->at(igj) << endl;
-				}
-			}
-		  if (nbs > 2) nbs = 2;
-
-		  theSmallTree.m_nBhadrons = nbs;
-		  theSmallTree.m_DYscale_LL = DYscale_LL[nbs];
-		  theSmallTree.m_DYscale_MM = DYscale_MM[nbs];
-
-		  // Get LHE nBPartons
-		  int n_bJets = theBigTree.lheNOutB ;
-		  if (n_bJets>=2) n_bJets=2; // Make sure that events with n_bJets == 3 are included in the n_bJets == 2 case
-
-		  // loop through gen parts to identify Z boson
-		  int idx1 = -1;
-		  for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
-			{
-			  bool isLast   = CheckBit(theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
-			  bool isPrompt = CheckBit(theBigTree.genpart_flags->at(igen),  0) ; //  0 = isPrompt
-			  if (theBigTree.genpart_pdg->at(igen) == 23 && isLast && isPrompt) // Z0 + isLast + isPrompt
-				{
-				  idx1 = igen;
-				}
-			}
-
-		  // if found, Build the genZ TLorentzVector
-		  float genZ_pt = -999.;
-		  if (idx1 >= 0)
-			{
-			  // store gen decay mode of the Z identified
-			  theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1);
-
-			  // build the genZ TLorentzVector
-			  TLorentzVector genZ;
-			  genZ.SetPxPyPzE(theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1));
-			  genZ_pt = genZ.Pt();
-			  theSmallTree.m_genZ_pt = genZ_pt;
-
-			  // Save DY LO weights according to nbs and pT(Z)
-			  if (genZ_pt <= DYscale_edges[0])
-				{
-				  theSmallTree.m_DYscale_MH  = DYscale_MH_vLowPt [n_bJets];
-				  theSmallTree.m_DYscale_MTT = DYscale_MTT_vLowPt[n_bJets];
-				  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_vLowPt[n_bJets] + DYscale_MTT_vLowPt_err[n_bJets];
-				  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_vLowPt[n_bJets] - DYscale_MTT_vLowPt_err[n_bJets];
-				}
-			  else if (genZ_pt > DYscale_edges[0] && genZ_pt <= DYscale_edges[1])
-				{
-				  theSmallTree.m_DYscale_MH  = DYscale_MH_LowPt [n_bJets];
-				  theSmallTree.m_DYscale_MTT = DYscale_MTT_LowPt[n_bJets];
-				  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_LowPt[n_bJets] + DYscale_MTT_LowPt_err[n_bJets];
-				  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_LowPt[n_bJets] - DYscale_MTT_LowPt_err[n_bJets];
-				}
-			  else if (genZ_pt > DYscale_edges[1] && genZ_pt <= DYscale_edges[2])
-				{
-				  theSmallTree.m_DYscale_MH  = DYscale_MH_Med1Pt [n_bJets];
-				  theSmallTree.m_DYscale_MTT = DYscale_MTT_Med1Pt[n_bJets];
-				  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_Med1Pt[n_bJets] + DYscale_MTT_Med1Pt_err[n_bJets];
-				  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_Med1Pt[n_bJets] - DYscale_MTT_Med1Pt_err[n_bJets];
-				}
-			  else if (genZ_pt > DYscale_edges[2] && genZ_pt <= DYscale_edges[3])
-				{
-				  theSmallTree.m_DYscale_MH  = DYscale_MH_Med2Pt [n_bJets];
-				  theSmallTree.m_DYscale_MTT = DYscale_MTT_Med2Pt[n_bJets];
-				  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_Med2Pt[n_bJets] + DYscale_MTT_Med2Pt_err[n_bJets];
-				  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_Med2Pt[n_bJets] - DYscale_MTT_Med2Pt_err[n_bJets];
-				}
-			  else if (genZ_pt > DYscale_edges[3] && genZ_pt <= DYscale_edges[4])
-				{
-				  theSmallTree.m_DYscale_MH  = DYscale_MH_HighPt [n_bJets];
-				  theSmallTree.m_DYscale_MTT = DYscale_MTT_HighPt[n_bJets];
-				  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_HighPt[n_bJets] + DYscale_MTT_HighPt_err[n_bJets];
-				  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_HighPt[n_bJets] - DYscale_MTT_HighPt_err[n_bJets];
-				}
-			  else //pT(Z)>=DYscale_edges[4]
-				{
-				  theSmallTree.m_DYscale_MH  = DYscale_MH_vHighPt [n_bJets];
-				  theSmallTree.m_DYscale_MTT = DYscale_MTT_vHighPt[n_bJets];
-				  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_vHighPt[n_bJets] + DYscale_MTT_vHighPt_err[n_bJets];
-				  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_vHighPt[n_bJets] - DYscale_MTT_vHighPt_err[n_bJets];
-				}
-			}
-		  else // genZ not found: use the lowest pT bin
-			{
-			  theSmallTree.m_DYscale_MH  = DYscale_MH_vLowPt [n_bJets];
-			  theSmallTree.m_DYscale_MTT = DYscale_MTT_vLowPt[n_bJets];
-			  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_vLowPt[n_bJets] + DYscale_MTT_vLowPt_err[n_bJets];
-			  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_vLowPt[n_bJets] - DYscale_MTT_vLowPt_err[n_bJets];
-			}
-
-		  // Debug printout
-		  if(DEBUG)
-			{
-			  cout << "------- DY reweight ------" << endl;
-			  cout << " - nbs  : " << nbs << endl;
-			  cout << " - pT(Z): " << genZ_pt << endl;
-			  cout << " - DYscale_MM  : " << theSmallTree.m_DYscale_MM << endl;
-			  cout << " - DYscale_MH  : " << theSmallTree.m_DYscale_MH << endl;
-			  cout << " - DYscale_MTT : " << theSmallTree.m_DYscale_MTT << endl;
-			  cout << "--------------------------" << endl;
-			}
-		}
 
 	  // HH reweight for non resonant
 	  float HHweight = 1.0;
@@ -2805,6 +2562,7 @@ int main (int argc, char** argv)
 	  float idFakeSF_tauid_2d_systcorrdmeras_up			= 1.f;		   
 	  float idFakeSF_tauid_2d_systcorrdmeras_down		= 1.f;		 
 	  float idFakeSF_tauid_2d_systcorrdmuncorreras_up	= 1.f;	 
+
 	  float idFakeSF_tauid_2d_systcorrdmuncorreras_down	= 1.f; 
 	  float idFakeSF_tauid_2d_systuncorrdmeras_up		= 1.f;		 
 	  float idFakeSF_tauid_2d_systuncorrdmeras_down		= 1.f;	   
@@ -2945,6 +2703,7 @@ int main (int argc, char** argv)
 	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down = 1.f;
 	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_up		= 1.f;
 	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_down		= 1.f;
+
 	  Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up	    = 1.f;
 	  Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down	= 1.f;
 	  Float_t idSF_leg1_deep_vsJet_2d_statgt140_up				= 1.f;
@@ -2961,6 +2720,7 @@ int main (int argc, char** argv)
 	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down = 1.f;
 	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_up		= 1.f;
 	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_down		= 1.f;
+
 	  Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up	    = 1.f;
 	  Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down	= 1.f;
 	  Float_t idSF_leg2_deep_vsJet_2d_statgt140_up				= 1.f;
@@ -3202,7 +2962,7 @@ int main (int argc, char** argv)
 		  idFakeSF_tauid_2d_statgt140_up        		= except_VsJet * idSF_leg1_deep_vsJet_2d_statgt140_up              * idSF_leg2_deep_vsJet_2d_statgt140_up;
 		  idFakeSF_tauid_2d_statgt140_down          	= except_VsJet * idSF_leg1_deep_vsJet_2d_statgt140_down            * idSF_leg2_deep_vsJet_2d_statgt140_down;
 		  idFakeSF_tauid_2d_extrapgt140              	= except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140               * idSF_leg2_deep_vsJet_2d_extrapgt140;
-		
+
 		  idFakeSF_tauid_pt20to25_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[0]   * idSF_leg2_deep_vsJet_pt_up[0];
 		  idFakeSF_tauid_pt25to30_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[1]   * idSF_leg2_deep_vsJet_pt_up[1];
 		  idFakeSF_tauid_pt30to35_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[2]   * idSF_leg2_deep_vsJet_pt_up[2];
@@ -3670,7 +3430,8 @@ int main (int argc, char** argv)
 	  theSmallTree.m_trigSF_single		= (isMC ? trigSF_single : 1.0);
 	  theSmallTree.m_trigSF_cross		= (isMC ? trigSF_cross : 1.0);
 
-	  theSmallTree.m_totalWeight = (isMC? (59970./7.20811e+10) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_DYscale_MTT * trigSF * theSmallTree.m_IdFakeSF_deep_pt: 1.0);
+	  theSmallTree.m_totalWeight = (isMC? (59970./7.20811e+10) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight *
+									trigSF * theSmallTree.m_IdFakeSF_deep_2d: 1.0);
 	  //total weight used for sync: the denominator must be changed for each sample as h_eff->GetBinContent(1), the numerator is the luminosity
 
 	  // Third lepton veto
