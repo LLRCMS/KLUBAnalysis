@@ -93,7 +93,7 @@ int main (int argc, char** argv)
 	  cerr << "missing input parameters : argc is: " << argc << endl ;
 	  cerr << "usage: " << argv[0]
 		   << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
-		   << " xsecScale(stitch) HTMax(stitch) HTMin(stitch) isTTBar DY_Nbs TT_stitchType"
+		   << " xsecScale(stitch) HTMax(stitch) HTMin(stitch) isTTBar DY_tostitch TT_stitchType"
 		   << " runMT2 isHHsignal NjetRequired(stitch) EFTbm order_rew uncertainty_rew cms_fake_rew kl_rew kt_rew c2_rew cg_rew c2g_rew susyModel" << endl ;
 
 	  return 1;
@@ -144,15 +144,12 @@ int main (int argc, char** argv)
   if (!isMC) isTTBar = false; // force it, you never know...
   cout << "** INFO: is this a TTbar sample? : " << isTTBar << endl;
 
-  bool DY_Nbs = false; // run on genjets to count in DY samples the number of b jets
   bool DY_tostitch = false;
-  int I_DY_Nbs = atoi(argv[11]);
-  if (I_DY_Nbs == 1)
+  int I_DY_tostitch = atoi(argv[11]);
+  if (I_DY_tostitch == 1)
 	{
-	  DY_Nbs = true;
 	  DY_tostitch = true; // FIXME!! this is ok only if we use jet binned samples
 	}
-  cout << "** INFO: loop on gen jet to do a b-based DY split? " << DY_Nbs << " " << DY_tostitch << endl;
 
   int TT_stitchType = atoi(argv[12]);
   if (!isTTBar) TT_stitchType = 0; // just force if not TT...
@@ -1049,27 +1046,6 @@ int main (int argc, char** argv)
 				}
 			}
 		} // end ttHToNonBB only
-
-	  if (isMC && isDY) //to be done both for DY NLO and DY in jet bins
-		{
-		  TLorentzVector vgj;
-		  int nbs = 0;
-		  for (unsigned int igj = 0; igj < theBigTree.genjet_px->size(); igj++)
-			{
-			  vgj.SetPxPyPzE(theBigTree.genjet_px->at(igj), theBigTree.genjet_py->at(igj), theBigTree.genjet_pz->at(igj), theBigTree.genjet_e->at(igj));
-			  if (vgj.Pt() > 20 && TMath::Abs(vgj.Eta()) < 2.5)
-				{
-				  int theFlav = theBigTree.genjet_hadronFlavour->at(igj);
-				  if (abs(theFlav) == 5) nbs++;
-				}
-
-			  if(DEBUG)
-				{
-				  cout << " -- gen jet : " << igj << " pt=" << vgj.Pt() << " eta=" << vgj.Eta() <<  " hadFlav=" << theBigTree.genjet_hadronFlavour->at(igj) << endl;
-				}
-			}
-		  if (nbs > 2) nbs = 2;
-		}
 
 	  // HH reweight for non resonant
 	  float HHweight = 1.0;
