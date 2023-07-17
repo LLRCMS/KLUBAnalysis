@@ -10,7 +10,7 @@ OUT_TAG=""
 IN_TAG="Jan2023"
 DATA_PERIOD="UL18"
 DATA_USER="${USER}"
-DATA_PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
+DATA_PERIOD_CHOICES=( "UL2016preVFP" "UL2016postVFP" "UL17" "UL18" )
 
 ### Argument parsing
 HELP_STR="Prints this help message."
@@ -20,14 +20,14 @@ OUT_TAG_STR="(String) Defines tag for the output. Defaults to '${OUT_TAG}'."
 IN_TAG_STR="(String) Chooses tag for the input (big ntuples). Defaults to '${IN_TAG}'."
 STITCHING_OFF_STR="(Boolean) Drell-Yan stitching weights will *not* be used. Defaults to ${STITCHING_OFF}."
 NO_LISTS_STR="(Boolean) Whether to run the list production script before each submission. Defaults to ${NO_LISTS}."
-DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${DATA_PERIOD}'."
+DATAPERIOD_STR="(String) Which data period to consider: ${DATA_PERIOD_CHOICES}. Defaults to '${DATA_PERIOD}'."
 DATAUSER_STR="(String) Which user produced the data. Defaults to '${DATA_USER}'."
 function print_usage_submit_skims {
     USAGE="
         Run example: bash $(basename "$0") -t out_test --in_tag Jan2023 --user bfontana --dry-run
 
 	-h / --help			[ ${HELP_STR} ]
-	--dry-run			[ ${DRYRUN_STR} ]
+	--dryrun			[ ${DRYRUN_STR} ]
 	--resubmit			[ ${RESUBMIT_STR} ]
 	-t / --tag			[ ${OUT_TAG_STR} ]
 	--in_tag		        [ ${IN_TAG_STR} ]
@@ -46,7 +46,7 @@ while [[ $# -gt 0 ]]; do
 	    print_usage_submit_skims
 	    exit 1
 	    ;;
-	--dry-run)
+	--dryrun)
 	    DRYRUN="1"
 	    shift;
 	    ;;
@@ -102,14 +102,7 @@ SUBMIT_SCRIPT="scripts/skimNtuple.py"
 LIST_SCRIPT="scripts/makeListOnStorage.py"
 LIST_DIR="root://eos.grif.fr//eos/grif/cms/llr/store/user/${DATA_USER}/"
 
-if [ ${DATA_PERIOD} == "UL16" ]; then
-	EXEC_FILE="${EXEC_FILE}/skimNtuple2016_HHbtag.exe"
-elif [ ${DATA_PERIOD} == "UL17" ]; then
-	EXEC_FILE="${EXEC_FILE}/skimNtuple2017_HHbtag.exe"
-elif [ ${DATA_PERIOD} == "UL18" ]; then
-	EXEC_FILE="${EXEC_FILE}/skimNtuple2018_HHbtag.exe"
-fi
-
+EXEC_FILE="${EXEC_FILE}/skimNtuple_HHbtag.exe"
 LIST_DIR=${LIST_DIR}"HHNtuples_res/"${DATA_PERIOD}"/"
 
 ### Check if the voms command was run
@@ -131,7 +124,19 @@ SIG_DIR=${IN_DIR}${DATA_PERIOD}"_Signals/"
 BKG_DIR=${IN_DIR}${DATA_PERIOD}"_Backgrounds/"
 DATA_DIR=${IN_DIR}${DATA_PERIOD}"_Data/"
 
-PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2018/PU_UL2018_SF.txt"
+if [ ${DATA_PERIOD} == "UL18" ]; then
+	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2018/PU_UL2018_SF.txt"
+	YEAR="2018"
+elif [ ${DATA_PERIOD} == "UL17" ]; then
+	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2017/PU_UL2017_SF.txt"
+	YEAR="2017"
+elif [ ${DATA_PERIOD} == "UL16preVFP" ]; then
+	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2016/PU_UL2016_SF.txt"
+	YEAR="2016preVFP"
+elif [ ${DATA_PERIOD} == "UL16postVFP" ]; then
+	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2016APV/PU_UL2016APV_SF.txt"
+	YEAR="2016postVFP"
+fi
 CFG="config/skim_${DATA_PERIOD}.cfg"
 PREF="SKIMS_"
 TAG_DIR=${PREF}${DATA_PERIOD}"_"${OUT_TAG}
@@ -206,7 +211,7 @@ function run_skim() {
 	cmsenv # set CMSSW environment
 	comm="python ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -o ${OUTSKIM_DIR} -c ${KLUB_DIR}/${CFG} "
 	[[ ${RESUBMIT} -eq 1 ]] && comm+="--resub "
-	comm+="--exec_file ${EXEC_FILE} -q long -Y 2018 -k 1 --pu ${PU_DIR} $@"
+	comm+="--exec_file ${EXEC_FILE} -q long -Y ${YEAR} -k 1 --pu ${PU_DIR} $@"
 	[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
 }
 
@@ -254,44 +259,43 @@ LIST_DATA_DIR=${LIST_DIR}"Data_"${IN_TAG}
 eval `scram unsetenv -sh` # unset CMSSW environment
 declare -a LISTS_DATA=( $(/usr/bin/gfal-ls -lH ${LIST_DATA_DIR} | awk '{{printf $9" "}}') )
 cmsenv # set CMSSW environment
-# DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
-# RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
-# for ds in ${DATA_LIST[@]}; do
-#     for run in ${RUNS[@]}; do
-# 	pattern="${ds}__${run}"
-# 	if [ ${#LISTS_DATA[@]} -eq 0 ]; then
-# 	    echo "WARNING: No files found in "${LIST_DATA_DIR}"."
-# 	fi   
-# 	sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
-# 	if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-# 	    ERRORS+=( ${sample} )
-# 	else
-# 	    [[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
-# 	    run_skim -n 100 --isdata 1 -i ${DATA_DIR} --sample ${sample}
-# 	fi
-#     done
-# done
+DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
+RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
+for ds in ${DATA_LIST[@]}; do
+    for run in ${RUNS[@]}; do
+	pattern="${ds}__${run}"
+	if [ ${#LISTS_DATA[@]} -eq 0 ]; then
+	    echo "WARNING: No files found in "${LIST_DATA_DIR}"."
+	fi   
+	sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
+	if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+	    ERRORS+=( ${sample} )
+	else
+	    [[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
+	    run_skim -n 100 --isdata 1 -i ${DATA_DIR} --sample ${sample}
+	fi
+    done
+done
 
+### Run on HH resonant signal samples
 LIST_MC_DIR=${LIST_DIR}"MC_"${IN_TAG}
 eval `scram unsetenv -sh` # unset CMSSW environment
 declare -a LISTS_MC=( $(/usr/bin/gfal-ls -lH ${LIST_MC_DIR} | awk '{{printf $9" "}}') )
 cmsenv # set CMSSW environment
-
-### Run on HH resonant signal samples
-# DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
-# MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
-# for ds in ${DATA_LIST[@]}; do
-# 	for mass in ${MASSES[@]}; do
-# 		pattern="${ds}.+_M-${mass}_";
-# 		sample=$(find_sample ${pattern} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
-# 		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-# 			ERRORS+=( ${sample} )
-# 		else
-# 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
-# 			run_skim -n 5 -i ${SIG_DIR} --sample ${sample} -x 1.
-# 		fi
-# 	done
-# done
+DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
+MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
+for ds in ${DATA_LIST[@]}; do
+	for mass in ${MASSES[@]}; do
+		pattern="${ds}.+_M-${mass}_";
+		sample=$(find_sample ${pattern} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
+		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+			ERRORS+=( ${sample} )
+		else
+			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
+			run_skim -n 5 -i ${SIG_DIR} --sample ${sample} -x 1.
+		fi
+	done
+done
 
 ### Run on backgrounds samples
 # ttbar inclusive cross-section: 791 +- 25 pb (https://arxiv.org/pdf/2108.02803.pdf)
@@ -303,7 +307,7 @@ SemiLepXSec=`echo "791.0 * 2 * (1-0.6741) * 0.6741" | bc`
 DATA_MAP=(
     ["TTToHadronic"]="-n 20 -x ${FullyHadXSec}"
     ["TTTo2L2Nu"]="-n 100 -x ${FullyLepXSec}"
-    # ["TTToSemiLeptonic"]="-n 100 -x ${SemiLepXSec}"
+    ["TTToSemiLeptonic"]="-n 100 -x ${SemiLepXSec}"
 
     #NLO DY x-secs taken from XSDB and multiplied by k-factor from NLO to NNLO: 6077.22 [1] / 6404.0 [2]
     #[1] NNLO x-sec for inclusive DYJetsToLL_M-50 sample taken from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeV
