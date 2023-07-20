@@ -267,7 +267,7 @@ for ds in ${DATA_LIST[@]}; do
 	    ERRORS+=( ${sample} )
 	else
 	    [[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
-	    run_skim -n 20 --isdata 1 -i ${DATA_DIR} --sample ${sample}
+	    run_skim -n 100 --isdata 1 -i ${DATA_DIR} --sample ${sample}
 	fi
     done
 done
@@ -294,11 +294,16 @@ for ds in ${DATA_LIST[@]}; do
 done
 
 ### Run on backgrounds samples
-# DYXSEC="1.0" #"6077.22"
+# ttbar inclusive cross-section: 791 +- 25 pb (https://arxiv.org/pdf/2108.02803.pdf)
+# https://twiki.cern.ch/twiki/pub/CMSPublic/PhysicsResultsTOPSummaryFigures/tt_xsec_cms_13TeV.pdf
+FullyHadXSec=`echo "791.0 * 0.6741 * 0.6741" | bc`
+FullyLepXSec=`echo "791.0 * (1-0.6741) * (1-0.6741)" | bc`
+SemiLepXSec=`echo "791.0 * 2 * (1-0.6741) * 0.6741" | bc`
+
 DATA_MAP=(
-    ["TTToHadronic"]="-n 20 -x 377.96"
-    ["TTTo2L2Nu"]="-n 100 -x 88.29"
-    ["TTToSemiLeptonic"]="-n 100 -x 365.34"
+    ["TTToHadronic"]="-n 20 -x ${FullyHadXSec}"
+    ["TTTo2L2Nu"]="-n 100 -x ${FullyLepXSec}"
+    ["TTToSemiLeptonic"]="-n 100 -x ${SemiLepXSec}"
 
     #NLO DY x-secs taken from XSDB and multiplied by k-factor from NLO to NNLO: 6077.22 [1] / 6404.0 [2]
     #[1] NNLO x-sec for inclusive DYJetsToLL_M-50 sample taken from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeV
@@ -317,7 +322,7 @@ DATA_MAP=(
     ["DYJetsToLL_1J"]="-n 30 -x 902.95   -g ${STITCHING_ON} --DY 0"
     ["DYJetsToLL_2J"]="-n 30 -x 342.96   -g ${STITCHING_ON} --DY 0"
 
-    LO samples, DY weights exist (--DY 1)
+    #LO samples, DY weights exist (--DY 1)
     ["DYJets.+_M-50_T.+madgraph"]="		-n 400 -x 6077.22 -g ${STITCHING_ON} --DY 1" # inclusive LO
     ["DY_merged"]="						-n 300 -x 6077.22 -g ${STITCHING_ON} --DY 1"
     ["DY1J"]="							-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
