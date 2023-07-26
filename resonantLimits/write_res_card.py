@@ -76,6 +76,9 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
             print('Template: {}'.format(templateName))
             raise
 
+    #use as backgrounds the updated list of processes
+    backgrounds=processes
+
     rates = []
     iQCD = -1
     totRate = 0
@@ -438,6 +441,9 @@ if incfg.hasSection(mergesec):
         for x in mergelist:
             theList.remove(x)
         theList.append(groupname)
+
+#read QCD from file
+backgrounds.append("QCD")
 
 # rename signals following model convention
 for i,sig in enumerate(signals):
