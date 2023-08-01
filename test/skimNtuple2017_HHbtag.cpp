@@ -582,20 +582,11 @@ int main (int argc, char** argv)
                                                "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
                                                true);
   // tau IdAndIso SF
-  //MVA2017 for UL not foreseen
-  TauIDSFTool * MVA_antiJet_medium = new TauIDSFTool("2017ReReco","MVAoldDM2017v2","Medium",1);         // for MVA2017v2 vs jets Medium
-  TauIDSFTool * MVA_antiEle_vloose = new TauIDSFTool("2017ReReco","antiEleMVA6"   ,"VLoose");           // for MVA2017v2 vs ele VLoose
-  TauIDSFTool * MVA_antiEle_tight  = new TauIDSFTool("2017ReReco","antiEleMVA6"   ,"Tight");            // for MVA2017v2 vs ele Tight
-  TauIDSFTool * MVA_antiMu_loose   = new TauIDSFTool("2017ReReco","antiMu3"       ,"Loose");            // for MVA2017v2 vs mu Loose
-  TauIDSFTool * MVA_antiMu_tight   = new TauIDSFTool("2017ReReco","antiMu3"       ,"Tight");            // for MVA2017v2 vs mu Tight
-
-  //DeepTau used anyway; vsMU not (yet?) available
-  TauIDSFTool * Deep_antiJet_medium    = new TauIDSFTool("UL2017","DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets Medium
-  TauIDSFTool * Deep_antiJet_medium_pt = new TauIDSFTool("UL2017","DeepTau2017v2p1VSjet","Medium");   // for DeepTauv2p1 vs jets Medium
-  TauIDSFTool * Deep_antiEle_vvloose   = new TauIDSFTool("UL2017","DeepTau2017v2p1VSe"  ,"VVLoose");  // for DeepTauv2p1 vs ele VVLoose
-  TauIDSFTool * Deep_antiEle_vloose    = new TauIDSFTool("UL2017","DeepTau2017v2p1VSe"  ,"VLoose");   // for DeepTauv2p1 vs ele VLoose
-  TauIDSFTool * Deep_antiMu_vloose     = new TauIDSFTool("UL2017","DeepTau2017v2p1VSmu" ,"VLoose");   // for DeepTauv2p1 vs mu VLoose
-  TauIDSFTool * Deep_antiMu_tight      = new TauIDSFTool("UL2017","DeepTau2017v2p1VSmu" ,"Tight");    // for DeepTauv2p1 vs mu Tight
+  TauIDSFTool *Deep_antiJet_medium_dm = new TauIDSFTool("UL2017","DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets Medium
+  TauIDSFTool *Deep_antiJet_medium_pt = new TauIDSFTool("UL2017","DeepTau2017v2p1VSjet","Medium",0); // for DeepTauv2p1 vs jets Medium
+  TauIDSFTool *Deep_antiJet_2d        = new TauIDSFTool("UL2017", "Medium", "VVLoose"); // for DeepTauv2p1 vs jets Medium in DM/pT bins
+  TauIDSFTool *Deep_antiEle_vvloose   = new TauIDSFTool("UL2017","DeepTau2017v2p1VSe","VVLoose",0);  // for DeepTauv2p1 vs ele VVLoose
+  TauIDSFTool *Deep_antiMu_tight      = new TauIDSFTool("UL2017","DeepTau2017v2p1VSmu","Tight",0);    // for DeepTauv2p1 vs mu Tight
 
   // ------------------------------
   // reweight file according to NLO differential reweighting procedure
@@ -633,53 +624,6 @@ int main (int argc, char** argv)
       tauIDsMap ["byLooseCombinedIsolationDeltaBetaCorr3Hits"] = ibin ;
   }
 
-  // MVA tau ID
-  vector<int> tauMVAIDIdx;
-  //tauMVAIDIdx.push_back(getTauIDIdx(hTauIDS, "byVVLooseIsolationMVArun2v1DBoldDMwLT"));
-  tauMVAIDIdx.push_back(getTauIDIdx(hTauIDS, "byVLooseIsolationMVArun2v1DBoldDMwLT"));
-  tauMVAIDIdx.push_back(getTauIDIdx(hTauIDS, "byLooseIsolationMVArun2v1DBoldDMwLT"));
-  tauMVAIDIdx.push_back(getTauIDIdx(hTauIDS, "byMediumIsolationMVArun2v1DBoldDMwLT"));
-  tauMVAIDIdx.push_back(getTauIDIdx(hTauIDS, "byTightIsolationMVArun2v1DBoldDMwLT"));
-  tauMVAIDIdx.push_back(getTauIDIdx(hTauIDS, "byVTightIsolationMVArun2v1DBoldDMwLT"));
-  if (find(tauMVAIDIdx.begin(), tauMVAIDIdx.end(), -1) != tauMVAIDIdx.end())
-  {
-    cout << "** WARNING!! did not found some MVA tau IDs" << endl;
-    for (unsigned int i = 0; i < tauMVAIDIdx.size(); ++i)
-      cout << tauMVAIDIdx.at(i) << " " ;
-    cout << endl;
-  }
-
-  // new MVA tau ID // FRA syncFeb2018
-  vector<int> tauMVAIDIdxNew;
-  //tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byVVLooseIsolationMVArun2017v2DBoldDMwLT2017")); //SYNCH HTT
-  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byVLooseIsolationMVArun2017v2DBoldDMwLT2017"));
-  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byLooseIsolationMVArun2017v2DBoldDMwLT2017"));
-  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byMediumIsolationMVArun2017v2DBoldDMwLT2017"));
-  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byTightIsolationMVArun2017v2DBoldDMwLT2017"));
-  tauMVAIDIdxNew.push_back(getTauIDIdx(hTauIDS, "byVTightIsolationMVArun2017v2DBoldDMwLT2017"));
-  if (find(tauMVAIDIdxNew.begin(), tauMVAIDIdxNew.end(), -1) != tauMVAIDIdxNew.end())
-  {
-    cout << "** WARNING!! did not found some MVA tau IDs New" << endl;
-    for (unsigned int i = 0; i < tauMVAIDIdxNew.size(); ++i)
-      cout << tauMVAIDIdxNew.at(i) << " " ;
-    cout << endl;
-  }
-
-  // new MVA tau ID // FRA syncFeb2018
-  vector<int> tauMVAIDIdxNewdR0p3;
-  tauMVAIDIdxNewdR0p3.push_back(getTauIDIdx(hTauIDS, "byVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017"));
-  tauMVAIDIdxNewdR0p3.push_back(getTauIDIdx(hTauIDS, "byLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017"));
-  tauMVAIDIdxNewdR0p3.push_back(getTauIDIdx(hTauIDS, "byMediumIsolationMVArun2017v2DBoldDMdR0p3wLT2017"));
-  tauMVAIDIdxNewdR0p3.push_back(getTauIDIdx(hTauIDS, "byTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017"));
-  tauMVAIDIdxNewdR0p3.push_back(getTauIDIdx(hTauIDS, "byVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017"));
-  if (find(tauMVAIDIdxNewdR0p3.begin(), tauMVAIDIdxNewdR0p3.end(), -1) != tauMVAIDIdxNewdR0p3.end())
-  {
-    cout << "** WARNING!! did not found some MVA tau IDs New" << endl;
-    for (unsigned int i = 0; i < tauMVAIDIdxNewdR0p3.size(); ++i)
-      cout << tauMVAIDIdxNewdR0p3.at(i) << " " ;
-    cout << endl;
-  }
-
   // cut based tau ID
   vector<int> tauCUTIDIdx;
   tauCUTIDIdx.push_back(getTauIDIdx(hTauIDS, "byLooseCombinedIsolationDeltaBetaCorr3Hits"));
@@ -690,34 +634,6 @@ int main (int argc, char** argv)
     cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
     for (unsigned int i = 0; i < tauCUTIDIdx.size(); ++i)
       cout << tauCUTIDIdx.at(i) << " " ;
-    cout << endl;
-  }
-
-
-  // anti-ele discr
-  vector<int> tauAntiEleIdx;
-  tauAntiEleIdx.push_back(getTauIDIdx(hTauIDS, "againstElectronVLooseMVA6"));
-  tauAntiEleIdx.push_back(getTauIDIdx(hTauIDS, "againstElectronLooseMVA6"));
-  tauAntiEleIdx.push_back(getTauIDIdx(hTauIDS, "againstElectronMediumMVA6"));
-  tauAntiEleIdx.push_back(getTauIDIdx(hTauIDS, "againstElectronTightMVA6"));
-  tauAntiEleIdx.push_back(getTauIDIdx(hTauIDS, "againstElectronVTightMVA6"));
-  if (find(tauAntiEleIdx.begin(), tauAntiEleIdx.end(), -1) != tauAntiEleIdx.end())
-  {
-    cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
-    for (unsigned int i = 0; i < tauAntiEleIdx.size(); ++i)
-      cout << tauAntiEleIdx.at(i) << " " ;
-    cout << endl;
-  }
-
-  // anti-mu discr
-  vector<int> tauAntiMuIdx;
-  tauAntiMuIdx.push_back(getTauIDIdx(hTauIDS, "againstMuonLoose3"));
-  tauAntiMuIdx.push_back(getTauIDIdx(hTauIDS, "againstMuonTight3"));
-  if (find(tauAntiMuIdx.begin(), tauAntiMuIdx.end(), -1) != tauAntiMuIdx.end())
-  {
-    cout << "** WARNING!! did not found some cut-based tau IDs" << endl;
-    for (unsigned int i = 0; i < tauAntiMuIdx.size(); ++i)
-      cout << tauAntiMuIdx.at(i) << " " ;
     cout << endl;
   }
 
@@ -851,15 +767,15 @@ int main (int argc, char** argv)
       //{
       //  if (string(theBigTree.susyModel.Data()) != susyModel) continue;
       //}
-    float stitchWeight = 1.0;
-    if (DY_tostitch)
-    {
-      float Zpt = theBigTree.lheVPt;
-      if (Zpt<50)
-	stitchWeight = stitchWeights[0];
-      else
-	stitchWeight = stitchWeights[1];
-    }
+	float stitchWeight = 1.;
+	if (DY_tostitch)
+	  {
+		float Zpt = theBigTree.lheVPt;
+		if (Zpt==0.0)
+		  stitchWeight = stitchWeights[0];
+		else
+		  stitchWeight = stitchWeights[1];
+	  }
 
     // Should never enter here (DY_tostitch should be always true)
     if (!DY_tostitch && DY_nJets >= 0)
@@ -1491,7 +1407,7 @@ int main (int argc, char** argv)
       int dauType = theBigTree.particleType->at(idau);
       if (oph.isMuon(dauType))
       {
-	bool passMu   = oph.muBaseline (&theBigTree, idau, 20., 2.3, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
+	bool passMu   = oph.muBaseline (&theBigTree, idau, 20., 2.4, 0.15, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
 	bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4, 0.30, OfflineProducerHelper::MuTight, string("All") , (DEBUG ? true : false));
 
 	if (passMu) ++nmu;
@@ -1499,7 +1415,7 @@ int main (int argc, char** argv)
       }
       else if (oph.isElectron(dauType))
       {
-	bool passEle   = oph.eleBaseline (&theBigTree, idau, 24., 2.3, 0.1, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
+	bool passEle   = oph.eleBaseline (&theBigTree, idau, 20., 2.5, 0.1, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
 	bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.3, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
 
 	if (passEle) ++nele;
@@ -1525,8 +1441,6 @@ int main (int argc, char** argv)
 	     << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
 	     << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
 	     << " mutightID=" << setw(3)  << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
-	     << " mubase="    << setw(3)  << left << oph.muBaseline (&theBigTree, idau, 10., 2.3, 0.15, OfflineProducerHelper::MuTight, string("All"))
-	     << " ebase="     << setw(3)  << left << oph.eleBaseline(&theBigTree, idau, 10., 2.3, 0.1, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"))
 	     << endl;
       }
     } // end loop on daughters
@@ -2402,13 +2316,8 @@ int main (int argc, char** argv)
     theSmallTree.m_BDT_dau1MET_deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(tlv_firstLepton, tlv_MET);
 
     theSmallTree.m_dau1_iso = getIso (firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree) ;
-    theSmallTree.m_dau1_eleMVAiso = theBigTree.daughters_iseleWP80->at(firstDaughterIndex) ? 1 : 0;
-    theSmallTree.m_dau1_MVAiso = makeIsoDiscr (firstDaughterIndex, tauMVAIDIdx, theBigTree) ;
-    theSmallTree.m_dau1_MVAisoNew = makeIsoDiscr (firstDaughterIndex, tauMVAIDIdxNew, theBigTree) ; //FRA syncFeb2018
-    theSmallTree.m_dau1_MVAisoNewdR0p3 = makeIsoDiscr (firstDaughterIndex, tauMVAIDIdxNewdR0p3, theBigTree) ; // FRA syncApr2018
+	theSmallTree.m_dau1_eleMVAiso = theBigTree.daughters_iseleWP80->at(firstDaughterIndex) ? 1 : 0;
     theSmallTree.m_dau1_CUTiso = makeIsoDiscr (firstDaughterIndex, tauCUTIDIdx, theBigTree) ;
-    theSmallTree.m_dau1_antiele = makeIsoDiscr (firstDaughterIndex, tauAntiEleIdx, theBigTree) ;
-    theSmallTree.m_dau1_antimu  = makeIsoDiscr (firstDaughterIndex, tauAntiMuIdx, theBigTree) ;
     theSmallTree.m_dau1_deepTauVsJet = makeIsoDiscr (firstDaughterIndex, deepTauVsJetIdx , theBigTree) ;
     theSmallTree.m_dau1_deepTauVsEle = makeIsoDiscr (firstDaughterIndex, deepTauVsEleIdx , theBigTree) ;
     theSmallTree.m_dau1_deepTauVsMu = makeIsoDiscr (firstDaughterIndex, deepTauVsMuIdx , theBigTree) ;
@@ -2579,12 +2488,7 @@ int main (int argc, char** argv)
     // 2 = from electrons collection
     // 3 = from tauH collection
     theSmallTree.m_dau2_iso = getIso (secondDaughterIndex, tlv_secondLepton.Pt (), theBigTree) ;
-    theSmallTree.m_dau2_MVAiso = makeIsoDiscr (secondDaughterIndex, tauMVAIDIdx, theBigTree) ;
-    theSmallTree.m_dau2_MVAisoNew = makeIsoDiscr (secondDaughterIndex, tauMVAIDIdxNew, theBigTree) ; //FRA syncFeb2018
-    theSmallTree.m_dau2_MVAisoNewdR0p3 = makeIsoDiscr (secondDaughterIndex, tauMVAIDIdxNewdR0p3, theBigTree) ; // FRA syncApr2018
     theSmallTree.m_dau2_CUTiso = makeIsoDiscr (secondDaughterIndex, tauCUTIDIdx, theBigTree) ;
-    theSmallTree.m_dau2_antiele = makeIsoDiscr (secondDaughterIndex, tauAntiEleIdx, theBigTree) ;
-    theSmallTree.m_dau2_antimu  = makeIsoDiscr (secondDaughterIndex, tauAntiMuIdx, theBigTree) ;
     theSmallTree.m_dau2_deepTauVsJet = makeIsoDiscr (secondDaughterIndex, deepTauVsJetIdx , theBigTree) ;
     theSmallTree.m_dau2_deepTauVsEle = makeIsoDiscr (secondDaughterIndex, deepTauVsEleIdx , theBigTree) ;
     theSmallTree.m_dau2_deepTauVsMu = makeIsoDiscr (secondDaughterIndex, deepTauVsMuIdx , theBigTree) ;
@@ -2612,69 +2516,70 @@ int main (int argc, char** argv)
     theSmallTree.m_dau2_dz  = theBigTree.dz->at(secondDaughterIndex) ;
     theSmallTree.m_dau2_flav = theBigTree.daughters_charge->at (secondDaughterIndex) * (theBigTree.particleType->at (secondDaughterIndex) + 1) ;
 
-
-
     // DATA/MC ID and ISO ScaleFactors
     // Mu and Ele ID and ISO: https://github.com/CMS-HTT/LeptonEfficiencies
     // Tau ID and ISO (MVA and DeepTau): https://twiki.cern.ch/twiki/bin/view/CMS/TauIDRecommendationForRun2
     // Still preliminary:
     // DeepTauVSele: https://indico.cern.ch/event/865792/contributions/3659828/attachments/1954858/3246751/ETauFR-update2Dec.pdf
     // DeepTauVSmu : https://indico.cern.ch/event/866243/contributions/3650016/attachments/1950974/3238736/mutauFRRun2_Yiwen_20191121.pdf
-    bool isFakeJet1 = true;
-    bool isFakeJet2 = true;
+    float idSF_deep_dm	   = 1.0;     // use this for DeepTauV2p1 DM dependent
+    float idSF_deep_pt	   = 1.0;     // use this for DeepTauV2p1 pT dependent
+	float idSF_deep_2d	   = 1.0;     // use this for DeepTauV2p1 DM and pT dependent
+    float idFakeSF_deep_dm = 1.0; // use this for DeepTauV2p1 DM dependent + e/mu->tauh fake SF
+    float idFakeSF_deep_pt = 1.0; // use this for DeepTauV2p1 pt dependent + e/mu->tauh fake SF
+	float idFakeSF_deep_2d = 1.0; // use this for DeepTauV2p1 pt dependent + e/mu->tauh fake SF
+    float fakeRateSF_deep  = 1.0;  // use this for e/mu->tauh fake SF DeepTau
 
-    float idAndIsoSF_MVA  = 1.0;           // use this for MVA2017v2
-    float idAndIsoSF_deep = 1.0;           // use this for DeepTauV2p1 DM dependent
-    float idAndIsoSF_deep_pt = 1.0;        // use this for DeepTauV2p1 pt dependent
-    float idAndIsoAndFakeSF_MVA  = 1.0;    // use this for MVA2017v2 + e/mu->tauh fake SF
-    float idAndIsoAndFakeSF_deep = 1.0;    // use this for DeepTauV2p1 DM dependent + e/mu->tauh fake SF
-    float idAndIsoAndFakeSF_deep_pt = 1.0; // use this for DeepTauV2p1 pt dependent + e/mu->tauh fake SF
-    float fakeRateSF_MVA  = 1.0;           // use this for e/mu->tauh fake SF MVA
-    float fakeRateSF_deep = 1.0;           // use this for e/mu->tauh fake SF DeepTau
-    float customTauIdSF = 1.0;             // computed only for tautau2017 --> to be applied on top of pt dependent SFs
-    float customTauIdSF_DM0_up    = 1.0;
-    float customTauIdSF_DM0_down  = 1.0;
-    float customTauIdSF_DM1_up    = 1.0;
-    float customTauIdSF_DM1_down  = 1.0;
-    float customTauIdSF_DM10_up   = 1.0;
-    float customTauIdSF_DM10_down = 1.0;
-    float customTauIdSF_DM11_up   = 1.0;
-    float customTauIdSF_DM11_down = 1.0;
+	float idFakeSF_tauid_2d_stat0_up					= 1.f;
+	float idFakeSF_tauid_2d_stat0_down					= 1.f;				  
+	float idFakeSF_tauid_2d_stat1_up					= 1.f;					
+	float idFakeSF_tauid_2d_stat1_down					= 1.f;				  
+	float idFakeSF_tauid_2d_systcorrdmeras_up			= 1.f;		   
+	float idFakeSF_tauid_2d_systcorrdmeras_down			= 1.f;		 
+	float idFakeSF_tauid_2d_systcorrdmuncorreras_up		= 1.f;	 
+	float idFakeSF_tauid_2d_systcorrdmuncorreras_down	= 1.f; 
+	float idFakeSF_tauid_2d_systuncorrdmeras_up			= 1.f;		 
+	float idFakeSF_tauid_2d_systuncorrdmeras_down		= 1.f;	   
+	float idFakeSF_tauid_2d_systcorrerasgt140_up		= 1.f;
+	float idFakeSF_tauid_2d_systcorrerasgt140_down		= 1.f;
+	float idFakeSF_tauid_2d_statgt140_up				= 1.f;
+	float idFakeSF_tauid_2d_statgt140_down				= 1.f;
+	float idFakeSF_tauid_2d_extrapgt140					= 1.f;
 
-    float idAndIsoAndFakeSF_tauid_pt20to25_up    = 1.0;
-    float idAndIsoAndFakeSF_tauid_pt25to30_up    = 1.0;
-    float idAndIsoAndFakeSF_tauid_pt30to35_up    = 1.0;
-    float idAndIsoAndFakeSF_tauid_pt35to40_up    = 1.0;
-    float idAndIsoAndFakeSF_tauid_pt40toInf_up   = 1.0;
-    float idAndIsoAndFakeSF_tauid_pt20to25_down  = 1.0;
-    float idAndIsoAndFakeSF_tauid_pt25to30_down  = 1.0;
-    float idAndIsoAndFakeSF_tauid_pt30to35_down  = 1.0;
-    float idAndIsoAndFakeSF_tauid_pt35to40_down  = 1.0;
-    float idAndIsoAndFakeSF_tauid_pt40toInf_down = 1.0;
+	float idFakeSF_tauid_pt20to25_up    = 1.0;
+    float idFakeSF_tauid_pt25to30_up    = 1.0;
+    float idFakeSF_tauid_pt30to35_up    = 1.0;
+    float idFakeSF_tauid_pt35to40_up    = 1.0;
+    float idFakeSF_tauid_pt40toInf_up   = 1.0;
+    float idFakeSF_tauid_pt20to25_down  = 1.0;
+    float idFakeSF_tauid_pt25to30_down  = 1.0;
+    float idFakeSF_tauid_pt30to35_down  = 1.0;
+    float idFakeSF_tauid_pt35to40_down  = 1.0;
+    float idFakeSF_tauid_pt40toInf_down = 1.0;
 
-    float idAndIsoAndFakeSF_mutauFR_etaLt0p4_up      = 1.0;
-    float idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_up   = 1.0;
-    float idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_up   = 1.0;
-    float idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_up   = 1.0;
-    float idAndIsoAndFakeSF_mutauFR_etaGt1p7_up      = 1.0;
-    float idAndIsoAndFakeSF_mutauFR_etaLt0p4_down    = 1.0;
-    float idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_down = 1.0;
-    float idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_down = 1.0;
-    float idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_down = 1.0;
-    float idAndIsoAndFakeSF_mutauFR_etaGt1p7_down    = 1.0;
+    float idFakeSF_mutauFR_etaLt0p4_up      = 1.0;
+    float idFakeSF_mutauFR_eta0p4to0p8_up   = 1.0;
+    float idFakeSF_mutauFR_eta0p8to1p2_up   = 1.0;
+    float idFakeSF_mutauFR_eta1p2to1p7_up   = 1.0;
+    float idFakeSF_mutauFR_etaGt1p7_up      = 1.0;
+    float idFakeSF_mutauFR_etaLt0p4_down    = 1.0;
+    float idFakeSF_mutauFR_eta0p4to0p8_down = 1.0;
+    float idFakeSF_mutauFR_eta0p8to1p2_down = 1.0;
+    float idFakeSF_mutauFR_eta1p2to1p7_down = 1.0;
+    float idFakeSF_mutauFR_etaGt1p7_down    = 1.0;
 
-    float idAndIsoAndFakeSF_etauFR_barrel_up   = 1.0;
-    float idAndIsoAndFakeSF_etauFR_endcap_up   = 1.0;
-    float idAndIsoAndFakeSF_etauFR_barrel_down = 1.0;
-    float idAndIsoAndFakeSF_etauFR_endcap_down = 1.0;
+    float idFakeSF_etauFR_barrel_up   = 1.0;
+    float idFakeSF_etauFR_endcap_up   = 1.0;
+    float idFakeSF_etauFR_barrel_down = 1.0;
+    float idFakeSF_etauFR_endcap_down = 1.0;
 
     // bool helpers for tauID syst bins
     vector<bool> isthisPt_IDbin_first = { // 20, 25, 30, 35, 40, infty
       ((theSmallTree.m_dau1_pt >= 20 && theSmallTree.m_dau1_pt < 25) ? true : false),
-      ((theSmallTree.m_dau1_pt >= 25 && theSmallTree.m_dau1_pt < 30) ? true : false),
-      ((theSmallTree.m_dau1_pt >= 30 && theSmallTree.m_dau1_pt < 35) ? true : false),
-      ((theSmallTree.m_dau1_pt >= 35 && theSmallTree.m_dau1_pt < 40) ? true : false),
-      ((theSmallTree.m_dau1_pt >= 40) ? true : false)
+		((theSmallTree.m_dau1_pt >= 25 && theSmallTree.m_dau1_pt < 30) ? true : false),
+		((theSmallTree.m_dau1_pt >= 30 && theSmallTree.m_dau1_pt < 35) ? true : false),
+		((theSmallTree.m_dau1_pt >= 35 && theSmallTree.m_dau1_pt < 40) ? true : false),
+		((theSmallTree.m_dau1_pt >= 40) ? true : false)
     };
     vector<bool> isthisPt_IDbin_second = { // 20, 25, 30, 35, 40, infty
       ((theSmallTree.m_dau2_pt >= 20 && theSmallTree.m_dau2_pt < 25) ? true : false),
@@ -2708,748 +2613,479 @@ int main (int argc, char** argv)
       ((fabs(theSmallTree.m_dau2_eta) >= 1.46) ? true : false)
     };
 
-    // MuTau Channel // anti-ele VLoose / anti-mu Tight / anti-jet Medium
-    if (pType == 0 && isMC)
-    {
-      float mu1pt  = tlv_firstLepton.Pt();
-      float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
+	float leg1pt  = tlv_firstLepton.Pt();
+	float leg1eta = TMath::Abs(tlv_firstLepton.Eta());
+	float leg2pt  = tlv_secondLepton.Pt();
+	float leg2eta = TMath::Abs(tlv_secondLepton.Eta());
 
-      float tau2pt  = tlv_secondLepton.Pt();
-      float tau2eta = TMath::Abs(tlv_secondLepton.Eta());
-      float tau2DM  = theSmallTree.m_dau2_decayMode;
-      float tau2Genmatch = theBigTree.genmatch->at(secondDaughterIndex);
+	// the first tau only makes sense in the TauTau channel
+	float tau1DM  = theSmallTree.m_dau1_decayMode;
+	float tau2DM  = theSmallTree.m_dau2_decayMode;
+	float tau1Genmatch = theBigTree.genmatch->at(firstDaughterIndex);
+	float tau2Genmatch = theBigTree.genmatch->at(secondDaughterIndex);
 
-      float idAndIsoSF_leg1               = 1.;
-      float idAndIsoSF_leg2_MVA_vsJet     = 1.;
-      float idAndIsoSF_leg2_MVA_vsEle     = 1.;
-      float idAndIsoSF_leg2_MVA_vsMu      = 1.;
-      float idAndIsoSF_leg2_deep_vsJet    = 1.;
-      float idAndIsoSF_leg2_deep_vsJet_pt = 1.;
-      float idAndIsoSF_leg2_deep_vsEle    = 1.;
-      float idAndIsoSF_leg2_deep_vsMu     = 1.;
+	float idSF_leg1				  = 1.f;
+	float idSF_leg1_deep_vsJet_dm = 1.f;
+	float idSF_leg1_deep_vsJet_pt = 1.f;
+	float idSF_leg1_deep_vsJet_2d = 1.f;
+	float idSF_leg1_deep_vsEle    = 1.f;
+	float idSF_leg1_deep_vsMu     = 1.f;
 
-      if (mu1eta < 2.4)
-      {
-	idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(mu1pt, mu1eta);
-      }
+	float idSF_leg2				  = 1.f;
+	float idSF_leg2_deep_vsJet_dm = 1.f;
+	float idSF_leg2_deep_vsJet_pt = 1.f;
+	float idSF_leg2_deep_vsJet_2d = 1.f;
+	float idSF_leg2_deep_vsEle	  = 1.f;
+	float idSF_leg2_deep_vsMu	  = 1.f;
 
-      idAndIsoSF_leg2_MVA_vsJet = MVA_antiJet_medium ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
-      idAndIsoSF_leg2_MVA_vsEle = MVA_antiEle_vloose ->getSFvsEta(tau2eta, tau2Genmatch);
-      idAndIsoSF_leg2_MVA_vsMu  = MVA_antiMu_tight   ->getSFvsEta(tau2eta, tau2Genmatch);
-
-      idAndIsoSF_leg2_deep_vsJet    = Deep_antiJet_medium   ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
-      idAndIsoSF_leg2_deep_vsJet_pt = Deep_antiJet_medium_pt->getSFvsPT (tau2pt , tau2Genmatch);
-      idAndIsoSF_leg2_deep_vsEle    = Deep_antiEle_vloose   ->getSFvsEta(tau2eta, tau2Genmatch);
-      idAndIsoSF_leg2_deep_vsMu     = Deep_antiMu_tight     ->getSFvsEta(tau2eta, tau2Genmatch);
-
-      vector<float> idAndIsoSF_leg2_deep_vsJet_pt_up (5, idAndIsoSF_leg2_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
-      vector<float> idAndIsoSF_leg2_deep_vsEle_up    (2, idAndIsoSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
-      vector<float> idAndIsoSF_leg2_deep_vsMu_up     (5, idAndIsoSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-
-      vector<float> idAndIsoSF_leg2_deep_vsJet_pt_down (5, idAndIsoSF_leg2_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
-      vector<float> idAndIsoSF_leg2_deep_vsEle_down    (2, idAndIsoSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
-      vector<float> idAndIsoSF_leg2_deep_vsMu_down     (5, idAndIsoSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-
-      for (int bin = 0; bin < (int) isthisPt_IDbin_second.size(); bin++)
-      {
-	if (isthisPt_IDbin_second[bin])
-	{
-	  idAndIsoSF_leg2_deep_vsJet_pt_up[bin]   = Deep_antiJet_medium_pt ->getSFvsPT(tau2pt, tau2Genmatch,   "Up");
-	  idAndIsoSF_leg2_deep_vsJet_pt_down[bin] = Deep_antiJet_medium_pt ->getSFvsPT(tau2pt, tau2Genmatch, "Down");
+	bool isFakeJet1 = true;
+    bool isFakeJet2 = true;
+	if (tau1Genmatch<6) {
+	  isFakeJet1 = false;
 	}
-      }
-
-      for (int bin = 0; bin < (int) isthisEta_IDbin_second.size(); bin++)
-      {
-	if (isthisEta_IDbin_second[bin])
-	{
-	  idAndIsoSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight ->getSFvsEta(tau2eta, tau2Genmatch,   "Up");
-	  idAndIsoSF_leg2_deep_vsMu_down[bin] = Deep_antiMu_tight ->getSFvsEta(tau2eta, tau2Genmatch, "Down");
+	if (tau2Genmatch<6) {
+	  isFakeJet2 = false;
 	}
-      }
 
-      for (int bin = 0; bin < (int) isthisSDet_IDbin_second.size(); bin++)
-      {
-	if (isthisSDet_IDbin_second[bin])
-	{
-	  idAndIsoSF_leg2_deep_vsEle_up[bin]   = Deep_antiEle_vloose ->getSFvsEta(tau2eta, tau2Genmatch,   "Up");
-	  idAndIsoSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vloose ->getSFvsEta(tau2eta, tau2Genmatch, "Down");
-	}
-      }
-
-      if (tau2Genmatch==1 || tau2Genmatch==2 || tau2Genmatch==3 || tau2Genmatch==4 || tau2Genmatch==5)
-      {
-	isFakeJet2 = false;
-      }
-
-      idAndIsoSF_MVA  = idAndIsoSF_leg1 * idAndIsoSF_leg2_MVA_vsJet;
-      idAndIsoSF_deep    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet;
-      idAndIsoSF_deep_pt = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt;
-      idAndIsoAndFakeSF_MVA  = idAndIsoSF_leg1 * idAndIsoSF_leg2_MVA_vsJet  * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
-      idAndIsoAndFakeSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_deep_pt = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      fakeRateSF_MVA  = idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
-      fakeRateSF_deep = idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-
-      idAndIsoAndFakeSF_tauid_pt20to25_up    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_up[0]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt25to30_up    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_up[1]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt30to35_up    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_up[2]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt35to40_up    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_up[3]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt40toInf_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_up[4]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt20to25_down  = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_down[0] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt25to30_down  = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_down[1] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt30to35_down  = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_down[2] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt35to40_down  = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_down[3] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt40toInf_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_down[4] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-
-      idAndIsoAndFakeSF_mutauFR_etaLt0p4_up      = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[0];
-      idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[1];
-      idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[2];
-      idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[3];
-      idAndIsoAndFakeSF_mutauFR_etaGt1p7_up      = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[4];
-      idAndIsoAndFakeSF_mutauFR_etaLt0p4_down    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[0];
-      idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[1];
-      idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[2];
-      idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[3];
-      idAndIsoAndFakeSF_mutauFR_etaGt1p7_down    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[4];
-
-      idAndIsoAndFakeSF_etauFR_barrel_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_up[0]   * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_etauFR_endcap_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_up[1]   * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_etauFR_barrel_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[0] * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_etauFR_endcap_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[1] * idAndIsoSF_leg2_deep_vsMu;
-
-      if (DEBUG)
-      {
-	cout << "--- DEBUG idAndIsoSF ---" << endl;
-	cout << "pairType  : "                    << pType                         << endl;
-	cout << "totSF deep: "                    << idAndIsoAndFakeSF_deep        << endl;
-	cout << "totSF deep_pt: "                 << idAndIsoAndFakeSF_deep_pt     << endl;
-	cout << "idAndIsoSF_leg1: "               << idAndIsoSF_leg1               << endl;
-	cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;
-	cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl;
-	cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;
-	cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;
-      }
-    }
-
-    // EleTau Channel // anti-ele Tight / anti-mu Tight / anti-jet Medium
-    else if (pType == 1 && isMC)
-    {
-      float ele1pt  = tlv_firstLepton.Pt();
-      float ele1eta = TMath::Abs(tlv_firstLepton.Eta());
-
-      float tau2pt  = tlv_secondLepton.Pt();
-      float tau2eta = TMath::Abs(tlv_secondLepton.Eta());
-      float tau2DM  = theSmallTree.m_dau2_decayMode;
-      float tau2Genmatch = theBigTree.genmatch->at(secondDaughterIndex);
-
-      float idAndIsoSF_leg1               = 1.;
-      float idAndIsoSF_leg2_MVA_vsJet     = 1.;
-      float idAndIsoSF_leg2_MVA_vsEle     = 1.;
-      float idAndIsoSF_leg2_MVA_vsMu      = 1.;
-      float idAndIsoSF_leg2_deep_vsJet    = 1.;
-      float idAndIsoSF_leg2_deep_vsJet_pt = 1.;
-      float idAndIsoSF_leg2_deep_vsEle    = 1.;
-      float idAndIsoSF_leg2_deep_vsMu     = 1.;
-
-      if (ele1eta < 2.4)
-      {
-	idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(ele1pt, ele1eta);
-      }
-
-      idAndIsoSF_leg2_MVA_vsJet = MVA_antiJet_medium ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
-      idAndIsoSF_leg2_MVA_vsEle = MVA_antiEle_tight  ->getSFvsEta(tau2eta, tau2Genmatch);
-      idAndIsoSF_leg2_MVA_vsMu  = MVA_antiMu_loose   ->getSFvsEta(tau2eta, tau2Genmatch);
-
-      idAndIsoSF_leg2_deep_vsJet    = Deep_antiJet_medium    ->getSFvsDM (tau2pt,  tau2DM, tau2Genmatch);
-      idAndIsoSF_leg2_deep_vsJet_pt = Deep_antiJet_medium_pt ->getSFvsPT (tau2pt,  tau2Genmatch);
-      idAndIsoSF_leg2_deep_vsEle    = Deep_antiEle_vloose    ->getSFvsEta(tau2eta, tau2Genmatch);
-      idAndIsoSF_leg2_deep_vsMu     = Deep_antiMu_tight      ->getSFvsEta(tau2eta, tau2Genmatch);
-
-      vector<float> idAndIsoSF_leg2_deep_vsJet_pt_up (5, idAndIsoSF_leg2_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
-      vector<float> idAndIsoSF_leg2_deep_vsEle_up    (2, idAndIsoSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
-      vector<float> idAndIsoSF_leg2_deep_vsMu_up     (5, idAndIsoSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-
-      vector<float> idAndIsoSF_leg2_deep_vsJet_pt_down (5, idAndIsoSF_leg2_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
-      vector<float> idAndIsoSF_leg2_deep_vsEle_down    (2, idAndIsoSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
-      vector<float> idAndIsoSF_leg2_deep_vsMu_down     (5, idAndIsoSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-
-      for (int bin = 0; bin < (int) isthisPt_IDbin_second.size(); bin++)
-      {
-	if (isthisPt_IDbin_second[bin])
-	{
-	  idAndIsoSF_leg2_deep_vsJet_pt_up[bin]   = Deep_antiJet_medium_pt ->getSFvsPT(tau2pt, tau2Genmatch,   "Up");
-	  idAndIsoSF_leg2_deep_vsJet_pt_down[bin] = Deep_antiJet_medium_pt ->getSFvsPT(tau2pt, tau2Genmatch, "Down");
-	}
-      }
-
-      for (int bin = 0; bin < (int) isthisEta_IDbin_second.size(); bin++)
-      {
-	if (isthisEta_IDbin_second[bin])
-	{
-	  idAndIsoSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight ->getSFvsEta(tau2eta, tau2Genmatch,   "Up");
-	  idAndIsoSF_leg2_deep_vsMu_down[bin] = Deep_antiMu_tight ->getSFvsEta(tau2eta, tau2Genmatch, "Down");
-	}
-      }
-
-      for (int bin = 0; bin < (int) isthisSDet_IDbin_second.size(); bin++)
-      {
-	if (isthisSDet_IDbin_second[bin])
-	{
-	  idAndIsoSF_leg2_deep_vsEle_up[bin]   = Deep_antiEle_vloose ->getSFvsEta(tau2eta, tau2Genmatch,   "Up");
-	  idAndIsoSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vloose ->getSFvsEta(tau2eta, tau2Genmatch, "Down");
-	}
-      }
-
-      if (tau2Genmatch==1 || tau2Genmatch==2 || tau2Genmatch==3 || tau2Genmatch==4 || tau2Genmatch==5)
-      {
-	isFakeJet2 = false;
-      }
-
-      idAndIsoSF_MVA  = idAndIsoSF_leg1 * idAndIsoSF_leg2_MVA_vsJet;
-      idAndIsoSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet;
-      idAndIsoSF_deep_pt = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt;
-      idAndIsoAndFakeSF_MVA  = idAndIsoSF_leg1 * idAndIsoSF_leg2_MVA_vsJet  * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
-      idAndIsoAndFakeSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_deep_pt = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      fakeRateSF_MVA  = idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
-      fakeRateSF_deep = idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-
-      idAndIsoAndFakeSF_tauid_pt20to25_up    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_up[0]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt25to30_up    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_up[1]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt30to35_up    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_up[2]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt35to40_up    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_up[3]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt40toInf_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_up[4]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt20to25_down  = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_down[0] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt25to30_down  = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_down[1] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt30to35_down  = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_down[2] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt35to40_down  = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_down[3] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt40toInf_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt_down[4] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-
-      idAndIsoAndFakeSF_mutauFR_etaLt0p4_up      = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[0];
-      idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[1];
-      idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[2];
-      idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[3];
-      idAndIsoAndFakeSF_mutauFR_etaGt1p7_up      = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[4];
-      idAndIsoAndFakeSF_mutauFR_etaLt0p4_down    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[0];
-      idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[1];
-      idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[2];
-      idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[3];
-      idAndIsoAndFakeSF_mutauFR_etaGt1p7_down    = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[4];
-
-      idAndIsoAndFakeSF_etauFR_barrel_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_up[0]   * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_etauFR_endcap_up   = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_up[1]   * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_etauFR_barrel_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[0] * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_etauFR_endcap_down = idAndIsoSF_leg1 * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[1] * idAndIsoSF_leg2_deep_vsMu;
-
-      if (DEBUG)
-      {
-	cout << "--- DEBUG idAndIsoSF ---" << endl;
-	cout << "pairType  : "                    << pType                         << endl;
-	cout << "totSF deep: "                    << idAndIsoAndFakeSF_deep        << endl;
-	cout << "totSF deep_pt: "                 << idAndIsoAndFakeSF_deep_pt     << endl;
-	cout << "idAndIsoSF_leg1: "               << idAndIsoSF_leg1               << endl;
-	cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;
-	cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl;
-	cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;
-	cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;
-      }
-    }
-
-    // TauTau Channel // anti-ele VVLoose / anti-mu VLoose / anti-jet Medium
-    else if (pType == 2 && isMC)
-    {
-
-      float tau1pt  = tlv_firstLepton.Pt();
-      float tau1eta = TMath::Abs(tlv_firstLepton.Eta());
-      float tau1DM  = theSmallTree.m_dau1_decayMode;
-      float tau1Genmatch = theBigTree.genmatch->at(firstDaughterIndex);
-
-      float tau2pt  = tlv_secondLepton.Pt();
-      float tau2eta = TMath::Abs(tlv_secondLepton.Eta());
-      float tau2DM  = theSmallTree.m_dau2_decayMode;
-      float tau2Genmatch = theBigTree.genmatch->at(secondDaughterIndex);
-
-      float idAndIsoSF_leg1_MVA_vsJet     = 1.;
-      float idAndIsoSF_leg1_MVA_vsEle     = 1.;
-      float idAndIsoSF_leg1_MVA_vsMu      = 1.;
-      float idAndIsoSF_leg1_deep_vsJet    = 1.;
-      float idAndIsoSF_leg1_deep_vsJet_pt = 1.;
-      float idAndIsoSF_leg1_deep_vsEle    = 1.;
-      float idAndIsoSF_leg1_deep_vsMu     = 1.;
-
-      float idAndIsoSF_leg2_MVA_vsJet     = 1.;
-      float idAndIsoSF_leg2_MVA_vsEle     = 1.;
-      float idAndIsoSF_leg2_MVA_vsMu      = 1.;
-      float idAndIsoSF_leg2_deep_vsJet    = 1.;
-      float idAndIsoSF_leg2_deep_vsJet_pt = 1.;
-      float idAndIsoSF_leg2_deep_vsEle    = 1.;
-      float idAndIsoSF_leg2_deep_vsMu     = 1.;
-
-      float customSFtau1 = 1.;
-      float customSFtau2 = 1.;
-      float customSFtau1_DM0_up    = 1.;
-      float customSFtau1_DM0_down  = 1.;
-      float customSFtau1_DM1_up    = 1.;
-      float customSFtau1_DM1_down  = 1.;
-      float customSFtau1_DM10_up   = 1.;
-      float customSFtau1_DM10_down = 1.;
-      float customSFtau1_DM11_up   = 1.;
-      float customSFtau1_DM11_down = 1.;
-      float customSFtau2_DM0_up    = 1.;
-      float customSFtau2_DM0_down  = 1.;
-      float customSFtau2_DM1_up    = 1.;
-      float customSFtau2_DM1_down  = 1.;
-      float customSFtau2_DM10_up   = 1.;
-      float customSFtau2_DM10_down = 1.;
-      float customSFtau2_DM11_up   = 1.;
-      float customSFtau2_DM11_down = 1.;
-
-      float customSFtau1_DM0_errUp  = 0.;
-      float customSFtau1_DM0_errDw  = 0.;
-      float customSFtau1_DM1_errUp  = 0.;
-      float customSFtau1_DM1_errDw  = 0.;
-      float customSFtau1_DM10_errUp = 0.;
-      float customSFtau1_DM10_errDw = 0.;
-      float customSFtau1_DM11_errUp = 0.;
-      float customSFtau1_DM11_errDw = 0.;
-      float customSFtau2_DM0_errUp  = 0.;
-      float customSFtau2_DM0_errDw  = 0.;
-      float customSFtau2_DM1_errUp  = 0.;
-      float customSFtau2_DM1_errDw  = 0.;
-      float customSFtau2_DM10_errUp = 0.;
-      float customSFtau2_DM10_errDw = 0.;
-      float customSFtau2_DM11_errUp = 0.;
-      float customSFtau2_DM11_errDw = 0.;
-
-      // Custom tauID SF - Computed on top of pt binned - with HHBtag - 3 Sept 2020
-      // SF_DM0  : +1.078 -0.036/+0.034
-      // SF_DM1  : +1.112 -0.023/+0.023
-      // SF_DM10 : +0.984 -0.067/+0.063
-      // SF_DM11 : +0.759 -0.259/+0.178
-
-      if (tau1DM == 0  && theSmallTree.m_isTau1real)
-      {
-	customSFtau1 = 1.078;
-	customSFtau1_DM0_errUp = 0.034;
-	customSFtau1_DM0_errDw = 0.036;
-      }
-      if (tau1DM == 1  && theSmallTree.m_isTau1real)
-      {
-	customSFtau1 = 1.112;
-	customSFtau1_DM1_errUp = 0.023;
-	customSFtau1_DM1_errDw = 0.023;
-      }
-      if (tau1DM == 10 && theSmallTree.m_isTau1real)
-      {
-	customSFtau1 = 0.984;
-	customSFtau1_DM10_errUp = 0.063;
-	customSFtau1_DM10_errDw = 0.067;
-      }
-      if (tau1DM == 11 && theSmallTree.m_isTau1real)
-      {
-	customSFtau1 = 0.759;
-	customSFtau1_DM11_errUp = 0.178;
-	customSFtau1_DM11_errDw = 0.259;
-      }
-
-      customSFtau1_DM0_up    = customSFtau1 + customSFtau1_DM0_errUp;
-      customSFtau1_DM0_down  = customSFtau1 - customSFtau1_DM0_errDw;
-      customSFtau1_DM1_up    = customSFtau1 + customSFtau1_DM1_errUp;
-      customSFtau1_DM1_down  = customSFtau1 - customSFtau1_DM1_errDw;
-      customSFtau1_DM10_up   = customSFtau1 + customSFtau1_DM10_errUp;
-      customSFtau1_DM10_down = customSFtau1 - customSFtau1_DM10_errDw;
-      customSFtau1_DM11_up   = customSFtau1 + customSFtau1_DM11_errUp;
-      customSFtau1_DM11_down = customSFtau1 - customSFtau1_DM11_errDw;
-
-      if (tau2DM == 0  && theSmallTree.m_isTau2real)
-      {
-	customSFtau2 = 1.078;
-	customSFtau2_DM0_errUp = 0.034;
-	customSFtau2_DM0_errDw = 0.036;
-      }
-      if (tau2DM == 1  && theSmallTree.m_isTau2real)
-      {
-	customSFtau2 = 1.112;
-	customSFtau2_DM1_errUp = 0.023;
-	customSFtau2_DM1_errDw = 0.023;
-      }
-      if (tau2DM == 10 && theSmallTree.m_isTau2real)
-      {
-	customSFtau2 = 0.984;
-	customSFtau2_DM10_errUp = 0.063;
-	customSFtau2_DM10_errDw = 0.067;
-      }
-      if (tau2DM == 11 && theSmallTree.m_isTau2real)
-      {
-	customSFtau2 = 0.759;
-	customSFtau2_DM11_errUp = 0.178;
-	customSFtau2_DM11_errDw = 0.259;
-      }
-
-      customSFtau2_DM0_up    = customSFtau2 + customSFtau2_DM0_errUp;
-      customSFtau2_DM0_down  = customSFtau2 - customSFtau2_DM0_errDw;
-      customSFtau2_DM1_up    = customSFtau2 + customSFtau2_DM1_errUp;
-      customSFtau2_DM1_down  = customSFtau2 - customSFtau2_DM1_errDw;
-      customSFtau2_DM10_up   = customSFtau2 + customSFtau2_DM10_errUp;
-      customSFtau2_DM10_down = customSFtau2 - customSFtau2_DM10_errDw;
-      customSFtau2_DM11_up   = customSFtau2 + customSFtau2_DM11_errUp;
-      customSFtau2_DM11_down = customSFtau2 - customSFtau2_DM11_errDw;
-
-      // Leg 1
-      idAndIsoSF_leg1_MVA_vsJet     = MVA_antiJet_medium    ->getSFvsDM (tau1pt , tau1DM, tau1Genmatch);
-      idAndIsoSF_leg1_MVA_vsEle     = MVA_antiEle_vloose    ->getSFvsEta(tau1eta, tau1Genmatch);
-      idAndIsoSF_leg1_MVA_vsMu      = MVA_antiMu_loose      ->getSFvsEta(tau1eta, tau1Genmatch);
-
-      idAndIsoSF_leg1_deep_vsJet    = Deep_antiJet_medium   ->getSFvsDM(tau1pt, tau1DM, tau1Genmatch);
-      idAndIsoSF_leg1_deep_vsJet_pt = Deep_antiJet_medium_pt->getSFvsPT(tau1pt, tau1Genmatch);
-      idAndIsoSF_leg1_deep_vsEle    = Deep_antiEle_vvloose  ->getSFvsEta(tau1eta, tau1Genmatch);
-      idAndIsoSF_leg1_deep_vsMu     = Deep_antiMu_vloose    ->getSFvsEta(tau1eta, tau1Genmatch);
-
-      // Leg 2
-      idAndIsoSF_leg2_MVA_vsJet     = MVA_antiJet_medium    ->getSFvsDM (tau2pt , tau2DM, tau2Genmatch);
-      idAndIsoSF_leg2_MVA_vsEle     = MVA_antiEle_vloose    ->getSFvsEta(tau2eta, tau2Genmatch);
-      idAndIsoSF_leg2_MVA_vsMu      = MVA_antiMu_loose      ->getSFvsEta(tau2eta, tau2Genmatch);
-
-      idAndIsoSF_leg2_deep_vsJet    = Deep_antiJet_medium   ->getSFvsDM(tau2pt, tau2DM, tau2Genmatch);
-      idAndIsoSF_leg2_deep_vsJet_pt = Deep_antiJet_medium_pt->getSFvsPT(tau2pt, tau2Genmatch);
-      idAndIsoSF_leg2_deep_vsEle    = Deep_antiEle_vvloose  ->getSFvsEta(tau2eta, tau2Genmatch);
-      idAndIsoSF_leg2_deep_vsMu     = Deep_antiMu_vloose    ->getSFvsEta(tau2eta, tau2Genmatch);
-
-      // Up/down variations Leg 1
-      vector<float> idAndIsoSF_leg1_deep_vsJet_pt_up (5, idAndIsoSF_leg1_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
-      vector<float> idAndIsoSF_leg1_deep_vsEle_up    (2, idAndIsoSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
-      vector<float> idAndIsoSF_leg1_deep_vsMu_up     (5, idAndIsoSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-
-      vector<float> idAndIsoSF_leg1_deep_vsJet_pt_down (5, idAndIsoSF_leg1_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
-      vector<float> idAndIsoSF_leg1_deep_vsEle_down    (2, idAndIsoSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
-      vector<float> idAndIsoSF_leg1_deep_vsMu_down     (5, idAndIsoSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-
-      for (int bin = 0; bin < (int) isthisPt_IDbin_first.size(); bin++)
-      {
-	if (isthisPt_IDbin_first[bin])
-	{
-	  idAndIsoSF_leg1_deep_vsJet_pt_up[bin]   = Deep_antiJet_medium_pt ->getSFvsPT(tau1pt, tau1Genmatch,   "Up");
-	  idAndIsoSF_leg1_deep_vsJet_pt_down[bin] = Deep_antiJet_medium_pt ->getSFvsPT(tau1pt, tau1Genmatch, "Down");
-
-	  //Additional uncertainty see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_to_be_applied_to_gen
-
-	  double error_up   = fabs(idAndIsoSF_leg1_deep_vsJet_pt - idAndIsoSF_leg1_deep_vsJet_pt_up[bin]);
-	  double error_down = fabs(idAndIsoSF_leg1_deep_vsJet_pt - idAndIsoSF_leg1_deep_vsJet_pt_down[bin]);
-
-	  if (tau1pt < 100)
+	// only TauTau has a tau as the first leg
+	if (isMC and pType==2)
 	  {
-	    idAndIsoSF_leg1_deep_vsJet_pt_up[bin]   = idAndIsoSF_leg1_deep_vsJet_pt*1.03 + error_up;
-	    idAndIsoSF_leg1_deep_vsJet_pt_down[bin] = idAndIsoSF_leg1_deep_vsJet_pt*0.97 - error_down;
+		idSF_leg1_deep_vsJet_dm = Deep_antiJet_medium_dm->getSFvsDM(leg1pt, tau1DM, tau1Genmatch);
+		idSF_leg1_deep_vsJet_pt = Deep_antiJet_medium_pt->getSFvsPT(leg1pt, tau1Genmatch);
+		idSF_leg1_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau2DM, tau1Genmatch);
+		idSF_leg1_deep_vsEle    = Deep_antiEle_vvloose->getSFvsEta(leg1eta, tau1Genmatch);
+		idSF_leg1_deep_vsMu     = Deep_antiMu_tight->getSFvsEta(leg1eta, tau1Genmatch);
 	  }
 
-	  else
+	// all channels with one tau in the second leg
+	if (isMC and (pType==0 or pType==1 or pType==2))
 	  {
-	    idAndIsoSF_leg1_deep_vsJet_pt_up[bin]   = idAndIsoSF_leg1_deep_vsJet_pt*1.15 + error_up;
-	    idAndIsoSF_leg1_deep_vsJet_pt_down[bin] = idAndIsoSF_leg1_deep_vsJet_pt*0.85 - error_down;
-	  }
-	}
-      }
-
-      for (int bin = 0; bin < (int) isthisEta_IDbin_first.size(); bin++)
-      {
-	if (isthisEta_IDbin_first[bin])
-	{
-	  idAndIsoSF_leg1_deep_vsMu_up[bin]   = Deep_antiMu_vloose ->getSFvsEta(tau1eta, tau1Genmatch,   "Up");
-	  idAndIsoSF_leg1_deep_vsMu_down[bin] = Deep_antiMu_vloose ->getSFvsEta(tau1eta, tau1Genmatch, "Down");
-	}
-      }
-
-      for (int bin = 0; bin < (int) isthisSDet_IDbin_first.size(); bin++)
-      {
-	if (isthisSDet_IDbin_first[bin])
-	{
-	  idAndIsoSF_leg1_deep_vsEle_up[bin]   = Deep_antiEle_vvloose ->getSFvsEta(tau1eta, tau1Genmatch,   "Up");
-	  idAndIsoSF_leg1_deep_vsEle_down[bin] = Deep_antiEle_vvloose ->getSFvsEta(tau1eta, tau1Genmatch, "Down");
-	}
-      }
-
-      // Up/down variations Leg 2
-      vector<float> idAndIsoSF_leg2_deep_vsJet_pt_up (5, idAndIsoSF_leg2_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
-      vector<float> idAndIsoSF_leg2_deep_vsEle_up    (2, idAndIsoSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
-      vector<float> idAndIsoSF_leg2_deep_vsMu_up     (5, idAndIsoSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-
-      vector<float> idAndIsoSF_leg2_deep_vsJet_pt_down (5, idAndIsoSF_leg2_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
-      vector<float> idAndIsoSF_leg2_deep_vsEle_down    (2, idAndIsoSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
-      vector<float> idAndIsoSF_leg2_deep_vsMu_down     (5, idAndIsoSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-
-      for (int bin = 0; bin < (int) isthisPt_IDbin_second.size(); bin++)
-      {
-	if (isthisPt_IDbin_second[bin])
-	{
-	  idAndIsoSF_leg2_deep_vsJet_pt_up[bin]   = Deep_antiJet_medium_pt ->getSFvsPT(tau2pt, tau2Genmatch,   "Up");
-	  idAndIsoSF_leg2_deep_vsJet_pt_down[bin] = Deep_antiJet_medium_pt ->getSFvsPT(tau2pt, tau2Genmatch, "Down");
-
-	  //Additional uncertainty see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_to_be_applied_to_gen
-
-	  double error_up   = fabs(idAndIsoSF_leg2_deep_vsJet_pt - idAndIsoSF_leg2_deep_vsJet_pt_up[bin]);
-	  double error_down = fabs(idAndIsoSF_leg2_deep_vsJet_pt - idAndIsoSF_leg2_deep_vsJet_pt_down[bin]);
-
-	  if (tau2pt < 100)
-	  {
-	    idAndIsoSF_leg2_deep_vsJet_pt_up[bin]   = idAndIsoSF_leg2_deep_vsJet_pt*1.03 + error_up;
-	    idAndIsoSF_leg2_deep_vsJet_pt_down[bin] = idAndIsoSF_leg2_deep_vsJet_pt*0.97 - error_down;
+		idSF_leg2_deep_vsJet_dm = Deep_antiJet_medium_dm->getSFvsDM(leg2pt, tau2DM, tau2Genmatch);
+		idSF_leg2_deep_vsJet_pt = Deep_antiJet_medium_pt->getSFvsPT(leg2pt, tau2Genmatch);
+		idSF_leg2_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch);
+		idSF_leg2_deep_vsEle = Deep_antiEle_vvloose->getSFvsEta(leg2eta, tau2Genmatch);
+		idSF_leg2_deep_vsMu  = Deep_antiMu_tight  ->getSFvsEta(leg2eta, tau2Genmatch);
 	  }
 
-	  else
-	  {
-	    idAndIsoSF_leg2_deep_vsJet_pt_up[bin]   = idAndIsoSF_leg2_deep_vsJet_pt*1.15 + error_up;
-	    idAndIsoSF_leg2_deep_vsJet_pt_down[bin] = idAndIsoSF_leg2_deep_vsJet_pt*0.85 - error_down;
+	Float_t idSF_leg1_deep_vsJet_2d_stat0_up					= 1.f;
+	Float_t idSF_leg1_deep_vsJet_2d_stat0_down					= 1.f;
+	Float_t idSF_leg1_deep_vsJet_2d_stat1_up					= 1.f;
+	Float_t idSF_leg1_deep_vsJet_2d_stat1_down					= 1.f;
+	Float_t idSF_leg1_deep_vsJet_2d_systcorrdmeras_up			= 1.f;
+	Float_t idSF_leg1_deep_vsJet_2d_systcorrdmeras_down			= 1.f;
+	Float_t idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_up		= 1.f;
+	Float_t idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down	= 1.f;
+	Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_up			= 1.f;
+	Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_down		= 1.f;
+	Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up	    = 1.f;
+	Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down		= 1.f;
+	Float_t idSF_leg1_deep_vsJet_2d_statgt140_up				= 1.f;
+	Float_t idSF_leg1_deep_vsJet_2d_statgt140_down				= 1.f;
+	Float_t idSF_leg1_deep_vsJet_2d_extrapgt140					= 1.f;
+
+	Float_t idSF_leg2_deep_vsJet_2d_stat0_up					= 1.f;
+	Float_t idSF_leg2_deep_vsJet_2d_stat0_down					= 1.f;
+	Float_t idSF_leg2_deep_vsJet_2d_stat1_up					= 1.f;
+	Float_t idSF_leg2_deep_vsJet_2d_stat1_down					= 1.f;
+	Float_t idSF_leg2_deep_vsJet_2d_systcorrdmeras_up			= 1.f;
+	Float_t idSF_leg2_deep_vsJet_2d_systcorrdmeras_down			= 1.f;
+	Float_t idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up		= 1.f;
+	Float_t idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down	= 1.f;
+	Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_up			= 1.f;
+	Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_down		= 1.f;
+	Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up	    = 1.f;
+	Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down		= 1.f;
+	Float_t idSF_leg2_deep_vsJet_2d_statgt140_up				= 1.f;
+	Float_t idSF_leg2_deep_vsJet_2d_statgt140_down				= 1.f;
+	Float_t idSF_leg2_deep_vsJet_2d_extrapgt140					= 1.f;
+
+	// up and down variations of the ID and isolation of the first leg (only relevant when it is a tau)
+	vector<float> idSF_leg1_deep_vsJet_pt_up   (5, idSF_leg1_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
+	vector<float> idSF_leg1_deep_vsEle_up      (2, idSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
+	vector<float> idSF_leg1_deep_vsMu_up       (5, idSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
+	vector<float> idSF_leg1_deep_vsJet_pt_down (5, idSF_leg1_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
+	vector<float> idSF_leg1_deep_vsEle_down    (2, idSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
+	vector<float> idSF_leg1_deep_vsMu_down     (5, idSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
+	  
+	// only TauTau has a tau as the first leg
+	if (isMC and pType==2) {
+      for (int bin = 0; bin < (int) isthisPt_IDbin_first.size(); bin++)	{
+		if (isthisPt_IDbin_first[bin])
+		  {
+			idSF_leg1_deep_vsJet_pt_up[bin]   = Deep_antiJet_medium_pt ->getSFvsPT(leg1pt, tau1Genmatch,   "Up");
+			idSF_leg1_deep_vsJet_pt_down[bin] = Deep_antiJet_medium_pt ->getSFvsPT(leg1pt, tau1Genmatch, "Down");
+
+			//Additional uncertainty see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_to_be_applied_to_gen
+			double error_up   = fabs(idSF_leg1_deep_vsJet_pt - idSF_leg1_deep_vsJet_pt_up[bin]);
+			double error_down = fabs(idSF_leg1_deep_vsJet_pt - idSF_leg1_deep_vsJet_pt_down[bin]);
+			
+			if (leg1pt < 100) {
+			  idSF_leg1_deep_vsJet_pt_up[bin]   = idSF_leg1_deep_vsJet_pt*1.03 + error_up;
+			  idSF_leg1_deep_vsJet_pt_down[bin] = idSF_leg1_deep_vsJet_pt*0.97 - error_down;
+			}
+			else {
+			  idSF_leg1_deep_vsJet_pt_up[bin]   = idSF_leg1_deep_vsJet_pt*1.15 + error_up;
+			  idSF_leg1_deep_vsJet_pt_down[bin] = idSF_leg1_deep_vsJet_pt*0.85 - error_down;
+			}
+		  }
+      }
+	
+	  for (int bin = 0; bin < (int) isthisEta_IDbin_first.size(); bin++) {
+		if (isthisEta_IDbin_first[bin])
+		  {
+			idSF_leg1_deep_vsMu_up[bin]   = Deep_antiMu_tight->getSFvsEta(leg1eta, tau1Genmatch,   "Up");
+			idSF_leg1_deep_vsMu_down[bin] = Deep_antiMu_tight->getSFvsEta(leg1eta, tau1Genmatch, "Down");
+		  }
+	  }
+
+      for (int bin = 0; bin < (int) isthisSDet_IDbin_first.size(); bin++) {
+		if (isthisSDet_IDbin_first[bin])
+		  {
+			idSF_leg1_deep_vsEle_up[bin]   = Deep_antiEle_vvloose ->getSFvsEta(leg1eta, tau1Genmatch,   "Up");
+			idSF_leg1_deep_vsEle_down[bin] = Deep_antiEle_vvloose ->getSFvsEta(leg1eta, tau1Genmatch, "Down");
+		  }
+	  }
+
+	  idSF_leg1_deep_vsJet_2d_stat0_up					= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Stat0Up");
+	  idSF_leg1_deep_vsJet_2d_stat0_down				= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Stat0Down");
+	  idSF_leg1_deep_vsJet_2d_stat1_up					= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Stat1Up");
+	  idSF_leg1_deep_vsJet_2d_stat1_down				= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Stat1Down");
+	  idSF_leg1_deep_vsJet_2d_systcorrdmeras_up			= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystCorrDMErasUp");
+	  idSF_leg1_deep_vsJet_2d_systcorrdmeras_down		= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystCorrDMErasDown");
+	  idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_up	= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystCorrDMUncorrErasUp");
+	  idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down	= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystCorrDMUncorrErasDown");
+	  idSF_leg1_deep_vsJet_2d_systuncorrdmeras_up		= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystUncorrDMErasUp");
+	  idSF_leg1_deep_vsJet_2d_systuncorrdmeras_down		= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystUncorrDMErasDown");
+
+	  idSF_leg1_deep_vsJet_2d_statgt140_up				= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140StatUp");
+	  idSF_leg1_deep_vsJet_2d_statgt140_down			= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140StatDown");
+	  idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up		= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140SystCorrErasUp");
+	  idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down	= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140SystCorrErasDown");
+	  idSF_leg1_deep_vsJet_2d_extrapgt140				= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140Extrap");
+	}
+
+	// up and down variations of the ID and isolation of the second leg (only relevant when it is a tau)
+	vector<float> idSF_leg2_deep_vsJet_pt_up   (5, idSF_leg2_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
+	vector<float> idSF_leg2_deep_vsEle_up      (2, idSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
+	vector<float> idSF_leg2_deep_vsMu_up       (5, idSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
+	vector<float> idSF_leg2_deep_vsJet_pt_down (5, idSF_leg2_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
+	vector<float> idSF_leg2_deep_vsEle_down    (2, idSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
+	vector<float> idSF_leg2_deep_vsMu_down     (5, idSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
+
+	if (isMC and (pType==0 or pType==1 or pType==2)) {
+	  for (int bin = 0; bin < (int) isthisPt_IDbin_second.size(); bin++) {
+		if (isthisPt_IDbin_second[bin])
+		  {
+			idSF_leg2_deep_vsJet_pt_up[bin]   = Deep_antiJet_medium_pt ->getSFvsPT(leg2pt, tau2Genmatch,   "Up");
+			idSF_leg2_deep_vsJet_pt_down[bin] = Deep_antiJet_medium_pt ->getSFvsPT(leg2pt, tau2Genmatch, "Down");
+		  }
+
+		//Additional uncertainty see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_to_be_applied_to_gen
+		if (pType==2) {
+		  double error_up   = fabs(idSF_leg2_deep_vsJet_pt - idSF_leg2_deep_vsJet_pt_up[bin]);
+		  double error_down = fabs(idSF_leg2_deep_vsJet_pt - idSF_leg2_deep_vsJet_pt_down[bin]);
+		  if (leg2pt < 100)
+			{
+			  idSF_leg2_deep_vsJet_pt_up[bin]   = idSF_leg2_deep_vsJet_pt*1.03 + error_up;
+			  idSF_leg2_deep_vsJet_pt_down[bin] = idSF_leg2_deep_vsJet_pt*0.97 - error_down;
+			}
+		  else
+			{
+			  idSF_leg2_deep_vsJet_pt_up[bin]   = idSF_leg2_deep_vsJet_pt*1.15 + error_up;
+			  idSF_leg2_deep_vsJet_pt_down[bin] = idSF_leg2_deep_vsJet_pt*0.85 - error_down;
+			}
+		}
+
+
+		for (int bin = 0; bin < (int) isthisEta_IDbin_second.size(); bin++) {
+		  if (isthisEta_IDbin_second[bin]) {
+			idSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch,	"Up");
+			idSF_leg2_deep_vsMu_down[bin] = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch, "Down");
+		  }
+		}
+
+		for (int bin = 0; bin < (int) isthisSDet_IDbin_second.size(); bin++) {
+		  if (isthisSDet_IDbin_second[bin])	{
+				idSF_leg2_deep_vsEle_up[bin]   = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch,   "Up");
+				idSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch, "Down");
+		  }
+		}
+		
+	  }
+
+	  idSF_leg2_deep_vsJet_2d_stat0_up					= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Stat0Up");
+	  idSF_leg2_deep_vsJet_2d_stat0_down				= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Stat0Down");
+	  idSF_leg2_deep_vsJet_2d_stat1_up					= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Stat1Up");
+	  idSF_leg2_deep_vsJet_2d_stat1_down				= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Stat1Down");
+	  idSF_leg2_deep_vsJet_2d_systcorrdmeras_up			= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMErasUp");
+	  idSF_leg2_deep_vsJet_2d_systcorrdmeras_down		= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMErasDown");
+	  idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up	= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMUncorrErasUp");
+	  idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down	= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMUncorrErasDown");
+	  idSF_leg2_deep_vsJet_2d_systuncorrdmeras_up		= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystUncorrDMErasUp");
+	  idSF_leg2_deep_vsJet_2d_systuncorrdmeras_down		= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystUncorrDMErasDown");
+
+	  idSF_leg2_deep_vsJet_2d_statgt140_up				= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140StatUp");
+	  idSF_leg2_deep_vsJet_2d_statgt140_down			= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140StatDown");
+	  idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up		= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140SystCorrErasUp");
+	  idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down	= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140SystCorrErasDown");
+	  idSF_leg2_deep_vsJet_2d_extrapgt140             	= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140Extrap");
+	}
+	
+    if (isMC and leg1eta < 2.4) {
+	  if (pType == 0 or pType == 3) {
+		idSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, leg1eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, leg1eta);
+	  }
+	  else if (pType == 1 or pType == 4) {
+		idSF_leg1 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta);
 	  }
 	}
-      }
 
-      for (int bin = 0; bin < (int) isthisEta_IDbin_second.size(); bin++)
-      {
-	if (isthisEta_IDbin_second[bin])
-	{
-	  idAndIsoSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_vloose ->getSFvsEta(tau2eta, tau2Genmatch,   "Up");
-	  idAndIsoSF_leg2_deep_vsMu_down[bin] = Deep_antiMu_vloose ->getSFvsEta(tau2eta, tau2Genmatch, "Down");
+	if(isMC and leg2eta < 2.4 and pType == 3) { //MuMu
+	  idSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg2pt, leg2eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(leg2pt, leg2eta);
 	}
-      }
-
-      for (int bin = 0; bin < (int) isthisSDet_IDbin_second.size(); bin++)
-      {
-	if (isthisSDet_IDbin_second[bin])
-	{
-	  idAndIsoSF_leg2_deep_vsEle_up[bin]   = Deep_antiEle_vvloose ->getSFvsEta(tau2eta, tau2Genmatch,   "Up");
-	  idAndIsoSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vvloose ->getSFvsEta(tau2eta, tau2Genmatch, "Down");
+	else if(isMC and leg2eta < 2.4 and pType == 4) { //EleEle
+	  idSF_leg2 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg2pt, leg2eta);
 	}
-      }
 
-      if (tau1Genmatch==1 || tau1Genmatch==2 || tau1Genmatch==3 || tau1Genmatch==4 || tau1Genmatch==5)
-      {
-	isFakeJet1 = false;
-      }
+	float except_VsJet, except_vsMu, except_vsEle;
+	// EleTau and MuTau
+	if (isMC and (pType == 0 or pType == 1))
+	  {
+		idSF_deep_dm	 = idSF_leg1 * idSF_leg2_deep_vsJet_dm;
+		idSF_deep_pt	 = idSF_leg1 * idSF_leg2_deep_vsJet_pt;
+		idSF_deep_2d	 = idSF_leg1 * idSF_leg2_deep_vsJet_2d;
+		fakeRateSF_deep	 = idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
 
-      if (tau2Genmatch==1 || tau2Genmatch==2 || tau2Genmatch==3 || tau2Genmatch==4 || tau2Genmatch==5)
-      {
-	isFakeJet2 = false;
-      }
+		except_VsJet = idSF_leg1 * idSF_leg2_deep_vsEle    * idSF_leg2_deep_vsMu;
+		except_vsMu  = idSF_leg1 * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
+		except_vsEle = idSF_leg1 * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
+		
+		idFakeSF_deep_dm = except_VsJet * idSF_leg2_deep_vsJet_dm;
+		idFakeSF_deep_pt = except_VsJet * idSF_leg2_deep_vsJet_pt;
+		idFakeSF_deep_2d = except_VsJet * idSF_leg2_deep_vsJet_2d;
 
-      idAndIsoSF_MVA  = idAndIsoSF_leg1_MVA_vsJet * idAndIsoSF_leg2_MVA_vsJet;
-      idAndIsoSF_deep = idAndIsoSF_leg1_deep_vsJet * idAndIsoSF_leg2_deep_vsJet;
-      idAndIsoSF_deep_pt = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsJet_pt;
-      idAndIsoAndFakeSF_MVA  = idAndIsoSF_leg1_MVA_vsJet * idAndIsoSF_leg1_MVA_vsEle * idAndIsoSF_leg1_MVA_vsMu * idAndIsoSF_leg2_MVA_vsJet  * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
-      idAndIsoAndFakeSF_deep = idAndIsoSF_leg1_deep_vsJet * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_deep_pt = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      fakeRateSF_MVA  = idAndIsoSF_leg1_MVA_vsEle * idAndIsoSF_leg1_MVA_vsMu * idAndIsoSF_leg2_MVA_vsEle  * idAndIsoSF_leg2_MVA_vsMu;
-      fakeRateSF_deep = idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      customTauIdSF = customSFtau1 * customSFtau2;
-      customTauIdSF_DM0_up    = customSFtau1_DM0_up    * customSFtau2_DM0_up;
-      customTauIdSF_DM0_down  = customSFtau1_DM0_down  * customSFtau2_DM0_down;
-      customTauIdSF_DM1_up    = customSFtau1_DM1_up    * customSFtau2_DM1_up;
-      customTauIdSF_DM1_down  = customSFtau1_DM1_down  * customSFtau2_DM1_down;
-      customTauIdSF_DM10_up   = customSFtau1_DM10_up   * customSFtau2_DM10_up;
-      customTauIdSF_DM10_down = customSFtau1_DM10_down * customSFtau2_DM10_down;
-      customTauIdSF_DM11_up   = customSFtau1_DM11_up   * customSFtau2_DM11_up;
-      customTauIdSF_DM11_down = customSFtau1_DM11_down * customSFtau2_DM11_down;
+		idFakeSF_tauid_2d_stat0_up					= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_up;
+		idFakeSF_tauid_2d_stat0_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_down;
+		idFakeSF_tauid_2d_stat1_up					= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_up;
+		idFakeSF_tauid_2d_stat1_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_down;
+		idFakeSF_tauid_2d_systcorrdmeras_up			= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmeras_up;
+		idFakeSF_tauid_2d_systcorrdmeras_down		= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmeras_down;
+		idFakeSF_tauid_2d_systcorrdmuncorreras_up	= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up;
+		idFakeSF_tauid_2d_systcorrdmuncorreras_down = except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down;
+		idFakeSF_tauid_2d_systuncorrdmeras_up		= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_up;
+		idFakeSF_tauid_2d_systuncorrdmeras_down		= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_down;
+		idFakeSF_tauid_2d_systcorrerasgt140_up   	= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
+		idFakeSF_tauid_2d_systcorrerasgt140_down   	= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
+		idFakeSF_tauid_2d_statgt140_up		        = except_VsJet * idSF_leg2_deep_vsJet_2d_statgt140_up;
+		idFakeSF_tauid_2d_statgt140_down		    = except_VsJet * idSF_leg2_deep_vsJet_2d_statgt140_down;
+		idFakeSF_tauid_2d_extrapgt140 		        = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140;
+		
+		idFakeSF_tauid_pt20to25_up		= except_VsJet * idSF_leg2_deep_vsJet_pt_up[0];
+		idFakeSF_tauid_pt25to30_up		= except_VsJet * idSF_leg2_deep_vsJet_pt_up[1];
+		idFakeSF_tauid_pt30to35_up		= except_VsJet * idSF_leg2_deep_vsJet_pt_up[2];
+		idFakeSF_tauid_pt35to40_up		= except_VsJet * idSF_leg2_deep_vsJet_pt_up[3];
+		idFakeSF_tauid_pt40toInf_up		= except_VsJet * idSF_leg2_deep_vsJet_pt_up[4];
+		idFakeSF_tauid_pt20to25_down	= except_VsJet * idSF_leg2_deep_vsJet_pt_down[0];
+		idFakeSF_tauid_pt25to30_down	= except_VsJet * idSF_leg2_deep_vsJet_pt_down[1];
+		idFakeSF_tauid_pt30to35_down	= except_VsJet * idSF_leg2_deep_vsJet_pt_down[2];
+		idFakeSF_tauid_pt35to40_down	= except_VsJet * idSF_leg2_deep_vsJet_pt_down[3];
+		idFakeSF_tauid_pt40toInf_down	= except_VsJet * idSF_leg2_deep_vsJet_pt_down[4];
 
-      idAndIsoAndFakeSF_tauid_pt20to25_up    = idAndIsoSF_leg1_deep_vsJet_pt_up[0]   * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt_up[0]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt25to30_up    = idAndIsoSF_leg1_deep_vsJet_pt_up[1]   * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt_up[1]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt30to35_up    = idAndIsoSF_leg1_deep_vsJet_pt_up[2]   * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt_up[2]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt35to40_up    = idAndIsoSF_leg1_deep_vsJet_pt_up[3]   * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt_up[3]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt40toInf_up   = idAndIsoSF_leg1_deep_vsJet_pt_up[4]   * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt_up[4]   * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt20to25_down  = idAndIsoSF_leg1_deep_vsJet_pt_down[0] * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt_down[0] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt25to30_down  = idAndIsoSF_leg1_deep_vsJet_pt_down[1] * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt_down[1] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt30to35_down  = idAndIsoSF_leg1_deep_vsJet_pt_down[2] * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt_down[2] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt35to40_down  = idAndIsoSF_leg1_deep_vsJet_pt_down[3] * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt_down[3] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_tauid_pt40toInf_down = idAndIsoSF_leg1_deep_vsJet_pt_down[4] * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt_down[4] * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu;
+		idFakeSF_mutauFR_etaLt0p4_up      = except_vsMu * idSF_leg2_deep_vsMu_up[0];
+		idFakeSF_mutauFR_eta0p4to0p8_up   = except_vsMu * idSF_leg2_deep_vsMu_up[1];
+		idFakeSF_mutauFR_eta0p8to1p2_up	  = except_vsMu * idSF_leg2_deep_vsMu_up[2];
+		idFakeSF_mutauFR_eta1p2to1p7_up	  = except_vsMu * idSF_leg2_deep_vsMu_up[3];
+		idFakeSF_mutauFR_etaGt1p7_up	  = except_vsMu * idSF_leg2_deep_vsMu_up[4];
+		idFakeSF_mutauFR_etaLt0p4_down	  = except_vsMu * idSF_leg2_deep_vsMu_down[0];
+		idFakeSF_mutauFR_eta0p4to0p8_down = except_vsMu * idSF_leg2_deep_vsMu_down[1];
+		idFakeSF_mutauFR_eta0p8to1p2_down = except_vsMu * idSF_leg2_deep_vsMu_down[2];
+		idFakeSF_mutauFR_eta1p2to1p7_down = except_vsMu * idSF_leg2_deep_vsMu_down[3];
+		idFakeSF_mutauFR_etaGt1p7_down	  = except_vsMu * idSF_leg2_deep_vsMu_down[4];
+	
+		idFakeSF_etauFR_barrel_up   = except_vsEle * idSF_leg2_deep_vsEle_up[0];
+		idFakeSF_etauFR_endcap_up	= except_vsEle * idSF_leg2_deep_vsEle_up[1];  
+		idFakeSF_etauFR_barrel_down = except_vsEle * idSF_leg2_deep_vsEle_down[0];
+		idFakeSF_etauFR_endcap_down = except_vsEle * idSF_leg2_deep_vsEle_down[1];
+	  }
+    else if (isMC and pType == 2) // TauTau
+	  {
+		idSF_deep_dm = idSF_leg1_deep_vsJet_dm * idSF_leg2_deep_vsJet_dm;
+		idSF_deep_pt = idSF_leg1_deep_vsJet_pt * idSF_leg2_deep_vsJet_pt;
+		idSF_deep_2d = idSF_leg1_deep_vsJet_2d * idSF_leg2_deep_vsJet_2d;
 
-      idAndIsoAndFakeSF_mutauFR_etaLt0p4_up      = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu_up[0]   * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[0];
-      idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_up   = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu_up[1]   * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[1];
-      idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_up   = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu_up[2]   * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[2];
-      idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_up   = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu_up[3]   * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[3];
-      idAndIsoAndFakeSF_mutauFR_etaGt1p7_up      = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu_up[4]   * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_up[4];
-      idAndIsoAndFakeSF_mutauFR_etaLt0p4_down    = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu_down[0] * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[0];
-      idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_down = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu_down[1] * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[1];
-      idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_down = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu_down[2] * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[2];
-      idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_down = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu_down[3] * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[3];
-      idAndIsoAndFakeSF_mutauFR_etaGt1p7_down    = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle * idAndIsoSF_leg1_deep_vsMu_down[4] * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle * idAndIsoSF_leg2_deep_vsMu_down[4];
+		except_VsJet = idSF_leg1_deep_vsEle * idSF_leg1_deep_vsMu * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
+		except_vsMu	 = idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsEle * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
+		except_vsEle = idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsMu  * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
 
-      idAndIsoAndFakeSF_etauFR_barrel_up   = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_up[0]   * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_up[0]   * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_etauFR_endcap_up   = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_up[1]   * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_up[1]   * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_etauFR_barrel_down = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_down[0] * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[0] * idAndIsoSF_leg2_deep_vsMu;
-      idAndIsoAndFakeSF_etauFR_endcap_down = idAndIsoSF_leg1_deep_vsJet_pt * idAndIsoSF_leg1_deep_vsEle_down[1] * idAndIsoSF_leg1_deep_vsMu * idAndIsoSF_leg2_deep_vsJet_pt * idAndIsoSF_leg2_deep_vsEle_down[1] * idAndIsoSF_leg2_deep_vsMu;
+		idFakeSF_deep_dm = except_VsJet * idSF_deep_dm;
+		idFakeSF_deep_pt = except_VsJet * idSF_deep_pt;
+		idFakeSF_deep_2d = except_VsJet * idSF_deep_2d;
+		fakeRateSF_deep	 = except_VsJet;
 
-      if (DEBUG)
-      {
-	cout << "--- DEBUG idAndIsoSF ---" << endl;
-	cout << "pairType  : "                    << pType                         << endl;
-	cout << "totSF deep: "                    << idAndIsoAndFakeSF_deep        << endl;
-	cout << "totSF deep_pt: "                 << idAndIsoAndFakeSF_deep_pt     << endl;
-	cout << "idAndIsoSF_leg1_deep_vsJet: "    << idAndIsoSF_leg1_deep_vsJet    << endl;
-	cout << "idAndIsoSF_leg1_deep_vsJet_pt: " << idAndIsoSF_leg1_deep_vsJet_pt << endl;
-	cout << "idAndIsoSF_leg1_deep_vsEle: "    << idAndIsoSF_leg1_deep_vsEle    << endl;
-	cout << "idAndIsoSF_leg1_deep_vsMu: "     << idAndIsoSF_leg1_deep_vsMu     << endl;
-	cout << "idAndIsoSF_leg2_deep_vsJet: "    << idAndIsoSF_leg2_deep_vsJet    << endl;
-	cout << "idAndIsoSF_leg2_deep_vsJet_pt: " << idAndIsoSF_leg2_deep_vsJet_pt << endl;
-	cout << "idAndIsoSF_leg2_deep_vsEle: "    << idAndIsoSF_leg2_deep_vsEle    << endl;
-	cout << "idAndIsoSF_leg2_deep_vsMu: "     << idAndIsoSF_leg2_deep_vsMu     << endl;
-      }
-    }
+		idFakeSF_tauid_2d_stat0_up					= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_up				   * idSF_leg2_deep_vsJet_2d_stat0_up;
+		idFakeSF_tauid_2d_stat0_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_down				   * idSF_leg2_deep_vsJet_2d_stat0_down;
+		idFakeSF_tauid_2d_stat1_up					= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_up				   * idSF_leg2_deep_vsJet_2d_stat1_up;
+		idFakeSF_tauid_2d_stat1_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_down				   * idSF_leg2_deep_vsJet_2d_stat1_down;
+		idFakeSF_tauid_2d_systcorrdmeras_up			= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmeras_up		   * idSF_leg2_deep_vsJet_2d_systcorrdmeras_up;
+		idFakeSF_tauid_2d_systcorrdmeras_down		= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmeras_down	   * idSF_leg2_deep_vsJet_2d_systcorrdmeras_down;
+		idFakeSF_tauid_2d_systcorrdmuncorreras_up	= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_up   * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up;
+		idFakeSF_tauid_2d_systcorrdmuncorreras_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down;
+		idFakeSF_tauid_2d_systuncorrdmeras_up		= except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_up	   * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_up;
+		idFakeSF_tauid_2d_systuncorrdmeras_down		= except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_down	   * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_down;
 
-    // MuMu Channel
-    else if (pType == 3 && isMC)
-    {
-      float mu1pt  = tlv_firstLepton.Pt();
-      float mu1eta = TMath::Abs(tlv_firstLepton.Eta());
-      float mu2pt  = tlv_secondLepton.Pt();
-      float mu2eta = TMath::Abs(tlv_secondLepton.Eta());
+		idFakeSF_tauid_2d_systcorrerasgt140_up   	= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up      * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
+		idFakeSF_tauid_2d_systcorrerasgt140_down   	= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down    * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
+		idFakeSF_tauid_2d_statgt140_up        		= except_VsJet * idSF_leg1_deep_vsJet_2d_statgt140_up              * idSF_leg2_deep_vsJet_2d_statgt140_up;
+		idFakeSF_tauid_2d_statgt140_down          	= except_VsJet * idSF_leg1_deep_vsJet_2d_statgt140_down            * idSF_leg2_deep_vsJet_2d_statgt140_down;
+		idFakeSF_tauid_2d_extrapgt140              	= except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140               * idSF_leg2_deep_vsJet_2d_extrapgt140;
 
-      float idAndIsoSF_leg1 = 1.;
-      float idAndIsoSF_leg2 = 1.;
+		// idFakeSF_tauid_pt20to25_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[0]   * idSF_leg2_deep_vsJet_pt_up[0];
+		// idFakeSF_tauid_pt25to30_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[1]   * idSF_leg2_deep_vsJet_pt_up[1];
+		// idFakeSF_tauid_pt30to35_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[2]   * idSF_leg2_deep_vsJet_pt_up[2];
+		// idFakeSF_tauid_pt35to40_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[3]   * idSF_leg2_deep_vsJet_pt_up[3];
+		// idFakeSF_tauid_pt40toInf_up   = except_VsJet * idSF_leg1_deep_vsJet_pt_up[4]   * idSF_leg2_deep_vsJet_pt_up[4];
+		// idFakeSF_tauid_pt20to25_down  = except_VsJet * idSF_leg1_deep_vsJet_pt_down[0] * idSF_leg2_deep_vsJet_pt_down[0];
+		// idFakeSF_tauid_pt25to30_down  = except_VsJet * idSF_leg1_deep_vsJet_pt_down[1] * idSF_leg2_deep_vsJet_pt_down[1];
+		// idFakeSF_tauid_pt30to35_down  = except_VsJet * idSF_leg1_deep_vsJet_pt_down[2] * idSF_leg2_deep_vsJet_pt_down[2];
+		// idFakeSF_tauid_pt35to40_down  = except_VsJet * idSF_leg1_deep_vsJet_pt_down[3] * idSF_leg2_deep_vsJet_pt_down[3];
+		// idFakeSF_tauid_pt40toInf_down = except_VsJet * idSF_leg1_deep_vsJet_pt_down[4] * idSF_leg2_deep_vsJet_pt_down[4];
 
-      if (mu1eta < 2.4)
-      {
-	idAndIsoSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu1pt, mu1eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(mu1pt, mu1eta);
-      }
-      if (mu2eta < 2.4)
-      {
-	idAndIsoSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(mu2pt, mu2eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(mu2pt, mu2eta);
-      }
+		idFakeSF_mutauFR_etaLt0p4_up      = except_vsMu * idSF_leg1_deep_vsMu_up[0]   * idSF_leg2_deep_vsMu_up[0];
+		idFakeSF_mutauFR_eta0p4to0p8_up   = except_vsMu * idSF_leg1_deep_vsMu_up[1]   * idSF_leg2_deep_vsMu_up[1];
+		idFakeSF_mutauFR_eta0p8to1p2_up   = except_vsMu * idSF_leg1_deep_vsMu_up[2]   * idSF_leg2_deep_vsMu_up[2];
+		idFakeSF_mutauFR_eta1p2to1p7_up   = except_vsMu * idSF_leg1_deep_vsMu_up[3]   * idSF_leg2_deep_vsMu_up[3];
+		idFakeSF_mutauFR_etaGt1p7_up      = except_vsMu * idSF_leg1_deep_vsMu_up[4]   * idSF_leg2_deep_vsMu_up[4];
+		idFakeSF_mutauFR_etaLt0p4_down    = except_vsMu * idSF_leg1_deep_vsMu_down[0] * idSF_leg2_deep_vsMu_down[0];
+		idFakeSF_mutauFR_eta0p4to0p8_down = except_vsMu * idSF_leg1_deep_vsMu_down[1] * idSF_leg2_deep_vsMu_down[1];
+		idFakeSF_mutauFR_eta0p8to1p2_down = except_vsMu * idSF_leg1_deep_vsMu_down[2] * idSF_leg2_deep_vsMu_down[2];
+		idFakeSF_mutauFR_eta1p2to1p7_down = except_vsMu * idSF_leg1_deep_vsMu_down[3] * idSF_leg2_deep_vsMu_down[3];
+		idFakeSF_mutauFR_etaGt1p7_down    = except_vsMu * idSF_leg1_deep_vsMu_down[4] * idSF_leg2_deep_vsMu_down[4];
 
-      idAndIsoSF_MVA = idAndIsoSF_deep = idAndIsoAndFakeSF_MVA = idAndIsoAndFakeSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-
-      if (DEBUG)
-      {
-	cout << "--- DEBUG idAndIsoSF ---" << endl;
-	cout << "pairType  : " << pType << endl;
-	cout << "totSF MVA : " << idAndIsoSF_MVA << endl;
-	cout << "totSF deep: " << idAndIsoSF_deep << endl;
-      }
-    }
-
-    // EleEle Channel
-    else if (pType == 4 && isMC)
-    {
-      float ele1pt  = tlv_firstLepton.Pt();
-      float ele1eta = TMath::Abs(tlv_firstLepton.Eta());
-      float ele2pt  = tlv_secondLepton.Pt();
-      float ele2eta = TMath::Abs(tlv_secondLepton.Eta());
-
-      float idAndIsoSF_leg1 = 1.;
-      float idAndIsoSF_leg2 = 1.;
-
-      if (ele1eta < 2.4)
-      {
-	idAndIsoSF_leg1 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(ele1pt, ele1eta);
-      }
-      if (ele2eta < 2.4)
-      {
-	idAndIsoSF_leg2 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(ele2pt, ele2eta);
-      }
-
-      idAndIsoSF_MVA = idAndIsoSF_deep = idAndIsoAndFakeSF_MVA = idAndIsoAndFakeSF_deep = idAndIsoSF_leg1 * idAndIsoSF_leg2;
-
-      if (DEBUG)
-      {
-	cout << "--- DEBUG idAndIsoSF ---" << endl;
-	cout << "pairType  : " << pType << endl;
-	cout << "totSF MVA : " << idAndIsoSF_MVA << endl;
-	cout << "totSF deep: " << idAndIsoSF_deep << endl;
-      }
-    }
+		idFakeSF_etauFR_barrel_up   = except_vsEle * idSF_leg1_deep_vsEle_up[0]   * idSF_leg2_deep_vsEle_up[0];
+		idFakeSF_etauFR_endcap_up   = except_vsEle * idSF_leg1_deep_vsEle_up[1]   * idSF_leg2_deep_vsEle_up[1];
+		idFakeSF_etauFR_barrel_down = except_vsEle * idSF_leg1_deep_vsEle_down[0] * idSF_leg2_deep_vsEle_down[0];
+		idFakeSF_etauFR_endcap_down = except_vsEle * idSF_leg1_deep_vsEle_down[1] * idSF_leg2_deep_vsEle_down[1];
+	  }
+	else if(isMC and (pType == 3 or pType == 4))  // MuMu and EleELe channels
+	  {
+		idSF_deep_dm = idFakeSF_deep_dm = idSF_leg1 * idSF_leg2;
+	  }
+	
+	if (DEBUG) {
+	  cout << "--- DEBUG idSF ---" << endl;
+	  cout << "pairType  : "              << pType                   << endl;
+	  cout << "totSF deep_dm: "           << idFakeSF_deep_dm        << endl;
+	  cout << "totSF deep_pt: "           << idFakeSF_deep_pt        << endl;
+	  cout << "totSF deep_2d: "           << idFakeSF_deep_2d        << endl;
+	  cout << "idSF_leg1: "               << idSF_leg1               << endl;
+	  cout << "idSF_leg1_deep_vsJet_dm: " << idSF_leg1_deep_vsJet_dm << endl;
+	  cout << "idSF_leg1_deep_vsJet_pt: " << idSF_leg1_deep_vsJet_pt << endl;
+	  cout << "idSF_leg1_deep_vsJet_2d: " << idSF_leg1_deep_vsJet_2d << endl;
+	  cout << "idSF_leg1_deep_vsEle: "    << idSF_leg1_deep_vsEle    << endl;
+	  cout << "idSF_leg1_deep_vsMu: "     << idSF_leg1_deep_vsMu     << endl;
+	  cout << "idSF_leg2_deep_vsJet_dm: " << idSF_leg2_deep_vsJet_dm << endl;
+	  cout << "idSF_leg2_deep_vsJet_pt: " << idSF_leg2_deep_vsJet_pt << endl;
+	  cout << "idSF_leg2_deep_vsJet_2d: " << idSF_leg2_deep_vsJet_2d << endl;
+	  cout << "idSF_leg2_deep_vsEle: "    << idSF_leg2_deep_vsEle    << endl;
+	  cout << "idSF_leg2_deep_vsMu: "     << idSF_leg2_deep_vsMu     << endl;
+	}
 
     // Save the IDandISO SF (event per event)
-    theSmallTree.m_IdAndIsoSF_MVA            = (isMC ? idAndIsoSF_MVA            : 1.0);
-    theSmallTree.m_IdAndIsoSF_deep           = (isMC ? idAndIsoSF_deep           : 1.0);
-    theSmallTree.m_IdAndIsoSF_deep_pt        = (isMC ? idAndIsoSF_deep_pt        : 1.0);
-    theSmallTree.m_IdAndIsoAndFakeSF_MVA     = (isMC ? idAndIsoAndFakeSF_MVA     : 1.0);
-    theSmallTree.m_IdAndIsoAndFakeSF_deep    = (isMC ? idAndIsoAndFakeSF_deep    : 1.0);
-    theSmallTree.m_IdAndIsoAndFakeSF_deep_pt = (isMC ? idAndIsoAndFakeSF_deep_pt : 1.0);
-    theSmallTree.m_FakeRateSF_MVA            = (isMC ? fakeRateSF_MVA            : 1.0);
-    theSmallTree.m_FakeRateSF_deep           = (isMC ? fakeRateSF_deep           : 1.0);
-    theSmallTree.m_customTauIdSF             = (isMC ? customTauIdSF             : 1.0);
-    theSmallTree.m_customTauIdSF_DM0_up      = (isMC ? customTauIdSF_DM0_up      : 1.0);
-    theSmallTree.m_customTauIdSF_DM0_down    = (isMC ? customTauIdSF_DM0_down    : 1.0);
-    theSmallTree.m_customTauIdSF_DM1_up      = (isMC ? customTauIdSF_DM1_up      : 1.0);
-    theSmallTree.m_customTauIdSF_DM1_down    = (isMC ? customTauIdSF_DM1_down    : 1.0);
-    theSmallTree.m_customTauIdSF_DM10_up     = (isMC ? customTauIdSF_DM10_up     : 1.0);
-    theSmallTree.m_customTauIdSF_DM10_down   = (isMC ? customTauIdSF_DM10_down   : 1.0);
-    theSmallTree.m_customTauIdSF_DM11_up     = (isMC ? customTauIdSF_DM11_up     : 1.0);
-    theSmallTree.m_customTauIdSF_DM11_down   = (isMC ? customTauIdSF_DM11_down   : 1.0);
+	theSmallTree.m_IdSF_deep_dm		= idSF_deep_dm;
+	theSmallTree.m_IdSF_deep_pt		= idSF_deep_pt;
+	theSmallTree.m_IdSF_deep_2d		= idSF_deep_2d;
+	theSmallTree.m_IdFakeSF_deep_dm	= idFakeSF_deep_dm;
+	theSmallTree.m_IdFakeSF_deep_pt	= idFakeSF_deep_pt;
+	theSmallTree.m_IdFakeSF_deep_2d	= idFakeSF_deep_2d;
+	theSmallTree.m_FakeRateSF_deep	= fakeRateSF_deep;
 
-    theSmallTree.m_idAndIsoAndFakeSF_tauid_pt20to25_up        = (isMC ? idAndIsoAndFakeSF_tauid_pt20to25_up        : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_tauid_pt25to30_up        = (isMC ? idAndIsoAndFakeSF_tauid_pt25to30_up        : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_tauid_pt30to35_up        = (isMC ? idAndIsoAndFakeSF_tauid_pt30to35_up        : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_tauid_pt35to40_up        = (isMC ? idAndIsoAndFakeSF_tauid_pt35to40_up        : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_tauid_pt40toInf_up       = (isMC ? idAndIsoAndFakeSF_tauid_pt40toInf_up       : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_tauid_pt20to25_down      = (isMC ? idAndIsoAndFakeSF_tauid_pt20to25_down      : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_tauid_pt25to30_down      = (isMC ? idAndIsoAndFakeSF_tauid_pt25to30_down      : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_tauid_pt30to35_down      = (isMC ? idAndIsoAndFakeSF_tauid_pt30to35_down      : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_tauid_pt35to40_down      = (isMC ? idAndIsoAndFakeSF_tauid_pt35to40_down      : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_tauid_pt40toInf_down     = (isMC ? idAndIsoAndFakeSF_tauid_pt40toInf_down     : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_mutauFR_etaLt0p4_up      = (isMC ? idAndIsoAndFakeSF_mutauFR_etaLt0p4_up      : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_up   = (isMC ? idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_up   : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_up   = (isMC ? idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_up   : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_up   = (isMC ? idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_up   : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_mutauFR_etaGt1p7_up      = (isMC ? idAndIsoAndFakeSF_mutauFR_etaGt1p7_up      : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_mutauFR_etaLt0p4_down    = (isMC ? idAndIsoAndFakeSF_mutauFR_etaLt0p4_down    : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_down = (isMC ? idAndIsoAndFakeSF_mutauFR_eta0p4to0p8_down : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_down = (isMC ? idAndIsoAndFakeSF_mutauFR_eta0p8to1p2_down : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_down = (isMC ? idAndIsoAndFakeSF_mutauFR_eta1p2to1p7_down : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_mutauFR_etaGt1p7_down    = (isMC ? idAndIsoAndFakeSF_mutauFR_etaGt1p7_down    : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_etauFR_barrel_up         = (isMC ? idAndIsoAndFakeSF_etauFR_barrel_up         : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_etauFR_endcap_up         = (isMC ? idAndIsoAndFakeSF_etauFR_endcap_up         : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_etauFR_barrel_down       = (isMC ? idAndIsoAndFakeSF_etauFR_barrel_down       : 1);
-    theSmallTree.m_idAndIsoAndFakeSF_etauFR_endcap_down       = (isMC ? idAndIsoAndFakeSF_etauFR_endcap_down       : 1);
+	theSmallTree.m_idFakeSF_tauid_2d_stat0_up					= idFakeSF_tauid_2d_stat0_up;
+	theSmallTree.m_idFakeSF_tauid_2d_stat0_down					= idFakeSF_tauid_2d_stat0_down;
+	theSmallTree.m_idFakeSF_tauid_2d_stat1_up					= idFakeSF_tauid_2d_stat1_up;
+	theSmallTree.m_idFakeSF_tauid_2d_stat1_down					= idFakeSF_tauid_2d_stat1_down;
+	theSmallTree.m_idFakeSF_tauid_2d_systcorrdmeras_up			= idFakeSF_tauid_2d_systcorrdmeras_up;
+	theSmallTree.m_idFakeSF_tauid_2d_systcorrdmeras_down		= idFakeSF_tauid_2d_systcorrdmeras_down;
+	theSmallTree.m_idFakeSF_tauid_2d_systcorrdmuncorreras_up	= idFakeSF_tauid_2d_systcorrdmuncorreras_up;
+	theSmallTree.m_idFakeSF_tauid_2d_systcorrdmuncorreras_down	= idFakeSF_tauid_2d_systcorrdmuncorreras_down;
+	theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_up		= idFakeSF_tauid_2d_systuncorrdmeras_up;
+	theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_down		= idFakeSF_tauid_2d_systuncorrdmeras_down;
+
+	theSmallTree.m_idFakeSF_tauid_2d_systcorrerasgt140_up		= idFakeSF_tauid_2d_systcorrerasgt140_up;
+	theSmallTree.m_idFakeSF_tauid_2d_systcorrerasgt140_down		= idFakeSF_tauid_2d_systcorrerasgt140_down;
+	theSmallTree.m_idFakeSF_tauid_2d_statgt140_up				= idFakeSF_tauid_2d_statgt140_up;
+	theSmallTree.m_idFakeSF_tauid_2d_statgt140_down				= idFakeSF_tauid_2d_statgt140_down;
+	theSmallTree.m_idFakeSF_tauid_2d_extrapgt140				= idFakeSF_tauid_2d_extrapgt140;
+
+	theSmallTree.m_idFakeSF_tauid_pt20to25_up    = idFakeSF_tauid_pt20to25_up;	
+	theSmallTree.m_idFakeSF_tauid_pt25to30_up	= idFakeSF_tauid_pt25to30_up;		
+	theSmallTree.m_idFakeSF_tauid_pt30to35_up	= idFakeSF_tauid_pt30to35_up;		
+	theSmallTree.m_idFakeSF_tauid_pt35to40_up	= idFakeSF_tauid_pt35to40_up;		
+	theSmallTree.m_idFakeSF_tauid_pt40toInf_up	= idFakeSF_tauid_pt40toInf_up;		
+	theSmallTree.m_idFakeSF_tauid_pt20to25_down	= idFakeSF_tauid_pt20to25_down;		
+	theSmallTree.m_idFakeSF_tauid_pt25to30_down	= idFakeSF_tauid_pt25to30_down;	
+	theSmallTree.m_idFakeSF_tauid_pt30to35_down	= idFakeSF_tauid_pt30to35_down;	
+	theSmallTree.m_idFakeSF_tauid_pt35to40_down	= idFakeSF_tauid_pt35to40_down;		
+	theSmallTree.m_idFakeSF_tauid_pt40toInf_down	= idFakeSF_tauid_pt40toInf_down;	
+
+	theSmallTree.m_idFakeSF_mutauFR_etaLt0p4_up		 = idFakeSF_mutauFR_etaLt0p4_up;		
+	theSmallTree.m_idFakeSF_mutauFR_eta0p4to0p8_up	 = idFakeSF_mutauFR_eta0p4to0p8_up;	
+	theSmallTree.m_idFakeSF_mutauFR_eta0p8to1p2_up	 = idFakeSF_mutauFR_eta0p8to1p2_up;	
+	theSmallTree.m_idFakeSF_mutauFR_eta1p2to1p7_up	 = idFakeSF_mutauFR_eta1p2to1p7_up;	
+	theSmallTree.m_idFakeSF_mutauFR_etaGt1p7_up		 = idFakeSF_mutauFR_etaGt1p7_up;		
+	theSmallTree.m_idFakeSF_mutauFR_etaLt0p4_down	 = idFakeSF_mutauFR_etaLt0p4_down;	
+	theSmallTree.m_idFakeSF_mutauFR_eta0p4to0p8_down = idFakeSF_mutauFR_eta0p4to0p8_down;
+	theSmallTree.m_idFakeSF_mutauFR_eta0p8to1p2_down = idFakeSF_mutauFR_eta0p8to1p2_down;
+	theSmallTree.m_idFakeSF_mutauFR_eta1p2to1p7_down = idFakeSF_mutauFR_eta1p2to1p7_down;
+	theSmallTree.m_idFakeSF_mutauFR_etaGt1p7_down	 = idFakeSF_mutauFR_etaGt1p7_down;
+	theSmallTree.m_idFakeSF_etauFR_barrel_up		 = idFakeSF_etauFR_barrel_up;	
+	theSmallTree.m_idFakeSF_etauFR_endcap_up		 = idFakeSF_etauFR_endcap_up;		
+	theSmallTree.m_idFakeSF_etauFR_barrel_down		 = idFakeSF_etauFR_barrel_down;		
+	theSmallTree.m_idFakeSF_etauFR_endcap_down		 = idFakeSF_etauFR_endcap_down;
 
     //Jet faking Tau SF
     //derived from WJet sideband: http://camendol.web.cern.ch/camendol/HH2017/plotsHH2017MuTau/31Oct2018_DYNLO_ctrlWJets_SS/antiB_jets30_tau30_SStight/
     double jetFakeSF1 = 1.;
     double jetFakeSF2 = 1.;
-    if (pType == 0 || pType == 1 || pType == 2) // 2nd tau
-    {
-      if (isFakeJet2){
-	if(fabs(tlv_secondLepton.Eta()) < 1.46){
-	  jetFakeSF2 = 1.38469;
-	}else{
-	  jetFakeSF2 = 1.69035;
-	}
-      }
+    if (isMC and (pType == 0 or pType == 1 or pType == 2)) { // 2nd tau
+      if (isFakeJet2)
+		{
+		  if(fabs(tlv_secondLepton.Eta()) < 1.46) jetFakeSF2 = 1.38469;
+		  else jetFakeSF2 = 1.69035;
+		}
+	  if (pType == 2) { //1st tau
+		if (isFakeJet1)
+		  {
+			if(fabs(tlv_firstLepton.Eta()) < 1.46) jetFakeSF1 = 1.38469;
+			else jetFakeSF1 = 1.69035;
+		  }
+	  }
     }
+    theSmallTree.m_jetFakeSF = jetFakeSF1*jetFakeSF2;
 
-    if(pType == 2)                //1st tau
-    {
-      if (isFakeJet1){
-	if(fabs(tlv_firstLepton.Eta()) < 1.46){
-	  jetFakeSF1 = 1.38469;
-	}else{
-	  jetFakeSF1 = 1.69035;
-	}
-      }
-    }
-    theSmallTree.m_jetFakeSF = (isMC ? jetFakeSF1*jetFakeSF2 : 1.0);
-
+	
     // DATA/MC Trigger ScaleFactors
     // https://github.com/CMS-HTT/LeptonEfficiencies
     // https://github.com/truggles/TauTriggerSFs2017
 
     // recommendations for cross triggers:  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information
 
-    float trigSF = 1.0;
-    float trigSF_ele_up    = 1.0;
-    float trigSF_mu_up     = 1.0;
-    float trigSF_DM0_up    = 1.0;
-    float trigSF_DM1_up    = 1.0;
-    float trigSF_DM10_up   = 1.0;
-    float trigSF_DM11_up   = 1.0;
-    float trigSF_ele_down  = 1.0;
-    float trigSF_mu_down   = 1.0;
-    float trigSF_DM0_down  = 1.0;
-    float trigSF_DM1_down  = 1.0;
-    float trigSF_DM10_down = 1.0;
-    float trigSF_DM11_down = 1.0;
-    float trigSF_vbfjet_up   = 1.0;
-    float trigSF_vbfjet_down = 1.0;
-    float trigSF_single = 1.0;
-    float trigSF_cross = 1.0;
+    float trigSF				= 1.0;
+    float trigSF_ele_up			= 1.0;
+    float trigSF_mu_up			= 1.0;
+    float trigSF_DM0_up			= 1.0;
+    float trigSF_DM1_up			= 1.0;
+    float trigSF_DM10_up		= 1.0;
+    float trigSF_DM11_up		= 1.0;
+    float trigSF_ele_down		= 1.0;
+    float trigSF_mu_down		= 1.0;
+    float trigSF_DM0_down		= 1.0;
+    float trigSF_DM1_down		= 1.0;
+    float trigSF_DM10_down		= 1.0;
+    float trigSF_DM11_down		= 1.0;
+    float trigSF_vbfjet_up		= 1.0;
+    float trigSF_vbfjet_down	= 1.0;
+    float trigSF_single			= 1.0;
+    float trigSF_cross			= 1.0;
 
     if(applyTriggers)
     {
@@ -3539,16 +3175,16 @@ int main (int argc, char** argv)
 	  }
 
 	  trigSF = Eff_Data / Eff_MC;
-	  trigSF_mu_up     = Eff_Data_mu_up / Eff_MC_mu_up;
-	  trigSF_mu_down   = Eff_Data_mu_down / Eff_MC_mu_down;
-	  trigSF_DM0_up    = Eff_Data_up[0] / Eff_MC_up[0];
-	  trigSF_DM1_up    = Eff_Data_up[1] / Eff_MC_up[1];
-	  trigSF_DM10_up   = Eff_Data_up[2] / Eff_MC_up[2];
-	  trigSF_DM11_up   = Eff_Data_up[3] / Eff_MC_up[3];
-	  trigSF_DM0_down  = Eff_Data_down[0] / Eff_MC_down[0];
-	  trigSF_DM1_down  = Eff_Data_down[1] / Eff_MC_down[1];
-	  trigSF_DM10_down = Eff_Data_down[2] / Eff_MC_down[2];
-	  trigSF_DM11_down = Eff_Data_down[3] / Eff_MC_down[3];
+	  trigSF_mu_up     = Eff_Data_mu_up		/ Eff_MC_mu_up;
+	  trigSF_mu_down   = Eff_Data_mu_down	/ Eff_MC_mu_down;
+	  trigSF_DM0_up    = Eff_Data_up[0]		/ Eff_MC_up[0];
+	  trigSF_DM1_up    = Eff_Data_up[1]		/ Eff_MC_up[1];
+	  trigSF_DM10_up   = Eff_Data_up[2]		/ Eff_MC_up[2];
+	  trigSF_DM11_up   = Eff_Data_up[3]		/ Eff_MC_up[3];
+	  trigSF_DM0_down  = Eff_Data_down[0]	/ Eff_MC_down[0];
+	  trigSF_DM1_down  = Eff_Data_down[1]	/ Eff_MC_down[1];
+	  trigSF_DM10_down = Eff_Data_down[2]	/ Eff_MC_down[2];
+	  trigSF_DM11_down = Eff_Data_down[3]	/ Eff_MC_down[3];
 
 	  //trig SF for analysis only with cross-trigger
 	  double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -5439,7 +5075,7 @@ int main (int argc, char** argv)
         }
       }
 
-      theSmallTree.m_totalWeight = (isMC ? (41529./472545790.) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_DYscale_MTT * trigSF * theSmallTree.m_IdAndIsoAndFakeSF_deep_pt * theSmallTree.m_L1pref_weight * theSmallTree.m_prescaleWeight * theSmallTree.m_PUjetID_SF: 1.0);
+      theSmallTree.m_totalWeight = (isMC ? (41529./472545790.) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_DYscale_MTT * trigSF * theSmallTree.m_IdFakeSF_deep_pt * theSmallTree.m_L1pref_weight * theSmallTree.m_prescaleWeight * theSmallTree.m_PUjetID_SF: 1.0);
       //total weight used for sync: the denominator must be changed for each sample as h_eff->GetBinContent(1), the numerator is the luminosity
       //fullyHad: 580947330
       //semiLep: 472545790
@@ -6204,40 +5840,35 @@ int main (int argc, char** argv)
     else selectedEvents += 1 ;
     ++selectedNoWeightsEventsNum ;
 
-    if (DEBUG) //FRA DEBUG
+    if (DEBUG)
     {
-      cout << "--------------" << endl;
-      cout << " - Debug SFs -" << endl;
-      cout << "  PU           : " << theSmallTree.m_PUReweight << endl;
-      cout << "  IDandISO MVA : " << theSmallTree.m_IdAndIsoSF_MVA << endl;
-      cout << "    w/ FakeRate: " << theSmallTree.m_IdAndIsoAndFakeSF_MVA << endl;
-      cout << "  IDandISO deep: " << theSmallTree.m_IdAndIsoSF_deep_pt << endl;
-      cout << "    w/ FakeRate: " << theSmallTree.m_IdAndIsoAndFakeSF_deep_pt << endl;
-      cout << "  trig         : " << theSmallTree.m_trigSF << endl;
-      cout << "  bTag         : " << theSmallTree.m_bTagweightM << endl;
-      cout << "  prescale     : " << theSmallTree.m_prescaleWeight<< endl;
-      cout << "  prefiring    : " << theSmallTree.m_L1pref_weight<< endl;
-      cout << "--------------" << endl;
-    }
-
-    if (DEBUG) //FRA DEBUG
-    {
-      cout << "--- DEBUG MC weights ---" << endl;
-      cout << "aMCatNLOweight: " << theBigTree.aMCatNLOweight << endl;
-      cout << "XS            : " << XS << endl;
-      cout << "stitchWeight  : " << stitchWeight << endl;
-      cout << "HHweight      : " << HHweight << endl;
-      cout << "MC_weight     : " << theSmallTree.m_MC_weight << endl;
-      //cout << "Yield weight MVA : " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_MVA * theSmallTree.m_trigSF << endl;
-      //cout << "Yield weight deep: " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdAndIsoAndFakeSF_deep * theSmallTree.m_trigSF << endl;
-      cout << "------------------------" << endl;
-    }
-
-    if (DEBUG) //FRA DEBUG
-    {
-      cout << "--- FINAL DEBUG ---" << endl;
-      cout << "nbjetscand: " << theSmallTree.m_nbjetscand << endl;
-      cout << "-------------------" << endl;
+      cout << "--------------			" << endl;
+      cout << " - Debug SFs -			" << endl;
+      cout << "  PU           :			" << theSmallTree.m_PUReweight << endl;
+      cout << "  IDandISO deep (DM):	" << theSmallTree.m_IdSF_deep_dm << endl;
+      cout << "    w/ FakeRate:			" << theSmallTree.m_IdFakeSF_deep_dm << endl;
+      cout << "  IDandISO deep (pT):	" << theSmallTree.m_IdSF_deep_pt << endl;
+      cout << "    w/ FakeRate:			" << theSmallTree.m_IdFakeSF_deep_pt << endl;
+      cout << "  IDandISO deep (2D):	" << theSmallTree.m_IdSF_deep_2d << endl;
+      cout << "    w/ FakeRate:			" << theSmallTree.m_IdFakeSF_deep_2d << endl;
+      cout << "  trig         :			" << theSmallTree.m_trigSF << endl;
+      cout << "  bTag         :			" << theSmallTree.m_bTagweightM << endl;
+      cout << "  prescale     :			" << theSmallTree.m_prescaleWeight<< endl;
+      cout << "  prefiring    :			" << theSmallTree.m_L1pref_weight<< endl;
+      cout << "--------------			" << endl;
+      cout << "--- DEBUG MC weights ---	" << endl;
+      cout << "aMCatNLOweight:			" << theBigTree.aMCatNLOweight << endl;
+      cout << "XS            :			" << XS << endl;
+      cout << "stitchWeight  :			" << stitchWeight << endl;
+      cout << "HHweight      :			" << HHweight << endl;
+      cout << "MC_weight     :			" << theSmallTree.m_MC_weight << endl;
+      cout << "Yield weight deep (DM):	" << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdFakeSF_deep_dm * theSmallTree.m_trigSF << endl;
+	  cout << "Yield weight deep (pT):	" << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdFakeSF_deep_pt * theSmallTree.m_trigSF << endl;
+	  cout << "Yield weight deep (2D):	" << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdFakeSF_deep_2d * theSmallTree.m_trigSF << endl;
+      cout << "------------------------	" << endl;
+      cout << "--- FINAL DEBUG ---		" << endl;
+      cout << "nbjetscand:				" << theSmallTree.m_nbjetscand << endl;
+      cout << "-------------------		" << endl;
     }
 
     theSmallTree.Fill () ;

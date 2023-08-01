@@ -3,7 +3,7 @@
 
 ### Defaults
 NO_LISTS="0"
-STITCHING_ON="0"
+STITCHING_OFF="0"
 DRYRUN="0"
 RESUBMIT="0"
 OUT_TAG=""
@@ -18,7 +18,7 @@ DRYRUN_STR="(Boolean) Prints all the commands to be launched but does not launch
 RESUBMIT_STR="(Boolean) Resubmits failed jobs listed in 'badfiles.txt'"
 OUT_TAG_STR="(String) Defines tag for the output. Defaults to '${OUT_TAG}'."
 IN_TAG_STR="(String) Chooses tag for the input (big ntuples). Defaults to '${IN_TAG}'."
-STITCHING_ON_STR="(Boolean) Drell-Yan stitching weights will be used. Defaults to ${STITCHING_ON}."
+STITCHING_OFF_STR="(Boolean) Drell-Yan stitching weights will *not* be used. Defaults to ${STITCHING_OFF}."
 NO_LISTS_STR="(Boolean) Whether to run the list production script before each submission. Defaults to ${NO_LISTS}."
 DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${DATA_PERIOD}'."
 DATAUSER_STR="(String) Which user produced the data. Defaults to '${DATA_USER}'."
@@ -31,7 +31,7 @@ function print_usage_submit_skims {
 	--resubmit			[ ${RESUBMIT_STR} ]
 	-t / --tag			[ ${OUT_TAG_STR} ]
 	--in_tag		        [ ${IN_TAG_STR} ]
-	-s / --stitching_on             [ ${STITCHING_ON_STR} ]
+	-s / --no_stitching             [ ${STITCHING_OFF_STR} ]
 	-n / --no_lists                 [ ${NO_LISTS_STR} ]
 	-d / --data_period              [ ${DATAPERIOD_STR} ]
 	-u / --user                     [ ${DATAUSER_STR} ]
@@ -62,8 +62,8 @@ while [[ $# -gt 0 ]]; do
 	    IN_TAG=${2}
 	    shift; shift;
 	    ;;
-	-s|--stitching)
-	    STITCHING_ON="1"
+	-s|--no_stitching)
+	    STITCHING_OFF="1"
 	    shift;
 	    ;;
 	-n|--no_lists)
@@ -100,7 +100,7 @@ KLUB_DIR="$( cd "$( dirname ${THIS_DIR} )" && pwd )"
 EXEC_FILE="${KLUB_DIR}/bin"
 SUBMIT_SCRIPT="scripts/skimNtuple.py"
 LIST_SCRIPT="scripts/makeListOnStorage.py"
-LIST_DIR="/dpm/in2p3.fr/home/cms/trivcat/store/user/${DATA_USER}/"
+LIST_DIR="root://eos.grif.fr//eos/grif/cms/llr/store/user/${DATA_USER}/"
 
 if [ ${DATA_PERIOD} == "UL16" ]; then
 	EXEC_FILE="${EXEC_FILE}/skimNtuple2016_HHbtag.exe"
@@ -110,19 +110,19 @@ elif [ ${DATA_PERIOD} == "UL18" ]; then
 	EXEC_FILE="${EXEC_FILE}/skimNtuple2018_HHbtag.exe"
 fi
 
-### Check if the voms command was run
-# declare -a VOMS_CHECK=( $(/usr/bin/rfdir ${LIST_DIR} 2>/dev/null | awk '{{printf $9" "}}') )
-# if [ ${#VOMS_CHECK[@]} -eq 0 ]; then
-# 	echo "Folder ${LIST_DIR} seems empty. Are you sure you run 'voms-proxy-init -voms cms'?"
-# 	exit 1
-# fi
-voms-proxy-init -voms cms
-
 LIST_DIR=${LIST_DIR}"HHNtuples_res/"${DATA_PERIOD}"/"
-LIST_DATA_DIR=${LIST_DIR}"Data_"${IN_TAG}
-LIST_MC_DIR=${LIST_DIR}"MC_"${IN_TAG}
-declare -a LISTS_DATA=( $(/usr/bin/rfdir ${LIST_DATA_DIR} | awk '{{printf $9" "}}') )
-declare -a LISTS_MC=(   $(/usr/bin/rfdir ${LIST_MC_DIR}   | awk '{{printf $9" "}}') )
+
+### Check if the voms command was run
+eval `scram unsetenv -sh` # unset CMSSW environment
+declare -a VOMS_CHECK=( $(/usr/bin/gfal-ls -lH ${LIST_DIR} 2>/dev/null | awk '{{printf $9" "}}') )
+if [ ${#VOMS_CHECK[@]} -eq 0 ]; then
+	echo "Folder ${LIST_DIR} seems empty. Check the following:"
+	echo "  - Are you sure you run 'voms-proxy-init -voms cms'?"
+	echo "  - Are you sure '${DATA_USER}' is your right data storage username? (change it via the '-u / --user' option."
+	exit 1
+fi
+cmsenv # set CMSSW environment
+#voms-proxy-init -voms cms
 
 SKIM_DIR="/data_CMS/cms/${USER}/HHresonant_SKIMS"
 
@@ -162,17 +162,22 @@ fi
 
 mkdir -p ${SKIM_DIR}
 OUTSKIM_DIR=${SKIM_DIR}/${TAG_DIR}/
-# if [ -d ${OUTSKIM_DIR} ] && [[ ${RESUBMIT} -eq 0 ]]; then
-# 	echo "Directory ${OUTSKIM_DIR} already exists."
-# 	echo "If you want to resubmit some jobs, add the '--resubmit' flag."
-# 	echo "If not, you might want to remove the directory with: 'rm -r ${OUTSKIM_DIR}'."
-# 	echo "Exiting."
-# 	exit 1
-# else
-# 	mkdir -p ${OUTSKIM_DIR}
-# fi
+if [ -d ${OUTSKIM_DIR} ] && [[ ${RESUBMIT} -eq 0 ]]; then
+	echo "Directory ${OUTSKIM_DIR} already exists."
+	echo "If you want to resubmit some jobs, add the '--resubmit' flag."
+	echo "If not, you might want to remove the directory with: 'rm -r ${OUTSKIM_DIR}'."
+	echo "Exiting."
+	exit 1
+else
+	mkdir -p ${OUTSKIM_DIR}
+fi
 ERR_FILE=${OUTSKIM_DIR}"/bad_patterns.o"
 
+if ((STITCHING_OFF)); then # test for True
+	STITCHING_ON="0"
+else
+	STITCHING_ON="1"
+fi
 
 ### Argument parsing: information for the user
 echo "------ Arguments --------------"
@@ -182,6 +187,7 @@ printf "RESUBMIT\t\t= ${RESUBMIT}\n"
 printf "NO_LISTS\t\t= ${NO_LISTS}\n"
 printf "OUT_TAG\t\t\t= ${OUT_TAG}\n"
 printf "IN_TAG\t\t\t= ${IN_TAG}\n"
+printf "STITCHING_OFF\t\t= ${STITCHING_OFF}\n"
 printf "STITCHING_ON\t\t= ${STITCHING_ON}\n"
 printf "DATA_PERIOD\t\t= ${DATA_PERIOD}\n"
 printf "DATA_USER\t\t= ${DATA_USER}\n"
@@ -197,6 +203,7 @@ echo "-------- Run: $(date) ---------------" >> ${ERR_FILE}
 
 ### Submission command
 function run_skim() {
+	cmsenv # set CMSSW environment
 	comm="python ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -o ${OUTSKIM_DIR} -c ${KLUB_DIR}/${CFG} "
 	[[ ${RESUBMIT} -eq 1 ]] && comm+="--resub "
 	comm+="--exec_file ${EXEC_FILE} -q long -Y 2018 -k 1 --pu ${PU_DIR} $@"
@@ -205,10 +212,12 @@ function run_skim() {
 
 ### Input file list production command
 function produce_list() {
+	eval `scram unsetenv -sh` # unset CMSSW environment
 	comm="python ${KLUB_DIR}/${LIST_SCRIPT} -t ${IN_TAG} --data_period ${DATA_PERIOD} --user ${DATA_USER} $@"
 	if [[ ${RESUBMIT} -eq 0 ]]; then
 		[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
 	fi
+	cmsenv # set CMSSW environment
 }
 
 ### Extract sample full name
@@ -241,6 +250,10 @@ function find_sample() {
 }
 
 ### Run on data samples
+LIST_DATA_DIR=${LIST_DIR}"Data_"${IN_TAG}
+eval `scram unsetenv -sh` # unset CMSSW environment
+declare -a LISTS_DATA=( $(/usr/bin/gfal-ls -lH ${LIST_DATA_DIR} | awk '{{printf $9" "}}') )
+cmsenv # set CMSSW environment
 # DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
 # RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
 # for ds in ${DATA_LIST[@]}; do
@@ -254,12 +267,17 @@ function find_sample() {
 # 	    ERRORS+=( ${sample} )
 # 	else
 # 	    [[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
-# 	    run_skim -n 300 --isdata 1 -i ${DATA_DIR} --sample ${sample}			
+# 	    run_skim -n 100 --isdata 1 -i ${DATA_DIR} --sample ${sample}
 # 	fi
 #     done
 # done
 
-## Run on HH resonant signal samples
+LIST_MC_DIR=${LIST_DIR}"MC_"${IN_TAG}
+eval `scram unsetenv -sh` # unset CMSSW environment
+declare -a LISTS_MC=( $(/usr/bin/gfal-ls -lH ${LIST_MC_DIR} | awk '{{printf $9" "}}') )
+cmsenv # set CMSSW environment
+
+### Run on HH resonant signal samples
 # DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
 # MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
 # for ds in ${DATA_LIST[@]}; do
@@ -276,85 +294,71 @@ function find_sample() {
 # done
 
 ### Run on backgrounds samples
-DYXSEC="1.0"
-#DYXSEC="6077.22"
-DATA_MAP=(
-    #["TTToHadronic"]="-n 500 -x 377.96"
-    #["TTTo2L2Nu"]="-n 500 -x 88.29"
-    #["TTToSemiLeptonic"]="-n 500 -x 365.34"
+# ttbar inclusive cross-section: 791 +- 25 pb (https://arxiv.org/pdf/2108.02803.pdf)
+# https://twiki.cern.ch/twiki/pub/CMSPublic/PhysicsResultsTOPSummaryFigures/tt_xsec_cms_13TeV.pdf
+FullyHadXSec=`echo "791.0 * 0.6741 * 0.6741" | bc`
+FullyLepXSec=`echo "791.0 * (1-0.6741) * (1-0.6741)" | bc`
+SemiLepXSec=`echo "791.0 * 2 * (1-0.6741) * 0.6741" | bc`
 
-    # NLO DY x-secs taken from XSDB and multiplied by k-factor from NLO to NNLO: 6077.22 [1] / 6404.0 [2]
-    # [1] NNLO x-sec for inclusive DYJetsToLL_M-50 sample taken from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeV
-    # [2] https://cms-gen-dev.cern.ch/xsdb/?searchQuery=DAS%3DDYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8
+DATA_MAP=(
+    ["TTToHadronic"]="-n 20 -x ${FullyHadXSec}"
+    ["TTTo2L2Nu"]="-n 100 -x ${FullyLepXSec}"
+    # ["TTToSemiLeptonic"]="-n 100 -x ${SemiLepXSec}"
+
+    #NLO DY x-secs taken from XSDB and multiplied by k-factor from NLO to NNLO: 6077.22 [1] / 6404.0 [2]
+    #[1] NNLO x-sec for inclusive DYJetsToLL_M-50 sample taken from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeV
+    #[2] https://cms-gen-dev.cern.ch/xsdb/?searchQuery=DAS%3DDYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8
 
     ["DYJets.+_M-50_T.+amc"]="-n 600 -x 6077.22 -g ${STITCHING_ON} --DY 0" # inclusive NLO
-    # ["DYJetsToLL_LHEFilterPtZ-0To50"]="-n 100   -x 1409.22 -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_LHEFilterPtZ-50To100"]="-n 600 -x 377.12     -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_LHEFilterPtZ-100To250"]="-n 600 -x  92.24     -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_LHEFilterPtZ-250To400"]="-n 600 -x   3.512   -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_LHEFilterPtZ-400To650"]="-n 600 -x   0.4826  -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_LHEFilterPtZ-650ToInf"]="-n 600 -x   0.04487 -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_LHEFilterPtZ-0To50"]="-n 30    -x 1409.22 -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_LHEFilterPtZ-50To100"]="-n 30  -x 377.12  -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_LHEFilterPtZ-100To250"]="-n 30 -x 92.24   -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_LHEFilterPtZ-250To400"]="-n 30 -x 3.512   -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_LHEFilterPtZ-400To650"]="-n 30 -x 0.4826  -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_LHEFilterPtZ-650ToInf"]="-n 30 -x 0.04487 -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_0J"]="-n 30 -x 4867.28. -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_1J"]="-n 30 -x 902.95   -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_2J"]="-n 30 -x 342.96   -g ${STITCHING_ON} --DY 0"
 
-    # ["DYJetsToLL_0J"]="-n 600 -x 4867.28.  -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_1J"]="-n 600  -x  902.95 -g ${STITCHING_ON} --DY 0"
-    # ["DYJetsToLL_2J"]="-n 600  -x  342.96 -g ${STITCHING_ON} --DY 0"
+    ["WJetsToLNu_T.+madgraph"]="-n 10 -x 48917.48 -y 1.213784 -z 70" # for 0 < HT < 70
+    ["WJetsToLNu_HT-70To100"]="-n 30 -x 1362 -y 1.213784"
+    ["WJetsToLNu_HT-100To200"]="-n 30 -x 1345 -y 1.213784"
+    ["WJetsToLNu_HT-200To400"]="-n 30 -x 359.7 -y 1.213784"
+    ["WJetsToLNu_HT-400To600"]="-n 30 -x 48.91 -y 1.213784"
+    ["WJetsToLNu_HT-600To800"]="-n 30 -x 12.05 -y 1.213784"
+    ["WJetsToLNu_HT-800To1200"]="-n 30 -x 5.501 -y 1.213784"
+    ["WJetsToLNu_HT-1200To2500"]="-n 30 -x 1.329 -y 1.213784"
+    ["WJetsToLNu_HT-2500ToInf"]="-n 30 -x 0.03216 -y 1.213784"
 
-    ### 
-    ###### LO samples, DY weights exist (--DY 1)
-    #### ["DYJets.+_M-50_T.+madgraph"]="		-n 400 -x 6077.22 -g ${STITCHING_ON} --DY 1" # inclusive LO
-    #### ["DY_merged"]="						-n 300 -x 6077.22 -g ${STITCHING_ON} --DY 1"
-    #### ["DY1J"]="							-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
-    #### ["DY2J"]="							-n 200 -x 1. -g ${STITCHING_ON} --DY 1"		   
-    #### ["DY3J"]="							-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
-    #### ["DY4J"]="							-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
-    #### ["DYJetsToLL_M-50_HT-70to100"]="		-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
-    #### ["DYJetsToLL_M-50_HT-100to200"]="		-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
-    #### ["DYJetsToLL_M-50_HT-200to400"]="		-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
-    #### ["DYJetsToLL_M-50_HT-400to600"]="		-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
-    #### ["DYJetsToLL_M-50_HT-600to800"]="		-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
-    #### ["DYJetsToLL_M-50_HT-800to1200"]="	-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
-    #### ["DYJetsToLL_M-50_HT-1200to2500"]="	-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
-    #### ["DYJetsToLL_M-50_HT-2500toInf"]="	-n 200 -x 1. -g ${STITCHING_ON} --DY 1"
-    #
-    # ["WJetsToLNu_T.+madgraph"]="-n 50 -x 48917.48 -y 1.213784 -z 70" # for 0 < HT < 70
-    # ["WJetsToLNu_HT-70To100"]="-n 50 -x 1362 -y 1.213784"
-    # ["WJetsToLNu_HT-100To200"]="-n 50 -x 1345 -y 1.213784"
-    # ["WJetsToLNu_HT-200To400"]="-n 50 -x 359.7 -y 1.213784"
-    # ["WJetsToLNu_HT-400To600"]="-n 50 -x 48.91 -y 1.213784"
-    # ["WJetsToLNu_HT-600To800"]="-n 50 -x 12.05 -y 1.213784"
-    # ["WJetsToLNu_HT-800To1200"]="-n 50 -x 5.501 -y 1.213784"
-    # ["WJetsToLNu_HT-1200To2500"]="-n 50 -x 1.329 -y 1.213784"
-    # ["WJetsToLNu_HT-2500ToInf"]="-n 50 -x 0.03216 -y 1.213784"
+    ["EWKWPlus2Jets_WToLNu"]="-n 20 -x 25.62"
+    ["EWKWMinus2Jets_WToLNu"]="-n 20 -x 20.25"
+    ["EWKZ2Jets_ZToLL"]="-n 20 -x 3.987"
 
-    # ["EWKWPlus2Jets_WToLNu"]="-n 50 -x 25.62"
-    # ["EWKWMinus2Jets_WToLNu"]="-n 50 -x 20.25"
-    # ["EWKZ2Jets_ZToLL"]="-n 50 -x 3.987"
+    ["ST_tW_antitop_5f_inclusive"]="-n 20 -x 35.85"
+    ["ST_tW_top_5f_inclusive"]="-n 20 -x 35.85"
+    ["ST_t-channel_antitop"]="-n 20 -x 80.95"
+    ["ST_t-channel_top"]="-n 20 -x 136.02"
 
-    # ["ST_tW_antitop_5f_inclusive"]="-n 50 -x 35.85"
-    # ["ST_tW_top_5f_inclusive"]="-n 50 -x 35.85"
-    # ["ST_t-channel_antitop"]="-n 50 -x 80.95"
-    # ["ST_t-channel_top"]="-n 50 -x 136.02"
+    ["GluGluHToTauTau"]="-n 10 -x 48.61 -y 0.0632"
+    ["VBFHToTauTau"]="-n 10 -x 3.766 -y 0.0632"
+    ["ZHToTauTau"]="-n 10 -x 0.880 -y 0.0632"
+    ["WplusHToTauTau"]="-n 10 -x 0.831 -y 0.0632"
+    ["WminusHToTauTau"]="-n 10 -x 0.527 -y 0.0632"
 
-    # ["GluGluHToTauTau"]="-n 30 -x 48.61 -y 0.0632"
-    # ["VBFHToTauTau"]="-n 30 -x 3.766 -y 0.0632"
-    # ["ZHToTauTau"]="-n 30 -x 0.880 -y 0.0632"
-    # ["WplusHToTauTau"]="-n 30 -x 0.831 -y 0.0632"
-    # ["WminusHToTauTau"]="-n 30 -x 0.527 -y 0.0632"
-
-    # ["ttHToNonbb"]="-n 30 -x 0.5071 -y 0.3598"
-    # ["ttHTobb"]="-n 30 -x 0.5071 -y 0.577"
-    # ["ttHToTauTau"]="-n 30 -x 0.5071 -y 0.0632"
+    ["ttHToNonbb"]="-n 20 -x 0.5071 -y 0.3598"
+    ["ttHTobb"]="-n 20 -x 0.5071 -y 0.577"
+    ["ttHToTauTau"]="-n 20 -x 0.5071 -y 0.0632"
     
-    # ["_WW_TuneCP5"]="-n 20 -x 118.7"
-    # ["_WZ_TuneCP5"]="-n 20 -x 47.13"
-    # ["_ZZ_TuneCP5"]="-n 20 -x 16.523"
+    ["_WW_TuneCP5"]="-n 5 -x 118.7"
+    ["_WZ_TuneCP5"]="-n 5 -x 47.13"
+    ["_ZZ_TuneCP5"]="-n 5 -x 16.523"
 
-    # ["TTWJetsToLNu"]="-n 50 -x 0.2043"
-    # ["TTWJetsToQQ"]="-n 50 -x 0.4062"
-    # ["TTZToLLNuNu"]="-n 50 -x 0.2529"
-    # ["TTWW"]="-n 50 -x 0.006979"
-    # ["TTZZ"]="-n 50 -x 0.001386"
-    # ["TTWZ"]="-n 50 -x 0.00158"
+    ["TTWJetsToLNu"]="-n 20 -x 0.2043"
+    ["TTWJetsToQQ"]="-n 20 -x 0.4062"
+    ["TTZToLLNuNu"]="-n 20 -x 0.2529"
+    ["TTWW"]="-n 10 -x 0.006979"
+    ["TTZZ"]="-n 10 -x 0.001386"
+    ["TTWZ"]="-n 10 -x 0.00158"
 )
 
 # Sanity checks for Drell-Yan stitching
@@ -366,13 +370,13 @@ for ds in ${!DATA_MAP[@]}; do
 		dy_counter=$(( dy_counter+1 ))
 	fi
 done
-if [ ${STITCHING_ON} -eq 1 ]; then
+if [ ${STITCHING_OFF} -eq 0 ]; then
 	if [ ${dy_counter} -eq 0 ]; then
-		echo "You set the DY stitching on while considering no DY samples. Did you forget to include the latter?"
+		echo "The DY stitching is on while considering no DY samples. Did you forget to include the '-s' flag?"
 		exit 1
-#	elif [ ${dy_counter} -eq 1 ]; then
-#		echo "You set the DY stitching on while considering a single DY sample. This is incorrect."
-#		exit 1
+	elif [ ${dy_counter} -eq 1 ]; then
+		echo "You set the DY stitching on while considering a single DY sample. This is incorrect."
+		exit 1
 	fi
 fi
 
@@ -380,10 +384,13 @@ fi
 for ds in ${!DATA_MAP[@]}; do
     sample=$(find_sample ${ds} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
     if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-	ERRORS+=( ${sample} )
+		ERRORS+=( ${sample} )
     else
-	[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Backgrounds --sample ${sample}
-	run_skim -i ${BKG_DIR} --sample ${sample} ${DATA_MAP[${ds}]}
+		eval `scram unsetenv -sh` # unset CMSSW environment
+		[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Backgrounds --sample ${sample}
+		cmsenv # set CMSSW environment
+		run_skim -i ${BKG_DIR} --sample ${sample} ${DATA_MAP[${ds}]}
+		cmsenv # set CMSSW environment
     fi
 done
 

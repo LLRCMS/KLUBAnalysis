@@ -15,32 +15,33 @@ def create_dir(d):
         os.makedirs(d)
         
 def make_input_lists(args):
-    xrd_door = {'llr': 'root://polgrid4.in2p3.fr/',
+    xrd_door = {'llr': 'root://eos.grif.fr/',
                 'uhh': 'root://dcache-cms-xrootd.desy.de:1094/',
                 'mib': '???'}[args.institute]
 
-    store = {'llr': 'store/user/' + args.user + '/HHNtuples_res',
+    store = {'llr': '/eos/grif/cms/llr/store/user/' + args.user + '/HHNtuples_res',
              'uhh': '???',
              'mib': '???'}[args.institute]
     store    = op.join(store, args.data_period)
 
-    dpm_home = '/dpm/in2p3.fr/home/cms/trivcat'
     prefix   = 'Data' if args.kind == 'Data' else 'MC'
-    path     = op.join(dpm_home, store, prefix + '_' + args.tag)
-    
+    path     = xrd_door + op.join(store, prefix + '_' + args.tag)
+
     leaf_dir = args.data_period + '_' + args.kind
     this_dir = op.dirname(op.abspath(__file__))
     out_dir  = op.normpath( op.join(op.dirname(this_dir), 'inputFiles', leaf_dir) )
     create_dir(out_dir)
     
-    rfdir  = '/usr/bin/rfdir'
+    rfdir  = '/usr/bin/gfal-ls -lH'
     awk    = "| awk '{{print $9}}'"
     rfcomm = lambda s : rfdir + ' {} '.format(s) + awk
+    print(rfcomm(path))
+    pipeopt = dict(shell=True, stdout=PIPE, encoding='utf-8')
+    pipe   = Popen(rfcomm(path), **pipeopt)
 
-    pipe   = Popen(rfcomm(path), shell=True, stdout=PIPE)
     all_lists = {}
     for smpl_name in pipe.stdout:
-        smpl_path = op.join(path, smpl_name).strip()    
+        smpl_path = op.join(path, smpl_name).strip()
         if args.sample not in smpl_name and args.sample != 'all':
             continue
         smpl_name = smpl_name.replace('\n', '')
@@ -48,7 +49,7 @@ def make_input_lists(args):
 
         for _ in range(3): #smpl_name, tag, hash subfolders
             comm = rfcomm(smpl_path.strip())
-            out = Popen(comm, shell=True, stdout=PIPE).stdout.readlines()
+            out = Popen(comm, **pipeopt).stdout.readlines()
             nlines = len(out)
             if nlines > 0:
                 if nlines > 1:
@@ -59,14 +60,14 @@ def make_input_lists(args):
 
         # loop over the folders 0000, 1000, etc...
         comm = rfcomm(' {} '.format(smpl_path.strip()))
-        out = Popen(comm, shell=True, stdout=PIPE).stdout.readlines()
+        out = Popen(comm, **pipeopt).stdout.readlines()
         for subfold in out:
             final_dir = op.join(smpl_path, subfold.strip())
             str_comm = '{} | grep HTauTauAnalysis'
             file_comm = rfcomm( str_comm.format(final_dir.strip()) )
-            out = Popen(file_comm, shell=True, stdout=PIPE).stdout.readlines()
+            out = Popen(file_comm, **pipeopt).stdout.readlines()
             for filename in out:
-                name = xrd_door + op.join(final_dir, filename.strip())
+                name = op.join(final_dir, filename.strip())
                 all_lists[smpl_name].append(name)
 
     if len(all_lists.keys()) != 1: # currently calling this script once per sample

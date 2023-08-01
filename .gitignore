@@ -5,3 +5,5 @@
 *.exe
 *.pcm
 */__pycache__/*
+resonantLimits/*.root
+resonantLimits/cards*

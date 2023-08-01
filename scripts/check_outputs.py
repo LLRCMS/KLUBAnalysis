@@ -22,32 +22,34 @@ def file_exists(afile, verb):
     return True
 
 def find_error_messages(afile, verb):
-    afile.seek(0) # go to the beginning of the file
-    problems = [w for w in afile.readlines()
-                if (('Error' in w and 'WARNING' not in w and 'Warning' not in w and 'TCling' not in w) or
-                    ('R__unzip: error' in w))]
-    if len(problems) != 0:
-        if verb:
-            mes = 'Found errors in file {}:\n'.format(afile.name)
-            for problem in problems:
-                mes += '  {}'.format(problem)
-            print(mes)
-        return True
+    with open(afile, 'r') as f:
+        problems = [w for w in f.readlines()
+                    if (('Error' in w and 'WARNING' not in w and 'Warning' not in w and 'TCling' not in w) or
+                        ('R__unzip: error' in w) or
+                        ('SysError in <TFile::WriteBuffer>: error writing to file' in w))]
+        if len(problems) != 0:
+            if verb:
+                mes = 'Found errors in file {}:\n'.format(afile)
+                for problem in problems:
+                    mes += '  {}'.format(problem)
+                print(mes)
+            return True
     return False
 
 def did_job_complete(afile, verb):
-    afile.seek(0) # go to the beginning of the file
-    if '... SKIM finished, exiting.' not in afile.readlines()[-1]:
-        if verb:
-            mes = 'The last line of file {} shows: '.format(afile)
-            mes += f.readlines()[-1]
-            print(mes)
-        return False
+    with open(afile, 'r') as f:
+        lines = f.readlines()
+        if '... SKIM finished, exiting.' not in lines[-1]:
+            if verb:
+                mes = 'The last line of file {} shows: '.format(afile)
+                mes += lines[-1]
+                print(mes)
+            return False
     return True
 
 def is_job_successful(rootfile, outfile, errfile, logfile, verb=False):
-    files = {'root': rootfile, 'out': outfile, 'err': errfile, 'log': logfile}
-    for afile in files.values():
+    files = {rootfile, outfile, errfile, logfile}
+    for afile in files:
         if not file_exists(afile, verb):
             return False
     
@@ -56,18 +58,14 @@ def is_job_successful(rootfile, outfile, errfile, logfile, verb=False):
             print('ROOT file {} is bad.'.format(rootfile))
         return False
 
-    del files['root']
-    files = {k:open(v) for k,v in files.iteritems()}
-    for afile in files.values():
+    files.remove(rootfile)
+    for afile in files:
         if find_error_messages(afile, verb):
             return False
 
-    if not did_job_complete(files['out'], verb):
+    if not did_job_complete(outfile, verb):
         return True
 
-    # close file instances
-    for afile in files.values():
-        afile.close()
     return True
 
 if __name__ == '__main__':
@@ -82,14 +80,18 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--logfile', dest='logfile',
                         required=True, help='log file')
     parser.add_argument('-v', '--verbose', dest='verbose', default=False,
-                        action='store_true', help='whether to have verbosity')
+                        action='store_true', help='whether to have verbosity')    
 
     FLAGS = parser.parse_args()
 
     success = is_job_successful(FLAGS.rootfile, FLAGS.outfile,
                                 FLAGS.errfile, FLAGS.logfile, FLAGS.verbose)
 
-    dir = os.path.dirname(FLAGS.rootfile)
-    out = 'good' if success else 'bad'
-    with open( os.path.join(dir, '{}files.txt'.format(out)), 'a' ) as f:
+    outdir = os.path.dirname(FLAGS.rootfile)
+    out = 'goodfiles' if success else 'badfiles'
+    extract = os.path.basename(FLAGS.errfile).split('.')[0]
+    if '_' in extract:
+        out += '_' + extract.split('_')[1]
+    out += '.txt'
+    with open(os.path.join(outdir, out), 'a') as f:
         f.write(FLAGS.rootfile + '\n')
