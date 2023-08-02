@@ -135,7 +135,7 @@ def run_combination(outnames, workdir, cfgname, prefix, args):
         # Read central correction
         central = eval(cfg.readOption('bTagRfactor::central')) if cfg.hasOption('bTagRfactor::central') else 1.
      
-        print('--- Appliyng bTagReshape normalization factor ---')
+        print('--- Applying bTagReshape normalization factor ---')
         print('    >> Values for bTagReshape normalization factor:')
         print('    >> central : {}'.format(central))
      

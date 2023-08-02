@@ -28,7 +28,7 @@ function print_usage_CRlimits {
     --var               [${VAR_STR}]
     --valid             [${VALIDATION_STR}]
     -p / --per_channel  [${PER_CHANNEL_STR}]
-    --dryrun            [${DRYRUN_STR}]
+    -n / --dryrun       [${DRYRUN_STR}]
 
 "
     printf "${USAGE}"
@@ -60,7 +60,7 @@ while [[ $# -gt 0 ]]; do
 			VAR=${2}
 			shift; shift;
 			;;
-		--dryrun)
+		-n|--dryrun)
 			DRYRUN="1"
 			shift;
 			;;

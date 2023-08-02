@@ -15,7 +15,7 @@ def parseOptions():
     
     parser.add_argument('-f', '--filename', default='', help='input plots')
     parser.add_argument('--indir', default='', help='input dir')
-    parser.add_argument('-o', '--outdir', default='', help='output dir')
+    parser.add_argument('-o', '--tag', default='TAG', help='tag')
     parser.add_argument('-c', '--channel', default='TauTau', help='final state')
     parser.add_argument('-i', '--config', default='', help='config file')
     parser.add_argument('-s', '--overSel', default='', help='overwrite selection string')
@@ -29,7 +29,7 @@ def parseOptions():
                         help='resonant masses to consider')
     parser.add_argument('-q', '--dynamQCD' , action='store_true',
                         help='1:do QCD as rateParam / 0:read QCD from file')
-    parser.add_argument('-u', '--noShapeUnc', action='store_false', help='disable shape uncertainties')
+    parser.add_argument('-u', '--noShapeUnc', action='store_true', help='disable shape uncertainties')
     parser.add_argument('-r', '--isResonant', action='store_true', help='is Resonant analysis')
     parser.add_argument('-b', '--binbybin', action='store_true', help='add bin by bins systematics')
     parser.add_argument('-t', '--theory', action='store_true', help='add theory systematics')
@@ -39,8 +39,9 @@ def parseOptions():
     return parser.parse_args()
 
 def writeCard(backgrounds, signals, select, varfit, regions=()):
-    if any(x in select for x in ('0b0j', '1b1j', '2b0j', 'boosted', 'VBFloose')):
+    if any(x in select for x in ('0b0j', '1b1j', '2b0j', 'boosted', 'VBFloose', 'ttCR_invMcut')):
         variable = varfit
+
     elif 'GGFclass'   in select : variable = 'mdnn__v2__kl1_c2v1_c31__hh_ggf',
     elif 'VBFclass'   in select : variable = 'mdnn__v2__kl1_c2v1_c31__hh_vbf',
     elif 'ttHclass'   in select : variable = 'mdnn__v2__kl1_c2v1_c31__tth',
@@ -50,7 +51,7 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
     else: raise ValueError('Selection not supported: {}'.format(select))
 
     svdir = select + '_' + variable
-    dname = opt.outdir + '_' + opt.channel
+    dname = opt.tag + '_' + opt.channel
     out_dir = os.path.join(opt.indir, 'cards_{}/{}/'.format(dname, svdir))
     cmd = 'mkdir -p {}'.format(out_dir)
     os.system(cmd)
@@ -106,7 +107,10 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
 
     outstr = '_{}_{}_{}_13TeV'.format(opt.period, opt.channel, select)
     hh_prefix = 'hhres' if opt.isResonant else 'hh'
-    hh_ext = lambda ext : ('.{}.'.format(signals[0]) if opt.isResonant else '.') + ext
+    if len(signals)==0:
+        hh_ext = lambda ext : ('.NOSIGNAL.' if opt.isResonant else '.') + ext
+    else:
+        hh_ext = lambda ext : ('.{}.'.format(signals[0]) if opt.isResonant else '.') + ext
 
     if regions[0] == 'SR':
         for proc in range(len(signals)):
@@ -114,20 +118,25 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
             template = inRoot.Get(templateName)
             rates.append(template.Integral())
 
-        syst = systReader('../config/systematics_'+opt.period+'.cfg', signals, backgrounds, None)
+        syst = systReader('config/systematics_'+opt.period+'.cfg', signals, backgrounds, None)
         syst.writeOutput(False)
-        #syst.verbose(True)
-        if opt.dy_syst:
-            syst.addSystFile('../config/systematics_DY_'+opt.period+'.cfg')
-        if opt.theory:
-            syst.addSystFile('../config/syst_th.cfg')
 
+        if opt.dy_syst:
+            syst.addSystFile('config/systematics_DY_'+opt.period+'.cfg')
+        if opt.theory:
+            syst.addSystFile('config/syst_th.cfg')
+
+        if select == 'ttCR_invMcut':
+            syst = systReader("config/systematics_ttCR.cfg",signals,backgrounds,None)
+            syst.writeOutput(False)
+            syst.verbose(False)
+            
         if opt.channel == 'ETau':
-            syst.addSystFile('../config/systematics_etau.cfg')
+            syst.addSystFile('config/systematics_etau.cfg')
         elif opt.channel == 'MuTau':
-            syst.addSystFile('../config/systematics_mutau.cfg')
+            syst.addSystFile('config/systematics_mutau.cfg')
         elif opt.channel == 'TauTau':
-            syst.addSystFile('../config/systematics_tautau.cfg')
+            syst.addSystFile('config/systematics_tautau.cfg')
         syst.writeSystematics()
 
         proc_syst = {} # key = proc name; value = {systName: [systType, systVal]] } # too nested? \_(``)_/
@@ -135,59 +144,62 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
         for proc in signals:     proc_syst[proc] = {}
 
         systsAll = {'shape': None, 'lnN': []}
-        systsAll['shape'] = [
-            # hadronic tau energy scale for decay mode 0
-            'CMS_scale_t_DM0_'    + opt.period,
-            # hadronic tau energy scale for decay mode 1
-            'CMS_scale_t_DM1_'    + opt.period,
-            # hadronic tau energy scale for decay mode 10
-            'CMS_scale_t_DM10_'   + opt.period,
-             # hadronic tau energy scale for decay mode 11
-            'CMS_scale_t_DM11_'   + opt.period,
+        if opt.noShapeUnc:
+            systsAll['shape'] = []
+        else:
+            systsAll['shape'] = [
+                # hadronic tau energy scale for decay mode 0
+                'CMS_scale_t_DM0_'    + opt.period,
+                # hadronic tau energy scale for decay mode 1
+                'CMS_scale_t_DM1_'    + opt.period,
+                # hadronic tau energy scale for decay mode 10
+                'CMS_scale_t_DM10_'   + opt.period,
+                # hadronic tau energy scale for decay mode 11
+                'CMS_scale_t_DM11_'   + opt.period,
+                
+                # energy scale of electrons reconstructed as hadronic taus for decay mode 0
+                'CMS_scale_t_eFake_'  + opt.period + '_DM0',
+                # energy scale of electrons reconstructed as hadronic taus for decay mode 1
+                'CMS_scale_t_eFake_'  + opt.period + '_DM1',
+                # energy scale of muons reconstructed as hadronic taus
+                'CMS_scale_t_muFake_' + opt.period,
+                
+                # jet energy scale
+                'CMS_JES_Abs',
+                'CMS_JES_Abs_'       + opt.period,
+                'CMS_JES_BBEC1',
+                'CMS_JES_BBEC1_'     + opt.period,
+                'CMS_JES_EC2',
+                'CMS_JES_EC2_'       + opt.period,
+                'CMS_JES_FlavQCD', 
+                'CMS_JES_HF',
+                'CMS_JES_HF_'        + opt.period,             
+                'CMS_JES_RelBal', 
+                'CMS_JES_RelSample_' + opt.period,
 
-            # energy scale of electrons reconstructed as hadronic taus for decay mode 0
-            'CMS_scale_t_eFake_'  + opt.period + '_DM0',
-            # energy scale of electrons reconstructed as hadronic taus for decay mode 1
-            'CMS_scale_t_eFake_'  + opt.period + '_DM1',
-            # energy scale of muons reconstructed as hadronic taus
-            'CMS_scale_t_muFake_' + opt.period,
+                # jets faking taus
+                'CMS_bbtt_' + opt.period + 'jetTauFakes_Barrel',
+                'CMS_bbtt_' + opt.period + 'jetTauFakes_Endcap',
 
-            # jet energy scale
-            'CMS_JES_Abs',
-            'CMS_JES_Abs_'       + opt.period,
-            'CMS_JES_BBEC1',
-            'CMS_JES_BBEC1_'     + opt.period,
-            'CMS_JES_EC2',
-            'CMS_JES_EC2_'       + opt.period,
-            'CMS_JES_FlavQCD', 
-            'CMS_JES_HF',
-            'CMS_JES_HF_'        + opt.period,             
-            'CMS_JES_RelBal', 
-            'CMS_JES_RelSample_' + opt.period,
+                # jet energy resolution
+                'CMS_res_j_' + opt.period,
+                
+                # b tagging scale factors
+                'CMS_btag_LF_2016_2017_2018',
+                'CMS_btag_HF_2016_2017_2018',
+                'CMS_btag_cferr1_2016_2017_2018',
+                'CMS_btag_cferr2_2016_2017_2018',
+                'CMS_btag_hfstats1_2016_2017_2018',
+                'CMS_btag_hfstats2_2016_2017_2018',
+                'CMS_btag_lfstats1_2016_2017_2018',
+                'CMS_btag_lfstats2_2016_2017_2018',
 
-            # jets faking taus
-            'CMS_bbtt_' + opt.period + 'jetTauFakes_Barrel',
-            'CMS_bbtt_' + opt.period + 'jetTauFakes_Endcap',
+                # pile-up jet id scale factors
+                'CMS_eff_j_PUJET_id_' + opt.period,
 
-            # jet energy resolution
-            'CMS_res_j_' + opt.period,
-
-            # b tagging scale factors
-            'CMS_btag_LF_2016_2017_2018',
-            'CMS_btag_HF_2016_2017_2018',
-            'CMS_btag_cferr1_2016_2017_2018',
-            'CMS_btag_cferr2_2016_2017_2018',
-            'CMS_btag_hfstats1_2016_2017_2018',
-            'CMS_btag_hfstats2_2016_2017_2018',
-            'CMS_btag_lfstats1_2016_2017_2018',
-            'CMS_btag_lfstats2_2016_2017_2018',
-
-            # pile-up jet id scale factors
-            'CMS_eff_j_PUJET_id_' + opt.period,
-
-            # deep tau scale factors versus electrons
-            'CMS_bbtt_' + opt.period + '_etauFR_barrel',
-            'CMS_bbtt_' + opt.period + '_etauFR_endcap',
+                # deep tau scale factors versus electrons
+                'CMS_bbtt_' + opt.period + '_etauFR_barrel',
+                'CMS_bbtt_' + opt.period + '_etauFR_endcap',
             ]
 
         # deep tau scale factors versus jets
@@ -243,8 +255,8 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
         nominalShapes_toSave.append('data_obs_' + suffix_str)
         nominalShapes_newName.append('data_obs')
 
-        shiftShapes_toSave, shiftShapes_newName = ([] for _ in range(2))
         if not opt.noShapeUnc:
+            shiftShapes_toSave, shiftShapes_newName = ([] for _ in range(2))
             for name in systsAll['shape']:
                 for proc in backgrounds:
                     if 'QCD' in proc and 'CMS_scale' not in name: 
@@ -265,19 +277,23 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
                      'sysName' : '{: <' + str(width_def-width_type) + '}',
                      'sysType' : '{: <' + str(width_type) + '}'}
 
-        lines = {'shape': [], 'lnN': []}
-        for lkey in lines.keys():
+        lineSysts = {'shape': [], 'lnN': []}
+        lkeys = lineSysts.keys()
+        if opt.noShapeUnc:
+            lkeys.remove('shape')
+            
+        for lkey in lkeys:
             for name in systsAll[lkey]:
-                lines[lkey].append(colwidths['sysName'].format(name))
-                lines[lkey].append(colwidths['sysType'].format(lkey))
+                lineSysts[lkey].append(colwidths['sysName'].format(name))
+                lineSysts[lkey].append(colwidths['sysType'].format(lkey))
 
                 for lineproc in backgrounds+signals:
                     if name in proc_syst[lineproc].keys():
                         astr = '1' if lkey=='shape' else proc_syst[lineproc][name][1]
                     else:
                         astr = '-'
-                    lines[lkey].append(colwidths['col'].format(astr))
-                lines[lkey].append('\n')
+                    lineSysts[lkey].append(colwidths['col'].format(astr))
+                lineSysts[lkey].append('\n')
 
         ########################
         infile = os.path.join(out_dir, hh_prefix + outstr + hh_ext('input.root'))
@@ -318,16 +334,19 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
                 wf(colwidths['col'].format(rates[proc]))
             wf('\n')
             wf('--------------------------------------\n')
-            for line in lines['shape']+lines['lnN']:
+            for line in lineSysts['shape']+lineSysts['lnN']:
                 wf(line)
             wf('--------------------------------------\n')
             if not opt.isResonant: ### L.P.: This might require some toughts (?)
-                file.write('theory group = HH_BR_Hbb HH_BR_Htt QCDscale_ggHH pdf_ggHH mtop_ggHH QCDscale_qqHH pdf_qqHH\n')
+                wf('theory group = HH_BR_Hbb HH_BR_Htt QCDscale_ggHH pdf_ggHH mtop_ggHH QCDscale_qqHH pdf_qqHH\n')
 
             if opt.dynamQCD:
                 wf('alpha rateParam {} QCD (@0*@1/@2) QCD_regB,QCD_regC,QCD_regD\n'.format(select))
+
+            if select == 'ttCR_invMcut':
+                wf('rate_TT rateParam {0} TT 1.0 [0,2]\n'.format(select))
                 
-            if (opt.binbybin):
+            if opt.binbybin:
                 wf('\n* autoMCStats 10')
 
         outf = ROOT.TFile.Open(infile, 'RECREATE')
@@ -337,15 +356,16 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
             h.SetName(nominalShapes_newName[i])
             outf.cd()
             h.Write()
-        for i, name in enumerate(shiftShapes_toSave):
-            h = inRoot.Get(name)
-            h.SetTitle(shiftShapes_newName[i])
-            h.SetName(shiftShapes_newName[i])
-            outf.cd()
-            h.Write()
+        if not opt.noShapeUnc:
+            for i, name in enumerate(shiftShapes_toSave):
+                h = inRoot.Get(name)
+                h.SetTitle(shiftShapes_newName[i])
+                h.SetName(shiftShapes_newName[i])
+                outf.cd()
+                h.Write()
         outf.Close()
 
-    else: # if region == 0:
+    else:
         outfile = hh_prefix + outstr + '_' + regions[1] + hh_ext('txt')
         colwidth = '{: <20}'
         with open(out_dir+outfile, 'wb') as afile:
@@ -443,9 +463,9 @@ if incfg.hasSection(mergesec):
 for i,sig in enumerate(signals):
     if 'GGHH_NLO' in sig:
         signals[i] = sig.replace('GGHH_NLO','ggHH').replace('_xs','_kt_1_hbbhtautau').replace('cHHH', 'kl_')
-    if 'VBFHH'in sig:
+    if 'VBFHH' in sig:
         signals[i] = sig.replace('VBFHH','qqHH').replace('C3','kl').replace('_xs','_hbbhtautau') #write 1_5 as 1p5 from the beginning
-
+        
 if opt.dynamQCD:
     regions = (('SR', ''), ('SStight', 'regB'), ('OSinviso', 'regC'), ('SSinviso', 'regD'))
 else:
@@ -454,13 +474,18 @@ else:
 if not opt.isResonant:
     for sel in selections:
         for ireg in range(len(regions)):
-            card = writeCard(backgrounds, signals, sel, opt.var, regions[ireg])
+            writeCard(backgrounds, signals, sel, opt.var, regions[ireg])
 else:
     for sel in selections:
-        for ireg in range(len(regions)):
-            for sig in signals:
-                sigmass = int(sig.replace('ggFRadion', ''))
-                if 'boosted' in sel and sigmass<301:
-                    print('Not generating card for {} in boosted category'.format(sig))
-                else:
-                    card = writeCard(backgrounds, [sig], sel, opt.var, regions[ireg])
+        if 'ttCR_invMcut' in selections:
+            # the signal is passed for convenience; it should be zero
+            for ireg in range(len(regions)):
+                writeCard(backgrounds, signals, sel, opt.var, regions[ireg])
+        else:
+            for ireg in range(len(regions)):
+                for sig in signals:
+                    sigmass = int(sig.replace('ggFRadion', ''))
+                    if 'boosted' in sel and sigmass<301:
+                        print('Not generating card for {} in boosted category'.format(sig))
+                    else:
+                        writeCard(backgrounds, [sig], sel, opt.var, regions[ireg])
