@@ -366,7 +366,7 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
                 h.Write()
         outf.Close()
 
-    else:
+    else: # if regions[0] != 'SR'
         outfile = hh_prefix + outstr + '_' + regions[1] + hh_ext('txt')
         colwidth = '{: <20}'
         with open(out_dir+outfile, 'wb') as afile:
