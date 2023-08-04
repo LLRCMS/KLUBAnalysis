@@ -112,31 +112,32 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
     else:
         hh_ext = lambda ext : ('.{}.'.format(signals[0]) if opt.isResonant else '.') + ext
 
+    configDir = os.path.join(os.environ['CMSSW_BASE'], 'src/KLUBAnalysis/config/')
     if regions[0] == 'SR':
         for proc in range(len(signals)):
             templateName = '{}_'.format(signals[proc]) + suffix_str
             template = inRoot.Get(templateName)
             rates.append(template.Integral())
 
-        syst = systReader('config/systematics_'+opt.period+'.cfg', signals, backgrounds, None)
+        syst = systReader(configDir + '/systematics_'+opt.period+'.cfg', signals, backgrounds, None)
         syst.writeOutput(False)
 
         if opt.dy_syst:
-            syst.addSystFile('config/systematics_DY_'+opt.period+'.cfg')
+            syst.addSystFile(configDir + '/systematics_DY_'+opt.period+'.cfg')
         if opt.theory:
-            syst.addSystFile('config/syst_th.cfg')
+            syst.addSystFile(configDir + '/syst_th.cfg')
 
         if select == 'ttCR_invMcut':
-            syst = systReader("config/systematics_ttCR.cfg",signals,backgrounds,None)
+            syst = systReader(configDir + '/systematics_ttCR.cfg', signals, backgrounds, None)
             syst.writeOutput(False)
             syst.verbose(False)
             
         if opt.channel == 'ETau':
-            syst.addSystFile('config/systematics_etau.cfg')
+            syst.addSystFile(configDir + '/systematics_etau.cfg')
         elif opt.channel == 'MuTau':
-            syst.addSystFile('config/systematics_mutau.cfg')
+            syst.addSystFile(configDir + '/systematics_mutau.cfg')
         elif opt.channel == 'TauTau':
-            syst.addSystFile('config/systematics_tautau.cfg')
+            syst.addSystFile(configDir + '/systematics_tautau.cfg')
         syst.writeSystematics()
 
         proc_syst = {} # key = proc name; value = {systName: [systType, systVal]] } # too nested? \_(``)_/
