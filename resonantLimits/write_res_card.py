@@ -80,12 +80,13 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
     rates = []
     iQCD = -1
     totRate = 0
+    nsig, nbak = len(signals), len(backgrounds)
     suffix_str = '{}_{}_{}'.format(select, regions[0], variable)
     templateName = 'data_obs_' + suffix_str
     template = inRoot.Get(templateName)
     obs = template.GetEntries()
-
-    for proc in range(len(backgrounds)):
+    
+    for proc in range(nbak):
         if 'QCD' in backgrounds[proc] and regions[0] != 'SR':
             rates.append(-1)
             iQCD = proc
@@ -94,11 +95,11 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
             template = inRoot.Get(templateName)
             brate = template.Integral()
             rates.append(brate)
-            totRate = totRate + brate
+            totRate += brate
     if iQCD >= 0 and regions[0] != 'SR':
         rates[iQCD] = ROOT.TMath.Max(0.0000001,obs-totRate)
     
-    # for proc in range(len(signals)):
+    # for proc in range(nsig):
     #     templateName = '{}_'.format(signals[proc]) + suffix_str
     #     template = inRoot.Get(templateName)
     #     if template.Integral() <= 0:
@@ -107,14 +108,14 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
 
     outstr = '_{}_{}_{}_13TeV'.format(opt.period, opt.channel, select)
     hh_prefix = 'hhres' if opt.isResonant else 'hh'
-    if len(signals)==0:
+    if nsig==0:
         hh_ext = lambda ext : ('.NOSIGNAL.' if opt.isResonant else '.') + ext
     else:
         hh_ext = lambda ext : ('.{}.'.format(signals[0]) if opt.isResonant else '.') + ext
 
-    configDir = os.path.join(os.environ['CMSSW_BASE'], 'src/KLUBAnalysis/config/')
+    configDir = os.path.join(os.environ['HOME'], 'CMSSW_11_1_9/src/KLUBAnalysis/config/')
     if regions[0] == 'SR':
-        for proc in range(len(signals)):
+        for proc in range(nsig):
             templateName = '{}_'.format(signals[proc]) + suffix_str
             template = inRoot.Get(templateName)
             rates.append(template.Integral())
@@ -315,24 +316,38 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
             wf('# list the expected events for signal and all backgrounds in that bin\n')
             wf('# the second process line must have a positive number for backgrounds, and 0 or neg for signal\n')
             wf(colwidths['col'].format('bin'))
-            for i in range(0,len(backgrounds)+len(signals)):
+            for i in range(0,nbak+nsig):
+                wf(colwidths['col'].format(select))
+            if nsig==0: # add one more for the empty signal process
                 wf(colwidths['col'].format(select))
             wf('\n')
+
             wf(colwidths['col'].format('process'))
             for proc in backgrounds:
                 wf(colwidths['col'].format(proc))
-            for proc in signals:
-                wf(colwidths['col'].format(proc))
+            if nsig==0:
+                wf(colwidths['col'].format('NoSignal'))
+            else:
+                for proc in signals:
+                    wf(colwidths['col'].format(proc))
             wf('\n')
+
             wf(colwidths['col'].format('process'))
-            for i in range(1,len(backgrounds)+1):
+            for i in range(1,nbak+1):
                 wf(colwidths['col'].format(i))
-            for i in range(0,len(signals)):
-                wf(colwidths['col'].format(str(-int(i))))
+
+            wf(colwidths['col'].format('0'))
+            if nsig > 0:
+                for i in range(1,nsig):
+                    wf(colwidths['col'].format(str(-int(i))))
             wf('\n')
+
             wf(colwidths['col'].format('rate'))
-            for proc in range(len(backgrounds)+len(signals)):
+            for proc in range(nbak+nsig):
                 wf(colwidths['col'].format(rates[proc]))
+            if nsig==0: # add one more for the empty signal process
+                wf(colwidths['col'].format('0.0'))
+
             wf('\n')
             wf('--------------------------------------\n')
             for line in lineSysts['shape']+lineSysts['lnN']:
@@ -372,7 +387,7 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
         with open(out_dir+outfile, 'wb') as afile:
             wf = lambda s : afile.write(s)
             wf('imax 1\n')
-            wf('jmax {}\n'.format(len(backgrounds)-1))
+            wf('jmax {}\n'.format(nbak-1))
             wf('kmax *\n')
 
             wf('------------\n')
@@ -399,7 +414,7 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
             wf('\n')
 
             wf(colwidth.format('process'))
-            for chan in range(len(backgrounds)): #+1 for the QCD
+            for chan in range(nbak): #+1 for the QCD
                 wf(colwidth.format(chan+1))
             wf('\n')
 
@@ -407,7 +422,7 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
             iQCD = -1
             totRate = 0
             wf(colwidth.format('rate'))
-            for ichan in range(len(backgrounds)):
+            for ichan in range(nbak):
                 if 'QCD' in backgrounds[ichan]:
                     rates.append(-1)
                     iQCD = ichan
@@ -416,10 +431,10 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
                     template = inRoot.Get(templateName)
                     brate = template.Integral()
                     rates.append(brate)
-                    totRate = totRate + brate
+                    totRate += brate
             if iQCD >= 0:
                 rates[iQCD] = ROOT.TMath.Max(0.0000001,obs-totRate)
-            for ichan in range(len(backgrounds)):
+            for ichan in range(nbak):
                 wf(colwidth.format(rates[ichan]))
             wf('\n')
             wf('------------\n')
@@ -481,7 +496,7 @@ else:
         if 'ttCR_invMcut' in selections:
             # the signal is passed for convenience; it should be zero
             for ireg in range(len(regions)):
-                writeCard(backgrounds, signals, sel, opt.var, regions[ireg])
+                writeCard(backgrounds, [], sel, opt.var, regions[ireg])
         else:
             for ireg in range(len(regions)):
                 for sig in signals:

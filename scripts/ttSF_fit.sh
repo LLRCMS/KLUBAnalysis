@@ -214,7 +214,7 @@ function run_combine() {
 
 declare -a DATACARDS;
 for sel in ${SELECTIONS[@]}; do
-	DATACARDS+=(${sel}_${VAR}/hhres_*.txt)
+	DATACARDS+=(${sel}_${VAR}/hhres_*.NOSIGNAL.txt)
 done
 
 echo ""
@@ -222,14 +222,14 @@ echo "#### Fit ####"
 echo ""
 
 if [[ "${PER_CHANNEL}" -eq 0 ]]; then
-	printf "\n+++++ Run combine for the inclusive channel +++"
+	printf "\n++++++ Run combine for the inclusive channel ++++++"
 	${CMD} cd ${STOREDIR_NEW}/cards_${CARDTAG}_inclusive/
 	${CMD} combineCards.py ${DATACARDS[@]} > comb.txt
 	${CMD} text2workspace.py comb.txt -o comb.root
 	run_combine
 else
 	for chn in ${CHANNELS[@]}; do
-		printf "\n+++++ Run combine for the ${chn} channel ++++++"
+		printf "\n++++++ Run combine for the ${chn} channel ++++++"
 		${CMD} cd ${STOREDIR_NEW}/cards_${CARDTAG}_${chn}/
 		${CMD} combineCards.py ${DATACARDS[@]} > comb.txt
 		${CMD} text2workspace.py comb.txt -o comb.root
