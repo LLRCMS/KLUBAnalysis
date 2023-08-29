@@ -590,7 +590,7 @@ int main (int argc, char** argv)
 	wpset_df = "106X16postVFP_DeepFlavor_V1";
 	wpyear = "2016";
   }
-  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", wpyear, wpset_df);
+  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", wpyear, wpset_csv);
   if(useDeepFlavor) {
     bTagSFHelper.SetWPset(wpset_df);
   }
@@ -717,7 +717,7 @@ int main (int argc, char** argv)
   else if (PERIOD == "2016preVFP" or PERIOD == "2016postVFP") {
 	muTauTrgSF->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Muon_Mu19leg_2016BtoH_eff.root");
 	muTrgSF   ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Muon_Run2016_legacy_IsoMu22.root");
-	//eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root");
+	//eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
 	eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Run2016_legacy_Ele25.root");
   }
 	  
@@ -749,7 +749,7 @@ int main (int argc, char** argv)
 	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
   }
-  if (PERIOD == "2017") {
+  else if (PERIOD == "2017") {
 	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
 	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi.txt_EGM2D_MVA80iso_UL17.root");
@@ -776,7 +776,7 @@ int main (int argc, char** argv)
   if (PERIOD == "2018") {
 	tauidsf_period = "UL2018";
   }
-  if (PERIOD == "2017") {
+  else if (PERIOD == "2017") {
 	tauidsf_period = "UL2017";
   }
   else if (PERIOD == "2016preVFP") {
@@ -3754,7 +3754,7 @@ int main (int argc, char** argv)
 			  cout << "dR(tau1)   : " << tlv_jet.DeltaR (tlv_firstLepton) << " - lepCleaningCone: " << lepCleaningCone << endl;
 			  cout << "dR(tau2)   : " << tlv_jet.DeltaR (tlv_secondLepton) << " - lepCleaningCone: " << lepCleaningCone << endl;
 			  cout << "pT < 20    : " << (tlv_jet.Pt () < 20.) << endl;
-			  cout << "eta > 2.5  : " << (TMath::Abs(tlv_jet.Eta()) > jet_eta_thresh) << endl;
+			  cout << "eta > " <<  jet_eta_thresh << " : " << (TMath::Abs(tlv_jet.Eta()) > jet_eta_thresh) << endl;
 			  cout << "deepFlavour: " << theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet) << endl;
 			  cout << "Only PF Jet ID Cut applied before this printout" << endl;
 			  cout << "---------------------------------" << endl;
@@ -5408,7 +5408,7 @@ int main (int argc, char** argv)
 			  // Apply PUjetID only to jets with pt < 50 GeV (https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets)
 			  if (PUjetID_WP > -1) //PU jet ID WP = 2: loose
 				{
-				  if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_additionalJet.Pt()<50) continue;
+				  if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_additionalJet.Pt()<50.) continue;
 				}
 
 			  // get up/down uncertainty for this additional jet
