@@ -51,8 +51,8 @@ def run_limits(in_tags, channels, selections, selection_prefixes, masses,
     commands.append('bash combine_res_all.sh --tag {tag} --masses {m} --var {v} --signal {s} -b {b}')
 
     # Obtain limits on signal strength
-    limit_modes = ('separate', 'sel_group', 'chn_group', 'all_group')
-
+    #limit_modes = ('separate', 'sel_group', 'chn_group', 'all_group')
+    limit_modes = ('all_group',)
     for mode in limit_modes:
         commands.append('bash get_limits_res.sh --mode ' + mode + ' --tag {tag} --masses {m} --var {v} --signal {s} --channels {chn} -b {b}')
         if mode == 'sel_group' and set(selections) != set(selection_prefixes):
@@ -118,7 +118,6 @@ if __name__ == '__main__':
     #               )
     selection_prefixes = ('s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut')
     
-    #masses = ('250', '260', '280', '300', '320', '350', '400', '450', '500', '550', '600', '650', '700', '750', '800', '850', '900', '1000', '1250', '1500', '1750', '2000', '2500', '3000')
     masses = ('250', '260', '280', '300', '350', '400', '450', '500', '550', '600', '650', '700', '750', '800', '850', '900', '1000', '1250', '1500', '1750', '2000', '2500', '3000')
     work_dir = os.path.join('/home/llr/cms/', os.environ['USER'], 'CMSSW_11_1_9/src/KLUBAnalysis')
 

@@ -49,9 +49,9 @@ while [[ $# -gt 0 ]]; do
             shift; shift;
             ;;
 	-b|--base)
-	    BASEDIR=${2}
-	    shift; shift;
-	    ;;
+	        BASEDIR=${2}
+		    shift; shift;
+		        ;;
 	-v|--var)
             VAR=${2}
             shift; shift;
@@ -61,47 +61,47 @@ while [[ $# -gt 0 ]]; do
             shift; shift;
             ;;
 	-m|--masses)
-	    mass_flag=0
-	    while [ ${mass_flag} -eq 0 ]; do
-		if [[ "${2}" =~ ^[-].*$ ]] || [[ "${2}" =~ ^$ ]]; then
-		    mass_flag=1
-		else
-		    MASSES+=(${2});
-		    shift;
-		fi
-	    done
+	        mass_flag=0
+		    while [ ${mass_flag} -eq 0 ]; do
+			if [[ "${2}" =~ ^[-].*$ ]] || [[ "${2}" =~ ^$ ]]; then
+			        mass_flag=1
+				else
+			        MASSES+=(${2});
+				    shift;
+				    fi
+			    done
             shift;
             ;;
 	-l|--selections)
-	    sel_flag=0
-	    while [ ${sel_flag} -eq 0 ]; do
-		if [[ "${2}" =~ ^[-].*$ ]] || [[ "${2}" =~ ^$ ]]; then
-		    sel_flag=1
-		else
-		    SELECTIONS+=(${2});
-		    shift;
-		fi
-	       done
+	        sel_flag=0
+		    while [ ${sel_flag} -eq 0 ]; do
+			if [[ "${2}" =~ ^[-].*$ ]] || [[ "${2}" =~ ^$ ]]; then
+			        sel_flag=1
+				else
+			        SELECTIONS+=(${2});
+				    shift;
+				    fi
+			       done
             shift;
            ;;
 	-c|--channels)
-	    chn_flag=0
-	    while [ ${chn_flag} -eq 0 ]; do
-		if [[ "${2}" =~ ^[-].*$ ]] || [[ "${2}" =~ ^$ ]]; then
-		    chn_flag=1
-		else
-		    CHANNELS+=(${2});
-		    shift;
-		fi
-	    done
+	        chn_flag=0
+		    while [ ${chn_flag} -eq 0 ]; do
+			if [[ "${2}" =~ ^[-].*$ ]] || [[ "${2}" =~ ^$ ]]; then
+			        chn_flag=1
+				else
+			        CHANNELS+=(${2});
+				    shift;
+				    fi
+			    done
             shift;
             ;;
 	-s|--signal)
-	    SIGNAL=${2}
+	        SIGNAL=${2}
             shift; shift;
             ;;
 	*)  # unknown option
-	    echo "Wrong parameter ${1}."
+	        echo "Wrong parameter ${1}."
             exit 1
             ;;
     esac
@@ -120,8 +120,8 @@ fi
 declare -a MASSES_IF;
 declare -a MHIGH;
 for mass in ${MASSES[@]}; do
-	if [ ${mass} -gt "319" ]; then
-		MHIGH+=(${mass})
+    if [ ${mass} -gt "319" ]; then
+	MHIGH+=(${mass})
 	fi
 done
 
@@ -129,31 +129,31 @@ LIMIT_DIR="${BASEDIR}/resonantLimits"
 
 for ichn in "${!CHANNELS[@]}"; do
     card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[${ichn}]}"
-	proc="${SIGNAL}_${VAR}_{}"
-	comb_="comb.${proc}"
-	
+    proc="${SIGNAL}_${VAR}_{}"
+    comb_="comb.${proc}"
+    
     for sel in ${SELECTIONS[@]}; do
-		echo "Processing ${sel} for channel ${CHANNELS[${ichn}]} ..."
-		cat_dir="${card_dir}/${sel}_${VAR}"
-		cd ${cat_dir}
+	echo "Processing ${sel} for channel ${CHANNELS[${ichn}]} ..."
+	cat_dir="${card_dir}/${sel}_${VAR}"
+	cd ${cat_dir}
 
-		comb_txt="${cat_dir}/${comb_}.txt"
-		comb_root="${cat_dir}/${comb_}.root"
+	comb_txt="${cat_dir}/${comb_}.txt"
+	comb_root="${cat_dir}/${comb_}.root"
 
-		# remove low masses for boosted categories
-		if [[ ${sel} =~ .*boosted.* ]]; then
-			MASSES_IF=${MHIGH[@]};
-		else
-			MASSES_IF=${MASSES[@]};
-		fi
+	# remove low masses for boosted categories
+	if [[ ${sel} =~ .*boosted.* ]]; then
+	    MASSES_IF=${MHIGH[@]};
+	    else
+	    MASSES_IF=${MASSES[@]};
+	    fi
 
-		# parallelize over the mass
-		parallel rm -f -- ${comb_txt} ::: ${MASSES_IF[@]}
-		parallel combineCards.py -S ${cat_dir}/hhres_*.${SIGNAL}{}.txt ">" ${comb_txt} ::: ${MASSES_IF[@]}
-		parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${comb_txt} ::: ${MASSES_IF[@]}
+	# parallelize over the mass
+	parallel rm -f -- ${comb_txt} ::: ${MASSES_IF[@]}
+	parallel combineCards.py -S ${cat_dir}/hhres_*.${SIGNAL}{}.txt ">" ${comb_txt} ::: ${MASSES_IF[@]}
+	parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${comb_txt} ::: ${MASSES_IF[@]}
 
-		cd -
-		parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES_IF[@]}
+	cd -
+	parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES_IF[@]}
 
     done
     cd ${LIMIT_DIR}

@@ -135,7 +135,7 @@ def run_combination(outnames, workdir, cfgname, prefix, args):
         # Read central correction
         central = eval(cfg.readOption('bTagRfactor::central')) if cfg.hasOption('bTagRfactor::central') else 1.
      
-        print('--- Appliyng bTagReshape normalization factor ---')
+        print('--- Applying bTagReshape normalization factor ---')
         print('    >> Values for bTagReshape normalization factor:')
         print('    >> central : {}'.format(central))
      
@@ -152,9 +152,9 @@ def run_combination(outnames, workdir, cfgname, prefix, args):
      
      
     # C/D factor:
-    # if not specified by --SBtoSRforQCD, 
+    # if not specified by --SBtoSR, 
     # the number inserted manually in config is used
-    # if SBtoSRfactor == 1 in config and --SBtoSRforQCD is not specified, C/D computed dynamically
+    # if SBtoSRfactor == 1 in config and --SBtoSR is not specified, C/D computed dynamically
     if cfg.hasSection('pp_QCD'):
         SBtoSRforQCD = float(cfg.readOption('pp_QCD::SBtoSRfactor'))
         SBtoSRforQCDboost = float(cfg.readOption('pp_QCD::boostSBtoSR')) if cfg.hasOption('pp_QCD::boostSBtoSR') else 1.
@@ -225,8 +225,9 @@ def run_combination(outnames, workdir, cfgname, prefix, args):
      
                     omngr.makeVBFrew(inputSigList, target_kl, target_cv, target_c2v, target_xs)
      
-     
-    fOut = ROOT.TFile(op.join(workdir, 'combined_' + outname), 'recreate')
+    fName = ('combined_' +
+             ('moreTT_' + str(args.moreTT).replace('.', 'p') + '_' if args.moreTT else '') + outname)
+    fOut = ROOT.TFile(op.join(workdir, fName), 'recreate')
     omngr.saveToFile(fOut)
 
 def run_hadd(name, workdir, args):

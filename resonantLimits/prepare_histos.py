@@ -11,15 +11,16 @@ def parseOptions():
     parser = argparse.ArgumentParser(description=usage)
 
     parser.add_argument('-f', '--filename', default='', help='input plots')
+    parser.add_argument('--outdir', default=None, help='output directory')
     parser.add_argument('-o', '--outname', default='prepared_outLimits.root',
                         help='output plots')
     parser.add_argument('-c', '--channel', default='TauTau', help='channel')
     parser.add_argument('-y', '--period', default='UL18', choices=('UL16', 'UL16APV', 'UL17', 'UL18'),
                         help='data period')
     parser.add_argument('-q', '--dynamQCD', default=0, type=int,
-                      help='1:do QCD as rateParam / 0:read QCD from file')
+                        help='1:do QCD as rateParam / 0:read QCD from file')
     parser.add_argument('-B', '--renameH', type=int, default=1,
-                      help='1:rename singleH bkgs / 0:do not rename singleH bkgs')
+                        help='1:rename singleH bkgs / 0:do not rename singleH bkgs')
     parser.add_argument('--binOptimization', action='store_true',
                         help='disable removal of negative bins before doing binning args.mization')
     parser.add_argument('--acceptanceScale', action='store_true',
@@ -107,9 +108,8 @@ inFile = ROOT.TFile.Open(args.filename, 'READ')
 
 histolist = inFile.GetListOfKeys()
 toth = histolist.GetSize()
-outFile = ROOT.TFile.Open(os.path.join(os.path.dirname(args.filename), args.outname),
-                          'RECREATE')
-
+outputDir = os.path.dirname(args.filename) if args.outdir is None else args.outdir
+outFile = ROOT.TFile.Open(os.path.join(outputDir, args.outname), 'RECREATE')
 
 # histos_syst_up, histos_syst_down = ([] for _ in range(2))
 systReplace = lambda s1, s2 : s1.replace('XXX', s2).replace('tes','tau').replace('ees','ele').replace('mes','mu').replace('jes','jet')
@@ -124,9 +124,9 @@ for ih in range(toth):
     if ih%500==0:
         print('{}/{}: {} ({})'.format(ih, toth, kname, template.ClassName()))
 
-	# If QCD is read from file and not computed as rate parameter in the datacards
-	# we can skip all the SStight/OSinviso/SSinviso shifted template and save
-	# a lot of time and space
+        # If QCD is read from file and not computed as rate parameter in the datacards
+        # we can skip all the SStight/OSinviso/SSinviso shifted template and save
+        # a lot of time and space
     if args.dynamQCD == 0:
         if (any(x in kname for x in ('SStight', 'OSiniso', 'SSinviso')) and
             any(x in kname for x in ('Up', 'Down', 'up', 'down'))):
@@ -172,7 +172,7 @@ for ih in range(toth):
                     if any(x in names[i] for x in ('resolved', 'boosted', 'class', 'VBFloose')):
                         for j in range(1, i):
                             names[0] += '_'+str(names[j])
-						#if not (names[i]== 'singleT'): names[1] = names[i]
+        #if not (names[i]== 'singleT'): names[1] = names[i]
                         names[1] = names[i]
                         break
 
@@ -191,16 +191,16 @@ for ih in range(toth):
                 kname = kname.replace('_'+syst_replace(systNames[isyst], remString), '')
                 kname = kname + '_' + systNamesOUT[isyst] + appString
 
-		# Fix the signal names after the systs have been read
-		#if "GGHH_NLO" in kname: kname = kname.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_hbbhtt").replace("cHHH", "kl_")
-		#if "VBFHH"    in kname: kname = kname.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_hbbhtt")
+            # Fix the signal names after the systs have been read
+        #if "GGHH_NLO" in kname: kname = kname.replace("GGHH_NLO","ggHH").replace("_xs","_kt_1_hbbhtt").replace("cHHH", "kl_")
+    #if "VBFHH"    in kname: kname = kname.replace("VBFHH","qqHH").replace("C3","kl").replace("_xs","_hbbhtt")
 
-		# Rename singleH processes to use the HHModel BR scaling
-		# ggH --> ggH_htt
-		# qqH --> qqH_htt
-		# WH  --> WH_htt
-		# ZH  --> ZH_hbb
-		# ttH --> ttH_hbb
+# Rename singleH processes to use the HHModel BR scaling
+# ggH --> ggH_htt
+# qqH --> qqH_htt
+# WH  --> WH_htt
+# ZH  --> ZH_hbb
+# ttH --> ttH_hbb
         if args.renameH:
             if kname[0:4] == 'ggH_': kname = kname.replace('ggH_', 'ggH_htt_')
             if kname[0:4] == 'qqH_': kname = kname.replace('qqH_', 'qqH_htt_')

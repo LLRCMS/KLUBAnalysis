@@ -121,9 +121,3 @@ class systReader:
 
     def verbose(self, v) :
         self.printResult = v
-
-
-
-
-
-
