@@ -180,6 +180,7 @@ public :
   std::vector<int>     *decayMode;
   std::vector<Long64_t> *tauID;
   std::vector<float>   *combreliso;
+  std::vector<float>   *tkRelIso;
   std::vector<float>   *daughters_depositR03_tracker;
   std::vector<float>   *daughters_depositR03_ecal;
   std::vector<float>   *daughters_depositR03_hcal;
@@ -454,6 +455,7 @@ public :
   TBranch        *b_decayMode;   //!
   TBranch        *b_tauID;   //!
   TBranch        *b_combreliso;   //!
+  TBranch        *b_tkRelIso;   //!
   // TBranch        *b_daughters_IetaIeta;   //!
   // TBranch        *b_daughters_deltaPhiSuperClusterTrackAtVtx;   //!
   TBranch        *b_daughters_depositR03_tracker;   //!
@@ -718,6 +720,7 @@ public :
     decayMode = 0;
     tauID = 0;
     combreliso = 0;
+	tkRelIso = 0;
     daughters_depositR03_tracker = 0;
     daughters_depositR03_ecal = 0;
     daughters_depositR03_hcal = 0;
@@ -927,6 +930,7 @@ public :
     fChain->SetBranchAddress("decayMode", &decayMode, &b_decayMode);
     fChain->SetBranchAddress("tauID", &tauID, &b_tauID);
     fChain->SetBranchAddress("combreliso", &combreliso, &b_combreliso);
+	fChain->SetBranchAddress("tkRelIso", &tkRelIso, &b_tkRelIso);
     // fChain->SetBranchAddress("daughters_IetaIeta", &daughters_IetaIeta, &b_daughters_IetaIeta);
     // fChain->SetBranchAddress("daughters_deltaPhiSuperClusterTrackAtVtx", &daughters_deltaPhiSuperClusterTrackAtVtx, &b_daughters_deltaPhiSuperClusterTrackAtVtx);
     fChain->SetBranchAddress("daughters_depositR03_tracker", &daughters_depositR03_tracker, &b_daughters_depositR03_tracker);
