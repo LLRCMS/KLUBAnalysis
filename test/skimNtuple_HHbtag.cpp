@@ -704,21 +704,31 @@ int main (int argc, char** argv)
   ScaleFactor * eTrgSF     = new ScaleFactor();
   if (PERIOD == "2018") {
 	muTauTrgSF->init_ScaleFactor("weights/trigger_SF_Legacy/2018/Muon_Run2018_IsoMu20.root");
-	muTrgSF   ->init_ScaleFactor("weights/trigger_SF_Legacy/2018/Muon_Run2018_IsoMu24orIsoMu27.root");
-	eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2018/Electron_Run2018_Ele24.root");
-	eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2018/Electron_Run2018_Ele32orEle35.root");
+	muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers_schemaV2.root",
+				     "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
+	eTauTrgSF ->init_EG_TrigScaleFactor("weights/trigSFs_UL_eleMu/sf_el_2018_HLTEle24Tau30.root");
+        eTrgSF    ->init_EG_TrigScaleFactor("weights/trigSFs_UL_eleMu/sf_el_2018_HLTEle32.root");
   }
   else if (PERIOD == "2017") {
 	muTauTrgSF->init_ScaleFactor("weights/trigger_SF_Legacy/2017/Muon_MuTau_IsoMu20.root");
-	muTrgSF   ->init_ScaleFactor("weights/trigger_SF_Legacy/2017/Muon_IsoMu24orIsoMu27.root");
-	eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2017/Electron_EleTau_Ele24_fix.root");
-	eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2017/Electron_Ele32orEle35_fix.root");
+	muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers_schemaV2.root",
+				     "NUM_IsoMu27_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
+	eTauTrgSF ->init_EG_TrigScaleFactor("weights/trigSFs_UL_eleMu/sf_el_2017_HLTEle24Tau30.root");
+        eTrgSF    ->init_EG_TrigScaleFactor("weights/trigSFs_UL_eleMu/sf_el_2017_HLTEle32.root");
   }
-  else if (PERIOD == "2016preVFP" or PERIOD == "2016postVFP") {
+  else if (PERIOD == "2016preVFP") {
 	muTauTrgSF->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Muon_Mu19leg_2016BtoH_eff.root");
-	muTrgSF   ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Muon_Run2016_legacy_IsoMu22.root");
+	muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_SingleMuonTriggers_schemaV2.root",
+				     "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
 	//eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
-	eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Run2016_legacy_Ele25.root");
+        eTrgSF    ->init_EG_TrigScaleFactor("weights/trigSFs_UL_eleMu/sf_el_2016pre_HLTEle25.root");
+  }
+  else if (PERIOD == "2016postVFP") {
+	muTauTrgSF->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Muon_Mu19leg_2016BtoH_eff.root");
+	muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_SingleMuonTriggers_schemaV2.root",
+				     "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
+	//eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
+        eTrgSF    ->init_EG_TrigScaleFactor("weights/trigSFs_UL_eleMu/sf_el_2016post_HLTEle25.root");
   }
 	  
   //VBF trigger weights -- jet legs

@@ -34,6 +34,7 @@ public:
   void init_ScaleFactor(TString,std::string);
   void init_ScaleFactor(TString, std::string, bool);
   void init_EG_ScaleFactor(TString);
+  void init_EG_TrigScaleFactor(TString);
   ~ ScaleFactor(){};
   std::string FindEtaLabel(double, std::string);
   double get_EfficiencyData(double, double); //pt, eta
