@@ -357,12 +357,20 @@ DATA_MAP=(
     ["_WZ_TuneCP5"]="-n 5 -x 47.13"
     ["_ZZ_TuneCP5"]="-n 5 -x 16.523"
 
+	["WWW"]="-n 10 -x 0.209"
+	["WWZ"]="-n 10 -x 0.168"
+	["WZZ"]="-n 10 -x 0.057"
+	["ZZZ"]="-n 10 -x 0.0147"
+	
     ["TTWJetsToLNu"]="-n 20 -x 0.2043"
     ["TTWJetsToQQ"]="-n 20 -x 0.4062"
     ["TTZToLLNuNu"]="-n 20 -x 0.2529"
     ["TTWW"]="-n 10 -x 0.006979"
     ["TTZZ"]="-n 10 -x 0.001386"
     ["TTWZ"]="-n 10 -x 0.00158"
+
+	["TTWH"]="-n 10 -x 0.001143"
+	["TTZH"]="-n 10 -x 0.001136"
 )
 
 # Sanity checks for Drell-Yan stitching
