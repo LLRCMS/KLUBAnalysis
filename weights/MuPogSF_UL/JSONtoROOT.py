@@ -1,3 +1,8 @@
+# ----------------------------------------
+# Utility code kindly shared by G.Liu
+# Formats muon trigger SF files provided by MUO POG into ROOT format
+# ----------------------------------------
+
 import json
 import numpy as np
 import ROOT as rt
@@ -12,13 +17,13 @@ class TrgSF:
         self.__ReadJSON()
         
     def __ReadJSON(self):
-        f=open(self.file_name)
-        a=json.load(f)['corrections']
-        self.nScheme=len(a)
-        for iS in range(self.nScheme):
-            self.hist_name[iS]=a[iS]['name'].encode('utf-8')
-            self.nInputs[iS]=len(a[iS]['inputs'])-1
-            self.data[iS]=a[iS]
+        with open(self.file_name) as f:
+            a=json.load(f)['corrections']
+            self.nScheme=len(a)
+            for iS in range(self.nScheme):
+                self.hist_name[iS]=a[iS]['name'].encode('utf-8')
+                self.nInputs[iS]=len(a[iS]['inputs'])-1
+                self.data[iS]=a[iS]
             
     def __GetHist2D(self,i):
         data=self.data[i]
@@ -35,6 +40,15 @@ class TrgSF:
         hist_syst=rt.TH2F(hist_name+"_syst",";|#eta|;p_{T} (GeV)",nbin1,bins1,nbin2,bins2)
         for i1 in range(nbin1):
             for i2 in range(nbin2):
+                #          eta bin           pt bin           SF info
+                # data ['content'][i1]  ['content'][i2]  ['content'][x]  ['value']
+                # SF info:
+                #  0 -> "AltSig": syst. uncertainty from signal modeling
+                #  1 -> massBin: syst. uncertainty from mass binning size
+                #  2 -> massRange: syst. uncertainty from mass window size
+                #  3 -> stat: stat. uncertainty
+                #  4 -> syst: total syst. uncertainty
+                #  5 -> nominal: Nominal SF value
                 nom=data['content'][i1]['content'][i2]['content'][5]['value']
                 stat=data['content'][i1]['content'][i2]['content'][3]['value']
                 syst=data['content'][i1]['content'][i2]['content'][4]['value']
