@@ -24,7 +24,7 @@ def make_input_lists(args):
              'mib': '???'}[args.institute]
     store    = op.join(store, args.data_period)
 
-    prefix   = 'Data' if args.kind == 'Data' else 'MC'
+    prefix   = args.kind
     path     = xrd_door + op.join(store, prefix + '_' + args.tag)
 
     leaf_dir = args.data_period + '_' + args.kind
@@ -35,7 +35,7 @@ def make_input_lists(args):
     rfdir  = '/usr/bin/gfal-ls -lH'
     awk    = "| awk '{{print $9}}'"
     rfcomm = lambda s : rfdir + ' {} '.format(s) + awk
-    print(rfcomm(path))
+    print('Command run: {}'.format(rfcomm(path)))
     pipeopt = dict(shell=True, stdout=PIPE, encoding='utf-8')
     pipe   = Popen(rfcomm(path), **pipeopt)
 
@@ -71,7 +71,7 @@ def make_input_lists(args):
                 all_lists[smpl_name].append(name)
 
     if len(all_lists.keys()) != 1: # currently calling this script once per sample
-        mes = 'Issue {}'.format(len(all_lists.keys()))
+        mes = 'Number of compatible files: {}'.format(len(all_lists.keys()))
         raise RuntimeError(mes)
 
     if not all_lists:
@@ -105,7 +105,7 @@ if __name__ == "__main__":
                         required=True, type=str,
                         help=help_sample)
     parser.add_argument('-k', '--kind', dest='kind', required=True, type=str,
-                        choices=('Data', 'Signals', 'Backgrounds'),
+                        choices=('Data', 'Sig', 'MC'),
                         help='Sample type.')
 
     FLAGS = parser.parse_args()
