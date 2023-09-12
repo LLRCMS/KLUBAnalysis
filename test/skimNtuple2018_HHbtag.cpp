@@ -6772,6 +6772,7 @@ int main (int argc, char** argv)
 
   // NEW DNN
   bool computeDNN = (gConfigParser->isDefined("DNN::computeMVA") ? gConfigParser->readBoolOption("DNN::computeMVA") : false);
+  std::string model_name = (gConfigParser->isDefined("DNN::model_name") ? gConfigParser->readStringOption("DNN::model_name") : "");
   if (computeDNN)
 	{
 	  cout << " ------------ ############### ----- NEW DNN ----- ############### ------------ " <<endl;
@@ -6784,8 +6785,8 @@ int main (int argc, char** argv)
 	  std::string model_dir = gConfigParser->readStringOption ("DNN::weights");
 	  std::cout << "DNN::weights   : " << model_dir << std::endl;
 
-	  vector<float> DNN_kl;
-	  DNN_kl = gConfigParser->readFloatListOption("DNN::kl");
+	  // vector<float> DNN_kl;
+	  // DNN_kl = gConfigParser->readFloatListOption("DNN::kl");
 
 	  std::string features_file = gConfigParser->readStringOption ("DNN::features");
 	  std::cout << "DNN::features  : " << features_file << std::endl;
@@ -6806,9 +6807,13 @@ int main (int argc, char** argv)
 	  // Open file to read values and compute predictions
 	  TFile* in_file = TFile::Open(outputFile);
 
-	  // Store prediction in vector of vectors of floats:
-	  // [kl=1 : [evt1_pred, evt2_pred, evt3_pred ...], kl=2 : [evt1_opred, evt2_pred, evt3_pred...]]
-	  std::vector<std::vector<float>> outDNN;
+	  // // Store prediction in vector of vectors of floats:
+	  // // [kl=1 : [evt1_pred, evt2_pred, evt3_pred ...], kl=2 : [evt1_opred, evt2_pred, evt3_pred...]]
+	  // std::vector<std::vector<float>> outDNN;
+
+	  // non-parametrised: only one prediction vector needed
+	  // default the prediction value to -1.
+	  std::vector<float> outDNN(n_tot_events,-1.);
 
 	  // Initialize the EvtProc
 	  EvtProc evt_proc(false, requested, true);
@@ -6832,7 +6837,7 @@ int main (int argc, char** argv)
 	  Channel DNN_e_channel;
 	  Year DNN_e_year(y18);
 	  Spin DNN_spin(nonres);
-	  float DNN_klambda;
+	  // float DNN_klambda;
 	  float DNN_res_mass = 125.; // FIXME
 
 	  // Declare TTreeReaders
@@ -6910,12 +6915,10 @@ int main (int argc, char** argv)
 	  // Index and number of entries for loop on entries
 	  long int c_event(0), n_tot_events(reader.GetEntries(true));
 
-	  // Resize output vector to store all DNN predictions (initialized to -1.0)
-	  outDNN.resize(DNN_kl.size(), std::vector<float>(n_tot_events,-1.));
-	  std::cout << "DNN::DNN_kl size   : " << DNN_kl.size() << endl;
-	  std::cout << "DNN::DNN_kl values : ";
-	  for (uint i=0; i<DNN_kl.size();i++) cout << DNN_kl.at(i) << " ";
-	  std::cout << endl;
+	  // std::cout << "DNN::DNN_kl size   : " << DNN_kl.size() << endl;
+	  // std::cout << "DNN::DNN_kl values : ";
+	  // // for (uint i=0; i<DNN_kl.size();i++) cout << DNN_kl.at(i) << " ";
+	  // std::cout << endl;
 	  std::cout << "DNN::n_tot_events  : " << n_tot_events << endl;
 
 	  // Loop on entries with TTreeReader
@@ -7006,35 +7009,17 @@ int main (int argc, char** argv)
 		  //DNN_pass_massCut = ( ((DNN_svfit.M()-116.)*(DNN_svfit.M()-116.))/(35.*35.) + (((DNN_b_1+DNN_b_2).M()-111.)*((DNN_b_1+DNN_b_2).M()-111.))/(45.*45.) <  1.0 );
 		  DNN_pass_massCut = true; // since training 2020-07-31-0 this feature is not used, so it is set always to true
 
-		  // Loop on configurable options to get the output prediction
-		  // For each event save the predictions for all the kl values requested
-		  for (unsigned int jkl = 0; jkl < DNN_kl.size(); ++jkl)
-			{
-			  // Assign external values
-			  DNN_klambda = DNN_kl.at(jkl);
-
-			  // Compute fatures
-			  feat_vals = evt_proc.process_as_vec(DNN_b_1, DNN_b_2, DNN_l_1, DNN_l_2, DNN_met, DNN_svfit, DNN_vbf_1, DNN_vbf_2,
-												  DNN_kinfit_mass, DNN_kinfit_chi2, DNN_mt2, DNN_is_boosted, DNN_b_1_deepflav, DNN_b_2_deepflav,
-												  DNN_e_channel, DNN_e_year, DNN_res_mass, DNN_spin, DNN_klambda,
-												  DNN_n_vbf, DNN_svfit_conv, DNN_hh_kinfit_conv,
-												  DNN_b_1_HHbtag, DNN_b_2_HHbtag, DNN_vbf_1_HHbtag, DNN_vbf_2_HHbtag,
-												  DNN_b_1_CvsL, DNN_b_2_CvsL, DNN_vbf_1_CvsL, DNN_vbf_2_CvsL,
-												  DNN_b_1_CvsB, DNN_b_2_CvsB, DNN_vbf_1_CvsB, DNN_vbf_2_CvsB,
-												  0, 0, 0, // cv, c2v, c3
-												  DNN_pass_massCut);
-
-			  // Get model prediction
+		  feat_vals = evt_proc.process_as_vec(DNN_b_1, DNN_b_2, DNN_l_1, DNN_l_2, DNN_met, DNN_svfit, DNN_vbf_1, DNN_vbf_2,
+											DNN_kinfit_mass, DNN_kinfit_chi2, DNN_mt2, DNN_is_boosted, DNN_b_1_deepflav, DNN_b_2_deepflav,
+											N_e_channel, DNN_e_year, DNN_res_mass, DNN_spin, DNN_klambda,
+											N_n_vbf, DNN_svfit_conv, DNN_hh_kinfit_conv,
+											N_b_1_HHbtag, DNN_b_2_HHbtag, DNN_vbf_1_HHbtag, DNN_vbf_2_HHbtag,
+											DNN_b_1_CvsL, DNN_b_2_CvsL, DNN_vbf_1_CvsL, DNN_vbf_2_CvsL,
+											DNN_b_1_CvsB, DNN_b_2_CvsB, DNN_vbf_1_CvsB, DNN_vbf_2_CvsB,
+											0, 0, 0, // cv, c2v, c3
+											DNN_pass_massCut);
 			  DNN_pred = wrapper.predict(feat_vals, DNN_evt);
-			  if (c_event%5000 == 0) cout << " -> kl: "<< DNN_klambda << " - pred: " << DNN_pred << endl;
-			  //std::vector<std::string>  debug_feats = evt_proc.get_feats();
-			  //cout << "   - feats: " << endl;
-			  //for (uint i=0;i<debug_feats.size(); i++) cout << "      " << debug_feats.at(i) << " : " << feat_vals.at(i) << endl ;
-
-			  // store prediction in vector as:
-			  // [evt_1_kl_1, evt_1_kl_2, evt_2_kl_1, evt_2_kl_2 ....]
-			  outDNN[jkl][c_event] = DNN_pred;
-			}
+			  outDNN[c_event] = DNN_pred;
 		  c_event++;
 		} // end loop on entries with TTreeReader
 
@@ -7043,25 +7028,19 @@ int main (int argc, char** argv)
 	  TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 
 	  // Declare one new branch for each value of klambda
-	  std::vector<float> outDNNval (DNN_kl.size());
-	  std::vector<TBranch*> branchDNN (DNN_kl.size()); // prediction branches
+	  float outDNNval;
+	  TBranch* branchDNN; // prediction branches
 	  //cout << " - branchDNN size: " << branchDNN.size() << endl;
 
-	  for (unsigned int ikl = 0; ikl < DNN_kl.size(); ++ikl)
-		{
-		  std::string branch_name = boost::str(boost::format("DNNoutSM_kl_%d") % DNN_kl.at(ikl));
-		  branchDNN.at(ikl) = treenew->Branch(branch_name.c_str(), &outDNNval.at(ikl));
-		}
+	  std::string branch_name = boost::str(boost::format("DNNoutSM_kl_%1%") % model_name);
+	  branchDNN = treenew->Branch(branch_name.c_str(), outDNNval);
 
 	  // Fill the new branches
 	  for (int i=0; i<n_tot_events; i++)
 		{
 		  treenew->GetEntry(i);
-		  for (unsigned int jkl=0; jkl<DNN_kl.size(); ++jkl)
-			{
-			  outDNNval[jkl] = outDNN[jkl][i];
-			  branchDNN.at(jkl)->Fill();
-			}
+		  outDNNval = outDNN[i];
+		  branchDNN->Fill();
 		}
 
 	  // Update tree and delete readers
