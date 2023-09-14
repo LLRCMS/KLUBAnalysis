@@ -6,11 +6,12 @@
 #include <sstream>
 #include <bitset>
 #include <map>
+#include <unordered_map>
+#include <utility>
 #include <cassert>
 #include "TTree.h"
 #include "TH1F.h"
 #include "TH2F.h"
-#include "TH3F.h"
 #include "TFile.h"
 #include "TBranch.h"
 #include "TString.h"
@@ -40,6 +41,7 @@
 #include "lester_mt2_bisect.h"
 
 #include "ScaleFactor.h"
+#include "ScaleFactorMET.h"
 #include "ConfigParser.h"
 #include "EffCounter.h"
 #include "exceptions/HHInvMConstraintException.h"
@@ -287,7 +289,7 @@ int main (int argc, char** argv)
 		}
 	}
 
-
+  
   vector<string> trigMuTau   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuTau")  : gConfigParser->readStringListOption ("triggersData::MuTau")) ;
   vector<string> trigTauTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::TauTau") : gConfigParser->readStringListOption ("triggersData::TauTau")) ;
   vector<string> trigEleTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleTau") : gConfigParser->readStringListOption ("triggersData::EleTau")) ;
@@ -304,10 +306,6 @@ int main (int argc, char** argv)
   //// NEW TRIGGERS
   vector<string> trigMET  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::METtriggers") : gConfigParser->readStringListOption ("triggersData::METtriggers")) ;
   vector<string> trigSingleTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::SingleTau") : gConfigParser->readStringListOption ("triggersData::SingleTau")); 
-
-
-  // bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
-  //bool applyTriggers = isMC ? gConfigParser->readBoolOption ("parameters::applyTriggersMC") : true; // true if ask triggerbit + matching, false if doing reweight
 
   bool applyTriggers = gConfigParser->readBoolOption ("parameters::applyTriggersMC") ;
 
@@ -582,10 +580,10 @@ int main (int argc, char** argv)
    ********************************************************************************************************************/
 
   // electron/muon leg trigger SF for data and mc
-  ScaleFactor * muTauTrgSF = new ScaleFactor();
-  ScaleFactor * eTauTrgSF  = new ScaleFactor();
-  ScaleFactor * muTrgSF    = new ScaleFactor();
-  ScaleFactor * eTrgSF     = new ScaleFactor();
+  ScaleFactor    * muTauTrgSF = new ScaleFactor();
+  ScaleFactor    * eTauTrgSF  = new ScaleFactor();
+  ScaleFactor    * muTrgSF    = new ScaleFactor();
+  ScaleFactor    * eTrgSF     = new ScaleFactor();
   if (PERIOD == "2018") {
 	muTauTrgSF->init_ScaleFactor("weights/trigger_SF_Legacy/2018/Muon_Run2018_IsoMu20.root");
 	muTrgSF   ->init_ScaleFactor("weights/trigger_SF_Legacy/2018/Muon_Run2018_IsoMu24orIsoMu27.root");
@@ -604,7 +602,10 @@ int main (int argc, char** argv)
 	//eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
 	eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Run2016_legacy_Ele25.root");
   }
-	  
+
+  // MET scale Factors
+  ScaleFactorMET metSF;
+  
   //VBF trigger weights -- jet legs
   TFile* VBFjets_file;
   TH3D*  VBFjets_SF;
@@ -1278,6 +1279,7 @@ int main (int argc, char** argv)
 
 	  int metbit = theBigTree.metfilterbit;
 
+	  // Twiki: https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#MET_Filter_Recommendations_for_R
 	  int metpass = (metbit & (1 << 0)) ? 1 : 0; //"Flag_goodVertices"
 	  metpass    += (metbit & (1 << 1)) ? 1 : 0; //"Flag_HBHENoiseFilter"
 	  metpass    += (metbit & (1 << 2)) ? 1 : 0; //"Flag_HBHENoiseIsoFilter"
@@ -1285,7 +1287,7 @@ int main (int argc, char** argv)
 	  metpass    += (metbit & (1 << 4)) ? 1 : 0; //"Flag_globalSuperTightHalo2016Filter"
 	  metpass    += (metbit & (1 << 5)) ? 1 : 0; //"Flag_BadPFMuonFilter"
 	  metpass    += (metbit & (1 << 6)) ? 1 : 0; //"Flag_eeBadScFilter"
-	  if(PERIOD == "2018" or PERIOD=="2017") {
+	  if(PERIOD == "2018" or PERIOD == "2017") {
 		metpass    += (metbit & (1 << 7)) ? 1 : 0; //"Flag_ecalBadCalibFilter"
 	  }
 	  metpass    += (metbit & (1 << 8)) ? 1 : 0; //"Flag_BadPFMuonDzFilter"
@@ -1308,10 +1310,10 @@ int main (int argc, char** argv)
 		}
 
 	  int metpass_thresh;
-	  if(PERIOD == "2018" or PERIOD=="2017") {
+	  if(PERIOD == "2018" or PERIOD == "2017") {
 		metpass_thresh = 9;
 	  }
-	  if(PERIOD == "2016preVFP" or PERIOD=="2016postVFP") {
+	  if(PERIOD == "2016preVFP" or PERIOD == "2016postVFP") {
 		metpass_thresh = 8;
 	  }
 	  if(metpass < metpass_thresh) continue ;
@@ -1588,21 +1590,42 @@ int main (int argc, char** argv)
 		}
 
 
-	  const TLorentzVector tlv_firstLepton (
-											theBigTree.daughters_px->at (firstDaughterIndex),
+	  const TLorentzVector tlv_firstLepton (theBigTree.daughters_px->at (firstDaughterIndex),
 											theBigTree.daughters_py->at (firstDaughterIndex),
 											theBigTree.daughters_pz->at (firstDaughterIndex),
 											theBigTree.daughters_e->at (firstDaughterIndex)
 											);
 
-	  const TLorentzVector tlv_secondLepton (
-											 theBigTree.daughters_px->at (secondDaughterIndex),
+	  const TLorentzVector tlv_secondLepton (theBigTree.daughters_px->at (secondDaughterIndex),
 											 theBigTree.daughters_py->at (secondDaughterIndex),
 											 theBigTree.daughters_pz->at (secondDaughterIndex),
 											 theBigTree.daughters_e->at (secondDaughterIndex)
 											 );
 
+	  TVector2 vMET(theBigTree.METx->at(chosenTauPair),
+					theBigTree.METy->at(chosenTauPair));
+	  TVector2 vMUON(0., 0.);
+	  if (pairType==0) {
+		// single muon in evt, vetoing events with 3rd lepton
+		vMUON.Set(tlv_firstLepton.Px(), tlv_firstLepton.Py());
+	  }
+	  else if(pairType==3) {
+		 // two muons in evt (looser cuts), vetoing events with 3rd lepton
+		vMUON.Set(tlv_firstLepton.Px()+tlv_secondLepton.Px(),
+				  tlv_firstLepton.Py()+tlv_secondLepton.Py());
+	  }
+	  TVector2 vMETnoMu = vMET + vMUON;
 
+	  // MHT(noMu) variables. This might be a quick&dirty definition though, as not removing soft contributions
+	  // mht: transverse component of jet momentum sum (here MET(tot)-MET(leptons))
+	  TVector2 vLEP(tlv_firstLepton.Px()+tlv_secondLepton.Px(),
+					tlv_firstLepton.Py()+tlv_secondLepton.Py()); // no matter what lepton type
+	  TVector2 vMHT = vMET + vLEP;
+	  // mhtnomu: ~ as defined in HLT code
+	  // https://github.com/cms-sw/cmssw/blob/6d2f66057131baacc2fcbdd203588c41c885b42c/HLTrigger/JetMET/src/HLTHtMhtProducer.cc#L76
+	  // > transverse component of jets momentum sum minus muons momentum sum (I still need to figure this one out...)
+	  TVector2 vMHTnoMu = vMHT+vMUON;
+	  
 	  //////////
 	  // -- GEN NEUTRINO, LEPTON, B-QUARK DEFINITION:
 	  // -> Adding gen-matched info for the 2 taus neutrinos for tauTau ID training tests
@@ -1789,7 +1812,6 @@ int main (int argc, char** argv)
 	  vector <TLorentzVector> tlv_secondLepton_eleup   (N_tauhDM_EES, tlv_secondLepton);
 	  vector <TLorentzVector> tlv_secondLepton_eledown (N_tauhDM_EES, tlv_secondLepton);
 
-
 	  // for each decay mode, bool indicating if this lepton matches the dacay mode in the loop
 	  // just for protection, probably it's not needed
 	  vector<bool> isthisDM_first = {
@@ -1905,8 +1927,16 @@ int main (int argc, char** argv)
 	  bool passTrg = false;
 
 	  // NEW TRIGGERS
-	  bool passMETTrg = false;
+	  bool passMETTrg = false, passMETTrgNoThresh=false;
 	  bool passSingleTau = false;
+
+	  // Twiki (UL SFs not available as of September 2023)
+	  // https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauTrigger#Run_II_Trigger_Scale_Factors
+	  std::unordered_map<std::string, std::pair<float,float>> singleTauSF = {
+		{"2016preVFP",  std::make_pair(0.88, 0.08)},
+		{"2016postVFP", std::make_pair(0.88, 0.08)},
+		{"2017",        std::make_pair(1.08, 0.10)},
+		{"2018",        std::make_pair(0.87, 0.11)}};
 
 	  if (applyTriggers)
 		{
@@ -1918,11 +1948,18 @@ int main (int argc, char** argv)
 		  Long64_t goodTriggerType2 = (Long64_t) theBigTree.daughters_isGoodTriggerType->at(secondDaughterIndex);
 
 		  Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
-		  passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
+		  passTrg = trigReader.checkOR (pairType, triggerbit, &pass_triggerbit,
+										matchFlag1, matchFlag2, trgNotOverlapFlag,
+										goodTriggerType1, goodTriggerType2,
+										tlv_firstLepton.Pt(), tlv_firstLepton.Eta(),
+										tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
 
-		  // check NEW TRIGGERS separately
-		  passMETTrg = trigReader.checkMET(triggerbit, &pass_triggerbit);
+		  // check NEW TRIGGERS separately		  
+		  passMETTrg         = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 200.);
+		  passMETTrgNoThresh = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 0.);
+
 		  passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
+
 		  if (PERIOD=="2018" and !isMC and passTrg)
 			{
 			  if(theBigTree.RunNumber < 317509)
@@ -2018,11 +2055,11 @@ int main (int argc, char** argv)
 			}
 
 		  bool triggerAccept = false;
-		  triggerAccept = passTrg || isVBFfired || passMETTrg || passSingleTau;
+		  triggerAccept = passTrg || isVBFfired || passMETTrgNoThresh || passSingleTau;
 
 		  if(DEBUG)
 			{
-			  cout << "---> isVBFfired?  "<<isVBFfired<<endl;
+			  cout << "---> isVBFfired?  " << isVBFfired << endl;
 			  if(pairType == 0)//MuTau
 				{
 				  trigReader.listMuTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
@@ -2040,14 +2077,14 @@ int main (int argc, char** argv)
 
 		  if (DEBUG) std::cout << "----> Final Trigger passed? " << triggerAccept << std::endl;
 		  if (!triggerAccept) continue;
+		  
 		  theSmallTree.m_pass_triggerbit = pass_triggerbit;
 		  ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
 		  if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
 
 		  theSmallTree.m_isLeptrigger = passTrg;
-
-		  // NEW TRIGGERS: fill trig info in output tree
 		  theSmallTree.m_isMETtrigger = passMETTrg;
+		  theSmallTree.m_isMETtriggerNoThresh = passMETTrgNoThresh;
 		  theSmallTree.m_isSingleTautrigger = passSingleTau;
 		} // end if applyTriggers
 
@@ -2088,31 +2125,13 @@ int main (int argc, char** argv)
 	  TLorentzVector tlv_tauH = tlv_firstLepton + tlv_secondLepton ;
 	  TLorentzVector tlv_tauH_SVFIT ;
 
-	  TVector2 vMET(theBigTree.METx->at(chosenTauPair) , theBigTree.METy->at(chosenTauPair));
-
 	  // METnoMu,MHT,MHTnoMu for trigger study
 	  /*
 		Most basic implementation accounting only for muons passing selection cuts.
 		Would we need to include soft muons somehow as well?
 		(3rd lepton veto already looks for soft leptons (>10 GeV))
 	  */
-	  // metnomu
-	  TVector2 vMUON;
-	  if(pairType==0) vMUON.Set(tlv_firstLepton.Px(),tlv_firstLepton.Py()); // single muon in evt, vetoing events with 3rd lepton
-	  if(pairType==3) vMUON.Set(tlv_firstLepton.Px()+tlv_secondLepton.Px(),tlv_firstLepton.Py()+tlv_secondLepton.Py()); // two muons in evt (looser cuts), vetoing events with 3rd lepton
-	  TVector2 vMETnoMu = vMET + vMUON;
-
-	  /*
-		MHT(noMu) variables. This might be a quick&dirty definition though, as not removing soft contributions
-	  */
-	  // mht: transverse component of jet momentum sum (here MET(tot)-MET(leptons))
-	  TVector2 vLEP(tlv_firstLepton.Px()+tlv_secondLepton.Px(),tlv_firstLepton.Py()+tlv_secondLepton.Py()); // no matter what lepton type
-	  TVector2 vMHT = vMET + vLEP;
-	  // mhtnomu: ~ as defined in HLT code
-	  // https://github.com/cms-sw/cmssw/blob/6d2f66057131baacc2fcbdd203588c41c885b42c/HLTrigger/JetMET/src/HLTHtMhtProducer.cc#L76
-	  // > transverse component of jets momentum sum minus muons momentum sum (I still need to figure this one out...)
-	  TVector2 vMHTnoMu = vMHT+vMUON;
-
+	
 	  TLorentzVector tlv_MET;
 	  tlv_MET.SetPxPyPzE(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair), 0, std::hypot(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair)));
 
@@ -3027,7 +3046,6 @@ int main (int argc, char** argv)
 	  // https://github.com/truggles/TauTriggerSFs2017
 
 	  // recommendations for cross triggers:  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information
-
 	  float trigSF				= 1.0;
 	  float trigSF_ele_up		= 1.0;
 	  float trigSF_mu_up		= 1.0;
@@ -3045,7 +3063,11 @@ int main (int argc, char** argv)
 	  float trigSF_vbfjet_down	= 1.0;
 	  float trigSF_single		= 1.0;
 	  float trigSF_cross		= 1.0;
-
+	  float trigSF_met_up   	= 1.0;
+	  float trigSF_met_down   	= 1.0;
+	  float trigSF_stau_up   	= 1.0;
+	  float trigSF_stau_down   	= 1.0;
+	  
 	  if(applyTriggers)
 		{
 		  // MuTau Channel
@@ -3053,8 +3075,7 @@ int main (int argc, char** argv)
 			{
 			  if(fabs(tlv_secondLepton.Eta()) < 2.1) //eta region covered both by cross-trigger and single lepton trigger
 				{
-				  int passCross = 1;
-				  int passSingle = 1;
+				  int passSingle = 1, passCross = 1;
 
 				  float lep1_thresh, lep2_thresh;
 				  if(PERIOD=="2018" or PERIOD=="2017") {
@@ -3142,17 +3163,17 @@ int main (int argc, char** argv)
 					  cout << "SFtau_MC: "   << SFtau_MC   << endl;
 					}
 
-				  trigSF = Eff_Data / Eff_MC;
-				  trigSF_mu_up     = Eff_Data_mu_up / Eff_MC_mu_up;
-				  trigSF_mu_down   = Eff_Data_mu_down / Eff_MC_mu_down;
-				  trigSF_DM0_up    = Eff_Data_up[0] / Eff_MC_up[0];
-				  trigSF_DM1_up    = Eff_Data_up[1] / Eff_MC_up[1];
-				  trigSF_DM10_up   = Eff_Data_up[2] / Eff_MC_up[2];
-				  trigSF_DM11_up   = Eff_Data_up[3] / Eff_MC_up[3];
-				  trigSF_DM0_down  = Eff_Data_down[0] / Eff_MC_down[0];
-				  trigSF_DM1_down  = Eff_Data_down[1] / Eff_MC_down[1];
-				  trigSF_DM10_down = Eff_Data_down[2] / Eff_MC_down[2];
-				  trigSF_DM11_down = Eff_Data_down[3] / Eff_MC_down[3];
+				  trigSF			= Eff_Data			/ Eff_MC;
+				  trigSF_mu_up		= Eff_Data_mu_up	/ Eff_MC_mu_up;
+				  trigSF_mu_down	= Eff_Data_mu_down	/ Eff_MC_mu_down;
+				  trigSF_DM0_up		= Eff_Data_up[0]	/ Eff_MC_up[0];
+				  trigSF_DM1_up		= Eff_Data_up[1]	/ Eff_MC_up[1];
+				  trigSF_DM10_up	= Eff_Data_up[2]	/ Eff_MC_up[2];
+				  trigSF_DM11_up	= Eff_Data_up[3]	/ Eff_MC_up[3];
+				  trigSF_DM0_down	= Eff_Data_down[0]	/ Eff_MC_down[0];
+				  trigSF_DM1_down	= Eff_Data_down[1]	/ Eff_MC_down[1];
+				  trigSF_DM10_down	= Eff_Data_down[2]	/ Eff_MC_down[2];
+				  trigSF_DM11_down	= Eff_Data_down[3]	/ Eff_MC_down[3];
 
 				  //trig SF for analysis only with cross-trigger
 				  double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -3168,7 +3189,7 @@ int main (int argc, char** argv)
 				  trigSF_mu_down = SF - 1. * SF_Err;
 				}
 			  //trig SF for analysis only with single-mu trigger
-			  trigSF_single =  muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+			  trigSF_single = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 			}
 
 		  // EleTau Channel
@@ -3177,8 +3198,7 @@ int main (int argc, char** argv)
 			  //eta region covered both by cross-trigger and single lepton trigger
 			  if(fabs(tlv_secondLepton.Eta()) < 2.1 and PERIOD != "2016preVFP" and PERIOD != "2016postVFP")
 				{
-				  int passCross = 1;
-				  int passSingle = 1;
+				  int passSingle = 1, passCross = 1;
 
 				  if (tlv_firstLepton.Pt() < 33.) passSingle = 0;
 				  if (tlv_secondLepton.Pt() < 35.) passCross = 0;
@@ -3257,17 +3277,17 @@ int main (int argc, char** argv)
 					  cout << "SFtau_MC: "   << SFtau_MC   << endl;
 					}
 
-				  trigSF = Eff_Data / Eff_MC;
-				  trigSF_ele_up    = Eff_Data_ele_up / Eff_MC_ele_up;
-				  trigSF_ele_down  = Eff_Data_ele_down / Eff_MC_ele_down;
-				  trigSF_DM0_up    = Eff_Data_up[0] / Eff_MC_up[0];
-				  trigSF_DM1_up    = Eff_Data_up[1] / Eff_MC_up[1];
-				  trigSF_DM10_up   = Eff_Data_up[2] / Eff_MC_up[2];
-				  trigSF_DM11_up   = Eff_Data_up[3] / Eff_MC_up[3];
-				  trigSF_DM0_down  = Eff_Data_down[0] / Eff_MC_down[0];
-				  trigSF_DM1_down  = Eff_Data_down[1] / Eff_MC_down[1];
-				  trigSF_DM10_down = Eff_Data_down[2] / Eff_MC_down[2];
-				  trigSF_DM11_down = Eff_Data_down[3] / Eff_MC_down[3];
+				  trigSF			= Eff_Data			/ Eff_MC;
+				  trigSF_ele_up		= Eff_Data_ele_up	/ Eff_MC_ele_up;
+				  trigSF_ele_down	= Eff_Data_ele_down / Eff_MC_ele_down;
+				  trigSF_DM0_up		= Eff_Data_up[0]	/ Eff_MC_up[0];
+				  trigSF_DM1_up		= Eff_Data_up[1]	/ Eff_MC_up[1];
+				  trigSF_DM10_up	= Eff_Data_up[2]	/ Eff_MC_up[2];
+				  trigSF_DM11_up	= Eff_Data_up[3]	/ Eff_MC_up[3];
+				  trigSF_DM0_down	= Eff_Data_down[0]	/ Eff_MC_down[0];
+				  trigSF_DM1_down	= Eff_Data_down[1]	/ Eff_MC_down[1];
+				  trigSF_DM10_down	= Eff_Data_down[2]	/ Eff_MC_down[2];
+				  trigSF_DM11_down	= Eff_Data_down[3]	/ Eff_MC_down[3];
 
 				  //trig SF for analysis only with cross-trigger
 				  double SFl = eTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -3289,42 +3309,63 @@ int main (int argc, char** argv)
 		  // TauTau Channel
 		  else if (pType == 2 && isMC && isVBFfired == 0)
 			{
-			  double SF1 = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt() , DM1, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-			  double SF2 = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-
-			  // for each DM, fill a trigSF branch with the up/down values if tauhs have the corresponding DM, otherwise fill with nominal trigSF value
-			  vector <double> SF1_up (N_tauhDM, SF1);
-			  vector <double> SF2_up (N_tauhDM, SF2);
-			  vector <double> SF1_down (N_tauhDM, SF1);
-			  vector <double> SF2_down (N_tauhDM, SF2);
-
-			  for (int idm  = 0; idm < N_tauhDM; idm ++)
+			  // MET region
+			  if( (fabs(tlv_firstLepton.Pt()) < 40  and fabs(tlv_firstLepton.Pt()) < 190) or
+				  (fabs(tlv_firstLepton.Pt()) < 190 and fabs(tlv_firstLepton.Pt()) < 40 ) )
 				{
-				  if (isthisDM_first[idm])
-					{
-					  SF1_up[idm]   = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt(), DM1, 1);
-					  SF1_down[idm] = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt(), DM1, -1);
-					}
-				  if (isthisDM_second[idm])
-					{
-					  SF2_up[idm]   = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 1);
-					  SF2_down[idm] = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, -1);
-					}
+				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD);
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD);
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD);
 				}
 
-			  trigSF = SF1 * SF2;
-			  trigSF_DM0_up    = SF1_up[0]   *	SF2_up[0];
-			  trigSF_DM1_up    = SF1_up[1]   *	SF2_up[1];
-			  trigSF_DM10_up   = SF1_up[2]   *	SF2_up[2];
-			  trigSF_DM11_up   = SF1_up[3]   *	SF2_up[3];
-			  trigSF_DM0_down  = SF1_down[0] *	SF2_down[0];
-			  trigSF_DM1_down  = SF1_down[1] *	SF2_down[1];
-			  trigSF_DM10_down = SF1_down[2] *	SF2_down[2];
-			  trigSF_DM11_down = SF1_down[3] *	SF2_down[3];
-			  trigSF_vbfjet_up   = SF1 * SF2;
-			  trigSF_vbfjet_down = SF1 * SF2;
-			}
+			  // SingleTau region
+			  else if( (fabs(tlv_firstLepton.Pt()) < 40  and fabs(tlv_firstLepton.Pt()) >= 190) or
+					   (fabs(tlv_firstLepton.Pt()) >= 190 and fabs(tlv_firstLepton.Pt()) < 40 ) )
+				{
+				  trigSF           = singleTauSF[PERIOD].first;
+				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
+				  trigSF_stau_down = trigSF - singleTauSF[PERIOD].second;
+				}
 
+			  // DiTau region
+			  else {
+				// last entry is uncertainty: 0 central, +1 up, -1 down
+				double SF1 = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt() , DM1, 0);
+				double SF2 = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 0);
+			  
+				// for each DM, fill a trigSF branch with the up/down values if taus have
+				// the corresponding DM, otherwise fill with nominal trigSF value
+				vector <double> SF1_up(N_tauhDM, SF1), SF1_down (N_tauhDM, SF1);
+				vector <double> SF2_up(N_tauhDM, SF2), SF2_down (N_tauhDM, SF2);
+
+				for (int idm  = 0; idm < N_tauhDM; idm++)
+				  {
+					if (isthisDM_first[idm])
+					  {
+						SF1_up[idm]   = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt(), DM1, 1);
+						SF1_down[idm] = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt(), DM1, -1);
+					  }
+					if (isthisDM_second[idm])
+					  {
+						SF2_up[idm]   = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 1);
+						SF2_down[idm] = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, -1);
+					  }
+				  }
+				
+				trigSF				= SF1         * SF2;
+				trigSF_DM0_up		= SF1_up[0]   *	SF2_up[0];
+				trigSF_DM1_up		= SF1_up[1]   *	SF2_up[1];
+				trigSF_DM10_up		= SF1_up[2]   *	SF2_up[2];
+				trigSF_DM11_up		= SF1_up[3]   *	SF2_up[3];
+				trigSF_DM0_down		= SF1_down[0] *	SF2_down[0];
+				trigSF_DM1_down		= SF1_down[1] *	SF2_down[1];
+				trigSF_DM10_down	= SF1_down[2] *	SF2_down[2];
+				trigSF_DM11_down	= SF1_down[3] *	SF2_down[3];
+				trigSF_vbfjet_up	= SF1         * SF2;
+				trigSF_vbfjet_down	= SF1         * SF2;
+			  }
+			}
+		  
 		  // MuMu Channel
 		  else if (pType == 3 && isMC)
 			{
@@ -3363,6 +3404,10 @@ int main (int argc, char** argv)
 	  theSmallTree.m_trigSF_vbfjet_down = (isMC ? trigSF_vbfjet_down : 1.0);
 	  theSmallTree.m_trigSF_single		= (isMC ? trigSF_single : 1.0);
 	  theSmallTree.m_trigSF_cross		= (isMC ? trigSF_cross : 1.0);
+	  theSmallTree.m_trigSF_met_up		= (isMC ? trigSF_met_up : 1.0);
+	  theSmallTree.m_trigSF_met_down	= (isMC ? trigSF_met_down : 1.0);
+	  theSmallTree.m_trigSF_stau_up		= (isMC ? trigSF_stau_up : 1.0);
+	  theSmallTree.m_trigSF_stau_down	= (isMC ? trigSF_stau_down : 1.0);
 
 	  theSmallTree.m_totalWeight = (isMC? (59970./7.20811e+10) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight *
 									trigSF * theSmallTree.m_IdFakeSF_deep_2d: 1.0);
