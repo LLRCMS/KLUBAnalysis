@@ -304,6 +304,9 @@ FullyHadXSec=`echo "791.0 * 0.6741 * 0.6741" | bc`
 FullyLepXSec=`echo "791.0 * (1-0.6741) * (1-0.6741)" | bc`
 SemiLepXSec=`echo "791.0 * 2 * (1-0.6741) * 0.6741" | bc`
 
+ZH_HToBB_ZToQQ_BR=`echo "0.69911*0.5824" | bc`
+ZH_HToBB_ZToLL_BR=`echo "(0.033696 +0.033662 + 0.033632)*0.5824" | bc`
+
 DATA_MAP=(
     ["TTToHadronic"]="-n 20 -x ${FullyHadXSec}"
     ["TTTo2L2Nu"]="-n 100 -x ${FullyLepXSec}"
@@ -320,7 +323,7 @@ DATA_MAP=(
     ["DYJetsToLL_LHEFilterPtZ-250To400"]="-n 30 -x 3.512   -g ${STITCHING_ON} --DY 0"
     ["DYJetsToLL_LHEFilterPtZ-400To650"]="-n 30 -x 0.4826  -g ${STITCHING_ON} --DY 0"
     ["DYJetsToLL_LHEFilterPtZ-650ToInf"]="-n 30 -x 0.04487 -g ${STITCHING_ON} --DY 0"
-    ["DYJetsToLL_0J"]="-n 30 -x 4867.28. -g ${STITCHING_ON} --DY 0"
+    ["DYJetsToLL_0J"]="-n 30 -x 4867.28  -g ${STITCHING_ON} --DY 0"
     ["DYJetsToLL_1J"]="-n 30 -x 902.95   -g ${STITCHING_ON} --DY 0"
     ["DYJetsToLL_2J"]="-n 30 -x 342.96   -g ${STITCHING_ON} --DY 0"
 
@@ -343,11 +346,14 @@ DATA_MAP=(
     ["ST_t-channel_antitop"]="-n 20 -x 80.95"
     ["ST_t-channel_top"]="-n 20 -x 136.02"
 
-    ["GluGluHToTauTau"]="-n 10 -x 48.61 -y 0.0632"
-    ["VBFHToTauTau"]="-n 10 -x 3.766 -y 0.0632"
-    ["ZHToTauTau"]="-n 10 -x 0.880 -y 0.0632"
-    ["WplusHToTauTau"]="-n 10 -x 0.831 -y 0.0632"
-    ["WminusHToTauTau"]="-n 10 -x 0.527 -y 0.0632"
+	["GluGluHToTauTau"]="-n 10 -x 48.68 -y 0.06272"
+    ["VBFHToTauTau"]="-n 10 -x 3.766 -y 0.06272"
+    ["WplusHToTauTau"]="-n 10 -x 0.831 -y 0.06272"
+    ["WminusHToTauTau"]="-n 10 -x 0.527 -y 0.06272"
+	["ZHToTauTau"]="-n 10 -x 0.880 -y 0.06272"
+
+	["ZH_HToBB_ZToLL"]="-n 10 -x 0.880 -y ${ZH_HToBB_ZToLL_BR}"
+	["ZH_HToBB_ZToQQ"]="-n 10 -x 0.880 -y ${ZH_HToBB_ZToQQ_BR}"
 
     ["ttHToNonbb"]="-n 20 -x 0.5071 -y 0.3598"
     ["ttHTobb"]="-n 20 -x 0.5071 -y 0.577"
