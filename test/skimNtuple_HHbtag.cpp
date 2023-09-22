@@ -3310,8 +3310,8 @@ int main (int argc, char** argv)
 		  else if (pType == 2 && isMC && isVBFfired == 0)
 			{
 			  // MET region
-			  if( (fabs(tlv_firstLepton.Pt()) < 40  and fabs(tlv_firstLepton.Pt()) < 190) or
-				  (fabs(tlv_firstLepton.Pt()) < 190 and fabs(tlv_firstLepton.Pt()) < 40 ) )
+			  if( (fabs(tlv_firstLepton.Pt()) < 40  and fabs(tlv_secondLepton.Pt()) < 190) or
+				  (fabs(tlv_firstLepton.Pt()) < 190 and fabs(tlv_secondLepton.Pt()) < 40 ) )
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD);
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD);
@@ -3319,8 +3319,8 @@ int main (int argc, char** argv)
 				}
 
 			  // SingleTau region
-			  else if( (fabs(tlv_firstLepton.Pt()) < 40  and fabs(tlv_firstLepton.Pt()) >= 190) or
-					   (fabs(tlv_firstLepton.Pt()) >= 190 and fabs(tlv_firstLepton.Pt()) < 40 ) )
+			  else if( (fabs(tlv_firstLepton.Pt()) < 40  and fabs(tlv_secondLepton.Pt()) >= 190) or
+					   (fabs(tlv_firstLepton.Pt()) >= 190 and fabs(tlv_secondLepton.Pt()) < 40 ) )
 				{
 				  trigSF           = singleTauSF[PERIOD].first;
 				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
