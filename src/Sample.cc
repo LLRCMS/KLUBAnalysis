@@ -31,7 +31,6 @@ bool Sample::openFileAndTree()
   for(std::string fn : filelistname_)
 	{
 	  std::cout << "  ---> " << fn << std::endl;
-
 	  ifstream fList(fn);
 	  if (!fList.good())
 		{

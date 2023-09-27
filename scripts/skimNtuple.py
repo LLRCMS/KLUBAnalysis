@@ -265,12 +265,13 @@ def skim_ntuple(FLAGS, curr_folder):
 
         s.write(comment + '\n')
         fd = 9 # any above 3 should work
-        s.write('\n'.join(('(',
-                           '  flock -x -w 5.0 {} || exit 1'.format(fd),
-                           '  ' + command,
-                           '  echo "Job {} is exiting the lock."'.format(arg1),
-                           ') {}>{}/lock_file\n\n'.format(fd, livedir))))
-
+        # s.write('\n'.join(('(',
+        #                    '  flock -x -w 5.0 {} || exit 1'.format(fd),
+        #                    '  ' + command,
+        #                    '  echo "Job {} is exiting the lock."'.format(arg1),
+        #                    ') {}>{}/lock_file\n\n'.format(fd, livedir))))
+        s.write(command) # the lock above ocasionally fails for unknown reasons
+        
         if FLAGS.doSyst:
             sys_command, sys_comment = double_join('skimOutputter.exe',
                                                    os.path.join(jobs_dir, io_names[1]),

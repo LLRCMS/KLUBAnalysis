@@ -58,7 +58,7 @@ bool AnalysisHelper::sanityChecks()
 	}
 
   vector<string> samps_limits = mainCfg_->readListOfOpts("merge_limits");
-  for (string s : samps_plot)
+  for (string s : samps_limits)
 	{
 	  vector<string> tmp = mainCfg_->readStringListOpt( string("merge_limits::")+s );
 	  for (auto& x : tmp) {
@@ -225,7 +225,8 @@ shared_ptr<Sample> AnalysisHelper::openSample(string sampleName)
 		filename + std::string("/goodfiles_resub3.txt"), filename + std::string("/goodfiles_resub4.txt"),
 		filename + std::string("/goodfiles_resub5.txt"), filename + std::string("/goodfiles_resub6.txt"),
 		filename + std::string("/goodfiles_resub7.txt"), filename + std::string("/goodfiles_resub8.txt"),
-		filename + std::string("/goodfiles_resub9.txt"), filename + std::string("/goodfiles_resub10.txt")}};
+		filename + std::string("/goodfiles_resub9.txt")
+	  }};
     shared_ptr<Sample> sample (new Sample(sampleName, filenames));
     if (sampleCfg_->hasOpt(Form("userEffBin::%s",sampleName.c_str())))
     {

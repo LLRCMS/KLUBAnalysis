@@ -7,7 +7,7 @@ STITCHING_OFF="0"
 DRYRUN="0"
 RESUBMIT="0"
 OUT_TAG=""
-IN_TAG="Jan2023"
+IN_TAG="Sep2023"
 DATA_PERIOD="UL18"
 DATA_USER="${USER}"
 DATA_PERIOD_CHOICES=( "UL2016preVFP" "UL2016postVFP" "UL17" "UL18" )
@@ -120,8 +120,8 @@ cmsenv # set CMSSW environment
 SKIM_DIR="/data_CMS/cms/${USER}/HHresonant_SKIMS"
 
 IN_DIR=${KLUB_DIR}"/inputFiles/"
-SIG_DIR=${IN_DIR}${DATA_PERIOD}"_Signals/"
-BKG_DIR=${IN_DIR}${DATA_PERIOD}"_Backgrounds/"
+SIG_DIR=${IN_DIR}${DATA_PERIOD}"_Sig/"
+BKG_DIR=${IN_DIR}${DATA_PERIOD}"_MC/"
 DATA_DIR=${IN_DIR}${DATA_PERIOD}"_Data/"
 
 if [ ${DATA_PERIOD} == "UL18" ]; then
@@ -259,43 +259,43 @@ LIST_DATA_DIR=${LIST_DIR}"Data_"${IN_TAG}
 eval `scram unsetenv -sh` # unset CMSSW environment
 declare -a LISTS_DATA=( $(/usr/bin/gfal-ls -lH ${LIST_DATA_DIR} | awk '{{printf $9" "}}') )
 cmsenv # set CMSSW environment
-DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
-RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
-for ds in ${DATA_LIST[@]}; do
-    for run in ${RUNS[@]}; do
-	pattern="${ds}__${run}"
-	if [ ${#LISTS_DATA[@]} -eq 0 ]; then
-	    echo "WARNING: No files found in "${LIST_DATA_DIR}"."
-	fi   
-	sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
-	if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-	    ERRORS+=( ${sample} )
-	else
-	    [[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
-	    run_skim -n 100 --isdata 1 -i ${DATA_DIR} --sample ${sample}
-	fi
-    done
-done
+# DATA_LIST=("EGamma" "Tau" "SingleMuon" "MET")
+# RUNS=("Run2018A" "Run2018B" "Run2018C" "Run2018D")
+# for ds in ${DATA_LIST[@]}; do
+#     for run in ${RUNS[@]}; do
+# 	pattern="${ds}__${run}"
+# 	if [ ${#LISTS_DATA[@]} -eq 0 ]; then
+# 	    echo "WARNING: No files found in "${LIST_DATA_DIR}"."
+# 	fi   
+# 	sample=$(find_sample ${pattern} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
+# 	if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+# 	    ERRORS+=( ${sample} )
+# 	else
+# 	    [[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample}
+# 	    run_skim -n 200 --isdata 1 -i ${DATA_DIR} --sample ${sample}
+# 	fi
+#     done
+# done
 
 ### Run on HH resonant signal samples
-LIST_MC_DIR=${LIST_DIR}"MC_"${IN_TAG}
+LIST_SIG_DIR=${LIST_DIR}"Sig_"${IN_TAG}
 eval `scram unsetenv -sh` # unset CMSSW environment
-declare -a LISTS_MC=( $(/usr/bin/gfal-ls -lH ${LIST_MC_DIR} | awk '{{printf $9" "}}') )
+declare -a LISTS_SIG=( $(/usr/bin/gfal-ls -lH ${LIST_SIG_DIR} | awk '{{printf $9" "}}') )
 cmsenv # set CMSSW environment
-DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
-MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
-for ds in ${DATA_LIST[@]}; do
-	for mass in ${MASSES[@]}; do
-		pattern="${ds}.+_M-${mass}_";
-		sample=$(find_sample ${pattern} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
-		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-			ERRORS+=( ${sample} )
-		else
-			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Signals --sample ${sample}
-			run_skim -n 5 -i ${SIG_DIR} --sample ${sample} -x 1.
-		fi
-	done
-done
+# DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
+# MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
+# for ds in ${DATA_LIST[@]}; do
+# 	for mass in ${MASSES[@]}; do
+# 		pattern="${ds}.+_M-${mass}_";
+# 		sample=$(find_sample ${pattern} ${LIST_SIG_DIR} ${#LISTS_SIG[@]} ${LISTS_SIG[@]})
+# 		if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+# 			ERRORS+=( ${sample} )
+# 		else
+# 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Sig --sample ${sample}
+# 			run_skim -n 5 -i ${SIG_DIR} --sample ${sample} -x 1.
+# 		fi
+# 	done
+# done
 
 ### Run on backgrounds samples
 # ttbar inclusive cross-section: 791 +- 25 pb (https://arxiv.org/pdf/2108.02803.pdf)
@@ -309,8 +309,8 @@ ZH_HToBB_ZToLL_BR=`echo "(0.033696 +0.033662 + 0.033632)*0.5824" | bc`
 
 DATA_MAP=(
     ["TTToHadronic"]="-n 20 -x ${FullyHadXSec}"
-    ["TTTo2L2Nu"]="-n 100 -x ${FullyLepXSec}"
-    ["TTToSemiLeptonic"]="-n 100 -x ${SemiLepXSec}"
+    ["TTTo2L2Nu"]="-n 300 -x ${FullyLepXSec}"
+    ["TTToSemiLeptonic"]="-n 300 -x ${SemiLepXSec}"
 
     #NLO DY x-secs taken from XSDB and multiplied by k-factor from NLO to NNLO: 6077.22 [1] / 6404.0 [2]
     #[1] NNLO x-sec for inclusive DYJetsToLL_M-50 sample taken from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeV
@@ -346,14 +346,14 @@ DATA_MAP=(
     ["ST_t-channel_antitop"]="-n 20 -x 80.95"
     ["ST_t-channel_top"]="-n 20 -x 136.02"
 
-	["GluGluHToTauTau"]="-n 10 -x 48.68 -y 0.06272"
+    ["GluGluHToTauTau"]="-n 10 -x 48.68 -y 0.06272"
     ["VBFHToTauTau"]="-n 10 -x 3.766 -y 0.06272"
     ["WplusHToTauTau"]="-n 10 -x 0.831 -y 0.06272"
     ["WminusHToTauTau"]="-n 10 -x 0.527 -y 0.06272"
-	["ZHToTauTau"]="-n 10 -x 0.880 -y 0.06272"
+    ["ZHToTauTau"]="-n 10 -x 0.880 -y 0.06272"
 
-	["ZH_HToBB_ZToLL"]="-n 10 -x 0.880 -y ${ZH_HToBB_ZToLL_BR}"
-	["ZH_HToBB_ZToQQ"]="-n 10 -x 0.880 -y ${ZH_HToBB_ZToQQ_BR}"
+    ["ZH_HToBB_ZToLL"]="-n 10 -x 0.880 -y ${ZH_HToBB_ZToLL_BR}"
+    ["ZH_HToBB_ZToQQ"]="-n 10 -x 0.880 -y ${ZH_HToBB_ZToQQ_BR}"
 
     ["ttHToNonbb"]="-n 20 -x 0.5071 -y 0.3598"
     ["ttHTobb"]="-n 20 -x 0.5071 -y 0.577"
@@ -363,25 +363,36 @@ DATA_MAP=(
     ["_WZ_TuneCP5"]="-n 5 -x 47.13"
     ["_ZZ_TuneCP5"]="-n 5 -x 16.523"
 
-	["WWW"]="-n 10 -x 0.209"
-	["WWZ"]="-n 10 -x 0.168"
-	["WZZ"]="-n 10 -x 0.057"
-	["ZZZ"]="-n 10 -x 0.0147"
-	
+    ["49_WWW"]="-n 10 -x 0.209"
+    ["50_WWW"]="-n 10 -x 0.209"
+    ["51_WWZ"]="-n 10 -x 0.168"
+    ["52_WWZ"]="-n 10 -x 0.168"
+    ["53_WZZ"]="-n 10 -x 0.057"
+    ["54_WZZ"]="-n 10 -x 0.057"
+    ["55_ZZZ"]="-n 10 -x 0.0147"
+    ["56_ZZZ"]="-n 10 -x 0.0147"
+
     ["TTWJetsToLNu"]="-n 20 -x 0.2043"
     ["TTWJetsToQQ"]="-n 20 -x 0.4062"
     ["TTZToLLNuNu"]="-n 20 -x 0.2529"
+    ["TTZToQQ"] = "-n 200 -x 0.5104"
     ["TTWW"]="-n 10 -x 0.006979"
     ["TTZZ"]="-n 10 -x 0.001386"
     ["TTWZ"]="-n 10 -x 0.00158"
 
-	["TTWH"]="-n 10 -x 0.001143"
-	["TTZH"]="-n 10 -x 0.001136"
+    ["TTWH"]="-n 10 -x 0.001143"
+    ["TTZH"]="-n 10 -x 0.001136"
 )
 
 # Sanity checks for Drell-Yan stitching
 DY_PATTERN=".*DY.*"
 dy_counter=0
+
+LIST_MC_DIR=${LIST_DIR}"MC_"${IN_TAG}
+eval `scram unsetenv -sh` # unset CMSSW environment
+declare -a LISTS_MC=( $(/usr/bin/gfal-ls -lH ${LIST_MC_DIR} | awk '{{printf $9" "}}') )
+cmsenv # set CMSSW environment
+
 for ds in ${!DATA_MAP[@]}; do
 	sample=$(find_sample ${ds} ${LIST_MC_DIR} ${#LISTS_MC[@]} ${LISTS_MC[@]})
 	if [[ ${sample} =~ ${DY_PATTERN} ]]; then
@@ -405,7 +416,7 @@ for ds in ${!DATA_MAP[@]}; do
 		ERRORS+=( ${sample} )
     else
 		eval `scram unsetenv -sh` # unset CMSSW environment
-		[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Backgrounds --sample ${sample}
+		[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind MC --sample ${sample}
 		cmsenv # set CMSSW environment
 		run_skim -i ${BKG_DIR} --sample ${sample} ${DATA_MAP[${ds}]}
 		cmsenv # set CMSSW environment
