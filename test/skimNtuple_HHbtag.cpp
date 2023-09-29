@@ -106,6 +106,17 @@ int main (int argc, char** argv)
   cout << "** INFO: inputFile  : " << inputFile << endl;
   cout << "** INFO: outputFile : " << outputFile << endl;
 
+  bool isTaudataset = false;
+  boost::regex re_tau{"Tau"};
+  if (boost::regex_search(inputFile, re_tau)) {
+	isTauDataset = true;
+  }
+  bool isMETdataset = false;
+  boost::regex re_met{"MET"};
+  if (boost::regex_search(inputFile, re_met)) {
+	isMETDataset = true;
+  }
+
   float XS = atof (argv[3]) ;
   bool isMC = true;
   int isDatabuf = atoi (argv[4]);
@@ -1954,7 +1965,7 @@ int main (int argc, char** argv)
 										tlv_firstLepton.Pt(), tlv_firstLepton.Eta(),
 										tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
 
-		  // check NEW TRIGGERS separately		  
+		  // check NEW TRIGGERS separately
 		  passMETTrg         = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 200.);
 		  passMETTrgNoThresh = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 0.);
 
@@ -1994,7 +2005,7 @@ int main (int argc, char** argv)
 			}
 
 		  // Remember: isVBFfired means it passed ONLY a VBF trigger
-		  if (wpyear != "2016" and pairType == 2 and !passTrg)
+		  if (wpyear != "2016" and pairType == 2 and !passTrg and !passMETTrg and !passSingleTau)
 			{
 			  isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
 
@@ -2054,8 +2065,15 @@ int main (int argc, char** argv)
 			  }
 			}
 
-		  bool triggerAccept = false;
-		  triggerAccept = passTrg || isVBFfired || passMETTrgNoThresh || passSingleTau;
+		  bool MET_region       = ((fabs(tlv_firstLepton.Pt()) < 40   and fabs(tlv_secondLepton.Pt()) < 190) or
+								   (fabs(tlv_firstLepton.Pt()) < 190  and fabs(tlv_secondLepton.Pt()) < 40 ));
+		  bool SingleTau_region = ((fabs(tlv_firstLepton.Pt()) < 40   and fabs(tlv_secondLepton.Pt()) >= 190) or
+								   (fabs(tlv_firstLepton.Pt()) >= 190 and fabs(tlv_secondLepton.Pt()) < 40 ));
+
+		  bool triggerAccept = ( (!isMETdataset and passTrg) or
+								 (isTaudataset and isVBFfired) or
+								 (isMETdataset and passMETTrgNoThresh and MET_region) or
+								 (isTaudataset and passSingleTau and SingleTau_region) );
 
 		  if(DEBUG)
 			{
@@ -3307,11 +3325,9 @@ int main (int argc, char** argv)
 			}
 
 		  // TauTau Channel
-		  else if (pType == 2 && isMC && isVBFfired == 0)
+		  else if (pType == 2 and isMC)
 			{
-			  // MET region
-			  if( (fabs(tlv_firstLepton.Pt()) < 40  and fabs(tlv_secondLepton.Pt()) < 190) or
-				  (fabs(tlv_firstLepton.Pt()) < 190 and fabs(tlv_secondLepton.Pt()) < 40 ) )
+			  if(MET_region)
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD);
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD);
@@ -3319,8 +3335,7 @@ int main (int argc, char** argv)
 				}
 
 			  // SingleTau region
-			  else if( (fabs(tlv_firstLepton.Pt()) < 40  and fabs(tlv_secondLepton.Pt()) >= 190) or
-					   (fabs(tlv_firstLepton.Pt()) >= 190 and fabs(tlv_secondLepton.Pt()) < 40 ) )
+			  else if(SingleTau_region)
 				{
 				  trigSF           = singleTauSF[PERIOD].first;
 				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
@@ -3757,9 +3772,8 @@ int main (int argc, char** argv)
 			  if(DEBUG) cout << "---> Evt rejected because (isVBFfired && !isVBF) (VBF trig fired but no good VBF jet candidates available)" << endl;
 			  continue;
 			}
-
 		  // Check that the the VBFjet-pair candidate is trigger matched
-		  if (isVBFfired && isVBF)
+		  else if (isVBFfired && isVBF)
 			{
 			  bool VBFjetLegsMatched = checkVBFjetMatch(DEBUG, VBFidx1, VBFidx2, theBigTree);
 			  if (!VBFjetLegsMatched)
@@ -4854,12 +4868,15 @@ int main (int argc, char** argv)
 
 			  // Logic of VBF trigger SF:
 			  // 1. - if the event is in the diTau trigger phase space (taupt_1 > 40 && tau_pt_2 > 40): use the diTau trigger SF
-			  // 2. - else if the event is in the VBF trigger phase space (mjj > 800 && pt_j1 > 140 && pt_j2 > 60 && taupt_1 > 25 && taupt_2 > 25): use VBF trigger SF
-			  // 3. - else: SF = 0
-			  // In our framework case 1. is the default: in the VBF trigger phase space (case 2.) the branch m_trigSF is overwritten
+			  // 2. - else if the event is in the MET or SingleTau phase-space
+			  // 3. - if it does not fire any of the above, the event might be in the VBF trigger phase space, if it fires the trigger and if
+			  //      (mjj > 800 && pt_j1 > 140 && pt_j2 > 60 && taupt_1 > 25 && taupt_2 > 25)
+			  // 4. - else: SF = 0
+			  // In our framework case 1. is the default: in the VBF trigger phase space (case 3.) the branch m_trigSF is overwritten
 			  // with the VBF_SF, because "trigSF" is the actual weight used later in the analysis
-			  if (wpyear !="2016" and isMC && pairType == 2 && theSmallTree.m_VBFjj_mass > 800 && theSmallTree.m_VBFjet1_pt > 140 && theSmallTree.m_VBFjet2_pt > 60 &&
-				  theSmallTree.m_dau1_pt > 25 && theSmallTree.m_dau2_pt > 25 && (theSmallTree.m_dau1_pt <= 40 || theSmallTree.m_dau2_pt <= 40) )
+			  if (wpyear != "2016" and isMC and pairType == 2 and isTauDataset and and !passTrg and !passMETTrg and !passSingleTau and
+				  theSmallTree.m_VBFjj_mass > 800 and theSmallTree.m_VBFjet1_pt > 140 and theSmallTree.m_VBFjet2_pt > 60 and
+				  theSmallTree.m_dau1_pt > 25 and theSmallTree.m_dau2_pt > 25 and (theSmallTree.m_dau1_pt <= 40 || theSmallTree.m_dau2_pt <= 40))
 				{
 				  // Jet legs SF
 				  double jetSF    = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt(), 0); // 0: central value
@@ -4871,7 +4888,6 @@ int main (int argc, char** argv)
 
 				  // for each DM, fill a trigSF branch with the up/down values if tauhs have the corresponding DM, otherwise fill with nominal trigSF value
 				  vector <double> SFTau1_up (N_tauhDM, SFTau1);
-				  vector <double> SFTau2_up (N_tauhDM, SFTau2);
 				  vector <double> SFTau1_down (N_tauhDM, SFTau1);
 				  vector <double> SFTau2_down (N_tauhDM, SFTau2);
 				  for (int idm  = 0; idm < N_tauhDM; idm ++)
@@ -4898,7 +4914,7 @@ int main (int argc, char** argv)
 
 				  // Save final VBF trig SF
 				  theSmallTree.m_VBFtrigSF          = jetSF * SFTau1 * SFTau2; // store anyway the value
-				  theSmallTree.m_trigSF             = jetSF * SFTau1 * SFTau2;               // overwrite the trigSF values for VBF events
+				  theSmallTree.m_trigSF             = jetSF * SFTau1 * SFTau2; // overwrite the trigSF values for VBF events
 				  theSmallTree.m_trigSF_vbfjet_up   = (jetSF + jetSFerr) * SFTau1 * SFTau2;
 				  theSmallTree.m_trigSF_vbfjet_down = (jetSF - jetSFerr) * SFTau1 * SFTau2;
 				  theSmallTree.m_trigSF_DM0_up      = jetSF * trigSF_DM0_up;
@@ -4910,7 +4926,6 @@ int main (int argc, char** argv)
 				  theSmallTree.m_trigSF_DM10_down   = jetSF * trigSF_DM10_down;
 				  theSmallTree.m_trigSF_DM11_down   = jetSF * trigSF_DM11_down;
 				}
-
 			}
 
 		  // loop over jets
