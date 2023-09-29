@@ -2298,7 +2298,7 @@ int main (int argc, char** argv)
       // pair selection is now complete, compute oher quantitites
 
       // If skimming the final ntuples skip not interesting channels
-	  if (onlyFinalChannels && pairType>2) continue;
+	  if (onlyFinalChannels && pairType>3) continue;
 
 	  // First create a map to associate <jetIdx, smearFactor> that will be
 	  // used to smear the jets always in the same way in the event.
