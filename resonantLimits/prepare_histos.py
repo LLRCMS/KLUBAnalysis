@@ -124,9 +124,9 @@ for ih in range(toth):
     if ih%500==0:
         print('{}/{}: {} ({})'.format(ih, toth, kname, template.ClassName()))
 
-        # If QCD is read from file and not computed as rate parameter in the datacards
-        # we can skip all the SStight/OSinviso/SSinviso shifted template and save
-        # a lot of time and space
+    # If QCD is read from file and not computed as rate parameter in the datacards
+    # we can skip all the SStight/OSinviso/SSinviso shifted template and save
+    # a lot of time and space
     if args.dynamQCD == 0:
         if (any(x in kname for x in ('SStight', 'OSiniso', 'SSinviso')) and
             any(x in kname for x in ('Up', 'Down', 'up', 'down'))):

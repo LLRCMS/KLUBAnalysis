@@ -24,7 +24,7 @@ DATAPERIOD_STR="(String) Which data period to consider: ${DATA_PERIOD_CHOICES}. 
 DATAUSER_STR="(String) Which user produced the data. Defaults to '${DATA_USER}'."
 function print_usage_submit_skims {
     USAGE="
-        Run example: bash $(basename "$0") -t out_test --in_tag Jan2023 --user bfontana --dry-run
+        Run example: bash $(basename "$0") -t out_test --in_tag Jan2023 --user bfontana --dryrun
 
 	-h / --help			[ ${HELP_STR} ]
 	--dryrun			[ ${DRYRUN_STR} ]
@@ -375,7 +375,7 @@ DATA_MAP=(
     ["TTWJetsToLNu"]="-n 20 -x 0.2043"
     ["TTWJetsToQQ"]="-n 20 -x 0.4062"
     ["TTZToLLNuNu"]="-n 20 -x 0.2529"
-    ["TTZToQQ"] = "-n 200 -x 0.5104"
+    ["TTZToQQ"]="-n 200 -x 0.5104"
     ["TTWW"]="-n 10 -x 0.006979"
     ["TTZZ"]="-n 10 -x 0.001386"
     ["TTWZ"]="-n 10 -x 0.00158"
@@ -433,7 +433,7 @@ for ((i = 0; i < ${nerr}; i++)); do
 done
 
 if [ ${DRYRUN} -eq 1 ]; then
-	echo "Dry-run. The commands above were not run."
+	echo "Dry run. The commands above were not run."
 fi
 
 ###### Cross-section information ######
