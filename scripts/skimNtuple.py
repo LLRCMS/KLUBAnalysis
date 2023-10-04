@@ -273,7 +273,7 @@ def skim_ntuple(FLAGS, curr_folder):
         #                    '  ' + command,
         #                    '  echo "Job {} is exiting the lock."'.format(arg1),
         #                    ') {}>{}/lock_file\n\n'.format(fd, livedir))))
-        s.write(command) # the lock above ocasionally fails for unknown reasons
+        s.write(command + '\n\n') # the lock above ocasionally fails for unknown reasons
         
         if FLAGS.doSyst:
             sys_command, sys_comment = double_join('skimOutputter.exe',

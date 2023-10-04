@@ -261,24 +261,24 @@ declare -a LISTS_DATA=( $(/usr/bin/gfal-ls -lH ${LIST_DATA_DIR} | awk '{{printf 
 cmsenv # set CMSSW environment
 DATA_MAP=(
     ["EGamma__Run2018A"]="-n 400 -q short"
-	# ["EGamma__Run2018B"]="-n 400 -q short"
-	# ["EGamma__Run2018C"]="-n 400 -q short"
-	# ["EGamma__Run2018D"]="-n 400 -q short"
+	["EGamma__Run2018B"]="-n 400 -q short"
+	["EGamma__Run2018C"]="-n 400 -q short"
+	["EGamma__Run2018D"]="-n 400 -q short"
 
-	# ["Tau__Run2018A"]="-n 400 -q short"
-	# ["Tau__Run2018B"]="-n 400 -q short"
-	# ["Tau__Run2018C"]="-n 400 -q short"
-	# ["Tau__Run2018D"]="-n 600 -q short"
+	["Tau__Run2018A"]="-n 400 -q short"
+	["Tau__Run2018B"]="-n 400 -q short"
+	["Tau__Run2018C"]="-n 400 -q short"
+	["Tau__Run2018D"]="-n 600 -q short"
 
-	# ["SingleMuon__Run2018A"]="-n 200 -q long"
-	# ["SingleMuon__Run2018B"]="-n 400 -q short"
-	# ["SingleMuon__Run2018C"]="-n 400 -q short"
-	# ["SingleMuon__Run2018D"]="-n 200 -q long"
+	["SingleMuon__Run2018A"]="-n 200 -q long"
+	["SingleMuon__Run2018B"]="-n 400 -q short"
+	["SingleMuon__Run2018C"]="-n 400 -q short"
+	["SingleMuon__Run2018D"]="-n 200 -q long"
 
-	# ["MET__Run2018A"]="-n 400 -q short"
-	# ["MET__Run2018B"]="-n 400 -q short"
-	# ["MET__Run2018C"]="-n 400 -q short"
-	# ["MET__Run2018D"]="-n 400 -q short"
+	["MET__Run2018A"]="-n 400 -q short"
+	["MET__Run2018B"]="-n 400 -q short"
+	["MET__Run2018C"]="-n 400 -q short"
+	["MET__Run2018D"]="-n 400 -q short"
 )
 
 # Skimming submission
