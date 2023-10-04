@@ -202,7 +202,7 @@ def skim_ntuple(FLAGS, curr_folder):
                              shell_exec=job_name_shell, c_exec=FLAGS.exec_file,
                              py_exec=py_exec,
                              queue='queue ' + str(njobs), qvars=('Process',''),
-                             queue_mode=queue_mode)
+                             queue_mode=FLAGS.queue_mode)
 
     with open(job_name_shell, 'w') as s:
         s.write( '\n'.join(('#!/usr/bin/env bash',
