@@ -176,12 +176,10 @@ class OutputManager:
 
 
     def makeQCD_SBtoSR(self, regionC, regionD, sel, var, syst='', removeNegBins=True):
-        print('... computing C/D factor for QCD from: C =', regionC, ', D =', regionD, 'in region ', sel)
+        errmess = '    RegionC={}, RegionD={}, Selection={}, Variable={}'.format(regionC, regionD, sel, var)
         for idx, data in enumerate (self.data):
             hnameC = makeHistoName(data, sel+'_'+regionC, var)
             hnameD = makeHistoName(data, sel+'_'+regionD, var)
-            print(hnameC)
-            print(hnameD)
             if idx == 0: 
                 hregC = self.histos[hnameC].Clone(makeHistoName('regC', sel+'_'+regionC, var, syst=syst))
                 hregC.SetTitle(hregC.GetName())
@@ -213,11 +211,13 @@ class OutputManager:
         intD = hregD.Integral()
         #if intC <= 0.0 or self.isIntegralCompatible(hregC,0):
         if intC <= 0.0:
-            print('*** WARNING: integral of numerator is negative! Returning SBtoSRdyn = 0 !')
+            print('*** WARNING: integral of numerator is negative! Returning SBtoSRdyn=0!')
+            print(errmess)
             return 0.0
         #if intD <= 0.0 or self.isIntegralCompatible(hregD,0):
         if intD <= 0.0:
-            print('*** WARNING: integral of denominator is negative! Returning SBtoSRdyn = 0 !')
+            print('*** WARNING: integral of denominator is negative! Returning SBtoSRdyn=0!')
+            print(errmess)
             return 0.0
 
         SBtoSRdyn = hregC.Integral()/hregD.Integral()
@@ -311,7 +311,8 @@ class OutputManager:
                     # (if is compatible with 0 (but >0) we keep it, the uncertainty will be large anyway)
                     # ( if qcdYield <= 0.0 or self.isIntegralCompatible(hyieldQCD,0): )
                     if qcdYield <= 0.0:
-                        print('*** WARNING: integral of shapeQCD is negative! Setting QCD = 0 !')
+                        print('*** WARNING: integral of shapeQCD is negative! Setting QCD=0!')
+                        print('    RegionC={}, RegionD={}, Selection={}, Variable={}'.format(regionC, regionD, sel, var))
                         sc = 0.0
                     else:
                         sc = SBtoSRfactor*qcdYield/hQCD.Integral() if hQCD.Integral() > 0 else 0.0
