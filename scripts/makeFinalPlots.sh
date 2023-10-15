@@ -326,8 +326,8 @@ EXTRAS=(
 
 declare -A SIGSCALE_CHANNEL_MAP
 SIGSCALE_CHANNEL_MAP=(
-    ["dau1_pt"]="100 50 20"
-    ["dau2_pt"]="100 50 20"
+    ["dau1_pt"]="100 50 20 "
+    ["dau2_pt"]="100 50 20 "
     ["bjet1_pt"]="100 100 20 "
     ["bjet2_pt"]="100 100 20 "
     ["dau1_eta"]="40 40 2 "

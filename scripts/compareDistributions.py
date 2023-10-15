@@ -5,14 +5,18 @@ import ROOT
 def compareDistributions():
     base = "/data_CMS/cms/alves/HHresonant_hist/{}/combined_outPlots.root"
     channel = "TauTau"
-    avars = ["tauH_mass", "bH_mass", "met_et", "met_phi", "njets20"]
+    avars = ["tauH_mass", "bH_mass", "bjet1_JER", "bjet2_JER", "njets"]
     log = False
 
     #key1 = "{}_Sep20_AllBacks".format(channel)
-    key1 = "{}_Sep23".format(channel)
+    key1 = "{}_Oct6".format(channel)
     key2 = "31Jul_{}".format(channel)
-    file1 = ROOT.TFile.Open(base.format(key1))
-    file2 = ROOT.TFile.Open(base.format(key2))
+    file1 = base.format(key1)
+    file2 = base.format(key2)
+    print(file1)
+    print(file2)
+    file1 = ROOT.TFile.Open(file1)
+    file2 = ROOT.TFile.Open(file2)
 
     for key in ('data_obs', 'TT', 'DYmerged'):
         for avar in avars:
