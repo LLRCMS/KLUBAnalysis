@@ -30,7 +30,7 @@ def parseOptions():
 
 args = parseOptions()
 
-systsNamesOUT = [
+systNamesOUT = [
     # hadronic tau energy scale for decay mode 0
     'CMS_scale_t_DM0_'    + args.period,
     # hadronic tau energy scale for decay mode 1

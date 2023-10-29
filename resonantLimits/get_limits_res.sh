@@ -8,7 +8,7 @@ TAG=""
 VAR="DNNoutSM_kl_1"
 SIGNAL="ggFRadion"
 MODE=""
-MODE_CHOICES=( "separate" "sel_group" "chn_group" "all_group" )
+MODE_CHOICES=( "separate" "sel_group" "chn_group" "all_group" "sel_years" "chn_years" "all_years" )
 BASEDIR="${HOME}/CMSSW_11_1_9/src/KLUBAnalysis"
 
 HELP_STR="Prints this help message."
@@ -143,6 +143,7 @@ if [ ${#CHANNELS[@]} -eq 0 ]; then
 fi
 if [ ${#SELECTIONS[@]} -eq 0 ]; then
     SELECTIONS=("s1b1jresolvedMcut" "s2b0jresolvedMcut" "sboostedLLMcut")
+	# SELECTIONS=("sboostedLLMcut")
 fi
 
 declare -a MHIGH;
@@ -168,50 +169,50 @@ IDENTIFIER=".test_${SIGNAL}_${VAR}"
 if [ ${MODE} == "separate" ]; then
 	
     for i in "${!CHANNELS[@]}"; do
-	card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[$i]}"
-	cd ${card_dir}
+		card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[$i]}"
+		cd ${card_dir}
 
-	printf "Processing categories in parallel for channel ${CHANNELS[$i]} "
-	printf "(mode ${MODE}, var ${VAR})...\n"
+		printf "Processing categories in parallel for channel ${CHANNELS[$i]} "
+		printf "(mode ${MODE}, var ${VAR})...\n"
+		
+		out_="combined_out"
+		for sel in ${SELECTIONS[@]}; do
+			cat_dir="${card_dir}/${sel}_${VAR}"
+			out_dir="${cat_dir}/${out_}"
+			mkdir -p "${out_dir}"
+		done
 
-	out_="combined_out"
-	for sel in ${SELECTIONS[@]}; do
-	    cat_dir="${card_dir}/${sel}_${VAR}"
-	    out_dir="${cat_dir}/${out_}"
-	    mkdir -p "${out_dir}"
-	done
-
-	cat_dir_parallel="${card_dir}/{2}_${VAR}"
-	out_dir_parallel="${cat_dir_parallel}/${out_}"
+		cat_dir_parallel="${card_dir}/{2}_${VAR}"
+		out_dir_parallel="${cat_dir_parallel}/${out_}"
 	
-	# parallellize across the mass and category
-	proc="${SIGNAL}_${VAR}_{1}"
-	in_txt="${cat_dir_parallel}/comb.${proc}.txt"
-	out_log="${out_dir_parallel}/comb.${proc}.log"
+		# parallellize across the mass and category
+		proc="${SIGNAL}_${VAR}_{1}"
+		in_txt="${cat_dir_parallel}/comb.${proc}.txt"
+		out_log="${out_dir_parallel}/comb.${proc}.log"
 
-	parallel rm -f -- ${out_log} ::: ${MASSES[@]} ::: ${SELECTIONS[@]}
+		parallel rm -f -- ${out_log} ::: ${MASSES[@]} ::: ${SELECTIONS[@]}
 
-	if [ ${#CATEGORIES_BOOST[@]} -ne 0 ]; then
-		parallel -j $((`nproc` - 1)) \
-				 combine -M AsymptoticLimits ${in_txt} \
-				 -n ${IDENTIFIER}_{2} \
-				 --run blind \
-				 --noFitAsimov \
-				 --freezeParameters SignalScale \
-				 -m {1} ">" ${out_log} ::: ${MHIGH[@]} ::: ${CATEGORIES_BOOST[@]}
-	fi
+		if [ ${#CATEGORIES_BOOST[@]} -ne 0 ]; then
+			parallel -j $((`nproc` - 1)) \
+					 combine -M AsymptoticLimits ${in_txt} \
+					 -n ${IDENTIFIER}_{2} \
+					 --run blind \
+					 --noFitAsimov \
+					 --freezeParameters SignalScale \
+					 -m {1} ">" ${out_log} ::: ${MHIGH[@]} ::: ${CATEGORIES_BOOST[@]}
+		fi
+		
+		if [ ${#CATEGORIES_NOBOOST[@]} -ne 0 ]; then
+			parallel -j $((`nproc` - 1)) \
+					 combine -M AsymptoticLimits ${in_txt} \
+					 -n ${IDENTIFIER}_{2} \
+					 --run blind \
+					 --noFitAsimov \
+					 --freezeParameters SignalScale \
+					 -m {1} ">" ${out_log} ::: ${MASSES[@]} ::: ${CATEGORIES_NOBOOST[@]}
+		fi
 
-	if [ ${#CATEGORIES_NOBOOST[@]} -ne 0 ]; then
-		parallel -j $((`nproc` - 1)) \
-				 combine -M AsymptoticLimits ${in_txt} \
-				 -n ${IDENTIFIER}_{2} \
-				 --run blind \
-				 --noFitAsimov \
-				 --freezeParameters SignalScale \
-				 -m {1} ">" ${out_log} ::: ${MASSES[@]} ::: ${CATEGORIES_NOBOOST[@]}
-	fi
-
-	cd -
+		cd -
     done
 
 elif [ ${MODE} == "sel_group" ]; then
@@ -341,6 +342,99 @@ elif [ ${MODE} == "all_group" ]; then
 	parallel -j $((`nproc` - 1)) \
 	    combine -M AsymptoticLimits ${in_txt} \
 	    -n ${IDENTIFIER}_all \
+	    --run blind \
+	    --noFitAsimov \
+	    --freezeParameters SignalScale \
+	    -m {1} ">" ${out_log} ::: ${MASSES[@]}
+
+elif [ ${MODE} == "sel_years" ]; then
+	card_dir="${LIMIT_DIR}/cards_Years_${VAR}_CombCat"
+	cd ${card_dir}
+
+	for chn in "${CHANNELS[@]}"; do
+		echo "Channel ${chn}: Processing all years and categories (mode ${MODE}, var ${VAR})..."
+
+		comb_dir="${card_dir}/${chn}"
+		out_dir="${comb_dir}/combined_out"
+		mkdir -p "${out_dir}"
+
+		proc="${SIGNAL}_${VAR}_{1}"
+		in_txt="${comb_dir}/comb.${proc}.txt"
+		out_log="${out_dir}/comb.${proc}.log"
+
+		# parallellize across the mass
+		parallel -j 0 rm -f -- ${out_log} ::: ${MASSES[@]}
+		parallel -j $((`nproc` - 1)) \
+				 combine -M AsymptoticLimits ${in_txt} \
+				 -n ${IDENTIFIER}_years \
+				 --run blind \
+				 --noFitAsimov \
+				 --freezeParameters SignalScale \
+				 -m {1} ">" ${out_log} ::: ${MASSES[@]}
+	done
+	cd -
+
+elif [ ${MODE} == "chn_years" ]; then
+	echo "Selections: Processing all years and channels (mode ${MODE}, var ${VAR})..."
+	
+	card_dir="${LIMIT_DIR}/cards_Years_${VAR}_CombChn"
+	cd ${card_dir}
+
+	for sel in "${SELECTIONS[@]}"; do
+		comb_dir="${card_dir}/${sel}_${VAR}"
+		out_dir="${comb_dir}/combined_out"
+		mkdir -p "${out_dir}"
+	done
+
+	# parallellize across the mass
+	proc="${SIGNAL}_${VAR}_{1}"
+
+	comb_dir_parallel="${card_dir}/{2}_${VAR}"
+	out_dir_parallel="${comb_dir_parallel}/combined_out"
+
+	in_txt="${comb_dir_parallel}/comb.${proc}.txt"
+	out_log="${out_dir_parallel}/comb.${proc}.log"
+
+	if [ ${#CATEGORIES_BOOST[@]} -ne 0 ]; then
+		parallel -j $((`nproc` - 1)) \
+				 combine -M AsymptoticLimits ${in_txt} \
+				 -n ${IDENTIFIER}_{2} \
+				 --run blind \
+				 --noFitAsimov \
+				 --freezeParameters SignalScale \
+				 -m {1} ">" ${out_log} ::: ${MHIGH[@]} ::: ${CATEGORIES_BOOST[@]}
+	fi
+
+	if [ ${#CATEGORIES_NOBOOST[@]} -ne 0 ]; then
+		parallel -j $((`nproc` - 1)) \
+				 combine -M AsymptoticLimits ${in_txt} \
+				 -n ${IDENTIFIER}_{2} \
+				 --run blind \
+				 --noFitAsimov \
+				 --freezeParameters SignalScale \
+				 -m {1} ">" ${out_log} ::: ${MASSES[@]} ::: ${CATEGORIES_NOBOOST[@]}
+	fi
+
+	cd -
+
+elif [ ${MODE} == "all_years" ]; then
+
+	echo "Processing all years, categories and channels (mode ${MODE}, var ${VAR})..."
+	card_dir="${LIMIT_DIR}/cards_Years_${VAR}_All"
+	cd ${card_dir}
+
+	out_dir="${card_dir}/combined_out"
+	mkdir -p "${out_dir}"
+
+	# parallellize across the mass
+	proc="${SIGNAL}_${VAR}_{1}"
+	in_txt="${card_dir}/comb.${proc}.txt"
+	out_log="${out_dir}/comb.${proc}.log"
+
+	parallel -j 0 rm -f -- ${out_log} ::: ${MASSES[@]}
+	parallel -j $((`nproc` - 1)) \
+	    combine -M AsymptoticLimits ${in_txt} \
+	    -n ${IDENTIFIER}_years \
 	    --run blind \
 	    --noFitAsimov \
 	    --freezeParameters SignalScale \

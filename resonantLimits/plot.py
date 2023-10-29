@@ -83,12 +83,12 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period, varfit, 
     ptext2.SetTextFont(42)
     ptext2.SetFillStyle(0)
     if period == 'UL16':
-       ptext2.AddText('2016 - 35.9 fb^{-1} (13 TeV)')
+       ptext2.AddText('2016 - 36.3 fb^{-1} (13 TeV)')
     elif period == 'UL17':
        ptext2.AddText('2017 - 41.6 fb^{-1} (13 TeV)')
     elif period == 'UL18':
        ptext2.AddText('2018 - 59.7 fb^{-1} (13 TeV)')
-    else:
+    elif period == "All":
        ptext2.AddText('Run2 - 137.1 fb^{-1} (13 TeV)')
 
     ptexts = []
@@ -117,10 +117,10 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period, varfit, 
         hframe.SetMaximum(1e5)
         hframe.SetMinimum(1e-1)
     elif period == 'UL18':
-        hframe.SetMaximum(1e3)
+        hframe.SetMaximum(1e5)
         hframe.SetMinimum(1e-1)
-    else:
-       hframe.SetMaximum(1e4)
+    else: # years combined
+       hframe.SetMaximum(1e5)
        hframe.SetMinimum(1e-1)
 
     hframe.GetYaxis().SetTitleSize(0.047)
@@ -131,7 +131,7 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period, varfit, 
     hframe.GetYaxis().SetTitleOffset(1.2)
     hframe.GetXaxis().SetTitleOffset(1.1)
 
-    hframe.GetYaxis().SetTitle("95% CL on #sigma #times #bf{#it{#Beta}}(S#rightarrowHH#rightarrow bb#tau#tau) [fb]")
+    hframe.GetYaxis().SetTitle("95% CL on #sigma #times #bf{#it{#Beta}}(X#rightarrowHH#rightarrow bb#tau#tau) [fb]")
     hframe.GetXaxis().SetTitle("m_{X} [GeV]")
 
     hframe.SetStats(0)
@@ -329,6 +329,14 @@ def plot(args, outdir):
                 outfile = '_'.join(('limit', args.tag, args.mode, args.var, chn, sel))
                 create_limits_plot(indir, outfile, masses=masses_sel, labels=(label, sel), **opt)
 
+    elif args.mode == 'sel_years':
+
+        for chn in args.channels:
+            label = channel_label(chn)
+            indir = os.path.join(base, 'cards_Years_' + args.var + '_CombCat', chn, 'combined_out')
+            outfile = '_'.join(('limit', args.mode, args.var, chn))
+            create_limits_plot(indir, outfile, masses=args.masses, labels=(label, comb_cat), **opt)
+
     elif args.mode == 'chn_group':
 
         for sel in args.selections:
@@ -338,10 +346,25 @@ def plot(args, outdir):
             outfile = '_'.join(('limit', args.tag, args.mode, args.var, sel))
             create_limits_plot(indir, outfile, masses=masses_sel, labels=(comb_chn, sel), **opt)
 
+    elif args.mode == 'chn_years':
+
+        for sel in args.selections:
+            indir = os.path.join(base, 'cards_Years_' + args.var + '_CombChn',
+                                 sel + '_' + args.var, 'combined_out')
+            masses_sel = sel_masses(sel, args.masses)
+            outfile = '_'.join(('limit', args.tag, args.mode, args.var, sel))
+            create_limits_plot(indir, outfile, masses=masses_sel, labels=(comb_chn, sel), **opt)
+
     elif args.mode == 'all_group':
 
        indir = os.path.join(base, 'cards_' + args.tag + '_All', 'combined_out')
        outfile = '_'.join(('limit', args.tag, args.mode, args.var))
+       create_limits_plot(indir, outfile, masses=args.masses, labels=(comb_chn, comb_cat), **opt)
+
+    elif args.mode == 'all_years':
+
+       indir = os.path.join(base, 'cards_Years_' + args.var + '_All', 'combined_out')
+       outfile = '_'.join(('limit', args.mode, args.var))
        create_limits_plot(indir, outfile, masses=args.masses, labels=(comb_chn, comb_cat), **opt)
 
     elif args.mode == 'overlay_channels':
@@ -370,7 +393,34 @@ def plot(args, outdir):
         create_limits_plot(indirs, outfile, masses=list_masses,
                            labels=(comb_chn,'Overlay categories')+tuple(args.selections),
                            **opt)
-    
+
+    elif args.mode == 'overlay_channels_years':
+
+        indirs = []
+        for chn in args.channels:
+            indirs.append(os.path.join(base, 'cards_Years_' + args.var + '_CombCat',
+                                       chn, 'combined_out'))
+        label = channel_label(chn)
+        outfile = '_'.join(('limit', args.mode, args.var))
+        chn_labels = tuple([channel_label(x) for x in args.channels])
+        create_limits_plot(indirs, outfile,
+                           masses=len(args.channels)*[args.masses],
+                           labels=('Overlay channels', comb_cat)+chn_labels,
+                           **opt)
+
+    elif args.mode == 'overlay_selections_years':
+
+        indirs = []
+        list_masses = []
+        for sel in args.selections:
+            indirs.append(os.path.join(base, 'cards_Years_' + args.var + '_CombChn',
+                                       sel + '_' + args.var, 'combined_out'))
+            list_masses.append(sel_masses(sel, args.masses))
+        outfile = '_'.join(('limit', args.mode, args.var))
+        create_limits_plot(indirs, outfile, masses=list_masses,
+                           labels=(comb_chn, 'Overlay categories')+tuple(args.selections),
+                           **opt)
+        
 if __name__ == "__main__":
     usage = ('usage: %prog [options] datasetList\n %prog -h for help')
     parser = argparse.ArgumentParser(description=usage)
@@ -384,14 +434,19 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--tag', help='tag')
     parser.add_argument('-b', '--basedir', help='Base directory')
     parser.add_argument('--mode', help='mode',
-                        choices=('separate', 'sel_group', 'chn_group', 'all_group',
-                                 'overlay_channels', 'overlay_selections'))
+                        choices=('separate', 'sel_group', 'chn_group', 'all_group', 'all_years',
+                                 'overlay_channels', 'overlay_selections',
+                                 'overlay_channels_years', 'overlay_selections_years',))
     parser.add_argument('-u', '--user', default='', help='EOS username to store the plots.')
     parser.add_argument('-v', '--var', help='variable to perform the maximum likelihood fit')
     FLAGS = parser.parse_args()
 
     user = os.environ['USER'] if FLAGS.user=='' else FLAGS.user
-    outdir = os.path.join('/eos/user/', user[0], user, 'www/HH_Limits/', FLAGS.tag)
+    outdir = os.path.join('/eos/home-' + user[0] + '/',  user, 'www/HH_Limits/')
+    if 'years' not in FLAGS.mode:
+        outdir = os.path.join(outdir, FLAGS.tag)
+    else:
+        outdir = os.path.join(outdir, FLAGS.var + '_' + FLAGS.period + '_Years')
     if not os.path.exists(outdir):
         os.makedirs(outdir)
         
