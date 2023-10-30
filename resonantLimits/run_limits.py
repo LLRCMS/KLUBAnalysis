@@ -33,22 +33,21 @@ def run_limits(in_tags, channels, selections, selection_prefixes, masses,
 
     if not combination:
         # Generate datacards
-        commands.append('bash make_res_cards.sh -d {dp} --channels {chn} --tag {tag} --in_tags {it} --var {v} -b {b} --cfg {cfg} --selections {sel} --masses {m} --signal {s} -u ')
+        # commands.append('bash make_res_cards.sh -d {dp} --channels {chn} --tag {tag} --in_tags {it} --var {v} -b {b} --cfg {cfg} --selections {sel} --masses {m} --signal {s} -u ')
         if noprep:
             commands[-1] += '--noprep '
 
         # Generate workspaces
-        commands.append('bash make_workspace_res.sh --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn} -b {b}')
+        # commands.append('bash make_workspace_res.sh --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn} -b {b}')
 
         # Combine all categories
-        commands.append('bash combine_res_categories.sh --tag {tag} --masses {m} --var {v} --signal {s} --channels {chn} -b {b} --period {dp} --selprefixes {selpref}')
+        # commands.append('bash combine_res_categories.sh --tag {tag} --masses {m} --var {v} --signal {s} --channels {chn} -b {b} --period {dp} --selprefixes {selpref}')
         
         # Combine all channels
-        commands.append('bash combine_res_channels.sh --tag {tag} --masses {m} --var {v} --signal {s} --selprefixes {selpref} -b {b} --period {dp}')
+        # commands.append('bash combine_res_channels.sh --tag {tag} --masses {m} --var {v} --signal {s} --selprefixes {selpref} -b {b} --period {dp}')
 
         # combine categories and channels
-        commands.append('bash combine_res_all.sh --tag {tag} --masses {m} --var {v} --signal {s} -b {b}')
-
+        # commands.append('bash combine_res_all.sh --tag {tag} --masses {m} --var {v} --signal {s} -b {b}')
 
     else:
         # Combine all categories
@@ -68,8 +67,8 @@ def run_limits(in_tags, channels, selections, selection_prefixes, masses,
 
     for mode in limit_modes:
         commands.append('bash get_limits_res.sh --mode ' + mode + ' --masses {m} --var {v} --signal {s} --channels {chn} -b {b}')
-        if mode == 'sel_group' and set(selections) != set(selection_prefixes):
-            commands[-1] += ' --selections {selpref}'
+        #if mode == 'sel_group' and set(selections) != set(selection_prefixes):
+        commands[-1] += ' --selections {selpref}'
         if not combination:
             commands[-1] += ' --tag {tag}'
 
@@ -112,19 +111,22 @@ if __name__ == '__main__':
                         help='run datacard combination across multiple data periods')
     FLAGS = parser.parse_args()
 
-    period = 'UL16'
+    period = 'UL18' #All
     signal = 'GGF_Radion'
-    varsfit = ('DNNoutSM_kl_1',) #('HHKin_mass',)
+    varsfit = ('DNNoutSM_kl_1',) # HHKin_mass',)
     
     channels = ('ETau', 'MuTau', 'TauTau')
     tag_ = 'Upstream'
-    suffix = ''
+    suffix = '_DNNcut0p5'
     #in_tags = ['{}_{}_{}{}'.format(tag_, x, period, suffix) for x in channels]
-    in_tags = ['{}_{}'.format(tag_, x) for x in channels]
-    cfg_files = ['mainCfg_{}_{}{}.cfg'.format(x, period, suffix)
-                 for x in channels]
+    in_tags = ['{}_{}{}'.format(tag_, x, suffix) for x in channels]
+    #cfg_files = ['mainCfg_{}_{}{}.cfg'.format(x, period, suffix) for x in channels]
+    cfg_files = ['mainCfg_{}_{}.cfg'.format(x, period) for x in channels]
     out_tag = '{}_{}{}'.format(tag_, period, suffix)
-    selections = ('s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut')
+    #selections = ('s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut')
+    selections = ('s1b1jresolvedDNN', 's2b0jresolvedDNN', 'sboostedLLDNN')
+    #selection_prefixes = ('s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut')
+    selection_prefixes = ('s1b1jresolvedDNN', 's2b0jresolvedDNN', 'sboostedLLDNN')
     # selections = ('s1b1jresolvedMcutmHH250_335',
     #               's1b1jresolvedMcutmHH335_475',
     #               's1b1jresolvedMcutmHH475_725',
@@ -140,7 +142,6 @@ if __name__ == '__main__':
     #               'sboostedLLMcutmHH775_1100',
     #               'sboostedLLMcutmHH1100_3500'
     #               )
-    selection_prefixes = ('s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut')
     
     masses = ('250', '260', '280', '300', '320', '350', '400', '450', '500', '550', '600', '650', '700', '750', '800', '850', '900', '1000', '1250', '1500', '1750', '2000', '2500', '3000')
     work_dir = os.path.join('/home/llr/cms/', os.environ['USER'], 'CMSSW_11_1_9/src/KLUBAnalysis')

@@ -428,7 +428,7 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--channels', nargs='+', help='channels')
     parser.add_argument('-l', '--selections', nargs='+', help='selections')
     parser.add_argument('-m', '--masses', type=int, nargs='+', help='masses')
-    parser.add_argument('-p', '--period', choices=('UL16','UL17','UL18'),
+    parser.add_argument('-p', '--period', choices=('UL16','UL17','UL18','All'),
                         help='data period')
     parser.add_argument('-s', '--signal', type=str, help='signal type')
     parser.add_argument('-t', '--tag', help='tag')

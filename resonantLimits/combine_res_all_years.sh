@@ -72,12 +72,12 @@ fi
 LIMIT_DIR="${BASEDIR}/resonantLimits"
 
 declare -A TAGS=(
-	["2016"]="25Oct2023_newBigNtuples_forLimits_UL2016_legacyCategories"
-	#["2016"]="25Oct2023_newBigNtuples_forLimits_HHMass_UL2016_legacyCategories"
-	["2016APV"]="24Oct2023_newBigNtuples_bTagReshapeSF_forLimits_UL2016APV_legacyCategories"
-	#["2016APV"]="18Oct2023_newBigNtuples_forLimits_HHMass_UL2016APV_legacyCategories"
-	# ["2017"]="Upstream_UL17"
-	# ["2018"]="Upstream_UL18"
+	#["2016"]="25Oct2023_newBigNtuples_forLimits_UL2016_legacyCategories"
+	["2016"]="25Oct2023_newBigNtuples_forLimits_HHMass_UL2016_legacyCategories"
+	#["2016APV"]="24Oct2023_newBigNtuples_bTagReshapeSF_forLimits_UL2016APV_legacyCategories"
+	["2016APV"]="18Oct2023_newBigNtuples_forLimits_HHMass_UL2016APV_legacyCategories"
+	["2017"]="Upstream_UL17_Copy_UL17_uhh"
+	["2018"]="Upstream_UL18"
 )
 
 comb_dir="${LIMIT_DIR}/cards_Years_${VAR}_All"
@@ -93,6 +93,8 @@ comb_root="${comb_}.root"
 parallel combineCards.py -S \
 		 ${LIMIT_DIR}/cards_${TAGS["2016"]}_*Tau/*${VAR}/hhres*.${SIGNAL}{}.txt \
 		 ${LIMIT_DIR}/cards_${TAGS["2016APV"]}_*Tau/*${VAR}/hhres*.${SIGNAL}{}.txt \
+		 ${LIMIT_DIR}/cards_${TAGS["2017"]}_*Tau/*${VAR}/hhres*.${SIGNAL}{}.txt \
+		 ${LIMIT_DIR}/cards_${TAGS["2018"]}_*Tau/*${VAR}/hhres*.${SIGNAL}{}.txt \
 		 ">" ${comb_txt} ::: ${MASSES[@]}
 parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${comb_txt} ::: ${MASSES[@]}
 

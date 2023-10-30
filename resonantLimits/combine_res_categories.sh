@@ -172,7 +172,7 @@ for ichn in "${!CHANNELS[@]}"; do
 	for selp in ${SELECTION_PREFIXES[@]}; do
 		echo "Grouping categories with the '${selp}' prefix..."
 		declare -a allpref=($(cd ${card_dir}/ && ls -d -1 ${selp}*/))
-		echo "Processing all selections starting with '${selp}' (${#allpref[@]} in total): "
+		echo "Processing all selections starting with '${selp}' for channel ${CHANNELS[@]} (${#allpref[@]} in total): "
 		for allp in ${allpref[@]}; do
 			echo "- ${allp}"
 		done

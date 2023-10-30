@@ -88,12 +88,12 @@ fi
 LIMIT_DIR="${BASEDIR}/resonantLimits"
 
 declare -A TAGS=(
-	["2016"]="25Oct2023_newBigNtuples_forLimits_UL2016_legacyCategories"
-	#["2016"]="25Oct2023_newBigNtuples_forLimits_HHMass_UL2016_legacyCategories"
-	["2016APV"]="24Oct2023_newBigNtuples_bTagReshapeSF_forLimits_UL2016APV_legacyCategories"
-	#["2016APV"]="18Oct2023_newBigNtuples_forLimits_HHMass_UL2016APV_legacyCategories"
-	# ["2017"]="Upstream_UL17"
-	# ["2018"]="Upstream_UL18"
+	#["2016"]="25Oct2023_newBigNtuples_forLimits_UL2016_legacyCategories"
+	["2016"]="25Oct2023_newBigNtuples_forLimits_HHMass_UL2016_legacyCategories"
+	#["2016APV"]="24Oct2023_newBigNtuples_bTagReshapeSF_forLimits_UL2016APV_legacyCategories"
+	["2016APV"]="18Oct2023_newBigNtuples_forLimits_HHMass_UL2016APV_legacyCategories"
+	["2017"]="Upstream_UL17_Copy_UL17_uhh"
+	["2018"]="Upstream_UL18"
 )
 
 NEWDIR="${LIMIT_DIR}/cards_Years_${VAR}_CombChn"
@@ -115,7 +115,7 @@ for selprefix in ${SELECTION_PREFIXES[@]}; do
     # all directories will have the same categories, hence the wildcard 
     # (impossible to tell beforehand which channel was chosen)
 	for tag in ${TAGS[@]}; do
-		declare -a allpref=($(cd ${LIMIT_DIR}/cards_${tag}_*Tau/ && ls -d -1 ${selprefix}*/))
+		declare -a allpref=($(cd ${LIMIT_DIR}/cards_${tag}_*Tau/ && ls -d -1 ${selprefix}*_${VAR}/))
 		echo "Tag ${tag}: processing all selections starting with '${selprefix}' (${#allpref[@]} in total): "
 		for selp in ${allpref[@]}; do
 			echo "- ${selp}"
@@ -139,10 +139,12 @@ for selprefix in ${SELECTION_PREFIXES[@]}; do
     parallel rm -f -- ${path_txt} ::: ${MASSES_IF[@]}
     parallel rm -f -- ${path_root} ::: ${MASSES_IF[@]}
 
-	filename="hhres_*_*Tau_${selprefix}*${SIGNAL}{}.txt"
+    filename="hhres_*_*Tau_${selprefix}*${SIGNAL}{}.txt"
     parallel combineCards.py -S \
 			 ${LIMIT_DIR}/cards_${TAGS["2016"]}_*Tau/${selprefix}*_${VAR}/${filename} \
 			 ${LIMIT_DIR}/cards_${TAGS["2016APV"]}_*Tau/${selprefix}*_${VAR}/${filename} \
+			 ${LIMIT_DIR}/cards_${TAGS["2017"]}_*Tau/${selprefix}*_${VAR}/${filename} \
+			 ${LIMIT_DIR}/cards_${TAGS["2018"]}_*Tau/${selprefix}*_${VAR}/${filename} \
 			 ">" ${path_txt} ::: ${MASSES_IF[@]}
     parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${path_txt} ::: ${MASSES_IF[@]}
     parallel text2workspace.py ${path_txt} -o ${path_root} ::: ${MASSES_IF[@]}
