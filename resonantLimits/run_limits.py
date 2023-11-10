@@ -33,21 +33,21 @@ def run_limits(in_tags, channels, selections, selection_prefixes, masses,
 
     if not combination:
         # Generate datacards
-        # commands.append('bash make_res_cards.sh -d {dp} --channels {chn} --tag {tag} --in_tags {it} --var {v} -b {b} --cfg {cfg} --selections {sel} --masses {m} --signal {s} -u ')
+        commands.append('bash make_res_cards.sh -d {dp} --channels {chn} --tag {tag} --in_tags {it} --var {v} -b {b} --cfg {cfg} --selections {sel} --masses {m} --signal {s} -u ')
         if noprep:
             commands[-1] += '--noprep '
 
         # Generate workspaces
-        # commands.append('bash make_workspace_res.sh --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn} -b {b}')
+        commands.append('bash make_workspace_res.sh --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn} -b {b}')
 
         # Combine all categories
-        # commands.append('bash combine_res_categories.sh --tag {tag} --masses {m} --var {v} --signal {s} --channels {chn} -b {b} --period {dp} --selprefixes {selpref}')
+        commands.append('bash combine_res_categories.sh --tag {tag} --masses {m} --var {v} --signal {s} --channels {chn} -b {b} --period {dp} --selprefixes {selpref}')
         
         # Combine all channels
-        # commands.append('bash combine_res_channels.sh --tag {tag} --masses {m} --var {v} --signal {s} --selprefixes {selpref} -b {b} --period {dp}')
+        commands.append('bash combine_res_channels.sh --tag {tag} --masses {m} --var {v} --signal {s} --selprefixes {selpref} -b {b} --period {dp}')
 
         # combine categories and channels
-        # commands.append('bash combine_res_all.sh --tag {tag} --masses {m} --var {v} --signal {s} -b {b}')
+        commands.append('bash combine_res_all.sh --tag {tag} --masses {m} --var {v} --signal {s} -b {b}')
 
     else:
         # Combine all categories
