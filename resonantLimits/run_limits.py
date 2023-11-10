@@ -64,7 +64,8 @@ def run_limits(in_tags, channels, selections, selection_prefixes, masses,
         limit_modes = ('sel_years', 'chn_years', 'all_years',)
     else:
         limit_modes = ('separate', 'sel_group', 'chn_group', 'all_group')
-
+    assert any('year' in x for x in limit_modes) and period == "All"
+        
     for mode in limit_modes:
         commands.append('bash get_limits_res.sh --mode ' + mode + ' --masses {m} --var {v} --signal {s} --channels {chn} -b {b}')
         #if mode == 'sel_group' and set(selections) != set(selection_prefixes):
@@ -80,7 +81,7 @@ def run_limits(in_tags, channels, selections, selection_prefixes, masses,
         plot_modes = limit_modes + ('overlay_channels', 'overlay_selections')
         
     for mode in plot_modes:
-        commands.append('python plot.py --mode ' + mode + ' --period {dp} --masses {m} --var {v} --signal {s} --selections {selpref} --channels {chn} --user {user} --basedir {b}')
+        commands.append('python plot.py --mode ' + mode + ' --period {dp} --masses {m} --var {v} --signal {s} --selections {selpref} --channels {chn} --user {user} --basedir {b} --atlas')
         if not combination:
             commands[-1] += " --tag {tag}"
 
@@ -111,7 +112,7 @@ if __name__ == '__main__':
                         help='run datacard combination across multiple data periods')
     FLAGS = parser.parse_args()
 
-    period = 'UL18' #All
+    period = 'All' #All
     signal = 'GGF_Radion'
     varsfit = ('DNNoutSM_kl_1',) # HHKin_mass',)
     
@@ -123,10 +124,8 @@ if __name__ == '__main__':
     #cfg_files = ['mainCfg_{}_{}{}.cfg'.format(x, period, suffix) for x in channels]
     cfg_files = ['mainCfg_{}_{}.cfg'.format(x, period) for x in channels]
     out_tag = '{}_{}{}'.format(tag_, period, suffix)
-    #selections = ('s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut')
-    selections = ('s1b1jresolvedDNN', 's2b0jresolvedDNN', 'sboostedLLDNN')
-    #selection_prefixes = ('s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut')
-    selection_prefixes = ('s1b1jresolvedDNN', 's2b0jresolvedDNN', 'sboostedLLDNN')
+    selections = ('s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut')
+    selection_prefixes = ('s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut')
     # selections = ('s1b1jresolvedMcutmHH250_335',
     #               's1b1jresolvedMcutmHH335_475',
     #               's1b1jresolvedMcutmHH475_725',
@@ -143,7 +142,7 @@ if __name__ == '__main__':
     #               'sboostedLLMcutmHH1100_3500'
     #               )
     
-    masses = ('250', '260', '280', '300', '320', '350', '400', '450', '500', '550', '600', '650', '700', '750', '800', '850', '900', '1000', '1250', '1500', '1750', '2000', '2500', '3000')
+    masses = ('250', '260', '280', '300', '320', '350', '400', '450', '500', '550', '600', '650', '700', '750', '800', '850', '900', '1000', '1250', '1500', '1750', '2000',)
     work_dir = os.path.join('/home/llr/cms/', os.environ['USER'], 'CMSSW_11_1_9/src/KLUBAnalysis')
 
     for var in varsfit:
