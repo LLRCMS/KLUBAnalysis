@@ -45,7 +45,9 @@ def parseFile(filename, CL='50.0', exp=True):
     else:
         return matches[-1]
 
-def create_limits_plot(indirs, outfile, masses, labels, signal, period, varfit, canvas):
+def create_limits_plot(indirs, outfile, masses, labels, signal, period,
+                       varfit, canvas):
+
     # covers situations without channel or selection overlays
     # when overlays are shown, sigma intervals are not displayed
     if not isinstance(indirs, (tuple, list)):
@@ -57,11 +59,10 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period, varfit, 
 
     # Legend definition
     legend = ROOT.TLegend(0,0,0,0)
-    legend.SetX1(0.73)
-    legend.SetY1(0.18)
-    legend.SetX2(0.92)
-    legend.SetY2(0.35)
-    #legend.SetFillColor(ROOT.kWhite)
+    legend.SetX1(0.18)
+    legend.SetY1(0.7)
+    legend.SetX2(0.35)
+    legend.SetY2(0.89)
     legend.SetBorderSize(0)
     # if ndirs == 1:
     #    legend.SetHeader('95% CL upper limits')
@@ -92,35 +93,37 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period, varfit, 
        ptext2.AddText('Run2 - 137.1 fb^{-1} (13 TeV)')
 
     ptexts = []
-    vshift = 0.06
+    vshift = 0.04
     for ipt in range(3):
-       ptexts.append(ROOT.TPaveText(0.62, 0.8-ipt*vshift, 0.92, 0.88-ipt*vshift, 'brNDC'))
+       ptexts.append(ROOT.TPaveText(0.7, 0.85-ipt*vshift, 0.92, 0.88-ipt*vshift, 'brNDC'))
        ptexts[-1].SetTextAlign(12)
        ptexts[-1].SetFillColor(ROOT.kWhite)
        ptexts[-1].SetFillStyle(1001)
        ptexts[-1].SetTextFont(42)
-       ptexts[-1].SetTextSize(0.04)
+       ptexts[-1].SetTextSize(0.03)
        ptexts[-1].SetBorderSize(0)
        ptexts[-1].SetTextAlign(32)
        if ipt == 2:
-          ptexts[-1].AddText('Fit: {}'.format(varfit))
+          ptexts[-1].AddText('ML fit: {}'.format(varfit))
        else:
           ptexts[-1].AddText(labels[ipt])
 
     # Outside frame
-    hframe = ROOT.TH1F('hframe_'+outfile, '', 100, 250, 3100)
+    frame_bounds = 220, 2030
+    hframe = ROOT.TH1F('hframe_'+outfile, '',
+                       100, frame_bounds[0], frame_bounds[1])
     hframe.SetMinimum(0.1)
     if period == 'UL16':
         hframe.SetMaximum(1e5)
-        hframe.SetMinimum(1e-1)
+        hframe.SetMinimum(5e-1)
     elif period == 'UL17':
         hframe.SetMaximum(1e5)
-        hframe.SetMinimum(1e-1)
+        hframe.SetMinimum(5e-1)
     elif period == 'UL18':
-        hframe.SetMaximum(1e5)
+        hframe.SetMaximum(6e3)
         hframe.SetMinimum(1e-1)
-    else: # years combined
-       hframe.SetMaximum(1e5)
+    elif period == "All": # years combined
+       hframe.SetMaximum(6e3)
        hframe.SetMinimum(1e-1)
 
     hframe.GetYaxis().SetTitleSize(0.047)
@@ -130,10 +133,8 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period, varfit, 
     hframe.GetXaxis().SetLabelOffset(0.012)
     hframe.GetYaxis().SetTitleOffset(1.2)
     hframe.GetXaxis().SetTitleOffset(1.1)
-
     hframe.GetYaxis().SetTitle("95% CL on #sigma #times #bf{#it{#Beta}}(X#rightarrowHH#rightarrow bb#tau#tau) [fb]")
     hframe.GetXaxis().SetTitle("m_{X} [GeV]")
-
     hframe.SetStats(0)
     ROOT.gPad.SetTicky()
     hframe.Draw()
@@ -151,7 +152,6 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period, varfit, 
     graph.SetLineWidth(2)
     nP = int((xmax-xmin)*10.0)
     Graph_syst_Scale = ROOT.TGraphAsymmErrors(nP)
-
     for i in range(nP):
         Graph_syst_Scale_x=(xmin+(i*1.)/10.)
         Graph_syst_Scale_y=(getExpValue(xmin+(i*1.)/10.,yt)) 
@@ -167,17 +167,55 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period, varfit, 
     Graph_syst_Scale.SetFillColor(ROOT.kRed)
     Graph_syst_Scale.SetFillStyle(3001)
 
+    # if plot_atlas: #format: [nominal, +1sigma, -1sigma]
+    #     atlas_limits = {
+    #         251: [338.343632385, 132.532814377, -94.548310224],
+    #         260: [723.674375997, 283.470982053, -202.226916229],
+    #         280: [840.891247788, 329.386082632, -234.98254127],
+    #         300: [660.054656501, 258.550458455, -184.44872743],
+    #         325: [471.95744985, 184.870773698, -131.885973636],
+    #         350: [351.081800662, 137.522490937, -98.107922909],
+    #         375: [216.738874272, 84.898931863, -60.566513925],
+    #         400: [142.983566918, 56.008190252, -39.955989556],
+    #         450: [67.6539757559, 26.5007848604, -18.905540035],
+    #         500: [42.7054554468, 16.7281830005, -11.9338100776],
+    #         550: [32.8902484269, 12.8834615826, -9.1910032108],
+    #         600: [26.1798429167, 10.2549240759, -7.3158164445],
+    #         700: [18.6692663031, 7.3129510021, -5.2170261625],
+    #         800: [15.2306662884, 5.9660146515, -4.2561278632],
+    #         900: [13.4018922009, 5.2496643098, -3.7450867701],
+    #         1000: [12.193545018, 4.7763418128, -3.40742064207],
+    #         1100: [13.41388346, 5.2543614139, -3.74843766307],
+    #         1200: [13.7506650269, 5.3862823506, -3.84254946247],
+    #         1400: [19.841377896, 7.7720796314, -5.5445664496],
+    #         1600: [31.0459855988, 12.1610441358, -8.6756338723]
+    #     }
+            
     # Create graph objects
-    grexp, grobs, gr2sigma, gr1sigma = ([] for _ in range(4))
+    agraph = {}
     for idx,indir in enumerate(indirs):
-        grexp.append(ROOT.TGraph())
-        grobs.append(ROOT.TGraph())
-        gr2sigma.append(ROOT.TGraphAsymmErrors())
-        gr1sigma.append(ROOT.TGraphAsymmErrors())
-       
+        agraph["exp"]  = ROOT.TGraph()
+        agraph["obs"]  = ROOT.TGraph()
+        agraph["sig1"] = ROOT.TGraphAsymmErrors()
+        agraph["sig2"] = ROOT.TGraphAsymmErrors()
         ptsList = [] # (x, obs, exp, p2s, p1s, m1s, m2s)
 
+        # if plot_atlas:
+        #     agraph["atlas_nom"]  = ROOT.TGraph()
+        #     agraph["atlas_sig1"] = ROOT.TGraphAsymmErrors()
+        #     atlas_masses = sorted(list(atlas_limits.keys()))
+        #     for ipt, mass in enumerate(atlas_masses):
+        #         exp, ps1, ms1 = [x*0.073 for x in atlas_limits[mass]] #bbtt BR
+        #         # ps1 = ps1 - exp
+        #         ms1 = abs(ms1)
+        #         agraph["atlas_nom"].SetPoint(ipt, mass, exp)
+        #         agraph["atlas_sig1"].SetPoint(ipt, mass, exp)
+        #         agraph["atlas_sig1"].SetPointError(ipt, 0, 0, ms1, ps1)
+                
         for mass in masses[idx]:
+            if mass < frame_bounds[0] or mass > frame_bounds[1]:
+                continue
+            
             fName = os.path.join(indir, 'comb.{}_{}_{}.log'.format(signal, varfit, mass))
          
             exp   = 10.*parseFile(fName)            
@@ -186,6 +224,7 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period, varfit, 
             p1s_t = 10.*parseFile(fName, CL='84.0') 
             m2s_t = 10.*parseFile(fName, CL=' 2.5') 
             p2s_t = 10.*parseFile(fName, CL='97.5') 
+
             # because the other code wants +/ sigma vars as deviations,
             # without sign, from the centeal exp value...
             p2s = p2s_t - exp
@@ -197,63 +236,72 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period, varfit, 
             
         ptsList.sort()
         for ipt, pt in enumerate(ptsList):
-            xval = pt[0]
-            obs  = pt[1]
-            exp  = pt[2]
-            p2s  = pt[3]
-            p1s  = pt[4]
-            m1s  = pt[5]
-            m2s  = pt[6]
-         
+            xval, obs, exp, p2s, p1s, m1s, m2s = pt
             if exp > 0:
-                grexp[-1].SetPoint(ipt, xval, exp)
-                grobs[-1].SetPoint(ipt, xval, obs)
-                gr1sigma[-1].SetPoint(ipt, xval, exp)
-                gr2sigma[-1].SetPoint(ipt, xval, exp)
-                gr1sigma[-1].SetPointError(ipt, 0, 0, m1s, p1s)
-                gr2sigma[-1].SetPointError(ipt, 0, 0, m2s, p2s)       
+                agraph["exp"].SetPoint(ipt, xval, exp)
+                agraph["obs"].SetPoint(ipt, xval, obs)
+                agraph["sig1"].SetPoint(ipt, xval, exp)
+                agraph["sig1"].SetPointError(ipt, 0, 0, m1s, p1s)
+                agraph["sig2"].SetPoint(ipt, xval, exp)
+                agraph["sig2"].SetPointError(ipt, 0, 0, m2s, p2s)
          
         # set styles
-        grexp[-1].SetMarkerStyle(24)
-        grexp[-1].SetMarkerColor(4)
-        grexp[-1].SetMarkerSize(0.8)
-        grexp[-1].SetLineColor(idx+1)
-        grexp[-1].SetLineWidth(3)
-        grexp[-1].SetLineStyle(2)
-        grexp[-1].SetFillColor(0)
+        agraph["exp"].SetMarkerStyle(24)
+        agraph["exp"].SetMarkerColor(4)
+        agraph["exp"].SetMarkerSize(0.8)
+        agraph["exp"].SetLineColor(idx+1)
+        agraph["exp"].SetLineWidth(3)
+        agraph["exp"].SetLineStyle(2)
+        agraph["exp"].SetFillColor(0)
          
-        grobs[-1].SetLineColor(1)
-        grobs[-1].SetLineWidth(3)
-        grobs[-1].SetMarkerColor(1)
-        grobs[-1].SetMarkerStyle(20)
-        grobs[-1].SetFillStyle(0)
+        agraph["obs"].SetLineColor(1)
+        agraph["obs"].SetLineWidth(3)
+        agraph["obs"].SetMarkerColor(1)
+        agraph["obs"].SetMarkerStyle(20)
+        agraph["obs"].SetFillStyle(0)
 
         if ndirs==1:
-            gr1sigma[-1].SetMarkerStyle(0)
-            gr1sigma[-1].SetMarkerColor(3)
-            gr1sigma[-1].SetFillColor(ROOT.kGreen+1)
-            gr1sigma[-1].SetLineColor(ROOT.kGreen+1)
-            gr1sigma[-1].SetFillStyle(1001)
+            agraph["sig1"].SetMarkerStyle(0)
+            agraph["sig1"].SetMarkerColor(3)
+            agraph["sig1"].SetFillColor(ROOT.kGreen+1)
+            agraph["sig1"].SetLineColor(ROOT.kGreen+1)
+            agraph["sig1"].SetFillStyle(1001)
          
-            gr2sigma[-1].SetMarkerStyle(0)
-            gr2sigma[-1].SetMarkerColor(5)
-            gr2sigma[-1].SetFillColor(ROOT.kOrange)
-            gr2sigma[-1].SetLineColor(ROOT.kOrange)
-            gr2sigma[-1].SetFillStyle(1001)
+            agraph["sig2"].SetMarkerStyle(0)
+            agraph["sig2"].SetMarkerColor(5)
+            agraph["sig2"].SetFillColor(ROOT.kOrange)
+            agraph["sig2"].SetLineColor(ROOT.kOrange)
+            agraph["sig2"].SetFillStyle(1001)
 
+        # if plot_atlas:
+        #     agraph["atlas_nom"].SetLineColor(39)
+        #     agraph["atlas_nom"].SetLineWidth(3)
+        #     agraph["atlas_nom"].SetLineStyle(2)
+
+        #     agraph["atlas_sig1"].SetMarkerStyle(0)
+        #     agraph["atlas_sig1"].SetMarkerColor(3)
+        #     agraph["atlas_sig1"].SetFillColor(18)
+        #     agraph["atlas_sig1"].SetLineColor(18)
+        #     agraph["atlas_sig1"].SetFillStyle(1001)
+
+            
         if ndirs==1:
            leg_labels = ('Observed', 'Median expected')
         else:
            leg_labels = ('Obs. ' + labels[2+idx][:20],
                          'Exp. ' + labels[2+idx][:20])
-        #legend.AddEntry(grobs[-1], leg_labels[0], 'l')
-        legend.AddEntry(grexp[-1], leg_labels[1], 'l')
+        legend.AddEntry(agraph["exp"], leg_labels[1], 'l')
         if ndirs==1:
-            legend.AddEntry(gr1sigma[-1], '68% expected', 'f')
-            legend.AddEntry(gr2sigma[-1], '95% expected', 'f')
-            gr2sigma[-1].Draw('3same')
-            gr1sigma[-1].Draw('3same')
-        grexp[-1].Draw('Lsame')
+            legend.AddEntry(agraph["sig1"], '68% expected', 'f')
+            legend.AddEntry(agraph["sig2"], '95% expected', 'f')
+            agraph["sig2"].Draw('3same')
+            agraph["sig1"].Draw('3same')
+        # if plot_atlas:
+        #     legend.AddEntry(agraph["atlas_nom"], "ATLAS Full Run2", 'l')
+        #     legend.AddEntry(agraph["atlas_sig1"], 'ATLAS: 68% expected', 'f')
+        #     agraph["atlas_sig1"].Draw('3same')
+        #     agraph["atlas_nom"].Draw('Lsame')
+        agraph["exp"].Draw('Lsame')
 
     ptext.Draw()
     ptext2.Draw()
@@ -267,7 +315,7 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period, varfit, 
        ptexts[i].Draw()
     canvas.Update()
 
-    for e in ('png','pdf'):
+    for e in ('png', 'pdf'):
         canvas.SaveAs(os.path.join(outdir, outfile + '.' + e))
 
 def channel_label(chn):
@@ -299,6 +347,8 @@ def plot(args, outdir):
     canvas.SetGridx()
     canvas.SetGridy()
 
+    # opt = dict(signal=args.signal, period=args.period, canvas=canvas, varfit=args.var,
+    #            plot_atlas=args.atlas)
     opt = dict(signal=args.signal, period=args.period, canvas=canvas, varfit=args.var)
     comb_chn = 'bb #tau_{e}#tau_{h} + bb #tau_{#mu}#tau_{h} + bb #tau_{h}#tau_{h}'
     comb_cat = 'Combined categories'
@@ -433,12 +483,12 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--signal', type=str, help='signal type')
     parser.add_argument('-t', '--tag', help='tag')
     parser.add_argument('-b', '--basedir', help='Base directory')
-    parser.add_argument('--mode', help='mode',
-                        choices=('separate', 'sel_group', 'chn_group', 'all_group', 'all_years',
-                                 'overlay_channels', 'overlay_selections',
-                                 'overlay_channels_years', 'overlay_selections_years',))
+    parser.add_argument('--mode', choices=('separate', 'sel_group', 'chn_group', 'all_group', 'all_years',
+                                           'overlay_channels', 'overlay_selections',
+                                           'overlay_channels_years', 'overlay_selections_years',), help='mode')
     parser.add_argument('-u', '--user', default='', help='EOS username to store the plots.')
     parser.add_argument('-v', '--var', help='variable to perform the maximum likelihood fit')
+    #parser.add_argument('--atlas', action='store_true', help='overlay ATLAS full Run2 result')
     FLAGS = parser.parse_args()
 
     user = os.environ['USER'] if FLAGS.user=='' else FLAGS.user
