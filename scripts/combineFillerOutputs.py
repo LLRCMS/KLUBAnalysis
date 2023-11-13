@@ -72,7 +72,8 @@ def run_combination(outnames, workdir, cfgname, prefix, args):
                 try:
                     theList.remove(x)
                 except (ValueError,AttributeError):
-                    print("'{}' not in list!".format(x))
+                    print("[ERROR] '{}' not in list, group '{}', section '{}'!"
+                          .format(x, groupname, cfgsection))
                     raise
             theList.append(groupname)
     else:

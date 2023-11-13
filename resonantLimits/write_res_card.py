@@ -118,7 +118,11 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
         for proc in range(nsig):
             templateName = '{}_'.format(signals[proc]) + suffix_str
             template = inRoot.Get(templateName)
-            rates.append(template.Integral())
+            try:
+                rates.append(template.Integral())
+            except AttributeError:
+                print('[ERROR] There was an issue with sample {}.'.format(templateName))
+                raise
 
         syst = systReader(configDir + '/systematics_'+opt.period+'.cfg', signals, backgrounds, None)
         syst.writeOutput(False)
@@ -500,7 +504,7 @@ else:
         else:
             for ireg in range(len(regions)):
                 for sig in signals:
-                    sigmass = int(sig.replace('ggFRadion', ''))
+                    sigmass = int(sig.replace(opt.signal, ''))
                     if 'boosted' in sel and sigmass<301:
                         print('Not generating card for {} in boosted category'.format(sig))
                     else:
