@@ -3478,9 +3478,10 @@ int main (int argc, char** argv)
 			}
 
 		  // EleTau Channel
-		  else if (pType == 1 && isMC)
+		  else if (pType == 1 and isMC)
 			{
-			  if(fabs(tlv_secondLepton.Eta()) < 2.1) //eta region covered both by cross-trigger and single lepton trigger
+			  //eta region covered both by cross-trigger and single lepton trigger
+			  if(fabs(tlv_secondLepton.Eta()) < 2.1 and PERIOD != "2016preVFP" and PERIOD != "2016postVFP")
 				{
 				  int passCross = 1;
 				  int passSingle = 1;
