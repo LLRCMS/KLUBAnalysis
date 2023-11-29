@@ -117,12 +117,14 @@ if __name__ == '__main__':
     varsfit = ('DNNoutSM_kl_1',) # HHKin_mass',)
     
     channels = ('ETau', 'MuTau', 'TauTau')
+
     tag_ = 'Upstream'
     suffix = '_DNNcut0p5'
     #in_tags = ['{}_{}_{}{}'.format(tag_, x, period, suffix) for x in channels]
     in_tags = ['{}_{}{}'.format(tag_, x, suffix) for x in channels]
     #cfg_files = ['mainCfg_{}_{}{}.cfg'.format(x, period, suffix) for x in channels]
     cfg_files = ['mainCfg_{}_{}.cfg'.format(x, period) for x in channels]
+
     out_tag = '{}_{}{}'.format(tag_, period, suffix)
     selections = ('s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut')
     selection_prefixes = ('s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut')

@@ -46,6 +46,8 @@ public:
   CfgParser& mainCfg() {return *mainCfg_;}
   bool readMainInfo(); // all analysis info read here
 
+  bool sanityChecks();
+  
   std::shared_ptr<Sample> openSample(std::string sampleName);
   void prepareHistos();
 
