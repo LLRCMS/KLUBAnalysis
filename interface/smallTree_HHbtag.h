@@ -163,7 +163,6 @@ struct smallTree
       m_idFakeSF_etauFR_endcap_down       = -1.;
 
       m_jetFakeSF = -1.;
-      m_nBhadrons = -1;
       m_lheNOutPartons = -1;
       m_lheNOutB = -1;
       m_RunNumber = -1. ;
