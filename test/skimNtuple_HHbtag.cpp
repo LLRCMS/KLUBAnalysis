@@ -1966,7 +1966,7 @@ int main (int argc, char** argv)
 										tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
 
 		  // check NEW TRIGGERS separately
-		  passMETTrg         = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 200.);
+		  passMETTrg         = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 180.);
 		  passMETTrgNoThresh = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 0.);
 
 		  passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
@@ -2039,8 +2039,9 @@ int main (int argc, char** argv)
 					}
 				}
 			}
-		  else
+		  else {
 			isVBFfired = false;
+		  }
 
 		  // weight to be applied: 0.990342 from https://twiki.cern.ch/twiki/bin/viewauth/CMS/DoubleHiggsToBBTauTauWorkingLegacyRun2
 		  // @ bit position - path
@@ -2057,11 +2058,11 @@ int main (int argc, char** argv)
 			{
 			  if(PERIOD=="2018") {
 				if (CheckBit(pass_triggerbit,8) and !CheckBit(pass_triggerbit,7)) {
-				  theSmallTree.m_prescaleWeight =  0.990342;
+				  theSmallTree.m_prescaleWeight = 0.990342;
 				}
 			  }
 			  else if(PERIOD=="2017") {
-				theSmallTree.m_prescaleWeight =  0.65308574;
+				theSmallTree.m_prescaleWeight = 0.65308574;
 			  }
 			}
 
@@ -2070,10 +2071,10 @@ int main (int argc, char** argv)
 		  bool SingleTau_region = ((fabs(tlv_firstLepton.Pt()) < 40   and fabs(tlv_secondLepton.Pt()) >= 190) or
 								   (fabs(tlv_firstLepton.Pt()) >= 190 and fabs(tlv_secondLepton.Pt()) < 40 ));
 
-		  bool triggerAccept = ( (!isMETdataset and passTrg) or
-								 (isTaudataset and isVBFfired) or
-								 (isMETdataset and passMETTrgNoThresh and MET_region) or
-								 (isTaudataset and passSingleTau and SingleTau_region) );
+		  bool triggerAccept = (passTrg or
+								// (isTaudataset and isVBFfired) or
+								(isMETdataset and passMETTrgNoThresh and MET_region) or
+								(isTaudataset and passSingleTau and SingleTau_region));
 
 		  if(DEBUG)
 			{
