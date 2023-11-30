@@ -19,7 +19,7 @@
 #include <TTreeReaderValue.h>
 
 // bigTree is produced on an existing ntuple as follows (see at the end of the file)
-#include "smallTree.h"
+#include "smallTree_HHbtag.h"
 #include "OfflineProducerHelper.h"
 #include "HHKinFit2/include/HHKinFitMasterHeavyHiggs.h"
 #include "BDTfunctionsUtils.h"
