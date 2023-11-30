@@ -259,7 +259,6 @@ LIST_DATA_DIR=${LIST_DIR}"Data_"${IN_TAG}
 eval `scram unsetenv -sh` # unset CMSSW environment
 declare -a LISTS_DATA=( $(/usr/bin/gfal-ls -lH ${LIST_DATA_DIR} | awk '{{printf $9" "}}') )
 cmsenv # set CMSSW environment
-
 DATA_MAP=(
     ["EGamma__Run2018A"]="-n 400 -q short"
     ["EGamma__Run2018B"]="-n 400 -q short"
@@ -304,7 +303,6 @@ LIST_SIG_DIR=${LIST_DIR}"Sig_"${IN_TAG}
 eval `scram unsetenv -sh` # unset CMSSW environment
 declare -a LISTS_SIG=( $(/usr/bin/gfal-ls -lH ${LIST_SIG_DIR} | awk '{{printf $9" "}}') )
 cmsenv # set CMSSW environment
-
 DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" "VBFToRad" "VBFToBulkGrav" )
 MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
 for ds in ${DATA_LIST[@]}; do

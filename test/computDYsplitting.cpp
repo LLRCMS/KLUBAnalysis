@@ -15,6 +15,7 @@
 
 // bigTree is produced on an existing ntuple as follows (see at the end of the file)
 #include "bigTree.h"
+#include "smallTree.h"
 #include "OfflineProducerHelper.h"
 #include "PUReweight.h"
 #include "triggerReader.h"
