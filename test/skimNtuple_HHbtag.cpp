@@ -2067,10 +2067,38 @@ int main (int argc, char** argv)
 			  }
 			}
 
-		  bool MET_region       = ((fabs(tlv_firstLepton.Pt()) < 40   and fabs(tlv_secondLepton.Pt()) < 190) or
-								   (fabs(tlv_firstLepton.Pt()) < 190  and fabs(tlv_secondLepton.Pt()) < 40 ));
-		  bool SingleTau_region = ((fabs(tlv_firstLepton.Pt()) < 40   and fabs(tlv_secondLepton.Pt()) >= 190) or
-								   (fabs(tlv_firstLepton.Pt()) >= 190 and fabs(tlv_secondLepton.Pt()) < 40 ));
+		  bool MET_region = false;
+		  bool SingleTau_region = false;
+
+		  if (pairType == 0) { //etau
+			if(PERIOD=="2018" or PERIOD=="2017") {
+			  MET_region = ((tlv_firstLepton.Pt() < 33. and tlv_secondLepton.Pt() < 35.) or
+							(tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() > 35.));
+			}
+			else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
+			  MET_region = tlv_firstLepton.Pt() < 25.;
+			}
+		  }
+		  else if (pairType == 1) { //mutau
+			if(PERIOD=="2018") {
+			  MET_region = ((tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < 32.) or
+							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() > 32.));
+			}
+			else if(PERIOD=="2017") {
+			  MET_region = ((tlv_firstLepton.Pt() < 28. and tlv_secondLepton.Pt() < 32.) or
+							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() > 32.));
+			}
+			else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
+			  MET_region = ((tlv_firstLepton.Pt() < 23. and tlv_secondLepton.Pt() < 25.) or
+							(tlv_firstLepton.Pt() < 20. and tlv_secondLepton.Pt() > 25.));
+			}
+		  }
+		  else if (pairType == 2) { //tautau
+			MET_region       = ((tlv_firstLepton.Pt() < 40	 and tlv_secondLepton.Pt() < 190) or
+								(tlv_firstLepton.Pt() < 190	 and tlv_secondLepton.Pt() < 40 ));
+			SingleTau_region = ((tlv_firstLepton.Pt() < 40	 and tlv_secondLepton.Pt() >= 190) or
+								(tlv_firstLepton.Pt() >= 190 and tlv_secondLepton.Pt() < 40 ));
+		  }
 
 		  bool triggerAccept = (passTrg or
 								// (isTaudataset and isVBFfired) or
@@ -3042,7 +3070,15 @@ int main (int argc, char** argv)
 		  // MuTau Channel
 		  if (pType == 0 && isMC)
 			{
-			  if(fabs(tlv_secondLepton.Eta()) < 2.1) //eta region covered both by cross-trigger and single lepton trigger
+			  if(MET_region)
+				{
+				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD);
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD);
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD);
+				}
+
+			  // eta region covered both by cross-trigger and single lepton trigger
+			  else if(fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_region) 
 				{
 				  int passSingle = 1, passCross = 1;
 
@@ -3149,7 +3185,7 @@ int main (int argc, char** argv)
 				  double SFtau = tauTrgSF_mutau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 				  trigSF_cross = SFl*SFtau;
 				}
-			  else //eta region covered only by single lepton trigger
+			  else // eta region covered only by single lepton trigger
 				{
 				  double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 				  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -3164,8 +3200,16 @@ int main (int argc, char** argv)
 		  // EleTau Channel
 		  else if (pType == 1 and isMC)
 			{
-			  //eta region covered both by cross-trigger and single lepton trigger
-			  if(fabs(tlv_secondLepton.Eta()) < 2.1 and PERIOD != "2016preVFP" and PERIOD != "2016postVFP")
+			  if(MET_region)
+				{
+				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD);
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD);
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD);
+				}
+
+			  // eta region covered both by cross-trigger and single lepton trigger
+			  else if(PERIOD != "2016preVFP" and PERIOD != "2016postVFP" and
+					  fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_Region)
 				{
 				  int passSingle = 1, passCross = 1;
 
