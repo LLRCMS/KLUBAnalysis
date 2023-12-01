@@ -11,7 +11,7 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
-
+#include <iostream>
 // Header file for the classes stored in the TTree if any.
 #include <vector>
 
@@ -83,13 +83,6 @@ public :
   std::vector<float>   *daughters_pz_EleDown;
   std::vector<float>   *daughters_e_EleDown;
   std::vector<int>     *daughters_charge;
-  std::vector<float>   *L1_tauEt;
-  std::vector<float>   *L1_tauEta;
-  std::vector<float>   *L1_tauPhi;
-  std::vector<short>   *L1_tauIso;
-  std::vector<float>   *L1_jetEt;
-  std::vector<float>   *L1_jetEta;
-  std::vector<float>   *L1_jetPhi;
   std::vector<float>   *daughters_highestEt_L1IsoTauMatched;
   std::vector<int>     *daughters_genindex;
   Float_t         MC_weight;
@@ -180,6 +173,7 @@ public :
   std::vector<int>     *decayMode;
   std::vector<Long64_t> *tauID;
   std::vector<float>   *combreliso;
+  std::vector<float>   *tkRelIso;
   std::vector<float>   *daughters_depositR03_tracker;
   std::vector<float>   *daughters_depositR03_ecal;
   std::vector<float>   *daughters_depositR03_hcal;
@@ -360,13 +354,6 @@ public :
   TBranch        *b_daughters_pz_EleDown;   //!
   TBranch        *b_daughters_e_EleDown;   //!
   TBranch        *b_daughters_charge;   //!
-  TBranch        *b_L1_tauEt;   //!
-  TBranch        *b_L1_tauEta;   //!
-  TBranch        *b_L1_tauPhi;   //!
-  TBranch        *b_L1_tauIso;   //!
-  TBranch        *b_L1_jetEt;   //!
-  TBranch        *b_L1_jetEta;   //!
-  TBranch        *b_L1_jetPhi;   //!
   TBranch        *b_daughters_highestEt_L1IsoTauMatched;   //!
   TBranch        *b_daughters_genindex;   //!
   TBranch        *b_MC_weight;   //!
@@ -454,6 +441,7 @@ public :
   TBranch        *b_decayMode;   //!
   TBranch        *b_tauID;   //!
   TBranch        *b_combreliso;   //!
+  TBranch        *b_tkRelIso;   //!
   // TBranch        *b_daughters_IetaIeta;   //!
   // TBranch        *b_daughters_deltaPhiSuperClusterTrackAtVtx;   //!
   TBranch        *b_daughters_depositR03_tracker;   //!
@@ -632,13 +620,6 @@ public :
     daughters_pz_EleDown = 0;
     daughters_e_EleDown = 0;
     daughters_charge = 0;
-    L1_tauEt = 0;
-    L1_tauEta = 0;
-    L1_tauPhi = 0;
-    L1_tauIso = 0;
-    L1_jetEt = 0;
-    L1_jetEta = 0;
-    L1_jetPhi = 0;
     daughters_highestEt_L1IsoTauMatched = 0;
     daughters_genindex = 0;
     genpart_px = 0;
@@ -718,6 +699,7 @@ public :
     decayMode = 0;
     tauID = 0;
     combreliso = 0;
+	tkRelIso = 0;
     daughters_depositR03_tracker = 0;
     daughters_depositR03_ecal = 0;
     daughters_depositR03_hcal = 0;
@@ -834,7 +816,6 @@ public :
     subjets_ak8MotherIdx = 0;
 
     fChain->SetMakeClass(1);
-
     fChain->SetBranchAddress("EventNumber", &EventNumber, &b_EventNumber);
     fChain->SetBranchAddress("RunNumber", &RunNumber, &b_RunNumber);
     fChain->SetBranchAddress("lumi", &lumi, &b_lumi);
@@ -866,13 +847,6 @@ public :
     fChain->SetBranchAddress("daughters_pz", &daughters_pz, &b_daughters_pz);
     fChain->SetBranchAddress("daughters_e", &daughters_e, &b_daughters_e);
     fChain->SetBranchAddress("daughters_charge", &daughters_charge, &b_daughters_charge);
-    fChain->SetBranchAddress("L1_tauEt", &L1_tauEt, &b_L1_tauEt);
-    fChain->SetBranchAddress("L1_tauEta", &L1_tauEta, &b_L1_tauEta);
-    fChain->SetBranchAddress("L1_tauPhi", &L1_tauPhi, &b_L1_tauPhi);
-    fChain->SetBranchAddress("L1_tauIso", &L1_tauIso, &b_L1_tauIso);
-    fChain->SetBranchAddress("L1_jetEt", &L1_jetEt, &b_L1_jetEt);
-    fChain->SetBranchAddress("L1_jetEta", &L1_jetEta, &b_L1_jetEta);
-    fChain->SetBranchAddress("L1_jetPhi", &L1_jetPhi, &b_L1_jetPhi);
     fChain->SetBranchAddress("daughters_highestEt_L1IsoTauMatched", &daughters_highestEt_L1IsoTauMatched, &b_daughters_highestEt_L1IsoTauMatched);
     fChain->SetBranchAddress("SVfitMass", &SVfitMass, &b_SVfitMass);
     fChain->SetBranchAddress("SVfitMassUnc", &SVfitMassUnc, &b_SVfitMassUnc);
@@ -927,6 +901,7 @@ public :
     fChain->SetBranchAddress("decayMode", &decayMode, &b_decayMode);
     fChain->SetBranchAddress("tauID", &tauID, &b_tauID);
     fChain->SetBranchAddress("combreliso", &combreliso, &b_combreliso);
+	fChain->SetBranchAddress("tkRelIso", &tkRelIso, &b_tkRelIso);
     // fChain->SetBranchAddress("daughters_IetaIeta", &daughters_IetaIeta, &b_daughters_IetaIeta);
     // fChain->SetBranchAddress("daughters_deltaPhiSuperClusterTrackAtVtx", &daughters_deltaPhiSuperClusterTrackAtVtx, &b_daughters_deltaPhiSuperClusterTrackAtVtx);
     fChain->SetBranchAddress("daughters_depositR03_tracker", &daughters_depositR03_tracker, &b_daughters_depositR03_tracker);
@@ -1046,13 +1021,15 @@ public :
     fChain->SetBranchAddress("subjets_deepFlavor_probbb", &subjets_deepFlavor_probbb, &b_subjets_deepFlavor_probbb);
     fChain->SetBranchAddress("subjets_deepFlavor_problepb", &subjets_deepFlavor_problepb, &b_subjets_deepFlavor_problepb);
     fChain->SetBranchAddress("subjets_ak8MotherIdx", &subjets_ak8MotherIdx, &b_subjets_ak8MotherIdx);
-
+	std::cout << "check15x" << std::endl;
     // MC only
+	std::cout << fChain->GetListOfBranches()->FindObject("MC_weight") << std::endl;
     if(fChain->GetListOfBranches()->FindObject("MC_weight"))
     {
       fChain->SetBranchAddress("PUNumInteractions", &PUNumInteractions, &b_PUNumInteractions);
       fChain->SetBranchAddress("aMCatNLOweight", &aMCatNLOweight, &b_aMCatNLOweight);
       //fChain->SetBranchAddress("susyModel", &susyModel, &b_susyModel);
+	  std::cout << "check15a" << std::endl;
       fChain->SetBranchAddress("MC_weight", &MC_weight, &b_MC_weight);
       fChain->SetBranchAddress("daughters_isTauMatched", &daughters_isTauMatched, &b_daughters_isTauMatched);
       fChain->SetBranchAddress("daughters_genindex", &daughters_genindex, &b_daughters_genindex);
@@ -1069,6 +1046,7 @@ public :
       fChain->SetBranchAddress("genpart_WMothInd", &genpart_WMothInd, &b_genpart_WMothInd);
       fChain->SetBranchAddress("genpart_HZDecayMode", &genpart_HZDecayMode, &b_genpart_HZDecayMode);
       fChain->SetBranchAddress("genpart_TauGenDecayMode", &genpart_TauGenDecayMode, &b_genpart_TauGenDecayMode);
+	  std::cout << "check15b" << std::endl;
       fChain->SetBranchAddress("genpart_TopDecayMode", &genpart_TopDecayMode, &b_genpart_TopDecayMode);
       fChain->SetBranchAddress("genpart_flags", &genpart_flags, &b_genpart_flags);
       fChain->SetBranchAddress("genjet_px", &genjet_px, &b_genjet_px);
@@ -1087,19 +1065,23 @@ public :
       fChain->SetBranchAddress("daughters_TESshiftDM1", &daughters_TESshiftDM1, &b_daughters_TESshiftDM1);
       fChain->SetBranchAddress("daughters_TESshiftDM10", &daughters_TESshiftDM10, &b_daughters_TESshiftDM10);
       fChain->SetBranchAddress("daughters_TESshiftDM11", &daughters_TESshiftDM11, &b_daughters_TESshiftDM11);
+	  std::cout << "check15c" << std::endl;
       fChain->SetBranchAddress("daughters_px_TauUp", &daughters_px_TauUp, &b_daughters_px_TauUp);
       fChain->SetBranchAddress("daughters_py_TauUp", &daughters_py_TauUp, &b_daughters_py_TauUp);
       fChain->SetBranchAddress("daughters_pz_TauUp", &daughters_pz_TauUp, &b_daughters_pz_TauUp);
       fChain->SetBranchAddress("daughters_e_TauUp", &daughters_e_TauUp, &b_daughters_e_TauUp);
       fChain->SetBranchAddress("daughters_px_TauDown", &daughters_px_TauDown, &b_daughters_px_TauDown);
+	  std::cout << "check15d" << std::endl;
       fChain->SetBranchAddress("daughters_py_TauDown", &daughters_py_TauDown, &b_daughters_py_TauDown);
       fChain->SetBranchAddress("daughters_pz_TauDown", &daughters_pz_TauDown, &b_daughters_pz_TauDown);
       fChain->SetBranchAddress("daughters_e_TauDown", &daughters_e_TauDown, &b_daughters_e_TauDown);
       fChain->SetBranchAddress("daughters_hasEES", &daughters_hasEES, &b_daughters_hasEES);
       fChain->SetBranchAddress("daughters_EESshiftDM0up", &daughters_EESshiftDM0up, &b_daughters_EESshiftDM0up);
+	  std::cout << "check15e" << std::endl;
       fChain->SetBranchAddress("daughters_EESshiftDM1up", &daughters_EESshiftDM1up, &b_daughters_EESshiftDM1up);
       fChain->SetBranchAddress("daughters_EESshiftDM0dw", &daughters_EESshiftDM0dw, &b_daughters_EESshiftDM0dw);
       fChain->SetBranchAddress("daughters_EESshiftDM1dw", &daughters_EESshiftDM1dw, &b_daughters_EESshiftDM1dw);
+	  std::cout << "check16" << std::endl;
       fChain->SetBranchAddress("daughters_MESshiftup", &daughters_MESshiftup, &b_daughters_MESshiftup);
       fChain->SetBranchAddress("daughters_MESshiftdw", &daughters_MESshiftdw, &b_daughters_MESshiftdw);
       fChain->SetBranchAddress("daughters_px_EleUp", &daughters_px_EleUp, &b_daughters_px_EleUp);
@@ -1111,7 +1093,7 @@ public :
       fChain->SetBranchAddress("daughters_pz_EleDown", &daughters_pz_EleDown, &b_daughters_pz_EleDown);
       fChain->SetBranchAddress("daughters_e_EleDown", &daughters_e_EleDown, &b_daughters_e_EleDown);
     }
-
+	std::cout << "check17" << std::endl;
   }
 };
 

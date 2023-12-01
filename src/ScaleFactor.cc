@@ -77,7 +77,7 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
   return;
 }
 
-void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile){
+void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool invAxis=false){
 
   TFile * fileIn = new TFile(inputRootFile, "read");
   // if root file not found
@@ -92,15 +92,15 @@ void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile){
   TH2F *hSF = (TH2F*)fileIn->Get("EGamma_SF2D");
 
   // retrieve eta binning (ugly, but should work fine)
-  const int nbin_eta = hSF->GetNbinsX();
+  const int nbin_eta = invAxis? hSF->GetNbinsY():hSF->GetNbinsX();
   TString eta_bins[nbin_eta] = {""};
-  TString firstbinlabel = Form("EtaLt%.1f",hSF->GetXaxis()->GetBinLowEdge(2));
-  TString lastbinlabel  = Form("EtaGt%.1f",hSF->GetXaxis()->GetBinLowEdge(nbin_eta));
+  TString firstbinlabel = Form("EtaLt%.1f",invAxis?hSF->GetYaxis()->GetBinLowEdge(2):hSF->GetXaxis()->GetBinLowEdge(2));
+  TString lastbinlabel  = Form("EtaGt%.1f",invAxis?hSF->GetYaxis()->GetBinLowEdge(nbin_eta):hSF->GetXaxis()->GetBinLowEdge(nbin_eta));
   firstbinlabel.ReplaceAll(".","p");
   lastbinlabel.ReplaceAll(".","p");
 
   //create etabinning Histo
-  etaBinsH = new TH1D("etaBinsH","",nbin_eta, hSF->GetXaxis()->GetXbins()->GetArray());
+  etaBinsH = new TH1D("etaBinsH","",nbin_eta, invAxis?hSF->GetYaxis()->GetXbins()->GetArray():hSF->GetXaxis()->GetXbins()->GetArray());
 
   TString TetaLabel;
   TString GraphName;
@@ -112,14 +112,16 @@ void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile){
       TetaLabel = lastbinlabel;
     }
     else {
-      TetaLabel = Form("Eta%.1fto%.1f",hSF->GetXaxis()->GetBinLowEdge(iBin+2),hSF->GetXaxis()->GetBinLowEdge(iBin+3));
+      TetaLabel = Form("Eta%.1fto%.1f",
+		       invAxis?hSF->GetYaxis()->GetBinLowEdge(iBin+2):hSF->GetXaxis()->GetBinLowEdge(iBin+2),
+		       invAxis?hSF->GetYaxis()->GetBinLowEdge(iBin+3):hSF->GetXaxis()->GetBinLowEdge(iBin+3));
       TetaLabel.ReplaceAll(".","p");
     }
     etaBinsH->GetXaxis()->SetBinLabel(iBin+1,TetaLabel);
 
     std::string etaLabel = (std::string)TetaLabel;
     //GraphName = TString(HistoBaseName)+"_"+etaLabel+"_Data";
-    TH1F *hslice_data = (TH1F*)hSF->ProjectionY("slicedata",iBin+1,iBin+1);
+    TH1F *hslice_data = invAxis?(TH1F*)hSF->ProjectionX("slicedata",iBin+1,iBin+1):(TH1F*)hSF->ProjectionY("slicedata",iBin+1,iBin+1);
 
       const int nbin_pt = hslice_data->GetNbinsX();
 
@@ -144,7 +146,6 @@ void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile){
     }
 
 }
-
 
 void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseName, bool isHistoFile){
 
