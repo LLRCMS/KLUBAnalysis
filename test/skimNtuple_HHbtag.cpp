@@ -681,8 +681,6 @@ int main (int argc, char** argv)
   else if (PERIOD == "2016postVFP") {
 	tauidsf_period = "UL2016_postVFP";
   }
-  //TauIDSFTool * Deep_antiJet_medium_dm = new TauIDSFTool(tauidsf_period, "DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets Medium
-  TauIDSFTool * Deep_antiJet_medium_pt = new TauIDSFTool(tauidsf_period, "DeepTau2017v2p1VSjet", "Medium",0);	  // for DeepTauv2p1 vs jets Medium
   TauIDSFTool * Deep_antiJet_2d		   = new TauIDSFTool(tauidsf_period, "Medium","VVLoose"); // for DeepTauv2p1 vsJets Medium and vsElectrons VVLoose in DM and pT bins
   TauIDSFTool * Deep_antiEle_vvloose   = new TauIDSFTool(tauidsf_period, "DeepTau2017v2p1VSe","VVLoose",0);  // for DeepTauv2p1 vs ele VVLoose
   TauIDSFTool * Deep_antiMu_tight	   = new TauIDSFTool(tauidsf_period, "DeepTau2017v2p1VSmu","Tight",0);	  // for DeepTauv2p1 vs mu Tight
@@ -1969,7 +1967,10 @@ int main (int argc, char** argv)
 		  passMETTrg         = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 180.);
 		  passMETTrgNoThresh = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 0.);
 
-		  passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
+		  passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag,
+													goodTriggerType1, goodTriggerType2,
+													tlv_firstLepton.Pt(), tlv_firstLepton.Eta(),
+													tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
 
 		  if (PERIOD=="2018" and !isMC and passTrg)
 			{
@@ -2747,35 +2748,13 @@ int main (int argc, char** argv)
 	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140				= 1.f;
 	  
 	  // up and down variations of the ID and isolation of the first leg (only relevant when it is a tau)
-	  vector<float> idSF_leg1_deep_vsJet_pt_up   (5, idSF_leg1_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
 	  vector<float> idSF_leg1_deep_vsEle_up      (2, idSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg1_deep_vsMu_up       (5, idSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-	  vector<float> idSF_leg1_deep_vsJet_pt_down (5, idSF_leg1_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
 	  vector<float> idSF_leg1_deep_vsEle_down    (2, idSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg1_deep_vsMu_down     (5, idSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 	  
 	  // only TauTau has a tau as the first leg
 	  if (isMC and pType==2) {
-		for (int bin = 0; bin < (int) isthisPt_IDbin_first.size(); bin++)	{
-		  if (isthisPt_IDbin_first[bin])
-			{
-			  idSF_leg1_deep_vsJet_pt_up[bin]   = Deep_antiJet_medium_pt ->getSFvsPT(leg1pt, tau1Genmatch,   "Up");
-			  idSF_leg1_deep_vsJet_pt_down[bin] = Deep_antiJet_medium_pt ->getSFvsPT(leg1pt, tau1Genmatch, "Down");
-
-			  //Additional uncertainty see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_to_be_applied_to_gen
-			  double error_up   = fabs(idSF_leg1_deep_vsJet_pt - idSF_leg1_deep_vsJet_pt_up[bin]);
-			  double error_down = fabs(idSF_leg1_deep_vsJet_pt - idSF_leg1_deep_vsJet_pt_down[bin]);
-			
-			  if (leg1pt < 100) {
-				idSF_leg1_deep_vsJet_pt_up[bin]   = idSF_leg1_deep_vsJet_pt*1.03 + error_up;
-				idSF_leg1_deep_vsJet_pt_down[bin] = idSF_leg1_deep_vsJet_pt*0.97 - error_down;
-			  }
-			  else {
-				idSF_leg1_deep_vsJet_pt_up[bin]   = idSF_leg1_deep_vsJet_pt*1.15 + error_up;
-				idSF_leg1_deep_vsJet_pt_down[bin] = idSF_leg1_deep_vsJet_pt*0.85 - error_down;
-			  }
-			}
-		}
 	
 		for (int bin = 0; bin < (int) isthisEta_IDbin_first.size(); bin++) {
 		  if (isthisEta_IDbin_first[bin])
@@ -2811,37 +2790,12 @@ int main (int argc, char** argv)
 	  }
 
 	  // up and down variations of the ID and isolation of the second leg (only relevant when it is a tau)
-	  vector<float> idSF_leg2_deep_vsJet_pt_up   (5, idSF_leg2_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
 	  vector<float> idSF_leg2_deep_vsEle_up      (2, idSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg2_deep_vsMu_up       (5, idSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-	  vector<float> idSF_leg2_deep_vsJet_pt_down (5, idSF_leg2_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
 	  vector<float> idSF_leg2_deep_vsEle_down    (2, idSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg2_deep_vsMu_down     (5, idSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 
 	  if (isMC and (pType==0 or pType==1 or pType==2)) {
-		for (int bin = 0; bin < (int) isthisPt_IDbin_second.size(); bin++) {
-		  if (isthisPt_IDbin_second[bin])
-			{
-			  idSF_leg2_deep_vsJet_pt_up[bin]   = Deep_antiJet_medium_pt ->getSFvsPT(leg2pt, tau2Genmatch,   "Up");
-			  idSF_leg2_deep_vsJet_pt_down[bin] = Deep_antiJet_medium_pt ->getSFvsPT(leg2pt, tau2Genmatch, "Down");
-			}
-
-		  //Additional uncertainty see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_to_be_applied_to_gen
-		  if (pType==2) {
-			double error_up   = fabs(idSF_leg2_deep_vsJet_pt - idSF_leg2_deep_vsJet_pt_up[bin]);
-			double error_down = fabs(idSF_leg2_deep_vsJet_pt - idSF_leg2_deep_vsJet_pt_down[bin]);
-			if (leg2pt < 100)
-			  {
-				idSF_leg2_deep_vsJet_pt_up[bin]   = idSF_leg2_deep_vsJet_pt*1.03 + error_up;
-				idSF_leg2_deep_vsJet_pt_down[bin] = idSF_leg2_deep_vsJet_pt*0.97 - error_down;
-			  }
-			else
-			  {
-				idSF_leg2_deep_vsJet_pt_up[bin]   = idSF_leg2_deep_vsJet_pt*1.15 + error_up;
-				idSF_leg2_deep_vsJet_pt_down[bin] = idSF_leg2_deep_vsJet_pt*0.85 - error_down;
-			  }
-		  }
-
 
 		  for (int bin = 0; bin < (int) isthisEta_IDbin_second.size(); bin++) {
 			if (isthisEta_IDbin_second[bin]) {
@@ -2989,13 +2943,9 @@ int main (int argc, char** argv)
 		cout << "pairType  : "              << pType                   << endl;
 		cout << "totSF deep_2d: "           << idFakeSF_deep_2d        << endl;
 		cout << "idSF_leg1: "               << idSF_leg1               << endl;
-		cout << "idSF_leg1_deep_vsJet_dm: " << idSF_leg1_deep_vsJet_dm << endl;
-		cout << "idSF_leg1_deep_vsJet_pt: " << idSF_leg1_deep_vsJet_pt << endl;
 		cout << "idSF_leg1_deep_vsJet_2d: " << idSF_leg1_deep_vsJet_2d << endl;
 		cout << "idSF_leg1_deep_vsEle: "    << idSF_leg1_deep_vsEle    << endl;
 		cout << "idSF_leg1_deep_vsMu: "     << idSF_leg1_deep_vsMu     << endl;
-		cout << "idSF_leg2_deep_vsJet_dm: " << idSF_leg2_deep_vsJet_dm << endl;
-		cout << "idSF_leg2_deep_vsJet_pt: " << idSF_leg2_deep_vsJet_pt << endl;
 		cout << "idSF_leg2_deep_vsJet_2d: " << idSF_leg2_deep_vsJet_2d << endl;
 		cout << "idSF_leg2_deep_vsEle: "    << idSF_leg2_deep_vsEle    << endl;
 		cout << "idSF_leg2_deep_vsMu: "     << idSF_leg2_deep_vsMu     << endl;
