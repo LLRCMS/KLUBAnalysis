@@ -211,7 +211,7 @@ function run_skim() {
 	cmsenv # set CMSSW environment
 	comm="python ${KLUB_DIR}/${SUBMIT_SCRIPT} --tag ${TAG_DIR} -o ${OUTSKIM_DIR} -c ${KLUB_DIR}/${CFG} "
 	[[ ${RESUBMIT} -eq 1 ]] && comm+="--resub "
-  comm+="--exec_file ${EXEC_FILE} -Y ${YEAR} -k 1 --pu ${PU_DIR} $@"
+	comm+="--exec_file ${EXEC_FILE} -Y ${YEAR} -k 1 --pu ${PU_DIR} $@"
 	[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
 }
 
