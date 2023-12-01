@@ -52,7 +52,8 @@ def parse_input_file_list(indir, insample):
                 filelist.append(line)
     return filelist
 
-def write_condor_file(d, condor_name, shell_exec, c_exec, py_exec, queue, qvars):
+def write_condor_file(d, condor_name, shell_exec, c_exec, py_exec,
+                      queue, qvars, queue_mode):
         condouts = os.path.join(d, 'logs')
         create_dir(condouts)
         paths = {'out': '{}/$({{}}){{}}.out'.format(condouts),
@@ -71,7 +72,7 @@ def write_condor_file(d, condor_name, shell_exec, c_exec, py_exec, queue, qvars)
                                 'should_transfer_files = YES',
                                 'transfer_input_files = {}'.format(py_exec),
                                 '',
-                                'T3Queue = long',
+                                'T3Queue = {}'.format(queue_mode),
                                 'WNTag=el7',
                                 '+SingularityCmd = ""',
                                 '',
@@ -155,7 +156,8 @@ def skim_ntuple(FLAGS, curr_folder):
                           shell_exec=job_name_shell,
                           c_exec=FLAGS.exec_file,
                           py_exec=py_exec,
-                          queue=queue, qvars=queue_vars)
+                          queue=queue, qvars=queue_vars,
+                          queue_mode=FLAGS.queue_mode)
             
         launch_command = 'condor_submit {}'.format(condor_name)
         if FLAGS.verb:
@@ -199,7 +201,8 @@ def skim_ntuple(FLAGS, curr_folder):
     clog = write_condor_file(d=jobs_dir, condor_name=condor_name,
                              shell_exec=job_name_shell, c_exec=FLAGS.exec_file,
                              py_exec=py_exec,
-                             queue='queue ' + str(njobs), qvars=('Process',''))
+                             queue='queue ' + str(njobs), qvars=('Process',''),
+                             queue_mode=FLAGS.queue_mode)
 
     with open(job_name_shell, 'w') as s:
         s.write( '\n'.join(('#!/usr/bin/env bash',
@@ -265,12 +268,13 @@ def skim_ntuple(FLAGS, curr_folder):
 
         s.write(comment + '\n')
         fd = 9 # any above 3 should work
-        s.write('\n'.join(('(',
-                           '  flock -x -w 5.0 {} || exit 1'.format(fd),
-                           '  ' + command,
-                           '  echo "Job {} is exiting the lock."'.format(arg1),
-                           ') {}>{}/lock_file\n\n'.format(fd, livedir))))
-
+        # s.write('\n'.join(('(',
+        #                    '  flock -x -w 5.0 {} || exit 1'.format(fd),
+        #                    '  ' + command,
+        #                    '  echo "Job {} is exiting the lock."'.format(arg1),
+        #                    ') {}>{}/lock_file\n\n'.format(fd, livedir))))
+        s.write(command + '\n\n') # the lock above ocasionally fails for unknown reasons
+        
         if FLAGS.doSyst:
             sys_command, sys_comment = double_join('skimOutputter.exe',
                                                    os.path.join(jobs_dir, io_names[1]),
@@ -301,7 +305,7 @@ if __name__ == "__main__":
     parser.add_argument('-Y', '--year', default='2018', help='year', choices=['2016preVFP', '2016postVFP', '2017', '2018'])
     parser.add_argument('-x', '--xs', help='sample xs', default='1.')
     parser.add_argument('-o', '--output', default='none', help='output folder')
-    parser.add_argument('-q', '--queue', default='short', help='batch queue')
+    parser.add_argument('-q', '--queue_mode', default='long', choices=('short', 'long'), help='batch queue mode')
     parser.add_argument('-r', '--resub', action='store_true', help='resubmit failed jobs')
     parser.add_argument('-v', '--verb', default=0, type=int, help='verbose')
     parser.add_argument('-d', '--isdata', default=0, type=int, help='data flag')

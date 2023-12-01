@@ -10,6 +10,7 @@ VAR="DNNoutSM_kl_1"
 SIGNAL="ggFRadion"
 DRYRUN="0"
 PERIOD=""
+NOSHAPEUNC="0"
 PERIOD_CHOICES=( "UL16" "UL16APV" "UL17" "UL18" )
 EOS_USER="bfontana"
 PREPOUT="prepared_outLimits.root"
@@ -29,6 +30,7 @@ DRYRUN_STR="(Boolean) Whether to run in dry-run mode. Defaults to '${DRYRUN}'."
 SIGNAL_STR="(String) Signal sample type."
 DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${PERIOD}'."
 NORES_STR="(Boolean) Whether to run on non-resonant analysis. Defaults to resonant analysis."
+NOSHAPEUNC="(Boolean) Whether to consider shape uncertainties. Defaults to considering the uncertainties."
 MASSES_STR="(Array of ints) Resonant masses."
 CHANNELS_STR="(Array of strings) Channels."
 SELECTIONS_STR="(Array of strings) Selections."
@@ -54,6 +56,7 @@ function print_usage_submit_skims {
     -d / --data_period  [${DATAPERIOD_STR}]
 	-p / --prepout      [${PREP_STR}]
     -r / --nonresonant  [${NORES_STR}]
+	-u / --noshapeunc   [${NOSHAPEUNC}]
 	--noprep            [${NOPREP}]
     --dryrun            [${DRYRUN_STR}]
 
@@ -163,10 +166,14 @@ while [[ $# -gt 0 ]]; do
 	    fi
 	    shift; shift;
 	    ;;
-        -r|--nonresonant)
-            ISRESONANT="0"
-            shift;
-            ;;
+    -r|--nonresonant)
+        ISRESONANT="0"
+        shift;
+        ;;
+    -u|--noshapeunc)
+        NOSHAPEUNC="1"
+        shift;
+        ;;
 	--dryrun)
 	    DRYRUN="1"
 	    shift;
@@ -243,10 +250,12 @@ for ichn in "${!CHANNELS[@]}"; do
 		HISTDIR="${MAIN_DIR}/${IN_TAGS[${ichn}]}"
 		comm_tmp="python ${LIMIT_DIR}/write_res_card.py -f ${HISTDIR}/prepared_outLimits.root --indir ${LIMIT_DIR} -o ${TAG} -c ${CHANNELS[${ichn}]} -y ${PERIOD} -v ${VAR} -i ${CFG_DIR}/${CFG_FILES[${ichn}]} --selections ${SELECTIONS[${jsel}]} --masses ${MASSES[@]} --signal ${SIGNAL}"
 		if [ ${ISRESONANT} -eq 1 ]; then
-			COMMS_WRITE+=("${comm_tmp} -r")
-		else
-			COMMS_WRITE+=("${comm_tmp}")
+			comm_tmp="${comm_tmp} -r"
 		fi
+		if [ ${NOSHAPEUNC} -eq 1 ]; then
+			comm_tmp="${comm_tmp} -u"
+		fi
+		COMMS_WRITE+=("${comm_tmp}")
 	done
 done
 

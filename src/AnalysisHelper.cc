@@ -29,10 +29,49 @@ AnalysisHelper::AnalysisHelper(string cfgname, string merge_section)
     cerr << "** AnalysisHelper : error : some information could not be retrieved from config" << endl;
     std::exit(1);
   }
+
+  if(!sanityChecks()) {
+	cerr << "** AnalysisHelper : error : sanity checks did not pass" << endl;
+	exit(1);
+  }
 }
 
 AnalysisHelper::~AnalysisHelper()
 {}
+
+bool AnalysisHelper::sanityChecks()
+{
+  vector<string> data = mainCfg_->readStringListOpt("general::data");
+  vector<string> bkgs = mainCfg_->readStringListOpt("general::backgrounds");
+
+  vector<string> samps_plot = mainCfg_->readListOfOpts("merge_plots");
+  for (string s : samps_plot)
+	{
+	  vector<string> tmp = mainCfg_->readStringListOpt( string("merge_plots::")+s );
+	  for (auto& x : tmp) {
+		if( std::find(bkgs.begin(), bkgs.end(), x) == bkgs.end() and
+			std::find(data.begin(), data.end(), x) == data.end() ) {
+		  cout << "Item " << x << " was not found in the backgrounds list for plotting." << endl;
+		  return false;
+		}
+	  }
+	}
+
+  vector<string> samps_limits = mainCfg_->readListOfOpts("merge_limits");
+  for (string s : samps_limits)
+	{
+	  vector<string> tmp = mainCfg_->readStringListOpt( string("merge_limits::")+s );
+	  for (auto& x : tmp) {
+		if( std::find(bkgs.begin(), bkgs.end(), x) == bkgs.end() and
+			std::find(data.begin(), data.end(), x) == data.end() ) {
+		  cout << "Item " << x << " was not found in the backgrounds list for limits." << endl;
+		  return false;
+		}
+	  }
+	}
+
+  return true;
+}
 
 bool AnalysisHelper::readMainInfo()
 {
@@ -177,51 +216,52 @@ void AnalysisHelper::readSamples()
 
 shared_ptr<Sample> AnalysisHelper::openSample(string sampleName)
 {
-  if (DEBUG) {
-	cout << " ..........DEBUG: entering AnalysisHelper::openSample for sample " << sampleName << endl;
-  }
-  
-  string filename = sampleCfg_->readStringOpt(Form("samples::%s",sampleName.c_str()));
-  string sampleCfgName = mainCfg_->readStringOpt("configs::sampleCfg");
-  string list_pattern = "goodfiles";
-  if (mainCfg_->hasOpt("configs::pattern")){
-    list_pattern = mainCfg_->readStringOpt("configs::pattern");
-  }
-  shared_ptr<Sample> sample (new Sample(sampleName, filename + string("/") + list_pattern + string(".txt")));
-  if (sampleCfg_->hasOpt(Form("userEffBin::%s",sampleName.c_str())))
-	{
-	  int ubin = sampleCfg_->readIntOpt(Form("userEffBin::%s",sampleName.c_str()));
-	  sample->setEffBin(ubin);
-	}
-  bool success = sample->openFileAndTree();
-  if (!success)
-	{
-	  throw std::runtime_error("cannot open input file for sample " + sampleName);
-	}
+    if (DEBUG) cout << " ..........DEBUG: entering AnalysisHelper::openSample for sample " << sampleName << endl;
 
-  // for the moment stored in selection cfg -- could be stored in sample cfg instead
-  // but I prefer to have all the weights at the same place
+    string filename = sampleCfg_->readStringOpt(Form("samples::%s",sampleName.c_str()));
+	std::vector<std::string> filenames = {{
+		filename + std::string("/goodfiles.txt"),
+		filename + std::string("/goodfiles_resub1.txt"), filename + std::string("/goodfiles_resub2.txt"),
+		filename + std::string("/goodfiles_resub3.txt"), filename + std::string("/goodfiles_resub4.txt"),
+		filename + std::string("/goodfiles_resub5.txt"), filename + std::string("/goodfiles_resub6.txt"),
+		filename + std::string("/goodfiles_resub7.txt"), filename + std::string("/goodfiles_resub8.txt"),
+		filename + std::string("/goodfiles_resub9.txt")
+	  }};
+    shared_ptr<Sample> sample (new Sample(sampleName, filenames));
+    if (sampleCfg_->hasOpt(Form("userEffBin::%s",sampleName.c_str())))
+    {
+        int ubin = sampleCfg_->readIntOpt(Form("userEffBin::%s",sampleName.c_str()));
+        sample->setEffBin(ubin);
+    }
+    bool success = sample->openFileAndTree();
+    if (!success)
+    {
+        throw std::runtime_error("cannot open input file for sample " + sampleName);
+    }
 
-  if (!cutCfg_->hasOpt(Form("sampleWeights::%s", sampleName.c_str())))
+    // for the moment stored in selection cfg -- could be stored in sample cfg instead
+    // but I prefer to have all the weights at the same place
+
+    if (!cutCfg_->hasOpt(Form("sampleWeights::%s", sampleName.c_str())))
+        return sample;    
+
+    if (DEBUG) cout << " ..........DEBUG: " << sampleName << " has weights associated, will be listed" << endl;
+    vector<string> weights = cutCfg_->readStringListOpt(Form("sampleWeights::%s", sampleName.c_str()));
+    for (string wname : weights)
+    {
+        // cout << " +++ adding " << wname << endl;
+        if (DEBUG) cout << " ..........DEBUG: -- " << wname << endl;
+        Weight w (wname);
+        vector<pair<string, string> > wsyst = readWeightSysts(wname, "systematics");
+        if (DEBUG){
+            cout << " ..........DEBUG:    > nsyst: " << wsyst.size() << endl;
+            for (auto pp : wsyst) cout << "................>> DEBUG: " << pp.first << " " << pp.second << endl;
+        }
+        w.addSysts(wsyst); // can be empty as well
+        sample->addWeight(w);
+    }
+
     return sample;
-
-  if (DEBUG) cout << " ..........DEBUG: " << sampleName << " has weights associated, will be listed" << endl;
-  vector<string> weights = cutCfg_->readStringListOpt(Form("sampleWeights::%s", sampleName.c_str()));
-  for (string wname : weights)
-	{
-	  // cout << " +++ adding " << wname << endl;
-	  if (DEBUG) cout << " ..........DEBUG: -- " << wname << endl;
-	  Weight w (wname);
-	  vector<pair<string, string> > wsyst = readWeightSysts(wname, "systematics");
-	  if (DEBUG){
-		cout << " ..........DEBUG:    > nsyst: " << wsyst.size() << endl;
-		for (auto pp : wsyst) cout << "................>> DEBUG: " << pp.first << " " << pp.second << endl;
-	  }
-	  w.addSysts(wsyst); // can be empty as well
-	  sample->addWeight(w);
-	}
-
-  return sample;
 }
 
 void AnalysisHelper::readSelections()
