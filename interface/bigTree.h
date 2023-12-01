@@ -1021,7 +1021,7 @@ public :
     fChain->SetBranchAddress("subjets_deepFlavor_probbb", &subjets_deepFlavor_probbb, &b_subjets_deepFlavor_probbb);
     fChain->SetBranchAddress("subjets_deepFlavor_problepb", &subjets_deepFlavor_problepb, &b_subjets_deepFlavor_problepb);
     fChain->SetBranchAddress("subjets_ak8MotherIdx", &subjets_ak8MotherIdx, &b_subjets_ak8MotherIdx);
-	std::cout << "check15x" << std::endl;
+
     // MC only
 	std::cout << fChain->GetListOfBranches()->FindObject("MC_weight") << std::endl;
     if(fChain->GetListOfBranches()->FindObject("MC_weight"))
@@ -1029,7 +1029,7 @@ public :
       fChain->SetBranchAddress("PUNumInteractions", &PUNumInteractions, &b_PUNumInteractions);
       fChain->SetBranchAddress("aMCatNLOweight", &aMCatNLOweight, &b_aMCatNLOweight);
       //fChain->SetBranchAddress("susyModel", &susyModel, &b_susyModel);
-      
+
       fChain->SetBranchAddress("MC_weight", &MC_weight, &b_MC_weight);
       fChain->SetBranchAddress("daughters_isTauMatched", &daughters_isTauMatched, &b_daughters_isTauMatched);
       fChain->SetBranchAddress("daughters_genindex", &daughters_genindex, &b_daughters_genindex);
@@ -1081,7 +1081,7 @@ public :
       fChain->SetBranchAddress("daughters_EESshiftDM1up", &daughters_EESshiftDM1up, &b_daughters_EESshiftDM1up);
       fChain->SetBranchAddress("daughters_EESshiftDM0dw", &daughters_EESshiftDM0dw, &b_daughters_EESshiftDM0dw);
       fChain->SetBranchAddress("daughters_EESshiftDM1dw", &daughters_EESshiftDM1dw, &b_daughters_EESshiftDM1dw);
-      
+
       fChain->SetBranchAddress("daughters_MESshiftup", &daughters_MESshiftup, &b_daughters_MESshiftup);
       fChain->SetBranchAddress("daughters_MESshiftdw", &daughters_MESshiftdw, &b_daughters_MESshiftdw);
       fChain->SetBranchAddress("daughters_px_EleUp", &daughters_px_EleUp, &b_daughters_px_EleUp);
