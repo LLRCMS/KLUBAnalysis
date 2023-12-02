@@ -101,19 +101,19 @@ int main (int argc, char** argv)
 	  return 1;
 	}
 
-  TString inputFile = argv[1] ;
-  TString outputFile = argv[2] ;
+  std::string inputFile = argv[1] ;
+  std::string outputFile = argv[2] ;
   cout << "** INFO: inputFile  : " << inputFile << endl;
   cout << "** INFO: outputFile : " << outputFile << endl;
 
-  bool isTaudataset = false;
+  bool isTauDataset = false;
   boost::regex re_tau{"Tau"};
-  if (boost::regex_search(inputFile, re_tau)) {
+  if (boost::regex_search(inputFile.c_str(), re_tau)) {
 	isTauDataset = true;
   }
-  bool isMETdataset = false;
+  bool isMETDataset = false;
   boost::regex re_met{"MET"};
-  if (boost::regex_search(inputFile, re_met)) {
+  if (boost::regex_search(inputFile.c_str(), re_met)) {
 	isMETDataset = true;
   }
 
@@ -369,11 +369,11 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
 
-  appendFromFileList (bigChain, inputFile);
+  appendFromFileList (bigChain, inputFile.c_str());
   bigChain->SetCacheSize(0);
   bigTree theBigTree (bigChain) ;
   //Create a new file + a clone of old tree header. Do not copy events
-  TFile * smallFile = new TFile (outputFile, "recreate") ;
+  TFile * smallFile = new TFile (outputFile.c_str(), "recreate") ;
   smallFile->cd () ;
   smallTree theSmallTree ("HTauTauTree") ;
 
@@ -397,8 +397,8 @@ int main (int argc, char** argv)
   int N_tauhDM_EES = 2;  //tauh DMs with EES
 
   // ------------------------------
-  TH1F* hTriggers = getFirstFileHisto (inputFile);
-  TH1F* hTauIDS = getFirstFileHisto (inputFile,false);
+  TH1F* hTriggers = getFirstFileHisto (inputFile.c_str());
+  TH1F* hTauIDS = getFirstFileHisto (inputFile.c_str(), false);
 
   //FRA new triggerReader_cross to take into account the usage of crossTriggers
   triggerReader_cross trigReader (hTriggers);
@@ -881,7 +881,7 @@ int main (int argc, char** argv)
 		  int nb    = theBigTree.lheNOutB;
 		  if (njets != DY_nJets || nb != DY_nBJets) continue;
 		}
-
+	
 	  // gen info -- fetch tt pair and compute top PT reweight
 	  float topPtReweight = 1.0; // 1 for all the other samples
 	  theSmallTree.m_TTtopPtreweight =  1.0 ;
@@ -925,7 +925,7 @@ int main (int argc, char** argv)
 				  // else cout << " !! skim warning: sample is declared as as ttbar, but I have > 2 gen top in the event! " << endl;
 				}
 			}
-
+		
 		  if (ptTop1 < 0 || ptTop2 < 0)
 			{
 			  cout << "** WARNING: sample is declared as TTbar but in the event I didn't find 2 tops (1,2) :" << ptTop1 << " " << ptTop2 << endl;
@@ -1138,7 +1138,7 @@ int main (int argc, char** argv)
 					  // cout << "THIS: " << pdg << " px=" << theBigTree.genpart_px->at(igen) << endl;
 					}
 				}
-
+			  
 			  if ( abs(pdg) == 66615 && mothIsHardScatt)
 				{
 				  // cout << "  <<< preso" << endl;
@@ -1166,7 +1166,7 @@ int main (int argc, char** argv)
 
 			}
 
-
+		
 		  if (idx1 == -1 || idx2 == -1)
 			{
 			  cout << "** ERROR: couldn't find 2 H (first)" << endl;
@@ -1232,7 +1232,7 @@ int main (int argc, char** argv)
 		  vH1.Boost(-vSum.BoostVector());
 		  ct1 = vH1.CosTheta();
 
-
+		
 		  // FRA DEBUG - build gen b jets
 		  if (idx1hs_b != -1 && idx2hs_b != -1)
 			{
@@ -2101,9 +2101,9 @@ int main (int argc, char** argv)
 		  }
 
 		  bool triggerAccept = (passTrg or
-								// (isTaudataset and isVBFfired) or
-								(isMETdataset and passMETTrgNoThresh and MET_region) or
-								(isTaudataset and passSingleTau and SingleTau_region));
+								// (isTauDataset and isVBFfired) or
+								(isMETDataset and passMETTrgNoThresh and MET_region) or
+								(isTauDataset and passSingleTau and SingleTau_region));
 
 		  if(DEBUG)
 			{
@@ -2351,17 +2351,17 @@ int main (int argc, char** argv)
 	  theSmallTree.m_MHTnoMuy      = vMHTnoMu.Y();
 
 
-
+	
 	  // L1ECALPrefiringWeight - https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
 	  theSmallTree.m_L1pref_weight = theBigTree.prefiringweight;
-
+	
 	  if (DEBUG)
 		{
 		  cout << "------- MET DEBUG -------" << endl;
 		  cout << " met centr : " << theSmallTree.m_met_et << " / " << theSmallTree.m_met_phi << endl;
 		  cout << "-------------------------" << endl;
 		}
-
+	
 	  // // in TauTau channel make sure the first tau is the most isolated one
 	  if (pairType == 2 && (theBigTree.daughters_byDeepTau2017v2p1VSjetraw->at(theBigTree.indexDau1->at (chosenTauPair)) < theBigTree.daughters_byDeepTau2017v2p1VSjetraw->at(theBigTree.indexDau2->at (chosenTauPair))) )
 		{
@@ -2373,7 +2373,7 @@ int main (int argc, char** argv)
 		  theSmallTree.m_mT1       = theBigTree.mT_Dau1->at (chosenTauPair) ;
 		  theSmallTree.m_mT2       = theBigTree.mT_Dau2->at (chosenTauPair) ;
 		}
-
+	
 	  theSmallTree.m_tauH_pt   = tlv_tauH.Pt () ;
 	  theSmallTree.m_tauH_eta  = tlv_tauH.Eta () ;
 	  theSmallTree.m_tauH_phi  = tlv_tauH.Phi () ;
@@ -5554,7 +5554,7 @@ int main (int argc, char** argv)
 	  for (string var : allVars)
 		allVarsMap[var] = 0.0;
 
-	  TFile *outFile = TFile::Open(outputFile,"UPDATE");
+	  TFile *outFile = TFile::Open(outputFile.c_str(), "UPDATE");
 	  TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 
 	  TMVA::Reader * reader = new TMVA::Reader () ;
@@ -5689,7 +5689,7 @@ int main (int argc, char** argv)
 	  };
 
 	  // read the input tree
-	  TFile* outFile = TFile::Open(outputFile, "UPDATE");
+	  TFile* outFile = TFile::Open(outputFile.c_str(), "UPDATE");
 	  TTree* outTree = (TTree*)outFile->Get("HTauTauTree");
 
 	  // create the multiclass inferface and run it
@@ -5856,7 +5856,7 @@ int main (int argc, char** argv)
 		allVarsMap[var] = 0.0;
 
 	  // Open tree to be updated
-	  TFile *outFile = TFile::Open(outputFile,"UPDATE");
+	  TFile *outFile = TFile::Open(outputFile.c_str(), "UPDATE");
 	  TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 	  int nentries = treenew->GetEntries();
 
@@ -6127,7 +6127,7 @@ int main (int argc, char** argv)
 	  InfWrapper wrapper(model_dir, 1, false);
 
 	  // Open file to read values and compute predictions
-	  TFile* in_file = TFile::Open(outputFile);
+	  TFile* in_file = TFile::Open(outputFile.c_str());
 
 	  // Store prediction in vector of vectors of floats:
 	  // [kl=1 : [evt1_pred, evt2_pred, evt3_pred ...], kl=2 : [evt1_opred, evt2_pred, evt3_pred...]]
@@ -6371,7 +6371,7 @@ int main (int argc, char** argv)
 		} // end loop on entries with TTreeReader
 
 	  // Open file and get TTree that must be updated
-	  TFile *outFile = TFile::Open(outputFile,"UPDATE");
+	  TFile *outFile = TFile::Open(outputFile.c_str(), "UPDATE");
 	  TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 
 	  // Declare one new branch for each value of klambda
