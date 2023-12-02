@@ -4869,7 +4869,7 @@ int main (int argc, char** argv)
 			  // 4. - else: SF = 0
 			  // In our framework case 1. is the default: in the VBF trigger phase space (case 3.) the branch m_trigSF is overwritten
 			  // with the VBF_SF, because "trigSF" is the actual weight used later in the analysis
-			  if (wpyear != "2016" and isMC and pairType == 2 and isTauDataset and and !passTrg and !passMETTrg and !passSingleTau and
+			  if (wpyear != "2016" and isMC and pairType == 2 and isTauDataset and !passTrg and !passMETTrg and !passSingleTau and
 				  theSmallTree.m_VBFjj_mass > 800 and theSmallTree.m_VBFjet1_pt > 140 and theSmallTree.m_VBFjet2_pt > 60 and
 				  theSmallTree.m_dau1_pt > 25 and theSmallTree.m_dau2_pt > 25 and (theSmallTree.m_dau1_pt <= 40 || theSmallTree.m_dau2_pt <= 40))
 				{
