@@ -1946,6 +1946,9 @@ int main (int argc, char** argv)
 		{"2017",        std::make_pair(1.08, 0.10)},
 		{"2018",        std::make_pair(0.87, 0.11)}};
 
+	  std::unordered_map<std::string, unsigned> MET_chn_map = {{"etau", 1},
+															   {"mutau", 0},
+															   {"tautau", 2}};
 	  bool MET_region = false;
 	  bool SingleTau_region = false;
 	  if (applyTriggers)
@@ -3062,9 +3065,9 @@ int main (int argc, char** argv)
 			{
 			  if(MET_region)
 				{
-				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD);
-				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD);
-				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD);
+				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "mutau");
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "mutau");
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "mutau");
 				}
 
 			  // eta region covered both by cross-trigger and single lepton trigger
@@ -3192,14 +3195,14 @@ int main (int argc, char** argv)
 			{
 			  if(MET_region)
 				{
-				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD);
-				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD);
-				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD);
+				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "etau");
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "etau");
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "etau");
 				}
 
 			  // eta region covered both by cross-trigger and single lepton trigger
 			  else if(PERIOD != "2016preVFP" and PERIOD != "2016postVFP" and
-					  fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_Region)
+					  fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_region)
 				{
 				  int passSingle = 1, passCross = 1;
 
@@ -3314,9 +3317,9 @@ int main (int argc, char** argv)
 			{
 			  if (MET_region)
 				{
-				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD);
-				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD);
-				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD);
+				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "tautau");
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "tautau");
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "tautau");
 				}
 
 			  else if (SingleTau_region)
@@ -4872,6 +4875,7 @@ int main (int argc, char** argv)
 				  // for each DM, fill a trigSF branch with the up/down values if tauhs have the corresponding DM, otherwise fill with nominal trigSF value
 				  vector <double> SFTau1_up (N_tauhDM, SFTau1);
 				  vector <double> SFTau1_down (N_tauhDM, SFTau1);
+				  vector <double> SFTau2_up (N_tauhDM, SFTau2);
 				  vector <double> SFTau2_down (N_tauhDM, SFTau2);
 				  for (int idm  = 0; idm < N_tauhDM; idm ++)
 					{
