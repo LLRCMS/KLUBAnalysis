@@ -207,8 +207,7 @@ int main (int argc, char** argv)
   int DY_nJets  = atoi(argv[27]);
   int DY_nBJets = atoi(argv[28]);
   cout << "** INFO: nJets/nBjets for DY bin weights: " << DY_nJets << " / " << DY_nBJets << endl;
-  int isDYI = atoi(argv[29]);
-  bool isDY = (isDYI == 1) ? true : false;
+  //int isDYI = atoi(argv[29]);
 
   bool isttHToNonBB = false;
   int isttHToNonBBI = atoi(argv[30]);
@@ -373,7 +372,8 @@ int main (int argc, char** argv)
   bigChain->SetCacheSize(0);
   bigTree theBigTree (bigChain) ;
   //Create a new file + a clone of old tree header. Do not copy events
-  TFile * smallFile = new TFile (outputFile.c_str(), "recreate") ;
+
+  TFile * smallFile = new TFile (outputFile.c_str(), "RECREATE") ;
   smallFile->cd () ;
   smallTree theSmallTree ("HTauTauTree") ;
 
@@ -1598,7 +1598,6 @@ int main (int argc, char** argv)
 		  theSmallTree.m_nRealTaus = nRealTaus;                     // -1: data; > 0: # real taus in MC
 		}
 
-
 	  const TLorentzVector tlv_firstLepton (theBigTree.daughters_px->at (firstDaughterIndex),
 											theBigTree.daughters_py->at (firstDaughterIndex),
 											theBigTree.daughters_pz->at (firstDaughterIndex),
@@ -1947,6 +1946,8 @@ int main (int argc, char** argv)
 		{"2017",        std::make_pair(1.08, 0.10)},
 		{"2018",        std::make_pair(0.87, 0.11)}};
 
+	  bool MET_region = false;
+	  bool SingleTau_region = false;
 	  if (applyTriggers)
 		{
 		  Long64_t triggerbit = theBigTree.triggerbit;
@@ -2067,19 +2068,7 @@ int main (int argc, char** argv)
 			  }
 			}
 
-		  bool MET_region = false;
-		  bool SingleTau_region = false;
-
-		  if (pairType == 0) { //etau
-			if(PERIOD=="2018" or PERIOD=="2017") {
-			  MET_region = ((tlv_firstLepton.Pt() < 33. and tlv_secondLepton.Pt() < 35.) or
-							(tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() > 35.));
-			}
-			else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
-			  MET_region = tlv_firstLepton.Pt() < 25.;
-			}
-		  }
-		  else if (pairType == 1) { //mutau
+		  if (pairType == 0) { //mutau
 			if(PERIOD=="2018") {
 			  MET_region = ((tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < 32.) or
 							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() > 32.));
@@ -2093,6 +2082,15 @@ int main (int argc, char** argv)
 							(tlv_firstLepton.Pt() < 20. and tlv_secondLepton.Pt() > 25.));
 			}
 		  }
+		  else if (pairType == 1) { //etau
+			if(PERIOD=="2018" or PERIOD=="2017") {
+			  MET_region = ((tlv_firstLepton.Pt() < 33. and tlv_secondLepton.Pt() < 35.) or
+							(tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() > 35.));
+			}
+			else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
+			  MET_region = tlv_firstLepton.Pt() < 25.;
+			}
+		  }
 		  else if (pairType == 2) { //tautau
 			MET_region       = ((tlv_firstLepton.Pt() < 40	 and tlv_secondLepton.Pt() < 190) or
 								(tlv_firstLepton.Pt() < 190	 and tlv_secondLepton.Pt() < 40 ));
@@ -2101,10 +2099,9 @@ int main (int argc, char** argv)
 		  }
 
 		  bool triggerAccept = (passTrg or
-								// (isTauDataset and isVBFfired) or
+								// (isTaudataset and isVBFfired) or
 								(isMETDataset and passMETTrgNoThresh and MET_region) or
 								(isTauDataset and passSingleTau and SingleTau_region));
-
 		  if(DEBUG)
 			{
 			  cout << "---> isVBFfired?  " << isVBFfired << endl;
@@ -2703,15 +2700,11 @@ int main (int argc, char** argv)
 	  float tau2Genmatch = theBigTree.genmatch->at(secondDaughterIndex);
 
 	  float idSF_leg1				= 1.f;
-	  float idSF_leg1_deep_vsJet_dm = 1.f;
-	  float idSF_leg1_deep_vsJet_pt = 1.f;
 	  float idSF_leg1_deep_vsJet_2d = 1.f;
 	  float idSF_leg1_deep_vsEle    = 1.f;
 	  float idSF_leg1_deep_vsMu     = 1.f;
 
 	  float idSF_leg2				= 1.f;
-	  float idSF_leg2_deep_vsJet_dm = 1.f;
-	  float idSF_leg2_deep_vsJet_pt = 1.f;
 	  float idSF_leg2_deep_vsJet_2d = 1.f;
 	  float idSF_leg2_deep_vsEle	= 1.f;
 	  float idSF_leg2_deep_vsMu		= 1.f;
@@ -2782,8 +2775,7 @@ int main (int argc, char** argv)
 	  vector<float> idSF_leg1_deep_vsMu_down     (5, idSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 	  
 	  // only TauTau has a tau as the first leg
-	  if (isMC and pType==2) {
-	
+	  if (isMC and pType==2) {	
 		for (int bin = 0; bin < (int) isthisEta_IDbin_first.size(); bin++) {
 		  if (isthisEta_IDbin_first[bin])
 			{
@@ -2824,20 +2816,18 @@ int main (int argc, char** argv)
 	  vector<float> idSF_leg2_deep_vsMu_down     (5, idSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 
 	  if (isMC and (pType==0 or pType==1 or pType==2)) {
-
-		  for (int bin = 0; bin < (int) isthisEta_IDbin_second.size(); bin++) {
-			if (isthisEta_IDbin_second[bin]) {
-			  idSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch,	"Up");
-			  idSF_leg2_deep_vsMu_down[bin] = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch, "Down");
-			}
+		for (int bin = 0; bin < (int) isthisEta_IDbin_second.size(); bin++) {
+		  if (isthisEta_IDbin_second[bin]) {
+			idSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch,	"Up");
+			idSF_leg2_deep_vsMu_down[bin] = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch, "Down");
 		  }
+		}
 
-		  for (int bin = 0; bin < (int) isthisSDet_IDbin_second.size(); bin++) {
-			if (isthisSDet_IDbin_second[bin]) {
-			  idSF_leg2_deep_vsEle_up[bin]   = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch,   "Up");
-			  idSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch, "Down");
-			}
-		  } 
+		for (int bin = 0; bin < (int) isthisSDet_IDbin_second.size(); bin++) {
+		  if (isthisSDet_IDbin_second[bin]) {
+			idSF_leg2_deep_vsEle_up[bin]   = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch,   "Up");
+			idSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch, "Down");
+		  }
 		}
 
 		idSF_leg2_deep_vsJet_2d_stat0_up					= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Stat0Up");
@@ -3068,7 +3058,7 @@ int main (int argc, char** argv)
 	  if(applyTriggers)
 		{
 		  // MuTau Channel
-		  if (pType == 0 && isMC)
+		  if (pType == 0 and isMC)
 			{
 			  if(MET_region)
 				{
@@ -3322,15 +3312,14 @@ int main (int argc, char** argv)
 		  // TauTau Channel
 		  else if (pType == 2 and isMC)
 			{
-			  if(MET_region)
+			  if (MET_region)
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD);
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD);
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD);
 				}
 
-			  // SingleTau region
-			  else if(SingleTau_region)
+			  else if (SingleTau_region)
 				{
 				  trigSF           = singleTauSF[PERIOD].first;
 				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
@@ -4873,7 +4862,6 @@ int main (int argc, char** argv)
 				  theSmallTree.m_VBFjj_mass > 800 and theSmallTree.m_VBFjet1_pt > 140 and theSmallTree.m_VBFjet2_pt > 60 and
 				  theSmallTree.m_dau1_pt > 25 and theSmallTree.m_dau2_pt > 25 and (theSmallTree.m_dau1_pt <= 40 || theSmallTree.m_dau2_pt <= 40))
 				{
-				  // Jet legs SF
 				  double jetSF    = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt(), 0); // 0: central value
 				  double jetSFerr = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt(), 1); // 1: error of value
 
