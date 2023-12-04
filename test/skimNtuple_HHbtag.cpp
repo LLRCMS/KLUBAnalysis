@@ -2081,7 +2081,7 @@ int main (int argc, char** argv)
 							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() > 32.));
 			}
 			else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
-			  MET_region = ((tlv_firstLepton.Pt() < 23. and tlv_secondLepton.Pt() < 25.) or
+			  MET_region = ((tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < 25.) or
 							(tlv_firstLepton.Pt() < 20. and tlv_secondLepton.Pt() > 25.));
 			}
 		  }
