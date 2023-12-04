@@ -77,7 +77,7 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
   return;
 }
 
-void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool invAxis=false){
+void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool invAxis, bool isTrg){
 
   TFile * fileIn = new TFile(inputRootFile, "read");
   // if root file not found
@@ -89,7 +89,8 @@ void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool invAxis=false)
       <<std::endl;
     exit(1);
   }
-  TH2F *hSF = (TH2F*)fileIn->Get("EGamma_SF2D");
+  TString hname = isTrg ? "SF2D":"EGamma_SF2D";
+  TH2F *hSF = (TH2F*)fileIn->Get(hname);
 
   // retrieve eta binning (ugly, but should work fine)
   const int nbin_eta = invAxis? hSF->GetNbinsY():hSF->GetNbinsX();
