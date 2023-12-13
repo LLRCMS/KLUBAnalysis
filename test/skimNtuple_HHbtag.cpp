@@ -105,18 +105,7 @@ int main (int argc, char** argv)
   std::string outputFile = argv[2] ;
   cout << "** INFO: inputFile  : " << inputFile << endl;
   cout << "** INFO: outputFile : " << outputFile << endl;
-
-  bool isTauDataset = false;
-  boost::regex re_tau{"Tau"};
-  if (boost::regex_search(inputFile.c_str(), re_tau)) {
-	isTauDataset = true;
-  }
-  bool isMETDataset = false;
-  boost::regex re_met{"MET"};
-  if (boost::regex_search(inputFile.c_str(), re_met)) {
-	isMETDataset = true;
-  }
-
+  
   float XS = atof (argv[3]) ;
   bool isMC = true;
   int isDatabuf = atoi (argv[4]);
@@ -223,7 +212,22 @@ int main (int argc, char** argv)
   assert(PERIOD=="2018" or PERIOD=="2017" or PERIOD=="2016preVFP" or PERIOD=="2016postVFP");
   bool isPostVFP = PERIOD=="2016postVFP" ? true : false;
   cout << "** INFO: PERIOD: " << PERIOD << ", isPostVFP: " << isPostVFP << endl;
-  
+
+  enum DataType {
+    kDefault	= 0, //default, no specifity
+    kMET		= 1, //MET dataset
+    kSingleTau  = 2, //SingleTau dataset
+  };
+
+  int datasetType = atoi(argv[33]);
+  bool isMETDataset = datasetType == DataType::kMET;
+  bool isTauDataset = datasetType == DataType::kSingleTau;
+  cout << "** INFO: isMETDataset  : " << isMETDataset << endl;
+  cout << "** INFO: isTauDataset  : " << isTauDataset << endl;
+  if (isMC) {
+	assert (datasetType==0);
+  }
+
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
     kNone    = 0, //no reweighting
@@ -2101,10 +2105,14 @@ int main (int argc, char** argv)
 								(tlv_firstLepton.Pt() >= 190 and tlv_secondLepton.Pt() < 40 ));
 		  }
 
-		  bool triggerAccept = (passTrg or
-								// (isTaudataset and isVBFfired) or
-								(isMETDataset and passMETTrgNoThresh and MET_region) or
-								(isTauDataset and passSingleTau and SingleTau_region));
+		  bool metAccept = passMETTrgNoThresh and MET_region;
+		  bool singletauAccept = passSingleTau and SingleTau_region;
+		  if (!isMC) {
+			metAccept = metAccept and isMETDataset;
+			singletauAccept = singletauAccept and isTauDataset;
+		  }
+		  bool triggerAccept = passTrg or metAccept or singletauAccept;
+	  
 		  if(DEBUG)
 			{
 			  cout << "---> isVBFfired?  " << isVBFfired << endl;
