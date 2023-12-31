@@ -2105,9 +2105,10 @@ int main (int argc, char** argv)
 								(tlv_firstLepton.Pt() >= 190 and tlv_secondLepton.Pt() < 40 ));
 		  }
 
-		  bool metAccept = passMETTrgNoThresh and MET_region;
-		  bool singletauAccept = passSingleTau and SingleTau_region;
+		  bool metAccept = passMETTrgNoThresh and !passTrg and MET_region; //!passTrg should be redundant wrt to the region cut
+		  bool singletauAccept = passSingleTau and !passTrg and SingleTau_region; //!passTrg should be redundant wrt to the region cut
 		  if (!isMC) {
+			passTrg = passTrg and !isMETDataset;
 			metAccept = metAccept and isMETDataset;
 			singletauAccept = singletauAccept and isTauDataset;
 		  }
