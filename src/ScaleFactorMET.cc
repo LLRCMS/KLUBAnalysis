@@ -4,7 +4,7 @@
 
 ScaleFactorMET::ScaleFactorMET()
 {
-  const std::string fname = "eff_Data_Mu_MC_TT_DY_mutau_metnomu_et_TRG_METNoMu120_CUTS_mhtnomu_et_L_100_default_";
+  const std::string fname = "eff_Data_Mu_MC_DY_TT_WJets_mumu_metnomu_et_TRG_METNoMu120_CUTS_mhtnomu_et_L_100_default_";
   const std::string name16pre  = "weights/trigger_SF_UL/2016preVFP/";
   const std::string name16post = "weights/trigger_SF_UL/2016postVFP/";
   const std::string name17     = "weights/trigger_SF_UL/2017/";
@@ -140,6 +140,11 @@ double ScaleFactorMET::mErrorRatio(double x, std::string period, std::string chn
   double en2 = mErrorQuadSumSquared(x, period, chn, "Data"); // numerator
   double ed2 = mErrorQuadSumSquared(x, period, chn, "MC");   // denominator
   double eratio2 = en2/(n*n) + ed2/(d*d);
+
+  /* add quadratically the 5% "channel transfer" error
+	 this accounts for using mumu to estimate etau, mutau or tautau MET SFs */
+  eratio2 += (n/d) * (n/d) * 0.05 * 0.05;
+  
   return (n/d) * sqrt(eratio2);
 }
   
