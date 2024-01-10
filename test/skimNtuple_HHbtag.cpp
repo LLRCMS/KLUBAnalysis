@@ -519,7 +519,7 @@ int main (int argc, char** argv)
   int smearVariation = (isMC ? gConfigParser->readIntOption("JetSmearing::smearVariation") : 0);
   cout << "** INFO: doSmearing? " << doSmearing << endl;
   cout << "** INFO: smearVariation: " << smearVariation << " [0:nominal  +1:up  -1:down]" << endl;
-  SmearedJetProducer Smearer(wpyear, doSmearing, smearVariation);
+  SmearedJetProducer Smearer(wpyear, doSmearing, smearVariation, isPostVFP);
 
   // ------------------------------
 
