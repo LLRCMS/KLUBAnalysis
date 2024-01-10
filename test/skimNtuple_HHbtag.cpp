@@ -6,11 +6,12 @@
 #include <sstream>
 #include <bitset>
 #include <map>
+#include <unordered_map>
+#include <utility>
 #include <cassert>
 #include "TTree.h"
 #include "TH1F.h"
 #include "TH2F.h"
-#include "TH3F.h"
 #include "TFile.h"
 #include "TBranch.h"
 #include "TString.h"
@@ -40,6 +41,7 @@
 #include "lester_mt2_bisect.h"
 
 #include "ScaleFactor.h"
+#include "ScaleFactorMET.h"
 #include "ConfigParser.h"
 #include "EffCounter.h"
 #include "exceptions/HHInvMConstraintException.h"
@@ -93,17 +95,17 @@ int main (int argc, char** argv)
 	  cerr << "missing input parameters : argc is: " << argc << endl ;
 	  cerr << "usage: " << argv[0]
 		   << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
-		   << " xsecScale(stitch) HTMax(stitch) HTMin(stitch) isTTBar DY_Nbs TT_stitchType"
+		   << " xsecScale(stitch) HTMax(stitch) HTMin(stitch) isTTBar DY_tostitch TT_stitchType"
 		   << " runMT2 isHHsignal NjetRequired(stitch) EFTbm order_rew uncertainty_rew cms_fake_rew kl_rew kt_rew c2_rew cg_rew c2g_rew susyModel" << endl ;
 
 	  return 1;
 	}
 
-  TString inputFile = argv[1] ;
-  TString outputFile = argv[2] ;
+  std::string inputFile = argv[1] ;
+  std::string outputFile = argv[2] ;
   cout << "** INFO: inputFile  : " << inputFile << endl;
   cout << "** INFO: outputFile : " << outputFile << endl;
-
+  
   float XS = atof (argv[3]) ;
   bool isMC = true;
   int isDatabuf = atoi (argv[4]);
@@ -144,15 +146,12 @@ int main (int argc, char** argv)
   if (!isMC) isTTBar = false; // force it, you never know...
   cout << "** INFO: is this a TTbar sample? : " << isTTBar << endl;
 
-  bool DY_Nbs = false; // run on genjets to count in DY samples the number of b jets
   bool DY_tostitch = false;
-  int I_DY_Nbs = atoi(argv[11]);
-  if (I_DY_Nbs == 1)
+  int I_DY_tostitch = atoi(argv[11]);
+  if (I_DY_tostitch == 1)
 	{
-	  DY_Nbs = true;
 	  DY_tostitch = true; // FIXME!! this is ok only if we use jet binned samples
 	}
-  cout << "** INFO: loop on gen jet to do a b-based DY split? " << DY_Nbs << " " << DY_tostitch << endl;
 
   int TT_stitchType = atoi(argv[12]);
   if (!isTTBar) TT_stitchType = 0; // just force if not TT...
@@ -197,8 +196,7 @@ int main (int argc, char** argv)
   int DY_nJets  = atoi(argv[27]);
   int DY_nBJets = atoi(argv[28]);
   cout << "** INFO: nJets/nBjets for DY bin weights: " << DY_nJets << " / " << DY_nBJets << endl;
-  int isDYI = atoi(argv[29]);
-  bool isDY = (isDYI == 1) ? true : false;
+  //int isDYI = atoi(argv[29]);
 
   bool isttHToNonBB = false;
   int isttHToNonBBI = atoi(argv[30]);
@@ -214,7 +212,22 @@ int main (int argc, char** argv)
   assert(PERIOD=="2018" or PERIOD=="2017" or PERIOD=="2016preVFP" or PERIOD=="2016postVFP");
   bool isPostVFP = PERIOD=="2016postVFP" ? true : false;
   cout << "** INFO: PERIOD: " << PERIOD << ", isPostVFP: " << isPostVFP << endl;
-  
+
+  enum DataType {
+    kDefault	= 0, //default, no specifity
+    kMET		= 1, //MET dataset
+    kSingleTau  = 2, //SingleTau dataset
+  };
+
+  int datasetType = atoi(argv[33]);
+  bool isMETDataset = datasetType == DataType::kMET;
+  bool isTauDataset = datasetType == DataType::kSingleTau;
+  cout << "** INFO: isMETDataset  : " << isMETDataset << endl;
+  cout << "** INFO: isTauDataset  : " << isTauDataset << endl;
+  if (isMC) {
+	assert (datasetType==0);
+  }
+
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
     kNone    = 0, //no reweighting
@@ -290,7 +303,7 @@ int main (int argc, char** argv)
 		}
 	}
 
-
+  
   vector<string> trigMuTau   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuTau")  : gConfigParser->readStringListOption ("triggersData::MuTau")) ;
   vector<string> trigTauTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::TauTau") : gConfigParser->readStringListOption ("triggersData::TauTau")) ;
   vector<string> trigEleTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleTau") : gConfigParser->readStringListOption ("triggersData::EleTau")) ;
@@ -307,10 +320,6 @@ int main (int argc, char** argv)
   //// NEW TRIGGERS
   vector<string> trigMET  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::METtriggers") : gConfigParser->readStringListOption ("triggersData::METtriggers")) ;
   vector<string> trigSingleTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::SingleTau") : gConfigParser->readStringListOption ("triggersData::SingleTau")); 
-
-
-  // bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
-  //bool applyTriggers = isMC ? gConfigParser->readBoolOption ("parameters::applyTriggersMC") : true; // true if ask triggerbit + matching, false if doing reweight
 
   bool applyTriggers = gConfigParser->readBoolOption ("parameters::applyTriggersMC") ;
 
@@ -363,11 +372,12 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
 
-  appendFromFileList (bigChain, inputFile);
+  appendFromFileList (bigChain, inputFile.c_str());
   bigChain->SetCacheSize(0);
   bigTree theBigTree (bigChain) ;
   //Create a new file + a clone of old tree header. Do not copy events
-  TFile * smallFile = new TFile (outputFile, "recreate") ;
+
+  TFile * smallFile = new TFile (outputFile.c_str(), "RECREATE") ;
   smallFile->cd () ;
   smallTree theSmallTree ("HTauTauTree") ;
 
@@ -391,8 +401,8 @@ int main (int argc, char** argv)
   int N_tauhDM_EES = 2;  //tauh DMs with EES
 
   // ------------------------------
-  TH1F* hTriggers = getFirstFileHisto (inputFile);
-  TH1F* hTauIDS = getFirstFileHisto (inputFile,false);
+  TH1F* hTriggers = getFirstFileHisto (inputFile.c_str());
+  TH1F* hTauIDS = getFirstFileHisto (inputFile.c_str(), false);
 
   //FRA new triggerReader_cross to take into account the usage of crossTriggers
   triggerReader_cross trigReader (hTriggers);
@@ -585,10 +595,10 @@ int main (int argc, char** argv)
    ********************************************************************************************************************/
 
   // electron/muon leg trigger SF for data and mc
-  ScaleFactor * muTauTrgSF = new ScaleFactor();
-  ScaleFactor * eTauTrgSF  = new ScaleFactor();
-  ScaleFactor * muTrgSF    = new ScaleFactor();
-  ScaleFactor * eTrgSF     = new ScaleFactor();
+  ScaleFactor    * muTauTrgSF = new ScaleFactor();
+  ScaleFactor    * eTauTrgSF  = new ScaleFactor();
+  ScaleFactor    * muTrgSF    = new ScaleFactor();
+  ScaleFactor    * eTrgSF     = new ScaleFactor();
   if (PERIOD == "2018") {
 	muTauTrgSF->init_ScaleFactor("weights/trigger_SF_Legacy/2018/Muon_Run2018_IsoMu20.root");
 	muTrgSF   ->init_ScaleFactor("weights/trigger_SF_Legacy/2018/Muon_Run2018_IsoMu24orIsoMu27.root");
@@ -607,7 +617,10 @@ int main (int argc, char** argv)
 	//eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
 	eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Run2016_legacy_Ele25.root");
   }
-	  
+
+  // MET scale Factors
+  ScaleFactorMET metSF;
+  
   //VBF trigger weights -- jet legs
   TFile* VBFjets_file;
   TH3D*  VBFjets_SF;
@@ -672,8 +685,6 @@ int main (int argc, char** argv)
   else if (PERIOD == "2016postVFP") {
 	tauidsf_period = "UL2016_postVFP";
   }
-  //TauIDSFTool * Deep_antiJet_medium_dm = new TauIDSFTool(tauidsf_period, "DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets Medium
-  TauIDSFTool * Deep_antiJet_medium_pt = new TauIDSFTool(tauidsf_period, "DeepTau2017v2p1VSjet", "Medium",0);	  // for DeepTauv2p1 vs jets Medium
   TauIDSFTool * Deep_antiJet_2d		   = new TauIDSFTool(tauidsf_period, "Medium","VVLoose"); // for DeepTauv2p1 vsJets Medium and vsElectrons VVLoose in DM and pT bins
   TauIDSFTool * Deep_antiEle_vvloose   = new TauIDSFTool(tauidsf_period, "DeepTau2017v2p1VSe","VVLoose",0);  // for DeepTauv2p1 vs ele VVLoose
   TauIDSFTool * Deep_antiMu_tight	   = new TauIDSFTool(tauidsf_period, "DeepTau2017v2p1VSmu","Tight",0);	  // for DeepTauv2p1 vs mu Tight
@@ -874,7 +885,7 @@ int main (int argc, char** argv)
 		  int nb    = theBigTree.lheNOutB;
 		  if (njets != DY_nJets || nb != DY_nBJets) continue;
 		}
-
+	
 	  // gen info -- fetch tt pair and compute top PT reweight
 	  float topPtReweight = 1.0; // 1 for all the other samples
 	  theSmallTree.m_TTtopPtreweight =  1.0 ;
@@ -918,7 +929,7 @@ int main (int argc, char** argv)
 				  // else cout << " !! skim warning: sample is declared as as ttbar, but I have > 2 gen top in the event! " << endl;
 				}
 			}
-
+		
 		  if (ptTop1 < 0 || ptTop2 < 0)
 			{
 			  cout << "** WARNING: sample is declared as TTbar but in the event I didn't find 2 tops (1,2) :" << ptTop1 << " " << ptTop2 << endl;
@@ -1050,27 +1061,6 @@ int main (int argc, char** argv)
 			}
 		} // end ttHToNonBB only
 
-	  if (isMC && isDY) //to be done both for DY NLO and DY in jet bins
-		{
-		  TLorentzVector vgj;
-		  int nbs = 0;
-		  for (unsigned int igj = 0; igj < theBigTree.genjet_px->size(); igj++)
-			{
-			  vgj.SetPxPyPzE(theBigTree.genjet_px->at(igj), theBigTree.genjet_py->at(igj), theBigTree.genjet_pz->at(igj), theBigTree.genjet_e->at(igj));
-			  if (vgj.Pt() > 20 && TMath::Abs(vgj.Eta()) < 2.5)
-				{
-				  int theFlav = theBigTree.genjet_hadronFlavour->at(igj);
-				  if (abs(theFlav) == 5) nbs++;
-				}
-
-			  if(DEBUG)
-				{
-				  cout << " -- gen jet : " << igj << " pt=" << vgj.Pt() << " eta=" << vgj.Eta() <<  " hadFlav=" << theBigTree.genjet_hadronFlavour->at(igj) << endl;
-				}
-			}
-		  if (nbs > 2) nbs = 2;
-		}
-
 	  // HH reweight for non resonant
 	  float HHweight = 1.0;
 	  TLorentzVector vHardScatter1;
@@ -1152,7 +1142,7 @@ int main (int argc, char** argv)
 					  // cout << "THIS: " << pdg << " px=" << theBigTree.genpart_px->at(igen) << endl;
 					}
 				}
-
+			  
 			  if ( abs(pdg) == 66615 && mothIsHardScatt)
 				{
 				  // cout << "  <<< preso" << endl;
@@ -1180,7 +1170,7 @@ int main (int argc, char** argv)
 
 			}
 
-
+		
 		  if (idx1 == -1 || idx2 == -1)
 			{
 			  cout << "** ERROR: couldn't find 2 H (first)" << endl;
@@ -1246,7 +1236,7 @@ int main (int argc, char** argv)
 		  vH1.Boost(-vSum.BoostVector());
 		  ct1 = vH1.CosTheta();
 
-
+		
 		  // FRA DEBUG - build gen b jets
 		  if (idx1hs_b != -1 && idx2hs_b != -1)
 			{
@@ -1302,6 +1292,7 @@ int main (int argc, char** argv)
 
 	  int metbit = theBigTree.metfilterbit;
 
+	  // Twiki: https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#MET_Filter_Recommendations_for_R
 	  int metpass = (metbit & (1 << 0)) ? 1 : 0; //"Flag_goodVertices"
 	  metpass    += (metbit & (1 << 1)) ? 1 : 0; //"Flag_HBHENoiseFilter"
 	  metpass    += (metbit & (1 << 2)) ? 1 : 0; //"Flag_HBHENoiseIsoFilter"
@@ -1309,7 +1300,7 @@ int main (int argc, char** argv)
 	  metpass    += (metbit & (1 << 4)) ? 1 : 0; //"Flag_globalSuperTightHalo2016Filter"
 	  metpass    += (metbit & (1 << 5)) ? 1 : 0; //"Flag_BadPFMuonFilter"
 	  metpass    += (metbit & (1 << 6)) ? 1 : 0; //"Flag_eeBadScFilter"
-	  if(PERIOD == "2018" or PERIOD=="2017") {
+	  if(PERIOD == "2018" or PERIOD == "2017") {
 		metpass    += (metbit & (1 << 7)) ? 1 : 0; //"Flag_ecalBadCalibFilter"
 	  }
 	  metpass    += (metbit & (1 << 8)) ? 1 : 0; //"Flag_BadPFMuonDzFilter"
@@ -1332,10 +1323,10 @@ int main (int argc, char** argv)
 		}
 
 	  int metpass_thresh;
-	  if(PERIOD == "2018" or PERIOD=="2017") {
+	  if(PERIOD == "2018" or PERIOD == "2017") {
 		metpass_thresh = 9;
 	  }
-	  if(PERIOD == "2016preVFP" or PERIOD=="2016postVFP") {
+	  if(PERIOD == "2016preVFP" or PERIOD == "2016postVFP") {
 		metpass_thresh = 8;
 	  }
 	  if(metpass < metpass_thresh) continue ;
@@ -1611,22 +1602,42 @@ int main (int argc, char** argv)
 		  theSmallTree.m_nRealTaus = nRealTaus;                     // -1: data; > 0: # real taus in MC
 		}
 
-
-	  const TLorentzVector tlv_firstLepton (
-											theBigTree.daughters_px->at (firstDaughterIndex),
+	  const TLorentzVector tlv_firstLepton (theBigTree.daughters_px->at (firstDaughterIndex),
 											theBigTree.daughters_py->at (firstDaughterIndex),
 											theBigTree.daughters_pz->at (firstDaughterIndex),
 											theBigTree.daughters_e->at (firstDaughterIndex)
 											);
 
-	  const TLorentzVector tlv_secondLepton (
-											 theBigTree.daughters_px->at (secondDaughterIndex),
+	  const TLorentzVector tlv_secondLepton (theBigTree.daughters_px->at (secondDaughterIndex),
 											 theBigTree.daughters_py->at (secondDaughterIndex),
 											 theBigTree.daughters_pz->at (secondDaughterIndex),
 											 theBigTree.daughters_e->at (secondDaughterIndex)
 											 );
 
+	  TVector2 vMET(theBigTree.METx->at(chosenTauPair),
+					theBigTree.METy->at(chosenTauPair));
+	  TVector2 vMUON(0., 0.);
+	  if (pairType==0) {
+		// single muon in evt, vetoing events with 3rd lepton
+		vMUON.Set(tlv_firstLepton.Px(), tlv_firstLepton.Py());
+	  }
+	  else if(pairType==3) {
+		 // two muons in evt (looser cuts), vetoing events with 3rd lepton
+		vMUON.Set(tlv_firstLepton.Px()+tlv_secondLepton.Px(),
+				  tlv_firstLepton.Py()+tlv_secondLepton.Py());
+	  }
+	  TVector2 vMETnoMu = vMET + vMUON;
 
+	  // MHT(noMu) variables. This might be a quick&dirty definition though, as not removing soft contributions
+	  // mht: transverse component of jet momentum sum (here MET(tot)-MET(leptons))
+	  TVector2 vLEP(tlv_firstLepton.Px()+tlv_secondLepton.Px(),
+					tlv_firstLepton.Py()+tlv_secondLepton.Py()); // no matter what lepton type
+	  TVector2 vMHT = vMET + vLEP;
+	  // mhtnomu: ~ as defined in HLT code
+	  // https://github.com/cms-sw/cmssw/blob/6d2f66057131baacc2fcbdd203588c41c885b42c/HLTrigger/JetMET/src/HLTHtMhtProducer.cc#L76
+	  // > transverse component of jets momentum sum minus muons momentum sum (I still need to figure this one out...)
+	  TVector2 vMHTnoMu = vMHT+vMUON;
+	  
 	  //////////
 	  // -- GEN NEUTRINO, LEPTON, B-QUARK DEFINITION:
 	  // -> Adding gen-matched info for the 2 taus neutrinos for tauTau ID training tests
@@ -1813,7 +1824,6 @@ int main (int argc, char** argv)
 	  vector <TLorentzVector> tlv_secondLepton_eleup   (N_tauhDM_EES, tlv_secondLepton);
 	  vector <TLorentzVector> tlv_secondLepton_eledown (N_tauhDM_EES, tlv_secondLepton);
 
-
 	  // for each decay mode, bool indicating if this lepton matches the dacay mode in the loop
 	  // just for protection, probably it's not needed
 	  vector<bool> isthisDM_first = {
@@ -1929,9 +1939,22 @@ int main (int argc, char** argv)
 	  bool passTrg = false;
 
 	  // NEW TRIGGERS
-	  bool passMETTrg = false;
+	  bool passMETTrg = false, passMETTrgNoThresh=false;
 	  bool passSingleTau = false;
 
+	  // Twiki (UL SFs not available as of September 2023)
+	  // https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauTrigger#Run_II_Trigger_Scale_Factors
+	  std::unordered_map<std::string, std::pair<float,float>> singleTauSF = {
+		{"2016preVFP",  std::make_pair(0.88, 0.08)},
+		{"2016postVFP", std::make_pair(0.88, 0.08)},
+		{"2017",        std::make_pair(1.08, 0.10)},
+		{"2018",        std::make_pair(0.87, 0.11)}};
+
+	  std::unordered_map<std::string, unsigned> MET_chn_map = {{"etau", 1},
+															   {"mutau", 0},
+															   {"tautau", 2}};
+	  bool MET_region = false;
+	  bool SingleTau_region = false;
 	  if (applyTriggers)
 		{
 		  Long64_t triggerbit = theBigTree.triggerbit;
@@ -1942,11 +1965,21 @@ int main (int argc, char** argv)
 		  Long64_t goodTriggerType2 = (Long64_t) theBigTree.daughters_isGoodTriggerType->at(secondDaughterIndex);
 
 		  Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
-		  passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
+		  passTrg = trigReader.checkOR (pairType, triggerbit, &pass_triggerbit,
+										matchFlag1, matchFlag2, trgNotOverlapFlag,
+										goodTriggerType1, goodTriggerType2,
+										tlv_firstLepton.Pt(), tlv_firstLepton.Eta(),
+										tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
 
 		  // check NEW TRIGGERS separately
-		  passMETTrg = trigReader.checkMET(triggerbit, &pass_triggerbit);
-		  passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
+		  passMETTrg         = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 180.);
+		  passMETTrgNoThresh = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 0.);
+
+		  passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag,
+													goodTriggerType1, goodTriggerType2,
+													tlv_firstLepton.Pt(), tlv_firstLepton.Eta(),
+													tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
+
 		  if (PERIOD=="2018" and !isMC and passTrg)
 			{
 			  if(theBigTree.RunNumber < 317509)
@@ -1981,7 +2014,7 @@ int main (int argc, char** argv)
 			}
 
 		  // Remember: isVBFfired means it passed ONLY a VBF trigger
-		  if (wpyear != "2016" and pairType == 2 and !passTrg)
+		  if (wpyear != "2016" and pairType == 2 and !passTrg and !passMETTrg and !passSingleTau)
 			{
 			  isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
 
@@ -2015,8 +2048,9 @@ int main (int argc, char** argv)
 					}
 				}
 			}
-		  else
+		  else {
 			isVBFfired = false;
+		  }
 
 		  // weight to be applied: 0.990342 from https://twiki.cern.ch/twiki/bin/viewauth/CMS/DoubleHiggsToBBTauTauWorkingLegacyRun2
 		  // @ bit position - path
@@ -2033,20 +2067,56 @@ int main (int argc, char** argv)
 			{
 			  if(PERIOD=="2018") {
 				if (CheckBit(pass_triggerbit,8) and !CheckBit(pass_triggerbit,7)) {
-				  theSmallTree.m_prescaleWeight =  0.990342;
+				  theSmallTree.m_prescaleWeight = 0.990342;
 				}
 			  }
 			  else if(PERIOD=="2017") {
-				theSmallTree.m_prescaleWeight =  0.65308574;
+				theSmallTree.m_prescaleWeight = 0.65308574;
 			  }
 			}
 
-		  bool triggerAccept = false;
-		  triggerAccept = passTrg || isVBFfired || passMETTrg || passSingleTau;
+		  if (pairType == 0) { //mutau
+			if(PERIOD=="2018") {
+			  MET_region = ((tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < 32.) or
+							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() > 32.));
+			}
+			else if(PERIOD=="2017") {
+			  MET_region = ((tlv_firstLepton.Pt() < 28. and tlv_secondLepton.Pt() < 32.) or
+							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() > 32.));
+			}
+			else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
+			  MET_region = ((tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < 25.) or
+							(tlv_firstLepton.Pt() < 20. and tlv_secondLepton.Pt() > 25.));
+			}
+		  }
+		  else if (pairType == 1) { //etau
+			if(PERIOD=="2018" or PERIOD=="2017") {
+			  MET_region = ((tlv_firstLepton.Pt() < 33. and tlv_secondLepton.Pt() < 35.) or
+							(tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() > 35.));
+			}
+			else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
+			  MET_region = tlv_firstLepton.Pt() < 25.;
+			}
+		  }
+		  else if (pairType == 2) { //tautau
+			MET_region       = ((tlv_firstLepton.Pt() < 40	 and tlv_secondLepton.Pt() < 190) or
+								(tlv_firstLepton.Pt() < 190	 and tlv_secondLepton.Pt() < 40 ));
+			SingleTau_region = ((tlv_firstLepton.Pt() < 40	 and tlv_secondLepton.Pt() >= 190) or
+								(tlv_firstLepton.Pt() >= 190 and tlv_secondLepton.Pt() < 40 ));
+		  }
 
+		  bool metAccept = passMETTrgNoThresh and !passTrg and MET_region; //!passTrg should be redundant wrt to the region cut
+		  bool singletauAccept = passSingleTau and !passTrg and SingleTau_region; //!passTrg should be redundant wrt to the region cut
+		  if (!isMC) {
+			passTrg = passTrg and !isMETDataset;
+			metAccept = metAccept and isMETDataset;
+			singletauAccept = singletauAccept and isTauDataset;
+		  }
+		  bool triggerAccept = passTrg or metAccept or singletauAccept;
+	  
 		  if(DEBUG)
 			{
-			  cout << "---> isVBFfired?  "<<isVBFfired<<endl;
+			  cout << "---> isVBFfired?  " << isVBFfired << endl;
 			  if(pairType == 0)//MuTau
 				{
 				  trigReader.listMuTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
@@ -2064,14 +2134,14 @@ int main (int argc, char** argv)
 
 		  if (DEBUG) std::cout << "----> Final Trigger passed? " << triggerAccept << std::endl;
 		  if (!triggerAccept) continue;
+		  
 		  theSmallTree.m_pass_triggerbit = pass_triggerbit;
 		  ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
 		  if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
 
 		  theSmallTree.m_isLeptrigger = passTrg;
-
-		  // NEW TRIGGERS: fill trig info in output tree
 		  theSmallTree.m_isMETtrigger = passMETTrg;
+		  theSmallTree.m_isMETtriggerNoThresh = passMETTrgNoThresh;
 		  theSmallTree.m_isSingleTautrigger = passSingleTau;
 		} // end if applyTriggers
 
@@ -2112,31 +2182,13 @@ int main (int argc, char** argv)
 	  TLorentzVector tlv_tauH = tlv_firstLepton + tlv_secondLepton ;
 	  TLorentzVector tlv_tauH_SVFIT ;
 
-	  TVector2 vMET(theBigTree.METx->at(chosenTauPair) , theBigTree.METy->at(chosenTauPair));
-
 	  // METnoMu,MHT,MHTnoMu for trigger study
 	  /*
 		Most basic implementation accounting only for muons passing selection cuts.
 		Would we need to include soft muons somehow as well?
 		(3rd lepton veto already looks for soft leptons (>10 GeV))
 	  */
-	  // metnomu
-	  TVector2 vMUON;
-	  if(pairType==0) vMUON.Set(tlv_firstLepton.Px(),tlv_firstLepton.Py()); // single muon in evt, vetoing events with 3rd lepton
-	  if(pairType==3) vMUON.Set(tlv_firstLepton.Px()+tlv_secondLepton.Px(),tlv_firstLepton.Py()+tlv_secondLepton.Py()); // two muons in evt (looser cuts), vetoing events with 3rd lepton
-	  TVector2 vMETnoMu = vMET + vMUON;
-
-	  /*
-		MHT(noMu) variables. This might be a quick&dirty definition though, as not removing soft contributions
-	  */
-	  // mht: transverse component of jet momentum sum (here MET(tot)-MET(leptons))
-	  TVector2 vLEP(tlv_firstLepton.Px()+tlv_secondLepton.Px(),tlv_firstLepton.Py()+tlv_secondLepton.Py()); // no matter what lepton type
-	  TVector2 vMHT = vMET + vLEP;
-	  // mhtnomu: ~ as defined in HLT code
-	  // https://github.com/cms-sw/cmssw/blob/6d2f66057131baacc2fcbdd203588c41c885b42c/HLTrigger/JetMET/src/HLTHtMhtProducer.cc#L76
-	  // > transverse component of jets momentum sum minus muons momentum sum (I still need to figure this one out...)
-	  TVector2 vMHTnoMu = vMHT+vMUON;
-
+	
 	  TLorentzVector tlv_MET;
 	  tlv_MET.SetPxPyPzE(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair), 0, std::hypot(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair)));
 
@@ -2308,17 +2360,17 @@ int main (int argc, char** argv)
 	  theSmallTree.m_MHTnoMuy      = vMHTnoMu.Y();
 
 
-
+	
 	  // L1ECALPrefiringWeight - https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
 	  theSmallTree.m_L1pref_weight = theBigTree.prefiringweight;
-
+	
 	  if (DEBUG)
 		{
 		  cout << "------- MET DEBUG -------" << endl;
 		  cout << " met centr : " << theSmallTree.m_met_et << " / " << theSmallTree.m_met_phi << endl;
 		  cout << "-------------------------" << endl;
 		}
-
+	
 	  // // in TauTau channel make sure the first tau is the most isolated one
 	  if (pairType == 2 && (theBigTree.daughters_byDeepTau2017v2p1VSjetraw->at(theBigTree.indexDau1->at (chosenTauPair)) < theBigTree.daughters_byDeepTau2017v2p1VSjetraw->at(theBigTree.indexDau2->at (chosenTauPair))) )
 		{
@@ -2330,7 +2382,7 @@ int main (int argc, char** argv)
 		  theSmallTree.m_mT1       = theBigTree.mT_Dau1->at (chosenTauPair) ;
 		  theSmallTree.m_mT2       = theBigTree.mT_Dau2->at (chosenTauPair) ;
 		}
-
+	
 	  theSmallTree.m_tauH_pt   = tlv_tauH.Pt () ;
 	  theSmallTree.m_tauH_eta  = tlv_tauH.Eta () ;
 	  theSmallTree.m_tauH_phi  = tlv_tauH.Phi () ;
@@ -2660,15 +2712,11 @@ int main (int argc, char** argv)
 	  float tau2Genmatch = theBigTree.genmatch->at(secondDaughterIndex);
 
 	  float idSF_leg1				= 1.f;
-	  float idSF_leg1_deep_vsJet_dm = 1.f;
-	  float idSF_leg1_deep_vsJet_pt = 1.f;
 	  float idSF_leg1_deep_vsJet_2d = 1.f;
 	  float idSF_leg1_deep_vsEle    = 1.f;
 	  float idSF_leg1_deep_vsMu     = 1.f;
 
 	  float idSF_leg2				= 1.f;
-	  float idSF_leg2_deep_vsJet_dm = 1.f;
-	  float idSF_leg2_deep_vsJet_pt = 1.f;
 	  float idSF_leg2_deep_vsJet_2d = 1.f;
 	  float idSF_leg2_deep_vsEle	= 1.f;
 	  float idSF_leg2_deep_vsMu		= 1.f;
@@ -2733,36 +2781,13 @@ int main (int argc, char** argv)
 	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140				= 1.f;
 	  
 	  // up and down variations of the ID and isolation of the first leg (only relevant when it is a tau)
-	  vector<float> idSF_leg1_deep_vsJet_pt_up   (5, idSF_leg1_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
 	  vector<float> idSF_leg1_deep_vsEle_up      (2, idSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg1_deep_vsMu_up       (5, idSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-	  vector<float> idSF_leg1_deep_vsJet_pt_down (5, idSF_leg1_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
 	  vector<float> idSF_leg1_deep_vsEle_down    (2, idSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg1_deep_vsMu_down     (5, idSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 	  
 	  // only TauTau has a tau as the first leg
-	  if (isMC and pType==2) {
-		for (int bin = 0; bin < (int) isthisPt_IDbin_first.size(); bin++)	{
-		  if (isthisPt_IDbin_first[bin])
-			{
-			  idSF_leg1_deep_vsJet_pt_up[bin]   = Deep_antiJet_medium_pt ->getSFvsPT(leg1pt, tau1Genmatch,   "Up");
-			  idSF_leg1_deep_vsJet_pt_down[bin] = Deep_antiJet_medium_pt ->getSFvsPT(leg1pt, tau1Genmatch, "Down");
-
-			  //Additional uncertainty see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_to_be_applied_to_gen
-			  double error_up   = fabs(idSF_leg1_deep_vsJet_pt - idSF_leg1_deep_vsJet_pt_up[bin]);
-			  double error_down = fabs(idSF_leg1_deep_vsJet_pt - idSF_leg1_deep_vsJet_pt_down[bin]);
-			
-			  if (leg1pt < 100) {
-				idSF_leg1_deep_vsJet_pt_up[bin]   = idSF_leg1_deep_vsJet_pt*1.03 + error_up;
-				idSF_leg1_deep_vsJet_pt_down[bin] = idSF_leg1_deep_vsJet_pt*0.97 - error_down;
-			  }
-			  else {
-				idSF_leg1_deep_vsJet_pt_up[bin]   = idSF_leg1_deep_vsJet_pt*1.15 + error_up;
-				idSF_leg1_deep_vsJet_pt_down[bin] = idSF_leg1_deep_vsJet_pt*0.85 - error_down;
-			  }
-			}
-		}
-	
+	  if (isMC and pType==2) {	
 		for (int bin = 0; bin < (int) isthisEta_IDbin_first.size(); bin++) {
 		  if (isthisEta_IDbin_first[bin])
 			{
@@ -2797,51 +2822,24 @@ int main (int argc, char** argv)
 	  }
 
 	  // up and down variations of the ID and isolation of the second leg (only relevant when it is a tau)
-	  vector<float> idSF_leg2_deep_vsJet_pt_up   (5, idSF_leg2_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
 	  vector<float> idSF_leg2_deep_vsEle_up      (2, idSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg2_deep_vsMu_up       (5, idSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-	  vector<float> idSF_leg2_deep_vsJet_pt_down (5, idSF_leg2_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
 	  vector<float> idSF_leg2_deep_vsEle_down    (2, idSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg2_deep_vsMu_down     (5, idSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 
 	  if (isMC and (pType==0 or pType==1 or pType==2)) {
-		for (int bin = 0; bin < (int) isthisPt_IDbin_second.size(); bin++) {
-		  if (isthisPt_IDbin_second[bin])
-			{
-			  idSF_leg2_deep_vsJet_pt_up[bin]   = Deep_antiJet_medium_pt ->getSFvsPT(leg2pt, tau2Genmatch,   "Up");
-			  idSF_leg2_deep_vsJet_pt_down[bin] = Deep_antiJet_medium_pt ->getSFvsPT(leg2pt, tau2Genmatch, "Down");
-			}
-
-		  //Additional uncertainty see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_to_be_applied_to_gen
-		  if (pType==2) {
-			double error_up   = fabs(idSF_leg2_deep_vsJet_pt - idSF_leg2_deep_vsJet_pt_up[bin]);
-			double error_down = fabs(idSF_leg2_deep_vsJet_pt - idSF_leg2_deep_vsJet_pt_down[bin]);
-			if (leg2pt < 100)
-			  {
-				idSF_leg2_deep_vsJet_pt_up[bin]   = idSF_leg2_deep_vsJet_pt*1.03 + error_up;
-				idSF_leg2_deep_vsJet_pt_down[bin] = idSF_leg2_deep_vsJet_pt*0.97 - error_down;
-			  }
-			else
-			  {
-				idSF_leg2_deep_vsJet_pt_up[bin]   = idSF_leg2_deep_vsJet_pt*1.15 + error_up;
-				idSF_leg2_deep_vsJet_pt_down[bin] = idSF_leg2_deep_vsJet_pt*0.85 - error_down;
-			  }
+		for (int bin = 0; bin < (int) isthisEta_IDbin_second.size(); bin++) {
+		  if (isthisEta_IDbin_second[bin]) {
+			idSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch,	"Up");
+			idSF_leg2_deep_vsMu_down[bin] = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch, "Down");
 		  }
+		}
 
-
-		  for (int bin = 0; bin < (int) isthisEta_IDbin_second.size(); bin++) {
-			if (isthisEta_IDbin_second[bin]) {
-			  idSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch,	"Up");
-			  idSF_leg2_deep_vsMu_down[bin] = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch, "Down");
-			}
+		for (int bin = 0; bin < (int) isthisSDet_IDbin_second.size(); bin++) {
+		  if (isthisSDet_IDbin_second[bin]) {
+			idSF_leg2_deep_vsEle_up[bin]   = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch,   "Up");
+			idSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch, "Down");
 		  }
-
-		  for (int bin = 0; bin < (int) isthisSDet_IDbin_second.size(); bin++) {
-			if (isthisSDet_IDbin_second[bin]) {
-			  idSF_leg2_deep_vsEle_up[bin]   = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch,   "Up");
-			  idSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch, "Down");
-			}
-		  } 
 		}
 
 		idSF_leg2_deep_vsJet_2d_stat0_up					= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Stat0Up");
@@ -2975,13 +2973,9 @@ int main (int argc, char** argv)
 		cout << "pairType  : "              << pType                   << endl;
 		cout << "totSF deep_2d: "           << idFakeSF_deep_2d        << endl;
 		cout << "idSF_leg1: "               << idSF_leg1               << endl;
-		cout << "idSF_leg1_deep_vsJet_dm: " << idSF_leg1_deep_vsJet_dm << endl;
-		cout << "idSF_leg1_deep_vsJet_pt: " << idSF_leg1_deep_vsJet_pt << endl;
 		cout << "idSF_leg1_deep_vsJet_2d: " << idSF_leg1_deep_vsJet_2d << endl;
 		cout << "idSF_leg1_deep_vsEle: "    << idSF_leg1_deep_vsEle    << endl;
 		cout << "idSF_leg1_deep_vsMu: "     << idSF_leg1_deep_vsMu     << endl;
-		cout << "idSF_leg2_deep_vsJet_dm: " << idSF_leg2_deep_vsJet_dm << endl;
-		cout << "idSF_leg2_deep_vsJet_pt: " << idSF_leg2_deep_vsJet_pt << endl;
 		cout << "idSF_leg2_deep_vsJet_2d: " << idSF_leg2_deep_vsJet_2d << endl;
 		cout << "idSF_leg2_deep_vsEle: "    << idSF_leg2_deep_vsEle    << endl;
 		cout << "idSF_leg2_deep_vsMu: "     << idSF_leg2_deep_vsMu     << endl;
@@ -3051,7 +3045,6 @@ int main (int argc, char** argv)
 	  // https://github.com/truggles/TauTriggerSFs2017
 
 	  // recommendations for cross triggers:  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information
-
 	  float trigSF				= 1.0;
 	  float trigSF_ele_up		= 1.0;
 	  float trigSF_mu_up		= 1.0;
@@ -3069,16 +3062,27 @@ int main (int argc, char** argv)
 	  float trigSF_vbfjet_down	= 1.0;
 	  float trigSF_single		= 1.0;
 	  float trigSF_cross		= 1.0;
-
+	  float trigSF_met_up   	= 1.0;
+	  float trigSF_met_down   	= 1.0;
+	  float trigSF_stau_up   	= 1.0;
+	  float trigSF_stau_down   	= 1.0;
+	  
 	  if(applyTriggers)
 		{
 		  // MuTau Channel
-		  if (pType == 0 && isMC)
+		  if (pType == 0 and isMC)
 			{
-			  if(fabs(tlv_secondLepton.Eta()) < 2.1) //eta region covered both by cross-trigger and single lepton trigger
+			  if(MET_region)
 				{
-				  int passCross = 1;
-				  int passSingle = 1;
+				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "mutau");
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "mutau");
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "mutau");
+				}
+
+			  // eta region covered both by cross-trigger and single lepton trigger
+			  else if(fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_region) 
+				{
+				  int passSingle = 1, passCross = 1;
 
 				  float lep1_thresh, lep2_thresh;
 				  if(PERIOD=="2018" or PERIOD=="2017") {
@@ -3166,24 +3170,24 @@ int main (int argc, char** argv)
 					  cout << "SFtau_MC: "   << SFtau_MC   << endl;
 					}
 
-				  trigSF = Eff_Data / Eff_MC;
-				  trigSF_mu_up     = Eff_Data_mu_up / Eff_MC_mu_up;
-				  trigSF_mu_down   = Eff_Data_mu_down / Eff_MC_mu_down;
-				  trigSF_DM0_up    = Eff_Data_up[0] / Eff_MC_up[0];
-				  trigSF_DM1_up    = Eff_Data_up[1] / Eff_MC_up[1];
-				  trigSF_DM10_up   = Eff_Data_up[2] / Eff_MC_up[2];
-				  trigSF_DM11_up   = Eff_Data_up[3] / Eff_MC_up[3];
-				  trigSF_DM0_down  = Eff_Data_down[0] / Eff_MC_down[0];
-				  trigSF_DM1_down  = Eff_Data_down[1] / Eff_MC_down[1];
-				  trigSF_DM10_down = Eff_Data_down[2] / Eff_MC_down[2];
-				  trigSF_DM11_down = Eff_Data_down[3] / Eff_MC_down[3];
+				  trigSF			= Eff_Data			/ Eff_MC;
+				  trigSF_mu_up		= Eff_Data_mu_up	/ Eff_MC_mu_up;
+				  trigSF_mu_down	= Eff_Data_mu_down	/ Eff_MC_mu_down;
+				  trigSF_DM0_up		= Eff_Data_up[0]	/ Eff_MC_up[0];
+				  trigSF_DM1_up		= Eff_Data_up[1]	/ Eff_MC_up[1];
+				  trigSF_DM10_up	= Eff_Data_up[2]	/ Eff_MC_up[2];
+				  trigSF_DM11_up	= Eff_Data_up[3]	/ Eff_MC_up[3];
+				  trigSF_DM0_down	= Eff_Data_down[0]	/ Eff_MC_down[0];
+				  trigSF_DM1_down	= Eff_Data_down[1]	/ Eff_MC_down[1];
+				  trigSF_DM10_down	= Eff_Data_down[2]	/ Eff_MC_down[2];
+				  trigSF_DM11_down	= Eff_Data_down[3]	/ Eff_MC_down[3];
 
 				  //trig SF for analysis only with cross-trigger
 				  double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 				  double SFtau = tauTrgSF_mutau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 				  trigSF_cross = SFl*SFtau;
 				}
-			  else //eta region covered only by single lepton trigger
+			  else // eta region covered only by single lepton trigger
 				{
 				  double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 				  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -3192,17 +3196,24 @@ int main (int argc, char** argv)
 				  trigSF_mu_down = SF - 1. * SF_Err;
 				}
 			  //trig SF for analysis only with single-mu trigger
-			  trigSF_single =  muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+			  trigSF_single = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 			}
 
 		  // EleTau Channel
 		  else if (pType == 1 and isMC)
 			{
-			  //eta region covered both by cross-trigger and single lepton trigger
-			  if(fabs(tlv_secondLepton.Eta()) < 2.1 and PERIOD != "2016preVFP" and PERIOD != "2016postVFP")
+			  if(MET_region)
 				{
-				  int passCross = 1;
-				  int passSingle = 1;
+				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "etau");
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "etau");
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "etau");
+				}
+
+			  // eta region covered both by cross-trigger and single lepton trigger
+			  else if(PERIOD != "2016preVFP" and PERIOD != "2016postVFP" and
+					  fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_region)
+				{
+				  int passSingle = 1, passCross = 1;
 
 				  if (tlv_firstLepton.Pt() < 33.) passSingle = 0;
 				  if (tlv_secondLepton.Pt() < 35.) passCross = 0;
@@ -3281,17 +3292,17 @@ int main (int argc, char** argv)
 					  cout << "SFtau_MC: "   << SFtau_MC   << endl;
 					}
 
-				  trigSF = Eff_Data / Eff_MC;
-				  trigSF_ele_up    = Eff_Data_ele_up / Eff_MC_ele_up;
-				  trigSF_ele_down  = Eff_Data_ele_down / Eff_MC_ele_down;
-				  trigSF_DM0_up    = Eff_Data_up[0] / Eff_MC_up[0];
-				  trigSF_DM1_up    = Eff_Data_up[1] / Eff_MC_up[1];
-				  trigSF_DM10_up   = Eff_Data_up[2] / Eff_MC_up[2];
-				  trigSF_DM11_up   = Eff_Data_up[3] / Eff_MC_up[3];
-				  trigSF_DM0_down  = Eff_Data_down[0] / Eff_MC_down[0];
-				  trigSF_DM1_down  = Eff_Data_down[1] / Eff_MC_down[1];
-				  trigSF_DM10_down = Eff_Data_down[2] / Eff_MC_down[2];
-				  trigSF_DM11_down = Eff_Data_down[3] / Eff_MC_down[3];
+				  trigSF			= Eff_Data			/ Eff_MC;
+				  trigSF_ele_up		= Eff_Data_ele_up	/ Eff_MC_ele_up;
+				  trigSF_ele_down	= Eff_Data_ele_down / Eff_MC_ele_down;
+				  trigSF_DM0_up		= Eff_Data_up[0]	/ Eff_MC_up[0];
+				  trigSF_DM1_up		= Eff_Data_up[1]	/ Eff_MC_up[1];
+				  trigSF_DM10_up	= Eff_Data_up[2]	/ Eff_MC_up[2];
+				  trigSF_DM11_up	= Eff_Data_up[3]	/ Eff_MC_up[3];
+				  trigSF_DM0_down	= Eff_Data_down[0]	/ Eff_MC_down[0];
+				  trigSF_DM1_down	= Eff_Data_down[1]	/ Eff_MC_down[1];
+				  trigSF_DM10_down	= Eff_Data_down[2]	/ Eff_MC_down[2];
+				  trigSF_DM11_down	= Eff_Data_down[3]	/ Eff_MC_down[3];
 
 				  //trig SF for analysis only with cross-trigger
 				  double SFl = eTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -3311,44 +3322,61 @@ int main (int argc, char** argv)
 			}
 
 		  // TauTau Channel
-		  else if (pType == 2 && isMC && isVBFfired == 0)
+		  else if (pType == 2 and isMC)
 			{
-			  double SF1 = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt() , DM1, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-			  double SF2 = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-
-			  // for each DM, fill a trigSF branch with the up/down values if tauhs have the corresponding DM, otherwise fill with nominal trigSF value
-			  vector <double> SF1_up (N_tauhDM, SF1);
-			  vector <double> SF2_up (N_tauhDM, SF2);
-			  vector <double> SF1_down (N_tauhDM, SF1);
-			  vector <double> SF2_down (N_tauhDM, SF2);
-
-			  for (int idm  = 0; idm < N_tauhDM; idm ++)
+			  if (MET_region)
 				{
-				  if (isthisDM_first[idm])
-					{
-					  SF1_up[idm]   = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt(), DM1, 1);
-					  SF1_down[idm] = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt(), DM1, -1);
-					}
-				  if (isthisDM_second[idm])
-					{
-					  SF2_up[idm]   = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 1);
-					  SF2_down[idm] = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, -1);
-					}
+				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "tautau");
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "tautau");
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "tautau");
 				}
 
-			  trigSF = SF1 * SF2;
-			  trigSF_DM0_up    = SF1_up[0]   *	SF2_up[0];
-			  trigSF_DM1_up    = SF1_up[1]   *	SF2_up[1];
-			  trigSF_DM10_up   = SF1_up[2]   *	SF2_up[2];
-			  trigSF_DM11_up   = SF1_up[3]   *	SF2_up[3];
-			  trigSF_DM0_down  = SF1_down[0] *	SF2_down[0];
-			  trigSF_DM1_down  = SF1_down[1] *	SF2_down[1];
-			  trigSF_DM10_down = SF1_down[2] *	SF2_down[2];
-			  trigSF_DM11_down = SF1_down[3] *	SF2_down[3];
-			  trigSF_vbfjet_up   = SF1 * SF2;
-			  trigSF_vbfjet_down = SF1 * SF2;
-			}
+			  else if (SingleTau_region)
+				{
+				  trigSF           = singleTauSF[PERIOD].first;
+				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
+				  trigSF_stau_down = trigSF - singleTauSF[PERIOD].second;
+				}
 
+			  // DiTau region
+			  else {
+				// last entry is uncertainty: 0 central, +1 up, -1 down
+				double SF1 = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt() , DM1, 0);
+				double SF2 = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 0);
+			  
+				// for each DM, fill a trigSF branch with the up/down values if taus have
+				// the corresponding DM, otherwise fill with nominal trigSF value
+				vector <double> SF1_up(N_tauhDM, SF1), SF1_down (N_tauhDM, SF1);
+				vector <double> SF2_up(N_tauhDM, SF2), SF2_down (N_tauhDM, SF2);
+
+				for (int idm  = 0; idm < N_tauhDM; idm++)
+				  {
+					if (isthisDM_first[idm])
+					  {
+						SF1_up[idm]   = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt(), DM1, 1);
+						SF1_down[idm] = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt(), DM1, -1);
+					  }
+					if (isthisDM_second[idm])
+					  {
+						SF2_up[idm]   = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 1);
+						SF2_down[idm] = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, -1);
+					  }
+				  }
+				
+				trigSF				= SF1         * SF2;
+				trigSF_DM0_up		= SF1_up[0]   *	SF2_up[0];
+				trigSF_DM1_up		= SF1_up[1]   *	SF2_up[1];
+				trigSF_DM10_up		= SF1_up[2]   *	SF2_up[2];
+				trigSF_DM11_up		= SF1_up[3]   *	SF2_up[3];
+				trigSF_DM0_down		= SF1_down[0] *	SF2_down[0];
+				trigSF_DM1_down		= SF1_down[1] *	SF2_down[1];
+				trigSF_DM10_down	= SF1_down[2] *	SF2_down[2];
+				trigSF_DM11_down	= SF1_down[3] *	SF2_down[3];
+				trigSF_vbfjet_up	= SF1         * SF2;
+				trigSF_vbfjet_down	= SF1         * SF2;
+			  }
+			}
+		  
 		  // MuMu Channel
 		  else if (pType == 3 && isMC)
 			{
@@ -3387,6 +3415,10 @@ int main (int argc, char** argv)
 	  theSmallTree.m_trigSF_vbfjet_down = (isMC ? trigSF_vbfjet_down : 1.0);
 	  theSmallTree.m_trigSF_single		= (isMC ? trigSF_single : 1.0);
 	  theSmallTree.m_trigSF_cross		= (isMC ? trigSF_cross : 1.0);
+	  theSmallTree.m_trigSF_met_up		= (isMC ? trigSF_met_up : 1.0);
+	  theSmallTree.m_trigSF_met_down	= (isMC ? trigSF_met_down : 1.0);
+	  theSmallTree.m_trigSF_stau_up		= (isMC ? trigSF_stau_up : 1.0);
+	  theSmallTree.m_trigSF_stau_down	= (isMC ? trigSF_stau_down : 1.0);
 
 	  theSmallTree.m_totalWeight = (isMC? (59970./7.20811e+10) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight *
 									trigSF * theSmallTree.m_IdFakeSF_deep_2d: 1.0);
@@ -3736,9 +3768,8 @@ int main (int argc, char** argv)
 			  if(DEBUG) cout << "---> Evt rejected because (isVBFfired && !isVBF) (VBF trig fired but no good VBF jet candidates available)" << endl;
 			  continue;
 			}
-
 		  // Check that the the VBFjet-pair candidate is trigger matched
-		  if (isVBFfired && isVBF)
+		  else if (isVBFfired && isVBF)
 			{
 			  bool VBFjetLegsMatched = checkVBFjetMatch(DEBUG, VBFidx1, VBFidx2, theBigTree);
 			  if (!VBFjetLegsMatched)
@@ -4833,14 +4864,16 @@ int main (int argc, char** argv)
 
 			  // Logic of VBF trigger SF:
 			  // 1. - if the event is in the diTau trigger phase space (taupt_1 > 40 && tau_pt_2 > 40): use the diTau trigger SF
-			  // 2. - else if the event is in the VBF trigger phase space (mjj > 800 && pt_j1 > 140 && pt_j2 > 60 && taupt_1 > 25 && taupt_2 > 25): use VBF trigger SF
-			  // 3. - else: SF = 0
-			  // In our framework case 1. is the default: in the VBF trigger phase space (case 2.) the branch m_trigSF is overwritten
+			  // 2. - else if the event is in the MET or SingleTau phase-space
+			  // 3. - if it does not fire any of the above, the event might be in the VBF trigger phase space, if it fires the trigger and if
+			  //      (mjj > 800 && pt_j1 > 140 && pt_j2 > 60 && taupt_1 > 25 && taupt_2 > 25)
+			  // 4. - else: SF = 0
+			  // In our framework case 1. is the default: in the VBF trigger phase space (case 3.) the branch m_trigSF is overwritten
 			  // with the VBF_SF, because "trigSF" is the actual weight used later in the analysis
-			  if (wpyear !="2016" and isMC && pairType == 2 && theSmallTree.m_VBFjj_mass > 800 && theSmallTree.m_VBFjet1_pt > 140 && theSmallTree.m_VBFjet2_pt > 60 &&
-				  theSmallTree.m_dau1_pt > 25 && theSmallTree.m_dau2_pt > 25 && (theSmallTree.m_dau1_pt <= 40 || theSmallTree.m_dau2_pt <= 40) )
+			  if (wpyear != "2016" and isMC and pairType == 2 and isTauDataset and !passTrg and !passMETTrg and !passSingleTau and
+				  theSmallTree.m_VBFjj_mass > 800 and theSmallTree.m_VBFjet1_pt > 140 and theSmallTree.m_VBFjet2_pt > 60 and
+				  theSmallTree.m_dau1_pt > 25 and theSmallTree.m_dau2_pt > 25 and (theSmallTree.m_dau1_pt <= 40 || theSmallTree.m_dau2_pt <= 40))
 				{
-				  // Jet legs SF
 				  double jetSF    = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt(), 0); // 0: central value
 				  double jetSFerr = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt(), 1); // 1: error of value
 
@@ -4850,8 +4883,8 @@ int main (int argc, char** argv)
 
 				  // for each DM, fill a trigSF branch with the up/down values if tauhs have the corresponding DM, otherwise fill with nominal trigSF value
 				  vector <double> SFTau1_up (N_tauhDM, SFTau1);
-				  vector <double> SFTau2_up (N_tauhDM, SFTau2);
 				  vector <double> SFTau1_down (N_tauhDM, SFTau1);
+				  vector <double> SFTau2_up (N_tauhDM, SFTau2);
 				  vector <double> SFTau2_down (N_tauhDM, SFTau2);
 				  for (int idm  = 0; idm < N_tauhDM; idm ++)
 					{
@@ -4877,7 +4910,7 @@ int main (int argc, char** argv)
 
 				  // Save final VBF trig SF
 				  theSmallTree.m_VBFtrigSF          = jetSF * SFTau1 * SFTau2; // store anyway the value
-				  theSmallTree.m_trigSF             = jetSF * SFTau1 * SFTau2;               // overwrite the trigSF values for VBF events
+				  theSmallTree.m_trigSF             = jetSF * SFTau1 * SFTau2; // overwrite the trigSF values for VBF events
 				  theSmallTree.m_trigSF_vbfjet_up   = (jetSF + jetSFerr) * SFTau1 * SFTau2;
 				  theSmallTree.m_trigSF_vbfjet_down = (jetSF - jetSFerr) * SFTau1 * SFTau2;
 				  theSmallTree.m_trigSF_DM0_up      = jetSF * trigSF_DM0_up;
@@ -4889,7 +4922,6 @@ int main (int argc, char** argv)
 				  theSmallTree.m_trigSF_DM10_down   = jetSF * trigSF_DM10_down;
 				  theSmallTree.m_trigSF_DM11_down   = jetSF * trigSF_DM11_down;
 				}
-
 			}
 
 		  // loop over jets
@@ -5523,7 +5555,7 @@ int main (int argc, char** argv)
 	  for (string var : allVars)
 		allVarsMap[var] = 0.0;
 
-	  TFile *outFile = TFile::Open(outputFile,"UPDATE");
+	  TFile *outFile = TFile::Open(outputFile.c_str(), "UPDATE");
 	  TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 
 	  TMVA::Reader * reader = new TMVA::Reader () ;
@@ -5658,7 +5690,7 @@ int main (int argc, char** argv)
 	  };
 
 	  // read the input tree
-	  TFile* outFile = TFile::Open(outputFile, "UPDATE");
+	  TFile* outFile = TFile::Open(outputFile.c_str(), "UPDATE");
 	  TTree* outTree = (TTree*)outFile->Get("HTauTauTree");
 
 	  // create the multiclass inferface and run it
@@ -5825,7 +5857,7 @@ int main (int argc, char** argv)
 		allVarsMap[var] = 0.0;
 
 	  // Open tree to be updated
-	  TFile *outFile = TFile::Open(outputFile,"UPDATE");
+	  TFile *outFile = TFile::Open(outputFile.c_str(), "UPDATE");
 	  TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 	  int nentries = treenew->GetEntries();
 
@@ -6096,7 +6128,7 @@ int main (int argc, char** argv)
 	  InfWrapper wrapper(model_dir, 1, false);
 
 	  // Open file to read values and compute predictions
-	  TFile* in_file = TFile::Open(outputFile);
+	  TFile* in_file = TFile::Open(outputFile.c_str());
 
 	  // Store prediction in vector of vectors of floats:
 	  // [kl=1 : [evt1_pred, evt2_pred, evt3_pred ...], kl=2 : [evt1_opred, evt2_pred, evt3_pred...]]
@@ -6340,7 +6372,7 @@ int main (int argc, char** argv)
 		} // end loop on entries with TTreeReader
 
 	  // Open file and get TTree that must be updated
-	  TFile *outFile = TFile::Open(outputFile,"UPDATE");
+	  TFile *outFile = TFile::Open(outputFile.c_str(), "UPDATE");
 	  TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 
 	  // Declare one new branch for each value of klambda
