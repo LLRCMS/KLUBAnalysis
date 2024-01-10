@@ -483,8 +483,7 @@ if __name__ == "__main__" :
                         help='legend min y position in pad fraction')
     parser.add_argument('--ymin', type=float, help='min y range of plots', default=None)
     parser.add_argument('--ymax', type=float, help='max y range of plots', default=None)
-    parser.add_argument('--sigscale', type=int, default=1,
-                        help='scale to apply to all signals [pb]')
+    parser.add_argument('--sigscale', type=int, default=1, help='scale to apply to all signals [pb]')
     parser.add_argument('--signals', nargs='+', help='resonant signals to overlay', 
                         default=['ggFRadion280', 'ggFRadion400', 'ggFRadion550', 'ggFRadion800', 'ggFRadion1500'])
     parser.add_argument('--lumi', type=float, help='lumi in fb-1', default=None)
@@ -892,18 +891,20 @@ if __name__ == "__main__" :
             chBox.SetTextColor(ROOT.kBlack)
             chBox.SetTextAlign(13)
 
-    sigxsecName = '#sigma_{{ggF - S#rightarrowHH}} #it{{B}}_{{HH#rightarrowbb#tau#tau}} = {}pb'.format(args.sigscale)
-    sigxsecBox = ROOT.TLatex(l+0.04 , 1-t-0.02-0.1, sigxsecName)
-    sigxsecBox.SetNDC()
-    sigxsecBox.SetTextSize(cmsTextSize+20)
-    sigxsecBox.SetTextFont(43)
-    sigxsecBox.SetTextColor(ROOT.kBlack)
-    sigxsecBox.SetTextAlign(13)
+    if not args.nosig:
+        sigxsecName = '#sigma_{{ggF - S#rightarrowHH}} #it{{B}}_{{HH#rightarrowbb#tau#tau}} = {}pb'.format(args.sigscale)
+        sigxsecBox = ROOT.TLatex(l+0.04 , 1-t-0.02-0.1, sigxsecName)
+        sigxsecBox.SetNDC()
+        sigxsecBox.SetTextSize(cmsTextSize+20)
+        sigxsecBox.SetTextFont(43)
+        sigxsecBox.SetTextColor(ROOT.kBlack)
+        sigxsecBox.SetTextAlign(13)
             
     CMSbox.Draw()
     extraTextBox.Draw()
     lumibox.Draw()
-    sigxsecBox.Draw()
+    if not args.nosig:
+        sigxsecBox.Draw()
     
     if args.legend:
         if not args.nosig or not args.nodata:
