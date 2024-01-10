@@ -86,7 +86,7 @@ const double bTopRW = -0.0005;
 const std::array<float, 2> stitchWeights = {1./2., 1./3.};
 
 
-scale factors for ParticleNet pag 76 http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&files=AN2021_005_v10.pdf
+//scale factors for ParticleNet pag 76 http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&files=AN2021_005_v10.pdf
 std::map<std::string, std::vector<float>> ParticleNet_SF(float pT_, string period_) 
 { 
   std::map<std::string, std::vector<float>> scaleFactors;
