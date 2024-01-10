@@ -751,8 +751,13 @@ if __name__ == "__main__" :
     legBkg.SetBorderSize(0)
     legBkg.SetTextFont(legfont)
     legBkg.SetTextSize(legsize)
-    if not args.nosig or not args.nodata:
+
+    if not args.nosig:
         legSig = ROOT.TLegend(0.55, legmin, 0.73, 0.91)
+    elif args.nosig and not args.nodata:
+        legSig = ROOT.TLegend(0.55, 0.8, 0.73, 0.91)
+
+    if not args.nosig or not args.nodata:
         legSig.SetFillStyle(0)
         legSig.SetBorderSize(0)
         legSig.SetTextFont(legfont)
