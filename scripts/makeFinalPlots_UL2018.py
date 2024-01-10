@@ -451,7 +451,7 @@ if __name__ == "__main__" :
     parser.add_argument('--reg', help='region name', default=None)
     parser.add_argument('--title', help='plot title', default=None)
     parser.add_argument('--label', help='x label', default=None)
-    parser.add_argument('--channel', choices=('ETau', 'MuTau', 'TauTau'),
+    parser.add_argument('--channel', choices=('ETau', 'MuTau', 'TauTau', 'MuMu'),
                         help='channel', required=True)
     parser.add_argument('--logy', help='use Y log scale',  action='store_true', default=False)
     parser.add_argument('--logx', help='use X log scale',  action='store_true', default=False)
@@ -777,7 +777,7 @@ if __name__ == "__main__" :
         legSig.AddEntry(gData, 'Data', 'pe')
 
     ################## Y RANGE SETTINGS ############################
-    ymin = 0.1 if args.logy else 0.
+    ymin = 1. if args.logy else 0.
     maxs = []
     maxs.append(bkgStack.GetStack().Last().GetMaximum())
 
@@ -806,6 +806,7 @@ if __name__ == "__main__" :
 
     bkgStack.SetMinimum(ymin)
     bkgStack.SetMaximum(ymax)
+    bkgStack.GetXaxis().SetRangeUser(0., 3300.);
 
     # interactive display
     bkgStack.Draw('HIST')
@@ -887,6 +888,8 @@ if __name__ == "__main__" :
             chName = 'bb e#tau_{h}'
         elif args.channel == 'TauTau':
             chName = 'bb #tau_{h}#tau_{h}'
+        elif args.channel == 'MuMu':
+            chName = 'bb #mu#mu'
 
         if chName:
             chBox = ROOT.TLatex(l + 0.04 , 1 - t - 0.01 - 0.04, chName)
@@ -897,7 +900,7 @@ if __name__ == "__main__" :
             chBox.SetTextAlign(13)
 
     if not args.nosig:
-        sigxsecName = '#sigma_{{ggF - S#rightarrowHH}} #it{{B}}_{{HH#rightarrowbb#tau#tau}} = {}pb'.format(args.sigscale)
+        sigxsecName = '#sigma^{{ggF}}_{{X#rightarrowHH}} #it{{B}}_{{HH#rightarrowbb#tau#tau}} = {}pb'.format(args.sigscale)
         sigxsecBox = ROOT.TLatex(l+0.04 , 1-t-0.02-0.1, sigxsecName)
         sigxsecBox.SetNDC()
         sigxsecBox.SetTextSize(cmsTextSize+20)
