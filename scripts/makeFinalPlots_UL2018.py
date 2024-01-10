@@ -900,7 +900,7 @@ if __name__ == "__main__" :
             chBox.SetTextAlign(13)
 
     if not args.nosig:
-        sigxsecName = '#sigma_{{ggF - S#rightarrowHH}} #it{{B}}_{{HH#rightarrowbb#tau#tau}} = {}pb'.format(args.sigscale)
+        sigxsecName = '#sigma^{{ggF}}_{{X#rightarrowHH}} #it{{B}}_{{HH#rightarrowbb#tau#tau}} = {}pb'.format(args.sigscale)
         sigxsecBox = ROOT.TLatex(l+0.04 , 1-t-0.02-0.1, sigxsecName)
         sigxsecBox.SetNDC()
         sigxsecBox.SetTextSize(cmsTextSize+20)
