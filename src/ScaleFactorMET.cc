@@ -142,8 +142,9 @@ double ScaleFactorMET::mErrorRatio(double x, std::string period, std::string chn
   double eratio2 = en2/(n*n) + ed2/(d*d);
 
   /* add quadratically the 5% "channel transfer" error
-	 this accounts for using mumu to estimate etau, mutau or tautau MET SFs */
-  eratio2 += (n/d) * (n/d) * 0.05 * 0.05;
+	 this accounts for using mumu to estimate etau, mutau or tautau MET SFs
+	 currently judged not necessary since channels are compatible within available stats */
+  // eratio2 += (n/d) * (n/d) * 0.05 * 0.05; // 
   
   return (n/d) * sqrt(eratio2);
 }
