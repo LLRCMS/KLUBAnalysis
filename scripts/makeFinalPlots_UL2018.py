@@ -451,7 +451,7 @@ if __name__ == "__main__" :
     parser.add_argument('--reg', help='region name', default=None)
     parser.add_argument('--title', help='plot title', default=None)
     parser.add_argument('--label', help='x label', default=None)
-    parser.add_argument('--channel', choices=('ETau', 'MuTau', 'TauTau'),
+    parser.add_argument('--channel', choices=('ETau', 'MuTau', 'TauTau', 'MuMu'),
                         help='channel', required=True)
     parser.add_argument('--logy', help='use Y log scale',  action='store_true', default=False)
     parser.add_argument('--logx', help='use X log scale',  action='store_true', default=False)
@@ -483,8 +483,7 @@ if __name__ == "__main__" :
                         help='legend min y position in pad fraction')
     parser.add_argument('--ymin', type=float, help='min y range of plots', default=None)
     parser.add_argument('--ymax', type=float, help='max y range of plots', default=None)
-    parser.add_argument('--sigscale', type=int, default=1,
-                        help='scale to apply to all signals [pb]')
+    parser.add_argument('--sigscale', type=int, default=1, help='scale to apply to all signals [pb]')
     parser.add_argument('--signals', nargs='+', help='resonant signals to overlay', 
                         default=['ggFRadion280', 'ggFRadion400', 'ggFRadion550', 'ggFRadion800', 'ggFRadion1500'])
     parser.add_argument('--lumi', type=float, help='lumi in fb-1', default=None)
@@ -752,8 +751,13 @@ if __name__ == "__main__" :
     legBkg.SetBorderSize(0)
     legBkg.SetTextFont(legfont)
     legBkg.SetTextSize(legsize)
-    if not args.nosig or not args.nodata:
+
+    if not args.nosig:
         legSig = ROOT.TLegend(0.55, legmin, 0.73, 0.91)
+    elif args.nosig and not args.nodata:
+        legSig = ROOT.TLegend(0.55, 0.8, 0.73, 0.91)
+
+    if not args.nosig or not args.nodata:
         legSig.SetFillStyle(0)
         legSig.SetBorderSize(0)
         legSig.SetTextFont(legfont)
@@ -773,7 +777,7 @@ if __name__ == "__main__" :
         legSig.AddEntry(gData, 'Data', 'pe')
 
     ################## Y RANGE SETTINGS ############################
-    ymin = 0.1 if args.logy else 0.
+    ymin = 1. if args.logy else 0.
     maxs = []
     maxs.append(bkgStack.GetStack().Last().GetMaximum())
 
@@ -802,6 +806,7 @@ if __name__ == "__main__" :
 
     bkgStack.SetMinimum(ymin)
     bkgStack.SetMaximum(ymax)
+    bkgStack.GetXaxis().SetRangeUser(0., 3300.);
 
     # interactive display
     bkgStack.Draw('HIST')
@@ -883,6 +888,8 @@ if __name__ == "__main__" :
             chName = 'bb e#tau_{h}'
         elif args.channel == 'TauTau':
             chName = 'bb #tau_{h}#tau_{h}'
+        elif args.channel == 'MuMu':
+            chName = 'bb #mu#mu'
 
         if chName:
             chBox = ROOT.TLatex(l + 0.04 , 1 - t - 0.01 - 0.04, chName)
@@ -892,18 +899,20 @@ if __name__ == "__main__" :
             chBox.SetTextColor(ROOT.kBlack)
             chBox.SetTextAlign(13)
 
-    sigxsecName = '#sigma_{{ggF - S#rightarrowHH}} #it{{B}}_{{HH#rightarrowbb#tau#tau}} = {}pb'.format(args.sigscale)
-    sigxsecBox = ROOT.TLatex(l+0.04 , 1-t-0.02-0.1, sigxsecName)
-    sigxsecBox.SetNDC()
-    sigxsecBox.SetTextSize(cmsTextSize+20)
-    sigxsecBox.SetTextFont(43)
-    sigxsecBox.SetTextColor(ROOT.kBlack)
-    sigxsecBox.SetTextAlign(13)
+    if not args.nosig:
+        sigxsecName = '#sigma^{{ggF}}_{{X#rightarrowHH}} #it{{B}}_{{HH#rightarrowbb#tau#tau}} = {}pb'.format(args.sigscale)
+        sigxsecBox = ROOT.TLatex(l+0.04 , 1-t-0.02-0.1, sigxsecName)
+        sigxsecBox.SetNDC()
+        sigxsecBox.SetTextSize(cmsTextSize+20)
+        sigxsecBox.SetTextFont(43)
+        sigxsecBox.SetTextColor(ROOT.kBlack)
+        sigxsecBox.SetTextAlign(13)
             
     CMSbox.Draw()
     extraTextBox.Draw()
     lumibox.Draw()
-    sigxsecBox.Draw()
+    if not args.nosig:
+        sigxsecBox.Draw()
     
     if args.legend:
         if not args.nosig or not args.nodata:

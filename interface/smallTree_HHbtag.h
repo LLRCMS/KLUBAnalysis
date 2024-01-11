@@ -111,6 +111,10 @@ struct smallTree
       m_trigSF_DM11_down = -1.;
       m_trigSF_single = -1.;
       m_trigSF_cross = -1.;
+	  m_trigSF_met_up = -1.;
+	  m_trigSF_met_down = -1.;
+	  m_trigSF_stau_up = -1.;
+	  m_trigSF_stau_down = -1.;
       m_VBFtrigSF = 1.;
       m_trigSF_vbfjet_up = 1.;
       m_trigSF_vbfjet_down = 1.;
@@ -172,6 +176,7 @@ struct smallTree
 
       m_isLeptrigger = 0;
       m_isMETtrigger = 0;
+	  m_isMETtriggerNoThresh = 0;
       m_isSingleTautrigger = 0;
 
       m_genDecMode1 = -1;
@@ -1158,6 +1163,11 @@ struct smallTree
       m_smallT->Branch ("trigSF_DM11_down", &m_trigSF_DM11_down, "trigSF_DM11_down/F") ;
       m_smallT->Branch ("trigSF_single", &m_trigSF_single, "trigSF_single/F") ;
       m_smallT->Branch ("trigSF_cross", &m_trigSF_cross, "trigSF_cross/F") ;
+	  m_smallT->Branch ("trigSF_met_up", &m_trigSF_met_up, "trigSF_met_up/F") ;
+	  m_smallT->Branch ("trigSF_met_down", &m_trigSF_met_down, "trigSF_met_down/F") ;
+	  m_smallT->Branch ("trigSF_stau_up", &m_trigSF_stau_up, "trigSF_stau_up/F") ;
+	  m_smallT->Branch ("trigSF_stau_down", &m_trigSF_stau_down, "trigSF_stau_down/F") ;
+
       m_smallT->Branch ("VBFtrigSF", &m_VBFtrigSF, "VBFtrigSF/F") ;
       m_smallT->Branch ("trigSF_vbfjet_up", &m_trigSF_vbfjet_up, "trigSF_vbfjet_up/F") ;
       m_smallT->Branch ("trigSF_vbfjet_down", &m_trigSF_vbfjet_down, "trigSF_vbfjet_down/F") ;
@@ -1237,8 +1247,8 @@ struct smallTree
 
       m_smallT->Branch ("isLeptrigger", &m_isLeptrigger, "isLeptrigger/I") ;
       m_smallT->Branch ("isMETtrigger", &m_isMETtrigger, "isMETtrigger/I") ;
+	  m_smallT->Branch ("isMETtriggerNoThresh", &m_isMETtriggerNoThresh, "isMETtriggerNoThresh/I") ;
       m_smallT->Branch ("isSingleTautrigger", &m_isSingleTautrigger, "isSingleTautrigger/I") ;
-
 
       m_smallT->Branch("genDecMode1", &m_genDecMode1, "genDecMode1/I");
       m_smallT->Branch("genDecMode2", &m_genDecMode2, "genDecMode2/I");
@@ -2224,6 +2234,10 @@ struct smallTree
   Float_t m_trigSF_DM10_down ;
   Float_t m_trigSF_DM11_down ;
   Float_t m_trigSF_cross ;
+  Float_t m_trigSF_met_up ;
+  Float_t m_trigSF_met_down ;
+  Float_t m_trigSF_stau_up ;
+  Float_t m_trigSF_stau_down ;
   Float_t m_trigSF_single ;
   Float_t m_VBFtrigSF;
   Float_t m_trigSF_vbfjet_up;
@@ -2287,6 +2301,7 @@ struct smallTree
 
   Int_t m_isLeptrigger;
   Int_t m_isMETtrigger;
+  Int_t m_isMETtriggerNoThresh;
   Int_t m_isSingleTautrigger;
 
   Int_t m_genDecMode1 ;
