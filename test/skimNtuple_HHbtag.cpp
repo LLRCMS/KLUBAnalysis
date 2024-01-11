@@ -5289,7 +5289,8 @@ int main (int argc, char** argv)
 		            
 		      if (fatjets_bTag.size() != 0)
 			{
-			  if (fatjets_bTag.size() > 1) cout << " N selected fatjets : " << fatjets_bTag.size() << endl;
+			  if (fatjets_bTag.size() > 1 && DEBUG) 
+			    cout << " N selected fatjets : " << fatjets_bTag.size() << endl;
 			  theSmallTree.m_isBoosted = 1;
 			  sort (fatjets_pT.begin(), fatjets_pT.end());
 			  sort (fatjets_bTag.begin(), fatjets_bTag.end());
