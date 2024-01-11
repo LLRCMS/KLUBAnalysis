@@ -77,34 +77,36 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
   return;
 }
 
-void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool isTrg){
+void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool isTriggerSF){
 
   TFile * fileIn = new TFile(inputRootFile, "read");
   // if root file not found
   if (fileIn->IsZombie() ) {
     std::cout
-      << "ERROR in ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool isTrg) from LepEffInterface/src/ScaleFactor.cc : File "
+      << "ERROR in ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool isTriggerSF) from LepEffInterface/src/ScaleFactor.cc : File "
       << inputRootFile
       << " does not exist. Please check. "
       <<std::endl;
     exit(1);
   }
 
-  TString hsfname = isTrg ? "SF2D":"EGamma_SF2D";
+  TString hsfname = isTriggerSF ? "SF2D":"EGamma_SF2D";
   TH2F *hSF = (TH2F*)fileIn->Get(hsfname);
-  TH2F *heffdat = (TH2F*)fileIn->Get(isTrg?"eff_data":"EGamma_SF2D");
-  TH2F *heffmc = (TH2F*)fileIn->Get(isTrg?"eff_mc":"EGamma_SF2D");
+  TH2F *heffdat = (TH2F*)fileIn->Get(isTriggerSF?"eff_data":"EGamma_SF2D");
+  TH2F *heffmc = (TH2F*)fileIn->Get(isTriggerSF?"eff_mc":"EGamma_SF2D");
 
   // retrieve eta binning (ugly, but should work fine)
-  const int nbin_eta = isTrg? hSF->GetNbinsY():hSF->GetNbinsX();
+  // Trigger SF/eff axes are swapped wrt ID/ISO 
+  const int nbin_eta = isTriggerSF? hSF->GetNbinsY():hSF->GetNbinsX();
   TString eta_bins[nbin_eta] = {""};
-  TString firstbinlabel = Form("EtaLt%.1f",isTrg?heffdat->GetYaxis()->GetBinLowEdge(2):hSF->GetXaxis()->GetBinLowEdge(2));
-  TString lastbinlabel  = Form("EtaGt%.1f",isTrg?heffdat->GetYaxis()->GetBinLowEdge(nbin_eta):hSF->GetXaxis()->GetBinLowEdge(nbin_eta));
+  // For edges, get upper edge of the first bin / lower edge of the last bin
+  TString firstbinlabel = Form("EtaLt%.1f",isTriggerSF?heffdat->GetYaxis()->GetBinLowEdge(2):hSF->GetXaxis()->GetBinLowEdge(2));
+  TString lastbinlabel  = Form("EtaGt%.1f",isTriggerSF?heffdat->GetYaxis()->GetBinLowEdge(nbin_eta):hSF->GetXaxis()->GetBinLowEdge(nbin_eta));
   firstbinlabel.ReplaceAll(".","p");
   lastbinlabel.ReplaceAll(".","p");
 
   //create etabinning Histo
-  etaBinsH = new TH1D("etaBinsH","",nbin_eta, isTrg?heffdat->GetYaxis()->GetXbins()->GetArray():hSF->GetXaxis()->GetXbins()->GetArray());
+  etaBinsH = new TH1D("etaBinsH","",nbin_eta, isTriggerSF?heffdat->GetYaxis()->GetXbins()->GetArray():hSF->GetXaxis()->GetXbins()->GetArray());
 
   TString TetaLabel;
   TString GraphName;
@@ -117,8 +119,8 @@ void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool isTrg){
     }
     else {
       TetaLabel = Form("Eta%.1fto%.1f",
-		       isTrg?heffdat->GetYaxis()->GetBinLowEdge(iBin+2):hSF->GetXaxis()->GetBinLowEdge(iBin+2),
-		       isTrg?heffdat->GetYaxis()->GetBinLowEdge(iBin+3):hSF->GetXaxis()->GetBinLowEdge(iBin+3));
+		       isTriggerSF?heffdat->GetYaxis()->GetBinLowEdge(iBin+2):hSF->GetXaxis()->GetBinLowEdge(iBin+2),
+		       isTriggerSF?heffdat->GetYaxis()->GetBinLowEdge(iBin+3):hSF->GetXaxis()->GetBinLowEdge(iBin+3));
       TetaLabel.ReplaceAll(".","p");
     }
     etaBinsH->GetXaxis()->SetBinLabel(iBin+1,TetaLabel);
@@ -129,7 +131,7 @@ void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool isTrg){
 
     TH1F *hslice_data;
     TH1F *hslice_mc;
-    if (!isTrg) {
+    if (!isTriggerSF) {
       hslice_data = (TH1F*)hSF->ProjectionY("slicedata",iBin+1,iBin+1);
       hslice_mc = (TH1F*)hSF->ProjectionY("slicedata",iBin+1,iBin+1);
     } else {
@@ -159,7 +161,7 @@ void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool isTrg){
       data_pt_errhigh[iptbin]  = hslice_data->GetXaxis()->GetBinLowEdge(iptbin+2);
       data_eff_errlow[iptbin]  = hslice_data->GetBinContent(iptbin+1) - hslice_data->GetBinError(iptbin+1);
       data_eff_errhigh[iptbin] = hslice_data->GetBinContent(iptbin+1) + hslice_data->GetBinError(iptbin+1);
-      if(isTrg) {
+      if(isTriggerSF) {
 	mc_pt_nom[iptbin]      = hslice_mc->GetXaxis()->GetBinCenter(iptbin+1);
 	mc_eff_nom[iptbin]     = hslice_mc->GetBinContent(iptbin+1);
 	mc_pt_errlow[iptbin]   = hslice_mc->GetXaxis()->GetBinLowEdge(iptbin+1);
@@ -172,7 +174,7 @@ void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool isTrg){
 
     eff_data[etaLabel] = new TGraphAsymmErrors(nbin_pt,data_pt_nom, data_eff_nom, data_pt_errlow, data_pt_errhigh, data_eff_errlow, data_eff_errhigh);
     SetAxisBins(eff_data[etaLabel]);
-    if(isTrg){
+    if(isTriggerSF){
       eff_mc[etaLabel] = new TGraphAsymmErrors(nbin_pt,data_pt_nom, data_eff_nom, data_pt_errlow, data_pt_errhigh, data_eff_errlow, data_eff_errhigh);
       SetAxisBins(eff_mc[etaLabel]);
     }
