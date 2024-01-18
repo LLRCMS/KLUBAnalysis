@@ -16,10 +16,10 @@
 #include <vector>
 
 class bigTree {
-public :
+ public :
   TChain          * fChain ;   //!pointer to the analyzed TTree or TChain
 
-// Fixed size dimensions of array or collections stored in the TTree if any.
+  // Fixed size dimensions of array or collections stored in the TTree if any.
 
   // Declaration of leaf types
   ULong64_t       EventNumber;
@@ -278,6 +278,11 @@ public :
   std::vector<float>   *ak8jets_deepBoostedJetTags_probHbb;
   std::vector<float>   *ak8jets_particleNetJetTags_probHbb;
   std::vector<float>   *ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD;
+  std::vector<float>   *ak8jets_particleNetMDJetTags_probXbb;
+  std::vector<float>   *ak8jets_particleNetMDJetTags_probXcc;
+  std::vector<float>   *ak8jets_particleNetMDJetTags_probXqq;
+  std::vector<float>   *ak8jets_particleNetMDJetTags_probQCD;
+  std::vector<float>   *ak8jets_particleNetMDJetTags_mass;  
   std::vector<int>     *ak8jets_nsubjets;
   std::vector<float>   *subjets_px;
   std::vector<float>   *subjets_py;
@@ -550,6 +555,11 @@ public :
   TBranch        *b_ak8jets_deepBoostedJetTags_probHbb;
   TBranch        *b_ak8jets_particleNetJetTags_probHbb;
   TBranch        *b_ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD;
+  TBranch        *b_ak8jets_particleNetMDJetTags_probXbb;
+  TBranch        *b_ak8jets_particleNetMDJetTags_probXcc;
+  TBranch        *b_ak8jets_particleNetMDJetTags_probXqq;
+  TBranch        *b_ak8jets_particleNetMDJetTags_probQCD;
+  TBranch        *b_ak8jets_particleNetMDJetTags_mass; 
   TBranch        *b_ak8jets_nsubjets;
   TBranch        *b_subjets_px;
   TBranch        *b_subjets_py;
@@ -566,7 +576,7 @@ public :
 
   bigTree (TChain * inputChain) : fChain (inputChain) { Init(fChain);}
   virtual ~bigTree() { }
-//   virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0) { return fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0; }
+  //   virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0) { return fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0; }
   virtual Int_t   GetEntry(Long64_t entry) { return fChain->GetEntry(entry) ; }
 
   void Init(TChain *tree)
@@ -699,7 +709,7 @@ public :
     decayMode = 0;
     tauID = 0;
     combreliso = 0;
-	tkRelIso = 0;
+    tkRelIso = 0;
     daughters_depositR03_tracker = 0;
     daughters_depositR03_ecal = 0;
     daughters_depositR03_hcal = 0;
@@ -802,6 +812,11 @@ public :
     ak8jets_deepBoostedJetTags_probHbb = 0;
     ak8jets_particleNetJetTags_probHbb = 0;
     ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD = 0;
+    ak8jets_particleNetMDJetTags_probXbb = 0;
+    ak8jets_particleNetMDJetTags_probXcc = 0;
+    ak8jets_particleNetMDJetTags_probXqq = 0;
+    ak8jets_particleNetMDJetTags_probQCD = 0;
+    ak8jets_particleNetMDJetTags_mass = 0; 
     ak8jets_nsubjets = 0;
     subjets_px = 0;
     subjets_py = 0;
@@ -901,7 +916,7 @@ public :
     fChain->SetBranchAddress("decayMode", &decayMode, &b_decayMode);
     fChain->SetBranchAddress("tauID", &tauID, &b_tauID);
     fChain->SetBranchAddress("combreliso", &combreliso, &b_combreliso);
-	fChain->SetBranchAddress("tkRelIso", &tkRelIso, &b_tkRelIso);
+    fChain->SetBranchAddress("tkRelIso", &tkRelIso, &b_tkRelIso);
     // fChain->SetBranchAddress("daughters_IetaIeta", &daughters_IetaIeta, &b_daughters_IetaIeta);
     // fChain->SetBranchAddress("daughters_deltaPhiSuperClusterTrackAtVtx", &daughters_deltaPhiSuperClusterTrackAtVtx, &b_daughters_deltaPhiSuperClusterTrackAtVtx);
     fChain->SetBranchAddress("daughters_depositR03_tracker", &daughters_depositR03_tracker, &b_daughters_depositR03_tracker);
@@ -1009,6 +1024,11 @@ public :
     fChain->SetBranchAddress("ak8jets_deepBoostedJetTags_probHbb", &ak8jets_deepBoostedJetTags_probHbb, &b_ak8jets_deepBoostedJetTags_probHbb);
     fChain->SetBranchAddress("ak8jets_particleNetJetTags_probHbb", &ak8jets_particleNetJetTags_probHbb, &b_ak8jets_particleNetJetTags_probHbb);
     fChain->SetBranchAddress("ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD", &ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD, &b_ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD);
+    fChain->SetBranchAddress("ak8jets_particleNetMDJetTags_probXbb", &ak8jets_particleNetMDJetTags_probXbb, &b_ak8jets_particleNetMDJetTags_probXbb);
+    fChain->SetBranchAddress("ak8jets_particleNetMDJetTags_probXcc", &ak8jets_particleNetMDJetTags_probXcc, &b_ak8jets_particleNetMDJetTags_probXcc);
+    fChain->SetBranchAddress("ak8jets_particleNetMDJetTags_probXqq", &ak8jets_particleNetMDJetTags_probXqq, &b_ak8jets_particleNetMDJetTags_probXqq);
+    fChain->SetBranchAddress("ak8jets_particleNetMDJetTags_probQCD", &ak8jets_particleNetMDJetTags_probQCD, &b_ak8jets_particleNetMDJetTags_probQCD);
+    fChain->SetBranchAddress("ak8jets_particleNetMDJetTags_mass", &ak8jets_particleNetMDJetTags_mass, &b_ak8jets_particleNetMDJetTags_mass);
     fChain->SetBranchAddress("ak8jets_nsubjets", &ak8jets_nsubjets, &b_ak8jets_nsubjets);
     fChain->SetBranchAddress("subjets_px", &subjets_px, &b_subjets_px);
     fChain->SetBranchAddress("subjets_py", &subjets_py, &b_subjets_py);
@@ -1023,7 +1043,7 @@ public :
     fChain->SetBranchAddress("subjets_ak8MotherIdx", &subjets_ak8MotherIdx, &b_subjets_ak8MotherIdx);
 
     // MC only
-	std::cout << fChain->GetListOfBranches()->FindObject("MC_weight") << std::endl;
+    std::cout << fChain->GetListOfBranches()->FindObject("MC_weight") << std::endl;
     if(fChain->GetListOfBranches()->FindObject("MC_weight"))
     {
       fChain->SetBranchAddress("PUNumInteractions", &PUNumInteractions, &b_PUNumInteractions);
