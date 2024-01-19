@@ -90,7 +90,6 @@ const std::array<float, 2> stitchWeights = {1./2., 1./3.};
 std::map<std::string, std::vector<float>> ParticleNet_SF(float pT_, string period_) 
 { 
   std::map<std::string, std::vector<float>> scaleFactors;
-  bool ispostVFP = !isAPV_;
 
   if(period_=="2016preVFP"){
     if (pT_ < 500) {
