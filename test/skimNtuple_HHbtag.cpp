@@ -2185,7 +2185,7 @@ int main (int argc, char** argv)
 							(tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() > 35.));
 			}
 			else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
-			  MET_region = tlv_firstLepton.Pt() < 25.;
+			  MET_region = tlv_firstLepton.Pt() < 26.;
 			}
 		  }
 		  else if (pairType == 2) { //tautau
