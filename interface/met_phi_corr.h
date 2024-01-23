@@ -178,8 +178,8 @@ std::pair<double, double> met_phi_correction_etphi(
     );
 
     // convert back to et and phi
-    double met_et_correced = sqrt(pxpy_corr.first * pxpy_corr.first + pxpy_corr.second * pxpy_corr.second);
+    double met_pt_correced = sqrt(pxpy_corr.first * pxpy_corr.first + pxpy_corr.second * pxpy_corr.second);
     double met_phi_corrected = atan2(pxpy_corr.second, pxpy_corr.first);
 
-    return std::make_pair(met_et_correced, met_phi_corrected);
+    return std::make_pair(met_pt_correced, met_phi_corrected);
 }
