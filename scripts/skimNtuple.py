@@ -247,7 +247,8 @@ def skim_ntuple(FLAGS, curr_folder):
                                        yes_or_no(FLAGS.DY),
                                        yes_or_no(FLAGS.ttHToNonBB),
                                        yes_or_no(FLAGS.hhNLO),
-                                       FLAGS.year)
+                                       FLAGS.year,
+                                       str(FLAGS.datasetType))
 
         s.write(comment + '\n')
 
@@ -309,6 +310,8 @@ if __name__ == "__main__":
     parser.add_argument('-r', '--resub', action='store_true', help='resubmit failed jobs')
     parser.add_argument('-v', '--verb', default=0, type=int, help='verbose')
     parser.add_argument('-d', '--isdata', default=0, type=int, help='data flag')
+    parser.add_argument('--datasetType', dest='datasetType', default=0, type=int, choices=[0,1,2],
+                        help='Type of dataset being considered, used for avoiding duplicated events. 0: default, 1: MET dataset 2: SingleTau dataset.')
     parser.add_argument('-T', '--tag', default='', help='folder tag name')
     parser.add_argument('-H', '--hadd', default='none', help='hadd the resulting ntuples')
     parser.add_argument('-c', '--config', default='none', help='skim config file')
@@ -345,9 +348,11 @@ if __name__ == "__main__":
     parser.add_argument('--doSyst', default=False, action='store_true', help='compute up/down values of outputs')
 
     FLAGS = parser.parse_args()
-    # print("-----------  Configuration Arguments -----------")
-    # for arg, value in sorted(vars(FLAGS).items()):
-    #     print("%s: %s" % (arg, value))
-    # print("------------------------------------------------") 
+    if not FLAGS.isdata:
+        assert FLAGS.datasetType == 0
+    print("-----------  Configuration Arguments -----------")
+    for arg, value in sorted(vars(FLAGS).items()):
+        print("%s: %s" % (arg, value))
+    print("------------------------------------------------") 
     curr_folder = os.getcwd()
     skim_ntuple(FLAGS, curr_folder)
