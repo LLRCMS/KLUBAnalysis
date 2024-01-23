@@ -167,7 +167,7 @@ std::pair<double, double> met_phi_correction_pxpy(
     return std::make_pair(met_px + met_px_diff, met_py + met_py_diff);
 }
 
-std::pair<double, double> met_phi_correction_etphi(
+std::pair<double, double> met_phi_correction_ptphi(
     double met_et, double met_phi, int npv, int runnb, const std::string& year, bool isMC
 ) {
     // apply the correction
@@ -177,7 +177,7 @@ std::pair<double, double> met_phi_correction_etphi(
         npv, runnb, year, isMC
     );
 
-    // convert back to et and phi
+    // convert back to pt and phi
     double met_pt_correced = sqrt(pxpy_corr.first * pxpy_corr.first + pxpy_corr.second * pxpy_corr.second);
     double met_phi_corrected = atan2(pxpy_corr.second, pxpy_corr.first);
 
