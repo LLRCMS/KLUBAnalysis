@@ -9,7 +9,6 @@
 #include <sstream>
 
 using namespace std;
-
 #define DEBUG false
 
 AnalysisHelper::AnalysisHelper(string cfgname)
@@ -306,9 +305,20 @@ void AnalysisHelper::readVariables()
     }
 
     cout << "@@ Variables : reading variables : ";       
-    for (string var : variables_)
-        cout << " " << var;
+    for (string var : variables_){
+	bool  isCustomVar = mainCfg_->hasOpt(Form("custom_variables::%s", var.c_str()));
+	if (isCustomVar) { 	  
+	  string def = mainCfg_->readStringOpt(Form("custom_variables::%s", var.c_str())) ;
+	  custom_variables_.push_back(make_pair(var, def));
+	  cout << " " << var << " (custom)";
+	}else{
+	  cout << " " << var;
+	}
+    }
     cout << endl;
+    
+
+
 
     cout << "@@ Variables : reading 2D variables : ";       
     for (auto var : variables2D_)
@@ -317,7 +327,6 @@ void AnalysisHelper::readVariables()
 
     return;
 }
-
 
 void AnalysisHelper::prepareSamplesHistos()
 {
@@ -892,7 +901,11 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
     activateBranches(sample);
 
     TChain* tree = sample.getTree();
-    
+    // activate branches for custom variables
+    for (auto it = custom_variables_.begin(); it != custom_variables_.end(); ++it){
+      activateBranchesCustom(it->first, it->second, tree);
+    }
+
     // setup selection group
     shared_ptr<TTreeFormulaGroup> fg = make_shared<TTreeFormulaGroup>(true);
     vector<TTreeFormula*> vTTF;
@@ -1050,6 +1063,10 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
     TObjArray *branchList = tree->GetListOfBranches();
     for (auto it = valuesMap.begin(); it != valuesMap.end(); ++it)
     {
+        // don't try to make SetBranchAddress on user defined variable
+        auto custom = findCustomDef(it->first);
+        if (custom != custom_variables_.end()) continue;
+
         TBranch* br = (TBranch*) branchList->FindObject(it->first.c_str());
         if (!br)
             cerr << endl << "** ERROR: AnalysisHelper::fillHistosSample : sample : " << sample.getName() << " does not have branch " << it->first << ", expect a crash..." << endl;
@@ -1165,7 +1182,14 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
             // loop on all vars to fill
             for (unsigned int ivar = 0; ivar < variables_.size(); ++ivar)
 	      {
-                double varvalue = boost::apply_visitor( get_variant_as_double(), valuesMap[variables_.at(ivar)]);
+		double varvalue;
+		auto custom = findCustomDef(variables_.at(ivar));
+		if (custom != custom_variables_.end()) {
+		  TTreeFormula* custFormula = new TTreeFormula((custom->first).c_str(), (custom->second).c_str(), tree);
+		  varvalue = customValues(custFormula); 
+		}else{ 
+		  varvalue = boost::apply_visitor( get_variant_as_double(), valuesMap[variables_.at(ivar)] );
+		}
                 if (sample.getType() == Sample::kData)
 		  plots.at(isel).at(ivar).at(0)->Fill(varvalue);
                 else
@@ -1312,6 +1336,30 @@ void AnalysisHelper::activateBranches(Sample& sample)
     if (DEBUG) cout << " ..........DEBUG: activated selectionWeights_ext branches" << endl;
 }
 
+// there's for sure an elegant way to incorporate this in the existing activateBranches() function...
+void AnalysisHelper::activateBranchesCustom(const string name, const string expression, TTree *tree)
+{
+  auto formula = new TTreeFormula(name.c_str(), expression.c_str(), tree);
+  for (Int_t i = 0; i < formula->GetNcodes(); i++) {
+    tree->SetBranchStatus(formula->GetLeaf(i)->GetName(), true);
+  }  
+  return;
+}
+
+double AnalysisHelper::customValues(TTreeFormula *formula)
+{
+  double value = formula->EvalInstance();
+  return value;
+}
+
+vector < pair <string, string> >::const_iterator AnalysisHelper::findCustomDef (std::string var){  
+  auto custom = std::find_if(custom_variables_.begin(), custom_variables_.end(), 
+			     [var](const std::pair<std::string, std::string>& cvar){ 
+			       return cvar.first == var;
+			     });
+  return custom;
+}
+
 pair <string, string> AnalysisHelper::unpack2DName (string packedName)
 {
     stringstream packedNameS(packedName);
@@ -1423,6 +1471,7 @@ void AnalysisHelper::dump(int detail)
     cout << "@ sel. cfg        : " << cutCfg_->getCfgName() << endl;
     cout << "@ n. selections   : " << selections_.size() << endl;
     cout << "@ n. variables    : " << variables_.size() << endl;
+    cout << "@    (custom)     : " << custom_variables_.size() << endl;
     cout << "@ n. 2D variables : " << variables2D_.size() << endl;
     cout << "@ n. data samples : " << data_samples_.size() << endl;
     cout << "@ n. sig samples  : " << sig_samples_.size() << endl;
@@ -1433,7 +1482,12 @@ void AnalysisHelper::dump(int detail)
     cout << "@ variable list: " << endl;
     for (uint iv = 0; iv < variables_.size(); ++iv)
     {
-        cout << "  " << iv << " >> " << variables_.at(iv) << endl;
+        auto custom = findCustomDef(variables_.at(iv));
+        if (custom == custom_variables_.end()){
+	  cout << "  " << iv << " >> " << variables_.at(iv) << endl;
+	}else{
+	  cout << "  " << iv << " >> " << variables_.at(iv) << " (custom) : " << custom->second <<endl;
+	}
     }
     cout << endl;
 
