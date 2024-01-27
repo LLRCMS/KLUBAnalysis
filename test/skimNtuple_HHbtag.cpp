@@ -314,6 +314,16 @@ int main (int argc, char** argv)
 	assert (datasetType==0);
   }
 
+  float met_thresh, tau_thresh;
+  if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
+	met_thresh = 160.;
+	tau_thresh = 130.;
+  }
+  else {
+	met_thresh = 180.;
+	tau_thresh = 190.;
+  }
+
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
     kNone    = 0, //no reweighting
@@ -2062,7 +2072,7 @@ int main (int argc, char** argv)
 										tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
 
 		  // check NEW TRIGGERS separately
-		  passMETTrg         = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 180.);
+		  passMETTrg         = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), met_thresh);
 		  passMETTrgNoThresh = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 0.);
 
 		  passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag,
@@ -2189,10 +2199,10 @@ int main (int argc, char** argv)
 			}
 		  }
 		  else if (pairType == 2) { //tautau
-			MET_region       = ((tlv_firstLepton.Pt() < 40	 and tlv_secondLepton.Pt() < 190) or
-								(tlv_firstLepton.Pt() < 190	 and tlv_secondLepton.Pt() < 40 ));
-			SingleTau_region = ((tlv_firstLepton.Pt() < 40	 and tlv_secondLepton.Pt() >= 190) or
-								(tlv_firstLepton.Pt() >= 190 and tlv_secondLepton.Pt() < 40 ));
+			MET_region       = ((tlv_firstLepton.Pt() < 40 and tlv_secondLepton.Pt() < tau_thresh) or
+								(tlv_firstLepton.Pt() < tau_thresh and tlv_secondLepton.Pt() < 40));
+			SingleTau_region = ((tlv_firstLepton.Pt() < 40 and tlv_secondLepton.Pt() >= tau_thresh) or
+								(tlv_firstLepton.Pt() >= tau_thresh and tlv_secondLepton.Pt() < 40));
 		  }
 
 		  bool metAccept = passMETTrgNoThresh and !passTrg and MET_region; //!passTrg should be redundant wrt to the region cut
