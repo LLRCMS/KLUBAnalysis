@@ -37,7 +37,7 @@
 #include "JECKLUBinterface.h"
 #include "SVfitKLUBinterface.h"
 #include "SmearedJetProducer.h"
-
+#include "met_phi_corr.h"
 #include "lester_mt2_bisect.h"
 
 #include "ScaleFactor.h"
@@ -314,6 +314,16 @@ int main (int argc, char** argv)
 	assert (datasetType==0);
   }
 
+  float met_thresh, tau_thresh;
+  if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
+	met_thresh = 160.;
+	tau_thresh = 130.;
+  }
+  else {
+	met_thresh = 180.;
+	tau_thresh = 190.;
+  }
+
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
     kNone    = 0, //no reweighting
@@ -535,7 +545,7 @@ int main (int argc, char** argv)
 
   // ------------------------------
 
-  cout << "** INFO: useDepFlavor? " << useDeepFlavor << endl;
+  cout << "** INFO: useDeepFlavor? " << useDeepFlavor << endl;
 
   string bTag_SFFile;
   string bTag_effFile;
@@ -1700,8 +1710,12 @@ int main (int argc, char** argv)
 											 theBigTree.daughters_e->at (secondDaughterIndex)
 											 );
 
-	  TVector2 vMET(theBigTree.METx->at(chosenTauPair),
-					theBigTree.METy->at(chosenTauPair));
+	  auto met_phi_corr = met_phi_correction_pxpy(
+		theBigTree.METx->at(chosenTauPair),
+		theBigTree.METy->at(chosenTauPair),
+		theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC
+	  );
+	  TVector2 vMET(float(met_phi_corr.first), float(met_phi_corr.second));
 	  TVector2 vMUON(0., 0.);
 	  if (pairType==0) {
 		// single muon in evt, vetoing events with 3rd lepton
@@ -2058,7 +2072,7 @@ int main (int argc, char** argv)
 										tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
 
 		  // check NEW TRIGGERS separately
-		  passMETTrg         = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 180.);
+		  passMETTrg         = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), met_thresh);
 		  passMETTrgNoThresh = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 0.);
 
 		  passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag,
@@ -2185,10 +2199,10 @@ int main (int argc, char** argv)
 			}
 		  }
 		  else if (pairType == 2) { //tautau
-			MET_region       = ((tlv_firstLepton.Pt() < 40	 and tlv_secondLepton.Pt() < 190) or
-								(tlv_firstLepton.Pt() < 190	 and tlv_secondLepton.Pt() < 40 ));
-			SingleTau_region = ((tlv_firstLepton.Pt() < 40	 and tlv_secondLepton.Pt() >= 190) or
-								(tlv_firstLepton.Pt() >= 190 and tlv_secondLepton.Pt() < 40 ));
+			MET_region       = ((tlv_firstLepton.Pt() < 40 and tlv_secondLepton.Pt() < tau_thresh) or
+								(tlv_firstLepton.Pt() < tau_thresh and tlv_secondLepton.Pt() < 40));
+			SingleTau_region = ((tlv_firstLepton.Pt() < 40 and tlv_secondLepton.Pt() >= tau_thresh) or
+								(tlv_firstLepton.Pt() >= tau_thresh and tlv_secondLepton.Pt() < 40));
 		  }
 
 		  bool metAccept = passMETTrgNoThresh and !passTrg and MET_region; //!passTrg should be redundant wrt to the region cut
@@ -2275,8 +2289,13 @@ int main (int argc, char** argv)
 		(3rd lepton veto already looks for soft leptons (>10 GeV))
 	  */
 	
+	  met_phi_corr = met_phi_correction_pxpy(
+	  	theBigTree.METx->at(chosenTauPair),
+	  	theBigTree.METy->at(chosenTauPair),
+	  	theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC
+	  );
 	  TLorentzVector tlv_MET;
-	  tlv_MET.SetPxPyPzE(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair), 0, std::hypot(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair)));
+	  tlv_MET.SetPxPyPzE(met_phi_corr.first, met_phi_corr.second, 0, std::hypot(met_phi_corr.first, met_phi_corr.second));
 
 	  TLorentzVector tlv_DeepMET_ResponseTune;
 	  tlv_DeepMET_ResponseTune.SetPtEtaPhiM(theBigTree.ShiftedDeepMETresponseTune_pt, 0, theBigTree.ShiftedDeepMETresponseTune_phi, 0);
@@ -2314,8 +2333,8 @@ int main (int argc, char** argv)
 	  if (doSmearing)
 		{
 		  // Smear MET
-		  float METx = theBigTree.METx->at(chosenTauPair);
-		  float METy = theBigTree.METy->at(chosenTauPair);
+		  float METx = met_phi_corr.first;
+		  float METy = met_phi_corr.second;
 		  TVector2 metSmeared = getShiftedMET_smear(METx, METy, theBigTree, jets_and_smearFactor);
 		  vMET = metSmeared;
 		  tlv_MET.SetPxPyPzE(metSmeared.Px(), metSmeared.Py(), 0, std::hypot(metSmeared.Px(), metSmeared.Py()));
@@ -4277,8 +4296,13 @@ int main (int argc, char** argv)
 		  if (DEBUG) cout << "  HT = " << theSmallTree.m_BDT_HT20 << endl;
 		  if (DEBUG) cout << "---------------------" << endl;
 
-		  float METx = theBigTree.METx->at (chosenTauPair) ;
-		  float METy = theBigTree.METy->at (chosenTauPair) ;
+		  met_phi_corr = met_phi_correction_pxpy(
+		  	theBigTree.METx->at(chosenTauPair),
+		  	theBigTree.METy->at(chosenTauPair),
+		  	theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC
+		  );
+		  float METx = met_phi_corr.first;
+		  float METy = met_phi_corr.second;
 		  if (doSmearing)
 			{
 			  TVector2 metSmeared = getShiftedMET_smear(METx, METy, theBigTree, jets_and_smearFactor);
