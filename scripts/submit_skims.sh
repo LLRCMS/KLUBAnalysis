@@ -167,15 +167,15 @@ fi
 
 mkdir -p ${SKIM_DIR}
 OUTSKIM_DIR=${SKIM_DIR}/${TAG_DIR}/
-if [ -d ${OUTSKIM_DIR} ] && [[ ${RESUBMIT} -eq 0 ]]; then
-	echo "Directory ${OUTSKIM_DIR} already exists."
-	echo "If you want to resubmit some jobs, add the '--resubmit' flag."
-	echo "If not, you might want to remove the directory with: 'rm -r ${OUTSKIM_DIR}'."
-	echo "Exiting."
-	exit 1
-else
-    mkdir -p ${OUTSKIM_DIR}
-fi
+# if [ -d ${OUTSKIM_DIR} ] && [[ ${RESUBMIT} -eq 0 ]]; then
+# 	echo "Directory ${OUTSKIM_DIR} already exists."
+# 	echo "If you want to resubmit some jobs, add the '--resubmit' flag."
+# 	echo "If not, you might want to remove the directory with: 'rm -r ${OUTSKIM_DIR}'."
+# 	echo "Exiting."
+# 	exit 1
+# else
+mkdir -p ${OUTSKIM_DIR}
+#fi
 ERR_FILE=${OUTSKIM_DIR}"/bad_patterns.o"
 
 if ((STITCHING_OFF)); then # test for True
@@ -266,15 +266,15 @@ DATA_MAP=(
     # ["EGamma__Run2018C"]="-n 400 -q short"
     # ["EGamma__Run2018D"]="-n 400 -q short"
     
-    ["Tau__Run2018A"]="-n 400 -q short --datasetType 2"
-    ["Tau__Run2018B"]="-n 400 -q short --datasetType 2"
-    ["Tau__Run2018C"]="-n 400 -q short --datasetType 2"
-    ["Tau__Run2018D"]="-n 600 -q short --datasetType 2"
+    # ["Tau__Run2018A"]="-n 400 -q short --datasetType 2"
+    # ["Tau__Run2018B"]="-n 400 -q short --datasetType 2"
+    # ["Tau__Run2018C"]="-n 400 -q short --datasetType 2"
+    # ["Tau__Run2018D"]="-n 600 -q short --datasetType 2"
     
-    # ["SingleMuon__Run2018A"]="-n 200 -q long"
+    ["SingleMuon__Run2018A"]="-n 150 -q long"
     # ["SingleMuon__Run2018B"]="-n 400 -q short"
     # ["SingleMuon__Run2018C"]="-n 400 -q short"
-    # ["SingleMuon__Run2018D"]="-n 200 -q long"
+    ["SingleMuon__Run2018D"]="-n 150 -q long"
     
     # ["MET__Run2018A"]="-n 400 -q short --datasetType 1"
     # ["MET__Run2018B"]="-n 400 -q short --datasetType 1"
