@@ -307,7 +307,7 @@ int main (int argc, char** argv)
 
   int datasetType = atoi(argv[33]);
   bool isMETDataset = datasetType == DataType::kMET;
-  bool isTauDataset = datasetType == DataType::kSingleTau;
+  bool isTauDataset = datasetType == DataType::kSingleTau; // currently not used
   cout << "** INFO: isMETDataset  : " << isMETDataset << endl;
   cout << "** INFO: isTauDataset  : " << isTauDataset << endl;
   if (isMC) {
@@ -2178,26 +2178,33 @@ int main (int argc, char** argv)
 		  if (pairType == 0) { //mutau
 			if(PERIOD=="2018") {
 			  MET_region = ((tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < 32.) or
-							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() > 32.));
+							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() < tau_thresh));
+			  SingleTau_region = tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() >= tau_thresh;
 			}
 			else if(PERIOD=="2017") {
 			  MET_region = ((tlv_firstLepton.Pt() < 28. and tlv_secondLepton.Pt() < 32.) or
-							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() > 32.));
+							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() < tau_thresh));
+			  SingleTau_region = tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() >= tau_thresh;
 			}
 			else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
 			  MET_region = ((tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < 25.) or
-							(tlv_firstLepton.Pt() < 20. and tlv_secondLepton.Pt() > 25.));
+							(tlv_firstLepton.Pt() < 20. and tlv_secondLepton.Pt() < tau_thresh));
+			  SingleTau_region = tlv_firstLepton.Pt() < 20. and tlv_secondLepton.Pt() >= tau_thresh;
 			}
 		  }
+
 		  else if (pairType == 1) { //etau
 			if(PERIOD=="2018" or PERIOD=="2017") {
 			  MET_region = ((tlv_firstLepton.Pt() < 33. and tlv_secondLepton.Pt() < 35.) or
-							(tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() > 35.));
+							(tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < tau_thresh));
+			  SingleTau_region = tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() >= tau_thresh;
 			}
 			else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
-			  MET_region = tlv_firstLepton.Pt() < 26.;
+			  MET_region = tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < tau_thresh;
+			  SingleTau_region = tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() >= tau_thresh;
 			}
 		  }
+
 		  else if (pairType == 2) { //tautau
 			MET_region       = ((tlv_firstLepton.Pt() < 40 and tlv_secondLepton.Pt() < tau_thresh) or
 								(tlv_firstLepton.Pt() < tau_thresh and tlv_secondLepton.Pt() < 40));
@@ -2210,7 +2217,7 @@ int main (int argc, char** argv)
 		  if (!isMC) {
 			passTrg = passTrg and !isMETDataset;
 			metAccept = metAccept and isMETDataset;
-			singletauAccept = singletauAccept and isTauDataset;
+			singletauAccept = singletauAccept and !isMETDataset;
 		  }
 		  bool triggerAccept = passTrg or metAccept or singletauAccept;
 	  
@@ -3176,15 +3183,22 @@ int main (int argc, char** argv)
 		  // MuTau Channel
 		  if (pType == 0 and isMC)
 			{
-			  if(MET_region)
+			  if (MET_region)
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "mutau");
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "mutau");
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "mutau");
 				}
 
+			  else if (SingleTau_region)
+				{
+				  trigSF           = singleTauSF[PERIOD].first;
+				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
+				  trigSF_stau_down = trigSF - singleTauSF[PERIOD].second;
+				}
+
 			  // eta region covered both by cross-trigger and single lepton trigger
-			  else if(fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_region) 
+			  else if(fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_region and !SingleTau_region) 
 				{
 				  int passSingle = 1, passCross = 1;
 
@@ -3306,16 +3320,23 @@ int main (int argc, char** argv)
 		  // EleTau Channel
 		  else if (pType == 1 and isMC)
 			{
-			  if(MET_region)
+			  if (MET_region)
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "etau");
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "etau");
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "etau");
 				}
 
+			  else if (SingleTau_region)
+				{
+				  trigSF           = singleTauSF[PERIOD].first;
+				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
+				  trigSF_stau_down = trigSF - singleTauSF[PERIOD].second;
+				}
+
 			  // eta region covered both by cross-trigger and single lepton trigger
 			  else if(PERIOD != "2016preVFP" and PERIOD != "2016postVFP" and
-					  fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_region)
+					  fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_region and !SingleTau_region)
 				{
 				  int passSingle = 1, passCross = 1;
 
@@ -3413,6 +3434,7 @@ int main (int argc, char** argv)
 				  double SFtau = tauTrgSF_etau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 				  trigSF_cross = SFl*SFtau;
 				}
+
 			  else //eta region covered only by single lepton trigger
 				{
 				  double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
