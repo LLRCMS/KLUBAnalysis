@@ -187,14 +187,14 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
   if (pairType == MuHad)
   {
     float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
-    leg1 = muBaseline  (tree, dau1index, 20., 2.3, 0.15, MuTight, 0.15, MuHighPt, whatApply, debug);
+    leg1 = muBaseline  (tree, dau1index, 15., 2.3, 0.15, MuTight, 0.15, MuHighPt, whatApply, debug);
     leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVVLoose, amuTight, tauIso, whatApply, debug);
   }
 
   if (pairType == EHad)
   {
     float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
-    leg1 = eleBaseline (tree, dau1index, 20., 2.3, 0.1, EMVATight, whatApply, debug);
+    leg1 = eleBaseline (tree, dau1index, 10., 2.3, 0.1, EMVATight, whatApply, debug);
     //leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleTight, amuTight, tauIso, whatApply, debug); // Switched from 'aeleTight' to 'aeleVLoose' in January 2021
     leg2 = tauBaseline (tree, dau2index, 20., 2.3, aeleVVLoose, amuTight, tauIso, whatApply, debug);  // following HTT conveners suggestion
   }
