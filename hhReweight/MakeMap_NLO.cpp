@@ -55,10 +55,14 @@ int main ()
     //TString filename5    = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/May2020/LIMdev/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2017_signals/GluGluToHHTo2B2Tau_node_cHHH5.txt";
 
     // 2018 input files
-    TString filename0    = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/May2020/LIMdev/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signalsMIB/GluGluToHHTo2B2Tau_NLO_kl0.txt";
-    TString filename1    = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/May2020/LIMdev/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signalsMIB/GluGluToHHTo2B2Tau_NLO_kl1.txt";
-    TString filename2p45 = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/May2020/LIMdev/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signalsMIB/GluGluToHHTo2B2Tau_NLO_kl2p45.txt";
-    TString filename5    = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/May2020/LIMdev/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signalsMIB/GluGluToHHTo2B2Tau_NLO_kl5.txt";
+    // TString filename0    = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/May2020/LIMdev/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signalsMIB/GluGluToHHTo2B2Tau_NLO_kl0.txt";
+    // TString filename1    = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/May2020/LIMdev/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signalsMIB/GluGluToHHTo2B2Tau_NLO_kl1.txt";
+    // TString filename2p45 = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/May2020/LIMdev/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signalsMIB/GluGluToHHTo2B2Tau_NLO_kl2p45.txt";
+    // TString filename5    = "/gwpool/users/brivio/Hhh_1718/LegacyRun2/May2020/LIMdev/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signalsMIB/GluGluToHHTo2B2Tau_NLO_kl5.txt";
+    TString filename0    = "/home/llr/cms/motta/HHLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signals/1_GluGluToHHTo2B2Tau_node_cHHH0_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt";
+    TString filename1    = "/home/llr/cms/motta/HHLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signals/2_GluGluToHHTo2B2Tau_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt";
+    TString filename2p45 = "/home/llr/cms/motta/HHLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signals/3_GluGluToHHTo2B2Tau_node_cHHH2p45_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt";
+    TString filename5    = "/home/llr/cms/motta/HHLegacy/CMSSW_11_1_0_pre6/src/KLUBAnalysis/inputFiles/Legacy2018_signals/4_GluGluToHHTo2B2Tau_node_cHHH5_TuneCP5_PSWeights_13TeV-powheg-pythia8__RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1.txt";
 
     // Uncomments the weights for the considered year (obtained from MakeMap_getNLOweights.cpp)
     // Tese should correspond more or less to the xs predicted by POWHEG

@@ -6,11 +6,12 @@ import argparse
 import datetime
 
 # Configurables
-isCondor = 'True'    # allowed options: 'True' - 'False'
-year     = '2016'    # allowed options: '2016' - '2017' - 2018'
+isCondor = False    # allowed options: 'True' - 'False'
+year     = '2018'    # allowed options: '2016' - '2017' - 2018'
 channel  = 'TauTau'  # allowed options: 'ETau' - 'MuTau' - TauTau'
+queue    = 'short'   # allowed options: 'short' - 'long' 
 additionalTag = ''
-tagDir   = 'analysis_2021_12_20'
+tagDir   = 'analysis_2022_11_25_EFT'
 
 # Variations to be run:
 # syntax --> [name of dir, name of var suffix, doSyst, njobs, bTagReshapeWeight suffix, JER suffix, doTauFakes]
@@ -154,7 +155,8 @@ for uncertainty in uncertainties:
     newMainCfg.close()
 
     # --- Launch command ---
-    command = 'python scripts/submitHistoFiller_parallel.py --cfg '+outDir+'/mainCfg_'+channel+'_Legacy'+year+'_limits.cfg --tag '+outDir+' --n '+uncertainty[3]+' --isCondor '+isCondor
+    command = 'python scripts/submitHistoFiller_parallel.py --cfg '+outDir+'/mainCfg_'+channel+'_Legacy'+year+'_limits.cfg --tag '+outDir+' --n '+uncertainty[3]+' --queue '+queue 
+    if isCondor: command +=' --isCondor'
     print command
     os.system(command)
 
