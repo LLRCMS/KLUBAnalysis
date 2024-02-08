@@ -691,27 +691,39 @@ int main (int argc, char** argv)
    ********************************************************************************************************************/
 
   // electron/muon leg trigger SF for data and mc
-  ScaleFactor    * muTauTrgSF = new ScaleFactor();
-  ScaleFactor    * eTauTrgSF  = new ScaleFactor();
-  ScaleFactor    * muTrgSF    = new ScaleFactor();
-  ScaleFactor    * eTrgSF     = new ScaleFactor();
+  ScaleFactor* muTauTrgSF = new ScaleFactor();
+  ScaleFactor* eTauTrgSF  = new ScaleFactor();
+  ScaleFactor* muTrgSF    = new ScaleFactor();
+  ScaleFactor* eTrgSF     = new ScaleFactor();
+
+  TString customTrgSFDir = "weights/trigSFs_UL_eleMu/";
   if (PERIOD == "2018") {
-	muTauTrgSF->init_ScaleFactor("weights/trigger_SF_Legacy/2018/Muon_Run2018_IsoMu20.root");
-	muTrgSF   ->init_ScaleFactor("weights/trigger_SF_Legacy/2018/Muon_Run2018_IsoMu24orIsoMu27.root");
-	eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2018/Electron_Run2018_Ele24.root");
-	eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2018/Electron_Run2018_Ele32orEle35.root");
+    muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2018_HLTMu20Tau27.root", true);
+    muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers.root",
+				 "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
+    eTauTrgSF ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2018_HLTEle24Tau30.root",true);
+    eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2018_HLTEle32.root",true);
   }
   else if (PERIOD == "2017") {
-	muTauTrgSF->init_ScaleFactor("weights/trigger_SF_Legacy/2017/Muon_MuTau_IsoMu20.root");
-	muTrgSF   ->init_ScaleFactor("weights/trigger_SF_Legacy/2017/Muon_IsoMu24orIsoMu27.root");
-	eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2017/Electron_EleTau_Ele24_fix.root");
-	eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2017/Electron_Ele32orEle35_fix.root");
+    muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2017_HLTMu20Tau27.root", true);
+    muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_SingleMuonTriggers.root",
+				 "NUM_IsoMu27_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
+    eTauTrgSF ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2017_HLTEle24Tau30.root", true);
+    eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2017_HLTEle32.root", true);
   }
-  else if (PERIOD == "2016preVFP" or PERIOD == "2016postVFP") {
-	muTauTrgSF->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Muon_Mu19leg_2016BtoH_eff.root");
-	muTrgSF   ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Muon_Run2016_legacy_IsoMu22.root");
-	//eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
-	eTrgSF    ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Run2016_legacy_Ele25.root");
+  else if (PERIOD == "2016preVFP") {
+    muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2016pre_HLTMu20Tau27.root", true);
+    muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_SingleMuonTriggers.root",
+				 "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
+    //eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
+    eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2016pre_HLTEle25.root",true);
+  }
+  else if (PERIOD == "2016postVFP") {
+    muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2016post_HLTMu20Tau27.root", true);
+    muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_SingleMuonTriggers.root",
+				 "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
+    //eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
+    eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2016post_HLTEle25.root",true);
   }
 
   // MET scale Factors
@@ -741,28 +753,28 @@ int main (int argc, char** argv)
   if (PERIOD == "2018") {
 	myIDandISOScaleFactor[0]->init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",
                                                "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi.txt_Ele_wp80iso_EGM2D.root");
+	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi.txt_Ele_wp80iso_EGM2D.root", false);
 	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
   }
   else if (PERIOD == "2017") {
 	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi.txt_EGM2D_MVA80iso_UL17.root");
+	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi.txt_EGM2D_MVA80iso_UL17.root", false);
 	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
   }
   else if (PERIOD == "2016preVFP") {
 	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_preVFP_EGM2D.root");
+	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_preVFP_EGM2D.root",false);
 	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
   }
   else if (PERIOD == "2016postVFP") {
 	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_postVFP_EGM2D.root");
+	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_postVFP_EGM2D.root", false);
 	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
   }
@@ -3215,11 +3227,11 @@ int main (int argc, char** argv)
 				  if (tlv_secondLepton.Pt() < lep2_thresh) passCross = 0;
 
 				  //lepton trigger
-				  double SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-				  double SFL_MC = muTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+				  double SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
+				  double SFL_MC = muTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
 
-				  double SFL_Data_Err = muTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-				  double SFL_MC_Err = muTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+				  double SFL_Data_Err = muTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
+				  double SFL_MC_Err = muTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
 
 				  double SFL_Data_up   = SFL_Data + 1. * SFL_Data_Err;
 				  double SFL_Data_down = SFL_Data - 1. * SFL_Data_Err;
@@ -3228,11 +3240,11 @@ int main (int argc, char** argv)
 
 				  //cross-trigger
 				  //mu leg
-				  double SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-				  double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+				  double SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
+				  double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
 
-				  double SFl_Data_Err = muTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-				  double SFl_MC_Err = muTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+				  double SFl_Data_Err = muTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
+				  double SFl_MC_Err = muTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
 
 				  double SFl_Data_up   = SFl_Data + 1. * SFl_Data_Err;
 				  double SFl_Data_down = SFl_Data - 1. * SFl_Data_Err;
@@ -3301,7 +3313,7 @@ int main (int argc, char** argv)
 				  trigSF_DM11_down	= Eff_Data_down[3]	/ Eff_MC_down[3];
 
 				  //trig SF for analysis only with cross-trigger
-				  double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+				  double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
 				  double SFtau = tauTrgSF_mutau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 				  trigSF_cross = SFl*SFtau;
 				}
@@ -3437,8 +3449,19 @@ int main (int argc, char** argv)
 
 			  else //eta region covered only by single lepton trigger
 				{
-				  double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-				  double SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+				  double SF = 1.;
+				  double SF_Err = 1.;
+				  // dirty trick to deal with bad efficiency values in a (very) low-stat bins
+				  // should only affect one bin in sf_el_2016post_HLTEle25.root
+				  if(PERIOD == "2016postVFP" and tlv_firstLepton.Pt() >= 100. and tlv_firstLepton.Eta() <= -2.) {
+				    SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), -tlv_firstLepton.Eta());
+				    SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), -tlv_firstLepton.Eta());
+				  } else {
+				    SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+				    SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+				  }
+				  
+
 				  trigSF = SF;
 				  trigSF_ele_up   = SF + 1. * SF_Err;
 				  trigSF_ele_down = SF - 1. * SF_Err;
@@ -3769,6 +3792,28 @@ int main (int argc, char** argv)
 		  theSmallTree.m_bTagweightReshape_lfstats2_down = (isMC ? bTagWeightReshapeshifts.at(15) : 1.0) ;
 		  theSmallTree.m_bTagweightReshape_cferr1_down   = (isMC ? bTagWeightReshapeshifts.at(16) : 1.0) ;
 		  theSmallTree.m_bTagweightReshape_cferr2_down   = (isMC ? bTagWeightReshapeshifts.at(17) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetup1        = (isMC ? bTagWeightReshapeshifts.at(18) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetup2        = (isMC ? bTagWeightReshapeshifts.at(19) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetup3        = (isMC ? bTagWeightReshapeshifts.at(20) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetup4        = (isMC ? bTagWeightReshapeshifts.at(21) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetup5        = (isMC ? bTagWeightReshapeshifts.at(22) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetup6        = (isMC ? bTagWeightReshapeshifts.at(23) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetup7        = (isMC ? bTagWeightReshapeshifts.at(24) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetup8        = (isMC ? bTagWeightReshapeshifts.at(25) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetup9        = (isMC ? bTagWeightReshapeshifts.at(26) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetup10       = (isMC ? bTagWeightReshapeshifts.at(27) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetup11       = (isMC ? bTagWeightReshapeshifts.at(28) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetdown1      = (isMC ? bTagWeightReshapeshifts.at(29) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetdown2      = (isMC ? bTagWeightReshapeshifts.at(30) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetdown3      = (isMC ? bTagWeightReshapeshifts.at(31) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetdown4      = (isMC ? bTagWeightReshapeshifts.at(32) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetdown5      = (isMC ? bTagWeightReshapeshifts.at(33) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetdown6      = (isMC ? bTagWeightReshapeshifts.at(34) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetdown7      = (isMC ? bTagWeightReshapeshifts.at(35) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetdown8      = (isMC ? bTagWeightReshapeshifts.at(36) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetdown9      = (isMC ? bTagWeightReshapeshifts.at(37) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetdown10     = (isMC ? bTagWeightReshapeshifts.at(38) : 1.0) ;
+		  theSmallTree.m_bTagweightReshape_jetdown11     = (isMC ? bTagWeightReshapeshifts.at(39) : 1.0) ;
 
 		  // Set HHbtaginterface for ordering jets
 		  HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,
