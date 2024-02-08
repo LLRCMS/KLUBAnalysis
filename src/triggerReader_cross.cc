@@ -237,23 +237,19 @@ std::pair <int, int> triggerReader_cross::printTriggerList()
 // ------------------------------
 // Check trigger filters matching
 // ------------------------------
-bool triggerReader_cross::checkMET(Long64_t triggerbit_1, int *pass_triggerbit)
+bool triggerReader_cross::checkMET(Long64_t triggerbit_1, int *pass_triggerbit, double metnomu, double metnomu_cut)
 {
-
-  bool OR       = false;
-  bool thisPath = false;
-
+  bool OR = false;
   for(unsigned int i = 0; i < _metTriggers.size(); i++)
   {
-    thisPath = false;
-    thisPath = CheckBit(triggerbit_1, _metTriggers.at(i));
-    if(thisPath)
-    {
-      std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_metTriggers.at(i)));
-      int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
-      *pass_triggerbit |=  1 << thisPathIdx; // if checkMET is called, pass_triggerbit will contain MET triggerbit too
-      OR = true;
-    }
+    if (CheckBit(triggerbit_1, _metTriggers.at(i)) and metnomu > metnomu_cut) //trigger cut at MET_nomu=200GeV
+	  {
+		std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(),
+													 _allTriggers.at(_metTriggers.at(i)));
+		int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
+		*pass_triggerbit |=  1 << thisPathIdx; // if checkMET is called, pass_triggerbit will contain MET triggerbit too
+		OR = true;
+	  }
   }
   return OR;
 }
@@ -291,7 +287,9 @@ bool triggerReader_cross::checkSingleTau  (Long64_t triggerbit_1, Long64_t match
 	boost::regex re_tau{"Tau(\\d+)"}; // no HPS trigger for single tau
 
 	double pt_tau = match1?pt_tau1:pt_tau2;
-	ptCut = checkPtCutSingle(thisPath, firedPath, re_tau, pt_tau, 10.0);  // tautauTrigger twiki suggests 190 GeV (lowest + 10 GeV)  "flat" cut, so this should do fine
+	// tautauTrigger twiki suggests threshold + 10 GeV "flat" cut, so this should do fine
+	// Twiki: https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauTrigger#Run_II_Trigger_Scale_Factors
+	ptCut = checkPtCutSingle(thisPath, firedPath, re_tau, pt_tau, 10.0);
 	// should apply some trigger-matching pT cut here, but not including it yet to check turn-ons
 
 	double eta_tau = match1?eta_tau1:eta_tau2;

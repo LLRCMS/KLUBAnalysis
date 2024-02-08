@@ -6,11 +6,12 @@
 #include <sstream>
 #include <bitset>
 #include <map>
+#include <unordered_map>
+#include <utility>
 #include <cassert>
 #include "TTree.h"
 #include "TH1F.h"
 #include "TH2F.h"
-#include "TH3F.h"
 #include "TFile.h"
 #include "TBranch.h"
 #include "TString.h"
@@ -40,6 +41,7 @@
 #include "lester_mt2_bisect.h"
 
 #include "ScaleFactor.h"
+#include "ScaleFactorMET.h"
 #include "ConfigParser.h"
 #include "EffCounter.h"
 #include "exceptions/HHInvMConstraintException.h"
@@ -75,11 +77,6 @@ using DNNVector = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<float>>;
 const double aTopRW = 0.0615;
 const double bTopRW = -0.0005;
 
-// Computed in 2019 for 2018 data with deepFlavor - NOT USED for Legacy
-const std::array<float, 3> DYscale_LL = {0.748154,2.15445,1.63619} ; // for now we use the same numbers computed with DY NLO sample
-const std::array<float, 3> DYscale_MM = {0.862686,1.08509,1.10947} ; // for now we use the same numbers computed with DY NLO sample
-
-
 /* NOTE ON THE COMPUTATION OF STITCH WEIGHTS FOR NLO:
 ** 3 samples merged: Inclusive, Njet-sliced, pT-sliced.
 ** merging done according to cross-section from xsdb
@@ -98,17 +95,17 @@ int main (int argc, char** argv)
 	  cerr << "missing input parameters : argc is: " << argc << endl ;
 	  cerr << "usage: " << argv[0]
 		   << " inputFileNameList outputFileName crossSection isData configFile runHHKinFit"
-		   << " xsecScale(stitch) HTMax(stitch) HTMin(stitch) isTTBar DY_Nbs TT_stitchType"
+		   << " xsecScale(stitch) HTMax(stitch) HTMin(stitch) isTTBar DY_tostitch TT_stitchType"
 		   << " runMT2 isHHsignal NjetRequired(stitch) EFTbm order_rew uncertainty_rew cms_fake_rew kl_rew kt_rew c2_rew cg_rew c2g_rew susyModel" << endl ;
 
 	  return 1;
 	}
 
-  TString inputFile = argv[1] ;
-  TString outputFile = argv[2] ;
+  std::string inputFile = argv[1] ;
+  std::string outputFile = argv[2] ;
   cout << "** INFO: inputFile  : " << inputFile << endl;
   cout << "** INFO: outputFile : " << outputFile << endl;
-
+  
   float XS = atof (argv[3]) ;
   bool isMC = true;
   int isDatabuf = atoi (argv[4]);
@@ -149,15 +146,12 @@ int main (int argc, char** argv)
   if (!isMC) isTTBar = false; // force it, you never know...
   cout << "** INFO: is this a TTbar sample? : " << isTTBar << endl;
 
-  bool DY_Nbs = false; // run on genjets to count in DY samples the number of b jets
   bool DY_tostitch = false;
-  int I_DY_Nbs = atoi(argv[11]);
-  if (I_DY_Nbs == 1)
+  int I_DY_tostitch = atoi(argv[11]);
+  if (I_DY_tostitch == 1)
 	{
-	  DY_Nbs = true;
 	  DY_tostitch = true; // FIXME!! this is ok only if we use jet binned samples
 	}
-  cout << "** INFO: loop on gen jet to do a b-based DY split? " << DY_Nbs << " " << DY_tostitch << endl;
 
   int TT_stitchType = atoi(argv[12]);
   if (!isTTBar) TT_stitchType = 0; // just force if not TT...
@@ -202,8 +196,7 @@ int main (int argc, char** argv)
   int DY_nJets  = atoi(argv[27]);
   int DY_nBJets = atoi(argv[28]);
   cout << "** INFO: nJets/nBjets for DY bin weights: " << DY_nJets << " / " << DY_nBJets << endl;
-  int isDYI = atoi(argv[29]);
-  bool isDY = (isDYI == 1) ? true : false;
+  //int isDYI = atoi(argv[29]);
 
   bool isttHToNonBB = false;
   int isttHToNonBBI = atoi(argv[30]);
@@ -219,114 +212,23 @@ int main (int argc, char** argv)
   assert(PERIOD=="2018" or PERIOD=="2017" or PERIOD=="2016preVFP" or PERIOD=="2016postVFP");
   bool isPostVFP = PERIOD=="2016postVFP" ? true : false;
   cout << "** INFO: PERIOD: " << PERIOD << ", isPostVFP: " << isPostVFP << endl;
-  
-  // Computed from PI group for DY LO binned for Legacy2018
-  // - number of b-jets [0b, 1b, 2b]
-  // - pT(MuMu)
-  //   - vLowPt  : <= 10 GeV
-  //   - LowPt   : >10 and <=30
-  //   - Med1Pt  : >30 and <=50
-  //   - Med2Pt  : >50 and <=100
-  //   - HighPt  : >100 and <=200
-  //   - vHighPt : >200
-  // Requiring an elliptical mass cut (relaxed by +5 GeV)
-  std::array<float, 3> DYscale_MH_vLowPt;
-  std::array<float, 3> DYscale_MH_LowPt  ; 
-  std::array<float, 3> DYscale_MH_Med1Pt ; 
-  std::array<float, 3> DYscale_MH_Med2Pt ; 
-  std::array<float, 3> DYscale_MH_HighPt ; 
-  std::array<float, 3> DYscale_MH_vHighPt;
-  std::array<float, 5> DYscale_edges;
-  if (PERIOD == "2018") {
-	DYscale_MH_vLowPt  = {1.002, 0.01 , 0.01 }; 
-	DYscale_MH_LowPt   = {1.209, 1.180, 1.162}; 
-	DYscale_MH_Med1Pt  = {1.17 , 1.260, 1.288}; 
-	DYscale_MH_Med2Pt  = {1.140, 1.357, 1.574}; 
-	DYscale_MH_HighPt  = {1.037, 1.440, 1.603}; 
-	DYscale_MH_vHighPt = {0.835, 1.994, 1.037}; 
-	DYscale_edges      = {10., 30., 50., 100., 200.};
-  }
-  else if (PERIOD == "2017") {
-	DYscale_MH_vLowPt  = {1.125, 0.01 , 0.01 };
-	DYscale_MH_LowPt   = {1.326, 1.208, 1.016};
-	DYscale_MH_Med1Pt  = {1.255, 1.317, 1.279};
-	DYscale_MH_Med2Pt  = {1.198, 1.409, 1.374};
-	DYscale_MH_HighPt  = {1.081, 1.687, 1.269};
-	DYscale_MH_vHighPt = {0.859, 1.595, 1.270};
-	DYscale_edges      = {10., 30., 50., 100., 200.};
-  }
-  else if (PERIOD == "2016preVFP" or PERIOD == "2016postVFP") {
-	DYscale_MH_vLowPt  = {1.161, 0.515, 0.1  };
-	DYscale_MH_LowPt   = {1.151, 1.042, 1.150};
-	DYscale_MH_Med1Pt  = {1.144, 1.152, 1.149};
-	DYscale_MH_Med2Pt  = {1.151, 1.333, 1.218};
-	DYscale_MH_HighPt  = {1.169, 1.458, 0.997};
-	DYscale_MH_vHighPt = {1.061, 1.963, 1.185};
-	DYscale_edges      = {10., 50., 80., 110., 190.};
+
+
+  enum DataType {
+    kDefault	= 0, //default, no specifity
+    kMET		= 1, //MET dataset
+    kSingleTau  = 2, //SingleTau dataset
+  };
+
+  int datasetType = atoi(argv[33]);
+  bool isMETDataset = datasetType == DataType::kMET;
+  bool isTauDataset = datasetType == DataType::kSingleTau;
+  cout << "** INFO: isMETDataset  : " << isMETDataset << endl;
+  cout << "** INFO: isTauDataset  : " << isTauDataset << endl;
+  if (isMC) {
+	assert (datasetType==0);
   }
 
-  // Computed August 2020 - Requiring M(mumu) > 50 GeV
-  std::array<float, 3> DYscale_MTT_vLowPt ; 
-  std::array<float, 3> DYscale_MTT_LowPt  ; 
-  std::array<float, 3> DYscale_MTT_Med1Pt ; 
-  std::array<float, 3> DYscale_MTT_Med2Pt ; 
-  std::array<float, 3> DYscale_MTT_HighPt ; 
-  std::array<float, 3> DYscale_MTT_vHighPt; 
-  if (PERIOD == "2018") {
-	DYscale_MTT_vLowPt	= {0.87720949, 0.010000006, 0.010000025}; 
-	DYscale_MTT_LowPt  	= {1.2191486 , 0.010001064, 0.29051790 }; 
-	DYscale_MTT_Med1Pt	= {1.1816037 , 0.82760074 , 0.84809836 }; 
-	DYscale_MTT_Med2Pt	= {1.1579303 , 1.1240148  , 0.92974364 }; 
-	DYscale_MTT_HighPt	= {1.0469869 , 1.3690206  , 1.0024774  }; 
-	DYscale_MTT_vHighPt	= {0.80838089, 1.7465338  , 0.73211715 };
-  }
-  else if (PERIOD == "2017") {
-	DYscale_MTT_vLowPt  = {1.1092067 , 0.010000025, 0.010000002};
-	DYscale_MTT_LowPt   = {1.4229782 , 0.025083862, 0.64151569 };
-	DYscale_MTT_Med1Pt  = {1.3143450 , 1.0076030  , 0.96584965 };
-	DYscale_MTT_Med2Pt  = {1.2485879 , 1.2376612  , 1.0745893  };
-	DYscale_MTT_HighPt  = {1.1273438 , 1.5564765  , 1.0578688  };
-	DYscale_MTT_vHighPt = {0.87293424, 1.4469675  , 1.1665250  };
-  }
-  else if (PERIOD == "2016preVFP" or PERIOD == "2016postVFP") {
-	DYscale_MTT_vLowPt  = {1.1630144, 0.010000393, 0.010000000};
-	DYscale_MTT_LowPt   = {1.2194740, 1.1250249  , 1.0609708	};
-	DYscale_MTT_Med1Pt  = {1.2536864, 1.2376837  , 1.1901911	};
-	DYscale_MTT_Med2Pt  = {1.2763251, 1.2972053  , 1.2731480	};
-	DYscale_MTT_HighPt  = {1.2785250, 1.4578434  , 1.2241989	};
-	DYscale_MTT_vHighPt = {1.1649714, 1.6778047  , 1.1510545	};
-  }
-
-  std::array<float, 3> DYscale_MTT_vLowPt_err ;
-  std::array<float, 3> DYscale_MTT_LowPt_err  ;
-  std::array<float, 3> DYscale_MTT_Med1Pt_err ;
-  std::array<float, 3> DYscale_MTT_Med2Pt_err ;
-  std::array<float, 3> DYscale_MTT_HighPt_err ;
-  std::array<float, 3> DYscale_MTT_vHighPt_err;
-  if (PERIOD == "2018") {
-	DYscale_MTT_vLowPt_err  = {0.0014349486, 0.00085205781, 0.00094359815};
-	DYscale_MTT_LowPt_err	= {0.0013417125, 0.0044914533 , 0.025179988  };
-	DYscale_MTT_Med1Pt_err  = {0.0016262942, 0.021066553  , 0.025609469  };
-	DYscale_MTT_Med2Pt_err  = {0.0014769770, 0.018984114  , 0.019089746  };
-	DYscale_MTT_HighPt_err  = {0.0022691835, 0.035830965  , 0.027803721  };
-	DYscale_MTT_vHighPt_err = {0.0046517215, 0.11443309   , 0.064519398  };
-  }
-  else if (PERIOD == "2017") {
-	DYscale_MTT_vLowPt_err  = {0.0020977215, 0.0014144677, 0.0015785401};
-	DYscale_MTT_LowPt_err   = {0.0018789754, 0.028074073 , 0.033416855 };
-	DYscale_MTT_Med1Pt_err  = {0.0022982702, 0.028221735 , 0.032660541 };
-	DYscale_MTT_Med2Pt_err  = {0.0019811270, 0.024603319 , 0.024254387 };
-	DYscale_MTT_HighPt_err  = {0.0030012172, 0.046576904 , 0.035949714 };
-	DYscale_MTT_vHighPt_err = {0.0061768066, 0.15213682	, 0.091582069 };
-  }
-  else if (PERIOD == "2016preVFP" or PERIOD == "2016postVFP") {
-	DYscale_MTT_vLowPt_err  = {0.0037446320, 0.011371985, 0.0071346649};
-	DYscale_MTT_LowPt_err   = {0.0017404799, 0.023737485, 0.035623816 };
-	DYscale_MTT_Med1Pt_err  = {0.0027420531, 0.034357252, 0.043622931 };
-	DYscale_MTT_Med2Pt_err  = {0.0042018892, 0.055512921, 0.061654929 };
-	DYscale_MTT_HighPt_err  = {0.0045670912, 0.065499641, 0.064115483 };
-	DYscale_MTT_vHighPt_err = {0.0084286985, 0.17367880 , 0.13585326	};
-  }
 
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
@@ -403,7 +305,7 @@ int main (int argc, char** argv)
 		}
 	}
 
-
+  
   vector<string> trigMuTau   =  (isMC ? gConfigParser->readStringListOption ("triggersMC::MuTau")  : gConfigParser->readStringListOption ("triggersData::MuTau")) ;
   vector<string> trigTauTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::TauTau") : gConfigParser->readStringListOption ("triggersData::TauTau")) ;
   vector<string> trigEleTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::EleTau") : gConfigParser->readStringListOption ("triggersData::EleTau")) ;
@@ -420,10 +322,6 @@ int main (int argc, char** argv)
   //// NEW TRIGGERS
   vector<string> trigMET  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::METtriggers") : gConfigParser->readStringListOption ("triggersData::METtriggers")) ;
   vector<string> trigSingleTau  =  (isMC ? gConfigParser->readStringListOption ("triggersMC::SingleTau") : gConfigParser->readStringListOption ("triggersData::SingleTau")); 
-
-
-  // bool applyTriggers = isMC ? false : true; // true if ask triggerbit + matching, false if doing reweight
-  //bool applyTriggers = isMC ? gConfigParser->readBoolOption ("parameters::applyTriggersMC") : true; // true if ask triggerbit + matching, false if doing reweight
 
   bool applyTriggers = gConfigParser->readBoolOption ("parameters::applyTriggersMC") ;
 
@@ -476,11 +374,12 @@ int main (int argc, char** argv)
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
 
-  appendFromFileList (bigChain, inputFile);
+  appendFromFileList (bigChain, inputFile.c_str());
   bigChain->SetCacheSize(0);
   bigTree theBigTree (bigChain) ;
   //Create a new file + a clone of old tree header. Do not copy events
-  TFile * smallFile = new TFile (outputFile, "recreate") ;
+
+  TFile * smallFile = new TFile (outputFile.c_str(), "RECREATE") ;
   smallFile->cd () ;
   smallTree theSmallTree ("HTauTauTree") ;
 
@@ -504,8 +403,8 @@ int main (int argc, char** argv)
   int N_tauhDM_EES = 2;  //tauh DMs with EES
 
   // ------------------------------
-  TH1F* hTriggers = getFirstFileHisto (inputFile);
-  TH1F* hTauIDS = getFirstFileHisto (inputFile,false);
+  TH1F* hTriggers = getFirstFileHisto (inputFile.c_str());
+  TH1F* hTauIDS = getFirstFileHisto (inputFile.c_str(), false);
 
   //FRA new triggerReader_cross to take into account the usage of crossTriggers
   triggerReader_cross trigReader (hTriggers);
@@ -619,10 +518,10 @@ int main (int argc, char** argv)
   // ------------------------------
   // JER smearing provider: year - doSmearing - variation (0:nominal  +1:up  -1:down)
   bool doSmearing    = (isMC ? gConfigParser->readBoolOption("JetSmearing::doSmearing") : false);
-  int smearVariation = (isMC ? gConfigParser->readIntOption("JetSmearing::smearVariation") : 0 );
+  int smearVariation = (isMC ? gConfigParser->readIntOption("JetSmearing::smearVariation") : 0);
   cout << "** INFO: doSmearing? " << doSmearing << endl;
   cout << "** INFO: smearVariation: " << smearVariation << " [0:nominal  +1:up  -1:down]" << endl;
-  SmearedJetProducer Smearer(wpyear, doSmearing, smearVariation);
+  SmearedJetProducer Smearer(wpyear, doSmearing, smearVariation, isPostVFP);
 
   // ------------------------------
 
@@ -702,39 +601,40 @@ int main (int argc, char** argv)
   ScaleFactor * eTauTrgSF  = new ScaleFactor();
   ScaleFactor * muTrgSF    = new ScaleFactor();
   ScaleFactor * eTrgSF     = new ScaleFactor();
-  
-  TString emuTrgSFDir = "weights/trigSFs_UL_eleMu/";
 
+  TString customTrgSFDir = "weights/trigSFs_UL_eleMu/";
   if (PERIOD == "2018") {
-	muTauTrgSF ->init_EG_ScaleFactor(emuTrgSFDir + "sf_mu_2018_HLTMu20Tau27.root",true);
-	muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers_schemaV2.root",
+        muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2018_HLTMu20Tau27.root", true);
+	muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers.root",
 				     "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
-	eTauTrgSF ->init_EG_ScaleFactor(emuTrgSFDir + "sf_el_2018_HLTEle24Tau30.root",true);
-        eTrgSF    ->init_EG_ScaleFactor(emuTrgSFDir + "sf_el_2018_HLTEle32.root",true);
+	eTauTrgSF ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2018_HLTEle24Tau30.root",true);
+        eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2018_HLTEle32.root",true);
   }
   else if (PERIOD == "2017") {
-	muTauTrgSF ->init_EG_ScaleFactor(emuTrgSFDir + "sf_mu_2017_HLTMu20Tau27.root",true);
-
-	muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_SingleMuonTriggers_schemaV2.root",
+	muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2017_HLTMu20Tau27.root", true);
+	muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_SingleMuonTriggers.root",
 				     "NUM_IsoMu27_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
-	eTauTrgSF ->init_EG_ScaleFactor(emuTrgSFDir + "sf_el_2017_HLTEle24Tau30.root", true);
-        eTrgSF    ->init_EG_ScaleFactor(emuTrgSFDir + "sf_el_2017_HLTEle32.root", true);
+	eTauTrgSF ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2017_HLTEle24Tau30.root", true);
+        eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2017_HLTEle32.root", true);
   }
   else if (PERIOD == "2016preVFP") {
-	muTauTrgSF ->init_EG_ScaleFactor(emuTrgSFDir + "sf_mu_2016pre_HLTMu20Tau27.root",true);
-	muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_SingleMuonTriggers_schemaV2.root",
+	muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2016pre_HLTMu20Tau27.root", true);
+	muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_SingleMuonTriggers.root",
 				     "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
 	//eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
-        eTrgSF    ->init_EG_ScaleFactor(emuTrgSFDir + "sf_el_2016pre_HLTEle25.root",true);
+        eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2016pre_HLTEle25.root",true);
   }
   else if (PERIOD == "2016postVFP") {
-	muTauTrgSF ->init_EG_ScaleFactor(emuTrgSFDir + "sf_el_2016post_HLTMu20Tau27.root",true);
-	muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_SingleMuonTriggers_schemaV2.root",
+        muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2016post_HLTMu20Tau27.root", true);
+	muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_SingleMuonTriggers.root",
 				     "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
 	//eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
-        eTrgSF    ->init_EG_ScaleFactor(emuTrgSFDir + "sf_el_2016post_HLTEle25.root",true);
+        eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2016post_HLTEle25.root",true);
   }
-	  
+
+  // MET scale Factors
+  ScaleFactorMET metSF;
+  
   //VBF trigger weights -- jet legs
   TFile* VBFjets_file;
   TH3D*  VBFjets_SF;
@@ -759,28 +659,28 @@ int main (int argc, char** argv)
   if (PERIOD == "2018") {
 	myIDandISOScaleFactor[0]->init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",
                                                "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi.txt_Ele_wp80iso_EGM2D.root");
+	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi.txt_Ele_wp80iso_EGM2D.root", false);
 	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
   }
   else if (PERIOD == "2017") {
 	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi.txt_EGM2D_MVA80iso_UL17.root");
+	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi.txt_EGM2D_MVA80iso_UL17.root", false);
 	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
   }
   else if (PERIOD == "2016preVFP") {
 	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_preVFP_EGM2D.root");
+	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_preVFP_EGM2D.root", false);
 	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
   }
   else if (PERIOD == "2016postVFP") {
 	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_postVFP_EGM2D.root");
+	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_postVFP_EGM2D.root", false);
 	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
   }
@@ -799,8 +699,6 @@ int main (int argc, char** argv)
   else if (PERIOD == "2016postVFP") {
 	tauidsf_period = "UL2016_postVFP";
   }
-  TauIDSFTool * Deep_antiJet_medium_dm = new TauIDSFTool(tauidsf_period, "DeepTau2017v2p1VSjet","Medium",1); // for DeepTauv2p1 vs jets Medium
-  TauIDSFTool * Deep_antiJet_medium_pt = new TauIDSFTool(tauidsf_period, "DeepTau2017v2p1VSjet", "Medium",0);	  // for DeepTauv2p1 vs jets Medium
   TauIDSFTool * Deep_antiJet_2d		   = new TauIDSFTool(tauidsf_period, "Medium","VVLoose"); // for DeepTauv2p1 vsJets Medium and vsElectrons VVLoose in DM and pT bins
   TauIDSFTool * Deep_antiEle_vvloose   = new TauIDSFTool(tauidsf_period, "DeepTau2017v2p1VSe","VVLoose",0);  // for DeepTauv2p1 vs ele VVLoose
   TauIDSFTool * Deep_antiMu_tight	   = new TauIDSFTool(tauidsf_period, "DeepTau2017v2p1VSmu","Tight",0);	  // for DeepTauv2p1 vs mu Tight
@@ -1001,7 +899,7 @@ int main (int argc, char** argv)
 		  int nb    = theBigTree.lheNOutB;
 		  if (njets != DY_nJets || nb != DY_nBJets) continue;
 		}
-
+	
 	  // gen info -- fetch tt pair and compute top PT reweight
 	  float topPtReweight = 1.0; // 1 for all the other samples
 	  theSmallTree.m_TTtopPtreweight =  1.0 ;
@@ -1045,7 +943,7 @@ int main (int argc, char** argv)
 				  // else cout << " !! skim warning: sample is declared as as ttbar, but I have > 2 gen top in the event! " << endl;
 				}
 			}
-
+		
 		  if (ptTop1 < 0 || ptTop2 < 0)
 			{
 			  cout << "** WARNING: sample is declared as TTbar but in the event I didn't find 2 tops (1,2) :" << ptTop1 << " " << ptTop2 << endl;
@@ -1177,133 +1075,6 @@ int main (int argc, char** argv)
 			}
 		} // end ttHToNonBB only
 
-      // For Drell-Yan only: loop on genjets and count how many are there with 0,1,2 b
-      // 0: 0bjet, 1: 1 b jet, 2: >= 2 b jet
-	  theSmallTree.m_DYscale_LL  = 1.0; // all the other MC samples + data have no weight
-	  theSmallTree.m_DYscale_MM  = 1.0;
-	  theSmallTree.m_DYscale_MH  = 1.0; // to be used with elliptical mass cut
-	  theSmallTree.m_DYscale_MTT = 1.0; // to be used with M(tautau) > 50 GeV
-	  theSmallTree.m_DYscale_MTT_up   = 1.0; // up variation of DYscale_MTT (val+variation)
-	  theSmallTree.m_DYscale_MTT_down = 1.0; // down variation of DYscale_MTT (val-variation)
-
-	  if (isMC && isDY) //to be done both for DY NLO and DY in jet bins
-		{
-		  TLorentzVector vgj;
-		  int nbs = 0;
-		  for (unsigned int igj = 0; igj < theBigTree.genjet_px->size(); igj++)
-			{
-			  vgj.SetPxPyPzE(theBigTree.genjet_px->at(igj), theBigTree.genjet_py->at(igj), theBigTree.genjet_pz->at(igj), theBigTree.genjet_e->at(igj));
-			  if (vgj.Pt() > 20 && TMath::Abs(vgj.Eta()) < 2.5)
-				{
-				  int theFlav = theBigTree.genjet_hadronFlavour->at(igj);
-				  if (abs(theFlav) == 5) nbs++;
-				}
-
-			  if(DEBUG)
-				{
-				  cout << " -- gen jet : " << igj << " pt=" << vgj.Pt() << " eta=" << vgj.Eta() <<  " hadFlav=" << theBigTree.genjet_hadronFlavour->at(igj) << endl;
-				}
-			}
-		  if (nbs > 2) nbs = 2;
-
-		  theSmallTree.m_nBhadrons = nbs;
-		  theSmallTree.m_DYscale_LL = DYscale_LL[nbs];
-		  theSmallTree.m_DYscale_MM = DYscale_MM[nbs];
-
-		  // Get LHE nBPartons
-		  int n_bJets = theBigTree.lheNOutB ;
-		  if (n_bJets>=2) n_bJets=2; // Make sure that events with n_bJets == 3 are included in the n_bJets == 2 case
-
-		  // loop through gen parts to identify Z boson
-		  int idx1 = -1;
-		  for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
-			{
-			  bool isLast   = CheckBit(theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
-			  bool isPrompt = CheckBit(theBigTree.genpart_flags->at(igen),  0) ; //  0 = isPrompt
-			  if (theBigTree.genpart_pdg->at(igen) == 23 && isLast && isPrompt) // Z0 + isLast + isPrompt
-				{
-				  idx1 = igen;
-				}
-			}
-
-		  // if found, Build the genZ TLorentzVector
-		  float genZ_pt = -999.;
-		  if (idx1 >= 0)
-			{
-			  // store gen decay mode of the Z identified
-			  theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1);
-
-			  // build the genZ TLorentzVector
-			  TLorentzVector genZ;
-			  genZ.SetPxPyPzE(theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1));
-			  genZ_pt = genZ.Pt();
-			  theSmallTree.m_genZ_pt = genZ_pt;
-
-			  // Save DY LO weights according to nbs and pT(Z)
-			  if (genZ_pt <= DYscale_edges[0])
-				{
-				  theSmallTree.m_DYscale_MH  = DYscale_MH_vLowPt [n_bJets];
-				  theSmallTree.m_DYscale_MTT = DYscale_MTT_vLowPt[n_bJets];
-				  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_vLowPt[n_bJets] + DYscale_MTT_vLowPt_err[n_bJets];
-				  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_vLowPt[n_bJets] - DYscale_MTT_vLowPt_err[n_bJets];
-				}
-			  else if (genZ_pt > DYscale_edges[0] && genZ_pt <= DYscale_edges[1])
-				{
-				  theSmallTree.m_DYscale_MH  = DYscale_MH_LowPt [n_bJets];
-				  theSmallTree.m_DYscale_MTT = DYscale_MTT_LowPt[n_bJets];
-				  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_LowPt[n_bJets] + DYscale_MTT_LowPt_err[n_bJets];
-				  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_LowPt[n_bJets] - DYscale_MTT_LowPt_err[n_bJets];
-				}
-			  else if (genZ_pt > DYscale_edges[1] && genZ_pt <= DYscale_edges[2])
-				{
-				  theSmallTree.m_DYscale_MH  = DYscale_MH_Med1Pt [n_bJets];
-				  theSmallTree.m_DYscale_MTT = DYscale_MTT_Med1Pt[n_bJets];
-				  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_Med1Pt[n_bJets] + DYscale_MTT_Med1Pt_err[n_bJets];
-				  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_Med1Pt[n_bJets] - DYscale_MTT_Med1Pt_err[n_bJets];
-				}
-			  else if (genZ_pt > DYscale_edges[2] && genZ_pt <= DYscale_edges[3])
-				{
-				  theSmallTree.m_DYscale_MH  = DYscale_MH_Med2Pt [n_bJets];
-				  theSmallTree.m_DYscale_MTT = DYscale_MTT_Med2Pt[n_bJets];
-				  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_Med2Pt[n_bJets] + DYscale_MTT_Med2Pt_err[n_bJets];
-				  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_Med2Pt[n_bJets] - DYscale_MTT_Med2Pt_err[n_bJets];
-				}
-			  else if (genZ_pt > DYscale_edges[3] && genZ_pt <= DYscale_edges[4])
-				{
-				  theSmallTree.m_DYscale_MH  = DYscale_MH_HighPt [n_bJets];
-				  theSmallTree.m_DYscale_MTT = DYscale_MTT_HighPt[n_bJets];
-				  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_HighPt[n_bJets] + DYscale_MTT_HighPt_err[n_bJets];
-				  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_HighPt[n_bJets] - DYscale_MTT_HighPt_err[n_bJets];
-				}
-			  else //pT(Z)>=DYscale_edges[4]
-				{
-				  theSmallTree.m_DYscale_MH  = DYscale_MH_vHighPt [n_bJets];
-				  theSmallTree.m_DYscale_MTT = DYscale_MTT_vHighPt[n_bJets];
-				  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_vHighPt[n_bJets] + DYscale_MTT_vHighPt_err[n_bJets];
-				  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_vHighPt[n_bJets] - DYscale_MTT_vHighPt_err[n_bJets];
-				}
-			}
-		  else // genZ not found: use the lowest pT bin
-			{
-			  theSmallTree.m_DYscale_MH  = DYscale_MH_vLowPt [n_bJets];
-			  theSmallTree.m_DYscale_MTT = DYscale_MTT_vLowPt[n_bJets];
-			  theSmallTree.m_DYscale_MTT_up   = DYscale_MTT_vLowPt[n_bJets] + DYscale_MTT_vLowPt_err[n_bJets];
-			  theSmallTree.m_DYscale_MTT_down = DYscale_MTT_vLowPt[n_bJets] - DYscale_MTT_vLowPt_err[n_bJets];
-			}
-
-		  // Debug printout
-		  if(DEBUG)
-			{
-			  cout << "------- DY reweight ------" << endl;
-			  cout << " - nbs  : " << nbs << endl;
-			  cout << " - pT(Z): " << genZ_pt << endl;
-			  cout << " - DYscale_MM  : " << theSmallTree.m_DYscale_MM << endl;
-			  cout << " - DYscale_MH  : " << theSmallTree.m_DYscale_MH << endl;
-			  cout << " - DYscale_MTT : " << theSmallTree.m_DYscale_MTT << endl;
-			  cout << "--------------------------" << endl;
-			}
-		}
-
 	  // HH reweight for non resonant
 	  float HHweight = 1.0;
 	  TLorentzVector vHardScatter1;
@@ -1385,7 +1156,7 @@ int main (int argc, char** argv)
 					  // cout << "THIS: " << pdg << " px=" << theBigTree.genpart_px->at(igen) << endl;
 					}
 				}
-
+			  
 			  if ( abs(pdg) == 66615 && mothIsHardScatt)
 				{
 				  // cout << "  <<< preso" << endl;
@@ -1413,7 +1184,7 @@ int main (int argc, char** argv)
 
 			}
 
-
+		
 		  if (idx1 == -1 || idx2 == -1)
 			{
 			  cout << "** ERROR: couldn't find 2 H (first)" << endl;
@@ -1479,7 +1250,7 @@ int main (int argc, char** argv)
 		  vH1.Boost(-vSum.BoostVector());
 		  ct1 = vH1.CosTheta();
 
-
+		
 		  // FRA DEBUG - build gen b jets
 		  if (idx1hs_b != -1 && idx2hs_b != -1)
 			{
@@ -1535,6 +1306,7 @@ int main (int argc, char** argv)
 
 	  int metbit = theBigTree.metfilterbit;
 
+	  // Twiki: https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#MET_Filter_Recommendations_for_R
 	  int metpass = (metbit & (1 << 0)) ? 1 : 0; //"Flag_goodVertices"
 	  metpass    += (metbit & (1 << 1)) ? 1 : 0; //"Flag_HBHENoiseFilter"
 	  metpass    += (metbit & (1 << 2)) ? 1 : 0; //"Flag_HBHENoiseIsoFilter"
@@ -1542,7 +1314,7 @@ int main (int argc, char** argv)
 	  metpass    += (metbit & (1 << 4)) ? 1 : 0; //"Flag_globalSuperTightHalo2016Filter"
 	  metpass    += (metbit & (1 << 5)) ? 1 : 0; //"Flag_BadPFMuonFilter"
 	  metpass    += (metbit & (1 << 6)) ? 1 : 0; //"Flag_eeBadScFilter"
-	  if(PERIOD == "2018" or PERIOD=="2017") {
+	  if(PERIOD == "2018" or PERIOD == "2017") {
 		metpass    += (metbit & (1 << 7)) ? 1 : 0; //"Flag_ecalBadCalibFilter"
 	  }
 	  metpass    += (metbit & (1 << 8)) ? 1 : 0; //"Flag_BadPFMuonDzFilter"
@@ -1565,10 +1337,10 @@ int main (int argc, char** argv)
 		}
 
 	  int metpass_thresh;
-	  if(PERIOD == "2018" or PERIOD=="2017") {
+	  if(PERIOD == "2018" or PERIOD == "2017") {
 		metpass_thresh = 9;
 	  }
-	  if(PERIOD == "2016preVFP" or PERIOD=="2016postVFP") {
+	  if(PERIOD == "2016preVFP" or PERIOD == "2016postVFP") {
 		metpass_thresh = 8;
 	  }
 	  if(metpass < metpass_thresh) continue ;
@@ -1844,22 +1616,42 @@ int main (int argc, char** argv)
 		  theSmallTree.m_nRealTaus = nRealTaus;                     // -1: data; > 0: # real taus in MC
 		}
 
-
-	  const TLorentzVector tlv_firstLepton (
-											theBigTree.daughters_px->at (firstDaughterIndex),
+	  const TLorentzVector tlv_firstLepton (theBigTree.daughters_px->at (firstDaughterIndex),
 											theBigTree.daughters_py->at (firstDaughterIndex),
 											theBigTree.daughters_pz->at (firstDaughterIndex),
 											theBigTree.daughters_e->at (firstDaughterIndex)
 											);
 
-	  const TLorentzVector tlv_secondLepton (
-											 theBigTree.daughters_px->at (secondDaughterIndex),
+	  const TLorentzVector tlv_secondLepton (theBigTree.daughters_px->at (secondDaughterIndex),
 											 theBigTree.daughters_py->at (secondDaughterIndex),
 											 theBigTree.daughters_pz->at (secondDaughterIndex),
 											 theBigTree.daughters_e->at (secondDaughterIndex)
 											 );
 
+	  TVector2 vMET(theBigTree.METx->at(chosenTauPair),
+					theBigTree.METy->at(chosenTauPair));
+	  TVector2 vMUON(0., 0.);
+	  if (pairType==0) {
+		// single muon in evt, vetoing events with 3rd lepton
+		vMUON.Set(tlv_firstLepton.Px(), tlv_firstLepton.Py());
+	  }
+	  else if(pairType==3) {
+		 // two muons in evt (looser cuts), vetoing events with 3rd lepton
+		vMUON.Set(tlv_firstLepton.Px()+tlv_secondLepton.Px(),
+				  tlv_firstLepton.Py()+tlv_secondLepton.Py());
+	  }
+	  TVector2 vMETnoMu = vMET + vMUON;
 
+	  // MHT(noMu) variables. This might be a quick&dirty definition though, as not removing soft contributions
+	  // mht: transverse component of jet momentum sum (here MET(tot)-MET(leptons))
+	  TVector2 vLEP(tlv_firstLepton.Px()+tlv_secondLepton.Px(),
+					tlv_firstLepton.Py()+tlv_secondLepton.Py()); // no matter what lepton type
+	  TVector2 vMHT = vMET + vLEP;
+	  // mhtnomu: ~ as defined in HLT code
+	  // https://github.com/cms-sw/cmssw/blob/6d2f66057131baacc2fcbdd203588c41c885b42c/HLTrigger/JetMET/src/HLTHtMhtProducer.cc#L76
+	  // > transverse component of jets momentum sum minus muons momentum sum (I still need to figure this one out...)
+	  TVector2 vMHTnoMu = vMHT+vMUON;
+	  
 	  //////////
 	  // -- GEN NEUTRINO, LEPTON, B-QUARK DEFINITION:
 	  // -> Adding gen-matched info for the 2 taus neutrinos for tauTau ID training tests
@@ -2046,7 +1838,6 @@ int main (int argc, char** argv)
 	  vector <TLorentzVector> tlv_secondLepton_eleup   (N_tauhDM_EES, tlv_secondLepton);
 	  vector <TLorentzVector> tlv_secondLepton_eledown (N_tauhDM_EES, tlv_secondLepton);
 
-
 	  // for each decay mode, bool indicating if this lepton matches the dacay mode in the loop
 	  // just for protection, probably it's not needed
 	  vector<bool> isthisDM_first = {
@@ -2162,9 +1953,22 @@ int main (int argc, char** argv)
 	  bool passTrg = false;
 
 	  // NEW TRIGGERS
-	  bool passMETTrg = false;
+	  bool passMETTrg = false, passMETTrgNoThresh=false;
 	  bool passSingleTau = false;
 
+	  // Twiki (UL SFs not available as of September 2023)
+	  // https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauTrigger#Run_II_Trigger_Scale_Factors
+	  std::unordered_map<std::string, std::pair<float,float>> singleTauSF = {
+		{"2016preVFP",  std::make_pair(0.88, 0.08)},
+		{"2016postVFP", std::make_pair(0.88, 0.08)},
+		{"2017",        std::make_pair(1.08, 0.10)},
+		{"2018",        std::make_pair(0.87, 0.11)}};
+
+	  std::unordered_map<std::string, unsigned> MET_chn_map = {{"etau", 1},
+															   {"mutau", 0},
+															   {"tautau", 2}};
+	  bool MET_region = false;
+	  bool SingleTau_region = false;
 	  if (applyTriggers)
 		{
 		  Long64_t triggerbit = theBigTree.triggerbit;
@@ -2175,11 +1979,21 @@ int main (int argc, char** argv)
 		  Long64_t goodTriggerType2 = (Long64_t) theBigTree.daughters_isGoodTriggerType->at(secondDaughterIndex);
 
 		  Long64_t trgNotOverlapFlag = (Long64_t) theBigTree.mothers_trgSeparateMatch->at(chosenTauPair);
-		  passTrg = trigReader.checkOR (pairType,triggerbit, &pass_triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
+		  passTrg = trigReader.checkOR (pairType, triggerbit, &pass_triggerbit,
+										matchFlag1, matchFlag2, trgNotOverlapFlag,
+										goodTriggerType1, goodTriggerType2,
+										tlv_firstLepton.Pt(), tlv_firstLepton.Eta(),
+										tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
 
 		  // check NEW TRIGGERS separately
-		  passMETTrg = trigReader.checkMET(triggerbit, &pass_triggerbit);
-		  passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
+		  passMETTrg         = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 180.);
+		  passMETTrgNoThresh = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 0.);
+
+		  passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag,
+													goodTriggerType1, goodTriggerType2,
+													tlv_firstLepton.Pt(), tlv_firstLepton.Eta(),
+													tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
+
 		  if (PERIOD=="2018" and !isMC and passTrg)
 			{
 			  if(theBigTree.RunNumber < 317509)
@@ -2214,7 +2028,7 @@ int main (int argc, char** argv)
 			}
 
 		  // Remember: isVBFfired means it passed ONLY a VBF trigger
-		  if (wpyear != "2016" and pairType == 2 and !passTrg)
+		  if (wpyear != "2016" and pairType == 2 and !passTrg and !passMETTrg and !passSingleTau)
 			{
 			  isVBFfired = trigReader.isVBFfired(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2, tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), tlv_secondLepton.Pt(), tlv_secondLepton.Eta(), &pass_triggerbit);
 
@@ -2248,8 +2062,9 @@ int main (int argc, char** argv)
 					}
 				}
 			}
-		  else
+		  else {
 			isVBFfired = false;
+		  }
 
 		  // weight to be applied: 0.990342 from https://twiki.cern.ch/twiki/bin/viewauth/CMS/DoubleHiggsToBBTauTauWorkingLegacyRun2
 		  // @ bit position - path
@@ -2266,20 +2081,56 @@ int main (int argc, char** argv)
 			{
 			  if(PERIOD=="2018") {
 				if (CheckBit(pass_triggerbit,8) and !CheckBit(pass_triggerbit,7)) {
-				  theSmallTree.m_prescaleWeight =  0.990342;
+				  theSmallTree.m_prescaleWeight = 0.990342;
 				}
 			  }
 			  else if(PERIOD=="2017") {
-				theSmallTree.m_prescaleWeight =  0.65308574;
+				theSmallTree.m_prescaleWeight = 0.65308574;
 			  }
 			}
 
-		  bool triggerAccept = false;
-		  triggerAccept = passTrg || isVBFfired || passMETTrg || passSingleTau;
+		  if (pairType == 0) { //mutau
+			if(PERIOD=="2018") {
+			  MET_region = ((tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < 32.) or
+							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() > 32.));
+			}
+			else if(PERIOD=="2017") {
+			  MET_region = ((tlv_firstLepton.Pt() < 28. and tlv_secondLepton.Pt() < 32.) or
+							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() > 32.));
+			}
+			else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
+			  MET_region = ((tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < 25.) or
+							(tlv_firstLepton.Pt() < 20. and tlv_secondLepton.Pt() > 25.));
+			}
+		  }
+		  else if (pairType == 1) { //etau
+			if(PERIOD=="2018" or PERIOD=="2017") {
+			  MET_region = ((tlv_firstLepton.Pt() < 33. and tlv_secondLepton.Pt() < 35.) or
+							(tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() > 35.));
+			}
+			else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
+			  MET_region = tlv_firstLepton.Pt() < 25.;
+			}
+		  }
+		  else if (pairType == 2) { //tautau
+			MET_region       = ((tlv_firstLepton.Pt() < 40	 and tlv_secondLepton.Pt() < 190) or
+								(tlv_firstLepton.Pt() < 190	 and tlv_secondLepton.Pt() < 40 ));
+			SingleTau_region = ((tlv_firstLepton.Pt() < 40	 and tlv_secondLepton.Pt() >= 190) or
+								(tlv_firstLepton.Pt() >= 190 and tlv_secondLepton.Pt() < 40 ));
+		  }
 
+		  bool metAccept = passMETTrgNoThresh and !passTrg and MET_region; //!passTrg should be redundant wrt to the region cut
+		  bool singletauAccept = passSingleTau and !passTrg and SingleTau_region; //!passTrg should be redundant wrt to the region cut
+		  if (!isMC) {
+			passTrg = passTrg and !isMETDataset;
+			metAccept = metAccept and isMETDataset;
+			singletauAccept = singletauAccept and isTauDataset;
+		  }
+		  bool triggerAccept = passTrg or metAccept or singletauAccept;
+	  
 		  if(DEBUG)
 			{
-			  cout << "---> isVBFfired?  "<<isVBFfired<<endl;
+			  cout << "---> isVBFfired?  " << isVBFfired << endl;
 			  if(pairType == 0)//MuTau
 				{
 				  trigReader.listMuTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag, goodTriggerType1, goodTriggerType2);
@@ -2297,14 +2148,14 @@ int main (int argc, char** argv)
 
 		  if (DEBUG) std::cout << "----> Final Trigger passed? " << triggerAccept << std::endl;
 		  if (!triggerAccept) continue;
+		  
 		  theSmallTree.m_pass_triggerbit = pass_triggerbit;
 		  ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
 		  if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
 
 		  theSmallTree.m_isLeptrigger = passTrg;
-
-		  // NEW TRIGGERS: fill trig info in output tree
 		  theSmallTree.m_isMETtrigger = passMETTrg;
+		  theSmallTree.m_isMETtriggerNoThresh = passMETTrgNoThresh;
 		  theSmallTree.m_isSingleTautrigger = passSingleTau;
 		} // end if applyTriggers
 
@@ -2312,7 +2163,8 @@ int main (int argc, char** argv)
       // pair selection is now complete, compute oher quantitites
 
       // If skimming the final ntuples skip not interesting channels
-	  if (onlyFinalChannels && pairType>2) continue;
+
+	  if (onlyFinalChannels && pairType>3) continue;
 
 	  // First create a map to associate <jetIdx, smearFactor> that will be
 	  // used to smear the jets always in the same way in the event.
@@ -2345,31 +2197,13 @@ int main (int argc, char** argv)
 	  TLorentzVector tlv_tauH = tlv_firstLepton + tlv_secondLepton ;
 	  TLorentzVector tlv_tauH_SVFIT ;
 
-	  TVector2 vMET(theBigTree.METx->at(chosenTauPair) , theBigTree.METy->at(chosenTauPair));
-
 	  // METnoMu,MHT,MHTnoMu for trigger study
 	  /*
 		Most basic implementation accounting only for muons passing selection cuts.
 		Would we need to include soft muons somehow as well?
 		(3rd lepton veto already looks for soft leptons (>10 GeV))
 	  */
-	  // metnomu
-	  TVector2 vMUON;
-	  if(pairType==0) vMUON.Set(tlv_firstLepton.Px(),tlv_firstLepton.Py()); // single muon in evt, vetoing events with 3rd lepton
-	  if(pairType==3) vMUON.Set(tlv_firstLepton.Px()+tlv_secondLepton.Px(),tlv_firstLepton.Py()+tlv_secondLepton.Py()); // two muons in evt (looser cuts), vetoing events with 3rd lepton
-	  TVector2 vMETnoMu = vMET + vMUON;
-
-	  /*
-		MHT(noMu) variables. This might be a quick&dirty definition though, as not removing soft contributions
-	  */
-	  // mht: transverse component of jet momentum sum (here MET(tot)-MET(leptons))
-	  TVector2 vLEP(tlv_firstLepton.Px()+tlv_secondLepton.Px(),tlv_firstLepton.Py()+tlv_secondLepton.Py()); // no matter what lepton type
-	  TVector2 vMHT = vMET + vLEP;
-	  // mhtnomu: ~ as defined in HLT code
-	  // https://github.com/cms-sw/cmssw/blob/6d2f66057131baacc2fcbdd203588c41c885b42c/HLTrigger/JetMET/src/HLTHtMhtProducer.cc#L76
-	  // > transverse component of jets momentum sum minus muons momentum sum (I still need to figure this one out...)
-	  TVector2 vMHTnoMu = vMHT+vMUON;
-
+	
 	  TLorentzVector tlv_MET;
 	  tlv_MET.SetPxPyPzE(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair), 0, std::hypot(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair)));
 
@@ -2541,17 +2375,17 @@ int main (int argc, char** argv)
 	  theSmallTree.m_MHTnoMuy      = vMHTnoMu.Y();
 
 
-
+	
 	  // L1ECALPrefiringWeight - https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
 	  theSmallTree.m_L1pref_weight = theBigTree.prefiringweight;
-
+	
 	  if (DEBUG)
 		{
 		  cout << "------- MET DEBUG -------" << endl;
 		  cout << " met centr : " << theSmallTree.m_met_et << " / " << theSmallTree.m_met_phi << endl;
 		  cout << "-------------------------" << endl;
 		}
-
+	
 	  // // in TauTau channel make sure the first tau is the most isolated one
 	  if (pairType == 2 && (theBigTree.daughters_byDeepTau2017v2p1VSjetraw->at(theBigTree.indexDau1->at (chosenTauPair)) < theBigTree.daughters_byDeepTau2017v2p1VSjetraw->at(theBigTree.indexDau2->at (chosenTauPair))) )
 		{
@@ -2563,7 +2397,7 @@ int main (int argc, char** argv)
 		  theSmallTree.m_mT1       = theBigTree.mT_Dau1->at (chosenTauPair) ;
 		  theSmallTree.m_mT2       = theBigTree.mT_Dau2->at (chosenTauPair) ;
 		}
-
+	
 	  theSmallTree.m_tauH_pt   = tlv_tauH.Pt () ;
 	  theSmallTree.m_tauH_eta  = tlv_tauH.Eta () ;
 	  theSmallTree.m_tauH_phi  = tlv_tauH.Phi () ;
@@ -2804,11 +2638,8 @@ int main (int argc, char** argv)
 	  // Still preliminary:
 	  // DeepTauVSele: https://indico.cern.ch/event/865792/contributions/3659828/attachments/1954858/3246751/ETauFR-update2Dec.pdf
 	  // DeepTauVSmu : https://indico.cern.ch/event/866243/contributions/3650016/attachments/1950974/3238736/mutauFRRun2_Yiwen_20191121.pdf
-	  float idSF_deep_dm		= 1.0;  // use this for DeepTauV2p1 DM dependent
-	  float idSF_deep_pt		= 1.0;  // use this for DeepTauV2p1 pT dependent
+
 	  float idSF_deep_2d		= 1.0;  // use this for DeepTauV2p1 DM and pT dependent
-	  float idFakeSF_deep_dm	= 1.0;	// use this for DeepTauV2p1 DM dependent + e/mu->tauh fake SF
-	  float idFakeSF_deep_pt	= 1.0;	// use this for DeepTauV2p1 pt dependent + e/mu->tauh fake SF
 	  float idFakeSF_deep_2d	= 1.0;	// use this for DeepTauV2p1 pt dependent + e/mu->tauh fake SF
 	  float fakeRateSF_deep		= 1.0;  // use this for e/mu->tauh fake SF DeepTau
 
@@ -2819,6 +2650,7 @@ int main (int argc, char** argv)
 	  float idFakeSF_tauid_2d_systcorrdmeras_up			= 1.f;		   
 	  float idFakeSF_tauid_2d_systcorrdmeras_down		= 1.f;		 
 	  float idFakeSF_tauid_2d_systcorrdmuncorreras_up	= 1.f;	 
+
 	  float idFakeSF_tauid_2d_systcorrdmuncorreras_down	= 1.f; 
 	  float idFakeSF_tauid_2d_systuncorrdmeras_up		= 1.f;		 
 	  float idFakeSF_tauid_2d_systuncorrdmeras_down		= 1.f;	   
@@ -2827,17 +2659,6 @@ int main (int argc, char** argv)
 	  float idFakeSF_tauid_2d_statgt140_up				= 1.f;
 	  float idFakeSF_tauid_2d_statgt140_down			= 1.f;
 	  float idFakeSF_tauid_2d_extrapgt140				= 1.f;
-	
-	  float idFakeSF_tauid_pt20to25_up    = 1.0;
-	  float idFakeSF_tauid_pt25to30_up    = 1.0;
-	  float idFakeSF_tauid_pt30to35_up    = 1.0;
-	  float idFakeSF_tauid_pt35to40_up    = 1.0;
-	  float idFakeSF_tauid_pt40toInf_up   = 1.0;
-	  float idFakeSF_tauid_pt20to25_down  = 1.0;
-	  float idFakeSF_tauid_pt25to30_down  = 1.0;
-	  float idFakeSF_tauid_pt30to35_down  = 1.0;
-	  float idFakeSF_tauid_pt35to40_down  = 1.0;
-	  float idFakeSF_tauid_pt40toInf_down = 1.0;
 
 	  float idFakeSF_mutauFR_etaLt0p4_up      = 1.0;
 	  float idFakeSF_mutauFR_eta0p4to0p8_up   = 1.0;
@@ -2907,15 +2728,11 @@ int main (int argc, char** argv)
 	  float tau2Genmatch = theBigTree.genmatch->at(secondDaughterIndex);
 
 	  float idSF_leg1				= 1.f;
-	  float idSF_leg1_deep_vsJet_dm = 1.f;
-	  float idSF_leg1_deep_vsJet_pt = 1.f;
 	  float idSF_leg1_deep_vsJet_2d = 1.f;
 	  float idSF_leg1_deep_vsEle    = 1.f;
 	  float idSF_leg1_deep_vsMu     = 1.f;
 
 	  float idSF_leg2				= 1.f;
-	  float idSF_leg2_deep_vsJet_dm = 1.f;
-	  float idSF_leg2_deep_vsJet_pt = 1.f;
 	  float idSF_leg2_deep_vsJet_2d = 1.f;
 	  float idSF_leg2_deep_vsEle	= 1.f;
 	  float idSF_leg2_deep_vsMu		= 1.f;
@@ -2931,9 +2748,7 @@ int main (int argc, char** argv)
 
 	  // only TauTau has a tau as the first leg
 	  if (isMC and pType==2)
-		{
-		  idSF_leg1_deep_vsJet_dm = Deep_antiJet_medium_dm->getSFvsDM(leg1pt, tau1DM, tau1Genmatch);
-		  idSF_leg1_deep_vsJet_pt = Deep_antiJet_medium_pt->getSFvsPT(leg1pt, tau1Genmatch);
+	  {
 		  idSF_leg1_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch);
 		  idSF_leg1_deep_vsEle    = Deep_antiEle_vvloose->getSFvsEta(leg1eta, tau1Genmatch);
 		  idSF_leg1_deep_vsMu     = Deep_antiMu_tight->getSFvsEta(leg1eta, tau1Genmatch);
@@ -2942,8 +2757,6 @@ int main (int argc, char** argv)
 	  // all channels with one tau in the second leg
 	  if (isMC and (pType==0 or pType==1 or pType==2))
 		{
-		  idSF_leg2_deep_vsJet_dm = Deep_antiJet_medium_dm->getSFvsDM(leg2pt, tau2DM, tau2Genmatch);
-		  idSF_leg2_deep_vsJet_pt = Deep_antiJet_medium_pt->getSFvsPT(leg2pt, tau2Genmatch);
 		  idSF_leg2_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch);
 		  idSF_leg2_deep_vsEle = Deep_antiEle_vvloose->getSFvsEta(leg2eta, tau2Genmatch);
 		  idSF_leg2_deep_vsMu  = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch);
@@ -2959,6 +2772,7 @@ int main (int argc, char** argv)
 	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down = 1.f;
 	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_up		= 1.f;
 	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_down		= 1.f;
+
 	  Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up	    = 1.f;
 	  Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down	= 1.f;
 	  Float_t idSF_leg1_deep_vsJet_2d_statgt140_up				= 1.f;
@@ -2975,6 +2789,7 @@ int main (int argc, char** argv)
 	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down = 1.f;
 	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_up		= 1.f;
 	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_down		= 1.f;
+
 	  Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up	    = 1.f;
 	  Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down	= 1.f;
 	  Float_t idSF_leg2_deep_vsJet_2d_statgt140_up				= 1.f;
@@ -2982,36 +2797,13 @@ int main (int argc, char** argv)
 	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140				= 1.f;
 	  
 	  // up and down variations of the ID and isolation of the first leg (only relevant when it is a tau)
-	  vector<float> idSF_leg1_deep_vsJet_pt_up   (5, idSF_leg1_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
 	  vector<float> idSF_leg1_deep_vsEle_up      (2, idSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg1_deep_vsMu_up       (5, idSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-	  vector<float> idSF_leg1_deep_vsJet_pt_down (5, idSF_leg1_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
 	  vector<float> idSF_leg1_deep_vsEle_down    (2, idSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg1_deep_vsMu_down     (5, idSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 	  
 	  // only TauTau has a tau as the first leg
-	  if (isMC and pType==2) {
-		for (int bin = 0; bin < (int) isthisPt_IDbin_first.size(); bin++)	{
-		  if (isthisPt_IDbin_first[bin])
-			{
-			  idSF_leg1_deep_vsJet_pt_up[bin]   = Deep_antiJet_medium_pt ->getSFvsPT(leg1pt, tau1Genmatch,   "Up");
-			  idSF_leg1_deep_vsJet_pt_down[bin] = Deep_antiJet_medium_pt ->getSFvsPT(leg1pt, tau1Genmatch, "Down");
-
-			  //Additional uncertainty see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_to_be_applied_to_gen
-			  double error_up   = fabs(idSF_leg1_deep_vsJet_pt - idSF_leg1_deep_vsJet_pt_up[bin]);
-			  double error_down = fabs(idSF_leg1_deep_vsJet_pt - idSF_leg1_deep_vsJet_pt_down[bin]);
-			
-			  if (leg1pt < 100) {
-				idSF_leg1_deep_vsJet_pt_up[bin]   = idSF_leg1_deep_vsJet_pt*1.03 + error_up;
-				idSF_leg1_deep_vsJet_pt_down[bin] = idSF_leg1_deep_vsJet_pt*0.97 - error_down;
-			  }
-			  else {
-				idSF_leg1_deep_vsJet_pt_up[bin]   = idSF_leg1_deep_vsJet_pt*1.15 + error_up;
-				idSF_leg1_deep_vsJet_pt_down[bin] = idSF_leg1_deep_vsJet_pt*0.85 - error_down;
-			  }
-			}
-		}
-	
+	  if (isMC and pType==2) {	
 		for (int bin = 0; bin < (int) isthisEta_IDbin_first.size(); bin++) {
 		  if (isthisEta_IDbin_first[bin])
 			{
@@ -3046,51 +2838,24 @@ int main (int argc, char** argv)
 	  }
 
 	  // up and down variations of the ID and isolation of the second leg (only relevant when it is a tau)
-	  vector<float> idSF_leg2_deep_vsJet_pt_up   (5, idSF_leg2_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
 	  vector<float> idSF_leg2_deep_vsEle_up      (2, idSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg2_deep_vsMu_up       (5, idSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-	  vector<float> idSF_leg2_deep_vsJet_pt_down (5, idSF_leg2_deep_vsJet_pt); // in bins of pt: 20, 25, 30, 35, 40, infty
 	  vector<float> idSF_leg2_deep_vsEle_down    (2, idSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg2_deep_vsMu_down     (5, idSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 
 	  if (isMC and (pType==0 or pType==1 or pType==2)) {
-		for (int bin = 0; bin < (int) isthisPt_IDbin_second.size(); bin++) {
-		  if (isthisPt_IDbin_second[bin])
-			{
-			  idSF_leg2_deep_vsJet_pt_up[bin]   = Deep_antiJet_medium_pt ->getSFvsPT(leg2pt, tau2Genmatch,   "Up");
-			  idSF_leg2_deep_vsJet_pt_down[bin] = Deep_antiJet_medium_pt ->getSFvsPT(leg2pt, tau2Genmatch, "Down");
-			}
-
-		  //Additional uncertainty see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_to_be_applied_to_gen
-		  if (pType==2) {
-			double error_up   = fabs(idSF_leg2_deep_vsJet_pt - idSF_leg2_deep_vsJet_pt_up[bin]);
-			double error_down = fabs(idSF_leg2_deep_vsJet_pt - idSF_leg2_deep_vsJet_pt_down[bin]);
-			if (leg2pt < 100)
-			  {
-				idSF_leg2_deep_vsJet_pt_up[bin]   = idSF_leg2_deep_vsJet_pt*1.03 + error_up;
-				idSF_leg2_deep_vsJet_pt_down[bin] = idSF_leg2_deep_vsJet_pt*0.97 - error_down;
-			  }
-			else
-			  {
-				idSF_leg2_deep_vsJet_pt_up[bin]   = idSF_leg2_deep_vsJet_pt*1.15 + error_up;
-				idSF_leg2_deep_vsJet_pt_down[bin] = idSF_leg2_deep_vsJet_pt*0.85 - error_down;
-			  }
+		for (int bin = 0; bin < (int) isthisEta_IDbin_second.size(); bin++) {
+		  if (isthisEta_IDbin_second[bin]) {
+			idSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch,	"Up");
+			idSF_leg2_deep_vsMu_down[bin] = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch, "Down");
 		  }
+		}
 
-
-		  for (int bin = 0; bin < (int) isthisEta_IDbin_second.size(); bin++) {
-			if (isthisEta_IDbin_second[bin]) {
-			  idSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch,	"Up");
-			  idSF_leg2_deep_vsMu_down[bin] = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch, "Down");
-			}
+		for (int bin = 0; bin < (int) isthisSDet_IDbin_second.size(); bin++) {
+		  if (isthisSDet_IDbin_second[bin]) {
+			idSF_leg2_deep_vsEle_up[bin]   = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch,   "Up");
+			idSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch, "Down");
 		  }
-
-		  for (int bin = 0; bin < (int) isthisSDet_IDbin_second.size(); bin++) {
-			if (isthisSDet_IDbin_second[bin]) {
-			  idSF_leg2_deep_vsEle_up[bin]   = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch,   "Up");
-			  idSF_leg2_deep_vsEle_down[bin] = Deep_antiEle_vvloose ->getSFvsEta(leg2eta, tau2Genmatch, "Down");
-			}
-		  } 
 		}
 
 		idSF_leg2_deep_vsJet_2d_stat0_up					= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Stat0Up");
@@ -3130,17 +2895,13 @@ int main (int argc, char** argv)
 	  // EleTau and MuTau
 	  if (isMC and (pType == 0 or pType == 1))
 		{
-		  idSF_deep_dm = idSF_leg1 * idSF_leg2_deep_vsJet_dm;
-		  idSF_deep_pt = idSF_leg1 * idSF_leg2_deep_vsJet_pt;
 		  idSF_deep_2d = idSF_leg1 * idSF_leg2_deep_vsJet_2d;
 		  fakeRateSF_deep = idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
 
 		  except_VsJet = idSF_leg1 * idSF_leg2_deep_vsEle    * idSF_leg2_deep_vsMu;
 		  except_vsMu  = idSF_leg1 * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
 		  except_vsEle = idSF_leg1 * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
-		
-		  idFakeSF_deep_dm = except_VsJet * idSF_leg2_deep_vsJet_dm;
-		  idFakeSF_deep_pt = except_VsJet * idSF_leg2_deep_vsJet_pt;
+
 		  idFakeSF_deep_2d = except_VsJet * idSF_leg2_deep_vsJet_2d;
 
 		  idFakeSF_tauid_2d_stat0_up					= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_up;
@@ -3159,17 +2920,6 @@ int main (int argc, char** argv)
 		  idFakeSF_tauid_2d_statgt140_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_statgt140_down;
 		  idFakeSF_tauid_2d_extrapgt140 		        = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140;
 		
-		  idFakeSF_tauid_pt20to25_up	= except_VsJet * idSF_leg2_deep_vsJet_pt_up[0];
-		  idFakeSF_tauid_pt25to30_up	= except_VsJet * idSF_leg2_deep_vsJet_pt_up[1];
-		  idFakeSF_tauid_pt30to35_up	= except_VsJet * idSF_leg2_deep_vsJet_pt_up[2];
-		  idFakeSF_tauid_pt35to40_up	= except_VsJet * idSF_leg2_deep_vsJet_pt_up[3];
-		  idFakeSF_tauid_pt40toInf_up	= except_VsJet * idSF_leg2_deep_vsJet_pt_up[4];
-		  idFakeSF_tauid_pt20to25_down	= except_VsJet * idSF_leg2_deep_vsJet_pt_down[0];
-		  idFakeSF_tauid_pt25to30_down	= except_VsJet * idSF_leg2_deep_vsJet_pt_down[1];
-		  idFakeSF_tauid_pt30to35_down	= except_VsJet * idSF_leg2_deep_vsJet_pt_down[2];
-		  idFakeSF_tauid_pt35to40_down	= except_VsJet * idSF_leg2_deep_vsJet_pt_down[3];
-		  idFakeSF_tauid_pt40toInf_down = except_VsJet * idSF_leg2_deep_vsJet_pt_down[4];
-
 		  idFakeSF_mutauFR_etaLt0p4_up      = except_vsMu * idSF_leg2_deep_vsMu_up[0];
 		  idFakeSF_mutauFR_eta0p4to0p8_up   = except_vsMu * idSF_leg2_deep_vsMu_up[1];
 		  idFakeSF_mutauFR_eta0p8to1p2_up   = except_vsMu * idSF_leg2_deep_vsMu_up[2];
@@ -3188,16 +2938,12 @@ int main (int argc, char** argv)
 		}
 	  else if (isMC and pType == 2) // TauTau
 		{
-		  idSF_deep_dm	= idSF_leg1_deep_vsJet_dm * idSF_leg2_deep_vsJet_dm;
-		  idSF_deep_pt	= idSF_leg1_deep_vsJet_pt * idSF_leg2_deep_vsJet_pt;
 		  idSF_deep_2d	= idSF_leg1_deep_vsJet_2d * idSF_leg2_deep_vsJet_2d;
 
 		  except_VsJet	= idSF_leg1_deep_vsEle * idSF_leg1_deep_vsMu * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
 		  except_vsMu	= idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsEle * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
 		  except_vsEle	= idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsMu  * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
 
-		  idFakeSF_deep_dm	= except_VsJet * idSF_deep_dm;
-		  idFakeSF_deep_pt	= except_VsJet * idSF_deep_pt;
 		  idFakeSF_deep_2d	= except_VsJet * idSF_deep_2d;
 		  fakeRateSF_deep	= except_VsJet;
 
@@ -3216,17 +2962,6 @@ int main (int argc, char** argv)
 		  idFakeSF_tauid_2d_statgt140_up        		= except_VsJet * idSF_leg1_deep_vsJet_2d_statgt140_up              * idSF_leg2_deep_vsJet_2d_statgt140_up;
 		  idFakeSF_tauid_2d_statgt140_down          	= except_VsJet * idSF_leg1_deep_vsJet_2d_statgt140_down            * idSF_leg2_deep_vsJet_2d_statgt140_down;
 		  idFakeSF_tauid_2d_extrapgt140              	= except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140               * idSF_leg2_deep_vsJet_2d_extrapgt140;
-		
-		  idFakeSF_tauid_pt20to25_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[0]   * idSF_leg2_deep_vsJet_pt_up[0];
-		  idFakeSF_tauid_pt25to30_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[1]   * idSF_leg2_deep_vsJet_pt_up[1];
-		  idFakeSF_tauid_pt30to35_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[2]   * idSF_leg2_deep_vsJet_pt_up[2];
-		  idFakeSF_tauid_pt35to40_up    = except_VsJet * idSF_leg1_deep_vsJet_pt_up[3]   * idSF_leg2_deep_vsJet_pt_up[3];
-		  idFakeSF_tauid_pt40toInf_up   = except_VsJet * idSF_leg1_deep_vsJet_pt_up[4]   * idSF_leg2_deep_vsJet_pt_up[4];
-		  idFakeSF_tauid_pt20to25_down  = except_VsJet * idSF_leg1_deep_vsJet_pt_down[0] * idSF_leg2_deep_vsJet_pt_down[0];
-		  idFakeSF_tauid_pt25to30_down  = except_VsJet * idSF_leg1_deep_vsJet_pt_down[1] * idSF_leg2_deep_vsJet_pt_down[1];
-		  idFakeSF_tauid_pt30to35_down  = except_VsJet * idSF_leg1_deep_vsJet_pt_down[2] * idSF_leg2_deep_vsJet_pt_down[2];
-		  idFakeSF_tauid_pt35to40_down  = except_VsJet * idSF_leg1_deep_vsJet_pt_down[3] * idSF_leg2_deep_vsJet_pt_down[3];
-		  idFakeSF_tauid_pt40toInf_down = except_VsJet * idSF_leg1_deep_vsJet_pt_down[4] * idSF_leg2_deep_vsJet_pt_down[4];
 
 		  idFakeSF_mutauFR_etaLt0p4_up      = except_vsMu * idSF_leg1_deep_vsMu_up[0]   * idSF_leg2_deep_vsMu_up[0];
 		  idFakeSF_mutauFR_eta0p4to0p8_up   = except_vsMu * idSF_leg1_deep_vsMu_up[1]   * idSF_leg2_deep_vsMu_up[1];
@@ -3246,37 +2981,27 @@ int main (int argc, char** argv)
 		}
 	  else if(isMC and (pType == 3 or pType == 4))  // MuMu and EleELe channels
 		{
-		  idSF_deep_dm = idFakeSF_deep_dm = idSF_leg1 * idSF_leg2;
+		  idSF_deep_2d = idFakeSF_deep_2d = idSF_leg1 * idSF_leg2;
 		}
 	  
 	  if (DEBUG) {
 		cout << "--- DEBUG idSF ---" << endl;
 		cout << "pairType  : "              << pType                   << endl;
-		cout << "totSF deep_dm: "           << idFakeSF_deep_dm        << endl;
-		cout << "totSF deep_pt: "           << idFakeSF_deep_pt        << endl;
 		cout << "totSF deep_2d: "           << idFakeSF_deep_2d        << endl;
 		cout << "idSF_leg1: "               << idSF_leg1               << endl;
-		cout << "idSF_leg1_deep_vsJet_dm: " << idSF_leg1_deep_vsJet_dm << endl;
-		cout << "idSF_leg1_deep_vsJet_pt: " << idSF_leg1_deep_vsJet_pt << endl;
 		cout << "idSF_leg1_deep_vsJet_2d: " << idSF_leg1_deep_vsJet_2d << endl;
 		cout << "idSF_leg1_deep_vsEle: "    << idSF_leg1_deep_vsEle    << endl;
 		cout << "idSF_leg1_deep_vsMu: "     << idSF_leg1_deep_vsMu     << endl;
-		cout << "idSF_leg2_deep_vsJet_dm: " << idSF_leg2_deep_vsJet_dm << endl;
-		cout << "idSF_leg2_deep_vsJet_pt: " << idSF_leg2_deep_vsJet_pt << endl;
 		cout << "idSF_leg2_deep_vsJet_2d: " << idSF_leg2_deep_vsJet_2d << endl;
 		cout << "idSF_leg2_deep_vsEle: "    << idSF_leg2_deep_vsEle    << endl;
 		cout << "idSF_leg2_deep_vsMu: "     << idSF_leg2_deep_vsMu     << endl;
 	  }
 
 	  // Save the IDandISO SF (event per event)
-	  theSmallTree.m_IdSF_deep_dm				= idSF_deep_dm;
-	  theSmallTree.m_IdSF_deep_pt				= idSF_deep_pt;
 	  theSmallTree.m_IdSF_deep_2d				= idSF_deep_2d;
 	  theSmallTree.m_IdSF_leg1_deep_vsJet_2d	= idSF_leg1_deep_vsJet_2d;
 	  theSmallTree.m_IdSF_leg2_deep_vsJet_2d	= idSF_leg2_deep_vsJet_2d;
 	  
-	  theSmallTree.m_IdFakeSF_deep_dm = idFakeSF_deep_dm;
-	  theSmallTree.m_IdFakeSF_deep_pt = idFakeSF_deep_pt;
 	  theSmallTree.m_IdFakeSF_deep_2d = idFakeSF_deep_2d;
 	  theSmallTree.m_FakeRateSF_deep  = fakeRateSF_deep;
 
@@ -3295,17 +3020,6 @@ int main (int argc, char** argv)
 	  theSmallTree.m_idFakeSF_tauid_2d_statgt140_up					= idFakeSF_tauid_2d_statgt140_up;
 	  theSmallTree.m_idFakeSF_tauid_2d_statgt140_down				= idFakeSF_tauid_2d_statgt140_down;
 	  theSmallTree.m_idFakeSF_tauid_2d_extrapgt140					= idFakeSF_tauid_2d_extrapgt140;
-	
-	  theSmallTree.m_idFakeSF_tauid_pt20to25_up		= idFakeSF_tauid_pt20to25_up;	
-	  theSmallTree.m_idFakeSF_tauid_pt25to30_up		= idFakeSF_tauid_pt25to30_up;		
-	  theSmallTree.m_idFakeSF_tauid_pt30to35_up		= idFakeSF_tauid_pt30to35_up;		
-	  theSmallTree.m_idFakeSF_tauid_pt35to40_up		= idFakeSF_tauid_pt35to40_up;		
-	  theSmallTree.m_idFakeSF_tauid_pt40toInf_up	= idFakeSF_tauid_pt40toInf_up;		
-	  theSmallTree.m_idFakeSF_tauid_pt20to25_down	= idFakeSF_tauid_pt20to25_down;		
-	  theSmallTree.m_idFakeSF_tauid_pt25to30_down	= idFakeSF_tauid_pt25to30_down;	
-	  theSmallTree.m_idFakeSF_tauid_pt30to35_down	= idFakeSF_tauid_pt30to35_down;	
-	  theSmallTree.m_idFakeSF_tauid_pt35to40_down	= idFakeSF_tauid_pt35to40_down;		
-	  theSmallTree.m_idFakeSF_tauid_pt40toInf_down	= idFakeSF_tauid_pt40toInf_down;	
 
 	  theSmallTree.m_idFakeSF_mutauFR_etaLt0p4_up		= idFakeSF_mutauFR_etaLt0p4_up;		
 	  theSmallTree.m_idFakeSF_mutauFR_eta0p4to0p8_up	= idFakeSF_mutauFR_eta0p4to0p8_up;	
@@ -3347,7 +3061,6 @@ int main (int argc, char** argv)
 	  // https://github.com/truggles/TauTriggerSFs2017
 
 	  // recommendations for cross triggers:  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information
-
 	  float trigSF				= 1.0;
 	  float trigSF_ele_up		= 1.0;
 	  float trigSF_mu_up		= 1.0;
@@ -3365,16 +3078,27 @@ int main (int argc, char** argv)
 	  float trigSF_vbfjet_down	= 1.0;
 	  float trigSF_single		= 1.0;
 	  float trigSF_cross		= 1.0;
-
+	  float trigSF_met_up   	= 1.0;
+	  float trigSF_met_down   	= 1.0;
+	  float trigSF_stau_up   	= 1.0;
+	  float trigSF_stau_down   	= 1.0;
+	  
 	  if(applyTriggers)
 		{
 		  // MuTau Channel
-		  if (pType == 0 && isMC)
+		  if (pType == 0 and isMC)
 			{
-			  if(fabs(tlv_secondLepton.Eta()) < 2.1) //eta region covered both by cross-trigger and single lepton trigger
+			  if(MET_region)
 				{
-				  int passCross = 1;
-				  int passSingle = 1;
+				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "mutau");
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "mutau");
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "mutau");
+				}
+
+			  // eta region covered both by cross-trigger and single lepton trigger
+			  else if(fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_region) 
+				{
+				  int passSingle = 1, passCross = 1;
 
 				  float lep1_thresh, lep2_thresh;
 				  if(PERIOD=="2018" or PERIOD=="2017") {
@@ -3402,11 +3126,11 @@ int main (int argc, char** argv)
 
 				  //cross-trigger
 				  //mu leg
-				  double SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-				  double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+				  double SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
+				  double SFl_MC = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
 
-				  double SFl_Data_Err = muTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-				  double SFl_MC_Err = muTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+				  double SFl_Data_Err = muTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
+				  double SFl_MC_Err = muTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
 
 				  double SFl_Data_up   = SFl_Data + 1. * SFl_Data_Err;
 				  double SFl_Data_down = SFl_Data - 1. * SFl_Data_Err;
@@ -3462,24 +3186,24 @@ int main (int argc, char** argv)
 					  cout << "SFtau_MC: "   << SFtau_MC   << endl;
 					}
 
-				  trigSF = Eff_Data / Eff_MC;
-				  trigSF_mu_up     = Eff_Data_mu_up / Eff_MC_mu_up;
-				  trigSF_mu_down   = Eff_Data_mu_down / Eff_MC_mu_down;
-				  trigSF_DM0_up    = Eff_Data_up[0] / Eff_MC_up[0];
-				  trigSF_DM1_up    = Eff_Data_up[1] / Eff_MC_up[1];
-				  trigSF_DM10_up   = Eff_Data_up[2] / Eff_MC_up[2];
-				  trigSF_DM11_up   = Eff_Data_up[3] / Eff_MC_up[3];
-				  trigSF_DM0_down  = Eff_Data_down[0] / Eff_MC_down[0];
-				  trigSF_DM1_down  = Eff_Data_down[1] / Eff_MC_down[1];
-				  trigSF_DM10_down = Eff_Data_down[2] / Eff_MC_down[2];
-				  trigSF_DM11_down = Eff_Data_down[3] / Eff_MC_down[3];
+				  trigSF			= Eff_Data			/ Eff_MC;
+				  trigSF_mu_up		= Eff_Data_mu_up	/ Eff_MC_mu_up;
+				  trigSF_mu_down	= Eff_Data_mu_down	/ Eff_MC_mu_down;
+				  trigSF_DM0_up		= Eff_Data_up[0]	/ Eff_MC_up[0];
+				  trigSF_DM1_up		= Eff_Data_up[1]	/ Eff_MC_up[1];
+				  trigSF_DM10_up	= Eff_Data_up[2]	/ Eff_MC_up[2];
+				  trigSF_DM11_up	= Eff_Data_up[3]	/ Eff_MC_up[3];
+				  trigSF_DM0_down	= Eff_Data_down[0]	/ Eff_MC_down[0];
+				  trigSF_DM1_down	= Eff_Data_down[1]	/ Eff_MC_down[1];
+				  trigSF_DM10_down	= Eff_Data_down[2]	/ Eff_MC_down[2];
+				  trigSF_DM11_down	= Eff_Data_down[3]	/ Eff_MC_down[3];
 
 				  //trig SF for analysis only with cross-trigger
-				  double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+				  double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
 				  double SFtau = tauTrgSF_mutau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 				  trigSF_cross = SFl*SFtau;
 				}
-			  else //eta region covered only by single lepton trigger
+			  else // eta region covered only by single lepton trigger
 				{
 				  double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 				  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -3488,16 +3212,24 @@ int main (int argc, char** argv)
 				  trigSF_mu_down = SF - 1. * SF_Err;
 				}
 			  //trig SF for analysis only with single-mu trigger
-			  trigSF_single =  muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+			  trigSF_single = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 			}
 
 		  // EleTau Channel
-		  else if (pType == 1 && isMC)
+		  else if (pType == 1 and isMC)
 			{
-			  if(fabs(tlv_secondLepton.Eta()) < 2.1) //eta region covered both by cross-trigger and single lepton trigger
+			  if(MET_region)
 				{
-				  int passCross = 1;
-				  int passSingle = 1;
+				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "etau");
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "etau");
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "etau");
+				}
+
+			  // eta region covered both by cross-trigger and single lepton trigger
+			  else if(PERIOD != "2016preVFP" and PERIOD != "2016postVFP" and
+					  fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_region)
+				{
+				  int passSingle = 1, passCross = 1;
 
 				  if (tlv_firstLepton.Pt() < 33.) passSingle = 0;
 				  if (tlv_secondLepton.Pt() < 35.) passCross = 0;
@@ -3576,17 +3308,17 @@ int main (int argc, char** argv)
 					  cout << "SFtau_MC: "   << SFtau_MC   << endl;
 					}
 
-				  trigSF = Eff_Data / Eff_MC;
-				  trigSF_ele_up    = Eff_Data_ele_up / Eff_MC_ele_up;
-				  trigSF_ele_down  = Eff_Data_ele_down / Eff_MC_ele_down;
-				  trigSF_DM0_up    = Eff_Data_up[0] / Eff_MC_up[0];
-				  trigSF_DM1_up    = Eff_Data_up[1] / Eff_MC_up[1];
-				  trigSF_DM10_up   = Eff_Data_up[2] / Eff_MC_up[2];
-				  trigSF_DM11_up   = Eff_Data_up[3] / Eff_MC_up[3];
-				  trigSF_DM0_down  = Eff_Data_down[0] / Eff_MC_down[0];
-				  trigSF_DM1_down  = Eff_Data_down[1] / Eff_MC_down[1];
-				  trigSF_DM10_down = Eff_Data_down[2] / Eff_MC_down[2];
-				  trigSF_DM11_down = Eff_Data_down[3] / Eff_MC_down[3];
+				  trigSF			= Eff_Data			/ Eff_MC;
+				  trigSF_ele_up		= Eff_Data_ele_up	/ Eff_MC_ele_up;
+				  trigSF_ele_down	= Eff_Data_ele_down / Eff_MC_ele_down;
+				  trigSF_DM0_up		= Eff_Data_up[0]	/ Eff_MC_up[0];
+				  trigSF_DM1_up		= Eff_Data_up[1]	/ Eff_MC_up[1];
+				  trigSF_DM10_up	= Eff_Data_up[2]	/ Eff_MC_up[2];
+				  trigSF_DM11_up	= Eff_Data_up[3]	/ Eff_MC_up[3];
+				  trigSF_DM0_down	= Eff_Data_down[0]	/ Eff_MC_down[0];
+				  trigSF_DM1_down	= Eff_Data_down[1]	/ Eff_MC_down[1];
+				  trigSF_DM10_down	= Eff_Data_down[2]	/ Eff_MC_down[2];
+				  trigSF_DM11_down	= Eff_Data_down[3]	/ Eff_MC_down[3];
 
 				  //trig SF for analysis only with cross-trigger
 				  double SFl = eTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
@@ -3595,8 +3327,18 @@ int main (int argc, char** argv)
 				}
 			  else //eta region covered only by single lepton trigger
 				{
-				  double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-				  double SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+				  double SF = 1.;
+				  double SF_Err = 1.;
+				  // dirty trick to deal with bad efficiency values in a (very) low-stat bins
+				  // should only affect one bin in sf_el_2016post_HLTEle25.root
+				  if(PERIOD == "2016postVFP" and tlv_firstLepton.Pt() >= 100. and tlv_firstLepton.Eta() <= -2.) {
+				    SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), -tlv_firstLepton.Eta());
+				    SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), -tlv_firstLepton.Eta());
+				  } else {
+				    SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+				    SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+				  }
+
 				  trigSF = SF;
 				  trigSF_ele_up   = SF + 1. * SF_Err;
 				  trigSF_ele_down = SF - 1. * SF_Err;
@@ -3606,44 +3348,61 @@ int main (int argc, char** argv)
 			}
 
 		  // TauTau Channel
-		  else if (pType == 2 && isMC && isVBFfired == 0)
+		  else if (pType == 2 and isMC)
 			{
-			  double SF1 = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt() , DM1, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-			  double SF2 = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-
-			  // for each DM, fill a trigSF branch with the up/down values if tauhs have the corresponding DM, otherwise fill with nominal trigSF value
-			  vector <double> SF1_up (N_tauhDM, SF1);
-			  vector <double> SF2_up (N_tauhDM, SF2);
-			  vector <double> SF1_down (N_tauhDM, SF1);
-			  vector <double> SF2_down (N_tauhDM, SF2);
-
-			  for (int idm  = 0; idm < N_tauhDM; idm ++)
+			  if (MET_region)
 				{
-				  if (isthisDM_first[idm])
-					{
-					  SF1_up[idm]   = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt(), DM1, 1);
-					  SF1_down[idm] = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt(), DM1, -1);
-					}
-				  if (isthisDM_second[idm])
-					{
-					  SF2_up[idm]   = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 1);
-					  SF2_down[idm] = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, -1);
-					}
+				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "tautau");
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "tautau");
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "tautau");
 				}
 
-			  trigSF = SF1 * SF2;
-			  trigSF_DM0_up    = SF1_up[0]   *	SF2_up[0];
-			  trigSF_DM1_up    = SF1_up[1]   *	SF2_up[1];
-			  trigSF_DM10_up   = SF1_up[2]   *	SF2_up[2];
-			  trigSF_DM11_up   = SF1_up[3]   *	SF2_up[3];
-			  trigSF_DM0_down  = SF1_down[0] *	SF2_down[0];
-			  trigSF_DM1_down  = SF1_down[1] *	SF2_down[1];
-			  trigSF_DM10_down = SF1_down[2] *	SF2_down[2];
-			  trigSF_DM11_down = SF1_down[3] *	SF2_down[3];
-			  trigSF_vbfjet_up   = SF1 * SF2;
-			  trigSF_vbfjet_down = SF1 * SF2;
-			}
+			  else if (SingleTau_region)
+				{
+				  trigSF           = singleTauSF[PERIOD].first;
+				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
+				  trigSF_stau_down = trigSF - singleTauSF[PERIOD].second;
+				}
 
+			  // DiTau region
+			  else {
+				// last entry is uncertainty: 0 central, +1 up, -1 down
+				double SF1 = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt() , DM1, 0);
+				double SF2 = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 0);
+			  
+				// for each DM, fill a trigSF branch with the up/down values if taus have
+				// the corresponding DM, otherwise fill with nominal trigSF value
+				vector <double> SF1_up(N_tauhDM, SF1), SF1_down (N_tauhDM, SF1);
+				vector <double> SF2_up(N_tauhDM, SF2), SF2_down (N_tauhDM, SF2);
+
+				for (int idm  = 0; idm < N_tauhDM; idm++)
+				  {
+					if (isthisDM_first[idm])
+					  {
+						SF1_up[idm]   = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt(), DM1, 1);
+						SF1_down[idm] = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt(), DM1, -1);
+					  }
+					if (isthisDM_second[idm])
+					  {
+						SF2_up[idm]   = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 1);
+						SF2_down[idm] = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, -1);
+					  }
+				  }
+				
+				trigSF				= SF1         * SF2;
+				trigSF_DM0_up		= SF1_up[0]   *	SF2_up[0];
+				trigSF_DM1_up		= SF1_up[1]   *	SF2_up[1];
+				trigSF_DM10_up		= SF1_up[2]   *	SF2_up[2];
+				trigSF_DM11_up		= SF1_up[3]   *	SF2_up[3];
+				trigSF_DM0_down		= SF1_down[0] *	SF2_down[0];
+				trigSF_DM1_down		= SF1_down[1] *	SF2_down[1];
+				trigSF_DM10_down	= SF1_down[2] *	SF2_down[2];
+				trigSF_DM11_down	= SF1_down[3] *	SF2_down[3];
+				trigSF_vbfjet_up	= SF1         * SF2;
+				trigSF_vbfjet_down	= SF1         * SF2;
+			  }
+			}
+		  
 		  // MuMu Channel
 		  else if (pType == 3 && isMC)
 			{
@@ -3682,8 +3441,14 @@ int main (int argc, char** argv)
 	  theSmallTree.m_trigSF_vbfjet_down = (isMC ? trigSF_vbfjet_down : 1.0);
 	  theSmallTree.m_trigSF_single		= (isMC ? trigSF_single : 1.0);
 	  theSmallTree.m_trigSF_cross		= (isMC ? trigSF_cross : 1.0);
+	  theSmallTree.m_trigSF_met_up		= (isMC ? trigSF_met_up : 1.0);
+	  theSmallTree.m_trigSF_met_down	= (isMC ? trigSF_met_down : 1.0);
+	  theSmallTree.m_trigSF_stau_up		= (isMC ? trigSF_stau_up : 1.0);
+	  theSmallTree.m_trigSF_stau_down	= (isMC ? trigSF_stau_down : 1.0);
 
-	  theSmallTree.m_totalWeight = (isMC? (59970./7.20811e+10) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_DYscale_MTT * trigSF * theSmallTree.m_IdFakeSF_deep_pt: 1.0);
+	  theSmallTree.m_totalWeight = (isMC? (59970./7.20811e+10) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight *
+									trigSF * theSmallTree.m_IdFakeSF_deep_2d: 1.0);
+  
 	  //total weight used for sync: the denominator must be changed for each sample as h_eff->GetBinContent(1), the numerator is the luminosity
 
 	  // Third lepton veto
@@ -4051,9 +3816,8 @@ int main (int argc, char** argv)
 			  if(DEBUG) cout << "---> Evt rejected because (isVBFfired && !isVBF) (VBF trig fired but no good VBF jet candidates available)" << endl;
 			  continue;
 			}
-
 		  // Check that the the VBFjet-pair candidate is trigger matched
-		  if (isVBFfired && isVBF)
+		  else if (isVBFfired && isVBF)
 			{
 			  bool VBFjetLegsMatched = checkVBFjetMatch(DEBUG, VBFidx1, VBFidx2, theBigTree);
 			  if (!VBFjetLegsMatched)
@@ -5148,14 +4912,16 @@ int main (int argc, char** argv)
 
 			  // Logic of VBF trigger SF:
 			  // 1. - if the event is in the diTau trigger phase space (taupt_1 > 40 && tau_pt_2 > 40): use the diTau trigger SF
-			  // 2. - else if the event is in the VBF trigger phase space (mjj > 800 && pt_j1 > 140 && pt_j2 > 60 && taupt_1 > 25 && taupt_2 > 25): use VBF trigger SF
-			  // 3. - else: SF = 0
-			  // In our framework case 1. is the default: in the VBF trigger phase space (case 2.) the branch m_trigSF is overwritten
+			  // 2. - else if the event is in the MET or SingleTau phase-space
+			  // 3. - if it does not fire any of the above, the event might be in the VBF trigger phase space, if it fires the trigger and if
+			  //      (mjj > 800 && pt_j1 > 140 && pt_j2 > 60 && taupt_1 > 25 && taupt_2 > 25)
+			  // 4. - else: SF = 0
+			  // In our framework case 1. is the default: in the VBF trigger phase space (case 3.) the branch m_trigSF is overwritten
 			  // with the VBF_SF, because "trigSF" is the actual weight used later in the analysis
-			  if (wpyear !="2016" and isMC && pairType == 2 && theSmallTree.m_VBFjj_mass > 800 && theSmallTree.m_VBFjet1_pt > 140 && theSmallTree.m_VBFjet2_pt > 60 &&
-				  theSmallTree.m_dau1_pt > 25 && theSmallTree.m_dau2_pt > 25 && (theSmallTree.m_dau1_pt <= 40 || theSmallTree.m_dau2_pt <= 40) )
+			  if (wpyear != "2016" and isMC and pairType == 2 and isTauDataset and !passTrg and !passMETTrg and !passSingleTau and
+				  theSmallTree.m_VBFjj_mass > 800 and theSmallTree.m_VBFjet1_pt > 140 and theSmallTree.m_VBFjet2_pt > 60 and
+				  theSmallTree.m_dau1_pt > 25 and theSmallTree.m_dau2_pt > 25 and (theSmallTree.m_dau1_pt <= 40 || theSmallTree.m_dau2_pt <= 40))
 				{
-				  // Jet legs SF
 				  double jetSF    = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt(), 0); // 0: central value
 				  double jetSFerr = getContentHisto3D(VBFjets_SF, std::get<0>(*(VBFcand_Mjj.rbegin())), VBFjet1.Pt(), VBFjet2.Pt(), 1); // 1: error of value
 
@@ -5165,8 +4931,8 @@ int main (int argc, char** argv)
 
 				  // for each DM, fill a trigSF branch with the up/down values if tauhs have the corresponding DM, otherwise fill with nominal trigSF value
 				  vector <double> SFTau1_up (N_tauhDM, SFTau1);
-				  vector <double> SFTau2_up (N_tauhDM, SFTau2);
 				  vector <double> SFTau1_down (N_tauhDM, SFTau1);
+				  vector <double> SFTau2_up (N_tauhDM, SFTau2);
 				  vector <double> SFTau2_down (N_tauhDM, SFTau2);
 				  for (int idm  = 0; idm < N_tauhDM; idm ++)
 					{
@@ -5192,7 +4958,7 @@ int main (int argc, char** argv)
 
 				  // Save final VBF trig SF
 				  theSmallTree.m_VBFtrigSF          = jetSF * SFTau1 * SFTau2; // store anyway the value
-				  theSmallTree.m_trigSF             = jetSF * SFTau1 * SFTau2;               // overwrite the trigSF values for VBF events
+				  theSmallTree.m_trigSF             = jetSF * SFTau1 * SFTau2; // overwrite the trigSF values for VBF events
 				  theSmallTree.m_trigSF_vbfjet_up   = (jetSF + jetSFerr) * SFTau1 * SFTau2;
 				  theSmallTree.m_trigSF_vbfjet_down = (jetSF - jetSFerr) * SFTau1 * SFTau2;
 				  theSmallTree.m_trigSF_DM0_up      = jetSF * trigSF_DM0_up;
@@ -5204,7 +4970,6 @@ int main (int argc, char** argv)
 				  theSmallTree.m_trigSF_DM10_down   = jetSF * trigSF_DM10_down;
 				  theSmallTree.m_trigSF_DM11_down   = jetSF * trigSF_DM11_down;
 				}
-
 			}
 
 		  // loop over jets
@@ -5410,526 +5175,6 @@ int main (int argc, char** argv)
 			  theSmallTree.m_VBFjet2_HHbtag = -1.;
 			}
 
-		  // Store additional jets (excluding bjets and VBFjets):
-		  // - 5 central jets that pass b-jet selection and have |eta|<=2.4
-		  // - 5 forward jets that pass VBF-jet selection and have 2.4<|eta|<=4.7
-
-		  // Resize additional jets up/down variations to N_jecSources
-		  theSmallTree.m_addJetCentr1_pt_jetup    .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr1_pt_jetdown  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr1_mass_jetup  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr1_mass_jetdown.resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr2_pt_jetup    .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr2_pt_jetdown  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr2_mass_jetup  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr2_mass_jetdown.resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr3_pt_jetup    .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr3_pt_jetdown  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr3_mass_jetup  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr3_mass_jetdown.resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr4_pt_jetup    .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr4_pt_jetdown  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr4_mass_jetup  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr4_mass_jetdown.resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr5_pt_jetup    .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr5_pt_jetdown  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr5_mass_jetup  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetCentr5_mass_jetdown.resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw1_pt_jetup    .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw1_pt_jetdown  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw1_mass_jetup  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw1_mass_jetdown.resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw2_pt_jetup    .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw2_pt_jetdown  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw2_mass_jetup  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw2_mass_jetdown.resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw3_pt_jetup    .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw3_pt_jetdown  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw3_mass_jetup  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw3_mass_jetdown.resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw4_pt_jetup    .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw4_pt_jetdown  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw4_mass_jetup  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw4_mass_jetdown.resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw5_pt_jetup    .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw5_pt_jetdown  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw5_mass_jetup  .resize(N_jecSources,-999.);
-		  theSmallTree.m_addJetForw5_mass_jetdown.resize(N_jecSources,-999.);
-
-		  // Jets are ordered by pT in the theBigTree.jets_px collection
-		  for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
-			{
-			  //PF jet ID
-			  if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
-
-			  // Skip H->bb candidates and VBF candidates
-			  if (int(iJet)==bjet1idx || int(iJet)==bjet2idx || int(iJet)==VBFidx1 || int(iJet)==VBFidx2) continue;
-
-			  // build the tlv
-			  TLorentzVector tlv_additionalJet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
-			  if (doSmearing) tlv_additionalJet = tlv_additionalJet * jets_and_smearFactor[iJet];
-
-			  // Kinematic selections + lepton cleaning
-			  if (tlv_additionalJet.Pt() < 20.) continue ;
-			  if (tlv_additionalJet.DeltaR(tlv_firstLepton)  < lepCleaningCone) continue ;
-			  if (tlv_additionalJet.DeltaR(tlv_secondLepton) < lepCleaningCone) continue ;
-
-			  // Apply PUjetID only to jets with pt < 50 GeV (https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets)
-			  if (PUjetID_WP > -1) //PU jet ID WP = 2: loose
-				{
-				  if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_additionalJet.Pt()<50.) continue;
-				}
-
-			  // get up/down uncertainty for this additional jet
-			  pair <vector <double>, vector<double>> unc_additionalJet_updown = JECprovider.getJECUncVectors(iJet, theBigTree);
-
-			  // Central jets ( |eta| <= 2.4 ) that pass b-jet selection
-			  if (TMath::Abs(tlv_additionalJet.Eta()) <= 2.4)
-				{
-				  if (theSmallTree.m_addJetCentr1_pt < 0.)
-					{
-					  theSmallTree.m_addJetCentr1_pt  = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetCentr1_eta = tlv_additionalJet.Eta();
-					  theSmallTree.m_addJetCentr1_phi = tlv_additionalJet.Phi();
-					  theSmallTree.m_addJetCentr1_e   = tlv_additionalJet.E();
-					  theSmallTree.m_addJetCentr1_btag_deepFlavor = theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet);
-					  theSmallTree.m_addJetCentr1_CvsL            = getCvsL(theBigTree, iJet);
-					  theSmallTree.m_addJetCentr1_CvsB            = getCvsB(theBigTree, iJet);
-					  if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr1_HHbtag = jets_and_HHbtag[iJet];
-					  theSmallTree.m_addJetCentr1_pnet_bb = theBigTree.bParticleNetAK4JetTags_probbb->at(iJet);
-					  theSmallTree.m_addJetCentr1_pnet_cc = theBigTree.bParticleNetAK4JetTags_probcc->at(iJet);
-					  theSmallTree.m_addJetCentr1_pnet_b = theBigTree.bParticleNetAK4JetTags_probb->at(iJet);
-					  theSmallTree.m_addJetCentr1_pnet_c = theBigTree.bParticleNetAK4JetTags_probc->at(iJet);
-					  theSmallTree.m_addJetCentr1_pnet_g = theBigTree.bParticleNetAK4JetTags_probg->at(iJet);
-					  theSmallTree.m_addJetCentr1_pnet_uds = theBigTree.bParticleNetAK4JetTags_probuds->at(iJet);
-					  theSmallTree.m_addJetCentr1_pnet_pu = theBigTree.bParticleNetAK4JetTags_probpu->at(iJet);
-					  theSmallTree.m_addJetCentr1_pnet_undef = theBigTree.bParticleNetAK4JetTags_probundef->at(iJet);
-					  theSmallTree.m_addJetCentr1_smearFactor = jets_and_smearFactor[iJet];
-					  for (int isource = 0; isource < N_jecSources; isource++)
-						{
-						  theSmallTree.m_addJetCentr1_pt_jetup    [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetCentr1_pt_jetdown  [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetCentr1_mass_jetup  [isource] = tlv_additionalJet.M();
-						  theSmallTree.m_addJetCentr1_mass_jetdown[isource] = tlv_additionalJet.M();
-						}
-
-					  theSmallTree.m_addJetCentr1_pt_jetupTot     = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetCentr1_pt_jetdownTot   = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetCentr1_mass_jetupTot   = tlv_additionalJet.M();
-					  theSmallTree.m_addJetCentr1_mass_jetdownTot = tlv_additionalJet.M();
-					  if(isMC)
-						{
-						  for (int isource = 0; isource < N_jecSources; isource++)
-							{
-							  theSmallTree.m_addJetCentr1_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
-							  theSmallTree.m_addJetCentr1_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
-							  theSmallTree.m_addJetCentr1_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
-							  theSmallTree.m_addJetCentr1_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
-							}
-
-						  theSmallTree.m_addJetCentr1_pt_jetupTot     = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).Pt();
-						  theSmallTree.m_addJetCentr1_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).Pt();
-						  theSmallTree.m_addJetCentr1_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).M();
-						  theSmallTree.m_addJetCentr1_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).M();
-
-						}
-					}
-				  else if (theSmallTree.m_addJetCentr2_pt < 0.)
-					{
-					  theSmallTree.m_addJetCentr2_pt  = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetCentr2_eta = tlv_additionalJet.Eta();
-					  theSmallTree.m_addJetCentr2_phi = tlv_additionalJet.Phi();
-					  theSmallTree.m_addJetCentr2_e   = tlv_additionalJet.E();
-					  theSmallTree.m_addJetCentr2_btag_deepFlavor = theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet);
-					  theSmallTree.m_addJetCentr2_CvsL            = getCvsL(theBigTree, iJet);
-					  theSmallTree.m_addJetCentr2_CvsB            = getCvsB(theBigTree, iJet);
-					  if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr2_HHbtag = jets_and_HHbtag[iJet];
-					  theSmallTree.m_addJetCentr2_pnet_bb = theBigTree.bParticleNetAK4JetTags_probbb->at(iJet);
-					  theSmallTree.m_addJetCentr2_pnet_cc = theBigTree.bParticleNetAK4JetTags_probcc->at(iJet);
-					  theSmallTree.m_addJetCentr2_pnet_b = theBigTree.bParticleNetAK4JetTags_probb->at(iJet);
-					  theSmallTree.m_addJetCentr2_pnet_c = theBigTree.bParticleNetAK4JetTags_probc->at(iJet);
-					  theSmallTree.m_addJetCentr2_pnet_g = theBigTree.bParticleNetAK4JetTags_probg->at(iJet);
-					  theSmallTree.m_addJetCentr2_pnet_uds = theBigTree.bParticleNetAK4JetTags_probuds->at(iJet);
-					  theSmallTree.m_addJetCentr2_pnet_pu = theBigTree.bParticleNetAK4JetTags_probpu->at(iJet);
-					  theSmallTree.m_addJetCentr2_pnet_undef = theBigTree.bParticleNetAK4JetTags_probundef->at(iJet);
-					  theSmallTree.m_addJetCentr2_smearFactor = jets_and_smearFactor[iJet];
-					  for (int isource = 0; isource < N_jecSources; isource++)
-						{
-						  theSmallTree.m_addJetCentr2_pt_jetup    [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetCentr2_pt_jetdown  [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetCentr2_mass_jetup  [isource] = tlv_additionalJet.M();
-						  theSmallTree.m_addJetCentr2_mass_jetdown[isource] = tlv_additionalJet.M();
-						}
-
-					  theSmallTree.m_addJetCentr2_pt_jetupTot     = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetCentr2_pt_jetdownTot   = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetCentr2_mass_jetupTot   = tlv_additionalJet.M();
-					  theSmallTree.m_addJetCentr2_mass_jetdownTot = tlv_additionalJet.M();
-					  if(isMC)
-						{
-						  for (int isource = 0; isource < N_jecSources; isource++)
-							{
-							  theSmallTree.m_addJetCentr2_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
-							  theSmallTree.m_addJetCentr2_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
-							  theSmallTree.m_addJetCentr2_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
-							  theSmallTree.m_addJetCentr2_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
-							}
-
-						  theSmallTree.m_addJetCentr2_pt_jetupTot     = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).Pt();
-						  theSmallTree.m_addJetCentr2_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).Pt();
-						  theSmallTree.m_addJetCentr2_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).M();
-						  theSmallTree.m_addJetCentr2_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).M();
-
-						}
-					}
-				  else if (theSmallTree.m_addJetCentr3_pt < 0.)
-					{
-					  theSmallTree.m_addJetCentr3_pt  = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetCentr3_eta = tlv_additionalJet.Eta();
-					  theSmallTree.m_addJetCentr3_phi = tlv_additionalJet.Phi();
-					  theSmallTree.m_addJetCentr3_e   = tlv_additionalJet.E();
-					  theSmallTree.m_addJetCentr3_btag_deepFlavor = theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet);
-					  theSmallTree.m_addJetCentr3_CvsL            = getCvsL(theBigTree, iJet);
-					  theSmallTree.m_addJetCentr3_CvsB            = getCvsB(theBigTree, iJet);
-					  if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr3_HHbtag = jets_and_HHbtag[iJet];
-					  theSmallTree.m_addJetCentr3_pnet_bb = theBigTree.bParticleNetAK4JetTags_probbb->at(iJet);
-					  theSmallTree.m_addJetCentr3_pnet_cc = theBigTree.bParticleNetAK4JetTags_probcc->at(iJet);
-					  theSmallTree.m_addJetCentr3_pnet_b = theBigTree.bParticleNetAK4JetTags_probb->at(iJet);
-					  theSmallTree.m_addJetCentr3_pnet_c = theBigTree.bParticleNetAK4JetTags_probc->at(iJet);
-					  theSmallTree.m_addJetCentr3_pnet_g = theBigTree.bParticleNetAK4JetTags_probg->at(iJet);
-					  theSmallTree.m_addJetCentr3_pnet_uds = theBigTree.bParticleNetAK4JetTags_probuds->at(iJet);
-					  theSmallTree.m_addJetCentr3_pnet_pu = theBigTree.bParticleNetAK4JetTags_probpu->at(iJet);
-					  theSmallTree.m_addJetCentr3_pnet_undef = theBigTree.bParticleNetAK4JetTags_probundef->at(iJet);
-					  theSmallTree.m_addJetCentr3_smearFactor = jets_and_smearFactor[iJet];
-					  for (int isource = 0; isource < N_jecSources; isource++)
-						{
-						  theSmallTree.m_addJetCentr3_pt_jetup    [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetCentr3_pt_jetdown  [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetCentr3_mass_jetup  [isource] = tlv_additionalJet.M();
-						  theSmallTree.m_addJetCentr3_mass_jetdown[isource] = tlv_additionalJet.M();
-						}
-
-					  theSmallTree.m_addJetCentr3_pt_jetupTot     = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetCentr3_pt_jetdownTot   = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetCentr3_mass_jetupTot   = tlv_additionalJet.M();
-					  theSmallTree.m_addJetCentr3_mass_jetdownTot = tlv_additionalJet.M();
-					  if(isMC)
-						{
-						  for (int isource = 0; isource < N_jecSources; isource++)
-							{
-							  theSmallTree.m_addJetCentr3_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
-							  theSmallTree.m_addJetCentr3_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
-							  theSmallTree.m_addJetCentr3_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
-							  theSmallTree.m_addJetCentr3_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
-							}
-
-						  theSmallTree.m_addJetCentr3_pt_jetupTot     = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).Pt();
-						  theSmallTree.m_addJetCentr3_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).Pt();
-						  theSmallTree.m_addJetCentr3_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).M();
-						  theSmallTree.m_addJetCentr3_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).M();
-
-						}
-					}
-				  else if (theSmallTree.m_addJetCentr4_pt < 0.)
-					{
-					  theSmallTree.m_addJetCentr4_pt  = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetCentr4_eta = tlv_additionalJet.Eta();
-					  theSmallTree.m_addJetCentr4_phi = tlv_additionalJet.Phi();
-					  theSmallTree.m_addJetCentr4_e   = tlv_additionalJet.E();
-					  theSmallTree.m_addJetCentr4_btag_deepFlavor = theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet);
-					  theSmallTree.m_addJetCentr4_CvsL            = getCvsL(theBigTree, iJet);
-					  theSmallTree.m_addJetCentr4_CvsB            = getCvsB(theBigTree, iJet);
-					  if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr4_HHbtag = jets_and_HHbtag[iJet];
-					  theSmallTree.m_addJetCentr4_pnet_bb = theBigTree.bParticleNetAK4JetTags_probbb->at(iJet);
-					  theSmallTree.m_addJetCentr4_pnet_cc = theBigTree.bParticleNetAK4JetTags_probcc->at(iJet);
-					  theSmallTree.m_addJetCentr4_pnet_b = theBigTree.bParticleNetAK4JetTags_probb->at(iJet);
-					  theSmallTree.m_addJetCentr4_pnet_c = theBigTree.bParticleNetAK4JetTags_probc->at(iJet);
-					  theSmallTree.m_addJetCentr4_pnet_g = theBigTree.bParticleNetAK4JetTags_probg->at(iJet);
-					  theSmallTree.m_addJetCentr4_pnet_uds = theBigTree.bParticleNetAK4JetTags_probuds->at(iJet);
-					  theSmallTree.m_addJetCentr4_pnet_pu = theBigTree.bParticleNetAK4JetTags_probpu->at(iJet);
-					  theSmallTree.m_addJetCentr4_pnet_undef = theBigTree.bParticleNetAK4JetTags_probundef->at(iJet);
-					  theSmallTree.m_addJetCentr4_smearFactor = jets_and_smearFactor[iJet];
-					  for (int isource = 0; isource < N_jecSources; isource++)
-						{
-						  theSmallTree.m_addJetCentr4_pt_jetup    [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetCentr4_pt_jetdown  [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetCentr4_mass_jetup  [isource] = tlv_additionalJet.M();
-						  theSmallTree.m_addJetCentr4_mass_jetdown[isource] = tlv_additionalJet.M();
-						}
-
-					  theSmallTree.m_addJetCentr4_pt_jetupTot     = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetCentr4_pt_jetdownTot   = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetCentr4_mass_jetupTot   = tlv_additionalJet.M();
-					  theSmallTree.m_addJetCentr4_mass_jetdownTot = tlv_additionalJet.M();
-					  if(isMC)
-						{
-						  for (int isource = 0; isource < N_jecSources; isource++)
-							{
-							  theSmallTree.m_addJetCentr4_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
-							  theSmallTree.m_addJetCentr4_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
-							  theSmallTree.m_addJetCentr4_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
-							  theSmallTree.m_addJetCentr4_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
-							}
-
-						  theSmallTree.m_addJetCentr4_pt_jetupTot     = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).Pt();
-						  theSmallTree.m_addJetCentr4_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).Pt();
-						  theSmallTree.m_addJetCentr4_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).M();
-						  theSmallTree.m_addJetCentr4_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).M();
-
-						}
-					}
-				  else if (theSmallTree.m_addJetCentr5_pt < 0.)
-					{
-					  theSmallTree.m_addJetCentr5_pt  = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetCentr5_eta = tlv_additionalJet.Eta();
-					  theSmallTree.m_addJetCentr5_phi = tlv_additionalJet.Phi();
-					  theSmallTree.m_addJetCentr5_e   = tlv_additionalJet.E();
-					  theSmallTree.m_addJetCentr5_btag_deepFlavor = theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet);
-					  theSmallTree.m_addJetCentr5_CvsL            = getCvsL(theBigTree, iJet);
-					  theSmallTree.m_addJetCentr5_CvsB            = getCvsB(theBigTree, iJet);
-					  if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end()) theSmallTree.m_addJetCentr5_HHbtag = jets_and_HHbtag[iJet];
-					  theSmallTree.m_addJetCentr5_pnet_bb = theBigTree.bParticleNetAK4JetTags_probbb->at(iJet);
-					  theSmallTree.m_addJetCentr5_pnet_cc = theBigTree.bParticleNetAK4JetTags_probcc->at(iJet);
-					  theSmallTree.m_addJetCentr5_pnet_b = theBigTree.bParticleNetAK4JetTags_probb->at(iJet);
-					  theSmallTree.m_addJetCentr5_pnet_c = theBigTree.bParticleNetAK4JetTags_probc->at(iJet);
-					  theSmallTree.m_addJetCentr5_pnet_g = theBigTree.bParticleNetAK4JetTags_probg->at(iJet);
-					  theSmallTree.m_addJetCentr5_pnet_uds = theBigTree.bParticleNetAK4JetTags_probuds->at(iJet);
-					  theSmallTree.m_addJetCentr5_pnet_pu = theBigTree.bParticleNetAK4JetTags_probpu->at(iJet);
-					  theSmallTree.m_addJetCentr5_pnet_undef = theBigTree.bParticleNetAK4JetTags_probundef->at(iJet);
-					  theSmallTree.m_addJetCentr5_smearFactor = jets_and_smearFactor[iJet];
-					  for (int isource = 0; isource < N_jecSources; isource++)
-						{
-						  theSmallTree.m_addJetCentr5_pt_jetup    [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetCentr5_pt_jetdown  [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetCentr5_mass_jetup  [isource] = tlv_additionalJet.M();
-						  theSmallTree.m_addJetCentr5_mass_jetdown[isource] = tlv_additionalJet.M();
-						}
-
-					  theSmallTree.m_addJetCentr5_pt_jetupTot     = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetCentr5_pt_jetdownTot   = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetCentr5_mass_jetupTot   = tlv_additionalJet.M();
-					  theSmallTree.m_addJetCentr5_mass_jetdownTot = tlv_additionalJet.M();
-					  if(isMC)
-						{
-						  for (int isource = 0; isource < N_jecSources; isource++)
-							{
-							  theSmallTree.m_addJetCentr5_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
-							  theSmallTree.m_addJetCentr5_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
-							  theSmallTree.m_addJetCentr5_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
-							  theSmallTree.m_addJetCentr5_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
-							}
-
-						  theSmallTree.m_addJetCentr5_pt_jetupTot     = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).Pt();
-						  theSmallTree.m_addJetCentr5_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).Pt();
-						  theSmallTree.m_addJetCentr5_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).M();
-						  theSmallTree.m_addJetCentr5_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).M();
-
-						}
-					}
-				}
-
-			  // Forward jets ( |eta| > 2.4 ) that pass VBF-jet selection ( pT >= 30. && |eta| <= 4.7 );
-			  if (TMath::Abs(tlv_additionalJet.Eta()) > 2.4 && TMath::Abs(tlv_additionalJet.Eta()) <= 4.7 && tlv_additionalJet.Pt() >= 30.)
-				{
-				  if (theSmallTree.m_addJetForw1_pt < 0.)
-					{
-					  theSmallTree.m_addJetForw1_pt  = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetForw1_eta = tlv_additionalJet.Eta();
-					  theSmallTree.m_addJetForw1_phi = tlv_additionalJet.Phi();
-					  theSmallTree.m_addJetForw1_e   = tlv_additionalJet.E();
-					  theSmallTree.m_addJetForw1_smearFactor = jets_and_smearFactor[iJet];
-					  for (int isource = 0; isource < N_jecSources; isource++)
-						{
-						  theSmallTree.m_addJetForw1_pt_jetup    [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetForw1_pt_jetdown  [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetForw1_mass_jetup  [isource] = tlv_additionalJet.M();
-						  theSmallTree.m_addJetForw1_mass_jetdown[isource] = tlv_additionalJet.M();
-						}
-
-					  theSmallTree.m_addJetForw1_pt_jetupTot     = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetForw1_pt_jetdownTot   = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetForw1_mass_jetupTot   = tlv_additionalJet.M();
-					  theSmallTree.m_addJetForw1_mass_jetdownTot = tlv_additionalJet.M();
-					  if(isMC)
-						{
-						  for (int isource = 0; isource < N_jecSources; isource++)
-							{
-							  theSmallTree.m_addJetForw1_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
-							  theSmallTree.m_addJetForw1_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
-							  theSmallTree.m_addJetForw1_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
-							  theSmallTree.m_addJetForw1_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
-							}
-
-						  theSmallTree.m_addJetForw1_pt_jetupTot     = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).Pt();
-						  theSmallTree.m_addJetForw1_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).Pt();
-						  theSmallTree.m_addJetForw1_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).M();
-						  theSmallTree.m_addJetForw1_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).M();
-
-						}
-					}
-				  else if (theSmallTree.m_addJetForw2_pt < 0.)
-					{
-					  theSmallTree.m_addJetForw2_pt  = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetForw2_eta = tlv_additionalJet.Eta();
-					  theSmallTree.m_addJetForw2_phi = tlv_additionalJet.Phi();
-					  theSmallTree.m_addJetForw2_e   = tlv_additionalJet.E();
-					  theSmallTree.m_addJetForw2_smearFactor = jets_and_smearFactor[iJet];
-					  for (int isource = 0; isource < N_jecSources; isource++)
-						{
-						  theSmallTree.m_addJetForw2_pt_jetup    [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetForw2_pt_jetdown  [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetForw2_mass_jetup  [isource] = tlv_additionalJet.M();
-						  theSmallTree.m_addJetForw2_mass_jetdown[isource] = tlv_additionalJet.M();
-						}
-
-					  theSmallTree.m_addJetForw2_pt_jetupTot     = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetForw2_pt_jetdownTot   = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetForw2_mass_jetupTot   = tlv_additionalJet.M();
-					  theSmallTree.m_addJetForw2_mass_jetdownTot = tlv_additionalJet.M();
-					  if(isMC)
-						{
-						  for (int isource = 0; isource < N_jecSources; isource++)
-							{
-							  theSmallTree.m_addJetForw2_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
-							  theSmallTree.m_addJetForw2_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
-							  theSmallTree.m_addJetForw2_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
-							  theSmallTree.m_addJetForw2_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
-							}
-
-						  theSmallTree.m_addJetForw2_pt_jetupTot     = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).Pt();
-						  theSmallTree.m_addJetForw2_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).Pt();
-						  theSmallTree.m_addJetForw2_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).M();
-						  theSmallTree.m_addJetForw2_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).M();
-
-						}
-					}
-				  else if (theSmallTree.m_addJetForw3_pt < 0.)
-					{
-					  theSmallTree.m_addJetForw3_pt  = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetForw3_eta = tlv_additionalJet.Eta();
-					  theSmallTree.m_addJetForw3_phi = tlv_additionalJet.Phi();
-					  theSmallTree.m_addJetForw3_e   = tlv_additionalJet.E();
-					  theSmallTree.m_addJetForw3_smearFactor = jets_and_smearFactor[iJet];
-					  for (int isource = 0; isource < N_jecSources; isource++)
-						{
-						  theSmallTree.m_addJetForw3_pt_jetup    [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetForw3_pt_jetdown  [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetForw3_mass_jetup  [isource] = tlv_additionalJet.M();
-						  theSmallTree.m_addJetForw3_mass_jetdown[isource] = tlv_additionalJet.M();
-						}
-
-					  theSmallTree.m_addJetForw3_pt_jetupTot     = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetForw3_pt_jetdownTot   = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetForw3_mass_jetupTot   = tlv_additionalJet.M();
-					  theSmallTree.m_addJetForw3_mass_jetdownTot = tlv_additionalJet.M();
-					  if(isMC)
-						{
-						  for (int isource = 0; isource < N_jecSources; isource++)
-							{
-							  theSmallTree.m_addJetForw3_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
-							  theSmallTree.m_addJetForw3_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
-							  theSmallTree.m_addJetForw3_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
-							  theSmallTree.m_addJetForw3_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
-							}
-
-						  theSmallTree.m_addJetForw3_pt_jetupTot     = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).Pt();
-						  theSmallTree.m_addJetForw3_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).Pt();
-						  theSmallTree.m_addJetForw3_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).M();
-						  theSmallTree.m_addJetForw3_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).M();
-
-						}
-					}
-				  else if (theSmallTree.m_addJetForw4_pt < 0.)
-					{
-					  theSmallTree.m_addJetForw4_pt  = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetForw4_eta = tlv_additionalJet.Eta();
-					  theSmallTree.m_addJetForw4_phi = tlv_additionalJet.Phi();
-					  theSmallTree.m_addJetForw4_e   = tlv_additionalJet.E();
-					  theSmallTree.m_addJetForw4_smearFactor = jets_and_smearFactor[iJet];
-					  for (int isource = 0; isource < N_jecSources; isource++)
-						{
-						  theSmallTree.m_addJetForw4_pt_jetup    [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetForw4_pt_jetdown  [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetForw4_mass_jetup  [isource] = tlv_additionalJet.M();
-						  theSmallTree.m_addJetForw4_mass_jetdown[isource] = tlv_additionalJet.M();
-						}
-
-					  theSmallTree.m_addJetForw4_pt_jetupTot     = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetForw4_pt_jetdownTot   = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetForw4_mass_jetupTot   = tlv_additionalJet.M();
-					  theSmallTree.m_addJetForw4_mass_jetdownTot = tlv_additionalJet.M();
-					  if(isMC)
-						{
-						  for (int isource = 0; isource < N_jecSources; isource++)
-							{
-							  theSmallTree.m_addJetForw4_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
-							  theSmallTree.m_addJetForw4_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
-							  theSmallTree.m_addJetForw4_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
-							  theSmallTree.m_addJetForw4_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
-							}
-
-						  theSmallTree.m_addJetForw4_pt_jetupTot     = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).Pt();
-						  theSmallTree.m_addJetForw4_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).Pt();
-						  theSmallTree.m_addJetForw4_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).M();
-						  theSmallTree.m_addJetForw4_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).M();
-
-						}
-					}
-				  else if (theSmallTree.m_addJetForw5_pt < 0.)
-					{
-					  theSmallTree.m_addJetForw5_pt  = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetForw5_eta = tlv_additionalJet.Eta();
-					  theSmallTree.m_addJetForw5_phi = tlv_additionalJet.Phi();
-					  theSmallTree.m_addJetForw5_e   = tlv_additionalJet.E();
-					  theSmallTree.m_addJetForw5_smearFactor = jets_and_smearFactor[iJet];
-					  for (int isource = 0; isource < N_jecSources; isource++)
-						{
-						  theSmallTree.m_addJetForw5_pt_jetup    [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetForw5_pt_jetdown  [isource] = tlv_additionalJet.Pt();
-						  theSmallTree.m_addJetForw5_mass_jetup  [isource] = tlv_additionalJet.M();
-						  theSmallTree.m_addJetForw5_mass_jetdown[isource] = tlv_additionalJet.M();
-						}
-
-					  theSmallTree.m_addJetForw5_pt_jetupTot     = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetForw5_pt_jetdownTot   = tlv_additionalJet.Pt();
-					  theSmallTree.m_addJetForw5_mass_jetupTot   = tlv_additionalJet.M();
-					  theSmallTree.m_addJetForw5_mass_jetdownTot = tlv_additionalJet.M();
-					  if(isMC)
-						{
-						  for (int isource = 0; isource < N_jecSources; isource++)
-							{
-							  theSmallTree.m_addJetForw5_pt_jetup    [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).Pt();
-							  theSmallTree.m_addJetForw5_pt_jetdown  [isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).Pt();
-							  theSmallTree.m_addJetForw5_mass_jetup  [isource] = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[isource]) ).M();
-							  theSmallTree.m_addJetForw5_mass_jetdown[isource] = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[isource])).M();
-							}
-
-						  theSmallTree.m_addJetForw5_pt_jetupTot     = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).Pt();
-						  theSmallTree.m_addJetForw5_pt_jetdownTot   = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).Pt();
-						  theSmallTree.m_addJetForw5_mass_jetupTot   = (getShiftedJet(tlv_additionalJet, +1., unc_additionalJet_updown.first[N_jecSources])).M();
-						  theSmallTree.m_addJetForw5_mass_jetdownTot = (getShiftedJet(tlv_additionalJet, -1., unc_additionalJet_updown.second[N_jecSources])).M();
-
-						}
-					}
-				}
-			} // end loop on additional jets
-
-		  if (DEBUG)
-			{
-			  std::cout << "---------- Debugging Additional Jets ----------" << std::endl;
-			  std::cout << " - c1 pT: " << theSmallTree.m_addJetCentr1_pt<<std::endl;
-			  std::cout << " - c2 pT: " << theSmallTree.m_addJetCentr2_pt<<std::endl;
-			  std::cout << " - c3 pT: " << theSmallTree.m_addJetCentr3_pt<<std::endl;
-			  std::cout << " - c4 pT: " << theSmallTree.m_addJetCentr4_pt<<std::endl;
-			  std::cout << " - c5 pT: " << theSmallTree.m_addJetCentr5_pt<<std::endl;
-			  std::cout << " - f1 pT: " << theSmallTree.m_addJetForw1_pt<<std::endl;
-			  std::cout << " - f2 pT: " << theSmallTree.m_addJetForw2_pt<<std::endl;
-			  std::cout << " - f3 pT: " << theSmallTree.m_addJetForw3_pt<<std::endl;
-			  std::cout << " - f4 pT: " << theSmallTree.m_addJetForw4_pt<<std::endl;
-			  std::cout << " - f5 pT: " << theSmallTree.m_addJetForw5_pt<<std::endl;
-			  std::cout << "-----------------------------------------------" << std::endl;
-			}
-
 		  //Other jets
 		  for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
 			{
@@ -6112,22 +5357,11 @@ int main (int argc, char** argv)
 	  else selectedEvents += 1 ;
 	  ++selectedNoWeightsEventsNum ;
 
-	  //XXXXXXXXXXX
-	  // cout << "	 IDandISO deep (DM): "	 << theSmallTree.m_IdSF_deep_dm		<< endl;	 
-	  // cout << "	   w/ FakeRate: "		 << theSmallTree.m_IdFakeSF_deep_dm << endl; 
-	  // cout << "	 IDandISO deep (pT): "	 << theSmallTree.m_IdSF_deep_pt		<< endl;	 
-	  // cout << "	   w/ FakeRate: "		 << theSmallTree.m_IdFakeSF_deep_pt << endl; 
-	  // cout << "	 IDandISO deep (2D): "	 << theSmallTree.m_IdSF_deep_2d		<< endl;	 
-	  // cout << "	   w/ FakeRate: "		 << theSmallTree.m_IdFakeSF_deep_2d << endl; 
 	  if (DEBUG)
 		{
 		  cout << "--------------"			 << endl;
 		  cout << " - Debug SFs -"			 << endl;
 		  cout << "	PU		   : "			 << theSmallTree.m_PUReweight		<< endl;
-		  cout << "	 IDandISO deep (DM): "	 << theSmallTree.m_IdSF_deep_dm		<< endl;
-		  cout << "	   w/ FakeRate: "		 << theSmallTree.m_IdFakeSF_deep_dm << endl;
-		  cout << "	 IDandISO deep (pT): "	 << theSmallTree.m_IdSF_deep_pt		<< endl;
-		  cout << "	   w/ FakeRate: "		 << theSmallTree.m_IdFakeSF_deep_pt << endl;
 		  cout << "	 IDandISO deep (2D): "	 << theSmallTree.m_IdSF_deep_2d		<< endl;
 		  cout << "	   w/ FakeRate: "		 << theSmallTree.m_IdFakeSF_deep_2d << endl;
 		  cout << "	trig		   : "		 << theSmallTree.m_trigSF			<< endl;
@@ -6141,8 +5375,6 @@ int main (int argc, char** argv)
 		  cout << "stitchWeight	 : "		 << stitchWeight << endl;
 		  cout << "HHweight		 : "		 << HHweight << endl;
 		  cout << "MC_weight	 : "		 << theSmallTree.m_MC_weight << endl;
-		  cout << "Yield weight deep (DM): " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdFakeSF_deep_dm * theSmallTree.m_trigSF << endl;
-		  cout << "Yield weight deep (pT): " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdFakeSF_deep_pt * theSmallTree.m_trigSF << endl;
 		  cout << "Yield weight deep (2D): " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdFakeSF_deep_2d * theSmallTree.m_trigSF << endl;
 		  cout << "------------------------" << endl;
 		  cout << "--- FINAL DEBUG ---"      << endl;
@@ -6371,7 +5603,7 @@ int main (int argc, char** argv)
 	  for (string var : allVars)
 		allVarsMap[var] = 0.0;
 
-	  TFile *outFile = TFile::Open(outputFile,"UPDATE");
+	  TFile *outFile = TFile::Open(outputFile.c_str(), "UPDATE");
 	  TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 
 	  TMVA::Reader * reader = new TMVA::Reader () ;
@@ -6506,7 +5738,7 @@ int main (int argc, char** argv)
 	  };
 
 	  // read the input tree
-	  TFile* outFile = TFile::Open(outputFile, "UPDATE");
+	  TFile* outFile = TFile::Open(outputFile.c_str(), "UPDATE");
 	  TTree* outTree = (TTree*)outFile->Get("HTauTauTree");
 
 	  // create the multiclass inferface and run it
@@ -6673,7 +5905,7 @@ int main (int argc, char** argv)
 		allVarsMap[var] = 0.0;
 
 	  // Open tree to be updated
-	  TFile *outFile = TFile::Open(outputFile,"UPDATE");
+	  TFile *outFile = TFile::Open(outputFile.c_str(), "UPDATE");
 	  TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 	  int nentries = treenew->GetEntries();
 
@@ -6944,7 +6176,7 @@ int main (int argc, char** argv)
 	  InfWrapper wrapper(model_dir, 1, false);
 
 	  // Open file to read values and compute predictions
-	  TFile* in_file = TFile::Open(outputFile);
+	  TFile* in_file = TFile::Open(outputFile.c_str());
 
 	  // Store prediction in vector of vectors of floats:
 	  // [kl=1 : [evt1_pred, evt2_pred, evt3_pred ...], kl=2 : [evt1_opred, evt2_pred, evt3_pred...]]
@@ -7188,7 +6420,7 @@ int main (int argc, char** argv)
 		} // end loop on entries with TTreeReader
 
 	  // Open file and get TTree that must be updated
-	  TFile *outFile = TFile::Open(outputFile,"UPDATE");
+	  TFile *outFile = TFile::Open(outputFile.c_str(), "UPDATE");
 	  TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
 
 	  // Declare one new branch for each value of klambda

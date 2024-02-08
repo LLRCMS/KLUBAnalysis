@@ -77,6 +77,9 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
             print('Template: {}'.format(templateName))
             raise
 
+    #use as backgrounds the updated list of processes
+    backgrounds=processes
+
     rates = []
     iQCD = -1
     totRate = 0
@@ -118,7 +121,11 @@ def writeCard(backgrounds, signals, select, varfit, regions=()):
         for proc in range(nsig):
             templateName = '{}_'.format(signals[proc]) + suffix_str
             template = inRoot.Get(templateName)
-            rates.append(template.Integral())
+            try:
+                rates.append(template.Integral())
+            except AttributeError:
+                print('[ERROR] There was an issue with sample {}.'.format(templateName))
+                raise
 
         syst = systReader(configDir + '/systematics_'+opt.period+'.cfg', signals, backgrounds, None)
         syst.writeOutput(False)
@@ -475,6 +482,9 @@ if incfg.hasSection(mergesec):
             theList.remove(x)
         theList.append(groupname)
 
+#read QCD from file
+backgrounds.append("QCD")
+
 # rename signals following model convention
 for i,sig in enumerate(signals):
     if 'GGHH_NLO' in sig:
@@ -500,7 +510,7 @@ else:
         else:
             for ireg in range(len(regions)):
                 for sig in signals:
-                    sigmass = int(sig.replace('ggFRadion', ''))
+                    sigmass = int(sig.replace(opt.signal, ''))
                     if 'boosted' in sel and sigmass<301:
                         print('Not generating card for {} in boosted category'.format(sig))
                     else:

@@ -5,7 +5,7 @@ DRYRUN="0"
 NOSIG="0"
 NODATA="0"
 CHANNEL="ETau"
-CHANNEL_CHOICES=("ETau" "MuTau" "TauTau")
+CHANNEL_CHOICES=("ETau" "MuTau" "TauTau" "MuMu")
 SELECTION="baseline"
 SELECTION_CHOICES=( "baseline" "baselineInvMcut" "s1b1jresolvedMcut" "s1b1jresolvedInvMcut"
     "s2b0jresolvedMcut" "s2b0jresolvedInvMcut" "sboostedLLMcut" "sboostedLLInvMcut"
@@ -184,7 +184,7 @@ fi
 
 LUMI="59.9"
 MAIN_DIR="${MAIN_DIR}/${TAGS[0]}"
-EOS_DIR="/eos/user/${EOS_USER:0:1}/${EOS_USER}"
+EOS_DIR="/eos/home-${EOS_USER:0:1}/${EOS_USER}"
 WWW_DIR="${EOS_DIR}/www/${PLOTS_DIR}/${TAGS[0]}/${CHANNEL}"
 WWW_SUBDIR="${WWW_DIR}/${SELECTION}_${REG}"
 if [ ${#TAGS[@]} -eq 2 ]; then
@@ -222,7 +222,8 @@ echo "-------------------------------"
 
 OPTIONS="--quit --ratio --saveratio " #"--binwidth"
 if [[ ${NOSIG} -eq 0 ]]; then
-    OPTIONS+=" --signals ggFRadion280 ggFRadion400 ggFRadion550 ggFRadion800 ggFRadion1500 "
+    #OPTIONS+=" --signals ggFRadion280 ggFRadion400 ggFRadion550 ggFRadion800 ggFRadion1500 "
+	OPTIONS+=" --signals GGF_Radion500 GGF_Radion1000 "
 else
     OPTIONS+=" --nosig "
 fi
@@ -265,22 +266,28 @@ VAR_MAP=(
     ["dau2_pt"]="pT_{2}[GeV] "
     ["bjet1_pt"]="pT_{j1}[GeV] "
     ["bjet2_pt"]="pT_{j2}[GeV] "
-    # ["dau1_eta"]="eta_{1}[GeV] "
-    # ["dau2_eta"]="eta_{2}[GeV] "
-    # ["bjet1_eta"]="eta_{j1}[GeV] "
-    # ["bjet2_eta"]="eta_{j2}[GeV] "
-    # ["tauH_mass"]="m_{H#tau}[Gev] "
-    # ["tauH_pt"]="pT_{H#tau}[Gev] "
-    # ["tauH_SVFIT_mass"]="m_{H#tau_{SVFit}}[Gev] "
-    # ["bH_mass"]="m_{Hb}[Gev] "
-    # ["bH_pt"]="pT_{Hb}[Gev]"
-    # ["ditau_deltaR"]="#DeltaR(#tau#tau)"
-    # ["dib_deltaR"]="#DeltaR(bb)"
-    # ["HH_deltaR"]="#DeltaR(HH) "
-    # ["HH_mass"]="m_{HH}[GeV] "
-    # ["HHKin_mass"]="m_{HHKin}[GeV] "
-    # ["HH_mass"]="m_{HH}[GeV] "
-    # ["HHKin_mass"]="m_{HHKin}[GeV] "
+    ["dau1_eta"]="eta_{1} "
+    ["dau2_eta"]="eta_{2} "
+    ["bjet1_eta"]="eta_{j1} "
+    ["bjet2_eta"]="eta_{j2} "
+    ["tauH_mass"]="m_{H#tau}[Gev] "
+    ["tauH_pt"]="pT_{H#tau}[Gev] "
+    ["tauH_SVFIT_mass"]="m_{H#tau_{SVFit}}[Gev] "
+    ["bH_mass"]="m_{Hb}[Gev] "
+    ["bH_pt"]="pT_{Hb}[Gev]"
+    ["ditau_deltaR"]="#DeltaR(#tau#tau)"
+    ["dib_deltaR"]="#DeltaR(bb)"
+    ["HH_deltaR"]="#DeltaR(HH) "
+    ["njets"]="NJets "
+    ["njets20"]="NJets20 "
+    ["njets50"]="NJets50 "
+    ["met_et"]="MET[GeV] "
+    ["met_phi"]="MET-#phi "
+    ["metnomu_et"]="MET-no#mu[GeV] "
+    ["metnomu_phi"]="MET-no#mu-#phi "
+    ["HT20Full"]="HT"
+    ["HH_mass"]="m_{HH}[GeV] "
+    ["HHKin_mass"]="m_{HHKin}[GeV] "
     ["DNNoutSM_kl_1"]="DNN "
 )
 
@@ -302,36 +309,46 @@ EXTRAS=(
     ["ditau_deltaR"]=" "
     ["dib_deltaR"]=" "
     ["HH_deltaR"]=" "
+    ["njets"]=" "
+    ["njets20"]=" "
+    ["njets50"]=" "
+    ["met_et"]=" "
+    ["met_phi"]=" "
+    ["metnomu_et"]=" "
+    ["metnomu_phi"]=" "
     ["HH_mass"]=" --logy "
     ["HHKin_mass"]=" --logy "
-    ["HH_mass"]=" --logy --logx "
-    ["HHKin_mass"]=" --logy --logx "
     ["DNNoutSM_kl_1"]=" --logy "
 )
 
 declare -A SIGSCALE_CHANNEL_MAP
 SIGSCALE_CHANNEL_MAP=(
-    ["dau1_pt"]="100 50 20"
-    ["dau2_pt"]="100 50 20"
-    ["bjet1_pt"]="100 100 20 "
-    ["bjet2_pt"]="100 100 20 "
-    ["dau1_eta"]="40 40 2 "
-    ["dau2_eta"]="40 40 2 "
-    ["bjet1_eta"]="40 40 4 "
-    ["bjet2_eta"]="40 40 4 "
-    ["tauH_mass"]="30 30 2 "
-    ["tauH_pt"]="30 30 10 "
-    ["tauH_SVFIT_mass"]="10 10 2 "
-    ["bH_mass"]="30 30 2 "
-    ["bH_pt"]="100 100 5"
-    ["ditau_deltaR"]="10 10 1 "
-    ["dib_deltaR"]="10 10 1 "
-    ["HH_deltaR"]="20 20 2 "
-    ["HH_mass"]="5 5 1 "
-    ["HHKin_mass"]="5 5 1 "
-    ["HH_mass"]="5 5 1 "
-    ["HHKin_mass"]="5 5 1 "
-    ["DNNoutSM_kl_1"]="5 5 1 "
+    ["dau1_pt"]="100 50 20 5000 "
+    ["dau2_pt"]="100 50 20 5000 "
+    ["bjet1_pt"]="100 100 20 10000 "
+    ["bjet2_pt"]="100 100 20 10000 "
+    ["dau1_eta"]="40 40 2 4000 "
+    ["dau2_eta"]="40 40 2 4000 "
+    ["bjet1_eta"]="40 40 4 4000 "
+    ["bjet2_eta"]="40 40 4 4000 "
+    ["tauH_mass"]="30 30 2 10000 "
+    ["tauH_pt"]="30 30 10 10000 "
+    ["tauH_SVFIT_mass"]="10 10 2 1000 "
+    ["bH_mass"]="30 30 2 7000 "
+    ["bH_pt"]="100 100 5 10000 "
+    ["ditau_deltaR"]="10 10 1 1000 "
+    ["dib_deltaR"]="10 10 1 1000 "
+    ["HH_deltaR"]="20 20 2 2000 "
+    ["njets"]="10 10 1 5000 "
+    ["njets20"]="10 10 1 5000 "
+    ["njets50"]="10 10 1 5000 "
+    ["met_et"]="10 10 1 4000 "
+    ["met_phi"]="10 10 1 4000 "
+    ["metnomu_et"]="10 10 1 4000 "
+    ["metnomu_phi"]="10 10 1 4000 "
+    ["HH_mass"]="1 1 1 150 "
+    ["HHKin_mass"]="1 1 1 150 "
+    ["DNNoutSM_kl_1"]="5 5 1 500 "
 )
 
 if [[ ${COMPARE} -eq 0 ]]; then
@@ -344,13 +361,15 @@ if [[ ${COMPARE} -eq 0 ]]; then
 	ssarr=(${SIGSCALE_CHANNEL_MAP[${avar}]})
 	if [ ${CHANNEL} == "ETau" ]; then
 	    ss=${ssarr[0]}
-	    elif [ ${CHANNEL} == "MuTau" ]; then
+	elif [ ${CHANNEL} == "MuTau" ]; then
 	    ss=${ssarr[1]}
-	    elif [ ${CHANNEL} == "TauTau" ]; then
+	elif [ ${CHANNEL} == "TauTau" ]; then
 	    ss=${ssarr[2]}
-	    else
+	elif [ ${CHANNEL} == "MuMu" ]; then
+	    ss=${ssarr[3]}
+	else
 	    echo "Channel ${CHANNEL} is not supported." 
-	    fi
+	fi
 	run_plot --var ${avar} --lymin 0.65 --sigscale ${ss} --label ${VAR_MAP[$avar]} ${EXTRAS[$avar]}
 	done
 

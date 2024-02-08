@@ -41,9 +41,9 @@ public:
   };
 
   // standard ctor/dtor
-  // Sample(std::string name, std::string treename="HTauTauTree");
   Sample(std::string name, std::string filelistname, std::string treename="HTauTauTree", std::string histoname="h_eff", int binEffDen = 1);
-
+  Sample(std::string name, std::vector<std::string> filelistname, std::string treename="HTauTauTree", std::string histoname="h_eff", int binEffDen = 1);
+  
   // build from a list of other samples, histos are added together
   // NOTE: efficiency, ttree, and the other methods used for filling are not updated,
   // so just use this method to make a sum of all the histos of a sample after separate histos have already been filled
@@ -85,7 +85,7 @@ public:
 
 private:
   // TFile* fIn_;
-  std::string filelistname_;
+  std::vector<std::string> filelistname_;
   std::string treename_;
   std::string histoname_;
   TChain* tree_;
