@@ -110,20 +110,20 @@ void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool isTriggerSF){
 
   TString TetaLabel;
   TString GraphName;
-  for(int iBin=0; iBin<nbin_eta; iBin++){
-    if (iBin==0) {
+  for(int iBin=1; iBin<=nbin_eta; iBin++){
+    if (iBin==1) {
       TetaLabel = firstbinlabel;
     }
-    else if(iBin==nbin_eta-1) {
+    else if(iBin==nbin_eta) {
       TetaLabel = lastbinlabel;
     }
     else {
       TetaLabel = Form("Eta%.1fto%.1f",
-		       isTriggerSF?heffdat->GetYaxis()->GetBinLowEdge(iBin+2):hSF->GetXaxis()->GetBinLowEdge(iBin+2),
-		       isTriggerSF?heffdat->GetYaxis()->GetBinLowEdge(iBin+3):hSF->GetXaxis()->GetBinLowEdge(iBin+3));
+		       isTriggerSF?heffdat->GetYaxis()->GetBinLowEdge(iBin):hSF->GetXaxis()->GetBinLowEdge(iBin),
+		       isTriggerSF?heffdat->GetYaxis()->GetBinLowEdge(iBin+1):hSF->GetXaxis()->GetBinLowEdge(iBin+1));
       TetaLabel.ReplaceAll(".","p");
     }
-    etaBinsH->GetXaxis()->SetBinLabel(iBin+1,TetaLabel);
+    etaBinsH->GetXaxis()->SetBinLabel(iBin,TetaLabel);
 
 
     std::string etaLabel = (std::string)TetaLabel;
@@ -132,11 +132,11 @@ void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool isTriggerSF){
     TH1F *hslice_data;
     TH1F *hslice_mc;
     if (!isTriggerSF) {
-      hslice_data = (TH1F*)hSF->ProjectionY("slicedata",iBin+1,iBin+1);
-      hslice_mc = (TH1F*)hSF->ProjectionY("slicedata",iBin+1,iBin+1);
+      hslice_data = (TH1F*)hSF->ProjectionY("slicedata",iBin,iBin);
+      hslice_mc = (TH1F*)hSF->ProjectionY("slicedata",iBin,iBin);
     } else {
-      hslice_data = (TH1F*)heffdat->ProjectionX("slicedata",iBin+1,iBin+1);
-      hslice_mc   = (TH1F*)heffmc->ProjectionX("slicedata",iBin+1,iBin+1);
+      hslice_data = (TH1F*)heffdat->ProjectionX("slicedata",iBin,iBin);
+      hslice_mc   = (TH1F*)heffmc->ProjectionX("slicedata",iBin,iBin);
 
     }
     const int nbin_pt = hslice_data->GetNbinsX();
@@ -175,7 +175,7 @@ void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool isTriggerSF){
     eff_data[etaLabel] = new TGraphAsymmErrors(nbin_pt,data_pt_nom, data_eff_nom, data_pt_errlow, data_pt_errhigh, data_eff_errlow, data_eff_errhigh);
     SetAxisBins(eff_data[etaLabel]);
     if(isTriggerSF){
-      eff_mc[etaLabel] = new TGraphAsymmErrors(nbin_pt,data_pt_nom, data_eff_nom, data_pt_errlow, data_pt_errhigh, data_eff_errlow, data_eff_errhigh);
+      eff_mc[etaLabel] = new TGraphAsymmErrors(nbin_pt,mc_pt_nom, mc_eff_nom, mc_pt_errlow, mc_pt_errhigh, mc_eff_errlow, mc_eff_errhigh);
       SetAxisBins(eff_mc[etaLabel]);
     }
   }
@@ -227,23 +227,25 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
 
     TString TetaLabel;
     TString GraphName;
-    for(int iBin=0; iBin<nbin_eta; iBin++){
-      if (iBin==0) {
+    for(int iBin=1; iBin<=nbin_eta; iBin++){
+      if (iBin==1) {
 	TetaLabel = firstbinlabel;
       }
-      else if(iBin==nbin_eta-1) {
+      else if(iBin==nbin_eta) {
 	TetaLabel = lastbinlabel;
       }
       else {
-	TetaLabel = Form("Eta%.1fto%.1f",heff_data->GetXaxis()->GetBinLowEdge(iBin+2),heff_data->GetXaxis()->GetBinLowEdge(iBin+3));
+	TetaLabel = Form("Eta%.1fto%.1f",
+			 heff_data->GetXaxis()->GetBinLowEdge(iBin),
+			 heff_data->GetXaxis()->GetBinLowEdge(iBin+1));
 	TetaLabel.ReplaceAll(".","p");
       }
-      etaBinsH->GetXaxis()->SetBinLabel(iBin+1,TetaLabel);
+      etaBinsH->GetXaxis()->SetBinLabel(iBin,TetaLabel);
 
       std::string etaLabel = (std::string)TetaLabel;
       GraphName = TString(HistoBaseName)+"_"+etaLabel+"_Data";
-      TH1F *hslice_data = (TH1F*)heff_data->ProjectionY("slicedata",iBin+1,iBin+1);
-      TH1F *hslice_mc   = (TH1F*)heff_mc->ProjectionY("slicemc",iBin+1,iBin+1);
+      TH1F *hslice_data = (TH1F*)heff_data->ProjectionY("slicedata",iBin,iBin);
+      TH1F *hslice_mc   = (TH1F*)heff_mc->ProjectionY("slicemc",iBin,iBin);
 
       const int nbin_pt = hslice_data->GetNbinsX();
 
@@ -281,7 +283,7 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
 
       SetAxisBins(eff_data[etaLabel]);
       SetAxisBins(eff_mc[etaLabel]);
-
+      
       // keeping here, but by construction binnings should be the same
       bool sameBinning = check_SameBinning(eff_data[etaLabel], eff_mc[etaLabel]);
       if (!sameBinning) {std::cout<< "ERROR in ScaleFactor::init_ScaleFactor(TString inputRootFile) from LepEffInterface/src/ScaleFactor.cc . Can not proceed because ScaleFactor::check_SameBinning returned different pT binning for data and MC for eta label " << etaLabel << std::endl; exit(1); };
