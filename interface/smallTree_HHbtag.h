@@ -11,14 +11,14 @@ struct smallTree
 {
   smallTree (TString treeName) :
   m_smallT (new TTree (treeName, "small tree for HH analysis"))
-    {
-      init () ;
-    }
+  {
+    init () ;
+  }
 
   int Fill ()
-    {
-      return m_smallT->Fill () ;
-    }
+  {
+    return m_smallT->Fill () ;
+  }
 
   int clearVars ()
     {
@@ -564,6 +564,7 @@ struct smallTree
       m_bjets_cID_deepFlavor = -1.;
       m_bjets_gen_matched = false;
       m_nfatjets = -1;
+      m_fatjet_highest_pT_bTag = -1;
       m_fatjet_pt = -1. ;
       m_fatjet_eta  = -1. ;
       m_fatjet_phi  = -1. ;
@@ -576,6 +577,12 @@ struct smallTree
       m_fatjet_deepBoostedJetTags_probHbb = -1.;
       m_fatjet_particleNetJetTags_probHbb = -1.;
       m_fatjet_particleNetDiscriminatorsJetTags_HbbvsQCD = -1.;
+      m_fatjet_particleNetMDJetTags_probXbb = -1.;
+      m_fatjet_particleNetMDJetTags_probXcc = -1.;
+      m_fatjet_particleNetMDJetTags_probXqq = -1.;
+      m_fatjet_particleNetMDJetTags_probQCD = -1.;
+      m_fatjet_particleNetMDJetTags_mass = -1.;  
+      m_fatjet_particleNetMDJetTags_score = -1.;  
       m_fatjet_filteredMass = -1. ;
       m_fatjet_prunedMass = -1. ;
       m_fatjet_trimmedMass = -1. ;
@@ -584,7 +591,22 @@ struct smallTree
       m_fatjet_tau2 = -1. ;
       m_fatjet_tau3 = -1. ;
       m_fatjet_nsubjets = -1;
+      m_fatjet_hasMatchedSj = -1;
       m_dR_subj1_subj2 = -1.;
+      
+      m_HHbregrsvfit_pt = -1.;
+      m_HHbregrsvfit_eta = -1.;
+      m_HHbregrsvfit_phi = -1.;
+      m_HHbregrsvfit_m = -1.;
+      m_fatjet_particleNetMDJetTags_HP_SF = -1.;
+      m_fatjet_particleNetMDJetTags_HP_SF_up = -1.;
+      m_fatjet_particleNetMDJetTags_HP_SF_down = -1.;
+      m_fatjet_particleNetMDJetTags_MP_SF = -1.;
+      m_fatjet_particleNetMDJetTags_MP_SF_up = -1.;
+      m_fatjet_particleNetMDJetTags_MP_SF_down = -1.;
+      m_fatjet_particleNetMDJetTags_LP_SF = -1.;
+      m_fatjet_particleNetMDJetTags_LP_SF_up = -1.;
+      m_fatjet_particleNetMDJetTags_LP_SF_down = -1.;
 
       m_subjetjet1_pt = -1. ;
       m_subjetjet1_eta  = -1. ;
@@ -1190,37 +1212,37 @@ struct smallTree
       m_smallT->Branch ("customTauIdSF_DM11_up"  , &m_customTauIdSF_DM11_up  , "customTauIdSF_DM11_up/F") ;
       m_smallT->Branch ("customTauIdSF_DM11_down", &m_customTauIdSF_DM11_down, "customTauIdSF_DM11_down/F") ;
 
-	  m_smallT->Branch("idFakeSF_tauid_2d_stat0_up", &m_idFakeSF_tauid_2d_stat0_up,
-					   "idFakeSF_tauid_2d_stat0_up/F");
-	  m_smallT->Branch("idFakeSF_tauid_2d_stat0_down", &m_idFakeSF_tauid_2d_stat0_down,
-					   "idFakeSF_tauid_2d_stat0_down/F");
-	  m_smallT->Branch("idFakeSF_tauid_2d_stat1_up", &m_idFakeSF_tauid_2d_stat1_up,
-					   "idFakeSF_tauid_2d_stat1_up/F");
-	  m_smallT->Branch("idFakeSF_tauid_2d_stat1_down", &m_idFakeSF_tauid_2d_stat1_down,
-					   "idFakeSF_tauid_2d_stat1_down/F");
-	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmeras_up", &m_idFakeSF_tauid_2d_systcorrdmeras_up,
-					   "idFakeSF_tauid_2d_systcorrdmeras_up/F");
-	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmeras_down", &m_idFakeSF_tauid_2d_systcorrdmeras_down,
-					   "idFakeSF_tauid_2d_systcorrdmeras_down/F");
-	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmuncorreras_up", &m_idFakeSF_tauid_2d_systcorrdmuncorreras_up,
-					   "idFakeSF_tauid_2d_systcorrdmuncorreras_up/F");
-	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmuncorreras_down", &m_idFakeSF_tauid_2d_systcorrdmuncorreras_down,
-					   "idFakeSF_tauid_2d_systcorrdmuncorreras_down/F");
-	  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_up", &m_idFakeSF_tauid_2d_systuncorrdmeras_up,
-					   "idFakeSF_tauid_2d_systuncorrdmeras_up/F");
-	  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_down", &m_idFakeSF_tauid_2d_systuncorrdmeras_down,
-					   "idFakeSF_tauid_2d_systuncorrdmeras_down/F");
-	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrerasgt140_up", &m_idFakeSF_tauid_2d_systcorrerasgt140_up,
-					   "idFakeSF_tauid_2d_systcorrerasgt140_up/F");
-	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrerasgt140_down", &m_idFakeSF_tauid_2d_systcorrerasgt140_down,
-					   "idFakeSF_tauid_2d_systcorrerasgt140_down/F");
-	  m_smallT->Branch("idFakeSF_tauid_2d_statgt140_up", &m_idFakeSF_tauid_2d_statgt140_up,
-					   "idFakeSF_tauid_2d_statgt140_up/F");
-	  m_smallT->Branch("idFakeSF_tauid_2d_statgt140_down", &m_idFakeSF_tauid_2d_statgt140_down,
-					   "idFakeSF_tauid_2d_statgt140_down/F");
-	  m_smallT->Branch("idFakeSF_tauid_2d_extrapgt140", &m_idFakeSF_tauid_2d_extrapgt140,
-					   "idFakeSF_tauid_2d_extrapgt140/F");
-		  
+  m_smallT->Branch("idFakeSF_tauid_2d_stat0_up", &m_idFakeSF_tauid_2d_stat0_up,
+   "idFakeSF_tauid_2d_stat0_up/F");
+  m_smallT->Branch("idFakeSF_tauid_2d_stat0_down", &m_idFakeSF_tauid_2d_stat0_down,
+   "idFakeSF_tauid_2d_stat0_down/F");
+  m_smallT->Branch("idFakeSF_tauid_2d_stat1_up", &m_idFakeSF_tauid_2d_stat1_up,
+   "idFakeSF_tauid_2d_stat1_up/F");
+  m_smallT->Branch("idFakeSF_tauid_2d_stat1_down", &m_idFakeSF_tauid_2d_stat1_down,
+   "idFakeSF_tauid_2d_stat1_down/F");
+  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmeras_up", &m_idFakeSF_tauid_2d_systcorrdmeras_up,
+   "idFakeSF_tauid_2d_systcorrdmeras_up/F");
+  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmeras_down", &m_idFakeSF_tauid_2d_systcorrdmeras_down,
+   "idFakeSF_tauid_2d_systcorrdmeras_down/F");
+  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmuncorreras_up", &m_idFakeSF_tauid_2d_systcorrdmuncorreras_up,
+   "idFakeSF_tauid_2d_systcorrdmuncorreras_up/F");
+  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmuncorreras_down", &m_idFakeSF_tauid_2d_systcorrdmuncorreras_down,
+   "idFakeSF_tauid_2d_systcorrdmuncorreras_down/F");
+  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_up", &m_idFakeSF_tauid_2d_systuncorrdmeras_up,
+   "idFakeSF_tauid_2d_systuncorrdmeras_up/F");
+  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_down", &m_idFakeSF_tauid_2d_systuncorrdmeras_down,
+   "idFakeSF_tauid_2d_systuncorrdmeras_down/F");
+  m_smallT->Branch("idFakeSF_tauid_2d_systcorrerasgt140_up", &m_idFakeSF_tauid_2d_systcorrerasgt140_up,
+   "idFakeSF_tauid_2d_systcorrerasgt140_up/F");
+  m_smallT->Branch("idFakeSF_tauid_2d_systcorrerasgt140_down", &m_idFakeSF_tauid_2d_systcorrerasgt140_down,
+   "idFakeSF_tauid_2d_systcorrerasgt140_down/F");
+  m_smallT->Branch("idFakeSF_tauid_2d_statgt140_up", &m_idFakeSF_tauid_2d_statgt140_up,
+   "idFakeSF_tauid_2d_statgt140_up/F");
+  m_smallT->Branch("idFakeSF_tauid_2d_statgt140_down", &m_idFakeSF_tauid_2d_statgt140_down,
+   "idFakeSF_tauid_2d_statgt140_down/F");
+  m_smallT->Branch("idFakeSF_tauid_2d_extrapgt140", &m_idFakeSF_tauid_2d_extrapgt140,
+   "idFakeSF_tauid_2d_extrapgt140/F");
+  
       m_smallT->Branch ("idFakeSF_mutauFR_etaLt0p4_up"     , &m_idFakeSF_mutauFR_etaLt0p4_up     , "idFakeSF_mutauFR_etaLt0p4_up/F");
       m_smallT->Branch ("idFakeSF_mutauFR_eta0p4to0p8_up"  , &m_idFakeSF_mutauFR_eta0p4to0p8_up  , "idFakeSF_mutauFR_eta0p4to0p8_up/F");
       m_smallT->Branch ("idFakeSF_mutauFR_eta0p8to1p2_up"  , &m_idFakeSF_mutauFR_eta0p8to1p2_up  , "idFakeSF_mutauFR_eta0p8to1p2_up/F");
@@ -1232,7 +1254,7 @@ struct smallTree
       m_smallT->Branch ("idFakeSF_mutauFR_eta1p2to1p7_down", &m_idFakeSF_mutauFR_eta1p2to1p7_down, "idFakeSF_mutauFR_eta1p2to1p7_down/F");
       m_smallT->Branch ("idFakeSF_mutauFR_etaGt1p7_down"   , &m_idFakeSF_mutauFR_etaGt1p7_down   , "idFakeSF_mutauFR_etaGt1p7_down/F");
 
-	  m_smallT->Branch ("idFakeSF_etauFR_barrel_up"        , &m_idFakeSF_etauFR_barrel_up        , "idFakeSF_etauFR_barrel_up/F");
+  m_smallT->Branch ("idFakeSF_etauFR_barrel_up"        , &m_idFakeSF_etauFR_barrel_up        , "idFakeSF_etauFR_barrel_up/F");
       m_smallT->Branch ("idFakeSF_etauFR_endcap_up"        , &m_idFakeSF_etauFR_endcap_up        , "idFakeSF_etauFR_endcap_up/F");
       m_smallT->Branch ("idFakeSF_etauFR_barrel_down"      , &m_idFakeSF_etauFR_barrel_down      , "idFakeSF_etauFR_barrel_down/F");
       m_smallT->Branch ("idFakeSF_etauFR_endcap_down"      , &m_idFakeSF_etauFR_endcap_down      , "idFakeSF_etauFR_endcap_down/F");
@@ -1637,6 +1659,7 @@ struct smallTree
       m_smallT->Branch ("bjets_gen_matched", &m_bjets_gen_matched, "bjets_gen_matched/O") ;
 
       m_smallT->Branch ("nfatjets", &m_nfatjets, "nfatjets/I");
+      m_smallT->Branch ("fatjet_highest_pT_bTag", &m_fatjet_highest_pT_bTag, "fatjet_highest_pT_bTag/I");
       m_smallT->Branch ("fatjet_pt", &m_fatjet_pt, "fatjet_pt/F");
       m_smallT->Branch ("fatjet_eta", &m_fatjet_eta, "fatjet_eta/F");
       m_smallT->Branch ("fatjet_phi", &m_fatjet_phi, "fatjet_phi/F");
@@ -1649,6 +1672,12 @@ struct smallTree
       m_smallT->Branch ("fatjet_deepBoostedJetTags_probHbb", &m_fatjet_deepBoostedJetTags_probHbb, "fatjet_deepBoostedJetTags_probHbb/F");
       m_smallT->Branch ("fatjet_particleNetJetTags_probHbb", &m_fatjet_particleNetJetTags_probHbb, "fatjet_particleNetJetTags_probHbb/F");
       m_smallT->Branch ("fatjet_particleNetDiscriminatorsJetTags_HbbvsQCD", &m_fatjet_particleNetDiscriminatorsJetTags_HbbvsQCD, "fatjet_particleNetDiscriminatorsJetTags_HbbvsQCD/F");
+      m_smallT->Branch ("fatjet_particleNetMDJetTags_probXbb", &m_fatjet_particleNetMDJetTags_probXbb, "fatjet_particleNetMDJetTags_probXbb/F");
+      m_smallT->Branch ("fatjet_particleNetMDJetTags_probXcc", &m_fatjet_particleNetMDJetTags_probXcc, "fatjet_particleNetMDJetTags_probXcc/F");
+      m_smallT->Branch ("fatjet_particleNetMDJetTags_probXqq", &m_fatjet_particleNetMDJetTags_probXqq, "fatjet_particleNetMDJetTags_probXqq/F");
+      m_smallT->Branch ("fatjet_particleNetMDJetTags_probQCD", &m_fatjet_particleNetMDJetTags_probQCD, "fatjet_particleNetMDJetTags_probQCD/F");
+      m_smallT->Branch ("fatjet_particleNetMDJetTags_mass", &m_fatjet_particleNetMDJetTags_mass, "fatjet_particleNetMDJetTags_mass/F");
+      m_smallT->Branch ("fatjet_particleNetMDJetTags_score", &m_fatjet_particleNetMDJetTags_score, "fatjet_particleNetMDJetTags_score/F");
       m_smallT->Branch ("fatjet_filteredMass", &m_fatjet_filteredMass, "fatjet_filteredMass/F");
       m_smallT->Branch ("fatjet_prunedMass", &m_fatjet_prunedMass, "fatjet_prunedMass/F");
       m_smallT->Branch ("fatjet_trimmedMass", &m_fatjet_trimmedMass, "fatjet_trimmedMass/F");
@@ -1657,7 +1686,22 @@ struct smallTree
       m_smallT->Branch ("fatjet_tau2", &m_fatjet_tau2, "fatjet_tau2/F");
       m_smallT->Branch ("fatjet_tau3", &m_fatjet_tau3, "fatjet_tau3/F");
       m_smallT->Branch ("fatjet_nsubjets", &m_fatjet_nsubjets, "fatjet_nsubjets/I");
+      m_smallT->Branch ("fatjet_hasMatchedSj", &m_fatjet_hasMatchedSj, "fatjet_hasMatchedSj/I");
       m_smallT->Branch ("dR_subj1_subj2", &m_dR_subj1_subj2, "dR_subj1_subj2/F");
+
+      m_smallT->Branch ("HHbregrsvfit_pt", &m_HHbregrsvfit_pt, "HHbregrsvfit_pt/F");
+      m_smallT->Branch ("HHbregrsvfit_eta", &m_HHbregrsvfit_eta, "HHbregrsvfit_eta/F");
+      m_smallT->Branch ("HHbregrsvfit_phi", &m_HHbregrsvfit_phi, "HHbregrsvfit_phi/F");
+      m_smallT->Branch ("HHbregrsvfit_m", &m_HHbregrsvfit_m, "HHbregrsvfit_m/F");
+      m_smallT->Branch ("fatjet_particleNetMDJetTags_HP_SF",      &m_fatjet_particleNetMDJetTags_HP_SF,      "fatjet_particleNetMDJetTags_HP_SF/F");
+      m_smallT->Branch ("fatjet_particleNetMDJetTags_HP_SF_up",   &m_fatjet_particleNetMDJetTags_HP_SF_up,   "fatjet_particleNetMDJetTags_HP_SF_up/F");
+      m_smallT->Branch ("fatjet_particleNetMDJetTags_HP_SF_down", &m_fatjet_particleNetMDJetTags_HP_SF_down, "fatjet_particleNetMDJetTags_HP_SF_down/F");
+      m_smallT->Branch ("fatjet_particleNetMDJetTags_MP_SF",      &m_fatjet_particleNetMDJetTags_MP_SF,      "fatjet_particleNetMDJetTags_MP_SF/F");
+      m_smallT->Branch ("fatjet_particleNetMDJetTags_MP_SF_up",   &m_fatjet_particleNetMDJetTags_MP_SF_up,   "fatjet_particleNetMDJetTags_MP_SF_up/F");
+      m_smallT->Branch ("fatjet_particleNetMDJetTags_MP_SF_down", &m_fatjet_particleNetMDJetTags_MP_SF_down, "fatjet_particleNetMDJetTags_MP_SF_down/F");
+      m_smallT->Branch ("fatjet_particleNetMDJetTags_LP_SF",      &m_fatjet_particleNetMDJetTags_LP_SF,      "fatjet_particleNetMDJetTags_LP_SF/F");
+      m_smallT->Branch ("fatjet_particleNetMDJetTags_LP_SF_up",   &m_fatjet_particleNetMDJetTags_LP_SF_up,   "fatjet_particleNetMDJetTags_LP_SF_up/F");
+      m_smallT->Branch ("fatjet_particleNetMDJetTags_LP_SF_down", &m_fatjet_particleNetMDJetTags_LP_SF_down, "fatjet_particleNetMDJetTags_LP_SF_down/F");
 
       m_smallT->Branch ("subjetjet1_pt", &m_subjetjet1_pt, "subjetjet1_pt/F");
       m_smallT->Branch ("subjetjet1_eta", &m_subjetjet1_eta, "subjetjet1_eta/F");
@@ -1730,7 +1774,7 @@ struct smallTree
       m_smallT->Branch ("tauHMet_deltaPhi", &m_tauHMet_deltaPhi, "tauHMet_deltaPhi/F") ;
       m_smallT->Branch ("tauHsvfitMet_deltaPhi", &m_tauHsvfitMet_deltaPhi, "tauHsvfitMet_deltaPhi/F") ;
       m_smallT->Branch ("bHMet_deltaPhi", &m_bHMet_deltaPhi, "bHMet_deltaPhi/F") ;
-//      m_smallT->Branch ("", &m_, "/F") ;
+      //      m_smallT->Branch ("", &m_, "/F") ;
       m_smallT->Branch ("ditau_deltaPhi", &m_ditau_deltaPhi, "ditau_deltaPhi/F") ;
       m_smallT->Branch ("ditau_deltaEta", &m_ditau_deltaEta, "ditau_deltaEta/F") ;
       m_smallT->Branch ("dib_deltaPhi", &m_dib_deltaPhi, "dib_deltaPhi/F") ;
@@ -2321,10 +2365,10 @@ struct smallTree
   Int_t m_isMC ;
   Int_t m_isOS ;
 
-//FIXME what about these?
-//    Int_t           metfilterbit;
-//    Float_t         met;
-//    Float_t         metphi;
+  //FIXME what about these?
+  //    Int_t           metfilterbit;
+  //    Float_t         met;
+  //    Float_t         metphi;
 
   // MET
   Float_t m_met_phi ;
@@ -2694,6 +2738,7 @@ struct smallTree
   Bool_t  m_bjets_gen_matched;
   // fat jets and subjet info
   Int_t   m_nfatjets ;
+  Int_t   m_fatjet_highest_pT_bTag ;
   Float_t m_fatjet_pt ;
   Float_t m_fatjet_eta  ;
   Float_t m_fatjet_phi  ;
@@ -2706,6 +2751,12 @@ struct smallTree
   Float_t m_fatjet_deepBoostedJetTags_probHbb;
   Float_t m_fatjet_particleNetJetTags_probHbb;
   Float_t m_fatjet_particleNetDiscriminatorsJetTags_HbbvsQCD;
+  Float_t m_fatjet_particleNetMDJetTags_probXbb;
+  Float_t m_fatjet_particleNetMDJetTags_probXcc;
+  Float_t m_fatjet_particleNetMDJetTags_probXqq;
+  Float_t m_fatjet_particleNetMDJetTags_probQCD;
+  Float_t m_fatjet_particleNetMDJetTags_mass;  
+  Float_t m_fatjet_particleNetMDJetTags_score;  
   Float_t m_fatjet_filteredMass ;
   Float_t m_fatjet_prunedMass ;
   Float_t m_fatjet_trimmedMass ;
@@ -2714,7 +2765,22 @@ struct smallTree
   Float_t m_fatjet_tau2 ;
   Float_t m_fatjet_tau3 ;
   Int_t   m_fatjet_nsubjets ;
+  Int_t   m_fatjet_hasMatchedSj ;
   Float_t m_dR_subj1_subj2 ;
+
+  Float_t m_HHbregrsvfit_pt ;
+  Float_t m_HHbregrsvfit_eta ;
+  Float_t m_HHbregrsvfit_phi ;
+  Float_t m_HHbregrsvfit_m ;
+  Float_t m_fatjet_particleNetMDJetTags_HP_SF ;
+  Float_t m_fatjet_particleNetMDJetTags_HP_SF_up ;
+  Float_t m_fatjet_particleNetMDJetTags_HP_SF_down ;
+  Float_t m_fatjet_particleNetMDJetTags_MP_SF ;
+  Float_t m_fatjet_particleNetMDJetTags_MP_SF_up ;
+  Float_t m_fatjet_particleNetMDJetTags_MP_SF_down ;
+  Float_t m_fatjet_particleNetMDJetTags_LP_SF ;
+  Float_t m_fatjet_particleNetMDJetTags_LP_SF_up ;
+  Float_t m_fatjet_particleNetMDJetTags_LP_SF_down ;
 
   Float_t m_subjetjet1_pt ;
   Float_t m_subjetjet1_eta  ;

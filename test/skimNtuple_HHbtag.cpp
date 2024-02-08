@@ -37,7 +37,7 @@
 #include "JECKLUBinterface.h"
 #include "SVfitKLUBinterface.h"
 #include "SmearedJetProducer.h"
-
+#include "met_phi_corr.h"
 #include "lester_mt2_bisect.h"
 
 #include "ScaleFactor.h"
@@ -84,6 +84,92 @@ const double bTopRW = -0.0005;
 ** -> 2 dedicated scale factors are needed (for pT>50 and pT<50) to restore the total cross-section
 */
 const std::array<float, 2> stitchWeights = {1./2., 1./3.};
+
+
+//scale factors for ParticleNet pag 76 http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&files=AN2021_005_v10.pdf
+std::map<std::string, std::vector<float>> ParticleNet_SF(float pT_, string period_) 
+{ 
+  std::map<std::string, std::vector<float>> scaleFactors;
+
+  if(period_=="2016preVFP"){
+    if (pT_ < 500) {
+      scaleFactors["HP"] = {1.054, 0.080, -0.077};
+      scaleFactors["MP"] = {1.052, 0.087, -0.081};
+      scaleFactors["LP"] = {1.032, 0.096, -0.090};
+    } else if (pT_ >= 500 && pT_ < 600) {
+      scaleFactors["HP"] = {1.139, 0.083, -0.081};
+      scaleFactors["MP"] = {1.068, 0.078, -0.073};
+      scaleFactors["LP"] = {1.062, 0.092, -0.082};
+    } else if (pT_ >= 600) {
+      scaleFactors["HP"] = {1.049, 0.133, -0.130};
+      scaleFactors["MP"] = {0.996, 0.101, -0.097};
+      scaleFactors["LP"] = {1.002, 0.106, -0.101};
+    }
+  }
+  else if (period_=="2016postVFP") {
+    if (pT_ < 500) {
+      scaleFactors["HP"] = {1.031, 0.050, -0.046};
+      scaleFactors["MP"] = {1.029, 0.051, -0.045};
+      scaleFactors["LP"] = {1.031, 0.058, -0.050};
+    } else if (pT_ >= 500 && pT_ < 600) {
+      scaleFactors["HP"] = {1.055, 0.069, -0.067};
+      scaleFactors["MP"] = {1.070, 0.066, -0.062};
+      scaleFactors["LP"] = {1.089, 0.076, -0.068};
+    } else if (pT_ >= 600) {
+      scaleFactors["HP"] = {1.088, 0.076, -0.072};
+      scaleFactors["MP"] = {1.077, 0.067, -0.059};
+      scaleFactors["LP"] = {1.057, 0.077, -0.056};
+    }
+  }
+  else if (period_=="2017"){
+    if (pT_ < 500) {
+      scaleFactors["HP"] = {1.055, 0.057, -0.054};
+      scaleFactors["MP"] = {1.006, 0.052, -0.052};
+      scaleFactors["LP"] = {0.966, 0.055, -0.057};
+    } else if (pT_ >= 500 && pT_ < 600) {
+      scaleFactors["HP"] = {1.067 , 0.057, -0.055};
+      scaleFactors["MP"] = {1.051 , 0.056, -0.055};
+      scaleFactors["LP"] = {1.021 , 0.053, -0.052};
+    } else if (pT_ >= 600) {
+      scaleFactors["HP"] = {1.045 , 0.045, -0.046};
+      scaleFactors["MP"] = {0.991 , 0.038, -0.043};
+      scaleFactors["LP"] = {0.979 , 0.035, -0.038};
+    }
+  }
+  else if (period_=="2018"){
+    if (pT_ < 500) {
+      scaleFactors["HP"] = {0.994 , 0.064, -0.064};
+      scaleFactors["MP"] = {0.966 , 0.056, -0.057};
+      scaleFactors["LP"] = {0.921 , 0.071, -0.077};
+    } else if (pT_ >= 500 && pT_ < 600) {
+      scaleFactors["HP"] = {1.072 , 0.041, -0.036};
+      scaleFactors["MP"] = {1.033 , 0.030, -0.025};
+      scaleFactors["LP"] = {1.006 , 0.024, -0.026};
+    } else if (pT_ >= 600) {
+      scaleFactors["HP"] = {1.046 , 0.038, -0.038};
+      scaleFactors["MP"] = {1.010 , 0.030, -0.035};
+      scaleFactors["LP"] = {1.001 , 0.035, -0.037};
+    }
+  }
+  return scaleFactors;
+}
+
+
+// usage : e.g.  
+//      std::map<std::string, std::vector<float>> result = ParticleNet_SF(tlv_fj.Pt(), PERIOD);
+//      setScaleFactor(result, "HP", variableForSF, variableForUp, variableForDown);
+void setScaleFactor(std::map<std::string, std::vector<float>>& result_, const std::string& key, float& scaleFactorVariable, float& scaleFactorErrUp, float& scaleFactorErrDown) {
+  if (result_.find(key) != result_.end()) {
+    std::vector<float>& scaleFactors = result_[key];
+    scaleFactorVariable = scaleFactors[0];
+    scaleFactorErrUp = scaleFactors[1];
+    scaleFactorErrDown = scaleFactors[2];
+  } else {
+    std::cerr << "Scale factors for " << key << " not found in the result." << std::endl;
+  }
+}
+
+
 
 int main (int argc, char** argv)
 {
@@ -222,11 +308,21 @@ int main (int argc, char** argv)
 
   int datasetType = atoi(argv[33]);
   bool isMETDataset = datasetType == DataType::kMET;
-  bool isTauDataset = datasetType == DataType::kSingleTau;
+  bool isTauDataset = datasetType == DataType::kSingleTau; // currently not used
   cout << "** INFO: isMETDataset  : " << isMETDataset << endl;
   cout << "** INFO: isTauDataset  : " << isTauDataset << endl;
   if (isMC) {
 	assert (datasetType==0);
+  }
+
+  float met_thresh, tau_thresh;
+  if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
+	met_thresh = 160.;
+	tau_thresh = 130.;
+  }
+  else {
+	met_thresh = 180.;
+	tau_thresh = 190.;
   }
 
 
@@ -451,7 +547,7 @@ int main (int argc, char** argv)
 
   // ------------------------------
 
-  cout << "** INFO: useDepFlavor? " << useDeepFlavor << endl;
+  cout << "** INFO: useDeepFlavor? " << useDeepFlavor << endl;
 
   string bTag_SFFile;
   string bTag_effFile;
@@ -1380,7 +1476,7 @@ int main (int argc, char** argv)
 		  int dauType = theBigTree.particleType->at(idau);
 		  if (oph.isMuon(dauType))
 			{
-			  bool passMu   = oph.muBaseline (&theBigTree, idau, 20., 2.4,
+			  bool passMu   = oph.muBaseline (&theBigTree, idau, 15., 2.4,
 											  0.15, OfflineProducerHelper::MuTight,
 											  0.15, OfflineProducerHelper::MuHighPt, string("All"), (DEBUG ? true : false));
 			  bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4,
@@ -1392,7 +1488,7 @@ int main (int argc, char** argv)
 			}
 		  else if (oph.isElectron(dauType))
 			{
-			  bool passEle   = oph.eleBaseline (&theBigTree, idau, 20., 2.5, 0.1, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
+			  bool passEle   = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.1, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
 			  bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.3, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
 
 			  if (passEle) ++nele;
@@ -1628,8 +1724,12 @@ int main (int argc, char** argv)
 											 theBigTree.daughters_e->at (secondDaughterIndex)
 											 );
 
-	  TVector2 vMET(theBigTree.METx->at(chosenTauPair),
-					theBigTree.METy->at(chosenTauPair));
+	  auto met_phi_corr = met_phi_correction_pxpy(
+		theBigTree.METx->at(chosenTauPair),
+		theBigTree.METy->at(chosenTauPair),
+		theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC
+	  );
+	  TVector2 vMET(float(met_phi_corr.first), float(met_phi_corr.second));
 	  TVector2 vMUON(0., 0.);
 	  if (pairType==0) {
 		// single muon in evt, vetoing events with 3rd lepton
@@ -1986,7 +2086,7 @@ int main (int argc, char** argv)
 										tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
 
 		  // check NEW TRIGGERS separately
-		  passMETTrg         = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 180.);
+		  passMETTrg         = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), met_thresh);
 		  passMETTrgNoThresh = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 0.);
 
 		  passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag,
@@ -2092,31 +2192,38 @@ int main (int argc, char** argv)
 		  if (pairType == 0) { //mutau
 			if(PERIOD=="2018") {
 			  MET_region = ((tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < 32.) or
-							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() > 32.));
+							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() < tau_thresh));
+			  SingleTau_region = tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() >= tau_thresh;
 			}
 			else if(PERIOD=="2017") {
 			  MET_region = ((tlv_firstLepton.Pt() < 28. and tlv_secondLepton.Pt() < 32.) or
-							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() > 32.));
+							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() < tau_thresh));
+			  SingleTau_region = tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() >= tau_thresh;
 			}
 			else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
 			  MET_region = ((tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < 25.) or
-							(tlv_firstLepton.Pt() < 20. and tlv_secondLepton.Pt() > 25.));
+							(tlv_firstLepton.Pt() < 20. and tlv_secondLepton.Pt() < tau_thresh));
+			  SingleTau_region = tlv_firstLepton.Pt() < 20. and tlv_secondLepton.Pt() >= tau_thresh;
 			}
 		  }
+
 		  else if (pairType == 1) { //etau
 			if(PERIOD=="2018" or PERIOD=="2017") {
 			  MET_region = ((tlv_firstLepton.Pt() < 33. and tlv_secondLepton.Pt() < 35.) or
-							(tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() > 35.));
+							(tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < tau_thresh));
+			  SingleTau_region = tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() >= tau_thresh;
 			}
 			else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
-			  MET_region = tlv_firstLepton.Pt() < 25.;
+			  MET_region = tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < tau_thresh;
+			  SingleTau_region = tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() >= tau_thresh;
 			}
 		  }
+
 		  else if (pairType == 2) { //tautau
-			MET_region       = ((tlv_firstLepton.Pt() < 40	 and tlv_secondLepton.Pt() < 190) or
-								(tlv_firstLepton.Pt() < 190	 and tlv_secondLepton.Pt() < 40 ));
-			SingleTau_region = ((tlv_firstLepton.Pt() < 40	 and tlv_secondLepton.Pt() >= 190) or
-								(tlv_firstLepton.Pt() >= 190 and tlv_secondLepton.Pt() < 40 ));
+			MET_region       = ((tlv_firstLepton.Pt() < 40 and tlv_secondLepton.Pt() < tau_thresh) or
+								(tlv_firstLepton.Pt() < tau_thresh and tlv_secondLepton.Pt() < 40));
+			SingleTau_region = ((tlv_firstLepton.Pt() < 40 and tlv_secondLepton.Pt() >= tau_thresh) or
+								(tlv_firstLepton.Pt() >= tau_thresh and tlv_secondLepton.Pt() < 40));
 		  }
 
 		  bool metAccept = passMETTrgNoThresh and !passTrg and MET_region; //!passTrg should be redundant wrt to the region cut
@@ -2124,7 +2231,7 @@ int main (int argc, char** argv)
 		  if (!isMC) {
 			passTrg = passTrg and !isMETDataset;
 			metAccept = metAccept and isMETDataset;
-			singletauAccept = singletauAccept and isTauDataset;
+			singletauAccept = singletauAccept and !isMETDataset;
 		  }
 		  bool triggerAccept = passTrg or metAccept or singletauAccept;
 	  
@@ -2204,8 +2311,13 @@ int main (int argc, char** argv)
 		(3rd lepton veto already looks for soft leptons (>10 GeV))
 	  */
 	
+	  met_phi_corr = met_phi_correction_pxpy(
+	  	theBigTree.METx->at(chosenTauPair),
+	  	theBigTree.METy->at(chosenTauPair),
+	  	theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC
+	  );
 	  TLorentzVector tlv_MET;
-	  tlv_MET.SetPxPyPzE(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair), 0, std::hypot(theBigTree.METx->at(chosenTauPair), theBigTree.METy->at(chosenTauPair)));
+	  tlv_MET.SetPxPyPzE(met_phi_corr.first, met_phi_corr.second, 0, std::hypot(met_phi_corr.first, met_phi_corr.second));
 
 	  TLorentzVector tlv_DeepMET_ResponseTune;
 	  tlv_DeepMET_ResponseTune.SetPtEtaPhiM(theBigTree.ShiftedDeepMETresponseTune_pt, 0, theBigTree.ShiftedDeepMETresponseTune_phi, 0);
@@ -2243,8 +2355,8 @@ int main (int argc, char** argv)
 	  if (doSmearing)
 		{
 		  // Smear MET
-		  float METx = theBigTree.METx->at(chosenTauPair);
-		  float METy = theBigTree.METy->at(chosenTauPair);
+		  float METx = met_phi_corr.first;
+		  float METy = met_phi_corr.second;
 		  TVector2 metSmeared = getShiftedMET_smear(METx, METy, theBigTree, jets_and_smearFactor);
 		  vMET = metSmeared;
 		  tlv_MET.SetPxPyPzE(metSmeared.Px(), metSmeared.Py(), 0, std::hypot(metSmeared.Px(), metSmeared.Py()));
@@ -2326,7 +2438,6 @@ int main (int argc, char** argv)
 	  else if (theSmallTree.m_pairType == 1) theSmallTree.m_BDT_channel = 0.;
 	  else if (theSmallTree.m_pairType == 2) theSmallTree.m_BDT_channel = 2.;
 
-	  //cout << " ------------------> CHECK CHANNEL pairType/BDT_chan: " << theSmallTree.m_pairType << "/" << theSmallTree.m_BDT_channel << endl;
 
 	  if (theBigTree.npu >= 0 && theBigTree.npu <= 99) // good PU weights
 		theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) : 1) ;
@@ -3088,15 +3199,22 @@ int main (int argc, char** argv)
 		  // MuTau Channel
 		  if (pType == 0 and isMC)
 			{
-			  if(MET_region)
+			  if (MET_region)
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "mutau");
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "mutau");
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "mutau");
 				}
 
+			  else if (SingleTau_region)
+				{
+				  trigSF           = singleTauSF[PERIOD].first;
+				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
+				  trigSF_stau_down = trigSF - singleTauSF[PERIOD].second;
+				}
+
 			  // eta region covered both by cross-trigger and single lepton trigger
-			  else if(fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_region) 
+			  else if(fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_region and !SingleTau_region) 
 				{
 				  int passSingle = 1, passCross = 1;
 
@@ -3218,16 +3336,23 @@ int main (int argc, char** argv)
 		  // EleTau Channel
 		  else if (pType == 1 and isMC)
 			{
-			  if(MET_region)
+			  if (MET_region)
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "etau");
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "etau");
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "etau");
 				}
 
+			  else if (SingleTau_region)
+				{
+				  trigSF           = singleTauSF[PERIOD].first;
+				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
+				  trigSF_stau_down = trigSF - singleTauSF[PERIOD].second;
+				}
+
 			  // eta region covered both by cross-trigger and single lepton trigger
 			  else if(PERIOD != "2016preVFP" and PERIOD != "2016postVFP" and
-					  fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_region)
+					  fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_region and !SingleTau_region)
 				{
 				  int passSingle = 1, passCross = 1;
 
@@ -3325,6 +3450,7 @@ int main (int argc, char** argv)
 				  double SFtau = tauTrgSF_etau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 				  trigSF_cross = SFl*SFtau;
 				}
+
 			  else //eta region covered only by single lepton trigger
 				{
 				  double SF = 1.;
@@ -4239,8 +4365,13 @@ int main (int argc, char** argv)
 		  if (DEBUG) cout << "  HT = " << theSmallTree.m_BDT_HT20 << endl;
 		  if (DEBUG) cout << "---------------------" << endl;
 
-		  float METx = theBigTree.METx->at (chosenTauPair) ;
-		  float METy = theBigTree.METy->at (chosenTauPair) ;
+		  met_phi_corr = met_phi_correction_pxpy(
+		  	theBigTree.METx->at(chosenTauPair),
+		  	theBigTree.METy->at(chosenTauPair),
+		  	theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC
+		  );
+		  float METx = met_phi_corr.first;
+		  float METy = met_phi_corr.second;
 		  if (doSmearing)
 			{
 			  TVector2 metSmeared = getShiftedMET_smear(METx, METy, theBigTree, jets_and_smearFactor);
@@ -5233,125 +5364,132 @@ int main (int argc, char** argv)
 		  // Boosted section
 		  theSmallTree.m_isBoosted = 0;
 		  if (theBigTree.ak8jets_px->size() > 0)
+		    {  
+		      vector<pair<float, int>> fatjets_pT;
+		      vector<pair<float, int>> fatjets_bTag;
+		      for (unsigned int ifj = 0; ifj < theBigTree.ak8jets_px->size(); ++ifj)
 			{
-			  // int idxSub1 = -1;
-			  // int idxSub2 = -1;
-			  // int idxFatj = -1;
-
-			  vector<pair<float, int>> fatjets_bTag;
-			  for (unsigned int ifj = 0; ifj < theBigTree.ak8jets_px->size(); ++ifj)
-				{
-				  TLorentzVector tlv_fj (theBigTree.ak8jets_px->at(ifj) , theBigTree.ak8jets_py->at(ifj) , theBigTree.ak8jets_pz->at(ifj) , theBigTree.ak8jets_e->at(ifj));
-				  if (theBigTree.ak8jets_SoftDropMass -> at(ifj) < 30) continue;
-				  if ( theBigTree.ak8jets_nsubjets->at(ifj) < 2 ) continue;
-
-				  TLorentzVector tlv_subj1;
-				  TLorentzVector tlv_subj2;
-				  vector<int> sjIdxs = findSubjetIdxs(ifj, theBigTree);
-
-				  int nSJ = 0;
-				  for (int isj : sjIdxs)
-					{
-					  ++nSJ;
-					  if (nSJ > 2) break; // FIXME: storing first two <--> highest pt, order subjets for b tag?
-					  if (nSJ == 1)
-						{
-						  tlv_subj1.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
-						}
-					  if (nSJ == 2)
-						{
-						  tlv_subj2.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
-						}
-
-					  if(DEBUG)
-						{
-						  cout << "- nSJ=" << nSJ << " px=" << theBigTree.subjets_px->at(isj) << endl;
-						}
-					}
-
-				  bool A1B2 = (tlv_subj1.DeltaR(tlv_firstBjet) < 0.4)   && (tlv_subj2.DeltaR(tlv_secondBjet) < 0.4 );
-				  bool A2B1 = (tlv_subj1.DeltaR(tlv_secondBjet) < 0.4)  && (tlv_subj2.DeltaR(tlv_firstBjet) < 0.4 );
-
-				  if(DEBUG)
-					{
-					  cout << " fatjet: idx " << ifj << " nsj=" << sjIdxs.size()
-						   << " sj1pt=" << tlv_subj1.Pt() << " sj1eta=" << tlv_subj1.Eta() << " sj1phi=" << tlv_subj1.Phi()
-						   << " sj2pt=" << tlv_subj2.Pt() << " sj2eta=" << tlv_subj2.Eta() << " sj2phi=" << tlv_subj2.Phi()
-						   << " !passMatch=" << (!A1B2 && !A2B1) << endl;
-					}
-
-				  if (!A1B2 && !A2B1) continue; // is not matched to resolved jets
-
-				  //fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_CSV->size(), ifj));
-				  if(useDeepFlavor)
-					fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_deepFlavor_probb->at(ifj)+theBigTree.ak8jets_deepFlavor_probbb->at(ifj)+theBigTree.ak8jets_deepFlavor_problepb->at(ifj), ifj));
-				  else
-					fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_deepCSV_probb->at(ifj)+theBigTree.ak8jets_deepCSV_probbb->at(ifj), ifj));
-				}
-
-			  if(DEBUG)
-				{
-				  cout << " N selected fatjets : " << fatjets_bTag.size() << endl;
-				}
-
-			  if (fatjets_bTag.size() != 0)
-				{
-				  theSmallTree.m_isBoosted = 1;
-				  sort (fatjets_bTag.begin(), fatjets_bTag.end());
-				  int fjIdx = fatjets_bTag.back().second;
-				  TLorentzVector tlv_fj (theBigTree.ak8jets_px->at(fjIdx) , theBigTree.ak8jets_py->at(fjIdx) , theBigTree.ak8jets_pz->at(fjIdx) , theBigTree.ak8jets_e->at(fjIdx));
-				  theSmallTree.m_fatjet_pt   = tlv_fj.Pt();
-				  theSmallTree.m_fatjet_eta  = tlv_fj.Eta();
-				  theSmallTree.m_fatjet_phi  = tlv_fj.Phi();
-				  theSmallTree.m_fatjet_e    = tlv_fj.E();
-				  theSmallTree.m_fatjet_bID  = theBigTree.ak8jets_CSV->at(fjIdx);
-				  theSmallTree.m_fatjet_bID_deepCSV  = theBigTree.ak8jets_deepCSV_probb->at(fjIdx) + theBigTree.ak8jets_deepCSV_probbb->at(fjIdx);
-				  theSmallTree.m_fatjet_bID_deepFlavor  = theBigTree.ak8jets_deepFlavor_probb->at(fjIdx) + theBigTree.ak8jets_deepFlavor_probbb->at(fjIdx) + theBigTree.ak8jets_deepFlavor_problepb->at(fjIdx);
-				  theSmallTree.m_fatjet_filteredMass = theBigTree.ak8jets_FilteredMass -> at(fjIdx) ;
-				  theSmallTree.m_fatjet_prunedMass   = theBigTree.ak8jets_PrunedMass   -> at(fjIdx) ;
-				  theSmallTree.m_fatjet_trimmedMass  = theBigTree.ak8jets_TrimmedMass  -> at(fjIdx) ;
-				  theSmallTree.m_fatjet_softdropMass = theBigTree.ak8jets_SoftDropMass -> at(fjIdx) ;
-				  theSmallTree.m_fatjet_tau1 = theBigTree.ak8jets_tau1->at(fjIdx);
-				  theSmallTree.m_fatjet_tau2 = theBigTree.ak8jets_tau2->at(fjIdx);
-				  theSmallTree.m_fatjet_tau3 = theBigTree.ak8jets_tau3->at(fjIdx);
-				  theSmallTree.m_fatjet_nsubjets = theBigTree.ak8jets_nsubjets->at(fjIdx);
-				  // FIXME: redoing this a second time, can be optimized
-				  if ( theBigTree.ak8jets_nsubjets->at(fjIdx) < 2) cout << "ERROR: there are not 2 subjets. Should not happen!!" << endl;
-				  TLorentzVector tlv_subj1;
-				  TLorentzVector tlv_subj2;
-				  vector<int> sjIdxs = findSubjetIdxs(fjIdx, theBigTree);
-				  int nSJ = 0;
-				  for (int isj : sjIdxs)
-					{
-					  ++nSJ;
-					  if (nSJ > 2) break; // FIXME: storing first two <--> highest pt, order subjets for b tag?
-					  if (nSJ == 1)
-						{
-						  tlv_subj1.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
-						  theSmallTree.m_subjetjet1_pt   = tlv_subj1.Pt();
-						  theSmallTree.m_subjetjet1_eta  = tlv_subj1.Eta();
-						  theSmallTree.m_subjetjet1_phi  = tlv_subj1.Phi();
-						  theSmallTree.m_subjetjet1_e    = tlv_subj1.E();
-						  theSmallTree.m_subjetjet1_bID  = theBigTree.subjets_CSV->at(isj) ;
-						  theSmallTree.m_subjetjet1_bID_deepCSV  = theBigTree.subjets_deepCSV_probb->at(isj) + theBigTree.subjets_deepCSV_probbb->at(isj) ;
-						  theSmallTree.m_subjetjet1_bID_deepFlavor  = theBigTree.subjets_deepFlavor_probb->at(isj) + theBigTree.subjets_deepFlavor_probbb->at(isj) + theBigTree.subjets_deepFlavor_problepb->at(isj) ;
-						}
-					  if (nSJ == 2)
-						{
-						  tlv_subj2.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
-						  theSmallTree.m_subjetjet2_pt   = tlv_subj2.Pt();
-						  theSmallTree.m_subjetjet2_eta  = tlv_subj2.Eta();
-						  theSmallTree.m_subjetjet2_phi  = tlv_subj2.Phi();
-						  theSmallTree.m_subjetjet2_e    = tlv_subj2.E();
-						  theSmallTree.m_subjetjet2_bID  = theBigTree.subjets_CSV->at(isj) ;
-						  theSmallTree.m_subjetjet2_bID_deepCSV  = theBigTree.subjets_deepCSV_probb->at(isj) + theBigTree.subjets_deepCSV_probbb->at(isj) ;
-						  theSmallTree.m_subjetjet2_bID_deepFlavor  = theBigTree.subjets_deepFlavor_probb->at(isj) + theBigTree.subjets_deepFlavor_probbb->at(isj) + theBigTree.subjets_deepFlavor_problepb->at(isj);
-						}
-					  theSmallTree.m_dR_subj1_subj2 = tlv_subj1.DeltaR(tlv_subj2);
-					}
-				}
+			  TLorentzVector tlv_fj (theBigTree.ak8jets_px->at(ifj) , theBigTree.ak8jets_py->at(ifj) , theBigTree.ak8jets_pz->at(ifj) , theBigTree.ak8jets_e->at(ifj));
+			  if (tlv_fj.Pt() < 250) continue; 
+			  if (tlv_fj.DeltaR(tlv_firstLepton) < 0.8) continue;
+			  if (tlv_fj.DeltaR(tlv_secondLepton) < 0.8) continue;
+			  if (theBigTree.ak8jets_SoftDropMass -> at(ifj) < 30) continue;
+			    
+			  fatjets_pT.push_back(make_pair(tlv_fj.Pt(), ifj));
+			  fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(ifj)/(theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(ifj)+theBigTree.ak8jets_particleNetMDJetTags_probQCD->at(ifj)), ifj));
 			}
-		}// if there's two jets in the event, at least
+		            
+		      if (fatjets_bTag.size() != 0)
+			{
+			  if (fatjets_bTag.size() > 1 && DEBUG) 
+			    cout << " N selected fatjets : " << fatjets_bTag.size() << endl;
+			  theSmallTree.m_isBoosted = 1;
+			  sort (fatjets_pT.begin(), fatjets_pT.end());
+			  sort (fatjets_bTag.begin(), fatjets_bTag.end());
+			  // sorting for b-tagger score and taking the first one
+			  int fjIdx = fatjets_bTag.back().second;
+			    
+			  int fjIdx_pT = fatjets_pT.back().second;
+			  theSmallTree.m_fatjet_highest_pT_bTag = (fjIdx_pT == fjIdx) ? 1 : 0;
+			    
+			  TLorentzVector tlv_fj (theBigTree.ak8jets_px->at(fjIdx) , theBigTree.ak8jets_py->at(fjIdx) , theBigTree.ak8jets_pz->at(fjIdx) , theBigTree.ak8jets_e->at(fjIdx));
+			    
+			  theSmallTree.m_fatjet_pt   = tlv_fj.Pt();
+			  theSmallTree.m_fatjet_eta  = tlv_fj.Eta();
+			  theSmallTree.m_fatjet_phi  = tlv_fj.Phi();
+			  theSmallTree.m_fatjet_e    = tlv_fj.E();
+			  theSmallTree.m_fatjet_bID  = theBigTree.ak8jets_CSV->at(fjIdx);
+			  theSmallTree.m_fatjet_bID_deepCSV  = theBigTree.ak8jets_deepCSV_probb->at(fjIdx) + theBigTree.ak8jets_deepCSV_probbb->at(fjIdx);
+			  theSmallTree.m_fatjet_bID_deepFlavor  = theBigTree.ak8jets_deepFlavor_probb->at(fjIdx) + theBigTree.ak8jets_deepFlavor_probbb->at(fjIdx) + theBigTree.ak8jets_deepFlavor_problepb->at(fjIdx);
+			  theSmallTree.m_fatjet_filteredMass = theBigTree.ak8jets_FilteredMass -> at(fjIdx) ;
+			  theSmallTree.m_fatjet_prunedMass   = theBigTree.ak8jets_PrunedMass   -> at(fjIdx) ;
+			  theSmallTree.m_fatjet_trimmedMass  = theBigTree.ak8jets_TrimmedMass  -> at(fjIdx) ;
+			  theSmallTree.m_fatjet_softdropMass = theBigTree.ak8jets_SoftDropMass -> at(fjIdx) ;
+			  theSmallTree.m_fatjet_tau1 = theBigTree.ak8jets_tau1->at(fjIdx);
+			  theSmallTree.m_fatjet_tau2 = theBigTree.ak8jets_tau2->at(fjIdx);
+			  theSmallTree.m_fatjet_tau3 = theBigTree.ak8jets_tau3->at(fjIdx);
+			  theSmallTree.m_fatjet_nsubjets = theBigTree.ak8jets_nsubjets->at(fjIdx);
+			  theSmallTree.m_fatjet_particleNetMDJetTags_probXbb = theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(fjIdx);
+			  theSmallTree.m_fatjet_particleNetMDJetTags_probXcc = theBigTree.ak8jets_particleNetMDJetTags_probXcc->at(fjIdx);
+			  theSmallTree.m_fatjet_particleNetMDJetTags_probXqq = theBigTree.ak8jets_particleNetMDJetTags_probXqq->at(fjIdx);
+			  theSmallTree.m_fatjet_particleNetMDJetTags_probQCD = theBigTree.ak8jets_particleNetMDJetTags_probQCD->at(fjIdx);
+			  theSmallTree.m_fatjet_particleNetMDJetTags_score = theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(fjIdx)/(theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(fjIdx)+theBigTree.ak8jets_particleNetMDJetTags_probQCD->at(fjIdx));
+			  theSmallTree.m_fatjet_particleNetMDJetTags_mass = theBigTree.ak8jets_particleNetMDJetTags_mass->at(fjIdx);
+			    
+			  // computing the vector made of the fatjet (H-bb) + svfit  H-tt
+			  TLorentzVector tlv_bH_particleNet_regression;
+			  tlv_bH_particleNet_regression.SetPtEtaPhiM(tlv_fj.Pt(), tlv_fj.Eta(), tlv_fj.Phi(), theBigTree.ak8jets_particleNetMDJetTags_mass->at(fjIdx));
+			    
+			  TLorentzVector tlv_HHbregrsvfit  = tlv_bH_particleNet_regression + tlv_tauH_SVFIT;
+			  theSmallTree.m_HHbregrsvfit_pt   = tlv_HHbregrsvfit.Pt();
+			  theSmallTree.m_HHbregrsvfit_eta  = tlv_HHbregrsvfit.Eta();
+			  theSmallTree.m_HHbregrsvfit_phi  = tlv_HHbregrsvfit.Phi();
+			  theSmallTree.m_HHbregrsvfit_m    = tlv_HHbregrsvfit.M();
+			    
+			  std::map<std::string, std::vector<float>> result = ParticleNet_SF(tlv_fj.Pt(), PERIOD);
+			  // Set scale factors for different keys
+			  setScaleFactor(result, "HP", theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF, theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_up, theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_down);
+			  setScaleFactor(result, "MP", theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF, theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_up, theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_down);
+			  setScaleFactor(result, "LP", theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF, theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_up, theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_down);
+			    
+			    
+			  // saving infos for subjets
+			  if (theBigTree.ak8jets_nsubjets->at(fjIdx) >= 2 ) 
+			    {
+			      TLorentzVector tlv_subj1;
+			      TLorentzVector tlv_subj2;
+			      vector<int> sjIdxs = findSubjetIdxs(fjIdx, theBigTree);
+			            
+			      int nSJ = 0;
+			      for (int isj : sjIdxs)
+				{
+				  ++nSJ;
+				  if (nSJ > 2) break;  //storing first two <--> highest pt
+				  if (nSJ == 1)
+				    {
+				      tlv_subj1.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
+				      theSmallTree.m_subjetjet1_pt   = tlv_subj1.Pt();
+				      theSmallTree.m_subjetjet1_eta  = tlv_subj1.Eta();
+				      theSmallTree.m_subjetjet1_phi  = tlv_subj1.Phi();
+				      theSmallTree.m_subjetjet1_e    = tlv_subj1.E();
+				      theSmallTree.m_subjetjet1_bID  = theBigTree.subjets_CSV->at(isj) ;
+				      theSmallTree.m_subjetjet1_bID_deepCSV  = theBigTree.subjets_deepCSV_probb->at(isj) + theBigTree.subjets_deepCSV_probbb->at(isj) ;
+				      theSmallTree.m_subjetjet1_bID_deepFlavor  = theBigTree.subjets_deepFlavor_probb->at(isj) + theBigTree.subjets_deepFlavor_probbb->at(isj) + theBigTree.subjets_deepFlavor_problepb->at(isj) ;
+				    }
+				  if (nSJ == 2)
+				    {
+				      tlv_subj2.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
+				      theSmallTree.m_subjetjet2_pt   = tlv_subj2.Pt();
+				      theSmallTree.m_subjetjet2_eta  = tlv_subj2.Eta();
+				      theSmallTree.m_subjetjet2_phi  = tlv_subj2.Phi();
+				      theSmallTree.m_subjetjet2_e    = tlv_subj2.E();
+				      theSmallTree.m_subjetjet2_bID  = theBigTree.subjets_CSV->at(isj) ;
+				      theSmallTree.m_subjetjet2_bID_deepCSV  = theBigTree.subjets_deepCSV_probb->at(isj) + theBigTree.subjets_deepCSV_probbb->at(isj) ;
+				      theSmallTree.m_subjetjet2_bID_deepFlavor  = theBigTree.subjets_deepFlavor_probb->at(isj) + theBigTree.subjets_deepFlavor_probbb->at(isj) + theBigTree.subjets_deepFlavor_problepb->at(isj);
+				    }
+				}
+			            
+			      bool A1B2 = (tlv_subj1.DeltaR(tlv_firstBjet)  < 0.4) && (tlv_subj2.DeltaR(tlv_secondBjet) < 0.4);
+			      bool A2B1 = (tlv_subj1.DeltaR(tlv_secondBjet) < 0.4) && (tlv_subj2.DeltaR(tlv_firstBjet)  < 0.4);
+			            
+			      if(DEBUG)
+				{
+				  cout << " fatjet: idx " << fjIdx << " nsj=" << sjIdxs.size()
+				       << " sj1pt=" << tlv_subj1.Pt() << " sj1eta=" << tlv_subj1.Eta() << " sj1phi=" << tlv_subj1.Phi()
+				       << " sj2pt=" << tlv_subj2.Pt() << " sj2eta=" << tlv_subj2.Eta() << " sj2phi=" << tlv_subj2.Phi()
+				       << " passMatch=" << (A1B2 || A2B1) << endl;
+				}
+			            
+			      theSmallTree.m_dR_subj1_subj2 = tlv_subj1.DeltaR(tlv_subj2);
+			            
+			      if (A1B2 || A2B1) theSmallTree.m_fatjet_hasMatchedSj = true;  //has two sub-jets matched to the resolved jets
+			            
+			    } 
+			} // end if fatjet_bTag not empty 
+		    } // end if (theBigTree.ak8jets_px->size() > 0)  (end of the boosted section)
+		} // end if (jets_and_sortPar.size () >= 2) 
+
+
 
 	  if (isMC) selectedEvents += theBigTree.aMCatNLOweight ;  //FIXME: probably wrong, but unused up to now
 	  else selectedEvents += 1 ;
@@ -5464,683 +5602,6 @@ int main (int argc, char** argv)
 	  for (uint ich = 0; ich < 6; ++ich)
 		delete hEffHHSigsSummary[ich];
 	}
-
-  bool computeMVA    = (gConfigParser->isDefined("TMVA::computeMVA")        ? gConfigParser->readBoolOption ("TMVA::computeMVA")        : false);
-  bool computeMVARes = (gConfigParser->isDefined("BDTResonant::computeMVA") ? gConfigParser->readBoolOption ("BDTResonant::computeMVA") : false);
-  bool computeMVAResHM = (gConfigParser->isDefined("BDTResonantHM::computeMVA") ? gConfigParser->readBoolOption ("BDTResonantHM::computeMVA") : false);
-  bool computeMVAResLM = (gConfigParser->isDefined("BDTResonantLM::computeMVA") ? gConfigParser->readBoolOption ("BDTResonantLM::computeMVA") : false);
-  bool computeMVANonRes = (gConfigParser->isDefined("BDTNonResonant::computeMVA") ? gConfigParser->readBoolOption ("BDTNonResonant::computeMVA") : false);
-
-  if (computeMVA || computeMVARes || computeMVAResHM || computeMVAResLM)
-	{
-	  bool doMuTau  = gConfigParser->isDefined("TMVA::weightsMuTau");
-	  bool doETau   = gConfigParser->isDefined("TMVA::weightsETau");
-	  bool doTauTau = gConfigParser->isDefined("TMVA::weightsTauTau");
-	  bool doLepTau = gConfigParser->isDefined("TMVA::weightsLepTau");
-	  bool doResonant = computeMVARes;
-	  bool doResonantHM = computeMVAResHM;
-	  bool doResonantLM = computeMVAResLM;
-	  bool doNonResonant = computeMVANonRes;
-
-	  string TMVAweightsTauTau   = "";
-	  string TMVAweightsMuTau    = "";
-	  string TMVAweightsETau     = "";
-	  string TMVAweightsLepTau   = "";
-	  string TMVAweightsResonant = "";
-	  string TMVAweightsResonantHM = "";
-	  string TMVAweightsResonantLM = "";
-	  string TMVAweightsNonResonant = "";
-
-	  if (doMuTau)    TMVAweightsMuTau  = gConfigParser->readStringOption ("TMVA::weightsMuTau");
-	  if (doETau)     TMVAweightsETau   = gConfigParser->readStringOption ("TMVA::weightsETau");
-	  if (doTauTau)   TMVAweightsTauTau = gConfigParser->readStringOption ("TMVA::weightsTauTau");
-	  if (doLepTau)   TMVAweightsLepTau = gConfigParser->readStringOption ("TMVA::weightsLepTau");
-	  if (doResonant) TMVAweightsResonant = gConfigParser->readStringOption ("BDTResonant::weights");
-	  if (doResonantHM) TMVAweightsResonantHM = gConfigParser->readStringOption ("BDTResonantHM::weights");
-	  if (doResonantLM) TMVAweightsResonantLM = gConfigParser->readStringOption ("BDTResonantLM::weights");
-	  if (doNonResonant) TMVAweightsNonResonant = gConfigParser->readStringOption ("BDTNonResonant::weights");
-
-	  // bool TMVAspectatorsIn      = gConfigParser->readBoolOption   ("TMVA::spectatorsPresent");
-	  vector<string> TMVAspectators = ( computeMVA ? gConfigParser->readStringListOption   ("TMVA::spectators") : vector<string>(0) );
-	  vector<string> TMVAvariables  = ( computeMVA ? gConfigParser->readStringListOption   ("TMVA::variables") : vector<string>(0) );
-	  vector<string> TMVAvariablesResonant   = ( doResonant ? gConfigParser->readStringListOption   ("BDTResonant::variables") : vector<string>(0) );
-	  vector<string> TMVAvariablesResonantHM = ( doResonantHM ? gConfigParser->readStringListOption   ("BDTResonantHM::variables") : vector<string>(0) );
-	  vector<string> TMVAvariablesResonantLM = ( doResonantLM ? gConfigParser->readStringListOption   ("BDTResonantLM::variables") : vector<string>(0) );
-	  vector<string> TMVAvariablesNonResonant = ( doNonResonant ? gConfigParser->readStringListOption   ("BDTNonResonant::variables") : vector<string>(0) );
-
-	  // split the resonant name in two strings
-	  vector<pair<string, string>> splitTMVAvariablesResonant;
-	  for (unsigned int iv = 0 ; iv < TMVAvariablesResonant.size () ; ++iv)
-		{
-		  // split my_name:BDT_name in two strings
-		  std::stringstream packedName(TMVAvariablesResonant.at(iv));
-		  std::string segment;
-		  std::vector<std::string> unpackedNames;
-		  while(std::getline(packedName, segment, ':'))
-			unpackedNames.push_back(segment);
-
-		  splitTMVAvariablesResonant.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1)));
-		}
-
-	  // split the resonant name in two strings
-	  cout << "BDT resonant HIGH MASS vars:" << endl;
-	  vector<pair<string, string>> splitTMVAvariablesResonantHM;
-	  for (unsigned int iv = 0 ; iv < TMVAvariablesResonantHM.size () ; ++iv)
-		{
-		  // split my_name:BDT_name in two strings
-		  std::stringstream packedName(TMVAvariablesResonantHM.at(iv));
-		  std::string segment;
-		  std::vector<std::string> unpackedNames;
-		  while(std::getline(packedName, segment, ':'))
-			unpackedNames.push_back(segment);
-
-		  // replace "internal" names for graphics names -- shitty parser!!
-		  boost::replace_all(unpackedNames.at(1), "_T_", "*");
-		  boost::replace_all(unpackedNames.at(1), "__", "()");
-
-		  splitTMVAvariablesResonantHM.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1)));
-		  cout << " ... " << iv << " " << unpackedNames.at(0) << " --> " << unpackedNames.at(1) << endl;
-		}
-	  cout << endl;
-
-	  // split the resonant name in two strings
-	  vector<pair<string, string>> splitTMVAvariablesResonantLM;
-	  cout << "BDT resonant LOW MASS vars:" << endl;
-	  for (unsigned int iv = 0 ; iv < TMVAvariablesResonantLM.size () ; ++iv)
-		{
-		  // split my_name:BDT_name in two strings
-		  std::stringstream packedName(TMVAvariablesResonantLM.at(iv));
-		  std::string segment;
-		  std::vector<std::string> unpackedNames;
-		  while(std::getline(packedName, segment, ':'))
-			unpackedNames.push_back(segment);
-
-		  // replace "internal" names for graphics names -- shitty parser!!
-		  boost::replace_all(unpackedNames.at(1), "_T_", "*");
-		  boost::replace_all(unpackedNames.at(1), "__", "()");
-
-		  splitTMVAvariablesResonantLM.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1)));
-		  cout << " ... " << iv << " " << unpackedNames.at(0) << " --> " << unpackedNames.at(1) << endl;
-		}
-
-	  // split the non resonant name in two strings
-	  vector<pair<string, string>> splitTMVAvariablesNonResonant;
-	  cout << "BDT non resonant vars:" << endl;
-	  for (unsigned int iv = 0 ; iv < TMVAvariablesNonResonant.size () ; ++iv)
-		{
-		  // split my_name:BDT_name in two strings
-		  std::stringstream packedName(TMVAvariablesNonResonant.at(iv));
-		  std::string segment;
-		  std::vector<std::string> unpackedNames;
-		  while(std::getline(packedName, segment, ':'))
-			unpackedNames.push_back(segment);
-
-		  // replace "internal" names for graphics names -- shitty parser!!
-		  boost::replace_all(unpackedNames.at(1), "_T_", "*");
-		  boost::replace_all(unpackedNames.at(1), "__", "()");
-
-		  splitTMVAvariablesNonResonant.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1)));
-		  cout << " ... " << iv << " " << unpackedNames.at(0) << " --> " << unpackedNames.at(1) << endl;
-		}
-
-
-	  // now merge all names into a vector to get a list of uniquely needed elements
-	  std::vector<string> allVars;
-	  allVars.insert(allVars.end(), TMVAspectators.begin(), TMVAspectators.end());
-	  allVars.insert(allVars.end(), TMVAvariables.begin(), TMVAvariables.end());
-	  for (unsigned int iv = 0; iv < splitTMVAvariablesResonant.size(); ++iv)
-		allVars.push_back(splitTMVAvariablesResonant.at(iv).first);
-	  for (unsigned int iv = 0; iv < splitTMVAvariablesResonantHM.size(); ++iv)
-		allVars.push_back(splitTMVAvariablesResonantHM.at(iv).first);
-	  for (unsigned int iv = 0; iv < splitTMVAvariablesResonantLM.size(); ++iv)
-		allVars.push_back(splitTMVAvariablesResonantLM.at(iv).first);
-	  for (unsigned int iv = 0; iv < splitTMVAvariablesNonResonant.size(); ++iv)
-		allVars.push_back(splitTMVAvariablesNonResonant.at(iv).first);
-
-	  sort(allVars.begin(), allVars.end());
-	  allVars.erase( unique( allVars.begin(), allVars.end() ), allVars.end() );
-	  std::map<string, float> allVarsMap;
-	  for (string var : allVars)
-		allVarsMap[var] = 0.0;
-
-	  TFile *outFile = TFile::Open(outputFile.c_str(), "UPDATE");
-	  TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
-
-	  TMVA::Reader * reader = new TMVA::Reader () ;
-	  TMVA::Reader * readerResonant = new TMVA::Reader () ;
-	  TMVA::Reader * readerResonantHM = new TMVA::Reader () ;
-	  TMVA::Reader * readerResonantLM = new TMVA::Reader () ;
-	  TMVA::Reader * readerNonResonant = new TMVA::Reader () ;
-	  Float_t mvatautau,mvamutau, mvaetau, mvaleptau, mvaresonant, mvaresonantHM, mvaresonantLM, mvanonresonant;
-	  TBranch *mvaBranchmutau;
-	  TBranch *mvaBranchtautau;
-	  TBranch *mvaBranchetau;
-	  TBranch *mvaBranchleptau;
-	  TBranch *mvaBranchResonant;
-	  TBranch *mvaBranchResonantHM;
-	  TBranch *mvaBranchResonantLM;
-	  TBranch *mvaBranchNonResonant;
-
-	  for (string var : TMVAvariables)
-		{
-		  treenew->SetBranchAddress (var.c_str (), &(allVarsMap.at (var))) ;
-		  reader->AddVariable (var, &(allVarsMap.at (var))) ;
-		}
-
-	  for (string var : TMVAspectators)
-		{
-		  treenew->SetBranchAddress (var.c_str (), &(allVarsMap.at (var))) ;
-		  reader->AddSpectator (var, &(allVarsMap.at (var))) ;
-		}
-
-	  for (pair<string, string> vpair : splitTMVAvariablesResonant)
-		{
-		  treenew->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
-		  readerResonant->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;
-		}
-
-	  for (pair<string, string> vpair : splitTMVAvariablesResonantHM)
-		{
-		  treenew->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
-		  readerResonantHM->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;
-		  // cout << "DEBUG HM: " << vpair.second.c_str () <<  " <-- " << vpair.first.c_str () << endl;
-		}
-
-	  for (pair<string, string> vpair : splitTMVAvariablesResonantLM)
-		{
-		  treenew->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
-		  readerResonantLM->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;
-		}
-
-	  for (pair<string, string> vpair : splitTMVAvariablesNonResonant)
-		{
-		  treenew->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
-		  readerNonResonant->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;
-		}
-
-	  if (doMuTau)  mvaBranchmutau = treenew->Branch ("MuTauKine", &mvamutau, "MuTauKine/F") ;
-	  if (doETau)   mvaBranchetau = treenew->Branch ("ETauKine", &mvaetau, "ETauKine/F") ;
-	  if (doTauTau) mvaBranchtautau = treenew->Branch ("TauTauKine", &mvatautau, "TauTauKine/F") ;
-	  if (doLepTau) mvaBranchleptau = treenew->Branch ("LepTauKine", &mvaleptau, "LepTauKine/F") ;
-	  if (doResonant) mvaBranchResonant = treenew->Branch ("BDTResonant", &mvaresonant, "BDTResonant/F") ;
-	  if (doResonantHM) mvaBranchResonantHM = treenew->Branch ("BDTResonantHM", &mvaresonantHM, "BDTResonantHM/F") ;
-	  if (doResonantLM) mvaBranchResonantLM = treenew->Branch ("BDTResonantLM", &mvaresonantLM, "BDTResonantLM/F") ;
-	  if (doNonResonant) mvaBranchNonResonant = treenew->Branch ("BDTNonResonant", &mvanonresonant, "BDTNonResonant/F") ;
-	  //}
-	  if (doMuTau)   reader->BookMVA ("MuTauKine",  TMVAweightsMuTau.c_str ()) ;
-	  if (doETau)    reader->BookMVA ("ETauKine",  TMVAweightsETau.c_str ()) ;
-	  if (doTauTau)  reader->BookMVA ("TauTauKine",  TMVAweightsTauTau.c_str ()) ;
-	  if (doLepTau)  reader->BookMVA ("LepTauKine",  TMVAweightsLepTau.c_str ()) ;
-	  if (doResonant)  readerResonant->BookMVA ("BDT_full_mass_iso_nodrbbsv",  TMVAweightsResonant.c_str ()) ;
-	  if (doResonantHM)  readerResonantHM->BookMVA ("500t_PU_mass_newvars_HIGH_oldvars",  TMVAweightsResonantHM.c_str ()) ;
-	  if (doResonantLM)  readerResonantLM->BookMVA ("500t_PU_mass_newvars_LOW",  TMVAweightsResonantLM.c_str ()) ;
-	  if (doNonResonant)  readerNonResonant->BookMVA ("BDT_nonres_SM",  TMVAweightsNonResonant.c_str ()) ;
-
-	  int nentries = treenew->GetEntries();
-	  for(int i=0;i<nentries;i++)
-		{
-		  treenew->GetEntry(i);
-
-		  if (doMuTau)   mvamutau= reader->EvaluateMVA ("MuTauKine") ;
-		  if (doETau)    mvaetau= reader->EvaluateMVA ("ETauKine") ;
-		  if (doTauTau)  mvatautau= reader->EvaluateMVA ("TauTauKine") ;
-		  if (doLepTau)  mvaleptau= reader->EvaluateMVA ("LepTauKine") ;
-		  if (doResonant)  mvaresonant= readerResonant->EvaluateMVA ("BDT_full_mass_iso_nodrbbsv") ;
-		  if (doResonantHM)  mvaresonantHM= readerResonantHM->EvaluateMVA ("500t_PU_mass_newvars_HIGH_oldvars") ;
-		  if (doResonantLM)  mvaresonantLM= readerResonantLM->EvaluateMVA ("500t_PU_mass_newvars_LOW") ;
-		  if (doNonResonant)  mvanonresonant= readerNonResonant->EvaluateMVA ("BDT_nonres_SM") ;
-
-		  if (doMuTau)    mvaBranchmutau->Fill();
-		  if (doETau)     mvaBranchetau->Fill();
-		  if (doTauTau)   mvaBranchtautau->Fill();
-		  if (doLepTau)   mvaBranchleptau->Fill();
-		  if (doResonant)  mvaBranchResonant->Fill();
-		  if (doResonantHM)  mvaBranchResonantHM->Fill();
-		  if (doResonantLM)  mvaBranchResonantLM->Fill();
-		  if (doNonResonant)  mvaBranchNonResonant->Fill();
-		}
-
-	  outFile->cd () ;
-	  h_eff.Write () ;
-	  treenew->Write ("", TObject::kOverwrite) ;
-	  outFile->Write();
-	  outFile->Close();
-
-	  delete reader;
-	  delete readerResonant;
-	  delete readerResonantHM;
-	  delete readerResonantLM;
-	  delete readerNonResonant;
-	}
-
-  // MULTICLASS
-  bool compute_multiclass = (gConfigParser->isDefined("Multiclass::computeMVA") ? gConfigParser->readBoolOption("Multiclass::computeMVA") : false);
-  if (compute_multiclass)
-	{
-	  cout << " ------------ ############### ----- Multiclass ----- ############### ------------ " << endl;
-
-	  // set the multiclass year
-	  int year = 2018;
-
-	  // models to load for inference
-	  std::vector<std::pair<std::string, std::string>> modelSpecs = {
-		//{ "v0" , "kl1_c2v1_c31"    },
-		//{ "v0" , "kl1_c2v1_c31_vbfbsm" }
-		//{ "v1" , "kl1_c2v1_c31"    },
-		//{ "v2" , "kl1_c2v1_c31"    },
-		//{ "v3" , "kl1_c2v1_c31_vbf"},
-		//{ "v3" , "kl1_c2v1_c31_vr" },
-		//{ "v3b", "kl1_c2v1_c31_vbf"},
-		//{ "v3b", "kl1_c2v1_c31_vr" },
-		//{ "v4" , "kl1_c2v1_c31_vbf"},
-		//{ "v4" , "kl1_c2v1_c31_vr" },
-		{ "v5" , "kl1_c2v1_c31_vbf"}
-	  };
-
-	  // read the input tree
-	  TFile* outFile = TFile::Open(outputFile.c_str(), "UPDATE");
-	  TTree* outTree = (TTree*)outFile->Get("HTauTauTree");
-
-	  // create the multiclass inferface and run it
-	  MulticlassInterface mci(year, modelSpecs);
-	  mci.extendTree(outTree);
-
-	  // write the output file
-	  outTree->Write("", TObject::kOverwrite);
-	  outFile->Close();
-
-	} // END MULTICLASS
-
-  // NEW BDT
-  bool computeBDTsm = (gConfigParser->isDefined("BDTsm::computeMVA") ? gConfigParser->readBoolOption ("BDTsm::computeMVA") : false);
-  bool computeBDTlm = (gConfigParser->isDefined("BDTlm::computeMVA") ? gConfigParser->readBoolOption ("BDTlm::computeMVA") : false);
-  bool computeBDTmm = (gConfigParser->isDefined("BDTmm::computeMVA") ? gConfigParser->readBoolOption ("BDTmm::computeMVA") : false);
-  bool computeBDThm = (gConfigParser->isDefined("BDThm::computeMVA") ? gConfigParser->readBoolOption ("BDThm::computeMVA") : false);
-  bool computeVBFBDT = (gConfigParser->isDefined("BDTVBF::computeMVA") ? gConfigParser->readBoolOption ("BDTVBF::computeMVA") : false);
-
-  if (computeBDTsm || computeBDTlm || computeBDTmm || computeBDThm || computeVBFBDT)
-	{
-	  cout << " ------------ ############### ----- NEW BDT ----- ############### ------------ " <<endl;
-
-	  bool doSM = computeBDTsm;
-	  bool doLM = computeBDTlm;
-	  bool doMM = computeBDTmm;
-	  bool doHM = computeBDThm;
-	  bool doVBF = computeVBFBDT;
-
-	  // weights file
-	  string TMVAweightsSM = "";
-	  string TMVAweightsLM = "";
-	  string TMVAweightsMM = "";
-	  string TMVAweightsHM = "";
-	  string TMVAweightsVBF = "";
-	  vector<float> SM_kl;
-	  vector<float> LM_mass;
-	  vector<float> MM_mass;
-	  vector<float> HM_mass;
-	  vector<int> LM_spin;
-	  vector<int> MM_spin;
-	  vector<int> HM_spin;
-
-	  if (doSM)
-		{
-		  TMVAweightsSM = gConfigParser->readStringOption ("BDTsm::weights");
-		  SM_kl         = gConfigParser->readFloatListOption("BDTsm::kl");
-		}
-	  if (doLM)
-		{
-		  TMVAweightsLM = gConfigParser->readStringOption ("BDTlm::weights");
-		  LM_mass       = gConfigParser->readFloatListOption ("BDTlm::mass");
-		  LM_spin       = gConfigParser->readIntListOption ("BDTlm::spin");
-		}
-	  if (doMM)
-		{
-		  TMVAweightsMM = gConfigParser->readStringOption ("BDTmm::weights");
-		  MM_mass       = gConfigParser->readFloatListOption ("BDTmm::mass");
-		  MM_spin       = gConfigParser->readIntListOption ("BDTmm::spin");
-		}
-	  if (doHM)
-		{
-		  TMVAweightsHM = gConfigParser->readStringOption ("BDThm::weights");
-		  HM_mass       = gConfigParser->readFloatListOption ("BDThm::mass");
-		  HM_spin       = gConfigParser->readIntListOption ("BDThm::spin");
-		}
-	  if (doVBF)
-		{
-		  TMVAweightsVBF = gConfigParser->readStringOption ("BDTVBF::weights");
-		}
-
-	  // Input variables
-	  vector<string> TMVAvariablesSM = ( doSM ? gConfigParser->readStringListOption ("BDTsm::variables") : vector<string>(0) );
-	  vector<string> TMVAvariablesLM = ( doLM ? gConfigParser->readStringListOption ("BDTlm::variables") : vector<string>(0) );
-	  vector<string> TMVAvariablesMM = ( doMM ? gConfigParser->readStringListOption ("BDTmm::variables") : vector<string>(0) );
-	  vector<string> TMVAvariablesHM = ( doHM ? gConfigParser->readStringListOption ("BDThm::variables") : vector<string>(0) );
-	  vector<string> TMVAvariablesVBF = ( doVBF ? gConfigParser->readStringListOption ("BDTVBF::variables") : vector<string>(0) );
-
-	  // Split the resonant name in two strings
-	  vector<pair<string, string>> splitTMVAvariablesSM;
-	  for (unsigned int iv = 0 ; iv < TMVAvariablesSM.size () ; ++iv)
-		{
-		  // Split my_name:BDT_name in two strings
-		  std::stringstream packedName(TMVAvariablesSM.at(iv));
-		  std::string segment;
-		  std::vector<std::string> unpackedNames;
-		  while(std::getline(packedName, segment, ':'))
-			unpackedNames.push_back(segment);
-
-		  splitTMVAvariablesSM.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1)));
-		}
-
-	  vector<pair<string, string>> splitTMVAvariablesLM;
-	  for (unsigned int iv = 0 ; iv < TMVAvariablesLM.size () ; ++iv)
-		{
-		  // Split my_name:BDT_name in two strings
-		  std::stringstream packedName(TMVAvariablesLM.at(iv));
-		  std::string segment;
-		  std::vector<std::string> unpackedNames;
-		  while(std::getline(packedName, segment, ':'))
-			unpackedNames.push_back(segment);
-
-		  splitTMVAvariablesLM.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1)));
-		}
-
-	  vector<pair<string, string>> splitTMVAvariablesMM;
-	  for (unsigned int iv = 0 ; iv < TMVAvariablesMM.size () ; ++iv)
-		{
-		  // Split my_name:BDT_name in two strings
-		  std::stringstream packedName(TMVAvariablesMM.at(iv));
-		  std::string segment;
-		  std::vector<std::string> unpackedNames;
-		  while(std::getline(packedName, segment, ':'))
-			unpackedNames.push_back(segment);
-
-		  splitTMVAvariablesMM.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1)));
-		}
-
-	  vector<pair<string, string>> splitTMVAvariablesHM;
-	  for (unsigned int iv = 0 ; iv < TMVAvariablesHM.size () ; ++iv)
-		{
-		  // Split my_name:BDT_name in two strings
-		  std::stringstream packedName(TMVAvariablesHM.at(iv));
-		  std::string segment;
-		  std::vector<std::string> unpackedNames;
-		  while(std::getline(packedName, segment, ':'))
-			unpackedNames.push_back(segment);
-
-		  splitTMVAvariablesHM.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1)));
-		}
-
-	  vector<pair<string, string>> splitTMVAvariablesVBF;
-	  for (unsigned int iv = 0 ; iv < TMVAvariablesVBF.size () ; ++iv)
-		{
-		  // Split my_name:BDT_name in two strings
-		  std::stringstream packedName(TMVAvariablesVBF.at(iv));
-		  std::string segment;
-		  std::vector<std::string> unpackedNames;
-		  while(std::getline(packedName, segment, ':'))
-			unpackedNames.push_back(segment);
-
-		  splitTMVAvariablesVBF.push_back(make_pair(unpackedNames.at(0), unpackedNames.at(1)));
-		}
-
-	  // Now merge all names into a vector to get a list of uniquely needed elements
-	  std::vector<string> allVars;
-	  for (unsigned int iv = 0; iv < splitTMVAvariablesSM.size(); ++iv)
-		allVars.push_back(splitTMVAvariablesSM.at(iv).first);
-	  for (unsigned int iv = 0; iv < splitTMVAvariablesLM.size(); ++iv)
-		allVars.push_back(splitTMVAvariablesLM.at(iv).first);
-	  for (unsigned int iv = 0; iv < splitTMVAvariablesMM.size(); ++iv)
-		allVars.push_back(splitTMVAvariablesMM.at(iv).first);
-	  for (unsigned int iv = 0; iv < splitTMVAvariablesHM.size(); ++iv)
-		allVars.push_back(splitTMVAvariablesHM.at(iv).first);
-	  for (unsigned int iv = 0; iv < splitTMVAvariablesVBF.size(); ++iv)
-		allVars.push_back(splitTMVAvariablesVBF.at(iv).first);
-
-	  sort(allVars.begin(), allVars.end());
-	  allVars.erase( unique( allVars.begin(), allVars.end() ), allVars.end() );
-
-	  // Create map to contain values of variables
-	  std::map<string, float> allVarsMap;
-	  for (string var : allVars)
-		allVarsMap[var] = 0.0;
-
-	  // Open tree to be updated
-	  TFile *outFile = TFile::Open(outputFile.c_str(), "UPDATE");
-	  TTree *treenew = (TTree*)outFile->Get("HTauTauTree");
-	  int nentries = treenew->GetEntries();
-
-	  // Create vectors to store all the BDT outputs and relative vectors of TBranches
-	  std::vector<float> outSM (SM_kl.size());
-	  std::vector<float> outLM (LM_spin.size()*LM_mass.size());
-	  std::vector<float> outMM (MM_spin.size()*MM_mass.size());
-	  std::vector<float> outHM (HM_spin.size()*HM_mass.size());
-	  float mvaVBF;
-
-	  std::vector<TBranch*> branchSM (SM_kl.size());
-	  std::vector<TBranch*> branchLM (LM_spin.size()*LM_mass.size());
-	  std::vector<TBranch*> branchMM (MM_spin.size()*MM_mass.size());
-	  std::vector<TBranch*> branchHM (HM_spin.size()*HM_mass.size());
-	  TBranch *mvaBranchVBF;
-
-	  // Declare the TMVA readers
-	  TMVA::Reader * readerSM = new TMVA::Reader () ;
-	  TMVA::Reader * readerLM = new TMVA::Reader () ;
-	  TMVA::Reader * readerMM = new TMVA::Reader () ;
-	  TMVA::Reader * readerHM = new TMVA::Reader () ;
-	  TMVA::Reader * readerVBF = new TMVA::Reader () ;
-
-	  // Use a different variable for channel, otherwise it does not work, I don't know why
-	  float channel_BDT;
-	  treenew ->SetBranchAddress ("BDT_channel", &channel_BDT) ;
-
-	  // Assign variables to SM reader
-	  for (pair<string, string> vpair : splitTMVAvariablesSM)
-		{
-		  treenew ->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
-		  readerSM->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;
-		}
-	  // Add the channel and kl variable to the SM reader
-	  readerSM->AddVariable("channel", &channel_BDT);
-	  float kl_var;
-	  readerSM->AddVariable("kl", &kl_var);
-
-
-	  // Assign variables to LM reader
-	  for (pair<string, string> vpair : splitTMVAvariablesLM)
-		{
-		  treenew ->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
-		  readerLM->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;
-		}
-	  // Add mass, channel and spin to the LM reader
-	  float mass_LM;
-	  float spin_LM;
-	  readerLM->AddVariable("mass", &mass_LM);
-	  readerLM->AddVariable("channel", &channel_BDT);
-	  readerLM->AddVariable("spin", &spin_LM);
-
-
-	  // Assign variables to MM reader
-	  for (pair<string, string> vpair : splitTMVAvariablesMM)
-		{
-		  treenew ->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
-		  readerMM->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;
-		}
-	  // Add mass, channel and spin to the LM reader
-	  float mass_MM;
-	  float spin_MM;
-	  readerMM->AddVariable("mass", &mass_MM);
-	  readerMM->AddVariable("channel", &channel_BDT);
-	  readerMM->AddVariable("spin", &spin_MM);
-
-
-	  // Assign variables to HM reader
-	  for (pair<string, string> vpair : splitTMVAvariablesHM)
-		{
-		  treenew ->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
-		  readerHM->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;
-		}
-	  // Add mass, channel and spin to the LM reader
-	  float mass_HM;
-	  float spin_HM;
-	  readerHM->AddVariable("mass", &mass_HM);
-	  readerHM->AddVariable("channel", &channel_BDT);
-	  readerHM->AddVariable("spin", &spin_HM);
-
-
-	  // Assign variables to VBF reader
-	  for (pair<string, string> vpair : splitTMVAvariablesVBF)
-		{
-		  treenew ->SetBranchAddress (vpair.first.c_str (), &(allVarsMap.at (vpair.first))) ;
-		  readerVBF->AddVariable (vpair.second.c_str (), &(allVarsMap.at (vpair.first))) ;
-		}
-
-
-
-	  // Book the MVA methods
-	  if(doSM) readerSM->BookMVA("Grad_1", TMVAweightsSM.c_str() );
-	  if(doLM) readerLM->BookMVA("Grad_2", TMVAweightsLM.c_str() );
-	  if(doMM) readerMM->BookMVA("Grad_3", TMVAweightsMM.c_str() );
-	  if(doHM) readerHM->BookMVA("Grad_4", TMVAweightsHM.c_str() );
-	  if(doVBF) readerVBF->BookMVA("VBF", TMVAweightsVBF.c_str() );
-
-	  // Calculate BDT output for SM
-	  if (doSM)
-		{
-		  int idxSM = 0;
-		  for (unsigned int ikl = 0; ikl < SM_kl.size(); ++ikl)
-			{
-			  // Declare the BDT output branch
-			  std::string branch_name = boost::str(boost::format("BDToutSM_kl_%d") % SM_kl.at(ikl));
-			  branchSM.at(idxSM) = treenew->Branch(branch_name.c_str(), &outSM.at(idxSM));
-
-			  // Assign value to parametrization variables
-			  kl_var = SM_kl.at(ikl);
-
-			  // Calculate BDT output
-			  for(int i=0;i<nentries;i++)
-				{
-				  treenew->GetEntry(i);
-				  outSM.at(idxSM) = readerSM->EvaluateMVA("Grad_1");
-				  branchSM.at(idxSM)->Fill();
-				}
-			  ++idxSM;
-			}
-		}
-
-
-	  // Calculate BDT output for LM
-	  if (doLM)
-		{
-		  int idxLM = 0;
-		  for (unsigned int ispin = 0; ispin < LM_spin.size(); ++ispin)
-			{
-			  for (unsigned int imass = 0; imass < LM_mass.size(); ++imass)
-				{
-				  // Declare the BDT output branch
-				  std::string branch_name = boost::str(boost::format("BDToutLM_spin_%d_mass_%d") % LM_spin.at(ispin) % LM_mass.at(imass));
-				  branchLM.at(idxLM) = treenew->Branch(branch_name.c_str(), &outLM.at(idxLM));
-
-				  // Assign value to parametrization variables
-				  mass_LM = LM_mass.at(imass);
-				  spin_LM = LM_spin.at(ispin);
-
-				  // Calculate BDT output
-				  for(int i=0;i<nentries;i++)
-					{
-					  treenew->GetEntry(i);
-					  outLM.at(idxLM) = readerLM->EvaluateMVA("Grad_2");
-					  branchLM.at(idxLM)->Fill();
-					}
-				  ++idxLM;
-				}
-			}
-		}
-
-
-	  // Calculate BDT output for MM
-	  if (doMM)
-		{
-		  int idxMM = 0;
-		  for (unsigned int ispin = 0; ispin < MM_spin.size(); ++ispin)
-			{
-			  for (unsigned int imass = 0; imass < MM_mass.size(); ++imass)
-				{
-				  // Declare the BDT output branch
-				  std::string branch_name = boost::str(boost::format("BDToutMM_spin_%d_mass_%d") % MM_spin.at(ispin) % MM_mass.at(imass));
-				  branchMM.at(idxMM) = treenew->Branch(branch_name.c_str(), &outMM.at(idxMM));
-
-				  // Assign value to parametrization variables
-				  mass_MM = MM_mass.at(imass);
-				  spin_MM = MM_spin.at(ispin);
-
-				  // Calculate BDT output
-				  for(int i=0;i<nentries;i++)
-					{
-					  treenew->GetEntry(i);
-					  outMM.at(idxMM) = readerMM->EvaluateMVA("Grad_3");
-					  branchMM.at(idxMM)->Fill();
-					}
-				  ++idxMM;
-				}
-			}
-		}
-
-
-	  // Calculate BDT output for HM
-	  if (doHM)
-		{
-		  int idxHM = 0;
-		  for (unsigned int ispin = 0; ispin < HM_spin.size(); ++ispin)
-			{
-			  for (unsigned int imass = 0; imass < HM_mass.size(); ++imass)
-				{
-				  // Declare the BDT output branch
-				  std::string branch_name = boost::str(boost::format("BDToutHM_spin_%d_mass_%d") % HM_spin.at(ispin) % HM_mass.at(imass));
-				  branchHM.at(idxHM) = treenew->Branch(branch_name.c_str(), &outHM.at(idxHM));
-
-				  // Assign value to parametrization variables
-				  mass_HM = HM_mass.at(imass);
-				  spin_HM = HM_spin.at(ispin);
-
-				  // Calculate BDT output
-				  for(int i=0;i<nentries;i++)
-					{
-					  treenew->GetEntry(i);
-					  outHM.at(idxHM) = readerHM->EvaluateMVA("Grad_4");
-					  branchHM.at(idxHM)->Fill();
-					}
-				  ++idxHM;
-				}
-			}
-		}
-
-
-	  // Calculate BDT output for VBF
-	  if (doVBF)
-		{
-		  mvaBranchVBF = treenew->Branch("BDToutVBF", &mvaVBF, "BDToutVBF/F") ;
-		  for(int i=0;i<nentries;i++)
-			{
-			  treenew->GetEntry(i);
-			  mvaVBF= readerVBF->EvaluateMVA("VBF") ;
-			  mvaBranchVBF->Fill();
-			}
-		}
-
-	  // Update tree and delete readers
-	  outFile->cd();
-	  treenew->Write ("", TObject::kOverwrite) ;
-	  outFile->Write();
-	  outFile->Close();
-
-	  delete readerSM;
-	  delete readerLM;
-	  delete readerMM;
-	  delete readerHM;
-	  delete readerVBF;
-
-	} // End new BDT
-
 
   // NEW DNN
   bool computeDNN = (gConfigParser->isDefined("DNN::computeMVA") ? gConfigParser->readBoolOption("DNN::computeMVA") : false);
