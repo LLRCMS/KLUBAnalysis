@@ -438,7 +438,7 @@ bool triggerReader_cross::checkORMuMuNew  (Long64_t triggerbit_1, Long64_t match
       {
 	firedPath = _allTriggers.at(_mmTriggers.at(i));
 	boost::regex re_tau1{"Mu(\\d+)"};
-	ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 1.0);
+	ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 2.0);
 	etaCut1 = (fabs(eta_tau1) < 2.1); //muon threshold
 	etaCut2 = (fabs(eta_tau2) < 2.1); //muon threshold
       }
