@@ -9,11 +9,16 @@ using namespace std;
 
 #define DEBUG false
 
-bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag, std::string year, std::string WPset) :
-
-  m_calib("DeepCSV", SFfilename.c_str()) ,
-  m_year (year)
+bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag, std::string year, std::string WPset, bool isMC):
+  m_calib("DeepCSV", SFfilename.c_str()), m_year(year), m_isMC(isMC)
 {
+  if (m_isMC) {
+	m_initialize(SFfilename, effFileName, effHistoTag, year, WPset);
+  }
+}
+	
+void bTagSF::m_initialize(std::string SFfilename, std::string effFileName, std::string effHistoTag, std::string year, std::string WPset)
+{	
   // Fill m_readers varray with year dependent names for reshaping uncertainties
   m_readers[0] = BTagCalibrationReader(BTagEntry::OP_LOOSE,  "central", {"up", "down"});
   m_readers[1] = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"});
@@ -254,7 +259,10 @@ float bTagSF::getEff (WP wpt, int jetFlavor, int channel, float pt, float eta)
 // returns a collection of weights according to the tested WP
 vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_and_btag, bigTree &theBigTree, std::map<int,double> jets_and_smearFactor, int channel, SFsyst systWP)
 {
-
+  if (!m_isMC) {
+	return {{1., 1., 1., 1.}};
+  }
+  
   vector<double> P_MC   (3, 1.0); // 0 = L, 1 = M, 2 = T
   vector<double> P_Data (3, 1.0); // 0 = L, 1 = M, 2 = T
   double SFreshaping = 1.;        // reshaping SF
@@ -365,6 +373,10 @@ std::vector<float> bTagSF::getEvtWeightShifted (std::vector <std::pair <int, flo
 
   // Values of shifted SFs all initialized to 1
   std::vector<float> SFs (systNames.size(), 1.);
+
+  if (!m_isMC) {
+	return SFs;
+  }
 
   // Loop on jets
   TLorentzVector vJet (0,0,0,0);
