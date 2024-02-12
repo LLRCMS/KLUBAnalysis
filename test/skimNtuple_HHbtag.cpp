@@ -232,12 +232,7 @@ int main (int argc, char** argv)
   if (!isMC) isTTBar = false; // force it, you never know...
   cout << "** INFO: is this a TTbar sample? : " << isTTBar << endl;
 
-  bool DY_tostitch = false;
-  int I_DY_tostitch = atoi(argv[11]);
-  if (I_DY_tostitch == 1)
-	{
-	  DY_tostitch = true; // FIXME!! this is ok only if we use jet binned samples
-	}
+  bool DY_tostitch = static_cast<bool>(atoi(argv[11]));
 
   int TT_stitchType = atoi(argv[12]);
   if (!isTTBar) TT_stitchType = 0; // just force if not TT...

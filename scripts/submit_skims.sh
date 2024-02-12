@@ -336,7 +336,7 @@ MC_MAP=(
     ["TTToSemiLeptonic"]="-n 400 -x ${SemiLepXSec} -q long"
 
     ["DYJets.+_M-50_T.+amc"]="-n 600 -x 6077.22 -g ${STITCHING_ON} --DY 0 -q long" # inclusive NLO
-    ["DYJets.+_M-10to50.+v2"]="-n 300 -x 20490.0 -g ${STITCHING_ON} --DY 0 -q short" # low mass
+    # ["DYJets.+_M-10to50.+v2"]="-n 300 -x 20490.0 --DY 0 -q short" # low mass
     ["DYJetsToLL_LHEFilterPtZ-0To50"]="-n 200    -x 1409.22 -g ${STITCHING_ON} --DY 0 -q long"
     ["DYJetsToLL_LHEFilterPtZ-50To100"]="-n 2000  -x 377.12  -g ${STITCHING_ON} --DY 0 -q short"
     ["DYJetsToLL_LHEFilterPtZ-100To250"]="-n 200 -x 92.24   -g ${STITCHING_ON} --DY 0 -q long"
