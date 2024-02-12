@@ -338,7 +338,7 @@ MC_MAP=(
     ["DYJets.+_M-50_T.+amc"]="-n 600 -x 6077.22 -g ${STITCHING_ON} --DY 0 -q long" # inclusive NLO
     # ["DYJets.+_M-10to50.+v2"]="-n 300 -x 20490.0 --DY 0 -q short" # low mass
     ["DYJetsToLL_LHEFilterPtZ-0To50"]="-n 200    -x 1409.22 -g ${STITCHING_ON} --DY 0 -q long"
-    ["DYJetsToLL_LHEFilterPtZ-50To100"]="-n 2000  -x 377.12  -g ${STITCHING_ON} --DY 0 -q short"
+    ["DYJetsToLL_LHEFilterPtZ-50To100"]="-n 200  -x 377.12 -g ${STITCHING_ON} --DY 0 -q long"
     ["DYJetsToLL_LHEFilterPtZ-100To250"]="-n 200 -x 92.24   -g ${STITCHING_ON} --DY 0 -q long"
     ["DYJetsToLL_LHEFilterPtZ-250To400"]="-n 795 -x 3.512   -g ${STITCHING_ON} --DY 0 -q short" # some jobs are killed even with a single file (in the short queue)
     ["DYJetsToLL_LHEFilterPtZ-400To650"]="-n 200 -x 0.4826  -g ${STITCHING_ON} --DY 0 -q long"
@@ -349,8 +349,8 @@ MC_MAP=(
 
     ["WJetsToLNu_T.+madgraph"]="-n 40 -x 48917.48 -y 1.213784 -z 70 -q short" # for 0 < HT < 70
     ["WJetsToLNu_HT-70To100"]="-n 100 -x 1362 -y 1.213784 -q short"
-    ["WJetsToLNu_HT-100To200"]="-n 50 -x 1345 -y 1.213784 -q short"
-    ["WJetsToLNu_HT-200To400"]="-n 200 -x 359.7 -y 1.213784 -q short"
+    ["WJetsToLNu_HT-100To200"]="-n 100 -x 1345 -y 1.213784 -q short"
+    ["WJetsToLNu_HT-200To400"]="-n 250 -x 359.7 -y 1.213784 -q short"
     ["WJetsToLNu_HT-400To600"]="-n 50 -x 48.91 -y 1.213784 -q short"
     ["WJetsToLNu_HT-600To800"]="-n 50 -x 12.05 -y 1.213784 -q short"
     ["WJetsToLNu_HT-800To1200"]="-n 50 -x 5.501 -y 1.213784 -q short"
@@ -364,44 +364,44 @@ MC_MAP=(
     ["ST_tW_antitop_5f_inclusive"]="-n 20 -x 35.85 -q short"
     ["ST_tW_top_5f_inclusive"]="-n 20 -x 35.85 -q short"
     ["ST_t-channel_antitop"]="-n 100 -x 80.95 -q short"
-    ["ST_t-channel_top"]="-n 300 -x 136.02 -q short"
+    ["ST_t-channel_top"]="-n 400 -x 136.02 -q short"
 
-    ["GluGluHToTauTau"]="-n 30 -x 48.68 -y 0.06272 -q short"
-    ["VBFHToTauTau"]="-n 30 -x 3.766 -y 0.06272 -q short"
+    ["GluGluHToTauTau"]="-n 60 -x 48.68 -y 0.06272 -q short"
+    ["VBFHToTauTau"]="-n 40 -x 3.766 -y 0.06272 -q short"
     ["WplusHToTauTau"]="-n 30 -x 0.831 -y 0.06272 -q short"
     ["WminusHToTauTau"]="-n 30 -x 0.527 -y 0.06272 -q short"
     ["ZHToTauTau"]="-n 30 -x 0.880 -y 0.06272 -q short"
 
-    ["ZH_HToBB_ZToLL"]="-n 30 -x 0.880 -y ${ZH_HToBB_ZToLL_BR} -q short"
+    ["ZH_HToBB_ZToLL"]="-n 100 -x 0.880 -y ${ZH_HToBB_ZToLL_BR} -q short"
     ["ZH_HToBB_ZToQQ"]="-n 30 -x 0.880 -y ${ZH_HToBB_ZToQQ_BR} -q short"
 
     ["ttHToNonbb"]="-n 100 -x 0.5071 -y 0.3598 -q short"
-    ["ttHTobb"]="-n 100 -x 0.5071 -y 0.577 -q short"
-    ["ttHToTauTau"]="-n 500 -x 0.5071 -y 0.0632 -q short"
+    ["ttHTobb"]="-n 120 -x 0.5071 -y 0.577 -q short"
+    ["ttHToTauTau"]="-n 600 -x 0.5071 -y 0.0632 -q short"
     
     ["_WW_TuneCP5"]="-n 30 -x 118.7 -q short"
     ["_WZ_TuneCP5"]="-n 30 -x 47.13 -q short"
     ["_ZZ_TuneCP5"]="-n 30 -x 16.523 -q short"
 
     ["49_WWW"]="-n 4  -x 0.209 -q short"
-    ["50_WWW"]="-n 30 -x 0.209 -q short"
+    ["50_WWW"]="-n 5 -x 0.209 -q long"
     ["51_WWZ"]="-n 5  -x 0.168 -q short"
-    ["52_WWZ"]="-n 30 -x 0.168 -q short"
+    ["52_WWZ"]="-n 5 -x 0.168 -q long"
     ["53_WZZ"]="-n 10 -x 0.057 -q short"
-    ["54_WZZ"]="-n 30 -x 0.057 -q short"
+    ["54_WZZ"]="-n 5 -x 0.057 -q long"
     ["55_ZZZ"]="-n 10 -x 0.0147 -q short"
-    ["56_ZZZ"]="-n 30 -x 0.0147 -q short"
+    ["56_ZZZ"]="-n 5 -x 0.0147 -q long"
 
-    ["TTWJetsToLNu"]="-n 100 -x 0.2043 -q short"
+    ["TTWJetsToLNu"]="-n 200 -x 0.2043 -q short"
     ["TTWJetsToQQ"]="-n 11 -x 0.4062 -q short"
     ["TTZToLLNuNu"]="-n 250 -x 0.2529 -q short"
-    ["TTZToQQ"]="-n 400 -x 0.5104 -q short"
+    ["TTZToQQ"]="-n 500 -x 0.5104 -q short"
     ["TTWW"]="-n 10 -x 0.006979 -q short"
     ["TTZZ"]="-n 10 -x 0.001386 -q short"
     ["TTWZ"]="-n 7 -x 0.00158 -q short"
 
     ["TTWH"]="-n 6 -x 0.001143 -q short"
-    ["TTZH"]="-n 10 -x 0.001136 -q short"
+    ["TTZH"]="-n 15 -x 0.001136 -q short"
 
 	["GluGluToHHTo2B2Tau"]="-n 10 -x 0.01618 -q short"
 )
