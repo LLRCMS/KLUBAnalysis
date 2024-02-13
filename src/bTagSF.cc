@@ -9,11 +9,16 @@ using namespace std;
 
 #define DEBUG false
 
-bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag, std::string year, std::string WPset) :
-
-  m_calib("DeepCSV", SFfilename.c_str()) ,
-  m_year (year)
+bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag, std::string year, std::string WPset, bool isMC):
+  m_calib("DeepCSV", SFfilename.c_str()), m_year(year), m_isMC(isMC)
 {
+  if (m_isMC) {
+	m_initialize(SFfilename, effFileName, effHistoTag, year, WPset);
+  }
+}
+	
+void bTagSF::m_initialize(std::string SFfilename, std::string effFileName, std::string effHistoTag, std::string year, std::string WPset)
+{	
   // Fill m_readers varray with year dependent names for reshaping uncertainties
   m_readers[0] = BTagCalibrationReader(BTagEntry::OP_LOOSE,  "central", {"up", "down"});
   m_readers[1] = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"});
@@ -254,7 +259,10 @@ float bTagSF::getEff (WP wpt, int jetFlavor, int channel, float pt, float eta)
 // returns a collection of weights according to the tested WP
 vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_and_btag, bigTree &theBigTree, std::map<int,double> jets_and_smearFactor, int channel, SFsyst systWP)
 {
-
+  if (!m_isMC) {
+	return {{1., 1., 1., 1.}};
+  }
+  
   vector<double> P_MC   (3, 1.0); // 0 = L, 1 = M, 2 = T
   vector<double> P_Data (3, 1.0); // 0 = L, 1 = M, 2 = T
   double SFreshaping = 1.;        // reshaping SF
@@ -323,21 +331,17 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
   }
   // return ratio
   vector<float> weight (4);
-  weight.at(0) = P_Data.at(0) / P_MC.at(0);
-  weight.at(1) = P_Data.at(1) / P_MC.at(1);
-  weight.at(2) = P_Data.at(2) / P_MC.at(2);
+  for (int iWP = 0; iWP < 3; iWP++) {
+	weight.at(iWP) = P_Data.at(iWP) / P_MC.at(iWP);
+  }
   weight.at(3) = SFreshaping;
 
-  if (weight.at(0) < 0.05)
+  if (SFreshaping < 0.05)
   {
-    cout << "------ ERROR Null B-TAG weight!!" << endl;
-	for(int wp=0; wp<3; ++wp) {
-	  cout << "WP: " << wp << endl;
-	  cout << "Probabilities: " << P_Data.at(wp) << " / " << P_MC.at(wp) << endl;
-	}
+    cout << "------ [Warning] Small B_Tag reshape SF!" << endl;
 	cout << "SF reshaping: " << SFreshaping << endl;
   }
-  //cout << "weights: " << weight.at(0) << " " << weight.at(1) << " " << weight.at(2) << endl;
+
   return weight;
 }
 
@@ -365,6 +369,10 @@ std::vector<float> bTagSF::getEvtWeightShifted (std::vector <std::pair <int, flo
 
   // Values of shifted SFs all initialized to 1
   std::vector<float> SFs (systNames.size(), 1.);
+
+  if (!m_isMC) {
+	return SFs;
+  }
 
   // Loop on jets
   TLorentzVector vJet (0,0,0,0);
