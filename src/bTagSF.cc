@@ -331,21 +331,17 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
   }
   // return ratio
   vector<float> weight (4);
-  weight.at(0) = P_Data.at(0) / P_MC.at(0);
-  weight.at(1) = P_Data.at(1) / P_MC.at(1);
-  weight.at(2) = P_Data.at(2) / P_MC.at(2);
+  for (int iWP = 0; iWP < 3; iWP++) {
+	weight.at(iWP) = P_Data.at(iWP) / P_MC.at(iWP);
+  }
   weight.at(3) = SFreshaping;
 
-  if (weight.at(0) < 0.05)
+  if (SFreshaping < 0.05)
   {
-    cout << "------ ERROR Null B-TAG weight!!" << endl;
-	for(int wp=0; wp<3; ++wp) {
-	  cout << "WP: " << wp << endl;
-	  cout << "Probabilities: " << P_Data.at(wp) << " / " << P_MC.at(wp) << endl;
-	}
+    cout << "------ [Warning] Small B_Tag reshape SF!" << endl;
 	cout << "SF reshaping: " << SFreshaping << endl;
   }
-  //cout << "weights: " << weight.at(0) << " " << weight.at(1) << " " << weight.at(2) << endl;
+
   return weight;
 }
 
