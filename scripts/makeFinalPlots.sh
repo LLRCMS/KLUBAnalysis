@@ -7,9 +7,8 @@ NODATA="0"
 CHANNEL="ETau"
 CHANNEL_CHOICES=("ETau" "MuTau" "TauTau" "MuMu")
 SELECTION="baseline"
-SELECTION_CHOICES=( "baseline" "baselineInvMcut" "s1b1jresolvedMcut" "s1b1jresolvedInvMcut"
-    "s2b0jresolvedMcut" "s2b0jresolvedInvMcut" "sboostedLLMcut" "sboostedLLInvMcut"
-        "ttCR_invMcut" "s2b0jresolvedMcutDNNcut" "s1b1jresolvedMcutDNNcut")
+SELECTION_CHOICES=( "baseline" "baseline_boosted" "baselineInvMcut" "res1b" "res2b"
+    "res1bInvMcut" "res2bInvMcut" "boosted" "boostedInvMcut" "ttCR_invMcut")
 DATA_PERIOD="UL18"
 DATA_PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
 REG="SR"  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
@@ -316,8 +315,8 @@ EXTRAS=(
     ["met_phi"]=" "
     ["metnomu_et"]=" "
     ["metnomu_phi"]=" "
-    ["HH_mass"]=" --logy "
-    ["HHKin_mass"]=" --logy "
+    ["HH_mass"]=" --logy --equalwidth "
+    ["HHKin_mass"]=" --logy --equalwidth "
     ["DNNoutSM_kl_1"]=" --logy "
 )
 
@@ -370,7 +369,7 @@ if [[ ${COMPARE} -eq 0 ]]; then
 	else
 	    echo "Channel ${CHANNEL} is not supported." 
 	fi
-	run_plot --var ${avar} --lymin 0.65 --sigscale ${ss} --label ${VAR_MAP[$avar]} ${EXTRAS[$avar]}
+	run_plot --var ${avar} --lymin 0.6 --sigscale ${ss} --label ${VAR_MAP[$avar]} ${EXTRAS[$avar]}
 	done
 
     run mkdir -p ${WWW_DIR}

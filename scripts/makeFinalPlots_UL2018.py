@@ -424,12 +424,12 @@ def makeNonNegativeHistos(hList):
     for h in hList:
         integral = h.Integral()
         for b in range (1, h.GetNbinsX()+1):
-            if (h.GetBinContent(b) < 0):
-               h.SetBinContent (b, 0)
+            if h.GetBinContent(b) < 0:
+                h.SetBinContent (b, 0)
         integralNew = h.Integral()        
         if (integralNew != integral):
-            print("** INFO: removed neg bins from histo " , h.GetName())
-        
+            print("** INFO: removed neg bins from histo ", h.GetName())
+            
         if integralNew == 0:
             h.Scale(0)
         else:
@@ -528,10 +528,11 @@ if __name__ == "__main__" :
         bkgList.append('QCD')
     
     col = ROOT.TColor()
-    bkgColors = {'DYmerged': (col.GetColor("#44BA68"), col.GetColor("#389956")),
-                 'TT': (col.GetColor("#F4B642"), col.GetColor("#dea63c")),
-                 'W': (col.GetColor("#41B4DB"), col.GetColor("#3ca4c8")),
-                 'singleH': (col.GetColor("#400080"), col.GetColor("#400080")),
+    bkgColors = {'DY':    (col.GetColor("#44BA68"), col.GetColor("#389956")),
+                 'TT':    (col.GetColor("#F4B642"), col.GetColor("#dea63c")),
+                 'W':     (col.GetColor("#41B4DB"), col.GetColor("#3ca4c8")),
+                 'H':     (col.GetColor("#400080"), col.GetColor("#400080")),
+                 'HH':    (col.GetColor("#cd853f"), col.GetColor("#cd853f")),
                  'other': (col.GetColor("#ED635E"), col.GetColor("#d85a56"))}
 
     plotTitle = args.title if args.title else ""        
@@ -571,23 +572,26 @@ if __name__ == "__main__" :
     hBkgs = {k:eqbin(x) for k,x in retrieveHistos(rootFile, bkgList, *opts).items()}
     hDatas = {k:eqbin(x) for k,x in retrieveHistos(rootFile, dataList, *opts).items()}
     
-    hopt    = hBkgs, args.overflow
-    hDY     = getHisto('DYmerged', *hopt)
-    hTT     = getHisto('TT', *hopt)
-    hWJets  = getHisto('W', *hopt)
-    hothers = getHisto('other', *hopt)
+    hopt = hBkgs, args.overflow
+    hDY      = getHisto('DY',    *hopt)
+    hTT      = getHisto('TT',    *hopt)
+    hWJets   = getHisto('W',     *hopt)
+    hsingleH = getHisto('H',     *hopt)
+    hdoubleH = getHisto('HH',    *hopt)
+    hothers  = getHisto('other', *hopt)
 
-    hZH      = getHisto('ZH', *hopt)
-    hWH      = getHisto('WH', *hopt)
-    httH     = getHisto('ttH', *hopt)
-    hggH     = getHisto('ggH', *hopt)
-    hsingleH = makeSum('singleH', [hZH, hWH, httH, hggH])
-
-    hBkgList = [(hothers, 'Others'),
-                (hsingleH, 'single H'),
-                (hWJets, 'W+jets'),
-                (hTT, 't#bar{t}'),
-                (hDY, 'DY')] 
+    # hZH      = getHisto('ZH', *hopt)
+    # hWH      = getHisto('WH', *hopt)
+    # httH     = getHisto('ttH', *hopt)
+    # hggH     = getHisto('ggH', *hopt)
+    # hsingleH = makeSum('singleH', [hZH, hWH, httH, hggH])
+    
+    hBkgList = [(hothers,  'Others'),
+                (hdoubleH, 'HH'),
+                (hsingleH, 'H'),
+                (hWJets,   'W+jets'),
+                (hTT,      't#bar{t}'),
+                (hDY,      'DY')] 
 
     if doQCD:
         col2 = ROOT.TColor()
@@ -714,7 +718,7 @@ if __name__ == "__main__" :
     bkgStack.GetYaxis().SetLabelFont(43)
 
     bkgStack.GetXaxis().SetTitleOffset(1.0)
-    bkgStack.GetYaxis().SetTitleOffset(1.4)
+    bkgStack.GetYaxis().SetTitleOffset(1.39)
 
     bkgStack.GetXaxis().SetTitleSize(titleSize)
     bkgStack.GetYaxis().SetTitleSize(titleSize)
@@ -744,18 +748,18 @@ if __name__ == "__main__" :
             histo.Scale(args.sigscale)
 
     ################## LEGEND ######################################
-    legmin = 0.45 if not args.lymin else args.lymin
+    legmin = 0.6 if not args.lymin else args.lymin
     legsize, legfont = 20, 43
-    legBkg = ROOT.TLegend(0.73, legmin, 0.93, 0.91)
+    legBkg = ROOT.TLegend(0.73, legmin, 0.93, 0.90)
     legBkg.SetFillStyle(0)
     legBkg.SetBorderSize(0)
     legBkg.SetTextFont(legfont)
     legBkg.SetTextSize(legsize)
 
     if not args.nosig:
-        legSig = ROOT.TLegend(0.55, legmin, 0.73, 0.91)
+        legSig = ROOT.TLegend(0.55, legmin, 0.73, 0.90)
     elif args.nosig and not args.nodata:
-        legSig = ROOT.TLegend(0.55, 0.8, 0.73, 0.91)
+        legSig = ROOT.TLegend(0.55, 0.82, 0.73, 0.90)
 
     if not args.nosig or not args.nodata:
         legSig.SetFillStyle(0)
@@ -837,10 +841,11 @@ if __name__ == "__main__" :
             size = 0.037
             if ip==0:
                 ledge = ahisto.GetXaxis().GetBinLowEdge(ip)
-                finalaxis.ChangeLabel(ip,-1,size,-1,-1,-1,str(round(ledge, 4)));
+                #finalaxis.ChangeLabel(ip,-1,size,-1,-1,-1,str(round(ledge, 4)));
             redge = ahisto.GetXaxis().GetBinUpEdge(ip)
-            finalaxis.ChangeLabel(ip+1,-1,size,-1,-1,-1,str(round(redge, 4)));
+            #finalaxis.ChangeLabel(ip+1,-1,size,-1,-1,-1,str(round(redge, 4)));
         finalaxis.SetLabelFont(42);
+        finalaxis.SetLabelSize(10);
         finalaxis.Draw('same')
 
     ###################### OTHER TEXT ON PLOT #########################
@@ -855,7 +860,7 @@ if __name__ == "__main__" :
     r = ROOT.gPad.GetRightMargin()       
 
     CMSbox       = ROOT.TLatex(l, 1 - t + 0.01, 'CMS')       
-    extraTextBox = ROOT.TLatex(l + 0.11, 1 - t + 0.01, 'Preliminary')
+    extraTextBox = ROOT.TLatex(l + 0.08, 1 - t + 0.01, 'Preliminary')
     CMSbox.SetNDC()
     extraTextBox.SetNDC()
     CMSbox.SetTextSize(cmsTextSize)
@@ -1071,9 +1076,9 @@ if __name__ == "__main__" :
         hRatio.SetStats(0)
         #hRatio.SetMinimum(0.85)
         #hRatio.SetMaximum(1.15)
-        ratmin = 0.6
+        ratmin = 0.61
         hRatio.SetMinimum(ratmin) #default value
-        hRatio.SetMaximum(1.4) #default value
+        hRatio.SetMaximum(1.39) #default value
         #hRatio.SetMinimum(0.0) #TESI
         #hRatio.SetMaximum(2.0) #TESI
 
@@ -1085,16 +1090,13 @@ if __name__ == "__main__" :
         if args.equalwidth and args.ratio:
             ahisto = retrieveHistos(rootFile, bkgList, *opts).items()[0][1]
             ndiv = ahisto.GetNbinsX()
-            finalaxis2 = ROOT.TGaxis(0., ratmin-0.2, ndiv, ratmin-0.2, 0., ndiv, ndiv, 'BS')
+            finalaxis2 = ROOT.TGaxis(0., ratmin-0.11, ndiv, ratmin-0.11, 0., ndiv, ndiv, 'BS')
+            #finalaxis2.SetTextFont(42)
             step = 1 if 'DNN' in args.var else 6
-            for ip in range(0,ndiv+1,step):
-                size = 0.14
-                if ip==0:
-                    ledge = ahisto.GetXaxis().GetBinLowEdge(ip)
-                    finalaxis2.ChangeLabel(ip,-1,size,-1,-1,-1,str(round(ledge, 4)));
+            for ip in range(0,ndiv+1):
+                size = 0.13 if ip%6==0 else 0.
                 redge = ahisto.GetXaxis().GetBinUpEdge(ip)
-                finalaxis2.ChangeLabel(ip+1,-1,size,-1,-1,-1,str(round(redge, 4)));
-            finalaxis2.SetTextFont(52);
+                finalaxis2.ChangeLabel(ip+2,0.,size,0,1,-1,str(round(redge, 4)));
             finalaxis2.SetTickSize(0.);
             finalaxis2.Draw("same")
 
