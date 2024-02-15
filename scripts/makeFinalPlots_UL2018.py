@@ -497,10 +497,13 @@ if __name__ == "__main__" :
     c1 = ROOT.TCanvas('c1', 'c1', 600, 600)
     pad1, pad2 = None, None
     if (args.ratio and not args.nodata) or args.sbs:
-        pad1 = ROOT.TPad('pad1', 'pad1', 0, 0.25, 1, 1.0)
+        if args.equalwidth:
+            pad1 = ROOT.TPad('pad1', 'pad1', 0, 0.3, 1, 1.0)
+        else:
+            pad1 = ROOT.TPad('pad1', 'pad1', 0, 0.25, 1, 1.0)
         pad1.SetFrameLineWidth(3)
         pad1.SetLeftMargin(0.12);
-        pad1.SetBottomMargin(0.02);
+        pad1.SetBottomMargin(0.005);
     else:
         pad1 = ROOT.TPad('pad1', 'pad1', 0, 0.0, 1.0, 1.0)
         pad1.SetFrameLineWidth(3)
@@ -1035,10 +1038,13 @@ if __name__ == "__main__" :
         
     if args.ratio and not args.nodata:
         c1.cd()
-        pad2 = ROOT.TPad('pad2', 'pad2', 0, 0.0, 1, 0.2496)
+        if args.equalwidth:
+            pad2 = ROOT.TPad('pad2', 'pad2', 0, 0.0, 1, 0.2996)
+        else:
+            pad2 = ROOT.TPad('pad2', 'pad2', 0, 0.0, 1, 0.2496)
         pad2.SetLeftMargin(0.12);
         pad2.SetTopMargin(0.02);
-        pad2.SetBottomMargin(0.4);
+        pad2.SetBottomMargin(0.5);
         pad2.SetGridy(True);
         pad2.SetFrameLineWidth(3)
         if args.logx:
@@ -1060,8 +1066,11 @@ if __name__ == "__main__" :
         hRatio.SetTitle(plotTitle)
         hRatio.GetYaxis().SetTitle ("Data/Bkg.") #("Data/MC")
         if args.label: hRatio.GetXaxis().SetTitle (args.label)
-        else: hRatio.GetXaxis().SetTitle (args.var)
-        hRatio.GetXaxis().SetTitleOffset(3.9)
+        else: hRatio.GetXaxis().SetTitle(args.var)
+        if args.equalwidth:
+            hRatio.GetXaxis().SetTitleOffset(5.2)
+        else:
+            hRatio.GetXaxis().SetTitleOffset(3.9)
         hRatio.GetYaxis().SetTitleOffset(1.2)
 
         hRatio.GetXaxis().SetTitleSize(titleSize);
@@ -1086,13 +1095,14 @@ if __name__ == "__main__" :
             ahisto = retrieveHistos(rootFile, bkgList, *opts).items()[0][1]
             ndiv = ahisto.GetNbinsX()
             finalaxis2 = ROOT.TGaxis(0., ratmin-0.11, ndiv, ratmin-0.11, 0., ndiv, ndiv, 'BS')
-            #finalaxis2.SetTextFont(42)
-            step = 1 if 'DNN' in args.var else 6
+            step = 1 if 'DNN' in args.var or args.equalwidth else 6
             for ip in range(0,ndiv+1):
-                size = 0.13 if ip%6==0 else 0.
+                size = 0.1 if ip%step==0 else 0.
                 redge = ahisto.GetXaxis().GetBinUpEdge(ip)
-                finalaxis2.ChangeLabel(ip+2,0.,size,0,1,-1,str(round(redge, 4)));
+                valstr = str(int(redge)) if 'mass' in args.var else str(round(redge, 4)) 
+                finalaxis2.ChangeLabel(ip+1,90,size,22,1,-1,valstr);
             finalaxis2.SetTickSize(0.);
+            finalaxis2.SetLabelOffset(.05)
             finalaxis2.Draw("same")
 
         xmin = hRatio.GetXaxis().GetXmin()
