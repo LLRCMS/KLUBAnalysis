@@ -533,11 +533,11 @@ if __name__ == "__main__" :
     # color-blind friendly
     # https://indico.cern.ch/event/1372111/contributions/5768994/subcontributions/463452/attachments/2794503/4874367/20240206_CVDProjectReport_DiversityMeeting_YiChen_v3.pdf
     col = ROOT.TColor() 
-    bkgColors = {'DY':    (col.GetColor("#5790FC"), col.GetColor("#5790FC")),
-                 'TT':    (col.GetColor("#F89C20"), col.GetColor("#F89C20")),
-                 'W':     (col.GetColor("#E42536"), col.GetColor("#E42536")),
-                 'H':     (col.GetColor("#964A8B"), col.GetColor("#964A8B")),
-                 'other': (col.GetColor("#9C9CA1"), col.GetColor("#9C9CA1"))}
+    bkgColors = {'DY':    (col.GetColor("#7A21DD"), col.GetColor("#7A21DD")),
+                 'TT':    (col.GetColor("#9C9CA1"), col.GetColor("#9C9CA1")),
+                 'W':     (col.GetColor("#964A8B"), col.GetColor("#964A8B")),
+                 'H':     (col.GetColor("#E42536"), col.GetColor("#E42536")),
+                 'other': (col.GetColor("#F89C20"), col.GetColor("#F89C20"))}
 
     plotTitle = args.title if args.title else ""        
     dataList = ['data_obs']
@@ -600,7 +600,7 @@ if __name__ == "__main__" :
         hQCD = getHisto('QCD', hBkgs, args.overflow)
         hQCD.SetName('QCD')
         hBkgList.append((hQCD, 'QCD'))
-        bkgColors['QCD'] = (col2.GetColor('#7A21DD'),col2.GetColor('#7A21DD'))
+        bkgColors['QCD'] = (col2.GetColor('#5790FC'),col2.GetColor('#5790FC'))
 
     hData = getHisto('data_obs', hDatas , args.overflow).Clone('hData')
 
