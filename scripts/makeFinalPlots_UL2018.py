@@ -526,14 +526,16 @@ if __name__ == "__main__" :
     
     if doQCD:
         bkgList.append('QCD')
-    
-    col = ROOT.TColor()
-    bkgColors = {'DY':    (col.GetColor("#44BA68"), col.GetColor("#389956")),
-                 'TT':    (col.GetColor("#F4B642"), col.GetColor("#dea63c")),
-                 'W':     (col.GetColor("#41B4DB"), col.GetColor("#3ca4c8")),
-                 'H':     (col.GetColor("#400080"), col.GetColor("#400080")),
-                 'HH':    (col.GetColor("#cd853f"), col.GetColor("#cd853f")),
-                 'other': (col.GetColor("#ED635E"), col.GetColor("#d85a56"))}
+
+    # color-blind friendly
+    # https://indico.cern.ch/event/1372111/contributions/5768994/subcontributions/463452/attachments/2794503/4874367/20240206_CVDProjectReport_DiversityMeeting_YiChen_v3.pdf
+    col = ROOT.TColor() 
+    bkgColors = {'DY':    (col.GetColor("#5790FC"), col.GetColor("#5790FC")),
+                 'TT':    (col.GetColor("#F89C20"), col.GetColor("#F89C20")),
+                 'W':     (col.GetColor("#E42536"), col.GetColor("#E42536")),
+                 'H':     (col.GetColor("#964A8B"), col.GetColor("#964A8B")),
+                 'HH':    (col.GetColor("#9C9CA1"), col.GetColor("#9C9CA1")),
+                 'other': (col.GetColor("#7A21DD"), col.GetColor("#7A21DD"))}
 
     plotTitle = args.title if args.title else ""        
     dataList = ['data_obs']
