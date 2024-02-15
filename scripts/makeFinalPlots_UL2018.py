@@ -37,7 +37,7 @@ def flatBinning(rootFile,namelist, var,sel,reg):
             yq = array('d', [0.] * nq)  
 
             for i in xrange(nq):
-                        xq[i] = float(i + 1) / nq
+                xq[i] = float(i + 1) / nq
                         
             h.GetQuantiles(nq, yq, xq)
             print(yq)
@@ -572,7 +572,7 @@ if __name__ == "__main__" :
         hSigs = {k:eqbin(x) for k,x in retrieveHistos(rootFile, args.signals, *opts).items()}
     hBkgs = {k:eqbin(x) for k,x in retrieveHistos(rootFile, bkgList, *opts).items()}
     hDatas = {k:eqbin(x) for k,x in retrieveHistos(rootFile, dataList, *opts).items()}
-    
+
     hopt = hBkgs, args.overflow
     hDY      = getHisto('DY',    *hopt)
     hTT      = getHisto('TT',    *hopt)
@@ -644,7 +644,7 @@ if __name__ == "__main__" :
     #################### REMOVE NEGATIVE BINS #######################
     print("** INFO: removing all negative bins from bkg histos")
     makeNonNegativeHistos([x[0] for x in hBkgList])
-
+    
     def print_integral(h, p=False):
         s = 'Integral: ' + h.GetName() + ' : '
         s += str(h.Integral()) + ' - '
@@ -684,7 +684,8 @@ if __name__ == "__main__" :
     if not args.nosig:
         for sig in args.signals:
             print_integral(hSigs[sig], True)
-        
+
+            
     #################### PERFORM DIVISION BY BIN WIDTH #######################
     #clones non scaled (else problems with graph ratio because I pass data evt hist)
     bkgStackNS = makeStack('bkgStackNS', [x[0] for x in hBkgList])
@@ -702,7 +703,7 @@ if __name__ == "__main__" :
     #################### DO STACK AND PLOT #######################
     bkgStack = makeStack('bkgStack', [x[0] for x in hBkgList])
     bkgSum = makeSum('bkgSum', [x[0] for x in hBkgList])
-    
+
     if args.logx:
         pad1.SetLogx()
     if args.logy:
@@ -725,7 +726,7 @@ if __name__ == "__main__" :
     bkgStack.GetXaxis().SetLabelSize(labelSize)
     bkgStack.GetYaxis().SetLabelSize(labelSize)
 
-    if args.label: bkgStack.GetXaxis().SetTitle (args.label)
+    if args.label: bkgStack.GetXaxis().SetTitle(args.label)
     else: bkgStack.GetXaxis().SetTitle(args.var)
 
     width = ( (bkgStack.GetXaxis().GetXmax() - bkgStack.GetXaxis().GetXmin()) /
@@ -809,7 +810,6 @@ if __name__ == "__main__" :
 
     bkgStack.SetMinimum(ymin)
     bkgStack.SetMaximum(ymax)
-    bkgStack.GetXaxis().SetRangeUser(0., 3300.);
 
     # interactive display
     bkgStack.Draw('HIST')
@@ -840,17 +840,17 @@ if __name__ == "__main__" :
             size = 0.037
             if ip==0:
                 ledge = ahisto.GetXaxis().GetBinLowEdge(ip)
-                #finalaxis.ChangeLabel(ip,-1,size,-1,-1,-1,str(round(ledge, 4)));
+                finalaxis.ChangeLabel(ip,-1,size,-1,-1,-1,str(round(ledge, 4)));
             redge = ahisto.GetXaxis().GetBinUpEdge(ip)
-            #finalaxis.ChangeLabel(ip+1,-1,size,-1,-1,-1,str(round(redge, 4)));
+            finalaxis.ChangeLabel(ip+1,-1,size,-1,-1,-1,str(round(redge, 4)));
         finalaxis.SetLabelFont(42);
         finalaxis.SetLabelSize(10);
         finalaxis.Draw('same')
 
     ###################### OTHER TEXT ON PLOT #########################
-    cmsTextFont   = 61  # font of the "CMS" label
-    cmsTextSize   = 0.05  # font size of the "CMS" label
-    extraTextFont = 52     # for the "preliminary"
+    cmsTextFont   = 61                 # font of the "CMS" label
+    cmsTextSize   = 0.05               # font size of the "CMS" label
+    extraTextFont = 52                 # for the "preliminary"
     extraTextSize = 0.76 * cmsTextSize # for the "preliminary"
     
     t = ROOT.gPad.GetTopMargin()
@@ -1073,13 +1073,9 @@ if __name__ == "__main__" :
         hRatio.GetYaxis().SetTickSize(0.05)
 
         hRatio.SetStats(0)
-        #hRatio.SetMinimum(0.85)
-        #hRatio.SetMaximum(1.15)
         ratmin = 0.61
         hRatio.SetMinimum(ratmin) #default value
         hRatio.SetMaximum(1.39) #default value
-        #hRatio.SetMinimum(0.0) #TESI
-        #hRatio.SetMaximum(2.0) #TESI
 
         removeEmptyPoints(grRatio)
         hRatio.Draw("axis")
