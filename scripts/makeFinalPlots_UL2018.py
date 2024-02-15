@@ -534,8 +534,7 @@ if __name__ == "__main__" :
                  'TT':    (col.GetColor("#F89C20"), col.GetColor("#F89C20")),
                  'W':     (col.GetColor("#E42536"), col.GetColor("#E42536")),
                  'H':     (col.GetColor("#964A8B"), col.GetColor("#964A8B")),
-                 'HH':    (col.GetColor("#9C9CA1"), col.GetColor("#9C9CA1")),
-                 'other': (col.GetColor("#7A21DD"), col.GetColor("#7A21DD"))}
+                 'other': (col.GetColor("#9C9CA1"), col.GetColor("#9C9CA1"))}
 
     plotTitle = args.title if args.title else ""        
     dataList = ['data_obs']
@@ -578,8 +577,7 @@ if __name__ == "__main__" :
     hDY      = getHisto('DY',    *hopt)
     hTT      = getHisto('TT',    *hopt)
     hWJets   = getHisto('W',     *hopt)
-    hsingleH = getHisto('H',     *hopt)
-    hdoubleH = getHisto('HH',    *hopt)
+    hHiggs   = getHisto('H',     *hopt)
     hothers  = getHisto('other', *hopt)
 
     # hZH      = getHisto('ZH', *hopt)
@@ -589,8 +587,7 @@ if __name__ == "__main__" :
     # hsingleH = makeSum('singleH', [hZH, hWH, httH, hggH])
     
     hBkgList = [(hothers,  'Others'),
-                (hdoubleH, 'HH'),
-                (hsingleH, 'H'),
+                (hHiggs,   'H+HH'),
                 (hWJets,   'W+jets'),
                 (hTT,      't#bar{t}'),
                 (hDY,      'DY')] 
@@ -600,7 +597,7 @@ if __name__ == "__main__" :
         hQCD = getHisto('QCD', hBkgs, args.overflow)
         hQCD.SetName('QCD')
         hBkgList.append((hQCD, 'QCD'))
-        bkgColors['QCD'] = (col2.GetColor('#F29563'),col2.GetColor('#DC885A'))
+        bkgColors['QCD'] = (col2.GetColor('#7A21DD'),col2.GetColor('#7A21DD'))
 
     hData = getHisto('data_obs', hDatas , args.overflow).Clone('hData')
 
