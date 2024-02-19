@@ -8,7 +8,8 @@ CHANNEL="ETau"
 CHANNEL_CHOICES=("ETau" "MuTau" "TauTau" "MuMu")
 SELECTION="baseline"
 SELECTION_CHOICES=( "baseline" "baseline_boosted" "baselineInvMcut" "res1b" "res2b"
-    "res1bInvMcut" "res2bInvMcut" "boosted" "boostedInvMcut" "ttCR_invMcut")
+					"res1bInvMcut" "res2bInvMcut" "boosted" "boostedInvMcut" "ttCR_invMcut"
+					"res2bDY" "res2bTTbar")
 DATA_PERIOD="UL18"
 DATA_PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
 REG="SR"  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
