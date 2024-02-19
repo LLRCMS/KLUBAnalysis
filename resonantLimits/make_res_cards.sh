@@ -214,7 +214,7 @@ if [[ ${#CHANNELS[@]} -eq 0 ]]; then
     exit 1;
 fi
 if [ ${#SELECTIONS[@]} -eq 0 ]; then
-    SELECTIONS=("s1b1jresolvedMcut" "s2b0jresolvedMcut" "sboostedLLMcut")
+    SELECTIONS=("res1b" "res2b" "boostedL_pnet")
 fi
 if [[ ${#IN_TAGS[@]} -eq 0 ]]; then
     echo "Select the input tags via the '-i / --in_tags' option."

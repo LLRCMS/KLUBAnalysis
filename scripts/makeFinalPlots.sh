@@ -7,9 +7,9 @@ NODATA="0"
 CHANNEL="ETau"
 CHANNEL_CHOICES=("ETau" "MuTau" "TauTau" "MuMu")
 SELECTION="baseline"
-SELECTION_CHOICES=( "baseline" "baselineInvMcut" "s1b1jresolvedMcut" "s1b1jresolvedInvMcut"
-    "s2b0jresolvedMcut" "s2b0jresolvedInvMcut" "sboostedLLMcut" "sboostedLLInvMcut"
-        "ttCR_invMcut" "s2b0jresolvedMcutDNNcut" "s1b1jresolvedMcutDNNcut")
+SELECTION_CHOICES=( "baseline" "baseline_boosted" "baselineInvMcut" "res1b" "res2b"
+					"res1bInvMcut" "res2bInvMcut" "boosted" "boostedInvMcut" "ttCR_invMcut"
+					"res2bDY" "res2bTTbar")
 DATA_PERIOD="UL18"
 DATA_PERIOD_CHOICES=( "UL16" "UL17" "UL18" )
 REG="SR"  # A:SR , B:SStight , C:OSinviso, D:SSinviso, B': SSrlx
@@ -270,22 +270,25 @@ VAR_MAP=(
     ["dau2_eta"]="eta_{2} "
     ["bjet1_eta"]="eta_{j1} "
     ["bjet2_eta"]="eta_{j2} "
-    ["tauH_mass"]="m_{H#tau}[Gev] "
-    ["tauH_pt"]="pT_{H#tau}[Gev] "
-    ["tauH_SVFIT_mass"]="m_{H#tau_{SVFit}}[Gev] "
-    ["bH_mass"]="m_{Hb}[Gev] "
-    ["bH_pt"]="pT_{Hb}[Gev]"
+    ["tauH_mass"]="m_{H#tau}[GeV] "
+    ["tauH_pt"]="pT_{H#tau}[GeV] "
+    ["tauH_SVFIT_mass"]="m_{H#tau_{SVFit}}[GeV] "
+    ["bH_mass"]="m_{Hb}[GeV] "
+    ["bH_pt"]="pT_{Hb}[GeV]"
     ["ditau_deltaR"]="#DeltaR(#tau#tau)"
     ["dib_deltaR"]="#DeltaR(bb)"
     ["HH_deltaR"]="#DeltaR(HH) "
     ["njets"]="NJets "
-    ["njets20"]="NJets20 "
-    ["njets50"]="NJets50 "
+	["njets20"]="NJets20 "
+	["njets50"]="NJets50 "
     ["met_et"]="MET[GeV] "
     ["met_phi"]="MET-#phi "
     ["metnomu_et"]="MET-no#mu[GeV] "
     ["metnomu_phi"]="MET-no#mu-#phi "
     ["HT20Full"]="HT"
+	["HHbregrsvfit_m"]="m_{HH}^{PNet}[GeV] "
+	["HHbregrsvfit_pt"]="pT_{HH}^{PNet}[GeV] "
+	["HHbregrsvfit_eta"]="eta_{HH}^{PNet} "
     ["HH_mass"]="m_{HH}[GeV] "
     ["HHKin_mass"]="m_{HHKin}[GeV] "
     ["DNNoutSM_kl_1"]="DNN "
@@ -316,8 +319,12 @@ EXTRAS=(
     ["met_phi"]=" "
     ["metnomu_et"]=" "
     ["metnomu_phi"]=" "
-    ["HH_mass"]=" --logy "
-    ["HHKin_mass"]=" --logy "
+	["HT20Full"]=" "
+	["HHbregrsvfit_m"]=" "
+	["HHbregrsvfit_pt"]=" "
+	["HHbregrsvfit_eta"]=" "
+    ["HH_mass"]=" --logy --equalwidth "
+    ["HHKin_mass"]=" --logy --equalwidth "
     ["DNNoutSM_kl_1"]=" --logy "
 )
 
@@ -346,6 +353,10 @@ SIGSCALE_CHANNEL_MAP=(
     ["met_phi"]="10 10 1 4000 "
     ["metnomu_et"]="10 10 1 4000 "
     ["metnomu_phi"]="10 10 1 4000 "
+	["HT20Full"]=" "
+	["HHbregrsvfit_m"]="1 1 1 150 "
+	["HHbregrsvfit_pt"]="30 30 10 10000 "
+	["HHbregrsvfit_eta"]="40 40 2 4000 "
     ["HH_mass"]="1 1 1 150 "
     ["HHKin_mass"]="1 1 1 150 "
     ["DNNoutSM_kl_1"]="5 5 1 500 "
@@ -370,7 +381,7 @@ if [[ ${COMPARE} -eq 0 ]]; then
 	else
 	    echo "Channel ${CHANNEL} is not supported." 
 	fi
-	run_plot --var ${avar} --lymin 0.65 --sigscale ${ss} --label ${VAR_MAP[$avar]} ${EXTRAS[$avar]}
+	run_plot --var ${avar} --lymin 0.6 --sigscale ${ss} --label ${VAR_MAP[$avar]} ${EXTRAS[$avar]}
 	done
 
     run mkdir -p ${WWW_DIR}

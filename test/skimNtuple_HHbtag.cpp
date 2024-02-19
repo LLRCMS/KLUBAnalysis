@@ -233,7 +233,8 @@ int main (int argc, char** argv)
   cout << "** INFO: is this a TTbar sample? : " << isTTBar << endl;
 
   bool DY_tostitch = static_cast<bool>(atoi(argv[11]));
-
+  cout << "** INFO: DY stitching? " << DY_tostitch << endl;
+  
   int TT_stitchType = atoi(argv[12]);
   if (!isTTBar) TT_stitchType = 0; // just force if not TT...
   cout << "** INFO: TT stitch type: " << TT_stitchType << " [0: no stitch , 1: fully had, 2: semilept t, 3: semilept tbar, 4: fully lept, 5: semilept all]" << endl;
