@@ -158,7 +158,7 @@ public:
 private:
   std::vector<TString> triggerlist;
   std::vector<TString> tauidlist;
-
+  float eleEtaMax=2.5, muEtaMax=2.4, tauEtaMax=2.3;
 };
 
 #endif

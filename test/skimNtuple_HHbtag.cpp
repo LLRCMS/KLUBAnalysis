@@ -921,6 +921,8 @@ int main (int argc, char** argv)
 		}
 	}
 
+  const float eleEtaMax=2.5, muEtaMax=2.4;
+  
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   for (Long64_t iEvent = 0 ; true ; ++iEvent)
@@ -1470,20 +1472,22 @@ int main (int argc, char** argv)
 		  int dauType = theBigTree.particleType->at(idau);
 		  if (oph.isMuon(dauType))
 			{
-			  bool passMu   = oph.muBaseline (&theBigTree, idau, 15., 2.4,
+			  bool passMu   = oph.muBaseline (&theBigTree, idau, 15., muEtaMax,
 											  0.15, OfflineProducerHelper::MuTight,
 											  0.15, OfflineProducerHelper::MuHighPt, string("All"), (DEBUG ? true : false));
-			  bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4,
+			  bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., muEtaMax,
 											  0.30, OfflineProducerHelper::MuTight,
-											  0.30, OfflineProducerHelper::MuHighPt, string("All") , (DEBUG ? true : false));
+											  0.30, OfflineProducerHelper::MuHighPt, string("All"), (DEBUG ? true : false));
 
 			  if (passMu) ++nmu;
 			  else if (passMu10) ++nmu10;
 			}
 		  else if (oph.isElectron(dauType))
 			{
-			  bool passEle   = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.1, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
-			  bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.3, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
+			  bool passEle   = oph.eleBaseline (&theBigTree, idau, 10., eleEtaMax, 0.1,
+												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
+			  bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., eleEtaMax, 0.3,
+												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
 
 			  if (passEle) ++nele;
 			  else if (passEle10) ++nele10;
@@ -2978,7 +2982,7 @@ int main (int argc, char** argv)
 		idSF_leg2_deep_vsJet_2d_extrapgt140             	= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140Extrap");
 	  }
 	
-	  if (isMC and leg1eta < 2.4) {
+	  if (isMC) {
 		if (pType == 0 or pType == 3) {
 		  idSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, leg1eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, leg1eta);
 		}
@@ -2987,10 +2991,10 @@ int main (int argc, char** argv)
 		}
 	  }
 
-	  if(isMC and leg2eta < 2.4 and pType == 3) { //MuMu
+	  if(isMC and pType == 3) { //MuMu
 		idSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg2pt, leg2eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(leg2pt, leg2eta);
 	  }
-	  else if(isMC and leg2eta < 2.4 and pType == 4) { //EleEle
+	  else if(isMC and pType == 4) { //EleEle
 		idSF_leg2 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg2pt, leg2eta);
 	  }
 
@@ -3585,10 +3589,10 @@ int main (int argc, char** argv)
 		  else if (theBigTree.particleType->at (iLep) == 0) // muons
 			{
 			  // Fra Mar2020: for muon, Tight does not imply Medium so we check both
-			  bool passMed = oph.muBaseline (&theBigTree, iLep, 10., 2.4,
+			  bool passMed = oph.muBaseline (&theBigTree, iLep, 10., muEtaMax,
 											 0.3, OfflineProducerHelper::MuMedium,
 											 0.3, OfflineProducerHelper::MuHighPt);
-			  bool passTig = oph.muBaseline (&theBigTree, iLep, 10., 2.4,
+			  bool passTig = oph.muBaseline (&theBigTree, iLep, 10., muEtaMax,
 											 0.3, OfflineProducerHelper::MuTight,
 											 0.3, OfflineProducerHelper::MuHighPt);
 			  if (!passMed && !passTig) continue; // if it passes one of the two --> the "if" is false and the lepton is saved as an extra lepton
@@ -3597,10 +3601,10 @@ int main (int argc, char** argv)
 			{
 			  // Fra Mar2020: for electron, we check (mvaEleID-Fall17-iso-V2-wp90 OR (mvaEleID-Fall17-noIso-V2-wp90 AND pfRelIso < 0.3))
 			  if (DEBUG) std::cout << "--- Debug for extra electrons:" << std::endl;
-			  bool passIsoMVA = oph.eleBaseline(&theBigTree, iLep, 10., 2.5, 0.3,
-												OfflineProducerHelper::EMVAMedium,
-												string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
-			  //bool passNonIsoMVA = oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium, string("Vertex-pTMin-etaMax-thirdLep"), (DEBUG ? true : false));
+			  bool passIsoMVA = oph.eleBaseline(&theBigTree, iLep, 10., eleEtaMax, 0.3,
+												OfflineProducerHelper::EMVAMedium, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
+			  //bool passNonIsoMVA = oph.eleBaseline (&theBigTree, iLep, 10., eleEtaMax, 0.3,
+			  //                     OfflineProducerHelper::EMVAMedium, string("Vertex-pTMin-etaMax-thirdLep"), (DEBUG ? true : false));
 			  if (!passIsoMVA) // if it passes --> the "if" is false and the lepton is saved as an extra lepton
 				continue; 
 			}
