@@ -221,7 +221,7 @@ std::unordered_map<std::string,bool> assignTriggerRegions(int ptype, std::string
 
   else if (ptype == 2) { //tautau
 	Legacy_region = pt1 >= 25. and pt2 >= 21. and eta1 < 2.1 and eta2 < 2.1;
-	SingleTau_region = (((pt1 >= tau_thresh and eta1 < 2.1) or (pt1 >= tau_thresh and eta1 < 2.1))
+	SingleTau_region = (((pt1 >= tau_thresh and eta1 < 2.1) or (pt2 >= tau_thresh and eta2 < 2.1))
 						and !Legacy_region);
   }
 
