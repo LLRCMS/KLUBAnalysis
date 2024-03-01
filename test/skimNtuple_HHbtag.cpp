@@ -185,8 +185,8 @@ std::unordered_map<std::string,bool> assignTriggerRegions(int ptype, std::string
 	bool SingleTau_validity    = false;
 	
 	if(period=="2018") {
-	  SingleLepton_validity = pt1 >= 33. and eta1 < muEtaMax;
-	  CrossLepton_validity	= pt1 >= 25. and eta1 < 2.1 and pt2 >= 35. and eta2 < 2.1;
+	  SingleLepton_validity = pt1 >= 25. and eta1 < muEtaMax;
+	  CrossLepton_validity	= pt1 >= 21. and eta1 < 2.1 and pt2 >= 32. and eta2 < 2.1;
 	  SingleTau_validity	= pt2 >= tau_thresh and eta2 < 2.1;
 	}
 	else if(period=="2017") {
@@ -220,7 +220,7 @@ std::unordered_map<std::string,bool> assignTriggerRegions(int ptype, std::string
   }
 
   else if (ptype == 2) { //tautau
-	Legacy_region = pt1 >= 25. and pt2 >= 21. and eta1 < 2.1 and eta2 < 2.1;
+	Legacy_region = pt1 >= 40. and pt2 >= 40. and eta1 < 2.1 and eta2 < 2.1;
 	SingleTau_region = (((pt1 >= tau_thresh and eta1 < 2.1) or (pt2 >= tau_thresh and eta2 < 2.1))
 						and !Legacy_region);
   }
