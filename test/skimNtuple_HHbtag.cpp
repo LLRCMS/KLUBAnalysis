@@ -3752,10 +3752,10 @@ int main (int argc, char** argv)
 		  //SortParameter = (bChoiceFlag == 1 ) ? bTag : Pt ;
 		  float sortPar;
 		  if(useDeepFlavor) {
-			sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet) : tlv_jet.Pt() ;
+			sortPar = (bChoiceFlag == 1) ? theBigTree.bDeepFlavor_probb->at(iJet) + theBigTree.bDeepFlavor_probbb->at(iJet) + theBigTree.bDeepFlavor_problepb->at(iJet) : tlv_jet.Pt() ;
 		  }
 		  else {
-			sortPar = (bChoiceFlag == 1 ) ? theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet) : tlv_jet.Pt() ;
+			sortPar = (bChoiceFlag == 1) ? theBigTree.bDeepCSV_probb->at(iJet) + theBigTree.bDeepCSV_probbb->at(iJet) : tlv_jet.Pt() ;
 		  }
 		  if (bChoiceFlag != 1 && bChoiceFlag != 2) {
 			cout << "** WARNING : bChoiceFlag not known :" << bChoiceFlag << endl;
@@ -3779,8 +3779,12 @@ int main (int argc, char** argv)
 	  ec.Increment("TwoJets", EvtW);
 	  if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("TwoJets", EvtW);
 
-	  // sort jet collection by deepCSV
-	  sort (jets_and_sortPar.begin(), jets_and_sortPar.end(), bJetSort); //sort by first parameter, then pt (dummy if pt order chosen)
+	  TLorentzVector tlv_firstBjet, tlv_secondBjet;
+
+	  // sort by first parameter, then pt (dummy if pt order chosen)
+	  // bJetSort defined in interface/skimUtils.h
+	  sort (jets_and_sortPar.begin(), jets_and_sortPar.end(), bJetSort);
+	  
 	  if (jets_and_sortPar.size () >= 2)
 		{
 		  bool isVBF = false;
@@ -3990,11 +3994,15 @@ int main (int argc, char** argv)
 		  // Use this for VBF trigger SF
 		  if (isVBF && isVBFfired) theSmallTree.m_isVBFtrigger = 1;
 
-		  // Now that I've selected the bjets build the TLorentzVectors
-		  TLorentzVector tlv_firstBjet (theBigTree.jets_px->at(bjet1idx), theBigTree.jets_py->at(bjet1idx), theBigTree.jets_pz->at(bjet1idx), theBigTree.jets_e->at(bjet1idx));
-		  if (doSmearing) tlv_firstBjet = tlv_firstBjet * smears_AK4[bjet1idx];
-		  TLorentzVector tlv_secondBjet(theBigTree.jets_px->at(bjet2idx), theBigTree.jets_py->at(bjet2idx), theBigTree.jets_pz->at(bjet2idx), theBigTree.jets_e->at(bjet2idx));
-		  if (doSmearing) tlv_secondBjet = tlv_secondBjet * smears_AK4[bjet2idx];
+		  // Now that I've selected the bjets build the 4-vectors
+		  tlv_firstBjet = TLorentzVector(theBigTree.jets_px->at(bjet1idx), theBigTree.jets_py->at(bjet1idx),
+										 theBigTree.jets_pz->at(bjet1idx), theBigTree.jets_e->at(bjet1idx));
+		  tlv_secondBjet = TLorentzVector(theBigTree.jets_px->at(bjet2idx), theBigTree.jets_py->at(bjet2idx),
+										  theBigTree.jets_pz->at(bjet2idx), theBigTree.jets_e->at(bjet2idx));
+		  if (doSmearing) {
+			tlv_firstBjet = tlv_firstBjet * smears_AK4[bjet1idx];
+			tlv_secondBjet = tlv_secondBjet * smears_AK4[bjet2idx];
+		  }
 
 		  if (DEBUG)
 			{
@@ -4058,15 +4066,6 @@ int main (int argc, char** argv)
 		  vector <TLorentzVector> tlv_firstBjet_raw_jetdown(N_jecSources,tlv_firstBjet_raw);
 		  vector <TLorentzVector> tlv_secondBjet_raw_jetup(N_jecSources, tlv_secondBjet_raw);
 		  vector <TLorentzVector> tlv_secondBjet_raw_jetdown(N_jecSources,tlv_secondBjet_raw);
-
-		  //        if (DEBUG)
-		  //        {
-		  //            cout << "-------- JET JEC -------" << endl;
-		  //            cout << "jet1 UP: " << tlv_firstBjet_raw_jetup.Pt() <<endl;
-		  //            cout << "jet1 DW: " << tlv_firstBjet_raw_jetdown.Pt()<<endl;
-		  //            cout << "jet2 UP: " << tlv_secondBjet_raw_jetup.Pt()<<endl;
-		  //            cout << "jet2 DW: " << tlv_secondBjet_raw_jetdown.Pt()<<endl;
-		  //        }
 
 		  theSmallTree.m_bjet1_pt_raw = tlv_firstBjet_raw.Pt();
 		  theSmallTree.m_bjet2_pt_raw = tlv_secondBjet_raw.Pt();
@@ -5389,15 +5388,14 @@ int main (int argc, char** argv)
 			  std::cout << "VBF2 - idx: " << VBFidx2  << " HHbtag: " << theSmallTree.m_VBFjet2_HHbtag << std::endl;
 			  std::cout << "----------------------" << std::endl;
 			}
-		} // end if (jets_and_sortPar.size () >= 2) 
+		} // end if (jets_and_sortPar.size () >= 2)
 	  
-	  // --------------------------------------------
+
 	  // Boosted section
 	  theSmallTree.m_isBoosted = 0;
 	  if (theBigTree.ak8jets_px->size() > 0)
 		{  
-		  vector<pair<float, int>> fatjets_pT;
-		  vector<pair<float, int>> fatjets_bTag;
+		  vector<pair<float, int>> fatjets_pT, fatjets_bTag;
 		  for (unsigned int ifj = 0; ifj < theBigTree.ak8jets_px->size(); ++ifj)
 			{
 			  TLorentzVector tlv_fj((*theBigTree.ak8jets_px)[ifj], (*theBigTree.ak8jets_py)[ifj],
@@ -5416,7 +5414,8 @@ int main (int argc, char** argv)
 			  if (theBigTree.ak8jets_SoftDropMass->at(ifj) < 30) continue;
 			    
 			  fatjets_pT.push_back(make_pair(tlv_fj.Pt(), ifj));
-			  fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(ifj)/(theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(ifj)+theBigTree.ak8jets_particleNetMDJetTags_probQCD->at(ifj)), ifj));
+			  fatjets_bTag.push_back(make_pair( theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(ifj) /
+											   (theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(ifj)+theBigTree.ak8jets_particleNetMDJetTags_probQCD->at(ifj)), ifj) );
 			}
 		            
 		  if (fatjets_bTag.size() != 0)
@@ -5491,8 +5490,7 @@ int main (int argc, char** argv)
 			  // saving infos for subjets
 			  if (theBigTree.ak8jets_nsubjets->at(fjIdx) >= 2) 
 				{
-				  TLorentzVector tlv_subj1;
-				  TLorentzVector tlv_subj2;
+				  TLorentzVector tlv_subj1, tlv_subj2;
 				  vector<int> sjIdxs = findSubjetIdxs(fjIdx, theBigTree);
 			            
 				  int nSJ = 0;
@@ -5511,7 +5509,7 @@ int main (int argc, char** argv)
 						  theSmallTree.m_subjetjet1_bID_deepCSV  = theBigTree.subjets_deepCSV_probb->at(isj) + theBigTree.subjets_deepCSV_probbb->at(isj) ;
 						  theSmallTree.m_subjetjet1_bID_deepFlavor  = theBigTree.subjets_deepFlavor_probb->at(isj) + theBigTree.subjets_deepFlavor_probbb->at(isj) + theBigTree.subjets_deepFlavor_problepb->at(isj) ;
 						}
-					  if (nSJ == 2)
+					  else if (nSJ == 2)
 						{
 						  tlv_subj2.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
 						  theSmallTree.m_subjetjet2_pt   = tlv_subj2.Pt();
@@ -5523,9 +5521,9 @@ int main (int argc, char** argv)
 						  theSmallTree.m_subjetjet2_bID_deepFlavor  = theBigTree.subjets_deepFlavor_probb->at(isj) + theBigTree.subjets_deepFlavor_probbb->at(isj) + theBigTree.subjets_deepFlavor_problepb->at(isj);
 						}
 					}
-			            
-				  bool A1B2 = (tlv_subj1.DeltaR(tlv_firstBjet)  < 0.4) && (tlv_subj2.DeltaR(tlv_secondBjet) < 0.4);
-				  bool A2B1 = (tlv_subj1.DeltaR(tlv_secondBjet) < 0.4) && (tlv_subj2.DeltaR(tlv_firstBjet)  < 0.4);
+
+				  bool A1B2 = (tlv_subj1.DeltaR(tlv_firstBjet)  < 0.4) and (tlv_subj2.DeltaR(tlv_secondBjet) < 0.4);
+				  bool A2B1 = (tlv_subj1.DeltaR(tlv_secondBjet) < 0.4) and (tlv_subj2.DeltaR(tlv_firstBjet)  < 0.4);
 			            
 				  if(DEBUG)
 					{
@@ -5542,7 +5540,7 @@ int main (int argc, char** argv)
 				} 
 			} // end if fatjet_bTag not empty 
 		} // end if (theBigTree.ak8jets_px->size() > 0)  (end of the boosted section)
-	  
+
 
 	  if (isMC) selectedEvents += theBigTree.aMCatNLOweight ;  //FIXME: probably wrong, but unused up to now
 	  else selectedEvents += 1 ;

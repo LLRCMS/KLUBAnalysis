@@ -297,9 +297,9 @@ vector<int> findSubjetIdxs (unsigned int iFatJet, bigTree & theBigTree)
 
 
 // -----------------------------------------
-// Implement operator < for b tag . first : CSV score ;  second : index
+// Implement operator < for b tag . first : DeepJet score ;  second : index
 bool bJetSort (const pair<float, int>& i, const pair<float, int>& j) {
-  if (i.first != j.first) return (i.first < j.first) ; // lowest CVS
+  if (i.first != j.first) return (i.first < j.first) ; // lowest DeepJet
   return i.second > j.second ; // highest index == lowest pt
 }
 
