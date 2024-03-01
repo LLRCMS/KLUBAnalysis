@@ -5389,160 +5389,160 @@ int main (int argc, char** argv)
 			  std::cout << "VBF2 - idx: " << VBFidx2  << " HHbtag: " << theSmallTree.m_VBFjet2_HHbtag << std::endl;
 			  std::cout << "----------------------" << std::endl;
 			}
-
-		  // --------------------------------------------
-		  // Boosted section
-		  theSmallTree.m_isBoosted = 0;
-		  if (theBigTree.ak8jets_px->size() > 0)
-		    {  
-		      vector<pair<float, int>> fatjets_pT;
-		      vector<pair<float, int>> fatjets_bTag;
-		      for (unsigned int ifj = 0; ifj < theBigTree.ak8jets_px->size(); ++ifj)
-				{
-				  TLorentzVector tlv_fj((*theBigTree.ak8jets_px)[ifj], (*theBigTree.ak8jets_py)[ifj],
-										(*theBigTree.ak8jets_pz)[ifj], (*theBigTree.ak8jets_e)[ifj]);
-
-				  double smearFactor = Smearer_AK8.getSmearFactor(tlv_fj, theBigTree, true);
-				  smears_AK8[ifj] = doSmearing ? smearFactor : 1.;
-
-				  if (doSmearing) {
-					tlv_fj *= smears_AK8[ifj];
-				  }
-		  
-				  if (tlv_fj.Pt() < 250) continue; 
-				  if (tlv_fj.DeltaR(tlv_firstLepton) < 0.8) continue;
-				  if (tlv_fj.DeltaR(tlv_secondLepton) < 0.8) continue;
-				  if (theBigTree.ak8jets_SoftDropMass->at(ifj) < 30) continue;
-			    
-				  fatjets_pT.push_back(make_pair(tlv_fj.Pt(), ifj));
-				  fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(ifj)/(theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(ifj)+theBigTree.ak8jets_particleNetMDJetTags_probQCD->at(ifj)), ifj));
-				}
-		            
-		      if (fatjets_bTag.size() != 0)
-				{
-				  if (fatjets_bTag.size() > 1 && DEBUG) {
-					cout << " N selected fatjets : " << fatjets_bTag.size() << endl;
-				  }
-				  theSmallTree.m_isBoosted = 1;
-				  sort (fatjets_pT.begin(), fatjets_pT.end());
-				  sort (fatjets_bTag.begin(), fatjets_bTag.end());
-				  // sorting for b-tagger score and taking the first one
-				  int fjIdx = fatjets_bTag.back().second;
-			    
-				  int fjIdx_pT = fatjets_pT.back().second;
-				  theSmallTree.m_fatjet_highest_pT_bTag = fjIdx_pT == fjIdx;
-			    
-				  TLorentzVector tlv_fj(theBigTree.ak8jets_px->at(fjIdx), theBigTree.ak8jets_py->at(fjIdx),
-										theBigTree.ak8jets_pz->at(fjIdx), theBigTree.ak8jets_e->at(fjIdx));
-
-				  if (doSmearing) {
-					tlv_fj *= smears_AK8[fjIdx];
-				  }
-
-				  theSmallTree.m_fatjet_pt   = tlv_fj.Pt();
-				  theSmallTree.m_fatjet_eta  = tlv_fj.Eta();
-				  theSmallTree.m_fatjet_phi  = tlv_fj.Phi();
-				  theSmallTree.m_fatjet_e    = tlv_fj.E();
-				  theSmallTree.m_fatjet_bID  = theBigTree.ak8jets_CSV->at(fjIdx);
-				  theSmallTree.m_fatjet_bID_deepCSV  = theBigTree.ak8jets_deepCSV_probb->at(fjIdx) + theBigTree.ak8jets_deepCSV_probbb->at(fjIdx);
-				  theSmallTree.m_fatjet_bID_deepFlavor  = theBigTree.ak8jets_deepFlavor_probb->at(fjIdx) + theBigTree.ak8jets_deepFlavor_probbb->at(fjIdx) + theBigTree.ak8jets_deepFlavor_problepb->at(fjIdx);
-				  theSmallTree.m_fatjet_filteredMass = theBigTree.ak8jets_FilteredMass -> at(fjIdx) ;
-				  theSmallTree.m_fatjet_prunedMass   = theBigTree.ak8jets_PrunedMass   -> at(fjIdx) ;
-				  theSmallTree.m_fatjet_trimmedMass  = theBigTree.ak8jets_TrimmedMass  -> at(fjIdx) ;
-				  theSmallTree.m_fatjet_softdropMass = theBigTree.ak8jets_SoftDropMass -> at(fjIdx) ;
-				  theSmallTree.m_fatjet_tau1 = theBigTree.ak8jets_tau1->at(fjIdx);
-				  theSmallTree.m_fatjet_tau2 = theBigTree.ak8jets_tau2->at(fjIdx);
-				  theSmallTree.m_fatjet_tau3 = theBigTree.ak8jets_tau3->at(fjIdx);
-				  theSmallTree.m_fatjet_nsubjets = theBigTree.ak8jets_nsubjets->at(fjIdx);
-				  theSmallTree.m_fatjet_particleNetMDJetTags_probXbb = theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(fjIdx);
-				  theSmallTree.m_fatjet_particleNetMDJetTags_probXcc = theBigTree.ak8jets_particleNetMDJetTags_probXcc->at(fjIdx);
-				  theSmallTree.m_fatjet_particleNetMDJetTags_probXqq = theBigTree.ak8jets_particleNetMDJetTags_probXqq->at(fjIdx);
-				  theSmallTree.m_fatjet_particleNetMDJetTags_probQCD = theBigTree.ak8jets_particleNetMDJetTags_probQCD->at(fjIdx);
-				  theSmallTree.m_fatjet_particleNetMDJetTags_score = theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(fjIdx)/(theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(fjIdx)+theBigTree.ak8jets_particleNetMDJetTags_probQCD->at(fjIdx));
-				  theSmallTree.m_fatjet_particleNetMDJetTags_mass = theBigTree.ak8jets_particleNetMDJetTags_mass->at(fjIdx);
-			    
-				  // computing the vector made of the fatjet (H-bb) + svfit  H-tt
-				  TLorentzVector tlv_bH_particleNet_regression;
-				  tlv_bH_particleNet_regression.SetPtEtaPhiM(tlv_fj.Pt(), tlv_fj.Eta(), tlv_fj.Phi(),
-															 theBigTree.ak8jets_particleNetMDJetTags_mass->at(fjIdx));
-			    
-				  TLorentzVector tlv_HHbregrsvfit  = tlv_bH_particleNet_regression + tlv_tauH_SVFIT;
-				  theSmallTree.m_HHbregrsvfit_pt   = tlv_HHbregrsvfit.Pt();
-				  theSmallTree.m_HHbregrsvfit_eta  = tlv_HHbregrsvfit.Eta();
-				  theSmallTree.m_HHbregrsvfit_phi  = tlv_HHbregrsvfit.Phi();
-				  theSmallTree.m_HHbregrsvfit_m    = tlv_HHbregrsvfit.M();
-			    
-				  std::map<std::string, std::vector<float>> result = ParticleNet_SF(tlv_fj.Pt(), PERIOD);
-				  // Set scale factors for different keys
-				  setScaleFactor(result, "HP",
-								 theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF,
-								 theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_up,
-								 theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_down);
-				  setScaleFactor(result, "MP",
-								 theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF,
-								 theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_up,
-								 theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_down);
-				  setScaleFactor(result, "LP",
-								 theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF,
-								 theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_up,
-								 theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_down);
-			    
-				  // saving infos for subjets
-				  if (theBigTree.ak8jets_nsubjets->at(fjIdx) >= 2) 
-					{
-					  TLorentzVector tlv_subj1;
-					  TLorentzVector tlv_subj2;
-					  vector<int> sjIdxs = findSubjetIdxs(fjIdx, theBigTree);
-			            
-					  int nSJ = 0;
-					  for (int isj : sjIdxs)
-						{
-						  ++nSJ;
-						  if (nSJ > 2) break;  //storing first two <--> highest pt
-						  if (nSJ == 1)
-							{
-							  tlv_subj1.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
-							  theSmallTree.m_subjetjet1_pt   = tlv_subj1.Pt();
-							  theSmallTree.m_subjetjet1_eta  = tlv_subj1.Eta();
-							  theSmallTree.m_subjetjet1_phi  = tlv_subj1.Phi();
-							  theSmallTree.m_subjetjet1_e    = tlv_subj1.E();
-							  theSmallTree.m_subjetjet1_bID  = theBigTree.subjets_CSV->at(isj) ;
-							  theSmallTree.m_subjetjet1_bID_deepCSV  = theBigTree.subjets_deepCSV_probb->at(isj) + theBigTree.subjets_deepCSV_probbb->at(isj) ;
-							  theSmallTree.m_subjetjet1_bID_deepFlavor  = theBigTree.subjets_deepFlavor_probb->at(isj) + theBigTree.subjets_deepFlavor_probbb->at(isj) + theBigTree.subjets_deepFlavor_problepb->at(isj) ;
-							}
-						  if (nSJ == 2)
-							{
-							  tlv_subj2.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
-							  theSmallTree.m_subjetjet2_pt   = tlv_subj2.Pt();
-							  theSmallTree.m_subjetjet2_eta  = tlv_subj2.Eta();
-							  theSmallTree.m_subjetjet2_phi  = tlv_subj2.Phi();
-							  theSmallTree.m_subjetjet2_e    = tlv_subj2.E();
-							  theSmallTree.m_subjetjet2_bID  = theBigTree.subjets_CSV->at(isj) ;
-							  theSmallTree.m_subjetjet2_bID_deepCSV  = theBigTree.subjets_deepCSV_probb->at(isj) + theBigTree.subjets_deepCSV_probbb->at(isj) ;
-							  theSmallTree.m_subjetjet2_bID_deepFlavor  = theBigTree.subjets_deepFlavor_probb->at(isj) + theBigTree.subjets_deepFlavor_probbb->at(isj) + theBigTree.subjets_deepFlavor_problepb->at(isj);
-							}
-						}
-			            
-					  bool A1B2 = (tlv_subj1.DeltaR(tlv_firstBjet)  < 0.4) && (tlv_subj2.DeltaR(tlv_secondBjet) < 0.4);
-					  bool A2B1 = (tlv_subj1.DeltaR(tlv_secondBjet) < 0.4) && (tlv_subj2.DeltaR(tlv_firstBjet)  < 0.4);
-			            
-					  if(DEBUG)
-						{
-						  cout << " fatjet: idx " << fjIdx << " nsj=" << sjIdxs.size()
-							   << " sj1pt=" << tlv_subj1.Pt() << " sj1eta=" << tlv_subj1.Eta() << " sj1phi=" << tlv_subj1.Phi()
-							   << " sj2pt=" << tlv_subj2.Pt() << " sj2eta=" << tlv_subj2.Eta() << " sj2phi=" << tlv_subj2.Phi()
-							   << " passMatch=" << (A1B2 || A2B1) << endl;
-						}
-			            
-					  theSmallTree.m_dR_subj1_subj2 = tlv_subj1.DeltaR(tlv_subj2);
-			            
-					  if (A1B2 || A2B1) theSmallTree.m_fatjet_hasMatchedSj = true;  //has two sub-jets matched to the resolved jets
-			            
-					} 
-				} // end if fatjet_bTag not empty 
-		    } // end if (theBigTree.ak8jets_px->size() > 0)  (end of the boosted section)
 		} // end if (jets_and_sortPar.size () >= 2) 
+	  
+	  // --------------------------------------------
+	  // Boosted section
+	  theSmallTree.m_isBoosted = 0;
+	  if (theBigTree.ak8jets_px->size() > 0)
+		{  
+		  vector<pair<float, int>> fatjets_pT;
+		  vector<pair<float, int>> fatjets_bTag;
+		  for (unsigned int ifj = 0; ifj < theBigTree.ak8jets_px->size(); ++ifj)
+			{
+			  TLorentzVector tlv_fj((*theBigTree.ak8jets_px)[ifj], (*theBigTree.ak8jets_py)[ifj],
+									(*theBigTree.ak8jets_pz)[ifj], (*theBigTree.ak8jets_e)[ifj]);
 
+			  double smearFactor = Smearer_AK8.getSmearFactor(tlv_fj, theBigTree, true);
+			  smears_AK8[ifj] = doSmearing ? smearFactor : 1.;
+
+			  if (doSmearing) {
+				tlv_fj *= smears_AK8[ifj];
+			  }
+		  
+			  if (tlv_fj.Pt() < 250) continue; 
+			  if (tlv_fj.DeltaR(tlv_firstLepton) < 0.8) continue;
+			  if (tlv_fj.DeltaR(tlv_secondLepton) < 0.8) continue;
+			  if (theBigTree.ak8jets_SoftDropMass->at(ifj) < 30) continue;
+			    
+			  fatjets_pT.push_back(make_pair(tlv_fj.Pt(), ifj));
+			  fatjets_bTag.push_back(make_pair(theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(ifj)/(theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(ifj)+theBigTree.ak8jets_particleNetMDJetTags_probQCD->at(ifj)), ifj));
+			}
+		            
+		  if (fatjets_bTag.size() != 0)
+			{
+			  if (fatjets_bTag.size() > 1 && DEBUG) {
+				cout << " N selected fatjets : " << fatjets_bTag.size() << endl;
+			  }
+			  theSmallTree.m_isBoosted = 1;
+			  sort (fatjets_pT.begin(), fatjets_pT.end());
+			  sort (fatjets_bTag.begin(), fatjets_bTag.end());
+			  // sorting for b-tagger score and taking the first one
+			  int fjIdx = fatjets_bTag.back().second;
+			    
+			  int fjIdx_pT = fatjets_pT.back().second;
+			  theSmallTree.m_fatjet_highest_pT_bTag = fjIdx_pT == fjIdx;
+			    
+			  TLorentzVector tlv_fj(theBigTree.ak8jets_px->at(fjIdx), theBigTree.ak8jets_py->at(fjIdx),
+									theBigTree.ak8jets_pz->at(fjIdx), theBigTree.ak8jets_e->at(fjIdx));
+
+			  if (doSmearing) {
+				tlv_fj *= smears_AK8[fjIdx];
+			  }
+
+			  theSmallTree.m_fatjet_pt   = tlv_fj.Pt();
+			  theSmallTree.m_fatjet_eta  = tlv_fj.Eta();
+			  theSmallTree.m_fatjet_phi  = tlv_fj.Phi();
+			  theSmallTree.m_fatjet_e    = tlv_fj.E();
+			  theSmallTree.m_fatjet_bID  = theBigTree.ak8jets_CSV->at(fjIdx);
+			  theSmallTree.m_fatjet_bID_deepCSV  = theBigTree.ak8jets_deepCSV_probb->at(fjIdx) + theBigTree.ak8jets_deepCSV_probbb->at(fjIdx);
+			  theSmallTree.m_fatjet_bID_deepFlavor  = theBigTree.ak8jets_deepFlavor_probb->at(fjIdx) + theBigTree.ak8jets_deepFlavor_probbb->at(fjIdx) + theBigTree.ak8jets_deepFlavor_problepb->at(fjIdx);
+			  theSmallTree.m_fatjet_filteredMass = theBigTree.ak8jets_FilteredMass -> at(fjIdx) ;
+			  theSmallTree.m_fatjet_prunedMass   = theBigTree.ak8jets_PrunedMass   -> at(fjIdx) ;
+			  theSmallTree.m_fatjet_trimmedMass  = theBigTree.ak8jets_TrimmedMass  -> at(fjIdx) ;
+			  theSmallTree.m_fatjet_softdropMass = theBigTree.ak8jets_SoftDropMass -> at(fjIdx) ;
+			  theSmallTree.m_fatjet_tau1 = theBigTree.ak8jets_tau1->at(fjIdx);
+			  theSmallTree.m_fatjet_tau2 = theBigTree.ak8jets_tau2->at(fjIdx);
+			  theSmallTree.m_fatjet_tau3 = theBigTree.ak8jets_tau3->at(fjIdx);
+			  theSmallTree.m_fatjet_nsubjets = theBigTree.ak8jets_nsubjets->at(fjIdx);
+			  theSmallTree.m_fatjet_particleNetMDJetTags_probXbb = theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(fjIdx);
+			  theSmallTree.m_fatjet_particleNetMDJetTags_probXcc = theBigTree.ak8jets_particleNetMDJetTags_probXcc->at(fjIdx);
+			  theSmallTree.m_fatjet_particleNetMDJetTags_probXqq = theBigTree.ak8jets_particleNetMDJetTags_probXqq->at(fjIdx);
+			  theSmallTree.m_fatjet_particleNetMDJetTags_probQCD = theBigTree.ak8jets_particleNetMDJetTags_probQCD->at(fjIdx);
+			  theSmallTree.m_fatjet_particleNetMDJetTags_score = theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(fjIdx)/(theBigTree.ak8jets_particleNetMDJetTags_probXbb->at(fjIdx)+theBigTree.ak8jets_particleNetMDJetTags_probQCD->at(fjIdx));
+			  theSmallTree.m_fatjet_particleNetMDJetTags_mass = theBigTree.ak8jets_particleNetMDJetTags_mass->at(fjIdx);
+			    
+			  // computing the vector made of the fatjet (H-bb) + svfit  H-tt
+			  TLorentzVector tlv_bH_particleNet_regression;
+			  tlv_bH_particleNet_regression.SetPtEtaPhiM(tlv_fj.Pt(), tlv_fj.Eta(), tlv_fj.Phi(),
+														 theBigTree.ak8jets_particleNetMDJetTags_mass->at(fjIdx));
+			    
+			  TLorentzVector tlv_HHbregrsvfit  = tlv_bH_particleNet_regression + tlv_tauH_SVFIT;
+			  theSmallTree.m_HHbregrsvfit_pt   = tlv_HHbregrsvfit.Pt();
+			  theSmallTree.m_HHbregrsvfit_eta  = tlv_HHbregrsvfit.Eta();
+			  theSmallTree.m_HHbregrsvfit_phi  = tlv_HHbregrsvfit.Phi();
+			  theSmallTree.m_HHbregrsvfit_m    = tlv_HHbregrsvfit.M();
+			    
+			  std::map<std::string, std::vector<float>> result = ParticleNet_SF(tlv_fj.Pt(), PERIOD);
+			  // Set scale factors for different keys
+			  setScaleFactor(result, "HP",
+							 theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF,
+							 theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_up,
+							 theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_down);
+			  setScaleFactor(result, "MP",
+							 theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF,
+							 theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_up,
+							 theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_down);
+			  setScaleFactor(result, "LP",
+							 theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF,
+							 theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_up,
+							 theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_down);
+			    
+			  // saving infos for subjets
+			  if (theBigTree.ak8jets_nsubjets->at(fjIdx) >= 2) 
+				{
+				  TLorentzVector tlv_subj1;
+				  TLorentzVector tlv_subj2;
+				  vector<int> sjIdxs = findSubjetIdxs(fjIdx, theBigTree);
+			            
+				  int nSJ = 0;
+				  for (int isj : sjIdxs)
+					{
+					  ++nSJ;
+					  if (nSJ > 2) break;  //storing first two <--> highest pt
+					  if (nSJ == 1)
+						{
+						  tlv_subj1.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
+						  theSmallTree.m_subjetjet1_pt   = tlv_subj1.Pt();
+						  theSmallTree.m_subjetjet1_eta  = tlv_subj1.Eta();
+						  theSmallTree.m_subjetjet1_phi  = tlv_subj1.Phi();
+						  theSmallTree.m_subjetjet1_e    = tlv_subj1.E();
+						  theSmallTree.m_subjetjet1_bID  = theBigTree.subjets_CSV->at(isj) ;
+						  theSmallTree.m_subjetjet1_bID_deepCSV  = theBigTree.subjets_deepCSV_probb->at(isj) + theBigTree.subjets_deepCSV_probbb->at(isj) ;
+						  theSmallTree.m_subjetjet1_bID_deepFlavor  = theBigTree.subjets_deepFlavor_probb->at(isj) + theBigTree.subjets_deepFlavor_probbb->at(isj) + theBigTree.subjets_deepFlavor_problepb->at(isj) ;
+						}
+					  if (nSJ == 2)
+						{
+						  tlv_subj2.SetPxPyPzE (theBigTree.subjets_px->at(isj), theBigTree.subjets_py->at(isj), theBigTree.subjets_pz->at(isj), theBigTree.subjets_e->at(isj));
+						  theSmallTree.m_subjetjet2_pt   = tlv_subj2.Pt();
+						  theSmallTree.m_subjetjet2_eta  = tlv_subj2.Eta();
+						  theSmallTree.m_subjetjet2_phi  = tlv_subj2.Phi();
+						  theSmallTree.m_subjetjet2_e    = tlv_subj2.E();
+						  theSmallTree.m_subjetjet2_bID  = theBigTree.subjets_CSV->at(isj) ;
+						  theSmallTree.m_subjetjet2_bID_deepCSV  = theBigTree.subjets_deepCSV_probb->at(isj) + theBigTree.subjets_deepCSV_probbb->at(isj) ;
+						  theSmallTree.m_subjetjet2_bID_deepFlavor  = theBigTree.subjets_deepFlavor_probb->at(isj) + theBigTree.subjets_deepFlavor_probbb->at(isj) + theBigTree.subjets_deepFlavor_problepb->at(isj);
+						}
+					}
+			            
+				  bool A1B2 = (tlv_subj1.DeltaR(tlv_firstBjet)  < 0.4) && (tlv_subj2.DeltaR(tlv_secondBjet) < 0.4);
+				  bool A2B1 = (tlv_subj1.DeltaR(tlv_secondBjet) < 0.4) && (tlv_subj2.DeltaR(tlv_firstBjet)  < 0.4);
+			            
+				  if(DEBUG)
+					{
+					  cout << " fatjet: idx " << fjIdx << " nsj=" << sjIdxs.size()
+						   << " sj1pt=" << tlv_subj1.Pt() << " sj1eta=" << tlv_subj1.Eta() << " sj1phi=" << tlv_subj1.Phi()
+						   << " sj2pt=" << tlv_subj2.Pt() << " sj2eta=" << tlv_subj2.Eta() << " sj2phi=" << tlv_subj2.Phi()
+						   << " passMatch=" << (A1B2 || A2B1) << endl;
+					}
+			            
+				  theSmallTree.m_dR_subj1_subj2 = tlv_subj1.DeltaR(tlv_subj2);
+			            
+				  if (A1B2 || A2B1) theSmallTree.m_fatjet_hasMatchedSj = true;  //has two sub-jets matched to the resolved jets
+			            
+				} 
+			} // end if fatjet_bTag not empty 
+		} // end if (theBigTree.ak8jets_px->size() > 0)  (end of the boosted section)
+	  
 
 	  if (isMC) selectedEvents += theBigTree.aMCatNLOweight ;  //FIXME: probably wrong, but unused up to now
 	  else selectedEvents += 1 ;
