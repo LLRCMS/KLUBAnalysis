@@ -5522,6 +5522,10 @@ int main (int argc, char** argv)
 						}
 					}
 
+				  if (tlv_firstBjet.Mag2()==0 or tlv_secondBjet.Mag2()==0) {
+					throw std::runtime_error("[ERROR] The b-jets were not defined.");
+				  }
+				  
 				  bool A1B2 = (tlv_subj1.DeltaR(tlv_firstBjet)  < 0.4) and (tlv_subj2.DeltaR(tlv_secondBjet) < 0.4);
 				  bool A2B1 = (tlv_subj1.DeltaR(tlv_secondBjet) < 0.4) and (tlv_subj2.DeltaR(tlv_firstBjet)  < 0.4);
 			            
