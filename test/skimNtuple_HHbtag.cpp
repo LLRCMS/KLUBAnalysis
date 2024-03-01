@@ -2256,11 +2256,11 @@ int main (int argc, char** argv)
 		  bool metAccept       = passMETTrgNoThresh and trgRegions["met"]; 
 		  bool singletauAccept = passSingleTau      and trgRegions["tau"];
 		  if (!isMC) {
-			passTrg         = legacyAccept    and !isMETDataset;
+			legacyAccept    = legacyAccept    and !isMETDataset;
 			metAccept       = metAccept       and isMETDataset;
 			singletauAccept = singletauAccept and !isMETDataset;
 		  }
-		  bool triggerAccept = passTrg or metAccept or singletauAccept;
+		  bool triggerAccept = legacyAccept or metAccept or singletauAccept;
 	  
 		  if(DEBUG)
 			{
