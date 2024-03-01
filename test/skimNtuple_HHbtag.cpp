@@ -416,7 +416,6 @@ int main (int argc, char** argv)
 	  return -1 ;
 	}
 
-  bool   beInclusive         = gConfigParser->readBoolOption   ("selections::beInclusive") ;
   bool   useDeepFlavor       = gConfigParser->readBoolOption   ("selections::useDeepFlavor") ;
   bool   onlyFinalChannels   = gConfigParser->readBoolOption   ("selections::onlyFinalChannels") ;
   float  PUjetID_WP          = gConfigParser->readFloatOption  ("parameters::PUjetIDWP") ;
@@ -3777,7 +3776,6 @@ int main (int argc, char** argv)
 	  theSmallTree.m_nbjetscand = jets_and_sortPar.size();
 	  theSmallTree.m_nfatjets = theBigTree.ak8jets_px->size();
 
-	  if (!beInclusive && jets_and_sortPar.size () < 2) continue ;
 	  ec.Increment("TwoJets", EvtW);
 	  if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("TwoJets", EvtW);
 
