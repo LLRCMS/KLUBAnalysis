@@ -593,7 +593,12 @@ struct smallTree
       m_fatjet_nsubjets = -1;
       m_fatjet_hasMatchedSj = -1;
       m_dR_subj1_subj2 = -1.;
-      
+
+	  m_fatjet_mass_jetup.clear();
+	  m_fatjet_mass_jetdown.clear();
+	  m_fatjet_pt_jetup.clear();
+	  m_fatjet_pt_jetdown.clear();
+
       m_HHbregrsvfit_pt  = -1.;
       m_HHbregrsvfit_eta = -1.;
       m_HHbregrsvfit_phi = -1.;
@@ -786,6 +791,10 @@ struct smallTree
       m_bjet2_mass_raw_jetdownTot = - 1.;
       m_bH_mass_raw_jetupTot      = - 1.;
       m_bH_mass_raw_jetdownTot    = - 1.;
+      m_fatjet_mass_jetupTot   = - 1.;
+      m_fatjet_mass_jetdownTot = - 1.;
+      m_fatjet_pt_jetupTot   = - 1.;
+      m_fatjet_pt_jetdownTot = - 1.;
 
       m_HHKin_mass_raw = 0;
       m_HHKin_mass_raw_chi2 = 0;
@@ -1618,6 +1627,11 @@ struct smallTree
       m_smallT->Branch ("fatjet_hasMatchedSj", &m_fatjet_hasMatchedSj, "fatjet_hasMatchedSj/I");
       m_smallT->Branch ("dR_subj1_subj2", &m_dR_subj1_subj2, "dR_subj1_subj2/F");
 
+	  m_smallT->Branch ("fatjet_pt_jetup",	   &m_fatjet_pt_jetup) ;
+	  m_smallT->Branch ("fatjet_pt_jetdown",   &m_fatjet_pt_jetdown) ;
+	  m_smallT->Branch ("fatjet_mass_jetup",   &m_fatjet_mass_jetup) ;
+	  m_smallT->Branch ("fatjet_mass_jetdown", &m_fatjet_mass_jetdown) ;
+
       m_smallT->Branch ("HHbregrsvfit_pt", &m_HHbregrsvfit_pt, "HHbregrsvfit_pt/F");
       m_smallT->Branch ("HHbregrsvfit_eta", &m_HHbregrsvfit_eta, "HHbregrsvfit_eta/F");
       m_smallT->Branch ("HHbregrsvfit_phi", &m_HHbregrsvfit_phi, "HHbregrsvfit_phi/F");
@@ -1804,6 +1818,12 @@ struct smallTree
       m_smallT->Branch ("bH_mass_raw_jetupTot"     , &m_bH_mass_raw_jetupTot     , "bH_mass_raw_jetupTot/F");
       m_smallT->Branch ("bH_mass_raw_jetdownTot"   , &m_bH_mass_raw_jetdownTot   , "bH_mass_raw_jetdownTot/F");
 
+      m_smallT->Branch ("fatjet_pt_jetupTot"	, &m_fatjet_pt_jetupTot	   , "fatjet_pt_jetupTot/F");
+	  m_smallT->Branch ("fatjet_pt_jetdownTot"	, &m_fatjet_pt_jetdownTot  , "fatjet_pt_jetdownTot/F");
+	  m_smallT->Branch ("fatjet_mass_jetupTot"	, &m_fatjet_mass_jetupTot  , "fatjet_mass_jetupTot/F");
+	  m_smallT->Branch ("fatjet_mass_jetdownTot", &m_fatjet_mass_jetdownTot, "fatjet_mass_jetdownTot/F");
+
+	  
       m_smallT->Branch ("HHKin_mass_raw",&m_HHKin_mass_raw ,"HHKin_mass_raw/F");
       m_smallT->Branch ("HHKin_mass_raw_chi2", &m_HHKin_mass_raw_chi2, "HHKin_mass_raw_chi2/F") ;
       m_smallT->Branch ("HHKin_mass_raw_convergence", &m_HHKin_mass_raw_convergence, "HHKin_mass_raw_convergence/I") ;
@@ -2624,6 +2644,11 @@ struct smallTree
   Int_t   m_fatjet_hasMatchedSj ;
   Float_t m_dR_subj1_subj2 ;
 
+  std::vector <Float_t> m_fatjet_mass_jetup;
+  std::vector <Float_t> m_fatjet_mass_jetdown;
+  std::vector <Float_t> m_fatjet_pt_jetup;
+  std::vector <Float_t> m_fatjet_pt_jetdown;
+
   Float_t m_HHbregrsvfit_pt ;
   Float_t m_HHbregrsvfit_eta ;
   Float_t m_HHbregrsvfit_phi ;
@@ -2817,6 +2842,10 @@ struct smallTree
   Float_t m_bjet2_mass_raw_jetdownTot;
   Float_t m_bH_mass_raw_jetupTot;
   Float_t m_bH_mass_raw_jetdownTot;
+  Float_t m_fatjet_mass_jetupTot;
+  Float_t m_fatjet_mass_jetdownTot;
+  Float_t m_fatjet_pt_jetupTot;
+  Float_t m_fatjet_pt_jetdownTot;
 
   Float_t m_HHkinsvfit_bHmass;
   Float_t m_HHkinsvfit_pt;
