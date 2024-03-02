@@ -736,7 +736,8 @@ struct smallTree
       m_jets_pnet_uds.clear();
       m_jets_pnet_pu.clear();
       m_jets_pnet_undef.clear();
-      m_jets_smearFactor.clear () ;
+      m_smearFactor_AK4.clear();
+	  m_smearFactor_AK8.clear();
       m_jets_flav.clear () ;
       m_jets_isH.clear () ;
       m_jets_hasgenjet.clear () ;
@@ -1740,7 +1741,8 @@ struct smallTree
       m_smallT->Branch ("jets_pnet_uds", &m_jets_pnet_uds) ;
       m_smallT->Branch ("jets_pnet_pu", &m_jets_pnet_pu) ;
       m_smallT->Branch ("jets_pnet_undef", &m_jets_pnet_undef) ;
-      m_smallT->Branch ("jets_smearFactor", &m_jets_smearFactor) ;
+      m_smallT->Branch ("smearFactor_AK4", &m_smearFactor_AK4) ;
+	  m_smallT->Branch ("smearFactor_AK8", &m_smearFactor_AK8) ;
       m_smallT->Branch ("jets_flav", &m_jets_flav) ;
       m_smallT->Branch ("jets_isH", &m_jets_isH) ;
       m_smallT->Branch ("jets_hasgenjet", &m_jets_hasgenjet) ;
@@ -2756,7 +2758,8 @@ struct smallTree
   std::vector<Float_t> m_jets_pnet_uds;
   std::vector<Float_t> m_jets_pnet_pu;
   std::vector<Float_t> m_jets_pnet_undef;
-  std::vector<Float_t> m_jets_smearFactor ;
+  std::vector<Float_t> m_smearFactor_AK4;
+  std::vector<Float_t> m_smearFactor_AK8;
   std::vector<Int_t> m_jets_flav ;
   std::vector<Int_t> m_jets_isH ;
   std::vector<Bool_t> m_jets_hasgenjet ;

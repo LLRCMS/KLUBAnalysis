@@ -5299,7 +5299,7 @@ int main (int argc, char** argv)
 				  theSmallTree.m_jets_HHbtag.push_back(-1.);
 				}
 
-			  theSmallTree.m_jets_smearFactor.push_back(smears_AK4[iJet]);
+			  theSmallTree.m_smearFactor_AK4.push_back(smears_AK4[iJet]);
 			}
 
 		  if (DEBUG)
@@ -5330,6 +5330,7 @@ int main (int argc, char** argv)
 
 			  double smearFactor = Smearer_AK8.getSmearFactor(tlv_fj, theBigTree, true);
 			  smears_AK8[ifj] = doSmearing ? smearFactor : 1.;
+			  theSmallTree.m_smearFactor_AK8.push_back(smears_AK8[ifj]);
 
 			  if (doSmearing) {
 				tlv_fj *= smears_AK8[ifj];
