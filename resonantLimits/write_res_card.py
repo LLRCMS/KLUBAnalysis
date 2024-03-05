@@ -39,7 +39,7 @@ def parseOptions():
     return parser.parse_args()
 
 def writeCard(backgrounds, signals, select, varfit, regions=()):
-    if any(x in select for x in ('0b0j', '1b1j', '2b0j', 'boosted', 'VBFloose', 'ttCR_invMcut')):
+    if any(x in select for x in ('1b', '2b', 'boosted', 'ttCR_invMcut')):
         variable = varfit
 
     elif 'GGFclass'   in select : variable = 'mdnn__v2__kl1_c2v1_c31__hh_ggf',

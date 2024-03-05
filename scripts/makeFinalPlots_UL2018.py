@@ -37,7 +37,7 @@ def flatBinning(rootFile,namelist, var,sel,reg):
             yq = array('d', [0.] * nq)  
 
             for i in xrange(nq):
-                        xq[i] = float(i + 1) / nq
+                xq[i] = float(i + 1) / nq
                         
             h.GetQuantiles(nq, yq, xq)
             print(yq)
@@ -424,12 +424,12 @@ def makeNonNegativeHistos(hList):
     for h in hList:
         integral = h.Integral()
         for b in range (1, h.GetNbinsX()+1):
-            if (h.GetBinContent(b) < 0):
-               h.SetBinContent (b, 0)
+            if h.GetBinContent(b) < 0:
+                h.SetBinContent (b, 0)
         integralNew = h.Integral()        
         if (integralNew != integral):
-            print("** INFO: removed neg bins from histo " , h.GetName())
-        
+            print("** INFO: removed neg bins from histo ", h.GetName())
+            
         if integralNew == 0:
             h.Scale(0)
         else:
@@ -497,10 +497,13 @@ if __name__ == "__main__" :
     c1 = ROOT.TCanvas('c1', 'c1', 600, 600)
     pad1, pad2 = None, None
     if (args.ratio and not args.nodata) or args.sbs:
-        pad1 = ROOT.TPad('pad1', 'pad1', 0, 0.25, 1, 1.0)
+        if args.equalwidth:
+            pad1 = ROOT.TPad('pad1', 'pad1', 0, 0.3, 1, 1.0)
+        else:
+            pad1 = ROOT.TPad('pad1', 'pad1', 0, 0.25, 1, 1.0)
         pad1.SetFrameLineWidth(3)
         pad1.SetLeftMargin(0.12);
-        pad1.SetBottomMargin(0.02);
+        pad1.SetBottomMargin(0.005);
     else:
         pad1 = ROOT.TPad('pad1', 'pad1', 0, 0.0, 1.0, 1.0)
         pad1.SetFrameLineWidth(3)
@@ -526,13 +529,15 @@ if __name__ == "__main__" :
     
     if doQCD:
         bkgList.append('QCD')
-    
-    col = ROOT.TColor()
-    bkgColors = {'DYmerged': (col.GetColor("#44BA68"), col.GetColor("#389956")),
-                 'TT': (col.GetColor("#F4B642"), col.GetColor("#dea63c")),
-                 'W': (col.GetColor("#41B4DB"), col.GetColor("#3ca4c8")),
-                 'singleH': (col.GetColor("#400080"), col.GetColor("#400080")),
-                 'other': (col.GetColor("#ED635E"), col.GetColor("#d85a56"))}
+
+    # color-blind friendly
+    # https://indico.cern.ch/event/1372111/contributions/5768994/subcontributions/463452/attachments/2794503/4874367/20240206_CVDProjectReport_DiversityMeeting_YiChen_v3.pdf
+    col = ROOT.TColor() 
+    bkgColors = {'DY':    (col.GetColor("#7A21DD"), col.GetColor("#7A21DD")),
+                 'TT':    (col.GetColor("#9C9CA1"), col.GetColor("#9C9CA1")),
+                 'W':     (col.GetColor("#964A8B"), col.GetColor("#964A8B")),
+                 'H':     (col.GetColor("#E42536"), col.GetColor("#E42536")),
+                 'other': (col.GetColor("#F89C20"), col.GetColor("#F89C20"))}
 
     plotTitle = args.title if args.title else ""        
     dataList = ['data_obs']
@@ -570,31 +575,32 @@ if __name__ == "__main__" :
         hSigs = {k:eqbin(x) for k,x in retrieveHistos(rootFile, args.signals, *opts).items()}
     hBkgs = {k:eqbin(x) for k,x in retrieveHistos(rootFile, bkgList, *opts).items()}
     hDatas = {k:eqbin(x) for k,x in retrieveHistos(rootFile, dataList, *opts).items()}
+
+    hopt = hBkgs, args.overflow
+    hDY      = getHisto('DY',    *hopt)
+    hTT      = getHisto('TT',    *hopt)
+    hWJets   = getHisto('W',     *hopt)
+    hHiggs   = getHisto('H',     *hopt)
+    hothers  = getHisto('other', *hopt)
+
+    # hZH      = getHisto('ZH', *hopt)
+    # hWH      = getHisto('WH', *hopt)
+    # httH     = getHisto('ttH', *hopt)
+    # hggH     = getHisto('ggH', *hopt)
+    # hsingleH = makeSum('singleH', [hZH, hWH, httH, hggH])
     
-    hopt    = hBkgs, args.overflow
-    hDY     = getHisto('DYmerged', *hopt)
-    hTT     = getHisto('TT', *hopt)
-    hWJets  = getHisto('W', *hopt)
-    hothers = getHisto('other', *hopt)
-
-    hZH      = getHisto('ZH', *hopt)
-    hWH      = getHisto('WH', *hopt)
-    httH     = getHisto('ttH', *hopt)
-    hggH     = getHisto('ggH', *hopt)
-    hsingleH = makeSum('singleH', [hZH, hWH, httH, hggH])
-
-    hBkgList = [(hothers, 'Others'),
-                (hsingleH, 'single H'),
-                (hWJets, 'W+jets'),
-                (hTT, 't#bar{t}'),
-                (hDY, 'DY')] 
+    hBkgList = [(hothers,  'Others'),
+                (hHiggs,   'H+HH'),
+                (hWJets,   'W+jets'),
+                (hTT,      't#bar{t}'),
+                (hDY,      'DY')] 
 
     if doQCD:
         col2 = ROOT.TColor()
         hQCD = getHisto('QCD', hBkgs, args.overflow)
         hQCD.SetName('QCD')
         hBkgList.append((hQCD, 'QCD'))
-        bkgColors['QCD'] = (col2.GetColor('#F29563'),col2.GetColor('#DC885A'))
+        bkgColors['QCD'] = (col2.GetColor('#5790FC'),col2.GetColor('#5790FC'))
 
     hData = getHisto('data_obs', hDatas , args.overflow).Clone('hData')
 
@@ -641,7 +647,7 @@ if __name__ == "__main__" :
     #################### REMOVE NEGATIVE BINS #######################
     print("** INFO: removing all negative bins from bkg histos")
     makeNonNegativeHistos([x[0] for x in hBkgList])
-
+    
     def print_integral(h, p=False):
         s = 'Integral: ' + h.GetName() + ' : '
         s += str(h.Integral()) + ' - '
@@ -681,7 +687,8 @@ if __name__ == "__main__" :
     if not args.nosig:
         for sig in args.signals:
             print_integral(hSigs[sig], True)
-        
+
+            
     #################### PERFORM DIVISION BY BIN WIDTH #######################
     #clones non scaled (else problems with graph ratio because I pass data evt hist)
     bkgStackNS = makeStack('bkgStackNS', [x[0] for x in hBkgList])
@@ -699,7 +706,7 @@ if __name__ == "__main__" :
     #################### DO STACK AND PLOT #######################
     bkgStack = makeStack('bkgStack', [x[0] for x in hBkgList])
     bkgSum = makeSum('bkgSum', [x[0] for x in hBkgList])
-    
+
     if args.logx:
         pad1.SetLogx()
     if args.logy:
@@ -714,7 +721,7 @@ if __name__ == "__main__" :
     bkgStack.GetYaxis().SetLabelFont(43)
 
     bkgStack.GetXaxis().SetTitleOffset(1.0)
-    bkgStack.GetYaxis().SetTitleOffset(1.4)
+    bkgStack.GetYaxis().SetTitleOffset(1.39)
 
     bkgStack.GetXaxis().SetTitleSize(titleSize)
     bkgStack.GetYaxis().SetTitleSize(titleSize)
@@ -722,7 +729,7 @@ if __name__ == "__main__" :
     bkgStack.GetXaxis().SetLabelSize(labelSize)
     bkgStack.GetYaxis().SetLabelSize(labelSize)
 
-    if args.label: bkgStack.GetXaxis().SetTitle (args.label)
+    if args.label: bkgStack.GetXaxis().SetTitle(args.label)
     else: bkgStack.GetXaxis().SetTitle(args.var)
 
     width = ( (bkgStack.GetXaxis().GetXmax() - bkgStack.GetXaxis().GetXmin()) /
@@ -744,18 +751,18 @@ if __name__ == "__main__" :
             histo.Scale(args.sigscale)
 
     ################## LEGEND ######################################
-    legmin = 0.45 if not args.lymin else args.lymin
+    legmin = 0.6 if not args.lymin else args.lymin
     legsize, legfont = 20, 43
-    legBkg = ROOT.TLegend(0.73, legmin, 0.93, 0.91)
+    legBkg = ROOT.TLegend(0.73, legmin, 0.93, 0.90)
     legBkg.SetFillStyle(0)
     legBkg.SetBorderSize(0)
     legBkg.SetTextFont(legfont)
     legBkg.SetTextSize(legsize)
 
     if not args.nosig:
-        legSig = ROOT.TLegend(0.55, legmin, 0.73, 0.91)
+        legSig = ROOT.TLegend(0.55, legmin, 0.73, 0.90)
     elif args.nosig and not args.nodata:
-        legSig = ROOT.TLegend(0.55, 0.8, 0.73, 0.91)
+        legSig = ROOT.TLegend(0.55, 0.82, 0.73, 0.90)
 
     if not args.nosig or not args.nodata:
         legSig.SetFillStyle(0)
@@ -806,7 +813,6 @@ if __name__ == "__main__" :
 
     bkgStack.SetMinimum(ymin)
     bkgStack.SetMaximum(ymax)
-    bkgStack.GetXaxis().SetRangeUser(0., 3300.);
 
     # interactive display
     bkgStack.Draw('HIST')
@@ -841,12 +847,13 @@ if __name__ == "__main__" :
             redge = ahisto.GetXaxis().GetBinUpEdge(ip)
             finalaxis.ChangeLabel(ip+1,-1,size,-1,-1,-1,str(round(redge, 4)));
         finalaxis.SetLabelFont(42);
+        finalaxis.SetLabelSize(10);
         finalaxis.Draw('same')
 
     ###################### OTHER TEXT ON PLOT #########################
-    cmsTextFont   = 61  # font of the "CMS" label
-    cmsTextSize   = 0.05  # font size of the "CMS" label
-    extraTextFont = 52     # for the "preliminary"
+    cmsTextFont   = 61                 # font of the "CMS" label
+    cmsTextSize   = 0.05               # font size of the "CMS" label
+    extraTextFont = 52                 # for the "preliminary"
     extraTextSize = 0.76 * cmsTextSize # for the "preliminary"
     
     t = ROOT.gPad.GetTopMargin()
@@ -855,7 +862,7 @@ if __name__ == "__main__" :
     r = ROOT.gPad.GetRightMargin()       
 
     CMSbox       = ROOT.TLatex(l, 1 - t + 0.01, 'CMS')       
-    extraTextBox = ROOT.TLatex(l + 0.11, 1 - t + 0.01, 'Preliminary')
+    extraTextBox = ROOT.TLatex(l + 0.08, 1 - t + 0.01, 'Preliminary')
     CMSbox.SetNDC()
     extraTextBox.SetNDC()
     CMSbox.SetTextSize(cmsTextSize)
@@ -1031,10 +1038,13 @@ if __name__ == "__main__" :
         
     if args.ratio and not args.nodata:
         c1.cd()
-        pad2 = ROOT.TPad('pad2', 'pad2', 0, 0.0, 1, 0.2496)
+        if args.equalwidth:
+            pad2 = ROOT.TPad('pad2', 'pad2', 0, 0.0, 1, 0.2996)
+        else:
+            pad2 = ROOT.TPad('pad2', 'pad2', 0, 0.0, 1, 0.2496)
         pad2.SetLeftMargin(0.12);
         pad2.SetTopMargin(0.02);
-        pad2.SetBottomMargin(0.4);
+        pad2.SetBottomMargin(0.5);
         pad2.SetGridy(True);
         pad2.SetFrameLineWidth(3)
         if args.logx:
@@ -1056,8 +1066,11 @@ if __name__ == "__main__" :
         hRatio.SetTitle(plotTitle)
         hRatio.GetYaxis().SetTitle ("Data/Bkg.") #("Data/MC")
         if args.label: hRatio.GetXaxis().SetTitle (args.label)
-        else: hRatio.GetXaxis().SetTitle (args.var)
-        hRatio.GetXaxis().SetTitleOffset(3.9)
+        else: hRatio.GetXaxis().SetTitle(args.var)
+        if args.equalwidth:
+            hRatio.GetXaxis().SetTitleOffset(5.2)
+        else:
+            hRatio.GetXaxis().SetTitleOffset(3.9)
         hRatio.GetYaxis().SetTitleOffset(1.2)
 
         hRatio.GetXaxis().SetTitleSize(titleSize);
@@ -1069,13 +1082,9 @@ if __name__ == "__main__" :
         hRatio.GetYaxis().SetTickSize(0.05)
 
         hRatio.SetStats(0)
-        #hRatio.SetMinimum(0.85)
-        #hRatio.SetMaximum(1.15)
-        ratmin = 0.6
+        ratmin = 0.61
         hRatio.SetMinimum(ratmin) #default value
-        hRatio.SetMaximum(1.4) #default value
-        #hRatio.SetMinimum(0.0) #TESI
-        #hRatio.SetMaximum(2.0) #TESI
+        hRatio.SetMaximum(1.39) #default value
 
         removeEmptyPoints(grRatio)
         hRatio.Draw("axis")
@@ -1085,17 +1094,15 @@ if __name__ == "__main__" :
         if args.equalwidth and args.ratio:
             ahisto = retrieveHistos(rootFile, bkgList, *opts).items()[0][1]
             ndiv = ahisto.GetNbinsX()
-            finalaxis2 = ROOT.TGaxis(0., ratmin-0.2, ndiv, ratmin-0.2, 0., ndiv, ndiv, 'BS')
-            step = 1 if 'DNN' in args.var else 6
-            for ip in range(0,ndiv+1,step):
-                size = 0.14
-                if ip==0:
-                    ledge = ahisto.GetXaxis().GetBinLowEdge(ip)
-                    finalaxis2.ChangeLabel(ip,-1,size,-1,-1,-1,str(round(ledge, 4)));
+            finalaxis2 = ROOT.TGaxis(0., ratmin-0.11, ndiv, ratmin-0.11, 0., ndiv, ndiv, 'BS')
+            step = 1 if 'DNN' in args.var or args.equalwidth else 6
+            for ip in range(0,ndiv+1):
+                size = 0.1 if ip%step==0 else 0.
                 redge = ahisto.GetXaxis().GetBinUpEdge(ip)
-                finalaxis2.ChangeLabel(ip+1,-1,size,-1,-1,-1,str(round(redge, 4)));
-            finalaxis2.SetTextFont(52);
+                valstr = str(int(redge)) if 'mass' in args.var else str(round(redge, 4)) 
+                finalaxis2.ChangeLabel(ip+1,90,size,22,1,-1,valstr);
             finalaxis2.SetTickSize(0.);
+            finalaxis2.SetLabelOffset(.05)
             finalaxis2.Draw("same")
 
         xmin = hRatio.GetXaxis().GetXmin()
