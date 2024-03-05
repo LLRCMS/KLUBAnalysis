@@ -142,7 +142,7 @@ if [ ${#CHANNELS[@]} -eq 0 ]; then
     CHANNELS=("ETau" "MuTau" "TauTau")
 fi
 if [ ${#SELECTIONS[@]} -eq 0 ]; then
-    SELECTIONS=("s1b1jresolvedMcut" "s2b0jresolvedMcut" "sboostedLLMcut")
+    SELECTIONS=("res1b" "res2b" "boostedL_pnet")
 fi
 
 declare -a MHIGH;

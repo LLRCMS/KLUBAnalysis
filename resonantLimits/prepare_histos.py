@@ -169,7 +169,7 @@ for ih in range(toth):
                 names = kname.split('_')
 
                 for i in range(len(names)):
-                    if any(x in names[i] for x in ('resolved', 'boosted', 'class', 'VBFloose')):
+                    if any(x in names[i] for x in ('res1b', 'res2b', 'boosted')):
                         for j in range(1, i):
                             names[0] += '_'+str(names[j])
         #if not (names[i]== 'singleT'): names[1] = names[i]

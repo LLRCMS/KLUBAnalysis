@@ -27,7 +27,7 @@ def find_error_messages(afile, verb):
                     if (('Error' in w and 'WARNING' not in w and 'Warning' not in w and 'TCling' not in w) or
                         ('R__unzip: error' in w) or
                         ('SysError in <TFile::WriteBuffer>: error writing to file' in w) or
-                        ('The system macro SYSTEM_PERIODIC_REMOVE expression'))]
+                        ('The system macro SYSTEM_PERIODIC_REMOVE expression') in w)]
         if len(problems) != 0:
             if verb:
                 mes = 'Found errors in file {}:\n'.format(afile)

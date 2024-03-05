@@ -403,7 +403,7 @@ MC_MAP=(
     ["TTWH"]="-n 6 -x 0.001143 -q short"
     ["TTZH"]="-n 15 -x 0.001136 -q short"
 
-	["GluGluToHHTo2B2Tau"]="-n 10 -x 0.01618 -q short"
+    ["GluGluToHHTo2B2Tau"]="-n 10 -x 0.01618 -q short"
 )
 
 # Sanity checks for Drell-Yan stitching

@@ -233,7 +233,8 @@ int main (int argc, char** argv)
   cout << "** INFO: is this a TTbar sample? : " << isTTBar << endl;
 
   bool DY_tostitch = static_cast<bool>(atoi(argv[11]));
-
+  cout << "** INFO: DY stitching? " << DY_tostitch << endl;
+  
   int TT_stitchType = atoi(argv[12]);
   if (!isTTBar) TT_stitchType = 0; // just force if not TT...
   cout << "** INFO: TT stitch type: " << TT_stitchType << " [0: no stitch , 1: fully had, 2: semilept t, 3: semilept tbar, 4: fully lept, 5: semilept all]" << endl;
@@ -578,8 +579,8 @@ int main (int argc, char** argv)
 	wpset_df = "106X16postVFP_DeepFlavor_V1";
 	wpyear = "2016";
   }
-  bTagSF bTagSFHelper (bTag_SFFile, bTag_effFile, "", wpyear, wpset_csv);
-  if(useDeepFlavor) {
+  bTagSF bTagSFHelper(bTag_SFFile, bTag_effFile, "", wpyear, wpset_csv, isMC);
+  if(useDeepFlavor and isMC) {
     bTagSFHelper.SetWPset(wpset_df);
   }
 
@@ -589,7 +590,7 @@ int main (int argc, char** argv)
   string puYear;
   if (PERIOD=="2018") {
 	puYear = "2018";
-}
+  }
   else if (PERIOD=="2017") {
 	puYear = "2017";
   }
@@ -695,28 +696,28 @@ int main (int argc, char** argv)
   if (PERIOD == "2018") {
     muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2018_HLTMu20Tau27.root", true);
     muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers.root",
-				 "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
+								 "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
     eTauTrgSF ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2018_HLTEle24Tau30.root",true);
     eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2018_HLTEle32.root",true);
   }
   else if (PERIOD == "2017") {
     muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2017_HLTMu20Tau27.root", true);
     muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_SingleMuonTriggers.root",
-				 "NUM_IsoMu27_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
+								 "NUM_IsoMu27_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
     eTauTrgSF ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2017_HLTEle24Tau30.root", true);
     eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2017_HLTEle32.root", true);
   }
   else if (PERIOD == "2016preVFP") {
     muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2016pre_HLTMu20Tau27.root", true);
     muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_SingleMuonTriggers.root",
-				 "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
+								 "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
     //eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
     eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2016pre_HLTEle25.root",true);
   }
   else if (PERIOD == "2016postVFP") {
     muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2016post_HLTMu20Tau27.root", true);
     muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_SingleMuonTriggers.root",
-				 "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
+								 "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
     //eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
     eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2016post_HLTEle25.root",true);
   }
@@ -920,6 +921,8 @@ int main (int argc, char** argv)
 		}
 	}
 
+  const float eleEtaMax=2.5, muEtaMax=2.4;
+  
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   for (Long64_t iEvent = 0 ; true ; ++iEvent)
@@ -1469,20 +1472,22 @@ int main (int argc, char** argv)
 		  int dauType = theBigTree.particleType->at(idau);
 		  if (oph.isMuon(dauType))
 			{
-			  bool passMu   = oph.muBaseline (&theBigTree, idau, 15., 2.4,
+			  bool passMu   = oph.muBaseline (&theBigTree, idau, 15., muEtaMax,
 											  0.15, OfflineProducerHelper::MuTight,
 											  0.15, OfflineProducerHelper::MuHighPt, string("All"), (DEBUG ? true : false));
-			  bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., 2.4,
+			  bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., muEtaMax,
 											  0.30, OfflineProducerHelper::MuTight,
-											  0.30, OfflineProducerHelper::MuHighPt, string("All") , (DEBUG ? true : false));
+											  0.30, OfflineProducerHelper::MuHighPt, string("All"), (DEBUG ? true : false));
 
 			  if (passMu) ++nmu;
 			  else if (passMu10) ++nmu10;
 			}
 		  else if (oph.isElectron(dauType))
 			{
-			  bool passEle   = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.1, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
-			  bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., 2.5, 0.3, OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax") , (DEBUG ? true : false));
+			  bool passEle   = oph.eleBaseline (&theBigTree, idau, 10., eleEtaMax, 0.1,
+												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
+			  bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., eleEtaMax, 0.3,
+												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
 
 			  if (passEle) ++nele;
 			  else if (passEle10) ++nele10;
@@ -1718,10 +1723,10 @@ int main (int argc, char** argv)
 											 );
 
 	  auto met_phi_corr = met_phi_correction_pxpy(
-		theBigTree.METx->at(chosenTauPair),
-		theBigTree.METy->at(chosenTauPair),
-		theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC
-	  );
+												  theBigTree.METx->at(chosenTauPair),
+												  theBigTree.METy->at(chosenTauPair),
+												  theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC
+												  );
 	  TVector2 vMET(float(met_phi_corr.first), float(met_phi_corr.second));
 	  TVector2 vMUON(0., 0.);
 	  if (pairType==0) {
@@ -1729,7 +1734,7 @@ int main (int argc, char** argv)
 		vMUON.Set(tlv_firstLepton.Px(), tlv_firstLepton.Py());
 	  }
 	  else if(pairType==3) {
-		 // two muons in evt (looser cuts), vetoing events with 3rd lepton
+		// two muons in evt (looser cuts), vetoing events with 3rd lepton
 		vMUON.Set(tlv_firstLepton.Px()+tlv_secondLepton.Px(),
 				  tlv_firstLepton.Py()+tlv_secondLepton.Py());
 	  }
@@ -2304,10 +2309,10 @@ int main (int argc, char** argv)
 	  */
 	
 	  met_phi_corr = met_phi_correction_pxpy(
-	  	theBigTree.METx->at(chosenTauPair),
-	  	theBigTree.METy->at(chosenTauPair),
-	  	theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC
-	  );
+											 theBigTree.METx->at(chosenTauPair),
+											 theBigTree.METy->at(chosenTauPair),
+											 theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC
+											 );
 	  TLorentzVector tlv_MET;
 	  tlv_MET.SetPxPyPzE(met_phi_corr.first, met_phi_corr.second, 0, std::hypot(met_phi_corr.first, met_phi_corr.second));
 
@@ -2977,7 +2982,7 @@ int main (int argc, char** argv)
 		idSF_leg2_deep_vsJet_2d_extrapgt140             	= Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140Extrap");
 	  }
 	
-	  if (isMC and leg1eta < 2.4) {
+	  if (isMC) {
 		if (pType == 0 or pType == 3) {
 		  idSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, leg1eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, leg1eta);
 		}
@@ -2986,10 +2991,10 @@ int main (int argc, char** argv)
 		}
 	  }
 
-	  if(isMC and leg2eta < 2.4 and pType == 3) { //MuMu
+	  if(isMC and pType == 3) { //MuMu
 		idSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg2pt, leg2eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(leg2pt, leg2eta);
 	  }
-	  else if(isMC and leg2eta < 2.4 and pType == 4) { //EleEle
+	  else if(isMC and pType == 4) { //EleEle
 		idSF_leg2 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg2pt, leg2eta);
 	  }
 
@@ -3584,10 +3589,10 @@ int main (int argc, char** argv)
 		  else if (theBigTree.particleType->at (iLep) == 0) // muons
 			{
 			  // Fra Mar2020: for muon, Tight does not imply Medium so we check both
-			  bool passMed = oph.muBaseline (&theBigTree, iLep, 10., 2.4,
+			  bool passMed = oph.muBaseline (&theBigTree, iLep, 10., muEtaMax,
 											 0.3, OfflineProducerHelper::MuMedium,
 											 0.3, OfflineProducerHelper::MuHighPt);
-			  bool passTig = oph.muBaseline (&theBigTree, iLep, 10., 2.4,
+			  bool passTig = oph.muBaseline (&theBigTree, iLep, 10., muEtaMax,
 											 0.3, OfflineProducerHelper::MuTight,
 											 0.3, OfflineProducerHelper::MuHighPt);
 			  if (!passMed && !passTig) continue; // if it passes one of the two --> the "if" is false and the lepton is saved as an extra lepton
@@ -3596,10 +3601,10 @@ int main (int argc, char** argv)
 			{
 			  // Fra Mar2020: for electron, we check (mvaEleID-Fall17-iso-V2-wp90 OR (mvaEleID-Fall17-noIso-V2-wp90 AND pfRelIso < 0.3))
 			  if (DEBUG) std::cout << "--- Debug for extra electrons:" << std::endl;
-			  bool passIsoMVA = oph.eleBaseline(&theBigTree, iLep, 10., 2.5, 0.3,
-												OfflineProducerHelper::EMVAMedium,
-												string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
-			  //bool passNonIsoMVA = oph.eleBaseline (&theBigTree, iLep, 10., 2.5, 0.3, OfflineProducerHelper::EMVAMedium, string("Vertex-pTMin-etaMax-thirdLep"), (DEBUG ? true : false));
+			  bool passIsoMVA = oph.eleBaseline(&theBigTree, iLep, 10., eleEtaMax, 0.3,
+												OfflineProducerHelper::EMVAMedium, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
+			  //bool passNonIsoMVA = oph.eleBaseline (&theBigTree, iLep, 10., eleEtaMax, 0.3,
+			  //                     OfflineProducerHelper::EMVAMedium, string("Vertex-pTMin-etaMax-thirdLep"), (DEBUG ? true : false));
 			  if (!passIsoMVA) // if it passes --> the "if" is false and the lepton is saved as an extra lepton
 				continue; 
 			}
@@ -3752,64 +3757,65 @@ int main (int argc, char** argv)
 		  for (auto pair : jets_and_sortPar) jets_and_BTag.push_back (make_pair(pair.second, pair.first)); // just for compatibility...
 
 		  // NB !!! the following function only works if jets_and_sortPar contains <CVSscore, idx>
-		  vector<float> bTagWeight = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree, jets_and_smearFactor, pType, bTagSF::central) ;
-		  theSmallTree.m_bTagweightL = (isMC ? bTagWeight.at(0) : 1.0) ;
-		  theSmallTree.m_bTagweightM = (isMC ? bTagWeight.at(1) : 1.0) ;
-		  theSmallTree.m_bTagweightT = (isMC ? bTagWeight.at(2) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape = (isMC ? bTagWeight.at(3) : 1.0) ;
+		  vector<float> bTagWeight = bTagSFHelper.getEvtWeight(jets_and_BTag, theBigTree, jets_and_smearFactor, pType, bTagSF::central);
+		  vector<float> bTagWeight_up = bTagSFHelper.getEvtWeight(jets_and_BTag, theBigTree, jets_and_smearFactor, pType, bTagSF::up);
+		  vector<float> bTagWeight_down = bTagSFHelper.getEvtWeight(jets_and_BTag, theBigTree, jets_and_smearFactor, pType, bTagSF::down);
+		  vector<float> bTagWeightReshapeshifts = bTagSFHelper.getEvtWeightShifted(jets_and_BTag, theBigTree, jets_and_smearFactor);
 
-		  vector<float> bTagWeight_up = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree, jets_and_smearFactor, pType, bTagSF::up) ;
-		  theSmallTree.m_bTagweightL_up = (isMC ? bTagWeight_up.at(0) : 1.0) ;
-		  theSmallTree.m_bTagweightM_up = (isMC ? bTagWeight_up.at(1) : 1.0) ;
-		  theSmallTree.m_bTagweightT_up = (isMC ? bTagWeight_up.at(2) : 1.0) ;
+		  theSmallTree.m_bTagweightL = bTagWeight.at(0);
+		  theSmallTree.m_bTagweightM = bTagWeight.at(1);
+		  theSmallTree.m_bTagweightT = bTagWeight.at(2);
+		  theSmallTree.m_bTagweightReshape = bTagWeight.at(3);
 
-		  vector<float> bTagWeight_down = bTagSFHelper.getEvtWeight (jets_and_BTag, theBigTree, jets_and_smearFactor, pType, bTagSF::down) ;
-		  theSmallTree.m_bTagweightL_down = (isMC ? bTagWeight_down.at(0) : 1.0) ;
-		  theSmallTree.m_bTagweightM_down = (isMC ? bTagWeight_down.at(1) : 1.0) ;
-		  theSmallTree.m_bTagweightT_down = (isMC ? bTagWeight_down.at(2) : 1.0) ;
+		  theSmallTree.m_bTagweightL_up = bTagWeight_up.at(0);
+		  theSmallTree.m_bTagweightM_up = bTagWeight_up.at(1);
+		  theSmallTree.m_bTagweightT_up = bTagWeight_up.at(2);
 
-		  vector<float> bTagWeightReshapeshifts = bTagSFHelper.getEvtWeightShifted (jets_and_BTag, theBigTree, jets_and_smearFactor) ;
-		  theSmallTree.m_bTagweightReshape_jes_up        = (isMC ? bTagWeightReshapeshifts.at(0) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_lf_up         = (isMC ? bTagWeightReshapeshifts.at(1) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_hf_up         = (isMC ? bTagWeightReshapeshifts.at(2) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_hfstats1_up   = (isMC ? bTagWeightReshapeshifts.at(3) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_hfstats2_up   = (isMC ? bTagWeightReshapeshifts.at(4) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_lfstats1_up   = (isMC ? bTagWeightReshapeshifts.at(5) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_lfstats2_up   = (isMC ? bTagWeightReshapeshifts.at(6) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_cferr1_up     = (isMC ? bTagWeightReshapeshifts.at(7) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_cferr2_up     = (isMC ? bTagWeightReshapeshifts.at(8) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jes_down      = (isMC ? bTagWeightReshapeshifts.at(9) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_lf_down       = (isMC ? bTagWeightReshapeshifts.at(10) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_hf_down       = (isMC ? bTagWeightReshapeshifts.at(11) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_hfstats1_down = (isMC ? bTagWeightReshapeshifts.at(12) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_hfstats2_down = (isMC ? bTagWeightReshapeshifts.at(13) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_lfstats1_down = (isMC ? bTagWeightReshapeshifts.at(14) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_lfstats2_down = (isMC ? bTagWeightReshapeshifts.at(15) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_cferr1_down   = (isMC ? bTagWeightReshapeshifts.at(16) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_cferr2_down   = (isMC ? bTagWeightReshapeshifts.at(17) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetup1        = (isMC ? bTagWeightReshapeshifts.at(18) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetup2        = (isMC ? bTagWeightReshapeshifts.at(19) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetup3        = (isMC ? bTagWeightReshapeshifts.at(20) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetup4        = (isMC ? bTagWeightReshapeshifts.at(21) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetup5        = (isMC ? bTagWeightReshapeshifts.at(22) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetup6        = (isMC ? bTagWeightReshapeshifts.at(23) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetup7        = (isMC ? bTagWeightReshapeshifts.at(24) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetup8        = (isMC ? bTagWeightReshapeshifts.at(25) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetup9        = (isMC ? bTagWeightReshapeshifts.at(26) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetup10       = (isMC ? bTagWeightReshapeshifts.at(27) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetup11       = (isMC ? bTagWeightReshapeshifts.at(28) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetdown1      = (isMC ? bTagWeightReshapeshifts.at(29) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetdown2      = (isMC ? bTagWeightReshapeshifts.at(30) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetdown3      = (isMC ? bTagWeightReshapeshifts.at(31) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetdown4      = (isMC ? bTagWeightReshapeshifts.at(32) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetdown5      = (isMC ? bTagWeightReshapeshifts.at(33) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetdown6      = (isMC ? bTagWeightReshapeshifts.at(34) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetdown7      = (isMC ? bTagWeightReshapeshifts.at(35) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetdown8      = (isMC ? bTagWeightReshapeshifts.at(36) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetdown9      = (isMC ? bTagWeightReshapeshifts.at(37) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetdown10     = (isMC ? bTagWeightReshapeshifts.at(38) : 1.0) ;
-		  theSmallTree.m_bTagweightReshape_jetdown11     = (isMC ? bTagWeightReshapeshifts.at(39) : 1.0) ;
+		  theSmallTree.m_bTagweightL_down = bTagWeight_down.at(0);
+		  theSmallTree.m_bTagweightM_down = bTagWeight_down.at(1);
+		  theSmallTree.m_bTagweightT_down = bTagWeight_down.at(2);
 
+		  theSmallTree.m_bTagweightReshape_jes_up        = bTagWeightReshapeshifts.at(0); 
+		  theSmallTree.m_bTagweightReshape_lf_up		 = bTagWeightReshapeshifts.at(1); 
+		  theSmallTree.m_bTagweightReshape_hf_up		 = bTagWeightReshapeshifts.at(2); 
+		  theSmallTree.m_bTagweightReshape_hfstats1_up	 = bTagWeightReshapeshifts.at(3); 
+		  theSmallTree.m_bTagweightReshape_hfstats2_up	 = bTagWeightReshapeshifts.at(4); 
+		  theSmallTree.m_bTagweightReshape_lfstats1_up	 = bTagWeightReshapeshifts.at(5); 
+		  theSmallTree.m_bTagweightReshape_lfstats2_up	 = bTagWeightReshapeshifts.at(6); 
+		  theSmallTree.m_bTagweightReshape_cferr1_up	 = bTagWeightReshapeshifts.at(7); 
+		  theSmallTree.m_bTagweightReshape_cferr2_up	 = bTagWeightReshapeshifts.at(8); 
+		  theSmallTree.m_bTagweightReshape_jes_down		 = bTagWeightReshapeshifts.at(9); 
+		  theSmallTree.m_bTagweightReshape_lf_down		 = bTagWeightReshapeshifts.at(10);
+		  theSmallTree.m_bTagweightReshape_hf_down		 = bTagWeightReshapeshifts.at(11);
+		  theSmallTree.m_bTagweightReshape_hfstats1_down = bTagWeightReshapeshifts.at(12);
+		  theSmallTree.m_bTagweightReshape_hfstats2_down = bTagWeightReshapeshifts.at(13);
+		  theSmallTree.m_bTagweightReshape_lfstats1_down = bTagWeightReshapeshifts.at(14);
+		  theSmallTree.m_bTagweightReshape_lfstats2_down = bTagWeightReshapeshifts.at(15);
+		  theSmallTree.m_bTagweightReshape_cferr1_down	 = bTagWeightReshapeshifts.at(16);
+		  theSmallTree.m_bTagweightReshape_cferr2_down	 = bTagWeightReshapeshifts.at(17);
+		  theSmallTree.m_bTagweightReshape_jetup1		 = bTagWeightReshapeshifts.at(18);
+		  theSmallTree.m_bTagweightReshape_jetup2		 = bTagWeightReshapeshifts.at(19);
+		  theSmallTree.m_bTagweightReshape_jetup3		 = bTagWeightReshapeshifts.at(20);
+		  theSmallTree.m_bTagweightReshape_jetup4		 = bTagWeightReshapeshifts.at(21);
+		  theSmallTree.m_bTagweightReshape_jetup5		 = bTagWeightReshapeshifts.at(22);
+		  theSmallTree.m_bTagweightReshape_jetup6		 = bTagWeightReshapeshifts.at(23);
+		  theSmallTree.m_bTagweightReshape_jetup7		 = bTagWeightReshapeshifts.at(24);
+		  theSmallTree.m_bTagweightReshape_jetup8		 = bTagWeightReshapeshifts.at(25);
+		  theSmallTree.m_bTagweightReshape_jetup9		 = bTagWeightReshapeshifts.at(26);
+		  theSmallTree.m_bTagweightReshape_jetup10		 = bTagWeightReshapeshifts.at(27);
+		  theSmallTree.m_bTagweightReshape_jetup11		 = bTagWeightReshapeshifts.at(28);
+		  theSmallTree.m_bTagweightReshape_jetdown1		 = bTagWeightReshapeshifts.at(29);
+		  theSmallTree.m_bTagweightReshape_jetdown2		 = bTagWeightReshapeshifts.at(30);
+		  theSmallTree.m_bTagweightReshape_jetdown3		 = bTagWeightReshapeshifts.at(31);
+		  theSmallTree.m_bTagweightReshape_jetdown4		 = bTagWeightReshapeshifts.at(32);
+		  theSmallTree.m_bTagweightReshape_jetdown5		 = bTagWeightReshapeshifts.at(33);
+		  theSmallTree.m_bTagweightReshape_jetdown6		 = bTagWeightReshapeshifts.at(34);
+		  theSmallTree.m_bTagweightReshape_jetdown7		 = bTagWeightReshapeshifts.at(35);
+		  theSmallTree.m_bTagweightReshape_jetdown8		 = bTagWeightReshapeshifts.at(36);
+		  theSmallTree.m_bTagweightReshape_jetdown9		 = bTagWeightReshapeshifts.at(37);
+		  theSmallTree.m_bTagweightReshape_jetdown10	 = bTagWeightReshapeshifts.at(38);
+		  theSmallTree.m_bTagweightReshape_jetdown11	 = bTagWeightReshapeshifts.at(39);
+			  
 		  // Set HHbtaginterface for ordering jets
 		  HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,
 									  tlv_firstLepton, tlv_secondLepton, tlv_tauH, tlv_MET, theSmallTree.m_EventNumber, jets_and_smearFactor);

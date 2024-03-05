@@ -64,7 +64,7 @@ def run_limits(in_tags, channels, selections, selection_prefixes, masses,
         limit_modes = ('sel_years', 'chn_years', 'all_years',)
     else:
         limit_modes = ('separate', 'sel_group', 'chn_group', 'all_group')
-    assert any('year' in x for x in limit_modes) and period == "All"
+    #assert any('year' in x for x in limit_modes) and period == "All"
         
     for mode in limit_modes:
         commands.append('bash get_limits_res.sh --mode ' + mode + ' --masses {m} --var {v} --signal {s} --channels {chn} -b {b}')
@@ -112,22 +112,22 @@ if __name__ == '__main__':
                         help='run datacard combination across multiple data periods')
     FLAGS = parser.parse_args()
 
-    period = 'All' #All
+    period = 'UL18' #All
     signal = 'GGF_Radion'
     varsfit = ('DNNoutSM_kl_1',) # HHKin_mass',)
     
     channels = ('ETau', 'MuTau', 'TauTau')
 
-    tag_ = 'Upstream'
-    suffix = '_DNNcut0p5'
+    tag_ = 'OpenCadi_V1'
+    suffix = ''
     #in_tags = ['{}_{}_{}{}'.format(tag_, x, period, suffix) for x in channels]
     in_tags = ['{}_{}{}'.format(tag_, x, suffix) for x in channels]
     #cfg_files = ['mainCfg_{}_{}{}.cfg'.format(x, period, suffix) for x in channels]
     cfg_files = ['mainCfg_{}_{}.cfg'.format(x, period) for x in channels]
 
     out_tag = '{}_{}{}'.format(tag_, period, suffix)
-    selections = ('s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut')
-    selection_prefixes = ('s1b1jresolvedMcut', 's2b0jresolvedMcut', 'sboostedLLMcut')
+    selections = ('res1b', 'res2b', 'boostedL_pnet')
+    selection_prefixes = ('res1b', 'res2b', 'boostedL_pnet')
     # selections = ('s1b1jresolvedMcutmHH250_335',
     #               's1b1jresolvedMcutmHH335_475',
     #               's1b1jresolvedMcutmHH475_725',
